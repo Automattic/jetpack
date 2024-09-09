@@ -1,4 +1,5 @@
 import { IconTooltip } from '@automattic/jetpack-components';
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
@@ -22,6 +23,7 @@ export type RetryProps = {
  * @return {import('react').ReactNode} - React element
  */
 export function Retry( { shareItem }: RetryProps ) {
+	const { recordEvent } = useAnalytics();
 	// @ts-expect-error -- `@wordpress/editor` is badly typed, causes issue in CI
 	const postId = useSelect( select => select( editorStore ).getCurrentPostId(), [] );
 	const connections = useSelect( select => select( socialStore ).getConnections(), [] );
@@ -31,6 +33,10 @@ export function Retry( { shareItem }: RetryProps ) {
 	const { doPublicize } = useSharePost( postId );
 
 	const onRetry = useCallback( async () => {
+		recordEvent( 'jetpack_social_share_status_retry', {
+			service: shareItem.service,
+			location: 'modal',
+		} );
 		const connectionMatches = connectionMatchesShareItem( shareItem );
 
 		const skippedConnections = connections
@@ -45,7 +51,7 @@ export function Retry( { shareItem }: RetryProps ) {
 		}
 
 		await doPublicize( skippedConnections );
-	}, [ shareItem, connections, doPublicize ] );
+	}, [ shareItem, connections, doPublicize, recordEvent ] );
 
 	return (
 		<div className={ styles[ 'retry-wrapper' ] }>
