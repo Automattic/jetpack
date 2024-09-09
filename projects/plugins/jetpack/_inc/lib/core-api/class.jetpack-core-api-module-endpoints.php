@@ -1096,28 +1096,28 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 	 *
 	 * @since 5.4.0
 	 *
-	 * @deprecated since $$next-version$$
+	 * @deprecated since 13.9
 	 *
 	 * @param array $data Onboarding choices made by user.
 	 *
 	 * @return string Result of onboarding processing and, if there is one, an error message.
 	 */
 	private function process_onboarding( $data ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		_deprecated_function( __METHOD__, '$$next-version$$' );
+		_deprecated_function( __METHOD__, '13.9' );
 		return '';
 	}
 
 	/**
 	 * Add or update Business Address widget.
 	 *
-	 * @deprecated since $$next-version$$
+	 * @deprecated since 13.9
 	 *
 	 * @param array $address Array of business address fields.
 	 *
 	 * @return WP_Error|true True if the data was saved correctly.
 	 */
 	private static function handle_business_address( $address ) {
-		_deprecated_function( __METHOD__, '$$next-version$$' );
+		_deprecated_function( __METHOD__, '13.9' );
 		$first_sidebar = Jetpack_Widgets::get_first_sidebar();
 
 		$widgets_module_active = Jetpack::is_module_active( 'widgets' );

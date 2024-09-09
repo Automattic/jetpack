@@ -1,5 +1,0 @@
-Significance: patch
-Type: changed
-Comment: Rearranged some variable assignments for new eslint `@wordpress/no-unused-vars-before-return` rule. Should be no changes to functionality.
-
-

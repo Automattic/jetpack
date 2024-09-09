@@ -2,6 +2,39 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 13.9-a.1 - 2024-09-09
+### Bug fixes
+- AI Assistant: Remove autofocus on extended blocks while previewing. [#39216]
+- Ai Assistant: Do not show Jetpack AI excerpt UI outside of correct context. [#39248]
+- AI Assistant: Fix Write Brief highlight position on spelling mistake following ignored special word. [#39282]
+- AI Content Lens: Fix the feature of the AI Content Lens is gone. [#39292]
+- Hosting Configuration: Make the menu title under the settings the same as the destination. [#39183]
+- Jetpack REST API: Fix missing requirement in admin-menu endpoint. [#39256]
+- Sidebar: Show correct product name for "VaultPress Backup". [#39203]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- AI Assistant: Optimize repeated requests for unavailable WPCOM. [#39218]
+- AI Assistant: Remove dead code from transformative extensions. [#39245]
+- AI Assistant: Update empty help text for Write Brief. [#39204]
+- Akismet/Anti-spam: Always use Akismet logo in plugin header. [#39047]
+- Custom CSS: Remove outdated link from admin menu. [#39169]
+- Dashboard: Only display the Jetpack menu for contributor roles and above. [#39081]
+- Dashboard: Enable Users -> Profile on all sites. [#39181]
+- Deprecated Jetpack Onboarding system. [#39229]
+- Dashboard: Make dashboard gracefully fail when user data fetch failed. [#39179]
+- Jetpack sync: Gutenberg footnotes meta. [#38878]
+- General: Replace error triggering with thrown exceptions for PHP 8.4 compatibility. [#39187]
+- General: Updated connection js to load its bundle via connection package. [#38877]
+- Newsletters: UI changes to a not yet released feature. [#39079]
+- Site Settings API: Include is_fully_managed_agency_site site option in the response, and allow for its modification. [#39223]
+- Social: Added a way to reshare in an asynchronous way. [#39227]
+- Stats: Fix the 'invalid date' error on new site stats. [#39284]
+- Subscriptions: Fix Subscribe Modal spacing. [#39199]
+- Subscriptions: Hook the Subscribe block only after single post content. [#39188]
+- Subscriptions: Make Subscription overlay dismiss cookie a session cookie. [#39097]
+- Updated package dependencies. [#39176] [#39278] [#39288]
+- Updated to not check for onboarding option from the frontend. [#39246]
+
 ## 13.8 - 2024-09-04
 ### Major Enhancements
 - Custom CSS: Remove feature in favor of WordPress core implementation. [#38865]
