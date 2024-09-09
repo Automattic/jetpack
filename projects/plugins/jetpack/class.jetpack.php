@@ -889,6 +889,16 @@ class Jetpack {
 		add_action( 'jetpack_initialize_tracking', array( $this, 'initialize_tracking' ) );
 		add_action( 'jetpack_agreed_to_terms_of_service', array( $this, 'run_initialize_tracking_action' ) );
 		add_action( 'jetpack_is_connection_ready', array( $this, 'run_initialize_tracking_action' ) );
+		add_action( 'rest_api_init', array( $this, 'run_initialize_tracking_action' ) );
+
+		add_filter(
+			'xmlrpc_methods',
+			function ( $methods ) {
+				$this->run_initialize_tracking_action();
+				return $methods;
+			},
+			1
+		);
 
 		/*
 		 * Load things that should only be in Network Admin.
