@@ -9,7 +9,10 @@
 function fixDeps( pkg ) {
 	// Deps tend to get outdated due to a slow release cycle.
 	// So change `^` to `>=` and hope any breaking changes will not really break.
-	if ( pkg.name === '@automattic/social-previews' ) {
+	if (
+		pkg.name === '@automattic/social-previews' ||
+		pkg.name === '@automattic/page-pattern-modal'
+	) {
 		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
 			if ( dep.startsWith( '@wordpress/' ) && ver.startsWith( '^' ) ) {
 				pkg.dependencies[ dep ] = '>=' + ver.substring( 1 );
