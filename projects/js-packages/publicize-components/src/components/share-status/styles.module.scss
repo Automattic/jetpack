@@ -19,22 +19,6 @@
 	min-height: 20rem;
 }
 
-.share-log-list {
-	outline: 1px solid var(--jp-gray-5);
-	border-radius: 4px;
-	margin: 0;
-	width: 100%;
-
-	.share-log-list-item {
-		margin-bottom: 0px;
-		padding: 0.8rem 1rem;
-
-		&:not(:last-child) {
-			border-bottom: 1px solid var(--jp-gray-5);
-		}
-	}
-}
-
 .share-item-name-wrapper {
 	display: flex;
 	flex-direction: column;
@@ -80,15 +64,16 @@
 	fill: var(--jp-green-50);
 }
 
-.disconnected-icon {
-	display: block;
-}
-
 .dataview-wrapper {
 
 	// Hide the table actions
 	:global(.dataviews__view-actions) {
 		display: none;
+	}
+
+	table {
+		// Avoid table shifting when there is tooltip in actions column
+		overflow: hidden;
 	}
 
 	// Make the table header buttons unclickable
@@ -97,12 +82,12 @@
 	}
 
 	// Make the actions column right-aligned
-	:global(.dataviews-view-table__row th:last-child),
-	:global(.dataviews-view-table__row td:last-child) {
-		text-align: end;
-	}
 	:global(.dataviews-view-table__row td:last-child) {
 		width: 1%;
+		// Making its content center-aligned
+		:global(.dataviews-view-table__cell-content-wrapper) {
+			justify-content: center;
+		}
 	}
 
 	.connection-name {
@@ -114,5 +99,24 @@
 	:global(.components-external-link) {
 		color: #2271b1; // $blue-50 from WP common CSS.
 		font-weight: normal;
+	}
+}
+
+.retry-wrapper {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+
+	button {
+		padding: 0;
+	}
+
+	// Fix tooltip icon alignment to center align it
+	:global(.icon-tooltip-wrapper) {
+		display: flex;
+
+		button span {
+			display: flex;
+		}
 	}
 }
