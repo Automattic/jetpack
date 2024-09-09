@@ -31,39 +31,55 @@ export default function useFixersQuery( {
 		skipUserConnection: true,
 	} );
 
+	const initialData: FixersStatus = window.jetpackProtectInitialState?.fixerStatus || {
+		ok: false,
+		threats: {},
+	};
+
 	return useQuery( {
 		queryKey: [ QUERY_FIXERS_KEY ],
 		queryFn: async () => {
-			const data = await API.getFixersStatus( threatIds );
-			const cachedData = queryClient.getQueryData( [ QUERY_FIXERS_KEY ] ) as
-				| FixersStatus
-				| undefined;
+			try {
+				// Try fetching fixer status from API
+				const data = await API.getFixersStatus( threatIds );
+				const cachedData = queryClient.getQueryData( [ QUERY_FIXERS_KEY ] ) as
+					| FixersStatus
+					| undefined;
 
-			// Check if any fixers have completed, by comparing the latest data against the cache.
-			Object.keys( data?.threats ).forEach( ( threatId: string ) => {
-				// Find the specific threat in the cached data.
-				const threat = data?.threats[ threatId ];
-				const cachedThreat = cachedData?.threats?.[ threatId ];
+				// Check if any fixers have completed, by comparing the latest data against the cache.
+				Object.keys( data?.threats ).forEach( ( threatId: string ) => {
+					const threat = data?.threats[ threatId ];
+					const cachedThreat = cachedData?.threats?.[ threatId ];
 
-				if (
-					cachedThreat &&
-					cachedThreat.status === 'in_progress' &&
-					threat.status !== 'in_progress'
-				) {
-					// Invalidate related queries when a fixer has completed.
-					queryClient.invalidateQueries( { queryKey: [ QUERY_SCAN_STATUS_KEY ] } );
-					queryClient.invalidateQueries( { queryKey: [ QUERY_HISTORY_KEY ] } );
+					if (
+						cachedThreat &&
+						cachedThreat.status === 'in_progress' &&
+						threat.status !== 'in_progress'
+					) {
+						// Invalidate related queries when a fixer has completed.
+						queryClient.invalidateQueries( { queryKey: [ QUERY_SCAN_STATUS_KEY ] } );
+						queryClient.invalidateQueries( { queryKey: [ QUERY_HISTORY_KEY ] } );
 
-					// Show a relevant notice.
-					if ( threat.status === 'fixed' ) {
-						showSuccessNotice( __( 'Threat fixed successfully.', 'jetpack-protect' ) );
-					} else {
-						showErrorNotice( __( 'Threat could not be fixed.', 'jetpack-protect' ) );
+						// Show a relevant notice.
+						if ( threat.status === 'fixed' ) {
+							showSuccessNotice( __( 'Threat fixed successfully.', 'jetpack-protect' ) );
+						} else {
+							showErrorNotice( __( 'Threat could not be fixed.', 'jetpack-protect' ) );
+						}
 					}
-				}
-			} );
+				} );
 
-			return data;
+				// Return the fetched data so the query resolves
+				return data;
+			} catch ( error ) {
+				// Handle the error, show notice, and return a default response
+				showErrorNotice(
+					__( 'An error occurred while fetching the fixer status.', 'jetpack-protect' )
+				);
+
+				// Return a default value or handle the error as needed.
+				return initialData;
+			}
 		},
 		refetchInterval( query ) {
 			if ( ! usePolling || ! query.state.data ) {
@@ -82,7 +98,7 @@ export default function useFixersQuery( {
 
 			return false;
 		},
-		initialData: window.jetpackProtectInitialState?.fixerStatus,
+		initialData: initialData,
 		enabled: isRegistered,
 	} );
 }
