@@ -326,15 +326,9 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.9-a.1 - 2024-09-09
+### 13.9-a.3 - 2024-09-10
 #### Bug fixes
-- AI Assistant: Remove autofocus on extended blocks while previewing.
-- Ai Assistant: Do not show Jetpack AI excerpt UI outside of correct context.
-- AI Assistant: Fix Write Brief highlight position on spelling mistake following ignored special word.
-- AI Content Lens: Fix the feature of the AI Content Lens is gone.
-- Hosting Configuration: Make the menu title under the settings the same as the destination.
-- Jetpack REST API: Fix missing requirement in admin-menu endpoint.
-- Sidebar: Show correct product name for "VaultPress Backup".
+- WooCommerce Analytics: Check whether a constant is defined before attempting to use it, for compatibility with WooCommerce <8.4.0.
 
 --------
 
