@@ -95,6 +95,8 @@ function WelcomeTour( { siteIntent } ) {
 	const currentTheme = useSelect( select => select( 'core' ).getCurrentTheme() );
 	const themeName = currentTheme?.name?.raw?.toLowerCase() ?? null;
 
+	console.log( 'welcome tour', { siteIntent, sitePlan, localeSlug, isGutenboarding, isWelcomeTourNext, isSiteEditor, themeName } );
+
 	const tourSteps = useTourSteps(
 		localeSlug,
 		isWelcomeTourNext(),
