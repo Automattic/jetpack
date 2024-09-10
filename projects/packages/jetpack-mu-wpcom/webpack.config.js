@@ -59,6 +59,16 @@ module.exports = [
 		},
 		optimization: {
 			...jetpackWebpackConfig.optimization,
+			minimizer: [
+				jetpackWebpackConfig.TerserPlugin( {
+					terserOptions: {
+						compress: {
+							conditionals: false,
+						},
+					},
+				} ),
+				jetpackWebpackConfig.CssMinimizerPlugin(),
+			],
 		},
 		resolve: {
 			...jetpackWebpackConfig.resolve,
