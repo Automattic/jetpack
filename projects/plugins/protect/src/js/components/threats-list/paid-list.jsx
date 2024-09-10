@@ -33,10 +33,9 @@ const ThreatAccordionItem = ( {
 	const { setModal } = useModal();
 	const { recordEvent } = useAnalyticsTracks();
 
-	const { activefixInProgressThreatIds } = useFixers();
-	// const { stalefixInProgressThreatIds } = useFixers(); // TODO: Should we disable buttons if stale fixer?
+	const { activefixInProgressThreatIds, stalefixInProgressThreatIds } = useFixers();
 	const isActiveFixInProgress = activefixInProgressThreatIds.includes( id );
-	// const isStaleFixInProgress = stalefixInProgressThreatIds.includes( id );
+	const isStaleFixInProgress = stalefixInProgressThreatIds.includes( id );
 
 	const learnMoreButton = source ? (
 		<Button variant="link" isExternalLink={ true } weight="regular" href={ source }>
@@ -157,12 +156,15 @@ const ThreatAccordionItem = ( {
 								isDestructive={ true }
 								variant="secondary"
 								onClick={ handleIgnoreThreatClick() }
-								disabled={ isActiveFixInProgress }
+								disabled={ isActiveFixInProgress || isStaleFixInProgress }
 							>
 								{ __( 'Ignore threat', 'jetpack-protect' ) }
 							</Button>
 							{ fixable && (
-								<Button disabled={ isActiveFixInProgress } onClick={ handleFixThreatClick() }>
+								<Button
+									disabled={ isActiveFixInProgress || isStaleFixInProgress }
+									onClick={ handleFixThreatClick() }
+								>
 									{ __( 'Fix threat', 'jetpack-protect' ) }
 								</Button>
 							) }
