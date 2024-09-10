@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.34.1] - 2024-09-10
+### Fixed
+- Jetpack AI: Fix default_content filter so it doesn't enforce parameter type. [#39276]
+
 ## [4.34.0] - 2024-09-02
 ### Changed
 - My Jetpack: show over quota notice and period usage counter for unlimited plans [#39129]
@@ -1687,6 +1691,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[4.34.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.34.0...4.34.1
 [4.34.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.33.1...4.34.0
 [4.33.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.33.0...4.33.1
 [4.33.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.32.4...4.33.0

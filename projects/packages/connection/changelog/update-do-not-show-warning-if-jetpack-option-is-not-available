@@ -1,4 +1,0 @@
-Significance: patch
-Type: removed
-
-Removed throwing of warning if a given Jetpack options does not exist

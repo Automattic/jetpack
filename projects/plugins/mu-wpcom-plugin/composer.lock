@@ -58,16 +58,16 @@
         },
         {
             "name": "automattic/jetpack-admin-ui",
-            "version": "v0.4.4",
+            "version": "v0.4.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-admin-ui.git",
-                "reference": "18ea3a92f910f7afa9641dadb956b95b75ce6e0f"
+                "reference": "7d5b8485ebe5984774375468ae52efe5c2849369"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-admin-ui/zipball/18ea3a92f910f7afa9641dadb956b95b75ce6e0f",
-                "reference": "18ea3a92f910f7afa9641dadb956b95b75ce6e0f",
+                "url": "https://api.github.com/repos/Automattic/jetpack-admin-ui/zipball/7d5b8485ebe5984774375468ae52efe5c2849369",
+                "reference": "7d5b8485ebe5984774375468ae52efe5c2849369",
                 "shasum": ""
             },
             "require": {
@@ -108,22 +108,22 @@
             ],
             "description": "Generic Jetpack wp-admin UI elements",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-admin-ui/tree/v0.4.4"
+                "source": "https://github.com/Automattic/jetpack-admin-ui/tree/v0.4.5"
             },
-            "time": "2024-08-29T08:39:06+00:00"
+            "time": "2024-09-05T12:38:36+00:00"
         },
         {
             "name": "automattic/jetpack-assets",
-            "version": "v2.3.5",
+            "version": "v2.3.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-assets.git",
-                "reference": "e869f7a7780da9b0c1ff9612701fcffde83cda12"
+                "reference": "3ddaff78c82ed7663b61961356585061dbb3410a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-assets/zipball/e869f7a7780da9b0c1ff9612701fcffde83cda12",
-                "reference": "e869f7a7780da9b0c1ff9612701fcffde83cda12",
+                "url": "https://api.github.com/repos/Automattic/jetpack-assets/zipball/3ddaff78c82ed7663b61961356585061dbb3410a",
+                "reference": "3ddaff78c82ed7663b61961356585061dbb3410a",
                 "shasum": ""
             },
             "require": {
@@ -165,9 +165,9 @@
             ],
             "description": "Asset management utilities for Jetpack ecosystem packages",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-assets/tree/v2.3.5"
+                "source": "https://github.com/Automattic/jetpack-assets/tree/v2.3.8"
             },
-            "time": "2024-08-29T08:39:36+00:00"
+            "time": "2024-09-10T11:21:54+00:00"
         },
         {
             "name": "automattic/jetpack-blaze",
@@ -342,20 +342,20 @@
         },
         {
             "name": "automattic/jetpack-classic-theme-helper",
-            "version": "v0.5.4",
+            "version": "v0.5.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-classic-theme-helper.git",
-                "reference": "4af5aeed63faa339dbfcde0443476a4216254198"
+                "reference": "948fde6b4c0c77e5c66e412aabc77428f35d8e5a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-classic-theme-helper/zipball/4af5aeed63faa339dbfcde0443476a4216254198",
-                "reference": "4af5aeed63faa339dbfcde0443476a4216254198",
+                "url": "https://api.github.com/repos/Automattic/jetpack-classic-theme-helper/zipball/948fde6b4c0c77e5c66e412aabc77428f35d8e5a",
+                "reference": "948fde6b4c0c77e5c66e412aabc77428f35d8e5a",
                 "shasum": ""
             },
             "require": {
-                "automattic/jetpack-assets": "^2.3.5",
+                "automattic/jetpack-assets": "^2.3.8",
                 "php": ">=7.0"
             },
             "require-dev": {
@@ -392,9 +392,9 @@
             ],
             "description": "Features used with classic themes",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-classic-theme-helper/tree/v0.5.4"
+                "source": "https://github.com/Automattic/jetpack-classic-theme-helper/tree/v0.5.6"
             },
-            "time": "2024-08-30T14:51:09+00:00"
+            "time": "2024-09-10T11:22:12+00:00"
         },
         {
             "name": "automattic/jetpack-compat",
