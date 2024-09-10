@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Check if user has draft post on Launchpad
+Launchpad first_post_published task reuses existing draft if there is one
