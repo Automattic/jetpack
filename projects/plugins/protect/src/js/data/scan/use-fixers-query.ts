@@ -66,6 +66,11 @@ export default function useFixersQuery( {
 					const threat = data?.threats[ threatId ];
 					const cachedThreat = cachedData?.threats?.[ threatId ];
 
+					// If no fixer has not been initiated for the threat, skip it.
+					if ( threat.status === 'not_started' ) {
+						return;
+					}
+
 					// If the threat is in progress and stale, mark it as a failure.
 					if ( threat.status === 'in_progress' && inProgressFixerIsStale( threat.last_updated ) ) {
 						failures.push( threatId );
