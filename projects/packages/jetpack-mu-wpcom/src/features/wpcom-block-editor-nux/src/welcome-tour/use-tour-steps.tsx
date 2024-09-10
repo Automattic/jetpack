@@ -276,36 +276,6 @@ function useTourSteps(
 					},
 			  ]
 			: [] ),
-		...( ! isMobile
-			? [
-					{
-						slug: 'undo',
-						...( referencePositioning && {
-							referenceElements: {
-								desktop:
-									'.edit-post-header .edit-post-header__toolbar .components-button.editor-history__undo',
-							},
-						} ),
-						meta: {
-							heading: __( 'Undo any mistake', 'jetpack-mu-wpcom' ),
-							descriptions: {
-								desktop: __(
-									"Click the Undo button if you've made a mistake.",
-									'jetpack-mu-wpcom'
-								),
-								mobile: null,
-							},
-							imgSrc: getTourAssets( 'undo' ),
-						},
-						options: {
-							classNames: {
-								desktop: 'wpcom-editor-welcome-tour__step',
-								mobile: 'wpcom-editor-welcome-tour__step',
-							},
-						},
-					},
-			  ]
-			: [] ),
 		{
 			slug: 'drag-drop',
 			meta: {
