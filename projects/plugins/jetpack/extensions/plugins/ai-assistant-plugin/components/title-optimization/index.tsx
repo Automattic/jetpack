@@ -5,6 +5,7 @@ import {
 	useAiSuggestions,
 	RequestingErrorProps,
 	ERROR_MODERATION,
+	ERROR_QUOTA_EXCEEDED,
 } from '@automattic/jetpack-ai-client';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button, Spinner, ExternalLink, Notice } from '@wordpress/components';
@@ -14,6 +15,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import { FairUsageNotice } from '../../../../blocks/ai-assistant/components/quota-exceeded-message';
 import { getFeatureAvailability } from '../../../../blocks/ai-assistant/lib/utils/get-feature-availability';
 import useAutoSaveAndRedirect from '../../../../shared/use-autosave-and-redirect';
 import usePostContent from '../../hooks/use-post-content';
@@ -30,6 +32,13 @@ const isKeywordsFeatureAvailable = getFeatureAvailability(
 );
 
 const TitleOptimizationErrorMessage = ( { error }: { error: RequestingErrorProps } ) => {
+	if ( error.code === ERROR_QUOTA_EXCEEDED ) {
+		return (
+			<div className="jetpack-ai-title-optimization__error">
+				<FairUsageNotice />
+			</div>
+		);
+	}
 	const genericErrorMessage = __(
 		'The generation of your suggested titles failed. Please try again.',
 		'jetpack'
