@@ -42,6 +42,8 @@ try {
  * The WelcomeTour component
  */
 function WelcomeTour() {
+	// eslint-disable-next-line no-console
+	console.debug( '*** WelcomeTour' );
 	const [ showDraftPostModal ] = useState(
 		getQueryArg( window.location.href, 'showDraftPostModal' )
 	);
