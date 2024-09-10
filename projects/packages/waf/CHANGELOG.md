@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.18.4.1] - 2024-09-10
+### Fixed
+- Ensure that request body is parsed correctly. [#39262]
+
 ## [0.18.4] - 2024-08-26
 ### Changed
 - Updated package dependencies. [#39004]
@@ -359,6 +363,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Core: do not ship .phpcs.dir.xml in production builds.
 
+[0.18.4.1]: https://github.com/Automattic/jetpack-waf/compare/v0.18.4...v0.18.4.1
 [0.18.4]: https://github.com/Automattic/jetpack-waf/compare/v0.18.3...v0.18.4
 [0.18.3]: https://github.com/Automattic/jetpack-waf/compare/v0.18.2...v0.18.3
 [0.18.2]: https://github.com/Automattic/jetpack-waf/compare/v0.18.1...v0.18.2
