@@ -205,12 +205,12 @@ class Jetpack_XMLRPC_Methods {
 	 * @param array $request An array containing at minimum a nonce key and a local_username key.
 	 *
 	 * @since 9.8.0
-	 * @deprecated since $$next-version$$
+	 * @deprecated since 13.9
 	 *
 	 * @return array
 	 */
 	public static function remote_provision_response( $response, $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		_deprecated_function( __METHOD__, '$$next-version$$' );
+		_deprecated_function( __METHOD__, '13.9' );
 		return $response;
 	}
 
