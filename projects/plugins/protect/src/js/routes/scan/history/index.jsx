@@ -10,6 +10,7 @@ import ThreatsNavigation from '../../../components/threats-list/navigation';
 import PaidList from '../../../components/threats-list/paid-list';
 import useThreatsList from '../../../components/threats-list/use-threats-list';
 import useAnalyticsTracks from '../../../hooks/use-analytics-tracks';
+import usePlan from '../../../hooks/use-plan';
 import useProtectData from '../../../hooks/use-protect-data';
 import ScanSectionHeader from '../scan-section-header';
 import StatusFilters from './status-filters';
@@ -19,6 +20,7 @@ const ScanHistoryRoute = () => {
 	// Track page view.
 	useAnalyticsTracks( { pageViewEventName: 'protect_scan_history' } );
 
+	const { hasPlan } = usePlan();
 	const { filter = 'all' } = useParams();
 
 	const { item, list, selected, setSelected } = useThreatsList( {
@@ -26,7 +28,7 @@ const ScanHistoryRoute = () => {
 		status: filter,
 	} );
 
-	const { counts, error, hasRequiredPlan } = useProtectData( {
+	const { counts, error } = useProtectData( {
 		sourceType: 'history',
 		filter: { status: filter },
 	} );
@@ -228,7 +230,7 @@ const ScanHistoryRoute = () => {
 	}, [ selected, list.length, filter, item?.name, item?.version ] );
 
 	// Threat history is only available for paid plans.
-	if ( ! hasRequiredPlan ) {
+	if ( ! hasPlan ) {
 		return <Navigate to="/scan" />;
 	}
 

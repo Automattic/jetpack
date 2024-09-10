@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Fix: Do not show Jetpack AI excerpt UI on patterns, templates, and template parts where it does not make sense.
