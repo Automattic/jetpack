@@ -71,7 +71,7 @@ const SharingModalInner: React.FC = () => {
 	const [ isOpen, setIsOpen ] = useState( false );
 	const closeModal = () => setIsOpen( false );
 	const { createNotice } = useDispatch( noticesStore );
-	const [ shouldShowSuggestedTags, setShouldShowSuggestedTags ] = React.useState( true );
+	const [ shouldShowSuggestedTags, setShouldShowSuggestedTags ] = useState( true );
 
 	useEffect( () => {
 		// The first post will show a different modal.

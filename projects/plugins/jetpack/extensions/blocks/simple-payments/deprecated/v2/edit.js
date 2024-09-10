@@ -244,7 +244,6 @@ class SimplePaymentsEdit extends Component {
 	 */
 	validatePrice = () => {
 		const { currency, price } = this.props.attributes;
-		const { precision } = getCurrencyDefaults( currency );
 
 		if ( ! price || parseFloat( price ) === 0 ) {
 			this.setState( {
@@ -273,6 +272,7 @@ class SimplePaymentsEdit extends Component {
 			return false;
 		}
 
+		const { precision } = getCurrencyDefaults( currency );
 		if ( decimalPlaces( price ) > precision ) {
 			if ( precision === 0 ) {
 				this.setState( {

@@ -5,6 +5,42 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.68.0] - 2024-09-10
+### Added
+- Added share status feedback to resharing [#39294]
+
+### Changed
+- Updated package dependencies. [#39302]
+
+## [0.67.0] - 2024-09-09
+### Added
+- Added tracking for the share status modal [#39198]
+
+### Changed
+- Updated package dependencies. [#39278]
+
+### Fixed
+- Social: Fixed multiple issues in share status retry UI and logic [#39291]
+
+## [0.66.1] - 2024-09-06
+### Added
+- Social: Added polling flag for share status for better UI [#39265]
+- Updated share status modal to use dataviews [#39230]
+
+## [0.66.0] - 2024-09-05
+### Added
+- Added the functionality to reshare from the modal [#39157]
+- Poll for share status after reshare [#39156]
+
+### Changed
+- Made resharing async [#39227]
+- Updated package dependencies. [#39176]
+
+### Fixed
+- Fixed resharing for jetpack sites when only social plugin is active [#39220]
+- Fixed unnececarry call to API if feature flag is off [#39184]
+- Social: Improved polling performance for share status [#39194]
+
 ## [0.65.0] - 2024-09-02
 ### Added
 - Add share status log modal to published posts. [#39051]
@@ -885,6 +921,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#24470]
 
+[0.68.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.67.0...v0.68.0
+[0.67.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.66.1...v0.67.0
+[0.66.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.66.0...v0.66.1
+[0.66.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.65.0...v0.66.0
 [0.65.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.64.0...v0.65.0
 [0.64.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.63.0...v0.64.0
 [0.63.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.62.0...v0.63.0

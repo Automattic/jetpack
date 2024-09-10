@@ -9,7 +9,7 @@ import React from 'react';
 /**
  * Internal dependencies
  */
-import { EXTENDED_INLINE_BLOCKS } from '../../extensions/ai-assistant';
+import { EXTENDED_BLOCKS } from '../../extensions/constants';
 import {
 	PROMPT_TYPE_CHANGE_TONE,
 	PROMPT_TYPE_CORRECT_SPELLING,
@@ -27,7 +27,7 @@ import './style.scss';
 /**
  * Types and constants
  */
-import type { ExtendedBlockProp, ExtendedInlineBlockProp } from '../../extensions/ai-assistant';
+import type { ExtendedBlockProp } from '../../extensions/constants';
 import type { PromptTypeProp } from '../../lib/prompt';
 import type { ToneProp } from '../tone-dropdown-control';
 import type { ReactElement } from 'react';
@@ -113,7 +113,7 @@ const quickActionsList: {
 			icon: postContent,
 		},
 	],
-	'core/list': EXTENDED_INLINE_BLOCKS.includes( 'core/list' )
+	'core/list': EXTENDED_BLOCKS.includes( 'core/list' )
 		? [
 				{
 					name: __( 'Simplify', 'jetpack' ),
@@ -172,7 +172,7 @@ export type OnRequestSuggestion = (
 ) => void;
 
 type AiAssistantToolbarDropdownContentProps = {
-	blockType: ExtendedBlockProp | ExtendedInlineBlockProp;
+	blockType: ExtendedBlockProp;
 	disabled?: boolean;
 	onAskAiAssistant: () => void;
 	onRequestSuggestion: OnRequestSuggestion;

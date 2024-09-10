@@ -32,21 +32,30 @@ export type JetpackSettings = {
 	showNudge?: boolean;
 };
 
-export type ShareStatusItem = Pick<
-	Connection,
-	'connection_id' | 'profile_link' | 'profile_picture'
-> & {
+export type ShareStatusItem = Pick< Connection, 'profile_link' | 'profile_picture' > & {
+	connection_id: number;
 	status: 'success' | 'failure';
 	message: string;
 	timestamp: number;
 	service: string;
 	external_name: string;
+	external_id: string;
 };
 
 export type PostShareStatus = {
 	shares: Array< ShareStatusItem >;
 	done?: boolean;
+	/**
+	 * Whether an API request is in flight.
+	 */
 	loading?: boolean;
+
+	/**
+	 * Whether the polling is in progress, which includes
+	 * - the API request wait time
+	 * - the polling interval/delay
+	 */
+	polling?: boolean;
 };
 
 export type ShareStatus = {

@@ -20,6 +20,7 @@ import {
 import { useCheckout } from '../hooks/use-checkout.js';
 import useLogoGenerator from '../hooks/use-logo-generator.js';
 import useRequestErrors from '../hooks/use-request-errors.js';
+import { FairUsageNotice } from './fair-usage-notice.js';
 import { UpgradeNudge } from './upgrade-nudge.js';
 import './prompt.scss';
 
@@ -44,6 +45,7 @@ export const Prompt: React.FC< { initialPrompt?: string } > = ( { initialPrompt 
 		getAiAssistantFeature,
 		requireUpgrade,
 		context,
+		tierPlansEnabled,
 	} = useLogoGenerator();
 
 	const enhancingLabel = __( 'Enhancing…', 'jetpack-ai-client' );
@@ -100,13 +102,14 @@ export const Prompt: React.FC< { initialPrompt?: string } > = ( { initialPrompt 
 	const onPromptPaste = ( event: React.ClipboardEvent< HTMLInputElement > ) => {
 		event.preventDefault();
 
-		// Paste plain text only
-		const text = event.clipboardData.getData( 'text/plain' );
-
 		const selection = window.getSelection();
 		if ( ! selection || ! selection.rangeCount ) {
 			return;
 		}
+
+		// Paste plain text only
+		const text = event.clipboardData.getData( 'text/plain' );
+
 		selection.deleteFromDocument();
 		const range = selection.getRangeAt( 0 );
 		range.insertNode( document.createTextNode( text ) );
@@ -194,7 +197,8 @@ export const Prompt: React.FC< { initialPrompt?: string } > = ( { initialPrompt 
 						</Tooltip>
 					</div>
 				) }
-				{ ! isUnlimited && requireUpgrade && <UpgradeNudge /> }
+				{ requireUpgrade && tierPlansEnabled && <UpgradeNudge /> }
+				{ requireUpgrade && ! tierPlansEnabled && <FairUsageNotice /> }
 				{ enhancePromptFetchError && (
 					<div className="jetpack-ai-logo-generator__prompt-error">
 						{ __( 'Error enhancing prompt. Please try again.', 'jetpack-ai-client' ) }

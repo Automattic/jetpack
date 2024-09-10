@@ -1,12 +1,13 @@
 import { Text, Button, useBreakpointMatch } from '@automattic/jetpack-components';
-import { useSelect, useDispatch } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import React, { useCallback } from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
-import { STORE_ID } from '../../state/store';
+import useFixers from '../../hooks/use-fixers';
+import useModal from '../../hooks/use-modal';
 import DiffViewer from '../diff-viewer';
 import MarkedLines from '../marked-lines';
 import PaidAccordion, { PaidAccordionItem } from '../paid-accordion';
+import Pagination from './pagination';
 import styles from './styles.module.scss';
 
 const ThreatAccordionItem = ( {
@@ -29,11 +30,11 @@ const ThreatAccordionItem = ( {
 	status,
 	hideAutoFixColumn = false,
 } ) => {
-	const threatsAreFixing = useSelect( select => select( STORE_ID ).getThreatsAreFixing() );
-	const { setModal } = useDispatch( STORE_ID );
+	const { setModal } = useModal();
 	const { recordEvent } = useAnalyticsTracks();
 
-	const fixerInProgress = threatsAreFixing.indexOf( id ) >= 0;
+	const { fixersStatus } = useFixers();
+	const fixerInProgress = fixersStatus?.threats?.[ id ]?.status === 'in_progress';
 
 	const learnMoreButton = source ? (
 		<Button variant="link" isExternalLink={ true } weight="regular" href={ source }>
@@ -177,62 +178,66 @@ const PaidList = ( { list, hideAutoFixColumn = false } ) => {
 	return (
 		<>
 			{ ! isSmall && (
-				<div className={ styles[ 'accordion-heading' ] }>
+				<div className={ styles[ 'accordion-header' ] }>
 					<span>{ __( 'Details', 'jetpack-protect' ) }</span>
 					<span>{ __( 'Severity', 'jetpack-protect' ) }</span>
 					{ ! hideAutoFixColumn && <span>{ __( 'Auto-fix', 'jetpack-protect' ) }</span> }
 					<span></span>
 				</div>
 			) }
-			<PaidAccordion>
-				{ list.map(
-					( {
-						context,
-						description,
-						diff,
-						filename,
-						firstDetected,
-						fixedIn,
-						fixedOn,
-						icon,
-						fixable,
-						id,
-						label,
-						name,
-						severity,
-						source,
-						table,
-						title,
-						type,
-						version,
-						status,
-					} ) => (
-						<ThreatAccordionItem
-							context={ context }
-							description={ description }
-							diff={ diff }
-							filename={ filename }
-							firstDetected={ firstDetected }
-							fixedIn={ fixedIn }
-							fixedOn={ fixedOn }
-							icon={ icon }
-							fixable={ fixable }
-							id={ id }
-							key={ id }
-							label={ label }
-							name={ name }
-							severity={ severity }
-							source={ source }
-							table={ table }
-							title={ title }
-							type={ type }
-							version={ version }
-							status={ status }
-							hideAutoFixColumn={ hideAutoFixColumn }
-						/>
-					)
+			<Pagination list={ list }>
+				{ ( { currentItems } ) => (
+					<PaidAccordion>
+						{ currentItems.map(
+							( {
+								context,
+								description,
+								diff,
+								filename,
+								firstDetected,
+								fixedIn,
+								fixedOn,
+								icon,
+								fixable,
+								id,
+								label,
+								name,
+								severity,
+								source,
+								table,
+								title,
+								type,
+								version,
+								status,
+							} ) => (
+								<ThreatAccordionItem
+									context={ context }
+									description={ description }
+									diff={ diff }
+									filename={ filename }
+									firstDetected={ firstDetected }
+									fixedIn={ fixedIn }
+									fixedOn={ fixedOn }
+									icon={ icon }
+									fixable={ fixable }
+									id={ id }
+									key={ id }
+									label={ label }
+									name={ name }
+									severity={ severity }
+									source={ source }
+									table={ table }
+									title={ title }
+									type={ type }
+									version={ version }
+									status={ status }
+									hideAutoFixColumn={ hideAutoFixColumn }
+								/>
+							)
+						) }
+					</PaidAccordion>
 				) }
-			</PaidAccordion>
+			</Pagination>
 		</>
 	);
 };
