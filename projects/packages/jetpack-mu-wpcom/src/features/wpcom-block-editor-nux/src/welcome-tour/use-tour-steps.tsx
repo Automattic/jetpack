@@ -202,32 +202,6 @@ function useTourSteps(
 			},
 		},
 		{
-			slug: 'edit-block',
-			meta: {
-				heading: __( 'Click a block to change it', 'jetpack-mu-wpcom' ),
-				descriptions: {
-					desktop: isVideoMaker
-						? __(
-								'Use the toolbar to change the appearance of a selected block. Try replacing a video!',
-								'jetpack-mu-wpcom'
-						  )
-						: _x(
-								'Use the toolbar to change the appearance of a selected block. Try making it bold.',
-								'jetpack-mu-wpcom',
-								'jetpack-mu-wpcom'
-						  ),
-					mobile: null,
-				},
-				imgSrc: getTourAssets( isVideoMaker ? 'videomakerEdit' : 'makeBold' ),
-			},
-			options: {
-				classNames: {
-					desktop: 'wpcom-editor-welcome-tour__step',
-					mobile: 'wpcom-editor-welcome-tour__step',
-				},
-			},
-		},
-		{
 			slug: 'settings',
 			...( referencePositioning && {
 				referenceElements: {
