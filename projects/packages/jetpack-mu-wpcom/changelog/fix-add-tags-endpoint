@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Use the correct endpoint route for adding suggested tags on new posts.

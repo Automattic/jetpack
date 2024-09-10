@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.4] - 2024-09-10
+### Changed
+- Update dependencies. [#39260]
+
 ## [0.2.3] - 2024-08-23
 ### Changed
 - Updated package dependencies. [#39004]
@@ -27,6 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Copy the code from the Jetpack module into the package. [#37184]
 - Migrate unit tests from the Jetpack module. [#37246]
 
+[0.2.4]: https://github.com/Automattic/jetpack-google-analytics/compare/v0.2.3...v0.2.4
 [0.2.3]: https://github.com/Automattic/jetpack-google-analytics/compare/v0.2.2...v0.2.3
 [0.2.2]: https://github.com/Automattic/jetpack-google-analytics/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/Automattic/jetpack-google-analytics/compare/v0.2.0...v0.2.1
