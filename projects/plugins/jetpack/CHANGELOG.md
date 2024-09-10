@@ -2,6 +2,14 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 13.9-a.3 - 2024-09-10
+### Bug fixes
+- WooCommerce Analytics: Check whether a constant is defined before attempting to use it, for compatibility with WooCommerce <8.4.0. [#39306]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Premium Content: Remove checks for deprecated function. [#39319]
+- Updated package dependencies. [#39302]
+
 ## 13.9-a.1 - 2024-09-09
 ### Bug fixes
 - AI Assistant: Remove autofocus on extended blocks while previewing. [#39216]
