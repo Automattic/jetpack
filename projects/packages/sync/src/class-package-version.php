@@ -12,7 +12,7 @@ namespace Automattic\Jetpack\Sync;
  */
 class Package_Version {
 
-	const PACKAGE_VERSION = '3.11.0';
+	const PACKAGE_VERSION = '3.12.0';
 
 	const PACKAGE_SLUG = 'sync';
 
