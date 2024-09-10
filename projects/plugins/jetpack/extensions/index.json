@@ -81,7 +81,7 @@
 		"ai-assistant-backend-prompts",
 		"ai-title-optimization-keywords-support"
 	],
-	"experimental": [ "ai-image", "ai-paragraph" ],
+	"experimental": [],
 	"no-post-editor": [
 		"ai-assistant",
 		"business-hours",
