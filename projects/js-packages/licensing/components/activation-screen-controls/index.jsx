@@ -3,10 +3,9 @@ import { JetpackLogo, Spinner } from '@automattic/jetpack-components';
 import { Button, TextControl, SelectControl } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
-import { Icon, warning } from '@wordpress/icons';
 import PropTypes from 'prop-types';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-
+import ActivationScreenError from '../activation-screen-error';
 import './style.scss';
 
 /**
@@ -155,6 +154,9 @@ const ActivationScreenControls = props => {
 		? 'jp-license-activation-screen-controls--license-field-with-error'
 		: 'jp-license-activation-screen-controls--license-field';
 
+	const errorTypeMatch = licenseError?.match( /\[[a-z_]+\]/ );
+	const errorType = errorTypeMatch && errorTypeMatch[ 0 ];
+
 	const hasAvailableLicenseKey = availableLicenses && availableLicenses.length;
 
 	return (
@@ -190,10 +192,7 @@ const ActivationScreenControls = props => {
 					/>
 				) }
 				{ hasLicenseError && (
-					<div className="jp-license-activation-screen-controls--license-field-error">
-						<Icon icon={ warning } />
-						<span>{ licenseError }</span>
-					</div>
+					<ActivationScreenError licenseError={ licenseError } errorType={ errorType } />
 				) }
 			</div>
 			<div>
