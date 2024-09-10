@@ -23,7 +23,7 @@ export const UseGetErrorContent = ( licenseError: string, errorType: LicenseErro
 		{
 			a: (
 				<ExternalLink
-					href={ getRedirectUrl( 'jetpack-contact-support' ) }
+					href={ getRedirectUrl( 'jetpack-support-license-activation' ) }
 					rel="noopener noreferrer"
 				></ExternalLink>
 			),
@@ -80,7 +80,7 @@ export const UseGetErrorContent = ( licenseError: string, errorType: LicenseErro
 									a: (
 										<ExternalLink
 											rel="noopener noreferrer"
-											href={ getRedirectUrl( 'jetpack-contact-support' ) }
+											href={ getRedirectUrl( 'jetpack-support-license-activation' ) }
 										></ExternalLink>
 									),
 								}

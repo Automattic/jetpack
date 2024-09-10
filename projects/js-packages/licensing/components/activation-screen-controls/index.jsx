@@ -6,6 +6,7 @@ import { sprintf, __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import ActivationScreenError from '../activation-screen-error';
+import { LICENSE_ERRORS } from '../activation-screen-error/constants';
 import './style.scss';
 
 /**
@@ -150,12 +151,20 @@ const ActivationScreenControls = props => {
 		jetpackAnalytics.tracks.recordEvent( 'jetpack_wpa_license_key_activation_view' );
 	}, [] );
 
-	const className = hasLicenseError
-		? 'jp-license-activation-screen-controls--license-field-with-error'
-		: 'jp-license-activation-screen-controls--license-field';
-
 	const errorTypeMatch = licenseError?.match( /\[[a-z_]+\]/ );
 	const errorType = errorTypeMatch && errorTypeMatch[ 0 ];
+
+	const { ACTIVE_ON_SAME_SITE } = LICENSE_ERRORS;
+	const isLicenseAlreadyAttached = ACTIVE_ON_SAME_SITE === errorType;
+	const className = useMemo( () => {
+		if ( hasLicenseError ) {
+			if ( isLicenseAlreadyAttached ) {
+				return 'jp-license-activation-screen-controls--license-field-with-success';
+			}
+			return 'jp-license-activation-screen-controls--license-field-with-error';
+		}
+		return 'jp-license-activation-screen-controls--license-field';
+	}, [ hasLicenseError, isLicenseAlreadyAttached ] );
 
 	const hasAvailableLicenseKey = availableLicenses && availableLicenses.length;
 
