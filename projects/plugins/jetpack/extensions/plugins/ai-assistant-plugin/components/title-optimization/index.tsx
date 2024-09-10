@@ -25,6 +25,14 @@ const isKeywordsFeatureAvailable = getFeatureAvailability(
 	'ai-title-optimization-keywords-support'
 );
 
+const TitleOptimizationErrorMessage = () => {
+	return (
+		<div className="jetpack-ai-title-optimization__error">
+			{ __( 'The generation of your suggested titles failed. Please try again.', 'jetpack' ) }
+		</div>
+	);
+};
+
 export default function TitleOptimization( {
 	placement,
 	busy,
@@ -190,12 +198,7 @@ export default function TitleOptimization( {
 					) : (
 						<>
 							{ error ? (
-								<div className="jetpack-ai-title-optimization__error">
-									{ __(
-										'The generation of your suggested titles failed. Please try again.',
-										'jetpack'
-									) }
-								</div>
+								<TitleOptimizationErrorMessage />
 							) : (
 								<>
 									{ isKeywordsFeatureAvailable && (
