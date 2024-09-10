@@ -7,7 +7,7 @@ import {
 	ERROR_MODERATION,
 } from '@automattic/jetpack-ai-client';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { Button, Spinner, ExternalLink } from '@wordpress/components';
+import { Button, Spinner, ExternalLink, Notice } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { useState, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -35,7 +35,13 @@ const TitleOptimizationErrorMessage = ( { error }: { error: RequestingErrorProps
 		'jetpack'
 	);
 	const errorMessage = error.code === ERROR_MODERATION ? error.message : genericErrorMessage;
-	return <div className="jetpack-ai-title-optimization__error">{ errorMessage }</div>;
+	return (
+		<div className="jetpack-ai-title-optimization__error">
+			<Notice status="error" isDismissible={ false }>
+				{ errorMessage }
+			</Notice>
+		</div>
+	);
 };
 
 export default function TitleOptimization( {
