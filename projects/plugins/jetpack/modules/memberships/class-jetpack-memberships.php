@@ -755,8 +755,8 @@ class Jetpack_Memberships {
 	 * @return bool
 	 */
 	public static function should_enable_monetize_blocks_in_editor() {
-		$jetpack_ready_and_user_connected = Jetpack::is_connection_ready() &&
-			( new Connection_Manager( 'jetpack' ) )->is_user_connected() && current_user_can( 'edit_posts' );
+		$manager                          = new Connection_Manager( 'jetpack' );
+		$jetpack_ready_and_user_connected = $manager->is_connected() && $manager->is_user_connected();
 		$api_available                    = ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || $jetpack_ready_and_user_connected );
 		return $api_available;
 	}
