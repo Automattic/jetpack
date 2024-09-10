@@ -15,7 +15,7 @@ export class CustomContentTypes extends React.Component {
 		testimonial:
 			this.props.getOptionValue( 'jetpack_testimonial', 'custom-content-types' ) || false,
 		portfolio:
-			this.props.getOptionValue( 'jetpack_portfolio', 'custom-content-types' ) ||
+			this.props.getOptionValue( 'jetpack_portfolio' ) ||
 			this.props.settings.jetpack_portfolio ||
 			false,
 	};
@@ -33,8 +33,7 @@ export class CustomContentTypes extends React.Component {
 	// Sync state with the latest backend value
 	ensureSyncState = () => {
 		const currentPortfolioValue =
-			this.props.getOptionValue( 'jetpack_portfolio', 'custom-content-types' ) ||
-			this.props.settings.jetpack_portfolio;
+			this.props.getOptionValue( 'jetpack_portfolio' ) || this.props.settings.jetpack_portfolio;
 		if ( currentPortfolioValue !== undefined && this.state.portfolio !== currentPortfolioValue ) {
 			this.setState( { portfolio: currentPortfolioValue } );
 		}
@@ -48,11 +47,18 @@ export class CustomContentTypes extends React.Component {
 
 		const testimonial = this.state.testimonial !== undefined ? this.state.testimonial : false;
 
-		this.props.updateFormStateModuleOption( 'custom-content-types', 'jetpack_' + type, deactivate );
+		if ( type === 'portfolio' ) {
+			this.props.updateFormStateAndSaveOptionValue( 'jetpack_' + type, ! deactivate );
+		} else {
+			this.props.updateFormStateModuleOption(
+				'custom-content-types',
+				'jetpack_' + type,
+				deactivate
+			);
+		}
 
 		this.setState( {
 			[ type ]: ! this.state[ type ],
-			testimonial,
 		} );
 	};
 
@@ -182,14 +188,8 @@ export class CustomContentTypes extends React.Component {
 
 export default withModuleSettingsFormHelpers(
 	connect( ( state, ownProps ) => {
-		const portfolioActive = ownProps.getSettingCurrentValue(
-			'jetpack_portfolio',
-			'custom-content-types'
-		);
-		const testimonialActive = ownProps.getSettingCurrentValue(
-			'jetpack_testimonial',
-			'custom-content-types'
-		);
+		const portfolioActive = ownProps.getSettingCurrentValue( 'jetpack_portfolio', 'settings' );
+		const testimonialActive = ownProps.getSettingCurrentValue( 'jetpack_testimonial', 'settings' );
 		return {
 			module: module_name => getModule( state, module_name ),
 			isModuleFound: module_name => _isModuleFound( state, module_name ),
