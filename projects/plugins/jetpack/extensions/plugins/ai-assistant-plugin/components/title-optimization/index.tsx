@@ -1,7 +1,11 @@
 /**
  * External dependencies
  */
-import { useAiSuggestions, RequestingErrorProps } from '@automattic/jetpack-ai-client';
+import {
+	useAiSuggestions,
+	RequestingErrorProps,
+	ERROR_MODERATION,
+} from '@automattic/jetpack-ai-client';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button, Spinner, ExternalLink } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
@@ -25,12 +29,13 @@ const isKeywordsFeatureAvailable = getFeatureAvailability(
 	'ai-title-optimization-keywords-support'
 );
 
-const TitleOptimizationErrorMessage = () => {
-	return (
-		<div className="jetpack-ai-title-optimization__error">
-			{ __( 'The generation of your suggested titles failed. Please try again.', 'jetpack' ) }
-		</div>
+const TitleOptimizationErrorMessage = ( { error }: { error: RequestingErrorProps } ) => {
+	const genericErrorMessage = __(
+		'The generation of your suggested titles failed. Please try again.',
+		'jetpack'
 	);
+	const errorMessage = error.code === ERROR_MODERATION ? error.message : genericErrorMessage;
+	return <div className="jetpack-ai-title-optimization__error">{ errorMessage }</div>;
 };
 
 export default function TitleOptimization( {
@@ -198,7 +203,7 @@ export default function TitleOptimization( {
 					) : (
 						<>
 							{ error ? (
-								<TitleOptimizationErrorMessage />
+								<TitleOptimizationErrorMessage error={ error } />
 							) : (
 								<>
 									{ isKeywordsFeatureAvailable && (
