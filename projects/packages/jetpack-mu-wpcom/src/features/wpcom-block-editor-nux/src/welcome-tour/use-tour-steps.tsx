@@ -251,23 +251,6 @@ function useTourSteps(
 			  ]
 			: [] ),
 		{
-			slug: 'drag-drop',
-			meta: {
-				heading: __( 'Drag & drop', 'jetpack-mu-wpcom' ),
-				descriptions: {
-					desktop: __( 'To move blocks around, click and drag the handle.', 'jetpack-mu-wpcom' ),
-					mobile: __( 'To move blocks around, tap the up and down arrows.', 'jetpack-mu-wpcom' ),
-				},
-				imgSrc: getTourAssets( 'moveBlock' ),
-			},
-			options: {
-				classNames: {
-					desktop: 'wpcom-editor-welcome-tour__step',
-					mobile: [ 'is-with-extra-padding', 'wpcom-editor-welcome-tour__step' ],
-				},
-			},
-		},
-		{
 			slug: 'payment-block',
 			meta: {
 				heading: __( 'The Payments block', 'jetpack-mu-wpcom' ),
