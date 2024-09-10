@@ -6318,7 +6318,7 @@ endif;
 			return;
 		}
 
-		if ( ( new Tracking( 'jetpack', $this->connection_manager ) )->should_enable_tracking( new Terms_Of_Service(), new Status() ) ) {
+		if ( ( new Tracking( 'jetpack', $this->connection_manager ) )->should_enable_tracking( new Terms_Of_Service(), new Status() ) || static::is_connection_ready() ) {
 			( new Plugin_Tracking() )->init();
 		}
 	}
