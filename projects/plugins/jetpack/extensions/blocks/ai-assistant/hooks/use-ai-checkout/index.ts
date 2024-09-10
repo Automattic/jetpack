@@ -41,8 +41,10 @@ export default function useAICheckout(): {
 				path: `jetpack_ai_yearly:-q-${ nextTier?.limit }`,
 				query: `redirect_to=${ encodeURIComponent( wpcomRedirectToURL ) }`,
 		  } )
-		: getRedirectUrl( 'jetpack-ai-monthly-plan-ai-assistant-block-banner', {
+		: getRedirectUrl( 'jetpack-ai-yearly-tier-upgrade-nudge', {
 				site: getSiteFragment() as string,
+				path: 'jetpack_ai_yearly',
+				query: `redirect_to=${ encodeURIComponent( wpcomRedirectToURL ) }`,
 		  } );
 
 	const checkoutUrl =
