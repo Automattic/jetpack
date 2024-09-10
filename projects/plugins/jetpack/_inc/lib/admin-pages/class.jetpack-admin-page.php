@@ -124,6 +124,9 @@ abstract class Jetpack_Admin_Page {
 	 * Render the page with a common top and bottom part, and page specific content.
 	 */
 	public function render() {
+		/** This action is documented in class.jetpack.php */
+		do_action( 'jetpack_initialize_tracking' );
+
 		// We're in an IDC: we need a decision made before we show the UI again.
 		if ( $this->block_page_rendering_for_idc() ) {
 			return;
