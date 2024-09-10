@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Jetpack AI: remove ai-image and ai-paragraph block code since they are not used and never made it to an actual functional block
