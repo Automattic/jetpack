@@ -12,6 +12,7 @@ import usePublicizeConfig from '../../hooks/use-publicize-config';
 import useRefreshConnections from '../../hooks/use-refresh-connections';
 import { usePostJustPublished } from '../../hooks/use-saving-post';
 import useSelectSocialMediaConnections from '../../hooks/use-social-media-connections';
+import { store as socialStore } from '../../social-store';
 import PublicizeForm from '../form';
 import { ManualSharing } from '../manual-sharing';
 import { ReSharingPanel } from '../resharing-panel';
@@ -22,6 +23,8 @@ import './global.scss';
 const PublicizePanel = ( { prePublish, children } ) => {
 	const { refresh, hasConnections, hasEnabledConnections } = useSelectSocialMediaConnections();
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
+	const featureFlags = useSelect( select => select( socialStore ).featureFlags(), [] );
+
 	const refreshConnections = useRefreshConnections();
 
 	const { isPublicizeEnabled, hidePublicizeFeature, togglePublicizeFeature } = usePublicizeConfig();
@@ -74,7 +77,7 @@ const PublicizePanel = ( { prePublish, children } ) => {
 			) }
 			{ isPostPublished && (
 				<>
-					<ReSharingPanel />
+					{ featureFlags.useShareStatus ? <ReSharingPanel /> : null }
 					<ManualSharing />
 				</>
 			) }

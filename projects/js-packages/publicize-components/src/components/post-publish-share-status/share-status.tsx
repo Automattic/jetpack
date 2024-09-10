@@ -7,7 +7,7 @@ import { ShareStatusModalTrigger } from '../share-status';
 import styles from './styles.module.scss';
 
 type ShareStatusProps = {
-	reShareTimestamp?: number | null;
+	reShareTimestamp?: number;
 };
 
 /**
@@ -16,7 +16,7 @@ type ShareStatusProps = {
  * @param {ShareStatusProps} props - component props
  * @return {import('react').ReactNode} - React element
  */
-export function ShareStatus( { reShareTimestamp = null }: ShareStatusProps ) {
+export function ShareStatus( { reShareTimestamp }: ShareStatusProps ) {
 	const shareStatus = useSelect( select => select( socialStore ).getPostShareStatus(), [] );
 
 	const currentShares = reShareTimestamp
