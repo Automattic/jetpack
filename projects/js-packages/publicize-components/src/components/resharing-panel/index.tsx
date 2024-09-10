@@ -6,7 +6,6 @@ import { ShareStatusModalTrigger } from '../share-status';
 import styles from './styles.module.scss';
 
 export const ReSharingPanel = () => {
-	const featureFlags = useSelect( select => select( socialStore ).featureFlags(), [] );
 	const shareStatus = useSelect( select => select( socialStore ).getPostShareStatus(), [] );
 
 	const [ reShareTimestamp, setReShareTimestamp ] = useState( null );
@@ -17,10 +16,6 @@ export const ReSharingPanel = () => {
 			setReShareTimestamp( Date.now() / 1000 );
 		}
 	}, [ shareStatus.polling ] );
-
-	if ( ! featureFlags.useShareStatus ) {
-		return null;
-	}
 
 	return reShareTimestamp ? (
 		<div className={ styles.wrapper }>
