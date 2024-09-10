@@ -85,6 +85,8 @@ function WelcomeTour() {
 
 	const filteredShow = applyFilters( 'a8c.WpcomBlockEditorWelcomeTour.show', show );
 
+	console.log( 'welcome tour', { show, isLoaded, variant, isManuallyOpened, isNewPageLayoutModalOpen, siteEditorCanvasMode, filteredShow } );
+
 	if ( ! filteredShow || isNewPageLayoutModalOpen ) {
 		return null;
 	}
