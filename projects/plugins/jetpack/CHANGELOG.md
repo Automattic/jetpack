@@ -2,8 +2,17 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 13.8.1 - 2024-09-10
+
+### Bug Fixes
+- Contact Form: Prevent unexpected payload contents from causing fatal errors. [#39271]
+- General: Silence noisy warnings. [#39270] [#39272]
+- Jetpack AI: Update default_content filter to not enforce the second parameter type to prevent fatal errors. [#39276]
+- REST API: Fix missing requirement in admin-menu endpoint which could lead to a broken admin menu. [#39256]
+- Web Application Firewall: Prevent incorrect parsing of unsupported HTTP content types. [#39262]
+
 ## 13.8 - 2024-09-04
-### Major Enhancements
+### Major enhancements
 - Custom CSS: Remove feature in favor of WordPress core implementation. [#38865]
 - Embeds: Remove YouTube and Vimeo embeds in favor of WordPress core implementation. [#39096]
 - WordPress.com Toolbar: The feature has been removed. [#38804]
