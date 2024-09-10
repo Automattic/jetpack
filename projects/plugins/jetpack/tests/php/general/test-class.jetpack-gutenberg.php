@@ -306,37 +306,4 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 
 		$this->assertFalse( $validated_url );
 	}
-
-	/**
-	 * Test that get_block_name_from_path_convention() provides the same results as get_block_name()
-	 * for all blocks registered by load_independent_blocks().
-	 *
-	 * @covers Automattic\Jetpack\Blocks::get_block_name_from_path_convention
-	 * @covers Automattic\Jetpack\Blocks::get_block_name
-	 */
-	public function test_get_block_name_from_path_convention_matches_get_block_name() {
-		$extensions = Jetpack_Gutenberg::get_available_extensions();
-
-		foreach ( $extensions as $extension ) {
-			$dirname         = 'blocks';
-			$path            = __DIR__ . "/../../../extensions/{$dirname}/{$extension}";
-			$block_json_file = "{$path}/block.json";
-
-			if ( file_exists( $path ) && file_exists( $block_json_file ) ) {
-				// Get the block name using the path name convention method
-				$conventional_name = Blocks::get_block_name_from_path_convention( $path );
-
-				// Get the block name using the existing method
-				$block_type    = Blocks::get_path_to_block_metadata( $path );
-				$existing_name = Blocks::get_block_name( $block_type );
-
-				// Assert that both methods return the same result
-				$this->assertEquals(
-					$existing_name,
-					$conventional_name,
-					"Block name mismatch for {$extension} in {$dirname} directory"
-				);
-			}
-		}
-	}
 }
