@@ -29,6 +29,7 @@
 		"@storybook/addon-actions": "8.2.9",
 		"@storybook/blocks": "8.2.9",
 		"@storybook/react": "8.2.9",
+		"@testing-library/dom": "10.4.0",
 		"@testing-library/react": "16.0.1",
 		"@types/jest": "29.5.12",
 		"@types/react": "18.3.3",
