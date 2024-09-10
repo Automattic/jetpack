@@ -19,12 +19,16 @@ use WP_Post;
  * registration if we need to.
  */
 function register_block() {
-	Blocks::jetpack_register_block(
-		__DIR__,
-		array(
-			'render_callback' => __NAMESPACE__ . '\render_block',
-		)
-	);
+
+	require_once JETPACK__PLUGIN_DIR . '/modules/memberships/class-jetpack-memberships.php';
+	if ( \Jetpack_Memberships::is_enabled_jetpack_recurring_payments() ) {
+		Blocks::jetpack_register_block(
+			__DIR__,
+			array(
+				'render_callback' => __NAMESPACE__ . '\render_block',
+			)
+		);
+	}
 }
 add_action( 'init', __NAMESPACE__ . '\register_block' );
 
