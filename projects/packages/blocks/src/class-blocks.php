@@ -53,7 +53,8 @@ class Blocks {
 		// If a path is passed, make sure to get the block.json file from the build directory and get
 		// the block name from that file.
 		if ( path_is_absolute( $slug ) ) {
-			$slug = self::get_block_name_from_path_convention( $slug );
+			$block_type = self::get_path_to_block_metadata( $slug );
+			$slug       = self::get_block_name_from_path_convention( $slug );
 		}
 
 		if (
