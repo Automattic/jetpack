@@ -4,7 +4,7 @@
  * `bin/teamcity-builds/jetpack-stubs/stub-defs.php` and regenerate the stubs
  * by triggering the Jetpack Staging → Update WPCOM Stubs job in TeamCity.
  *
- * Stubs automatically generated from WordPress.com commit 25314a859c6d64614c4c45a5ffda72f38fd99850.
+ * Stubs automatically generated from WordPress.com commit a64dc4c8302d07cdb2c6f67e03d7414f923a0b21.
  */
 
 namespace {
@@ -162,6 +162,12 @@ namespace {
     }
     class Store_Shopping_Cart
     {
+        /**
+         * @return string[]
+         */
+        public function get_product_slugs(): array
+        {
+        }
         public static function get_existing_cart(?array $args = []): self
         {
         }

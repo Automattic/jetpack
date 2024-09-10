@@ -1145,7 +1145,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jetpack-mu-wpcom",
-                "reference": "3c85793f3ce5609dbb8a644ee6a31f3ac08face4"
+                "reference": "e5ff27ce1d55b80d6b2ab844a7c1e9a534e489aa"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -1179,7 +1179,7 @@
                 },
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "5.61.x-dev"
+                    "dev-trunk": "5.62.x-dev"
                 },
                 "textdomain": "jetpack-mu-wpcom",
                 "version-constants": {
@@ -1708,7 +1708,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "57d842942e2080d7a46033dde9b7b1adbccef7a1"
+                "reference": "aaa8654c8128853de667f1a7184d481b7c0cc026"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1741,7 +1741,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "3.11.x-dev"
+                    "dev-trunk": "3.12.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
