@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+WPCOMSH: change call to so it doesn't trigger if not necessary
