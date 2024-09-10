@@ -45,10 +45,10 @@ class WooCommerce_HPOS_Orders extends Module {
 	 * @access public
 	 *
 	 * @return string
-	 * @deprecated since $$next-version$$ Use table() instead.
+	 * @deprecated since 3.11.0 Use table() instead.
 	 */
 	public function table_name() {
-		_deprecated_function( __METHOD__, '$$next-version$$', 'Automattic\\Jetpack\\Sync\\WooCommerce_HPOS_Orders->table' );
+		_deprecated_function( __METHOD__, '3.11.0', 'Automattic\\Jetpack\\Sync\\WooCommerce_HPOS_Orders->table' );
 		return $this->order_table_name;
 	}
 
@@ -127,7 +127,16 @@ class WooCommerce_HPOS_Orders extends Module {
 	 */
 	public function init_full_sync_listeners( $callable ) {
 		add_action( 'jetpack_full_sync_orders', $callable );
-		add_filter( 'jetpack_sync_before_enqueue_full_sync_orders', array( $this, 'expand_order_objects' ) );
+	}
+
+	/**
+	 * Initialize the module in the sender.
+	 *
+	 * @access public
+	 */
+	public function init_before_send() {
+		// Full sync.
+		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_woocommerce_hpos_orders', array( $this, 'expand_order_objects' ) );
 	}
 
 	/**
@@ -212,9 +221,11 @@ class WooCommerce_HPOS_Orders extends Module {
 	 * @return array
 	 */
 	public function expand_order_objects( $args ) {
-		$order_ids = $args;
-
-		return $this->get_objects_by_id( 'order', $order_ids );
+		list( $order_ids, $previous_end ) = $args;
+		return array(
+			'orders'       => $this->get_objects_by_id( 'order', $order_ids ),
+			'previous_end' => $previous_end,
+		);
 	}
 
 	/**

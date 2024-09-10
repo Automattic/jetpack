@@ -10,10 +10,12 @@ import {
 } from '@wordpress/icons';
 import { useCallback, useMemo } from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
+import usePlan from '../../hooks/use-plan';
 import useProtectData from '../../hooks/use-protect-data';
 import Navigation, { NavigationItem, NavigationGroup } from '../navigation';
 
 const ThreatsNavigation = ( { selected, onSelect, sourceType = 'scan', statusFilter = 'all' } ) => {
+	const { hasPlan } = usePlan();
 	const {
 		results: { plugins, themes },
 		counts: {
@@ -24,7 +26,6 @@ const ThreatsNavigation = ( { selected, onSelect, sourceType = 'scan', statusFil
 				database: numDatabaseThreats,
 			},
 		},
-		hasRequiredPlan,
 	} = useProtectData( { sourceType, filter: { status: statusFilter } } );
 
 	const { recordEvent } = useAnalyticsTracks();
@@ -119,7 +120,7 @@ const ThreatsNavigation = ( { selected, onSelect, sourceType = 'scan', statusFil
 					/>
 				) ) }
 			</NavigationGroup>
-			{ hasRequiredPlan && (
+			{ hasPlan && (
 				<>
 					<NavigationItem
 						id="files"

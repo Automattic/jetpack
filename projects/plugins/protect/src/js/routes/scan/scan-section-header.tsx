@@ -1,6 +1,6 @@
 import { Container, Col, Text, Title, getIconBySlug } from '@automattic/jetpack-components';
 import React from 'react';
-import useProtectData from '../../hooks/use-protect-data';
+import usePlan from '../../hooks/use-plan';
 import ScanSectionNavigation from './scan-section-navigation';
 import styles from './styles.module.scss';
 
@@ -12,7 +12,7 @@ type Props = {
 
 const ScanSectionHeader = ( { title, subtitle, controls }: Props ) => {
 	const Icon = getIconBySlug( 'protect' );
-	const { hasRequiredPlan } = useProtectData();
+	const { hasPlan } = usePlan();
 
 	return (
 		<Container fluid>
@@ -34,7 +34,7 @@ const ScanSectionHeader = ( { title, subtitle, controls }: Props ) => {
 								{ title }
 							</Text>
 						) }
-						{ !! hasRequiredPlan && <ScanSectionNavigation /> }
+						{ !! hasPlan && <ScanSectionNavigation /> }
 					</div>
 					<div className={ styles[ 'scan-section-header__controls' ] }>
 						<div className={ styles[ 'scan-section-header__controls__row' ] }>{ controls }</div>
