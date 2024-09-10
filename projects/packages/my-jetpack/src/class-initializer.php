@@ -99,16 +99,8 @@ class Initializer {
 		// Add custom WP REST API endoints.
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_endpoints' ) );
 
-		$page_suffix = Admin_Menu::add_menu(
-			__( 'My Jetpack', 'jetpack-my-jetpack' ),
-			__( 'My Jetpack', 'jetpack-my-jetpack' ),
-			'edit_posts',
-			'my-jetpack',
-			array( __CLASS__, 'admin_page' ),
-			-1
-		);
+		add_action( 'admin_menu', array( __CLASS__, 'add_my_jetpack_menu_item' ) );
 
-		add_action( 'load-' . $page_suffix, array( __CLASS__, 'admin_init' ) );
 		add_action( 'admin_init', array( __CLASS__, 'setup_historically_active_jetpack_modules_sync' ) );
 		// This is later than the admin-ui package, which runs on 1000
 		add_action( 'admin_init', array( __CLASS__, 'maybe_show_red_bubble' ), 1001 );
@@ -164,6 +156,23 @@ class Initializer {
 			'jetpack_my_jetpack_should_enable_add_license_screen',
 			$is_enabled
 		);
+	}
+
+	/**
+	 * Add My Jetpack menu item to the admin menu.
+	 *
+	 * @return void
+	 */
+	public static function add_my_jetpack_menu_item() {
+		$page_suffix = Admin_Menu::add_menu(
+			__( 'My Jetpack', 'jetpack-my-jetpack' ),
+			__( 'My Jetpack', 'jetpack-my-jetpack' ),
+			'edit_posts',
+			'my-jetpack',
+			array( __CLASS__, 'admin_page' ),
+			-1
+		);
+		add_action( 'load-' . $page_suffix, array( __CLASS__, 'admin_init' ) );
 	}
 
 	/**
