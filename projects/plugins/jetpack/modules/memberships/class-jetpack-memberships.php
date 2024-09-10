@@ -7,6 +7,7 @@
  */
 
 use Automattic\Jetpack\Blocks;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Abstract_Token_Subscription_Service;
 use Automattic\Jetpack\Status\Host;
 use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS;
@@ -744,6 +745,19 @@ class Jetpack_Memberships {
 	 */
 	public static function is_enabled_jetpack_recurring_payments() {
 		$api_available = ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || Jetpack::is_connection_ready() );
+		return $api_available;
+	}
+
+	/**
+	 * Whether to enable the blocks in the editor.
+	 * All Monetize blocks (except Simple Payments) need an active connecting and a user with at least `edit_posts` capability
+	 *
+	 * @return bool
+	 */
+	public static function should_enable_monetize_blocks_in_editor() {
+		$jetpack_ready_and_user_connected = Jetpack::is_connection_ready() &&
+			( new Connection_Manager( 'jetpack' ) )->is_user_connected() && current_user_can( 'edit_posts' );
+		$api_available                    = ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || $jetpack_ready_and_user_connected );
 		return $api_available;
 	}
 
