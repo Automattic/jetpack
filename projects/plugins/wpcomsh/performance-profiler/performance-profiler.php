@@ -25,6 +25,34 @@ function wpcom_performance_url_rest_field() {
 }
 
 /**
+ * Filter the performance report URL field.
+ *
+ * @param WP_REST_Response $response The response object.
+ * @param WP_Post          $post     The post object.
+ * @param WP_REST_Request  $request  The request object.
+ * @return WP_REST_Response
+ */
+function filter_wpcom_performance_report_url( $response, $post, $request ) {
+	$fields = $request->get_param( '_fields' );
+
+	if ( is_string( $fields ) ) {
+		$fields = explode( ',', $fields );
+	}
+
+	if ( ! is_array( $fields ) ) {
+		$fields = array();
+	}
+
+	if ( empty( $fields ) || ! in_array( 'wpcom_performance_report_url', $fields, true ) ) {
+		unset( $response->data['wpcom_performance_report_url'] );
+	}
+
+	return $response;
+}
+
+add_filter( 'rest_prepare_page', 'filter_wpcom_performance_report_url', 10, 3 );
+
+/**
  * Get the performance report URL callback.
  *
  * @param array $object The object being requested.
@@ -97,4 +125,4 @@ function wpcom_performance_url_update_options_v1_api( $input, $unfiltered_input 
 	return $input;
 }
 
-add_filter( 'rest_api_update_site_settings', 'wpcom_performance_url_update_options', 10, 2 );
+add_filter( 'rest_api_update_site_settings', 'wpcom_performance_url_update_options_v1_api', 10, 2 );
