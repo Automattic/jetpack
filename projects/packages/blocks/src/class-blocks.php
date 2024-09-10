@@ -54,7 +54,7 @@ class Blocks {
 		// the block name from that file.
 		if ( path_is_absolute( $slug ) ) {
 			$block_type = self::get_path_to_block_metadata( $slug );
-			$slug       = self::get_block_name( $block_type );
+			$slug       = self::get_block_name_from_path_convention( $slug );
 		}
 
 		if (
@@ -172,6 +172,42 @@ class Blocks {
 		$metadata = self::get_block_metadata( $arg );
 
 		return self::get_block_name_from_metadata( $metadata );
+	}
+
+	/**
+	 * Get the block name from the path convention.
+	 * For example, path "./extensions/blocks/pinterest" is assumed to define
+	 * a block named "jetpack/pinterest" without checking any files.
+	 *
+	 * Any exceptions should be added to the $breaks_convention array.
+	 * For example, blocks/premium-content defines "premium-content\/container", not "jetpack/premium-content".
+	 * These paths will use the code that checks the disk for the block name.
+	 *
+	 * The unit test test_get_block_name_from_path_convention_matches_get_block_name() verifies that
+	 * all names are correctly guessed.
+	 *
+	 * Run with `./vendor/bin/phpunit --filter WP_Test_Jetpack_Gutenberg`.
+	 *
+	 * @param string $path The path to extract the block name from.
+	 *
+	 * @return string The block name with 'jetpack/' prefix.
+	 */
+	public static function get_block_name_from_path_convention( $path ) {
+		$path_parts = explode( '/', $path );
+		if ( count( $path_parts ) <= 0 ) {
+			$block_type = self::get_path_to_block_metadata( $path );
+			return self::get_block_name( $block_type );
+		}
+
+		$last_part         = $path_parts[ count( $path_parts ) - 1 ];
+		$breaks_convention = array( 'premium-content' );
+
+		if ( in_array( $last_part, $breaks_convention, true ) ) {
+			$block_type = self::get_path_to_block_metadata( $path );
+			return self::get_block_name( $block_type );
+		}
+
+		return 'jetpack/' . $last_part;
 	}
 
 	/**
