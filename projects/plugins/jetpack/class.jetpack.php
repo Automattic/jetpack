@@ -6310,6 +6310,8 @@ endif;
 	/**
 	 * Lazy instantiation of the Plugin_Tracking object.
 	 *
+	 * @since $$next-version$$
+	 *
 	 * @return void
 	 */
 	public function initialize_tracking() {
@@ -6325,6 +6327,8 @@ endif;
 
 	/**
 	 * Run the "initialize tracking" hook.
+	 *
+	 * @since $$next-version$$
 	 */
 	public function run_initialize_tracking_action() {
 		/**
