@@ -72,10 +72,13 @@ const ErrorSection = ( { errorMessage, errorCode } ) => {
 const ScanningSection = ( { currentProgress } ) => {
 	const { hasPlan } = usePlan();
 	const { globalStats } = useWafData();
-	const totalVulnerabilities = parseInt( globalStats?.totalVulnerabilities );
-	const totalVulnerabilitiesFormatted = isNaN( totalVulnerabilities )
-		? '50,000'
-		: totalVulnerabilities.toLocaleString();
+	const { totalVulnerabilities, annualBlockedRequests } = globalStats;
+	const totalVulnerabilitiesFormatted = totalVulnerabilities
+		? totalVulnerabilities.toLocaleString()
+		: '50,000';
+	const annualBlockedRequestsFormatted = annualBlockedRequests
+		? annualBlockedRequests.toLocaleString()
+		: '50,000,000';
 
 	return (
 		<>

@@ -70,10 +70,13 @@ const ProductPromotion = () => {
 const FooterInfo = () => {
 	const { hasPlan } = usePlan();
 	const { globalStats } = useWafData();
-	const totalVulnerabilities = parseInt( globalStats?.totalVulnerabilities );
-	const totalVulnerabilitiesFormatted = isNaN( totalVulnerabilities )
-		? '50,000'
-		: totalVulnerabilities.toLocaleString();
+	const { totalVulnerabilities, annualBlockedRequests } = globalStats;
+	const totalVulnerabilitiesFormatted = totalVulnerabilities
+		? totalVulnerabilities.toLocaleString()
+		: '50,000';
+	const annualBlockedRequestsFormatted = annualBlockedRequests
+		? annualBlockedRequests.toLocaleString()
+		: '50,000,000';
 
 	if ( hasPlan ) {
 		const learnMoreScanUrl = getRedirectUrl( 'protect-footer-learn-more-scan' );

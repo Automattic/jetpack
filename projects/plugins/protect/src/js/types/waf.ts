@@ -10,7 +10,8 @@ export type WafStatus = {
 
 	/** Global statistics. */
 	globalStats: {
-		totalVulnerabilities: string;
+		totalVulnerabilities: number;
+		annualBlockedRequests: number;
 	};
 
 	/** Whether the "waf" module is enabled. */
