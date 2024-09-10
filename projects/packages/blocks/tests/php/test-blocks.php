@@ -513,4 +513,30 @@ class Test_Blocks extends TestCase {
 		$result = Blocks::get_block_feature( __DIR__ . '/fixtures/test-block/block.json' );
 		$this->assertEquals( 'test-block', $result );
 	}
+
+	/**
+	 * Test getting the block name from path convention.
+	 *
+	 * @since 1.x.x
+	 *
+	 * @covers Automattic\Jetpack\Blocks::get_block_name_from_path_convention
+	 */
+	public function test_get_block_name_from_path_convention() {
+		/**
+		 * Basic string based tests only.
+		 *
+		 * For a more comprehensive test, see the test_get_block_name_from_path_convention_matches_get_block_name test.
+		 * in test-class.jetpack-gutenberg.php.
+		 */
+		$test_cases = array(
+			'/path/to/extensions/blocks/apple' => 'jetpack/apple',
+			'/var/www/html/wp-content/plugins/jetpack/extensions/blocks/banana' => 'jetpack/banana',
+			'/home/user/wordpress/wp-content/plugins/jetpack/extensions/blocks/cherry' => 'jetpack/cherry',
+		);
+
+		foreach ( $test_cases as $path => $expected ) {
+			$result = Blocks::get_block_name_from_path_convention( $path );
+			$this->assertEquals( $expected, $result, "Failed for path: $path" );
+		}
+	}
 }
