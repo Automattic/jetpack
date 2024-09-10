@@ -724,7 +724,9 @@ class REST_Controller {
 			$sent_by_text = '<br />' . esc_html__( 'Sent by an unverified visitor to your site.', 'jetpack-stats-admin' ) . '<br />';
 		}
 
-		$body_data = json_decode( $req->get_body(), true );
+		$body_from_req  = json_decode( $req->get_body(), true );
+		$body_data      = is_array( $body_from_req ) ? $body_from_req : array();
+		$passed_content = isset( $body_data['feedback'] ) ? $body_data['feedback'] : '';
 
 		return WPCOM_Client::request_as_blog_cached(
 			sprintf(
@@ -744,7 +746,7 @@ class REST_Controller {
 				array_merge(
 					$body_data,
 					array(
-						'feedback' => $body_data['feedback'] . $sent_by_text,
+						'feedback' => $passed_content . $sent_by_text,
 					)
 				)
 			),
