@@ -12,8 +12,32 @@ import { isModuleFound as _isModuleFound } from 'state/search';
 
 export class CustomContentTypes extends React.Component {
 	state = {
-		testimonial: this.props.getOptionValue( 'jetpack_testimonial', 'custom-content-types' ),
-		portfolio: this.props.getOptionValue( 'jetpack_portfolio', 'custom-content-types' ),
+		testimonial:
+			this.props.getOptionValue( 'jetpack_testimonial', 'custom-content-types' ) || false,
+		portfolio:
+			this.props.getOptionValue( 'jetpack_portfolio', 'custom-content-types' ) ||
+			this.props.settings.jetpack_portfolio ||
+			false,
+	};
+
+	componentDidMount() {
+		this.ensureSyncState();
+	}
+
+	componentDidUpdate( prevProps ) {
+		if ( prevProps.settings.jetpack_portfolio !== this.props.settings.jetpack_portfolio ) {
+			this.setState( { portfolio: this.props.settings.jetpack_portfolio } );
+		}
+	}
+
+	// Sync state with the latest backend value
+	ensureSyncState = () => {
+		const currentPortfolioValue =
+			this.props.getOptionValue( 'jetpack_portfolio', 'custom-content-types' ) ||
+			this.props.settings.jetpack_portfolio;
+		if ( currentPortfolioValue !== undefined && this.state.portfolio !== currentPortfolioValue ) {
+			this.setState( { portfolio: currentPortfolioValue } );
+		}
 	};
 
 	updateCPTs = type => {
@@ -22,10 +46,13 @@ export class CustomContentTypes extends React.Component {
 				? ! ( ! this.state.testimonial || this.state.portfolio )
 				: ! ( ! this.state.portfolio || this.state.testimonial );
 
+		const testimonial = this.state.testimonial !== undefined ? this.state.testimonial : false;
+
 		this.props.updateFormStateModuleOption( 'custom-content-types', 'jetpack_' + type, deactivate );
 
 		this.setState( {
 			[ type ]: ! this.state[ type ],
+			testimonial,
 		} );
 	};
 
@@ -77,7 +104,11 @@ export class CustomContentTypes extends React.Component {
 						) }
 					</p>
 					<ToggleControl
-						checked={ this.props.getOptionValue( 'jetpack_testimonial', 'custom-content-types' ) }
+						checked={
+							this.props.getOptionValue( 'jetpack_testimonial', 'custom-content-types' )
+								? this.props.getOptionValue( 'jetpack_testimonial', 'custom-content-types' )
+								: false
+						}
 						disabled={ disabledByOverride }
 						toggling={ this.props.isSavingAnyOption( 'jetpack_testimonial' ) }
 						onChange={ this.handleTestimonialToggleChange }
@@ -121,7 +152,7 @@ export class CustomContentTypes extends React.Component {
 						) }
 					</p>
 					<ToggleControl
-						checked={ this.props.getOptionValue( 'jetpack_portfolio', 'custom-content-types' ) }
+						checked={ this.state.portfolio !== undefined ? this.state.portfolio : false }
 						disabled={ disabledByOverride }
 						toggling={ this.props.isSavingAnyOption( 'jetpack_portfolio' ) }
 						onChange={ this.handlePortfolioToggleChange }
