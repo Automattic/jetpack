@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useAiSuggestions } from '@automattic/jetpack-ai-client';
+import { useAiSuggestions, RequestingErrorProps } from '@automattic/jetpack-ai-client';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button, Spinner, ExternalLink } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
@@ -58,7 +58,7 @@ export default function TitleOptimization( {
 	const [ isTitleOptimizationModalVisible, setIsTitleOptimizationModalVisible ] = useState( false );
 	const [ generating, setGenerating ] = useState( false );
 	const [ options, setOptions ] = useState( [] );
-	const [ error, setError ] = useState( false );
+	const [ error, setError ] = useState< RequestingErrorProps >( null );
 	const [ optimizationKeywords, setOptimizationKeywords ] = useState( '' );
 	const { editPost } = useDispatch( 'core/editor' );
 	const { autosave } = useAutoSaveAndRedirect();
@@ -88,8 +88,8 @@ export default function TitleOptimization( {
 
 	const { request, stopSuggestion } = useAiSuggestions( {
 		onDone: handleDone,
-		onError: () => {
-			setError( true );
+		onError: ( e: RequestingErrorProps ) => {
+			setError( e );
 			setGenerating( false );
 		},
 	} );
@@ -127,7 +127,7 @@ export default function TitleOptimization( {
 	}, [ handleRequest, toggleTitleOptimizationModal ] );
 
 	const handleTryAgain = useCallback( () => {
-		setError( false );
+		setError( null );
 		handleRequest( true ); // retry the generation
 	}, [ handleRequest ] );
 
