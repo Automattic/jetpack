@@ -49,6 +49,8 @@ jobs:
     name: 'Send Slack notification'
     runs-on: ubuntu-latest
     needs: run-tests
+    # Notify even if tests failed.
+    if: ${{ !cancelled() }}
   
     steps:
       - name: Download test artifacts
