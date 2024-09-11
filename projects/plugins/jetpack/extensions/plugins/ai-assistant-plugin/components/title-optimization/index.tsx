@@ -4,7 +4,6 @@
 import {
 	useAiSuggestions,
 	RequestingErrorProps,
-	ERROR_MODERATION,
 	ERROR_QUOTA_EXCEEDED,
 } from '@automattic/jetpack-ai-client';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
@@ -55,7 +54,10 @@ const TitleOptimizationErrorMessage = ( { error }: { error: TitleOptimizationErr
 			</div>
 		);
 	}
-	const errorMessage = error.code === ERROR_MODERATION ? error.message : genericErrorMessage;
+
+	// Use the provided message, if available, otherwise use the generic error message
+	const errorMessage = error?.message ? error.message : genericErrorMessage;
+
 	return (
 		<div className="jetpack-ai-title-optimization__error">
 			<Notice status="error" isDismissible={ false }>
