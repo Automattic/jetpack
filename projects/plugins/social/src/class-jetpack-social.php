@@ -339,7 +339,6 @@ class Jetpack_Social {
 			'isEnhancedPublishingEnabled'     => $publicize->has_enhanced_publishing_feature(),
 			'isSocialImageGeneratorAvailable' => $social_state['socialImageGeneratorSettings']['available'],
 			'isSocialImageGeneratorEnabled'   => $social_state['socialImageGeneratorSettings']['enabled'],
-			'autoConversionSettings'          => $social_state['autoConversionSettings'],
 			'useAdminUiV1'                    => $social_state['useAdminUiV1'],
 			'dismissedNotices'                => Dismissed_Notices::get_dismissed_notices(),
 			'supportedAdditionalConnections'  => $publicize->get_supported_additional_connections(),

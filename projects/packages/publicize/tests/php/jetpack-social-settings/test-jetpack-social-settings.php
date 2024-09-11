@@ -33,10 +33,7 @@ class Jetpack_Social_Settings_Test extends BaseTestCase {
 	public function set_up() {
 		add_filter( 'jetpack_active_modules', array( $this, 'mock_publicize_being_active' ) );
 		global $publicize;
-		$publicize = $this->getMockBuilder( Publicize::class )->setMethods( array( 'has_social_auto_conversion_feature', 'has_social_image_generator_feature' ) )->getMock();
-		$publicize->method( 'has_social_auto_conversion_feature' )
-			->withAnyParameters()
-			->willReturn( true );
+		$publicize = $this->getMockBuilder( Publicize::class )->setMethods( array( 'has_social_image_generator_feature' ) )->getMock();
 		$publicize->method( 'has_social_image_generator_feature' )
 			->withAnyParameters()
 			->willReturn( true );
@@ -76,12 +73,9 @@ class Jetpack_Social_Settings_Test extends BaseTestCase {
 	public function test_get_settings_with_availability() {
 		$settings = $this->settings->get_settings( true );
 
-		$this->assertArrayHasKey( 'autoConversionSettings', $settings );
 		$this->assertArrayHasKey( 'socialImageGeneratorSettings', $settings );
-		$this->assertArrayHasKey( 'available', $settings['autoConversionSettings'] );
 		$this->assertArrayHasKey( 'available', $settings['socialImageGeneratorSettings'] );
 
-		$this->assertTrue( $settings['autoConversionSettings']['available'] );
 		$this->assertTrue( $settings['socialImageGeneratorSettings']['available'] );
 	}
 
@@ -91,12 +85,10 @@ class Jetpack_Social_Settings_Test extends BaseTestCase {
 	public function test_settings_on_new_site() {
 		$settings = $this->settings->get_settings();
 
-		$this->assertArrayHasKey( 'autoConversionSettings', $settings );
 		$this->assertArrayHasKey( 'socialImageGeneratorSettings', $settings );
 		$this->assertArrayHasKey( 'enabled', $settings['socialImageGeneratorSettings'] );
 		$this->assertArrayHasKey( 'template', $settings['socialImageGeneratorSettings'] );
 
-		$this->assertTrue( $settings['autoConversionSettings']['enabled'] );
 		$this->assertFalse( $settings['socialImageGeneratorSettings']['enabled'] );
 		$this->assertEquals( Templates::DEFAULT_TEMPLATE, $settings['socialImageGeneratorSettings']['template'] );
 	}
@@ -115,7 +107,6 @@ class Jetpack_Social_Settings_Test extends BaseTestCase {
 		);
 
 		$expected_options = array(
-			'autoConversionSettings'       => array( 'enabled' => true ),
 			'socialImageGeneratorSettings' => array(
 				'enabled'  => true,
 				'template' => 'example_template',
@@ -134,7 +125,6 @@ class Jetpack_Social_Settings_Test extends BaseTestCase {
 		update_option( 'jetpack_social_settings', array( 'image' => true ) );
 
 		$expected_options = array(
-			'autoConversionSettings'       => array( 'enabled' => true ),
 			'socialImageGeneratorSettings' => array(
 				'enabled'  => false,
 				'template' => Templates::DEFAULT_TEMPLATE,
@@ -143,16 +133,5 @@ class Jetpack_Social_Settings_Test extends BaseTestCase {
 
 		$this->settings = new SocialSettings();
 		$this->assertEquals( $expected_options, $this->settings->get_settings() );
-	}
-
-	/**
-	 * Tests that the auto-conversion settings are migrated even if it was false before.
-	 */
-	public function test_migrate_old_options_with_disabled_autoconversion() {
-		update_option( 'jetpack_social_settings', array( 'image' => false ) );
-		$expected_options = array( 'enabled' => false );
-
-		$this->settings = new SocialSettings();
-		$this->assertEquals( $expected_options, $this->settings->get_settings()['autoConversionSettings'] );
 	}
 }
