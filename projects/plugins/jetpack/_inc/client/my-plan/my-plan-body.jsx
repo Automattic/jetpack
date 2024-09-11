@@ -201,7 +201,7 @@ class MyPlanBody extends React.Component {
 						<h3 className="jp-landing__plan-features-title">
 							{ __( 'Site security', 'jetpack' ) }
 						</h3>
-						<p>{ description + __( ' (powered by VaultPress).', 'jetpack' ) }</p>
+						<p>{ description + ' ' + __( '(powered by VaultPress).', 'jetpack' ) }</p>
 						{ this.props.isPluginInstalled( 'vaultpress/vaultpress.php' ) &&
 						this.props.isPluginActive( 'vaultpress/vaultpress.php' ) ? (
 							<Button
