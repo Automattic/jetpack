@@ -691,7 +691,7 @@ function render_block( $attributes ) {
 			esc_html__( "Success! An email was just sent to confirm your subscription. Please find the email now and click 'Confirm' to start subscribing.", 'jetpack' )
 		),
 		'show_subscribers_total'        => (bool) get_attribute( $attributes, 'showSubscribersTotal' ),
-		'subscribers_total'             => get_subscriber_count( $include_social_followers ),
+		'subscribers_total'             => get_attribute( $attributes, 'showSubscribersTotal' ) ? get_subscriber_count( $include_social_followers ) : 0,
 		'referer'                       => esc_url_raw(
 			( is_ssl() ? 'https' : 'http' ) . '://' . ( isset( $_SERVER['HTTP_HOST'] ) ? wp_unslash( $_SERVER['HTTP_HOST'] ) : '' ) .
 			( isset( $_SERVER['REQUEST_URI'] ) ? wp_unslash( $_SERVER['REQUEST_URI'] ) : '' )
