@@ -415,6 +415,11 @@ class Jetpack_AI_Helper {
 			return $cache;
 		}
 
+		if ( ! apply_filters( 'jetpack_ai_enabled', true ) ) {
+			// if user has disabled AI, don't waste request/computing cycles and return default payload.
+			return self::get_default_feature_payload();
+		}
+
 		if ( null !== static::$ai_assistant_failed_request ) {
 			return static::$ai_assistant_failed_request;
 		}
@@ -452,5 +457,28 @@ class Jetpack_AI_Helper {
 
 			return $error;
 		}
+	}
+
+	/**
+	 * Get the default feature payload for when the feature is NOT available for a site.
+	 * This is a default response for consistency.
+	 */
+	private static function get_default_feature_payload() {
+		return array(
+			'has-feature'          => false,
+			'is-over-limit'        => false,
+			'requests-count'       => 0,
+			'requests-limit'       => 20,
+			'usage-period'         => array(),
+			'site-require-upgrade' => false,
+			'upgrade-type'         => 'default',
+			'upgrade-url'          => '',
+			'current-tier'         => null,
+			'next-tier'            => null,
+			'tier-plans'           => array(),
+			'tier-plans-enabled'   => false,
+			'costs'                => array(),
+			'features-control'     => array(),
+		);
 	}
 }
