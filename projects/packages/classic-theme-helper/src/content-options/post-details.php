@@ -60,8 +60,10 @@ if ( ! function_exists( 'jetpack_post_details_enqueue_scripts' ) ) {
 		$css = $elements . ' { clip: rect(1px, 1px, 1px, 1px); height: 1px; position: absolute; overflow: hidden; width: 1px; }';
 
 		// Add the CSS to the stylesheet.
-		// @phan-suppress-next-line PhanTypeArraySuspiciousNullable.
-		wp_add_inline_style( $post_details['stylesheet'], $css );
+
+		if ( is_array( $post_details ) && isset( $post_details['stylesheet'] ) ) {
+			wp_add_inline_style( $post_details['stylesheet'], $css );
+		}
 	}
 	add_action( 'wp_enqueue_scripts', 'jetpack_post_details_enqueue_scripts' );
 
