@@ -147,6 +147,9 @@ class Manager {
 		add_action( 'deleted_user', array( $manager, 'disconnect_user_force' ), 9, 1 );
 		add_action( 'remove_user_from_blog', array( $manager, 'disconnect_user_force' ), 9, 1 );
 
+		add_action( 'jetpack_site_registered', array( $manager, 'reset_connection_status' ) );
+		add_action( 'jetpack_site_disconnected', array( $manager, 'reset_connection_status' ) );
+
 		// Set up package version hook.
 		add_filter( 'jetpack_package_versions', __NAMESPACE__ . '\Package_Version::send_package_version_to_tracker' );
 
@@ -614,6 +617,16 @@ class Manager {
 			}
 		}
 		return self::$is_connected;
+	}
+
+	/**
+	 * Resets the memoized connection status.
+	 * This will force the connection status to be recomputed on the next check.
+	 *
+	 * @since $$next-version$$
+	 */
+	public function reset_connection_status() {
+		self::$is_connected = null;
 	}
 
 	/**
