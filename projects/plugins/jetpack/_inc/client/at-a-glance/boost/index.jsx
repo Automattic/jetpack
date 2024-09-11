@@ -476,7 +476,7 @@ const ConversionLossPopover = () => {
 				screenReaderText={ __( 'Learn more about how slow sites lose visitors', 'jetpack' ) }
 			>
 				<p className="boost-conversion-loss-info__source">
-					{ __( 'Source: ', 'jetpack' ) }
+					{ __( 'Source:', 'jetpack' ) }{ ' ' }
 					<ExternalLink
 						href="https://web.dev/why-speed-matters/"
 						target="_blank"
