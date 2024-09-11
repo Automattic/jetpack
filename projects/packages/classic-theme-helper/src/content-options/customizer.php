@@ -5,6 +5,8 @@
  * @package automattic/jetpack-classic-theme-helper
  */
 
+use Automattic\Jetpack\Assets;
+
 if ( ! function_exists( 'jetpack_content_options_customize_register' ) ) {
 
 	/**
@@ -493,7 +495,18 @@ if ( ! function_exists( 'jetpack_content_options_customize_preview_js' ) ) {
 		$author       = ( ! empty( $post_details['author'] ) ) ? $post_details['author'] : null;
 		$comment      = ( ! empty( $post_details['comment'] ) ) ? $post_details['comment'] : null;
 
-		wp_enqueue_script( 'jetpack-content-options-customizer', plugins_url( 'customizer.js', __FILE__ ), array( 'jquery', 'customize-preview' ), '1.0', true );
+		Assets::register_script(
+			'jetpack-content-options-customizer',
+			'../../dist/content-options/customizer.js',
+			__FILE__,
+			array(
+				'dependencies' => array(
+					'customize-preview',
+				),
+				'in_footer'    => true,
+				'enqueue'      => true,
+			)
+		);
 
 		wp_localize_script(
 			'jetpack-content-options-customizer',
