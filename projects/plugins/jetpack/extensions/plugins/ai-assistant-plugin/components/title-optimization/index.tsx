@@ -5,6 +5,9 @@ import {
 	useAiSuggestions,
 	RequestingErrorProps,
 	ERROR_QUOTA_EXCEEDED,
+	ERROR_NETWORK,
+	ERROR_SERVICE_UNAVAILABLE,
+	ERROR_UNCLEAR_PROMPT,
 } from '@automattic/jetpack-ai-client';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button, Spinner, ExternalLink, Notice } from '@wordpress/components';
@@ -206,6 +209,14 @@ export default function TitleOptimization( {
 		stopSuggestion();
 	}, [ stopSuggestion, toggleTitleOptimizationModal ] );
 
+	// When can we retry?
+	const showTryAgainButton =
+		error &&
+		[ ERROR_JSON_PARSE, ERROR_NETWORK, ERROR_SERVICE_UNAVAILABLE, ERROR_UNCLEAR_PROMPT ].includes(
+			error.code
+		);
+	const showReplaceTitleButton = ! error;
+
 	return (
 		<div>
 			<p>{ sidebarDescription }</p>
@@ -267,11 +278,12 @@ export default function TitleOptimization( {
 								<Button variant="secondary" onClick={ toggleTitleOptimizationModal }>
 									{ __( 'Cancel', 'jetpack' ) }
 								</Button>
-								{ error ? (
+								{ showTryAgainButton && (
 									<Button variant="primary" onClick={ handleTryAgain }>
 										{ __( 'Try again', 'jetpack' ) }
 									</Button>
-								) : (
+								) }
+								{ showReplaceTitleButton && (
 									<Button variant="primary" onClick={ handleAccept }>
 										{ __( 'Replace title', 'jetpack' ) }
 									</Button>
