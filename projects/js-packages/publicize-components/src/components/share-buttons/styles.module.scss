@@ -1,6 +1,11 @@
-$whatsapp: #2ab318;
-
 .share-buttons {
+	--color-x-lighten-20: #333;
+	--color-whatsapp-darken-20: #1f962d;
+	--color-facebook-darken-20: #003da1;
+	--color-tumblr-darken-20: #10151b;
+	--color-linkedin-darken-20: #043653;
+	--color-pinterest-darken-20: #741316;
+
 	display: flex;
 	flex-wrap: wrap;
 	gap: 0.7rem;
@@ -51,24 +56,83 @@ $whatsapp: #2ab318;
 		}
 	}
 
-	.x {
-		background-color: var(--jp-black);
-	}
+	:global(.components-button.is-primary) {
+		&.x {
+			background-color: var(--color-x);
 
-	.whatsapp {
-		background-color: $whatsapp;
-	}
+			&:hover {
+				background-color: var(--color-x-lighten-20);
+			}
+		}
 
-	.facebook {
-		background-color: var( --color-facebook );
-		// I hate !important, but social icon has it, so it needs to be overriden
-		border-radius: var(--jp-border-radius) !important;
-	}
+		&.whatsapp {
+			background-color: var(--color-whatsapp);
 
-	.clipboard {
-		background-color: #fff;
-		outline: 1px solid var(--jp-gray);
-		color: var(--jp-black);
+			&:hover {
+				background-color: var(--color-whatsapp-darken-20);
+			}
+		}
+
+		&.facebook {
+			background-color: var(--color-facebook);
+
+			&:hover {
+				background-color: var(--color-facebook-darken-20);
+			}
+		}
+
+		&.tumblr {
+			background-color: var(--color-tumblr);
+
+			&:hover {
+				background-color: var(--color-tumblr-darken-20);
+			}
+		}
+
+		&.linkedin {
+			background-color: var(--color-linkedin);
+
+			&:hover {
+				background-color: var(--color-linkedin-darken-20);
+			}
+		}
+
+		&.pinterest {
+			background-color: var(--color-pinterest);
+
+			&:hover {
+				background-color: var(--color-pinterest-darken-20);
+			}
+		}
+
+		&.mail,
+		&.clipboard {
+			&:not(:hover) {
+				outline: 1px solid var(--jp-gray);
+				color: var(--jp-black);
+				background-color: #fff;
+			}
+		}
+
+		&.mail {
+			svg {
+				fill: #fff;
+			}
+
+			svg path {
+				fill: #000;
+			}
+
+			&:hover {
+				svg {
+					fill: #000;
+				}
+
+				svg	path {
+					fill: #fff;
+				}
+			}
+		}
 	}
 }
 
