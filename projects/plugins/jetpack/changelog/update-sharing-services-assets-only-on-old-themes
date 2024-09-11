@@ -1,0 +1,4 @@
+Significance: major
+Type: compat
+
+Improved compatibiliy with modern block themes by not checking whether we should use legacy sharing buttons mechanism
