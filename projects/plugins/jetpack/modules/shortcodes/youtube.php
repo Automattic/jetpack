@@ -549,7 +549,7 @@ function wpcom_youtube_embed_crazy_url_init() {
 }
 
 /**
- * Remove  Add auth token required by Instagram's oEmbed REST API, or proxy through WP.com.
+ * Remove the ending question mark from the video id of the YouTube URL.
  *
  * Example: https://www.youtube.com/watch?v=AVAWwXeOyyQ?
  *

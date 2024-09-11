@@ -299,4 +299,47 @@ class WP_Test_Jetpack_Shortcodes_Youtube extends WP_UnitTestCase {
 		$GLOBALS['content_width'] = self::CONTENT_WIDTH;
 		$this->assertEquals( $expected, jetpack_shortcode_youtube_dimensions( $query_args ) );
 	}
+
+	/**
+	 * List of variation of Instagram embed URLs.
+	 */
+	public function get_youtube_urls() {
+		return array(
+			'valid_url'                          => array(
+				'https://www.youtube.com/watch?v=SVRiktFlWxI',
+				'https://www.youtube.com/watch?v=SVRiktFlWxI',
+			),
+			'short_youtube_url'                  => array(
+				'https://youtu.be/gS6_xOABTWo',
+				'https://youtu.be/gS6_xOABTWo',
+			),
+			'video_id_ending_with_question_mark' => array(
+				'https://www.youtube.com/watch?v=WVbQ-oro7FQ?',
+				'https://www.youtube.com/watch?v=WVbQ-oro7FQ',
+			),
+		);
+	}
+
+	/**
+	 * Test different oEmbed URLs and their output.
+	 *
+	 * @covers ::wpcom_youtube_oembed_fetch_url
+	 * @dataProvider get_youtube_urls
+	 *
+	 * @param string $original The original YouTube provider URL.
+	 * @param string $expected The final YouTube provider URL after wpcom_youtube_oembed_fetch_url.
+	 */
+	public function test_youtube_oembed_fetch_url( $original, $expected ) {
+		$provider_url = apply_filters(
+			'oembed_fetch_url',
+			'https://www.youtube.com/oembed?url=' . rawurlencode( $original ),
+			$original,
+			''
+		);
+
+		$this->assertEquals(
+			$provider_url,
+			'https://www.youtube.com/oembed?url=' . rawurlencode( $expected )
+		);
+	}
 }
