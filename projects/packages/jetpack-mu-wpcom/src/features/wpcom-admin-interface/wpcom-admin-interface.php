@@ -74,24 +74,6 @@ function wpcom_admin_interface_pre_update_option( $new_value, $old_value ) {
 		wpcom_admin_interface_track_changed_event( $new_value );
 	}
 
-	if ( ( new Automattic\Jetpack\Status\Host() )->is_wpcom_simple() ) {
-		if ( 'calypso' === $new_value ) {
-			add_action(
-				'update_option_wpcom_admin_interface',
-				/**
-				 * Redirects to the WordPress.com home page when the admin interface is changed to Calypso.
-				 *
-				 * @return never
-				*/
-				function () {
-					wp_safe_redirect( 'https://wordpress.com/settings/general/' . wpcom_get_site_slug() );
-					exit;
-				}
-			);
-		}
-		return $new_value;
-	}
-
 	$blog_id = Jetpack_Options::get_option( 'id' );
 	Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_user(
 		"/sites/$blog_id/hosting/admin-interface",
@@ -103,6 +85,24 @@ function wpcom_admin_interface_pre_update_option( $new_value, $old_value ) {
 	return $new_value;
 }
 add_filter( 'pre_update_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_update_option', 10, 2 );
+
+/**
+ * Redirects to the WordPress.com's general settings page when the admin interface is changed to `Default style`.
+ *
+ * @return void
+ */
+function redirect_to_wpcom_settings_general() {
+	// To respect the preferred-view setting, we redirect only when the settings are updated.
+	if ( empty( $_GET['settings-updated'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		return;
+	}
+	if ( 'calypso' !== get_option( 'wpcom_admin_interface' ) ) {
+		return;
+	}
+	wp_safe_redirect( 'https://wordpress.com/settings/general/' . wpcom_get_site_slug() );
+	exit;
+}
+add_action( 'load-options-general.php', 'redirect_to_wpcom_settings_general' );
 
 /**
  * Determines whether the admin interface has been recently changed by checking the presence of the `admin-interface-changed` query param.
