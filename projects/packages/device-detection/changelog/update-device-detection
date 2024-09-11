@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Device_Detection::get_info() will now memoize its result
