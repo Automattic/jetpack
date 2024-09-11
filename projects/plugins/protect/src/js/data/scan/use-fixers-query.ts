@@ -106,9 +106,7 @@ export default function useFixersQuery( {
 			queryClient.setQueryData( [ QUERY_FIXERS_KEY ], initialData );
 
 			// Show an error notice
-			showErrorNotice(
-				__( 'An error occurred while fetching the fixer status.', 'jetpack-protect' )
-			);
+			showErrorNotice( __( 'An error occurred while fetching fixers status.', 'jetpack-protect' ) );
 		}
 	}, [ fixersQuery.isError, fixersQuery.error, queryClient, initialData, showErrorNotice ] );
 
