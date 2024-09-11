@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Makes globalStats always accessible

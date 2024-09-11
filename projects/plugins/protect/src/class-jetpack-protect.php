@@ -19,6 +19,7 @@ use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\My_Jetpack\Products as My_Jetpack_Products;
 use Automattic\Jetpack\Plugins_Installer;
+use Automattic\Jetpack\Protect\Credentials;
 use Automattic\Jetpack\Protect\Onboarding;
 use Automattic\Jetpack\Protect\REST_Controller;
 use Automattic\Jetpack\Protect\Scan_History;
@@ -38,11 +39,6 @@ use Automattic\Jetpack\Waf\Waf_Stats;
  */
 class Jetpack_Protect {
 
-	/**
-	 * Licenses product ID.
-	 *
-	 * @var string
-	 */
 	const JETPACK_SCAN_PRODUCT_IDS                   = array(
 		2010, // JETPACK_SECURITY_DAILY.
 		2011, // JETPACK_SECURITY_DAILY_MOTNHLY.
@@ -214,6 +210,7 @@ class Jetpack_Protect {
 			'apiRoot'            => esc_url_raw( rest_url() ),
 			'apiNonce'           => wp_create_nonce( 'wp_rest' ),
 			'registrationNonce'  => wp_create_nonce( 'jetpack-registration-nonce' ),
+			'credentials'        => Credentials::get_credential_array(),
 			'status'             => Status::get_status( $refresh_status_from_wpcom ),
 			'scanHistory'        => Scan_History::get_scan_history( $refresh_status_from_wpcom ),
 			'installedPlugins'   => Plugins_Installer::get_plugins(),
@@ -223,7 +220,7 @@ class Jetpack_Protect {
 			'siteSuffix'         => ( new Jetpack_Status() )->get_site_suffix(),
 			'blogID'             => Connection_Manager::get_site_id( true ),
 			'jetpackScan'        => My_Jetpack_Products::get_product( 'scan' ),
-			'hasRequiredPlan'    => Plan::has_required_plan(),
+			'hasPlan'            => Plan::has_required_plan(),
 			'onboardingProgress' => Onboarding::get_current_user_progress(),
 			'waf'                => array(
 				'wafSupported'        => Waf_Runner::is_supported_environment(),
@@ -232,8 +229,6 @@ class Jetpack_Protect {
 				'upgradeIsSeen'       => self::get_waf_upgrade_seen_status(),
 				'displayUpgradeBadge' => self::get_waf_upgrade_badge_display_status(),
 				'isEnabled'           => Waf_Runner::is_enabled(),
-				'isToggling'          => false,
-				'isUpdating'          => false,
 				'config'              => Waf_Runner::get_config(),
 				'stats'               => self::get_waf_stats(),
 				'globalStats'         => Waf_Stats::get_global_stats(),

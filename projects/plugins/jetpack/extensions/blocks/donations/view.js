@@ -69,7 +69,6 @@ class JetpackDonations {
 
 	updateAmountFromCustomAmountInput() {
 		const input = this.block.querySelector( '.donations__custom-amount .donations__amount-value' );
-		const wrapper = this.block.querySelector( '.donations__custom-amount' );
 
 		const amount = input.innerHTML;
 		if ( ! amount ) {
@@ -81,6 +80,7 @@ class JetpackDonations {
 		// Validates the amount.
 		const currency = input.dataset.currency;
 		const parsedAmount = parseAmount( amount, currency );
+		const wrapper = this.block.querySelector( '.donations__custom-amount' );
 		if ( parsedAmount && parsedAmount >= minimumTransactionAmountForCurrency( currency ) ) {
 			wrapper.classList.remove( 'has-error' );
 			this.amount = parsedAmount;

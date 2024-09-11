@@ -59,6 +59,7 @@ const VideoStorageMeter: React.FC< VideoStorageMeterProps > = ( {
 
 export const ConnectVideoStorageMeter = props => {
 	const { storageUsed, uploadedVideoCount } = useVideos();
+	// eslint-disable-next-line @wordpress/no-unused-vars-before-return -- @todo Start extending jetpack-js-tools/eslintrc/react in eslintrc, then we can remove this disable comment.
 	const { features } = usePlan();
 	const { settings } = useVideoPressSettings();
 	const { siteType } = settings;

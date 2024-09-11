@@ -2,7 +2,7 @@ import { useLocale } from '@automattic/i18n-utils';
 import { Button, FormTokenField } from '@wordpress/components';
 import { TokenItem } from '@wordpress/components/build-types/form-token-field/types';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useEffect } from '@wordpress/element';
+import { useEffect, useState } from '@wordpress/element';
 import { __, _n } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 import * as React from 'react';
@@ -77,6 +77,7 @@ function SuggestedTags( props: SuggestedTagsProps ) {
 		props.setShouldShowSuggestedTags( false );
 	};
 	const { saveTags } = useAddTagsToPost( postId, selectedTags, onAddTagsButtonClick );
+	const [ isSavingTags, setIsSavingTags ] = useState( false );
 
 	useEffect( () => {
 		if ( origSuggestedTags?.length === 0 ) {
@@ -119,8 +120,13 @@ function SuggestedTags( props: SuggestedTagsProps ) {
 			<p>{ __( 'Adding tags can help drive more traffic to your post.', 'jetpack-mu-wpcom' ) }</p>
 			<Button
 				className="wpcom-block-editor-post-published-sharing-modal__save-tags"
-				onClick={ saveTags }
+				onClick={ async () => {
+					setIsSavingTags( true );
+					await saveTags();
+					setIsSavingTags( false );
+				} }
 				variant="primary"
+				isBusy={ isSavingTags }
 			>
 				{ __( 'Add these tags', 'jetpack-mu-wpcom' ) }
 			</Button>

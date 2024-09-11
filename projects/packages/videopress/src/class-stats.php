@@ -137,6 +137,7 @@ class Stats {
 		 */
 		krsort( $dates );
 		$period_of_data = floor( $period_count / 2 );
+		$period         = $period === 'day' ? __( 'day', 'jetpack-videopress-pkg' ) : __( 'year', 'jetpack-videopress-pkg' );
 
 		// template for the response
 		$featured_stats = array(

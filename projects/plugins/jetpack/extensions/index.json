@@ -79,10 +79,9 @@
 		"v6-video-frame-poster",
 		"videopress/video-chapters",
 		"ai-assistant-backend-prompts",
-		"ai-assistant-extensions-support",
 		"ai-title-optimization-keywords-support"
 	],
-	"experimental": [ "ai-image", "ai-paragraph" ],
+	"experimental": [],
 	"no-post-editor": [
 		"ai-assistant",
 		"business-hours",

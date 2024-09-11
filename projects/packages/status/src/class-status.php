@@ -326,6 +326,8 @@ class Status {
 	 *
 	 * @since-jetpack 5.8
 	 *
+	 * @deprecated since 4.0.0
+	 *
 	 * @access public
 	 * @static
 	 *

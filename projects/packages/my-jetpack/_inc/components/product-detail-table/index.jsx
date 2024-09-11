@@ -29,6 +29,7 @@ import { useRedirectToReferrer } from '../../hooks/use-redirect-to-referrer';
  * @param {string}   props.tier                    - Product tier slug, i.e. 'free' or 'upgraded'.
  * @param {Function} props.trackProductButtonClick - Tracks click event for the product button.
  * @param {boolean}  props.preferProductName       - Whether to show the product name instead of the title.
+ * @param {string}   props.feature                 - The slug of the product detail table's highlighted feature.
  * @return {object} - ProductDetailTableColumn component.
  */
 const ProductDetailTableColumn = ( {
@@ -39,6 +40,7 @@ const ProductDetailTableColumn = ( {
 	tier,
 	trackProductButtonClick,
 	preferProductName,
+	feature,
 } ) => {
 	const { siteSuffix = '', myJetpackCheckoutUri = '' } = getMyJetpackWindowInitialState();
 
@@ -49,6 +51,7 @@ const ProductDetailTableColumn = ( {
 		pricingForUi: { tiers: tiersPricingForUi },
 		title,
 		postCheckoutUrl,
+		postCheckoutUrlsByFeature,
 		isBundle,
 		hasPaidPlanForProduct,
 	} = detail;
@@ -74,6 +77,10 @@ const ProductDetailTableColumn = ( {
 	 * - myJetpackCheckoutUri is the default URL
 	 */
 	const getCheckoutRedirectUrl = useCallback( () => {
+		if ( feature && postCheckoutUrlsByFeature?.[ feature ] ) {
+			return postCheckoutUrlsByFeature[ feature ];
+		}
+
 		if ( postCheckoutUrl ) {
 			return postCheckoutUrl;
 		}
@@ -83,7 +90,7 @@ const ProductDetailTableColumn = ( {
 		}
 
 		return myJetpackCheckoutUri;
-	}, [ postCheckoutUrl, referrerURL, myJetpackCheckoutUri ] );
+	}, [ feature, postCheckoutUrlsByFeature, postCheckoutUrl, referrerURL, myJetpackCheckoutUri ] );
 
 	const checkoutRedirectUrl = getCheckoutRedirectUrl();
 
@@ -177,13 +184,13 @@ const ProductDetailTableColumn = ( {
 					{ callToAction }
 				</Button>
 			</PricingTableHeader>
-			{ featuresByTier.map( ( feature, mapIndex ) => {
+			{ featuresByTier.map( ( tierFeature, mapIndex ) => {
 				const {
 					included,
 					description,
 					struck_description: struckDescription,
 					info,
-				} = feature.tiers[ tier ];
+				} = tierFeature.tiers[ tier ];
 
 				const label =
 					struckDescription || description ? (
@@ -235,6 +242,7 @@ ProductDetailTableColumn.propTypes = {
  * @param {Function} props.trackProductButtonClick - Tracks click event for the product button.
  * @param {boolean}  props.isFetching              - True if there is a pending request to load the product.
  * @param {boolean}  props.preferProductName       - Whether to show the product name instead of the title.
+ * @param {string}   props.feature                 - The slug of a specific product feature to highlight.
  * @return {object} - ProductDetailTable react component.
  */
 const ProductDetailTable = ( {
@@ -243,6 +251,7 @@ const ProductDetailTable = ( {
 	trackProductButtonClick,
 	isFetching,
 	preferProductName,
+	feature,
 } ) => {
 	const { fileSystemWriteAccess = 'no' } = getMyJetpackWindowInitialState();
 
@@ -291,12 +300,12 @@ const ProductDetailTable = ( {
 	// The feature list/descriptions for the pricing table.
 	const pricingTableItems = useMemo(
 		() =>
-			featuresByTier.map( feature => ( {
-				name: feature?.name,
-				tooltipTitle: feature?.info?.title,
-				tooltipInfo: feature?.info?.content ? (
+			featuresByTier.map( tierFeature => ( {
+				name: tierFeature?.name,
+				tooltipTitle: tierFeature?.info?.title,
+				tooltipInfo: tierFeature?.info?.content ? (
 					// eslint-disable-next-line react/no-danger
-					<div dangerouslySetInnerHTML={ { __html: feature?.info?.content } } />
+					<div dangerouslySetInnerHTML={ { __html: tierFeature?.info?.content } } />
 				) : null,
 			} ) ),
 		[ featuresByTier ]
@@ -322,6 +331,7 @@ const ProductDetailTable = ( {
 						<ProductDetailTableColumn
 							key={ index }
 							tier={ tier }
+							feature={ feature }
 							detail={ detail }
 							isFetching={ isFetching }
 							onProductButtonClick={ onProductButtonClick }

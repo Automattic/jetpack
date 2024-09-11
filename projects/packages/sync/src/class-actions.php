@@ -304,15 +304,16 @@ class Actions {
 			return false;
 		}
 
-		if ( ( new Status() )->in_safe_mode() ) {
-			return false;
-		}
-
 		$connection = new Jetpack_Connection();
 		if ( ! $connection->is_connected() ) {
 			if ( ! doing_action( 'jetpack_site_registered' ) ) {
 				return false;
 			}
+		}
+
+		// By now, we know the site is connected, so we can return false if in safe mode.
+		if ( ( new Status() )->in_safe_mode() ) {
+			return false;
 		}
 
 		return true;
