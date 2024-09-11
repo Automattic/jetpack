@@ -46,13 +46,10 @@ export class CustomContentTypes extends React.Component {
 				? ! ( ! this.state.testimonial || this.state.portfolio )
 				: ! ( ! this.state.portfolio || this.state.testimonial );
 
-		const testimonial = this.state.testimonial !== undefined ? this.state.testimonial : false;
-
 		this.props.updateFormStateModuleOption( 'custom-content-types', 'jetpack_' + type, deactivate );
 
 		this.setState( {
 			[ type ]: ! this.state[ type ],
-			testimonial,
 		} );
 	};
 
