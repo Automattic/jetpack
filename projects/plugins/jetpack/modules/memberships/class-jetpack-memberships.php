@@ -175,7 +175,7 @@ class Jetpack_Memberships {
 			self::$instance->register_init_hook();
 			// Yes, `pro-plan` with a dash, `jetpack_personal` with an underscore. Check the v1.5 endpoint to verify.
 			$wpcom_plan_slug     = defined( 'ENABLE_PRO_PLAN' ) ? 'pro-plan' : 'personal-bundle';
-			self::$required_plan = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ? $wpcom_plan_slug : 'jetpack_personal';
+			self::$required_plan = ( new Host() )->is_wpcom_simple() ? $wpcom_plan_slug : 'jetpack_personal';
 		}
 
 		return self::$instance;
@@ -744,7 +744,7 @@ class Jetpack_Memberships {
 	 * @return bool
 	 */
 	public static function is_enabled_jetpack_recurring_payments() {
-		$api_available = ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || Jetpack::is_connection_ready() );
+		$api_available = ( new Host() )->is_wpcom_simple() || Jetpack::is_connection_ready();
 		return $api_available;
 	}
 
@@ -757,7 +757,7 @@ class Jetpack_Memberships {
 	public static function should_enable_monetize_blocks_in_editor() {
 		$manager                          = new Connection_Manager( 'jetpack' );
 		$jetpack_ready_and_user_connected = $manager->is_connected() && $manager->is_user_connected();
-		$api_available                    = ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || $jetpack_ready_and_user_connected );
+		$api_available                    = ( new Host() )->is_wpcom_simple() || $jetpack_ready_and_user_connected;
 		return $api_available;
 	}
 
