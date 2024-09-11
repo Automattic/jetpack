@@ -176,6 +176,10 @@ class Starter_Page_Templates {
 	 * Enqueue block editor assets.
 	 */
 	public function enqueue_assets() {
+		if ( ! function_exists( 'get_current_screen' ) ) {
+			return;
+		}
+
 		$screen      = get_current_screen();
 		$user_locale = Common\get_iso_639_locale( get_user_locale() );
 

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Prevent undefined `get_current_screen` function errors resulting from invoking the function in contexts where it is undefined.
