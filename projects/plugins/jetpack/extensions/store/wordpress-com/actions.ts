@@ -33,7 +33,6 @@ export function mapAiFeatureResponseToAiFeatureProps(
 	response: SiteAIAssistantFeatureEndpointResponseProps
 ): AiFeatureProps {
 	return {
-		hasFeature: !! response[ 'has-feature' ],
 		isOverLimit: !! response[ 'is-over-limit' ],
 		requestsCount: response[ 'requests-count' ],
 		requestsLimit: response[ 'requests-limit' ],

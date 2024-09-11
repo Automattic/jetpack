@@ -92,7 +92,6 @@ export type FeatureControl = {
 export type FeaturesControl = { [ key: string ]: FeatureControl };
 
 export type AiFeatureProps = {
-	hasFeature: boolean;
 	isOverLimit: boolean;
 	requestsCount: number;
 	requestsLimit: number;

@@ -102,7 +102,6 @@ export type FeaturesControl = {
 };
 
 export type AiFeatureProps = {
-	hasFeature: boolean;
 	isOverLimit: boolean;
 	requestsCount: number;
 	requestsLimit: number;
@@ -196,7 +195,6 @@ export type Selectors = {
  */
 export type AiAssistantFeatureEndpointResponseProps = {
 	'is-enabled': boolean;
-	'has-feature': boolean;
 	'is-over-limit': boolean;
 	'requests-count': number;
 	'requests-limit': number;
