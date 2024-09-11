@@ -25,7 +25,7 @@ const ThreatsList = () => {
 	const { item, list, selected, setSelected } = useThreatsList();
 	const fixableList = list.filter( obj => obj.fixable );
 	const [ isSm ] = useBreakpointMatch( 'sm' );
-	const [ filteredFixableList, setFilteredThreatList ] = useState( fixableList );
+	const [ filteredFixableList, setFilteredFixableList ] = useState( fixableList );
 	const { activefixInProgressThreatIds, stalefixInProgressThreatIds } = useFixers();
 
 	useEffect( () => {
@@ -37,7 +37,7 @@ const ThreatsList = () => {
 			return ! activeSet.has( threatId ) && ! staleSet.has( threatId );
 		} );
 
-		setFilteredThreatList( filteredList );
+		setFilteredFixableList( filteredList );
 	}, [ fixableList, activefixInProgressThreatIds, stalefixInProgressThreatIds ] );
 
 	// Popover anchors
