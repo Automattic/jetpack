@@ -112,7 +112,7 @@ const Controls = ( { blocks, disabledFeatures } ) => {
 								{ __( 'Write to see your grade level.', 'jetpack' ) }
 							</p>
 						) : (
-							<Tooltip text={ __( 'To make it easy to read, aim for level 8-12', 'jetpack' ) }>
+							<Tooltip text={ __( 'To make it easy to read, aim for level 8–12', 'jetpack' ) }>
 								<p>
 									{ gradeLevel }
 									<span className="jetpack-ai-proofread__grade-label">
