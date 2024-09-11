@@ -714,19 +714,14 @@ class REST_Controller {
 	 * @return array
 	 */
 	public function post_user_feedback( $req ) {
-		if ( is_user_logged_in() ) {
-			$sent_by_text = sprintf(
-				// translators: the name of the site.
-				'<br />' . esc_html__( 'Sent by a verified %s user.', 'jetpack-stats-admin' ) . '<br />',
-				isset( $GLOBALS['current_site']->site_name ) && $GLOBALS['current_site']->site_name ? $GLOBALS['current_site']->site_name : '"' . get_option( 'blogname' ) . '"'
-			);
-		} else {
-			$sent_by_text = '<br />' . esc_html__( 'Sent by an unverified visitor to your site.', 'jetpack-stats-admin' ) . '<br />';
+		$current_user = wp_get_current_user();
+		if ( ! $current_user ) {
+			return $this->get_forbidden_error();
 		}
 
-		$body_from_req  = json_decode( $req->get_body(), true );
-		$body_data      = is_array( $body_from_req ) ? $body_from_req : array();
-		$passed_content = isset( $body_data['feedback'] ) ? $body_data['feedback'] : '';
+		$body_from_req = json_decode( $req->get_body(), true );
+		$body_data     = is_array( $body_from_req ) ? $body_from_req : array();
+		$user_email    = $current_user->user_email;
 
 		return WPCOM_Client::request_as_blog_cached(
 			sprintf(
@@ -746,7 +741,7 @@ class REST_Controller {
 				array_merge(
 					$body_data,
 					array(
-						'feedback' => $passed_content . $sent_by_text,
+						'user_email' => $user_email,
 					)
 				)
 			),
