@@ -886,6 +886,8 @@ class Jetpack {
 			$config->ensure( 'publicize' );
 		}
 
+		add_action( 'jetpack_initialize_tracking', array( $this, 'initialize_tracking' ) );
+
 		/*
 		 * Load things that should only be in Network Admin.
 		 *
@@ -902,12 +904,24 @@ class Jetpack {
 
 		if ( $is_connection_ready ) {
 			add_action( 'login_form_jetpack_json_api_authorization', array( $this, 'login_form_json_api_authorization' ) );
+			$this->run_initialize_tracking_action();
 
 			Jetpack_Heartbeat::init();
 			if ( self::is_module_active( 'stats' ) && self::is_module_active( 'search' ) ) {
 				require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.jetpack-search-performance-logger.php';
 				Jetpack_Search_Performance_Logger::init();
 			}
+		} else {
+			add_action( 'jetpack_agreed_to_terms_of_service', array( $this, 'run_initialize_tracking_action' ) );
+			add_action( 'rest_api_init', array( $this, 'run_initialize_tracking_action' ) );
+			add_filter(
+				'xmlrpc_methods',
+				function ( $methods ) {
+					$this->run_initialize_tracking_action();
+					return $methods;
+				},
+				1
+			);
 		}
 
 		// Initialize remote file upload request handlers.
@@ -921,15 +935,6 @@ class Jetpack {
 			add_action( 'init', array( 'Jetpack_Iframe_Embed', 'init' ), 9, 0 );
 			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.jetpack-keyring-service-helper.php';
 			add_action( 'init', array( 'Jetpack_Keyring_Service_Helper', 'init' ), 9, 0 );
-		}
-
-		if ( ( new Tracking( 'jetpack', $this->connection_manager ) )->should_enable_tracking( new Terms_Of_Service(), new Status() ) ) {
-			add_action( 'init', array( new Plugin_Tracking(), 'init' ) );
-		} else {
-			/**
-			 * Initialize tracking right after the user agrees to the terms of service.
-			 */
-			add_action( 'jetpack_agreed_to_terms_of_service', array( new Plugin_Tracking(), 'init' ) );
 		}
 	}
 
@@ -986,7 +991,7 @@ class Jetpack {
 	/**
 	 * Redirect edit post links to Calypso.
 	 *
-	 * @deprecated since $$next-version$$
+	 * @deprecated since 13.9
 	 *
 	 * @param string $default_url Post edit URL.
 	 * @param int    $post_id Post ID.
@@ -994,7 +999,7 @@ class Jetpack {
 	 * @return string
 	 */
 	public function point_edit_post_links_to_calypso( $default_url, $post_id ) {
-		_deprecated_function( __METHOD__, '$$next-version$$' );
+		_deprecated_function( __METHOD__, '13.9' );
 
 		$post = get_post( $post_id );
 
@@ -1028,14 +1033,14 @@ class Jetpack {
 	/**
 	 * Redirect edit comment links to Calypso.
 	 *
-	 * @deprecated since $$next-version$$
+	 * @deprecated since 13.9
 	 *
 	 * @param string $url Comment edit URL.
 	 *
 	 * @return string
 	 */
 	public function point_edit_comment_links_to_calypso( $url ) {
-		_deprecated_function( __METHOD__, '$$next-version$$' );
+		_deprecated_function( __METHOD__, '13.9' );
 
 		// Take the `query` key value from the URL, and parse its parts to the $query_args. `amp;c` matches the comment ID.
 		$query_args = null;
@@ -4582,7 +4587,7 @@ endif;
 	/**
 	 * Verify the onboarding token.
 	 *
-	 * @deprecated since $$next-version$$
+	 * @deprecated since 13.9
 	 *
 	 * @param array  $token_data Token data.
 	 * @param string $token Token value.
@@ -4591,7 +4596,7 @@ endif;
 	 * @return mixed
 	 */
 	public static function verify_onboarding_token( $token_data, $token, $request_data ) {
-		_deprecated_function( __METHOD__, '$$next-version$$' );
+		_deprecated_function( __METHOD__, '13.9' );
 		// Default to a blog token.
 		$token_type = 'blog';
 
@@ -4640,11 +4645,11 @@ endif;
 	/**
 	 * Create a random secret for validating onboarding payload
 	 *
-	 * @deprecated since $$next-version$$
+	 * @deprecated since 13.9
 	 * @return string Secret token
 	 */
 	public static function create_onboarding_token() {
-		_deprecated_function( __METHOD__, '$$next-version$$' );
+		_deprecated_function( __METHOD__, '13.9' );
 		$token = Jetpack_Options::get_option( 'onboarding' );
 		if ( false === ( $token ) ) {
 			$token = wp_generate_password( 32, false );
@@ -4657,18 +4662,18 @@ endif;
 	/**
 	 * Remove the onboarding token
 	 *
-	 * @deprecated since $$next-version$$
+	 * @deprecated since 13.9
 	 * @return bool True on success, false on failure
 	 */
 	public static function invalidate_onboarding_token() {
-		_deprecated_function( __METHOD__, '$$next-version$$' );
+		_deprecated_function( __METHOD__, '13.9' );
 		return Jetpack_Options::delete_option( 'onboarding' );
 	}
 
 	/**
 	 * Validate an onboarding token for a specific action
 	 *
-	 * @deprecated since $$next-version$$
+	 * @deprecated since 13.9
 	 *
 	 * @param string $token Onboarding token.
 	 * @param string $action Action name.
@@ -4676,7 +4681,7 @@ endif;
 	 * @return boolean True if token/action pair is accepted, false if not
 	 */
 	public static function validate_onboarding_token_action( $token, $action ) {
-		_deprecated_function( __METHOD__, '$$next-version$$' );
+		_deprecated_function( __METHOD__, '13.9' );
 		// Compare tokens, bail if tokens do not match.
 		if ( ! hash_equals( $token, Jetpack_Options::get_option( 'onboarding' ) ) ) {
 			return false;
@@ -6300,6 +6305,39 @@ endif;
 			. '</a>';
 
 		return $plugin_meta;
+	}
+
+	/**
+	 * Lazy instantiation of the Plugin_Tracking object.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public function initialize_tracking() {
+		if ( did_action( 'jetpack_initialize_tracking' ) > 1 ) {
+			// Only need to run once.
+			return;
+		}
+
+		if ( ( new Tracking( 'jetpack', $this->connection_manager ) )->should_enable_tracking( new Terms_Of_Service(), new Status() ) || static::is_connection_ready() ) {
+			( new Plugin_Tracking() )->init();
+		}
+	}
+
+	/**
+	 * Run the "initialize tracking" hook.
+	 *
+	 * @since $$next-version$$
+	 */
+	public function run_initialize_tracking_action() {
+		/**
+		 * Fires when the tracking needs to be initialized.
+		 * Doesn't necessarily mean that will actually happen, depends if the 'jetpack_tos_agreed' option is set.
+		 *
+		 * @since $$next-version$$
+		 */
+		do_action( 'jetpack_initialize_tracking' );
 	}
 
 	/**

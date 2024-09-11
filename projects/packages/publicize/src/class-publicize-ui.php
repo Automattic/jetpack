@@ -38,7 +38,7 @@ class Publicize_UI {
 		}
 		$this->publicize = $publicize;
 
-		add_action( 'init', array( $this, 'init' ) );
+		add_action( 'admin_init', array( $this, 'init' ) );
 	}
 
 	/**

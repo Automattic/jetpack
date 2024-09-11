@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Shortcode: Fix the youtube url cannot be embeded due to the trailing question mark of the youtube id
