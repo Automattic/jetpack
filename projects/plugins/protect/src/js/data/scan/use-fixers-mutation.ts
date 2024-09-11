@@ -3,7 +3,6 @@ import { __ } from '@wordpress/i18n';
 import API from '../../api';
 import { QUERY_FIXERS_KEY } from '../../constants';
 import useNotices from '../../hooks/use-notices';
-import { FixersStatus } from '../../types/fixers';
 
 /**
  * Fixers Mutatation Hook
@@ -16,32 +15,9 @@ export default function useFixersMutation(): UseMutationResult {
 
 	return useMutation( {
 		mutationFn: API.fixThreats,
-		onSuccess: async ( data, threatIds ) => {
-			// Get the current cached data for threats
-			const cachedData = queryClient.getQueryData( [ QUERY_FIXERS_KEY ] ) as
-				| FixersStatus
-				| undefined;
-
-			// Optimistically update the fixer status to 'in_progress' for the selected threats.
-			if ( cachedData && cachedData.threats ) {
-				// Create a copy of the threats data
-				const updatedData = { ...cachedData.threats };
-
-				threatIds.forEach( id => {
-					if ( updatedData[ id ] ) {
-						updatedData[ id ] = {
-							...updatedData[ id ],
-							status: 'in_progress',
-						};
-					}
-				} );
-
-				// Set the updated data back in the cache
-				queryClient.setQueryData( [ QUERY_FIXERS_KEY ], {
-					...cachedData,
-					threats: updatedData, // Replace the threats with the updated version
-				} );
-			}
+		onSuccess: data => {
+			// The data returned from the API is the same as the data we need to update the cache.
+			queryClient.setQueryData( [ QUERY_FIXERS_KEY ], data );
 
 			// Show a success notice.
 			showSuccessNotice(
