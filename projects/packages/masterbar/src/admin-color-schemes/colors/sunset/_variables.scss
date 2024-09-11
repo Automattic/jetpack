@@ -20,10 +20,11 @@ $menu-highlight-background: $studio-red-80; // Calypso --color-sidebar-menu-hove
 $menu-current-text: $studio-yellow-80; // Calypso --color-sidebar-menu-selected-text
 $menu-current-icon: $menu-current-text;
 $menu-current-background: $studio-yellow-20; // Calypso --color-sidebar-menu-selected-background
-$menu-submenu-text: $studio-white; // Calypso --color-sidebar-submenu-text
-$menu-submenu-background: $studio-red-60; // Calypso --color-sidebar-submenu-background
+$menu-submenu-text: $studio-gray-10; // Calypso --color-sidebar-submenu-text
+$menu-submenu-background: $studio-red-90; // Calypso --color-sidebar-submenu-background
 $menu-submenu-focus-text: $studio-yellow-20; // Calypso --color-sidebar-submenu-hover-text
 $menu-submenu-current-text: $studio-white; // Calypso --color-sidebar-submenu-selected-text
+$adminbar-avatar-frame: $studio-red-80;
 
 // masterbar overrides
 $masterbar-background: $studio-red-80; // Calypso --color-masterbar-background
@@ -47,4 +48,3 @@ $menu-nudge-text-color: $studio-black;
 $menu-nudge-cta-background: $highlight-color;
 $menu-nudge-cta-color: $studio-white;
 $menu-nudge-cta-background-hover: $studio-orange-60;
-
