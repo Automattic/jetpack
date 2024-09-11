@@ -31,6 +31,14 @@ const isKeywordsFeatureAvailable = getFeatureAvailability(
 	'ai-title-optimization-keywords-support'
 );
 
+/**
+ * A generic error message that we can reuse.
+ */
+const genericErrorMessage = __(
+	'The generation of your suggested titles failed. Please try again.',
+	'jetpack'
+);
+
 const ERROR_JSON_PARSE = 'json-parse-error';
 type TitleOptimizationJSONError = {
 	code: typeof ERROR_JSON_PARSE;
@@ -47,10 +55,6 @@ const TitleOptimizationErrorMessage = ( { error }: { error: TitleOptimizationErr
 			</div>
 		);
 	}
-	const genericErrorMessage = __(
-		'The generation of your suggested titles failed. Please try again.',
-		'jetpack'
-	);
 	const errorMessage = error.code === ERROR_MODERATION ? error.message : genericErrorMessage;
 	return (
 		<div className="jetpack-ai-title-optimization__error">
@@ -118,10 +122,7 @@ export default function TitleOptimization( {
 			} catch ( e ) {
 				const jsonError: TitleOptimizationJSONError = {
 					code: ERROR_JSON_PARSE,
-					message: __(
-						'The generation of your suggested titles failed. Please try again!',
-						'jetpack'
-					),
+					message: genericErrorMessage,
 				};
 				setError( jsonError );
 			}
