@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Move leading and trailing spaces out of i18n messages.

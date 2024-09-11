@@ -3,7 +3,7 @@ import { __, sprintf } from '@wordpress/i18n';
 
 const TrackError = memo( ( { link, title, colors } ) => (
 	<div className="jetpack-podcast-player__track-error">
-		{ __( 'Episode unavailable. ', 'jetpack' ) }
+		{ __( 'Episode unavailable.', 'jetpack' ) }{ ' ' }
 		{ link && (
 			<span className={ colors.secondary.classes } style={ { color: colors.secondary.custom } }>
 				<a

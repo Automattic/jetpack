@@ -141,7 +141,7 @@ export default ( { salesforceData, setAttributes, instanceId } ) => {
 					{ organizationIdError && (
 						<HelpMessage isError id={ `contact-form-${ instanceId }-email-error` }>
 							{ __(
-								'Invalid Organization ID. Should be a 15 - 18 characters long alphanumeric string.',
+								'Invalid Organization ID. Should be a 15 – 18 characters long alphanumeric string.',
 								'jetpack-forms'
 							) }
 						</HelpMessage>

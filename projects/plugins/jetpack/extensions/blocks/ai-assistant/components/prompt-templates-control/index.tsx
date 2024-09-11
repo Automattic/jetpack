@@ -27,7 +27,7 @@ export const defaultPromptTemplate = {
 	label: __( 'Post about…', 'jetpack' ),
 	description: {
 		original: 'Write a post about ',
-		translated: __( 'Write a post about ', 'jetpack' ),
+		translated: __( 'Write a post about', 'jetpack' ) + ' ',
 	},
 };
 
@@ -37,21 +37,21 @@ export const promptTemplates = [
 		label: __( 'Informative article on…', 'jetpack' ),
 		description: {
 			original: 'Craft an informative article explaining ',
-			translated: __( 'Craft an informative article explaining ', 'jetpack' ),
+			translated: __( 'Craft an informative article explaining', 'jetpack' ) + ' ',
 		},
 	},
 	{
 		label: __( 'Step-by-step tutorial on…', 'jetpack' ),
 		description: {
 			original: 'Write a step-by-step tutorial on ',
-			translated: __( 'Write a step-by-step tutorial on ', 'jetpack' ),
+			translated: __( 'Write a step-by-step tutorial on', 'jetpack' ) + ' ',
 		},
 	},
 	{
 		label: __( 'Motivational post on…', 'jetpack' ),
 		description: {
 			original: 'Create a motivational post on ',
-			translated: __( 'Create a motivational post on ', 'jetpack' ),
+			translated: __( 'Create a motivational post on', 'jetpack' ) + ' ',
 		},
 	},
 ];
@@ -61,21 +61,21 @@ export const promptTemplatesForGeneratedContent = [
 		label: __( 'Say it differently…', 'jetpack' ),
 		description: {
 			original: 'Rewrite it in a way that ',
-			translated: __( 'Rewrite it in a way that ', 'jetpack' ),
+			translated: __( 'Rewrite it in a way that', 'jetpack' ) + ' ',
 		},
 	},
 	{
 		label: __( 'Add…', 'jetpack' ),
 		description: {
 			original: 'Add more details about ',
-			translated: __( 'Add more details about ', 'jetpack' ),
+			translated: __( 'Add more details about', 'jetpack' ) + ' ',
 		},
 	},
 	{
 		label: __( 'Remove…', 'jetpack' ),
 		description: {
 			original: 'Remove unnecessary details about ',
-			translated: __( 'Remove unnecessary details about ', 'jetpack' ),
+			translated: __( 'Remove unnecessary details about', 'jetpack' ) + ' ',
 		},
 	},
 ];
