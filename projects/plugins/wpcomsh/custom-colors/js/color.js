@@ -133,7 +133,7 @@
 
 			this.error = false;
 			// eslint-disable-next-line no-bitwise -- Bitwise operations are at home in this context.
-			return this.fromInt( parseInt( ( rgb.r << 16 ) + ( rgb.g << 8 ) + rgb.b, 10 ), preserve ); // eslint:ignore
+			return this.fromInt( parseInt( ( rgb.r << 16 ) + ( rgb.g << 8 ) + rgb.b, 10 ), preserve );
 		},
 
 		fromHex: function ( color ) {
