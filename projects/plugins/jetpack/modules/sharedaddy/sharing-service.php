@@ -927,7 +927,7 @@ add_action( 'wp_head', 'sharing_add_header', 1 );
  * @return bool True if legacy sharing buttons should be loaded, false otherwise.
  */
 function sharing_should_load_legacy_sharing_buttons() {
-	return ! ( function_exists( 'wp_is_block_theme' ) && wp_is_block_theme() );
+	return ! wp_is_block_theme();
 }
 
 /**
