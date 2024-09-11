@@ -15,7 +15,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { FairUsageNotice } from '../../../../blocks/ai-assistant/components/quota-exceeded-message';
+import QuotaExceededMessage from '../../../../blocks/ai-assistant/components/quota-exceeded-message';
 import { getFeatureAvailability } from '../../../../blocks/ai-assistant/lib/utils/get-feature-availability';
 import useAutoSaveAndRedirect from '../../../../shared/use-autosave-and-redirect';
 import usePostContent from '../../hooks/use-post-content';
@@ -35,7 +35,7 @@ const TitleOptimizationErrorMessage = ( { error }: { error: RequestingErrorProps
 	if ( error.code === ERROR_QUOTA_EXCEEDED ) {
 		return (
 			<div className="jetpack-ai-title-optimization__error">
-				<FairUsageNotice />
+				<QuotaExceededMessage useLightNudge={ true } />
 			</div>
 		);
 	}
