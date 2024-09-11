@@ -9,52 +9,6 @@
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 
 /**
- * Force-enable the Masterbar module
- * If you use a version of Jetpack that supports it,
- * and if it is not already enabled.
- */
-function wpcomsh_activate_masterbar_module() {
-	if ( ! defined( 'JETPACK__VERSION' ) || get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
-		return;
-	}
-
-	if ( ! Jetpack::is_module_active( 'masterbar' ) ) {
-		Jetpack::activate_module( 'masterbar', false, false );
-	}
-}
-add_action( 'init', 'wpcomsh_activate_masterbar_module', 0, 0 );
-
-/**
- * Disable the Masterbar for nav redesign.
- *
- * @param array $modules Array of Jetpack modules.
- * @return array
- */
-function atomic_masterbar_filter_jetpack_modules( $modules ) {
-	if ( isset( $modules['masterbar'] ) && get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
-		unset( $modules['masterbar'] );
-	}
-
-	return $modules;
-}
-add_filter( 'jetpack_get_available_modules', 'atomic_masterbar_filter_jetpack_modules' );
-
-/**
- * Remove Masterbar from the old Module list.
- * Available at wp-admin/admin.php?page=jetpack_modules
- *
- * @param array $items Array of Jetpack modules.
- * @return array
- */
-function wpcomsh_rm_masterbar_module_list( $items ) {
-	if ( isset( $items['masterbar'] ) ) {
-		unset( $items['masterbar'] );
-	}
-	return $items;
-}
-add_filter( 'jetpack_modules_list_table_items', 'wpcomsh_rm_masterbar_module_list' );
-
-/**
  * Check if the current request is an API request to the `wpcom/v2/admin-menu` endpoint.
  *
  * @return bool
