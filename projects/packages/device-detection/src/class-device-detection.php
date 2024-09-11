@@ -58,6 +58,8 @@ class Device_Detection {
 		// Return memoized result if available.
 		// phpcs:disable WordPress.Security.ValidatedSanitizedInput
 		$memo_key = ! empty( $ua ) ? $ua : ( $_SERVER['HTTP_USER_AGENT'] ?? '' );
+		// Note: UA string used raw for compatibility reasons.
+		// No sanitization is needed as the value is never output or persisted, and is only used for memoization.
 		// phpcs:enable WordPress.Security.ValidatedSanitizedInput
 		if ( isset( self::$get_info_memo[ $memo_key ] ) ) {
 			return self::$get_info_memo[ $memo_key ];
