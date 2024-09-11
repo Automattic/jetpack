@@ -1,4 +1,4 @@
-//import { localizeUrl } from '@automattic/i18n-utils';
+import { localizeUrl } from '@automattic/i18n-utils';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button, ExternalLink } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
@@ -45,7 +45,7 @@ const UpsellNotice = ( { requiredPlan } ) => {
 					<Button
 						onClick={ () => {
 							setShowHelpCenter( true );
-							setShowSupportDoc( supportUrl, postId ); //localizeUrl( supportUrl ), postId );
+							setShowSupportDoc( localizeUrl( supportUrl ), postId );
 						} }
 						style={ { marginTop: 10, height: 'unset' } }
 						className="components-seo-upsell__learn-more-link is-compact"
