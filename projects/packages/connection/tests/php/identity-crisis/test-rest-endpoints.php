@@ -35,6 +35,19 @@ class Test_REST_Endpoints extends TestCase {
 	private $api_host_original;
 
 	/**
+	 * Reset the connection status.
+	 * Needed because the connection status is memoized and not reset between tests.
+	 * WorDBless does not fire the options update hooks that would reset the connection status.
+	 */
+	public function reset_connection_status() {
+		static $manager = null;
+		if ( ! $manager ) {
+			$manager = new \Automattic\Jetpack\Connection\Manager();
+		}
+		$manager->reset_connection_status();
+	}
+
+	/**
 	 * Setting up the test.
 	 *
 	 * @suppress PhanNoopNew
@@ -57,6 +70,7 @@ class Test_REST_Endpoints extends TestCase {
 		Constants::set_constant( 'JETPACK__API_BASE', 'https://jetpack.wordpress.com/jetpack.' );
 
 		set_transient( 'jetpack_assumed_site_creation_date', '2020-02-28 01:13:27' );
+		$this->reset_connection_status();
 	}
 
 	/**
@@ -74,6 +88,7 @@ class Test_REST_Endpoints extends TestCase {
 		$_GET = array();
 
 		Connection_Rest_Authentication::init()->reset_saved_auth_state();
+		$this->reset_connection_status();
 	}
 
 	/**
