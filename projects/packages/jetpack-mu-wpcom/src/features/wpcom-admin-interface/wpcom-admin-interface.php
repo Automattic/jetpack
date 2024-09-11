@@ -74,6 +74,10 @@ function wpcom_admin_interface_pre_update_option( $new_value, $old_value ) {
 		wpcom_admin_interface_track_changed_event( $new_value );
 	}
 
+	if ( ( new Automattic\Jetpack\Status\Host() )->is_wpcom_simple() ) {
+		return $new_value;
+	}
+
 	$blog_id = Jetpack_Options::get_option( 'id' );
 	Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_user(
 		"/sites/$blog_id/hosting/admin-interface",
