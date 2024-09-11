@@ -1,14 +1,17 @@
 import { IconTooltip } from '@automattic/jetpack-components';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { Button } from '@wordpress/components';
-import { useSelect } from '@wordpress/data';
+import { Button, Spinner } from '@wordpress/components';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { __, _x } from '@wordpress/i18n';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import useSharePost from '../../hooks/use-share-post';
 import { store as socialStore } from '../../social-store';
 import { ShareStatusItem } from '../../social-store/types';
-import { connectionMatchesShareItem } from '../../utils/share-status';
+import {
+	areShareItemsForSameConnection,
+	connectionMatchesShareItem,
+} from '../../utils/share-status';
 import styles from './styles.module.scss';
 
 export type RetryProps = {
@@ -31,6 +34,9 @@ export function Retry( { shareItem }: RetryProps ) {
 	const connectionStillExists = connections.some( connectionMatchesShareItem( shareItem ) );
 
 	const { doPublicize } = useSharePost( postId );
+	const { pollForPostShareStatus } = useDispatch( socialStore );
+
+	const [ isRetrying, setIsRetrying ] = useState( false );
 
 	const onRetry = useCallback( async () => {
 		recordEvent( 'jetpack_social_share_status_retry', {
@@ -50,8 +56,30 @@ export function Retry( { shareItem }: RetryProps ) {
 			return;
 		}
 
+		setIsRetrying( true );
+
 		await doPublicize( skippedConnections );
-	}, [ shareItem, connections, doPublicize, recordEvent ] );
+
+		await pollForPostShareStatus( {
+			isRequestComplete( { postShareStatus, lastTimestamp } ) {
+				const isComplete = postShareStatus.shares.some( share => {
+					return (
+						share.timestamp > lastTimestamp && areShareItemsForSameConnection( shareItem, share )
+					);
+				} );
+
+				if ( isComplete ) {
+					setIsRetrying( false );
+				}
+
+				return isComplete;
+			},
+		} );
+	}, [ recordEvent, shareItem, connections, doPublicize, pollForPostShareStatus ] );
+
+	if ( isRetrying ) {
+		return <Spinner />;
+	}
 
 	return (
 		<div className={ styles[ 'retry-wrapper' ] }>
