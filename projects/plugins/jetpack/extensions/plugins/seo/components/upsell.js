@@ -47,8 +47,7 @@ const UpsellNotice = ( { requiredPlan } ) => {
 							setShowHelpCenter( true );
 							setShowSupportDoc( localizeUrl( supportUrl ), postId );
 						} }
-						style={ { marginTop: 10, height: 'unset' } }
-						className="components-seo-upsell__learn-more-link is-compact"
+						className="components-seo-upsell__learn-more-link"
 						variant="link"
 					>
 						{ supportLinkTitle }
