@@ -301,7 +301,7 @@ class WP_Test_Jetpack_Shortcodes_Youtube extends WP_UnitTestCase {
 	}
 
 	/**
-	 * List of variation of Instagram embed URLs.
+	 * List of variation of YouTube embed URLs.
 	 */
 	public function get_youtube_urls() {
 		return array(
