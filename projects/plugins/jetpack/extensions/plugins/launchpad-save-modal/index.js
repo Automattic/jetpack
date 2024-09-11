@@ -42,7 +42,9 @@ const updateLaunchpadSaveModalBrowserConfig = config => {
 export const settings = {
 	render: function LaunchpadSaveModal() {
 		const [ experimentVariationName, setExperimentVariationName ] = useState();
-		const sessionVariationName = window.sessionStorage.getItem( 'launchpad_experiment_variation' );
+		const sessionVariationName = window.sessionStorage.getItem(
+			'launchpad_removal_2024_experiment_variation'
+		);
 
 		const { isSavingSite, isSavingPost, isCurrentPostPublished, postLink, postType } = useSelect(
 			select => {
