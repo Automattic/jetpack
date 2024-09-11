@@ -1,6 +1,6 @@
 import { Container, Col, Text, AdminSectionHero } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { PRODUCT_SLUGS } from '../../data/constants';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import StatsSection from '../stats-section';
@@ -90,17 +90,32 @@ const DisplayItems: FC< DisplayItemsProps > = ( { slugs } ) => {
 
 interface ProductCardsSectionProps {
 	noticeMessage: ReactNode;
+	siteIsRegistered?: boolean;
 }
 
-const ProductCardsSection: FC< ProductCardsSectionProps > = ( { noticeMessage } ) => {
-	const { ownedProducts = [], unownedProducts = [] } =
-		getMyJetpackWindowInitialState( 'lifecycleStats' );
+const ProductCardsSection: FC< ProductCardsSectionProps > = ( {
+	noticeMessage,
+	siteIsRegistered,
+} ) => {
+	const [ siteOwnedProducts, setSiteOwnedProducts ] = useState< JetpackModule[] >( [] );
+	const [ siteUnownedProducts, setSiteUnownedProducts ] = useState< JetpackModule[] >( [] );
+
+	const getProducts = () => {
+		const { ownedProducts = [], unownedProducts = [] } =
+			getMyJetpackWindowInitialState( 'lifecycleStats' );
+		setSiteOwnedProducts( ownedProducts );
+		setSiteUnownedProducts( unownedProducts );
+	};
+
+	useEffect( () => {
+		getProducts();
+	}, [ siteIsRegistered ] );
 
 	const unownedSectionTitle = useMemo( () => {
-		return ownedProducts.length > 0
+		return siteOwnedProducts.length > 0
 			? __( 'Discover more', 'jetpack-my-jetpack' )
 			: __( 'Discover all Jetpack Products', 'jetpack-my-jetpack' );
-	}, [ ownedProducts.length ] );
+	}, [ siteOwnedProducts.length ] );
 
 	const filterProducts = ( products: JetpackModule[] ) => {
 		return products.filter( product => {
@@ -111,8 +126,8 @@ const ProductCardsSection: FC< ProductCardsSectionProps > = ( { noticeMessage } 
 		} );
 	};
 
-	const filteredOwnedProducts = filterProducts( ownedProducts );
-	const filteredUnownedProducts = filterProducts( unownedProducts );
+	const filteredOwnedProducts = filterProducts( siteOwnedProducts );
+	const filteredUnownedProducts = filterProducts( siteUnownedProducts );
 
 	return (
 		<>
