@@ -48,7 +48,6 @@ const UpsellNotice = ( { requiredPlan } ) => {
 							setShowSupportDoc( localizeUrl( supportUrl ), postId );
 						} }
 						style={ { marginTop: 10, height: 'unset' } }
-						// ref={ reference => ref !== reference && setRef( reference ) }
 						className="components-seo-upsell__learn-more-link is-compact"
 						variant="link"
 					>
