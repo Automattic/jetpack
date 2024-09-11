@@ -25,10 +25,3 @@ add_action(
 		Jetpack::enable_module_configurable( __FILE__ );
 	}
 );
-
-/**
- * Legacy, deprecated class.
- *
- * @deprecated 13.5
- */
-class Jetpack_SSO extends SSO {}
