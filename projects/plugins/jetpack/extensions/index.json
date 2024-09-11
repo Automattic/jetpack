@@ -70,7 +70,8 @@
 		"ai-assistant-experimental-image-generation-support",
 		"ai-general-purpose-image-generator",
 		"ai-proofread-breve",
-		"ai-assistant-site-logo-support"
+		"ai-assistant-site-logo-support",
+		"ai-title-optimization-keywords-support"
 	],
 	"beta": [
 		"google-docs-embed",
@@ -78,8 +79,7 @@
 		"recipe",
 		"v6-video-frame-poster",
 		"videopress/video-chapters",
-		"ai-assistant-backend-prompts",
-		"ai-title-optimization-keywords-support"
+		"ai-assistant-backend-prompts"
 	],
 	"experimental": [],
 	"no-post-editor": [
