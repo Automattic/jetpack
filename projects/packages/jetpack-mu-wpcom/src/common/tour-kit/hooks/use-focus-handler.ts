@@ -11,7 +11,8 @@ const useFocusHandler = ( ref: React.MutableRefObject< null | HTMLElement > ): b
 	const [ hasFocus, setHasFocus ] = useState( false );
 
 	const handleFocus = useCallback( () => {
-		if ( document.hasFocus() && ref.current?.contains( document.activeElement ) ) {
+		const doc = ref.current?.ownerDocument;
+		if ( doc && doc.hasFocus() && ref.current?.contains( doc.activeElement ) ) {
 			setHasFocus( true );
 		} else {
 			setHasFocus( false );
