@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Classic_Theme_Helper;
 
+use Automattic\Jetpack\Modules;
 use Jetpack_Options;
 use WP_Customize_Image_Control;
 use WP_Customize_Manager;
@@ -304,6 +305,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Portfolio' ) ) {
 		public static function activation_post_type_support() {
 			if ( current_theme_supports( self::CUSTOM_POST_TYPE ) ) {
 				update_option( self::OPTION_NAME, '1' );
+				( new Modules() )->activate( 'custom-content-types', false, false );
 			}
 		}
 
