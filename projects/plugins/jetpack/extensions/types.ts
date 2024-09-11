@@ -8,7 +8,6 @@ import type { TierProp, UpgradeTypeProp, FeaturesControl } from './store/wordpre
  */
 export type SiteAIAssistantFeatureEndpointResponseProps = {
 	'is-enabled': boolean;
-	'has-feature': boolean;
 	'is-over-limit': boolean;
 	'requests-count': number;
 	'requests-limit': number;
