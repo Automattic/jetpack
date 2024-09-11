@@ -31,7 +31,15 @@ const isKeywordsFeatureAvailable = getFeatureAvailability(
 	'ai-title-optimization-keywords-support'
 );
 
-const TitleOptimizationErrorMessage = ( { error }: { error: RequestingErrorProps } ) => {
+const ERROR_JSON_PARSE = 'json-parse-error';
+type TitleOptimizationJSONError = {
+	code: typeof ERROR_JSON_PARSE;
+	message: string;
+};
+
+type TitleOptimizationError = RequestingErrorProps | TitleOptimizationJSONError;
+
+const TitleOptimizationErrorMessage = ( { error }: { error: TitleOptimizationError } ) => {
 	if ( error.code === ERROR_QUOTA_EXCEEDED ) {
 		return (
 			<div className="jetpack-ai-title-optimization__error">
@@ -86,7 +94,7 @@ export default function TitleOptimization( {
 	const [ isTitleOptimizationModalVisible, setIsTitleOptimizationModalVisible ] = useState( false );
 	const [ generating, setGenerating ] = useState( false );
 	const [ options, setOptions ] = useState( [] );
-	const [ error, setError ] = useState< RequestingErrorProps >( null );
+	const [ error, setError ] = useState< TitleOptimizationError >( null );
 	const [ optimizationKeywords, setOptimizationKeywords ] = useState( '' );
 	const { editPost } = useDispatch( 'core/editor' );
 	const { autosave } = useAutoSaveAndRedirect();
@@ -108,7 +116,14 @@ export default function TitleOptimization( {
 				setOptions( parsedContent );
 				setSelected( parsedContent?.[ 0 ]?.title );
 			} catch ( e ) {
-				// Do nothing
+				const jsonError: TitleOptimizationJSONError = {
+					code: ERROR_JSON_PARSE,
+					message: __(
+						'The generation of your suggested titles failed. Please try again!',
+						'jetpack'
+					),
+				};
+				setError( jsonError );
 			}
 		},
 		[ increaseAiAssistantRequestsCount ]
