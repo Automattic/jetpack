@@ -81,6 +81,13 @@ class Manager {
 	private static $disconnected_users = array();
 
 	/**
+	 * Cached connection status.
+	 *
+	 * @var bool|null True if the site is connected, false if not, null if not determined yet.
+	 */
+	private static $is_connected = null;
+
+	/**
 	 * Initialize the object.
 	 * Make sure to call the "Configure" first.
 	 *
@@ -596,9 +603,17 @@ class Manager {
 	 * @return bool
 	 */
 	public function is_connected() {
-		$has_blog_id    = (bool) \Jetpack_Options::get_option( 'id' );
-		$has_blog_token = (bool) $this->get_tokens()->get_access_token();
-		return $has_blog_id && $has_blog_token;
+		if ( self::$is_connected === null ) {
+			$has_blog_id = (bool) \Jetpack_Options::get_option( 'id' );
+			if ( $has_blog_id ) {
+				$has_blog_token     = (bool) $this->get_tokens()->get_access_token();
+				self::$is_connected = ( $has_blog_id && $has_blog_token );
+			} else {
+				// Short-circuit, no need to check for tokens if there's no blog ID.
+				self::$is_connected = false;
+			}
+		}
+		return self::$is_connected;
 	}
 
 	/**
