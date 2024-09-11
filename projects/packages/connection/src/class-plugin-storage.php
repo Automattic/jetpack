@@ -144,7 +144,10 @@ class Plugin_Storage {
 		}
 
 		if ( is_multisite() && get_current_blog_id() !== self::$current_blog_id ) {
-			self::$plugins         = (array) get_option( self::ACTIVE_PLUGINS_OPTION_NAME, array() );
+			if ( self::$current_blog_id ) {
+				// If blog ID got changed, pull the list of active plugins for that blog from the database.
+				self::$plugins = (array) get_option( self::ACTIVE_PLUGINS_OPTION_NAME, array() );
+			}
 			self::$current_blog_id = get_current_blog_id();
 		}
 
