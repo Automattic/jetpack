@@ -10,6 +10,8 @@ import { store as socialStore } from '../../social-store';
 /**
  * Returns whether sharing is possible based on the current media and connections.
  *
+ * Returns true if at least one of the enabled connections is valid for sharing, false otherwise.
+ *
  * @return {boolean} Whether sharing is possible.
  */
 export function useIsSharingPossible() {
