@@ -1,6 +1,6 @@
+import { localizeUrl } from '@automattic/i18n-utils';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button, ExternalLink } from '@wordpress/components';
-import { localizeUrl } from '@automattic/i18n-utils';
 import { useDispatch } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import { external } from '@wordpress/icons';
@@ -54,9 +54,7 @@ const UpsellNotice = ( { requiredPlan } ) => {
 						{ supportLinkTitle }
 					</Button>
 				) : (
-					<ExternalLink href={ supportUrl }>
-						{ supportLinkTitle }
-					</ExternalLink>
+					<ExternalLink href={ supportUrl }>{ supportLinkTitle }</ExternalLink>
 				) }
 			</div>
 
