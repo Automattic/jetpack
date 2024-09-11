@@ -53,6 +53,7 @@ export default function useFixersQuery( {
 
 			// Check if any fixers have completed, by comparing the latest data against the cache.
 			Object.keys( data?.threats ).forEach( ( threatId: string ) => {
+				// Find the specific threat in the cached data.
 				const threat = data?.threats[ threatId ];
 				const cachedThreat = cachedData?.threats?.[ threatId ];
 
