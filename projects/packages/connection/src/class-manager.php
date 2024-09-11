@@ -152,9 +152,7 @@ class Manager {
 		add_action( 'jetpack_site_disconnected', array( $manager, 'reset_connection_status' ) );
 		add_action( 'jetpack_sync_register_user', array( $manager, 'reset_connection_status' ) );
 		add_action( 'pre_update_jetpack_option_id', array( $manager, 'reset_connection_status' ) );
-		add_action( 'pre_update_jetpack_blog_token', array( $manager, 'reset_connection_status' ) );
-		add_action( 'pre_update_jetpack_user_token', array( $manager, 'reset_connection_status' ) );
-		add_action( 'pre_update_jetpack_user_tokens', array( $manager, 'reset_connection_status' ) );
+		// blog_token, user_token, user_tokens - handled by the next three that look for jetpack_private_options.
 		add_action( 'update_option', array( $manager, 'maybe_reset_connection_status' ), 10, 1 );
 		add_action( 'add_option', array( $manager, 'maybe_reset_connection_status' ), 10, 1 );
 		add_action( 'delete_option', array( $manager, 'maybe_reset_connection_status' ), 10, 1 );
