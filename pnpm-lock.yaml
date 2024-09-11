@@ -3746,9 +3746,6 @@ importers:
       '@automattic/format-currency':
         specifier: 1.0.1
         version: 1.0.1
-      '@automattic/i18n-utils':
-        specifier: 1.2.3
-        version: 1.2.3
       '@automattic/jetpack-ai-client':
         specifier: workspace:*
         version: link:../../js-packages/ai-client
