@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Launchpad first_post_published task reuses existing draft if there is one
