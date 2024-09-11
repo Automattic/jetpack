@@ -9,6 +9,7 @@
 use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Abstract_Token_Subscription_Service;
+use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS;
 use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_TIER_ID_SETTINGS;
@@ -757,7 +758,8 @@ class Jetpack_Memberships {
 	public static function should_enable_monetize_blocks_in_editor() {
 		$manager                          = new Connection_Manager( 'jetpack' );
 		$jetpack_ready_and_user_connected = $manager->is_connected() && $manager->is_user_connected();
-		$api_available                    = ( new Host() )->is_wpcom_simple() || $jetpack_ready_and_user_connected;
+		$is_offline_mode                  = ( new Status() )->is_offline_mode();
+		$api_available                    = ( new Host() )->is_wpcom_simple() || ( $jetpack_ready_and_user_connected && ! $is_offline_mode );
 		return $api_available;
 	}
 
