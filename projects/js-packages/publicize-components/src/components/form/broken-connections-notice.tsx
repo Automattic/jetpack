@@ -7,10 +7,10 @@ import usePublicizeConfig from '../../hooks/use-publicize-config';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import { store } from '../../social-store';
 import { Connection } from '../../social-store/types';
+import { checkConnectionCode } from '../../utils/connections';
 import Notice from '../notice';
 import { useServiceLabel } from '../services/use-service-label';
 import styles from './styles.module.scss';
-import { checkConnectionCode } from './utils';
 
 export const BrokenConnectionsNotice: React.FC = () => {
 	const { connections } = useSocialMediaConnections();
