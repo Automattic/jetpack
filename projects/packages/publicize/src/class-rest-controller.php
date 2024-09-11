@@ -339,7 +339,7 @@ class REST_Controller {
 				'notice'            => array(
 					'description' => __( 'Name of the notice to dismiss', 'jetpack-publicize-pkg' ),
 					'type'        => 'string',
-					'enum'        => array( 'instagram', 'advanced-upgrade-nudge-admin', 'advanced-upgrade-nudge-editor', 'auto-conversion-editor-notice' ),
+					'enum'        => array( 'instagram', 'advanced-upgrade-nudge-admin', 'advanced-upgrade-nudge-editor' ),
 					'required'    => true,
 				),
 				'reappearance_time' => array(
@@ -454,6 +454,7 @@ class REST_Controller {
 		$post_id             = $request->get_param( 'postId' );
 		$message             = trim( $request->get_param( 'message' ) );
 		$skip_connection_ids = $request->get_param( 'skipped_connections' );
+		$async               = (bool) $request->get_param( 'async' );
 
 		/*
 		 * Publicize endpoint on WPCOM:
@@ -477,6 +478,7 @@ class REST_Controller {
 			array(
 				'message'             => $message,
 				'skipped_connections' => $skip_connection_ids,
+				'async'               => $async,
 			)
 		);
 

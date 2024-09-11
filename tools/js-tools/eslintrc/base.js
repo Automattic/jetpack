@@ -6,11 +6,6 @@
 // 	root: true,
 // 	extends: [ require.resolve( 'jetpack-js-tools/eslintrc/base' ) ],
 // 	ignorePatterns: loadIgnorePatterns( __dirname ),
-// 	parserOptions: {
-// 		babelOptions: {
-// 			configFile: require.resolve( './babel.config.js' ),
-// 		},
-// 	},
 // };
 // ```
 
@@ -52,7 +47,6 @@ module.exports = {
 		ecmaFeatures: {
 			jsx: true,
 		},
-		requireConfigFile: false,
 	},
 	settings: {
 		'import/resolver': {
@@ -219,6 +213,5 @@ module.exports = {
 		'@wordpress/no-base-control-with-label-without-id': 'off',
 		'@wordpress/no-global-active-element': 'off',
 		'@wordpress/no-global-get-selection': 'off',
-		'@wordpress/no-unused-vars-before-return': 'off',
 	},
 };

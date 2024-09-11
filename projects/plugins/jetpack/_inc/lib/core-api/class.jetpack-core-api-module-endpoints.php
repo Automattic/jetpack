@@ -7,7 +7,6 @@
 
 use Automattic\Jetpack\Connection\REST_Connector;
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
-use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Stats\WPCOM_Stats;
 use Automattic\Jetpack\Stats_Admin\Main as Stats_Admin_Main;
 use Automattic\Jetpack\Status;
@@ -486,22 +485,6 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					}
 					break;
 
-				case 'onboarding':
-					$business_address = get_option( 'jpo_business_address' );
-					$business_address = is_array( $business_address ) ? array_map( array( $this, 'decode_special_characters' ), $business_address ) : $business_address;
-
-					$response[ $setting ] = array(
-						'siteTitle'          => $this->decode_special_characters( get_option( 'blogname' ) ),
-						'siteDescription'    => $this->decode_special_characters( get_option( 'blogdescription' ) ),
-						'siteType'           => get_option( 'jpo_site_type' ),
-						'homepageFormat'     => get_option( 'jpo_homepage_format' ),
-						'addContactForm'     => (int) get_option( 'jpo_contact_page' ),
-						'businessAddress'    => $business_address,
-						'installWooCommerce' => is_plugin_active( 'woocommerce/woocommerce.php' ),
-						'stats'              => Jetpack::is_connection_ready() && Jetpack::is_module_active( 'stats' ),
-					);
-					break;
-
 				case 'search_auto_config':
 					// Only writable.
 					$response[ $setting ] = 1;
@@ -964,22 +947,6 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 						: true;
 					break;
 
-				case 'onboarding':
-					require_once JETPACK__PLUGIN_DIR . '_inc/lib/widgets.php';
-					// Break apart and set Jetpack onboarding options.
-					$result = $this->process_onboarding( (array) $value );
-					if ( empty( $result ) ) {
-						$updated = true;
-					} else {
-						$error = sprintf(
-							/* Translators: placeholder is a list of error codes. */
-							esc_html__( 'Onboarding failed to process: %s', 'jetpack' ),
-							$result
-						);
-						$updated = false;
-					}
-					break;
-
 				case 'jetpack_subscriptions_reply_to':
 					// If option value was the same, consider it done.
 					require_once JETPACK__PLUGIN_DIR . 'modules/subscriptions/class-settings.php';
@@ -1129,216 +1096,28 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 	 *
 	 * @since 5.4.0
 	 *
+	 * @deprecated since 13.9
+	 *
 	 * @param array $data Onboarding choices made by user.
 	 *
 	 * @return string Result of onboarding processing and, if there is one, an error message.
 	 */
-	private function process_onboarding( $data ) {
-		if ( isset( $data['end'] ) && $data['end'] ) {
-			return Jetpack::invalidate_onboarding_token()
-				? ''
-				: esc_html__( "The onboarding token couldn't be deleted.", 'jetpack' );
-		}
-
-		$error = array();
-
-		if ( ! empty( $data['siteTitle'] ) ) {
-			// If option value was the same, consider it done.
-			if ( ! (
-				update_option( 'blogname', $data['siteTitle'] )
-				|| get_option( 'blogname' ) === $data['siteTitle']
-			) ) {
-				$error[] = 'siteTitle';
-			}
-		}
-
-		if ( isset( $data['siteDescription'] ) ) {
-			// If option value was the same, consider it done.
-			if ( ! (
-				update_option( 'blogdescription', $data['siteDescription'] )
-				|| get_option( 'blogdescription' ) === $data['siteDescription']
-			) ) {
-				$error[] = 'siteDescription';
-			}
-		}
-
-		$site_title = get_option( 'blogname' );
-		$author     = get_current_user_id() || 1;
-
-		if ( ! empty( $data['siteType'] ) ) {
-			if ( ! (
-				update_option( 'jpo_site_type', $data['siteType'] )
-				|| get_option( 'jpo_site_type' ) === $data['siteType']
-			) ) {
-				$error[] = 'siteType';
-			}
-		}
-
-		if ( isset( $data['homepageFormat'] ) ) {
-			/*
-			 * If $data['homepageFormat'] is 'posts',
-			 * we have nothing to do since it's WordPress' default
-			 * if it exists, just update
-			 */
-			$homepage_format = get_option( 'jpo_homepage_format' );
-			if ( ! $homepage_format || $homepage_format !== $data['homepageFormat'] ) {
-				if ( 'page' === $data['homepageFormat'] ) {
-					if ( ! (
-						update_option( 'show_on_front', 'page' )
-						|| get_option( 'show_on_front' ) === 'page'
-					) ) {
-						$error[] = 'homepageFormat';
-					}
-
-					$home = wp_insert_post(
-						array(
-							'post_type'    => 'page',
-							/* translators: this references the home page of a site, also called front page. */
-							'post_title'   => esc_html_x( 'Home Page', 'The home page of a website.', 'jetpack' ),
-							'post_content' => sprintf(
-								/* Translators: placeholder is the site title. */
-								esc_html__( 'Welcome to %s.', 'jetpack' ),
-								$site_title
-							),
-							'post_status'  => 'publish',
-							'post_author'  => $author,
-						)
-					);
-					if ( 0 === $home ) {
-						$error[] = 'home insert: 0';
-					} elseif ( is_wp_error( $home ) ) {
-						$error[] = 'home creation: ' . $home->get_error_message();
-					}
-					if ( ! (
-						update_option( 'page_on_front', $home )
-						|| get_option( 'page_on_front' ) === $home
-					) ) {
-
-						$error[] = 'home set';
-					}
-
-					$blog = wp_insert_post(
-						array(
-							'post_type'    => 'page',
-							/* translators: this references the page where blog posts are listed. */
-							'post_title'   => esc_html_x( 'Blog', 'The blog of a website.', 'jetpack' ),
-							'post_content' => sprintf(
-								/* Translators: placeholder is the site title. */
-								esc_html__( 'These are the latest posts in %s.', 'jetpack' ),
-								$site_title
-							),
-							'post_status'  => 'publish',
-							'post_author'  => $author,
-						)
-					);
-					if ( 0 === $blog ) {
-						$error[] = 'blog insert: 0';
-					} elseif ( is_wp_error( $blog ) ) {
-						$error[] = 'blog creation: ' . $blog->get_error_message();
-					}
-					if ( ! (
-						update_option( 'page_for_posts', $blog )
-						|| get_option( 'page_for_posts' ) === $blog
-					) ) {
-						$error[] = 'blog set';
-					}
-				} else {
-					$front_page = get_option( 'page_on_front' );
-					$posts_page = get_option( 'page_for_posts' );
-					if ( $posts_page && get_post( $posts_page ) ) {
-						wp_delete_post( $posts_page );
-					}
-					if ( $front_page && get_post( $front_page ) ) {
-						wp_delete_post( $front_page );
-					}
-					update_option( 'show_on_front', 'posts' );
-				}
-			}
-			update_option( 'jpo_homepage_format', $data['homepageFormat'] );
-		}
-
-		// Setup contact page and add a form and/or business info.
-		$contact_page = '';
-		if ( ! empty( $data['addContactForm'] ) && ! get_option( 'jpo_contact_page' ) ) {
-			$contact_form_module_active = Jetpack::is_module_active( 'contact-form' );
-			if ( ! $contact_form_module_active ) {
-				$contact_form_module_active = Jetpack::activate_module( 'contact-form', false, false );
-			}
-
-			if ( $contact_form_module_active ) {
-				$contact_page = '[contact-form][contact-field label="' . esc_html__( 'Name', 'jetpack' ) . '" type="name" required="true" /][contact-field label="' . esc_html__( 'Email', 'jetpack' ) . '" type="email" required="true" /][contact-field label="' . esc_html__( 'Website', 'jetpack' ) . '" type="url" /][contact-field label="' . esc_html__( 'Message', 'jetpack' ) . '" type="textarea" /][/contact-form]';
-			} else {
-				$error[] = 'contact-form activate';
-			}
-		}
-
-		if ( isset( $data['businessPersonal'] ) && 'business' === $data['businessPersonal'] ) {
-			$contact_page .= "\n" . implode( "\n", $data['businessInfo'] );
-		}
-
-		if ( ! empty( $contact_page ) ) {
-			$form = wp_insert_post(
-				array(
-					'post_type'    => 'page',
-					/* translators: this references a page with contact details and possibly a form. */
-					'post_title'   => esc_html_x( 'Contact us', 'Contact page for your website.', 'jetpack' ),
-					'post_content' => esc_html__( 'Send us a message!', 'jetpack' ) . "\n" . $contact_page,
-					'post_status'  => 'publish',
-					'post_author'  => $author,
-				)
-			);
-			if ( 0 === $form ) {
-				$error[] = 'form insert: 0';
-			} elseif ( is_wp_error( $form ) ) {
-				$error[] = 'form creation: ' . $form->get_error_message();
-			} else {
-				update_option( 'jpo_contact_page', $form );
-			}
-		}
-
-		if ( isset( $data['businessAddress'] ) ) {
-			$handled_business_address = self::handle_business_address( $data['businessAddress'] );
-			if ( is_wp_error( $handled_business_address ) ) {
-				$error[] = 'BusinessAddress';
-			}
-		}
-
-		if ( ! empty( $data['installWooCommerce'] ) ) {
-			$wc_install_result = Plugins_Installer::install_and_activate_plugin( 'woocommerce' );
-			delete_transient( '_wc_activation_redirect' ); // Redirecting to WC setup would kill our users' flow.
-			if ( is_wp_error( $wc_install_result ) ) {
-				$error[] = 'woocommerce installation';
-			}
-		}
-
-		if ( ! empty( $data['stats'] ) ) {
-			if ( Jetpack::is_connection_ready() ) {
-				$stats_module_active = Jetpack::is_module_active( 'stats' );
-				if ( ! $stats_module_active ) {
-					$stats_module_active = Jetpack::activate_module( 'stats', false, false );
-				}
-
-				if ( ! $stats_module_active ) {
-					$error[] = 'stats activate';
-				}
-			} else {
-				$error[] = 'stats not connected';
-			}
-		}
-
-		return empty( $error )
-			? ''
-			: implode( ', ', $error );
+	private function process_onboarding( $data ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		_deprecated_function( __METHOD__, '13.9' );
+		return '';
 	}
 
 	/**
 	 * Add or update Business Address widget.
+	 *
+	 * @deprecated since 13.9
 	 *
 	 * @param array $address Array of business address fields.
 	 *
 	 * @return WP_Error|true True if the data was saved correctly.
 	 */
 	private static function handle_business_address( $address ) {
+		_deprecated_function( __METHOD__, '13.9' );
 		$first_sidebar = Jetpack_Widgets::get_first_sidebar();
 
 		$widgets_module_active = Jetpack::is_module_active( 'widgets' );
@@ -1424,11 +1203,6 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 	 * @return bool
 	 */
 	public function can_request( $request ) {
-		$req_params = $request->get_params();
-		if ( ! empty( $req_params['onboarding']['token'] ) && isset( $req_params['rest_route'] ) ) {
-			return Jetpack::validate_onboarding_token_action( $req_params['onboarding']['token'], $req_params['rest_route'] );
-		}
-
 		if ( 'GET' === $request->get_method() ) {
 			return current_user_can( 'jetpack_admin_page' );
 		} else {

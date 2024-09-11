@@ -4,7 +4,7 @@ import { store as editorStore } from '@wordpress/editor';
 import { addFilter } from '@wordpress/hooks';
 import debugFactory from 'debug';
 import metadata from '../../blocks/ai-assistant/block.json';
-import { isPossibleToExtendBlock } from '../../blocks/ai-assistant/extensions/ai-assistant';
+import { canAIAssistantBeEnabled } from '../../blocks/ai-assistant/extensions/lib/can-ai-assistant-be-enabled';
 import { aiExcerptPluginName, aiExcerptPluginSettings } from '.';
 
 const debug = debugFactory( 'jetpack-ai-content-lens:registration' );
@@ -32,7 +32,7 @@ function extendAiContentLensFeatures( settings, name ) {
 	 * Bail early when the AI Assistant block is not registered.
 	 * It will handle with the site requires an upgrade.
 	 */
-	if ( ! isPossibleToExtendBlock() ) {
+	if ( ! canAIAssistantBeEnabled() ) {
 		return settings;
 	}
 

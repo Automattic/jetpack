@@ -2,12 +2,12 @@ import { useBlockProps } from '@wordpress/block-editor';
 import clsx from 'clsx';
 
 export default function save( { attributes } ) {
-	const blockProps = useBlockProps.save();
-
 	const { url } = attributes;
 	if ( ! url || url === '' ) {
 		return;
 	}
+
+	const blockProps = useBlockProps.save();
 	return (
 		<a
 			{ ...blockProps }

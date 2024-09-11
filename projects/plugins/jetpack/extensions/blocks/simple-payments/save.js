@@ -3,7 +3,6 @@ import clsx from 'clsx';
 import { formatPrice } from './utils';
 
 export default function Save( { attributes } ) {
-	const blockProps = useBlockProps.save();
 	const {
 		content,
 		currency,
@@ -19,6 +18,8 @@ export default function Save( { attributes } ) {
 	if ( ! productId ) {
 		return null;
 	}
+
+	const blockProps = useBlockProps.save();
 
 	return (
 		<div
