@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Remove the extra padding around the admin bar Reader item to match Calypso.
