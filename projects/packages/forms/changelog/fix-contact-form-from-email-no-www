@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Email submissions: on sites using www., ensure that the sending email address does not use the www. prefix.
