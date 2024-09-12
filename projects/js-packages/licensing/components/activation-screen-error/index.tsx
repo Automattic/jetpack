@@ -1,37 +1,36 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { Icon, warning, check } from '@wordpress/icons';
-import React, { FC, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { LICENSE_ERRORS } from './constants';
-import { UseGetErrorContent } from './use-get-error-content';
+import { useGetErrorContent } from './use-get-error-content';
+import type { FC } from 'react';
 
 import './style.scss';
 
 type LicenseErrorKeysType = keyof typeof LICENSE_ERRORS;
 type LicenseErrorValuesType = ( typeof LICENSE_ERRORS )[ LicenseErrorKeysType ];
 
-type Props = {
+interface Props {
 	licenseError: string;
 	errorType: LicenseErrorValuesType;
-};
+}
 
 const ActivationScreenError: FC< Props > = ( { licenseError, errorType } ) => {
-	const hasLicenseError = licenseError !== null && licenseError !== undefined;
-
 	useEffect( () => {
-		if ( hasLicenseError ) {
+		if ( licenseError ) {
 			jetpackAnalytics.tracks.recordEvent( 'jetpack_wpa_license_activation_error_view', {
 				error: licenseError,
 				error_type: errorType,
 			} );
 		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [] );
+	}, [ licenseError, errorType ] );
 
-	if ( ! hasLicenseError ) {
+	const { errorMessage, errorInfo } = useGetErrorContent( licenseError, errorType );
+
+	if ( ! licenseError ) {
 		return null;
 	}
 
-	const { errorMessage, errorInfo } = UseGetErrorContent( licenseError, errorType );
 	const { ACTIVE_ON_SAME_SITE } = LICENSE_ERRORS;
 	const isLicenseAlreadyAttached = ACTIVE_ON_SAME_SITE === errorType;
 

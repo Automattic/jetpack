@@ -8,10 +8,8 @@ import { LICENSE_ERRORS } from './constants';
 type LicenseErrorKeysType = keyof typeof LICENSE_ERRORS;
 type LicenseErrorValuesType = ( typeof LICENSE_ERRORS )[ LicenseErrorKeysType ];
 
-export const UseGetErrorContent = ( licenseError: string, errorType: LicenseErrorValuesType ) => {
-	const hasLicenseError = licenseError !== null && licenseError !== undefined;
-
-	if ( ! hasLicenseError ) {
+export const useGetErrorContent = ( licenseError: string, errorType: LicenseErrorValuesType ) => {
+	if ( ! licenseError ) {
 		return {
 			errorMessage: null,
 			errorInfo: null,
@@ -46,7 +44,9 @@ export const UseGetErrorContent = ( licenseError: string, errorType: LicenseErro
 									a: (
 										<ExternalLink
 											rel="noopener noreferrer"
-											href={ getRedirectUrl( 'jetpack-support-activate-license' ) }
+											href={ getRedirectUrl( 'jetpack-support-activate-license', {
+												anchor: 'different-user',
+											} ) }
 										></ExternalLink>
 									),
 								}

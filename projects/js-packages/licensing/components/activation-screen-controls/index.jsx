@@ -145,7 +145,6 @@ const ActivationScreenControls = props => {
 		licenseError,
 		onLicenseChange,
 	} = props;
-	const hasLicenseError = licenseError !== null && licenseError !== undefined;
 
 	useEffect( () => {
 		jetpackAnalytics.tracks.recordEvent( 'jetpack_wpa_license_key_activation_view' );
@@ -157,14 +156,15 @@ const ActivationScreenControls = props => {
 	const { ACTIVE_ON_SAME_SITE } = LICENSE_ERRORS;
 	const isLicenseAlreadyAttached = ACTIVE_ON_SAME_SITE === errorType;
 	const className = useMemo( () => {
-		if ( hasLicenseError ) {
-			if ( isLicenseAlreadyAttached ) {
-				return 'jp-license-activation-screen-controls--license-field-with-success';
-			}
-			return 'jp-license-activation-screen-controls--license-field-with-error';
+		if ( ! licenseError ) {
+			return 'jp-license-activation-screen-controls--license-field';
 		}
-		return 'jp-license-activation-screen-controls--license-field';
-	}, [ hasLicenseError, isLicenseAlreadyAttached ] );
+		if ( isLicenseAlreadyAttached ) {
+			return 'jp-license-activation-screen-controls--license-field-with-success';
+		}
+
+		return 'jp-license-activation-screen-controls--license-field-with-error';
+	}, [ licenseError, isLicenseAlreadyAttached ] );
 
 	const hasAvailableLicenseKey = availableLicenses && availableLicenses.length;
 
@@ -200,7 +200,7 @@ const ActivationScreenControls = props => {
 						value={ license }
 					/>
 				) }
-				{ hasLicenseError && (
+				{ licenseError && (
 					<ActivationScreenError licenseError={ licenseError } errorType={ errorType } />
 				) }
 			</div>
