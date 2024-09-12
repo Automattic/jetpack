@@ -18,14 +18,6 @@ class Plugin_Storage {
 	const ACTIVE_PLUGINS_OPTION_NAME = 'jetpack_connection_active_plugins';
 
 	/**
-	 * Options where disabled plugins were stored
-	 *
-	 * @deprecated since 1.39.0.
-	 * @var string
-	 */
-	const PLUGINS_DISABLED_OPTION_NAME = 'jetpack_connection_disabled_plugins';
-
-	/**
 	 * Transient name used as flag to indicate that the active connected plugins list needs refreshing.
 	 */
 	const ACTIVE_PLUGINS_REFRESH_FLAG = 'jetpack_connection_active_plugins_refresh';
@@ -93,13 +85,9 @@ class Plugin_Storage {
 	 * Even if you don't use Jetpack Config, it may be introduced later by other plugins,
 	 * so please make sure not to run the method too early in the code.
 	 *
-	 * @since 1.39.0 deprecated the $connected_only argument.
-	 *
-	 * @param null $deprecated null plugins that were explicitly disconnected. Deprecated, there's no such a thing as disconnecting only specific plugins anymore.
-	 *
 	 * @return array|WP_Error
 	 */
-	public static function get_all( $deprecated = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public static function get_all() {
 		$maybe_error = self::ensure_configured();
 
 		if ( $maybe_error instanceof WP_Error ) {
@@ -235,43 +223,6 @@ class Plugin_Storage {
 				Jetpack_Options::update_raw_option( 'jetpack_callables_sync_checksum', $jetpack_callables_sync_checksum );
 			}
 		}
-	}
-
-	/**
-	 * Add the plugin to the set of disconnected ones.
-	 *
-	 * @deprecated since 1.39.0.
-	 *
-	 * @param string $slug Plugin slug.
-	 *
-	 * @return bool
-	 */
-	public static function disable_plugin( $slug ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		return true;
-	}
-
-	/**
-	 * Remove the plugin from the set of disconnected ones.
-	 *
-	 * @deprecated since 1.39.0.
-	 *
-	 * @param string $slug Plugin slug.
-	 *
-	 * @return bool
-	 */
-	public static function enable_plugin( $slug ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		return true;
-	}
-
-	/**
-	 * Get all plugins that were disconnected by user.
-	 *
-	 * @deprecated since 1.39.0.
-	 *
-	 * @return array
-	 */
-	public static function get_all_disabled_plugins() { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		return array();
 	}
 
 	/**
