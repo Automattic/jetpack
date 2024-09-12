@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Color Scheme: Avoid wpcom user data overriding the admin color after flushing cache

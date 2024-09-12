@@ -119,10 +119,6 @@ function wpcomsh_set_connected_user_data_as_user_options( $transient, $value ) {
 		return;
 	}
 
-	if ( isset( $value['color_scheme'] ) && get_option( 'wpcom_admin_interface' ) !== 'wp-admin' ) {
-		update_user_option( get_current_user_id(), 'admin_color', $value['color_scheme'] );
-	}
-
 	if ( isset( $value['site_count'] ) ) {
 		update_user_option( get_current_user_id(), 'wpcom_site_count', $value['site_count'] );
 	}
