@@ -196,7 +196,7 @@ function wpcom_add_shopping_cart( $wp_admin_bar ) {
 	$wp_admin_bar->add_menu(
 		array(
 			'id'     => 'cart', // Unique ID for the cart menu item.
-			'title'  => '<span class="cart-icon" aria-hidden="true"></span>' .
+			'title'  => '<span class="ab-item cart-icon" aria-hidden="true"></span>' .
 						'<div class="cart-icon__dot"></div>' .
 						'<span class="screen-reader-text">' .
 						/* translators: Hidden accessibility text. */
