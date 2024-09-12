@@ -388,7 +388,9 @@
 	&.jetpack-field-multiple {
 
 		&.is-style-button {
-			.jetpack-field-option {
+			.jetpack-field-option,
+			.wp-block-jetpack-field-option-checkbox,
+			.wp-block-jetpack-field-option-radio {
 				background: var(--jetpack--contact-form--button-outline--background-color);
 				color: var(--jetpack--contact-form--button-outline--text-color);
 				border: var(--jetpack--contact-form--button-outline--border);
@@ -410,6 +412,12 @@
 
 				.jetpack-option__type {
 					color: var(--jetpack--contact-form--button-outline--color);
+				}
+			}
+
+			.wp-block-jetpack-field-option-radio {
+				.jetpack-option__type {
+					display: none;
 				}
 			}
 		}
@@ -493,7 +501,8 @@
 	padding-left: 0;
 	display: flex;
 	flex-direction: column;
-	gap: 0.25em;
+	align-items: flex-start;
+	gap: 12px;
 	flex: 1;
 
 	&:empty {
