@@ -133,7 +133,7 @@ export const PaidAccordionItem = ( {
 										iconClassName={ styles[ 'icon-info' ] }
 										iconSize={ 24 }
 										text={ __(
-											'The fixer taking longer than expected. Please try again or contact support.',
+											'The fixer is taking longer than expected. Please try again or contact support.',
 											'jetpack-protect'
 										) }
 									/>
