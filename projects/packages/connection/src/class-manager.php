@@ -152,11 +152,10 @@ class Manager {
 		add_action( 'jetpack_site_disconnected', array( $manager, 'reset_connection_status' ) );
 		add_action( 'jetpack_sync_register_user', array( $manager, 'reset_connection_status' ) );
 		add_action( 'pre_update_jetpack_option_id', array( $manager, 'reset_connection_status' ) );
+		add_action( 'pre_update_jetpack_option_blog_token', array( $manager, 'reset_connection_status' ) );
+		add_action( 'pre_update_jetpack_option_user_token', array( $manager, 'reset_connection_status' ) );
+		add_action( 'pre_update_jetpack_option_user_tokens', array( $manager, 'reset_connection_status' ) );
 		add_action( 'switch_blog', array( $manager, 'reset_connection_status' ) );
-		// blog_token, user_token, user_tokens - handled by the next three that look for jetpack_private_options.
-		add_action( 'update_option', array( $manager, 'maybe_reset_connection_status' ), 10, 1 );
-		add_action( 'add_option', array( $manager, 'maybe_reset_connection_status' ), 10, 1 );
-		add_action( 'delete_option', array( $manager, 'maybe_reset_connection_status' ), 10, 1 );
 
 		// Set up package version hook.
 		add_filter( 'jetpack_package_versions', __NAMESPACE__ . '\Package_Version::send_package_version_to_tracker' );
