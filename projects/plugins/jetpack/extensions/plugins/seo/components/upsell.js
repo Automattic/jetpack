@@ -1,4 +1,3 @@
-import { getRedirectUrl } from '@automattic/jetpack-components';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button, ExternalLink } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
@@ -16,7 +15,7 @@ const UpsellNotice = ( { requiredPlan } ) => {
 	const planName = planData?.product_name || __( 'paid', 'jetpack' );
 
 	const buttonText = __( 'Upgrade now', 'jetpack' );
-	const supportUrl = getRedirectUrl( 'wpcom-support-seo-tools' );
+	const supportUrl = 'https://wordpress.com/support/seo-tools/';
 	const postId = 120916;
 	const supportLinkTitle = __( 'Learn more about SEO feature.', 'jetpack' );
 
