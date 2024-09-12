@@ -8,8 +8,10 @@
 namespace Automattic\Jetpack\Extensions\Subscriptions;
 
 use Automattic\Jetpack\Blocks;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Abstract_Token_Subscription_Service;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Jetpack_Token_Subscription_Service;
+use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Jetpack;
 use Jetpack_Gutenberg;
@@ -43,9 +45,10 @@ function register_block() {
 		return;
 	}
 
-	require_once JETPACK__PLUGIN_DIR . '/modules/memberships/class-jetpack-memberships.php';
-	if ( \Jetpack_Memberships::should_enable_monetize_blocks_in_editor() ) {
-
+	if (
+		( defined( 'IS_WPCOM' ) && IS_WPCOM )
+		|| ( ( new Connection_Manager( 'jetpack' ) )->has_connected_owner() && ! ( new Status() )->is_offline_mode() )
+	) {
 		Blocks::jetpack_register_block(
 			__DIR__,
 			array(
