@@ -97,6 +97,7 @@ import {
 	PLAN_JETPACK_STATS_BI_YEARLY,
 	PLAN_JETPACK_STATS,
 	PLAN_JETPACK_STATS_MONTHLY,
+	PLAN_JETPACK_STATS_YEARLY,
 	PLAN_JETPACK_STATS_PWYW_YEARLY,
 	PLAN_JETPACK_STATS_FREE,
 	PLAN_JETPACK_CREATOR_BI_YEARLY,
@@ -209,6 +210,7 @@ const PRODUCT_ICON_MAP = {
 	[ PLAN_JETPACK_STATS_BI_YEARLY ]: 'products/product-jetpack-stats.svg',
 	[ PLAN_JETPACK_STATS ]: 'products/product-jetpack-stats.svg',
 	[ PLAN_JETPACK_STATS_MONTHLY ]: 'products/product-jetpack-stats.svg',
+	[ PLAN_JETPACK_STATS_YEARLY ]: 'products/product-jetpack-stats.svg',
 	[ PLAN_JETPACK_STATS_PWYW_YEARLY ]: 'products/product-jetpack-stats.svg',
 	[ PLAN_JETPACK_STATS_FREE ]: 'products/product-jetpack-stats.svg',
 };
@@ -322,6 +324,7 @@ PlanIcon.propTypes = {
 		PLAN_JETPACK_STATS_BI_YEARLY,
 		PLAN_JETPACK_STATS,
 		PLAN_JETPACK_STATS_MONTHLY,
+		PLAN_JETPACK_STATS_YEARLY,
 		PLAN_JETPACK_STATS_PWYW_YEARLY,
 		PLAN_JETPACK_STATS_FREE,
 	] ).isRequired,
