@@ -1,0 +1,75 @@
+.activation-screen-error__message {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    max-width: 500px;
+    margin-top: calc(var(--spacing-base)*.5);
+
+    svg {
+        margin-left: -3px;
+    }
+
+    span {
+        font-size: 13px;
+        line-height: 20px;
+        font-weight: 500;
+        letter-spacing: -0.044em;
+    }
+}
+
+.activation-screen-error__message--error {
+    color: var(--jp-red);
+    svg {
+        fill: var(--jp-red);
+    }
+}
+
+.activation-screen-error__message--success {
+    color: var(--jp-green);
+    svg {
+        fill: var(--jp-green);
+    }
+}
+
+.activation-screen-error__info {
+    background-color: var(--jp-gray-0);
+    color: var(--jp-gray-80);
+    font-size: var(--font-body-small);
+    line-height: calc(var(--font-title-small) - 2px);
+    border: 1px solid var(--jp-green-0);
+    border-radius: var(--jp-border-radius);
+    padding: var(--jp-modal-padding-small);
+    margin: 32px 0 8px;
+
+    > p {
+        margin: 0 0 1em;
+        font-size: var(--font-body-small);
+    }
+    > p:last-child {
+        margin-bottom: 0;
+    }
+
+    ol > li::marker {
+        font-weight: bold;
+    }
+
+    a {
+        color: var(--jp-green-50);
+    }
+    a:hover,
+    a:active {
+        color: var(--jp-green-70);
+    }
+}
+
+.jp-license-activation-screen-controls {
+    .activation-screen-error__info {
+        > p {
+            margin: 0 0 1em;
+            font-size: var(--font-body-small);
+        }
+        > p:last-child {
+            margin-bottom: 0;
+        }
+    }
+}

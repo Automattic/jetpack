@@ -47,7 +47,7 @@ describe( 'ActivationScreenControls', () => {
 			expect( node ).toBeInTheDocument();
 			expect(
 				// eslint-disable-next-line testing-library/no-node-access
-				node.closest( '.jp-license-activation-screen-controls--license-field-error' )
+				node.closest( '.activation-screen-error__message' )
 			).toBeInTheDocument();
 		} );
 	} );
