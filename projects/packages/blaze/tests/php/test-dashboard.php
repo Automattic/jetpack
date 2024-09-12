@@ -25,6 +25,16 @@ class Test_Dashboard extends BaseTestCase {
 	}
 
 	/**
+	 * Test has root dom with the provided overridden classname.
+	 *
+	 * @covers Automattic\Jetpack\Blaze\Dashboard::render
+	 */
+	public function test_render_with_overridden_class() {
+		$this->expectOutputRegex( '/<div id="wpcom" class="custom-class-dashboard".*>/i' );
+		( new Dashboard( 'tools.php', 'advertising', 'custom-class' ) )->render();
+	}
+
+	/**
 	 * Ensure the script can be enqueued in admin.
 	 *
 	 * @covers Automattic\Jetpack\Blaze\Dashboard::admin_init
@@ -44,12 +54,12 @@ class Test_Dashboard extends BaseTestCase {
 		$style_handle  = $script_handle . '-style';
 
 		// Scripts and style should not be enqueued on the main dashboard.
-		( new Dashboard() )->load_admin_scripts( 'index.php' );
+		( new Dashboard( 'tools.php', 'custom-menu' ) )->load_admin_scripts( 'index.php' );
 		$this->assertFalse( wp_script_is( $script_handle, 'enqueued' ) );
 		$this->assertFalse( wp_style_is( $style_handle, 'enqueued' ) );
 
 		// They should, however, be enqueued on the Advertising page.
-		( new Dashboard() )->load_admin_scripts( 'tools_page_advertising' );
+		( new Dashboard( 'tools.php', 'custom-menu' ) )->load_admin_scripts( 'tools_page_custom-menu' );
 		$this->assertTrue( wp_script_is( $script_handle, 'enqueued' ) );
 		$this->assertTrue( wp_style_is( $style_handle, 'enqueued' ) );
 	}

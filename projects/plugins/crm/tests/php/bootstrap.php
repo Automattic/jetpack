@@ -13,7 +13,7 @@ define( 'JETPACK_CRM_TESTS_ROOT', __DIR__ );
 /**
  * Assume we're in tests/php/bootstrap.php.
  */
-$_plugin_root = dirname( dirname( __DIR__ ) );
+$_plugin_root = dirname( __DIR__, 2 );
 
 /**
  * Locate WordPress or wordpress-develop. We look in several places.

@@ -1,14 +1,14 @@
 === Jetpack VaultPress Backup ===
-Contributors: automattic, bjorsch, fgiannar, initsogar, jeherve, jwebbdev, kraftbj, macbre, samiff, sermitr, williamvianas
+Contributors: automattic, bjorsch, fgiannar, initsogar, jeherve, jwebbdev, kraftbj, macbre, pypt, samiff, sermitr, williamvianas
 Tags: jetpack, backup, restore
-Requires at least: 6.2
-Requires PHP: 5.6
-Tested up to: 6.4
+Requires at least: 6.5
+Requires PHP: 7.0
+Tested up to: 6.6
 Stable tag: 2.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Jetpack VaultPress Backup. Save each change and get back online fast with one-click restores. The most proven WordPress backup plugin with over 270 million backups.
+Save each change and get back online fast with one-click restores. The most proven WordPress backup plugin with over 270 million backups.
 
 == Description ==
 
@@ -62,6 +62,7 @@ Backups are essential for eCommerce stores. New orders come in at any moment, so
 Save hours of time developing and maintaining sites by restoring to any point. Just one change pays for itself. Real‑time backups go beyond a snapshot to give you total power and flexibility. The activity log lets you know exactly what action (and who) broke the site, so you can look like a pro for your clients.
 
 * Full, incremental, and differential backups in real-time
+* Start a backup anytime with the **Back up now** button
 * Complete list of all site changes
 * Quickly restore from any point
 * Be empowered to experiment with the look and feel of your site
@@ -124,6 +125,8 @@ For plans with daily backups, a new backup will take place approximately 24 hour
 
 For plans with real-time backups, a new backup will be performed each time a change is made to WordPress core's database tables, WooCommerce database tables, and any associated file changes. All other changes are backed up daily.
 
+You can also initiate a backup on-demand by clicking the **Back up now** button.
+
 You’ll know your WordPress backup has been created if you see a **Backup complete** event in the activity log.
 
 = Don’t see your WordPress backup in the activity log? =
@@ -172,10 +175,9 @@ No, Jetpack VaultPress Backup does not currently support split site or split hom
 2. Your site backups are stored in multiple locations on our world-class cloud infrastructure so you can recover them at any moment.
 
 == Changelog ==
-### 2.2 - 2023-09-20
+### 2.9 - 2024-09-06
 #### Changed
-- General: update WordPress version requirements to WordPress 6.2.
-- Updated package dependencies.
+- Internal updates.
 
 --------
 

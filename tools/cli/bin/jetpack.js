@@ -2,12 +2,13 @@
 
 import process from 'process';
 import { fileURLToPath } from 'url';
+import { checkAnalyticsEnabled } from '../helpers/analytics.js';
 
 /**
  * Async import with better error handling.
  *
  * @param {string} path - Path to import from.
- * @returns {*} - Return from `import()`.
+ * @return {*} - Return from `import()`.
  */
 async function guardedImport( path ) {
 	try {
@@ -70,6 +71,11 @@ try {
 	console.error( 'Something unexpected happened. See error above.' );
 	process.exit( 1 );
 }
+
+/**
+ * Check if the user has been asked to enable analytics tracking.
+ */
+await checkAnalyticsEnabled();
 
 const cliRouter = await guardedImport( '../cliRouter.js' );
 cliRouter.cli();

@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 import React from 'react';
 import ConnectScreenRequiredPlan from '../visual';
 
-const CONNECTION_BUTTON_LABEL = 'Setup Jetpack';
+const CONNECTION_BUTTON_LABEL = 'Set up Jetpack';
 
 const requiredProps = {
 	buttonLabel: CONNECTION_BUTTON_LABEL,
@@ -31,7 +31,7 @@ describe( 'ConnectScreenRequiredPlan', () => {
 				( content, { textContent } ) =>
 					content !== '' && // filter out parent/wrapper elements
 					textContent.startsWith(
-						`By clicking the ${ CONNECTION_BUTTON_LABEL } button, you agree to our Terms of Service`
+						`By clicking ${ CONNECTION_BUTTON_LABEL }, you agree to our Terms of Service`
 					)
 			)
 		).toBeInTheDocument();
@@ -48,7 +48,7 @@ describe( 'ConnectScreenRequiredPlan', () => {
 
 	it( 'applies correct href to share', () => {
 		render( <ConnectScreenRequiredPlan { ...requiredProps } /> );
-		const share = screen.getByRole( 'link', { name: 'share details' } );
+		const share = screen.getByRole( 'link', { name: 'sync your site‘s data' } );
 		expect( share ).toHaveAttribute(
 			'href',
 			'https://jetpack.com/redirect/?source=jetpack-support-what-data-does-jetpack-sync'
@@ -70,7 +70,7 @@ describe( 'ConnectScreenRequiredPlan', () => {
 		render(
 			<ConnectScreenRequiredPlan { ...requiredProps } handleButtonClick={ handleButtonClick } />
 		);
-		const button = screen.getByRole( 'button', { name: 'Setup Jetpack' } );
+		const button = screen.getByRole( 'button', { name: 'Set up Jetpack' } );
 		await user.click( button );
 		expect( handleButtonClick ).toHaveBeenCalled();
 	} );

@@ -15,6 +15,7 @@ use PHP_CodeSniffer\Files\LocalFile;
 use PHP_CodeSniffer\Filters\Filter;
 use PHP_CodeSniffer\Ruleset;
 use PHP_CodeSniffer\Util;
+use SplFileInfo;
 
 /**
  * A filter for PHP CodeSniffer to add support for .phpcsignore files and per-directory configuration files.
@@ -280,6 +281,7 @@ class PhpcsFilter extends Filter {
 		} finally {
 			list( $this->config, $this->ruleset ) = $old;
 		}
+		// @phan-suppress-next-line PhanPossiblyUndeclaredVariable,PhanTypeMismatchReturnNullable -- https://github.com/phan/phan/issues/4419
 		return $ret;
 	}
 
@@ -302,16 +304,19 @@ class PhpcsFilter extends Filter {
 		} finally {
 			list( $this->config, $this->ruleset ) = $old;
 		}
+		// @phan-suppress-next-line PhanPossiblyUndeclaredVariable,PhanTypeMismatchReturnNullable -- https://github.com/phan/phan/issues/4419
 		return $ret;
 	}
 
 	/**
 	 * Map the input string or SplFileInfo into a LocalFile.
 	 *
-	 * @return LocalFile
+	 * @return string|LocalFile
 	 */
 	public function current() {
-		$filePath = (string) $this->getInnerIterator()->current();
+		$iterator = $this->getInnerIterator();
+		'@phan-var \RecursiveIterator $iterator'; // Phan has the type wrong somehow. This is the iterator passed to `__construct()`.
+		$filePath = (string) $iterator->current();
 		if ( is_dir( $filePath ) ) {
 			return $filePath;
 		}
@@ -322,11 +327,13 @@ class PhpcsFilter extends Filter {
 	/**
 	 * Returns an iterator for the current entry.
 	 *
-	 * @return \RecursiveIterator
+	 * @return static
 	 */
 	public function getChildren() {
-		$filePath                 = $this->getInnerIterator()->current();
-		list( $config, $ruleset ) = $this->getConfigAndRuleset( (string) $filePath );
+		$iterator = $this->getInnerIterator();
+		'@phan-var \RecursiveIterator $iterator'; // Phan has the type wrong somehow. This is the iterator passed to `__construct()`.
+		$filePath                 = (string) $iterator->current();
+		list( $config, $ruleset ) = $this->getConfigAndRuleset( $filePath );
 		return new static(
 			new \RecursiveDirectoryIterator( $filePath, \RecursiveDirectoryIterator::SKIP_DOTS | \FilesystemIterator::FOLLOW_SYMLINKS ),
 			$this->basedir,

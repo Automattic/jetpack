@@ -91,10 +91,7 @@ class Jetpack_Constrained_Array_Rounding {
 	 * @return int
 	 */
 	private static function cmp_desc_fraction( $a, $b ) {
-		if ( $a['fraction'] === $b['fraction'] ) {
-			return 0;
-		}
-		return $a['fraction'] > $b['fraction'] ? -1 : 1;
+		return $b['fraction'] <=> $a['fraction'];
 	}
 
 	/**
@@ -106,9 +103,6 @@ class Jetpack_Constrained_Array_Rounding {
 	 * @return int
 	 */
 	private static function cmp_asc_index( $a, $b ) {
-		if ( $a['index'] === $b['index'] ) {
-			return 0;
-		}
-		return $a['index'] < $b['index'] ? -1 : 1;
+		return $a['index'] <=> $b['index'];
 	}
 }

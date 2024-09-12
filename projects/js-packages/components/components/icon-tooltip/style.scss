@@ -53,15 +53,6 @@ $arrow-color: var( --jp-gray );
 	* Fix arrow position for legacy position option - section end
 	*/
 
-	.components-popover__content {
-		padding: 24px;
-		width: 304px;
-		white-space: normal;
-		border-radius: 4px;
-		outline: none;
-		border: 1px solid $arrow-color;
-	}
-
 	&.is-wide .components-popover__content {
 		width: 440px;
 	}
@@ -91,6 +82,18 @@ $arrow-color: var( --jp-gray );
 .icon-tooltip-container {
 	// Recover events
 	pointer-events: all;
+
+	// __content styles here covers both the inline and portal modes
+	.components-popover__content {
+		padding: 24px;
+		width: 304px;
+		white-space: normal;
+		border-radius: 4px;
+		outline: none;
+		border: 1px solid $arrow-color;
+		max-width: 90vw;
+		margin: 0 10px;
+	}
 }
 
 .icon-tooltip-title {

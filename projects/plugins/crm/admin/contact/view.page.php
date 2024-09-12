@@ -377,7 +377,7 @@ function jpcrm_render_contact_view_page( $id = -1 ) {
 						<tbody>
 						<?php if ( $useInvoices == '1' || $useTrans == '1' ) : ?>
 						<tr class="zbs-view-vital-totalvalue">
-							<td class="zbs-view-vital-label"><strong><?php esc_html_e( 'Total Value', 'zero-bs-crm' ); ?><i class="circle info icon link" data-content="<?php esc_attr_e( 'Total Value is all transaction types and any unpaid invoices (excluding deleted status invoices).', 'zero-bs-crm' ); ?>" data-position="bottom center"></i></strong></td>
+							<td class="zbs-view-vital-label"><strong><?php esc_html_e( 'Total Value', 'zero-bs-crm' ); ?><i class="circle info icon link" data-content="<?php esc_attr_e( "The Total Value can be set to include just transaction values, just invoice values, or both together. You can choose how it's calculated by going to the General Settings page.", 'zero-bs-crm' ); ?>" data-position="bottom center"></i></strong></td>
 							<td><strong><?php echo esc_html( zeroBSCRM_formatCurrency( $contact_total_value ) ); ?></strong></td>
 						</tr>
 						<?php endif; ?>

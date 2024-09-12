@@ -89,7 +89,7 @@ $tab_page_map = array(
 	),
 	'oauth'        => array(
 		'page'  => 'oauth-connections',
-		'title' => __( 'OAuth Connections', 'zero-bs-crm' ),
+		'title' => __( 'OAuth Connection', 'zero-bs-crm' ),
 	),
 	'mail'         => array(
 		'page'  => 'mail',

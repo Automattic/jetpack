@@ -5,6 +5,118 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.0.1] - 2024-09-06
+### Removed
+- Removed usage of _deprecated_function when deprecating Status::is_onboarding [#39272]
+
+## [4.0.0] - 2024-09-05
+### Deprecated
+- Deprecated Jetpack Onboarding system. [#39229]
+
+## [3.3.4] - 2024-08-23
+### Changed
+- Updated package dependencies. [#39004]
+
+## [3.3.3] - 2024-08-19
+### Changed
+- Internal updates.
+
+## [3.3.2] - 2024-06-24
+### Changed
+- Internal updates.
+
+## [3.3.1] - 2024-06-21
+### Added
+- Check for active modules among the unavailable ones. [#37358]
+
+## [3.3.0] - 2024-06-10
+### Deprecated
+- Deprecated is_staging_site [#37023]
+
+## [3.2.3] - 2024-06-03
+### Removed
+- Remove the Identity Crisis dev dependency. [#37654]
+
+## [3.2.2] - 2024-05-29
+### Changed
+- Phab baseline file update. [#36968]
+
+## [3.2.1] - 2024-05-28
+### Changed
+- Internal updates.
+
+## [3.2.0] - 2024-05-22
+### Deprecated
+- Jetpack: Deprecated Errors class. [#37451]
+
+## [3.1.0] - 2024-05-20
+### Added
+- Add the 'is_current_request_activating_plugin_from_plugins_screen' method extracted from the Plugin Install package. [#37430]
+
+## [3.0.3] - 2024-05-08
+### Fixed
+- Status: Added check for compatibility reasons [#37256]
+
+## [3.0.2] - 2024-05-06
+### Added
+- Add new method used to track allowed domains for API access. [#36924]
+
+## [3.0.1] - 2024-04-30
+### Changed
+- Internal updates.
+
+## [3.0.0] - 2024-04-25
+### Added
+- Add is_automattician_feature_flags_only on Jetpack sites as an alternative to is_automattician present on simple sites. [#34798]
+
+### Removed
+- Remove methods deprecated long ago. [#36985]
+
+## [2.2.2] - 2024-04-22
+### Changed
+- Internal updates.
+
+## [2.2.1] - 2024-04-08
+### Changed
+- Internal updates.
+
+## [2.2.0] - 2024-03-22
+### Added
+- Add support for A8C for Agencies source parameter. [#36491]
+
+## [2.1.3] - 2024-03-20
+### Changed
+- Internal updates.
+
+## [2.1.2] - 2024-03-12
+### Changed
+- Internal updates.
+
+## [2.1.1] - 2024-03-01
+### Fixed
+- Avoid issues when the dns_get_record function is not defined [#36019]
+
+## [2.1.0] - 2024-01-18
+### Added
+- Add hosting provider check. [#34864]
+
+## [2.0.2] - 2023-12-03
+### Fixed
+- Module active checks should always be true on WordPress.com simple sites. [#34248]
+
+## [2.0.1] - 2023-11-21
+### Changed
+- Added a note of non-usage of PHP8+ functions yet. [#34137]
+- Replaced usage of substr() with str_starts_with() and str_ends_with(). [#34207]
+
+## [2.0.0] - 2023-11-20
+### Changed
+- Updated required PHP version to >= 7.0. [#34192]
+
+## [1.19.0] - 2023-11-13
+### Added
+- Added Host::get_source_query() to return the 'source' query param from the current URL. [#33984]
+
 ## [1.18.5] - 2023-09-25
 ### Changed
 - Add 127.0.0.1 into the list of known local domains. [#32898]
@@ -285,6 +397,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Introduce a status package
 
+[4.0.1]: https://github.com/Automattic/jetpack-status/compare/v4.0.0...v4.0.1
+[4.0.0]: https://github.com/Automattic/jetpack-status/compare/v3.3.4...v4.0.0
+[3.3.4]: https://github.com/Automattic/jetpack-status/compare/v3.3.3...v3.3.4
+[3.3.3]: https://github.com/Automattic/jetpack-status/compare/v3.3.2...v3.3.3
+[3.3.2]: https://github.com/Automattic/jetpack-status/compare/v3.3.1...v3.3.2
+[3.3.1]: https://github.com/Automattic/jetpack-status/compare/v3.3.0...v3.3.1
+[3.3.0]: https://github.com/Automattic/jetpack-status/compare/v3.2.3...v3.3.0
+[3.2.3]: https://github.com/Automattic/jetpack-status/compare/v3.2.2...v3.2.3
+[3.2.2]: https://github.com/Automattic/jetpack-status/compare/v3.2.1...v3.2.2
+[3.2.1]: https://github.com/Automattic/jetpack-status/compare/v3.2.0...v3.2.1
+[3.2.0]: https://github.com/Automattic/jetpack-status/compare/v3.1.0...v3.2.0
+[3.1.0]: https://github.com/Automattic/jetpack-status/compare/v3.0.3...v3.1.0
+[3.0.3]: https://github.com/Automattic/jetpack-status/compare/v3.0.2...v3.0.3
+[3.0.2]: https://github.com/Automattic/jetpack-status/compare/v3.0.1...v3.0.2
+[3.0.1]: https://github.com/Automattic/jetpack-status/compare/v3.0.0...v3.0.1
+[3.0.0]: https://github.com/Automattic/jetpack-status/compare/v2.2.2...v3.0.0
+[2.2.2]: https://github.com/Automattic/jetpack-status/compare/v2.2.1...v2.2.2
+[2.2.1]: https://github.com/Automattic/jetpack-status/compare/v2.2.0...v2.2.1
+[2.2.0]: https://github.com/Automattic/jetpack-status/compare/v2.1.3...v2.2.0
+[2.1.3]: https://github.com/Automattic/jetpack-status/compare/v2.1.2...v2.1.3
+[2.1.2]: https://github.com/Automattic/jetpack-status/compare/v2.1.1...v2.1.2
+[2.1.1]: https://github.com/Automattic/jetpack-status/compare/v2.1.0...v2.1.1
+[2.1.0]: https://github.com/Automattic/jetpack-status/compare/v2.0.2...v2.1.0
+[2.0.2]: https://github.com/Automattic/jetpack-status/compare/v2.0.1...v2.0.2
+[2.0.1]: https://github.com/Automattic/jetpack-status/compare/v2.0.0...v2.0.1
+[2.0.0]: https://github.com/Automattic/jetpack-status/compare/v1.19.0...v2.0.0
+[1.19.0]: https://github.com/Automattic/jetpack-status/compare/v1.18.5...v1.19.0
 [1.18.5]: https://github.com/Automattic/jetpack-status/compare/v1.18.4...v1.18.5
 [1.18.4]: https://github.com/Automattic/jetpack-status/compare/v1.18.3...v1.18.4
 [1.18.3]: https://github.com/Automattic/jetpack-status/compare/v1.18.2...v1.18.3

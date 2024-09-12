@@ -21,7 +21,6 @@ class Jetpack_XMLRPC_Methods {
 	public static function init() {
 		add_filter( 'jetpack_xmlrpc_unauthenticated_methods', array( __CLASS__, 'xmlrpc_methods' ) );
 		add_filter( 'jetpack_xmlrpc_test_connection_response', array( __CLASS__, 'test_connection' ) );
-		add_filter( 'jetpack_remote_xmlrpc_provision_response', array( __CLASS__, 'remote_provision_response' ), 10, 2 );
 		add_action( 'jetpack_xmlrpc_server_event', array( __CLASS__, 'jetpack_xmlrpc_server_event' ), 10, 4 );
 		add_action( 'jetpack_remote_connect_end', array( __CLASS__, 'remote_connect_end' ) );
 		add_filter( 'jetpack_xmlrpc_remote_register_redirect_uri', array( __CLASS__, 'remote_register_redirect_uri' ) );
@@ -137,7 +136,7 @@ class Jetpack_XMLRPC_Methods {
 		if ( 'en' !== $locale ) {
 			// .org mo files are named slightly different from .com, and all we have is this the locale -- try to guess them.
 			$new_locale = $locale;
-			if ( strpos( $locale, '-' ) !== false ) {
+			if ( str_contains( $locale, '-' ) ) {
 				$locale_pieces = explode( '-', $locale );
 				$new_locale    = $locale_pieces[0];
 				$new_locale   .= ( ! empty( $locale_pieces[1] ) ) ? '_' . strtoupper( $locale_pieces[1] ) : '';
@@ -206,13 +205,12 @@ class Jetpack_XMLRPC_Methods {
 	 * @param array $request An array containing at minimum a nonce key and a local_username key.
 	 *
 	 * @since 9.8.0
+	 * @deprecated since 13.9
+	 *
 	 * @return array
 	 */
-	public static function remote_provision_response( $response, $request ) {
-		if ( ! empty( $request['onboarding'] ) ) {
-			Jetpack::create_onboarding_token();
-			$response['onboarding_token'] = Jetpack_Options::get_option( 'onboarding' );
-		}
+	public static function remote_provision_response( $response, $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		_deprecated_function( __METHOD__, '13.9' );
 		return $response;
 	}
 

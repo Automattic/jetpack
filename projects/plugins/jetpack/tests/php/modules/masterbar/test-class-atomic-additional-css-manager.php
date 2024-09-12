@@ -3,6 +3,8 @@
  * Test_WPORG_Additional_Css_Manager file.
  * Test WPORG_Additional_CSS_Manager.
  *
+ * @phan-file-suppress PhanDeprecatedFunction -- Ok for deprecated code to call other deprecated code.
+ *
  * @package Jetpack
  */
 
@@ -40,28 +42,23 @@ class Test_Atomic_Additional_CSS_Manager extends \WP_UnitTestCase {
 
 	/**
 	 * Check if the nudge contains the proper url and message copy.
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Atomic_Additional_CSS_Manager::__construct
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Atomic_Additional_CSS_Manager::register_nudge
 	 */
 	public function test_it_generates_proper_url_and_nudge() {
 		$manager = new Atomic_Additional_CSS_Manager( 'foo.com' );
 
 		$manager->register_nudge( $this->wp_customize );
 
-		$cta_urls = array(
-			'/checkout/foo.com/pro',
+		$this->assertEquals(
 			'/checkout/foo.com/business',
+			$this->wp_customize->controls()['custom_css_control']->cta_url
 		);
 
-		$cta_url = $this->wp_customize->controls()['custom_css_control']->cta_url;
-
-		$this->assertContains( $cta_url, $cta_urls );
-
-		$cta_copys = array(
-			'Purchase a Pro Plan to<br> activate CSS customization',
-			'Purchase a Business Plan to<br> activate CSS customization',
+		$this->assertEquals(
+			'Purchase the Creator plan to<br> activate CSS customization',
+			$this->wp_customize->controls()['custom_css_control']->nudge_copy
 		);
-
-		$cta_copy = $this->wp_customize->controls()['custom_css_control']->nudge_copy;
-
-		$this->assertContains( $cta_copy, $cta_copys );
 	}
 }

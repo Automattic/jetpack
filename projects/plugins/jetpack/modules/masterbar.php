@@ -14,34 +14,11 @@
  * @package automattic/jetpack
  */
 
-namespace Automattic\Jetpack\Dashboard_Customizations;
-
-use Automattic\Jetpack\Status\Host;
-
-require __DIR__ . '/masterbar/masterbar/class-masterbar.php';
-require __DIR__ . '/masterbar/admin-color-schemes/class-admin-color-schemes.php';
-require __DIR__ . '/masterbar/inline-help/class-inline-help.php';
-
-new Masterbar();
-new Admin_Color_Schemes();
-
-if ( ( new Host() )->is_woa_site() ) {
-	new Inline_Help();
-	require_once __DIR__ . '/masterbar/wp-posts-list/bootstrap.php';
-	require_once __DIR__ . '/masterbar/profile-edit/bootstrap.php';
-	require_once __DIR__ . '/masterbar/nudges/bootstrap.php';
-}
-
 /**
- * Whether to load the admin menu functionality.
+ * Remove Masterbar from the old Module list.
+ * Available at wp-admin/admin.php?page=jetpack_modules
+ * We only need this function and module file until the Masterbar is fully removed from Jetpack including notices).
  *
- * @use add_filter( 'jetpack_load_admin_menu_class', '__return_true' );
- * @module masterbar
- *
- * @since 9.3.0
- *
- * @param bool $load_admin_menu_class Load Jetpack's custom admin menu functionality. Default to false.
+ * @param array $items Array of Jetpack modules.
+ * @return array
  */
-if ( apply_filters( 'jetpack_load_admin_menu_class', false ) ) {
-	require_once __DIR__ . '/masterbar/admin-menu/load.php';
-}

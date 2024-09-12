@@ -2,8 +2,11 @@
  * External dependencies
  */
 import { isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
-import apiFetch from '@wordpress/api-fetch';
 import debugFactory from 'debug';
+/**
+ * Internal dependencies
+ */
+import apiFetch from '../api-fetch/index.js';
 /*
  * Types & constants
  */
@@ -34,7 +37,7 @@ const JWT_TOKEN_EXPIRATION_TIME = 2 * 60 * 1000; // 2 minutes
  * Request a token from the Jetpack site.
  *
  * @param {RequestTokenOptions} options - Options
- * @returns {Promise<TokenDataProps>}     The token and the blogId
+ * @return {Promise<TokenDataProps>}     The token and the blogId
  */
 export default async function requestJwt( {
 	apiNonce,
@@ -45,8 +48,6 @@ export default async function requestJwt( {
 	apiNonce = apiNonce || window.JP_CONNECTION_INITIAL_STATE.apiNonce;
 	siteId = siteId || window.JP_CONNECTION_INITIAL_STATE.siteSuffix;
 	expirationTime = expirationTime || JWT_TOKEN_EXPIRATION_TIME;
-
-	const isSimple = isSimpleSite();
 
 	// Trying to pick the token from localStorage
 	const token = localStorage.getItem( JWT_TOKEN_ID );
@@ -67,6 +68,7 @@ export default async function requestJwt( {
 
 	let data: TokenDataEndpointResponseProps;
 
+	const isSimple = isSimpleSite();
 	if ( ! isSimple ) {
 		data = await apiFetch( {
 			/*

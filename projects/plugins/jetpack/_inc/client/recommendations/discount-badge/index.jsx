@@ -1,5 +1,5 @@
 import { __, sprintf } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import React from 'react';
 
 import './style.scss';
@@ -10,7 +10,7 @@ const DiscountBadge = ( { className, discount, suffix } ) => {
 	}
 
 	return (
-		<div className={ classNames( 'jp-recommendations-discount-badge', className ) }>
+		<div className={ clsx( 'jp-recommendations-discount-badge', className ) }>
 			{ /* eslint-disable */ }
 			{ sprintf(
 				// translators: %d is the percentage value, %% the percentage symbol

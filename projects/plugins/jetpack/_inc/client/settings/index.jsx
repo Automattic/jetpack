@@ -1,4 +1,4 @@
-import { ThemeProvider } from '@automattic/jetpack-components';
+import { GlobalNotices, ThemeProvider } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
 import Discussion from 'discussion';
 import Earn from 'earn';
@@ -25,6 +25,7 @@ class Settings extends React.Component {
 			searchTerm,
 			siteAdminUrl,
 			siteRawUrl,
+			blogID,
 			userCanManageModules,
 		} = this.props;
 		const { pathname } = location;
@@ -61,6 +62,7 @@ class Settings extends React.Component {
 					/>
 					<Subscriptions
 						siteRawUrl={ siteRawUrl }
+						blogID={ blogID }
 						active={ '/newsletter' === pathname }
 						{ ...commonProps }
 					/>
@@ -95,6 +97,7 @@ class Settings extends React.Component {
 					<Privacy active={ '/privacy' === pathname } { ...commonProps } />
 					<SearchableModules searchTerm={ searchTerm } />
 				</div>
+				<GlobalNotices />
 			</ThemeProvider>
 		);
 	}

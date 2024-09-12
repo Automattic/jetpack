@@ -25,6 +25,8 @@ class WP_Test_Jetpack_Sync_Constants extends WP_Test_Jetpack_Sync_Base {
 	// TODO:
 	// Add tests for Syncing data on shutdown
 	// Add tests that prove that we know constants change
+	// phpcs:ignore Squiz.Commenting.FunctionComment.WrongStyle -- Confuses this for a function comment.
+
 	public function test_white_listed_constant_is_synced() {
 		$helper                 = new Jetpack_Sync_Test_Helper();
 		$helper->array_override = array( 'TEST_FOO' );
@@ -82,7 +84,8 @@ class WP_Test_Jetpack_Sync_Constants extends WP_Test_Jetpack_Sync_Base {
 	 * Verify that all constants are returned by get_objects_by_id.
 	 */
 	public function test_get_objects_by_id_all() {
-		$module        = Modules::get_module( 'constants' );
+		$module = Modules::get_module( 'constants' );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Constants $module';
 		$all_constants = $module->get_objects_by_id( 'constant', array( 'all' ) );
 		$this->assertEquals( $module->get_all_constants(), $all_constants );
 	}
@@ -91,7 +94,8 @@ class WP_Test_Jetpack_Sync_Constants extends WP_Test_Jetpack_Sync_Base {
 	 * Verify that get_object_by_id returns a allowed constant.
 	 */
 	public function test_get_objects_by_id_singular() {
-		$module        = Modules::get_module( 'constants' );
+		$module = Modules::get_module( 'constants' );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Constants $module';
 		$constants     = $module->get_all_constants();
 		$get_constants = $module->get_objects_by_id( 'constant', array( 'EMPTY_TRASH_DAYS' ) );
 		$this->assertEquals( $constants['EMPTY_TRASH_DAYS'], $get_constants['EMPTY_TRASH_DAYS'] );

@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Styles: Changing how styles are added to the page on several stand-alone pages to prevent WordPress 6.4 compatibility issues.

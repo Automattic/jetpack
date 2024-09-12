@@ -15,14 +15,23 @@ import type React from 'react';
  * All content must be passed as children wrapped in as many <AdminSection> elements as needed.
  *
  * @param {AdminPageProps} props - Component properties.
- * @returns {React.ReactNode} AdminPage component.
+ * @return {React.ReactNode} AdminPage component.
  */
 const AdminPage: React.FC< AdminPageProps > = props => {
+	const pageProps = {
+		/*
+		 * Hide footer and header since we output them with PHP.
+		 */
+		showHeader: false,
+		showFooter: false,
+		showBackground: false,
+		...props,
+	};
 	const { children, headline, subHeadline } = props;
 
 	return (
 		<div className={ styles[ 'admin-page' ] }>
-			<JetpackAdminPage { ...props }>
+			<JetpackAdminPage { ...pageProps }>
 				<AdminSectionHero>
 					{ ( headline || subHeadline ) && (
 						<Container horizontalSpacing={ 5 }>
@@ -41,15 +50,6 @@ const AdminPage: React.FC< AdminPageProps > = props => {
 			</JetpackAdminPage>
 		</div>
 	);
-};
-
-AdminPage.defaultProps = {
-	/*
-	 * Hide footer and header since we output them with PHP.
-	 */
-	showHeader: false,
-	showFooter: false,
-	showBackground: false,
 };
 
 export default AdminPage;

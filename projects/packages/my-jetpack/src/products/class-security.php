@@ -31,21 +31,21 @@ class Security extends Module_Product {
 	public static $module_name = 'security';
 
 	/**
-	 * Get the internationalized product name
+	 * Get the product name
 	 *
 	 * @return string
 	 */
 	public static function get_name() {
-		return _x( 'Security', 'Jetpack product name', 'jetpack-my-jetpack' );
+		return 'Security';
 	}
 
 	/**
-	 * Get the internationalized product title
+	 * Get the product title
 	 *
 	 * @return string
 	 */
 	public static function get_title() {
-		return _x( 'Security', 'Jetpack product name', 'jetpack-my-jetpack' );
+		return 'Jetpack Security';
 	}
 
 	/**
@@ -173,8 +173,8 @@ class Security extends Module_Product {
 		if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
 			foreach ( $purchases_data as $purchase ) {
 				if (
-					0 === strpos( $purchase->product_slug, 'jetpack_security' ) ||
-					0 === strpos( $purchase->product_slug, 'jetpack_complete' )
+					str_starts_with( $purchase->product_slug, 'jetpack_security' ) ||
+					str_starts_with( $purchase->product_slug, 'jetpack_complete' )
 				) {
 					return true;
 				}

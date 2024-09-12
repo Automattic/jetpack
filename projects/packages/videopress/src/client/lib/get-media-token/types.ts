@@ -18,6 +18,7 @@ type AdminAjaxTokensProps = typeof TOKEN_ADMIN_AJAX_TYPES;
 export type GetMediaTokenArgsProps = {
 	id?: VideoId;
 	guid?: VideoGUID;
+	subscriptionPlanId?: number;
 	adminAjaxAPI?: string;
 	filename?: string;
 	flushToken?: boolean;
@@ -49,5 +50,6 @@ declare global {
 			post_id: string;
 		};
 		ajaxurl?: string;
+		__guidsToPlanIds?: object;
 	}
 }

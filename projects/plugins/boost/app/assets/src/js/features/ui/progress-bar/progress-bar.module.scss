@@ -1,0 +1,15 @@
+// Basic Progress Bar styling.
+.bar {
+	height: 20px;
+	border-radius: 50px;
+	background-color: #f1f1f1;
+}
+
+.filler {
+	height: 100%;
+	width: 0%;
+	will-change: width;
+	transition: width 700ms ease-in-out;
+	border-radius: 50px;
+	background-color: #069e08;
+}

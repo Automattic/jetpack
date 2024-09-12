@@ -43,7 +43,7 @@ class Repeat_Visitor_Block_Test extends \Jetpack_Block_Fixture_TestCase {
 	 *
 	 * @access private
 	 *
-	 * @var number
+	 * @var int
 	 */
 	private $original_visit_counter;
 

@@ -104,7 +104,7 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 	 * Check Genericons.
 	 *
 	 * @access private
-	 * @return Bool.
+	 * @return bool
 	 */
 	private function check_genericons() {
 		global $wp_styles;
@@ -167,11 +167,11 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 
 			if ( 'googleplus' === $service
 				&& ! is_numeric( $username )
-				&& substr( $username, 0, 1 ) !== '+'
+				&& ! str_starts_with( $username, '+' )
 			) {
 				$link_username = '+' . $username;
 			}
-			if ( 'youtube' === $service && 'UC' === substr( $username, 0, 2 ) ) {
+			if ( 'youtube' === $service && str_starts_with( $username, 'UC' ) ) {
 				$link_username = 'channel/' . $username;
 			} elseif ( 'youtube' === $service ) {
 				$link_username = 'user/' . $username;
@@ -289,9 +289,9 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 	 * Update Widget Settings.
 	 *
 	 * @access public
-	 * @param mixed $new_instance New Instance.
-	 * @param mixed $old_instance Old Instance.
-	 * @return Instance.
+	 * @param array      $new_instance New Instance.
+	 * @param array|null $old_instance Old Instance.
+	 * @return array Instance.
 	 */
 	public function update( $new_instance, $old_instance ) {
 		$instance = (array) $old_instance;
@@ -324,8 +324,8 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 	 * Remove username from value before to save stats.
 	 *
 	 * @access public
-	 * @param mixed $val Value.
-	 * @return Value.
+	 * @param string $val Value.
+	 * @return string Value.
 	 */
 	public function remove_username( $val ) {
 		return str_replace( '_username', '', $val );

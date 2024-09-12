@@ -1,8 +1,6 @@
 import { RichText } from '@wordpress/block-editor';
-import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import classnames from 'classnames';
-import { isNil } from 'lodash';
+import clsx from 'clsx';
 import { FORM_STYLE } from '../util/form';
 import { useJetpackFieldStyles } from './use-jetpack-field-styles';
 
@@ -10,6 +8,7 @@ const FieldLabel = ( {
 	attributes,
 	className,
 	label,
+	suffix,
 	labelFieldName,
 	placeholder,
 	resetFocus,
@@ -20,7 +19,7 @@ const FieldLabel = ( {
 	const { labelStyle } = useJetpackFieldStyles( attributes );
 
 	return (
-		<div className={ classnames( className, 'jetpack-field-label' ) } style={ labelStyle }>
+		<div className={ clsx( className, 'jetpack-field-label' ) } style={ labelStyle }>
 			<RichText
 				tagName="label"
 				value={ label }
@@ -37,10 +36,11 @@ const FieldLabel = ( {
 				withoutInteractiveFormatting
 				allowedFormats={ [ 'core/bold', 'core/italic' ] }
 			/>
+			{ suffix && <span className="jetpack-field-label__suffix">{ suffix }</span> }
 			{ required && (
 				<RichText
 					tagName="span"
-					value={ requiredText }
+					value={ requiredText || __( '(required)', 'jetpack-forms' ) }
 					className="required"
 					onChange={ value => {
 						setAttributes( { requiredText: value } );
@@ -54,20 +54,13 @@ const FieldLabel = ( {
 };
 
 const JetpackFieldLabel = props => {
-	const { setAttributes, requiredText, style } = props;
+	const { style } = props;
 
-	const classes = classnames( {
+	const classes = clsx( {
 		'notched-label__label': style === FORM_STYLE.OUTLINED,
 		'animated-label__label': style === FORM_STYLE.ANIMATED,
 		'below-label__label': style === FORM_STYLE.BELOW,
 	} );
-
-	useEffect( () => {
-		if ( isNil( requiredText ) ) {
-			setAttributes( { requiredText: __( '(required)', 'jetpack-forms' ) } );
-		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [] );
 
 	if ( style === FORM_STYLE.OUTLINED ) {
 		return (

@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Sync\Modules;
 
+use WC_Order;
 use WP_Error;
 
 /**
@@ -60,14 +61,50 @@ class WooCommerce extends Module {
 	private $order_item_table_name;
 
 	/**
-	 * The table in the database.
+	 * The table name.
+	 *
+	 * @access public
+	 *
+	 * @return string
+	 * @deprecated since 3.11.0 Use table() instead.
+	 */
+	public function table_name() {
+		_deprecated_function( __METHOD__, '3.11.0', 'Automattic\\Jetpack\\Sync\\WooCommerce->table' );
+		return $this->order_item_table_name;
+	}
+
+	/**
+	 * The table in the database with the prefix.
+	 *
+	 * @access public
+	 *
+	 * @return string|bool
+	 */
+	public function table() {
+		global $wpdb;
+		return $wpdb->prefix . 'woocommerce_order_items';
+	}
+
+	/**
+	 * The id field in the database.
 	 *
 	 * @access public
 	 *
 	 * @return string
 	 */
-	public function table_name() {
-		return $this->order_item_table_name;
+	public function id_field() {
+		return 'order_item_id';
+	}
+
+	/**
+	 * The full sync action name for this module.
+	 *
+	 * @access public
+	 *
+	 * @return string
+	 */
+	public function full_sync_action_name() {
+		return 'jetpack_full_sync_woocommerce_order_items';
 	}
 
 	/**
@@ -93,6 +130,9 @@ class WooCommerce extends Module {
 
 		// Blacklist Action Scheduler comment types.
 		add_filter( 'jetpack_sync_prevent_sending_comment_data', array( $this, 'filter_action_scheduler_comments' ), 10, 2 );
+
+		// Preprocess action to be sent by Jetpack sync.
+		add_action( 'woocommerce_remove_order_items', array( $this, 'action_woocommerce_remove_order_items' ), 10, 2 );
 	}
 
 	/**
@@ -128,6 +168,7 @@ class WooCommerce extends Module {
 		add_action( 'woocommerce_new_order_item', $callable, 10, 4 );
 		add_action( 'woocommerce_update_order_item', $callable, 10, 4 );
 		add_action( 'woocommerce_delete_order_item', $callable, 10, 1 );
+		add_action( 'woocommerce_remove_order_item_ids', $callable, 10, 1 );
 		$this->init_listeners_for_meta_type( 'order_item', $callable );
 
 		// Payment tokens.
@@ -195,6 +236,25 @@ class WooCommerce extends Module {
 		// Make sure we always have all the data - prior to WooCommerce 3.0 we only have the user supplied data in the second argument and not the full details.
 		$args[1] = $this->build_order_item( $args[0] );
 		return $args;
+	}
+
+	/**
+	 * Retrieve the order item ids to be removed and send them as one action
+	 *
+	 * @param WC_Order $order The order argument.
+	 * @param string   $type Order item type.
+	 */
+	public function action_woocommerce_remove_order_items( WC_Order $order, $type ) {
+		if ( $type ) {
+			$order_items = $order->get_items( $type );
+		} else {
+			$order_items = $order->get_items();
+		}
+		$order_item_ids = array_keys( $order_items );
+
+		if ( $order_item_ids ) {
+			do_action( 'woocommerce_remove_order_item_ids', $order_item_ids );
+		}
 	}
 
 	/**
@@ -269,8 +329,8 @@ class WooCommerce extends Module {
 		global $wpdb;
 
 		$query = "SELECT count(*) FROM $this->order_item_table_name WHERE " . $this->get_where_sql( $config );
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-		$count = $wpdb->get_var( $query );
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		$count = (int) $wpdb->get_var( $query );
 
 		return (int) ceil( $count / self::ARRAY_CHUNK_SIZE );
 	}
@@ -525,14 +585,15 @@ class WooCommerce extends Module {
 		'_date_completed',
 		'_date_paid',
 		'_payment_tokens',
-		'_billing_address_index',
-		'_shipping_address_index',
+		// '_billing_address_index', do not sync these as they contain personal data.
+		// '_shipping_address_index',
 		'_recorded_sales',
 		'_recorded_coupon_usage_counts',
 		// See https://github.com/woocommerce/woocommerce/blob/8ed6e7436ff87c2153ed30edd83c1ab8abbdd3e9/includes/data-stores/class-wc-order-data-store-cpt.php#L539 .
 		'_download_permissions_granted',
 		// See https://github.com/woocommerce/woocommerce/blob/8ed6e7436ff87c2153ed30edd83c1ab8abbdd3e9/includes/data-stores/class-wc-order-data-store-cpt.php#L594 .
 		'_order_stock_reduced',
+		'_cart_hash',
 
 		// Woocommerce order refunds.
 		// See https://github.com/woocommerce/woocommerce/blob/b8a2815ae546c836467008739e7ff5150cb08e93/includes/data-stores/class-wc-order-refund-data-store-cpt.php#L20 .

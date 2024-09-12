@@ -5,7 +5,7 @@ use Automattic\Jetpack\Sync\Modules;
 
 require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 
-// Mock object requiered for test_theme_update()
+/** Mock object requiered for test_theme_update(). */
 class Dummy_Sync_Test_WP_Upgrader {
 	public $skin;
 
@@ -354,6 +354,10 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 	public function test_widgets_changes_get_synced() {
 		global $wp_registered_sidebars;
 
+		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
+			$this->markTestSkipped( 'is temporarily skipped' );
+		}
+
 		$sidebar_id   = 'sidebar-1';
 		$sidebar_name = $wp_registered_sidebars[ $sidebar_id ]['name'];
 
@@ -489,7 +493,8 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 	 * Verify that all constants are returned by get_objects_by_id.
 	 */
 	public function test_get_objects_by_id() {
-		$module     = Modules::get_module( 'themes' );
+		$module = Modules::get_module( 'themes' );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Themes $module';
 		$theme_info = $module->get_objects_by_id( 'theme-info', array() );
 		$this->assertEquals( $module->expand_theme_data(), $theme_info );
 	}

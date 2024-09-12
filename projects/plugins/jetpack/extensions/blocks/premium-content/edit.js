@@ -1,4 +1,4 @@
-import { store as blockEditorStore } from '@wordpress/block-editor';
+import { store as blockEditorStore, useBlockProps } from '@wordpress/block-editor';
 import { Disabled, Placeholder, Spinner } from '@wordpress/components';
 import { useViewportMatch } from '@wordpress/compose';
 import { select, useSelect } from '@wordpress/data';
@@ -47,21 +47,22 @@ const BLOCK_NAME = 'premium-content';
  *
  * @typedef { import('./').Attributes } Attributes
  * @typedef {object} OwnProps
- * @property { boolean } isSelected
- * @property { string } className
- * @property { string } clientId
- * @property { Attributes } attributes
+ * @property { boolean }                                isSelected
+ * @property { string }                                 className
+ * @property { string }                                 clientId
+ * @property { Attributes }                             attributes
  * @property {(attributes: Object<Attributes>) => void} setAttributes
  * @typedef { OwnProps } Props
- * @param { Props } props
+ * @param    { Props }                                  props
  */
 
-function Edit( props ) {
-	const [ selectedTab, selectTab ] = useState( tabs[ WALL_TAB ] );
-	const { isPreview, selectedPlanId } = props.attributes;
-	const { clientId, isSelected, className, setAttributes } = props;
+function Edit( { clientId, isSelected, attributes, setAttributes } ) {
+	const { isPreview, selectedPlanIds } = attributes;
 
-	const setSelectedProductId = productId => setAttributes( { selectedPlanId: productId } );
+	const [ selectedTab, selectTab ] = useState( tabs[ WALL_TAB ] );
+	const blockProps = useBlockProps();
+
+	const setSelectedProductIds = productIds => setAttributes( { selectedPlanIds: productIds } );
 
 	const { isApiLoading, selectedBlock } = useSelect( selector => ( {
 		selectedBlock: selector( blockEditorStore ).getSelectedBlock(),
@@ -100,7 +101,7 @@ function Edit( props ) {
 	const isSmallViewport = useViewportMatch( 'medium', '<' );
 
 	return (
-		<div className={ className }>
+		<div { ...blockProps }>
 			{ ! isPreview && (
 				<>
 					{ isApiLoading && (
@@ -116,8 +117,8 @@ function Edit( props ) {
 						blockName={ BLOCK_NAME }
 						clientId={ clientId }
 						productType={ PRODUCT_TYPE_SUBSCRIPTION }
-						selectedProductId={ selectedPlanId }
-						setSelectedProductId={ setSelectedProductId }
+						selectedProductIds={ selectedPlanIds }
+						setSelectedProductIds={ setSelectedProductIds }
 					/>
 					<ViewSelector
 						options={ tabs }

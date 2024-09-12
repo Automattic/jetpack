@@ -2,9 +2,11 @@
 /**
  * Display the Pay with PayPal Form.
  *
+ * @html-template Jetpack_Simple_Payments_Widget::form
  * @package automattic/jetpack
- * @phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
  */
+
+// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- HTML template, let Phan handle it.
 
 ?>
 <p>
@@ -33,7 +35,7 @@ if ( empty( $product_posts ) ) {
 		id="<?php echo esc_attr( $this->get_field_id( 'product_post_id' ) ); ?>"
 		name="<?php echo esc_attr( $this->get_field_name( 'product_post_id' ) ); ?>">
 		<?php foreach ( $product_posts as $product_post ) { ?>
-			<option value="<?php echo esc_attr( $product_post->ID ); ?>" <?php selected( (int) $instance['product_post_id'], $product_post->ID ); ?>>
+			<option value="<?php echo (int) $product_post->ID; ?>" <?php selected( (int) $instance['product_post_id'], $product_post->ID ); ?>>
 				<?php echo esc_attr( get_the_title( $product_post ) ); ?>
 			</option>
 		<?php } ?>
@@ -141,7 +143,9 @@ if ( empty( $product_posts ) ) {
 			class="field-currency widefat jetpack-simple-payments-form-product-currency"
 			id="<?php echo esc_attr( $this->get_field_id( 'form_product_currency' ) ); ?>"
 			name="<?php echo esc_attr( $this->get_field_name( 'form_product_currency' ) ); ?>">
-			<?php foreach ( Jetpack_Simple_Payments_Widget::$supported_currency_list as $code => $currency ) { ?>
+			<?php
+			foreach ( Jetpack_Simple_Payments_Widget::$supported_currency_list as $code => $currency ) {
+				?>
 				<option value="<?php echo esc_attr( $code ); ?>"<?php selected( $instance['form_product_currency'], $code ); ?>>
 					<?php echo esc_html( "$code $currency" ); ?>
 				</option>

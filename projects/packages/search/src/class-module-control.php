@@ -26,7 +26,7 @@ class Module_Control {
 	/**
 	 * Connection_Manager object
 	 *
-	 * @var Automattic\Jetpack\Connection\Manager
+	 * @var \Automattic\Jetpack\Connection\Manager
 	 */
 	protected $connection_manager;
 
@@ -40,8 +40,8 @@ class Module_Control {
 	/**
 	 * Contructor
 	 *
-	 * @param Plan|null                                  $plan - Plan object.
-	 * @param Automattic\Jetpack\Connection\Manager|null $connection_manager - Connection_Manager object.
+	 * @param Plan|null                                   $plan - Plan object.
+	 * @param \Automattic\Jetpack\Connection\Manager|null $connection_manager - Connection_Manager object.
 	 */
 	public function __construct( $plan = null, $connection_manager = null ) {
 		$this->plan               = $plan === null ? new Plan() : $plan;

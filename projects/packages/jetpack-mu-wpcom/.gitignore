@@ -1,3 +1,7 @@
+.cache/
+src/build/
 vendor/
 node_modules/
 wordpress/
+playwright-report/
+src/features/help-center/languages/

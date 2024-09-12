@@ -10,6 +10,7 @@ interface Pluggable extends Has_Setup, Has_Slug {
 	/**
 	 * Whether the feature is available for use.
 	 * Use this to check for feature flags, etc.
+	 *
 	 * @return bool
 	 */
 	public static function is_available();

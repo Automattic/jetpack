@@ -28,13 +28,18 @@ import {
 	withInstanceId,
 } from '@wordpress/compose';
 import { useSelect, withDispatch, withSelect } from '@wordpress/data';
-import { Component, createInterpolateElement, createRef, Fragment } from '@wordpress/element';
+import {
+	Component,
+	createInterpolateElement,
+	createRef,
+	Fragment,
+	useEffect,
+} from '@wordpress/element';
 import { escapeHTML } from '@wordpress/escape-html';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import { get, indexOf } from 'lodash';
-import { useEffect } from 'react';
 import { VideoPressIcon } from '../../shared/icons';
 import { VideoPressBlockProvider } from './components';
 import { VIDEO_PRIVACY } from './constants';
@@ -170,7 +175,7 @@ const VideoPressEdit = CoreVideoEdit =>
 			if ( preview ) {
 				const sandboxClassnames = getClassNames(
 					preview.html,
-					classnames( 'wp-block-embed', 'is-type-video', 'is-provider-videopress' ),
+					clsx( 'wp-block-embed', 'is-type-video', 'is-provider-videopress' ),
 					false
 				);
 
@@ -422,7 +427,6 @@ const VideoPressEdit = CoreVideoEdit =>
 					// check for wpcom status field, if set
 					if ( status in result && 200 !== result.status ) {
 						onRevert();
-						return;
 					}
 				} )
 				.catch( () => onRevert() )
@@ -718,7 +722,7 @@ const VideoPressEdit = CoreVideoEdit =>
 			/**
 			 * Determines if api requests should be made via the `gutenberg-video-upload` script (Jetpack only).
 			 *
-			 * @returns {boolean} if the upload script should be used or not.
+			 * @return {boolean} if the upload script should be used or not.
 			 */
 			const shouldUseJetpackVideoFetch = () => {
 				return 'videoPressUploadPoster' in window;
@@ -1026,7 +1030,7 @@ export const VpBlock = props => {
 	const { align, className, videoPressClassNames, maxWidth } = attributes;
 
 	const blockProps = useBlockProps( {
-		className: classnames( 'wp-block-video', className, videoPressClassNames, {
+		className: clsx( 'wp-block-video', className, videoPressClassNames, {
 			[ `align${ align }` ]: align,
 		} ),
 	} );

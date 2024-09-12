@@ -1,11 +1,7 @@
-export type Block = {
-	attributes?: object;
-	clientId?: string;
-	innerBlocks?: Block[];
-	isValid?: boolean;
-	name?: string;
-	originalContent?: string;
-};
+/**
+ * External dependencies
+ */
+import type { Block } from '@automattic/jetpack-ai-client';
 
 const omitClientId = ( block: Block ): Block => {
 	delete block.clientId;
@@ -25,7 +21,7 @@ const copyBlockWithoutClientId = ( block: Block ) => omitClientId( copyBlock( bl
  *
  * @param {Block} blockA - The first block to compare.
  * @param {Block} blockB - The second block to compare.
- * @returns {boolean} Whether the two blocks are equal.
+ * @return {boolean} Whether the two blocks are equal.
  */
 export function compareBlocks( blockA: Block, blockB: Block ): boolean {
 	const aCopy = copyBlockWithoutClientId( blockA );

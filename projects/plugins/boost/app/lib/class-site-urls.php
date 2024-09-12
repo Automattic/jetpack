@@ -97,8 +97,8 @@ class Site_Urls {
 	 * Removes duplicate URLs from the $post_urls list
 	 * based on the additional URLs.
 	 *
-	 * @param  $post_urls       List of URLs to cleanup.
-	 * @param  $additional_urls List of URLs to lookup while cleaning.
+	 * @param  array $post_urls       List of URLs to cleanup.
+	 * @param  array $additional_urls List of URLs to lookup while cleaning.
 	 *
 	 * @return array
 	 */
@@ -135,7 +135,7 @@ class Site_Urls {
 	/**
 	 * Returns the group for the post.
 	 *
-	 * @param $p Post object.
+	 * @param \WP_Post $p Post object.
 	 *
 	 * @return string
 	 */

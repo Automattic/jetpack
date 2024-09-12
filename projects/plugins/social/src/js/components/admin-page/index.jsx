@@ -4,22 +4,21 @@ import {
 	AdminSectionHero,
 	Container,
 	Col,
+	GlobalNotices,
 } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
-import { SOCIAL_STORE_ID } from '@automattic/jetpack-publicize-components';
-import { useSelect } from '@wordpress/data';
-import { useState, useCallback } from '@wordpress/element';
+import { store as socialStore } from '@automattic/jetpack-publicize-components';
+import { useSelect, useDispatch } from '@wordpress/data';
+import { useState, useCallback, useEffect, useRef } from '@wordpress/element';
 import React from 'react';
-import AdvancedUpsellNotice from '../advanced-upsell-notice';
-import AutoConversionToggle from '../auto-conversion-toggle';
 import PricingPage from '../pricing-page';
 import SocialImageGeneratorToggle from '../social-image-generator-toggle';
 import SocialModuleToggle from '../social-module-toggle';
+import SocialNotesToggle from '../social-notes-toggle';
 import SupportSection from '../support-section';
 import ConnectionScreen from './../connection-screen';
 import Header from './../header';
 import InfoSection from './../info-section';
-import InstagramNotice from './../instagram-notice';
 import AdminPageHeader from './header';
 import './styles.module.scss';
 
@@ -28,31 +27,37 @@ const Admin = () => {
 	const showConnectionCard = ! isRegistered || ! isUserConnected;
 	const [ forceDisplayPricingPage, setForceDisplayPricingPage ] = useState( false );
 
-	const onUpgradeToggle = useCallback( () => setForceDisplayPricingPage( true ), [] );
+	const refreshJetpackSocialSettings = useDispatch( socialStore ).refreshJetpackSocialSettings;
+
 	const onPricingPageDismiss = useCallback( () => setForceDisplayPricingPage( false ), [] );
 
 	const {
 		isModuleEnabled,
 		showPricingPage,
-		hasPaidPlan,
-		isShareLimitEnabled,
+		hasPaidFeatures,
 		pluginVersion,
 		isSocialImageGeneratorAvailable,
-		isAutoConversionAvailable,
-		shouldShowAdvancedPlanNudge,
+		isUpdatingJetpackSettings,
 	} = useSelect( select => {
-		const store = select( SOCIAL_STORE_ID );
+		const store = select( socialStore );
 		return {
 			isModuleEnabled: store.isModuleEnabled(),
 			showPricingPage: store.showPricingPage(),
-			hasPaidPlan: store.hasPaidPlan(),
-			isShareLimitEnabled: store.isShareLimitEnabled(),
+			hasPaidFeatures: store.hasPaidFeatures(),
 			pluginVersion: store.getPluginVersion(),
 			isSocialImageGeneratorAvailable: store.isSocialImageGeneratorAvailable(),
-			isAutoConversionAvailable: store.isAutoConversionAvailable(),
-			shouldShowAdvancedPlanNudge: store.shouldShowAdvancedPlanNudge(),
+			isUpdatingJetpackSettings: store.isUpdatingJetpackSettings(),
 		};
 	} );
+
+	const hasEnabledModule = useRef( isModuleEnabled );
+
+	useEffect( () => {
+		if ( isModuleEnabled && ! hasEnabledModule.current && isSocialImageGeneratorAvailable ) {
+			hasEnabledModule.current = true;
+			refreshJetpackSocialSettings();
+		}
+	}, [ isModuleEnabled, isSocialImageGeneratorAvailable, refreshJetpackSocialSettings ] );
 
 	const moduleName = `Jetpack Social ${ pluginVersion }`;
 
@@ -70,7 +75,8 @@ const Admin = () => {
 
 	return (
 		<AdminPage moduleName={ moduleName } header={ <AdminPageHeader /> }>
-			{ ( isShareLimitEnabled && ! hasPaidPlan && showPricingPage ) || forceDisplayPricingPage ? (
+			<GlobalNotices />
+			{ ( ! hasPaidFeatures && showPricingPage ) || forceDisplayPricingPage ? (
 				<AdminSectionHero>
 					<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 						<Col>
@@ -84,11 +90,11 @@ const Admin = () => {
 						<Header />
 					</AdminSectionHero>
 					<AdminSection>
-						{ shouldShowAdvancedPlanNudge && <AdvancedUpsellNotice /> }
-						<InstagramNotice onUpgrade={ onUpgradeToggle } />
 						<SocialModuleToggle />
-						{ isModuleEnabled && isAutoConversionAvailable && <AutoConversionToggle /> }
-						{ isModuleEnabled && isSocialImageGeneratorAvailable && <SocialImageGeneratorToggle /> }
+						{ isModuleEnabled && <SocialNotesToggle disabled={ isUpdatingJetpackSettings } /> }
+						{ isModuleEnabled && isSocialImageGeneratorAvailable && (
+							<SocialImageGeneratorToggle disabled={ isUpdatingJetpackSettings } />
+						) }
 					</AdminSection>
 					<AdminSectionHero>
 						<InfoSection />

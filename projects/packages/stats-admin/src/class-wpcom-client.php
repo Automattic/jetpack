@@ -30,7 +30,7 @@ class WPCOM_Client {
 	 */
 	public static function request_as_blog_cached( $path, $version = '1.1', $args = array(), $body = null, $base_api_path = 'rest', $use_cache = true, $cache_key = null ) {
 		// Only allow caching GET requests.
-		$use_cache = $use_cache && ! ( isset( $args['method'] ) && strtoupper( $args['method'] ) !== 'GET' );
+		$use_cache = $use_cache && ! ( isset( $args['method'] ) && strtoupper( $args['method'] ) !== 'GET' ) && ! static::should_bypass_cache();
 
 		// Arrays are serialized without considering the order of objects, but it's okay atm.
 		$cache_key = $cache_key !== null ? $cache_key : 'STATS_REST_RESP_' . md5( implode( '|', array( $path, $version, wp_json_encode( $args ), wp_json_encode( $body ), $base_api_path ) ) );
@@ -118,5 +118,19 @@ class WPCOM_Client {
 
 		// No error.
 		return null;
+	}
+
+	/**
+	 * Check if the cache should be bypassed.
+	 *
+	 * @return bool
+	 */
+	protected static function should_bypass_cache() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		return isset( $_GET['force_refresh'] ) || isset( $_GET['statsPurchaseSuccess'] ) ||
+			// phpcs:ignore WordPress.Arrays.ArrayKeySpacingRestrictions.SpacesAroundArrayKeys, WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+			( isset( $_SERVER[ 'HTTP_REFERER' ] ) && false !== strpos( $_SERVER[ 'HTTP_REFERER' ], 'force_refresh' ) ) ||
+			// phpcs:ignore WordPress.Arrays.ArrayKeySpacingRestrictions.SpacesAroundArrayKeys, WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+			( isset( $_SERVER[ 'HTTP_REFERER' ] ) && false !== strpos( $_SERVER[ 'HTTP_REFERER' ], 'statsPurchaseSuccess' ) );
 	}
 }

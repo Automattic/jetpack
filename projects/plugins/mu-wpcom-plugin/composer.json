@@ -7,7 +7,7 @@
 		"automattic/jetpack-mu-wpcom": "@dev"
 	},
 	"require-dev": {
-		"yoast/phpunit-polyfills": "1.1.0",
+		"yoast/phpunit-polyfills": "^1.1.1",
 		"automattic/jetpack-changelogger": "@dev"
 	},
 	"autoload": {
@@ -39,13 +39,9 @@
 		"autotagger": true,
 		"beta-plugin-slug": "jetpack-mu-wpcom-plugin",
 		"mirror-repo": "Automattic/jetpack-mu-wpcom-plugin",
-		"release-branch-prefix": [
-			"mu-wpcom",
-			"weekly",
-			"monthly"
-		]
+		"release-branch-prefix": "mu-wpcom"
 	},
 	"config": {
-		"autoloader-suffix": "d9d132a783958a00a2c7cccff60ca42d_jetpack_mu_wpcom_pluginⓥ1_7_6"
+		"autoloader-suffix": "d9d132a783958a00a2c7cccff60ca42d_jetpack_mu_wpcom_pluginⓥ2_5_11"
 	}
 }

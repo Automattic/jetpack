@@ -1,6 +1,7 @@
 /*
  * External dependencies
  */
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import {
 	MenuItem,
 	MenuGroup,
@@ -38,7 +39,7 @@ export type LanguageProp = ( typeof LANGUAGE_LIST )[ number ];
 
 type LanguageDropdownControlProps = {
 	value?: LanguageProp;
-	onChange: ( value: string ) => void;
+	onChange: ( value: string, name?: string ) => void;
 	label?: string;
 	disabled?: boolean;
 };
@@ -46,7 +47,7 @@ type LanguageDropdownControlProps = {
 const defaultLanguageLocale =
 	window?.Jetpack_Editor_Initial_State?.siteLocale || navigator?.language;
 
-const defaultLabel = __( 'Translate', 'jetpack' );
+export const TRANSLATE_LABEL = __( 'Translate', 'jetpack' );
 
 export const defaultLanguage = ( defaultLanguageLocale?.split( '-' )[ 0 ] || 'en' ) as LanguageProp;
 
@@ -89,16 +90,6 @@ export const LANGUAGE_MAP = {
 	ko: {
 		label: __( 'Korean', 'jetpack' ),
 	},
-
-	id: {
-		label: __( 'Indonesian', 'jetpack' ),
-	},
-	tl: {
-		label: __( 'Filipino', 'jetpack' ),
-	},
-	vi: {
-		label: __( 'Vietnamese', 'jetpack' ),
-	},
 };
 
 export const I18nMenuGroup = ( {
@@ -117,7 +108,12 @@ export const I18nMenuGroup = ( {
 				return (
 					<MenuItem
 						key={ `key-${ language }` }
-						onClick={ () => onChange( language + ' (' + LANGUAGE_MAP[ language ].label + ')' ) }
+						onClick={ () =>
+							onChange(
+								language + ' (' + LANGUAGE_MAP[ language ].label + ')',
+								LANGUAGE_MAP[ language ].label
+							)
+						}
 						isSelected={ value === language }
 					>
 						{ LANGUAGE_MAP[ language ].label }
@@ -130,10 +126,18 @@ export const I18nMenuGroup = ( {
 
 export default function I18nDropdownControl( {
 	value = defaultLanguage,
-	label = defaultLabel,
+	label = TRANSLATE_LABEL,
 	onChange,
 	disabled = false,
 }: LanguageDropdownControlProps ) {
+	const { tracks } = useAnalytics();
+
+	const toggleHandler = isOpen => {
+		if ( isOpen ) {
+			tracks.recordEvent( 'jetpack_ai_assistant_block_toolbar_menu_show', { tool: 'i18n' } );
+		}
+	};
+
 	return disabled ? (
 		<Tooltip text={ label }>
 			<Button disabled>
@@ -147,6 +151,7 @@ export default function I18nDropdownControl( {
 			popoverProps={ {
 				variant: 'toolbar',
 			} }
+			onToggle={ toggleHandler }
 		>
 			{ () => <I18nMenuGroup value={ value } onChange={ onChange } /> }
 		</ToolbarDropdownMenu>
@@ -155,7 +160,7 @@ export default function I18nDropdownControl( {
 
 export function I18nMenuDropdown( {
 	value = defaultLanguage,
-	label = defaultLabel,
+	label = TRANSLATE_LABEL,
 	onChange,
 	disabled = false,
 }: Pick< LanguageDropdownControlProps, 'label' | 'onChange' | 'value' | 'disabled' > & {
@@ -178,8 +183,8 @@ export function I18nMenuDropdown( {
 		>
 			{ ( { onClose } ) => (
 				<I18nMenuGroup
-					onChange={ newLanguage => {
-						onChange( newLanguage );
+					onChange={ ( ...args ) => {
+						onChange( ...args );
 						onClose();
 					} }
 					value={ value }

@@ -78,6 +78,4 @@ const InfoWindow = () => {
 	);
 };
 
-InfoWindow.defaultProps = {};
-
 export default InfoWindow;

@@ -1,0 +1,70 @@
+@import "$css/main/variables.scss";
+
+.summary-line {
+	font-size: 14px;
+	line-height: 22px;
+	display: flex;
+	flex-direction: row;
+	align-items: flex-start;
+	margin-bottom: 17px;
+
+	@media (max-width: 600px) {
+		flex-direction: column;
+	}
+
+	button {
+		svg {
+			fill: $jetpack-green;
+		}
+
+		@media (max-width: 600px) {
+			margin-top: 15px;
+		}
+	}
+}
+
+.summary {
+	margin-right: 5px;
+	flex-grow: 1;
+	position: relative;
+	color: $jetpack-green;
+}
+
+.has-issues {
+	display: flex;
+	align-items: center;
+	color: var(--jp-orange-20);
+
+	svg {
+		width: 1.2em;
+		height: 1.2em;
+		margin-right: 0.5em;
+		position: relative;
+	}
+}
+
+.wait-notice {
+	color: var(--wp-admin-theme-color);
+}
+
+.error-area {
+	margin-top: 16px;
+	margin-bottom: 16px;
+}
+
+.button-area {
+	margin-top: 32px;
+}
+
+.notice {
+	width: 100%;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 16px 24px;
+	margin: 32px 0;
+	border: 2px solid $jetpack-green;
+	border-radius: $border-radius;
+	background-color: #ffffff;
+	text-align: left;
+}

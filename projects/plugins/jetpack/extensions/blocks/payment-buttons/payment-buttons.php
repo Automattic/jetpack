@@ -28,7 +28,7 @@ function register_block() {
 			array(
 				'render_callback' => __NAMESPACE__ . '\render_block',
 				'supports'        => array(
-					'__experimentalLayout' => array(
+					'layout' => array(
 						'allowSwitching'  => false,
 						'allowInheriting' => false,
 						'default'         => array(
@@ -61,7 +61,7 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  * @return string
  */
 function render_block( $attributes, $content ) {
-	\Jetpack_Gutenberg::load_styles_as_required( __DIR__ );
+	\Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
 
 	return $content;
 }

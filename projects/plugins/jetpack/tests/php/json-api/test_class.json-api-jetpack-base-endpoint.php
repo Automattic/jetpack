@@ -4,6 +4,7 @@
  * Run this test with command: jetpack docker phpunit -- --filter=WP_Test_Jetpack_Base_Json_Api_Endpoints
  *
  * @package automattic/jetpack
+ *
  * @phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
  */
 

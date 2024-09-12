@@ -5,6 +5,182 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.15.9] - 2024-09-10
+### Changed
+- Updated package dependencies. [#39302]
+
+## [0.15.8] - 2024-09-09
+### Changed
+- Updated package dependencies. [#39278]
+
+## [0.15.7] - 2024-09-05
+### Changed
+- Internal updates.
+
+## [0.15.6] - 2024-09-05
+### Changed
+- Updated package dependencies. [#39176]
+
+## [0.15.5] - 2024-08-23
+### Changed
+- Updated package dependencies. [#39004]
+
+## [0.15.4] - 2024-08-21
+### Changed
+- Internal updates.
+
+## [0.15.3] - 2024-08-15
+### Changed
+- Updated package dependencies. [#38662]
+
+## [0.15.2] - 2024-08-13
+### Changed
+- Update dependencies. [#37356]
+
+## [0.15.1] - 2024-07-30
+### Changed
+- React: Changing global JSX namespace to React.JSX [#38585]
+
+## [0.15.0] - 2024-07-26
+### Added
+- Shared Extension Utils: add isMyJetpackAvailable export [#38529]
+
+## [0.14.20] - 2024-07-23
+### Fixed
+- Updated package dependencies. [#38464]
+
+## [0.14.19] - 2024-07-22
+### Changed
+- Update dependencies. [#37356]
+
+## [0.14.18] - 2024-07-18
+### Changed
+- Update dependencies. [#37356]
+
+## [0.14.17] - 2024-07-03
+### Changed
+- Updated package dependencies. [#38132]
+
+## [0.14.16] - 2024-06-21
+### Changed
+- Update dependencies. [#37356]
+
+## [0.14.15] - 2024-06-13
+### Changed
+- Updated package dependencies. [#37796]
+
+## [0.14.14] - 2024-06-05
+### Changed
+- Updated package dependencies. [#37669]
+
+## [0.14.13] - 2024-05-20
+### Changed
+- Updated package dependencies. [#37379] [#37380] [#37382]
+
+## [0.14.12] - 2024-05-13
+### Changed
+- Update dependencies. [#37280]
+
+## [0.14.11] - 2024-05-06
+### Changed
+- Updated package dependencies. [#37147]
+
+## [0.14.10] - 2024-04-11
+### Changed
+- Update dependencies.
+
+## [0.14.9] - 2024-04-08
+### Changed
+- Updated package dependencies. [#36760]
+
+## [0.14.8] - 2024-03-27
+### Changed
+- Updated package dependencies. [#36585]
+
+## [0.14.7] - 2024-03-12
+### Changed
+- Updated package dependencies. [#36325]
+
+## [0.14.6] - 2024-03-07
+### Changed
+- Update dependencies.
+
+## [0.14.5] - 2024-03-04
+### Changed
+- Updated package dependencies.
+
+## [0.14.4] - 2024-03-01
+### Changed
+- Update dependencies.
+
+## [0.14.3] - 2024-02-27
+### Changed
+- Update dependencies.
+
+## [0.14.2] - 2024-02-13
+### Changed
+- Updated package dependencies. [#35608]
+
+## [0.14.1] - 2024-02-05
+### Changed
+- Updated package dependencies.
+
+## [0.14.0] - 2024-01-29
+### Added
+- Adds new getJetpackBlocksVariation function [#34179]
+
+## [0.13.10] - 2024-01-18
+### Changed
+- Minor internal updates.
+
+## [0.13.9] - 2024-01-18
+### Changed
+- Update dependencies.
+
+## [0.13.8] - 2024-01-08
+### Added
+- Remove unused logic from the modules store and cover store with tests. [#34835]
+
+### Changed
+- Updated useModuleStatus hook to use module_status redux store. [#34845]
+
+## [0.13.7] - 2024-01-04
+### Changed
+- Updated package dependencies. [#34815] [#34816]
+
+## [0.13.6] - 2024-01-02
+### Added
+- Added prefilling for jetpack modules data during store initialization. [#34794]
+
+### Changed
+- Made module updates more precise inside the modules store. [#34801]
+
+## [0.13.5] - 2023-12-19
+### Changed
+- Updated package dependencies. [#34694]
+
+## [0.13.4] - 2023-12-06
+### Changed
+- Updated package dependencies. [#34416]
+
+## [0.13.3] - 2023-12-03
+### Changed
+- Updated package dependencies. [#34411] [#34427]
+
+## [0.13.2] - 2023-11-20
+
+## [0.13.1] - 2023-11-14
+### Changed
+- Updated package dependencies. [#34093]
+
+## [0.13.0] - 2023-11-13
+### Added
+- Added a Redux store for Jetpack modules data. [#33397]
+
+## [0.12.6] - 2023-11-08
+### Fixed
+- Mobile: Fix a regression preventing correct block registration on mobile. [#33890]
+
 ## [0.12.5] - 2023-11-03
 ### Changed
 - Update dependencies.
@@ -276,6 +452,49 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Core: prepare utility for release
 
+[0.15.9]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.15.8...0.15.9
+[0.15.8]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.15.7...0.15.8
+[0.15.7]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.15.6...0.15.7
+[0.15.6]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.15.5...0.15.6
+[0.15.5]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.15.4...0.15.5
+[0.15.4]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.15.3...0.15.4
+[0.15.3]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.15.2...0.15.3
+[0.15.2]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.15.1...0.15.2
+[0.15.1]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.15.0...0.15.1
+[0.15.0]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.14.20...0.15.0
+[0.14.20]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.14.19...0.14.20
+[0.14.19]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.14.18...0.14.19
+[0.14.18]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.14.17...0.14.18
+[0.14.17]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.14.16...0.14.17
+[0.14.16]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.14.15...0.14.16
+[0.14.15]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.14.14...0.14.15
+[0.14.14]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.14.13...0.14.14
+[0.14.13]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.14.12...0.14.13
+[0.14.12]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.14.11...0.14.12
+[0.14.11]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.14.10...0.14.11
+[0.14.10]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.14.9...0.14.10
+[0.14.9]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.14.8...0.14.9
+[0.14.8]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.14.7...0.14.8
+[0.14.7]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.14.6...0.14.7
+[0.14.6]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.14.5...0.14.6
+[0.14.5]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.14.4...0.14.5
+[0.14.4]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.14.3...0.14.4
+[0.14.3]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.14.2...0.14.3
+[0.14.2]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.14.1...0.14.2
+[0.14.1]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.14.0...0.14.1
+[0.14.0]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.13.10...0.14.0
+[0.13.10]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.13.9...0.13.10
+[0.13.9]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.13.8...0.13.9
+[0.13.8]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.13.7...0.13.8
+[0.13.7]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.13.6...0.13.7
+[0.13.6]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.13.5...0.13.6
+[0.13.5]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.13.4...0.13.5
+[0.13.4]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.13.3...0.13.4
+[0.13.3]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.13.2...0.13.3
+[0.13.2]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.13.1...0.13.2
+[0.13.1]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.13.0...0.13.1
+[0.13.0]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.12.6...0.13.0
+[0.12.6]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.12.5...0.12.6
 [0.12.5]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.12.4...0.12.5
 [0.12.4]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.12.3...0.12.4
 [0.12.3]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.12.2...0.12.3

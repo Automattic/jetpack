@@ -22,11 +22,11 @@ import './style.scss';
  * The "Reconnect" modal component.
  *
  * @param {object} props - The properties.
- * @returns {React.ReactElement} The modal.
+ * @return {React.ReactElement} The modal.
  */
 export function ReconnectModal( props ) {
 	const {
-		show,
+		show = false,
 		onHide,
 		isSiteConnected: isSiteConnectedProp,
 		isReconnectingSite: isReconnectingSiteProp,
@@ -117,10 +117,6 @@ ReconnectModal.propTypes = {
 	show: PropTypes.bool,
 	onHide: PropTypes.func,
 	clickReconnectSite: PropTypes.func,
-};
-
-ReconnectModal.defaultProps = {
-	show: false,
 };
 
 export default connect(

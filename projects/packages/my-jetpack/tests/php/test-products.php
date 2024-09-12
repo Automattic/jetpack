@@ -13,20 +13,6 @@ require_once __DIR__ . '/assets/mock-classes.php';
  * @see \Automattic\Jetpack\My_Jetpack\Rest_Products
  */
 class Test_Products extends TestCase {
-
-	/**
-	 * Setting up the test.
-	 *
-	 * @before
-	 */
-	public function set_up() {
-
-		// See https://stackoverflow.com/a/41611876.
-		if ( version_compare( phpversion(), '5.7', '<=' ) ) {
-			$this->markTestSkipped( 'avoid bug in PHP 5.6 that throws strict mode warnings for abstract static methods.' );
-		}
-	}
-
 	/**
 	 * Cleaning up after the test.
 	 *
@@ -42,7 +28,7 @@ class Test_Products extends TestCase {
 	/**
 	 * Filter that returns a non existent class
 	 *
-	 * @param arrray $classes The Products classes.
+	 * @param array $classes The Products classes.
 	 * @return array
 	 */
 	public function return_non_existent_class( $classes ) {
@@ -53,7 +39,7 @@ class Test_Products extends TestCase {
 	/**
 	 * Filter that returns an invalid class
 	 *
-	 * @param arrray $classes The Products classes.
+	 * @param array $classes The Products classes.
 	 * @return array
 	 */
 	public function return_invalid_class( $classes ) {
@@ -64,7 +50,7 @@ class Test_Products extends TestCase {
 	/**
 	 * Filter that returns a valid class
 	 *
-	 * @param arrray $classes The Products classes.
+	 * @param array $classes The Products classes.
 	 * @return array
 	 */
 	public function return_valid_class( $classes ) {

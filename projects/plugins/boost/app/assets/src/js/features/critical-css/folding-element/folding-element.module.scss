@@ -1,0 +1,41 @@
+:global(.jb-dashboard .components-button.is-link) {
+	&.foldable-element-control {
+		color: var( --primary-black );
+		font-size: 16px;
+	}
+}
+
+:global(.jb-dashboard .components-button.is-link) {
+	&.foldable-element-control.visible {
+		margin-bottom: 0;
+	}
+}
+
+@keyframes fadeIn {
+	from {
+		opacity: 0;
+	}
+
+	to {
+		opacity: 1;
+	}
+}
+
+.fade-in {
+	animation-duration: 300ms;
+	animation-name: fadeIn;
+}
+
+.expanded p {
+	padding-top: 1em;
+	padding-bottom: 1em;
+	margin: 0 !important;
+}
+
+.expanded p:last-child {
+	padding-bottom: 0;
+}
+
+.foldable-element-control {
+	font-weight: 600;
+}

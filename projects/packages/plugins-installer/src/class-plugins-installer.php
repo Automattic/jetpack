@@ -74,6 +74,9 @@ class Plugins_Installer {
 			return new WP_Error( 'not_allowed', __( 'You are not allowed to install plugins on this site.', 'jetpack-plugins-installer' ) );
 		}
 
+		// Initialize admin filters to make sure WordPress post-install hooks run. Handles things like language packs.
+		include_once ABSPATH . '/wp-admin/includes/admin-filters.php';
+
 		$skin     = new Automatic_Install_Skin();
 		$upgrader = new Plugin_Upgrader( $skin );
 		$zip_url  = self::generate_wordpress_org_plugin_download_link( $slug );
@@ -93,8 +96,8 @@ class Plugins_Installer {
 		}
 
 		if ( ! $result ) {
-			$error_code = $upgrader->skin->get_main_error_code();
-			$message    = $upgrader->skin->get_main_error_message();
+			$error_code = $skin->get_main_error_code();
+			$message    = $skin->get_main_error_message();
 			$error      = $message ? $message : __( 'An unknown error occurred during installation', 'jetpack-plugins-installer' );
 		}
 
@@ -186,7 +189,7 @@ class Plugins_Installer {
 	/**
 	 * Safely checks if the plugin is active
 	 *
-	 * @since $next-version$
+	 * @since 0.1.0
 	 *
 	 * @param string $plugin_file The plugin file to check.
 	 * @return bool
@@ -199,7 +202,7 @@ class Plugins_Installer {
 	/**
 	 * Safely checks if the plugin is active for network
 	 *
-	 * @since $next-version$
+	 * @since 0.1.0
 	 *
 	 * @param string $plugin_file The plugin file to check.
 	 * @return bool
@@ -239,53 +242,14 @@ class Plugins_Installer {
 	/**
 	 * Determine if the current request is activating a plugin from the plugins page.
 	 *
+	 * @deprecated 0.4.0
+	 * @see Paths::is_current_request_activating_plugin_from_plugins_screen()
+	 *
 	 * @param string $plugin Plugin file path to check.
 	 * @return bool
 	 */
 	public static function is_current_request_activating_plugin_from_plugins_screen( $plugin ) {
-		// Filter out common async request contexts
-		if (
-			wp_doing_ajax() ||
-			( defined( 'REST_REQUEST' ) && REST_REQUEST ) ||
-			( defined( 'REST_API_REQUEST' ) && REST_API_REQUEST ) ||
-			( defined( 'WP_CLI' ) && WP_CLI )
-		) {
-			return false;
-		}
-
-		if ( isset( $_SERVER['SCRIPT_NAME'] ) ) {
-			$request_file = esc_url_raw( wp_unslash( $_SERVER['SCRIPT_NAME'] ) );
-		} elseif ( isset( $_SERVER['REQUEST_URI'] ) ) {
-			list( $request_file ) = explode( '?', esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) );
-		} else {
-			return false;
-		}
-
-		// Not the plugins page
-		if ( strpos( $request_file, 'wp-admin/plugins.php' ) === false ) {
-			return false;
-		}
-
-		// Same method to get the action as used by plugins.php
-		$wp_list_table = _get_list_table( 'WP_Plugins_List_Table' );
-		$action        = $wp_list_table->current_action();
-
-		// Not a singular activation
-		// This also means that if the plugin is activated as part of a group ( bulk activation ), this function will return false here.
-		if ( 'activate' !== $action ) {
-			return false;
-		}
-
-		// Check the nonce associated with the plugin activation
-		// We are not changing any data here, so this is not super necessary, it's just a best practice before using the form data from $_REQUEST.
-		check_admin_referer( 'activate-plugin_' . $plugin );
-
-		// Not the right plugin
-		$requested_plugin = isset( $_REQUEST['plugin'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['plugin'] ) ) : null;
-		if ( $requested_plugin !== $plugin ) {
-			return false;
-		}
-
-		return true;
+		_deprecated_function( __METHOD__, '0.4.0', 'Automattic\\Jetpack\\Paths::is_current_request_activating_plugin_from_plugins_screen()' );
+		return ( new Paths() )->is_current_request_activating_plugin_from_plugins_screen( $plugin );
 	}
 }

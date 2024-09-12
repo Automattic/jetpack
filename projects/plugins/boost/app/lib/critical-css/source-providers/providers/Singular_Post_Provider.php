@@ -49,7 +49,10 @@ class Singular_Post_Provider extends Provider {
 			$query = self::post_type_query( $post_type );
 
 			foreach ( $query->posts as $post ) {
-				$links[ $post_type ][] = get_permalink( $post );
+				$url = get_permalink( $post );
+				if ( ! empty( $url ) ) {
+					$links[ $post_type ][] = $url;
+				}
 			}
 		}
 
@@ -105,12 +108,41 @@ class Singular_Post_Provider extends Provider {
 	 * @return mixed|void
 	 */
 	public static function get_post_types() {
-		$post_types = get_post_types( array( 'public' => true ) );
+		$post_types = get_post_types(
+			array(
+				'public' => true,
+			),
+			'objects'
+		);
 		unset( $post_types['attachment'] );
 
 		$post_types = array_filter( $post_types, 'is_post_type_viewable' );
 
-		return apply_filters( 'jetpack_boost_critical_css_post_types', $post_types );
+		$provider_post_types = array();
+		// Generate a name => name array for backwards compatibility.
+		foreach ( $post_types as $post_type ) {
+			$provider_post_types[ $post_type->name ] = $post_type->name;
+		}
+
+		/**
+		 * Filters the post types used for Critical CSS
+		 *
+		 * @param array $post_types The array of post types to be used
+		 *
+		 * @since   1.0.0
+		 */
+		return apply_filters(
+			'jetpack_boost_critical_css_post_types_singular',
+			apply_filters_deprecated(
+				'jetpack_boost_critical_css_post_types',
+				array(
+					$provider_post_types,
+				),
+				'3.4.0',
+				'jetpack_boost_critical_css_post_types_singular'
+			),
+			$post_types
+		);
 	}
 
 	/**
@@ -121,6 +153,13 @@ class Singular_Post_Provider extends Provider {
 	 * @return \WP_Query
 	 */
 	public static function post_type_query( $post_type ) {
+		/**
+		 * Filters the WP_Query parameters used to gather sample posts
+		 *
+		 * @param array $args The arguments that will be used by WP_Query
+		 *
+		 * @since   1.0.0
+		 */
 		$args = apply_filters(
 			'jetpack_boost_critical_css_post_type_query',
 			array(

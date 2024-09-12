@@ -9,7 +9,7 @@
  */
 
 /**
- * A PHP 5.X compatible version of the array argument version of PHP 7.3's setcookie().
+ * A PHP 7.0 compatible version of the array argument version of PHP 7.3's setcookie().
  *
  * Useful for setting SameSite cookies in PHP 7.2 or earlier.
  *

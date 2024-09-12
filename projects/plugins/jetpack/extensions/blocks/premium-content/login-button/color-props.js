@@ -1,7 +1,7 @@
 // The code in this file is copied entirely from https://github.com/WordPress/gutenberg/blob/HEAD/packages/block-library/src/button/color-props.js
 /* eslint-disable */
 
-import classnames from 'classnames';
+import clsx from 'clsx';
 
 import { getColorClassName, __experimentalGetGradientClass } from '@wordpress/block-editor';
 
@@ -12,7 +12,7 @@ export default function getColorAndStyleProps( attributes ) {
 	const backgroundClass = getColorClassName( 'background-color', backgroundColor );
 	const gradientClass = __experimentalGetGradientClass( gradient );
 	const textClass = getColorClassName( 'color', textColor );
-	const className = classnames( textClass, gradientClass, {
+	const className = clsx( textClass, gradientClass, {
 		// Don't apply the background class if there's a custom gradient
 		[ backgroundClass ]: ! style?.color?.gradient && !! backgroundClass,
 		'has-text-color': textColor || style?.color?.text,

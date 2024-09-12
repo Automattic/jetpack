@@ -24,7 +24,7 @@ class WP_Test_Jetpack_Shortcodes_Tweet extends WP_UnitTestCase {
 	}
 
 	public function pre_http_request( $response, $args, $url ) {
-		if ( 0 !== strpos( $url, 'https://publish.twitter.com/oembed?' ) ) {
+		if ( ! str_starts_with( $url, 'https://publish.twitter.com/oembed?' ) ) {
 			return $response;
 		}
 
@@ -212,7 +212,7 @@ BODY;
 	public function test_shortcodes_tweet_amp( $shortcode_content, $expected ) {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			self::markTestSkipped( 'WordPress.com does not run the latest version of the AMP plugin yet.' );
-			return;
+			return; // @phan-suppress-current-line PhanPluginUnreachableCode
 		}
 
 		add_filter( 'jetpack_is_amp_request', '__return_true' );

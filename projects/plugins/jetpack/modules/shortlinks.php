@@ -84,8 +84,8 @@ function wpme_get_shortlink( $id = 0, $context = 'post', $allow_slugs = true ) {
 	$post_id = $post->ID;
 	$type    = '';
 
-	if ( $allow_slugs && 'publish' === $post->post_status && 'post' === $post->post_type && strlen( $post->post_name ) <= 8 && false === strpos( $post->post_name, '%' )
-		&& false === strpos( $post->post_name, '-' ) ) {
+	if ( $allow_slugs && 'publish' === $post->post_status && 'post' === $post->post_type && strlen( $post->post_name ) <= 8 && ! str_contains( $post->post_name, '%' )
+		&& ! str_contains( $post->post_name, '-' ) ) {
 		$id   = $post->post_name;
 		$type = 's';
 	} else {
@@ -171,7 +171,8 @@ function wpme_rest_register_shortlinks() {
  * @return string
  */
 function wpme_rest_get_shortlink( $object ) {
-	return wpme_get_shortlink( $object['id'], array() );
+	$object_id = $object['id'] ?? 0;
+	return wpme_get_shortlink( $object_id, array() );
 }
 
 // Add shortlinks to the REST API Post response.

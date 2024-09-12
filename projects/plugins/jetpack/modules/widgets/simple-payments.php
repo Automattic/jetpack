@@ -344,7 +344,7 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 		 * Returns the number of decimal places on string representing a price.
 		 *
 		 * @param string $number Price to check.
-		 * @return number number of decimal places.
+		 * @return int|null number of decimal places.
 		 */
 		private function get_decimal_places( $number ) {
 			$parts = explode( '.', $number );
@@ -410,6 +410,8 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 		 * Front-end display of widget.
 		 *
 		 * @see WP_Widget::widget()
+		 *
+		 * @html-template-var array $instance
 		 *
 		 * @param array $args     Widget arguments.
 		 * @param array $instance Saved values from database.
@@ -577,6 +579,9 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 		 * Back-end widget form.
 		 *
 		 * @see WP_Widget::form()
+		 *
+		 * @html-template-var array $instance
+		 * @html-template-var WP_Post[] $product_posts
 		 *
 		 * @param array $instance Previously saved values from database.
 		 */

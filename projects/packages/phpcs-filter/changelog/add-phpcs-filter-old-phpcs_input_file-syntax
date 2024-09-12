@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Support the old PHPCS 2.x "phpcs_input_file:path" method for specifying the stdin filename.

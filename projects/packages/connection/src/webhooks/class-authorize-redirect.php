@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Connection\Webhooks;
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Licensing;
+use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Tracking;
 use GP_Locales;
 use Jetpack_Network;
@@ -18,11 +19,17 @@ use Jetpack_Network;
  * Authorize_Redirect Webhook handler class.
  */
 class Authorize_Redirect {
+	/**
+	 * The Connection Manager object.
+	 *
+	 * @var \Automattic\Jetpack\Connection\Manager
+	 */
+	private $connection;
 
 	/**
 	 * Constructs the object
 	 *
-	 * @param Automattic\Jetpack\Connection\Manager $connection The Connection Manager object.
+	 * @param \Automattic\Jetpack\Connection\Manager $connection The Connection Manager object.
 	 */
 	public function __construct( $connection ) {
 		$this->connection = $connection;
@@ -32,6 +39,8 @@ class Authorize_Redirect {
 	 * Handle the webhook
 	 *
 	 * This method implements what's in Jetpack::admin_page_load when the Jetpack plugin is not present
+	 *
+	 * @return never
 	 */
 	public function handle() {
 
@@ -89,46 +98,57 @@ class Authorize_Redirect {
 	}
 
 	/**
-	 * Create the Jetpack authorization URL. Copied from Jetpack class.
+	 * Create the Jetpack authorization URL.
+	 *
+	 * @since 2.7.6 Added optional $from and $raw parameters.
 	 *
 	 * @param bool|string $redirect URL to redirect to.
+	 * @param bool|string $from     If not false, adds 'from=$from' param to the connect URL.
+	 * @param bool        $raw If true, URL will not be escaped.
 	 *
 	 * @todo Update default value for redirect since the called function expects a string.
 	 *
 	 * @return mixed|void
 	 */
-	public function build_authorize_url( $redirect = false ) {
+	public function build_authorize_url( $redirect = false, $from = false, $raw = false ) {
 
 		add_filter( 'jetpack_connect_request_body', array( __CLASS__, 'filter_connect_request_body' ) );
 		add_filter( 'jetpack_connect_redirect_url', array( __CLASS__, 'filter_connect_redirect_url' ) );
 
-		$url = $this->connection->get_authorization_url( wp_get_current_user(), $redirect );
+		$url = $this->connection->get_authorization_url( wp_get_current_user(), $redirect, $from, $raw );
 
 		remove_filter( 'jetpack_connect_request_body', array( __CLASS__, 'filter_connect_request_body' ) );
 		remove_filter( 'jetpack_connect_redirect_url', array( __CLASS__, 'filter_connect_redirect_url' ) );
 
 		/**
-		 * This filter is documented in plugins/jetpack/class-jetpack.php
+		 * Filter the URL used when authorizing a user to a WordPress.com account.
+		 *
+		 * @since jetpack-8.9.0
+		 * @since 2.7.6 Added $raw parameter.
+		 *
+		 * @param string $url Connection URL.
+		 * @param bool   $raw If true, URL will not be escaped.
 		 */
-		return apply_filters( 'jetpack_build_authorize_url', $url );
+		return apply_filters( 'jetpack_build_authorize_url', $url, $raw );
 	}
 
 	/**
 	 * Filters the redirection URL that is used for connect requests. The redirect
-	 * URL should return the user back to the Jetpack console.
-	 * Copied from Jetpack class.
+	 * URL should return the user back to the My Jetpack page.
 	 *
-	 * @param String $redirect the default redirect URL used by the package.
-	 * @return String the modified URL.
+	 * @param string $redirect the default redirect URL used by the package.
+	 * @return string the modified URL.
 	 */
 	public static function filter_connect_redirect_url( $redirect ) {
-		$jetpack_admin_page = esc_url_raw( admin_url( 'admin.php?page=jetpack' ) );
+		$jetpack_admin_page = esc_url_raw( admin_url( 'admin.php?page=my-jetpack' ) );
 		$redirect           = $redirect
 			? wp_validate_redirect( esc_url_raw( $redirect ), $jetpack_admin_page )
 			: $jetpack_admin_page;
 
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( isset( $_REQUEST['is_multisite'] ) ) {
+		if (
+			class_exists( 'Jetpack_Network' )
+			&& isset( $_REQUEST['is_multisite'] ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		) {
 			$redirect = Jetpack_Network::init()->get_url( 'network_admin_page' );
 		}
 
@@ -137,7 +157,6 @@ class Authorize_Redirect {
 
 	/**
 	 * Filters the connection URL parameter array.
-	 * Copied from Jetpack class.
 	 *
 	 * @param array $args default URL parameters used by the package.
 	 * @return array the modified URL arguments array.
@@ -164,7 +183,7 @@ class Authorize_Redirect {
 			)
 		);
 
-		$calypso_env = self::get_calypso_env();
+		$calypso_env = ( new Host() )->get_calypso_env();
 
 		if ( ! empty( $calypso_env ) ) {
 			$args['calypso_env'] = $calypso_env;
@@ -178,25 +197,15 @@ class Authorize_Redirect {
 	 * it with different Calypso enrionments, such as localhost.
 	 * Copied from Jetpack class.
 	 *
+	 * @deprecated 2.7.6
+	 *
 	 * @since 1.37.1
 	 *
 	 * @return string Calypso environment
 	 */
 	public static function get_calypso_env() {
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( isset( $_GET['calypso_env'] ) ) {
-			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			return sanitize_key( $_GET['calypso_env'] );
-		}
+		_deprecated_function( __METHOD__, '2.7.6', 'Automattic\\Jetpack\\Status\\Host::get_calypso_env' );
 
-		if ( getenv( 'CALYPSO_ENV' ) ) {
-			return sanitize_key( getenv( 'CALYPSO_ENV' ) );
-		}
-
-		if ( defined( 'CALYPSO_ENV' ) && CALYPSO_ENV ) {
-			return sanitize_key( CALYPSO_ENV );
-		}
-
-		return '';
+		return ( new Host() )->get_calypso_env();
 	}
 }

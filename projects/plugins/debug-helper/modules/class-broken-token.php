@@ -128,7 +128,7 @@ class Broken_Token {
 	 * @param string $hook Called hook.
 	 */
 	public function enqueue_scripts( $hook ) {
-		if ( strpos( $hook, 'jetpack-debug_page_broken-token' ) === 0 ) {
+		if ( str_starts_with( $hook, 'jetpack-debug_page_broken-token' ) ) {
 			wp_enqueue_style( 'broken_token_style', plugin_dir_url( __FILE__ ) . 'inc/css/broken-token.css', array(), JETPACK_DEBUG_HELPER_VERSION );
 			wp_enqueue_script( 'broken_token_script', plugin_dir_url( __FILE__ ) . 'inc/js/broken-token.js', array(), JETPACK_DEBUG_HELPER_VERSION, true );
 		}
@@ -636,7 +636,12 @@ class Broken_Token {
 				break;
 		}
 
-		printf( '<div class="notice notice-success"><p>%s</p></div>', esc_html( $message ) );
+		wp_admin_notice(
+			esc_html( $message ),
+			array(
+				'type' => 'success',
+			)
+		);
 	}
 
 	/**
@@ -680,7 +685,12 @@ function register_broken_token() {
  * Notice for if Jetpack is not active.
  */
 function broken_token_jetpack_not_active() {
-	echo '<div class="notice info"><p>Jetpack Debug tools: Jetpack_Options package must be present for the Broken Token to work.</p></div>';
+	wp_admin_notice(
+		'Jetpack Debug tools: Jetpack_Options package must be present for the Broken Token to work.',
+		array(
+			'type' => 'info',
+		)
+	);
 }
 
 // phpcs:enable

@@ -1,0 +1,44 @@
+.error-description {
+	line-height: 1.5rem;
+	color: var( --primary-black );
+
+	a {
+		color: inherit !important;
+	}
+
+	.raw-error {
+		color: var( --primary-black );
+		margin-top: 8px;
+		margin-bottom: 24px;
+
+		&.no-spacing {
+			margin-top: 0;
+			margin-bottom: 0;
+		}
+	}
+
+	pre {
+		background-color: #f1f1f1;
+		padding: 25px;
+		margin: 20px 0;
+		text-align: left;
+		white-space: pre-wrap;
+		color: #0f0f0f;
+		border-radius: 6px;
+	}
+}
+
+@keyframes fadeIn {
+	from {
+		opacity: 0;
+	}
+
+	to {
+		opacity: 1;
+	}
+}
+
+.fade-in {
+	animation-duration: 300ms;
+	animation-name: fadeIn;
+}

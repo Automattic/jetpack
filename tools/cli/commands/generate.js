@@ -3,7 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import chalk from 'chalk';
-import inquirer from 'inquirer';
+import enquirer from 'enquirer';
 import yaml from 'js-yaml';
 import pluralize from 'pluralize';
 import semver from 'semver';
@@ -53,7 +53,7 @@ export async function generateCli( argv ) {
  * Command definition for the generate subcommand.
  *
  * @param {object} yargs - The Yargs dependency.
- * @returns {object} Yargs with the generate commands defined.
+ * @return {object} Yargs with the generate commands defined.
  */
 export function generateDefine( yargs ) {
 	yargs.command(
@@ -85,7 +85,7 @@ export function generateDefine( yargs ) {
  * If no project is passed via `options`, then it will prompt for the type of project and the project itself.
  *
  * @param {object} options - Passthrough of the argv object.
- * @returns {object} argv object with the project property.
+ * @return {object} argv object with the project property.
  */
 async function promptForGenerate( options ) {
 	let typeAnswer = options.type ? { type: options.type } : '';
@@ -133,7 +133,7 @@ async function promptForGenerate( options ) {
 	}
 
 	// Give the list of questions
-	const finalAnswers = await inquirer.prompt( questions );
+	const finalAnswers = await enquirer.prompt( questions );
 
 	return {
 		...options,
@@ -148,7 +148,7 @@ async function promptForGenerate( options ) {
  * Returns the appropriate list of questions.
  *
  * @param {string} type - The project type. Must be one of projectTypes
- * @returns {Array} - Array of questions to ask.
+ * @return {Array} - Array of questions to ask.
  */
 export function getQuestions( type ) {
 	const defaultQuestions = [
@@ -158,39 +158,79 @@ export function getQuestions( type ) {
 			message: 'Succinctly describe your project:',
 		},
 		{
-			type: 'checkbox',
+			type: 'multiselect',
 			name: 'buildScripts',
 			message: 'Select production and/or development build steps to generate:',
+			initial: [ 'production', 'development' ],
 			choices: [
 				{
-					name: 'Production Build Step',
-					checked: true,
+					message: 'Production Build Step',
 					value: 'production',
 				},
 				{
-					name: 'Development or Generic Build Step',
-					checked: true,
+					message: 'Development or Generic Build Step',
 					value: 'development',
 				},
 			],
+			skip() {
+				if ( type === 'js-packages' ) {
+					// https://github.com/enquirer/enquirer/issues/298
+					this.state._choices = this.state.choices;
+					return true;
+				}
+				return false;
+			},
 		},
 		{
 			type: 'confirm',
 			name: 'wordbless',
 			message: 'Do you plan to use WordPress core functions in your PHPUnit tests?',
-			default: false,
+			initial: false,
+			skip: type === 'js-packages',
 		},
 		{
 			type: 'confirm',
 			name: 'mirrorrepo',
 			message: 'Does this project need to be deployed publicly? (Create a mirror repo?)',
+			initial: true,
 		},
 	];
 	const packageQuestions = [];
-	const jsPackageQuestions = [];
+	const jsPackageQuestions = [
+		{
+			type: 'select',
+			name: 'typescript',
+			message: 'Which best describes this package?',
+			choices: [
+				{
+					message: 'This JS-only package will be source-only, no bundling or minification.',
+					value: 'js-src',
+				},
+				{
+					message:
+						'This JS-only package will contain pre-built code, bundled and minified using webpack.',
+					value: 'js-webpack',
+				},
+				{
+					message: 'This TypeScript package will be source-only, no built version.',
+					value: 'ts-src',
+				},
+				{
+					message:
+						'This TypeScript package will contain pre-built code, bundled and minified using webpack.',
+					value: 'ts-webpack',
+				},
+				{
+					message:
+						'This TypeScript package will contain pre-built code, built using tsc (no bundling or minification).',
+					value: 'ts-tsc',
+				},
+			],
+		},
+	];
 	const pluginQuestions = [
 		{
-			type: 'list',
+			type: 'select',
 			name: 'versioningMethod',
 			message: 'How do you want versioning to work for your plugin?',
 			choices: [
@@ -204,13 +244,13 @@ export function getQuestions( type ) {
 				//
 				// But everyone else wants to make an arbitrary recommendation anyway, so 🤷.
 				{
-					name: 'WordPress-style ("recommended"): Like 1.2, with each non-bugfix release always incrementing by 0.1.',
-					checked: true,
+					message:
+						'WordPress-style ("recommended"): Like 1.2, with each non-bugfix release always incrementing by 0.1.',
 					value: 'wordpress',
 				},
 				{
-					name: 'Semver: Like 1.2.3, with the next version depending on what kinds of changes are included.',
-					checked: true,
+					message:
+						'Semver: Like 1.2.3, with the next version depending on what kinds of changes are included.',
 					value: 'semver',
 				},
 			],
@@ -219,19 +259,21 @@ export function getQuestions( type ) {
 			type: 'input',
 			name: 'version',
 			message: "What is the plugin's starting version?:",
-			default: answers => ( answers.versioningMethod === 'semver' ? '0.1.0-alpha' : '0.0-alpha' ),
+			initial() {
+				return this.state.answers.versioningMethod === 'semver' ? '0.1.0-alpha' : '0.0-alpha';
+			},
 		},
 		{
-			type: 'list',
+			type: 'select',
 			name: 'pluginTemplate',
 			message: 'Create a blank plugin or use the Starter plugin?',
 			choices: [
 				{
-					name: 'Blank plugin',
+					message: 'Blank plugin',
 					value: 'blank',
 				},
 				{
-					name: 'Use Jetpack Starter plugin',
+					message: 'Use Jetpack Starter plugin',
 					value: 'starter',
 				},
 			],
@@ -258,7 +300,7 @@ export function getQuestions( type ) {
  * Generate a project based on questions passed to it.
  *
  * @param {object} answers - Answers from questions.
- * @returns {void}
+ * @return {void}
  */
 export async function generateProject(
 	answers = { name: 'test', description: 'n/a', buildScripts: [] }
@@ -303,6 +345,7 @@ export async function generateProject(
 			);
 			break;
 		case 'js-package':
+			generateJsPackage( answers, projDir );
 			break;
 		case 'plugin':
 			generatePlugin( answers, projDir );
@@ -320,7 +363,7 @@ export async function generateProject(
  *
  * @param {string} projDir - The project dir path.
  * @param {object} answers - Answers from the CLI prompt.
- * @returns {void}
+ * @return {void}
  */
 async function generatePluginFromStarter( projDir, answers ) {
 	const starterDir = fileURLToPath(
@@ -334,10 +377,17 @@ async function generatePluginFromStarter( projDir, answers ) {
 	} );
 	files = files.split( '\n' ).map( str => str.replace( 'projects/plugins/starter-plugin', '' ) );
 	files.forEach( file => {
-		if ( file ) {
+		if ( file && ! file.startsWith( 'changelog/' ) ) {
 			copyFile( path.join( projDir, file ), path.join( starterDir, file ) );
 		}
 	} );
+
+	// Initialize changelog dir.
+	mergeDirs(
+		fileURLToPath( new URL( '../skeletons/common/changelog', import.meta.url ) ),
+		path.join( projDir, 'changelog' ),
+		answers.name
+	);
 
 	// Replace strings.
 	await searchReplaceInFolder( projDir, 'jetpack-starter-plugin', normalizeSlug( answers.name ) );
@@ -396,7 +446,7 @@ async function generatePluginFromStarter( projDir, answers ) {
 /**
  * Generate a plugin based on questions passed to it.
  *
- * @param {object} answers - Answers from questions.
+ * @param {object} answers   - Answers from questions.
  * @param {string} pluginDir - Plugin directory path.
  */
 function generatePlugin( answers, pluginDir ) {
@@ -414,10 +464,114 @@ function generatePlugin( answers, pluginDir ) {
 }
 
 /**
+ * Generate js-package files
+ *
+ * @param {object} answers - Answers from questions.
+ * @param {string} pkgDir  - Github action directory path.
+ */
+function generateJsPackage( answers, pkgDir ) {
+	const ts = answers.typescript.startsWith( 'ts' );
+	let filename, opts, xtends;
+
+	if ( ts ) {
+		filename = 'tsconfig.json';
+		opts = {
+			typeRoots: [ './node_modules/@types/', 'src/*' ],
+			outDir: './build/',
+		};
+		switch ( answers.typescript ) {
+			case 'ts-src':
+				xtends = '\n\t"extends": "jetpack-js-tools/tsconfig.base.json",';
+				break;
+			case 'ts-webpack':
+				xtends = '\n\t"extends": "jetpack-js-tools/tsconfig.tsc-declaration-only.json",';
+				break;
+			case 'ts-tsc':
+				xtends = '\n\t"extends": "jetpack-js-tools/tsconfig.tsc.json",';
+				break;
+		}
+
+		fs.renameSync( path.join( pkgDir, '/src/index.jsx' ), path.join( pkgDir, '/src/index.ts' ) );
+	} else {
+		filename = 'jsconfig.json';
+		opts = {
+			jsx: 'react',
+		};
+		xtends = '';
+	}
+	writeToFile(
+		path.join( pkgDir, filename ),
+		`{${ xtends }
+			"compilerOptions": ${ JSON.stringify( opts, null, '\t' ).replace( /\n/g, '\n\t\t\t' ) },
+			// List all sources and source-containing subdirs.
+			"include": [ "./src" ]
+		}
+		`.replace( /^\t\t/gm, '' )
+	);
+
+	if ( answers.typescript.endsWith( '-webpack' ) ) {
+		writeToFile(
+			pkgDir + '/webpack.config.cjs',
+			`const path = require( 'path' );
+			const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
+
+			module.exports = {
+				entry: './src/index.${ ts ? 'ts' : 'jsx' }',
+				mode: jetpackWebpackConfig.mode,
+				devtool: jetpackWebpackConfig.devtool,
+				output: {
+					...jetpackWebpackConfig.output,
+					path: path.resolve( __dirname, 'build' ),
+				},
+				optimization: {
+					...jetpackWebpackConfig.optimization,
+				},
+				resolve: {
+					...jetpackWebpackConfig.resolve,
+				},
+				module: {
+					strictExportPresence: true,
+					rules: [
+						// ${ ts ? 'Transpile JavaScript and TypeScript' : 'Transpile JavaScript' }
+						jetpackWebpackConfig.TranspileRule( {
+							exclude: /node_modules\\//,
+						} ),
+
+						// Transpile @automattic/jetpack-* in node_modules too.
+						jetpackWebpackConfig.TranspileRule( {
+							includeNodeModules: [ '@automattic/jetpack-' ],
+						} ),
+
+						// Handle CSS.
+						jetpackWebpackConfig.CssRule(),
+
+						// Handle images.
+						jetpackWebpackConfig.FileRule(),
+					],
+				},
+				plugins: [${
+					ts
+						? `
+					...jetpackWebpackConfig.StandardPlugins( {
+						// Generate \`.d.ts\` files per tsconfig settings.
+						ForkTSCheckerPlugin: {},
+					} ),
+				`
+						: `
+					...jetpackWebpackConfig.StandardPlugins(),
+				`
+				}],
+			};
+			`.replace( /^\t\t\t/gm, '' )
+		);
+	}
+}
+
+/**
  * Generate github action files
  *
  * @param {object} answers - Answers from questions.
- * @param {string} actDir - Github action directory path.
+ * @param {string} actDir  - Github action directory path.
  */
 function generateAction( answers, actDir ) {
 	// Create the YAML file
@@ -429,7 +583,7 @@ function generateAction( answers, actDir ) {
  * Create skeleton files for project
  *
  * @param {string} type - Type of project.
- * @param {string} dir - Directory of new project.
+ * @param {string} dir  - Directory of new project.
  * @param {string} name - Name of new project.
  */
 function createSkeleton( type, dir, name ) {
@@ -448,7 +602,7 @@ function createSkeleton( type, dir, name ) {
  * Create package.json for project
  *
  * @param {object} packageJson - The parsed skeleton JSON package file for the project.
- * @param {object} answers - Answers returned for project creation.
+ * @param {object} answers     - Answers returned for project creation.
  */
 function createPackageJson( packageJson, answers ) {
 	packageJson.description = answers.description;
@@ -476,8 +630,10 @@ function createPackageJson( packageJson, answers ) {
 			.join( ' ' );
 
 	if ( answers.type === 'js-package' ) {
+		const ts = answers.typescript.startsWith( 'ts' );
+
 		packageJson.exports = {
-			'.': './index.jsx',
+			'.': `./src/index.${ ts ? 'ts' : 'jsx' }`,
 			'./state': './src/state',
 			'./action-types': './src/state/action-types',
 		};
@@ -485,15 +641,45 @@ function createPackageJson( packageJson, answers ) {
 			test: 'jest tests',
 		};
 
-		// Extract the version of jest currently in use for the dependency.
-		const yamlFile = yaml.load(
-			fs.readFileSync( new URL( '../../../pnpm-lock.yaml', import.meta.url ), 'utf8' )
-		);
-		const jestVersion = Object.keys( yamlFile.packages ).reduce( ( value, cur ) => {
-			const ver = cur.match( /^\/jest\/([^_]+)/ )?.[ 1 ];
-			return ! value || ( ver && semver.gt( ver, value ) ) ? ver : value;
-		}, null );
-		packageJson.devDependencies.jest = jestVersion || '*';
+		packageJson.devDependencies.jest = findVersionFromPnpmLock( 'jest' );
+
+		if ( answers.typescript.endsWith( '-webpack' ) ) {
+			packageJson.devDependencies[ '@automattic/jetpack-webpack-config' ] = 'workspace:*';
+			packageJson.devDependencies.webpack = findVersionFromPnpmLock( 'webpack' );
+			packageJson.devDependencies[ 'webpack-cli' ] = findVersionFromPnpmLock( 'webpack-cli' );
+			packageJson.scripts = {
+				...packageJson.scripts,
+				build: 'pnpm run clean && pnpm exec webpack',
+				clean: 'rm -rf build/',
+			};
+			packageJson.exports = {
+				'.': {
+					'jetpack:src': './src/index.' + ( ts ? 'ts' : 'jsx' ),
+					types: ts ? './build/index.d.ts' : undefined,
+					default: './build/index.js',
+				},
+			};
+		}
+		if ( ts ) {
+			packageJson.devDependencies.typescript = findVersionFromPnpmLock( 'typescript' );
+			if ( answers.typescript === 'ts-tsc' ) {
+				packageJson.scripts = {
+					...packageJson.scripts,
+					build: 'pnpm run clean && pnpm exec tsc --pretty',
+					clean: 'rm -rf build/',
+				};
+				packageJson.exports = {
+					'.': {
+						'jetpack:src': './src/index.ts',
+						types: './build/index.d.ts',
+						default: './build/index.js',
+					},
+				};
+			}
+		}
+
+		packageJson.devDependencies = sortByKey( packageJson.devDependencies );
+		packageJson.scripts = sortByKey( packageJson.scripts );
 	}
 }
 
@@ -501,7 +687,7 @@ function createPackageJson( packageJson, answers ) {
  * Create composer.json for project
  *
  * @param {object} composerJson - The parsed skeleton JSON composer file for the project.
- * @param {object} answers - Answers returned for project creation.
+ * @param {object} answers      - Answers returned for project creation.
  */
 async function createComposerJson( composerJson, answers ) {
 	composerJson.description = answers.description;
@@ -548,6 +734,8 @@ async function createComposerJson( composerJson, answers ) {
 
 	switch ( answers.type ) {
 		case 'package':
+			composerJson.require = composerJson.require || {};
+			composerJson.require.php = '>=7.0';
 			composerJson.extra = composerJson.extra || {};
 			composerJson.extra[ 'branch-alias' ] = composerJson.extra[ 'branch-alias' ] || {};
 			composerJson.extra[ 'branch-alias' ][ 'dev-trunk' ] = '0.1.x-dev';
@@ -568,17 +756,31 @@ async function createComposerJson( composerJson, answers ) {
 			composerJson.extra.changelogger.versioning = answers.versioningMethod;
 			break;
 		case 'js-package':
+			delete composerJson[ 'require-dev' ][ 'yoast/phpunit-polyfills' ];
 			composerJson.scripts = {
 				'test-js': [ 'pnpm run test' ],
 			};
+			if ( ! answers.typescript.endsWith( '-src' ) ) {
+				composerJson.scripts = {
+					...composerJson.scripts,
+					'build-development': [ 'pnpm run build' ],
+					'build-production': [ 'NODE_ENV=production pnpm run build' ],
+				};
+			}
+			break;
 	}
+
+	if ( composerJson.extra ) {
+		composerJson.extra = sortByKey( composerJson.extra );
+	}
+	composerJson.scripts = sortByKey( composerJson.scripts );
 }
 
 /**
  * Renames the class-example.php file to use the new project name.
  *
  * @param {string} projDir - the new project directory.
- * @param {string} name - the name of the new project.
+ * @param {string} name    - the name of the new project.
  */
 async function renameClassFile( projDir, name ) {
 	fs.rename( `${ projDir }/src/class-example.php`, `${ projDir }/src/class-${ name }.php`, err => {
@@ -592,45 +794,49 @@ async function renameClassFile( projDir, name ) {
  * Processes mirror repo
  *
  * @param {object} composerJson - the composer.json object being developed by the generator.
- * @param {string} name - The name of the project.
- * @param {string} type - The tyope of project that's being generated.
- * @param {string} org - The GitHub owner for the project.
+ * @param {string} name         - The name of the project.
+ * @param {string} type         - The tyope of project that's being generated.
+ * @param {string} org          - The GitHub owner for the project.
  */
 async function mirrorRepo( composerJson, name, type, org = 'Automattic' ) {
 	const repo = org + '/' + name;
 	const exists = await doesRepoExist( name, org );
-	const answers = await inquirer.prompt( [
+	const answers = await enquirer.prompt( [
 		{
 			type: 'confirm',
 			name: 'useExisting',
-			default: false,
+			initial: false,
 			message:
 				'The repo ' +
 				repo +
 				' already exists. Do you want to use it? THIS WILL OVERRIDE ANYTHING ALREADY IN THIS REPO.',
-			when: exists, // If the repo exists, confirm we want to use it.
+			skip: ! exists, // If the repo exists, confirm we want to use it.
 		},
 		{
-			type: 'string',
+			type: 'input',
 			name: 'newName',
 			message: 'What name do you want to use for the repo?',
-			when: newAnswers => exists && ! newAnswers.useExisting, // When there is an existing repo, but we don't want to use it.
+			skip() {
+				return ! exists || this.state.answers.useExisting; // When there is an existing repo, but we don't want to use it.
+			},
 		},
 		// Code for auto-adding repo to be added later.
 		/* 		{
 			type: 'confirm',
 			name: 'createNew',
-			default: false,
+			initial: false,
 			message: 'There is not an ' + repo + ' repo already. Shall I create one?',
-			when: ! exists, // When the repo does not exist, do we want to ask to make it.
+			skip: exists, // When the repo does not exist, do we want to ask to make it.
 		}, */
 
 		{
 			type: 'confirm',
 			name: 'autotagger',
-			default: true,
+			initial: true,
 			message: 'Configure mirror repo to create new tags automatically (based on CHANGELOG.md)?',
-			when: type !== 'plugin',
+			skip() {
+				return type === 'plugin' || this.state.answers.newName;
+			},
 		},
 	] );
 
@@ -657,10 +863,10 @@ async function mirrorRepo( composerJson, name, type, org = 'Automattic' ) {
 /**
  * Add mirror repo to the composer.json
  *
- * @param {object} composerJson - composer.json object.
- * @param {string} name - Repo name.
- * @param {string} org - Repo owner.
- * @param {boolean} autotagger - if we want autotagger enabled.
+ * @param {object}  composerJson - composer.json object.
+ * @param {string}  name         - Repo name.
+ * @param {string}  org          - Repo owner.
+ * @param {boolean} autotagger   - if we want autotagger enabled.
  */
 function addMirrorRepo( composerJson, name, org, autotagger ) {
 	composerJson.extra = composerJson.extra || {};
@@ -681,7 +887,7 @@ function addMirrorRepo( composerJson, name, org, autotagger ) {
  * Creates custom readme.md content.
  *
  * @param {object} answers - Answers returned for project creation.
- * @returns {string} content - The content we're writing to the readme.txt file.
+ * @return {string} content - The content we're writing to the readme.txt file.
  */
 function createReadMeMd( answers ) {
 	const content =
@@ -716,7 +922,7 @@ function createReadMeMd( answers ) {
  * Creates header for main plugin file.
  *
  * @param {object} answers - Answers returned for project creation.
- * @returns {string} content - The content we're writing to the main plugin file.
+ * @return {string} content - The content we're writing to the main plugin file.
  */
 function createPluginHeader( answers ) {
 	const content =
@@ -743,16 +949,16 @@ function createPluginHeader( answers ) {
  * Creates custom readme.txt content for plugins.
  *
  * @param {object} answers - Answers returned for project creation.
- * @returns {string} content - The content we're writing to the readme.txt file.
+ * @return {string} content - The content we're writing to the readme.txt file.
  */
 function createReadMeTxt( answers ) {
 	const content =
 		`=== Jetpack ${ answers.name } ===\n` +
 		'Contributors: automattic,\n' +
 		'Tags: jetpack, stuff\n' +
-		'Requires at least: 6.2\n' +
-		'Requires PHP: 5.6\n' +
-		'Tested up to: 6.4\n' +
+		'Requires at least: 6.5\n' +
+		'Requires PHP: 7.0\n' +
+		'Tested up to: 6.6\n' +
 		`Stable tag: ${ answers.version }\n` +
 		'License: GPLv2 or later\n' +
 		'License URI: http://www.gnu.org/licenses/gpl-2.0.html\n' +
@@ -765,9 +971,9 @@ function createReadMeTxt( answers ) {
 /**
  * Creates YAML file skeleton for github actions.
  *
- * @param {string} dir - file path we're writing to.
+ * @param {string} dir     - file path we're writing to.
  * @param {string} answers - the answers to fill in the skeleton.
- * @returns {string|null} yamlFile - the YAML file we've created.
+ * @return {string|null} yamlFile - the YAML file we've created.
  */
 function createYaml( dir, answers ) {
 	try {
@@ -784,7 +990,7 @@ function createYaml( dir, answers ) {
 /**
  * Writes to files.
  *
- * @param {string} file - file path we're writing to.
+ * @param {string} file    - file path we're writing to.
  * @param {string} content - the content we're writing.
  */
 function writeToFile( file, content ) {
@@ -793,4 +999,41 @@ function writeToFile( file, content ) {
 	} catch ( err ) {
 		console.error( chalk.red( `Ah, couldn't write to the file.` ), err );
 	}
+}
+
+/**
+ * Find JS package version from pnpm-lock.
+ *
+ * @param {string} pkg - package we're looking for.
+ * @return {string} Version number or '*'
+ */
+function findVersionFromPnpmLock( pkg ) {
+	if ( ! findVersionFromPnpmLock.packages ) {
+		findVersionFromPnpmLock.packages = yaml.load(
+			fs.readFileSync( new URL( '../../../pnpm-lock.yaml', import.meta.url ), 'utf8' )
+		).packages;
+	}
+
+	const version = Object.keys( findVersionFromPnpmLock.packages ).reduce( ( value, cur ) => {
+		if ( ! cur.startsWith( pkg + '@' ) ) {
+			return value;
+		}
+		const ver = cur.substring( pkg.length + 1 );
+		return ! value || ( ver && semver.gt( ver, value ) ) ? ver : value;
+	}, null );
+	return version || '*';
+}
+
+/**
+ * Sort a JS object by key.
+ *
+ * @param {object} obj - input object
+ * @return {object} sorted object
+ */
+function sortByKey( obj ) {
+	const ret = {};
+	for ( const k of Object.keys( obj ).sort() ) {
+		ret[ k ] = obj[ k ];
+	}
+	return ret;
 }

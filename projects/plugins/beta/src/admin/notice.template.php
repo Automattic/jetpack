@@ -2,6 +2,7 @@
 /**
  * Jetpack Beta wp-admin page notice.
  *
+ * @html-template \Automattic\JetpackBeta\Admin::render_banner -- Also from render() via plugin-select.template.php or plugin-manage.template.php
  * @package automattic/jetpack-beta
  */
 
@@ -14,9 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 global $current_screen;
 
-// -------------
-
-$is_notice = ( 'plugins' === $current_screen->base ? true : false );
+$is_notice = ( 'plugins' === $current_screen->base );
 
 ?>
 		<style type="text/css">

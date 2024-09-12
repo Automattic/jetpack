@@ -1,0 +1,387 @@
+<?php
+/**
+ * A collection of helper functions used in the SSO module.
+ *
+ * @package automattic/jetpack-connection
+ */
+
+namespace Automattic\Jetpack\Connection\SSO;
+
+use Automattic\Jetpack\Constants;
+use Jetpack_IXR_Client;
+
+/**
+ * A collection of helper functions used in the SSO module.
+ *
+ * @since jetpack-4.1.0
+ */
+class Helpers {
+	/**
+	 * Determine if the login form should be hidden or not
+	 *
+	 * @return bool
+	 **/
+	public static function should_hide_login_form() {
+		/**
+		 * Remove the default log in form, only leave the WordPress.com log in button.
+		 *
+		 * @module sso
+		 *
+		 * @since jetpack-3.1.0
+		 *
+		 * @param bool get_option( 'jetpack_sso_remove_login_form', false ) Should the default log in form be removed. Default to false.
+		 */
+		return (bool) apply_filters( 'jetpack_remove_login_form', get_option( 'jetpack_sso_remove_login_form', false ) );
+	}
+
+	/**
+	 * Returns a boolean value for whether logging in by matching the WordPress.com user email to a
+	 * Jetpack site user's email is allowed.
+	 *
+	 * @return bool
+	 */
+	public static function match_by_email() {
+		$match_by_email = defined( 'WPCC_MATCH_BY_EMAIL' ) ? \WPCC_MATCH_BY_EMAIL : (bool) get_option( 'jetpack_sso_match_by_email', true );
+
+		/**
+		 * Link the local account to an account on WordPress.com using the same email address.
+		 *
+		 * @module sso
+		 *
+		 * @since jetpack-2.6.0
+		 *
+		 * @param bool $match_by_email Should we link the local account to an account on WordPress.com using the same email address. Default to false.
+		 */
+		return (bool) apply_filters( 'jetpack_sso_match_by_email', $match_by_email );
+	}
+
+	/**
+	 * Returns a boolean for whether users are allowed to register on the Jetpack site with SSO,
+	 * even though the site disallows normal registrations.
+	 *
+	 * @param object|null $user_data WordPress.com user information.
+	 * @return bool|string
+	 */
+	public static function new_user_override( $user_data = null ) {
+		$new_user_override = defined( 'WPCC_NEW_USER_OVERRIDE' ) ? \WPCC_NEW_USER_OVERRIDE : false;
+
+		/**
+		 * Allow users to register on your site with a WordPress.com account, even though you disallow normal registrations.
+		 * If you return a string that corresponds to a user role, the user will be given that role.
+		 *
+		 * @module sso
+		 *
+		 * @since jetpack-2.6.0
+		 * @since jetpack-4.6   $user_data object is now passed to the jetpack_sso_new_user_override filter
+		 *
+		 * @param bool|string $new_user_override Allow users to register on your site with a WordPress.com account. Default to false.
+		 * @param object|null $user_data         An object containing the user data returned from WordPress.com.
+		 */
+		$role = apply_filters( 'jetpack_sso_new_user_override', $new_user_override, $user_data );
+
+		if ( $role ) {
+			if ( is_string( $role ) && get_role( $role ) ) {
+				return $role;
+			} else {
+				return get_option( 'default_role' );
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Returns a boolean value for whether two-step authentication is required for SSO.
+	 *
+	 * @since jetpack-4.1.0
+	 *
+	 * @return bool
+	 */
+	public static function is_two_step_required() {
+		/**
+		 * Is it required to have 2-step authentication enabled on WordPress.com to use SSO?
+		 *
+		 * @module sso
+		 *
+		 * @since jetpack-2.8.0
+		 *
+		 * @param bool get_option( 'jetpack_sso_require_two_step' ) Does SSO require 2-step authentication?
+		 */
+		return (bool) apply_filters( 'jetpack_sso_require_two_step', get_option( 'jetpack_sso_require_two_step', false ) );
+	}
+
+	/**
+	 * Returns a boolean for whether a user that is attempting to log in will be automatically
+	 * redirected to WordPress.com to begin the SSO flow.
+	 *
+	 * @return bool
+	 */
+	public static function bypass_login_forward_wpcom() {
+		/**
+		 * Redirect the site's log in form to WordPress.com's log in form.
+		 *
+		 * @module sso
+		 *
+		 * @since jetpack-3.1.0
+		 *
+		 * @param bool false Should the site's log in form be automatically forwarded to WordPress.com's log in form.
+		 */
+		return (bool) apply_filters( 'jetpack_sso_bypass_login_forward_wpcom', false );
+	}
+
+	/**
+	 * Returns a boolean for whether the SSO login form should be displayed as the default
+	 * when both the default and SSO login form allowed.
+	 *
+	 * @since jetpack-4.1.0
+	 *
+	 * @return bool
+	 */
+	public static function show_sso_login() {
+		if ( self::should_hide_login_form() ) {
+			return true;
+		}
+
+		/**
+		 * Display the SSO login form as the default when both the default and SSO login forms are enabled.
+		 *
+		 * @module sso
+		 *
+		 * @since jetpack-4.1.0
+		 *
+		 * @param bool true Should the SSO login form be displayed by default when the default login form is also enabled?
+		 */
+		return (bool) apply_filters( 'jetpack_sso_default_to_sso_login', true );
+	}
+
+	/**
+	 * Returns a boolean for whether the two step required checkbox, displayed on the Jetpack admin page, should be disabled.
+	 *
+	 * @since jetpack-4.1.0
+	 *
+	 * @return bool
+	 */
+	public static function is_require_two_step_checkbox_disabled() {
+		return (bool) has_filter( 'jetpack_sso_require_two_step' );
+	}
+
+	/**
+	 * Returns a boolean for whether the match by email checkbox, displayed on the Jetpack admin page, should be disabled.
+	 *
+	 * @since jetpack-4.1.0
+	 *
+	 * @return bool
+	 */
+	public static function is_match_by_email_checkbox_disabled() {
+		return defined( 'WPCC_MATCH_BY_EMAIL' ) || has_filter( 'jetpack_sso_match_by_email' );
+	}
+
+	/**
+	 * Returns an array of hosts that SSO will redirect to.
+	 *
+	 * Instead of accessing JETPACK__API_BASE within the method directly, we set it as the
+	 * default for $api_base due to restrictions with testing constants in our tests.
+	 *
+	 * @since jetpack-4.3.0
+	 * @since jetpack-4.6.0 Added public-api.wordpress.com as an allowed redirect
+	 *
+	 * @param array  $hosts Allowed redirect hosts.
+	 * @param string $api_base Base API URL.
+	 *
+	 * @return array
+	 */
+	public static function allowed_redirect_hosts( $hosts, $api_base = '' ) {
+		if ( empty( $api_base ) ) {
+			$api_base = Constants::get_constant( 'JETPACK__API_BASE' );
+		}
+
+		if ( empty( $hosts ) ) {
+			$hosts = array();
+		}
+
+		$hosts[] = 'wordpress.com';
+		$hosts[] = 'jetpack.wordpress.com';
+		$hosts[] = 'public-api.wordpress.com';
+		$hosts[] = 'jetpack.com';
+
+		if ( ! str_contains( $api_base, 'jetpack.wordpress.com/jetpack' ) ) {
+			$base_url_parts = wp_parse_url( esc_url_raw( $api_base ) );
+			if ( $base_url_parts && ! empty( $base_url_parts['host'] ) ) {
+				$hosts[] = $base_url_parts['host'];
+			}
+		}
+
+		return array_unique( $hosts );
+	}
+
+	/**
+	 * Determines how long the auth cookie is valid for when a user logs in with SSO.
+	 *
+	 * @return int result of the jetpack_sso_auth_cookie_expiration filter.
+	 */
+	public static function extend_auth_cookie_expiration_for_sso() {
+		/**
+		 * Determines how long the auth cookie is valid for when a user logs in with SSO.
+		 *
+		 * @module sso
+		 *
+		 * @since jetpack-4.4.0
+		 * @since jetpack-6.1.0 Fixed a typo. Filter was previously jetpack_sso_auth_cookie_expirtation.
+		 *
+		 * @param int YEAR_IN_SECONDS
+		 */
+		return (int) apply_filters( 'jetpack_sso_auth_cookie_expiration', YEAR_IN_SECONDS );
+	}
+
+	/**
+	 * Determines if the SSO form should be displayed for the current action.
+	 *
+	 * @since jetpack-4.6.0
+	 *
+	 * @param string $action SSO action being performed.
+	 *
+	 * @return bool  Is SSO allowed for the current action?
+	 */
+	public static function display_sso_form_for_action( $action ) {
+		/**
+		 * Allows plugins the ability to overwrite actions where the SSO form is allowed to be used.
+		 *
+		 * @module sso
+		 *
+		 * @since jetpack-4.6.0
+		 *
+		 * @param array $allowed_actions_for_sso
+		 */
+		$allowed_actions_for_sso = (array) apply_filters(
+			'jetpack_sso_allowed_actions',
+			array(
+				'login',
+				'jetpack-sso',
+				'jetpack_json_api_authorization',
+			)
+		);
+		return in_array( $action, $allowed_actions_for_sso, true );
+	}
+
+	/**
+	 * This method returns an environment array that is meant to simulate `$_REQUEST` when the initial
+	 * JSON API auth request was made.
+	 *
+	 * @since jetpack-4.6.0
+	 *
+	 * @return array|bool
+	 */
+	public static function get_json_api_auth_environment() {
+		if ( empty( $_COOKIE['jetpack_sso_original_request'] ) ) {
+			return false;
+		}
+
+		$original_request = esc_url_raw( wp_unslash( $_COOKIE['jetpack_sso_original_request'] ) );
+
+		$parsed_url = wp_parse_url( $original_request );
+		if ( empty( $parsed_url ) || empty( $parsed_url['query'] ) ) {
+			return false;
+		}
+
+		$args = array();
+		wp_parse_str( $parsed_url['query'], $args );
+
+		if ( empty( $args ) || empty( $args['action'] ) ) {
+			return false;
+		}
+
+		if ( 'jetpack_json_api_authorization' !== $args['action'] ) {
+			return false;
+		}
+
+		return array_merge(
+			$args,
+			array( 'jetpack_json_api_original_query' => $original_request )
+		);
+	}
+
+	/**
+	 * Check if the site has a custom login page URL, and return it.
+	 * If default login page URL is used (`wp-login.php`), `null` will be returned.
+	 *
+	 * @return string|null
+	 */
+	public static function get_custom_login_url() {
+		$login_url = wp_login_url();
+
+		if ( str_ends_with( $login_url, 'wp-login.php' ) ) {
+			// No custom URL found.
+			return null;
+		}
+
+		$site_url = trailingslashit( site_url() );
+
+		if ( ! str_starts_with( $login_url, $site_url ) ) {
+			// Something went wrong, we can't properly extract the custom URL.
+			return null;
+		}
+
+		// Extracting the "path" part of the URL, because we don't need the `site_url` part.
+		return str_ireplace( $site_url, '', $login_url );
+	}
+
+	/**
+	 * Clear the cookies that store the profile information for the last
+	 * WPCOM user to connect.
+	 */
+	public static function clear_wpcom_profile_cookies() {
+		if ( isset( $_COOKIE[ 'jetpack_sso_wpcom_name_' . COOKIEHASH ] ) ) {
+			setcookie(
+				'jetpack_sso_wpcom_name_' . COOKIEHASH,
+				' ',
+				time() - YEAR_IN_SECONDS,
+				COOKIEPATH,
+				COOKIE_DOMAIN,
+				is_ssl(),
+				true
+			);
+		}
+
+		if ( isset( $_COOKIE[ 'jetpack_sso_wpcom_gravatar_' . COOKIEHASH ] ) ) {
+			setcookie(
+				'jetpack_sso_wpcom_gravatar_' . COOKIEHASH,
+				' ',
+				time() - YEAR_IN_SECONDS,
+				COOKIEPATH,
+				COOKIE_DOMAIN,
+				is_ssl(),
+				true
+			);
+		}
+	}
+
+	/**
+	 * Remove an SSO connection for a user.
+	 *
+	 * @param int $user_id The local user id.
+	 */
+	public static function delete_connection_for_user( $user_id ) {
+		$wpcom_user_id = get_user_meta( $user_id, 'wpcom_user_id', true );
+		if ( ! $wpcom_user_id ) {
+			return;
+		}
+
+		$xml = new Jetpack_IXR_Client(
+			array(
+				'wpcom_user_id' => $user_id,
+			)
+		);
+		$xml->query( 'jetpack.sso.removeUser', $wpcom_user_id );
+
+		if ( $xml->isError() ) {
+			return false;
+		}
+
+		// Clean up local data stored for SSO.
+		delete_user_meta( $user_id, 'wpcom_user_id' );
+		delete_user_meta( $user_id, 'wpcom_user_data' );
+		self::clear_wpcom_profile_cookies();
+
+		return $xml->getResponse();
+	}
+}

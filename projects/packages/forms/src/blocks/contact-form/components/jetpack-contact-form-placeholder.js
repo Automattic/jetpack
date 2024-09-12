@@ -11,7 +11,7 @@ export const ContactFormPlaceholder = ( { changeStatus, isLoading, isModuleActiv
 		<Placeholder
 			icon={ settings.icon }
 			instructions={ __(
-				"You'll need to activate the Contact Form plugin to use this block.",
+				'You’ll need to activate the Contact Form feature to use this block.',
 				'jetpack-forms'
 			) }
 			label={ settings.title }

@@ -84,6 +84,10 @@
 		"tagsAdded": {
 			"type": "boolean",
 			"default": false
+		},
+		"isBloganuary": {
+			"type": "boolean",
+			"default": false
 		}
 	},
 	"styles": [

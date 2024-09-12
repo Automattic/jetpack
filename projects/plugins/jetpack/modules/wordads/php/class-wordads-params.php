@@ -85,6 +85,7 @@ class WordAds_Params {
 			'wordads_unsafe'                  => false,
 			'enable_header_ad'                => true,
 			'wordads_second_belowpost'        => true,
+			'wordads_inline_enabled'          => true,
 			'wordads_display_front_page'      => true,
 			'wordads_display_post'            => true,
 			'wordads_display_page'            => true,
@@ -93,6 +94,7 @@ class WordAds_Params {
 			'wordads_custom_adstxt_enabled'   => false,
 			'wordads_ccpa_enabled'            => false,
 			'wordads_ccpa_privacy_policy_url' => get_option( 'wp_page_for_privacy_policy' ) ? get_permalink( (int) get_option( 'wp_page_for_privacy_policy' ) ) : '',
+			'wordads_cmp_enabled'             => false,
 		);
 
 		// Grab settings, or set as default if it doesn't exist.
@@ -119,7 +121,7 @@ class WordAds_Params {
 		}
 
 		$this->url = esc_url_raw( ( is_ssl() ? 'https' : 'http' ) . '://' . ( isset( $_SERVER['HTTP_HOST'] ) ? wp_unslash( $_SERVER['HTTP_HOST'] ) : 'localhost' ) . ( isset( $_SERVER['REQUEST_URI'] ) ? wp_unslash( $_SERVER['REQUEST_URI'] ) : '' ) );
-		if ( ! ( false === strpos( $this->url, '?' ) ) && ! isset( $_GET['p'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( str_contains( $this->url, '?' ) && ! isset( $_GET['p'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			$this->url = substr( $this->url, 0, strpos( $this->url, '?' ) );
 		}
 
@@ -131,7 +133,7 @@ class WordAds_Params {
 			'BlogId'  => ( new Status() )->is_offline_mode() ? 0 : Jetpack_Options::get_option( 'id' ),
 			'Domain'  => esc_js( wp_parse_url( home_url(), PHP_URL_HOST ) ),
 			'PageURL' => esc_js( $this->url ),
-			'LangId'  => false !== strpos( get_bloginfo( 'language' ), 'en' ) ? 1 : 0, // TODO something else?
+			'LangId'  => str_contains( get_bloginfo( 'language' ), 'en' ) ? 1 : 0, // TODO something else?
 			'AdSafe'  => 1, // TODO.
 		);
 	}

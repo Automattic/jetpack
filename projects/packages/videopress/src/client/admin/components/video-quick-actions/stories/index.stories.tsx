@@ -1,6 +1,6 @@
 import { action } from '@storybook/addon-actions';
 import VideoQuickActions from '..';
-import type { ComponentStory, ComponentMeta } from '@storybook/react';
+import type { StoryFn, Meta } from '@storybook/react';
 
 export default {
 	title: 'Packages/VideoPress/Video Quick Actions',
@@ -8,9 +8,9 @@ export default {
 	parameters: {
 		layout: 'centered',
 	},
-} as ComponentMeta< typeof VideoQuickActions >;
+} as Meta< typeof VideoQuickActions >;
 
-const Template: ComponentStory< typeof VideoQuickActions > = args => {
+const Template: StoryFn< typeof VideoQuickActions > = args => {
 	return <VideoQuickActions { ...args } />;
 };
 

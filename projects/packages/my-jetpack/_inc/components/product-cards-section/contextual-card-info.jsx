@@ -4,7 +4,7 @@
 import { Text, numberFormat, LoadingPlaceholder } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
 import { arrowUp, arrowDown, Icon } from '@wordpress/icons';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import React from 'react';
 /**
@@ -25,7 +25,7 @@ export const ChangePercentageContext = ( { change, changePercentage } ) => {
 
 	return (
 		<div
-			className={ classNames( styles[ 'contextual-percentage-change' ], {
+			className={ clsx( styles[ 'contextual-percentage-change' ], {
 				[ styles.neutral ]: change === 0,
 				[ styles.positive ]: change > 0,
 				[ styles.negative ]: change < 0,

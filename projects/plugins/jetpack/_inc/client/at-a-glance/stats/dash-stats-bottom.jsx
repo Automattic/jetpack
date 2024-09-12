@@ -3,7 +3,7 @@ import { ExternalLink } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x, _n, sprintf } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import Button from 'components/button';
 import ConnectButton from 'components/connect-button';
 import analytics from 'lib/analytics';
@@ -70,9 +70,11 @@ class DashStatsBottom extends Component {
 										numberFormat( s.bestDay.count )
 								  ) }
 						</h3>
-						<p className="jp-at-a-glance__stat-details">
-							{ '-' === s.bestDay.day ? '-' : dateI18n( this.props.dateFormat, s.bestDay.day ) }
-						</p>
+						{ s.bestDay.day && (
+							<p className="jp-at-a-glance__stat-details">
+								{ '-' === s.bestDay.day ? '-' : dateI18n( this.props.dateFormat, s.bestDay.day ) }
+							</p>
+						) }
 					</div>
 					<div className="jp-at-a-glance__stats-summary-alltime-views">
 						<p className="jp-at-a-glance__stat-details">
@@ -96,16 +98,15 @@ class DashStatsBottom extends Component {
 					<div className="jp-at-a-glance__stats-ctas">
 						{
 							// Only show link for non-atomic Jetpack sites.
-							! this.props.isWoASite &&
-								createInterpolateElement( __( '<button>View detailed stats</button>', 'jetpack' ), {
-									button: (
-										<Button
-											href={ this.props.siteAdminUrl + 'admin.php?page=stats' }
-											onClick={ this.trackViewDetailedStats }
-											primary
-										/>
-									),
-								} )
+							createInterpolateElement( __( '<button>View detailed stats</button>', 'jetpack' ), {
+								button: (
+									<Button
+										href={ this.props.siteAdminUrl + 'admin.php?page=stats' }
+										onClick={ this.trackViewDetailedStats }
+										primary
+									/>
+								),
+							} )
 						}
 						{ ! this.props.isLinked && this.props.userCanConnectAccount && (
 							<ConnectButton
@@ -130,7 +131,7 @@ class DashStatsBottom extends Component {
 											} ) }
 											rel="noopener noreferrer"
 											target="_blank"
-											className={ classNames(
+											className={ clsx(
 												'jp-at-a-glance__stats-ctas-wpcom-stats',
 												this.props.className
 											) }

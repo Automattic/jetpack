@@ -11,7 +11,6 @@ use WorDBless\BaseTestCase;
  * Class to test the legacy Jetpack_XMLRPC_Server class.
  */
 class Jetpack_XMLRPC_Server_Test extends BaseTestCase {
-
 	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
 
 	/**
@@ -36,6 +35,17 @@ class Jetpack_XMLRPC_Server_Test extends BaseTestCase {
 		( new Tokens() )->update_user_token( $user_id, sprintf( '%s.%s.%d', 'key', 'private', $user_id ), false );
 
 		$this->xmlrpc_admin = $user_id;
+
+		Constants::set_constant( 'JETPACK__API_BASE', 'https://jetpack.wordpress.com/jetpack.' );
+	}
+
+	/**
+	 * Clean up the testing environment.
+	 *
+	 * @after
+	 */
+	public function tear_down() {
+		Constants::clear_constants();
 	}
 
 	/**
@@ -261,7 +271,6 @@ class Jetpack_XMLRPC_Server_Test extends BaseTestCase {
 
 		$server = new Jetpack_XMLRPC_Server();
 
-		add_filter( 'pre_http_request', array( $this, '__return_token' ) );
 		$response = $server->remote_connect(
 			array(
 				'nonce'      => '1234',
@@ -435,15 +444,15 @@ class Jetpack_XMLRPC_Server_Test extends BaseTestCase {
 
 		$xml->expects( $this->exactly( $query_called ? 1 : 0 ) )
 			->method( 'query' )
-			->will( $this->returnValue( $query_return ) );
+			->willReturn( $query_return );
 
 		$xml->expects( $this->exactly( $query_called ? 1 : 0 ) )
 			->method( 'isError' )
-			->will( $this->returnValue( empty( $error ) ? false : true ) );
+			->willReturn( empty( $error ) ? false : true );
 
 		$xml->expects( $this->exactly( $error ? 0 : 1 ) )
 			->method( 'getResponse' )
-			->will( $this->returnValue( $response ) );
+			->willReturn( $response );
 
 		return $xml;
 	}

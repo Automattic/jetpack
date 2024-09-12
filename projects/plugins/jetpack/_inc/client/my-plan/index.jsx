@@ -44,6 +44,7 @@ export function MyPlan( props ) {
 				rewindStatus={ props.rewindStatus }
 				siteAdminUrl={ props.siteAdminUrl }
 				siteRawUrl={ props.siteRawUrl }
+				blogID={ props.blogID }
 			/>
 		</React.Fragment>
 	);

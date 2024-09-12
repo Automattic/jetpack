@@ -61,7 +61,7 @@ class Jetpack_Podcast_Helper {
 	/**
 	 * Retrieves tracks quantity.
 	 *
-	 * @returns int number of tracks
+	 * @return int number of tracks
 	 */
 	public static function get_tracks_quantity() {
 		/**
@@ -485,7 +485,7 @@ class Jetpack_Podcast_Helper {
 	 */
 	protected function get_audio_enclosure( SimplePie_Item $episode ) {
 		foreach ( (array) $episode->get_enclosures() as $enclosure ) {
-			if ( 0 === strpos( $enclosure->type, 'audio/' ) ) {
+			if ( str_starts_with( $enclosure->type, 'audio/' ) ) {
 				return $enclosure;
 			}
 		}
@@ -496,7 +496,7 @@ class Jetpack_Podcast_Helper {
 	/**
 	 * Returns the track duration as a formatted string.
 	 *
-	 * @param number $duration of the track in seconds.
+	 * @param int|float $duration of the track in seconds.
 	 * @return string
 	 */
 	protected function format_track_duration( $duration ) {

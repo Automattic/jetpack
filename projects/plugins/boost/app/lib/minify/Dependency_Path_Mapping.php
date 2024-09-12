@@ -8,10 +8,18 @@ namespace Automattic\Jetpack_Boost\Lib\Minify;
  * actually building the concatenation.
  */
 class Dependency_Path_Mapping {
-	// Save entire site URL so we can check whether other URLs are based on it (internal URLs)
+	/**
+	 * Save entire site URL so we can check whether other URLs are based on it (internal URLs)
+	 *
+	 * @var string
+	 */
 	public $site_url;
 
-	// Save URI path and dir for mapping URIs to filesystem paths
+	/**
+	 * Save URI path and dir for mapping URIs to filesystem paths
+	 *
+	 * @var string
+	 */
 	public $site_uri_path    = null;
 	public $site_dir         = null;
 	public $content_uri_path = null;

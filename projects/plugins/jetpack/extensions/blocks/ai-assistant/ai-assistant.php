@@ -113,3 +113,87 @@ add_action(
 		}
 	}
 );
+
+/**
+ * Register the `ai-featured-image-generator` extension.
+ */
+add_action(
+	'jetpack_register_gutenberg_extensions',
+	function () {
+		if ( apply_filters( 'jetpack_ai_enabled', true ) ) {
+			\Jetpack_Gutenberg::set_extension_available( 'ai-featured-image-generator' );
+		}
+	}
+);
+
+/**
+ * Register the `ai-title-optimization` extension.
+ */
+add_action(
+	'jetpack_register_gutenberg_extensions',
+	function () {
+		if ( apply_filters( 'jetpack_ai_enabled', true ) ) {
+			\Jetpack_Gutenberg::set_extension_available( 'ai-title-optimization' );
+		}
+	}
+);
+
+/**
+ * Register the `ai-assistant-experimental-image-generation-support` extension.
+ */
+add_action(
+	'jetpack_register_gutenberg_extensions',
+	function () {
+		if ( apply_filters( 'jetpack_ai_enabled', true ) ) {
+			\Jetpack_Gutenberg::set_extension_available( 'ai-assistant-experimental-image-generation-support' );
+		}
+	}
+);
+
+/**
+ * Register the `ai-general-purpose-image-generator` extension.
+ */
+add_action(
+	'jetpack_register_gutenberg_extensions',
+	function () {
+		if ( apply_filters( 'jetpack_ai_enabled', true ) ) {
+			\Jetpack_Gutenberg::set_extension_available( 'ai-general-purpose-image-generator' );
+		}
+	}
+);
+
+/**
+ * Register the `ai-proofread-breve` extension.
+ */
+add_action(
+	'jetpack_register_gutenberg_extensions',
+	function () {
+		if ( apply_filters( 'jetpack_ai_enabled', true ) && apply_filters( 'breve_enabled', true ) ) {
+			\Jetpack_Gutenberg::set_extension_available( 'ai-proofread-breve' );
+		}
+	}
+);
+
+/**
+ * Register the `ai-assistant-site-logo-support` extension.
+ */
+add_action(
+	'jetpack_register_gutenberg_extensions',
+	function () {
+		if ( apply_filters( 'jetpack_ai_enabled', true ) ) {
+			\Jetpack_Gutenberg::set_extension_available( 'ai-assistant-site-logo-support' );
+		}
+	}
+);
+
+/**
+ * Register the `ai-title-optimization-keywords-support` extension.
+ */
+add_action(
+	'jetpack_register_gutenberg_extensions',
+	function () {
+		if ( apply_filters( 'jetpack_ai_enabled', true ) ) {
+			\Jetpack_Gutenberg::set_extension_available( 'ai-title-optimization-keywords-support' );
+		}
+	}
+);

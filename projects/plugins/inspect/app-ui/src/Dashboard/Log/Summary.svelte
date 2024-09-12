@@ -48,6 +48,7 @@
 		<StatusIcon {icon} />
 	</div>
 
+	<!-- eslint-disable-next-line svelte/valid-compile -- Not sure what this should be. It's kind of a button, but the real button is the <button> below. 🤷 -->
 	<div class="header" on:click={toggleOpen} on:keypress={toggleOpen}>
 		<div class="date">
 			{#if responseCode}

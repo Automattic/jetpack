@@ -17,7 +17,7 @@ class WP_Super_Cache_Rest_Get_Settings extends WP_REST_Controller {
 
 		if ( defined( 'WPLOCKDOWN' ) ) {
 			$config_file = file_get_contents( $wp_cache_config_file );
-			if ( false === strpos( $config_file, "defined( 'WPLOCKDOWN' )" ) ) {
+			if ( ! str_contains( $config_file, "defined( 'WPLOCKDOWN' )" ) ) {
 				wp_cache_replace_line( '^.*WPLOCKDOWN', "if ( ! defined( 'WPLOCKDOWN' ) ) define( 'WPLOCKDOWN', " . $this->get_is_lock_down_enabled() . " );", $wp_cache_config_file );
 			}
 		}

@@ -1,7 +1,7 @@
 import { Warning } from '@wordpress/block-editor';
 import { Button, ExternalLink } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import useAutosaveAndRedirect from '../../../shared/use-autosave-and-redirect/index';
 
 import './style.scss';
@@ -41,7 +41,7 @@ export default function BlockNudge( {
 					</Button>,
 				]
 			}
-			className={ classNames( className, 'jetpack-block-nudge wp-block' ) }
+			className={ clsx( className, 'jetpack-block-nudge wp-block' ) }
 		>
 			<span className="jetpack-block-nudge__info">
 				{ icon }

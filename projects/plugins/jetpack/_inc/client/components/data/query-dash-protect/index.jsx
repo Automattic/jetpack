@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -5,8 +6,22 @@ import { isFetchingProtectData, fetchProtectCount } from 'state/at-a-glance';
 import { isModuleActivated as _isModuleActivated } from 'state/modules';
 
 class QueryProtectCount extends Component {
+	static propTypes = {
+		isActive: PropTypes.bool,
+	};
+
 	UNSAFE_componentWillMount() {
 		if ( ! this.props.fetchingProtectData && this.props.isModuleActivated( 'protect' ) ) {
+			this.props.fetchProtectCount();
+		}
+	}
+
+	componentDidUpdate( prevProps ) {
+		if (
+			! this.props.fetchingProtectData &&
+			true === this.props.isActive &&
+			false === prevProps.isActive
+		) {
 			this.props.fetchProtectCount();
 		}
 	}

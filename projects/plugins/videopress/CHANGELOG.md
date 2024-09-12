@@ -4,14 +4,47 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 2.1 - 2024-09-06
+### Changed
+- Internal updates.
+
+## 2.0 - 2024-09-05
+### Changed
+- General: Dependency updates. [#38942] [#38822] [#39004] [#39111] [#39176]
+
+## 1.9 - 2024-08-15
+### Changed
+- General: indicate compatibility with the upcoming version of WordPress - 6.6.
+- Updated package dependencies.
+
+### Removed
+- General: update WordPress version requirements to WordPress 6.5.
+
+### Fixed
+- Updated package dependencies.
+
+## 1.8 - 2024-05-22
+### Added
+- Trigger a red bubble notification when a bad plugin install is detected.
+
+### Changed
+- Updated WordPRess tested version to 6.5.
+- Updated minimum WordPress version requirement to WordPress 6.4.
+- Switched to wp_admin_notice function to display notices.
+- Updated to show installation errors only on the plugins page.
+
+## 1.7 - 2023-11-21
+### Changed
+- Updated WordPress tested version to 6.4.
+- Updated minimum WordPress version requirement to WordPress 6.3.
+- Updated minimum PHP version requirement to PHP 7.0.
+
 ## 1.6-beta - 2023-10-17
 ### Added
-
 - Added Divi Builder Compatibility.
 - Added play button when the video block Show controls and Preview On Hover are enabled.
 - Pick video block attributes from URL when pasting/inserting.
 - Integrated video poster with Preview On Hover effect.
-
 
 ### Changed
 - Indicate full compatibility with WordPress 6.3
@@ -29,11 +62,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Video block: Handle uploading video files when dropping in the editor canvas.
 
 ### Security
-
 - Escape VideoPress attributes poster, and anchor when rendering block.
 
 ### Fixed
-
 - Added a Notice when trying to edit a video that doesn't belong to the site.
 - Added error handling for track files upload process.
 - Handle block registration in the REST API request context.

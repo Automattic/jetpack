@@ -49,7 +49,7 @@ function load_assets( $attributes ) {
 	}
 
 	// Handles case of deprecated version using theme instead of block styles.
-	if ( ! $class_name || strpos( $class_name, 'is-style-' ) === false ) {
+	if ( ! $class_name || ! str_contains( $class_name, 'is-style-' ) ) {
 		$classes[] = sprintf( 'is-style-%s', $style );
 	}
 

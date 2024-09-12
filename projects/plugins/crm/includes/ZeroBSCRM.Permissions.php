@@ -548,49 +548,41 @@ function zeroBSCRM_addUserRoles() { // phpcs:ignore WordPress.NamingConventions.
 		return array();
 	}
 
+/**
+ * Determine if the current user is allowed to manage contacts.
+ *
+ * @param int $obj_type_id Object type ID.
+ *
+ * @return bool
+ */
+function zeroBSCRM_permsObjType( $obj_type_id = -1 ) { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.FunctionNameInvalid
 
-	// takes an objtypeid e.g. 1 = ZBS_TYPE_CONTACT
-	// ... then checks current user has access to that type/area
-	function zeroBSCRM_permsObjType($objTypeID=-1){
+	switch ( $obj_type_id ) {
+		case ZBS_TYPE_CONTACT:
+		case ZBS_TYPE_COMPANY:
+		case ZBS_TYPE_SEGMENT:
+			return zeroBSCRM_permsCustomers();
 
-		switch ($objTypeID){
+		case ZBS_TYPE_QUOTE:
+		case ZBS_TYPE_QUOTETEMPLATE:
+			return zeroBSCRM_permsQuotes();
 
-			case ZBS_TYPE_CONTACT:
-			case ZBS_TYPE_COMPANY:
+		case ZBS_TYPE_INVOICE:
+			return zeroBSCRM_permsInvoices();
 
-				return zeroBSCRM_permsCustomers();
-				break;
+		case ZBS_TYPE_TRANSACTION:
+			return zeroBSCRM_permsTransactions();
 
-			case ZBS_TYPE_QUOTE:
-			case ZBS_TYPE_QUOTETEMPLATE:
+		case ZBS_TYPE_FORM:
+			return zeroBSCRM_permsForms();
 
-				return zeroBSCRM_permsQuotes();
-				break;
+		case ZBS_TYPE_TASK:
+			return zeroBSCRM_perms_tasks();
 
-			case ZBS_TYPE_INVOICE:
-
-				return zeroBSCRM_permsInvoices();
-				break;
-
-			case ZBS_TYPE_TRANSACTION:
-
-				return zeroBSCRM_permsTransactions();
-				break;
-
-			case ZBS_TYPE_FORM:
-
-				return zeroBSCRM_permsForms();
-				break;
-
-			case ZBS_TYPE_TASK:
-
-				return zeroBSCRM_perms_tasks();
-				break;			
-
-		}
-
-		return false;
 	}
+
+	return false;
+}
 
 /**
  * Determine if a user is allowed to manage contacts.
@@ -725,7 +717,6 @@ function zeroBSCRM_permsCustomers() {
 	    if ($cu->has_cap('admin_zerobs_customers')) return true;
 	    return false;
 	}
-
 
 	// LOGS
 
@@ -1091,4 +1082,40 @@ function jpcrm_perms_error() {
 		'bad_perms'
 	);
 	die();
+}
+
+/**
+ * Verifies a given path is within allowed base paths.
+ *
+ * @param string       $path Path to check.
+ * @param array|string $allowed_base_paths Paths to check.
+ *
+ * @return bool True if it's an allowed path, false if not.
+ */
+function jpcrm_is_allowed_path( $path, $allowed_base_paths ) {
+
+	// Convert to array if not already one.
+	if ( ! is_array( $allowed_base_paths ) ) {
+		$allowed_base_paths = array( $allowed_base_paths );
+	}
+
+	$real_path = realpath( $path );
+
+	// Invalid path.
+	if ( ! $real_path ) {
+		return false;
+	}
+
+	foreach ( $allowed_base_paths as $base_path ) {
+		$real_base_path = realpath( $base_path );
+
+		// If file belongs to a valid base_path, all is well.
+		// This base path is sometimes a non-existent path, so we test for its existence as well.
+		if ( $real_base_path && strpos( $real_path, $real_base_path ) === 0 ) {
+			return true;
+		}
+	}
+
+	// doesn't match an allowed base path
+	return false;
 }

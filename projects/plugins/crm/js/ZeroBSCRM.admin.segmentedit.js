@@ -488,7 +488,6 @@ function zeroBSCRMJS_segment_buildConditionCascades2() {
 				case 'istrue':
 				case 'isfalse':
 					html += '<input type="hidden" class="zbs-segment-edit-var-condition-value" value="1" />';
-
 					break;
 
 				case 'equal':
@@ -522,7 +521,6 @@ function zeroBSCRMJS_segment_buildConditionCascades2() {
 							jpcrm.esc_attr( v ) +
 							'" />';
 					}
-
 					break;
 
 				case 'contains':
@@ -533,20 +531,24 @@ function zeroBSCRMJS_segment_buildConditionCascades2() {
 						'" value="' +
 						jpcrm.esc_attr( v ) +
 						'" />';
-
 					break;
 
 				case 'larger':
 				case 'less':
 				case 'largerequal':
 				case 'lessequal':
+					html +=
+						'<input type="text" class="zbs-segment-edit-var-condition-value jpcrm-inputmask-float" value="' +
+						jpcrm.esc_attr( v ) +
+						'" />';
+						break;
+
 				case 'nextdays':
 				case 'previousdays':
 					html +=
 						'<input type="text" class="zbs-segment-edit-var-condition-value jpcrm-inputmask-int" value="' +
 						jpcrm.esc_attr( v ) +
 						'" />';
-
 					break;
 
 				case 'before':
@@ -555,7 +557,6 @@ function zeroBSCRMJS_segment_buildConditionCascades2() {
 						'<input type="text" class="jpcrm-date-time zbs-segment-edit-var-condition-value" data-date-picker-format="YYYY-MM-DD HH:mm" value="' +
 						jpcrm.esc_attr( v ) +
 						'" />';
-
 					break;
 
 				case 'beforeequal':
@@ -564,7 +565,6 @@ function zeroBSCRMJS_segment_buildConditionCascades2() {
 						'<input type="text" class="jpcrm-date zbs-segment-edit-var-condition-value" data-date-picker-format="YYYY-MM-DD" value="' +
 						jpcrm.esc_attr( v ) +
 						'" />';
-
 					break;
 
 				case 'daterange':
@@ -577,7 +577,6 @@ function zeroBSCRMJS_segment_buildConditionCascades2() {
 						'<input type="text" class="jpcrm-date-range zbs-segment-edit-var-condition-value" data-date-picker-format="YYYY-MM-DD" value="' +
 						date_value +
 						'" />';
-
 					break;
 
 				case 'datetimerange':
@@ -590,32 +589,12 @@ function zeroBSCRMJS_segment_buildConditionCascades2() {
 						'<input type="text" class="jpcrm-datetime-range zbs-segment-edit-var-condition-value" data-date-picker-format="YYYY-MM-DD HH:mm" value="' +
 						date_value +
 						'" />';
-
 					break;
 
 				case 'floatrange':
-					html +=
-						'<input type="text" class="zbs-float zbs-segment-edit-var-condition-value zbs-segment-pair-input jpcrm-inputmask-float' +
-						inputmask_class +
-						'" value="' +
-						jpcrm.esc_attr( v ) +
-						'" placeholder="' +
-						zeroBSCRMJS_segmentLang( 'eg' ) +
-						' 0.00" />';
-					html +=
-						'<span>' +
-						zeroBSCRMJS_segmentLang( 'to' ) +
-						'</span><input type="text" class="zbs-float zbs-segment-edit-var-condition-value-2 zbs-segment-pair-input jpcrm-inputmask-float" value="' +
-						jpcrm.esc_attr( v2 ) +
-						'" placeholder="' +
-						zeroBSCRMJS_segmentLang( 'eg' ) +
-						' 100.00" />';
-
-					break;
-
 				case 'intrange':
 					html +=
-						'<input type="text" class="zbs-int zbs-segment-edit-var-condition-value zbs-segment-pair-input jpcrm-inputmask-int' +
+						'<input type="text" class="zbs-float zbs-segment-edit-var-condition-value zbs-segment-pair-input jpcrm-inputmask-float' +
 						inputmask_class +
 						'" value="' +
 						jpcrm.esc_attr( v ) +
@@ -625,12 +604,11 @@ function zeroBSCRMJS_segment_buildConditionCascades2() {
 					html +=
 						'<span>' +
 						zeroBSCRMJS_segmentLang( 'to' ) +
-						'</span><input type="text" class="zbs-int zbs-segment-edit-var-condition-value-2 zbs-segment-pair-input jpcrm-inputmask-int" value="' +
+						'</span><input type="text" class="zbs-float zbs-segment-edit-var-condition-value-2 zbs-segment-pair-input jpcrm-inputmask-float" value="' +
 						jpcrm.esc_attr( v2 ) +
 						'" placeholder="' +
 						zeroBSCRMJS_segmentLang( 'eg' ) +
 						' 100" />';
-
 					break;
 
 				case 'tag':
@@ -653,7 +631,6 @@ function zeroBSCRMJS_segment_buildConditionCascades2() {
 					}
 
 					html += '</select>';
-
 					break;
 
 				// transaction tags
@@ -677,7 +654,6 @@ function zeroBSCRMJS_segment_buildConditionCascades2() {
 					}
 
 					html += '</select>';
-
 					break;
 
 				case 'extsource':
@@ -700,7 +676,6 @@ function zeroBSCRMJS_segment_buildConditionCascades2() {
 					}
 
 					html += '</select>';
-
 					break;
 
 				case 'mailpoet_status':
@@ -725,7 +700,6 @@ function zeroBSCRMJS_segment_buildConditionCascades2() {
 					}
 
 					html += '</select>';
-
 					break;
 			}
 

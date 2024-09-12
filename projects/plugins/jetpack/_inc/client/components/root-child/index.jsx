@@ -3,7 +3,7 @@
 import * as WPElement from '@wordpress/element';
 import PropTypes from 'prop-types';
 import React from 'react';
-import { Provider as ReduxProvider } from 'react-redux';
+import { ReactReduxContext, Provider as ReduxProvider } from 'react-redux';
 
 export default class RootChild extends React.Component {
 	static displayName = 'RootChild';
@@ -12,9 +12,7 @@ export default class RootChild extends React.Component {
 		children: PropTypes.node,
 	};
 
-	static contextTypes = {
-		store: PropTypes.object,
-	};
+	static contextType = ReactReduxContext;
 
 	componentDidMount() {
 		this.container = document.createElement( 'div' );

@@ -1,0 +1,14 @@
+{
+	"compilerOptions": {
+		"target": "ES2020",
+		"module": "ESNext",
+		"moduleResolution": "bundler",
+		"noEmit": true,
+		"allowJs": true,
+		"checkJs": true,
+		"jsx": "react-jsx",
+		"jsxImportSource": "preact"
+	},
+	"typeRoots": [ "./src/components", "./src/editor", "./node_modules/@types" ],
+	"include": [ "node_modules/vite/client.d.ts", "**/*" ]
+}

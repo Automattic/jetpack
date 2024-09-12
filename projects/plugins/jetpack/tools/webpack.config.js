@@ -1,7 +1,7 @@
 const path = require( 'path' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const RemoveAssetWebpackPlugin = require( '@automattic/remove-asset-webpack-plugin' );
-const glob = require( 'glob' );
+const { glob } = require( 'glob' );
 const StaticSiteGeneratorPlugin = require( './static-site-generator-webpack-plugin' );
 
 const sharedWebpackConfig = {
@@ -72,7 +72,6 @@ const supportedModules = [
 	'shortcodes',
 	'widgets',
 	'widget-visibility',
-	'custom-css',
 	'publicize',
 	'custom-post-types',
 	'sharedaddy',
@@ -146,7 +145,6 @@ module.exports = [
 				},
 			},
 			'plugins-page': path.join( __dirname, '../_inc/client', 'plugins-entry.js' ),
-			'activation-modal': path.join( __dirname, '../_inc/client', 'activation-modal-entry.js' ),
 		},
 		plugins: [
 			...sharedWebpackConfig.plugins,

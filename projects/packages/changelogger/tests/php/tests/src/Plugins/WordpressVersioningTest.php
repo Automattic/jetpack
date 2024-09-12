@@ -29,7 +29,7 @@ class WordpressVersioningTest extends TestCase {
 	 * Test getOptions.
 	 */
 	public function testGetOptions() {
-		$obj  = new WordpressVersioning( array() );
+		$obj  = new WordpressVersioning();
 		$opts = $obj->getOptions();
 		$this->assertIsArray( $opts );
 		foreach ( $opts as $opt ) {
@@ -46,7 +46,7 @@ class WordpressVersioningTest extends TestCase {
 	 * @param string|null                     $normalized Normalized value, if different from `$version`.
 	 */
 	public function testParseVersion( $version, $expect, $normalized = null ) {
-		$obj = new WordpressVersioning( array() );
+		$obj = new WordpressVersioning();
 		if ( $expect instanceof InvalidArgumentException ) {
 			$this->expectException( InvalidArgumentException::class );
 			$this->expectExceptionMessage( $expect->getMessage() );
@@ -276,7 +276,7 @@ class WordpressVersioningTest extends TestCase {
 	 * @param array                           $extra Extra, if any.
 	 */
 	public function testNormalizeVersion( $version, $expect, $extra = array() ) {
-		$obj = new WordpressVersioning( array() );
+		$obj = new WordpressVersioning();
 		if ( $expect instanceof InvalidArgumentException ) {
 			$this->expectException( InvalidArgumentException::class );
 			$this->expectExceptionMessage( $expect->getMessage() );
@@ -291,12 +291,12 @@ class WordpressVersioningTest extends TestCase {
 	 */
 	public function provideNormalizeVersion() {
 		return array(
-			array(
+			'add prerelease = alpha'          => array(
 				'1.2',
 				'1.2-alpha',
 				array( 'prerelease' => 'alpha' ),
 			),
-			array(
+			'add prerelease and buildinfo'    => array(
 				'1.2-alpha',
 				'1.2-beta+12345',
 				array(
@@ -304,7 +304,7 @@ class WordpressVersioningTest extends TestCase {
 					'buildinfo'  => '12345',
 				),
 			),
-			array(
+			'remove prerelease and buildinfo' => array(
 				'1.2-beta+12345',
 				'1.2',
 				array(
@@ -313,12 +313,12 @@ class WordpressVersioningTest extends TestCase {
 				),
 			),
 
-			'Invalid prerelease component' => array(
+			'Invalid prerelease component'    => array(
 				'1.2.3',
 				new InvalidArgumentException( 'Invalid prerelease data' ),
 				array( 'prerelease' => 'delta?' ),
 			),
-			'Invalid buildinfo component'  => array(
+			'Invalid buildinfo component'     => array(
 				'1.2.3',
 				new InvalidArgumentException( 'Invalid buildinfo data' ),
 				array( 'buildinfo' => 'build?' ),
@@ -337,8 +337,9 @@ class WordpressVersioningTest extends TestCase {
 	 * @param string                          $expectPoint Expected result for a point release.
 	 */
 	public function testNextVersion( $version, array $changes, array $extra, $expect, $expectPoint = null ) {
-		$obj = new WordpressVersioning( array() );
+		$obj = new WordpressVersioning();
 
+		// @phan-suppress-next-line PhanDeprecatedFunction -- Hopefully we drop PHP <7.2 before having to deal with this, as the designated replacement isn't until PHPUnit 8.
 		$out1 = $this->getMockBuilder( BufferedOutput::class )
 			->setMethods( array( 'getErrorOutput' ) )
 			->getMock();
@@ -484,7 +485,7 @@ class WordpressVersioningTest extends TestCase {
 	 * @param string $b Version B.
 	 */
 	public function testCompareVersions( $a, $expect, $b ) {
-		$obj = new WordpressVersioning( array() );
+		$obj = new WordpressVersioning();
 		$ret = $obj->compareVersions( $a, $b );
 		$this->assertIsInt( $ret );
 		$ret = $ret < 0 ? '<' : ( $ret > 0 ? '>' : '==' );
@@ -532,7 +533,7 @@ class WordpressVersioningTest extends TestCase {
 	 * @param string|InvalidArgumentException $expect Expected result.
 	 */
 	public function testFirstVersion( array $extra, $expect ) {
-		$obj = new WordpressVersioning( array() );
+		$obj = new WordpressVersioning();
 
 		if ( $expect instanceof InvalidArgumentException ) {
 			$this->expectException( InvalidArgumentException::class );

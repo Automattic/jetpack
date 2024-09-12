@@ -15,7 +15,7 @@ function jetpack_boost_minify_cache_buster() {
  * Cleanup the given cache folder, removing all files older than $file_age seconds.
  *
  * @param string $cache_folder The path to the cache folder to cleanup.
- * @param int $file_age The age of files to purge, in seconds.
+ * @param int    $file_age The age of files to purge, in seconds.
  */
 function jetpack_boost_page_optimize_cache_cleanup( $cache_folder = false, $file_age = DAY_IN_SECONDS ) {
 	if ( ! is_dir( $cache_folder ) ) {
@@ -62,22 +62,6 @@ function jetpack_boost_page_optimize_deactivate() {
 }
 
 /**
- * Plugin uninstall hook - cleanup options.
- */
-function jetpack_boost_page_optimize_uninstall() {
-	// Run cleanup on uninstall. You can uninstall an active plugin w/o deactivation.
-	jetpack_boost_page_optimize_deactivate();
-
-	// JS
-	delete_option( 'page_optimize-js' );
-	delete_option( 'page_optimize-load-mode' );
-	delete_option( 'page_optimize-js-exclude' );
-	// CSS
-	delete_option( 'page_optimize-css' );
-	delete_option( 'page_optimize-css-exclude' );
-}
-
-/**
  * Convert enqueued home-relative URLs to absolute ones.
  *
  * Enqueued script URLs which start with / are relative to WordPress' home URL.
@@ -87,7 +71,7 @@ function jetpack_boost_page_optimize_uninstall() {
  * generating concatenated URLs.
  */
 function jetpack_boost_enqueued_to_absolute_url( $url ) {
-	if ( substr( $url, 0, 1 ) === '/' ) {
+	if ( str_starts_with( $url, '/' ) ) {
 		return home_url( $url );
 	}
 
@@ -224,7 +208,7 @@ function jetpack_boost_page_optimize_cache_bust_mtime( $path, $siteurl ) {
 	static $dependency_path_mapping;
 
 	// Absolute paths should dump the path component of siteurl.
-	if ( substr( $path, 0, 1 ) === '/' ) {
+	if ( str_starts_with( $path, '/' ) ) {
 		$parts   = wp_parse_url( $siteurl );
 		$siteurl = $parts['scheme'] . '://' . $parts['host'];
 	}
@@ -255,7 +239,7 @@ function jetpack_boost_page_optimize_cache_bust_mtime( $path, $siteurl ) {
 		return $url;
 	}
 
-	if ( false === strpos( $url, '?' ) ) {
+	if ( ! str_contains( $url, '?' ) ) {
 		$q = '';
 	} else {
 		list( $url, $q ) = explode( '?', $url, 2 );
@@ -274,7 +258,7 @@ function jetpack_boost_page_optimize_cache_bust_mtime( $path, $siteurl ) {
 function jetpack_boost_get_static_prefix() {
 	$prefix = defined( 'JETPACK_BOOST_STATIC_PREFIX' ) ? JETPACK_BOOST_STATIC_PREFIX : '/_jb_static/';
 
-	if ( substr( $prefix, 0, 1 ) !== '/' ) {
+	if ( ! str_starts_with( $prefix, '/' ) ) {
 		$prefix = '/' . $prefix;
 	}
 
@@ -296,7 +280,7 @@ function jetpack_boost_minify_serve_concatenated() {
 		if ( $prefix === substr( $request_path, -strlen( $prefix ), strlen( $prefix ) ) ) {
 			require_once __DIR__ . '/functions-service.php';
 			jetpack_boost_page_optimize_service_request();
-			exit;
+			exit; // @phan-suppress-current-line PhanPluginUnreachableCode -- Safer to include it even though jetpack_boost_page_optimize_service_request() itself never returns.
 		}
 	}
 }
@@ -314,10 +298,6 @@ function jetpack_boost_minify_setup() {
 		return;
 	}
 	$setup_done = true;
-
-	// Hook up deactivation and uninstall cleanup paths.
-	register_deactivation_hook( JETPACK_BOOST_PATH, 'jetpack_boost_page_optimize_deactivate' );
-	register_uninstall_hook( JETPACK_BOOST_PATH, 'jetpack_boost_page_optimize_uninstall' );
 
 	// Schedule cache cleanup.
 	add_action( 'jetpack_boost_minify_cron_cache_cleanup', 'jetpack_boost_page_optimize_cache_cleanup' );

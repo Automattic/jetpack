@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Prevent error if OpenSSL functions aren't available in PHP.

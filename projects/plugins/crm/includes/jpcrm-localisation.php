@@ -29,7 +29,12 @@ function jpcrm_uts_to_datetime_str( $timestamp, $format = false, $use_utc = fals
 	}
 
 	// create DateTime object from UTS
-	$date_obj = new DateTime( '@' . $timestamp );
+	try {
+		$date_obj = new DateTime( '@' . $timestamp );
+	} catch ( Exception $e ) {
+		// Unable to parse timestamp, so probably not a UTS.
+		return false;
+	}
 
 	// something's wrong, so abort
 	if ( ! $date_obj ) {
@@ -189,14 +194,15 @@ function jpcrm_date_str_to_uts( $date_str, $format = false, $use_utc = false ) {
  * Creates a UTS from a WP-formatted date string
  * This is a wrapper of jpcrm_datetime_str_to_uts()
  *
- * @param str $date_str String containing date (in WP timezone).
+ * @param string  $date_str String containing date (in WP timezone).
+ * @param boolean $use_utc Treat input as UTC timezone or WP timezone.
  *
  * @return int $uts
  */
-function jpcrm_date_str_wp_format_to_uts( $date_str ) {
+function jpcrm_date_str_wp_format_to_uts( $date_str, $use_utc = false ) {
 	// use WP format
 	$format = '!' . get_option( 'date_format' );
-	return jpcrm_datetime_str_to_uts( $date_str, $format );
+	return jpcrm_datetime_str_to_uts( $date_str, $format, $use_utc );
 }
 
 /**

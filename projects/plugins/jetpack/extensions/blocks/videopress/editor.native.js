@@ -1,4 +1,5 @@
 import { addFilter } from '@wordpress/hooks';
+import withVideoPressEdit from './edit';
 import withVideoPressSave from './save';
 
 const addVideoPressSupport = ( settings, name ) => {
@@ -7,7 +8,7 @@ const addVideoPressSupport = ( settings, name ) => {
 		return settings;
 	}
 
-	const { save } = settings;
+	const { edit, save } = settings;
 
 	const attributesDefinition = {
 		autoplay: {
@@ -96,6 +97,7 @@ const addVideoPressSupport = ( settings, name ) => {
 	return {
 		...settings,
 		attributes: attributesDefinition,
+		edit: withVideoPressEdit( edit ),
 		save: withVideoPressSave( save ),
 	};
 };

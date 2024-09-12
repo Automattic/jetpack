@@ -2,6 +2,8 @@
 /**
  * Tests for Jetpack_Admin_Menu class.
  *
+ * @phan-file-suppress PhanDeprecatedFunction -- Ok for deprecated code to call other deprecated code.
+ *
  * @package automattic/jetpack
  */
 
@@ -80,7 +82,11 @@ class Test_Jetpack_Admin_Menu extends WP_UnitTestCase {
 		parent::set_up();
 		global $menu, $submenu;
 
+		$this->setExpectedDeprecated( 'Automattic\Jetpack\Dashboard_Customizations\Jetpack_Admin_Menu::__construct' );
 		// Initialize in setUp so it registers hooks for every test.
+		$instances = new \ReflectionProperty( 'Automattic\Jetpack\Dashboard_Customizations\Jetpack_Admin_Menu', 'instances' );
+		$instances->setAccessible( true );
+		$instances->setValue( null, null );
 		static::$admin_menu = Jetpack_Admin_Menu::get_instance();
 
 		$menu    = static::$menu_data;
@@ -93,19 +99,23 @@ class Test_Jetpack_Admin_Menu extends WP_UnitTestCase {
 	 * Tests add_jetpack_menu
 	 *
 	 * @covers ::add_jetpack_menu
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Jetpack_Admin_Menu::add_jetpack_menu
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Jetpack_Admin_Menu::get_preferred_view
 	 */
 	public function test_add_jetpack_menu() {
 		global $submenu;
 
 		static::$admin_menu->add_jetpack_menu();
 		$this->assertSame( 'https://wordpress.com/scan/' . static::$domain, $submenu['jetpack'][2][2] );
-		$this->assertSame( 'https://wordpress.com/subscribers/' . static::$domain, $submenu['jetpack'][3][2] );
 	}
 
 	/**
 	 * Tests add_tools_menu
 	 *
 	 * @covers ::add_tools_menu
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Jetpack_Admin_Menu::add_tools_menu
 	 */
 	public function test_add_tools_menu() {
 		global $submenu;
@@ -124,6 +134,8 @@ class Test_Jetpack_Admin_Menu extends WP_UnitTestCase {
 	 * Tests add_wp_admin_menu
 	 *
 	 * @covers ::add_wp_admin_menu
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Jetpack_Admin_Menu::add_wp_admin_menu
 	 */
 	public function test_add_wp_admin_menu() {
 		global $menu;
@@ -137,6 +149,8 @@ class Test_Jetpack_Admin_Menu extends WP_UnitTestCase {
 	 * Tests add_appearance_menu
 	 *
 	 * @covers ::add_appearance_menu
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Jetpack_Admin_Menu::add_appearance_menu
 	 */
 	public function test_add_appearance_menu() {
 		global $submenu;
@@ -151,6 +165,8 @@ class Test_Jetpack_Admin_Menu extends WP_UnitTestCase {
 	 * Tests add_posts_menu
 	 *
 	 * @covers ::add_posts_menu
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Jetpack_Admin_Menu::add_posts_menu
 	 */
 	public function test_add_posts_menu() {
 		global $menu;
@@ -164,6 +180,8 @@ class Test_Jetpack_Admin_Menu extends WP_UnitTestCase {
 	 * Tests add_page_menu
 	 *
 	 * @covers ::add_page_menu
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Jetpack_Admin_Menu::add_page_menu
 	 */
 	public function test_add_page_menu() {
 		global $menu;
@@ -177,6 +195,8 @@ class Test_Jetpack_Admin_Menu extends WP_UnitTestCase {
 	 * Tests add_users_menu
 	 *
 	 * @covers ::add_users_menu
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Jetpack_Admin_Menu::add_users_menu
 	 */
 	public function test_add_users_menu() {
 		global $menu;
@@ -190,6 +210,8 @@ class Test_Jetpack_Admin_Menu extends WP_UnitTestCase {
 	 * Tests add_users_menu
 	 *
 	 * @covers ::add_feedback_menu
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Jetpack_Admin_Menu::add_feedback_menu
 	 */
 	public function add_feedback_menu() {
 		global $menu;
@@ -203,6 +225,8 @@ class Test_Jetpack_Admin_Menu extends WP_UnitTestCase {
 	 * Tests add_plugins_menu
 	 *
 	 * @covers ::add_plugins_menu
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Jetpack_Admin_Menu::add_plugins_menu
 	 */
 	public function test_add_plugins_menu() {
 		global $menu;

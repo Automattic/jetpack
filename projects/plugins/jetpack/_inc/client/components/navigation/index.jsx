@@ -1,7 +1,7 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { _x, sprintf } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import SectionNav from 'components/section-nav';
 import NavItem from 'components/section-nav/item';
 import NavTabs from 'components/section-nav/tabs';
@@ -74,7 +74,7 @@ export class Navigation extends React.Component {
 		const jetpackPlansPath = getRedirectUrl(
 			this.props.hasConnectedOwner ? 'jetpack-plans' : 'jetpack-nav-site-only-plans',
 			{
-				site: this.props.siteUrl,
+				site: this.props.blogID ?? this.props.siteUrl,
 				...( this.props.purchaseToken
 					? { query: `purchasetoken=${ this.props.purchaseToken }` }
 					: {} ),
@@ -127,8 +127,8 @@ export class Navigation extends React.Component {
 								{
 									count: (
 										<span
-											className={ classNames( 'dops-section-nav-tab__update-badge', {
-												[ 'is-hidden' ]:
+											className={ clsx( 'dops-section-nav-tab__update-badge', {
+												'is-hidden':
 													this.props.location.pathname.startsWith( '/recommendations' ) ||
 													! this.props.newRecommendationsCount,
 											} ) }

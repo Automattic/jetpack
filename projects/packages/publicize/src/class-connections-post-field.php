@@ -7,6 +7,10 @@
 
 namespace Automattic\Jetpack\Publicize;
 
+use WP_Error;
+use WP_Post;
+use WP_REST_Request;
+
 /**
  * The class to register the field and augment requests
  * to Publicize supported post types.
@@ -128,6 +132,18 @@ class Connections_Post_Field {
 					'context'     => array( 'edit' ),
 					'readonly'    => true,
 				),
+				'external_id'     => array(
+					'description' => __( 'The external ID of the connected account', 'jetpack-publicize-pkg' ),
+					'type'        => 'string',
+					'context'     => array( 'view', 'edit' ),
+					'readonly'    => true,
+				),
+				'can_disconnect'  => array(
+					'description' => __( 'Whether the current user can disconnect this connection', 'jetpack-publicize-pkg' ),
+					'type'        => 'boolean',
+					'context'     => array( 'view', 'edit' ),
+					'readonly'    => true,
+				),
 			),
 		);
 	}
@@ -143,7 +159,7 @@ class Connections_Post_Field {
 		global $publicize;
 
 		if ( ! $publicize ) {
-			return new \WP_Error(
+			return new WP_Error(
 				'publicize_not_available',
 				__( 'Sorry, Jetpack Social is not available on your site right now.', 'jetpack-publicize-pkg' ),
 				array( 'status' => rest_authorization_required_code() )
@@ -154,7 +170,7 @@ class Connections_Post_Field {
 			return true;
 		}
 
-		return new \WP_Error(
+		return new WP_Error(
 			'invalid_user_permission_publicize',
 			__( 'Sorry, you are not allowed to access Jetpack Social data for this post.', 'jetpack-publicize-pkg' ),
 			array( 'status' => rest_authorization_required_code() )
@@ -176,15 +192,16 @@ class Connections_Post_Field {
 	public function get( $post_array, $field_name, $request, $object_type ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		global $publicize;
 
+		$post_id          = $post_array['id'] ?? 0;
 		$full_schema      = $this->get_schema();
-		$permission_check = $this->permission_check( empty( $post_array['id'] ) ? 0 : $post_array['id'] );
+		$permission_check = $this->permission_check( $post_id );
 		if ( is_wp_error( $permission_check ) ) {
 			return $full_schema['default'];
 		}
 
 		$schema      = $full_schema['items'];
 		$properties  = array_keys( $schema['properties'] );
-		$connections = $publicize->get_filtered_connection_data( $post_array['id'] );
+		$connections = $publicize->get_filtered_connection_data( $post_id );
 
 		$output_connections = array();
 		foreach ( $connections as $connection ) {
@@ -197,6 +214,9 @@ class Connections_Post_Field {
 
 			$output_connection['id']            = (string) $connection['unique_id'];
 			$output_connection['connection_id'] = (string) $connection['id'];
+
+			$output_connection['can_disconnect'] = current_user_can( 'edit_others_posts' ) || get_current_user_id() === (int) $connection['user_id'];
+			$output_connection['shared']         = $connection['global'];
 
 			$output_connections[] = $output_connection;
 		}
@@ -218,7 +238,7 @@ class Connections_Post_Field {
 	 * @param object          $post    Post data to insert/update.
 	 * @param WP_REST_Request $request API request.
 	 *
-	 * @return Filtered $post
+	 * @return object|WP_Error Filtered $post
 	 */
 	public function rest_pre_insert( $post, $request ) {
 		$request_connections = ! empty( $request['jetpack_publicize_connections'] ) ? $request['jetpack_publicize_connections'] : array();
@@ -415,7 +435,7 @@ class Connections_Post_Field {
 			// If we return this for the top level object, Core
 			// correctly remove the top level object from the response
 			// for us.
-			return new \WP_Error( '__wrong-context__' );
+			return new WP_Error( '__wrong-context__' );
 		}
 
 		switch ( $schema['type'] ) {

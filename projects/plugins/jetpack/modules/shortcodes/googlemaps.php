@@ -19,7 +19,7 @@
  */
 function jetpack_googlemaps_embed_to_short_code( $content ) {
 
-	if ( ! is_string( $content ) || ( false === strpos( $content, 'maps.google.' ) && 1 !== preg_match( '@google\.[^/]+/maps?@', $content ) ) ) {
+	if ( ! is_string( $content ) || ( ! str_contains( $content, 'maps.google.' ) && 1 !== preg_match( '@google\.[^/]+/maps?@', $content ) ) ) {
 		return $content;
 	}
 
@@ -97,7 +97,7 @@ function jetpack_googlemaps_shortcode( $atts ) {
 		$url = '';
 		foreach ( (array) $arg as $key => $value ) {
 			if ( 'w' === $key ) {
-				$percent = ( '%' === substr( $value, -1 ) ) ? '%' : '';
+				$percent = ( str_ends_with( $value, '%' ) ) ? '%' : '';
 				$width   = (int) $value . $percent;
 			} elseif ( 'h' === $key ) {
 				$height = (int) $value;

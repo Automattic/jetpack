@@ -1,17 +1,17 @@
-import { setAutoConversionSettings } from './actions/auto-conversion-settings';
+import apiFetch from '@wordpress/api-fetch';
+import { store as editorStore } from '@wordpress/editor';
+import { normalizeShareStatus } from '../utils/share-status';
+import { setConnections } from './actions/connection-data';
 import { setJetpackSettings } from './actions/jetpack-settings';
+import { fetchPostShareStatus, receivePostShareStaus } from './actions/share-status';
 import { setSocialImageGeneratorSettings } from './actions/social-image-generator-settings';
-import {
-	fetchJetpackSettings,
-	fetchSocialImageGeneratorSettings,
-	fetchAutoConversionSettings,
-} from './controls';
+import { fetchJetpackSettings, fetchSocialImageGeneratorSettings } from './controls';
 
 /**
  * Yield actions to get the Jetpack settings.
  *
- * @yields {object} - an action object.
- * @returns {object} - an action object.
+ * @yield {object} - an action object.
+ * @return {object} - an action object.
  */
 export function* getJetpackSettings() {
 	try {
@@ -28,14 +28,14 @@ export function* getJetpackSettings() {
 /**
  * Yield actions to get the Social Image Generator settings.
  *
- * @yields {object} - an action object.
- * @returns {object} - an action object.
+ * @yield {object} - an action object.
+ * @return {object} - an action object.
  */
 export function* getSocialImageGeneratorSettings() {
 	try {
 		const settings = yield fetchSocialImageGeneratorSettings();
 		if ( settings ) {
-			return setSocialImageGeneratorSettings( settings );
+			return setSocialImageGeneratorSettings( settings.jetpack_social_image_generator_settings );
 		}
 	} catch ( e ) {
 		// TODO: Add proper error handling here
@@ -44,21 +44,58 @@ export function* getSocialImageGeneratorSettings() {
 }
 
 /**
- * Yield actions to get the Auto Conversion settings.
+ * Resolves the connections from the post.
  *
- * @yields {object} - an action object.
- * @returns {object} - an action object.
+ * @return {Function} Resolver
  */
-export function* getAutoConversionSettings() {
-	try {
-		const settings = yield fetchAutoConversionSettings();
-		if ( settings ) {
-			return setAutoConversionSettings( settings );
+export function getConnections() {
+	return function ( { dispatch, registry } ) {
+		const editor = registry.select( editorStore );
+		if ( ! editor.getCurrentPostId() ) {
+			return;
 		}
-	} catch ( e ) {
-		// TODO: Add proper error handling here
-		console.log( e ); // eslint-disable-line no-console
-	}
+		// Get the initial connections from the post meta
+		const connections = editor.getEditedPostAttribute( 'jetpack_publicize_connections' );
+
+		dispatch( setConnections( connections || [] ) );
+	};
 }
 
-export default { getJetpackSettings, getSocialImageGeneratorSettings, getAutoConversionSettings };
+/**
+ * Resolves the post share status.
+ *
+ * @param {number} _postId - The post ID.
+ *
+ * @return {Function} Resolver
+ */
+export function getPostShareStatus( _postId ) {
+	return async ( { dispatch, registry, select } ) => {
+		// Default to the current post ID if none is provided.
+		const postId = _postId || registry.select( editorStore ).getCurrentPostId();
+		const featureFlags = select.featureFlags();
+
+		if ( ! featureFlags.useShareStatus ) {
+			return;
+		}
+
+		try {
+			dispatch( fetchPostShareStatus( postId ) );
+			let result = await apiFetch( {
+				path: `jetpack/v4/social/share-status/${ postId }`,
+			} );
+
+			result = normalizeShareStatus( result );
+
+			dispatch( receivePostShareStaus( result, postId ) );
+		} catch ( error ) {
+			dispatch( fetchPostShareStatus( postId, false ) );
+		}
+	};
+}
+
+export default {
+	getJetpackSettings,
+	getSocialImageGeneratorSettings,
+	getConnections,
+	getPostShareStatus,
+};

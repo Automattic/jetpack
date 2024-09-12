@@ -123,7 +123,7 @@ class Jetpack_Keyring_Service_Helper {
 	 * @param string $service Shortname of a specific service.
 	 * @param array  $params  Parameters to append to an API connection URL.
 	 *
-	 * @return URL to specific public-api process
+	 * @return string URL to specific public-api process
 	 */
 	private static function api_url( $service = false, $params = array() ) {
 		/**

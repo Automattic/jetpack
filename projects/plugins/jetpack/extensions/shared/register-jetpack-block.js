@@ -12,13 +12,13 @@ const JETPACK_PREFIX = 'jetpack/';
 /**
  * Registers a gutenberg block if the availability requirements are met.
  *
- * @param {string} nameOrMetadata - The block's name or metadata object. Jetpack blocks must be
- * registered with a name prefixed with `jetpack/`. This function accepts an unprefixed name too,
- * though (it'd handle both `business-hours` and `jetpack/business-hours` similarly, for instance).
- * @param {object} settings - The block's settings.
- * @param {object} childBlocks - The block's child blocks.
- * @param {boolean} prefix - Should this block be prefixed with `jetpack/`?
- * @returns {object|boolean} Either false if the block is not available, or the results of `registerBlockType`
+ * @param {string}  nameOrMetadata - The block's name or metadata object. Jetpack blocks must be
+ *                                 registered with a name prefixed with `jetpack/`. This function accepts an unprefixed name too,
+ *                                 though (it'd handle both `business-hours` and `jetpack/business-hours` similarly, for instance).
+ * @param {object}  settings       - The block's settings.
+ * @param {object}  childBlocks    - The block's child blocks.
+ * @param {boolean} prefix         - Should this block be prefixed with `jetpack/`?
+ * @return {object|boolean} Either false if the block is not available, or the results of `registerBlockType`
  */
 export default function registerJetpackBlock(
 	nameOrMetadata,
@@ -47,7 +47,7 @@ export default function registerJetpackBlock(
 
 	const prefixedName = jpPrefix + rawName;
 	const result = registerBlockType(
-		nameOrMetadata === 'object' ? nameOrMetadata : prefixedName,
+		typeof nameOrMetadata === 'object' ? nameOrMetadata : prefixedName,
 		settings
 	);
 
@@ -71,11 +71,11 @@ export default function registerJetpackBlock(
 /**
  * Wrapper around registerJetpackBlock to register a block by specifying its metadata.
  *
- * @param {object }metadata - Metadata of the block (content of block.json)
- * @param {object} settings - See registerJetpackBlock.
- * @param {object} childBlocks - See registerJetpackBlock.
- * @param {boolean} prefix - See registerJetpackBlock.
- * @returns {object|boolean} Either false if the block is not available, or the results of `registerBlockType`
+ * @param {object } metadata    - Metadata of the block (content of block.json)
+ * @param {object}  settings    - See registerJetpackBlock.
+ * @param {object}  childBlocks - See registerJetpackBlock.
+ * @param {boolean} prefix      - See registerJetpackBlock.
+ * @return {object|boolean} Either false if the block is not available, or the results of `registerBlockType`
  */
 export function registerJetpackBlockFromMetadata( metadata, settings, childBlocks, prefix ) {
 	const mergedSettings = {
@@ -83,16 +83,6 @@ export function registerJetpackBlockFromMetadata( metadata, settings, childBlock
 		icon: getBlockIconProp( metadata ),
 		attributes: metadata.attributes || {},
 	};
-	const { variations } = metadata;
-
-	if ( Array.isArray( variations ) && variations.length > 0 ) {
-		mergedSettings.variations = variations.map( variation => {
-			return {
-				...variation,
-				icon: getBlockIconProp( variation ),
-			};
-		} );
-	}
 
 	return registerJetpackBlock( metadata, mergedSettings, childBlocks, prefix );
 }

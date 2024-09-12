@@ -11,7 +11,7 @@ const getFiles = require( '../../utils/get-files' );
  * - Capitalize.
  *
  * @param {string} name - Feature name.
- * @returns {string} Cleaned up feature name.
+ * @return {string} Cleaned up feature name.
  */
 function cleanName( name ) {
 	const name_exceptions = {
@@ -51,13 +51,13 @@ function cleanName( name ) {
 /**
  * Build a list of labels to add to the issue, based off our file list.
  *
- * @param {GitHub} octokit - Initialized Octokit REST client.
- * @param {string} owner   - Repository owner.
- * @param {string} repo    - Repository name.
- * @param {string} number  - PR number.
+ * @param {GitHub}  octokit  - Initialized Octokit REST client.
+ * @param {string}  owner    - Repository owner.
+ * @param {string}  repo     - Repository name.
+ * @param {string}  number   - PR number.
  * @param {boolean} isDraft  - Whether the pull request is a draft.
- * @param {boolean} isRevert  - Whether the pull request is a revert.
- * @returns {Promise<Array>} Promise resolving to an array of keywords we'll search for.
+ * @param {boolean} isRevert - Whether the pull request is a revert.
+ * @return {Promise<Array>} Promise resolving to an array of keywords we'll search for.
  */
 async function getLabelsToAdd( octokit, owner, repo, number, isDraft, isRevert ) {
 	const keywords = new Set();
@@ -71,12 +71,11 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft, isRevert )
 
 	debug( 'add-labels: Loop through all files modified in this PR and add matching labels.' );
 
-	files.map( file => {
+	for ( const file of files ) {
 		// Projects.
 		const project = file.match( /^projects\/(?<ptype>[^/]*)\/(?<pname>[^/]*)\// );
 		if ( project && project.groups.ptype && project.groups.pname ) {
 			const prefix = {
-				'editor-extensions': 'Block',
 				'github-actions': 'Action',
 				packages: 'Package',
 				plugins: 'Plugin',
@@ -127,6 +126,51 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft, isRevert )
 		const actions = file.match( /^\.github\/(actions|workflows|files)\// );
 		if ( actions !== null ) {
 			keywords.add( 'Actions' );
+		}
+
+		// The Contact Form feature now lives in both a package and a Jetpack module.
+		const contactForm = file.match( /^projects\/packages\/forms\/(?<blocks>src\/blocks)?/ );
+		if ( contactForm !== null ) {
+			keywords.add( '[Feature] Contact Form' );
+			if ( contactForm.groups.blocks ) {
+				keywords.add( '[Block] Contact Form' );
+			}
+		}
+
+		// The SSO feature nows lives in both a package and a Jetpack module.
+		const sso = file.match( /^projects\/packages\/connection\/src\/sso\// );
+		if ( sso !== null ) {
+			keywords.add( '[Feature] SSO' );
+		}
+
+		// The Google Analytics feature nows lives in both a package and a Jetpack module.
+		const googleAnalytics = file.match( /^projects\/packages\/google-analytics\// );
+		if ( googleAnalytics !== null ) {
+			keywords.add( '[Feature] Google Analytics' );
+		}
+
+		// Theme Tools have now been extracted to their own package.
+		const themeTools = file.match( /^projects\/packages\/classic-theme-helper\// );
+		if ( themeTools !== null ) {
+			keywords.add( '[Feature] Theme Tools' );
+		}
+
+		// The WooCommerce Analytics feature now lives in both a package and a Jetpack module.
+		const wooCommerceAnalytics = file.match( /^projects\/packages\/woocommerce-analytics\// );
+		if ( wooCommerceAnalytics !== null ) {
+			keywords.add( '[Feature] WooCommerce Analytics' );
+		}
+
+		// The Masterbar feature now lives in both a package and a Jetpack module.
+		const masterbar = file.match( /^projects\/packages\/masterbar\// );
+		if ( masterbar !== null ) {
+			keywords.add( '[Feature] Masterbar' );
+		}
+
+		// The Calypsoify feature now lives in both a package and a Jetpack module.
+		const calypsoify = file.match( /^projects\/packages\/calypsoify\// );
+		if ( calypsoify !== null ) {
+			keywords.add( '[Feature] Calypsoify' );
 		}
 
 		// Docker.
@@ -201,9 +245,9 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft, isRevert )
 			keywords.add( `[mu wpcom Feature] ${ cleanName( muWpcomFeatureName ) }` );
 		}
 
-		// Boost Critical CSS.
+		// Boost Features
 		const boostModules = file.match(
-			/^projects\/plugins\/boost\/app\/(?:modules|features)\/(?<boostModule>[^/]*)\//
+			/^projects\/plugins\/boost\/app\/(?:modules|features)\/(?:optimizations\/)?(?<boostModule>[^/]*)\//
 		);
 		const boostModuleName = boostModules && boostModules.groups.boostModule;
 		if ( boostModuleName ) {
@@ -229,7 +273,7 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft, isRevert )
 		if ( anyTestFile ) {
 			keywords.add( '[Tests] Includes Tests' );
 		}
-	} );
+	}
 
 	// The Image CDN was previously named "Photon".
 	// If we're touching that package, let's add the Photon label too

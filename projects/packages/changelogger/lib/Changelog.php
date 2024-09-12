@@ -111,7 +111,7 @@ class Changelog implements JsonSerializable {
 	 * @return ChangelogEntry|null
 	 */
 	public function getLatestEntry() {
-		return isset( $this->entries[0] ) ? $this->entries[0] : null;
+		return $this->entries[0] ?? null;
 	}
 
 	/**

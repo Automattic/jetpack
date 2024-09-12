@@ -1,16 +1,15 @@
 /**
  * External dependencies
  */
-import { createContext } from '@wordpress/element';
-import React from 'react';
+import React, { createContext } from 'react';
 /**
  * Types & Constants
  */
-import SuggestionsEventSource from '../suggestions-event-source';
-import type { AskQuestionOptionsArgProps } from '../ask-question';
-import type { RequestingErrorProps } from '../hooks/use-ai-suggestions';
-import type { PromptProp } from '../types';
-import type { RequestingStateProp } from '../types';
+import SuggestionsEventSource from '../suggestions-event-source/index.js';
+import type { AskQuestionOptionsArgProps } from '../ask-question/index.js';
+import type { RequestingErrorProps } from '../hooks/use-ai-suggestions/index.js';
+import type { PromptProp } from '../types.js';
+import type { RequestingStateProp } from '../types.js';
 
 export type AiDataContextProps = {
 	/*
@@ -53,21 +52,21 @@ type AiDataContextProviderProps = {
 	/*
 	 * Children
 	 */
-	children: React.ReactNode;
+	children: React.ReactElement;
 };
 
 /**
  * AI Data Context
  *
- * @returns {AiDataContextProps} Context.
+ * @return {AiDataContextProps} Context.
  */
-export const AiDataContext = createContext( {} as AiDataContextProps );
+export const AiDataContext = createContext< AiDataContextProps | object >( {} );
 
 /**
  * AI Data Context Provider
  *
  * @param {AiDataContextProviderProps} props - Component props.
- * @returns {React.ReactNode}                           Context provider.
+ * @return {React.ReactElement}                           Context provider.
  * @example
  * <AiDataContextProvider value={ value }>
  * 	{ children }
@@ -76,6 +75,6 @@ export const AiDataContext = createContext( {} as AiDataContextProps );
 export const AiDataContextProvider = ( {
 	value,
 	children,
-}: AiDataContextProviderProps ): React.ReactNode => (
+}: AiDataContextProviderProps ): React.ReactElement => (
 	<AiDataContext.Provider value={ value } children={ children } />
 );

@@ -131,28 +131,37 @@ class Woo_Sync_Background_Sync {
 	/**
 	 * Initialise Hooks
 	 */
-	private function init_hooks( ) {
+	private function init_hooks() {
 
 		// cron
 		add_action( 'jpcrm_woosync_sync', array( $this, 'cron_job' ) );
 
-		// Syncing based on WooCommerce hooks:
+		// add our cron task to the core crm cron monitor list
+		add_filter( 'jpcrm_cron_to_monitor', array( $this, 'add_cron_monitor' ) );
+
+		global $zbs;
+
+		// Abort if Woo isn't active.
+		if ( ! $zbs->woocommerce_is_active() ) {
+			return;
+		}
 
 		// Order changes:
-		add_action( 'woocommerce_order_status_changed',    array( $this, 'add_update_from_woo_order' ), 1, 1 );
+		add_action( 'woocommerce_order_status_changed', array( $this, 'add_update_from_woo_order' ), 1, 1 );
 		add_action( 'woocommerce_process_shop_order_meta', array( $this, 'add_update_from_woo_order' ), 100, 1 );
-		add_action( 'woocommerce_deposits_create_order',   array( $this, 'add_update_from_woo_order' ), 100, 1 );
-		add_action( 'wp_trash_post',                       array( $this, 'woocommerce_order_trashed' ), 10, 1 );
-		add_action( 'before_delete_post',                  array( $this, 'woocommerce_order_deleted' ), 10, 1 );	
+		add_action( 'woocommerce_deposits_create_order', array( $this, 'add_update_from_woo_order' ), 100, 1 );
+		if ( jpcrm_woosync_is_hpos_enabled() ) {
+			// These hooks are available as of Woo 7.1.0 and are required for HPOS.
+			add_action( 'woocommerce_before_trash_order', array( $this, 'woocommerce_order_trashed' ), 10, 1 );
+			add_action( 'woocommerce_before_delete_order', array( $this, 'woocommerce_order_deleted' ), 10, 1 );
+		} else {
+			add_action( 'wp_trash_post', array( $this, 'woocommerce_order_trashed' ), 10, 1 );
+			add_action( 'before_delete_post', array( $this, 'woocommerce_order_deleted' ), 10, 1 );
+		}
 
 		// Catch WooCommerce customer address changes and update contact:
-		add_action( 'woocommerce_customer_save_address',   array( $this, 'update_contact_address_from_wp_user' ), 10, 3 );
-
-		// add our cron task to the core crm cron monitor list
-		add_filter( 'jpcrm_cron_to_monitor',               array( $this, 'add_cron_monitor' ) );
-
+		add_action( 'woocommerce_customer_save_address', array( $this, 'update_contact_address_from_wp_user' ), 10, 3 );
 	}
-
 
 	/**
 	 * Setup cron schedule
@@ -545,10 +554,12 @@ class Woo_Sync_Background_Sync {
 
 		global $zbs;
 
-		// was it an order that was deleted?
-		$post_type = get_post_type( $order_post_id );
-		if ( $post_type !== 'shop_order' ) {
-			return;
+		if ( ! jpcrm_woosync_is_hpos_enabled() ) {
+			// was it an order that was deleted?
+			$post_type = get_post_type( $order_post_id );
+			if ( $post_type !== 'shop_order' ) {
+				return;
+			}
 		}
 
 		// catch default
@@ -559,6 +570,7 @@ class Woo_Sync_Background_Sync {
 		// retrieve order
 		$order = wc_get_order( $order_post_id );
 
+		// Sometimes there's a custom order number...
 		if ( method_exists( $order, 'get_order_number' ) ) {
 			$order_num = $order->get_order_number();
 		} else {

@@ -1,0 +1,17 @@
+.image {
+	display: block;
+	border-radius: 3px;
+}
+
+.missing {
+	border-radius: 3px;
+	background-color: var(--gray-5);
+	color: var(--gray-80);
+	text-align: center;
+	aspect-ratio: 1;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: .75em;
+	font-weight: 500;
+}

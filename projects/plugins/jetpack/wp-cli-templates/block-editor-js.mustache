@@ -1,4 +1,13 @@
-import registerJetpackBlock from '../../shared/register-jetpack-block';
-import { name, settings } from '.';
+import { registerJetpackBlockFromMetadata } from '../../shared/register-jetpack-block';
+import metadata from './block.json';
+import edit from './edit';
+import './editor.scss';
 
-registerJetpackBlock( name, settings );
+registerJetpackBlockFromMetadata( metadata, {
+	edit,
+	// TODO: implement the `save` function for static blocks. If you do, make sure to add the block
+	// props returned by `useBlockProps.save()`.
+	// https://developer.wordpress.org/news/2023/02/27/static-vs-dynamic-blocks-whats-the-difference/
+	// https://developer.wordpress.org/block-editor/reference-guides/block-api/block-edit-save/#save
+	save: () => null,
+} );

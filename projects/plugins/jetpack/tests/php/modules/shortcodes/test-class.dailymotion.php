@@ -204,7 +204,7 @@ class WP_Test_Jetpack_Shortcodes_Dailymotion extends WP_UnitTestCase {
 	public function test_shortcodes_dailymotion_amp( $shortcode_content, $expected ) {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			self::markTestSkipped( 'WordPress.com does not run the latest version of the AMP plugin yet.' );
-			return;
+			return; // @phan-suppress-current-line PhanPluginUnreachableCode
 		}
 
 		global $content_width;

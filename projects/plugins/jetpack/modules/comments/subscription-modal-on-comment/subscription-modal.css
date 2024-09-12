@@ -1,0 +1,68 @@
+.jetpack-subscription-modal {
+    visibility: hidden;
+    position: fixed;
+    z-index: 50000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    opacity: 0;
+    transition: visibility 0s, opacity 0.5s ease;
+    display: flex;
+    justify-content: space-evenly;
+    align-content: center;
+    flex-wrap: wrap;
+}
+
+.jetpack-subscription-modal.open {
+    opacity: 1;
+    background-color: rgba(0,0,0,0.3);
+    visibility: visible;
+}
+
+.jetpack-subscription-modal__modal-content {
+    text-align: center;
+    background-color: #fefefe;
+    width: 100%;
+    max-width: 650px;
+    box-sizing: border-box;
+    transition: visibility 0s, opacity 0.3s linear;
+    opacity: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    justify-content: center;
+}
+
+.jetpack-subscription-modal.open .jetpack-subscription-modal__modal-content {
+    opacity: 1;
+    top: 0;
+    visibility: visible;
+}
+
+/* Hide the modal content when iframe is present */
+.jetpack-subscription-modal.has-iframe .jetpack-subscription-modal__modal-content {
+    background: transparent;
+}
+
+.jetpack-subscription-modal.has-iframe .jetpack-subscription-modal__modal-content-form {
+    visibility: hidden;
+    opacity: 0;
+}
+
+/*
+ * These text-wrap properties still have limited browser
+ * support, but based on feedback still adding them for when
+ * they are supported.
+ */
+.jetpack-subscription-modal__modal-content p {
+    text-wrap: pretty;
+    text-wrap: pretty;
+}
+
+@media screen and (max-width: 640px) {
+    .jetpack-subscription-modal__modal-content {
+        width: 94%;
+    }
+}

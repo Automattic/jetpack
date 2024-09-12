@@ -6,6 +6,7 @@ import {
 	REWIND_STATUS_FETCH_FAIL,
 	MOCK_SWITCH_REWIND_STATE,
 } from 'state/action-types';
+import preflightReducer from './preflight/reducer';
 
 export const data = ( state = {}, action ) => {
 	switch ( action.type ) {
@@ -41,13 +42,14 @@ export const requests = ( state = initialRequestsState, action ) => {
 export const reducer = combineReducers( {
 	data,
 	requests,
+	preflight: preflightReducer,
 } );
 
 /**
  * Returns true if currently requesting rewind status. Otherwise false.
  * otherwise.
  *
- * @param  {Object}  state Global state tree
+ * @param {Object} state Global state tree
  * @return {Boolean}       Whether rewind status is being requested
  */
 export function isFetchingRewindStatus( state ) {
@@ -56,7 +58,7 @@ export function isFetchingRewindStatus( state ) {
 
 /**
  * Returns the current status of rewind
- * @param  {Object}  state Global state tree
+ * @param {Object} state Global state tree
  * @return {Object}  Features
  */
 export function getRewindStatus( state ) {

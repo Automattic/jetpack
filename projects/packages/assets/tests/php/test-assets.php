@@ -12,6 +12,8 @@ use Brain\Monkey;
 use Brain\Monkey\Filters;
 use Brain\Monkey\Functions;
 use InvalidArgumentException;
+use Mockery;
+use PHPUnit\Framework\Constraint\Constraint;
 use PHPUnit\Framework\TestCase;
 use Wikimedia\TestingAccessWrapper;
 
@@ -29,7 +31,7 @@ class AssetsTest extends TestCase {
 	 */
 	public function set_up() {
 		Monkey\setUp();
-		$plugin_dir = dirname( dirname( dirname( dirname( __DIR__ ) ) ) ) . '/';
+		$plugin_dir = dirname( __DIR__, 4 ) . '/';
 		Jetpack_Constants::set_constant( 'JETPACK__PLUGIN_FILE', $plugin_dir . 'jetpack.php' );
 
 		Functions\stubs(
@@ -49,9 +51,9 @@ class AssetsTest extends TestCase {
 					return $url;
 				},
 				'plugins_url'    => function ( $path, $plugin_path ) use ( $plugin_dir ) {
-					$plugin_path = dirname( $plugin_path );
-					$this->stringStartsWith( $plugin_dir, $plugin_path );
-					return 'http://www.example.com/wp-content/plugins/jetpack/' . substr( $plugin_path, strlen( $plugin_dir ) ) . '/' . $path;
+					$plugin_path = dirname( $plugin_path ) . '/';
+					$this->assertStringStartsWith( $plugin_dir, $plugin_path );
+					return 'http://www.example.com/wp-content/plugins/jetpack/' . substr( $plugin_path, strlen( $plugin_dir ) ) . $path;
 				},
 			)
 		);
@@ -180,7 +182,7 @@ class AssetsTest extends TestCase {
 	public function get_file_url_for_environment_package_path_data_provider() {
 		$min_path     = 'src/js/test.min.js';
 		$non_min_path = 'src/js/test.js';
-		$package_path = dirname( dirname( dirname( dirname( __DIR__ ) ) ) ) . '/packages/test-package/test-package.php';
+		$package_path = dirname( __DIR__, 4 ) . '/packages/test-package/test-package.php';
 
 		return array(
 			'script-debug-true'  => array(
@@ -201,83 +203,6 @@ class AssetsTest extends TestCase {
 				'wp-content/plugins/jetpack/packages/test-package/' . $non_min_path,
 			),
 		);
-	}
-
-	/**
-	 * Test that enqueue_async_script calls wp_enqueue_script
-	 */
-	public function test_enqueue_async_script_calls_wp_enqueue_script() {
-		Functions\expect( 'wp_enqueue_script' )
-			->once()
-			->with( 'handle', Assets::get_file_url_for_environment( '/minpath.js', '/path.js' ), array(), '123', true );
-		Assets::enqueue_async_script( 'handle', '/minpath.js', '/path.js', array(), '123', true );
-		$asset_instance = Assets::instance();
-		$this->assertEquals( 10, (int) has_filter( 'script_loader_tag', array( $asset_instance, 'script_add_async' ) ) );
-	}
-
-	/**
-	 * Test that the `defer` attribute is properly added to the script tags for async scripts.
-	 */
-	public function test_defer_attribute_properly_added() {
-		Functions\expect( 'wp_enqueue_script' )
-			->once()
-			->with( 'handle', Assets::get_file_url_for_environment( '/minpath.js', '/path.js' ), array(), '123', true );
-		Assets::enqueue_async_script( 'handle', '/minpath.js', '/path.js', array(), '123', true );
-
-		$asset_instance = Assets::instance();
-
-		// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
-		$tag    = '<script src="/minpath.js" id="handle"></script>';
-		$actual = $asset_instance->script_add_async( $tag, 'handle' );
-		// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
-		$expected = '<script defer src="/minpath.js" id="handle"></script>';
-		$this->assertEquals( $expected, $actual );
-	}
-
-	/**
-	 * Test that the `defer` attribute is properly added to the script tags for async scripts with translations.
-	 */
-	public function test_defer_attribute_properly_added_with_translations() {
-		Functions\expect( 'wp_enqueue_script' )
-			->once()
-			->with( 'handle', Assets::get_file_url_for_environment( '/minpath.js', '/path.js' ), array(), '123', true );
-		Assets::enqueue_async_script( 'handle', '/minpath.js', '/path.js', array(), '123', true );
-
-		$asset_instance = Assets::instance();
-
-		$translations =
-			// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
-			'<script id="handle-js-translations">
-			( function( domain, translations ) {
-				var localeData = translations.locale_data[ domain ] || translations.locale_data.messages;
-				localeData[""].domain = domain;
-				wp.i18n.setLocaleData( localeData, domain );
-			} )( "default", { "locale_data": { "messages": { "": {} } } } );
-			</script>';
-		// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
-		$tag    = $translations . '<script src="/minpath.js" id="handle"></script>';
-		$actual = $asset_instance->script_add_async( $tag, 'handle' );
-		// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
-		$expected = $translations . '<script defer src="/minpath.js" id="handle"></script>';
-		$this->assertEquals( $expected, $actual );
-	}
-
-	/**
-	 * Test that the `defer` attribute is not added to incorrect script tags.
-	 */
-	public function test_defer_attribute_with_incorrect_tag() {
-		Functions\expect( 'wp_enqueue_script' )
-			->once()
-			->with( 'handle', Assets::get_file_url_for_environment( '/minpath.js', '/path.js' ), array(), '123', true );
-		Assets::enqueue_async_script( 'handle', '/minpath.js', '/path.js', array(), '123', true );
-
-		$asset_instance = Assets::instance();
-		// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
-		$tag    = '<scriptfoo src="/minpath.js" id="handle"></scriptfoo>';
-		$actual = $asset_instance->script_add_async( $tag, 'handle' );
-		// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
-		$expected = '<scriptfoo src="/minpath.js" id="handle"></scriptfoo>';
-		$this->assertEquals( $expected, $actual );
 	}
 
 	/**
@@ -381,9 +306,9 @@ class AssetsTest extends TestCase {
 	 * Test `register_script` and `enqueue_script`.
 	 *
 	 * @dataProvider provide_register_script
-	 * @param array $args Arguments for `register_script`.
-	 * @param array $expect Map of function to expected arguments.
-	 * @param array $extra Map of additional settings:
+	 * @param array{string,string,string,4?:array} $args Arguments for `register_script`.
+	 * @param array                                $expect Map of function to expected arguments.
+	 * @param array                                $extra Map of additional settings:
 	 *   - is_script_debug: Value for `SCRIPT_DEBUG`.
 	 *   - is_rtl: Value for `is_rtl()`.
 	 *   - exception: Exception expected to be thrown.
@@ -418,6 +343,7 @@ class AssetsTest extends TestCase {
 			$this->expectExceptionMessage( $extra['exception']->getMessage() );
 		}
 		if ( isset( $extra['enqueue'] ) ) {
+			// @phan-suppress-next-line PhanDeprecatedFunction -- Keep using setMethods until we drop PHP 7.0 support.
 			$obj = $this->getMockBuilder( \stdClass::class )
 				->setMethods( array( 'get_data' ) )
 				->getMock();
@@ -426,15 +352,13 @@ class AssetsTest extends TestCase {
 		}
 
 		Assets::register_script( ...$args );
-
-		// Check whether $options['async'] was honored.
-		$this->assertSame(
-			isset( $extra['async'] ) ? $extra['async'] : array(),
-			TestingAccessWrapper::newFromObject( Assets::instance() )->defer_script_handles
-		);
 	}
 
-	/** Data provider for `test_register_script` */
+	/**
+	 * Data provider for `test_register_script`
+	 *
+	 * @return array{array{string,string,string,4?:array},array<string,array>,2?:array}[]
+	 */
 	public static function provide_register_script() {
 		$url_base = 'http://www.example.com/wp-content/plugins/jetpack/packages/assets/tests/php/test-assets-files';
 		return array(
@@ -446,7 +370,10 @@ class AssetsTest extends TestCase {
 						"$url_base/single-js-file.js?minify=false",
 						array(),
 						2883865438,
-						false,
+						array(
+							'in_footer' => false,
+							'strategy'  => '',
+						),
 					),
 					'wp_script_add_data' => array( 'single-file', 'Jetpack::Assets::hascss', false ),
 				),
@@ -468,7 +395,10 @@ class AssetsTest extends TestCase {
 						"$url_base/single-js-file.js?minify=false",
 						array( 'xyz' ),
 						'foobar',
-						false,
+						array(
+							'in_footer' => false,
+							'strategy'  => '',
+						),
 					),
 					'wp_set_script_translations' => array( 'single-file', 'foobaz' ),
 					'wp_script_add_data'         => array( 'single-file', 'Jetpack::Assets::hascss', false ),
@@ -483,7 +413,10 @@ class AssetsTest extends TestCase {
 						"$url_base/js-and-css.js?minify=false",
 						array( 'wp-polyfill' ),
 						'ver-from-js-and-css',
-						false,
+						array(
+							'in_footer' => false,
+							'strategy'  => '',
+						),
 					),
 					'wp_register_style'  => array( 'handle', "$url_base/js-and-css.css?minify=false", array(), 'ver-from-js-and-css', 'all' ),
 					'wp_script_add_data' => array( 'handle', 'Jetpack::Assets::hascss', true ),
@@ -510,7 +443,10 @@ class AssetsTest extends TestCase {
 						"$url_base/js-and-css.js",
 						array( 'wp-polyfill', 'qwerty', 'uiop' ),
 						'foobaz',
-						true,
+						array(
+							'in_footer' => true,
+							'strategy'  => '',
+						),
 					),
 					'wp_register_style'  => array( 'handle', "$url_base/js-and-css.css", array( 'asdf' ), 'foobaz', 'screen' ),
 					'wp_script_add_data' => array( 'handle', 'Jetpack::Assets::hascss', true ),
@@ -534,7 +470,10 @@ class AssetsTest extends TestCase {
 						"$url_base/everything.js?minify=false",
 						array( 'wp-polyfill', 'wp-components', 'wp-i18n' ),
 						'ver-from-everything',
-						false,
+						array(
+							'in_footer' => false,
+							'strategy'  => '',
+						),
 					),
 					'wp_set_script_translations' => array( 'handle', 'foobar' ),
 					'wp_register_style'          => array( 'handle', "$url_base/everything.css?minify=false", array( 'wp-components' ), 'ver-from-everything', 'all' ),
@@ -564,7 +503,10 @@ class AssetsTest extends TestCase {
 						"$url_base/everything.src.js?minify=true",
 						array( 'wp-polyfill', 'wp-components', 'wp-i18n', 'qwerty', 'uiop' ),
 						'foobaz',
-						true,
+						array(
+							'in_footer' => true,
+							'strategy'  => '',
+						),
 					),
 					'wp_set_script_translations' => array( 'handle', 'foobar' ),
 					'wp_register_style'          => array( 'handle', "$url_base/everything.rtl.css?minify=true", array( 'wp-components', 'asdf' ), 'foobaz', 'screen' ),
@@ -592,7 +534,10 @@ class AssetsTest extends TestCase {
 						"$url_base/single-js-file.js?minify=false",
 						array( 'wp-polyfill' ),
 						'ver-from-js-and-css',
-						false,
+						array(
+							'in_footer' => false,
+							'strategy'  => '',
+						),
 					),
 					'wp_register_style'  => array( 'single-file', "$url_base/everything.rtl.css?minify=false", array(), 'ver-from-js-and-css', 'all' ),
 					'wp_script_add_data' => array( 'single-file', 'Jetpack::Assets::hascss', true ),
@@ -603,14 +548,18 @@ class AssetsTest extends TestCase {
 			'Async'                                     => array(
 				array( 'single-file', 'test-assets-files/single-js-file.js', __FILE__, array( 'async' => true ) ),
 				array(
-					'wp_register_script' => array(
+					'wp_register_script'   => array(
 						'single-file',
 						"$url_base/single-js-file.js?minify=false",
 						array(),
 						2883865438,
-						false,
+						array(
+							'in_footer' => false,
+							'strategy'  => 'defer',
+						),
 					),
-					'wp_script_add_data' => array( 'single-file', 'Jetpack::Assets::hascss', false ),
+					'wp_script_add_data'   => array( 'single-file', 'Jetpack::Assets::hascss', false ),
+					'_deprecated_argument' => array( 'Automattic\Jetpack\Assets::register_script', Mockery::type( 'string' ), 'The `async` option is deprecated in favor of `strategy`' ),
 				),
 				array( 'async' => array( 'single-file' ) ),
 			),
@@ -623,7 +572,10 @@ class AssetsTest extends TestCase {
 						"$url_base/single-js-file.js?minify=false",
 						array(),
 						2883865438,
-						false,
+						array(
+							'in_footer' => false,
+							'strategy'  => '',
+						),
 					),
 					'wp_script_add_data' => array( 'single-file', 'Jetpack::Assets::hascss', false ),
 					'wp_enqueue_script'  => array( 'single-file' ),
@@ -646,7 +598,10 @@ class AssetsTest extends TestCase {
 						"$url_base/everything.js?minify=false",
 						array( 'wp-polyfill', 'wp-components', 'wp-i18n' ),
 						'ver-from-everything',
-						false,
+						array(
+							'in_footer' => false,
+							'strategy'  => '',
+						),
 					),
 					'wp_set_script_translations' => array( 'everything', 'foobar' ),
 					'wp_register_style'          => array( 'everything', "$url_base/everything.css?minify=false", array( 'wp-components' ), 'ver-from-everything', 'all' ),
@@ -678,7 +633,10 @@ class AssetsTest extends TestCase {
 						"$url_base/everything.js?minify=false",
 						array( 'wp-polyfill', 'wp-components', 'wp-i18n' ),
 						'ver-from-everything',
-						false,
+						array(
+							'in_footer' => false,
+							'strategy'  => '',
+						),
 					),
 					'_doing_it_wrong'    => array( Assets::class . '::register_script', 'Script &quot;everything&quot; depends on wp-i18n but does not specify &quot;textdomain&quot;', '' ),
 					'wp_register_style'  => array( 'everything', "$url_base/everything.css?minify=false", array( 'wp-components' ), 'ver-from-everything', 'all' ),
@@ -687,6 +645,40 @@ class AssetsTest extends TestCase {
 				array(
 					'is_rtl' => false,
 				),
+			),
+			'Strategy Defer'                            => array(
+				array( 'single-file', 'test-assets-files/single-js-file.js', __FILE__, array( 'strategy' => 'defer' ) ),
+				array(
+					'wp_register_script' => array(
+						'single-file',
+						"$url_base/single-js-file.js?minify=false",
+						array(),
+						2883865438,
+						array(
+							'in_footer' => false,
+							'strategy'  => 'defer',
+						),
+					),
+					'wp_script_add_data' => array( 'single-file', 'Jetpack::Assets::hascss', false ),
+				),
+				array(),
+			),
+			'Strategy Async'                            => array(
+				array( 'single-file', 'test-assets-files/single-js-file.js', __FILE__, array( 'strategy' => 'async' ) ),
+				array(
+					'wp_register_script' => array(
+						'single-file',
+						"$url_base/single-js-file.js?minify=false",
+						array(),
+						2883865438,
+						array(
+							'in_footer' => false,
+							'strategy'  => 'async',
+						),
+					),
+					'wp_script_add_data' => array( 'single-file', 'Jetpack::Assets::hascss', false ),
+				),
+				array(),
 			),
 		);
 	}
@@ -730,32 +722,78 @@ class AssetsTest extends TestCase {
 		);
 
 		$obj = Filters\expectApplied( 'jetpack_i18n_state' )->once()->with( $expect_filter );
+		// @phan-suppress-next-line PhanImpossibleTypeComparison -- Phan gets confused.
 		if ( array_key_exists( 'filter', $options ) ) {
 			$obj->andReturn( $options['filter'] );
 		}
 
-		$mock = $this->getMockBuilder( stdClass::class )
-			->setMethods( array( 'add', 'add_inline_script' ) )
+		// @phan-suppress-next-line PhanDeprecatedFunction -- Keep using setMethods until we drop PHP 7.0 support.
+		$mock = $this->getMockBuilder( \stdClass::class )
+			->setMethods( array( 'add', 'add_inline_script', 'add_data' ) )
 			->getMock();
-		$mock->expects( $this->exactly( 2 ) )->method( 'add' )
-			->withConsecutive(
-				array(
-					'wp-jp-i18n-loader',
-					$this->logicalOr(
-						'http://www.example.com/wp-content/plugins/jetpack/packages/assets/build/i18n-loader.js?minify=true',
-						'http://www.example.com/wp-content/plugins/jetpack/packages/assets/src/js/i18n-loader.js?minify=true'
+
+		// Unfortunately PHPUnit deprecated withConsecutive with no replacement, so we have to roll our own version.
+		// https://github.com/sebastianbergmann/phpunit/issues/4026
+		$with_consecutive = function ( ...$groups ) {
+			$ct         = count( $groups[0] );
+			$value_sets = array();
+			foreach ( $groups as $group ) {
+				for ( $i = 0; $i < $ct; $i++ ) {
+					$value_sets[ $i ][] = $group[ $i ] instanceof Constraint ? $group[ $i ] : $this->equalTo( $group[ $i ] );
+				}
+			}
+			$funcs = array();
+			for ( $i = 0; $i < $ct; $i++ ) {
+				$funcs[] = $this->callback(
+					function ( $value ) use ( $value_sets, $i ) {
+						static $set = null;
+						$set        = $set ?? $value_sets[ $i ]; // @phan-suppress-current-line PhanTypePossiblyInvalidDimOffset -- False positive.
+						$expect     = array_shift( $set );
+						$expect->evaluate( $value );
+						return true;
+					}
+				);
+			}
+			return $funcs;
+		};
+
+		// @todo: Remove `react-jsx-runtime` from the list of dependencies once we drop support for WordPress 6.5 and remove the dependency from wp_default_scripts_hook.
+		$mock->expects( $this->exactly( 3 ) )->method( 'add' )
+			->with(
+				...$with_consecutive(
+					array(
+						'wp-jp-i18n-loader',
+						$this->logicalOr(
+							'http://www.example.com/wp-content/plugins/jetpack/packages/assets/build/i18n-loader.js?minify=true',
+							'http://www.example.com/wp-content/plugins/jetpack/packages/assets/src/js/i18n-loader.js?minify=true'
+						),
+						array( 'wp-i18n' ),
 					),
-					array( 'wp-i18n' ),
-				),
-				array( 'wp-jp-i18n-state', false, array( 'wp-deprecated', 'wp-jp-i18n-loader' ) )
+					array( 'wp-jp-i18n-state', false, array( 'wp-deprecated', 'wp-jp-i18n-loader' ) ),
+					array(
+						'react-jsx-runtime',
+						'http://www.example.com/wp-content/plugins/jetpack/packages/assets/build/react-jsx-runtime.js',
+						array( 'react' ),
+					)
+				)
 			);
 		$mock->expects( $this->exactly( 3 ) )->method( 'add_inline_script' )
-			->withConsecutive(
-				array( 'wp-jp-i18n-loader', $expect_js ),
-				array( 'wp-jp-i18n-state', 'wp.deprecated( "wp-jp-i18n-state", { alternative: "wp-jp-i18n-loader" } );' ),
-				array( 'wp-jp-i18n-state', 'wp.jpI18nState = wp.jpI18nLoader.state;' )
+			->with(
+				...$with_consecutive(
+					array( 'wp-jp-i18n-loader', $expect_js ),
+					array( 'wp-jp-i18n-state', 'wp.deprecated( "wp-jp-i18n-state", { alternative: "wp-jp-i18n-loader" } );' ),
+					array( 'wp-jp-i18n-state', 'wp.jpI18nState = wp.jpI18nLoader.state;' )
+				)
+			);
+		$mock->expects( $this->exactly( 2 ) )->method( 'add_data' )
+			->with(
+				...$with_consecutive(
+					array( 'wp-jp-i18n-loader', 'group', 1 ),
+					array( 'react-jsx-runtime', 'group', 1 )
+				)
 			);
 
+		// @phan-suppress-next-line PhanTypeMismatchArgument -- We don't have a WP_Scripts definition to create a mock from. 🤷
 		Assets::wp_default_scripts_hook( $mock );
 	}
 
@@ -1031,9 +1069,9 @@ class AssetsTest extends TestCase {
 	 * Test filter_load_script_translation_file.
 	 *
 	 * @dataProvider provide_filter_load_script_translation_file
-	 * @param array  $args Arguments to the filter.
-	 * @param array  $is_readable Expected files passed to `is_readable()` and the corresponding return values.
-	 * @param string $expect Expected return value.
+	 * @param array{false|string,string,string} $args Arguments to the filter.
+	 * @param array                             $is_readable Expected files passed to `is_readable()` and the corresponding return values.
+	 * @param string|false                      $expect Expected return value.
 	 */
 	public function test_filter_load_script_translation_file( $args, $is_readable, $expect ) {
 		Jetpack_Constants::set_constant( 'WP_LANG_DIR', '/path/to/wordpress/wp-content/languages' );
@@ -1054,7 +1092,11 @@ class AssetsTest extends TestCase {
 		$this->assertSame( $expect, Assets::filter_load_script_translation_file( ...$args ) );
 	}
 
-	/** Data provider for test_filter_load_script_translation_file. */
+	/**
+	 * Data provider for test_filter_load_script_translation_file.
+	 *
+	 * @return array{array{false|string,string,string},array<string,bool>,string|false}[]
+	 */
 	public function provide_filter_load_script_translation_file() {
 		return array(
 			'Passed false'                 => array(

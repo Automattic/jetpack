@@ -1,11 +1,16 @@
+import { useConnection } from '@automattic/jetpack-connection';
 import {
 	getJetpackExtensionAvailability,
 	isUpgradable,
 	getJetpackData,
 	getSiteFragment,
+	isSimpleSite,
+	isAtomicSite,
 } from '@automattic/jetpack-shared-extension-utils';
-import { useSelect, useDispatch } from '@wordpress/data';
+import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
+import { store as socialStore } from '../../social-store';
+import { usePostMeta } from '../use-post-meta';
 
 const republicizeFeatureName = 'republicize';
 
@@ -13,20 +18,18 @@ const republicizeFeatureName = 'republicize';
  * Hook that provides various elements of Publicize configuration,
  * whether it's enabled, and whether resharing is available.
  *
- * @returns { object } The various flags and togglePublicizeFeature,
+ * @return { object } The various flags and togglePublicizeFeature,
  * for toggling support for the current post.
  */
 export default function usePublicizeConfig() {
-	const { togglePublicizeFeature } = useDispatch( 'jetpack/publicize' );
-	const sharesData = getJetpackData()?.social?.sharesData ?? {};
-	const isShareLimitEnabled = sharesData.is_share_limit_enabled;
+	const isJetpackSite = ! isAtomicSite() && ! isSimpleSite();
+	const blogID = getJetpackData()?.wpcomBlogId;
 	const isRePublicizeFeatureAvailable =
-		getJetpackExtensionAvailability( republicizeFeatureName )?.available || isShareLimitEnabled;
+		isJetpackSite || getJetpackExtensionAvailability( republicizeFeatureName )?.available;
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
-	const isPostAlreadyShared = useSelect(
-		select => select( 'jetpack/publicize' ).getJetpackSocialPostAlreadyShared(),
-		[]
-	);
+	const currentPostType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
+	const { isUserConnected } = useConnection();
+
 	const connectionsRootUrl =
 		getJetpackData()?.social?.publicizeConnectionsUrl ??
 		'https://wordpress.com/marketing/connections/';
@@ -37,10 +40,11 @@ export default function usePublicizeConfig() {
 	 * and usually is handled from the UI (main toggle control),
 	 * dispathicng the togglePublicizeFeature() action (jetpack/publicize).
 	 */
-	const isPublicizeEnabledMeta = useSelect(
-		select => select( 'jetpack/publicize' ).getFeatureEnableState(),
-		[]
-	);
+	const {
+		isPublicizeEnabled: isPublicizeEnabledMeta,
+		togglePublicizeFeature,
+		isPostAlreadyShared,
+	} = usePostMeta();
 
 	/*
 	 * isRePublicizeUpgradableViaUpsell:
@@ -94,11 +98,14 @@ export default function usePublicizeConfig() {
 	 */
 	const isEnhancedPublishingEnabled = !! getJetpackData()?.social?.isEnhancedPublishingEnabled;
 
-	/**
-	 * isAutoConversionEnabled:
-	 * Whether the site has the auto conversion feature enabled.
+	/**\
+	 * Returns true if the post type is a Jetpack Social Note.
 	 */
-	const isAutoConversionEnabled = !! getJetpackData()?.social?.isAutoConversionEnabled;
+	const isJetpackSocialNote = 'jetpack-social-note' === currentPostType;
+
+	const needsUserConnection = ! isUserConnected && ! isSimpleSite();
+
+	const userConnectionUrl = useSelect( select => select( socialStore ).userConnectionUrl(), [] );
 
 	return {
 		isPublicizeEnabledMeta,
@@ -108,17 +115,17 @@ export default function usePublicizeConfig() {
 		isRePublicizeFeatureAvailable,
 		isRePublicizeUpgradableViaUpsell,
 		hidePublicizeFeature,
-		isShareLimitEnabled,
 		isPostAlreadyShared,
-		numberOfSharesRemaining: sharesData.shares_remaining,
-		shouldShowAdvancedPlanNudge: sharesData.show_advanced_plan_upgrade_nudge,
 		hasPaidPlan,
 		isEnhancedPublishingEnabled,
-		isSocialImageGeneratorAvailable: !! getJetpackData()?.social?.isSocialImageGeneratorAvailable,
+		isSocialImageGeneratorAvailable:
+			!! getJetpackData()?.social?.isSocialImageGeneratorAvailable && ! isJetpackSocialNote,
 		isSocialImageGeneratorEnabled: !! getJetpackData()?.social?.isSocialImageGeneratorEnabled,
-		connectionsAdminUrl: connectionsRootUrl + getSiteFragment(),
+		connectionsAdminUrl: connectionsRootUrl + ( blogID ?? getSiteFragment() ),
 		adminUrl: getJetpackData()?.social?.adminUrl,
-		isAutoConversionEnabled,
 		jetpackSharingSettingsUrl: getJetpackData()?.social?.jetpackSharingSettingsUrl,
+		isJetpackSocialNote,
+		needsUserConnection,
+		userConnectionUrl,
 	};
 }

@@ -195,14 +195,12 @@ class Mailpoet_Background_Sync_Job {
 			// do x pages
 			for ( $i = 0; $i < $this->pages_per_job; $i++ ) {
 
-				// get last working position
+				// Get last working position. The page range is 0..(total_pages - 1)
 				$page_to_retrieve = $this->resume_from_page();
 
 				// ... if for some reason we've got a negative, start from scratch.
 				if ( $page_to_retrieve < 0 ) {
-
 					$page_to_retrieve = 0;
-
 				}
 
 				$this->current_page = $page_to_retrieve;
@@ -211,8 +209,9 @@ class Mailpoet_Background_Sync_Job {
 				// This always returns the count of imported subscribers,
 				//   unless 100% sync is reached, at which point it will exit (if called via AJAX)
 				//   for now, we don't need to track the return
-				$subscribers_synced += (int)$this->import_page_of_subscribers( $page_to_retrieve );
+				$subscribers_synced += (int) $this->import_page_of_subscribers( $page_to_retrieve );
 
+				$this->debug( 'Subscribers completed: ' . min( ( $this->current_page * $this->subscribers_per_page ) + $subscribers_synced, $this->mailpoet_total_subscribers ) . ' / ' . $this->mailpoet_total_subscribers );
 			}
 
 			// mark the pass
@@ -223,11 +222,9 @@ class Mailpoet_Background_Sync_Job {
 
 		// return overall % counts later used to provide a summary % across sync site connections
 		$percentage_counts = $this->percentage_completed( true );
-		if ( is_array( $percentage_counts ) ){
-
+		if ( is_array( $percentage_counts ) ) {
 			$total_pages = (int)$percentage_counts['total_pages'];
-			$total_remaining_pages = $percentage_counts['total_pages'] - $percentage_counts['page_no'];
-
+			$total_remaining_pages = $percentage_counts['total_pages'] - ( $percentage_counts['page_no'] + 1 );
 		}
 
 		// We should never have less than zero here
@@ -237,12 +234,10 @@ class Mailpoet_Background_Sync_Job {
 		}
 
 		return array(
-
 			'total_pages'           => $total_pages,
 			'total_remaining_pages' => $total_remaining_pages,
 			'errors'                => $errors,
 			'subscribers_synced'    => $subscribers_synced
-
 		);
 
 	}
@@ -251,7 +246,7 @@ class Mailpoet_Background_Sync_Job {
 	/**
 	 * Retrieve and process 1 page of MailPoet Subscribers from local install (or later, API)
 	 *
-	 * @param int $page_no - the page number to start from
+	 * @param int $page_no - the page number to start from. Position: 0..(total_pages - 1).
 	 *
 	 * @return mixed (int|json)
 	 *   - if cron originated: a count of subscribers imported is returned
@@ -301,7 +296,7 @@ class Mailpoet_Background_Sync_Job {
 		}
 
 		// catch paging
-		if ( $page_no < 0 ){
+		if ( $page_no < 0 ) {
 			$page_no = 0;
 		}
 		$limit = $this->subscribers_per_page;
@@ -315,10 +310,10 @@ class Mailpoet_Background_Sync_Job {
 		$mailpoet_subscribers = $this->mailpoet()->get_all_mailpoet_subscribers( $limit, $offset, false, true, true );
 
 		// got subs?
-		if ( is_array( $mailpoet_subscribers ) ){
+		if ( is_array( $mailpoet_subscribers ) ) {
 
 			// cycle through and import
-			foreach ( $mailpoet_subscribers as $subscriber ){
+			foreach ( $mailpoet_subscribers as $subscriber ) {
 
 				// will be an assoc arr of sub details
 				$this->import_subscriber( $subscriber );
@@ -334,18 +329,17 @@ class Mailpoet_Background_Sync_Job {
 
 		}
 
-
 		// check for completion
 		$total_page_count = $this->get_total_page_count();
-		if ( $page_no >= $total_page_count ) {
+		if ( $page_no >= ( $total_page_count - 1 ) ) {
 
 			$this->debug( 'MailPoet subscriber import complete!' );
 
 			// we're at 100%, mark sync complete
 			$this->set_first_import_status( true );
 
-			// set pointer to last page
-			$this->set_resume_from_page( $total_page_count );
+			// set pointer to last processed page
+			$this->set_resume_from_page( $page_no );
 
 			// return count
 			return $subscribers_synced;
@@ -355,15 +349,13 @@ class Mailpoet_Background_Sync_Job {
 		// There's still pages to go then:
 
 		// increase pointer by one, (only if we've got a full pages worth)
-		if ( $subscribers_synced == $this->subscribers_per_page){
+		if ( $subscribers_synced === $this->subscribers_per_page ) {
 			$this->set_resume_from_page( $page_no + 1 );
 		}
 
 		// return the count
 		return $subscribers_synced;
-
 	}
-
 
 	/**
 	 * Takes a MailPoet associative array for a subscriber and adds/updates a crm contact
@@ -372,7 +364,7 @@ class Mailpoet_Background_Sync_Job {
 	 * 
 	 * @return int $contact_id
 	 */
-	public function import_subscriber( $subscriber ){
+	public function import_subscriber( $subscriber ) {
 
 		global $zbs;
 
@@ -621,25 +613,18 @@ class Mailpoet_Background_Sync_Job {
 			$percentage_completed = 100;
 
 		} else {
-
-			$percentage_completed = $this->current_page / $this->mailpoet_total_pages * 100;
-
+			$percentage_completed = 100 * ( $this->current_page + 1 ) / $this->mailpoet_total_pages;
 		}
 
 		$this->debug( 'Percentage completed: ' . $percentage_completed . '%' );
-
-		$this->debug( 'Pages completed: ' . $this->current_page . ' / ' . $this->mailpoet_total_pages );
-		$this->debug( 'Subscribers completed: ' . min( $this->current_page * $this->subscribers_per_page, $this->mailpoet_total_subscribers ) . ' / ' . $this->mailpoet_total_subscribers );
-		$this->debug( 'Percentage completed: ' . $percentage_completed . '%' );
+		$this->debug( 'Pages completed: ' . ( $this->current_page + 1 ) . ' / ' . $this->mailpoet_total_pages );
 
 		if ( $return_counts ){
 
 			return array(
-
 				'page_no'              => $this->current_page,
 				'total_pages'          => $this->mailpoet_total_pages,
 				'percentage_completed' => $percentage_completed
-
 			);
 
 		}

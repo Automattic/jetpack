@@ -12,6 +12,8 @@ class WP_Test_Jetpack_Sync_Term_Relationships extends WP_Test_Jetpack_Sync_Base 
 	protected $term_object;
 	protected $taxonomy;
 	protected $terms_module;
+
+	/** @var \Automattic\Jetpack\Sync\Modules\Full_Sync_Immediately|\Automattic\Jetpack\Sync\Modules\Full_Sync */
 	protected $full_sync;
 
 	/**
@@ -27,7 +29,10 @@ class WP_Test_Jetpack_Sync_Term_Relationships extends WP_Test_Jetpack_Sync_Base 
 		$term              = wp_insert_term( 'dog', $this->taxonomy );
 		$this->term_object = get_term_by( 'id', $term['term_id'], $this->taxonomy );
 
-		$this->full_sync = Modules::get_module( 'full-sync' );
+		$full_sync_module = Modules::get_module( 'full-sync' );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Full_Sync_Immediately|\Automattic\Jetpack\Sync\Modules\Full_Sync $full_sync_module';
+		$this->full_sync = $full_sync_module;
+
 		$this->full_sync->start();
 		$this->sender->do_full_sync();
 	}

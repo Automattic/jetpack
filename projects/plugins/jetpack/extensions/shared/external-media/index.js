@@ -49,7 +49,10 @@ if ( isCurrentUserConnected() && 'function' === typeof useBlockEditContext ) {
 			const { name } = useBlockEditContext();
 			let { render } = props;
 
-			if ( isAllowedBlock( name, render ) || isFeaturedImage( props ) ) {
+			if (
+				( props?.mode === 'browse' && isAllowedBlock( name, render ) ) ||
+				isFeaturedImage( props )
+			) {
 				const { allowedTypes, gallery = false, value = [] } = props;
 
 				// Only replace button for components that expect images, except existing galleries.

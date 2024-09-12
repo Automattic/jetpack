@@ -511,6 +511,7 @@ class Jetpack_JSON_API_Sync_Close_Endpoint extends Jetpack_JSON_API_Sync_Endpoin
 		// Update Full Sync Status if queue is "full_sync".
 		if ( 'full_sync' === $queue_name ) {
 			$full_sync_module = Modules::get_module( 'full-sync' );
+			'@phan-var \Automattic\Jetpack\Sync\Modules\Full_Sync_Immediately|\Automattic\Jetpack\Sync\Modules\Full_Sync $full_sync_module';
 
 			$full_sync_module->update_sent_progress_action( $items );
 		}
@@ -548,7 +549,7 @@ class Jetpack_JSON_API_Sync_Close_Endpoint extends Jetpack_JSON_API_Sync_Endpoin
 	 */
 	protected static function sanitize_item_ids( $item ) {
 		// lets not delete any options that don't start with jpsq_sync-
-		if ( ! is_string( $item ) || substr( $item, 0, 5 ) !== 'jpsq_' ) {
+		if ( ! is_string( $item ) || ! str_starts_with( $item, 'jpsq_' ) ) {
 			return null;
 		}
 		// Limit to A-Z,a-z,0-9,_,-,.

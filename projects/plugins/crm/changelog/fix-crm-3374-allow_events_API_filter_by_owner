@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-API: allow events endpoint to be filtered by owner

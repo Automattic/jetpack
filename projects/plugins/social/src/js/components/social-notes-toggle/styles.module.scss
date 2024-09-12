@@ -1,0 +1,50 @@
+.text {
+	grid-column: span 2;
+
+	a {
+		color: inherit;
+	}
+
+	@media (min-width: 600px) {
+		grid-column: 2;
+	}
+}
+
+.button {
+	margin-top: calc( var( --spacing-base ) * 2 );
+	grid-column: span 2;
+	justify-self: flex-start;
+
+	@media ( min-width: 600px ) {
+		grid-column: 2;
+	}
+}
+
+.notes-options-wrapper {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+	margin-top: calc(var(--spacing-base) * 2);
+	grid-column: span 2;
+
+	@media (min-width: 600px) {
+		grid-column: 2;
+	}
+
+	:global {
+		.components-base-control {
+			&__field {
+				--wp-admin-theme-color: var(--jp-green-40);
+			}
+
+			label.components-input-control__label {
+				text-transform: none;
+				font-weight: inherit;
+				font-size: inherit;
+			}
+			.components-input-control__container {
+				max-width: max-content;
+			}
+		}
+	}
+}

@@ -87,7 +87,7 @@ class Tiled_Gallery {
 
 					// Because URLs are already "photon", the photon function used short-circuits
 					// before ssl is added. Detect ssl and add is if necessary.
-					$is_ssl = ! empty( $src_parts[1] ) && false !== strpos( $src_parts[1], 'ssl=1' );
+					$is_ssl = ! empty( $src_parts[1] ) && str_contains( $src_parts[1], 'ssl=1' );
 
 					if ( ! $orig_width || ! $orig_height || ! $orig_src ) {
 						continue;
@@ -168,8 +168,8 @@ class Tiled_Gallery {
 	 * Layouts are block styles and will be available as `is-style-[LAYOUT]` in the className
 	 * attribute. The default (rectangular) will be omitted.
 	 *
-	 * @param  {Array} $attr Attributes key/value array.
-	 * @return {boolean} True if layout is squareish, otherwise false.
+	 * @param array $attr Attributes key/value array.
+	 * @return boolean True if layout is squareish, otherwise false.
 	 */
 	private static function is_squareish_layout( $attr ) {
 		return isset( $attr['className'] )

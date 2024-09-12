@@ -1,8 +1,8 @@
 import { useBlockProps, useInnerBlocksProps } from '@wordpress/block-editor';
-import classNames from 'classnames';
+import clsx from 'clsx';
 
 export default function save( { attributes } ) {
-	const className = classNames( {
+	const className = clsx( {
 		'has-custom-font-size': !! attributes?.fontSize || attributes?.style?.typography?.fontSize,
 	} );
 	const blockProps = useBlockProps.save( { className: className } );

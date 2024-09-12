@@ -80,14 +80,23 @@ class Full_Sync_Immediately extends Module {
 		$this->reset_data();
 
 		if ( ! is_array( $full_sync_config ) ) {
-			$full_sync_config = Defaults::$default_full_sync_config;
+			/*
+			 * Filter default sync config to allow injecting custom configuration.
+			 *
+			 * @param array $full_sync_config Sync configuration for all sync modules.
+			 *
+			 * @since 3.10.0
+			 */
+			$full_sync_config = apply_filters( 'jetpack_full_sync_config', Defaults::$default_full_sync_config );
 			if ( is_multisite() ) {
 				$full_sync_config['network_options'] = 1;
 			}
 		}
 
 		if ( isset( $full_sync_config['users'] ) && 'initial' === $full_sync_config['users'] ) {
-			$full_sync_config['users'] = Modules::get_module( 'users' )->get_initial_sync_user_config();
+			$users_module = Modules::get_module( 'users' );
+			'@phan-var Users $users_module';
+			$full_sync_config['users'] = $users_module->get_initial_sync_user_config();
 		}
 
 		$this->update_status(
@@ -412,8 +421,8 @@ class Full_Sync_Immediately extends Module {
 			/**
 			 * Select configured and not finished modules.
 			 *
+			 * @param Module $module
 			 * @return bool
-			 * @var $module Module
 			 */
 			function ( $module ) use ( $status ) {
 				// Skip module if not configured for this sync or module is done.

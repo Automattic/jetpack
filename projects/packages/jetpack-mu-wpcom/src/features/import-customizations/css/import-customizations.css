@@ -1,0 +1,27 @@
+.import-php .wrap {
+	display: grid; /* Use CSS grid to order elements */
+	grid-template-columns: 1fr;
+}
+.import-php .wrap > h1, .wrap > p:first-of-type {
+	order: 1; /* h1 and first p are placed first */
+}
+.import-php .wpcom-import-banner {
+	order: 2; /* Banner is placed second */
+	padding: 20px;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	max-width: 726px;
+}
+.import-php .wpcom-import-banner p {
+	margin: 0;
+	flex-grow: 1;
+}
+.import-php .wpcom-import-banner a.button {
+	flex-shrink: 0;
+	margin-left: 20px;
+}
+.import-php .wrap > .importers {
+	order: 3; /* Table is placed third */
+	max-width: 771px;
+}

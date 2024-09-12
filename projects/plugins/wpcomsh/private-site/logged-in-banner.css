@@ -1,0 +1,182 @@
+.wpcom-launch-banner {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen-Sans", "Ubuntu", "Cantarell", "Helvetica Neue", sans-serif;
+	font-size: 16px;
+	display: flex;
+	justify-content: center;
+	line-height: 1.4;
+	position: relative;
+	z-index: 99998;
+}
+
+.wpcom-launch-banner a {
+	color: #016087;
+	text-decoration: underline;
+}
+
+.wpcom-launch-banner a:hover {
+	color: #23354b;
+}
+
+.wpcom-launch-banner .launch-banner-content {
+	align-items: center;
+	background: #fff;
+	border-bottom: 1px solid rgb(200, 215, 225);
+	justify-content: space-between;
+	overflow: hidden;
+	padding: 1em;
+	position: relative;
+	width: 100%;
+	word-break: break-word;
+}
+
+.wpcom-launch-banner .launch-banner-image {
+	margin-right: 1em;
+	position: absolute;
+	left: 1em;
+	top: 1em;
+	max-width: 170px;
+}
+
+.wpcom-launch-banner button.text-button {
+	background: none;
+	border: none;
+	color: #016087;
+	display: inline;
+	font-family: inherit;
+	font-size: 16px;
+	font-weight: normal;
+	letter-spacing: inherit;
+	line-height: inherit;
+	padding: 0;
+	text-transform: none;
+	text-decoration: underline;
+}
+
+.wpcom-launch-bannerbutton .text-button:hover {
+	background: none;
+	color: #23354b;
+	text-decoration: underline;
+}
+
+.wpcom-launch-banner button.dismiss-button {
+	background: none;
+	border-color: transparent;
+	border-style: solid;
+	border-width: 1px 1px 2px;
+	color: #d52c82;
+	display: inline;
+	font-family: inherit;
+	font-size: 14px;
+	font-weight: normal;
+	letter-spacing: inherit;
+	line-height: 21px;
+	margin: 0;
+	padding: 9px 14px 9px;
+	text-transform: none;
+}
+
+.wpcom-launch-banner button.dismiss-button:hover {
+	background: none;
+	color: #992053;
+}
+
+.wpcom-launch-banner .launch-banner-text {
+	color: #1a1a1a;
+	flex-grow: 1;
+	font-size: 16px;
+}
+
+.wpcom-launch-banner .launch-banner-button {
+	display: flex;
+	justify-content: flex-end;
+	min-height: 44px;
+	white-space: nowrap;
+}
+
+.wpcom-launch-banner .launch-banner-button form {
+	align-items: center;
+	display: flex;
+	margin: 0;
+}
+
+.wpcom-launch-banner .launch-banner-button button {
+	margin: 0 1em;
+}
+
+.wpcom-launch-banner input.launch-site-button {
+	background: #d52c82;
+	border-color: #992053;
+	border-radius: 4px;
+	color: #fff;
+	border-style: solid;
+	border-width: 1px 1px 2px;
+	cursor: pointer;
+	display: inline-block;
+	margin: 0;
+	outline: 0;
+	overflow: hidden;
+	font-weight: 500;
+	font-family: -apple-system,BlinkMacSystemFont,"Segoe UI","Roboto","Oxygen-Sans","Ubuntu","Cantarell","Helvetica Neue",sans-serif;
+	text-overflow: ellipsis;
+	text-decoration: none;
+	text-transform: none;
+	vertical-align: top;
+	box-sizing: border-box;
+	font-size: 14px;
+	letter-spacing: 0;
+	line-height: 21px;
+	padding: 7px 14px 9px;
+}
+
+.wpcom-launch-banner input.launch-site-button:hover {
+	background: #ff3997;
+}
+
+.wpcom-launch-banner input.launch-site-button.disabled {
+	background: #fff;
+	border-color: #e1e2e2;
+	color: #e1e2e2;
+	cursor: not-allowed;
+}
+
+.wpcom-launch-banner input.launch-site-button.disabled:hover {
+	background: #fff;
+}
+
+@media (min-width: 961px ) {
+	.wpcom-launch-banner .launch-banner-content {
+		display: flex;
+	}
+}
+
+@media (min-width: 661px ) {
+	.wpcom-launch-banner .launch-banner-text {
+		padding-left: 170px;
+	}
+}
+
+@media (max-width: 960px) {
+	.wpcom-launch-banner .launch-banner-button {
+		margin-top: 1em;
+	}
+}
+
+@media (max-width: 660px) {
+	.wpcom-launch-banner .launch-banner-image {
+		display: none;
+	}
+}
+
+[dir='rtl'] .wpcom-launch-banner .launch-banner-image {
+	left: auto;
+	right: 1em;
+	margin-right: auto;
+	margin-left: 1em;
+}
+
+@media (min-width: 661px ) {
+	[dir='rtl'] .wpcom-launch-banner .launch-banner-text {
+		padding-left: 0;
+		padding-right: 170px;
+	}
+}

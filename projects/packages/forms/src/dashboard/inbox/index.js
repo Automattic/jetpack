@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { TabPanel, Icon } from '@wordpress/components';
+import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { dateI18n } from '@wordpress/date';
 import {
@@ -14,7 +15,7 @@ import {
 } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { arrowLeft } from '@wordpress/icons';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import { find, findIndex, includes, isEqual, join, keys, map, pick } from 'lodash';
 import { useNavigate } from 'react-router-dom';
 /**
@@ -56,7 +57,7 @@ const TABS = [
 ];
 
 const Inbox = () => {
-	const stickySentinel = useRef();
+	const stickySentinel = useRef( undefined );
 	const [ responseAnimationDirection, setResponseAnimationDirection ] = useState( 1 );
 	const [ showExportModal, setShowExportModal ] = useState( false );
 	const [ isSticky, setSticky ] = useState( false );
@@ -84,6 +85,12 @@ const Inbox = () => {
 		],
 		[]
 	);
+
+	const userCanExport = useSelect( select => {
+		const { canUser } = select( coreStore );
+		// Using settings capability as a proxy for export capability, since there is no export route in the API yet.
+		return canUser( 'update', 'settings' );
+	} );
 
 	const {
 		currentPage,
@@ -245,7 +252,7 @@ const Inbox = () => {
 
 	const showBulkActionsMenu = !! selectedResponses.length && ! loading;
 
-	const classes = classnames( 'jp-forms__inbox', {
+	const classes = clsx( 'jp-forms__inbox', {
 		'is-response-view': !! currentResponseId,
 		'is-response-animation-reverted': responseAnimationDirection < 0,
 	} );
@@ -321,9 +328,14 @@ const Inbox = () => {
 								/>
 							) }
 
-							<button className="button button-primary export-button" onClick={ toggleExportModal }>
-								{ __( 'Export', 'jetpack-forms' ) }
-							</button>
+							{ userCanExport && (
+								<button
+									className="button button-primary export-button"
+									onClick={ toggleExportModal }
+								>
+									{ __( 'Export', 'jetpack-forms' ) }
+								</button>
+							) }
 						</div>
 						<div className="jp-forms__inbox-content">
 							<div className="jp-forms__inbox-content-column">

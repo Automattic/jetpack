@@ -72,7 +72,7 @@ class Test_Nonce_Handler extends TestCase {
 		$query_filter_run = false;
 
 		$query_filter = function ( $result, $query ) use ( &$query_filter_run ) {
-			if ( ! $query_filter_run && false !== strpos( $query, 'jetpack_nonce_' ) ) {
+			if ( ! $query_filter_run && str_contains( $query, 'jetpack_nonce_' ) ) {
 				global $wpdb;
 
 				$query_filter_run = true;
@@ -107,7 +107,11 @@ class Test_Nonce_Handler extends TestCase {
 		$query_filter_delete_run = false;
 
 		$query_filter_select = function ( $result, $query ) use ( &$query_filter_select_run, $nonce_ids, $limit, $cutoff_timestamp ) {
-			if ( ! $query_filter_select_run && 0 === strpos( $query, 'SELECT ' ) && false !== strpos( $query, 'jetpack_nonce_' ) ) {
+			if (
+				! $query_filter_select_run
+				&& str_starts_with( $query, 'SELECT ' )
+				&& str_contains( $query, 'jetpack_nonce_' )
+			) {
 				global $wpdb;
 
 				$query_filter_select_run = true;
@@ -123,7 +127,11 @@ class Test_Nonce_Handler extends TestCase {
 		};
 
 		$query_filter_delete = function ( $result, $query ) use ( &$query_filter_delete_run, $nonce_ids ) {
-			if ( ! $query_filter_delete_run && 0 === strpos( $query, 'DELETE ' ) && false !== strpos( $query, 'option_id' ) ) {
+			if (
+				! $query_filter_delete_run
+				&& str_starts_with( $query, 'DELETE ' )
+				&& str_contains( $query, 'option_id' )
+			) {
 				global $wpdb;
 
 				$query_filter_delete_run = true;

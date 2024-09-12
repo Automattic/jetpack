@@ -356,6 +356,7 @@ abstract class Sharing_Source {
 			$encoded_data_attributes = implode(
 				' ',
 				array_map(
+					/** Filter for formatting attributes */
 					function ( $data_key, $data_value ) {
 						return sprintf(
 							'data-%s="%s"',
@@ -617,6 +618,7 @@ abstract class Sharing_Source {
 	 * Redirect to an external social network site to finish sharing.
 	 *
 	 * @param string $url Sharing URL for a given service.
+	 * @return never
 	 */
 	public function redirect_request( $url ) {
 		wp_redirect( $url ); // phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect -- We allow external redirects here; we define them ourselves.
@@ -1347,6 +1349,22 @@ class Share_X extends Sharing_Source {
 	public $short_url_length = 24;
 
 	/**
+	 * Constructor.
+	 *
+	 * @param int   $id       Sharing source ID.
+	 * @param array $settings Sharing settings.
+	 */
+	public function __construct( $id, array $settings ) {
+		parent::__construct( $id, $settings );
+
+		if ( 'official' === $this->button_style ) {
+			$this->smart = true;
+		} else {
+			$this->smart = false;
+		}
+	}
+
+	/**
 	 * Service name.
 	 *
 	 * @return string
@@ -1363,13 +1381,47 @@ class Share_X extends Sharing_Source {
 	 * @return string
 	 */
 	public function get_display( $post ) {
-		return $this->get_link(
-			$this->get_process_request_url( $post->ID ),
-			_x( 'X', 'share to', 'jetpack' ),
-			__( 'Click to share on X', 'jetpack' ),
-			'share=x',
-			'sharing-x-' . $post->ID
-		);
+		$via = static::sharing_x_via( $post );
+
+		if ( $via ) {
+			$via = 'data-via="' . esc_attr( $via ) . '"';
+		} else {
+			$via = '';
+		}
+
+		$related = static::get_related_accounts( $post );
+		if ( ! empty( $related ) && $related !== $via ) {
+			$related = 'data-related="' . esc_attr( $related ) . '"';
+		} else {
+			$related = '';
+		}
+
+		if ( $this->smart ) {
+			$share_url  = $this->get_share_url( $post->ID );
+			$post_title = $this->get_share_title( $post->ID );
+			return sprintf(
+				'<a href="https://x.com/share" class="twitter-share-button" data-url="%1$s" data-text="%2$s" %3$s %4$s>%5$s</a>',
+				esc_url( $share_url ),
+				esc_attr( $post_title ),
+				$via,
+				$related,
+				esc_html__( 'Post', 'jetpack' )
+			);
+		} else {
+			if (
+				/** This filter is documented in modules/sharedaddy/sharing-sources.php */
+				apply_filters( 'jetpack_register_post_for_share_counts', true, $post->ID, 'x' )
+			) {
+				sharing_register_post_for_share_counts( $post->ID );
+			}
+			return $this->get_link(
+				$this->get_process_request_url( $post->ID ),
+				_x( 'X', 'share to', 'jetpack' ),
+				__( 'Click to share on X', 'jetpack' ),
+				'share=x',
+				'sharing-x-' . $post->ID
+			);
+		}
 	}
 
 	/**
@@ -1435,7 +1487,13 @@ class Share_X extends Sharing_Source {
 	 * Add content specific to a service in the footer.
 	 */
 	public function display_footer() {
-		$this->js_dialog( $this->shortname, array( 'height' => 350 ) );
+		if ( $this->smart ) {
+			?>
+			<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+			<?php
+		} else {
+			$this->js_dialog( $this->shortname, array( 'height' => 350 ) );
+		}
 	}
 
 	/**
@@ -1490,6 +1548,15 @@ class Share_X extends Sharing_Source {
 		);
 
 		parent::redirect_request( $twitter_url );
+	}
+
+	/**
+	 * Does this sharing source have a custom style.
+	 *
+	 * @return bool
+	 */
+	public function has_custom_button_style() {
+		return $this->smart;
 	}
 }
 
@@ -3281,5 +3348,145 @@ class Share_Nextdoor extends Sharing_Source {
 		$url .= rawurlencode( $this->get_share_title( $post->ID ) . ' ' . $this->get_share_url( $post->ID ) );
 
 		parent::redirect_request( $url );
+	}
+}
+
+/**
+ * Threads sharing service.
+ */
+class Share_Threads extends Sharing_Source {
+	/**
+	 * Service short name.
+	 *
+	 * @var string
+	 */
+	public $shortname = 'threads';
+
+	/**
+	 * Service icon font code.
+	 *
+	 * @var string
+	 */
+	public $icon = '\f10d';
+
+	/**
+	 * Service name.
+	 *
+	 * @return string
+	 */
+	public function get_name() {
+		return __( 'Threads', 'jetpack' );
+	}
+
+	/**
+	 * Get the markup of the sharing button.
+	 *
+	 * @param WP_Post $post Post object.
+	 *
+	 * @return string
+	 */
+	public function get_display( $post ) {
+		return $this->get_link(
+			$this->get_process_request_url( $post->ID ),
+			_x( 'Threads', 'share to', 'jetpack' ),
+			__( 'Click to share on Threads', 'jetpack' ),
+			'share=threads',
+			'sharing-threads-' . $post->ID
+		);
+	}
+
+	/**
+	 * Process sharing request. Add actions that need to happen when sharing here.
+	 *
+	 * @param WP_Post $post Post object.
+	 * @param array   $post_data Array of information about the post we're sharing.
+	 *
+	 * @return void
+	 */
+	public function process_request( $post, array $post_data ) {
+		// Record stats
+		parent::process_request( $post, $post_data );
+
+		$url  = 'https://threads.net/intent/post?text=';
+		$url .= rawurlencode( $this->get_share_title( $post->ID ) . ' ' . $this->get_share_url( $post->ID ) );
+
+		parent::redirect_request( $url );
+	}
+
+	/**
+	 * Add content specific to a service in the footer.
+	 */
+	public function display_footer() {
+		$this->js_dialog( $this->shortname );
+	}
+}
+
+/**
+ * Bluesky sharing service.
+ */
+class Share_Bluesky extends Sharing_Source {
+	/**
+	 * Service short name.
+	 *
+	 * @var string
+	 */
+	public $shortname = 'bluesky';
+
+	/**
+	 * Service icon font code.
+	 *
+	 * @var string
+	 */
+	public $icon = '\f10f';
+
+	/**
+	 * Service name.
+	 *
+	 * @return string
+	 */
+	public function get_name() {
+		return __( 'Bluesky', 'jetpack' );
+	}
+
+	/**
+	 * Get the markup of the sharing button.
+	 *
+	 * @param WP_Post $post Post object.
+	 *
+	 * @return string
+	 */
+	public function get_display( $post ) {
+		return $this->get_link(
+			$this->get_process_request_url( $post->ID ),
+			_x( 'Bluesky', 'share to', 'jetpack' ),
+			__( 'Click to share on Bluesky', 'jetpack' ),
+			'share=bluesky',
+			'sharing-bluesky-' . $post->ID
+		);
+	}
+
+	/**
+	 * Process sharing request. Add actions that need to happen when sharing here.
+	 *
+	 * @param WP_Post $post Post object.
+	 * @param array   $post_data Array of information about the post we're sharing.
+	 *
+	 * @return void
+	 */
+	public function process_request( $post, array $post_data ) {
+		// Record stats
+		parent::process_request( $post, $post_data );
+
+		$url  = 'https://bsky.app/intent/compose?text=';
+		$url .= rawurlencode( $this->get_share_title( $post->ID ) . ' ' . $this->get_share_url( $post->ID ) );
+
+		parent::redirect_request( $url );
+	}
+
+	/**
+	 * Add content specific to a service in the footer.
+	 */
+	public function display_footer() {
+		$this->js_dialog( $this->shortname );
 	}
 }

@@ -288,7 +288,9 @@ if ( isset( $sbupdated ) ) {
 
 			<tr>
 				<td class="wfieldname">
+					<?php ##WLREMOVE ?>
 					<div class="ui teal label right floated"><i class="circle info icon link"></i>  <a href="<?php echo esc_url( $zbs->urls['kbtemplatefiles'] ); ?>" target="_blank"><?php esc_html_e( 'Read more', 'zero-bs-crm' ); ?></a></div>
+					<?php ##/WLREMOVE ?>
 					<label for="inv_pdf_template"><?php esc_html_e( 'Invoice PDF Template', 'zero-bs-crm' ); ?>:</label><br />
 					<?php esc_html_e( 'Select a template for invoice PDFs.', 'zero-bs-crm' ); ?>
 				</td>
@@ -304,7 +306,9 @@ if ( isset( $sbupdated ) ) {
 
 			<tr>
 				<td class="wfieldname">
+					<?php ##WLREMOVE ?>
 					<div class="ui teal label right floated"><i class="circle info icon link"></i>  <a href="<?php echo esc_url( $zbs->urls['kbtemplatefiles'] ); ?>" target="_blank"><?php esc_html_e( 'Read more', 'zero-bs-crm' ); ?></a></div>
+					<?php ##/WLREMOVE ?>
 					<label for="inv_portal_template"><?php esc_html_e( 'Invoice Portal Template', 'zero-bs-crm' ); ?>:</label><br />
 					<?php esc_html_e( 'Select a template for invoices on the Portal.', 'zero-bs-crm' ); ?>
 				</td>
@@ -435,7 +439,9 @@ if ( isset( $sbupdated ) ) {
 
 			<tr>
 				<td class="wfieldname">
+					<?php ##WLREMOVE ?>
 					<div class="ui teal label right floated"><i class="circle info icon link"></i>  <a href="<?php echo esc_url( $zbs->urls['kbtemplatefiles'] ); ?>" target="_blank"><?php esc_html_e( 'Read more', 'zero-bs-crm' ); ?></a></div>
+					<?php ##/WLREMOVE ?>
 					<label for="statement_pdf_template"><?php esc_html_e( 'Statement PDF Template', 'zero-bs-crm' ); ?>:</label><br />
 					<?php esc_html_e( 'Select a template for statement PDFs.', 'zero-bs-crm' ); ?>
 				</td>

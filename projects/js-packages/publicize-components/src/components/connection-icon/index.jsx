@@ -1,6 +1,6 @@
 import { SocialServiceIcon } from '@automattic/jetpack-components';
 import { useCallback, useState } from '@wordpress/element';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import PropTypes from 'prop-types';
 
 import './style.scss';
@@ -39,7 +39,7 @@ const ConnectionIcon = props => {
 			role="switch"
 			aria-checked={ checked }
 			tabIndex="0"
-			className={ classNames( 'components-connection-icon', {
+			className={ clsx( 'components-connection-icon', {
 				'components-connection-icon__picture': hasDisplayPicture,
 			} ) }
 		>

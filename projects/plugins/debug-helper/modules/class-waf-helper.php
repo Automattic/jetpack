@@ -50,7 +50,7 @@ class Waf_Helper {
 	 * @param string $hook Page hook.
 	 */
 	public function enqueue_scripts( $hook ) {
-		if ( strpos( $hook, 'jetpack-debug_page_firewall-helper' ) === 0 ) {
+		if ( str_starts_with( $hook, 'jetpack-debug_page_firewall-helper' ) ) {
 			wp_enqueue_style( 'waf_helper_style', plugin_dir_url( __FILE__ ) . 'inc/css/waf-helper.css', array(), JETPACK_DEBUG_HELPER_VERSION );
 		}
 	}
@@ -93,7 +93,7 @@ class Waf_Helper {
 	 * @param string $url      The URL.
 	 */
 	public function break_wpcom_request( $response, $args, $url ) {
-		if ( false === strpos( $url, 'waf-rules' ) ) {
+		if ( ! str_contains( $url, 'waf-rules' ) ) {
 			return $response;
 		}
 

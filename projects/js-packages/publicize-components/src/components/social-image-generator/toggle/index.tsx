@@ -21,9 +21,12 @@ type SocialImageGeneratorToggleProps = {
  * A button toggle wrapper for enabling/disabling the Social Image Generator feature.
  *
  * @param {SocialImageGeneratorToggleProps} props - Component props.
- * @returns {React.ReactElement} - JSX.Element
+ * @return {React.ReactElement} - JSX.Element
  */
-const SocialImageGeneratorToggle: React.FC< SocialImageGeneratorToggleProps > = props => {
+const SocialImageGeneratorToggle: React.FC< SocialImageGeneratorToggleProps > = ( {
+	toggleClass,
+	children,
+} ) => {
 	const { isEnabled, isUpdating } = useSelect( select => {
 		const store = select( SOCIAL_STORE_ID ) as SocialStoreSelectors;
 		return {
@@ -43,11 +46,11 @@ const SocialImageGeneratorToggle: React.FC< SocialImageGeneratorToggleProps > = 
 
 	return (
 		<ToggleControl
-			className={ props.toggleClass }
+			className={ toggleClass }
 			disabled={ isUpdating }
 			checked={ isEnabled }
 			onChange={ toggleStatus }
-			label={ props.children }
+			label={ children }
 		/>
 	);
 };

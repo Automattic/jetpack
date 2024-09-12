@@ -1,4 +1,4 @@
-import classNames from 'classnames';
+import clsx from 'clsx';
 import analytics from 'lib/analytics';
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -33,7 +33,7 @@ export class DashSectionHeader extends React.Component {
 		let externalLink;
 		let children;
 
-		const classes = classNames( this.props.className, 'jp-dash-section-header' );
+		const classes = clsx( this.props.className, 'jp-dash-section-header' );
 
 		if ( this.props.externalLink ) {
 			externalLink = (

@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin;
 use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Sync\Defaults;
 use Automattic\Jetpack\Sync\Modules;
@@ -25,8 +26,8 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$user_id = self::factory()->user->create();
 
 		// create a post
-		$post_id    = self::factory()->post->create( array( 'post_author' => $user_id ) );
-		$this->post = get_post( $post_id );
+		$this->post_id = self::factory()->post->create( array( 'post_author' => $user_id ) );
+		$this->post    = get_post( $this->post_id );
 
 		$this->sender->do_sync();
 	}
@@ -47,6 +48,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	public function test_post_content_limit() {
 
 		$post_sync_module = Modules::get_module( 'posts' );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Posts $post_sync_module';
 
 		$this->post->post_content = str_repeat( 'X', Automattic\Jetpack\Sync\Modules\Posts::MAX_POST_CONTENT_LENGTH - 1 );
 		$filtered_post            = $post_sync_module->filter_post_content_and_add_links( $this->post );
@@ -63,6 +65,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $this->post->ID, $event->args[0] );
 
 		$post_sync_module = Modules::get_module( 'posts' );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Posts $post_sync_module';
 
 		$this->post = $post_sync_module->filter_post_content_and_add_links( $this->post );
 		$this->assertEqualsObject( $this->post, $event->args[1], 'Synced post does not match local post.' );
@@ -73,6 +76,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertSame( 1, $this->server_replica_storage->post_count() );
 
 		$post_sync_module = Modules::get_module( 'posts' );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Posts $post_sync_module';
 
 		$this->post = $post_sync_module->filter_post_content_and_add_links( $this->post );
 		$this->assertEquals( $this->post, $this->server_replica_storage->get_post( $this->post->ID ) );
@@ -511,6 +515,24 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( '<p>[foo]</p>', trim( $post_on_server->post_content_filtered ) );
 	}
 
+	public function test_sync_post_filter_restores_global_post() {
+		global $post;
+
+		$post_id = self::factory()->post->create();
+		$post    = get_post( $post_id );
+
+		$post_sync_module = Modules::get_module( 'posts' );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Posts $post_sync_module';
+		$post_sync_module->filter_post_content_and_add_links( $this->post );
+
+		$this->assertSame( $post_id, $post->ID );
+
+		// Test with post global not set.
+		$post = null;
+		$post_sync_module->filter_post_content_and_add_links( $this->post );
+		$this->assertNull( $post );
+	}
+
 	public function do_not_expand_shortcode( $shortcodes ) {
 		$shortcodes[] = 'foo';
 		return $shortcodes;
@@ -549,6 +571,10 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		$this->assertObjectNotHasProperty( 'amp_permalink', $post );
 
+		/**
+		 * @phan-suppress PhanRedefineFunction
+		 * @todo Defining this function mid-test here seems risky. Is there a better way we can test this?
+		 */
 		function amp_get_permalink( $post_id ) { // phpcs:ignore MediaWiki.Usage.NestedFunctions.NestedFunction
 			return "http://example.com/?p=$post_id&amp";
 		}
@@ -885,14 +911,14 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	public function test_remove_contact_form_shortcode_from_filtered_content() {
 		Settings::update_settings( array( 'render_filtered_content' => 1 ) );
 
-		require_once JETPACK__PLUGIN_DIR . 'modules/contact-form/grunion-contact-form.php';
-
 		$this->post->post_content = '<p>This post has a contact form:[contact-form][contact-field label=\'Name\' type=\'name\' required=\'1\'/][/contact-form]</p>';
 
-		Grunion_Contact_Form_Plugin::init();
+		Contact_Form_Plugin::init();
 
 		wp_update_post( $this->post );
 
+		global $post;
+		$post = $this->post; // Needed to properly apply the shortcode 'the_content' filter.
 		$this->assertStringContainsString( '<form action=', apply_filters( 'the_content', $this->post->post_content ) );
 
 		$this->sender->do_sync();
@@ -920,6 +946,8 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		wp_update_post( $this->post );
 
+		global $post;
+		$post = $this->post; // Needed to properly apply the shortcode 'the_content' filter.
 		$this->assertStringContainsString( 'div class=\'sharedaddy', apply_filters( 'the_content', $this->post->post_content ) );
 
 		$this->sender->do_sync();
@@ -947,6 +975,8 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		wp_update_post( $this->post );
 
+		global $post;
+		$post = $this->post; // Needed to properly apply the shortcode 'the_content' filter.
 		$this->assertStringContainsString( 'class="sharedaddy sd-sharing-enabled"', apply_filters( 'the_content', $this->post->post_content ) );
 
 		$this->sender->do_sync();
@@ -1132,6 +1162,7 @@ POST_CONTENT;
 	public function test_embed_shortcode_is_disabled_on_the_content_filter_during_sync() {
 		$this->markTestSkipped( 'Skipping to be able to merge #21030. Needs a proper fix anyway.' );
 		// this only applies to rendered content, which is off by default
+		// @phan-suppress-next-line PhanPluginUnreachableCode
 		Settings::update_settings( array( 'render_filtered_content' => 1 ) );
 
 		$content =
@@ -1339,15 +1370,15 @@ That was a cool video.';
 
 		$events = $this->server_event_storage->get_all_events();
 
-		$events = array_slice( $events, -6 );
+		$events = array_slice( $events, -4 );
 
-		$this->assertEquals( $events[0]->args[0], $events[2]->args[0] );
+		$this->assertEquals( $events[0]->args[0], $events[1]->args[0] );
 		$this->assertEquals( 'jetpack_sync_save_post', $events[0]->action );
-		$this->assertEquals( 'jetpack_published_post', $events[2]->action );
+		$this->assertEquals( 'jetpack_published_post', $events[1]->action );
 
-		$this->assertEquals( $events[3]->args[0], $events[5]->args[0] );
-		$this->assertEquals( 'jetpack_sync_save_post', $events[3]->action );
-		$this->assertEquals( 'jetpack_published_post', $events[5]->action );
+		$this->assertEquals( $events[2]->args[0], $events[3]->args[0] );
+		$this->assertEquals( 'jetpack_sync_save_post', $events[2]->action );
+		$this->assertEquals( 'jetpack_published_post', $events[3]->action );
 	}
 
 	/**
@@ -1397,6 +1428,7 @@ That was a cool video.';
 		$mocked->expects( $this->exactly( 15 ) )
 				->method( 'chunked_call' );
 
+		// @phan-suppress-next-line PhanEmptyFQSENInClasslike -- https://github.com/phan/phan/issues/4851
 		add_action( 'jetpack_post_meta_batch_delete', array( $mocked, 'chunked_call' ), 10, 2 );
 
 		/**
@@ -1427,6 +1459,7 @@ That was a cool video.';
 		$mocked->expects( $this->never() )
 				->method( 'chunked_call' );
 
+		// @phan-suppress-next-line PhanEmptyFQSENInClasslike -- https://github.com/phan/phan/issues/4851
 		add_action( 'jetpack_post_meta_batch_delete', array( $mocked, 'chunked_call' ), 10, 2 );
 
 		/**
@@ -1457,6 +1490,7 @@ That was a cool video.';
 		$mocked->expects( $this->never() )
 			->method( 'chunked_call' );
 
+		// @phan-suppress-next-line PhanEmptyFQSENInClasslike -- https://github.com/phan/phan/issues/4851
 		add_action( 'jetpack_post_meta_batch_delete', array( $mocked, 'chunked_call' ), 10, 2 );
 
 		/**
@@ -1482,5 +1516,140 @@ That was a cool video.';
 
 	public function unregister_post_type() {
 		unregister_post_type( 'unregister_post_type' );
+	}
+
+	/**
+	 * Verify metadata meta_value is limited based on MAX_POST_META_LENGTH.
+	 */
+	public function test_metadata_limit() {
+
+		$metadata = array(
+			(object) array(
+				'post_id'    => $this->post_id,
+				'meta_key'   => 'test_key',
+				'meta_value' => str_repeat( 'X', Automattic\Jetpack\Sync\Modules\Posts::MAX_POST_META_LENGTH - 1 ),
+				'meta_id'    => 1,
+			),
+			(object) array(
+				'post_id'    => $this->post_id,
+				'meta_key'   => 'test_key',
+				'meta_value' => str_repeat( 'X', Automattic\Jetpack\Sync\Modules\Posts::MAX_POST_META_LENGTH ),
+				'meta_id'    => 2,
+			),
+
+		);
+
+		$post_sync_module = Modules::get_module( 'posts' );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Posts $post_sync_module';
+		list( ,, $filtered_metadata ) = $post_sync_module->filter_posts_and_metadata_max_size( array( $this->post ), $metadata );
+
+		$this->assertNotEmpty( $filtered_metadata[0]->meta_value, 'Filtered metadata meta_value is not empty for strings of allowed length.' );
+		$this->assertEmpty( $filtered_metadata[1]->meta_value, 'Filtered metadata meta_value is trimmed for strings larger than allowed length.' );
+	}
+
+	/**
+	 * Verify test_filter_posts_and_metadata_max_size returns all posts and metadata when the total size is less than MAX_SIZE_FULL_SYNC.
+	 */
+	public function test_filter_posts_and_metadata_max_size_returns_all_posts_and_metadata() {
+
+		$post_ids  = self::factory()->post->create_many( 3 );
+		$post_id_1 = $post_ids[0];
+		$post_id_2 = $post_ids[1];
+		$post_id_3 = $post_ids[2];
+
+		$post_1 = get_post( $post_id_1 );
+		$post_2 = get_post( $post_id_2 );
+		$post_3 = get_post( $post_id_3 );
+
+		$posts = array( $post_1, $post_2, $post_3 );
+
+		$metadata = array(
+			(object) array(
+				'post_id'    => $post_id_1,
+				'meta_key'   => 'test_key',
+				'meta_value' => 'test_value',
+				'meta_id'    => 1,
+			),
+			(object) array(
+				'post_id'    => $post_id_1,
+				'meta_key'   => 'test_key',
+				'meta_value' => 'test_value',
+				'meta_id'    => 2,
+			),
+			(object) array(
+				'post_id'    => $post_id_2,
+				'meta_key'   => 'test_key',
+				'meta_value' => 'test_value',
+				'meta_id'    => 3,
+			),
+			(object) array(
+				'post_id'    => $post_id_2,
+				'meta_key'   => 'test_key',
+				'meta_value' => 'test_value',
+				'meta_id'    => 4,
+			),
+			(object) array(
+				'post_id'    => $post_id_3,
+				'meta_key'   => 'test_key',
+				'meta_value' => 'test_value',
+				'meta_id'    => 5,
+			),
+
+		);
+
+		$post_sync_module = Modules::get_module( 'posts' );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Posts $post_sync_module';
+		list( $filtered_post_ids, $filtered_posts, $filtered_metadata ) = $post_sync_module->filter_posts_and_metadata_max_size( $posts, $metadata );
+
+		$this->assertEquals( $filtered_post_ids, $post_ids );
+		$this->assertEquals( $filtered_posts, $posts );
+		$this->assertEquals( $filtered_metadata, $metadata );
+	}
+
+	/**
+	 * Verify test_filter_posts_and_metadata_max_size returns only one post when the first post and its meta is bigger than MAX_SIZE_FULL_SYNC.
+	 */
+	public function test_filter_posts_and_metadata_max_size_returns_only_one_post() {
+
+		$post_id_1 = self::factory()->post->create();
+		$post_id_2 = self::factory()->post->create();
+
+		$post_1 = get_post( $post_id_1 );
+		$post_2 = get_post( $post_id_2 );
+
+		$posts = array( $post_1, $post_2 );
+
+		$metadata_items_number = Automattic\Jetpack\Sync\Modules\Posts::MAX_SIZE_FULL_SYNC / Automattic\Jetpack\Sync\Modules\Posts::MAX_POST_META_LENGTH;
+		$post_metadata_1       = array_map(
+			function ( $x ) use ( $post_id_1 ) {
+				return (object) array(
+					'post_id'    => $post_id_1,
+					'meta_key'   => 'test_key',
+					'meta_value' => str_repeat( 'X', Automattic\Jetpack\Sync\Modules\Posts::MAX_POST_META_LENGTH - 1 ),
+					'meta_id'    => $x,
+				);
+			},
+			range( 0, $metadata_items_number )
+		);
+
+		$post_metadata_2 = array(
+			(object) array(
+				'post_id'    => $post_id_2,
+				'meta_key'   => 'test_key',
+				'meta_value' => 'test_value',
+				'meta_id'    => 3,
+			),
+
+		);
+
+		$metadata = array_merge( $post_metadata_1, $post_metadata_2 );
+
+		$post_sync_module = Modules::get_module( 'posts' );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Posts $post_sync_module';
+		list( $filtered_post_ids, $filtered_posts, $filtered_metadata ) = $post_sync_module->filter_posts_and_metadata_max_size( $posts, $metadata );
+
+		$this->assertEquals( $filtered_post_ids, array( $post_id_1 ) );
+		$this->assertEquals( $filtered_posts, array( $post_1 ) );
+		$this->assertEquals( $filtered_metadata, $post_metadata_1 );
 	}
 }

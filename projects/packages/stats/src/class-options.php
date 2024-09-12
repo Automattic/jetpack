@@ -31,7 +31,7 @@ class Options {
 	/**
 	 * Stats Get Options.
 	 *
-	 * @return array.
+	 * @return array
 	 */
 	public static function get_options() {
 		// Make sure we only get options from the database once per connection.
@@ -50,10 +50,10 @@ class Options {
 	}
 
 	/**
-	 * Get Stats Option..
+	 * Get Stats Option.
 	 *
 	 * @param string $option Option name.
-	 * @return mixed|null.
+	 * @return mixed|null
 	 */
 	public static function get_option( $option ) {
 		if ( 'blog_id' === $option ) {
@@ -74,7 +74,7 @@ class Options {
 	 *
 	 * @param string $option The option name.
 	 * @param mixed  $value The option Value.
-	 * @return bool.
+	 * @return bool
 	 */
 	public static function set_option( $option, $value ) {
 		$options = self::get_options();

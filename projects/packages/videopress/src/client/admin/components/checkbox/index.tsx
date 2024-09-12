@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import classnames from 'classnames';
+import clsx from 'clsx';
 import { forwardRef } from 'react';
 /**
  * Internal dependencies
@@ -24,7 +24,7 @@ const Checkbox = forwardRef< HTMLInputElement, CheckboxProps >(
 				ref={ ref }
 				type="checkbox"
 				checked={ checked }
-				className={ classnames( className, styles.checkbox ) }
+				className={ clsx( className, styles.checkbox ) }
 				onChange={ handleCheckboxChange }
 			/>
 		);

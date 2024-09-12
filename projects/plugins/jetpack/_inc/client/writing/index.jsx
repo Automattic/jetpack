@@ -15,7 +15,6 @@ import { isModuleFound } from 'state/search';
 import { getSettings } from 'state/settings';
 import Composing from './composing';
 import CustomContentTypes from './custom-content-types';
-import { Masterbar } from './masterbar';
 import PostByEmail from './post-by-email';
 import ThemeEnhancements from './theme-enhancements';
 import Widgets from './widgets';
@@ -34,10 +33,13 @@ export class Writing extends React.Component {
 			getModuleOverride: this.props.getModuleOverride,
 		};
 
+		if ( ! this.props.searchTerm && ! this.props.active ) {
+			return null;
+		}
+
 		const found = [
 			'carousel',
 			'copy-post',
-			'custom-css',
 			'latex',
 			'masterbar',
 			'markdown',
@@ -49,10 +51,6 @@ export class Writing extends React.Component {
 			'widget-visibility',
 			'blocks',
 		].some( this.props.isModuleFound );
-
-		if ( ! this.props.searchTerm && ! this.props.active ) {
-			return null;
-		}
 
 		if ( ! found ) {
 			return null;
@@ -91,9 +89,6 @@ export class Writing extends React.Component {
 						isLinked={ this.props.isLinked }
 						userCanManageModules={ this.props.userCanManageModules }
 					/>
-				) }
-				{ this.props.isModuleFound( 'masterbar' ) && ! this.props.masterbarIsAlwaysActive && (
-					<Masterbar connectUrl={ this.props.connectUrl } { ...commonProps } />
 				) }
 				{ ! showComposing && ! showPostByEmail && (
 					<Card>

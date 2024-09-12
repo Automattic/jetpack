@@ -5,7 +5,7 @@ import { Button, Text, useBreakpointMatch } from '@automattic/jetpack-components
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { grid, formatListBullets } from '@wordpress/icons';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 /**
@@ -92,7 +92,7 @@ const VideoLibraryWrapper = ( {
 				{ hideFilter ? null : (
 					<div className={ styles[ 'filter-wrapper' ] }>
 						<SearchInput
-							className={ classnames( styles[ 'search-input' ], { [ styles.small ]: ! isLg } ) }
+							className={ clsx( styles[ 'search-input' ], { [ styles.small ]: ! isLg } ) }
 							onSearch={ onSearchHandler }
 							value={ searchQuery }
 							loading={ isFetching }
@@ -125,10 +125,12 @@ export const VideoPressLibrary = ( { videos, totalVideos, loading }: VideoLibrar
 	const history = useHistory();
 	const { search } = useVideos();
 	const videosToDisplay = [
-		// First comes the videos that are uploading
+		// First comes video upload errors
+		...videos.filter( video => video.error ),
+		// Then comes the videos that are uploading
 		...videos.filter( video => video.uploading ),
 		// Then the videos that are not uploading, at most 6
-		...videos.filter( video => ! video.uploading ).slice( 0, 6 ),
+		...videos.filter( video => ! video.uploading && ! video.error ).slice( 0, 6 ),
 	];
 
 	const libraryTypeFromLocalStorage = localStorage.getItem(

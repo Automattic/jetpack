@@ -127,47 +127,6 @@ function zeroBSCRM_scriptStyles_initStyleRegister(){
 		// ============ / Whitelabel =================
 		// ===========================================
 
-
-
-		#} ===============================================================================
-		#} === Per page CSS/JS inc (LEGACY < 3.0)
-		#} ===============================================================================
-		// this is all legacy includes, done away with from v3.0 ++ (added properly via menu's thereafter)
-		if (!$zbs->isDAL3()){
-
-			#} Slight efficiency drive, get this here:
-			$postTypeStr = ''; if (isset($_GET['post'])) $postTypeStr = get_post_type((int)$_GET['post']);
-
-			#} Quote Builder CSS
-			if (
-				(isset($_GET['page']) && $_GET['page'] == 'manage-quotes') ||
-				(isset($_GET['post_type']) && $_GET['post_type'] == 'zerobs_quote') || 
-				(!empty($postTypeStr) && $postTypeStr == 'zerobs_quote')
-					) zeroBSCRM_scriptStyles_admin_quoteBuilder();
-
-			#} Invoice Builder CSS
-			if (
-				(isset($_GET['page']) && $_GET['page'] == 'manage-invoices') ||
-				(isset($_GET['post_type']) && $_GET['post_type'] == 'zerobs_invoice') || 
-				(!empty($postTypeStr) && $postTypeStr == 'zerobs_invoice')
-					) zeroBSCRM_scriptStyles_admin_invoiceBuilder();
-
-			#} Transactions
-			if (
-				(isset($_GET['post_type']) && $_GET['post_type'] == 'zerobs_transaction') || 
-				(!empty($postTypeStr) && $postTypeStr == 'zerobs_transaction')
-					) zeroBSCRM_scriptStyles_admin_transactionBuilder();
-		
-			#} Forms
-			if (
-				(isset($_GET['post_type']) && $_GET['post_type'] == 'zerobs_form') || 
-				(!empty($postTypeStr) && $postTypeStr == 'zerobs_form')
-					) zeroBSCRM_scriptStyles_admin_formBuilder();
-		}
-		#} ===============================================================================
-		#} === /  per page CSS/JS inc (LEGACY < 3.0 )
-		#} ===============================================================================
-
 		// LEGACY SUPPORT for ext's with menus
 		if (zeroBSCRM_isAdminPage()){
 			zeroBSCRM_global_admin_styles();

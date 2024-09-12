@@ -15,6 +15,7 @@
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Stats\WPCOM_Stats;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
 
 // Register the widget for use in Appearance -> Widgets
 add_action( 'widgets_init', 'jetpack_top_posts_widget_init' );
@@ -66,6 +67,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 			array(
 				'description'                 => __( 'Shows your most viewed posts and pages.', 'jetpack' ),
 				'customize_selective_refresh' => true,
+				'show_instance_in_rest'       => true,
 			)
 		);
 
@@ -83,6 +85,21 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		 * @since 3.9.3
 		 */
 		add_action( 'jetpack_widget_top_posts_after_fields', array( $this, 'stats_explanation' ) );
+		add_filter( 'widget_types_to_hide_from_legacy_widget_block', array( $this, 'hide_widget_in_block_editor' ) );
+	}
+
+	/**
+	 * Remove the "Top Posts and Pages" widget from the Legacy Widget block
+	 *
+	 * @param array $widget_types List of widgets that are currently removed from the Legacy Widget block.
+	 * @return array $widget_types New list of widgets that will be removed.
+	 */
+	public function hide_widget_in_block_editor( $widget_types ) {
+		// @TODO: Hide for Simple sites when the block API starts working.
+		if ( ! ( new Host() )->is_wpcom_simple() ) {
+			$widget_types[] = 'top-posts';
+		}
+		return $widget_types;
 	}
 
 	/**
@@ -697,7 +714,10 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 			'summarize' => 1,
 			'num'       => (int) $days,
 		);
-		$post_view_posts = convert_stats_array_to_object( ( new WPCOM_Stats() )->get_top_posts( $query_args ) );
+		$wpcom_stats     = new WPCOM_Stats();
+		$post_view_posts = $wpcom_stats->convert_stats_array_to_object(
+			$wpcom_stats->get_top_posts( $query_args )
+		);
 
 		if ( ! isset( $post_view_posts->summary ) || empty( $post_view_posts->summary->postviews ) ) {
 			return array();

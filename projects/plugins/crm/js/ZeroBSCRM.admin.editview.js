@@ -1,11 +1,6 @@
 /*!
  * Jetpack CRM
  * https://jetpackcrm.com
- * V2.52+
- *
- * Copyright 2018 ZeroBSCRM.com
- *
- * Date: 28/02/18
  */
 jQuery( document ).ready( function () {
 	// init if settings there (not on non-listview pages)

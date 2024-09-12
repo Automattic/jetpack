@@ -91,7 +91,7 @@ if ( $settings['feat_api'] == 1 ) {
 	$tabs['mail']          = __( 'Mail', 'zero-bs-crm' );
 	$tabs['maildelivery']  = __( 'Mail Delivery', 'zero-bs-crm' );
 	$tabs['mailtemplates'] = __( 'Mail Templates', 'zero-bs-crm' );
-	$tabs['oauth']         = __( 'OAuth Connections', 'zero-bs-crm' );
+	$tabs['oauth']         = __( 'OAuth Connection', 'zero-bs-crm' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 
 	// make these filterable for the extensions..
 	$tabs = apply_filters( 'zbs_settings_tabs', $tabs );
@@ -241,5 +241,5 @@ foreach ( $tabs as $tab => $name ) {
 	<?php ##WLREMOVE ?>
 	<a class="item" href="<?php echo jpcrm_esc_link( $zbs->slugs['extensions'] ); ?>"><i class="ui orange puzzle piece icon"></i> <?php echo esc_html__( 'Extensions', 'zero-bs-crm' ); ?></a>
 	<?php ##/WLREMOVE ?>
-	<a class="item" href="<?php echo jpcrm_esc_link( wp_nonce_url( $zbs->slugs['settings'] . '&resetsettings=1' ) ); ?> "></i> <?php echo esc_html__( 'Restore default settings', 'zero-bs-crm' ); ?></a>
+	<a class="item" href="<?php echo jpcrm_esc_link( wp_nonce_url( $zbs->slugs['settings'] . '&resetsettings=1' ) ); ?> "> <?php echo esc_html__( 'Restore default settings', 'zero-bs-crm' ); ?></a>
 </div>

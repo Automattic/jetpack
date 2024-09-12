@@ -96,3 +96,13 @@ body.infinity-end .site-main > div:last-of-type > article:last-of-type .entry-fo
 		grid-template-columns: repeat( 3, minmax(0, 1fr) );
 	}
 }
+
+/* Contact form */
+/* See https: //core.trac.wordpress.org/browser/trunk/src/wp-content/themes/twentytwentyone/style.css?rev=58726#L1276 */
+@supports (-webkit-appearance: none) or (-moz-appearance: none) {
+	.contact-form input.grunion-field[type=checkbox],
+	.contact-form input.grunion-field[type=radio] {
+		width: 25px;
+		height: 25px;
+	}
+}

@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import React from 'react';
 import { JetpackSearchLogoProps } from './types';
 
@@ -19,7 +19,7 @@ const JetpackSearchLogo: React.FC< JetpackSearchLogoProps > = ( {
 			x="0px"
 			y="0px"
 			viewBox="0 0 330 42"
-			className={ classNames( 'jetpack-logo', className ) }
+			className={ clsx( 'jetpack-logo', className ) }
 			aria-labelledby="jetpack-logo-title"
 			{ ...otherProps }
 		>

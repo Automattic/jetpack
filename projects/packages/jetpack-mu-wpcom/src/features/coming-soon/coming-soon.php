@@ -131,7 +131,6 @@ function render_fallback_coming_soon_page() {
 	remove_action( 'wp_print_styles', 'print_emoji_styles' );
 	remove_action( 'wp_head', 'header_js', 5 );
 	remove_action( 'wp_head', 'global_css', 5 );
-	remove_action( 'wp_footer', 'wpcom_subs_js' );
 	remove_action( 'wp_footer', 'stats_footer', 101 );
 	add_filter( 'infinite_scroll_archive_supported', '__return_false', 99 ); // Disable infinite scroll feature.
 	add_filter( 'jetpack_disable_eu_cookie_law_widget', '__return_true', 1 );
@@ -170,8 +169,11 @@ add_filter( 'site_settings_endpoint_get', __NAMESPACE__ . '\add_public_coming_so
  * @return mixed
  */
 function add_public_coming_soon_to_settings_endpoint_post( $input, $unfiltered_input ) {
-	if ( array_key_exists( 'wpcom_public_coming_soon', $unfiltered_input ) ) {
+	if ( is_array( $unfiltered_input ) && array_key_exists( 'wpcom_public_coming_soon', $unfiltered_input ) ) {
 		$input['wpcom_public_coming_soon'] = (int) $unfiltered_input['wpcom_public_coming_soon'];
+
+		// Avoid updating the value of the `wpcom_public_coming_soon` if the request wants to change the option.
+		remove_action( 'update_option_blog_public', __NAMESPACE__ . '\disable_coming_soon_on_privacy_change', 10 );
 	}
 	return $input;
 }

@@ -7,18 +7,20 @@
 
 namespace Automattic\Jetpack\Changelogger;
 
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Exception\MissingInputException;
+use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Question\Question;
-use function Wikimedia\quietCall;
 
 /**
  * "Add" command for the changelogger tool CLI.
  */
+#[AsCommand( 'add', 'Adds a change file' )]
 class AddCommand extends Command {
 
 	/**
@@ -57,6 +59,13 @@ class AddCommand extends Command {
 	protected static $defaultName = 'add';
 
 	/**
+	 * The default command description
+	 *
+	 * @var string|null
+	 */
+	protected static $defaultDescription = 'Adds a change file';
+
+	/**
 	 * Configures the command.
 	 */
 	protected function configure() {
@@ -73,7 +82,7 @@ class AddCommand extends Command {
 			);
 		};
 
-		$this->setDescription( 'Adds a change file' )
+		$this->setDescription( static::$defaultDescription )
 			->addOption( 'filename', 'f', InputOption::VALUE_REQUIRED, 'Name for the change file. If not provided, a default will be determined from the current timestamp or git branch name.' )
 			->addOption( 'filename-auto-suffix', null, InputOption::VALUE_NONE, 'If the specified file already exists in non-interactive mode, add a numeric suffix so the new entry can be created.' )
 			->addOption( 'significance', 's', InputOption::VALUE_REQUIRED, "Significance of the change, in the style of semantic versioning. One of the following:\n" . $joiner( self::$significances ) )
@@ -139,7 +148,9 @@ EOF
 		static $non_feature_branches = array( 'current', 'default', 'develop', 'latest', 'main', 'master', 'next', 'production', 'support', 'tip', 'trunk' );
 
 		try {
-			$process = Utils::runCommand( array( 'git', 'rev-parse', '--abbrev-ref', 'HEAD' ), $output, $this->getHelper( 'debug_formatter' ) );
+			$debugHelper = $this->getHelper( 'debug_formatter' );
+			'@phan-var \Symfony\Component\Console\Helper\DebugFormatterHelper $debugHelper';
+			$process = Utils::runCommand( array( 'git', 'rev-parse', '--abbrev-ref', 'HEAD' ), $output, $debugHelper );
 			if ( $process->isSuccessful() ) {
 				$ret = trim( $process->getOutput() );
 				if ( ! in_array( $ret, $non_feature_branches, true ) ) {
@@ -155,18 +166,29 @@ EOF
 	}
 
 	/**
+	 * Get a QuestionHelper.
+	 *
+	 * @return QuestionHelper
+	 */
+	private function getQuestionHelper() {
+		// @phan-suppress-next-line PhanTypeMismatchReturnSuperType -- That's how ->getHelper() works.
+		return $this->getHelper( 'question' );
+	}
+
+	/**
 	 * Executes the command.
 	 *
 	 * @param InputInterface  $input InputInterface.
 	 * @param OutputInterface $output OutputInterface.
 	 * @return int 0 if everything went fine, or an exit code.
 	 */
-	protected function execute( InputInterface $input, OutputInterface $output ) {
+	protected function execute( InputInterface $input, OutputInterface $output ): int {
 		try {
 			$dir = Config::changesDir();
 			if ( ! is_dir( $dir ) ) {
-				Utils::error_clear_last();
-				if ( ! quietCall( 'mkdir', $dir, 0775, true ) ) {
+				error_clear_last();
+				// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+				if ( ! @mkdir( $dir, 0775, true ) ) {
 					$err = error_get_last();
 					$output->writeln( "<error>Could not create directory $dir: {$err['message']}</>" );
 					return 1;
@@ -183,10 +205,10 @@ EOF
 			if ( $isInteractive ) {
 				$question = new Question( "Name your changelog file <info>[default: $filename]</> > ", $filename );
 				$question->setValidator( array( $this, 'validateFilename' ) );
-				$filename = $this->getHelper( 'question' )->ask( $input, $output, $question );
+				$filename = $this->getQuestionHelper()->ask( $input, $output, $question );
 				if ( null === $filename ) { // non-interactive.
 					$output->writeln( 'Got EOF when attempting to query user, aborting.', OutputInterface::VERBOSITY_VERBOSE ); // @codeCoverageIgnore
-					return 1;
+					return 1; // @codeCoverageIgnore
 				}
 			} else {
 				if ( null === $input->getOption( 'filename' ) ) {
@@ -217,10 +239,10 @@ EOF
 			}
 			if ( $isInteractive ) {
 				$question     = new ChoiceQuestion( 'Significance of the change, in the style of semantic versioning.', self::$significances, $significance );
-				$significance = $this->getHelper( 'question' )->ask( $input, $output, $question );
+				$significance = $this->getQuestionHelper()->ask( $input, $output, $question );
 				if ( null === $significance ) { // non-interactive.
 					$output->writeln( 'Got EOF when attempting to query user, aborting.', OutputInterface::VERBOSITY_VERBOSE ); // @codeCoverageIgnore
-					return 1;
+					return 1; // @codeCoverageIgnore
 				}
 			} else {
 				if ( null === $significance ) {
@@ -243,10 +265,10 @@ EOF
 				}
 				if ( $isInteractive ) {
 					$question = new ChoiceQuestion( 'Type of change.', $types, $type );
-					$type     = $this->getHelper( 'question' )->ask( $input, $output, $question );
+					$type     = $this->getQuestionHelper()->ask( $input, $output, $question );
 					if ( null === $type ) { // non-interactive.
 						$output->writeln( 'Got EOF when attempting to query user, aborting.', OutputInterface::VERBOSITY_VERBOSE ); // @codeCoverageIgnore
-						return 1;
+						return 1; // @codeCoverageIgnore
 					}
 				} else {
 					if ( null === $type ) {
@@ -279,10 +301,10 @@ EOF
 						}
 					);
 				}
-				$entry = $this->getHelper( 'question' )->ask( $input, $output, $question );
+				$entry = $this->getQuestionHelper()->ask( $input, $output, $question );
 				if ( null === $entry ) {
 					$output->writeln( 'Got EOF when attempting to query user, aborting.', OutputInterface::VERBOSITY_VERBOSE ); // @codeCoverageIgnore
-					return 1;
+					return 1; // @codeCoverageIgnore
 				}
 			} else {
 				if ( null === $entry ) {
@@ -302,7 +324,7 @@ EOF
 			$comment = (string) $input->getOption( 'comment' );
 			if ( $isInteractive && '' === $entry ) {
 				$question = new Question( "You omitted the changelog entry, which is fine. But please comment as to why no entry is needed.\n > ", $comment );
-				$comment  = $this->getHelper( 'question' )->ask( $input, $output, $question );
+				$comment  = $this->getQuestionHelper()->ask( $input, $output, $question );
 				if ( null === $comment ) {
 					$output->writeln( 'Got EOF when attempting to query user, aborting.', OutputInterface::VERBOSITY_VERBOSE ); // @codeCoverageIgnore
 					return 1; // @codeCoverageIgnore
@@ -322,17 +344,21 @@ EOF
 				OutputInterface::VERBOSITY_DEBUG
 			);
 			$contents .= "\n";
-			Utils::error_clear_last();
-			$fp = quietCall( 'fopen', "$dir/$filename", 'x' );
+			error_clear_last();
+			// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+			$fp = @fopen( "$dir/$filename", 'x' );
 			if ( ! $fp ||
-				quietCall( 'fwrite', $fp, $contents ) !== strlen( $contents ) ||
-				! quietCall( 'fclose', $fp )
+				// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+				@fwrite( $fp, $contents ) !== strlen( $contents ) ||
+				! fclose( $fp )
 			) {
 				// @codeCoverageIgnoreStart
 				$err = error_get_last();
 				$output->writeln( "<error>Failed to write file \"$dir/$filename\": {$err['message']}.</>" );
-				quietCall( 'fclose', $fp );
-				quietCall( 'unlink', "$dir/$filename" );
+				// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+				@fclose( $fp );
+				// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+				@unlink( "$dir/$filename" );
 				return 1;
 				// @codeCoverageIgnoreEnd
 			}

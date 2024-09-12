@@ -50,14 +50,19 @@ function zeroBSCRM_CustomerTypeList( $jsCallbackFuncStr = '', $inputDefaultValue
 		global $haszbscrmBHURLCustomersOut;
 	if ( ! isset( $haszbscrmBHURLCustomersOut ) ) {
 
-		// cachebusting for now... (ESP needed when migrating from DAL1 -> DAL2)
+		$nonce         = wp_create_nonce( 'wp_rest' );
+		$rest_base_url = get_rest_url();
 
-		$cacheBusterStr = '&time=' . time();
+		// handle bare permalink structure
+		if ( empty( get_option( 'permalink_structure' ) ) ) {
+			$param_separator = '&';
+		} else {
+			$param_separator = '?';
+		}
+		$rest_url = $rest_base_url . 'zbscrm/v1/contacts' . $param_separator . '_wpnonce=' . $nonce;
 
-		// change to proper WP REST (not cached) and wont be impacted by setup connection issues. Is also the "proper" way to do it
-		$nonce                      = wp_create_nonce( 'wp_rest' );
-		$rest_url                   = esc_url( get_rest_url() . 'zbscrm/v1/contacts?_wpnonce=' . $nonce );
-		$ret                       .= '<script type="text/javascript">var zbscrmBHURLCustomers = "' . $rest_url . '";</script>';
+		$ret .= '<script type="text/javascript">var zbscrmBHURLCustomers = "' . $rest_url . '";</script>';
+
 		$haszbscrmBHURLCustomersOut = true;
 	}
 
@@ -125,9 +130,19 @@ function zeroBSCRM_CompanyTypeList( $jsCallbackFuncStr = '', $inputDefaultValue 
 		global $haszbscrmBHURLCompaniesOut;
 		if ( ! isset( $haszbscrmBHURLCompaniesOut ) ) {
 
-			$nonce                      = wp_create_nonce( 'wp_rest' );
-			$rest_url                   = esc_url( get_rest_url() . 'zbscrm/v1/companies?_wpnonce=' . $nonce );
-			$ret                       .= '<script type="text/javascript">var zbscrmBHURLCompanies = "' . $rest_url . '";</script>';
+			$nonce         = wp_create_nonce( 'wp_rest' );
+			$rest_base_url = get_rest_url();
+
+			// handle bare permalink structure
+			if ( empty( get_option( 'permalink_structure' ) ) ) {
+				$param_separator = '&';
+			} else {
+				$param_separator = '?';
+			}
+			$rest_url = $rest_base_url . 'zbscrm/v1/companies' . $param_separator . '_wpnonce=' . $nonce;
+
+			$ret .= '<script type="text/javascript">var zbscrmBHURLCompanies = "' . $rest_url . '";</script>';
+
 			$haszbscrmBHURLCompaniesOut = true;
 		}
 

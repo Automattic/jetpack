@@ -60,7 +60,7 @@ describe( 'ContextualizedConnection', () => {
 					( content, element ) =>
 						content !== '' && // filter out parent elements
 						element.textContent.startsWith(
-							`By clicking the ${ testProps.buttonLabel } button, you agree to our Terms of Service`
+							`By clicking ${ testProps.buttonLabel }, you agree to our Terms of Service`
 						)
 				)
 			).toBeInTheDocument();

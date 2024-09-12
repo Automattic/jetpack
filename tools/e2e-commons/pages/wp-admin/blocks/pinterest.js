@@ -27,7 +27,7 @@ export default class PinterestBlock extends EditorCanvas {
 
 		await this.canvas().fill( inputSelector, this.embedUrl() );
 		await this.canvas().click( descriptionSelector );
-		await this.canvas().waitForSelector( '.wp-block-jetpack-pinterest .components-sandbox' );
+		await this.canvas().locator( '.wp-block-jetpack-pinterest .components-sandbox' ).waitFor();
 	}
 
 	getSelector( selector ) {
@@ -37,12 +37,12 @@ export default class PinterestBlock extends EditorCanvas {
 	/**
 	 * Checks whether block is rendered on frontend
 	 *
-	 * @param {page}   page Playwright page instance
-	 * @param {Object} args An object of any additional required instance values
+	 * @param {page}   page - Playwright page instance
+	 * @param {object} args - An object of any additional required instance values
 	 */
 	static async isRendered( page, args ) {
 		const containerSelector = `.entry-content span[data-pin-id='${ args.pinId }']`;
 
-		await page.waitForSelector( containerSelector );
+		await page.locator( containerSelector ).waitFor();
 	}
 }

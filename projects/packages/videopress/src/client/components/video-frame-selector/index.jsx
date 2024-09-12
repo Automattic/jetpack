@@ -4,7 +4,7 @@
 import { RangeControl, Spinner } from '@wordpress/components';
 import { useEffect, useRef, useState } from '@wordpress/element';
 import { Icon } from '@wordpress/icons';
-import classNames from 'classnames';
+import clsx from 'clsx';
 /**
  * Internal dependencies
  */
@@ -70,7 +70,7 @@ const VideoFrameSelector = ( {
 	};
 
 	return (
-		<div className={ classNames( styles.container, className ) }>
+		<div className={ clsx( styles.container, className ) }>
 			<Icon className={ styles[ 'play-icon' ] } icon={ playIcon } />
 			<VideoPlayer src={ src } setMaxDuration={ setMaxDuration } currentTime={ currentTime } />
 			<RangeControl

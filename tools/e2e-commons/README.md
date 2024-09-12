@@ -71,6 +71,8 @@ If you're an a11n you can find the key in the secret store and set it in the `CO
 To bypass the offline mode you will need your site to have a publicly accessible url that will proxy all requests to your locally running WordPress installation.
 We use `localtunnel` library to expose `localhost:8889` via a public url.
 
+You can pass `TUNNEL_URL` environment variable to override the tunnel url. This is useful when running e2e tests locally and have already established a custom tunnel to `localhost:8889` manually.
+
 ```shell
 ## Decrypt default config file
 CONFIG_KEY=secret_key pnpm config:decrypt
@@ -162,7 +164,7 @@ constructor( page ) {
 
 ## Reporting
 
-A few [reporters](https://playwright.dev/docs/test-reporters) are configured by default, check `config/playwright.config.default.cjs` for details.
+A few [reporters](https://playwright.dev/docs/test-reporters) are configured by default, check `config/playwright.config.default.mjs` for details.
 
 ### Allure reporter
 

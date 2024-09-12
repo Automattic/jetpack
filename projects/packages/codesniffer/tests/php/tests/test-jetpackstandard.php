@@ -54,8 +54,9 @@ class JetpackStandardTest extends TestCase {
 			'Generic.PHP.Syntax', // Shells out to `php -l`, which is kind of slow.
 		);
 
-		$ruleset = new Ruleset( $config );
-		$dummy   = new DummyFile( $contents, $ruleset, $config );
+		$ruleset     = new Ruleset( $config );
+		$dummy       = new DummyFile( $contents, $ruleset, $config );
+		$dummy->path = $file;
 		try {
 			$dummy->process();
 		} catch ( \Exception $ex ) {

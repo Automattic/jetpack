@@ -127,7 +127,7 @@ class WPCOM_JSON_API_Update_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint 
 		}
 
 		// audio only artist/album info.
-		if ( 0 === strpos( $item->mime_type, 'audio/' ) ) {
+		if ( str_starts_with( $item->mime_type, 'audio/' ) ) {
 			$changed = false;
 			$id3data = wp_get_attachment_metadata( $media_id );
 

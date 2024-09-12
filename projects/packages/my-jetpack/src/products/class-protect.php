@@ -7,8 +7,11 @@
 
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
+use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\My_Jetpack\Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
+use Jetpack_Options;
+use WP_Error;
 
 /**
  * Class responsible for handling the Protect product
@@ -18,6 +21,9 @@ class Protect extends Product {
 	const FREE_TIER_SLUG             = 'free';
 	const UPGRADED_TIER_SLUG         = 'upgraded';
 	const UPGRADED_TIER_PRODUCT_SLUG = 'jetpack_scan';
+
+	const SCAN_FEATURE_SLUG     = 'scan';
+	const FIREWALL_FEATURE_SLUG = 'firewall';
 
 	/**
 	 * The product slug
@@ -52,21 +58,35 @@ class Protect extends Product {
 	public static $requires_user_connection = false;
 
 	/**
-	 * Get the internationalized product name
+	 * Whether this product has a free offering
+	 *
+	 * @var bool
+	 */
+	public static $has_free_offering = true;
+
+	/**
+	 * Protect has a standalone plugin
+	 *
+	 * @var bool
+	 */
+	public static $has_standalone_plugin = true;
+
+	/**
+	 * Get the product name
 	 *
 	 * @return string
 	 */
 	public static function get_name() {
-		return __( 'Protect', 'jetpack-my-jetpack' );
+		return 'Protect';
 	}
 
 	/**
-	 * Get the internationalized product title
+	 * Get the product title
 	 *
 	 * @return string
 	 */
 	public static function get_title() {
-		return __( 'Jetpack Protect', 'jetpack-my-jetpack' );
+		return 'Jetpack Protect';
 	}
 
 	/**
@@ -75,7 +95,7 @@ class Protect extends Product {
 	 * @return string
 	 */
 	public static function get_description() {
-		return __( 'Stay one step ahead of threats', 'jetpack-my-jetpack' );
+		return __( 'Guard against malware and bad actors 24/7', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -84,7 +104,7 @@ class Protect extends Product {
 	 * @return string
 	 */
 	public static function get_long_description() {
-		return __( 'Protect your site and scan for security vulnerabilities listed in our database.', 'jetpack-my-jetpack' );
+		return __( 'Protect your site from bad actors and malware 24/7. Clean up security vulnerabilities with one click.', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -99,6 +119,33 @@ class Protect extends Product {
 			__( 'Check plugin and theme version status', 'jetpack-my-jetpack' ),
 			__( 'Easy to navigate and use', 'jetpack-my-jetpack' ),
 		);
+	}
+
+	/**
+	 * Hits the wpcom api to check scan status.
+	 *
+	 * @todo Maybe add caching.
+	 *
+	 * @return Object|WP_Error
+	 */
+	private static function get_state_from_wpcom() {
+		static $status = null;
+
+		if ( $status !== null ) {
+			return $status;
+		}
+
+		$site_id = Jetpack_Options::get_option( 'id' );
+
+		$response = Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d/scan', $site_id ) . '?force=wpcom', '2', array( 'timeout' => 2 ), null, 'wpcom' );
+
+		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			return new WP_Error( 'scan_state_fetch_failed' );
+		}
+
+		$body   = wp_remote_retrieve_body( $response );
+		$status = json_decode( $body );
+		return $status;
 	}
 
 	/**
@@ -218,6 +265,66 @@ class Protect extends Product {
 	}
 
 	/**
+	 * Checks whether the current plan (or purchases) of the site already supports the product
+	 *
+	 * @return boolean
+	 */
+	public static function has_paid_plan_for_product() {
+		$plans_with_scan = array(
+			'jetpack_scan',
+			'jetpack_security',
+			'jetpack_complete',
+			'jetpack_premium',
+			'jetpack_business',
+		);
+
+		$purchases_data = Wpcom_Products::get_site_current_purchases();
+		if ( is_wp_error( $purchases_data ) ) {
+			return false;
+		}
+		if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
+			foreach ( $purchases_data as $purchase ) {
+				foreach ( $plans_with_scan as $plan ) {
+					if ( strpos( $purchase->product_slug, $plan ) !== false ) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Checks whether the product can be upgraded - i.e. this shows the /#add-protect interstitial
+	 *
+	 * @return boolean
+	 */
+	public static function is_upgradable() {
+		return ! self::has_paid_plan_for_product();
+	}
+
+	/**
+	 * Get the URL the user is taken after purchasing the product through the checkout
+	 *
+	 * @return ?string
+	 */
+	public static function get_post_checkout_url() {
+		return self::get_manage_url();
+	}
+
+	/**
+	 * Get the URL the user is taken after purchasing the product through the checkout for each product feature
+	 *
+	 * @return ?array
+	 */
+	public static function get_post_checkout_urls_by_feature() {
+		return array(
+			self::SCAN_FEATURE_SLUG     => self::get_post_checkout_url(),
+			self::FIREWALL_FEATURE_SLUG => admin_url( 'admin.php?page=jetpack-protect#/firewall' ),
+		);
+	}
+
+	/**
 	 * Get the URL where the user manages the product
 	 *
 	 * @return ?string
@@ -227,12 +334,24 @@ class Protect extends Product {
 	}
 
 	/**
+	 * Get the URL where the user manages the product for each product feature
+	 *
+	 * @return ?array
+	 */
+	public static function get_manage_urls_by_feature() {
+		return array(
+			self::SCAN_FEATURE_SLUG     => self::get_manage_url(),
+			self::FIREWALL_FEATURE_SLUG => admin_url( 'admin.php?page=jetpack-protect#/firewall' ),
+		);
+	}
+
+	/**
 	 * Return product bundles list
 	 * that supports the product.
 	 *
 	 * @return array Products bundle list.
 	 */
 	public static function is_upgradable_by_bundle() {
-		return array( 'security' );
+		return array( 'security', 'complete' );
 	}
 }

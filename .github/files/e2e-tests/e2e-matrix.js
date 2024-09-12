@@ -35,14 +35,6 @@ const projects = [
 		buildGroup: 'jetpack-sync',
 	},
 	{
-		project: 'Jetpack blocks',
-		path: 'projects/plugins/jetpack/tests/e2e',
-		testArgs: [ 'specs/blocks', '--retries=1' ],
-		targets: [ 'plugins/jetpack' ],
-		suite: '',
-		buildGroup: 'jetpack-core',
-	},
-	{
 		project: 'Jetpack Boost - Base',
 		path: 'projects/plugins/boost/tests/e2e',
 		testArgs: [ 'specs/base', '--retries=1' ],
@@ -62,6 +54,38 @@ const projects = [
 		project: 'Jetpack Boost - Critical CSS',
 		path: 'projects/plugins/boost/tests/e2e',
 		testArgs: [ 'specs/critical-css', '--retries=1' ],
+		targets: [ 'plugins/boost' ],
+		suite: '',
+		buildGroup: 'jetpack-boost',
+	},
+	{
+		project: 'Jetpack Boost - Page Cache',
+		path: 'projects/plugins/boost/tests/e2e',
+		testArgs: [ 'specs/page-cache', '--retries=1' ],
+		targets: [ 'plugins/boost' ],
+		suite: '',
+		buildGroup: 'jetpack-boost',
+	},
+	{
+		project: 'Jetpack Boost - Concatenate JS/CSS',
+		path: 'projects/plugins/boost/tests/e2e',
+		testArgs: [ 'specs/concatenate', '--retries=1' ],
+		targets: [ 'plugins/boost' ],
+		suite: '',
+		buildGroup: 'jetpack-boost',
+	},
+	{
+		project: 'Jetpack Boost - Image CDN',
+		path: 'projects/plugins/boost/tests/e2e',
+		testArgs: [ 'specs/image-cdn', '--retries=1' ],
+		targets: [ 'plugins/boost' ],
+		suite: '',
+		buildGroup: 'jetpack-boost',
+	},
+	{
+		project: 'Jetpack Boost - Image Guide',
+		path: 'projects/plugins/boost/tests/e2e',
+		testArgs: [ 'specs/image-guide', '--retries=1' ],
 		targets: [ 'plugins/boost' ],
 		suite: '',
 		buildGroup: 'jetpack-boost',
@@ -124,33 +148,6 @@ switch ( process.env.GITHUB_EVENT_NAME ) {
 			const repoName = process.env.DISPATCH_REPO.split( '/' )[ 1 ];
 			const refName = process.env.REF_NAME;
 			const refType = process.env.REF_TYPE;
-
-			if ( repoName === 'jetpack-production' ) {
-				projects.push( {
-					project: 'Blocks with latest Gutenberg',
-					path: 'projects/plugins/jetpack/tests/e2e',
-					testArgs: [ 'blocks', '--retries=1' ],
-					suite: 'gutenberg',
-				} );
-
-				if ( refType === 'tag' || refName === 'trunk' ) {
-					projects.push( {
-						project: 'Jetpack on Atomic',
-						path: 'projects/plugins/jetpack/tests/e2e',
-						testArgs: [ 'blocks', '--retries=1' ],
-						suite: 'atomic',
-					} );
-				}
-
-				if ( refName === 'trunk' ) {
-					projects.push( {
-						project: 'Jetpack on VIP',
-						path: 'projects/plugins/jetpack/tests/e2e',
-						testArgs: [ 'blocks', '--retries=1' ],
-						suite: 'vip',
-					} );
-				}
-			}
 
 			for ( const project of projects ) {
 				const packageJson = JSON.parse(

@@ -480,6 +480,12 @@ class WPCom_Markdown {
 
 		$re = '/' . $this->get_parser()->contain_span_tags_re . '/';
 		foreach ( $tags as $tag => $attributes ) {
+
+			// In case other filters have changed the value to a non-array, we skip it.
+			if ( ! is_array( $attributes ) ) {
+				continue;
+			}
+
 			if ( preg_match( $re, $tag ) ) {
 				$attributes['markdown'] = true;
 				$tags[ $tag ]           = $attributes;
@@ -537,7 +543,7 @@ jQuery( function() {
 		// rejigger post_content and post_content_filtered
 		// revisions are already in the right place, except when we're restoring, but that's taken care of elsewhere
 		// also prevent quick edit feature from overriding already-saved markdown (issue https://github.com/Automattic/jetpack/issues/636).
-		if ( 'revision' !== $post_data['post_type'] && ! isset( $_POST['_inline_edit'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing 
+		if ( 'revision' !== $post_data['post_type'] && ! isset( $_POST['_inline_edit'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
 			/**
 			 * Filter the original post content passed to Markdown.
 			 *
@@ -551,7 +557,7 @@ jQuery( function() {
 			$post_data['post_content']          = $this->transform( $post_data['post_content'], array( 'id' => $post_id ) );
 			/** This filter is already documented in core/wp-includes/default-filters.php */
 			$post_data['post_content'] = apply_filters( 'content_save_pre', $post_data['post_content'] );
-		} elseif ( 0 === strpos( $post_data['post_name'], $post_data['post_parent'] . '-autosave' ) ) {
+		} elseif ( str_starts_with( $post_data['post_name'], $post_data['post_parent'] . '-autosave' ) ) {
 			// autosaves for previews are weird.
 			/** This filter is already documented in modules/markdown/easy-markdown.php */
 			$post_data['post_content_filtered'] = apply_filters( 'wpcom_untransformed_content', $post_data['post_content'] );
@@ -773,8 +779,8 @@ jQuery( function() {
 	 */
 	protected function check_for_early_methods() {
 		$raw_post_data = file_get_contents( 'php://input' );
-		if ( false === strpos( $raw_post_data, 'metaWeblog.getPost' )
-			&& false === strpos( $raw_post_data, 'wp.getPage' ) ) {
+		if ( ! str_contains( $raw_post_data, 'metaWeblog.getPost' )
+			&& ! str_contains( $raw_post_data, 'wp.getPage' ) ) {
 			return;
 		}
 		include_once ABSPATH . WPINC . '/class-IXR.php';

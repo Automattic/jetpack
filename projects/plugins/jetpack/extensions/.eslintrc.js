@@ -23,7 +23,6 @@ module.exports = {
 		'react/react-in-jsx-scope': 0,
 		'space-unary-ops': 0,
 		'space-before-function-paren': 0,
-		'wpcalypso/jsx-classname-namespace': 0,
 
 		// eslint 6.x migration
 		'react-hooks/rules-of-hooks': 1,

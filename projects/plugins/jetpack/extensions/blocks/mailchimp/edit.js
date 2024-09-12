@@ -3,70 +3,50 @@ import {
 	getBlockIconComponent,
 } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
-import { InnerBlocks, InspectorControls, RichText } from '@wordpress/block-editor';
-import { Button, Placeholder, Spinner, TextControl, withNotices } from '@wordpress/components';
-import { Fragment, Component } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { useBlockProps } from '@wordpress/block-editor';
+import { withNotices } from '@wordpress/components';
+import { useCallback, useEffect, useState } from '@wordpress/element';
 import { addQueryArgs } from '@wordpress/url';
-import classnames from 'classnames';
 import metadata from './block.json';
-import { NOTIFICATION_PROCESSING, NOTIFICATION_SUCCESS, NOTIFICATION_ERROR } from './constants';
-import { MailChimpBlockControls } from './controls';
-
-const API_STATE_LOADING = 0;
-const API_STATE_CONNECTED = 1;
-const API_STATE_NOTCONNECTED = 2;
+import Body from './body';
+import { API_STATE_CONNECTED, API_STATE_NOTCONNECTED, API_STATE_LOADING } from './constants';
+import { MailChimpInspectorControls } from './controls';
+import Loader from './loader';
+import { UserConnectedPlaceholder, UserNotConnectedPlaceholder } from './placeholders';
 
 const icon = getBlockIconComponent( metadata );
-const innerButtonBlock = {
-	name: 'jetpack/button',
-	attributes: {
-		element: 'button',
-		text: __( 'Join my Mailchimp audience', 'jetpack' ),
-		uniqueId: 'mailchimp-widget-id',
-	},
-};
 
-class MailchimpSubscribeEdit extends Component {
-	constructor() {
-		super( ...arguments );
-		this.state = {
-			audition: null,
-			connected: API_STATE_LOADING,
-			connectURL: null,
-			currentUserConnected: null,
-		};
-		this.timeout = null;
-	}
+export const MailchimpSubscribeEdit = ( {
+	attributes,
+	setAttributes,
+	notices,
+	noticeUI,
+	noticeOperations,
+} ) => {
+	const blockProps = useBlockProps();
 
-	componentDidMount = () => {
-		this.apiCall();
-	};
+	const [ audition, setAudition ] = useState( null );
+	const [ connected, setConnected ] = useState( API_STATE_LOADING );
+	const [ connectURL, setConnectURL ] = useState( null );
+	const [ currentUserConnected, setCurrentUserconnected ] = useState( null );
 
-	onError = message => {
-		const { noticeOperations } = this.props;
-		noticeOperations.removeAllNotices();
-		noticeOperations.createErrorNotice( message );
-	};
+	const apiCall = useCallback( () => {
+		const isUserConnected = isCurrentUserConnected();
 
-	apiCall = () => {
-		const currentUserConnected = isCurrentUserConnected();
-		if ( currentUserConnected ) {
-			const path = '/wpcom/v2/mailchimp';
-			const method = 'GET';
-			const fetch = { path, method };
-			apiFetch( fetch ).then(
-				result => {
-					const connectURL = result.connect_url;
-					const connected =
-						result.code === 'connected' ? API_STATE_CONNECTED : API_STATE_NOTCONNECTED;
-					this.setState( { currentUserConnected, connected, connectURL } );
+		if ( isUserConnected ) {
+			apiFetch( { path: '/wpcom/v2/mailchimp', method: 'GET' } ).then(
+				( { connect_url: url, code } ) => {
+					setConnectURL( url );
+					setConnected( code === 'connected' ? API_STATE_CONNECTED : API_STATE_NOTCONNECTED );
+					setCurrentUserconnected( isUserConnected );
 				},
-				result => {
-					const connectURL = null;
-					const connected = API_STATE_NOTCONNECTED;
-					this.setState( { currentUserConnected, connected, connectURL } );
-					this.onError( result.message );
+				( { message } ) => {
+					setConnectURL( null );
+					setConnected( API_STATE_NOTCONNECTED );
+					setCurrentUserconnected( isUserConnected );
+
+					noticeOperations.removeAllNotices();
+					noticeOperations.createErrorNotice( message );
 				}
 			);
 		} else {
@@ -75,179 +55,61 @@ class MailchimpSubscribeEdit extends Component {
 					from: 'jetpack-block-editor',
 					redirect: window.location.href,
 				} ),
-			} ).then( connectUrl => {
-				const connectURL = connectUrl;
-				const connected = API_STATE_NOTCONNECTED;
-				this.setState( { currentUserConnected, connected, connectURL } );
+			} ).then( url => {
+				setConnectURL( url );
+				setConnected( API_STATE_NOTCONNECTED );
+				setCurrentUserconnected( isUserConnected );
 			} );
 		}
-	};
+	}, [ setConnectURL, setConnected, setCurrentUserconnected, noticeOperations ] );
 
-	auditionNotification = notification => {
-		this.setState( { audition: notification } );
-		if ( this.timeout ) {
-			clearTimeout( this.timeout );
-		}
-		this.timeout = setTimeout( this.clearAudition, 3000 );
-	};
+	useEffect( () => {
+		apiCall();
+	}, [ apiCall ] );
 
-	clearAudition = () => {
-		this.setState( { audition: null } );
-	};
+	let content;
 
-	labelForAuditionType = audition => {
-		const { attributes } = this.props;
-		const { processingLabel, successLabel, errorLabel } = attributes;
-		if ( audition === NOTIFICATION_PROCESSING ) {
-			return processingLabel;
-		} else if ( audition === NOTIFICATION_SUCCESS ) {
-			return successLabel;
-		} else if ( audition === NOTIFICATION_ERROR ) {
-			return errorLabel;
-		}
-		return null;
-	};
-
-	roleForAuditionType = audition => {
-		if ( audition === NOTIFICATION_ERROR ) {
-			return 'alert';
-		}
-		return 'status';
-	};
-
-	render = () => {
-		const { attributes, className, notices, noticeUI, setAttributes } = this.props;
-		const { audition, connected, connectURL, currentUserConnected } = this.state;
-		const {
-			emailPlaceholder,
-			consentText,
-			interests,
-			processingLabel,
-			successLabel,
-			errorLabel,
-			preview,
-			signupFieldTag,
-			signupFieldValue,
-		} = attributes;
-		const classPrefix = 'wp-block-jetpack-mailchimp';
-		const waiting = (
-			<Placeholder
-				icon={ icon }
-				notices={ notices }
-				className="wp-block-jetpack-mailchimp"
-				label={ __( 'Mailchimp', 'jetpack' ) }
-			>
-				<div className="align-center">
-					<Spinner />
-				</div>
-			</Placeholder>
+	if ( attributes.preview ) {
+		content = (
+			<Body attributes={ attributes } setAttributes={ setAttributes } audition={ audition } />
 		);
-		const placeholder = (
-			<Placeholder
-				className="wp-block-jetpack-mailchimp"
-				icon={ icon }
-				label={ __( 'Mailchimp', 'jetpack' ) }
-				notices={ notices }
-				instructions={ __(
-					'You need to connect your Mailchimp account and choose an audience in order to start collecting Email subscribers.',
-					'jetpack'
-				) }
-			>
-				<Button variant="secondary" href={ connectURL } target="_blank">
-					{ __( 'Set up Mailchimp form', 'jetpack' ) }
-				</Button>
-				<div className={ `${ classPrefix }-recheck` }>
-					<Button variant="link" onClick={ this.apiCall }>
-						{ __( 'Re-check Connection', 'jetpack' ) }
-					</Button>
-				</div>
-			</Placeholder>
-		);
-		const placeholderNotUserConnected = (
-			<Placeholder
-				className="wp-block-jetpack-mailchimp"
-				icon={ icon }
-				label={ __( 'Mailchimp', 'jetpack' ) }
-				notices={ notices }
-				instructions={ __(
-					"First, you'll need to connect your WordPress.com account.",
-					'jetpack'
-				) }
-			>
-				<Button variant="secondary" href={ connectURL }>
-					{ __( 'Connect to WordPress.com', 'jetpack' ) }
-				</Button>
-			</Placeholder>
-		);
-		const inspectorControls = (
-			<InspectorControls>
-				<MailChimpBlockControls
-					auditionNotification={ this.auditionNotification }
-					clearAudition={ this.clearAudition }
-					emailPlaceholder={ emailPlaceholder }
-					processingLabel={ processingLabel }
-					successLabel={ successLabel }
-					errorLabel={ errorLabel }
-					interests={ interests }
-					setAttributes={ this.props.setAttributes }
-					signupFieldTag={ signupFieldTag }
-					signupFieldValue={ signupFieldValue }
+	} else if ( connected === API_STATE_LOADING ) {
+		content = <Loader icon={ icon } notices={ notices } />;
+	} else if ( connected === API_STATE_NOTCONNECTED ) {
+		if ( currentUserConnected ) {
+			content = (
+				<UserConnectedPlaceholder
+					icon={ icon }
+					notices={ notices }
 					connectURL={ connectURL }
+					apiCall={ apiCall }
 				/>
-			</InspectorControls>
+			);
+		} else {
+			content = (
+				<UserNotConnectedPlaceholder icon={ icon } notices={ notices } connectURL={ connectURL } />
+			);
+		}
+	} else if ( connected === API_STATE_CONNECTED ) {
+		content = (
+			<>
+				<MailChimpInspectorControls
+					connectURL={ connectURL }
+					attributes={ attributes }
+					setAttributes={ setAttributes }
+					setAudition={ setAudition }
+				/>
+				<Body attributes={ attributes } setAttributes={ setAttributes } audition={ audition } />
+			</>
 		);
-		const blockClasses = classnames( className, {
-			[ `${ classPrefix }_notication-audition` ]: audition,
-		} );
-		const blockContent = (
-			<div className={ blockClasses }>
-				<TextControl
-					aria-label={ emailPlaceholder }
-					className="wp-block-jetpack-mailchimp_text-input"
-					disabled
-					onChange={ () => false }
-					placeholder={ emailPlaceholder }
-					title={ __( 'You can edit the email placeholder in the sidebar.', 'jetpack' ) }
-					type="email"
-				/>
-				<InnerBlocks
-					template={ [ [ innerButtonBlock.name, innerButtonBlock.attributes ] ] }
-					templateLock="all"
-				/>
-				<RichText
-					tagName="p"
-					placeholder={ __( 'Write consent text', 'jetpack' ) }
-					value={ consentText }
-					onChange={ value => setAttributes( { consentText: value } ) }
-					inlineToolbar
-				/>
-				{ audition && (
-					<div
-						className={ `${ classPrefix }_notification ${ classPrefix }_${ audition }` }
-						role={ this.roleForAuditionType( audition ) }
-					>
-						{ this.labelForAuditionType( audition ) }
-					</div>
-				) }
-			</div>
-		);
-		const previewUI = blockContent;
+	}
 
-		return (
-			<Fragment>
-				{ noticeUI }
-				{ preview && previewUI }
-				{ ! preview && connected === API_STATE_LOADING && waiting }
-				{ ! preview && connected === API_STATE_NOTCONNECTED && currentUserConnected && placeholder }
-				{ ! preview &&
-					connected === API_STATE_NOTCONNECTED &&
-					! currentUserConnected &&
-					placeholderNotUserConnected }
-				{ ! preview && connected === API_STATE_CONNECTED && inspectorControls }
-				{ ! preview && connected === API_STATE_CONNECTED && blockContent }
-			</Fragment>
-		);
-	};
-}
+	return (
+		<div { ...blockProps }>
+			{ noticeUI }
+			{ content }
+		</div>
+	);
+};
 
 export default withNotices( MailchimpSubscribeEdit );

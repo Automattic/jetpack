@@ -54,8 +54,8 @@ class Task_Trigger_Test extends JPCRM_Base_Test_Case {
 		$workflow->expects( $this->once() )
 		->method( 'execute' )
 		->with(
-			$this->equalTo( $trigger ),
-			$this->equalTo( $task_data )
+			$trigger,
+			$task_data
 		);
 
 		// Run the task_created action.
@@ -88,8 +88,8 @@ class Task_Trigger_Test extends JPCRM_Base_Test_Case {
 		$workflow->expects( $this->once() )
 		->method( 'execute' )
 		->with(
-			$this->equalTo( $trigger ),
-			$this->equalTo( $task_data )
+			$trigger,
+			$task_data
 		);
 
 		// Run the task_deleted action.
@@ -123,8 +123,8 @@ class Task_Trigger_Test extends JPCRM_Base_Test_Case {
 		$workflow->expects( $this->once() )
 		->method( 'execute' )
 		->with(
-			$this->equalTo( $trigger ),
-			$this->equalTo( $task_data )
+			$trigger,
+			$task_data
 		);
 
 		// Run the task_updated action.

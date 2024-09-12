@@ -58,7 +58,7 @@ class ChangeEntry implements JsonSerializable {
 	 * @throws InvalidArgumentException If an argument is invalid.
 	 */
 	public function __construct( array $data = array() ) {
-		$data = $data + array( 'timestamp' => 'now' );
+		$data += array( 'timestamp' => 'now' );
 		foreach ( $data as $k => $v ) {
 			$func = array( $this, 'set' . ucfirst( $k ) );
 			if ( is_callable( $func ) ) {
@@ -130,7 +130,7 @@ class ChangeEntry implements JsonSerializable {
 	 * may not include significance information.
 	 *
 	 * @param string|null $significance 'patch', 'minor', or 'major'.
-	 * @returns $this
+	 * @return $this
 	 * @throws InvalidArgumentException If an argument is invalid.
 	 */
 	public function setSignificance( $significance ) {
@@ -169,7 +169,7 @@ class ChangeEntry implements JsonSerializable {
 	 * Set the timestamp.
 	 *
 	 * @param DateTime|string $timestamp Timestamp to set.
-	 * @returns $this
+	 * @return $this
 	 * @throws InvalidArgumentException If an argument is invalid.
 	 */
 	public function setTimestamp( $timestamp ) {
@@ -193,9 +193,7 @@ class ChangeEntry implements JsonSerializable {
 	 * @return int
 	 */
 	protected static function compareTimestamp( ChangeEntry $a, ChangeEntry $b, array $config ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		$aa = $a->getTimestamp();
-		$bb = $b->getTimestamp();
-		return $aa < $bb ? -1 : ( $aa > $bb ? 1 : 0 );
+		return $a->getTimestamp() <=> $b->getTimestamp();
 	}
 
 	/**
@@ -211,7 +209,7 @@ class ChangeEntry implements JsonSerializable {
 	 * Set the subheading.
 	 *
 	 * @param string $subheading Subheading to set.
-	 * @returns $this
+	 * @return $this
 	 */
 	public function setSubheading( $subheading ) {
 		$this->subheading = (string) $subheading;
@@ -271,7 +269,7 @@ class ChangeEntry implements JsonSerializable {
 	 * Set the author.
 	 *
 	 * @param string $author Author to set.
-	 * @returns $this
+	 * @return $this
 	 */
 	public function setAuthor( $author ) {
 		$this->author = (string) $author;
@@ -291,7 +289,7 @@ class ChangeEntry implements JsonSerializable {
 	 * Set the content.
 	 *
 	 * @param string $content Content to set.
-	 * @returns $this
+	 * @return $this
 	 */
 	public function setContent( $content ) {
 		$this->content = (string) $content;

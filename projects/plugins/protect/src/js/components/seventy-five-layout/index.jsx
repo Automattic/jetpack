@@ -9,13 +9,14 @@ import React from 'react';
  * for main and secondary sections respectively,
  * in large lg viewport size.
  *
- * @param {object} props                            - Component props
- * @param {React.ReactNode} props.main              - Main section component
- * @param {React.ReactNode} props.secondary         - Secondary section component
- * @param {boolean} props.preserveSecondaryOnMobile - Whether to show secondary section on mobile
- * @returns {React.ReactNode} 					    - React meta-component
+ * @param {object}          props                           - Component props
+ * @param {React.ReactNode} props.main                      - Main section component
+ * @param {React.ReactNode} props.secondary                 - Secondary section component
+ * @param {boolean}         props.preserveSecondaryOnMobile - Whether to show secondary section on mobile
+ * @param {boolean}         props.fluid                     - Whether to use fluid layout
+ * @return {React.ReactNode} - React meta-component
  */
-const SeventyFiveLayout = ( { main, secondary, preserveSecondaryOnMobile = false } ) => {
+const SeventyFiveLayout = ( { main, secondary, preserveSecondaryOnMobile = false, fluid } ) => {
 	const [ isSmall, isLarge ] = useBreakpointMatch( [ 'sm', 'lg' ] );
 
 	/*
@@ -26,7 +27,7 @@ const SeventyFiveLayout = ( { main, secondary, preserveSecondaryOnMobile = false
 	const hideSecondarySection = ! preserveSecondaryOnMobile && isSmall;
 
 	return (
-		<Container horizontalSpacing={ 0 } horizontalGap={ 0 } fluid={ false }>
+		<Container horizontalSpacing={ 0 } horizontalGap={ 0 } fluid={ fluid }>
 			{ ! hideSecondarySection && (
 				<>
 					<Col sm={ 12 } md={ 4 } lg={ 6 }>

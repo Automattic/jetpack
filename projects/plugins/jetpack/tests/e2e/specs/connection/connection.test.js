@@ -1,3 +1,4 @@
+import { prerequisitesBuilder } from 'jetpack-e2e-commons/env/index.js';
 import { test, expect } from 'jetpack-e2e-commons/fixtures/base-test.js';
 import { doSiteLevelConnection, doClassicConnection } from 'jetpack-e2e-commons/flows/index.js';
 import {
@@ -5,7 +6,6 @@ import {
 	JetpackDashboardPage,
 	DashboardPage,
 } from 'jetpack-e2e-commons/pages/wp-admin/index.js';
-import { prerequisitesBuilder } from 'jetpack-e2e-commons/env/index.js';
 
 test.beforeEach( async ( { page } ) => {
 	await prerequisitesBuilder( page )

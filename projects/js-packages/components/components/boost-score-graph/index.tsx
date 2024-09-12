@@ -17,8 +17,14 @@ export interface Period {
 		mobile_tbt: number;
 	};
 }
+export interface Annotation {
+	timestamp: number;
+	text: string;
+	line?: HTMLElement;
+}
 export interface BoostScoreGraphProps {
 	periods?: Period[];
+	annotations?: Annotation[];
 	startDate?: number;
 	endDate?: number;
 	title?: string;
@@ -34,14 +40,15 @@ export type ScoreGraphAlignedData = [
 /**
  * BoostScoreGraph component composed by the chart and the legend.
  *
- * @param {BoostScoreGraphProps} props - The props object for the BoostScoreGraph component.
- * @param {string} props.title - Title for the chart.
- * @param {Period[]} props.periods - The periods to display in the chart.
- * @param {boolean} [props.isLoading=false] - Whether the component is in a loading state.
- * @returns {React.ReactElement} The JSX element representing the BoostScoreGraph component, or null if loading.
+ * @param {BoostScoreGraphProps} props                   - The props object for the BoostScoreGraph component.
+ * @param {string}               props.title             - Title for the chart.
+ * @param {Period[]}             props.periods           - The periods to display in the chart.
+ * @param {boolean}              [props.isLoading=false] - Whether the component is in a loading state.
+ * @return {React.ReactElement} The JSX element representing the BoostScoreGraph component, or null if loading.
  */
 export const BoostScoreGraph: FunctionComponent< BoostScoreGraphProps > = ( {
 	periods = [],
+	annotations = [],
 	startDate = 0,
 	endDate = 0,
 	title,
@@ -80,7 +87,11 @@ export const BoostScoreGraph: FunctionComponent< BoostScoreGraphProps > = ( {
 					<Background />
 				</div>
 			) : (
-				<UplotLineChart periods={ periods } range={ { startDate, endDate } } />
+				<UplotLineChart
+					periods={ periods }
+					annotations={ annotations }
+					range={ { startDate, endDate } }
+				/>
 			) }
 		</div>
 	);

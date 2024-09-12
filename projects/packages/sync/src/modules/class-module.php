@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Sync\Modules;
 
+use Automattic\Jetpack\Sync\Defaults;
 use Automattic\Jetpack\Sync\Functions;
 use Automattic\Jetpack\Sync\Listener;
 use Automattic\Jetpack\Sync\Replicastore;
@@ -49,14 +50,38 @@ abstract class Module {
 	}
 
 	/**
-	 * The table in the database.
+	 * The table name.
+	 *
+	 * @access public
+	 *
+	 * @return string|bool
+	 * @deprecated since 3.11.0 Use table() instead.
+	 */
+	public function table_name() {
+		_deprecated_function( __METHOD__, '3.11.0', 'Automattic\\Jetpack\\Sync\\Module->table' );
+		return false;
+	}
+
+	/**
+	 * The table in the database with the prefix.
 	 *
 	 * @access public
 	 *
 	 * @return string|bool
 	 */
-	public function table_name() {
+	public function table() {
 		return false;
+	}
+
+	/**
+	 * The full sync action name for this module.
+	 *
+	 * @access public
+	 *
+	 * @return string
+	 */
+	public function full_sync_action_name() {
+		return 'jetpack_full_sync_' . $this->name();
 	}
 
 	// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
@@ -293,19 +318,41 @@ abstract class Module {
 	 * @return array|object|null
 	 */
 	public function get_next_chunk( $config, $status, $chunk_size ) {
-		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery
 		global $wpdb;
 		return $wpdb->get_col(
-			<<<SQL
-SELECT {$this->id_field()}
-FROM {$wpdb->{$this->table_name()}}
-WHERE {$this->get_where_sql( $config )}
-AND {$this->id_field()} < {$status['last_sent']}
-ORDER BY {$this->id_field()}
-DESC LIMIT {$chunk_size}
-SQL
+			"
+			SELECT {$this->id_field()}
+			FROM {$this->table()}
+			WHERE {$this->get_where_sql( $config )}
+			AND {$this->id_field()} < {$status['last_sent']}
+			ORDER BY {$this->id_field()}
+			DESC LIMIT {$chunk_size}
+			"
 		);
-		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery
+	}
+
+	/**
+	 * Return last_item to send for Module Full Sync Configuration.
+	 *
+	 * @param array $config This module Full Sync configuration.
+	 *
+	 * @return array|object|null
+	 */
+	public function get_last_item( $config ) {
+		global $wpdb;
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.DirectQuery
+		return $wpdb->get_var(
+			"
+			SELECT {$this->id_field()}
+			FROM {$this->table()}
+			WHERE {$this->get_where_sql( $config )}
+			ORDER BY {$this->id_field()}
+			LIMIT 1
+			"
+		);
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.DirectQuery
 	}
 
 	/**
@@ -335,30 +382,59 @@ SQL
 			$status['last_sent'] = $this->get_initial_last_sent();
 		}
 
-		$limits = Settings::get_setting( 'full_sync_limits' )[ $this->name() ];
+		$limits = Settings::get_setting( 'full_sync_limits' )[ $this->name() ] ??
+			Defaults::get_default_setting( 'full_sync_limits' )[ $this->name() ] ??
+			array(
+				'max_chunks' => 10,
+				'chunk_size' => 100,
+			);
 
 		$chunks_sent = 0;
-		// phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
-		while ( $objects = $this->get_next_chunk( $config, $status, $limits['chunk_size'] ) ) {
-			if ( $chunks_sent++ === $limits['max_chunks'] || microtime( true ) >= $send_until ) {
+
+		$last_item = $this->get_last_item( $config );
+
+		while ( $chunks_sent < $limits['max_chunks'] && microtime( true ) < $send_until ) {
+			$objects = $this->get_next_chunk( $config, $status, $limits['chunk_size'] );
+
+			if ( $wpdb->last_error ) {
+				$status['error'] = true;
 				return $status;
 			}
 
-			$result = $this->send_action( 'jetpack_full_sync_' . $this->name(), array( $objects, $status['last_sent'] ) );
-
+			if ( empty( $objects ) ) {
+				$status['finished'] = true;
+				return $status;
+			}
+			$result = $this->send_action( $this->full_sync_action_name(), array( $objects, $status['last_sent'] ) );
 			if ( is_wp_error( $result ) || $wpdb->last_error ) {
 				$status['error'] = true;
 				return $status;
 			}
-			// The $ids are ordered in descending order.
-			$status['last_sent'] = end( $objects );
-			$status['sent']     += count( $objects );
+			// Updated the sent and last_sent status.
+			$status = $this->set_send_full_sync_actions_status( $status, $objects );
+			if ( $last_item === $status['last_sent'] ) {
+				$status['finished'] = true;
+				return $status;
+			}
+			++$chunks_sent;
 		}
 
-		if ( ! $wpdb->last_error ) {
-			$status['finished'] = true;
-		}
+		return $status;
+	}
 
+	/**
+	 * Set the status of the full sync action based on the objects that were sent.
+	 *
+	 * @access protected
+	 *
+	 * @param array $status This module Full Sync status.
+	 * @param array $objects This module Full Sync objects.
+	 *
+	 * @return array The updated status.
+	 */
+	protected function set_send_full_sync_actions_status( $status, $objects ) {
+		$status['last_sent'] = end( $objects );
+		$status['sent']     += count( $objects );
 		return $status;
 	}
 
@@ -525,14 +601,13 @@ SQL
 	 * @return array|bool An array of min and max ids for each batch. FALSE if no table can be found.
 	 */
 	public function get_min_max_object_ids_for_batches( $batch_size, $where_sql = false ) {
-		global $wpdb;
 
-		if ( ! $this->table_name() ) {
+		if ( ! $this->table() ) {
 			return false;
 		}
 
 		$results      = array();
-		$table        = $wpdb->{$this->table_name()};
+		$table        = $this->table();
 		$current_max  = 0;
 		$current_min  = 1;
 		$id_field     = $this->id_field();
@@ -582,11 +657,11 @@ SQL
 	 */
 	public function total( $config ) {
 		global $wpdb;
-		$table = $wpdb->{$this->table_name()};
+		$table = $this->table();
 		$where = $this->get_where_sql( $config );
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		return $wpdb->get_var( "SELECT COUNT(*) FROM $table WHERE $where" );
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		return (int) $wpdb->get_var( "SELECT COUNT(*) FROM $table WHERE $where" );
 	}
 
 	/**

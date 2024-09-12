@@ -11,18 +11,17 @@ const getPriceData = productObject => {
 };
 
 const parsePromotedProductInfo = response => {
-	const currencyCode = response?.advanced?.currency_code || response?.basic?.currency_code || 'USD';
+	const currencyCode = response?.v1?.currency_code || 'USD';
 	return {
 		currencyCode,
-		basic: response?.basic ? getPriceData( response.basic ) : null,
-		advanced: response?.advanced ? getPriceData( response.advanced ) : null,
+		v1: response?.v1 ? getPriceData( response.v1 ) : null,
 	};
 };
 
 /**
  * Hook to retrieve the product info for the pricing page.
  *
- * @returns {object} - The product info containing the currency and the plan prices.
+ * @return {object} - The product info containing the currency and the plan prices.
  */
 export default function useProductInfo() {
 	const [ productInfo, setProductInfo ] = useState( null );

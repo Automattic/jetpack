@@ -10,7 +10,7 @@ import { BaseControl, Button, TextControl, RangeControl } from '@wordpress/compo
 import { createInterpolateElement, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
-import classNames from 'classnames';
+import clsx from 'clsx';
 /**
  * Internal dependencies
  */
@@ -40,7 +40,7 @@ export const PosterSelector = props => {
 	const { onSelectPoster, onRemovePoster } = props;
 
 	return (
-		<BaseControl className={ classNames( props.className, 'editor-video-poster-control' ) }>
+		<BaseControl className={ clsx( props.className, 'editor-video-poster-control' ) }>
 			<PosterImageWrapper { ...props } />
 			<MediaUpload
 				title={ __( 'Select Poster Image', 'jetpack' ) }

@@ -14,6 +14,12 @@
  * @since 1.4.0
  */
 
+// Type aliases used in a bunch of places in this file. Unfortunately Phan doesn't have a way to set these more globally than copy-pasting them into each file needing them.
+<<<PHAN
+@phan-type Task_List = array{id:string, task_ids:string[], required_task_ids?:string[], visible_tasks_callback?:callable, require_last_task_completion?:bool, get_title?:callable, is_dismissible?:bool, is_enabled_callback?:callable}
+@phan-type Task = array{id:string, title?:string, get_title?:callable, id_map?:string, add_listener_callback?:callable, badge_text_callback?:callable, extra_data_callback?:callable, get_calypso_path?:callable, is_complete_callback?:callable, is_disabled_callback?:callable, isLaunchTask?:bool, is_visible_callback?:callable, target_repetitions?:int, repetition_count_callback?:callable, subtitle?:callable, completed?:bool}
+PHAN;
+
 require_once __DIR__ . '/../../utils.php';
 require_once __DIR__ . '/class-launchpad-task-lists.php';
 require_once __DIR__ . '/launchpad-task-definitions.php';
@@ -21,14 +27,15 @@ require_once __DIR__ . '/launchpad-task-definitions.php';
 /**
  * Registers all default launchpad checklists
  *
- * @return array
+ * @return Task[]
  */
 function wpcom_launchpad_get_task_list_definitions() {
 	$core_task_list_definitions = array(
-		'build'                  => array(
-			'title'               => 'Build',
+		'build'                   => array(
+			'get_title'           => function () {
+				return __( 'Next steps for your site', 'jetpack-mu-wpcom' );
+			},
 			'task_ids'            => array(
-				'verify_domain_email',
 				'setup_general',
 				'design_selected',
 				'plan_selected',
@@ -38,13 +45,14 @@ function wpcom_launchpad_get_task_list_definitions() {
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
 		),
-		'free'                   => array(
-			'title'               => 'Free',
+		'free'                    => array(
+			'get_title'           => function () {
+				return __( 'Next steps for your site', 'jetpack-mu-wpcom' );
+			},
 			'task_ids'            => array(
-				'verify_domain_email',
 				'plan_selected',
 				'setup_free',
-				'design_selected',
+				'design_completed',
 				'domain_upsell',
 				'first_post_published',
 				'design_edited',
@@ -52,10 +60,11 @@ function wpcom_launchpad_get_task_list_definitions() {
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
 		),
-		'link-in-bio'            => array(
-			'title'               => 'Link In Bio',
+		'link-in-bio'             => array(
+			'get_title'           => function () {
+				return __( 'Next steps for your site', 'jetpack-mu-wpcom' );
+			},
 			'task_ids'            => array(
-				'verify_domain_email',
 				'design_selected',
 				'setup_link_in_bio',
 				'plan_selected',
@@ -64,10 +73,11 @@ function wpcom_launchpad_get_task_list_definitions() {
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
 		),
-		'link-in-bio-tld'        => array(
-			'title'               => 'Link In Bio',
+		'link-in-bio-tld'         => array(
+			'get_title'           => function () {
+				return __( 'Next steps for your site', 'jetpack-mu-wpcom' );
+			},
 			'task_ids'            => array(
-				'verify_domain_email',
 				'design_selected',
 				'setup_link_in_bio',
 				'plan_selected',
@@ -76,24 +86,27 @@ function wpcom_launchpad_get_task_list_definitions() {
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
 		),
-		'newsletter'             => array(
-			'title'               => 'Newsletter',
+		'newsletter'              => array(
+			'get_title'           => function () {
+				return __( 'Next steps for your site', 'jetpack-mu-wpcom' );
+			},
 			'task_ids'            => array(
 				'setup_newsletter',
 				'plan_selected',
-				'subscribers_added',
 				'verify_email',
+				'subscribers_added',
+				'migrate_content',
 				'set_up_payments',
 				'newsletter_plan_created',
-				'migrate_content',
 				'first_post_published_newsletter',
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
 		),
-		'videopress'             => array(
-			'title'               => 'Videopress',
+		'videopress'              => array(
+			'get_title'           => function () {
+				return __( 'Next steps for your site', 'jetpack-mu-wpcom' );
+			},
 			'task_ids'            => array(
-				'verify_domain_email',
 				'videopress_setup',
 				'plan_selected',
 				'videopress_upload',
@@ -101,22 +114,24 @@ function wpcom_launchpad_get_task_list_definitions() {
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
 		),
-		'write'                  => array(
-			'title'               => 'Write',
+		'write'                   => array(
+			'get_title'           => function () {
+				return __( 'Next steps for your site', 'jetpack-mu-wpcom' );
+			},
 			'task_ids'            => array(
-				'verify_domain_email',
 				'setup_write',
-				'design_selected',
+				'design_completed',
 				'plan_selected',
 				'first_post_published',
 				'site_launched',
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
 		),
-		'start-writing'          => array(
-			'title'               => 'Start Writing',
+		'start-writing'           => array(
+			'get_title'           => function () {
+				return __( 'Next steps for your site', 'jetpack-mu-wpcom' );
+			},
 			'task_ids'            => array(
-				'verify_domain_email',
 				'first_post_published',
 				'setup_blog',
 				'domain_upsell',
@@ -125,10 +140,11 @@ function wpcom_launchpad_get_task_list_definitions() {
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
 		),
-		'design-first'           => array(
-			'title'               => 'Pick a Design',
+		'design-first'            => array(
+			'get_title'           => function () {
+				return __( 'Next steps for your site', 'jetpack-mu-wpcom' );
+			},
 			'task_ids'            => array(
-				'verify_domain_email',
 				'design_completed',
 				'setup_blog',
 				'domain_upsell',
@@ -138,8 +154,10 @@ function wpcom_launchpad_get_task_list_definitions() {
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
 		),
-		'intent-build'           => array(
-			'title'               => 'Keep Building',
+		'intent-build'            => array(
+			'get_title'           => function () {
+				return __( 'Next steps for your site', 'jetpack-mu-wpcom' );
+			},
 			'task_ids'            => array(
 				'site_title',
 				'domain_claim',
@@ -153,8 +171,10 @@ function wpcom_launchpad_get_task_list_definitions() {
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_is_keep_building_enabled',
 		),
-		'intent-write'           => array(
-			'title'               => 'Blog',
+		'intent-write'            => array(
+			'get_title'           => function () {
+				return __( 'Next steps for your site', 'jetpack-mu-wpcom' );
+			},
 			'task_ids'            => array(
 				'site_title',
 				'domain_claim',
@@ -165,8 +185,10 @@ function wpcom_launchpad_get_task_list_definitions() {
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_is_intent_write_enabled',
 		),
-		'intent-free-newsletter' => array(
-			'title'               => 'Free Newsletter',
+		'intent-free-newsletter'  => array(
+			'get_title'           => function () {
+				return __( 'Next steps for your site', 'jetpack-mu-wpcom' );
+			},
 			'task_ids'            => array(
 				'verify_email',
 				'share_site',
@@ -177,8 +199,10 @@ function wpcom_launchpad_get_task_list_definitions() {
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_is_free_newsletter_enabled',
 		),
-		'intent-paid-newsletter' => array(
-			'title'               => 'Paid Newsletter',
+		'intent-paid-newsletter'  => array(
+			'get_title'           => function () {
+				return __( 'Next steps for your site', 'jetpack-mu-wpcom' );
+			},
 			'task_ids'            => array(
 				'verify_email',
 				'share_site',
@@ -191,16 +215,14 @@ function wpcom_launchpad_get_task_list_definitions() {
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_is_paid_newsletter_enabled',
 		),
-		'earn'                   => array(
-			'title'               => 'Earn',
+		'earn'                    => array(
 			'task_ids'            => array(
 				'stripe_connected',
 				'paid_offer_created',
 			),
 			'is_enabled_callback' => '__return_true',
 		),
-		'host-site'              => array(
-			'title'               => 'Hosting Flow',
+		'host-site'               => array(
 			'task_ids'            => array(
 				'site_theme_selected',
 				'install_custom_plugin',
@@ -210,6 +232,88 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'site_launched',
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_is_hosting_flow_enabled',
+		),
+		'subscribers'             => array(
+			'task_ids' => array(
+				'import_subscribers',
+				'add_subscribe_block',
+				'share_site',
+			),
+		),
+		'assembler-first'         => array(
+			'get_title'           => function () {
+				return __( 'Next steps for your site', 'jetpack-mu-wpcom' );
+			},
+			'task_ids'            => array(
+				'verify_domain_email',
+				'plan_completed',
+				'setup_free',
+				'design_selected',
+				'domain_upsell',
+				'first_post_published',
+				'design_edited',
+				'site_launched',
+			),
+			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
+		),
+		'readymade-template'      => array(
+			'get_title'           => function () {
+				return __( 'Next steps for your site', 'jetpack-mu-wpcom' );
+			},
+			'task_ids'            => array(
+				'verify_domain_email',
+				'design_selected',
+				'setup_general',
+				'generate_content',
+				'plan_completed',
+				'domain_upsell',
+				'design_edited',
+				'site_launched',
+			),
+			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
+		),
+		'ai-assembler'            => array(
+			'get_title'           => function () {
+				return __( 'Next steps for your site', 'jetpack-mu-wpcom' );
+			},
+			'task_ids'            => array(
+				'verify_domain_email',
+				'plan_completed',
+				'setup_free',
+				'design_selected',
+				'domain_upsell',
+				'design_edited',
+				'site_launched',
+			),
+			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
+		),
+		'legacy-site-setup'       => array(
+			'get_title'      => function () {
+				return __( 'Site setup', 'jetpack-mu-wpcom' );
+			},
+			'is_dismissible' => true,
+			'task_ids'       => array(
+				'woocommerce_setup',
+				'sensei_setup',
+				'site_title',
+				'front_page_updated',
+				'verify_domain_email',
+				'verify_email',
+				'mobile_app_installed',
+				'post_sharing_enabled',
+				'site_launched',
+			),
+		),
+		'entrepreneur-site-setup' => array(
+			'task_ids' => array(
+				'woo_customize_store',
+				'woo_products',
+				'woo_woocommerce_payments',
+				'woo_tax',
+				'woo_marketing',
+				'woo_add_domain',
+				'woo_launch_site',
+			),
 		),
 	);
 
@@ -224,7 +328,7 @@ function wpcom_launchpad_get_task_list_definitions() {
  *
  * @param string $checklist_slug The checklist slug to get the task list for.
  *
- * @return array
+ * @return Task_List
  */
 function wpcom_launchpad_get_task_list( $checklist_slug = null ) {
 	// If we don't have a checklist slug, fall back to the site intent option.
@@ -241,7 +345,7 @@ function wpcom_launchpad_get_task_list( $checklist_slug = null ) {
  *
  * @param bool $rebuild Whether to rebuild the task lists or not.
  *
- * @return array
+ * @return Task_List[]
  */
 function wpcom_launchpad_get_task_lists( $rebuild = false ) {
 	// If we already have task lists registered and we don't want to rebuild, return all task lists.
@@ -328,16 +432,17 @@ function wpcom_is_checklist_task_complete( $task_id ) {
 /**
  * Returns launchpad checklist by checklist slug.
  *
- * @param string $checklist_slug Checklist slug.
+ * @param string      $checklist_slug Checklist slug.
+ * @param string|null $launchpad_context Optional. Screen where Launchpad is loading.
  *
  * @return Task[] Collection of tasks for a given checklist
  */
-function wpcom_get_launchpad_checklist_by_checklist_slug( $checklist_slug ) {
+function wpcom_get_launchpad_checklist_by_checklist_slug( $checklist_slug, $launchpad_context = null ) {
 	if ( ! $checklist_slug ) {
 		return array();
 	}
 
-	return wpcom_launchpad_checklists()->build( $checklist_slug );
+	return wpcom_launchpad_checklists()->build( $checklist_slug, $launchpad_context );
 }
 
 // TODO: Write code p2 post or dotcom post
@@ -359,8 +464,8 @@ function wpcom_register_launchpad_task_list( $task_list ) {
  * based on the specified array of required task IDs. It's worth noting that some tasks may not be
  * visible to the user, so we are going to return all tasks that are marked as required, regardless
  *
- * @param array $required_task_ids An array of task IDs that are considered required.
- * @param array $tasks An array of tasks to filter.
+ * @param array  $required_task_ids An array of task IDs that are considered required.
+ * @param Task[] $tasks An array of tasks to filter.
  * @return array An array containing only the required tasks from the provided task list.
  */
 function wpcom_launchpad_get_required_tasks( $required_task_ids, $tasks ) {
@@ -375,8 +480,8 @@ function wpcom_launchpad_get_required_tasks( $required_task_ids, $tasks ) {
 /**
  * Get all tasks that are marked as launch tasks.
  *
- * @param array $tasks Array of tasks.
- * @return array Array of launch tasks.
+ * @param Task[] $tasks Array of tasks.
+ * @return Task[] Array of launch tasks.
  */
 function wpcom_launchpad_get_launch_tasks( $tasks ) {
 	return array_filter(
@@ -393,7 +498,7 @@ function wpcom_launchpad_get_launch_tasks( $tasks ) {
 /**
  * Check if all the given tasks are completed.
  *
- * @param array $tasks Array of tasks to check if they are completed.
+ * @param Task[] $tasks Array of tasks to check if they are completed.
  * @return bool True if all tasks are completed, false otherwise.
  */
 function wpcom_launchpad_are_all_tasks_completed( $tasks ) {
@@ -417,7 +522,7 @@ function wpcom_launchpad_are_all_tasks_completed( $tasks ) {
  * using a flag, as the default approach might be confusing for task lists where the steps may not be sequential. By default, the task
  * list is marked as incomplete to align with most use cases that focus on user guidance and next steps rather than a specific end goal.
  *
- * @param array $task_list An array of tasks within the task list.
+ * @param Task_List $task_list Task list.
  * @return bool True if the task list is considered complete, false otherwise.
  */
 function wpcom_default_launchpad_task_list_completed( $task_list ) {
@@ -637,13 +742,42 @@ function wpcom_launchpad_is_task_list_dismissed( $checklist_slug ) {
 }
 
 /**
- * Sets a specific task list dismissed state.
+ * Checks if the Launchpad is dismissible.
  *
  * @param string $checklist_slug The slug of the launchpad task list to check.
- * @param bool   $is_dismissed True if the task list is dismissed, false otherwise.
+ * @return bool True if the Launchpad is dismissible, false otherwise.
  */
-function wpcom_launchpad_set_task_list_dismissed( $checklist_slug, $is_dismissed ) {
-	wpcom_launchpad_checklists()->set_task_list_dismissed( $checklist_slug, $is_dismissed );
+function wpcom_launchpad_is_task_list_dismissible( $checklist_slug ) {
+	if ( false === $checklist_slug ) {
+		return false;
+	}
+	return wpcom_launchpad_checklists()->is_task_list_dismissible( $checklist_slug );
+}
+
+/**
+ * Returns the the temporary dismissed timestamps for a specific task list.
+ *
+ * @param string $checklist_slug The slug of the launchpad task list to check.
+ * @return int The timestamp until which the task list is dismissed.
+ */
+function wpcom_launchpad_task_list_dismissed_until( $checklist_slug ) {
+	return wpcom_launchpad_checklists()->get_task_list_dismissed_until( $checklist_slug );
+}
+
+/**
+ * Sets a specific task list dismissed state.
+ *
+ * @param string        $checklist_slug The slug of the launchpad task list to check.
+ * @param bool          $is_dismissed True if the task list is dismissed, false otherwise.
+ * @param string | null $dismissed_until The date until which the task list is dismissed.
+ */
+function wpcom_launchpad_set_task_list_dismissed( $checklist_slug, $is_dismissed, $dismissed_until ) {
+
+	if ( isset( $dismissed_until ) ) {
+		wpcom_launchpad_checklists()->set_task_list_dismissed_until( $checklist_slug, $dismissed_until );
+	} else {
+		wpcom_launchpad_checklists()->set_task_list_dismissed( $checklist_slug, $is_dismissed );
+	}
 }
 
 /**
@@ -944,11 +1078,6 @@ function wpcom_launchpad_is_paid_newsletter_enabled() {
 	return wpcom_launchpad_has_goal_paid_subscribers() && apply_filters( 'wpcom_launchpad_intent_paid_newsletter_enabled', false );
 }
 
-// Unhook our old mu-plugin - this current file is being loaded on 0 priority for `plugins_loaded`.
-if ( class_exists( 'WPCOM_Launchpad' ) ) {
-	remove_action( 'plugins_loaded', array( WPCOM_Launchpad::get_instance(), 'init' ) );
-}
-
 /**
  * Add launchpad options to Jetpack Sync.
  *
@@ -978,3 +1107,47 @@ function add_launchpad_options_to_jetpack_sync( $allowed_options ) {
 	return array_merge( $allowed_options, $launchpad_options );
 }
 add_filter( 'jetpack_sync_options_whitelist', 'add_launchpad_options_to_jetpack_sync', 10, 1 );
+
+/**
+ * Get the title of a checklist by its slug.
+ *
+ * @param string $checklist_slug The slug of the checklist.
+ * @return string The title of the checklist.
+ */
+function wpcom_get_launchpad_checklist_title_by_checklist_slug( $checklist_slug ) {
+	if ( ! $checklist_slug ) {
+		return array();
+	}
+
+	return wpcom_launchpad_checklists()->get_task_list_title( $checklist_slug );
+}
+
+/**
+ * Gets a launchpad config option.
+ *
+ * @param string $option The option to get.
+ * @param mixed  $default The default value to return if the option is not set.
+ */
+function wpcom_get_launchpad_config_option( $option, $default = null ) {
+	$wpcom_launchpad_config = get_option( 'wpcom_launchpad_config', array() );
+
+	if ( ! is_array( $wpcom_launchpad_config ) || ! isset( $wpcom_launchpad_config[ $option ] ) ) {
+		return $default;
+	}
+
+	return $wpcom_launchpad_config[ $option ];
+}
+
+/**
+ * Sets a launchpad config option.
+ *
+ * @param string $option The option to set.
+ * @param mixed  $value The value to set.
+ */
+function wpcom_set_launchpad_config_option( $option, $value ) {
+	$wpcom_launchpad_config = get_option( 'wpcom_launchpad_config', array() );
+
+	$wpcom_launchpad_config[ $option ] = $value;
+
+	return update_option( 'wpcom_launchpad_config', $wpcom_launchpad_config );
+}

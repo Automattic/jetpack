@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Publicize\Publicize;
 use Automattic\Jetpack\Stats\WPCOM_Stats;
 
 /**
@@ -150,13 +151,11 @@ class Jetpack_Core_API_Site_Endpoint {
 		 * - Followers (only if subs module is active)
 		 * - Sharing counts (not currently supported in Jetpack -- https://github.com/Automattic/jetpack/issues/844 )
 		 */
-		$stats = null;
-		if ( function_exists( 'convert_stats_array_to_object' ) ) {
-				$stats = convert_stats_array_to_object(
-					( new WPCOM_Stats() )->get_stats( array( 'fields' => 'stats' ) )
-				);
-		}
-		$has_stats = null !== $stats && ! is_wp_error( $stats );
+		$wpcom_stats = new WPCOM_Stats();
+		$stats       = $wpcom_stats->convert_stats_array_to_object(
+			$wpcom_stats->get_stats( array( 'fields' => 'stats' ) )
+		);
+		$has_stats   = null !== $stats && ! is_wp_error( $stats );
 
 		// Yearly visitors.
 		if ( $has_stats && $stats->stats->visitors > 0 ) {
@@ -255,7 +254,7 @@ class Jetpack_Core_API_Site_Endpoint {
 		}
 
 		// Number of active Publicize connections.
-		if ( Jetpack::is_module_active( 'publicize' ) && class_exists( 'Publicize' ) ) {
+		if ( Jetpack::is_module_active( 'publicize' ) && class_exists( Publicize::class ) ) {
 			$publicize   = new Publicize();
 			$connections = $publicize->get_all_connections();
 

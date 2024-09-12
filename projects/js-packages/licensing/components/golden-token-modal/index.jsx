@@ -1,7 +1,7 @@
 import { getIconBySlug, JetpackLogo, Button, Col, Container } from '@automattic/jetpack-components';
 import { Modal } from '@wordpress/components';
 import { __, _x, sprintf } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import React, { useCallback, useRef, useState, useEffect } from 'react';
 import styles from './styles.module.scss';
@@ -21,14 +21,19 @@ const onModalCloseDefault = event => {
 /**
  * Component that displays a golden token experience.
  *
- * @param {object} props - Component props.
- * @param {Function} props.redeemClick - Callback function to handle redeem click.
- * @param {object} props.displayName - Connected user data.
- * @param {Function} props.onModalClose - Callback function to handle module closure.
+ * @param {object}   props               - Component props.
+ * @param {Function} props.redeemClick   - Callback function to handle redeem click.
+ * @param {object}   props.displayName   - Connected user data.
+ * @param {Function} props.onModalClose  - Callback function to handle module closure.
  * @param {Function} props.tokenRedeemed - If their token is already redeemed.
- * @returns {React.Component} - GoldenToken component.
+ * @return {React.Component} - GoldenToken component.
  */
-function GoldenTokenModal( { redeemClick, displayName, onModalClose, tokenRedeemed } ) {
+function GoldenTokenModal( {
+	redeemClick,
+	displayName,
+	onModalClose = onModalCloseDefault,
+	tokenRedeemed = false,
+} ) {
 	const [ hasAnimated, setIsAnimating ] = useState( false );
 	const videoRef = useRef( null );
 
@@ -54,7 +59,7 @@ function GoldenTokenModal( { redeemClick, displayName, onModalClose, tokenRedeem
 		hasAnimated && videoRef.current.play();
 	}, [ hasAnimated ] );
 
-	const modalClassName = classNames( styles.modal, {
+	const modalClassName = clsx( styles.modal, {
 		[ styles.animating ]: hasAnimated,
 	} );
 
@@ -174,11 +179,6 @@ function GoldenTokenModal( { redeemClick, displayName, onModalClose, tokenRedeem
 		</div>
 	);
 }
-
-GoldenTokenModal.defaultProps = {
-	tokenRedeemed: false,
-	onModalClose: onModalCloseDefault,
-};
 
 GoldenTokenModal.propTypes = {
 	redeemClick: PropTypes.func,

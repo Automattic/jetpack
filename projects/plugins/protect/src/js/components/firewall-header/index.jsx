@@ -1,31 +1,35 @@
-import { AdminSectionHero, Container, Col, Text, H3, Button } from '@automattic/jetpack-components';
-import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
+import {
+	AdminSectionHero,
+	Container,
+	Col,
+	Text,
+	H3,
+	Button,
+	Status,
+} from '@automattic/jetpack-components';
 import { Spinner, Popover } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, help } from '@wordpress/icons';
-import classnames from 'classnames';
 import React, { useState, useCallback } from 'react';
-import { JETPACK_SCAN_SLUG } from '../../constants';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
-import useProtectData from '../../hooks/use-protect-data';
+import usePlan from '../../hooks/use-plan';
 import useWafData from '../../hooks/use-waf-data';
 import styles from './styles.module.scss';
 
 const UpgradePrompt = () => {
+	const { recordEvent } = useAnalyticsTracks();
 	const { adminUrl } = window.jetpackProtectInitialState || {};
 	const firewallUrl = adminUrl + '#/firewall';
+	const { upgradePlan } = usePlan( { redirectUrl: firewallUrl } );
 
 	const {
 		config: { automaticRulesAvailable },
 	} = useWafData();
 
-	const { run } = useProductCheckoutWorkflow( {
-		productSlug: JETPACK_SCAN_SLUG,
-		redirectUrl: firewallUrl,
-	} );
-
-	const { recordEventHandler } = useAnalyticsTracks();
-	const getScan = recordEventHandler( 'jetpack_protect_waf_header_get_scan_link_click', run );
+	const getScan = useCallback( () => {
+		recordEvent( 'jetpack_protect_waf_header_get_scan_link_click' );
+		upgradePlan();
+	}, [ recordEvent, upgradePlan ] );
 
 	return (
 		<Button className={ styles[ 'upgrade-button' ] } onClick={ getScan }>
@@ -68,7 +72,7 @@ const FirewallSubheadingPopover = ( {
 		>
 			<Icon icon={ help } />
 			{ showPopover && (
-				<Popover noArrow={ false } offset={ 5 }>
+				<Popover noArrow={ false } offset={ 5 } inline={ true }>
 					<Text className={ styles[ 'popover-text' ] } variant={ 'body-small' }>
 						{ children }
 					</Text>
@@ -90,17 +94,19 @@ const FirewallSubheadingContent = ( { className, text = '', popover = false, chi
 };
 
 const FirewallSubheading = ( {
-	hasRequiredPlan,
+	jetpackWafIpBlockListEnabled,
+	jetpackWafIpAllowListEnabled,
+	hasPlan,
 	automaticRulesAvailable,
-	jetpackWafIpList,
 	jetpackWafAutomaticRules,
 	bruteForceProtectionIsEnabled,
 	wafSupported,
 } ) => {
-	const allRules = wafSupported && jetpackWafAutomaticRules && jetpackWafIpList;
-	const automaticRules = wafSupported && jetpackWafAutomaticRules && ! jetpackWafIpList;
-	const manualRules = wafSupported && ! jetpackWafAutomaticRules && jetpackWafIpList;
-	const noRules = wafSupported && ! jetpackWafAutomaticRules && ! jetpackWafIpList;
+	const allowOrBlockListEnabled = jetpackWafIpBlockListEnabled || jetpackWafIpAllowListEnabled;
+	const allRules = wafSupported && jetpackWafAutomaticRules && allowOrBlockListEnabled;
+	const automaticRules = wafSupported && jetpackWafAutomaticRules && ! allowOrBlockListEnabled;
+	const manualRules = wafSupported && ! jetpackWafAutomaticRules && allowOrBlockListEnabled;
+	const noRules = wafSupported && ! jetpackWafAutomaticRules && ! allowOrBlockListEnabled;
 
 	return (
 		<>
@@ -119,13 +125,13 @@ const FirewallSubheading = ( {
 				{ automaticRules && (
 					<FirewallSubheadingContent
 						text={ __( 'Automatic firewall protection is enabled.', 'jetpack-protect' ) }
-						popover={ ! hasRequiredPlan }
+						popover={ ! hasPlan }
 					/>
 				) }
 				{ manualRules && (
 					<FirewallSubheadingContent
 						text={ __( 'Only manual IP list rules apply.', 'jetpack-protect' ) }
-						popover={ ! hasRequiredPlan && ! automaticRulesAvailable }
+						popover={ ! hasPlan && ! automaticRulesAvailable }
 						children={ __(
 							'The free version of the firewall only allows for use of manual rules.',
 							'jetpack-protect'
@@ -135,24 +141,26 @@ const FirewallSubheading = ( {
 				{ allRules && (
 					<FirewallSubheadingContent
 						text={ __( 'All firewall rules apply.', 'jetpack-protect' ) }
-						popover={ ! hasRequiredPlan }
+						popover={ ! hasPlan }
 					/>
 				) }
 			</div>
-			{ ! hasRequiredPlan && <UpgradePrompt /> }
+			{ ! hasPlan && wafSupported && <UpgradePrompt /> }
 		</>
 	);
 };
 
 const FirewallHeader = ( {
 	status,
-	hasRequiredPlan,
+	hasPlan,
 	automaticRulesEnabled,
 	automaticRulesAvailable,
-	jetpackWafIpList,
+	jetpackWafIpBlockListEnabled,
+	jetpackWafIpAllowListEnabled,
 	jetpackWafAutomaticRules,
 	bruteForceProtectionIsEnabled,
 	wafSupported,
+	standaloneMode,
 } ) => {
 	return (
 		<AdminSectionHero>
@@ -164,9 +172,14 @@ const FirewallHeader = ( {
 				<Col>
 					{ 'on' === status && (
 						<>
-							<Text className={ classnames( styles.status, styles.active ) } variant={ 'label' }>
-								{ __( 'Active', 'jetpack-protect' ) }
-							</Text>
+							<Status
+								status="active"
+								label={
+									standaloneMode
+										? __( 'Standalone mode', 'jetpack-protect' )
+										: __( 'Active', 'jetpack-protect', /* dummy arg to avoid bad minification */ 0 )
+								}
+							/>{ ' ' }
 							<H3 className={ styles[ 'firewall-heading' ] } mb={ 1 } mt={ 2 }>
 								{ ! wafSupported && __( 'Brute force protection is active', 'jetpack-protect' ) }
 								{ wafSupported &&
@@ -179,10 +192,11 @@ const FirewallHeader = ( {
 										  ) ) }
 							</H3>
 							<FirewallSubheading
-								jetpackWafIpList={ jetpackWafIpList }
+								jetpackWafIpBlockListEnabled={ jetpackWafIpBlockListEnabled }
+								jetpackWafIpAllowListEnabled={ jetpackWafIpAllowListEnabled }
 								jetpackWafAutomaticRules={ jetpackWafAutomaticRules }
 								bruteForceProtectionIsEnabled={ bruteForceProtectionIsEnabled }
-								hasRequiredPlan={ hasRequiredPlan }
+								hasPlan={ hasPlan }
 								automaticRulesAvailable={ automaticRulesAvailable }
 								wafSupported={ wafSupported }
 							/>
@@ -190,9 +204,7 @@ const FirewallHeader = ( {
 					) }
 					{ 'off' === status && (
 						<>
-							<Text className={ styles.status } variant={ 'label' }>
-								{ __( 'Inactive', 'jetpack-protect' ) }
-							</Text>
+							<Status status="inactive" label={ __( 'Inactive', 'jetpack-protect' ) } />
 							<H3 className={ styles[ 'firewall-heading' ] } mb={ 1 } mt={ 2 }>
 								{ ! wafSupported && __( 'Brute force protection is disabled', 'jetpack-protect' ) }
 								{ wafSupported &&
@@ -205,10 +217,11 @@ const FirewallHeader = ( {
 										  ) ) }
 							</H3>
 							<FirewallSubheading
-								jetpackWafIpList={ jetpackWafIpList }
+								jetpackWafIpBlockListEnabled={ jetpackWafIpBlockListEnabled }
+								jetpackWafIpAllowListEnabled={ jetpackWafIpAllowListEnabled }
 								jetpackWafAutomaticRules={ jetpackWafAutomaticRules }
 								bruteForceProtectionIsEnabled={ bruteForceProtectionIsEnabled }
-								hasRequiredPlan={ hasRequiredPlan }
+								hasPlan={ hasPlan }
 								automaticRulesAvailable={ automaticRulesAvailable }
 								wafSupported={ wafSupported }
 							/>
@@ -238,29 +251,32 @@ const ConnectedFirewallHeader = () => {
 	const {
 		config: {
 			jetpackWafAutomaticRules,
-			jetpackWafIpList,
+			jetpackWafIpBlockListEnabled,
+			jetpackWafIpAllowListEnabled,
+			standaloneMode,
 			automaticRulesAvailable,
 			bruteForceProtection,
 		},
 		isToggling,
 		wafSupported,
+		isEnabled,
 	} = useWafData();
-	const { hasRequiredPlan } = useProtectData();
-	const currentStatus =
-		( wafSupported && ( jetpackWafAutomaticRules || jetpackWafIpList ) ) || bruteForceProtection
-			? 'on'
-			: 'off';
+	const { hasPlan } = usePlan();
+	const isSupportedWafFeatureEnabled = wafSupported ? isEnabled : bruteForceProtection;
+	const currentStatus = isSupportedWafFeatureEnabled ? 'on' : 'off';
 
 	return (
 		<FirewallHeader
 			status={ isToggling ? 'loading' : currentStatus }
-			hasRequiredPlan={ hasRequiredPlan }
+			hasPlan={ hasPlan }
 			automaticRulesEnabled={ jetpackWafAutomaticRules }
 			automaticRulesAvailable={ automaticRulesAvailable }
-			jetpackWafIpList={ jetpackWafIpList }
+			jetpackWafIpBlockListEnabled={ jetpackWafIpBlockListEnabled }
+			jetpackWafIpAllowListEnabled={ jetpackWafIpAllowListEnabled }
 			jetpackWafAutomaticRules={ jetpackWafAutomaticRules }
 			bruteForceProtectionIsEnabled={ bruteForceProtection }
 			wafSupported={ wafSupported }
+			standaloneMode={ standaloneMode }
 		/>
 	);
 };

@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\VideoPress;
 
+use WP_Post;
+
 /**
  * VideoPress block editor class for content generation
  */
@@ -84,8 +86,12 @@ class Block_Editor_Content {
 			}
 		}
 
-		if ( isset( $atts['preload'] ) ) {
+		if ( isset( $atts['preload'] ) && videopress_is_valid_preload( $atts['preload'] ) ) {
 			$atts['preloadcontent'] = $atts['preload'];
+		}
+
+		if ( isset( $atts['preloadcontent'] ) && ! videopress_is_valid_preload( $atts['preloadcontent'] ) ) {
+			unset( $atts['preloadcontent'] );
 		}
 
 		$atts = shortcode_atts( $defaults, $atts, 'videopress' );
@@ -129,6 +135,7 @@ class Block_Editor_Content {
 		'</figure>';
 
 		$version = Package_Version::PACKAGE_VERSION;
+		Jwt_Token_Bridge::enqueue_jwt_token_bridge();
 		wp_enqueue_script( 'videopress-iframe', 'https://videopress.com/videopress-iframe.js', array(), $version, true );
 
 		return sprintf( $block_template, $src, $width, $height, $cover );

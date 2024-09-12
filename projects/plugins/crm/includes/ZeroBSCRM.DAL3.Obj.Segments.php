@@ -340,11 +340,6 @@ class zbsDAL_segments extends zbsDAL_ObjectLayer {
                             'saveOrphans'   => $saveOrphans,
                         ));
 
-                        $customViews = $zbs->settings->get('customviews2');
-                        $segment_slug = $segment['slug'];
-                        unset( $customViews['customer_filters']["segment_$segment_slug"] );
-                        $zbs->settings->update('customviews2', $customViews);
-
                         return $del;
 
                 }

@@ -1,5 +1,5 @@
 import { forwardRef, useCallback } from '@wordpress/element';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import { kebabCase, map } from 'lodash';
 
 const stopPropagation = event => event.stopPropagation();
@@ -7,7 +7,7 @@ const stopPropagation = event => event.stopPropagation();
 const TableItem = ( { columns, item, isSelected, onSelectChange }, ref ) => {
 	const handleChange = useCallback( () => onSelectChange( item.id ), [ item.id, onSelectChange ] );
 
-	const classes = classnames( 'jp-forms__table-item', item.className, {
+	const classes = clsx( 'jp-forms__table-item', item.className, {
 		'is-active': ! item.isLoading && item.isActive,
 		'is-clickable': ! item.isLoading && item.onClick,
 		'is-loading': item.isLoading,
@@ -34,7 +34,7 @@ const TableItem = ( { columns, item, isSelected, onSelectChange }, ref ) => {
 			{ map( columns, ( { additionalClassNames, getValue, key }, index ) => {
 				const value = getValue ? getValue( item ) : item[ key ];
 
-				const cellClasses = classnames(
+				const cellClasses = clsx(
 					'jp-forms__table-cell',
 					`is-${ kebabCase( key ) }`,
 					additionalClassNames

@@ -1,6 +1,6 @@
 import {
 	NumberControl as BlockEditorNumberControl,
-	__experimentalNumberControl as ExperimentalNumberControl, // eslint-disable-line wpcalypso/no-unsafe-wp-apis
+	__experimentalNumberControl as ExperimentalNumberControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	TextControl,
 } from '@wordpress/components';
 
@@ -10,7 +10,7 @@ import {
  * to a standard TextControl, limited to numbers.
  *
  * @param {any} props - the NumberControl component props
- * @returns {object} - NumberControl component
+ * @return {object} - NumberControl component
  */
 const NumberControl =
 	BlockEditorNumberControl ||

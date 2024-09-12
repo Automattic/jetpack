@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Add tier-plans on ai-assistant-feature endpoint payload containing the collection of available tiered plans

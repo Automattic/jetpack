@@ -103,7 +103,7 @@ abstract class Tus_Abstract_Cache {
 	public function build_key( $key ) {
 		$prefix = $this->get_prefix();
 
-		if ( 0 !== strpos( $key, $prefix ) ) {
+		if ( ! str_starts_with( $key, $prefix ) ) {
 			$key = $prefix . $key;
 		}
 

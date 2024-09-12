@@ -19,3 +19,21 @@
 		grid-column: 2;
 	}
 }
+
+.connection-management {
+	grid-column: span 2;
+	justify-self: flex-start;
+
+	@media ( min-width: 600px ) {
+		grid-column: 2;
+	}
+}
+
+.cut {
+	grid-column: 2;
+	margin-top: var( --spacing-base );
+
+	&.small {
+		grid-column: span 2;
+	}
+}

@@ -3,6 +3,7 @@ import {
 	Container,
 	Col,
 	PricingCard,
+	getUserLocale,
 	AdminSectionHero,
 	ProductPrice,
 	PricingTable,
@@ -32,15 +33,16 @@ const JETPACK_SEARCH__LINK = 'https://jetpack.com/upgrade/search';
 /**
  * defines UpsellPage.
  *
- * @param {object} props - Component properties.
+ * @param {object} props           - Component properties.
  * @param {string} props.isLoading - should page show Loading spinner.
- * @returns {React.Component} UpsellPage component.
+ * @return {React.Component} UpsellPage component.
  */
 export default function UpsellPage( { isLoading = false } ) {
 	// Introduce the gate for new pricing with URL parameter `new_pricing_202208=1`
 	const isNewPricing = useSelect( select => select( STORE_ID ).isNewPricing202208(), [] );
 	useSelect( select => select( STORE_ID ).getSearchPricing(), [] );
 	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug(), [] );
+	const blogID = useSelect( select => select( STORE_ID ).getBlogId(), [] );
 	const adminUrl = useSelect( select => select( STORE_ID ).getSiteAdminUrl(), [] );
 	const isWpcom = useSelect( select => select( STORE_ID ).isWpcom(), [] );
 
@@ -58,6 +60,7 @@ export default function UpsellPage( { isLoading = false } ) {
 			siteProductAvailabilityHandler: checkSiteHasSearchProduct,
 			from: 'jetpack-search',
 			siteSuffix: domain,
+			blogID,
 			isWpcom,
 		} );
 
@@ -69,6 +72,7 @@ export default function UpsellPage( { isLoading = false } ) {
 			siteProductAvailabilityHandler: checkSiteHasSearchProduct,
 			from: 'jetpack-search',
 			siteSuffix: domain,
+			blogID,
 			isWpcom,
 		} );
 
@@ -152,7 +156,7 @@ const OldPricingComponent = ( { sendToCart } ) => {
 
 const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 	const siteDomain = useSelect( select => select( STORE_ID ).getCalypsoSlug(), [] );
-
+	const localeSlug = getUserLocale();
 	const priceBefore = useSelect( select => select( STORE_ID ).getPriceBefore() / 12, [] );
 	const priceAfter = useSelect( select => select( STORE_ID ).getPriceAfter() / 12, [] );
 	const priceCurrencyCode = useSelect( select => select( STORE_ID ).getPriceCurrencyCode(), [] );
@@ -163,7 +167,7 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 	const { hasConnectionError } = useConnectionErrorNotice();
 
 	const paidRecordsLimitRaw = useSelect( select => select( STORE_ID ).getPaidRecordsLimit(), [] );
-	const paidRecordsLimit = new Intl.NumberFormat( 'en-US', {
+	const paidRecordsLimit = new Intl.NumberFormat( localeSlug, {
 		notation: 'compact',
 		compactDisplay: 'short',
 	} ).format( paidRecordsLimitRaw );
@@ -173,14 +177,14 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 	const unlimitedText = __( 'Unlimited', 'jetpack-search-pkg' );
 	const paidRequestsLimit = hasUnlimitedRequests
 		? unlimitedText
-		: new Intl.NumberFormat( 'en-US', {
+		: new Intl.NumberFormat( localeSlug, {
 				notation: 'compact',
 				compactDisplay: 'short',
 		  } ).format( paidRequestsLimitRaw );
 
 	const unitPrice = useSelect( select => select( STORE_ID ).getAdditionalUnitPrice(), [] );
 	const unitQuantityRaw = useSelect( select => select( STORE_ID ).getAdditionalUnitQuantity(), [] );
-	const unitQuantity = new Intl.NumberFormat( 'en-US', {
+	const unitQuantity = new Intl.NumberFormat( localeSlug, {
 		notation: 'compact',
 		compactDisplay: 'short',
 	} ).format( unitQuantityRaw );

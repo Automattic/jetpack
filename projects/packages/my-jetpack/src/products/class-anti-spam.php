@@ -44,21 +44,35 @@ class Anti_Spam extends Product {
 	public static $requires_user_connection = false;
 
 	/**
-	 * Get the internationalized product name
+	 * Whether this product has a free offering
+	 *
+	 * @var bool
+	 */
+	public static $has_free_offering = true;
+
+	/**
+	 * Akismet has a standalone plugin
+	 *
+	 * @var bool
+	 */
+	public static $has_standalone_plugin = true;
+
+	/**
+	 * Get the product name
 	 *
 	 * @return string
 	 */
 	public static function get_name() {
-		return __( 'Akismet Anti-spam', 'jetpack-my-jetpack' );
+		return 'Akismet Anti-spam';
 	}
 
 	/**
-	 * Get the internationalized product title
+	 * Get the product title
 	 *
 	 * @return string
 	 */
 	public static function get_title() {
-		return __( 'Jetpack Akismet Anti-spam', 'jetpack-my-jetpack' );
+		return 'Jetpack Akismet Anti-spam';
 	}
 
 	/**
@@ -67,7 +81,7 @@ class Anti_Spam extends Product {
 	 * @return string
 	 */
 	public static function get_description() {
-		return __( 'Stop comment and form spam', 'jetpack-my-jetpack' );
+		return __( 'Keep your site free from spam and bots', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -90,6 +104,44 @@ class Anti_Spam extends Product {
 			_x( 'Block spam without CAPTCHAs', 'Anti-Spam Product Feature', 'jetpack-my-jetpack' ),
 			_x( 'Advanced stats', 'Anti-Spam Product Feature', 'jetpack-my-jetpack' ),
 		);
+	}
+
+	/**
+	 * Determine if the site has an Akismet plan by checking for an API key
+	 * Note that some Akismet Plans are free - we're just checking for an API key and don't have the perspective of the plan attached to it here
+	 *
+	 * @return bool - whether an API key was found
+	 */
+	public static function has_paid_plan_for_product() {
+		$products_with_anti_spam = array(
+			'jetpack_anti_spam',
+			'jetpack_complete',
+			'jetpack_security',
+			'jetpack_personal',
+			'jetpack_premium',
+			'jetpack_business',
+		);
+		// Check if the site has an API key for Akismet
+		$akismet_api_key = apply_filters( 'akismet_get_api_key', defined( 'WPCOM_API_KEY' ) ? constant( 'WPCOM_API_KEY' ) : get_option( 'wordpress_api_key' ) );
+		$fallback        = ! empty( $akismet_api_key );
+
+		// Check for existing plans
+		$purchases_data = Wpcom_Products::get_site_current_purchases();
+		if ( is_wp_error( $purchases_data ) ) {
+			return $fallback;
+		}
+
+		if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
+			foreach ( $purchases_data as $purchase ) {
+				foreach ( $products_with_anti_spam as $product ) {
+					if ( strpos( $purchase->product_slug, $product ) !== false ) {
+						return true;
+					}
+				}
+			}
+		}
+
+		return $fallback;
 	}
 
 	/**

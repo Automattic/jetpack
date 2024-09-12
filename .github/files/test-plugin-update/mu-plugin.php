@@ -17,12 +17,20 @@ add_filter(
 	}
 );
 
-/** Disable the login cookie check. */
+/**
+ * Disable the login cookie check.
+ *
+ * @phan-suppress PhanRedefineFunction -- Pluggable function.
+ */
 function wp_validate_auth_cookie() {
 	return true;
 }
 
-/** Disable the nonce check. */
+/**
+ * Disable the nonce check.
+ *
+ * @phan-suppress PhanRedefineFunction -- Pluggable function.
+ */
 function wp_verify_nonce() {
 	return true;
 }

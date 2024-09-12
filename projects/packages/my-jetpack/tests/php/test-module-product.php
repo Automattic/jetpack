@@ -38,12 +38,6 @@ class Test_Module_Product extends TestCase {
 	 * @before
 	 */
 	public function set_up() {
-
-		// See https://stackoverflow.com/a/41611876.
-		if ( version_compare( phpversion(), '5.7', '<=' ) ) {
-			$this->markTestSkipped( 'avoid bug in PHP 5.6 that throws strict mode warnings for abstract static methods.' );
-		}
-
 		$this->install_mock_plugins();
 		wp_cache_delete( 'plugins', 'plugins' );
 
@@ -123,6 +117,7 @@ class Test_Module_Product extends TestCase {
 	 */
 	public function test_return_error_on_activation_failure() {
 		activate_plugins( 'jetpack/jetpack.php' );
+		// @phan-suppress-next-line PhanUndeclaredStaticProperty -- It's declared on the mock from ./assets/jetpack-mock-plugin.txt
 		\Jetpack::$return_false = true;
 		$this->assertTrue( is_wp_error( Sample_Module_Product::activate() ) );
 

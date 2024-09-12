@@ -3,6 +3,7 @@
  * Generic tests for Jetpack_JSON_API_Endpoint accessibility.
  *
  * @package automattic/jetpack
+ *
  * @phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
  */
 
@@ -21,13 +22,13 @@ class WP_Test_Jetpack_Json_Api_Endpoints_Accessibility extends WP_UnitTestCase {
 	/**
 	 * An admin user_id.
 	 *
-	 * @var number $admin_user_id.
+	 * @var int $admin_user_id.
 	 */
 	private static $admin_user_id;
 	/**
 	 * The user_id of a user without read capabilities.
 	 *
-	 * @var number $no_read_user_id.
+	 * @var int $no_read_user_id.
 	 */
 	private static $no_read_user_id;
 

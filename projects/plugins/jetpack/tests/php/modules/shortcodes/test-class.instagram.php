@@ -324,7 +324,7 @@ BODY;
 	public function test_shortcodes_instagram_amp( $shortcode_content, $expected ) {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			self::markTestSkipped( 'WordPress.com does not run the latest version of the AMP plugin yet.' );
-			return;
+			return; // @phan-suppress-current-line PhanPluginUnreachableCode
 		}
 
 		$GLOBALS['content_width'] = self::CONTENT_WIDTH;

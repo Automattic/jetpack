@@ -10,6 +10,7 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\IP\Utils as IP_Utils;
+use Automattic\Jetpack\Publicize\Publicize;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Sync\Actions;
 use Automattic\Jetpack\Sync\Listener;
@@ -22,6 +23,7 @@ if ( ! class_exists( 'WP_CLI_Command' ) ) {
 	return;
 }
 
+// @phan-suppress-next-line PhanUndeclaredFunctionInCallable -- https://github.com/phan/phan/issues/4763
 WP_CLI::add_command( 'jetpack', 'Jetpack_CLI' );
 
 /**
@@ -984,8 +986,8 @@ class Jetpack_CLI extends WP_CLI_Command {
 						WP_CLI::error( __( 'Jetpack sync is not currently allowed for this site. The site is in offline mode.', 'jetpack' ) );
 						return;
 					}
-					if ( $status->is_staging_site() ) {
-						WP_CLI::error( __( 'Jetpack sync is not currently allowed for this site. The site is in staging mode.', 'jetpack' ) );
+					if ( $status->in_safe_mode() ) {
+						WP_CLI::error( __( 'Jetpack sync is not currently allowed for this site. The site is in safe mode.', 'jetpack' ) );
 						return;
 					}
 				}
@@ -1072,7 +1074,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 						}
 
 						// Immediate Full Sync does not wait for WP.com to process data so we need to enforce a wait.
-						if ( false !== strpos( get_class( Modules::get_module( 'full-sync' ) ), 'Full_Sync_Immediately' ) ) {
+						if ( Modules::get_module( 'full-sync' ) instanceof \Automattic\Jetpack\Sync\Modules\Full_Sync_Immediately ) {
 							sleep( 15 );
 						}
 					}
@@ -1218,8 +1220,6 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 		$result = Client::_wp_remote_request( $url, $request );
 
-		Jetpack_Options::delete_option( 'onboarding' );
-
 		if ( is_wp_error( $result ) ) {
 			$this->partner_provision_error( $result );
 		}
@@ -1242,8 +1242,6 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 * : WordPress.com ID of user to connect as (must be whitelisted against partner key)
 	 * [--wpcom_user_email=<wpcom_user_email>]
 	 * : Override the email we send to WordPress.com for registration
-	 * [--onboarding=<onboarding>]
-	 * : Guide the user through an onboarding wizard
 	 * [--force_register=<register>]
 	 * : Whether to force a site to register
 	 * [--force_connect=<force_connect>]
@@ -1260,7 +1258,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 *     $ wp jetpack partner_provision '{ some: "json" }' premium 1
 	 *     { success: true }
 	 *
-	 * @synopsis <token_json> [--wpcom_user_id=<user_id>] [--plan=<plan_name>] [--onboarding=<onboarding>] [--force_register=<register>] [--force_connect=<force_connect>] [--home_url=<home_url>] [--site_url=<site_url>] [--wpcom_user_email=<wpcom_user_email>] [--partner_tracking_id=<partner_tracking_id>]
+	 * @synopsis <token_json> [--wpcom_user_id=<user_id>] [--plan=<plan_name>] [--force_register=<register>] [--force_connect=<force_connect>] [--home_url=<home_url>] [--site_url=<site_url>] [--wpcom_user_email=<wpcom_user_email>] [--partner_tracking_id=<partner_tracking_id>]
 	 *
 	 * @param array $args Positional args.
 	 * @param array $named_args Named args.
@@ -1445,7 +1443,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 			? json_decode( $named_args['body'], true )
 			: false;
 
-		$resource_url = ( false === strpos( $named_args['resource'], '%d' ) )
+		$resource_url = ( ! str_contains( $named_args['resource'], '%d' ) )
 			? $named_args['resource']
 			: sprintf( $named_args['resource'], Jetpack_Options::get_option( 'id' ) );
 
@@ -1727,7 +1725,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 				! defined( 'JETPACK_DEV_DEBUG' ) &&
 				! has_filter( 'jetpack_development_mode' ) &&
 				! has_filter( 'jetpack_offline_mode' ) &&
-				false === strpos( site_url(), '.' )
+				! str_contains( site_url(), '.' )
 			) {
 				WP_CLI::error( __( "Jetpack is current in offline mode because the site url does not contain a '.', which often occurs when dynamically setting the WP_SITEURL constant. While in offline mode, the Jetpack Social module will not load.", 'jetpack' ) );
 			}
@@ -1735,7 +1733,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 			WP_CLI::error( __( 'Jetpack is currently in offline mode, so the Jetpack Social module will not load.', 'jetpack' ) );
 		}
 
-		if ( ! class_exists( 'Publicize' ) ) {
+		if ( ! class_exists( Publicize::class ) ) {
 			WP_CLI::error( __( 'The Jetpack Social module is not loaded.', 'jetpack' ) );
 		}
 
@@ -1865,9 +1863,11 @@ class Jetpack_CLI extends WP_CLI_Command {
 								);
 							}
 
+							// @phan-suppress-next-line PhanUndeclaredClassMethod - Class is missing from php-stubs/wp-cli-stubs 🤷
 							$progress->tick();
 						}
 
+						// @phan-suppress-next-line PhanUndeclaredClassMethod - Class is missing from php-stubs/wp-cli-stubs 🤷
 						$progress->finish();
 
 						if ( 'all' === $service ) {
@@ -1902,6 +1902,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 * Log and exit on a partner provision error.
 	 *
 	 * @param WP_Error $error Error.
+	 * @return never
 	 */
 	private function partner_provision_error( $error ) {
 		WP_CLI::log(
@@ -1976,6 +1977,8 @@ class Jetpack_CLI extends WP_CLI_Command {
 			? $assoc_args['slug']
 			: sanitize_title( $title );
 
+		$next_version = "\x24\x24next-version$$"; // Escapes to hide the string from tools/replace-next-version-tag.sh
+
 		$variation_options = array( 'production', 'experimental', 'beta' );
 		$variation         = ( isset( $assoc_args['variation'] ) && in_array( $assoc_args['variation'], $variation_options, true ) )
 			? $assoc_args['variation']
@@ -2004,56 +2007,51 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 		$wp_filesystem->mkdir( $path );
 
-		$has_keywords = isset( $assoc_args['keywords'] );
+		$keywords = isset( $assoc_args['keywords'] )
+			? array_map(
+				function ( $keyword ) {
+					return trim( $keyword );
+				},
+				array_slice( explode( ',', $assoc_args['keywords'] ), 0, 3 )
+			)
+			: array();
 
 		$files = array(
-			"$path/$slug.php"     => self::render_block_file(
+			"$path/block.json"  => self::render_block_file(
+				'block-block-json',
+				array(
+					'slug'        => $slug,
+					'title'       => wp_json_encode( $title, JSON_UNESCAPED_UNICODE ),
+					'description' => isset( $assoc_args['description'] )
+						? wp_json_encode( $assoc_args['description'], JSON_UNESCAPED_UNICODE )
+						: wp_json_encode( $title, JSON_UNESCAPED_UNICODE ),
+					'nextVersion' => $next_version,
+					'keywords'    => wp_json_encode( $keywords, JSON_UNESCAPED_UNICODE ),
+				)
+			),
+			"$path/$slug.php"   => self::render_block_file(
 				'block-register-php',
 				array(
-					'nextVersion'      => "\x24\x24next-version$$", // Escapes to hide the string from tools/replace-next-version-tag.sh
-					'slug'             => $slug,
+					'nextVersion'      => $next_version,
 					'title'            => $title,
-					'underscoredSlug'  => str_replace( '-', '_', $slug ),
 					'underscoredTitle' => str_replace( ' ', '_', $title ),
 				)
 			),
-			"$path/index.js"      => self::render_block_file(
-				'block-index-js',
-				array(
-					'slug'        => $slug,
-					'title'       => $title,
-					'description' => isset( $assoc_args['description'] )
-						? $assoc_args['description']
-						: $title,
-					'keywords'    => $has_keywords
-					? array_map(
-						function ( $keyword ) {
-								// Construction necessary for Mustache lists.
-								return array( 'keyword' => trim( $keyword ) );
-						},
-						explode( ',', $assoc_args['keywords'], 3 )
-					)
-					: '',
-					'hasKeywords' => $has_keywords,
-				)
-			),
-			"$path/editor.js"     => self::render_block_file( 'block-editor-js' ),
-			"$path/editor.scss"   => self::render_block_file(
+			"$path/editor.js"   => self::render_block_file( 'block-editor-js' ),
+			"$path/editor.scss" => self::render_block_file(
 				'block-editor-scss',
 				array(
 					'slug'  => $slug,
 					'title' => $title,
 				)
 			),
-			"$path/edit.js"       => self::render_block_file(
+			"$path/edit.js"     => self::render_block_file(
 				'block-edit-js',
 				array(
 					'title'     => $title,
 					'className' => str_replace( ' ', '', ucwords( str_replace( '-', ' ', $slug ) ) ),
 				)
 			),
-			"$path/icon.js"       => self::render_block_file( 'block-icon-js' ),
-			"$path/attributes.js" => self::render_block_file( 'block-attributes-js' ),
 		);
 
 		$files_written = array();

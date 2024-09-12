@@ -135,7 +135,7 @@ const TiledGalleryEdit = props => {
 			numColumns: displayedColumns,
 			marginHorizontal: TILE_SPACING,
 			marginVertical: TILE_SPACING,
-			__experimentalLayout: { type: 'default', alignments: [] },
+			layout: { type: 'default', alignments: [] },
 			gridProperties: {
 				numColumns: displayedColumns,
 			},

@@ -1,6 +1,6 @@
 import { RichText } from '@wordpress/block-editor';
 import { __ } from '@wordpress/i18n';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import getColorAndStyleProps from '../../color-props';
 
 export default {
@@ -37,7 +37,7 @@ export default {
 	save: ( { attributes } ) => {
 		const { borderRadius, text } = attributes;
 		const colorProps = getColorAndStyleProps( attributes );
-		const buttonClasses = classnames( 'wp-block-button__link', colorProps.className, {
+		const buttonClasses = clsx( 'wp-block-button__link', colorProps.className, {
 			'no-border-radius': borderRadius === 0,
 		} );
 		const buttonStyle = {

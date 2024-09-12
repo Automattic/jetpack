@@ -3,21 +3,16 @@
 	"description": "Compatibility layer with previous versions of Jetpack",
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
-	"require": {},
+	"require": {
+		"php": ">=7.0"
+	},
 	"require-dev": {
 		"automattic/jetpack-changelogger": "@dev"
 	},
 	"suggest": {
 		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
 	},
-	"autoload": {
-		"files": [
-			"functions.php"
-		],
-		"classmap": [
-			"legacy"
-		]
-	},
+	"autoload": {},
 	"repositories": [
 		{
 			"type": "path",
@@ -37,7 +32,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-compat/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "1.7.x-dev"
+			"dev-trunk": "3.0.x-dev"
 		}
 	}
 }

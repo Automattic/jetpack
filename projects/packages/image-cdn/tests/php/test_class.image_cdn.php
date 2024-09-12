@@ -94,14 +94,14 @@ class WP_Test_Image_CDN extends Image_CDN_Attachment_Test_Case {
 		// l337 h4X0Ring required:
 		$instance = new ReflectionProperty( Image_CDN::class, 'instance' );
 		$instance->setAccessible( true );
-		$instance->setValue( null );
+		$instance->setValue( null, null );
 
 		/**
 		 * Reset the `image_sizes` property, as it persists between class instantiations, since it's static.
 		 */
 		$instance = new ReflectionProperty( Image_CDN::class, 'image_sizes' );
 		$instance->setAccessible( true );
-		$instance->setValue( null );
+		$instance->setValue( null, null );
 
 		self::delete_author();
 
@@ -148,6 +148,7 @@ class WP_Test_Image_CDN extends Image_CDN_Attachment_Test_Case {
 
 		// add sizes that did not exist when the file was uploaded.
 		// These perfectly match the above and Photon should treat them the same.
+		add_image_size( 'jetpack_cropped_size', 165, 165, true );
 		add_image_size( 'jetpack_soft_defined_after_upload', 700, 500, false ); // Intentionally not a 1.33333 ratio.
 		add_image_size( 'jetpack_soft_undefined_after_upload', 700, 99999, false );
 		add_image_size( 'jetpack_soft_undefined_zero_after_upload', 700, 0, false );
@@ -405,6 +406,17 @@ class WP_Test_Image_CDN extends Image_CDN_Attachment_Test_Case {
 	 */
 	public function test_image_cdn_parse_dimensions_from_filename_valid_dimensions() {
 		$image_url = 'http://' . WP_TESTS_DOMAIN . '/no-dimensions-here-148x148.jpg';
+
+		$this->assertEquals( array( 148, 148 ), Image_CDN::parse_dimensions_from_filename( $image_url ) );
+	}
+
+	/**
+	 * Tests Photon will parse the dimensions from a filename that contains query parameters.
+	 *
+	 * @covers Image_CDN::parse_dimensions_from_filename
+	 */
+	public function test_image_cdn_parse_dimensions_from_filename_with_query_parameters() {
+		$image_url = 'http://' . WP_TESTS_DOMAIN . '/no-dimensions-here-148x148.jpg?foo=bar&baz=qux';
 
 		$this->assertEquals( array( 148, 148 ), Image_CDN::parse_dimensions_from_filename( $image_url ) );
 	}
@@ -787,6 +799,39 @@ class WP_Test_Image_CDN extends Image_CDN_Attachment_Test_Case {
 			'fit=400%2C300',
 			$this->helper_get_query( Image_CDN::instance()->filter_image_downsize( false, $test_image, array( 400, 400 ) ) )
 		);
+
+		wp_delete_attachment( $test_image );
+		$this->helper_remove_image_sizes();
+	}
+
+	/**
+	 * Tests Photon image_downsize will return a cropped image for custom size if the custom size matches a registered size.
+	 *
+	 * @covers Image_CDN::filter_image_downsize
+	 * @since 0.4.3
+	 */
+	public function test_image_cdn_return_custom_size_array_uses_registered_crop() {
+		$test_image = $this->helper_get_image();
+
+		// Declaring the size array directly, registered size jetpack_cropped_size of 165 by 165, cropped.
+		$this->assertEquals(
+			'resize=165%2C165',
+			$this->helper_get_query( Image_CDN::instance()->filter_image_downsize( false, $test_image, array( 165, 165 ) ) )
+		);
+
+		wp_delete_attachment( $test_image );
+		$this->helper_remove_image_sizes();
+	}
+
+	/**
+	 * Tests Photon image_downsize will return a cropped image for custom size if the custom size matches a registered size.
+	 *
+	 * @covers Image_CDN::filter_image_downsize
+	 * @since 0.4.3
+	 */
+	public function test_image_cdn_return_false_for_image_with_null_size() {
+		$test_image = $this->helper_get_image();
+		$this->assertFalse( Image_CDN::instance()->filter_image_downsize( false, $test_image, array( null, null ) ) );
 
 		wp_delete_attachment( $test_image );
 		$this->helper_remove_image_sizes();
@@ -1176,6 +1221,48 @@ class WP_Test_Image_CDN extends Image_CDN_Attachment_Test_Case {
 	}
 
 	/**
+	 * Tests that Photon ignores empty dimensions. It should fall back to e.g. a "size-foo" class.
+	 *
+	 * @covers Image_CDN::filter_the_content
+	 */
+	public function test_image_cdn_filter_the_content_empty_width_and_height() {
+		$sample_html      = '<img src="http://example.com/test.png" class="test size-large" width="" height="" />';
+		$filtered_content = Image_CDN::filter_the_content( $sample_html );
+		$attributes       = wp_kses_hair( $filtered_content, wp_allowed_protocols() );
+		$query_str        = wp_parse_url( $attributes['src']['value'], PHP_URL_QUERY );
+		parse_str( $query_str, $query_params );
+
+		$this->assertArrayHasKey( 'width', $attributes );
+		$this->assertSame( '1024', $attributes['width']['value'] );
+		$this->assertArrayHasKey( 'height', $attributes );
+		$this->assertSame( '768', $attributes['height']['value'] );
+
+		$this->assertArrayHasKey( 'fit', $query_params );
+		$this->assertEquals( '1024,768', $query_params['fit'] );
+	}
+
+	/**
+	 * Tests that Photon ignores bogus dimensions. It should fall back to e.g. a "size-foo" class.
+	 *
+	 * @covers Image_CDN::filter_the_content
+	 */
+	public function test_image_cdn_filter_the_content_bogus_width_and_height() {
+		$sample_html      = '<img src="http://example.com/test.png" class="test size-large" width="1vh" height="1vh" />';
+		$filtered_content = Image_CDN::filter_the_content( $sample_html );
+		$attributes       = wp_kses_hair( $filtered_content, wp_allowed_protocols() );
+		$query_str        = wp_parse_url( $attributes['src']['value'], PHP_URL_QUERY );
+		parse_str( $query_str, $query_params );
+
+		$this->assertArrayHasKey( 'width', $attributes );
+		$this->assertSame( '1024', $attributes['width']['value'] );
+		$this->assertArrayHasKey( 'height', $attributes );
+		$this->assertSame( '768', $attributes['height']['value'] );
+
+		$this->assertArrayHasKey( 'fit', $query_params );
+		$this->assertEquals( '1024,768', $query_params['fit'] );
+	}
+
+	/**
 	 * Tests that Photon will filter for an AMP response.
 	 *
 	 * @author westonruter
@@ -1417,6 +1504,7 @@ class WP_Test_Image_CDN extends Image_CDN_Attachment_Test_Case {
 	 */
 	public function test_image_cdn_in_rest_response_external_media() {
 		$this->markTestSkipped( 'Skipping the test as the endpoint is currently missing' );
+		// @phan-suppress-next-line PhanPluginUnreachableCode
 		wp_set_current_user( self::$author_id );
 
 		$request = new WP_REST_Request( 'POST', '/wpcom/v2/external-media/copy/pexels' );

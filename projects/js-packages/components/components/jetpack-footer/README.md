@@ -18,4 +18,3 @@ It takes moduleName and URL to show in the footer.
 - `onAboutClick`: () => void - (default: `undefined`) function called when the About link is clicked.
 - `onPrivacyClick`: () => void - (default: `undefined`) function called when the Privacy link is clicked.
 - `onTermsClick`: () => void - (default: `undefined`) function called when the Terms link is clicked.
-- `siteAdminUrl`: String - (default: `undefined`) URL of the site WP Admin. Required to link to internal pages when applicable (e.g., Privacy).

@@ -34,6 +34,7 @@ export const WorkflowTable: React.FC< WorkflowTableProps > = props => {
 	const getSortableWorkflowTableHeader = ( column: SortableWorkflowTableColumn ) => {
 		return (
 			<WorkflowTableHeader
+				key={ column }
 				column={ column }
 				onClick={ getSortableHeaderOnClick( column ) }
 				selectedForSort={ sortedColumn === column }
@@ -49,14 +50,22 @@ export const WorkflowTable: React.FC< WorkflowTableProps > = props => {
 	return (
 		<div className={ styles.container }>
 			<table className={ styles.table }>
-				<tr className={ styles[ 'header-row' ] }>
-					<WorkflowTableHeader column={ 'checkbox' } />
-					{ sortableColumns.map( column => getSortableWorkflowTableHeader( column ) ) }
-					<WorkflowTableHeader column={ 'edit' } />
-				</tr>
-				{ sortedWorkflows.map( workflow => (
-					<WorkflowRow workflow={ workflow } refetchWorkflows={ refetchWorkflows } />
-				) ) }
+				<thead>
+					<tr className={ styles[ 'header-row' ] }>
+						<WorkflowTableHeader column={ 'checkbox' } />
+						{ sortableColumns.map( column => getSortableWorkflowTableHeader( column ) ) }
+						<WorkflowTableHeader column={ 'edit' } />
+					</tr>
+				</thead>
+				<tbody>
+					{ sortedWorkflows.map( workflow => (
+						<WorkflowRow
+							key={ workflow.id }
+							workflow={ workflow }
+							refetchWorkflows={ refetchWorkflows }
+						/>
+					) ) }
+				</tbody>
 			</table>
 		</div>
 	);

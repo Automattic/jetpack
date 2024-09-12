@@ -181,13 +181,12 @@ class Woo_Sync_Contact_Tabs {
 	 */
 	private function generate_subscriptions_tab_html( $object_id = -1 ) {
 
-		$contact_has_subscriptions = false;
+		$subscriptions = array();
 		if ( zeroBSCRM_getClientPortalUserID( $object_id ) > 0 ) {
 			// Retrieve any subs against the main email or aliases.
-			$subscriptions             = $this->get_contact_subscriptions( $object_id );
-			$contact_has_subscriptions = ( 'success' === $subscriptions['message'] && count( $subscriptions['data'] ) > 0 );
+			$subscriptions = $this->get_contact_subscriptions( $object_id );
 		}
-		if ( ! $contact_has_subscriptions ) {
+		if ( count( $subscriptions ) === 0 ) {
 			return '<div class="ui message info blue"><i class="ui icon info circle"></i>' . __( 'This contact does not have any WooCommerce Subscriptions yet.', 'zero-bs-crm' ) . '</div>';
 		}
 
@@ -203,20 +202,19 @@ class Woo_Sync_Contact_Tabs {
 		$html .= '</tr></thead>';
 		$html .= '<tbody>';
 
-		foreach ( $subscriptions['data'] as $k => $v ) {
-
-			$order        = wc_get_order( $k );
+		foreach ( $subscriptions as $order_id ) {
+			$order        = wc_get_order( $order_id );
 			$status       = $order->get_status();
 			$date_created = $order->get_date_created();
 			$date_renew   = $order->get_date( 'next_payment_date' );
 			$price        = $order->get_formatted_order_total();
 			$name         = '';
-			$sub_link     = admin_url( "post.php?post={$k}&action=edit" );
-			$created      = zeroBSCRM_date_i18n( zeroBSCRM_getDateFormat(), strtotime( $date_created ), true, false );
-			$next         = zeroBSCRM_date_i18n( zeroBSCRM_getDateFormat(), strtotime( $date_renew ), true, false );
+			$sub_link     = admin_url( "post.php?post={$order_id}&action=edit" );
+			$created      = jpcrm_uts_to_date_str( strtotime( $date_created ) );
+			$next         = jpcrm_uts_to_date_str( strtotime( $date_renew ) );
 
 			$html .= '<tr>';
-			$html .= '<td><a href="' . esc_url( $sub_link ) . '">' . $name . __( ' Subscription #', 'zero-bs-crm' ) . $k . '</a></td>';
+			$html .= '<td><a href="' . esc_url( $sub_link ) . '">' . $name . __( ' Subscription #', 'zero-bs-crm' ) . $order_id . '</a></td>';
 			$html .= '<td><span class="ui label ' . $status . '">' . $status . '</span></td>';
 			$html .= '<td>' . $price . '</td>';
 			$html .= '<td>' . $created . '</td>';
@@ -264,12 +262,12 @@ class Woo_Sync_Contact_Tabs {
 		foreach ( $memberships as $membership ) {
 
 			// populate fields
-			$member_id      = $membership->id;
-			$status         = $this->display_membership_status( $membership->get_status() );
-			$name           = $membership->plan->name;
-			$date_expires   = $membership->get_end_date( 'Y-m-d H:i:s' );
-			$date_created   = $membership->get_start_date();
-			$created        = zeroBSCRM_date_i18n( zeroBSCRM_getDateFormat(), strtotime( $date_created ), true, false );
+			$member_id    = $membership->id;
+			$status       = $this->display_membership_status( $membership->get_status() );
+			$name         = $membership->plan->name;
+			$date_expires = $membership->get_end_date( 'Y-m-d H:i:s' );
+			$date_created = $membership->get_start_date();
+			$created      = jpcrm_uts_to_date_str( strtotime( $date_created ) );
 
 			if ( empty( $date_expires ) ) {
 
@@ -277,7 +275,7 @@ class Woo_Sync_Contact_Tabs {
 
 			} else {
 
-				$expires = zeroBSCRM_date_i18n( zeroBSCRM_getDateFormat(), strtotime( $date_expires ), true, false );
+				$expires = jpcrm_uts_to_date_str( strtotime( $date_expires ) );
 
 			}
 
@@ -354,142 +352,56 @@ class Woo_Sync_Contact_Tabs {
         }
     }
 
+	/**
+	 * Retrieves any Woo Subscriptions against a contact
+	 *
+	 * @param int $object_id Contact ID.
+	 */
+	private function get_contact_subscriptions( $object_id = -1 ) {
+		$all_sub_statuses = array_keys( wcs_get_subscription_statuses() );
 
-    /**
-     * Retrieves any Woo Subscriptions against a contact
-     *
-     * @var int contactID
-     */
-    private function get_contact_subscriptions( $object_id = -1 ){
+		$subscription_ids = array();
 
-        $return = array();
+		if ( $object_id > 0 ) {
 
-        if ( $object_id > 0 ){
+			// 1 - get the subscription IDs for the attached wp user
+			$user_id = zeroBS_getCustomerWPID( $object_id );
+			if ( $user_id > 0 ) {
+				$args = array(
+					'customer_id' => $user_id,
+					'status'      => $all_sub_statuses,
+					'type'        => 'shop_subscription',
+					'return'      => 'ids',
+				);
 
-            $subscription_user_ids = array();
-            $subscription_email_ids = array();
+				$subscription_ids = wc_get_orders( $args );
+			}
 
-            // 1 - get the subscription IDs for the attached wp user (array_1)
-            $user_id = zeroBS_getCustomerWPID($object_id);
-            if ($user_id > 0){ 
+			// 2 - find subs for all emails (inc aliases)
+			$emails = zeroBS_customerEmails( $object_id );
+			if ( is_array( $emails ) ) {
 
-                $subscription_user_ids = \WCS_Customer_Store::instance()->get_users_subscription_ids( $user_id );
+				foreach ( $emails as $email ) {
+					if ( empty( $email ) ) {
+						continue;
+					}
 
-            }
-            
-            // 2 - find subs for all emails (inc aliases) #3.0.12+ of core
-            if ( function_exists( 'zeroBS_customerEmails' ) ){
+					$args = array(
+						'billing_email' => $email,
+						'status'        => $all_sub_statuses,
+						'type'          => 'shop_subscription',
+						'return'        => 'ids',
+					);
 
-                // multi, inc aliases
-                $emails = zeroBS_customerEmails( $object_id );
-                if ( is_array( $emails ) ){
+					$subscription_ids_by_email = wc_get_orders( $args );
+					$subscription_ids          = array_merge( $subscription_ids, $subscription_ids_by_email );
+				}
+			}
 
-                    foreach ( $emails as $email ){
+			// 3 - remove any duplicate IDs between array_1 and array_2
+			$subscription_ids = array_unique( $subscription_ids, SORT_REGULAR );
+		}
 
-                        $subscription_ids = $this->get_subscriptions_by_email( $email );
-
-                        // add any to the stack
-                        if ( is_array( $subscription_ids ) ){
-                            
-                            foreach ( $subscription_ids as $id ){
-                            
-                                $subscription_email_ids[] = $id;
-                            
-                            }
-
-                        }
-
-                    }
-
-                }
-
-
-            } else {
-
-                // subscription IDs for the main EMAIL  (array_2)
-                $contact_email = zeroBS_customerEmail($object_id);
-                $subscription_email_ids = $this->get_subscriptions_by_email($contact_email);
-
-            }
-
-            // 3 - remove any duplicate IDs between array_1 and array_2
-            $subscription_ids = array_unique( array_merge( $subscription_user_ids, $subscription_email_ids ), SORT_REGULAR );
-
-            // 4 - get the subscriptions from the combined IDs
-            $return = array(
-                'data' => $this->get_subscriptions_by_id_array( $subscription_ids )
-            );
-
-            // 5 - return the new array of subscriptions
-            if ( count( $return['data'] ) > 0){
-
-                $return['message'] = 'success';
-
-            } else {
-
-                $return['message'] = 'notfound';
-
-            }
-        
-        }
-
-        return $return;
-
-    }
-
-
-    /**
-     * Turns out that wcs_get_users_subscriptions runs from userIDs and we need a variant from email
-     */
-    private function get_subscriptions_by_id_array( $subscription_ids ){
-
-        $subscriptions = array();
-        foreach ( $subscription_ids as $subscription_id ) {
-            $subscription = wcs_get_subscription( $subscription_id );
-
-            if ( $subscription ) {
-                $subscriptions[ $subscription_id ] = $subscription;
-            }
-        }
-
-        return $subscriptions;
-
-    }
-
-
-    /**
-     * Get subs by email
-     */
-    private function get_subscriptions_by_email($email = ''){
-        
-        if ( empty( $email ) ) {
-
-            return array();
-
-        }
-
-        $query = new \WP_Query();
-
-        return $query->query( array(
-
-            'post_type'           => 'shop_subscription',
-            'posts_per_page'      => -1,
-            'post_status'         => 'any',
-            'orderby'             => array(
-                'date' => 'DESC',
-                'ID'   => 'DESC',
-            ),
-            'fields'              => 'ids',
-            'no_found_rows'       => true,
-            'ignore_sticky_posts' => true,
-            'meta_query'          => array(
-                array(
-                    'key'   => '_billing_email',
-                    'value' => $email,
-                ),
-            ),
-
-        ));        
-
-    }
+		return $subscription_ids;
+	}
 }

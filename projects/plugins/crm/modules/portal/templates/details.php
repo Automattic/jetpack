@@ -48,16 +48,16 @@ global $zbs, $wpdb, $zbsCustomerFields;
     </nav>
     <div class='zbs-portal-content'>
         <?php
-
         $page_title = __("Your Details","zero-bs-crm");
         $page_title = apply_filters('zbs_portal_details_title', $page_title);
-
-        // if admin, explain
-        if (current_user_can( 'admin_zerobs_manage_options' ) && empty($cID)){
-            $details_endpoint->render_admin_notice();
-        }
         ?>
-        <h2><?php echo esc_html( $page_title ); ?></h2>
+		<h2><?php echo esc_html( $page_title ); ?></h2>
+		<?php
+		// if admin, explain
+		if ( current_user_can( 'admin_zerobs_manage_options' ) && empty( $cID ) ) { // phpcs:ignore WordPress.WP.Capabilities.Unknown,WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			$details_endpoint->render_admin_notice();
+		}
+		?>
         <div class='zbs-entry-content' style="position:relative;">
             <form enctype="multipart/form-data" action="#" name="zbs-update-deets" method="POST" style="padding-bottom:50px;" class="form-horizontal form-inline">
                 <?php

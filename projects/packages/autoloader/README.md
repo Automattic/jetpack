@@ -45,6 +45,13 @@ During development, you can force the autoloader to use development package vers
   - `9999999-dev`
   - Versions with a `dev-` prefix.
 
+Debugging
+-----
+
+A common cause of confusing errors is when a plugin autoloads classes during the plugin load, before the 'plugins_loaded' hook. If that plugin has an older version of the class, that older version may be loaded before a plugin providing the newer version of the class has a chance to register. Even more confusingly, this will likely be intermittent, only showing up when the autoloader's plugin cache is invalidated. To debug this situation, you can set the `JETPACK_AUTOLOAD_DEBUG_EARLY_LOADS` constant to true.
+
+Another common cause of confusing errors is when a plugin registers its own autoloader at a higher priority than the Jetpack Autoloader, and that autoloader would load packages that should be handled by the Jetpack Autoloader. Setting the `JETPACK_AUTOLOAD_DEBUG_CONFLICTING_LOADERS` constant to true will check for standard Composer autoloaders with such a conflict.
+
 
 Autoloading Standards
 ----

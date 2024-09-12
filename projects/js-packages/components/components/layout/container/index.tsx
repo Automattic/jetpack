@@ -1,4 +1,4 @@
-import classNames from 'classnames';
+import clsx from 'clsx';
 import { createElement, useMemo } from 'react';
 import { ContainerProps } from '../types';
 import styles from './style.module.scss';
@@ -8,7 +8,7 @@ import type React from 'react';
  * JP Container
  *
  * @param {ContainerProps} props - Component properties.
- * @returns {React.ReactElement}   Container component.
+ * @return {React.ReactElement}   Container component.
  */
 const Container: React.FC< ContainerProps > = ( {
 	children,
@@ -29,7 +29,7 @@ const Container: React.FC< ContainerProps > = ( {
 		};
 	}, [ horizontalGap, horizontalSpacing ] );
 
-	const containerClassName = classNames( className, styles.container, {
+	const containerClassName = clsx( className, styles.container, {
 		[ styles.fluid ]: fluid,
 	} );
 

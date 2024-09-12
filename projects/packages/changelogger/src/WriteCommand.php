@@ -10,18 +10,20 @@ namespace Automattic\Jetpack\Changelogger;
 use Automattic\Jetpack\Changelog\ChangeEntry;
 use Automattic\Jetpack\Changelog\Changelog;
 use InvalidArgumentException;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Exception\MissingInputException;
+use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
-use function Wikimedia\quietCall;
 
 /**
  * "Write" command for the changelogger tool CLI.
  */
+#[AsCommand( 'write', 'Updates the changelog from change files' )]
 class WriteCommand extends Command {
 
 	const OK_EXIT            = 0;
@@ -36,6 +38,13 @@ class WriteCommand extends Command {
 	 * @var string|null
 	 */
 	protected static $defaultName = 'write';
+
+	/**
+	 * The default command description
+	 *
+	 * @var string|null
+	 */
+	protected static $defaultDescription = 'Updates the changelog from change files';
 
 	/**
 	 * The FormatterPlugin in use.
@@ -62,7 +71,7 @@ class WriteCommand extends Command {
 	 * Configures the command.
 	 */
 	protected function configure() {
-		$this->setDescription( 'Updates the changelog from change files' )
+		$this->setDescription( static::$defaultDescription )
 			->addOption( 'amend', null, InputOption::VALUE_NONE, 'Amend the latest version instead of creating a new one' )
 			->addOption( 'yes', null, InputOption::VALUE_NONE, 'Default all questions to "yes" instead of "no". Particularly useful for non-interactive mode' )
 			->addOption( 'use-version', null, InputOption::VALUE_REQUIRED, 'Use this version instead of determining the version automatically' )
@@ -71,7 +80,7 @@ class WriteCommand extends Command {
 			->addOption( 'buildinfo', 'b', InputOption::VALUE_REQUIRED, 'When fetching the next version, include this buildinfo suffix' )
 			->addOption( 'release-date', null, InputOption::VALUE_REQUIRED, 'Release date, as a valid PHP date or "unreleased"', 'now' )
 			->addOption( 'default-first-version', null, InputOption::VALUE_NONE, 'If the changelog is currently empty, guess a "first" version instead of erroring' )
-			->addOption( 'deduplicate', null, InputOption::VALUE_REQUIRED, 'Deduplicate new changes against the last N versions. Set -1 to disable deduplication entirely.', 1 )
+			->addOption( 'deduplicate', null, InputOption::VALUE_REQUIRED, 'Deduplicate new changes against the last N versions. Set -1 to disable deduplication entirely.', 0 )
 			->addOption( 'prologue', null, InputOption::VALUE_REQUIRED, 'Prologue text for the new changelog entry' )
 			->addOption( 'epilogue', null, InputOption::VALUE_REQUIRED, 'Epilogue text for the new changelog entry' )
 			->addOption( 'link', null, InputOption::VALUE_REQUIRED, 'Link for the new changelog entry' )
@@ -126,7 +135,9 @@ EOF
 		}
 		try {
 			$question = new ConfirmationQuestion( "$msg Proceed? " . ( $yes ? '[Y/n] ' : '[y/N] ' ), $yes );
-			return $this->getHelper( 'question' )->ask( $input, $output, $question );
+			$helper   = $this->getHelper( 'question' );
+			'@phan-var QuestionHelper $helper';
+			return $helper->ask( $input, $output, $question );
 		} catch ( MissingInputException $ex ) { // @codeCoverageIgnore
 			$output->writeln( 'Got EOF when attempting to query user, aborting.', OutputInterface::VERBOSITY_VERBOSE ); // @codeCoverageIgnore
 			return false; // @codeCoverageIgnore
@@ -150,8 +161,9 @@ EOF
 			$changelog = new Changelog();
 		} else {
 			$output->writeln( "Reading changelog from $file...", OutputInterface::VERBOSITY_DEBUG );
-			Utils::error_clear_last();
-			$contents = quietCall( 'file_get_contents', $file );
+			error_clear_last();
+			// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+			$contents = @file_get_contents( $file );
 			// @codeCoverageIgnoreStart
 			if ( ! is_string( $contents ) ) {
 				$err = error_get_last();
@@ -221,8 +233,9 @@ EOF
 			return self::FATAL_EXIT;
 		}
 
-		Utils::error_clear_last();
-		$ok = quietCall( 'file_put_contents', $file, $contents );
+		error_clear_last();
+		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		$ok = @file_put_contents( $file, $contents );
 		if ( strlen( $contents ) !== $ok ) {
 			$err = error_get_last();
 			$output->writeln( "<error>Failed to write $file: {$err['message']}</>" );
@@ -247,8 +260,9 @@ EOF
 			if ( $flag >= 2 ) {
 				continue;
 			}
-			Utils::error_clear_last();
-			$ok = quietCall( 'unlink', $dir . DIRECTORY_SEPARATOR . $name );
+			error_clear_last();
+			// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+			$ok = @unlink( $dir . DIRECTORY_SEPARATOR . $name );
 			if ( $ok ) {
 				$output->writeln( "Deleted change file $name.", OutputInterface::VERBOSITY_DEBUG );
 			} else {
@@ -425,7 +439,7 @@ EOF
 				$ret = ChangeEntry::compare( $a, $b, $sortConfig );
 				if ( 0 === $ret ) {
 					// Stability.
-					$ret = array_search( $a, $changes, true ) - array_search( $b, $changes, true );
+					$ret = array_search( $a, $changes, true ) <=> array_search( $b, $changes, true );
 				}
 				return $ret;
 			}
@@ -471,7 +485,10 @@ EOF
 						),
 						$input->getOption( 'yes' ) ? 'proceed' : 'abort'
 					);
-					switch ( $this->getHelper( 'question' )->ask( $input, $output, $question ) ) {
+
+					$helper = $this->getHelper( 'question' );
+					'@phan-var QuestionHelper $helper';
+					switch ( $helper->ask( $input, $output, $question ) ) {
 						case 'proceed': // @codeCoverageIgnore
 							break;
 						case 'normalize': // @codeCoverageIgnore
@@ -594,7 +611,7 @@ EOF
 	 * @param OutputInterface $output OutputInterface.
 	 * @return int 0 If everything went fine, or an exit code.
 	 */
-	protected function execute( InputInterface $input, OutputInterface $output ) {
+	protected function execute( InputInterface $input, OutputInterface $output ): int {
 		try {
 			$this->formatter = Config::formatterPlugin();
 			$this->formatter->setIO( $input, $output );
@@ -613,7 +630,7 @@ EOF
 		}
 
 		// Get the changes.
-		list( $ret, $changes, $files ) = $this->loadChanges( $input, $output, $changelog );
+		list( $ret, $changes, $files ) = $this->loadChanges( $input, $output );
 		if ( self::OK_EXIT !== $ret ) {
 			return $ret;
 		}

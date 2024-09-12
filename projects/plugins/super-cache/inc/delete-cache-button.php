@@ -167,7 +167,7 @@ function wpsc_delete_cache_directory() {
 		$path           = trailingslashit( $path );
 		$supercachepath = realpath( get_supercache_dir() );
 
-		if ( false === wp_cache_confirm_delete( $path ) || 0 !== strpos( $path, $supercachepath ) ) {
+		if ( false === wp_cache_confirm_delete( $path ) || ! str_starts_with( $path, $supercachepath ) ) {
 			wp_cache_debug( 'Could not delete directory: ' . $path );
 			define( 'WPSCDELETEERROR', 'Could not delete directory' );
 			return false;

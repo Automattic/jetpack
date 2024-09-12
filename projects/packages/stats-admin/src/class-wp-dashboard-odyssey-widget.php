@@ -13,11 +13,14 @@ namespace Automattic\Jetpack\Stats_Admin;
  * @package jetpack-stats-admin
  */
 class WP_Dashboard_Odyssey_Widget {
+	const DASHBOARD_WIDGET_ID = 'jetpack_summary_widget';
 
 	/**
 	 * Renders the widget and fires a dashboard widget action.
 	 */
-	public static function render() {
+	public function render() {
+		// The widget is always rendered, so if it was hidden and then toggled open, we need to ask user to refresh the page to load data properly.
+		$is_toggled_open = $this->is_widget_hidden();
 		?>
 		<div id="dashboard_stats" class="jp-stats-widget" style="min-height: 200px;">
 			<div class="hide-if-js"><?php esc_html_e( 'Your Jetpack Stats widget requires JavaScript to function properly.', 'jetpack-stats-admin' ); ?></div>
@@ -30,6 +33,13 @@ class WP_Dashboard_Odyssey_Widget {
 					alt=<?php echo esc_attr( __( 'Loading', 'jetpack-stats-admin' ) ); ?>
 					src="//en.wordpress.com/i/loading/loading-64.gif"
 				/>
+				<p>
+				<?php
+				if ( $is_toggled_open ) {
+					echo esc_html__( 'Please reload the page to see your stats...', 'jetpack-stats-admin' );
+				}
+				?>
+				</p>
 			</div>
 		</div>
 		<?php
@@ -56,5 +66,25 @@ class WP_Dashboard_Odyssey_Widget {
 				'enqueue_css'          => false,
 			)
 		);
+	}
+
+	/**
+	 * Load the admin scripts when the widget is visible.
+	 */
+	public function maybe_load_admin_scripts() {
+		if ( $this->is_widget_hidden() ) {
+			return;
+		}
+		$this->load_admin_scripts();
+	}
+
+	/**
+	 * Returns true if the widget is hidden for the current screen and current user.
+	 *
+	 * @return bool
+	 */
+	public function is_widget_hidden() {
+		$hidden = get_hidden_meta_boxes( get_current_screen() );
+		return in_array( self::DASHBOARD_WIDGET_ID, $hidden, true );
 	}
 }

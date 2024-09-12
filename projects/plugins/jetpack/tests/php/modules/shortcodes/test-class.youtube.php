@@ -97,14 +97,13 @@ class WP_Test_Jetpack_Shortcodes_Youtube extends WP_UnitTestCase {
 	 * @covers ::youtube_shortcode
 	 * @since 3.9
 	 */
-	public function test_replace_url_with_iframe_in_the_content() {
+	public function test_shortcodes_youtube_replace_url_with_iframe_in_the_content() {
 		global $post;
 
 		$youtube_id = 'JaNH56Vpg-A';
 		$url        = 'http://www.youtube.com/watch?v=' . $youtube_id;
-		$post       = self::factory()->post->create_and_get( array( 'post_content' => $url ) );
+		$post       = self::factory()->post->create_and_get( array( 'post_content' => "[youtube $url]" ) );
 
-		wpcom_youtube_embed_crazy_url_init();
 		setup_postdata( $post );
 		ob_start();
 		// This below is needed since Core inserts "loading=lazy" right after the iframe opener.
@@ -248,7 +247,7 @@ class WP_Test_Jetpack_Shortcodes_Youtube extends WP_UnitTestCase {
 	public function test_youtube_id( $url, $expected_amp, $expected_nonamp ) {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			self::markTestSkipped( 'WordPress.com does not run the latest version of the AMP plugin yet.' );
-			return;
+			return; // @phan-suppress-current-line PhanPluginUnreachableCode
 		}
 
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
@@ -299,5 +298,48 @@ class WP_Test_Jetpack_Shortcodes_Youtube extends WP_UnitTestCase {
 	public function test_jetpack_shortcode_youtube_dimensions( $query_args, $expected ) {
 		$GLOBALS['content_width'] = self::CONTENT_WIDTH;
 		$this->assertEquals( $expected, jetpack_shortcode_youtube_dimensions( $query_args ) );
+	}
+
+	/**
+	 * List of variation of YouTube embed URLs.
+	 */
+	public function get_youtube_urls() {
+		return array(
+			'valid_url'                          => array(
+				'https://www.youtube.com/watch?v=SVRiktFlWxI',
+				'https://www.youtube.com/watch?v=SVRiktFlWxI',
+			),
+			'short_youtube_url'                  => array(
+				'https://youtu.be/gS6_xOABTWo',
+				'https://youtu.be/gS6_xOABTWo',
+			),
+			'video_id_ending_with_question_mark' => array(
+				'https://www.youtube.com/watch?v=WVbQ-oro7FQ?',
+				'https://www.youtube.com/watch?v=WVbQ-oro7FQ',
+			),
+		);
+	}
+
+	/**
+	 * Test different oEmbed URLs and their output.
+	 *
+	 * @covers ::wpcom_youtube_oembed_fetch_url
+	 * @dataProvider get_youtube_urls
+	 *
+	 * @param string $original The original YouTube provider URL.
+	 * @param string $expected The final YouTube provider URL after wpcom_youtube_oembed_fetch_url.
+	 */
+	public function test_youtube_oembed_fetch_url( $original, $expected ) {
+		$provider_url = apply_filters(
+			'oembed_fetch_url',
+			'https://www.youtube.com/oembed?url=' . rawurlencode( $original ),
+			$original,
+			''
+		);
+
+		$this->assertEquals(
+			$provider_url,
+			'https://www.youtube.com/oembed?url=' . rawurlencode( $expected )
+		);
 	}
 }

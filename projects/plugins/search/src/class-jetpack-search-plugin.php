@@ -49,12 +49,6 @@ class Jetpack_Search_Plugin {
 		$settings_link = '<a href="' . admin_url( 'admin.php?page=jetpack-search' ) . '">' . esc_html__( 'Settings', 'jetpack-search' ) . '</a>';
 		array_unshift( $links, $settings_link );
 
-		// Add the My Jetpack link only if Jetpack is connected
-		if ( ( new Connection_Manager() )->is_connected() ) {
-			$my_jetpack_link = '<a href="' . admin_url( 'admin.php?page=my-jetpack' ) . '">' . esc_html__( 'My Jetpack', 'jetpack-search' ) . '</a>';
-			array_unshift( $links, $my_jetpack_link );
-		}
-
 		return $links;
 	}
 
@@ -124,7 +118,7 @@ class Jetpack_Search_Plugin {
 
 		if (
 			JETPACK_SEARCH_PLUGIN__FILE_RELATIVE_PATH === $plugin &&
-			\Automattic\Jetpack\Plugins_Installer::is_current_request_activating_plugin_from_plugins_screen( JETPACK_SEARCH_PLUGIN__FILE_RELATIVE_PATH )
+			( new \Automattic\Jetpack\Paths() )->is_current_request_activating_plugin_from_plugins_screen( JETPACK_SEARCH_PLUGIN__FILE_RELATIVE_PATH )
 		) {
 			wp_safe_redirect( esc_url( admin_url( 'admin.php?page=jetpack-search' ) ) );
 			exit;

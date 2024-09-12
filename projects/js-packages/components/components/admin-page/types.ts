@@ -33,4 +33,9 @@ export type AdminPageProps = {
 	 * Whether or not to display the Background Color
 	 */
 	showBackground?: boolean;
+
+	/**
+	 * URL of the site WP Admin.
+	 */
+	siteAdminUrl?: string;
 };

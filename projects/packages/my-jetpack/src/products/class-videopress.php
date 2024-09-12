@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
-use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\My_Jetpack\Hybrid_Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 
@@ -63,21 +62,28 @@ class Videopress extends Hybrid_Product {
 	public static $has_standalone_plugin = true;
 
 	/**
-	 * Get the internationalized product name
+	 * Whether this product has a free offering
+	 *
+	 * @var bool
+	 */
+	public static $has_free_offering = true;
+
+	/**
+	 * Get the product name
 	 *
 	 * @return string
 	 */
 	public static function get_name() {
-		return __( 'VideoPress', 'jetpack-my-jetpack' );
+		return 'VideoPress';
 	}
 
 	/**
-	 * Get the internationalized product title
+	 * Get the product title
 	 *
 	 * @return string
 	 */
 	public static function get_title() {
-		return __( 'Jetpack VideoPress', 'jetpack-my-jetpack' );
+		return 'Jetpack VideoPress';
 	}
 
 	/**
@@ -86,7 +92,7 @@ class Videopress extends Hybrid_Product {
 	 * @return string
 	 */
 	public static function get_description() {
-		return __( 'High quality, ad-free video', 'jetpack-my-jetpack' );
+		return __( 'Stunning-quality, ad-free video in the WordPress Editor', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -95,7 +101,7 @@ class Videopress extends Hybrid_Product {
 	 * @return string
 	 */
 	public static function get_long_description() {
-		return __( 'High-quality, ad-free video built specifically for WordPress.', 'jetpack-my-jetpack' );
+		return __( 'Stunning-quality, ad-free video in the WordPress Editor', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -125,6 +131,15 @@ class Videopress extends Hybrid_Product {
 			),
 			Wpcom_Products::get_product_pricing( static::get_wpcom_product_slug() )
 		);
+	}
+
+	/**
+	 * Get the URL the user is taken after purchasing the product through the checkout
+	 *
+	 * @return ?string
+	 */
+	public static function get_post_checkout_url() {
+		return self::get_manage_url();
 	}
 
 	/**
@@ -159,12 +174,30 @@ class Videopress extends Hybrid_Product {
 	}
 
 	/**
-	 * Checks whether the current plan (or purchases) of the site already supports the product
+	 * Checks whether the site has a paid plan for this product
 	 *
 	 * @return boolean
 	 */
-	public static function has_required_plan() {
-		// using second argument `true` to force fetching from wpcom
-		return Current_Plan::supports( 'videopress-1tb-storage', true );
+	public static function has_paid_plan_for_product() {
+		$plans_with_videopress = array(
+			'jetpack_videopress',
+			'jetpack_complete',
+			'jetpack_business',
+			'jetpack_premium',
+		);
+		$purchases_data        = Wpcom_Products::get_site_current_purchases();
+		if ( is_wp_error( $purchases_data ) ) {
+			return false;
+		}
+		if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
+			foreach ( $purchases_data as $purchase ) {
+				foreach ( $plans_with_videopress as $plan ) {
+					if ( strpos( $purchase->product_slug, $plan ) !== false ) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
 	}
 }

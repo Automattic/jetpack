@@ -27,28 +27,14 @@ class Connection {
 	 */
 	private $manager;
 
-	/**
-	 * Constructor.
-	 */
 	public function __construct() {
 		$this->manager = new Manager( 'jetpack-boost' );
-
-		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
-
-		add_filter( 'jetpack_boost_js_constants', array( $this, 'add_connection_config_data' ) );
-
-		$this->initialize_deactivate_disconnect();
 	}
 
-	/**
-	 * Add connection data to the array of constants
-	 *
-	 * @param array $constants The associative array of constants.
-	 */
-	public function add_connection_config_data( $constants ) {
-		$constants['connection'] = $this->get_connection_api_response();
+	public function init() {
+		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
 
-		return $constants;
+		$this->initialize_deactivate_disconnect();
 	}
 
 	/**
@@ -106,7 +92,7 @@ class Connection {
 	 * Get the WordPress.com blog ID of this site, if it's connected
 	 */
 	public static function wpcom_blog_id() {
-		return defined( 'IS_WPCOM' ) && IS_WPCOM ? get_current_blog_id() : \Jetpack_Options::get_option( 'id' );
+		return defined( 'IS_WPCOM' ) && IS_WPCOM ? get_current_blog_id() : (int) \Jetpack_Options::get_option( 'id' );
 	}
 
 	/**
@@ -115,6 +101,13 @@ class Connection {
 	 * @return boolean
 	 */
 	public function is_connected() {
+		/**
+		 * Filter that fakes the connection to WordPress.com. Useful for testing.
+		 *
+		 * @param bool $connection Return true to fake the connection.
+		 *
+		 * @since   1.0.0
+		 */
 		if ( true === apply_filters( 'jetpack_boost_connection_bypass', false ) ) {
 			return true;
 		}
@@ -224,6 +217,13 @@ class Connection {
 	 * @return array
 	 */
 	public function get_connection_api_response() {
+		/**
+		 * Filter that fakes the connection to WordPress.com. Useful for testing.
+		 *
+		 * @param bool $connection Return true to fake the connection.
+		 *
+		 * @since   1.0.0
+		 */
 		$force_connected = apply_filters( 'jetpack_boost_connection_bypass', false );
 
 		$response = array(
@@ -274,6 +274,13 @@ class Connection {
 	}
 
 	public function ensure_connection() {
+		/**
+		 * Filter that fakes the connection to WordPress.com. Useful for testing.
+		 *
+		 * @param bool $connection Return true to fake the connection.
+		 *
+		 * @since   1.0.0
+		 */
 		if ( ! apply_filters( 'jetpack_boost_connection_bypass', false ) ) {
 			$jetpack_config = new Jetpack_Config();
 			$jetpack_config->ensure(

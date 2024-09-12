@@ -41,7 +41,8 @@ class Admin {
 			'Beta Tester',
 			'update_plugins',
 			'jetpack-beta',
-			array( self::class, 'render' )
+			array( self::class, 'render' ),
+			16
 		);
 
 		if ( false !== self::$hookname ) {
@@ -237,13 +238,13 @@ class Admin {
 	 * @return (string|null)[] HTML and diff summary.
 	 */
 	public static function to_test_content( Plugin $plugin ) {
-		if ( is_plugin_active( $plugin->plugin_file() ) ) {
-			$path = WP_PLUGIN_DIR . '/' . $plugin->plugin_slug();
+		if ( $plugin->is_active( 'stable' ) ) {
+			$path = dirname( $plugin->plugin_path() );
 			$info = (object) array(
 				'source' => 'stable',
 			);
-		} elseif ( is_plugin_active( $plugin->dev_plugin_file() ) ) {
-			$path = WP_PLUGIN_DIR . '/' . $plugin->dev_plugin_slug();
+		} elseif ( $plugin->is_active( 'dev' ) ) {
+			$path = dirname( $plugin->dev_plugin_path() );
 			$info = $plugin->dev_info();
 			if ( ! $info ) {
 				return array(

@@ -5,6 +5,51 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.1.0] - 2024-09-06
+### Added
+- Add logic for debugging issues caused by conflicting Composer autoloaders, enabled by setting the `JETPACK_AUTOLOAD_DEBUG_CONFLICTING_LOADERS` constant. [#38995]
+- Add logic for debugging issues caused by early class loads, enabled by setting the `JETPACK_AUTOLOAD_DEBUG_EARLY_LOADS` constant. [#38995]
+
+## [3.0.10] - 2024-08-26
+### Changed
+- Updated package dependencies. [#39004]
+
+## [3.0.9] - 2024-07-10
+### Fixed
+- Avoid a deprecation notice in `Autoloader_Locator::find_latest_autoloader()`. [#38245]
+
+## [3.0.8] - 2024-05-29
+### Fixed
+- `AutoloadGenerator::__construct` no longer pretends `$io` is nullable. That never worked. [#37608]
+
+## [3.0.7] - 2024-05-06
+### Fixed
+- Avoid deprecation notices when plugin path is null. [#37174]
+
+## [3.0.6] - 2024-04-22
+### Changed
+- Internal updates.
+
+## [3.0.5] - 2024-04-11
+### Changed
+- Internal updates.
+
+## [3.0.4] - 2024-03-18
+### Changed
+- Internal updates.
+
+## [3.0.3] - 2024-03-14
+### Changed
+- Internal updates.
+
+## [3.0.2] - 2023-11-21
+
+## [3.0.1] - 2023-11-21
+
+## [3.0.0] - 2023-11-20
+### Changed
+- Updated required PHP version to >= 7.0. [#34192]
+
 ## [2.12.0] - 2023-09-28
 ### Added
 - Add an `AutoloadGenerator::VERSION` constant, and use that for the autoloader's version in preference to whatever Composer has. [#33156]
@@ -332,6 +377,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add Custom Autoloader
 
+[3.1.0]: https://github.com/Automattic/jetpack-autoloader/compare/v3.0.10...v3.1.0
+[3.0.10]: https://github.com/Automattic/jetpack-autoloader/compare/v3.0.9...v3.0.10
+[3.0.9]: https://github.com/Automattic/jetpack-autoloader/compare/v3.0.8...v3.0.9
+[3.0.8]: https://github.com/Automattic/jetpack-autoloader/compare/v3.0.7...v3.0.8
+[3.0.7]: https://github.com/Automattic/jetpack-autoloader/compare/v3.0.6...v3.0.7
+[3.0.6]: https://github.com/Automattic/jetpack-autoloader/compare/v3.0.5...v3.0.6
+[3.0.5]: https://github.com/Automattic/jetpack-autoloader/compare/v3.0.4...v3.0.5
+[3.0.4]: https://github.com/Automattic/jetpack-autoloader/compare/v3.0.3...v3.0.4
+[3.0.3]: https://github.com/Automattic/jetpack-autoloader/compare/v3.0.2...v3.0.3
+[3.0.2]: https://github.com/Automattic/jetpack-autoloader/compare/v3.0.1...v3.0.2
+[3.0.1]: https://github.com/Automattic/jetpack-autoloader/compare/v3.0.0...v3.0.1
+[3.0.0]: https://github.com/Automattic/jetpack-autoloader/compare/v2.12.0...v3.0.0
 [2.12.0]: https://github.com/Automattic/jetpack-autoloader/compare/v2.11.23...v2.12.0
 [2.11.23]: https://github.com/Automattic/jetpack-autoloader/compare/v2.11.22...v2.11.23
 [2.11.22]: https://github.com/Automattic/jetpack-autoloader/compare/v2.11.21...v2.11.22

@@ -5,6 +5,131 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.2.88 - 2024-09-10
+### Changed
+- Updated package dependencies. [#39302]
+
+## 0.2.87 - 2024-09-09
+### Changed
+- Updated package dependencies. [#39176] [#39278]
+
+## 0.2.86 - 2024-08-21
+### Changed
+- Internal updates.
+
+## 0.2.85 - 2024-08-19
+### Changed
+- Update dependencies. [#38861]
+- Updated package dependencies. [#38662]
+
+## 0.2.84 - 2024-08-12
+### Removed
+- Tests: Removed react-test-renderer. [#38755]
+
+## 0.2.83 - 2024-07-22
+### Changed
+- Update dependencies. [#38402]
+
+## 0.2.82 - 2024-07-08
+### Changed
+- Updated package dependencies. [#38132]
+
+## 0.2.81 - 2024-06-24
+### Changed
+- Update dependencies. [#37979]
+
+## 0.2.80 - 2024-06-17
+### Changed
+- Updated package dependencies. [#37796]
+
+## 0.2.79 - 2024-06-10
+### Changed
+- Change codebase to use clsx instead of classnames. [#37708]
+- Updated package dependencies. [#37669]
+
+## 0.2.78 - 2024-05-20
+### Changed
+- Updated package dependencies. [#37379] [#37380] [#37382]
+
+## 0.2.77 - 2024-05-13
+### Changed
+- Update dependencies. [#37280]
+
+## 0.2.76 - 2024-05-06
+### Changed
+- Updated package dependencies. [#37147]
+
+## 0.2.75 - 2024-04-15
+### Changed
+- Update dependencies. [#36848]
+
+## 0.2.74 - 2024-04-08
+### Changed
+- Updated package dependencies. [#36760]
+
+### Fixed
+- Fix test with new from property when registering site. [#36741]
+
+## 0.2.73 - 2024-03-27
+### Changed
+- Updated package dependencies. [#36585]
+
+## 0.2.72 - 2024-03-12
+### Changed
+- Update dependencies. [#36243]
+- Updated package dependencies. [#36325]
+
+## 0.2.71 - 2024-03-04
+### Changed
+- Update dependencies. [#36113]
+- Updated package dependencies.
+
+## 0.2.70 - 2024-02-27
+### Changed
+- Update dependencies. [#35170]
+
+## 0.2.69 - 2024-02-13
+### Changed
+- Updated package dependencies. [#35608]
+
+## 0.2.68 - 2024-02-05
+### Changed
+- Updated package dependencies.
+
+## 0.2.67 - 2024-01-29
+### Changed
+- Update dependencies. [#35170]
+
+## 0.2.66 - 2024-01-22
+### Changed
+- Update dependencies. [#35117]
+
+## 0.2.65 - 2024-01-04
+### Changed
+- Updated package dependencies. [#34815] [#34816]
+
+## 0.2.64 - 2023-12-20
+### Changed
+- Updated package dependencies. [#34694]
+
+## 0.2.63 - 2023-12-11
+### Changed
+- Updated package dependencies. [#34416]
+
+## 0.2.62 - 2023-12-03
+### Changed
+- Updated package dependencies. [#34411] [#34427]
+
+## 0.2.61 - 2023-11-20
+
+## 0.2.60 - 2023-11-14
+### Changed
+- Updated package dependencies. [#34093]
+
+## 0.2.59 - 2023-11-13
+### Changed
+- Updated dependencies.
+
 ## 0.2.58 - 2023-10-23
 ### Changed
 - Updated package dependencies. [#33646] [#33687]

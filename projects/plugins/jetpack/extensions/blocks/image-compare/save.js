@@ -1,10 +1,11 @@
-import { RichText } from '@wordpress/block-editor';
+import { RichText, useBlockProps } from '@wordpress/block-editor';
 
-const save = ( { attributes, className } ) => {
+const save = ( { attributes } ) => {
+	const blockProps = useBlockProps.save();
 	const { imageBefore, imageAfter, caption, orientation } = attributes;
 
 	return (
-		<figure className={ className }>
+		<figure { ...blockProps }>
 			<div className="juxtapose" data-mode={ orientation || 'horizontal' }>
 				<img
 					id={ imageBefore.id }

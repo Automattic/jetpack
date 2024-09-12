@@ -4,7 +4,7 @@
  * Plugin Name: Move to WordPress.com
  * Plugin URI: https://wordpress.org/plugins/wpcom-migration
  * Description: A WordPress plugin that helps users to migrate their sites to WordPress.com.
- * Version: 1.0.2-alpha
+ * Version: 2.0.0
  * Author: Automattic
  * Author URI: https://wordpress.com/
  * License: GPLv2 or later
@@ -55,31 +55,47 @@ if ( is_readable( $jetpack_autoloader ) ) {
 		);
 	}
 
+	// Add a red bubble notification to My Jetpack if the installation is bad.
+	add_filter(
+		'my_jetpack_red_bubble_notification_slugs',
+		function ( $slugs ) {
+			$slugs['move-to-wordpress-plugin-bad-installation'] = array(
+				'data' => array(
+					'plugin' => 'Move to WordPress.com',
+				),
+			);
+
+			return $slugs;
+		}
+	);
+
 	add_action(
 		'admin_notices',
 		function () {
-			?>
-		<div class="notice notice-error is-dismissible">
-			<p>
-				<?php
-				printf(
-					wp_kses(
-						/* translators: Placeholder is a link to a support document. */
-						__( 'Your installation of Move to WordPress.com is incomplete. If you installed Move to WordPress.com from GitHub, please refer to <a href="%1$s" target="_blank" rel="noopener noreferrer">this document</a> to set up your development environment. Move to WordPress.com must have Composer dependencies installed and built via the build command.', 'wpcom-migration' ),
-						array(
-							'a' => array(
-								'href'   => array(),
-								'target' => array(),
-								'rel'    => array(),
-							),
-						)
-					),
-					'https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md#building-your-project'
-				);
-				?>
-			</p>
-		</div>
-			<?php
+			if ( get_current_screen()->id !== 'plugins' ) {
+				return;
+			}
+			$message = sprintf(
+				wp_kses(
+					/* translators: Placeholder is a link to a support document. */
+					__( 'Your installation of Move to WordPress.com is incomplete. If you installed Move to WordPress.com from GitHub, please refer to <a href="%1$s" target="_blank" rel="noopener noreferrer">this document</a> to set up your development environment. Move to WordPress.com must have Composer dependencies installed and built via the build command.', 'wpcom-migration' ),
+					array(
+						'a' => array(
+							'href'   => array(),
+							'target' => array(),
+							'rel'    => array(),
+						),
+					)
+				),
+				'https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md#building-your-project'
+			);
+			wp_admin_notice(
+				$message,
+				array(
+					'type'        => 'error',
+					'dismissible' => true,
+				)
+			);
 		}
 	);
 
@@ -97,7 +113,7 @@ add_action( 'activated_plugin', 'wpcom_migration_activation' );
 function wpcom_migration_activation( $plugin ) {
 	if (
 		WPCOM_MIGRATION_ROOT_FILE_RELATIVE_PATH === $plugin &&
-		\Automattic\Jetpack\Plugins_Installer::is_current_request_activating_plugin_from_plugins_screen( WPCOM_MIGRATION_ROOT_FILE_RELATIVE_PATH )
+		( new \Automattic\Jetpack\Paths() )->is_current_request_activating_plugin_from_plugins_screen( WPCOM_MIGRATION_ROOT_FILE_RELATIVE_PATH )
 	) {
 		wp_safe_redirect( esc_url( admin_url( 'admin.php?page=wpcom-migration' ) ) );
 		exit;

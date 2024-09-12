@@ -13,12 +13,12 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 		parent::set_up();
 		if ( ! function_exists( 'register_block_type' ) ) {
 			$this->markTestSkipped( 'register_block_type not available' );
-			return;
+			return; // @phan-suppress-current-line PhanPluginUnreachableCode
 		}
 
 		if ( ! class_exists( 'WP_Block_Type_Registry' ) ) {
 			$this->markTestSkipped( 'WP_Block_Type_Registry not available' );
-			return;
+			return; // @phan-suppress-current-line PhanPluginUnreachableCode
 		}
 		// Create a user and set it up as current.
 		$this->master_user_id = self::factory()->user->create( array( 'user_login' => 'current_master' ) );
@@ -29,6 +29,10 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 
 		add_filter( 'jetpack_set_available_extensions', array( __CLASS__, 'get_extensions_whitelist' ) );
 		delete_option( 'jetpack_excluded_extensions' );
+
+		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
+			add_filter( 'jetpack_is_connection_ready', '__return_true', 1000 );
+		}
 
 		// These action causing issues in tests in WPCOM context. Since we are not using any real block here,
 		// and we are testing block availability with block stubs - we are safe to remove these actions for these tests.
@@ -43,6 +47,10 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 
 		Jetpack_Gutenberg::reset();
 		remove_filter( 'jetpack_set_available_extensions', array( __CLASS__, 'get_extensions_whitelist' ) );
+
+		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
+			remove_filter( 'jetpack_is_connection_ready', '__return_true', 1000 );
+		}
 
 		if ( $this->master_user_id ) {
 			Jetpack_Options::delete_option( array( 'master_user', 'user_tokens' ) );
@@ -115,7 +123,7 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 		$this->assertEquals( 'missing_module', $availability['grape']['unavailable_reason'], 'unavailable_reason is not "missing_module"' );
 	}
 
-	// Plugins
+	/** Plugins **/
 	public function test_registered_plugin_is_available() {
 		Jetpack_Gutenberg::set_extension_available( 'jetpack/onion' );
 		$availability = Jetpack_Gutenberg::get_availability();
@@ -297,5 +305,38 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 		$validated_url = Jetpack_Gutenberg::validate_block_embed_url( $url, $allowed, true );
 
 		$this->assertFalse( $validated_url );
+	}
+
+	/**
+	 * Test that get_block_name_from_path_convention() provides the same results as get_block_name()
+	 * for all blocks registered by load_independent_blocks().
+	 *
+	 * @covers Automattic\Jetpack\Blocks::get_block_name_from_path_convention
+	 * @covers Automattic\Jetpack\Blocks::get_block_name
+	 */
+	public function test_get_block_name_from_path_convention_matches_get_block_name() {
+		$extensions = Jetpack_Gutenberg::get_available_extensions();
+
+		foreach ( $extensions as $extension ) {
+			$dirname         = 'blocks';
+			$path            = __DIR__ . "/../../../extensions/{$dirname}/{$extension}";
+			$block_json_file = "{$path}/block.json";
+
+			if ( file_exists( $path ) && file_exists( $block_json_file ) ) {
+				// Get the block name using the path name convention method
+				$conventional_name = Blocks::get_block_name_from_path_convention( $path );
+
+				// Get the block name using the existing method
+				$block_type    = Blocks::get_path_to_block_metadata( $path );
+				$existing_name = Blocks::get_block_name( $block_type );
+
+				// Assert that both methods return the same result
+				$this->assertEquals(
+					$existing_name,
+					$conventional_name,
+					"Block name mismatch for {$extension} in {$dirname} directory"
+				);
+			}
+		}
 	}
 }

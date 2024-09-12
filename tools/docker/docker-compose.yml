@@ -5,8 +5,8 @@ volumes:
   dockerdirectory:
 
 services:
-  ## A default mysql image
-  ## We map a local directory (data/mysql) so we can have the mysql data locally
+  ## A default mariadb image
+  ## We map a local directory (data/mysql) so we can have the data locally
   ## and reuse it if we need to remove containers and images for rebuilding from scratch.
   db:
     image: mariadb:lts
@@ -19,11 +19,11 @@ services:
       - default.env
       - .env
     entrypoint: [ '/bin/bash', '/var/scripts/docker-db-start-and-autoupgrade.sh' ]
-    command: [ 'mysqld' ]
+    command: [ 'mariadbd' ]
 
   ## - The container wordpress is a very basic but custom container with WordPress and all of the tools we need
   ##   for development.
-  ## - The container will be named jetpack_wordpress for easy reference when running docker/docker-compose commands
+  ## - The container will be named jetpack_dev_wordpress_1 or jetpack_dev-wordpress-1 (depending on your Docker compose version) for easy reference when running Docker commands
   ##
   ## Here we map the following:
   ##  - The docker/wordpress-develop directory where we'll get WordPress source code with unit tests

@@ -9,7 +9,7 @@
 const path = require( 'path' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const RemoveAssetWebpackPlugin = require( '@automattic/remove-asset-webpack-plugin' );
-const glob = require( 'glob' );
+const { glob } = require( 'glob' );
 
 const webpack = jetpackWebpackConfig.webpack;
 const sharedWebpackConfig = {
@@ -123,7 +123,7 @@ const weirdRtlEntries = {
 		// When making changes to that list, you must also update $concatenated_style_handles in class.jetpack.php.
 		'modules/carousel/swiper-bundle.css',
 		'modules/carousel/jetpack-carousel.css',
-		'modules/contact-form/css/grunion.css',
+		'jetpack_vendor/automattic/jetpack-forms/src/contact-form/css/grunion.css',
 		'modules/infinite-scroll/infinity.css',
 		'modules/likes/style.css',
 		'modules/related-posts/related-posts.css',
@@ -152,6 +152,7 @@ const weirdRtlEntries = {
 		'modules/widgets/social-icons/social-icons.css',
 		'modules/widgets/milestone/milestone-widget.css',
 		'modules/subscriptions/subscribe-modal/subscribe-modal.css',
+		'modules/subscriptions/subscribe-overlay/subscribe-overlay.css',
 	].map( n => path.join( __dirname, '..', n ) ),
 };
 
@@ -160,16 +161,9 @@ const weirdRtlNominEntries = {};
 
 // Admin CSS files to insert into weirdRtlNominEntries and weirdRtlEntries.
 for ( const name of [
-	'modules/custom-post-types/comics/comics',
 	'modules/shortcodes/css/recipes',
 	'modules/shortcodes/css/recipes-print',
 	'modules/shortcodes/css/slideshow-shortcode',
-	'modules/contact-form/css/editor-inline-editing-style',
-	'modules/contact-form/css/editor-style',
-	'modules/contact-form/css/editor-ui',
-	'modules/custom-css/csstidy/cssparse',
-	'modules/custom-css/csstidy/cssparsed',
-	'modules/custom-css/custom-css/css/codemirror',
 	'modules/post-by-email/post-by-email',
 	'modules/sharedaddy/admin-sharing',
 	'modules/videopress/videopress-admin',
@@ -177,7 +171,6 @@ for ( const name of [
 	'modules/videopress/css/videopress-editor-style',
 	'modules/widget-visibility/widget-conditions/widget-conditions',
 	'modules/widgets/gallery/css/admin',
-	'modules/sso/jetpack-sso-login',
 	'modules/masterbar/admin-menu/admin-menu',
 	'modules/masterbar/admin-menu/admin-menu-nav-unification',
 ] ) {
@@ -189,7 +182,6 @@ for ( const name of [
 // The ltr version is apparently used unminified.
 for ( const name of [
 	'modules/carousel/jetpack-carousel',
-	'modules/contact-form/css/grunion',
 	'modules/related-posts/related-posts',
 	'modules/shortcodes/css/recipes',
 	'modules/shortcodes/css/recipes-print',
@@ -199,15 +191,6 @@ for ( const name of [
 	'modules/theme-tools/compat/twentytwentyone',
 ] ) {
 	weirdRtlEntries[ name ] = path.join( __dirname, '..', name + '.css' );
-}
-
-// Calypso scss to compile.
-// prettier-ignore
-for ( const file of glob
-	.sync( 'modules/calypsoify/*.scss' )
-	.filter( n => ! path.basename( n ).startsWith( '_' ) )
-) {
-	weirdRtlEntries[ file.substring( 0, file.length - 5 ) + '.min' ] = './' + file;
 }
 
 // General scss to compile.

@@ -7,6 +7,7 @@ use Automattic\Jetpack\Connection\Plugin as Connection_Plugin;
 use Automattic\Jetpack\Connection\Plugin_Storage as Connection_Plugin_Storage;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Heartbeat;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status\Cache as StatusCache;
 use Jetpack_Options;
@@ -14,6 +15,7 @@ use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
 use WP_REST_Request;
+use WP_REST_Response;
 use WP_REST_Server;
 use WpOrg\Requests\Utility\CaseInsensitiveDictionary;
 
@@ -70,6 +72,7 @@ class Test_REST_Endpoints extends TestCase {
 
 		do_action( 'rest_api_init' );
 		new REST_Connector( new Manager() );
+		Heartbeat::init()->initialize_rest_api();
 
 		add_action( 'jetpack_disabled_raw_options', array( $this, 'bypass_raw_options' ) );
 
@@ -132,6 +135,8 @@ class Test_REST_Endpoints extends TestCase {
 
 		unset( $_SERVER['REQUEST_METHOD'] );
 		$_GET = array();
+
+		Connection_Rest_Authentication::init()->reset_saved_auth_state();
 	}
 
 	/**
@@ -877,6 +882,437 @@ class Test_REST_Endpoints extends TestCase {
 	}
 
 	/**
+	 * Testing the `remote_register` endpoint without authentication on a fully connected site.
+	 * Response: failed authorization.
+	 */
+	public function test_remote_register_connected_unauthenticated() {
+		wp_set_current_user( 0 );
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/remote_register' );
+		$request->set_header( 'Content-Type', 'application/json' );
+
+		$body = array(
+			'local_user' => static::$user_id,
+			'nonce'      => 'foobar',
+		);
+		$request->set_body( wp_json_encode( $body ) );
+
+		// Mock full connection established.
+		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ), 10, 2 );
+
+		$response      = $this->server->dispatch( $request );
+		$response_data = $response->get_data();
+
+		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ), 10 );
+
+		static::assertEquals( 'already_registered', $response_data['code'] );
+		static::assertEquals( 400, $response_data['data'] );
+	}
+
+	/**
+	 * Testing the `remote_register` endpoint without authentication on a fully connected site.
+	 * We intentionally provide an invalid user ID so the `Jetpack_XMLRPC_Server::remote_register()` would trigger an error.
+	 * Response: `input_error`, meaning that the REST endpoint passed the data to the handler.
+	 */
+	public function test_remote_register_not_connected_unauthenticated() {
+		wp_set_current_user( 0 );
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/remote_register' );
+		$request->set_header( 'Content-Type', 'application/json' );
+
+		$body = array(
+			'local_user' => -1,
+			'nonce'      => 'foobar',
+		);
+		$request->set_body( wp_json_encode( $body ) );
+
+		$response      = $this->server->dispatch( $request );
+		$response_data = $response->get_data();
+
+		static::assertTrue( false !== strpos( $response_data['message'], 'Valid user is required' ) );
+		static::assertEquals( 400, $response_data['code'] );
+	}
+
+	/**
+	 * Testing the `remote_register` endpoint with authentication on a fully connected site.
+	 * We intentionally provide an invalid user ID so the `Jetpack_XMLRPC_Server::remote_register()` would trigger an error.
+	 * Response: `input_error`, meaning that the REST endpoint passed the data to the handler.
+	 */
+	public function test_remote_register_connected_authenticated() {
+		wp_set_current_user( 0 );
+
+		// Mock full connection established.
+		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ), 10, 2 );
+
+		$_SERVER['REQUEST_METHOD'] = 'POST';
+
+		$_GET['_for']      = 'jetpack';
+		$_GET['token']     = 'new:1:0';
+		$_GET['timestamp'] = (string) time();
+		$_GET['nonce']     = 'testing123';
+		$_GET['body-hash'] = '';
+		// This is intentionally using base64_encode().
+		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+		$_GET['signature'] = base64_encode(
+			hash_hmac(
+				'sha1',
+				implode(
+					"\n",
+					$data  = array(
+						$_GET['token'],
+						$_GET['timestamp'],
+						$_GET['nonce'],
+						$_GET['body-hash'],
+						'POST',
+						'anything.example',
+						'80',
+						'',
+					)
+				) . "\n",
+				'blogtoken',
+				true
+			)
+		);
+
+		Connection_Rest_Authentication::init()->wp_rest_authenticate( false );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/remote_register' );
+		$request->set_header( 'Content-Type', 'application/json' );
+
+		$body = array(
+			'local_user' => -1,
+			'nonce'      => 'foobar',
+		);
+		$request->set_body( wp_json_encode( $body ) );
+
+		$response      = $this->server->dispatch( $request );
+		$response_data = $response->get_data();
+
+		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ), 10 );
+
+		static::assertTrue( false !== strpos( $response_data['message'], 'Valid user is required' ) );
+		static::assertEquals( 400, $response_data['code'] );
+	}
+
+	/**
+	 * Testing the `remote_provision` endpoint without authentication.
+	 * Response: failed authorization.
+	 */
+	public function test_remote_provision_unauthenticated() {
+		wp_set_current_user( 0 );
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/remote_provision' );
+		$request->set_header( 'Content-Type', 'application/json' );
+
+		$body = array( 'local_user' => static::$user_id );
+		$request->set_body( wp_json_encode( $body ) );
+
+		// Mock full connection established.
+		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ), 10, 2 );
+
+		$response      = $this->server->dispatch( $request );
+		$response_data = $response->get_data();
+
+		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ), 10 );
+
+		static::assertEquals( 'invalid_permission_remote_provision', $response_data['code'] );
+		static::assertEquals( 401, $response_data['data']['status'] );
+	}
+
+	/**
+	 * Testing the `remote_provision` endpoint with proper authentication.
+	 * We intentionally provide an invalid user ID so the `Jetpack_XMLRPC_Server::remote_provision()` would trigger an error.
+	 * Response: `input_error`, meaning that the REST endpoint passed the data to the handler.
+	 */
+	public function test_remote_provision_authenticated() {
+		wp_set_current_user( 0 );
+
+		// Mock full connection established.
+		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ), 10, 2 );
+
+		$_SERVER['REQUEST_METHOD'] = 'POST';
+
+		$_GET['_for']      = 'jetpack';
+		$_GET['token']     = 'new:1:0';
+		$_GET['timestamp'] = (string) time();
+		$_GET['nonce']     = 'testing123';
+		$_GET['body-hash'] = '';
+		// This is intentionally using base64_encode().
+		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+		$_GET['signature'] = base64_encode(
+			hash_hmac(
+				'sha1',
+				implode(
+					"\n",
+					$data  = array(
+						$_GET['token'],
+						$_GET['timestamp'],
+						$_GET['nonce'],
+						$_GET['body-hash'],
+						'POST',
+						'anything.example',
+						'80',
+						'',
+					)
+				) . "\n",
+				'blogtoken',
+				true
+			)
+		);
+
+		Connection_Rest_Authentication::init()->wp_rest_authenticate( false );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/remote_provision' );
+		$request->set_header( 'Content-Type', 'application/json' );
+
+		$body = array( 'local_user' => -1 );
+		$request->set_body( wp_json_encode( $body ) );
+
+		$response      = $this->server->dispatch( $request );
+		$response_data = $response->get_data();
+
+		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ), 10 );
+
+		static::assertTrue( false !== strpos( $response_data['message'], 'Valid user is required' ) );
+		static::assertEquals( 400, $response_data['code'] );
+	}
+
+	/**
+	 * Testing the `remote_connect` endpoint without authentication.
+	 * Response: failed authorization.
+	 */
+	public function test_remote_connect_unauthenticated() {
+		wp_set_current_user( 0 );
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/remote_connect' );
+		$request->set_header( 'Content-Type', 'application/json' );
+
+		$body = array( 'local_user' => static::$user_id );
+		$request->set_body( wp_json_encode( $body ) );
+
+		// Mock full connection established.
+		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ), 10, 2 );
+
+		$response      = $this->server->dispatch( $request );
+		$response_data = $response->get_data();
+
+		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ), 10 );
+
+		static::assertEquals( 'invalid_permission_remote_connect', $response_data['code'] );
+		static::assertEquals( 401, $response_data['data']['status'] );
+	}
+
+	/**
+	 * Testing the `remote_connect` endpoint with proper authentication.
+	 * Response: `already_connected`, meaning that the REST endpoint passed the data to the handler.
+	 */
+	public function test_remote_connect_authenticated() {
+		wp_set_current_user( 0 );
+
+		// Mock full connection established.
+		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ), 10, 2 );
+
+		$_SERVER['REQUEST_METHOD'] = 'POST';
+
+		$_GET['_for']      = 'jetpack';
+		$_GET['token']     = 'new:1:0';
+		$_GET['timestamp'] = (string) time();
+		$_GET['nonce']     = 'testing123';
+		$_GET['body-hash'] = '';
+		// This is intentionally using base64_encode().
+		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+		$_GET['signature'] = base64_encode(
+			hash_hmac(
+				'sha1',
+				implode(
+					"\n",
+					$data  = array(
+						$_GET['token'],
+						$_GET['timestamp'],
+						$_GET['nonce'],
+						$_GET['body-hash'],
+						'POST',
+						'anything.example',
+						'80',
+						'',
+					)
+				) . "\n",
+				'blogtoken',
+				true
+			)
+		);
+
+		Connection_Rest_Authentication::init()->wp_rest_authenticate( false );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/remote_connect' );
+		$request->set_header( 'Content-Type', 'application/json' );
+
+		$body = array( 'local_user' => -1 );
+		$request->set_body( wp_json_encode( $body ) );
+
+		$response      = $this->server->dispatch( $request );
+		$response_data = $response->get_data();
+
+		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ), 10 );
+
+		static::assertTrue( false !== strpos( $response_data['message'], '[already_connected]' ) );
+		static::assertEquals( 400, $response_data['code'] );
+	}
+
+	/**
+	 * Testing the `heartbeat_data` endpoint without authentication.
+	 * Response: failed authorization.
+	 */
+	public function test_heartbeat_data_unauthenticated() {
+		wp_set_current_user( 0 );
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/heartbeat/data' );
+		$request->set_header( 'Content-Type', 'application/json' );
+
+		// Mock full connection established.
+		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ), 10, 2 );
+
+		$response      = $this->server->dispatch( $request );
+		$response_data = $response->get_data();
+
+		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ), 10 );
+
+		static::assertEquals( 'invalid_permission_heartbeat_data', $response_data['code'] );
+		static::assertEquals( 401, $response_data['data']['status'] );
+	}
+
+	/**
+	 * Testing the `heartbeat_data` endpoint with proper authentication.
+	 */
+	public function test_heartbeat_data_authenticated() {
+		wp_set_current_user( 0 );
+
+		$data_filter = function () {
+			return array(
+				'key1' => 'val1',
+				'key2' => 'val2',
+			);
+		};
+
+		// Mock the heartbeat data.
+		add_filter( 'jetpack_heartbeat_stats_array', $data_filter );
+
+		// Mock full connection established.
+		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ), 10, 2 );
+
+		$_SERVER['REQUEST_METHOD'] = 'POST';
+
+		$_GET['_for']      = 'jetpack';
+		$_GET['token']     = 'new:1:0';
+		$_GET['timestamp'] = (string) time();
+		$_GET['nonce']     = 'testing123';
+		$_GET['body-hash'] = '';
+		// This is intentionally using base64_encode().
+		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+		$_GET['signature'] = base64_encode(
+			hash_hmac(
+				'sha1',
+				implode(
+					"\n",
+					array(
+						$_GET['token'],
+						$_GET['timestamp'],
+						$_GET['nonce'],
+						$_GET['body-hash'],
+						'POST',
+						'anything.example',
+						'80',
+						'',
+					)
+				) . "\n",
+				'blogtoken',
+				true
+			)
+		);
+
+		Connection_Rest_Authentication::init()->wp_rest_authenticate( false );
+
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/heartbeat/data' );
+		$request->set_header( 'Content-Type', 'application/json' );
+
+		$response      = $this->server->dispatch( $request );
+		$response_data = $response->get_data();
+
+		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ) );
+		remove_filter( 'jetpack_heartbeat_stats_array', $data_filter );
+
+		static::assertEquals( $data_filter(), $response_data );
+	}
+
+	/**
+	 * Testing the `test_connection` endpoint without authentication.
+	 * Response: failed authorization.
+	 */
+	public function test_connection_check_unauthenticated() {
+		wp_set_current_user( 0 );
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/connection/check' );
+		$request->set_header( 'Content-Type', 'application/json' );
+
+		// Mock full connection established.
+		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ), 10, 2 );
+
+		$response      = $this->server->dispatch( $request );
+		$response_data = $response->get_data();
+
+		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ), 10 );
+
+		static::assertEquals( 'invalid_permission_connection_check', $response_data['code'] );
+		static::assertEquals( 401, $response_data['data']['status'] );
+	}
+
+	/**
+	 * Testing the `remote_connect` endpoint with proper authentication.
+	 */
+	public function test_connection_check_authenticated() {
+		wp_set_current_user( 0 );
+
+		// Mock full connection established.
+		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ), 10, 2 );
+
+		$_SERVER['REQUEST_METHOD'] = 'POST';
+
+		$_GET['_for']      = 'jetpack';
+		$_GET['token']     = 'new:1:0';
+		$_GET['timestamp'] = (string) time();
+		$_GET['nonce']     = 'testing123';
+		$_GET['body-hash'] = '';
+		// This is intentionally using base64_encode().
+		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+		$_GET['signature'] = base64_encode(
+			hash_hmac(
+				'sha1',
+				implode(
+					"\n",
+					array(
+						$_GET['token'],
+						$_GET['timestamp'],
+						$_GET['nonce'],
+						$_GET['body-hash'],
+						'POST',
+						'anything.example',
+						'80',
+						'',
+					)
+				) . "\n",
+				'blogtoken',
+				true
+			)
+		);
+
+		Connection_Rest_Authentication::init()->wp_rest_authenticate( false );
+
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/connection/check' );
+		$request->set_header( 'Content-Type', 'application/json' );
+
+		$response      = $this->server->dispatch( $request );
+		$response_data = $response->get_data();
+
+		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ), 10 );
+
+		static::assertEquals( 'success', $response_data['status'] );
+	}
+
+	/**
 	 * This filter callback allows us to skip the database query by `Jetpack_Options` to retrieve the option.
 	 *
 	 * @param array $options List of options already skipping the database request.
@@ -899,7 +1335,7 @@ class Test_REST_Endpoints extends TestCase {
 	 * @return array
 	 */
 	public static function intercept_register_request( $response, $args, $url ) {
-		if ( false === strpos( $url, 'jetpack.register' ) ) {
+		if ( ! str_contains( $url, 'jetpack.register' ) ) {
 			return $response;
 		}
 
@@ -916,7 +1352,7 @@ class Test_REST_Endpoints extends TestCase {
 	 * @return array
 	 */
 	public static function intercept_register_request_with_allow_inplace( $response, $args, $url ) {
-		if ( false === strpos( $url, 'jetpack.register' ) ) {
+		if ( ! str_contains( $url, 'jetpack.register' ) ) {
 			return $response;
 		}
 
@@ -933,7 +1369,7 @@ class Test_REST_Endpoints extends TestCase {
 	 * @return array
 	 */
 	public static function intercept_register_request_with_alternate_auth_url( $response, $args, $url ) {
-		if ( false === strpos( $url, 'jetpack.register' ) ) {
+		if ( ! str_contains( $url, 'jetpack.register' ) ) {
 			return $response;
 		}
 
@@ -975,7 +1411,7 @@ class Test_REST_Endpoints extends TestCase {
 	 * @return array
 	 */
 	public function intercept_validate_tokens_request_invalid_blog_token( $response, $args, $url ) {
-		if ( false === strpos( $url, 'jetpack-token-health' ) ) {
+		if ( ! str_contains( $url, 'jetpack-token-health' ) ) {
 			return $response;
 		}
 
@@ -992,7 +1428,7 @@ class Test_REST_Endpoints extends TestCase {
 	 * @return array
 	 */
 	public function intercept_validate_tokens_request_invalid_user_token( $response, $args, $url ) {
-		if ( false === strpos( $url, 'jetpack-token-health' ) ) {
+		if ( ! str_contains( $url, 'jetpack-token-health' ) ) {
 			return $response;
 		}
 
@@ -1009,7 +1445,7 @@ class Test_REST_Endpoints extends TestCase {
 	 * @return array
 	 */
 	public function intercept_validate_tokens_request_valid_tokens( $response, $args, $url ) {
-		if ( false === strpos( $url, 'jetpack-token-health' ) ) {
+		if ( ! str_contains( $url, 'jetpack-token-health' ) ) {
 			return $response;
 		}
 
@@ -1026,7 +1462,7 @@ class Test_REST_Endpoints extends TestCase {
 	 * @return array
 	 */
 	public function intercept_validate_tokens_request_failed( $response, $args, $url ) {
-		if ( false === strpos( $url, 'jetpack-token-health' ) ) {
+		if ( ! str_contains( $url, 'jetpack-token-health' ) ) {
 			return $response;
 		}
 
@@ -1093,7 +1529,7 @@ class Test_REST_Endpoints extends TestCase {
 	 * @return array
 	 */
 	public function intercept_refresh_blog_token_request( $response, $args, $url ) {
-		if ( false === strpos( $url, 'jetpack-refresh-blog-token' ) ) {
+		if ( ! str_contains( $url, 'jetpack-refresh-blog-token' ) ) {
 			return $response;
 		}
 
@@ -1117,7 +1553,7 @@ class Test_REST_Endpoints extends TestCase {
 	 * @return array
 	 */
 	public function intercept_refresh_blog_token_request_fail( $response, $args, $url ) {
-		if ( false === strpos( $url, 'jetpack-refresh-blog-token' ) ) {
+		if ( ! str_contains( $url, 'jetpack-refresh-blog-token' ) ) {
 			return $response;
 		}
 
@@ -1141,7 +1577,7 @@ class Test_REST_Endpoints extends TestCase {
 	 * @return array
 	 */
 	public function intercept_auth_token_request( $response, $args, $url ) {
-		if ( false === strpos( $url, '/jetpack.token/' ) ) {
+		if ( ! str_contains( $url, '/jetpack.token/' ) ) {
 			return $response;
 		}
 
@@ -1380,6 +1816,5 @@ class Test_REST_Endpoints extends TestCase {
 		}
 
 		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ), 10 );
-		remove_filter( 'pre_http_request', array( $this, 'intercept_validate_tokens_request' ), 10 );
 	}
 }

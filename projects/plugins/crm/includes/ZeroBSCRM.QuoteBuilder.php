@@ -106,11 +106,14 @@ function jpcrm_quote_generate_pdf( $quote_id = false ) {
 
 	// load templating
 	global $zbs;
-	$placeholder_templating = $zbs->get_templating();
+	$placeholder_templating    = $zbs->get_templating();
+	$replacements              = $placeholder_templating->get_generic_replacements();
+	$replacements['quote-url'] = zeroBSCRM_portal_linkObj( $quote_id, ZBS_TYPE_QUOTE );
 
-	// build HTML
-	$content = zeroBS_getQuoteBuilderContent( $quote_id );
-	$html    = $placeholder_templating->replace_single_placeholder( 'quote-content', $content['content'], $html );
+	// Retrieve quote (for any quote placeholders within the template)
+	$quote = zeroBS_getQuote( $quote_id, true );
+	// replacements
+	$html = $placeholder_templating->replace_placeholders( array( 'global', 'quote' ), $html, $replacements, array( ZBS_TYPE_QUOTE => $quote ) );
 
 	// normalise translated text to alphanumeric, resulting in a filename like `quote-321.pdf`
 	$pdf_filename = sanitize_title( __( 'Quote', 'zero-bs-crm' ) . '-' . $quote_id ) . '.pdf';

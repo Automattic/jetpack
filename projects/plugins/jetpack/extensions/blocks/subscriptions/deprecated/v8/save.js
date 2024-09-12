@@ -1,10 +1,10 @@
-import classnames from 'classnames';
+import clsx from 'clsx';
 
 export default function Save( { className, attributes } ) {
 	const { showSubscribersTotal, buttonOnNewLine } = attributes;
 
 	const getBlockClassName = () => {
-		return classnames(
+		return clsx(
 			className,
 			'wp-block-jetpack-subscriptions__supports-newline',
 			buttonOnNewLine ? 'wp-block-jetpack-subscriptions__use-newline' : undefined,

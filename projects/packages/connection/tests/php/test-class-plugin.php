@@ -34,7 +34,6 @@ class Test_Plugin extends TestCase {
 	 * Initialization of the test class
 	 *
 	 * @before
-	 * @throws MockEnabledException PHPUnit wasn't able to enable mock functions  ¯\_(⊙︿⊙)_/¯.
 	 */
 	protected function set_up() {
 		Plugin_Storage::configure();

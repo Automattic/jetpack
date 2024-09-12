@@ -91,7 +91,7 @@ function mixcloud_shortcode( $atts, $content = null ) {
 		// Here we make sure that these string are not repeated in the sandbox attribute.
 		$attrs = array( 'allow-popups', 'allow-scripts', 'allow-same-origin', 'allow-presentation' );
 		foreach ( $attrs as $attr ) {
-			if ( false === strpos( $matches[1], $attr ) ) {
+			if ( ! str_contains( $matches[1], $attr ) ) {
 				$allowed_values[] = $attr;
 			}
 		}

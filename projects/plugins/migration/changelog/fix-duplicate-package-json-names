@@ -1,0 +1,5 @@
+Significance: patch
+Type: removed
+Comment: Remove unnecessary `name` in `tests/e2e/package.json`. No change to functionality.
+
+

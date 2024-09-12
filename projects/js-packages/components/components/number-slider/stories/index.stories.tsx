@@ -1,20 +1,20 @@
 import { useState } from 'react';
 import NumberSlider from '../index';
-import type { ComponentStory, ComponentMeta } from '@storybook/react';
+import type { StoryFn, Meta } from '@storybook/react';
 
 export default {
 	title: 'JS Packages/Components/Number Slider',
 	component: NumberSlider,
-} as ComponentMeta< typeof NumberSlider >;
+} as Meta< typeof NumberSlider >;
 
 // Export additional stories using pre-defined values
-const Template: ComponentStory< typeof NumberSlider > = args => <NumberSlider { ...args } />;
+const Template: StoryFn< typeof NumberSlider > = args => <NumberSlider { ...args } />;
 
 // Export Default story
 export const _default = Template.bind( {} );
 
 // Export additional stories using chaning values
-const TemplateWithChangingValue: ComponentStory< typeof NumberSlider > = args => {
+const TemplateWithChangingValue: StoryFn< typeof NumberSlider > = args => {
 	const [ value, setValue ] = useState( 10 );
 	const [ endValue, setEndValue ] = useState( 10 );
 	const renderThumb = ( props, state ) => {

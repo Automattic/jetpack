@@ -1,9 +1,12 @@
 import { Spinner } from '@automattic/jetpack-components';
+import { useBlockProps } from '@wordpress/block-editor';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { StripeNudge } from '../../shared/components/stripe-nudge';
 import { SUPPORTED_CURRENCIES } from '../../shared/currencies';
 import getConnectUrl from '../../shared/get-connect-url';
+import { store as membershipProductsStore } from '../../store/membership-products';
 import { STORE_NAME as MEMBERSHIPS_PRODUCTS_STORE } from '../../store/membership-products/constants';
 import fetchDefaultProducts from './fetch-default-products';
 import fetchStatus from './fetch-status';
@@ -11,29 +14,35 @@ import LoadingError from './loading-error';
 import Tabs from './tabs';
 
 const Edit = props => {
-	const { attributes, className, setAttributes } = props;
+	const { attributes, setAttributes } = props;
 	const { currency } = attributes;
 
+	const blockProps = useBlockProps();
 	const [ loadingError, setLoadingError ] = useState( '' );
 	const [ products, setProducts ] = useState( [] );
 
 	const { lockPostSaving, unlockPostSaving } = useDispatch( 'core/editor' );
 	const post = useSelect( select => select( 'core/editor' ).getCurrentPost(), [] );
+	const isPostSavingLocked = useSelect(
+		select => select( 'core/editor' ).isPostSavingLocked(),
+		[]
+	);
+
+	const stripeConnectUrl = useSelect(
+		select => select( membershipProductsStore ).getConnectUrl() || '',
+		[]
+	);
 
 	const { setConnectUrl, setConnectedAccountDefaultCurrency } = useDispatch(
 		MEMBERSHIPS_PRODUCTS_STORE
 	);
-
-	useEffect( () => {
-		setAttributes( { fallbackLinkUrl: post.link } );
-	}, [ post.link, setAttributes ] );
 
 	const stripeDefaultCurrency = useSelect( select =>
 		select( MEMBERSHIPS_PRODUCTS_STORE ).getConnectedAccountDefaultCurrency()
 	);
 
 	useEffect( () => {
-		if ( ! currency && stripeDefaultCurrency ) {
+		if ( ! currency && stripeDefaultCurrency && ! isPostSavingLocked ) {
 			const uppercasedStripeCurrency = stripeDefaultCurrency.toUpperCase();
 			const isCurrencySupported = !! SUPPORTED_CURRENCIES[ uppercasedStripeCurrency ];
 			if ( isCurrencySupported ) {
@@ -44,7 +53,7 @@ const Edit = props => {
 				setAttributes( { currency: 'USD' } );
 			}
 		}
-	}, [ currency, stripeDefaultCurrency, setAttributes ] );
+	}, [ currency, stripeDefaultCurrency, isPostSavingLocked, setAttributes ] );
 
 	const apiError = message => {
 		setLoadingError( message );
@@ -111,6 +120,8 @@ const Edit = props => {
 					unlockPostSaving( 'donations' );
 				}, apiError );
 			}
+
+			unlockPostSaving( 'donations' );
 		}, apiError );
 	}, [
 		lockPostSaving,
@@ -121,16 +132,21 @@ const Edit = props => {
 		unlockPostSaving,
 	] );
 
+	let content;
+
 	if ( loadingError ) {
-		return <LoadingError className={ className } error={ loadingError } />;
-	}
-
-	if ( ! currency ) {
+		content = <LoadingError error={ loadingError } />;
+	} else if ( stripeConnectUrl ) {
+		// Need to connect Stripe first
+		content = <StripeNudge blockName="donations" />;
+	} else if ( ! currency ) {
 		// Memberships settings are still loading
-		return <Spinner />;
+		content = <Spinner color="black" />;
+	} else {
+		content = <Tabs { ...props } products={ products } />;
 	}
 
-	return <Tabs { ...props } products={ products } />;
+	return <div { ...blockProps }>{ content }</div>;
 };
 
 export default Edit;

@@ -2,6 +2,85 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [0.17.13] - 2024-09-10
+### Changed
+- Updated package dependencies. [#39302]
+
+## [0.17.12] - 2024-09-05
+### Changed
+- Updated package dependencies. [#39176]
+
+## [0.17.11] - 2024-08-21
+### Changed
+- Internal updates.
+
+## [0.17.10] - 2024-08-15
+### Changed
+- Updated package dependencies. [#38662]
+
+## [0.17.9] - 2024-07-03
+### Changed
+- Updated package dependencies. [#38132]
+
+## [0.17.8] - 2024-06-05
+### Changed
+- Updated package dependencies. [#37669]
+
+## [0.17.7] - 2024-05-16
+### Changed
+- Updated package dependencies. [#37379]
+
+## [0.17.6] - 2024-05-06
+### Changed
+- Updated package dependencies. [#37147]
+
+## [0.17.5] - 2024-04-08
+### Added
+- Add 'from' property to connection call to WP.com. [#36741]
+
+## [0.17.4] - 2024-04-08
+### Changed
+- Updated package dependencies. [#36760]
+
+## [0.17.3] - 2024-03-27
+### Changed
+- Updated package dependencies. [#36585]
+
+## [0.17.2] - 2024-03-12
+### Changed
+- Updated package dependencies. [#36325]
+
+## [0.17.1] - 2024-03-04
+### Changed
+- Updated package dependencies. [#36095]
+
+## [0.17.0] - 2024-03-01
+### Added
+- Add endpoint to query backup preflight checks [#36032]
+
+## [0.16.10] - 2024-02-13
+### Changed
+- Updated package dependencies. [#35608]
+
+## [0.16.9] - 2024-02-05
+### Changed
+- Updated package dependencies. [#35384]
+
+## [0.16.8] - 2024-01-04
+### Changed
+- Updated package dependencies. [#34815]
+
+## [0.16.7] - 2023-12-03
+### Changed
+- Updated package dependencies. [#34411]
+- Updated package dependencies. [#34427]
+
+## [0.16.6] - 2023-11-20
+
+## [0.16.5] - 2023-11-14
+### Changed
+- Updated package dependencies. [#34093]
+
 ## [0.16.4] - 2023-10-19
 ### Changed
 - Updated package dependencies. [#33687]
@@ -275,6 +354,26 @@
 - Add the API methods left behind by the previous PR.
 - Initial release of jetpack-api package
 
+[0.17.13]: https://github.com/Automattic/jetpack-api/compare/v0.17.12...v0.17.13
+[0.17.12]: https://github.com/Automattic/jetpack-api/compare/v0.17.11...v0.17.12
+[0.17.11]: https://github.com/Automattic/jetpack-api/compare/v0.17.10...v0.17.11
+[0.17.10]: https://github.com/Automattic/jetpack-api/compare/v0.17.9...v0.17.10
+[0.17.9]: https://github.com/Automattic/jetpack-api/compare/v0.17.8...v0.17.9
+[0.17.8]: https://github.com/Automattic/jetpack-api/compare/v0.17.7...v0.17.8
+[0.17.7]: https://github.com/Automattic/jetpack-api/compare/v0.17.6...v0.17.7
+[0.17.6]: https://github.com/Automattic/jetpack-api/compare/v0.17.5...v0.17.6
+[0.17.5]: https://github.com/Automattic/jetpack-api/compare/v0.17.4...v0.17.5
+[0.17.4]: https://github.com/Automattic/jetpack-api/compare/v0.17.3...v0.17.4
+[0.17.3]: https://github.com/Automattic/jetpack-api/compare/v0.17.2...v0.17.3
+[0.17.2]: https://github.com/Automattic/jetpack-api/compare/v0.17.1...v0.17.2
+[0.17.1]: https://github.com/Automattic/jetpack-api/compare/v0.17.0...v0.17.1
+[0.17.0]: https://github.com/Automattic/jetpack-api/compare/v0.16.10...v0.17.0
+[0.16.10]: https://github.com/Automattic/jetpack-api/compare/v0.16.9...v0.16.10
+[0.16.9]: https://github.com/Automattic/jetpack-api/compare/v0.16.8...v0.16.9
+[0.16.8]: https://github.com/Automattic/jetpack-api/compare/v0.16.7...v0.16.8
+[0.16.7]: https://github.com/Automattic/jetpack-api/compare/v0.16.6...v0.16.7
+[0.16.6]: https://github.com/Automattic/jetpack-api/compare/v0.16.5...v0.16.6
+[0.16.5]: https://github.com/Automattic/jetpack-api/compare/v0.16.4...v0.16.5
 [0.16.4]: https://github.com/Automattic/jetpack-api/compare/v0.16.3...v0.16.4
 [0.16.3]: https://github.com/Automattic/jetpack-api/compare/v0.16.2...v0.16.3
 [0.16.2]: https://github.com/Automattic/jetpack-api/compare/v0.16.1...v0.16.2

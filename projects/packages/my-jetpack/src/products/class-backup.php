@@ -52,21 +52,35 @@ class Backup extends Hybrid_Product {
 	public static $has_standalone_plugin = true;
 
 	/**
-	 * Get the internationalized product name
+	 * Whether this product has a free offering
+	 *
+	 * @var bool
+	 */
+	public static $has_free_offering = false;
+
+	/**
+	 * Whether this product requires a plan to work at all
+	 *
+	 * @var bool
+	 */
+	public static $requires_plan = true;
+
+	/**
+	 * Get the product name
 	 *
 	 * @return string
 	 */
 	public static function get_name() {
-		return __( 'VaultPress Backup', 'jetpack-my-jetpack' );
+		return 'VaultPress Backup';
 	}
 
 	/**
-	 * Get the internationalized product title
+	 * Get the product title
 	 *
 	 * @return string
 	 */
 	public static function get_title() {
-		return __( 'Jetpack VaultPress Backup', 'jetpack-my-jetpack' );
+		return 'Jetpack VaultPress Backup';
 	}
 
 	/**
@@ -79,7 +93,7 @@ class Backup extends Hybrid_Product {
 			return __( 'Save every change', 'jetpack-my-jetpack' );
 		}
 
-		return __( 'Your site is not backed up', 'jetpack-my-jetpack' );
+		return __( 'Secure your site with automatic backups and one-click restores', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -130,6 +144,13 @@ class Backup extends Hybrid_Product {
 	}
 
 	/**
+	 * Get the URL where the user should be redirected after checkout
+	 */
+	public static function get_post_checkout_url() {
+		return self::get_manage_url();
+	}
+
+	/**
 	 * Get the product princing details
 	 *
 	 * @return array Pricing details
@@ -163,7 +184,8 @@ class Backup extends Hybrid_Product {
 		$response = Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d/rewind', $site_id ) . '?force=wpcom', '2', array( 'timeout' => 2 ), null, 'wpcom' );
 
 		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
-			return new WP_Error( 'rewind_state_fetch_failed' );
+			$status = new WP_Error( 'rewind_state_fetch_failed' );
+			return $status;
 		}
 
 		$body   = wp_remote_retrieve_body( $response );
@@ -176,7 +198,7 @@ class Backup extends Hybrid_Product {
 	 *
 	 * @return boolean
 	 */
-	public static function has_required_plan() {
+	public static function has_paid_plan_for_product() {
 		$rewind_data = static::get_state_from_wpcom();
 		if ( is_wp_error( $rewind_data ) ) {
 			return false;
@@ -209,30 +231,12 @@ class Backup extends Hybrid_Product {
 	 * @return ?string
 	 */
 	public static function get_manage_url() {
-		if ( static::is_jetpack_plugin_active() ) {
+		// check standalone first
+		if ( static::is_standalone_plugin_active() ) {
+			return admin_url( 'admin.php?page=jetpack-backup' );
+			// otherwise, check for the main Jetpack plugin
+		} elseif ( static::is_jetpack_plugin_active() ) {
 			return Redirect::get_url( 'my-jetpack-manage-backup' );
-		} elseif ( static::is_plugin_active() ) {
-			return admin_url( 'admin.php?page=jetpack-backup' );
-		}
-	}
-
-	/**
-	 * Checks whether the Product is active
-	 *
-	 * @return boolean
-	 */
-	public static function is_active() {
-		return parent::is_active() && static::has_required_plan();
-	}
-
-	/**
-	 * Get the URL where the user should be redirected after checkout
-	 */
-	public static function get_post_checkout_url() {
-		if ( static::is_jetpack_plugin_active() ) {
-			return admin_url( 'admin.php?page=jetpack#/recommendations' );
-		} elseif ( static::is_plugin_active() ) {
-			return admin_url( 'admin.php?page=jetpack-backup' );
 		}
 	}
 }

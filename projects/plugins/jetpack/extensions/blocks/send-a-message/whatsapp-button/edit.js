@@ -1,7 +1,7 @@
 import { BlockControls, InspectorControls, RichText } from '@wordpress/block-editor';
 import { useDispatch } from '@wordpress/data';
 import { useEffect, useCallback } from '@wordpress/element';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import { countryCodes } from '../shared/countrycodes.js';
 import WhatsAppButtonConfiguration from './configuration';
 import '../view.scss';
@@ -45,7 +45,7 @@ export default function WhatsAppButtonEdit( { attributes, setAttributes, classNa
 	}, [ clientId, countryCode, getCountryCode, selectBlock ] );
 
 	const getBlockClassNames = () => {
-		return classnames( className, colorClass ? 'is-color-' + colorClass : undefined );
+		return clsx( className, colorClass ? 'is-color-' + colorClass : undefined );
 	};
 
 	return (

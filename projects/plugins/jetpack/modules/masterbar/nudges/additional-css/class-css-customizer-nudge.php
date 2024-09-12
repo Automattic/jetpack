@@ -3,10 +3,14 @@
  * CSS_Customizer_Nudge file.
  * CSS Nudge implementation for Atomic and WPCOM.
  *
+ * @deprecated 13.7 Use Automattic\Jetpack\Masterbar\CSS_Customizer_Nudge instead.
+ *
  * @package Jetpack
  */
 
 namespace Automattic\Jetpack\Dashboard_Customizations;
+
+use Automattic\Jetpack\Masterbar\CSS_Customizer_Nudge as Masterbar_CSS_Customizer_Nudge;
 
 /**
  * Class WPCOM_CSS_Customizer
@@ -15,117 +19,74 @@ namespace Automattic\Jetpack\Dashboard_Customizations;
  */
 class CSS_Customizer_Nudge {
 	/**
-	 * Call to Action URL.
+	 * Instance of \Automattic\Jetpack\Masterbar\CSS_Customizer_Nudge
+	 * Used for deprecation purposes.
 	 *
-	 * @var string
+	 * @var \Automattic\Jetpack\Masterbar\CSS_Customizer_Nudge
 	 */
-	private $cta_url;
-
-	/**
-	 * The nudge message.
-	 *
-	 * @var string
-	 */
-	private $nudge_copy;
-
-	/**
-	 * The name of the control in Customizer.
-	 *
-	 * @var string
-	 */
-	private $control_name;
+	private $css_customizer_nudge_wrapper;
 
 	/**
 	 * CSS_Customizer_Nudge constructor.
+	 *
+	 * @deprecated 13.7
 	 *
 	 * @param string $cta_url      The URL to the plans.
 	 * @param string $nudge_copy   The nudge text.
 	 * @param string $control_name The slug prefix of the nudge.
 	 */
 	public function __construct( $cta_url, $nudge_copy, $control_name = 'custom_css' ) {
-		$this->cta_url      = $cta_url;
-		$this->nudge_copy   = $nudge_copy;
-		$this->control_name = $control_name;
+		_deprecated_function( __METHOD__, 'jetpack-13.7', 'Automattic\\Jetpack\\Masterbar\\CSS_Customizer_Nudge::__construct' );
+		$this->css_customizer_nudge_wrapper = new Masterbar_CSS_Customizer_Nudge( $cta_url, $nudge_copy, $control_name );
 	}
 
 	/**
 	 * Register the assets required for the CSS nudge page from the Customizer.
+	 *
+	 * @deprecated 13.7
 	 */
 	public function customize_controls_enqueue_scripts_nudge() {
-		\wp_enqueue_script(
-			'additional-css-js',
-			plugins_url( 'js/additional-css.js', __FILE__ ),
-			array(),
-			JETPACK__VERSION,
-			true
-		);
-		\wp_enqueue_style(
-			'additional-css',
-			plugins_url( 'css/additional-css.css', __FILE__ ),
-			array(),
-			JETPACK__VERSION
-		);
+		_deprecated_function( __METHOD__, 'jetpack-13.7', 'Automattic\\Jetpack\\Masterbar\\CSS_Customizer_Nudge::customize_controls_enqueue_scripts_nudge' );
+		$this->css_customizer_nudge_wrapper->customize_controls_enqueue_scripts_nudge();
 	}
 
 	/**
 	 * Register the CSS nudge in the Customizer.
 	 *
+	 * @deprecated 13.7
+	 *
 	 * @param \WP_Customize_Manager $wp_customize The customize manager.
 	 */
 	public function customize_register_nudge( \WP_Customize_Manager $wp_customize ) {
-		// Show a nudge in place of the normal CSS section.
-		\add_action( 'customize_controls_enqueue_scripts', array( $this, 'customize_controls_enqueue_scripts_nudge' ) );
-
-		$wp_customize->add_setting(
-			$this->control_name . '[dummy_setting]',
-			array(
-				'type'      => $this->control_name . '_dummy_setting',
-				'default'   => '',
-				'transport' => 'refresh',
-			)
-		);
-
-		$wp_customize->add_section( $this->create_css_nudge_section( $wp_customize ) );
-
-		$wp_customize->add_control( $this->create_css_nudge_control( $wp_customize ) );
+		_deprecated_function( __METHOD__, 'jetpack-13.7', 'Automattic\\Jetpack\\Masterbar\\CSS_Customizer_Nudge::customize_register_nudge' );
+		$this->css_customizer_nudge_wrapper->customize_register_nudge( $wp_customize );
 	}
 
 	/**
 	 * Create a nudge control object.
 	 *
+	 * @deprecated 13.7
+	 *
 	 * @param \WP_Customize_Manager $wp_customize The Core Customize Manager.
 	 *
-	 * @return CSS_Nudge_Customize_Control
+	 * @return \Automattic\Jetpack\Masterbar\CSS_Nudge_Customize_Control
 	 */
 	public function create_css_nudge_control( \WP_Customize_Manager $wp_customize ) {
-		return new CSS_Nudge_Customize_Control(
-			$wp_customize,
-			$this->control_name . '_control',
-			array(
-				'cta_url'    => $this->cta_url,
-				'nudge_copy' => $this->nudge_copy,
-				'label'      => __( 'Custom CSS', 'jetpack' ),
-				'section'    => $this->control_name,
-				'settings'   => $this->control_name . '[dummy_setting]',
-			)
-		);
+		_deprecated_function( __METHOD__, 'jetpack-13.7', 'Automattic\\Jetpack\\Masterbar\\CSS_Customizer_Nudge::create_css_nudge_control' );
+		return $this->css_customizer_nudge_wrapper->create_css_nudge_control( $wp_customize );
 	}
 
 	/**
 	 * Create the nudge section.
+	 *
+	 * @deprecated 13.7
 	 *
 	 * @param \WP_Customize_Manager $wp_customize The core Customize Manager.
 	 *
 	 * @return \WP_Customize_Section
 	 */
 	public function create_css_nudge_section( \WP_Customize_Manager $wp_customize ) {
-		return new \WP_Customize_Section(
-			$wp_customize,
-			$this->control_name,
-			array(
-				'title'    => __( 'Additional CSS', 'jetpack' ),
-				'priority' => 200,
-			)
-		);
+		_deprecated_function( __METHOD__, 'jetpack-13.7', 'Automattic\\Jetpack\\Masterbar\\CSS_Customizer_Nudge::create_css_nudge_section' );
+		return $this->css_customizer_nudge_wrapper->create_css_nudge_section( $wp_customize );
 	}
 }

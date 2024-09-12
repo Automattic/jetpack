@@ -23,6 +23,8 @@
 		"version-constants": {
 			"JETPACK_DEBUG_HELPER_VERSION": "plugin.php"
 		},
+		"release-branch-prefix": "debug-helper",
+		"beta-plugin-slug": "jetpack-debug-helper",
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-debug-helper/compare/v${old}...v${new}"
 		}

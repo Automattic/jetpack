@@ -19,7 +19,7 @@ jobs:
     outputs:
       matrix: ${{ steps.create-matrix.outputs.matrix }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - id: create-matrix
         run: |
           MATRIX="$(.github/files/generate-ci-matrix.php)"
@@ -31,12 +31,12 @@ jobs:
     needs: create-matrix
     services:
       database:
-        image: mysql:5.6
+        image: mariadb:10.4
         env:
-          MYSQL_ROOT_PASSWORD: root
+          MARIADB_ROOT_PASSWORD: root
         ports:
           - 3306:3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=5
+        options: --health-cmd="healthcheck.sh --su-mysql --connect --innodb_initialized" --health-interval=10s --health-timeout=5s --health-retries=5
     continue-on-error: ${{ matrix.experimental }}
     timeout-minutes: ${{ matrix.timeout }}
     env:
@@ -46,13 +46,14 @@ jobs:
       NODE_VERSION: ${{ matrix.node }}
       MONOREPO_BASE: ${{ github.workspace }}
       WITH_WOOCOMMERCE: ${{ matrix.with-woocommerce }}
+      WITH_WPCOMSH: ${{ matrix.with-wpcomsh }}
     strategy:
       fail-fast: false
       matrix:
         include: ${{ fromJson( needs.create-matrix.outputs.matrix ) }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           # codecov.io requires a fetch depth > 1.
           fetch-depth: 2
@@ -77,6 +78,14 @@ jobs:
           pnpm install
           echo "::endgroup::"
 
+          # If we're going to be making WorDBless use WP "nightlies", remove the relevant package from Composer's cache to get the latest version.
+          if [[ "$WP_BRANCH" == 'trunk' && "$TEST_SCRIPT" == "test-php" ]]; then
+            echo "::group::Clear composer cache for roots/wordpress"
+            DIR=$(composer config cache-files-dir)
+            rm -rf "$DIR/roots/wordpress" "$DIR/roots/wordpress-no-content"
+            echo "::endgroup::"
+          fi
+
       - name: Detect changed projects
         id: changed
         run: |
@@ -92,6 +101,10 @@ jobs:
           echo "projects=${CHANGED}" >> "$GITHUB_OUTPUT"
           echo "any-plugins=${ANY_PLUGINS}" >> "$GITHUB_OUTPUT"
 
+      - name: Select WordPress version
+        if: steps.changed.outputs.any-plugins != 'true' && matrix.wp != 'none'
+        run: .github/files/select-wordpress-tag.sh
+
       - name: Setup WordPress environment for plugin tests
         env:
           API_TOKEN_GITHUB: ${{ secrets.GITHUB_TOKEN }}
@@ -104,12 +117,6 @@ jobs:
           FORCE_PACKAGE_TESTS: ${{ matrix.force-package-tests && 'true' || 'false' }}
           CHANGED: ${{ steps.changed.outputs.projects }}
         run: |
-          # If we're going to be making WorDBless use WP "nightlies", remove the relevant package from Composer's cache to get the latest version.
-          if [[ "$WP_BRANCH" == 'trunk' && ( "$TEST_SCRIPT" == "test-php" ) ]]; then
-            DIR=$(composer config cache-files-dir)
-            rm -rf "$DIR/roots/wordpress"
-          fi
-
           EXIT=0
           mkdir artifacts
           for P in composer.json projects/*/*/composer.json; do
@@ -135,6 +142,8 @@ jobs:
               echo "Skipping $SLUG, no changes in it or its dependencies"
             elif ! jq --arg script "$TEST_SCRIPT" -e '.scripts[$script] // false' "$P" > /dev/null; then
               echo "Skipping $SLUG, no test script is defined in composer.json"
+            elif php -r 'exit( preg_match( "/^>=\\s*(\\d+\\.\\d+)$/", $argv[1], $m ) && version_compare( PHP_VERSION, $m[1], "<" ) ? 0 : 1 );' "$( jq -r '.require.php // ""' "$P" )"; then
+              echo "Skipping $SLUG, requires PHP $( jq -r '.require.php // ""' "$P" ) but PHP version is $( php -r 'echo PHP_VERSION;' )"
             else
               if jq --arg script "skip-$TEST_SCRIPT" -e '.scripts[$script] // false' "$P" > /dev/null; then
                 { composer --working-dir="$DIR" run "skip-$TEST_SCRIPT"; CODE=$?; } || true
@@ -162,15 +171,17 @@ jobs:
                   echo 'Platform reqs failed, running `composer update`'
                   composer --working-dir="$DIR" update
                 fi
-              fi
 
-              if [[ "$WP_BRANCH" == 'trunk' && "$TEST_SCRIPT" == "test-php" ]]; then
-                VER=$(composer --format=json --working-dir="$DIR" show | jq -r '.installed[] | select( .name == "roots/wordpress" ) | .version')
-                if [[ -n "$VER" ]]; then
-                  echo 'Supposed to run tests against WordPress trunk, so upgrading roots/wordpress and roots/wordpress-no-content to dev-main'
-                  # Composer seems to sometimes have issues with deleting the wordpress dir on its own, so do it manually first.
-                  rm -rf "$DIR/wordpress"
-                  composer --working-dir="$DIR" require --dev roots/wordpress="dev-main as $VER" roots/wordpress-no-content="dev-main as $VER"
+                if [[ "$WP_BRANCH" == 'trunk' || "$WP_BRANCH" == 'previous' ]]; then
+                  VER=$(composer --format=json --working-dir="$DIR" show | jq -r '.installed[] | select( .name == "roots/wordpress" ) | .version')
+                  if [[ -n "$VER" ]]; then
+                    INSVER=$WORDPRESS_TAG
+                    [[ "$WORDPRESS_TAG" == 'trunk' ]] && INSVER="dev-main as $VER"
+                    echo "Supposed to run tests against WordPress $WORDPRESS_TAG, so setting roots/wordpress and roots/wordpress-no-content to \"$INSVER\""
+                    # Composer seems to sometimes have issues with deleting the wordpress dir on its own, so do it manually first.
+                    rm -rf "$DIR/wordpress"
+                    composer --working-dir="$DIR" require --dev roots/wordpress="$INSVER" roots/wordpress-no-content="$INSVER"
+                  fi
                 fi
               fi
 
@@ -205,11 +216,64 @@ jobs:
           fi
       - name: Upload artifacts
         if: always() && steps.check-artifacts.outputs.any == 'true'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact }}
           path: artifacts
+          include-hidden-files: true
           retention-days: 7
+
+  storybook-test:
+    name: Storybook tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20 # 2024-02-23 Wild guess
+    continue-on-error: true # Until it passes
+    steps:
+      - uses: actions/checkout@v4
+
+      # For pull requests, list-changed-projects.sh needs the merge base.
+      # But it doesn't have to be checked out.
+      - name: Deepen to merge base
+        if: github.event_name == 'pull_request'
+        uses: ./.github/actions/deepen-to-merge-base
+        with:
+          checkout: false
+
+      - name: Setup tools
+        uses: ./.github/actions/tool-setup
+
+      - name: Monorepo install
+        run: |
+          echo "::group::Pnpm"
+          pnpm install
+          echo "::endgroup::"
+
+      - name: Detect changed projects
+        id: changed
+        run: |
+          CHANGED=$( .github/files/list-changed-projects.sh )
+          PROJECTS=$( node -e 'const r = { "js-packages/storybook": true }; for ( const p of require( "./projects/js-packages/storybook/storybook/projects.js" ) ) { const m = p.match( /\/projects\/([^/]+\/[^/]+)(?:$|\/)/ ); m && ( r[ m[1] ] = true ); } console.log( JSON.stringify( r ) );' )
+
+          ANY=$( jq --argjson changed "$CHANGED" --argjson projects "$PROJECTS" -n '$changed | with_entries( select( $projects[ .key ] ) ) | any' )
+          echo "any=${ANY}" >> "$GITHUB_OUTPUT"
+
+      - name: Build storybook
+        if: steps.changed.outputs.any == 'true'
+        run: |
+          pnpm jetpack build -v js-packages/storybook
+
+      - name: Install playwright
+        if: steps.changed.outputs.any == 'true'
+        run: |
+          cd projects/js-packages/storybook
+          pnpm exec playwright install --with-deps chromium
+
+      - name: Test storybook
+        if: steps.changed.outputs.any == 'true'
+        run: |
+          cd projects/js-packages/storybook
+          node bin/webserver.mjs
+          REFERENCE_URL=https://automattic.github.io/jetpack-storybook/ pnpm exec test-storybook -c storybook --url 'http://127.0.0.1:6006/index.html'
 
   # Probably this should be a linting test, but we don't run linting on trunk or release branches.
   plugin-deps:
@@ -217,7 +281,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 2  # 2022-09-08: Should only take a few seconds.
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Setup tools
         uses: ./.github/actions/tool-setup
         with:
@@ -249,3 +313,66 @@ jobs:
 
           echo "Running tools/check-plugin-monorepo-deps.sh ${ARGS[@]}"
           tools/check-plugin-monorepo-deps.sh "${ARGS[@]}"
+
+  # Probably this should be a linting test too, but we don't run linting on trunk or release branches.
+  phan:
+    name: Static analysis
+    runs-on: ubuntu-latest
+    timeout-minutes: 20  # 2024-05-02: Up to about 8 minutes now that we're running against the old WP stubs too.
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup tools
+        uses: ./.github/actions/tool-setup
+      - name: Pnpm install
+        run: pnpm install
+      - name: Run phan
+        run: pnpm jetpack phan --all -v --update-baseline --format github
+      - name: Run phan for previous WP version too
+        env:
+          # Don't bother complaining about unused suppressions that may be used with the newer stubs. See .phan/config.base.php for how this gets applied.
+          NO_PHAN_UNUSED_SUPPRESSION: 1
+        run: |
+          composer update --prefer-lowest php-stubs/wordpress-stubs php-stubs/wordpress-tests-stubs
+          # Don't re-update baselines here, only check.
+          pnpm jetpack phan --all -v --format github
+      - name: Check baselines
+        run: |
+          # Anything changed? (with a side of printing the diff)
+          if git diff --exit-code --ignore-matching-lines='^    // ' -- .phan/baseline.php '*/.phan/baseline.php'; then
+            exit 0
+          fi
+
+          # Collect which projects changed to suggest the right command.
+          PROJECTS=()
+          for f in $( git -c core.quotepath=off diff --name-only -- .phan/baseline.php '*/.phan/baseline.php' ); do
+            # --name-only and --ignore-matching-lines don't combine, so we have to do the check separately.
+            if git diff --quiet --exit-code --ignore-matching-lines='^    // ' -- "$f"; then
+              continue
+            fi
+
+            if [[ "$f" == ".phan/baseline.php" ]]; then
+              SLUG=monorepo
+            elif [[ "$f" == projects/*/*/.phan/baseline.php ]]; then
+              SLUG=${f%/.phan/baseline.php}
+              SLUG=${SLUG#projects/}
+            elif SLUG=$( grep -v '^[ \t]*\/\/' .phan/monorepo-pseudo-projects.jsonc | jq -re --arg f "${f%.phan/baseline.php}" 'to_entries[] | select( .value == $f ) | .key' ); then
+              : # Ok
+            else
+              SLUG=
+            fi
+            if grep -q 'This baseline has no suppressions' "$f"; then
+              if [[ -n "$SLUG" ]]; then
+                echo "::error file=$f::This Phan baseline is now empty (good job!). You may remove it, or if you want to keep it (e.g. if you expect new unfixed issues to be added in the future) you can run \`jetpack phan --update-baseline $SLUG\` to update it."
+              else
+                echo "::error file=$f::This Phan baseline is now empty (good job!). You may remove it."
+              fi
+            elif [[ -n "$SLUG" ]]; then
+              PROJECTS+=( "$SLUG" )
+            else
+              echo "::error file=$f::This Phan baseline has changed and should be updated. This Action was unable to determine the command needed to update it; please report this to the Garage team."
+            fi
+          done
+          if [[ ${#PROJECTS[@]} -gt 0 ]]; then
+            echo "::error::Phan baselines have changed (good job!). Run \`jetpack phan --update-baseline ${PROJECTS[*]}\` to update them."
+          fi
+          exit 1

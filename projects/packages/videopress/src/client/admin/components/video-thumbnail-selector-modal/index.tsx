@@ -4,7 +4,7 @@
 import { Button, ThemeProvider, useBreakpointMatch } from '@automattic/jetpack-components';
 import { Modal } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import { useState } from 'react';
 import { ReactNode } from 'react';
 /**
@@ -18,7 +18,7 @@ import { VideoThumbnailSelectorModalProps } from './types';
  * Video Thumbnail Selector component
  *
  * @param {VideoThumbnailSelectorModalProps} props - Component props.
- * @returns {ReactNode} - VideoThumbnailSelector react component.
+ * @return {ReactNode} - VideoThumbnailSelector react component.
  */
 const VideoThumbnailSelectorModal = ( {
 	url,
@@ -39,7 +39,7 @@ const VideoThumbnailSelectorModal = ( {
 			<ThemeProvider targetDom={ modalRef }>
 				<div
 					ref={ setModalRef }
-					className={ classnames( styles.selector, {
+					className={ clsx( styles.selector, {
 						[ styles[ 'is-small' ] ]: isSm,
 					} ) }
 				>

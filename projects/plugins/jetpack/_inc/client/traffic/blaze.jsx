@@ -24,7 +24,7 @@ const trackDashboardClick = () => {
  * Blaze settings component.
  *
  * @param {object} props - Component props.
- * @returns {React.Component} Blaze settings component.
+ * @return {React.Component} Blaze settings component.
  */
 function Blaze( props ) {
 	const {
@@ -41,7 +41,7 @@ function Blaze( props ) {
 		toggleModuleNow,
 	} = props;
 
-	if ( isWoASite ) {
+	if ( isWoASite && ! blazeDashboardEnabled ) {
 		return null;
 	}
 
@@ -83,7 +83,9 @@ function Blaze( props ) {
 				toggling={ isSavingAnyOption( 'blaze' ) }
 				toggleModule={ toggleModuleNow }
 			>
-				{ __( 'Attract high-quality traffic to your site using Blaze.', 'jetpack' ) }
+				<span className="jp-form-toggle-explanation">
+					{ __( 'Attract high-quality traffic to your site using Blaze.', 'jetpack' ) }
+				</span>
 			</ModuleToggle>
 		);
 	};

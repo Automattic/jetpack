@@ -1,0 +1,14 @@
+[
+	{
+		"blockName": "jetpack/goodreads",
+		"attrs": {
+			"goodreadsId": 1176283,
+			"id": "gr_custom_widget_4529663",
+			"link": "https://www.goodreads.com/review/custom_widget/1176283.My Bookshelf?num_books=5&order=a&shelf=read&show_author=1&show_cover=1&show_rating=1&show_review=0&show_tags=0&show_title=1&sort=date_added&widget_id=4529663",
+			"widgetId": 4529663
+		},
+		"innerBlocks": [],
+		"innerHTML": "\n<div class=\"wp-block-jetpack-goodreads\"></div>\n",
+		"innerContent": [ "\n<div class=\"wp-block-jetpack-goodreads\"></div>\n" ]
+	}
+]

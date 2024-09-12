@@ -1,8 +1,8 @@
 import child_process from 'child_process';
 import path from 'path';
 import chalk from 'chalk';
+import enquirer from 'enquirer';
 import { execa } from 'execa';
-import inquirer from 'inquirer';
 import Listr from 'listr';
 import UpdateRenderer from 'listr-update-renderer';
 import VerboseRenderer from 'listr-verbose-renderer';
@@ -15,7 +15,7 @@ import promptForProject from '../helpers/promptForProject.js';
  * Command definition for the test subcommand.
  *
  * @param {object} yargs - The Yargs dependency.
- * @returns {object} Yargs with the build commands defined.
+ * @return {object} Yargs with the build commands defined.
  */
 export function testDefine( yargs ) {
 	yargs.command(
@@ -72,7 +72,7 @@ async function testCli( argv ) {
  * Validate the project we're being passed.
  *
  * @param {object} argv - the arguments being passed.
- * @returns {object} argv
+ * @return {object} argv
  */
 async function validateProject( argv ) {
 	if ( allProjects().includes( argv.project ) ) {
@@ -88,7 +88,7 @@ async function validateProject( argv ) {
  * Gets list of tests available for chosen projects.
  *
  * @param {string} project - the project we want tests for..
- * @returns {object} argv.
+ * @return {object} argv.
  */
 async function getTests( project ) {
 	const composerJson = await readComposerJson( project );
@@ -110,7 +110,7 @@ async function getTests( project ) {
  * Gets the test instructions required for the project.
  *
  * @param {object} argv - the arguments passed.
- * @returns {Array} testScript - array containing test scripts.
+ * @return {Array} testScript - array containing test scripts.
  */
 async function getTestInstructions( argv ) {
 	const tests = await getTests( argv.project );
@@ -154,7 +154,15 @@ async function runTest( argv ) {
 			renderer: argv.v ? VerboseRenderer : UpdateRenderer,
 		}
 	);
-	await installer.run();
+	await installer.run().catch( err => {
+		console.error( err );
+		if ( ! argv.v ) {
+			console.error(
+				chalk.yellow( 'You might try running with `-v` to get more information on the failure' )
+			);
+		}
+		process.exit( err.exitCode || 1 );
+	} );
 
 	console.log( chalk.green( `Running ${ argv.testScript } tests for ${ argv.project }` ) );
 	const res = child_process.spawnSync( 'composer', [ 'run', '--timeout=0', argv.testScript ], {
@@ -166,14 +174,14 @@ async function runTest( argv ) {
 /**
  * Prompts for the test we want to run.
  *
- * @param {argv}  argv - the arguments passed.
- * @returns {object} argv
+ * @param {argv} argv - the arguments passed.
+ * @return {object} argv
  */
 export async function promptForTest( argv ) {
 	const tests = await getTests( argv.project );
-	const response = await inquirer.prompt( [
+	const response = await enquirer.prompt( [
 		{
-			type: 'list',
+			type: 'select',
 			name: 'test',
 			message: 'What test are you trying to run?',
 			choices: tests,

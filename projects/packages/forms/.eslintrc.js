@@ -10,5 +10,6 @@ module.exports = {
 				allowedTextDomain: 'jetpack-forms',
 			},
 		],
+		'testing-library/no-dom-import': 'off',
 	},
 };

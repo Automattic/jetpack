@@ -12,7 +12,7 @@ const getComments = require( '../../utils/get-comments' );
  * @param {string} owner   - Repository owner.
  * @param {string} repo    - Repository name.
  * @param {string} number  - PR number.
- * @returns {Promise<string>} Promise resolving to a string.
+ * @return {Promise<string>} Promise resolving to a string.
  */
 async function getMatticBotComment( octokit, owner, repo, number ) {
 	let commentBody = '';
@@ -20,14 +20,14 @@ async function getMatticBotComment( octokit, owner, repo, number ) {
 	debug( `wpcom-commit-reminder: Looking for a comment from Matticbot on this PR.` );
 
 	const comments = await getComments( octokit, owner.login, repo, number );
-	comments.map( comment => {
+	for ( const comment of comments ) {
 		if (
 			comment.user.login === 'matticbot' &&
 			comment.body.includes( 'This PR has changes that must be merged to WordPress.com' )
 		) {
 			commentBody = comment.body;
 		}
-	} );
+	}
 
 	return commentBody;
 }
@@ -39,20 +39,20 @@ async function getMatticBotComment( octokit, owner, repo, number ) {
  * @param {string} owner   - Repository owner.
  * @param {string} repo    - Repository name.
  * @param {string} number  - PR number.
- * @returns {Promise<boolean>} Promise resolving to boolean.
+ * @return {Promise<boolean>} Promise resolving to boolean.
  */
 async function hasReminderComment( octokit, owner, repo, number ) {
 	debug( `wpcom-commit-reminder: Looking for a previous comment from this task in our PR.` );
 
 	const comments = await getComments( octokit, owner.login, repo, number );
-	comments.map( comment => {
+	for ( const comment of comments ) {
 		if (
 			comment.user.login === 'github-actions[bot]' &&
 			comment.body.includes( 'Great news! One last step' )
 		) {
 			return true;
 		}
-	} );
+	}
 
 	return false;
 }

@@ -3,7 +3,7 @@
  * Plugin Name: Jetpack Beta Tester
  * Plugin URI: https://jetpack.com/beta/
  * Description: Use the Beta plugin to get a sneak peek at new features and test them on your site.
- * Version: 3.1.7-alpha
+ * Version: 4.1.0
  * Author: Automattic
  * Author URI: https://jetpack.com/
  * Update URI: https://jetpack.com/download-jetpack-beta/
@@ -35,7 +35,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 define( 'JPBETA__PLUGIN_FOLDER', dirname( plugin_basename( __FILE__ ) ) );
-define( 'JPBETA_VERSION', '3.1.7-alpha' );
+define( 'JPBETA_VERSION', '4.1.0' );
 
 define( 'JETPACK_BETA_PLUGINS_URL', 'https://betadownload.jetpack.me/plugins.json' );
 
@@ -63,34 +63,50 @@ if ( is_readable( $jetpack_beta_autoloader ) ) {
 		);
 	}
 
+	// Add a red bubble notification to My Jetpack if the installation is bad.
+	add_filter(
+		'my_jetpack_red_bubble_notification_slugs',
+		function ( $slugs ) {
+			$slugs['jetpack-beta-plugin-bad-installation'] = array(
+				'data' => array(
+					'plugin' => 'Jetpack Beta',
+				),
+			);
+
+			return $slugs;
+		}
+	);
+
 	/**
 	 * Outputs an admin notice for folks running Jetpack Beta without having run composer install.
 	 *
 	 * @since 3.0.0
 	 */
 	function jetpack_beta_admin_missing_autoloader() {
-		?>
-		<div class="notice notice-error is-dismissible">
-			<p>
-				<?php
-				printf(
-					wp_kses(
-						/* translators: Placeholder is a link to a support document. */
-						__( 'Your installation of Jetpack Beta is incomplete. If you installed Jetpack Beta from GitHub, please refer to <a href="%1$s" target="_blank" rel="noopener noreferrer">this document</a> to set up your development environment.', 'jetpack-beta' ),
-						array(
-							'a' => array(
-								'href'   => array(),
-								'target' => array(),
-								'rel'    => array(),
-							),
-						)
+		if ( get_current_screen()->id !== 'plugins' ) {
+			return;
+		}
+		$message = sprintf(
+			wp_kses(
+				/* translators: Placeholder is a link to a support document. */
+				__( 'Your installation of Jetpack Beta is incomplete. If you installed Jetpack Beta from GitHub, please refer to <a href="%1$s" target="_blank" rel="noopener noreferrer">this document</a> to set up your development environment.', 'jetpack-beta' ),
+				array(
+					'a' => array(
+						'href'   => array(),
+						'target' => array(),
+						'rel'    => array(),
 					),
-					'https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md'
-				);
-				?>
-			</p>
-		</div>
-		<?php
+				)
+			),
+			'https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md'
+		);
+		wp_admin_notice(
+			$message,
+			array(
+				'type'        => 'error',
+				'dismissible' => true,
+			)
+		);
 	}
 
 	add_action( 'admin_notices', 'jetpack_beta_admin_missing_autoloader' );
@@ -108,5 +124,6 @@ add_action( 'init', array( Automattic\JetpackBeta\Hooks::class, 'instance' ) );
 add_action( 'muplugins_loaded', array( Automattic\JetpackBeta\Hooks::class, 'is_network_enabled' ) );
 
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
+	// @phan-suppress-next-line PhanUndeclaredFunctionInCallable -- https://github.com/phan/phan/issues/4763
 	WP_CLI::add_command( 'jetpack-beta', Automattic\JetpackBeta\CliCommand::class );
 }

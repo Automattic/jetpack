@@ -1,6 +1,6 @@
 import './editor.scss';
 import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils';
-import { BlockControls, InspectorControls } from '@wordpress/block-editor';
+import { BlockControls, InspectorControls, useBlockProps } from '@wordpress/block-editor';
 import { MenuGroup, MenuItem, PanelBody, ToolbarDropdownMenu } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
@@ -12,15 +12,16 @@ import { accessOptions } from '../../shared/memberships/constants';
 import { useAccessLevel } from '../../shared/memberships/edit';
 import { NewsletterAccessRadioButtons, useSetAccess } from '../../shared/memberships/settings';
 
-function PaywallEdit( { className } ) {
+function PaywallEdit() {
+	const blockProps = useBlockProps();
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
 	const accessLevel = useAccessLevel( postType );
 
-	const { stripeConnectUrl, hasNewsletterPlans } = useSelect( select => {
-		const { getNewsletterProducts, getConnectUrl } = select( 'jetpack/membership-products' );
+	const { stripeConnectUrl, hasTierPlans } = useSelect( select => {
+		const { getNewsletterTierProducts, getConnectUrl } = select( 'jetpack/membership-products' );
 		return {
 			stripeConnectUrl: getConnectUrl(),
-			hasNewsletterPlans: getNewsletterProducts()?.length !== 0,
+			hasTierPlans: getNewsletterTierProducts()?.length !== 0,
 		};
 	} );
 
@@ -35,10 +36,7 @@ function PaywallEdit( { className } ) {
 	}, [ accessLevel, setAccess ] );
 
 	function selectAccess( value ) {
-		if (
-			accessOptions.paid_subscribers.key === value &&
-			( stripeConnectUrl || ! hasNewsletterPlans )
-		) {
+		if ( accessOptions.paid_subscribers.key === value && ( stripeConnectUrl || ! hasTierPlans ) ) {
 			setShowDialog( true );
 			return;
 		}
@@ -67,20 +65,15 @@ function PaywallEdit( { className } ) {
 
 	const text = getText( accessLevel );
 
-	const style = {
-		width: `${ text.length + 1.2 }em`,
-		userSelect: 'none',
-	};
-
 	let _accessLevel = accessLevel ?? accessOptions.subscribers.key;
 	if ( _accessLevel === accessOptions.everybody.key ) {
 		_accessLevel = accessOptions.subscribers.key;
 	}
 
 	return (
-		<>
-			<div className={ className }>
-				<span style={ style }>
+		<div { ...blockProps }>
+			<div className="wp-block-jetpack-paywall-block">
+				<span>
 					{ text }
 					<Icon icon={ arrowDown } size={ 16 } />
 				</span>
@@ -133,12 +126,12 @@ function PaywallEdit( { className } ) {
 						isEditorPanel={ true }
 						accessLevel={ _accessLevel }
 						stripeConnectUrl={ stripeConnectUrl }
-						hasNewsletterPlans={ hasNewsletterPlans }
+						hasTierPlans={ hasTierPlans }
 						postHasPaywallBlock={ true }
 					/>
 				</PanelBody>
 			</InspectorControls>
-		</>
+		</div>
 	);
 }
 

@@ -96,8 +96,8 @@ class Jetpack_JSON_API_Themes_New_Endpoint extends Jetpack_JSON_API_Themes_Endpo
 			$plugin             = array_values( array_diff( array_keys( $after_install_list ), array_keys( $pre_install_list ) ) );
 
 			if ( ! $result ) {
-				$error_code = $upgrader->skin->get_main_error_code();
-				$message    = $upgrader->skin->get_main_error_message();
+				$error_code = $skin->get_main_error_code();
+				$message    = $skin->get_main_error_message();
 				if ( empty( $message ) ) {
 					$message = __( 'An unknown error occurred during installation', 'jetpack' );
 				}

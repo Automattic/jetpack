@@ -1,6 +1,6 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __, _x } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import Button from 'components/button';
 import Card from 'components/card';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
@@ -60,7 +60,7 @@ export class DashItem extends Component {
 			toggle,
 			proButton = '';
 
-		const classes = classNames(
+		const classes = clsx(
 			this.props.className,
 			'jp-dash-item',
 			this.props.disabled ? 'jp-dash-item__disabled' : ''
@@ -69,7 +69,17 @@ export class DashItem extends Component {
 		if ( '' !== this.props.module ) {
 			toggle =
 				( includes(
-					[ 'monitor', 'protect', 'photon', 'vaultpress', 'scan', 'backups', 'akismet', 'search' ],
+					[
+						'monitor',
+						'protect',
+						'photon',
+						'vaultpress',
+						'scan',
+						'backups',
+						'akismet',
+						'search',
+						'videopress',
+					],
 					this.props.module
 				) &&
 					this.props.isOfflineMode ) ||

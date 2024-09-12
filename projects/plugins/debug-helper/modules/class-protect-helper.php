@@ -188,18 +188,25 @@ class Protect_Helper {
 	 * Display a notice if necessary.
 	 */
 	public function display_notice() {
-		?>
-		<div class="notice notice-success is-dismissible">
-			<p>Settings have been saved!</p>
-		</div>
-		<?php
+		wp_admin_notice(
+			'Settings have been saved!',
+			array(
+				'type'        => 'success',
+				'dismissible' => true,
+			)
+		);
 	}
 
 	/**
 	 * Display a notice when Sync is disabled by this module.
 	 */
 	public function display_protect_overwritten_notice() {
-		echo '<div class="notice notice-warning"><p>Jetpack Protect Status is being overwritten by the Jetpack Debug Helper plugin.</p></div>';
+		wp_admin_notice(
+			'Jetpack Protect Status is being overwritten by the Jetpack Debug Helper plugin.',
+			array(
+				'type' => 'warning',
+			)
+		);
 	}
 
 	/**
@@ -280,9 +287,9 @@ class Protect_Helper {
 			'id'          => $id,
 			'signature'   => 'Sample_Threat',
 			'title'       => 'Sample Threat',
-			'description' => 'Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Phasellus hendrerit. 
-							     Pellentesque aliquet nibh nec urna. In nisi neque, aliquet vel, dapibus id, mattis 
-							     vel, nisi. Sed pretium, ligula sollicitudin laoreet viverra, tortor libero sodales 
+			'description' => 'Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Phasellus hendrerit.
+							     Pellentesque aliquet nibh nec urna. In nisi neque, aliquet vel, dapibus id, mattis
+							     vel, nisi. Sed pretium, ligula sollicitudin laoreet viverra, tortor libero sodales
 							     leo, eget blandit nunc tortor eu nibh. Nullam mollis. Ut justo. Suspendisse potenti.',
 			'severity'    => 3,
 		);
@@ -422,9 +429,9 @@ class Protect_Helper {
 			$vuls[] = (object) array(
 				'id'          => $id,
 				'title'       => 'Sample Vulnerability number ' . $i . ' with a long title',
-				'description' => 'Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Phasellus hendrerit. 
-								  Pellentesque aliquet nibh nec urna. In nisi neque, aliquet vel, dapibus id, mattis 
-								  vel, nisi. Sed pretium, ligula sollicitudin laoreet viverra, tortor libero sodales 
+				'description' => 'Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Phasellus hendrerit.
+								  Pellentesque aliquet nibh nec urna. In nisi neque, aliquet vel, dapibus id, mattis
+								  vel, nisi. Sed pretium, ligula sollicitudin laoreet viverra, tortor libero sodales
 								  leo, eget blandit nunc tortor eu nibh. Nullam mollis. Ut justo. Suspendisse potenti.',
 				'fixed_in'    => '3.14.2',
 			);

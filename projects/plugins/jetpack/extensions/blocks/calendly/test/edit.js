@@ -158,7 +158,9 @@ describe( 'CalendlyEdit', () => {
 		).toBeInTheDocument();
 		expect( screen.getByText( 'Embed' ) ).toBeInTheDocument();
 
-		const link = screen.getByText( 'Need help finding your embed code?' );
+		const link = screen.getByRole( 'link', {
+			name: 'Need help finding your embed code? (opens in a new tab)',
+		} );
 
 		expect( link ).toBeInTheDocument();
 		// eslint-disable-next-line testing-library/no-node-access

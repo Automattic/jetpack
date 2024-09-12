@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Explicitly add the Connection package as dependency

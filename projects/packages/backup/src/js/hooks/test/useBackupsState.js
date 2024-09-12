@@ -1,7 +1,7 @@
 import { renderHook, waitFor } from '@testing-library/react';
-import apiFetch from '@wordpress/api-fetch';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { BACKUP_STATE } from '../../constants';
-import useBackupState from '../useBackupsState';
+import useBackupsState from '../useBackupsState';
 
 const fixtures = {
 	no_backups: [],
@@ -55,12 +55,40 @@ const fixtures = {
 	],
 };
 
-jest.mock( '@wordpress/api-fetch' );
+jest.mock( '@wordpress/data', () => ( {
+	useDispatch: jest.fn(),
+	useSelect: jest.fn(),
+	combineReducers: jest.fn(),
+} ) );
 
 describe( 'useBackupsState', () => {
+	let dispatchMock;
+
+	beforeEach( () => {
+		dispatchMock = {
+			getBackups: jest.fn(),
+		};
+		useDispatch.mockReturnValue( dispatchMock );
+	} );
+
+	afterEach( () => {
+		jest.clearAllMocks();
+	} );
+
 	it( 'backupState should be NO_BACKUPS when the site has no backups', async () => {
-		apiFetch.mockReturnValue( Promise.resolve( fixtures.no_backups ) );
-		const { result } = renderHook( () => useBackupState() );
+		// Provide a mock implementation for useSelect
+		useSelect.mockImplementation( selector => {
+			if ( typeof selector === 'function' ) {
+				return selector( () => ( {
+					getBackups: () => fixtures.no_backups,
+					isFetchingBackups: () => false,
+					hasLoadedBackups: () => true,
+				} ) );
+			}
+			return [];
+		} );
+
+		const { result } = renderHook( () => useBackupsState() );
 
 		await waitFor( () => {
 			expect( result.current.backupState ).toBe( BACKUP_STATE.NO_BACKUPS );
@@ -68,8 +96,18 @@ describe( 'useBackupsState', () => {
 	} );
 
 	it( 'backupState should be NO_BACKUPS_RETRY when last backup has a retry state', async () => {
-		apiFetch.mockReturnValue( Promise.resolve( fixtures.no_backups_retry ) );
-		const { result } = renderHook( () => useBackupState() );
+		useSelect.mockImplementation( selector => {
+			if ( typeof selector === 'function' ) {
+				return selector( () => ( {
+					getBackups: () => fixtures.no_backups_retry,
+					isFetchingBackups: () => false,
+					hasLoadedBackups: () => true,
+				} ) );
+			}
+			return [];
+		} );
+
+		const { result } = renderHook( () => useBackupsState() );
 
 		await waitFor( () => {
 			expect( result.current.backupState ).toBe( BACKUP_STATE.NO_BACKUPS_RETRY );
@@ -77,8 +115,18 @@ describe( 'useBackupsState', () => {
 	} );
 
 	it( 'backupState should be COMPLETE when last backup has finished successfully', async () => {
-		apiFetch.mockReturnValue( Promise.resolve( fixtures.complete ) );
-		const { result } = renderHook( () => useBackupState() );
+		useSelect.mockImplementation( selector => {
+			if ( typeof selector === 'function' ) {
+				return selector( () => ( {
+					getBackups: () => fixtures.complete,
+					isFetchingBackups: () => false,
+					hasLoadedBackups: () => true,
+				} ) );
+			}
+			return [];
+		} );
+
+		const { result } = renderHook( () => useBackupsState() );
 
 		await waitFor( () => {
 			expect( result.current.backupState ).toBe( BACKUP_STATE.COMPLETE );
@@ -86,17 +134,18 @@ describe( 'useBackupsState', () => {
 	} );
 
 	it( 'backupState should be NO_GOOD_BACKUPS when last backup finished with no stats', async () => {
-		apiFetch.mockReturnValue( Promise.resolve( fixtures.no_good_backups ) );
-		const { result } = renderHook( () => useBackupState() );
-
-		await waitFor( () => {
-			expect( result.current.backupState ).toBe( BACKUP_STATE.NO_GOOD_BACKUPS );
+		useSelect.mockImplementation( selector => {
+			if ( typeof selector === 'function' ) {
+				return selector( () => ( {
+					getBackups: () => fixtures.no_good_backups,
+					isFetchingBackups: () => false,
+					hasLoadedBackups: () => true,
+				} ) );
+			}
+			return [];
 		} );
-	} );
 
-	it( 'backupState should be NO_GOOD_BACKUPS when fetch backups API call fails', async () => {
-		apiFetch.mockReturnValue( Promise.reject( 'any error' ) );
-		const { result } = renderHook( () => useBackupState() );
+		const { result } = renderHook( () => useBackupsState() );
 
 		await waitFor( () => {
 			expect( result.current.backupState ).toBe( BACKUP_STATE.NO_GOOD_BACKUPS );

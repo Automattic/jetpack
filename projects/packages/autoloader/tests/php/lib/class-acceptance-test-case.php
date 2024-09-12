@@ -91,7 +91,7 @@ abstract class Acceptance_Test_Case extends TestCase {
 	 * Installs a symlink to a plugin version.
 	 *
 	 * @param string $version      The version of the autoloader we want to symlink to.
-	 * @param string $is_mu_plugin Whether or not the symlink should be an mu-plugin.
+	 * @param bool   $is_mu_plugin Whether or not the symlink should be an mu-plugin.
 	 * @param string $symlink_key  The key for the symlink in the installed plugin list.
 	 */
 	protected function install_autoloader_symlink( $version, $is_mu_plugin, $symlink_key ) {
@@ -143,7 +143,7 @@ abstract class Acceptance_Test_Case extends TestCase {
 		// This isn't perfect (it won't catch successive resets from a new autoloader discovering newer autoloaders) but
 		// it will at least catch the most common reset scenarios that we can build assertions on.
 		global $jetpack_packages_classmap;
-		$reset_count = isset( $jetpack_packages_classmap ) ? $jetpack_packages_classmap['reset_count'] : null;
+		$reset_count = $jetpack_packages_classmap['reset_count'] ?? null;
 
 		require_once $plugin_dir . '/vendor/autoload_packages.php';
 
@@ -154,7 +154,7 @@ abstract class Acceptance_Test_Case extends TestCase {
 
 		// Since we can assume after every load we set the count we know a null value
 		// means this was the first time the autoloader was executed.
-		if ( ! isset( $reset_count ) ) {
+		if ( $reset_count === null ) {
 			$jetpack_packages_classmap['reset_count'] = 0;
 		} else {
 			$jetpack_packages_classmap['reset_count'] = $reset_count + 1;
@@ -297,7 +297,7 @@ abstract class Acceptance_Test_Case extends TestCase {
 	 */
 	protected function assertAutoloaderResetCount( $count ) {
 		global $jetpack_packages_classmap;
-		$reset_count = isset( $jetpack_packages_classmap ) ? $jetpack_packages_classmap['reset_count'] : 0;
+		$reset_count = $jetpack_packages_classmap['reset_count'] ?? 0;
 		$this->assertEquals( $count, $reset_count, 'The number of autoloader resets did not match what was expected.' );
 	}
 

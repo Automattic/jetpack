@@ -22,6 +22,7 @@ const AddressEdit = props => {
 		isSelected,
 		setAttributes,
 		onFocus,
+		style: { baseColors: { color: editorColors = {} } = {} } = {},
 	} = props;
 
 	const textData = [
@@ -83,6 +84,7 @@ const AddressEdit = props => {
 		<InspectorControls>
 			<PanelBody title={ __( 'Address Settings', 'jetpack' ) }>
 				<ToggleControl
+					__nextHasNoMarginBottom={ true }
 					label={ __( 'Link address to Google Maps', 'jetpack' ) }
 					checked={ linkToGoogleMaps }
 					onChange={ newlinkToGoogleMaps => {
@@ -98,10 +100,10 @@ const AddressEdit = props => {
 		styles.placeholder,
 		styles.placeholderDark
 	);
-	const textColors = usePreferredColorSchemeStyle(
-		styles.blockEditorPlainText,
-		styles.blockEditorPlainTextDark
-	);
+	const textColors = {
+		...usePreferredColorSchemeStyle( styles.blockEditorPlainText, styles.blockEditorPlainTextDark ),
+		...( editorColors?.text && { color: editorColors.text } ),
+	};
 
 	const onFocusTextInput = index => () => {
 		if ( index < textInputsSelected.length ) {

@@ -316,6 +316,7 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 
 	public function test_benchmark() {
 		$this->markTestIncomplete( "We don't want to run this every time" );
+		// @phan-suppress-next-line PhanPluginUnreachableCode
 		$iterations  = 100;
 		$buffer_size = 10;
 

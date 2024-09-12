@@ -26,15 +26,21 @@ const TOKEN_LIFETIME = 1000 * 60 * 60 * 24; // 24 hours
 /**
  * Request media token data hiting the admin-ajax endpoint.
  *
- * @param {MediaTokenScopeProps} scope  - The scope of the token to request.
- * @param {GetMediaTokenArgsProps} args - function arguments.
- * @returns {MediaTokenProps}             Media token data.
+ * @param {MediaTokenScopeProps}   scope - The scope of the token to request.
+ * @param {GetMediaTokenArgsProps} args  - function arguments.
+ * @return {MediaTokenProps}             Media token data.
  */
 const requestMediaToken = function (
 	scope: MediaTokenScopeProps,
 	args: GetMediaTokenArgsProps = {}
 ): Promise< MediaTokenProps > {
-	const { id = 0, guid, adminAjaxAPI: adminAjaxAPIArgument, filename } = args;
+	const {
+		id = 0,
+		guid,
+		subscriptionPlanId = 0,
+		adminAjaxAPI: adminAjaxAPIArgument,
+		filename,
+	} = args;
 	return new Promise( function ( resolve, reject ) {
 		const adminAjaxAPI =
 			adminAjaxAPIArgument ||
@@ -49,6 +55,7 @@ const requestMediaToken = function (
 		const fetchData: {
 			action: AdminAjaxTokenProps;
 			guid?: VideoGUID;
+			subscription_plan_id?: number;
 			post_id?: string;
 			filename?: string;
 		} = { action: 'videopress-get-playback-jwt' };
@@ -69,6 +76,7 @@ const requestMediaToken = function (
 				fetchData.action = 'videopress-get-playback-jwt';
 				fetchData.guid = guid;
 				fetchData.post_id = String( id );
+				fetchData.subscription_plan_id = subscriptionPlanId;
 				break;
 		}
 
@@ -115,9 +123,9 @@ const requestMediaToken = function (
  * from the localStore in case it is still valid,
  * otherwise request it from the admin-ajax endpoint.
  *
- * @param {MediaTokenScopeProps} scope  - The scope of the token to request.
- * @param {GetMediaTokenArgsProps} args - function arguments.
- * @returns {MediaTokenProps}             Media token data.
+ * @param {MediaTokenScopeProps}   scope - The scope of the token to request.
+ * @param {GetMediaTokenArgsProps} args  - function arguments.
+ * @return {MediaTokenProps}             Media token data.
  */
 async function getMediaToken(
 	scope: MediaTokenScopeProps,

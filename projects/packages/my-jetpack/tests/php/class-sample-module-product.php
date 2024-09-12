@@ -26,21 +26,21 @@ class Sample_Module_Product extends Module_Product {
 	public static $module_name = 'sample-module-product';
 
 	/**
-	 * Get the internationalized product name. Sample data.
+	 * Get the product name. Sample data.
 	 *
 	 * @return string
 	 */
 	public static function get_name() {
-		return __( 'Mock Module Product', 'jetpack-my-jetpack' );
+		return 'Mock Module Product';
 	}
 
 	/**
-	 * Get the internationalized product title. Sample data.
+	 * Get the product title. Sample data.
 	 *
 	 * @return string
 	 */
 	public static function get_title() {
-		return __( 'Mock_Module_Product', 'jetpack-my-jetpack' );
+		return 'Mock_Module_Product';
 	}
 
 	/**

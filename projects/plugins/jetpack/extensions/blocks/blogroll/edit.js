@@ -4,7 +4,7 @@ import { PanelBody, ToggleControl, FlexBlock, Spinner, Notice } from '@wordpress
 import { dispatch } from '@wordpress/data';
 import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import BlogrollAppender from './components/blogroll-appender';
 import useRecommendations from './use-recommendations';
 import { useSiteRecommendationSync } from './use-site-recommendations';
@@ -49,7 +49,7 @@ export function BlogRollEdit( { className, attributes, setAttributes, clientId }
 	}, [ recommendations, load_placeholders, setAttributes, clientId, replaceInnerBlocks ] );
 
 	const blockProps = useBlockProps( {
-		className: classNames( className, {
+		className: clsx( className, {
 			'hide-avatar': ! show_avatar,
 			'hide-description': ! show_description,
 		} ),

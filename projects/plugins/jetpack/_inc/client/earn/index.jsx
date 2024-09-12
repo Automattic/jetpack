@@ -15,7 +15,7 @@ import {
 	isOfflineMode,
 	isUnavailableInOfflineMode as isUnavailableInOfflineModeSelector,
 } from 'state/connection';
-import { isAtomicSite as isAtomicSiteSelector } from 'state/initial-state';
+import { isAtomicSite as isAtomicSiteSelector, getSiteId } from 'state/initial-state';
 import { getModule } from 'state/modules';
 import { isModuleFound as isModuleFoundSelector } from 'state/search';
 import { Ads } from './ads';
@@ -24,7 +24,7 @@ import { Ads } from './ads';
  * Earn Feature description card.
  *
  * @param {object} props - Component props.
- * @returns {React.Component} Feature description and CTA.
+ * @return {React.Component} Feature description and CTA.
  */
 function EarnFeatureButton( props ) {
 	const {
@@ -78,17 +78,18 @@ function EarnFeatureButton( props ) {
  * Earn Section.
  *
  * @param {object} props - Component props.
- * @returns {React.Component} Earn settings component.
+ * @return {React.Component} Earn settings component.
  */
 function Earn( props ) {
-	const { active, hasConnectedOwner, isModuleFound, isOffline, searchTerm, siteRawUrl } = props;
-
-	const foundAds = isModuleFound( 'wordads' ),
-		foundEarnBlocks = isModuleFound( 'earn' );
+	const { active, hasConnectedOwner, isModuleFound, isOffline, searchTerm, siteRawUrl, blogID } =
+		props;
 
 	if ( ! searchTerm && ! active ) {
 		return null;
 	}
+
+	const foundAds = isModuleFound( 'wordads' ),
+		foundEarnBlocks = isModuleFound( 'earn' );
 
 	if ( ! foundAds && ! foundEarnBlocks ) {
 		return null;
@@ -129,7 +130,7 @@ function Earn( props ) {
 					title={ __( 'Collect payments', 'jetpack' ) }
 					supportLink={ getRedirectUrl( 'jetpack-support-jetpack-blocks-payments-block' ) }
 					infoLink={ getRedirectUrl( 'wpcom-earn-payments', {
-						site: siteRawUrl,
+						site: blogID ?? siteRawUrl,
 					} ) }
 					infoDescription={ __(
 						'Let visitors pay for digital goods and services or make quick, pre-set donations by enabling the Payment Button block.',
@@ -143,7 +144,7 @@ function Earn( props ) {
 					title={ __( 'Accept donations and tips', 'jetpack' ) }
 					supportLink={ getRedirectUrl( 'jetpack-support-jetpack-blocks-donations-block' ) }
 					infoLink={ getRedirectUrl( 'wpcom-earn-payments', {
-						site: siteRawUrl,
+						site: blogID ?? siteRawUrl,
 					} ) }
 					infoDescription={ __(
 						'Accept one-time and recurring donations by enabling the Donations Form block.',
@@ -185,7 +186,7 @@ function Earn( props ) {
 				<Ads
 					{ ...props }
 					configureUrl={ getRedirectUrl( 'calypso-stats-ads-day', {
-						site: siteRawUrl,
+						site: blogID ?? siteRawUrl,
 					} ) }
 				/>
 			) }
@@ -203,5 +204,6 @@ export default connect( state => {
 		isUnavailableInOfflineMode: module_name =>
 			isUnavailableInOfflineModeSelector( state, module_name ),
 		isAtomicSite: isAtomicSiteSelector( state ),
+		blogID: getSiteId( state ),
 	};
 } )( Earn );

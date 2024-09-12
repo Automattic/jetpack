@@ -29,7 +29,9 @@ require WPCACHEHOME . 'wp-cache-base.php';
 if ( '/' === $cache_path || empty( $cache_path ) ) {
 	define( 'WPSCSHUTDOWNMESSAGE', 'WARNING! Caching disabled. Configuration corrupted. Reset configuration on Advanced Settings page.' );
 	add_action( 'wp_footer', 'wpsc_shutdown_message' );
-	define( 'DONOTCACHEPAGE', 1 );
+	if ( ! defined( 'DONOTCACHEPAGE' ) ) {
+		define( 'DONOTCACHEPAGE', 1 );
+	}
 	return;
 }
 
@@ -54,8 +56,9 @@ if ( ! isset( $wp_cache_plugins_dir ) ) {
 
 // from the secret shown on the Advanced settings page.
 if ( isset( $_GET['donotcachepage'] ) && isset( $cache_page_secret ) && $_GET['donotcachepage'] == $cache_page_secret ) {
-	$cache_enabled = false;
-	define( 'DONOTCACHEPAGE', 1 );
+	if ( ! defined( 'DONOTCACHEPAGE' ) ) {
+		define( 'DONOTCACHEPAGE', 1 );
+	}
 }
 
 // Load wp-super-cache plugins
@@ -109,19 +112,26 @@ if ( isset( $_SERVER['REQUEST_URI'] ) ) { // Cache this in case any plugin modif
 
 // don't cache in wp-admin
 if ( wpsc_is_backend() ) {
+	if ( ! defined( 'DONOTCACHEPAGE' ) ) {
+		define( 'DONOTCACHEPAGE', 1 );
+	}
 	return true;
 }
 
 // if a cookie is found that we don't like then don't serve/cache the page
 if ( wpsc_is_rejected_cookie() ) {
-	define( 'DONOTCACHEPAGE', 1 );
-	$cache_enabled = false;
+	if ( ! defined( 'DONOTCACHEPAGE' ) ) {
+		define( 'DONOTCACHEPAGE', 1 );
+	}
 	wp_cache_debug( 'Caching disabled because rejected cookie found.' );
 	return true;
 }
 
 if ( wpsc_is_caching_user_disabled() ) {
 	wp_cache_debug( 'Caching disabled for logged in users on settings page.' );
+	if ( ! defined( 'DONOTCACHEPAGE' ) ) {
+		define( 'DONOTCACHEPAGE', 1 );
+	}
 	return true;
 }
 
@@ -133,8 +143,24 @@ if ( isset( $wp_cache_make_known_anon ) && $wp_cache_make_known_anon ) {
 // an init action wpsc plugins can hook on to.
 do_cacheaction( 'cache_init' );
 
+if ( ! $cache_enabled ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- set by configuration or cache_init action
+	return true;
+}
+
 // don't cache or serve cached files for various URLs, including the Customizer.
-if ( ! $cache_enabled || ( isset( $_SERVER['REQUEST_METHOD'] ) && in_array( $_SERVER['REQUEST_METHOD'], array( 'POST', 'PUT', 'DELETE' ) ) ) || isset( $_GET['customize_changeset_uuid'] ) ) {
+if ( isset( $_SERVER['REQUEST_METHOD'] ) && in_array( $_SERVER['REQUEST_METHOD'], array( 'POST', 'PUT', 'DELETE' ), true ) ) {
+	wp_cache_debug( 'Caching disabled for non GET request.' );
+	if ( ! defined( 'DONOTCACHEPAGE' ) ) {
+		define( 'DONOTCACHEPAGE', 1 );
+	}
+	return true;
+}
+
+if ( isset( $_GET['customize_changeset_uuid'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	wp_cache_debug( 'Caching disabled for customizer.' );
+	if ( ! defined( 'DONOTCACHEPAGE' ) ) {
+		define( 'DONOTCACHEPAGE', 1 );
+	}
 	return true;
 }
 

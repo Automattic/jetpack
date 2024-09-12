@@ -6,10 +6,10 @@ const ProductDetailButton = ( {
 	children,
 	className,
 	href,
-	isLoading,
+	isLoading = false,
 	onClick,
-	isPrimary,
-	disabled,
+	isPrimary = true,
+	disabled = false,
 } ) => {
 	return (
 		<Button
@@ -29,12 +29,6 @@ ProductDetailButton.propTypes = {
 	isLoading: PropTypes.bool,
 	isPrimary: PropTypes.bool,
 	disabled: PropTypes.bool,
-};
-
-ProductDetailButton.defaultProps = {
-	isLoading: false,
-	isPrimary: true,
-	disabled: false,
 };
 
 export default ProductDetailButton;

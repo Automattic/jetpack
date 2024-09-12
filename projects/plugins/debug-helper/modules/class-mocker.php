@@ -51,7 +51,9 @@ class Mocker {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'run' ),
-				'permission_callback' => '__return_true',
+				'permission_callback' => function () {
+						return current_user_can( 'manage_options' );
+				},
 			)
 		);
 	}
@@ -77,7 +79,7 @@ class Mocker {
 	 * @param string $hook Page hook.
 	 */
 	public function enqueue_scripts( $hook ) {
-		if ( strpos( $hook, 'jetpack-debug_page_mocker' ) === 0 ) {
+		if ( str_starts_with( $hook, 'jetpack-debug_page_mocker' ) ) {
 			wp_enqueue_style( 'mocker_style', plugin_dir_url( __FILE__ ) . 'inc/css/mocker.css', array(), JETPACK_DEBUG_HELPER_VERSION );
 			wp_enqueue_script( 'mocker_script', plugin_dir_url( __FILE__ ) . 'inc/js/mocker.js', array( 'wp-api' ), JETPACK_DEBUG_HELPER_VERSION, true );
 

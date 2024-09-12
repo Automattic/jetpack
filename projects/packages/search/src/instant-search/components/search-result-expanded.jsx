@@ -10,7 +10,7 @@ import './search-result-expanded.scss';
  * Functional component for expanded search results.
  *
  * @param {object} props - Component properties.
- * @returns {Element} - Expanded search result component.
+ * @return {Element} - Expanded search result component.
  */
 export default function SearchResultExpanded( props ) {
 	const { isMultiSite, locale = 'en-US', showPostDate } = props;
@@ -89,7 +89,16 @@ export default function SearchResultExpanded( props ) {
 						className="jetpack-instant-search__search-result-expanded__content"
 						//eslint-disable-next-line react/no-danger
 						dangerouslySetInnerHTML={ {
-							__html: highlight.content.join( ' ... ' ),
+							__html:
+								highlight && typeof highlight === 'object'
+									? Object.entries( highlight )
+											.filter(
+												( [ key, value ] ) =>
+													key !== 'comments' && key !== 'title' && Array.isArray( value )
+											)
+											.map( ( [ , array ] ) => array.join( ' ... ' ) )
+											.join( ' ... ' )
+									: '',
 						} }
 					/>
 

@@ -1,0 +1,43 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack/blog-stats",
+	"title": "Blog Stats",
+	"description": "Show a stats counter for your blog.",
+	"keywords": [ "views", "hits", "analytics", "counter", "visitors" ],
+	"version": "1.0",
+	"textdomain": "jetpack",
+	"category": "grow",
+	"icon": "<svg xmlns='http://www.w3.org/2000/svg' height='24' viewBox='0 -960 960 960' width='24'><path d='M160-200h160v-320H160v320Zm240 0h160v-560H400v560Zm240 0h160v-240H640v240ZM80-120v-480h240v-240h320v320h240v400H80Z'/></svg>",
+	"supports": {
+		"align": true,
+		"alignWide": true,
+		"html": false,
+		"multiple": true,
+		"reusable": true,
+		"color": {
+			"gradients": true
+		},
+		"spacing": {
+			"margin": true,
+			"padding": true
+		},
+		"typography": {
+			"__experimentalFontFamily": true,
+			"fontSize": true
+		}
+	},
+	"attributes": {
+		"label": {
+			"type": "string"
+		},
+		"statsData": {
+			"type": "string",
+			"default": "views"
+		},
+		"statsOption": {
+			"type": "string",
+			"default": "site"
+		}
+	}
+}

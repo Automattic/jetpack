@@ -1,0 +1,53 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack/subscriber-login",
+	"title": "Subscriber Login",
+	"description": "Show links for subscribers to login, logout, or manage their subscription.",
+	"keywords": [ "login", "logout", "subscription", "member", "account", "user" ],
+	"version": "0.0.1",
+	"textdomain": "jetpack",
+	"category": "grow",
+	"icon": "<svg width='24' height='24' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'><path d='M7.25 16.437a6.5 6.5 0 1 1 9.5 0V16A2.75 2.75 0 0 0 14 13.25h-4A2.75 2.75 0 0 0 7.25 16v.437Zm1.5 1.193a6.47 6.47 0 0 0 3.25.87 6.47 6.47 0 0 0 3.25-.87V16c0-.69-.56-1.25-1.25-1.25h-4c-.69 0-1.25.56-1.25 1.25v1.63ZM4 12a8 8 0 1 1 16 0 8 8 0 0 1-16 0Zm10-2a2 2 0 1 1-4 0 2 2 0 0 1 4 0Z' fill-rule='evenodd' clip-rule='evenodd'></path></svg>",
+	"supports": {
+		"align": true,
+		"anchor": false,
+		"customClassName": true,
+		"className": true,
+		"html": false,
+		"multiple": true,
+		"reusable": true,
+		"spacing": {
+			"margin": true,
+			"padding": true
+		},
+		"typography": {
+			"fontSize": true,
+			"lineHeight": true
+		},
+		"color": {
+			"text": false,
+			"link": true,
+			"gradients": true
+		}
+	},
+	"attributes": {
+		"redirectToCurrent": {
+			"type": "boolean",
+			"default": true
+		},
+		"logInLabel": {
+			"type": "string"
+		},
+		"logOutLabel": {
+			"type": "string"
+		},
+		"showManageSubscriptionsLink": {
+			"type": "boolean",
+			"default": true
+		},
+		"manageSubscriptionsLabel": {
+			"type": "string"
+		}
+	}
+}

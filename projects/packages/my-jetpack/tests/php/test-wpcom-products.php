@@ -30,12 +30,6 @@ class Test_Wpcom_Products extends TestCase {
 	 * @before
 	 */
 	public function set_up() {
-
-		// See https://stackoverflow.com/a/41611876.
-		if ( version_compare( phpversion(), '5.7', '<=' ) ) {
-			$this->markTestSkipped( 'avoid bug in PHP 5.6 that throws strict mode warnings for abstract static methods.' );
-		}
-
 		// Mock site connection.
 		( new Tokens() )->update_blog_token( 'test.test' );
 		Jetpack_Options::update_option( 'id', 123 );
@@ -134,6 +128,8 @@ class Test_Wpcom_Products extends TestCase {
 
 		unset( $_SERVER['REQUEST_METHOD'] );
 		$_GET = array();
+
+		Wpcom_Products::reset_request_failures();
 	}
 
 	/**
@@ -195,6 +191,26 @@ class Test_Wpcom_Products extends TestCase {
 		remove_filter( 'pre_http_request', array( $this, 'mock_error_response' ) );
 
 		$this->assertEquals( $this->get_mock_products_data(), $products );
+	}
+
+	/**
+	 * Test that we get data from cache if a request fails.
+	 * Second request succeeds, but we'll never know because we don't retry it.
+	 */
+	public function test_get_products_error_norepeat() {
+		$this->create_user_and_login();
+
+		add_filter( 'pre_http_request', array( $this, 'mock_error_response' ) );
+		$products = Wpcom_Products::get_products();
+		remove_filter( 'pre_http_request', array( $this, 'mock_error_response' ) );
+
+		$this->assertTrue( is_wp_error( $products ) );
+
+		add_filter( 'pre_http_request', array( $this, 'mock_success_response' ) );
+		$products = Wpcom_Products::get_products();
+		remove_filter( 'pre_http_request', array( $this, 'mock_success_response' ) );
+
+		$this->assertTrue( is_wp_error( $products ) );
 	}
 
 	/**

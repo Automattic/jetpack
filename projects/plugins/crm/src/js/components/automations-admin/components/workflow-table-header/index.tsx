@@ -1,7 +1,7 @@
 import { dispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { chevronDown, chevronUp } from '@wordpress/icons';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import { store } from 'crm/state/store';
 import { useCallback } from 'react';
 import { Checkbox } from '../checkbox';
@@ -34,7 +34,7 @@ export const WorkflowTableHeader: React.FC< WorkflowTableHeaderProps > = props =
 
 	return (
 		<th
-			className={ classNames( styles.header, { [ styles.clickable ]: !! onClick } ) }
+			className={ clsx( styles.header, { [ styles.clickable ]: !! onClick } ) }
 			onClick={ onClick }
 		>
 			<div className={ styles.container }>

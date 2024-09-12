@@ -7,26 +7,32 @@ import { Period } from '.';
  * Custom tooltips plugin for uPlot.
  *
  * @param {Period[]} periods - The periods to display in the tooltip.
- * @returns {object} The uPlot plugin object with hooks.
+ * @return {object} The uPlot plugin object with hooks.
  */
 export function tooltipsPlugin( periods ) {
 	const reactRoot = document.createElement( 'div' );
+	const container = document.createElement( 'div' );
 	let reactDom;
 
 	/**
 	 * Initializes the tooltips plugin.
 	 *
-	 * @param {uPlot} u - The uPlot instance.
+	 * @param {uPlot}  u     - The uPlot instance.
 	 * @param {object} _opts - Options for the uPlot instance.
 	 */
-	function init( u, _opts ) {
-		const over = u.over;
-		reactDom = ReactDOM.createRoot( reactRoot );
+	function init( u: uPlot, _opts: object ) {
+		container.classList.add( 'jb-score-tooltips-container' );
+		if ( ! reactDom ) {
+			reactDom = ReactDOM.createRoot( reactRoot );
+		}
 		reactRoot.style.position = 'absolute';
 		reactRoot.style.bottom = -20 + 'px';
 		reactRoot.style.translate = '-50% calc( 100% - 20px )';
+		reactRoot.style.zIndex = '1000';
 
-		over.appendChild( reactRoot );
+		container.appendChild( reactRoot );
+
+		u.over.appendChild( container );
 
 		/**
 		 * Hides all tooltips.
@@ -42,21 +48,21 @@ export function tooltipsPlugin( periods ) {
 			reactRoot.style.display = null;
 		}
 
-		over.addEventListener( 'mouseleave', () => {
-			if ( ! u.cursor._lock ) {
-				hideTips();
-			}
-		} );
-
-		over.addEventListener( 'mouseenter', () => {
-			showTips();
-		} );
-
-		if ( u.cursor.left < 0 ) {
+		container.addEventListener( 'mouseleave', () => {
 			hideTips();
-		} else {
+		} );
+
+		container.addEventListener( 'mouseenter', () => {
 			showTips();
-		}
+		} );
+	}
+
+	/**
+	 * Called when the chart is resized.
+	 * @param {uPlot} u - The uPlot instance.
+	 */
+	function setSize( u: uPlot ) {
+		container.style.height = u.over.clientHeight + 'px';
 	}
 
 	/**
@@ -93,6 +99,7 @@ export function tooltipsPlugin( periods ) {
 		hooks: {
 			init,
 			setCursor,
+			setSize,
 		},
 	};
 }

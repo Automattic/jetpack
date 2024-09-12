@@ -37,14 +37,28 @@ class Comments extends Module {
 	}
 
 	/**
-	 * The table in the database.
+	 * The table name.
 	 *
 	 * @access public
 	 *
 	 * @return string
+	 * @deprecated since 3.11.0 Use table() instead.
 	 */
 	public function table_name() {
+		_deprecated_function( __METHOD__, '3.11.0', 'Automattic\\Jetpack\\Sync\\Comments->table' );
 		return 'comments';
+	}
+
+	/**
+	 * The table in the database with the prefix.
+	 *
+	 * @access public
+	 *
+	 * @return string|bool
+	 */
+	public function table() {
+		global $wpdb;
+		return $wpdb->comments;
 	}
 
 	/**
@@ -240,6 +254,7 @@ class Comments extends Module {
 	public function filter_blacklisted_post_types( $args ) {
 		$post_id      = $args[0];
 		$posts_module = Modules::get_module( 'posts' );
+		'@phan-var Posts $posts_module';
 
 		if ( false !== $posts_module && ! $posts_module->is_post_type_allowed( $post_id ) ) {
 			return false;
@@ -341,8 +356,8 @@ class Comments extends Module {
 		}
 
 		// TODO: Call $wpdb->prepare on the following query.
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-		$count = $wpdb->get_var( $query );
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		$count = (int) $wpdb->get_var( $query );
 
 		return (int) ceil( $count / self::ARRAY_CHUNK_SIZE );
 	}

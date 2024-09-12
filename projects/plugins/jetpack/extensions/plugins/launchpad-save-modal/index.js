@@ -3,6 +3,7 @@ import { getSiteFragment, useAnalytics } from '@automattic/jetpack-shared-extens
 import apiFetch from '@wordpress/api-fetch';
 import { Modal, Button, CheckboxControl } from '@wordpress/components';
 import { usePrevious } from '@wordpress/compose';
+import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useEffect, useRef, useState } from '@wordpress/element';
@@ -31,7 +32,7 @@ const updateLaunchpadSaveModalBrowserConfig = config => {
 	}
 
 	for ( const editableProp of LAUNCHPAD_SAVE_MODAL_EDITABLE_PROPS ) {
-		if ( config.hasOwnProperty( editableProp ) ) {
+		if ( Object.hasOwn( config, editableProp ) ) {
 			window.Jetpack_LaunchpadSaveModal[ editableProp ] = config[ editableProp ];
 		}
 	}
@@ -40,13 +41,22 @@ const updateLaunchpadSaveModalBrowserConfig = config => {
 export const settings = {
 	render: function LaunchpadSaveModal() {
 		const { isSavingSite, isSavingPost, isCurrentPostPublished, postLink, postType } = useSelect(
-			selector => ( {
-				isSavingSite: selector( editorStore ).isSavingNonPostEntityChanges(),
-				isSavingPost: selector( editorStore ).isSavingPost(),
-				isCurrentPostPublished: selector( editorStore ).isCurrentPostPublished(),
-				postLink: selector( editorStore ).getPermalink(),
-				postType: selector( editorStore ).getCurrentPostType(),
-			} )
+			select => {
+				const { __experimentalGetDirtyEntityRecords, isSavingEntityRecord } = select( coreStore );
+				const dirtyEntityRecords = __experimentalGetDirtyEntityRecords();
+
+				return {
+					// Align the “Save” behavior in the editor.
+					// See https://github.com/WordPress/gutenberg/blob/96305e952948653e2921147492556d09ee9d3c17/packages/edit-site/src/components/save-button/index.js#L43
+					isSavingSite: dirtyEntityRecords.some( record =>
+						isSavingEntityRecord( record.kind, record.name, record.key )
+					),
+					isSavingPost: select( editorStore ).isSavingPost(),
+					isCurrentPostPublished: select( editorStore ).isCurrentPostPublished(),
+					postLink: select( editorStore ).getPermalink(),
+					postType: select( editorStore ).getCurrentPostType(),
+				};
+			}
 		);
 
 		const prevIsSavingSite = usePrevious( isSavingSite );
@@ -135,7 +145,6 @@ export const settings = {
 				isInsidePostEditor
 			) {
 				setIsModalOpen( false );
-				return;
 			} else if (
 				( prevIsSavingSite === true && isSavingSite === false ) ||
 				( prevIsSavingPost === true && isSavingPost === false )

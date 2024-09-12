@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\VideoPress;
 
+use WP_Block;
+
 /**
  * Initialized the VideoPress package
  */
@@ -183,11 +185,13 @@ class Initializer {
 	/**
 	 * VideoPress video block render method
 	 *
-	 * @param array  $block_attributes - Block attributes.
-	 * @param string $content          - Current block markup.
+	 * @param array    $block_attributes - Block attributes.
+	 * @param string   $content          - Current block markup.
+	 * @param WP_Block $block            - Current block.
+	 *
 	 * @return string                    Block markup.
 	 */
-	public static function render_videopress_video_block( $block_attributes, $content ) {
+	public static function render_videopress_video_block( $block_attributes, $content, $block ) {
 		global $wp_embed;
 
 		// CSS classes
@@ -283,6 +287,7 @@ class Initializer {
 		<figure class="%1$s" style="%2$s" %3$s>
 			%4$s
 			%5$s
+			%6$s
 		</figure>
 		';
 
@@ -304,6 +309,17 @@ class Initializer {
 			);
 		}
 
+		// Get premium content from block context
+		$premium_block_plan_id    = isset( $block->context['premium-content/planId'] ) ? intval( $block->context['premium-content/planId'] ) : 0;
+		$is_premium_content_child = isset( $block->context['isPremiumContentChild'] ) ? (bool) $block->context['isPremiumContentChild'] : false;
+		$maybe_premium_script     = '';
+		if ( $is_premium_content_child ) {
+			Access_Control::instance()->set_guid_subscription( $guid, $premium_block_plan_id );
+			$escaped_guid         = esc_js( $guid );
+			$script_content       = "if ( ! window.__guidsToPlanIds ) { window.__guidsToPlanIds = {}; }; window.__guidsToPlanIds['$escaped_guid'] = $premium_block_plan_id;";
+			$maybe_premium_script = '<script>' . $script_content . '</script>';
+		}
+
 		// $id_attribute, $video_wrapper, $figcaption properly escaped earlier on the code
 		return sprintf(
 			$figure_template,
@@ -311,7 +327,8 @@ class Initializer {
 			esc_attr( $style ),
 			$id_attribute,
 			$video_wrapper,
-			$figcaption
+			$figcaption,
+			$maybe_premium_script
 		);
 	}
 
@@ -361,6 +378,7 @@ class Initializer {
 			$videopress_video_metadata_file,
 			array(
 				'render_callback' => array( __CLASS__, 'render_videopress_video_block' ),
+				'uses_context'    => array( 'premium-content/planId', 'isPremiumContentChild', 'selectedPlanId' ),
 			)
 		);
 

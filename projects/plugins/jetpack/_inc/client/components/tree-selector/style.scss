@@ -1,0 +1,40 @@
+@import '@automattic/jetpack-base-styles/style';
+
+ul.jp-tree-items {
+	list-style-type: none;
+	margin: 0;
+}
+
+li.jp-tree-item {
+	display: flex;
+	margin: 0;
+	padding: 8px 6px 8px 6px;
+	gap: 8px;
+
+	label {
+		flex-grow: 1;
+		line-height: 22px;
+	}
+
+	small {
+		color: var( --jp-gray-40 );
+	}
+
+	input:disabled+label {
+		color: var( --jp-gray-20 );
+	}
+
+	.components-base-control__field, .components-checkbox-control__input-container {
+		margin: 0;
+	}
+
+	.components-checkbox-control__input[type=checkbox]:checked, .components-checkbox-control__input[type=checkbox]:indeterminate {
+		background: var(--jp-green);
+		border-color: var(--jp-green);
+	}
+
+	.components-checkbox-control__input[type=checkbox]:focus {
+		box-shadow: 0 0 0 var(--wp-admin-border-width-focus) #fff, 0 0 0 calc(var(--wp-admin-border-width-focus) * 2) var(--jp-green);
+		border-color: var(--jp-green);
+	}
+}

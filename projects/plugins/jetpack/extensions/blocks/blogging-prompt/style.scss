@@ -13,6 +13,11 @@
 		font-size: 14px;
 		margin-bottom: $grid-unit-20;
 		padding-inline-start: 22px;
+		&.is-bloganuary-icon {
+			background: no-repeat url('./bloganuary-icon.svg');
+			background-position: 0px center;
+			padding-inline-start: 26px;
+		}
 	}
 
 	&__text {

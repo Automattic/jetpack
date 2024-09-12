@@ -331,19 +331,6 @@ class Jetpack_User_Agent_Info {
 	}
 
 	/**
-	 * Detects if the current browser is Opera Mobile or Mini.
-	 *
-	 * Opera Mini 5 Beta: Opera/9.80 (J2ME/MIDP; Opera Mini/5.0.15650/756; U; en) Presto/2.2.0
-	 * Opera Mini 8: Opera/8.01 (J2ME/MIDP; Opera Mini/3.0.6306/1528; en; U; ssr)
-	 *
-	 * @deprecated 8.7.0 Use Automattic\Jetpack\Device_Detection\User_Agent_Info
-	 */
-	public static function is_OperaMobile() {
-		self::warn_deprecated( __METHOD__, '::is_opera_mini() or \Automattic\Jetpack\Device_Detection\User_Agent_Info::is_opera_mobile()' );
-		return User_Agent_Info::is_OperaMobile();
-	}
-
-	/**
 	 * Detects if the current browser is a Windows Phone 7 device.
 	 * ex: Mozilla/4.0 (compatible; MSIE 7.0; Windows Phone OS 7.0; Trident/3.1; IEMobile/7.0; LG; GW910)
 	 *

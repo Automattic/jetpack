@@ -1,5 +1,5 @@
 const debug = require( '../../utils/debug' );
-const getLabels = require( '../../utils/get-labels' );
+const getLabels = require( '../../utils/labels/get-labels' );
 
 /* global GitHub, WebhookPayloadPullRequest */
 
@@ -54,7 +54,7 @@ async function cleanLabels( payload, octokit ) {
 			labelsToRemoveFromPr
 		) }`
 	);
-	labelsToRemoveFromPr.map( name => {
+	for ( const name of labelsToRemoveFromPr ) {
 		debug( `clean-labels: removing the ${ name } label from PR #${ number }` );
 		octokit.rest.issues.removeLabel( {
 			owner: ownerLogin,
@@ -62,7 +62,7 @@ async function cleanLabels( payload, octokit ) {
 			issue_number: number,
 			name,
 		} );
-	} );
+	}
 }
 
 module.exports = cleanLabels;

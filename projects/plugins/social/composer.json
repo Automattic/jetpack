@@ -9,23 +9,26 @@
 		"automattic/jetpack-autoloader": "@dev",
 		"automattic/jetpack-composer-plugin": "@dev",
 		"automattic/jetpack-config": "@dev",
-		"automattic/jetpack-identity-crisis": "@dev",
 		"automattic/jetpack-publicize": "@dev",
 		"automattic/jetpack-connection": "@dev",
 		"automattic/jetpack-my-jetpack": "@dev",
 		"automattic/jetpack-sync": "@dev",
 		"automattic/jetpack-status": "@dev",
-		"automattic/jetpack-plans": "@dev"
+		"automattic/jetpack-plans": "@dev",
+		"automattic/jetpack-post-list": "@dev"
 	},
 	"require-dev": {
 		"automattic/jetpack-changelogger": "@dev",
 		"automattic/wordbless": "0.4.2",
-		"yoast/phpunit-polyfills": "1.1.0",
+		"yoast/phpunit-polyfills": "^1.1.1",
 		"brain/monkey": "2.6.1"
 	},
 	"autoload": {
 		"classmap": [
 			"src/"
+		],
+		"files": [
+			"src/utils.php"
 		]
 	},
 	"scripts": {
@@ -81,6 +84,6 @@
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true
 		},
-		"autoloader-suffix": "c4802e05bbcf59fd3b6350e8d3e5482c_socialⓥ2_4_0_alpha"
+		"autoloader-suffix": "c4802e05bbcf59fd3b6350e8d3e5482c_socialⓥ5_3_1"
 	}
 }

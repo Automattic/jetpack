@@ -9,9 +9,9 @@ import styles from './styles.module.scss';
 /**
  * Gets the Badge element
  *
- * @param {number} count - The number of threats found for this item.
+ * @param {number}  count   - The number of threats found for this item.
  * @param {boolean} checked - Whether this item was checked for threats yet.
- * @returns {object} The badge element
+ * @return {object} The badge element
  */
 const getBadgeElement = ( count, checked ) => {
 	if ( ! checked ) {
@@ -72,7 +72,7 @@ const ItemBadge = ( { count, checked } ) => {
 		>
 			{ badgeElement }
 			{ showPopover && (
-				<Popover noArrow={ false }>
+				<Popover noArrow={ false } inline={ true }>
 					<Text variant="body-small" className={ styles[ 'popover-text' ] }>
 						{ popoverText }
 					</Text>

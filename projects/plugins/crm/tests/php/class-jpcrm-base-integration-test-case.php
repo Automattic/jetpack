@@ -66,7 +66,7 @@ class JPCRM_Base_Integration_Test_Case extends JPCRM_Base_Test_Case {
 	 * Get a contact.
 	 *
 	 * @param int|string $id The ID of the contact we want to get.
-	 * @param array $args (Optional) A list of arguments we should use for the contact.
+	 * @param array      $args (Optional) A list of arguments we should use for the contact.
 	 * @return Contact|null
 	 */
 	public function get_contact( $id, array $args = array() ) {

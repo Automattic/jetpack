@@ -159,6 +159,7 @@ class Table_Checksum_Usermeta extends Table_Checksum_Users {
 	 */
 	protected function expand_and_sanitize_user_meta( $user_object ) {
 		$user_module = Modules::get_module( 'users' );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Users $user_module';
 		// Expand User Objects based on Sync logic.
 		$user_object = $user_module->expand_user( $user_object );
 

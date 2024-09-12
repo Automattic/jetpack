@@ -1,8 +1,8 @@
 import { useCallback } from '@wordpress/element';
-import classNames from 'classnames';
+import clsx from 'clsx';
 
 const PageNumber = ( { active, className, page, onSelect } ) => {
-	const buttonClass = classNames( 'jp-forms__page-navigation-page-number', className, {
+	const buttonClass = clsx( 'jp-forms__page-navigation-page-number', className, {
 		'is-active': active,
 	} );
 

@@ -16,8 +16,8 @@ class CommentsComponent extends React.Component {
 	 * If markdown module is inactive and this is toggling markdown for comments on, activate module.
 	 * If markdown for posts is off and this is toggling markdown for comments off, deactivate module.
 	 *
-	 * @param {string} module	- the module slug.
-	 * @returns {*}             the updated value
+	 * @param {string} module - the module slug.
+	 * @return {*}             the updated value
 	 */
 	updateFormStateByMarkdown = module => {
 		if ( this.props.getSettingCurrentValue( 'wpcom_publish_posts_with_markdown', module ) ) {
@@ -171,7 +171,11 @@ class CommentsComponent extends React.Component {
 											'wpcom_publish_comments_with_markdown',
 										] ) }
 										onChange={ this.handleMarkdownCommentsToggle }
-										label={ __( 'Enable Markdown use for comments.', 'jetpack' ) }
+										label={
+											<span className="jp-form-toggle-explanation">
+												{ __( 'Enable Markdown use for comments.', 'jetpack' ) }
+											</span>
+										}
 									/>
 								</FormFieldset>
 								<SupportInfo
@@ -193,7 +197,7 @@ class CommentsComponent extends React.Component {
 										toggleModule={ this.props.toggleModuleNow }
 									>
 										<span className="jp-form-toggle-explanation">
-											{ __( 'Enable comment likes.', 'jetpack' ) }
+											{ __( 'Enable comment Likes.', 'jetpack' ) }
 										</span>
 									</ModuleToggle>
 								</FormFieldset>

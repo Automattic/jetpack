@@ -4,6 +4,7 @@
  *
  * This endpoint is used by WP.com to push the generated CSS to the boost plugin.
  */
+
 namespace Automattic\Jetpack_Boost\REST_API\Endpoints;
 
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
@@ -33,7 +34,6 @@ use WP_REST_Server;
  * - type: string - machine readable error type.
  * - meta: Object - JSON string compatible object containing extra metadata for consumption in the UI.
  */
-
 class Update_Cloud_CSS implements Endpoint {
 
 	public function name() {

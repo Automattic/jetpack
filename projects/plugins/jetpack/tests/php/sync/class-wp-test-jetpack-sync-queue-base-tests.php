@@ -314,6 +314,7 @@ abstract class WP_Test_Jetpack_Sync_Queue_Base_Tests extends WP_Test_Jetpack_Syn
 
 	public function test_benchmark() {
 		$this->markTestIncomplete( "We don't want to run this every time" );
+		// @phan-suppress-next-line PhanPluginUnreachableCode
 		$iterations  = 100;
 		$buffer_size = 10;
 

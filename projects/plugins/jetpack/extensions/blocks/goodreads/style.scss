@@ -1,0 +1,91 @@
+@import '../../shared/styles/jetpack-variables.scss';
+
+.wp-block-jetpack-goodreads {
+	margin-bottom: $jetpack-block-margin-bottom;
+
+	// These styles are directly from Goodreads and
+	// shared with the Goodreads Widget in Jetpack.
+	[class^='gr_custom_container_'] {
+		border: 1px solid gray;
+		border-radius: 10px;
+		margin: auto;
+		padding: 0 5px 10px 5px;
+		background-color: #fff;
+		color: #000;
+		width: 300px;
+	}
+
+	[class^='gr_custom_header_'] {
+		border-bottom: 1px solid gray;
+		width: 100%;
+		padding: 10px 0;
+		margin: auto;
+		text-align: center;
+		font-size: 120%;
+	}
+
+	[class^='gr_custom_each_container_'] {
+		width: 100%;
+		clear: both;
+		margin: auto;
+		overflow: auto;
+		padding-bottom: 4px;
+		border-bottom: 1px solid #aaa;
+	}
+
+	[class^='gr_custom_each_container_'] {
+		width: 100%;
+		clear: both;
+		margin-bottom: 10px;
+		overflow: auto;
+		padding-bottom: 4px;
+		border-bottom: 1px solid #aaa;
+	}
+
+	[class^='gr_custom_book_container_'] {
+		overflow: hidden;
+		height: 60px;
+		float: left;
+		margin-right: 6px;
+		width: 39px;
+	}
+
+	[class^='gr_custom_author_'] {
+		font-size: 10px;
+	}
+
+	[class^='gr_custom_tags_'] {
+		font-size: 10px;
+		color: gray;
+	}
+
+	[class^='gr_custom_rating_'] {
+		float: right;
+	}
+
+	[class^='gr_grid_book_container'] {
+		float: left;
+		width: 98px;
+		height: 160px;
+		padding: 0px 0px;
+		overflow: hidden;
+
+		img {
+			height: 100%;
+			width: 100%;
+		}
+	}
+
+	// This isn't from Goodreads, but it looks better on most themes.
+	a {
+		text-decoration: none;
+
+		&:hover {
+			text-decoration: underline;
+		}
+	}
+
+	img {
+		max-width: 100%;
+	}
+}

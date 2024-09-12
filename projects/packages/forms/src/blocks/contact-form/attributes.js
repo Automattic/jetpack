@@ -3,9 +3,11 @@ import { __ } from '@wordpress/i18n';
 export default {
 	subject: {
 		type: 'string',
+		default: window.jpFormsBlocks?.defaults?.subject || '',
 	},
 	to: {
 		type: 'string',
+		default: window.jpFormsBlocks?.defaults?.to || '',
 	},
 	customThankyou: {
 		type: 'string',

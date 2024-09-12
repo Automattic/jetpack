@@ -1,13 +1,7 @@
 <?php
 /*
-!
  * Jetpack CRM
- * http://www.zerobscrm.com
- * V2.98.2+
- *
- * Copyright 2020 Automattic
- *
- * Date: 05/03/2019
+ * https://jetpackcrm.com
  */
 
 /*

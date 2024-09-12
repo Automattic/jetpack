@@ -1,6 +1,7 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Sync\Functions;
 
 /**
@@ -35,6 +36,13 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 	 * @var array
 	 */
 	protected $log;
+
+	/**
+	 * If the request is a scheduled update.
+	 *
+	 * @var boolean
+	 */
+	protected $scheduled_update = false;
 
 	/**
 	 * Response format.
@@ -116,6 +124,11 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 		}
 
 		$error = $this->validate_network_wide();
+		if ( is_wp_error( $error ) ) {
+			return $error;
+		}
+
+		$error = $this->validate_scheduled_update();
 		if ( is_wp_error( $error ) ) {
 			return $error;
 		}
@@ -415,6 +428,25 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 		$error = validate_plugin( $plugin );
 		if ( is_wp_error( $error ) ) {
 			return new WP_Error( 'unknown_plugin', $error->get_error_messages(), 404 );
+		}
+
+		return true;
+	}
+
+	/**
+	 * Validates if scheduled updates are allowed based on the current plan.
+	 *
+	 * @return bool|WP_Error True if scheduled updates are allowed or not provided, WP_Error otherwise.
+	 */
+	protected function validate_scheduled_update() {
+		$args = $this->input();
+
+		if ( isset( $args['scheduled_update'] ) && $args['scheduled_update'] ) {
+			if ( Current_Plan::supports( 'scheduled-updates' ) ) {
+				$this->scheduled_update = true;
+			} else {
+				return new WP_Error( 'unauthorized', __( 'Scheduled updates are not available on your current plan. Please upgrade to a plan that supports scheduled updates to use this feature.', 'jetpack' ), 403 );
+			}
 		}
 
 		return true;

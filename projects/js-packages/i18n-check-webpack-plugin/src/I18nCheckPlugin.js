@@ -127,8 +127,8 @@ class I18nCheckPlugin {
 	 * Record the resources for an asset.
 	 *
 	 * @param {webpack.Compilation} compilation - Compilation.
-	 * @param {string} filename - Asset filename.
-	 * @param {webpack.Module[]} modules - Modules in the asset.
+	 * @param {string}              filename    - Asset filename.
+	 * @param {webpack.Module[]}    modules     - Modules in the asset.
 	 */
 	#recordResourcesForAsset( compilation, filename, modules ) {
 		const resources = new Set();
@@ -159,7 +159,7 @@ class I18nCheckPlugin {
 	 * Stringify an entry to msgid + context.
 	 *
 	 * @param {GettextEntry} entry - Entry.
-	 * @returns {string} String.
+	 * @return {string} String.
 	 */
 	#strentry( entry ) {
 		let ret = '"' + entry.msgid.replace( /[\\"]/g, '\\$&' ).replaceAll( '\n', '\\n' ) + '"';
@@ -210,10 +210,11 @@ class I18nCheckPlugin {
 	 * Process an asset.
 	 *
 	 * @param {webpack.Compilation} compilation - Compilation.
-	 * @param {string} filename - Asset filename.
-	 * @param {Map} moduleCache - Cache for processed modules.
+	 * @param {string}              filename    - Asset filename.
+	 * @param {Map}                 moduleCache - Cache for processed modules.
 	 */
 	async #processAsset( compilation, filename, moduleCache ) {
+		// eslint-disable-next-line @wordpress/no-unused-vars-before-return -- Grabbing current timestamp for timing.
 		const t0 = Date.now();
 		const asset = compilation.getAsset( filename );
 

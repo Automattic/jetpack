@@ -15,7 +15,6 @@ import { uploadFromLibrary } from '../../../../../hooks/use-uploader';
 import { buildVideoPressURL, pickVideoBlockAttributesFromUrl } from '../../../../../lib/url';
 import { VIDEOPRESS_VIDEO_ALLOWED_MEDIA_TYPES } from '../../constants';
 import { PlaceholderWrapper } from '../../edit';
-import { description, title } from '../../index';
 import { VideoPressIcon } from '../icons';
 import UploadError from './uploader-error.js';
 import UploadProgress from './uploader-progress.js';
@@ -80,7 +79,9 @@ const VideoPressUploader = ( {
 				const parsedBody = JSON.parse( body );
 				setUploadErrorDataState( parsedBody );
 				return;
-			} catch {}
+			} catch {
+				// If it failed to parse, handle generically below.
+			}
 		}
 
 		setUploadErrorDataState( error );
@@ -101,7 +102,7 @@ const VideoPressUploader = ( {
 	 * Handler to add a video via an URL.
 	 *
 	 * @param {string} videoSource - URL of the video to attach
-	 * @param {string} id - Attachment ID if available
+	 * @param {string} id          - Attachment ID if available
 	 */
 	function onSelectURL( videoSource, id ) {
 		// If the video source is a VideoPress URL, we can use it directly.
@@ -160,7 +161,7 @@ const VideoPressUploader = ( {
 	 * Uploading file handler.
 	 *
 	 * @param {File} media - media file to upload
-	 * @returns {void}
+	 * @return {void}
 	 */
 	function onSelectVideo( media ) {
 		/*
@@ -320,8 +321,12 @@ const VideoPressUploader = ( {
 			className="is-videopress-placeholder"
 			icon={ <BlockIcon icon={ VideoPressIcon } /> }
 			labels={ {
-				title,
-				instructions: description,
+				// These strings should match the "title" and "description" in ../../block.json.
+				title: __( 'VideoPress', 'jetpack-videopress-pkg' ),
+				instructions: __(
+					'Embed a video from your media library or upload a new one with VideoPress.',
+					'jetpack-videopress-pkg'
+				),
 			} }
 			onSelect={ onSelectVideo }
 			onSelectURL={ onSelectURL }

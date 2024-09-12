@@ -22,10 +22,10 @@ const blockEditorDirectories = [ 'plugins', 'blocks' ];
 /**
  * Filters block editor scripts
  *
- * @param {string} type - script type
- * @param {string} inputDir - input directory
- * @param {Array} presetBlocks - preset blocks
- * @returns {Array} list of block scripts
+ * @param {string} type         - script type
+ * @param {string} inputDir     - input directory
+ * @param {Array}  presetBlocks - preset blocks
+ * @return {Array} list of block scripts
  */
 function presetProductionExtensions( type, inputDir, presetBlocks ) {
 	return presetBlocks
@@ -200,12 +200,7 @@ module.exports = [
 						noErrorOnMissing: true,
 						// Automatically link scripts and styles
 						transform( content ) {
-							let metadata = {};
-
-							try {
-								metadata = JSON.parse( content.toString() );
-							} catch ( e ) {}
-
+							const metadata = JSON.parse( content.toString() );
 							const name = metadata.name.replace( 'jetpack/', '' );
 
 							if ( ! name ) {

@@ -5,6 +5,11 @@ export type ToggleSectionProps = {
 	title: string;
 
 	/**
+	 * Whether the toggle is in beta.
+	 */
+	beta?: boolean;
+
+	/**
 	 * Callback to be called when the toggle is clicked.
 	 */
 	onChange: () => void;

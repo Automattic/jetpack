@@ -1,9 +1,9 @@
 <?php
 
+use Automattic\Jetpack_Boost\Lib\Minify;
 use Automattic\Jetpack_Boost\Lib\Minify\Config;
 use Automattic\Jetpack_Boost\Lib\Minify\Dependency_Path_Mapping;
 use Automattic\Jetpack_Boost\Lib\Minify\Utils;
-use tubalmartin\CssMin;
 
 function jetpack_boost_page_optimize_types() {
 	return array(
@@ -14,6 +14,8 @@ function jetpack_boost_page_optimize_types() {
 
 /**
  * Handle serving a minified / concatenated file from the virtual _jb_static dir.
+ *
+ * @return never
  */
 function jetpack_boost_page_optimize_service_request() {
 	$use_wp = defined( 'JETPACK_BOOST_CONCAT_USE_WP' ) && JETPACK_BOOST_CONCAT_USE_WP;
@@ -21,6 +23,11 @@ function jetpack_boost_page_optimize_service_request() {
 
 	$cache_dir = Config::get_cache_dir_path();
 	$use_cache = ! empty( $cache_dir );
+
+	// We handle the cache here, tell other caches not to.
+	if ( ! defined( 'DONOTCACHEPAGE' ) ) {
+		define( 'DONOTCACHEPAGE', true );
+	}
 
 	// Ensure the cache directory exists.
 	// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir
@@ -73,9 +80,9 @@ function jetpack_boost_page_optimize_service_request() {
 
 			if ( file_exists( $cache_file_meta ) ) {
 				// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
-				$meta = json_decode( file_get_contents( $cache_file_meta ) );
-				if ( null !== $meta && isset( $meta->headers ) ) {
-					foreach ( $meta->headers as $header ) {
+				$meta = json_decode( file_get_contents( $cache_file_meta ), ARRAY_A );
+				if ( ! empty( $meta ) && ! empty( $meta['headers'] ) ) {
+					foreach ( $meta['headers'] as $header ) {
 						header( $header );
 					}
 				}
@@ -129,11 +136,12 @@ function jetpack_boost_strip_parent_path( $parent_path, $path ) {
 		$trimmed_path = substr( $trimmed_path, strlen( $trimmed_parent ) );
 	}
 
-	return substr( $trimmed_path, 0, 1 ) === '/' ? $trimmed_path : '/' . $trimmed_path;
+	return str_starts_with( $trimmed_path, '/' ) ? $trimmed_path : '/' . $trimmed_path;
 }
 
 /**
- * Generate a combined and minified output for the current request.
+ * Generate a combined and minified output for the current request. This is run regardless of the
+ * type of content being fetched; JavaScript or CSS, so it must handle either.
  */
 function jetpack_boost_page_optimize_build_output() {
 	$use_wp = defined( 'JETPACK_BOOST_CONCAT_USE_WP' ) && JETPACK_BOOST_CONCAT_USE_WP;
@@ -159,7 +167,7 @@ function jetpack_boost_page_optimize_build_output() {
 	// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
 	$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? $utils->unslash( $_SERVER['REQUEST_URI'] ) : '';
 	$args        = $utils->parse_url( $request_uri, PHP_URL_QUERY );
-	if ( ! $args || false === strpos( $args, '?' ) ) {
+	if ( ! $args || ! str_contains( $args, '?' ) ) {
 		jetpack_boost_page_optimize_status_exit( 400 );
 	}
 
@@ -208,12 +216,6 @@ function jetpack_boost_page_optimize_build_output() {
 	$last_modified = 0;
 	$pre_output    = '';
 	$output        = '';
-
-	$should_minify_css = Config::is_css_minify_enabled();
-
-	if ( $should_minify_css ) {
-		$css_minify = new CssMin\Minifier();
-	}
 
 	foreach ( $args as $uri ) {
 		$fullpath = jetpack_boost_page_optimize_get_path( $uri );
@@ -267,11 +269,11 @@ function jetpack_boost_page_optimize_build_output() {
 			);
 
 			// The @charset rules must be on top of the output
-			if ( 0 === strpos( $buf, '@charset' ) ) {
+			if ( str_starts_with( $buf, '@charset' ) ) {
 				preg_replace_callback(
 					'/(?P<charset_rule>@charset\s+[\'"][^\'"]+[\'"];)/i',
 					function ( $match ) use ( &$pre_output ) {
-						if ( 0 === strpos( $pre_output, '@charset' ) ) {
+						if ( str_starts_with( $pre_output, '@charset' ) ) {
 							return '';
 						}
 
@@ -285,11 +287,11 @@ function jetpack_boost_page_optimize_build_output() {
 
 			// Move the @import rules on top of the concatenated output.
 			// Only @charset rule are allowed before them.
-			if ( false !== strpos( $buf, '@import' ) ) {
+			if ( str_contains( $buf, '@import' ) ) {
 				$buf = preg_replace_callback(
 					'/(?P<pre_path>@import\s+(?:url\s*\()?[\'"\s]*)(?P<path>[^\'"\s](?:https?:\/\/.+\/?)?.+?)(?P<post_path>[\'"\s\)]*;)/i',
 					function ( $match ) use ( $dirpath, &$pre_output ) {
-						if ( 0 !== strpos( $match['path'], 'http' ) && '/' !== $match['path'][0] ) {
+						if ( ! str_starts_with( $match['path'], 'http' ) && '/' !== $match['path'][0] ) {
 							$pre_output .= $match['pre_path'] . ( $dirpath === '/' ? '/' : $dirpath . '/' ) .
 											$match['path'] . $match['post_path'] . "\n";
 						} else {
@@ -302,15 +304,20 @@ function jetpack_boost_page_optimize_build_output() {
 				);
 			}
 
-			if ( $should_minify_css ) {
-				$buf = $css_minify->run( $buf );
+			// If filename indicates it's already minified, don't minify it again.
+			if ( ! preg_match( '/\.min\.css$/', $fullpath ) ) {
+				// Minify CSS.
+				$buf = Minify::css( $buf );
 			}
-		}
-
-		if ( $jetpack_boost_page_optimize_types['js'] === $mime_type ) {
-			$output .= "$buf;\n";
-		} else {
 			$output .= "$buf";
+		} else {
+			// If filename indicates it's already minified, don't minify it again.
+			if ( ! preg_match( '/\.min\.js$/', $fullpath ) ) {
+				// Minify JS
+				$buf = Minify::js( $buf );
+			}
+
+			$output .= "$buf;\n";
 		}
 	}
 
@@ -365,7 +372,7 @@ function jetpack_boost_page_optimize_get_path( $uri ) {
 		jetpack_boost_page_optimize_status_exit( 400 );
 	}
 
-	if ( false !== strpos( $uri, '..' ) || false !== strpos( $uri, "\0" ) ) {
+	if ( str_contains( $uri, '..' ) || str_contains( $uri, "\0" ) ) {
 		jetpack_boost_page_optimize_status_exit( 400 );
 	}
 

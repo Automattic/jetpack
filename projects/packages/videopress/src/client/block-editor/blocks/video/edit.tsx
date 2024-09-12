@@ -16,7 +16,7 @@ import { useDispatch } from '@wordpress/data';
 import { useEffect, useState, useCallback, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { caption as captionIcon } from '@wordpress/icons';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import debugFactory from 'debug';
 /**
  * Internal dependencies
@@ -96,12 +96,12 @@ export const PlaceholderWrapper = withNotices( function ( {
 /**
  * VideoPress block Edit react components
  *
- * @param {object} props                 - Component props.
- * @param {object} props.attributes      - Block attributes.
+ * @param {object}   props               - Component props.
+ * @param {object}   props.attributes    - Block attributes.
  * @param {Function} props.setAttributes - Function to set block attributes.
- * @param {boolean} props.isSelected     - Whether the block is selected.
- * @param {string} props.clientId        - Block client ID.
- * @returns {React.ReactNode}            - React component.
+ * @param {boolean}  props.isSelected    - Whether the block is selected.
+ * @param {string}   props.clientId      - Block client ID.
+ * @return {React.ReactNode}            - React component.
  */
 export default function VideoPressEdit( {
 	attributes,
@@ -396,7 +396,7 @@ export default function VideoPressEdit( {
 				<>
 					<ConnectBanner
 						isConnected={ isActive }
-						isModuleActive={ isModuleActive }
+						isModuleActive={ isModuleActive || isStandalonePluginActive }
 						isConnecting={ isRedirectingToMyJetpack }
 						onConnect={ () => {
 							setIsRedirectingToMyJetpack( true );
@@ -475,7 +475,7 @@ export default function VideoPressEdit( {
 	return (
 		<div
 			{ ...blockProps }
-			className={ classNames( blockMainClassName, {
+			className={ clsx( blockMainClassName, {
 				[ `align${ align }` ]: align,
 				'is-updating-preview': ! previewHtml,
 			} ) }
@@ -489,7 +489,7 @@ export default function VideoPressEdit( {
 						}
 					} }
 					icon={ captionIcon }
-					isPressed={ showCaption }
+					aria-pressed={ showCaption }
 					label={ showCaption ? removeCaptionLabel : addCaptionLabel }
 				/>
 
@@ -591,7 +591,7 @@ export default function VideoPressEdit( {
 			</InspectorControls>
 
 			<ConnectBanner
-				isModuleActive={ isModuleActive }
+				isModuleActive={ isModuleActive || isStandalonePluginActive }
 				isConnected={ isActive }
 				isConnecting={ isRedirectingToMyJetpack }
 				onConnect={ () => {

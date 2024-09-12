@@ -5,6 +5,8 @@
  * @package automattic/jetpack-changelogger
  */
 
+// phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
+
 namespace Automattic\Jetpack\Changelog\Tests;
 
 use Automattic\Jetpack\Changelog\ChangeEntry;
@@ -42,6 +44,7 @@ class ChangelogEntryTest extends TestCase {
 		$this->assertSame( 'Bar', $entry->getEpilogue() );
 		$this->assertNull( $entry->getTimestamp() );
 
+		// @phan-suppress-next-line PhanTypeMismatchArgument -- This is testing the type casting.
 		$this->assertSame( $entry, $entry->setVersion( 111 )->setPrologue( 222 )->setEpilogue( 333 )->setLink( '' ) );
 		$this->assertSame( '111', $entry->getVersion() );
 		$this->assertSame( null, $entry->getLink() );
@@ -95,7 +98,12 @@ class ChangelogEntryTest extends TestCase {
 
 		$this->assertSame( array(), $entry->getChanges() );
 		$this->assertSame( array(), $entry->getChangesBySubheading() );
-		$this->assertSame( array(), $entry->getChangesBySubheading( 'B' ) );
+		error_clear_last();
+		$this->assertSame( array(), @$entry->getChangesBySubheading( 'B' ) );
+		$err = error_get_last();
+		$this->assertNotNull( $err );
+		$this->assertSame( E_USER_DEPRECATED, $err['type'] );
+		$this->assertSame( 'Passing a value for $subheading is deprecated. Do `->getChangesBySubheading()[ $subheading ]` instead.', $err['message'] );
 
 		$this->assertSame( $entry, $entry->setChanges( $changes ) );
 		$this->assertSame( $changes, $entry->getChanges() );
@@ -107,7 +115,13 @@ class ChangelogEntryTest extends TestCase {
 			),
 			$entry->getChangesBySubheading()
 		);
-		$this->assertSame( array( $changes[1], $changes[2] ), $entry->getChangesBySubheading( 'B' ) );
+
+		error_clear_last();
+		$this->assertSame( array( $changes[1], $changes[2] ), @$entry->getChangesBySubheading( 'B' ) );
+		$err = error_get_last();
+		$this->assertNotNull( $err );
+		$this->assertSame( E_USER_DEPRECATED, $err['type'] );
+		$this->assertSame( 'Passing a value for $subheading is deprecated. Do `->getChangesBySubheading()[ $subheading ]` instead.', $err['message'] );
 
 		$c1 = new ChangeEntry(
 			array(
@@ -140,7 +154,13 @@ class ChangelogEntryTest extends TestCase {
 			),
 			$entry->getChangesBySubheading()
 		);
-		$this->assertSame( array( $c2, $changes[1], $c1, $changes[2] ), $entry->getChangesBySubheading( 'B' ) );
+
+		error_clear_last();
+		$this->assertSame( array( $c2, $changes[1], $c1, $changes[2] ), @$entry->getChangesBySubheading( 'B' ) );
+		$err = error_get_last();
+		$this->assertNotNull( $err );
+		$this->assertSame( E_USER_DEPRECATED, $err['type'] );
+		$this->assertSame( 'Passing a value for $subheading is deprecated. Do `->getChangesBySubheading()[ $subheading ]` instead.', $err['message'] );
 
 		$entry = new ChangelogEntry( '1.0' );
 		$this->assertSame( $entry, $entry->appendChange( $c1 )->appendChange( $c2 )->appendChange( $c3 ) );
@@ -153,6 +173,7 @@ class ChangelogEntryTest extends TestCase {
 	public function testConstructor_error() {
 		$this->expectException( InvalidArgumentException::class );
 		$this->expectExceptionMessage( 'Automattic\\Jetpack\\Changelog\\ChangelogEntry::__construct: Unrecognized data item "foo"' );
+		// @phan-suppress-next-line PhanNoopNew -- Expecting it to throw.
 		new ChangelogEntry( '1.0', array( 'foo' => 'bar' ) );
 	}
 
@@ -193,6 +214,7 @@ class ChangelogEntryTest extends TestCase {
 		$entry = new ChangelogEntry( '1.0' );
 		$this->expectException( InvalidArgumentException::class );
 		$this->expectExceptionMessage( 'Automattic\\Jetpack\\Changelog\\ChangelogEntry::setChanges: Expected a ChangeEntry, got NULL at index 0' );
+		// @phan-suppress-next-line PhanTypeMismatchArgument -- This is testing the error case.
 		$entry->setChanges( array( null ) );
 	}
 
@@ -203,6 +225,7 @@ class ChangelogEntryTest extends TestCase {
 		$entry = new ChangelogEntry( '1.0' );
 		$this->expectException( InvalidArgumentException::class );
 		$this->expectExceptionMessage( 'Automattic\\Jetpack\\Changelog\\ChangelogEntry::setChanges: Expected a ChangeEntry, got Automattic\\Jetpack\\Changelog\\ChangelogEntry at index 0' );
+		// @phan-suppress-next-line PhanTypeMismatchArgument -- This is testing the error case.
 		$entry->setChanges( array( $entry ) );
 	}
 

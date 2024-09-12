@@ -10,4 +10,15 @@ export default class ThemesPage extends WpPage {
 		await this.click( selector );
 		await this.waitForLoad();
 	}
+
+	async switchTheme() {
+		const selector = `a[href*='=activate'].activate`;
+		await this.click( selector );
+		await this.waitForLoad();
+	}
+
+	async getActiveThemeSlug() {
+		const selector = '.theme.active';
+		return await this.page.getAttribute( selector, 'data-slug' );
+	}
 }

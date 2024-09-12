@@ -1,10 +1,14 @@
 import restApi from '@automattic/jetpack-api';
-import { getScoreLetter, requestSpeedScores } from '@automattic/jetpack-boost-score-api';
+import {
+	getScoreLetter,
+	requestSpeedScores,
+	calculateDaysSince,
+} from '@automattic/jetpack-boost-score-api';
 import { BoostScoreBar, getRedirectUrl } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import InfoPopover from 'components/info-popover';
 import PluginInstallSection from 'components/plugin-install-section';
 import SectionHeader from 'components/section-header';
@@ -112,21 +116,6 @@ const DashBoost = ( {
 
 			setIsLoading( false );
 		}
-	};
-
-	const calculateDaysSince = timestamp => {
-		// Create Date objects for the provided timestamp and the current date
-		const providedDate = new Date( timestamp );
-		const currentDate = new Date();
-
-		// Calculate the difference in milliseconds between the two dates
-		const differenceInMilliseconds = currentDate - providedDate;
-
-		// Convert milliseconds to days
-		const millisecondsInADay = 24 * 60 * 60 * 1000;
-		const differenceInDays = Math.floor( differenceInMilliseconds / millisecondsInADay );
-
-		return differenceInDays;
 	};
 
 	useEffect( () => {
@@ -294,7 +283,7 @@ const DashBoost = ( {
 								</span>
 
 								<p
-									className={ classnames(
+									className={ clsx(
 										'dash-boost-speed-score__score-text',
 										[ 'C', 'D', 'E', 'F' ].includes( speedLetterGrade ) ? 'warning' : ''
 									) }
@@ -487,7 +476,7 @@ const ConversionLossPopover = () => {
 				screenReaderText={ __( 'Learn more about how slow sites lose visitors', 'jetpack' ) }
 			>
 				<p className="boost-conversion-loss-info__source">
-					{ __( 'Source: ', 'jetpack' ) }
+					{ __( 'Source:', 'jetpack' ) }{ ' ' }
 					<ExternalLink
 						href="https://web.dev/why-speed-matters/"
 						target="_blank"

@@ -16,7 +16,7 @@ import type React from 'react';
  * ClipboardButtionInput component
  *
  * @param {ClipboardButtonInput} props - Component props.
- * @returns {React.ReactNode} - ClipboardButtonInput react component.
+ * @return {React.ReactNode} - ClipboardButtonInput react component.
  */
 const ClipboardButtonInput: React.FC< ClipboardButtonInputProps > = ( {
 	text,

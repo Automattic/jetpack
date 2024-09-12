@@ -70,5 +70,16 @@ describe( 'restApi', () => {
 				method: 'post',
 			} );
 		} );
+
+		it( 'can fetchBackupPreflightStatus', async () => {
+			fetch.mockFetchResponse( { ok: true, tests: [] } );
+			const preflightStatus = await restApi.fetchBackupPreflightStatus();
+			expect( preflightStatus ).toEqual( { ok: true, tests: [] } );
+			expect( fetch ).toHaveBeenCalledTimes( 1 );
+			expect( fetch ).toHaveBeenCalledWith(
+				'/fakeApiRoot/jetpack/v4/site/backup/preflight?_cacheBuster=1234',
+				{ credentials: 'same-origin', headers: { 'X-WP-Nonce': undefined } }
+			);
+		} );
 	} );
 } );

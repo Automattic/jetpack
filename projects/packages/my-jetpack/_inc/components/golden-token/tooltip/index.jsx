@@ -2,7 +2,7 @@ import { Button, JetpackIcon } from '@automattic/jetpack-components';
 import { Popover } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import { useCallback, useState } from 'react';
 import styles from './style.module.scss';
 import './style.global.scss';
@@ -14,10 +14,10 @@ import './style.global.scss';
  * We created this one because <IconTooltip> is (at the time of writing)
  * hardcoded to only support Grid icons, and we're on a rather tight deadline.
  *
- * @param {object} props - Component properties.
+ * @param {object} props             - Component properties.
  * @param {string} props.productName - A product/plan name.
- * @param {string} props.giftedDate - The date the product/plan was gifted.
- * @returns {object} - A Golden Token Tooltip.
+ * @param {string} props.giftedDate  - The date the product/plan was gifted.
+ * @return {object} - A Golden Token Tooltip.
  */
 export function GoldenTokenTooltip( { productName, giftedDate } ) {
 	const [ isVisible, setIsVisible ] = useState( false );
@@ -37,7 +37,7 @@ export function GoldenTokenTooltip( { productName, giftedDate } ) {
 		className: styles.container,
 	};
 
-	const wrapperClassNames = classNames( styles.wrapper, 'golden-token-icon-tooltip' );
+	const wrapperClassNames = clsx( styles.wrapper, 'golden-token-icon-tooltip' );
 
 	return (
 		<div className={ wrapperClassNames }>

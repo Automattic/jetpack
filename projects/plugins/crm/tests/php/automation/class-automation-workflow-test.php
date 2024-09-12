@@ -198,7 +198,7 @@ class Automation_Workflow_Test extends JPCRM_Base_Test_Case {
 						}
 					)
 				),
-				$this->equalTo( new Contact_Data( $contact ) )
+				new Contact_Data( $contact )
 			);
 
 		// Emit the contact_created event with the fake contact data

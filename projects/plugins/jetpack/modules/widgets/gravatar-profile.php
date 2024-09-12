@@ -217,6 +217,7 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 			<ul class="grofile-urls grofile-links">
 
 			<?php foreach ( $personal_links as $personal_link ) : ?>
+				<?php if ( is_array( $personal_link ) ) : ?>
 				<li>
 					<a href="<?php echo esc_url( $personal_link['value'] ); ?>">
 						<?php
@@ -225,6 +226,7 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 						?>
 					</a>
 				</li>
+				<?php endif; ?>
 			<?php endforeach; ?>
 			</ul>
 

@@ -17,6 +17,7 @@ class MapkitBlock {
 		this.scrollToZoom = this.root.getAttribute( 'data-scroll-to-zoom' ) === 'true';
 		this.mapStyle = this.root.getAttribute( 'data-map-style' ) || 'default';
 		this.mapHeight = this.root.getAttribute( 'data-map-height' ) || null;
+		this.onError = () => {};
 	}
 
 	async init() {
@@ -51,6 +52,10 @@ class MapkitBlock {
 		return new Promise( resolve => {
 			loadMapkitLibrary( document, window ).then( mapkit => {
 				this.mapkit = mapkit;
+				this.mapkit.addEventListener( 'error', event => {
+					// because Apple uses an event listener for errors, we can't just throw here
+					this.onError( event );
+				} );
 				resolve();
 			} );
 		} );

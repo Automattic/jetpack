@@ -60,11 +60,16 @@ find trunk -type d -empty -print -delete
 echo '::endgroup::'
 
 echo "::group::Adding and removing SVN files"
-while IFS=" " read -r FLAG FILE; do
+while IFS= read -r LINE; do
+	FLAGS="${LINE:0:7}"
+	FILE="${LINE:8}"
+	if [[ "$FLAGS" != ?'      ' ]]; then
+		echo "Unexpected svn flags: $LINE"
+	fi
 	# The appending of an `@` to the filename here avoids problems with filenames containing `@` being interpreted as "peg revisions".
-	if [[ "$FLAG" == '!' ]]; then
+	if [[ "${FLAGS:0:1}" == '!' ]]; then
 		svn rm "${FILE}@"
-	elif [[ "$FLAG" == "?" ]]; then
+	elif [[ "${FLAGS:0:1}" == "?" ]]; then
 		svn add "${FILE}@"
 	fi
 done < <( svn status )

@@ -1,7 +1,7 @@
 const { getInput, setFailed } = require( '@actions/core' );
 const debug = require( '../../utils/debug' );
-const getLabels = require( '../../utils/get-labels' );
-const sendSlackMessage = require( '../../utils/send-slack-message' );
+const getLabels = require( '../../utils/labels/get-labels' );
+const sendSlackMessage = require( '../../utils/slack/send-slack-message' );
 
 /* global GitHub, WebhookPayloadPullRequest */
 
@@ -12,7 +12,7 @@ const sendSlackMessage = require( '../../utils/send-slack-message' );
  * @param {string} owner   - Repository owner.
  * @param {string} repo    - Repository name.
  * @param {string} number  - PR number.
- * @returns {Promise<boolean>} Promise resolving to boolean.
+ * @return {Promise<boolean>} Promise resolving to boolean.
  */
 async function hasNeedsCopyReviewLabel( octokit, owner, repo, number ) {
 	const labels = await getLabels( octokit, owner, repo, number );
@@ -27,7 +27,7 @@ async function hasNeedsCopyReviewLabel( octokit, owner, repo, number ) {
  * @param {string} owner   - Repository owner.
  * @param {string} repo    - Repository name.
  * @param {string} number  - PR number.
- * @returns {Promise<boolean>} Promise resolving to boolean.
+ * @return {Promise<boolean>} Promise resolving to boolean.
  */
 async function hasNeedsCopyLabel( octokit, owner, repo, number ) {
 	const labels = await getLabels( octokit, owner, repo, number );
@@ -42,7 +42,7 @@ async function hasNeedsCopyLabel( octokit, owner, repo, number ) {
  * @param {string} owner   - Repository owner.
  * @param {string} repo    - Repository name.
  * @param {string} number  - PR number.
- * @returns {Promise<boolean>} Promise resolving to boolean.
+ * @return {Promise<boolean>} Promise resolving to boolean.
  */
 async function hasEditorialInputRequestedLabel( octokit, owner, repo, number ) {
 	const labels = await getLabels( octokit, owner, repo, number );
@@ -98,7 +98,6 @@ async function notifyEditorial( payload, octokit ) {
 		await sendSlackMessage(
 			`Someone would be interested in input from the Editorial team on this topic.`,
 			channel,
-			slackToken,
 			payload
 		);
 	}
@@ -112,7 +111,6 @@ async function notifyEditorial( payload, octokit ) {
 		await sendSlackMessage(
 			`Someone is looking for a review from the Editorial team.`,
 			channel,
-			slackToken,
 			payload
 		);
 	}

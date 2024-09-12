@@ -2,8 +2,8 @@
 <ruleset>
 	<!-- Renaming all functions before being able to pass linting tests is too unrealistic for us at the moment. -->
 	<!-- We'll have to update all uses in all of our paid extensions as well, any community maintained plugins, etc. -->
-	<rule ref="WordPress.NamingConventions.ValidFunctionName.FunctionNameInvalid">
-		<severity>0</severity>
+	<rule ref="WordPress.NamingConventions.ValidFunctionName">
+		<exclude name="WordPress.NamingConventions.ValidFunctionName.FunctionNameInvalid"/>
 	</rule>
 
 	<rule ref="WordPress.WP.I18n">
@@ -27,16 +27,16 @@
 	</rule>
 
 	<!-- This is being removed primarily because of White Label comment styles for now -->
-	<rule ref="Squiz.Commenting.InlineComment.WrongStyle">
-		<severity>0</severity> 
+	<rule ref="Squiz.Commenting.InlineComment">
+		<exclude name="Squiz.Commenting.InlineComment.WrongStyle"/>
 	</rule>
 
 	<!-- Ideally we'd just configure PHPCompatibility with the right PHP version, but it uses <config> rather than <properties>. Sigh. -->
 	<!-- So instead we have to manually disable certain sniffs. -->
 	<rule ref="./.phpcs.dir.phpcompatibility.xml" />
 
-	<rule ref="Generic.Commenting.DocComment.MissingShort">
-		<severity>0</severity>
+	<rule ref="Generic.Commenting.DocComment">
+		<exclude name="Generic.Commenting.DocComment.MissingShort"/>
 	</rule>
 
 	<!-- Custom JPCRM escape function -->

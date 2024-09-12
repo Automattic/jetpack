@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.0.0 - 2024-02-07
+### Changed
+- General: updated PHP requirement to PHP 7.0+ [#34126]
+- General: update WordPress version requirements to WordPress 6.3. [#34127]
+- Updated package dependencies.
+
+### Fixed
+- Backup: add namespace versioning to Helper_Script_Manager and other classes. [#34739]
+- Improved helper script installer logging. [#34297]
+
 ## 1.0.1 - 2023-11-03
 ### Added
 - Updated composer.lock. [#31978]

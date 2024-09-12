@@ -1,4 +1,4 @@
-import classnames from 'classnames';
+import clsx from 'clsx';
 import { omit } from 'lodash';
 import React from 'react';
 
@@ -11,7 +11,7 @@ export default class Textarea extends React.Component {
 		return (
 			<textarea
 				{ ...omit( this.props, 'className' ) }
-				className={ classnames( this.props.className, 'dops-textarea' ) }
+				className={ clsx( this.props.className, 'dops-textarea' ) }
 			>
 				{ this.props.children }
 			</textarea>

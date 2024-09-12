@@ -28,6 +28,7 @@ interface Boost_API_Client {
 	 *
 	 * @param string  $path - Request path.
 	 * @param mixed[] $query - Query parameters.
+	 * @return mixed
 	 */
 	public function get( $path, $query = array() );
 }

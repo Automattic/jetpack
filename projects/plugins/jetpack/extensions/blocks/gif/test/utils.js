@@ -1,3 +1,4 @@
+import testEmbedUrl from '../../../shared/test-embed-url';
 import { GIPHY_API_KEY } from '../constants';
 import {
 	getUrl,
@@ -8,6 +9,17 @@ import {
 	splitStringAndReturnLastItem,
 	getSelectedGiphyAttributes,
 } from '../utils';
+
+jest.mock( '../../../shared/test-embed-url', () => ( {
+	__esModule: true,
+	default: jest.fn( () => {
+		return new Promise( resolve => {
+			resolve(
+				'https://giphy.com/gifs/wordpressdotcom-diversity-wordpress-radiate-jTqfCm1C0BV5fFAYvT'
+			);
+		} );
+	} ),
+} ) );
 
 describe( 'Gif Block utils', () => {
 	const GIPHY_ITEM = {
@@ -21,50 +33,67 @@ describe( 'Gif Block utils', () => {
 	};
 
 	describe( 'getUrl', () => {
-		test( 'returns getSearchUrl where there is no id', () => {
-			expect( getUrl( 'bubble tea' ) ).toBe(
+		test( 'returns getSearchUrl where there is no id', async () => {
+			await expect( getUrl( 'bubble tea' ) ).resolves.toBe(
 				`https://api.giphy.com/v1/gifs/search?q=bubble%20tea&api_key=${ GIPHY_API_KEY }&limit=10`
 			);
 		} );
-
-		test( 'returns trimmed getSearchUrl where there is no id', () => {
-			expect( getUrl( ' bubble bath  ' ) ).toBe(
+		test( 'returns trimmed getSearchUrl where there is no id', async () => {
+			await expect( getUrl( ' bubble bath  ' ) ).resolves.toBe(
 				`https://api.giphy.com/v1/gifs/search?q=bubble%20bath&api_key=${ GIPHY_API_KEY }&limit=10`
 			);
 		} );
 
-		test( 'returns getUrlWithId where there is an expected http URL with an id', () => {
-			expect( getUrl( 'http://giphy.com/embed/tomatenAugen7777aSSSS' ) ).toBe(
+		test( 'returns getUrlWithId where there is an expected http URL with an id', async () => {
+			await expect( getUrl( 'http://giphy.com/embed/tomatenAugen7777aSSSS' ) ).resolves.toBe(
 				`https://api.giphy.com/v1/gifs/tomatenAugen7777aSSSS?api_key=${ GIPHY_API_KEY }`
 			);
-			expect( getUrl( 'http://giphy.com/gifs/pineapple-kopf-ddddd123' ) ).toBe(
+			await expect( getUrl( 'http://giphy.com/gifs/pineapple-kopf-ddddd123' ) ).resolves.toBe(
 				`https://api.giphy.com/v1/gifs/ddddd123?api_key=${ GIPHY_API_KEY }`
 			);
-			expect( getUrl( 'http://i.giphy.com/bananaGesicht999999999.gif' ) ).toBe(
+			await expect( getUrl( 'http://i.giphy.com/bananaGesicht999999999.gif' ) ).resolves.toBe(
 				`https://api.giphy.com/v1/gifs/bananaGesicht999999999?api_key=${ GIPHY_API_KEY }`
 			);
-			expect( getUrl( 'http://media.giphy.com/media/blaubeerenAugen000/giphy.gif' ) ).toBe(
+			await expect(
+				getUrl( 'http://media.giphy.com/media/blaubeerenAugen000/giphy.gif' )
+			).resolves.toBe(
 				`https://api.giphy.com/v1/gifs/blaubeerenAugen000?api_key=${ GIPHY_API_KEY }`
 			);
 		} );
 
-		test( 'returns getUrlWithId where there is an expected https URL with an id', () => {
-			expect( getUrl( 'https://giphy.com/embed/tomatenAugen7777aSSSS' ) ).toBe(
+		test( 'returns getUrlWithId where there is an expected https URL with an id', async () => {
+			await expect( getUrl( 'https://giphy.com/embed/tomatenAugen7777aSSSS' ) ).resolves.toBe(
 				`https://api.giphy.com/v1/gifs/tomatenAugen7777aSSSS?api_key=${ GIPHY_API_KEY }`
 			);
-			expect( getUrl( 'https://giphy.com/gifs/pineapple-kopf-ddddd123' ) ).toBe(
+			await expect( getUrl( 'https://giphy.com/gifs/pineapple-kopf-ddddd123' ) ).resolves.toBe(
 				`https://api.giphy.com/v1/gifs/ddddd123?api_key=${ GIPHY_API_KEY }`
 			);
-			expect( getUrl( 'https://i.giphy.com/bananaGesicht999999999.gif' ) ).toBe(
+			await expect( getUrl( 'https://i.giphy.com/bananaGesicht999999999.gif' ) ).resolves.toBe(
 				`https://api.giphy.com/v1/gifs/bananaGesicht999999999?api_key=${ GIPHY_API_KEY }`
 			);
-			expect( getUrl( 'https://media.giphy.com/media/blaubeerenAugen000/giphy.gif' ) ).toBe(
+			await expect(
+				getUrl( 'https://media.giphy.com/media/blaubeerenAugen000/giphy.gif' )
+			).resolves.toBe(
 				`https://api.giphy.com/v1/gifs/blaubeerenAugen000?api_key=${ GIPHY_API_KEY }`
 			);
 		} );
 
-		test( 'treats searchText as a query string for other URL-like non-matches', () => {
-			expect( getUrl( 'https://this.does.not/work' ) ).toBe(
+		test( 'returns getUrlWithId when there is a shortlink', async () => {
+			const shortlink = 'https://gph.is/g/aKnlLW3';
+
+			const result = await testEmbedUrl( shortlink );
+
+			await getUrl( shortlink );
+
+			expect( testEmbedUrl ).toHaveBeenCalledWith( shortlink );
+
+			expect( result ).toBe(
+				'https://giphy.com/gifs/wordpressdotcom-diversity-wordpress-radiate-jTqfCm1C0BV5fFAYvT'
+			);
+		} );
+
+		test( 'treats searchText as a query string for other URL-like non-matches', async () => {
+			await expect( getUrl( 'https://this.does.not/work' ) ).resolves.toBe(
 				`https://api.giphy.com/v1/gifs/search?q=https%3A%2F%2Fthis.does.not%2Fwork&api_key=${ GIPHY_API_KEY }&limit=10`
 			);
 		} );

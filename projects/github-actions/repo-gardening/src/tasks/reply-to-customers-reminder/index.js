@@ -1,8 +1,9 @@
 const { getInput, setFailed } = require( '@actions/core' );
 const debug = require( '../../utils/debug' );
 const getComments = require( '../../utils/get-comments' );
-const getLabels = require( '../../utils/get-labels' );
-const sendSlackMessage = require( '../../utils/send-slack-message' );
+const getLabels = require( '../../utils/labels/get-labels' );
+const hasManySupportReferences = require( '../../utils/parse-content/has-many-support-references' );
+const sendSlackMessage = require( '../../utils/slack/send-slack-message' );
 
 /* global GitHub, WebhookPayloadIssue */
 
@@ -13,7 +14,7 @@ const sendSlackMessage = require( '../../utils/send-slack-message' );
  * @param {string} owner   - Repository owner.
  * @param {string} repo    - Repository name.
  * @param {string} number  - Issue number.
- * @returns {Promise<boolean>} Promise resolving to boolean.
+ * @return {Promise<boolean>} Promise resolving to boolean.
  */
 async function hasHighPriorityLabel( octokit, owner, repo, number ) {
 	const labels = await getLabels( octokit, owner, repo, number );
@@ -22,41 +23,12 @@ async function hasHighPriorityLabel( octokit, owner, repo, number ) {
 }
 
 /**
- * Check if the issue has a comment with a list of support references,
- * and at least x support references listed there.
- * (x is specified with reply_to_customers_threshold input, default to 10).
- * We only count the number of unanswered support references, since they're the ones we'll need to contact.
- *
- * @param {Array} issueComments - Array of all comments on that issue.
- * @returns {Promise<boolean>} Promise resolving to boolean.
- */
-async function hasManySupportReferences( issueComments ) {
-	const referencesThreshhold = getInput( 'reply_to_customers_threshold' );
-
-	let isWidelySpreadIssue = false;
-	issueComments.map( comment => {
-		if (
-			comment.user.login === 'github-actions[bot]' &&
-			comment.body.includes( '**Support References**' )
-		) {
-			// Count the number of to-do items in the comment.
-			const countReferences = comment.body.split( '- [ ] ' ).length - 1;
-			if ( countReferences >= parseInt( referencesThreshhold ) ) {
-				isWidelySpreadIssue = true;
-			}
-		}
-	} );
-
-	return isWidelySpreadIssue;
-}
-
-/**
  * Build an object containing the slack message and its formatting to send to Slack.
  *
  * @param {WebhookPayloadIssue} payload - Issue event payload.
  * @param {string}              channel - Slack channel ID.
  * @param {string}              message - Basic message (without the formatting).
- * @returns {object} Object containing the slack message and its formatting.
+ * @return {object} Object containing the slack message and its formatting.
  */
 function formatSlackMessage( payload, channel, message ) {
 	const { issue, repository } = payload;
@@ -65,12 +37,15 @@ function formatSlackMessage( payload, channel, message ) {
 	let dris = '@bug_herders';
 	switch ( repository.full_name ) {
 		case 'Automattic/jetpack':
-			dris = '@jpop-da';
+			dris = '@jetpack-da';
 			break;
 		case 'Automattic/zero-bs-crm':
 		case 'Automattic/sensei':
-		case 'Automattic/WP-Job-Manager':
 			dris = '@heysatellite';
+			break;
+		case 'Automattic/WP-Job-Manager':
+		case 'Automattic/Crowdsignal':
+			dris = '@meteorite-team';
 			break;
 	}
 
@@ -136,14 +111,6 @@ async function replyToCustomersReminder( payload, octokit ) {
 	const { full_name, owner, name: repo } = repository;
 	const ownerLogin = owner.login;
 
-	const slackToken = getInput( 'slack_token' );
-	if ( ! slackToken ) {
-		setFailed(
-			`reply-to-customers-reminder: Input slack_token is required but missing. Aborting.`
-		);
-		return;
-	}
-
 	const channel = getInput( 'slack_he_triage_channel' );
 	if ( ! channel ) {
 		setFailed(
@@ -184,7 +151,7 @@ Before you send follow-up replies, you'll want to make sure the fix has been dep
 }`;
 
 	const slackMessageFormat = formatSlackMessage( payload, channel, message );
-	await sendSlackMessage( message, channel, slackToken, payload, slackMessageFormat );
+	await sendSlackMessage( message, channel, payload, slackMessageFormat );
 }
 
 module.exports = replyToCustomersReminder;

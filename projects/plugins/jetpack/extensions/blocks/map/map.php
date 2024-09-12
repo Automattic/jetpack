@@ -66,7 +66,7 @@ function get_map_provider( $html ) {
 	$mapbox_styles = array( 'is-style-terrain' );
 	// return mapbox if html contains one of the mapbox styles
 	foreach ( $mapbox_styles as $style ) {
-		if ( strpos( $html, $style ) !== false ) {
+		if ( str_contains( $html, $style ) ) {
 			return 'mapbox';
 		}
 	}
@@ -124,7 +124,7 @@ function load_assets( $attr, $content ) {
 
 	$map_provider = get_map_provider( $content );
 	if ( $map_provider === 'mapkit' ) {
-		return preg_replace( '/<div /', '<div data-map-provider="mapkit" data-blog-id="' . \Jetpack_Options::get_option( 'id' ) . '" ', $content, 1 );
+		return preg_replace( '/<div /', '<div data-map-provider="mapkit" data-api-key="' . esc_attr( $access_token['key'] ) . '"  data-blog-id="' . \Jetpack_Options::get_option( 'id' ) . '" ', $content, 1 );
 	}
 
 	return preg_replace( '/<div /', '<div data-map-provider="mapbox" data-api-key="' . esc_attr( $access_token['key'] ) . '" ', $content, 1 );

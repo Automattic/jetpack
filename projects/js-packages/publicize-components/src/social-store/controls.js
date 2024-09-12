@@ -5,13 +5,12 @@ export const UPDATE_JETPACK_SETTINGS = 'UPDATE_JETPACK_SETTINGS';
 export const FETCH_SOCIAL_IMAGE_GENERATOR_SETTINGS = 'FETCH_SOCIAL_IMAGE_GENERATOR_SETTINGS';
 export const UPDATE_SOCIAL_IMAGE_GENERATOR_SETTINGS = 'UPDATE_SOCIAL_IMAGE_GENERATOR_SETTINGS';
 
-export const FETCH_AUTO_CONVERSION_SETTINGS = 'FETCH_AUTO_CONVERSION_SETTINGS';
-export const UPDATE_AUTO_CONVERSION_SETTINGS = 'UPDATE_AUTO_CONVERSION_SETTINGS';
+export const FETCH_JETPACK_SOCIAL_SETTINGS = 'FETCH_JETPACK_SOCIAL_SETTINGS';
 
 /**
  * fetchJetpackSettings action
  *
- * @returns {object} - an action object.
+ * @return {object} - an action object.
  */
 export const fetchJetpackSettings = () => {
 	return {
@@ -23,7 +22,7 @@ export const fetchJetpackSettings = () => {
  * updateJetpackSettings action
  *
  * @param {*} settings - Jetpack settings object.
- * @returns {object} - an action object.
+ * @return {object} - an action object.
  */
 export const updateJetpackSettings = settings => {
 	return {
@@ -35,7 +34,7 @@ export const updateJetpackSettings = settings => {
 /**
  * fetchSocialImageGeneratorSettings action
  *
- * @returns {object} - an action object.
+ * @return {object} - an action object.
  */
 export const fetchSocialImageGeneratorSettings = () => {
 	return {
@@ -47,7 +46,7 @@ export const fetchSocialImageGeneratorSettings = () => {
  * updateSocialImageGeneratorSettings action
  *
  * @param {*} settings - Social Image Generator settings object.
- * @returns {object} - an action object.
+ * @return {object} - an action object.
  */
 export const updateSocialImageGeneratorSettings = settings => {
 	return {
@@ -57,26 +56,13 @@ export const updateSocialImageGeneratorSettings = settings => {
 };
 
 /**
- * fetchAutoConversionSettings action
+ * fetchJetpackSocialSettings action
  *
- * @returns {object} - an action object.
+ * @return {object} - an action object.
  */
-export const fetchAutoConversionSettings = () => {
+export const fetchJetpackSocialSettings = () => {
 	return {
-		type: FETCH_AUTO_CONVERSION_SETTINGS,
-	};
-};
-
-/**
- * updateAutoConversionSettings action
- *
- * @param {*} settings - Auto conversion settings object.
- * @returns {object} - an action object.
- */
-export const updateAutoConversionSettings = settings => {
-	return {
-		type: UPDATE_AUTO_CONVERSION_SETTINGS,
-		settings,
+		type: FETCH_JETPACK_SOCIAL_SETTINGS,
 	};
 };
 
@@ -92,23 +78,22 @@ export default {
 		} );
 	},
 	[ FETCH_SOCIAL_IMAGE_GENERATOR_SETTINGS ]: function () {
-		return apiFetch( { path: '/jetpack/v4/social-image-generator/settings' } );
+		return apiFetch( {
+			path: '/wp/v2/settings?_fields=jetpack_social_image_generator_settings',
+		} );
 	},
 	[ UPDATE_SOCIAL_IMAGE_GENERATOR_SETTINGS ]: function ( action ) {
 		return apiFetch( {
-			path: '/jetpack/v4/social-image-generator/settings',
+			path: '/wp/v2/settings',
 			method: 'POST',
-			data: action.settings,
+			data: {
+				jetpack_social_image_generator_settings: action.settings,
+			},
 		} );
 	},
-	[ FETCH_AUTO_CONVERSION_SETTINGS ]: function () {
-		return apiFetch( { path: '/jetpack/v4/auto-conversion/settings' } );
-	},
-	[ UPDATE_AUTO_CONVERSION_SETTINGS ]: function ( action ) {
+	[ FETCH_JETPACK_SOCIAL_SETTINGS ]: function () {
 		return apiFetch( {
-			path: '/jetpack/v4/auto-conversion/settings',
-			method: 'POST',
-			data: action.settings,
+			path: '/wp/v2/settings?_fields=jetpack_social_image_generator_settings',
 		} );
 	},
 };

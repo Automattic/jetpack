@@ -30,6 +30,7 @@
 function site_logo_init() {
 	// Only load our code if our theme declares support, and the standalone plugin is not activated.
 	if ( current_theme_supports( 'site-logo' ) && ! class_exists( 'Site_Logo', false ) ) {
+		_deprecated_hook( 'site-logo', '13.4', 'custom-logo', 'Jetpack no longer supports site-logo feature. Add custom-logo support to your theme instead: https://developer.wordpress.org/themes/functionality/custom-logo/' );
 		// Load our class for namespacing.
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			// wpcom handles the image sizes differently.

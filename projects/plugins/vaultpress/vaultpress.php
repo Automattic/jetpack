@@ -3,7 +3,7 @@
  * Plugin Name: VaultPress
  * Plugin URI: http://vaultpress.com/?utm_source=plugin-uri&amp;utm_medium=plugin-description&amp;utm_campaign=1.0
  * Description: Protect your content, themes, plugins, and settings with <strong>realtime backup</strong> and <strong>automated security scanning</strong> from <a href="http://vaultpress.com/?utm_source=wp-admin&amp;utm_medium=plugin-description&amp;utm_campaign=1.0" rel="nofollow">VaultPress</a>. Activate, enter your registration key, and never worry again. <a href="http://vaultpress.com/help/?utm_source=wp-admin&amp;utm_medium=plugin-description&amp;utm_campaign=1.0" rel="nofollow">Need some help?</a>
- * Version: 2.2.5-alpha
+ * Version: 3.0.0
  * Author: Automattic
  * Author URI: http://vaultpress.com/?utm_source=author-uri&amp;utm_medium=plugin-description&amp;utm_campaign=1.0
  * License: GPL2+
@@ -16,8 +16,8 @@
 // don't call the file directly.
 defined( 'ABSPATH' ) || die();
 
-define( 'VAULTPRESS__MINIMUM_PHP_VERSION', '5.6' );
-define( 'VAULTPRESS__VERSION', '2.2.5-alpha' );
+define( 'VAULTPRESS__MINIMUM_PHP_VERSION', '7.0' );
+define( 'VAULTPRESS__VERSION', '3.0.0' );
 define( 'VAULTPRESS__PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 
 /**
@@ -39,22 +39,40 @@ if ( is_readable( $loader ) ) {
 			)
 		);
 	}
+
+	// Add a red bubble notification to My Jetpack if the installation is bad.
+	add_filter(
+		'my_jetpack_red_bubble_notification_slugs',
+		function ( $slugs ) {
+			$slugs['vaultpress-plugin-bad-installation'] = array(
+				'data' => array(
+					'plugin' => 'VaultPress',
+				),
+			);
+
+			return $slugs;
+		}
+	);
+
 	/**
 	 * Outputs an admin notice for folks running VaultPress without having run `composer install`.
 	 */
 	function vaultpress_admin_missing_autoloader() {
-		?>
-		<div class="notice notice-error is-dismissible">
-			<p>
-				<?php
-					echo wp_kses(
-						__( 'Your installation of VaultPress is incomplete. If you installed it from GitHub, please run <code>composer install</code>.', 'vaultpress' ),
-						array( 'code' => true )
-					);
-				?>
-			</p>
-		</div>
-		<?php
+		if ( get_current_screen()->id !== 'plugins' ) {
+			return;
+		}
+
+		$message = wp_kses(
+			__( 'Your installation of VaultPress is incomplete. If you installed it from GitHub, please run <code>composer install</code>.', 'vaultpress' ),
+			array( 'code' => true )
+		);
+		wp_admin_notice(
+			$message,
+			array(
+				'type'        => 'error',
+				'dismissible' => true,
+			)
+		);
 	}
 	add_action( 'admin_notices', 'vaultpress_admin_missing_autoloader' );
 	return;

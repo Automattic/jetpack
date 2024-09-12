@@ -15,7 +15,7 @@ class Publicize_Setup {
 	/**
 	 * Whether to update the plan information from WPCOM when initialising the package.
 	 *
-	 * @var bool;
+	 * @var bool
 	 */
 	public static $refresh_plan_info = false;
 
@@ -42,9 +42,19 @@ class Publicize_Setup {
 		add_action( 'rest_api_init', array( new Connections_Post_Field(), 'register_fields' ), 5 );
 		add_action( 'rest_api_init', array( new REST_Controller(), 'register_rest_routes' ) );
 		add_action( 'current_screen', array( static::class, 'init_sharing_limits' ) );
-		add_action( 'rest_api_init', array( new Auto_Conversion\REST_Settings_Controller(), 'register_routes' ) );
+
+		add_action( 'rest_api_init', array( static::class, 'register_core_options' ) );
+		add_action( 'admin_init', array( static::class, 'register_core_options' ) );
 
 		( new Social_Image_Generator\Setup() )->init();
+	}
+
+	/**
+	 * Registers the core options for the Publicize package.
+	 */
+	public static function register_core_options() {
+		( new Jetpack_Social_Settings\Settings() )->register_settings();
+		( new Jetpack_Social_Settings\Dismissed_Notices() )->register();
 	}
 
 	/**

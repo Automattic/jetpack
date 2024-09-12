@@ -42,6 +42,6 @@ class Test_Odyssey_Config_Data extends Stats_Test_Case {
 		$this->assertArrayHasKey( 'nonce', $data );
 		$this->assertArrayHasKey( 'site_name', $data );
 		$this->assertArrayHasKey( 'intial_state', $data );
-		$this->assertEmpty( $data['features'] );
+		$this->assertArrayHasKey( 'is_running_in_jetpack_site', $data['features'] );
 	}
 }

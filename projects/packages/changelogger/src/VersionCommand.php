@@ -7,16 +7,18 @@
 
 namespace Automattic\Jetpack\Changelogger;
 
+use Automattic\Jetpack\Changelog\ChangeEntry;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use function Wikimedia\quietCall;
 
 /**
  * "Version" command for the changelogger tool CLI.
  */
+#[AsCommand( 'version', 'Displays versions from the changelog and change files' )]
 class VersionCommand extends Command {
 
 	/**
@@ -27,10 +29,17 @@ class VersionCommand extends Command {
 	protected static $defaultName = 'version';
 
 	/**
+	 * The default command description
+	 *
+	 * @var string|null
+	 */
+	protected static $defaultDescription = 'Displays versions from the changelog and change files';
+
+	/**
 	 * Configures the command.
 	 */
 	protected function configure() {
-		$this->setDescription( 'Displays versions from the changelog and change files' )
+		$this->setDescription( static::$defaultDescription )
 			->addArgument( 'which', InputArgument::REQUIRED, 'Version to fetch: <info>previous</>, <info>current</>, or <info>next</>' )
 			->addOption( 'use-version', null, InputOption::VALUE_REQUIRED, 'When fetching the next version, use this instead of the current version in the changelog' )
 			->addOption( 'use-significance', null, InputOption::VALUE_REQUIRED, 'When fetching the next version, use this significance instead of using the actual change files' )
@@ -62,7 +71,7 @@ EOF
 	 * @param ChangeEntry[] $changes Changes.
 	 * @param array         $extra Extra components for the version.
 	 * @return string $version
-	 * @throws InvalidArgumentException If something is wrong.
+	 * @throws \InvalidArgumentException If something is wrong.
 	 */
 	public static function getNextVersion( array $versions, array $changes, array $extra ) {
 		$versioning = Config::versioningPlugin();
@@ -112,7 +121,7 @@ EOF
 	 * @param OutputInterface $output OutputInterface.
 	 * @return int 0 if everything went fine, or an exit code.
 	 */
-	protected function execute( InputInterface $input, OutputInterface $output ) {
+	protected function execute( InputInterface $input, OutputInterface $output ): int {
 		try {
 			$formatter = Config::formatterPlugin();
 			$formatter->setIO( $input, $output );
@@ -139,7 +148,7 @@ EOF
 
 		// Read current versions, either from command line or changelog.
 		if ( 'next' === $which && $input->getOption( 'use-version' ) !== null ) {
-			$versions = array( $input->getOption( 'use-version' ) );
+			$versions = array( (string) $input->getOption( 'use-version' ) );
 		} else {
 			$file = Config::changelogFile();
 			if ( ! file_exists( $file ) ) {
@@ -147,8 +156,9 @@ EOF
 				return 1;
 			}
 
-			Utils::error_clear_last();
-			$contents = quietCall( 'file_get_contents', $file );
+			error_clear_last();
+			// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+			$contents = @file_get_contents( $file );
 			// @codeCoverageIgnoreStart
 			if ( ! is_string( $contents ) ) {
 				$err = error_get_last();
@@ -220,7 +230,8 @@ EOF
 		} else {
 			$dir = Config::changesDir();
 			if ( is_dir( $dir ) ) {
-				$changes = Utils::loadAllChanges( Config::changesDir(), Config::types(), $formatter, $output );
+				$dummy   = null;
+				$changes = Utils::loadAllChanges( Config::changesDir(), Config::types(), $formatter, $output, $dummy, array( 'skip-data' => true ) );
 			} else {
 				$output->writeln( '<warning>Changes directory does not exist</>' );
 				$changes = array();

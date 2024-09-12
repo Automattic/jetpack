@@ -17,6 +17,7 @@ use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authent
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
+use Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Dismissed_Notices;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
@@ -51,7 +52,8 @@ class Jetpack_Social {
 			_x( 'Social', 'The Jetpack Social product name, without the Jetpack prefix', 'jetpack-social' ),
 			'manage_options',
 			'jetpack-social',
-			array( $this, 'plugin_settings_page' )
+			array( $this, 'plugin_settings_page' ),
+			4
 		);
 
 		add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
@@ -103,16 +105,18 @@ class Jetpack_Social {
 				My_Jetpack_Initializer::init();
 			}
 		);
+		add_action( 'init', array( new Automattic\Jetpack\Social\Note(), 'init' ) );
 
 		$this->manager = $connection_manager ? $connection_manager : new Connection_Manager();
 
 		// Add REST routes
 		add_action( 'rest_api_init', array( new Automattic\Jetpack\Social\REST_Settings_Controller(), 'register_rest_routes' ) );
+		add_action( 'rest_api_init', array( new Automattic\Jetpack\Social\REST_Social_Note_Controller(), 'register_rest_routes' ) );
 
 		// Add block editor assets
-		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_block_editor_scripts' ) );
+		add_action( 'enqueue_block_assets', array( $this, 'enqueue_block_editor_scripts' ) );
 		// Adds the review prompt initial state
-		add_action( 'enqueue_block_editor_assets', array( $this, 'add_review_initial_state' ), 30 );
+		add_action( 'enqueue_block_assets', array( $this, 'add_review_initial_state' ), 30 );
 
 		// Add meta tags.
 		add_action( 'wp_head', array( new Automattic\Jetpack\Social\Meta_Tags(), 'render_tags' ) );
@@ -120,6 +124,8 @@ class Jetpack_Social {
 		add_filter( 'jetpack_get_available_standalone_modules', array( $this, 'social_filter_available_modules' ), 10, 1 );
 
 		add_filter( 'plugin_action_links_' . JETPACK_SOCIAL_PLUGIN_FOLDER . '/jetpack-social.php', array( $this, 'add_settings_link' ) );
+
+		add_shortcode( 'jp_shares_shortcode', array( $this, 'add_shares_shortcode' ) );
 	}
 
 	/**
@@ -224,42 +230,33 @@ class Jetpack_Social {
 				'apiNonce'          => wp_create_nonce( 'wp_rest' ),
 				'registrationNonce' => wp_create_nonce( 'jetpack-registration-nonce' ),
 				'siteSuffix'        => ( new Status() )->get_site_suffix(),
+				'blogID'            => Connection_Manager::get_site_id( true ),
 				'pluginVersion'     => $this->get_plugin_version(),
 			),
 		);
 
 		if ( $this->is_connected() ) {
-			$sig_settings             = new Automattic\Jetpack\Publicize\Social_Image_Generator\Settings();
-			$auto_conversion_settings = new Automattic\Jetpack\Publicize\Auto_Conversion\Settings();
+			$jetpack_social_settings = new Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Settings();
+			$initial_state           = $jetpack_social_settings->get_initial_state();
+
+			$note = new Automattic\Jetpack\Social\Note();
 
 			$state = array_merge(
 				$state,
 				array(
-					'jetpackSettings'              => array(
+					'jetpackSettings' => array(
 						'publicize_active'               => self::is_publicize_active(),
 						'show_pricing_page'              => self::should_show_pricing_page(),
 						'showNudge'                      => ! $publicize->has_paid_plan( true ),
 						'isEnhancedPublishingEnabled'    => $publicize->has_enhanced_publishing_feature(),
-						'dismissedNotices'               => $publicize->get_dismissed_notices(),
-						'isInstagramConnectionSupported' => $publicize->has_instagram_connection_feature(),
-						'isMastodonConnectionSupported'  => $publicize->has_mastodon_connection_feature(),
-						'isNextdoorConnectionSupported'  => $publicize->has_nextdoor_connection_feature(),
+						'dismissedNotices'               => Dismissed_Notices::get_dismissed_notices(),
+						'supportedAdditionalConnections' => $publicize->get_supported_additional_connections(),
+						'social_notes_enabled'           => $note->enabled(),
+						'social_notes_config'            => $note->get_config(),
 					),
-					'connectionData'               => array(
-						'connections' => $publicize->get_all_connections_for_user(), // TODO: Sanitize the array
-						'adminUrl'    => esc_url_raw( $publicize->publicize_connections_url( 'jetpack-social-connections-admin-page' ) ),
-					),
-					'sharesData'                   => $publicize->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) ),
-					'socialImageGeneratorSettings' => array(
-						'available'       => $sig_settings->is_available(),
-						'enabled'         => $sig_settings->is_enabled(),
-						'defaultTemplate' => $sig_settings->get_default_template(),
-					),
-					'autoConversionSettings'       => array(
-						'available' => $auto_conversion_settings->is_available( 'image' ),
-						'image'     => $auto_conversion_settings->is_enabled( 'image' ),
-					),
-				)
+					'sharesData'      => $publicize->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) ),
+				),
+				$initial_state
 			);
 		}
 
@@ -273,7 +270,7 @@ class Jetpack_Social {
 	 * It also caches the result to make sure that we don't call the API
 	 * more than once a request.
 	 *
-	 * @returns boolean True if the site has a plan that supports a higher share limit.
+	 * @return boolean True if the site has a plan that supports a higher share limit.
 	 */
 	public function has_paid_plan() {
 		static $has_plan = null;
@@ -296,10 +293,10 @@ class Jetpack_Social {
 	/**
 	 * Checks that we're connected, Publicize is active and that we're editing a post that supports it.
 	 *
-	 * @returns boolean True if the criteria are met.
+	 * @return boolean True if the criteria are met.
 	 */
 	public function should_enqueue_block_editor_scripts() {
-		return $this->is_connected() && self::is_publicize_active() && $this->is_supported_post();
+		return is_admin() && $this->is_connected() && self::is_publicize_active() && $this->is_supported_post();
 	}
 
 	/**
@@ -326,35 +323,44 @@ class Jetpack_Social {
 
 		Assets::enqueue_script( 'jetpack-social-editor' );
 
-		$sig_settings             = ( new Automattic\Jetpack\Publicize\Social_Image_Generator\Settings() );
-		$auto_conversion_settings = ( new Automattic\Jetpack\Publicize\Auto_Conversion\Settings() );
+		$jetpack_social_settings = new Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Settings();
+		$social_state            = $jetpack_social_settings->get_initial_state();
+
+		$initial_state = array(
+			'adminUrl'                        => esc_url_raw( admin_url( 'admin.php?page=jetpack-social' ) ),
+			'sharesData'                      => $publicize->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) ),
+			'connectionRefreshPath'           => ! empty( $social_state['useAdminUiV1'] ) ? 'jetpack/v4/publicize/connections?test_connections=1' : '/jetpack/v4/publicize/connection-test-results',
+			'resharePath'                     => '/jetpack/v4/publicize/{postId}',
+			'publicizeConnectionsUrl'         => esc_url_raw(
+				'https://jetpack.com/redirect/?source=jetpack-social-connections-block-editor&site='
+			),
+			'hasPaidPlan'                     => $publicize->has_paid_plan(),
+			'hasPaidFeatures'                 => $publicize->has_paid_features(),
+			'isEnhancedPublishingEnabled'     => $publicize->has_enhanced_publishing_feature(),
+			'isSocialImageGeneratorAvailable' => $social_state['socialImageGeneratorSettings']['available'],
+			'isSocialImageGeneratorEnabled'   => $social_state['socialImageGeneratorSettings']['enabled'],
+			'useAdminUiV1'                    => $social_state['useAdminUiV1'],
+			'dismissedNotices'                => Dismissed_Notices::get_dismissed_notices(),
+			'supportedAdditionalConnections'  => $publicize->get_supported_additional_connections(),
+			'userConnectionUrl'               => esc_url_raw( admin_url( 'admin.php?page=my-jetpack#/connection' ) ),
+		);
+
+		// Add connectionData if we are using the new Connection UI.
+		if ( $social_state['useAdminUiV1'] ) {
+			$initial_state['connectionData'] = $social_state['connectionData'];
+
+			$initial_state['connectionRefreshPath'] = $social_state['connectionRefreshPath'];
+		}
+
+		$initial_state['featureFlags'] = $social_state['featureFlags'];
 
 		wp_localize_script(
 			'jetpack-social-editor',
 			'Jetpack_Editor_Initial_State',
 			array(
 				'siteFragment' => ( new Status() )->get_site_suffix(),
-				'social'       => array(
-					'adminUrl'                        => esc_url_raw( admin_url( 'admin.php?page=jetpack-social' ) ),
-					'sharesData'                      => $publicize->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) ),
-					'connectionRefreshPath'           => '/jetpack/v4/publicize/connection-test-results',
-					'resharePath'                     => '/jetpack/v4/publicize/{postId}',
-					'publicizeConnectionsUrl'         => esc_url_raw(
-						'https://jetpack.com/redirect/?source=jetpack-social-connections-block-editor&site='
-					),
-					'hasPaidPlan'                     => $publicize->has_paid_plan(),
-					'isEnhancedPublishingEnabled'     => $publicize->has_enhanced_publishing_feature(),
-					'isSocialImageGeneratorAvailable' => $sig_settings->is_available(),
-					'isSocialImageGeneratorEnabled'   => $sig_settings->is_enabled(),
-					'autoConversionSettings'          => array(
-						'available' => $auto_conversion_settings->is_available( 'image' ),
-						'image'     => $auto_conversion_settings->is_enabled( 'image' ),
-					),
-					'dismissedNotices'                => $publicize->get_dismissed_notices(),
-					'isInstagramConnectionSupported'  => $publicize->has_instagram_connection_feature(),
-					'isMastodonConnectionSupported'   => $publicize->has_mastodon_connection_feature(),
-					'isNextdoorConnectionSupported'   => $publicize->has_nextdoor_connection_feature(),
-				),
+				'wpcomBlogId'  => Connection_Manager::get_site_id( true ),
+				'social'       => $initial_state,
 			)
 		);
 
@@ -435,7 +441,7 @@ class Jetpack_Social {
 	public function redirect_after_activation( $plugin ) {
 		if (
 			JETPACK_SOCIAL_PLUGIN_ROOT_FILE_RELATIVE_PATH === $plugin &&
-			\Automattic\Jetpack\Plugins_Installer::is_current_request_activating_plugin_from_plugins_screen( JETPACK_SOCIAL_PLUGIN_ROOT_FILE_RELATIVE_PATH )
+			( new \Automattic\Jetpack\Paths() )->is_current_request_activating_plugin_from_plugins_screen( JETPACK_SOCIAL_PLUGIN_ROOT_FILE_RELATIVE_PATH )
 		) {
 			wp_safe_redirect( esc_url( admin_url( 'admin.php?page=' . JETPACK_SOCIAL_PLUGIN_SLUG ) ) );
 			exit;
@@ -513,5 +519,12 @@ class Jetpack_Social {
 			array( '<a href="' . esc_url( admin_url( 'admin.php?page=' . JETPACK_SOCIAL_PLUGIN_SLUG ) ) . '">' . __( 'Settings', 'jetpack-social' ) . '</a>' ),
 			$actions
 		);
+	}
+
+	/**
+	 * Adds the shares shortcode.
+	 */
+	public function add_shares_shortcode() {
+		return Social_Shares::get_the_social_shares( get_the_ID() );
 	}
 }

@@ -1,6 +1,6 @@
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, check } from '@wordpress/icons';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import Alert from '../alert';
 import Button from '../button/index';
 import { CheckmarkIcon } from '../icons/index';
@@ -16,7 +16,7 @@ import type React from 'react';
  * Product Detail component.
  *
  * @param {ProductOfferProps} props - Component props.
- * @returns {React.ReactNode} - ProductOffer react component.
+ * @return {React.ReactNode} - ProductOffer react component.
  */
 const ProductOffer: React.FC< ProductOfferProps > = ( {
 	addProductUrl,
@@ -49,7 +49,7 @@ const ProductOffer: React.FC< ProductOfferProps > = ( {
 
 	return (
 		<div
-			className={ classnames( styles.wrapper, className, {
+			className={ clsx( styles.wrapper, className, {
 				[ styles[ 'is-bundle-card' ] ]: isBundle,
 				[ styles[ 'is-card' ] ]: isCard || isBundle, // is card when is bundle.
 			} ) }

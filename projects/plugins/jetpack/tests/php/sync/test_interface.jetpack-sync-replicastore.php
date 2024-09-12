@@ -72,6 +72,7 @@ class WP_Test_IJetpack_Sync_Replicastore extends TestCase {
 	 */
 	public function test_all_checksums_match() {
 		$this->markTestSkipped( 'Not a Valid E2E test.' );
+		// @phan-suppress-next-line PhanPluginUnreachableCode
 		$post           = self::$factory->post( 5 );
 		$second_post    = self::$factory->post( 10 );
 		$comment        = self::$factory->comment( 3, $post->ID );
@@ -959,6 +960,7 @@ class WP_Test_IJetpack_Sync_Replicastore extends TestCase {
 	 */
 	public function test_replica_delete_post_terms( $store ) {
 		$this->markTestIncomplete( 'contains SQL' );
+		// @phan-suppress-next-line PhanPluginUnreachableCode
 		global $wpdb;
 		$taxonomy = 'test_shadow_taxonomy_term';
 

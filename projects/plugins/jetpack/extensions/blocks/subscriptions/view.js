@@ -1,10 +1,8 @@
-/* global tb_show */
-
 import './view.scss';
 import '../../shared/memberships.scss';
 
 import domReady from '@wordpress/dom-ready';
-import { handleIframeResult } from '../../shared/memberships';
+import { showModal, spinner } from '../../shared/memberships';
 
 // @ts-ignore
 function show_iframe_retrieve_subscriptions_from_email() {
@@ -35,15 +33,7 @@ function show_iframe( data ) {
 
 	const url = 'https://subscribe.wordpress.com/memberships/?' + params.toString();
 
-	window.scrollTo( 0, 0 );
-	tb_show( null, url + '&TB_iframe=true', null );
-
-	window.addEventListener( 'message', handleIframeResult, false );
-	const tbWindow = document.querySelector( '#TB_window' );
-	tbWindow.classList.add( 'jetpack-memberships-modal' );
-
-	// This line has to come after the Thickbox has opened otherwise Firefox doesnt scroll to the top.
-	window.scrollTo( 0, 0 );
+	return showModal( url );
 }
 
 domReady( function () {
@@ -55,39 +45,63 @@ domReady( function () {
 		} );
 	}
 
-	const form = document.querySelector( '.wp-block-jetpack-subscriptions__container form' );
-	if ( ! form ) {
-		return;
-	}
-	if ( ! form.payments_attached ) {
-		form.payments_attached = true;
-		form.addEventListener( 'submit', function ( event ) {
-			if ( form.resubmitted ) {
-				return;
-			}
+	const forms = document.querySelectorAll( '.wp-block-jetpack-subscriptions__container form' );
+	forms.forEach( form => {
+		if ( ! form.payments_attached ) {
+			form.payments_attached = true;
 
-			const emailInput = form.querySelector( 'input[type=email]' );
-			const email = emailInput ? emailInput.value : form.dataset.subscriber_email;
+			const button = form.querySelector( 'button[type="submit"]' );
 
-			if ( ! email ) {
-				return;
-			}
+			// Injects loading animation in hidden state
+			button.insertAdjacentHTML( 'beforeend', spinner );
 
-			event.preventDefault();
+			form.addEventListener( 'submit', function ( event ) {
+				if ( form.resubmitted ) {
+					return;
+				}
 
-			const post_id = form.querySelector( 'input[name=post_id]' )?.value ?? '';
-			const tier_id = form.querySelector( 'input[name=tier_id]' )?.value ?? '';
+				button.classList.add( 'is-loading' );
+				button.setAttribute( 'aria-busy', 'true' );
+				button.setAttribute( 'aria-live', 'polite' );
 
-			show_iframe( {
-				email,
-				post_id,
-				tier_id,
-				blog: form.dataset.blog,
-				plan: 'newsletter',
-				source: 'jetpack_subscribe',
-				post_access_level: form.dataset.post_access_level,
-				display: 'alternate',
+				// If email is empty, we will ask for it in the modal that opens
+				// Email input can be hidden for "button only style" for example.
+				let email = form.querySelector( 'input[type=email]' )?.value ?? '';
+
+				// Fallback to provided email from the logged in user when set
+				if ( ! email && form.dataset.subscriber_email ) {
+					// eslint-disable-next-line no-console
+					email = form.dataset.subscriber_email;
+				}
+
+				const action = form.querySelector( 'input[name=action]' ).value;
+
+				if ( action === 'subscribe' ) {
+					event.preventDefault();
+
+					const post_id = form.querySelector( 'input[name=post_id]' )?.value ?? '';
+					const tier_id = form.querySelector( 'input[name=tier_id]' )?.value ?? '';
+					const app_source = form.querySelector( 'input[name=app_source]' )?.value ?? '';
+
+					show_iframe( {
+						email,
+						post_id,
+						tier_id,
+						blog: form.dataset.blog,
+						plan: 'newsletter',
+						source: 'jetpack_subscribe',
+						app_source,
+						post_access_level: form.dataset.post_access_level,
+						display: 'alternate',
+					} ).then( () => {
+						// Allows hiding other modals when the subscription modal/iframe shows up, e.g. hiding the subscription overlay modal
+						form.dispatchEvent( new Event( 'subscription-modal-loaded' ) );
+
+						button.classList.remove( 'is-loading' );
+						button.setAttribute( 'aria-busy', 'false' );
+					} );
+				}
 			} );
-		} );
-	}
+		}
+	} );
 } );

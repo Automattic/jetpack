@@ -1,4 +1,4 @@
-import { __experimentalUseGradient as useGradient } from '@wordpress/block-editor'; // eslint-disable-line wpcalypso/no-unsafe-wp-apis
+import { __experimentalUseGradient as useGradient } from '@wordpress/block-editor'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 
 export const IS_GRADIENT_AVAILABLE = !! useGradient;
 

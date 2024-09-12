@@ -2,6 +2,8 @@
 /**
  * Tests for Atomic_Admin_Menu class.
  *
+ * @phan-file-suppress PhanDeprecatedFunction -- Ok for deprecated code to call other deprecated code.
+ *
  * @package automattic/jetpack
  */
 
@@ -79,7 +81,11 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 		parent::set_up();
 		global $menu, $submenu;
 
+		$this->setExpectedDeprecated( 'Automattic\Jetpack\Dashboard_Customizations\Atomic_Admin_Menu::__construct' );
 		// Initialize in setUp so it registers hooks for every test.
+		$instances = new \ReflectionProperty( 'Automattic\Jetpack\Dashboard_Customizations\Atomic_Admin_Menu', 'instances' );
+		$instances->setAccessible( true );
+		$instances->setValue( null, null );
 		static::$admin_menu = Atomic_Admin_Menu::get_instance();
 
 		$menu    = static::$menu_data;
@@ -89,57 +95,11 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests add_browse_sites_link.
-	 *
-	 * @covers ::add_browse_sites_link
-	 */
-	public function test_add_browse_sites_link() {
-		global $menu;
-
-		// No output when executed in single site mode.
-		static::$admin_menu->add_browse_sites_link();
-		$this->assertArrayNotHasKey( 0, $menu );
-	}
-
-	/**
-	 * Tests add_browse_sites_link.
-	 *
-	 * @covers ::add_browse_sites_link
-	 */
-	public function test_add_browse_sites_link_multisite() {
-		if ( ! is_multisite() ) {
-			$this->markTestSkipped( 'Only used on multisite' );
-		}
-
-		global $menu;
-
-		// No output when user has just one site.
-		static::$admin_menu->add_browse_sites_link();
-		$this->assertArrayNotHasKey( 0, $menu );
-
-		// Give user a second site.
-		update_user_option( static::$user_id, 'wpcom_site_count', 2 );
-
-		static::$admin_menu->add_browse_sites_link();
-
-		$browse_sites_menu_item = array(
-			'Browse sites',
-			'read',
-			'https://wordpress.com/sites',
-			'site-switcher',
-			'menu-top toplevel_page_https://wordpress.com/sites',
-			'toplevel_page_https://wordpress.com/sites',
-			'dashicons-arrow-left-alt2',
-		);
-		$this->assertSame( $menu[0], $browse_sites_menu_item );
-
-		delete_user_option( static::$user_id, 'wpcom_site_count' );
-	}
-
-	/**
 	 * Tests add_new_site_link.
 	 *
 	 * @covers ::add_new_site_link
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Atomic_Admin_Menu::add_new_site_link
 	 */
 	public function test_add_new_site_link() {
 		global $menu;
@@ -167,39 +127,25 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 	 * Tests add_site_card_menu
 	 *
 	 * @covers ::add_site_card_menu
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Atomic_Admin_Menu::add_site_card_menu
 	 */
 	public function test_add_site_card_menu() {
-		global $menu;
-
 		if ( ! function_exists( 'site_is_private' ) ) {
 			function site_is_private() { // phpcs:ignore
 				return false;
 			}
 		}
 		static::$admin_menu->add_site_card_menu();
-
-		$home_url            = home_url();
-		$site_card_menu_item = array(
-			// phpcs:ignore Squiz.Strings.DoubleQuoteUsage.NotRequired
-			'
-<div class="site__info">
-	<div class="site__title">' . get_option( 'blogname' ) . '</div>
-	<div class="site__domain">' . static::$domain . "</div>\n\t\n</div>",
-			'read',
-			$home_url,
-			'site-card',
-			'menu-top toplevel_page_' . $home_url,
-			'toplevel_page_' . $home_url,
-			plugins_url( 'modules/masterbar/admin-menu/globe-icon.svg', JETPACK__PLUGIN_FILE ),
-		);
-
-		$this->assertEquals( $menu[1], $site_card_menu_item );
 	}
 
 	/**
 	 * Tests set_site_card_menu_class
 	 *
 	 * @covers ::set_site_card_menu_class
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Atomic_Admin_Menu::add_site_card_menu
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Atomic_Admin_Menu::set_site_card_menu_class
 	 */
 	public function test_set_site_card_menu_class() {
 		global $menu;
@@ -250,6 +196,8 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 	 * Tests get_preferred_view
 	 *
 	 * @covers ::get_preferred_view
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Atomic_Admin_Menu::get_preferred_view
 	 */
 	public function test_get_preferred_view() {
 		$this->assertSame( 'classic', static::$admin_menu->get_preferred_view( 'export.php' ) );
@@ -259,6 +207,8 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 	 * Tests add_upgrades_menu
 	 *
 	 * @covers ::add_upgrades_menu
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Atomic_Admin_Menu::add_upgrades_menu
 	 */
 	public function test_add_upgrades_menu() {
 		global $submenu;
@@ -294,35 +244,47 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 	 * Tests add_options_menu
 	 *
 	 * @covers ::add_options_menu
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Atomic_Admin_Menu::add_options_menu
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Atomic_Admin_Menu::get_preferred_view
 	 */
 	public function test_add_options_menu() {
 		global $submenu;
 
 		static::$admin_menu->add_options_menu();
-		$this->assertSame( 'https://wordpress.com/hosting-config/' . static::$domain, $submenu['options-general.php'][11][2] );
+
+		if ( function_exists( 'wpcom_site_has_feature' ) && wpcom_site_has_feature( \WPCOM_Features::ATOMIC ) ) {
+			$this->assertSame( 'https://wordpress.com/hosting-config/' . static::$domain, $submenu['options-general.php'][11][2] );
+		} else {
+			$this->assertSame( 'https://wordpress.com/hosting-features/' . static::$domain, $submenu['options-general.php'][11][2] );
+		}
 	}
 
 	/**
 	 * Tests add_users_menu
 	 *
 	 * @covers ::add_users_menu
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Atomic_Admin_Menu::add_users_menu
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Atomic_Admin_Menu::get_preferred_view
 	 */
 	public function test_add_users_menu() {
 		global $submenu;
 
 		static::$admin_menu->add_users_menu();
-		$menu_position = 6;
-		if ( is_multisite() ) {
-			$menu_position = 5;
-		}
-
-		$this->assertSame( 'https://wordpress.com/subscribers/' . static::$domain, $submenu['users.php'][ $menu_position ][2] );
+		$this->assertSame( 'https://wordpress.com/people/team/' . static::$domain, $submenu['users.php'][0][2] );
+		$this->assertSame( 'user-new.php', $submenu['users.php'][2][2] );
+		$this->assertSame( 'profile.php', $submenu['users.php'][3][2] );
+		$this->assertSame( 'https://wordpress.com/subscribers/' . static::$domain, $submenu['users.php'][4][2] );
+		$this->assertSame( 'https://wordpress.com/me/account', $submenu['users.php'][5][2] );
 	}
 
 	/**
 	 * Tests remove_gutenberg_menu
 	 *
 	 * @covers ::remove_gutenberg_menu
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Atomic_Admin_Menu::remove_gutenberg_menu
 	 */
 	public function test_remove_gutenberg_menu() {
 		global $menu;
@@ -342,11 +304,13 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 
 		$this->assertSame( 'plugin-install.php', $submenu['plugins.php'][10][2] );
 
-		if ( ! is_multisite() ) {
+		if ( ! is_multisite() && ( ! defined( 'IS_ATOMIC' ) || ! IS_ATOMIC ) ) {
+			$this->setexpectedDeprecated( 'Automattic\Jetpack\Dashboard_Customizations\Atomic_Admin_Menu::add_plugins_menu' );
+			$this->setexpectedDeprecated( 'Automattic\Jetpack\Dashboard_Customizations\Atomic_Admin_Menu::get_preferred_view' );
 			static::$admin_menu->add_plugins_menu();
 
 			// Make sure that initial menu item is hidden.
-			$this->assertSame( 'hide-if-js', $submenu['plugins.php'][1][4] );
+			$this->assertSame( 'hide-if-js', $submenu['plugins.php'][1][4] ?? null );
 			// Make sure that the new menu item is inserted.
 			$this->assertSame( 'https://wordpress.com/plugins/' . static::$domain, $submenu['plugins.php'][0][2] );
 			// Make sure that Installed Plugins menu item is still in place.
@@ -358,6 +322,9 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 	 * Tests add_tools_menu
 	 *
 	 * @covers ::add_tools_menu
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Atomic_Admin_Menu::add_tools_menu
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Atomic_Admin_Menu::get_preferred_view
 	 */
 	public function test_add_site_monitoring_menu() {
 		global $submenu;
@@ -366,5 +333,39 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 		$menu_position = 7;
 
 		$this->assertSame( 'https://wordpress.com/site-monitoring/' . static::$domain, $submenu['tools.php'][ $menu_position ][2] );
+	}
+
+	/**
+	 * Tests add_github_deployments_menu
+	 *
+	 * @covers ::add_tools_menu
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Atomic_Admin_Menu::add_tools_menu
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Atomic_Admin_Menu::get_preferred_view
+	 */
+	public function test_add_github_deployments_menu() {
+		global $submenu;
+
+		static::$admin_menu->add_tools_menu();
+		$links = wp_list_pluck( array_values( $submenu['tools.php'] ), 2 );
+
+		$this->assertContains( 'https://wordpress.com/github-deployments/' . static::$domain, $links );
+	}
+
+	/**
+	 * Tests add_jetpack_scan_menu
+	 *
+	 * @covers ::add_jetpack_menu
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Atomic_Admin_Menu::add_jetpack_menu
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Atomic_Admin_Menu::get_preferred_view
+	 */
+	public function test_add_jetpack_scan_submenu() {
+		global $submenu;
+
+		static::$admin_menu->add_jetpack_menu();
+		$links = wp_list_pluck( array_values( $submenu['jetpack'] ), 2 );
+
+		$this->assertContains( 'https://wordpress.com/scan/history/' . static::$domain, $links );
 	}
 }

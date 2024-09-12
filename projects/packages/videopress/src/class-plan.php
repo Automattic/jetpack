@@ -88,8 +88,8 @@ class Plan {
 	/**
 	 * Populate the pricing array with the discount information.
 	 *
-	 * @param {object} $product - The product object.
-	 * @return {integer} Discount percentage.
+	 * @param object $product - The product object.
+	 * @return int|false Discount percentage.
 	 */
 	public static function get_coupon_discount( $product ) {
 		// Check whether the product has a coupon.

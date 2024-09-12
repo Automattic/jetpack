@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Migration;
 
 use Automattic\Jetpack\Connection\Client;
+use WP_Error;
 
 /**
  * Makes REST API Endpoints for Migration
@@ -71,7 +72,7 @@ class REST_Controller {
 			'wpcom-migration'
 		);
 
-		return new \WP_Error( 'rest_forbidden', $error_msg, array( 'status' => rest_authorization_required_code() ) );
+		return new WP_Error( 'rest_forbidden', $error_msg, array( 'status' => rest_authorization_required_code() ) );
 	}
 
 	/**
@@ -91,7 +92,7 @@ class REST_Controller {
 			return $body;
 		}
 
-		return new \WP_Error(
+		return new WP_Error(
 			isset( $body['error'] ) ? 'remote-error-' . $body['error'] : 'remote-error',
 			isset( $body['message'] ) ? $body['message'] : 'unknown remote error',
 			array( 'status' => $status_code )

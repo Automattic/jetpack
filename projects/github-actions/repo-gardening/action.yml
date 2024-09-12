@@ -52,6 +52,14 @@ inputs:
     description: "URL of the GitHub project board to update"
     required: false
     default: ""
+  labels_team_assignments:
+    description: "Mapping of team assignments for labels"
+    required: false
+    default: ""
+  openai_api_key:
+    description: "OpenAI API key"
+    required: false
+    default: ""
 runs:
-  using: node16
+  using: node20
   main: "dist/index.js"

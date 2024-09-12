@@ -41,7 +41,7 @@ jest.spyOn( window.HTMLMediaElement.prototype, 'pause' ).mockImplementation( () 
  * Helper method to set up the user event.
  *
  * @param {ReactElement} jsx - The element to render.
- * @returns {object} An object with the user method and everything from the render method.
+ * @return {object} An object with the user method and everything from the render method.
  */
 const setup = async jsx => ( {
 	user: await userEvent.setup(),
@@ -91,14 +91,14 @@ describe( 'MediaPicker', () => {
 		await expect( screen.findByText( /Choose Media/i ) ).resolves.toBeInTheDocument();
 		await expect( screen.findByText( /Add an image or video/i ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByTestId( 'spinner' ) ).not.toBeInTheDocument();
-		expect( screen.queryByRole( 'img' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'presentation' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'should render a preview if an image is selected', async () => {
 		render( <MediaPickerMock detailsMock={ DUMMY_IMAGE_DETAILS } mediaIdMock={ 1 } /> );
 
 		await expect( screen.findByText( /Remove media/i ) ).resolves.toBeInTheDocument();
-		await expect( screen.findByRole( 'img' ) ).resolves.toBeInTheDocument();
+		await expect( screen.findByRole( 'presentation' ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByText( /Choose Media/i ) ).not.toBeInTheDocument();
 		expect( screen.queryByText( /Add an image or video/i ) ).not.toBeInTheDocument();
 		expect( screen.queryByTestId( 'spinner' ) ).not.toBeInTheDocument();

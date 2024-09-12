@@ -14,11 +14,11 @@ add_filter( 'pre_http_request', 'e2e_intercept_waf_data_request', 1, 3 );
 /**
  * Intercept WPCOM waf data request and replaces it with mocked data
  *
- * @param result $return result.
- * @param r      $r not used.
- * @param string $url request URL.
+ * @param false|array|WP_Error $return result.
+ * @param array                $_parsed_args not used.
+ * @param string               $url request URL.
  */
-function e2e_intercept_waf_data_request( $return, $r, $url ) {
+function e2e_intercept_waf_data_request( $return, $_parsed_args, $url ) {
 	if ( ! class_exists( 'Jetpack_Options' ) ) {
 		return $return;
 	}

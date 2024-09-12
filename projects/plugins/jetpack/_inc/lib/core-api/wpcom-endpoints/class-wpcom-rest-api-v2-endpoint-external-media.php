@@ -7,6 +7,7 @@
  */
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\Manager;
 
 /**
  * External Media helper API.
@@ -368,19 +369,37 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 	 * @return array|\WP_Error|mixed
 	 */
 	public function get_connection_details( \WP_REST_Request $request ) {
-		$service    = rawurlencode( $request->get_param( 'service' ) );
-		$wpcom_path = sprintf( '/meta/external-media/connection/%s', $service );
+		$service = $request->get_param( 'service' );
 
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$wpcom_path       = sprintf( '/meta/external-media/connection/%s', rawurlencode( $service ) );
 			$internal_request = new \WP_REST_Request( 'GET', '/' . $this->namespace . $wpcom_path );
 			$internal_request->set_query_params( $request->get_params() );
 
 			return rest_do_request( $internal_request );
 		}
 
-		$response = Client::wpcom_json_api_request_as_user( $wpcom_path );
+		$site_id = Manager::get_site_id();
+		if ( is_wp_error( $site_id ) ) {
+			return $site_id;
+		}
 
-		return json_decode( wp_remote_retrieve_body( $response ), true );
+		$path     = sprintf( '/sites/%d/external-services', $site_id );
+		$response = Client::wpcom_json_api_request_as_user( $path );
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		$body = json_decode( wp_remote_retrieve_body( $response ) );
+		if ( ! property_exists( $body, 'services' ) || ! property_exists( $body->services, $service ) ) {
+			return new WP_Error(
+				'bad_request',
+				__( 'An error occurred. Please try again later.', 'jetpack' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		return $body->services->{ $service };
 	}
 
 	/**

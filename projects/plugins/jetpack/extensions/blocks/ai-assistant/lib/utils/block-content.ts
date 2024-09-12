@@ -1,20 +1,19 @@
 /**
  * External dependencies
  */
-import { getBlockContent } from '@wordpress/blocks';
-import { serialize } from '@wordpress/blocks';
+import { renderMarkdownFromHTML } from '@automattic/jetpack-ai-client';
+import { getBlockContent, serialize } from '@wordpress/blocks';
 import { select } from '@wordpress/data';
 /**
  * Internal dependencies
  */
-import turndownService from '../turndown';
 
 /**
  * Returns partial content from the beginning of the post
  * to the current block, based on the given block clientId.
  *
  * @param {string} clientId - The current block clientId.
- * @returns {string}          The partial content.
+ * @return {string}          The partial content.
  */
 export function getPartialContentToBlock( clientId: string ): string {
 	if ( ! clientId ) {
@@ -29,14 +28,14 @@ export function getPartialContentToBlock( clientId: string ): string {
 		return '';
 	}
 
-	return turndownService.turndown( serialize( blocks ) );
+	return renderMarkdownFromHTML( { content: serialize( blocks ) } );
 }
 
 /**
  * Returns content from all blocks,
  * by inspecting the blocks `content` attributes
  *
- * @returns {string} The content.
+ * @return {string} The content.
  */
 export function getContentFromBlocks(): string {
 	const editor = select( 'core/block-editor' );
@@ -46,26 +45,41 @@ export function getContentFromBlocks(): string {
 		return '';
 	}
 
-	return turndownService.turndown( serialize( blocks ) );
+	return renderMarkdownFromHTML( { content: serialize( blocks ) } );
 }
 
+/**
+ * Given a list of blocks, it returns their content as a string.
+ * @param {Array} blocks - The list of blocks.
+ * @return {string}       The content of the blocks as a string.
+ */
+export function getBlocksContent( blocks ) {
+	return blocks
+		.filter( block => block != null ) // Safeguard against null or undefined blocks
+		.map( block => getBlockContent( block ) )
+		.join( '\n\n' );
+}
+
+/**
+ * Returns the text content of the inner blocks of a block.
+ *
+ * @param {string} clientId - The block clientId.
+ * @return {string}          The text content.
+ */
 export function getTextContentFromInnerBlocks( clientId: string ) {
 	const block = select( 'core/block-editor' ).getBlock( clientId );
 	if ( ! block?.innerBlocks?.length ) {
 		return '';
 	}
 
-	return block.innerBlocks
-		.filter( blq => blq != null ) // Safeguard against null or undefined blocks
-		.map( blq => getBlockContent( blq.clientId ) )
-		.join( '\n\n' );
+	return getBlocksContent( block.innerBlocks );
 }
 
 /**
  * Extract raw text from HTML content
  *
  * @param {string} htmlString - The HTML content.
- * @returns {string}            The raw text.
+ * @return {string}            The raw text.
  */
 export function getRawTextFromHTML( htmlString: string ): string {
 	// Removes all continuous whitespace from the start to check if the string is empty

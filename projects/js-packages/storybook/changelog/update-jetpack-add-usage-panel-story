@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Storybook: register ./extensions folder of the Jetpack plugin project

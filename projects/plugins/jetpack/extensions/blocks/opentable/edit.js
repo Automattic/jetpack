@@ -3,7 +3,11 @@ import {
 	isSimpleSite,
 	getBlockIconComponent,
 } from '@automattic/jetpack-shared-extension-utils';
-import { InspectorControls, InspectorAdvancedControls } from '@wordpress/block-editor';
+import {
+	InspectorControls,
+	InspectorAdvancedControls,
+	useBlockProps,
+} from '@wordpress/block-editor';
 import {
 	getBlockDefaultClassName,
 	registerBlockStyle,
@@ -19,7 +23,7 @@ import {
 } from '@wordpress/components';
 import { useEffect } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import { isEmpty, isEqual, join } from 'lodash';
 import { getActiveStyleName } from '../../shared/block-styles';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
@@ -36,7 +40,6 @@ const icon = getBlockIconComponent( metadata );
 
 function OpenTableEdit( {
 	attributes,
-	className,
 	clientId,
 	isSelected,
 	name,
@@ -44,6 +47,8 @@ function OpenTableEdit( {
 	noticeUI,
 	setAttributes,
 } ) {
+	const blockProps = useBlockProps();
+
 	const defaultClassName = getBlockDefaultClassName( name );
 	const validatedAttributes = getValidatedAttributes( metadata.attributes, attributes );
 
@@ -241,9 +246,8 @@ function OpenTableEdit( {
 		</Placeholder>
 	);
 
-	const editClasses = classnames( className, {
-		[ `is-style-${ style }` ]:
-			! isPlaceholder && styleValues.includes( style ) && className.indexOf( 'is-style' ) === -1,
+	const editClasses = clsx( {
+		[ `is-style-${ style }` ]: ! isPlaceholder && styleValues.includes( style ),
 		'is-placeholder': isPlaceholder,
 		'is-multi': 'multi' === getTypeAndTheme( style )[ 0 ],
 		[ `align${ align }` ]: align,
@@ -251,13 +255,13 @@ function OpenTableEdit( {
 	} );
 
 	return (
-		<>
+		<div { ...blockProps }>
 			{ noticeUI }
 			<div className={ editClasses }>
 				{ ! isPlaceholder && inspectorControls }
 				{ ! isPlaceholder ? blockPreview() : blockPlaceholder }
 			</div>
-		</>
+		</div>
 	);
 }
 

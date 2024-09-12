@@ -4,7 +4,7 @@ import { useConnection } from '@automattic/jetpack-connection';
 import { useSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import Button from 'components/button';
 import Card from 'components/card';
 import CompactFormToggle from 'components/form-toggle/compact';
@@ -30,21 +30,21 @@ const WIDGETS_EDITOR_URL = 'widgets.php';
 /**
  * Search settings component to be used within the Performance section.
  *
- * @param {object} props - Component properties.
- * @param {string} props.domain - Calypso slug.
- * @param {string} props.siteAdminUrl - site admin URL.
- * @param {Function} props.updateOptions - function to update settings.
- * @param {boolean} props.isDisabledFromOverLimit - true if the subscription is invalid to manipulate controls.
- * @param {boolean} props.isSavingEitherOption - true if Saving options.
- * @param {boolean} props.isModuleEnabled - true if Search module is enabled.
- * @param {boolean} props.isInstantSearchEnabled - true if Instant Search is enabled.
- * @param {boolean} props.isInstantSearchPromotionActive - true if search promotion is active.
- * @param {boolean} props.supportsOnlyClassicSearch - true if site has plan that supports only Classic Search.
- * @param {boolean} props.supportsSearch - true if site has plan that supports either Classic or Instant Search.
- * @param {boolean} props.supportsInstantSearch - true if site has plan that supports Instant Search.
- * @param {boolean} props.isTogglingModule - true if toggling Search module.
- * @param {boolean} props.isTogglingInstantSearch - true if toggling Instant Search option.
- * @returns {React.Component}	Search settings component.
+ * @param {object}   props                                - Component properties.
+ * @param {string}   props.domain                         - Calypso slug.
+ * @param {string}   props.siteAdminUrl                   - site admin URL.
+ * @param {Function} props.updateOptions                  - function to update settings.
+ * @param {boolean}  props.isDisabledFromOverLimit        - true if the subscription is invalid to manipulate controls.
+ * @param {boolean}  props.isSavingEitherOption           - true if Saving options.
+ * @param {boolean}  props.isModuleEnabled                - true if Search module is enabled.
+ * @param {boolean}  props.isInstantSearchEnabled         - true if Instant Search is enabled.
+ * @param {boolean}  props.isInstantSearchPromotionActive - true if search promotion is active.
+ * @param {boolean}  props.supportsOnlyClassicSearch      - true if site has plan that supports only Classic Search.
+ * @param {boolean}  props.supportsSearch                 - true if site has plan that supports either Classic or Instant Search.
+ * @param {boolean}  props.supportsInstantSearch          - true if site has plan that supports Instant Search.
+ * @param {boolean}  props.isTogglingModule               - true if toggling Search module.
+ * @param {boolean}  props.isTogglingInstantSearch        - true if toggling Instant Search option.
+ * @return {React.Component} Search settings component.
  */
 export default function SearchModuleControl( {
 	siteAdminUrl,
@@ -61,7 +61,6 @@ export default function SearchModuleControl( {
 	isTogglingModule,
 	isTogglingInstantSearch,
 } ) {
-	const adminUrl = useSelect( select => select( STORE_ID ).getSiteAdminUrl(), [] );
 	const { isUserConnected } = useConnection( {
 		redirectUri: 'admin.php?page=jetpack-search',
 		from: 'jetpack-search',
@@ -70,7 +69,7 @@ export default function SearchModuleControl( {
 	const upgradeUrl = getProductCheckoutUrl(
 		'jetpack_search_free',
 		domain,
-		`${ adminUrl }admin.php?page=jetpack-search`,
+		`admin.php?page=jetpack-search`,
 		isUserConnected || isWpcom
 	);
 
@@ -112,13 +111,13 @@ export default function SearchModuleControl( {
 
 	return (
 		<div
-			className={ classNames( {
+			className={ clsx( {
 				'jp-form-settings-group jp-form-search-settings-group': true,
 				'jp-form-search-settings-group--disabled': isDisabledFromOverLimit,
 			} ) }
 		>
 			<Card
-				className={ classNames( {
+				className={ clsx( {
 					'jp-form-has-child': true,
 				} ) }
 			>

@@ -54,8 +54,8 @@ class Quote_Trigger_Test extends JPCRM_Base_Test_Case {
 		$workflow->expects( $this->once() )
 		->method( 'execute' )
 		->with(
-			$this->equalTo( $trigger ),
-			$this->equalTo( $quote_data )
+			$trigger,
+			$quote_data
 		);
 
 		// Run the quote_update action.
@@ -88,8 +88,8 @@ class Quote_Trigger_Test extends JPCRM_Base_Test_Case {
 		$workflow->expects( $this->once() )
 		->method( 'execute' )
 		->with(
-			$this->equalTo( $trigger ),
-			$this->equalTo( $quote_data )
+			$trigger,
+			$quote_data
 		);
 
 		// Run the quote_status_update action.
@@ -122,8 +122,8 @@ class Quote_Trigger_Test extends JPCRM_Base_Test_Case {
 		$workflow->expects( $this->once() )
 		->method( 'execute' )
 		->with(
-			$this->equalTo( $trigger ),
-			$this->equalTo( $quote_data )
+			$trigger,
+			$quote_data
 		);
 
 		// Run the quote_created action.
@@ -156,8 +156,8 @@ class Quote_Trigger_Test extends JPCRM_Base_Test_Case {
 		$workflow->expects( $this->once() )
 		->method( 'execute' )
 		->with(
-			$this->equalTo( $trigger ),
-			$this->equalTo( $quote_data )
+			$trigger,
+			$quote_data
 		);
 
 		// Notify the quote_accepted event.
@@ -190,8 +190,8 @@ class Quote_Trigger_Test extends JPCRM_Base_Test_Case {
 		$workflow->expects( $this->once() )
 		->method( 'execute' )
 		->with(
-			$this->equalTo( $trigger ),
-			$this->equalTo( $quote_data )
+			$trigger,
+			$quote_data
 		);
 
 		// Run the quote_deleted action.

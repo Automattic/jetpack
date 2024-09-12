@@ -5,6 +5,79 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.1.0] - 2024-08-29
+### Added
+- Auto-labeling: label changes to the WooCommerce Analytics package. [#36281]
+- Repo Gardening: Check if PR owner is a member of the organization to determine if they're an OSS Citizen [#36860]
+
+### Changed
+- Auto-labeling: label changes to the Calypsoify package [#37320]
+- Auto-labeling: label changes to the Classic Theme Helper package. [#37232]
+- Auto-labeling: label changes to the Google Analytics package. [#37205]
+- Auto-labeling: label changes to the Masterbar feature in the Masterbar package. [#37309]
+- Auto-labeling: label changes to the SSO feature in the Connection package. [#36954]
+- Board triage: update board used to triage Stats issues. [#37484]
+- Board triage management: update My Jetpack owners. [#35602]
+- Check Descriptions task: Ignore automated stub update PRs. [#36830]
+- Check PR description: update PR review workflow explanation to be clearer. [#38881]
+- Check PR description: update PR review workflow explanation to have correct markdown indent [#38920]
+- Tasks: run the Board update task before other tasks. [#35723]
+- Triage: update alert word for Jetpack Developer Ambassadors guild [#37432]
+- Updated package dependencies. [#36757] [#37706]
+
+### Removed
+- Check description task: Remove general guessing of release dates and code freezes. Add special casing for wpcomsh and mu-wpcom-plugin. [#38462]
+
+### Fixed
+- Boost: Fix [Boost Feature] labels [#35947]
+- Check description task: Handle empty PR body. [#36446]
+- Repo Gardening: fix workflow for adding [OSS Citizen] label. [#37252]
+- WPCOM Commit Reminder rask: Fix detection of existing reminder comment. [#39042]
+
+## [5.0.0] - 2024-02-07
+### Added
+- Auto-label features in the mu-wpcom package. [#32221]
+- Board triage: automate triage of Verbum-related issues. [#35326]
+- Board triage task: automatically add issues classified as bugs to the project board. [#33493]
+- Gather Support References task: automatically label issues that include support references. [#32398]
+- Label automations: mark revert PRs with a label. [#33472]
+- Label cleanup: Remove `[Status] Stale` from closed PRs. [#31743]
+- New task: updateBoard allows you to automate updates to a GitHub Project Board fields to match priority labels on an issue in your repo. [#33469]
+- Project Board automations: automatically update the status field based on the "Triaged" label. [#33482]
+- Project Board triage: automatically assign teams to an issue based on issue labels. [#34313]
+- Repo Gardening Action: Add add_labels input to addLabels task for setting custom path: label matching directly in the workflow. [#32306]
+
+### Changed
+- addMilestone task: if a milestone description contains a string with "Code Freeze: YYYY-MM-DD" or "Branch Cut: YYYY-MM-DD", and that date has elapsed, then don't add PRs to that milestone. This prevents merged PRs from being automatically added to milestones that have entered a code freeze. [#31973]
+- Board triage: update team Zap's assignment settings. [#35466]
+- Check description task: support different phrasing in milestone descriptiion. "Code Freeze" can also be "Branch cut". [#31987]
+- Description task: update milestone details to include information about the different release schedules. [#33675]
+- Gather Support References: also gather p2 comment references. [#33979]
+- Gather Support References: consider forum links to be a valid support reference. [#35148]
+- Issue Triage: update the "Escalated" status label to "Priority Review Triggered". [#33756]
+- Label cleanup: Task now runs for closed issues as well as PRs. [#31743]
+- Labelling: handle automatic labeling of Contact Form changes in the package. [#33864]
+- Labels: prefix module labels with [Feature], to match new bug reporting tool. [#32118]
+- Labels: update "Premium Content" to "Paid Content". [#33119]
+- Labels: update Stats's label name. [#32916]
+- Project Board triage: handle issues waiting on a third-party fix when auto-triaging. [#33876]
+- Updated package dependencies. [#33650]
+- Update the label used to mark issues that have reports from Happiness Engineers. [#32711]
+- Use the node20 runner instead of the deprecated node16 runner. [#35262]
+
+### Removed
+- Description task: remove reference to "Required review" check that was removed a while back. [#33683]
+- Status checks: remove commit verification status check. [#33075]
+
+### Fixed
+- Adds Woo Sync to GH label name exceptions. [#33713]
+- Automated Board triage: fix event reference to trigger the action. [#34482]
+- Board triage: ensure the task works when the organization name is capitalized [#34980]
+- Don't crash on milestones with null description. [#32599]
+- Issue references: avoid changing capitalization of p2 shortlinks. [#34426]
+- Issue references: do not gather support references in Pull Requests, only in issues. [#34426]
+- Project Board automations: do not run any automation on closed issues. [#33539]
+
 ## [4.0.0] - 2023-06-06
 ### Added
 - Add new task to notify Quality team of important issues
@@ -166,6 +239,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release
 
+[5.1.0]: https://github.com/Automattic/action-repo-gardening/compare/v5.0.0...v5.1.0
+[5.0.0]: https://github.com/Automattic/action-repo-gardening/compare/v4.0.0...v5.0.0
 [4.0.0]: https://github.com/Automattic/action-repo-gardening/compare/v3.1.1...v4.0.0
 [3.1.1]: https://github.com/Automattic/action-repo-gardening/compare/v3.1.0...v3.1.1
 [3.1.0]: https://github.com/Automattic/action-repo-gardening/compare/v3.0.0...v3.1.0

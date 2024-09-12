@@ -4,38 +4,36 @@ import {
 	Title,
 	getRedirectUrl,
 	ContextualUpgradeTrigger,
+	Col,
+	Container,
 } from '@automattic/jetpack-components';
-import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
-import { __ } from '@wordpress/i18n';
-import React from 'react';
-import { JETPACK_SCAN_SLUG } from '../../constants';
+import { __, sprintf } from '@wordpress/i18n';
+import React, { useCallback } from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
-import useProtectData from '../../hooks/use-protect-data';
+import usePlan from '../../hooks/use-plan';
+import useWafData from '../../hooks/use-waf-data';
 import SeventyFiveLayout from '../seventy-five-layout';
 import styles from './styles.module.scss';
 
 const ProductPromotion = () => {
-	const { adminUrl, siteSuffix } = window.jetpackProtectInitialState || {};
+	const { recordEvent } = useAnalyticsTracks();
+	const { hasPlan, upgradePlan } = usePlan();
+	const { siteSuffix, blogID } = window.jetpackProtectInitialState || {};
 
-	const { run } = useProductCheckoutWorkflow( {
-		productSlug: JETPACK_SCAN_SLUG,
-		redirectUrl: adminUrl,
-	} );
+	const getScan = useCallback( () => {
+		recordEvent( 'jetpack_protect_footer_get_scan_link_click' );
+		upgradePlan();
+	}, [ recordEvent, upgradePlan ] );
 
-	const { recordEventHandler } = useAnalyticsTracks();
-	const getScan = recordEventHandler( 'jetpack_protect_footer_get_scan_link_click', run );
-
-	const { hasRequiredPlan } = useProtectData();
-
-	if ( hasRequiredPlan ) {
-		const goToCloudUrl = getRedirectUrl( 'jetpack-scan-dash', { site: siteSuffix } );
+	if ( hasPlan ) {
+		const goToCloudUrl = getRedirectUrl( 'jetpack-scan-dash', { site: blogID ?? siteSuffix } );
 
 		return (
 			<div className={ styles[ 'product-section' ] }>
 				<Title>{ __( 'Get access to our Cloud', 'jetpack-protect' ) }</Title>
 				<Text mb={ 3 }>
 					{ __(
-						'With your Protect upgrade, you have free access to scan your site on our Cloud, so you can be aware and fix your threats even if your site goes down. ',
+						'With your Protect upgrade, you have free access to scan your site on our Cloud, so you can be aware and fix your threats even if your site goes down.',
 						'jetpack-protect'
 					) }
 				</Text>
@@ -70,9 +68,14 @@ const ProductPromotion = () => {
 };
 
 const FooterInfo = () => {
-	const { hasRequiredPlan } = useProtectData();
+	const { hasPlan } = usePlan();
+	const { globalStats } = useWafData();
+	const totalVulnerabilities = parseInt( globalStats?.totalVulnerabilities );
+	const totalVulnerabilitiesFormatted = isNaN( totalVulnerabilities )
+		? '50,000'
+		: totalVulnerabilities.toLocaleString();
 
-	if ( hasRequiredPlan ) {
+	if ( hasPlan ) {
 		const learnMoreScanUrl = getRedirectUrl( 'protect-footer-learn-more-scan' );
 
 		return (
@@ -80,9 +83,9 @@ const FooterInfo = () => {
 				<Title>{ __( 'Line-by-line scanning', 'jetpack-protect' ) }</Title>
 				<Text mb={ 2 }>
 					{ __(
-						'We actively review line-by-line of your site files to identify threats and vulnerabilities. Jetpack monitors millions of websites to keep your site secure all the time. ',
+						'We actively review line-by-line of your site files to identify threats and vulnerabilities. Jetpack monitors millions of websites to keep your site secure all the time.',
 						'jetpack-protect'
-					) }
+					) }{ ' ' }
 					<Button variant="link" target="_blank" weight="regular" href={ learnMoreScanUrl }>
 						{ __( 'Learn more', 'jetpack-protect' ) }
 					</Button>
@@ -95,11 +98,21 @@ const FooterInfo = () => {
 
 	return (
 		<div className={ styles[ 'info-section' ] }>
-			<Title>{ __( 'Over 22,000 listed vulnerabilities', 'jetpack-protect' ) }</Title>
+			<Title>
+				{ sprintf(
+					// translators: placeholder is the number of total vulnerabilities i.e. "22,000".
+					__( 'Over %s listed vulnerabilities', 'jetpack-protect' ),
+					totalVulnerabilitiesFormatted
+				) }
+			</Title>
 			<Text mb={ 3 }>
-				{ __(
-					'Every day we check your plugin, theme, and WordPress versions against our 22,000 listed vulnerabilities powered by WPScan, an Automattic brand.',
-					'jetpack-protect'
+				{ sprintf(
+					// translators: placeholder is the number of total vulnerabilities i.e. "22,000".
+					__(
+						'Every day we check your plugin, theme, and WordPress versions against our %s listed vulnerabilities powered by WPScan, an Automattic brand.',
+						'jetpack-protect'
+					),
+					totalVulnerabilitiesFormatted
 				) }
 			</Text>
 
@@ -111,12 +124,19 @@ const FooterInfo = () => {
 };
 
 const ScanFooter = () => {
-	return (
+	const { waf } = window.jetpackProtectInitialState || {};
+	return waf.wafSupported ? (
 		<SeventyFiveLayout
 			main={ <ProductPromotion /> }
 			secondary={ <FooterInfo /> }
 			preserveSecondaryOnMobile={ true }
 		/>
+	) : (
+		<Container horizontalSpacing={ 0 } horizontalGap={ 0 } fluid={ false }>
+			<Col>
+				<FooterInfo />
+			</Col>
+		</Container>
 	);
 };
 

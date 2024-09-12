@@ -6,15 +6,16 @@ import React from 'react';
 /**
  * Internal dependencies
  */
-import useMediaRecording from '../';
+import AudioDurationDisplay from '../../../components/audio-duration-display/index.js';
+import useMediaRecording from '../index.js';
 /**
  * Types
  */
-import AudioDurationDisplay from '../../../components/audio-duration-display';
 import type { Meta } from '@storybook/react';
 
 const RecorderComponent = ( { timeslice } ) => {
-	const { start, pause, resume, stop, state, blob, url } = useMediaRecording();
+	const { controls, state, blob, duration } = useMediaRecording();
+	const { start, pause, resume, stop } = controls;
 
 	return (
 		<div>
@@ -39,7 +40,7 @@ const RecorderComponent = ( { timeslice } ) => {
 				<div>
 					<span>Duration: </span>
 					<strong>
-						<AudioDurationDisplay url={ url } />
+						<AudioDurationDisplay duration={ duration } />
 					</strong>
 				</div>
 			</div>
@@ -69,7 +70,12 @@ const RecorderComponent = ( { timeslice } ) => {
 	);
 };
 
-export default {
+interface AIControlStoryMeta extends Meta< typeof RecorderComponent > {
+	title?: string;
+	component?: React.ReactElement;
+}
+
+const meta: AIControlStoryMeta = {
 	title: 'JS Packages/AI Client/useMediaRecording',
 	component: RecorderComponent,
 	argTypes: {
@@ -89,3 +95,5 @@ const DefaultArgs = {
 
 export const Default = Template.bind( {} );
 Default.args = DefaultArgs;
+
+export default meta;

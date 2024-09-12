@@ -16,9 +16,10 @@ use Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection;
  */
 class Waf_Runner {
 
-	const WAF_MODULE_NAME        = 'waf';
-	const MODE_OPTION_NAME       = 'jetpack_waf_mode';
-	const SHARE_DATA_OPTION_NAME = 'jetpack_waf_share_data';
+	const WAF_MODULE_NAME              = 'waf';
+	const MODE_OPTION_NAME             = 'jetpack_waf_mode';
+	const SHARE_DATA_OPTION_NAME       = 'jetpack_waf_share_data';
+	const SHARE_DEBUG_DATA_OPTION_NAME = 'jetpack_waf_share_debug_data';
 
 	/**
 	 * Run the WAF
@@ -31,6 +32,7 @@ class Waf_Runner {
 		}
 		Waf_Constants::define_mode();
 		Waf_Constants::define_share_data();
+
 		if ( ! self::is_allowed_mode( JETPACK_WAF_MODE ) ) {
 			return;
 		}
@@ -96,6 +98,10 @@ class Waf_Runner {
 			return false;
 		}
 
+		if ( defined( 'IS_ATOMIC_JN' ) && IS_ATOMIC_JN ) {
+			return true;
+		}
+
 		// Do not run in the WPCOM context
 		if ( ( new Host() )->is_wpcom_simple() ) {
 			return false;
@@ -154,14 +160,26 @@ class Waf_Runner {
 	 */
 	public static function get_config() {
 		return array(
-			Waf_Rules_Manager::AUTOMATIC_RULES_ENABLED_OPTION_NAME => get_option( Waf_Rules_Manager::AUTOMATIC_RULES_ENABLED_OPTION_NAME ),
-			Waf_Rules_Manager::IP_LISTS_ENABLED_OPTION_NAME => get_option( Waf_Rules_Manager::IP_LISTS_ENABLED_OPTION_NAME ),
+			Waf_Rules_Manager::AUTOMATIC_RULES_ENABLED_OPTION_NAME => Waf_Rules_Manager::automatic_rules_enabled(),
 			Waf_Rules_Manager::IP_ALLOW_LIST_OPTION_NAME => get_option( Waf_Rules_Manager::IP_ALLOW_LIST_OPTION_NAME ),
+			Waf_Rules_Manager::IP_ALLOW_LIST_ENABLED_OPTION_NAME => Waf_Rules_Manager::ip_allow_list_enabled(),
 			Waf_Rules_Manager::IP_BLOCK_LIST_OPTION_NAME => get_option( Waf_Rules_Manager::IP_BLOCK_LIST_OPTION_NAME ),
+			Waf_Rules_Manager::IP_BLOCK_LIST_ENABLED_OPTION_NAME => Waf_Rules_Manager::ip_block_list_enabled(),
 			self::SHARE_DATA_OPTION_NAME                 => get_option( self::SHARE_DATA_OPTION_NAME ),
+			self::SHARE_DEBUG_DATA_OPTION_NAME           => get_option( self::SHARE_DEBUG_DATA_OPTION_NAME ),
 			'bootstrap_path'                             => self::get_bootstrap_file_path(),
+			'standalone_mode'                            => self::get_standalone_mode_status(),
 			'automatic_rules_available'                  => (bool) self::automatic_rules_available(),
 			'brute_force_protection'                     => (bool) Brute_Force_Protection::is_enabled(),
+
+			/**
+			 * Provide the deprecated IP lists options for backwards compatibility with older versions of the Jetpack and Protect plugins.
+			 * i.e. If one plugin is updated and the other is not, the latest version of this package will be used by both plugins.
+			 *
+			 * @deprecated 0.17.0
+			 */
+			// @phan-suppress-next-line PhanDeprecatedClassConstant -- Needed for backwards compatibility.
+			Waf_Rules_Manager::IP_LISTS_ENABLED_OPTION_NAME => Waf_Rules_Manager::ip_allow_list_enabled() || Waf_Rules_Manager::ip_block_list_enabled(),
 		);
 	}
 
@@ -173,6 +191,15 @@ class Waf_Runner {
 	private static function get_bootstrap_file_path() {
 		$bootstrap = new Waf_Standalone_Bootstrap();
 		return $bootstrap->get_bootstrap_file_path();
+	}
+
+	/**
+	 * Get WAF standalone mode status
+	 *
+	 * @return bool|array True if WAF standalone mode is enabled, false otherwise.
+	 */
+	public static function get_standalone_mode_status() {
+		return defined( 'JETPACK_WAF_RUN' ) && JETPACK_WAF_RUN === 'preload';
 	}
 
 	/**
@@ -218,10 +245,10 @@ class Waf_Runner {
 		// if something terrible happens during the WAF running, we don't want to interfere with the rest of the site,
 		// so we intercept errors ONLY while the WAF is running, then we remove our handler after the WAF finishes.
 		$display_errors = ini_get( 'display_errors' );
-		// phpcs:ignore
-		ini_set( 'display_errors', 'Off' );
-		// phpcs:ignore
-		set_error_handler( array( self::class, 'errorHandler' ) );
+
+		ini_set( 'display_errors', 'Off' ); // phpcs:ignore WordPress.PHP.IniSet.display_errors_Disallowed -- We only customize error reporting while the WAF is running, and remove our handler afterwards.
+
+		set_error_handler( array( self::class, 'errorHandler' ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_set_error_handler -- We only customize error reporting while the WAF is running, and remove our handler afterwards.
 
 		try {
 
@@ -240,8 +267,9 @@ class Waf_Runner {
 
 		// remove the custom error handler, so we don't interfere with the site.
 		restore_error_handler();
-		// phpcs:ignore
-		ini_set( 'display_errors', $display_errors );
+
+		// Restore the original value.
+		ini_set( 'display_errors', $display_errors ); // phpcs:ignore WordPress.PHP.IniSet.display_errors_Disallowed -- We only customize error reporting while the WAF is running, and remove our handler afterwards.
 	}
 
 	/**
@@ -285,11 +313,6 @@ class Waf_Runner {
 	 * @return void
 	 */
 	public static function activate() {
-		Waf_Constants::define_mode();
-		if ( ! self::is_allowed_mode( JETPACK_WAF_MODE ) ) {
-			throw new Waf_Exception( 'Invalid firewall mode.' );
-		}
-
 		$version = get_option( Waf_Rules_Manager::VERSION_OPTION_NAME );
 		if ( ! $version ) {
 			add_option( Waf_Rules_Manager::VERSION_OPTION_NAME, Waf_Rules_Manager::RULES_VERSION );
@@ -422,10 +445,8 @@ class Waf_Runner {
 			// Delete the automatic rules last updated option.
 			delete_option( Waf_Rules_Manager::AUTOMATIC_RULES_LAST_UPDATED_OPTION_NAME );
 
-			$automatic_rules_enabled = get_option( Waf_Rules_Manager::AUTOMATIC_RULES_ENABLED_OPTION_NAME );
-
 			// If automatic rules setting is enabled, disable it.
-			if ( $automatic_rules_enabled ) {
+			if ( Waf_Rules_Manager::automatic_rules_enabled() ) {
 				update_option( Waf_Rules_Manager::AUTOMATIC_RULES_ENABLED_OPTION_NAME, false );
 			}
 

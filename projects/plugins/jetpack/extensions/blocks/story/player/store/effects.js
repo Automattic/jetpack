@@ -20,8 +20,8 @@ const isVideo = mediaElement =>
  * slide progress state. This is useful in particular when player is
  * re-mounted somewhere else.
  *
- * @param {object} action  - Action which had initiated the effect handler.
- * @param {object} store   - Store instance.
+ * @param {object} action - Action which had initiated the effect handler.
+ * @param {object} store  - Store instance.
  */
 function syncNewMediaElement( action, store ) {
 	const { getState, dispatch } = store;
@@ -46,18 +46,15 @@ function syncNewMediaElement( action, store ) {
 /**
  * Effect handler which will sync the current slide progress with a video element
  *
- * @param {object} action  - Action which had initiated the effect handler.
- * @param {object} store   - Store instance.
+ * @param {object} action - Action which had initiated the effect handler.
+ * @param {object} store  - Store instance.
  */
 function syncWithMediaElement( action, store ) {
 	const { getState } = store;
 	const playerId = action.playerId;
 
-	const muted = isMuted( getState(), playerId );
-	const playing = isPlaying( getState(), playerId );
 	const mediaElement = getCurrentMediaElement( getState(), playerId );
 	const previousMediaElement = getPreviousSlideMediaElement( getState(), playerId );
-	const settings = getSettings( getState(), playerId );
 
 	if ( isVideo( previousMediaElement ) ) {
 		previousMediaElement.currentTime = 0;
@@ -69,6 +66,10 @@ function syncWithMediaElement( action, store ) {
 	if ( ! isVideo( mediaElement ) ) {
 		return;
 	}
+
+	const muted = isMuted( getState(), playerId );
+	const playing = isPlaying( getState(), playerId );
+	const settings = getSettings( getState(), playerId );
 
 	if ( muted !== mediaElement.muted ) {
 		mediaElement.muted = muted;
@@ -87,8 +88,8 @@ function syncWithMediaElement( action, store ) {
 /**
  * Effect handler which will track the current slide progress.
  *
- * @param {object} action  - Action which had initiated the effect handler.
- * @param {object} store   - Store instance.
+ * @param {object} action - Action which had initiated the effect handler.
+ * @param {object} store  - Store instance.
  */
 export function trackProgress( action, store ) {
 	const { getState, dispatch } = store;

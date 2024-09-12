@@ -74,7 +74,12 @@ function MediaButtonMenu( props ) {
 								{ __( 'Media Library', 'jetpack' ) }
 							</MenuItem>
 
-							<MediaSources open={ open } setSource={ setSelectedSource } onClick={ onClose } />
+							<MediaSources
+								open={ open }
+								setSource={ setSelectedSource }
+								onClick={ onClose }
+								isFeatured={ isFeatured }
+							/>
 						</MenuGroup>
 					</NavigableMenu>
 				) }

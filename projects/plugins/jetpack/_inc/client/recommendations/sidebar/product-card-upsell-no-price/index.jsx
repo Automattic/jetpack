@@ -1,15 +1,13 @@
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import Button from 'components/button';
 import Gridicon from 'components/gridicon';
 import analytics from 'lib/analytics';
-import React, { useCallback, useEffect } from 'react';
-import withUpgradeUrl from '../../hoc/with-upgrade-url';
+import { useCallback, useEffect } from 'react';
 import RecommendedHeader from '../recommended-header';
 import { SidebarCard } from '../sidebar-card';
 
-const ProductCardUpsellNoPriceComponent = props => {
-	const { upgradeUrl } = props;
-
+const ProductCardUpsellNoPrice = () => {
 	useEffect( () => {
 		analytics.tracks.recordEvent( 'jetpack_recommendations_summary_sidebar_display', {
 			type: 'upsell_no_price',
@@ -45,7 +43,7 @@ const ProductCardUpsellNoPriceComponent = props => {
 				</p>
 				<Button
 					rna
-					href={ upgradeUrl }
+					href={ getRedirectUrl( 'jetpack-plans' ) }
 					onClick={ onLearnMoreClick }
 					target="blank"
 					rel="noopener noreferrer"
@@ -57,7 +55,5 @@ const ProductCardUpsellNoPriceComponent = props => {
 		</SidebarCard>
 	);
 };
-
-const ProductCardUpsellNoPrice = withUpgradeUrl( ProductCardUpsellNoPriceComponent );
 
 export { ProductCardUpsellNoPrice };

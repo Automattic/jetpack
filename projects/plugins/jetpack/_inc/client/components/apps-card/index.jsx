@@ -2,7 +2,7 @@ import { imagePath } from 'constants/urls';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import AppsBadge from 'components/apps-badge';
 import Card from 'components/card';
 import analytics from 'lib/analytics';
@@ -74,7 +74,7 @@ class AppsCard extends React.Component {
 	);
 
 	render() {
-		const classes = classNames( this.props.className, 'jp-apps-card' );
+		const classes = clsx( this.props.className, 'jp-apps-card' );
 
 		return (
 			<div className={ classes }>

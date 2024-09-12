@@ -5,6 +5,197 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 5.3.1 - 2024-09-06
+### Changed
+- Internal updates.
+
+## 5.3.0 - 2024-09-05
+### Changed
+- Updated connection js to load its bundle via connection package [#38877]
+- Updated package dependencies. [#39176]
+
+### Fixed
+- Updated pricing table to clarify features [#39182]
+
+## 5.2.0 - 2024-08-29
+### Changed
+- Admin menu: change order of Jetpack sub-menu items [#39095]
+- Moved PostPublishPanels component to publicize-components package [#39049]
+- Social: Migrated shares data to the new script data [#38988]
+- Social: Updated intial state logic to use the new consolidated initial state [#38606]
+- Social: Updated the share status modal to render it globally [#39116]
+- Update composer lock file [#38942]
+- Updated package dependencies. [#38662] [#38665] [#38822] [#38822] [#39111]
+
+### Removed
+- Remove the unused Advanced plan nudge [#38926]
+- Social: Removed share limits UI and data logic [#38904]
+
+### Fixed
+- Revert recent SVG image optimizations. [#38981]
+
+## 5.1.0 - 2024-08-08
+### Added
+- Added feature flag management for social [#38669]
+
+### Fixed
+- Lossless image optimization of images in projects/plugins [subdirectories from a* through social] [#38573]
+
+## 5.0.0 - 2024-08-01
+### Changed
+- Social: Removed unnecessary feature checks for social connections [#38216]
+- Updated package dependencies. [#38228] [#38235] [#38464]
+
+### Removed
+- General: update WordPress version requirements to WordPress 6.5. [#38382]
+- Removed the unused code for image auto-conversion from social store [#38609]
+- Social | Removed the media auto-conversion UI [#38497]
+
+## 4.5.2 - 2024-07-03
+### Changed
+- General: indicate compatibility with the upcoming version of WordPress - 6.6. [#37962]
+- Updated package dependencies. [#37917] [#38132]
+
+### Fixed
+- Fixed E2E tests navigating to block editor [#37875]
+- Fixed the admin page pricing table not shown [#37877]
+- Social: Fixed broken connections reconnect link to point it to new connections UI [#37869]
+
+## 4.5.1 - 2024-06-18
+### Fixed
+- My Jetpack: Update My Jetpack to a more stable version. [#37911]
+
+## 4.5.0 - 2024-06-13
+### Changed
+- Move the admin upsell to the toggle section [#37731]
+- Updated package dependencies. [#37767] [#37776] [#37796]
+
+### Removed
+- Removed the social basic plan from the admin page [#36846]
+
+### Fixed
+- Updated wp.org screenshots [#37726]
+
+## 4.4.0 - 2024-06-05
+### Changed
+- Social | Removed the top "Connect accounts" on the admin page [#37697]
+- Social | Updated upgrade nudges to use the new plan [#37638]
+- Updated package dependencies. [#37669]
+- Updated the editor nudge text and logic [#37644]
+
+## 4.3.0 - 2024-05-29
+### Added
+- Add connect form/button for connection management [#37196]
+- Added a CTA button to create a social note [#36972]
+- Added and rendered GlobalNotices component [#37237]
+- Added feature flag for new social admin ui [#37134]
+- Added more E2E tests [#37046]
+- Added the connection modal to the editor [#37405]
+- Add Woocommerce event remove_order_items to Jetpack Sync [#33748]
+- Disabled the Note config toggles while the API calls are pending [#36872]
+- Social: Added add connection modal [#37211]
+- Social Admin page: Added connection management component [#37120]
+- Social Limits: Added clarification of cycle reset [#37350]
+
+### Changed
+- General: update WordPress version requirements to WordPress 6.4. [#37047]
+- General: use wp_admin_notice function introduced in WP 6.4 to display notices. [#37051]
+- Remove explicit Plugin Install package dependency. [#37430]
+- Remove the 'jetpack-identity-crisis' dependency. [#36968]
+- Social | Updated the connection test results endpoint for front-end [#37531]
+- Updated package dependencies. [#37147] [#37148] [#37348] [#37379] [#37380] [#37382]
+- Update the Social sidebar share post panel to direct non-admin authors to user connection if there is no user connection. [#36976]
+
+### Fixed
+- Adjusted the webpack config so the social icon colours are picked up by PostCSS [#37327]
+- Fixed CSS variables not loaded for modals on Social admin page [#37391]
+- Fixed timeouts in E2E tests [#37045]
+
+## 4.2.0 - 2024-04-11
+### Added
+- Added functions to display share urls [#36328]
+- Added options and UI for link formatting [#36671]
+- Added support for comments on Social Notes [#36428]
+- Packages: add version tracking for identity-crisis package. [#36635]
+- Trigger red bubble notification when bad install is detected [#36449]
+
+### Changed
+- Allow multiple paragraphs for Social Notes [#36522]
+- Only show custom media picker for normal posts [#36640]
+- Only show installation errors on plugins page [#36390]
+- Removed the featured image block from the template [#36819]
+- Simplified social network selection for post sharing [#36734]
+- Updated package dependencies. [#36309] [#36325] [#36585] [#36760] [#36761] [#36775] [#36788]
+- Update to the most recent version of Color Studio, 2.6.0. [#36751]
+- Update to the most recent version of the @automattic/calypso-color-schemes package. [#36227]
+
+### Fixed
+- Fixed typos [#36554]
+- Prevent enqueuing of admin styles on the frontend [#36552]
+
+## 4.1.0 - 2024-03-07
+### Added
+- Added a template lock to our Social Note CPT [#35619]
+- Added endpoint to update post meta [#35822]
+- Added feature support for the new CPT to support activitypub. [#35442]
+- Added fix for the post list screen for social notes. [#35514]
+- Added toggle to Social admin page for the Social Notes [#35681]
+- Implemented titless permalink fixes. [#35462]
+- New setting in /sties/$site/settings that is not relevant to this plugin. [#35509]
+- Register CPT for Social Notes. [#35415]
+- Social: Added archive page support to notes [#35592]
+
+### Changed
+- Changed the admin page 'Write a post' button to primary if the site has connections [#36031]
+- General: indicate compatibility with the upcoming version of WordPress, 6.5. [#35820]
+- Social Notes: Added the post list enhancements [#35819]
+- Tailored editor for social notes [#35536]
+- Updated package dependencies. [#35384, #35385, #35591, #35608, #35819, #36095, #36097, #36142, #36143]
+- Update package lock [#35672]
+- Update to the most recent version of the @automattic/calypso-color-schemes package. [#36187]
+- Use Blog ID in links to WPCOM instead of site slug. [#35006]
+
+### Fixed
+- Fixed no title from showing up in og:title [#35624]
+- Fixed og:title having word-breaks. [#36068]
+
+## 4.0.0 - 2024-01-18
+### Changed
+- Changed dismissed notices endpoint to be a core endpoint [#34544]
+- Social: Changed the illustration on the admin page [#34454]
+- Social: Refactored storing of feature options to use core functions [#34113]
+- Split PublicizeForm component into smaller ones [#34612]
+- Updated Jetpack Social activation landing page [#34778]
+- Updated package dependencies. [#34559] [#34815] [#34882]
+- Updated the design for Quick Share buttons and fixed its a11y [#34754]
+
+### Fixed
+- Fixed a bug with the initial state script [#34861]
+- Fixed Jetpack Social scheduled post messaging [#34182]
+
+## 3.0.0 - 2023-12-06
+### Added
+- Added a new post-publish panel for quick sharing [#33231]
+- Added Nextdoor to Social Previews [#33907]
+- Added traking for social sharing buttons [#33231]
+
+### Changed
+- Code Modernization: Replace usage of strpos() with str_contains() [#34137]
+- General: updated PHP requirement to PHP 7.0+ [#34126]
+- General: update WordPress version requirements to WordPress 6.3 and compatible with 6.4. [#34127] [#33776]
+- Updated package dependencies.
+- Updated screenshot to show the new connection toggles. [#33381]
+- Updated Social admin pricing page [#33176]
+
+### Removed
+- Removed unused code [#34111] [#34241]
+
+### Fixed
+- Fixed an issue where initial state is not in sync [#33969]
+- Fixed broken connections UI [#34391]
+- Fixed pre-publish UI reactivity for Jetpack Social [#34243]
+- Fixed the issue of publicize remaining ON after the post is published [#34289]
+
 ## 2.3.0 - 2023-09-20
 ### Added
 - Add the change settings logic in Social for the auto conversion feature. [#32712]

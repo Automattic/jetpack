@@ -44,7 +44,7 @@ class VersionLoaderTest extends TestCase {
 	 * Tests that `find_class_file` returns null when the given class is not known.
 	 */
 	public function test_find_class_file_returns_null_for_unknown_class() {
-		$version_loader = new Version_Loader( new Version_Selector(), null, null, null );
+		$version_loader = new Version_Loader( new Version_Selector(), array(), array(), array() );
 
 		$file_path = $version_loader->find_class_file( UniqueTestClass::class );
 
@@ -63,8 +63,8 @@ class VersionLoaderTest extends TestCase {
 					'path'    => TEST_PLUGIN_DIR . '/src/SharedTestClass.php',
 				),
 			),
-			null,
-			null
+			array(),
+			array()
 		);
 
 		$file_path = $version_loader->find_class_file( SharedTestClass::class );
@@ -78,14 +78,14 @@ class VersionLoaderTest extends TestCase {
 	public function test_find_class_file_returns_path_for_psr4() {
 		$version_loader = new Version_Loader(
 			new Version_Selector(),
-			null,
+			array(),
 			array(
 				Test_Plugin_Factory::TESTING_NAMESPACE => array(
 					'version' => '1.0.0.0',
 					'path'    => array( TEST_PLUGIN_DIR . '/src' ),
 				),
 			),
-			null
+			array()
 		);
 
 		$file_path = $version_loader->find_class_file( SharedTestClass::class );
@@ -100,7 +100,7 @@ class VersionLoaderTest extends TestCase {
 	public function test_find_class_file_checks_returns_path_for_psr4_with_less_specific_namespace() {
 		$version_loader = new Version_Loader(
 			new Version_Selector(),
-			null,
+			array(),
 			array(
 				Test_Plugin_Factory::TESTING_NAMESPACE => array(
 					'version' => '1.0.0.0',
@@ -111,7 +111,7 @@ class VersionLoaderTest extends TestCase {
 					'path'    => array( TEST_PLUGIN_DIR . '/src/Current' ),
 				),
 			),
-			null
+			array()
 		);
 
 		$file_path = $version_loader->find_class_file( UniqueTestClass::class );
@@ -137,7 +137,7 @@ class VersionLoaderTest extends TestCase {
 					'path'    => array( self::$older_plugin_dir . '/src' ),
 				),
 			),
-			null
+			array()
 		);
 
 		$file_path = $version_loader->find_class_file( SharedTestClass::class );
@@ -163,7 +163,7 @@ class VersionLoaderTest extends TestCase {
 					'path'    => array( TEST_PLUGIN_DIR . '/src' ),
 				),
 			),
-			null
+			array()
 		);
 
 		$file_path = $version_loader->find_class_file( SharedTestClass::class );
@@ -182,8 +182,8 @@ class VersionLoaderTest extends TestCase {
 
 		$version_loader = new Version_Loader(
 			new Version_Selector(),
-			null,
-			null,
+			array(),
+			array(),
 			array(
 				$file_hash => array(
 					'version' => '1.0.0.0',
@@ -210,8 +210,8 @@ class VersionLoaderTest extends TestCase {
 
 		$version_loader = new Version_Loader(
 			new Version_Selector(),
-			null,
-			null,
+			array(),
+			array(),
 			array(
 				$file_hash => array(
 					'version' => '1.0.0.0',

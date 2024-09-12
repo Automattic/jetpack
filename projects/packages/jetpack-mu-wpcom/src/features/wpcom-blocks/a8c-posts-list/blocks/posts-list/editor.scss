@@ -1,0 +1,19 @@
+div.a8c-posts-list__notice {
+	margin: 0 0 5px;
+
+	.components-notice__content {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+	}
+
+	.components-notice__action {
+		flex-shrink: 0;
+	}
+}
+
+.a8c-posts-list__placeholder {
+	.components-placeholder__fieldset:empty {
+		display: none;
+	}
+}

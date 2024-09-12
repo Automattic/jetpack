@@ -70,7 +70,6 @@ export default {
 	},
 
 	save: () => (
-		// eslint-disable-next-line wpcalypso/jsx-classname-namespace
 		<div className="wp-block-premium-content-logged-out-view">
 			<InnerBlocks.Content />
 		</div>

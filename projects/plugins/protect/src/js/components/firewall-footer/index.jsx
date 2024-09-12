@@ -1,17 +1,15 @@
 import { AdminSectionHero, Title, Text, Button } from '@automattic/jetpack-components';
-import { CheckboxControl, ExternalLink } from '@wordpress/components';
-import { useDispatch } from '@wordpress/data';
-import { createInterpolateElement } from '@wordpress/element';
+import { CheckboxControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { useState, useEffect, useCallback } from 'react';
-import { PLUGIN_SUPPORT_URL } from '../../constants';
+import useModal from '../../hooks/use-modal';
+import useNotices from '../../hooks/use-notices';
 import useWafData from '../../hooks/use-waf-data';
-import { STORE_ID } from '../../state/store';
 import SeventyFiveLayout from '../seventy-five-layout';
 import styles from './styles.module.scss';
 
 const StandaloneMode = () => {
-	const { setModal } = useDispatch( STORE_ID );
+	const { setModal } = useModal();
 
 	const handleClick = () => {
 		return event => {
@@ -43,10 +41,57 @@ const StandaloneMode = () => {
 	);
 };
 
+const ShareDebugData = () => {
+	const { config, isUpdating, toggleShareDebugData } = useWafData();
+	const { jetpackWafShareDebugData } = config || {};
+	const { showSuccessNotice, showErrorNotice } = useNotices();
+
+	const [ settings, setSettings ] = useState( {
+		jetpack_waf_share_debug_data: jetpackWafShareDebugData,
+	} );
+
+	const handleShareDebugDataChange = useCallback( () => {
+		setSettings( {
+			...settings,
+			jetpack_waf_share_debug_data: ! settings.jetpack_waf_share_debug_data,
+		} );
+		toggleShareDebugData()
+			.then( () => showSuccessNotice( __( 'Changes saved.', 'jetpack-protect' ) ) )
+			.catch( () => {
+				showErrorNotice();
+			} );
+	}, [ settings, toggleShareDebugData, showSuccessNotice, showErrorNotice ] );
+
+	useEffect( () => {
+		setSettings( {
+			jetpack_waf_share_debug_data: jetpackWafShareDebugData,
+		} );
+	}, [ jetpackWafShareDebugData ] );
+
+	return (
+		<div className={ styles[ 'share-data-section' ] }>
+			<Title mb={ 2 }>{ __( 'Share detailed data with Jetpack', 'jetpack-protect' ) }</Title>
+			<div className={ styles[ 'footer-checkbox' ] }>
+				<CheckboxControl
+					checked={ Boolean( settings.jetpack_waf_share_debug_data ) }
+					onChange={ handleShareDebugDataChange }
+					disabled={ isUpdating }
+				/>
+				<Text>
+					{ __(
+						'Allow Jetpack to collect detailed data from blocked requests to enhance firewall protection and accuracy.',
+						'jetpack-protect'
+					) }
+				</Text>
+			</div>
+		</div>
+	);
+};
+
 const ShareData = () => {
 	const { config, isUpdating, toggleShareData } = useWafData();
 	const { jetpackWafShareData } = config || {};
-	const { setNotice } = useDispatch( STORE_ID );
+	const { showSuccessNotice, showErrorNotice } = useNotices();
 
 	const [ settings, setSettings ] = useState( {
 		jetpack_waf_share_data: jetpackWafShareData,
@@ -55,30 +100,11 @@ const ShareData = () => {
 	const handleShareDataChange = useCallback( () => {
 		setSettings( { ...settings, jetpack_waf_share_data: ! settings.jetpack_waf_share_data } );
 		toggleShareData()
-			.then( () =>
-				setNotice( {
-					type: 'success',
-					duration: 5000,
-					dismissable: true,
-					message: __( 'Changes saved.', 'jetpack-protect' ),
-				} )
-			)
+			.then( () => showSuccessNotice( __( 'Changes saved.', 'jetpack-protect' ) ) )
 			.catch( () => {
-				setNotice( {
-					type: 'error',
-					dismissable: true,
-					message: createInterpolateElement(
-						__(
-							'An error ocurred. Please try again or <supportLink>contact support</supportLink>.',
-							'jetpack-protect'
-						),
-						{
-							supportLink: <ExternalLink href={ PLUGIN_SUPPORT_URL } />,
-						}
-					),
-				} );
+				showErrorNotice();
 			} );
-	}, [ settings, toggleShareData, setNotice ] );
+	}, [ settings, toggleShareData, showSuccessNotice, showErrorNotice ] );
 
 	useEffect( () => {
 		setSettings( {
@@ -88,7 +114,7 @@ const ShareData = () => {
 
 	return (
 		<div className={ styles[ 'share-data-section' ] }>
-			<Title mb={ 2 }>{ __( ' Share data with Jetpack', 'jetpack-protect' ) }</Title>
+			<Title mb={ 2 }>{ __( 'Share basic data with Jetpack', 'jetpack-protect' ) }</Title>
 			<div className={ styles[ 'footer-checkbox' ] }>
 				<CheckboxControl
 					checked={ Boolean( settings.jetpack_waf_share_data ) }
@@ -97,7 +123,7 @@ const ShareData = () => {
 				/>
 				<Text>
 					{ __(
-						'Allow Jetpack to collect data to improve firewall protection and rules. Collected data is also used to display advanced usage metrics.',
+						'Allow Jetpack to collect basic data from blocked requests to improve firewall protection and accuracy.',
 						'jetpack-protect'
 					) }
 				</Text>
@@ -113,7 +139,14 @@ const FirewallFooter = () => {
 		<AdminSectionHero>
 			<SeventyFiveLayout
 				main={ <StandaloneMode /> }
-				secondary={ isEnabled && <ShareData /> }
+				secondary={
+					isEnabled && (
+						<>
+							<ShareData />
+							<ShareDebugData />
+						</>
+					)
+				}
 				preserveSecondaryOnMobile={ true }
 			/>
 		</AdminSectionHero>

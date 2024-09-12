@@ -45,7 +45,7 @@ class WP_User_Trigger_Test extends JPCRM_Base_Integration_Test_Case {
 		$workflow->expects( $this->once() )
 		->method( 'execute' )
 		->with(
-			$this->equalTo( $trigger ),
+			$trigger,
 			$this->callback(
 				function ( $object ) {
 					return $object->get_data() instanceof \WP_User;

@@ -7,11 +7,8 @@ import { createBlock } from '@wordpress/blocks';
 import { Button, Notice } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
+import { ReactElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-/**
- * External dependencies
- */
-import { ReactElement } from 'react';
 /**
  * Internal dependencies
  */
@@ -24,10 +21,10 @@ const videoPressVideoBlocks = { instances: [] };
 /**
  * Recursively get all core/video VideoPress (aka v5) block instances
  *
- * @param {Array} blocks - Array of blocks
- * @param {boolean} root - Whether it is the root block
- * @param {number} level - Nesting level in the block tree
- * @returns {Array}        Array of VideoPress blocks
+ * @param {Array}   blocks - Array of blocks
+ * @param {boolean} root   - Whether it is the root block
+ * @param {number}  level  - Nesting level in the block tree
+ * @return {Array}        Array of VideoPress blocks
  */
 const getAllCoreVideoVideoPressVideoBlocks = ( blocks = [], root = false, level = 0 ) => {
 	if ( root ) {
@@ -64,7 +61,7 @@ const getAllCoreVideoVideoPressVideoBlocks = ( blocks = [], root = false, level 
  * @param {object} props            - Component props
  * @param {string} props.clientId   - Block client ID
  * @param {object} props.attributes - Block attributes
- * @returns {ReactElement} Transform panel component.
+ * @return {ReactElement} Transform panel component.
  */
 export default function TransformControl( {
 	clientId: currentBlockClientId,

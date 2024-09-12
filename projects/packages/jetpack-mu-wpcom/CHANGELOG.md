@@ -5,6 +5,809 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.62.0] - 2024-09-10
+### Changed
+- Admin bar: always use user language even on frontend screens [#39255]
+- Admin bar: update 'My Account' link to /me [#39290]
+- Enable Users -> Profile (profile.php) on all sites [#39181]
+- Launchpad: Require a design is selected before marking the step as complete in both the Write and Free flows [#39189]
+- Updated package dependencies. [#39176]
+- Updated package dependencies. [#39302]
+
+### Fixed
+- Use the correct endpoint route for adding suggested tags on new posts. [#39175]
+
+## [5.61.0] - 2024-09-02
+### Changed
+- MU WPCOM: Disable the Open Graph Tags according to the privacy of the site [#39012]
+- Point "Edit Profile" to profile.php when Site-Level Profile is enabled [#39091]
+
+## [5.60.0] - 2024-08-30
+### Added
+- Add Meta crawler. [#39159]
+
+### Changed
+- Newspack blocks: Updated from 3.5 to 4.0.1 [#39033]
+- Updated package dependencies. [#39111]
+
+### Fixed
+- Always rewrite profile.php to /me on Default sites [#39113]
+
+## [5.59.0] - 2024-08-26
+### Added
+- Auto open Upload Theme dialog if query parameter is present [#39045]
+- Fixup project versions. [#38931]
+
+### Changed
+- MU WPCOM: Fix Post Publish Modal checkbox alignment [#38990]
+
+### Fixed
+- Bump package version [#39056]
+- MU WPCOM: Fix the coming soon isn't configured correctly if the settings changes from Coming Soon -> Private -> Coming Soon [#39010]
+
+## [5.58.0] - 2024-08-23
+### Added
+- Sync Calypso locale to Atomic Classic [#39009]
+
+### Changed
+- Jetpack-mu-wpcom admin bar: move the Reader menu item to the secondary admin bar group. [#38976]
+- Replace language selector with a link to WPCOM [#39013]
+- Updated package dependencies. [#39004]
+
+### Fixed
+- Admin bar: fix icon colors on site frontend [#39014]
+- Ensure theme update icon is hidden correctly [#38957]
+- Inconsistent Color Scheme when previewing on Simple Default [#39048]
+
+## [5.57.1] - 2024-08-21
+### Changed
+- Site Level User Profile: expose all relevant fields on profile.php [#38949]
+
+### Fixed
+- Help Center: show disconnected version on frontend [#38941]
+- Revert recent SVG image optimizations. [#38981]
+
+## [5.57.0] - 2024-08-19
+### Added
+- Social Links: Requiring feature from Classic Theme Helper package instead of Jetpack module. [#38730]
+
+### Changed
+- Gutenberg: Include links to support docs for recent blocks. [#38794]
+- Keep the synced-newspack-blocks folder instead of pulling on every install. [#38873]
+- Replace the link of the additional CSS. [#38951]
+- Re-tangle first/last/display name, website, and bio fields in profile.php. [#38854]
+- Temporarily point to wpcalypso.wordpress.com for testing purposes. [#38903]
+- Updated package dependencies. [#38662]
+- Whem Atomic users log out of wp-admin they are also logged out of WPCOM. [#38850]
+
+### Fixed
+- Help Center: Don't load english translations. [#38912]
+- Lossless image optimization for images (should improve performance with no visible changes). [#38750]
+
+## [5.56.0] - 2024-08-13
+### Changed
+- WPCOM Block Description Links: add links for embed variations [#38834]
+- wpcom_admin_interface setting: update copy to match Calypso setting. [#38810]
+
+## [5.55.0] - 2024-08-12
+### Added
+- WPCOM MU Plugin: Add dynamic script loader [#38819]
+
+## [5.54.3] - 2024-08-12
+### Fixed
+- MU WPCOM: Fix the “page-patterns” plugin has encountered an error and cannot be rendered" [#38823]
+
+## [5.54.2] - 2024-08-09
+### Fixed
+- Block Editor Nux: Temporary stop load feature from MU WPCOM [#38802]
+- Fixed CSSTidy loading in the test [#37859]
+
+## [5.54.1] - 2024-08-08
+### Fixed
+- Load Scheduled_Updates for non-wpcom users [#38772]
+
+## [5.54.0] - 2024-08-08
+### Added
+- MU WPCOM: Port enqueue_coblocks_gallery_scripts from the ETK [#38731]
+- MU WPCOM: Port the newspack blocks from the ETK [#38724]
+- Point Edit Profile link to wpcalypso.* [#38775]
+- Show Help center in front end admin bar [#38651]
+- Show links back to WordPress.com for them to manage their WordPress.com profile [#38638]
+
+### Changed
+- Removed gating logic for wpcom_admin_interface_settings_field [#38774]
+- WordPress.com Features: Remove unused files for Calypso Locale Bidirectional Sync [#38773]
+
+### Fixed
+- Simple Classic: make Users -> Profile -> Email input readonly instead of disabled [#38752]
+
+## [5.53.1] - 2024-08-05
+### Changed
+- Internal updates.
+
+## [5.53.0] - 2024-08-05
+### Added
+- Added wpcom-block-editor-nux feature from calypso's ETK package. [#38674]
+- MU WPCOM: Port FSE feature from ETK [#38212]
+- MU WPCOM: Port the newspack blocks from the ETK [#38454]
+- MU WPCOM: Port the starter-page-templates feature from ETK [#38475]
+
+### Changed
+- Add description link to Subscriber Login block [#38629]
+- MU WPCOM: Only load ETK features for wpcom users [#38708]
+
+### Removed
+- Removed dead CSS code [#38659]
+
+### Fixed
+- Admin bar: fix icon alignment on small screen widths [#38684]
+- Adminbar: Fix profile menu colors [#38650]
+- Admin bar: help center and notification icons now follow color scheme [#38672]
+- Fix bug so Theme Showcase menu appears on Simple Classic sites [#38698]
+- Fix RTL admin bar [#38654]
+- Masterbar: Fix icon overlap issue at smaller resolutions [#38551]
+- MU WPCOM: Fix the option of the MailerLite widget is gone [#38640]
+
+## [5.52.1] - 2024-07-30
+### Changed
+- Fixup versions [#38612]
+
+## [5.52.0] - 2024-07-30
+### Added
+- Help Center: extended post fetch endpoint to accept URLs [#38445]
+
+### Changed
+- Admin bar: Force mobile viewport to have the same icon color as desktop [#38588]
+- Blog Privacy: Update Applebot-Extended disallow rule [#38599]
+- React: Changing global JSX namespace to React.JSX [#38585]
+
+## [5.51.0] - 2024-07-29
+### Changed
+- Hide the plugin banner on non-wpcom-connected users or agency-managed users [#38532]
+
+### Fixed
+- Admin Bar: Fix the order of the top-right items on Atomic sites [#38533]
+
+## [5.50.0] - 2024-07-26
+### Added
+- Added a new task to the readymade-template launchpad for generating content with AI [#38507]
+
+## [5.49.1] - 2024-07-26
+### Changed
+- Update dependencies.
+
+## [5.49.0] - 2024-07-25
+### Added
+- Add a12n notice about proxied toolbar [#38519]
+
+### Changed
+- Add query param to URL only for users with manage options permission [#38493]
+- Admin Bar: Point the (Profile) -> Edit Profile menu to /me when appropriate [#38530]
+
+### Fixed
+- Fix fatal error in admin bar [#38526]
+- MU WPCOM: Load built version of wpcom-sidebar-notice.js [#38479]
+
+## [5.48.0] - 2024-07-23
+### Changed
+- Always use house icon for site name in admin-bar. [#38457]
+
+## [5.47.0] - 2024-07-22
+### Added
+- Added origin_site_id param to the links on the masterbar. [#38401]
+- Added Random Redirect module for simple sites. [#38374]
+
+### Changed
+- Admin Bar: Replaced the wp-admin url with the calypso ones for the default interface. [#38377]
+- Nav Redesign: Use Core admin bar for Simple and Atomic Default-view sites. [#38419]
+- Show notifications and help icons on mobile. [#38438]
+- Updated Masterbar Reader icon. [#38437]
+
+### Fixed
+- Admin Bar: Adjust wpcom logo size on mobile. [#38448]
+- Set `#wp-admin-bar-top-secondary` absolutely positioned to the right to prevent it from floating ut of place when the window shrinks. [#38426]
+
+## [5.46.0] - 2024-07-18
+### Added
+- Limited Global Styles: Port feature from ETK [#38333]
+
+### Changed
+- Admin Bar: Make it consistent between Calypso and WP Admin regardless of the value of Admin Interface Style [#38399]
+
+## [5.45.0] - 2024-07-18
+### Added
+- MU WPCOM: Support localizeUrl [#38318]
+
+### Changed
+- Block Perplexity AI bot in robots.txt when opted out of data sharing. [#38400]
+- Hide wpcom features when site is agency-managed or user is local [#38364]
+
+### Fixed
+- Admin Bar: Hotfix the order of the admin menu items for WP 6.6 [#38347]
+
+## [5.44.0] - 2024-07-15
+### Added
+- Add Profile -> My Account menu to admin bar. [#38294]
+- Adds checks to remove wpcom items and links in wp-admin for users who are not connected to wpcom. [#38241]
+- Bring jetpack-global-styles from ETK. [#38209]
+- Classic Theme Helper: Adding in Responsive Video class initialization from the Jetpack Mu WPcom package. [#38218]
+- Load the Google Analytics package. [#37622]
+- MU WPCOM: Enable the custom-line-height feature by default. [#38317]
+- MU WPCOM: Move countdown and timeline blocks from jetpack to jetpack-mu-wpcom. [#38298]
+- MU WPCOM: Port the a8c-posts-list block from ETK. [#38279]
+- MU WPCOM: Port Whats New from ETK. [#38229]
+- Port block-inserter-modifications from ETK. [#38277]
+- Port MailerLite Widget. [#38293]
+- Port wpcom-block-description-links from ETK. [#38254]
+- Port wpcom-documentation-links feature from ETK. [#38249]
+
+### Changed
+- jetpack-mu-wpcom - Help Center: Consume translations directly from widgets.wp.com. [#38300]
+- Updates the WordPress.com admin bar as follows:
+  
+  1. Repurposes the WordPress logo as a link to /sites.
+  2. Adds Reader menu.
+  3. Hides the updates icon.
+  4. Hides the comments icon. [#38233]
+
+### Removed
+- Dashboard widgets: Remove WordPress Events and News feed widget. [#38242]
+
+### Fixed
+- Help Center: Save Last-Modified date in downloaded language files instead of the current date. [#38284]
+- Hide help-center for wc-admin home page. [#38253]
+
+## [5.43.0] - 2024-07-08
+### Added
+- Added Help Center (migration from ETK) [#38093]
+- Custom CSS: Add the loading mechanism back after it was reverted. [#38173]
+- Jetpack Mu Wpcom: Added call for Featured Content [#38215]
+- MU WPCOM: Allow simple sites to upload the heif images [#38188]
+- MU WPCOM: Port font-smoothing-antialiased feature from ETK [#38195]
+- MU WPCOM: Port override-preview-button-url feature from ETK [#38196]
+- MU WPCOM: Port paragraph block feature from ETK [#38213]
+- MU WPCOM: Port tags-education feature from ETK. [#38210]
+- MU WPCOM: Port the hide-homepage-title feature from ETK [#38190]
+
+### Changed
+- As we've launched untangling & nav redesign, the wpcom_is_nav_redesign_enabled() function name is not relevant anymore and can be confusing for future developers, so we replace it with the equivalent get_option call. [#38197]
+- Classic Theme Helper - initialize Featured Content from the mu-wpcom package [#37969]
+- Load ETK features with a higher priority to avoid the ETK plugin taking precedence. [#38230]
+- Updated package dependencies. [#38132]
+- Updated package dependencies. [#38235]
+- Update Verbum Comments accessibility. [#38116]
+
+### Removed
+- Jetpack Mu Wpcom: Removed call to Featured Content class for initial release. [#38205]
+
+## [5.42.1] - 2024-07-01
+### Changed
+- Redirect to Default settings page after Admin Interface has been updated to Default. [#38107]
+
+## [5.42.0] - 2024-06-28
+### Fixed
+- Disable loading of Custom CSS for atomic sites [#38118]
+
+## [5.41.0] - 2024-06-28
+### Added
+- Add Custom CSS module from Jetpack plugin [#37794]
+
+## [5.40.0] - 2024-06-26
+### Added
+- Add a new launchpad task list for the readymade template flow [#37989]
+
+## [5.39.0] - 2024-06-26
+### Added
+- Remove Update Services section in Writing Setting if is_agency_managed_site [#38038]
+
+## [5.38.1] - 2024-06-25
+### Removed
+- Remove use of `gutenberg_can_edit_post_type()`. Its replacement has been in WP Core since 6.1. [#38015]
+
+## [5.38.0] - 2024-06-25
+### Added
+- Hide admin interface if is_agency_managed_site [#38006]
+- Hide site visibility setting if is_agency_managed_site [#38009]
+
+### Fixed
+- Hide Core's default My Sites menu on WP.com [#38000]
+
+## [5.37.0] - 2024-06-24
+### Added
+- Added is_agency_managed_site function used to hide wpcom items [#37993]
+
+## [5.36.0] - 2024-06-21
+### Changed
+- Jetpack MU WPCOM: Added Applebot-Extended to robots.txt disallow. [#37954]
+- Masterbar: Require and use 'jetpack-masterbar' package in jetpack-mu-wpcom [#37812]
+- Site Visibility: Update link copy [#37909]
+
+### Fixed
+- Fix an edge case for theme showcase button rendering if only a single theme is left after deletion. [#37920]
+- Fix how comment modal option is retrieved [#37897]
+- Masterbar: Fix All sites icon size in small screen sizes [#37938]
+- Simple Classic: Redirect to Default interface after switching wpcom_admin_interface [#37921]
+
+## [5.35.4] - 2024-06-18
+### Changed
+- Update dependencies.
+
+## [5.35.3] - 2024-06-14
+### Removed
+- Remove bi-directional profile syncing between Atomic and Simple sites [#37862]
+
+### Fixed
+- Masterbar: Update All Sites icon size [#37832]
+
+## [5.35.2] - 2024-06-14
+### Added
+- Simple Classic: Add condition to release it using a wpcom function [#37867]
+
+### Fixed
+- Fix link to logs in Site management panel widget [#37868]
+
+## [5.35.1] - 2024-06-13
+### Changed
+- Move Verbum comments to clsx [#37789]
+- Updated package dependencies. [#37776] [#37796]
+
+### Fixed
+- Replace the wp-admin/about.php links with a link to wp-admin/ main page. This is needed for Simple Sites where we restrict access to the about.php and contribute.php [#37777]
+
+## [5.35.0] - 2024-06-10
+### Added
+- Add Hosting > Overview menu option on WP Admin sidebar. [#37732]
+
+### Changed
+- WPCOM Block Editor: Moved from Jetpack Plugin to mu-wpcom [#37324]
+
+### Removed
+- Remove Monitoring and Configuration menu options from Hosting menu. [#37736]
+
+### Fixed
+- Fixed typo in setcookie call [#37774]
+
+## [5.34.0] - 2024-06-06
+### Added
+- Menu: Register plugin install page for default sites [#37686]
+
+### Changed
+- Updated links to site management panel [#37712]
+- Updated package dependencies. [#37669]
+
+### Fixed
+- Jetpack Cloud Simple > Monetize: Fix the link for "Set up an offer for your supporters" step [#37673]
+- Revert update_calypso_locale [#37740]
+
+## [5.33.0] - 2024-06-03
+### Added
+- New intro tour for classic admin interface. [#37533]
+
+### Changed
+- Plugin menu: Register "Plugins Marketplace" menu. [#37521]
+- Update comments settings in Simple to match Jetpack site. [#37592]
+
+### Fixed
+- Replace "Site visibility" with a link to Calypso. [#37656]
+
+## [5.32.0] - 2024-05-27
+### Added
+- Add staging sites check for menus. [#37449]
+- Dashboard: Introduce the WP.com site management widget when the nav redesign is enabled. [#37569]
+
+### Changed
+- Calypsoify: Load feature from the Calypsoify package. [#37375]
+- Update import flow reference to new `/setup/hosted-site-migration` path. [#37470]
+
+## [5.31.1] - 2024-05-20
+### Changed
+- Untangling: Replace Hosting -> Connections with Hosting -> Marketing. [#37431]
+
+## [5.31.0] - 2024-05-16
+### Added
+- Admin Interface Style: Add the track event when the value is changed. [#37373]
+- WordPress.com Features: Add wp-admin sync with Calypso locale. [#37352]
+
+### Changed
+- Remove the need to have posts published in the ai-assembler launchpad. [#36942]
+- Updated package dependencies. [#37379]
+
+### Fixed
+- Untangling: correctly show the All Sites menu in the top bar. [#37393]
+- Verbum Comments: translate block editor. [#37367]
+
+## [5.30.0] - 2024-05-14
+### Added
+- WordPress.com Features: Calypso Locale Sync from wp-admin to Calypso [#37316]
+
+### Changed
+- In trial plans, we don't show "Grow your business" and "Launch your site" tasks. [#37374]
+
+## [5.29.1] - 2024-05-13
+### Changed
+- WP.com menu: Add "Hosting > Add-ons" menu to Atomic sites [#37318]
+
+## [5.29.0] - 2024-05-09
+### Added
+- Jetpack-mu-wpcom: Add classic theme helper package as a requirement [#37284]
+- Settings: Add Admin Interface Style options. [#37273]
+
+### Removed
+- Nav Redesign: Revert Hosting menu changes [#37254]
+
+### Fixed
+- Themes: Fixed an issue that was showing a broken Theme Showcase action in the active theme details [#37258]
+- WordPress.com Features: Don't load admin color schemes if Jetpack is not active [#37233]
+
+## [5.28.0] - 2024-05-06
+### Added
+- Add plugins link to menu for simple classic users. [#37182]
+- Launchpad: Add completion handler to eCommerce plan tasks. [#37131]
+- Navigation Redesign: Add Hosting -> Overview menu. [#37228]
+- Scheduled Updates: Add Scheduled Updates submenu item in wpcom-site-menu.php. [#37070]
+
+### Changed
+- Admin Menu: Record events in Tracks for sidebar notices. [#37214]
+- Fix navigation upsell and notification RTL spacing. [#37125]
+- Updated package dependencies. [#37147] [#37148]
+
+### Removed
+- Remove reference to `WPCOM_Launchpad`, which was removed from wpcom in D111041-code (May 2023). [#37201]
+- Remove reference to `wpcom_subs_js`, which was removed from wpcom in D104342-code (March 2023). [#37201]
+
+## [5.27.0] - 2024-04-29
+### Added
+- Launchpad: Add Entrepreneur plan launchpad tasks [#37094]
+
+## [5.26.1] - 2024-04-26
+### Added
+- CloudFlare Analytics: add tracking code management (originally in the Jetpack plugin). [#37061]
+
+### Changed
+- General: use wp_admin_notice function introduced in WP 6.4 to display notices. [#37051]
+
+### Fixed
+- Calypso: Prevent CSS concat on colors handle instead of reenqueuing colors from CDN. [#37063]
+
+## [5.26.0] - 2024-04-25
+### Added
+- Admin menu: Show sidebar notices on classic interface. [#36797]
+
+### Changed
+- Admin menu: Sidebar notices can be dismissed now. [#37031]
+
+### Fixed
+- Update project dependencies to explicitly reflect the current state. [#37035]
+
+## [5.25.0] - 2024-04-22
+### Added
+- Add missing dependency on `automattic/jetpack-status`. [#36881]
+
+### Changed
+- Launch the WP.com themes banner in WP Admin for all users. [#36935]
+- Monetize: Move menu item into the Jetpack menu for all Classic interface users. [#36995]
+
+### Fixed
+- Added completed callback for site_launched task. [#36839]
+- Fixed a WP.com only issue that forced the Themes menu to always point to Calypso even when the classic interface was set. [#36934]
+- Fix enqueuing editor styles. [#36983]
+- Themes: Fixed an issue that was showing a broken Theme Showcase action in the active theme details. [#36986]
+
+## [5.24.0] - 2024-04-15
+### Added
+- WP.com Patterns: Hide WP.com categories that start with underscore. [#36763]
+- Calypso: Add Theme Showcase menu. [#36851]
+- Display a banner before the theme browser that links to the WP.com Theme Showcase. [#36801]
+
+### Changed
+- Conditionally enable link manager on Simple and Atomic sites. [#36770]
+- Hide Customize on block themes on Simple Classic sites. [#36856]
+- Monetize: Move into Jetpack menu and open the page on Jetpack Cloud. [#36799]
+- Update Monetize Launchpad links to Jetpack Cloud. [#36728]
+
+### Removed
+- Removed All Sites menu option from sidebar. [#36632]
+
+### Fixed
+- Add translation support for the Launchpad API endpoint. [#36802]
+
+## [5.23.2] - 2024-04-08
+### Changed
+- Updated package dependencies. [#36760] [#36761] [#36788]
+
+## [5.23.1] - 2024-04-05
+### Changed
+- Update dependencies.
+
+## [5.23.0] - 2024-04-04
+### Added
+- Allow Simple sites access to the Hosting menu [#36684]
+
+### Changed
+- Load Stats on admin_menu hook for Simple sites so Jetpack menu loads for admin-menu API [#36712]
+
+## [5.22.0] - 2024-04-01
+### Added
+- Add Odyssey Stats to wpcom Simple Site [#36628]
+- Change Phan baselines. [#36627]
+
+### Changed
+- Dotcom patterns: use wp_block post type patterns in editor with all themes and hide core and Jetpack form patterns [#36588]
+- General: update Phan configuration. [#36528]
+
+## [5.21.0] - 2024-03-27
+### Changed
+- Updated package dependencies. [#36585]
+- Updated Verbum Highlander Comment form prompt value [#36505]
+
+### Fixed
+- Untangle: update launchpad links for subscribers to go to Jetpack Cloud [#36573]
+
+## [5.20.0] - 2024-03-25
+### Removed
+- Removed Subscribers from Hosting menu [#36513]
+
+## [5.19.0] - 2024-03-22
+### Changed
+- Added additional settings for commenting on simple sites [#36367]
+- Releasing Gutenberg to all Verbum users. [#36476]
+
+### Fixed
+- Block Patterns: The modal of the starter patterns isn't shown when you're creating a new post [#36516]
+- Untangle: update launchpad links for newsletter setting to go to Jetpack's [#36495]
+
+## [5.18.0] - 2024-03-20
+### Changed
+- The GitHub deployments feature check has been removed. [#36383]
+- Updated copy by replacing "subscribers" with "emails" [#36450]
+
+### Fixed
+- Fixed a bug where locked mode was applied to all sites in /me/sites that followed a site with locked mode enabled. [#36388]
+- Hosting menu is only available to admin with a wpcom account [#36405]
+- Wrong text in the editor placeholder. It was not translated [#36454]
+
+## [5.17.0] - 2024-03-15
+### Added
+- Added information regarding if github deployments is active to the wp-admin command palette config. [#36324]
+- Untangle: Enable both Calypso & Core admin color schemes in Users -> Profile [#36341]
+
+## [5.16.1] - 2024-03-12
+### Changed
+- Internal updates.
+
+## [5.16.0] - 2024-03-12
+### Added
+- Added Connections to the Hosting menu [#36302]
+
+### Changed
+- Updated package dependencies. [#36325]
+
+## [5.15.2] - 2024-03-11
+### Changed
+- External dependencies of the Command Palette are now explicitly declared. [#36184]
+- Jetpack MU WPCOM: Added Bytespider robots.txt [#36260]
+- Remove external-icon from Hosting menu [#36221]
+
+### Fixed
+- unregisters unnecessary items from the customizer for atomic sites on block theme [#36161]
+- Untangle: correctly show the current homepage when live-previewing another block theme [#36178]
+
+## [5.15.1] - 2024-03-05
+### Changed
+- Internal updates.
+
+## [5.15.0] - 2024-03-04
+### Added
+- Added a Command Palette loader on the jetpack-mu-wpcom plugin. [#35635]
+
+### Changed
+- Add-Ons: Hide the menu on atomic sites [#36065]
+- Scheduled Updates: Load API endpoints on WP.com so it works with public-api passthrough. [#35999]
+- Show gutenberg in verbum to 80% of users [#36121]
+- The Command Palette loads the script with a `defer` strategy now to improve the performance. [#36076]
+- Updated package dependencies.
+
+### Fixed
+- Add blog id and post id to connection params [#36152]
+- Untangle: fix launchpad links to go to wp-admin pages on classic view [#36014]
+
+## [5.14.1] - 2024-02-26
+### Changed
+- Verbum: Ensure colour contrast for disabled button is a11y-friendly. [#35929]
+
+### Fixed
+- Fix comment form login for passwordless users [#35785]
+
+## [5.14.0] - 2024-02-26
+### Added
+- Adds a dismissible admin notice to inform users of the hosting menu [#35930]
+- Add Scheduled Updates package [#35796]
+
+### Changed
+- Add Anthropic UAs to list of crawlers to block. [#35924]
+- Change wpcom menu item to go to my sites instead of global site view. [#35928]
+- Update WordPress.com menu item to be a menu of links rather than one link. [#35925]
+
+## [5.13.1] - 2024-02-21
+### Changed
+- Ensure consistent robots.txt behavior between WP.com and WoA. [#35803]
+
+## [5.13.0] - 2024-02-19
+### Added
+- Blog Privacy: Add AI User Agents to robots.txt depending on blog setting. [#35704]
+- Don't override Site Editor's back button URL for sites with classic view enabled. [#35721]
+- jetpack-mu-wpcom: Added the wpcom-site-menu feature to add a WordPress.com sidebar menu item. [#35702]
+
+### Fixed
+- Create and use Preact signal for subscriptionModalStatus to fix issue of undefined value sent on comment submission. [#35741]
+
+## [5.12.2] - 2024-02-13
+### Changed
+- Updated package dependencies. [#35608]
+
+## [5.12.1] - 2024-02-12
+### Changed
+- Make the 'Install the mobile app' task visible to Simple and Atomic. [#35465]
+
+## [5.12.0] - 2024-02-05
+### Added
+- Adds the completion logic for the Install the mobile app task to Atomic sites" [#35261]
+- Import: adds a banner to wp-admin linking to the Calypso import tool [#35351]
+- Register wp_block patterns from Dotcompatterns with blockTypes [#35337]
+
+### Changed
+- Updated package dependencies. [#35384]
+- Updated Readme to include Verbum issue board and clarify code syncing steps [#35318]
+- Verbum: Minify dynamic-loader script. [#35323]
+- Verbum: Use jetpack-assets package to register scripts using `.asset.php` file data. [#35323]
+- Verbum Comments blocks rollout to 50% of sites [#35446]
+
+### Fixed
+- Esnsure the submit event is fired by the comments form [#35388]
+- Verbum: Avoid copying PHP files into `src/build/verbum-comments/`. [#35323]
+
+## [5.11.0] - 2024-01-29
+### Security
+- Allow users to post HTML when blocks are enabled [#35276]
+
+### Added
+- Cache the response of the Domain List request, and harden the code [#35070]
+
+### Changed
+- Change Verbum Blocks sample size to 30% [#35255]
+- Hides the "Install the mobile app" task while the completion logic is not fully implemented [#35302]
+- Update Verbum README [#35252]
+
+### Fixed
+- Verbum cache buster depended on build_meta, which is only updated on production builds. It doesn't refresh during development, giving you a stale block-editor bundle. [#35243]
+
+## [5.10.0] - 2024-01-25
+### Added
+- Add Verbum Comments in jetpack-mu-wpcom plugin. [#35196]
+
+## [5.9.0] - 2024-01-22
+### Added
+- Added the completion logic for the 'Install the mobile app' task [#35110]
+- Adds the completion logic for the Verify Domain Email task [#35068]
+- Block theme previews: show an education modal when previewing a theme. [#34935]
+- Launchpad: Enabled to temporary dismiss a dismissible launchpad [#34889]
+
+### Changed
+- Dotcom patterns: use assembler v2 patterns in editor [#35081]
+- Newsletter launchpad: move email verify task above subscriber task [#35084]
+
+### Fixed
+- jetpack-mu-wpcom: Prevent get_plugin_data indirectly calling wptexturize. [#35087]
+
+## [5.8.2] - 2024-01-15
+### Added
+- Add the completion logic for the `front_page_updated` task [#34837]
+- Add the Verify Domain Email task [#34893]
+
+### Removed
+- Removes the `Set up your Professional Email` task [#34865]
+
+## [5.8.1] - 2024-01-08
+### Added
+- Adds the is_dismissible prop to the Launchpad task list definition. [#34839]
+
+## [5.8.0] - 2024-01-04
+### Added
+- Add WooCommerce setup task completion logic. [#34791]
+- Dashboard Link: Allow to customize the url via the query parameter. [#34836]
+
+### Changed
+- Launchpad: Rename the title of the setup_general to Give your site a name. [#34826]
+- Update launchpad methods docs. [#34829]
+- Update package dependencies. [#34815]
+- Use the Site Title task instead of the blogname_set task. [#34799]
+
+## [5.7.0] - 2024-01-02
+### Added
+- Added Sensei setup completion logic. [#34789]
+- Fixed the start page options modal still being visible. [#34824]
+
+### Changed
+- Block Patterns: Updated to use category name testimonials rather than quotes. [#34808]
+
+## [5.6.0] - 2023-12-25
+### Removed
+- Remove a nag for domains without a verified email [#34385]
+- Removed Launchpad task for domain email verification. [#34387]
+
+## [5.5.0] - 2023-12-15
+### Changed
+- Updates the WC visibility check to use the `is_plugin_active` function. [#34648]
+
+## [5.4.0] - 2023-12-14
+### Added
+- Add the Sensei and WooCommerce Setup Task, to allow us to retire the old checklist card. [#34551] [#34564]
+- Launchpad: Add context param to endpoint. [#34498]
+
+### Changed
+- Mark the setup_general task as complete based on whether blogname or blog description options changed. [#34579]
+
+## [5.3.0] - 2023-12-11
+### Added
+- Added editor error handling from ETK. [#34158]
+- Added initial JS and TS build logic. [#34158]
+- Added the Site Setup Launchpad, to allow us to retire the old checklist card. [#34320]
+- Launchpad: Added tasks for the new ai-assembler flow. [#34532]
+- Launchpad: Completed the plan tasks when the user purchses a plan. [#34480]
+- Launchpad: Completed the task, Personalize your site, when the user updates the site title, site tagline or site logo. [#34511]
+- Launchpad: Set up tasks for the new assembler-first flow. [#34451]
+
+### Changed
+- Launchpad: Added source to Earn stripe task. [#34448]
+
+## [5.2.0] - 2023-12-03
+### Changed
+- Launchpad: Updated link for paid offer task. [#34413]
+
+## [5.1.1] - 2023-11-30
+### Changed
+- Update url for launchpad task to add subscribe block to point to site editor with subscribe block docs open in the help center. [#34329]
+
+### Fixed
+- Added type check to prevent unnecessary warnings in Coming Soon logic [#34322]
+- Earn: Update link to plans page. [#34316]
+
+## [5.1.0] - 2023-11-24
+### Added
+- Added dynamic titles to task lists. [#34244]
+- Migrated Block Patterns. [#34162]
+
+### Changed
+- Replaced usage of strpos() with str_contains(). [#34137]
+- Replaced usage of substr() with str_starts_with() and str_ends_with(). [#34207]
+
+### Fixed
+- Prevented fatal errors when filename is empty in the heif support feature. [#34062]
+
+## [5.0.0] - 2023-11-20
+### Added
+- Ensure enable subscribe modal task in launchpad. [#33909]
+- Launchpad: Add query parameter to the write three posts prompt. [#34160]
+
+### Changed
+- Replaced usage of strpos() with str_starts_with(). [#34135]
+- Updated required PHP version to >= 7.0. [#34192]
+
+## [4.18.0] - 2023-11-09
+### Added
+- Take id_map in consideration when checking if a task is completed inside wpcom_launchpad_is_task_option_completed. [#34009]
+
+## [4.17.0] - 2023-11-08
+### Added
+- Added Launchpad tasks and task list to the Subscriber page. [#33948]
+
+### Changed
+- Updated the URL for the Add Subscribers launchpad task to trigger the "Add Subscribers" modal. [#33913]
+
+## [4.16.2] - 2023-11-03
+### Fixed
+- Launchpad hooks: Made more resilient against non-array values. [#33923]
+
 ## [4.16.1] - 2023-10-31
 ### Fixed
 - Clicking on the 'Choose a plan' task would not redirect to the plans page. [#33872]
@@ -414,6 +1217,100 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Testing initial package release.
 
+[5.62.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.61.0...v5.62.0
+[5.61.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.60.0...v5.61.0
+[5.60.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.59.0...v5.60.0
+[5.59.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.58.0...v5.59.0
+[5.58.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.57.1...v5.58.0
+[5.57.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.57.0...v5.57.1
+[5.57.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.56.0...v5.57.0
+[5.56.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.55.0...v5.56.0
+[5.55.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.54.3...v5.55.0
+[5.54.3]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.54.2...v5.54.3
+[5.54.2]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.54.1...v5.54.2
+[5.54.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.54.0...v5.54.1
+[5.54.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.53.1...v5.54.0
+[5.53.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.53.0...v5.53.1
+[5.53.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.52.1...v5.53.0
+[5.52.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.52.0...v5.52.1
+[5.52.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.51.0...v5.52.0
+[5.51.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.50.0...v5.51.0
+[5.50.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.49.1...v5.50.0
+[5.49.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.49.0...v5.49.1
+[5.49.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.48.0...v5.49.0
+[5.48.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.47.0...v5.48.0
+[5.47.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.46.0...v5.47.0
+[5.46.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.45.0...v5.46.0
+[5.45.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.44.0...v5.45.0
+[5.44.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.43.0...v5.44.0
+[5.43.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.42.1...v5.43.0
+[5.42.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.42.0...v5.42.1
+[5.42.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.41.0...v5.42.0
+[5.41.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.40.0...v5.41.0
+[5.40.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.39.0...v5.40.0
+[5.39.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.38.1...v5.39.0
+[5.38.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.38.0...v5.38.1
+[5.38.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.37.0...v5.38.0
+[5.37.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.36.0...v5.37.0
+[5.36.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.35.4...v5.36.0
+[5.35.4]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.35.3...v5.35.4
+[5.35.3]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.35.2...v5.35.3
+[5.35.2]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.35.1...v5.35.2
+[5.35.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.35.0...v5.35.1
+[5.35.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.34.0...v5.35.0
+[5.34.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.33.0...v5.34.0
+[5.33.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.32.0...v5.33.0
+[5.32.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.31.1...v5.32.0
+[5.31.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.31.0...v5.31.1
+[5.31.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.30.0...v5.31.0
+[5.30.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.29.1...v5.30.0
+[5.29.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.29.0...v5.29.1
+[5.29.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.28.0...v5.29.0
+[5.28.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.27.0...v5.28.0
+[5.27.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.26.1...v5.27.0
+[5.26.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.26.0...v5.26.1
+[5.26.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.25.0...v5.26.0
+[5.25.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.24.0...v5.25.0
+[5.24.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.23.2...v5.24.0
+[5.23.2]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.23.1...v5.23.2
+[5.23.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.23.0...v5.23.1
+[5.23.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.22.0...v5.23.0
+[5.22.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.21.0...v5.22.0
+[5.21.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.20.0...v5.21.0
+[5.20.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.19.0...v5.20.0
+[5.19.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.18.0...v5.19.0
+[5.18.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.17.0...v5.18.0
+[5.17.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.16.1...v5.17.0
+[5.16.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.16.0...v5.16.1
+[5.16.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.15.2...v5.16.0
+[5.15.2]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.15.1...v5.15.2
+[5.15.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.15.0...v5.15.1
+[5.15.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.14.1...v5.15.0
+[5.14.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.14.0...v5.14.1
+[5.14.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.13.1...v5.14.0
+[5.13.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.13.0...v5.13.1
+[5.13.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.12.2...v5.13.0
+[5.12.2]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.12.1...v5.12.2
+[5.12.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.12.0...v5.12.1
+[5.12.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.11.0...v5.12.0
+[5.11.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.10.0...v5.11.0
+[5.10.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.9.0...v5.10.0
+[5.9.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.8.2...v5.9.0
+[5.8.2]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.8.1...v5.8.2
+[5.8.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.8.0...v5.8.1
+[5.8.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.7.0...v5.8.0
+[5.7.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.6.0...v5.7.0
+[5.6.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.5.0...v5.6.0
+[5.5.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.4.0...v5.5.0
+[5.4.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.3.0...v5.4.0
+[5.3.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.2.0...v5.3.0
+[5.2.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.1.1...v5.2.0
+[5.1.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.1.0...v5.1.1
+[5.1.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.0.0...v5.1.0
+[5.0.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.18.0...v5.0.0
+[4.18.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.17.0...v4.18.0
+[4.17.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.16.2...v4.17.0
+[4.16.2]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.16.1...v4.16.2
 [4.16.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.16.0...v4.16.1
 [4.16.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.15.1...v4.16.0
 [4.15.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.15.0...v4.15.1

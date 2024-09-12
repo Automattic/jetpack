@@ -75,15 +75,15 @@ function render_callback( $attributes ) {
 	$amp_markup     = '';
 
 	if (
-		false !== strpos( $url, '/document/d/' ) ||
-		false !== strpos( $url, '/spreadsheets/d/' ) ||
-		false !== strpos( $url, '/presentation/d/' )
+		str_contains( $url, '/document/d/' ) ||
+		str_contains( $url, '/spreadsheets/d/' ) ||
+		str_contains( $url, '/presentation/d/' )
 	) {
 		if ( function_exists( 'amp_is_request' ) && amp_is_request() ) {
 
-			$type = false !== strpos( $url, '/document/d/' ) ? __( 'Google Docs', 'jetpack' ) : '';
-			$type = empty( $type ) && false !== strpos( $url, '/spreadsheets/d/' ) ? __( 'Google Sheets', 'jetpack' ) : $type;
-			$type = empty( $type ) && false !== strpos( $url, '/presentation/d/' ) ? __( 'Google Slides', 'jetpack' ) : $type;
+			$type = str_contains( $url, '/document/d/' ) ? __( 'Google Docs', 'jetpack' ) : '';
+			$type = empty( $type ) && str_contains( $url, '/spreadsheets/d/' ) ? __( 'Google Sheets', 'jetpack' ) : $type;
+			$type = empty( $type ) && str_contains( $url, '/presentation/d/' ) ? __( 'Google Slides', 'jetpack' ) : $type;
 
 			$iframe_markup = '';
 

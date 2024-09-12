@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import {
 	Button,
 	ProductPrice,
@@ -10,34 +7,30 @@ import {
 	PricingTableItem,
 } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
-import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
+import useConnectSiteMutation from '../../data/use-connection-mutation';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
+import usePlan from '../../hooks/use-plan';
 import useProtectData from '../../hooks/use-protect-data';
-import useWafData from '../../hooks/use-waf-data';
-import { STORE_ID } from '../../state/store';
 
 /**
  * Product Detail component.
  *
- * @param {object} props                 - Component props
- * @param {Function} props.onScanAdd     - Callback when adding paid protect product successfully
- * @returns {object}                ConnectedPricingTable react component.
+ * @return {object}                ConnectedPricingTable react component.
  */
-const ConnectedPricingTable = ( { onScanAdd } ) => {
-	const { handleRegisterSite, registrationError } = useConnection( {
+const ConnectedPricingTable = () => {
+	const navigate = useNavigate();
+	const { recordEvent } = useAnalyticsTracks();
+	const connectSiteMutation = useConnectSiteMutation();
+	const { upgradePlan, isLoading: isPlanLoading } = usePlan();
+	const { registrationError } = useConnection( {
 		skipUserConnection: true,
 	} );
 
-	const { refreshPlan, refreshStatus } = useDispatch( STORE_ID );
-
-	const [ getProtectFreeButtonIsLoading, setGetProtectFreeButtonIsLoading ] = useState( false );
-	const [ getScanButtonIsLoading, setGetScanButtonIsLoading ] = useState( false );
-
 	// Access paid protect product data
 	const { jetpackScan } = useProtectData();
-	const { refreshWaf } = useWafData();
 	const { pricingForUi } = jetpackScan;
 	const { introductoryOffer, currencyCode: currency = 'USD' } = pricingForUi;
 
@@ -47,24 +40,16 @@ const ConnectedPricingTable = ( { onScanAdd } ) => {
 		? Math.ceil( ( introductoryOffer.costPerInterval / 12 ) * 100 ) / 100
 		: null;
 
-	// Track free and paid click events
-	const { recordEvent, recordEventHandler } = useAnalyticsTracks();
-	const getScan = recordEventHandler( 'jetpack_protect_pricing_table_get_scan_link_click', () => {
-		setGetScanButtonIsLoading( true );
-		onScanAdd();
-	} );
+	const getScan = useCallback( () => {
+		recordEvent( 'jetpack_protect_pricing_table_get_scan_link_click' );
+		upgradePlan();
+	}, [ recordEvent, upgradePlan ] );
 
-	const getProtectFree = useCallback( () => {
+	const getProtectFree = useCallback( async () => {
 		recordEvent( 'jetpack_protect_connected_product_activated' );
-		setGetProtectFreeButtonIsLoading( true );
-		handleRegisterSite()
-			.then( () => setGetProtectFreeButtonIsLoading( false ) )
-			.then( () => {
-				refreshPlan();
-				refreshWaf();
-				refreshStatus( true );
-			} );
-	}, [ handleRegisterSite, recordEvent, refreshWaf, refreshPlan, refreshStatus ] );
+		await connectSiteMutation.mutateAsync();
+		navigate( '/scan' );
+	}, [ connectSiteMutation, recordEvent, navigate ] );
 
 	const args = {
 		title: __( 'Stay one step ahead of threats', 'jetpack-protect' ),
@@ -111,8 +96,8 @@ const ConnectedPricingTable = ( { onScanAdd } ) => {
 						<Button
 							fullWidth
 							onClick={ getScan }
-							isLoading={ getScanButtonIsLoading }
-							disabled={ getProtectFreeButtonIsLoading || getScanButtonIsLoading }
+							isLoading={ isPlanLoading }
+							disabled={ isPlanLoading || connectSiteMutation.isPending }
 						>
 							{ __( 'Get Jetpack Protect', 'jetpack-protect' ) }
 						</Button>
@@ -149,8 +134,8 @@ const ConnectedPricingTable = ( { onScanAdd } ) => {
 							fullWidth
 							variant="secondary"
 							onClick={ getProtectFree }
-							isLoading={ getProtectFreeButtonIsLoading }
-							disabled={ getProtectFreeButtonIsLoading || getScanButtonIsLoading }
+							isLoading={ connectSiteMutation.isPending }
+							disabled={ connectSiteMutation.isPending || isPlanLoading }
 							error={
 								registrationError
 									? __( 'An error occurred. Please try again.', 'jetpack-protect' )

@@ -40,8 +40,9 @@
 	margin-bottom: 0;
 }
 
-.list-header-button {
-	margin-left: calc( var( --spacing-base ) * 2 ); // 16px
+.list-header__controls {
+	display: flex;
+	gap: calc( var( --spacing-base ) * 2 ); // 16px
 }
 
 .threat-footer {
@@ -56,7 +57,7 @@
 	}
 }
 
-.accordion-heading {
+.accordion-header {
 	display: grid;
 	grid-template-columns: repeat( 9, 1fr );
 	background-color: white;
@@ -78,20 +79,6 @@
 .manual-scan {
 	margin: calc( var( --spacing-base ) * 4 ) calc( var( --spacing-base ) * 8 ); // 32px | 64px
 	text-align: center;
-
-	> button span {
-		font-size: var( --font-body-small );
-		font-weight: normal;
-		color: var( --jp-gray-70 );
-	}
-
-	button:hover:not(:disabled) {
-		text-decoration-line: none;
-	}
-
-	button:focus:not(:disabled) {
-		box-shadow: none;
-	}
 }
 
 @media ( max-width: 599px ) {
@@ -104,19 +91,39 @@
 		display: none;
 	}
 
-	.list-header-button {
-		flex: 1;
-
-		&:first-of-type {
-			margin-left: 0;
-		}
-	}
-
 	.threat-footer {
 		justify-content: center;
 
 		> * {
 			width: 50%;
+		}
+	}
+}
+
+.pagination-container {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 4px;
+	margin-top: calc( var( --spacing-base ) * 4 ); // 24px
+	margin-bottom: calc(var(--spacing-base) * 2); // 16px
+
+	button {
+		font-size: var( --font-body );
+		width: auto;
+		height: auto;
+		padding: 0 var( --spacing-base ); // 0 | 8px
+		line-height: 32px;
+		min-width: 32px;
+
+		&.unfocused {
+			color: var( --jp-black );
+			background: none;
+	
+			&:hover:not(:disabled) {
+				color: var( --jp-black );
+				background: none;
+			}
 		}
 	}
 }

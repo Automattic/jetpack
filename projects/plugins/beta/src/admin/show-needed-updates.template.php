@@ -2,6 +2,8 @@
 /**
  * Jetpack Beta wp-admin template to show needed updates.
  *
+ * @html-template \Automattic\JetpackBeta\Admin::render -- Via plugin-select.template.php or plugin-manage.template.php
+ * @html-template-var \Automattic\JetpackBeta\Plugin|null $plugin Plugin being managed.
  * @package automattic/jetpack-beta
  */
 
@@ -13,15 +15,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-// @global Plugin|null $plugin The plugin being managed, if any. May be unset, not just null.
-$plugin = isset( $plugin ) ? $plugin : null; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-
-// -------------
-
-// TODO: Once we drop PHP 5.6 support, we can do `( function () { ... } )();` instead of assigning to `$tmp`.
-$tmp = function ( $plugin ) {
+// Wrap in a function to avoid leaking all the variables we create to subsequent runs.
+( function ( $plugin ) {
 	$updates = Utils::plugins_needing_update( true );
-	if ( isset( $plugin ) ) {
+	if ( $plugin ) {
 		$updates = array_intersect_key(
 			$updates,
 			array(
@@ -61,13 +58,13 @@ $tmp = function ( $plugin ) {
 		<h2><?php esc_html_e( 'Some updates are available', 'jetpack-beta' ); ?></h2>
 		<?php
 		foreach ( $updates as $file => $update ) {
-			$slug = dirname( $file );
+			$slug  = dirname( $file );
+			$isdev = false;
 			if ( JPBETA__PLUGIN_FOLDER === $slug ) {
 				// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 				$name = $update->Name;
 			} else {
-				$isdev = false;
-				if ( substr( $slug, -4 ) === '-dev' ) {
+				if ( str_ends_with( $slug, '-dev' ) ) {
 					$isdev = true;
 					$slug  = substr( $slug, 0, -4 );
 				}
@@ -99,5 +96,4 @@ $tmp = function ( $plugin ) {
 		<?php } ?>
 	</div>
 	<?php
-};
-$tmp( $plugin );
+} )( $plugin ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- HTML template.

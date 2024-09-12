@@ -26,16 +26,19 @@
 		// Monorepo packages are excluded in renovate-config.js, where we can read
 		// the list of them in code.
 
-		// We need to keep a wide version range to support PHP 5.6.
-		// Note for libraries used in plugins this will only work right for require-dev deps, not require.
+		// Disable the packagist 'wordpress/classic-editor-plugin'. It's not in packagist, and we have a customManager for it below.
 		{
-			matchPackageNames: [
-				'johnkary/phpunit-speedtrap',
-				'symfony/console',
-				'symfony/process',
-				'wikimedia/at-ease',
-				'wikimedia/testing-access-wrapper',
-			],
+			matchDatasources: [ 'packagist' ],
+			matchDepNames: [ 'wordpress/classic-editor-plugin' ],
+			enabled: false,
+		},
+
+		// Widen PHP dev deps to maintain support for old PHP versions we still support.
+		// When we drop an old PHP version we'll manually go through and narrow any ranges.
+		// (non-dev deps are handled in renovate-config.js where we can read the correct value for `constraints.php`)
+		{
+			matchDatasources: [ 'packagist' ],
+			matchDepTypes: [ 'require-dev' ],
 			rangeStrategy: 'widen',
 		},
 
@@ -63,17 +66,22 @@
 		// These aren't a monorepo, but we may as well do them all together anyway.
 		{
 			groupName: 'GitHub API packages',
-			matchPackagePatterns: [ '^@actions/', '^@octokit/' ],
+			matchPackageNames: [ '@actions/**', '@octokit/**' ],
+		},
+		{
+			groupName: 'GitHub actions upload/download artifact',
+			matchDepTypes: [ 'action' ],
+			matchPackageNames: [ 'actions/download-artifact', 'actions/upload-artifact' ],
 		},
 		{
 			groupName: 'Codeception packages',
 			matchDatasources: [ 'packagist' ],
-			matchPackagePrefixes: [ 'codeception/' ],
+			matchPackageNames: [ 'codeception/**' ],
 		},
 		{
 			groupName: 'Docker actions',
 			matchDepTypes: [ 'action' ],
-			matchPackagePrefixes: [ 'docker/' ],
+			matchPackageNames: [ 'docker/**' ],
 		},
 
 		// 🤷
@@ -89,8 +97,8 @@
 				'uuid',
 				'@testing-library/preact',
 			],
-			reviewers: [ 'team:jetpack-search' ],
-			addLabels: [ 'Search', 'Instant Search' ],
+			reviewers: [ 'team:red' ],
+			addLabels: [ '[Feature] Search', 'Instant Search' ],
 		},
 	],
 
@@ -105,7 +113,35 @@
 			depNameTemplate: 'renovate',
 			packageNameTemplate: 'ghcr.io/renovatebot/renovate',
 		},
+
+		// wpcomsh's wordpress/classic-editor-plugin fake-package.
+		{
+			customType: 'regex',
+			fileMatch: [ '^projects/plugins/wpcomsh/composer\\.json$' ],
+			matchStrings: [
+				// Alas the only option is regexing to match against the JSON. Four patterns for the four different places the version number appears.
+				// .require:
+				'"wordpress/classic-editor-plugin": "(?<currentValue>[0-9.]+)",',
+				// .repositories[].package.version
+				'"name": "wordpress/classic-editor-plugin",\\s+"version": "(?<currentValue>[0-9.]+)",',
+				// .repositories[].package.dist.url
+				'"url": "https://downloads\\.wordpress\\.org/plugin/classic-editor\\.(?<currentValue>[0-9.]+)\\.zip",',
+				// .repositories[].package.source.reference
+				'"url": "https://plugins\\.svn\\.wordpress\\.org/classic-editor/",\\s+"type": "svn",\\s+"reference": "tags/(?<currentValue>[0-9.]+)/"',
+			],
+			depNameTemplate: 'wordpress/classic-editor-plugin',
+			packageNameTemplate: 'classic-editor',
+			datasourceTemplate: 'custom.wordpress-plugin',
+		},
 	],
+	customDatasources: {
+		'wordpress-plugin': {
+			defaultRegistryUrlTemplate: 'https://api.wordpress.org/plugins/info/1.0/{{packageName}}.json',
+			transformTemplates: [
+				'{ "releases": $each( versions, function($v, $k) { $match( $k, /^[0-9.]+$/ ) ? { "version": $k } } ) }',
+			],
+		},
+	},
 
 	lockFileMaintenance: {
 		enabled: true,

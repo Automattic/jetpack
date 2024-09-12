@@ -36,88 +36,94 @@ class zeroBSCRM_list{
         #} All messages need params to match this func: 
         #} ... zeroBSCRM_UI2_messageHTML($msgClass='',$msgHeader='',$msg='',$iconClass='',$id='')
 
-    function __construct($args=array()) {
+	/**
+	 * Construct function
+	 *
+	 * @param array $args Object construct args.
+	 */
+	public function __construct( $args = array() ) {
 
-        #} =========== LOAD ARGS ==============
-        $defaultArgs = array(
+		$default_args = array(
 
-            'objType'   => false,   //transaction
-            'singular'   => false,  //Transaction
-            'plural' => false,      //Transactions
-            'tag' => false,         //zerobs_transactiontag
-            'postType' => false,    //zerobs_transaction
-            'postPage' => false,    //manage-transactions
-            'langLabels' => array(
-                    
-                    // bulk actions - general
-                    'view' => __('View',"zero-bs-crm"),
-                    'edit' => __('Edit',"zero-bs-crm"),
-                    'deletestr' => __('Delete',"zero-bs-crm"),
-                    'nocustomer' => __('Not Assigned',"zero-bs-crm"),
-                    'areyousure' => __('Are you sure?',"zero-bs-crm"),
-                    'acceptyesdoit' => __('Yes, accept',"zero-bs-crm"),
-                    'yesproceed'  => __('Yes, proceed',"zero-bs-crm"),
-                    'changestatus' => __('Change Status',"zero-bs-crm"),
-                    'yesupdate' => __('Yes, update',"zero-bs-crm"),
-                    
-                    // bulk actions - delete
-                    'areyousurethese' => __('Are you sure you want to delete these?',"zero-bs-crm"),
-                    'yesdelete' => __('Yes, delete!','zero-bs-crm'),
-                    'noleave' => __('No, leave them',"zero-bs-crm"),
-                    'yesthose' => __('Yes, remove everything',"zero-bs-crm"),
-                    'deleted' => __('Deleted',"zero-bs-crm"),
-                    'notdeleted' => __('Could not delete!',"zero-bs-crm"),
+			'objType'     => false, // transaction
+			'singular'    => false, // Transaction
+			'plural'      => false, // Transactions
+			'tag'         => false, // zerobs_transactiontag
+			'postType'    => false, // zerobs_transaction
+			'postPage'    => false, // manage-transactions
+			'langLabels'  => array(
 
-                    // tag related
-                    'addtags' => __('Add tag(s)',"zero-bs-crm"),
-                    'addtags' => __('Add tags',"zero-bs-crm"),
-                    'removetags' => __('Remove tag(s)',"zero-bs-crm"),
-                    'addthesetags' => __('Add Tags',"zero-bs-crm"),
-                    'whichtags' => __('Which Tag(s)?',"zero-bs-crm"),
-                    'whichtagsadd' => __('Which Tag(s) would you like to add?',"zero-bs-crm"),
-                    'whichtagsremove' => __('Which Tag(s) would you like to remove?',"zero-bs-crm"),                    
-                    'addthesetags' => __('Add Tags',"zero-bs-crm"),
-                    'tagsadded' => __('Tags Added',"zero-bs-crm"),
-                    'tagsaddeddesc' => __('Your tags have been successsfully added.',"zero-bs-crm"),
-                    'tagsnotadded' => __('Tags Not Added',"zero-bs-crm"),
-                    'tagsnotaddeddesc' => __('Your tags could not be added.',"zero-bs-crm"),
-                    'tagsnotselected' => __('No Tags Selected',"zero-bs-crm"),
-                    'tagsnotselecteddesc' => __('You did not select any tags.',"zero-bs-crm"),
-                    'removethesetags' => __('Remove Tags',"zero-bs-crm"),
-                    'tagsremoved' => __('Tags Removed',"zero-bs-crm"),
-                    'tagsremoveddesc' => __('Your tags have been successsfully removed.',"zero-bs-crm"),
-                    'tagsnotremoved' => __('Tags Not Removed',"zero-bs-crm"),
-                    'tagsnotremoveddesc' => __('Your tags could not be removed.',"zero-bs-crm"),
-                    'notags' => __('You do not have any tags',"zero-bs-crm"),
-               
+				// bulk actions - general
+				'view'                => __( 'View', 'zero-bs-crm' ),
+				'edit'                => __( 'Edit', 'zero-bs-crm' ),
+				'deletestr'           => __( 'Delete', 'zero-bs-crm' ),
+				'nocustomer'          => __( 'Not Assigned', 'zero-bs-crm' ),
+				'areyousure'          => __( 'Are you sure?', 'zero-bs-crm' ),
+				'acceptyesdoit'       => __( 'Yes, accept', 'zero-bs-crm' ),
+				'yesproceed'          => __( 'Yes, proceed', 'zero-bs-crm' ),
+				'changestatus'        => __( 'Change Status', 'zero-bs-crm' ),
+				'yesupdate'           => __( 'Yes, update', 'zero-bs-crm' ),
 
-                    // bulk actions - merge 2 records
-                    'merged' => __('Merged',"zero-bs-crm"),
-                    'notmerged' => __('Not Merged',"zero-bs-crm"),
-                    'yesmerge' => __('Yes, merge them',"zero-bs-crm"),
+				// bulk actions - delete
+				'areyousurethese'     => __( 'Are you sure you want to delete these?', 'zero-bs-crm' ),
+				'yesdelete'           => __( 'Yes, delete!', 'zero-bs-crm' ),
+				'noleave'             => __( 'No, leave them', 'zero-bs-crm' ),
+				'yesthose'            => __( 'Yes, remove everything', 'zero-bs-crm' ),
+				'deleted'             => __( 'Deleted', 'zero-bs-crm' ),
+				'notdeleted'          => __( 'Could not delete!', 'zero-bs-crm' ),
 
-            ),
-            'bulkActions' => array(),
-            'sortables' => array('id'),
-            'unsortables' => array('tagged','editlink','phonelink','viewlink'),
-            'extraBoxes' => '', // html for extra boxes e.g. upsells :)
-            'extraJS' => '',
-            'messages' => '',
+				// tag related
+				'addtags'             => __( 'Add tags', 'zero-bs-crm' ),
+				'removetags'          => __( 'Remove tag(s)', 'zero-bs-crm' ),
+				'whichtags'           => __( 'Which Tag(s)?', 'zero-bs-crm' ),
+				'whichtagsadd'        => __( 'Which Tag(s) would you like to add?', 'zero-bs-crm' ),
+				'whichtagsremove'     => __( 'Which Tag(s) would you like to remove?', 'zero-bs-crm' ),
+				'addthesetags'        => __( 'Add Tags', 'zero-bs-crm' ),
+				'tagsadded'           => __( 'Tags Added', 'zero-bs-crm' ),
+				'tagsaddeddesc'       => __( 'Your tags have been successsfully added.', 'zero-bs-crm' ),
+				'tagsnotadded'        => __( 'Tags Not Added', 'zero-bs-crm' ),
+				'tagsnotaddeddesc'    => __( 'Your tags could not be added.', 'zero-bs-crm' ),
+				'tagsnotselected'     => __( 'No Tags Selected', 'zero-bs-crm' ),
+				'tagsnotselecteddesc' => __( 'You did not select any tags.', 'zero-bs-crm' ),
+				'removethesetags'     => __( 'Remove Tags', 'zero-bs-crm' ),
+				'tagsremoved'         => __( 'Tags Removed', 'zero-bs-crm' ),
+				'tagsremoveddesc'     => __( 'Your tags have been successsfully removed.', 'zero-bs-crm' ),
+				'tagsnotremoved'      => __( 'Tags Not Removed', 'zero-bs-crm' ),
+				'tagsnotremoveddesc'  => __( 'Your tags could not be removed.', 'zero-bs-crm' ),
+				'notags'              => __( 'You do not have any tags', 'zero-bs-crm' ),
 
-            //not implemented 'hideSidebar' => false // ability to hard-hide sidebar
+				// bulk actions - merge 2 records
+				'merged'              => __( 'Merged', 'zero-bs-crm' ),
+				'notmerged'           => __( 'Not Merged', 'zero-bs-crm' ),
+				'yesmerge'            => __( 'Yes, merge them', 'zero-bs-crm' ),
 
-        ); foreach ($defaultArgs as $argK => $argV){ $this->$argK = $argV; if (is_array($args) && isset($args[$argK])) {  if (is_array($args[$argK])){ $newData = $this->$argK; if (!is_array($newData)) $newData = array(); foreach ($args[$argK] as $subK => $subV){ $newData[$subK] = $subV; }$this->$argK = $newData;} else { $this->$argK = $args[$argK]; } } }
-        #} =========== / LOAD ARGS =============
+				// error handling
+				'badperms'            => __( 'Invalid permissions', 'zero-bs-crm' ),
+				'badperms_desc'       => __( 'You do not have permissions to make this change.', 'zero-bs-crm' ),
 
-        global $zbs;
+			),
+			'bulkActions' => array(),
+			'sortables'   => array( 'id' ),
+			'unsortables' => array( 'tagged', 'editlink', 'phonelink', 'viewlink' ),
+			'extraBoxes'  => '', // html for extra boxes e.g. upsells :)
+			'extraJS'     => '',
+			'messages'    => '',
 
-        if ($this->objTypeID == false){
+			// not implemented 'hideSidebar' => false // ability to hard-hide sidebar
+
+		);
+		// phpcs:disable
+		foreach ($default_args as $argK => $argV){ $this->$argK = $argV; if (is_array($args) && isset($args[$argK])) {  if (is_array($args[$argK])){ $newData = $this->$argK; if (!is_array($newData)) $newData = array(); foreach ($args[$argK] as $subK => $subV){ $newData[$subK] = $subV; }$this->$argK = $newData;} else { $this->$argK = $args[$argK]; } } }
+		// phpcs:enable
+
+		global $zbs;
+
+		if ( $this->objTypeID == false ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual,WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
 			$this->objTypeID = $zbs->DAL->objTypeID( $this->objType ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
-        }
-
-    }
+		}
+	}
 
     public function drawListView(){
 
@@ -150,8 +156,8 @@ class zeroBSCRM_list{
             // set it whether legit? what'll this do on error urls people make up?
             // v2.2+ hone this + add multi-filter
             // v2.99.5 - ALWAYS lowercase :) 
-            $possibleQuickFilters = strtolower(sanitize_text_field($_GET['quickfilters']));
-            $listViewFilters['quickfilters'] = array($possibleQuickFilters);
+					$possible_quick_filters          = sanitize_text_field( $_GET['quickfilters'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+					$listViewFilters['quickfilters'] = array( $possible_quick_filters ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
         }
 
@@ -678,9 +684,16 @@ class zeroBSCRM_list{
 	public function draw_listview_header( $listview_filters ) {
 		global $zbs;
 
-		$filter_var       = 'zeroBSCRM_filterbuttons_' . $this->objType; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-		$all_quickfilters = ( empty( $GLOBALS[ $filter_var ]['all'] ) ? array() : $GLOBALS[ $filter_var ]['all'] );
-		$all_tags         = $zbs->DAL->getTagsForObjType( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		$all_quickfilters = array_key_exists( $this->objTypeID, $zbs->listview_filters ) ? $zbs->listview_filters[ $this->objTypeID ] : array(); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+
+		$quickfilter_category_count = count( $all_quickfilters );
+		$quickfilter_categories     = array(
+			'general' => __( 'General', 'zero-bs-crm' ),
+			'status'  => __( 'Status', 'zero-bs-crm' ),
+			'segment' => __( 'Segment', 'zero-bs-crm' ),
+		);
+
+		$all_tags = $zbs->DAL->getTagsForObjType( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 			array(
 				'objtypeid'    => $this->objTypeID, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 				'excludeEmpty' => false,
@@ -688,9 +701,29 @@ class zeroBSCRM_list{
 		);
 
 		$current_quickfilter       = ( ! empty( $listview_filters['quickfilters'][0] ) ? $listview_filters['quickfilters'][0] : '' );
-		$current_quickfilter_label = ( ! empty( $all_quickfilters[ $current_quickfilter ][0] ) ? $all_quickfilters[ $current_quickfilter ][0] : '' );
-		$current_tag               = ( ! empty( $listview_filters['tags'][0] ) ? $listview_filters['tags'][0]['name'] : '' );
-		$current_search            = ( ! empty( $listview_filters['s'] ) ? $listview_filters['s'] : '' );
+		$current_quickfilter_label = '';
+
+		if ( $quickfilter_category_count > 0 ) {
+			$quickfilter_html = '<option disabled selected>' . esc_html__( 'Select filter', 'zero-bs-crm' ) . '</option>';
+			foreach ( $all_quickfilters as $category => $filters ) {
+				if ( $quickfilter_category_count > 1 ) {
+					$category_label    = array_key_exists( $category, $quickfilter_categories ) ? $quickfilter_categories[ $category ] : $category;
+					$quickfilter_html .= '<optgroup label="' . esc_attr( $category_label ) . '">';
+				}
+				foreach ( $filters as $filter_slug => $filter_label ) {
+					if ( $current_quickfilter === $filter_slug ) {
+						$current_quickfilter_label = $filter_label;
+					}
+					$quickfilter_html .= '<option value="' . esc_attr( $filter_slug ) . '">' . esc_html( $filter_label ) . '</option>';
+				}
+				if ( $quickfilter_category_count > 1 ) {
+					$quickfilter_html .= '</optgroup>';
+				}
+			}
+		}
+
+		$current_tag    = ( ! empty( $listview_filters['tags'][0] ) ? $listview_filters['tags'][0]['name'] : '' );
+		$current_search = ( ! empty( $listview_filters['s'] ) ? $listview_filters['s'] : '' );
 		?>
 
 		<jpcrm-listview-header id="jpcrm-listview-header">
@@ -703,12 +736,9 @@ class zeroBSCRM_list{
 			<header-item>
 				<?php
 				// add quickfilters filter if current object has quickfilters
-				if ( count( $all_quickfilters ) > 0 ) {
-					echo '<select class="filter-dropdown' . ( ! empty( $current_quickfilter_label ) ? ' hidden' : '' ) . '" data-filtertype="quickfilters">';
-					echo '<option disabled selected>' . esc_html__( 'Select filter', 'zero-bs-crm' ) . '</option>';
-					foreach ( $all_quickfilters as $filter_slug => $filter_data ) {
-						echo '<option value="' . esc_attr( $filter_slug ) . '">' . esc_html( $filter_data[0] ) . '</option>';
-					}
+				if ( $quickfilter_category_count > 0 ) {
+					echo '<select class="filter-dropdown' . esc_attr( ! empty( $current_quickfilter_label ) ? ' hidden' : '' ) . '" data-filtertype="quickfilters">';
+					echo $quickfilter_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 					echo '</select>';
 					echo '<div class="jpcrm-current-filter' . ( empty( $current_quickfilter_label ) ? ' hidden' : '' ) . '">';
 					echo '<button class="dashicons dashicons-remove" title="' . esc_attr__( 'Remove filter', 'zero-bs-crm' ) . '"></button>';

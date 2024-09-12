@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-New task: updateBoard allows you to automate updates to a GitHub Project Board fields to match priority labels on an issue in your repo.

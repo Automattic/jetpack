@@ -3,16 +3,18 @@
 namespace Automattic\Jetpack\Transport_Helper;
 
 use PHPUnit\Framework\TestCase;
+use function add_filter;
+use function apply_filters;
 
 /**
  * Unit tests for the Package_Version class.
  *
- * @package automattic/jetpack-helper-script
+ * @package automattic/jetpack-transport-helper
  */
 class Test_Package_Version extends TestCase {
 
 	/**
-	 * Tests that the helper-script package version is added to the package verions array obtained by the
+	 * Tests that the transport helper package version is added to the package versions array obtained by the
 	 * Package_Version_Tracker.
 	 */
 	public function test_send_package_version_to_tracker_empty_array() {

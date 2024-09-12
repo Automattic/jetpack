@@ -12,7 +12,7 @@ namespace Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service;
  *
  * @package Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service
  */
-class WPCOM_Online_Subscription_Service extends WPCOM_Token_Subscription_Service {
+class WPCOM_Online_Subscription_Service extends Jetpack_Token_Subscription_Service {
 
 	/**
 	 * Is available()
@@ -48,6 +48,61 @@ class WPCOM_Online_Subscription_Service extends WPCOM_Token_Subscription_Service
 	}
 
 	/**
+	 * Retrieves the email of the currently authenticated subscriber.
+	 *
+	 * This function checks if the current user has an active subscription. If the user is subscribed,
+	 * their email is returned. Otherwise, it returns an empty string to indicate no active subscription.
+	 *
+	 * @return string The email address of the subscribed user or an empty string if not subscribed.
+	 */
+	public function get_subscriber_email() {
+		if ( ! is_user_logged_in() ) {
+			return '';
+		}
+		return wp_get_current_user()->user_email;
+	}
+
+	/**
+	 * Returns true if the current authenticated user is subscribed to the current site.
+	 *
+	 * @return bool
+	 */
+	public function is_current_user_subscribed(): bool {
+		include_once WP_CONTENT_DIR . '/mu-plugins/email-subscriptions/subscriptions.php';
+		$email             = wp_get_current_user()->user_email;
+		$subscriber_object = \Blog_Subscriber::get( $email );
+		if ( empty( $subscriber_object ) ) {
+			return false;
+		}
+		$blog_id             = $this->get_site_id();
+		$subscription_status = \Blog_Subscription::get_subscription_status_for_blog( $subscriber_object, $blog_id );
+		if ( 'active' !== $subscription_status ) {
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Returns true if the current authenticated user has a pending subscription to the current site.
+	 *
+	 * @return bool
+	 */
+	public function is_current_user_pending_subscriber(): bool {
+		include_once WP_CONTENT_DIR . '/mu-plugins/email-subscriptions/subscriptions.php';
+		$email             = wp_get_current_user()->user_email;
+		$subscriber_object = \Blog_Subscriber::get( $email );
+		if ( empty( $subscriber_object ) ) {
+			return false;
+		}
+		$blog_id             = $this->get_site_id();
+		$subscription_status = \Blog_Subscription::get_subscription_status_for_blog( $subscriber_object, $blog_id );
+		if ( self::BLOG_SUB_PENDING !== $subscription_status ) {
+			return false;
+		}
+		return true;
+	}
+
+	/**
 	 * Lookup users subscriptions for a site and determine if the user has a valid subscription to match the plan ID
 	 *
 	 * @param array  $valid_plan_ids .
@@ -58,6 +113,7 @@ class WPCOM_Online_Subscription_Service extends WPCOM_Token_Subscription_Service
 	 * @return bool
 	 */
 	protected function user_can_view_content( $valid_plan_ids, $access_level, $is_blog_subscriber, $post_id ) {
+		$user_id = is_user_logged_in() ? wp_get_current_user()->ID : $this->user_id;
 		/**
 		 * Filter the subscriptions attached to a specific user on a given site.
 		 *
@@ -67,10 +123,10 @@ class WPCOM_Online_Subscription_Service extends WPCOM_Token_Subscription_Service
 		 * @param int   $user_id The user's ID.
 		 * @param int   $site_id ID of the current site.
 		 */
-		$subscriptions = apply_filters( 'earn_get_user_subscriptions_for_site_id', array(), wp_get_current_user()->ID, $this->get_site_id() );
+		$subscriptions = apply_filters( 'earn_get_user_subscriptions_for_site_id', array(), $user_id, $this->get_site_id() );
 		// format the subscriptions so that they can be validated.
 		$subscriptions      = self::abbreviate_subscriptions( $subscriptions );
-		$is_paid_subscriber = $this->validate_subscriptions( $valid_plan_ids, $subscriptions );
+		$is_paid_subscriber = static::validate_subscriptions( $valid_plan_ids, $subscriptions );
 
 		return $this->user_has_access( $access_level, $is_blog_subscriber, $is_paid_subscriber, $post_id, $subscriptions );
 	}
@@ -94,7 +150,7 @@ class WPCOM_Online_Subscription_Service extends WPCOM_Token_Subscription_Service
 				)
 			) {
 				$subscriptions[ $subscription['product_id'] ]           = new \stdClass();
-				$subscriptions[ $subscription['product_id'] ]->end_date = empty( $subscription['end_date'] ) ? ( time() + 365 * 24 * 3600 ) : $subscription['end_date'];
+				$subscriptions[ $subscription['product_id'] ]->end_date = empty( $subscription['end_date'] ) ? gmdate( 'Y-m-d H:i:s', ( time() + 365 * 24 * 3600 ) ) : $subscription['end_date'];
 			}
 		}
 		return $subscriptions;

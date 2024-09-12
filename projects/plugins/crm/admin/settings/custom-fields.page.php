@@ -204,12 +204,10 @@ if ( zeroBSCRM_isZBSAdminOrAdmin() && isset( $_POST['editwplf'] ) ) {
 				in_array( $potential_slug, array( 'id', 'status' ) )
 			) {
 
-				$n = 0;
-
-				while ( $n <= 20 ) {
+				// Ideally we could do something like gh-33096-jetpack, but custom field definitions are in a JSON-encoded settings field.
+				for ( $n = 1; $n < $max_custom_fields_per_object; $n++ ) {
 
 					// Search for alternative slugs, n+1
-					++$n;
 					$alternative_slug = "$potential_slug-$n";
 
 					// Check in custom fields
@@ -244,49 +242,24 @@ if ( zeroBSCRM_isZBSAdminOrAdmin() && isset( $_POST['editwplf'] ) ) {
 		}
 	}
 
-	// update DAL 2 custom fields :) (DAL3 dealt with below)
-	if ( $zbs->isDAL2() && ! $zbs->isDAL3() ) {
+	foreach ( $object_custom_fields_to_save as $obj_key => $obj_type_id ) {
 
-		if ( isset( $custom_fields['customers'] ) && is_array( $custom_fields['customers'] ) ) {
+		if ( isset( $custom_fields[ $obj_key ] ) && is_array( $custom_fields[ $obj_key ] ) ) {
 
 			// slight array reconfig
 			$db2_custom_fields = array();
-			foreach ( $custom_fields['customers'] as $cfArr ) {
-				$db2_custom_fields[ $cfArr[3] ] = $cfArr;
+			foreach ( $custom_fields[ $obj_key ] as $cf_array ) {
+				$db2_custom_fields[ $cf_array[3] ] = $cf_array;
 			}
 
 			// simple maintain DAL2 (needs to also)
-			$zbs->DAL->updateActiveCustomFields(
+			$zbs->DAL->updateActiveCustomFields( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 				array(
-					'objtypeid' => 1,
+					'objtypeid' => $obj_type_id,
 					'fields'    => $db2_custom_fields,
 				)
 			);
 
-		}
-	}
-	// DAL3 they all get this :)
-	if ( $zbs->isDAL3() ) {
-
-		foreach ( $object_custom_fields_to_save as $obj_key => $obj_type_id ) {
-
-			if ( isset( $custom_fields[ $obj_key ] ) && is_array( $custom_fields[ $obj_key ] ) ) {
-
-				// slight array reconfig
-				$db2_custom_fields = array();
-				foreach ( $custom_fields[ $obj_key ] as $cfArr ) {
-					$db2_custom_fields[ $cfArr[3] ] = $cfArr;
-				}
-
-				// simple maintain DAL2 (needs to also)
-				$zbs->DAL->updateActiveCustomFields(
-					array(
-						'objtypeid' => $obj_type_id,
-						'fields'    => $db2_custom_fields,
-					)
-				);
-
-			}
 		}
 	}
 
@@ -407,26 +380,14 @@ if ( zeroBSCRM_isZBSAdminOrAdmin() && isset( $_POST['editwplf'] ) ) {
 // load
 $fieldOverride = $settings['fieldoverride'];
 
-// Following overloading code is also replicated in Fields.php, search #FIELDOVERLOADINGDAL2+
+foreach ( $object_custom_fields_to_save as $obj_key => $obj_type_id ) {
 
-// This ALWAYS needs to get overwritten by DAL2 for now :)
-if ( zeroBSCRM_isZBSAdminOrAdmin() && $zbs->isDAL2() && ! $zbs->isDAL3() && isset( $settings['customfields'] ) && isset( $settings['customfields']['customers'] ) ) {
+	if ( isset( $settings['customfields'] ) && isset( $settings['customfields'][ $obj_key ] ) ) {
 
-	$settings['customfields']['customers'] = $zbs->DAL->setting( 'customfields_contact', array() );
-
-}
-// DAL3 ver (all objs in $object_custom_fields_to_save above)
-if ( $zbs->isDAL3() ) {
-
-	foreach ( $object_custom_fields_to_save as $obj_key => $obj_type_id ) {
-
-		if ( isset( $settings['customfields'] ) && isset( $settings['customfields'][ $obj_key ] ) ) {
-
-			// turn ZBS_TYPE_CONTACT (1) into "contact"
-			$typeStr = $zbs->DAL->objTypeKey( $obj_type_id );
-			if ( ! empty( $typeStr ) ) {
-				$settings['customfields'][ $obj_key ] = $zbs->DAL->setting( 'customfields_' . $typeStr, array() );
-			}
+		// turn ZBS_TYPE_CONTACT (1) into "contact"
+		$type_str = $zbs->DAL->objTypeKey( $obj_type_id ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		if ( ! empty( $type_str ) ) {
+			$settings['customfields'][ $obj_key ] = $zbs->DAL->setting( 'customfields_' . $type_str, array() ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 		}
 	}
 }

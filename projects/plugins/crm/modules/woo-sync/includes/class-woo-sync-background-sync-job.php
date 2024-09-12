@@ -101,7 +101,7 @@ class Woo_Sync_Background_Sync_Job {
 
 		// good to go?
 		if ( empty( $this->site_key ) || !is_array( $this->site_info ) ){
-			
+
 			return false;
 
 		}
@@ -119,7 +119,6 @@ class Woo_Sync_Background_Sync_Job {
 
 	}
 
-
 	/**
 	 * Returns full settings array from main settings class
 	 */
@@ -128,8 +127,6 @@ class Woo_Sync_Background_Sync_Job {
 		return $this->woosync()->settings->getAll();
 
 	}
-
-
 
 	/**
 	 * Returns 'local' or 'api'
@@ -153,7 +150,6 @@ class Woo_Sync_Background_Sync_Job {
 
 	}
 
-	
 	/**
 	 * If $this->debug is true, outputs passed string
 	 *
@@ -168,7 +164,6 @@ class Woo_Sync_Background_Sync_Job {
 		}
 
 	}
-
 
 	/**
 	 * Main job function: this will retrieve and import orders from WooCommerce into CRM. 
@@ -501,7 +496,7 @@ class Woo_Sync_Background_Sync_Job {
 
 				// if Domain
 				if ( $domain ) {
-					
+
 					$origin = $zbs->DAL->add_origin_prefix( $domain, 'domain' );
 
 				}
@@ -673,7 +668,6 @@ class Woo_Sync_Background_Sync_Job {
 
 	}
 
-
 	/**
 	 * Add or Update an order from WooCommerce
 	 *  (previously `add_order_from_id`)
@@ -737,7 +731,6 @@ class Woo_Sync_Background_Sync_Job {
 
 	}
 
-
 	/**
 	 * Set's a completion status for woo order imports
 	 *
@@ -761,7 +754,6 @@ class Woo_Sync_Background_Sync_Job {
 		return $status_bool;
 
 	}
-
 
 	/**
 	 * Returns a completion status for woo order imports
@@ -799,7 +791,6 @@ class Woo_Sync_Background_Sync_Job {
 
 	}
 
-
 	/**
 	 * Return current working page index (to resume from)
 	 *
@@ -811,16 +802,15 @@ class Woo_Sync_Background_Sync_Job {
 
 	}
 
-
 	/**
 	 * Adds or updates crm objects related to a processed woocommerce order
 	 *  (requires that the $order_data has been passed through `woocommerce_order_to_crm_objects`)
 	 *  Previously `import_woocommerce_order_from_order_data`
 	 *
 	 * @param array $crm_object_data (Woo Order data passed through `woocommerce_order_to_crm_objects`)
-	 * 
+	 *
 	 * @return int $transaction_id
-	 * 
+	 *
 	 */
 	public function import_crm_object_data( $crm_object_data ) {
 
@@ -945,8 +935,9 @@ class Woo_Sync_Background_Sync_Job {
 
 		}
 
-		// Add/update invoice (if enabled) (previously `add_or_update_invoice`)
-		if ( $settings['wcinv'] == 1 ) {
+		// Add/update invoice (if enabled) (previously `add_or_update_invoice`), while checking for a 'Do not create' status to avoid creating this invoice if the mapping doesn't allow it
+		// @phan-suppress-next-line PhanTypeInvalidDimOffset False positive
+		if ( $settings['wcinv'] == 1 && isset( $crm_object_data['invoice'] ) && isset( $crm_object_data['invoice']['status'] ) && $crm_object_data['invoice']['status'] !== JPCRM_WOOSYNC_DO_NOT_CREATE['id'] ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 
 			// retrieve existing invoice
 			// note this is substituting $crm_object_data['invoice']['existence_check_args'] for what should be $args, but it works
@@ -1097,7 +1088,6 @@ class Woo_Sync_Background_Sync_Job {
 
 	}
 
-
 	/**
 	 * Translates a local store order into an import-ready crm objects array
 	 *  previously `tidy_order_from_store`
@@ -1228,8 +1218,16 @@ class Woo_Sync_Background_Sync_Job {
 			// Force Woo order totals recalculation to ensure taxes were applied correctly
 			// Only force recalculation if the order is not paid yet
 			if ( $order->get_status() === 'pending' || $order->get_status() === 'on-hold' ) {
-				$order->calculate_totals();
-				$order->save();
+				try {
+					$order->calculate_totals();
+					$order->save();
+				} catch ( \TypeError $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+
+					/*
+					This is a Woo bug with empty fees: https://github.com/woocommerce/woocommerce/issues/44859
+					For now we'll just ignore it and carry on.
+					*/
+				}
 			}
 
 			$order_data = $order->get_data();
@@ -1476,7 +1474,7 @@ class Woo_Sync_Background_Sync_Job {
 
 			}
 
-			// Retrieve any WooCommerce Checkout metaa data & try to store it against contact if match custom fields
+			// Retrieve any WooCommerce Checkout metadata & try to store it against contact if match custom fields
 			// Returns array of WC_Meta_Data objects https://woocommerce.github.io/code-reference/classes/WC-Meta-Data.html
 			// Filters to support WooCommerce Checkout Field Editor, Field editor Pro etc.
 			/*
@@ -1625,6 +1623,8 @@ class Woo_Sync_Background_Sync_Job {
 
 			$order_data['subtotal'] = 0.0;
 
+			$item_tax_rate_ids = null;
+
 			// cycle through order items to create crm line items
 			foreach ( $order_items as $item_key => $item ) {
 
@@ -1670,7 +1670,7 @@ class Woo_Sync_Background_Sync_Job {
 			        	}
 
 			        }
-			        			        
+
 			    }
 
 				// attributes not yet translatable but originally referenced: `variation_id|tax_class|subtotal_tax`
@@ -1706,13 +1706,21 @@ class Woo_Sync_Background_Sync_Job {
 			if ( is_array( $fees ) && count( $fees ) > 0 ) {
 				foreach ( $fees as $fee ) {
 					if ( $fee instanceof \WC_Order_Item_Fee ) {
+
+						$value = $fee->get_amount( false );
+
+						// Woo allows a fee's value to be an empty string, so account for that to prevent a PHP fatal.
+						if ( empty( $value ) ) {
+							$value = 0;
+						}
+
 						$new_line_item = array(
 							'order'    => $order_post_id, // passed as parameter to this function
 							'currency' => $order_currency,
 							'quantity' => 1,
-							'price'    => $fee->get_amount( false ),
-							'fee'      => $fee->get_amount( false ),
-							'total'    => $fee->get_amount( false ),
+							'price'    => $value,
+							'fee'      => $value,
+							'total'    => $value,
 							'title'    => esc_html__( 'Fee', 'zero-bs-crm' ),
 							'desc'     => $fee->get_name(),
 							'tax'      => $fee->get_total_tax(),
@@ -1725,7 +1733,7 @@ class Woo_Sync_Background_Sync_Job {
 							$new_line_item['taxes'] = implode( ',', $item_tax_rate_ids );
 						}
 
-						$order_data['subtotal'] += $new_line_item['price'];
+						$order_data['subtotal'] += floatval( $new_line_item['price'] );
 
 						// Add fee as an item to the invoice
 						$data['lineitems'][] = $new_line_item;
@@ -1758,151 +1766,151 @@ class Woo_Sync_Background_Sync_Job {
 
 		$transaction_status = $this->woosync()->translate_order_status_to_obj_status( ZBS_TYPE_TRANSACTION, $order_status );
 
-		// fill out transaction header (object)
-		$data['transaction'] = array(
+		if ( $transaction_status !== JPCRM_WOOSYNC_DO_NOT_CREATE['id'] ) {
+			// fill out transaction header (object)
+			$data['transaction'] = array(
 
-			'ref'                  => $order_num,
-			'type'                 => __( 'Sale', 'zero-bs-crm' ),
-			'title'                => $item_title,
-			'status'               => $transaction_status,
-			'total'                => $order_data['total'],
-			'date'                 => $transaction_creation_date_uts,
-			'created'              => $transaction_creation_date_uts,
-			'date_completed'       => $transaction_completed_date_uts,
-			'date_paid'            => $transaction_paid_date_uts,
-			'externalSources'      => array(
-				array(
-					'source' => 'woo',
-					'uid'    => $order_post_id,
-					'origin' => $origin,
-					'owner'  => 0, // for now we hard-type no owner to avoid ownership issues. As we roll out fuller ownership we may want to adapt this.
+				'ref'                  => $order_num,
+				'type'                 => __( 'Sale', 'zero-bs-crm' ),
+				'title'                => $item_title,
+				'status'               => $transaction_status,
+				'total'                => $order_data['total'],
+				'date'                 => $transaction_creation_date_uts,
+				'created'              => $transaction_creation_date_uts,
+				'date_completed'       => $transaction_completed_date_uts,
+				'date_paid'            => $transaction_paid_date_uts,
+				'externalSources'      => array(
+					array(
+						'source' => 'woo',
+						'uid'    => $order_post_id,
+						'origin' => $origin,
+						'owner'  => 0, // for now we hard-type no owner to avoid ownership issues. As we roll out fuller ownership we may want to adapt this.
+					),
 				),
-			),
-			'currency'             => $order_currency,
-			'net'                  => ( (float)$order_data['total'] - (float)$order_data['discount_total'] - (float)$order_data['total_tax'] - (float)$order_data['shipping_total'] ),
-			'tax'                  => $order_data['total_tax'],
-			'fee'                  => 0,
-			'discount'             => $order_data['discount_total'],
-			'shipping'             => $order_data['shipping_total'],
-			'existence_check_args' => $data['source'],
-			'lineitems'            => $data['lineitems'],
+				'currency'             => $order_currency,
+				'net'                  => ( (float) $order_data['total'] - (float) $order_data['discount_total'] - (float) $order_data['total_tax'] - (float) $order_data['shipping_total'] ),
+				'tax'                  => $order_data['total_tax'],
+				'fee'                  => 0,
+				'discount'             => $order_data['discount_total'],
+				'shipping'             => $order_data['shipping_total'],
+				'existence_check_args' => $data['source'],
+				'lineitems'            => $data['lineitems'],
 
-		);
+			);
 
-		// tags (transaction)
-		if ( $tag_transaction_with_item ) {
+			// tags (transaction)
+			if ( $tag_transaction_with_item ) {
 
-			$data['transaction']['tags']     = $order_tags;
-			$data['transaction']['tag_mode'] = 'append';
-
-		}
-
-		// any extra meta?
-		if ( is_array( $extra_meta ) && count( $extra_meta ) > 0 ) {
-
-			$data['transaction_extra_meta'] = $extra_meta;
-
-		}
-
-		// Sub-transactions (refunds)
-		if ( method_exists( $order, 'get_refunds' ) ) {
-
-			// process refunds
-			$refunds = $order->get_refunds();
-			if ( is_array( $refunds ) ) {
-
-				// cycle through and add as secondary transactions
-				foreach ( $refunds as $refund ) {
-
-					// retrieve refund data
-					$refund_data = $refund->get_data();
-
-					// process the refund as a secondary transaction
-					// This mimicks the main transaction, taking from the refund object where sensible
-					$refund_id = $refund->get_id();
-					$refund_title = sprintf( __( 'Refund against transaction #%s', 'zero-bs-crm' ), $order_num );
-					$refund_description = $refund_title . "\r\n" . __( 'Reason: ', 'zero-bs-crm' ) . $refund_data['reason'];
-					$refund_date_uts = strtotime( $refund_data['date_created']->__toString() );
-					if ( isset( $refund_data['currency'] ) && !empty( $refund_data['currency'] ) ) {
-						$refund_currency = $refund_data['currency'];
-					} else {
-						$refund_currency = $order_currency;
-					}
-
-					$refund_transaction = array(
-
-						'ref'                  => $refund_id,
-						'type'                 => __( 'Refund', 'zero-bs-crm' ),
-						'title'                => $refund_title,
-						'status'               => __( 'Refunded', 'zero-bs-crm' ),
-						'total'                => -$refund_data['total'],
-						'desc'                 => $refund_description,
-						'date'                 => $refund_date_uts,
-						'created'              => $refund_date_uts,
-						'date_completed'       => $transaction_completed_date_uts,
-						'date_paid'            => $transaction_paid_date_uts,
-						'externalSources'      => array(
-							array(
-								'source' => 'woo',
-								'uid'    => $refund_id, // rather than order_num, here we use the refund item id
-								'origin' => $origin,
-								'owner'  => 0, // for now we hard-type no owner to avoid ownership issues. As we roll out fuller ownership we may want to adapt this.
-							),
-						),
-						'currency'             => $refund_currency,
-						'net'                  => -( (float)$refund_data['total'] - (float)$refund_data['discount_total'] - (float)$refund_data['total_tax'] - (float)$refund_data['shipping_total'] ),
-						'tax'                  => $refund_data['total_tax'],
-						'fee'                  => 0,
-						'discount'             => $refund_data['discount_total'],
-						'shipping'             => $refund_data['shipping_total'],
-						'existence_check_args' => array(
-							'externalSource'    => 'woo',
-							'externalSourceUID' => $refund_id,
-							'origin'            => $origin,
-							'onlyID'            => true,
-						),
-						'lineitems'            => array(
-							// here we roll a single refund line item
-							array(
-								'order'    => $refund_id,
-								'currency' => $refund_currency,
-								'quantity' => 1,
-								'price'    => -$refund_data['total'],
-								'total'    => -$refund_data['total'],
-								'title'    => $refund_title,
-								'desc'     => $refund_description,
-								'tax'      => $refund_data['total_tax'],
-								'shipping' => 0,
-							),
-						),
-						'extra_meta'           => array(), // this is caught to insert as extraMeta
-
-					);
-
-					// Add any extra meta we can glean in case future useful:
-					$refund_transaction['extra_meta']['order_num'] = $order_num; // backtrace
-					if ( isset( $refund_data['refunded_by'] ) && !empty( $refund_data['refunded_by'] ) ) {
-						$refund_transaction['extra_meta']['refunded_by'] = $refund_data['refunded_by'];
-					}
-					if ( isset( $refund_data['refunded_payment'] ) && !empty( $refund_data['refunded_payment'] ) ) {
-						$refund_transaction['extra_meta']['refunded_payment'] = $refund_data['refunded_payment'];
-					}
-
-					// add it to the stack
-					$data['secondary_transactions'][] = $refund_transaction;
-
-				}
+				$data['transaction']['tags']     = $order_tags;
+				$data['transaction']['tag_mode'] = 'append';
 
 			}
 
+			// any extra meta?
+			if ( is_array( $extra_meta ) && count( $extra_meta ) > 0 ) {
+
+				$data['transaction_extra_meta'] = $extra_meta;
+
+			}
+
+			// Sub-transactions (refunds)
+			if ( method_exists( $order, 'get_refunds' ) ) {
+
+				// process refunds
+				$refunds = $order->get_refunds();
+				if ( is_array( $refunds ) ) {
+
+					// cycle through and add as secondary transactions
+					foreach ( $refunds as $refund ) {
+
+						// retrieve refund data
+						$refund_data = $refund->get_data();
+
+						// process the refund as a secondary transaction
+						// This mimicks the main transaction, taking from the refund object where sensible
+						$refund_id = $refund->get_id();
+						// translators: %s is the order number from WooCommerce.
+						$refund_title       = sprintf( __( 'Refund against transaction #%s', 'zero-bs-crm' ), $order_num );
+						$refund_description = $refund_title . "\r\n" . __( 'Reason: ', 'zero-bs-crm' ) . $refund_data['reason'];
+						$refund_date_uts    = strtotime( $refund_data['date_created']->__toString() );
+						if ( isset( $refund_data['currency'] ) && ! empty( $refund_data['currency'] ) ) {
+							$refund_currency = $refund_data['currency'];
+						} else {
+							$refund_currency = $order_currency;
+						}
+
+						$refund_transaction = array(
+
+							'ref'                  => $refund_id,
+							'type'                 => __( 'Refund', 'zero-bs-crm' ),
+							'title'                => $refund_title,
+							'status'               => __( 'Refunded', 'zero-bs-crm' ),
+							'total'                => -$refund_data['total'],
+							'desc'                 => $refund_description,
+							'date'                 => $refund_date_uts,
+							'created'              => $refund_date_uts,
+							'date_completed'       => $transaction_completed_date_uts,
+							'date_paid'            => $transaction_paid_date_uts,
+							'externalSources'      => array(
+								array(
+									'source' => 'woo',
+									'uid'    => $refund_id, // rather than order_num, here we use the refund item id
+									'origin' => $origin,
+									'owner'  => 0, // for now we hard-type no owner to avoid ownership issues. As we roll out fuller ownership we may want to adapt this.
+								),
+							),
+							'currency'             => $refund_currency,
+							'net'                  => -( (float) $refund_data['total'] - (float) $refund_data['discount_total'] - (float) $refund_data['total_tax'] - (float) $refund_data['shipping_total'] ),
+							'tax'                  => $refund_data['total_tax'],
+							'fee'                  => 0,
+							'discount'             => $refund_data['discount_total'],
+							'shipping'             => $refund_data['shipping_total'],
+							'existence_check_args' => array(
+								'externalSource'    => 'woo',
+								'externalSourceUID' => $refund_id,
+								'origin'            => $origin,
+								'onlyID'            => true,
+							),
+							'lineitems'            => array(
+								// here we roll a single refund line item
+								array(
+									'order'    => $refund_id,
+									'currency' => $refund_currency,
+									'quantity' => 1,
+									'price'    => -$refund_data['total'],
+									'total'    => -$refund_data['total'],
+									'title'    => $refund_title,
+									'desc'     => $refund_description,
+									'tax'      => $refund_data['total_tax'],
+									'shipping' => 0,
+								),
+							),
+							'extra_meta'           => array(), // this is caught to insert as extraMeta
+
+						);
+
+						// Add any extra meta we can glean in case future useful:
+						$refund_transaction['extra_meta']['order_num'] = $order_num; // backtrace
+						if ( isset( $refund_data['refunded_by'] ) && ! empty( $refund_data['refunded_by'] ) ) {
+							$refund_transaction['extra_meta']['refunded_by'] = $refund_data['refunded_by'];
+						}
+						if ( isset( $refund_data['refunded_payment'] ) && ! empty( $refund_data['refunded_payment'] ) ) {
+							$refund_transaction['extra_meta']['refunded_payment'] = $refund_data['refunded_payment'];
+						}
+
+						// add it to the stack
+						$data['secondary_transactions'][] = $refund_transaction;
+					}
+				}
+			}
 		}
 
 		// ==== Invoice
 		$data['invoice'] = array();
 		if ( $settings['wcinv'] == 1 ) {
-
 			$data['invoice'] = array(
-				'id_override'          => 'woo-' . $order_num, // we have to add a prefix here otherwise woo order #123 wouldn't insert if invoice with id #123 already exists
+				'woo_use_crm_id'       => ! empty( $settings['wccrminvreference'] ),
+				'id_override'          => 'woo-' . $order_num, // (ignored if wccrminvreference === 1) We have to add a prefix here otherwise woo order #123 wouldn't insert if invoice with id #123 already exists.
 				'status'               => $invoice_status,
 				'currency'             => $order_currency,
 				'date'                 => $invoice_creation_date_uts,
@@ -1956,9 +1964,10 @@ class Woo_Sync_Background_Sync_Job {
 
 		}
 
-		return $data;
+		// Let third parties modify the data array before it's stored as a CRM Object.
+		// This will allow totals to be updated when WooSync pulls data from a store in a different currency.
+		return apply_filters( 'jpcrm_woo_sync_order_data', $data );
 	}
-
 
 	/**
 	 * Translates an API order into an import-ready crm objects array
@@ -2085,8 +2094,6 @@ class Woo_Sync_Background_Sync_Job {
 		);
 
 	}
-
-
 
 	/**
 	 * Attempts to return the percentage completed of a sync
@@ -2223,7 +2230,6 @@ class Woo_Sync_Background_Sync_Job {
 
 	}
 
-
 	/**
 	 * Filter contact data passed through the woo checkout
 	 * .. allows us to hook in support for things like WooCommerce Checkout Field Editor
@@ -2259,7 +2265,6 @@ class Woo_Sync_Background_Sync_Job {
 	    return $contact_data;
 
 	}
-
 
 	/**
 	 * Filter to add Checkout Field Editor custom fields support, where installed
@@ -2336,7 +2341,6 @@ class Woo_Sync_Background_Sync_Job {
 
 	}
 
-	
 	/**
 	 * Filter to add Checkout Field Editor Pro (Checkout Manager) for WooCommerce support, where installed
 	 * https://wordpress.org/plugins/woo-checkout-field-editor-pro/
@@ -2509,7 +2513,6 @@ class Woo_Sync_Background_Sync_Job {
 	    return $contact_data;
 
 	}
-
 
 	/*
 	 * Catch site sync connection errors (and log count per site)

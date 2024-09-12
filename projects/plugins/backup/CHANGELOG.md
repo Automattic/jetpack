@@ -4,6 +4,59 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [2.9] - 2024-09-06
+### Changed
+- Internal updates.
+
+## [2.8] - 2024-09-05
+### Changed
+- General: Update WordPress version requirements to WordPress 6.5. [#38382]
+- Docs: Update README to include on-demand backups reference. [#38960]
+
+## [2.7] - 2024-06-27
+### Added
+- On-demand backups feature
+
+### Changed
+- General: indicate compatibility with the upcoming version of WordPress - 6.6. [#37962]
+- Remove the explicit Plugin Install package dependency. [#37430]
+- Updated package dependencies. [#37348] [#37767]
+- Updated backup header layout for responsive design
+
+## [2.6] - 2024-05-09
+### Added
+- Add Woocommerce event remove_order_items to Jetpack Sync [#33748]
+- Real time backups: Add endpoints orders to be used in real-time backups jetpack [#35649]
+- Trigger red bubble notification when bad install is detected [#36449]
+
+### Changed
+- Add a LoadingPlaceholder while waiting for Jetpack Backup price
+
+### Fixed
+- Backup: change some error messages to not trigger security scanners [#36496]
+
+## [2.5] - 2024-02-08
+### Changed
+- Updated package dependencies. [#34882]
+
+### Fixed
+- Write helper script to ABSPATH by default, just like we did before [#35508]
+
+## [2.4] - 2024-01-04
+### Fixed
+- Backup: Add namespace versioning to Helper_Script_Manager and other classes [#34739]
+
+## [2.3] - 2023-12-13
+### Changed
+- General: indicate full compatibility with the latest version of WordPress, 6.4. [#33776]
+- General: updated PHP requirement to PHP 7.0+ [#34126]
+- General: update WordPress version requirements to WordPress 6.3. [#34127]
+- Updated package dependencies. [#33498]
+- Update lockfile [#33607]
+
+### Fixed
+- Improved helper script installer logging. [#34297]
+
 ## [2.2] - 2023-09-20
 ### Changed
 - General: update WordPress version requirements to WordPress 6.2. [#32762]
@@ -188,8 +241,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Fixed
 - Use `absoluteRuntime` in babel JS build to avoid module not found errors.
 
-[2.2]: https://github.com/Automattic/jetpack-backup-plugin/compare/2.2-beta...2.2
 [2.2-beta]: https://github.com/Automattic/jetpack-backup-plugin/compare/2.1...2.2-beta
+[2.9]: https://github.com/Automattic/jetpack-backup-plugin/compare/2.8...2.9
+[2.8]: https://github.com/Automattic/jetpack-backup-plugin/compare/2.7...2.8
+[2.7]: https://github.com/Automattic/jetpack-backup-plugin/compare/2.6...2.7
+[2.6]: https://github.com/Automattic/jetpack-backup-plugin/compare/2.5...2.6
+[2.5]: https://github.com/Automattic/jetpack-backup-plugin/compare/2.4...2.5
+[2.4]: https://github.com/Automattic/jetpack-backup-plugin/compare/2.3...2.4
+[2.3]: https://github.com/Automattic/jetpack-backup-plugin/compare/2.2...2.3
+[2.2]: https://github.com/Automattic/jetpack-backup-plugin/compare/2.2-beta...2.2
 [2.1]: https://github.com/Automattic/jetpack-backup-plugin/compare/2.0...2.1
 [2.0]: https://github.com/Automattic/jetpack-backup-plugin/compare/1.9...2.0
 [1.9]: https://github.com/Automattic/jetpack-backup-plugin/compare/1.8...1.9-beta

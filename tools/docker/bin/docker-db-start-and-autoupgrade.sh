@@ -13,7 +13,7 @@ find /var/log/mysql \! -user mysql -exec chown mysql '{}' +
 	sleep 1
 
 	# Wait until server is up
-	while ! mysql $CREDENTIALS_PARAMS ${MYSQL_DATABASE} -e 'quit' > /dev/null 2>&1
+	while ! mariadb $CREDENTIALS_PARAMS ${MYSQL_DATABASE} -e 'quit' > /dev/null 2>&1
 	do
 		# Let's wait a bit before retrying
 		echo "Auto-updater waiting for DB to be up..."
@@ -22,7 +22,7 @@ find /var/log/mysql \! -user mysql -exec chown mysql '{}' +
 
 	echo "Trying to upgrade database..."
 
-	mysql_upgrade $CREDENTIALS_PARAMS
+	mariadb-upgrade $CREDENTIALS_PARAMS
 ) &
 
 # Start the actual database

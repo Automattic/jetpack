@@ -1,205 +1,103 @@
 const { getInput, setFailed } = require( '@actions/core' );
 const debug = require( '../../utils/debug' );
-const getLabels = require( '../../utils/get-labels' );
-const sendSlackMessage = require( '../../utils/send-slack-message' );
+const getAvailableLabels = require( '../../utils/labels/get-available-labels' );
+const getLabels = require( '../../utils/labels/get-labels' );
+const hasPriorityLabels = require( '../../utils/labels/has-priority-labels' );
+const isBug = require( '../../utils/labels/is-bug' );
+const sendOpenAiRequest = require( '../../utils/openai/send-request' );
+const findPlatforms = require( '../../utils/parse-content/find-platforms' );
+const findPlugins = require( '../../utils/parse-content/find-plugins' );
+const findPriority = require( '../../utils/parse-content/find-priority' );
+const formatSlackMessage = require( '../../utils/slack/format-slack-message' );
+const notifyImportantIssues = require( '../../utils/slack/notify-important-issues' );
+const sendSlackMessage = require( '../../utils/slack/send-slack-message' );
 
 /* global GitHub, WebhookPayloadIssue */
 
 /**
- * Check for Priority labels on an issue.
- * It could be existing labels,
- * or it could be that it's being added as part of the event that triggers this action.
+ * Request a list of matching labels from Open AI that can be applied to the issue,
+ * based on the issue contents.
  *
- * @param {GitHub} octokit    - Initialized Octokit REST client.
- * @param {string} owner      - Repository owner.
- * @param {string} repo       - Repository name.
- * @param {string} number     - Issue number.
- * @param {string} action     - Action that triggered the event ('opened', 'reopened', 'labeled').
- * @param {object} eventLabel - Label that was added to the issue.
- * @returns {Promise<Array>} Promise resolving to an array of Priority labels.
- */
-async function hasPriorityLabels( octokit, owner, repo, number, action, eventLabel ) {
-	const labels = await getLabels( octokit, owner, repo, number );
-	if ( 'labeled' === action && eventLabel.name && eventLabel.name.match( /^\[Pri\].*$/ ) ) {
-		labels.push( eventLabel.name );
-	}
-
-	return labels.filter( label => label.match( /^\[Pri\].*$/ ) );
-}
-
-/**
- * Check for a "[Status] Priority Review Triggered" label showing that it was already escalated.
- * It could be an existing label,
- * or it could be that it's being added as part of the event that triggers this action.
+ * @param {GitHub} octokit - Initialized Octokit REST client.
+ * @param {string} owner   - Repository owner.
+ * @param {string} repo    - Repository name.
+ * @param {string} title   - Issue title.
+ * @param {string} body    - Issue body.
  *
- * @param {GitHub} octokit    - Initialized Octokit REST client.
- * @param {string} owner      - Repository owner.
- * @param {string} repo       - Repository name.
- * @param {string} number     - Issue number.
- * @param {string} action     - Action that triggered the event ('opened', 'reopened', 'labeled').
- * @param {object} eventLabel - Label that was added to the issue.
- * @returns {Promise<boolean>} Promise resolving to boolean.
+ * @return {Promise<Object>} Promise resolving to an object of labels to apply to the issue, and their explanations.
  */
-async function hasEscalatedLabel( octokit, owner, repo, number, action, eventLabel ) {
-	// Check for an exisiting label first.
-	const labels = await getLabels( octokit, owner, repo, number );
-	if (
-		labels.includes( '[Status] Priority Review Triggered' ) ||
-		labels.includes( '[Status] Escalated to Kitkat' )
-	) {
-		return true;
+async function fetchOpenAiLabelsSuggestions( octokit, owner, repo, title, body ) {
+	const suggestions = { labels: [], explanations: {} };
+
+	// Get all the Feature and Feature Group labels in the repo.
+	const pattern = /^(\[Feature\]|\[Feature Group\])/;
+	const repoLabels = await getAvailableLabels( octokit, owner, repo, pattern );
+
+	// If no labels are found, bail.
+	if ( repoLabels.length === 0 ) {
+		debug( 'triage-issues: No labels found in the repository. Aborting OpenAI request.' );
+		return suggestions;
 	}
 
-	// If the issue is being labeled, check if the label is "[Status] Priority Review Triggered".
-	// No need to check for "[Status] Escalated to Kitkat" here, it's a legacy label.
-	if (
-		'labeled' === action &&
-		eventLabel.name &&
-		eventLabel.name.match( /^\[Status\] Priority Review Triggered.*$/ )
-	) {
-		return true;
-	}
-}
+	const prompt = `You must analyse the content below, composed of 2 data points pulled from a GitHub issue:
 
-/**
- * Ensure the issue is a bug, by looking for a "[Type] Bug" label.
- * It could be an existing label,
- * or it could be that it's being added as part of the event that triggers this action.
- *
- * @param {GitHub} octokit    - Initialized Octokit REST client.
- * @param {string} owner      - Repository owner.
- * @param {string} repo       - Repository name.
- * @param {string} number     - Issue number.
- * @param {string} action     - Action that triggered the event ('opened', 'reopened', 'labeled').
- * @param {object} eventLabel - Label that was added to the issue.
- * @returns {Promise<boolean>} Promise resolving to boolean.
- */
-async function isBug( octokit, owner, repo, number, action, eventLabel ) {
-	// If the issue has a "[Type] Bug" label, it's a bug.
-	const labels = await getLabels( octokit, owner, repo, number );
-	if ( labels.includes( '[Type] Bug' ) ) {
-		return true;
-	}
+- a title
+- the issue body
 
-	// Next, check if the current event was a [Type] Bug label being added.
-	if ( 'labeled' === action && eventLabel.name && '[Type] Bug' === eventLabel.name ) {
-		return true;
-	}
-}
+Here is the issue title. It is the most important part of the text you must analyse:
 
-/**
- * Find list of plugins impacted by issue, based off issue contents.
- *
- * @param {string} body - The issue content.
- * @returns {Array} Plugins concerned by issue.
- */
-function findPlugins( body ) {
-	const regex = /###\sImpacted\splugin\n\n([a-zA-Z ,]*)\n\n/gm;
+- ${ title }
 
-	const match = regex.exec( body );
-	if ( match ) {
-		const [ , plugins ] = match;
-		return plugins.split( ', ' ).filter( v => v.trim() !== '' );
-	}
+Here is the issue body:
 
-	debug( `triage-issues: No plugin indicators found.` );
-	return [];
-}
+**********************
 
-/**
- * Find platform info, based off issue contents.
- *
- * @param {string} body - The issue content.
- * @returns {Array} Platforms impacted by issue.
- */
-function findPlatforms( body ) {
-	const regex = /###\sPlatform\s\(Simple\sand\/or Atomic\)\n\n([a-zA-Z ,-]*)\n\n/gm;
+${ body }
 
-	const match = regex.exec( body );
-	if ( match ) {
-		const [ , platforms ] = match;
-		return platforms
-			.split( ', ' )
-			.filter( platform => platform !== 'Self-hosted' && platform.trim() !== '' );
-	}
+**********************
 
-	debug( `triage-issues: no platform indicators found.` );
-	return [];
-}
+You must analyze this content, and suggest labels related to the content.
+The labels you will suggest must all come from the list below.
+Each item on the list of labels below follows the following format: - <label name>: <label description if it exists>
 
-/**
- * Figure out the priority of the issue, based off issue contents.
- * Logic follows this priority matrix: pciE2j-oG-p2
- *
- * @param {string} body - The issue content.
- * @returns {string} Priority of issue.
- */
-function findPriority( body ) {
-	// Look for priority indicators in body.
-	const priorityRegex =
-		/###\sImpact\n\n(?<impact>.*)\n\n###\sAvailable\sworkarounds\?\n\n(?<blocking>.*)\n/gm;
-	let match;
-	while ( ( match = priorityRegex.exec( body ) ) ) {
-		const [ , impact = '', blocking = '' ] = match;
 
+${ repoLabels
+	.map( label => `- ${ label.name }${ label?.description ? `: ${ label.description }` : '' }` )
+	.join( '\n' ) }
+
+Analyze the issue and suggest relevant labels. Rules:
+- Use only existing labels provided.
+- Include 1 '[Feature Group]' label.
+- Include 1 to 3 '[Feature]' labels.
+- Briefly explain each label choice in 1 sentence.
+- Format your response as a JSON object, with each suggested label as a key, and your explanation of the label choice as the value.
+
+Example response format:
+{
+    "[Feature Group] User Interaction & Engagement": "The issue involves how users interact with the platform.",
+    "[Feature] Comments": "Specifically, it's about the commenting functionality."
+}`;
+
+	const response = await sendOpenAiRequest( prompt, 'json_object' );
+	debug( `triage-issues: OpenAI response: ${ response }` );
+
+	let parsedResponse;
+	try {
+		parsedResponse = JSON.parse( response );
+	} catch ( error ) {
 		debug(
-			`triage-issues: Reported priority indicators for issue: "${ impact }" / "${ blocking }"`
+			`triage-issues: OpenAI did not send back the expected JSON-formatted response. Error: ${ error }`
 		);
-
-		if ( blocking === 'No and the platform is unusable' ) {
-			return impact === 'One' ? 'High' : 'BLOCKER';
-		} else if ( blocking === 'No but the platform is still usable' ) {
-			return 'High';
-		} else if ( blocking === 'Yes, difficult to implement' ) {
-			return impact === 'All' ? 'High' : 'Normal';
-		} else if ( blocking !== '' && blocking !== '_No response_' ) {
-			return impact === 'All' || impact === 'Most (> 50%)' ? 'Normal' : 'Low';
-		}
-		return 'TBD';
+		return suggestions;
 	}
 
-	debug( `triage-issues: No priority indicators found.` );
-	return 'TBD';
-}
+	const labels = Object.keys( parsedResponse );
 
-/**
- * Build an object containing the slack message and its formatting to send to Slack.
- *
- * @param {WebhookPayloadIssue} payload - Issue event payload.
- * @param {string}              channel - Slack channel ID.
- * @param {string}              message - Basic message (without the formatting).
- * @returns {object} Object containing the slack message and its formatting.
- */
-function formatSlackMessage( payload, channel, message ) {
-	const { issue } = payload;
-	const { html_url, title } = issue;
+	if ( ! Array.isArray( labels ) ) {
+		return suggestions;
+	}
 
-	return {
-		channel,
-		blocks: [
-			{
-				type: 'section',
-				text: {
-					type: 'mrkdwn',
-					text: message,
-				},
-			},
-			{
-				type: 'divider',
-			},
-			{
-				type: 'section',
-				text: {
-					type: 'mrkdwn',
-					text: `<${ html_url }|${ title }>`,
-				},
-			},
-		],
-		text: `${ message } -- <${ html_url }|${ title }>`, // Fallback text for display in notifications.
-		mrkdwn: true, // Formatting of the fallback text.
-		unfurl_links: false,
-		unfurl_media: false,
-	};
+	return { labels, explanations: parsedResponse };
 }
 
 /**
@@ -214,15 +112,9 @@ function formatSlackMessage( payload, channel, message ) {
  */
 async function triageIssues( payload, octokit ) {
 	const { action, issue, label = {}, repository } = payload;
-	const { number, body, state } = issue;
+	const { number, body, title } = issue;
 	const { owner, name, full_name } = repository;
 	const ownerLogin = owner.login;
-
-	const slackToken = getInput( 'slack_token' );
-	if ( ! slackToken ) {
-		setFailed( 'triage-issues: Input slack_token is required but missing. Aborting.' );
-		return;
-	}
 
 	const channel = getInput( 'slack_quality_channel' );
 	if ( ! channel ) {
@@ -302,55 +194,78 @@ async function triageIssues( payload, octokit ) {
 			// send a Slack notification.
 			if ( priority === 'TBD' && full_name === 'Automattic/wp-calypso' ) {
 				debug(
-					`triage-issues: #${ number } doesn't have a Priority set. Sending in Slack message to the Kitkat team.`
+					`triage-issues: #${ number } doesn't have a Priority set. Sending in Slack message to the triage team.`
 				);
-				const message = '@kitkat-team New bug missing priority. Please do a priority assessment.';
+				const message = 'New bug missing priority. Please do a priority assessment.';
 				const slackMessageFormat = formatSlackMessage( payload, channel, message );
-				await sendSlackMessage( message, channel, slackToken, payload, slackMessageFormat );
+				await sendSlackMessage( message, channel, payload, slackMessageFormat );
 			}
 		}
 	}
 
-	/*
-	 * Send a Slack Notification if the issue is important.
-	 *
-	 * We define an important issue when meeting all of the following criteria:
-	 * - A bug (includes a "[Type] Bug" label, or a "[Type] Bug" label is added to the issue right now)
-	 * - The issue is still opened
-	 * - The issue is not escalated yet (no "[Status] Priority Review Triggered" label)
-	 * - The issue is either a high priority or a blocker (inferred from the existing labels or from the issue body)
-	 * - The issue is not already set to another priority label (no "[Pri] High", "[Pri] BLOCKER", or "[Pri] TBD" label)
-	 */
-
-	const isEscalated = await hasEscalatedLabel( octokit, ownerLogin, name, number, action, label );
-
-	const highPriorityIssue = priority === 'High' || priorityLabels.includes( '[Pri] High' );
-	const blockerIssue = priority === 'BLOCKER' || priorityLabels.includes( '[Pri] BLOCKER' );
-
-	const hasOtherPriorityLabels = priorityLabels.some( priLabel =>
-		/^\[Pri\] (?!High|BLOCKER|TBD)/.test( priLabel )
-	);
-
+	// When an issue is first opened, parse its contents, send them to OpenAI,
+	// and add labels if any matching labels can be found.
+	// During testing, we'll run it for any issues, not just opened,
+	// but only on issues with the "[Experiment] Automated labeling" label.
+	// In that situation, we'll add a label to note that the issue was processed.
+	const issueLabels = await getLabels( octokit, ownerLogin, name, number );
+	const apiKey = getInput( 'openai_api_key' );
 	if (
-		isBugIssue &&
-		state === 'open' &&
-		! isEscalated &&
-		( highPriorityIssue || blockerIssue ) &&
-		! hasOtherPriorityLabels
+		issueLabels.includes( '[Experiment] Automated labeling' ) &&
+		! issueLabels.includes( '[Experiment] AI labels added' ) &&
+		apiKey
 	) {
-		const message = `New ${
-			highPriorityIssue ? 'High-priority' : 'Blocker'
-		} bug! Please check the priority.`;
-		const slackMessageFormat = formatSlackMessage( payload, channel, message );
-		await sendSlackMessage( message, channel, slackToken, payload, slackMessageFormat );
+		debug( `triage-issues: Fetching labels suggested by OpenAI for issue #${ number }` );
+		const { labels, explanations } = await fetchOpenAiLabelsSuggestions(
+			octokit,
+			ownerLogin,
+			name,
+			title,
+			body
+		);
 
-		debug( `triage-issues: Adding a label to issue #${ number } to show that Kitkat was warned.` );
-		await octokit.rest.issues.addLabels( {
-			owner: ownerLogin,
-			repo: name,
-			issue_number: number,
-			labels: [ '[Status] Priority Review Triggered' ],
-		} );
+		if ( labels.length === 0 ) {
+			debug( `triage-issues: No labels suggested by OpenAI for issue #${ number }` );
+		} else {
+			// Add the suggested labels to the issue.
+			debug(
+				`triage-issues: Adding the following labels to issue #${ number }, as suggested by OpenAI: ${ labels.join(
+					', '
+				) }`
+			);
+			await octokit.rest.issues.addLabels( {
+				owner: ownerLogin,
+				repo: name,
+				issue_number: number,
+				labels,
+			} );
+
+			// During testing, post a comment on the issue with the explanations.
+			const explanationComment = `**OpenAI suggested the following labels for this issue:**
+${ Object.entries( explanations )
+	.map( ( [ labelName, explanation ] ) => `- ${ labelName }: ${ explanation }` )
+	.join( '\n' ) }`;
+
+			await octokit.rest.issues.createComment( {
+				owner: ownerLogin,
+				repo: name,
+				issue_number: number,
+				body: explanationComment,
+			} );
+
+			// Add a label to note that the issue was processed.
+			await octokit.rest.issues.addLabels( {
+				owner: ownerLogin,
+				repo: name,
+				issue_number: number,
+				labels: [ '[Experiment] AI labels added' ],
+			} );
+		}
+	}
+
+	// Send a Slack notification if the issue is important.
+	if ( isBugIssue ) {
+		await notifyImportantIssues( octokit, payload, channel );
 	}
 }
 module.exports = triageIssues;

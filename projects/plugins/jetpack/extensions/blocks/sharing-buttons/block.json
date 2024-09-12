@@ -1,0 +1,131 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack/sharing-buttons",
+	"title": "Sharing Buttons",
+	"description": "Give your readers the ability to easily share your content with X, Facebook, Tumblr, LinkedIn, and a host of other services to help spread your message across the web.",
+	"keywords": [
+		"sharing",
+		"social",
+		"bluesky",
+		"twitter",
+		"x",
+		"linkedin",
+		"facebook",
+		"mastodon",
+		"tumblr",
+		"threads",
+		"whatsapp",
+		"telegram",
+		"pinterest",
+		"pocket",
+		"reddit",
+		"nextdoor",
+		"print",
+		"email"
+	],
+	"version": "12.5.0",
+	"textdomain": "jetpack",
+	"category": "embed",
+	"icon": "<svg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'><path d='M9 11.8l6.1-4.5c.1.4.4.7.9.7h2c.6 0 1-.4 1-1V5c0-.6-.4-1-1-1h-2c-.6 0-1 .4-1 1v.4l-6.4 4.8c-.2-.1-.4-.2-.6-.2H6c-.6 0-1 .4-1 1v2c0 .6.4 1 1 1h2c.2 0 .4-.1.6-.2l6.4 4.8v.4c0 .6.4 1 1 1h2c.6 0 1-.4 1-1v-2c0-.6-.4-1-1-1h-2c-.5 0-.8.3-.9.7L9 12.2v-.4z' /></svg>",
+	"attributes": {
+		"styleType": {
+			"type": "string",
+			"default": "icon-text",
+			"validValues": [ "icon-text", "icon", "text", "official" ]
+		},
+		"size": {
+			"type": "string",
+			"default": "has-normal-icon-size",
+			"validValues": [
+				"has-small-icon-size",
+				"has-normal-icon-size",
+				"has-large-icon-size",
+				"has-huge-icon-size"
+			]
+		},
+		"iconColor": {
+			"type": "string"
+		},
+		"customIconColor": {
+			"type": "string"
+		},
+		"iconColorValue": {
+			"type": "string"
+		},
+		"iconBackgroundColor": {
+			"type": "string"
+		},
+		"customIconBackgroundColor": {
+			"type": "string"
+		},
+		"iconBackgroundColorValue": {
+			"type": "string"
+		}
+	},
+	"providesContext": {
+		"styleType": "styleType",
+		"iconColor": "iconColor",
+		"iconColorValue": "iconColorValue",
+		"iconBackgroundColor": "iconBackgroundColor",
+		"iconBackgroundColorValue": "iconBackgroundColorValue"
+	},
+	"supports": {
+		"align": [ "left", "center", "right" ],
+		"anchor": true,
+		"__experimentalExposeControlsToChildren": true,
+		"layout": {
+			"allowSwitching": false,
+			"allowInheriting": false,
+			"allowVerticalAlignment": false,
+			"default": {
+				"type": "flex"
+			}
+		},
+		"color": {
+			"enableContrastChecker": true,
+			"background": true,
+			"gradients": true,
+			"customGradient": true,
+			"text": false,
+			"__experimentalDefaultControls": {
+				"background": false
+			}
+		},
+		"spacing": {
+			"blockGap": [ "horizontal", "vertical" ],
+			"margin": true,
+			"padding": true,
+			"units": [ "px", "em", "rem", "vh", "vw" ],
+			"__experimentalDefaultControls": {
+				"blockGap": true,
+				"margin": true,
+				"padding": false
+			}
+		}
+	},
+	"example": {
+		"innerBlocks": [
+			{
+				"name": "jetpack/sharing-button",
+				"attributes": {
+					"service": "facebook"
+				}
+			},
+			{
+				"name": "jetpack/sharing-button",
+				"attributes": {
+					"service": "x"
+				}
+			},
+			{
+				"name": "jetpack/sharing-button",
+				"attributes": {
+					"service": "mastodon"
+				}
+			}
+		]
+	},
+	"viewScript": "file:./view.js",
+	"style": "file:./view.css"
+}

@@ -1,6 +1,7 @@
+import { useBlockProps } from '@wordpress/block-editor';
 import { createHigherOrderComponent, compose } from '@wordpress/compose';
 import { addFilter } from '@wordpress/hooks';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import { isEmpty } from 'lodash';
 import { useFormStyle } from '../util/form';
 import { withSharedFieldAttributes } from '../util/with-shared-field-attributes';
@@ -24,15 +25,17 @@ const JetpackField = props => {
 
 	const { blockStyle, fieldStyle } = useJetpackFieldStyles( attributes );
 	const formStyle = useFormStyle( clientId );
-
-	const classes = classnames( 'jetpack-field', {
-		'is-selected': isSelected,
-		'has-placeholder': ! isEmpty( placeholder ),
+	const blockProps = useBlockProps( {
+		className: clsx( 'jetpack-field', {
+			'is-selected': isSelected,
+			'has-placeholder': ! isEmpty( placeholder ),
+		} ),
+		style: blockStyle,
 	} );
 
 	return (
 		<>
-			<div className={ classes } style={ blockStyle }>
+			<div { ...blockProps }>
 				<JetpackFieldLabel
 					attributes={ attributes }
 					label={ label }

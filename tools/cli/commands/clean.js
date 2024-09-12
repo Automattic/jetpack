@@ -1,7 +1,7 @@
 import child_process from 'child_process';
 import fs from 'fs';
 import chalk from 'chalk';
-import inquirer from 'inquirer';
+import enquirer from 'enquirer';
 import { normalizeCleanArgv } from '../helpers/normalizeArgv.js';
 import { allProjects } from '../helpers/projectHelpers.js';
 import promptForProject, { promptForType } from '../helpers/promptForProject.js';
@@ -10,7 +10,7 @@ import promptForProject, { promptForType } from '../helpers/promptForProject.js'
  * Command definition for the build subcommand.
  *
  * @param {object} yargs - The Yargs dependency.
- * @returns {object} Yargs with the build commands defined.
+ * @return {object} Yargs with the build commands defined.
  */
 export function cleanDefine( yargs ) {
 	yargs.command(
@@ -54,7 +54,7 @@ export function cleanDefine( yargs ) {
 /**
  * Handle args for clean command.
  *
- * @param {argv}  argv - the arguments passed.
+ * @param {argv} argv - the arguments passed.
  */
 export async function cleanCli( argv ) {
 	argv = await normalizeCleanArgv( argv );
@@ -99,14 +99,13 @@ export async function cleanCli( argv ) {
 	}
 
 	await cleanFiles( toCleanFiles, argv );
-	return;
 }
 
 /**
  * Delete the files that we want.
  *
- * @param {Array} toCleanFiles - files that we want to clean.
- * @param {object} argv - the arguments passed.
+ * @param {Array}  toCleanFiles - files that we want to clean.
+ * @param {object} argv         - the arguments passed.
  */
 async function cleanFiles( toCleanFiles, argv ) {
 	console.error( chalk.green( 'Cleaning files! This may take awhile...' ) );
@@ -145,8 +144,8 @@ async function cleanFiles( toCleanFiles, argv ) {
  * Returns list of files that we want to delete.
  *
  * @param {Array} allFiles - a list of all possible deletable files.
- * @param {Array} toClean - what kind of files we want to delete.
- * @returns {Array} deleteQueue - files that we want to delete.
+ * @param {Array} toClean  - what kind of files we want to delete.
+ * @return {Array} deleteQueue - files that we want to delete.
  */
 async function collectCleanFiles( allFiles, toClean ) {
 	let deleteQueue = [];
@@ -184,9 +183,9 @@ async function collectCleanFiles( allFiles, toClean ) {
 /**
  * Gets list of files that could be deleted.
  *
- * @param {Array} toClean - files that we want to clean.
- * @param {object} argv - the arguments passed.
- * @returns {object} allFiles.
+ * @param {Array}  toClean - files that we want to clean.
+ * @param {object} argv    - the arguments passed.
+ * @return {object} allFiles.
  */
 async function collectAllFiles( toClean, argv ) {
 	const allFiles = {
@@ -228,11 +227,10 @@ async function collectAllFiles( toClean, argv ) {
 				}\` instead.`
 			)
 		);
-		const response = await inquirer.prompt( {
+		const response = await enquirer.prompt( {
 			type: 'confirm',
 			name: 'confirm',
 			message: 'Delete checked in composer.lock files anyway?',
-			default: false,
 		} );
 		if ( response.confirm ) {
 			let composerLockFiles = child_process.execSync(
@@ -271,7 +269,7 @@ async function collectAllFiles( toClean, argv ) {
  * Parse passed project paramater.
  *
  * @param {object} argv - the arguments passed.
- * @returns {object} argv.
+ * @return {object} argv.
  */
 async function parseProj( argv ) {
 	//Bail if we've specified the 'all' option already.
@@ -318,7 +316,7 @@ async function parseProj( argv ) {
  * Parse the included files we want to clean.
  *
  * @param {object} argv - the arguments passed.
- * @returns {object} argv.
+ * @return {object} argv.
  */
 async function parseToClean( argv ) {
 	argv.toClean = argv.include;
@@ -329,7 +327,7 @@ async function parseToClean( argv ) {
  * Prompts for the scope, project and type if none were given.
  *
  * @param {object} argv - the arguments passed.
- * @returns {object} argv.
+ * @return {object} argv.
  */
 async function promptProj( argv ) {
 	argv = await promptForScope( argv );
@@ -351,9 +349,9 @@ async function promptProj( argv ) {
 /**
  * Confirm that we want to remove the listed files.
  *
- * @param {object} argv - the arguments passed.
- * @param {Array} toCleanFiles - files we want to clean.
- * @returns {object} response - response data.
+ * @param {object} argv         - the arguments passed.
+ * @param {Array}  toCleanFiles - files we want to clean.
+ * @return {object} response - response data.
  */
 async function confirmRemove( argv, toCleanFiles ) {
 	for ( const file of toCleanFiles ) {
@@ -368,10 +366,11 @@ async function confirmRemove( argv, toCleanFiles ) {
 		confirmMessage =
 			'You want to clean absolutely everything from the monorepo? (untracked files, node_modules, vendor, and git-ignored files?)';
 	}
-	const response = await inquirer.prompt( {
+	const response = await enquirer.prompt( {
 		type: 'confirm',
 		name: 'confirm',
 		message: chalk.green( confirmMessage ),
+		initial: true,
 	} );
 
 	return response;
@@ -380,26 +379,26 @@ async function confirmRemove( argv, toCleanFiles ) {
 /**
  * Prompts for the scope of what we want to clean.
  *
- * @param {argv}  argv - the arguments passed.
- * @returns {object} argv
+ * @param {argv} argv - the arguments passed.
+ * @return {object} argv
  */
 export async function promptForScope( argv ) {
-	const response = await inquirer.prompt( [
+	const response = await enquirer.prompt( [
 		{
-			type: 'list',
+			type: 'select',
 			name: 'scope',
 			message: 'What are you trying to clean?',
 			choices: [
 				{
-					name: '[Project] - Specific project (plugins/jetpack, etc)',
+					message: 'Specific project (plugins/jetpack, etc)',
 					value: 'project',
 				},
 				{
-					name: '[Type   ] - Everything in a project type (plugins, packages, etc)',
+					message: 'Everything in a project type (plugins, packages, etc)',
 					value: 'type',
 				},
 				{
-					name: '[All    ] - Everything in the monorepo',
+					message: 'Everything in the monorepo',
 					value: 'all',
 				},
 			],
@@ -412,42 +411,42 @@ export async function promptForScope( argv ) {
 /**
  * Prompts for what we're trying to clean (files, folder, gitignored, etc).
  *
- * @param {argv}  argv - the arguments passed.
- * @returns {argv} argv
+ * @param {argv} argv - the arguments passed.
+ * @return {argv} argv
  */
 export async function promptForClean( argv ) {
 	let promptProject = argv.project;
 	if ( argv.project === '.' || argv.project === 'all' ) {
 		promptProject = 'everywhere in the monorepo';
 	}
-	const response = await inquirer.prompt( [
+	const response = await enquirer.prompt( [
 		{
-			type: 'checkbox',
+			type: 'multiselect',
 			name: 'toClean',
 			message: `What files and folders are you looking to delete for ${ promptProject }?`,
 			choices: [
 				{
-					name: 'Untracked Files',
+					message: 'Untracked Files',
 					value: 'untracked',
 				},
 				{
-					name: 'Other Ignored Files',
+					message: 'Other Ignored Files',
 					value: 'ignored',
 				},
 				{
-					name: 'Docker Environment',
+					message: 'Docker Environment',
 					value: 'docker',
 				},
 				{
-					name: 'node_modules',
+					message: 'node_modules',
 					value: 'node_modules',
 				},
 				{
-					name: 'composer.lock',
+					message: 'composer.lock',
 					value: 'composer.lock',
 				},
 				{
-					name: 'vendor',
+					message: 'vendor',
 					value: 'vendor',
 				},
 			],

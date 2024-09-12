@@ -22,6 +22,8 @@ export { default as getRedirectUrl } from './tools/jp-redirect';
 export { default as getProductCheckoutUrl } from './tools/get-product-checkout-url';
 export { isFirstMonthTrial } from './tools/pricing-utils';
 export { default as AutomatticBylineLogo } from './components/automattic-byline-logo';
+export { default as AutomatticIconLogo } from './components/automattic-icon-logo';
+export { default as AutomatticForAgenciesLogo } from './components/automattic-for-agencies-logo';
 export { default as JetpackFooter } from './components/jetpack-footer';
 export { default as Spinner } from './components/spinner';
 export { default as Gridicon } from './components/gridicon';
@@ -46,8 +48,10 @@ export { default as ToggleControl } from './components/toggle-control';
 export { default as numberFormat } from './components/number-format';
 export { default as QRCode } from './components/qr-code';
 export { default as Button } from './components/button';
+export type { ButtonProps } from './components/button/types';
 export { default as LoadingPlaceholder } from './components/loading-placeholder';
 export { default as TermsOfService } from './components/terms-of-service';
+export { default as Chip } from './components/chip';
 export {
 	default as PricingTable,
 	PricingTableColumn,
@@ -70,4 +74,7 @@ export { default as IndeterminateProgressBar } from './components/indeterminate-
 export { default as ActionPopover } from './components/action-popover';
 export { default as ZendeskChat } from './components/zendesk-chat';
 export { default as ProgressBar } from './components/progress-bar';
+export { default as UpsellBanner } from './components/upsell-banner';
 export { getUserLocale, cleanLocale } from './lib/locale';
+export { default as RadioControl } from './components/radio-control';
+export * from './components/global-notices';

@@ -1,4 +1,4 @@
-import inquirer from 'inquirer';
+import enquirer from 'enquirer';
 import { dirs, projectTypes, allProjects } from './projectHelpers.js';
 
 /**
@@ -7,7 +7,7 @@ import { dirs, projectTypes, allProjects } from './projectHelpers.js';
  * If no project is passed via `options`, then it will prompt for the type of project and the project itself.
  *
  * @param {object} options - Passthrough of the argv object.
- * @returns {object} argv object with the project property.
+ * @return {object} argv object with the project property.
  */
 export default async function promptForProject( options ) {
 	const questions = [];
@@ -22,7 +22,7 @@ export default async function promptForProject( options ) {
 			typeAnswer = { type: options.type };
 		}
 		questions.push( {
-			type: 'list',
+			type: 'autocomplete',
 			name: 'project',
 			message: 'Please choose which project',
 			choices: dirs( './projects/' + typeAnswer.type ),
@@ -31,7 +31,7 @@ export default async function promptForProject( options ) {
 		throw new Error( 'Must be an existing project.' );
 	}
 
-	const finalAnswers = await inquirer.prompt( questions );
+	const finalAnswers = await enquirer.prompt( questions );
 
 	return {
 		...options,
@@ -45,16 +45,16 @@ export default async function promptForProject( options ) {
  * If no type is passed via `options`, then it will prompt for the type of project.
  *
  * @param {object} options - Passthrough of an object, meant to accept argv.
- * @returns {object} object with the type property appended.
+ * @return {object} object with the type property appended.
  */
 export async function promptForType( options = { type: '' } ) {
 	let typeAnswer;
 	if ( ! options.type || options.type.length === 0 ) {
-		typeAnswer = await inquirer.prompt( {
-			type: 'list',
+		typeAnswer = await enquirer.prompt( {
+			type: 'select',
 			name: 'type',
 			message: 'What type of project are you working on today?',
-			choices: projectTypes.sort(),
+			choices: [ ...projectTypes.sort() ],
 		} );
 	} else if ( ! projectTypes.includes( options.type ) ) {
 		throw new Error( 'Must be an accepted project type.' );
@@ -72,13 +72,13 @@ export async function promptForType( options = { type: '' } ) {
  * If no name is passed via `options`, then it will prompt for the name of project.
  *
  * @param {object} options - Passthrough of an object, meant to accept argv.
- * @returns {object} object with the name property appended.
+ * @return {object} object with the name property appended.
  */
 export async function promptForName( options = { name: '' } ) {
 	let nameAnswer;
 
 	if ( ! options.name || options.name.length === 0 ) {
-		nameAnswer = await inquirer.prompt( {
+		nameAnswer = await enquirer.prompt( {
 			type: 'input',
 			name: 'name',
 			message: 'What is your project called?',

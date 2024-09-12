@@ -25,6 +25,7 @@ export const colors = {
 	// Gray
 	'--jp-gray': '#dcdcde',
 	'--jp-gray-0': '#F6F7F7',
+	'--jp-gray-5': 'var(--jp-gray)',
 	'--jp-gray-10': '#C3C4C7',
 	'--jp-gray-20': '#A7AAAD',
 	'--jp-gray-40': '#787C82',
@@ -110,8 +111,8 @@ const setup = ( root: HTMLElement, id: string, withGlobalStyles?: boolean ) => {
 /**
  * ThemeProvider React component.
  *
- * @param {ThemeProviderProps} props           - Component properties.
- * @returns {React.ReactNode}        ThemeProvider component.
+ * @param {ThemeProviderProps} props - Component properties.
+ * @return {React.ReactNode}        ThemeProvider component.
  */
 const ThemeProvider: React.FC< ThemeProviderProps > = ( {
 	children = null,
@@ -142,7 +143,7 @@ const ThemeProvider: React.FC< ThemeProviderProps > = ( {
 
 	// Do not wrap when the DOM element target is defined.
 	if ( targetDom ) {
-		return children;
+		return <>{ children }</>;
 	}
 
 	return <div ref={ themeWrapperRef }>{ children }</div>;

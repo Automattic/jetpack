@@ -135,16 +135,8 @@ class Jetpack_Provision {
 			$request_body['plan'] = $named_args['plan'];
 		}
 
-		if ( isset( $named_args['onboarding'] ) && ! empty( $named_args['onboarding'] ) ) {
-			$request_body['onboarding'] = (int) $named_args['onboarding'];
-		}
-
 		if ( isset( $named_args['force_connect'] ) && ! empty( $named_args['force_connect'] ) ) {
 			$request_body['force_connect'] = (int) $named_args['force_connect'];
-		}
-
-		if ( isset( $request_body['onboarding'] ) && (bool) $request_body['onboarding'] ) {
-			Jetpack::create_onboarding_token();
 		}
 
 		return $request_body;
@@ -267,7 +259,7 @@ class Jetpack_Provision {
 	 *
 	 * @param string $access_token Access token.
 	 *
-	 * @return array|\Automattic\Jetpack\Connection\WP_Error|bool|WP_Error
+	 * @return array|bool|WP_Error
 	 */
 	private static function verify_token( $access_token ) {
 		$request = array(

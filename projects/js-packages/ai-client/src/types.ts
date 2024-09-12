@@ -1,3 +1,5 @@
+import type * as BlockEditorSelectors from '@wordpress/block-editor/store/selectors.js';
+
 export const ERROR_SERVICE_UNAVAILABLE = 'error_service_unavailable' as const;
 export const ERROR_QUOTA_EXCEEDED = 'error_quota_exceeded' as const;
 export const ERROR_MODERATION = 'error_moderation' as const;
@@ -31,8 +33,30 @@ export type PromptProp = PromptMessagesProp | string;
 /*
  * Data Flow types
  */
-export type { UseAiContextOptions } from './data-flow/use-ai-context';
-export type { RequestingErrorProps } from './hooks/use-ai-suggestions';
+export type { UseAiContextOptions } from './data-flow/use-ai-context.js';
+
+/*
+ * Hook types
+ */
+export type { RequestingErrorProps } from './hooks/use-ai-suggestions/index.js';
+export type {
+	UseAudioTranscriptionProps,
+	UseAudioTranscriptionReturn,
+} from './hooks/use-audio-transcription/index.js';
+export type {
+	UseTranscriptionPostProcessingProps,
+	UseTranscriptionPostProcessingReturn,
+	PostProcessingAction,
+} from './hooks/use-transcription-post-processing/index.js';
+export type {
+	UseAudioValidationReturn,
+	ValidatedAudioInformation,
+} from './hooks/use-audio-validation/index.js';
+
+/*
+ * Hook constants
+ */
+export { TRANSCRIPTION_POST_PROCESSING_ACTION_SIMPLE_DRAFT } from './hooks/use-transcription-post-processing/index.js';
 
 /*
  * Requests types
@@ -60,3 +84,40 @@ export const AI_MODEL_GPT_3_5_Turbo_16K = 'gpt-3.5-turbo-16k' as const;
 export const AI_MODEL_GPT_4 = 'gpt-4' as const;
 
 export type AiModelTypeProp = typeof AI_MODEL_GPT_3_5_Turbo_16K | typeof AI_MODEL_GPT_4;
+
+/*
+ * Media recording types
+ */
+export type { RecordingState } from './hooks/use-media-recording/index.js';
+
+/*
+ * Utility types
+ */
+export type CancelablePromise< T = void > = Promise< T > & { canceled?: boolean };
+
+export type Block = {
+	attributes?: {
+		[ key: string ]: unknown;
+	};
+	clientId?: string;
+	innerBlocks?: Block[];
+	isValid?: boolean;
+	name?: string;
+	originalContent?: string;
+};
+
+/*
+ * Transcription types
+ */
+export type TranscriptionState = RecordingState | 'validating' | 'processing' | 'error';
+
+/*
+ * Lib types
+ */
+export type { RenderHTMLRules } from './libs/index.js';
+
+export interface BlockEditorStore {
+	selectors: {
+		[ key in keyof typeof BlockEditorSelectors ]: ( typeof BlockEditorSelectors )[ key ];
+	};
+}

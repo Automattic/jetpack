@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Import\Endpoints;
 
+use WP_Error;
+
 /**
  * Import trait. Base class for all import endpoints.
  */
@@ -35,7 +37,7 @@ trait Import {
 	/**
 	 * Ensure that the user has permissions to import.
 	 *
-	 * @return bool|\WP_Error
+	 * @return bool|WP_Error
 	 */
 	public function import_permissions_callback() {
 		// The permission check is done in the REST API authentication. It's the same
@@ -49,7 +51,7 @@ trait Import {
 			'jetpack-import'
 		);
 
-		return new \WP_Error( 'rest_forbidden', $error_msg, array( 'status' => \rest_authorization_required_code() ) );
+		return new WP_Error( 'rest_forbidden', $error_msg, array( 'status' => \rest_authorization_required_code() ) );
 	}
 
 	/**

@@ -1,12 +1,13 @@
 <?php
 /**
  * Prompt the user to setup Jetpack Boost.
+ * DEPRECATED in v2.3.1
  */
 
 namespace Automattic\Jetpack_Boost\Features\Setup_Prompt;
 
-use Automattic\Jetpack_Boost\Admin\Config;
 use Automattic\Jetpack_Boost\Contracts\Has_Setup;
+use Automattic\Jetpack_Boost\Data_Sync\Getting_Started_Entry;
 
 class Setup_Prompt implements Has_Setup {
 
@@ -22,7 +23,7 @@ class Setup_Prompt implements Has_Setup {
 	}
 
 	public function load_banner() {
-		if ( ! Config::is_getting_started() || $this->is_banner_dismissed() ) {
+		if ( ( new Getting_Started_Entry() )->get() === false || $this->is_banner_dismissed() ) {
 			return;
 		}
 
@@ -47,10 +48,14 @@ class Setup_Prompt implements Has_Setup {
 		return get_option( self::OPTION_KEY, false );
 	}
 
-	// hides the boost promo banner on dismiss
+	/**
+	 * Hides the boost promo banner on dismiss
+	 *
+	 * @return never
+	 */
 	public function dismiss_setup_banner() {
 		check_ajax_referer( self::NONCE_ACTION, 'nonce' );
-		update_option( self::OPTION_KEY, true, 'no' );
+		update_option( self::OPTION_KEY, true, false );
 		exit();
 	}
 }

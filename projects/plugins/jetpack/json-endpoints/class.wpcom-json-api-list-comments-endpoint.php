@@ -213,7 +213,7 @@ class WPCOM_JSON_API_List_Comments_Endpoint extends WPCOM_JSON_API_Comment_Endpo
 			return new WP_Error( 'invalid_number', 'The NUMBER parameter must be less than or equal to 100.', 400 );
 		}
 
-		if ( false !== strpos( $path, '/posts/' ) ) {
+		if ( str_contains( $path, '/posts/' ) ) {
 			// We're looking for comments of a particular post.
 			$post_id    = $object_id;
 			$comment_id = 0;
@@ -308,6 +308,10 @@ class WPCOM_JSON_API_List_Comments_Endpoint extends WPCOM_JSON_API_Comment_Endpo
 				}
 			}
 		}
+		if ( $args['hierarchical'] && $found > 5000 ) {
+			// Massive comment thread found; don't pre-load comment metadata to reduce memory used.
+			$query['update_comment_meta_cache'] = false;
+		}
 
 		if ( $post_id ) {
 			$post = get_post( $post_id );
@@ -327,8 +331,6 @@ class WPCOM_JSON_API_List_Comments_Endpoint extends WPCOM_JSON_API_Comment_Endpo
 		}
 
 		$comments = get_comments( $query );
-
-		update_comment_cache( $comments );
 
 		if ( $args['hierarchical'] ) {
 			$walker      = new WPCOM_JSON_API_List_Comments_Walker();

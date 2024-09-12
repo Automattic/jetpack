@@ -11,6 +11,7 @@ use Automattic\Jetpack\Assets;
 use WP_Block_Parser;
 use WP_Block_Patterns_Registry;
 use WP_Error;
+use WP_Query;
 use WP_REST_Templates_Controller;
 
 /**
@@ -459,7 +460,7 @@ class Instant_Search extends Classic_Search {
 					// The array index of wp search widget.
 					$sidebar_searchbox_idx = $idx;
 				}
-				if ( 0 === strpos( $widget_id, Helper::FILTER_WIDGET_BASE ) ) {
+				if ( str_starts_with( $widget_id, Helper::FILTER_WIDGET_BASE ) ) {
 					// The id of Jetpack Search widget.
 					$sidebar_jp_searchbox_id = str_replace( Helper::FILTER_WIDGET_BASE . '-', '', $widget_id );
 				}
@@ -475,18 +476,18 @@ class Instant_Search extends Classic_Search {
 	 */
 	protected function widget_has_search_block( $widget_id ) {
 		// test search widget.
-		if ( 0 === strpos( $widget_id, 'search-' ) ) {
+		if ( str_starts_with( $widget_id, 'search-' ) ) {
 			return true;
 		}
 		// test search block widget.
-		if ( 0 === strpos( $widget_id, 'block-' ) ) {
+		if ( str_starts_with( $widget_id, 'block-' ) ) {
 			$widget_blocks = get_option( 'widget_block', array() );
 			$widget_index  = str_replace( 'block-', '', $widget_id );
 			// A single block could be of type string or array.
-			if ( isset( $widget_blocks[ $widget_index ]['content'] ) && false !== strpos( (string) $widget_blocks[ $widget_index ]['content'], 'wp:search' ) ) {
+			if ( isset( $widget_blocks[ $widget_index ]['content'] ) && str_contains( (string) $widget_blocks[ $widget_index ]['content'], 'wp:search' ) ) {
 				return true;
 			}
-			if ( isset( $widget_blocks[ $widget_index ] ) && is_string( $widget_blocks[ $widget_index ] ) && false !== strpos( $widget_blocks[ $widget_index ], 'wp:search' ) ) {
+			if ( isset( $widget_blocks[ $widget_index ] ) && is_string( $widget_blocks[ $widget_index ] ) && str_contains( $widget_blocks[ $widget_index ], 'wp:search' ) ) {
 				return true;
 			}
 		}
@@ -610,7 +611,7 @@ class Instant_Search extends Classic_Search {
 	/**
 	 * Append Search block to block if no 'wp:search' exists already.
 	 *
-	 * @param {string} $block_content - the content to append the search block.
+	 * @param string $block_content - the content to append the search block.
 	 */
 	public static function inject_search_widget_to_block( $block_content ) {
 		$search_block = sprintf(

@@ -2,7 +2,7 @@ import { BlockControls, useBlockProps, useInnerBlocksProps } from '@wordpress/bl
 import { useSelect } from '@wordpress/data';
 import { useEffect } from '@wordpress/element';
 import { addFilter } from '@wordpress/hooks';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import StripeConnectToolbarButton from '../../shared/components/stripe-connect-toolbar-button';
 import { StripeNudge } from '../../shared/components/stripe-nudge';
 import { store as membershipProductsStore } from '../../store/membership-products';
@@ -55,7 +55,7 @@ function PaymentButtonsEdit( { clientId, attributes } ) {
 	const showStripeConnectAction = ! isApiConnected && !! connectUrl;
 
 	const blockProps = useBlockProps( {
-		className: classNames( {
+		className: clsx( {
 			'has-custom-font-size': !! fontSize || attributes?.style?.typography?.fontSize,
 		} ),
 	} );
@@ -64,7 +64,7 @@ function PaymentButtonsEdit( { clientId, attributes } ) {
 		orientation: 'horizontal',
 		template: [ [ 'jetpack/recurring-payments' ] ],
 		templateInsertUpdatesSelection: true,
-		__experimentalLayout: layout,
+		layout,
 	} );
 
 	// The ID needs to be just on the outermost wrapper - the toolbar and wpcom upgrade nudge

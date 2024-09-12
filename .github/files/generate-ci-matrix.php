@@ -58,7 +58,7 @@ $default_matrix_vars = array(
 $matrix = array();
 
 // Add PHP tests.
-foreach ( array( '7.0', '7.2', '7.3', '7.4', '8.0', '8.1', '8.2' ) as $php ) {
+foreach ( array( '7.2', '7.3', '7.4', '8.0', '8.1', '8.2', '8.3' ) as $php ) {
 	$matrix[] = array(
 		'name'    => "PHP tests: PHP $php WP latest",
 		'script'  => 'test-php',
@@ -68,13 +68,14 @@ foreach ( array( '7.0', '7.2', '7.3', '7.4', '8.0', '8.1', '8.2' ) as $php ) {
 	);
 }
 
-// PHP 5.6 support was dropped in WP 6.3. Remove this (and everything elsewhere related to PHP 5.6) when we drop support for earlier versions.
+// TODO: When WordPress 6.5 is no longer supported, this can be removed.
 $matrix[] = array(
-	'name'    => 'PHP tests: PHP 5.6 WP previous',
-	'script'  => 'test-php',
-	'php'     => '5.6',
-	'wp'      => 'previous',
-	'timeout' => 20, // 2022-01-25: 5.6 tests have started timing out at 15 minutes. Previously: Successful runs seem to take ~8 minutes for PHP 5.6 and for the 7.4 trunk run, ~5.5-6 for 7.x and 8.0.
+	'name'                => 'PHP tests: PHP 7.0 WP previous',
+	'script'              => 'test-php',
+	'php'                 => '7.0',
+	'wp'                  => 'previous',
+	'timeout'             => 20, // 2023-08-17: Successful runs seem to take up to ~12 minutes.
+	'force-package-tests' => true,
 );
 
 foreach ( array( 'previous', 'trunk' ) as $wp ) {
@@ -84,7 +85,7 @@ foreach ( array( 'previous', 'trunk' ) as $wp ) {
 		'script'  => 'test-php',
 		'php'     => $phpver,
 		'wp'      => $wp,
-		'timeout' => 15, // 2021-01-18: Successful runs seem to take ~8 minutes for PHP 5.6 and for the 7.4 trunk run, ~5.5-6 for 7.x and 8.0.
+		'timeout' => 15, // 2021-01-18: Successful runs seem to take ~8 minutes for the 7.4 trunk run, ~5.5-6 for 7.x and 8.0.
 	);
 }
 
@@ -96,6 +97,16 @@ $matrix[] = array(
 	'wp'               => 'latest',
 	'timeout'          => 20,
 	'with-woocommerce' => true,
+);
+
+// Add wpcomsh tests.
+$matrix[] = array(
+	'name'         => 'PHP tests: PHP 8.1 WP latest with wpcomsh',
+	'script'       => 'test-php',
+	'php'          => '8.1',
+	'wp'           => 'latest',
+	'timeout'      => 20,
+	'with-wpcomsh' => true,
 );
 
 // Add JS tests.
@@ -113,15 +124,16 @@ $any_errors = false;
 /**
  * Output an error for GH Actions.
  *
- * @param array ...$args Arguments as for printf.
+ * @param string $fmt Format string for printf.
+ * @param mixed  ...$args Arguments as for printf.
  */
-function error( ...$args ) {
+function error( $fmt, ...$args ) {
 	global $any_errors;
 
 	$any_errors = true;
 
 	$msg = strtr(
-		sprintf( ...$args ),
+		sprintf( $fmt, ...$args ),
 		array(
 			"\r" => '',
 			"\n" => '%0A',
@@ -134,7 +146,7 @@ function error( ...$args ) {
  * Join an array with commas and "or".
  *
  * @param array $vals Values to join.
- * @returns string
+ * @return string
  */
 function join_or( $vals ) {
 	if ( count( $vals ) > 1 ) {

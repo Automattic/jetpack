@@ -5,7 +5,164 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.2.0-beta] - 2023-10-26
+## [3.4.9] - 2024-09-03
+### Fixed
+- Update `automattic/jetpack-image-cdn` package to resolve a PHP fatal error.
+
+## [3.4.8] - 2024-09-02
+### Changed
+- Admin menu: change order of Jetpack sub-menu items [#39095]
+- Page Cache: Update notice for WP Cloud clients.
+- React: Changing global JSX namespace to React.JSX [#38585]
+
+### Fixed
+- Cloud CSS: Fixed not properly storing CSS returned from the cloud after a theme switch. [#38985]
+- Lossless image optimization for images (should improve performance with no visible changes). [#38750]
+- Misc: Fix PHP warning when generating critical css for some taxonomy pages. [#38807]
+- Revert recent SVG image optimizations. [#38981]
+- UI: Fix inconsistencies. [#39072]
+- Updated package dependencies. [#38464]
+
+## [3.4.7] - 2024-07-10
+### Security
+- General: Improved image and CSS proxy functionalities with CDN support, caching, and other enhancements. [#38252]
+
+## [3.4.6] - 2024-06-26
+### Added
+- General: Automatically enables Page Cache when migrating from WP Super Cache. [#37963]
+
+### Fixed
+- Image CDN: Improvements to more closely match WP core behavior. [#37931] [#37946]
+- General: indicate compatibility with the upcoming version of WordPress - 6.6. [#37962]
+- Updated package dependencies. [#37796]
+- Page Cache: Update WP_CACHE detection in wp-config.php [#38022]
+- Page Cache: Avoid caching error pages. [#38054]
+- General: Fix instance where deactivating Boost can break caching for other caching plugins. [#38033]
+
+## [3.4.4] - 2024-06-18
+### Fixes
+- My Jetpack: Update My Jetpack to a more stable version. [#37911]
+
+## [3.4.3] - 2024-06-14
+### Fixed
+- Compatibility: Include a missing dependency required for Compatibility with WP Optimize [#37873]
+
+## [3.4.2] - 2024-06-13
+### Added
+- Critical CSS: Add a friendly error if css gen library is broken or missing. [#37283]
+- Page Cache: Added cache rebuild functionality. [#37151]
+- Page Cache: Allow easy migration from WPSC to Boost Cache. [#36818]
+- Page Cache: Remove the advanced-cache.php when the Cache module is disabled. [#37643]
+
+### Changed
+- Critical CSS: Improve source providers collecting logic. [#37095]
+- Critical CSS: Improve UI when errors are present. [#37658]
+- Dependency: Remove the explicit Plugin Install dependency. [#37430]
+- Dependency: Updated package dependencies. [#37348] [#37379] [#37380] [#37669]
+- Minification: Change minification library. [#37700]
+- Minification: Skip files ending in `.min.js` and `.min.css` from minification. [#37700]
+
+## [3.3.1] - 2024-05-15
+### Fixed
+- Concatenate JS: Added compatibility with WooCommerce 8.9 [#37403]
+- Critical CSS: Remove post types with empty Critical CSS URLs [#37389]
+
+## [3.3.0] - 2024-05-08
+### Added
+- General: Add endpoint to list source providers. [#36373]
+- General: Add end to end tests for modules. [#36501]
+- Auto-Resize Lazy Images: Added feature to optimize lazy loading image performance [#36987]
+- JS Concatenation: Added compatibility with event-tickets by The Events Calendar. [#36750]
+- Speed Score: Add the speed changed popup back. [#36432]
+
+### Changed
+- Cache: remove Beta tag [#37261]
+- General: improved compatibility with WP 6.4. [#37051]
+- Image CDN: Update UI. [#37263]
+
+### Fixed
+- CLI: Fix fatal error when using 'activate' without a module name. [#36873]
+- Critical CSS: Update the way generation library is loaded. [#37118]
+
+## [3.2.2] - 2024-04-02
+### Added
+- Cache: Ensure cache engine is loading every time the Settings page loads. [#36339]
+- Cache: Clear cache if Boost module settings are changed [#36452]
+- Cache: Show notification in site health if cache system isn't loading. [#36449]
+- Compatibility: Improved compatibility with SEO plugins for smoother Cloud CSS generation. [#36556]
+
+### Changed
+- Cloud CSS: Optimize regeneration time. [#36519]
+- Cloud CSS: Update REST API endpoint to be available even if the module is turned off. [#36437]
+- Performance History: Sanitize graph annotation text. [#36453]
+- Speed Score: More accurately detect which modules are active when a speed score is requested. [#36534]
+- General: Only show installation errors on plugins page. [#36390]
+- General: Updated package dependencies. [#36585]
+- General: Update getting started and upgrade copies. [#36475]
+
+## [3.2.0] - 2024-03-15
+### Fixed
+- Cache: Verify cache enabled on current site before saving cached data [#36350]
+- General: Added filter documentation [#36226]
+- General: Removed duplicate uninstall hook, fixing unnecessary database writes [#36403]
+
+## [3.1.1] - 2024-03-11
+### Added
+- Cache: Added a Page Cache module. [#35042]
+- Defer JS: Automatically exclude JSON-LD schemas. [#35417]
+- Speed Scores: Added support for annotating points of time in the speed score history graph. [#34978]
+
+### Changed
+- General: Better error handling for invalid data when running wp-admin pages. [#35361]
+- General: Enabled React.StrictMode for development. [#35330]
+- General: Improved error handling. [#35543]
+- General: Indicate compatibility with the upcoming version of WordPress, 6.5. [#35820]
+- General: Switch to using Blog ID links instead of site slugs in checkout flow. [#35002]
+- Image Guide: Removed beta flag [#35846]
+
+### Fixed
+- Critical CSS: Prevent errors when page_for_posts misconfigured. [#36007]
+- Critical CSS: Prevent missing archive pages from breaking the generation process. [#35561]
+- General: Prevent missing pricing information from affecting the getting started flow. [#35347]
+- Image Size Analysis: Update summary groups to align with status icons. [#35419]
+- Concatenate JS/CSS: Ensure minification is enabled. [#35498]
+
+## [3.0.2] - 2024-01-31
+### Fixed
+- General: Fixed an issue with compatibility file [#35358]
+
+## [3.0.1] - 2024-01-30
+### Fixed
+- Fix pricing bug. [#35347]
+
+## [3.0.0] - 2024-01-30
+### Added
+- Cloud CSS: Improve reliability. [#35129]
+- General: Added Jetpack Sync to allow for better support. [#34825]
+
+### Changed
+- General: Migrated Admin UI from Svlete to React, for consistency with the rest of Jetpack.
+- General: Updated PHP requirement to PHP 7.0+ [#34126]
+- Update cloud css regenerate button to always be visible, but disable it when generation is running.
+- Update Purchase Successful page copy and layout.
+- Made various PHP code improvements.
+
+### Removed
+- Removed Boost setup prompt/banner on wp-admin plugins page. [#34771]
+- Removed lazy-loading module. [#35100]
+- Speed Scores: Temporarily removed the score change popout.
+
+### Fixed
+- Concatenate JS: Output inline before/after scripts for handles with `src` false. [#35121]
+- Critical CSS: Exclude @charset and @import statements from Critical CSS. [#34660]
+- Site Health: Fixed showing critical CSS issue in site-health if module is disabled
+- Speed Scores: Fix score auto-refresh
+
+## [2.2.1] - 2023-12-21
+### Fixed
+- Defer JS: added importmap to the exclusion list to fix compatibility issues. [#34746]
+
+## [2.2.0] - 2023-10-31
 ### Changed
 - General: Indicate full compatibility with the latest version of WordPress, 6.4. [#33776]
 - Getting Started: Improved how features are sorted in the getting started page. [#33766]
@@ -341,7 +498,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - First public alpha release
 
-[2.2.0-beta]: https://github.com/Automattic/jetpack-boost-production/compare/2.1.1...2.2.0-beta
+[3.4.9]: https://github.com/Automattic/jetpack-boost-production/compare/3.4.8...3.4.9
+[3.4.8]: https://github.com/Automattic/jetpack-boost-production/compare/3.4.7...3.4.8
+[3.4.7]: https://github.com/Automattic/jetpack-boost-production/compare/3.4.6...3.4.7
+[3.4.6]: https://github.com/Automattic/jetpack-boost-production/compare/3.4.4...3.4.6
+[3.4.4]: https://github.com/Automattic/jetpack-boost-production/compare/3.4.3...3.4.4
+[3.4.3]: https://github.com/Automattic/jetpack-boost-production/compare/3.4.2...3.4.3
+[3.4.2]: https://github.com/Automattic/jetpack-boost-production/compare/3.3.1...3.4.2
+[3.3.1]: https://github.com/Automattic/jetpack-boost-production/compare/3.3.0...3.3.1
+[3.3.0]: https://github.com/Automattic/jetpack-boost-production/compare/3.2.2...3.3.0
+[3.2.2]: https://github.com/Automattic/jetpack-boost-production/compare/3.2.0...3.2.2
+[3.2.0]: https://github.com/Automattic/jetpack-boost-production/compare/3.1.1...3.2.0
+[3.1.1]: https://github.com/Automattic/jetpack-boost-production/compare/3.0.2...3.1.1
+[3.0.2]: https://github.com/Automattic/jetpack-boost-production/compare/3.0.1...3.0.2
+[3.0.1]: https://github.com/Automattic/jetpack-boost-production/compare/3.0.0...3.0.1
+[3.0.0]: https://github.com/Automattic/jetpack-boost-production/compare/2.2.1...3.0.0
+[2.2.1]: https://github.com/Automattic/jetpack-boost-production/compare/2.2.0...2.2.1
+[2.2.0]: https://github.com/Automattic/jetpack-boost-production/compare/2.1.1...2.2.0
 [2.1.1]: https://github.com/Automattic/jetpack-boost-production/compare/2.0.2...2.1.1
 [2.0.2]: https://github.com/Automattic/jetpack-boost-production/compare/2.0.1...2.0.2
 [2.0.1]: https://github.com/Automattic/jetpack-boost-production/compare/2.0.0...2.0.1

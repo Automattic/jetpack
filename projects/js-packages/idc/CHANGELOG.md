@@ -2,6 +2,149 @@
 
 ### This is a list detailing changes for the Jetpack RNA IDC package releases.
 
+## 0.11.12 - 2024-09-10
+### Changed
+- Updated package dependencies. [#39302]
+
+## 0.11.11 - 2024-09-05
+### Changed
+- Internal updates.
+
+## 0.11.10 - 2024-09-05
+### Changed
+- Updated package dependencies. [#39176]
+
+## 0.11.9 - 2024-08-29
+### Changed
+- Internal updates.
+
+## 0.11.8 - 2024-08-21
+### Changed
+- Internal updates.
+
+## 0.11.7 - 2024-08-15
+### Changed
+- Updated package dependencies. [#38662]
+
+## 0.11.6 - 2024-08-09
+### Removed
+- Tests: Removed react-test-renderer. [#38755]
+
+## 0.11.5 - 2024-07-23
+### Fixed
+- Updated package dependencies. [#38464]
+
+## 0.11.4 - 2024-07-22
+### Changed
+- Update dependencies.
+
+## 0.11.3 - 2024-07-03
+### Changed
+- Updated package dependencies. [#38132]
+
+## 0.11.2 - 2024-06-21
+### Changed
+- Update dependencies.
+
+## 0.11.1 - 2024-06-12
+### Changed
+- Updated package dependencies. [#37796]
+
+## 0.11.0 - 2024-06-10
+### Added
+- Safe mode: Added new screen for staging sites. [#37023]
+
+## 0.10.73 - 2024-06-05
+### Changed
+- Updated package dependencies. [#37669]
+
+## 0.10.72 - 2024-05-16
+### Changed
+- Updated package dependencies. [#37379]
+- Updated package dependencies. [#37380]
+
+## 0.10.71 - 2024-05-08
+### Changed
+- Update dependencies.
+
+## 0.10.70 - 2024-05-06
+### Changed
+- Updated package dependencies. [#37147]
+
+## 0.10.69 - 2024-04-11
+### Changed
+- Update dependencies.
+
+## 0.10.68 - 2024-04-08
+### Changed
+- Updated package dependencies. [#36760]
+
+## 0.10.67 - 2024-03-27
+### Changed
+- Updated package dependencies. [#36585]
+
+## 0.10.66 - 2024-03-12
+### Changed
+- Updated package dependencies. [#36325]
+
+## 0.10.65 - 2024-03-07
+### Changed
+- Update dependencies.
+
+## 0.10.64 - 2024-03-04
+### Changed
+- Updated package dependencies.
+
+## 0.10.63 - 2024-03-01
+### Changed
+- Update dependencies.
+
+## 0.10.62 - 2024-02-27
+### Changed
+- Update dependencies.
+
+## 0.10.61 - 2024-02-13
+### Changed
+- Updated package dependencies. [#35608]
+
+## 0.10.60 - 2024-02-05
+### Changed
+- Updated package dependencies. [#35384]
+
+## 0.10.59 - 2024-01-29
+### Changed
+- Update dependencies.
+
+## 0.10.58 - 2024-01-18
+### Changed
+- Minor internal updates.
+
+## 0.10.57 - 2024-01-18
+### Changed
+- Update dependencies.
+
+## 0.10.56 - 2024-01-04
+### Changed
+- Updated package dependencies. [#34815]
+
+## 0.10.55 - 2023-12-06
+### Changed
+- Updated package dependencies. [#34416]
+
+## 0.10.54 - 2023-12-03
+### Changed
+- Updated package dependencies. [#34411]
+
+## 0.10.53 - 2023-11-20
+
+## 0.10.52 - 2023-11-14
+### Changed
+- Updated package dependencies. [#34093]
+
+## 0.10.51 - 2023-11-13
+### Changed
+- Updated dependencies.
+
 ## 0.10.50 - 2023-10-19
 ### Changed
 - Updated package dependencies. [#33687]

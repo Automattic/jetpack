@@ -26,7 +26,7 @@ class WP_Test_Jetpack_Shortcodes_Flickr extends WP_UnitTestCase {
 				);
 			}
 
-			if ( 0 === strpos( $url, 'https://www.flickr.com/services/oembed/' ) ) {
+			if ( str_starts_with( $url, 'https://www.flickr.com/services/oembed/' ) ) {
 				$body = array(
 					'html' => '<iframe src="https://embedr.flickr.com/photos/49931239842" width="500" height="281" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe>',
 				);

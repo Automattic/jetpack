@@ -341,17 +341,23 @@ class iCalendarReader {
 							$recurring_event_date_start = date( 'Ymd\THis', strtotime( $event['DTSTART'] ) );
 						} else {
 							// Describe the date in the month.
-							if ( isset( $rrule_array['BYDAY'] ) ) {
-								$day_number      = substr( $rrule_array['BYDAY'], 0, 1 );
-								$week_day        = substr( $rrule_array['BYDAY'], 1 );
-								$day_cardinals   = array(
-									1 => 'first',
-									2 => 'second',
-									3 => 'third',
-									4 => 'fourth',
-									5 => 'fifth',
+							if ( isset( $rrule_array['BYDAY'] )
+								&& preg_match( '/^(-?\d)([A-Z]{2})/', $rrule_array['BYDAY'], $matches )
+							) {
+								$day_number = $matches[1];
+								$week_day   = $matches[2];
+
+								$day_cardinals = array(
+									-3 => 'third to last',
+									-2 => 'second to last',
+									-1 => 'last',
+									1  => 'first',
+									2  => 'second',
+									3  => 'third',
+									4  => 'fourth',
+									5  => 'fifth',
 								);
-								$weekdays        = array(
+								$weekdays      = array(
 									'SU' => 'Sunday',
 									'MO' => 'Monday',
 									'TU' => 'Tuesday',
@@ -360,7 +366,10 @@ class iCalendarReader {
 									'FR' => 'Friday',
 									'SA' => 'Saturday',
 								);
-								$event_date_desc = "{$day_cardinals[$day_number]} {$weekdays[$week_day]} of ";
+
+								$day_cardinal    = $day_cardinals[ $day_number ] ?? '';
+								$weekday         = $weekdays[ $week_day ] ?? '';
+								$event_date_desc = "$day_cardinal $weekday of ";
 							} else {
 								$event_date_desc = date( 'd ', strtotime( $event['DTSTART'] ) );
 							}
@@ -761,7 +770,7 @@ class iCalendarReader {
 			if ( 2 === count( $keyword ) ) {
 				$tparam = $keyword[1];
 
-				if ( strpos( $tparam, 'TZID' ) !== false ) {
+				if ( str_contains( $tparam, 'TZID' ) ) {
 					$tzid = $this->timezone_from_string( str_replace( 'TZID=', '', $tparam ) );
 				}
 			}

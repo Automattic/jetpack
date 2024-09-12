@@ -28,7 +28,7 @@ class Autoloader_Locator {
 	 * Finds the path to the plugin with the latest autoloader.
 	 *
 	 * @param array  $plugin_paths An array of plugin paths.
-	 * @param string $latest_version The latest version reference.
+	 * @param string $latest_version The latest version reference. @phan-output-reference.
 	 *
 	 * @return string|null
 	 */
@@ -37,7 +37,7 @@ class Autoloader_Locator {
 
 		foreach ( $plugin_paths as $plugin_path ) {
 			$version = $this->get_autoloader_version( $plugin_path );
-			if ( ! $this->version_selector->is_version_update_required( $latest_version, $version ) ) {
+			if ( ! $version || ! $this->version_selector->is_version_update_required( $latest_version, $version ) ) {
 				continue;
 			}
 

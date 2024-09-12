@@ -51,7 +51,7 @@ Monorepo provides support for `jest` as testing framework, and `@testing-library
 
 ### React components
 
-There are examples scattered through the monorepo such as [connection-status-card](/projects/js-packages/connection/components/connection-status-card/test/component.jsx) card. Refer to [documentation](https://testing-library.com/docs/react-testing-library/intro) for more details.
+There are examples scattered through the monorepo such as [connection-status-card](/projects/packages/my-jetpack/_inc/components/connection-status-card/test/component.jsx) card. Refer to [documentation](https://testing-library.com/docs/react-testing-library/intro) for more details.
 
 ### Gutenberg blocks
 

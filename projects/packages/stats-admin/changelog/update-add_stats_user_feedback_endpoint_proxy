@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Create the user feedback endpoint proxy with a user login status check.

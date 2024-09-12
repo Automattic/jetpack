@@ -61,9 +61,10 @@ class Waf_Constants {
 	 */
 	public static function define_killswitch() {
 		if ( ! defined( 'DISABLE_JETPACK_WAF' ) ) {
-			$is_wpcom  = defined( 'IS_WPCOM' ) && IS_WPCOM;
-			$is_atomic = ( new Host() )->is_atomic_platform();
-			define( 'DISABLE_JETPACK_WAF', $is_wpcom || $is_atomic );
+			$is_wpcom        = defined( 'IS_WPCOM' ) && IS_WPCOM;
+			$is_atomic       = ( new Host() )->is_atomic_platform();
+			$is_atomic_on_jn = defined( 'IS_ATOMIC_JN' ) ?? IS_ATOMIC_JN;
+			define( 'DISABLE_JETPACK_WAF', $is_wpcom || ( $is_atomic && ! $is_atomic_on_jn ) );
 		}
 	}
 
@@ -86,8 +87,20 @@ class Waf_Constants {
 	 */
 	public static function define_share_data() {
 		if ( ! defined( 'JETPACK_WAF_SHARE_DATA' ) ) {
-			$share_data_option = get_option( Waf_Runner::SHARE_DATA_OPTION_NAME, false );
+			$share_data_option = false;
+			if ( function_exists( 'get_option' ) ) {
+				$share_data_option = get_option( Waf_Runner::SHARE_DATA_OPTION_NAME, false );
+			}
+
 			define( 'JETPACK_WAF_SHARE_DATA', $share_data_option );
+		}
+		if ( ! defined( 'JETPACK_WAF_SHARE_DEBUG_DATA' ) ) {
+			$share_debug_data_option = false;
+			if ( function_exists( 'get_option' ) ) {
+				$share_debug_data_option = get_option( Waf_Runner::SHARE_DEBUG_DATA_OPTION_NAME, false );
+			}
+
+			define( 'JETPACK_WAF_SHARE_DEBUG_DATA', $share_debug_data_option );
 		}
 	}
 

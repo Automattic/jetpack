@@ -1,13 +1,12 @@
 /** @ssr-ready **/
 
 import { getWindowInnerWidth } from '@automattic/viewport';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import SelectDropdown from 'components/select-dropdown';
 import DropdownItem from 'components/select-dropdown/item';
 import { debounce } from 'lodash';
 import PropTypes from 'prop-types';
 import React from 'react';
-import ReactDom from 'react-dom';
 
 /**
  * Internal Variables
@@ -25,6 +24,9 @@ class NavTabs extends React.Component {
 	static defaultProps = {
 		hasSiblingControls: false,
 	};
+
+	navGroupRef = React.createRef();
+	tabRefs = {};
 
 	state = {
 		isDropdown: false,
@@ -46,11 +48,13 @@ class NavTabs extends React.Component {
 	}
 
 	render() {
+		const self = this;
 		const tabs = React.Children.map( this.props.children, function ( child, index ) {
-			return child && React.cloneElement( child, { ref: 'tab-' + index } );
+			self.tabRefs[ 'tab-' + index ] = React.createRef();
+			return child && React.cloneElement( child, { ref: self.tabRefs[ 'tab-' + index ] } );
 		} );
 
-		const tabsClassName = classNames( {
+		const tabsClassName = clsx( {
 			'dops-section-nav-tabs': true,
 			'is-dropdown': this.state.isDropdown,
 			'is-open': this.state.isDropdownOpen,
@@ -60,7 +64,7 @@ class NavTabs extends React.Component {
 		const innerWidth = getWindowInnerWidth();
 
 		return (
-			<div className="dops-section-nav-group" ref="navGroup">
+			<div className="dops-section-nav-group" ref={ this.navGroupRef }>
 				<div className={ tabsClassName }>
 					{ this.props.label && (
 						<h6 className="dops-section-nav-group__label">{ this.props.label }</h6>
@@ -76,6 +80,7 @@ class NavTabs extends React.Component {
 	}
 
 	getTabWidths = () => {
+		const self = this;
 		let totalWidth = 0;
 
 		React.Children.forEach(
@@ -84,7 +89,7 @@ class NavTabs extends React.Component {
 				if ( ! child ) {
 					return;
 				}
-				const tabWidth = ReactDom.findDOMNode( this.refs[ 'tab-' + index ] ).offsetWidth;
+				const tabWidth = self.tabRefs[ 'tab-' + index ].current.domNode.offsetWidth;
 				totalWidth += tabWidth;
 			}.bind( this )
 		);
@@ -119,11 +124,11 @@ class NavTabs extends React.Component {
 		let navGroupWidth;
 
 		if ( window.innerWidth > MOBILE_PANEL_THRESHOLD ) {
-			if ( ! this.refs.navGroup ) {
+			if ( ! this.navGroupRef.current ) {
 				return;
 			}
 
-			navGroupWidth = this.refs.navGroup.offsetWidth;
+			navGroupWidth = this.navGroupRef.current.offsetWidth;
 
 			if ( ! this.tabsWidth ) {
 				this.getTabWidths();

@@ -1,4 +1,8 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import {
+	ConnectionManagement,
+	RefreshJetpackSocialSettingsWrapper,
+} from '@automattic/jetpack-publicize-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import Card from 'components/card';
@@ -10,7 +14,7 @@ import SettingsGroup from 'components/settings-group';
 import analytics from 'lib/analytics';
 import React, { Component } from 'react';
 import './style.scss';
-import AutoConversionSection from './features/auto-conversion-section';
+import { FormFieldset } from '../components/forms';
 import SocialImageGeneratorSection from './features/social-image-generator-section';
 
 export const Publicize = withModuleSettingsFormHelpers(
@@ -22,27 +26,41 @@ export const Publicize = withModuleSettingsFormHelpers(
 			} );
 		}
 
+		componentDidUpdate() {
+			const isActive = this.props.getOptionValue( 'publicize' );
+			// Reload the page if Publicize is enabled.
+			if ( isActive && ! window.Initial_State.socialInitialState.is_publicize_enabled ) {
+				window.location.reload();
+			}
+		}
+
 		render() {
+			const isActive = this.props.getOptionValue( 'publicize' ),
+				userCanManageModules = this.props.userCanManageModules;
+
+			if ( ! userCanManageModules && ! isActive ) {
+				return null;
+			}
+
 			const unavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'publicize' ),
 				isLinked = this.props.isLinked,
 				isOfflineMode = this.props.isOfflineMode,
 				siteRawUrl = this.props.siteRawUrl,
+				blogID = this.props.blogID,
 				siteAdminUrl = this.props.siteAdminUrl,
-				isActive = this.props.getOptionValue( 'publicize' ),
-				hasSocialBasicFeatures = this.props.hasSocialBasicFeatures,
-				hasSocialAdvancedFeatures = this.props.hasSocialAdvancedFeatures,
+				hasPaidFeatures = this.props.hasPaidFeatures,
 				hasSocialImageGenerator = this.props.hasSocialImageGenerator,
-				hasAutoConversion = this.props.hasAutoConversion,
 				isAtomicSite = this.props.isAtomicSite,
 				activeFeatures = this.props.activeFeatures,
-				userCanManageModules = this.props.userCanManageModules;
+				useAdminUiV1 = this.props.useAdminUiV1;
 
 			const showUpgradeLink =
 				! isAtomicSite &&
 				activeFeatures &&
 				activeFeatures.length > 0 &&
 				isActive &&
-				! hasSocialAdvancedFeatures;
+				! hasPaidFeatures &&
+				isLinked;
 
 			const shouldShowChildElements = isActive && ! this.props.isSavingAnyOption( 'publicize' );
 
@@ -61,7 +79,9 @@ export const Publicize = withModuleSettingsFormHelpers(
 							onClick={ this.trackClickConfigure }
 							target="_blank"
 							rel="noopener noreferrer"
-							href={ getRedirectUrl( 'calypso-marketing-connections', { site: siteRawUrl } ) }
+							href={ getRedirectUrl( 'calypso-marketing-connections', {
+								site: blogID ?? siteRawUrl,
+							} ) }
 						>
 							{ __( 'Connect your social media accounts', 'jetpack' ) }
 						</Card>
@@ -69,14 +89,10 @@ export const Publicize = withModuleSettingsFormHelpers(
 				);
 			};
 
-			if ( ! userCanManageModules && ! isActive ) {
-				return null;
-			}
-
 			return (
 				<SettingsCard
 					{ ...this.props }
-					header={ _x( 'Jetpack Social connections', 'Settings header', 'jetpack' ) }
+					header={ _x( 'Jetpack Social', 'Settings header', 'jetpack' ) }
 					module="publicize"
 					hideButton
 				>
@@ -96,68 +112,56 @@ export const Publicize = withModuleSettingsFormHelpers(
 						>
 							<p>
 								{ __(
-									'Connect your website to the social media networks you use and share your content across all your social accounts with a single click. When you publish a post, it will appear on all connected accounts.',
+									'Enable Jetpack Social and connect your social accounts to automatically share your content with your followers with a single click. When you publish a post, you will be able to share it on all connected accounts.',
 									'jetpack'
 								) }
 							</p>
-							{ showUpgradeLink && (
-								<>
-									<p>
-										{ ! hasSocialBasicFeatures
-											? createInterpolateElement(
-													__(
-														'<moreInfo>Upgrade to a Jetpack Social plan</moreInfo> to get unlimited shares and advanced media sharing options.',
-														'jetpack'
-													),
-													{
-														moreInfo: (
-															<a
-																href={ getRedirectUrl(
-																	'jetpack-plugin-admin-page-sharings-screen',
-																	{
-																		site: siteRawUrl,
-																		query: 'redirect_to=' + redirectUrl,
-																	}
-																) }
-															/>
-														),
-													}
-											  )
-											: createInterpolateElement(
-													__(
-														'<moreInfo>Upgrade to the Jetpack Social Advanced plan</moreInfo> to get advanced media sharing options.',
-														'jetpack'
-													),
-													{
-														moreInfo: (
-															<a
-																href={ getRedirectUrl(
-																	'jetpack-plugin-admin-page-sharings-screen',
-																	{
-																		site: siteRawUrl,
-																		query: 'redirect_to=' + redirectUrl,
-																	}
-																) }
-															/>
-														),
-													}
-											  ) }
-									</p>
-								</>
-							) }
+							{ showUpgradeLink ? (
+								<p>
+									{ createInterpolateElement(
+										__(
+											'<moreInfo>Upgrade to a Jetpack Social plan</moreInfo> to get advanced sharing options.',
+											'jetpack'
+										),
+										{
+											moreInfo: (
+												<a
+													href={ getRedirectUrl( 'jetpack-plugin-admin-page-sharings-screen', {
+														site: siteRawUrl,
+														query: 'redirect_to=' + redirectUrl,
+													} ) }
+												/>
+											),
+										}
+									) }
+								</p>
+							) : null }
 							<ModuleToggle
 								slug="publicize"
-								disabled={ unavailableInOfflineMode || ! this.props.isLinked }
+								disabled={ unavailableInOfflineMode }
 								activated={ isActive }
 								toggling={ this.props.isSavingAnyOption( 'publicize' ) }
 								toggleModule={ this.props.toggleModuleNow }
 							>
-								{ __( 'Automatically share your posts to social networks', 'jetpack' ) }
+								<span className="jp-form-toggle-explanation">
+									{ __( 'Automatically share your posts to social networks', 'jetpack' ) }
+								</span>
 							</ModuleToggle>
-							{ shouldShowChildElements && hasAutoConversion && <AutoConversionSection /> }
-							{ shouldShowChildElements && hasSocialImageGenerator && (
-								<SocialImageGeneratorSection />
-							) }
+							<RefreshJetpackSocialSettingsWrapper
+								shouldRefresh={ ! isActive && this.props.isSavingAnyOption( 'publicize' ) }
+							>
+								{ shouldShowChildElements && hasSocialImageGenerator && (
+									<SocialImageGeneratorSection />
+								) }
+								{ isActive &&
+								isLinked &&
+								useAdminUiV1 &&
+								! this.props.isSavingAnyOption( 'publicize' ) ? (
+									<FormFieldset className="jp-settings__connection-management">
+										<ConnectionManagement />
+									</FormFieldset>
+								) : null }
+							</RefreshJetpackSocialSettingsWrapper>
 						</SettingsGroup>
 					) }
 
@@ -169,7 +173,7 @@ export const Publicize = withModuleSettingsFormHelpers(
 						/>
 					) }
 
-					{ isActive && configCard() }
+					{ isActive && ! useAdminUiV1 && configCard() }
 				</SettingsCard>
 			);
 		}

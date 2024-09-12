@@ -59,12 +59,6 @@ class Test_Products_Rest extends TestCase {
 	 * @before
 	 */
 	public function set_up() {
-
-		// See https://stackoverflow.com/a/41611876.
-		if ( version_compare( phpversion(), '5.7', '<=' ) ) {
-			$this->markTestSkipped( 'avoid bug in PHP 5.6 that throws strict mode warnings for abstract static methods.' );
-		}
-
 		$this->install_mock_plugin();
 		wp_cache_delete( 'plugins', 'plugins' );
 
@@ -226,7 +220,7 @@ class Test_Products_Rest extends TestCase {
 		$data     = $response->get_data();
 
 		$this->assertEquals( 200, $response->get_status() );
-		$this->assertEquals( 'inactive', $data['status'] );
+		$this->assertEquals( 'needs_activation', $data['status'] );
 		$this->assertFalse( is_plugin_active( $this->boost_mock_filename ) );
 	}
 

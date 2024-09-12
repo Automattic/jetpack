@@ -34,7 +34,7 @@
  * @return string The content with YouTube embeds replaced with YouTube shortcodes.
  */
 function youtube_embed_to_short_code( $content ) {
-	if ( ! is_string( $content ) || false === strpos( $content, 'youtube.com' ) ) {
+	if ( ! is_string( $content ) || ! str_contains( $content, 'youtube.com' ) ) {
 		return $content;
 	}
 
@@ -132,16 +132,23 @@ function youtube_link_callback( $matches ) {
 /**
  * Normalizes a YouTube URL to include a v= parameter and a query string free of encoded ampersands.
  *
- * @param string $url
- * @return string The normalized URL
+ * @param string|array $url Youtube URL.
+ * @return string|false The normalized URL or false if input is invalid.
  */
 if ( ! function_exists( 'youtube_sanitize_url' ) ) :
 	/**
 	 * Clean up Youtube URL to match a single format.
 	 *
-	 * @param string $url Youtube URL.
+	 * @param string|array $url Youtube URL.
 	 */
 	function youtube_sanitize_url( $url ) {
+		if ( is_array( $url ) && isset( $url['url'] ) ) {
+			$url = $url['url'];
+		}
+		if ( ! is_string( $url ) ) {
+			return false;
+		}
+
 		$url = trim( $url, ' "' );
 		$url = trim( $url );
 		$url = str_replace( array( 'youtu.be/', '/v/', '#!v=', '&amp;', '&#038;', 'playlist' ), array( 'youtu.be/?v=', '/?v=', '?v=', '&', '&', 'videoseries' ), $url );
@@ -228,7 +235,7 @@ function youtube_id( $url ) {
 	} elseif ( isset( $args['t'] ) ) {
 		if ( is_numeric( $args['t'] ) ) {
 			$start = (int) $args['t'];
-		} else {
+		} elseif ( is_string( $args['t'] ) ) {
 			$time_pieces = preg_split( '/(?<=\D)(?=\d+)/', $args['t'] );
 
 			foreach ( $time_pieces as $time_piece ) {
@@ -520,21 +527,62 @@ function jetpack_shortcode_youtube_dimensions( $query_args ) {
  * For bare URLs on their own line of the form
  * http://www.youtube.com/v/9FhMMmqzbD8?fs=1&hl=en_US
  *
- * @param array $matches Regex partial matches against the URL passed.
- * @param array $attr    Attributes received in embed response.
- * @param array $url     Requested URL to be embedded.
+ * @deprecated since 13.8
+ *
+ * @param array  $matches Regex partial matches against the URL passed.
+ * @param array  $attr    Attributes received in embed response.
+ * @param string $url     Requested URL to be embedded.
  */
 function wpcom_youtube_embed_crazy_url( $matches, $attr, $url ) {
+	_deprecated_function( __FUNCTION__, 'jetpack-13.8' );
 	return youtube_id( $url );
 }
 
 /**
  * Add a new handler to automatically transform custom Youtube URLs (like playlists) into embeds.
+ *
+ * @deprecated since 13.8
  */
 function wpcom_youtube_embed_crazy_url_init() {
+	_deprecated_function( __FUNCTION__, 'jetpack-13.8' );
 	wp_embed_register_handler( 'wpcom_youtube_embed_crazy_url', '#https?://(?:www\.)?(?:youtube.com/(?:v/|playlist|watch[/\#?])|youtu\.be/).*#i', 'wpcom_youtube_embed_crazy_url' );
 }
-add_action( 'init', 'wpcom_youtube_embed_crazy_url_init' );
+
+/**
+ * Remove the ending question mark from the video id of the YouTube URL.
+ *
+ * Example: https://www.youtube.com/watch?v=AVAWwXeOyyQ?
+ *
+ * @since $$next-version$$
+ *
+ * @param string $provider URL of the oEmbed provider.
+ * @param string $url      URL of the content to be embedded.
+ *
+ * @return string
+ */
+function wpcom_youtube_oembed_fetch_url( $provider, $url ) {
+	if ( ! wp_startswith( $provider, 'https://www.youtube.com/oembed' ) ) {
+		return $provider;
+	}
+
+	$parsed = wp_parse_url( $url );
+	if ( ! isset( $parsed['query'] ) ) {
+		return $provider;
+	}
+
+	$query_vars = array();
+	wp_parse_str( $parsed['query'], $query_vars );
+	if ( isset( $query_vars['v'] ) && wp_endswith( $query_vars['v'], '?' ) ) {
+		$url = remove_query_arg( array( 'v' ), $url );
+		$url = add_query_arg( 'v', preg_replace( '/\?$/', '', $query_vars['v'] ), $url );
+	}
+
+	$provider = remove_query_arg( array( 'url' ), $provider );
+	$provider = add_query_arg( 'url', rawurlencode( $url ), $provider );
+
+	return $provider;
+}
+add_filter( 'oembed_fetch_url', 'wpcom_youtube_oembed_fetch_url', 10, 2 );
 
 if (
 	! is_admin()

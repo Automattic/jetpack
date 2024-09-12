@@ -45,7 +45,7 @@ export default function ViewSelector( props ) {
 							selectAction( optionDefinition );
 						} }
 						className="components-tab-button"
-						isPressed={ isSelected }
+						aria-pressed={ isSelected }
 						key={ `jetpack-premium-content-tab-${ optionDefinition.id }` }
 					>
 						<span>{ optionDefinition.label }</span>

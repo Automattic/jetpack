@@ -665,7 +665,7 @@ class Tus_File {
 	/**
 	 * Get the wp filesystem.
 	 *
-	 * @return \WP_Filesystem_Direct
+	 * @return \WP_Filesystem_Base|null
 	 */
 	private function get_wp_filesystem() {
 		global $wp_filesystem;

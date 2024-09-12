@@ -1,6 +1,6 @@
 import { ProgressBar, getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
-import { __, _x } from '@wordpress/i18n';
+import { __, _x, sprintf } from '@wordpress/i18n';
 import Button from 'components/button';
 import DashItem from 'components/dash-item';
 import JetpackBanner from 'components/jetpack-banner';
@@ -75,7 +75,7 @@ class DashVideoPress extends Component {
 						/* dummy arg to avoid bad minification */ 0
 				  );
 
-		if ( this.props.getOptionValue( 'videopress' ) && hasConnectedOwner ) {
+		if ( this.props.getOptionValue( 'videopress' ) && hasConnectedOwner && ! isOffline ) {
 			return (
 				<DashItem
 					className="jp-dash-item__videopress"
@@ -94,8 +94,17 @@ class DashVideoPress extends Component {
 								</p>
 								{ shouldDisplayStorage && (
 									<div className="jp-dash-item__videopress-storage">
-										<span>{ __( 'Video storage used out of 1TB:', 'jetpack' ) }</span>
 										<ProgressBar progress={ videoPressStorageUsed / 1000000 } />
+										<span>
+											{ createInterpolateElement(
+												sprintf(
+													/* translators: %s is a number (disk space used) */
+													__( 'Using <strong>%dGB</strong> of 1TB', 'jetpack' ),
+													Math.round( videoPressStorageUsed / 1024 )
+												),
+												{ strong: <strong /> }
+											) }
+										</span>
 									</div>
 								) }
 							</div>
@@ -128,8 +137,7 @@ class DashVideoPress extends Component {
 				className="jp-dash-item__is-inactive"
 				noToggle={ ! hasConnectedOwner }
 				overrideContent={
-					! hasConnectedOwner &&
-					! isOffline && (
+					! hasConnectedOwner && ! isOffline ? (
 						<JetpackBanner
 							callToAction={ __( 'Connect', 'jetpack' ) }
 							title={ __(
@@ -143,7 +151,7 @@ class DashVideoPress extends Component {
 							plan={ getJetpackProductUpsellByFeature( FEATURE_VIDEOPRESS ) }
 							icon="video"
 						/>
-					)
+					) : null
 				}
 			>
 				<p className="jp-dash-item__description">

@@ -10,7 +10,7 @@ const res = spawnSync(
 	'git',
 	[ 'diff', 'tools/eslint-excludelist.json', 'tools/phpcs-excludelist.json' ],
 	{
-		stdio: [ null, 'pipe', 'inherit' ],
+		stdio: [ 'ignore', 'pipe', 'inherit' ],
 		maxBuffer: Infinity,
 		encoding: 'utf8',
 	}

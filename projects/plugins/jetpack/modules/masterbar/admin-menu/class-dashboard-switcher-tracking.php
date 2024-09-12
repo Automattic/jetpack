@@ -2,14 +2,14 @@
 /**
  * Quick switcher tracking file.
  *
+ * @deprecated 13.7 Use Automattic\Jetpack\Masterbar\Dashboard_Switcher_Tracking instead.
+ *
  * @package automattic/jetpack
  */
 
 namespace Automattic\Jetpack\Dashboard_Customizations;
 
-use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
-use Automattic\Jetpack\Status\Host;
-use Automattic\Jetpack\Terms_Of_Service;
+use Automattic\Jetpack\Masterbar\Dashboard_Switcher_Tracking as Masterbar_Dashboard_Switcher_Tracking;
 use Automattic\Jetpack\Tracking;
 
 /**
@@ -23,127 +23,66 @@ class Dashboard_Switcher_Tracking {
 	const JETPACK_EVENT_NAME = 'dashboard_quick_switch_link_clicked';
 
 	const WPCOM_EVENT_NAME = 'wpcom_dashboard_quick_switch_link_clicked';
-	/**
-	 * Jetpack tracking object.
-	 *
-	 * @var Tracking
-	 */
-	private $tracking;
 
 	/**
-	 * Current site plan.
+	 * Instance of \Automattic\Jetpack\Masterbar\Dashboard_Switcher_Tracking
+	 * Used for deprecation purposes.
 	 *
-	 * @var string
+	 * @var \Automattic\Jetpack\Masterbar\Dashboard_Switcher_Tracking
 	 */
-	private $plan;
-
-	/**
-	 * The wpcom_tracks wrapper function.
-	 *
-	 * @var callable
-	 */
-	private $wpcom_tracking;
+	private $dashboard_switcher_wrapper;
 
 	/**
 	 * Dashboard_Switcher_Tracking constructor.
+	 *
+	 * @deprecated 13.7
 	 *
 	 * @param Tracking $tracking       Jetpack tracking object.
 	 * @param callable $wpcom_tracking A wrapper over wpcom event record.
 	 * @param string   $plan           The current site plan.
 	 */
 	public function __construct( Tracking $tracking, callable $wpcom_tracking, $plan ) {
-		$this->tracking       = $tracking;
-		$this->plan           = $plan;
-		$this->wpcom_tracking = $wpcom_tracking;
+		_deprecated_function( __METHOD__, 'jetpack-13.7', 'Automattic\\Jetpack\\Masterbar\\Dashboard_Switcher_Tracking::__construct' );
+		$this->dashboard_switcher_wrapper = new Masterbar_Dashboard_Switcher_Tracking( $tracking, $wpcom_tracking, $plan );
 	}
 
 	/**
 	 * Create an event for the Quick switcher when the user changes it's preferred view.
 	 *
+	 * @deprecated 13.7
+	 *
 	 * @param string $screen The screen page.
 	 * @param string $view   The new preferred view.
 	 */
 	public function record_switch_event( $screen, $view ) {
-		$event_props = array(
-			'current_page' => $screen,
-			'destination'  => $view,
-			'plan'         => $this->plan,
-		);
-
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			$event_props['blog_id'] = get_current_blog_id();
-
-			/**
-			 * Callable injected in the constructor with the static::wpcom_tracks_record_event() static method.
-			 *
-			 * @see wpcom_tracks_record_event A static method from this class that executes the actual WPCOM event record.
-			 */
-			$wpcom_tracking = $this->wpcom_tracking;
-			$wpcom_tracking( $event_props );
-		} else {
-			$this->record_jetpack_event( $event_props );
-		}
+		_deprecated_function( __METHOD__, 'jetpack-13.7', 'Automattic\\Jetpack\\Masterbar\\Dashboard_Switcher_Tracking::record_switch_event' );
+		$this->dashboard_switcher_wrapper->record_switch_event( $screen, $view );
 	}
 
 	/**
 	 * Get the current site plan or 'N/A' when we cannot determine site's plan.
+	 *
+	 * @deprecated 13.7
 	 *
 	 * @todo: This method can be reused as a wrapper over WPCOM and Atomic as way to get site's current plan (display name).
 	 *
 	 * @return string
 	 */
 	public static function get_plan() {
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			if ( class_exists( '\WPCOM_Store_API' ) ) {
-				// @todo: Maybe introduce a wrapper for this since we are duplicating it from WPCOM_Admin_Menu:253
-				$products = \WPCOM_Store_API::get_current_plan( \get_current_blog_id() );
-				if ( ! empty( $products['product_slug'] ) ) {
-					return $products['product_slug'];
-				}
-			}
-
-			return 'N/A'; // maybe we should return free or null? At the moment it's safe to return 'N/A' since we use it only for passing it to the event.
-		}
-
-		// @todo: Maybe introduce a helper for this since we are duplicating it from Atomic_Admin_Menu:240
-		$products = Jetpack_Plan::get();
-		if ( ! empty( $products['product_slug'] ) ) {
-			return $products['product_slug'];
-		}
-
-		return 'N/A'; // maybe we should return free or null? At the moment we use it for passing it to the event.
-	}
-
-	/**
-	 * Record the event with Jetpack implementation.
-	 *
-	 * For Atomic sites we mark the Jetpack ToS option temporary as read.
-	 *
-	 * @todo Remove the jetpack_options_tos_agreed filter for Atomic sites after the Tracking is properly working for AT sites.
-	 *
-	 * @param array $event_properties The event properties.
-	 */
-	private function record_jetpack_event( $event_properties ) {
-		$woa = ( new Host() )->is_woa_site();
-		if ( $woa ) {
-			add_filter( 'jetpack_options', array( __CLASS__, 'mark_jetpack_tos_as_read' ), 10, 2 );
-		}
-
-		$this->tracking->record_user_event( self::JETPACK_EVENT_NAME, $event_properties );
-
-		if ( $woa ) {
-			\remove_filter( 'jetpack_options', array( __CLASS__, 'mark_jetpack_tos_as_read' ) );
-		}
+		_deprecated_function( __METHOD__, 'jetpack-13.7', 'Automattic\\Jetpack\\Masterbar\\Dashboard_Switcher_Tracking::get_plan' );
+		return Masterbar_Dashboard_Switcher_Tracking::get_plan();
 	}
 
 	/**
 	 * Trigger the WPCOM tracks_record_event.
 	 *
+	 * @deprecated 13.7
+	 *
 	 * @param array $event_props Event props.
 	 */
 	public static function wpcom_tracks_record_event( $event_props ) {
-		require_lib( 'tracks/client' );
-		\tracks_record_event( \wp_get_current_user(), self::WPCOM_EVENT_NAME, $event_props );
+		_deprecated_function( __METHOD__, 'jetpack-13.7', 'Automattic\\Jetpack\\Masterbar\\Dashboard_Switcher_Tracking::wpcom_tracks_record_event' );
+		return Masterbar_Dashboard_Switcher_Tracking::wpcom_tracks_record_event( $event_props );
 	}
 
 	/**
@@ -151,14 +90,19 @@ class Dashboard_Switcher_Tracking {
 	 *
 	 * The tracking product name is used by the Tracking as a prefix for the event name.
 	 *
+	 * @deprecated 13.7
+	 *
 	 * @return string
 	 */
 	public static function get_jetpack_tracking_product() {
-		return ( new Host() )->is_woa_site() ? 'atomic' : 'jetpack';
+		_deprecated_function( __METHOD__, 'jetpack-13.7', 'Automattic\\Jetpack\\Masterbar\\Dashboard_Switcher_Tracking::get_jetpack_tracking_product' );
+		return Masterbar_Dashboard_Switcher_Tracking::get_jetpack_tracking_product();
 	}
 
 	/**
 	 * Mark the Jetpack ToS as read for Atomic Sites.
+	 *
+	 * @deprecated 13.7
 	 *
 	 * @param mixed  $option_value The value of the Jetpack option.
 	 * @param string $option_name The name of the Jetpack option.
@@ -166,10 +110,7 @@ class Dashboard_Switcher_Tracking {
 	 * @return bool
 	 */
 	public static function mark_jetpack_tos_as_read( $option_value, $option_name ) {
-		if ( Terms_Of_Service::OPTION_NAME === $option_name ) {
-			return true;
-		}
-
-		return $option_value;
+		_deprecated_function( __METHOD__, 'jetpack-13.7', 'Automattic\\Jetpack\\Masterbar\\Dashboard_Switcher_Tracking::mark_jetpack_tos_as_read' );
+		return Masterbar_Dashboard_Switcher_Tracking::mark_jetpack_tos_as_read( $option_value, $option_name );
 	}
 }

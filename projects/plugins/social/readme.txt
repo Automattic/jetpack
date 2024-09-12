@@ -1,10 +1,10 @@
 === Jetpack Social  ===
-Contributors: automattic, pabline, siddarthan, gmjuhasz, manzoorwanijk, danielpost
-Tags: social-media, publicize, social-media-manager, social-networking, social marketing, social, social share,  social media scheduling, social media automation, auto post, auto- publish, social share
-Requires at least: 6.2
-Requires PHP: 5.6
-Tested up to: 6.4
-Stable tag: 2.3.0
+Contributors: automattic, pabline, siddarthan, gmjuhasz, manzoorwanijk
+Tags: social media automation, social media scheduling, auto share, social sharing, social media marketing
+Requires at least: 6.5
+Requires PHP: 7.0
+Tested up to: 6.6
+Stable tag: 4.5.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -12,8 +12,6 @@ Write once, publish everywhere. Reach your target audience by sharing your conte
 
 == Description ==
 ### Write once, publish everywhere.
-
-*Share up to 30 times per month for free with Jetpack Social, and upgrade to share as many times as you want!*
 
 **Grow your following by sharing your content with Jetpack Social!**
 
@@ -29,11 +27,11 @@ Jetpack Social has scheduling tools that allow you to set your posts to publish 
 
 **Social Image Generator**
 
-With the Jetpack Social Advanced plan, you can have engaging imagery created automatically using the Social Image Generator feature. You can overlay custom text onto your images and choose from a variety of styles to increase engagement on your social posts. Most importantly, you’ll save time by doing it all within the WordPress editor.
+With the Jetpack Social plan, you can have engaging imagery created automatically using the Social Image Generator feature. You can overlay custom text onto your images and choose from a variety of styles to increase engagement on your social posts. Most importantly, you’ll save time by doing it all within the WordPress editor.
 
 **Organic Content Sharing**
 
-Boost your social media engagement with Jetpack Social's Organic Content Sharing feature. Research indicates that manually published posts receive 50% more interaction compared to shared links. Our feature allows you to select custom images, videos, and text to share your blog posts as native social media content, enhancing engagement and saving you time. This feature is available with the Jetpack Social Advanced plan only.
+Boost your social media engagement with Jetpack Social's Organic Content Sharing feature. Research indicates that manually published posts receive 50% more interaction compared to shared links. Our feature allows you to select custom images, videos, and text to share your blog posts as native social media content, enhancing engagement and saving you time. This feature is available with the Jetpack Social plan.
 
 == Installation ==
 
@@ -62,7 +60,7 @@ We are working hard to bring more features and improvements to Jetpack Social. L
 From your site’s WP Admin:
 
 1. Navigate to Jetpack → Social.
-2. Click on the Manage Connections button.
+2. Click on the "Connect an account" button.
 3. Click Connect next to the social network you want to connect to.
 4. Log in to that social network site and authorize the connection.
 
@@ -73,20 +71,22 @@ You can connect to any of the following networks:
 * LinkedIn
 * Mastodon
 * Instagram Business
+* Nextdoor
+* Mastodon
 
-After you add a new connection, you have the option to make the connection ‘global’, meaning it can also be used by any other user on your site who has the ability to publish posts.
+After you add a new connection, you have the option to mark the connection as shared, meaning it can also be used by any other users on your site who have the ability to publish posts.
 
-To make the connection available to all users, check the box labeled "Connection available to all administrators, editors, and authors".
+To make the connection available to all users, check the box labeled "Mark the connection as shared".
 
 = To which social media platforms can I post using Jetpack Social? =
 
-You can post to Facebook, Instagram Business, Tumblr, Mastodon and Linkedin. We are working hard to increase our social share integrations.
+You can post to Facebook, Instagram Business, Tumblr, Mastodon, Linkedin and Nextdoor. We are working hard to increase our social share integrations.
 
 = How do I share a post on social media using Jetpack Social? =
 
-To configure the Publicize options when writing a new post, click the green Jetpack icon at top right of the edit sidebar.
+To configure the Social options when writing a new post, click the Jetpack/Social icon at top right of the edit sidebar.
 
-You’ll then see the Publicize options under the **Share this post** section, where you can toggle social media connections, connect new services, and write a custom message to be used when your post is shared.
+You’ll then see the Social options under the **Share this post** section, where you can toggle social media connections, connect new services, and write a custom message to be used when your post is shared.
 
 = How do I add a custom excerpt to my social posts? =
 
@@ -94,21 +94,19 @@ The easiest way is to use the Custom Message option in the publishing options bo
 
 == Screenshots ==
 
-1. Activate the plugin and get access to your social media connections.
-2. Connect your social media accounts.
-3. Manage and publish to your social accounts via the Editor.
-4. Manage your Jetpack Social and other Jetpack plugins from My Jetpack.
+1. Social settings options
+2. Social settings options
+3. Connected social media accounts
+4. Adding new social media accounts
+5. Social media sharing options in the post editor
+6. Managing Social media accounts in the post editor
 
 == Changelog ==
-### 2.3.0 - 2023-09-20
-#### Added
-- Add the change settings logic in Social for the auto conversion feature.
-
+### 5.3.1 - 2024-09-06
 #### Changed
-- Changed logic that disables the connections based on the auto-conversion feature.
-- General: remove WP 6.1 backwards compatibility checks.
-- General: update WordPress version requirements to WordPress 6.2.
-- Updated Jetpack submenu sort order so individual features are alpha-sorted.
-- Updated package dependencies. [#32803], [#32804],
-- Updated package dependencies.
+- Internal updates.
 
+== Upgrade Notice ==
+
+= 3.0.0 =
+Required for compatibility with Jetpack 12.9 and later.

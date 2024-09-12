@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<phpunit
+	bootstrap="tests/bootstrap.php"
+	backupGlobals="false"
+	colors="true"
+	convertErrorsToExceptions="true"
+	convertNoticesToExceptions="true"
+	convertWarningsToExceptions="true"
+>
+	<testsuites>
+		<testsuite name="wpcomsh">
+			<directory prefix="test-" suffix=".php">./tests/</directory>
+		</testsuite>
+		<testsuite name="wpcloud">
+			<directory prefix="test-" suffix=".php">tests/</directory>
+			<exclude>tests/feature-manager/test-feature-hooks.php</exclude>
+			<exclude>tests/test-blog-token-resilience.php</exclude>
+			<exclude>tests/test-frontend-notices.php</exclude>
+			<exclude>tests/test-functions.php</exclude>
+			<exclude>tests/test-plan-notices.php</exclude>
+			<exclude>tests/test-wpcom-features.php</exclude>
+		</testsuite>
+	</testsuites>
+	<php>
+		<ini name="display_errors" value="On" />
+		<ini name="display_startup_errors" value="On" />
+	</php>
+</phpunit>

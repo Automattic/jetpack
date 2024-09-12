@@ -1,0 +1,8 @@
+// Styles for the Social Notes editor.
+.wp-admin.post-type-jetpack-social-note {
+
+	// Hide "(no title) is now live" on the post-publish panel
+	.post-publish-panel__postpublish-header {
+		display: none;
+	}
+}

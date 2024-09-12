@@ -7,16 +7,6 @@
 
 require_once JETPACK__PLUGIN_DIR . 'class.json-api-endpoints.php';
 
-// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed
-if ( ! function_exists( 'has_blog_sticker' ) ) {
-	/**
-	 * "Mock" WPCOM sticker function with 'get_option'
-	 */
-	function has_blog_sticker( $sticker ) {
-		return get_option( $sticker );
-	}
-}
-
 /**
  * Jetpack `site/%s` endpoint unit tests.
  */

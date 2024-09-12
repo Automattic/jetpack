@@ -6,10 +6,18 @@ namespace Automattic\Jetpack_Boost\Compatibility\Jetpack;
  */
 class Sync_Jetpack_Module_Status {
 
-	/** Slug of the Jetpack module */
+	/**
+	 * Slug of the Jetpack module
+	 *
+	 * @var string
+	 */
 	public $jetpack_module_slug;
 
-	/** Slug of the Boost module */
+	/**
+	 * Slug of the Boost module
+	 *
+	 * @var string
+	 */
 	public $boost_module_slug;
 
 	public function __construct( $boost_module_slug, $jetpack_module_slug ) {
@@ -60,12 +68,13 @@ class Sync_Jetpack_Module_Status {
 	}
 
 	/**
-	 * The compatibility layer uses Jetpack as the single source of truth for lazy images.
+	 * The compatibility layer uses Jetpack as the single source of truth for shared modules.
 	 * As a fallback, Boost still keeps track of the value in the database,
 	 * This ensures that the value is still present when Jetpack is deactivated.
 	 *
-	 * This filter is going to track changes to the Jetpack lazy-images option
-	 * And make sure that Jetpack Boost is in sync.
+	 * This filter is going to track changes to the modules shared between Jetpack and Boost
+	 * and make sure that both plugins are in in sync.
+	 * Example: image_cdn
 	 */
 	public function sync_from_jetpack() {
 		$this->remove_sync_to_jetpack_action();

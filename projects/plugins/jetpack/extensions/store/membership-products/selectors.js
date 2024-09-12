@@ -13,12 +13,11 @@ export const getProductsNoResolver = state => getProducts( state );
 export const getProduct = ( state, productId ) =>
 	getProducts( state ).find( product => product.id === productId );
 
-export const getNewsletterProducts = state =>
-	state.products.filter(
-		product =>
-			( product.subscribe_as_site_subscriber && 'one-time' !== product.interval ) ||
-			product.type === TYPE_TIER
-	);
+export const getSelectedProducts = ( state, selectedProductIds ) =>
+	getProducts( state ).filter( product => selectedProductIds.includes( product.id ) );
+
+export const getNewsletterTierProducts = state =>
+	state.products.filter( product => product.type === TYPE_TIER );
 
 export const getSiteSlug = state => state.siteSlug;
 
@@ -30,3 +29,17 @@ export const isInvalidProduct = ( state, productId ) =>
 	!! productId && ! getProduct( state, productId );
 
 export const getSubscriberCounts = state => state.subscriberCounts;
+
+export const getNewsletterCategories = state => state.newsletterCategories.categories;
+
+export const getNewsletterCategoriesEnabled = state => state.newsletterCategories.enabled;
+
+export const getNewsletterCategoriesSubscriptionsCount = state =>
+	state.newsletterCategoriesSubscriptionsCount;
+
+export const hasInvalidProducts = ( state, selectedProductIds ) => {
+	return (
+		!! selectedProductIds &&
+		selectedProductIds.some( productId => isInvalidProduct( state, productId ) )
+	);
+};

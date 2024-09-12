@@ -19,10 +19,15 @@ use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\My_Jetpack\Products as My_Jetpack_Products;
 use Automattic\Jetpack\Plugins_Installer;
-use Automattic\Jetpack\Protect\Plan;
+use Automattic\Jetpack\Protect\Credentials;
+use Automattic\Jetpack\Protect\Onboarding;
 use Automattic\Jetpack\Protect\REST_Controller;
+use Automattic\Jetpack\Protect\Scan_History;
 use Automattic\Jetpack\Protect\Site_Health;
-use Automattic\Jetpack\Protect\Status;
+use Automattic\Jetpack\Protect_Status\Plan;
+use Automattic\Jetpack\Protect_Status\Protect_Status;
+use Automattic\Jetpack\Protect_Status\Scan_Status;
+use Automattic\Jetpack\Protect_Status\Status;
 use Automattic\Jetpack\Status as Jetpack_Status;
 use Automattic\Jetpack\Sync\Functions as Sync_Functions;
 use Automattic\Jetpack\Sync\Sender;
@@ -34,11 +39,6 @@ use Automattic\Jetpack\Waf\Waf_Stats;
  */
 class Jetpack_Protect {
 
-	/**
-	 * Licenses product ID.
-	 *
-	 * @var string
-	 */
 	const JETPACK_SCAN_PRODUCT_IDS                   = array(
 		2010, // JETPACK_SECURITY_DAILY.
 		2011, // JETPACK_SECURITY_DAILY_MOTNHLY.
@@ -152,7 +152,8 @@ class Jetpack_Protect {
 			$menu_label,
 			'manage_options',
 			'jetpack-protect',
-			array( $this, 'plugin_settings_page' )
+			array( $this, 'plugin_settings_page' ),
+			5
 		);
 
 		add_action( 'load-' . $page_suffix, array( $this, 'enqueue_admin_scripts' ) );
@@ -206,28 +207,31 @@ class Jetpack_Protect {
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended
 		$refresh_status_from_wpcom = isset( $_GET['checkPlan'] );
 		$initial_state             = array(
-			'apiRoot'           => esc_url_raw( rest_url() ),
-			'apiNonce'          => wp_create_nonce( 'wp_rest' ),
-			'registrationNonce' => wp_create_nonce( 'jetpack-registration-nonce' ),
-			'status'            => Status::get_status( $refresh_status_from_wpcom ),
-			'installedPlugins'  => Plugins_Installer::get_plugins(),
-			'installedThemes'   => Sync_Functions::get_themes(),
-			'wpVersion'         => $wp_version,
-			'adminUrl'          => 'admin.php?page=jetpack-protect',
-			'siteSuffix'        => ( new Jetpack_Status() )->get_site_suffix(),
-			'jetpackScan'       => My_Jetpack_Products::get_product( 'scan' ),
-			'hasRequiredPlan'   => Plan::has_required_plan(),
-			'waf'               => array(
+			'apiRoot'            => esc_url_raw( rest_url() ),
+			'apiNonce'           => wp_create_nonce( 'wp_rest' ),
+			'registrationNonce'  => wp_create_nonce( 'jetpack-registration-nonce' ),
+			'credentials'        => Credentials::get_credential_array(),
+			'status'             => Status::get_status( $refresh_status_from_wpcom ),
+			'scanHistory'        => Scan_History::get_scan_history( $refresh_status_from_wpcom ),
+			'installedPlugins'   => Plugins_Installer::get_plugins(),
+			'installedThemes'    => Sync_Functions::get_themes(),
+			'wpVersion'          => $wp_version,
+			'adminUrl'           => 'admin.php?page=jetpack-protect',
+			'siteSuffix'         => ( new Jetpack_Status() )->get_site_suffix(),
+			'blogID'             => Connection_Manager::get_site_id( true ),
+			'jetpackScan'        => My_Jetpack_Products::get_product( 'scan' ),
+			'hasPlan'            => Plan::has_required_plan(),
+			'onboardingProgress' => Onboarding::get_current_user_progress(),
+			'waf'                => array(
 				'wafSupported'        => Waf_Runner::is_supported_environment(),
 				'currentIp'           => IP_Utils::get_ip(),
 				'isSeen'              => self::get_waf_seen_status(),
 				'upgradeIsSeen'       => self::get_waf_upgrade_seen_status(),
 				'displayUpgradeBadge' => self::get_waf_upgrade_badge_display_status(),
 				'isEnabled'           => Waf_Runner::is_enabled(),
-				'isToggling'          => false,
-				'isUpdating'          => false,
 				'config'              => Waf_Runner::get_config(),
 				'stats'               => self::get_waf_stats(),
+				'globalStats'         => Waf_Stats::get_global_stats(),
 			),
 		);
 
@@ -290,7 +294,9 @@ class Jetpack_Protect {
 		$manager = new Connection_Manager( 'jetpack-protect' );
 		$manager->remove_connection();
 
-		Status::delete_option();
+		Protect_Status::delete_option();
+		Scan_Status::delete_option();
+		Scan_History::delete_option();
 	}
 
 	/**
@@ -449,7 +455,6 @@ class Jetpack_Protect {
 		return array(
 			'ipAllowListCount'          => Waf_Stats::get_ip_allow_list_count(),
 			'ipBlockListCount'          => Waf_Stats::get_ip_block_list_count(),
-			'rulesVersion'              => Waf_Stats::get_rules_version(),
 			'automaticRulesLastUpdated' => Waf_Stats::get_automatic_rules_last_updated(),
 		);
 	}

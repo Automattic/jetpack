@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html class="no-js">
+<head>
+	<meta charset="utf-8">
+
+	<title>Contrast Playtime</title>
+	<meta name="viewport" content="width=device-width">
+	<style type="text/css">
+		body {
+			font: 14px/1.5 sans-serif;
+			padding: 0 2em;
+		}
+		table {
+			border-collapse: collapse;
+		}
+		table, td, th {
+			border: 1px solid #aaa;
+		}
+		td, th {
+			padding: .33em 1em;
+		}
+	</style>
+	<script src="//s1.wp.com/_static/??/wp-includes/js/jquery/jquery.js,/wp-content/mu-plugins/colors/js/color.js"></script>
+	<script>
+jQuery(document).ready(function($) {
+	var maxContrast = 16;
+	$("input").change(function(event) {
+		var fgColor = new Color( $("#fg").val() );
+		var bgColor = new Color( $("#bg").val() );
+		var newColor;
+		var style;
+		var i = 1;
+		var incr = 0.1;
+		var html = '';
+		while ( i <= maxContrast ) {
+			newColor = fgColor.getReadableContrastingColor( bgColor, i );
+			style = "background-color: " + bgColor.toString() + "; color: " + newColor.toString(); + ";";
+			html += "<tr><td>" + i + "</td><td style='" + style + "'>" + newColor.toString() + "</td></tr>";
+
+			if ( i == 2 ) {
+				incr = 0.25
+			} else if ( i == 5 ) {
+				incr = 0.5;
+			} else if ( i == 10 ) {
+				incr = 1;
+			}
+			i += incr;
+			// because floating point is weird.
+			i = parseFloat( i.toFixed( 2 ) );
+		}
+
+		$("#result").html( html );
+
+	}).change();
+
+});
+</script>
+<body>
+
+<p><label>Foreground: <input type="text" id="fg" value="#000000"></label></p>
+<p><label>Background: <input type="text" id="bg" value="#000000"></label></p>
+
+<table id="table">
+	<thead>
+		<th>Contrast</th>
+		<th>Result</th>
+	</thead>
+	<tbody id="result">
+
+	</tbody>
+</table>
+
+
+
+
+</body>
+</html>

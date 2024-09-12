@@ -8,36 +8,26 @@ import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { useReducer } from 'react';
 import usePublicizeConfig from '../../hooks/use-publicize-config';
+import useRefreshConnections from '../../hooks/use-refresh-connections';
 import { usePostJustPublished } from '../../hooks/use-saving-post';
 import useSelectSocialMediaConnections from '../../hooks/use-social-media-connections';
-import PublicizeConnectionVerify from '../connection-verify';
+import { store as socialStore } from '../../social-store';
 import PublicizeForm from '../form';
-import OneClickSharingDropdown from '../one-click-sharing-dropdown';
-import OneClickSharingModal from '../one-click-sharing-modal';
+import { ManualSharing } from '../manual-sharing';
+import { ReSharingPanel } from '../resharing-panel';
 import { SharePostRow } from '../share-post';
 import styles from './styles.module.scss';
+import './global.scss';
 
 const PublicizePanel = ( { prePublish, children } ) => {
 	const { refresh, hasConnections, hasEnabledConnections } = useSelectSocialMediaConnections();
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
+	const featureFlags = useSelect( select => select( socialStore ).featureFlags(), [] );
 
-	const {
-		isPublicizeEnabled,
-		hidePublicizeFeature,
-		isPublicizeDisabledBySitePlan,
-		togglePublicizeFeature,
-		isShareLimitEnabled,
-		numberOfSharesRemaining,
-		hasPaidPlan,
-		connectionsAdminUrl,
-		adminUrl,
-		isEnhancedPublishingEnabled,
-		isSocialImageGeneratorAvailable,
-		shouldShowAdvancedPlanNudge,
-		jetpackSharingSettingsUrl,
-	} = usePublicizeConfig();
+	const refreshConnections = useRefreshConnections();
+
+	const { isPublicizeEnabled, hidePublicizeFeature, togglePublicizeFeature } = usePublicizeConfig();
 
 	// Refresh connections when the post is just published.
 	usePostJustPublished(
@@ -57,17 +47,10 @@ const PublicizePanel = ( { prePublish, children } ) => {
 		? {}
 		: { title: __( 'Share this post', 'jetpack' ), className: styles.panel };
 
-	const [ isModalOpen, toggleModal ] = useReducer( isOpen => ! isOpen, false );
+	refreshConnections();
 
 	return (
 		<PanelWrapper { ...wrapperProps }>
-			{ isPostPublished && (
-				<OneClickSharingDropdown
-					onClickLearnMore={ toggleModal }
-					className={ styles[ 'one-click-share-dropdown' ] }
-				/>
-			) }
-			{ isModalOpen && <OneClickSharingModal onClose={ toggleModal } /> }
 			{ children }
 			{ ! hidePublicizeFeature && (
 				<Fragment>
@@ -83,27 +66,20 @@ const PublicizePanel = ( { prePublish, children } ) => {
 									  )
 							}
 							onChange={ togglePublicizeFeature }
-							checked={ isPublicizeEnabled }
+							checked={ isPublicizeEnabled && hasConnections }
 							disabled={ ! hasConnections }
 						/>
 					) }
 
-					<PublicizeConnectionVerify />
-					<PublicizeForm
-						isPublicizeEnabled={ isPublicizeEnabled }
-						isPublicizeDisabledBySitePlan={ isPublicizeDisabledBySitePlan }
-						connectionsAdminUrl={ connectionsAdminUrl }
-						numberOfSharesRemaining={
-							isShareLimitEnabled && ! hasPaidPlan ? numberOfSharesRemaining : null
-						}
-						isEnhancedPublishingEnabled={ isEnhancedPublishingEnabled }
-						isSocialImageGeneratorAvailable={ isSocialImageGeneratorAvailable }
-						adminUrl={ adminUrl }
-						shouldShowAdvancedPlanNudge={ shouldShowAdvancedPlanNudge }
-						jetpackSharingSettingsUrl={ jetpackSharingSettingsUrl }
-					/>
+					<PublicizeForm />
 					<SharePostRow />
 				</Fragment>
+			) }
+			{ isPostPublished && (
+				<>
+					{ featureFlags.useShareStatus ? <ReSharingPanel /> : null }
+					<ManualSharing />
+				</>
 			) }
 		</PanelWrapper>
 	);

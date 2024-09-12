@@ -102,10 +102,11 @@ function error_notice() {
 	if ( empty( $_GET['jetpack-boost-install-error'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		return;
 	}
-
-	?>
-	<div class="notice notice-error is-dismissible">
-		<p><?php esc_html_e( 'There was an error installing Jetpack Boost. Please try again.', 'jetpack' ); ?></p>
-	</div>
-	<?php
+	wp_admin_notice(
+		esc_html__( 'There was an error installing Jetpack Boost. Please try again.', 'jetpack' ),
+		array(
+			'type'        => 'error',
+			'dismissible' => true,
+		)
+	);
 }

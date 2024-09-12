@@ -470,6 +470,21 @@ function jpcrm_storage_dir_info() {
 	return false;
 }
 
+/**
+ * Returns the 'dir info' for the JPCRM storage folder.
+ *
+ * @return false|string
+ */
+function wf_jpcrm_storage_dir_path() {
+	$root_storage_info = jpcrm_storage_dir_info();
+
+	if ( ! $root_storage_info ) {
+		return false;
+	}
+
+	return $root_storage_info['path'];
+}
+
 /*
  * Returns the 'dir info' for the fonts folder.
  */

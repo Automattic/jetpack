@@ -8,6 +8,10 @@
 namespace Automattic\Jetpack\Connection;
 
 use Automattic\Jetpack\Constants;
+use WP_Error;
+
+// `wp_remote_request` returns an array with a particular format.
+'@phan-type _WP_Remote_Response_Array = array{headers:\WpOrg\Requests\Utility\CaseInsensitiveDictionary,body:string,response:array{code:int,message:string},cookies:\WP_HTTP_Cookie[],filename:?string,http_response:WP_HTTP_Requests_Response}';
 
 /**
  * The Client class that is used to connect to WordPress.com Jetpack API.
@@ -18,9 +22,10 @@ class Client {
 	/**
 	 * Makes an authorized remote request using Jetpack_Signature
 	 *
-	 * @param array        $args the arguments for the remote request.
-	 * @param array|String $body the request body.
+	 * @param array             $args the arguments for the remote request.
+	 * @param array|string|null $body the request body.
 	 * @return array|WP_Error WP HTTP response on success
+	 * @phan-return _WP_Remote_Response_Array|WP_Error
 	 */
 	public static function remote_request( $args, $body = null ) {
 		if ( isset( $args['url'] ) ) {
@@ -35,7 +40,7 @@ class Client {
 		}
 
 		$result = self::build_signed_request( $args, $body );
-		if ( ! $result || is_wp_error( $result ) ) {
+		if ( is_wp_error( $result ) ) {
 			return $result;
 		}
 
@@ -64,12 +69,12 @@ class Client {
 	/**
 	 * Adds authorization signature to a remote request using Jetpack_Signature
 	 *
-	 * @param array        $args the arguments for the remote request.
-	 * @param array|String $body the request body.
-	 * @return WP_Error|array {
+	 * @param array             $args the arguments for the remote request.
+	 * @param array|string|null $body the request body.
+	 * @return WP_Error|array{url:string,request:array,auth:array} {
 	 *     An array containing URL and request items.
 	 *
-	 *     @type String $url     The request URL.
+	 *     @type string $url     The request URL.
 	 *     @type array  $request Request arguments.
 	 *     @type array  $auth    Authorization data.
 	 * }
@@ -88,6 +93,7 @@ class Client {
 			'blog_id'       => 0,
 			'auth_location' => Constants::get_constant( 'JETPACK_CLIENT__AUTH_LOCATION' ),
 			'method'        => 'POST',
+			'format'        => 'json',
 			'timeout'       => 10,
 			'redirection'   => 0,
 			'headers'       => array(),
@@ -106,7 +112,7 @@ class Client {
 
 		$token = ( new Tokens() )->get_access_token( $args['user_id'] );
 		if ( ! $token ) {
-			return new \WP_Error( 'missing_token' );
+			return new WP_Error( 'missing_token' );
 		}
 
 		$method = strtoupper( $args['method'] );
@@ -121,8 +127,8 @@ class Client {
 		$request = compact( 'method', 'body', 'timeout', 'redirection', 'stream', 'filename', 'sslverify' );
 
 		@list( $token_key, $secret ) = explode( '.', $token->secret ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
-		if ( empty( $token ) || empty( $secret ) ) {
-			return new \WP_Error( 'malformed_token' );
+		if ( ! $secret ) {
+			return new WP_Error( 'malformed_token' );
 		}
 
 		$token_key = sprintf(
@@ -140,7 +146,7 @@ class Client {
 		if ( function_exists( 'wp_generate_password' ) ) {
 			$nonce = wp_generate_password( 10, false );
 		} else {
-			$nonce = substr( sha1( wp_rand( 0, 1000000 ) ), 0, 10 );
+			$nonce = substr( sha1( (string) wp_rand( 0, 1000000 ) ), 0, 10 );
 		}
 
 		// Kind of annoying.  Maybe refactor Jetpack_Signature to handle body-hashing.
@@ -151,20 +157,22 @@ class Client {
 			// Allow arrays to be used in passing data.
 			$body_to_hash = $body;
 
-			if ( is_array( $body ) ) {
+			if ( $args['format'] === 'jsonl' ) {
+				parse_str( $body, $body_to_hash );
+			}
+			if ( is_array( $body_to_hash ) ) {
 				// We cast this to a new variable, because the array form of $body needs to be
 				// maintained so it can be passed into the request later on in the code.
-				if ( array() !== $body ) {
-					$body_to_hash = wp_json_encode( self::_stringify_data( $body ) );
+				if ( array() !== $body_to_hash ) {
+					$body_to_hash = wp_json_encode( self::_stringify_data( $body_to_hash ) );
 				} else {
 					$body_to_hash = '';
 				}
 			}
 
 			if ( ! is_string( $body_to_hash ) ) {
-				return new \WP_Error( 'invalid_body', 'Body is malformed.' );
+				return new WP_Error( 'invalid_body', 'Body is malformed.' );
 			}
-
 			$body_hash = base64_encode( sha1( $body_to_hash, true ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
 		}
 
@@ -192,7 +200,7 @@ class Client {
 
 		$signature = $jetpack_signature->sign_request( $token_key, $timestamp, $nonce, $body_hash, $method, $url, $body, false );
 
-		if ( ! $signature || is_wp_error( $signature ) ) {
+		if ( is_wp_error( $signature ) ) {
 			return $signature;
 		}
 
@@ -229,10 +237,11 @@ class Client {
 	 *
 	 * @internal
 	 *
-	 * @param String  $url the request URL.
+	 * @param string  $url the request URL.
 	 * @param array   $args request arguments.
-	 * @param Boolean $set_fallback whether to allow flagging this request to use a fallback certficate override.
+	 * @param boolean $set_fallback whether to allow flagging this request to use a fallback certficate override.
 	 * @return array|WP_Error WP HTTP response on success
+	 * @phan-return _WP_Remote_Response_Array|WP_Error
 	 */
 	public static function _wp_remote_request( $url, $args, $set_fallback = false ) { // phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
 		$fallback = \Jetpack_Options::get_option( 'fallback_no_verify_ssl_certs' );
@@ -312,8 +321,9 @@ class Client {
 	/**
 	 * Sets the time difference for correct signature computation.
 	 *
-	 * @param HTTP_Response $response the response object.
-	 * @param Boolean       $force_set whether to force setting the time difference.
+	 * @param array|WP_Error $response Response array from `wp_remote_request`, or WP_Error on error.
+	 * @param bool           $force_set whether to force setting the time difference.
+	 * @phan-param _WP_Remote_Response_Array|WP_Error $response
 	 */
 	public static function set_time_diff( &$response, $force_set = false ) {
 		$code = wp_remote_retrieve_response_code( $response );
@@ -353,7 +363,7 @@ class Client {
 	 * @param  array  $args             Arguments to {@see WP_Http}. Default is `array()`.
 	 * @param  string $base_api_path    REST API root. Default is `wpcom`.
 	 *
-	 * @return array|WP_Error $response Response data, else {@see WP_Error} on failure.
+	 * @return array Validated arguments.
 	 */
 	public static function validate_args_for_wpcom_json_api_request(
 		$path,
@@ -370,6 +380,7 @@ class Client {
 			array(
 				'headers'     => 'array',
 				'method'      => 'string',
+				'format'      => 'string',
 				'timeout'     => 'int',
 				'redirection' => 'int',
 				'stream'      => 'boolean',
@@ -403,13 +414,14 @@ class Client {
 	/**
 	 * Queries the WordPress.com REST API with a user token.
 	 *
-	 * @param  string $path             REST API path.
-	 * @param  string $version          REST API version. Default is `2`.
-	 * @param  array  $args             Arguments to {@see WP_Http}. Default is `array()`.
-	 * @param  string $body             Body passed to {@see WP_Http}. Default is `null`.
-	 * @param  string $base_api_path    REST API root. Default is `wpcom`.
+	 * @param string            $path             REST API path.
+	 * @param string            $version          REST API version. Default is `2`.
+	 * @param array             $args             Arguments to {@see WP_Http}. Default is `array()`.
+	 * @param null|string|array $body       Body passed to {@see WP_Http}. Default is `null`.
+	 * @param string            $base_api_path    REST API root. Default is `wpcom`.
 	 *
 	 * @return array|WP_Error $response Response data, else {@see WP_Error} on failure.
+	 * @phan-return _WP_Remote_Response_Array|WP_Error
 	 */
 	public static function wpcom_json_api_request_as_user(
 		$path,
@@ -435,12 +447,13 @@ class Client {
 	/**
 	 * Query the WordPress.com REST API using the blog token
 	 *
-	 * @param String $path The API endpoint relative path.
-	 * @param String $version The API version.
-	 * @param array  $args Request arguments.
-	 * @param String $body Request body.
-	 * @param String $base_api_path (optional) the API base path override, defaults to 'rest'.
+	 * @param string            $path The API endpoint relative path.
+	 * @param string            $version The API version.
+	 * @param array             $args Request arguments.
+	 * @param array|string|null $body Request body.
+	 * @param string            $base_api_path (optional) the API base path override, defaults to 'rest'.
 	 * @return array|WP_Error $response Data.
+	 * @phan-return _WP_Remote_Response_Array|WP_Error
 	 */
 	public static function wpcom_json_api_request_as_blog(
 		$path,
@@ -467,7 +480,7 @@ class Client {
 	 * make sure that body hashes are made ith the string version, which is what will be seen after a
 	 * server pulls up the data in the $_POST array.
 	 *
-	 * @param array|Mixed $data the data that needs to be stringified.
+	 * @param mixed $data the data that needs to be stringified.
 	 *
 	 * @return array|string
 	 */

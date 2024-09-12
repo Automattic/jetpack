@@ -1,6 +1,7 @@
 /*
  * External dependencies
  */
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import {
 	MenuItem,
 	MenuGroup,
@@ -11,7 +12,6 @@ import {
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { pencil } from '@wordpress/icons';
-import React from 'react';
 
 export const IMPROVE_KEY_MAKE_LONGER = 'make-longer' as const;
 const IMPROVE_SUGGESTION_MAKE_LONGER = 'makeLonger' as const;
@@ -83,6 +83,14 @@ export default function ImproveToolbarDropdownMenu( {
 	onChange,
 	disabled = false,
 }: ImproveToolbarDropdownMenuProps ) {
+	const { tracks } = useAnalytics();
+
+	const toggleHandler = isOpen => {
+		if ( isOpen ) {
+			tracks.recordEvent( 'jetpack_ai_assistant_block_toolbar_menu_show', { tool: 'improve' } );
+		}
+	};
+
 	return disabled ? (
 		<Tooltip text={ label }>
 			<Button disabled>
@@ -96,6 +104,7 @@ export default function ImproveToolbarDropdownMenu( {
 			popoverProps={ {
 				variant: 'toolbar',
 			} }
+			onToggle={ toggleHandler }
 		>
 			{ () => {
 				// Exclude quick edits from the list.

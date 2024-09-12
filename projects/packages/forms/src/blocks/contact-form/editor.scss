@@ -19,6 +19,8 @@
 					max-width: none;
 					margin: 0;
 					flex: 0;
+					text-align: center;
+					padding: 0 2px;
 				}
 
 				.block-editor-block-variation-picker__variation {
@@ -39,14 +41,14 @@
 		}
 	}
 
-	> .block-editor-inner-blocks > .block-editor-block-list__layout {
+	.block-editor-inner-blocks .block-editor-block-list__layout {
 		display: flex;
 		flex-wrap: wrap;
 		justify-content: flex-start;
 		flex-direction: row;
 		gap: var(--wp--style--block-gap, 1.5rem);
 
-		> .wp-block {
+		.wp-block {
 			flex: 0 0 100%;
 			margin: 0;
 
@@ -73,6 +75,13 @@
 			&.jetpack-field__width-75 {
 				flex: 1 1 calc( 75% - calc(var(--wp--style--block-gap, 1.5rem) * 1) );
 				max-width: 75%;
+			}
+
+			@media (max-width: #{ ($break-mobile) }) {
+				&[class*=jetpack-field__width-] {
+					flex-basis: 100%;
+					max-width: none;
+				}
 			}
 
 			&[data-type='jetpack/field-checkbox'],
@@ -168,6 +177,7 @@
 	.form-placeholder__external-link {
 		font-size: 13px;
 		padding: 0;
+		font-weight: 400;
 
 		&, &:hover, &:active, &:focus {
 			background-color: unset;
@@ -271,12 +281,18 @@
 		margin-bottom: 0.25em;
 	}
 
+	.jetpack-field-label__suffix {
+		margin-inline-start: 0.25em;
+
+		font-weight: 700;
+	}
+
 	.required {
 		word-break: normal;
 		color: unset;
-		opacity: 0.45;
+		opacity: 0.6;
 		font-size: 85%;
-		margin-left: 0.25em;
+		margin-inline-start: 0.25em;
 		font-weight: normal;
 	}
 
@@ -441,6 +457,22 @@
 			margin: 0 5px 0 0;
 		}
 	}
+
+	.jetpack-field-option {
+		&.field-option-checkbox,
+		&.field-option-radio {
+			display: flex;
+			align-items: baseline; /* Align input with first label line */
+
+			.jetpack-option__type:before {
+				display: block; /* display: flex causes baselines to not align */
+			}
+		}
+
+		&.field-option-radio .jetpack-option__type {
+			transform: translateY(15%); /* Small offset to compensate the slightly odd perceived alignment that's due to the circular shape */
+		}
+	}
 }
 
 :where(:not(.contact-form)) > .jetpack-field {
@@ -529,21 +561,30 @@
 .jetpack-field-checkbox,
 .jetpack-field-consent {
 	display: flex;
+
+	.jetpack-field-label .jetpack-field-label__input {
+		font-weight: 400;
+	}
+}
+
+.jetpack-field-checkbox {
+	align-items: baseline;
+
+	.jetpack-field-label {
+		display: block;
+	}
+}
+
+.jetpack-field-consent {
 	align-items: center;
 
 	.jetpack-field-label {
 		flex-grow: 1;
 
 		.jetpack-field-label__input {
-			font-weight: 400;
+			font-size: 13px;
+			text-transform: uppercase;
 		}
-	}
-}
-
-.jetpack-field-consent {
-	.jetpack-field-label__input {
-		font-size: 13px;
-		text-transform: uppercase;
 	}
 }
 
@@ -552,7 +593,7 @@
 	.jetpack-contact-form {
 		padding: 16px;
 
-		> .block-editor-inner-blocks > .block-editor-block-list__layout {
+		.block-editor-inner-blocks .block-editor-block-list__layout {
 			margin: 0;
 		}
 	}

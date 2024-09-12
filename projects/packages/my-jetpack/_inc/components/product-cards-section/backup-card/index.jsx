@@ -1,14 +1,27 @@
-import { numberFormat, Text, getRedirectUrl } from '@automattic/jetpack-components';
+import { Text, getRedirectUrl } from '@automattic/jetpack-components';
+import { VisuallyHidden } from '@wordpress/components';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import Gridicon from 'gridicons';
 import PropTypes from 'prop-types';
-import { useEffect, useState, useMemo } from 'react';
+import { useMemo } from 'react';
+import { PRODUCT_STATUSES } from '../../../constants';
+import {
+	REST_API_REWINDABLE_BACKUP_EVENTS_ENDPOINT,
+	REST_API_COUNT_BACKUP_ITEMS_ENDPOINT,
+	QUERY_BACKUP_HISTORY_KEY,
+	QUERY_BACKUP_STATS_KEY,
+	PRODUCT_SLUGS,
+} from '../../../data/constants';
+import useProduct from '../../../data/products/use-product';
+import useSimpleQuery from '../../../data/use-simple-query';
+import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../../hooks/use-analytics';
-import { useProduct } from '../../../hooks/use-product';
+import numberFormat from '../../../utils/format-number';
 import ProductCard from '../../connected-product-card';
-import { PRODUCT_STATUSES } from '../../product-card/action-button';
 import styles from './style.module.scss';
+
+const productSlug = PRODUCT_SLUGS.BACKUP;
 
 const getIcon = slug => {
 	switch ( slug ) {
@@ -21,110 +34,45 @@ const getIcon = slug => {
 	}
 };
 
-const getTitle = slug => {
-	switch ( slug ) {
-		case 'comment':
-			return 'Comments';
-		case 'post':
-			return 'Posts';
-		case 'page':
-			return 'Pages';
-		case 'image':
-			return 'Images';
-		case 'video':
-			return 'Videos';
-		case 'audio':
-			return 'Audio Files';
-		default:
-			return slug;
-	}
-};
-
-const NoBackupsValueSection = ( { siteData } ) => {
-	const [ itemsToShow, setItemsToShow ] = useState( 3 );
-
-	const sortedData = useMemo( () => {
-		const data = [];
-
-		Object.keys( siteData ).forEach( key => {
-			// We can safely filter out any values that are 0
-			if ( siteData[ key ] === 0 ) {
-				return;
-			}
-
-			data.push( [ key, siteData[ key ] ] );
-		} );
-
-		data.sort( ( a, b ) => {
-			return a[ 1 ] < b[ 1 ] ? 1 : -1;
-		} );
-
-		return data;
-	}, [ siteData ] );
-
-	// Only show 2 data points on certain screen widths where the cards are squished
-	useEffect( () => {
-		window.onresize = () => {
-			if ( ( window.innerWidth >= 961 && window.innerWidth <= 1070 ) || window.innerWidth < 290 ) {
-				setItemsToShow( 2 );
-			} else {
-				setItemsToShow( 3 );
-			}
-		};
-
-		return () => {
-			window.onresize = null;
-		};
-	}, [] );
-
-	const moreValue = sortedData.length > itemsToShow ? sortedData.length - itemsToShow : 0;
-	const shortenedNumberConfig = { maximumFractionDigits: 1, notation: 'compact' };
-
-	return (
-		<div className={ styles[ 'no-backup-stats' ] }>
-			<div className={ styles[ 'main-stats' ] }>
-				{ sortedData.slice( 0, itemsToShow ).map( ( item, i ) => {
-					const slug = item[ 0 ].split( '_' )[ 1 ];
-					const value = item[ 1 ];
-
-					return (
-						<div
-							className={ classNames( styles[ 'main-stat' ], `main-stat-${ i }` ) }
-							key={ i + slug }
-							title={ getTitle( slug ) }
-						>
-							{ getIcon( slug ) }
-							<span>{ numberFormat( value, shortenedNumberConfig ) }</span>
-						</div>
-					);
-				} ) }
-			</div>
-
-			{ moreValue > 0 && (
-				<p className={ styles[ 'more-stats' ] }>
-					{
-						// translators: %s is the number of items that are not shown
-						sprintf( __( '+%s more', 'jetpack-my-jetpack' ), moreValue )
-					}
-				</p>
-			) }
-		</div>
-	);
-};
-
-const WithBackupsValueSection = ( { lastUndoableEvent } ) => {
-	if ( ! lastUndoableEvent || ! lastUndoableEvent.data ) {
-		return null;
-	}
-	const { last_rewindable_event: lastRewindableEvent = {} } = lastUndoableEvent.data;
-
-	return (
-		<div className={ styles.activity }>
-			<Gridicon icon={ lastRewindableEvent.gridicon } size={ 24 } />
-			<p className={ styles.summary }>{ lastRewindableEvent.summary }</p>
-		</div>
-	);
-};
+const getStatRenderFn = stat =>
+	( {
+		comment: val =>
+			sprintf(
+				// translators: %d is the number of comments
+				_n( '%d comment', '%d comments', val, 'jetpack-my-jetpack' ),
+				val
+			),
+		post: val =>
+			sprintf(
+				// translators: %d is the number of posts
+				_n( '%d post', '%d posts', val, 'jetpack-my-jetpack' ),
+				val
+			),
+		page: val =>
+			sprintf(
+				// translators: %d is the number of pages
+				_n( '%d page', '%d pages', val, 'jetpack-my-jetpack' ),
+				val
+			),
+		image: val =>
+			sprintf(
+				// translators: %d is the number of images
+				_n( '%d image', '%d images', val, 'jetpack-my-jetpack' ),
+				val
+			),
+		video: val =>
+			sprintf(
+				// translators: %d is the number of videos
+				_n( '%d video', '%d videos', val, 'jetpack-my-jetpack' ),
+				val
+			),
+		audio: val =>
+			sprintf(
+				// translators: %d is the number of files
+				_n( '%d audio file', '%d audio files', val, 'jetpack-my-jetpack' ),
+				val
+			),
+	} )[ stat ] || ( val => `${ val } ${ stat }` );
 
 const getTimeSinceLastRenewableEvent = lastRewindableEventTime => {
 	if ( ! lastRewindableEventTime ) {
@@ -177,24 +125,34 @@ const getTimeSinceLastRenewableEvent = lastRewindableEventTime => {
 	}
 };
 
-const BackupCard = ( { admin, productData, fetchingProductData } ) => {
-	const slug = 'backup';
-
-	const { recordEvent } = useAnalytics();
-	const { detail } = useProduct( slug );
+const BackupCard = props => {
+	const { detail } = useProduct( productSlug );
 	const { status } = detail;
 	const hasBackups = status === PRODUCT_STATUSES.ACTIVE || status === PRODUCT_STATUSES.CAN_UPGRADE;
 
-	const { site_data: siteData = {}, last_undoable_event: lastUndoableEvent = {} } =
-		productData || {};
+	return hasBackups ? (
+		<WithBackupsValueSection slug={ productSlug } { ...props } />
+	) : (
+		<ProductCard slug={ productSlug } { ...props } />
+	);
+};
 
-	const lastRewindableEventTime = lastUndoableEvent?.data?.last_rewindable_event?.published;
-	const hasRewindableEvent = hasBackups && lastUndoableEvent?.data;
-	const undoBackupId = lastUndoableEvent?.data?.undo_backup_id;
+const WithBackupsValueSection = props => {
+	const { data, isLoading } = useSimpleQuery( {
+		name: QUERY_BACKUP_HISTORY_KEY,
+		query: {
+			path: REST_API_REWINDABLE_BACKUP_EVENTS_ENDPOINT,
+		},
+	} );
+	const lastRewindableEvent = data?.last_rewindable_event;
+	const lastRewindableEventTime = lastRewindableEvent?.published;
+	const undoBackupId = data?.undo_backup_id;
+	const { recordEvent } = useAnalytics();
+	const { siteSuffix = '' } = getMyJetpackWindowInitialState();
 
 	const handleUndoClick = () => {
 		recordEvent( 'jetpack_myjetpack_backup_card_undo_click', {
-			product: slug,
+			product: props.slug,
 			undo_backup_id: undoBackupId,
 		} );
 	};
@@ -202,7 +160,7 @@ const BackupCard = ( { admin, productData, fetchingProductData } ) => {
 	const undoAction = {
 		href: getRedirectUrl( 'jetpack-backup-undo-cta', {
 			path: undoBackupId,
-			site: window?.myJetpackInitialState?.siteSuffix,
+			site: siteSuffix,
 		} ),
 		size: 'small',
 		variant: 'primary',
@@ -223,26 +181,87 @@ const BackupCard = ( { admin, productData, fetchingProductData } ) => {
 
 	return (
 		<ProductCard
-			admin={ admin }
-			slug={ slug }
+			{ ...props }
 			showMenu
-			isDataLoading={ fetchingProductData }
-			Description={ hasRewindableEvent ? WithBackupsDescription : null }
-			additionalActions={ hasRewindableEvent ? [ undoAction ] : null }
+			isDataLoading={ isLoading }
+			Description={ lastRewindableEvent ? WithBackupsDescription : null }
+			additionalActions={ lastRewindableEvent ? [ undoAction ] : [] }
 		>
-			{ hasBackups ? (
-				<WithBackupsValueSection lastUndoableEvent={ lastUndoableEvent } />
-			) : (
-				<NoBackupsValueSection siteData={ siteData } />
-			) }
+			{ lastRewindableEvent ? (
+				<div className={ styles.activity }>
+					<Gridicon icon={ lastRewindableEvent.gridicon } size={ 24 } />
+					<p className={ styles.summary }>{ lastRewindableEvent.summary }</p>
+				</div>
+			) : null }
+		</ProductCard>
+	);
+};
+
+// DEPRECATED: this output was more confusing than helpful
+const NoBackupsValueSection = props => {
+	const { data: backupStats, isLoading } = useSimpleQuery( {
+		name: QUERY_BACKUP_STATS_KEY,
+		query: {
+			path: REST_API_COUNT_BACKUP_ITEMS_ENDPOINT,
+		},
+	} );
+
+	const sortedStats = useMemo( () => {
+		const data = [];
+
+		if ( ! backupStats ) {
+			return data;
+		}
+
+		Object.keys( backupStats ).forEach( key => {
+			// We can safely filter out any values that are 0
+			if ( backupStats[ key ] === 0 ) {
+				return;
+			}
+
+			data.push( [ key, backupStats[ key ] ] );
+		} );
+
+		data.sort( ( a, b ) => {
+			return a[ 1 ] < b[ 1 ] ? 1 : -1;
+		} );
+
+		return data;
+	}, [ backupStats ] );
+
+	return (
+		<ProductCard { ...props } showMenu isDataLoading={ isLoading }>
+			<div className={ styles[ 'no-backup-stats' ] }>
+				{ /* role="list" is required for VoiceOver on Safari */ }
+				{ /* eslint-disable-next-line jsx-a11y/no-redundant-roles */ }
+				<ul className={ styles[ 'main-stats' ] } role="list">
+					{ sortedStats.map( ( item, i ) => {
+						const itemSlug = item[ 0 ].split( '_' )[ 1 ];
+						const value = item[ 1 ];
+
+						return (
+							<li
+								className={ clsx( styles[ 'main-stat' ], `main-stat-${ i }` ) }
+								key={ i + itemSlug }
+							>
+								<>
+									<span className={ clsx( styles[ 'visual-stat' ] ) } aria-hidden="true">
+										{ getIcon( itemSlug ) }
+										<span>{ numberFormat( value ) }</span>
+									</span>
+									<VisuallyHidden>{ getStatRenderFn( itemSlug )( value ) }</VisuallyHidden>
+								</>
+							</li>
+						);
+					} ) }
+				</ul>
+			</div>
 		</ProductCard>
 	);
 };
 
 BackupCard.propTypes = {
 	admin: PropTypes.bool.isRequired,
-	productData: PropTypes.object,
-	fetchingProductData: PropTypes.bool.isRequired,
 };
 
 NoBackupsValueSection.propTypes = {

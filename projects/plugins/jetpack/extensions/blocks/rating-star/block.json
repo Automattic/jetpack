@@ -1,6 +1,6 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
-	"apiVersion": 1,
+	"apiVersion": 3,
 	"name": "jetpack/rating-star",
 	"title": "Star Rating",
 	"description": "Rate movies, books, songs, recipes — anything you can put a number on.",

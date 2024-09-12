@@ -82,43 +82,10 @@ function zeroBSCRM_extension_install_mailpoet() {
 // Uninstall function
 function zeroBSCRM_extension_uninstall_mailpoet() {
 
-	// Removes any MailPoet filter buttons
-	jpcrm_mailpoet_remove_filter_buttons();
-	
 	// remove cron
 	wp_clear_scheduled_hook( 'jpcrm_mailpoet_sync' );
 
 	return jpcrm_uninstall_core_extension( 'mailpoet' );
-
-}
-
-/*
-* Removes any MailPoet filter buttons from user filter button settings:
-* (Leaving a flag to re-install them if reactivated.)
-*/
-function jpcrm_mailpoet_remove_filter_buttons(){
-
-
-    global $zbs;
-
-      // get current list view filters
-      $custom_views = $zbs->settings->get( 'customviews2' );
-
-      // If we have a customer filter button enabled
-      if ( isset( $custom_views['customer_filters']['mailpoet_customer'] ) ){
-
-        // remove our filter
-        unset( $custom_views['customer_filters']['mailpoet_customer'] );
-
-        // save
-        $zbs->settings->update( 'customviews2', $custom_views );
-
-        // flag it to re-activate when we re-install
-        // (delete any 'has_added_mailpoetfilter' flag, which would usually stop this auto-re-enabling, effectively saying 'do re-enable' when reactivated)
-        // (enacted via main MailPoet class->include_filter_buttons())
-        $zbs->settings->dmzDelete( 'ext_mailpoet', 'has_added_mailpoetfilter' );
-
-      }
 
 }
 

@@ -1,16 +1,17 @@
-import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { close as closeIcon, Icon } from '@wordpress/icons';
-import { STORE_ID } from '../../state/store';
+import useModal from '../../hooks/use-modal';
 import CredentialsNeededModal from '../credentials-needed-modal';
 import FixAllThreatsModal from '../fix-all-threats-modal';
 import FixThreatModal from '../fix-threat-modal';
 import IgnoreThreatModal from '../ignore-threat-modal';
 import StandaloneModeModal from '../standalone-mode-modal';
+import UnignoreThreatModal from '../unignore-threat-modal';
 import styles from './styles.module.scss';
 
 const MODAL_COMPONENTS = {
 	IGNORE_THREAT: IgnoreThreatModal,
+	UNIGNORE_THREAT: UnignoreThreatModal,
 	FIX_THREAT: FixThreatModal,
 	FIX_ALL_THREATS: FixAllThreatsModal,
 	CREDENTIALS_NEEDED: CredentialsNeededModal,
@@ -18,11 +19,9 @@ const MODAL_COMPONENTS = {
 };
 
 const Modal = () => {
-	const modalType = useSelect( select => select( STORE_ID ).getModalType() );
-	const modalProps = useSelect( select => select( STORE_ID ).getModalProps() );
-	const { setModal } = useDispatch( STORE_ID );
+	const { modal, setModal } = useModal();
 
-	if ( ! modalType ) {
+	if ( ! modal.type ) {
 		return null;
 	}
 
@@ -33,7 +32,7 @@ const Modal = () => {
 		};
 	};
 
-	const ModalComponent = MODAL_COMPONENTS[ modalType ];
+	const ModalComponent = MODAL_COMPONENTS[ modal.type ];
 
 	return (
 		<div className={ styles.modal }>
@@ -50,7 +49,7 @@ const Modal = () => {
 						aria-label={ __( 'Close Modal Window', 'jetpack-protect' ) }
 					/>
 				</button>
-				<ModalComponent { ...modalProps } />
+				<ModalComponent { ...modal.props } />
 			</div>
 		</div>
 	);

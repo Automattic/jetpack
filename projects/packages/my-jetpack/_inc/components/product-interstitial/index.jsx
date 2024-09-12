@@ -1,35 +1,62 @@
-import { AdminPage, Button, Col, Container, Text } from '@automattic/jetpack-components';
+/**
+ * External dependencies
+ */
+import {
+	AdminPage,
+	Button,
+	Col,
+	Container,
+	Text,
+	TermsOfService,
+} from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
-import classNames from 'classnames';
+import { __, sprintf } from '@wordpress/i18n';
+import clsx from 'clsx';
 import React, { useCallback, useEffect } from 'react';
+/**
+ * Internal dependencies
+ */
+import { useParams } from 'react-router-dom';
+import { MyJetpackRoutes } from '../../constants';
+import useActivate from '../../data/products/use-activate';
+import useProduct from '../../data/products/use-product';
+import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../hooks/use-analytics';
+import { useGoBack } from '../../hooks/use-go-back';
+import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
-import { useProduct } from '../../hooks/use-product';
 import GoBackLink from '../go-back-link';
 import ProductDetailCard from '../product-detail-card';
 import ProductDetailTable from '../product-detail-table';
 import boostImage from './boost.png';
 import crmImage from './crm.png';
 import extrasImage from './extras.png';
-import jetpackAiImage from './jetpack-ai.png';
 import searchImage from './search.png';
+import socialImage from './social.png';
+import statsImage from './stats.png';
 import styles from './style.module.scss';
 import videoPressImage from './videopress.png';
 
 /**
  * Product Interstitial component.
  *
- * @param {object} props                         - Component props.
- * @param {string} props.slug                    - Product slug
- * @param {string} props.bundle                  - Bundle including this product
- * @param {object} props.children                - Product additional content
- * @param {string} props.existingLicenseKeyUrl 	 - URL to enter an existing license key (e.g. Akismet)
- * @param {boolean} props.installsPlugin         - Whether the interstitial button installs a plugin*
- * @param {React.ReactNode} props.supportingInfo - Complementary links or support/legal text
- * @param {boolean} props.preferProductName      - Use product name instead of title
- * @param {string} props.imageContainerClassName - Append a class to the image container
- * @returns {object}                               ProductInterstitial react component.
+ * @param {object}          props                         - Component props.
+ * @param {string}          props.slug                    - Product slug
+ * @param {string}          props.bundle                  - Bundle including this product
+ * @param {object}          props.children                - Product additional content
+ * @param {string}          props.existingLicenseKeyUrl   - URL to enter an existing license key (e.g. Akismet)
+ * @param {boolean}         props.installsPlugin          - Whether the interstitial button installs a plugin*
+ * @param {React.ReactNode} props.supportingInfo          - Complementary links or support/legal text
+ * @param {boolean}         props.preferProductName       - Use product name instead of title
+ * @param {string}          props.imageContainerClassName - Append a class to the image container
+ * @param {string}          [props.ctaButtonLabel]        - The label for the Call To Action button
+ * @param {boolean}         [props.hideTOS]               - Whether to hide the Terms of Service text
+ * @param {number}          [props.quantity]              - The quantity of the product to purchase
+ * @param {number}          [props.directCheckout]        - Whether to go straight to the checkout page, e.g. for products with usage tiers
+ * @param {boolean}         [props.highlightLastFeature]  - Whether to highlight the last feature in the list of features
+ * @param {object}          [props.ctaCallback]           - Callback when the product CTA is clicked. Triggered before any activation/checkout process occurs
+ * @param {string}          [props.feature]               - The feature to highlight in the product detail card
+ * @return {object} ProductInterstitial react component.
  */
 export default function ProductInterstitial( {
 	bundle,
@@ -40,82 +67,145 @@ export default function ProductInterstitial( {
 	preferProductName = false,
 	children = null,
 	imageContainerClassName = '',
+	ctaButtonLabel = null,
+	hideTOS = false,
+	quantity = null,
+	directCheckout = false,
+	highlightLastFeature = false,
+	ctaCallback = null,
+	feature = null,
 } ) {
-	const { activate, detail } = useProduct( slug );
-	const { isUpgradableByBundle, tiers } = detail;
+	const { detail } = useProduct( slug );
+	const { detail: bundleDetail } = useProduct( bundle );
+	const { activate, isPending: isActivating } = useActivate( slug );
 
+	// Get the post activation URL for the product.
+	let redirectUri = detail?.postActivationUrl || null;
+	// If the interstitial is highlighting a specific feature, use the post checkout URL for that feature, if available.
+	if ( feature && detail?.postActivationUrlsByFeature?.[ feature ] ) {
+		redirectUri = detail.postActivationUrlsByFeature[ feature ];
+	}
+
+	const { isUpgradableByBundle, tiers, pricingForUi } = detail;
 	const { recordEvent } = useAnalytics();
+	const { onClickGoBack } = useGoBack( { slug } );
+	const { myJetpackCheckoutUri = '' } = getMyJetpackWindowInitialState();
+	const { siteIsRegistering, handleRegisterSite } = useMyJetpackConnection( {
+		skipUserConnection: true,
+		redirectUri,
+	} );
+	const showBundledTOS = ! hideTOS && !! bundle;
+	const productName = detail?.title;
+	const bundleName = bundleDetail?.title;
+	const bundledTosLabels = [
+		/* translators: %s is the product name  */
+		sprintf( __( 'Get %s', 'jetpack-my-jetpack' ), productName ),
+		/* translators: %s is the bundled product name */
+		sprintf( __( 'Get %s', 'jetpack-my-jetpack' ), bundleName ),
+	];
 
 	useEffect( () => {
 		recordEvent( 'jetpack_myjetpack_product_interstitial_view', { product: slug } );
 	}, [ recordEvent, slug ] );
 
-	const trackProductClick = useCallback(
-		( customSlug = null ) => {
-			recordEvent( 'jetpack_myjetpack_product_interstitial_add_link_click', {
-				product: customSlug ?? slug,
-			} );
+	const getProductSlugForTrackEvent = useCallback(
+		( isFree = false ) => {
+			if ( isFree ) {
+				return '';
+			}
+			if ( slug === 'crm' ) {
+				return 'jetpack-crm';
+			}
+			if ( pricingForUi?.tiers?.upgraded?.wpcomProductSlug ) {
+				return pricingForUi.tiers.upgraded.wpcomProductSlug;
+			}
+			return pricingForUi.wpcomProductSlug;
 		},
-		[ recordEvent, slug ]
+		[ slug, pricingForUi ]
 	);
 
-	const trackBundleClick = useCallback( () => {
-		recordEvent( 'jetpack_myjetpack_product_interstitial_add_link_click', { product: bundle } );
-	}, [ recordEvent, bundle ] );
+	const trackProductOrBundleClick = useCallback(
+		options => {
+			const { customSlug = null, isFreePlan = false, ctaText = null } = options || {};
+			const productSlug = customSlug ? customSlug : bundle ?? slug;
+			recordEvent( 'jetpack_myjetpack_product_interstitial_add_link_click', {
+				product: productSlug,
+				product_slug: getProductSlugForTrackEvent( isFreePlan ),
+				cta_text: ctaText,
+			} );
+		},
+		[ recordEvent, slug, getProductSlugForTrackEvent, bundle ]
+	);
 
-	const navigateToMyJetpackOverviewPage = useMyJetpackNavigate( '/' );
+	const navigateToMyJetpackOverviewPage = useMyJetpackNavigate( MyJetpackRoutes.Home );
 
 	const clickHandler = useCallback(
 		( checkout, product, tier ) => {
-			const activateOrCheckout = () => ( product?.isBundle ? Promise.resolve() : activate() );
+			ctaCallback?.( { slug, product, tier } );
 
-			activateOrCheckout().finally( () => {
-				if ( product?.isBundle ) {
-					// Get straight to the checkout page.
-					checkout?.();
-					return;
-				}
-
-				const postActivationUrl = product?.postActivationUrl;
-				const hasRequiredPlan = tier
-					? product?.hasRequiredTier?.[ tier ]
-					: product?.hasRequiredPlan;
-				const isFree = tier
-					? product?.pricingForUi?.tiers?.[ tier ]?.isFree
-					: product?.pricingForUi?.isFree;
-				const needsPurchase = ! isFree && ! hasRequiredPlan;
-
-				// If no purchase is needed, redirect the user to the product screen.
-				if ( ! needsPurchase ) {
-					if ( postActivationUrl ) {
-						window.location.href = postActivationUrl;
-						return;
-					}
-
-					// Fall back to the My Jetpack overview page.
-					return navigateToMyJetpackOverviewPage();
-				}
-
-				// Redirect to the checkout page.
+			if ( product?.isBundle || directCheckout ) {
+				// Get straight to the checkout page.
 				checkout?.();
-			} );
-		},
-		[ navigateToMyJetpackOverviewPage, activate ]
-	);
-
-	const onClickGoBack = useCallback(
-		event => {
-			if ( slug ) {
-				recordEvent( 'jetpack_myjetpack_product_interstitial_back_link_click', { product: slug } );
+				return;
 			}
 
-			if ( document.referrer.includes( window.location.host ) ) {
-				// Prevent default here to minimize page change within the My Jetpack app.
-				event.preventDefault();
-				history.back();
-			}
+			activate(
+				{ productId: slug },
+				{
+					onSettled: activatedProduct => {
+						let postCheckoutUrl = activatedProduct?.post_checkout_url || myJetpackCheckoutUri;
+
+						// If the interstitial is highlighting a specific feature, use the post checkout URL for that feature, if available.
+						if ( feature && activatedProduct?.post_checkout_urls_by_feature?.[ feature ] ) {
+							postCheckoutUrl = activatedProduct.post_checkout_urls_by_feature[ feature ];
+						}
+
+						// there is a separate hasRequiredTier, but it is not implemented
+						const hasPaidPlanForProduct = product?.hasPaidPlanForProduct;
+						const isFree = tier
+							? product?.pricingForUi?.tiers?.[ tier ]?.isFree
+							: product?.pricingForUi?.isFree;
+						const isUpgradeToHigherTier =
+							tier && product?.pricingForUi?.tiers?.[ tier ] && ! isFree && product?.isUpgradable;
+						const needsPurchase = ( ! isFree && ! hasPaidPlanForProduct ) || isUpgradeToHigherTier;
+
+						// If the product is CRM, redirect the user to the Jetpack CRM pricing page.
+						// This is done because CRM is not part of the WP billing system
+						// and we can't send them to checkout like we can with the rest of the products
+						if ( product.pluginSlug === 'zero-bs-crm' && ! hasPaidPlanForProduct ) {
+							window.location.href = 'https://jetpackcrm.com/pricing/';
+							return;
+						}
+
+						// If no purchase is needed, redirect the user to the product screen.
+						if ( ! needsPurchase ) {
+							// for free products, we still initiate the site connection
+							handleRegisterSite().then( postRegisterRedirectUri => {
+								if ( ! postRegisterRedirectUri ) {
+									// Fall back to the My Jetpack overview page.
+									return navigateToMyJetpackOverviewPage();
+								}
+							} );
+
+							return;
+						}
+
+						// Redirect to the checkout page.
+						checkout?.( null, postCheckoutUrl );
+					},
+				}
+			);
 		},
-		[ recordEvent, slug ]
+		[
+			myJetpackCheckoutUri,
+			feature,
+			ctaCallback,
+			slug,
+			directCheckout,
+			activate,
+			handleRegisterSite,
+			navigateToMyJetpackOverviewPage,
+		]
 	);
 
 	return (
@@ -149,7 +239,10 @@ export default function ProductInterstitial( {
 							slug={ slug }
 							clickHandler={ clickHandler }
 							onProductButtonClick={ clickHandler }
-							trackProductButtonClick={ trackProductClick }
+							trackProductButtonClick={ trackProductOrBundleClick }
+							preferProductName={ preferProductName }
+							isFetching={ isActivating || siteIsRegistering }
+							feature={ feature }
 						/>
 					) : (
 						<Container
@@ -161,31 +254,47 @@ export default function ProductInterstitial( {
 							<Col sm={ 4 } md={ 4 } lg={ 7 }>
 								<ProductDetailCard
 									slug={ slug }
-									trackButtonClick={ trackProductClick }
+									trackButtonClick={ trackProductOrBundleClick }
 									onClick={ installsPlugin ? clickHandler : undefined }
 									className={ isUpgradableByBundle ? styles.container : null }
 									supportingInfo={ supportingInfo }
 									preferProductName={ preferProductName }
+									ctaButtonLabel={ ctaButtonLabel }
+									hideTOS={ hideTOS || showBundledTOS }
+									quantity={ quantity }
+									highlightLastFeature={ highlightLastFeature }
+									isFetching={ isActivating || siteIsRegistering }
 								/>
 							</Col>
 							<Col
 								sm={ 4 }
 								md={ 4 }
 								lg={ 5 }
-								className={ classNames( styles.imageContainer, imageContainerClassName ) }
+								className={ clsx( styles.imageContainer, imageContainerClassName ) }
 							>
 								{ bundle ? (
 									<ProductDetailCard
 										slug={ bundle }
-										trackButtonClick={ trackBundleClick }
+										trackButtonClick={ trackProductOrBundleClick }
 										onClick={ clickHandler }
 										className={ isUpgradableByBundle ? styles.container : null }
+										hideTOS={ hideTOS || showBundledTOS }
+										quantity={ quantity }
+										highlightLastFeature={ highlightLastFeature }
+										isFetching={ isActivating }
 									/>
 								) : (
 									children
 								) }
 							</Col>
 						</Container>
+					) }
+				</Col>
+				<Col>
+					{ showBundledTOS && (
+						<div className={ styles[ 'tos-container' ] }>
+							<TermsOfService multipleButtons={ bundledTosLabels } />
+						</div>
 					) }
 				</Col>
 			</Container>
@@ -196,7 +305,7 @@ export default function ProductInterstitial( {
 /**
  * AntiSpamInterstitial component
  *
- * @returns {object} AntiSpamInterstitial react component.
+ * @return {object} AntiSpamInterstitial react component.
  */
 export function AntiSpamInterstitial() {
 	const slug = 'anti-spam';
@@ -217,7 +326,7 @@ export function AntiSpamInterstitial() {
 /**
  * BackupInterstitial component
  *
- * @returns {object} BackupInterstitial react component.
+ * @return {object} BackupInterstitial react component.
  */
 export function BackupInterstitial() {
 	return <ProductInterstitial slug="backup" installsPlugin={ true } bundle="security" />;
@@ -226,7 +335,7 @@ export function BackupInterstitial() {
 /**
  * BoostInterstitial component
  *
- * @returns {object} BoostInterstitial react component.
+ * @return {object} BoostInterstitial react component.
  */
 export function BoostInterstitial() {
 	return (
@@ -237,9 +346,18 @@ export function BoostInterstitial() {
 }
 
 /**
+ * CreatorInterstitial component
+ *
+ * @return {object} CreatorInterstitial react component.
+ */
+export function CreatorInterstitial() {
+	return <ProductInterstitial slug="creator" installsPlugin={ true } />;
+}
+
+/**
  * CRMInterstitial component
  *
- * @returns {object} CRMInterstitial react component.
+ * @return {object} CRMInterstitial react component.
  */
 export function CRMInterstitial() {
 	return (
@@ -252,7 +370,7 @@ export function CRMInterstitial() {
 /**
  * ExtrasInterstitial component
  *
- * @returns {object} ExtrasInterstitial react component.
+ * @return {object} ExtrasInterstitial react component.
  */
 export function ExtrasInterstitial() {
 	return (
@@ -263,35 +381,28 @@ export function ExtrasInterstitial() {
 }
 
 /**
- * JetpackAIInterstitial component
+ * JetpackAiInterstitial component
  *
- * @returns {object} JetpackAIInterstitial react component.
+ * @return {object} JetpackAiInterstitial react component.
  */
-export function JetpackAIInterstitial() {
-	return (
-		<ProductInterstitial
-			slug="jetpack-ai"
-			installsPlugin={ true }
-			imageContainerClassName={ styles.aiImageContainer }
-		>
-			<img src={ jetpackAiImage } alt="Jetpack AI" />
-		</ProductInterstitial>
-	);
-}
+export { default as JetpackAiInterstitial } from './jetpack-ai';
 
 /**
  * ProtectInterstitial component
  *
- * @returns {object} ProtectInterstitial react component.
+ * @return {object} ProtectInterstitial react component.
  */
 export function ProtectInterstitial() {
-	return <ProductInterstitial slug="protect" installsPlugin={ true } />;
+	// Get the feature query parameter from the URL.
+	const { feature } = useParams();
+
+	return <ProductInterstitial slug="protect" feature={ feature } installsPlugin={ true } />;
 }
 
 /**
  * ScanInterstitial component
  *
- * @returns {object} ScanInterstitial react component.
+ * @return {object} ScanInterstitial react component.
  */
 export function ScanInterstitial() {
 	return <ProductInterstitial slug="scan" installsPlugin={ true } bundle="security" />;
@@ -300,16 +411,26 @@ export function ScanInterstitial() {
 /**
  * SocialInterstitial component
  *
- * @returns {object} SocialInterstitial react component.
+ * @return {object} SocialInterstitial react component.
  */
 export function SocialInterstitial() {
-	return <ProductInterstitial slug="social" installsPlugin={ true } />;
+	return (
+		<ProductInterstitial slug="social" installsPlugin={ true }>
+			<img
+				src={ socialImage }
+				alt={ __(
+					'Image displaying logos of social media platforms supported by Jetpack Social.',
+					'jetpack-my-jetpack'
+				) }
+			/>
+		</ProductInterstitial>
+	);
 }
 
 /**
  * SearchInterstitial component
  *
- * @returns {object} SearchInterstitial react component.
+ * @return {object} SearchInterstitial react component.
  */
 export function SearchInterstitial() {
 	const { detail } = useProduct( 'search' );
@@ -336,9 +457,33 @@ export function SearchInterstitial() {
 }
 
 /**
+ * StatsInterstitial component
+ *
+ * @return {object} StatsInterstitial react component.
+ */
+export function StatsInterstitial() {
+	return (
+		<ProductInterstitial
+			slug="stats"
+			directCheckout={ true }
+			installsPlugin={ true }
+			ctaButtonLabel={ __( 'Get Stats', 'jetpack-my-jetpack' ) }
+		>
+			<img
+				src={ statsImage }
+				alt={ __(
+					'Illustration showing the Stats feature, highlighting important statistics for your site.',
+					'jetpack-my-jetpack'
+				) }
+			/>
+		</ProductInterstitial>
+	);
+}
+
+/**
  * VideoPressInterstitial component
  *
- * @returns {object} VideoPressInterstitial react component.
+ * @return {object} VideoPressInterstitial react component.
  */
 export function VideoPressInterstitial() {
 	return (

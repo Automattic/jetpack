@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Sync;
 
+use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Connection\Urls;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Modules as Jetpack_Modules;
@@ -402,8 +403,8 @@ class Functions {
 	 *
 	 * @deprecated 1.23.1
 	 *
-	 * @param callable $callable Function to retrieve URL option.
-	 * @param string   $new_value URL Protocol to set URLs to.
+	 * @param string $callable Function name that was used to retrieve URL option.
+	 * @param string $new_value URL Protocol to set URLs to.
 	 * @return string Normalized URL.
 	 */
 	public static function get_protocol_normalized_url( $callable, $new_value ) {
@@ -596,8 +597,8 @@ class Functions {
 	 *
 	 * @since 1.21.0
 	 *
-	 * @param array|obj $any        Source data to be cleaned up.
-	 * @param array     $seen_nodes Built array of nodes.
+	 * @param mixed $any        Source data to be cleaned up.
+	 * @param array $seen_nodes Built array of nodes.
 	 *
 	 * @return array
 	 */
@@ -666,7 +667,7 @@ class Functions {
 	/**
 	 * Return the list of active Jetpack modules.
 	 *
-	 * @since $$next_version$$
+	 * @since 1.34.0
 	 *
 	 * @return array
 	 */
@@ -677,7 +678,7 @@ class Functions {
 	/**
 	 * Return a list of PHP modules that we want to track.
 	 *
-	 * @since $$next_version$$
+	 * @since 1.50.0
 	 *
 	 * @return array
 	 */
@@ -708,5 +709,32 @@ class Functions {
 		}
 
 		return $enabled_extensions;
+	}
+
+	/**
+	 * Return the list of active connected Jetpack plugins.
+	 *
+	 * @since 3.2.0
+	 *
+	 * @return array
+	 */
+	public static function get_jetpack_connection_active_plugins() {
+		return ( new Manager() )->get_connected_plugins();
+	}
+
+	/**
+	 * Return the list of active sync modules.
+	 *
+	 * @since 3.6.0
+	 *
+	 * @return array
+	 */
+	public static function get_jetpack_sync_active_modules() {
+
+		/** This filter is documented in projects/packages/sync/src/class-modules.php */
+		$modules = apply_filters( 'jetpack_sync_modules', Modules::DEFAULT_SYNC_MODULES );
+		$modules = array_unique( $modules );
+		$modules = array_map( 'wp_normalize_path', $modules );
+		return $modules;
 	}
 }

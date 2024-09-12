@@ -2,7 +2,6 @@
 
 namespace Automattic\Jetpack\Publicize;
 
-use Jetpack_Options;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Posts as WorDBless_Posts;
@@ -86,7 +85,6 @@ class Test_Connections_Post_Field extends TestCase {
 	 * @before
 	 */
 	public function set_up() {
-		$this->setup_jetpack_connections();
 		global $publicize;
 		$this->publicize = $this->getMockBuilder( Publicize::class )->setMethods( array( 'refresh_connections', 'test_connection' ) )->getMock();
 
@@ -99,6 +97,9 @@ class Test_Connections_Post_Field extends TestCase {
 			->willReturn( true );
 
 		$publicize = $this->publicize;
+
+		$this->setup_jetpack_connections();
+
 		register_post_type(
 			'example-with',
 			array(
@@ -256,32 +257,30 @@ class Test_Connections_Post_Field extends TestCase {
 	 */
 	public function get_connections() {
 		return array(
-			'publicize_connections' => array(
-				// Normally connected facebook.
-				'facebook' => array(
-					'id_number' => array(
-						'connection_data' => array(
-							'user_id'       => self::$user_id,
-							'id'            => '456',
-							'connection_id' => '4560',
-							'token_id'      => 'test-unique-id456',
-							'meta'          => array(
-								'display_name' => 'test-display-name456',
-							),
+			// Normally connected facebook.
+			'facebook' => array(
+				'id_number' => array(
+					'connection_data' => array(
+						'user_id'       => self::$user_id,
+						'id'            => '456',
+						'connection_id' => '4560',
+						'token_id'      => 'test-unique-id456',
+						'meta'          => array(
+							'display_name' => 'test-display-name456',
 						),
 					),
 				),
-				// Globally connected tumblr.
-				'tumblr'   => array(
-					'id_number' => array(
-						'connection_data' => array(
-							'user_id'       => 0,
-							'id'            => '123',
-							'connection_id' => '1230',
-							'token_id'      => 'test-unique-id123',
-							'meta'          => array(
-								'display_name' => 'test-display-name123',
-							),
+			),
+			// Globally connected tumblr.
+			'tumblr'   => array(
+				'id_number' => array(
+					'connection_data' => array(
+						'user_id'       => 0,
+						'id'            => '123',
+						'connection_id' => '1230',
+						'token_id'      => 'test-unique-id123',
+						'meta'          => array(
+							'display_name' => 'test-display-name123',
 						),
 					),
 				),
@@ -293,9 +292,7 @@ class Test_Connections_Post_Field extends TestCase {
 	 * Dummy function to initialize publicize connections.
 	 */
 	public function setup_jetpack_connections() {
-		Jetpack_Options::update_options(
-			$this->get_connections()
-		);
+		$this->publicize->receive_updated_publicize_connections( $this->get_connections() );
 	}
 
 	/**

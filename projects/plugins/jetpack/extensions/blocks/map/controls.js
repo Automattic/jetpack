@@ -38,8 +38,10 @@ const markerIcon = (
 export default ( {
 	attributes,
 	setAttributes,
-	state,
-	setState,
+	apiKey,
+	apiKeySource,
+	apiKeyControl,
+	onKeyChange,
 	context,
 	mapRef,
 	instanceId,
@@ -124,6 +126,7 @@ export default ( {
 			/>
 			<PanelBody title={ __( 'Map Settings', 'jetpack' ) }>
 				<BaseControl
+					__nextHasNoMarginBottom={ true }
 					label={ __( 'Height in pixels', 'jetpack' ) }
 					id={ `block-jetpack-map-height-input-${ instanceId }` }
 				>
@@ -148,6 +151,7 @@ export default ( {
 					/>
 				</BaseControl>
 				<RangeControl
+					__nextHasNoMarginBottom={ true }
 					label={ __( 'Zoom level', 'jetpack' ) }
 					help={
 						attributes.points.length > 1 &&
@@ -169,6 +173,7 @@ export default ( {
 				/>
 				{ mapProvider === 'mapbox' ? (
 					<ToggleControl
+						__nextHasNoMarginBottom={ true }
 						label={ __( 'Show street names', 'jetpack' ) }
 						checked={ attributes.mapDetails }
 						onChange={ value => setAttributes( { mapDetails: value } ) }
@@ -176,6 +181,7 @@ export default ( {
 				) : null }
 
 				<ToggleControl
+					__nextHasNoMarginBottom={ true }
 					label={ __( 'Scroll to zoom', 'jetpack' ) }
 					help={ __( 'Allow the map to capture scrolling, and zoom in or out.', 'jetpack' ) }
 					checked={ attributes.scrollToZoom }
@@ -184,6 +190,7 @@ export default ( {
 
 				{ mapProvider === 'mapbox' ? (
 					<ToggleControl
+						__nextHasNoMarginBottom={ true }
 						label={ __( 'Show Fullscreen Button', 'jetpack' ) }
 						help={ __( 'Allow your visitors to display the map in fullscreen.', 'jetpack' ) }
 						checked={ attributes.showFullscreenButton }
@@ -204,8 +211,9 @@ export default ( {
 			{ mapProvider === 'mapbox' ? (
 				<PanelBody title={ __( 'Mapbox Access Token', 'jetpack' ) } initialOpen={ false }>
 					<TextControl
+						__nextHasNoMarginBottom={ true }
 						help={
-							'wpcom' === state.apiKeySource && (
+							'wpcom' === apiKeySource && (
 								<>
 									{ __( 'You can optionally enter your own access token.', 'jetpack' ) }{ ' ' }
 									<ExternalLink href="https://account.mapbox.com/access-tokens/">
@@ -215,21 +223,21 @@ export default ( {
 							)
 						}
 						label={ __( 'Mapbox Access Token', 'jetpack' ) }
-						value={ state.apiKeyControl }
-						onChange={ value => setState( { apiKeyControl: value } ) }
+						value={ apiKeyControl }
+						onChange={ onKeyChange }
 					/>
 					<ButtonGroup>
 						<Button
 							type="button"
 							onClick={ updateAPIKey }
-							disabled={ ! state.apiKeyControl || state.apiKeyControl === state.apiKey }
+							disabled={ ! apiKeyControl || apiKeyControl === apiKey }
 						>
 							{ __( 'Update Token', 'jetpack' ) }
 						</Button>
 						<Button
 							type="button"
 							onClick={ removeAPIKey }
-							disabled={ 'wpcom' === state.apiKeySource }
+							disabled={ 'wpcom' === apiKeySource }
 							variant="secondary"
 						>
 							{ __( 'Remove Token', 'jetpack' ) }

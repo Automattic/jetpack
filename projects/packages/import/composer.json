@@ -4,10 +4,12 @@
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"automattic/jetpack-connection": "@dev"
+		"php": ">=7.0",
+		"automattic/jetpack-connection": "@dev",
+		"automattic/jetpack-sync": "@dev"
 	},
 	"require-dev": {
-		"yoast/phpunit-polyfills": "1.1.0",
+		"yoast/phpunit-polyfills": "^1.1.1",
 		"automattic/jetpack-changelogger": "@dev",
 		"automattic/wordbless": "dev-master"
 	},
@@ -54,7 +56,7 @@
 		},
 		"autotagger": true,
 		"branch-alias": {
-			"dev-trunk": "0.7.x-dev"
+			"dev-trunk": "0.8.x-dev"
 		},
 		"textdomain": "jetpack-import",
 		"version-constants": {

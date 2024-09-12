@@ -124,7 +124,7 @@ class DashProtect extends Component {
 		return (
 			this.props.isModuleAvailable && (
 				<div className="jp-dash-item__interior">
-					<QueryProtectCount />
+					<QueryProtectCount isActive={ this.props.getOptionValue( 'protect' ) } />
 					{ this.getContent() }
 				</div>
 			)

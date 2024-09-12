@@ -1,10 +1,11 @@
 import { useSelect } from '@wordpress/data';
 import { __, _x } from '@wordpress/i18n';
 import { Icon, external } from '@wordpress/icons';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import React from 'react';
 import { getRedirectUrl } from '../..';
 import { STORE_ID as CONNECTION_STORE_ID } from '../../../../js-packages/connection/state/store';
+import getSiteAdminUrl from '../../tools/get-site-admin-url';
 import AutomatticBylineLogo from '../automattic-byline-logo';
 import './style.scss';
 import JetpackLogo from '../jetpack-logo';
@@ -15,18 +16,29 @@ const JetpackIcon: React.FC = () => (
 	<JetpackLogo logoColor="#000" showText={ false } height={ 16 } aria-hidden="true" />
 );
 
+const ExternalIcon: React.FC = () => (
+	<>
+		<Icon icon={ external } size={ 16 } />
+		<span className="jp-dashboard-footer__accessible-external-link">
+			{
+				/* translators: accessibility text */
+				__( '(opens in a new tab)', 'jetpack' )
+			}
+		</span>
+	</>
+);
+
 /**
  * JetpackFooter component displays a tiny Jetpack logo with the product name on the left and the Automattic Airline "by line" on the right.
  *
  * @param {JetpackFooterProps} props - Component properties.
- * @returns {React.ReactNode} JetpackFooter component.
+ * @return {React.ReactNode} JetpackFooter component.
  */
 const JetpackFooter: React.FC< JetpackFooterProps > = ( {
 	moduleName = __( 'Jetpack', 'jetpack' ),
 	className,
 	moduleNameHref = 'https://jetpack.com',
 	menu,
-	siteAdminUrl,
 	onAboutClick,
 	onPrivacyClick,
 	onTermsClick,
@@ -50,7 +62,7 @@ const JetpackFooter: React.FC< JetpackFooterProps > = ( {
 		},
 		[ CONNECTION_STORE_ID ]
 	);
-
+	const siteAdminUrl = getSiteAdminUrl();
 	const areAdminLinksEnabled =
 		siteAdminUrl &&
 		// Some admin pages require the site to be connected (e.g., Privacy)
@@ -65,7 +77,7 @@ const JetpackFooter: React.FC< JetpackFooterProps > = ( {
 			href: areAdminLinksEnabled
 				? new URL( 'admin.php?page=jetpack_about', siteAdminUrl ).href
 				: getRedirectUrl( 'jetpack-about' ),
-			target: '_blank',
+			target: areAdminLinksEnabled ? '_self' : '_blank',
 			onClick: onAboutClick,
 		},
 		{
@@ -99,7 +111,7 @@ const JetpackFooter: React.FC< JetpackFooterProps > = ( {
 
 	return (
 		<footer
-			className={ classnames(
+			className={ clsx(
 				'jp-dashboard-footer',
 				{
 					'is-sm': isSm,
@@ -131,7 +143,7 @@ const JetpackFooter: React.FC< JetpackFooterProps > = ( {
 								target={ item.target }
 								onClick={ item.onClick }
 								onKeyDown={ item.onKeyDown }
-								className={ classnames( 'jp-dashboard-footer__menu-item', {
+								className={ clsx( 'jp-dashboard-footer__menu-item', {
 									'is-external': isExternalLink,
 								} ) }
 								role={ item.role }
@@ -139,7 +151,7 @@ const JetpackFooter: React.FC< JetpackFooterProps > = ( {
 								tabIndex={ isButton ? 0 : undefined }
 							>
 								{ item.label }
-								{ isExternalLink && <Icon icon={ external } size={ 16 } /> }
+								{ isExternalLink && <ExternalIcon /> }
 							</a>
 						</li>
 					);

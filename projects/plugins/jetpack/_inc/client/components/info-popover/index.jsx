@@ -1,4 +1,4 @@
-import classNames from 'classnames';
+import clsx from 'clsx';
 import Gridicon from 'components/gridicon';
 import Popover from 'components/popover';
 import analytics from 'lib/analytics';
@@ -29,19 +29,21 @@ export default class extends React.Component {
 		onClick: noop,
 	};
 
+	infoPopoverRef = React.createRef();
+
 	state = {
 		showPopover: false,
 	};
 
 	render() {
-		const classes = classNames(
+		const classes = clsx(
 			'dops-info-popover',
 			'dops-info-popover-button',
 			{ is_active: this.state.showPopover },
 			this.props.className
 		);
 		return (
-			<button ref="infoPopover" className={ classes } onClick={ this._onClick }>
+			<button ref={ this.infoPopoverRef } className={ classes } onClick={ this._onClick }>
 				<Gridicon icon="info-outline" size={ 18 } />
 				{ this.props.screenReaderText ? (
 					<span className="screen-reader-text">{ this.props.screenReaderText }</span>
@@ -51,11 +53,11 @@ export default class extends React.Component {
 				<Popover
 					id={ this.props.id }
 					isVisible={ this.state.showPopover }
-					context={ this.refs && this.refs.infoPopover }
+					context={ this.infoPopoverRef.current }
 					ignoreContext={ this.props.ignoreContext }
 					position={ this.props.position }
 					onClose={ this._onClose }
-					className={ classNames( 'dops-info-popover__tooltip', this.props.className ) }
+					className={ clsx( 'dops-info-popover__tooltip', this.props.className ) }
 					rootClassName={ this.props.rootClassName }
 				>
 					{ this.props.children }

@@ -2,10 +2,13 @@
 /**
  * Square layout Tiled Gallery template.
  *
+ * @html-template Jetpack_Tiled_Gallery_Layout::template
  * @package automattic/jetpack
  */
 
-foreach ( $context['rows'] as $row ) : // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- HTML template, let Phan handle it.
+
+foreach ( $context['rows'] as $row ) :
 	?>
 	<div class="gallery-row"
 		style="width: <?php echo esc_attr( $row->width ); ?>px; height: <?php echo esc_attr( $row->height ); ?>px;"
@@ -19,11 +22,11 @@ foreach ( $context['rows'] as $row ) : // phpcs:ignore VariableAnalysis.CodeAnal
 				data-original-height="<?php echo esc_attr( $row->group_size ); ?>"
 			>
 				<?php
-				$this->partial( // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+				$this->partial(
 					'item',
 					array(
 						'item' => $item,
-						'link' => $context['link'], // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+						'link' => $context['link'],
 					)
 				);
 				?>

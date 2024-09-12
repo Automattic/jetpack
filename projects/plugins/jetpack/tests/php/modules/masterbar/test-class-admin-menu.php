@@ -2,11 +2,12 @@
 /**
  * Tests for Admin_Menu class.
  *
+ * @phan-file-suppress PhanDeprecatedFunction -- Ok for deprecated code to call other deprecated code.
+ *
  * @package automattic/jetpack
  */
 
 use Automattic\Jetpack\Dashboard_Customizations\Admin_Menu;
-use Automattic\Jetpack\Dashboard_Customizations\Base_Admin_Menu;
 use Automattic\Jetpack\Status;
 
 require_once JETPACK__PLUGIN_DIR . 'modules/masterbar/admin-menu/class-admin-menu.php';
@@ -73,7 +74,11 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 		parent::set_up();
 		global $menu, $submenu;
 
+		$this->setExpectedDeprecated( 'Automattic\Jetpack\Dashboard_Customizations\Admin_Menu::__construct' );
 		// Initialize in setUp so it registers hooks for every test.
+		$instances = new \ReflectionProperty( 'Automattic\Jetpack\Dashboard_Customizations\Admin_Menu', 'instances' );
+		$instances->setAccessible( true );
+		$instances->setValue( null, null );
 		static::$admin_menu = Admin_Menu::get_instance();
 
 		$menu    = static::$menu_data;
@@ -86,6 +91,26 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	 * Test_Admin_Menu.
 	 *
 	 * @covers ::reregister_menu_items
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Admin_Menu::reregister_menu_items
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Admin_Menu::add_stats_menu
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Admin_Menu::add_upgrades_menu
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Admin_Menu::add_posts_menu
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Admin_Menu::get_preferred_view
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Admin_Menu::add_media_menu
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Admin_Menu::add_page_menu
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Admin_Menu::add_testimonials_menu
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Admin_Menu::add_custom_post_type_menu
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Admin_Menu::add_portfolio_menu
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Admin_Menu::add_comments_menu
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Admin_Menu::add_appearance_menu
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Admin_Menu::add_plugins_menu
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Admin_Menu::add_users_menu
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Admin_Menu::add_tools_menu
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Admin_Menu::add_options_menu
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Admin_Menu::add_jetpack_menu
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Admin_Menu::create_jetpack_menu
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Admin_Menu::should_disable_links_manager
 	 */
 	public function test_admin_menu_output() {
 		global $menu, $submenu;
@@ -101,6 +126,8 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	 * Tests get_preferred_view
 	 *
 	 * @covers ::get_preferred_view
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Admin_Menu::get_preferred_view
 	 */
 	public function test_get_preferred_view() {
 		static::$admin_menu->set_preferred_view( 'users.php', 'unknown' );
@@ -113,6 +140,9 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	 * Tests add_my_home_menu
 	 *
 	 * @covers ::add_my_home_menu
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Admin_Menu::add_my_home_menu
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Admin_Menu::get_preferred_view
 	 */
 	public function test_add_my_home_menu() {
 		global $menu, $submenu;
@@ -134,13 +164,15 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 		static::$admin_menu->add_my_home_menu();
 
 		$this->assertSame( 'https://wordpress.com/home/' . static::$domain, $menu[2][2] );
-		$this->assertSame( Base_Admin_Menu::HIDE_CSS_CLASS, $submenu['index.php'][0][4] );
+		$this->assertSame( Admin_Menu::HIDE_CSS_CLASS, $submenu['index.php'][0][4] );
 	}
 
 	/**
 	 * Tests add_stats_menu
 	 *
 	 * @covers ::add_stats_menu
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Admin_Menu::add_stats_menu
 	 */
 	public function test_add_stats_menu() {
 		global $menu;
@@ -161,6 +193,8 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	 * Tests add_upgrades_menu
 	 *
 	 * @covers ::add_upgrades_menu
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Admin_Menu::add_upgrades_menu
 	 */
 	public function test_add_upgrades_menu() {
 		global $submenu;
@@ -176,6 +210,9 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	 * Tests add_posts_menu
 	 *
 	 * @covers ::add_posts_menu
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Admin_Menu::add_posts_menu
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Admin_Menu::get_preferred_view
 	 */
 	public function test_add_posts_menu() {
 		global $submenu;
@@ -190,6 +227,9 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	 * Tests add_media_menu
 	 *
 	 * @covers ::add_media_menu
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Admin_Menu::add_media_menu
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Admin_Menu::get_preferred_view
 	 */
 	public function test_add_media_menu() {
 		global $menu, $submenu;
@@ -204,6 +244,9 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	 * Tests add_page_menu
 	 *
 	 * @covers ::add_page_menu
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Admin_Menu::add_page_menu
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Admin_Menu::get_preferred_view
 	 */
 	public function test_add_page_menu() {
 		global $submenu;
@@ -218,6 +261,9 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	 * Tests add_custom_post_type_menu
 	 *
 	 * @covers ::add_custom_post_type_menu
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Admin_Menu::add_custom_post_type_menu
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Admin_Menu::get_preferred_view
 	 */
 	public function test_add_custom_post_type_menu() {
 		global $menu, $submenu;
@@ -251,6 +297,9 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	 * Tests add_comments_menu
 	 *
 	 * @covers ::add_comments_menu
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Admin_Menu::add_comments_menu
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Admin_Menu::get_preferred_view
 	 */
 	public function test_add_comments_menu() {
 		global $menu, $submenu;
@@ -265,6 +314,9 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	 * Tests add_appearance_menu
 	 *
 	 * @covers ::add_appearance_menu
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Admin_Menu::add_appearance_menu
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Admin_Menu::get_preferred_view
 	 */
 	public function test_add_appearance_menu() {
 		global $submenu;
@@ -278,6 +330,9 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	 * Tests add_plugins_menu
 	 *
 	 * @covers ::add_plugins_menu
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Admin_Menu::add_plugins_menu
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Admin_Menu::get_preferred_view
 	 */
 	public function test_add_plugins_menu() {
 		global $menu, $submenu;
@@ -292,6 +347,9 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	 * Tests add_users_menu
 	 *
 	 * @covers ::add_users_menu
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Admin_Menu::add_users_menu
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Admin_Menu::get_preferred_view
 	 */
 	public function test_add_users_menu() {
 		global $menu, $submenu;
@@ -346,6 +404,9 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	 * Tests add_tools_menu
 	 *
 	 * @covers ::add_tools_menu
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Admin_Menu::add_tools_menu
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Admin_Menu::get_preferred_view
 	 */
 	public function test_add_tools_menu() {
 		global $submenu;
@@ -362,6 +423,9 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	 * Tests add_options_menu
 	 *
 	 * @covers ::add_options_menu
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Admin_Menu::add_options_menu
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Admin_Menu::get_preferred_view
 	 */
 	public function test_add_options_menu() {
 		global $submenu;
@@ -373,9 +437,12 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 
 	/**
 	 * Tests add_jetpack_menu
-	 * §
 	 *
 	 * @covers ::add_jetpack_menu
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Admin_Menu::add_jetpack_menu
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Admin_Menu::create_jetpack_menu
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Admin_Menu::get_preferred_view
 	 */
 	public function test_add_jetpack_menu() {
 		global $submenu;
@@ -395,24 +462,24 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 		$submenu = array(
 			'options-general.php' => array(
 				array( '', 'read', 'test-slug', '', '' ),
-				array( '', 'read', 'test-slug', '', Base_Admin_Menu::HIDE_CSS_CLASS ),
+				array( '', 'read', 'test-slug', '', Admin_Menu::HIDE_CSS_CLASS ),
 				array( '', 'read', 'test-slug', '', '' ),
 				array( '', 'read', 'test-slug', '' ),
-				array( '', 'read', 'test-slug', '', Base_Admin_Menu::HIDE_CSS_CLASS ),
+				array( '', 'read', 'test-slug', '', Admin_Menu::HIDE_CSS_CLASS ),
 				array( '', 'read', 'test-slug', '', '' ),
 			),
 		);
 
 		static::$admin_menu->sort_hidden_submenus();
-		$this->assertNotEquals( Base_Admin_Menu::HIDE_CSS_CLASS, $submenu['options-general.php'][0][4] );
-		$this->assertNotEquals( Base_Admin_Menu::HIDE_CSS_CLASS, $submenu['options-general.php'][2][4] );
+		$this->assertNotEquals( Admin_Menu::HIDE_CSS_CLASS, $submenu['options-general.php'][0][4] );
+		$this->assertNotEquals( Admin_Menu::HIDE_CSS_CLASS, $submenu['options-general.php'][2][4] );
 
 		$this->assertEquals( array( '', 'read', 'test-slug', '' ), $submenu['options-general.php'][3] );
 
-		$this->assertNotEquals( Base_Admin_Menu::HIDE_CSS_CLASS, $submenu['options-general.php'][5][4] );
+		$this->assertNotEquals( Admin_Menu::HIDE_CSS_CLASS, $submenu['options-general.php'][5][4] );
 
-		$this->assertEquals( Base_Admin_Menu::HIDE_CSS_CLASS, $submenu['options-general.php'][6][4] );
-		$this->assertEquals( Base_Admin_Menu::HIDE_CSS_CLASS, $submenu['options-general.php'][7][4] );
+		$this->assertEquals( Admin_Menu::HIDE_CSS_CLASS, $submenu['options-general.php'][6][4] );
+		$this->assertEquals( Admin_Menu::HIDE_CSS_CLASS, $submenu['options-general.php'][7][4] );
 
 		$submenu = self::$submenu_data;
 	}
@@ -459,11 +526,11 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 							'',
 							'',
 							'',
-							Base_Admin_Menu::HIDE_CSS_CLASS,
+							Admin_Menu::HIDE_CSS_CLASS,
 						),
 					),
 				),
-				array( '', 'non-existing-capability', 'test-slug', '', Base_Admin_Menu::HIDE_CSS_CLASS ),
+				array( '', 'non-existing-capability', 'test-slug', '', Admin_Menu::HIDE_CSS_CLASS ),
 			),
 			array(
 				array(
@@ -476,11 +543,11 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 							'',
 							'test-slug',
 							'',
-							Base_Admin_Menu::HIDE_CSS_CLASS,
+							Admin_Menu::HIDE_CSS_CLASS,
 						),
 					),
 				),
-				array( '', 'read', 'test-slug', '', Base_Admin_Menu::HIDE_CSS_CLASS ),
+				array( '', 'read', 'test-slug', '', Admin_Menu::HIDE_CSS_CLASS ),
 			),
 		);
 	}
@@ -489,11 +556,17 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	 * Tests test_add_woocommerce_installation_menu
 	 *
 	 * @covers ::add_woocommerce_installation_menu
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Admin_Menu::add_woocommerce_installation_menu
 	 */
 	public function test_add_woocommerce_installation_menu() {
 		global $menu;
 
 		$woo_icon = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDI0IDEwMjQiPjxwYXRoIGZpbGw9IiNhMmFhYjIiIGQ9Ik02MTIuMTkyIDQyNi4zMzZjMC02Ljg5Ni0zLjEzNi01MS42LTI4LTUxLjYtMzcuMzYgMC00Ni43MDQgNzIuMjU2LTQ2LjcwNCA4Mi42MjQgMCAzLjQwOCAzLjE1MiA1OC40OTYgMjguMDMyIDU4LjQ5NiAzNC4xOTItLjAzMiA0Ni42NzItNzIuMjg4IDQ2LjY3Mi04OS41MnptMjAyLjE5MiAwYzAtNi44OTYtMy4xNTItNTEuNi0yOC4wMzItNTEuNi0zNy4yOCAwLTQ2LjYwOCA3Mi4yNTYtNDYuNjA4IDgyLjYyNCAwIDMuNDA4IDMuMDcyIDU4LjQ5NiAyNy45NTIgNTguNDk2IDM0LjE5Mi0uMDMyIDQ2LjY4OC03Mi4yODggNDYuNjg4LTg5LjUyek0xNDEuMjk2Ljc2OGMtNjguMjI0IDAtMTIzLjUwNCA1NS40ODgtMTIzLjUwNCAxMjMuOTJ2NjUwLjcyYzAgNjguNDMyIDU1LjI5NiAxMjMuOTIgMTIzLjUwNCAxMjMuOTJoMzM5LjgwOGwxMjMuNTA0IDEyMy45MzZWODk5LjMyOGgyNzguMDQ4YzY4LjIyNCAwIDEyMy41Mi01NS40NzIgMTIzLjUyLTEyMy45MnYtNjUwLjcyYzAtNjguNDMyLTU1LjI5Ni0xMjMuOTItMTIzLjUyLTEyMy45MmgtNzQxLjM2em01MjYuODY0IDQyMi4xNmMwIDU1LjA4OC0zMS4wODggMTU0Ljg4LTEwMi42NCAxNTQuODgtNi4yMDggMC0xOC40OTYtMy42MTYtMjUuNDI0LTYuMDE2LTMyLjUxMi0xMS4xNjgtNTAuMTkyLTQ5LjY5Ni01Mi4zNTItNjYuMjU2IDAgMC0zLjA3Mi0xNy43OTItMy4wNzItNDAuNzUyIDAtMjIuOTkyIDMuMDcyLTQ1LjMyOCAzLjA3Mi00NS4zMjggMTUuNTUyLTc1LjcyOCA0My41NTItMTA2LjczNiA5Ni40NDgtMTA2LjczNiA1OS4wNzItLjAzMiA4My45NjggNTguNTI4IDgzLjk2OCAxMTAuMjA4ek00ODYuNDk2IDMwMi40YzAgMy4zOTItNDMuNTUyIDE0MS4xNjgtNDMuNTUyIDIxMy40MjR2NzUuNzEyYy0yLjU5MiAxMi4wOC00LjE2IDI0LjE0NC0yMS44MjQgMjQuMTQ0LTQ2LjYwOCAwLTg4Ljg4LTE1MS40NzItOTIuMDE2LTE2MS44NC02LjIwOCA2Ljg5Ni02Mi4yNCAxNjEuODQtOTYuNDQ4IDE2MS44NC0yNC44NjQgMC00My41NTItMTEzLjY0OC00Ni42MDgtMTIzLjkzNkMxNzYuNzA0IDQzNi42NzIgMTYwIDMzNC4yMjQgMTYwIDMyNy4zMjhjMC0yMC42NzIgMS4xNTItMzguNzM2IDI2LjA0OC0zOC43MzYgNi4yMDggMCAyMS42IDYuMDY0IDIzLjcxMiAxNy4xNjggMTEuNjQ4IDYyLjAzMiAxNi42ODggMTIwLjUxMiAyOS4xNjggMTg1Ljk2OCAxLjg1NiAyLjkyOCAxLjUwNCA3LjAwOCA0LjU2IDEwLjQzMiAzLjE1Mi0xMC4yODggNjYuOTI4LTE2OC43ODQgOTQuOTYtMTY4Ljc4NCAyMi41NDQgMCAzMC40IDQ0LjU5MiAzMy41MzYgNjEuODI0IDYuMjA4IDIwLjY1NiAxMy4wODggNTUuMjE2IDIyLjQxNiA4Mi43NTIgMC0xMy43NzYgMTIuNDgtMjAzLjEyIDY1LjM5Mi0yMDMuMTIgMTguNTkyLjAzMiAyNi43MDQgNi45MjggMjYuNzA0IDI3LjU2OHpNODcwLjMyIDQyMi45MjhjMCA1NS4wODgtMzEuMDg4IDE1NC44OC0xMDIuNjQgMTU0Ljg4LTYuMTkyIDAtMTguNDQ4LTMuNjE2LTI1LjQyNC02LjAxNi0zMi40MzItMTEuMTY4LTUwLjE3Ni00OS42OTYtNTIuMjg4LTY2LjI1NiAwIDAtMy44ODgtMTcuOTItMy44ODgtNDAuODk2czMuODg4LTQ1LjE4NCAzLjg4OC00NS4xODRjMTUuNTUyLTc1LjcyOCA0My40ODgtMTA2LjczNiA5Ni4zODQtMTA2LjczNiA1OS4xMDQtLjAzMiA4My45NjggNTguNTI4IDgzLjk2OCAxMTAuMjA4eiIvPjwvc3ZnPg==';
+
+		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
+			remove_all_filters( 'jetpack_show_wpcom_woocommerce_installation_menu' );
+		}
 
 		// By default, the WooCommerce installation menu item should NOT be displayed.
 		static::$admin_menu->add_woocommerce_installation_menu();

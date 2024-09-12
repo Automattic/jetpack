@@ -18,7 +18,7 @@ class Coming_Soon_Test extends \WorDBless\BaseTestCase {
 	/**
 	 * Preview links used to test bypassing Coming Soon using the URL with share code provided as GET parameter.
 	 *
-	 * @var \string[][]
+	 * @var string[][]
 	 */
 	private static $preview_links = array(
 		array(

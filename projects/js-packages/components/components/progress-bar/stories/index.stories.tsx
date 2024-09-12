@@ -1,12 +1,12 @@
 import ProgressBar from '..';
-import type { ComponentStory, ComponentMeta } from '@storybook/react';
+import type { StoryFn, Meta } from '@storybook/react';
 
 export default {
 	title: 'JS Packages/Components/Progress Bar',
 	component: ProgressBar,
-} as ComponentMeta< typeof ProgressBar >;
+} as Meta< typeof ProgressBar >;
 
-const Template: ComponentStory< typeof ProgressBar > = args => {
+const Template: StoryFn< typeof ProgressBar > = args => {
 	return <ProgressBar { ...args } />;
 };
 

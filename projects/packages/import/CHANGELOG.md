@@ -5,7 +5,44 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.8] - 2024-09-09
+### Changed
+- Update dependencies. [#39253]
+
+## [0.8.7] - 2024-08-26
+### Changed
+- Updated package dependencies. [#39004]
+
+## [0.8.6] - 2024-05-27
+### Changed
+- Update dependencies.
+
+## [0.8.5] - 2024-05-06
+### Added
+- Add missing package dependencies. [#37141]
+
+## [0.8.4] - 2024-04-29
+### Changed
+- Internal updates.
+
+## [0.8.3] - 2024-04-08
+### Changed
+- Internal updates.
+
+## [0.8.2] - 2024-03-18
+### Changed
+- Internal updates.
+
+## [0.8.1] - 2023-11-24
+### Changed
+- Replaced usage of strpos() with str_contains(). [#34137]
+
+## [0.8.0] - 2023-11-20
+### Changed
+- Updated required PHP version to >= 7.0. [#34192]
+
 ## [0.7.4] - 2023-09-19
+
 - Minor internal updates.
 
 ## [0.7.3] - 2023-09-11
@@ -73,6 +110,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fixed various imported resources hierarchies [#29012]
 
+[0.8.8]: https://github.com/Automattic/jetpack-import/compare/v0.8.7...v0.8.8
+[0.8.7]: https://github.com/Automattic/jetpack-import/compare/v0.8.6...v0.8.7
+[0.8.6]: https://github.com/Automattic/jetpack-import/compare/v0.8.5...v0.8.6
+[0.8.5]: https://github.com/Automattic/jetpack-import/compare/v0.8.4...v0.8.5
+[0.8.4]: https://github.com/Automattic/jetpack-import/compare/v0.8.3...v0.8.4
+[0.8.3]: https://github.com/Automattic/jetpack-import/compare/v0.8.2...v0.8.3
+[0.8.2]: https://github.com/Automattic/jetpack-import/compare/v0.8.1...v0.8.2
+[0.8.1]: https://github.com/Automattic/jetpack-import/compare/v0.8.0...v0.8.1
+[0.8.0]: https://github.com/Automattic/jetpack-import/compare/v0.7.4...v0.8.0
 [0.7.4]: https://github.com/Automattic/jetpack-import/compare/v0.7.3...v0.7.4
 [0.7.3]: https://github.com/Automattic/jetpack-import/compare/v0.7.2...v0.7.3
 [0.7.2]: https://github.com/Automattic/jetpack-import/compare/v0.7.1...v0.7.2

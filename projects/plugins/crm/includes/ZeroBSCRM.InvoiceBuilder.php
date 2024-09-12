@@ -434,15 +434,9 @@ function zeroBSCRM_invoicing_generateStatementHTML_v3( $contact_id = -1, $return
 		global $zbs;
 
 		// Globals
-		$biz_name          = zeroBSCRM_getSetting( 'businessname' );
-		$biz_contact_name  = zeroBSCRM_getSetting( 'businessyourname' );
-		$biz_contact_email = zeroBSCRM_getSetting( 'businessyouremail' );
-		$biz_url           = zeroBSCRM_getSetting( 'businessyoururl' );
-		$biz_extra         = zeroBSCRM_getSetting( 'businessextra' );
-		$biz_tel           = zeroBSCRM_getSetting( 'businesstel' );
-		$statement_extra   = zeroBSCRM_getSetting( 'statementextra' );
-		$logo_url          = zeroBSCRM_getSetting( 'invoicelogourl' );
-
+		$statement_extra = zeroBSCRM_getSetting( 'statementextra' );
+		$logo_url        = zeroBSCRM_getSetting( 'invoicelogourl' );
+		$biz_name        = zeroBSCRM_getSetting( 'businessname' );
 		// invoices
 		$invoices = $zbs->DAL->invoices->getInvoices( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 			array(
@@ -463,23 +457,33 @@ function zeroBSCRM_invoicing_generateStatementHTML_v3( $contact_id = -1, $return
 			)
 		);
 
-		// statement table wrapper
-		$statement_table = '<table id="zbs-statement-table" border="0" cellpadding="0" cellspacing="0" class="body" style="border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;background-color:#FFF;width:100%;">';
+		$statement_table = '';
 
 		// logo header
 		if ( ! empty( $logo_url ) ) {
-			$statement_table .= '<tr><td colspan="3" style="text-align:right"><img src="' . esc_url( $logo_url ) . '" alt="' . esc_attr( $biz_name ) . '" style="max-width:200px;max-height:140px" /></td></tr>';
+
+			$statement_table .= sprintf(
+				"<div class='header-image'><img src='%s' alt='%s'></div>",
+				esc_url( $logo_url ),
+				esc_attr( $biz_name )
+			);
 		}
 
 		// title
-		$statement_table .= '<tr><td colspan="3"><h2 class="zbs-statement">' . esc_html__( 'STATEMENT', 'zero-bs-crm' ) . '</h2></td></tr>';
+		$statement_table .= sprintf(
+			'<div class="div-table" role="table" aria-label="Statement Details">
+				<div class="div-table-row-group">
+					<div class="div-table-row">
+						<div class="div-table-cell" colspan="3"><h2 class="zbs-statement">%s</h2></div>
+					</div>
+				</div>',
+			esc_html__( 'STATEMENT', 'zero-bs-crm' )
+		);
 
 		// address | dates | biz deets line
-		$statement_table .= '<tr>';
+		$statement_table .= '<div class="div-table-row">';
 
 		// contact address
-
-		// v3.0
 		$contact_details = $zbs->DAL->contacts->getContact( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 			$contact_id,
 			array(
@@ -496,72 +500,83 @@ function zeroBSCRM_invoicing_generateStatementHTML_v3( $contact_id = -1, $return
 			)
 		);
 		if ( is_array( $contact_details ) && isset( $contact_details['fname'] ) ) {
-			$invoice_customer_info_table_html = '<div class="zbs-line-info zbs-line-info-title">' . esc_html( $contact_details['fname'] ) . ' ' . esc_html( $contact_details['lname'] ) . '</div>';
-			if ( isset( $contact_details['addr1'] ) && ! empty( $contact_details['addr1'] ) ) {
-				$invoice_customer_info_table_html .= '<div class="zbs-line-info">' . esc_html( $contact_details['addr1'] ) . '</div>';
-			}
-			if ( isset( $contact_details['addr2'] ) && ! empty( $contact_details['addr2'] ) ) {
-				$invoice_customer_info_table_html .= '<div class="zbs-line-info">' . esc_html( $contact_details['addr2'] ) . '</div>';
-			}
-			if ( isset( $contact_details['city'] ) && ! empty( $contact_details['city'] ) ) {
-				$invoice_customer_info_table_html .= '<div class="zbs-line-info">' . esc_html( $contact_details['city'] ) . '</div>';
-			}
-			if ( isset( $contact_details['county'] ) && ! empty( $contact_details['county'] ) ) {
-				$invoice_customer_info_table_html .= '<div class="zbs-line-info">' . esc_html( $contact_details['county'] ) . '</div>';
-			}
-			if ( isset( $contact_details['postcode'] ) && ! empty( $contact_details['postcode'] ) ) {
-				$invoice_customer_info_table_html .= '<div class="zbs-line-info">' . esc_html( $contact_details['postcode'] ) . '</div>';
-			}
-		}
+			$invoice_customer_info_cell_html = sprintf(
+				'<b>%s %s</b>',
+				esc_html( $contact_details['fname'] ),
+				esc_html( $contact_details['lname'] )
+			);
 
-		// add
-		$statement_table .= '<td><div style="text-align:left">' . $invoice_customer_info_table_html . '</div></td>';
+			$invoice_customer_info_cell_html .= '<div class="info-details">';
+			$details_to_add                   = array( 'addr1', 'addr2', 'city', 'county', 'postcode' );
+
+			$customer_details = array();
+			foreach ( $details_to_add as $detail_name ) {
+				if ( isset( $contact_details[ $detail_name ] ) && ! empty( $contact_details[ $detail_name ] ) ) {
+					$customer_details[] = esc_html( $contact_details[ $detail_name ] );
+				}
+			}
+			$invoice_customer_info_cell_html .= implode( '<br>', $customer_details );
+			$invoice_customer_info_cell_html .= '</div>';
+		}
+		$statement_table .= '<div class="div-table-cell">' . $invoice_customer_info_cell_html . '</div>';
 
 		// Dates
-		$statement_table .= '<td>';
-		$statement_table .= '<div class="zbs-statement-date"><strong>' . esc_html__( 'Statement Date', 'zero-bs-crm' ) . '</strong><br />' . esc_html( zeroBSCRM_locale_utsToDate( time() ) ) . '</div>';
-		$statement_table .= '</td>';
+		$statement_table .= sprintf(
+			'<div class="div-table-cell center medium-font"><b>%s</b><br>%s</div>',
+			esc_html__( 'Statement Date', 'zero-bs-crm' ),
+			esc_html( zeroBSCRM_locale_utsToDate( time() ) )
+		);
 
 		// Biz deets
-
-		// get biz deets
-		$biz_info_table = '<div class="zbs-line-info zbs-line-info-title">' . esc_html( $biz_name ) . '</div>';
-		if ( ! empty( $biz_contact_name ) ) {
-			$biz_info_table .= '<div class="zbs-line-info">' . esc_html( $biz_contact_name ) . '</div>';
-		}
-		if ( ! empty( $biz_extra ) ) {
-			$biz_info_table .= '<div class="zbs-line-info">' . nl2br( esc_html( $biz_extra ) ) . '</div>';
-		}
-		if ( ! empty( $biz_contact_email ) ) {
-			$biz_info_table .= '<div class="zbs-line-info">' . esc_html( $biz_contact_email ) . '</div>';
-		}
-		if ( ! empty( $biz_url ) ) {
-			$biz_info_table .= '<div class="zbs-line-info">' . esc_html( $biz_url ) . '</div>';
-		}
-		if ( ! empty( $biz_tel ) ) {
-			$biz_info_table .= '<div class="zbs-line-info">' . esc_html( $biz_tel ) . '</div>';
+		$business_details_to_add          = array( 'businessyourname', 'businessyouremail', 'businessyoururl', 'businessextra', 'businesstel' );
+		$invoice_business_info_cell_html  = sprintf(
+			'<b>%s</b>',
+			esc_html( $biz_name )
+		);
+		$invoice_business_info_cell_html .= '<div class="info-details">';
+		$details_to_add                   = array( 'addr1', 'addr2', 'city', 'county', 'postcode' );
+		$detail_contents                  = array();
+		foreach ( $business_details_to_add as $detail_name ) {
+			$detail_content = zeroBSCRM_getSetting( $detail_name );
+			if ( ! empty( $detail_content ) ) {
+				$detail_contents[] = esc_html( $detail_content );
+			}
 		}
 
-		// add
-		$statement_table .= '<td><div class="zbs-biz-info">' . $biz_info_table . '</div></td>';
+		// Join all non-empty details with <br> tag
+		$invoice_business_info_cell_html .= implode( '<br>', $detail_contents );
 
-		$statement_table .= '</tr>';
+		$invoice_business_info_cell_html .= '</div>';
+		$statement_table                 .= '<div class="div-table-cell right">' . $invoice_business_info_cell_html . '</div>';
+		// Close div-table and div-table-row-group
+		$statement_table .= '</div></div>';
 
 		// STATEMENT table
-
-		// start
-		$s_table = '<table border="0" cellpadding="0" cellspacing="0" class="body" style="border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;background-color:#FFF;width:100%">';
-
 		// header
-		$s_table .= '<tr><th cellpadding="0" cellspacing="0" >' . esc_html__( 'Date', 'zero-bs-crm' ) . '</th>';
-		$s_table .= '<th cellpadding="0" cellspacing="0" >' . esc_html( $zbs->settings->get( 'reflabel' ) ) . '</th>';
-		$s_table .= '<th cellpadding="0" cellspacing="0" >' . esc_html__( 'Due date', 'zero-bs-crm' ) . '</th>';
-		$s_table .= '<th class="zbs-accountant-td" style="text-align:right">' . esc_html__( 'Amount', 'zero-bs-crm' ) . '</th>';
-		$s_table .= '<th class="zbs-accountant-td" style="text-align:right">' . esc_html__( 'Payments', 'zero-bs-crm' ) . '</th>';
-		$s_table .= '<th class="zbs-accountant-td" style="text-align:right">' . esc_html__( 'Balance', 'zero-bs-crm' ) . '</th></tr>';
+		$s_table = sprintf(
+			'<div class="div-table" role="table" aria-label="Transactions">
+				<div class="div-table-head">
+					<div class="div-table-row">
+						<div class="div-table-heading">%s</div>
+						<div class="div-table-heading">%s</div>
+						<div class="div-table-heading">%s</div>
+						<div class="div-table-heading right">%s</div>
+						<div class="div-table-heading right">%s</div>
+						<div class="div-table-heading right">%s</div>
+					</div>
+				</div>',
+			esc_html__( 'Date', 'zero-bs-crm' ),
+			esc_html( rtrim( $zbs->settings->get( 'reflabel' ), ':' ) ),
+			esc_html__( 'Due date', 'zero-bs-crm' ),
+			esc_html__( 'Amount', 'zero-bs-crm' ),
+			esc_html__( 'Payments', 'zero-bs-crm' ),
+			esc_html__( 'Balance', 'zero-bs-crm' )
+		);
 
 		// should be all of em so can do 'outstanding balance' from this
 		$balance_due = 0.00;
+
+		$s_table .= '<div class="div-table-row-group">';
 
 		// rows. (all invs for this contact)
 		if ( is_array( $invoices ) && count( $invoices ) > 0 ) {
@@ -650,33 +665,58 @@ function zeroBSCRM_invoicing_generateStatementHTML_v3( $contact_id = -1, $return
 				}
 
 				// output
-				$s_table .= '<tr><td>' . esc_html( $invoice_date ) . '</td>';
-				$s_table .= '<td>' . esc_html( $invoice_reference ) . '</td>';
-				$s_table .= '<td>' . esc_html( $due_date_str ) . '</td>';
-				$s_table .= '<td class="zbs-accountant-td">' . esc_html( zeroBSCRM_formatCurrency( $total ) ) . '</td>';
-				$s_table .= '<td class="zbs-accountant-td">' . esc_html( zeroBSCRM_formatCurrency( $payments ) ) . '</td>';
-				$s_table .= '<td class="zbs-accountant-td">' . esc_html( zeroBSCRM_formatCurrency( $balance ) ) . '</td></tr>';
+				$s_table .= sprintf(
+					'<div class="div-table-row">
+						<div class="div-table-cell">%s</div>
+						<div class="div-table-cell">%s</div>
+						<div class="div-table-cell">%s</div>
+						<div class="div-table-cell right">%s</div>
+						<div class="div-table-cell right">%s</div>
+						<div class="div-table-cell right">%s</div>
+					</div>',
+					esc_html( $invoice_date ),
+					esc_html( $invoice_reference ),
+					esc_html( $due_date_str ),
+					esc_html( zeroBSCRM_formatCurrency( $total ) ),
+					esc_html( zeroBSCRM_formatCurrency( $payments ) ),
+					esc_html( zeroBSCRM_formatCurrency( $balance ) )
+				);
 			}
 		} else {
-
 			// No invoices?
-			$s_table .= '<tr><td colspan="6" style="text-align:center;font-size:14px;font-weight:bold;padding:2em">' . esc_html__( 'No Activity', 'zero-bs-crm' ) . '</td></tr>';
+			$s_table .= sprintf(
+				'<div class="div-table-row"><div class="div-table-cell center" colspan="6">%s</div></div>',
+				esc_html__( 'No Activity', 'zero-bs-crm' )
+			);
 		}
+		// Close `div-table-row-group`
+		$s_table .= '</div>';
+		// Close `div-table`
+		$s_table         .= '</div>';
+		$statement_table .= $s_table;
 
 		// footer
-		$s_table .= '<tr class="zbs-statement-footer"><td colspan="6">' . esc_html__( 'BALANCE DUE', 'zero-bs-crm' ) . ' ' . esc_html( zeroBSCRM_formatCurrency( $balance_due ) ) . '</td></tr>';
-
-		// close table
-		$s_table .= '</table>';
-
-		// add
-		$statement_table .= '<tr><td colspan="3">' . $s_table . '</td></tr>';
+		$statement_table .= sprintf(
+			'<div class="div-footer">
+				<div class="div-table-row">
+					<div class="div-footer-cell right" colspan="6">%s %s</div>
+				</div>
+			</div>',
+			esc_html__( 'BALANCE DUE', 'zero-bs-crm' ),
+			esc_html( zeroBSCRM_formatCurrency( $balance_due ) )
+		);
 
 		// Extra Info
-		$statement_table .= '<tr><td colspan="3" style="text-align:left;padding: 30px;">' . nl2br( esc_html( $statement_extra ) ) . '</td></tr>';
-
-		// close table
-		$statement_table .= '</table>';
+		if ( ! empty( $statement_extra ) ) {
+			$statement_table .= sprintf(
+				'<div class="div-footer">
+					<div class="div-table-row">
+						<div class="div-footer-cell" colspan="6">%s</div>
+					</div>
+				</div>',
+				nl2br( esc_html( $statement_extra ) )
+			);
+		}
 
 		// load templating
 		$placeholder_templating = $zbs->get_templating();
@@ -950,11 +990,11 @@ function zeroBSCRM_invoicing_generateInvoiceHTML( $invoice_id = -1, $template = 
 
 	// == Lineitem table > Column headers
 	// generate a templated customer info table
-	$table_headers = zeroBSCRM_invoicing_generateInvPart_tableHeaders( $zbs_invoice_hours_or_quantity, $template );
+	$table_headers = zeroBSCRM_invoicing_generateInvPart_tableHeaders( $zbs_invoice_hours_or_quantity );
 
 	// == Lineitem table > Line items
 	// generate a templated lineitems
-	$line_items = zeroBSCRM_invoicing_generateInvPart_lineitems( $invlines, $template );
+	$line_items = zeroBSCRM_invoicing_generateInvPart_lineitems( $invlines );
 
 	// == Lineitem table > Totals
 	// due to withTotals parameter on get above, we now don't need ot calc anything here, just expose
@@ -964,7 +1004,7 @@ function zeroBSCRM_invoicing_generateInvoiceHTML( $invoice_id = -1, $template = 
 	if ( $invsettings['invtax'] != 0 || $invsettings['invpandp'] != 0 || $invsettings['invdis'] != 0 ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
 		$totals_table .= '<tr class="total-top">';
 		$totals_table .= '<td  class="bord bord-l" style="text-align:right; width: 80%; text-transform: uppercase;">' . esc_html__( 'Subtotal', 'zero-bs-crm' ) . '</td>';
-		$totals_table .= '<td class="bord row-amount" class="bord" style="text-align:right; "><span class="zbs-totals">';
+		$totals_table .= '<td class="bord row-amount" style="text-align:right; "><span class="zbs-totals">';
 		if ( isset( $invoice['net'] ) && ! empty( $invoice['net'] ) ) {
 			$totals_table .= esc_html( zeroBSCRM_formatCurrency( $invoice['net'] ) );
 		} else {
@@ -988,7 +1028,7 @@ function zeroBSCRM_invoicing_generateInvoiceHTML( $invoice_id = -1, $template = 
 
 			$totals_table .= '-' . esc_html( zeroBSCRM_formatCurrency( $invoice['totals']['discount'] ) );
 
-			$totals_table .= '</td>';
+			$totals_table .= '</span></td>';
 			$totals_table .= '</tr>';
 		}
 	}
@@ -1003,7 +1043,7 @@ function zeroBSCRM_invoicing_generateInvoiceHTML( $invoice_id = -1, $template = 
 		} else {
 			$totals_table .= esc_html( zeroBSCRM_formatCurrency( 0 ) );
 		}
-		$totals_table .= '</td>';
+		$totals_table .= '</span></td>';
 		$totals_table .= '</tr>';
 	}
 
@@ -1033,7 +1073,7 @@ function zeroBSCRM_invoicing_generateInvoiceHTML( $invoice_id = -1, $template = 
 				} else {
 					$totals_table .= esc_html( zeroBSCRM_formatCurrency( 0 ) );
 				}
-				$totals_table .= '</td>';
+				$totals_table .= '</span></td>';
 				$totals_table .= '</tr>';
 			}
 		} else {
@@ -1047,7 +1087,7 @@ function zeroBSCRM_invoicing_generateInvoiceHTML( $invoice_id = -1, $template = 
 			} else {
 				$totals_table .= esc_html( zeroBSCRM_formatCurrency( 0 ) );
 			}
-			$totals_table .= '</td>';
+			$totals_table .= '</span></td>';
 			$totals_table .= '</tr>';
 		}
 	}
@@ -1117,7 +1157,7 @@ function zeroBSCRM_invoicing_generateInvoiceHTML( $invoice_id = -1, $template = 
 	}
 
 	$partials_table .= '<tr class="zbs_grand_total' . $balance_hide . '">';
-	$partials_table .= '<td class="bord bord-l" style="text-align:right; font-weight:bold;  border-radius: 0px;"><span class="zbs-minitotal">' . esc_html__( 'Amount due', 'zero-bs-crm' ) . '</td>';
+	$partials_table .= '<td class="bord bord-l" style="text-align:right; font-weight:bold;  border-radius: 0px;"><span class="zbs-minitotal">' . esc_html__( 'Amount due', 'zero-bs-crm' ) . '</span></td>';
 	$partials_table .= '<td class="bord row-amount"><span class="zbs-subtotal-value">' . esc_html( zeroBSCRM_formatCurrency( $balance ) ) . '</span></td>';
 	$partials_table .= '</tr>';
 	$partials_table .= '</table>';
@@ -1315,7 +1355,7 @@ function zeroBSCRM_invoicing_generateInvPart_custTable( $inv_to = array(), $temp
 
 		case 'portal':
 			$invoice_customer_info_table_html .= '<div class="pay-to">';
-			$invoice_customer_info_table_html .= '<div class="zbs-portal-label">' . esc_html__( 'Invoice To', 'zero-bs-crm' ) . '</div><div style="margin-top:18px;">&nbsp;</div>';
+			$invoice_customer_info_table_html .= '<div class="zbs-portal-label">' . esc_html__( 'Invoice To', 'zero-bs-crm' ) . '</div>';
 			$invoice_customer_info_table_html .= '<div class="zbs-portal-biz">';
 			if ( isset( $inv_to['fname'] ) && isset( $inv_to['fname'] ) ) {
 				$invoice_customer_info_table_html .= '<div class="pay-to-name">' . esc_html( $inv_to['fname'] ) . ' ' . esc_html( $inv_to['lname'] ) . '</div>';
@@ -1521,88 +1561,27 @@ function jpcrm_invoicing_generate_invoice_custom_fields_lines( $invoice, $templa
 
 // Used to generate specific part of invoice pdf: (Lineitem row in inv table)
 // phpcs:ignore Squiz.Commenting.FunctionComment.Missing
-function zeroBSCRM_invoicing_generateInvPart_lineitems( $invlines = array(), $template = 'pdf' ) {
+function zeroBSCRM_invoicing_generateInvPart_lineitems( $invlines = array() ) {
+
+	if ( empty( $invlines ) ) {
+		return '';
+	}
 
 	$line_item_html = '';
+	foreach ( $invlines as $invline ) {
 
-	switch ( $template ) {
-
-		case 'pdf':
-			if ( $invlines != '' ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
-				$i = 1;
-				foreach ( $invlines as $invline ) {
-
-					$line_item_html .=
-						'<tr>
-						<td style="width:55%;"><div class="item-name">' . esc_html( $invline['title'] ) . '</div><div class="item-description">' . nl2br( esc_html( $invline['desc'] ) ) . '</div></td>
-						<td style="width:15%;text-align:center;" class="cen">' . esc_html( zeroBSCRM_format_quantity( $invline['quantity'] ) ) . '</td>
-						<td style="width:15%;text-align:center;" class="cen">' . esc_html( zeroBSCRM_formatCurrency( $invline['price'] ) ) . '</td>
-						<td style="width:15%;text-align:right;" class="row-amount">' . esc_html( zeroBSCRM_formatCurrency( $invline['net'] ) ) . '</td>
-						</tr>';
-
-					++$i;
-
-				}
-			}
-
-			break;
-
-		case 'portal':
-			if ( $invlines != '' ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
-				$i = 1;
-				foreach ( $invlines as $invline ) {
-
-					$line_item_html .=
-						'<tbody class="zbs-item-block" data-tableid="' . esc_attr( $i ) . '" id="tblock' . esc_attr( $i ) . '">
-						<tr class="top-row">
-						<td style="width:50%">' . esc_html( $invline['title'] ) . '<br/><span class="dz">' . nl2br( esc_html( $invline['desc'] ) ) . '</span></td>
-						<td style="width:15%;text-align:center;" rowspan="3" class="cen">' . esc_html( zeroBSCRM_format_quantity( $invline['quantity'] ) ) . '</td>
-						<td style="width:15%;text-align:center;" rowspan="3"class="cen">' . esc_html( zeroBSCRM_formatCurrency( $invline['price'] ) ) . '</td>
-						<td style="width:15%;text-align:right;" rowspan="3" class="row-amount">' . esc_html( zeroBSCRM_formatCurrency( $invline['net'] ) ) . '</td>
-						</tr>
-						</tbody>';
-
-					++$i;
-				}
-			}
-
-			break;
-
-		case 'notification':
-			if ( $invlines != '' ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
-				$i = 1;
-				foreach ( $invlines as $invline ) {
-
-					$line_item_html = '<tbody class="zbs-item-block" data-tableid="' . esc_attr( $i ) . '" id="tblock' . esc_attr( $i ) . '">';
-					foreach ( $invlines as $invline ) {
-
-						$line_item_html .= '
-							<tr class="top-row">
-							<td style="width:70%;font-weight:bold">' . esc_html( $invline['title'] ) . '</td>
-							<td style="width:7.5%;text-align:center;" rowspan="3" class="cen">' . esc_html( $invline['quantity'] ) . '</td>
-							<td style="width:7.5%;text-align:center;" rowspan="3"class="cen">' . esc_html( zeroBSCRM_formatCurrency( $invline['price'] ) ) . '</td>
-							<td style="width:7.5%;text-align:right;" rowspan="3" class="row-amount">' . esc_html( zeroBSCRM_formatCurrency( $invline['net'] ) ) . '</td>
-							</tr>
-							<tr class="bottom-row">
-							<td colspan="4" class="tapad">' . esc_html( $invline['desc'] ) . '</td>
-							</tr>
-							<tr class="add-row"></tr>';
-
-						++$i;
-					}
-
-					$line_item_html .= '</tbody>';
-
-					++$i;
-				}
-			}
-
-			break;
-
+		$line_item_html .= '
+			<tr class="jpcrm-invoice-lineitem">
+			<td class="jpcrm-invoice-lineitem-description"><span class="title">' . esc_html( $invline['title'] ) . '</span><br/><span class="subtitle">' . nl2br( esc_html( $invline['desc'] ) ) . '</span></td>
+			<td class="jpcrm-invoice-lineitem-quantity">' . esc_html( zeroBSCRM_format_quantity( $invline['quantity'] ) ) . '</td>
+			<td class="jpcrm-invoice-lineitem-price">' . esc_html( zeroBSCRM_formatCurrency( $invline['price'] ) ) . '</td>
+			<td class="jpcrm-invoice-lineitem-amount">' . esc_html( zeroBSCRM_formatCurrency( $invline['net'] ) ) . '</td>
+			</tr>';
 	}
 
 	return $line_item_html;
 }
+
 // Used to generate specific part of invoice pdf: (pay button)
 function zeroBSCRM_invoicing_generateInvPart_payButton( $invoice_id = -1, $status = '', $template = 'pdf' ) { // phpcs:ignore Squiz.Commenting.FunctionComment.WrongStyle
 
@@ -1650,50 +1629,19 @@ function zeroBSCRM_invoicing_generateInvPart_payButton( $invoice_id = -1, $statu
 }
 // Used to generate specific part of invoice pdf: (table headers)
 // phpcs:ignore Squiz.Commenting.FunctionComment.Missing
-function zeroBSCRM_invoicing_generateInvPart_tableHeaders( $zbs_invoice_hours_or_quantity = 1, $template = 'pdf' ) {
+function zeroBSCRM_invoicing_generateInvPart_tableHeaders( $zbs_invoice_hours_or_quantity = 1 ) {
+	$table_headers  = '<tr>';
+	$table_headers .= '<th class="jpcrm-invoice-lineitem-description">' . esc_html__( 'Description', 'zero-bs-crm' ) . '</th>';
 
-	$table_headers = '';
-
-	switch ( $template ) {
-
-		case 'pdf':
-			$table_headers = '<th style="text-align:left;"><span class="table-title">' . esc_html__( 'Description', 'zero-bs-crm' ) . '</span></th>';
-
-			if ( $zbs_invoice_hours_or_quantity == 1 ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
-				$table_headers .= '<th id="zbs_inv_qoh"><span class="table-title">' . esc_html__( 'Quantity', 'zero-bs-crm' ) . '</th>';
-				$table_headers .= '<th id="zbs_inv_por"><span class="table-title">' . esc_html__( 'Price', 'zero-bs-crm' ) . '</th>';
-			} else {
-				$table_headers .= '<th id="zbs_inv_qoh"><span class="table-title">' . esc_html__( 'Hours', 'zero-bs-crm' ) . '</th>';
-				$table_headers .= '<th id="zbs_inv_por"><span class="table-title">' . esc_html__( 'Rate', 'zero-bs-crm' ) . '</th>';
-			}
-			$table_headers .= '<th style="text-align: right;"><span class="table-title">' . esc_html__( 'Amount', 'zero-bs-crm' ) . '</span></th>';
-
-			break;
-
-		case 'portal':
-			$table_headers = '<th class="left">' . esc_html__( 'Description', 'zero-bs-crm' ) . '</th>';
-
-			if ( $zbs_invoice_hours_or_quantity == 1 ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
-					$table_headers .= '<th class="cen" id="zbs_inv_qoh">' . esc_html__( 'Quantity', 'zero-bs-crm' ) . '</th>';
-					$table_headers .= '<th class="cen" id="zbs_inv_por">' . esc_html__( 'Price', 'zero-bs-crm' ) . '</th>';
-			} else {
-					$table_headers .= '<th class="cen" id="zbs_inv_qoh"> ' . esc_html__( 'Hours', 'zero-bs-crm' ) . '</th>';
-					$table_headers .= '<th class="cen" id="zbs_inv_por">' . esc_html__( 'Rate', 'zero-bs-crm' ) . '</th>';
-			}
-
-			$table_headers .= '<th class="ri">' . esc_html__( 'Amount', 'zero-bs-crm' ) . '</th>';
-
-			break;
-
-		case 'notification':
-			if ( $zbs_invoice_hours_or_quantity == 1 ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
-				$table_headers = '<th class="left">' . esc_html__( 'Description', 'zero-bs-crm' ) . '</th><th>' . esc_html__( 'Quantity', 'zero-bs-crm' ) . '</th><th>' . esc_html__( 'Price', 'zero-bs-crm' ) . '</th><th>' . esc_html__( 'Total', 'zero-bs-crm' ) . '</th>';
-			} else {
-				$table_headers = '<th class="left">' . esc_html__( 'Description', 'zero-bs-crm' ) . '</th><th>' . esc_html__( 'Hours', 'zero-bs-crm' ) . '</th><th>' . esc_html__( 'Rate', 'zero-bs-crm' ) . '</th><th>' . esc_html__( 'Total', 'zero-bs-crm' ) . '</th>';
-			}
-
-			break;
+	if ( $zbs_invoice_hours_or_quantity == 1 ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+		$table_headers .= '<th class="jpcrm-invoice-lineitem-quantity">' . esc_html__( 'Quantity', 'zero-bs-crm' ) . '</th>';
+		$table_headers .= '<th class="jpcrm-invoice-lineitem-price">' . esc_html__( 'Price', 'zero-bs-crm' ) . '</th>';
+	} else {
+		$table_headers .= '<th class="jpcrm-invoice-lineitem-quantity">' . esc_html__( 'Hours', 'zero-bs-crm' ) . '</th>';
+		$table_headers .= '<th class="jpcrm-invoice-lineitem-price">' . esc_html__( 'Rate', 'zero-bs-crm' ) . '</th>';
 	}
+	$table_headers .= '<th class="jpcrm-invoice-lineitem-amount">' . esc_html__( 'Amount', 'zero-bs-crm' ) . '</th>';
 
+	$table_headers .= '</tr>';
 	return $table_headers;
 }

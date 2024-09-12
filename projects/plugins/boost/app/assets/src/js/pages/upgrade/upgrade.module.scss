@@ -1,0 +1,19 @@
+@import "$css/main/variables.scss";
+@import "$css/main/mixins.scss";
+@import "$css/main/common.scss";
+
+:global(.jp-components__pricing-card) {
+	:global(.jp-components__pricing-card__icon) img {
+		width: 16px;
+		height: 16px;
+	}
+
+	:global(.jp-components__pricing-card__title) {
+		font-weight: 600;
+		@extend .my-2;
+	}
+
+	:global(.jp-components__pricing-card__pricing) {
+		@extend .mt-3;
+	}
+}

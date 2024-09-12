@@ -53,8 +53,8 @@ class Invoice_Trigger_Test extends JPCRM_Base_Test_Case {
 		$workflow->expects( $this->once() )
 		->method( 'execute' )
 		->with(
-			$this->equalTo( $trigger ),
-			$this->equalTo( $invoice_data )
+			$trigger,
+			$invoice_data
 		);
 
 		// Run the invoice_update action.
@@ -87,8 +87,8 @@ class Invoice_Trigger_Test extends JPCRM_Base_Test_Case {
 		$workflow->expects( $this->once() )
 		->method( 'execute' )
 		->with(
-			$this->equalTo( $trigger ),
-			$this->equalTo( $invoice_data )
+			$trigger,
+			$invoice_data
 		);
 
 		// Run the invoice_status_update action.
@@ -121,8 +121,8 @@ class Invoice_Trigger_Test extends JPCRM_Base_Test_Case {
 		$workflow->expects( $this->once() )
 		->method( 'execute' )
 		->with(
-			$this->equalTo( $trigger ),
-			$this->equalTo( $invoice_data )
+			$trigger,
+			$invoice_data
 		);
 
 		// Run the invoice_created action.
@@ -155,8 +155,8 @@ class Invoice_Trigger_Test extends JPCRM_Base_Test_Case {
 		$workflow->expects( $this->once() )
 		->method( 'execute' )
 		->with(
-			$this->equalTo( $trigger ),
-			$this->equalTo( $invoice_data )
+			$trigger,
+			$invoice_data
 		);
 
 		// Run the invoice_deleted action.

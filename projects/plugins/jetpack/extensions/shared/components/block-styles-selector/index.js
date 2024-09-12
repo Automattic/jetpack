@@ -5,7 +5,7 @@ import { useSelect } from '@wordpress/data';
 import { memo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { ENTER, SPACE } from '@wordpress/keycodes';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import { isEqual } from 'lodash';
 
 import './style.scss';
@@ -86,7 +86,7 @@ export default function BlockStylesSelector( {
 							return (
 								<div
 									key={ styleOption.value }
-									className={ classnames( 'block-editor-block-styles__item', {
+									className={ clsx( 'block-editor-block-styles__item', {
 										'is-active': styleOption.value === activeStyle,
 									} ) }
 									onClick={ () => {

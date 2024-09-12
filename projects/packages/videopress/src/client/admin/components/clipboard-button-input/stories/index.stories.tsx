@@ -1,13 +1,13 @@
 import { action } from '@storybook/addon-actions';
 import ClipboardButtonInput from '..';
-import type { ComponentStory, ComponentMeta } from '@storybook/react';
+import type { StoryFn, Meta } from '@storybook/react';
 
 export default {
 	title: 'Packages/VideoPress/Clipboard Button Input',
 	component: ClipboardButtonInput,
-} as ComponentMeta< typeof ClipboardButtonInput >;
+} as Meta< typeof ClipboardButtonInput >;
 
-const Template: ComponentStory< typeof ClipboardButtonInput > = args => {
+const Template: StoryFn< typeof ClipboardButtonInput > = args => {
 	return <ClipboardButtonInput { ...args } />;
 };
 

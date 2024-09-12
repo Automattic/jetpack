@@ -7,12 +7,12 @@ import styles from './styles.module.scss';
 /**
  * Simple component that renders a go back link
  *
- * @param {object} props           - Component props.
+ * @param {object}   props         - Component props.
  * @param {Function} props.onClick - A callback to execute on click
- * @param {boolean} props.reload   - Whether to reload the page after going back
- * @returns {object}                 GoBackLink component.
+ * @param {boolean}  props.reload  - Whether to reload the page after going back
+ * @return {object}                 GoBackLink component.
  */
-function GoBackLink( { onClick, reload } ) {
+function GoBackLink( { onClick = () => {}, reload } ) {
 	const to = reload ? '/?reload=true' : '/';
 
 	return (
@@ -22,9 +22,5 @@ function GoBackLink( { onClick, reload } ) {
 		</Link>
 	);
 }
-
-GoBackLink.defaultProps = {
-	onClick: () => {},
-};
 
 export default GoBackLink;

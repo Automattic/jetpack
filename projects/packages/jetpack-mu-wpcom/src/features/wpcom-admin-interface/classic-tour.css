@@ -1,0 +1,159 @@
+.wpcom-classic-tour-step {
+	position: absolute;
+	background: #1d2327;
+	color: #fff;
+	font-size: 0.8125rem;
+	width: 350px;
+	border: 1px solid #3c434a;
+	padding: 16px;
+	box-sizing: border-box;
+	z-index: 9990;
+}
+
+@media (max-width: 782px) {
+	.wpcom-classic-tour-step {
+		display: none;
+	}
+}
+
+.wpcom-classic-tour-step::after,
+.wpcom-classic-tour-step::before {
+	content: "";
+	position: absolute;
+}
+
+.wpcom-classic-tour-step.is-bottom {
+	margin-top: 16px;
+	transform: translateX(-50%);
+}
+
+.wpcom-classic-tour-step.is-bottom::after,
+.wpcom-classic-tour-step.is-bottom::before {
+	left: 50%;
+	transform: translateX(-50%);
+	border-left: 12px solid transparent;
+	border-bottom: 12px solid transparent;
+	border-right: 12px solid transparent;
+}
+
+.wpcom-classic-tour-step.is-bottom::after {
+	top: -10px;
+	border-bottom-color: #1d2327;
+}
+
+.wpcom-classic-tour-step.is-bottom::before {
+	top: -12px;
+	border-bottom-color: #3c434a;
+}
+
+.wpcom-classic-tour-step.is-bottom-right {
+	margin-top: 16px;
+	/*transform: translateX(-50%);*/
+}
+
+.wpcom-classic-tour-step.is-bottom-right::after,
+.wpcom-classic-tour-step.is-bottom-right::before {
+	left: 30px;
+	border-left: 12px solid transparent;
+	border-bottom: 12px solid transparent;
+	border-right: 12px solid transparent;
+}
+
+.wpcom-classic-tour-step.is-bottom-right::after {
+	top: -10px;
+	border-bottom-color: #1d2327;
+}
+
+.wpcom-classic-tour-step.is-bottom-right::before {
+	top: -12px;
+	border-bottom-color: #3c434a;
+}
+
+.wpcom-classic-tour-step.is-right-bottom {
+	margin-left: 16px;
+	transform: translateY(-30px);
+}
+
+.wpcom-classic-tour-step.is-right-bottom::after,
+.wpcom-classic-tour-step.is-right-bottom::before {
+	top: 0;
+	transform: translateY(30px);
+	border-top: 12px solid transparent;
+	border-bottom: 12px solid transparent;
+	border-right: 12px solid transparent;
+}
+
+.wpcom-classic-tour-step.is-right-bottom::after {
+	left: -10px;
+	border-right-color: #1d2327;
+}
+
+.wpcom-classic-tour-step.is-right-bottom::before {
+	left: -12px;
+	border-right-color: #3c434a;
+}
+
+.wpcom-classic-tour-step h3 {
+	color: #fff;
+	font-size: 1rem;
+	line-height: 1.5rem;
+	margin-top: 0;
+	margin-bottom: 8px;
+}
+
+.wpcom-classic-tour-step p {
+	margin-top: 0;
+	margin-bottom: 24px;
+}
+
+.wpcom-classic-tour-step-footer {
+	display: flex;
+	gap: 8px;
+}
+
+.wpcom-classic-tour-step-current {
+	flex-grow: 1;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	font-size: 12px;
+	line-height: 18px;
+	color: #a7aaad;
+}
+
+.wpcom-classic-tour-step.is-first-step [data-action="prev"],
+.wpcom-classic-tour-step .wpcom-classic-tour-step-footer [data-action="dismiss"],
+.wpcom-classic-tour-step.is-last-step [data-action="next"] {
+	display: none;
+}
+
+.wpcom-classic-tour-step.is-last-step .wpcom-classic-tour-step-footer [data-action="dismiss"] {
+	display: block;
+}
+
+.wpcom-classic-tour-step .button-secondary,
+.wpcom-classic-tour-step .button-secondary:hover,
+.wpcom-classic-tour-step .button-secondary:focus,
+.wpcom-classic-tour-step .button-secondary:active {
+	color: #fff;
+	background: none;
+	border-color: transparent;
+}
+
+.wpcom-classic-tour-step .button-secondary:hover {
+	color: #eee;
+}
+
+.wpcom-classic-tour-step .button-secondary:focus {
+	border-color: inherit;
+}
+
+.wpcom-classic-tour-step > [data-action="dismiss"] {
+	position: absolute;
+	right: 8px;
+	top: 8px;
+	width: 24px;
+	height: 24px;
+	padding: 0;
+	min-height: auto;
+}

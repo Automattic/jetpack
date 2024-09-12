@@ -1,5 +1,12 @@
 import save from '../save';
 
+jest.mock( '@wordpress/block-editor', () => ( {
+	...jest.requireActual( '@wordpress/block-editor' ),
+	useBlockProps: {
+		save: () => ( {} ),
+	},
+} ) );
+
 const exampleSettings = {
 	attributes: {
 		url: 'http://example.com/podcast/feed.rss',

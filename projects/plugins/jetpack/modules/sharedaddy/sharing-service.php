@@ -72,7 +72,7 @@ class Sharing_Service {
 				$config = array();
 
 				// Pre-load custom modules otherwise they won't know who they are
-				if ( substr( $id, 0, 7 ) === 'custom-' && is_array( $options[ $id ] ) ) {
+				if ( str_starts_with( $id, 'custom-' ) && is_array( $options[ $id ] ) ) {
 					$config = $options[ $id ];
 				}
 
@@ -105,10 +105,12 @@ class Sharing_Service {
 			'pinterest'        => 'Share_Pinterest',
 			'pocket'           => 'Share_Pocket',
 			'telegram'         => 'Share_Telegram',
+			'threads'          => 'Share_Threads',
 			'jetpack-whatsapp' => 'Jetpack_Share_WhatsApp',
 			'mastodon'         => 'Share_Mastodon',
 			'nextdoor'         => 'Share_Nextdoor',
 			'x'                => 'Share_X',
+			'bluesky'          => 'Share_Bluesky',
 			// deprecated.
 			'skype'            => 'Share_Skype',
 		);
@@ -499,7 +501,7 @@ class Sharing_Service {
 			}
 		}
 
-		if ( false === $this->global['sharing_label'] ) {
+		if ( false === $this->global['sharing_label'] || $this->global['sharing_label'] === 'Share this:' ) {
 			$this->global['sharing_label'] = $this->default_sharing_label;
 		}
 
@@ -509,12 +511,12 @@ class Sharing_Service {
 	/**
 	 * Save a sharing service for use.
 	 *
-	 * @param int            $id Sharing unique ID.
-	 * @param Sharing_Source $service Sharing service.
+	 * @param int                     $id Sharing unique ID.
+	 * @param Sharing_Advanced_Source $service Sharing service.
 	 *
 	 * @return void
 	 */
-	public function set_service( $id, Sharing_Source $service ) {
+	public function set_service( $id, Sharing_Advanced_Source $service ) {
 		// Update the options for this service
 		$options = get_option( 'sharing-options' );
 
@@ -696,13 +698,13 @@ class Sharing_Service_Total {
 	 * @param object $a Sharing_Service_Total object.
 	 * @param object $b Sharing_Service_Total object.
 	 *
-	 * @return bool
+	 * @return int -1, 0, or 1 if $a is <, =, or > $b
 	 */
 	public static function cmp( $a, $b ) {
 		if ( $a->total === $b->total ) {
-			return $a->name < $b->name;
+			return $b->name <=> $a->name;
 		}
-		return $a->total < $b->total;
+		return $b->total <=> $a->total;
 	}
 }
 
@@ -757,13 +759,13 @@ class Sharing_Post_Total {
 	 * @param object $a Sharing_Post_Total object.
 	 * @param object $b Sharing_Post_Total object.
 	 *
-	 * @return bool
+	 * @return int -1, 0, or 1 if $a is <, =, or > $b
 	 */
 	public static function cmp( $a, $b ) {
 		if ( $a->total === $b->total ) {
-			return $a->id < $b->id;
+			return $b->id <=> $a->id;
 		}
-		return $a->total < $b->total;
+		return $b->total <=> $a->total;
 	}
 }
 
@@ -896,6 +898,10 @@ function sharing_add_footer() {
  * @return void
  */
 function sharing_add_header() {
+	if ( ! sharing_should_load_legacy_sharing_buttons() ) {
+		return;
+	}
+
 	$sharer  = new Sharing_Service();
 	$enabled = $sharer->get_blog_services();
 
@@ -909,6 +915,20 @@ function sharing_add_header() {
 	}
 }
 add_action( 'wp_head', 'sharing_add_header', 1 );
+
+/**
+ * Determine if legacy sharing buttons should be loaded.
+ * Do this by checking if the current theme is a block theme
+ * If it is, we shouldn't enqueue the sharing assets
+ * as the recommended way of adding sharing buttons is via the editor.
+ *
+ * @since $$next-version$$
+ *
+ * @return bool True if legacy sharing buttons should be loaded, false otherwise.
+ */
+function sharing_should_load_legacy_sharing_buttons() {
+	return ! wp_is_block_theme();
+}
 
 /**
  * Launch sharing requests on page load when a specific query string is used.

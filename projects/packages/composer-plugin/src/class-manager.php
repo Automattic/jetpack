@@ -21,7 +21,7 @@ class Manager extends LibraryInstaller {
 	 * Receives a supported package instance and modifies its installation path.
 	 *
 	 * @param PackageInterface $package the installed package object.
-	 * @return String modified installation path.
+	 * @return string modified installation path.
 	 */
 	public function getInstallPath( PackageInterface $package ) {
 		return 'jetpack_vendor/' . $package->getPrettyName();
@@ -31,8 +31,9 @@ class Manager extends LibraryInstaller {
 	 * Declares the supported package type by returning true whenever it meets a package
 	 * that declares itself as a Jetpack library.
 	 *
-	 * @param String $package_type a package type string.
-	 * @return Boolean whether the package is supported.
+	 * @param string $package_type a package type string.
+	 * @return boolean whether the package is supported.
+	 * @phan-suppress PhanParamSignatureRealMismatchHasNoParamType -- contravariant params are ok, and needed to continue to support Composer <2.3.
 	 */
 	public function supports( $package_type ) {
 		return 'jetpack-library' === $package_type;

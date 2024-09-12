@@ -34,21 +34,21 @@ class Scan extends Module_Product {
 	public static $module_name = 'scan';
 
 	/**
-	 * Get the internationalized product name
+	 * Get the product name
 	 *
 	 * @return string
 	 */
 	public static function get_name() {
-		return __( 'Scan', 'jetpack-my-jetpack' );
+		return 'Scan';
 	}
 
 	/**
-	 * Get the internationalized product title
+	 * Get the product title
 	 *
 	 * @return string
 	 */
 	public static function get_title() {
-		return __( 'Jetpack Scan', 'jetpack-my-jetpack' );
+		return 'Jetpack Scan';
 	}
 
 	/**
@@ -57,7 +57,7 @@ class Scan extends Module_Product {
 	 * @return string
 	 */
 	public static function get_description() {
-		return __( 'Stay one step ahead of threats', 'jetpack-my-jetpack' );
+		return __( 'Powerful, automated site security', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -126,7 +126,8 @@ class Scan extends Module_Product {
 		$response = Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d/scan', $site_id ) . '?force=wpcom', '2', array( 'timeout' => 2 ), null, 'wpcom' );
 
 		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
-			return new WP_Error( 'scan_state_fetch_failed' );
+			$status = new WP_Error( 'scan_state_fetch_failed' );
+			return $status;
 		}
 
 		$body   = wp_remote_retrieve_body( $response );
@@ -220,7 +221,7 @@ class Scan extends Module_Product {
 	 */
 	public static function get_post_checkout_url() {
 		if ( static::is_jetpack_plugin_active() ) {
-			return admin_url( 'admin.php?page=jetpack#/recommendations' );
+			return 'admin.php?page=jetpack#/recommendations';
 		}
 
 		// If Jetpack is not active, it means that the user has another standalone plugin active

@@ -13,6 +13,7 @@ const NoBackupCapabilities = () => {
 	const [ currencyCode, setCurrencyCode ] = useState( 'USD' );
 	const [ introOffer, setIntroOffer ] = useState( null );
 	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug(), [] );
+	const blogID = useSelect( select => select( STORE_ID ).getBlogId(), [] );
 
 	useEffect( () => {
 		apiFetch( { path: '/jetpack/v4/backup-promoted-product-info' } ).then( res => {
@@ -30,8 +31,10 @@ const NoBackupCapabilities = () => {
 
 	const sendToCart = useCallback( () => {
 		tracks.recordEvent( 'jetpack_backup_plugin_upgrade_click', { site: domain } );
-		window.location.href = getRedirectUrl( 'backup-plugin-upgrade-10gb', { site: domain } );
-	}, [ tracks, domain ] );
+		window.location.href = getRedirectUrl( 'backup-plugin-upgrade-10gb', {
+			site: blogID ?? domain,
+		} );
+	}, [ tracks, domain, blogID ] );
 
 	const basicInfoText = __( '14 day money back guarantee.', 'jetpack-backup-pkg' );
 	const introductoryInfoText = __(

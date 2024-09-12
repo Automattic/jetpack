@@ -1,7 +1,7 @@
 const { getInput, setFailed } = require( '@actions/core' );
 const debug = require( '../../utils/debug' );
-const getLabels = require( '../../utils/get-labels' );
-const sendSlackMessage = require( '../../utils/send-slack-message' );
+const getLabels = require( '../../utils/labels/get-labels' );
+const sendSlackMessage = require( '../../utils/slack/send-slack-message' );
 
 /* global GitHub, WebhookPayloadPullRequest */
 
@@ -12,7 +12,7 @@ const sendSlackMessage = require( '../../utils/send-slack-message' );
  * @param {string} owner   - Repository owner.
  * @param {string} repo    - Repository name.
  * @param {string} number  - PR number.
- * @returns {Promise<boolean>} Promise resolving to boolean.
+ * @return {Promise<boolean>} Promise resolving to boolean.
  */
 async function hasNeedsDesignReviewLabel( octokit, owner, repo, number ) {
 	const labels = await getLabels( octokit, owner, repo, number );
@@ -27,7 +27,7 @@ async function hasNeedsDesignReviewLabel( octokit, owner, repo, number ) {
  * @param {string} owner   - Repository owner.
  * @param {string} repo    - Repository name.
  * @param {string} number  - PR number.
- * @returns {Promise<boolean>} Promise resolving to boolean.
+ * @return {Promise<boolean>} Promise resolving to boolean.
  */
 async function hasNeedsDesignLabel( octokit, owner, repo, number ) {
 	const labels = await getLabels( octokit, owner, repo, number );
@@ -42,7 +42,7 @@ async function hasNeedsDesignLabel( octokit, owner, repo, number ) {
  * @param {string} owner   - Repository owner.
  * @param {string} repo    - Repository name.
  * @param {string} number  - PR number.
- * @returns {Promise<boolean>} Promise resolving to boolean.
+ * @return {Promise<boolean>} Promise resolving to boolean.
  */
 async function hasDesignInputRequestedLabel( octokit, owner, repo, number ) {
 	const labels = await getLabels( octokit, owner, repo, number );
@@ -60,12 +60,6 @@ async function notifyDesign( payload, octokit ) {
 	const { number, repository } = payload;
 	const { owner, name: repo } = repository;
 	const ownerLogin = owner.login;
-
-	const slackToken = getInput( 'slack_token' );
-	if ( ! slackToken ) {
-		setFailed( `notify-design: Input slack_token is required but missing. Aborting.` );
-		return;
-	}
 
 	const channel = getInput( 'slack_design_channel' );
 	if ( ! channel ) {
@@ -89,7 +83,6 @@ async function notifyDesign( payload, octokit ) {
 		await sendSlackMessage(
 			`Someone would be interested in input from the Design team on this topic.`,
 			channel,
-			slackToken,
 			payload
 		);
 	}
@@ -103,7 +96,6 @@ async function notifyDesign( payload, octokit ) {
 		await sendSlackMessage(
 			`Someone is looking for a review from the design team.`,
 			channel,
-			slackToken,
 			payload
 		);
 	}

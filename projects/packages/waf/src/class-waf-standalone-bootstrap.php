@@ -80,7 +80,7 @@ class Waf_Standalone_Bootstrap {
 		if ( isset( $jetpack_autoloader_loader ) ) {
 			$class_file = $jetpack_autoloader_loader->find_class_file( Waf_Runner::class );
 			if ( $class_file ) {
-				$autoload_file = dirname( dirname( dirname( dirname( dirname( $class_file ) ) ) ) ) . '/vendor/autoload.php';
+				$autoload_file = dirname( $class_file, 5 ) . '/vendor/autoload.php';
 			}
 		}
 
@@ -91,13 +91,13 @@ class Waf_Standalone_Bootstrap {
 		) {
 			$package_file = InstalledVersions::getInstallPath( 'automattic/jetpack-waf' );
 			if ( substr( $package_file, -23 ) === '/automattic/jetpack-waf' ) {
-				$autoload_file = dirname( dirname( dirname( $package_file ) ) ) . '/vendor/autoload.php';
+				$autoload_file = dirname( $package_file, 3 ) . '/vendor/autoload.php';
 			}
 		}
 
 		// Guess. First look for being in a `vendor/automattic/jetpack-waf/src/', then see if we're standalone with our own vendor dir.
 		if ( null === $autoload_file ) {
-			$autoload_file = dirname( dirname( dirname( dirname( __DIR__ ) ) ) ) . '/vendor/autoload.php';
+			$autoload_file = dirname( __DIR__, 4 ) . '/vendor/autoload.php';
 			if ( ! file_exists( $autoload_file ) ) {
 				$autoload_file = dirname( __DIR__ ) . '/vendor/autoload.php';
 			}
@@ -140,9 +140,10 @@ class Waf_Standalone_Bootstrap {
 
 		$autoloader_file = $this->locate_autoloader_file();
 
-		$bootstrap_file    = $this->get_bootstrap_file_path();
-		$mode_option       = get_option( Waf_Runner::MODE_OPTION_NAME, false );
-		$share_data_option = get_option( Waf_Runner::SHARE_DATA_OPTION_NAME, false );
+		$bootstrap_file          = $this->get_bootstrap_file_path();
+		$mode_option             = get_option( Waf_Runner::MODE_OPTION_NAME, false );
+		$share_data_option       = get_option( Waf_Runner::SHARE_DATA_OPTION_NAME, false );
+		$share_debug_data_option = get_option( Waf_Runner::SHARE_DEBUG_DATA_OPTION_NAME, false );
 
 		// phpcs:disable WordPress.PHP.DevelopmentFunctions
 		$code = "<?php\n"
@@ -150,6 +151,7 @@ class Waf_Standalone_Bootstrap {
 			. "if ( defined( 'DISABLE_JETPACK_WAF' ) && DISABLE_JETPACK_WAF ) return;\n"
 			. sprintf( "define( 'JETPACK_WAF_MODE', %s );\n", var_export( $mode_option ? $mode_option : 'silent', true ) )
 			. sprintf( "define( 'JETPACK_WAF_SHARE_DATA', %s );\n", var_export( $share_data_option, true ) )
+			. sprintf( "define( 'JETPACK_WAF_SHARE_DEBUG_DATA', %s );\n", var_export( $share_debug_data_option, true ) )
 			. sprintf( "define( 'JETPACK_WAF_DIR', %s );\n", var_export( JETPACK_WAF_DIR, true ) )
 			. sprintf( "define( 'JETPACK_WAF_WPCONFIG', %s );\n", var_export( JETPACK_WAF_WPCONFIG, true ) )
 			. 'require_once ' . var_export( $autoloader_file, true ) . ";\n"

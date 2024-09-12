@@ -1,4 +1,4 @@
-import classNames from 'classnames';
+import clsx from 'clsx';
 import React, { useMemo, forwardRef } from 'react';
 import { BOX_MODEL_VALUES, VARIANTS_MAPPING } from './constants';
 import styles from './style.module.scss';
@@ -8,7 +8,7 @@ import type { H3Props, TextProps, TitleProps } from './types';
  * Text component.
  *
  * @param {TextProps} props - Component props.
- * @returns {React.ReactElement} - JSX.Element
+ * @return {React.ReactElement} - JSX.Element
  */
 const Text = forwardRef< HTMLElement, TextProps >(
 	( { variant = 'body', children, component, className, ...componentProps }, ref ) => {
@@ -30,7 +30,7 @@ const Text = forwardRef< HTMLElement, TextProps >(
 
 		return (
 			<Component
-				className={ classNames( styles.reset, styles[ variant ], className, boxModelClasses ) }
+				className={ clsx( styles.reset, styles[ variant ], className, boxModelClasses ) }
 				{ ...componentProps }
 			>
 				{ children }
@@ -45,8 +45,8 @@ export default Text;
 /**
  * Heading component - Medium size.
  *
- * @param {TextProps} props      - Component props.
- * @returns {React.ReactElement} - JSX.Element
+ * @param {TextProps} props - Component props.
+ * @return {React.ReactElement} - JSX.Element
  */
 export const H2: React.FC< TextProps > = ( { children, ...componentProps } ) => (
 	<Text variant="headline-medium" mb={ 3 } { ...componentProps }>
@@ -57,8 +57,8 @@ export const H2: React.FC< TextProps > = ( { children, ...componentProps } ) => 
 /**
  * Heading component - Small size,
  *
- * @param {H3Props} props        - Component props.
- * @returns {React.ReactElement} - JSX.Element
+ * @param {H3Props} props - Component props.
+ * @return {React.ReactElement} - JSX.Element
  */
 export const H3: React.FC< H3Props > = ( { children, weight = 'bold', ...componentProps } ) => {
 	const variant = `headline-small${
@@ -75,8 +75,8 @@ export const H3: React.FC< H3Props > = ( { children, weight = 'bold', ...compone
 /**
  * Title component, based on Text component.
  *
- * @param {TitleProps} props     - Component props.
- * @returns {React.ReactElement} - JSX.Element
+ * @param {TitleProps} props - Component props.
+ * @return {React.ReactElement} - JSX.Element
  */
 export const Title: React.FC< TitleProps > = ( {
 	children,

@@ -39,9 +39,11 @@ test.describe( 'Speed Score feature', () => {
 		expect( await jetpackBoostPage.isScoreVisible(), 'Score should be displayed' ).toBeTruthy();
 	} );
 
-	test( 'Should be able to hover info icon next to overall score and see the detailed overall score description popin', async () => {
+	test( 'Should be able to click info icon next to overall score and see the detailed overall score description popin', async () => {
 		await jetpackBoostPage.waitForScoreLoadingToFinish();
-		await jetpackBoostPage.page.hover( '.jb-score-context' );
+		await jetpackBoostPage.page.click(
+			'[data-testid="speed-scores-top"] .icon-tooltip-wrapper > button'
+		);
 		expect(
 			await jetpackBoostPage.isScoreDescriptionPopinVisible(),
 			'Score description should be visible'

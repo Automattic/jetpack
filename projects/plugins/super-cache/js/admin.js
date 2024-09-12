@@ -1,119 +1,146 @@
-jQuery( document ).ready( () => {
-	// Don't run on versions of WordPress too old for the block editor and the translation methods it brings.
-	// All the install / activate options are plain links with meaningful destinations anyway.
-	if ( ! window.wp || ! window.wp.i18n ) {
-		return;
-	}
+/**
+ * Handle the buttons for the Boost migration.
+ * @param {jQuery} $ - jQuery
+ */
+( $ => {
+	$( document ).ready( function () {
+		// Don't run on versions of WordPress too old for the block editor and the translation methods it brings.
+		// All the install / activate options are plain links with meaningful destinations anyway.
+		if ( ! window.wp || ! window.wp.i18n ) {
+			return;
+		}
 
-	const { __, sprintf } = window.wp.i18n;
-	const ajaxurl = window.ajaxurl;
-	const wpscAdmin = window.wpscAdmin;
+		const { __, sprintf } = window.wp.i18n;
+		const ajaxurl = window.ajaxurl;
+		const wpscAdmin = window.wpscAdmin;
 
-	const link = jQuery( '.wpsc-install-action-button' );
-	const label = link.find( 'label' );
-	const spinner = link.find( '.spinner' );
+		const setupBoostButton = $target => {
+			if ( ! $target.hasClass( 'wpsc-boost-migration-button' ) ) {
+				// eslint-disable-next-line no-console
+				console.warn( 'Unexpected button clicked for Boost migration.' );
+				return;
+			}
+			const $label = $target.find( 'label' );
+			const $spinner = $target.find( '.spinner' );
+			const $errorMessage = $target.prev( '.wpsc-boost-migration-error' );
+			const source = $target.attr( 'data-source' );
+			const originalText = $label.text();
 
-	// Dismiss Boost banner.
-	jQuery( '.wpsc-boost-dismiss' ).on( 'click', function () {
-		jQuery( '.wpsc-boost-banner' ).fadeOut( 'slow' );
+			// Helper function to show an error.
+			const showError = err => {
+				reset();
 
-		jQuery.post( ajaxurl, {
-			action: 'wpsc-hide-boost-banner',
-			nonce: wpscAdmin.boostDismissNonce,
+				$errorMessage
+					.text(
+						err ||
+							__( 'An error occurred while trying to activate Jetpack Boost', 'wp-super-cache' )
+					)
+					.show();
+			};
+			// Helper function to show Boost Banner work in progress.
+			const showBusy = action => {
+				$target.attr( 'disabled', true );
+				$label.text( action );
+				$spinner.addClass( 'is-active' ).show();
+			};
+
+			// Helper function to reset Boost Banner button.
+			const reset = () => {
+				$target.attr( 'disabled', false );
+				$label.text( originalText );
+				$spinner.removeClass( 'is-active' ).hide();
+			};
+
+			// Activate Jetpack Boost.
+			const activateBoost = () => {
+				showBusy( __( 'Activating…', 'wp-super-cache' ) );
+
+				$.post( ajaxurl, {
+					action: 'wpsc_activate_boost',
+					_ajax_nonce: wpscAdmin.boostActivateNonce,
+					source: source,
+				} )
+					.done( response => {
+						if ( response.success ) {
+							$label.text( 'Success! Sending you to Jetpack Boost...' );
+							$spinner.hide();
+							window.location.href = 'admin.php?page=jetpack-boost';
+						} else {
+							showError( response.data );
+						}
+					} )
+					.fail( response => {
+						showError(
+							sprintf(
+								/* translators: %d is an HTTP error code */
+								__( 'Failed to activate Jetpack Boost: HTTP %d error received', 'wp-super-cache' ),
+								response.status
+							)
+						);
+					} );
+			};
+
+			const installBoost = () => {
+				showBusy( __( 'Installing…', 'wp-super-cache' ) );
+				$.post( ajaxurl, {
+					action: 'wpsc_install_plugin',
+					_ajax_nonce: wpscAdmin.boostInstallNonce,
+					slug: 'jetpack-boost',
+				} )
+					.done( response => {
+						if ( response.success ) {
+							activateBoost();
+						} else {
+							showError( response.data );
+						}
+					} )
+					.fail( response => {
+						showError(
+							sprintf(
+								/* translators: %d is an HTTP error code */
+								__( 'Failed to install Jetpack Boost: HTTP %d error received', 'wp-super-cache' ),
+								response.status
+							)
+						);
+					} );
+			};
+
+			return {
+				installBoost,
+				activateBoost,
+			};
+		};
+
+		// One-click install for Boost.
+		$( '.wpsc-install-boost-button' ).on( 'click', event => {
+			event.preventDefault();
+			const boostActivation = setupBoostButton( $( event.currentTarget ) );
+			boostActivation.installBoost();
+		} );
+
+		// Handle activate button click.
+		$( '.wpsc-activate-boost-button' ).on( 'click', event => {
+			event.preventDefault();
+			const boostActivation = setupBoostButton( $( event.currentTarget ) );
+			boostActivation.activateBoost();
+		} );
+
+		// Dismiss Boost banner.
+		$( '.wpsc-boost-dismiss' ).on( 'click', () => {
+			$( '.wpsc-boost-banner' ).fadeOut( 'slow' );
+			$.post( ajaxurl, {
+				action: 'wpsc-hide-boost-banner',
+				nonce: wpscAdmin.boostDismissNonce,
+			} );
+		} );
+
+		// Dismiss admin notice
+		$( '.boost-notice' ).on( 'click', '.notice-dismiss', event => {
+			event.preventDefault();
+			$.post( ajaxurl, {
+				action: 'wpsc_dismiss_boost_notice',
+				_ajax_nonce: wpscAdmin.boostNoticeDismissNonce,
+			} );
 		} );
 	} );
-
-	// One-click install for Boost.
-	jQuery( '#wpsc-install-boost-button' ).on( 'click', event => {
-		event.preventDefault();
-		showBoostBannerBusy( __( 'Installing…', 'wp-super-cache' ) );
-
-		jQuery
-			.post( ajaxurl, {
-				action: 'wpsc_install_plugin',
-				_ajax_nonce: wpscAdmin.boostInstallNonce,
-				slug: 'jetpack-boost',
-			} )
-			.done( response => {
-				if ( response.success ) {
-					activateBoost();
-				} else {
-					showBoostBannerError( response.data );
-				}
-			} )
-			.fail( response => {
-				showBoostBannerError(
-					sprintf(
-						/* translators: %d is an HTTP error code */
-						__( 'Failed to install Jetpack Boost: HTTP %d error received', 'wp-super-cache' ),
-						response.status
-					)
-				);
-			} );
-	} );
-
-	// Handle activate button click.
-	jQuery( '#wpsc-activate-boost-button' ).on( 'click', event => {
-		event.preventDefault();
-		activateBoost();
-	} );
-
-	// Helper function to show Boost Banner work in progress.
-	const showBoostBannerBusy = action => {
-		link.attr( 'disabled', true );
-		label.text( action );
-		spinner.addClass( 'is-active' ).show();
-	};
-
-	// Helper function to reset Boost Banner button.
-	const resetBoostBannerButton = () => {
-		link.attr( 'disabled', false );
-		jQuery( '#wpsc-activate-boost-button' )
-			.find( 'label' )
-			.text( __( 'Activate Jetpack Boost', 'wp-super-cache' ) );
-		jQuery( '#wpsc-install-boost-button' )
-			.find( 'label' )
-			.text( __( 'Install Jetpack Boost', 'wp-super-cache' ) );
-		spinner.removeClass( 'is-active' ).hide();
-	};
-
-	// Helper function to show an error.
-	const showBoostBannerError = err => {
-		resetBoostBannerButton();
-
-		jQuery( '#wpsc-boost-banner-error' )
-			.text(
-				err || __( 'An error occurred while trying to activate Jetpack Boost', 'wp-super-cache' )
-			)
-			.show();
-	};
-
-	// Activate Jetpack Boost.
-	const activateBoost = () => {
-		showBoostBannerBusy( __( 'Activating…', 'wp-super-cache' ) );
-
-		jQuery
-			.post( ajaxurl, {
-				action: 'wpsc_activate_boost',
-				_ajax_nonce: wpscAdmin.boostActivateNonce,
-			} )
-			.done( response => {
-				if ( response.success ) {
-					label.text( 'Success! Sending you to Jetpack Boost...' );
-					spinner.hide();
-					window.location.href = 'admin.php?page=jetpack-boost';
-				} else {
-					showBoostBannerError( response.data );
-				}
-			} )
-			.fail( response => {
-				showBoostBannerError(
-					sprintf(
-						/* translators: %d is an HTTP error code */
-						__( 'Failed to activate Jetpack Boost: HTTP %d error received', 'wp-super-cache' ),
-						response.status
-					)
-				);
-			} );
-	};
-} );
+} )( jQuery );

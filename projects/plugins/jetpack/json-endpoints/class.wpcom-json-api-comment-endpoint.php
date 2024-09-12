@@ -3,6 +3,7 @@
  * Comment endpoint.
  *
  * @todo - can this file be written without overriding global variables?
+ *
  * @phpcs:disable WordPress.WP.GlobalVariablesOverride.Prohibited
  */
 /**
@@ -184,8 +185,8 @@ abstract class WPCOM_JSON_API_Comment_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$response[ $key ] = (string) $status;
 					break;
 				case 'parent': // May be object or false.
-					if ( $comment->comment_parent ) {
-						$parent           = get_comment( $comment->comment_parent );
+					$parent = $comment->comment_parent ? get_comment( $comment->comment_parent ) : null;
+					if ( $parent ) {
 						$response[ $key ] = (object) array(
 							'ID'   => (int) $parent->comment_ID,
 							'type' => (string) ( $parent->comment_type ? $parent->comment_type : 'comment' ),
@@ -205,7 +206,7 @@ abstract class WPCOM_JSON_API_Comment_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 				case 'i_like':
 					if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-						$response[ $key ] = (bool) Likes::comment_like_current_user_likes( $blog_id, $comment->comment_ID );
+						$response[ $key ] = (bool) Likes::comment_like_current_user_likes( $blog_id, (int) $comment->comment_ID );
 					}
 					break;
 				case 'meta':

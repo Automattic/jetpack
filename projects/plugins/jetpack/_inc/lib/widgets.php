@@ -42,10 +42,10 @@ class Jetpack_Widgets {
 	 *  )
 	 * )
 	 *
-	 * @param string|integer   $position The position of the widget in its sidebar.
-	 * @param string           $widget_id The widget's id (eg: 'text-3').
-	 * @param string           $sidebar The widget's sidebar id (eg: 'sidebar-1').
-	 * @param array (Optional) $settings The settings for the widget.
+	 * @param string|integer $position The position of the widget in its sidebar.
+	 * @param string         $widget_id The widget's id (eg: 'text-3').
+	 * @param string         $sidebar The widget's sidebar id (eg: 'sidebar-1').
+	 * @param array|null     $settings The settings for the widget.
 	 *
 	 * @return array A normalized array representing this widget.
 	 */
@@ -643,13 +643,7 @@ class Jetpack_Widgets {
 	public static function sort_widgets( $a, $b ) {
 		$a_val = (int) self::get_widget_instance_key( $a['id'] );
 		$b_val = (int) self::get_widget_instance_key( $b['id'] );
-		if ( $a_val > $b_val ) {
-			return 1;
-		}
-		if ( $a_val < $b_val ) {
-			return -1;
-		}
-		return 0;
+		return $a_val <=> $b_val;
 	}
 
 	/**
@@ -749,7 +743,7 @@ class Jetpack_Widgets {
 		// Retrieve index of first widget instance in that sidebar.
 		$widget_key = false;
 		foreach ( $sidebars_widgets[ $sidebar ] as $widget ) {
-			if ( strpos( $widget, $widget_id ) !== false ) {
+			if ( str_contains( $widget, $widget_id ) ) {
 				$widget_key = absint( str_replace( $widget_id . '-', '', $widget ) );
 				break;
 			}

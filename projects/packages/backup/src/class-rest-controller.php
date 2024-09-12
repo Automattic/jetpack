@@ -6,13 +6,36 @@
  * @package automattic/jetpack-backup
  */
 
-namespace Automattic\Jetpack\Backup;
+// After changing this file, consider increasing the version number ("VXXX") in all the files using this namespace, in
+// order to ensure that the specific version of this file always get loaded. Otherwise, Jetpack autoloader might decide
+// to load an older/newer version of the class (if, for example, both the standalone and bundled versions of the plugin
+// are installed, or in some other cases).
+namespace Automattic\Jetpack\Backup\V0004;
 
+use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Rest_Authentication;
 use Automattic\Jetpack\Sync\Actions as Sync_Actions;
+use Automattic\WooCommerce\Internal\DataStores\Orders\OrdersTableDataStore;
+use Jetpack_Options;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Server;
+// phpcs:ignore WordPress.Utils.I18nTextDomainFixer.MissingArgs
+use function esc_html__;
+use function get_comment;
+use function get_comment_meta;
+use function get_metadata;
+use function get_post;
+use function get_post_meta;
+use function get_term;
+use function get_term_meta;
+use function get_user_by;
+use function get_user_meta;
+use function is_wp_error;
+use function register_rest_route;
+use function rest_authorization_required_code;
+use function rest_ensure_response;
+use function wp_remote_retrieve_response_code;
 
 /**
  * Registers the REST routes for Backup.
@@ -184,7 +207,29 @@ class REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => __CLASS__ . '::get_site_backup_undo_event',
-				'permission_callback' => '\Jetpack_Backup::backups_permissions_callback',
+				'permission_callback' => __NAMESPACE__ . '\Jetpack_Backup::backups_permissions_callback',
+			)
+		);
+
+		// Fetch a backup of a wc_order along with all of its data.
+		register_rest_route(
+			'jetpack/v4',
+			'/orders/(?P<id>\d+)/backup',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::fetch_wc_orders_backup',
+				'permission_callback' => __CLASS__ . '::backup_permissions_callback',
+			)
+		);
+
+		// Fetch backup preflight status
+		register_rest_route(
+			'jetpack/v4',
+			'/site/backup/preflight',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::get_site_backup_preflight',
+				'permission_callback' => __NAMESPACE__ . '\Jetpack_Backup::backups_permissions_callback',
 			)
 		);
 	}
@@ -218,12 +263,14 @@ class REST_Controller {
 	 * @static
 	 *
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
-	 * @return array|WP_Error Returns the result of Helper Script installation. Returns one of:
-	 * - WP_Error on failure, or
-	 * - An array with installation info on success:
-	 *  'path'    (string) The sinstallation path.
-	 *  'url'     (string) The access url.
-	 *  'abspath' (string) The abspath.
+	 *
+	 * @return array|WP_Error Array with installation info on success:
+	 *
+	 *   'path'    (string) Helper script installation path on the filesystem.
+	 *   'url'     (string) URL to the helper script.
+	 *   'abspath' (string) WordPress root.
+	 *
+	 *   or an instance of WP_Error on failure.
 	 */
 	public static function install_backup_helper_script( $request ) {
 		$helper_script = $request->get_param( 'helper' );
@@ -237,11 +284,6 @@ class REST_Controller {
 		$installation_info = Helper_Script_Manager::install_helper_script( $helper_script );
 		Helper_Script_Manager::cleanup_expired_helper_scripts();
 
-		// Include ABSPATH with successful result.
-		if ( ! is_wp_error( $installation_info ) ) {
-			$installation_info['abspath'] = ABSPATH;
-		}
-
 		return rest_ensure_response( $installation_info );
 	}
 
@@ -252,19 +294,20 @@ class REST_Controller {
 	 * @static
 	 *
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
-	 * @return array An array with 'success' key indicating the result of the delete operation.
+	 *
+	 * @return array|WP_Error An array with 'success' key, or an instance of WP_Error on failure.
 	 */
 	public static function delete_backup_helper_script( $request ) {
 		$path_to_helper_script = $request->get_param( 'path' );
 
-		$deleted = Helper_Script_Manager::delete_helper_script( $path_to_helper_script );
+		$delete_result = Helper_Script_Manager::delete_helper_script( $path_to_helper_script );
 		Helper_Script_Manager::cleanup_expired_helper_scripts();
 
-		return rest_ensure_response(
-			array(
-				'success' => $deleted,
-			)
-		);
+		if ( is_wp_error( $delete_result ) ) {
+			return $delete_result;
+		}
+
+		return rest_ensure_response( array( 'success' => true ) );
 	}
 
 	/**
@@ -274,6 +317,7 @@ class REST_Controller {
 	 * @static
 	 *
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 *
 	 * @return array
 	 */
 	public static function fetch_database_object_backup( $request ) {
@@ -331,6 +375,7 @@ class REST_Controller {
 	 * @static
 	 *
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 *
 	 * @return array
 	 */
 	public static function fetch_options_backup( $request ) {
@@ -350,6 +395,7 @@ class REST_Controller {
 	 * @static
 	 *
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 *
 	 * @return array
 	 */
 	public static function fetch_comment_backup( $request ) {
@@ -398,6 +444,7 @@ class REST_Controller {
 	 * @static
 	 *
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 *
 	 * @return array
 	 */
 	public static function fetch_post_backup( $request ) {
@@ -435,6 +482,7 @@ class REST_Controller {
 	 * @static
 	 *
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 *
 	 * @return array
 	 */
 	public static function fetch_term_backup( $request ) {
@@ -526,9 +574,9 @@ class REST_Controller {
 	 * the last rewind_id prior to that.
 	 */
 	public static function get_site_backup_undo_event() {
-		$blog_id = \Jetpack_Options::get_option( 'id' );
+		$blog_id = Jetpack_Options::get_option( 'id' );
 
-		$response = \Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_user(
+		$response = Client::wpcom_json_api_request_as_user(
 			'/sites/' . $blog_id . '/activity?force=wpcom',
 			'v2',
 			array(),
@@ -589,6 +637,103 @@ class REST_Controller {
 		}
 
 		return rest_ensure_response( $undo_event );
+	}
+
+	/**
+	 * Fetch a backup of a order, along with all of its data.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 *
+	 * @return array
+	 */
+	public static function fetch_wc_orders_backup( $request ) {
+		global $wpdb;
+
+		// Disable Sync as this is a read-only operation and triggered by sync activity.
+		Sync_Actions::mark_sync_read_only();
+
+		$order_id = $request['id'];
+
+		$order                  = array();
+		$order_addresses        = array();
+		$order_operational_data = array();
+		$order_meta             = array();
+
+		if ( ! class_exists( OrdersTableDataStore::class ) ) {
+			return new WP_Error( 'order_not_allowed', __( 'Not allowed to get the order with current configuration', 'jetpack-backup-pkg' ), array( 'status' => 403 ) );
+		}
+
+		if ( method_exists( OrdersTableDataStore::class, 'get_orders_table_name' ) ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared
+			$order = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM `' . OrdersTableDataStore::get_orders_table_name() . '` WHERE id = %s', $order_id ) );
+		}
+
+		if ( empty( $order ) ) {
+			// No order in HPOS
+			return new WP_Error( 'order_not_found', __( 'Order not found ', 'jetpack-backup-pkg' ), array( 'status' => 404 ) );
+		}
+
+		if ( method_exists( OrdersTableDataStore::class, 'get_addresses_table_name' ) ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared
+			$order_addresses = $wpdb->get_results( $wpdb->prepare( 'SELECT * FROM `' . OrdersTableDataStore::get_addresses_table_name() . '` WHERE order_id = %s', $order_id ) );
+		}
+
+		if ( method_exists( OrdersTableDataStore::class, 'get_operational_data_table_name' ) ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared
+			$order_operational_data = $wpdb->get_results( $wpdb->prepare( 'SELECT * FROM `' . OrdersTableDataStore::get_operational_data_table_name() . '` WHERE order_id = %s', $order_id ) );
+		}
+
+		if ( method_exists( OrdersTableDataStore::class, 'get_meta_table_name' ) ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared
+			$order_meta = $wpdb->get_results( $wpdb->prepare( 'SELECT * FROM `' . OrdersTableDataStore::get_meta_table_name() . '` WHERE order_id = %s', $order_id ) );
+		}
+
+		return array(
+			'order'                  => (array) $order,
+			'order_addresses'        => (array) $order_addresses,
+			'order_operational_data' => (array) $order_operational_data,
+			'order_meta'             => (array) $order_meta,
+		);
+	}
+
+	/**
+	 * Fetch backup preflight status
+	 *
+	 * @return array
+	 */
+	public static function get_site_backup_preflight() {
+		$blog_id = Jetpack_Options::get_option( 'id' );
+
+		$response = Client::wpcom_json_api_request_as_user(
+			'/sites/' . $blog_id . '/rewind/preflight?force=wpcom',
+			'v2',
+			array(),
+			null,
+			'wpcom'
+		);
+
+		if ( is_wp_error( $response ) ) {
+			return new WP_Error(
+				'wp_error_fetch_preflight',
+				$response->get_error_message(),
+				array( 'status' => 500 )
+			);
+		}
+
+		$response_code = wp_remote_retrieve_response_code( $response );
+		if ( 200 !== $response_code ) {
+			return new WP_Error(
+				'http_error_fetch_preflight',
+				wp_remote_retrieve_response_message( $response ),
+				array( 'status' => $response_code )
+			);
+		}
+
+		$body = json_decode( $response['body'], true );
+		return rest_ensure_response( $body );
 	}
 
 	/**

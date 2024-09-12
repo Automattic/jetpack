@@ -5,6 +5,297 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.0.2] - 2024-09-10
+### Changed
+- Updated package dependencies. [#39302]
+
+## [4.0.1] - 2024-09-06
+### Removed
+- Removed throwing of warning if a given Jetpack options does not exist [#39270]
+
+## [4.0.0] - 2024-09-05
+### Deprecated
+- Deprecated Jetpack Onboarding system. [#39229]
+
+## [3.0.0] - 2024-09-05
+### Changed
+- Jetpack Connection: Restrict handling verified errors on admin pages only [#39233]
+- Updated connection js to load its bundle via connection package [#38877]
+- Updated package dependencies. [#39176]
+
+### Removed
+- Removed registering of Jetpack option edit_links_calypso_redirect [#39171]
+
+### Fixed
+- Fixed connection assets for wpcom simple sites [#39201]
+
+## [2.12.5] - 2024-08-29
+### Changed
+- Sync: Remove the checksum for active plugins if present when sync is not active, so it gets recalculated when sync gets activated [#39098]
+- Updated package dependencies. [#39111]
+
+## [2.12.4] - 2024-08-23
+### Changed
+- Updated package dependencies. [#39004]
+
+### Removed
+- SSO: Removed the ability to skip the automatic login if site uses the WP.com classic interface [#38996]
+
+## [2.12.3] - 2024-08-21
+### Changed
+- Internal updates.
+
+## [2.12.2] - 2024-08-19
+### Changed
+- `Jetpack_Options::update_option()` now documents `$autoload` as `bool|null` to match the similar change in WordPress 6.6. String values are still accepted for as long as core's `update_option()` accepts them. [#38822]
+
+## [2.12.1] - 2024-08-15
+### Changed
+- Updated package dependencies. [#38662]
+
+## [2.12.0] - 2024-08-13
+### Added
+- Updated the connection initial state to fallback on the new consolidated Jetpack script data [#38825]
+
+## [2.11.4] - 2024-08-09
+### Fixed
+- Fix type for tracking product string [#38748]
+
+## [2.11.3] - 2024-08-01
+### Added
+- Added support for 'recommendations_evaluation' Jetpack option" [#38534]
+
+## [2.11.2] - 2024-07-22
+### Fixed
+- Fixed textdomain on i18n messages imported from the IDC package. [#38412]
+
+## [2.11.1] - 2024-07-03
+### Changed
+- Updated package dependencies. [#38132]
+
+## [2.11.0] - 2024-06-26
+### Added
+- Add blog_id to tracks data [#37902]
+
+## [2.10.2] - 2024-06-25
+### Changed
+- Internal updates.
+
+## [2.10.1] - 2024-06-12
+### Changed
+- Updated package dependencies. [#37796]
+
+## [2.10.0] - 2024-06-10
+### Added
+- Staging: deprecating staging mode and separating the logic into is_development_site and in_safe_mode [#37023]
+
+### Fixed
+- Jetpack Connection: Add stricter check before updating 'jetpack_connection_active_plugins' option [#37755]
+
+## [2.9.3] - 2024-06-06
+### Added
+- Add mechanism to track previously working plugins [#37537]
+
+## [2.9.2] - 2024-06-05
+### Changed
+- Updated package dependencies. [#37669]
+
+## [2.9.1] - 2024-06-03
+### Fixed
+- Remove tabindex from tooltip modal. [#37663]
+
+## [2.9.0] - 2024-05-29
+### Added
+- Move Identity Crisis handling functionality into the package. [#36968]
+
+## [2.8.6] - 2024-05-28
+### Changed
+- Internal updates.
+
+## [2.8.5] - 2024-05-27
+### Fixed
+- SSO: Use filter instead of action for user custom column to prevent interference with other custom columns. [#37575]
+
+## [2.8.4] - 2024-05-22
+### Deprecated
+- Jetpack Connection Manager: Deprecate `request_params` arg in setup_xmlrpc_handlers method. [#37445]
+
+### Fixed
+- SSO: Ensure the dist files are generated properly, without overwriting each other. [#37489]
+
+## [2.8.3] - 2024-05-20
+### Changed
+- Internal updates.
+
+## [2.8.2] - 2024-05-16
+### Added
+- Connection: Ensuring direct file access is disabled in class-jetpack-ixr-client.php [#37398]
+
+### Changed
+- Updated package dependencies. [#37379]
+
+## [2.8.1] - 2024-05-14
+### Changed
+- SSO: do not rely on the Jetpack class anymore. [#37153]
+
+## [2.8.0] - 2024-05-13
+### Added
+- SSO: Ensuring tooltips are accessible [#37302]
+
+### Changed
+- SSO: Improve user invite error logging [#37144]
+
+## [2.7.7] - 2024-05-09
+### Fixed
+- SSO: Fix tooltip display on view all users page [#37257]
+
+## [2.7.6] - 2024-05-06
+### Added
+- Bring in authentication methods needed for SSO feature. [#36924]
+
+### Changed
+- SSO: rely on Connection methods instead of relying on methods from the Jetpack plugin. [#36989]
+- Updated package dependencies. [#37147]
+
+## [2.7.5] - 2024-04-30
+### Changed
+- Internal updates.
+
+## [2.7.4] - 2024-04-26
+### Changed
+- General: use wp_admin_notice function introduced in WP 6.4 to display notices. [#37051]
+
+## [2.7.3] - 2024-04-25
+### Changed
+- General: Remove code that was added to remain compatible with versions of WordPress lower than 6.4. [#37049]
+
+### Fixed
+- Disconnect connection owner on removal. [#36888]
+- Improve phpdoc comments in Client class, and remove some unnecessary boolean checks. [#37056]
+
+## [2.7.2] - 2024-04-22
+### Added
+- SSO: Add SSO feature to the package. [#36587]
+
+### Fixed
+- Jetpack Connection: Prevent unnecessary jetpack_connection_active_plugins option updates. [#36896]
+
+## [2.7.1] - 2024-04-08
+### Changed
+- Updated package dependencies. [#36760]
+
+## [2.7.0] - 2024-03-27
+### Added
+- Add 'test_connection' endpoint to check for blog token validity. [#36471]
+- Add the 'get_heartbeat_data' REST endpoint. [#36553]
+
+### Changed
+- Updated package dependencies. [#36585]
+
+## [2.6.2] - 2024-03-25
+### Changed
+- Internal updates.
+
+## [2.6.1] - 2024-03-22
+### Changed
+- yUpdate Phan config. [#36353]
+
+## [2.6.0] - 2024-03-20
+### Added
+- Add the 'remote_connect' REST endpoint. [#36329]
+
+## [2.5.0] - 2024-03-18
+### Added
+- Add the 'remote_provision' REST endpoint. [#36275]
+- Add the 'remote_register' REST endpoint. [#36197]
+
+## [2.4.1] - 2024-03-12
+### Changed
+- Internal updates.
+
+## [2.4.0] - 2024-03-12
+### Added
+- Sync:Now Sync uses rest api endpoint for enabled sites [#36210]
+
+### Changed
+- Updated package dependencies. [#36325]
+
+## [2.3.4] - 2024-03-04
+### Changed
+- Updated package dependencies. [#36095]
+
+## [2.3.3] - 2024-03-01
+### Fixed
+- Webhook class: avoid PHP warning with PHP 8.2 [#35996]
+
+## [2.3.2] - 2024-02-26
+### Removed
+- Remove legacy options that are not needed anymore. [#35873]
+
+## [2.3.1] - 2024-02-13
+### Changed
+- Updated package dependencies. [#35608]
+
+## [2.3.0] - 2024-02-05
+### Added
+- Add rate limiter to the package versions endpoint calls. [#35379]
+
+### Changed
+- Adjust 'get_site_id()' method to return null if there's no blog ID. [#35004]
+- Adjust 'get_site_id()' method to return null if there's no blog ID. [#35006]
+- Jetpack Connection: Add jetpack_package_versions to Sync [#35409]
+- Updated package dependencies. [#35384]
+
+## [2.2.0] - 2024-01-18
+### Added
+- Adding support for IDC when site URL is an IP address. [#34753]
+
+### Changed
+- Adjust 'get_site_id()' method to return null if there's no blog ID. [#34976]
+
+## [2.1.1] - 2024-01-04
+### Changed
+- Updated package dependencies. [#34815]
+
+## [2.1.0] - 2023-12-03
+### Added
+- Added the welcome banner to My Jetpack. [#34384]
+- Updated XMLRPC endpoint 'jetpack.idcUrlValidation' to accept an argument specifying whether to attempt reusing existing URL secret. [#34262]
+
+### Changed
+- Updated package dependencies. [#34411]
+
+## [2.0.3] - 2023-11-24
+
+## [2.0.2] - 2023-11-21
+### Changed
+- Replaced usage of strpos() with str_contains(). [#34137]
+
+## [2.0.1] - 2023-11-21
+
+## [2.0.0] - 2023-11-20
+### Added
+- Confirm blog ID and access token were saved before proceeding with connection flow. [#34136]
+
+### Changed
+- Replace usage of strpos() with str_starts_with(). [#34135]
+- Updated required PHP version to >= 7.0. [#34192]
+
+### Fixed
+- Ensured that partner partners are passed on during the connection process, regardless of the plugin you use to connect. [#33832]
+
+## [1.60.1] - 2023-11-14
+### Changed
+- Updated package dependencies. [#34093]
+
+## [1.60.0] - 2023-11-13
+### Added
+- Added a 'source' query param to the Jetpack connect URL. [#33984]
+
+## [1.59.0] - 2023-11-08
+### Added
+- Added a method to check if Jetpack is ready for uninstall cleanup. [#33920]
+
 ## [1.58.3] - 2023-11-03
 ### Fixed
 - Make sure scheme history option is an array. [#33905]
@@ -900,6 +1191,64 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[4.0.2]: https://github.com/Automattic/jetpack-connection/compare/v4.0.1...v4.0.2
+[4.0.1]: https://github.com/Automattic/jetpack-connection/compare/v4.0.0...v4.0.1
+[4.0.0]: https://github.com/Automattic/jetpack-connection/compare/v3.0.0...v4.0.0
+[3.0.0]: https://github.com/Automattic/jetpack-connection/compare/v2.12.5...v3.0.0
+[2.12.5]: https://github.com/Automattic/jetpack-connection/compare/v2.12.4...v2.12.5
+[2.12.4]: https://github.com/Automattic/jetpack-connection/compare/v2.12.3...v2.12.4
+[2.12.3]: https://github.com/Automattic/jetpack-connection/compare/v2.12.2...v2.12.3
+[2.12.2]: https://github.com/Automattic/jetpack-connection/compare/v2.12.1...v2.12.2
+[2.12.1]: https://github.com/Automattic/jetpack-connection/compare/v2.12.0...v2.12.1
+[2.12.0]: https://github.com/Automattic/jetpack-connection/compare/v2.11.4...v2.12.0
+[2.11.4]: https://github.com/Automattic/jetpack-connection/compare/v2.11.3...v2.11.4
+[2.11.3]: https://github.com/Automattic/jetpack-connection/compare/v2.11.2...v2.11.3
+[2.11.2]: https://github.com/Automattic/jetpack-connection/compare/v2.11.1...v2.11.2
+[2.11.1]: https://github.com/Automattic/jetpack-connection/compare/v2.11.0...v2.11.1
+[2.11.0]: https://github.com/Automattic/jetpack-connection/compare/v2.10.2...v2.11.0
+[2.10.2]: https://github.com/Automattic/jetpack-connection/compare/v2.10.1...v2.10.2
+[2.10.1]: https://github.com/Automattic/jetpack-connection/compare/v2.10.0...v2.10.1
+[2.10.0]: https://github.com/Automattic/jetpack-connection/compare/v2.9.3...v2.10.0
+[2.9.3]: https://github.com/Automattic/jetpack-connection/compare/v2.9.2...v2.9.3
+[2.9.2]: https://github.com/Automattic/jetpack-connection/compare/v2.9.1...v2.9.2
+[2.9.1]: https://github.com/Automattic/jetpack-connection/compare/v2.9.0...v2.9.1
+[2.9.0]: https://github.com/Automattic/jetpack-connection/compare/v2.8.6...v2.9.0
+[2.8.6]: https://github.com/Automattic/jetpack-connection/compare/v2.8.5...v2.8.6
+[2.8.5]: https://github.com/Automattic/jetpack-connection/compare/v2.8.4...v2.8.5
+[2.8.4]: https://github.com/Automattic/jetpack-connection/compare/v2.8.3...v2.8.4
+[2.8.3]: https://github.com/Automattic/jetpack-connection/compare/v2.8.2...v2.8.3
+[2.8.2]: https://github.com/Automattic/jetpack-connection/compare/v2.8.1...v2.8.2
+[2.8.1]: https://github.com/Automattic/jetpack-connection/compare/v2.8.0...v2.8.1
+[2.8.0]: https://github.com/Automattic/jetpack-connection/compare/v2.7.7...v2.8.0
+[2.7.7]: https://github.com/Automattic/jetpack-connection/compare/v2.7.6...v2.7.7
+[2.7.6]: https://github.com/Automattic/jetpack-connection/compare/v2.7.5...v2.7.6
+[2.7.5]: https://github.com/Automattic/jetpack-connection/compare/v2.7.4...v2.7.5
+[2.7.4]: https://github.com/Automattic/jetpack-connection/compare/v2.7.3...v2.7.4
+[2.7.3]: https://github.com/Automattic/jetpack-connection/compare/v2.7.2...v2.7.3
+[2.7.2]: https://github.com/Automattic/jetpack-connection/compare/v2.7.1...v2.7.2
+[2.7.1]: https://github.com/Automattic/jetpack-connection/compare/v2.7.0...v2.7.1
+[2.7.0]: https://github.com/Automattic/jetpack-connection/compare/v2.6.2...v2.7.0
+[2.6.2]: https://github.com/Automattic/jetpack-connection/compare/v2.6.1...v2.6.2
+[2.6.1]: https://github.com/Automattic/jetpack-connection/compare/v2.6.0...v2.6.1
+[2.6.0]: https://github.com/Automattic/jetpack-connection/compare/v2.5.0...v2.6.0
+[2.5.0]: https://github.com/Automattic/jetpack-connection/compare/v2.4.1...v2.5.0
+[2.4.1]: https://github.com/Automattic/jetpack-connection/compare/v2.4.0...v2.4.1
+[2.4.0]: https://github.com/Automattic/jetpack-connection/compare/v2.3.4...v2.4.0
+[2.3.4]: https://github.com/Automattic/jetpack-connection/compare/v2.3.3...v2.3.4
+[2.3.3]: https://github.com/Automattic/jetpack-connection/compare/v2.3.2...v2.3.3
+[2.3.2]: https://github.com/Automattic/jetpack-connection/compare/v2.3.1...v2.3.2
+[2.3.1]: https://github.com/Automattic/jetpack-connection/compare/v2.3.0...v2.3.1
+[2.3.0]: https://github.com/Automattic/jetpack-connection/compare/v2.2.0...v2.3.0
+[2.2.0]: https://github.com/Automattic/jetpack-connection/compare/v2.1.1...v2.2.0
+[2.1.1]: https://github.com/Automattic/jetpack-connection/compare/v2.1.0...v2.1.1
+[2.1.0]: https://github.com/Automattic/jetpack-connection/compare/v2.0.3...v2.1.0
+[2.0.3]: https://github.com/Automattic/jetpack-connection/compare/v2.0.2...v2.0.3
+[2.0.2]: https://github.com/Automattic/jetpack-connection/compare/v2.0.1...v2.0.2
+[2.0.1]: https://github.com/Automattic/jetpack-connection/compare/v2.0.0...v2.0.1
+[2.0.0]: https://github.com/Automattic/jetpack-connection/compare/v1.60.1...v2.0.0
+[1.60.1]: https://github.com/Automattic/jetpack-connection/compare/v1.60.0...v1.60.1
+[1.60.0]: https://github.com/Automattic/jetpack-connection/compare/v1.59.0...v1.60.0
+[1.59.0]: https://github.com/Automattic/jetpack-connection/compare/v1.58.3...v1.59.0
 [1.58.3]: https://github.com/Automattic/jetpack-connection/compare/v1.58.2...v1.58.3
 [1.58.2]: https://github.com/Automattic/jetpack-connection/compare/v1.58.1...v1.58.2
 [1.58.1]: https://github.com/Automattic/jetpack-connection/compare/v1.58.0...v1.58.1

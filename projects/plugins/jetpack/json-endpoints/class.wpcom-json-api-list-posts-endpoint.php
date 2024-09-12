@@ -77,7 +77,7 @@ class WPCOM_JSON_API_List_Posts_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 	/**
 	 * The date range.
 	 *
-	 * @var array.
+	 * @var array
 	 */
 	public $date_range = array();
 

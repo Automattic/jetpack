@@ -491,13 +491,13 @@ class Jetpack_Recipes {
 
 		// Check to see if the user is trying to use shortened formatting.
 		if (
-			strpos( $content, '&#8211;' ) !== false ||
-			strpos( $content, '&#8212;' ) !== false ||
-			strpos( $content, '-' ) !== false ||
-			strpos( $content, '*' ) !== false ||
-			strpos( $content, '#' ) !== false ||
-			strpos( $content, '–' ) !== false || // ndash.
-			strpos( $content, '—' ) !== false || // mdash.
+			str_contains( $content, '&#8211;' ) ||
+			str_contains( $content, '&#8212;' ) ||
+			str_contains( $content, '-' ) ||
+			str_contains( $content, '*' ) ||
+			str_contains( $content, '#' ) ||
+			str_contains( $content, '–' ) || // ndash.
+			str_contains( $content, '—' ) || // mdash.
 			preg_match( '/\d+\.\s/', $content )
 		) {
 			// Remove breaks and extra whitespace.
@@ -651,7 +651,7 @@ class Jetpack_Recipes {
 
 		// Check if it's an absolute or relative URL, and return if not.
 		if (
-			0 !== strpos( $src, '/' )
+			! str_starts_with( $src, '/' )
 			&& false === filter_var( $src, FILTER_VALIDATE_URL )
 		) {
 			return '';

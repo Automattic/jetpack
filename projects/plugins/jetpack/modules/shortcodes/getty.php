@@ -56,7 +56,7 @@ add_filter( 'oembed_fetch_url', 'getty_add_oembed_endpoint_caller' );
 function getty_add_oembed_endpoint_caller( $provider ) {
 	// By time filter is called, original provider URL has had url, maxwidth,
 	// maxheight query parameters added.
-	if ( 0 !== strpos( $provider, 'https://embed.gettyimages.com/oembed/' ) ) {
+	if ( ! str_starts_with( $provider, 'https://embed.gettyimages.com/oembed/' ) ) {
 		return $provider;
 	}
 

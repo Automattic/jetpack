@@ -1,4 +1,4 @@
-const nock = require( 'nock' );
+const { MockAgent, setGlobalDispatcher } = require( 'undici' );
 const { mockContextExtras } = require( './test-utils' );
 
 describe( 'Workflow conclusion', () => {
@@ -18,11 +18,12 @@ describe( 'Workflow conclusion', () => {
 		mockContextExtras( { repository } );
 
 		// Intercept request to GitHub Api and mock response
-		nock( 'https://api.github.com' )
-			.get( `/repos/${ repository }/actions/runs/${ runId }/jobs` )
-			.reply( 200, {
-				jobs,
-			} );
+		const mockAgent = new MockAgent();
+		setGlobalDispatcher( mockAgent );
+		mockAgent
+			.get( 'https://api.github.com' )
+			.intercept( { path: `/repos/${ repository }/actions/runs/${ runId }/jobs` } )
+			.reply( 200, { jobs }, { headers: { 'content-type': 'application/json' } } );
 
 		const { isWorkflowFailed } = require( '../src/github' );
 		const conclusion = await isWorkflowFailed( 'token' );

@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-WooSync: catch PHP error in Client Portal invoice if WooCommerce is disabled

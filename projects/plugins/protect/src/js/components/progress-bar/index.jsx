@@ -1,4 +1,4 @@
-import classnames from 'classnames';
+import clsx from 'clsx';
 import styles from './style.module.scss';
 
 /**
@@ -8,7 +8,7 @@ import styles from './style.module.scss';
  * @param {string} props.className - Additional classnames
  * @param {number} props.total     - Total integer
  * @param {number} props.value     - Progress integer
- * @returns {object} ProgressBar React component.
+ * @return {object} ProgressBar React component.
  */
 const ProgressBar = ( { className, total = 100, value } ) => {
 	if ( value == null ) {
@@ -23,7 +23,7 @@ const ProgressBar = ( { className, total = 100, value } ) => {
 	};
 
 	return (
-		<div className={ classnames( className, styles[ 'progress-bar' ] ) }>
+		<div className={ clsx( className, styles[ 'progress-bar' ] ) }>
 			<div className={ styles[ 'progress-bar__wrapper' ] }>
 				<div
 					aria-valuemax={ total }

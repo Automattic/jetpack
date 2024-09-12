@@ -1,33 +1,31 @@
 /*
  * External dependencies
  */
-import restApi from '@automattic/jetpack-api';
 import { AdminPage, Container, Col } from '@automattic/jetpack-components';
-import { useConnection } from '@automattic/jetpack-connection';
 import { ActivationScreen } from '@automattic/jetpack-licensing';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState, useMemo } from 'react';
 /*
  * Internal dependencies
  */
+import { QUERY_LICENSES_KEY } from '../../data/constants';
+import useJetpackApiQuery from '../../data/use-jetpack-api-query';
+import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../hooks/use-analytics';
-import useAvailableLicenses from '../../hooks/use-available-licenses';
+import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import GoBackLink from '../go-back-link';
 
 /**
  * The AddLicenseScreen component of the My Jetpack app.
  *
- * @returns {object} The AddLicenseScreen component.
+ * @return {object} The AddLicenseScreen component.
  */
 export default function AddLicenseScreen() {
-	useEffect( () => {
-		const { apiRoot, apiNonce } = window?.myJetpackRest || {};
-		restApi.setApiRoot( apiRoot );
-		restApi.setApiNonce( apiNonce );
-	}, [] );
-
 	const { recordEvent } = useAnalytics();
-	const { availableLicenses, fetchingAvailableLicenses } = useAvailableLicenses();
-	const { userConnectionData } = useConnection();
+	const { data: licenses = [], isLoading: fetchingAvailableLicenses } = useJetpackApiQuery( {
+		name: QUERY_LICENSES_KEY,
+		queryFn: async api => ( await api.getUserLicenses() )?.items,
+	} );
+	const { userConnectionData } = useMyJetpackConnection();
 	const [ hasActivatedLicense, setHasActivatedLicense ] = useState( false );
 
 	// They might not have a display name set in wpcom, so fall back to wpcom login or local username.
@@ -44,6 +42,16 @@ export default function AddLicenseScreen() {
 		setHasActivatedLicense( true );
 	}, [] );
 
+	const availableLicenses = useMemo(
+		() =>
+			licenses.filter(
+				( { attached_at, revoked_at } ) => attached_at === null && revoked_at === null
+			),
+		[ licenses ]
+	);
+
+	const { siteSuffix = '', adminUrl = '' } = getMyJetpackWindowInitialState();
+
 	return (
 		<AdminPage showHeader={ false } showBackground={ false }>
 			<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
@@ -56,8 +64,8 @@ export default function AddLicenseScreen() {
 						availableLicenses={ availableLicenses }
 						fetchingAvailableLicenses={ fetchingAvailableLicenses }
 						onActivationSuccess={ handleActivationSuccess }
-						siteAdminUrl={ window?.myJetpackInitialState?.adminUrl }
-						siteRawUrl={ window?.myJetpackInitialState?.siteSuffix }
+						siteAdminUrl={ adminUrl }
+						siteRawUrl={ siteSuffix }
 						displayName={ displayName }
 					/>
 				</Col>

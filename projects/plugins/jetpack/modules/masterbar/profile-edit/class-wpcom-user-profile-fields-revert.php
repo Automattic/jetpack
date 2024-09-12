@@ -2,12 +2,15 @@
 /**
  * Manage User profile fields.
  *
+ * @deprecated 13.7 Use Automattic\Jetpack\Masterbar\WPCOM_User_Profile_Fields_Revert instead.
+ *
  * @package automattic/jetpack
  */
 
 namespace Automattic\Jetpack\Dashboard_Customizations;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Masterbar\WPCOM_User_Profile_Fields_Revert as Masterbar_WPCOM_User_Profile_Fields_Revert;
 
 /**
  * Responsible with preventing the back-end default implementation to save the fields that are managed on WP.com profiles.
@@ -17,34 +20,29 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 class WPCOM_User_Profile_Fields_Revert {
 
 	/**
-	 * Jetpack connection manager object.
+	 * Instance of \Automattic\Jetpack\Masterbar\WPCOM_User_Profile_Fields_Revert
+	 * Used for deprecation purposes.
 	 *
-	 * @var Connection_Manager
+	 * @var \Automattic\Jetpack\Masterbar\WPCOM_User_Profile_Fields_Revert
 	 */
-	private $connection_manager;
+	private $wpcom_user_profile_fields_revert_wrapper;
 
 	/**
 	 * Profile_Edit_Filter_Fields constructor.
 	 *
+	 * @deprecated 13.7
+	 *
 	 * @param Connection_Manager $connection_manager The connection manager.
 	 */
 	public function __construct( Connection_Manager $connection_manager ) {
-		$this->connection_manager = $connection_manager;
-
-		\add_filter( 'wp_pre_insert_user_data', array( $this, 'revert_user_data_on_wp_admin_profile_update' ), 10, 3 );
-		\add_filter( 'insert_user_meta', array( $this, 'revert_user_meta_on_wp_admin_profile_change' ), 10, 3 );
-
-		/**
-		 * Core sends two E-mail notifications that have to be disabled:
-		 * - To the existing e-mail address
-		 * - To the new email address
-		 */
-		\add_filter( 'send_email_change_email', array( $this, 'disable_send_email_change_email' ), 10, 3 );
-		\add_action( 'personal_options_update', array( $this, 'disable_email_notification' ), 1, 1 );
+		_deprecated_function( __METHOD__, 'jetpack-13.7', 'Automattic\\Jetpack\\Masterbar\\WPCOM_User_Profile_Fields_Revert::__construct' );
+		$this->wpcom_user_profile_fields_revert_wrapper = new Masterbar_WPCOM_User_Profile_Fields_Revert( $connection_manager );
 	}
 
 	/**
 	 * Filter the built-in user profile fields.
+	 *
+	 * @deprecated 13.7
 	 *
 	 * @param array    $data            {
 	 *                                  Values and keys for the user.
@@ -65,35 +63,14 @@ class WPCOM_User_Profile_Fields_Revert {
 	 * @return array
 	 */
 	public function revert_user_data_on_wp_admin_profile_update( $data, $update, $id ) {
-
-		// bail if the id is null, meaning that this was triggered in the context of user create.
-		// bail if the user is not connected (e.g. non-WP.com users or disconnected users).
-		if ( ! $update || null === $id || ! $this->connection_manager->is_user_connected( $id ) ) {
-			return $data;
-		}
-
-		/**
-		 * Revert the data in the form submission with the data from the database.
-		 */
-		$user = \get_userdata( $id );
-
-		/**
-		 * E-mail has a different flow for changing it's value. It stores it in an option until the user confirms it via e-mail.
-		 * Based on this, it displays in the UI a section mentioning the e-mail pending change.
-		 * We hide the entire section, but we should also clean it up just in case.
-		 */
-		\delete_user_meta( $id, '_new_email' );
-
-		$data['user_email']    = $user->user_email;
-		$data['user_url']      = $user->user_url;
-		$data['user_nicename'] = $user->user_nicename;
-		$data['display_name']  = $user->display_name;
-
-		return $data;
+		_deprecated_function( __METHOD__, 'jetpack-13.7', 'Automattic\\Jetpack\\Masterbar\\WPCOM_User_Profile_Fields_Revert::revert_user_data_on_wp_admin_profile_update' );
+		return $this->wpcom_user_profile_fields_revert_wrapper->revert_user_data_on_wp_admin_profile_update( $data, $update, $id );
 	}
 
 	/**
 	 * Revert the first_name, last_name and description since this is managed by WP.com.
+	 *
+	 * @deprecated 13.7
 	 *
 	 * @param array    $meta {
 	 *        Default meta values and keys for the user.
@@ -118,37 +95,21 @@ class WPCOM_User_Profile_Fields_Revert {
 	 * @return array
 	 */
 	public function revert_user_meta_on_wp_admin_profile_change( $meta, $user, $update ) {
-
-		// bail if not in update context.
-		if ( ! $update || ! $this->connection_manager->is_user_connected( $user->ID ) ) {
-			return $meta;
-		}
-
-		/**
-		 * Revert the data in the form submission with the data from the database.
-		 */
-		$database_user = \get_userdata( $user->ID );
-
-		$meta['first_name']  = $database_user->first_name;
-		$meta['last_name']   = $database_user->last_name;
-		$meta['description'] = $database_user->description;
-		$meta['nickname']    = $database_user->nickname;
-
-		return $meta;
+		_deprecated_function( __METHOD__, 'jetpack-13.7', 'Automattic\\Jetpack\\Masterbar\\WPCOM_User_Profile_Fields_Revert::revert_user_meta_on_wp_admin_profile_change' );
+		return $this->wpcom_user_profile_fields_revert_wrapper->revert_user_meta_on_wp_admin_profile_change( $meta, $user, $update );
 	}
 
 	/**
 	 * Disable the e-mail notification.
 	 *
+	 * @deprecated 13.7
+	 *
 	 * @param bool  $send     Whether to send or not the email.
 	 * @param array $user     User data.
 	 */
 	public function disable_send_email_change_email( $send, $user ) {
-		if ( ! isset( $user['ID'] ) || ! $this->connection_manager->is_user_connected( $user['ID'] ) ) {
-			return $send;
-		}
-
-		return false;
+		_deprecated_function( __METHOD__, 'jetpack-13.7', 'Automattic\\Jetpack\\Masterbar\\WPCOM_User_Profile_Fields_Revert::disable_send_email_change_email' );
+		return $this->wpcom_user_profile_fields_revert_wrapper->disable_send_email_change_email( $send, $user );
 	}
 
 	/**
@@ -156,14 +117,12 @@ class WPCOM_User_Profile_Fields_Revert {
 	 *
 	 * We need this because WP.org uses a custom flow for E-mail changes.
 	 *
+	 * @deprecated 13.7
+	 *
 	 * @param int $user_id The id of the user that's updated.
 	 */
 	public function disable_email_notification( $user_id ) {
-		// Don't remove the notification for non-WP.com connected users.
-		if ( ! $this->connection_manager->is_user_connected( $user_id ) ) {
-			return;
-		}
-
-		\remove_action( 'personal_options_update', 'send_confirmation_on_profile_email' );
+		_deprecated_function( __METHOD__, 'jetpack-13.7', 'Automattic\\Jetpack\\Masterbar\\WPCOM_User_Profile_Fields_Revert::disable_email_notification' );
+		$this->wpcom_user_profile_fields_revert_wrapper->disable_email_notification( $user_id );
 	}
 }

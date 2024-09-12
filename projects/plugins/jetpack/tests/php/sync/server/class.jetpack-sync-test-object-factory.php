@@ -1,6 +1,6 @@
 <?php // phpcs:ignore WordPress.Files.FileName
 
-// special factory that creates transient versions of various WP objects
+/** Special factory that creates transient versions of various WP objects. */
 class JetpackSyncTestObjectFactory {
 	public static $default_post_props = array(
 		'post_title'            => 'The Title',

@@ -8,10 +8,14 @@
  *
  * In the past, we used to overwrite the whole pluggable function, but we started using filters to avoid having
  * to check for Jetpack::is_active() too early in the load flow.
+ *
+ * @deprecated 13.9 File became unused.
  */
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Redirect;
+
+_deprecated_file( __FILE__, 'jetpack-13.9' );
 
 // phpcs:disable WordPress.WP.I18n.MissingArgDomain --reason: Code copied from Core, so using Core strings.
 // phpcs:disable WordPress.Utils.I18nTextDomainFixer.MissingArgDomain --reason: Code copied from Core, so using Core strings.
@@ -281,7 +285,8 @@ function jetpack_notify_moderator( $notify_moderator, $comment_id ) {
 	if ( WP_Http::is_ip_address( $comment->comment_author_IP ) ) {
 		$comment_author_domain = gethostbyaddr( $comment->comment_author_IP );
 	}
-	$comments_waiting = $wpdb->get_var( "SELECT count(comment_ID) FROM $wpdb->comments WHERE comment_approved = '0'" );
+	// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+	$comments_waiting = (int) $wpdb->get_var( "SELECT count(comment_ID) FROM $wpdb->comments WHERE comment_approved = '0'" );
 
 	// The blogname option is escaped with esc_html on the way into the database in sanitize_option
 	// we want to reverse this for the plain text arena of emails.

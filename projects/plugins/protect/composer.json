@@ -10,17 +10,17 @@
 		"automattic/jetpack-autoloader": "@dev",
 		"automattic/jetpack-composer-plugin": "@dev",
 		"automattic/jetpack-config": "@dev",
-		"automattic/jetpack-identity-crisis": "@dev",
 		"automattic/jetpack-my-jetpack": "@dev",
 		"automattic/jetpack-plugins-installer": "@dev",
 		"automattic/jetpack-sync": "@dev",
 		"automattic/jetpack-transport-helper": "@dev",
 		"automattic/jetpack-plans": "@dev",
 		"automattic/jetpack-waf": "@dev",
-		"automattic/jetpack-status": "@dev"
+		"automattic/jetpack-status": "@dev",
+		"automattic/jetpack-protect-status": "@dev"
 	},
 	"require-dev": {
-		"yoast/phpunit-polyfills": "1.1.0",
+		"yoast/phpunit-polyfills": "^1.1.1",
 		"automattic/jetpack-changelogger": "@dev",
 		"automattic/wordbless": "0.4.2"
 	},
@@ -79,6 +79,6 @@
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true
 		},
-		"autoloader-suffix": "c4802e05bbcf59fd3b6350e8d3e5482c_protectⓥ1_4_3_alpha"
+		"autoloader-suffix": "c4802e05bbcf59fd3b6350e8d3e5482c_protectⓥ3_0_2"
 	}
 }

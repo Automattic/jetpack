@@ -40,7 +40,7 @@ const debug = debugFactory( 'videopress:tracks:track-form' );
  * Track From component
  *
  * @param {TrackFormProps} props - Component props.
- * @returns {React.ReactElement}   Track form react component.
+ * @return {React.ReactElement}   Track form react component.
  */
 export default function TrackForm( {
 	onCancel,
@@ -48,9 +48,13 @@ export default function TrackForm( {
 	tracks,
 	errorMessage,
 }: TrackFormProps ): React.ReactElement {
+	// eslint-disable-next-line @wordpress/no-unused-vars-before-return -- @todo Start extending jetpack-js-tools/eslintrc/react in eslintrc, then we can remove this disable comment.
 	const [ isSavingTrack, setIsSavingTrack ] = useState( false );
+	// eslint-disable-next-line @wordpress/no-unused-vars-before-return -- @todo Start extending jetpack-js-tools/eslintrc/react in eslintrc, then we can remove this disable comment.
 	const [ trackExists, setTrackExists ] = useState( false );
+	// eslint-disable-next-line @wordpress/no-unused-vars-before-return -- @todo Start extending jetpack-js-tools/eslintrc/react in eslintrc, then we can remove this disable comment.
 	const [ error, setError ] = useState( '' );
+	// eslint-disable-next-line @wordpress/no-unused-vars-before-return -- @todo Start extending jetpack-js-tools/eslintrc/react in eslintrc, then we can remove this disable comment.
 	const [ replaceTrack, setReplaceTrack ] = useState( false );
 	const [ track, setTrack ] = useState< UploadTrackDataProps >( {
 		kind: DEFAULT_KIND,
@@ -89,12 +93,14 @@ export default function TrackForm( {
 		return select( blockEditorStore ).getSettings().mediaUpload;
 	}, [] );
 
+	// eslint-disable-next-line @wordpress/no-unused-vars-before-return -- @todo Start extending jetpack-js-tools/eslintrc/react in eslintrc, then we can remove this disable comment.
 	const onSaveHandler = useCallback( () => {
 		setIsSavingTrack( true );
 		setError( '' );
 		onSave( track );
 	}, [ track ] );
 
+	// eslint-disable-next-line @wordpress/no-unused-vars-before-return -- @todo Start extending jetpack-js-tools/eslintrc/react in eslintrc, then we can remove this disable comment.
 	const setSourceLanguage = useCallback(
 		( newSrcLang: string ) => {
 			updateTrack( 'srcLang', newSrcLang );

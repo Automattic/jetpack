@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 
-import classNames from 'classnames';
+import clsx from 'clsx';
 import Popover from 'components/popover';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
@@ -30,6 +30,8 @@ export default class FormToggle extends Component {
 		disabledPopoverPosition: 'bottom',
 		disabledReason: '',
 	};
+
+	toggleSwitchRef = React.createRef();
 
 	state = {
 		showPopover: false,
@@ -94,7 +96,7 @@ export default class FormToggle extends Component {
 		return (
 			<Popover
 				isVisible={ this.state.showPopover }
-				context={ this.refs && this.refs.toggleSwitch }
+				context={ this.toggleSwitchRef.current }
 				position={ this.props.disabledPopoverPosition }
 				onClose={ this._onPopoverClose }
 				className="dops-info-popover__tooltip"
@@ -106,7 +108,7 @@ export default class FormToggle extends Component {
 
 	render() {
 		const id = this.props.id || 'toggle-' + this.id;
-		const toggleClasses = classNames( 'form-toggle', this.props.className, {
+		const toggleClasses = clsx( 'form-toggle', this.props.className, {
 			'is-toggling': this.props.toggling,
 		} );
 
@@ -130,7 +132,7 @@ export default class FormToggle extends Component {
 						aria-checked={ this.props.checked }
 						aria-label={ this.props[ 'aria-label' ] }
 						tabIndex={ this.props.disabled ? -1 : 0 }
-						ref="toggleSwitch"
+						ref={ this.toggleSwitchRef }
 					/>
 					<span className="form-toggle__label-content" onClick={ this.onLabelClick }>
 						{ this.props.children }

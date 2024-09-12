@@ -45,7 +45,11 @@ class Single_Quote_Endpoint extends Client_Portal_Endpoint {
 
 		// content
 		if ( isset( $quote_data['content'] ) ) {
-			$quote_content = $quote_data['content'];
+			$placeholder_templating = $zbs->get_templating();
+			// get initial replacements arr
+			$replacements              = $placeholder_templating->get_generic_replacements();
+			$replacements['quote-url'] = zeroBSCRM_portal_linkObj( $quote_id, ZBS_TYPE_QUOTE );
+			$quote_content             = $placeholder_templating->replace_placeholders( array( 'global', 'quote' ), $quote_data['content'], $replacements, array( ZBS_TYPE_QUOTE => $quote_data ) );
 		}
 
 		// hash (if not passed)

@@ -90,7 +90,7 @@ class ChangelogEntry implements JsonSerializable {
 	 * Set the version.
 	 *
 	 * @param string $version Version to set.
-	 * @returns $this
+	 * @return $this
 	 * @throws InvalidArgumentException If an argument is invalid.
 	 */
 	public function setVersion( $version ) {
@@ -98,7 +98,7 @@ class ChangelogEntry implements JsonSerializable {
 		if ( '' === $version ) {
 			throw new InvalidArgumentException( __METHOD__ . ': Version may not be empty' );
 		}
-		$this->version = (string) $version;
+		$this->version = $version;
 		return $this;
 	}
 
@@ -115,7 +115,7 @@ class ChangelogEntry implements JsonSerializable {
 	 * Set the link.
 	 *
 	 * @param string|null $link Link to set.
-	 * @returns $this
+	 * @return $this
 	 * @throws InvalidArgumentException If an argument is invalid.
 	 */
 	public function setLink( $link ) {
@@ -148,7 +148,7 @@ class ChangelogEntry implements JsonSerializable {
 	 * The timestamp may be null, which should be interpreted as "unreleased".
 	 *
 	 * @param DateTime|string|null $timestamp Timestamp to set.
-	 * @returns $this
+	 * @return $this
 	 * @throws InvalidArgumentException If an argument is invalid.
 	 */
 	public function setTimestamp( $timestamp ) {
@@ -268,12 +268,17 @@ class ChangelogEntry implements JsonSerializable {
 	/**
 	 * Get the changes grouped by subheading.
 	 *
-	 * @param string|null $subheading Subheading to retrieve.
-	 * @return ChangeEntry[]|ChangeEntry[][] An array of changes with the
-	 *   heading if `$subheading` was passed, or an array keyed by subheading of
-	 *   arrays of changes if it was null.
+	 * @param string|null $subheading Subheading to retrieve. @deprecated since 4.2.0. Do `->getChangesBySubheading()[ $subheading ]` instead.
+	 * @return array<string,ChangeEntry[]> Change entries by subheading.
+	 *   Returns just the `ChangeEntry[]` if the deprecated `$subheading` parameter is used.
 	 */
 	public function getChangesBySubheading( $subheading = null ) {
+		if ( $subheading !== null ) {
+			// @todo Sometime for a major version bump, have this throw instead. Then remove it for a major bump after that.
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
+			trigger_error( 'Passing a value for $subheading is deprecated. Do `->getChangesBySubheading()[ $subheading ]` instead.', E_USER_DEPRECATED );
+		}
+
 		$ret = array();
 		foreach ( $this->changes as $entry ) {
 			$ret[ $entry->getSubheading() ][] = $entry;
@@ -281,7 +286,7 @@ class ChangelogEntry implements JsonSerializable {
 
 		return null === $subheading
 			? $ret
-			: ( isset( $ret[ $subheading ] ) ? $ret[ $subheading ] : array() );
+			: ( $ret[ $subheading ] ?? array() );
 	}
 
 	/**
