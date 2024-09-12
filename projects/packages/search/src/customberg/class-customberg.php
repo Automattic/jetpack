@@ -32,6 +32,21 @@ class Customberg {
 	 */
 	public $plan;
 
+	// Configurable options for the Instant Search experience.
+	const OPTIONS = array(
+		'jetpack_search_color_theme',
+		'jetpack_search_result_format',
+		'jetpack_search_default_sort',
+		'jetpack_search_overlay_trigger',
+		'jetpack_search_highlight_color',
+		'jetpack_search_enable_sort',
+		'jetpack_search_inf_scroll',
+		'jetpack_search_filtering_opens_overlay',
+		'jetpack_search_show_powered_by',
+		'jetpack_search_show_post_date',
+		'jetpack_search_excluded_post_types',
+	);
+
 	/**
 	 * Get the singleton instance of the class.
 	 *
@@ -51,8 +66,9 @@ class Customberg {
 	 */
 	public function init_hooks() {
 		add_action( 'admin_menu', array( $this, 'add_wp_admin_page' ), 999 );
-		add_filter( 'pre_option_jetpack_search_show_powered_by', array( $this, 'get_show_powered_by' ) );
 		$this->plan = new Plan();
+		add_action( 'updated_option', array( $this, 'update_cached_option' ), 10, 3 );
+		add_filter( 'pre_option_jetpack_search_show_powered_by', array( $this, 'get_show_powered_by' ) );
 	}
 
 	/**
@@ -75,6 +91,20 @@ class Customberg {
 
 		add_action( "admin_print_scripts-$hook", array( $this, 'load_assets' ) );
 		add_action( 'admin_footer', array( 'Automattic\Jetpack\Search\Helper', 'print_instant_search_sidebar' ) );
+	}
+
+	/**
+	 * Update the cached option value.
+	 *
+	 * @param string $option_name The option name.
+	 * @param mixed  $old_value   The old value, not used.
+	 * @param mixed  $value       The new value.
+	 */
+	public function update_cached_option( $option_name, $old_value, $value ) {
+		if ( in_array( $option_name, self::OPTIONS, true ) ) {
+			// Update option cache only if it's one of Customberg's options.
+			Options::update_cached_option( $option_name, $value );
+		}
 	}
 
 	/**

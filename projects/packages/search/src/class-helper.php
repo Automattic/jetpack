@@ -829,7 +829,7 @@ class Helper {
 			$posts_per_page = 20;
 		}
 
-		$excluded_post_types   = get_option( $prefix . 'excluded_post_types' ) ? explode( ',', get_option( $prefix . 'excluded_post_types', '' ) ) : array();
+		$excluded_post_types   = Options::get_cached_option( $prefix . 'excluded_post_types' ) ? explode( ',', Options::get_cached_option( $prefix . 'excluded_post_types', '' ) ) : array();
 		$post_types            = array_values(
 			get_post_types(
 				array(
@@ -850,15 +850,15 @@ class Helper {
 
 		$options = array(
 			'overlayOptions'              => array(
-				'colorTheme'                  => get_option( $prefix . 'color_theme', 'light' ),
-				'enableInfScroll'             => get_option( $prefix . 'inf_scroll', '1' ) === '1',
-				'enableFilteringOpensOverlay' => get_option( $prefix . 'filtering_opens_overlay', '1' ) === '1',
-				'enablePostDate'              => get_option( $prefix . 'show_post_date', '1' ) === '1',
-				'enableSort'                  => get_option( $prefix . 'enable_sort', '1' ) === '1',
-				'highlightColor'              => get_option( $prefix . 'highlight_color', '#FFC' ),
-				'overlayTrigger'              => get_option( $prefix . 'overlay_trigger', Options::DEFAULT_OVERLAY_TRIGGER ),
-				'resultFormat'                => get_option( $prefix . 'result_format', Options::RESULT_FORMAT_MINIMAL ),
-				'showPoweredBy'               => ( new Plan() )->is_free_plan() || ( get_option( $prefix . 'show_powered_by', '1' ) === '1' ),
+				'colorTheme'                  => Options::get_cached_option( $prefix . 'color_theme', 'light' ),
+				'enableInfScroll'             => Options::get_cached_option( $prefix . 'inf_scroll', '1' ) === '1',
+				'enableFilteringOpensOverlay' => Options::get_cached_option( $prefix . 'filtering_opens_overlay', '1' ) === '1',
+				'enablePostDate'              => Options::get_cached_option( $prefix . 'show_post_date', '1' ) === '1',
+				'enableSort'                  => Options::get_cached_option( $prefix . 'enable_sort', '1' ) === '1',
+				'highlightColor'              => Options::get_cached_option( $prefix . 'highlight_color', '#FFC' ),
+				'overlayTrigger'              => Options::get_cached_option( $prefix . 'overlay_trigger', Options::DEFAULT_OVERLAY_TRIGGER ),
+				'resultFormat'                => Options::get_cached_option( $prefix . 'result_format', Options::RESULT_FORMAT_MINIMAL ),
+				'showPoweredBy'               => Options::get_cached_option( $prefix . 'show_powered_by', '1' ) === '1',
 
 				// These options require kicking off a new search.
 				'defaultSort'                 => get_option( $prefix . 'default_sort', 'relevance' ),

@@ -96,24 +96,30 @@ class Options {
 	/**
 	 * Returns the cache key for an option if persisted with get_cached_option method below.
 	 *
+	 * @param string $option_name - The name of the option to get the cache key for.
+	 *
 	 * @return bool
 	 */
 	public static function get_cached_option_key( $option_name ) {
-		return 'jetpack-search-' . Package::version . '-' . $option_name;
+		return Package::VERSION . '-' . $option_name;
 	}
 
 	/**
 	 * Checks the cache for the option. If it doesn't exist, fetch from DB and persist in the cache.
 	 * Designed to be used for "pre_option_${option_name}" filters.
 	 *
+	 * @param string $option_name - The name of the option to get.
+	 * @param mixed  $default_value - The fallback value if the option does not exist.
+	 * @param int    $cache_timeout - The number of seconds to cache the option for.
+	 *
 	 * @return bool
 	 */
 	public static function get_cached_option( $option_name, $default_value = false, $cache_timeout = 3600 ) {
 		$cache_key = self::get_cached_option_key( $option_name );
-		$value = wp_cache_get( $cache_key );
+		$value     = wp_cache_get( $cache_key, 'jetpack-search' );
 		if ( false === $value ) {
-			$value = get_option( $option_name, $default );
-			wp_cache_set( $cache_key, $value, '', $cache_timeout );
+			$value = get_option( $option_name, $default_value );
+			wp_cache_set( $cache_key, $value, 'jetpack-search', $cache_timeout );
 		}
 		return $value;
 	}
@@ -122,10 +128,15 @@ class Options {
 	 * Updates the cache for the option.
 	 * Designed to be used for "updated_option" actions.
 	 *
+	 * @param string $option_name - The name of the option to update.
+	 * @param mixed  $value - The value to update the option to.
+	 * @param int    $cache_timeout - The number of seconds to cache the option for.
+	 *
 	 * @return bool
 	 */
-	public static function update_cached_option( $option_name, $value ) {
+	public static function update_cached_option( $option_name, $value, $cache_timeout = 3600 ) {
 		$option_key = self::get_cached_option_key( $option_name );
-		wp_cache_set( $option_key, $value );
+		wp_cache_set( $option_key, $value, 'jetpack-search', $cache_timeout );
+		return true;
 	}
 }
