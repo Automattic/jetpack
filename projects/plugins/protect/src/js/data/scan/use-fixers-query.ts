@@ -121,6 +121,8 @@ export default function useFixersQuery( {
 			} );
 
 			showBulkNotices( failures, successes );
+
+			// Return the fetched data so the query resolves
 			return data;
 		},
 		retry: false,
@@ -134,7 +136,9 @@ export default function useFixersQuery( {
 					threat.status === 'in_progress' && ! fixerIsStale( threat.last_updated )
 			);
 
+			// Refetch while any threats are still in progress and not stale.
 			if ( inProgressNotStale ) {
+				// Refetch on a shorter interval first, then slow down if it is taking a while.
 				return query.state.dataUpdateCount < 5 ? 5000 : 15000;
 			}
 
@@ -147,6 +151,7 @@ export default function useFixersQuery( {
 	// Handle error if present in the query result
 	useEffect( () => {
 		if ( fixersQuery.isError && fixersQuery.error ) {
+			// Reset the query data to the initial state
 			queryClient.setQueryData( [ QUERY_FIXERS_KEY ], initialData );
 			showErrorNotice( __( 'An error occurred while fetching fixers status.', 'jetpack-protect' ) );
 		}
