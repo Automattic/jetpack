@@ -125,7 +125,7 @@ export const PaidAccordionItem = ( {
 					<div>
 						{ fixable && (
 							<>
-								{ isActiveFixInProgress && ! isStaleFixInProgress && <Spinner color="black" /> }
+								{ isActiveFixInProgress && <Spinner color="black" /> }
 
 								{ isStaleFixInProgress && (
 									<IconTooltip
