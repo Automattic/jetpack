@@ -82,10 +82,6 @@ function useTourSteps(
 	themeName: string | null = null,
 	siteIntent: string | undefined = undefined
 ): WpcomStep[] {
-	// eslint-disable-next-line no-console
-	console.debug( '*** useTourSteps' );
-	// eslint-disable-next-line no-console
-	console.debug( '*** isComingSoon', isComingSoon() );
 	const isVideoMaker = 'videomaker' === ( themeName ?? '' );
 	const isPatternAssembler = !! getQueryArg( window.location.href, 'assembler' );
 	const isMobile = useViewportMatch( 'mobile', '<' );
