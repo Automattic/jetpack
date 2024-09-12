@@ -24,8 +24,7 @@ describe( 'Admin Menu Functionality', () => {
 	<li id="toplevel_page_jetpack">
 	<ul class="wp-submenu">
 		<li class="wp-submenu-head" aria-hidden="true">Jetpack</li>
-		<li><a href="/wp-admin/admin.php?page=my-jetpack">My Jetpack</a></li>
-		<li><a href="https://jetpack.com/redirect/?source=cloud-wp-menu">Activity Log</a></li>
+		<li><a href="https://jetpack.com/redirect/?source=cloud-activity-log-wp-menu">Activity Log</a></li>
 		<li><a href="/wp-admin/admin.php?page=jetpack#/settings">Settings</a></li>
 		<li class="current"><a href="/wp-admin/admin.php?page=jetpack#/dashboard">Dashboard</a></li>
 	</ul>
