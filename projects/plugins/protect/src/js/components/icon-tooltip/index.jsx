@@ -5,13 +5,25 @@ import styles from './styles.module.scss';
 
 const IconTooltip = ( { icon, iconClassName, iconSize, popoverPosition = 'top', text } ) => {
 	const [ showPopover, setShowPopover ] = useState( false );
+	const [ timeoutId, setTimeoutId ] = useState( null );
 
 	const handleEnter = useCallback( () => {
+		// Clear any existing timeout if user hovers back quickly
+		if ( timeoutId ) {
+			clearTimeout( timeoutId );
+			setTimeoutId( null );
+		}
 		setShowPopover( true );
-	}, [] );
+	}, [ timeoutId ] );
 
 	const handleOut = useCallback( () => {
-		setShowPopover( false );
+		// Set a timeout to delay the hiding of the popover
+		const id = setTimeout( () => {
+			setShowPopover( false );
+			setTimeoutId( null ); // Clear the timeout ID after the popover is hidden
+		}, 100 );
+
+		setTimeoutId( id );
 	}, [] );
 
 	return (

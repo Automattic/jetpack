@@ -135,6 +135,16 @@
 	color: #008a20;
 }
 
+.support-link {
+	color: inherit;
+
+	&:focus,
+	&:hover {
+		color: inherit;
+		box-shadow: none;
+	}
+}
+
 @media ( max-width: 599px ) {
 	.accordion-header {
 		display: grid;
