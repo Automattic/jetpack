@@ -41,7 +41,7 @@ const useEvaluationRecommendations = () => {
 
 	const [ isSectionVisible, setIsSectionVisible ] = useValueStore(
 		'recommendedModulesVisible',
-		isEligibleForRecommendations && !! unownedRecommendedModules?.length
+		! isWelcomeBannerVisible && isEligibleForRecommendations && !! unownedRecommendedModules?.length
 	);
 
 	const { mutate: handleSubmitRecommendations } = useSimpleMutation< SubmitRecommendationsResult >(
