@@ -55,7 +55,9 @@ const ScanHistoryDetails = ( { firstDetected, fixedOn, status } ) => {
 // Badge for displaying the status (fixed or ignored)
 const StatusBadge = ( { status } ) => (
 	<div className={ `${ styles[ 'status-badge' ] } ${ styles[ status ] }` }>
-		{ status === 'fixed' ? __( 'Fixed', 'jetpack-protect' ) : __( 'Ignored', 'jetpack-protect' ) }
+		{ status === 'fixed'
+			? __( 'Fixed', 'jetpack-protect' )
+			: __( 'Ignored', 'jetpack-protect', /* dummy arg to avoid bad minification */ 0 ) }
 	</div>
 );
 
