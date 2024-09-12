@@ -70,7 +70,7 @@ const ShareDebugData = () => {
 
 	return (
 		<div className={ styles[ 'share-data-section' ] }>
-			<Title mb={ 2 }>{ __( ' Share detailed data with Jetpack', 'jetpack-protect' ) }</Title>
+			<Title mb={ 2 }>{ __( 'Share detailed data with Jetpack', 'jetpack-protect' ) }</Title>
 			<div className={ styles[ 'footer-checkbox' ] }>
 				<CheckboxControl
 					checked={ Boolean( settings.jetpack_waf_share_debug_data ) }
@@ -114,7 +114,7 @@ const ShareData = () => {
 
 	return (
 		<div className={ styles[ 'share-data-section' ] }>
-			<Title mb={ 2 }>{ __( ' Share basic data with Jetpack', 'jetpack-protect' ) }</Title>
+			<Title mb={ 2 }>{ __( 'Share basic data with Jetpack', 'jetpack-protect' ) }</Title>
 			<div className={ styles[ 'footer-checkbox' ] }>
 				<CheckboxControl
 					checked={ Boolean( settings.jetpack_waf_share_data ) }

@@ -89,7 +89,6 @@ class Defaults {
 		'jetpack_relatedposts',
 		'jetpack_social_notes_config',
 		'jetpack_social_settings',
-		'jetpack_social_autoconvert_images',
 		'jetpack_sso_match_by_email',
 		'jetpack_sso_require_two_step',
 		'jetpack_sync_non_blocking', // is non-blocking Jetpack Sync flow enabled.

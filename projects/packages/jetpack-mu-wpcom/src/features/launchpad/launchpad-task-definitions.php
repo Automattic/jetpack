@@ -99,13 +99,28 @@ function wpcom_launchpad_get_task_definitions() {
 		),
 		'first_post_published'            => array(
 			'get_title'             => function () {
-				return __( 'Write your first post', 'jetpack-mu-wpcom' );
+				$latest_draft_id = wpcom_launchpad_get_latest_draft_id();
+				return $latest_draft_id === false
+						? __( 'Write your first post', 'jetpack-mu-wpcom' )
+						: __( 'Continue to write your first post', 'jetpack-mu-wpcom' );
 			},
 			'add_listener_callback' => function () {
 				add_action( 'publish_post', 'wpcom_launchpad_track_publish_first_post_task' );
 			},
 			'get_calypso_path'      => function ( $task, $default, $data ) {
-				$base_path = wpcom_launchpad_should_use_wp_admin_link()
+				$is_blog_onboarding_flow = in_array( get_option( 'site_intent' ), array( 'start-writing', 'design-first' ), true );
+				$use_wp_admin_link = wpcom_launchpad_should_use_wp_admin_link() || $is_blog_onboarding_flow;
+				$latest_draft_id = wpcom_launchpad_get_latest_draft_id();
+
+				if ( is_int( $latest_draft_id ) ) {
+					// There is a draft post, redirect the user to the draft instead of making a fresh post.
+					if ( $use_wp_admin_link ) {
+						return admin_url( 'post.php?action=edit&post=' . rawurlencode( $latest_draft_id ) );
+					}
+					return '/post/' . $data['site_slug_encoded'] . '/' . rawurlencode( $latest_draft_id );
+				}
+
+				$base_path = $use_wp_admin_link
 					? admin_url( 'post-new.php' )
 					: '/post/' . $data['site_slug_encoded'];
 
@@ -2720,3 +2735,38 @@ function wpcom_launchpad_mark_theme_selected_complete( $new_theme, $old_theme ) 
 	wpcom_mark_launchpad_task_complete( 'site_theme_selected' );
 }
 add_action( 'jetpack_sync_current_theme_support', 'wpcom_launchpad_mark_theme_selected_complete', 10, 2 );
+
+/**
+ * Returns the latest draft post ID, otherwise false.
+ * Similar to wp_get_recent_posts, except we only need the ID.
+ *
+ * The response is cached for the lifetime of the current request.
+ *
+ * @return int | boolean
+ */
+function wpcom_launchpad_get_latest_draft_id() {
+	// The result is cached for the current request
+	static $cached_blog_id  = null;
+	static $cached_draft_id = null;
+
+	if ( $cached_blog_id === get_current_blog_id() && $cached_draft_id !== null ) {
+		return $cached_draft_id;
+	}
+
+	// Query for the latest draft post
+	$args = array(
+		'posts_per_page' => 1,
+		'post_status'    => 'draft',
+		'post_type'      => 'post',
+		'orderby'        => 'date',
+		'order'          => 'DESC',
+		'fields'         => 'ids',
+	);
+
+	$latest_draft_id = get_posts( $args );
+
+	$cached_blog_id  = get_current_blog_id();
+	$cached_draft_id = reset( $latest_draft_id );
+
+	return $cached_draft_id;
+}

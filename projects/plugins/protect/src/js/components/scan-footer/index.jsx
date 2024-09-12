@@ -33,7 +33,7 @@ const ProductPromotion = () => {
 				<Title>{ __( 'Get access to our Cloud', 'jetpack-protect' ) }</Title>
 				<Text mb={ 3 }>
 					{ __(
-						'With your Protect upgrade, you have free access to scan your site on our Cloud, so you can be aware and fix your threats even if your site goes down. ',
+						'With your Protect upgrade, you have free access to scan your site on our Cloud, so you can be aware and fix your threats even if your site goes down.',
 						'jetpack-protect'
 					) }
 				</Text>
@@ -83,9 +83,9 @@ const FooterInfo = () => {
 				<Title>{ __( 'Line-by-line scanning', 'jetpack-protect' ) }</Title>
 				<Text mb={ 2 }>
 					{ __(
-						'We actively review line-by-line of your site files to identify threats and vulnerabilities. Jetpack monitors millions of websites to keep your site secure all the time. ',
+						'We actively review line-by-line of your site files to identify threats and vulnerabilities. Jetpack monitors millions of websites to keep your site secure all the time.',
 						'jetpack-protect'
-					) }
+					) }{ ' ' }
 					<Button variant="link" target="_blank" weight="regular" href={ learnMoreScanUrl }>
 						{ __( 'Learn more', 'jetpack-protect' ) }
 					</Button>
