@@ -85,6 +85,11 @@ class WooCommerce_HPOS_Orders extends Module {
 	public static function get_order_types_to_sync( $prefixed = false ) {
 		$types = array( 'order', 'order_refund' );
 
+		// Ensure this is available.
+		if ( ! function_exists( 'is_plugin_active' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+
 		if ( is_plugin_active( self::WOOCOMMERCE_SUBSCRIPTIONS_PATH ) ) {
 			$types[] = 'subscription';
 		}
