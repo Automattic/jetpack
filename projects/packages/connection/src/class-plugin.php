@@ -87,36 +87,4 @@ class Plugin {
 
 		return ! $plugins || ( array_key_exists( $this->slug, $plugins ) && 1 === count( $plugins ) );
 	}
-
-	/**
-	 * Add the plugin to the set of disconnected ones.
-	 *
-	 * @deprecated since 1.39.0.
-	 *
-	 * @return bool
-	 */
-	public function disable() {
-		return true;
-	}
-
-	/**
-	 * Remove the plugin from the set of disconnected ones.
-	 *
-	 * @deprecated since 1.39.0.
-	 *
-	 * @return bool
-	 */
-	public function enable() {
-		return true;
-	}
-
-	/**
-	 * Whether this plugin is allowed to use the connection.
-	 *
-	 * @deprecated since 11.0
-	 * @return bool
-	 */
-	public function is_enabled() {
-		return true;
-	}
 }
