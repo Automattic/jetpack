@@ -59,7 +59,7 @@ const TitleOptimizationErrorMessage = ( { error }: { error: TitleOptimizationErr
 	}
 
 	// Use the provided message, if available, otherwise use the generic error message
-	const errorMessage = error?.message ? error.message : genericErrorMessage;
+	const errorMessage = error.message ? error.message : genericErrorMessage;
 
 	return (
 		<div className="jetpack-ai-title-optimization__error">
@@ -103,7 +103,7 @@ export default function TitleOptimization( {
 	const [ isTitleOptimizationModalVisible, setIsTitleOptimizationModalVisible ] = useState( false );
 	const [ generating, setGenerating ] = useState( false );
 	const [ options, setOptions ] = useState( [] );
-	const [ error, setError ] = useState< TitleOptimizationError >( null );
+	const [ error, setError ] = useState< TitleOptimizationError | null >( null );
 	const [ optimizationKeywords, setOptimizationKeywords ] = useState( '' );
 	const { editPost } = useDispatch( 'core/editor' );
 	const { autosave } = useAutoSaveAndRedirect();
