@@ -153,6 +153,17 @@ class REST_Controller {
 			)
 		);
 
+		// User feedback endpoint.
+		register_rest_route(
+			static::$namespace,
+			sprintf( '/sites/%d/jetpack-stats/user-feedback', Jetpack_Options::get_option( 'id' ) ),
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'post_user_feedback' ),
+				'permission_callback' => array( $this, 'can_user_view_general_stats_callback' ),
+			)
+		);
+
 		// WordAds Earnings.
 		register_rest_route(
 			static::$namespace,
@@ -691,6 +702,45 @@ class REST_Controller {
 			'v2',
 			array( 'timeout' => 5 ),
 			null,
+			'wpcom'
+		);
+	}
+
+	/**
+	 * Post user feedback for Jetpack Stats.
+	 *
+	 * @param WP_REST_Request $req The request object.
+	 *
+	 * @return array
+	 */
+	public function post_user_feedback( $req ) {
+		$current_user  = wp_get_current_user();
+		$body_from_req = json_decode( $req->get_body(), true );
+		$body_data     = is_array( $body_from_req ) ? $body_from_req : array();
+		$user_email    = $current_user->user_email;
+
+		return WPCOM_Client::request_as_blog_cached(
+			sprintf(
+				'/sites/%d/jetpack-stats/user-feedback?%s',
+				Jetpack_Options::get_option( 'id' ),
+				$this->filter_and_build_query_string(
+					$req->get_query_params()
+				)
+			),
+			'v2',
+			array(
+				'timeout' => 5,
+				'method'  => 'POST',
+				'headers' => array( 'Content-Type' => 'application/json' ),
+			),
+			wp_json_encode(
+				array_merge(
+					$body_data,
+					array(
+						'user_email' => $user_email,
+					)
+				)
+			),
 			'wpcom'
 		);
 	}

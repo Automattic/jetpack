@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Sync: Ensure is_plugin_active exists when loading Table Checksums

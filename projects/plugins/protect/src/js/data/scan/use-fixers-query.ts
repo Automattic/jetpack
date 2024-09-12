@@ -43,15 +43,15 @@ export default function useFixersQuery( {
 		[ now ]
 	);
 
-	// Memoize initial data to prevent recalculating on every render
-	const initialData = useMemo( () => {
-		return (
+	// Memoize initialData to prevent recalculating on every render
+	const initialData: FixersStatus = useMemo(
+		() =>
 			window.jetpackProtectInitialState?.fixerStatus || {
 				ok: true,
 				threats: {},
-			}
-		);
-	}, [] );
+			},
+		[]
+	);
 
 	// Helper to show success or failure notices
 	const showBulkNotices = useCallback(
@@ -144,7 +144,7 @@ export default function useFixersQuery( {
 
 			return false;
 		},
-		initialData,
+		initialData: initialData,
 		enabled: isRegistered,
 	} );
 
