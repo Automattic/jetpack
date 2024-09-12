@@ -16,8 +16,7 @@ const UpsellNotice = ( { requiredPlan } ) => {
 
 	const buttonText = __( 'Upgrade now', 'jetpack' );
 	const supportUrl = 'https://wordpress.com/support/seo-tools/';
-	const postId = 120916;
-	const supportLinkTitle = __( 'Learn more about SEO feature.', 'jetpack' );
+	const supportLinkTitle = __( 'Learn more about the SEO feature.', 'jetpack' );
 
 	const onClickHandler = event => {
 		event.preventDefault();
@@ -44,7 +43,7 @@ const UpsellNotice = ( { requiredPlan } ) => {
 					<Button
 						onClick={ () => {
 							setShowHelpCenter( true );
-							setShowSupportDoc( supportUrl, postId );
+							setShowSupportDoc( supportUrl );
 						} }
 						className="components-seo-upsell__learn-more-link"
 						variant="link"
