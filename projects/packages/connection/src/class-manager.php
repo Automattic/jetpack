@@ -152,11 +152,10 @@ class Manager {
 		add_action( 'jetpack_site_disconnected', array( $manager, 'reset_connection_status' ) );
 		add_action( 'jetpack_sync_register_user', array( $manager, 'reset_connection_status' ) );
 		add_action( 'pre_update_jetpack_option_id', array( $manager, 'reset_connection_status' ) );
+		add_action( 'pre_update_jetpack_option_blog_token', array( $manager, 'reset_connection_status' ) );
+		add_action( 'pre_update_jetpack_option_user_token', array( $manager, 'reset_connection_status' ) );
+		add_action( 'pre_update_jetpack_option_user_tokens', array( $manager, 'reset_connection_status' ) );
 		add_action( 'switch_blog', array( $manager, 'reset_connection_status' ) );
-		// blog_token, user_token, user_tokens - handled by the next three that look for jetpack_private_options.
-		add_action( 'update_option', array( $manager, 'maybe_reset_connection_status' ), 10, 1 );
-		add_action( 'add_option', array( $manager, 'maybe_reset_connection_status' ), 10, 1 );
-		add_action( 'delete_option', array( $manager, 'maybe_reset_connection_status' ), 10, 1 );
 
 		// Set up package version hook.
 		add_filter( 'jetpack_package_versions', __NAMESPACE__ . '\Package_Version::send_package_version_to_tracker' );
@@ -635,22 +634,6 @@ class Manager {
 	 */
 	public function reset_connection_status() {
 		self::$is_connected = null;
-	}
-
-	/**
-	 * Resets the memoized connection status if jetpack_private_options is updated.
-	 *
-	 * Ideally, we would only do this on certain "sub" options stored inside
-	 * jetpack_private_options, but delete_option() -> delete_grouped_option()
-	 * provides us no hook to detect which options are being deleted.
-	 *
-	 * @param string $option The option name.
-	 */
-	public function maybe_reset_connection_status( $option ) {
-		$reset_options = array( 'jetpack_private_options' );
-		if ( in_array( $option, $reset_options, true ) ) {
-			self::$is_connected = null;
-		}
 	}
 
 	/**
