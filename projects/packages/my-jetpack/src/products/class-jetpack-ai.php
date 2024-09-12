@@ -611,7 +611,7 @@ class Jetpack_Ai extends Product {
 	 * @return void
 	 */
 	public static function extend_plugin_action_links() {
-		add_action( 'admin_enqueue_scripts', array( static::class, 'admin_enqueue_scripts' ) );
+		add_action( 'myjetpack_enqueue_scripts', array( static::class, 'admin_enqueue_scripts' ) );
 		add_filter( 'default_content', array( static::class, 'add_ai_block' ), 10, 2 );
 	}
 
