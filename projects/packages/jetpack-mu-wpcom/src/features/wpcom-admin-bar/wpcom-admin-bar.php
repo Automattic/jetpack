@@ -165,6 +165,11 @@ add_action( 'admin_bar_menu', 'wpcom_replace_wp_logo_with_wpcom_all_sites_menu',
  * @param WP_Admin_Bar $wp_admin_bar The WP_Admin_Bar core object.
  */
 function wpcom_add_shopping_cart( $wp_admin_bar ) {
+	// Return if the site isn't a simple site
+	if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
+		return;
+	}
+
 	// Include the shopping cart functionality from the specified path.
 	require_once WP_CONTENT_DIR . '/admin-plugins/wpcom-billing/shopping-cart.php';
 
