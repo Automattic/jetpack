@@ -898,10 +898,6 @@ function sharing_add_footer() {
  * @return void
  */
 function sharing_add_header() {
-	if ( ! sharing_should_load_legacy_sharing_buttons() ) {
-		return;
-	}
-
 	$sharer  = new Sharing_Service();
 	$enabled = $sharer->get_blog_services();
 
@@ -915,20 +911,6 @@ function sharing_add_header() {
 	}
 }
 add_action( 'wp_head', 'sharing_add_header', 1 );
-
-/**
- * Determine if legacy sharing buttons should be loaded.
- * Do this by checking if the current theme is a block theme
- * If it is, we shouldn't enqueue the sharing assets
- * as the recommended way of adding sharing buttons is via the editor.
- *
- * @since $$next-version$$
- *
- * @return bool True if legacy sharing buttons should be loaded, false otherwise.
- */
-function sharing_should_load_legacy_sharing_buttons() {
-	return ! wp_is_block_theme();
-}
 
 /**
  * Launch sharing requests on page load when a specific query string is used.
