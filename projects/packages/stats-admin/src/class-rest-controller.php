@@ -714,11 +714,7 @@ class REST_Controller {
 	 * @return array
 	 */
 	public function post_user_feedback( $req ) {
-		$current_user = wp_get_current_user();
-		if ( ! $current_user ) {
-			return $this->get_forbidden_error();
-		}
-
+		$current_user  = wp_get_current_user();
 		$body_from_req = json_decode( $req->get_body(), true );
 		$body_data     = is_array( $body_from_req ) ? $body_from_req : array();
 		$user_email    = $current_user->user_email;
