@@ -36,7 +36,7 @@ export default function useFixersQuery( {
 	const initialData: FixersStatus = useMemo(
 		() =>
 			window.jetpackProtectInitialState?.fixerStatus || {
-				ok: false,
+				ok: true,
 				threats: {},
 			},
 		[]
