@@ -160,6 +160,66 @@ function wpcom_replace_wp_logo_with_wpcom_all_sites_menu( $wp_admin_bar ) {
 add_action( 'admin_bar_menu', 'wpcom_replace_wp_logo_with_wpcom_all_sites_menu', 11 );
 
 /**
+ * Adds the Cart menu to the WordPress admin bar.
+ *
+ * @param WP_Admin_Bar $wp_admin_bar The WP_Admin_Bar core object.
+ */
+function wpcom_add_shopping_cart( $wp_admin_bar ) {
+	// Return if the site isn't a simple site
+	if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
+		return;
+	}
+
+	// Include the shopping cart functionality from the specified path.
+	require_once WP_CONTENT_DIR . '/admin-plugins/wpcom-billing/shopping-cart.php';
+
+	// Get the current blog ID.
+	$blog_id = get_current_blog_id();
+
+	// Retrieve the current user's shopping cart for the current blog.
+	$cart = \Store_Shopping_Cart::get_existing_cart(
+		array(
+			'blog_id' => $blog_id,
+			'user_id' => get_current_user_id(),
+		)
+	);
+
+	// If the cart is empty (no products), do not add the cart menu.
+	if ( ! $cart->get_product_slugs() ) {
+		return;
+	}
+
+	// Get the Calypso site slug for the current blog.
+	$calypso_site_slug = \WPCOM_Masterbar::get_calypso_site_slug( $blog_id );
+
+	// If no Calypso site slug is found, return early.
+	if ( ! $calypso_site_slug ) {
+		return;
+	}
+
+	// Add the cart menu item to the WordPress admin bar.
+	$wp_admin_bar->add_menu(
+		array(
+			'id'     => 'cart', // Unique ID for the cart menu item.
+			'title'  => '<span class="ab-item cart-icon" aria-hidden="true"></span>' .
+						'<div class="cart-icon__dot"></div>' .
+						'<span class="screen-reader-text">' .
+						/* translators: Hidden accessibility text. */
+						__( 'Cart', 'jetpack-mu-wpcom' ) .
+						'</span>',
+			'href'   => 'https://wordpress.com/checkout/' . esc_attr( $calypso_site_slug ), // Link to the checkout page.
+			'meta'   => array(
+				'class' => 'wp-admin-bar-cart', // Custom class for styling the cart menu item.
+			),
+			'parent' => 'top-secondary', // Position the cart in the 'top-secondary' section of the admin bar.
+		)
+	);
+}
+
+// Hook the cart icon to the admin bar menu, placing it before the reader icon (same as Calypso).
+add_action( 'admin_bar_menu', 'wpcom_add_shopping_cart', 11 );
+
+/**
  * Adds the Reader menu.
  *
  * @param WP_Admin_Bar $wp_admin_bar The WP_Admin_Bar core object.
