@@ -207,6 +207,13 @@ class Initializer {
 	 * @return void
 	 */
 	public static function enqueue_scripts() {
+		/**
+		 * Fires after the My Jetpack page is initialized.
+		 * Allows for enqueuing additional scripts only on the My Jetpack page.
+		 *
+		 * @since $$next-version$$
+		 */
+		do_action( 'myjetpack_enqueue_scripts' );
 		Assets::register_script(
 			'my_jetpack_main_app',
 			'../build/index.js',

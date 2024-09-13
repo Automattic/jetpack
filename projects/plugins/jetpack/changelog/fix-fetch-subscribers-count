@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Reduces number of calls to wpcom for fetching subscribers counts
+
+
