@@ -1,4 +1,5 @@
 import { localizeUrl } from '@automattic/i18n-utils';
+import { isComingSoon } from '@automattic/jetpack-shared-extension-utils';
 import { ExternalLink } from '@wordpress/components';
 import { useViewportMatch } from '@wordpress/compose';
 import { createInterpolateElement } from '@wordpress/element';
@@ -202,32 +203,6 @@ function useTourSteps(
 			},
 		},
 		{
-			slug: 'edit-block',
-			meta: {
-				heading: __( 'Click a block to change it', 'jetpack-mu-wpcom' ),
-				descriptions: {
-					desktop: isVideoMaker
-						? __(
-								'Use the toolbar to change the appearance of a selected block. Try replacing a video!',
-								'jetpack-mu-wpcom'
-						  )
-						: _x(
-								'Use the toolbar to change the appearance of a selected block. Try making it bold.',
-								'jetpack-mu-wpcom',
-								'jetpack-mu-wpcom'
-						  ),
-					mobile: null,
-				},
-				imgSrc: getTourAssets( isVideoMaker ? 'videomakerEdit' : 'makeBold' ),
-			},
-			options: {
-				classNames: {
-					desktop: 'wpcom-editor-welcome-tour__step',
-					mobile: 'wpcom-editor-welcome-tour__step',
-				},
-			},
-		},
-		{
 			slug: 'settings',
 			...( referencePositioning && {
 				referenceElements: {
@@ -276,53 +251,6 @@ function useTourSteps(
 					},
 			  ]
 			: [] ),
-		...( ! isMobile
-			? [
-					{
-						slug: 'undo',
-						...( referencePositioning && {
-							referenceElements: {
-								desktop:
-									'.edit-post-header .edit-post-header__toolbar .components-button.editor-history__undo',
-							},
-						} ),
-						meta: {
-							heading: __( 'Undo any mistake', 'jetpack-mu-wpcom' ),
-							descriptions: {
-								desktop: __(
-									"Click the Undo button if you've made a mistake.",
-									'jetpack-mu-wpcom'
-								),
-								mobile: null,
-							},
-							imgSrc: getTourAssets( 'undo' ),
-						},
-						options: {
-							classNames: {
-								desktop: 'wpcom-editor-welcome-tour__step',
-								mobile: 'wpcom-editor-welcome-tour__step',
-							},
-						},
-					},
-			  ]
-			: [] ),
-		{
-			slug: 'drag-drop',
-			meta: {
-				heading: __( 'Drag & drop', 'jetpack-mu-wpcom' ),
-				descriptions: {
-					desktop: __( 'To move blocks around, click and drag the handle.', 'jetpack-mu-wpcom' ),
-					mobile: __( 'To move blocks around, tap the up and down arrows.', 'jetpack-mu-wpcom' ),
-				},
-				imgSrc: getTourAssets( 'moveBlock' ),
-			},
-			options: {
-				classNames: {
-					desktop: 'wpcom-editor-welcome-tour__step',
-					mobile: [ 'is-with-extra-padding', 'wpcom-editor-welcome-tour__step' ],
-				},
-			},
-		},
 		{
 			slug: 'payment-block',
 			meta: {
@@ -402,32 +330,50 @@ function useTourSteps(
 			meta: {
 				heading: __( 'Congratulations!', 'jetpack-mu-wpcom' ),
 				descriptions: {
-					desktop: createInterpolateElement(
-						__(
-							"You've learned the basics. Remember, your site is private until you <link_to_launch_site_docs>decide to launch</link_to_launch_site_docs>. View the <link_to_editor_docs>block editing docs</link_to_editor_docs> to learn more.",
-							'jetpack-mu-wpcom'
-						),
-						{
-							link_to_launch_site_docs: (
-								<ExternalLink
-									href={ localizeUrl(
-										'https://wordpress.com/support/settings/privacy-settings/#launch-your-site',
-										localeSlug
-									) }
-									children={ null }
-								/>
-							),
-							link_to_editor_docs: (
-								<ExternalLink
-									href={ localizeUrl(
-										'https://wordpress.com/support/wordpress-editor/',
-										localeSlug
-									) }
-									children={ null }
-								/>
-							),
-						}
-					),
+					desktop: isComingSoon()
+						? createInterpolateElement(
+								__(
+									"You've learned the basics. Remember, your site is private until you <link_to_launch_site_docs>decide to launch</link_to_launch_site_docs>. View the <link_to_editor_docs>block editing docs</link_to_editor_docs> to learn more.",
+									'jetpack-mu-wpcom'
+								),
+								{
+									link_to_launch_site_docs: (
+										<ExternalLink
+											href={ localizeUrl(
+												'https://wordpress.com/support/settings/privacy-settings/#launch-your-site',
+												localeSlug
+											) }
+											children={ null }
+										/>
+									),
+									link_to_editor_docs: (
+										<ExternalLink
+											href={ localizeUrl(
+												'https://wordpress.com/support/wordpress-editor/',
+												localeSlug
+											) }
+											children={ null }
+										/>
+									),
+								}
+						  )
+						: createInterpolateElement(
+								__(
+									"You've learned the basics. View the <link_to_editor_docs>block editing docs</link_to_editor_docs> to learn more.",
+									'jetpack-mu-wpcom'
+								),
+								{
+									link_to_editor_docs: (
+										<ExternalLink
+											href={ localizeUrl(
+												'https://wordpress.com/support/wordpress-editor/',
+												localeSlug
+											) }
+											children={ null }
+										/>
+									),
+								}
+						  ),
 					mobile: null,
 				},
 				imgSrc: getTourAssets( 'finish' ),

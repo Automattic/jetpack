@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Removing some steps from the Block Editor Welcome Tour, since it currently has too many
