@@ -99,7 +99,7 @@ CSS
 	wp_add_inline_style(
 		'wpcom-admin-bar',
 		<<<CSS
-			#wpadminbar .ab-icon {
+			:where(#wpadminbar .ab-icon) {
 				color: $admin_icon_color;
 			}
 CSS
