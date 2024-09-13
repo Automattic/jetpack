@@ -59,7 +59,7 @@ export default class SearchSort extends Component {
 				aria-controls="jetpack-instant-search__search-results-content"
 				className="jetpack-instant-search__search-sort jetpack-instant-search__search-sort-with-links"
 			>
-				<div className="screen-reader-text">{ __( 'Sort by: ', 'jetpack-search-pkg' ) }</div>
+				<div className="screen-reader-text">{ __( 'Sort by:', 'jetpack-search-pkg' ) } </div>
 				{ [ ...sortOptions.entries() ].map( ( [ sortKey, label ] ) => (
 					<>
 						<button

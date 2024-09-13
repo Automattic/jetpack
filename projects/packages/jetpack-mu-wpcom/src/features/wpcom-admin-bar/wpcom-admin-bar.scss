@@ -165,27 +165,38 @@
 
 			#wp-admin-bar-reader {
 				display: block;
-				width: auto !important;
-				min-width: 52px;
-				padding: 0px;
 
-				.ab-icon {
+				.ab-item {
+					display: flex;
 					justify-content: center;
-					padding: 0px 10px;
 
-					&:before {
-						width: 36px;
-						height: 36px;
-						margin: 0px;
-						mask-size: contain;
+					.ab-icon {
+						justify-content: center;
+						padding: 0px;
+	
+						&:before {
+							width: 36px;
+							height: 36px;
+							margin: 0px;
+							mask-size: contain;
+						}
 					}
 				}
 			}
 
 			#wp-admin-bar-help-center {
 				display: block !important;
-				width: 49px !important;
 				margin-right: 0 !important;
+				width: 52px !important;
+
+				.ab-item {
+					display: flex;
+					justify-content: center;
+
+					svg {
+						position: relative;
+					}
+				}
 			}
 
 			#wp-admin-bar-notes {
