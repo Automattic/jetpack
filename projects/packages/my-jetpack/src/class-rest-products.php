@@ -83,6 +83,27 @@ class REST_Products {
 				),
 			)
 		);
+
+		register_rest_route(
+			'my-jetpack/v1',
+			'site/products/ownership',
+			array(
+				array(
+					'methods'             => \WP_REST_Server::READABLE,
+					'callback'            => __CLASS__ . '::get_products_by_ownership',
+					'permission_callback' => __CLASS__ . '::permissions_callback',
+				),
+				'schema' => array( $this, 'get_products_schema' ),
+			)
+		);
+
+		$product_arg = array(
+			'description'       => __( 'Product slug', 'jetpack-my-jetpack' ),
+			'type'              => 'string',
+			'enum'              => Products::get_products_by_ownership(),
+			'required'          => true,
+			'validate_callback' => __CLASS__ . '::check_product_argument',
+		);
 	}
 
 	/**
@@ -139,6 +160,16 @@ class REST_Products {
 	 */
 	public static function get_products() {
 		$response = Products::get_products();
+		return rest_ensure_response( $response, 200 );
+	}
+
+	/**
+	 * Site products endpoint.
+	 *
+	 * @return array of site products list.
+	 */
+	public static function get_products_by_ownership() {
+		$response = Products::get_products_by_ownership();
 		return rest_ensure_response( $response, 200 );
 	}
 
