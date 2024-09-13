@@ -70,7 +70,7 @@ class REST_Social_Note_Controller extends WP_REST_Controller {
 			foreach ( $post_meta[ self::SOCIAL_SHARES_POST_META_KEY ] as $share ) {
 				if ( isset( $share['status'] ) && 'success' === $share['status'] ) {
 					$urls[] = array(
-						'url'     => $share['url'],
+						'url'     => $share['message'],
 						'service' => $share['service'],
 					);
 				}
