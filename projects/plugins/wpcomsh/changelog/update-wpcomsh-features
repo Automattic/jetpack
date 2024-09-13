@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+WPCOM Features: Add INSTALL_THEMES feature to Jetpack sites so that they are not erroneously seeing the "upgrade" badge when looking at dotorg themes in the wordpress.com showcase
