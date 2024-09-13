@@ -4,9 +4,9 @@ import { store as editorStore } from '@wordpress/editor';
 import { useEffect, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
+import { useIsSharingPossible } from '../../hooks/use-is-sharing-possible';
 import usePublicizeConfig from '../../hooks/use-publicize-config';
 import useSharePost from '../../hooks/use-share-post';
-import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import { store as socialStore } from '../../social-store';
 
 /**
@@ -45,7 +45,6 @@ function showSuccessNotice() {
  * @return {object} A button component that will share the current post when clicked.
  */
 export function SharePostButton() {
-	const { hasEnabledConnections } = useSocialMediaConnections();
 	const { isPublicizeEnabled } = usePublicizeConfig();
 	const { isFetching, isError, isSuccess, doPublicize } = useSharePost();
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
@@ -68,6 +67,8 @@ export function SharePostButton() {
 		showSuccessNotice();
 	}, [ isFetching, isError, isSuccess ] );
 
+	const isSharingPossible = useIsSharingPossible();
+
 	/*
 	 * Disabled button when
 	 * - sharing is disabled
@@ -76,7 +77,7 @@ export function SharePostButton() {
 	 * - is sharing post
 	 */
 	const isButtonDisabled =
-		! isPublicizeEnabled || ! hasEnabledConnections || ! isPostPublished || isFetching;
+		! isPublicizeEnabled || ! isSharingPossible || ! isPostPublished || isFetching;
 
 	const sharePost = useCallback( async () => {
 		if ( ! isPostPublished ) {
