@@ -3,8 +3,8 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { usePublicizeConfig } from '../../..';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
+import { checkConnectionCode } from '../../utils/connections';
 import Notice from '../notice';
-import { checkConnectionCode } from './utils';
 
 export const UnsupportedConnectionsNotice: React.FC = () => {
 	const { connections } = useSocialMediaConnections();

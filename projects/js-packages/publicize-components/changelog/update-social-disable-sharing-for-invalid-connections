@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Social: Disable reshare button and hide post publish share status when all the enabled connections are invalid
