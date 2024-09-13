@@ -756,11 +756,16 @@ class Jetpack_Memberships {
 	 * @return bool
 	 */
 	public static function should_enable_monetize_blocks_in_editor() {
+		if ( ! is_admin() ) {
+			// We enable the block for the front-end in all cases
+			return self::is_enabled_jetpack_recurring_payments();
+		}
+
 		$manager                          = new Connection_Manager( 'jetpack' );
-		$jetpack_ready_and_user_connected = $manager->is_connected() && $manager->is_user_connected();
+		$jetpack_ready_and_connected      = $manager->is_connected() && $manager->has_connected_owner();
 		$is_offline_mode                  = ( new Status() )->is_offline_mode();
-		$api_available                    = ( new Host() )->is_wpcom_simple() || ( $jetpack_ready_and_user_connected && ! $is_offline_mode );
-		return $api_available;
+		$enable_monetize_blocks_in_editor = ( new Host() )->is_wpcom_simple() || ( $jetpack_ready_and_connected && ! $is_offline_mode );
+		return $enable_monetize_blocks_in_editor;
 	}
 
 	/**
