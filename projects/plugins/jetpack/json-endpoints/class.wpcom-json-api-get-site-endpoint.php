@@ -613,9 +613,6 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			case 'is_deleted':
 				$response[ $key ] = $this->site->is_deleted();
 				break;
-			case 'is_a4a_client':
-				$response[ $key ] = $this->site->is_a4a_client();
-				break;
 			case 'is_a4a_dev_site':
 				$response[ $key ] = $this->site->is_a4a_dev_site();
 				break;
