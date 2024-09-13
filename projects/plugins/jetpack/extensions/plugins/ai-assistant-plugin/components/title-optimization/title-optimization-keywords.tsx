@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { Button } from '@wordpress/components';
+import { Button, KeyboardShortcuts } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import './title-optimization-keywords.scss';
 
@@ -25,17 +25,28 @@ export default function TitleOptimizationKeywords( {
 	return (
 		<div className="jetpack-ai-title-optimization__keywords">
 			<div className="jetpack-ai-title-optimization__keywords__textarea">
-				<textarea
-					value={ currentKeywords }
-					disabled={ disabled }
-					maxLength={ 100 }
-					rows={ 1 }
-					onChange={ handleKeywordChange }
-					placeholder={ __(
-						"Add optional keywords you'd like to include and generate new suggestions.",
-						'jetpack'
-					) }
-				></textarea>
+				<KeyboardShortcuts
+					bindGlobal
+					shortcuts={ {
+						enter: () => {
+							if ( ! disabled ) {
+								onGenerate();
+							}
+						},
+					} }
+				>
+					<textarea
+						value={ currentKeywords }
+						disabled={ disabled }
+						maxLength={ 100 }
+						rows={ 1 }
+						onChange={ handleKeywordChange }
+						placeholder={ __(
+							"Add optional keywords you'd like to include and generate new suggestions.",
+							'jetpack'
+						) }
+					></textarea>
+				</KeyboardShortcuts>
 			</div>
 			<div className="jetpack-ai-title-optimization__keywords__button">
 				<Button onClick={ onGenerate } variant="secondary" disabled={ disabled }>
