@@ -758,7 +758,8 @@ class Jetpack_Memberships {
 	public static function should_enable_monetize_blocks_in_editor() {
 		if ( ! is_admin() ) {
 			// We enable the block for the front-end in all cases
-			return self::is_enabled_jetpack_recurring_payments();
+			return true;
+
 		}
 
 		$manager                          = new Connection_Manager( 'jetpack' );
