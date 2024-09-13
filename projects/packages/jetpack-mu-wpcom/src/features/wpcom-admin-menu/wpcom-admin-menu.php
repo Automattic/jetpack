@@ -159,7 +159,7 @@ function wpcom_add_jetpack_submenu() {
 		return;
 	}
 
-	$blog_id = Connection_Manager::get_site_id( true );
+	$blog_id = Connection_Manager::get_site_id();
 	if ( is_wp_error( $blog_id ) ) {
 		return;
 	}
