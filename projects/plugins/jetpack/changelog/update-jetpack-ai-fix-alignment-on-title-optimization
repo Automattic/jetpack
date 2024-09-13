@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Title Optimization: handle enter/return key to trigger a generation when they are pressed.
