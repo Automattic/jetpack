@@ -150,7 +150,6 @@ function wpcom_add_jetpack_submenu() {
 	$is_simple_site          = defined( 'IS_WPCOM' ) && IS_WPCOM;
 	$is_atomic_site          = ! $is_simple_site;
 	$uses_wp_admin_interface = get_option( 'wpcom_admin_interface' ) === 'wp-admin';
-	$domain                  = wp_parse_url( home_url(), PHP_URL_HOST );
 
 	if ( ! $uses_wp_admin_interface ) {
 		return;
@@ -171,6 +170,7 @@ function wpcom_add_jetpack_submenu() {
 	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-backups' ) ) );
 	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'jetpack-menu-jetpack-manage-subscribers', array( 'site' => $blog_id ) ) ) );
 
+	$domain           = wp_parse_url( home_url(), PHP_URL_HOST );
 	$activity_log_url = 'https://wordpress.com/activity-log/' . $domain;
 	$vaultpress_url   = 'https://wordpress.com/backup/' . $domain;
 	$monetize_url     = 'https://wordpress.com/earn/' . $domain;
