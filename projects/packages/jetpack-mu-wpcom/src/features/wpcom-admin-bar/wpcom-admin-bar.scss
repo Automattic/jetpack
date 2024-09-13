@@ -167,7 +167,7 @@
 				margin-top: -28px;
 				width: 6px;
 				height: 6px;
-				background: var(--color-masterbar-unread-dot-background);
+				background-color: var( --color-masterbar-unread-dot-background, #e26f56 ) !important;
 				border-radius: 50px;
 			}
 
