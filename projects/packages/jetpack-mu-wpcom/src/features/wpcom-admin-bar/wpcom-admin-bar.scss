@@ -162,7 +162,6 @@
 
 		#wp-admin-bar-cart {
 			.cart-icon__dot {
-				border: 1px solid black;
 				margin-left: 17px;
 				position: absolute;
 				margin-top: -28px;
@@ -223,10 +222,10 @@
 				width: auto !important;
 
 				.cart-icon__dot {
+					height: 7px;
 					margin-left: 33px;
-					margin-top: -38px;
-					width: 8px;
-					height: 8px;
+					margin-top: -37px;
+					width: 7px
 				}
 
 				.cart-icon {
