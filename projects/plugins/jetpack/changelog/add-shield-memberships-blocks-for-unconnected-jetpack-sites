@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Do not register Memberships blocks when the site is not connected to Jetpack
+[In administration] Do not register Memberships blocks when the site is not connected to Jetpack
