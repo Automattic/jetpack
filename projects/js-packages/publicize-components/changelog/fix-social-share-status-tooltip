@@ -1,0 +1,4 @@
+Significance: minor
+Type: fixed
+
+Fixed the display where the error wasn't visible to the user.
