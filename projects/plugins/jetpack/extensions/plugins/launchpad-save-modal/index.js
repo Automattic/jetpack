@@ -1,4 +1,5 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { loadExperimentAssignment } from '@automattic/jetpack-explat';
 import { getSiteFragment, useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
 import { Modal, Button, CheckboxControl } from '@wordpress/components';
@@ -40,6 +41,11 @@ const updateLaunchpadSaveModalBrowserConfig = config => {
 
 export const settings = {
 	render: function LaunchpadSaveModal() {
+		const [ experimentVariationName, setExperimentVariationName ] = useState();
+		const sessionVariationName = window.sessionStorage.getItem(
+			'launchpad_removal_2024_experiment_variation'
+		);
+
 		const { isSavingSite, isSavingPost, isCurrentPostPublished, postLink, postType } = useSelect(
 			select => {
 				const { __experimentalGetDirtyEntityRecords, isSavingEntityRecord } = select( coreStore );
@@ -58,6 +64,17 @@ export const settings = {
 				};
 			}
 		);
+
+		// Fetch the experiment data once when the component mounts
+		useEffect( () => {
+			loadExperimentAssignment( 'calypso_onboarding_launchpad_removal_test_2024_08' ).then(
+				experiment => {
+					sessionVariationName
+						? setExperimentVariationName( sessionVariationName )
+						: setExperimentVariationName( experiment.variationName );
+				}
+			);
+		}, [ sessionVariationName ] );
 
 		const prevIsSavingSite = usePrevious( isSavingSite );
 		const prevIsSavingPost = usePrevious( isSavingPost );
@@ -87,6 +104,11 @@ export const settings = {
 			path: siteIntentOption,
 			query: `siteSlug=${ siteFragment }`,
 		} );
+		const calypsoHomeUrl = getRedirectUrl( 'calypso-home', {
+			site: siteFragment,
+		} );
+		const primaryActionHref =
+			experimentVariationName === 'treatment' ? calypsoHomeUrl : launchPadUrl;
 		const { tracks } = useAnalytics();
 
 		const recordTracksEvent = eventName =>
@@ -104,7 +126,7 @@ export const settings = {
 					'You are one step away from bringing your site to life. Check out the next steps that will help you to launch your site.',
 					'jetpack'
 				),
-				actionButtonHref: launchPadUrl,
+				actionButtonHref: primaryActionHref,
 				actionButtonTracksEvent: 'jetpack_launchpad_save_modal_next_steps',
 				actionButtonText: __( 'Next Steps', 'jetpack' ),
 			};
