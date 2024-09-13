@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Publicize;
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Current_Plan;
+use Automattic\Jetpack\Status\Host;
 
 /**
  * Only user facing pieces of Publicize are found here.
@@ -172,6 +173,9 @@ class Publicize_UI {
 				'textdomain' => 'jetpack-publicize-pkg',
 			)
 		);
+
+		$is_simple_site = ( new Host() )->is_wpcom_simple();
+
 		wp_add_inline_script(
 			'jetpack-social-classic-editor-options',
 			'var jetpackSocialClassicEditorOptions = ' . wp_json_encode(
@@ -179,7 +183,7 @@ class Publicize_UI {
 					'ajaxUrl'                     => admin_url( 'admin-ajax.php' ),
 					'connectionsUrl'              => esc_url( $this->publicize_settings_url ),
 					'isEnhancedPublishingEnabled' => $this->publicize->has_enhanced_publishing_feature(),
-					'resharePath'                 => '/jetpack/v4/publicize/{postId}',
+					'resharePath'                 => $is_simple_site ? '/wpcom/v2/posts/{postId}/publicize' : '/jetpack/v4/publicize/{postId}',
 					'isReshareSupported'          => Current_Plan::supports( 'republicize' ),
 				)
 			),

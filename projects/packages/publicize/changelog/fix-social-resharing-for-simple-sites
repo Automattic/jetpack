@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed resharing not working in classic editor for wp.com sites
