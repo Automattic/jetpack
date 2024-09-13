@@ -136,6 +136,29 @@ class WP_Test_Contact_Form extends BaseTestCase {
 
 	/**
 	 * Tests that the submission as a whole will produce something in the
+	 * database when required information is provided.
+	 *
+	 * @author tonykova
+	 */
+	public function test_process_submission_will_not_store_ip() {
+		add_filter( 'jetpack_contact_form_forget_ip_address', '__return_true' );
+		$form   = new Contact_Form( array() );
+		$result = $form->process_submission();
+
+		// Processing should be successful and produce the success message.
+		$this->assertTrue( is_string( $result ) );
+
+		$feedback_id = end( Posts::init()->posts )->ID;
+		$submission  = get_post( $feedback_id );
+
+		// Default metadata should be saved.
+		$email = get_post_meta( $submission->ID, '_feedback_email', true );
+		$this->assertStringNotContainsString( 'IP Address', $email['message'] );
+		remove_all_filters( 'jetpack_contact_form_forget_ip_address' );
+	}
+
+	/**
+	 * Tests that the submission as a whole will produce something in the
 	 * database when some labels are provided.
 	 *
 	 * @author tonykova

@@ -1376,7 +1376,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		 *
 		 * @since $$next-version$$
 		 */
-		if ( apply_filters( 'jetpack_contact_form_forget_ip_address', true, $comment_author_ip ) ) {
+		if ( apply_filters( 'jetpack_contact_form_forget_ip_address', false, $comment_author_ip ) ) {
 			$comment_author_ip = null;
 		}
 
