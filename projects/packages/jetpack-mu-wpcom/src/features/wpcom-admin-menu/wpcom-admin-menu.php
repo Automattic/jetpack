@@ -280,7 +280,7 @@ add_action( 'admin_menu', 'wpcom_add_jetpack_submenu', 999999 );
 /*
  * Prevents the Jetpack menu from being overridden on Simple sites.
  *
- * TODO: After deploying TBD, we can remove the `add_jetpack_submenu` function and this `remove_action` call.
+ * TODO: After deploying https://github.com/Automattic/jetpack/pull/39393, we can remove the `add_jetpack_submenu` function and this `remove_action` call.
  */
 remove_action( 'admin_menu', 'add_jetpack_submenu', 999999 );
 
