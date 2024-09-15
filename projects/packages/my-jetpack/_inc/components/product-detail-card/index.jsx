@@ -283,6 +283,8 @@ const ProductDetailCard = ( {
 		onClick?.( trialCheckoutRedirect, detail );
 	}, [ onClick, trackButtonClick, trialCheckoutRedirect, wpcomFreeProductSlug, detail ] );
 
+	const productPrice = introductoryOffer?.reason ? price : discountPrice;
+
 	return (
 		<div
 			className={ clsx( styles.card, className, {
@@ -316,15 +318,20 @@ const ProductDetailCard = ( {
 					) ) }
 				</ul>
 
-				{ needsPurchase && discountPrice && (
+				{ needsPurchase && productPrice && (
 					<>
 						<div className={ styles[ 'price-container' ] }>
-							<Price value={ discountPrice } currency={ currencyCode } isOld={ false } />
-							{ discountPrice < price && (
+							<Price value={ productPrice } currency={ currencyCode } isOld={ false } />
+							{ productPrice < price && (
 								<Price value={ price } currency={ currencyCode } isOld={ true } />
 							) }
 						</div>
 						<Text className={ styles[ 'price-description' ] }>{ priceDescription }</Text>
+						{ introductoryOffer?.reason && (
+							<Text className={ styles[ 'price-note' ] }>
+								{ __( '* Not eligible for introductory discount', 'jetpack-my-jetpack' ) }
+							</Text>
+						) }
 					</>
 				) }
 
