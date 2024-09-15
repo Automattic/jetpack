@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Do not check for capabilities if the user is not signed in when deciding whether to show the admin bar widget
