@@ -78,7 +78,7 @@ const ConnectedProductCard: FC< ConnectedProductCardProps > = ( {
 			return;
 		}
 
-		activate( {} );
+		activate();
 	}, [
 		activate,
 		isRegistered,
