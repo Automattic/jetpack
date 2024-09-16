@@ -8,11 +8,11 @@ import {
 } from '@automattic/jetpack-components';
 import { ConnectionError, useConnectionErrorNotice } from '@automattic/jetpack-connection';
 import {
-	store as socialStore,
+	getSocialScriptData,
 	getTotalSharesCount,
 	getSharedPostsCount,
+	store as socialStore,
 } from '@automattic/jetpack-publicize-components';
-import { getScriptData } from '@automattic/jetpack-script-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { Icon, postList } from '@wordpress/icons';
@@ -36,8 +36,8 @@ const Header = () => {
 			newPostUrl: `${ store.getAdminUrl() }post-new.php`,
 		};
 	} );
-	// TODO - Replace this with a utility function like `getSocialFeatureFlags` when available
-	const { useAdminUiV1 } = getScriptData().social.feature_flags;
+
+	const { useAdminUiV1 } = getSocialScriptData().feature_flags;
 
 	const { hasConnectionError } = useConnectionErrorNotice();
 

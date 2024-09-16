@@ -9,7 +9,7 @@
 import { Disabled, PanelRow } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { Fragment } from '@wordpress/element';
-import { usePublicizeConfig } from '../../..';
+import { getSocialScriptData, usePublicizeConfig } from '../../..';
 import useAttachedMedia from '../../hooks/use-attached-media';
 import useFeaturedImage from '../../hooks/use-featured-image';
 import useMediaDetails from '../../hooks/use-media-details';
@@ -47,22 +47,22 @@ export default function PublicizeForm() {
 			// fix the issues with uploading an image.
 			attachedMedia.length > 0 ||
 			( Object.keys( validationErrors ).length !== 0 && ! isConvertible ) );
-
-	const { useAdminUiV1, featureFlags } = useSelect( select => {
+	const { featureFlags } = useSelect( select => {
 		const store = select( socialStore );
 		return {
-			useAdminUiV1: store.useAdminUiV1(),
 			featureFlags: store.featureFlags(),
 		};
 	}, [] );
 
 	const Wrapper = isPublicizeDisabledBySitePlan ? Disabled : Fragment;
 
+	const { feature_flags } = getSocialScriptData();
+
 	return (
 		<Wrapper>
 			{
 				// Render modal only once
-				useAdminUiV1 ? <ManageConnectionsModal /> : null
+				feature_flags.useAdminUiV1 ? <ManageConnectionsModal /> : null
 			}
 			{ hasConnections ? (
 				<>
