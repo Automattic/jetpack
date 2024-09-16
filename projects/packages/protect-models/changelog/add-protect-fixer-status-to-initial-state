@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Adds a fixable_threats status property

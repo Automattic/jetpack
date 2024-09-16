@@ -3,10 +3,10 @@ import useFixersMutation from '../data/scan/use-fixers-mutation';
 import useFixersQuery from '../data/scan/use-fixers-query';
 import useScanStatusQuery from '../data/scan/use-scan-status-query';
 import { FixersStatus } from '../types/fixers';
-import { Threat } from '../types/threats';
 
 type UseFixersResult = {
-	fixableThreats: Threat[];
+	fixableThreatIds: number[];
+	fixInProgressThreatIds: number[];
 	fixersStatus: FixersStatus;
 	fixThreats: ( threatIds: number[] ) => Promise< unknown >;
 	isLoading: boolean;
@@ -20,26 +20,25 @@ type UseFixersResult = {
 export default function useFixers(): UseFixersResult {
 	const { data: status } = useScanStatusQuery();
 	const fixersMutation = useFixersMutation();
-
-	const fixableThreats = useMemo( () => {
-		const threats = [
-			...( status?.core?.threats || [] ),
-			...( status?.plugins?.map( plugin => plugin.threats ).flat() || [] ),
-			...( status?.themes?.map( theme => theme.threats ).flat() || [] ),
-			...( status?.files || [] ),
-			...( status?.database || [] ),
-		];
-
-		return threats.filter( threat => threat.fixable );
-	}, [ status ] );
-
 	const { data: fixersStatus } = useFixersQuery( {
-		threatIds: fixableThreats.map( threat => threat.id ),
+		threatIds: status.fixableThreatIds,
 		usePolling: true,
 	} );
 
+	// List of threat IDs that are currently being fixed.
+	const fixInProgressThreatIds = useMemo(
+		() =>
+			Object.entries( fixersStatus?.threats || {} )
+				.filter(
+					( [ , threat ]: [ string, { status?: string } ] ) => threat.status === 'in_progress'
+				)
+				.map( ( [ id ] ) => parseInt( id ) ),
+		[ fixersStatus ]
+	);
+
 	return {
-		fixableThreats,
+		fixableThreatIds: status.fixableThreatIds,
+		fixInProgressThreatIds,
 		fixersStatus,
 		fixThreats: fixersMutation.mutateAsync,
 		isLoading: fixersMutation.isPending,

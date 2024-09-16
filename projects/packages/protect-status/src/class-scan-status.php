@@ -169,6 +169,10 @@ class Scan_Status extends Status {
 
 		if ( isset( $scan_data->threats ) && is_array( $scan_data->threats ) ) {
 			foreach ( $scan_data->threats as $threat ) {
+				if ( isset( $threat->fixable ) && $threat->fixable ) {
+					$status->fixable_threat_ids[] = $threat->id;
+				}
+
 				if ( isset( $threat->extension->type ) ) {
 					if ( 'plugin' === $threat->extension->type ) {
 						// add the extension if it does not yet exist in the status

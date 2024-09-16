@@ -80,7 +80,7 @@ export const PaidAccordionItem = ( {
 		[ styles[ 'accordion-body-close' ] ]: ! open,
 	} );
 
-	const { fixersStatus } = useFixers();
+	const { fixInProgressThreatIds } = useFixers();
 
 	const handleClick = useCallback( () => {
 		if ( ! open ) {
@@ -122,7 +122,7 @@ export const PaidAccordionItem = ( {
 					<div>
 						{ fixable && (
 							<>
-								{ fixersStatus?.threats?.[ id ]?.status === 'in_progress' ? (
+								{ fixInProgressThreatIds.includes( id ) ? (
 									<Spinner color="black" />
 								) : (
 									<Icon icon={ check } className={ styles[ 'icon-check' ] } size={ 28 } />

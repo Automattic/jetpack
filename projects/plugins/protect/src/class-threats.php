@@ -144,6 +144,10 @@ class Threats {
 	 * @return bool|array
 	 */
 	public static function fix_threats_status( $threat_ids ) {
+		if ( empty( $threat_ids ) ) {
+			return false;
+		}
+
 		$api_base = self::get_api_base();
 		if ( is_wp_error( $api_base ) ) {
 			return false;

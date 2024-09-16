@@ -24,6 +24,7 @@ use Automattic\Jetpack\Protect\Onboarding;
 use Automattic\Jetpack\Protect\REST_Controller;
 use Automattic\Jetpack\Protect\Scan_History;
 use Automattic\Jetpack\Protect\Site_Health;
+use Automattic\Jetpack\Protect\Threats;
 use Automattic\Jetpack\Protect_Status\Plan;
 use Automattic\Jetpack\Protect_Status\Protect_Status;
 use Automattic\Jetpack\Protect_Status\Scan_Status;
@@ -206,12 +207,15 @@ class Jetpack_Protect {
 		global $wp_version;
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended
 		$refresh_status_from_wpcom = isset( $_GET['checkPlan'] );
-		$initial_state             = array(
+		$status                    = Status::get_status( $refresh_status_from_wpcom );
+
+		$initial_state = array(
 			'apiRoot'            => esc_url_raw( rest_url() ),
 			'apiNonce'           => wp_create_nonce( 'wp_rest' ),
 			'registrationNonce'  => wp_create_nonce( 'jetpack-registration-nonce' ),
 			'credentials'        => Credentials::get_credential_array(),
-			'status'             => Status::get_status( $refresh_status_from_wpcom ),
+			'status'             => $status,
+			'fixerStatus'        => Threats::fix_threats_status( $status->fixable_threat_ids ),
 			'scanHistory'        => Scan_History::get_scan_history( $refresh_status_from_wpcom ),
 			'installedPlugins'   => Plugins_Installer::get_plugins(),
 			'installedThemes'    => Sync_Functions::get_themes(),

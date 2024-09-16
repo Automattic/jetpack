@@ -24,6 +24,9 @@ export type ScanStatus = {
 	/** The current status of the scanner. */
 	status: 'unavailable' | 'provisioning' | 'idle' | 'scanning' | 'scheduled';
 
+	/** The IDs of fixable threats. */
+	fixableThreatIds: number[];
+
 	/** The current scan progress, only available from the Scan API. */
 	current_progress: number | null;
 
