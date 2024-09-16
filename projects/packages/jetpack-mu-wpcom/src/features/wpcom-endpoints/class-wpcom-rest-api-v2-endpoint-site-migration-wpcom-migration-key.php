@@ -69,7 +69,7 @@ class WPCOM_REST_API_V2_Endpoint_Site_Migration_WPCOM_Migration_Key extends WP_R
 			return false;
 		}
 
-		if ( ! class_exists( 'WPCOMWPSettings' ) || ! class_exists( 'WPCOMWPInfo' ) ) {
+		if ( ! class_exists( 'WPCOMWPSettings' ) || ! class_exists( 'WPCOMInfo' ) ) {
 			return false;
 		}
 
@@ -87,7 +87,7 @@ class WPCOM_REST_API_V2_Endpoint_Site_Migration_WPCOM_Migration_Key extends WP_R
 	 */
 	private function get_migration_key() {
 		$wpcom_migration_settings = new WPCOMWPSettings();
-		$wpcom_migration_info     = new WPCOMWPInfo( $wpcom_migration_settings );
+		$wpcom_migration_info     = new WPCOMInfo( $wpcom_migration_settings );
 
 		update_option( $this->key_is_read_option_name, 'read' );
 
