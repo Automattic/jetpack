@@ -7,6 +7,12 @@ import { QUERY_FIXERS_KEY, QUERY_HISTORY_KEY, QUERY_SCAN_STATUS_KEY } from '../.
 import useNotices from '../../hooks/use-notices';
 import { FixersStatus } from '../../types/fixers';
 
+const fixerIsStale = ( lastUpdated: string ) => {
+	const now = new Date();
+	const hoursDiff = ( now.getTime() - new Date( lastUpdated ).getTime() ) / ( 1000 * 60 * 60 );
+	return hoursDiff >= 24;
+};
+
 /**
  * Fixers Query Hook
  *
@@ -31,17 +37,6 @@ export default function useFixersQuery( {
 		redirectUri: null,
 		skipUserConnection: true,
 	} );
-
-	const now = useMemo( () => new Date(), [] ); // Memoize current time to prevent recalculation
-
-	// Helper function to check if the fixer is stale
-	const fixerIsStale = useCallback(
-		( lastUpdated: string ) => {
-			const hoursDiff = ( now.getTime() - new Date( lastUpdated ).getTime() ) / ( 1000 * 60 * 60 );
-			return hoursDiff >= 24;
-		},
-		[ now ]
-	);
 
 	// Memoize initialData to prevent recalculating on every render
 	const initialData: FixersStatus = useMemo(
