@@ -7,7 +7,7 @@ import {
 	Text,
 } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import useFixers from '../../hooks/use-fixers';
 import useModal from '../../hooks/use-modal';
 import usePlan from '../../hooks/use-plan';
@@ -23,22 +23,22 @@ import useThreatsList from './use-threats-list';
 const ThreatsList = () => {
 	const { hasPlan } = usePlan();
 	const { item, list, selected, setSelected } = useThreatsList();
-	const fixableList = list.filter( obj => obj.fixable );
 	const [ isSm ] = useBreakpointMatch( 'sm' );
-	const [ filteredFixableList, setFilteredFixableList ] = useState( fixableList );
 	const { activefixInProgressThreatIds, stalefixInProgressThreatIds } = useFixers();
 
-	useEffect( () => {
+	// List of fixable threats that do not have a fix in progress
+	const fixableList = useMemo( () => {
 		const activeSet = new Set( activefixInProgressThreatIds );
 		const staleSet = new Set( stalefixInProgressThreatIds );
 
-		const filteredList = fixableList.filter( threat => {
+		return list.filter( threat => {
+			if ( ! threat.fixable ) {
+				return false;
+			}
 			const threatId = parseInt( threat.id );
 			return ! activeSet.has( threatId ) && ! staleSet.has( threatId );
 		} );
-
-		setFilteredFixableList( filteredList );
-	}, [ fixableList, activefixInProgressThreatIds, stalefixInProgressThreatIds ] );
+	}, [ list, activefixInProgressThreatIds, stalefixInProgressThreatIds ] );
 
 	// Popover anchors
 	const [ yourScanResultsPopoverAnchor, setYourScanResultsPopoverAnchor ] = useState( null );
@@ -123,17 +123,17 @@ const ThreatsList = () => {
 							<Title className={ styles[ 'list-title' ] }>{ getTitle() }</Title>
 							{ hasPlan && (
 								<div className={ styles[ 'list-header__controls' ] }>
-									{ filteredFixableList.length > 0 && (
+									{ fixableList.length > 0 && (
 										<>
 											<Button
 												ref={ setShowAutoFixersPopoverAnchor }
 												variant="primary"
-												onClick={ handleShowAutoFixersClick( filteredFixableList ) }
+												onClick={ handleShowAutoFixersClick( fixableList ) }
 											>
 												{ sprintf(
 													/* translators: Translates to Show auto fixers $s: Number of fixable threats. */
 													__( 'Show auto fixers (%s)', 'jetpack-protect' ),
-													filteredFixableList.length
+													fixableList.length
 												) }
 											</Button>
 											<OnboardingPopover
