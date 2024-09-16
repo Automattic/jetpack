@@ -2,6 +2,33 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 13.9-a.5 - 2024-09-16
+### Enhancements
+- Jetpack Stats: Do not check for capabilities if the user is not signed in when deciding whether to show the admin bar widget. [#39402]
+- SSO: Remove legacy codebase in favor of the newer SSO codebase introduced in Jetpack 13.5. [#39327]
+
+### Bug fixes
+- Dashboard: Display the yearly Stats plan in the Jetpack dashboard immediately after you've purchased the plan. [#39326]
+- Help Center: Fix the icon color when previewing color scheme. [#39371]
+- Shortcode: Fix the YouTube URL embedding failure due to the trailing question mark of the ID. [#39309]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- A4A: Add `is_a4a_dev_site` to `jetpack_response_field_additions`. [#39373]
+- Content Options: Ensure the feature is loaded via the Classic Theme Helper package instead of Jetpack module. [#39210]
+- Custom Content Types: Require feature along with portfolios from the Classic Theme Helper package. [#39268]
+- Jetpack AI: Fix checkout URL redirect to the right yearly product. [#39323]
+- Jetpack AI: Remove ai-image and ai-paragraph block code since they are not used and never made it to an actual functional block. [#39304]
+- Launchpad: Support Launchpad experiment. [#39237]
+- General: Move leading and trailing spaces out of i18n messages. Use en-dash for numeric ranges in i18n messages. [#39305]
+- SEO: Open SEO upsell post in help center. [#39339]
+- Social: Cleaned up media auto-conversion backend logic. [#38587]
+- Social: Migrated useAdminUiV1 feature flag to new script data. [#39137]
+- Styles: Update styling for external links. [#39337]
+- Terms of Service: optimize initialization. [#39286]
+- Title Optimization: Handle enter/return key to trigger a generation when they are pressed. [#39399]
+- Title Optimization: Properly handle errors and show the correct UI for each. [#39340]
+- Updated package dependencies. [#39332]
+
 ## 13.9-a.3 - 2024-09-10
 ### Bug fixes
 - WooCommerce Analytics: Check whether a constant is defined before attempting to use it, for compatibility with WooCommerce <8.4.0. [#39306]
@@ -43,8 +70,16 @@
 - Updated package dependencies. [#39176] [#39278] [#39288]
 - Updated to not check for onboarding option from the frontend. [#39246]
 
+## 13.8.1 - 2024-09-10
+### Bug fixes
+- Contact Form: Prevent unexpected payload contents from causing fatal errors. [#39271]
+- General: Silence noisy warnings. [#39270] [#39272]
+- Jetpack AI: Update default_content filter to not enforce the second parameter type to prevent fatal errors. [#39276]
+- REST API: Fix missing requirement in admin-menu endpoint which could lead to a broken admin menu. [#39256]
+- Web Application Firewall: Prevent incorrect parsing of unsupported HTTP content types. [#39262]
+
 ## 13.8 - 2024-09-04
-### Major Enhancements
+### Major enhancements
 - Custom CSS: Remove feature in favor of WordPress core implementation. [#38865]
 - Embeds: Remove YouTube and Vimeo embeds in favor of WordPress core implementation. [#39096]
 - WordPress.com Toolbar: The feature has been removed. [#38804]

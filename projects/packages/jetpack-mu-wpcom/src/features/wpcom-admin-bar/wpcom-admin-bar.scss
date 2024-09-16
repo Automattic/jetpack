@@ -160,6 +160,37 @@
 			}
 		}
 
+		#wp-admin-bar-cart {
+			.cart-icon__dot {
+				margin-left: 17px;
+				position: absolute;
+				margin-top: -28px;
+				width: 6px;
+				height: 6px;
+				background-color: var( --color-masterbar-unread-dot-background, #e26f56 ) !important;
+				border-radius: 50px;
+			}
+
+			.cart-icon {
+				align-items: center;
+				display: flex;
+				height: 100%;
+				margin: 0;
+
+				&:before{
+					background-color: currentColor;
+					content: "";
+					display: flex;
+					height: 20px;
+					margin: 0;
+					mask-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij4KICA8ZGVmcz4KICAgIDxtYXNrIGlkPSJjaXJjbGUtbWFzayI+CiAgICAgIDwhLS0gRXZlcnl0aGluZyBvdXRzaWRlIHRoZSBjaXJjbGUgaXMgdmlzaWJsZSAod2hpdGUpLCBhbmQgdGhlIGNpcmNsZSBpcyBzdWJ0cmFjdGVkIChibGFjaykgLS0+CiAgICAgIDxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IndoaXRlIiAvPgogICAgICA8Y2lyY2xlIGN4PSIyMCIgY3k9IjQiIHI9IjQiIGZpbGw9ImJsYWNrIiAvPgogICAgPC9tYXNrPgogIDwvZGVmcz4KICAKICA8IS0tIEFwcGx5IHRoZSBtYXNrIHRvIHRoZSBwYXRoIHNvIHRoZSBjaXJjbGUgaXMgc3VidHJhY3RlZCAtLT4KICA8ZyBtYXNrPSJ1cmwoI2NpcmNsZS1tYXNrKSI+CiAgICA8cGF0aCBmaWxsPSJ2YXIoLS1jb2xvci1tYXN0ZXJiYXItaWNvbikiIGQ9Ik05LDIwYzAsMS4xLTAuOSwyLTIsMnMtMi0wLjktMi0yczAuOS0yLDItMiAgIFM5LDE4LjksOSwyMHogTTE3LDE4Yy0xLjEsMC0yLDAuOS0yLDJzMC45LDIsMiwyczItMC45LDItMlMxOC4xLDE4LDE3LDE4eiBNMTcuNCwxM2MwLjksMCwxLjctMC43LDItMS42TDIxLDVIN1Y0YzAtMS4xLTAuOS0yLTItMiAgIEgzdjJoMnYxdjh2MmMwLDEuMSwwLjksMiwyLDJoMTJjMC0xLjEtMC45LTItMi0ySDd2LTJIMTcuNHoiPjwvcGF0aD4KICA8L2c+Cjwvc3ZnPgo=");
+					mask-position: center;
+					mask-repeat: no-repeat;
+					width: 24px
+				}
+			}
+		}
+
 		@media (max-width: 782px) {
 			height: 45px;
 
@@ -173,13 +204,39 @@
 					.ab-icon {
 						justify-content: center;
 						padding: 0px;
-	
+
 						&:before {
 							width: 36px;
 							height: 36px;
 							margin: 0px;
 							mask-size: contain;
 						}
+					}
+				}
+			}
+
+			#wp-admin-bar-cart {
+				display: block;
+				min-width: 52px;
+				padding: 0;
+				width: auto !important;
+
+				.cart-icon__dot {
+					height: 7px;
+					margin-left: 33px;
+					margin-top: -37px;
+					width: 7px
+				}
+
+				.cart-icon {
+					justify-content: center;
+					padding: 0;
+
+					&:before{
+						height: 32px;
+						margin: 0;
+						mask-size: contain;
+						width: 32px
 					}
 				}
 			}

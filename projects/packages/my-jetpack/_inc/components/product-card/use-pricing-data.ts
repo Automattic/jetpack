@@ -109,14 +109,14 @@ const usePricingData = ( slug: string ) => {
 		if ( wpcomFreeProductSlug ) {
 			runFreeCheckout();
 		} else {
-			activate( {} );
+			activate();
 		}
 	}, [ activate, runFreeCheckout, wpcomFreeProductSlug ] );
 
 	const handleCheckout = useCallback( () => {
 		recordEvent( 'jetpack_myjetpack_evaluation_recommendations_checkout_click', { slug } );
 		if ( slug === 'crm' ) {
-			activate( {} );
+			activate();
 			window.open( 'https://jetpackcrm.com/pricing/', '_blank' );
 			return;
 		}
