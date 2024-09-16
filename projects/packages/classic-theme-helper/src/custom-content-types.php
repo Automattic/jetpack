@@ -14,6 +14,7 @@
  */
 
 use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Status\Host;
 
 if ( ! function_exists( 'jetpack_load_custom_post_types' ) ) {
 	/**
@@ -52,7 +53,11 @@ if ( ! function_exists( 'jetpack_cpt_settings_api_init' ) ) {
 			'writing'
 		);
 	}
-	add_action( 'admin_init', 'jetpack_cpt_settings_api_init' );
+	if ( ( new Host() )->is_wpcom_simple() ) {
+		add_action( 'admin_init', 'jetpack_cpt_settings_api_init', 15 );
+	} else {
+		add_action( 'admin_init', 'jetpack_cpt_settings_api_init' );
+	}
 }
 
 if ( ! function_exists( 'jetpack_cpt_section_callback' ) ) {

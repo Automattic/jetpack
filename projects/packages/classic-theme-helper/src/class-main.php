@@ -22,6 +22,7 @@ class Main {
 	 * @var array
 	 */
 	public $modules = array(
+		'custom-content-types.php',
 		'responsive-videos.php',
 		'site-breadcrumbs.php',
 		'social-menu.php',
