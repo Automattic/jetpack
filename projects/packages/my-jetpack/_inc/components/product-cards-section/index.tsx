@@ -98,22 +98,22 @@ const ProductCardsSection: FC< ProductCardsSectionProps > = ( {
 	noticeMessage,
 	siteIsRegistered,
 } ) => {
-	const [ siteOwnedProducts, setSiteOwnedProducts ] = useState< JetpackModule[] >( [] );
-	const [ siteUnownedProducts, setSiteUnownedProducts ] = useState< JetpackModule[] >( [] );
+	const { ownedProducts: inntialOwnedProducts = [], unownedProducts: inntialUnownedProducts = [] } =
+		getMyJetpackWindowInitialState( 'lifecycleStats' );
+	const [ siteOwnedProducts, setSiteOwnedProducts ] =
+		useState< JetpackModule[] >( inntialOwnedProducts );
+	const [ siteUnownedProducts, setSiteUnownedProducts ] =
+		useState< JetpackModule[] >( inntialUnownedProducts );
 
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	const { products: productsData, isLoading } = useProductsByOwnership();
-
-	const getProducts = () => {
-		const { ownedProducts = [], unownedProducts = [] } =
-			getMyJetpackWindowInitialState( 'lifecycleStats' );
-		setSiteOwnedProducts( ownedProducts );
-		setSiteUnownedProducts( unownedProducts );
-	};
+	const { data: productOwnershipData, isLoading } = useProductsByOwnership();
 
 	useEffect( () => {
-		getProducts();
-	}, [ siteIsRegistered ] );
+		if ( ! isLoading ) {
+			const { ownedProducts = [], unownedProducts = [] } = productOwnershipData;
+			setSiteOwnedProducts( ownedProducts );
+			setSiteUnownedProducts( unownedProducts );
+		}
+	}, [ siteIsRegistered, productOwnershipData, isLoading ] );
 
 	const unownedSectionTitle = useMemo( () => {
 		return siteOwnedProducts.length > 0
