@@ -4,6 +4,7 @@ import { dateI18n } from '@wordpress/date';
 import { createInterpolateElement } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
 import { Icon, check, chevronDown, chevronUp, info } from '@wordpress/icons';
+import clsx from 'clsx';
 import React, { useState, useCallback, useContext, useMemo } from 'react';
 import { PAID_PLUGIN_SUPPORT_URL } from '../../constants';
 import useFixers from '../../hooks/use-fixers';
@@ -123,11 +124,6 @@ export const PaidAccordionItem = ( {
 
 	const [ isSmall ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
 
-	// Using template literals to apply conditional class names
-	const bodyClassNames = `${ styles[ 'accordion-body' ] } ${
-		isOpen ? styles[ 'accordion-body-open' ] : styles[ 'accordion-body-close' ]
-	}`;
-
 	return (
 		<div className={ styles[ 'accordion-item' ] }>
 			<button className={ styles[ 'accordion-header' ] } onClick={ handleClick }>
@@ -163,7 +159,13 @@ export const PaidAccordionItem = ( {
 					<Icon icon={ isOpen ? chevronUp : chevronDown } size={ 38 } />
 				</div>
 			</button>
-			<div className={ bodyClassNames } aria-hidden={ ! isOpen }>
+			<div
+				className={ clsx( styles[ 'accordion-body' ], {
+					[ styles[ 'accordion-body-open' ] ]: isOpen,
+					[ styles[ 'accordion-body-close' ] ]: ! isOpen,
+				} ) }
+				aria-hidden={ ! isOpen }
+			>
 				{ children }
 			</div>
 		</div>
