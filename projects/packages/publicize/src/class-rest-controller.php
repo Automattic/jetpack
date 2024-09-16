@@ -655,6 +655,25 @@ class REST_Controller {
 
 		if ( $post && 'publish' === $post->post_status && isset( $post_meta[ self::SOCIAL_SHARES_POST_META_KEY ] ) ) {
 			update_post_meta( $post_id, self::SOCIAL_SHARES_POST_META_KEY, $post_meta[ self::SOCIAL_SHARES_POST_META_KEY ] );
+			$urls = array();
+			foreach ( $post_meta[ self::SOCIAL_SHARES_POST_META_KEY ] as $share ) {
+				if ( isset( $share['status'] ) && 'success' === $share['status'] ) {
+					$urls[] = array(
+						'url'     => $share['message'],
+						'service' => $share['service'],
+					);
+				}
+			}
+			/**
+			 * Fires after Publicize Shares post meta has been saved.
+			 *
+			 * @param array $urls {
+			 *     An array of social media shares.
+			 *     @type array $url URL to the social media post.
+			 *     @type string $service Social media service shared to.
+			 * }
+			 */
+			do_action( 'jetpack_publicize_share_urls_saved', $urls );
 			return rest_ensure_response( new WP_REST_Response() );
 		}
 
