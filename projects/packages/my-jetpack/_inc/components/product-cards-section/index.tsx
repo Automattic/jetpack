@@ -1,6 +1,7 @@
 import { Container, Col, Text, AdminSectionHero } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo } from 'react';
+import { useValueStore } from '../../context/value-store/valueStoreContext';
 import { PRODUCT_SLUGS } from '../../data/constants';
 import useProductsByOwnership from '../../data/products/use-products-by-ownership';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
@@ -100,10 +101,14 @@ const ProductCardsSection: FC< ProductCardsSectionProps > = ( {
 } ) => {
 	const { ownedProducts: inntialOwnedProducts = [], unownedProducts: inntialUnownedProducts = [] } =
 		getMyJetpackWindowInitialState( 'lifecycleStats' );
-	const [ siteOwnedProducts, setSiteOwnedProducts ] =
-		useState< JetpackModule[] >( inntialOwnedProducts );
-	const [ siteUnownedProducts, setSiteUnownedProducts ] =
-		useState< JetpackModule[] >( inntialUnownedProducts );
+	const [ siteOwnedProducts, setSiteOwnedProducts ] = useValueStore(
+		'siteOwnedProducts',
+		inntialOwnedProducts
+	);
+	const [ siteUnownedProducts, setSiteUnownedProducts ] = useValueStore(
+		'siteUnownedProducts',
+		inntialUnownedProducts
+	);
 
 	const {
 		data: productOwnershipData,
@@ -119,7 +124,14 @@ const ProductCardsSection: FC< ProductCardsSectionProps > = ( {
 			setSiteOwnedProducts( ownedProducts );
 			setSiteUnownedProducts( unownedProducts );
 		}
-	}, [ siteIsRegistered, productOwnershipData, isLoading, refetchOwnershipData ] );
+	}, [
+		siteIsRegistered,
+		productOwnershipData,
+		isLoading,
+		refetchOwnershipData,
+		setSiteOwnedProducts,
+		setSiteUnownedProducts,
+	] );
 
 	const unownedSectionTitle = useMemo( () => {
 		return siteOwnedProducts.length > 0

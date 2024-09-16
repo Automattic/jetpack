@@ -6,6 +6,8 @@ type ValueStoreType = {
 	isLoadingWelcomeFlowExperiment?: boolean;
 	recommendedModules: JetpackModule[] | null;
 	recommendedModulesVisible: boolean;
+	siteOwnedProducts: JetpackModule[];
+	siteUnownedProducts: JetpackModule[];
 };
 
 type ValueStoreContextType = {
