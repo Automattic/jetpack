@@ -1,6 +1,6 @@
 /**
  * Merge the settings (or metadata) of two blocks. The settings of the second parameter
- * take precedence over the first parameter. In the case of the `supports` and a`ttributes`
+ * take precedence over the first parameter. In the case of the `supports` and `attributes`
  * keys, a new object is created with the merged values.
  *
  * See https://developer.wordpress.org/block-editor/reference-guides/block-api/block-metadata/
