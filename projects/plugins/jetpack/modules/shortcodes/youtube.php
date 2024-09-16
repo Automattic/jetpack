@@ -553,7 +553,7 @@ function wpcom_youtube_embed_crazy_url_init() {
  *
  * Example: https://www.youtube.com/watch?v=AVAWwXeOyyQ?
  *
- * @since $$next-version$$
+ * @since 13.9
  *
  * @param string $provider URL of the oEmbed provider.
  * @param string $url      URL of the content to be embedded.

@@ -326,9 +326,15 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.9-a.3 - 2024-09-10
+### 13.9-a.5 - 2024-09-16
+#### Enhancements
+- Jetpack Stats: Do not check for capabilities if the user is not signed in when deciding whether to show the admin bar widget.
+- SSO: Remove legacy codebase in favor of the newer SSO codebase introduced in Jetpack 13.5.
+
 #### Bug fixes
-- WooCommerce Analytics: Check whether a constant is defined before attempting to use it, for compatibility with WooCommerce <8.4.0.
+- Dashboard: Display the yearly Stats plan in the Jetpack dashboard immediately after you've purchased the plan.
+- Help Center: Fix the icon color when previewing color scheme.
+- Shortcode: Fix the YouTube URL embedding failure due to the trailing question mark of the ID.
 
 --------
 
