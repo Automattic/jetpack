@@ -199,7 +199,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 	const acceptLabel = isGeneratingTitle ? acceptTitleLabel : acceptContentLabel;
 
 	const moveCaretToEnd = element => {
-		const selection = window.getSelection();
+		const selection = element.ownerDocument.getSelection();
 		selection.selectAllChildren( element );
 		selection.collapseToEnd();
 		element.focus();

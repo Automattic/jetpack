@@ -8,7 +8,7 @@ import './search-box.scss';
 
 let initiallyFocusedElement = null;
 const stealFocusWithInput = inputElement => () => {
-	initiallyFocusedElement = document.activeElement;
+	initiallyFocusedElement = inputElement.ownerDocument.activeElement;
 	inputElement.focus();
 };
 const restoreFocus = () => initiallyFocusedElement && initiallyFocusedElement.focus();

@@ -27,17 +27,18 @@ export const getCaretPosition = target => {
  * @param {HTMLElement} target - Contenteditable element of which to move the caret
  */
 export const moveCaretToEnd = target => {
-	if ( 'undefined' === typeof window ) {
+	const doc = target.ownerDocument;
+	if ( 'undefined' === typeof doc ) {
 		return;
 	}
 
 	// Add the contenteditable element to a new selection and collapse it to the end
-	const range = document.createRange();
+	const range = doc.createRange();
 	range.selectNodeContents( target );
 	range.collapse( false );
 
 	// Clear the window selection object and add the new selection
-	const selection = window.getSelection();
+	const selection = doc.getSelection();
 	selection.removeAllRanges();
 	selection.addRange( range );
 };

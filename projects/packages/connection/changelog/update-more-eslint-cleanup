@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+SSO tooltip: Use anchor element's document instead of the global `document`.

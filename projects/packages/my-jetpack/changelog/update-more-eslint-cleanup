@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Get active element from tooltip button's document rather than the global `document`.

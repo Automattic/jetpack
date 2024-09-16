@@ -66,9 +66,8 @@ class PopoverMenu extends React.Component {
 	_onShow = () => {
 		const elementToFocus = this.menuRef.current;
 
-		this._previouslyFocusedElement = document.activeElement;
-
 		if ( elementToFocus ) {
+			this._previouslyFocusedElement = elementToFocus.ownerDocument.activeElement;
 			elementToFocus.focus();
 		}
 	};

@@ -109,7 +109,10 @@ function ThreatStatus( {
 	const hideTooltip = useCallback( () => {
 		// Don't hide the tooltip here if it's the tooltip button that was clicked (the button
 		// becoming the document's activeElement). Instead let toggleTooltip() handle the closing.
-		if ( useTooltipRef.current && ! useTooltipRef.current.contains( document.activeElement ) ) {
+		if (
+			useTooltipRef.current &&
+			! useTooltipRef.current.contains( useTooltipRef.current.ownerDocument.activeElement )
+		) {
 			setIsPopoverVisible( false );
 		}
 	}, [ setIsPopoverVisible, useTooltipRef ] );
