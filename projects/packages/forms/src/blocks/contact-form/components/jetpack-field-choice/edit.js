@@ -1,50 +1,40 @@
-import { InnerBlocks, useBlockProps } from '@wordpress/block-editor';
+import { useBlockProps, useInnerBlocksProps } from '@wordpress/block-editor';
 import { compose, withInstanceId } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
 import clsx from 'clsx';
-import { useFormStyle } from '../util/form';
-import { withSharedFieldAttributes } from '../util/with-shared-field-attributes';
-import JetpackFieldControls from './jetpack-field-controls';
-import JetpackFieldLabel from './jetpack-field-label';
-import { useJetpackFieldStyles } from './use-jetpack-field-styles';
+import { useFormStyle, useFormWrapper } from '../../util/form';
+import getFieldLabel from '../../util/get-field-label';
+import { withSharedFieldAttributes } from '../../util/with-shared-field-attributes';
+import JetpackFieldControls from '../jetpack-field-controls';
+import JetpackFieldLabel from '../jetpack-field-label';
+import { useJetpackFieldStyles } from '../use-jetpack-field-styles';
 
-const ALLOWED_BLOCKS = [ 'jetpack/field-option' ];
+const JetpackFieldChoiceEdit = props => {
+	const { name, className, clientId, instanceId, setAttributes, isSelected, attributes, type } =
+		props;
+	const { required, requiredText, options, id, width } = attributes;
 
-function JetpackFieldMultiple( props ) {
-	const {
-		className,
-		clientId,
-		id,
-		type,
-		instanceId,
-		required,
-		requiredText,
-		label,
-		setAttributes,
-		isSelected,
-		width,
-		options,
-		attributes,
-	} = props;
-	const formStyle = useFormStyle( clientId );
+	useFormWrapper( props );
 
 	const innerBlocks = useSelect(
-		select => {
-			return select( 'core/block-editor' ).getBlock( clientId ).innerBlocks;
-		},
+		select => select( 'core/block-editor' ).getBlock( clientId ).innerBlocks,
 		[ clientId ]
 	);
-
 	const classes = clsx( className, 'jetpack-field jetpack-field-multiple', {
 		'is-selected': isSelected,
 		'has-placeholder': ( options && options.length ) || innerBlocks.length,
 	} );
-
+	const formStyle = useFormStyle( clientId );
 	const { blockStyle } = useJetpackFieldStyles( attributes );
 	const blockProps = useBlockProps( {
 		id: `jetpack-field-multiple-${ instanceId }`,
-		className: classes,
 		style: blockStyle,
+		className: classes,
+	} );
+	const innerBlocksProps = useInnerBlocksProps( blockProps, {
+		defaultBlock: `jetpack/field-option-${ type }`,
+		template: [ [ `jetpack/field-option-${ type }` ] ],
+		templateInsertUpdatesSelection: true,
 	} );
 
 	return (
@@ -53,19 +43,13 @@ function JetpackFieldMultiple( props ) {
 				<JetpackFieldLabel
 					required={ required }
 					requiredText={ requiredText }
-					label={ label }
+					label={ getFieldLabel( attributes, name ) }
 					setAttributes={ setAttributes }
 					isSelected={ isSelected }
 					attributes={ attributes }
 					style={ formStyle }
 				/>
-				<div className="jetpack-field-multiple__list">
-					<InnerBlocks
-						allowedBlocks={ ALLOWED_BLOCKS }
-						template={ [ [ `jetpack/field-option-${ type }`, {} ] ] }
-						templateInsertUpdatesSelection={ true }
-					/>
-				</div>
+				<ul { ...innerBlocksProps } className="jetpack-field-multiple__list" />
 			</div>
 
 			<JetpackFieldControls
@@ -81,7 +65,7 @@ function JetpackFieldMultiple( props ) {
 			/>
 		</>
 	);
-}
+};
 
 export default compose(
 	withSharedFieldAttributes( [
@@ -100,4 +84,4 @@ export default compose(
 		'borderColor',
 	] ),
 	withInstanceId
-)( JetpackFieldMultiple );
+)( JetpackFieldChoiceEdit );
