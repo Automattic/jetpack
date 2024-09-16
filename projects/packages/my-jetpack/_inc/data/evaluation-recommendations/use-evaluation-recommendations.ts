@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useValueStore } from '../../context/value-store/valueStoreContext';
 import useAnalytics from '../../hooks/use-analytics';
 import {
@@ -41,7 +41,7 @@ const useEvaluationRecommendations = () => {
 
 	const [ isSectionVisible, setIsSectionVisible ] = useValueStore(
 		'recommendedModulesVisible',
-		! isWelcomeBannerVisible && isEligibleForRecommendations && !! unownedRecommendedModules?.length
+		isEligibleForRecommendations && !! unownedRecommendedModules?.length
 	);
 
 	const { mutate: handleSubmitRecommendations } = useSimpleMutation< SubmitRecommendationsResult >(
@@ -121,19 +121,6 @@ const useEvaluationRecommendations = () => {
 		showWelcomeBanner();
 		recordEvent( 'jetpack_myjetpack_evaluation_recommendations_redo_click' );
 	}, [ recordEvent, setIsSectionVisible, showWelcomeBanner ] );
-
-	useEffect( () => {
-		setIsSectionVisible(
-			! isWelcomeBannerVisible &&
-				isEligibleForRecommendations &&
-				!! unownedRecommendedModules?.length
-		);
-	}, [
-		isWelcomeBannerVisible,
-		isEligibleForRecommendations,
-		unownedRecommendedModules,
-		setIsSectionVisible,
-	] );
 
 	return {
 		submitEvaluation,
