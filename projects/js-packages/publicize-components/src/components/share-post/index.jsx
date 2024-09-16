@@ -8,6 +8,7 @@ import { useIsSharingPossible } from '../../hooks/use-is-sharing-possible';
 import usePublicizeConfig from '../../hooks/use-publicize-config';
 import useSharePost from '../../hooks/use-share-post';
 import { store as socialStore } from '../../social-store';
+import { getSocialScriptData } from '../../utils/script-data';
 
 /**
  * Removes the current message from resharing a post.
@@ -48,7 +49,7 @@ export function SharePostButton() {
 	const { isPublicizeEnabled } = usePublicizeConfig();
 	const { isFetching, isError, isSuccess, doPublicize } = useSharePost();
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
-	const featureFlags = useSelect( select => select( socialStore ).featureFlags(), [] );
+	const { feature_flags } = getSocialScriptData();
 	const { pollForPostShareStatus } = useDispatch( socialStore );
 
 	useEffect( () => {
@@ -90,10 +91,10 @@ export function SharePostButton() {
 
 		await doPublicize();
 
-		if ( featureFlags.useShareStatus ) {
+		if ( feature_flags.useShareStatus ) {
 			pollForPostShareStatus();
 		}
-	}, [ doPublicize, isPostPublished, featureFlags.useShareStatus, pollForPostShareStatus ] );
+	}, [ doPublicize, isPostPublished, feature_flags.useShareStatus, pollForPostShareStatus ] );
 
 	return (
 		<Button
