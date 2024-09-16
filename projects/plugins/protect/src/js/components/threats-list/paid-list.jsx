@@ -33,9 +33,9 @@ const ThreatAccordionItem = ( {
 	const { setModal } = useModal();
 	const { recordEvent } = useAnalyticsTracks();
 
-	const { activefixInProgressThreatIds, stalefixInProgressThreatIds } = useFixers();
-	const isActiveFixInProgress = activefixInProgressThreatIds.includes( id );
-	const isStaleFixInProgress = stalefixInProgressThreatIds.includes( id );
+	const { isThreatFixInProgress, isThreatFixStale } = useFixers();
+	const isActiveFixInProgress = isThreatFixInProgress( id );
+	const isStaleFixInProgress = isThreatFixStale( id );
 
 	const learnMoreButton = source ? (
 		<Button variant="link" isExternalLink={ true } weight="regular" href={ source }>

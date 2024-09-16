@@ -111,9 +111,7 @@ export const PaidAccordionItem = ( {
 	const { open, setOpen } = useContext( PaidAccordionContext );
 	const isOpen = open === id;
 
-	const { activefixInProgressThreatIds, stalefixInProgressThreatIds } = useFixers();
-	const isActiveFixInProgress = activefixInProgressThreatIds.includes( id );
-	const isStaleFixInProgress = stalefixInProgressThreatIds.includes( id );
+	const { isThreatFixInProgress, isThreatFixStale } = useFixers();
 
 	const handleClick = useCallback( () => {
 		if ( ! isOpen ) {
@@ -151,7 +149,7 @@ export const PaidAccordionItem = ( {
 				</div>
 				{ ! hideAutoFixColumn && fixable && (
 					<div>
-						{ renderFixerStatus( isActiveFixInProgress, isStaleFixInProgress ) }
+						{ renderFixerStatus( isThreatFixInProgress( id ), isThreatFixStale( id ) ) }
 						{ isSmall && <span>{ __( 'Auto-fix', 'jetpack-protect' ) }</span> }
 					</div>
 				) }

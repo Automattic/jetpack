@@ -1,16 +1,28 @@
-import { useMemo } from 'react';
+import { useCallback } from 'react';
 import useFixersMutation from '../data/scan/use-fixers-mutation';
 import useFixersQuery from '../data/scan/use-fixers-query';
 import useScanStatusQuery from '../data/scan/use-scan-status-query';
-import { FixersStatus } from '../types/fixers';
+import { FixersStatus, ThreatFixStatus } from '../types/fixers';
+
+const FIXER_IS_STALE_THRESHOLD = 1000 * 60 * 60 * 24; // 24 hours
+
+export const fixerTimestampIsStale = ( lastUpdatedTimestamp: string ) => {
+	const now = new Date();
+	const lastUpdated = new Date( lastUpdatedTimestamp );
+	return now.getTime() - lastUpdated.getTime() >= FIXER_IS_STALE_THRESHOLD;
+};
+
+export const fixerStatusIsStale = ( fixerStatus: ThreatFixStatus ) => {
+	return fixerStatus.status === 'in_progress' && fixerTimestampIsStale( fixerStatus.last_updated );
+};
 
 type UseFixersResult = {
 	fixableThreatIds: number[];
-	activefixInProgressThreatIds: number[];
-	stalefixInProgressThreatIds: number[];
 	fixersStatus: FixersStatus;
 	fixThreats: ( threatIds: number[] ) => Promise< unknown >;
 	isLoading: boolean;
+	isThreatFixInProgress: ( threatId: number ) => boolean;
+	isThreatFixStale: ( threatId: number ) => boolean;
 };
 
 /**
@@ -26,47 +38,26 @@ export default function useFixers(): UseFixersResult {
 		usePolling: true,
 	} );
 
-	const { activefixInProgressThreatIds, stalefixInProgressThreatIds } = useMemo( () => {
-		const now = new Date();
+	const isThreatFixInProgress = useCallback(
+		( threatId: number ) => {
+			return fixersStatus?.threats?.[ threatId ]?.status === 'in_progress';
+		},
+		[ fixersStatus ]
+	);
 
-		return Object.entries( fixersStatus?.threats || {} ).reduce(
-			( acc, [ id, threat ]: [ string, { status?: string; last_updated?: string } ] ) => {
-				if ( threat.status === 'in_progress' ) {
-					let isStale = false;
-
-					// Check if 'last_updated' exists
-					if ( threat.last_updated ) {
-						const lastUpdatedDate = new Date( threat.last_updated );
-						const timeDifferenceInHours =
-							( now.getTime() - lastUpdatedDate.getTime() ) / ( 1000 * 60 * 60 );
-
-						// If more than 24 hours have passed, mark as stale
-						if ( timeDifferenceInHours > 24 ) {
-							isStale = true;
-						}
-					}
-
-					if ( isStale ) {
-						acc.stalefixInProgressThreatIds.push( parseInt( id ) );
-					} else {
-						acc.activefixInProgressThreatIds.push( parseInt( id ) );
-					}
-				}
-				return acc;
-			},
-			{
-				activefixInProgressThreatIds: [] as number[],
-				stalefixInProgressThreatIds: [] as number[],
-			}
-		);
-	}, [ fixersStatus ] );
+	const isThreatFixStale = useCallback(
+		( threatId: number ) => {
+			return fixerStatusIsStale( fixersStatus?.threats?.[ threatId ] );
+		},
+		[ fixersStatus ]
+	);
 
 	return {
 		fixableThreatIds: status.fixableThreatIds,
-		activefixInProgressThreatIds,
-		stalefixInProgressThreatIds,
 		fixersStatus,
 		fixThreats: fixersMutation.mutateAsync,
 		isLoading: fixersMutation.isPending,
+		isThreatFixInProgress,
+		isThreatFixStale,
 	};
 }

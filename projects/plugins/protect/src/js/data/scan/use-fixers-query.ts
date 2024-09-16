@@ -4,18 +4,13 @@ import { __, _n, sprintf } from '@wordpress/i18n';
 import { useCallback, useEffect } from 'react';
 import API from '../../api';
 import { QUERY_FIXERS_KEY, QUERY_HISTORY_KEY, QUERY_SCAN_STATUS_KEY } from '../../constants';
+import { fixerTimestampIsStale } from '../../hooks/use-fixers';
 import useNotices from '../../hooks/use-notices';
 import { FixersStatus } from '../../types/fixers';
 
 const initialData: FixersStatus = window.jetpackProtectInitialState?.fixerStatus || {
 	ok: true,
 	threats: {},
-};
-
-const fixerIsStale = ( lastUpdated: string ) => {
-	const now = new Date();
-	const hoursDiff = ( now.getTime() - new Date( lastUpdated ).getTime() ) / ( 1000 * 60 * 60 );
-	return hoursDiff >= 24;
 };
 
 /**
@@ -90,8 +85,8 @@ export default function useFixersQuery( {
 					// If still in progress
 					if ( threat.status === 'in_progress' ) {
 						if (
-							! fixerIsStale( cachedThreat.last_updated ) &&
-							fixerIsStale( threat.last_updated )
+							! fixerTimestampIsStale( cachedThreat.last_updated ) &&
+							fixerTimestampIsStale( threat.last_updated )
 						) {
 							failures.push( threatId );
 						}
@@ -124,7 +119,7 @@ export default function useFixersQuery( {
 
 			const inProgressNotStale = Object.values( query.state.data.threats ).some(
 				( threat: { status: string; last_updated: string } ) =>
-					threat.status === 'in_progress' && ! fixerIsStale( threat.last_updated )
+					threat.status === 'in_progress' && ! fixerTimestampIsStale( threat.last_updated )
 			);
 
 			// Refetch while any threats are still in progress and not stale.
