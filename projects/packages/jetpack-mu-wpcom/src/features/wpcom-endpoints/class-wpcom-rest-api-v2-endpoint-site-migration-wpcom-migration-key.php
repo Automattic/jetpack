@@ -95,7 +95,7 @@ class WPCOM_REST_API_V2_Endpoint_Site_Migration_WPCOM_Migration_Key extends WP_R
 	}
 
 	/**
-	 * Returns Launchpad-related options.
+	 * Returns migration key.
 	 *
 	 * @return array Associative array with `migration_key`.
 	 */
