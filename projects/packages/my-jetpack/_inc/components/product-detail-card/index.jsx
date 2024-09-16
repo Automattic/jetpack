@@ -13,7 +13,7 @@ import { ExternalLink } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, check, plus } from '@wordpress/icons';
 import clsx from 'clsx';
-import React, { useCallback } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import useProduct from '../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../hooks/use-analytics';
@@ -68,7 +68,8 @@ function Price( { value, currency, isOld } ) {
  * @param {boolean}         [props.hideTOS]              - Whether to hide the Terms of Service text
  * @param {number}          [props.quantity]             - The quantity of the product to purchase
  * @param {boolean}         [props.highlightLastFeature] - Whether to highlight the last feature of the list of features
- * @param {boolean}         [props.isFetching]           - Whether the product is being fetched
+ * @param {boolean}         [props.isFetching]           - Whether the product is being activated
+ * @param {boolean}         [props.isFetchingSuccess]    - Whether the product was activated successfully
  * @return {object}                               ProductDetailCard react component.
  */
 const ProductDetailCard = ( {
@@ -83,6 +84,7 @@ const ProductDetailCard = ( {
 	quantity = null,
 	highlightLastFeature = false,
 	isFetching = false,
+	isFetchingSuccess = false,
 } ) => {
 	const {
 		fileSystemWriteAccess = 'no',
@@ -364,31 +366,31 @@ const ProductDetailCard = ( {
 				) }
 
 				{ ( ! isBundle || ( isBundle && ! hasPaidPlanForProduct ) ) && (
-					<Text
+					<ProductDetailCardButton
 						component={ ProductDetailButton }
 						onClick={ clickHandler }
-						isLoading={ isFetching || hasMainCheckoutStarted }
-						disabled={ cantInstallPlugin }
+						hasMainCheckoutStarted={ hasMainCheckoutStarted }
+						isFetching={ isFetching }
+						isFetchingSuccess={ isFetchingSuccess }
+						cantInstallPlugin={ cantInstallPlugin }
 						isPrimary={ ! isBundle }
 						className={ styles[ 'checkout-button' ] }
-						variant="body"
-					>
-						{ ctaLabel }
-					</Text>
+						label={ ctaLabel }
+					/>
 				) }
 
 				{ ! isBundle && trialAvailable && ! hasPaidPlanForProduct && (
-					<Text
+					<ProductDetailCardButton
 						component={ ProductDetailButton }
 						onClick={ trialClickHandler }
-						isLoading={ isFetching || hasTrialCheckoutStarted }
-						disabled={ cantInstallPlugin }
+						hasMainCheckoutStarted={ hasTrialCheckoutStarted }
+						isFetching={ isFetching }
+						isFetchingSuccess={ isFetchingSuccess }
+						cantInstallPlugin={ cantInstallPlugin }
 						isPrimary={ false }
 						className={ [ styles[ 'checkout-button' ], styles[ 'free-product-checkout-button' ] ] }
-						variant="body"
-					>
-						{ __( 'Start for free', 'jetpack-my-jetpack' ) }
-					</Text>
+						label={ __( 'Start for free', 'jetpack-my-jetpack' ) }
+					/>
 				) }
 
 				{ disclaimers.length > 0 && (
@@ -431,6 +433,54 @@ const ProductDetailCard = ( {
 				) }
 			</div>
 		</div>
+	);
+};
+
+const ProductDetailCardButton = ( {
+	component,
+	onClick,
+	hasMainCheckoutStarted,
+	isFetching,
+	isFetchingSuccess,
+	cantInstallPlugin,
+	isPrimary,
+	className,
+	label,
+} ) => {
+	const [ isButtonLoading, setIsButtonLoading ] = useState( false );
+
+	useEffect( () => {
+		// If activation was successful, we will be redirecting the user
+		// so we don't want them to be able to click the button again.
+		if ( ! isFetching && ! isFetchingSuccess ) {
+			setIsButtonLoading( false );
+		}
+	}, [ isFetching, isFetchingSuccess ] );
+
+	// If a button was clicked, we should only show the loading state for that button.
+	const shouldShowLoadingState = hasMainCheckoutStarted || isButtonLoading;
+	// If the any buttons are loading, or we are in the process
+	// of rediredcting the user, we should disable all buttons.
+	const shouldDisableButton =
+		hasMainCheckoutStarted || cantInstallPlugin || isFetching || isFetchingSuccess;
+
+	const handleClick = () => {
+		setIsButtonLoading( true );
+		onClick();
+	};
+
+	return (
+		<Text
+			component={ component }
+			onClick={ handleClick }
+			isLoading={ shouldShowLoadingState }
+			disabled={ shouldDisableButton }
+			isPrimary={ isPrimary }
+			className={ className }
+			variant="body"
+		>
+			{ label }
+		</Text>
 	);
 };
 

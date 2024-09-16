@@ -77,7 +77,7 @@ export default function ProductInterstitial( {
 } ) {
 	const { detail } = useProduct( slug );
 	const { detail: bundleDetail } = useProduct( bundle );
-	const { activate, isPending: isActivating } = useActivate( slug );
+	const { activate, isPending: isActivating, isSuccess } = useActivate( slug );
 
 	// Get the post activation URL for the product.
 	let redirectUri = detail?.postActivationUrl || null;
@@ -242,6 +242,7 @@ export default function ProductInterstitial( {
 							trackProductButtonClick={ trackProductOrBundleClick }
 							preferProductName={ preferProductName }
 							isFetching={ isActivating || siteIsRegistering }
+							isFetchingSuccess={ isSuccess }
 							feature={ feature }
 						/>
 					) : (
@@ -264,6 +265,7 @@ export default function ProductInterstitial( {
 									quantity={ quantity }
 									highlightLastFeature={ highlightLastFeature }
 									isFetching={ isActivating || siteIsRegistering }
+									isFetchingSuccess={ isSuccess }
 								/>
 							</Col>
 							<Col
@@ -282,6 +284,7 @@ export default function ProductInterstitial( {
 										quantity={ quantity }
 										highlightLastFeature={ highlightLastFeature }
 										isFetching={ isActivating }
+										isFetchingSuccess={ isSuccess }
 									/>
 								) : (
 									children

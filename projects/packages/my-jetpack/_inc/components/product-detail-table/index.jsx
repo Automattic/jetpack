@@ -11,7 +11,7 @@ import {
 import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { sprintf, __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState, useEffect } from 'react';
 import useProduct from '../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import { useRedirectToReferrer } from '../../hooks/use-redirect-to-referrer';
@@ -25,7 +25,8 @@ import { useRedirectToReferrer } from '../../hooks/use-redirect-to-referrer';
  * @param {boolean}  props.cantInstallPlugin       - True when the plugin cannot be automatically installed.
  * @param {Function} props.onProductButtonClick    - Click handler for the product button.
  * @param {object}   props.detail                  - Product detail object.
- * @param {boolean}  props.isFetching              - True if there is a pending request to load the product.
+ * @param {boolean}  props.isFetching              - True if there is a pending request to activate the product.
+ * @param {boolean}  props.isFetchingSuccess       - True if the product activation has been successful.
  * @param {string}   props.tier                    - Product tier slug, i.e. 'free' or 'upgraded'.
  * @param {Function} props.trackProductButtonClick - Tracks click event for the product button.
  * @param {boolean}  props.preferProductName       - Whether to show the product name instead of the title.
@@ -37,11 +38,13 @@ const ProductDetailTableColumn = ( {
 	onProductButtonClick,
 	detail,
 	isFetching,
+	isFetchingSuccess,
 	tier,
 	trackProductButtonClick,
 	preferProductName,
 	feature,
 } ) => {
+	const [ isButtonLoading, setIsButtonLoading ] = useState( false );
 	const { siteSuffix = '', myJetpackCheckoutUri = '' } = getMyJetpackWindowInitialState();
 
 	// Extract the product details.
@@ -66,6 +69,14 @@ const ProductDetailTableColumn = ( {
 		wpcomProductSlug,
 		quantity = null,
 	} = tiersPricingForUi[ tier ];
+
+	useEffect( () => {
+		// If activation was successful, we will be redirecting the user
+		// so we don't want them to be able to click the button again.
+		if ( ! isFetching && ! isFetchingSuccess ) {
+			setIsButtonLoading( false );
+		}
+	}, [ isFetching, isFetchingSuccess ] );
 
 	// Redirect to the referrer URL when the `redirect_to_referrer` query param is present.
 	const referrerURL = useRedirectToReferrer();
@@ -145,6 +156,7 @@ const ProductDetailTableColumn = ( {
 
 	// Register the click handler for the product button.
 	const onClick = useCallback( () => {
+		setIsButtonLoading( true );
 		trackProductButtonClick( { is_free_plan: isFree, cta_text: callToAction } );
 		onProductButtonClick?.( runCheckout, detail, tier );
 	}, [
@@ -156,6 +168,13 @@ const ProductDetailTableColumn = ( {
 		isFree,
 		callToAction,
 	] );
+
+	// If a button was clicked, we should only show the loading state for that button.
+	const shouldShowLoadingState = hasCheckoutStarted || isButtonLoading;
+	// If the any buttons are loading, or we are in the process
+	// of rediredcting the user, we should disable all buttons.
+	const shouldDisableButton =
+		hasCheckoutStarted || cantInstallPlugin || isFetching || isFetchingSuccess;
 
 	return (
 		<PricingTableColumn primary={ ! isFree }>
@@ -178,8 +197,8 @@ const ProductDetailTableColumn = ( {
 					fullWidth
 					variant={ isFree ? 'secondary' : 'primary' }
 					onClick={ onClick }
-					isLoading={ hasCheckoutStarted || isFetching }
-					disabled={ hasCheckoutStarted || cantInstallPlugin || isFetching }
+					isLoading={ shouldShowLoadingState }
+					disabled={ shouldDisableButton }
 				>
 					{ callToAction }
 				</Button>
@@ -240,7 +259,8 @@ ProductDetailTableColumn.propTypes = {
  * @param {string}   props.slug                    - Product slug.
  * @param {Function} props.onProductButtonClick    - Click handler for the product button.
  * @param {Function} props.trackProductButtonClick - Tracks click event for the product button.
- * @param {boolean}  props.isFetching              - True if there is a pending request to load the product.
+ * @param {boolean}  props.isFetching              - True if there is a pending request to activate the product.
+ * @param {boolean}  props.isFetchingSuccess       - True if the product activation has been successful.
  * @param {boolean}  props.preferProductName       - Whether to show the product name instead of the title.
  * @param {string}   props.feature                 - The slug of a specific product feature to highlight.
  * @return {object} - ProductDetailTable react component.
@@ -250,6 +270,7 @@ const ProductDetailTable = ( {
 	onProductButtonClick,
 	trackProductButtonClick,
 	isFetching,
+	isFetchingSuccess,
 	preferProductName,
 	feature,
 } ) => {
@@ -334,6 +355,7 @@ const ProductDetailTable = ( {
 							feature={ feature }
 							detail={ detail }
 							isFetching={ isFetching }
+							isFetchingSuccess={ isFetchingSuccess }
 							onProductButtonClick={ onProductButtonClick }
 							trackProductButtonClick={ trackProductButtonClick }
 							primary={ index === 0 }
