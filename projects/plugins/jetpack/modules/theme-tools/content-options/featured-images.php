@@ -10,13 +10,13 @@ if ( ! function_exists( 'jetpack_featured_images_remove_post_thumbnail' ) ) {
 	/**
 	 * The function to prevent for Featured Images to be displayed in a theme.
 	 *
-	 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+	 * @deprecated 13.9 Moved to Classic Theme Helper package.
 	 * @param array  $metadata Post metadata.
 	 * @param int    $object_id Post ID.
 	 * @param string $meta_key Metadata key.
 	 */
 	function jetpack_featured_images_remove_post_thumbnail( $metadata, $object_id, $meta_key ) {
-		_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+		_deprecated_function( __FUNCTION__, 'jetpack-13.9' );
 		$opts = jetpack_featured_images_get_settings();
 
 		/**
@@ -96,10 +96,10 @@ if ( ! function_exists( 'jetpack_is_product' ) ) {
 	/**
 	 * Check if we are in a WooCommerce Product in order to exclude it from the is_single check.
 	 *
-	 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+	 * @deprecated 13.9 Moved to Classic Theme Helper package.
 	 */
 	function jetpack_is_product() {
-		_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+		_deprecated_function( __FUNCTION__, 'jetpack-13.9' );
 		return ( function_exists( 'is_product' ) ) ? is_product() : false;
 	}
 
@@ -110,10 +110,10 @@ if ( ! function_exists( 'jetpack_is_shop_page' ) ) {
 	/**
 	 * Check if we are in a WooCommerce Shop in order to exclude it from the is_archive check.
 	 *
-	 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+	 * @deprecated 13.9 Moved to Classic Theme Helper package.
 	 */
 	function jetpack_is_shop_page() {
-		_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+		_deprecated_function( __FUNCTION__, 'jetpack-13.9' );
 		// Check if WooCommerce is active first.
 		if ( ! class_exists( 'WooCommerce' ) ) {
 			return false;

@@ -1,6 +1,7 @@
 import { useDispatch, useSelect } from '@wordpress/data';
 import { PluginPostPublishPanel } from '@wordpress/edit-post';
 import { store as editorStore } from '@wordpress/editor';
+import { useIsSharingPossible } from '../../hooks/use-is-sharing-possible';
 import { usePostMeta } from '../../hooks/use-post-meta';
 import { usePostPrePublishValue } from '../../hooks/use-post-pre-publish-value';
 import { usePostJustPublished } from '../../hooks/use-saving-post';
@@ -27,11 +28,13 @@ export function PostPublishShareStatus() {
 		};
 	}, [] );
 
+	const isSharingPossible = usePostPrePublishValue( useIsSharingPossible() );
+
 	const enabledConnections = usePostPrePublishValue(
 		useSelect( select => select( socialStore ).getEnabledConnections(), [] )
 	);
 
-	const willPostBeShared = isPublicizeEnabled && enabledConnections.length > 0;
+	const willPostBeShared = isPublicizeEnabled && enabledConnections.length > 0 && isSharingPossible;
 
 	const showStatus = featureFlags.useShareStatus && willPostBeShared && isPostPublised;
 
