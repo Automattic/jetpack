@@ -73,7 +73,7 @@ function wpcom_performance_report_url_update_value( $value, $object ) {
 	if ( ! $value || ! is_string( $value ) ) {
 		return;
 	}
-	return update_post_meta( $object->ID, '_wpcom_performance_report_url', sanitize_text_field( $value ) );
+	return update_post_meta( $object->ID, '_wpcom_performance_report_url', sanitize_url( $value ) );
 }
 
 add_action( 'rest_api_init', 'wpcom_performance_url_rest_field' );
