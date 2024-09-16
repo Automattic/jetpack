@@ -1,11 +1,16 @@
 import { useConnection } from '@automattic/jetpack-connection';
 import { useQuery, useQueryClient, type UseQueryResult } from '@tanstack/react-query';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect } from 'react';
 import API from '../../api';
 import { QUERY_FIXERS_KEY, QUERY_HISTORY_KEY, QUERY_SCAN_STATUS_KEY } from '../../constants';
 import useNotices from '../../hooks/use-notices';
 import { FixersStatus } from '../../types/fixers';
+
+const initialData: FixersStatus = window.jetpackProtectInitialState?.fixerStatus || {
+	ok: true,
+	threats: {},
+};
 
 const fixerIsStale = ( lastUpdated: string ) => {
 	const now = new Date();
@@ -37,16 +42,6 @@ export default function useFixersQuery( {
 		redirectUri: null,
 		skipUserConnection: true,
 	} );
-
-	// Memoize initialData to prevent recalculating on every render
-	const initialData: FixersStatus = useMemo(
-		() =>
-			window.jetpackProtectInitialState?.fixerStatus || {
-				ok: true,
-				threats: {},
-			},
-		[]
-	);
 
 	// Helper to show success or failure notices
 	const showBulkNotices = useCallback(
@@ -151,7 +146,7 @@ export default function useFixersQuery( {
 			queryClient.setQueryData( [ QUERY_FIXERS_KEY ], initialData );
 			showErrorNotice( __( 'An error occurred while fetching fixers status.', 'jetpack-protect' ) );
 		}
-	}, [ fixersQuery.isError, fixersQuery.error, queryClient, initialData, showErrorNotice ] );
+	}, [ fixersQuery.isError, fixersQuery.error, queryClient, showErrorNotice ] );
 
 	return fixersQuery;
 }
