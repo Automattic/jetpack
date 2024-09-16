@@ -105,15 +105,21 @@ const ProductCardsSection: FC< ProductCardsSectionProps > = ( {
 	const [ siteUnownedProducts, setSiteUnownedProducts ] =
 		useState< JetpackModule[] >( inntialUnownedProducts );
 
-	const { data: productOwnershipData, isLoading } = useProductsByOwnership();
+	const {
+		data: productOwnershipData,
+		isLoading,
+		refetch: refetchOwnershipData,
+	} = useProductsByOwnership();
 
 	useEffect( () => {
+		refetchOwnershipData();
+
 		if ( ! isLoading ) {
 			const { ownedProducts = [], unownedProducts = [] } = productOwnershipData;
 			setSiteOwnedProducts( ownedProducts );
 			setSiteUnownedProducts( unownedProducts );
 		}
-	}, [ siteIsRegistered, productOwnershipData, isLoading ] );
+	}, [ siteIsRegistered, productOwnershipData, isLoading, refetchOwnershipData ] );
 
 	const unownedSectionTitle = useMemo( () => {
 		return siteOwnedProducts.length > 0
