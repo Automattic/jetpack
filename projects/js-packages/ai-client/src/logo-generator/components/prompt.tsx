@@ -35,6 +35,9 @@ export const Prompt: React.FC< { initialPrompt?: string } > = ( { initialPrompt 
 	const { nextTierCheckoutURL: checkoutUrl, hasNextTier } = useCheckout();
 	const hasPrompt = prompt?.length >= MINIMUM_PROMPT_LENGTH;
 	const [ style, setStyle ] = useState( 'line-art' );
+	const showStyleSelector =
+		window?.Jetpack_Editor_Initial_State?.available_blocks[ 'ai-logo-style-selector-support' ]
+			?.available;
 
 	const {
 		generateLogo,
@@ -167,26 +170,28 @@ export const Prompt: React.FC< { initialPrompt?: string } > = ( { initialPrompt 
 					{ __( 'Generate', 'jetpack-ai-client' ) }
 				</Button>
 			</div>
-			<select name="style" value={ style } onChange={ onStyleChange }>
-				<option value="enhance">Normal</option>
-				<option value="anime">Anime</option>
-				<option value="photographic">Photographic</option>
-				<option value="digital-art">Digital Art</option>
-				<option value="comicbook">Comicbook</option>
-				<option value="fantasy-art">Fantasy Art</option>
-				<option value="analog-film">Analog Film</option>
-				<option value="neonpunk">Neon Punk</option>
-				<option value="isometric">Isometric</option>
-				<option value="lowpoly">Low Poly</option>
-				<option value="origami">Origami</option>
-				<option value="line-art">Line Art</option>
-				<option value="craft-clay">Craft Clay</option>
-				<option value="cinematic">Cinematic</option>
-				<option value="3d-model">3D Model</option>
-				<option value="pixel-art">Pixel Art</option>
-				<option value="texture">Texture</option>
-				<option value="monty-python">Monty Python</option>
-			</select>
+			{ showStyleSelector && (
+				<select name="style" value={ style } onChange={ onStyleChange }>
+					<option value="enhance">Normal</option>
+					<option value="anime">Anime</option>
+					<option value="photographic">Photographic</option>
+					<option value="digital-art">Digital Art</option>
+					<option value="comicbook">Comicbook</option>
+					<option value="fantasy-art">Fantasy Art</option>
+					<option value="analog-film">Analog Film</option>
+					<option value="neonpunk">Neon Punk</option>
+					<option value="isometric">Isometric</option>
+					<option value="lowpoly">Low Poly</option>
+					<option value="origami">Origami</option>
+					<option value="line-art">Line Art</option>
+					<option value="craft-clay">Craft Clay</option>
+					<option value="cinematic">Cinematic</option>
+					<option value="3d-model">3D Model</option>
+					<option value="pixel-art">Pixel Art</option>
+					<option value="texture">Texture</option>
+					<option value="monty-python">Monty Python</option>
+				</select>
+			) }
 			<div className="jetpack-ai-logo-generator__prompt-footer">
 				{ ! isUnlimited && ! requireUpgrade && (
 					<div className="jetpack-ai-logo-generator__prompt-requests">
