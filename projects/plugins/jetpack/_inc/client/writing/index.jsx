@@ -41,7 +41,6 @@ export class Writing extends React.Component {
 			'carousel',
 			'copy-post',
 			'latex',
-			'masterbar',
 			'markdown',
 			'shortcodes',
 			'custom-content-types',
