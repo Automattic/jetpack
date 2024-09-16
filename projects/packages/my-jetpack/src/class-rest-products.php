@@ -90,7 +90,6 @@ class REST_Products {
 					'callback'            => __CLASS__ . '::get_products_by_ownership',
 					'permission_callback' => __CLASS__ . '::permissions_callback',
 				),
-				'schema' => array( $this, 'get_products_schema' ),
 			)
 		);
 	}
