@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Content Options: Ensure the feature is loaded via the Classic Theme Helper package instead of Jetpack module.

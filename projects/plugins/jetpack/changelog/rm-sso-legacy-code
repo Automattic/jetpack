@@ -1,4 +1,0 @@
-Significance: patch
-Type: enhancement
-
-SSO: remove legacy codebase in favor of the newer SSO codebase introduced in Jetpack 13.5

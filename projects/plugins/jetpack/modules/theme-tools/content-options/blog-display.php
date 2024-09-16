@@ -35,13 +35,13 @@ if ( ! function_exists( 'jetpack_blog_display_custom_excerpt' ) ) {
 	/**
 	 * Apply Content filters.
 	 *
-	 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+	 * @deprecated 13.9 Moved to Classic Theme Helper package.
 	 * @since 9.7.0 Deprecated $content parameter.
 	 *
 	 * @param string $content Post content. Deprecated.
 	 */
 	function jetpack_blog_display_custom_excerpt( $content = '' ) {
-		_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+		_deprecated_function( __FUNCTION__, 'jetpack-13.9' );
 		if ( ! empty( $content ) ) {
 			_doing_it_wrong(
 				'jetpack_blog_display_custom_excerpt',
@@ -99,12 +99,12 @@ if ( ! function_exists( 'jetpack_the_content_to_the_excerptt' ) ) {
 	/**
 	 * Display Excerpt instead of Content.
 	 *
-	 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+	 * @deprecated 13.9 Moved to Classic Theme Helper package.
 	 *
 	 * @param string $content Post content.
 	 */
 	function jetpack_the_content_to_the_excerpt( $content ) {
-		_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+		_deprecated_function( __FUNCTION__, 'jetpack-13.9' );
 		if ( ( is_home() || is_archive() ) && ! is_post_type_archive( array( 'jetpack-testimonial', 'jetpack-portfolio', 'product' ) ) ) {
 			if ( post_password_required() ) {
 				$excerpt = sprintf( '<p>%s</p>', esc_html__( 'There is no excerpt because this is a protected post.', 'jetpack' ) );
@@ -126,12 +126,12 @@ if ( ! function_exists( 'jetpack_the_excerpt_to_the_content' ) ) {
 	/**
 	 * Display Content instead of Excerpt.
 	 *
-	 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+	 * @deprecated 13.9 Moved to Classic Theme Helper package.
 	 *
 	 * @param string $content The post excerpt.
 	 */
 	function jetpack_the_excerpt_to_the_content( $content ) {
-		_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+		_deprecated_function( __FUNCTION__, 'jetpack-13.9' );
 		if ( ( is_home() || is_archive() ) && ! is_post_type_archive( array( 'jetpack-testimonial', 'jetpack-portfolio', 'product' ) ) ) {
 			ob_start();
 			the_content(
@@ -160,11 +160,11 @@ if ( ! function_exists( 'jetpack_the_content_customizer' ) ) {
 	/**
 	 * Display both Content and Excerpt instead of Content in the Customizer so live preview can switch between them.
 	 *
-	 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+	 * @deprecated 13.9 Moved to Classic Theme Helper package.
 	 * @param string $content The post content.
 	 */
 	function jetpack_the_content_customizer( $content ) {
-		_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+		_deprecated_function( __FUNCTION__, 'jetpack-13.9' );
 		$class = jetpack_the_content_customizer_class();
 		if ( ( is_home() || is_archive() ) && ! is_post_type_archive( array( 'jetpack-testimonial', 'jetpack-portfolio', 'product' ) ) ) {
 			if ( post_password_required() ) {
@@ -187,11 +187,11 @@ if ( ! function_exists( 'jetpack_the_excerpt_customizer' ) ) {
 	/**
 	 * Display both Content and Excerpt instead of Excerpt in the Customizer so live preview can switch between them.
 	 *
-	 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+	 * @deprecated 13.9 Moved to Classic Theme Helper package.
 	 * @param string $excerpt The post excerpt.
 	 */
 	function jetpack_the_excerpt_customizer( $excerpt ) {
-		_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+		_deprecated_function( __FUNCTION__, 'jetpack-13.9' );
 		if ( ( is_home() || is_archive() ) && ! is_post_type_archive( array( 'jetpack-testimonial', 'jetpack-portfolio', 'product' ) ) ) {
 			ob_start();
 			the_content(
@@ -224,11 +224,11 @@ if ( ! function_exists( 'jetpack_the_excerpt_mixed_customizer' ) ) {
 	/**
 	 * Display Content instead of Excerpt in the Customizer when theme uses a 'Mixed' display.
 	 *
-	 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+	 * @deprecated 13.9 Moved to Classic Theme Helper package.
 	 * @param string $content The post excerpt.
 	 */
 	function jetpack_the_excerpt_mixed_customizer( $content ) {
-		_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+		_deprecated_function( __FUNCTION__, 'jetpack-13.9' );
 		if ( ( is_home() || is_archive() ) && ! is_post_type_archive( array( 'jetpack-testimonial', 'jetpack-portfolio', 'product' ) ) ) {
 			jetpack_the_content_customizer_class( 'output-the-excerpt' );
 			ob_start();
@@ -246,11 +246,11 @@ if ( ! function_exists( 'jetpack_the_content_customizer_class' ) ) {
 	 * Returns a class value, `output-the-content` by default.
 	 * Used for themes with a 'Mixed' Blog Display so we can tell which output is by default.
 	 *
-	 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+	 * @deprecated 13.9 Moved to Classic Theme Helper package.
 	 * @param string|null $new_class CSS class added to content container.
 	 */
 	function jetpack_the_content_customizer_class( $new_class = null ) {
-		_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+		_deprecated_function( __FUNCTION__, 'jetpack-13.9' );
 		static $class;
 		if ( isset( $new_class ) ) {
 			// Assign a new class and return.

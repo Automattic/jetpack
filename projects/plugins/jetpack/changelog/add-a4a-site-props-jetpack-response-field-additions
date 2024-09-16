@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Add `is_a4a_dev_site` to `jetpack_response_field_additions`.

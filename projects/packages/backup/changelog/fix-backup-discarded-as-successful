@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Stop considering discarded backups as successful backups on the admin page

@@ -159,10 +159,10 @@ class Tracking {
 	/**
 	 * Track a failed login attempt.
 	 *
-	 * @deprecated $$next-version$$ Method is not longer in use.
+	 * @deprecated 13.9 Method is not longer in use.
 	 */
 	public function wp_login_failed() {
-		_deprecated_function( __METHOD__, '$$next-version$$' );
+		_deprecated_function( __METHOD__, '13.9' );
 	}
 
 	/**

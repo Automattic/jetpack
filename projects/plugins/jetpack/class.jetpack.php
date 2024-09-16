@@ -6310,7 +6310,7 @@ endif;
 	/**
 	 * Lazy instantiation of the Plugin_Tracking object.
 	 *
-	 * @since $$next-version$$
+	 * @since 13.9
 	 *
 	 * @return void
 	 */
@@ -6328,14 +6328,14 @@ endif;
 	/**
 	 * Run the "initialize tracking" hook.
 	 *
-	 * @since $$next-version$$
+	 * @since 13.9
 	 */
 	public function run_initialize_tracking_action() {
 		/**
 		 * Fires when the tracking needs to be initialized.
 		 * Doesn't necessarily mean that will actually happen, depends if the 'jetpack_tos_agreed' option is set.
 		 *
-		 * @since $$next-version$$
+		 * @since 13.9
 		 */
 		do_action( 'jetpack_initialize_tracking' );
 	}

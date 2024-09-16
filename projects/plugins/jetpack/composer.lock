@@ -673,7 +673,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/classic-theme-helper",
-				"reference": "2ef40dc91652b8370108a7d3cb358947e43b0218"
+				"reference": "7e41cb31355e36d266e20ce88bf6da892947cda5"
 			},
 			"require": {
 				"automattic/jetpack-assets": "@dev",
@@ -691,7 +691,7 @@
 			"extra": {
 				"autotagger": true,
 				"branch-alias": {
-					"dev-trunk": "0.5.x-dev"
+					"dev-trunk": "0.6.x-dev"
 				},
 				"changelogger": {
 					"link-template": "https://github.com/Automattic/jetpack-classic-theme-helper/compare/v${old}...v${new}"
@@ -2225,7 +2225,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/publicize",
-				"reference": "48b2e579e64a7c6f737e9d2bbe91be5e7eee878c"
+				"reference": "e3f426755d8aadd8dd78761144d6c2b05434340d"
 			},
 			"require": {
 				"automattic/jetpack-assets": "@dev",
@@ -2253,7 +2253,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-publicize/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "0.52.x-dev"
+					"dev-trunk": "0.53.x-dev"
 				}
 			},
 			"autoload": {
@@ -2555,7 +2555,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/stats-admin",
-				"reference": "8cb039727b34a6e18d6683f33ee1bfeb19f16358"
+				"reference": "630e6fb00f151665ac79b3431ebecb7886a5f1be"
 			},
 			"require": {
 				"automattic/jetpack-connection": "@dev",
@@ -2579,7 +2579,7 @@
 				"autotagger": true,
 				"mirror-repo": "Automattic/jetpack-stats-admin",
 				"branch-alias": {
-					"dev-trunk": "0.21.x-dev"
+					"dev-trunk": "0.22.x-dev"
 				},
 				"textdomain": "jetpack-stats-admin",
 				"version-constants": {
@@ -2686,7 +2686,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/sync",
-				"reference": "aaa8654c8128853de667f1a7184d481b7c0cc026"
+				"reference": "9e141274ba174502fd591a8edc315c210861155a"
 			},
 			"require": {
 				"automattic/jetpack-connection": "@dev",
@@ -2719,7 +2719,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "3.12.x-dev"
+					"dev-trunk": "3.13.x-dev"
 				},
 				"dependencies": {
 					"test-only": [

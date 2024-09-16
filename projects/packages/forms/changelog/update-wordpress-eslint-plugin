@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Use en-dash in numeric range in i18n message to conform to guidelines.
