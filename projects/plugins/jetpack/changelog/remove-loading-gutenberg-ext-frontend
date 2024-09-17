@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Performance: reduce database calls on the frontend related to block functionality.
