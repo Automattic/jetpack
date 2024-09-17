@@ -47,7 +47,8 @@ export default function useFixers(): UseFixersResult {
 
 	const isThreatFixStale = useCallback(
 		( threatId: number ) => {
-			return fixerStatusIsStale( fixersStatus?.threats?.[ threatId ] );
+			const threatFixStatus = fixersStatus?.threats?.[ threatId ];
+			return threatFixStatus ? fixerStatusIsStale( threatFixStatus ) : false;
 		},
 		[ fixersStatus ]
 	);

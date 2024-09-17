@@ -24,17 +24,17 @@ const ThreatsList = () => {
 	const { hasPlan } = usePlan();
 	const { item, list, selected, setSelected } = useThreatsList();
 	const [ isSm ] = useBreakpointMatch( 'sm' );
-	const { isThreatFixerInProgress, isThreatFixerStale } = useFixers();
+	const { isThreatFixInProgress, isThreatFixStale } = useFixers();
 
 	// List of fixable threats that do not have a fix in progress
 	const fixableList = useMemo( () => {
 		return list.filter( threat => {
 			const threatId = parseInt( threat.id );
 			return (
-				threat.fixable && ! isThreatFixerInProgress( threatId ) && ! isThreatFixerStale( threatId )
+				threat.fixable && ! isThreatFixInProgress( threatId ) && ! isThreatFixStale( threatId )
 			);
 		} );
-	}, [ list, isThreatFixerInProgress, isThreatFixerStale ] );
+	}, [ list, isThreatFixInProgress, isThreatFixStale ] );
 
 	// Popover anchors
 	const [ yourScanResultsPopoverAnchor, setYourScanResultsPopoverAnchor ] = useState( null );
