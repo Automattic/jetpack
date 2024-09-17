@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Remove an unnecessary dep to `useSelect`. Should be no change to functionality.
+
+
