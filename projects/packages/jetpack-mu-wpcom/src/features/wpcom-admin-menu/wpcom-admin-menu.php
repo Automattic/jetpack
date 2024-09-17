@@ -128,8 +128,8 @@ function wpcom_add_hosting_menu() {
 
 	add_submenu_page(
 		$parent_slug,
-		esc_attr__( 'Settings', 'jetpack-mu-wpcom' ),
-		esc_attr__( 'Settings', 'jetpack-mu-wpcom' ),
+		esc_attr__( 'Site Settings', 'jetpack-mu-wpcom' ),
+		esc_attr__( 'Site Settings', 'jetpack-mu-wpcom' ),
 		'manage_options',
 		esc_url( "https://wordpress.com/settings/general/$domain" ),
 		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal
