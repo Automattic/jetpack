@@ -211,7 +211,5 @@ module.exports = {
 		'jsx-a11y/label-has-associated-control': [ 'error', { assert: 'either' } ],
 		'object-shorthand': 'off',
 		'@wordpress/no-base-control-with-label-without-id': 'off',
-		'@wordpress/no-global-active-element': 'off',
-		'@wordpress/no-global-get-selection': 'off',
 	},
 };

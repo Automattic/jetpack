@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix issue on interstitials show both buttons loading when only one is pressed

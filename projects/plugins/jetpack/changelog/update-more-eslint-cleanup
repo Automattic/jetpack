@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Blocks: Get active element or selection from target element's document instead of the global `document`.
