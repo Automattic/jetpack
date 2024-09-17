@@ -85,6 +85,11 @@ class WooCommerce_HPOS_Orders extends Module {
 	public static function get_order_types_to_sync( $prefixed = false ) {
 		$types = array( 'order', 'order_refund' );
 
+		// Ensure this is available.
+		if ( ! function_exists( 'is_plugin_active' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+
 		if ( is_plugin_active( self::WOOCOMMERCE_SUBSCRIPTIONS_PATH ) ) {
 			$types[] = 'subscription';
 		}
@@ -127,7 +132,16 @@ class WooCommerce_HPOS_Orders extends Module {
 	 */
 	public function init_full_sync_listeners( $callable ) {
 		add_action( 'jetpack_full_sync_orders', $callable );
-		add_filter( 'jetpack_sync_before_enqueue_full_sync_orders', array( $this, 'expand_order_objects' ) );
+	}
+
+	/**
+	 * Initialize the module in the sender.
+	 *
+	 * @access public
+	 */
+	public function init_before_send() {
+		// Full sync.
+		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_woocommerce_hpos_orders', array( $this, 'expand_order_objects' ) );
 	}
 
 	/**
@@ -212,9 +226,11 @@ class WooCommerce_HPOS_Orders extends Module {
 	 * @return array
 	 */
 	public function expand_order_objects( $args ) {
-		$order_ids = $args;
-
-		return $this->get_objects_by_id( 'order', $order_ids );
+		list( $order_ids, $previous_end ) = $args;
+		return array(
+			'orders'       => $this->get_objects_by_id( 'order', $order_ids ),
+			'previous_end' => $previous_end,
+		);
 	}
 
 	/**

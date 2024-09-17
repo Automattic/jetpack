@@ -886,6 +886,8 @@ class Jetpack {
 			$config->ensure( 'publicize' );
 		}
 
+		add_action( 'jetpack_initialize_tracking', array( $this, 'initialize_tracking' ) );
+
 		/*
 		 * Load things that should only be in Network Admin.
 		 *
@@ -902,12 +904,24 @@ class Jetpack {
 
 		if ( $is_connection_ready ) {
 			add_action( 'login_form_jetpack_json_api_authorization', array( $this, 'login_form_json_api_authorization' ) );
+			$this->run_initialize_tracking_action();
 
 			Jetpack_Heartbeat::init();
 			if ( self::is_module_active( 'stats' ) && self::is_module_active( 'search' ) ) {
 				require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.jetpack-search-performance-logger.php';
 				Jetpack_Search_Performance_Logger::init();
 			}
+		} else {
+			add_action( 'jetpack_agreed_to_terms_of_service', array( $this, 'run_initialize_tracking_action' ) );
+			add_action( 'rest_api_init', array( $this, 'run_initialize_tracking_action' ) );
+			add_filter(
+				'xmlrpc_methods',
+				function ( $methods ) {
+					$this->run_initialize_tracking_action();
+					return $methods;
+				},
+				1
+			);
 		}
 
 		// Initialize remote file upload request handlers.
@@ -921,15 +935,6 @@ class Jetpack {
 			add_action( 'init', array( 'Jetpack_Iframe_Embed', 'init' ), 9, 0 );
 			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.jetpack-keyring-service-helper.php';
 			add_action( 'init', array( 'Jetpack_Keyring_Service_Helper', 'init' ), 9, 0 );
-		}
-
-		if ( ( new Tracking( 'jetpack', $this->connection_manager ) )->should_enable_tracking( new Terms_Of_Service(), new Status() ) ) {
-			add_action( 'init', array( new Plugin_Tracking(), 'init' ) );
-		} else {
-			/**
-			 * Initialize tracking right after the user agrees to the terms of service.
-			 */
-			add_action( 'jetpack_agreed_to_terms_of_service', array( new Plugin_Tracking(), 'init' ) );
 		}
 	}
 
@@ -6300,6 +6305,39 @@ endif;
 			. '</a>';
 
 		return $plugin_meta;
+	}
+
+	/**
+	 * Lazy instantiation of the Plugin_Tracking object.
+	 *
+	 * @since 13.9
+	 *
+	 * @return void
+	 */
+	public function initialize_tracking() {
+		if ( did_action( 'jetpack_initialize_tracking' ) > 1 ) {
+			// Only need to run once.
+			return;
+		}
+
+		if ( ( new Tracking( 'jetpack', $this->connection_manager ) )->should_enable_tracking( new Terms_Of_Service(), new Status() ) || static::is_connection_ready() ) {
+			( new Plugin_Tracking() )->init();
+		}
+	}
+
+	/**
+	 * Run the "initialize tracking" hook.
+	 *
+	 * @since 13.9
+	 */
+	public function run_initialize_tracking_action() {
+		/**
+		 * Fires when the tracking needs to be initialized.
+		 * Doesn't necessarily mean that will actually happen, depends if the 'jetpack_tos_agreed' option is set.
+		 *
+		 * @since 13.9
+		 */
+		do_action( 'jetpack_initialize_tracking' );
 	}
 
 	/**

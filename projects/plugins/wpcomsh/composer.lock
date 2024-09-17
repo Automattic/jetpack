@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "db2d649fe88d2b70941a9a4b77d82753",
+    "content-hash": "abd021117ab176c49e44e4e54a122e75",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
@@ -454,7 +454,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/classic-theme-helper",
-                "reference": "2ef40dc91652b8370108a7d3cb358947e43b0218"
+                "reference": "7e41cb31355e36d266e20ce88bf6da892947cda5"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -472,7 +472,7 @@
             "extra": {
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.5.x-dev"
+                    "dev-trunk": "0.6.x-dev"
                 },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-classic-theme-helper/compare/v${old}...v${new}"
@@ -1145,7 +1145,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jetpack-mu-wpcom",
-                "reference": "3c85793f3ce5609dbb8a644ee6a31f3ac08face4"
+                "reference": "e5ff27ce1d55b80d6b2ab844a7c1e9a534e489aa"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -1179,7 +1179,7 @@
                 },
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "5.61.x-dev"
+                    "dev-trunk": "5.62.x-dev"
                 },
                 "textdomain": "jetpack-mu-wpcom",
                 "version-constants": {
@@ -1577,7 +1577,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/stats-admin",
-                "reference": "8cb039727b34a6e18d6683f33ee1bfeb19f16358"
+                "reference": "630e6fb00f151665ac79b3431ebecb7886a5f1be"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1601,7 +1601,7 @@
                 "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-stats-admin",
                 "branch-alias": {
-                    "dev-trunk": "0.21.x-dev"
+                    "dev-trunk": "0.22.x-dev"
                 },
                 "textdomain": "jetpack-stats-admin",
                 "version-constants": {
@@ -1708,7 +1708,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "57d842942e2080d7a46033dde9b7b1adbccef7a1"
+                "reference": "9e141274ba174502fd591a8edc315c210861155a"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1741,7 +1741,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "3.11.x-dev"
+                    "dev-trunk": "3.13.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -1866,16 +1866,16 @@
         },
         {
             "name": "automattic/wc-calypso-bridge",
-            "version": "v2.5.5",
+            "version": "v2.6.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/wc-calypso-bridge.git",
-                "reference": "f7dc90d348ac82031f26dff6076e4cf492b09138"
+                "reference": "cb8300f827fcf2dd1174822c08f0957f65f0e42e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/wc-calypso-bridge/zipball/f7dc90d348ac82031f26dff6076e4cf492b09138",
-                "reference": "f7dc90d348ac82031f26dff6076e4cf492b09138",
+                "url": "https://api.github.com/repos/Automattic/wc-calypso-bridge/zipball/cb8300f827fcf2dd1174822c08f0957f65f0e42e",
+                "reference": "cb8300f827fcf2dd1174822c08f0957f65f0e42e",
                 "shasum": ""
             },
             "require": {
@@ -1916,7 +1916,7 @@
                     "phpcbf -p"
                 ]
             },
-            "time": "2024-07-23T22:02:25+00:00"
+            "time": "2024-09-10T04:10:28+00:00"
         },
         {
             "name": "composer/installers",

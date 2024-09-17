@@ -148,6 +148,18 @@ class Admin_Color_Schemes {
 		);
 
 		wp_admin_css_color(
+			'fresh',
+			__( 'Default', 'jetpack-masterbar' ),
+			$this->get_admin_color_scheme_url( 'fresh' ),
+			array( '#1d2327', '#2c3338', '#2271b1', '#72aee6' ),
+			array(
+				'base'    => '#a7aaad',
+				'focus'   => '#72aee6',
+				'current' => '#fff',
+			)
+		);
+
+		wp_admin_css_color(
 			'nightfall',
 			__( 'Nightfall', 'jetpack-masterbar' ),
 			$this->get_admin_color_scheme_url( 'nightfall' ),

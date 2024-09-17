@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Ignore `react/no-unknown-property` in one place until React 19 adds the needed prop.
+
+

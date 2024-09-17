@@ -14,6 +14,7 @@ declare global {
 			registrationNonce: string;
 			credentials: [ Record< string, unknown > ];
 			status: ScanStatus;
+			fixerStatus: FixersStatus;
 			scanHistory: ScanStatus;
 			installedPlugins: {
 				[ key: string ]: PluginData;

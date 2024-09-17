@@ -102,7 +102,7 @@ export const Prompt: React.FC< { initialPrompt?: string } > = ( { initialPrompt 
 	const onPromptPaste = ( event: React.ClipboardEvent< HTMLInputElement > ) => {
 		event.preventDefault();
 
-		const selection = window.getSelection();
+		const selection = event.currentTarget.ownerDocument.getSelection();
 		if ( ! selection || ! selection.rangeCount ) {
 			return;
 		}

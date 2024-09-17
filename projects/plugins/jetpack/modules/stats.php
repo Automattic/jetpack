@@ -1032,6 +1032,11 @@ function stats_hide_smile_css() {
  * @return void
  */
 function stats_admin_bar_head() {
+	// Let's not show the stats admin bar to users who are not logged in.
+	if ( ! is_user_logged_in() ) {
+		return;
+	}
+
 	if ( ! Stats_Options::get_option( 'admin_bar' ) ) {
 		return;
 	}

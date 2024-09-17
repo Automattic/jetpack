@@ -103,6 +103,7 @@ export const PLAN_JETPACK_SECURITY_REALTIME_MONTHLY = 'jetpack_security_realtime
 export const PLAN_JETPACK_STATS_BI_YEARLY = 'jetpack_stats_bi_yearly';
 export const PLAN_JETPACK_STATS = 'jetpack_stats';
 export const PLAN_JETPACK_STATS_MONTHLY = 'jetpack_stats_monthly';
+export const PLAN_JETPACK_STATS_YEARLY = 'jetpack_stats_yearly';
 export const PLAN_JETPACK_STATS_PWYW_YEARLY = 'jetpack_stats_pwyw_yearly';
 export const PLAN_JETPACK_STATS_FREE = 'jetpack_stats_free_yearly';
 
@@ -323,6 +324,7 @@ export const JETPACK_STATS_PRODUCTS = [
 	PLAN_JETPACK_STATS_BI_YEARLY,
 	PLAN_JETPACK_STATS,
 	PLAN_JETPACK_STATS_MONTHLY,
+	PLAN_JETPACK_STATS_YEARLY,
 	PLAN_JETPACK_STATS_PWYW_YEARLY,
 	PLAN_JETPACK_STATS_FREE,
 ];
@@ -775,6 +777,7 @@ export function getPlanClass( plan ) {
 		case PLAN_JETPACK_STATS_BI_YEARLY:
 		case PLAN_JETPACK_STATS:
 		case PLAN_JETPACK_STATS_MONTHLY:
+		case PLAN_JETPACK_STATS_YEARLY:
 		case PLAN_JETPACK_STATS_PWYW_YEARLY:
 			return 'is-jetpack-stats-plan';
 		case PLAN_JETPACK_STATS_FREE:

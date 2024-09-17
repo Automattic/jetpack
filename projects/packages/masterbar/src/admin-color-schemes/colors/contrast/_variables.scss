@@ -15,7 +15,7 @@ $body-background: $studio-white; // Calypso --color-surface-backdrop
 $menu-text: $studio-gray-90; // Calypso --color-sidebar-text
 $menu-background: $studio-white; // Calypso --color-sidebar-background
 $menu-highlight-text: $studio-white; // Calypso --color-sidebar-menu-hover-text
-$menu-highlight-icon: $menu-highlight-text;
+$menu-highlight-icon: $studio-yellow-20;
 $menu-highlight-background: $studio-gray-60; // Calypso --color-sidebar-menu-hover-background
 $menu-current-text: $studio-white; // Calypso --color-sidebar-menu-selected-text
 $menu-current-icon: $menu-current-text;
@@ -24,10 +24,11 @@ $menu-submenu-text: $studio-gray-10; // Calypso --color-sidebar-submenu-text
 $menu-submenu-background: $studio-gray-90; // Calypso --color-sidebar-submenu-background
 $menu-submenu-focus-text: $studio-yellow-20; // Calypso --color-sidebar-submenu-hover-text
 $menu-submenu-current-text: $studio-white; // Calypso --color-sidebar-submenu-selected-text
+$adminbar-avatar-frame: $studio-gray-90;
 
 // masterbar overrides
 $masterbar-background: $base-color; // Calypso --color-masterbar-background
-$masterbar-highlight-background: $studio-gray-80; // Calypso --color-masterbar-item-hover-background
+$masterbar-highlight-background: $studio-gray-90; // Calypso --color-masterbar-item-hover-background
 $masterbar-active-background: $studio-gray-60; // Calypso --color-masterbar-item-active-background
 
 // nav unification overrides

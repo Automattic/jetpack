@@ -138,7 +138,7 @@ export default ( {
 							setAttributes( { mapHeight: event.target.value } );
 							// If this input isn't focussed, the onBlur handler won't be triggered
 							// to commit the map size, so we need to check for that.
-							if ( event.target !== document.activeElement ) {
+							if ( event.target !== event.target.ownerDocument.activeElement ) {
 								if ( mapRef.current ) {
 									setTimeout( mapRef.current.sizeMap, 0 );
 								}
