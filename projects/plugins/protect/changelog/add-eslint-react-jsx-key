@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Add `key` to some React `actions` props. Should be no change to functionality.
+
+

@@ -21,8 +21,5 @@ module.exports = {
 		'react/no-did-mount-set-state': 'error',
 		'react/no-did-update-set-state': 'error',
 		'react/prefer-es6-class': 'warn',
-
-		// Temporarily override plugin:@wordpress/react so we can clean up failing stuff in separate PRs.
-		'react/jsx-key': 'off',
 	},
 };
