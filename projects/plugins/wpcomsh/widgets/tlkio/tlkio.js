@@ -8,15 +8,15 @@
 				iframe = document.createElement( 'iframe' );
 
 			// var iframe_src = 'http://embed.lvh.me:3000/' + channel_name,
-			let iframe_src = '//embed.tlk.io/' + channel_name;
+			let iframe_src = '//embed.tlk.io/' + encodeURIComponent( channel_name );
 			const iframe_query = [];
 
 			if ( custom_css_path && custom_css_path.length > 0 ) {
-				iframe_query.push( 'custom_css_path=' + custom_css_path );
+				iframe_query.push( 'custom_css_path=' + encodeURIComponent( custom_css_path ) );
 			}
 
 			if ( nickname && nickname.length > 0 ) {
-				iframe_query.push( 'nickname=' + nickname );
+				iframe_query.push( 'nickname=' + encodeURIComponent( nickname ) );
 			}
 
 			if ( iframe_query.length > 0 ) {

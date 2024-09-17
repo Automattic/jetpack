@@ -55,15 +55,6 @@
 	}
 
 	/**
-	 * Removes logo button.
-	 * @param {string} id - logo button element ID.
-	 */
-	// eslint-disable-next-line no-unused-vars
-	function removeLogoButton( id ) {
-		$( id + ' .create-logo-button' ).remove();
-	}
-
-	/**
 	 * Shows logo description.
 	 * @param {string} id - description element ID.
 	 */
