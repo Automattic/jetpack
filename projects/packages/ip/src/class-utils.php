@@ -128,40 +128,31 @@ class Utils {
 	}
 
 	/**
-	 * Checks that a given IP address is within a given low - high range.
-	 *
-	 * @param mixed $ip IP.
-	 * @param mixed $range_low Range Low.
-	 * @param mixed $range_high Range High.
-	 * @return Bool
-	 */
-	public static function ip_address_is_in_range( $ip, $range_low, $range_high ) {
-		$ip_num  = inet_pton( $ip );
-		$ip_low  = inet_pton( $range_low );
-		$ip_high = inet_pton( $range_high );
-		if ( $ip_num && $ip_low && $ip_high && strcmp( $ip_num, $ip_low ) >= 0 && strcmp( $ip_num, $ip_high ) <= 0 ) {
-			return true;
-		}
-		return false;
-	}
-
-	/**
 	 * Extracts IP addresses from a given string.
 	 *
-	 * We allow for both, one IP per line or comma-; semicolon; or whitespace-separated lists. This also validates the IP addresses
-	 * and only returns the ones that look valid. IP ranges using the "-" character are also supported.
+	 * Supports IPv4 and IPv6 ranges in both hyphen and CIDR notation.
 	 *
-	 * @param string $ips List of ips - example: "8.8.8.8\n4.4.4.4,2.2.2.2;1.1.1.1 9.9.9.9,5555.5555.5555.5555,1.1.1.10-1.1.1.20".
-	 * @return array List of valid IP addresses. - example based on input example: array('8.8.8.8', '4.4.4.4', '2.2.2.2', '1.1.1.1', '9.9.9.9', '1.1.1.10-1.1.1.20')
+	 * @param string $ips List of IPs.
+	 * @return array List of valid IP addresses or ranges.
 	 */
 	public static function get_ip_addresses_from_string( $ips ) {
-		$ips = (string) $ips;
-		$ips = preg_split( '/[\s,;]/', $ips );
+		// Split the string by spaces, commas, and semicolons.
+		$ips = preg_split( '/[\s,;]/', (string) $ips );
 
 		$result = array();
 
 		foreach ( $ips as $ip ) {
-			// Validate both IP values from the range.
+			$ip = trim( $ip );
+
+			// Check for CIDR notation
+			if ( strpos( $ip, '/' ) !== false ) {
+				if ( self::validate_cidr( $ip ) ) {
+					$result[] = $ip;
+				}
+				continue;
+			}
+
+			// Validate both IP values from the hyphen range.
 			$range = explode( '-', $ip );
 			if ( count( $range ) === 2 ) {
 				if ( self::validate_ip_range( $range[0], $range[1] ) ) {
@@ -180,7 +171,277 @@ class Utils {
 	}
 
 	/**
+	 * Validates CIDR notation for IPv4 and IPv6 addresses.
+	 *
+	 * @param string $cidr CIDR notation IP address.
+	 * @return bool True if valid, false otherwise.
+	 */
+	public static function validate_cidr( $cidr ) {
+		// Split the CIDR notation into IP address and prefix length using the '/' separator.
+		$parts = explode( '/', $cidr );
+		if ( count( $parts ) !== 2 ) {
+			return false; // Invalid CIDR notation if it doesn't contain exactly one '/'.
+		}
+
+		list( $ip, $prefix ) = $parts;
+
+		// Validate the IP address.
+		if ( ! filter_var( $ip, FILTER_VALIDATE_IP ) ) {
+			return false;
+		}
+
+		$ip_version = self::get_ip_version( $ip );
+
+		// Validate prefix length.
+		if ( $ip_version === 'ipv4' ) {
+			// For IPv4, the prefix length must be an integer between 0 and 32.
+			if ( ! ctype_digit( $prefix ) || $prefix < 0 || $prefix > 32 ) {
+				return false;
+			}
+		} elseif ( $ip_version === 'ipv6' ) {
+			// For IPv6, the prefix length must be an integer between 0 and 128.
+			if ( ! ctype_digit( $prefix ) || $prefix < 0 || $prefix > 128 ) {
+				return false;
+			}
+		} else {
+			return false; // Invalid IP address.
+		}
+
+		return true;
+	}
+
+	/**
+	 * Checks if an IP address is within a CIDR range.
+	 * Supports both IPv4 and IPv6.
+	 *
+	 * @param string $ip   IP address.
+	 * @param string $cidr CIDR notation IP range.
+	 * @return bool True if IP is within the range, false otherwise.
+	 */
+	public static function ip_in_cidr( $ip, $cidr ) {
+		// Parse the CIDR notation to extract the base IP address and netmask prefix length.
+		$parsed_cidr = self::parse_cidr( $cidr );
+		if ( ! $parsed_cidr ) {
+			return false;
+		}
+		list( $range, $netmask ) = $parsed_cidr;
+
+		// Determine the IP version (IPv4 or IPv6) of both the input IP and the CIDR range IP.
+		$ip_version    = self::get_ip_version( $ip );
+		$range_version = self::get_ip_version( $range );
+
+		// Ensure both IP addresses are valid and of the same IP version.
+		if ( ! $ip_version || ! $range_version || $ip_version !== $range_version ) {
+			return false;
+		}
+
+		// Validate the netmask based on the IP version.
+		if ( ! self::validate_netmask( $netmask, $ip_version ) ) {
+			return false;
+		}
+
+		if ( $ip_version === 'ipv4' ) {
+			return self::ip_in_ipv4_cidr( $ip, $range, $netmask );
+		} else {
+			return self::ip_in_ipv6_cidr( $ip, $range, $netmask );
+		}
+	}
+
+	/**
+	 * Parses the CIDR notation into network address and netmask.
+	 *
+	 * @param string $cidr CIDR notation IP range.
+	 * @return array|false Array containing network address and netmask, or false on failure.
+	 */
+	public static function parse_cidr( $cidr ) {
+		$cidr_parts = explode( '/', $cidr, 2 );
+		if ( count( $cidr_parts ) !== 2 ) {
+			return false; // Invalid CIDR notation
+		}
+		list( $range, $netmask ) = $cidr_parts;
+
+		// Ensure that $netmask is an integer
+		if ( ! ctype_digit( $netmask ) ) {
+			return false;
+		}
+		$netmask = (int) $netmask;
+
+		// Determine IP version
+		$ip_version = self::get_ip_version( $range );
+		if ( ! $ip_version ) {
+			return false; // Invalid IP address
+		}
+
+		// Validate netmask range
+		if ( ! self::validate_netmask( $netmask, $ip_version ) ) {
+			return false; // Netmask out of range
+		}
+
+		return array( $range, $netmask );
+	}
+
+	/**
+	 * Determines the IP version of the given IP address.
+	 *
+	 * @param string $ip IP address.
+	 * @return string|false 'ipv4', 'ipv6', or false if invalid.
+	 */
+	public static function get_ip_version( $ip ) {
+		if ( filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 ) ) {
+			return 'ipv4';
+		} elseif ( filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6 ) ) {
+			return 'ipv6';
+		} else {
+			return false;
+		}
+	}
+
+	/**
+	 * Validates the netmask based on IP version.
+	 *
+	 * @param int    $netmask    Netmask value.
+	 * @param string $ip_version 'ipv4' or 'ipv6'.
+	 * @return bool True if valid, false otherwise.
+	 */
+	public static function validate_netmask( $netmask, $ip_version ) {
+		if ( $ip_version === 'ipv4' ) {
+			return ( $netmask >= 0 && $netmask <= 32 );
+		} elseif ( $ip_version === 'ipv6' ) {
+			return ( $netmask >= 0 && $netmask <= 128 );
+		} else {
+			return false;
+		}
+	}
+
+	/**
+	 * Checks if an IPv4 address is within a CIDR range.
+	 *
+	 * @param string $ip      IPv4 address to check.
+	 * @param string $range   IPv4 network address.
+	 * @param int    $netmask Netmask value.
+	 * @return bool True if IP is within the range, false otherwise.
+	 */
+	public static function ip_in_ipv4_cidr( $ip, $range, $netmask ) {
+		// Validate netmask: must be between 0 and 32 for IPv4.
+		if ( $netmask < 0 || $netmask > 32 ) {
+			return false; // Invalid netmask for IPv4.
+		}
+
+		// Convert IP addresses from their dotted representation to 32-bit unsigned integers.
+		$ip_long    = ip2long( $ip );
+		$range_long = ip2long( $range );
+
+		// Check if the conversion was successful.
+		if ( $ip_long === false || $range_long === false ) {
+			return false; // One of the IP addresses is invalid.
+		}
+
+		/**
+		 * Create the subnet mask as a 32-bit unsigned integer.
+		 *
+		 * Explanation:
+		 * - (32 - $netmask) calculates the number of host bits (the bits not used for the network address).
+		 * - (1 << (32 - $netmask)) shifts the number 1 left by the number of host bits.
+		 *   This results in a number where there is a single 1 followed by zeros equal to the number of host bits.
+		 * - Subtracting 1 gives us a number where the host bits are all 1s.
+		 * - Applying the bitwise NOT operator (~) inverts the bits, turning all host bits to 0 and network bits to 1.
+		 *   This results in the subnet mask having 1s in the network portion and 0s in the host portion.
+		 *
+		 * Example for netmask = 24:
+		 * - (32 - 24) = 8
+		 * - (1 << 8) = 256 (binary: 00000000 00000000 00000001 00000000)
+		 * - 256 - 1 = 255 (binary: 00000000 00000000 00000000 11111111)
+		 * - ~255 = 4294967040 (binary: 11111111 11111111 11111111 00000000)
+		 */
+		$mask = ~ ( ( 1 << ( 32 - $netmask ) ) - 1 );
+
+		/**
+		 * Use bitwise AND to apply the subnet mask to both the IP address and the network address.
+		 * - ($ip_long & $mask) isolates the network portion of the IP address.
+		 * - ($range_long & $mask) isolates the network portion of the CIDR range.
+		 * - If both network portions are equal, the IP address belongs to the same subnet and is within the CIDR range.
+		 */
+		return ( $ip_long & $mask ) === ( $range_long & $mask );
+	}
+
+	/**
+	 * Checks if an IPv6 address is within a CIDR range.
+	 *
+	 * @param string $ip      IPv6 address to check.
+	 * @param string $range   IPv6 network address.
+	 * @param int    $netmask Netmask value.
+	 * @return bool True if IP is within the range, false otherwise.
+	 */
+	public static function ip_in_ipv6_cidr( $ip, $range, $netmask ) {
+		// Validate netmask: must be between 0 and 128 for IPv6.
+		if ( $netmask < 0 || $netmask > 128 ) {
+			return false; // Invalid netmask for IPv6.
+		}
+
+		// Convert IP addresses from their textual representation to binary strings.
+		$ip_bin    = inet_pton( $ip );
+		$range_bin = inet_pton( $range );
+
+		// Check if the conversion was successful.
+		if ( $ip_bin === false || $range_bin === false ) {
+			return false; // One of the IP addresses is invalid.
+		}
+
+		/**
+		 * Calculate the subnet mask in binary form.
+		 *
+		 * IPv6 addresses are 128 bits long.
+		 * The netmask defines how many bits are set to 1 in the subnet mask.
+		 *
+		 * - $netmask_full_bytes: Number of full bytes (each 8 bits) that are all 1s.
+		 * - $netmask_remainder_bits: Remaining bits (less than 8) that need to be set to 1.
+		 *
+		 * For example, if $netmask = 65:
+		 * - $netmask_full_bytes = floor(65 / 8) = 8 (since 8 * 8 = 64 bits)
+		 * - $netmask_remainder_bits = 65 % 8 = 1 (1 bit remaining)
+		 *
+		 * We'll construct the subnet mask by:
+		 * - Starting with $netmask_full_bytes of 0xff (11111111 in binary).
+		 * - Adding a byte where the first $netmask_remainder_bits bits are 1, rest are 0.
+		 * - Padding the rest with zeros to make it 16 bytes (128 bits) long.
+		 */
+
+		// Number of full bytes (each full byte is 8 bits) in the netmask.
+		$netmask_full_bytes = (int) ( $netmask / 8 );
+
+		// Number of remaining bits in the last byte of the netmask.
+		$netmask_remainder_bits = $netmask % 8;
+
+		// Start with a string of $netmask_full_bytes of 0xff bytes (each byte is 8 bits set to 1).
+		$netmask_bin = str_repeat( "\xff", $netmask_full_bytes );
+
+		if ( $netmask_remainder_bits > 0 ) {
+			// Create the last byte with $netmask_remainder_bits bits set to 1 from the left.
+			// - str_repeat('1', $netmask_remainder_bits): creates a string with the required number of '1's.
+			// - str_pad(...): pads the string on the right with '0's to make it 8 bits.
+			// - bindec(...): converts the binary string to a decimal number.
+			// - chr(...): gets the character corresponding to the byte value.
+			$last_byte = chr( bindec( str_pad( str_repeat( '1', $netmask_remainder_bits ), 8, '0', STR_PAD_RIGHT ) ) );
+			// Append the last byte to the netmask binary string.
+			$netmask_bin .= $last_byte;
+		}
+
+		// Pad the netmask binary string to 16 bytes (128 bits) with zeros (\x00).
+		$netmask_bin = str_pad( $netmask_bin, 16, "\x00" );
+
+		/**
+		 * Use bitwise AND to apply the subnet mask to both the IP address and the network address.
+		 * - ($ip_bin & $netmask_bin) isolates the network portion of the IP address.
+		 * - ($range_bin & $netmask_bin) isolates the network portion of the CIDR range.
+		 * - If both network portions are equal, the IP address belongs to the same subnet and is within the CIDR range.
+		 */
+		return ( $ip_bin & $netmask_bin ) === ( $range_bin & $netmask_bin );
+	}
+
+	/**
 	 * Validates the low and high IP addresses of a range.
+	 *
+	 * Now supports IPv6 addresses.
 	 *
 	 * @param string $range_low  Low IP address.
 	 * @param string $range_high High IP address.
@@ -192,18 +453,62 @@ class Utils {
 			return false;
 		}
 
-		// Validate that the $range_low is lower or equal to $range_high.
-		// The inet_pton will give us binary string of an ipv4 or ipv6.
-		// We can then use strcmp to see if the address is in range.
+		// Ensure both IPs are of the same version
+		$range_low_ip_version  = self::get_ip_version( $range_low );
+		$range_high_ip_version = self::get_ip_version( $range_high );
+
+		if ( $range_low_ip_version !== $range_high_ip_version || ! $range_low_ip_version || ! $range_high_ip_version ) {
+			return false; // Invalid or mixed IP versions.
+		}
+
+		// Convert IP addresses to their packed binary representation.
 		$ip_low  = inet_pton( $range_low );
 		$ip_high = inet_pton( $range_high );
+
+		// Check if the conversion was successful.
 		if ( false === $ip_low || false === $ip_high ) {
 			return false;
 		}
+
+		// Compare the binary representations to ensure the low IP is not greater than the high IP.
 		if ( strcmp( $ip_low, $ip_high ) > 0 ) {
 			return false;
 		}
 
 		return true;
+	}
+
+	/**
+	 * Checks that a given IP address is within a given range.
+	 *
+	 * Supports CIDR notation and hyphenated ranges for both IPv4 and IPv6.
+	 *
+	 * @param string $ip        IP address.
+	 * @param string $range_low Range low or CIDR notation.
+	 * @param string $range_high Optional. Range high. Not used if $range_low is CIDR notation.
+	 * @return bool
+	 */
+	public static function ip_address_is_in_range( $ip, $range_low, $range_high = null ) {
+		if ( strpos( $range_low, '/' ) !== false ) {
+			// CIDR notation
+			if ( $range_high !== null ) {
+				// Invalid usage: CIDR notation with range high parameter
+				return false;
+			}
+			return self::ip_in_cidr( $ip, $range_low );
+		}
+
+		// Hyphenated range
+		if ( $range_high === null ) {
+			return false; // Invalid parameters
+		}
+
+		$ip_num  = inet_pton( $ip );
+		$ip_low  = inet_pton( $range_low );
+		$ip_high = inet_pton( $range_high );
+		if ( $ip_num && $ip_low && $ip_high && strcmp( $ip_num, $ip_low ) >= 0 && strcmp( $ip_num, $ip_high ) <= 0 ) {
+			return true;
+		}
+		return false;
 	}
 }

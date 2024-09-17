@@ -141,6 +141,7 @@ class Brute_Force_Protection_Shared_Functions {
 	private static function create_ip_object( $ip_address ) {
 		$range = false;
 		if ( strpos( $ip_address, '-' ) ) {
+			// Range notation.
 			$ip_address = explode( '-', $ip_address );
 			$range      = true;
 		}
