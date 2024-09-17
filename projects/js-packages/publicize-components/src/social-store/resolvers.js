@@ -1,5 +1,6 @@
 import apiFetch from '@wordpress/api-fetch';
 import { store as editorStore } from '@wordpress/editor';
+import { getSocialScriptData } from '../utils/script-data';
 import { normalizeShareStatus } from '../utils/share-status';
 import { setConnections } from './actions/connection-data';
 import { setJetpackSettings } from './actions/jetpack-settings';
@@ -69,12 +70,12 @@ export function getConnections() {
  * @return {Function} Resolver
  */
 export function getPostShareStatus( _postId ) {
-	return async ( { dispatch, registry, select } ) => {
+	return async ( { dispatch, registry } ) => {
 		// Default to the current post ID if none is provided.
 		const postId = _postId || registry.select( editorStore ).getCurrentPostId();
-		const featureFlags = select.featureFlags();
+		const { feature_flags } = getSocialScriptData();
 
-		if ( ! featureFlags.useShareStatus ) {
+		if ( ! feature_flags.useShareStatus ) {
 			return;
 		}
 
