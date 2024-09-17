@@ -126,7 +126,6 @@ const ProductCardsSection: FC< ProductCardsSectionProps > = ( {
 		productOwnershipData,
 		isLoading,
 		refetchOwnershipData,
-		productsOwnership,
 		setProductsOwnership,
 	] );
 
