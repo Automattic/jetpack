@@ -12,6 +12,9 @@ namespace Automattic\Jetpack\Waf;
  */
 class Waf_Blocklog_Manager {
 
+	const BLOCKLOG_OPTION_NAME_DAILY_SUMMARY        = 'jetpack_waf_blocklog_daily_summary';
+	const BLOCKLOG_OPTION_NAME_ALL_TIME_BLOCK_COUNT = 'jetpack_waf_all_time_block_count';
+
 	/**
 	 * Database connection.
 	 *
@@ -21,6 +24,8 @@ class Waf_Blocklog_Manager {
 
 	/**
 	 * Connect to WordPress database.
+	 *
+	 * @return \mysqli|null
 	 */
 	private static function connect_to_wordpress_db() {
 		if ( self::$db_connection !== null ) {
@@ -46,12 +51,34 @@ class Waf_Blocklog_Manager {
 
 	/**
 	 * Close the database connection.
+	 *
+	 * @return void
 	 */
 	public static function close_db_connection() {
 		if ( self::$db_connection ) {
 			self::$db_connection->close();
 			self::$db_connection = null;
 		}
+	}
+
+	/**
+	 * Serialize a value for storage in a WordPress option.
+	 *
+	 * @param mixed $value The value to serialize.
+	 * @return string The serialized value.
+	 */
+	private static function serialize_option_value( $value ) {
+		return serialize( $value );
+	}
+
+	/**
+	 * Unserialize a value from a WordPress option.
+	 *
+	 * @param string $value The serialized value.
+	 * @return mixed The unserialized value.
+	 */
+	private static function unserialize_option_value( string $value ) {
+		return unserialize( $value );
 	}
 
 	/**
@@ -104,90 +131,158 @@ class Waf_Blocklog_Manager {
 	}
 
 	/**
-	 * Update the daily summary stats for the current date.
+	 * Get the daily summary stats from the database.
 	 *
+	 * @return array The daily summary stats.
+	 */
+	private static function get_daily_summary() {
+		global $table_prefix;
+		$db_connection = self::connect_to_wordpress_db();
+		if ( ! $db_connection ) {
+			return array();
+		}
+
+		$result = $db_connection->query( "SELECT option_value FROM {$table_prefix}options WHERE option_name = '" . self::BLOCKLOG_OPTION_NAME_DAILY_SUMMARY . "'" );
+		if ( ! $result ) {
+			return array();
+		}
+
+		$row = $result->fetch_assoc();
+		if ( ! $row ) {
+			return array();
+		}
+
+		$daily_summary = self::unserialize_option_value( $row['option_value'] );
+		$result->free();
+
+		return is_array( $daily_summary ) ? $daily_summary : array();
+	}
+
+	/**
+	 * Increments the current date's daily summary stat.
+	 *
+	 * @param array $current_value The current value of the daily summary.
+	 * @return array The updated daily summary.
+	 */
+	public static function increment_daily_summary( array $current_value ) {
+		$date                   = gmdate( 'Y-m-d' );
+		$value                  = intval( $current_value[ $date ] ?? 0 );
+		$current_value[ $date ] = $value + 1;
+
+		return $current_value;
+	}
+
+	/**
+	 * Update the daily summary option in the database.
+	 *
+	 * @param array $value The value to update.
 	 * @return void
 	 */
-	private static function update_daily_summary() {
-		$option_name = 'jetpack_waf_blocklog_daily_summary';
-		$date        = gmdate( 'Y-m-d' );
+	private static function update_daily_summary( array $value ) {
+		global $table_prefix;
+		$option_name = self::BLOCKLOG_OPTION_NAME_DAILY_SUMMARY;
 
-		if ( function_exists( 'get_option' ) && function_exists( 'update_option' ) ) {
-			$stats = get_option( $option_name, array() );
+		$db_connection = self::connect_to_wordpress_db();
+		if ( ! $db_connection ) {
+			return;
+		}
 
-			if ( ! isset( $stats[ $date ] ) ) {
-				$stats[ $date ] = 0;
-			}
-			++$stats[ $date ];
+		$updated_value = self::serialize_option_value( $value );
 
-			// Prune stats to keep only the last 30 days.
-			$stats = self::prune_stats( $stats );
-
-			update_option( $option_name, $stats );
-		} else {
-			$conn = self::connect_to_wordpress_db();
-			if ( ! $conn ) {
-				return;
-			}
-
-			global $table_prefix;
-
-			// Fetch the current stats
-			$result = $conn->query(
-				sprintf(
-					"SELECT option_value FROM %soptions WHERE option_name = '%s'",
-					$conn->real_escape_string( $table_prefix ),
-					$conn->real_escape_string( $option_name )
-				)
-			);
-
-			$stats = array();
-			if ( $result ) {
-				$row   = $result->fetch_assoc();
-				$stats = $row ? unserialize( $row['option_value'] ) : array();
-				$result->free();
-			}
-
-			// Increment today's stats or initialize them
-			if ( ! isset( $stats[ $date ] ) ) {
-				$stats[ $date ] = 0;
-			}
-			++$stats[ $date ];
-
-			// Prune stats to keep only the last 30 days
-			$stats = self::prune_stats( $stats );
-
-			// Update the option in the database
-			$updated_value = serialize( $stats );
-			$conn->query(
-				sprintf(
-					"INSERT INTO %soptions (option_name, option_value) VALUES ('%s', '%s') ON DUPLICATE KEY UPDATE option_value = '%s'",
-					$conn->real_escape_string( $table_prefix ),
-					$conn->real_escape_string( $option_name ),
-					$conn->real_escape_string( $updated_value ),
-					$conn->real_escape_string( $updated_value )
-				)
-			);
+		$statement = $db_connection->prepare( "INSERT INTO {$table_prefix}options (option_name, option_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE option_value = ?" );
+		if ( false !== $statement ) {
+			$statement->bind_param( 'sss', $option_name, $updated_value, $updated_value );
+			$statement->execute();
 		}
 	}
 
 	/**
-	 * Prune the stats to retain only data for the last 30 days.
+	 * Update the daily summary stats for the current date.
+	 *
+	 * @return void
+	 */
+	private static function write_daily_summary_row() {
+		$stats = self::get_daily_summary();
+		$stats = self::increment_daily_summary( $stats );
+		$stats = self::filter_last_30_days( $stats );
+
+		self::update_daily_summary( $stats );
+	}
+
+	/**
+	 * Get the all-time block count value from the database.
+	 *
+	 * @return int The all-time block count.
+	 */
+	private static function get_all_time_block_count_value() {
+		global $table_prefix;
+		$db_connection = self::connect_to_wordpress_db();
+		if ( ! $db_connection ) {
+			return 0;
+		}
+
+		$result = $db_connection->query( "SELECT option_value FROM {$table_prefix}options WHERE option_name = '" . self::BLOCKLOG_OPTION_NAME_ALL_TIME_BLOCK_COUNT . "'" );
+		if ( ! $result ) {
+			return 0;
+		}
+
+		$row = $result->fetch_assoc();
+		if ( ! $row ) {
+			return 0;
+		}
+
+		$all_time_block_count = intval( $row['option_value'] );
+		$result->free();
+
+		return $all_time_block_count;
+	}
+
+	/**
+	 * Update the all-time block count value in the database.
+	 *
+	 * @param int $value The value to update.
+	 * @return void
+	 */
+	private static function update_all_time_block_count( int $value ) {
+		global $table_prefix;
+		$db_connection = self::connect_to_wordpress_db();
+		if ( ! $db_connection ) {
+			return;
+		}
+
+		$statement = $db_connection->prepare( "INSERT INTO {$table_prefix}options (option_name, option_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE option_value = ?" );
+		if ( false !== $statement ) {
+			$statement->bind_param( 'sii', $option_name, $value, $value );
+			$statement->execute();
+		}
+	}
+
+	/**
+	 * Increment the all-time stats.
+	 *
+	 * @return void
+	 */
+	public static function write_all_time_block_count_row() {
+		$block_count = self::get_all_time_block_count_value() ?? self::get_default_all_time_stat_value();
+		self::update_all_time_block_count( $block_count + 1 );
+	}
+
+	/**
+	 * Filters the stats to retain only data for the last 30 days.
 	 *
 	 * @param array $stats The array of stats to prune.
 	 * @return array Pruned stats array.
 	 */
-	private static function prune_stats( $stats ) {
-		$pruned_stats  = array();
+	public static function filter_last_30_days( array $stats ) {
 		$one_month_ago = gmdate( 'Y-m-d', strtotime( '-30 days' ) );
 
-		foreach ( $stats as $date => $count ) {
-			if ( $date >= $one_month_ago ) {
-				$pruned_stats[ $date ] = $count;
-			}
-		}
-
-		return $pruned_stats;
+		return array_filter(
+			$stats,
+			function ( $date ) use ( $one_month_ago ) {
+				return $date >= $one_month_ago;
+			},
+			ARRAY_FILTER_USE_KEY
+		);
 	}
 
 	/**
@@ -195,8 +290,8 @@ class Waf_Blocklog_Manager {
 	 *
 	 * @return int
 	 */
-	public static function get_one_day_stats() {
-		$stats = get_option( 'jetpack_waf_blocklog_daily_summary', array() );
+	public static function get_current_day_block_count() {
+		$stats = get_option( self::BLOCKLOG_OPTION_NAME_DAILY_SUMMARY, array() );
 		$today = gmdate( 'Y-m-d' );
 
 		return $stats[ $today ] ?? 0;
@@ -207,15 +302,12 @@ class Waf_Blocklog_Manager {
 	 *
 	 * @return int
 	 */
-	public static function get_thirty_day_stats() {
-		$stats               = get_option( 'jetpack_waf_blocklog_daily_summary', array() );
-		$current_month_start = gmdate( 'Y-m-01' );
-		$total_blocks        = 0;
+	public static function get_thirty_day_block_counts() {
+		$stats        = get_option( self::BLOCKLOG_OPTION_NAME_DAILY_SUMMARY, array() );
+		$total_blocks = 0;
 
-		foreach ( $stats as $date => $count ) {
-			if ( $date >= $current_month_start ) {
-				$total_blocks += $count;
-			}
+		foreach ( $stats as $count ) {
+			$total_blocks += intval( $count );
 		}
 
 		return $total_blocks;
@@ -226,141 +318,39 @@ class Waf_Blocklog_Manager {
 	 *
 	 * @return int
 	 */
-	public static function get_all_time_stats() {
-		$all_time_stats = get_option( 'jetpack_waf_all_time_stats', false );
+	public static function get_all_time_block_count() {
+		$all_time_block_count = get_option( self::BLOCKLOG_OPTION_NAME_ALL_TIME_BLOCK_COUNT, false );
 
-		if ( false !== $all_time_stats ) {
-			return intval( $all_time_stats );
+		if ( false !== $all_time_block_count ) {
+			return intval( $all_time_block_count );
 		}
 
-		// Initialize all_time_stats based on last log ID or 0 if no logs exist
-		return intval( self::initialize_all_time_stats() );
+		return self::get_default_all_time_stat_value();
 	}
 
 	/**
-	 * Increment the all-time stats.
+	 * Compute the initial all-time stats value.
 	 */
-	public static function update_all_time_stats() {
-		$option_name = 'jetpack_waf_all_time_stats';
-
-		// Check if WordPress functions are available
-		if ( function_exists( 'get_option' ) && function_exists( 'update_option' ) ) {
-			$all_time_stats = get_option( $option_name, false );
-
-			if ( false === $all_time_stats ) {
-				// Initialize if not set, but do not update option in `initialize_all_time_stats`
-				$all_time_stats = self::initialize_all_time_stats( false );
-			}
-
-			++$all_time_stats;
-			update_option( $option_name, $all_time_stats );
-		} else {
-			// WordPress is not initialized; use direct DB connection
-			$conn = self::connect_to_wordpress_db();
-			if ( ! $conn ) {
-				return;
-			}
-
-			global $table_prefix;
-
-			// Fetch or initialize the current all-time stats
-			$result = $conn->query(
-				sprintf(
-					"SELECT option_value FROM %soptions WHERE option_name = '%s'",
-					$conn->real_escape_string( $table_prefix ),
-					$conn->real_escape_string( $option_name )
-				)
-			);
-
-			$all_time_stats = null;
-
-			if ( $result && $result->num_rows > 0 ) {
-				$row = $result->fetch_assoc();
-				if ( $row !== null && isset( $row['option_value'] ) ) {
-					$all_time_stats = $row['option_value'];
-				}
-			}
-
-			if ( null === $all_time_stats ) {
-				// Initialize if not set, but do not update option in `initialize_all_time_stats`
-				$all_time_stats = self::initialize_all_time_stats( false );
-			}
-
-			++$all_time_stats;
-
-			// Update the option in the database
-			$updated_value = intval( $all_time_stats );
-			$conn->query(
-				sprintf(
-					"INSERT INTO %soptions (option_name, option_value) VALUES ('%s', '%s') ON DUPLICATE KEY UPDATE option_value = '%s'",
-					$conn->real_escape_string( $table_prefix ),
-					$conn->real_escape_string( $option_name ),
-					$updated_value,
-					$updated_value
-				)
-			);
+	private static function get_default_all_time_stat_value() {
+		$conn = self::connect_to_wordpress_db();
+		if ( ! $conn ) {
+			return 0;
 		}
-	}
 
-	/**
-	 * Initialize the all-time stats based on the last log ID.
-	 *
-	 * @param bool $update Whether to update the option in the database.
-	 * @return int The initialized all-time stats value.
-	 */
-	private static function initialize_all_time_stats( $update = true ) {
-		$option_name = 'jetpack_waf_all_time_stats';
+		global $table_prefix;
 
-		// Check if WordPress functions are available
-		if ( function_exists( 'get_option' ) ) {
-			global $wpdb;
+		$last_log_id_result = $conn->query( "SELECT log_id FROM {$table_prefix}jetpack_waf_blocklog ORDER BY log_id DESC LIMIT 1" );
 
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-			$last_log_id = $wpdb->get_var( "SELECT log_id FROM {$wpdb->prefix}jetpack_waf_blocklog ORDER BY log_id DESC LIMIT 1" );
+		$all_time_block_count = 0;
 
-			$all_time_stats = $last_log_id ? $last_log_id : 0;
-
-			if ( $update ) {
-				update_option( $option_name, $all_time_stats );
+		if ( $last_log_id_result && $last_log_id_result->num_rows > 0 ) {
+			$row = $last_log_id_result->fetch_assoc();
+			if ( $row !== null && isset( $row['log_id'] ) ) {
+				$all_time_block_count = $row['log_id'];
 			}
-
-			return $all_time_stats;
-		} else {
-			// WordPress is not initialized; use direct DB connection
-			$conn = self::connect_to_wordpress_db();
-			if ( ! $conn ) {
-				return 0;
-			}
-
-			global $table_prefix;
-
-			$last_log_id_result = $conn->query( "SELECT log_id FROM {$table_prefix}jetpack_waf_blocklog ORDER BY log_id DESC LIMIT 1" );
-
-			$all_time_stats = 0;
-
-			if ( $last_log_id_result && $last_log_id_result->num_rows > 0 ) {
-				$row = $last_log_id_result->fetch_assoc();
-				if ( $row !== null && isset( $row['log_id'] ) ) {
-					$all_time_stats = $row['log_id'];
-				}
-			}
-
-			if ( $update ) {
-				// Update the option in the database
-				$updated_value = intval( $all_time_stats );
-				$conn->query(
-					sprintf(
-						"INSERT INTO %soptions (option_name, option_value) VALUES ('%s', '%s') ON DUPLICATE KEY UPDATE option_value = '%s'",
-						$conn->real_escape_string( $table_prefix ),
-						$conn->real_escape_string( $option_name ),
-						$updated_value,
-						$updated_value
-					)
-				);
-			}
-
-			return $all_time_stats;
 		}
+
+		return $all_time_block_count;
 	}
 
 	/**
@@ -418,8 +408,8 @@ class Waf_Blocklog_Manager {
 			}
 		}
 
-		self::update_daily_summary();
-		self::update_all_time_stats();
+		self::write_daily_summary_row();
+		self::write_all_time_block_count_row();
 		self::write_blocklog_row( $log_data );
 		self::close_db_connection();
 	}

@@ -32,4 +32,23 @@ final class WafBlocklogManagerTest extends PHPUnit\Framework\TestCase {
 
 		unlink( $waf_log_path );
 	}
+
+	/**
+	 * Test incrementing the daily summary stats.
+	 */
+	public function testIncrementDailySummary() {
+		$today = gmdate( 'Y-m-d' );
+
+		$value  = array();
+		$result = Waf_Blocklog_Manager::increment_daily_summary( $value );
+		$this->assertSame( 1, $result[ $today ] );
+
+		$value  = array(
+			'1999-01-01' => 0,
+			'1999-01-02' => 123,
+			$today       => 1,
+		);
+		$result = Waf_Blocklog_Manager::increment_daily_summary( $value );
+		$this->assertEquals( 2, $result[ $today ] );
+	}
 }
