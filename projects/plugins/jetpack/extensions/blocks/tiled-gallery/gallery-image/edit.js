@@ -18,7 +18,8 @@ class GalleryImageEdit extends Component {
 
 	onImageKeyDown = event => {
 		if (
-			this.img.current === document.activeElement &&
+			this.img.current &&
+			this.img.current === this.img.current.ownerDocument.activeElement &&
 			this.props.isSelected &&
 			[ BACKSPACE, DELETE ].includes( event.keyCode )
 		) {

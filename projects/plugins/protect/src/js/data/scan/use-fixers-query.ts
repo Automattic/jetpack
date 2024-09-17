@@ -1,6 +1,7 @@
 import { useConnection } from '@automattic/jetpack-connection';
 import { useQuery, useQueryClient, type UseQueryResult } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
+import { useEffect, useMemo } from 'react';
 import API from '../../api';
 import { QUERY_FIXERS_KEY, QUERY_HISTORY_KEY, QUERY_SCAN_STATUS_KEY } from '../../constants';
 import useNotices from '../../hooks/use-notices';
@@ -31,12 +32,23 @@ export default function useFixersQuery( {
 		skipUserConnection: true,
 	} );
 
-	return useQuery( {
+	// Memoize initialData to prevent recalculating on every render
+	const initialData: FixersStatus = useMemo(
+		() =>
+			window.jetpackProtectInitialState?.fixerStatus || {
+				ok: true,
+				threats: {},
+			},
+		[]
+	);
+
+	const fixersQuery = useQuery( {
 		queryKey: [ QUERY_FIXERS_KEY ],
 		queryFn: async () => {
+			// Fetch fixer status from API
 			const data = await API.getFixersStatus( threatIds );
 			const cachedData = queryClient.getQueryData( [ QUERY_FIXERS_KEY ] ) as
-				| { threats: object }
+				| FixersStatus
 				| undefined;
 
 			// Check if any fixers have completed, by comparing the latest data against the cache.
@@ -63,8 +75,10 @@ export default function useFixersQuery( {
 				}
 			} );
 
+			// Return the fetched data so the query resolves
 			return data;
 		},
+		retry: false,
 		refetchInterval( query ) {
 			if ( ! usePolling || ! query.state.data ) {
 				return false;
@@ -82,7 +96,20 @@ export default function useFixersQuery( {
 
 			return false;
 		},
-		initialData: { threats: {} }, // to do: provide initial data in window.jetpackProtectInitialState
+		initialData: initialData,
 		enabled: isRegistered,
 	} );
+
+	// Handle error if present in the query result
+	useEffect( () => {
+		if ( fixersQuery.isError && fixersQuery.error ) {
+			// Reset the query data to initial state
+			queryClient.setQueryData( [ QUERY_FIXERS_KEY ], initialData );
+
+			// Show an error notice
+			showErrorNotice( __( 'An error occurred while fetching fixers status.', 'jetpack-protect' ) );
+		}
+	}, [ fixersQuery.isError, fixersQuery.error, queryClient, initialData, showErrorNotice ] );
+
+	return fixersQuery;
 }

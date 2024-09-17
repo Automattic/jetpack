@@ -583,11 +583,6 @@ class Launchpad_Task_Lists {
 			return true;
 		}
 
-		// Allow Jetpack Cloud URLs.
-		if ( strpos( $input, 'https://cloud.jetpack.com' ) === 0 ) {
-			return true;
-		}
-
 		// Checks if the string is URL starting with the admin URL.
 		if ( strpos( $input, admin_url() ) === 0 ) {
 			return true;

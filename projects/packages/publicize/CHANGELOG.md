@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.53.0] - 2024-09-16
+### Added
+- Social: adds hook for plugin developers to be able to pull social share URLs on save. [#39398]
+
+### Changed
+- Moved initialization of Publicize UI from init action to admin_init action [#39342]
+- Social: Migrated useAdminUiV1 feature flag to new script data [#39137]
+
+### Removed
+- Social: Cleaned up media auto-conversion backend logic [#38587]
+
+### Fixed
+- Hide share logs not belonging to current admin. [#39379]
+
 ## [0.52.3] - 2024-09-10
 ### Changed
 - Updated package dependencies. [#39302]
@@ -694,6 +708,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.53.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.52.3...v0.53.0
 [0.52.3]: https://github.com/Automattic/jetpack-publicize/compare/v0.52.2...v0.52.3
 [0.52.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.52.1...v0.52.2
 [0.52.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.52.0...v0.52.1
