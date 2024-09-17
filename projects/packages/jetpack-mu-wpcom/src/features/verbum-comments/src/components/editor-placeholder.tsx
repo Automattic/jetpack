@@ -12,19 +12,19 @@ export const EditorPlaceholder = ( { onClick, loading } ) => {
 			onKeyDown={ onClick }
 		>
 			<div
-				class={ clsx( 'editor__main loading-placeholder', {
+				className={ clsx( 'editor__main loading-placeholder', {
 					loading,
 				} ) }
 			>
 				<div
-					class="block-list-appender block-editor-block-list__layout"
+					className="block-list-appender block-editor-block-list__layout"
 					style={ { padding: '10px 20px' } }
 				>
 					{ loading ? (
 						<CustomLoadingSpinner />
 					) : (
 						<p
-							class="block-editor-block-list__layout__content"
+							className="block-editor-block-list__layout__content"
 							style={ { margin: '18px 0', fontSize: '16px' } }
 						>
 							{ commentParent.value

@@ -399,7 +399,7 @@ const EmailSettings = props => {
 						</Button>
 					</Col>
 				</Container>
-				<p class="reply-to">
+				<p className="reply-to">
 					{ __(
 						'Choose who receives emails when subscribers reply to your newsletter.',
 						'jetpack'

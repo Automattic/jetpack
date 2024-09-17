@@ -28,6 +28,5 @@ module.exports = {
 		'react/no-direct-mutation-state': 'off',
 		'react/no-find-dom-node': 'off',
 		'react/no-unescaped-entities': 'off',
-		'react/no-unknown-property': 'off',
 	},
 };

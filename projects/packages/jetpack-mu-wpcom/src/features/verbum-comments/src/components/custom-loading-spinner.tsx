@@ -1,3 +1,3 @@
 export const CustomLoadingSpinner = () => {
-	return <div class="custom-loading-spinner"></div>;
+	return <div className="custom-loading-spinner"></div>;
 };
