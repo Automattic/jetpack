@@ -38,14 +38,28 @@ class Terms extends Module {
 	}
 
 	/**
-	 * The table in the database.
+	 * The table name.
 	 *
 	 * @access public
 	 *
 	 * @return string
+	 * @deprecated since 3.11.0 Use table() instead.
 	 */
 	public function table_name() {
+		_deprecated_function( __METHOD__, '3.11.0', 'Automattic\\Jetpack\\Sync\\Terms->table' );
 		return 'term_taxonomy';
+	}
+
+	/**
+	 * The table in the database with the prefix.
+	 *
+	 * @access public
+	 *
+	 * @return string|bool
+	 */
+	public function table() {
+		global $wpdb;
+		return $wpdb->term_taxonomy;
 	}
 
 	/**
@@ -284,7 +298,7 @@ class Terms extends Module {
 	 * @return array $args The expanded hook parameters.
 	 */
 	public function expand_term_taxonomy_id( $args ) {
-		list( $term_taxonomy_ids,  $previous_end ) = $args;
+		list( $term_taxonomy_ids, $previous_end ) = $args;
 
 		return array(
 			'terms'        => get_terms(

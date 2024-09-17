@@ -9,6 +9,7 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import usePublicizeConfig from '../../hooks/use-publicize-config';
 import { store } from '../../social-store';
+import { getSocialScriptData } from '../../utils/script-data';
 import styles from './styles.module.scss';
 
 type SettingsButtonProps = {
@@ -24,9 +25,10 @@ type SettingsButtonProps = {
  * @return {import('react').ReactNode} The button/link component.
  */
 export function SettingsButton( { label, variant = 'primary' }: SettingsButtonProps ) {
-	const { useAdminUiV1, connections } = useSelect( select => {
+	const { useAdminUiV1 } = getSocialScriptData().feature_flags;
+
+	const { connections } = useSelect( select => {
 		return {
-			useAdminUiV1: select( store ).useAdminUiV1(),
 			connections: select( store ).getConnections(),
 		};
 	}, [] );

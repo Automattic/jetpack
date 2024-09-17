@@ -548,6 +548,42 @@ function wpcom_youtube_embed_crazy_url_init() {
 	wp_embed_register_handler( 'wpcom_youtube_embed_crazy_url', '#https?://(?:www\.)?(?:youtube.com/(?:v/|playlist|watch[/\#?])|youtu\.be/).*#i', 'wpcom_youtube_embed_crazy_url' );
 }
 
+/**
+ * Remove the ending question mark from the video id of the YouTube URL.
+ *
+ * Example: https://www.youtube.com/watch?v=AVAWwXeOyyQ?
+ *
+ * @since 13.9
+ *
+ * @param string $provider URL of the oEmbed provider.
+ * @param string $url      URL of the content to be embedded.
+ *
+ * @return string
+ */
+function wpcom_youtube_oembed_fetch_url( $provider, $url ) {
+	if ( ! wp_startswith( $provider, 'https://www.youtube.com/oembed' ) ) {
+		return $provider;
+	}
+
+	$parsed = wp_parse_url( $url );
+	if ( ! isset( $parsed['query'] ) ) {
+		return $provider;
+	}
+
+	$query_vars = array();
+	wp_parse_str( $parsed['query'], $query_vars );
+	if ( isset( $query_vars['v'] ) && wp_endswith( $query_vars['v'], '?' ) ) {
+		$url = remove_query_arg( array( 'v' ), $url );
+		$url = add_query_arg( 'v', preg_replace( '/\?$/', '', $query_vars['v'] ), $url );
+	}
+
+	$provider = remove_query_arg( array( 'url' ), $provider );
+	$provider = add_query_arg( 'url', rawurlencode( $url ), $provider );
+
+	return $provider;
+}
+add_filter( 'oembed_fetch_url', 'wpcom_youtube_oembed_fetch_url', 10, 2 );
+
 if (
 	! is_admin()
 	/**

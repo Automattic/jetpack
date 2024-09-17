@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix issue where recommendations are showing slightly before the welcome banner dismisses

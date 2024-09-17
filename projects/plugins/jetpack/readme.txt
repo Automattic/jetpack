@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, arsihasi, azaozz, barry, batmoo, beaulebens, bindlegirl, biskobe, bjorsch, blobaugh, brbrr, brileyhooper, cainm, cena, cfinke, cgastrell, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, daniloercoli, davoraltman, delawski, designsimply, dkmyta, dllh, drawmyface, dsmart, dun2mis, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, joen, jblz, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lhkowalski, lschuyler, macmanx, martinremy, matt, mattwiebe, matveb, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, miguelxavierpenha, mikeyarce, mkaz, nancythanki, nickmomrik, njweller, nunyvega, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, renatoagds, retrofox, richardmtl, richardmuscat, robertbpugh, roccotripaldi, ryancowles, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, thehenridev, tmoorewp, tyxla, Viper007Bond, westi, williamvianas, wpkaren, yoavf, zinigor
 Tags: Security, backup, malware, scan, performance
-Stable tag: 13.8
+Stable tag: 13.8.1
 Requires at least: 6.5
 Requires PHP: 7.0
 Tested up to: 6.6
@@ -326,31 +326,15 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.8 - 2024-09-04
-#### Major Enhancements
-- Custom CSS: Remove feature in favor of WordPress core implementation.
-- Embeds: Remove YouTube and Vimeo embeds in favor of WordPress core implementation.
-- WordPress.com Toolbar: The feature has been removed.
-
+### 13.9-a.5 - 2024-09-16
 #### Enhancements
-- Admin Menu: Update order of Jetpack sub-menu items.
-- AI Assistant: Add spelling mistakes check for English language.
-- Newsletters: Add the plugin icon to the Block Editor header, with a dedicated sidebar with an email preview feature.
-- Social: Display Fediverse creator meta tag when a post has an active Mastodon connection.
-
-#### Improved compatibility
-- Sharing Block: Improve performance when hooking the block into single post templates.
-- Tiled Galleries: Defer loading of the Tiled Gallery script for improved performance.
+- Jetpack Stats: Do not check for capabilities if the user is not signed in when deciding whether to show the admin bar widget.
+- SSO: Remove legacy codebase in favor of the newer SSO codebase introduced in Jetpack 13.5.
 
 #### Bug fixes
-- AI Assistant: Disable Write Brief for free plan users when AI Assistant block is disabled.
-- AMP: Avoid fatal errors when using Jetpack's classic slideshows on a site where Jetpack blocks are disabled.
-- Blocks: Ensure the stylesheets for Contact Info and Payment Button blocks are loaded correctly.
-- Blocks: Fix the editor freeze after inserting a pattern with the Donations block.
-- Mailchimp Block: Do not attempt to fetch groups when a site is not connected to Mailchimp yet.
-- REST API: Avoid PHP warnings in the comment endpoint when the parent comment does not exist.
-- Social Icons Widget: Ensure the social network icons display correctly.
-- Subscriptions: Prevent the subscribe modal from automatically turning on when discussion settings are saved.
+- Dashboard: Display the yearly Stats plan in the Jetpack dashboard immediately after you've purchased the plan.
+- Help Center: Fix the icon color when previewing color scheme.
+- Shortcode: Fix the YouTube URL embedding failure due to the trailing question mark of the ID.
 
 --------
 

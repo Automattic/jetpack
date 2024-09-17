@@ -33,7 +33,11 @@ const useActivate = ( productId: string ) => {
 	const { detail, refetch } = useProduct( productId );
 	const { recordEvent } = useAnalytics();
 
-	const { mutate: activate, isPending } = useSimpleMutation( {
+	const {
+		mutate: activate,
+		isPending,
+		isSuccess,
+	} = useSimpleMutation( {
 		name: QUERY_ACTIVATE_PRODUCT_KEY,
 		query: {
 			path: `${ REST_API_SITE_PRODUCTS_ENDPOINT }/${ productId }`,
@@ -64,6 +68,7 @@ const useActivate = ( productId: string ) => {
 	return {
 		activate,
 		isPending,
+		isSuccess,
 	};
 };
 

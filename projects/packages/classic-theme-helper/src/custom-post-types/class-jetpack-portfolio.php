@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Classic_Theme_Helper;
 
+use Automattic\Jetpack\Modules;
 use Jetpack_Options;
 use WP_Customize_Image_Control;
 use WP_Customize_Manager;
@@ -59,7 +60,12 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Portfolio' ) ) {
 			// If called via REST API, we need to register later in lifecycle.
 			add_action( 'restapi_theme_init', array( $this, 'maybe_register_cpt' ) );
 
-			$this->maybe_register_cpt();
+			// If portfolio cpt is enabled, hook into init to register the CPT, otherwise run maybe_register_cpt immediately to deregister.
+			if ( get_option( self::OPTION_NAME, '0' ) ) {
+				$this->maybe_register_cpt();
+			} else {
+				add_action( 'init', array( $this, 'maybe_register_cpt' ) );
+			}
 		}
 
 		/**
@@ -299,6 +305,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Portfolio' ) ) {
 		public static function activation_post_type_support() {
 			if ( current_theme_supports( self::CUSTOM_POST_TYPE ) ) {
 				update_option( self::OPTION_NAME, '1' );
+				( new Modules() )->activate( 'custom-content-types', false, false );
 			}
 		}
 

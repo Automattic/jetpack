@@ -94,7 +94,7 @@ export function Migration( props: Props ) {
 			<p>
 				{ __(
 					"You're a few steps away from upgrading your site to the speed and power of WordPress.com. " +
-						"Here's how it works: ",
+						"Here's how it works:",
 					'wpcom-migration'
 				) }
 			</p>

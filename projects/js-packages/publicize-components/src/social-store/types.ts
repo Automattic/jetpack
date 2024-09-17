@@ -32,10 +32,8 @@ export type JetpackSettings = {
 	showNudge?: boolean;
 };
 
-export type ShareStatusItem = Pick<
-	Connection,
-	'connection_id' | 'profile_link' | 'profile_picture'
-> & {
+export type ShareStatusItem = Pick< Connection, 'profile_link' | 'profile_picture' > & {
+	connection_id: number;
 	status: 'success' | 'failure';
 	message: string;
 	timestamp: number;
@@ -72,7 +70,6 @@ export type SocialStoreState = {
 	hasPaidPlan?: boolean;
 	// on Jetack Social admin page
 	jetpackSettings?: JetpackSettings;
-	useAdminUiV1?: boolean;
 	featureFlags?: Record< string, boolean >;
 	shareStatus?: ShareStatus;
 };

@@ -84,12 +84,12 @@ function Earn( props ) {
 	const { active, hasConnectedOwner, isModuleFound, isOffline, searchTerm, siteRawUrl, blogID } =
 		props;
 
-	const foundAds = isModuleFound( 'wordads' ),
-		foundEarnBlocks = isModuleFound( 'earn' );
-
 	if ( ! searchTerm && ! active ) {
 		return null;
 	}
+
+	const foundAds = isModuleFound( 'wordads' ),
+		foundEarnBlocks = isModuleFound( 'earn' );
 
 	if ( ! foundAds && ! foundEarnBlocks ) {
 		return null;

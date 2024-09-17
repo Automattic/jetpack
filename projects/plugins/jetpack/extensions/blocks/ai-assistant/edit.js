@@ -31,11 +31,11 @@ import ConnectPrompt from './components/connect-prompt';
 import FeedbackControl from './components/feedback-control';
 import QuotaExceededMessage, { FairUsageNotice } from './components/quota-exceeded-message';
 import ToolbarControls from './components/toolbar-controls';
-import { getStoreBlockId } from './extensions/ai-assistant/with-ai-assistant';
 import useAIAssistant from './hooks/use-ai-assistant';
 import useAICheckout from './hooks/use-ai-checkout';
 import useAiFeature from './hooks/use-ai-feature';
 import useAiProductPage from './hooks/use-ai-product-page';
+import { getStoreBlockId } from './hooks/use-transform-to-assistant';
 import { isUserConnected } from './lib/connection';
 import './editor.scss';
 
@@ -199,7 +199,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 	const acceptLabel = isGeneratingTitle ? acceptTitleLabel : acceptContentLabel;
 
 	const moveCaretToEnd = element => {
-		const selection = window.getSelection();
+		const selection = element.ownerDocument.getSelection();
 		selection.selectAllChildren( element );
 		selection.collapseToEnd();
 		element.focus();

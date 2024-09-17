@@ -1247,8 +1247,17 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$to[ $to_key ] = self::add_name_to_address( $to_value );
 		}
 
-		$blog_url        = wp_parse_url( site_url() );
-		$from_email_addr = 'wordpress@' . $blog_url['host'];
+		// Get the site domain and get rid of www.
+		$sitename        = wp_parse_url( site_url(), PHP_URL_HOST );
+		$from_email_addr = 'wordpress@';
+
+		if ( null !== $sitename ) {
+			if ( str_starts_with( $sitename, 'www.' ) ) {
+				$sitename = substr( $sitename, 4 );
+			}
+
+			$from_email_addr .= $sitename;
+		}
 
 		if ( ! empty( $comment_author_email ) ) {
 			$reply_to_addr = $comment_author_email;

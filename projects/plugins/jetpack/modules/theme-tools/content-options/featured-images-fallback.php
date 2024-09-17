@@ -12,6 +12,7 @@ if ( ! function_exists( 'jetpack_featured_images_fallback_get_image' ) ) {
 	 * Featured Image then first image from the_content HTML
 	 * and filter the post_thumbnail_html
 	 *
+	 * @deprecated 13.9 Moved to Classic Theme Helper package.
 	 * @param string       $html              The HTML for the image markup.
 	 * @param int          $post_id           The post ID to check.
 	 * @param int          $post_thumbnail_id The ID of the featured image.
@@ -21,6 +22,7 @@ if ( ! function_exists( 'jetpack_featured_images_fallback_get_image' ) ) {
 	 * @return string      $html              Thumbnail image with markup.
 	 */
 	function jetpack_featured_images_fallback_get_image( $html, $post_id, $post_thumbnail_id, $size, $attr ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		_deprecated_function( __FUNCTION__, 'jetpack-13.9' );
 		$opts = jetpack_featured_images_get_settings();
 
 		if ( ! empty( $html ) || (bool) 1 !== (bool) $opts['fallback-option'] ) {
@@ -141,6 +143,7 @@ if ( ! function_exists( 'jetpack_featured_images_fallback_get_image_src' ) ) {
 	 * Get URL of one image from a specified post in the following order:
 	 * Featured Image then first image from the_content HTML
 	 *
+	 * @deprecated 13.9 Moved to Classic Theme Helper package.
 	 * @param int    $post_id           The post ID to check.
 	 * @param int    $post_thumbnail_id The ID of the featured image.
 	 * @param string $size              The image size to return, defaults to 'post-thumbnail'.
@@ -148,6 +151,7 @@ if ( ! function_exists( 'jetpack_featured_images_fallback_get_image_src' ) ) {
 	 * @return string|null $image_src         The URL of the thumbnail image.
 	 */
 	function jetpack_featured_images_fallback_get_image_src( $post_id, $post_thumbnail_id, $size ) {
+		_deprecated_function( __FUNCTION__, 'jetpack-13.9' );
 		$image_src = wp_get_attachment_image_src( $post_thumbnail_id, $size );
 		$image_src = ( ! empty( $image_src[0] ) ) ? $image_src[0] : null;
 		$opts      = jetpack_featured_images_get_settings();
@@ -205,11 +209,13 @@ if ( ! function_exists( 'jetpack_has_featured_image' ) ) {
 	/**
 	 * Check if post has an image attached, including a fallback.
 	 *
+	 * @deprecated 13.9 Moved to Classic Theme Helper package.
 	 * @param  int $post The post ID to check.
 	 *
 	 * @return bool
 	 */
 	function jetpack_has_featured_image( $post = null ) {
+		_deprecated_function( __FUNCTION__, 'jetpack-13.9' );
 		return (bool) get_the_post_thumbnail( $post );
 	}
 
@@ -220,6 +226,7 @@ if ( ! function_exists( 'jetpack_featured_images_post_class' ) ) {
 	/**
 	 * Adds custom class to the array of post classes.
 	 *
+	 * @deprecated 13.9 Moved to Classic Theme Helper package.
 	 * @param array $classes Classes for the post element.
 	 * @param array $class   Optional. Comma separated list of additional classes.
 	 * @param array $post_id Unique The post ID to check.
@@ -227,6 +234,7 @@ if ( ! function_exists( 'jetpack_featured_images_post_class' ) ) {
 	 * @return array $classes
 	 */
 	function jetpack_featured_images_post_class( $classes, $class, $post_id ) {
+		_deprecated_function( __FUNCTION__, 'jetpack-13.9' );
 		$post_password_required = post_password_required( $post_id );
 		$opts                   = jetpack_featured_images_get_settings();
 

@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.69.0] - 2024-09-16
+### Added
+- Social: Share status | Updated retry to show spinner and start polling [#39293]
+
+### Changed
+- Social: Disable reshare button and hide post publish share status when all the enabled connections are invalid [#39346]
+- Social: Migrated useAdminUiV1 feature flag to new script data [#39137]
+- Updated package dependencies. [#39332]
+
+### Fixed
+- Fixed the display where the error wasn't visible to the user. [#39372]
+
+## [0.68.0] - 2024-09-10
+### Added
+- Added share status feedback to resharing [#39294]
+
+### Changed
+- Updated package dependencies. [#39302]
+
+## [0.67.0] - 2024-09-09
+### Added
+- Added tracking for the share status modal [#39198]
+
+### Changed
+- Updated package dependencies. [#39278]
+
+### Fixed
+- Social: Fixed multiple issues in share status retry UI and logic [#39291]
+
 ## [0.66.1] - 2024-09-06
 ### Added
 - Social: Added polling flag for share status for better UI [#39265]
@@ -904,6 +933,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#24470]
 
+[0.69.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.68.0...v0.69.0
+[0.68.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.67.0...v0.68.0
+[0.67.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.66.1...v0.67.0
 [0.66.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.66.0...v0.66.1
 [0.66.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.65.0...v0.66.0
 [0.65.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.64.0...v0.65.0
