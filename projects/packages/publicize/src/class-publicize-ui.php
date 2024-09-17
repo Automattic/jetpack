@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Publicize;
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Current_Plan;
+use Automattic\Jetpack\Status\Host;
 
 /**
  * Only user facing pieces of Publicize are found here.
@@ -162,6 +163,10 @@ class Publicize_UI {
 			return;
 		}
 
+		$is_atomic_site = ( new Host() )->is_woa_site();
+		$is_simple_site = ( new Host() )->is_wpcom_simple();
+		$site_type      = $is_atomic_site ? 'atomic' : ( $is_simple_site ? 'simple' : 'jetpack' );
+
 		Assets::register_script(
 			'jetpack-social-classic-editor-options',
 			'../build/classic-editor-connections.js',
@@ -181,6 +186,7 @@ class Publicize_UI {
 					'isEnhancedPublishingEnabled' => $this->publicize->has_enhanced_publishing_feature(),
 					'resharePath'                 => '/jetpack/v4/publicize/{postId}',
 					'isReshareSupported'          => Current_Plan::supports( 'republicize' ),
+					'siteType'                    => $site_type,
 				)
 			),
 			'before'

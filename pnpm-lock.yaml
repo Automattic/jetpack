@@ -2617,6 +2617,9 @@ importers:
 
   projects/packages/publicize:
     dependencies:
+      '@automattic/jetpack-analytics':
+        specifier: workspace:*
+        version: link:../../js-packages/analytics
       '@wordpress/i18n':
         specifier: 5.7.0
         version: 5.7.0

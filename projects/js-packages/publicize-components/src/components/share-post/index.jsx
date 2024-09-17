@@ -1,3 +1,8 @@
+import {
+	useAnalytics,
+	isSimpleSite,
+	isAtomicSite,
+} from '@automattic/jetpack-shared-extension-utils';
 import { Button, PanelRow } from '@wordpress/components';
 import { dispatch, useDispatch, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
@@ -40,6 +45,23 @@ function showSuccessNotice() {
 }
 
 /**
+ * Get the site type from environment
+ *
+ * @return {(string)} Site type
+ */
+function getSiteType() {
+	if ( isAtomicSite() ) {
+		return 'atomic';
+	}
+
+	if ( isSimpleSite() ) {
+		return 'simple';
+	}
+
+	return 'jetpack';
+}
+
+/**
  * Component to trigger the resharing of the post.
  *
  * @return {object} A button component that will share the current post when clicked.
@@ -50,6 +72,7 @@ export function SharePostButton() {
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
 	const featureFlags = useSelect( select => select( socialStore ).featureFlags(), [] );
 	const { pollForPostShareStatus } = useDispatch( socialStore );
+	const { recordEvent } = useAnalytics();
 
 	useEffect( () => {
 		if ( isFetching ) {
@@ -88,12 +111,23 @@ export function SharePostButton() {
 
 		cleanNotice( 'publicize-post-share-message' );
 
+		recordEvent( 'jetpack_social_reshare_clicked', {
+			location: 'editor',
+			environment: getSiteType(),
+		} );
+
 		await doPublicize();
 
 		if ( featureFlags.useShareStatus ) {
 			pollForPostShareStatus();
 		}
-	}, [ doPublicize, isPostPublished, featureFlags.useShareStatus, pollForPostShareStatus ] );
+	}, [
+		isPostPublished,
+		recordEvent,
+		doPublicize,
+		featureFlags.useShareStatus,
+		pollForPostShareStatus,
+	] );
 
 	return (
 		<Button
