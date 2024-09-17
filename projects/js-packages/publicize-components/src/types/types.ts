@@ -6,6 +6,7 @@ export type SharesData = {
 
 export interface FeatureFlags {
 	useAdminUiV1: boolean;
+	useShareStatus: boolean;
 }
 
 export type ConnectionService = {

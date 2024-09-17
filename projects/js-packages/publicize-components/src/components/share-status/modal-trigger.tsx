@@ -4,6 +4,7 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { forwardRef, useCallback } from 'react';
 import { store as socialStore } from '../../social-store';
+import { getSocialScriptData } from '../../utils/script-data';
 import styles from './styles.module.scss';
 import type { ButtonProps } from '@wordpress/components/build-types/button/types';
 
@@ -19,7 +20,6 @@ export const ModalTrigger = forwardRef(
 	( { withWrapper = false, analyticsData = null, ...props }: ModalTriggerProps, ref: unknown ) => {
 		const { recordEvent } = useAnalytics();
 		const { openShareStatusModal } = useDispatch( socialStore );
-		const featureFlags = useSelect( select => select( socialStore ).featureFlags(), [] );
 		const shareStatus = useSelect( select => select( socialStore ).getPostShareStatus(), [] );
 
 		const onButtonClicked = useCallback( () => {
@@ -32,7 +32,9 @@ export const ModalTrigger = forwardRef(
 			return null;
 		}
 
-		if ( ! featureFlags.useShareStatus ) {
+		const { feature_flags } = getSocialScriptData();
+
+		if ( ! feature_flags.useShareStatus ) {
 			return null;
 		}
 
