@@ -164,7 +164,7 @@ class Publicize_UI {
 		}
 
 		$is_atomic_site = ( new Host() )->is_woa_site();
-		$is_simple_site = defined( 'IS_WPCOM' ) && IS_WPCOM;
+		$is_simple_site = ( new Host() )->is_wpcom_simple();
 		$site_type      = $is_atomic_site ? 'atomic' : ( $is_simple_site ? 'simple' : 'jetpack' );
 
 		Assets::register_script(
