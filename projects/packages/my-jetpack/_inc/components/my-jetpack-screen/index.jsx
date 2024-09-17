@@ -165,7 +165,7 @@ export default function MyJetpackScreen() {
 					</Container>
 				)
 			) }
-			{ isSectionVisible && <EvaluationRecommendations /> }
+			{ ! isWelcomeBannerVisible && isSectionVisible && <EvaluationRecommendations /> }
 
 			<ProductCardsSection />
 
