@@ -99,15 +99,15 @@ const ProductCardsSection: FC< ProductCardsSectionProps > = ( {
 	noticeMessage,
 	siteIsRegistered,
 } ) => {
-	const { ownedProducts: inntialOwnedProducts = [], unownedProducts: inntialUnownedProducts = [] } =
+	const { ownedProducts: initialOwnedProducts = [], unownedProducts: initialUnownedProducts = [] } =
 		getMyJetpackWindowInitialState( 'lifecycleStats' );
 	const [ siteOwnedProducts, setSiteOwnedProducts ] = useValueStore(
 		'siteOwnedProducts',
-		inntialOwnedProducts
+		initialOwnedProducts
 	);
 	const [ siteUnownedProducts, setSiteUnownedProducts ] = useValueStore(
 		'siteUnownedProducts',
-		inntialUnownedProducts
+		initialUnownedProducts
 	);
 
 	const {

@@ -83,7 +83,7 @@ class REST_Products {
 
 		register_rest_route(
 			'my-jetpack/v1',
-			'site/ownership/products',
+			'site/products-ownership',
 			array(
 				array(
 					'methods'             => \WP_REST_Server::READABLE,
