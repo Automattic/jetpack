@@ -211,7 +211,7 @@ class Initializer {
 		 * Fires after the My Jetpack page is initialized.
 		 * Allows for enqueuing additional scripts only on the My Jetpack page.
 		 *
-		 * @since 4.35.6
+		 * @since $$next-version$$
 		 */
 		do_action( 'myjetpack_enqueue_scripts' );
 		Assets::register_script(
