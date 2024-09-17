@@ -34,6 +34,7 @@
 		"webpack-cli": "4.9.1"
 	},
 	"dependencies": {
+		"@automattic/jetpack-analytics": "workspace:*",
 		"@wordpress/i18n": "5.7.0"
 	}
 }
