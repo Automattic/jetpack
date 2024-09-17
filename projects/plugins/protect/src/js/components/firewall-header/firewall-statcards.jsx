@@ -1,10 +1,9 @@
 import { Text, useBreakpointMatch, StatCard } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, shield, chartBar } from '@wordpress/icons';
-import React from 'react';
 import styles from './styles.module.scss';
 
-const FirewallStatCards = ( { status, hasRequiredPlan, oneDayStats, thirtyDayStats } ) => {
+const FirewallStatCards = ( { status, hasPlan, oneDayStats, thirtyDayStats } ) => {
 	const [ isSmall ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
 	const defaultArgs = {
 		className: status !== 'on' ? styles.disabled : styles.active,
@@ -14,7 +13,7 @@ const FirewallStatCards = ( { status, hasRequiredPlan, oneDayStats, thirtyDaySta
 	const getIcon = icon => (
 		<span className={ styles[ 'stat-card-icon' ] }>
 			<Icon icon={ icon } />
-			{ ! isSmall && ! hasRequiredPlan && (
+			{ ! isSmall && ! hasPlan && (
 				<Text variant={ 'label' }>{ __( 'Paid feature', 'jetpack-protect' ) }</Text>
 			) }
 		</span>
