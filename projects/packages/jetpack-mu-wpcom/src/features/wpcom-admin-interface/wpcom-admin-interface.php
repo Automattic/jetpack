@@ -52,6 +52,8 @@ function wpcom_admin_interface_track_changed_event( $value ) {
 
 /**
  * Update the wpcom_admin_interface option on wpcom as it's the persistent data.
+ * Also implements the redirect from WP Admin to Calypso when the interface option
+ * is changed.
  *
  * @access private
  * @since 4.20.0
@@ -70,35 +72,42 @@ function wpcom_admin_interface_pre_update_option( $new_value, $old_value ) {
 	}
 
 	global $pagenow;
-	if ( isset( $pagenow ) && 'options.php' === $pagenow ) {
+	$on_wp_admin_options_page = isset( $pagenow ) && 'options.php' === $pagenow;
+
+	if ( $on_wp_admin_options_page ) {
 		wpcom_admin_interface_track_changed_event( $new_value );
 	}
 
-	if ( ( new Automattic\Jetpack\Status\Host() )->is_wpcom_simple() ) {
-		if ( 'calypso' === $new_value ) {
-			add_action(
-				'update_option_wpcom_admin_interface',
-				/**
-				 * Redirects to the WordPress.com home page when the admin interface is changed to Calypso.
-				 *
-				 * @return never
-				*/
-				function () {
-					wp_safe_redirect( 'https://wordpress.com/settings/general/' . wpcom_get_site_slug() );
-					exit;
-				}
-			);
-		}
-		return $new_value;
+	if ( ! ( new Automattic\Jetpack\Status\Host() )->is_wpcom_simple() ) {
+		$blog_id = Jetpack_Options::get_option( 'id' );
+		Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_user(
+			"/sites/$blog_id/hosting/admin-interface",
+			'v2',
+			array( 'method' => 'POST' ),
+			array( 'interface' => $new_value )
+		);
 	}
 
-	$blog_id = Jetpack_Options::get_option( 'id' );
-	Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_user(
-		"/sites/$blog_id/hosting/admin-interface",
-		'v2',
-		array( 'method' => 'POST' ),
-		array( 'interface' => $new_value )
-	);
+	// We want to redirect to Calypso if the user has switched interface options to 'calypso'
+	// Unfortunately we need to run this side-effect in the option updating filter because
+	// the general settings page doesn't give us a good point to hook into the form submission.
+	if ( 'calypso' === $new_value && $on_wp_admin_options_page ) {
+		add_filter(
+			'wp_redirect',
+			/**
+			 * Filters the existing redirect in wp-admin/options.php so we go to Calypso instead
+			 * of to a GET version of the WP Admin general options page.
+			 */
+			function ( $location ) {
+				$updated_settings_page = add_query_arg( 'settings-updated', 'true', wp_get_referer() );
+				if ( $location === $updated_settings_page ) {
+					return 'https://wordpress.com/settings/general/' . wpcom_get_site_slug();
+				} else {
+					return $location;
+				}
+			}
+		);
+	}
 
 	return $new_value;
 }
