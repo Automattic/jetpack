@@ -13,8 +13,7 @@ const {
 } = window.jetpackSocialClassicEditorOptions;
 const CONNECTIONS_NEED_MEDIA = [ 'instagram-business' ];
 
-const { tracks } = jetpackAnalytics;
-const { recordEvent } = tracks;
+const { recordEvent } = jetpackAnalytics.tracks;
 
 const validateFeaturedMedia = ( $, connectionsNeedValidation ) => {
 	const featuredImage = window.wp.media.featuredImage.get();
