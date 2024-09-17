@@ -101,14 +101,10 @@ const ProductCardsSection: FC< ProductCardsSectionProps > = ( {
 } ) => {
 	const { ownedProducts: initialOwnedProducts = [], unownedProducts: initialUnownedProducts = [] } =
 		getMyJetpackWindowInitialState( 'lifecycleStats' );
-	const [ siteOwnedProducts, setSiteOwnedProducts ] = useValueStore(
-		'siteOwnedProducts',
-		initialOwnedProducts
-	);
-	const [ siteUnownedProducts, setSiteUnownedProducts ] = useValueStore(
-		'siteUnownedProducts',
-		initialUnownedProducts
-	);
+	const [ productsOwnership, setProductsOwnership ] = useValueStore( 'productsOwnership', {
+		ownedProducts: initialOwnedProducts,
+		unownedProducts: initialUnownedProducts,
+	} );
 
 	const {
 		data: productOwnershipData,
@@ -117,27 +113,28 @@ const ProductCardsSection: FC< ProductCardsSectionProps > = ( {
 	} = useProductsByOwnership();
 
 	useEffect( () => {
-		refetchOwnershipData();
-
 		if ( ! isLoading ) {
+			if ( siteIsRegistered ) {
+				refetchOwnershipData();
+			}
+
 			const { ownedProducts = [], unownedProducts = [] } = productOwnershipData;
-			setSiteOwnedProducts( ownedProducts );
-			setSiteUnownedProducts( unownedProducts );
+			setProductsOwnership( { ownedProducts, unownedProducts } );
 		}
 	}, [
 		siteIsRegistered,
 		productOwnershipData,
 		isLoading,
 		refetchOwnershipData,
-		setSiteOwnedProducts,
-		setSiteUnownedProducts,
+		productsOwnership,
+		setProductsOwnership,
 	] );
 
 	const unownedSectionTitle = useMemo( () => {
-		return siteOwnedProducts.length > 0
+		return productsOwnership.ownedProducts.length > 0
 			? __( 'Discover more', 'jetpack-my-jetpack' )
 			: __( 'Discover all Jetpack Products', 'jetpack-my-jetpack' );
-	}, [ siteOwnedProducts.length ] );
+	}, [ productsOwnership.ownedProducts.length ] );
 
 	const filterProducts = ( products: JetpackModule[] ) => {
 		return products.filter( product => {
@@ -148,8 +145,8 @@ const ProductCardsSection: FC< ProductCardsSectionProps > = ( {
 		} );
 	};
 
-	const filteredOwnedProducts = filterProducts( siteOwnedProducts );
-	const filteredUnownedProducts = filterProducts( siteUnownedProducts );
+	const filteredOwnedProducts = filterProducts( productsOwnership.ownedProducts );
+	const filteredUnownedProducts = filterProducts( productsOwnership.unownedProducts );
 
 	return (
 		<>
