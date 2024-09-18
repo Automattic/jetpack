@@ -119,7 +119,7 @@ add_filter( 'site_settings_endpoint_get', 'wpcom_performance_url_get_options_v1_
  */
 function wpcom_performance_url_update_options_v1_api( $input, $unfiltered_input ) {
 	if ( isset( $unfiltered_input['wpcom_performance_report_url'] ) ) {
-		$input['wpcom_performance_report_url'] = sanitize_text_field( $unfiltered_input['wpcom_performance_report_url'] );
+		$input['wpcom_performance_report_url'] = sanitize_url( $unfiltered_input['wpcom_performance_report_url'] );
 	}
 
 	return $input;
