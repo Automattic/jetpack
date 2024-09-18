@@ -6,6 +6,7 @@ import { usePostMeta } from '../../hooks/use-post-meta';
 import { usePostPrePublishValue } from '../../hooks/use-post-pre-publish-value';
 import { usePostJustPublished } from '../../hooks/use-saving-post';
 import { store as socialStore } from '../../social-store';
+import { getSocialScriptData } from '../../utils/script-data';
 import { ShareStatus } from './share-status';
 
 /**
@@ -16,15 +17,14 @@ import { ShareStatus } from './share-status';
 export function PostPublishShareStatus() {
 	const { isPublicizeEnabled } = usePostMeta();
 	const { pollForPostShareStatus } = useDispatch( socialStore );
-	const { featureFlags, isPostPublised } = useSelect( select => {
-		const store = select( socialStore );
+	const { feature_flags } = getSocialScriptData();
 
+	const { isPostPublished } = useSelect( select => {
 		const _editorStore = select( editorStore );
 
 		return {
-			featureFlags: store.featureFlags(),
 			// @ts-expect-error -- `@wordpress/editor` is a nightmare to work with TypeScript
-			isPostPublised: _editorStore.isCurrentPostPublished(),
+			isPostPublished: _editorStore.isCurrentPostPublished(),
 		};
 	}, [] );
 
@@ -36,7 +36,7 @@ export function PostPublishShareStatus() {
 
 	const willPostBeShared = isPublicizeEnabled && enabledConnections.length > 0 && isSharingPossible;
 
-	const showStatus = featureFlags.useShareStatus && willPostBeShared && isPostPublised;
+	const showStatus = feature_flags.useShareStatus && willPostBeShared && isPostPublished;
 
 	usePostJustPublished( () => {
 		if ( showStatus ) {
