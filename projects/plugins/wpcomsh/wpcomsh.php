@@ -673,13 +673,3 @@ if (
 	0 === strncmp( $_SERVER['REQUEST_URI'], '/wp-admin/widgets.php?', strlen( '/wp-admin/widgets.php?' ) ) ) { //phpcs:ignore WordPress.Security.ValidatedSanitizedInput
 	add_action( 'plugins_loaded', 'wpcomsh_avoid_proxied_v2_banner' );
 }
-
-// Temporary feature flag for the new Reading Settings page.
-add_filter( 'calypso_use_modernized_reading_settings', '__return_true' );
-
-/**
- * Temporary feature flags for the new Newsletter and podcasting Settings pages,
- * its removal should be preceded by a removal of the filter's usage in Jetpack: https://github.com/Automattic/jetpack/pull/32146
- */
-add_filter( 'calypso_use_newsletter_settings', '__return_true' );
-add_filter( 'calypso_use_podcasting_settings', '__return_true' );
