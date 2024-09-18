@@ -18,11 +18,11 @@ new WPCOM_JSON_API_Get_Post_Endpoint(
 			'$site'    => '(int|string) Site ID or domain',
 			'$post_ID' => '(int) The post ID',
 		),
+		'rest_route'                           => '/posts/(?P<asdf>\d+)',
 
 		'allow_fallback_to_jetpack_blog_token' => true,
 
 		'example_request'                      => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/posts/7',
-		'allow_rest_access'                    => true,
 	)
 );
 
@@ -37,6 +37,7 @@ new WPCOM_JSON_API_Get_Post_Endpoint(
 			'$site'      => '(int|string) Site ID or domain',
 			'$post_name' => '(string) The post name (a.k.a. slug)',
 		),
+		'rest_route'      => '/posts/name/(?P\d+)',
 
 		'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/posts/name:blogging-and-stuff',
 	)
@@ -55,6 +56,7 @@ new WPCOM_JSON_API_Get_Post_Endpoint(
 			'$site'      => '(int|string) Site ID or domain',
 			'$post_slug' => '(string) The post slug (a.k.a. sanitized name)',
 		),
+		'rest_route'                           => '/posts/slug/(?P\d+)',
 
 		'allow_fallback_to_jetpack_blog_token' => true,
 

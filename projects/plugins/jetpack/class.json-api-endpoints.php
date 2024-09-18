@@ -126,11 +126,11 @@ abstract class WPCOM_JSON_API_Endpoint {
 	public $path_labels = array();
 
 	/**
-	 * Use to initialize the REST endpoint accessible directly.
+	 * The REST endpoint if available.
 	 *
 	 * @var bool
 	 */
-	public $allow_rest_access = false;
+	public $rest_route = null;
 
 	/**
 	 * Accepted query parameters
@@ -286,6 +286,11 @@ abstract class WPCOM_JSON_API_Endpoint {
 	public $allow_fallback_to_jetpack_blog_token = false;
 
 	/**
+	 * REST namespace.
+	 */
+	const REST_NAMESPACE = 'rest/v1';
+
+	/**
 	 * Constructor.
 	 *
 	 * @param string|array|object $args Args.
@@ -308,7 +313,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			'new_version'                          => WPCOM_JSON_API__CURRENT_VERSION,
 			'jp_disabled'                          => false,
 			'path_labels'                          => array(),
-			'allow_rest_access'                    => false,
+			'rest_route'                           => null,
 			'request_format'                       => array(),
 			'response_format'                      => array(),
 			'query_parameters'                     => array(),
@@ -340,14 +345,14 @@ abstract class WPCOM_JSON_API_Endpoint {
 		$this->force       = $args['force'];
 		$this->jp_disabled = $args['jp_disabled'];
 
-		$this->method            = $args['method'];
-		$this->path              = $args['path'];
-		$this->path_labels       = $args['path_labels'];
-		$this->allow_rest_access = $args['allow_rest_access'];
-		$this->min_version       = $args['min_version'];
-		$this->max_version       = $args['max_version'];
-		$this->deprecated        = $args['deprecated'];
-		$this->new_version       = $args['new_version'];
+		$this->method      = $args['method'];
+		$this->path        = $args['path'];
+		$this->path_labels = $args['path_labels'];
+		$this->rest_route  = $args['rest_route'];
+		$this->min_version = $args['min_version'];
+		$this->max_version = $args['max_version'];
+		$this->deprecated  = $args['deprecated'];
+		$this->new_version = $args['new_version'];
 
 		// Ensure max version is not less than min version.
 		if ( version_compare( $this->min_version, $this->max_version, '>' ) ) {
@@ -398,7 +403,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 		$this->api->add( $this );
 
-		if ( $this->allow_rest_access ) {
+		if ( $this->rest_route ) {
 			$this->create_rest_route_for_endpoint();
 		}
 	}
@@ -2639,48 +2644,9 @@ abstract class WPCOM_JSON_API_Endpoint {
 	 * @throws Exception The exception if something goes wrong.
 	 */
 	public function create_rest_route_for_endpoint() {
-		$route       = '';
-		$path_parsed = explode( '/', $this->path );
-		reset( $this->path_labels );
-
-		for ( $i = 0, $count = count( $path_parsed ); $i < $count; ++$i ) {
-			$part = $path_parsed[ $i ];
-
-			if ( ! $part ) {
-				continue;
-			}
-
-			if ( 'sites' === $part ) {
-				// We don't need the site ID part.
-				++$i;
-				next( $this->path_labels );
-				continue;
-			}
-			if ( false === strpos( $part, '%' ) ) {
-				$route .= '/' . $part;
-				continue;
-			}
-
-			switch ( $part ) {
-				case '%s':
-					$regex = '\w+';
-					break;
-				case '%d':
-					$regex = '\d+';
-					break;
-				default:
-					throw new Exception( 'We do not know what to do with this kind of parameter ¯\_(ツ)_/¯' );
-			}
-
-			$key = substr( key( $this->path_labels ), 1 );
-			next( $this->path_labels );
-
-			$route .= "/(?P<{$key}>{$regex})";
-		}
-
 		register_rest_route(
-			'wpcom/v1',
-			$route,
+			static::REST_NAMESPACE,
+			$this->rest_route,
 			array(
 				'methods'  => $this->method,
 				'callback' => array( $this, 'rest_callback' ),
@@ -2701,8 +2667,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			return new WP_Error( 'site_not_connected' );
 		}
 
-		$blog_id = \Jetpack_Options::get_option( 'id' );
-
+		$blog_id = Jetpack_Options::get_option( 'id' );
 		return call_user_func_array(
 			array( $this, 'callback' ),
 			array_values( array( $this->path, $blog_id ) + $request->get_url_params() )
