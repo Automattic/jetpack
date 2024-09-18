@@ -41,6 +41,8 @@
 /css/*.css.min.map                                       production-exclude
 /extensions/**/*.jpg                                     production-exclude
 /extensions/**/*.js                                      production-exclude
+/extensions/**/*.ts                                      production-exclude
+/extensions/**/*.tsx                                     production-exclude
 /extensions/**/*.json                                    production-exclude
 /extensions/**/*.jsx                                     production-exclude
 /extensions/**/*.md                                      production-exclude
