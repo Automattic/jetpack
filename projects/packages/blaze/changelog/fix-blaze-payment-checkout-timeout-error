@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Increases the timeout for the Blaze payment checkout endpoint

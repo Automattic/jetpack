@@ -665,7 +665,7 @@ class Dashboard_REST_Controller {
 	 * @return array|WP_Error
 	 */
 	public function edit_wpcom_checkout( $req ) {
-		return $this->edit_dsp_generic( 'v1/wpcom/checkout', $req, array( 'timeout' => 20 ) );
+		return $this->edit_dsp_generic( 'v1/wpcom/checkout', $req, array( 'timeout' => 60 ) );
 	}
 
 	/**
@@ -676,7 +676,7 @@ class Dashboard_REST_Controller {
 	 */
 	public function edit_dsp_campaigns( $req ) {
 		$version = $req->get_param( 'api_version' ) ?? 'v1';
-		return $this->edit_dsp_generic( "{$version}/campaigns", $req, array( 'timeout' => 20 ) );
+		return $this->edit_dsp_generic( "{$version}/campaigns", $req, array( 'timeout' => 60 ) );
 	}
 
 	/**
