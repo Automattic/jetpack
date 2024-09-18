@@ -61,7 +61,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Portfolio' ) ) {
 			// If called via REST API, we need to register later in lifecycle.
 			add_action( 'restapi_theme_init', array( $this, 'maybe_register_cpt' ) );
 
-			// If portfolio cpt is enabled (on all but Simple sites), hook into init to register the CPT, otherwise run maybe_register_cpt immediately to deregister.
+			// If portfolio cpt is enabled (on self hosted sites), hook into init to register the CPT, otherwise run maybe_register_cpt immediately to deregister.
 			if ( get_option( self::OPTION_NAME, '0' ) || ( new Host() )->is_wpcom_platform() ) {
 				$this->maybe_register_cpt();
 			} else {
