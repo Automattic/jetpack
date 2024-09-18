@@ -26,8 +26,6 @@ const useSiteConnectionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 	const connectionError = redBubbleAlerts[ redBubbleSlug ];
 
 	useEffect( () => {
-		// eslint-disable-next-line no-console
-		console.log( 'connectionError', connectionError );
 		if ( ! connectionError || ! connectionError.is_error ) {
 			return;
 		}
