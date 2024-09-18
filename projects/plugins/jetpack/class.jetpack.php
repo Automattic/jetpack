@@ -2489,7 +2489,7 @@ class Jetpack {
 		do_action( 'jetpack_before_activate_default_modules', $min_version, $max_version, $other_modules, $requires_connection, $requires_user_connection );
 
 		// Special case to convert block setting to a block module.
-		$block_key = array_search( 'blocks', $module, true );
+		$block_key = array_search( 'blocks', $modules, true );
 		if ( $block_key ) { // Only care if 'blocks' made it through the previous filters.
 			$block_option = get_option( 'jetpack_blocks_disabled', null );
 			if ( $block_option ) {

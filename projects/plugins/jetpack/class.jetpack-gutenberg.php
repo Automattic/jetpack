@@ -435,7 +435,7 @@ class Jetpack_Gutenberg {
 
 		$return = true;
 
-		if ( ( new Modules() )->is_active( 'blocks' ) ) {
+		if ( ! ( new Modules() )->is_active( 'blocks' ) ) {
 			$return = false;
 		}
 
