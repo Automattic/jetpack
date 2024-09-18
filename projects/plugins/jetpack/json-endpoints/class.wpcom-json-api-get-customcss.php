@@ -42,6 +42,10 @@ class WPCOM_JSON_API_Get_CustomCss_Endpoint extends WPCOM_JSON_API_Endpoint {
 	 * @param int    $blog_id - the blog ID.
 	 */
 	public function callback( $path = '', $blog_id = 0 ) {
+		$stats = new Automattic\Jetpack\A8c_Mc_Stats();
+		$stats->add( 'json-api-custom-css', 'get' );
+		$stats->do_server_side_stats();
+
 		// Switch to the given blog.
 		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $blog_id ) );
 		if ( is_wp_error( $blog_id ) ) {
