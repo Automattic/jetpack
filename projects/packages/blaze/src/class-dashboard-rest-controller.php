@@ -665,7 +665,7 @@ class Dashboard_REST_Controller {
 	 * @return array|WP_Error
 	 */
 	public function edit_wpcom_checkout( $req ) {
-		return $this->edit_dsp_generic( 'v1/wpcom/checkout', $req, array( 'timeout' => 40 ) );
+		return $this->edit_dsp_generic( 'v1/wpcom/checkout', $req, array( 'timeout' => 60 ) );
 	}
 
 	/**
