@@ -144,6 +144,10 @@ class Brute_Force_Protection_Shared_Functions {
 			// Range notation.
 			$ip_address = explode( '-', $ip_address );
 			$range      = true;
+		} elseif ( strpos( $ip_address, '/' ) !== false ) {
+			// CIDR notation.
+			$ip_address = array( $ip_address, null );
+			$range      = true;
 		}
 		$new_item        = new \stdClass();
 		$new_item->range = $range;
