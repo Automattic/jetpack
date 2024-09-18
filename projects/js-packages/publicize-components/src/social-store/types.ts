@@ -70,7 +70,6 @@ export type SocialStoreState = {
 	hasPaidPlan?: boolean;
 	// on Jetack Social admin page
 	jetpackSettings?: JetpackSettings;
-	featureFlags?: Record< string, boolean >;
 	shareStatus?: ShareStatus;
 };
 
