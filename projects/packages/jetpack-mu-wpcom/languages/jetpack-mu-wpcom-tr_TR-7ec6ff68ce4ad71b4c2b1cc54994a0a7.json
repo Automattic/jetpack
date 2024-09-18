@@ -4,7 +4,11 @@
 	"domain": "messages",
 	"locale_data": {
 		"messages": {
-			"": { "domain": "messages", "plural-forms": "nplurals=2; plural=n > 1;", "lang": "tr" },
+			"": {
+				"domain": "messages",
+				"plural-forms": "nplurals=2; plural=n > 1;",
+				"lang": "tr"
+			},
 			"Post Answer": [ "Yan\u0131t\u0131n\u0131z\u0131 Payla\u015f\u0131n" ],
 			"Show next prompt": [ "Sonraki konuyu g\u00f6ster" ],
 			"Show previous prompt": [ "\u00d6nceki konuyu g\u00f6ster" ],
@@ -95,7 +99,7 @@
 				"Yaz\u0131 yazma kaslar\u0131n\u0131z\u0131 \u00e7al\u0131\u015ft\u0131rman\u0131n ve ilk yaz\u0131n\u0131z\u0131 haz\u0131rlamaya ba\u015flaman\u0131n zaman\u0131 geldi!"
 			],
 			"Write your first post": [ "\u0130lk yaz\u0131n\u0131z\u0131 yaz\u0131n" ],
-			"Take this short, interactive tour to learn the fundamentals of the WordPress editor.": [
+			"workaround\u0004Take this short, interactive tour to learn the fundamentals of the WordPress editor.": [
 				"WordPress d\u00fczenleyicisiyle ilgili temel bilgileri edinmek i\u00e7in bu k\u0131sa tura devam edin."
 			],
 			"You've learned the basics. Remember, your site is private until you <link_to_launch_site_docs>decide to launch</link_to_launch_site_docs>. View the <link_to_editor_docs>block editing docs</link_to_editor_docs> to learn more.": [
@@ -133,7 +137,7 @@
 			],
 			"Adding a new block": [ "Yeni bir blok ekleme" ],
 			"Everything is a block": [ "Her \u015fey bir blok" ],
-			"Welcome to WordPress!": [ "WordPress\u2019e ho\u015fgeldiniz!" ],
+			"workaround\u0004Welcome to WordPress!": [ "WordPress\u2019e ho\u015fgeldiniz!" ],
 			"Page %1$d of %2$d": [ "Sayfa %1$d / %2$d" ],
 			"Continue editing": [ "D\u00fczenlemeye devam et" ],
 			"Copy Link": [ "Ba\u011flant\u0131y\u0131 kopyala" ],
@@ -157,5 +161,7 @@
 			"Tags": [ "Etiketler" ]
 		}
 	},
-	"comment": { "reference": "wpcom-block-editor-nux/dist/wpcom-block-editor-nux.js" }
+	"comment": {
+		"reference": "wpcom-block-editor-nux/dist/wpcom-block-editor-nux.js"
+	}
 }

@@ -4,7 +4,11 @@
 	"domain": "messages",
 	"locale_data": {
 		"messages": {
-			"": { "domain": "messages", "plural-forms": "nplurals=1; plural=0;", "lang": "ko_KR" },
+			"": {
+				"domain": "messages",
+				"plural-forms": "nplurals=1; plural=0;",
+				"lang": "ko_KR"
+			},
 			"Post Answer": [ "\ub2f5\ubcc0 \uae00 \uc791\uc131" ],
 			"Show next prompt": [ "\ub2e4\uc74c \ud504\ub86c\ud504\ud2b8 \ud45c\uc2dc" ],
 			"Show previous prompt": [ "\uc774\uc804 \ud504\ub86c\ud504\ud2b8 \ud45c\uc2dc" ],
@@ -108,7 +112,7 @@
 				"\uae00\uc4f0\uae30 \uc2e4\ub825\uc744 \uc790\ub791\ud558\uace0 \uccab \ubc88\uc9f8 \uae00\uc758 \uc784\uc2dc\uae00\uc744 \uc791\uc131\ud560 \ub54c\uac00 \ub418\uc5c8\uc2b5\ub2c8\ub2e4!"
 			],
 			"Write your first post": [ "\uccab \ubc88\uc9f8 \uae00 \uc791\uc131" ],
-			"Take this short, interactive tour to learn the fundamentals of the WordPress editor.": [
+			"workaround\u0004Take this short, interactive tour to learn the fundamentals of the WordPress editor.": [
 				"\uc774 \uac04\ub2e8\ud55c \ub300\ud654\ud615 \ub458\ub7ec\ubcf4\uae30\ub97c \ud1b5\ud574 WordPress \ud3b8\uc9d1\uae30\uc758 \uae30\ubcf8 \uc0ac\ud56d\uc744 \uc54c\uc544\ubcf4\uc138\uc694."
 			],
 			"You've learned the basics. Remember, your site is private until you <link_to_launch_site_docs>decide to launch</link_to_launch_site_docs>. View the <link_to_editor_docs>block editing docs</link_to_editor_docs> to learn more.": [
@@ -151,7 +155,7 @@
 				"\uc6cc\ub4dc\ud504\ub808\uc2a4 \ud3b8\uc9d1\uae30\uc5d0\uc11c\ub294 \ubb38\ub2e8, \uc774\ubbf8\uc9c0, \uadf8\ub9ac\uace0 \ube44\ub514\uc624\uac00 \ubaa8\ub450 \ube14\ub85d\uc785\ub2c8\ub2e4."
 			],
 			"Everything is a block": [ "\ubaa8\ub4e0 \uac83\uc774 \ube14\ub85d\uc785\ub2c8\ub2e4." ],
-			"Welcome to WordPress!": [
+			"workaround\u0004Welcome to WordPress!": [
 				"\uc6cc\ub4dc\ud504\ub808\uc2a4\uc5d0 \uc624\uc2e0 \uac83\uc744 \ud658\uc601\ud569\ub2c8\ub2e4!"
 			],
 			"Page %1$d of %2$d": [ "%1$d/%2$d\ud398\uc774\uc9c0" ],
@@ -184,5 +188,7 @@
 			"Back": [ "\ub4a4\ub85c" ]
 		}
 	},
-	"comment": { "reference": "wpcom-block-editor-nux/dist/wpcom-block-editor-nux.js" }
+	"comment": {
+		"reference": "wpcom-block-editor-nux/dist/wpcom-block-editor-nux.js"
+	}
 }

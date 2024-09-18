@@ -4,7 +4,11 @@
 	"domain": "messages",
 	"locale_data": {
 		"messages": {
-			"": { "domain": "messages", "plural-forms": "nplurals=2; plural=n > 1;", "lang": "fr" },
+			"": {
+				"domain": "messages",
+				"plural-forms": "nplurals=2; plural=n > 1;",
+				"lang": "fr"
+			},
 			"Post Answer": [ "Partager une r\u00e9ponse" ],
 			"Show next prompt": [ "Afficher l\u2019invite suivante" ],
 			"Show previous prompt": [ "Afficher l\u2019invite pr\u00e9c\u00e9dente" ],
@@ -97,7 +101,7 @@
 				"Il est temps de faire appel \u00e0 ces muscles r\u00e9dactionnels et d\u2019\u00e9crire votre premier article de blog\u00a0!"
 			],
 			"Write your first post": [ "R\u00e9digez votre premier article de blog" ],
-			"Take this short, interactive tour to learn the fundamentals of the WordPress editor.": [
+			"workaround\u0004Take this short, interactive tour to learn the fundamentals of the WordPress editor.": [
 				"Poursuivez cette petite visite pour en savoir plus sur les bases de l\u2019\u00e9diteur WordPress."
 			],
 			"You've learned the basics. Remember, your site is private until you <link_to_launch_site_docs>decide to launch</link_to_launch_site_docs>. View the <link_to_editor_docs>block editing docs</link_to_editor_docs> to learn more.": [
@@ -136,7 +140,7 @@
 				"Dans l\u2019\u00e9diteur WordPress, les paragraphes, les images et les vid\u00e9os sont tous des blocs."
 			],
 			"Everything is a block": [ "Tous les \u00e9l\u00e9ments sont des blocs" ],
-			"Welcome to WordPress!": [ "Bienvenue dans WordPress !" ],
+			"workaround\u0004Welcome to WordPress!": [ "Bienvenue dans WordPress !" ],
 			"Page %1$d of %2$d": [ "Page %1$d sur %2$d" ],
 			"Copy Link": [ "Copier le lien" ],
 			"Your site will remain hidden until launched. Click \u201cLaunch\u201d in the toolbar to share it with the world.": [
@@ -160,5 +164,7 @@
 			"Back": [ "Retour" ]
 		}
 	},
-	"comment": { "reference": "wpcom-block-editor-nux/dist/wpcom-block-editor-nux.js" }
+	"comment": {
+		"reference": "wpcom-block-editor-nux/dist/wpcom-block-editor-nux.js"
+	}
 }

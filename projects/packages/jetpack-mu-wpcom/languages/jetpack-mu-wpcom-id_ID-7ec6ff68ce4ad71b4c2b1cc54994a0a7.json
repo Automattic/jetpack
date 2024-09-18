@@ -4,7 +4,11 @@
 	"domain": "messages",
 	"locale_data": {
 		"messages": {
-			"": { "domain": "messages", "plural-forms": "nplurals=2; plural=n > 1;", "lang": "id" },
+			"": {
+				"domain": "messages",
+				"plural-forms": "nplurals=2; plural=n > 1;",
+				"lang": "id"
+			},
 			"Post Answer": [ "Poskan Jawaban" ],
 			"Show next prompt": [ "Tampilkan prompt berikutnya" ],
 			"Show previous prompt": [ "Tampilkan prompt sebelumnya" ],
@@ -89,7 +93,7 @@
 				"Sekarang saatnya melemaskan otot jari tangan dan mulai membuat konsep pos pertama Anda!"
 			],
 			"Write your first post": [ "Tuliskan pos pertama Anda" ],
-			"Take this short, interactive tour to learn the fundamentals of the WordPress editor.": [
+			"workaround\u0004Take this short, interactive tour to learn the fundamentals of the WordPress editor.": [
 				"Ikuti tur interaktif singkat ini untuk mempelajari dasar-dasar editor WordPress."
 			],
 			"You've learned the basics. Remember, your site is private until you <link_to_launch_site_docs>decide to launch</link_to_launch_site_docs>. View the <link_to_editor_docs>block editing docs</link_to_editor_docs> to learn more.": [
@@ -128,7 +132,7 @@
 				"Di Editor WordPress, semua paragraf, gambar, dan video berupa blok."
 			],
 			"Everything is a block": [ "Semuanya adalah blok." ],
-			"Welcome to WordPress!": [ "Selamat Datang di WordPress!" ],
+			"workaround\u0004Welcome to WordPress!": [ "Selamat Datang di WordPress!" ],
 			"Page %1$d of %2$d": [ "Halaman %1$d dari %2$d" ],
 			"Continue editing": [ "Lanjutkan menyunting" ],
 			"Copy Link": [ "Salin Tautan" ],
@@ -152,5 +156,7 @@
 			"Tags": [ "Tag" ]
 		}
 	},
-	"comment": { "reference": "wpcom-block-editor-nux/dist/wpcom-block-editor-nux.js" }
+	"comment": {
+		"reference": "wpcom-block-editor-nux/dist/wpcom-block-editor-nux.js"
+	}
 }
