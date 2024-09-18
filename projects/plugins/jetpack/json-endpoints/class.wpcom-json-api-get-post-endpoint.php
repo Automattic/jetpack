@@ -22,6 +22,7 @@ new WPCOM_JSON_API_Get_Post_Endpoint(
 		'allow_fallback_to_jetpack_blog_token' => true,
 
 		'example_request'                      => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/posts/7',
+		'allow_rest_access'                    => true,
 	)
 );
 

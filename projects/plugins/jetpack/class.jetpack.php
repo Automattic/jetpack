@@ -933,8 +933,11 @@ class Jetpack {
 		if ( $is_connection_ready ) {
 			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.jetpack-iframe-embed.php';
 			add_action( 'init', array( 'Jetpack_Iframe_Embed', 'init' ), 9, 0 );
+
 			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.jetpack-keyring-service-helper.php';
 			add_action( 'init', array( 'Jetpack_Keyring_Service_Helper', 'init' ), 9, 0 );
+
+			add_action( 'rest_api_init', array( $this, 'maybe_initialize_rest_jsonapi' ) );
 		}
 	}
 
@@ -6338,6 +6341,19 @@ endif;
 		 * @since 13.9
 		 */
 		do_action( 'jetpack_initialize_tracking' );
+	}
+
+	/**
+	 * Initialize REST jsonAPI if needed.
+	 *
+	 * @return void
+	 */
+	public function maybe_initialize_rest_jsonapi() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( ! empty( $_GET['jsonapi'] ) && ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) ) {
+			define( 'WPCOM_JSON_API__BASE', 'public-api.wordpress.com/rest/v1' );
+			require_once JETPACK__PLUGIN_DIR . 'class.json-api-endpoints.php';
+		}
 	}
 
 	/**
