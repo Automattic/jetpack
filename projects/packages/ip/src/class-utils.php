@@ -513,9 +513,9 @@ class Utils {
 	 *
 	 * Supports CIDR notation and hyphenated ranges for both IPv4 and IPv6.
 	 *
-	 * @param string $ip        IP address.
-	 * @param string $range_low Range low or CIDR notation.
-	 * @param string $range_high Optional. Range high. Not used if $range_low is CIDR notation.
+	 * @param string      $ip        IP address.
+	 * @param string      $range_low Range low or CIDR notation.
+	 * @param null|string $range_high Optional. Range high. Not used if $range_low is CIDR notation.
 	 * @return bool
 	 */
 	public static function ip_address_is_in_range( $ip, $range_low, $range_high = null ) {
