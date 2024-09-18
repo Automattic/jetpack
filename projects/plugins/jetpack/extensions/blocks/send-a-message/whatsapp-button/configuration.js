@@ -75,13 +75,13 @@ export default function WhatsAppButtonConfiguration( { attributes, setAttributes
 		<>
 			<BaseControl
 				__nextHasNoMarginBottom={ true }
-				label={ __( 'Phone Number', 'jetpack' ) }
 				help={ __(
 					'Enter the phone number you use for WhatsApp and would like to be contacted on.',
 					'jetpack'
 				) }
 				className="jetpack-whatsapp-button__phonenumber"
 			>
+				<BaseControl.VisualLabel>{ __( 'Phone Number', 'jetpack' ) }</BaseControl.VisualLabel>
 				<SelectControl
 					__nextHasNoMarginBottom={ true }
 					label={ __( 'Country code', 'jetpack' ) }
