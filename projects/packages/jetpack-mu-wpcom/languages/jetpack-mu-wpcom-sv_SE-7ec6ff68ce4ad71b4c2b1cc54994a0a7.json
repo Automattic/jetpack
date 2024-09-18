@@ -4,7 +4,11 @@
 	"domain": "messages",
 	"locale_data": {
 		"messages": {
-			"": { "domain": "messages", "plural-forms": "nplurals=2; plural=n != 1;", "lang": "sv_SE" },
+			"": {
+				"domain": "messages",
+				"plural-forms": "nplurals=2; plural=n != 1;",
+				"lang": "sv_SE"
+			},
 			"Post Answer": [ "Publicera svar" ],
 			"Show next prompt": [ "Visa n\u00e4sta uppmaning" ],
 			"Show previous prompt": [ "Visa f\u00f6reg\u00e5ende uppmaning" ],
@@ -92,7 +96,7 @@
 				"Det \u00e4r dags att sp\u00e4nna skrivmusklerna och b\u00f6rja p\u00e5 ett utkast till ditt f\u00f6rsta inl\u00e4gg!"
 			],
 			"Write your first post": [ "Skriv ditt f\u00f6rsta inl\u00e4gg" ],
-			"Take this short, interactive tour to learn the fundamentals of the WordPress editor.": [
+			"workaround\u0004Take this short, interactive tour to learn the fundamentals of the WordPress editor.": [
 				"Ta den h\u00e4r korta rundturen f\u00f6r att l\u00e4ra dig WordPress-redigerarens grunder."
 			],
 			"You've learned the basics. Remember, your site is private until you <link_to_launch_site_docs>decide to launch</link_to_launch_site_docs>. View the <link_to_editor_docs>block editing docs</link_to_editor_docs> to learn more.": [
@@ -133,7 +137,7 @@
 				"I WordPress-redigeraren \u00e4r b\u00e5de stycken, bilder och videor block."
 			],
 			"Everything is a block": [ "Allting \u00e4r ett block" ],
-			"Welcome to WordPress!": [ "V\u00e4lkommen till WordPress!" ],
+			"workaround\u0004Welcome to WordPress!": [ "V\u00e4lkommen till WordPress!" ],
 			"Page %1$d of %2$d": [ "Sida %1$d av %2$d" ],
 			"Continue editing": [ "Forts\u00e4tt redigera" ],
 			"Copy Link": [ "Kopiera l\u00e4nk" ],
@@ -158,5 +162,7 @@
 			"Back": [ "Tillbaka" ]
 		}
 	},
-	"comment": { "reference": "wpcom-block-editor-nux/dist/wpcom-block-editor-nux.js" }
+	"comment": {
+		"reference": "wpcom-block-editor-nux/dist/wpcom-block-editor-nux.js"
+	}
 }

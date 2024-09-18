@@ -4,7 +4,11 @@
 	"domain": "messages",
 	"locale_data": {
 		"messages": {
-			"": { "domain": "messages", "plural-forms": "nplurals=2; plural=n != 1;", "lang": "es_VE" },
+			"": {
+				"domain": "messages",
+				"plural-forms": "nplurals=2; plural=n != 1;",
+				"lang": "es_VE"
+			},
 			"Design everything on your site - from the header right down to the footer - in the Site Editor.": [
 				"Dise\u00f1a todo el contenido de tu sitio \u2013 desde la cabecera hasta el pie de p\u00e1gina \u2013 en el editor del sitio."
 			],
@@ -45,7 +49,7 @@
 				"\u00a1Es hora de flexionar esos m\u00fasculos de la escritura y empezar a redactar tu primera entrada!"
 			],
 			"Write your first post": [ "Escribe tu primera entrada" ],
-			"Take this short, interactive tour to learn the fundamentals of the WordPress editor.": [
+			"workaround\u0004Take this short, interactive tour to learn the fundamentals of the WordPress editor.": [
 				"Haz este breve recorrido interactivo para aprender los fundamentos del editor de WordPress."
 			],
 			"You've learned the basics. Remember, your site is private until you <link_to_launch_site_docs>decide to launch</link_to_launch_site_docs>. View the <link_to_editor_docs>block editing docs</link_to_editor_docs> to learn more.": [
@@ -84,7 +88,7 @@
 				"En el editor de WordPress, los p\u00e1rrafos, las im\u00e1genes y los v\u00eddeos son todos bloques."
 			],
 			"Everything is a block": [ "Todo son bloques" ],
-			"Welcome to WordPress!": [ "\u00a1Bienvenido a WordPress!" ],
+			"workaround\u0004Welcome to WordPress!": [ "\u00a1Bienvenido a WordPress!" ],
 			"Page %1$d of %2$d": [ "P\u00e1gina %1$d de %2$d" ],
 			"Continue editing": [ "Continuar editando" ],
 			"Copy Link": [ "Copiar el enlace" ],
@@ -109,5 +113,7 @@
 			"Back": [ "Volver" ]
 		}
 	},
-	"comment": { "reference": "wpcom-block-editor-nux/dist/wpcom-block-editor-nux.js" }
+	"comment": {
+		"reference": "wpcom-block-editor-nux/dist/wpcom-block-editor-nux.js"
+	}
 }

@@ -4,7 +4,11 @@
 	"domain": "messages",
 	"locale_data": {
 		"messages": {
-			"": { "domain": "messages", "plural-forms": "nplurals=2; plural=n != 1;", "lang": "de" },
+			"": {
+				"domain": "messages",
+				"plural-forms": "nplurals=2; plural=n != 1;",
+				"lang": "de"
+			},
 			"Post Answer": [ "Antwort ver\u00f6ffentlichen" ],
 			"Show next prompt": [ "N\u00e4chste Schreibanregung anzeigen" ],
 			"Show previous prompt": [ "Vorherige Schreibanregung anzeigen" ],
@@ -91,7 +95,7 @@
 				"Jetzt kannst du deiner Schreiblust freien Lauf lassen und deinen ersten Beitrag entwerfen!"
 			],
 			"Write your first post": [ "Verfasse deinen ersten Beitrag" ],
-			"Take this short, interactive tour to learn the fundamentals of the WordPress editor.": [
+			"workaround\u0004Take this short, interactive tour to learn the fundamentals of the WordPress editor.": [
 				"Sieh dir diese kurze, interaktive Tour an, um dich mit den Grundlagen des WordPress-Editors vertraut zu machen."
 			],
 			"You've learned the basics. Remember, your site is private until you <link_to_launch_site_docs>decide to launch</link_to_launch_site_docs>. View the <link_to_editor_docs>block editing docs</link_to_editor_docs> to learn more.": [
@@ -130,7 +134,7 @@
 				"Im WordPress-Editor sind Abs\u00e4tze, Bilder und Videos Bl\u00f6cke."
 			],
 			"Everything is a block": [ "Alles ist ein Block" ],
-			"Welcome to WordPress!": [ "Willkommen bei WordPress!" ],
+			"workaround\u0004Welcome to WordPress!": [ "Willkommen bei WordPress!" ],
 			"Page %1$d of %2$d": [ "Seite %1$d von %2$d" ],
 			"Continue editing": [ "Bearbeitung fortsetzen" ],
 			"Copy Link": [ "Link kopieren" ],
@@ -157,5 +161,7 @@
 			"Back": [ "Zur\u00fcck" ]
 		}
 	},
-	"comment": { "reference": "wpcom-block-editor-nux/dist/wpcom-block-editor-nux.js" }
+	"comment": {
+		"reference": "wpcom-block-editor-nux/dist/wpcom-block-editor-nux.js"
+	}
 }

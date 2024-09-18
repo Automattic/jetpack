@@ -4,7 +4,11 @@
 	"domain": "messages",
 	"locale_data": {
 		"messages": {
-			"": { "domain": "messages", "plural-forms": "nplurals=2; plural=n != 1;", "lang": "nl" },
+			"": {
+				"domain": "messages",
+				"plural-forms": "nplurals=2; plural=n != 1;",
+				"lang": "nl"
+			},
 			"Post Answer": [ "Plaats antwoord" ],
 			"Show next prompt": [ "Volgende opdracht tonen" ],
 			"Show previous prompt": [ "Vorige opdracht tonen" ],
@@ -92,7 +96,7 @@
 				"Het is tijd om die schrijfspieren te buigen en te beginnen met het opstellen van uw eerste bericht!"
 			],
 			"Write your first post": [ "Schrijf uw eerste bericht" ],
-			"Take this short, interactive tour to learn the fundamentals of the WordPress editor.": [
+			"workaround\u0004Take this short, interactive tour to learn the fundamentals of the WordPress editor.": [
 				"Volg deze korte, interactieve rondleiding om de grondbeginselen van de WordPress editor te leren kennen."
 			],
 			"You've learned the basics. Remember, your site is private until you <link_to_launch_site_docs>decide to launch</link_to_launch_site_docs>. View the <link_to_editor_docs>block editing docs</link_to_editor_docs> to learn more.": [
@@ -131,7 +135,7 @@
 				"In de WordPress editor zijn paragrafen, afbeeldingen, en video's allemaal blokken."
 			],
 			"Everything is a block": [ "Alles is een blok" ],
-			"Welcome to WordPress!": [ "Welkom bij WordPress!" ],
+			"workaround\u0004Welcome to WordPress!": [ "Welkom bij WordPress!" ],
 			"Page %1$d of %2$d": [ "Pagina %1$d van %2$d" ],
 			"Continue editing": [ "Doorgaan met bewerken" ],
 			"Copy Link": [ "Kopieer link" ],
@@ -156,5 +160,7 @@
 			"Back": [ "Terug" ]
 		}
 	},
-	"comment": { "reference": "wpcom-block-editor-nux/dist/wpcom-block-editor-nux.js" }
+	"comment": {
+		"reference": "wpcom-block-editor-nux/dist/wpcom-block-editor-nux.js"
+	}
 }
