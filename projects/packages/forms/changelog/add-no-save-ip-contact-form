@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+New filter to allow for excluding the contact form submission IP from being saved or e-mailed.
