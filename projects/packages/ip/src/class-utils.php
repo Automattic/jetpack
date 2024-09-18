@@ -489,6 +489,11 @@ class Utils {
 	 * @return bool
 	 */
 	public static function ip_address_is_in_range( $ip, $range_low, $range_high = null ) {
+		// Validate that all provided IP addresses are valid.
+		if ( ! filter_var( $ip, FILTER_VALIDATE_IP ) || ! filter_var( $range_low, FILTER_VALIDATE_IP ) || ( $range_high && ! filter_var( $range_high, FILTER_VALIDATE_IP ) ) ) {
+			return false;
+		}
+
 		if ( strpos( $range_low, '/' ) !== false ) {
 			// CIDR notation
 			if ( $range_high !== null ) {
