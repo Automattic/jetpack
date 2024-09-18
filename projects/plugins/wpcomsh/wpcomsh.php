@@ -133,6 +133,9 @@ require_once __DIR__ . '/notices/media-library-private-site-cdn-notice.php';
 require_once __DIR__ . '/notices/anyone-can-register-notice.php';
 require_once __DIR__ . '/notices/feature-moved-to-jetpack-notices.php';
 
+// Performance Profiler
+require_once __DIR__ . '/performance-profiler/performance-profiler.php';
+
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
 	require_once __DIR__ . '/class-wpcomsh-cli-commands.php';
 	require_once __DIR__ . '/woa.php';
