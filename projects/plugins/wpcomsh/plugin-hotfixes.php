@@ -86,23 +86,6 @@ function wpcomsh_patch_auto_update_spinner_style() {
 add_action( 'admin_enqueue_scripts', 'wpcomsh_patch_auto_update_spinner_style', 999 );
 
 /**
- * Temporary hotfix.
- * Sharing buttons / Icon-only
- * See https://github.com/Automattic/jetpack/issues/29083.
- * To-do: remove once Jetpack 11.9-a.7 is released on WoA.
- */
-add_action(
-	'wp_footer',
-	function () {
-		echo '<style>
-			.sd-social-icon .sd-content ul li a.sd-button>span {
-				margin-left: 0;
-			}
-		</style>';
-	}
-);
-
-/**
  * Polyfill the create_function function for PHP versions >= 8.0
  * Code taken from https://github.com/php5friends/polyfill-create_function/blob/master/create_function.php
  *
