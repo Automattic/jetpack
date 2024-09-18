@@ -117,6 +117,31 @@ class Utils {
 	}
 
 	/**
+	 * Validate an IP address.
+	 *
+	 * @param string $ip IP address.
+	 * @return bool True if valid, false otherwise.
+	 */
+	private static function validate_ip_address( string $ip ) {
+		return filter_var( $ip, FILTER_VALIDATE_IP );
+	}
+
+	/**
+	 * Validate an array of IP addresses.
+	 *
+	 * @param array $ips List of IP addresses.
+	 * @return bool True if all IPs are valid, false otherwise.
+	 */
+	private static function validate_ip_addresses( array $ips ) {
+		foreach ( $ips as $ip ) {
+			if ( ! self::validate_ip_address( $ip ) ) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
 	 * Uses inet_pton if available to convert an IP address to a binary string.
 	 * Returns false if an invalid IP address is given.
 	 *
@@ -125,6 +150,22 @@ class Utils {
 	 */
 	public static function convert_ip_address( $ip ) {
 		return inet_pton( $ip );
+	}
+
+	/**
+	 * Determines the IP version of the given IP address.
+	 *
+	 * @param string $ip IP address.
+	 * @return string|false 'ipv4', 'ipv6', or false if invalid.
+	 */
+	public static function get_ip_version( $ip ) {
+		if ( filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 ) ) {
+			return 'ipv4';
+		} elseif ( filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6 ) ) {
+			return 'ipv6';
+		} else {
+			return false;
+		}
 	}
 
 	/**
@@ -281,22 +322,6 @@ class Utils {
 	}
 
 	/**
-	 * Determines the IP version of the given IP address.
-	 *
-	 * @param string $ip IP address.
-	 * @return string|false 'ipv4', 'ipv6', or false if invalid.
-	 */
-	public static function get_ip_version( $ip ) {
-		if ( filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 ) ) {
-			return 'ipv4';
-		} elseif ( filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6 ) ) {
-			return 'ipv6';
-		} else {
-			return false;
-		}
-	}
-
-	/**
 	 * Validates the netmask based on IP version.
 	 *
 	 * @param int    $netmask    Netmask value.
@@ -378,6 +403,11 @@ class Utils {
 			return false; // Invalid netmask for IPv6.
 		}
 
+		// Validate the provided IP addresses.
+		if ( ! self::validate_ip_addresses( array( $ip, $range ) ) ) {
+			return false;
+		}
+
 		// Convert IP addresses from their textual representation to binary strings.
 		$ip_bin    = inet_pton( $ip );
 		$range_bin = inet_pton( $range );
@@ -449,7 +479,7 @@ class Utils {
 	 */
 	public static function validate_ip_range( $range_low, $range_high ) {
 		// Validate that both IP addresses are valid.
-		if ( ! filter_var( $range_low, FILTER_VALIDATE_IP ) || ! filter_var( $range_high, FILTER_VALIDATE_IP ) ) {
+		if ( self::validate_ip_addresses( array( $range_low, $range_high ) ) === false ) {
 			return false;
 		}
 
@@ -490,8 +520,13 @@ class Utils {
 	 */
 	public static function ip_address_is_in_range( $ip, $range_low, $range_high = null ) {
 		// Validate that all provided IP addresses are valid.
-		if ( ! filter_var( $ip, FILTER_VALIDATE_IP ) || ! filter_var( $range_low, FILTER_VALIDATE_IP ) || ( $range_high && ! filter_var( $range_high, FILTER_VALIDATE_IP ) ) ) {
+		if ( $range_high !== null && ! self::validate_ip_addresses( array( $ip, $range_low, $range_high ) ) ) {
 			return false;
+		} else {
+			$range_low_parsed = self::parse_cidr( $range_low );
+			if ( $range_low_parsed && ! self::validate_ip_addresses( array( $ip, $range_low_parsed[0] ) ) ) {
+				return false;
+			}
 		}
 
 		if ( strpos( $range_low, '/' ) !== false ) {
