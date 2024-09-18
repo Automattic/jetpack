@@ -1,9 +1,9 @@
-import { useCallback } from 'react';
-import { REST_API_SITE_PRODUCTS_OWNERSHIP_ENDPOINT } from '../constants';
+import { useEffect } from 'react';
+import { useValueStore } from '../../context/value-store/valueStoreContext';
+import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import { QUERY_PRODUCT_BY_OWNERSHIP_KEY } from '../constants';
+import { REST_API_SITE_PRODUCTS_OWNERSHIP_ENDPOINT } from '../constants';
 import useSimpleQuery from '../use-simple-query';
-import type { WP_Error } from '../types';
-import type { QueryObserverResult } from '@tanstack/react-query';
 
 // Create query to fetch new product data from the server
 const useFetchProductsByOwnership = () => {
@@ -19,23 +19,24 @@ const useFetchProductsByOwnership = () => {
 	return queryResult;
 };
 
-// Fetch the product data from the server
-const refetchProduct = async (
-	refetch: () => Promise<
-		QueryObserverResult< Record< 'ownedProducts' | 'unownedProducts', JetpackModule[] >, WP_Error >
-	>
-) => {
-	const { data: refetchedProduct } = await refetch();
-
-	return refetchedProduct;
-};
-
 const useProductsByOwnership = () => {
+	const [ productsOwnership, setProductsOwnership ] = useValueStore( 'productsOwnership', {
+		ownedProducts: getMyJetpackWindowInitialState( 'lifecycleStats' ).ownedProducts,
+		unownedProducts: getMyJetpackWindowInitialState( 'lifecycleStats' ).unownedProducts,
+	} );
+
 	const { data, refetch, isLoading } = useFetchProductsByOwnership();
 
+	useEffect( () => {
+		if ( ! isLoading && data ) {
+			const { ownedProducts = [], unownedProducts = [] } = data;
+			setProductsOwnership( { ownedProducts, unownedProducts } );
+		}
+	}, [ data, isLoading, setProductsOwnership ] );
+
 	return {
-		refetch: useCallback( () => refetchProduct( refetch ), [ refetch ] ),
-		data,
+		refetch,
+		data: productsOwnership,
 		isLoading,
 	};
 };

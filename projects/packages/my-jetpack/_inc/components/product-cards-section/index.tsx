@@ -1,7 +1,6 @@
 import { Container, Col, Text, AdminSectionHero } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import { useEffect, useMemo } from 'react';
-import { useValueStore } from '../../context/value-store/valueStoreContext';
+import { useMemo } from 'react';
 import { PRODUCT_SLUGS } from '../../data/constants';
 import useProductsByOwnership from '../../data/products/use-products-by-ownership';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
@@ -92,44 +91,12 @@ const DisplayItems: FC< DisplayItemsProps > = ( { slugs } ) => {
 
 interface ProductCardsSectionProps {
 	noticeMessage: ReactNode;
-	siteIsRegistered?: boolean;
 }
 
-const ProductCardsSection: FC< ProductCardsSectionProps > = ( {
-	noticeMessage,
-	siteIsRegistered,
-} ) => {
-	const [ { ownedProducts, unownedProducts }, setProductsOwnership ] = useValueStore(
-		'productsOwnership',
-		{
-			ownedProducts: getMyJetpackWindowInitialState( 'lifecycleStats' )?.ownedProducts ?? [],
-			unownedProducts: getMyJetpackWindowInitialState( 'lifecycleStats' )?.unownedProducts ?? [],
-		}
-	);
-
+const ProductCardsSection: FC< ProductCardsSectionProps > = ( { noticeMessage } ) => {
 	const {
-		data: productOwnershipData,
-		isLoading,
-		refetch: refetchOwnershipData,
+		data: { ownedProducts, unownedProducts },
 	} = useProductsByOwnership();
-
-	useEffect( () => {
-		if ( isLoading ) {
-			return;
-		}
-
-		if ( siteIsRegistered ) {
-			refetchOwnershipData();
-		}
-
-		setProductsOwnership( productOwnershipData );
-	}, [
-		siteIsRegistered,
-		productOwnershipData,
-		isLoading,
-		refetchOwnershipData,
-		setProductsOwnership,
-	] );
 
 	const unownedSectionTitle = useMemo( () => {
 		return ownedProducts.length > 0

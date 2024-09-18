@@ -167,7 +167,7 @@ export default function MyJetpackScreen() {
 			) }
 			{ isSectionVisible && <EvaluationRecommendations /> }
 
-			<ProductCardsSection siteIsRegistered={ siteIsRegistered } />
+			<ProductCardsSection />
 
 			{ jetpackManage.isEnabled && (
 				<Container horizontalSpacing={ 6 } horizontalGap={ noticeMessage ? 3 : 6 }>
