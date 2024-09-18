@@ -347,9 +347,9 @@ class Utils {
 	 * @return bool True if IP is within the range, false otherwise.
 	 */
 	public static function ip_in_ipv4_cidr( $ip, $range, $netmask ) {
-		// Validate netmask: must be between 0 and 32 for IPv4.
-		if ( $netmask < 0 || $netmask > 32 ) {
-			return false; // Invalid netmask for IPv4.
+		// Validate arguments.
+		if ( ! self::validate_ip_addresses( array( $ip, $range ) ) || ! self::validate_netmask( $netmask, 'ipv4' ) ) {
+			return false; // Invalid IP address or netmask.
 		}
 
 		// Convert IP addresses from their dotted representation to 32-bit unsigned integers.
@@ -398,14 +398,9 @@ class Utils {
 	 * @return bool True if IP is within the range, false otherwise.
 	 */
 	public static function ip_in_ipv6_cidr( $ip, $range, $netmask ) {
-		// Validate netmask: must be between 0 and 128 for IPv6.
-		if ( $netmask < 0 || $netmask > 128 ) {
-			return false; // Invalid netmask for IPv6.
-		}
-
-		// Validate the provided IP addresses.
-		if ( ! self::validate_ip_addresses( array( $ip, $range ) ) ) {
-			return false;
+		// Validate arguments.
+		if ( ! self::validate_ip_addresses( array( $ip, $range ) ) || ! self::validate_netmask( $netmask, 'ipv6' ) ) {
+			return false; // Invalid IP address or netmask.
 		}
 
 		// Convert IP addresses from their textual representation to binary strings.
