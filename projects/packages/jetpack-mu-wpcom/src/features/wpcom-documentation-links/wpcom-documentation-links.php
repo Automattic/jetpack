@@ -37,7 +37,7 @@ function wpcom_enqueue_documentation_links_assets() {
 		$wp_scripts->registered['customize-controls']->extra['data'] = $data;
 	}
 
-	wp_set_script_translations( 'wpcom-documentation-links-script', 'jetpack-mu-wpcom' );
+	wp_set_script_translations( 'wpcom-documentation-links-script', 'jetpack-mu-wpcom', Jetpack_Mu_Wpcom::BASE_DIR . 'languages' );
 }
 
 add_action( 'enqueue_block_editor_assets', 'wpcom_enqueue_documentation_links_assets', 100 );
