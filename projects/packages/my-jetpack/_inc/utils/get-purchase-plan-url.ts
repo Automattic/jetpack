@@ -33,7 +33,7 @@ const getPurchasePlanUrl = () => {
 		const redirectUri = `redirect_to=${ myJetpackCheckoutUri }`;
 		// If the user is not connected, this query will trigger a connection after checkout flow.
 		const connectQuery = ! isConnected
-			? `&connect_after_checkout=true&from_site_slug=${ siteSuffix }&admin_url${ adminUrl }`
+			? `&connect_after_checkout=true&from_site_slug=${ siteSuffix }&admin_url=${ adminUrl }`
 			: '';
 		const query = `${ redirectUri }${ connectQuery }`;
 
