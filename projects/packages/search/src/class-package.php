@@ -26,7 +26,7 @@ class Package {
 	 *
 	 * @param array $package_versions The package version array.
 	 *
-	 * @return array The packge version array.
+	 * @return array The package version array.
 	 */
 	public static function send_version_to_tracker( $package_versions ) {
 		// Multiple versions could co-exist, we want to send the version which is in use.
