@@ -13,7 +13,7 @@ use Automattic\Jetpack\Status;
 use WP_Error;
 
 /**
- * To get and set Searh module settings
+ * To get and set Search module settings
  */
 class Module_Control {
 	/**
@@ -73,7 +73,7 @@ class Module_Control {
 	 * @return bool
 	 */
 	public function is_instant_search_enabled() {
-		return (bool) get_option( self::SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY );
+		return (bool) $this->plan->supports_instant_search() && get_option( self::SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY );
 	}
 
 	/**

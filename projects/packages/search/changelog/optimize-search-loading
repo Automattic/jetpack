@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Search: reduce database calls by ensuring plan support before checking options

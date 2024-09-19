@@ -16,11 +16,11 @@ return [
     // PhanTypeMismatchArgument : 6 occurrences
     // PhanUndeclaredProperty : 6 occurrences
     // PhanTypeMismatchReturn : 5 occurrences
-    // PhanDeprecatedFunction : 4 occurrences
     // PhanImpossibleCondition : 4 occurrences
     // PhanTypeMismatchProperty : 4 occurrences
     // PhanPluginMixedKeyNoKey : 3 occurrences
     // PhanTypeSuspiciousEcho : 3 occurrences
+    // PhanDeprecatedFunction : 2 occurrences
     // PhanNoopNew : 2 occurrences
     // PhanDeprecatedPartiallySupportedCallable : 1 occurrence
     // PhanPluginRedundantAssignment : 1 occurrence
@@ -38,7 +38,6 @@ return [
         'src/class-cli.php' => ['PhanTypeMismatchArgument'],
         'src/class-helper.php' => ['PhanDeprecatedPartiallySupportedCallable', 'PhanImpossibleCondition', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanRedundantCondition', 'PhanTypeMismatchArgument', 'PhanTypeMismatchDefault', 'PhanTypeMismatchReturn', 'PhanUndeclaredClassMethod'],
         'src/class-options.php' => ['PhanPluginSimplifyExpressionBool'],
-        'src/class-plan.php' => ['PhanDeprecatedFunction'],
         'src/class-rest-controller.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'src/class-template-tags.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal'],
         'src/classic-search/class-classic-search.php' => ['PhanImpossibleCondition', 'PhanPluginRedundantAssignment', 'PhanRedundantCondition', 'PhanTypeInvalidDimOffset', 'PhanTypeMismatchDeclaredParamNullable', 'PhanTypeMismatchProperty', 'PhanTypeMismatchReturn', 'PhanTypePossiblyInvalidDimOffset'],
