@@ -109,7 +109,7 @@ function SuggestedTags( props: SuggestedTagsProps ) {
 
 	return (
 		<div className="wpcom-block-editor-post-published-sharing-modal__suggest-tags">
-			<h1>{ __( 'Recommended tags:', 'jetpack-mu-wpcom' ) }</h1>
+			<h1>{ __( 'Recommended tags', 'jetpack-mu-wpcom' ) }</h1>
 			<p>
 				{ __(
 					'Based on the topics and themes in your post, here are some suggested tags to consider:',
