@@ -45,7 +45,11 @@ const ProductDetailTableColumn = ( {
 	feature,
 } ) => {
 	const [ isButtonLoading, setIsButtonLoading ] = useState( false );
-	const { siteSuffix = '', myJetpackCheckoutUri = '' } = getMyJetpackWindowInitialState();
+	const {
+		siteSuffix = '',
+		myJetpackCheckoutUri = '',
+		adminUrl = '',
+	} = getMyJetpackWindowInitialState();
 
 	// Extract the product details.
 	const {
@@ -114,6 +118,7 @@ const ProductDetailTableColumn = ( {
 		siteSuffix,
 		useBlogIdSuffix: true,
 		quantity,
+		adminUrl,
 	} );
 
 	// Compute the price per month.
@@ -176,6 +181,8 @@ const ProductDetailTableColumn = ( {
 	const shouldDisableButton =
 		hasCheckoutStarted || cantInstallPlugin || isFetching || isFetchingSuccess;
 
+	const isIntroDiscountEligible = ! introductoryOffer?.reason;
+
 	return (
 		<PricingTableColumn primary={ ! isFree }>
 			<PricingTableHeader>
@@ -185,10 +192,11 @@ const ProductDetailTableColumn = ( {
 					! hasPaidPlanForProduct && (
 						<ProductPrice
 							price={ price }
-							offPrice={ offPrice }
+							offPrice={ isIntroDiscountEligible ? offPrice : price }
 							legend={ priceDescription }
 							currency={ currencyCode }
 							hideDiscountLabel={ isOneMonthOffer }
+							showNotOffPrice={ isIntroDiscountEligible }
 							hidePriceFraction
 						/>
 					)
