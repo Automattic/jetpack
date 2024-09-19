@@ -13,7 +13,6 @@
 		.wpcom-block-editor-post-published-sharing-modal__inner {
 			display: flex;
 			flex-direction: column;
-			padding: 52px 20px;
 
 			p a {
 				color: var(--color-text);
@@ -39,23 +38,9 @@
 			}
 		}
 
-		p {
-			/* stylelint-disable-next-line declaration-property-unit-allowed-list */
-			font-size: 1rem;
-
-			@include break-small {
-				font-size: 18px;
-			}
-		}
-
-		h2 {
-			/* stylelint-disable-next-line declaration-property-unit-allowed-list */
-			font-size: 18px;
-			font-weight: 600px;
-		}
-
 		.wpcom-block-editor-post-published-sharing-modal__checkbox-section {
-			margin-top: 32px;
+			align-self: flex-start;
+			margin-top: -27px;
 			color: var(--studio-gray-60);
 
 			label {
@@ -80,6 +65,16 @@
 
 			@include break-small {
 				width: 385px;
+			}
+
+			> p {
+				/* stylelint-disable-next-line declaration-property-unit-allowed-list */
+				font-size: 1rem;
+			}
+
+			.wpcom-block-editor-post-published-sharing-modal__save-tags {
+				float: right;
+				margin-top: 1rem;
 			}
 		}
 	}
