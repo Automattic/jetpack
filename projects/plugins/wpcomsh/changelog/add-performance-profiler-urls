@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Performance Profiler: Ensure the associated url created when the performance report is generated is accessible for each page or as part of site settings for the home/main url. 
