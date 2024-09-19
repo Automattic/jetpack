@@ -722,20 +722,20 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		$show_subscribers_total = checked( $instance['show_subscribers_total'], true, false );
 
 		if ( self::is_wpcom() ) {
-			$title               = esc_attr( stripslashes( $instance['title'] ) );
-			$title_following     = esc_attr( stripslashes( $instance['title_following'] ) );
-			$subscribe_text      = esc_attr( stripslashes( $instance['subscribe_text'] ) );
-			$subscribe_logged_in = esc_attr( stripslashes( $instance['subscribe_logged_in'] ) );
-			$subscribe_button    = esc_attr( stripslashes( $instance['subscribe_button'] ) );
+			$title               = ! empty( $instance['title'] ) ? esc_attr( stripslashes( $instance['title'] ) ) : '';
+			$title_following     = ! empty( $instance['title_following'] ) ? esc_attr( stripslashes( $instance['title_following'] ) ) : '';
+			$subscribe_text      = ! empty( $instance['subscribe_text'] ) ? esc_attr( stripslashes( $instance['subscribe_text'] ) ) : '';
+			$subscribe_logged_in = ! empty( $instance['subscribe_logged_in'] ) ? esc_attr( stripslashes( $instance['subscribe_logged_in'] ) ) : '';
+			$subscribe_button    = ! empty( $instance['subscribe_button'] ) ? esc_attr( stripslashes( $instance['subscribe_button'] ) ) : '';
 			$subscribers_total   = self::fetch_subscriber_count();
 		}
 
 		if ( self::is_jetpack() ) {
-			$title                 = stripslashes( $instance['title'] );
-			$subscribe_text        = stripslashes( $instance['subscribe_text'] );
-			$subscribe_placeholder = stripslashes( $instance['subscribe_placeholder'] );
-			$subscribe_button      = stripslashes( $instance['subscribe_button'] );
-			$success_message       = stripslashes( $instance['success_message'] );
+			$title                 = ! empty( $instance['title'] ) ? stripslashes( $instance['title'] ) : '';
+			$subscribe_text        = ! empty( $instance['subscribe_text'] ) ? stripslashes( $instance['subscribe_text'] ) : '';
+			$subscribe_placeholder = ! empty( $instance['subscribe_placeholder'] ) ? stripslashes( $instance['subscribe_placeholder'] ) : '';
+			$subscribe_button      = ! empty( $instance['subscribe_button'] ) ? stripslashes( $instance['subscribe_button'] ) : '';
+			$success_message       = ! empty( $instance['success_message'] ) ? stripslashes( $instance['success_message'] ) : '';
 			$subscribers_total     = self::fetch_subscriber_count();
 		}
 
