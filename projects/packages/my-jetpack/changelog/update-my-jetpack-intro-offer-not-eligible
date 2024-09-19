@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+My Jetpack product interstitial: Don't show intro offer price if user is not eligible for the offer.
