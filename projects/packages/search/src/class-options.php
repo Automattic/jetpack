@@ -98,7 +98,7 @@ class Options {
 	 *
 	 * @param string $option_name - The name of the option to get the cache key for.
 	 *
-	 * @return bool
+	 * @return string
 	 */
 	public static function get_cached_option_key( $option_name ) {
 		return Package::VERSION . '-' . $option_name;
@@ -112,7 +112,7 @@ class Options {
 	 * @param mixed  $default_value - The fallback value if the option does not exist.
 	 * @param int    $cache_timeout - The number of seconds to cache the option for.
 	 *
-	 * @return bool
+	 * @return mixed
 	 */
 	public static function get_cached_option( $option_name, $default_value = false, $cache_timeout = 3600 ) {
 		$cache_key = self::get_cached_option_key( $option_name );
