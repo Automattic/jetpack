@@ -28,26 +28,36 @@ export const useCheckout = () => {
 		};
 	}, [] );
 
+	const isJetpackSite = ! isAtomicSite() && ! isSimpleSite();
+	const redirectSource = isJetpackSite
+		? 'jetpack-ai-upgrade-url-for-jetpack-sites'
+		: 'jetpack-ai-yearly-tier-upgrade-nudge';
+
 	/**
-	 * Determine the post-checkout URL
+	 * Determine the post-checkout URL for non-Jetpack sites
 	 */
 	const siteFragment = getSiteFragment() as string;
-	const redirectToURL =
-		isAtomicSite() || isSimpleSite()
-			? `https://wordpress.com/home/${ siteFragment }`
-			: `admin.php?page=my-jetpack#/jetpack-ai`;
+	const wpcomRedirectToURL = `https://wordpress.com/home/${ siteFragment }`;
 
 	/**
 	 * Use the Jetpack redirect URL to open the checkout page
 	 */
 	const checkoutUrl = new URL( `https://jetpack.com/redirect/` );
-	checkoutUrl.searchParams.set( 'source', 'jetpack-ai-yearly-tier-upgrade-nudge' );
+	checkoutUrl.searchParams.set( 'source', redirectSource );
 	checkoutUrl.searchParams.set( 'site', siteFragment );
 	checkoutUrl.searchParams.set(
 		'path',
 		tierPlansEnabled ? `jetpack_ai_yearly:-q-${ nextTier?.limit }` : 'jetpack_ai_yearly'
 	);
-	checkoutUrl.searchParams.set( 'query', `redirect_to=${ encodeURIComponent( redirectToURL ) }` );
+
+	// For Jetpack sites, the redirect_to parameter is handled by the Jetpack redirect source
+	if ( ! isJetpackSite ) {
+		checkoutUrl.searchParams.set(
+			'query',
+			`redirect_to=${ encodeURIComponent( wpcomRedirectToURL ) }`
+		);
+	}
+
 	const nextTierCheckoutURL = checkoutUrl.toString();
 
 	debug( 'Next tier checkout URL: ', nextTierCheckoutURL );
