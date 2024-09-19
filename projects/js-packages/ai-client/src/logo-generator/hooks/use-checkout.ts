@@ -29,24 +29,26 @@ export const useCheckout = () => {
 	}, [] );
 
 	/**
+	 * Determine the post-checkout URL
+	 */
+	const siteFragment = getSiteFragment() as string;
+	const redirectToURL =
+		isAtomicSite() || isSimpleSite()
+			? `https://wordpress.com/home/${ siteFragment }`
+			: `${ window?.Jetpack_Editor_Initial_State?.adminUrl }admin.php?page=my-jetpack#/jetpack-ai`;
+
+	/**
 	 * Use the Jetpack redirect URL to open the checkout page
 	 */
-	const wpcomCheckoutUrl = new URL( `https://jetpack.com/redirect/` );
-	wpcomCheckoutUrl.searchParams.set( 'source', 'jetpack-ai-yearly-tier-upgrade-nudge' );
-	wpcomCheckoutUrl.searchParams.set( 'site', getSiteFragment() as string );
-
-	wpcomCheckoutUrl.searchParams.set(
+	const checkoutUrl = new URL( `https://jetpack.com/redirect/` );
+	checkoutUrl.searchParams.set( 'source', 'jetpack-ai-yearly-tier-upgrade-nudge' );
+	checkoutUrl.searchParams.set( 'site', siteFragment );
+	checkoutUrl.searchParams.set(
 		'path',
 		tierPlansEnabled ? `jetpack_ai_yearly:-q-${ nextTier?.limit }` : 'jetpack_ai_yearly'
 	);
-
-	/**
-	 * Open the product interstitial page
-	 */
-	const jetpackCheckoutUrl = `${ window?.Jetpack_Editor_Initial_State?.adminUrl }admin.php?redirect_to_referrer=1&page=my-jetpack#/add-jetpack-ai`;
-
-	const nextTierCheckoutURL =
-		isAtomicSite() || isSimpleSite() ? wpcomCheckoutUrl.toString() : jetpackCheckoutUrl;
+	checkoutUrl.searchParams.set( 'query', `redirect_to=${ encodeURIComponent( redirectToURL ) }` );
+	const nextTierCheckoutURL = checkoutUrl.toString();
 
 	debug( 'Next tier checkout URL: ', nextTierCheckoutURL );
 
