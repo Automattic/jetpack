@@ -70,7 +70,7 @@ class WPCOM_Block_Editor_NUX {
 		 */
 		$recommended_tags_modal_options = wp_json_encode(
 			array(
-				'isDismissed' => WP_REST_WPCOM_Block_Editor_Reader_Recommended_Tags_Modal_Controller::get_wpcom_recommended_tags_modal_dismissed(),
+				'isDismissed' => WP_REST_WPCOM_Block_Editor_Recommended_Tags_Modal_Controller::get_wpcom_recommended_tags_modal_dismissed(),
 			),
 			JSON_HEX_TAG | JSON_HEX_AMP
 		);
