@@ -241,7 +241,10 @@ class Wpcom_Products {
 	 * @return array An array with currency_code and full_price. Empty array if product not found.
 	 */
 	public static function get_product_pricing( $product_slug ) {
-		$product = self::get_product( $product_slug );
+		// Temporarily busting the cache here for in-progress PR https://github.com/Automattic/jetpack/pull/39403
+		// We need to find a way cache the products pricing data, but be able to refresh the data every time the
+		// user's owned products changes (user purchases a product).
+		$product = self::get_product( $product_slug, true );
 		if ( empty( $product ) ) {
 			return array();
 		}
