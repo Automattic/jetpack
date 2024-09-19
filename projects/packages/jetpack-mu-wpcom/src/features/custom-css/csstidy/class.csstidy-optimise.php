@@ -298,18 +298,22 @@ class csstidy_optimise { // phpcs:ignore
 			for ( $i = 0, $l = count( $color_tmp ); $i < $l; $i++ ) {
 				$color_tmp[ $i ] = trim( $color_tmp[ $i ] );
 				if ( str_ends_with( $color_tmp[ $i ], '%' ) ) {
-					$color_tmp[ $i ] = round( ( 255 * $color_tmp[ $i ] ) / 100 );
+					$color_tmp[ $i ] = round( ( 255 * (int) substr( $color_tmp[ $i ], 0, -1 ) ) / 100 );
 				}
 				if ( $color_tmp[ $i ] > 255 ) {
 					$color_tmp[ $i ] = 255;
 				}
 			}
-			$color = '#';
-			for ( $i = 0; $i < 3; $i++ ) {
-				if ( $color_tmp[ $i ] < 16 ) {
-					$color .= '0' . dechex( $color_tmp[ $i ] );
-				} else {
-					$color .= dechex( $color_tmp[ $i ] );
+
+			if ( count( $color_tmp ) >= 3 ) {
+				$color = '#';
+
+				for ( $i = 0; $i < 3; $i++ ) {
+					if ( $color_tmp[ $i ] < 16 ) {
+						$color .= '0' . dechex( $color_tmp[ $i ] );
+					} else {
+						$color .= dechex( $color_tmp[ $i ] );
+					}
 				}
 			}
 		}
@@ -636,8 +640,11 @@ class csstidy_optimise { // phpcs:ignore
 		$shorthands = & $GLOBALS['csstidy']['shorthands'];
 
 		foreach ( $shorthands as $key => $value ) {
-			if ( $value !== 0 && isset( $array[ $value[0] ] ) && isset( $array[ $value[1] ] )
-							&& isset( $array[ $value[2] ] ) && isset( $array[ $value[3] ] ) ) {
+			if ( $value === 0 || ( is_array( $value ) && count( $value ) < 4 ) ) {
+				continue;
+			}
+
+			if ( isset( $array[ $value[0] ] ) && isset( $array[ $value[1] ] ) && isset( $array[ $value[2] ] ) && isset( $array[ $value[3] ] ) ) {
 				$return[ $key ] = '';
 
 				$important = '';
