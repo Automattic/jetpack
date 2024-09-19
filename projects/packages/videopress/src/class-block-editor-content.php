@@ -121,7 +121,7 @@ class Block_Editor_Content {
 
 		$block_template =
 		'<figure class="wp-block-videopress-video wp-block-jetpack-videopress jetpack-videopress-player">' .
-			'<div class="jetpack-videopress-player__wrapper">' .
+			'<div class="jetpack-videopress-player__wrapper" id="jetpack-videopress-%s">' .
 				'<iframe ' .
 					'title="' . __( 'VideoPress Video Player', 'jetpack-videopress-pkg' ) . '" ' .
 					'aria-label="' . __( 'VideoPress Video Player', 'jetpack-videopress-pkg' ) . '" ' .
@@ -138,7 +138,7 @@ class Block_Editor_Content {
 		Jwt_Token_Bridge::enqueue_jwt_token_bridge();
 		wp_enqueue_script( 'videopress-iframe', 'https://videopress.com/videopress-iframe.js', array(), $version, true );
 
-		return sprintf( $block_template, $src, $width, $height, $cover );
+		return sprintf( $block_template, esc_attr( $guid ), $src, $width, $height, $cover );
 	}
 
 	/**
@@ -169,7 +169,7 @@ class Block_Editor_Content {
 				// ref /client/lib/url/index.ts
 				$content = '<!-- wp:videopress/video {"guid":"' . $guid . '"} -->
 				<figure class="wp-block-videopress-video wp-block-jetpack-videopress jetpack-videopress-player">
-					<div class="jetpack-videopress-player__wrapper">' . $url . '</div>
+					<div class="jetpack-videopress-player__wrapper" id="jetpack-videopress-' . esc_attr( $guid ) . '">' . $url . '</div>
 				</figure>
 				<!-- /wp:videopress/video -->';
 			}
