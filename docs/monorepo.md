@@ -212,6 +212,8 @@ Phan in the monorepo should be run locally via [Jetpack's CLI tool](#first-time)
 
 #### Installing PHP ast extension on Linux
 
+<details><summary>Instructions for Linux users</summary>
+
 On most Linux distributions, you can install the PHP ast extension using your package manager:
 
 - For Ubuntu/Debian-based systems:
@@ -222,6 +224,8 @@ On most Linux distributions, you can install the PHP ast extension using your pa
   Install the AUR package "php-ast" from https://aur.archlinux.org/packages/php-ast
 
 For other Linux distributions, consult your package manager's documentation or consider compiling from source.
+
+</details>
 
 #### Installing PHP ast extension on Mac
 
