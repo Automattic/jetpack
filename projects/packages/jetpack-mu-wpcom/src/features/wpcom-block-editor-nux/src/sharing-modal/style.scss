@@ -39,8 +39,10 @@
 		}
 
 		.wpcom-block-editor-post-published-sharing-modal__actions {
+			align-items: center;
 			display: flex;
-			margin-top: 16px;
+			justify-content: space-between;
+			margin-top: 24px;
 
 			.wpcom-block-editor-post-published-sharing-modal__actions-checkbox {
 				color: var(--studio-gray-60);
@@ -73,11 +75,6 @@
 			> p {
 				/* stylelint-disable-next-line declaration-property-unit-allowed-list */
 				font-size: 1rem;
-			}
-
-			.wpcom-block-editor-post-published-sharing-modal__save-tags {
-				float: right;
-				margin-top: 1rem;
 			}
 		}
 	}

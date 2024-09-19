@@ -122,7 +122,7 @@ function SuggestedTags( props: SuggestedTagsProps ) {
 			{ tokenField }
 			<p>{ __( 'Adding tags can help drive more traffic to your post.', 'jetpack-mu-wpcom' ) }</p>
 			<div className="wpcom-block-editor-post-published-sharing-modal__actions">
-				<div className="wpcom-block-editor-post-published-sharing-modal__action-checkbox">
+				<div className="wpcom-block-editor-post-published-sharing-modal__actions-checkbox">
 					<FormLabel htmlFor="toggle" className="is-checkbox">
 						<FormInputCheckbox id="toggle" onChange={ props.onDontShowAgainChange } />
 						<span>{ __( "Don't show again", 'jetpack-mu-wpcom' ) }</span>
