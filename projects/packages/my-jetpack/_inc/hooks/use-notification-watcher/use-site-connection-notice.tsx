@@ -29,7 +29,7 @@ const useSiteConnectionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 	const { refetch: refetchOwnershipData } = useProductsByOwnership();
 
 	useEffect( () => {
-		if ( ! connectionError || ! connectionError.is_error ) {
+		if ( ! connectionError ) {
 			return;
 		}
 
