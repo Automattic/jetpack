@@ -147,15 +147,7 @@ class Manager {
 		add_action( 'deleted_user', array( $manager, 'disconnect_user_force' ), 9, 1 );
 		add_action( 'remove_user_from_blog', array( $manager, 'disconnect_user_force' ), 9, 1 );
 
-		// Force is_connected() to recompute after important actions.
-		add_action( 'jetpack_site_registered', array( $manager, 'reset_connection_status' ) );
-		add_action( 'jetpack_site_disconnected', array( $manager, 'reset_connection_status' ) );
-		add_action( 'jetpack_sync_register_user', array( $manager, 'reset_connection_status' ) );
-		add_action( 'pre_update_jetpack_option_id', array( $manager, 'reset_connection_status' ) );
-		add_action( 'pre_update_jetpack_option_blog_token', array( $manager, 'reset_connection_status' ) );
-		add_action( 'pre_update_jetpack_option_user_token', array( $manager, 'reset_connection_status' ) );
-		add_action( 'pre_update_jetpack_option_user_tokens', array( $manager, 'reset_connection_status' ) );
-		add_action( 'switch_blog', array( $manager, 'reset_connection_status' ) );
+		$manager->add_connection_status_invalidation_hooks();
 
 		// Set up package version hook.
 		add_filter( 'jetpack_package_versions', __NAMESPACE__ . '\Package_Version::send_package_version_to_tracker' );
@@ -172,6 +164,21 @@ class Manager {
 
 		// Initial Partner management.
 		Partner::init();
+	}
+
+	/**
+	 * Adds hooks to invalidate the memoized connection status.
+	 */
+	private function add_connection_status_invalidation_hooks() {
+		// Force is_connected() to recompute after important actions.
+		add_action( 'jetpack_site_registered', array( $this, 'reset_connection_status' ) );
+		add_action( 'jetpack_site_disconnected', array( $this, 'reset_connection_status' ) );
+		add_action( 'jetpack_sync_register_user', array( $this, 'reset_connection_status' ) );
+		add_action( 'pre_update_jetpack_option_id', array( $this, 'reset_connection_status' ) );
+		add_action( 'pre_update_jetpack_option_blog_token', array( $this, 'reset_connection_status' ) );
+		add_action( 'pre_update_jetpack_option_user_token', array( $this, 'reset_connection_status' ) );
+		add_action( 'pre_update_jetpack_option_user_tokens', array( $this, 'reset_connection_status' ) );
+		add_action( 'switch_blog', array( $this, 'reset_connection_status' ) );
 	}
 
 	/**
