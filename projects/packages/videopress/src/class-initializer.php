@@ -302,7 +302,7 @@ class Initializer {
 			$videopress_url = wp_kses_post( $videopress_url );
 			$oembed_html    = apply_filters( 'video_embed_html', $wp_embed->shortcode( array(), $videopress_url ) );
 			$video_wrapper  = sprintf(
-				'<div class="%s" id="%s">%s %s</div>',
+				'<div class="%1$s" id="%2$s">%3$s %5$s</div>',
 				$video_wrapper_classes,
 				esc_attr( get_videopress_html_id( $guid )[0] ),
 				$preview_on_hover,

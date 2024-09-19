@@ -121,15 +121,15 @@ class Block_Editor_Content {
 
 		$block_template =
 		'<figure class="wp-block-videopress-video wp-block-jetpack-videopress jetpack-videopress-player">' .
-			'<div class="jetpack-videopress-player__wrapper" id="%s">' .
+			'<div class="jetpack-videopress-player__wrapper" id="%1$s">' .
 				'<iframe ' .
 					'title="' . __( 'VideoPress Video Player', 'jetpack-videopress-pkg' ) . '" ' .
 					'aria-label="' . __( 'VideoPress Video Player', 'jetpack-videopress-pkg' ) . '" ' .
-					'src="%s" ' .
-					'width="%s"' .
-					'height="%s" ' .
+					'src="%2$s" ' .
+					'width="%3$s"' .
+					'height="%4$s" ' .
 					'frameborder="0" ' .
-					'allowfullscreen%s allow="clipboard-write">' .
+					'allowfullscreen%5$s allow="clipboard-write">' .
 				'</iframe>' .
 			'</div>' .
 		'</figure>';
