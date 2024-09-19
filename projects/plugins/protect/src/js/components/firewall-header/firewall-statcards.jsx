@@ -1,62 +1,79 @@
 import { Text, useBreakpointMatch, StatCard } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, shield, chartBar } from '@wordpress/icons';
+import { useCallback, useMemo } from 'react';
 import styles from './styles.module.scss';
 
 const FirewallStatCards = ( { status, hasPlan, oneDayStats, thirtyDayStats } ) => {
 	const [ isSmall ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
-	const defaultArgs = {
-		className: status !== 'on' ? styles.disabled : styles.active,
-		variant: isSmall ? 'horizontal' : 'square',
-	};
 
-	const getIcon = icon => (
-		<span className={ styles[ 'stat-card-icon' ] }>
-			<Icon icon={ icon } />
-			{ ! isSmall && ! hasPlan && (
-				<Text variant={ 'label' }>{ __( 'Paid feature', 'jetpack-protect' ) }</Text>
-			) }
-		</span>
+	const defaultArgs = useMemo(
+		() => ( {
+			className: status !== 'on' || ! hasPlan ? styles.disabled : styles.active,
+			variant: isSmall ? 'horizontal' : 'square',
+		} ),
+		[ status, isSmall, hasPlan ]
 	);
 
-	const getLabel = ( period, units ) =>
-		isSmall ? (
-			<span>
-				{ sprintf(
-					/* translators: Translates to Blocked requests last %1$d: Number of units. %2$s: Unit of time (hours, days, etc) */
-					__( 'Blocked requests last %1$d %2$s', 'jetpack-protect' ),
-					period,
-					units
+	const getIcon = useCallback(
+		icon => (
+			<span className={ styles[ 'stat-card-icon' ] }>
+				<Icon icon={ icon } />
+				{ ! isSmall && ! hasPlan && (
+					<Text variant={ 'label' }>{ __( 'Paid feature', 'jetpack-protect' ) }</Text>
 				) }
 			</span>
-		) : (
-			<span className={ styles[ 'stat-card-label' ] }>
-				<span>{ __( 'Blocked requests', 'jetpack-protect' ) }</span>
-				<br />
+		),
+		[ isSmall, hasPlan ]
+	);
+
+	const getLabel = useCallback(
+		( period, units ) =>
+			isSmall ? (
 				<span>
 					{ sprintf(
-						/* translators: Translates to Last %1$d: Number of units. %2$s: Unit of time (hours, days, etc) */
-						__( 'Last %1$d %2$s', 'jetpack-protect' ),
+						/* translators: Translates to Blocked requests last %1$d: Number of units. %2$s: Unit of time (hours, days, etc) */
+						__( 'Blocked requests last %1$d %2$s', 'jetpack-protect' ),
 						period,
 						units
 					) }
 				</span>
-			</span>
-		);
+			) : (
+				<span className={ styles[ 'stat-card-label' ] }>
+					<span>{ __( 'Blocked requests', 'jetpack-protect' ) }</span>
+					<br />
+					<span>
+						{ sprintf(
+							/* translators: Translates to Last %1$d: Number of units. %2$s: Unit of time (hours, days, etc) */
+							__( 'Last %1$d %2$s', 'jetpack-protect' ),
+							period,
+							units
+						) }
+					</span>
+				</span>
+			),
+		[ isSmall ]
+	);
 
-	const oneDayArgs = {
-		...defaultArgs,
-		icon: getIcon( shield ),
-		label: getLabel( 24, 'hours' ),
-		value: status !== 'on' ? 0 : oneDayStats,
-	};
+	const oneDayArgs = useMemo(
+		() => ( {
+			...defaultArgs,
+			icon: getIcon( shield ),
+			label: getLabel( 24, 'hours' ),
+			value: status !== 'on' || ! hasPlan ? 0 : oneDayStats,
+		} ),
+		[ defaultArgs, getIcon, getLabel, status, hasPlan, oneDayStats ]
+	);
 
-	const thirtyDayArgs = {
-		...defaultArgs,
-		icon: getIcon( chartBar ),
-		label: getLabel( 30, 'days' ),
-		value: status !== 'on' ? 0 : thirtyDayStats,
-	};
+	const thirtyDayArgs = useMemo(
+		() => ( {
+			...defaultArgs,
+			icon: getIcon( chartBar ),
+			label: getLabel( 30, 'days' ),
+			value: status !== 'on' || ! hasPlan ? 0 : thirtyDayStats,
+		} ),
+		[ defaultArgs, getIcon, getLabel, status, hasPlan, thirtyDayStats ]
+	);
 
 	return (
 		<div className={ styles[ 'stat-card-wrapper' ] }>
