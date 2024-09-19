@@ -38,7 +38,7 @@ function videopress_is_valid_guid( $guid ) {
  * @return array [ html_id, count ]
  */
 function get_videopress_html_id( $guid ) {
-	static $videopress_shown_video;
+	static $videopress_shown_video = array();
 
 	if ( ! isset( $videopress_shown_video[ $guid ] ) ) {
 		$videopress_shown_video[ $guid ] = 1;
