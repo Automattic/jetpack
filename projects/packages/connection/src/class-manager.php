@@ -88,6 +88,13 @@ class Manager {
 	private static $is_connected = null;
 
 	/**
+	 * Tracks whether connection status invalidation hooks have been added.
+	 *
+	 * @var bool
+	 */
+	private static $connection_invalidators_added = false;
+
+	/**
 	 * Initialize the object.
 	 * Make sure to call the "Configure" first.
 	 *
@@ -170,6 +177,10 @@ class Manager {
 	 * Adds hooks to invalidate the memoized connection status.
 	 */
 	private function add_connection_status_invalidation_hooks() {
+		if ( self::$connection_invalidators_added ) {
+			return;
+		}
+
 		// Force is_connected() to recompute after important actions.
 		add_action( 'jetpack_site_registered', array( $this, 'reset_connection_status' ) );
 		add_action( 'jetpack_site_disconnected', array( $this, 'reset_connection_status' ) );
@@ -179,6 +190,8 @@ class Manager {
 		add_action( 'pre_update_jetpack_option_user_token', array( $this, 'reset_connection_status' ) );
 		add_action( 'pre_update_jetpack_option_user_tokens', array( $this, 'reset_connection_status' ) );
 		add_action( 'switch_blog', array( $this, 'reset_connection_status' ) );
+
+		self::$connection_invalidators_added = true;
 	}
 
 	/**
@@ -621,6 +634,10 @@ class Manager {
 	 */
 	public function is_connected() {
 		if ( self::$is_connected === null ) {
+			if ( ! self::$connection_invalidators_added ) {
+				$this->add_connection_status_invalidation_hooks();
+			}
+
 			$has_blog_id = (bool) \Jetpack_Options::get_option( 'id' );
 			if ( $has_blog_id ) {
 				$has_blog_token     = (bool) $this->get_tokens()->get_access_token();
