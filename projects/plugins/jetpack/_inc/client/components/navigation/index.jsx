@@ -17,6 +17,7 @@ import {
 	userCanManageModules as _userCanManageModules,
 	userCanViewStats as _userCanViewStats,
 	getPurchaseToken,
+	getSiteAdminUrl,
 } from 'state/initial-state';
 import { isModuleActivated as _isModuleActivated } from 'state/modules';
 import { getNonViewedRecommendationsCount } from 'state/recommendations';
@@ -70,16 +71,28 @@ export class Navigation extends React.Component {
 
 	render() {
 		let navTabs;
+		const redirectUri = `redirect_to=${ this.props.adminUrl }admin.php?page=jetpack`;
+		const purchaseToken = this.props.purchaseToken
+			? `&purchasetoken=${ this.props.purchaseToken }`
+			: '';
+		// If the user is not connected, this query will trigger a connection after checkout flow.
+		const connectQuery = this.props.isLinked
+			? ''
+			: `&connect_after_checkout=true&from_site_slug=${ this.props.siteUrl }&admin_url=${ this.props.adminUrl }`;
+		const query = `${ redirectUri }${ purchaseToken }${ connectQuery }`;
 
-		const jetpackPlansPath = getRedirectUrl(
-			this.props.hasConnectedOwner ? 'jetpack-plans' : 'jetpack-nav-site-only-plans',
-			{
-				site: this.props.blogID ?? this.props.siteUrl,
-				...( this.props.purchaseToken
-					? { query: `purchasetoken=${ this.props.purchaseToken }` }
-					: {} ),
-			}
+		let jetpackPlansPath = getRedirectUrl(
+			this.props.hasConnectedOwner ? 'jetpack-plans' : 'jetpack-nav-plans-no-site',
+			{ query }
 		);
+
+		// If the user is not connected, we want to remove the site query parameter from the URL.
+		// The pricing page sends the user to a list of sites rather than checkout if a site is in context
+		// and the user is not connected to the site.
+		// This is hacky, but we are deprecating the dashboard soon so it's not worth the effort for a more robust fix.
+		if ( ! this.props.isLinked ) {
+			jetpackPlansPath = jetpackPlansPath.replace( /&site=\d+/, '' );
+		}
 
 		if ( this.props.userCanManageModules ) {
 			navTabs = (
@@ -178,6 +191,7 @@ export default connect( state => {
 		showRecommendations: showRecommendations( state ),
 		newRecommendationsCount: getNonViewedRecommendationsCount( state ),
 		siteUrl: getSiteRawUrl( state ),
+		adminUrl: getSiteAdminUrl( state ),
 		purchaseToken: getPurchaseToken( state ),
 	};
 } )( withRouter( Navigation ) );
