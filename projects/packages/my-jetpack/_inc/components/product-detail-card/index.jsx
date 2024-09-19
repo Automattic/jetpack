@@ -327,11 +327,6 @@ const ProductDetailCard = ( {
 							) }
 						</div>
 						<Text className={ styles[ 'price-description' ] }>{ priceDescription }</Text>
-						{ introductoryOffer?.reason && (
-							<Text className={ styles[ 'price-note' ] }>
-								{ __( '* Not eligible for introductory discount', 'jetpack-my-jetpack' ) }
-							</Text>
-						) }
 					</>
 				) }
 
