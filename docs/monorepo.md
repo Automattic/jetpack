@@ -208,7 +208,24 @@ We use eslint and phpcs to lint JavaScript and PHP code. Projects should comply 
 
 We use Phan for PHP static analysis.[^1] Configuration for a project resides in the `.phan/config.php` within the project, which should generally build on top of the `.phan/config.base.php` from the monorepo root. A baseline file may also reside at `.phan/baseline.php` to allow for incremental fixing of errors.
 
-Phan in the monorepo should be run locally via [Jetpack's CLI tool](#first-time) as `jetpack phan`. Note that Phan soft-requires the [PHP ast extension](https://pecl.php.net/package/ast); while on Linux installing this is likely as easy as `sudo apt-get install php8.2-ast`, Mac users have reported having trouble.
+Phan in the monorepo should be run locally via [Jetpack's CLI tool](#first-time) as `jetpack phan`. Note that Phan soft-requires the [PHP ast extension](https://pecl.php.net/package/ast).
+
+#### Installing PHP ast extension on Linux
+
+On most Linux distributions, you can install the PHP ast extension using your package manager:
+
+- For Ubuntu/Debian-based systems:
+  ```
+  sudo apt-get install php8.2-ast
+  ```
+- For Arch Linux:
+  Install the AUR package "php-ast" from https://aur.archlinux.org/packages/php-ast
+
+For other Linux distributions, consult your package manager's documentation or consider compiling from source.
+
+#### Installing PHP ast extension on Mac
+
+Mac users have reported having trouble installing the PHP ast extension. See the dropdown below for Mac-specific instructions.
 
 <details><summary>Instructions for Mac users</summary>
 
@@ -234,6 +251,8 @@ This assumes you have PHP installed via Homebrew, e.g. you've done `brew install
       * Or else, pecl probably added `extension=ast.so` to an ini file somewhere. You could change the `ast.so` value to be the full path inside pecl's directory.
 
 </details>
+
+#### Alternatives to installing the ast extension
 
 Alternatives, if you can't install the ast extension, include running Phan with the `--allow-polyfill-parser` option (note this may cause false positives and cannot be used to update baseline files) or running Phan inside the [Docker development environment](../tools/docker/README.md).
 
