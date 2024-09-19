@@ -4,6 +4,7 @@ import { __ } from '@wordpress/i18n';
 import { useCallback, useContext } from 'react';
 import { NoticeContext } from '../../context/notices/noticeContext';
 import { NOTICE_SITE_CONNECTED } from '../../context/notices/noticeTemplates';
+import useProductsByOwnership from '../../data/products/use-products-by-ownership';
 import useAnalytics from '../../hooks/use-analytics';
 import sideloadTracks from '../../utils/side-load-tracks';
 import styles from './style.module.scss';
@@ -34,6 +35,7 @@ const ConnectionStep = ( {
 	const { setNotice, resetNotice } = useContext( NoticeContext );
 
 	const activationButtonLabel = __( 'Activate Jetpack in one click', 'jetpack-my-jetpack' );
+	const { refetch: refetchOwnershipData } = useProductsByOwnership();
 
 	const onConnectSiteClick = useCallback( async () => {
 		recordEvent( 'jetpack_myjetpack_welcome_banner_connect_site_click' );
@@ -58,10 +60,18 @@ const ConnectionStep = ( {
 		} finally {
 			resetNotice();
 			setNotice( NOTICE_SITE_CONNECTED, resetNotice );
+			refetchOwnershipData();
 
 			onUpdateWelcomeFlowExperiment( state => ( { ...state, isLoading: false } ) );
 		}
-	}, [ onActivateSite, onUpdateWelcomeFlowExperiment, recordEvent, resetNotice, setNotice ] );
+	}, [
+		onActivateSite,
+		onUpdateWelcomeFlowExperiment,
+		recordEvent,
+		refetchOwnershipData,
+		resetNotice,
+		setNotice,
+	] );
 
 	return (
 		<>
