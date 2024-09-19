@@ -51,4 +51,26 @@ final class WafBlocklogManagerTest extends PHPUnit\Framework\TestCase {
 		$result = Waf_Blocklog_Manager::increment_daily_summary( $value );
 		$this->assertEquals( 2, $result[ $today ] );
 	}
+
+	/**
+	 * Test filtering of the daily summary stats.
+	 */
+	public function testFilterLast30Days() {
+		// Generate stats data with dates from 35 days ago to 5 days in the future
+		$stats = array();
+		for ( $i = -35; $i <= 5; $i++ ) {
+			$date           = gmdate( 'Y-m-d', strtotime( "$i days" ) );
+			$stats[ $date ] = "data for $date";
+		}
+
+		// Generate expected data with dates from 30 days ago to today
+		$expected_stats = array();
+		for ( $i = -30; $i <= 0; $i++ ) {
+			$date                    = gmdate( 'Y-m-d', strtotime( "$i days" ) );
+			$expected_stats[ $date ] = "data for $date";
+		}
+
+		$filtered_stats = Waf_Blocklog_Manager::filter_last_30_days( $stats );
+		$this->assertEquals( $expected_stats, $filtered_stats );
+	}
 }

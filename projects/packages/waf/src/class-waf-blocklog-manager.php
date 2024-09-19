@@ -23,6 +23,15 @@ class Waf_Blocklog_Manager {
 	private static $db_connection = null;
 
 	/**
+	 * Gets the path to the waf-blocklog file.
+	 *
+	 * @return string The waf-blocklog file path.
+	 */
+	public static function get_blocklog_file_path() {
+		return trailingslashit( JETPACK_WAF_DIR ) . 'waf-blocklog';
+	}
+
+	/**
 	 * Connect to WordPress database.
 	 *
 	 * @return \mysqli|null
@@ -33,7 +42,7 @@ class Waf_Blocklog_Manager {
 		}
 
 		if ( ! file_exists( JETPACK_WAF_WPCONFIG ) ) {
-			return;
+			return null;
 		}
 
 		require_once JETPACK_WAF_WPCONFIG;
@@ -54,7 +63,7 @@ class Waf_Blocklog_Manager {
 	 *
 	 * @return void
 	 */
-	public static function close_db_connection() {
+	private static function close_db_connection() {
 		if ( self::$db_connection ) {
 			self::$db_connection->close();
 			self::$db_connection = null;
@@ -109,6 +118,8 @@ class Waf_Blocklog_Manager {
 	 * Write block logs to database.
 	 *
 	 * @param array $log_data Log data.
+	 *
+	 * @return void
 	 */
 	private static function write_blocklog_row( $log_data ) {
 		$conn = self::connect_to_wordpress_db();
@@ -162,6 +173,7 @@ class Waf_Blocklog_Manager {
 	 * Increments the current date's daily summary stat.
 	 *
 	 * @param array $current_value The current value of the daily summary.
+	 *
 	 * @return array The updated daily summary.
 	 */
 	public static function increment_daily_summary( array $current_value ) {
@@ -176,9 +188,10 @@ class Waf_Blocklog_Manager {
 	 * Update the daily summary option in the database.
 	 *
 	 * @param array $value The value to update.
+	 *
 	 * @return void
 	 */
-	private static function update_daily_summary( array $value ) {
+	private static function write_daily_summary_row( array $value ) {
 		global $table_prefix;
 		$option_name = self::BLOCKLOG_OPTION_NAME_DAILY_SUMMARY;
 
@@ -201,12 +214,12 @@ class Waf_Blocklog_Manager {
 	 *
 	 * @return void
 	 */
-	private static function write_daily_summary_row() {
+	private static function write_daily_summary() {
 		$stats = self::get_daily_summary();
 		$stats = self::increment_daily_summary( $stats );
 		$stats = self::filter_last_30_days( $stats );
 
-		self::update_daily_summary( $stats );
+		self::write_daily_summary_row( $stats );
 	}
 
 	/**
@@ -243,8 +256,10 @@ class Waf_Blocklog_Manager {
 	 * @param int $value The value to update.
 	 * @return void
 	 */
-	private static function update_all_time_block_count( int $value ) {
+	private static function write_all_time_block_count_row( int $value ) {
 		global $table_prefix;
+		$option_name = self::BLOCKLOG_OPTION_NAME_ALL_TIME_BLOCK_COUNT;
+
 		$db_connection = self::connect_to_wordpress_db();
 		if ( ! $db_connection ) {
 			return;
@@ -262,24 +277,26 @@ class Waf_Blocklog_Manager {
 	 *
 	 * @return void
 	 */
-	public static function write_all_time_block_count_row() {
+	private static function write_all_time_block_count() {
 		$block_count = self::get_all_time_block_count_value() ?? self::get_default_all_time_stat_value();
-		self::update_all_time_block_count( $block_count + 1 );
+		self::write_all_time_block_count_row( $block_count + 1 );
 	}
 
 	/**
 	 * Filters the stats to retain only data for the last 30 days.
 	 *
 	 * @param array $stats The array of stats to prune.
+	 *
 	 * @return array Pruned stats array.
 	 */
 	public static function filter_last_30_days( array $stats ) {
+		$today         = gmdate( 'Y-m-d' );
 		$one_month_ago = gmdate( 'Y-m-d', strtotime( '-30 days' ) );
 
 		return array_filter(
 			$stats,
-			function ( $date ) use ( $one_month_ago ) {
-				return $date >= $one_month_ago;
+			function ( $date ) use ( $one_month_ago, $today ) {
+				return $date >= $one_month_ago && $date <= $today;
 			},
 			ARRAY_FILTER_USE_KEY
 		);
@@ -330,6 +347,8 @@ class Waf_Blocklog_Manager {
 
 	/**
 	 * Compute the initial all-time stats value.
+	 *
+	 * @return int The initial all-time stats value.
 	 */
 	private static function get_default_all_time_stat_value() {
 		$conn = self::connect_to_wordpress_db();
@@ -355,6 +374,8 @@ class Waf_Blocklog_Manager {
 
 	/**
 	 * Get the headers for logging purposes.
+	 *
+	 * @return array The headers.
 	 */
 	public static function get_request_headers() {
 		$all_headers     = getallheaders();
@@ -408,18 +429,9 @@ class Waf_Blocklog_Manager {
 			}
 		}
 
-		self::write_daily_summary_row();
-		self::write_all_time_block_count_row();
+		self::write_daily_summary();
+		self::write_all_time_block_count();
 		self::write_blocklog_row( $log_data );
 		self::close_db_connection();
-	}
-
-	/**
-	 * Gets the path to the waf-blocklog file.
-	 *
-	 * @return string The waf-blocklog file path.
-	 */
-	public static function get_blocklog_file_path() {
-		return trailingslashit( JETPACK_WAF_DIR ) . 'waf-blocklog';
 	}
 }
