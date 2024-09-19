@@ -1,7 +1,6 @@
 import { Modal } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { useEffect, useRef, useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
 import React from 'react';
 import {
 	START_WRITING_FLOW,
@@ -12,8 +11,6 @@ import {
 	useShouldShowFirstPostPublishedModal,
 } from '../../../../common/tour-kit';
 import { wpcomTrackEvent } from '../../../../common/tracks';
-import FormInputCheckbox from './form-checkbox';
-import FormLabel from './form-label';
 import SuggestedTags from './suggested-tags';
 import useSharingModalDismissed from './use-sharing-modal-dismissed';
 
@@ -94,18 +91,12 @@ const SharingModalInner: React.FC = () => {
 			onRequestClose={ closeModal }
 		>
 			<div className="wpcom-block-editor-post-published-sharing-modal__inner">
-				<SuggestedTags setShouldShowSuggestedTags={ setShouldShowSuggestedTags } />
-				<div className="wpcom-block-editor-post-published-sharing-modal__checkbox-section">
-					<FormLabel htmlFor="toggle" className="is-checkbox">
-						<FormInputCheckbox
-							id="toggle"
-							onChange={ () => {
-								updateIsDismissed( ! isDismissed );
-							} }
-						/>
-						<span>{ __( "Don't show again", 'jetpack-mu-wpcom' ) }</span>
-					</FormLabel>
-				</div>
+				<SuggestedTags
+					setShouldShowSuggestedTags={ setShouldShowSuggestedTags }
+					onDontShowAgainChange={ () => {
+						updateIsDismissed( ! isDismissed );
+					} }
+				/>
 			</div>
 		</Modal>
 	);
