@@ -210,9 +210,7 @@ We use Phan for PHP static analysis.[^1] Configuration for a project resides in 
 
 Phan in the monorepo should be run locally via [Jetpack's CLI tool](#first-time) as `jetpack phan`. Note that Phan soft-requires the [PHP ast extension](https://pecl.php.net/package/ast).
 
-#### Installing PHP ast extension on Linux
-
-<details><summary>Instructions for Linux users</summary>
+<details><summary>Installing the PHP ast extension on Linux</summary>
 
 On most Linux distributions, you can install the PHP ast extension using your package manager:
 
@@ -227,11 +225,9 @@ For other Linux distributions, consult your package manager's documentation or c
 
 </details>
 
-#### Installing PHP ast extension on Mac
-
 Mac users have reported having trouble installing the PHP ast extension. See the dropdown below for Mac-specific instructions.
 
-<details><summary>Instructions for Mac users</summary>
+<details><summary>Installing the PHP ast extension on Mac</summary>
 
 This assumes you have PHP installed via Homebrew, e.g. you've done `brew install php@8.2`.
 
@@ -255,8 +251,6 @@ This assumes you have PHP installed via Homebrew, e.g. you've done `brew install
       * Or else, pecl probably added `extension=ast.so` to an ini file somewhere. You could change the `ast.so` value to be the full path inside pecl's directory.
 
 </details>
-
-#### Alternatives to installing the ast extension
 
 Alternatives, if you can't install the ast extension, include running Phan with the `--allow-polyfill-parser` option (note this may cause false positives and cannot be used to update baseline files) or running Phan inside the [Docker development environment](../tools/docker/README.md).
 
