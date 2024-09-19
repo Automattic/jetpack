@@ -47,7 +47,7 @@ export default function useAICheckout(): {
 				query: `redirect_to=${ encodeURIComponent( wpcomRedirectToURL ) }`,
 		  } );
 
-	const jetpackRedirectToURL = `${ window?.Jetpack_Editor_Initial_State?.adminUrl }admin.php?page=my-jetpack#/jetpack-ai`;
+	const jetpackRedirectToURL = `admin.php?page=my-jetpack#/jetpack-ai`;
 	const jetpackCheckoutUrl = getRedirectUrl( 'jetpack-ai-yearly-tier-upgrade-nudge', {
 		site: getSiteFragment() as string,
 		path: 'jetpack_ai_yearly',

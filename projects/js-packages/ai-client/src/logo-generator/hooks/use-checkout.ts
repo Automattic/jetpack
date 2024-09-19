@@ -35,7 +35,7 @@ export const useCheckout = () => {
 	const redirectToURL =
 		isAtomicSite() || isSimpleSite()
 			? `https://wordpress.com/home/${ siteFragment }`
-			: `${ window?.Jetpack_Editor_Initial_State?.adminUrl }admin.php?page=my-jetpack#/jetpack-ai`;
+			: `admin.php?page=my-jetpack#/jetpack-ai`;
 
 	/**
 	 * Use the Jetpack redirect URL to open the checkout page
