@@ -125,6 +125,32 @@ export class JetpackFormHandler extends BlockHandler {
 		}
 	}
 
+	public getCustomPlaceholder(): string {
+		const content = this.getContent();
+
+		if ( ! content ) {
+			// If the block is empty, return a random example for creating a form.
+			const createExamples = [
+				__( 'Example: a contact form with name, email, and message fields', 'jetpack' ),
+				__(
+					'Example: a pizza ordering form with name, address, phone number and toppings',
+					'jetpack'
+				),
+				__( 'Example: a survey form with multiple choice questions', 'jetpack' ),
+			];
+
+			return createExamples[ Math.floor( Math.random() * createExamples.length ) ];
+		}
+		// If the block has content, return a random example for editing a form.
+		const editExamples = [
+			__( 'Example: remove email field', 'jetpack' ),
+			__( 'Example: make email optional', 'jetpack' ),
+			__( 'Example: add message field and make it required', 'jetpack' ),
+		];
+
+		return editExamples[ Math.floor( Math.random() * editExamples.length ) ];
+	}
+
 	public getContent() {
 		const block = this.getBlock();
 		if ( ! block ) {
