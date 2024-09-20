@@ -527,7 +527,7 @@ const FirewallPage = () => {
 							{ jetpackWafIpAllowListEnabled && (
 								<Text variant="body-extra-small" mt={ 1 }>
 									{ __(
-										'IPv4 and IPv6 supported. Separate IPs with commas, spaces, or new lines. To specify a range, use CIDR notation (i.e. 12.12.12.0/24) or enter the low value and high value separated by a dash (i.e.12.12.12.0–12.12.12.255).',
+										'IPv4 and IPv6 supported. Separate IPs with commas, spaces, or new lines. To specify a range, use CIDR notation (i.e. 12.12.12.0/24) or enter the low value and high value separated by a dash (i.e. 12.12.12.0–12.12.12.255).',
 										'jetpack-protect'
 									) }
 								</Text>
