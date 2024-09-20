@@ -59,6 +59,8 @@ class Jetpack_XMLRPC_Methods {
 	/**
 	 * Returns what features are enabled. Uses the slug of the modules files.
 	 *
+	 * @deprecated $$next-version$$
+	 * @see Jetpack_Core_Json_Api_Endpoints::get_features_enabled()
 	 * @return array
 	 */
 	public static function features_enabled() {

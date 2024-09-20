@@ -1224,4 +1224,17 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		$this->assertResponseStatus( 200, $response );
 		$this->assertResponseData( array( 'success' => true ), $response );
 	}
+
+	/**
+	 * Test the 'features/enabled' endpoint, unauthorized.
+	 *
+	 * @since $$next-version$$
+	 */
+	public function test_features_enabled_unauthorized() {
+		// Create REST request in JSON format and dispatch
+		$response = $this->create_and_get_request( 'features/enabled' );
+
+		$this->assertResponseStatus( 401, $response );
+		$this->assertResponseData( array( 'code' => 'invalid_permission_update_user_token' ), $response );
+	}
 } // class end
