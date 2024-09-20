@@ -1,7 +1,10 @@
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { TextareaControl } from '@wordpress/components';
+import { BaseControl, Button, Spinner, TextareaControl } from '@wordpress/components';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { useCallback, useRef } from 'react';
+import { store as socialStore } from '../../social-store';
+import Notice from '../notice';
 
 /**
  * Wrapper around a textbox to restrict the number of characters and
@@ -25,6 +28,14 @@ export default function MessageBoxControl( {
 	const { recordEvent } = useAnalytics();
 	const isFirstChange = useRef( true );
 
+	const shareTitleOnly = useSelect( select => select( socialStore ).isShareTitleOnlyEnabled(), [] );
+	const isUpdatingShareTitleOnly = useSelect(
+		select => select( socialStore ).isUpdatingShareTitleOnly(),
+		[]
+	);
+
+	const { updateShareTitleOnly } = useDispatch( socialStore );
+
 	const charactersRemaining = maxLength - message.length;
 
 	const handleChange = useCallback(
@@ -37,6 +48,31 @@ export default function MessageBoxControl( {
 		},
 		[ analyticsData, isFirstChange, onChange, recordEvent ]
 	);
+
+	const handleShareTitleOnlyToggle = useCallback( () => {
+		updateShareTitleOnly( false );
+	}, [ updateShareTitleOnly ] );
+
+	if ( shareTitleOnly ) {
+		return (
+			<BaseControl __nextHasNoMarginBottom={ true } label={ __( 'Message', 'jetpack' ) }>
+				<Notice type={ 'highlight' }>
+					{ __(
+						'Custom message is disabled when you have title-only sharing enabled.',
+						'jetpack'
+					) }
+					<br />
+					{ isUpdatingShareTitleOnly ? (
+						<Spinner />
+					) : (
+						<Button variant="link" onClick={ handleShareTitleOnlyToggle }>
+							{ __( 'Turn off', 'jetpack' ) }
+						</Button>
+					) }
+				</Notice>
+			</BaseControl>
+		);
+	}
 
 	return (
 		<TextareaControl

@@ -12,6 +12,7 @@ import { useSelect, useDispatch } from '@wordpress/data';
 import { useState, useCallback, useEffect, useRef } from '@wordpress/element';
 import React from 'react';
 import PricingPage from '../pricing-page';
+import ShareTitleOnlyToggle from '../share-title-only-toggle';
 import SocialImageGeneratorToggle from '../social-image-generator-toggle';
 import SocialModuleToggle from '../social-module-toggle';
 import SocialNotesToggle from '../social-notes-toggle';
@@ -91,6 +92,7 @@ const Admin = () => {
 					</AdminSectionHero>
 					<AdminSection>
 						<SocialModuleToggle />
+						{ isModuleEnabled && <ShareTitleOnlyToggle /> }
 						{ isModuleEnabled && <SocialNotesToggle disabled={ isUpdatingJetpackSettings } /> }
 						{ isModuleEnabled && isSocialImageGeneratorAvailable && (
 							<SocialImageGeneratorToggle disabled={ isUpdatingJetpackSettings } />
