@@ -224,7 +224,7 @@ class Utils {
 			return false; // Invalid CIDR notation if it doesn't contain exactly one '/'.
 		}
 
-		list( $ip, $prefix ) = $parts;
+		list( $ip, $netmask ) = $parts;
 
 		// Validate the IP address.
 		if ( ! filter_var( $ip, FILTER_VALIDATE_IP ) ) {
@@ -232,20 +232,13 @@ class Utils {
 		}
 
 		$ip_version = self::get_ip_version( $ip );
-
-		// Validate prefix length.
-		if ( $ip_version === 'ipv4' ) {
-			// For IPv4, the prefix length must be an integer between 0 and 32.
-			if ( ! ctype_digit( $prefix ) || $prefix < 0 || $prefix > 32 ) {
-				return false;
-			}
-		} elseif ( $ip_version === 'ipv6' ) {
-			// For IPv6, the prefix length must be an integer between 0 and 128.
-			if ( ! ctype_digit( $prefix ) || $prefix < 0 || $prefix > 128 ) {
-				return false;
-			}
-		} else {
+		if ( ! $ip_version ) {
 			return false; // Invalid IP address.
+		}
+
+		// Validate the netmask based on the IP version.
+		if ( ! self::validate_netmask( $netmask, $ip_version ) ) {
+			return false;
 		}
 
 		return true;
@@ -301,12 +294,6 @@ class Utils {
 		}
 		list( $range, $netmask ) = $cidr_parts;
 
-		// Ensure that $netmask is an integer
-		if ( ! ctype_digit( $netmask ) ) {
-			return false;
-		}
-		$netmask = (int) $netmask;
-
 		// Determine IP version
 		$ip_version = self::get_ip_version( $range );
 		if ( ! $ip_version ) {
@@ -318,17 +305,24 @@ class Utils {
 			return false; // Netmask out of range
 		}
 
-		return array( $range, $netmask );
+		return array( $range, (int) $netmask );
 	}
 
 	/**
 	 * Validates the netmask based on IP version.
 	 *
-	 * @param int    $netmask    Netmask value.
-	 * @param string $ip_version 'ipv4' or 'ipv6'.
+	 * @param string|int $netmask    Netmask value.
+	 * @param string     $ip_version 'ipv4' or 'ipv6'.
 	 * @return bool True if valid, false otherwise.
 	 */
 	public static function validate_netmask( $netmask, $ip_version ) {
+		// Ensure that $netmask is an integer
+		if ( ! ctype_digit( $netmask ) ) {
+			return false;
+		}
+		$netmask = (int) $netmask;
+
+		// Validate the netmask based on the IP version.
 		if ( $ip_version === 'ipv4' ) {
 			return ( $netmask >= 0 && $netmask <= 32 );
 		} elseif ( $ip_version === 'ipv6' ) {
