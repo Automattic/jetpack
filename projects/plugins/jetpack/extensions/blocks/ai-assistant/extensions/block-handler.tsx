@@ -92,4 +92,13 @@ export class BlockHandler {
 		__unstableMarkNextChangeAsNotPersistent();
 		replaceInnerBlocks( this.clientId, newBlock.innerBlocks );
 	}
+
+	/**
+	 * Produces a custom placeholder for the AI Assistant Input component.
+	 *
+	 * @return {string | null} the custom placeholder.
+	 */
+	public getCustomPlaceholder(): string | null {
+		return null;
+	}
 }
