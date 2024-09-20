@@ -60,8 +60,8 @@
 			cursor: pointer;
 		}
 
-		.wp-block-jetpack-subscriptions__button {
-			// Prevent white-space issues on Firefox
+		// Prevent white-space issues on Firefox
+		.wp-block-jetpack-subscriptions__button[contenteditable="true"] {
 			white-space: pre-wrap !important;
 		}
 
