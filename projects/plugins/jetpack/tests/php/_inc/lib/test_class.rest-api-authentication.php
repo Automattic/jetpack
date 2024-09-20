@@ -243,6 +243,50 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 	}
 
 	/**
+	 * @author darssen
+	 *
+	 * Test the 'features/available' endpoint authentication.
+	 *
+	 * @since $$next-version$$
+	 */
+	public function test_jetpack_rest_api_get_features_available_authentication_success() {
+		add_filter( 'pre_option_jetpack_private_options', array( $this, 'mock_jetpack_private_options' ), 10, 2 );
+		$token     = 'pretend_this_is_valid_blog_token:1:0';
+		$timestamp = (string) time();
+		$nonce     = 'testing123';
+		$body_hash = '';
+
+		$_GET['token']     = $token;
+		$_GET['timestamp'] = $timestamp;
+		$_GET['nonce']     = $nonce;
+		$_GET['body-hash'] = $body_hash;
+		$_GET['signature'] = base64_encode(
+			hash_hmac(
+				'sha1',
+				implode(
+					"\n",
+					array(
+						$token,
+						$timestamp,
+						$nonce,
+						$body_hash,
+						'GET',
+						'example.org',
+						'80',
+						'/jetpack/v4/features/available',
+						'qstest=yep',
+					)
+				) . "\n",
+				'secret_blog',
+				true
+			)
+		);
+		$this->request     = new WP_REST_Request( 'GET', '/jetpack/v4/features/available' );
+		$response          = $this->server->dispatch( $this->request );
+		$this->assertEquals( 200, $response->get_status() );
+	}
+
+	/**
 	 * @author jnylen0
 	 */
 	public function test_jetpack_rest_api_post_authentication_fail_bad_signature() {
@@ -463,50 +507,6 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 		$this->assertEquals( 'rest_invalid_param', $data['code'] );
 		$this->assertEquals( 'modules must be a list of valid modules', $data['data']['params']['modules'] );
 		$this->assertEquals( self::$admin_id, get_current_user_id() );
-	}
-
-	/**
-	 * @author darssen
-	 *
-	 * Test the 'features/available' endpoint authentication.
-	 *
-	 * @since $$next-version$$
-	 */
-	public function test_features_available_authentication_success() {
-		add_filter( 'pre_option_jetpack_private_options', array( $this, 'mock_jetpack_private_options' ), 10, 2 );
-		$token     = 'pretend_this_is_valid_blog_token:1:0';
-		$timestamp = (string) time();
-		$nonce     = 'testing123';
-		$body_hash = '';
-
-		$_GET['token']     = $token;
-		$_GET['timestamp'] = $timestamp;
-		$_GET['nonce']     = $nonce;
-		$_GET['body-hash'] = $body_hash;
-		$_GET['signature'] = base64_encode(
-			hash_hmac(
-				'sha1',
-				implode(
-					"\n",
-					array(
-						$token,
-						$timestamp,
-						$nonce,
-						$body_hash,
-						'GET',
-						'example.org',
-						'80',
-						'/jetpack/v4/features/available',
-						'qstest=yep',
-					)
-				) . "\n",
-				'secret_blog',
-				true
-			)
-		);
-		$this->request     = new WP_REST_Request( 'GET', '/jetpack/v4/features/available' );
-		$response          = $this->server->dispatch( $this->request );
-		$this->assertEquals( 200, $response->get_status() );
 	}
 
 	public function mock_jetpack_private_options( $value, $option_name ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
