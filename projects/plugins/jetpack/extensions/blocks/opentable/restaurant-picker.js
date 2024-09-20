@@ -1,4 +1,4 @@
-import { Button, FormTokenField } from '@wordpress/components';
+import { Button, FormTokenField, Notice } from '@wordpress/components';
 import { useState } from '@wordpress/element';
 import { __, _n } from '@wordpress/i18n';
 import { isEmpty } from 'lodash';
@@ -8,7 +8,7 @@ const MAX_SUGGESTIONS = 20;
 
 export default function RestaurantPicker( props ) {
 	const [ input, setInput ] = useState( '' );
-	const restaurants = useRestaurantSearch( input, MAX_SUGGESTIONS );
+	const { restaurants, hasRequestFailed } = useRestaurantSearch( input, MAX_SUGGESTIONS );
 	const [ selectedRestaurants, setSelectedRestaurants ] = useState( props.rids || [] );
 
 	const idRegex = /^(\d+)$|\(\#(\d+)\)$/;
@@ -57,6 +57,14 @@ export default function RestaurantPicker( props ) {
 				</form>
 			) : (
 				formInput
+			) }
+			{ hasRequestFailed && (
+				<Notice status="error" isDismissible={ false }>
+					{ __(
+						"OpenTable can't find this restaurant right now. Please try again later.",
+						'jetpack'
+					) }
+				</Notice>
 			) }
 		</div>
 	);
