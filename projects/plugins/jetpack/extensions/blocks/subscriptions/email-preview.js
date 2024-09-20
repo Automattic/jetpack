@@ -323,7 +323,12 @@ export function NewsletterPreviewModal( { isOpen, onClose, postId } ) {
 						>
 							<Icon icon={ warning } />
 							<h3>{ __( 'Oops, something went wrong showing the preview…', 'jetpack' ) }</h3>
-							<Button onClick={ fetchPreview } variant="primary">
+							<Button
+								onClick={ () => {
+									fetchPreview( selectedAccess );
+								} }
+								variant="primary"
+							>
 								{ __( 'Try again', 'jetpack' ) }
 							</Button>
 						</VStack>
