@@ -282,10 +282,11 @@
 		},
 
 		toString: function () {
-			let hex = parseInt( this._color, 10 ).toString( 16 );
 			if ( this.error ) {
 				return '';
 			}
+
+			let hex = parseInt( this._color, 10 ).toString( 16 );
 			// maybe left pad it
 			if ( hex.length < 6 ) {
 				for ( let i = 6 - hex.length - 1; i >= 0; i-- ) {
