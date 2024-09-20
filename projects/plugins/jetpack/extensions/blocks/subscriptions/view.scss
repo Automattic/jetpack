@@ -60,6 +60,11 @@
 			cursor: pointer;
 		}
 
+		button {
+			// Prevent white-space issues on Firefox
+			white-space: pre-wrap !important;
+		}
+
 		input[type="email"]::placeholder,
 		input[type="email"]:disabled {
 			color: currentColor;
