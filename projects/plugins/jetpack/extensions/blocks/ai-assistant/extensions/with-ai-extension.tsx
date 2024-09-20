@@ -123,7 +123,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			onSuggestion: onBlockSuggestion,
 			onDone: onBlockDone,
 			getContent,
-			getCustomPlaceholder,
+			getExtensionInputPlaceholder,
 			behavior,
 			isChildBlock,
 			feature,
@@ -132,7 +132,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			hideOnBlockFocus,
 		} = useMemo( () => getBlockHandler( blockName, clientId ), [ blockName, clientId ] );
 
-		const customPlaceholder = getCustomPlaceholder();
+		const customPlaceholder = getExtensionInputPlaceholder();
 
 		// State to display the AI Control or not.
 		const [ showAiControl, setShowAiControl ] = useState( startOpen );

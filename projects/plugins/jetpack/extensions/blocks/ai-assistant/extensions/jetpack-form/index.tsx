@@ -125,7 +125,7 @@ export class JetpackFormHandler extends BlockHandler {
 		}
 	}
 
-	public getCustomPlaceholder(): string {
+	public getExtensionInputPlaceholder(): string {
 		const content = this.getContent();
 
 		if ( ! content ) {

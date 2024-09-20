@@ -98,7 +98,7 @@ export class BlockHandler {
 	 *
 	 * @return {string | null} the custom placeholder.
 	 */
-	public getCustomPlaceholder(): string | null {
+	public getExtensionInputPlaceholder(): string | null {
 		return null;
 	}
 }
