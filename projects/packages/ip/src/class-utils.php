@@ -317,7 +317,7 @@ class Utils {
 	 */
 	public static function validate_netmask( $netmask, $ip_version ) {
 		// Ensure that $netmask is an integer
-		if ( ! ctype_digit( $netmask ) ) {
+		if ( ! ctype_digit( (string) $netmask ) ) {
 			return false;
 		}
 		$netmask = (int) $netmask;
