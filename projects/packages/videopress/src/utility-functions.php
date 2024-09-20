@@ -29,25 +29,6 @@ function videopress_is_valid_guid( $guid ) {
 	}
 	return false;
 }
-/**
- * Get the HTML ID for a videopress videos.
- * So that we can link to it as a permalink on the page.
- *
- * @param string $guid video identifier.
- *
- * @return array [ html_id, count ]
- */
-function get_videopress_html_id( $guid ) {
-	static $videopress_shown_video = array();
-
-	if ( ! isset( $videopress_shown_video[ $guid ] ) ) {
-		$videopress_shown_video[ $guid ] = 1;
-	} else {
-		++$videopress_shown_video[ $guid ];
-	}
-
-	return array( "v-{$guid}-{$videopress_shown_video[ $guid ]}", $videopress_shown_video[ $guid ] );
-}
 
 /**
  * Validates user-supplied video preload setting.
