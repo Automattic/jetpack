@@ -1,0 +1,4 @@
+Significance: major
+Type: removed
+
+Connection: Removed features_enabled deprecated method
