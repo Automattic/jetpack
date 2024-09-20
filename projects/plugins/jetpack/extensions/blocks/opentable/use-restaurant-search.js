@@ -5,8 +5,11 @@ export const possibleEmbed = /^\s*(http[s]?:\/\/|\<script)/;
 
 export default function useRestaurantSearch( searchTerm, maxResults ) {
 	const [ restaurants, setRestaurants ] = useState( [] );
+	const [ hasRequestFailed, setHasRequestFailed ] = useState( false );
 
 	const searchRestaurants = ( input = '' ) => {
+		setHasRequestFailed( false );
+
 		fetch(
 			'https://www.opentable.com/widget/reservation/restaurant-search?pageSize=' +
 				maxResults +
@@ -14,9 +17,11 @@ export default function useRestaurantSearch( searchTerm, maxResults ) {
 				encodeURIComponent( input )
 		)
 			.then( result => result.json() )
-			.then( restaurantResponse =>
-				setRestaurants( unionBy( restaurants, restaurantResponse.items, 'rid' ) )
-			);
+			.then( restaurantResponse => {
+				setHasRequestFailed( false );
+				setRestaurants( unionBy( restaurants, restaurantResponse.items, 'rid' ) );
+			} )
+			.catch( () => setHasRequestFailed( true ) );
 	};
 
 	const throttledSearchRestaurants = useCallback( throttle( searchRestaurants, 500 ), [
@@ -29,5 +34,5 @@ export default function useRestaurantSearch( searchTerm, maxResults ) {
 		}
 	}, [ searchTerm ] );
 
-	return restaurants;
+	return { restaurants, hasRequestFailed };
 }
