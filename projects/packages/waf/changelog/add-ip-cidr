@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Firewall: add support for CIDR ranges in IP lists.

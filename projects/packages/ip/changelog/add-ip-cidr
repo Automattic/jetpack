@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+IP Utils: added support for CIDR ranges.
