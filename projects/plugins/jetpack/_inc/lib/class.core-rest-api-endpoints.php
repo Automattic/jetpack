@@ -4511,7 +4511,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'You do not have the correct user permissions to perform this action. Please contact your site admin if you think this is a mistake.',
 				'jetpack'
 			);
-			return new WP_Error( 'invalid_permission_update_user_token', $message, array( 'status' => rest_authorization_required_code() ) );
+			return new WP_Error( 'invalid_permission_fetch_features', $message, array( 'status' => rest_authorization_required_code() ) );
 		}
 
 		return true;
