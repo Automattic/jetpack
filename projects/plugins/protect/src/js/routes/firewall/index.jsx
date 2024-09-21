@@ -468,6 +468,14 @@ const FirewallPage = () => {
 							onChange={ handleChange }
 							disabled={ ! canEditFirewallSettings || ! ipBlockListEnabled }
 						/>
+						{ ipBlockListEnabled && (
+							<Text variant="body-extra-small" mt={ 1 }>
+								{ __(
+									'IPv4 and IPv6 supported. Separate IPs with commas, spaces, or new lines. To specify a range, use CIDR notation (i.e. 12.12.12.0/24) or enter the low value and high value separated by a dash (i.e. 12.12.12.0–12.12.12.255).',
+									'jetpack-protect'
+								) }
+							</Text>
+						) }
 					</div>
 				) }
 				{ ipBlockListEnabled && (
@@ -502,7 +510,7 @@ const FirewallPage = () => {
 					</Text>
 					<Text mb={ 1 }>
 						{ __(
-							'IP addresses added to this list are always allowed by Jetpack.',
+							'IP addresses added to this list are always allowed to access your site, regardless of any other Jetpack security settings.',
 							'jetpack-protect'
 						) }
 					</Text>
@@ -516,12 +524,14 @@ const FirewallPage = () => {
 								onChange={ handleChange }
 								disabled={ ! canEditIpAllowList }
 							/>
-							<Text variant="body-extra-small" mt={ 1 }>
-								{ __(
-									"Add IP addresses here to ensure they always have access to your site, regardless of Jetpack's security features.",
-									'jetpack-protect'
-								) }
-							</Text>
+							{ jetpackWafIpAllowListEnabled && (
+								<Text variant="body-extra-small" mt={ 1 }>
+									{ __(
+										'IPv4 and IPv6 supported. Separate IPs with commas, spaces, or new lines. To specify a range, use CIDR notation (i.e. 12.12.12.0/24) or enter the low value and high value separated by a dash (i.e. 12.12.12.0–12.12.12.255).',
+										'jetpack-protect'
+									) }
+								</Text>
+							) }
 						</div>
 					) }
 					{ jetpackWafIpAllowListEnabled && (
