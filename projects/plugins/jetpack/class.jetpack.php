@@ -5688,9 +5688,10 @@ endif;
 	 * @param bool $travis_test Is this a test run.
 	 *
 	 * @since 3.2
+	 * @since $$next-version$$ Default to not imploding. Requires a filter to enable. This may be temporary before dropping completely.
 	 */
 	public function implode_frontend_css( $travis_test = false ) {
-		$do_implode = true;
+		$do_implode = false;
 		if ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) {
 			$do_implode = false;
 		}
