@@ -79,7 +79,7 @@ const GlobalNotice = ( { message, title, options } ) => {
 export default function MyJetpackScreen() {
 	const [ welcomeFlowExperiment, setWelcomeFlowExperiment ] = useState( {
 		isLoading: false,
-		//variation: 'control',
+		//variation: 'control', // Temporarily set variation to 'treatment' for testing.
 		variation: 'treatment',
 	} );
 	useExperiment( 'explat_test_jetpack_implementation_aa_test' );

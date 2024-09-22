@@ -21,6 +21,28 @@ const EvaluationRecommendations: React.FC< Props > = ( { welcomeFlowExperimentVa
 		useEvaluationRecommendations();
 	const isTreatmentVariation = welcomeFlowExperimentVariation === 'treatment';
 
+	// We're defining each of these translations in separate variables here, otherwise optimizatuions in
+	// the build step end up breaking the translations and causing error.
+	const recommendationsHeadline = _n(
+		'Our recommendation for you',
+		'Our recommendations for you',
+		recommendedModules.length,
+		'jetpack-my-jetpack'
+	);
+	const recommendationsHeadlineTreatment = __( 'Recommended for your site', 'jetpack-my-jetpack' );
+	const menuRedoTitle = __( 'Redo', 'jetpack-my-jetpack' );
+	const menuRedoTitleTreatment = __( 'Customize recommendations', 'jetpack-my-jetpack' );
+	const menuDismissTitle = __( 'Dismiss', 'jetpack-my-jetpack' );
+	const menuDismissTitleTreatment = __( 'Close', 'jetpack-my-jetpack' );
+	const recommendationsRedoLink = __(
+		'Start over? <link>Analyze again for fresh recommendations</link>!',
+		'jetpack-my-jetpack'
+	);
+	const recommendationsRedoLinkTreatment = __(
+		'Find your perfect match by <link>letting us know what you’re looking for</link>!',
+		'jetpack-my-jetpack'
+	);
+
 	useEffect( () => {
 		recordEvent( 'jetpack_myjetpack_evaluation_recommendations_view', {
 			modules: recommendedModules,
@@ -34,13 +56,8 @@ const EvaluationRecommendations: React.FC< Props > = ( { welcomeFlowExperimentVa
 					<FlexItem>
 						<Text variant="headline-small" className={ styles.title }>
 							{ isTreatmentVariation && isFirstRun
-								? __( 'Recommended for your site', 'jetpack-my-jetpack' )
-								: _n(
-										'Our recommendation for you',
-										'Our recommendations for you',
-										recommendedModules.length,
-										'jetpack-my-jetpack'
-								  ) }
+								? recommendationsHeadlineTreatment
+								: recommendationsHeadline }
 						</Text>
 						{ ! isTreatmentVariation && (
 							<Text>
@@ -60,16 +77,14 @@ const EvaluationRecommendations: React.FC< Props > = ( { welcomeFlowExperimentVa
 							controls={ [
 								{
 									title:
-										isTreatmentVariation && isFirstRun
-											? __( 'Customize recommendations', 'jetpack-my-jetpack' )
-											: __( 'Redo', 'jetpack-my-jetpack' ),
+										isTreatmentVariation && isFirstRun ? menuRedoTitleTreatment : menuRedoTitle,
 									onClick: redoEvaluation,
 								},
 								{
 									title:
 										isTreatmentVariation && isFirstRun
-											? __( 'Close', 'jetpack-my-jetpack' )
-											: __( 'Dismiss', 'jetpack-my-jetpack' ),
+											? menuDismissTitleTreatment
+											: menuDismissTitle,
 									onClick: removeEvaluationResult,
 								},
 							] }
@@ -103,15 +118,7 @@ const EvaluationRecommendations: React.FC< Props > = ( { welcomeFlowExperimentVa
 						<FlexItem>
 							<Text variant="body">
 								{ createInterpolateElement(
-									isFirstRun
-										? __(
-												'Find your perfect match by <link>letting us know what you’re looking for</link>!',
-												'jetpack-my-jetpack'
-										  )
-										: __(
-												'Start over? <link>Analyze again for fresh recommendations</link>!',
-												'jetpack-my-jetpack'
-										  ),
+									isFirstRun ? recommendationsRedoLinkTreatment : recommendationsRedoLink,
 									{
 										link: (
 											<Button
