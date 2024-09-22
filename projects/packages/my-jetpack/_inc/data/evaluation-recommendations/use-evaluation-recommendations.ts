@@ -40,7 +40,7 @@ const useEvaluationRecommendations = () => {
 		const ownedProducts = (
 			process?.env?.NODE_ENV === 'development'
 				? [ 'anti-spam', 'creator', 'extras', 'stats', 'jetpack-ai' ]
-				: getMyJetpackWindowInitialState( 'lifecycleStats' )
+				: getMyJetpackWindowInitialState( 'lifecycleStats' )?.ownedProducts || []
 		) as JetpackModule[];
 		// We filter out owned modules, and return top 3 recommendations
 		return recommendedModules?.filter( module => ! ownedProducts.includes( module ) ).slice( 0, 3 );
