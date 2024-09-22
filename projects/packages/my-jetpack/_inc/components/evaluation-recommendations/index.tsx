@@ -1,19 +1,25 @@
 import { Container, Col, Text } from '@automattic/jetpack-components';
-import { DropdownMenu } from '@wordpress/components';
-import { Flex } from '@wordpress/components';
-import { FlexItem } from '@wordpress/components';
+import { Flex, FlexItem, DropdownMenu, Button } from '@wordpress/components';
+import { createInterpolateElement } from '@wordpress/element';
 import { __, _n } from '@wordpress/i18n';
 import { moreHorizontalMobile } from '@wordpress/icons';
 import { useEffect } from 'react';
 import useEvaluationRecommendations from '../../data/evaluation-recommendations/use-evaluation-recommendations';
 import useAnalytics from '../../hooks/use-analytics';
+import getPurchasePlanUrl from '../../utils/get-purchase-plan-url';
 import { JetpackModuleToProductCard } from '../product-cards-section/all';
 import styles from './style.module.scss';
+import type { WelcomeFlowExperiment } from '../welcome-flow';
 
-const EvaluationRecommendations: React.FC = () => {
+interface Props {
+	welcomeFlowExperimentVariation: WelcomeFlowExperiment[ 'variation' ];
+}
+
+const EvaluationRecommendations: React.FC< Props > = ( { welcomeFlowExperimentVariation } ) => {
 	const { recordEvent } = useAnalytics();
-	const { recommendedModules, redoEvaluation, removeEvaluationResult } =
+	const { recommendedModules, isFirstRun, redoEvaluation, removeEvaluationResult } =
 		useEvaluationRecommendations();
+	const isTreatmentVariation = welcomeFlowExperimentVariation === 'treatment';
 
 	useEffect( () => {
 		recordEvent( 'jetpack_myjetpack_evaluation_recommendations_view', {
@@ -27,19 +33,23 @@ const EvaluationRecommendations: React.FC = () => {
 				<Flex>
 					<FlexItem>
 						<Text variant="headline-small" className={ styles.title }>
-							{ _n(
-								'Our recommendation for you',
-								'Our recommendations for you',
-								recommendedModules.length,
-								'jetpack-my-jetpack'
-							) }
+							{ isTreatmentVariation && isFirstRun
+								? __( 'Recommended for your site', 'jetpack-my-jetpack' )
+								: _n(
+										'Our recommendation for you',
+										'Our recommendations for you',
+										recommendedModules.length,
+										'jetpack-my-jetpack'
+								  ) }
 						</Text>
-						<Text>
-							{ __(
-								'Here are the tools that we think will help you reach your website goals:',
-								'jetpack-my-jetpack'
-							) }
-						</Text>
+						{ ! isTreatmentVariation && (
+							<Text>
+								{ __(
+									'Here are the tools that we think will help you reach your website goals:',
+									'jetpack-my-jetpack'
+								) }
+							</Text>
+						) }
 					</FlexItem>
 					<FlexItem>
 						<DropdownMenu
@@ -49,11 +59,17 @@ const EvaluationRecommendations: React.FC = () => {
 							label={ __( 'Recommendations menu', 'jetpack-my-jetpack' ) }
 							controls={ [
 								{
-									title: __( 'Redo', 'jetpack-my-jetpack' ),
+									title:
+										isTreatmentVariation && isFirstRun
+											? __( 'Customize recommendations', 'jetpack-my-jetpack' )
+											: __( 'Redo', 'jetpack-my-jetpack' ),
 									onClick: redoEvaluation,
 								},
 								{
-									title: __( 'Dismiss', 'jetpack-my-jetpack' ),
+									title:
+										isTreatmentVariation && isFirstRun
+											? __( 'Close', 'jetpack-my-jetpack' )
+											: __( 'Dismiss', 'jetpack-my-jetpack' ),
 									onClick: removeEvaluationResult,
 								},
 							] }
@@ -81,6 +97,48 @@ const EvaluationRecommendations: React.FC = () => {
 					} ) }
 				</Container>
 			</Col>
+			{ isTreatmentVariation && (
+				<Col>
+					<Flex>
+						<FlexItem>
+							<Text variant="body">
+								{ createInterpolateElement(
+									isFirstRun
+										? __(
+												'Find your perfect match by <link>letting us know what you’re looking for</link>!',
+												'jetpack-my-jetpack'
+										  )
+										: __(
+												'Start over? <link>Analyze again for fresh recommendations</link>!',
+												'jetpack-my-jetpack'
+										  ),
+									{
+										link: (
+											<Button
+												variant="link"
+												className={ styles[ 'evaluation-footer-link' ] }
+												onClick={ redoEvaluation }
+											/>
+										),
+									}
+								) }
+							</Text>
+						</FlexItem>
+						<FlexItem>
+							<Text variant="body">
+								<Button
+									variant="link"
+									className={ styles[ 'evaluation-footer-link' ] }
+									href={ getPurchasePlanUrl() }
+									onClick={ null }
+								>
+									{ __( 'Explore all Jetpack plans', 'jetpack-my-jetpack' ) }
+								</Button>
+							</Text>
+						</FlexItem>
+					</Flex>
+				</Col>
+			) }
 		</Container>
 	);
 };

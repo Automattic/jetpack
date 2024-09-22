@@ -20,7 +20,16 @@ export type WelcomeFlowExperiment = {
 	variation: 'control' | 'treatment';
 };
 
-const WelcomeFlow: FC< PropsWithChildren > = ( { children } ) => {
+interface Props extends PropsWithChildren {
+	welcomeFlowExperiment: WelcomeFlowExperiment;
+	setWelcomeFlowExperiment: React.Dispatch< React.SetStateAction< WelcomeFlowExperiment > >;
+}
+
+const WelcomeFlow: FC< Props > = ( {
+	welcomeFlowExperiment,
+	setWelcomeFlowExperiment,
+	children,
+} ) => {
 	const { recordEvent } = useAnalytics();
 	const { dismissWelcomeBanner } = useWelcomeBanner();
 	const { recommendedModules, submitEvaluation, saveEvaluationResult } =
@@ -36,24 +45,25 @@ const WelcomeFlow: FC< PropsWithChildren > = ( { children } ) => {
 	} );
 	const [ isProcessingEvaluation, setIsProcessingEvaluation ] = useState( false );
 	const [ prevStep, setPrevStep ] = useState( '' );
-	const [ welcomeFlowExperiment, setWelcomeFlowExperiment ] = useState< WelcomeFlowExperiment >( {
-		isLoading: false,
-		variation: 'control',
-	} );
 
 	const currentStep = useMemo( () => {
 		if ( ! siteIsRegistered || welcomeFlowExperiment.isLoading ) {
 			return 'connection';
 		} else if ( ! isProcessingEvaluation ) {
-			if (
-				! recommendedModules &&
-				( welcomeFlowExperiment.variation === 'treatment' || ! isJetpackUserNew() )
-			) {
+			if ( ! recommendedModules && ! isJetpackUserNew() ) {
 				// If user is not new but doesn't have recommendations, we skip evaluation
 				// If user has recommendations, it means they redo the evaluation
 				return null;
 			}
-
+			// For the "treatment" experiment we immediately jump to the 'evaluation-processing' step if
+			// there are no `recommendedModules` loaded yet.
+			if (
+				'treatment' === welcomeFlowExperiment.variation &&
+				! recommendedModules &&
+				isJetpackUserNew()
+			) {
+				return 'evaluation-processing';
+			}
 			// Otherwise, it means user is either new or just repeats the recommendation
 			return 'evaluation';
 		}
@@ -108,10 +118,35 @@ const WelcomeFlow: FC< PropsWithChildren > = ( { children } ) => {
 	);
 
 	useEffect( () => {
+		// For the "treatment" experiment, when there are no `recommendedModules` loaded yet,
+		// we immediately submit some default evaluation data (on component mount).
+		if (
+			'treatment' === welcomeFlowExperiment.variation &&
+			! recommendedModules &&
+			isJetpackUserNew()
+		) {
+			handleEvaluation( {
+				protect: true,
+				performance: true,
+				audience: true,
+				content: true,
+				unsure: false,
+			} );
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [] );
+
+	useEffect( () => {
 		if ( ! currentStep ) {
 			dismissWelcomeBanner();
 		}
-	}, [ currentStep, dismissWelcomeBanner ] );
+	}, [
+		currentStep,
+		dismissWelcomeBanner,
+		handleEvaluation,
+		recommendedModules,
+		welcomeFlowExperiment.variation,
+	] );
 
 	if ( ! currentStep ) {
 		return null;

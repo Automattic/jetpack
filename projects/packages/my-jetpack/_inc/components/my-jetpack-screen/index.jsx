@@ -77,6 +77,11 @@ const GlobalNotice = ( { message, title, options } ) => {
  * @return {object} The MyJetpackScreen component.
  */
 export default function MyJetpackScreen() {
+	const [ welcomeFlowExperiment, setWelcomeFlowExperiment ] = useState( {
+		isLoading: false,
+		//variation: 'control',
+		variation: 'treatment',
+	} );
 	useExperiment( 'explat_test_jetpack_implementation_aa_test' );
 	useNotificationWatcher();
 	const { redBubbleAlerts } = getMyJetpackWindowInitialState();
@@ -143,7 +148,10 @@ export default function MyJetpackScreen() {
 				</Container>
 			) }
 			{ isWelcomeBannerVisible ? (
-				<WelcomeFlow>
+				<WelcomeFlow
+					welcomeFlowExperiment={ welcomeFlowExperiment }
+					setWelcomeFlowExperiment={ setWelcomeFlowExperiment }
+				>
 					{ noticeMessage && siteIsRegistered && (
 						<GlobalNotice
 							message={ noticeMessage }
@@ -165,7 +173,11 @@ export default function MyJetpackScreen() {
 					</Container>
 				)
 			) }
-			{ ! isWelcomeBannerVisible && isSectionVisible && <EvaluationRecommendations /> }
+			{ ! isWelcomeBannerVisible && isSectionVisible && (
+				<EvaluationRecommendations
+					welcomeFlowExperimentVariation={ welcomeFlowExperiment.variation }
+				/>
+			) }
 
 			<ProductCardsSection />
 
