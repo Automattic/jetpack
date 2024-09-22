@@ -1235,6 +1235,6 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		$response = $this->create_and_get_request( 'features/enabled' );
 
 		$this->assertResponseStatus( 401, $response );
-		$this->assertResponseData( array( 'code' => 'invalid_permission_update_user_token' ), $response );
+		$this->assertResponseData( array( 'code' => 'invalid_permission_fetch_features' ), $response );
 	}
 } // class end
