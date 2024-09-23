@@ -7,6 +7,7 @@
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager;
+use Automattic\Jetpack\Connection\Rest_Authentication;
 use Automattic\Jetpack\Status;
 
 require_once __DIR__ . '/json-api-config.php';
@@ -288,7 +289,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 	/**
 	 * REST namespace.
 	 */
-	const REST_NAMESPACE = 'rest/v1';
+	const REST_NAMESPACE = 'jetpack/rest';
 
 	/**
 	 * Constructor.
@@ -2648,8 +2649,9 @@ abstract class WPCOM_JSON_API_Endpoint {
 			static::REST_NAMESPACE,
 			$this->rest_route,
 			array(
-				'methods'  => $this->method,
-				'callback' => array( $this, 'rest_callback' ),
+				'methods'             => $this->method,
+				'callback'            => array( $this, 'rest_callback' ),
+				'permission_callback' => array( $this, 'rest_permission_callback' ),
 			)
 		);
 	}
@@ -2672,6 +2674,33 @@ abstract class WPCOM_JSON_API_Endpoint {
 			array( $this, 'callback' ),
 			array_values( array( $this->path, $blog_id ) + $request->get_url_params() )
 		);
+	}
+
+	/**
+	 * The REST endpoint should only be available for requests signed with a valid blog or user token.
+	 * Declaring it "final" so individual endpoints couldn't remove this requirement.
+	 *
+	 * @return true|WP_Error
+	 */
+	final public function rest_permission_callback() {
+		if ( Rest_Authentication::is_signed_with_blog_token() || Rest_Authentication::is_signed_with_user_token() ) {
+			return $this->rest_permission_callback_custom();
+		}
+
+		$message = esc_html__(
+			'You do not have the correct user permissions to perform this action. Please contact your site admin if you think this is a mistake.',
+			'jetpack'
+		);
+		return new WP_Error( 'rest_api_invalid_permission', $message, array( 'status' => rest_authorization_required_code() ) );
+	}
+
+	/**
+	 * Redefine in individual endpoint classes to further customize the permission check.
+	 *
+	 * @return true|WP_Error
+	 */
+	public function rest_permission_callback_custom() {
+		return true;
 	}
 
 	/**
