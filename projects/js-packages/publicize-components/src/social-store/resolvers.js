@@ -1,3 +1,4 @@
+import { siteHasFeature } from '@automattic/jetpack-script-data';
 import apiFetch from '@wordpress/api-fetch';
 import { store as editorStore } from '@wordpress/editor';
 import { getSocialScriptData } from '../utils/script-data';
@@ -75,7 +76,7 @@ export function getPostShareStatus( _postId ) {
 		const postId = _postId || registry.select( editorStore ).getCurrentPostId();
 		const { feature_flags } = getSocialScriptData();
 
-		if ( ! feature_flags.useShareStatus ) {
+		if ( ! feature_flags.useShareStatus && ! siteHasFeature( 'social-share-status' ) ) {
 			return;
 		}
 
