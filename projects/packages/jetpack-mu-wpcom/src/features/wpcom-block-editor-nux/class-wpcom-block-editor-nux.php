@@ -66,18 +66,18 @@ class WPCOM_Block_Editor_NUX {
 		);
 
 		/**
-		 * Enqueue the sharing modal options.
+		 * Enqueue the recommended tags modal options.
 		 */
-		$sharing_modal_options = wp_json_encode(
+		$recommended_tags_modal_options = wp_json_encode(
 			array(
-				'isDismissed' => WP_REST_WPCOM_Block_Editor_Sharing_Modal_Controller::get_wpcom_sharing_modal_dismissed(),
+				'isDismissed' => WP_REST_WPCOM_Block_Editor_Recommended_Tags_Modal_Controller::get_wpcom_recommended_tags_modal_dismissed(),
 			),
 			JSON_HEX_TAG | JSON_HEX_AMP
 		);
 
 		wp_add_inline_script(
 			$handle,
-			"var sharingModalOptions = $sharing_modal_options;",
+			"var recommendedTagsModalOptions = $recommended_tags_modal_options;",
 			'before'
 		);
 	}
@@ -102,9 +102,9 @@ class WPCOM_Block_Editor_NUX {
 		$video_celebration_modal_controller = new WP_REST_WPCOM_Block_Editor_Video_Celebration_Modal_Controller();
 		$video_celebration_modal_controller->register_rest_route();
 
-		require_once __DIR__ . '/class-wp-rest-wpcom-block-editor-sharing-modal-controller.php';
-		$sharing_modal_controller = new WP_REST_WPCOM_Block_Editor_Sharing_Modal_Controller();
-		$sharing_modal_controller->register_rest_route();
+		require_once __DIR__ . '/class-wp-rest-wpcom-block-editor-recommended-tags-modal-controller.php';
+		$recommended_tags_modal_controller = new WP_REST_WPCOM_Block_Editor_Recommended_Tags_Modal_Controller();
+		$recommended_tags_modal_controller->register_rest_route();
 	}
 }
 add_action( 'init', array( __NAMESPACE__ . '\WPCOM_Block_Editor_NUX', 'init' ) );
