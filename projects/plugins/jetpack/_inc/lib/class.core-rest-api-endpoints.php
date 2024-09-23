@@ -802,6 +802,21 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'permission_callback' => array( static::class, 'get_features_permission_check' ),
 			)
 		);
+
+		/**
+		 * Get the list of enabled Jetpack features.
+		 *
+		 * @since $$next-version$$
+		 */
+		register_rest_route(
+			'jetpack/v4',
+			'/features/enabled',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( static::class, 'get_features_enabled' ),
+				'permission_callback' => array( static::class, 'get_features_permission_check' ),
+			)
+		);
 	}
 
 	/**
@@ -4490,6 +4505,21 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 */
 	public static function get_features_available() {
 		$raw_modules = Jetpack::get_available_modules();
+		$modules     = array();
+		foreach ( $raw_modules as $module ) {
+			$modules[] = Jetpack::get_module_slug( $module );
+		}
+
+		return $modules;
+	}
+
+	/**
+	 * Returns what features are enabled. Uses the slug of the modules files.
+	 *
+	 * @return array
+	 */
+	public static function get_features_enabled() {
+		$raw_modules = Jetpack::get_active_modules();
 		$modules     = array();
 		foreach ( $raw_modules as $module ) {
 			$modules[] = Jetpack::get_module_slug( $module );
