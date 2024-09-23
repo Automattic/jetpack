@@ -789,6 +789,21 @@ class Jetpack_Core_Json_Api_Endpoints {
 		);
 
 		/**
+		 * Get the list of available Jetpack features.
+		 *
+		 * @since $$next-version$$
+		 */
+		register_rest_route(
+			'jetpack/v4',
+			'/features/available',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( static::class, 'get_features_available' ),
+				'permission_callback' => array( static::class, 'get_features_permission_check' ),
+			)
+		);
+
+		/**
 		 * Get the list of enabled Jetpack features.
 		 *
 		 * @since $$next-version$$
@@ -4481,6 +4496,21 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'data' => $data,
 			)
 		);
+	}
+
+	/**
+	 * Return the list of available features.
+	 *
+	 * @return array
+	 */
+	public static function get_features_available() {
+		$raw_modules = Jetpack::get_available_modules();
+		$modules     = array();
+		foreach ( $raw_modules as $module ) {
+			$modules[] = Jetpack::get_module_slug( $module );
+		}
+
+		return $modules;
 	}
 
 	/**
