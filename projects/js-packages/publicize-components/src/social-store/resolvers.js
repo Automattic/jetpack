@@ -82,8 +82,11 @@ export function getPostShareStatus( _postId ) {
 
 		try {
 			dispatch( fetchPostShareStatus( postId ) );
+
+			const path = getSocialScriptData().api_paths.shareStatus.replace( '{postId}', postId );
+
 			let result = await apiFetch( {
-				path: `jetpack/v4/social/share-status/${ postId }`,
+				path,
 			} );
 
 			result = normalizeShareStatus( result );
