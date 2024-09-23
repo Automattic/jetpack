@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Avoid showing missing connection notice if it was never established.
-
-

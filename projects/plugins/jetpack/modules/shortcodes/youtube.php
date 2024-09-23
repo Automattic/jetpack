@@ -560,7 +560,7 @@ add_action( 'init', 'wpcom_youtube_embed_crazy_url_init' );
 /**
  * Filters the oEmbed result before any HTTP requests are made for YouTube.
  *
- * @since $$next-version$$
+ * @since 13.9
  *
  * @param null|string $result The UNSANITIZED (and potentially unsafe) HTML that should be used to embed. Default null.
  * @param string      $url    The URL that should be inspected for discovery `<link>` tags.

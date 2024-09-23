@@ -247,7 +247,7 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 	 *
 	 * Test the 'features/available' endpoint authentication.
 	 *
-	 * @since $$next-version$$
+	 * @since 13.9
 	 */
 	public function test_jetpack_rest_api_get_features_available_authentication_success() {
 		add_filter( 'pre_option_jetpack_private_options', array( $this, 'mock_jetpack_private_options' ), 10, 2 );
@@ -291,7 +291,7 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 	 *
 	 * Test the 'features/enabled' endpoint authentication.
 	 *
-	 * @since $$next-version$$
+	 * @since 13.9
 	 */
 	public function test_jetpack_rest_api_get_features_enabled_authentication_success() {
 		add_filter( 'pre_option_jetpack_private_options', array( $this, 'mock_jetpack_private_options' ), 10, 2 );

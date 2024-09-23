@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Use React properties rather than pass-throughs (e.g. `className` rather than `class`).

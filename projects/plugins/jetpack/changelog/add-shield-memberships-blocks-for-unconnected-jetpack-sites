@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-[In administration] Do not register Memberships blocks when the site is not connected to Jetpack

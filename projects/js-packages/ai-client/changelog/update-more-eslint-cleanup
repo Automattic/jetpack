@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Logo generator: Get selection from the prompt's document rather than the global `window`.

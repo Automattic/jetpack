@@ -791,7 +791,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		/**
 		 * Get the list of available Jetpack features.
 		 *
-		 * @since $$next-version$$
+		 * @since 13.9
 		 */
 		register_rest_route(
 			'jetpack/v4',
@@ -806,7 +806,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		/**
 		 * Get the list of enabled Jetpack features.
 		 *
-		 * @since $$next-version$$
+		 * @since 13.9
 		 */
 		register_rest_route(
 			'jetpack/v4',
