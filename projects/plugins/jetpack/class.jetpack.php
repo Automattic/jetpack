@@ -5692,13 +5692,15 @@ endif;
 	 */
 	public function implode_frontend_css( $travis_test = false ) {
 		$do_implode = false;
-		if ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) {
-			$do_implode = false;
+		if ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
+			// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+			// $do_implode = false;
 		}
 
 		// Do not implode CSS when the page loads via the AMP plugin.
-		if ( class_exists( Jetpack_AMP_Support::class ) && Jetpack_AMP_Support::is_amp_request() ) {
-			$do_implode = false;
+		if ( class_exists( Jetpack_AMP_Support::class ) && Jetpack_AMP_Support::is_amp_request() ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
+			// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+			// $do_implode = false;
 		}
 
 		/*
@@ -5709,8 +5711,9 @@ endif;
 		$active_modules                = self::get_active_modules();
 		$modules_with_concatenated_css = $this->modules_with_concatenated_css;
 		$active_module_with_css_count  = count( array_intersect( $active_modules, $modules_with_concatenated_css ) );
-		if ( $active_module_with_css_count < 2 ) {
-			$do_implode = false;
+		if ( $active_module_with_css_count < 2 ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
+			// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+			// $do_implode = false;
 		}
 
 		/**
