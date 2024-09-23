@@ -63,10 +63,6 @@ const StatusBadge = ( { status } ) => (
 );
 
 const renderFixerStatus = ( isActiveFixInProgress, isStaleFixInProgress ) => {
-	if ( isActiveFixInProgress ) {
-		return <Spinner color="black" />;
-	}
-
 	if ( isStaleFixInProgress ) {
 		return (
 			<IconTooltip
@@ -89,6 +85,10 @@ const renderFixerStatus = ( isActiveFixInProgress, isStaleFixInProgress ) => {
 				) }
 			/>
 		);
+	}
+
+	if ( isActiveFixInProgress ) {
+		return <Spinner color="black" />;
 	}
 
 	return <Icon icon={ check } className={ styles[ 'icon-check' ] } size={ 28 } />;
