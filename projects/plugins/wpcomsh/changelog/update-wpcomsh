@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: maybe_redirect_to_calypso_plugin_pages: quick exit for minor performance gain
+
+

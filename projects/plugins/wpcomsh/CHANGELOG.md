@@ -1,5 +1,16 @@
 # Changelog
 
+## 5.9.0 - 2024-09-18
+### Changed
+- WPCOMSH: change call to so it doesn't trigger if not necessary [#39336]
+
+### Removed
+- Wpcomsh: Remove actions and filters related to the Masterbar module [#39367]
+
+### Fixed
+- Color Scheme: Avoid wpcom user data overriding the admin color after flushing cache [#39368]
+- WPCOM Features: Add INSTALL_THEMES feature to Jetpack sites so that they are not erroneously seeing the "upgrade" badge when looking at dotorg themes in the wordpress.com showcase [#39392]
+
 ## 5.8.0 - 2024-09-10
 ### Changed
 - Enable Users -> Profile (profile.php) on all sites [#39181]

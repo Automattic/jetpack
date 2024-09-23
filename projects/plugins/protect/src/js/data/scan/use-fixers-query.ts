@@ -1,11 +1,17 @@
 import { useConnection } from '@automattic/jetpack-connection';
 import { useQuery, useQueryClient, type UseQueryResult } from '@tanstack/react-query';
-import { __ } from '@wordpress/i18n';
-import { useEffect, useMemo } from 'react';
+import { __, _n, sprintf } from '@wordpress/i18n';
+import { useCallback, useEffect } from 'react';
 import API from '../../api';
 import { QUERY_FIXERS_KEY, QUERY_HISTORY_KEY, QUERY_SCAN_STATUS_KEY } from '../../constants';
+import { fixerTimestampIsStale } from '../../hooks/use-fixers';
 import useNotices from '../../hooks/use-notices';
 import { FixersStatus } from '../../types/fixers';
+
+const initialData: FixersStatus = window.jetpackProtectInitialState?.fixerStatus || {
+	ok: true,
+	threats: {},
+};
 
 /**
  * Fixers Query Hook
@@ -32,16 +38,33 @@ export default function useFixersQuery( {
 		skipUserConnection: true,
 	} );
 
-	// Memoize initialData to prevent recalculating on every render
-	const initialData: FixersStatus = useMemo(
-		() =>
-			window.jetpackProtectInitialState?.fixerStatus || {
-				ok: true,
-				threats: {},
-			},
-		[]
+	// Helper to show success or failure notices
+	const showBulkNotices = useCallback(
+		( failures: string[], successes: string[] ) => {
+			if ( failures.length > 0 ) {
+				// Translators: %d is the number of threats, and %s is a list of threat IDs.
+				const failureMessage = _n(
+					'A threat could not be fixed.',
+					'%d threats could not be fixed.',
+					failures.length,
+					'jetpack-protect'
+				);
+				showErrorNotice( sprintf( failureMessage, failures.length ) );
+			} else if ( successes.length > 0 ) {
+				// Translators: %d is the number of threats, and %s is a list of threat IDs.
+				const successMessage = _n(
+					'Threat fixed successfully.',
+					'%d threats fixed successfully.',
+					successes.length,
+					'jetpack-protect'
+				);
+				showSuccessNotice( sprintf( successMessage, successes.length ) );
+			}
+		},
+		[ showErrorNotice, showSuccessNotice ]
 	);
 
+	// Main query function to fetch fixer status
 	const fixersQuery = useQuery( {
 		queryKey: [ QUERY_FIXERS_KEY ],
 		queryFn: async () => {
@@ -51,29 +74,39 @@ export default function useFixersQuery( {
 				| FixersStatus
 				| undefined;
 
-			// Check if any fixers have completed, by comparing the latest data against the cache.
-			Object.keys( data?.threats ).forEach( ( threatId: string ) => {
-				// Find the specific threat in the cached data.
-				const threat = data?.threats[ threatId ];
+			const successes: string[] = [];
+			const failures: string[] = [];
+
+			Object.keys( data?.threats || {} ).forEach( threatId => {
+				const threat = data.threats[ threatId ];
 				const cachedThreat = cachedData?.threats?.[ threatId ];
 
-				if (
-					cachedThreat &&
-					cachedThreat.status === 'in_progress' &&
-					threat.status !== 'in_progress'
-				) {
-					// Invalidate related queries when a fixer has completed.
-					queryClient.invalidateQueries( { queryKey: [ QUERY_SCAN_STATUS_KEY ] } );
-					queryClient.invalidateQueries( { queryKey: [ QUERY_HISTORY_KEY ] } );
+				if ( cachedThreat?.status === 'in_progress' ) {
+					// If still in progress
+					if ( threat.status === 'in_progress' ) {
+						if (
+							! fixerTimestampIsStale( cachedThreat.last_updated ) &&
+							fixerTimestampIsStale( threat.last_updated )
+						) {
+							failures.push( threatId );
+						}
+					}
 
-					// Show a relevant notice.
-					if ( threat.status === 'fixed' ) {
-						showSuccessNotice( __( 'Threat fixed successfully.', 'jetpack-protect' ) );
-					} else {
-						showErrorNotice( __( 'Threat could not be fixed.', 'jetpack-protect' ) );
+					// Handle completion of fixers
+					if ( threat.status !== 'in_progress' ) {
+						queryClient.invalidateQueries( { queryKey: [ QUERY_SCAN_STATUS_KEY ] } );
+						queryClient.invalidateQueries( { queryKey: [ QUERY_HISTORY_KEY ] } );
+
+						if ( threat.status === 'fixed' ) {
+							successes.push( threatId );
+						} else {
+							failures.push( threatId );
+						}
 					}
 				}
 			} );
+
+			showBulkNotices( failures, successes );
 
 			// Return the fetched data so the query resolves
 			return data;
@@ -84,14 +117,15 @@ export default function useFixersQuery( {
 				return false;
 			}
 
-			// Refetch while any threats are still in progress.
-			if (
-				Object.values( query.state.data?.threats ).some(
-					( threat: { status: string } ) => threat.status === 'in_progress'
-				)
-			) {
+			const inProgressNotStale = Object.values( query.state.data.threats ).some(
+				( threat: { status: string; last_updated: string } ) =>
+					threat.status === 'in_progress' && ! fixerTimestampIsStale( threat.last_updated )
+			);
+
+			// Refetch while any threats are still in progress and not stale.
+			if ( inProgressNotStale ) {
 				// Refetch on a shorter interval first, then slow down if it is taking a while.
-				return query.state.dataUpdateCount < 5 ? 5_000 : 15_000;
+				return query.state.dataUpdateCount < 5 ? 5000 : 15000;
 			}
 
 			return false;
@@ -103,13 +137,11 @@ export default function useFixersQuery( {
 	// Handle error if present in the query result
 	useEffect( () => {
 		if ( fixersQuery.isError && fixersQuery.error ) {
-			// Reset the query data to initial state
+			// Reset the query data to the initial state
 			queryClient.setQueryData( [ QUERY_FIXERS_KEY ], initialData );
-
-			// Show an error notice
 			showErrorNotice( __( 'An error occurred while fetching fixers status.', 'jetpack-protect' ) );
 		}
-	}, [ fixersQuery.isError, fixersQuery.error, queryClient, initialData, showErrorNotice ] );
+	}, [ fixersQuery.isError, fixersQuery.error, queryClient, showErrorNotice ] );
 
 	return fixersQuery;
 }

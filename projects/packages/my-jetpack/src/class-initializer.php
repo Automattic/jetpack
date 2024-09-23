@@ -955,14 +955,6 @@ class Initializer {
 			return $red_bubble_slugs;
 		}
 
-		if ( ! $connection->is_user_connected() && ! $connection->has_connected_owner() ) {
-			$red_bubble_slugs[ self::MISSING_CONNECTION_NOTIFICATION_KEY ] = array(
-				'type'     => 'user',
-				'is_error' => false,
-			);
-			return $red_bubble_slugs;
-		}
-
 		if ( ! $connection->is_connected() ) {
 			$red_bubble_slugs[ self::MISSING_CONNECTION_NOTIFICATION_KEY ] = array(
 				'type'     => 'site',

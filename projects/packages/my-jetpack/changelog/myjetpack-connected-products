@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: The fix is updating product list after connecting Jetpack, without reloading the page.
+
+

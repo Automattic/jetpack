@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Build: do not ship TypeScript files in the production version of Jetpack.

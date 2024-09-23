@@ -214,7 +214,6 @@ const useImageGenerator = () => {
 				prompt,
 				feature,
 				model: 'stable-diffusion',
-				style: 'photographic',
 			};
 
 			const data: ImageGenerationResponse = await executeImageGeneration( parameters );
