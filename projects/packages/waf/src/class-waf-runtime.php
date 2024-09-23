@@ -703,8 +703,8 @@ class Waf_Runtime {
 		$array_length = count( $array );
 
 		for ( $i = 0; $i < $array_length; $i++ ) {
-			// Check if the IP matches a provided range.
-			$range = explode( '-', $array[ $i ] );
+			// Check if the IP matches a provided range or CIDR notation.
+			$range = strpos( $array[ $i ], '/' ) !== false ? array( $array[ $i ], null ) : explode( '-', $array[ $i ] );
 			if ( count( $range ) === 2 ) {
 				if ( IP_Utils::ip_address_is_in_range( $real_ip, $range[0], $range[1] ) ) {
 					return true;

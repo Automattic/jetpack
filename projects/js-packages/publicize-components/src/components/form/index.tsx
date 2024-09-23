@@ -7,7 +7,6 @@
  */
 
 import { Disabled, PanelRow } from '@wordpress/components';
-import { useSelect } from '@wordpress/data';
 import { Fragment } from '@wordpress/element';
 import { getSocialScriptData, usePublicizeConfig } from '../../..';
 import useAttachedMedia from '../../hooks/use-attached-media';
@@ -15,7 +14,6 @@ import useFeaturedImage from '../../hooks/use-featured-image';
 import useMediaDetails from '../../hooks/use-media-details';
 import useMediaRestrictions from '../../hooks/use-media-restrictions';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
-import { store as socialStore } from '../../social-store';
 import { ThemedConnectionsModal as ManageConnectionsModal } from '../manage-connections-modal';
 import { SocialPostModal } from '../social-post-modal/modal';
 import { ConnectionNotice } from './connection-notice';
@@ -47,12 +45,6 @@ export default function PublicizeForm() {
 			// fix the issues with uploading an image.
 			attachedMedia.length > 0 ||
 			( Object.keys( validationErrors ).length !== 0 && ! isConvertible ) );
-	const { featureFlags } = useSelect( select => {
-		const store = select( socialStore );
-		return {
-			featureFlags: store.featureFlags(),
-		};
-	}, [] );
 
 	const Wrapper = isPublicizeDisabledBySitePlan ? Disabled : Fragment;
 
@@ -69,7 +61,7 @@ export default function PublicizeForm() {
 					<PanelRow>
 						<ConnectionsList />
 					</PanelRow>
-					{ featureFlags.useEditorPreview && isPublicizeEnabled ? <SocialPostModal /> : null }
+					{ feature_flags.useEditorPreview && isPublicizeEnabled ? <SocialPostModal /> : null }
 					<EnhancedFeaturesNudge />
 				</>
 			) : null }

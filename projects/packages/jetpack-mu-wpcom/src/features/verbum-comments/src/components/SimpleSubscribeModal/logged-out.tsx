@@ -88,7 +88,6 @@ export const SimpleSubscribeModalLoggedOut = ( {
 						title={ translate( 'Never miss a beat!' ) }
 						className="verbum-simple-subscribe-modal__iframe"
 						frameBorder="0"
-						allowTransparency={ true }
 						src={ iframeUrl }
 						id="VERBUM_subscribe_iframe"
 					></iframe>
