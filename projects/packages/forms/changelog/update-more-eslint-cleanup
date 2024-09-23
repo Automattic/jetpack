@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Options: Get selection from the element's document instead of the global `window`.

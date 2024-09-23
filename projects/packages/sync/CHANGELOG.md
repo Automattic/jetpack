@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.13.1] - 2024-09-23
+### Changed
+- Update dependencies.
+
 ## [3.13.0] - 2024-09-16
 ### Removed
 - Social: Cleaned up media auto-conversion backend logic [#38587]
@@ -1291,6 +1295,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Move sync to a classmapped package
 
+[3.13.1]: https://github.com/Automattic/jetpack-sync/compare/v3.13.0...v3.13.1
 [3.13.0]: https://github.com/Automattic/jetpack-sync/compare/v3.12.0...v3.13.0
 [3.12.0]: https://github.com/Automattic/jetpack-sync/compare/v3.11.0...v3.12.0
 [3.11.0]: https://github.com/Automattic/jetpack-sync/compare/v3.10.0...v3.11.0
