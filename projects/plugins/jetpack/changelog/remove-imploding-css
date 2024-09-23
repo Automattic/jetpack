@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Performance: set the concatenated CSS to false by default. The era where this was helpful is passing.
