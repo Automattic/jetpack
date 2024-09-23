@@ -7,8 +7,6 @@ import { __, _n } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 import * as React from 'react';
 import { wpcomTrackEvent } from '../../../../common/tracks';
-import FormInputCheckbox from './form-checkbox';
-import FormLabel from './form-label';
 import useAddTagsToPost from './use-add-tags-to-post';
 
 type PostMeta = {
@@ -31,7 +29,6 @@ type SuggestedTagsEventProps = {
 
 type SuggestedTagsProps = {
 	setShouldShowSuggestedTags: ( shouldShow: boolean ) => void;
-	onDontShowAgainChange: ( checked: boolean ) => void;
 };
 
 /**
@@ -111,8 +108,8 @@ function SuggestedTags( props: SuggestedTagsProps ) {
 	);
 
 	return (
-		<div className="wpcom-block-editor-post-published-recommended-tags-modal__suggest-tags">
-			<h1>{ __( 'Recommended tags', 'jetpack-mu-wpcom' ) }</h1>
+		<div className="wpcom-block-editor-post-published-sharing-modal__suggest-tags">
+			<h1>{ __( 'Recommended tags:', 'jetpack-mu-wpcom' ) }</h1>
 			<p>
 				{ __(
 					'Based on the topics and themes in your post, here are some suggested tags to consider:',
@@ -121,26 +118,18 @@ function SuggestedTags( props: SuggestedTagsProps ) {
 			</p>
 			{ tokenField }
 			<p>{ __( 'Adding tags can help drive more traffic to your post.', 'jetpack-mu-wpcom' ) }</p>
-			<div className="wpcom-block-editor-post-published-recommended-tags-modal__actions">
-				<div className="wpcom-block-editor-post-published-recommended-tags-modal__actions-checkbox">
-					<FormLabel htmlFor="toggle" className="is-checkbox">
-						<FormInputCheckbox id="toggle" onChange={ props.onDontShowAgainChange } />
-						<span>{ __( "Don't show again", 'jetpack-mu-wpcom' ) }</span>
-					</FormLabel>
-				</div>
-				<Button
-					className="wpcom-block-editor-post-published-recommended-tags-modal__save-tags"
-					onClick={ async () => {
-						setIsSavingTags( true );
-						await saveTags();
-						setIsSavingTags( false );
-					} }
-					variant="primary"
-					isBusy={ isSavingTags }
-				>
-					{ __( 'Add these tags', 'jetpack-mu-wpcom' ) }
-				</Button>
-			</div>
+			<Button
+				className="wpcom-block-editor-post-published-sharing-modal__save-tags"
+				onClick={ async () => {
+					setIsSavingTags( true );
+					await saveTags();
+					setIsSavingTags( false );
+				} }
+				variant="primary"
+				isBusy={ isSavingTags }
+			>
+				{ __( 'Add these tags', 'jetpack-mu-wpcom' ) }
+			</Button>
 		</div>
 	);
 }
