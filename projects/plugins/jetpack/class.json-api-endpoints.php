@@ -2645,9 +2645,10 @@ abstract class WPCOM_JSON_API_Endpoint {
 	 * @throws Exception The exception if something goes wrong.
 	 */
 	public function create_rest_route_for_endpoint() {
+		$version_prefix = $this->max_version ? 'v' . $this->max_version : '';
 		register_rest_route(
 			static::REST_NAMESPACE,
-			$this->rest_route,
+			$version_prefix . $this->rest_route,
 			array(
 				'methods'             => $this->method,
 				'callback'            => array( $this, 'rest_callback' ),
