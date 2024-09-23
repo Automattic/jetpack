@@ -1,0 +1,5 @@
+# Not loaded by default eslint, but we use tools/js-tools/load-eslint-ignore.js in .eslintrc to pull it in.
+
+/tests/e2e
+/custom-colors/js/jquery.spin.js
+/custom-colors/js/spin.js
