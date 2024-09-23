@@ -9,7 +9,7 @@ import analytics from 'lib/analytics';
 import PropTypes from 'prop-types';
 import { Component } from 'react';
 import { connect } from 'react-redux';
-import { isOdysseyStatsEnabled, isWoASite } from 'state/initial-state';
+import { isOdysseyStatsEnabled } from 'state/initial-state';
 
 class DashStatsBottom extends Component {
 	statsBottom() {
@@ -154,6 +154,5 @@ DashStatsBottom.defaultProps = {
 export default connect( state => {
 	return {
 		isOdysseyStatsEnabled: isOdysseyStatsEnabled( state ),
-		isWoASite: isWoASite( state ),
 	};
 } )( DashStatsBottom );
