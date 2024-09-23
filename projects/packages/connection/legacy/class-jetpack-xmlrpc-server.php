@@ -826,24 +826,6 @@ class Jetpack_XMLRPC_Server {
 	/**
 	 * Deprecated: This method is no longer part of the Connection package and now lives on the Jetpack plugin.
 	 *
-	 * Returns what features are available. Uses the slug of the module files.
-	 *
-	 * @deprecated since 1.25.0
-	 * @see Jetpack_XMLRPC_Methods::features_available() in the Jetpack plugin
-	 *
-	 * @return array
-	 */
-	public function features_available() {
-		_deprecated_function( __METHOD__, '1.25.0', 'Jetpack_XMLRPC_Methods::features_available()' );
-		if ( class_exists( 'Jetpack_XMLRPC_Methods' ) ) {
-			return Jetpack_XMLRPC_Methods::features_available();
-		}
-		return array();
-	}
-
-	/**
-	 * Deprecated: This method is no longer part of the Connection package and now lives on the Jetpack plugin.
-	 *
 	 * Returns what features are enabled. Uses the slug of the modules files.
 	 *
 	 * @deprecated since 1.25.0
