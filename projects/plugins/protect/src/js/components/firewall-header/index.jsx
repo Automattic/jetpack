@@ -7,13 +7,14 @@ import {
 	Button,
 	Status,
 } from '@automattic/jetpack-components';
-import { Spinner, Popover } from '@wordpress/components';
+import { Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Icon, help } from '@wordpress/icons';
-import React, { useState, useCallback } from 'react';
+import { help } from '@wordpress/icons';
+import React, { useCallback } from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import usePlan from '../../hooks/use-plan';
 import useWafData from '../../hooks/use-waf-data';
+import IconTooltip from '../icon-tooltip';
 import styles from './styles.module.scss';
 
 const UpgradePrompt = () => {
@@ -44,51 +45,21 @@ const UpgradePrompt = () => {
 	);
 };
 
-const FirewallSubheadingPopover = ( {
-	children = __(
-		'The free version of the firewall does not receive updates to automatic security rules.',
-		'jetpack-protect'
-	),
-} ) => {
-	const [ showPopover, setShowPopover ] = useState( false );
-
-	const handleEnter = useCallback( () => {
-		setShowPopover( true );
-	}, [] );
-
-	const handleOut = useCallback( () => {
-		setShowPopover( false );
-	}, [] );
-
-	return (
-		<div
-			className={ styles[ 'icon-popover' ] }
-			onMouseLeave={ handleOut }
-			onMouseEnter={ handleEnter }
-			onClick={ handleEnter }
-			onFocus={ handleEnter }
-			onBlur={ handleOut }
-			role="presentation"
-		>
-			<Icon icon={ help } />
-			{ showPopover && (
-				<Popover noArrow={ false } offset={ 5 } inline={ true }>
-					<Text className={ styles[ 'popover-text' ] } variant={ 'body-small' }>
-						{ children }
-					</Text>
-				</Popover>
-			) }
-		</div>
-	);
-};
-
-const FirewallSubheadingContent = ( { className, text = '', popover = false, children } ) => {
+const FirewallSubheadingContent = ( { className, text = '', popover = false } ) => {
 	return (
 		<div className={ styles[ 'firewall-subheading__content' ] }>
 			<Text className={ styles[ className ] } weight={ 600 }>
 				{ text }
 			</Text>
-			{ popover && <FirewallSubheadingPopover children={ children } /> }
+			{ popover && (
+				<IconTooltip
+					icon={ help }
+					text={ __(
+						'The free version of the firewall does not receive updates to automatic security rules.',
+						'jetpack-protect'
+					) }
+				/>
+			) }
 		</div>
 	);
 };

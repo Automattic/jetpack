@@ -14,21 +14,23 @@ const FixAllThreatsModal = ( { threatList = [] } ) => {
 
 	const [ threatIds, setThreatIds ] = useState( threatList.map( ( { id } ) => parseInt( id ) ) );
 
-	const handleCancelClick = useCallback( () => {
-		return event => {
+	const handleCancelClick = useCallback(
+		event => {
 			event.preventDefault();
 			setModal( { type: null } );
-		};
-	}, [ setModal ] );
+		},
+		[ setModal ]
+	);
 
-	const handleFixClick = useCallback( () => {
-		return async event => {
+	const handleFixClick = useCallback(
+		async event => {
 			event.preventDefault();
 
 			await fixThreats( threatIds );
 			setModal( { type: null } );
-		};
-	}, [ fixThreats, setModal, threatIds ] );
+		},
+		[ fixThreats, setModal, threatIds ]
+	);
 
 	const handleCheckboxClick = useCallback(
 		( checked, threat ) => {
@@ -63,12 +65,12 @@ const FixAllThreatsModal = ( { threatList = [] } ) => {
 				</div>
 
 				<div className={ styles.footer }>
-					<Button variant="secondary" onClick={ handleCancelClick() }>
+					<Button variant="secondary" onClick={ handleCancelClick }>
 						{ __( 'Cancel', 'jetpack-protect' ) }
 					</Button>
 					<Button
 						isLoading={ isFixersLoading }
-						onClick={ handleFixClick() }
+						onClick={ handleFixClick }
 						disabled={ ! threatIds.length }
 					>
 						{ __( 'Fix all threats', 'jetpack-protect' ) }
