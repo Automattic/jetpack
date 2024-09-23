@@ -278,7 +278,11 @@ class Waf_Blocklog_Manager {
 	 * @return void
 	 */
 	private static function write_all_time_block_count() {
-		$block_count = self::get_all_time_block_count_value() ?? self::get_default_all_time_stat_value();
+		$block_count = self::get_all_time_block_count_value();
+		if ( ! $block_count ) {
+			$block_count = self::get_default_all_time_stat_value();
+		}
+
 		self::write_all_time_block_count_row( $block_count + 1 );
 	}
 
@@ -369,7 +373,7 @@ class Waf_Blocklog_Manager {
 			}
 		}
 
-		return $all_time_block_count;
+		return intval( $all_time_block_count );
 	}
 
 	/**
