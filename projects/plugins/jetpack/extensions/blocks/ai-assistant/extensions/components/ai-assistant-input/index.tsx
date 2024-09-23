@@ -21,6 +21,7 @@ import type { RequestingErrorProps, RequestingStateProp } from '@automattic/jetp
 import type { ReactElement } from 'react';
 
 export type AiAssistantInputProps = {
+	customPlaceholder?: string;
 	className?: string;
 	requestingState: RequestingStateProp;
 	requestingError?: RequestingErrorProps;
@@ -42,6 +43,7 @@ const defaultClassNames = clsx(
 );
 
 export default function AiAssistantInput( {
+	customPlaceholder,
 	className,
 	requestingState,
 	requestingError,
@@ -56,8 +58,11 @@ export default function AiAssistantInput( {
 	undo,
 	tryAgain,
 }: AiAssistantInputProps ): ReactElement {
+	const defaultPlaceholder = customPlaceholder
+		? customPlaceholder
+		: __( 'Ask Jetpack AI to edit…', 'jetpack' );
 	const [ value, setValue ] = useState( '' );
-	const [ placeholder, setPlaceholder ] = useState( __( 'Ask Jetpack AI to edit…', 'jetpack' ) );
+	const [ placeholder, setPlaceholder ] = useState( defaultPlaceholder );
 	const { checkoutUrl } = useAICheckout();
 	const { tracks } = useAnalytics();
 	const [ requestsRemaining, setRequestsRemaining ] = useState( 0 );
@@ -137,13 +142,13 @@ export default function AiAssistantInput( {
 
 	// Sets the placeholder to the quick action text once it changes and clear the input value.
 	useEffect( () => {
-		setPlaceholder( action || __( 'Ask Jetpack AI to edit…', 'jetpack' ) );
+		setPlaceholder( action || defaultPlaceholder );
 
 		// Clear the input value when the action changes.
 		if ( action ) {
 			setValue( '' );
 		}
-	}, [ action ] );
+	}, [ action, defaultPlaceholder ] );
 
 	// Changes the displayed message according to the input value.
 	useEffect( () => {
