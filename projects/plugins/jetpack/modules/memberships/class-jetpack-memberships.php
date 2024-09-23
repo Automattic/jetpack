@@ -7,7 +7,9 @@
  */
 
 use Automattic\Jetpack\Blocks;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Abstract_Token_Subscription_Service;
+use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS;
 use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_TIER_ID_SETTINGS;
@@ -174,7 +176,7 @@ class Jetpack_Memberships {
 			self::$instance->register_init_hook();
 			// Yes, `pro-plan` with a dash, `jetpack_personal` with an underscore. Check the v1.5 endpoint to verify.
 			$wpcom_plan_slug     = defined( 'ENABLE_PRO_PLAN' ) ? 'pro-plan' : 'personal-bundle';
-			self::$required_plan = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ? $wpcom_plan_slug : 'jetpack_personal';
+			self::$required_plan = ( new Host() )->is_wpcom_simple() ? $wpcom_plan_slug : 'jetpack_personal';
 		}
 
 		return self::$instance;
@@ -743,8 +745,28 @@ class Jetpack_Memberships {
 	 * @return bool
 	 */
 	public static function is_enabled_jetpack_recurring_payments() {
-		$api_available = ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || Jetpack::is_connection_ready() );
+		$api_available = ( new Host() )->is_wpcom_simple() || Jetpack::is_connection_ready();
 		return $api_available;
+	}
+
+	/**
+	 * Whether to enable the blocks in the editor.
+	 * All Monetize blocks (except Simple Payments) need an active connecting and a user with at least `edit_posts` capability
+	 *
+	 * @return bool
+	 */
+	public static function should_enable_monetize_blocks_in_editor() {
+		if ( ! is_admin() ) {
+			// We enable the block for the front-end in all cases
+			return true;
+
+		}
+
+		$manager                          = new Connection_Manager( 'jetpack' );
+		$jetpack_ready_and_connected      = $manager->is_connected() && $manager->has_connected_owner();
+		$is_offline_mode                  = ( new Status() )->is_offline_mode();
+		$enable_monetize_blocks_in_editor = ( new Host() )->is_wpcom_simple() || ( $jetpack_ready_and_connected && ! $is_offline_mode );
+		return $enable_monetize_blocks_in_editor;
 	}
 
 	/**
