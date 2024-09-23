@@ -4,7 +4,7 @@ import { Icon, shield, chartBar } from '@wordpress/icons';
 import { useCallback, useMemo } from 'react';
 import styles from './styles.module.scss';
 
-const FirewallStatCards = ( { status, hasPlan, oneDayStats, thirtyDayStats } ) => {
+const FirewallStatCards = ( { status, hasPlan, currentDayStats, thirtyDaysStats } ) => {
 	const [ isSmall ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
 
 	const defaultArgs = useMemo(
@@ -55,30 +55,30 @@ const FirewallStatCards = ( { status, hasPlan, oneDayStats, thirtyDayStats } ) =
 		[ isSmall ]
 	);
 
-	const oneDayArgs = useMemo(
+	const currentDayArgs = useMemo(
 		() => ( {
 			...defaultArgs,
 			icon: getIcon( shield ),
 			label: getLabel( 24, 'hours' ),
-			value: status !== 'on' || ! hasPlan ? 0 : oneDayStats,
+			value: status !== 'on' || ! hasPlan ? 0 : currentDayStats,
 		} ),
-		[ defaultArgs, getIcon, getLabel, status, hasPlan, oneDayStats ]
+		[ defaultArgs, getIcon, getLabel, status, hasPlan, currentDayStats ]
 	);
 
-	const thirtyDayArgs = useMemo(
+	const thirtyDaysArgs = useMemo(
 		() => ( {
 			...defaultArgs,
 			icon: getIcon( chartBar ),
 			label: getLabel( 30, 'days' ),
-			value: status !== 'on' || ! hasPlan ? 0 : thirtyDayStats,
+			value: status !== 'on' || ! hasPlan ? 0 : thirtyDaysStats,
 		} ),
-		[ defaultArgs, getIcon, getLabel, status, hasPlan, thirtyDayStats ]
+		[ defaultArgs, getIcon, getLabel, status, hasPlan, thirtyDaysStats ]
 	);
 
 	return (
 		<div className={ styles[ 'stat-card-wrapper' ] }>
-			<StatCard { ...oneDayArgs } />
-			<StatCard { ...thirtyDayArgs } />
+			<StatCard { ...currentDayArgs } />
+			<StatCard { ...thirtyDaysArgs } />
 		</div>
 	);
 };

@@ -319,7 +319,7 @@ class Waf_Blocklog_Manager {
 	 *
 	 * @return int
 	 */
-	public static function get_thirty_day_block_counts() {
+	public static function get_thirty_days_block_counts() {
 		$stats        = get_option( self::BLOCKLOG_OPTION_NAME_DAILY_SUMMARY, array() );
 		$total_blocks = 0;
 

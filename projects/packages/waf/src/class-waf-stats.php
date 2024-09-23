@@ -20,7 +20,7 @@ class Waf_Stats {
 	public static function get_blocked_requests() {
 		return array(
 			'current_day' => Waf_Blocklog_Manager::get_current_day_block_count(),
-			'thirty_days' => Waf_Blocklog_Manager::get_thirty_day_block_counts(),
+			'thirty_days' => Waf_Blocklog_Manager::get_thirty_days_block_counts(),
 			'all_time'    => Waf_Blocklog_Manager::get_all_time_block_count(),
 		);
 	}

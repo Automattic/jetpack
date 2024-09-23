@@ -1,11 +1,10 @@
 import { Text, Button } from '@automattic/jetpack-components';
 import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
-import { Popover } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Icon, help } from '@wordpress/icons';
-import React, { useState, useCallback } from 'react';
+import { help } from '@wordpress/icons';
 import { JETPACK_SCAN_SLUG } from '../../constants';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
+import IconTooltip from '../icon-tooltip';
 import styles from './styles.module.scss';
 
 const UpgradePrompt = ( { automaticRulesAvailable } ) => {
@@ -34,57 +33,27 @@ const UpgradePrompt = ( { automaticRulesAvailable } ) => {
 	);
 };
 
-const FirewallSubheadingPopover = ( {
-	children = __(
-		'The free version of the firewall does not receive updates to automatic security rules.',
-		'jetpack-protect'
-	),
-} ) => {
-	const [ showPopover, setShowPopover ] = useState( false );
-
-	const handleEnter = useCallback( () => {
-		setShowPopover( true );
-	}, [] );
-
-	const handleOut = useCallback( () => {
-		setShowPopover( false );
-	}, [] );
-
-	return (
-		<div
-			className={ styles[ 'icon-popover' ] }
-			onMouseLeave={ handleOut }
-			onMouseEnter={ handleEnter }
-			onClick={ handleEnter }
-			onFocus={ handleEnter }
-			onBlur={ handleOut }
-			role="presentation"
-		>
-			<Icon icon={ help } />
-			{ showPopover && (
-				<Popover noArrow={ false } offset={ 5 } inline={ true }>
-					<Text className={ styles[ 'popover-text' ] } variant={ 'body-small' }>
-						{ children }
-					</Text>
-				</Popover>
-			) }
-		</div>
-	);
-};
-
-const FirewallSubheadingContent = ( { className, text = '', popover = false, children } ) => {
+const FirewallSubheadingContent = ( { className, text = '', popover = false } ) => {
 	return (
 		<div className={ styles[ 'firewall-subheading__content' ] }>
 			<Text className={ styles[ className ] } weight={ 600 }>
 				{ text }
 			</Text>
-			{ popover && <FirewallSubheadingPopover children={ children } /> }
+			{ popover && (
+				<IconTooltip
+					icon={ help }
+					text={ __(
+						'The free version of the firewall does not receive updates to automatic security rules.',
+						'jetpack-protect'
+					) }
+				/>
+			) }
 		</div>
 	);
 };
 
 const FirewallSubheading = ( {
-	hasRequiredPlan,
+	hasPlan,
 	automaticRulesAvailable,
 	jetpackWafIpList,
 	jetpackWafAutomaticRules,
@@ -113,13 +82,13 @@ const FirewallSubheading = ( {
 				{ automaticRules && (
 					<FirewallSubheadingContent
 						text={ __( 'Automatic firewall protection is enabled.', 'jetpack-protect' ) }
-						popover={ ! hasRequiredPlan }
+						popover={ ! hasPlan }
 					/>
 				) }
 				{ manualRules && (
 					<FirewallSubheadingContent
 						text={ __( 'Only manual IP list rules apply.', 'jetpack-protect' ) }
-						popover={ ! hasRequiredPlan && ! automaticRulesAvailable }
+						popover={ ! hasPlan && ! automaticRulesAvailable }
 						children={ __(
 							'The free version of the firewall only allows for use of manual rules.',
 							'jetpack-protect'
@@ -129,11 +98,11 @@ const FirewallSubheading = ( {
 				{ allRules && (
 					<FirewallSubheadingContent
 						text={ __( 'All firewall rules apply.', 'jetpack-protect' ) }
-						popover={ ! hasRequiredPlan }
+						popover={ ! hasPlan }
 					/>
 				) }
 			</div>
-			{ ! hasRequiredPlan && <UpgradePrompt automaticRulesAvailable={ automaticRulesAvailable } /> }
+			{ ! hasPlan && <UpgradePrompt automaticRulesAvailable={ automaticRulesAvailable } /> }
 		</>
 	);
 };

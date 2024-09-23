@@ -16,8 +16,8 @@ const FirewallHeader = ( {
 	jetpackWafAutomaticRules,
 	bruteForceProtectionIsEnabled,
 	wafSupported,
-	oneDayStats,
-	thirtyDayStats,
+	currentDayStats,
+	thirtyDaysStats,
 	standaloneMode,
 } ) => {
 	return (
@@ -102,8 +102,8 @@ const FirewallHeader = ( {
 						<FirewallStatCards
 							status={ status }
 							hasPlan={ hasPlan }
-							oneDayStats={ oneDayStats }
-							thirtyDayStats={ thirtyDayStats }
+							currentDayStats={ currentDayStats }
+							thirtyDaysStats={ thirtyDaysStats }
 						/>
 					) }
 				</Col>
@@ -132,7 +132,7 @@ const ConnectedFirewallHeader = () => {
 	const currentStatus = isSupportedWafFeatureEnabled ? 'on' : 'off';
 	const { currentDay: currentDayBlockCount, thirtyDays: thirtyDayBlockCounts } = stats
 		? stats.blockedRequests
-		: { oneDayStats: 0, thirtyDayStats: 0 };
+		: { currentDayStats: 0, thirtyDaysStats: 0 };
 
 	return (
 		<FirewallHeader
@@ -144,8 +144,8 @@ const ConnectedFirewallHeader = () => {
 			jetpackWafAutomaticRules={ jetpackWafAutomaticRules }
 			bruteForceProtectionIsEnabled={ bruteForceProtection }
 			wafSupported={ wafSupported }
-			oneDayStats={ currentDayBlockCount }
-			thirtyDayStats={ thirtyDayBlockCounts }
+			currentDayStats={ currentDayBlockCount }
+			thirtyDaysStats={ thirtyDayBlockCounts }
 			standaloneMode={ standaloneMode }
 		/>
 	);

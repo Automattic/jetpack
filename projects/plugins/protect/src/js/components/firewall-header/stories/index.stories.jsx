@@ -17,8 +17,8 @@ FirewallOnFree.args = {
 	jetpackWafAutomaticRules: false,
 	bruteForceProtectionIsEnabled: true,
 	wafSupported: true,
-	oneDayStats: 0,
-	thirtyDayStats: 0,
+	currentDayStats: 0,
+	thirtyDaysStats: 0,
 	standaloneMode: false,
 };
 
@@ -31,8 +31,8 @@ FirewallOffFree.args = {
 	jetpackWafAutomaticRules: false,
 	bruteForceProtectionIsEnabled: false,
 	wafSupported: true,
-	oneDayStats: 0,
-	thirtyDayStats: 0,
+	currentDayStats: 0,
+	thirtyDaysStats: 0,
 	standaloneMode: false,
 };
 
@@ -45,8 +45,8 @@ FirewallOnPaid.args = {
 	jetpackWafAutomaticRules: true,
 	bruteForceProtectionIsEnabled: true,
 	wafSupported: true,
-	oneDayStats: 100,
-	thirtyDayStats: 30000,
+	currentDayStats: 100,
+	thirtyDaysStats: 30000,
 	standaloneMode: false,
 };
 
@@ -59,8 +59,8 @@ FirewallOffPaid.args = {
 	jetpackWafAutomaticRules: false,
 	bruteForceProtectionIsEnabled: false,
 	wafSupported: true,
-	oneDayStats: 0,
-	thirtyDayStats: 0,
+	currentDayStats: 0,
+	thirtyDaysStats: 0,
 	standaloneMode: false,
 };
 
@@ -73,8 +73,8 @@ FirewallOnStandalone.args = {
 	jetpackWafAutomaticRules: true,
 	bruteForceProtectionIsEnabled: true,
 	wafSupported: true,
-	oneDayStats: 100,
-	thirtyDayStats: 30000,
+	currentDayStats: 100,
+	thirtyDaysStats: 30000,
 	standaloneMode: true,
 };
 
@@ -87,7 +87,7 @@ FirewallLoading.args = {
 	jetpackWafAutomaticRules: false,
 	bruteForceProtectionIsEnabled: false,
 	wafSupported: true,
-	oneDayStats: 0,
-	thirtyDayStats: 0,
+	currentDayStats: 0,
+	thirtyDaysStats: 0,
 	standaloneMode: false,
 };
