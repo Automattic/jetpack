@@ -32,7 +32,7 @@ const WelcomeFlow: FC< Props > = ( {
 } ) => {
 	const { recordEvent } = useAnalytics();
 	const { dismissWelcomeBanner } = useWelcomeBanner();
-	const { recommendedModules, submitEvaluation, saveEvaluationResult } =
+	const { recommendedModules, isFirstRun, submitEvaluation, saveEvaluationResult } =
 		useEvaluationRecommendations();
 	const {
 		siteIsRegistered,
@@ -119,11 +119,14 @@ const WelcomeFlow: FC< Props > = ( {
 
 	useEffect( () => {
 		// For the "treatment" experiment, when there are no `recommendedModules` loaded yet,
-		// we immediately submit some default evaluation data (on component mount).
+		// we immediately submit some default evaluation data (when we change from connection
+		// step to evaluation-processing step).
 		if (
 			'treatment' === welcomeFlowExperiment.variation &&
 			! recommendedModules &&
-			isJetpackUserNew()
+			isFirstRun &&
+			prevStep === 'connection' &&
+			currentStep === 'evaluation-processing'
 		) {
 			handleEvaluation( {
 				protect: true,
@@ -133,20 +136,20 @@ const WelcomeFlow: FC< Props > = ( {
 				unsure: false,
 			} );
 		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [] );
+	}, [
+		currentStep,
+		prevStep,
+		recommendedModules,
+		welcomeFlowExperiment.variation,
+		handleEvaluation,
+		isFirstRun,
+	] );
 
 	useEffect( () => {
 		if ( ! currentStep ) {
 			dismissWelcomeBanner();
 		}
-	}, [
-		currentStep,
-		dismissWelcomeBanner,
-		handleEvaluation,
-		recommendedModules,
-		welcomeFlowExperiment.variation,
-	] );
+	}, [ currentStep, dismissWelcomeBanner ] );
 
 	if ( ! currentStep ) {
 		return null;

@@ -8,7 +8,7 @@ import useProductsByOwnership from '../../data/products/use-products-by-ownershi
 import useAnalytics from '../../hooks/use-analytics';
 import sideloadTracks from '../../utils/side-load-tracks';
 import styles from './style.module.scss';
-import { WelcomeFlowExperiment } from '.';
+import type { WelcomeFlowExperiment } from '.';
 import type { Dispatch, SetStateAction } from 'react';
 
 type ConnectionStepProps = {
@@ -53,9 +53,11 @@ const ConnectionStep = ( {
 				'jetpack_my_jetpack_evaluation_recommendations_202409'
 			);
 
+			// **! I added this nullish coalescing operator default 'treatment' value for testing purposes only. !**
+			// TODO: Remove this nullish coalescing operator default value (or change it) when actually running the experiment in production.
 			onUpdateWelcomeFlowExperiment( state => ( {
 				...state,
-				variation: variationName as WelcomeFlowExperiment[ 'variation' ], // casting to 'control' or 'treatment'
+				variation: ( variationName ?? 'treatment' ) as WelcomeFlowExperiment[ 'variation' ], // casting to 'control' or 'treatment'
 			} ) );
 		} finally {
 			resetNotice();
