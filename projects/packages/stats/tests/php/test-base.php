@@ -25,6 +25,10 @@ abstract class StatsBaseTestCase extends BaseTestCase {
 		// Mock Jetpack Connection.
 		Jetpack_Options::update_option( 'id', 1234 );
 		Jetpack_Options::update_option( 'blog_token', 'blog_token.secret' );
+
+		// Since this uses WorDBless, our typical invalidation on option update does not work, so invalidate manually
+		$manager = new \Automattic\Jetpack\Connection\Manager();
+		$manager->reset_connection_status();
 	}
 
 	/**
