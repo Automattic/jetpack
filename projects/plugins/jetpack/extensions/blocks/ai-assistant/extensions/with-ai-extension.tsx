@@ -500,7 +500,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 
 				{ showAiControl && (
 					<AiAssistantInput
-						customPlaceholder={ customPlaceholder ? customPlaceholder : undefined }
+						customPlaceholder={ customPlaceholder ? customPlaceholder : null }
 						className={ className }
 						requestingState={ requestingState }
 						requestingError={ error }
