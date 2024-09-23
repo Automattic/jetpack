@@ -326,15 +326,14 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.9-a.5 - 2024-09-16
+### 13.9-a.7 - 2024-09-23
 #### Enhancements
-- Jetpack Stats: Do not check for capabilities if the user is not signed in when deciding whether to show the admin bar widget.
-- SSO: Remove legacy codebase in favor of the newer SSO codebase introduced in Jetpack 13.5.
+- Jetpack AI: Add AI SEO title optimization.
 
 #### Bug fixes
-- Dashboard: Display the yearly Stats plan in the Jetpack dashboard immediately after you've purchased the plan.
-- Help Center: Fix the icon color when previewing color scheme.
-- Shortcode: Fix the YouTube URL embedding failure due to the trailing question mark of the ID.
+- Shortcode: Fix the YouTube URL for the private videos.
+- Social: Fix social previews button sometimes not fitting all the text.
+- Blocks: Prevent Memberships blocks from being registered when the site is not connected to Jetpack.
 
 --------
 
