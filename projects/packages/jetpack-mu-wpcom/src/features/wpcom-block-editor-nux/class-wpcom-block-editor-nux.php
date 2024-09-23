@@ -64,22 +64,6 @@ class WPCOM_Block_Editor_NUX {
 			"var launchpadOptions = $launchpad_options;",
 			'before'
 		);
-
-		/**
-		 * Enqueue the sharing modal options.
-		 */
-		$sharing_modal_options = wp_json_encode(
-			array(
-				'isDismissed' => WP_REST_WPCOM_Block_Editor_Sharing_Modal_Controller::get_wpcom_sharing_modal_dismissed(),
-			),
-			JSON_HEX_TAG | JSON_HEX_AMP
-		);
-
-		wp_add_inline_script(
-			$handle,
-			"var sharingModalOptions = $sharing_modal_options;",
-			'before'
-		);
 	}
 
 	/**
