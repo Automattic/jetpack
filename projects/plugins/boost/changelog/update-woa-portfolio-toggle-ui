@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Admin dashboard: Disable portfolio toggle if theme supports portfolio and site is WoA
