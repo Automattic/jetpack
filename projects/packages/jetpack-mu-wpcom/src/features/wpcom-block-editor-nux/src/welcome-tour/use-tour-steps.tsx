@@ -101,7 +101,7 @@ function useTourSteps(
 			meta: {
 				heading: isPatternAssembler
 					? __( 'Nice job! Your new page is set up.', 'jetpack-mu-wpcom' )
-					: _x( 'Welcome to WordPress!', 'jetpack-mu-wpcom', 'jetpack-mu-wpcom' ),
+					: _x( 'Welcome to WordPress!', 'workaround', 'jetpack-mu-wpcom' ),
 				descriptions: {
 					desktop: ( () => {
 						if ( isPatternAssembler ) {
@@ -129,7 +129,7 @@ function useTourSteps(
 							  )
 							: _x(
 									'Take this short, interactive tour to learn the fundamentals of the WordPress editor.',
-									'jetpack-mu-wpcom',
+									'workaround',
 									'jetpack-mu-wpcom'
 							  );
 					} )(),
