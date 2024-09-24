@@ -92,6 +92,7 @@ function DashJetpackAi( props ) {
 						eventFeature="ai-assistant"
 						path="dashboard"
 						eventProps={ { type: 'teaser' } }
+						plan={ getJetpackProductUpsellByFeature( FEATURE_JETPACK_AI ) }
 					/>
 				) ) ||
 				null
