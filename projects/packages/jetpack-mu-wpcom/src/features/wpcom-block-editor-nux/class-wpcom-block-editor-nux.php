@@ -64,22 +64,6 @@ class WPCOM_Block_Editor_NUX {
 			"var launchpadOptions = $launchpad_options;",
 			'before'
 		);
-
-		/**
-		 * Enqueue the sharing modal options.
-		 */
-		$sharing_modal_options = wp_json_encode(
-			array(
-				'isDismissed' => WP_REST_WPCOM_Block_Editor_Sharing_Modal_Controller::get_wpcom_sharing_modal_dismissed(),
-			),
-			JSON_HEX_TAG | JSON_HEX_AMP
-		);
-
-		wp_add_inline_script(
-			$handle,
-			"var sharingModalOptions = $sharing_modal_options;",
-			'before'
-		);
 	}
 
 	/**
@@ -101,10 +85,6 @@ class WPCOM_Block_Editor_NUX {
 		require_once __DIR__ . '/class-wp-rest-wpcom-block-editor-video-celebration-modal-controller.php';
 		$video_celebration_modal_controller = new WP_REST_WPCOM_Block_Editor_Video_Celebration_Modal_Controller();
 		$video_celebration_modal_controller->register_rest_route();
-
-		require_once __DIR__ . '/class-wp-rest-wpcom-block-editor-sharing-modal-controller.php';
-		$sharing_modal_controller = new WP_REST_WPCOM_Block_Editor_Sharing_Modal_Controller();
-		$sharing_modal_controller->register_rest_route();
 	}
 }
 add_action( 'init', array( __NAMESPACE__ . '\WPCOM_Block_Editor_NUX', 'init' ) );
