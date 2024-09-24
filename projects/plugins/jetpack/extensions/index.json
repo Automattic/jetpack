@@ -71,7 +71,8 @@
 		"ai-general-purpose-image-generator",
 		"ai-proofread-breve",
 		"ai-assistant-site-logo-support",
-		"ai-title-optimization-keywords-support"
+		"ai-title-optimization-keywords-support",
+		"ai-logo-style-selector-support"
 	],
 	"beta": [
 		"google-docs-embed",
