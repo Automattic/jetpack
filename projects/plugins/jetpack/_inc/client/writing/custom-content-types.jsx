@@ -51,12 +51,31 @@ export class CustomContentTypes extends React.Component {
 			return null;
 		}
 
+		const woa_theme_supports_jetpack_portfolio =
+			typeof jetpack_portfolio_theme_supports !== 'undefined'
+				? jetpack_portfolio_theme_supports // eslint-disable-line no-undef
+				: false;
+
 		const module = this.props.module( 'custom-content-types' );
 		const disabledByOverride =
 			'inactive' === this.props.getModuleOverride( 'custom-content-types' );
 		const disabledReason =
 			disabledByOverride &&
 			__( 'This feature has been disabled by a site administrator.', 'jetpack' );
+
+		const portfolioDisabledReason =
+			! disabledReason && woa_theme_supports_jetpack_portfolio
+				? __( 'This feature is already supported by your theme.', 'jetpack' )
+				: '';
+		const portfolioText = woa_theme_supports_jetpack_portfolio
+			? __(
+					'Use <portfolioLink>portfolios</portfolioLink> on your site to showcase your best work. If your theme doesn’t support Jetpack Portfolios, you can still use a simple shortcode to display them on your site. This feature is enabled by default in your theme settings.',
+					'jetpack'
+			  )
+			: __(
+					'Use <portfolioLink>portfolios</portfolioLink> on your site to showcase your best work. If your theme doesn’t support Jetpack Portfolios, you can still use a simple shortcode to display them on your site.',
+					'jetpack'
+			  );
 		return (
 			<SettingsCard { ...this.props } module="custom-content-types" hideButton>
 				<SettingsGroup
@@ -115,15 +134,9 @@ export class CustomContentTypes extends React.Component {
 					} }
 				>
 					<p>
-						{ createInterpolateElement(
-							__(
-								'Use <portfolioLink>portfolios</portfolioLink> on your site to showcase your best work. If your theme doesn’t support Jetpack Portfolios, you can still use a simple shortcode to display them on your site.',
-								'jetpack'
-							),
-							{
-								portfolioLink: this.linkIfActiveCPT( 'portfolio' ),
-							}
-						) }
+						{ createInterpolateElement( portfolioText, {
+							portfolioLink: this.linkIfActiveCPT( 'portfolio' ),
+						} ) }
 					</p>
 					<ToggleControl
 						checked={
@@ -131,10 +144,10 @@ export class CustomContentTypes extends React.Component {
 								? this.props.getOptionValue( 'jetpack_portfolio', 'custom-content-types' )
 								: false
 						}
-						disabled={ disabledByOverride }
+						disabled={ disabledByOverride || woa_theme_supports_jetpack_portfolio } //
 						toggling={ this.props.isSavingAnyOption( 'jetpack_portfolio' ) }
 						onChange={ this.handlePortfolioToggleChange }
-						disabledReason={ disabledReason }
+						disabledReason={ portfolioDisabledReason }
 						label={
 							<span className="jp-form-toggle-explanation">{ __( 'Portfolios', 'jetpack' ) }</span>
 						}
