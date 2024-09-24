@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Admin bar: don't enqueue obsolete Core CSS overrides for Default scheme
