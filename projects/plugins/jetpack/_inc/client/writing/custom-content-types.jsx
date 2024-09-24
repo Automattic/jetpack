@@ -79,7 +79,7 @@ export class CustomContentTypes extends React.Component {
 			  )
 			: createInterpolateElement(
 					__(
-						'Use <portfolioLink>portfolios</portfolioLink> on your site to showcase your best work. If your theme doesn’t support Jetpack Portfolios, you can still use a simple shortcode to display them on your site. This feature is enabled by default in your theme settings.',
+						'Use <portfolioLink>portfolios</portfolioLink> on your site to showcase your best work. If your theme doesn’t support Jetpack Portfolios, you can still use a simple shortcode to display them on your site.',
 						'jetpack'
 					),
 					{
