@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Fix not publishing to npmjs.
+
+
