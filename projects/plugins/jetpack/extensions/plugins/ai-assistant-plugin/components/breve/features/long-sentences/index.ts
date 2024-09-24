@@ -16,7 +16,7 @@ export const LONG_SENTENCES: BreveFeatureConfig = {
 	title: __( 'Long sentences', 'jetpack' ),
 	tagName: 'span',
 	className: 'jetpack-ai-breve__has-proofread-highlight--long-sentences',
-	defaultEnabled: false,
+	defaultEnabled: true,
 };
 
 const sentenceRegex = /[^\s][^.!?]+[.!?]+/g;
