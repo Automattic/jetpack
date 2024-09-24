@@ -193,8 +193,10 @@ For example: user's prompt: A logo for an ice cream shop. Returned prompt: A log
 
 	const generateImage = useCallback( async function ( {
 		prompt,
+		style,
 	}: {
 		prompt: string;
+		style: string;
 	} ): Promise< { data: Array< { url: string } > } > {
 		setLogoFetchError( null );
 
@@ -207,20 +209,24 @@ For example: user's prompt: A logo for an ice cream shop. Returned prompt: A log
 
 			debug( 'Generating image with prompt', prompt );
 
-			const imageGenerationPrompt = `I NEED to test how the tool works with extremely simple prompts. DO NOT add any detail, just use it AS-IS:
-Create a single text-free iconic vector logo that symbolically represents the user request, using abstract or symbolic imagery.
-The design should be modern, with either a vivid color scheme full of gradients or a color scheme that's monochromatic. Use any of those styles based on the user request mood.
-Ensure the logo is set against a clean solid background.
-Ensure the logo works in small sizes.
-The imagery in the logo should subtly hint at the mood of the user request but DO NOT use any text, letters, or the name of the site on the imagery.
-The image should contain a single icon, without variations, color palettes or different versions.
+			const imageGenerationPrompt = `You are a top notch graphic artist, specialized in creating logos for websites.
+You have been asked to create a logo for a website.
+The logo should be a single iconic vector logo that symbolically represents the user request, using abstract or symbolic imagery.
+The logo, unless specified in the prompt, should not include text or letters.
+If the prompt specifies a mood, the logo should reflect that mood.
+If the prompt specifies a color scheme, the logo should use that color scheme.
+If the prompt specifies a brand or word or letters, include them but make sure they are written properly as provided.
+The logo should be set against a clean solid background and work in small sizes.
+Maximize the size of the logo in the image, so it's easy to see and doesn't hold so much padding around it.
+The imagery in the logo should subtly hint at the mood of the user request but should not use any text, letters, or the name of the site on the imagery.
 
-User request:${ prompt }`;
+User request: ${ prompt }`;
 
 			const body = {
 				prompt: imageGenerationPrompt,
 				feature: 'jetpack-ai-logo-generator',
 				response_format: 'b64_json',
+				style,
 			};
 
 			const data = await generateImageWithParameters( body );
@@ -309,7 +315,7 @@ User request:${ prompt }`;
 	);
 
 	const generateLogo = useCallback(
-		async function ( { prompt }: { prompt: string } ): Promise< void > {
+		async function ( { prompt, style }: { prompt: string; style: string } ): Promise< void > {
 			debug( 'Generating logo for site' );
 
 			setIsRequestingImage( true );
@@ -324,7 +330,7 @@ User request:${ prompt }`;
 				let image;
 
 				try {
-					image = await generateImage( { prompt } );
+					image = await generateImage( { prompt, style } );
 
 					if ( ! image || ! image.data.length ) {
 						throw new Error( 'No image returned' );
