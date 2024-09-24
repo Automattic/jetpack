@@ -23,12 +23,4 @@
 		</properties>
 	</rule>
 
-	<!-- Exclude specific file from the FileName and FileComment rules -->
-    <rule ref="WordPress.Files.FileName.NotHyphenatedLowercase">
-        <exclude-pattern>languages/*.php</exclude-pattern>
-    </rule>
-    <rule ref="Squiz.Commenting.FileComment.Missing">
-        <exclude-pattern>languages/*.php</exclude-pattern>
-    </rule>
-
 </ruleset>

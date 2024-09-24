@@ -165,7 +165,7 @@ function wpcom_global_styles_enqueue_block_editor_assets() {
 		$asset_file['version'] ?? filemtime( Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-global-styles-editor/wpcom-global-styles-editor.js' ),
 		true
 	);
-	wp_set_script_translations( 'wpcom-global-styles-editor', 'jetpack-mu-wpcom', Jetpack_Mu_Wpcom::PKG_DIR . 'languages' );
+	wp_set_script_translations( 'wpcom-global-styles-editor', 'jetpack-mu-wpcom' );
 
 	Common\wpcom_enqueue_tracking_scripts( 'wpcom-global-styles-editor' );
 

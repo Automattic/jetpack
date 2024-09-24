@@ -7,8 +7,6 @@
 
 namespace Automattic\Jetpack\Jetpack_Mu_Wpcom;
 
-use Automattic\Jetpack\Jetpack_Mu_Wpcom;
-
 require_once __DIR__ . '/../../utils.php';
 
 /**
@@ -230,7 +228,7 @@ class Starter_Page_Templates {
 		}
 
 		$handle = jetpack_mu_wpcom_enqueue_assets( 'starter-page-templates', array( 'js', 'css' ) );
-		wp_set_script_translations( $handle, 'jetpack-mu-wpcom', Jetpack_Mu_Wpcom::PKG_DIR . 'languages' );
+		wp_set_script_translations( $handle, 'jetpack-mu-wpcom' );
 
 		$default_templates = array(
 			array(
