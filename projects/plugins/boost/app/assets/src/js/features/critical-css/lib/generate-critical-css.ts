@@ -6,7 +6,7 @@ import { logPreCriticalCSSGeneration } from '$lib/utils/console';
 import { isSameOrigin } from '$lib/utils/is-same-origin';
 import { prepareAdminAjaxRequest } from '$lib/utils/make-admin-ajax-request';
 import { standardizeError } from '$lib/utils/standardize-error';
-import { SuccessTargetError } from 'jetpack-boost-critical-css-gen';
+import { SuccessTargetError } from '@automattic/jetpack-critical-css-gen';
 
 type Viewport = {
 	width: number;
@@ -336,7 +336,7 @@ function keepAtRule( name: string ): boolean {
 /**
  * Helper method to filter out properties that we don't want.
  * Note this function is used as a filter in the generateCriticalCSS function
- * in the jetpack-boost-critical-css-gen library (https://github.com/Automattic/jetpack-boost-critical-css-gen).
+ * in the @automattic/jetpack-critical-css-gen library (https://github.com/Automattic/jetpack-critical-css-gen).
  *
  * This function has a value parameter which is not being used here but other implementations of this
  * helper function for the library may require the value parameter for filtering.
@@ -355,7 +355,7 @@ function keepProperty( name: string, _value: string ): boolean {
  * Function to verify that a specific page is valid to run the Critical CSS process on it.
  *
  * Note that this function is used as a callback in the generateCriticalCSS function
- * in the jetpack-boost-critical-css-gen library (https://github.com/Automattic/jetpack-boost-critical-css-gen).
+ * in the @automattic/jetpack-critical-css-gen library (https://github.com/Automattic/jetpack-critical-css-gen).
  *
  * This function has a url and innerWindow parameters which are not being used here but this method
  * is called with URL and InnerWindow in that library to offer flexibility of the verification for other implementation.

@@ -7,7 +7,7 @@ const CopyPlugin = require( 'copy-webpack-plugin' );
 const isProduction = process.env.NODE_ENV === 'production';
 
 const cssGenPath = path.dirname(
-	path.dirname( require.resolve( 'jetpack-boost-critical-css-gen' ) )
+	path.dirname( require.resolve( '@automattic/jetpack-critical-css-gen' ) )
 );
 
 let cssGenCopyPatterns;
@@ -15,18 +15,18 @@ let cssGenCopyPatterns;
 if ( isProduction ) {
 	cssGenCopyPatterns = [
 		{
-			from: path.join( cssGenPath, 'dist/bundle.js' ),
+			from: path.join( cssGenPath, 'build-browser/bundle.js' ),
 			to: 'critical-css-gen.js',
 		},
 	];
 } else {
 	cssGenCopyPatterns = [
 		{
-			from: path.join( cssGenPath, 'dist/bundle.full.js' ),
+			from: path.join( cssGenPath, 'build-browser/bundle.full.js' ),
 			to: 'critical-css-gen.js',
 		},
 		{
-			from: path.join( cssGenPath, 'dist/bundle.full.js.map' ),
+			from: path.join( cssGenPath, 'build-browser/bundle.full.js.map' ),
 			to: 'bundle.full.js.map',
 		},
 	];
