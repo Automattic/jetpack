@@ -1,5 +1,4 @@
 {
-	"private": true,
 	"type": "module",
 	"name": "@automattic/jetpack-critical-css-gen",
 	"version": "0.1.0-alpha",
