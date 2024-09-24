@@ -5,7 +5,7 @@
 import type {
 	BrowserInterfaceIframe,
 	generateCriticalCSS,
-} from '@automattic/jetpack-critical-css-gen';
+} from '@automattic/jetpack-critical-css-gen/browser';
 
 // <reference types ="@types/jquery"/>
 
