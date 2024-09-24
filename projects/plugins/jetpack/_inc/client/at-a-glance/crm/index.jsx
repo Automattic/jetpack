@@ -37,7 +37,7 @@ class DashCRM extends Component {
 						br: <br />,
 					}
 				) }
-				feature={ FEATURE_JETPACK_CRM }
+				plan={ FEATURE_JETPACK_CRM }
 			/>
 		);
 	}
