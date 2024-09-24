@@ -10,6 +10,7 @@ export const PluginDashItem = ( {
 	pluginName,
 	pluginSlug,
 	pluginFiles,
+	feature,
 } ) => {
 	return (
 		<div className="plugin-dash-item">
@@ -20,6 +21,7 @@ export const PluginDashItem = ( {
 				pluginLink={ pluginLink }
 				pluginFiles={ pluginFiles }
 				installOrActivatePrompt={ installOrActivatePrompt }
+				feature={ feature }
 			/>
 		</div>
 	);
@@ -30,6 +32,7 @@ PluginDashItem.propTypes = {
 	pluginFiles: PropTypes.arrayOf( PropTypes.string ).isRequired,
 	pluginSlug: PropTypes.string.isRequired,
 	pluginLink: PropTypes.string.isRequired,
+	feature: PropTypes.string,
 	installOrActivatePrompt: PropTypes.element.isRequired,
 };
 

@@ -161,12 +161,12 @@ class AtAGlance extends Component {
 				);
 			}
 
-			if ( this.props.userCanManagePlugins ) {
-				performanceCards.push( <DashCRM siteAdminUrl={ this.props.siteAdminUrl } /> );
-			}
-
 			if ( this.shouldAddCard( 'jetpack-ai' ) ) {
 				performanceCards.push( <DashJetpackAi /> );
+			}
+
+			if ( this.props.userCanManagePlugins ) {
+				performanceCards.push( <DashCRM siteAdminUrl={ this.props.siteAdminUrl } /> );
 			}
 
 			const redeemPartnerCoupon = ! this.props.isOfflineMode && this.props.partnerCoupon && (
