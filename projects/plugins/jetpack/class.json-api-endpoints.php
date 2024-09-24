@@ -404,7 +404,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 		$this->api->add( $this );
 
-		if ( $this->rest_route ) {
+		if ( $this->rest_route && ( ! defined( 'XMLRPC_REQUEST' ) || ! XMLRPC_REQUEST ) ) {
 			$this->create_rest_route_for_endpoint();
 		}
 	}
@@ -2665,12 +2665,11 @@ abstract class WPCOM_JSON_API_Endpoint {
 	 * @return mixed|WP_Error
 	 */
 	public function rest_callback( WP_REST_Request $request ) {
-		$manager = new Manager( 'jetpack' );
-		if ( ! $manager->is_connected() ) {
-			return new WP_Error( 'site_not_connected' );
-		}
-
 		$blog_id = Jetpack_Options::get_option( 'id' );
+
+		$this->api->initialize();
+		$this->api->endpoint = $this;
+
 		return call_user_func_array(
 			array( $this, 'callback' ),
 			array_values( array( $this->path, $blog_id ) + $request->get_url_params() )
@@ -2684,7 +2683,17 @@ abstract class WPCOM_JSON_API_Endpoint {
 	 * @return true|WP_Error
 	 */
 	final public function rest_permission_callback() {
-		if ( Rest_Authentication::is_signed_with_blog_token() || Rest_Authentication::is_signed_with_user_token() ) {
+		$manager = new Manager( 'jetpack' );
+		if ( ! $manager->is_connected() ) {
+			return new WP_Error( 'site_not_connected' );
+		}
+
+		$user_id = Rest_Authentication::init()->wp_rest_authenticate( false );
+		if ( $user_id ) {
+			wp_set_current_user( $user_id );
+		}
+
+		if ( ( $this->allow_fallback_to_jetpack_blog_token && Rest_Authentication::is_signed_with_blog_token() ) || Rest_Authentication::is_signed_with_user_token() ) {
 			return $this->rest_permission_callback_custom();
 		}
 
