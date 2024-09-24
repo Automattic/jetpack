@@ -72,7 +72,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Portfolio' ) ) {
 			if ( current_theme_supports( self::CUSTOM_POST_TYPE ) ) {
 				wp_register_script( 'jetpack-portfolio-theme-supports', '', array(), '0.1.0', true );
 				wp_enqueue_script( 'jetpack-portfolio-theme-supports' );
-				$supports_portfolio = ( new Host() )->is_woa_site() ? 'false' : 'true';
+				$supports_portfolio = ( new Host() )->is_woa_site() ? 'true' : 'false';
 			} else {
 				$supports_portfolio = 'false';
 			}

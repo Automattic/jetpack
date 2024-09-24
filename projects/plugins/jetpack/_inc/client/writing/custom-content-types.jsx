@@ -144,7 +144,7 @@ export class CustomContentTypes extends React.Component {
 								? this.props.getOptionValue( 'jetpack_portfolio', 'custom-content-types' )
 								: false
 						}
-						disabled={ disabledByOverride || woa_theme_supports_jetpack_portfolio } //
+						disabled={ disabledByOverride || woa_theme_supports_jetpack_portfolio }
 						toggling={ this.props.isSavingAnyOption( 'jetpack_portfolio' ) }
 						onChange={ this.handlePortfolioToggleChange }
 						disabledReason={ portfolioDisabledReason }
