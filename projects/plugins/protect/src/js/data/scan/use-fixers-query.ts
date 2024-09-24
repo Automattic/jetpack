@@ -74,12 +74,28 @@ export default function useFixersQuery( {
 				| FixersStatus
 				| undefined;
 
+			// Handle a top level error
+			if ( data?.error ) {
+				throw new Error( data?.error );
+			}
+
 			const successes: string[] = [];
 			const failures: string[] = [];
 
 			Object.keys( data?.threats || {} ).forEach( threatId => {
 				const threat = data.threats[ threatId ];
 				const cachedThreat = cachedData?.threats?.[ threatId ];
+
+				// Handle a threat level error
+				if ( threat?.error ) {
+					if ( threat.error === 'not_found' ) {
+						// If not_found after the initial fetch, fixers are done
+						queryClient.invalidateQueries( { queryKey: [ QUERY_SCAN_STATUS_KEY ] } );
+						queryClient.invalidateQueries( { queryKey: [ QUERY_HISTORY_KEY ] } );
+					} else {
+						failures.push( threatId );
+					}
+				}
 
 				if ( cachedThreat?.status === 'in_progress' ) {
 					// If still in progress
@@ -93,7 +109,7 @@ export default function useFixersQuery( {
 					}
 
 					// Handle completion of fixers
-					if ( threat.status !== 'in_progress' ) {
+					if ( threat?.status !== 'in_progress' && ! threat?.error ) {
 						queryClient.invalidateQueries( { queryKey: [ QUERY_SCAN_STATUS_KEY ] } );
 						queryClient.invalidateQueries( { queryKey: [ QUERY_HISTORY_KEY ] } );
 
@@ -117,8 +133,8 @@ export default function useFixersQuery( {
 				return false;
 			}
 
-			const inProgressNotStale = Object.values( query.state.data.threats ).some(
-				( threat: { status: string; last_updated: string } ) =>
+			const inProgressNotStale = Object.values( query.state.data?.threats ).some(
+				( threat: { status?: string; last_updated?: string } ) =>
 					threat.status === 'in_progress' && ! fixerTimestampIsStale( threat.last_updated )
 			);
 
