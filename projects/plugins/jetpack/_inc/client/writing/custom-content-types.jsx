@@ -68,13 +68,23 @@ export class CustomContentTypes extends React.Component {
 				? __( 'This feature is already supported by your theme.', 'jetpack' )
 				: '';
 		const portfolioText = woa_theme_supports_jetpack_portfolio
-			? __(
-					'Use <portfolioLink>portfolios</portfolioLink> on your site to showcase your best work. If your theme doesn’t support Jetpack Portfolios, you can still use a simple shortcode to display them on your site. This feature is enabled by default in your theme settings.',
-					'jetpack'
+			? createInterpolateElement(
+					__(
+						'Use <portfolioLink>portfolios</portfolioLink> on your site to showcase your best work. If your theme doesn’t support Jetpack Portfolios, you can still use a simple shortcode to display them on your site. This feature is enabled by default in your theme settings.',
+						'jetpack'
+					),
+					{
+						portfolioLink: this.linkIfActiveCPT( 'portfolio' ),
+					}
 			  )
-			: __(
-					'Use <portfolioLink>portfolios</portfolioLink> on your site to showcase your best work. If your theme doesn’t support Jetpack Portfolios, you can still use a simple shortcode to display them on your site.',
-					'jetpack'
+			: createInterpolateElement(
+					__(
+						'Use <portfolioLink>portfolios</portfolioLink> on your site to showcase your best work. If your theme doesn’t support Jetpack Portfolios, you can still use a simple shortcode to display them on your site. This feature is enabled by default in your theme settings.',
+						'jetpack'
+					),
+					{
+						portfolioLink: this.linkIfActiveCPT( 'portfolio' ),
+					}
 			  );
 		return (
 			<SettingsCard { ...this.props } module="custom-content-types" hideButton>
@@ -133,11 +143,7 @@ export class CustomContentTypes extends React.Component {
 						link: getRedirectUrl( 'jetpack-support-custom-content-types' ),
 					} }
 				>
-					<p>
-						{ createInterpolateElement( portfolioText, {
-							portfolioLink: this.linkIfActiveCPT( 'portfolio' ),
-						} ) }
-					</p>
+					<p>{ portfolioText }</p>
 					<ToggleControl
 						checked={
 							this.props.getOptionValue( 'jetpack_portfolio', 'custom-content-types' )
