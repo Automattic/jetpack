@@ -1,0 +1,26 @@
+{
+	"translation-revision-date": "2024-07-03 16:54:08+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=2; plural=n > 1;", "lang": "tr" },
+			"Pick a pre-defined layout or continue with a blank page": [
+				"\u00d6nceden tan\u0131mlanm\u0131\u015f bir d\u00fczen se\u00e7in veya bo\u015f bir sayfayla devam edin"
+			],
+			"Choose a Pattern": [ "Bir Model se\u00e7in" ],
+			"Page categories": [ "Sayfa kategorileri" ],
+			"Blank page": [ "Bo\u015f sayfa" ],
+			"Pick a pre-defined layout or start with a blank page.": [
+				"\u00d6nceden tan\u0131mlanm\u0131\u015f bir d\u00fczen se\u00e7in veya bo\u015f bir sayfayla ba\u015flay\u0131n."
+			],
+			"Add a page": [ "Sayfa ekle" ],
+			"Layout": [ "D\u00fczen" ],
+			"default vertical name\u0004Business": [ "\u0130\u015fletme" ],
+			"default company name\u0004Your Company Name": [ "\u015eirketinizin Ad\u0131" ],
+			"default phone number\u0004555-555-5555": [ "555-555-5555" ],
+			"default address\u0004123 Main St": [ "123 Main St" ]
+		}
+	},
+	"comment": { "reference": "starter-page-templates/dist/starter-page-templates.js" }
+}

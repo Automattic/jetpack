@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Jetpack_Mu_Wpcom\NUX;
 
+use Automattic\Jetpack\Jetpack_Mu_Wpcom;
+
 require_once __DIR__ . '/../../utils.php';
 
 /**
@@ -45,7 +47,7 @@ class WPCOM_Block_Editor_NUX {
 	 */
 	public function enqueue_script_and_style() {
 		$handle = jetpack_mu_wpcom_enqueue_assets( 'wpcom-block-editor-nux', array( 'js', 'css' ) );
-		wp_set_script_translations( $handle, 'jetpack-mu-wpcom' );
+		wp_set_script_translations( $handle, 'jetpack-mu-wpcom', Jetpack_Mu_Wpcom::PKG_DIR . 'languages' );
 
 		/**
 		 * Enqueue the launchpad options.

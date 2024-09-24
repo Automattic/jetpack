@@ -1,0 +1,20 @@
+{
+	"translation-revision-date": "2021-10-01 13:11:40+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=2; plural=n != 1;", "lang": "nb_NO" },
+			"Choose a Pattern": [ "Velg et m\u00f8nster" ],
+			"Page categories": [ "Sidekategorier" ],
+			"Blank page": [ "Tom side" ],
+			"Add a page": [ "Legg til en side" ],
+			"Layout": [ "Oppsett" ],
+			"default vertical name\u0004Business": [ "Virksomhet" ],
+			"default company name\u0004Your Company Name": [ "Ditt firmanavn" ],
+			"default phone number\u0004555-555-5555": [ "98765432" ],
+			"default address\u0004123 Main St": [ "Hovedgata 123" ]
+		}
+	},
+	"comment": { "reference": "starter-page-templates/dist/starter-page-templates.js" }
+}

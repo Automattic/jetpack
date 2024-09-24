@@ -1,0 +1,26 @@
+{
+	"translation-revision-date": "2024-07-04 09:54:07+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=1; plural=0;", "lang": "ko_KR" },
+			"Pick a pre-defined layout or continue with a blank page": [
+				"\uc0ac\uc804 \uc815\uc758\ub41c \ub808\uc774\uc544\uc6c3\uc744 \uc120\ud0dd\ud558\uac70\ub098 \ube48 \ud398\uc774\uc9c0\ub85c \uacc4\uc18d"
+			],
+			"Choose a Pattern": [ "\ud328\ud134 \uc120\ud0dd" ],
+			"Page categories": [ "\ud398\uc774\uc9c0 \uce74\ud14c\uace0\ub9ac" ],
+			"Blank page": [ "\ube48 \ud398\uc774\uc9c0" ],
+			"Pick a pre-defined layout or start with a blank page.": [
+				"\uc0ac\uc804 \uc815\uc758\ub41c \ub808\uc774\uc544\uc6c3\uc744 \uc120\ud0dd\ud558\uac70\ub098 \ube48 \ud398\uc774\uc9c0\ub85c \uc2dc\uc791\ud558\uc138\uc694."
+			],
+			"Add a page": [ "\ud398\uc774\uc9c0 \ucd94\uac00" ],
+			"Layout": [ "\ub808\uc774\uc544\uc6c3" ],
+			"default vertical name\u0004Business": [ "\ube44\uc988\ub2c8\uc2a4" ],
+			"default company name\u0004Your Company Name": [ "\ud68c\uc0ac \uc774\ub984" ],
+			"default phone number\u0004555-555-5555": [ "555-555-5555" ],
+			"default address\u0004123 Main St": [ "\uba54\uc778\uae38 123" ]
+		}
+	},
+	"comment": { "reference": "starter-page-templates/dist/starter-page-templates.js" }
+}

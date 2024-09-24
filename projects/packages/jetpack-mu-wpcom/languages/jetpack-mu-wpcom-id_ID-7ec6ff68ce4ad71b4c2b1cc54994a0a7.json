@@ -1,0 +1,162 @@
+{
+	"translation-revision-date": "2024-07-04 09:54:07+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": {
+				"domain": "messages",
+				"plural-forms": "nplurals=2; plural=n > 1;",
+				"lang": "id"
+			},
+			"Post Answer": [ "Poskan Jawaban" ],
+			"Show next prompt": [ "Tampilkan prompt berikutnya" ],
+			"Show previous prompt": [ "Tampilkan prompt sebelumnya" ],
+			"Some ideas for writing topics": [ "Beberapa saran topik tulisan" ],
+			"Add these tags": [ "Tambahkan tag" ],
+			"Adding tags can help drive more traffic to your post.": [
+				"Menambahkan tag dapat meningkatkan lalu lintas ke pos Anda."
+			],
+			"Based on the topics and themes in your post, here are some suggested tags to consider:": [
+				"Berikut ini adalah sejumlah saran tag untuk dipertimbangkan berdasarkan topik dan tema pos Anda:"
+			],
+			"Recommended tags:": [ "Rekomendasi tag:" ],
+			"No Tags Added.": [ "Tidak Ada Tag yang Ditambahkan." ],
+			"Tag Added.": [ "Tag Ditambahkan.", "Tag Ditambahkan." ],
+			"Share Post": [ "Bagikan Pos" ],
+			"Don't show again": [ "Jangan tampilkan lagi" ],
+			"Get more traffic to your post by sharing:": [
+				"Hasilkan lebih banyak lalu lintas ke pos Anda dengan berbagi:"
+			],
+			"Post published!": [ "Pos diterbitkan!" ],
+			"Link copied to clipboard.": [ "Tautan disalin ke clipboard." ],
+			"Next Steps": [ "Langkah Berikutnya" ],
+			"Take the tour": [ "Ikuti tur" ],
+			"This is the Site Editor, where you can change everything about your site, including adding content to your homepage. <link_to_site_editor_course>Watch these short videos</link_to_site_editor_course> and take this tour to get started.": [
+				"Ini adalah Editor Situs, tempat untuk mengubah semua hal tentang situs Anda, termasuk menambahkan konten ke beranda. <link_to_site_editor_course>Tonton video singkat</link_to_site_editor_course> dan ikuti tur ini untuk memulai."
+			],
+			"Nice job! Your new page is set up.": [ "Kerja bagus! Halaman baru Anda telah siap." ],
+			"Feel free to keep editing your homepage, or continue and launch your site.": [
+				"Anda dapat tetap mengedit beranda, atau lanjutkan dan luncurkan situs Anda."
+			],
+			"Continue and launch": [ "Lanjutkan dan luncurkan" ],
+			"Keep editing": [ "Lanjutkan menyunting" ],
+			"Design everything on your site - from the header right down to the footer - in the Site Editor. <link_to_fse_docs>Learn more</link_to_fse_docs>": [
+				"Desain semua bagian situs Anda - dari header hingga footer - dengan Editor Situs. <link_to_fse_docs>Baca selengkapnya</link_to_fse_docs>"
+			],
+			"You\u2019ve added your first video!": [ "Anda telah menambahkan video pertama!" ],
+			"Use the toolbar to change the appearance of a selected block. Try replacing a video!": [
+				"Gunakan bilah peralatan untuk mengganti tampilan blok yang dipilih. Coba mengganti video!"
+			],
+			"Congrats! Premium blocks are now available to use.": [
+				"Selamat! Sekarang blok Premium tersedia untuk digunakan."
+			],
+			"The Payments block": [ "Blok Pembayaran" ],
+			"Learn more": [ "Pelajari selengkapnya" ],
+			"Design everything on your site - from the header right down to the footer - in the Site Editor.": [
+				"Desain semua bagian situs Anda - dari header hingga footer - dengan Editor Situs."
+			],
+			"Edit your site": [ "Sunting situs Anda" ],
+			"The Payments block allows you to accept payments for one-time, monthly recurring, or annual payments on your website": [
+				"Blok pembayaran memungkinkan Anda untuk menerima pembayaran untuk satu kali, bulanan berulang, atau tahunan di situs Anda."
+			],
+			"Tour Media": [ "Media Tur" ],
+			"Resume tour <span>(%1$d/%2$d)</span>": [ "Lanjutkan Tur<span>%1$d/%2$d</span>" ],
+			"View your product": [ "Lihat produk Anda" ],
+			"Preview your product on your site before launching and sharing with others.": [
+				"Pratinjau produk Anda di situs sebelum diluncurkan dan dibagikan dengan orang lain."
+			],
+			"You've added your first product!": [ "Anda telah menambahkan produk pertama." ],
+			"Pagination control": [ "Kontrol paginasi" ],
+			"Use List View to see all the blocks you've added. Click and drag any block to move it around.": [
+				"Gunakan Tampilan Daftar untuk menampilkan semua blok yang telah ditambahkan. Klik lalu tarik blok untuk memindahkannya."
+			],
+			"Find your way": [ "Temu kenali" ],
+			"To move blocks around, tap the up and down arrows.": [
+				"Untuk memindahkan blok, ketuk tanda panah atas dan bawah."
+			],
+			"Tap the settings icon to see even more options.": [
+				"Ketuk ikon pengaturan untuk melihat pilihan lainnya."
+			],
+			"Tap + to open the inserter. Then tap the block you want to add.": [
+				"Ketuk + untuk membuka penyisip. Kemudian, ketuk blok yang ingin Anda tambahkan."
+			],
+			"View Post": [ "Lihat Pos" ],
+			"Congratulations! You did it. View your post to see how it will look on your site.": [
+				"Selamat! Anda berhasil. Lihat pos untuk memeriksa tampilannya di situs Anda."
+			],
+			"Your first post is published!": [ "Pos pertama Anda berhasil diposkan!" ],
+			"Resume Tour": [ "Lanjutkan Tur" ],
+			"I'm not ready": [ "Saya belum siap" ],
+			"Start writing": [ "Mulai menulis" ],
+			"It\u2019s time to flex those writing muscles and start drafting your first post!": [
+				"Sekarang saatnya melemaskan otot jari tangan dan mulai membuat konsep pos pertama Anda!"
+			],
+			"Write your first post": [ "Tuliskan pos pertama Anda" ],
+			"workaround\u0004Take this short, interactive tour to learn the fundamentals of the WordPress editor.": [
+				"Ikuti tur interaktif singkat ini untuk mempelajari dasar-dasar editor WordPress."
+			],
+			"You've learned the basics. Remember, your site is private until you <link_to_launch_site_docs>decide to launch</link_to_launch_site_docs>. View the <link_to_editor_docs>block editing docs</link_to_editor_docs> to learn more.": [
+				"Anda sudah mempelajari dasar-dasarnya. Ingatlah, situs Anda bersifat pribadi sebelum Anda <link_to_launch_site_docs>meluncurkannya</link_to_launch_site_docs>. Lihat <link_to_editor_docs>dokumen pengeditan blok</link_to_editor_docs> untuk mempelajari lebih lanjut."
+			],
+			"Restart tour": [ "Ulangi tur" ],
+			"Did you find this guide helpful?": [ "Apakah menurut Anda panduan berikut bermanfaat?" ],
+			"Rate thumbs down": [ "Beri nilai kurang baik" ],
+			"Rate thumbs up": [ "Beri nilai baik" ],
+			"Close Tour": [ "Tutup Tur" ],
+			"Minimize Tour": [ "Persingkat Tur" ],
+			"Next": [ "Berikut" ],
+			"Skip": [ "Lewati" ],
+			"To move blocks around, click and drag the handle.": [
+				"Untuk memindahkan blok, klik dan seret pegangan."
+			],
+			"Congratulations!": [ "Selamat!" ],
+			"Drag & drop": [ "Seret & lepas" ],
+			"Click the Undo button if you've made a mistake.": [
+				"Klik tombol Urung jika ada kesalahan."
+			],
+			"Undo any mistake": [ "Urungkan semua kesalahan" ],
+			"Click the settings icon to see even more options.": [
+				"Klik ikon pengaturan untuk melihat opsi lainnya."
+			],
+			"More Options": [ "Pilihan Lainnya" ],
+			"Use the toolbar to change the appearance of a selected block. Try making it bold.": [
+				"Gunakan bilah peralatan untuk mengganti tampilan blok yang dipilih. Coba tebalkan."
+			],
+			"Click a block to change it": [ "Klik blok untuk mengubahnya." ],
+			"Click + to open the inserter. Then click the block you want to add.": [
+				"Klik + untuk membuka penyisip. Lalu klik blok yang ingin ditambahkan."
+			],
+			"Adding a new block": [ "Menambahkan blok baru" ],
+			"In the WordPress Editor, paragraphs, images, and videos are all blocks.": [
+				"Di Editor WordPress, semua paragraf, gambar, dan video berupa blok."
+			],
+			"Everything is a block": [ "Semuanya adalah blok." ],
+			"workaround\u0004Welcome to WordPress!": [ "Selamat Datang di WordPress!" ],
+			"Page %1$d of %2$d": [ "Halaman %1$d dari %2$d" ],
+			"Continue editing": [ "Lanjutkan menyunting" ],
+			"Copy Link": [ "Salin Tautan" ],
+			"Your site will remain hidden until launched. Click \u201cLaunch\u201d in the toolbar to share it with the world.": [
+				"Situs Anda akan tetap tersembunyi sampai diluncurkan. Klik \u201cLuncurkan\u201d di bilah peralatan untuk membagikannya pada dunia."
+			],
+			"Hidden until you\u2019re ready": [ "Tersembunyi sampai Anda siap" ],
+			"As you edit your site content, click \u201cPreview\u201d to see your site the way your visitors will.": [
+				"Saat Anda menyunting konten situs, klik \u201cPratinjau\u201d untuk melihat hasil akhirnya yang nanti akan dilihat oleh pengunjung Anda."
+			],
+			"Preview your site as you go": [ "Pratinjau situs saat mengerjakan yang lainnya" ],
+			"Edit the placeholder content we\u2019ve started you off with, or click the plus sign to add more content.": [
+				"Sunting konten placeholder yang kami berikan, atau klik tanda plus untuk menambahkan konten lainnya."
+			],
+			"Add or edit your content": [ "Tambahkan atau sunting konten Anda" ],
+			"Edit your homepage, add the pages you need, and change your site\u2019s look and feel.": [
+				"Sunting halaman beranda Anda, tambahkan halaman yang dibutuhkan, dan ubah tampilan serta nuansa situs."
+			],
+			"Welcome to your website": [ "Selamat datang di situs web Anda" ],
+			"Get started": [ "Memulai" ],
+			"Tags": [ "Tag" ]
+		}
+	},
+	"comment": {
+		"reference": "wpcom-block-editor-nux/dist/wpcom-block-editor-nux.js"
+	}
+}
