@@ -105,6 +105,7 @@ export default function useFixersQuery( {
 						if ( threat?.status === 'fixed' ) {
 							successes.push( threatId );
 						} else {
+							// Handle unsuccessful statuses and threat level errors
 							failures.push( threatId );
 						}
 					}
