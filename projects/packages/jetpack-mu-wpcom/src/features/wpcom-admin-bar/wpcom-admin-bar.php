@@ -57,25 +57,18 @@ function wpcom_enqueue_admin_bar_assets() {
 	);
 
 	/**
-	 * Hotfix the order of the admin menu items due to WP 6.6
-	 * See https://core.trac.wordpress.org/ticket/61615.
+	 * Force the Atomic debug bar menu to be the first menu at the top-right.
 	 */
-	$wp_version = get_bloginfo( 'version' );
-	if ( version_compare( $wp_version, '6.6', '<=' ) && version_compare( $wp_version, '6.6.RC', '>=' ) ) {
+	if ( defined( 'AT_PROXIED_REQUEST' ) && AT_PROXIED_REQUEST ) {
 		wp_add_inline_style(
 			'wpcom-admin-bar',
 			<<<CSS
 				#wpadminbar .quicklinks #wp-admin-bar-top-secondary {
 					display: flex;
-					flex-direction: row-reverse;
 				}
 
-				#wpadminbar .quicklinks #wp-admin-bar-top-secondary #wp-admin-bar-search {
+				#wpadminbar .quicklinks #wp-admin-bar-top-secondary #wp-admin-bar-debug-bar {
 					order: -1;
-				}
-
-				#wpadminbar .quicklinks #wp-admin-bar-top-secondary #wp-admin-bar-help-center {
-					order: 1;
 				}
 CSS
 		);
