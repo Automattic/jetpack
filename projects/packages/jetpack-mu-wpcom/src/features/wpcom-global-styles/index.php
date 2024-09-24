@@ -169,19 +169,21 @@ function wpcom_global_styles_enqueue_block_editor_assets() {
 
 	Common\wpcom_enqueue_tracking_scripts( 'wpcom-global-styles-editor' );
 
-	$reset_global_styles_support_url = 'https://wordpress.com/support/using-styles/#reset-all-styles';
+	$learn_more_about_styles_support_url = 'https://wordpress.com/support/using-styles/#access-to-styles';
+	$learn_more_about_styles_post_id     = 192200;
 	if ( class_exists( 'WPCom_Languages' ) ) {
-		$reset_global_styles_support_url = WPCom_Languages::localize_url( $reset_global_styles_support_url );
+		$learn_more_about_styles_post_id = WPCom_Languages::localize_url( $learn_more_about_styles_post_id );
 	}
 	wp_localize_script(
 		'wpcom-global-styles-editor',
 		'wpcomGlobalStyles',
 		array(
-			'upgradeUrl'                  => "$calypso_domain/plans/$site_slug?plan=value_bundle&feature=style-customization",
-			'wpcomBlogId'                 => wpcom_global_styles_get_wpcom_current_blog_id(),
-			'resetGlobalStylesSupportUrl' => $reset_global_styles_support_url,
-			'planName'                    => Plans::get_plan( 'value_bundle' )->product_name_short,
-			'modalImage'                  => plugins_url( 'image.svg', __FILE__ ),
+			'upgradeUrl'                 => "$calypso_domain/plans/$site_slug?plan=value_bundle&feature=style-customization",
+			'wpcomBlogId'                => wpcom_global_styles_get_wpcom_current_blog_id(),
+			'planName'                   => Plans::get_plan( 'value_bundle' )->product_name_short,
+			'modalImage'                 => plugins_url( 'image.svg', __FILE__ ),
+			'learnMoreAboutStylesUrl'    => $learn_more_about_styles_support_url,
+			'learnMoreAboutStylesPostId' => $learn_more_about_styles_post_id,
 		)
 	);
 	wp_enqueue_style(
