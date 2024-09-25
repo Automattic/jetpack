@@ -48,10 +48,8 @@ const generateSHA256Hash = async ( data: string ) => {
 	return hashArray.map( byte => byte.toString( 16 ).padStart( 2, '0' ) ).join( '' );
 };
 
-const getGravatarProfile = async ( email: string, avatarUrl: string ) => {
-	const hash = await generateSHA256Hash( email );
-
-	return fetch( `https://api.gravatar.com/v3/profiles/${ hash }?source=hovercard` )
+const getGravatarProfile = async ( emailHash: string, avatarUrl: string ) => {
+	return fetch( `https://api.gravatar.com/v3/profiles/${ emailHash }?source=hovercard` )
 		.then( res => {
 			if ( res.status !== 200 ) {
 				throw new Error();
@@ -63,11 +61,12 @@ const getGravatarProfile = async ( email: string, avatarUrl: string ) => {
 };
 
 export const getHovercard = async ( email: string ) => {
-	const avatarUrl = `https://gravatar.com/avatar/${ email }`;
+	const hash = await generateSHA256Hash( email );
+	const avatarUrl = `https://gravatar.com/avatar/${ hash }`;
 	let hovercardData = null;
 
 	try {
-		hovercardData = await getGravatarProfile( email, avatarUrl );
+		hovercardData = await getGravatarProfile( hash, avatarUrl );
 	} catch ( error ) {
 		hovercardData = {
 			hash: email,
