@@ -654,7 +654,7 @@ class Manager {
 	 * Resets the memoized connection status.
 	 * This will force the connection status to be recomputed on the next check.
 	 *
-	 * @since $$next-version$$
+	 * @since 5.0.0
 	 */
 	public function reset_connection_status() {
 		self::$is_connected = null;

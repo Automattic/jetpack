@@ -58,6 +58,7 @@ class Jetpack_Plugin_Compatibility {
 		'wpmu-database-reset/wpmu-database-reset.php'      => '"wpmu-database-reset" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 		'wps-hide-login/wps-hide-login.php'                => '"wps-hide-login" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 		'z-inventory-manager/z-inventory-manager.php'      => '"z-inventory-manager" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
+		'wp-downgrade/wp-downgrade.php'                    => '"wp-downgrade" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 
 		// Backup.
 		'backup-wd/backup-wd.php'                          => '"backup-wd" has been deactivated, WordPress.com handles managing your site backups for you.',

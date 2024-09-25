@@ -545,18 +545,18 @@ class REST_Connector {
 	 *
 	 * @since 1.30.1
 	 *
-	 * @return bool|WP_Error True if user is able to disconnect the site.
+	 * @since 5.1.0 Modified the permission check to accept requests signed with blog tokens.
+	 *
+	 * @return bool|WP_Error True if user is able to disconnect the site or the request is signed with a blog token (aka a direct request from WPCOM).
 	 */
 	public static function disconnect_site_permission_check() {
 		if ( current_user_can( 'jetpack_disconnect' ) ) {
 			return true;
 		}
 
-		return new WP_Error(
-			'invalid_user_permission_jetpack_disconnect',
-			self::get_user_permissions_error_msg(),
-			array( 'status' => rest_authorization_required_code() )
-		);
+		return Rest_Authentication::is_signed_with_blog_token()
+			? true
+			: new WP_Error( 'invalid_user_permission_jetpack_disconnect', self::get_user_permissions_error_msg(), array( 'status' => rest_authorization_required_code() ) );
 	}
 
 	/**

@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Synced Newspack blocks: Save just the version instead of the whole package.json to avoid confusing Renovate.
-
-

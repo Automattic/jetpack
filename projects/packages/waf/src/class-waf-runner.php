@@ -326,7 +326,7 @@ class Waf_Runner {
 		Waf_Rules_Manager::generate_ip_rules();
 		Waf_Rules_Manager::generate_rules();
 
-		self::create_blocklog_table();
+		Waf_Blocklog_Manager::create_blocklog_table();
 	}
 
 	/**
@@ -351,30 +351,6 @@ class Waf_Runner {
 				throw new File_System_Exception( 'Failed creating WAF file directory: ' . JETPACK_WAF_DIR );
 			}
 		}
-	}
-
-	/**
-	 * Create the log table when plugin is activated.
-	 *
-	 * @return void
-	 */
-	public static function create_blocklog_table() {
-		global $wpdb;
-
-		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
-
-		$sql = "
-		CREATE TABLE {$wpdb->prefix}jetpack_waf_blocklog (
-			log_id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-			timestamp datetime NOT NULL,
-			rule_id BIGINT NOT NULL,
-			reason longtext NOT NULL,
-			PRIMARY KEY (log_id),
-			KEY timestamp (timestamp)
-		)
-		";
-
-		dbDelta( $sql );
 	}
 
 	/**

@@ -550,8 +550,6 @@ function wpcom_youtube_embed_crazy_url_init() {
 		return;
 	}
 
-	// Unregister the Core's one.
-	wp_embed_unregister_handler( 'youtube_embed_url' );
 	// Register the custom handler to provide the better support for the private video.
 	wp_embed_register_handler( 'wpcom_youtube_embed_crazy_url', wpcom_youtube_get_regex(), 'wpcom_youtube_embed_crazy_url' );
 }
@@ -560,7 +558,7 @@ add_action( 'init', 'wpcom_youtube_embed_crazy_url_init' );
 /**
  * Filters the oEmbed result before any HTTP requests are made for YouTube.
  *
- * @since $$next-version$$
+ * @since 13.9
  *
  * @param null|string $result The UNSANITIZED (and potentially unsafe) HTML that should be used to embed. Default null.
  * @param string      $url    The URL that should be inspected for discovery `<link>` tags.

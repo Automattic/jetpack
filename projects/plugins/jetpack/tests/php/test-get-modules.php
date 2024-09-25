@@ -45,7 +45,6 @@ class WP_Test_Get_Modules extends WP_UnitTestCase {
 			'latex',
 			'likes',
 			'markdown',
-			'masterbar',
 			'monitor',
 			'notes',
 			'photon-cdn',
