@@ -59,9 +59,6 @@
 		<testsuite name="restapi">
 			<directory prefix="test_class.rest-api" suffix=".php">php/_inc/lib</directory>
 		</testsuite>
-		<testsuite name="masterbar">
-			<directory prefix="test" suffix=".php">php/modules/masterbar</directory>
-		</testsuite>
 		<testsuite name="autoloaded">
 			<directory prefix="test" suffix=".php">php/src</directory>
 		</testsuite>
