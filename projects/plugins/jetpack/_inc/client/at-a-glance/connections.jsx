@@ -71,7 +71,6 @@ export class DashConnections extends Component {
 							<Gridicon icon="globe" size={ 64 } />
 						) }
 						<div className="jp-connection-settings__text">
-							{ __( 'Your site is connected to WordPress.com.', 'jetpack' ) }
 							{ this.props.isConnectionOwner && (
 								<span className="jp-connection-settings__is-owner">
 									{ __( 'You are the Jetpack owner.', 'jetpack' ) }
@@ -102,7 +101,6 @@ export class DashConnections extends Component {
 		const maybeShowLinkUnlinkBtn = this.props.isConnectionOwner ? null : (
 			<ConnectButton asLink connectUser={ true } from="connection-settings" />
 		);
-
 		let cardContent = '';
 
 		if ( this.props.isOfflineMode ) {
@@ -131,14 +129,7 @@ export class DashConnections extends Component {
 		}
 
 		if ( ! this.props.isLinked ) {
-			cardContent = (
-				<div>
-					<div className="jp-connection-settings__info">
-						{ __( 'Get the most out of Jetpack.', 'jetpack' ) }
-					</div>
-					<div className="jp-connection-settings__actions">{ maybeShowLinkUnlinkBtn }</div>
-				</div>
-			);
+			cardContent = maybeShowLinkUnlinkBtn;
 		} else if ( this.props.isFetchingUserData ) {
 			cardContent = __( 'Loading…', 'jetpack' );
 		} else if ( ! this.props.wpComConnectedUser?.email ) {
