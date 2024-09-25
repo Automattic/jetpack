@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Jetpack Connection - REST API: Allow site-level authentication on POST requests to 'jetpack/v4/connection'

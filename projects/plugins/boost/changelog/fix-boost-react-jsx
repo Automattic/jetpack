@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Compatibility: Ensure React JSX polyfill is loaded for pre WP 6.6 support

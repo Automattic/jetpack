@@ -545,7 +545,7 @@ class REST_Connector {
 	 *
 	 * @since 1.30.1
 	 *
-	 * @since $$next-version$$ Modified the permission check to accept requests signed with blog tokens.
+	 * @since 5.1.0 Modified the permission check to accept requests signed with blog tokens.
 	 *
 	 * @return bool|WP_Error True if user is able to disconnect the site or the request is signed with a blog token (aka a direct request from WPCOM).
 	 */
