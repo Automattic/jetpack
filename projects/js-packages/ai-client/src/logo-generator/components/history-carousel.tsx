@@ -3,6 +3,7 @@
  */
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 /**
  * Internal dependencies
@@ -47,6 +48,9 @@ export const HistoryCarousel: React.FC = () => {
 				<Button disabled className={ clsx( 'jetpack-ai-logo-generator__carousel-logo' ) }>
 					<img height="48" width="48" src={ loader } alt={ 'loading' } />
 				</Button>
+			) }
+			{ ! logos.length && ! isLoadingHistory && (
+				<div>{ __( 'No logos generated history yet', 'jetpack-ai-client' ) }</div>
 			) }
 			{ logos.map( ( logo, index ) => (
 				<Button
