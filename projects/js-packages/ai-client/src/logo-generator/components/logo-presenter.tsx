@@ -111,6 +111,7 @@ const UseOnSiteButton: React.FC< { onApplyLogo: ( mediaId: number ) => void } > 
 			className="jetpack-ai-logo-generator-modal-presenter__action"
 			onClick={ handleClick }
 			disabled={ isSavingLogoToLibrary || ! selectedLogo?.mediaId }
+			variant="secondary"
 		>
 			<Icon icon={ <LogoIcon /> } />
 			<span className="action-text">{ __( 'Use on block', 'jetpack-ai-client' ) }</span>
