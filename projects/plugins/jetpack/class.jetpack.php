@@ -5452,10 +5452,8 @@ endif;
 				'replacement' => null,
 				'version'     => 'jetpack-13.4.0',
 			),
-			'jetpack_implode_frontend_css'                 => array(
-				'replacement' => null,
-				'version'     => 'jetpack-14.0.0',
-			),
+			// jetpack_implode_frontend_css has been removed, but is not listed here. The updated behavior is exactly the only use of the filter.
+			// We can reassess formally deprecating it here later; for now, it would be noise with no functional difference.
 		);
 
 		foreach ( $filter_deprecated_list as $tag => $args ) {
