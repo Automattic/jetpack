@@ -318,7 +318,7 @@ User request:${ prompt }`;
 			style,
 		}: {
 			prompt: string;
-			style: ImageStyle | null;
+			style?: ImageStyle | null;
 		} ): Promise< void > {
 			debug( 'Generating logo for site' );
 
