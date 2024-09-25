@@ -15,7 +15,7 @@ export const REST_API_EVALUATE_SITE_RECOMMENDATIONS = `${ REST_API_NAMESPACE }/s
 export const REST_API_SITE_EVALUATION_RESULT = `${ REST_API_NAMESPACE }/site/recommendations/evaluation/result`;
 
 export const getStatsHighlightsEndpoint = ( blogId: string ) =>
-	`${ ODYSSEY_STATS_API_NAMESPACE }/sites/${ blogId }/stats/highlights`;
+	blogId ? `${ ODYSSEY_STATS_API_NAMESPACE }/sites/${ blogId }/stats/highlights` : null;
 
 // Query names
 export const QUERY_PRODUCT_KEY = 'product';
