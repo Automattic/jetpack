@@ -1,0 +1,27 @@
+{
+	"translation-revision-date": "2024-07-04 09:54:07+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=2; plural=n != 1;", "lang": "de" },
+			"Remove premium styles": [ "Premium-Stile entfernen" ],
+			"Change all of your site's fonts, colors and more. Available on the %s plan.": [
+				"Ver\u00e4ndere auf deiner Website alle Schriftarten, Farben und vieles mehr. Verf\u00fcgbar mit dem %s-Tarif."
+			],
+			"Your site includes premium styles that are only visible to visitors after upgrading to the %s plan or higher.": [
+				"Deine Website enth\u00e4lt Premium-Stile, die Besuchern erst nach einem Upgrade auf den %s-Tarif oder h\u00f6her angezeigt werden."
+			],
+			"Your site includes premium styles that are only visible to visitors after <a>upgrading to the %s plan or higher</a>.": [
+				"Deine Website enth\u00e4lt Premium-Stile, die Besuchern erst nach einem <a>Upgrade auf den %s-Tarif oder h\u00f6her angezeigt werden</a>."
+			],
+			"Generating preview\u2026": [ "Vorschau wird erstellt ..." ],
+			"Preview without premium styles": [ "Vorschau ohne Premium-Stile anzeigen" ],
+			"Upgrade now": [ "Jetzt Upgrade durchf\u00fchren" ],
+			"Upgrade plan": [ "Tarif upgraden" ],
+			"Try it out": [ "Teste unseren neuen Tarif" ],
+			"A powerful new way to style your site": [ "Entdecke neue Designs f\u00fcr deine Website" ]
+		}
+	},
+	"comment": { "reference": "wpcom-global-styles/dist/wpcom-global-styles.js" }
+}
