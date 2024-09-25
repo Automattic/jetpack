@@ -1,0 +1,168 @@
+{
+	"translation-revision-date": "2024-07-04 16:54:06+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": {
+				"domain": "messages",
+				"plural-forms": "nplurals=2; plural=n != 1;",
+				"lang": "sv_SE"
+			},
+			"Post Answer": [ "Publicera svar" ],
+			"Show next prompt": [ "Visa n\u00e4sta uppmaning" ],
+			"Show previous prompt": [ "Visa f\u00f6reg\u00e5ende uppmaning" ],
+			"Some ideas for writing topics": [ "N\u00e5gra id\u00e9er till \u00e4mnen att skriva om" ],
+			"Add these tags": [ "L\u00e4gg till dessa etiketter" ],
+			"Adding tags can help drive more traffic to your post.": [
+				"Att l\u00e4gga till etiketter kan hj\u00e4lpa till att generera mer trafik till ditt inl\u00e4gg."
+			],
+			"Based on the topics and themes in your post, here are some suggested tags to consider:": [
+				"H\u00e4r \u00e4r n\u00e5gra f\u00f6rslag p\u00e5 etiketter, baserat p\u00e5 ditt inl\u00e4ggs \u00e4mnen och teman:"
+			],
+			"Recommended tags:": [ "Rekommenderade etiketter:" ],
+			"No Tags Added.": [ "Inga etiketter tillagda." ],
+			"Tag Added.": [ "Etikett tillagd.", "Etiketter tillagda." ],
+			"Share Post": [ "Dela inl\u00e4gg" ],
+			"Don't show again": [ "Visa inte igen" ],
+			"Get more traffic to your post by sharing:": [
+				"F\u00e5 mer trafik till ditt inl\u00e4gg genom att dela det:"
+			],
+			"Post published!": [ "Inl\u00e4gg publicerat!" ],
+			"Link copied to clipboard.": [ "L\u00e4nk kopierad till urklipp." ],
+			"Next Steps": [ "N\u00e4sta steg" ],
+			"Take the tour": [ "Ta rundturen" ],
+			"This is the Site Editor, where you can change everything about your site, including adding content to your homepage. <link_to_site_editor_course>Watch these short videos</link_to_site_editor_course> and take this tour to get started.": [
+				"Detta \u00e4r webbplatsredigeraren, d\u00e4r du kan \u00e4ndra allt som har med din webbplats att g\u00f6ra, inklusive l\u00e4gga till inneh\u00e5ll p\u00e5 din startsida. <link_to_site_editor_course>Titta p\u00e5 de h\u00e4r korta videoklippen</link_to_site_editor_course> och ta den h\u00e4r rundturen f\u00f6r att komma ig\u00e5ng."
+			],
+			"Nice job! Your new page is set up.": [ "Bra jobbat. Din nya sida har konfigurerats." ],
+			"Feel free to keep editing your homepage, or continue and launch your site.": [
+				"Forts\u00e4tt g\u00e4rna redigera din startsida eller g\u00e5 vidare och lansera din webbplats."
+			],
+			"Continue and launch": [ "Forts\u00e4tt och lansera" ],
+			"Keep editing": [ "Forts\u00e4tt redigera" ],
+			"Design everything on your site - from the header right down to the footer - in the Site Editor. <link_to_fse_docs>Learn more</link_to_fse_docs>": [
+				"Designa allt p\u00e5 din webbplats \u2013 fr\u00e5n sidhuvudet \u00e4nda ner till sidfoten \u2013 i webbplatsredigeraren. <link_to_fse_docs>L\u00e4r dig mer</link_to_fse_docs>"
+			],
+			"Take this short, interactive tour to learn the fundamentals of the WordPress Site Editor.": [
+				"Ta den h\u00e4r korta, interaktiva rundturen f\u00f6r att l\u00e4ra dig WordPress-webbplatsredigerarens grunder."
+			],
+			"You\u2019ve added your first video!": [ "Du har lagt till ditt f\u00f6rsta videoklipp!" ],
+			"Use the toolbar to change the appearance of a selected block. Try replacing a video!": [
+				"Anv\u00e4nd verktygsf\u00e4ltet f\u00f6r att \u00e4ndra utseendet p\u00e5 ett valt block. Prova att ers\u00e4tta en video!"
+			],
+			"Congrats! Premium blocks are now available to use.": [
+				"Grattis! Premiumblock \u00e4r nu tillg\u00e4ngliga f\u00f6r anv\u00e4ndning."
+			],
+			"The Payments block": [ "Betalningsblocket" ],
+			"Learn more": [ "L\u00e4r dig mer" ],
+			"Design everything on your site - from the header right down to the footer - in the Site Editor.": [
+				"Designa allt p\u00e5 din webbplats \u2013 fr\u00e5n sidhuvudet \u00e4nda ner till sidfoten \u2013 i webbplatsredigeraren."
+			],
+			"Edit your site": [ "Redigera din webbplats" ],
+			"The Payments block allows you to accept payments for one-time, monthly recurring, or annual payments on your website": [
+				"Blocket Betalningar g\u00f6r det m\u00f6jligt att ta emot eng\u00e5ngsbetalningar, \u00e5terkommande m\u00e5natliga betalningar eller \u00e5rliga betalningar p\u00e5 din webbplats"
+			],
+			"Tour Media": [ "Tour Media" ],
+			"Resume tour <span>(%1$d/%2$d)</span>": [ "Resume tour <span>(%1$d/%2$d)</span>" ],
+			"View your product": [ "Visa din produkt" ],
+			"Preview your product on your site before launching and sharing with others.": [
+				"F\u00f6rhandsgranska din produkt p\u00e5 din webbplats innan du lanserar och delar med andra."
+			],
+			"You've added your first product!": [ "Du har lagt till din f\u00f6rsta produkt!" ],
+			"Pagination control": [ "Pagineringskontroll" ],
+			"Use List View to see all the blocks you've added. Click and drag any block to move it around.": [
+				"Anv\u00e4nd listvyn f\u00f6r att se alla block som du har lagt till. Klicka p\u00e5 och dra i valfritt block f\u00f6r att flytta runt det."
+			],
+			"Find your way": [ "Hitta ditt s\u00e4tt" ],
+			"To move blocks around, tap the up and down arrows.": [
+				"F\u00f6r att flytta runt block trycker du p\u00e5 upp\u00e5t- och ned\u00e5tpilarna."
+			],
+			"Tap the settings icon to see even more options.": [
+				"Tryck p\u00e5 inst\u00e4llningsikonen f\u00f6r att se \u00e4nnu fler alternativ."
+			],
+			"Tap + to open the inserter. Then tap the block you want to add.": [
+				"Tryck p\u00e5 + f\u00f6r att \u00f6ppna infogaren. D\u00e4refter trycker du p\u00e5 det block som du vill l\u00e4gga till."
+			],
+			"View Post": [ "Visa inl\u00e4gg" ],
+			"Congratulations! You did it. View your post to see how it will look on your site.": [
+				"Grattis! Du gjorde det. Visa ditt inl\u00e4gg f\u00f6r att se hur det kommer att se ut p\u00e5 din webbplats."
+			],
+			"Your first post is published!": [ "Ditt f\u00f6rsta inl\u00e4gg \u00e4r publicerat!" ],
+			"Resume Tour": [ "\u00c5teruppta rundtur" ],
+			"I'm not ready": [ "Jag \u00e4r inte redo" ],
+			"Start writing": [ "B\u00f6rja skriva" ],
+			"It\u2019s time to flex those writing muscles and start drafting your first post!": [
+				"Det \u00e4r dags att sp\u00e4nna skrivmusklerna och b\u00f6rja p\u00e5 ett utkast till ditt f\u00f6rsta inl\u00e4gg!"
+			],
+			"Write your first post": [ "Skriv ditt f\u00f6rsta inl\u00e4gg" ],
+			"workaround\u0004Take this short, interactive tour to learn the fundamentals of the WordPress editor.": [
+				"Ta den h\u00e4r korta rundturen f\u00f6r att l\u00e4ra dig WordPress-redigerarens grunder."
+			],
+			"You've learned the basics. Remember, your site is private until you <link_to_launch_site_docs>decide to launch</link_to_launch_site_docs>. View the <link_to_editor_docs>block editing docs</link_to_editor_docs> to learn more.": [
+				"Du har l\u00e4rt dig grunderna. Kom ih\u00e5g att din webbplats \u00e4r privat tills du <link_to_launch_site_docs>v\u00e4ljer att lansera den</link_to_launch_site_docs>. Visa <link_to_editor_docs>blockredigeringsdokumenten</link_to_editor_docs> f\u00f6r att l\u00e4sa mer."
+			],
+			"Restart tour": [ "Starta om rundturen" ],
+			"Did you find this guide helpful?": [
+				"Tyckte du att den h\u00e4r guiden var till hj\u00e4lp?"
+			],
+			"Rate thumbs down": [ "Betygs\u00e4tt tumme ner" ],
+			"Rate thumbs up": [ "Betygs\u00e4tt tumme upp" ],
+			"Close Tour": [ "St\u00e4ng rundturen" ],
+			"Minimize Tour": [ "Minimera rundturen" ],
+			"Next": [ "N\u00e4sta" ],
+			"Skip": [ "Hoppa \u00f6ver" ],
+			"To move blocks around, click and drag the handle.": [
+				"Flytta runt block genom att klicka och dra i handtaget."
+			],
+			"Congratulations!": [ "Grattis!" ],
+			"Drag & drop": [ "Dra och sl\u00e4pp" ],
+			"Click the Undo button if you've made a mistake.": [
+				"Klicka p\u00e5 \u00c5ngra-knappen om du gjort ett misstag."
+			],
+			"Undo any mistake": [ "\u00c5ngra eventuella misstag" ],
+			"Click the settings icon to see even more options.": [
+				"Klicka p\u00e5 inst\u00e4llningsikonen f\u00f6r att se \u00e4nnu fler alternativ."
+			],
+			"More Options": [ "Fler alternativ" ],
+			"Use the toolbar to change the appearance of a selected block. Try making it bold.": [
+				"Anv\u00e4nd verktygsf\u00e4ltet f\u00f6r att \u00e4ndra utseendet p\u00e5 ett valt block. Prova att anv\u00e4nda fetstil."
+			],
+			"Click a block to change it": [ "Klicka p\u00e5 ett block f\u00f6r att \u00e4ndra det" ],
+			"Click + to open the inserter. Then click the block you want to add.": [
+				"Klicka p\u00e5 + f\u00f6r att \u00f6ppna infogaren. Klicka sedan p\u00e5 det block som du vill l\u00e4gga till."
+			],
+			"Adding a new block": [ "L\u00e4gger till ett nytt block" ],
+			"In the WordPress Editor, paragraphs, images, and videos are all blocks.": [
+				"I WordPress-redigeraren \u00e4r b\u00e5de stycken, bilder och videor block."
+			],
+			"Everything is a block": [ "Allting \u00e4r ett block" ],
+			"workaround\u0004Welcome to WordPress!": [ "V\u00e4lkommen till WordPress!" ],
+			"Page %1$d of %2$d": [ "Sida %1$d av %2$d" ],
+			"Continue editing": [ "Forts\u00e4tt redigera" ],
+			"Copy Link": [ "Kopiera l\u00e4nk" ],
+			"Your site will remain hidden until launched. Click \u201cLaunch\u201d in the toolbar to share it with the world.": [
+				"Din webbplats kommer att f\u00f6rbli dold tills den lanseras. Klicka p\u00e5 \"Lansera\" i verktygsf\u00e4ltet f\u00f6r att dela den med v\u00e4rlden."
+			],
+			"Hidden until you\u2019re ready": [ "Dold tills du \u00e4r redo" ],
+			"As you edit your site content, click \u201cPreview\u201d to see your site the way your visitors will.": [
+				"Medan du redigerar ditt webbplatsinneh\u00e5ll kan du klicka p\u00e5 \"F\u00f6rhandsgranska\" f\u00f6r att se hur webbplatsen kommer att se ut f\u00f6r dina bes\u00f6kare."
+			],
+			"Preview your site as you go": [ "F\u00f6rhandsgranska din webbplats allteftersom" ],
+			"Edit the placeholder content we\u2019ve started you off with, or click the plus sign to add more content.": [
+				"Redigera platsh\u00e5llarinneh\u00e5llet som vi har gett dig som startpunkt, eller klicka p\u00e5 plustecknet f\u00f6r att l\u00e4gga till mer inneh\u00e5ll."
+			],
+			"Add or edit your content": [ "L\u00e4gg till eller redigera inneh\u00e5ll" ],
+			"Edit your homepage, add the pages you need, and change your site\u2019s look and feel.": [
+				"Redigera din hemsida, l\u00e4gg till de sidor du beh\u00f6ver och \u00e4ndra webbplatsens utseende och k\u00e4nsla."
+			],
+			"Welcome to your website": [ "V\u00e4lkommen till din webbplats" ],
+			"Get started": [ "Kom ig\u00e5ng" ],
+			"Tags": [ "Etiketter" ],
+			"Back": [ "Tillbaka" ]
+		}
+	},
+	"comment": {
+		"reference": "wpcom-block-editor-nux/dist/wpcom-block-editor-nux.js"
+	}
+}
