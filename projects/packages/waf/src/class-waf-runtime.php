@@ -39,6 +39,14 @@ class Waf_Runtime {
 	const NORMALIZE_ARRAY_MATCH_VALUES = 2;
 
 	/**
+	 * The version of this runtime class. Used by rule files to ensure compatibility.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @var int
+	 */
+	public $version = 1;
+	/**
 	 * Last rule.
 	 *
 	 * @var string
