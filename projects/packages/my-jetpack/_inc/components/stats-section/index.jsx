@@ -19,7 +19,7 @@ const StatsSection = () => {
 	const { data: statsCounts } = useSimpleQuery( {
 		name: QUERY_STATS_COUNTS_KEY,
 		query: {
-			path: getStatsHighlightsEndpoint( blogID ),
+			path: blogID ? getStatsHighlightsEndpoint( blogID ) : null,
 		},
 	} );
 	const counts = statsCounts?.past_seven_days || {};
