@@ -301,7 +301,7 @@ function wpcom_hide_customizer_submenu_on_block_theme() {
 
 		remove_action( 'customize_register', array( 'Jetpack_Fonts_Typekit', 'maybe_override_for_advanced_mode' ), 20 );
 
-		remove_action( 'customize_register', 'Automattic\Jetpack\Dashboard_Customizations\register_css_nudge_control' );
+		remove_action( 'customize_register', 'Automattic\Jetpack\Masterbar\register_css_nudge_control' );
 
 		remove_action( 'customize_register', array( 'Jetpack_Custom_CSS_Enhancements', 'customize_register' ) );
 	}

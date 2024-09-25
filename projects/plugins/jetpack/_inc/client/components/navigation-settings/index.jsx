@@ -143,7 +143,6 @@ export class NavigationSettings extends React.Component {
 						</NavItem>
 					) }
 					{ this.props.hasAnyOfTheseModules( [
-						'masterbar',
 						'markdown',
 						'custom-content-types',
 						'post-by-email',

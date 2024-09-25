@@ -343,26 +343,6 @@ function jetpack_carousel_more_info() {
 add_action( 'jetpack_module_more_info_carousel', 'jetpack_carousel_more_info' );
 
 /**
- * Masterbar support link.
- */
-function jetpack_masterbar_more_link() {
-	echo esc_url( Redirect::get_url( 'jetpack-support-masterbar' ) );
-}
-add_action( 'jetpack_learn_more_button_masterbar', 'jetpack_masterbar_more_link' );
-
-/**
- * Masterbar description.
- */
-function jetpack_masterbar_more_info() {
-	esc_html_e(
-		'Quickly access your Stats, Notifications, Posts and more on WordPress.com.
-		The Toolbar is displayed for any user on the site that is connected to WordPress.com.',
-		'jetpack'
-	);
-}
-add_action( 'jetpack_module_more_info_masterbar', 'jetpack_masterbar_more_info' );
-
-/**
  * Infinite Scroll support link.
  */
 function jetpack_infinite_scroll_more_button() {
