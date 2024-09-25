@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Disabling controls that are already visually disabled.
+
+
