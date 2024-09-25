@@ -24,6 +24,9 @@ export default function useStartScanMutation(): UseMutationResult {
 				...currentStatus,
 				status: SCAN_STATUS_OPTIMISTICALLY_SCANNING,
 			} ) );
+
+			// Set last_requested_scan timestamp in localStorage
+			localStorage.setItem( 'last_requested_scan', Date.now().toString() );
 		},
 		onError() {
 			// The scan failed to enqueue, invalidate the scan status query to reset the current status.

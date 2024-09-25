@@ -1,5 +1,5 @@
 import { useConnection } from '@automattic/jetpack-connection';
-import { useQuery, UseQueryResult } from '@tanstack/react-query';
+import { useQuery, UseQueryResult, useQueryClient } from '@tanstack/react-query';
 import camelize from 'camelize';
 import API from '../../api';
 import {
@@ -32,6 +32,7 @@ export const isScanInProgress = ( status: ScanStatus ) => {
 export default function useScanStatusQuery( {
 	usePolling,
 }: { usePolling?: boolean } = {} ): UseQueryResult< ScanStatus > {
+	const queryClient = useQueryClient();
 	const { isRegistered } = useConnection( {
 		autoTrigger: false,
 		from: 'protect',
@@ -41,7 +42,39 @@ export default function useScanStatusQuery( {
 
 	return useQuery( {
 		queryKey: [ QUERY_SCAN_STATUS_KEY ],
-		queryFn: API.getScanStatus,
+		queryFn: async () => {
+			// Fetch scan status data from the API
+			const data = await API.getScanStatus();
+
+			// Retrieve last scan timestamp from localStorage and convert to number
+			const lastRequestedScanTimestamp = Number( localStorage.getItem( 'last_requested_scan' ) );
+
+			// If there is no stored timestamp, return the API data
+			if ( ! lastRequestedScanTimestamp ) {
+				return data;
+			}
+
+			// Check if the last scan request is more than 5 minutes old
+			const islastRequestedScanTimestampExpired =
+				lastRequestedScanTimestamp < Date.now() - 5 * 60 * 1000;
+
+			// Check if the scan request is completed based on the last checked time
+			const isScanRequestCompleted = Number( data.lastChecked ) > lastRequestedScanTimestamp;
+
+			// Get cached data for the query
+			const cachedData = queryClient.getQueryData( [ QUERY_SCAN_STATUS_KEY ] );
+
+			// Return cached data if conditions are met
+			if (
+				'idle' === data.status &&
+				! islastRequestedScanTimestampExpired &&
+				! isScanRequestCompleted
+			) {
+				return cachedData;
+			}
+
+			return data;
+		},
 		initialData: camelize( window?.jetpackProtectInitialState?.status ),
 		enabled: isRegistered,
 		refetchInterval( query ) {
