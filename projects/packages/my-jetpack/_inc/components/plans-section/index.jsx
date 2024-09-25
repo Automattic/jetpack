@@ -177,6 +177,8 @@ function PlanSectionFooter( { numberOfPurchases } ) {
  */
 export default function PlansSection() {
 	const userIsAdmin = !! getMyJetpackWindowInitialState( 'userIsAdmin' );
+	const { userConnectionData } = useMyJetpackConnection();
+
 	const {
 		data: purchases,
 		isLoading,
@@ -184,6 +186,10 @@ export default function PlansSection() {
 	} = useSimpleQuery( {
 		name: QUERY_PURCHASES_KEY,
 		query: { path: REST_API_SITE_PURCHASES_ENDPOINT },
+		options: {
+			enabled: !! userConnectionData?.blogID,
+			placeholderData: { purchases: [] },
+		},
 	} );
 
 	const isDataLoaded = purchases && ! isLoading && ! isError;

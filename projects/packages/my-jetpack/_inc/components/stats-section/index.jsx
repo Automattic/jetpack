@@ -21,6 +21,10 @@ const StatsSection = () => {
 		query: {
 			path: getStatsHighlightsEndpoint( blogID ),
 		},
+		options: {
+			enabled: !! blogID,
+			placeholderData: { statsCounts: {} },
+		},
 	} );
 	const counts = statsCounts?.past_seven_days || {};
 	const previousCounts = statsCounts?.between_past_eight_and_fifteen_days || {};
