@@ -17,6 +17,7 @@ import useRequestErrors from './use-request-errors.js';
 /**
  * Types
  */
+import type { ImageStyle } from '../../hooks/use-image-generator/constants.js';
 import type { Logo, Selectors, SaveLogo } from '../store/types.js';
 
 const debug = debugFactory( 'jetpack-ai-calypso:use-logo-generator' );
@@ -78,7 +79,7 @@ const useLogoGenerator = () => {
 		setLogoUpdateError,
 	} = useRequestErrors();
 
-	const { generateImageWithParameters } = useImageGenerator();
+	const { generateImageWithParameters, getImageStyles } = useImageGenerator();
 	const { saveToMediaLibrary } = useSaveToMediaLibrary();
 
 	const { ID = null, name = null, description = null } = siteDetails || {};
@@ -193,8 +194,10 @@ For example: user's prompt: A logo for an ice cream shop. Returned prompt: A log
 
 	const generateImage = useCallback( async function ( {
 		prompt,
+		style = null,
 	}: {
 		prompt: string;
+		style?: ImageStyle | null;
 	} ): Promise< { data: Array< { url: string } > } > {
 		setLogoFetchError( null );
 
@@ -221,6 +224,7 @@ User request:${ prompt }`;
 				prompt: imageGenerationPrompt,
 				feature: 'jetpack-ai-logo-generator',
 				response_format: 'b64_json',
+				style,
 			};
 
 			const data = await generateImageWithParameters( body );
@@ -309,7 +313,13 @@ User request:${ prompt }`;
 	);
 
 	const generateLogo = useCallback(
-		async function ( { prompt }: { prompt: string } ): Promise< void > {
+		async function ( {
+			prompt,
+			style,
+		}: {
+			prompt: string;
+			style: ImageStyle | null;
+		} ): Promise< void > {
 			debug( 'Generating logo for site' );
 
 			setIsRequestingImage( true );
@@ -324,7 +334,7 @@ User request:${ prompt }`;
 				let image;
 
 				try {
-					image = await generateImage( { prompt } );
+					image = await generateImage( { prompt, style } );
 
 					if ( ! image || ! image.data.length ) {
 						throw new Error( 'No image returned' );
@@ -391,6 +401,7 @@ User request:${ prompt }`;
 		tierPlansEnabled,
 		isLoadingHistory,
 		setIsLoadingHistory,
+		getImageStyles,
 	};
 };
 
