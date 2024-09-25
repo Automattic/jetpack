@@ -7,6 +7,7 @@ import debugFactory from 'debug';
  */
 import askQuestionSync from '../../ask-question/sync.js';
 import requestJwt from '../../jwt/index.js';
+import { IMAGE_STYLE_LABELS } from './constants.js';
 
 const debug = debugFactory( 'ai-client:use-image-generator' );
 
@@ -255,11 +256,22 @@ const useImageGenerator = () => {
 		}
 	};
 
+	/**
+	 * Get available styles.
+	 *
+	 * @return {object} with the styles {key:label} for the image generation.
+	 */
+	const getImageStyles = function (): object {
+		return IMAGE_STYLE_LABELS;
+	};
+
 	return {
 		generateImage,
 		generateImageWithStableDiffusion,
 		generateImageWithParameters: executeImageGeneration,
+		getImageStyles,
 	};
 };
 
 export default useImageGenerator;
+export * from './constants.js';

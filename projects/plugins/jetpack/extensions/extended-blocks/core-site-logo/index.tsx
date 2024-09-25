@@ -123,6 +123,8 @@ const siteLogoEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 
 		const siteDetails = useSiteDetails();
 
+		const styleLogoFeatureEnabled = getFeatureAvailability( 'ai-logo-style-selector-support' );
+
 		return (
 			<>
 				<BlockEdit { ...props } />
@@ -137,6 +139,7 @@ const siteLogoEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 					context={ PLACEMENT_CONTEXT }
 					placement={ TOOL_PLACEMENT }
 					siteDetails={ siteDetails }
+					showStyleSelector={ styleLogoFeatureEnabled }
 				/>
 			</>
 		);
