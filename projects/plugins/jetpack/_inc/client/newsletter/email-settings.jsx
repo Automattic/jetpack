@@ -20,7 +20,11 @@ import TextInput from 'components/text-input';
 import analytics from 'lib/analytics';
 import { useCallback, useState } from 'react';
 import { connect } from 'react-redux';
-import { isUnavailableInOfflineMode, isUnavailableInSiteConnectionMode } from 'state/connection';
+import {
+	isUnavailableInOfflineMode,
+	isUnavailableInSiteConnectionMode,
+	isCurrentUserLinked,
+} from 'state/connection';
 import {
 	getSiteTitle,
 	getUserGravatar,
@@ -47,6 +51,7 @@ const FROM_NAME_OPTION = 'jetpack_subscriptions_from_name';
 const EmailSettings = props => {
 	const {
 		isSubscriptionsActive,
+		isLinked,
 		isSavingAnyOption,
 		subscriptionsModule,
 		unavailableInOfflineMode,
@@ -68,7 +73,10 @@ const EmailSettings = props => {
 	} = props;
 
 	const disabled =
-		! isSubscriptionsActive || unavailableInOfflineMode || unavailableInSiteConnectionMode;
+		! isSubscriptionsActive ||
+		unavailableInOfflineMode ||
+		unavailableInSiteConnectionMode ||
+		! isLinked;
 	const gravatarInputDisabled = disabled || isSavingAnyOption( [ GRAVATER_OPTION ] );
 	const authorInputDisabled = disabled || isSavingAnyOption( [ AUTHOR_OPTION ] );
 	const postDateInputDisabled = disabled || isSavingAnyOption( [ POST_DATE_OPTION ] );
@@ -479,6 +487,7 @@ export default withModuleSettingsFormHelpers(
 				state,
 				SUBSCRIPTIONS_MODULE_NAME
 			),
+			isLinked: isCurrentUserLinked( state ),
 		};
 	} )( EmailSettings )
 );

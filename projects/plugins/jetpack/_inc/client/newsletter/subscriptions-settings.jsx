@@ -27,6 +27,7 @@ import { SUBSCRIPTIONS_MODULE_NAME } from './constants';
 function SubscriptionsSettings( props ) {
 	const {
 		unavailableInOfflineMode,
+		isLinked,
 		isSavingAnyOption,
 		isStbEnabled,
 		isStcEnabled,
@@ -113,7 +114,7 @@ function SubscriptionsSettings( props ) {
 		);
 	}, [ updateFormStateModuleOption ] );
 
-	const isDisabled = ! isSubscriptionsActive || unavailableInOfflineMode;
+	const isDisabled = ! isSubscriptionsActive || unavailableInOfflineMode || ! isLinked;
 
 	return (
 		<SettingsCard

@@ -79,7 +79,7 @@ function Newsletter( props ) {
 			>
 				<ModuleToggle
 					slug="subscriptions"
-					disabled={ unavailableInOfflineMode }
+					disabled={ unavailableInOfflineMode || ! isLinked }
 					activated={ isSubscriptionsActive }
 					toggling={ isSavingAnyOption( SUBSCRIPTIONS_MODULE_NAME ) }
 					toggleModule={ toggleModuleNow }

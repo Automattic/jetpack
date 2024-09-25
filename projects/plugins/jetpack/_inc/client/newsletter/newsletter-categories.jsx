@@ -9,6 +9,7 @@ import {
 	isUnavailableInOfflineMode,
 	isUnavailableInSiteConnectionMode,
 	requiresConnection,
+	isCurrentUserLinked,
 } from 'state/connection';
 import { getModule } from 'state/modules';
 import Card from '../components/card';
@@ -48,6 +49,7 @@ function NewsletterCategories( props ) {
 		subscriptionsModule,
 		updateFormStateOptionValue,
 		isSavingAnyOption,
+		isLinked,
 	} = props;
 
 	const handleEnableNewsletterCategoriesToggleChange = useCallback( () => {
@@ -85,7 +87,8 @@ function NewsletterCategories( props ) {
 		! isSubscriptionsActive ||
 		unavailableInOfflineMode ||
 		unavailableInSiteConnectionMode ||
-		isSavingAnyOption( [ NEWSLETTER_CATEGORIES_ENABLED_OPTION, NEWSLETTER_CATEGORIES_OPTION ] );
+		isSavingAnyOption( [ NEWSLETTER_CATEGORIES_ENABLED_OPTION, NEWSLETTER_CATEGORIES_OPTION ] ) ||
+		! isLinked;
 
 	return (
 		<SettingsCard
@@ -172,6 +175,7 @@ export default withModuleSettingsFormHelpers(
 				state,
 				SUBSCRIPTIONS_MODULE_NAME
 			),
+			isLinked: isCurrentUserLinked( state ),
 		};
 	} )( NewsletterCategories )
 );
