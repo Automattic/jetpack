@@ -46,16 +46,6 @@ abstract class Jetpack_Admin_Page {
 	abstract public function page_render();
 
 	/**
-	 * Should we block the page rendering because the site is in IDC?
-	 * Beware that the property is set early on, and might not always reflect the actual value.
-	 *
-	 * @var bool
-	 *
-	 * @deprecated 13.2 Use `$this->block_page_rendering_for_idc()` instead.
-	 */
-	public static $block_page_rendering_for_idc;
-
-	/**
 	 * Function called after admin_styles to load any additional needed styles.
 	 *
 	 * @since 4.3.0
@@ -76,10 +66,6 @@ abstract class Jetpack_Admin_Page {
 	 */
 	public function on_jetpack_loaded( $jetpack ) {
 		$this->jetpack = $jetpack;
-
-		self::$block_page_rendering_for_idc = (
-			Jetpack::is_connection_ready() && Identity_Crisis::validate_sync_error_idc_option() && ! Jetpack_Options::get_option( 'safe_mode_confirmed' )
-		);
 	}
 
 	/**
