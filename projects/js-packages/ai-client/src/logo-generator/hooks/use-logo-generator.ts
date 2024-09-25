@@ -224,7 +224,7 @@ User request:${ prompt }`;
 				prompt: imageGenerationPrompt,
 				feature: 'jetpack-ai-logo-generator',
 				response_format: 'b64_json',
-				style,
+				style: style || '', // backend expects an empty string if no style is provided
 			};
 
 			const data = await generateImageWithParameters( body );

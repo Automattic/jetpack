@@ -48,7 +48,9 @@ export const Prompt = ( { initialPrompt = '', showStyleSelector = false }: Promp
 	const { enhancePromptFetchError, logoFetchError } = useRequestErrors();
 	const { nextTierCheckoutURL: checkoutUrl, hasNextTier } = useCheckout();
 	const hasPrompt = prompt?.length >= MINIMUM_PROMPT_LENGTH;
-	const [ style, setStyle ] = useState< ImageStyle >( IMAGE_STYLE_LINE_ART );
+	const [ style, setStyle ] = useState< ImageStyle >(
+		showStyleSelector ? IMAGE_STYLE_LINE_ART : null
+	);
 
 	const {
 		generateLogo,
