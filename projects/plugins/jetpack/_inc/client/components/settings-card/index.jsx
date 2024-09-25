@@ -257,7 +257,7 @@ export const SettingsCard = inprops => {
 					return '';
 				}
 
-				return props.hasConnectedOwner ? (
+				return (
 					<JetpackBanner
 						callToAction={
 							isSearchNewPricingLaunched202208()
@@ -272,18 +272,6 @@ export const SettingsCard = inprops => {
 						feature={ feature }
 						onClick={ handleClickForTracking( feature ) }
 						href={ props.searchUpgradeUrl }
-						rna
-					/>
-				) : (
-					<JetpackBanner
-						callToAction={ connectLabel() }
-						title={ __(
-							'Connect your WordPress.com account to upgrade and help visitors quickly find answers with highly relevant instant search results and powerful filtering.',
-							'jetpack'
-						) }
-						plan={ getJetpackProductUpsellByFeature( FEATURE_SEARCH_JETPACK ) }
-						feature={ feature }
-						onClick={ handleConnectClick( feature ) }
 						rna
 					/>
 				);
