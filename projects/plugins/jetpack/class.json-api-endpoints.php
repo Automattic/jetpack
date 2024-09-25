@@ -129,7 +129,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 	/**
 	 * The REST endpoint if available.
 	 *
-	 * @var bool
+	 * @var string
 	 */
 	public $rest_route = null;
 
