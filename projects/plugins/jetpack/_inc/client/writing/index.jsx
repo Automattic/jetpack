@@ -9,7 +9,7 @@ import {
 	isCurrentUserLinked,
 	getConnectUrl,
 } from 'state/connection';
-import { userCanManageModules, userCanEditPosts, isAtomicSite } from 'state/initial-state';
+import { userCanManageModules, userCanEditPosts } from 'state/initial-state';
 import { isModuleActivated, getModuleOverride, getModule } from 'state/modules';
 import { isModuleFound } from 'state/search';
 import { getSettings } from 'state/settings';
@@ -106,7 +106,6 @@ export default connect( state => {
 	return {
 		module: module_name => getModule( state, module_name ),
 		settings: getSettings( state ),
-		masterbarIsAlwaysActive: isAtomicSite( state ),
 		isOfflineMode: isOfflineMode( state ),
 		isUnavailableInOfflineMode: module_name => isUnavailableInOfflineMode( state, module_name ),
 		userCanEditPosts: userCanEditPosts( state ),
