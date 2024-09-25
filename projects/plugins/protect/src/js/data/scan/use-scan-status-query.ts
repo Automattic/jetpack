@@ -66,7 +66,7 @@ export default function useScanStatusQuery( {
 
 			// Return cached data if conditions are met
 			if (
-				'idle' === data.status &&
+				data.status === 'idle' &&
 				! islastRequestedScanTimestampExpired &&
 				! isScanRequestCompleted
 			) {
