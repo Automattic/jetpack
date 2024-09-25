@@ -793,24 +793,56 @@ class Jetpack_Gutenberg {
 	 * @see wp_common_block_scripts_and_styles()
 	 */
 	public static function load_independent_blocks() {
-		if ( self::should_load() ) {
-			/**
-			 * Look for files that match our list of available Jetpack Gutenberg extensions (blocks and plugins).
-			 * If available, load them.
-			 */
-			$directories = array( 'blocks', 'plugins', 'extended-blocks', 'shared', 'store' );
+		if ( ! self::should_load() ) {
+			return;
+		}
 
-			foreach ( static::get_extensions() as $extension ) {
-				foreach ( $directories as $dirname ) {
-					$path = JETPACK__PLUGIN_DIR . "extensions/{$dirname}/{$extension}/{$extension}.php";
+		$transient_key    = 'jetpack_gutenberg_extensions_paths';
+		$extensions_paths = get_transient( $transient_key );
 
-					if ( file_exists( $path ) ) {
-						include_once $path;
-						continue 2;
-					}
+		if ( false === $extensions_paths ) {
+			$extensions_paths = self::get_extensions_paths();
+			$existing_files   = array();
+			foreach ( $extensions_paths as $path ) {
+				if ( file_exists( $path ) ) {
+					$existing_files[] = $path;
+				}
+			}
+			set_transient( $transient_key, $existing_files, HOUR_IN_SECONDS );
+			$extensions_paths = $existing_files;
+		}
+
+		foreach ( $extensions_paths as $path ) {
+			include_once $path;
+		}
+	}
+
+	/**
+	 * Get the file paths for Jetpack Gutenberg extensions.
+	 *
+	 * This method searches for extension files in specific directories
+	 * within the Jetpack plugin folder. It looks for PHP files that match
+	 * the extension names returned by the get_extensions() method.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return array An array of file paths for the found extensions.
+	 */
+	private static function get_extensions_paths() {
+		$directories      = array( 'blocks', 'plugins', 'extended-blocks', 'shared', 'store' );
+		$extensions_paths = array();
+
+		foreach ( static::get_extensions() as $extension ) {
+			foreach ( $directories as $dirname ) {
+				$path = JETPACK__PLUGIN_DIR . "extensions/{$dirname}/{$extension}/{$extension}.php";
+				if ( file_exists( $path ) ) {
+					$extensions_paths[] = $path;
+					break;
 				}
 			}
 		}
+
+		return $extensions_paths;
 	}
 
 	/**
