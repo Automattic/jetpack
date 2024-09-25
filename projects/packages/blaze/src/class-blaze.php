@@ -219,7 +219,12 @@ class Blaze {
 			 *
 			 * @param bool $should_initialize Whether Blaze should be enabled. Default to true.
 			 */
-			return apply_filters( 'jetpack_blaze_enabled', true );
+			$should_init = apply_filters( 'jetpack_blaze_enabled', true );
+
+			return array(
+				'can_init' => $should_init,
+				'reason'   => $should_init ? null : 'initialization_disabled',
+			);
 		}
 
 		// On self-hosted sites, we must do some additional checks.
