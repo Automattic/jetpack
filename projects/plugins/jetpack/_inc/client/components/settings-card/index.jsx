@@ -293,25 +293,13 @@ export const SettingsCard = inprops => {
 					return '';
 				}
 
-				return props.hasConnectedOwner ? (
+				return (
 					<JetpackBanner
 						callToAction={ upgradeLabel() }
 						title={ __( 'Automatically clear spam from comments and forms.', 'jetpack' ) }
 						plan={ getJetpackProductUpsellByFeature( FEATURE_SPAM_AKISMET_PLUS ) }
 						feature={ feature }
 						href={ props.spamUpgradeUrl }
-						rna
-					/>
-				) : (
-					<JetpackBanner
-						callToAction={ connectLabel() }
-						title={ __(
-							'Connect your WordPress.com account to upgrade and automatically clear spam from comments and forms.',
-							'jetpack'
-						) }
-						plan={ getJetpackProductUpsellByFeature( FEATURE_SPAM_AKISMET_PLUS ) }
-						feature={ feature }
-						onclick={ props.doConnectUser }
 						rna
 					/>
 				);
