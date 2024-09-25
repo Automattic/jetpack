@@ -38,7 +38,8 @@ export const BoostPricingTable = ( {
 			{ ! pricing && (
 				<Notice
 					level="warning"
-					title={ __( 'Warning: Your website is offline or private.', 'jetpack-boost' ) }
+					hideCloseButton={ true }
+					title={ __( 'Warning: There was a problem fetching pricing data', 'jetpack-boost' ) }
 					children={ __(
 						'Boost may not work as expected. Please check your site status and try again.',
 						'jetpack-boost'
