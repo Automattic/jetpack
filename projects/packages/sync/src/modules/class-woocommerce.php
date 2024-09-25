@@ -204,17 +204,6 @@ class WooCommerce extends Module {
 	}
 
 	/**
-	 * Retrieve the actions that will be sent for this module during a full sync.
-	 *
-	 * @access public
-	 *
-	 * @return array Full sync actions of this module.
-	 */
-	public function get_full_sync_actions() {
-		return array( 'jetpack_full_sync_woocommerce_order_items' );
-	}
-
-	/**
 	 * Initialize the module in the sender.
 	 *
 	 * @access public
@@ -299,40 +288,6 @@ class WooCommerce extends Module {
 		global $wpdb;
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		return $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $this->order_item_table_name WHERE order_item_id = %d", $order_item_id ) );
-	}
-
-	/**
-	 * Enqueue the WooCommerce actions for full sync.
-	 *
-	 * @access public
-	 *
-	 * @param array   $config               Full sync configuration for this sync module.
-	 * @param int     $max_items_to_enqueue Maximum number of items to enqueue.
-	 * @param boolean $state                True if full sync has finished enqueueing this module, false otherwise.
-	 * @return array Number of actions enqueued, and next module state.
-	 */
-	public function enqueue_full_sync_actions( $config, $max_items_to_enqueue, $state ) {
-		return $this->enqueue_all_ids_as_action( 'jetpack_full_sync_woocommerce_order_items', $this->order_item_table_name, 'order_item_id', $this->get_where_sql( $config ), $max_items_to_enqueue, $state );
-	}
-
-	/**
-	 * Retrieve an estimated number of actions that will be enqueued.
-	 *
-	 * @access public
-	 *
-	 * @todo Refactor the SQL query to use $wpdb->prepare().
-	 *
-	 * @param array $config Full sync configuration for this sync module.
-	 * @return array Number of items yet to be enqueued.
-	 */
-	public function estimate_full_sync_actions( $config ) {
-		global $wpdb;
-
-		$query = "SELECT count(*) FROM $this->order_item_table_name WHERE " . $this->get_where_sql( $config );
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-		$count = (int) $wpdb->get_var( $query );
-
-		return (int) ceil( $count / self::ARRAY_CHUNK_SIZE );
 	}
 
 	/**

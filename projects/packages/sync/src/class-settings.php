@@ -295,7 +295,6 @@ class Settings {
 			if ( ( 'disable' === $setting || 'network_disable' === $setting ) && (bool) $value ) {
 				$listener = Listener::get_instance();
 				$listener->get_sync_queue()->reset();
-				$listener->get_full_sync_queue()->reset();
 			}
 
 			// Do not enable Dedicated Sync if we cannot spawn a Dedicated Sync request.

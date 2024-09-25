@@ -1079,8 +1079,6 @@ class Actions {
 
 		$full_sync_status = ( $sync_module ) ? $sync_module->get_status() : array();
 
-		$full_queue = self::$sender->get_full_sync_queue();
-
 		$result = array_merge(
 			$full_sync_status,
 			$checksums,
@@ -1095,11 +1093,6 @@ class Actions {
 			)
 		);
 
-		// Verify $sync_module is not false.
-		if ( $sync_module && ! $sync_module instanceof Modules\Full_Sync_Immediately ) {
-			$result['full_queue_size'] = $full_queue->size();
-			$result['full_queue_lag']  = $full_queue->lag();
-		}
 		return $result;
 	}
 
@@ -1131,9 +1124,6 @@ class Actions {
 		if ( $unlock_queues ) {
 			$sync_queue = new Queue( 'sync' );
 			$sync_queue->unlock();
-
-			$full_sync_queue = new Queue( 'full_sync' );
-			$full_sync_queue->unlock();
 		}
 	}
 

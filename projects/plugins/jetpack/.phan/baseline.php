@@ -555,7 +555,6 @@ return [
         'tests/php/sync/test_class.jetpack-sync-callables.php' => ['PhanNoopNew', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMissingReturn'],
         'tests/php/sync/test_class.jetpack-sync-comments.php' => ['PhanTypeMismatchArgument'],
         'tests/php/sync/test_class.jetpack-sync-full-immediately.php' => ['PhanParamTooMany', 'PhanPluginDuplicateAdjacentStatement', 'PhanPossiblyUndeclaredVariable', 'PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchArgumentProbablyReal'],
-        'tests/php/sync/test_class.jetpack-sync-full.php' => ['PhanParamTooMany', 'PhanPluginDuplicateAdjacentStatement', 'PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchArgumentReal', 'PhanUndeclaredProperty'],
         'tests/php/sync/test_class.jetpack-sync-import.php' => ['PhanRedefineClass'],
         'tests/php/sync/test_class.jetpack-sync-integration.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchPropertyProbablyReal'],
         'tests/php/sync/test_class.jetpack-sync-menus.php' => ['PhanTypeMismatchArgumentProbablyReal'],

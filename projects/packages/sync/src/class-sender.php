@@ -133,15 +133,6 @@ class Sender {
 	private $sync_queue;
 
 	/**
-	 * Full sync queue object.
-	 *
-	 * @access private
-	 *
-	 * @var \Automattic\Jetpack\Sync\Queue
-	 */
-	private $full_sync_queue;
-
-	/**
 	 * Codec object for encoding and decoding sync items.
 	 *
 	 * @access private
@@ -312,29 +303,19 @@ class Sender {
 			return false;
 		}
 
-		$this->continue_full_sync_enqueue();
-		// immediate full sync sends data in continue_full_sync_enqueue.
-		if ( ! $sync_module instanceof Modules\Full_Sync_Immediately ) {
-			return $this->do_sync_and_set_delays( $this->full_sync_queue );
+		$this->continue_sending();
+		$status = $sync_module->get_status();
+		// Sync not started or Sync finished.
+		if ( false === $status['started'] || ( ! empty( $status['started'] ) && ! empty( $status['finished'] ) ) ) {
+			return false;
 		} else {
-			$status = $sync_module->get_status();
-			// Sync not started or Sync finished.
-			if ( false === $status['started'] || ( ! empty( $status['started'] ) && ! empty( $status['finished'] ) ) ) {
-				return false;
-			} else {
-				return true;
-			}
+			return true;
 		}
 	}
-
 	/**
-	 * Enqueue the next sync items for sending.
-	 * Will not be done if the current request is a WP import one.
-	 * Will be delayed until the next sync time comes.
-	 *
-	 * @access private
+	 * Continue sending full sync.
 	 */
-	private function continue_full_sync_enqueue() {
+	private function continue_sending() {
 		if ( defined( 'WP_IMPORTING' ) && WP_IMPORTING ) {
 			return false;
 		}
@@ -344,10 +325,7 @@ class Sender {
 		}
 
 		$full_sync_module = Modules::get_module( 'full-sync' );
-		'@phan-var Modules\Full_Sync_Immediately|Modules\Full_Sync $full_sync_module';
-		$full_sync_module->continue_enqueuing();
-
-		$this->set_next_sync_time( time() + $this->get_enqueue_wait_time(), 'full-sync-enqueue' );
+		$full_sync_module->continue_sending();
 	}
 
 	/**
@@ -800,17 +778,6 @@ class Sender {
 	}
 
 	/**
-	 * Get the full sync queue object.
-	 *
-	 * @access public
-	 *
-	 * @return \Automattic\Jetpack\Sync\Queue Queue object.
-	 */
-	public function get_full_sync_queue() {
-		return $this->full_sync_queue;
-	}
-
-	/**
 	 * Get the codec object.
 	 *
 	 * @access public
@@ -852,15 +819,6 @@ class Sender {
 	 */
 	public function reset_sync_queue() {
 		$this->sync_queue->reset();
-	}
-
-	/**
-	 * Reset the full sync queue.
-	 *
-	 * @access public
-	 */
-	public function reset_full_sync_queue() {
-		$this->full_sync_queue->reset();
 	}
 
 	/**
@@ -979,8 +937,7 @@ class Sender {
 	 * @access public
 	 */
 	public function set_defaults() {
-		$this->sync_queue      = new Queue( 'sync' );
-		$this->full_sync_queue = new Queue( 'full_sync' );
+		$this->sync_queue = new Queue( 'sync' );
 		$this->set_codec();
 
 		// Saved settings.
@@ -1002,7 +959,6 @@ class Sender {
 	 */
 	public function reset_data() {
 		$this->reset_sync_queue();
-		$this->reset_full_sync_queue();
 
 		foreach ( Modules::get_modules() as $module ) {
 			$module->reset_data();
