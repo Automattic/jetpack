@@ -183,9 +183,17 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 3.4.9 - 2024-09-03
+### 3.5.0 - 2024-09-25
+#### Changed
+- General: Show a simplified getting started page if the pricing is not available
+- General: Skip the pricing page if the site is private, just like if offline
+
+#### Removed
+- General: Removed WP Super Cache promos from settings page as well as related code
+
 #### Fixed
-- Update `automattic/jetpack-image-cdn` package to resolve a PHP fatal error.
+- Compatibility: Ensure React JSX polyfill is loaded for pre WP 6.6 support
+- Critical CSS: Make sure all URLs that are being processed are absolute instead of relative.
 
 --------
 

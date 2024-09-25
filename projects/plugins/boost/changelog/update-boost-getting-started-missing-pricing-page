@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Boost: Skip the pricing page if the site is private, just like if offline
