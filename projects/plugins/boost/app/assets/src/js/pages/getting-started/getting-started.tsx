@@ -83,29 +83,35 @@ const GettingStarted: React.FC = () => {
 	}
 
 	return (
-		<div id="jb-dashboard" className="jb-dashboard jb-dashboard--main">
-			<Header>
-				<ActivateLicense />
-			</Header>
+		pricing && (
+			<div id="jb-dashboard" className="jb-dashboard jb-dashboard--main">
+				<Header>
+					<ActivateLicense />
+				</Header>
 
-			<div className="jb-section jb-section--alt">
-				<div className="jb-container">
-					<div className={ styles[ 'pricing-table' ] }>
-						<BoostPricingTable
-							pricing={ pricing }
-							onPremiumCTA={ () => initialize( 'premium' ) }
-							onFreeCTA={ () => initialize( 'free' ) }
-							chosenFreePlan={ selectedPlan === 'free' }
-							chosenPaidPlan={ selectedPlan === 'premium' }
-						/>
-						{ snackbarMessage !== '' && (
-							<Snackbar children={ snackbarMessage } onDismiss={ () => setSnackbarMessage( '' ) } />
-						) }
+				<div className="jb-section jb-section--alt">
+					<div className="jb-container">
+						<div className={ styles[ 'pricing-table' ] }>
+							<BoostPricingTable
+								pricing={ pricing }
+								onPremiumCTA={ () => initialize( 'premium' ) }
+								onFreeCTA={ () => initialize( 'free' ) }
+								chosenFreePlan={ selectedPlan === 'free' }
+								chosenPaidPlan={ selectedPlan === 'premium' }
+							/>
+							{ snackbarMessage !== '' && (
+								<Snackbar
+									children={ snackbarMessage }
+									onDismiss={ () => setSnackbarMessage( '' ) }
+								/>
+							) }
+						</div>
 					</div>
 				</div>
+
+				<Footer />
 			</div>
-			<Footer />
-		</div>
+		)
 	);
 };
 

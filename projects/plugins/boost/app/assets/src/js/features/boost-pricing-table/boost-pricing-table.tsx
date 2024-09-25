@@ -1,7 +1,6 @@
 import { type PricingSchema, usePricing } from '$lib/stores/pricing';
 import {
 	Button,
-	Notice,
 	PricingTable,
 	PricingTableColumn,
 	PricingTableHeader,
@@ -34,67 +33,54 @@ export const BoostPricingTable = ( {
 	const isDiscounted = pricing?.priceBefore && pricing?.priceBefore > pricing?.priceAfter;
 
 	return (
-		<>
-			{ ! pricing && (
-				<Notice
-					level="warning"
-					title={ __( 'Warning: Your website is offline or private.', 'jetpack-boost' ) }
-					children={ __(
-						'Boost may not work as expected. Please check your site status and try again.',
-						'jetpack-boost'
-					) }
-				></Notice>
-			) }
-
-			<PricingTable
-				title={ __( 'The easiest speed optimization plugin for WordPress', 'jetpack-boost' ) }
-				items={ boostFeatureList.map( feature => feature.description ) }
-			>
-				<PricingTableColumn primary>
-					{ [
-						<PricingTableHeader key="premium-header">
-							<ProductPrice
-								price={ ( pricing?.priceBefore ?? 0 ) / 12 }
-								offPrice={ isDiscounted ? ( pricing?.priceAfter ?? 0 ) / 12 : undefined }
-								currency={ pricing?.currencyCode }
-								hideDiscountLabel={ false }
-								legend={ legend }
-							/>
-							<Button
-								onClick={ onPremiumCTA }
-								isLoading={ chosenPaidPlan }
-								disabled={ chosenFreePlan || chosenPaidPlan }
-								fullWidth
-							>
-								{ __( 'Get Boost', 'jetpack-boost' ) }
-							</Button>
-						</PricingTableHeader>,
-						...boostFeatureList.map( feature => feature.premium ),
-					] }
-				</PricingTableColumn>
-				<PricingTableColumn>
-					{ [
-						<PricingTableHeader key="free-header">
-							<ProductPrice
-								price={ 0 }
-								legend=""
-								currency={ pricing?.currencyCode }
-								hidePriceFraction
-							/>
-							<Button
-								onClick={ onFreeCTA }
-								isLoading={ chosenFreePlan }
-								disabled={ chosenFreePlan || chosenPaidPlan }
-								fullWidth
-								variant="secondary"
-							>
-								{ __( 'Start for free', 'jetpack-boost' ) }
-							</Button>
-						</PricingTableHeader>,
-						...boostFeatureList.map( feature => feature.free ),
-					] }
-				</PricingTableColumn>
-			</PricingTable>
-		</>
+		<PricingTable
+			title={ __( 'The easiest speed optimization plugin for WordPress', 'jetpack-boost' ) }
+			items={ boostFeatureList.map( feature => feature.description ) }
+		>
+			<PricingTableColumn primary>
+				{ [
+					<PricingTableHeader key="premium-header">
+						<ProductPrice
+							price={ ( pricing?.priceBefore ?? 0 ) / 12 }
+							offPrice={ isDiscounted ? ( pricing?.priceAfter ?? 0 ) / 12 : undefined }
+							currency={ pricing?.currencyCode }
+							hideDiscountLabel={ false }
+							legend={ legend }
+						/>
+						<Button
+							onClick={ onPremiumCTA }
+							isLoading={ chosenPaidPlan }
+							disabled={ chosenFreePlan || chosenPaidPlan }
+							fullWidth
+						>
+							{ __( 'Get Boost', 'jetpack-boost' ) }
+						</Button>
+					</PricingTableHeader>,
+					...boostFeatureList.map( feature => feature.premium ),
+				] }
+			</PricingTableColumn>
+			<PricingTableColumn>
+				{ [
+					<PricingTableHeader key="free-header">
+						<ProductPrice
+							price={ 0 }
+							legend=""
+							currency={ pricing?.currencyCode }
+							hidePriceFraction
+						/>
+						<Button
+							onClick={ onFreeCTA }
+							isLoading={ chosenFreePlan }
+							disabled={ chosenFreePlan || chosenPaidPlan }
+							fullWidth
+							variant="secondary"
+						>
+							{ __( 'Start for free', 'jetpack-boost' ) }
+						</Button>
+					</PricingTableHeader>,
+					...boostFeatureList.map( feature => feature.free ),
+				] }
+			</PricingTableColumn>
+		</PricingTable>
 	);
 };
