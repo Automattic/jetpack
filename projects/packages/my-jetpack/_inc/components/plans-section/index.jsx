@@ -177,7 +177,7 @@ function PlanSectionFooter( { numberOfPurchases } ) {
  */
 export default function PlansSection() {
 	const userIsAdmin = !! getMyJetpackWindowInitialState( 'userIsAdmin' );
-	const { blogID } = useMyJetpackConnection();
+	const { isSiteConnected } = useMyJetpackConnection();
 
 	const {
 		data: purchases,
@@ -186,7 +186,7 @@ export default function PlansSection() {
 	} = useSimpleQuery( {
 		name: QUERY_PURCHASES_KEY,
 		query: {
-			path: blogID ? REST_API_SITE_PURCHASES_ENDPOINT : null,
+			path: isSiteConnected ? REST_API_SITE_PURCHASES_ENDPOINT : null,
 		},
 	} );
 

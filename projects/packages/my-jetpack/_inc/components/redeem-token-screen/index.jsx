@@ -11,7 +11,7 @@ import { includesLifetimePurchase } from '../../utils/is-lifetime-purchase';
  * @return {object} The RedeemTokenScreen component.
  */
 export default function RedeemTokenScreen() {
-	const { userConnectionData } = useMyJetpackConnection();
+	const { userConnectionData, isSiteConnected } = useMyJetpackConnection();
 	// They might not have a display name set in wpcom, so fall back to wpcom login or local username.
 	const displayName =
 		userConnectionData?.currentUser?.wpcomUser?.display_name ||
@@ -20,7 +20,7 @@ export default function RedeemTokenScreen() {
 	const { isLoading, data: purchases } = useSimpleQuery( {
 		name: QUERY_PURCHASES_KEY,
 		query: {
-			path: REST_API_SITE_PURCHASES_ENDPOINT,
+			path: isSiteConnected ? REST_API_SITE_PURCHASES_ENDPOINT : null,
 		},
 	} );
 

@@ -12,14 +12,14 @@ import StatsCards from './cards';
 
 const StatsSection = () => {
 	const slug = 'stats';
-	const { blogID } = useMyJetpackConnection();
+	const { blogID, isSiteConnected } = useMyJetpackConnection();
 	const { detail } = useProduct( slug );
 	const { status } = detail;
 	const isAdmin = !! getMyJetpackWindowInitialState( 'userIsAdmin' );
 	const { data: statsCounts } = useSimpleQuery( {
 		name: QUERY_STATS_COUNTS_KEY,
 		query: {
-			path: blogID ? getStatsHighlightsEndpoint( blogID ) : null,
+			path: isSiteConnected ? getStatsHighlightsEndpoint( blogID ) : null,
 		},
 	} );
 	const counts = statsCounts?.past_seven_days || {};
