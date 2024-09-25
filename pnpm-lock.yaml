@@ -2235,6 +2235,9 @@ importers:
       '@automattic/typography':
         specifier: 1.0.0
         version: 1.0.0
+      '@gravatar-com/hovercards':
+        specifier: 0.9.2
+        version: 0.9.2
       '@popperjs/core':
         specifier: ^2.11.8
         version: 2.11.8
@@ -6118,6 +6121,10 @@ packages:
 
   '@floating-ui/utils@0.2.7':
     resolution: {integrity: sha512-X8R8Oj771YRl/w+c1HqAC1szL8zWQRwFvgDwT129k9ACdBoud/+/rX9V0qiMl6LWUdP9voC2nDVZYPMQQsb6eA==}
+
+  '@gravatar-com/hovercards@0.9.2':
+    resolution: {integrity: sha512-ITP1WwPoRxzT4d+oWkwGxCfRGQiC2xNtndrq9IjAJQvZv09TLqDMit/D7KqhYynVH/GgpJOVfkWvRp1on7C8SA==}
+    engines: {node: '>=20'}
 
   '@hapi/hoek@9.3.0':
     resolution: {integrity: sha512-/c6rf4UJlmHlC9b5BaNvzAcFv7HZ2QHaV0D4/HNlBdvFnvQq8RI4kYdhyPCl7Xj+oWvTWQ8ujhqS53LIgAe6KQ==}
@@ -15840,6 +15847,8 @@ snapshots:
       react-dom: 18.3.1(react@18.3.1)
 
   '@floating-ui/utils@0.2.7': {}
+
+  '@gravatar-com/hovercards@0.9.2': {}
 
   '@hapi/hoek@9.3.0': {}
 

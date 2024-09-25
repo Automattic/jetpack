@@ -17,6 +17,14 @@ const babelOpts = {
 	presets: [ [ '@automattic/jetpack-webpack-config/babel/preset' ] ],
 };
 
+const plugins = jetpackConfig.StandardPlugins( {
+	DependencyExtractionPlugin: { injectPolyfill: false },
+	MiniCssExtractPlugin: { filename: '[name]/[name].css' },
+} );
+
+// Disable i18n check for now.
+delete plugins[ 3 ];
+
 module.exports = [
 	{
 		entry: {
@@ -41,10 +49,7 @@ module.exports = [
 		},
 		node: false,
 		plugins: [
-			...jetpackConfig.StandardPlugins( {
-				DependencyExtractionPlugin: { injectPolyfill: false },
-				MiniCssExtractPlugin: { filename: '[name]/[name].css' },
-			} ),
+			...plugins,
 			new webpack.ProvidePlugin( {
 				h: [ 'preact', 'h' ],
 				Fragment: [ 'preact', 'Fragment' ],
@@ -66,7 +71,7 @@ module.exports = [
 
 				// preact has some `__` internal methods, which confuse i18n-check-webpack-plugin. Hack around that.
 				jetpackConfig.TranspileRule( {
-					includeNodeModules: [ 'preact' ],
+					includeNodeModules: [ 'preact', '@gravatar-com/hovercards' ],
 					babelOpts: {
 						configFile: false,
 						plugins: [ [ 'babel-plugin-transform-rename-properties', { rename: { __: '__ǃ' } } ] ],
