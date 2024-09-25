@@ -140,14 +140,14 @@ abstract class Jetpack_Admin_Page {
 	 * @todo This may no longer be used.
 	 */
 	public function admin_help() {
-		$this->jetpack->admin_help();
+		Jetpack::init()->admin_help();
 	}
 
 	/**
 	 * Call the existing admin page events.
 	 */
 	public function admin_page_load() {
-		$this->jetpack->admin_page_load();
+		Jetpack::init()->admin_page_load();
 	}
 
 	/**
@@ -155,7 +155,7 @@ abstract class Jetpack_Admin_Page {
 	 */
 	public function admin_scripts() {
 		$this->page_admin_scripts(); // Delegate to inheriting class.
-		add_action( 'admin_footer', array( $this->jetpack, 'do_stats' ) );
+		add_action( 'admin_footer', array( Jetpack::init(), 'do_stats' ) );
 	}
 
 	/**
