@@ -62,7 +62,6 @@ const GlobalNotice = ( { message, title, options } ) => {
 		<div
 			className={ clsx( styles.notice, {
 				[ styles[ 'bigger-than-medium' ] ]: isBiggerThanMedium,
-				[ styles[ 'no-title' ] ]: ! title,
 			} ) }
 		>
 			<Notice hideCloseButton={ true } { ...options } title={ title } actions={ actionButtons }>
