@@ -6355,6 +6355,8 @@ endif;
 	public function maybe_initialize_rest_jsonapi() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( ! empty( $_GET['jsonapi'] ) && ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) ) {
+			require_once ABSPATH . 'wp-admin/includes/admin.php'; // JSON API relies on WP functionality not autoloaded in REST.
+
 			define( 'WPCOM_JSON_API__BASE', 'public-api.wordpress.com/rest/v1' );
 			require_once JETPACK__PLUGIN_DIR . 'class.json-api-endpoints.php';
 		}

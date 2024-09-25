@@ -99,7 +99,6 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 	 * @return array
 	 */
 	protected function result() {
-
 		$plugins = $this->get_plugins();
 
 		if ( ! $this->bulk && ! empty( $plugins ) ) {
