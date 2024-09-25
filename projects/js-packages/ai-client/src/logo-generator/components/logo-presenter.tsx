@@ -141,6 +141,17 @@ const LogoFetching: React.FC = () => {
 	);
 };
 
+const LogoEmpty: React.FC = () => {
+	return (
+		<>
+			<div className="jetpack-ai-logo-generator-modal__loader jetpack-ai-logo-generator-modal-presenter__logo"></div>
+			<span className="jetpack-ai-logo-generator-modal-presenter__loading-text">
+				{ __( 'Once you generate a logo, it will show up here', 'jetpack-ai-client' ) }
+			</span>
+		</>
+	);
+};
+
 const LogoReady: React.FC< {
 	siteId: string;
 	logo: Logo;
@@ -195,7 +206,9 @@ export const LogoPresenter: React.FC< LogoPresenterProps > = ( {
 
 	let logoContent: React.ReactNode;
 
-	if ( ! logo ) {
+	if ( ! logo && ! loading ) {
+		logoContent = <LogoEmpty />;
+	} else if ( ! logo ) {
 		debug( 'No logo provided, history still loading or logo being generated' );
 		logoContent = <LogoFetching />;
 	} else if ( loading || isRequestingImage ) {
