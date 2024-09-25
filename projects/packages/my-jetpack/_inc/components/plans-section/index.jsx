@@ -188,7 +188,6 @@ export default function PlansSection() {
 		query: { path: REST_API_SITE_PURCHASES_ENDPOINT },
 		options: {
 			enabled: !! userConnectionData?.blogID,
-			placeholderData: { purchases: [] },
 		},
 	} );
 

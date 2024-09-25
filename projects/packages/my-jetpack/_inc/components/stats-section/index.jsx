@@ -23,7 +23,6 @@ const StatsSection = () => {
 		},
 		options: {
 			enabled: !! blogID,
-			placeholderData: { statsCounts: {} },
 		},
 	} );
 	const counts = statsCounts?.past_seven_days || {};
