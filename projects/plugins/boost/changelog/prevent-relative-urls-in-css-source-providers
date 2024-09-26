@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Critical CSS: Make sure all URLs that are being processed are absolute instead of relative.

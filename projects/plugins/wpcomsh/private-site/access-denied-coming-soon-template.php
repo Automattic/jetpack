@@ -7,8 +7,6 @@
 
 namespace Private_Site;
 
-add_filter( 'jetpack_implode_frontend_css', '__return_false', 99 );
-
 nocache_headers();
 header( 'Content-Type: ' . get_bloginfo( 'html_type' ) . '; charset=' . get_bloginfo( 'charset' ) );
 

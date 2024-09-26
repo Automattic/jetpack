@@ -1,0 +1,26 @@
+{
+	"translation-revision-date": "2024-07-03 09:54:06+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=1; plural=0;", "lang": "ja_JP" },
+			"Pick a pre-defined layout or continue with a blank page": [
+				"\u4e8b\u524d\u306b\u5b9a\u7fa9\u3055\u308c\u305f\u30ec\u30a4\u30a2\u30a6\u30c8\u3092\u9078\u629e\u3059\u308b\u304b\u3001\u7a7a\u767d\u306e\u30da\u30fc\u30b8\u3092\u4f7f\u7528\u3057\u3066\u7d9a\u884c\u3057\u307e\u3059"
+			],
+			"Choose a Pattern": [ "\u30d1\u30bf\u30fc\u30f3\u3092\u9078\u629e\u3059\u308b" ],
+			"Page categories": [ "\u30da\u30fc\u30b8\u30ab\u30c6\u30b4\u30ea\u30fc" ],
+			"Blank page": [ "\u7a7a\u767d\u30da\u30fc\u30b8" ],
+			"Pick a pre-defined layout or start with a blank page.": [
+				"\u4e8b\u524d\u5b9a\u7fa9\u3055\u308c\u305f\u30ec\u30a4\u30a2\u30a6\u30c8\u3092\u9078\u3076\u304b\u3001\u7a7a\u767d\u30da\u30fc\u30b8\u304b\u3089\u59cb\u3081\u307e\u3059\u3002"
+			],
+			"Add a page": [ "\u30da\u30fc\u30b8\u3092\u8ffd\u52a0\u3059\u308b" ],
+			"Layout": [ "\u30ec\u30a4\u30a2\u30a6\u30c8" ],
+			"default vertical name\u0004Business": [ "\u30d3\u30b8\u30cd\u30b9" ],
+			"default company name\u0004Your Company Name": [ "\u4f1a\u793e\u540d" ],
+			"default phone number\u0004555-555-5555": [ "555-555-5555" ],
+			"default address\u0004123 Main St": [ "123 Main St" ]
+		}
+	},
+	"comment": { "reference": "starter-page-templates/dist/starter-page-templates.js" }
+}
