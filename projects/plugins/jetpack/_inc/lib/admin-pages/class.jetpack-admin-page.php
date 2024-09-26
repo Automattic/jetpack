@@ -143,7 +143,7 @@ abstract class Jetpack_Admin_Page {
 	}
 
 	/**
-	 * Load Help tab.
+	 * Doesn't do anything anymore.
 	 *
 	 * @deprecated $$next-version$$ No longer used.
 	 */
