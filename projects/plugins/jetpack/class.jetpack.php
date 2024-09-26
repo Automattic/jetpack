@@ -2232,6 +2232,15 @@ class Jetpack {
 			}
 		}
 
+		// Special case to convert block setting to a block module.
+		$block_key = array_search( 'blocks', $modules, true );
+		if ( $block_key ) { // Only care if 'blocks' made it through the previous filters.
+			$block_option = get_option( 'jetpack_blocks_disabled', null );
+			if ( $block_option ) {
+				unset( $modules[ $block_key ] );
+			}
+		}
+
 		return $modules;
 	}
 
@@ -2487,19 +2496,6 @@ class Jetpack {
 		 * @param bool|null $requires_user_connection Value of the Requires User Connection filter.
 		 */
 		do_action( 'jetpack_before_activate_default_modules', $min_version, $max_version, $other_modules, $requires_connection, $requires_user_connection );
-
-		// Special case to convert block setting to a block module.
-		$block_key = array_search( 'blocks', $modules, true );
-		if ( $block_key ) { // Only care if 'blocks' made it through the previous filters.
-			$block_option = get_option( 'jetpack_blocks_disabled', null );
-			if ( $block_option ) {
-				unset( $modules[ $block_key ] );
-			}
-
-			if ( $block_option !== null ) {
-				delete_option( 'jetpack_blocks_disabled' );
-			}
-		}
 
 		// Check each module for fatal errors, a la wp-admin/plugins.php::activate before activating.
 		if ( $send_state_messages ) {

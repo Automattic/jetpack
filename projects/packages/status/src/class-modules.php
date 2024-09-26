@@ -476,6 +476,13 @@ class Modules {
 
 			$state->state( 'error', false ); // the override.
 			ob_end_clean();
+
+			// This likely could/should be a filter in this function for post-activation, but will save that
+			// for a future PR.
+			// Special case to remove the option when blocks are enabled as a module.
+			if ( 'blocks' === $module ) {
+				delete_option( 'jetpack_blocks_disabled' ); // The function will check and return early if not present.
+			}
 		} else { // Not a Jetpack plugin.
 			$active[] = $module;
 			$this->update_active( $active );
