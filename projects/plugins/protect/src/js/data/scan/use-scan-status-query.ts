@@ -64,7 +64,7 @@ export default function useScanStatusQuery( {
 				lastRequestedScanTimestamp < Date.now() - 5 * 60 * 1000;
 
 			// Convert the lastChecked date string to a Unix timestamp
-			const lastCheckedTimestamp = new Date( data.lastChecked ).getTime();
+			const lastCheckedTimestamp = new Date( data.lastChecked + ' UTC' ).getTime();
 
 			// Check if the scan request is completed based on the last checked time
 			// TODO: Ensure the timestamps we are comparing are in the same timezone
