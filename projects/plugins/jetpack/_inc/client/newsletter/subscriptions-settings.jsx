@@ -6,6 +6,7 @@ import { FormLegend, FormFieldset } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
+import { FEATURE_EMAIL_SUBSCRIPTION_JETPACK } from 'lib/plans/constants';
 import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
 import { isCurrentUserLinked, isUnavailableInOfflineMode, isOfflineMode } from 'state/connection';
@@ -119,6 +120,7 @@ function SubscriptionsSettings( props ) {
 		<SettingsCard
 			{ ...props }
 			hideButton
+			feature={ FEATURE_EMAIL_SUBSCRIPTION_JETPACK }
 			module={ SUBSCRIPTIONS_MODULE_NAME }
 			header={ __( 'Subscriptions', 'jetpack' ) }
 		>

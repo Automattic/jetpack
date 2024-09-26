@@ -397,6 +397,7 @@ export const FEATURE_GOOGLE_ANALYTICS_JETPACK = 'google-analytics-jetpack';
 export const FEATURE_SEARCH_JETPACK = 'search-jetpack';
 export const FEATURE_VIDEOPRESS = 'videopress-jetpack';
 export const FEATURE_SIMPLE_PAYMENTS_JETPACK = 'simple-payments-jetpack';
+export const FEATURE_EMAIL_SUBSCRIPTION_JETPACK = 'email-subscription';
 
 // Upsells
 export const JETPACK_FEATURE_PRODUCT_UPSELL_MAP = {
