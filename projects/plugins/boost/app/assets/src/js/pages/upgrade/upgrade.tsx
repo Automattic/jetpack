@@ -110,7 +110,7 @@ const Upgrade: React.FC = () => {
 				<li>
 					{ createInterpolateElement(
 						__(
-							'<strong>Expert Support With a Personal Touch:</strong> Enjoy dedicated email support from our Happiness Engineers, ensuring a smoother experience and peace of mind.',
+							'<strong>Expert Support With Personal Assistance Available:</strong> Enjoy dedicated email support from our Happiness Engineers, ensuring a smoother experience and peace of mind.',
 							'jetpack-boost'
 						),
 						{
