@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Added handling for deleting a previous option when the blocks module is enabled.
