@@ -862,10 +862,10 @@ class Contact_Form extends Contact_Form_Shortcode {
 				$str = __( 'Message', 'jetpack-forms' );
 				break;
 			case 'checkbox-multiple':
-				$str = __( 'Choose several', 'jetpack-forms' );
+				$str = __( 'Choose several options', 'jetpack-forms' );
 				break;
 			case 'radio':
-				$str = __( 'Choose one', 'jetpack-forms' );
+				$str = __( 'Choose one option', 'jetpack-forms' );
 				break;
 			case 'select':
 				$str = __( 'Select one', 'jetpack-forms' );

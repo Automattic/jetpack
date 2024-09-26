@@ -136,7 +136,6 @@ function render_fallback_coming_soon_page() {
 	add_filter( 'jetpack_disable_eu_cookie_law_widget', '__return_true', 1 );
 	add_filter( 'wpcom_disable_logged_out_follow', '__return_true', 10, 1 ); // Disable follow actionbar.
 	add_filter( 'wpl_is_enabled_sitewide', '__return_false', 10, 1 ); // Disable likes.
-	add_filter( 'jetpack_implode_frontend_css', '__return_false', 99 ); // Jetpack "implodes" all registered CSS files into one file.
 	add_filter( 'woocommerce_demo_store', '__return_false' ); // Prevent the the wocommerce demo store notice from displaying.
 	add_filter( 'jetpack_open_graph_image_default', __NAMESPACE__ . '\coming_soon_share_image' ); // Set the default OG image.
 	add_filter( 'jetpack_twitter_cards_image_default', __NAMESPACE__ . '\coming_soon_share_image' ); // Set the default Twitter Card image.

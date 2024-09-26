@@ -171,8 +171,6 @@ for ( const name of [
 	'modules/videopress/css/videopress-editor-style',
 	'modules/widget-visibility/widget-conditions/widget-conditions',
 	'modules/widgets/gallery/css/admin',
-	'modules/masterbar/admin-menu/admin-menu',
-	'modules/masterbar/admin-menu/admin-menu-nav-unification',
 ] ) {
 	weirdRtlNominEntries[ name ] = path.join( __dirname, '..', name + '.css' );
 	weirdRtlEntries[ name + '.min' ] = path.join( __dirname, '..', name + '.css' );
