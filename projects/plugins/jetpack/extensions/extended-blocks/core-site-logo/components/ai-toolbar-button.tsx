@@ -15,16 +15,21 @@ import type { ReactElement } from 'react';
  *
  * @param {object}   props              - The component props.
  * @param {Function} props.clickHandler - The handler for the click event.
+ * @param {boolean}  props.buttonText   - Use text for the button face or not.
  * @return {ReactElement} The toolbar button.
  */
 export default function AiToolbarButton( {
 	clickHandler,
+	buttonText = false,
 }: {
 	clickHandler?: () => void;
+	buttonText?: boolean;
 } ): ReactElement {
 	const toggleFromToolbar = useCallback( () => {
 		clickHandler?.();
 	}, [ clickHandler ] );
+
+	const text = buttonText ? __( 'Generate', 'jetpack' ) : '';
 
 	return (
 		<>
@@ -33,7 +38,9 @@ export default function AiToolbarButton( {
 				onClick={ toggleFromToolbar }
 				label={ __( 'Generate with AI', 'jetpack' ) }
 				icon={ aiAssistantIcon }
-			/>
+			>
+				{ text }
+			</ToolbarButton>
 		</>
 	);
 }
