@@ -4,6 +4,7 @@ import { sprintf, __, _n } from '@wordpress/i18n';
 import { useMemo, useState } from 'react';
 import usePlan from '../../hooks/use-plan';
 import useProtectData from '../../hooks/use-protect-data';
+import HistoryButton from '../history-button';
 import OnboardingPopover from '../onboarding-popover';
 import ScanButton from '../scan-button';
 import styles from './styles.module.scss';
@@ -118,14 +119,15 @@ const EmptyList = () => {
 				) }
 			</Text>
 			{ hasPlan && (
-				<>
+				<div className={ styles.buttons }>
+					<HistoryButton />
 					<ScanButton ref={ setDailyAndManualScansPopoverAnchor } />
 					<OnboardingPopover
 						id="paid-daily-and-manual-scans"
 						position={ 'bottom middle' }
 						anchor={ dailyAndManualScansPopoverAnchor }
 					/>
-				</>
+				</div>
 			) }
 		</div>
 	);

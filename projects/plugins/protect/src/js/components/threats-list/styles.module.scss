@@ -127,3 +127,8 @@
 		}
 	}
 }
+
+.buttons {
+	display: flex;
+	gap: var( --spacing-base ); // 8px
+}

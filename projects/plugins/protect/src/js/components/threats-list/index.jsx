@@ -11,6 +11,7 @@ import React, { useCallback, useMemo, useState } from 'react';
 import useFixers from '../../hooks/use-fixers';
 import useModal from '../../hooks/use-modal';
 import usePlan from '../../hooks/use-plan';
+import HistoryButton from '../history-button';
 import OnboardingPopover from '../onboarding-popover';
 import ScanButton from '../scan-button';
 import EmptyList from './empty';
@@ -43,8 +44,6 @@ const ThreatsList = () => {
 	const { setModal } = useModal();
 
 	const [ showAutoFixersPopoverAnchor, setShowAutoFixersPopoverAnchor ] = useState( null );
-	const [ dailyAndManualScansPopoverAnchor, setDailyAndManualScansPopoverAnchor ] =
-		useState( null );
 
 	const handleShowAutoFixersClick = threatList => {
 		return event => {
@@ -119,6 +118,7 @@ const ThreatsList = () => {
 							<Title className={ styles[ 'list-title' ] }>{ getTitle() }</Title>
 							{ hasPlan && (
 								<div className={ styles[ 'list-header__controls' ] }>
+									<HistoryButton variant={ 'secondary' } />
 									{ fixableList.length > 0 && (
 										<>
 											<Button
@@ -139,14 +139,6 @@ const ThreatsList = () => {
 											/>
 										</>
 									) }
-									<div>
-										<ScanButton ref={ setDailyAndManualScansPopoverAnchor } />
-										<OnboardingPopover
-											id="paid-daily-and-manual-scans"
-											position={ isSm ? 'bottom left' : 'middle left' }
-											anchor={ dailyAndManualScansPopoverAnchor }
-										/>
-									</div>
 								</div>
 							) }
 						</div>

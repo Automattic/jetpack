@@ -1,18 +1,19 @@
-import { AdminSectionHero, Container, Col, H3, Text, Title } from '@automattic/jetpack-components';
+import { AdminSection, Container, Col, H3, Text, Title } from '@automattic/jetpack-components';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import { Navigate, useParams } from 'react-router-dom';
 import AdminPage from '../../../components/admin-page';
-import ErrorScreen from '../../../components/error-section';
 import ProtectCheck from '../../../components/protect-check-icon';
 import ScanFooter from '../../../components/scan-footer';
+import ScanHeader from '../../../components/scan-header';
+import ScanSectionHeader from '../../../components/scan-header/scan-section-header';
 import ThreatsNavigation from '../../../components/threats-list/navigation';
 import PaidList from '../../../components/threats-list/paid-list';
 import useThreatsList from '../../../components/threats-list/use-threats-list';
+import useScanStatusQuery, { isScanInProgress } from '../../../data/scan/use-scan-status-query';
 import useAnalyticsTracks from '../../../hooks/use-analytics-tracks';
 import usePlan from '../../../hooks/use-plan';
 import useProtectData from '../../../hooks/use-protect-data';
-import ScanSectionHeader from '../scan-section-header';
 import StatusFilters from './status-filters';
 import styles from './styles.module.scss';
 
@@ -22,6 +23,8 @@ const ScanHistoryRoute = () => {
 
 	const { hasPlan } = usePlan();
 	const { filter = 'all' } = useParams();
+
+	const { data: status } = useScanStatusQuery( { usePolling: true } );
 
 	const { item, list, selected, setSelected } = useThreatsList( {
 		source: 'history',
@@ -241,84 +244,78 @@ const ScanHistoryRoute = () => {
 
 	return (
 		<AdminPage>
-			<AdminSectionHero>
+			<ScanHeader
+				isScanning={ isScanInProgress( status ) }
+				currentProgress={ status.currentProgress }
+				error={ error }
+				errorMessage={ error?.message }
+				errorCode={ error?.code }
+				summary={
+					<ScanSectionHeader
+						subtitle={ error ? null : __( 'Threat history', 'jetpack-protect' ) }
+						title={
+							error
+								? null
+								: sprintf(
+										/* translators: %s: Total number of threats  */
+										__( '%1$s previously active %2$s', 'jetpack-protect' ),
+										numAllThreats,
+										numAllThreats === 1 ? 'threat' : 'threats'
+								  )
+						}
+					/>
+				}
+			/>
+			<AdminSection>
 				<Container horizontalSpacing={ 3 } horizontalGap={ 4 }>
 					<Col>
-						<ScanSectionHeader
-							subtitle={ error ? null : __( 'Threat history', 'jetpack-protect' ) }
-							title={
-								error
-									? null
-									: sprintf(
-											/* translators: %s: Total number of threats  */
-											__( '%1$s previously active %2$s', 'jetpack-protect' ),
-											numAllThreats,
-											numAllThreats === 1 ? 'threat' : 'threats'
-									  )
-							}
-						/>
-					</Col>
-					{ error ? (
-						<Col>
-							<ErrorScreen
-								baseErrorMessage={ __(
-									"An error occurred loading your site's threat history.",
-									'jetpack-protect'
-								) }
-								errorMessage={ error.message }
-								errorCode={ error.code }
-							/>
-						</Col>
-					) : (
-						<Col>
-							<Container fluid horizontalSpacing={ 0 } horizontalGap={ 3 }>
-								<Col lg={ 4 }>
-									<ThreatsNavigation
-										selected={ selected }
-										onSelect={ setSelected }
-										sourceType="history"
-										statusFilter={ filter }
-									/>
-								</Col>
-								<Col lg={ 8 }>
-									{ list.length > 0 ? (
-										<div>
-											<div className={ styles[ 'list-header' ] }>
-												<Title className={ styles[ 'list-title' ] }>{ getTitle() }</Title>
-												<div className={ styles[ 'list-header__controls' ] }>
-													<StatusFilters numFixed={ numFixed } numIgnored={ numIgnored } />
-												</div>
+						<Container fluid horizontalSpacing={ 0 } horizontalGap={ 3 }>
+							<Col lg={ 4 }>
+								<ThreatsNavigation
+									selected={ selected }
+									onSelect={ setSelected }
+									sourceType="history"
+									statusFilter={ filter }
+								/>
+							</Col>
+							<Col lg={ 8 }>
+								{ list.length > 0 ? (
+									<div>
+										<div className={ styles[ 'list-header' ] }>
+											<Title className={ styles[ 'list-title' ] }>{ getTitle() }</Title>
+											<div className={ styles[ 'list-header__controls' ] }>
+												<StatusFilters numFixed={ numFixed } numIgnored={ numIgnored } />
 											</div>
-											<PaidList list={ list } hideAutoFixColumn={ true } />
 										</div>
-									) : (
-										<>
-											<div className={ styles[ 'list-header' ] }>
-												<div className={ styles[ 'list-header__controls' ] }>
-													<StatusFilters />
-												</div>
+										<PaidList list={ list } hideAutoFixColumn={ true } />
+									</div>
+								) : (
+									<>
+										<div className={ styles[ 'list-header' ] }>
+											<div className={ styles[ 'list-header__controls' ] }>
+												<StatusFilters />
 											</div>
-											<div className={ styles.empty }>
-												<ProtectCheck />
-												<H3 weight="bold" mt={ 8 }>
-													{ __( "Don't worry about a thing", 'jetpack-protect' ) }
-												</H3>
-												<Text mb={ 4 }>
-													{ sprintf(
-														/* translators: %s: Filter type */
-														__( 'There are no%sthreats in your scan history.', 'jetpack-protect' ),
-														'all' === filter ? ' ' : ` ${ filter } `
-													) }
-												</Text>
-											</div>
-										</>
-									) }
-								</Col>
-							</Container>
-						</Col>
-					) }
+										</div>
+										<div className={ styles.empty }>
+											<ProtectCheck />
+											<H3 weight="bold" mt={ 8 }>
+												{ __( "Don't worry about a thing", 'jetpack-protect' ) }
+											</H3>
+											<Text mb={ 4 }>
+												{ sprintf(
+													/* translators: %s: Filter type */
+													__( 'There are no%sthreats in your scan history.', 'jetpack-protect' ),
+													'all' === filter ? ' ' : ` ${ filter } `
+												) }
+											</Text>
+										</div>
+									</>
+								) }
+							</Col>
+						</Container>
+					</Col>
 				</Container>
-			</AdminSectionHero>
+			</AdminSection>
 			<ScanFooter />
 		</AdminPage>
 	);
