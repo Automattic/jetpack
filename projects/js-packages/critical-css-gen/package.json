@@ -54,21 +54,15 @@
 			"jetpack:src": "./src/node.ts",
 			"types": "./build-node/node.d.ts",
 			"browser": "./build-browser/bundle.js",
-			"import": "./build-node/node.js",
-			"require": "./build-node/node.js",
 			"default": "./build-node/node.js"
 		},
 		"./node": {
 			"jetpack:src": "./src/node.ts",
 			"types": "./build-node/node.d.ts",
-			"import": "./build-node/node.js",
-			"require": "./build-node/node.js",
 			"default": "./build-node/node.js"
 		},
 		"./browser": {
 			"jetpack:src": "./src/browser.ts",
-			"import": "./build-browser/bundle.js",
-			"require": "./build-browser/bundle.js",
 			"default": "./build-browser/bundle.js"
 		}
 	},
