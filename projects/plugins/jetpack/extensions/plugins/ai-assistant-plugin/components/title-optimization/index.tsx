@@ -177,8 +177,16 @@ export default function TitleOptimization( {
 
 	const handleTryAgain = useCallback( () => {
 		setError( null );
-		handleRequest( true ); // retry the generation
-	}, [ handleRequest ] );
+
+		/**
+		 * Only try to generate again if there are no options available.
+		 * If there are options, show them so the user can choose one
+		 * or ask for new suggestions.
+		 */
+		if ( options.length === 0 ) {
+			handleRequest( true ); // retry the generation
+		}
+	}, [ handleRequest, options ] );
 
 	const handleTitleOptimizationWithKeywords = useCallback( () => {
 		handleRequest();
