@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Support: Increased minumum required PHP version to 6.5
