@@ -46,6 +46,11 @@ export default function useScanStatusQuery( {
 			// Fetch scan status data from the API
 			const data = await API.getScanStatus();
 
+			// If the scan status is not "idle", always return the fresh API data
+			if ( data.status !== 'idle' ) {
+				return data;
+			}
+
 			// Retrieve last scan timestamp from localStorage and convert to number
 			const lastRequestedScanTimestamp = Number( localStorage.getItem( 'last_requested_scan' ) );
 
@@ -55,24 +60,25 @@ export default function useScanStatusQuery( {
 			}
 
 			// Check if the last scan request is more than 5 minutes old
-			const islastRequestedScanTimestampExpired =
+			const isLastRequestedScanTimestampExpired =
 				lastRequestedScanTimestamp < Date.now() - 5 * 60 * 1000;
 
+			// Convert the lastChecked date string to a Unix timestamp
+			const lastCheckedTimestamp = new Date( data.lastChecked ).getTime();
+
 			// Check if the scan request is completed based on the last checked time
-			const isScanRequestCompleted = Number( data.lastChecked ) > lastRequestedScanTimestamp;
+			// TODO: Ensure the timestamps we are comparing are in the same timezone
+			const isScanCompleted = lastCheckedTimestamp > lastRequestedScanTimestamp;
 
 			// Get cached data for the query
 			const cachedData = queryClient.getQueryData( [ QUERY_SCAN_STATUS_KEY ] );
 
 			// Return cached data if conditions are met
-			if (
-				data.status === 'idle' &&
-				! islastRequestedScanTimestampExpired &&
-				! isScanRequestCompleted
-			) {
+			if ( ! isLastRequestedScanTimestampExpired && ! isScanCompleted ) {
 				return cachedData;
 			}
 
+			// If cached data is not applicable or expired, return the fresh API data
 			return data;
 		},
 		initialData: camelize( window?.jetpackProtectInitialState?.status ),
