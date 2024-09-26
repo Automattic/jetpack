@@ -1,4 +1,3 @@
-import { siteHasFeature } from '@automattic/jetpack-script-data';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
@@ -35,7 +34,7 @@ export const ModalTrigger = forwardRef(
 
 		const { feature_flags } = getSocialScriptData();
 
-		if ( ! feature_flags.useShareStatus && ! siteHasFeature( 'social-share-status' ) ) {
+		if ( ! feature_flags.useShareStatus ) {
 			return null;
 		}
 

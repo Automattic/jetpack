@@ -3,7 +3,6 @@
  * Jetpack plugin implementation.
  */
 
-import { siteHasFeature } from '@automattic/jetpack-script-data';
 import { PanelBody, ToggleControl } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
@@ -78,9 +77,7 @@ const PublicizePanel = ( { prePublish, children } ) => {
 			) }
 			{ isPostPublished && (
 				<>
-					{ feature_flags.useShareStatus || siteHasFeature( 'social-share-status' ) ? (
-						<ReSharingPanel />
-					) : null }
+					{ feature_flags.useShareStatus ? <ReSharingPanel /> : null }
 					<ManualSharing />
 				</>
 			) }
