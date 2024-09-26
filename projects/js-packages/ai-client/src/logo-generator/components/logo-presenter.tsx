@@ -206,7 +206,7 @@ export const LogoPresenter: React.FC< LogoPresenterProps > = ( {
 
 	let logoContent: React.ReactNode;
 
-	if ( ! logo && ! loading ) {
+	if ( ! logo && ! isRequestingImage ) {
 		logoContent = <LogoEmpty />;
 	} else if ( ! logo ) {
 		debug( 'No logo provided, history still loading or logo being generated' );

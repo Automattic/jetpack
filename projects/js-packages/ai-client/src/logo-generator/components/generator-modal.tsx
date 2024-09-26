@@ -137,7 +137,7 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 			loadLogoHistory( siteId );
 
 			// If there is any logo, we do not need to generate a first logo again.
-			if ( ! isLogoHistoryEmpty( String( siteId ) ) ) {
+			if ( hasHistory ) {
 				setLoadingState( null );
 				setIsLoadingHistory( false );
 				return;
