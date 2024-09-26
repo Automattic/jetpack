@@ -1096,9 +1096,7 @@ class WPCOM_Features {
 			),
 		),
 		self::SOCIAL_SHARE_STATUS               => array(
-			array(
-				self::WPCOM_ALL_SITES,
-			),
+			self::WPCOM_ALL_SITES,
 		),
 		self::SOCIAL_IMAGE_AUTO_CONVERT         => array(
 			self::WPCOM_ALL_SITES,
