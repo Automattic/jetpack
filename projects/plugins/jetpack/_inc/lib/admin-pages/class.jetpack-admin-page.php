@@ -18,7 +18,7 @@ abstract class Jetpack_Admin_Page {
 	 * Jetpack Object.
 	 *
 	 * @var Jetpack
-	 * @deprecated $$next-version$$ Use `Jetpack::init()` instead. Keeping it for a couple more versions to be safe.
+	 * @deprecated $$next-version$$ Use `Jetpack::init()` instead.
 	 */
 	public $jetpack;
 
