@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-AI Client: don't send a default style to jetpack-ai-image endpoint, default is handled in backend and we need to not send it until we're ready for it to be a user option

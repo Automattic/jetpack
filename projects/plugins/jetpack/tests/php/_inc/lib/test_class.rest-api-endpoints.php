@@ -1228,7 +1228,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	/**
 	 * Test the 'features/available' endpoint, unauthorized.
 	 *
-	 * @since $$next-version$$
+	 * @since 13.9
 	 */
 	public function test_features_available_unauthorized() {
 		// Create REST request in JSON format and dispatch
@@ -1241,7 +1241,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	/**
 	 * Test the 'features/enabled' endpoint, unauthorized.
 	 *
-	 * @since $$next-version$$
+	 * @since 13.9
 	 */
 	public function test_features_enabled_unauthorized() {
 		// Create REST request in JSON format and dispatch

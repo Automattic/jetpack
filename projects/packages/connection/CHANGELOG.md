@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.1.0] - 2024-09-25
+### Changed
+- Jetpack Connection - REST API: Allow site-level authentication on POST requests to 'jetpack/v4/connection' [#39503]
+
+## [5.0.0] - 2024-09-23
+### Removed
+- Connection: Removed deprecated features_enabled method [#39475]
+- Connection: Removed deprecated method features_available [#39442]
+
 ## [4.0.4] - 2024-09-18
 ### Changed
 - SSO tooltip: Use anchor element's document instead of the global `document`. [#39364]
@@ -1202,6 +1211,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[5.1.0]: https://github.com/Automattic/jetpack-connection/compare/v5.0.0...v5.1.0
+[5.0.0]: https://github.com/Automattic/jetpack-connection/compare/v4.0.4...v5.0.0
 [4.0.4]: https://github.com/Automattic/jetpack-connection/compare/v4.0.3...v4.0.4
 [4.0.3]: https://github.com/Automattic/jetpack-connection/compare/v4.0.2...v4.0.3
 [4.0.2]: https://github.com/Automattic/jetpack-connection/compare/v4.0.1...v4.0.2

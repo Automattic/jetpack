@@ -28,7 +28,7 @@ export const SPELLING_MISTAKES: BreveFeatureConfig = {
 	title: __( 'Spelling mistakes', 'jetpack' ),
 	tagName: 'span',
 	className: 'jetpack-ai-breve__has-proofread-highlight--spelling-mistakes',
-	defaultEnabled: false,
+	defaultEnabled: true,
 };
 
 const spellCheckers: { [ key: string ]: SpellChecker } = {};

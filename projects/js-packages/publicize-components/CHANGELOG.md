@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.70.0] - 2024-09-23
+### Added
+- Added tracking for the resharing action [#39408]
+
+### Changed
+- Social: Migrated useEditorPreview feature flag to new script data [#39405]
+- Social: Migrated useShareStatus feature flag to new script data [#39404]
+
+### Fixed
+- Social: Updated social previews button styles to fit the translated string [#39430]
+
 ## [0.69.0] - 2024-09-16
 ### Added
 - Social: Share status | Updated retry to show spinner and start polling [#39293]
@@ -933,6 +944,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#24470]
 
+[0.70.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.69.0...v0.70.0
 [0.69.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.68.0...v0.69.0
 [0.68.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.67.0...v0.68.0
 [0.67.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.66.1...v0.67.0
