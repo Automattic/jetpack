@@ -204,6 +204,7 @@ export default function TitleOptimization( {
 	);
 
 	const handleClose = useCallback( () => {
+		setError( null );
 		toggleTitleOptimizationModal();
 		setOptimizationKeywords( '' );
 		stopSuggestion();
@@ -275,7 +276,7 @@ export default function TitleOptimization( {
 								</>
 							) }
 							<div className="jetpack-ai-title-optimization__cta">
-								<Button variant="secondary" onClick={ toggleTitleOptimizationModal }>
+								<Button variant="secondary" onClick={ handleClose }>
 									{ __( 'Cancel', 'jetpack' ) }
 								</Button>
 								{ showTryAgainButton && (
