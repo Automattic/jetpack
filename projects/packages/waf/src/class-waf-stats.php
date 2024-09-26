@@ -7,53 +7,29 @@
 
 namespace Automattic\Jetpack\Waf;
 
-use Automattic\Jetpack\IP\Utils as IP_Utils;
-
 /**
  * Retrieves WAF stats.
  */
 class Waf_Stats {
 
 	/**
-	 * The global stats cache
+	 * Retrieve blocked requests from database
+	 *
+	 * @return array
+	 */
+	public static function get_blocked_requests() {
+		return array(
+			'current_day' => Waf_Blocklog_Manager::get_current_day_block_count(),
+			'thirty_days' => Waf_Blocklog_Manager::get_thirty_days_block_counts(),
+			'all_time'    => Waf_Blocklog_Manager::get_all_time_block_count(),
+		);
+	}
+
+	/** The global stats cache
 	 *
 	 * @var array|null
 	 */
 	public static $global_stats = null;
-
-	/**
-	 * Get IP allow list count
-	 *
-	 * @return int The number of valid IP addresses in the allow list
-	 */
-	public static function get_ip_allow_list_count() {
-		$ip_allow_list = get_option( Waf_Rules_Manager::IP_ALLOW_LIST_OPTION_NAME );
-
-		if ( ! $ip_allow_list ) {
-			return 0;
-		}
-
-		$results = IP_Utils::get_ip_addresses_from_string( $ip_allow_list );
-
-		return count( $results );
-	}
-
-	/**
-	 * Get IP block list count
-	 *
-	 * @return int The number of valid IP addresses in the block list
-	 */
-	public static function get_ip_block_list_count() {
-		$ip_block_list = get_option( Waf_Rules_Manager::IP_BLOCK_LIST_OPTION_NAME );
-
-		if ( ! $ip_block_list ) {
-			return 0;
-		}
-
-		$results = IP_Utils::get_ip_addresses_from_string( $ip_block_list );
-
-		return count( $results );
-	}
 
 	/**
 	 * Get Rules version

@@ -2134,11 +2134,14 @@ function wpcom_launchpad_find_site_about_page_id() {
 	$headstart_about_pages = array_filter(
 		$annotation['content'],
 		function ( $page ) {
-			if ( 'page' !== $page['post_type'] ) {
+			if ( isset( $page['post_type'] ) && 'page' !== $page['post_type'] ) {
 				return false;
 			}
 
-			if ( 'about' === $page['post_name'] || str_contains( $page['post_title'], 'About' ) ) {
+			if ( isset( $page['post_name'] ) && 'about' === $page['post_name'] ) {
+				return true;
+			}
+			if ( isset( $page['post_title'] ) && str_contains( $page['post_title'], 'About' ) ) {
 				return true;
 			}
 		}
