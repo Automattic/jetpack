@@ -5,7 +5,7 @@ Tags: performance, speed, web vitals, critical css, cache
 Requires at least: 6.5
 Tested up to: 6.6
 Requires PHP: 7.0
-Stable tag: 3.5.0
+Stable tag: 3.5.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -183,17 +183,9 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 3.5.0 - 2024-09-25
+### 3.5.1 - 2024-09-26
 #### Changed
-- General: Show a simplified getting started page if the pricing is not available
-- General: Skip the pricing page if the site is private, just like if offline
-
-#### Removed
-- General: Removed WP Super Cache promos from settings page as well as related code
-
-#### Fixed
-- Compatibility: Ensure React JSX polyfill is loaded for pre WP 6.6 support
-- Critical CSS: Make sure all URLs that are being processed are absolute instead of relative.
+- Support: Increased minumum required WordPress version to 6.5
 
 --------
 
