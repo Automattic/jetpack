@@ -18,6 +18,7 @@ abstract class Jetpack_Admin_Page {
 	 * Jetpack Object.
 	 *
 	 * @var Jetpack
+	 * @deprecated $$next-version$$ Use `Jetpack::init()` instead. Keeping it for a couple more versions to be safe.
 	 */
 	public $jetpack;
 
@@ -56,11 +57,19 @@ abstract class Jetpack_Admin_Page {
 	 * The constructor.
 	 */
 	public function __construct() {
+		/**
+		 * Keeping it for backward compatibility in case the `$jetpack` property is still in use.
+		 * To be removed.
+		 *
+		 * @deprecated $$next-version$$
+		 */
 		add_action( 'jetpack_loaded', array( $this, 'on_jetpack_loaded' ) );
 	}
 
 	/**
 	 * Runs on Jetpack being ready to load its packages.
+	 *
+	 * @deprecated $$next-version$$
 	 *
 	 * @param Jetpack $jetpack object.
 	 */
@@ -93,7 +102,6 @@ abstract class Jetpack_Admin_Page {
 		$hook = $this->get_page_hook();
 
 		// Attach hooks common to all Jetpack admin pages based on the created hook.
-		add_action( "load-$hook", array( $this, 'admin_help' ) );
 		add_action( "load-$hook", array( $this, 'admin_page_load' ) );
 		add_action( "admin_print_styles-$hook", array( $this, 'admin_styles' ) );
 		add_action( "admin_print_scripts-$hook", array( $this, 'admin_scripts' ) );
@@ -137,11 +145,9 @@ abstract class Jetpack_Admin_Page {
 	/**
 	 * Load Help tab.
 	 *
-	 * @todo This may no longer be used.
+	 * @deprecated $$next-version$$ No longer used.
 	 */
-	public function admin_help() {
-		Jetpack::init()->admin_help();
-	}
+	public function admin_help() {}
 
 	/**
 	 * Call the existing admin page events.

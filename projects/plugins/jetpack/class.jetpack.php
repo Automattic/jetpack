@@ -3560,6 +3560,8 @@ p {
 	/**
 	 * Add help to the Jetpack page
 	 *
+	 * @deprecated $$next-version$$ We no longer show the "Help" button.
+	 *
 	 * @since Jetpack (1.2.3)
 	 * @return void
 	 */
