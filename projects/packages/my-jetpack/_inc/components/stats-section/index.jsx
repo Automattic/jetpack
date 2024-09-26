@@ -18,9 +18,8 @@ const StatsSection = () => {
 	const isAdmin = !! getMyJetpackWindowInitialState( 'userIsAdmin' );
 	const { data: statsCounts } = useSimpleQuery( {
 		name: QUERY_STATS_COUNTS_KEY,
-		query: {
-			path: isSiteConnected ? getStatsHighlightsEndpoint( blogID ) : null,
-		},
+		query: { path: getStatsHighlightsEndpoint( blogID ) },
+		options: { enabled: isSiteConnected },
 	} );
 	const counts = statsCounts?.past_seven_days || {};
 	const previousCounts = statsCounts?.between_past_eight_and_fifteen_days || {};

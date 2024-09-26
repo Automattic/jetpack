@@ -19,9 +19,8 @@ export default function RedeemTokenScreen() {
 		userConnectionData?.currentUser?.username;
 	const { isLoading, data: purchases } = useSimpleQuery( {
 		name: QUERY_PURCHASES_KEY,
-		query: {
-			path: isSiteConnected ? REST_API_SITE_PURCHASES_ENDPOINT : null,
-		},
+		query: { path: REST_API_SITE_PURCHASES_ENDPOINT },
+		options: { enabled: isSiteConnected },
 	} );
 
 	if ( isLoading ) {
