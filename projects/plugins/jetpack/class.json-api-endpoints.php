@@ -2645,10 +2645,9 @@ abstract class WPCOM_JSON_API_Endpoint {
 	 * @throws Exception The exception if something goes wrong.
 	 */
 	public function create_rest_route_for_endpoint() {
-		$version_prefix = $this->max_version ? 'v' . $this->max_version : '';
 		register_rest_route(
 			static::REST_NAMESPACE,
-			$version_prefix . $this->rest_route,
+			$this->build_rest_route(),
 			array(
 				'methods'             => $this->method,
 				'callback'            => array( $this, 'rest_callback' ),
@@ -2689,12 +2688,17 @@ abstract class WPCOM_JSON_API_Endpoint {
 		}
 
 		$user_id = Rest_Authentication::init()->wp_rest_authenticate( false );
-		if ( $user_id ) {
-			wp_set_current_user( $user_id );
-		}
 
-		if ( ( $this->allow_fallback_to_jetpack_blog_token && Rest_Authentication::is_signed_with_blog_token() ) || Rest_Authentication::is_signed_with_user_token() ) {
-			return $this->rest_permission_callback_custom();
+		$allow_blog_token = $this->allow_fallback_to_jetpack_blog_token || $this->allow_jetpack_site_auth;
+
+		if ( ( $allow_blog_token && Rest_Authentication::is_signed_with_blog_token() ) || ( $user_id && Rest_Authentication::is_signed_with_user_token() ) ) {
+			$success = $this->rest_permission_callback_custom();
+
+			if ( $success && $user_id ) {
+				wp_set_current_user( $user_id );
+			}
+
+			return $success;
 		}
 
 		$message = esc_html__(
@@ -2711,6 +2715,11 @@ abstract class WPCOM_JSON_API_Endpoint {
 	 */
 	public function rest_permission_callback_custom() {
 		return true;
+	}
+
+	public function build_rest_route() {
+		$version_prefix = $this->max_version ? 'v' . $this->max_version : '';
+		return $version_prefix . $this->rest_route;
 	}
 
 	/**
