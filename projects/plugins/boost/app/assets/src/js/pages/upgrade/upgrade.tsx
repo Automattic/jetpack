@@ -48,9 +48,14 @@ const Upgrade: React.FC = () => {
 					/>
 				)
 			}
-			footerNote={ __(
-				'Special introductory pricing, all renewals are at full price. 14 day money back guarantee.',
-				'jetpack-boost'
+			footerNote={ createInterpolateElement(
+				__(
+					'Special introductory pricing, all renewals are at full price. <strong>14 day money back guarantee.</strong>',
+					'jetpack-boost'
+				),
+				{
+					strong: <strong />,
+				}
 			) }
 		>
 			<h1 className="my-3">
