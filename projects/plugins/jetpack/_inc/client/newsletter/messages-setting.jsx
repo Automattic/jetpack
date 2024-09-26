@@ -33,18 +33,20 @@ const MessagesSetting = props => {
 		[ onOptionChange ]
 	);
 
+	const isSaving = isSavingAnyOption( [ SUBSCRIPTION_OPTIONS ] );
 	const disabled =
 		! isSubscriptionsActive ||
 		unavailableInOfflineMode ||
 		unavailableInSiteConnectionMode ||
-		isSavingAnyOption( [ SUBSCRIPTION_OPTIONS ] );
+		isSaving;
 
 	return (
 		<SettingsCard
 			{ ...props }
 			header={ __( 'Messages', 'jetpack' ) }
 			module={ SUBSCRIPTIONS_MODULE_NAME }
-			saveDisabled={ disabled }
+			saveDisabled={ isSaving }
+			isDisabled={ disabled }
 		>
 			<SettingsGroup
 				hasChild

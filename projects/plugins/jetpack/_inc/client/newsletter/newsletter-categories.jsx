@@ -83,11 +83,15 @@ function NewsletterCategories( props ) {
 		[ checkedCategoriesIds, updateFormStateOptionValue ]
 	);
 
+	const isSaving = isSavingAnyOption( [
+		NEWSLETTER_CATEGORIES_ENABLED_OPTION,
+		NEWSLETTER_CATEGORIES_OPTION,
+	] );
 	const disabled =
 		! isSubscriptionsActive ||
 		unavailableInOfflineMode ||
 		unavailableInSiteConnectionMode ||
-		isSavingAnyOption( [ NEWSLETTER_CATEGORIES_ENABLED_OPTION, NEWSLETTER_CATEGORIES_OPTION ] ) ||
+		isSaving ||
 		! isLinked;
 
 	return (
@@ -95,7 +99,8 @@ function NewsletterCategories( props ) {
 			{ ...props }
 			header={ __( 'Newsletter categories', 'jetpack' ) }
 			module={ SUBSCRIPTIONS_MODULE_NAME }
-			saveDisabled={ disabled }
+			saveDisabled={ isSaving }
+			isDisabled={ disabled }
 		>
 			<SettingsGroup
 				hasChild
