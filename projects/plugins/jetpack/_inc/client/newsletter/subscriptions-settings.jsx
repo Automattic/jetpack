@@ -8,7 +8,12 @@ import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
-import { isCurrentUserLinked, isUnavailableInOfflineMode, isOfflineMode } from 'state/connection';
+import {
+	isCurrentUserLinked,
+	isUnavailableInOfflineMode,
+	isOfflineMode,
+	isUnavailableInSiteConnectionMode,
+} from 'state/connection';
 import {
 	currentThemeIsBlockTheme,
 	currentThemeStylesheet,
@@ -27,7 +32,7 @@ import { SUBSCRIPTIONS_MODULE_NAME } from './constants';
 function SubscriptionsSettings( props ) {
 	const {
 		unavailableInOfflineMode,
-		isLinked,
+		unavailableInSiteConnectionMode,
 		isSavingAnyOption,
 		isStbEnabled,
 		isStcEnabled,
@@ -114,7 +119,8 @@ function SubscriptionsSettings( props ) {
 		);
 	}, [ updateFormStateModuleOption ] );
 
-	const isDisabled = ! isSubscriptionsActive || unavailableInOfflineMode || ! isLinked;
+	const isDisabled =
+		! isSubscriptionsActive || unavailableInOfflineMode || unavailableInSiteConnectionMode;
 
 	return (
 		<SettingsCard
@@ -276,6 +282,10 @@ export default withModuleSettingsFormHelpers(
 			isOffline: isOfflineMode( state ),
 			isSubscriptionsActive: ownProps.getOptionValue( SUBSCRIPTIONS_MODULE_NAME ),
 			unavailableInOfflineMode: isUnavailableInOfflineMode( state, SUBSCRIPTIONS_MODULE_NAME ),
+			unavailableInSiteConnectionMode: isUnavailableInSiteConnectionMode(
+				state,
+				SUBSCRIPTIONS_MODULE_NAME
+			),
 			subscriptions: getModule( state, SUBSCRIPTIONS_MODULE_NAME ),
 			isStbEnabled: ownProps.getOptionValue( 'stb_enabled' ),
 			isStcEnabled: ownProps.getOptionValue( 'stc_enabled' ),

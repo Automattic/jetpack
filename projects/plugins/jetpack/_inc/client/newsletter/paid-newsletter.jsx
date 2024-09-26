@@ -6,7 +6,7 @@ import SettingsGroup from 'components/settings-group';
 import analytics from 'lib/analytics';
 import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
-import { isCurrentUserLinked, isOfflineMode } from 'state/connection';
+import { isUnavailableInSiteConnectionMode, isOfflineMode } from 'state/connection';
 import { getJetpackCloudUrl } from 'state/initial-state';
 import { getModule } from 'state/modules';
 import { SUBSCRIPTIONS_MODULE_NAME } from './constants';
@@ -18,9 +18,15 @@ import { SUBSCRIPTIONS_MODULE_NAME } from './constants';
  * @return {React.Component} Paid Newsletter component.
  */
 function PaidNewsletter( props ) {
-	const { isSubscriptionsActive, setupPaymentPlansUrl, subscriptionsModule, isLinked } = props;
+	const {
+		isSubscriptionsActive,
+		setupPaymentPlansUrl,
+		subscriptionsModule,
+		unavailableInSiteConnectionMode,
+	} = props;
 
-	const setupPaymentPlansButtonDisabled = ! isSubscriptionsActive || ! isLinked;
+	const setupPaymentPlansButtonDisabled =
+		! isSubscriptionsActive || unavailableInSiteConnectionMode;
 
 	const trackSetupPaymentPlansButtonClick = useCallback( () => {
 		analytics.tracks.recordJetpackClick( 'newsletter_settings_setup_payment_plans_button_click' );
@@ -61,7 +67,10 @@ export default withModuleSettingsFormHelpers(
 			setupPaymentPlansUrl: getJetpackCloudUrl( state, 'monetize/payments' ),
 			subscriptionsModule: getModule( state, SUBSCRIPTIONS_MODULE_NAME ),
 			isOffline: isOfflineMode( state ),
-			isLinked: isCurrentUserLinked( state ),
+			unavailableInSiteConnectionMode: isUnavailableInSiteConnectionMode(
+				state,
+				SUBSCRIPTIONS_MODULE_NAME
+			),
 		};
 	} )( PaidNewsletter )
 );
