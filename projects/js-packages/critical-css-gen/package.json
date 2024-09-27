@@ -55,15 +55,6 @@
 			"types": "./build-node/node.d.ts",
 			"browser": "./build-browser/bundle.js",
 			"default": "./build-node/node.js"
-		},
-		"./node": {
-			"jetpack:src": "./src/node.ts",
-			"types": "./build-node/node.d.ts",
-			"default": "./build-node/node.js"
-		},
-		"./browser": {
-			"jetpack:src": "./src/browser.ts",
-			"default": "./build-browser/bundle.js"
 		}
 	},
 	"dependencies": {
