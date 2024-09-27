@@ -11,7 +11,6 @@ import {
 	useBreakpointMatch,
 	ActionButton,
 } from '@automattic/jetpack-components';
-import { useExperiment } from '@automattic/jetpack-explat';
 import clsx from 'clsx';
 import { useContext, useEffect, useLayoutEffect, useState } from 'react';
 /*
@@ -79,10 +78,8 @@ const GlobalNotice = ( { message, title, options } ) => {
 export default function MyJetpackScreen() {
 	const [ welcomeFlowExperiment, setWelcomeFlowExperiment ] = useState( {
 		isLoading: false,
-		//variation: 'control', // Temporarily set variation to 'treatment' for testing.
-		variation: 'treatment',
+		variation: 'control',
 	} );
-	useExperiment( 'explat_test_jetpack_implementation_aa_test' );
 	useNotificationWatcher();
 	const { redBubbleAlerts } = getMyJetpackWindowInitialState();
 	const { jetpackManage = {}, adminUrl } = getMyJetpackWindowInitialState();

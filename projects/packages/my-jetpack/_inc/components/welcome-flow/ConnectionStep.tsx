@@ -50,14 +50,12 @@ const ConnectionStep = ( {
 			initializeExPlat();
 
 			const { variationName } = await loadExperimentAssignment(
-				'jetpack_my_jetpack_evaluation_recommendations_202409'
+				'jetpack_my_jetpack_welcome_flow_display_default_recommendations_upfront_202410'
 			);
 
-			// **! I added this nullish coalescing operator default 'treatment' value for testing purposes only. !**
-			// TODO: Remove this nullish coalescing operator default value (or change it) when actually running the experiment in production.
 			onUpdateWelcomeFlowExperiment( state => ( {
 				...state,
-				variation: ( variationName ?? 'treatment' ) as WelcomeFlowExperiment[ 'variation' ], // casting to 'control' or 'treatment'
+				variation: ( variationName ?? 'control' ) as WelcomeFlowExperiment[ 'variation' ], // casting to 'control' or 'treatment'
 			} ) );
 		} finally {
 			resetNotice();
