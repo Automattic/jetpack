@@ -200,7 +200,8 @@ abstract class Product {
 		$response = Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d/features', $site_id ), '1.1' );
 
 		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
-			return new WP_Error( 'site_features_fetch_failed' );
+			$features = new WP_Error( 'site_features_fetch_failed' );
+			return $features;
 		}
 
 		$body           = wp_remote_retrieve_body( $response );

@@ -578,21 +578,6 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test onboarding token and make sure it's a network option.
-	 *
-	 * @since 5.4.0
-	 */
-	public function test_check_onboarding_token() {
-		$this->assertFalse( Jetpack_Options::get_option( 'onboarding' ) );
-
-		Jetpack::create_onboarding_token();
-
-		$this->assertTrue( Jetpack_Options::is_valid( array( 'onboarding' ) ) );
-		$this->assertTrue( ctype_alnum( Jetpack_Options::get_option( 'onboarding' ) ) );
-		$this->assertContains( 'onboarding', Jetpack_Options::get_option_names( 'network' ) );
-	}
-
-	/**
 	 * Test connection url build when there's a blog token or id.
 	 *
 	 * @since 4.4.0
@@ -1238,5 +1223,31 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 
 		$this->assertResponseStatus( 200, $response );
 		$this->assertResponseData( array( 'success' => true ), $response );
+	}
+
+	/**
+	 * Test the 'features/available' endpoint, unauthorized.
+	 *
+	 * @since 13.9
+	 */
+	public function test_features_available_unauthorized() {
+		// Create REST request in JSON format and dispatch
+		$response = $this->create_and_get_request( 'features/available' );
+
+		$this->assertResponseStatus( 401, $response );
+		$this->assertResponseData( array( 'code' => 'invalid_permission_fetch_features' ), $response );
+	}
+
+	/**
+	 * Test the 'features/enabled' endpoint, unauthorized.
+	 *
+	 * @since 13.9
+	 */
+	public function test_features_enabled_unauthorized() {
+		// Create REST request in JSON format and dispatch
+		$response = $this->create_and_get_request( 'features/enabled' );
+
+		$this->assertResponseStatus( 401, $response );
+		$this->assertResponseData( array( 'code' => 'invalid_permission_fetch_features' ), $response );
 	}
 } // class end

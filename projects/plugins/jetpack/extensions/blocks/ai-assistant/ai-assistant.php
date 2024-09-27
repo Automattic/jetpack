@@ -139,18 +139,6 @@ add_action(
 );
 
 /**
- * Register the `ai-assistant-extensions-support` extension.
- */
-add_action(
-	'jetpack_register_gutenberg_extensions',
-	function () {
-		if ( apply_filters( 'jetpack_ai_enabled', true ) && apply_filters( 'jetpack_inline_extensions_enabled', false ) ) {
-			\Jetpack_Gutenberg::set_extension_available( 'ai-assistant-extensions-support' );
-		}
-	}
-);
-
-/**
  * Register the `ai-assistant-experimental-image-generation-support` extension.
  */
 add_action(
@@ -206,6 +194,18 @@ add_action(
 	function () {
 		if ( apply_filters( 'jetpack_ai_enabled', true ) ) {
 			\Jetpack_Gutenberg::set_extension_available( 'ai-title-optimization-keywords-support' );
+		}
+	}
+);
+
+/**
+ * Register the `ai-logo-style-selector-support` extension.
+ */
+add_action(
+	'jetpack_register_gutenberg_extensions',
+	function () {
+		if ( apply_filters( 'jetpack_ai_enabled', true ) && apply_filters( 'jetpack_ai_logo_style_selector_enabled', false ) ) {
+			\Jetpack_Gutenberg::set_extension_available( 'ai-logo-style-selector-support' );
 		}
 	}
 );

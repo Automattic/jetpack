@@ -66,8 +66,8 @@ function getHumanReadableError( result ) {
 /**
  * A hook to get the necessary data and callbacks to reshare a post.
  *
- * @param {number} postId - The ID of the post to share.
- * @return { { doPublicize: Function, data: object } } The doPublicize callback to share the post.
+ * @param {number} [postId] - The ID of the post to share.
+ * @return { { doPublicize: (connectionsToSkip?: Array<string>) => Promise<void>, data: object } } The doPublicize callback to share the post.
  */
 export default function useSharePost( postId ) {
 	// Sharing data.
@@ -82,7 +82,7 @@ export default function useSharePost( postId ) {
 	const path = getSocialScriptData().api_paths.resharePost.replace( '{postId}', postId );
 
 	const doPublicize = useCallback(
-		function ( connectionsToSkip = null ) {
+		async function ( connectionsToSkip = null ) {
 			const initialState = {
 				isFetching: false,
 				isError: false,
@@ -105,12 +105,13 @@ export default function useSharePost( postId ) {
 				isFetching: true,
 			} );
 
-			apiFetch( {
+			await apiFetch( {
 				path,
 				method: 'POST',
 				data: {
 					message,
 					skipped_connections,
+					async: true,
 				},
 			} )
 				.then( ( result = {} ) => {

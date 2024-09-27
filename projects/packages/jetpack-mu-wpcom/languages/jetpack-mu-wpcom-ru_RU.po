@@ -1,0 +1,490 @@
+# Translation of Plugins - WordPress.com Editing Toolkit - Stable (latest release) in Russian
+# This file is distributed under the same license as the Plugins - WordPress.com Editing Toolkit - Stable (latest release) package.
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2024-07-04 19:54:06+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n % 10 == 1 && n % 100 != 11) ? 0 : ((n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14)) ? 1 : 2);\n"
+"X-Generator: GlotPress/4.0.1\n"
+"Language: ru\n"
+"Project-Id-Version: Plugins - WordPress.com Editing Toolkit - Stable (latest release)\n"
+
+#: wpcom-global-styles/index.php:536
+msgid "Preview premium styles"
+msgstr "Просмотр премиум-стилей"
+
+#: wpcom-global-styles/index.php:531
+#: wpcom-global-styles/dist/wpcom-global-styles.js:2730
+#: wpcom-global-styles/notices.js:170
+msgid "Remove premium styles"
+msgstr "Удалить премиум-стили"
+
+#: wpcom-global-styles/index.php:521
+#: wpcom-global-styles/dist/wpcom-global-styles.js:2714
+#: wpcom-global-styles/notices.js:147
+msgid "Upgrade now"
+msgstr "Обновить сейчас"
+
+#: wpcom-global-styles/index.php:547
+msgid "Upgrade required"
+msgstr "Требуется обновление тарифа"
+
+#: wpcom-global-styles/index.php:544
+msgid "Upgrade"
+msgstr "Платная услуга"
+
+#. translators: %1$s - documentation URL, %2$s - the name of the required plan
+#: wpcom-global-styles/index.php:497
+msgid "Your site includes <a href=\"%1$s\" target=\"_blank\">premium styles</a> that are only visible to visitors after upgrading to the %2$s plan or higher."
+msgstr "Ваш сайт включает <a href=\"%1$s\" target=\"_blank\">премиум-стили</a>, которые будут видны посетителям только после перехода на тарифный план уровня %2$s или выше."
+
+#: newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1449
+#: newspack-blocks/dist/blog-posts-block-editor.js:5877
+#: newspack-blocks/dist/carousel-block-editor.js:5540
+#: newspack-blocks/synced-newspack-blocks/shared/js/utils.js:77
+msgid "Scheduled"
+msgstr "Запланировано"
+
+#: newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1448
+#: newspack-blocks/dist/blog-posts-block-editor.js:5876
+#: newspack-blocks/dist/carousel-block-editor.js:5539
+#: newspack-blocks/synced-newspack-blocks/shared/js/utils.js:77
+msgid "Draft"
+msgstr "Черновик"
+
+#: newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1415
+msgid "Jetpack donations is disabled in favour of Newspack donations."
+msgstr "Пожертвования Jetpack отключены в пользу пожертвований Newspack."
+
+#: wpcom-block-editor-nux/dist/wpcom-block-editor-nux.js:8100
+#: wpcom-block-editor-nux/src/video-celebration-modal/index.jsx:80
+msgid "Feel free to keep editing your homepage, or continue and launch your site."
+msgstr "Оставайтесь в режиме редактирования вашей домашней странички либо продолжите и запустите сайт."
+
+#: wpcom-block-editor-nux/dist/wpcom-block-editor-nux.js:8109
+#: wpcom-block-editor-nux/src/video-celebration-modal/index.jsx:94
+msgid "Continue and launch"
+msgstr "Продолжить и запустить"
+
+#: wpcom-block-editor-nux/dist/wpcom-block-editor-nux.js:8104
+#: wpcom-block-editor-nux/src/video-celebration-modal/index.jsx:87
+msgid "Keep editing"
+msgstr "Продолжить редактирование"
+
+#: wpcom-block-editor-nux/dist/wpcom-block-editor-nux.js:8099
+#: wpcom-block-editor-nux/src/video-celebration-modal/index.jsx:79
+msgid "You’ve added your first video!"
+msgstr "Вы добавили первое видео!"
+
+#: wpcom-global-styles/api/class-global-styles-status-rest-api.php:53
+msgid "Your user is not permitted to access this resource."
+msgstr "Вашему пользователю запрещён доступ к этому ресурсу."
+
+#: wpcom-block-editor-nux/dist/wpcom-block-editor-nux.js:6918
+#: wpcom-block-editor-nux/src/purchase-notice/index.jsx:19
+msgid "Congrats! Premium blocks are now available to use."
+msgstr "Поздравляем! Блоки Premium теперь доступны для использования."
+
+#: wpcom-block-editor-nux/dist/wpcom-block-editor-nux.js:7049
+#: wpcom-block-editor-nux/src/seller-celebration-modal/index.jsx:119
+msgid "View your product"
+msgstr "Просмотреть товар"
+
+#: wpcom-block-editor-nux/dist/wpcom-block-editor-nux.js:7040
+#: wpcom-block-editor-nux/src/seller-celebration-modal/index.jsx:110
+msgid "Preview your product on your site before launching and sharing with others."
+msgstr "Просмотрите товар на сайте, перед тем как выпустить его и показать другим."
+
+#: wpcom-block-editor-nux/dist/wpcom-block-editor-nux.js:7039
+#: wpcom-block-editor-nux/src/seller-celebration-modal/index.jsx:109
+msgid "You've added your first product!"
+msgstr "Вы добавили свой первый товар!"
+
+#: paragraph-block/index.php:60
+msgid "Add a post title"
+msgstr "Добавить заголовок записи"
+
+#: paragraph-block/index.php:33 paragraph-block/index.php:79
+msgid "Start writing or type '/' to insert a block"
+msgstr "Начните писать или введите \"/\" для вставки блока"
+
+#: global-styles/class-global-styles.php:272
+msgid "Fonts"
+msgstr "Шрифты"
+
+#. Translators: This is a link which opens the block editor, and then opens the
+#. global styles sidebar.
+#: global-styles/class-global-styles-fonts-message-control.php:63
+msgid "Click here to open the Block Editor and change your fonts."
+msgstr "Нажмите здесь, чтобы открыть редактор блоков и изменить шрифты."
+
+#. Translators: This is a link which opens:
+#. https://wordpress.com/support/custom-fonts/#changing-fonts-with-global-styles.
+#: global-styles/class-global-styles-fonts-message-control.php:40
+msgid "Learn more about changing fonts using Global Styles."
+msgstr "Узнайте больше об изменении шрифтов с помощью глобальных стилей."
+
+#: global-styles/class-global-styles-fonts-message-control.php:27
+msgid "You can change your fonts using Global Styles, which can be found in the Block Editor."
+msgstr "Шрифты можно изменить с помощью глобальных стилей, которые доступны в редакторе блоков."
+
+#. translators: separates all but the last two sponsor names; needs a space at
+#. the end.
+#: newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1004
+msgid ", "
+msgstr ", "
+
+#: wpcom-block-editor-nux/dist/wpcom-block-editor-nux.js:7044
+#: wpcom-block-editor-nux/src/seller-celebration-modal/index.jsx:117
+msgid "Continue editing"
+msgstr "Продолжить редактирование"
+
+#: starter-page-templates/class-starter-page-templates.php:236
+msgid "Current"
+msgstr "Текущая дата"
+
+#. Plugin Name of the plugin
+#: full-site-editing-plugin.php
+msgid "WordPress.com Editing Toolkit"
+msgstr "Набор инструментов редактирования WordPress.com"
+
+#: mailerlite/subscriber-popup.php:116
+msgid "UUID:"
+msgstr "UUID:"
+
+#. translators: link to documentation
+#: mailerlite/subscriber-popup.php:113
+msgid "Account ID <a href=\"%s\" target=\"_blank\">(instructions)</a>:"
+msgstr "Идентификатор учетной записи <a href=\"%s\" target=\"_blank\">(инструкции)</a>:"
+
+#. translators: %1$s - URL to manage the widget, %2$s - documentation URL.
+#: mailerlite/subscriber-popup.php:42
+msgid "You need to enter your numeric account ID and UUID for the <a href=\"%1$s\">Mailerlite Widget</a> to work correctly. <a href=\"%2$s\" target=\"_blank\">Full instructions</a>."
+msgstr "Для корректной работы <a href=\"%1$s\">виджета Mailerlite</a> необходимо ввести цифровой идентификатор учетной записи и уникальный универсальный идентификатор (UUID). <a href=\"%2$s\" target=\"_blank\">Подробные инструкции</a>"
+
+#: mailerlite/subscriber-popup.php:20
+msgid "Display Mailerlite subscriber popup"
+msgstr "Показать окно подписки на Mailerlite"
+
+#: mailerlite/subscriber-popup.php:17
+msgid "Mailerlite subscriber popup"
+msgstr "Окно подписки на Mailerlite"
+
+#: newspack-blocks/synced-newspack-blocks/blocks/carousel/view.php:277
+msgid "Play Slideshow"
+msgstr "Воспроизвести слайд-шоу"
+
+#: newspack-blocks/synced-newspack-blocks/blocks/carousel/view.php:276
+msgid "Pause Slideshow"
+msgstr "Приостановить слайд-шоу"
+
+#: newspack-blocks/synced-newspack-blocks/blocks/carousel/view.php:231
+msgid "Previous Slide"
+msgstr "Предыдущий слайд"
+
+#: newspack-blocks/synced-newspack-blocks/blocks/carousel/view.php:232
+msgid "Next Slide"
+msgstr "Следующий слайд"
+
+#. translators: %d: Slide number.
+#: newspack-blocks/synced-newspack-blocks/blocks/carousel/view.php:210
+msgid "Go to slide %d"
+msgstr "Перейти к слайду %d"
+
+#: newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:900
+msgid "Common"
+msgstr "Общее"
+
+#: starter-page-templates/class-starter-page-templates.php:231
+msgid "Blank"
+msgstr "Пустая"
+
+#: newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:223
+#: newspack-blocks/dist/blog-posts-block-editor.js:4516
+#: newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/edit.js:785
+msgid "Load more posts"
+msgstr "Загрузить другие записи"
+
+#. translators: separates last two sponsor names; needs a space on either side.
+#: newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1001
+msgid " and "
+msgstr " и "
+
+#: newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:328
+#: newspack-blocks/dist/blog-posts-block-editor.js:5849
+#: newspack-blocks/dist/blog-posts-block-editor.js:5871
+#: newspack-blocks/dist/carousel-block-editor.js:5512
+#: newspack-blocks/dist/carousel-block-editor.js:5534
+#: newspack-blocks/synced-newspack-blocks/shared/js/utils.js:30
+#: newspack-blocks/synced-newspack-blocks/shared/js/utils.js:67
+msgctxt "post author"
+msgid " and "
+msgstr " и "
+
+#: newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:305
+#: newspack-blocks/dist/blog-posts-block-editor.js:5842
+#: newspack-blocks/dist/carousel-block-editor.js:5505
+#: newspack-blocks/synced-newspack-blocks/shared/js/utils.js:18
+msgctxt "post author"
+msgid "by"
+msgstr "Автор"
+
+#: newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:231
+msgid "Something went wrong. Please refresh the page and/or try again."
+msgstr "Произошла ошибка. Обновите страницу и повторите попытку."
+
+#: newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:228
+msgid "Loading..."
+msgstr "Загрузка…"
+
+#: dotcom-fse/blocks/site-credit/index.php:155
+msgid "WordPress Icon"
+msgstr "Значок WordPress"
+
+#: dotcom-fse/blocks/site-credit/index.php:150
+msgid "Proudly powered by WordPress"
+msgstr "Сайт работает на WordPress"
+
+#: dotcom-fse/templates/class-wp-template.php:149
+#: common/dist/data-stores.js:6621
+msgid "Footer"
+msgstr "Нижняя часть"
+
+#: dotcom-fse/templates/class-wp-template.php:147
+#: common/dist/data-stores.js:6616
+msgid "Header"
+msgstr "Заголовок"
+
+#: dotcom-fse/blocks/navigation-menu/index.php:86
+msgid "collapsed"
+msgstr "свернутый"
+
+#: dotcom-fse/blocks/navigation-menu/index.php:85
+msgid "expanded"
+msgstr "развернутый"
+
+#: dotcom-fse/blocks/navigation-menu/index.php:82
+msgid "Menu"
+msgstr "Меню"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:398
+msgctxt "Default page title"
+msgid "Contact"
+msgstr "Контакты"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:386
+msgctxt "Default page title"
+msgid "About"
+msgstr "О нас"
+
+#: starter-page-templates/class-wp-rest-sideload-image-controller.php:77
+msgid "Invalid parent type."
+msgstr "Недопустимый тип родительского элемента."
+
+#: starter-page-templates/class-starter-page-templates.php:221
+msgid "No templates available. Skipped showing modal window with template selection."
+msgstr "Нет шаблонов. Пропущено отображение модального окна с выбором шаблона."
+
+#: starter-page-templates/class-starter-page-templates.php:216
+msgid "No data received from the vertical API. Skipped showing modal window with template selection."
+msgstr "Нет данных, полученных от вертикального API. Пропущено отображение модального окна с выбором шаблона."
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:503
+msgid "Back to template part types"
+msgstr "Назад к типам частей шаблона"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:502
+msgid "No template part types found."
+msgstr "Типов частей шаблонов не найдено."
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:501
+msgid "Search Template Part Types"
+msgstr "Поиск типов частей шаблонов"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:500
+msgid "Parent Template Part Type:"
+msgstr "Родительский тип части шаблона:"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:499
+msgid "Parent Template Part Type"
+msgstr "Родительский тип части шаблона"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:498
+msgid "New Template Part Type"
+msgstr "Новый тип части шаблона"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:497
+msgid "Add New Template Part Type"
+msgstr "Добавить новый тип части шаблона"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:496
+msgid "Update Template Part Type"
+msgstr "Обновить тип части шаблона"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:495
+msgid "View Template Part Type"
+msgstr "Просмотр типа части шаблона"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:494
+msgid "Edit Template Part Type"
+msgstr "Изменить тип части шаблона"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:493
+msgid "All Template Part Types"
+msgstr "Все типы частей шаблона"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:492
+msgctxt "admin menu"
+msgid "Template Part Types"
+msgstr "Типы частей шаблона"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:491
+msgctxt "taxonomy singular name"
+msgid "Template Part Type"
+msgstr "Тип части шаблона"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:490
+msgctxt "taxonomy general name"
+msgid "Template Part Types"
+msgstr "Типы частей шаблона"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:455
+msgid "Template part updated."
+msgstr "Часть шаблона обновлена."
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:454
+msgid "Template part scheduled."
+msgstr "Часть шаблона запланирована."
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:453
+msgid "Template part reverted to draft."
+msgstr "Часть шаблона возвращена в черновики."
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:452
+msgid "Template part published privately."
+msgstr "Часть шаблона опубликована как личная."
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:451
+msgid "Template part published."
+msgstr "Часть шаблона опубликована."
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:450
+msgid "Template parts list"
+msgstr "Список частей шаблона"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:449
+msgid "Template parts list navigation"
+msgstr "Навигация по списку частей шаблона"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:448
+msgid "Filter template parts list"
+msgstr "Фильтр списка частей шаблона"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:447
+msgid "No template parts found in Trash."
+msgstr "Нет частей шаблона в корзине."
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:446
+msgid "No template parts found."
+msgstr "Частей шаблона не найдено."
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:445
+msgid "Search Template Parts"
+msgstr "Поиск частей шаблона"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:444
+msgid "All Template Parts"
+msgstr "Все части шаблона"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:443
+msgid "View Template Part"
+msgstr "Просмотр части шаблона"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:442
+msgid "Edit Template Part"
+msgstr "Изменить часть шаблона"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:441
+msgid "New Template Part"
+msgstr "Новая часть шаблона"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:440
+msgid "Add New Template Part"
+msgstr "Добавить новую часть шаблона"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:438
+msgctxt "add new on admin bar"
+msgid "Template Part"
+msgstr "Часть шаблона"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:437
+msgctxt "admin menu"
+msgid "Template Parts"
+msgstr "Части шаблона"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:436
+msgctxt "post type singular name"
+msgid "Template Part"
+msgstr "Часть шаблона"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:435
+msgctxt "post type general name"
+msgid "Template Parts"
+msgstr "Части шаблона"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:439
+msgctxt "Template"
+msgid "Add New"
+msgstr "Добавить новый"
+
+#: posts-list-block/class-posts-list-block.php:165
+msgid "Read more"
+msgstr "Читать далее"
+
+#. translators: %s: Name of current post
+#: posts-list-block/class-posts-list-block.php:162
+msgid "Continue reading %s"
+msgstr "Читать далее %s"
+
+#: posts-list-block/templates/post-item.php:36
+msgid "Edit"
+msgstr "Изменить"
+
+#: posts-list-block/templates/post-item.php:31
+msgctxt "designating the post author (eg: by John Doe"
+msgid "by"
+msgstr "от"
+
+#: posts-list-block/templates/post-item.php:23
+msgid "Featured"
+msgstr "Рекомендуется"
+
+#: posts-list-block/templates/posts-list.php:30
+msgid "View all posts"
+msgstr "Просмотреть все записи"
+
+#. translators: 1: link to WP admin new post page.
+#: posts-list-block/templates/no-posts.php:17
+msgid "Ready to publish your first post? <a href=\"%1$s\">Get started here</a>."
+msgstr "Готовы опубликовать свою первую запись? <a href=\"%1$s\">Начните отсюда</a>."
+
+#: posts-list-block/templates/no-posts.php:11
+msgid "There are currently no posts to display."
+msgstr "Пока ещё нет записей для отображения."
+
+#. Author URI of the plugin
+#: full-site-editing-plugin.php
+msgid "https://automattic.com/wordpress-plugins/"
+msgstr "https://automattic.com/wordpress-plugins/"
+
+#. Author of the plugin
+#: full-site-editing-plugin.php
+msgid "Automattic"
+msgstr "Automattic"
+
+#. Description of the plugin
+#: full-site-editing-plugin.php
+msgid "Enhances your page creation workflow within the Block Editor."
+msgstr "Улучшает процесс создания страниц в редакторе блоков."

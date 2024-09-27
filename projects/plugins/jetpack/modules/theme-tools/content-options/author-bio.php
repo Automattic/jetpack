@@ -9,8 +9,11 @@ if ( ! function_exists( 'jetpack_author_bio' ) ) {
 
 	/**
 	 * The function to display Author Bio in a theme.
+	 *
+	 * @deprecated 13.9 Moved to Classic Theme Helper package.
 	 */
 	function jetpack_author_bio() {
+		_deprecated_function( __FUNCTION__, 'jetpack-13.9' );
 		// If the theme doesn't support 'jetpack-content-options', don't continue.
 		if ( ! current_theme_supports( 'jetpack-content-options' ) ) {
 			return;
@@ -92,11 +95,12 @@ if ( ! function_exists( 'jetpack_has_gravatar' ) ) {
 	/**
 	 * Checks to see if the specified email address has a Gravatar image.
 	 *
+	 * @deprecated 13.9 Moved to Classic Theme Helper package.
 	 * @param string $email The email of the address of the user to check.
 	 * @return bool Whether or not the user has a gravatar
 	 */
 	function jetpack_has_gravatar( $email ) {
-
+		_deprecated_function( __FUNCTION__, 'jetpack-13.9' );
 		$url     = get_avatar_url( $email, array( 'default' => '404' ) );
 		$headers = get_headers( $url );
 

@@ -1,62 +1,98 @@
 import { Spinner, Text, useBreakpointMatch } from '@automattic/jetpack-components';
-import { useSelect } from '@wordpress/data';
+import { ExternalLink } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
+import { createInterpolateElement } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
-import { Icon, check, chevronDown, chevronUp } from '@wordpress/icons';
+import { Icon, check, chevronDown, chevronUp, info } from '@wordpress/icons';
 import clsx from 'clsx';
-import React, { useState, useCallback, useContext } from 'react';
-import { STORE_ID } from '../../state/store';
+import React, { useState, useCallback, useContext, useMemo } from 'react';
+import { PAID_PLUGIN_SUPPORT_URL } from '../../constants';
+import useFixers from '../../hooks/use-fixers';
+import IconTooltip from '../icon-tooltip';
 import ThreatSeverityBadge from '../severity';
 import styles from './styles.module.scss';
 
+// Extract context provider for clarity and reusability
 const PaidAccordionContext = React.createContext();
 
+// Component for displaying threat dates
 const ScanHistoryDetails = ( { firstDetected, fixedOn, status } ) => {
+	const statusText = useMemo( () => {
+		if ( status === 'fixed' ) {
+			return sprintf(
+				/* translators: %s: Fixed on date */
+				__( 'Threat fixed %s', 'jetpack-protect' ),
+				dateI18n( 'M j, Y', fixedOn )
+			);
+		}
+		if ( status === 'ignored' ) {
+			return __( 'Threat ignored', 'jetpack-protect' );
+		}
+		return null;
+	}, [ status, fixedOn ] );
+
 	return (
-		<>
-			{ firstDetected && (
+		firstDetected && (
+			<>
 				<Text className={ styles[ 'accordion-header-status' ] }>
 					{ sprintf(
 						/* translators: %s: First detected date */
 						__( 'Threat found %s', 'jetpack-protect' ),
 						dateI18n( 'M j, Y', firstDetected )
 					) }
-					{ 'fixed' === status && (
+					{ statusText && (
 						<>
 							<span className={ styles[ 'accordion-header-status-separator' ] }></span>
-							<span className={ styles[ 'is-fixed' ] }>
-								{ sprintf(
-									/* translators: %s: Fixed on date */
-									__( 'Threat fixed %s', 'jetpack-protect' ),
-									dateI18n( 'M j, Y', fixedOn )
-								) }
-							</span>
-						</>
-					) }
-					{ 'ignored' === status && (
-						<>
-							<span className={ styles[ 'accordion-header-status-separator' ] }></span>
-							<span className={ styles[ 'is-ignored' ] }>
-								{ __( 'Threat ignored', 'jetpack-protect' ) }
-							</span>
+							<span className={ styles[ `is-${ status }` ] }>{ statusText }</span>
 						</>
 					) }
 				</Text>
-			) }
-			{ ( 'fixed' === status || 'ignored' === status ) && (
-				<StatusBadge status={ 'fixed' === status ? 'fixed' : 'ignored' } />
-			) }
-		</>
+				{ [ 'fixed', 'ignored' ].includes( status ) && <StatusBadge status={ status } /> }
+			</>
+		)
 	);
 };
 
+// Badge for displaying the status (fixed or ignored)
 const StatusBadge = ( { status } ) => (
 	<div className={ `${ styles[ 'status-badge' ] } ${ styles[ status ] }` }>
-		{ 'fixed' === status
+		{ status === 'fixed'
 			? __( 'Fixed', 'jetpack-protect' )
 			: __( 'Ignored', 'jetpack-protect', /* dummy arg to avoid bad minification */ 0 ) }
 	</div>
 );
+
+const renderFixerStatus = ( isActiveFixInProgress, isStaleFixInProgress ) => {
+	if ( isStaleFixInProgress ) {
+		return (
+			<IconTooltip
+				icon={ info }
+				iconClassName={ styles[ 'icon-info' ] }
+				iconSize={ 24 }
+				text={ createInterpolateElement(
+					__(
+						'The fixer is taking longer than expected. Please try again or <supportLink>contact support</supportLink>.',
+						'jetpack-protect'
+					),
+					{
+						supportLink: (
+							<ExternalLink
+								className={ styles[ 'support-link' ] }
+								href={ PAID_PLUGIN_SUPPORT_URL }
+							/>
+						),
+					}
+				) }
+			/>
+		);
+	}
+
+	if ( isActiveFixInProgress ) {
+		return <Spinner color="black" />;
+	}
+
+	return <Icon icon={ check } className={ styles[ 'icon-check' ] } size={ 28 } />;
+};
 
 export const PaidAccordionItem = ( {
 	id,
@@ -72,24 +108,17 @@ export const PaidAccordionItem = ( {
 	status,
 	hideAutoFixColumn = false,
 } ) => {
-	const accordionData = useContext( PaidAccordionContext );
-	const open = accordionData?.open === id;
-	const setOpen = accordionData?.setOpen;
-	const threatsAreFixing = useSelect( select => select( STORE_ID ).getThreatsAreFixing() );
+	const { open, setOpen } = useContext( PaidAccordionContext );
+	const isOpen = open === id;
 
-	const bodyClassNames = clsx( styles[ 'accordion-body' ], {
-		[ styles[ 'accordion-body-open' ] ]: open,
-		[ styles[ 'accordion-body-close' ] ]: ! open,
-	} );
+	const { isThreatFixInProgress, isThreatFixStale } = useFixers();
 
 	const handleClick = useCallback( () => {
-		if ( ! open ) {
+		if ( ! isOpen ) {
 			onOpen?.();
 		}
-		setOpen( current => {
-			return current === id ? null : id;
-		} );
-	}, [ open, onOpen, setOpen, id ] );
+		setOpen( current => ( current === id ? null : id ) );
+	}, [ isOpen, onOpen, setOpen, id ] );
 
 	const [ isSmall ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
 
@@ -103,40 +132,38 @@ export const PaidAccordionItem = ( {
 					</Text>
 					<Text
 						className={ styles[ 'accordion-header-description' ] }
-						variant={ open ? 'title-small' : 'body' }
+						variant={ isOpen ? 'title-small' : 'body' }
 					>
 						{ title }
 					</Text>
-					{ ( 'fixed' === status || 'ignored' === status ) && (
+					{ [ 'fixed', 'ignored' ].includes( status ) && (
 						<ScanHistoryDetails
 							firstDetected={ firstDetected }
-							status={ status }
 							fixedOn={ fixedOn }
+							status={ status }
 						/>
 					) }
 				</div>
 				<div>
 					<ThreatSeverityBadge severity={ severity } />
 				</div>
-				{ ! hideAutoFixColumn && (
+				{ ! hideAutoFixColumn && fixable && (
 					<div>
-						{ fixable && (
-							<>
-								{ threatsAreFixing.indexOf( id ) >= 0 ? (
-									<Spinner color="black" />
-								) : (
-									<Icon icon={ check } className={ styles[ 'icon-check' ] } size={ 28 } />
-								) }
-								{ isSmall && <span>{ __( 'Auto-fix', 'jetpack-protect' ) }</span> }
-							</>
-						) }
+						{ renderFixerStatus( isThreatFixInProgress( id ), isThreatFixStale( id ) ) }
+						{ isSmall && <span>{ __( 'Auto-fix', 'jetpack-protect' ) }</span> }
 					</div>
 				) }
 				<div className={ styles[ 'accordion-header-button' ] }>
-					<Icon icon={ open ? chevronUp : chevronDown } size={ 38 } />
+					<Icon icon={ isOpen ? chevronUp : chevronDown } size={ 38 } />
 				</div>
 			</button>
-			<div className={ bodyClassNames } aria-hidden={ open ? 'false' : 'true' }>
+			<div
+				className={ clsx( styles[ 'accordion-body' ], {
+					[ styles[ 'accordion-body-open' ] ]: isOpen,
+					[ styles[ 'accordion-body-close' ] ]: ! isOpen,
+				} ) }
+				aria-hidden={ ! isOpen }
+			>
 				{ children }
 			</div>
 		</div>

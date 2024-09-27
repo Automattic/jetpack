@@ -286,6 +286,12 @@ add_filter( 'upload_mimes', 'wpcomsh_maybe_restrict_mimetypes', PHP_INT_MAX );
  * MANAGE_PLUGINS feature.
  */
 function wpcomsh_maybe_redirect_to_calypso_plugin_pages() {
+	$request_uri = wp_unslash( $_SERVER['REQUEST_URI'] ); // phpcs:ignore
+	// Quick exit if on non-plugin page.
+	if ( false === strpos( $request_uri, '/wp-admin/plugin' ) ) {
+		return;
+	}
+
 	if ( wpcom_site_has_feature( WPCOM_Features::MANAGE_PLUGINS ) ) {
 		return;
 	}
@@ -293,8 +299,6 @@ function wpcomsh_maybe_redirect_to_calypso_plugin_pages() {
 	if ( ! class_exists( 'Automattic\Jetpack\Status' ) ) {
 		return;
 	}
-
-	$request_uri = wp_unslash( $_SERVER['REQUEST_URI'] ); // phpcs:ignore
 
 	$site = ( new Automattic\Jetpack\Status() )->get_site_suffix();
 

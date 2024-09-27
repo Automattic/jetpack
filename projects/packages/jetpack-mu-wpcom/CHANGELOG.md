@@ -5,6 +5,43 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.64.0] - 2024-09-23
+### Deprecated
+- Removed launchpad-save-modal. [#39429]
+
+## [5.63.0] - 2024-09-18
+### Added
+- Added a shopping cart icon to the masterbar. This icon will be displayed when the user has items in the cart and liks to the checkout page. [#39298]
+- Add new wpcom-migration-key endpoint. [#39377]
+
+### Changed
+- Admin menu: Replace Jetpack cloud links with WordPress.com links [#39393]
+- Changing name of the hosting menu's "Settings" item to "Site Settings". [#39411]
+- Get active element from target's document rather than the global `document`. [#39364]
+- Remove the extra padding around the admin bar Reader item to match Calypso. [#39357]
+- Removing some steps from the Block Editor Welcome Tour, since it currently has too many [#39325]
+
+### Fixed
+- Admin bar: align colors with Calypso's [#39314]
+- Admin bar: fix paddings around wpcom and reader logos [#39312]
+- Changinging wpcom_admin_interface via API no longer redirects [#39416]
+- Help Center: Fix the icon color when previewing color scheme [#39371]
+- Launchpad first_post_published task reuses existing draft if there is one [#39259]
+- Prevent undefined `get_current_screen` function errors resulting from invoking the function in contexts where it is undefined. [#39228]
+- Use React properties rather than pass-throughs (e.g. `className` rather than `class`). [#39414]
+
+## [5.62.0] - 2024-09-10
+### Changed
+- Admin bar: always use user language even on frontend screens [#39255]
+- Admin bar: update 'My Account' link to /me [#39290]
+- Enable Users -> Profile (profile.php) on all sites [#39181]
+- Launchpad: Require a design is selected before marking the step as complete in both the Write and Free flows [#39189]
+- Updated package dependencies. [#39176]
+- Updated package dependencies. [#39302]
+
+### Fixed
+- Use the correct endpoint route for adding suggested tags on new posts. [#39175]
+
 ## [5.61.0] - 2024-09-02
 ### Changed
 - MU WPCOM: Disable the Open Graph Tags according to the privacy of the site [#39012]
@@ -1205,6 +1242,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Testing initial package release.
 
+[5.64.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.63.0...v5.64.0
+[5.63.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.62.0...v5.63.0
+[5.62.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.61.0...v5.62.0
 [5.61.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.60.0...v5.61.0
 [5.60.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.59.0...v5.60.0
 [5.59.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.58.0...v5.59.0

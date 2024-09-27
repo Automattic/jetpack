@@ -7,38 +7,30 @@ import {
 	useBreakpointMatch,
 	Notice as JetpackNotice,
 } from '@automattic/jetpack-components';
-import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
-import { ExternalLink, Popover } from '@wordpress/components';
-import { useDispatch } from '@wordpress/data';
+import { Popover } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, closeSmall } from '@wordpress/icons';
 import moment from 'moment';
 import { useCallback, useEffect, useState, useMemo } from 'react';
-import API from '../../api';
 import AdminPage from '../../components/admin-page';
 import FirewallFooter from '../../components/firewall-footer';
 import ConnectedFirewallHeader from '../../components/firewall-header';
 import FormToggle from '../../components/form-toggle';
 import ScanFooter from '../../components/scan-footer';
 import Textarea from '../../components/textarea';
-import {
-	JETPACK_SCAN_SLUG,
-	FREE_PLUGIN_SUPPORT_URL,
-	PAID_PLUGIN_SUPPORT_URL,
-} from '../../constants';
+import { FREE_PLUGIN_SUPPORT_URL, PAID_PLUGIN_SUPPORT_URL } from '../../constants';
+import useWafSeenMutation from '../../data/waf/use-waf-seen-mutation';
+import useWafUpgradeSeenMutation from '../../data/waf/use-waf-upgrade-seen-mutation';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
-import useProtectData from '../../hooks/use-protect-data';
+import usePlan from '../../hooks/use-plan';
 import useWafData from '../../hooks/use-waf-data';
-import { STORE_ID } from '../../state/store';
 import styles from './styles.module.scss';
 
 const ADMIN_URL = window?.jetpackProtectInitialState?.adminUrl;
-const SUCCESS_NOTICE_DURATION = 5000;
 
 const FirewallPage = () => {
 	const [ isSmall ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
-	const { setWafIsSeen, setWafUpgradeIsSeen, setNotice } = useDispatch( STORE_ID );
 	const {
 		config: {
 			jetpackWafAutomaticRules,
@@ -59,19 +51,17 @@ const FirewallPage = () => {
 		stats: { automaticRulesLastUpdated },
 		toggleAutomaticRules,
 		toggleIpAllowList,
+		saveIpAllowList,
 		toggleIpBlockList,
+		saveIpBlockList,
 		toggleBruteForceProtection,
 		toggleWaf,
-		updateConfig,
 	} = useWafData();
-	const { hasRequiredPlan } = useProtectData();
-	const { run: runCheckoutWorkflow } = useProductCheckoutWorkflow( {
-		productSlug: JETPACK_SCAN_SLUG,
-		redirectUrl: `${ ADMIN_URL }#/firewall`,
-		useBlogIdSuffix: true,
-	} );
-	const { recordEventHandler, recordEvent } = useAnalyticsTracks();
-
+	const { hasPlan } = usePlan();
+	const { upgradePlan } = usePlan( { redirectUrl: `${ ADMIN_URL }#/firewall` } );
+	const { recordEvent } = useAnalyticsTracks();
+	const wafSeenMutation = useWafSeenMutation();
+	const wafUpgradeSeenMutation = useWafUpgradeSeenMutation();
 	/**
 	 * Automatic Rules Installation Error State
 	 *
@@ -85,137 +75,28 @@ const FirewallPage = () => {
 	 * @member {object} formState - Current form values.
 	 */
 	const [ formState, setFormState ] = useState( {
-		jetpack_waf_automatic_rules: jetpackWafAutomaticRules,
-		jetpack_waf_ip_block_list_enabled: jetpackWafIpBlockListEnabled,
-		jetpack_waf_ip_allow_list_enabled: jetpackWafIpAllowListEnabled,
 		jetpack_waf_ip_block_list: jetpackWafIpBlockList,
 		jetpack_waf_ip_allow_list: jetpackWafIpAllowList,
-		brute_force_protection: isBruteForceModuleEnabled,
 	} );
 
-	const [ formIsSubmitting, setFormIsSubmitting ] = useState( false );
-	const [ ipAllowListIsUpdating, setIpAllowListIsUpdating ] = useState( false );
-	const [ ipBlockListIsUpdating, setIpBlockListIsUpdating ] = useState( false );
-
-	const canEditFirewallSettings = isWafModuleEnabled && ! formIsSubmitting;
-	const canToggleAutomaticRules =
-		isWafModuleEnabled && ( hasRequiredPlan || automaticRulesAvailable );
-	const canEditIpAllowList = ! formIsSubmitting && !! formState.jetpack_waf_ip_allow_list_enabled;
+	const canEditFirewallSettings = isWafModuleEnabled && ! isUpdating;
+	const canToggleAutomaticRules = isWafModuleEnabled && ( hasPlan || automaticRulesAvailable );
+	const canEditIpAllowList = ! isUpdating && jetpackWafIpAllowListEnabled;
 	const ipBlockListHasChanges = formState.jetpack_waf_ip_block_list !== jetpackWafIpBlockList;
 	const ipAllowListHasChanges = formState.jetpack_waf_ip_allow_list !== jetpackWafIpAllowList;
 	const ipBlockListHasContent = !! formState.jetpack_waf_ip_block_list;
 	const ipAllowListHasContent = !! formState.jetpack_waf_ip_allow_list;
-	const ipBlockListEnabled = isWafModuleEnabled && formState.jetpack_waf_ip_block_list_enabled;
-
-	/**
-	 * Get a custom error message based on the error code.
-	 *
-	 * @param {object} error - Error object.
-	 * @return string|bool Custom error message or false if no custom message exists.
-	 */
-	const getCustomErrorMessage = useCallback( error => {
-		switch ( error.code ) {
-			case 'file_system_error':
-				return __( 'A filesystem error occurred.', 'jetpack-protect' );
-			case 'rules_api_error':
-				return __(
-					'An error occurred retrieving the latest firewall rules from Jetpack.',
-					'jetpack-protect'
-				);
-			default:
-				return false;
-		}
-	}, [] );
-
-	/**
-	 * Handle errors returned by the API.
-	 */
-	const handleApiError = useCallback(
-		error => {
-			const errorMessage =
-				getCustomErrorMessage( error ) || __( 'An error occurred.', 'jetpack-protect' );
-			const supportMessage = createInterpolateElement(
-				__( 'Please try again or <supportLink>contact support</supportLink>.', 'jetpack-protect' ),
-				{
-					supportLink: (
-						<ExternalLink
-							href={ hasRequiredPlan ? PAID_PLUGIN_SUPPORT_URL : FREE_PLUGIN_SUPPORT_URL }
-						/>
-					),
-				}
-			);
-
-			setNotice( {
-				type: 'error',
-				message: (
-					<>
-						{ errorMessage } { supportMessage }
-					</>
-				),
-			} );
-		},
-		[ getCustomErrorMessage, setNotice, hasRequiredPlan ]
-	);
+	const ipBlockListEnabled = isWafModuleEnabled && jetpackWafIpBlockListEnabled;
 
 	/**
 	 * Get Scan
 	 *
 	 * Records an event and then starts the checkout flow for Jetpack Scan
 	 */
-	const getScan = recordEventHandler(
-		'jetpack_protect_waf_page_get_scan_link_click',
-		runCheckoutWorkflow
-	);
-
-	/**
-	 * Save IP Allow List Changes
-	 *
-	 * Updates the WAF settings with the current form state values.
-	 *
-	 * @return void
-	 */
-	const saveIpAllowListChanges = useCallback( () => {
-		setFormIsSubmitting( true );
-		setIpAllowListIsUpdating( true );
-		updateConfig( formState )
-			.then( () =>
-				setNotice( {
-					type: 'success',
-					duration: SUCCESS_NOTICE_DURATION,
-					message: __( 'Allow list changes saved.', 'jetpack-protect' ),
-				} )
-			)
-			.catch( handleApiError )
-			.finally( () => {
-				setFormIsSubmitting( false );
-				setIpAllowListIsUpdating( false );
-			} );
-	}, [ updateConfig, formState, handleApiError, setNotice ] );
-
-	/**
-	 * Save IP Block List Changes
-	 *
-	 * Updates the WAF settings with the current form state values.
-	 *
-	 * @return void
-	 */
-	const saveIpBlockListChanges = useCallback( () => {
-		setFormIsSubmitting( true );
-		setIpBlockListIsUpdating( true );
-		updateConfig( formState )
-			.then( () =>
-				setNotice( {
-					type: 'success',
-					duration: SUCCESS_NOTICE_DURATION,
-					message: __( 'Block list changes saved.', 'jetpack-protect' ),
-				} )
-			)
-			.catch( handleApiError )
-			.finally( () => {
-				setFormIsSubmitting( false );
-				setIpBlockListIsUpdating( false );
-			} );
-	}, [ updateConfig, formState, handleApiError, setNotice ] );
+	const getScan = useCallback( () => {
+		recordEvent( 'jetpack_protect_waf_page_get_scan_link_click' );
+		upgradePlan();
+	}, [ recordEvent, upgradePlan ] );
 
 	/**
 	 * Handle Change
@@ -234,6 +115,24 @@ const FirewallPage = () => {
 	);
 
 	/**
+	 * Returns an event listener that syncs the target input's value with form state, before calling a callback.
+	 *
+	 * @param {*} callback - The function to call with the input's value.
+	 * @return {Function} - Event listener
+	 */
+	const withFormState = callback => {
+		return event => {
+			const { id, value, ariaChecked } = event.target;
+			const inputValue = ariaChecked ? ariaChecked !== 'true' : value;
+			setFormState( prevState => ( {
+				...prevState,
+				[ id ]: inputValue,
+			} ) );
+			return callback( inputValue );
+		};
+	};
+
+	/**
 	 * Handle Automatic Rules Change
 	 *
 	 * Toggles the WAF's automatic rules option.
@@ -241,165 +140,44 @@ const FirewallPage = () => {
 	 * @return void
 	 */
 	const handleAutomaticRulesChange = useCallback( () => {
-		setFormIsSubmitting( true );
-		const newValue = ! formState.jetpack_waf_automatic_rules;
-		setFormState( {
-			...formState,
-			jetpack_waf_automatic_rules: newValue,
-		} );
-		toggleAutomaticRules()
-			.then( () => {
-				setAutomaticRulesInstallationError( false );
-				setNotice( {
-					type: 'success',
-					duration: SUCCESS_NOTICE_DURATION,
-					message: newValue
-						? __( `Automatic firewall protection is enabled.`, 'jetpack-protect' )
-						: __(
-								`Automatic firewall protection is disabled.`,
-								'jetpack-protect',
-								/* dummy arg to avoid bad minification */ 0
-						  ),
-				} );
-				recordEvent(
-					newValue
-						? 'jetpack_protect_automatic_rules_enabled'
-						: 'jetpack_protect_automatic_rules_disabled'
-				);
-			} )
-			.then( () => {
-				if ( ! upgradeIsSeen ) {
-					setWafUpgradeIsSeen( true );
-					API.wafUpgradeSeen();
-				}
-			} )
-			.catch( error => {
-				setAutomaticRulesInstallationError( true );
-				handleApiError( error );
-			} )
-			.finally( () => setFormIsSubmitting( false ) );
-	}, [
-		formState,
-		toggleAutomaticRules,
-		setNotice,
-		recordEvent,
-		upgradeIsSeen,
-		setWafUpgradeIsSeen,
-		handleApiError,
-	] );
+		setFormState( prevState => ( {
+			...prevState,
+			jetpack_waf_automatic_rules: ! prevState.jetpack_waf_automatic_rules,
+		} ) );
+
+		try {
+			toggleAutomaticRules();
+			setAutomaticRulesInstallationError( false );
+		} catch ( error ) {
+			setAutomaticRulesInstallationError( true );
+			setFormState( prevState => ( {
+				...prevState,
+				jetpack_waf_automatic_rules: ! prevState.jetpack_waf_automatic_rules,
+			} ) );
+		}
+	}, [ toggleAutomaticRules ] );
 
 	/**
-	 * Handle Brute Force Protection Change
+	 * Save IP Block List Changes
 	 *
-	 * Toggles the brute force protection module.
+	 * Updates the WAF settings with the current form state values.
 	 *
 	 * @return void
 	 */
-	const handleBruteForceProtectionChange = useCallback( () => {
-		setFormIsSubmitting( true );
-		const newValue = ! formState.brute_force_protection;
-		setFormState( {
-			...formState,
-			brute_force_protection: newValue,
-		} );
-		toggleBruteForceProtection()
-			.then( () => {
-				setNotice( {
-					type: 'success',
-					duration: SUCCESS_NOTICE_DURATION,
-					message: newValue
-						? __( `Brute force protection is enabled.`, 'jetpack-protect' )
-						: __(
-								`Brute force protection is disabled.`,
-								'jetpack-protect',
-								/* dummy arg to avoid bad minification */ 0
-						  ),
-				} );
-				recordEvent(
-					newValue
-						? 'jetpack_protect_brute_force_protection_enabled'
-						: 'jetpack_protect_brute_force_protection_disabled'
-				);
-			} )
-			.catch( handleApiError )
-			.finally( () => setFormIsSubmitting( false ) );
-	}, [ formState, toggleBruteForceProtection, handleApiError, setNotice, recordEvent ] );
+	const saveIpBlockListChanges = useCallback( async () => {
+		await saveIpBlockList( formState.jetpack_waf_ip_block_list );
+	}, [ saveIpBlockList, formState.jetpack_waf_ip_block_list ] );
 
 	/**
-	 * Handle IP Allow List Change
+	 * Save IP Allow List Changes
 	 *
-	 * Toggles the WAF's IP allow list option.
+	 * Updates the WAF settings with the current form state values.
 	 *
 	 * @return void
 	 */
-	const handleIpAllowListChange = useCallback( () => {
-		const newIpAllowListStatus = ! formState.jetpack_waf_ip_allow_list_enabled;
-		setFormIsSubmitting( true );
-		setIpAllowListIsUpdating( true );
-		setFormState( { ...formState, jetpack_waf_ip_allow_list_enabled: newIpAllowListStatus } );
-		toggleIpAllowList()
-			.then( () => {
-				setNotice( {
-					type: 'success',
-					duration: SUCCESS_NOTICE_DURATION,
-					message: newIpAllowListStatus
-						? __( 'Allow list active.', 'jetpack-protect' )
-						: __(
-								'Allow list is disabled.',
-								'jetpack-protect',
-								/* dummy arg to avoid bad minification */ 0
-						  ),
-				} );
-				recordEvent(
-					newIpAllowListStatus
-						? 'jetpack_protect_ip_allow_list_enabled'
-						: 'jetpack_protect_ip_allow_list_disabled'
-				);
-			} )
-			.catch( handleApiError )
-			.finally( () => {
-				setFormIsSubmitting( false );
-				setIpAllowListIsUpdating( false );
-			} );
-	}, [ formState, toggleIpAllowList, handleApiError, setNotice, recordEvent ] );
-
-	/**
-	 * Handle IP Block List Change
-	 *
-	 * Toggles the WAF's IP block list option.
-	 *
-	 * @return void
-	 */
-	const handleIpBlockListChange = useCallback( () => {
-		const newIpBlockListStatus = ! formState.jetpack_waf_ip_block_list_enabled;
-		setFormIsSubmitting( true );
-		setIpBlockListIsUpdating( true );
-		setFormState( { ...formState, jetpack_waf_ip_block_list_enabled: newIpBlockListStatus } );
-		toggleIpBlockList()
-			.then( () => {
-				setNotice( {
-					type: 'success',
-					duration: SUCCESS_NOTICE_DURATION,
-					message: newIpBlockListStatus
-						? __( 'Block list is active.', 'jetpack-protect' )
-						: __(
-								'Block list is disabled.',
-								'jetpack-protect',
-								/* dummy arg to avoid bad minification */ 0
-						  ),
-				} );
-				recordEvent(
-					newIpBlockListStatus
-						? 'jetpack_protect_ip_block_list_enabled'
-						: 'jetpack_protect_ip_block_list_disabled'
-				);
-			} )
-			.catch( handleApiError )
-			.finally( () => {
-				setFormIsSubmitting( false );
-				setIpBlockListIsUpdating( false );
-			} );
-	}, [ formState, toggleIpBlockList, handleApiError, setNotice, recordEvent ] );
+	const saveIpAllowListChanges = useCallback( async () => {
+		await saveIpAllowList( formState.jetpack_waf_ip_allow_list );
+	}, [ saveIpAllowList, formState.jetpack_waf_ip_allow_list ] );
 
 	/**
 	 * Handle Close Popover Click
@@ -409,9 +187,8 @@ const FirewallPage = () => {
 	 * @return void
 	 */
 	const handleClosePopoverClick = useCallback( () => {
-		setWafUpgradeIsSeen( true );
-		API.wafUpgradeSeen();
-	}, [ setWafUpgradeIsSeen ] );
+		wafUpgradeSeenMutation.mutate();
+	}, [ wafUpgradeSeenMutation ] );
 
 	/**
 	 * Checks if the current IP address is allow listed.
@@ -419,7 +196,7 @@ const FirewallPage = () => {
 	 * @return {boolean} - Indicates whether the current IP address is allow listed.
 	 */
 	const isCurrentIpAllowed = useMemo( () => {
-		return formState.jetpack_waf_ip_allow_list.includes( currentIp );
+		return formState.jetpack_waf_ip_allow_list?.includes( currentIp );
 	}, [ formState.jetpack_waf_ip_allow_list, currentIp ] );
 
 	/**
@@ -445,23 +222,11 @@ const FirewallPage = () => {
 	useEffect( () => {
 		if ( ! isUpdating ) {
 			setFormState( {
-				jetpack_waf_automatic_rules: jetpackWafAutomaticRules,
-				jetpack_waf_ip_block_list_enabled: jetpackWafIpBlockListEnabled,
-				jetpack_waf_ip_allow_list_enabled: jetpackWafIpAllowListEnabled,
 				jetpack_waf_ip_block_list: jetpackWafIpBlockList,
 				jetpack_waf_ip_allow_list: jetpackWafIpAllowList,
-				brute_force_protection: isBruteForceModuleEnabled,
 			} );
 		}
-	}, [
-		jetpackWafIpBlockListEnabled,
-		jetpackWafIpAllowListEnabled,
-		jetpackWafIpBlockList,
-		jetpackWafIpAllowList,
-		jetpackWafAutomaticRules,
-		isBruteForceModuleEnabled,
-		isUpdating,
-	] );
+	}, [ jetpackWafIpBlockList, jetpackWafIpAllowList, isUpdating ] );
 
 	/**
 	 * "WAF Seen" useEffect()
@@ -471,18 +236,14 @@ const FirewallPage = () => {
 			return;
 		}
 
-		// remove the "new" badge immediately
-		setWafIsSeen( true );
-
-		// update the meta value in the background
-		API.wafSeen();
-	}, [ isSeen, setWafIsSeen ] );
+		wafSeenMutation.mutate();
+	}, [ isSeen, wafSeenMutation ] );
 
 	// Track view for Protect WAF page.
 	useAnalyticsTracks( {
 		pageViewEventName: 'protect_waf',
 		pageViewEventProperties: {
-			has_plan: hasRequiredPlan,
+			has_plan: hasPlan,
 		},
 	} );
 
@@ -520,11 +281,11 @@ const FirewallPage = () => {
 			>
 				<div className={ styles[ 'toggle-section__control' ] }>
 					<FormToggle
-						checked={ canToggleAutomaticRules ? formState.jetpack_waf_automatic_rules : false }
-						onChange={ handleAutomaticRulesChange }
-						disabled={ ! canEditFirewallSettings || ! canToggleAutomaticRules }
+						checked={ canToggleAutomaticRules ? jetpackWafAutomaticRules : false }
+						onChange={ withFormState( handleAutomaticRulesChange ) }
+						disabled={ ! canEditFirewallSettings || ! canToggleAutomaticRules || isUpdating }
 					/>
-					{ hasRequiredPlan && upgradeIsSeen === false && (
+					{ hasPlan && upgradeIsSeen === false && (
 						<Popover noArrow={ false } offset={ 8 } position={ 'top right' } inline={ true }>
 							<div className={ styles.popover }>
 								<div className={ styles.popover__header }>
@@ -565,7 +326,7 @@ const FirewallPage = () => {
 						<Text variant="title-medium" mb={ 2 }>
 							{ __( 'Automatic firewall protection', 'jetpack-protect' ) }
 						</Text>
-						{ ! isSmall && hasRequiredPlan && displayUpgradeBadge && (
+						{ ! isSmall && hasPlan && displayUpgradeBadge && (
 							<span className={ styles.badge }>{ __( 'NOW AVAILABLE', 'jetpack-protect' ) }</span>
 						) }
 					</div>
@@ -605,12 +366,11 @@ const FirewallPage = () => {
 									variant={ 'body-small' }
 									mt={ 2 }
 								>
-									{ __( 'Failed to update automatic firewall rules.', 'jetpack-protect' ) }{ ' ' }
-									{ getCustomErrorMessage( automaticRulesInstallationError ) }
+									{ __( 'Failed to update automatic firewall rules.', 'jetpack-protect' ) }
 								</Text>
 								<Button
 									variant={ 'link' }
-									href={ hasRequiredPlan ? PAID_PLUGIN_SUPPORT_URL : FREE_PLUGIN_SUPPORT_URL }
+									href={ hasPlan ? PAID_PLUGIN_SUPPORT_URL : FREE_PLUGIN_SUPPORT_URL }
 								>
 									<Text variant={ 'body-small' }>
 										{ __( 'Contact support', 'jetpack-protect' ) }
@@ -621,7 +381,7 @@ const FirewallPage = () => {
 					</div>
 				</div>
 			</div>
-			{ ! hasRequiredPlan && (
+			{ ! hasPlan && (
 				<div className={ styles[ 'upgrade-trigger-section' ] }>
 					<ContextualUpgradeTrigger
 						className={ styles[ 'upgrade-trigger' ] }
@@ -655,9 +415,9 @@ const FirewallPage = () => {
 			<div className={ styles[ 'toggle-section__control' ] }>
 				<FormToggle
 					id="brute_force_protection"
-					checked={ formState.brute_force_protection }
-					onChange={ handleBruteForceProtectionChange }
-					disabled={ formIsSubmitting }
+					checked={ isBruteForceModuleEnabled }
+					onChange={ withFormState( toggleBruteForceProtection ) }
+					disabled={ isUpdating }
 				/>
 			</div>
 			<div className={ styles[ 'toggle-section__content' ] }>
@@ -684,7 +444,7 @@ const FirewallPage = () => {
 				<FormToggle
 					id="jetpack_waf_ip_block_list_enabled"
 					checked={ ipBlockListEnabled }
-					onChange={ handleIpBlockListChange }
+					onChange={ withFormState( toggleIpBlockList ) }
 					disabled={ ! canEditFirewallSettings }
 				/>
 			</div>
@@ -708,13 +468,21 @@ const FirewallPage = () => {
 							onChange={ handleChange }
 							disabled={ ! canEditFirewallSettings || ! ipBlockListEnabled }
 						/>
+						{ ipBlockListEnabled && (
+							<Text variant="body-extra-small" mt={ 1 }>
+								{ __(
+									'IPv4 and IPv6 supported. Separate IPs with commas, spaces, or new lines. To specify a range, use CIDR notation (i.e. 12.12.12.0/24) or enter the low value and high value separated by a dash (i.e. 12.12.12.0–12.12.12.255).',
+									'jetpack-protect'
+								) }
+							</Text>
+						) }
 					</div>
 				) }
 				{ ipBlockListEnabled && (
 					<div className={ styles[ 'block-list-button-container' ] }>
 						<Button
 							onClick={ saveIpBlockListChanges }
-							isLoading={ ipBlockListIsUpdating }
+							isLoading={ isUpdating }
 							disabled={ ! canEditFirewallSettings || ! ipBlockListHasChanges }
 						>
 							{ __( 'Save block list', 'jetpack-protect' ) }
@@ -731,9 +499,9 @@ const FirewallPage = () => {
 				<div className={ styles[ 'toggle-section__control' ] }>
 					<FormToggle
 						id="jetpack_waf_ip_allow_list_enabled"
-						checked={ formState.jetpack_waf_ip_allow_list_enabled }
-						onChange={ handleIpAllowListChange }
-						disabled={ formIsSubmitting }
+						checked={ jetpackWafIpAllowListEnabled }
+						onChange={ toggleIpAllowList }
+						disabled={ isUpdating }
 					/>
 				</div>
 				<div className={ styles[ 'toggle-section__content' ] }>
@@ -742,11 +510,11 @@ const FirewallPage = () => {
 					</Text>
 					<Text mb={ 1 }>
 						{ __(
-							'IP addresses added to this list are always allowed by Jetpack.',
+							'IP addresses added to this list are always allowed to access your site, regardless of any other Jetpack security settings.',
 							'jetpack-protect'
 						) }
 					</Text>
-					{ ( formState.jetpack_waf_ip_allow_list_enabled || ipAllowListHasContent ) && (
+					{ ( jetpackWafIpAllowListEnabled || ipAllowListHasContent ) && (
 						<div className={ styles[ 'manual-rules-section' ] }>
 							<Textarea
 								id="jetpack_waf_ip_allow_list"
@@ -756,15 +524,17 @@ const FirewallPage = () => {
 								onChange={ handleChange }
 								disabled={ ! canEditIpAllowList }
 							/>
-							<Text variant="body-extra-small" mt={ 1 }>
-								{ __(
-									"Add IP addresses here to ensure they always have access to your site, regardless of Jetpack's security features.",
-									'jetpack-protect'
-								) }
-							</Text>
+							{ jetpackWafIpAllowListEnabled && (
+								<Text variant="body-extra-small" mt={ 1 }>
+									{ __(
+										'IPv4 and IPv6 supported. Separate IPs with commas, spaces, or new lines. To specify a range, use CIDR notation (i.e. 12.12.12.0/24) or enter the low value and high value separated by a dash (i.e. 12.12.12.0–12.12.12.255).',
+										'jetpack-protect'
+									) }
+								</Text>
+							) }
 						</div>
 					) }
-					{ formState.jetpack_waf_ip_allow_list_enabled && (
+					{ jetpackWafIpAllowListEnabled && (
 						<div className={ styles[ 'allow-list-button-container' ] }>
 							<div>
 								<Text variant="body-small" className={ styles[ 'allow-list-current-ip' ] }>
@@ -783,15 +553,15 @@ const FirewallPage = () => {
 									variant={ 'secondary' }
 									size={ 'small' }
 									onClick={ addCurrentIpToAllowList }
-									disabled={ ! canEditIpAllowList || isCurrentIpAllowed || formIsSubmitting }
+									disabled={ ! canEditIpAllowList || isCurrentIpAllowed || isUpdating }
 								>
 									{ __( '+ Add to Allow List', 'jetpack-protect' ) }
 								</Button>
 							</div>
 							<Button
 								onClick={ saveIpAllowListChanges }
-								isLoading={ ipAllowListIsUpdating }
-								disabled={ formIsSubmitting || ! ipAllowListHasChanges }
+								isLoading={ isUpdating }
+								disabled={ isUpdating || ! ipAllowListHasChanges }
 							>
 								{ __( 'Save allow list', 'jetpack-protect' ) }
 							</Button>

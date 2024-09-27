@@ -5,6 +5,46 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.54.0] - 2024-09-23
+### Added
+- Added tracking for the resharing action [#39408]
+
+### Changed
+- Social: Disabled resharing on Simple sites in classic editor [#39419]
+- Social: Migrated useEditorPreview feature flag to new script data [#39405]
+- Social: Migrated useShareStatus feature flag to new script data [#39404]
+
+## [0.53.0] - 2024-09-16
+### Added
+- Social: adds hook for plugin developers to be able to pull social share URLs on save. [#39398]
+
+### Changed
+- Moved initialization of Publicize UI from init action to admin_init action [#39342]
+- Social: Migrated useAdminUiV1 feature flag to new script data [#39137]
+
+### Removed
+- Social: Cleaned up media auto-conversion backend logic [#38587]
+
+### Fixed
+- Hide share logs not belonging to current admin. [#39379]
+
+## [0.52.3] - 2024-09-10
+### Changed
+- Updated package dependencies. [#39302]
+
+## [0.52.2] - 2024-09-09
+### Changed
+- Internal updates.
+
+## [0.52.1] - 2024-09-06
+### Changed
+- Internal updates.
+
+## [0.52.0] - 2024-09-05
+### Changed
+- Made resharing async [#39227]
+- Updated package dependencies. [#39176]
+
 ## [0.51.0] - 2024-09-02
 ### Added
 - Add share status log modal to published posts [#39051]
@@ -677,6 +717,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.54.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.53.0...v0.54.0
+[0.53.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.52.3...v0.53.0
+[0.52.3]: https://github.com/Automattic/jetpack-publicize/compare/v0.52.2...v0.52.3
+[0.52.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.52.1...v0.52.2
+[0.52.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.52.0...v0.52.1
+[0.52.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.51.0...v0.52.0
 [0.51.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.50.1...v0.51.0
 [0.50.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.50.0...v0.50.1
 [0.50.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.49.2...v0.50.0

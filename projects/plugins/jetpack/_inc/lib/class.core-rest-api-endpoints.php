@@ -787,6 +787,36 @@ class Jetpack_Core_Json_Api_Endpoints {
 				),
 			)
 		);
+
+		/**
+		 * Get the list of available Jetpack features.
+		 *
+		 * @since 13.9
+		 */
+		register_rest_route(
+			'jetpack/v4',
+			'/features/available',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( static::class, 'get_features_available' ),
+				'permission_callback' => array( static::class, 'get_features_permission_check' ),
+			)
+		);
+
+		/**
+		 * Get the list of enabled Jetpack features.
+		 *
+		 * @since 13.9
+		 */
+		register_rest_route(
+			'jetpack/v4',
+			'/features/enabled',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( static::class, 'get_features_enabled' ),
+				'permission_callback' => array( static::class, 'get_features_permission_check' ),
+			)
+		);
 	}
 
 	/**
@@ -3046,28 +3076,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'jp_group'    => 'settings',
 			),
 
-			'onboarding'                            => array(
-				'description'       => '',
-				'type'              => 'object',
-				'default'           => array(
-					'siteTitle'          => '',
-					'siteDescription'    => '',
-					'siteType'           => 'personal',
-					'homepageFormat'     => 'posts',
-					'addContactForm'     => 0,
-					'businessAddress'    => array(
-						'name'   => '',
-						'street' => '',
-						'city'   => '',
-						'state'  => '',
-						'zip'    => '',
-					),
-					'installWooCommerce' => false,
-				),
-				'validate_callback' => __CLASS__ . '::validate_onboarding',
-				'jp_group'          => 'settings',
-			),
-
 			// SEO Tools.
 			'advanced_seo_front_page_description'   => array(
 				'description'       => esc_html__( 'Front page meta description.', 'jetpack' ),
@@ -3149,28 +3157,16 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @since 5.4.0
 	 *
+	 * @deprecated since 13.9
+	 *
 	 * @param array           $onboarding_data Values to check.
 	 * @param WP_REST_Request $request         The request sent to the WP REST API.
 	 * @param string          $param           Name of the parameter passed to endpoint holding $value.
 	 *
 	 * @return bool|WP_Error
 	 */
-	public static function validate_onboarding( $onboarding_data, $request, $param ) {
-		if ( ! is_array( $onboarding_data ) ) {
-			return new WP_Error( 'invalid_param', esc_html__( 'Not valid onboarding data.', 'jetpack' ) );
-		}
-		foreach ( $onboarding_data as $value ) {
-			if ( is_string( $value ) ) {
-				$onboarding_choice = self::validate_string( $value, $request, $param );
-			} elseif ( is_array( $value ) ) {
-				$onboarding_choice = self::validate_onboarding( $value, $request, $param );
-			} else {
-				$onboarding_choice = self::validate_boolean( $value, $request, $param );
-			}
-			if ( is_wp_error( $onboarding_choice ) ) {
-				return $onboarding_choice;
-			}
-		}
+	public static function validate_onboarding( $onboarding_data, $request, $param ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		_deprecated_function( __METHOD__, '13.9' );
 		return true;
 	}
 
@@ -4500,5 +4496,54 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'data' => $data,
 			)
 		);
+	}
+
+	/**
+	 * Return the list of available features.
+	 *
+	 * @return array
+	 */
+	public static function get_features_available() {
+		$raw_modules = Jetpack::get_available_modules();
+		$modules     = array();
+		foreach ( $raw_modules as $module ) {
+			$modules[] = Jetpack::get_module_slug( $module );
+		}
+
+		return $modules;
+	}
+
+	/**
+	 * Returns what features are enabled. Uses the slug of the modules files.
+	 *
+	 * @return array
+	 */
+	public static function get_features_enabled() {
+		$raw_modules = Jetpack::get_active_modules();
+		$modules     = array();
+		foreach ( $raw_modules as $module ) {
+			$modules[] = Jetpack::get_module_slug( $module );
+		}
+
+		return $modules;
+	}
+
+	/**
+	 * Verify that the API client is allowed to replace user token.
+	 *
+	 * @since 1.29.0
+	 *
+	 * @return bool|WP_Error
+	 */
+	public static function get_features_permission_check() {
+		if ( ! Rest_Authentication::is_signed_with_blog_token() ) {
+			$message = esc_html__(
+				'You do not have the correct user permissions to perform this action. Please contact your site admin if you think this is a mistake.',
+				'jetpack'
+			);
+			return new WP_Error( 'invalid_permission_fetch_features', $message, array( 'status' => rest_authorization_required_code() ) );
+		}
+
+		return true;
 	}
 } // class end

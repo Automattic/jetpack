@@ -298,7 +298,6 @@ The Coming Soon PCYsg-u4S-p2 mode is provided via the jetpack-mu-wpcom package P
 
 Provides a series of customisations to enable the full Nav Unification experience on Atomic (see pbAPfg-Ou-p2). Includes:
 
-- force enable Masterbar module.
 - hide admin color scheme picker and add notice pointing to WordPress.com Account Settings.
 - persist important WP.com user data to user_option via Jetpack connected user data.
 - activate the Nav Unification feature shipped in Jetpack on Atomic.

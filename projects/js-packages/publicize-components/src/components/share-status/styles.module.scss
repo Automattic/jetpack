@@ -1,3 +1,5 @@
+@import '@wordpress/dataviews/build-style/style.css';
+
 .trigger-wrapper {
 	margin-top: 1rem;
 	padding-block: 1rem;
@@ -8,35 +10,9 @@
 	padding-block: 1rem;
 }
 
-.spinner{
-	margin: 0 1rem 1rem 1rem;
-}
-
 .modal {
 	width: 60rem;
 	min-height: 20rem;
-}
-
-.share-log-list {
-	outline: 1px solid var(--jp-gray-5);
-	border-radius: 4px;
-	margin: 0;
-	width: 100%;
-
-	.share-log-list-item {
-		margin-bottom: 0px;
-		padding: 0.8rem 1rem;
-
-		&:not(:last-child) {
-			border-bottom: 1px solid var(--jp-gray-5);
-		}
-	}
-
-	.share-item {
-		display: flex;
-		gap: 1rem;
-		align-items: center;
-	}
 }
 
 .share-item-name-wrapper {
@@ -55,7 +31,6 @@
 .share-status-wrapper {
 	display: flex;
 	align-items: center;
-	width: 5rem;
 
 	&.share-status-success {
 		color: var(--jp-green-50);
@@ -85,10 +60,59 @@
 	fill: var(--jp-green-50);
 }
 
-.share-status-action-wrapper {
-	width: 3rem;
+.dataview-wrapper {
+
+	// Hide the table actions
+	:global(.dataviews__view-actions) {
+		display: none;
+	}
+
+	table {
+		// Avoid table shifting when there is tooltip in actions column
+		overflow: hidden;
+	}
+
+	// Make the table header buttons unclickable
+	:global(.dataviews-view-table-header-button) {
+		pointer-events: none;
+	}
+
+	// Make the actions column right-aligned
+	:global(.dataviews-view-table__row td:last-child) {
+		width: 1%;
+		// Making its content center-aligned
+		:global(.dataviews-view-table__cell-content-wrapper) {
+			justify-content: center;
+		}
+	}
+
+	.connection-name {
+		display: flex;
+		align-items: center;
+	}
+
+	// Reset link styles
+	:global(.components-external-link) {
+		color: #2271b1; // $blue-50 from WP common CSS.
+		font-weight: normal;
+	}
 }
 
-.disconnected-icon{
-	display: block;
+.retry-wrapper {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+
+	button {
+		padding: 0;
+	}
+
+	// Fix tooltip icon alignment to center align it
+	:global(.icon-tooltip-wrapper) {
+		display: flex;
+
+		button span {
+			display: flex;
+		}
+	}
 }

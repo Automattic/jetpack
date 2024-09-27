@@ -5,6 +5,36 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.33.0] - 2024-09-23
+### Added
+- New filter to allow for excluding the contact form submission IP from being saved or e-mailed. [#39395]
+
+### Changed
+- Options: Get selection from the element's document instead of the global `window`. [#39364]
+- Refactor Choice fields [#39141]
+
+## [0.32.16] - 2024-09-16
+### Changed
+- Email submissions: on sites using www., ensure that the sending email address does not use the www. prefix. [#39370]
+
+### Fixed
+- Use en-dash in numeric range in i18n message to conform to guidelines. [#39305]
+
+## [0.32.15] - 2024-09-10
+### Changed
+- Updated package dependencies. [#39302]
+
+## [0.32.14] - 2024-09-09
+### Changed
+- Updated package dependencies. [#39176] [#39278]
+
+### Fixed
+- Contact Forms: added checks for unexpected contents of textarea elements. [#39271]
+
+## [0.32.13] - 2024-09-04
+### Changed
+- Check for private and password-protected posts when handling the contact form submissions. [#39238]
+
 ## [0.32.12] - 2024-09-02
 ### Changed
 - Forms: update child blocks to Block API v3 [#38916]
@@ -643,6 +673,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[0.33.0]: https://github.com/automattic/jetpack-forms/compare/v0.32.16...v0.33.0
+[0.32.16]: https://github.com/automattic/jetpack-forms/compare/v0.32.15...v0.32.16
+[0.32.15]: https://github.com/automattic/jetpack-forms/compare/v0.32.14...v0.32.15
+[0.32.14]: https://github.com/automattic/jetpack-forms/compare/v0.32.13...v0.32.14
+[0.32.13]: https://github.com/automattic/jetpack-forms/compare/v0.32.12...v0.32.13
 [0.32.12]: https://github.com/automattic/jetpack-forms/compare/v0.32.11...v0.32.12
 [0.32.11]: https://github.com/automattic/jetpack-forms/compare/v0.32.10...v0.32.11
 [0.32.10]: https://github.com/automattic/jetpack-forms/compare/v0.32.9...v0.32.10

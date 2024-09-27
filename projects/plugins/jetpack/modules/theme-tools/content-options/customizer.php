@@ -10,9 +10,12 @@ if ( ! function_exists( 'jetpack_content_options_customize_register' ) ) {
 	/**
 	 * Add Content section to the Theme Customizer.
 	 *
+	 * @deprecated 13.9 Moved to Classic Theme Helper package.
+	 *
 	 * @param WP_Customize_Manager $wp_customize Theme Customizer object.
 	 */
 	function jetpack_content_options_customize_register( $wp_customize ) {
+		_deprecated_function( __FUNCTION__, 'jetpack-13.9' );
 		$options      = get_theme_support( 'jetpack-content-options' );
 		$blog_display = ( ! empty( $options[0]['blog-display'] ) ) ? $options[0]['blog-display'] : null;
 		$blog_display = preg_grep( '/^(content|excerpt)$/', (array) $blog_display );
@@ -436,8 +439,11 @@ if ( ! function_exists( 'jetpack_post_thumbnail_supports' ) ) {
 
 	/**
 	 * Return whether the theme supports Post Thumbnails.
+	 *
+	 * @deprecated 13.9 Moved to Classic Theme Helper package.
 	 */
 	function jetpack_post_thumbnail_supports() {
+		_deprecated_function( __FUNCTION__, 'jetpack-13.9' );
 		return ( current_theme_supports( 'post-thumbnails' ) );
 	}
 
@@ -448,10 +454,12 @@ if ( ! function_exists( 'jetpack_content_options_sanitize_checkbox' ) ) {
 	/**
 	 * Sanitize the checkbox.
 	 *
+	 * @deprecated 13.9 Moved to Classic Theme Helper package.
 	 * @param int $input The unsanitized value from the setting.
 	 * @return boolean|string
 	 */
 	function jetpack_content_options_sanitize_checkbox( $input ) {
+		_deprecated_function( __FUNCTION__, 'jetpack-13.9' );
 		return ( 1 === (int) $input ) ? 1 : '';
 	}
 
@@ -462,10 +470,12 @@ if ( ! function_exists( 'jetpack_content_options_sanitize_blog_display' ) ) {
 	/**
 	 * Sanitize the Display value.
 	 *
+	 * @deprecated 13.9 Moved to Classic Theme Helper package.
 	 * @param string $display The unsanitized value from the setting.
 	 * @return string
 	 */
 	function jetpack_content_options_sanitize_blog_display( $display ) {
+		_deprecated_function( __FUNCTION__, 'jetpack-13.9' );
 		if ( ! in_array( $display, array( 'content', 'excerpt', 'mixed' ), true ) ) {
 			$display = 'content';
 		}
@@ -478,8 +488,11 @@ if ( ! function_exists( 'jetpack_content_options_customize_preview_js' ) ) {
 
 	/**
 	 * Binds JS handlers to make Theme Customizer preview reload changes asynchronously.
+	 *
+	 * @deprecated 13.9 Moved to Classic Theme Helper package.
 	 */
 	function jetpack_content_options_customize_preview_js() {
+		_deprecated_function( __FUNCTION__, 'jetpack-13.9' );
 		$options      = get_theme_support( 'jetpack-content-options' );
 		$blog_display = ( ! empty( $options[0]['blog-display'] ) ) ? $options[0]['blog-display'] : null;
 		$blog_display = preg_grep( '/^(content|excerpt)$/', (array) $blog_display );

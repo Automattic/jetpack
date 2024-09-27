@@ -81,7 +81,6 @@ const supportedModules = [
 	'tiled-gallery',
 	'likes',
 	'infinite-scroll',
-	'masterbar',
 	'videopress',
 	'comment-likes',
 	'scan',
