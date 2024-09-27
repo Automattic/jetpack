@@ -1,4 +1,12 @@
-import { AdminSection, Container, Col, H3, Text, Title } from '@automattic/jetpack-components';
+import {
+	AdminSection,
+	Container,
+	Col,
+	H3,
+	Text,
+	Title,
+	getIconBySlug,
+} from '@automattic/jetpack-components';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import { Navigate, useParams } from 'react-router-dom';
@@ -6,7 +14,6 @@ import AdminPage from '../../../components/admin-page';
 import ProtectCheck from '../../../components/protect-check-icon';
 import ScanFooter from '../../../components/scan-footer';
 import ScanHeader from '../../../components/scan-header';
-import ScanSectionHeader from '../../../components/scan-header/scan-section-header';
 import ThreatsNavigation from '../../../components/threats-list/navigation';
 import PaidList from '../../../components/threats-list/paid-list';
 import useThreatsList from '../../../components/threats-list/use-threats-list';
@@ -242,28 +249,35 @@ const ScanHistoryRoute = () => {
 		return <Navigate to="/scan/history" />;
 	}
 
+	const Icon = getIconBySlug( 'protect' );
+
 	return (
 		<AdminPage>
 			<ScanHeader
 				isScanning={ isScanInProgress( status ) }
 				currentProgress={ status.currentProgress }
+				baseErrorMessage={ __(
+					"An error occurred loading your site's threat history.",
+					'jetpack-protect'
+				) }
 				error={ error }
-				errorMessage={ error?.message }
+				errorMessage={ error?.message } // TODO: Fix error display
 				errorCode={ error?.code }
 				summary={
-					<ScanSectionHeader
-						subtitle={ error ? null : __( 'Threat history', 'jetpack-protect' ) }
-						title={
-							error
-								? null
-								: sprintf(
+					<Col>
+						<H3 className={ styles.heading } mb={ 2 } mt={ 2 }>
+							{ numAllThreats > 0
+								? sprintf(
 										/* translators: %s: Total number of threats  */
 										__( '%1$s previously active %2$s', 'jetpack-protect' ),
 										numAllThreats,
 										numAllThreats === 1 ? 'threat' : 'threats'
 								  )
-						}
-					/>
+								: __( 'No previously active threats found', 'jetpack-protect' ) }
+							<Icon className={ styles[ 'heading-icon' ] } size={ 32 } />
+						</H3>
+						<Text>{ __( 'Threat history', 'jetpack-protect' ) }</Text>
+					</Col>
 				}
 			/>
 			<AdminSection>

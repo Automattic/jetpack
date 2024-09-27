@@ -14,7 +14,7 @@ const ScanStatCards = () => {
 			</span>
 		),
 		label: <span>{ __( 'Critical threats found', 'jetpack-protect' ) }</span>,
-		value: 38,
+		value: 38, // TODO: Replace with actual value
 	};
 
 	const autoFixableThreatsArgs = {
@@ -25,7 +25,7 @@ const ScanStatCards = () => {
 			</span>
 		),
 		label: <span>{ __( 'Auto-fixable threats', 'jetpack-protect' ) }</span>,
-		value: 90,
+		value: 90, // TODO: Replace with actual value
 	};
 
 	return (

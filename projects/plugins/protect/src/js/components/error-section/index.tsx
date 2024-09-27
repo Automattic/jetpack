@@ -32,11 +32,13 @@ export default function ErrorScreen( {
 	return (
 		<SeventyFiveLayout
 			main={
-				<div className={ styles[ 'main-content' ] }>
-					<AlertSVGIcon className={ styles[ 'alert-icon-wrapper' ] } color="#D63638" />
-					<H3>{ baseErrorMessage }</H3>
-					<Text>{ displayErrorMessage }</Text>
-				</div>
+				<>
+					<div className={ styles[ 'main-content' ] }>
+						<AlertSVGIcon className={ styles[ 'alert-icon-wrapper' ] } color="#D63638" />
+						<H3 className={ styles[ 'main-error-message' ] }>{ 'An error occurred.' }</H3>
+					</div>
+					<Text className={ styles[ 'error-message' ] }>{ displayErrorMessage }</Text>
+				</>
 			}
 			secondary={
 				<div className={ styles.illustration }>
@@ -44,6 +46,7 @@ export default function ErrorScreen( {
 				</div>
 			}
 			preserveSecondaryOnMobile={ false }
+			fluid={ true }
 		></SeventyFiveLayout>
 	);
 }

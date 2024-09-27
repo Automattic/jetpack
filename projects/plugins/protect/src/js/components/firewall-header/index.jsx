@@ -38,7 +38,7 @@ const FirewallHeader = ( {
 										: __( 'Active', 'jetpack-protect', /* dummy arg to avoid bad minification */ 0 )
 								}
 							/>{ ' ' }
-							<H3 className={ styles[ 'firewall-heading' ] } mb={ 1 } mt={ 2 }>
+							<H3 className={ styles[ 'firewall-heading' ] } mb={ 2 } mt={ 2 }>
 								{ ! wafSupported && __( 'Brute force protection is active', 'jetpack-protect' ) }
 								{ wafSupported &&
 									( jetpackWafAutomaticRules
@@ -63,7 +63,7 @@ const FirewallHeader = ( {
 					{ 'off' === status && (
 						<>
 							<Status status="inactive" label={ __( 'Inactive', 'jetpack-protect' ) } />
-							<H3 className={ styles[ 'firewall-heading' ] } mb={ 1 } mt={ 2 }>
+							<H3 className={ styles[ 'firewall-heading' ] } mb={ 2 } mt={ 2 }>
 								{ ! wafSupported && __( 'Brute force protection is disabled', 'jetpack-protect' ) }
 								{ wafSupported &&
 									( automaticRulesAvailable

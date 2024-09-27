@@ -64,3 +64,12 @@
 		display: none;
 	}
 }
+
+.heading {
+	display: flex;
+	align-items: center;
+}
+
+.heading-icon {
+	margin-left: var( --spacing-base ); // 8px
+}

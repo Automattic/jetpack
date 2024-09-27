@@ -36,17 +36,15 @@ const HeaderContainer = () => {
 	);
 };
 
-const ErrorSection = ( { errorMessage, errorCode } ) => {
+const ErrorSection = ( { baseErrorMessage, errorMessage, errorCode } ) => {
 	return (
-		<>
-			<Col>
-				<ErrorScreen
-					baseErrorMessage={ __( 'We are having problems scanning your site.', 'jetpack-protect' ) }
-					errorMessage={ errorMessage }
-					errorCode={ errorCode }
-				/>
-			</Col>
-		</>
+		<Col className={ styles[ 'scan-error-screen' ] }>
+			<ErrorScreen
+				baseErrorMessage={ baseErrorMessage }
+				errorMessage={ errorMessage }
+				errorCode={ errorCode }
+			/>
+		</Col>
 	);
 };
 
@@ -59,41 +57,39 @@ const ScanningSection = ( { currentProgress } ) => {
 		: totalVulnerabilities.toLocaleString();
 
 	return (
-		<>
-			<Col>
-				<SeventyFiveLayout
-					main={
-						<div className={ styles[ 'main-content' ] }>
-							<Container horizontalSpacing={ 0 } horizontalGap={ 7 } fluid={ true }>
-								<Col>
-									<H3 style={ { textWrap: 'balance' } }>
-										{ __( 'Your results will be ready soon', 'jetpack-protect' ) }
-									</H3>
-									{ hasPlan && <ProgressBar value={ currentProgress || 0 } /> }
-									<Text>
-										{ sprintf(
-											// translators: placeholder is the number of total vulnerabilities i.e. "22,000".
-											__(
-												'We are scanning for security threats from our more than %s listed vulnerabilities, powered by WPScan. This could take a minute or two.',
-												'jetpack-protect'
-											),
-											totalVulnerabilitiesFormatted
-										) }
-									</Text>
-								</Col>
-							</Container>
-						</div>
-					}
-					secondary={
-						<div className={ styles.illustration }>
-							<img src={ inProgressImage } alt="" />
-						</div>
-					}
-					preserveSecondaryOnMobile={ false }
-					fluid={ true }
-				/>
-			</Col>
-		</>
+		<Col>
+			<SeventyFiveLayout
+				main={
+					<div>
+						<Container horizontalSpacing={ 0 } horizontalGap={ 0 } fluid={ true }>
+							<Col>
+								<H3 className={ styles[ 'scan-heading' ] } mb={ 2 } mt={ 2 }>
+									{ __( 'Your results will be ready soon', 'jetpack-protect' ) }
+								</H3>
+								{ hasPlan && <ProgressBar value={ currentProgress || 0 } /> }
+								<Text>
+									{ sprintf(
+										// translators: placeholder is the number of total vulnerabilities i.e. "22,000".
+										__(
+											'We are scanning for security threats from our more than %s listed vulnerabilities, powered by WPScan. This could take a minute or two.',
+											'jetpack-protect'
+										),
+										totalVulnerabilitiesFormatted
+									) }
+								</Text>
+							</Col>
+						</Container>
+					</div>
+				}
+				secondary={
+					<div className={ styles.illustration }>
+						<img src={ inProgressImage } alt="" />
+					</div>
+				}
+				preserveSecondaryOnMobile={ false }
+				fluid={ true }
+			/>
+		</Col>
 	);
 };
 
@@ -113,6 +109,7 @@ const DefaultSection = ( { summary } ) => {
 const ScanHeader = ( {
 	isScanning,
 	currentProgress = 0,
+	baseErrorMessage,
 	error,
 	errorMessage,
 	errorCode,
@@ -120,7 +117,13 @@ const ScanHeader = ( {
 } ) => {
 	const renderSection = useMemo( () => {
 		if ( error ) {
-			return <ErrorSection errorMessage={ errorMessage } errorCode={ errorCode } />;
+			return (
+				<ErrorSection
+					baseErrorMessage={ baseErrorMessage }
+					errorMessage={ errorMessage }
+					errorCode={ errorCode }
+				/>
+			);
 		}
 
 		if ( isScanning ) {
@@ -128,16 +131,12 @@ const ScanHeader = ( {
 		}
 
 		return <DefaultSection summary={ summary } />;
-	}, [ isScanning, currentProgress, error, errorMessage, errorCode, summary ] );
+	}, [ isScanning, currentProgress, error, baseErrorMessage, errorMessage, errorCode, summary ] );
 
 	return (
 		<AdminSectionHero>
 			<HeaderContainer />
-			<Container
-				className={ styles[ 'firewall-header' ] }
-				horizontalSpacing={ 7 }
-				horizontalGap={ 0 }
-			>
+			<Container className={ styles[ 'scan-header' ] } horizontalSpacing={ 7 } horizontalGap={ 0 }>
 				{ renderSection }
 			</Container>
 		</AdminSectionHero>
