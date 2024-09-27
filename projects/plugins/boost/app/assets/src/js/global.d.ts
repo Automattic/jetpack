@@ -2,10 +2,6 @@
  * Type definitions for the global namespace. i.e.: things we expect to find in window.
  */
 
-const { BrowserInterfaceIframe, generateCriticalCSS } = await import(
-	'@automattic/jetpack-critical-css-gen/browser'
-);
-
 // <reference types ="@types/jquery"/>
 
 declare global {
@@ -38,12 +34,6 @@ declare global {
 		postTypes: {
 			[ key: string ]: string;
 		};
-	};
-
-	// Critical CSS Generator library.
-	const CriticalCSSGenerator: {
-		generateCriticalCSS: typeof generateCriticalCSS;
-		BrowserInterfaceIframe: typeof BrowserInterfaceIframe;
 	};
 
 	const jpTracksAJAX: {

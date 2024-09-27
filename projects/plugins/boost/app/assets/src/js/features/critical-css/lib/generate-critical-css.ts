@@ -6,7 +6,6 @@ import { logPreCriticalCSSGeneration } from '$lib/utils/console';
 import { isSameOrigin } from '$lib/utils/is-same-origin';
 import { prepareAdminAjaxRequest } from '$lib/utils/make-admin-ajax-request';
 import { standardizeError } from '$lib/utils/standardize-error';
-import { SuccessTargetError } from '@automattic/jetpack-critical-css-gen/browser';
 
 type Viewport = {
 	width: number;
@@ -137,10 +136,11 @@ async function generateCriticalCss(
  * @param {Object} requestGetParameters - GET parameters to include with each request.
  * @param {string} proxyNonce           - Nonce to use when proxying CSS requests.
  */
-function createBrowserInterface(
+async function createBrowserInterface(
 	requestGetParameters: Record< string, string >,
 	proxyNonce: string
 ) {
+	const CriticalCSSGenerator = await import( '@automattic/jetpack-critical-css-gen/browser' );
 	return new ( class extends CriticalCSSGenerator.BrowserInterfaceIframe {
 		constructor() {
 			super( {
@@ -164,10 +164,6 @@ function createBrowserInterface(
 	} )();
 }
 
-function isSuccessTargetError( err: unknown ): err is SuccessTargetError {
-	return err instanceof Error && 'isSuccessTargetError' in err;
-}
-
 /**
  * Generate Critical CSS for the specified Provider Keys, sending each block
  * to the server. Throws on error or cancellation.
@@ -187,11 +183,17 @@ async function generateForKeys(
 	callbacks: ProviderCallbacks,
 	signal: AbortSignal
 ): Promise< void > {
+	const CriticalCSSGenerator = await import( '@automattic/jetpack-critical-css-gen/browser' );
 	try {
 		CriticalCSSGeneratorSchema.parse( CriticalCSSGenerator );
 	} catch ( err ) {
 		recordBoostEvent( 'critical_css_library_failure', {} );
 		throw new Error( 'css-gen-library-failure' );
+	}
+
+	const { SuccessTargetError } = CriticalCSSGenerator;
+	function isSuccessTargetError( err: unknown ): err is InstanceType< typeof SuccessTargetError > {
+		return err instanceof SuccessTargetError;
 	}
 
 	// eslint-disable-next-line @wordpress/no-unused-vars-before-return
@@ -209,7 +211,7 @@ async function generateForKeys(
 
 		try {
 			const [ css ] = await CriticalCSSGenerator.generateCriticalCSS( {
-				browserInterface: createBrowserInterface( requestGetParameters, proxyNonce ),
+				browserInterface: await createBrowserInterface( requestGetParameters, proxyNonce ),
 				urls,
 				viewports,
 				progressCallback: ( step: number, total: number ) => {
