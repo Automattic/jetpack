@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.35.8] - 2024-09-25
+### Changed
+- Update dependencies. [#38910]
+
 ## [4.35.7] - 2024-09-23
 ### Changed
 - Get active element from tooltip button's document rather than the global `document`. [#39364]
@@ -1742,6 +1746,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[4.35.8]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.35.7...4.35.8
 [4.35.7]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.35.6...4.35.7
 [4.35.6]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.35.5...4.35.6
 [4.35.5]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.35.4...4.35.5

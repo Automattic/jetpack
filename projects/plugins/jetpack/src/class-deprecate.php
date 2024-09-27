@@ -52,7 +52,6 @@ class Deprecate {
 			add_action( 'admin_notices', array( $this, 'render_admin_notices' ) );
 			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
 			add_filter( 'my_jetpack_red_bubble_notification_slugs', array( $this, 'add_my_jetpack_red_bubbles' ) );
-			add_filter( 'jetpack_modules_list_table_items', array( $this, 'remove_masterbar_module_list' ) );
 		}
 	}
 

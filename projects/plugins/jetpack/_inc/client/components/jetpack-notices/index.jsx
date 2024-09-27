@@ -29,7 +29,6 @@ import {
 	userCanConnectSite,
 	userIsSubscriber,
 	getConnectionErrors,
-	isWoASite,
 } from 'state/initial-state';
 import { getLicensingError, clearLicensingError } from 'state/licensing';
 import { getSiteDataErrors } from 'state/site';
@@ -329,7 +328,6 @@ export default connect(
 			isReconnectingSite: isReconnectingSite( state ),
 			licensingError: getLicensingError( state ),
 			hasConnectedOwner: hasConnectedOwner( state ),
-			showMasterbarNotice: window.Initial_State?.isMasterbarActive && ! isWoASite( state ),
 		};
 	},
 	dispatch => {

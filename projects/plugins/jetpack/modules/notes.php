@@ -15,6 +15,7 @@
  */
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Status\Host;
 
 if ( ! defined( 'JETPACK_NOTES__CACHE_BUSTER' ) ) {
 	define( 'JETPACK_NOTES__CACHE_BUSTER', JETPACK__VERSION . '-' . gmdate( 'oW' ) . '-lite' );
@@ -110,7 +111,7 @@ class Jetpack_Notifications {
 		}
 		$is_rtl = is_rtl();
 
-		if ( Jetpack::is_module_active( 'masterbar' ) ) {
+		if ( ( new Host() )->is_woa_site() ) {
 			/**
 			 * Can be used to force Notifications to display in RTL style.
 			 *
