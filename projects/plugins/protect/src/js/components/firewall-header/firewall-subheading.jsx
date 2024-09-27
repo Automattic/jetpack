@@ -4,7 +4,7 @@ import { help } from '@wordpress/icons';
 import { useCallback } from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import usePlan from '../../hooks/use-plan';
-import { useWafData } from '../../hooks/use-waf-data';
+import useWafData from '../../hooks/use-waf-data';
 import IconTooltip from '../icon-tooltip';
 import styles from './styles.module.scss';
 
