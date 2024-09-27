@@ -196,8 +196,7 @@ class Image_CDN_Core {
 			}
 		}
 
-		$image_host_path = $image_url_parts['host'] . static::escae_path( $image_url_parts['path'] );
-
+		$image_host_path = $image_url_parts['host'] . static::escape_path( $image_url_parts['path'] );
 		/**
 		 * Filters the domain used by the Photon module.
 		 *
@@ -255,7 +254,7 @@ class Image_CDN_Core {
 	 * @param string $path The path to escape.
 	 * @return string The escaped path.
 	 */
-	private static function escae_path( $path ) {
+	private static function escape_path( $path ) {
 		$parts = explode( '/', $path );
 		$parts = array_map( 'rawurlencode', $parts );
 		return implode( '/', $parts );
