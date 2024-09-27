@@ -131,7 +131,7 @@ const ConnectedFirewallHeader = () => {
 	const isSupportedWafFeatureEnabled = wafSupported ? isEnabled : bruteForceProtection;
 	const currentStatus = isSupportedWafFeatureEnabled ? 'on' : 'off';
 	const { currentDay: currentDayBlockCount = 0, thirtyDays: thirtyDaysBlockCounts = 0 } =
-		stats.blockedRequests || {};
+		stats?.blockedRequests || {};
 
 	return (
 		<FirewallHeader
