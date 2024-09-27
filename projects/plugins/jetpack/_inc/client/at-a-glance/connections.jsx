@@ -129,7 +129,7 @@ export class DashConnections extends Component {
 		}
 
 		if ( ! this.props.isLinked ) {
-			cardContent = maybeShowLinkUnlinkBtn;
+			cardContent = <div className="jp-connection-settings__info">{ maybeShowLinkUnlinkBtn }</div>;
 		} else if ( this.props.isFetchingUserData ) {
 			cardContent = __( 'Loading…', 'jetpack' );
 		} else if ( ! this.props.wpComConnectedUser?.email ) {
