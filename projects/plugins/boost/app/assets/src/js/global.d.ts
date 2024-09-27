@@ -3,7 +3,7 @@
  */
 
 const { BrowserInterfaceIframe, generateCriticalCSS } = await import(
-	'@automattic/jetpack-critical-css-gen'
+	'@automattic/jetpack-critical-css-gen/browser'
 );
 
 // <reference types ="@types/jquery"/>
