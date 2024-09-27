@@ -588,7 +588,7 @@ class Actions {
 
 		// Don't start new sync if a full sync is in process.
 		$full_sync_module = Modules::get_module( 'full-sync' );
-		'@phan-var Modules\Full_Sync_Immediately|Modules\Full_Sync $full_sync_module';
+		'@phan-var Modules\Full_Sync_Immediately $full_sync_module';
 		if ( $full_sync_module && $full_sync_module->is_started() && ! $full_sync_module->is_finished() ) {
 			return false;
 		}
@@ -611,7 +611,7 @@ class Actions {
 	 */
 	public static function do_only_first_initial_sync() {
 		$full_sync_module = Modules::get_module( 'full-sync' );
-		'@phan-var Modules\Full_Sync_Immediately|Modules\Full_Sync $full_sync_module';
+		'@phan-var Modules\Full_Sync_Immediately $full_sync_module';
 		if ( $full_sync_module && $full_sync_module->is_started() ) {
 			return false;
 		}
@@ -634,7 +634,7 @@ class Actions {
 		}
 
 		$full_sync_module = Modules::get_module( 'full-sync' );
-		'@phan-var Modules\Full_Sync_Immediately|Modules\Full_Sync $full_sync_module';
+		'@phan-var Modules\Full_Sync_Immediately $full_sync_module';
 
 		if ( ! $full_sync_module ) {
 			return false;
@@ -1043,7 +1043,7 @@ class Actions {
 		self::initialize_sender();
 
 		$sync_module = Modules::get_module( 'full-sync' );
-		'@phan-var Modules\Full_Sync_Immediately|Modules\Full_Sync $sync_module';
+		'@phan-var Modules\Full_Sync_Immediately $sync_module';
 		$queue = self::$sender->get_sync_queue();
 
 		// _get_cron_array can be false

@@ -283,7 +283,6 @@ class Sender {
 	 */
 	public function do_full_sync() {
 		$sync_module = Modules::get_module( 'full-sync' );
-		'@phan-var Modules\Full_Sync_Immediately|Modules\Full_Sync $sync_module';
 		if ( ! $sync_module ) {
 			return;
 		}
