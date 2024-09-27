@@ -131,7 +131,7 @@ const siteLogoEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			<>
 				<BlockEdit { ...props } />
 				<BlockControls group="block">
-					<AiToolbarButton buttonText={ ! siteDetails?.siteLogo } clickHandler={ showModal } />
+					<AiToolbarButton showButtonText={ ! siteDetails?.siteLogo } clickHandler={ showModal } />
 				</BlockControls>
 				<GeneratorModal
 					isOpen={ isLogoGeneratorModalVisible }
