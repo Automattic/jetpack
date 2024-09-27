@@ -719,6 +719,10 @@ a.jp-dash-item__manage-in-wpcom,
 }
 
 .jp-dash-item.jp-connection-type {
+	.jp-dash-item__card {
+		padding: 16px;
+	}
+
 	.jp-dash-item__content {
 		display: block;
 	}
@@ -736,7 +740,11 @@ a.jp-dash-item__manage-in-wpcom,
 		padding: 0;
 
 		&__title {
-			padding: 0;
+			padding: 0 0.5rem;
 		}
+	}
+
+	.dops-banner.dops-card {
+		display: block;
 	}
 }
