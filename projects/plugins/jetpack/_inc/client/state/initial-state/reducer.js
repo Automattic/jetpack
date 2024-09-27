@@ -713,10 +713,10 @@ export function isOdysseyStatsEnabled( state ) {
  * Returns true if Blaze can be used on the site.
  *
  * @param {object} state - Global state tree.
- * @return {boolean} True if Blaze is available on the site.
+ * @return {object} A boolean indicating if Blaze can be used and a reason why if it cannot.
  */
 export function shouldInitializeBlaze( state ) {
-	return !! state.jetpack.initialState.shouldInitializeBlaze;
+	return state.jetpack.initialState.shouldInitializeBlaze;
 }
 
 /**

@@ -41,6 +41,8 @@ function Blaze( props ) {
 		toggleModuleNow,
 	} = props;
 
+	const { can_init: canInit, reason } = blazeAvailable;
+
 	if ( isWoASite && ! blazeDashboardEnabled ) {
 		return null;
 	}
@@ -66,7 +68,16 @@ function Blaze( props ) {
 	};
 
 	const blazeToggle = () => {
-		if ( ! blazeAvailable ) {
+		if ( ! canInit && reason === 'user_not_connected' ) {
+			return (
+				<ToggleControl
+					disabled={ true }
+					label={ __( 'Attract high-quality traffic to your site using Blaze.', 'jetpack' ) }
+				/>
+			);
+		}
+
+		if ( ! canInit ) {
 			return (
 				<ToggleControl
 					disabled={ true }
@@ -103,12 +114,8 @@ function Blaze( props ) {
 			>
 				{ blazeToggle() }
 			</SettingsGroup>
-			{ blazeAvailable &&
-				blazeActive &&
-				hasConnectedOwner &&
-				! isOfflineMode &&
-				blazeDashboardLink() }
-			{ blazeAvailable && ! hasConnectedOwner && ! isOfflineMode && (
+			{ canInit && blazeActive && ! isOfflineMode && blazeDashboardLink() }
+			{ ! canInit && reason === 'user_not_connected' && ! isOfflineMode && (
 				<ConnectUserBar
 					feature="blaze"
 					featureLabel={ __( 'Blaze', 'jetpack' ) }
