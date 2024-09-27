@@ -13,7 +13,6 @@ import InfoPopover from 'components/info-popover';
 import PluginInstallSection from 'components/plugin-install-section';
 import SectionHeader from 'components/section-header';
 import analytics from 'lib/analytics';
-import { FEATURE_JETPACK_BOOST, getJetpackProductUpsellByFeature } from 'lib/plans/constants';
 import PropTypes from 'prop-types';
 import { useCallback, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
@@ -347,7 +346,6 @@ const DashBoost = ( {
 						}
 					) }
 					installedPrompt={ getPluginInstallSectionText() }
-					plan={ getJetpackProductUpsellByFeature( FEATURE_JETPACK_BOOST ) }
 				/>
 			</div>
 		</div>

@@ -136,15 +136,6 @@
 	text-transform: uppercase;
 }
 
-.jp-at-a-glance__left,
-.jp-at-a-glance__right {
-	.jp-dash-item__is-inactive {
-		.dops-banner__content {
-			height: 100%;
-		}
-	}
-}
-
 // conditional styles for content when items are inactive
 .jp-dash-item__is-inactive {
 	.jp-at-a-glance__left &,
@@ -160,10 +151,6 @@
 				background: none;
 			}
 		}
-	}
-
-	.dops-card.dops-banner {
-		flex-grow: unset;
 	}
 
 	.dops-section-header {

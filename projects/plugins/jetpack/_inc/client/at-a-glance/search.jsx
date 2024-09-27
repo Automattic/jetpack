@@ -134,6 +134,7 @@ class DashSearch extends Component {
 						plan={ getJetpackProductUpsellByFeature( FEATURE_SEARCH_JETPACK ) }
 						icon="search"
 						trackBannerDisplay={ this.props.trackUpgradeButtonView }
+						noIcon
 					/>
 				) : (
 					<JetpackBanner
@@ -147,6 +148,7 @@ class DashSearch extends Component {
 						eventFeature="search"
 						path="dashboard"
 						plan={ getJetpackProductUpsellByFeature( FEATURE_SEARCH_JETPACK ) }
+						noIcon
 					/>
 				),
 			} );

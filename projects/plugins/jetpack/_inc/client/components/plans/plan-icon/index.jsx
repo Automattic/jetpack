@@ -103,7 +103,6 @@ import {
 	PLAN_JETPACK_CREATOR_BI_YEARLY,
 	PLAN_JETPACK_CREATOR_YEARLY,
 	PLAN_JETPACK_CREATOR_MONTHLY,
-	FEATURE_JETPACK_CRM,
 } from 'lib/plans/constants';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
@@ -214,8 +213,6 @@ const PRODUCT_ICON_MAP = {
 	[ PLAN_JETPACK_STATS_YEARLY ]: 'products/product-jetpack-stats.svg',
 	[ PLAN_JETPACK_STATS_PWYW_YEARLY ]: 'products/product-jetpack-stats.svg',
 	[ PLAN_JETPACK_STATS_FREE ]: 'products/product-jetpack-stats.svg',
-	// CRM plans do not exist on WPCOM so this is a hacky way of assigning an icon anyway
-	[ FEATURE_JETPACK_CRM ]: 'products/product-jetpack-crm.svg',
 };
 const DEFAULT_SIZE = 32;
 
@@ -330,8 +327,5 @@ PlanIcon.propTypes = {
 		PLAN_JETPACK_STATS_YEARLY,
 		PLAN_JETPACK_STATS_PWYW_YEARLY,
 		PLAN_JETPACK_STATS_FREE,
-		PLAN_JETPACK_AI_YEARLY,
-		PLAN_JETPACK_BOOST,
-		FEATURE_JETPACK_CRM,
 	] ).isRequired,
 };

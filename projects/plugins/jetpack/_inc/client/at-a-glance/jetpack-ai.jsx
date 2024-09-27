@@ -10,7 +10,7 @@ import { __ } from '@wordpress/i18n';
  */
 import DashItem from 'components/dash-item';
 import JetpackBanner from 'components/jetpack-banner';
-import { getJetpackProductUpsellByFeature, FEATURE_JETPACK_AI } from 'lib/plans/constants';
+import { getJetpackProductUpsellByFeature, PLAN_JETPACK_AI_YEARLY } from 'lib/plans/constants';
 import { getProductDescriptionUrl } from 'product-descriptions/utils';
 import { connect } from 'react-redux';
 import {
@@ -65,7 +65,8 @@ function DashJetpackAi( props ) {
 							'Connect your WordPress.com account to enable AI features and assistant.',
 							'jetpack'
 						) }
-						plan={ getJetpackProductUpsellByFeature( FEATURE_JETPACK_AI ) }
+						noIcon={ true }
+						plan={ getJetpackProductUpsellByFeature( PLAN_JETPACK_AI_YEARLY ) }
 						callToAction={ __( 'Connect', 'jetpack' ) }
 						onClick={ props.connectUser }
 						eventFeature="ai-assistant"
@@ -76,8 +77,9 @@ function DashJetpackAi( props ) {
 				( showUpgradeBanner && (
 					<JetpackBanner
 						title={ cardText }
+						noIcon={ true }
 						description={ learnMoreLink }
-						plan={ getJetpackProductUpsellByFeature( FEATURE_JETPACK_AI ) }
+						plan={ getJetpackProductUpsellByFeature( PLAN_JETPACK_AI_YEARLY ) }
 						callToAction={ __( 'Upgrade', 'jetpack' ) }
 						href={ props.upgradeUrl }
 						eventFeature="ai-assistant"
@@ -87,12 +89,12 @@ function DashJetpackAi( props ) {
 				( showTeaserBanner && (
 					<JetpackBanner
 						title={ cardText }
+						noIcon={ true }
 						callToAction={ __( 'All features', 'jetpack' ) }
 						href={ `${ props.siteAdminUrl }admin.php?page=my-jetpack#/jetpack-ai` }
 						eventFeature="ai-assistant"
 						path="dashboard"
 						eventProps={ { type: 'teaser' } }
-						plan={ getJetpackProductUpsellByFeature( FEATURE_JETPACK_AI ) }
 					/>
 				) ) ||
 				null
