@@ -191,9 +191,10 @@ async function generateForKeys(
 		throw new Error( 'css-gen-library-failure' );
 	}
 
-	const { SuccessTargetError } = CriticalCSSGenerator;
-	function isSuccessTargetError( err: unknown ): err is InstanceType< typeof SuccessTargetError > {
-		return err instanceof SuccessTargetError;
+	function isSuccessTargetError(
+		err: unknown
+	): err is InstanceType< typeof CriticalCSSGenerator.SuccessTargetError > {
+		return err instanceof CriticalCSSGenerator.SuccessTargetError;
 	}
 
 	// eslint-disable-next-line @wordpress/no-unused-vars-before-return
