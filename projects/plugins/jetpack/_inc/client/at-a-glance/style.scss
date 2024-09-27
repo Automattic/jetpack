@@ -719,6 +719,9 @@ a.jp-dash-item__manage-in-wpcom,
 }
 
 .jp-dash-item.jp-connection-type {
+	border: 1px solid var(--jp-gray);
+	border-radius: 4px;
+
 	.jp-dash-item__card {
 		padding: 16px;
 	}
