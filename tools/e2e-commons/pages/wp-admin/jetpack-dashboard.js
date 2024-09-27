@@ -48,8 +48,11 @@ export default class JetpackDashboardPage extends WpPage {
 	async isNotUserConnected() {
 		logger.step( 'Checking that WordPress.com user is not connected' );
 		const selector = `${ this.#connectionInfoContainerSel } >> nth=1`;
-		return ( await this.page.locator( selector ).innerText() ).includes(
-			'Get the most out of Jetpack by connect your WordPress.com account'
+		const locator = this.page.locator( selector );
+		const elementText = await locator.textContent();
+
+		return elementText.includes(
+			'Get the most out of Jetpack by connecting your WordPress.com account'
 		);
 	}
 }

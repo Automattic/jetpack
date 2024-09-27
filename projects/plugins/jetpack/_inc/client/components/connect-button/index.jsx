@@ -139,7 +139,7 @@ export class ConnectButton extends React.Component {
 		return (
 			<JetpackBanner
 				title={ __(
-					'Get the most out of Jetpack by connect your WordPress.com account',
+					'Get the most out of Jetpack by connecting your WordPress.com account',
 					'jetpack'
 				) }
 				noIcon
