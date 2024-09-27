@@ -1,6 +1,5 @@
 import { JETPACK_CONTACT_BETA_SUPPORT } from 'constants/urls';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import ConnectionBanner from 'components/connection-banner';
@@ -35,6 +34,7 @@ import {
 import { getLicensingError, clearLicensingError } from 'state/licensing';
 import { getSiteDataErrors } from 'state/site';
 import DismissableNotices from './dismissable';
+import DeprecationNotice from './generic-notice';
 import JetpackConnectionErrors from './jetpack-connection-errors';
 import PlanConflictWarning from './plan-conflict-warning';
 import JetpackStateNotices from './state-notices';
@@ -182,41 +182,64 @@ class JetpackNotices extends React.Component {
 		super( props );
 
 		const cookieParsed = cookie.parse( document.cookie );
+		const dismissedNotices = Object.keys( cookieParsed )
+			.filter( key => key.startsWith( 'jetpack_deprecate_dismissed' ) )
+			.reduce( ( acc, key ) => {
+				acc[ key.replace( 'jetpack_deprecate_dismissed[', '' ).replace( ']', '' ) ] = '1';
+				return acc;
+			}, {} );
+
 		this.state = {
-			isMasterbarNoticeDismissed:
-				cookieParsed &&
-				Object.hasOwn(
-					cookieParsed,
-					'jetpack_deprecate_dismissed[jetpack-masterbar-admin-removal-notice]'
-				) &&
-				'1' ===
-					cookieParsed[ 'jetpack_deprecate_dismissed[jetpack-masterbar-admin-removal-notice]' ],
+			dismissedNotices,
 		};
 	}
 
-	dismissMasterbarNotice = () => {
-		this.setState( { isMasterbarNoticeDismissed: true } );
+	componentDidMount() {
+		const noticeHandlers = {};
+		const noticeKeys = []; // Add more notice keys here
 
-		document.cookie = cookie.serialize(
-			'jetpack_deprecate_dismissed[jetpack-masterbar-admin-removal-notice]',
-			'1',
-			{
-				path: '/',
-				maxAge: 365 * 24 * 60 * 60,
-				SameSite: 'None',
-			}
-		);
+		noticeKeys.forEach( noticeKey => {
+			noticeHandlers[ noticeKey ] = this.dismissNotice.bind( this, noticeKey );
+		} );
+
+		this.setState( { noticeHandlers } );
+	}
+
+	dismissNotice = noticeKey => {
+		this.setState( prevState => ( {
+			dismissedNotices: {
+				...prevState.dismissedNotices,
+				[ noticeKey ]: '1',
+			},
+		} ) );
+
+		document.cookie = cookie.serialize( `jetpack_deprecate_dismissed[${ noticeKey }]`, '1', {
+			path: '/',
+			maxAge: 365 * 24 * 60 * 60, // 1 year
+			SameSite: 'None',
+		} );
+	};
+
+	isNoticeDismissed = noticeKey => {
+		return this.state.dismissedNotices[ noticeKey ] === '1';
 	};
 
 	render() {
+		// Add notices here. Example:
+		// const notices = [
+		//  {
+		//    noticeKey: 'my-xyz-removal-notice',
+		//    message: __( 'Jetpack's xyz feature has been removed.', 'jetpack' ),
+		//    link: getRedirectUrl( 'my-support' ),
+		//    show: this.props.showXYZNotice && ! this.isNoticeDismissed( 'my-xyz-removal-notice' )
+		//  }
+		// ];
+		const notices = [ {} ];
 		const siteDataErrors = this.props.siteDataErrors.filter( error =>
 			Object.hasOwn( error, 'action' )
 		);
 
 		const isUserConnectScreen = this.props.location.pathname.startsWith( '/connect-user' );
-
-		const showMasterbarNotice =
-			this.props.showMasterbarNotice && ! this.state.isMasterbarNoticeDismissed;
 
 		return (
 			<div aria-live="polite">
@@ -271,23 +294,17 @@ class JetpackNotices extends React.Component {
 					/>
 				) }
 
-				{ showMasterbarNotice && (
-					<SimpleNotice
-						status="is-warning"
-						dismissText={ __( 'Dismiss', 'jetpack' ) }
-						onDismissClick={ this.dismissMasterbarNotice }
-					>
-						<div>
-							{ __( "Jetpack's WordPress.com Toolbar feature has been removed.", 'jetpack' ) }
-						</div>
-						<ExternalLink href={ getRedirectUrl( 'jetpack-support-masterbar' ) }>
-							{ __(
-								'To find out more about what this means for you, please refer to this document',
-								'jetpack'
-							) }
-						</ExternalLink>
-					</SimpleNotice>
-				) }
+				{ notices.map( ( { noticeKey, message, link, show } ) => (
+					<DeprecationNotice
+						key={ noticeKey }
+						show={ show && ! this.isNoticeDismissed( noticeKey ) }
+						noticeKey={ noticeKey }
+						// eslint-disable-next-line react/jsx-no-bind
+						dismissNotice={ () => this.dismissNotice( noticeKey ) }
+						message={ message }
+						link={ link }
+					/>
+				) ) }
 			</div>
 		);
 	}

@@ -10,8 +10,46 @@ addEventListener( 'DOMContentLoaded', () => {
 				document.cookie =
 					'jetpack_deprecate_dismissed[' +
 					notices[ i ].getAttribute( 'id' ) +
-					']=1; expires=Fri, 31 Dec 9999 23:59:59 GMT; SameSite=None;';
+					']=1; expires=Fri, 31 Dec 9999 23:59:59 GMT; SameSite=None; Secure';
 			}
 		} );
 	}
+
+	var styleSheet = document.createElement( 'style' );
+	//styleSheet.type = 'text/css';
+
+	// Define the CSS rules for placing the SVG icon in the top-right corner of the notice
+	styleSheet.innerHTML = `
+        /* Clear the default Dashicon content */
+        .jetpack-deprecate-dismissible .notice-dismiss::before {
+            content: '';
+        }
+
+        /* Customize the .notice-dismiss button */
+        .jetpack-deprecate-dismissible .notice-dismiss {
+            position: absolute;
+            width: 24px;
+            height: 24px;
+			top: 24px;
+			right:12px;
+		}
+
+        .jetpack-deprecate-dismissible .notice-dismiss::after {
+            content: '';
+            display: block;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            transform: translate(-50%, -50%);
+            background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill="%23555" d="M12 10.586L6.343 4.93 4.93 6.343 10.586 12l-5.657 5.657 1.414 1.414L12 13.414l5.657 5.657 1.414-1.414L13.414 12l5.657-5.657-1.414-1.414L12 10.586z"/></svg>'); /* Inline SVG as background image */
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+
+    `;
+
+	// Append the style element to the document's head
+	document.head.appendChild( styleSheet );
 } );

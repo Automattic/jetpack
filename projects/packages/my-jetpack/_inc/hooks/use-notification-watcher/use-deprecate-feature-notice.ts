@@ -25,7 +25,7 @@ const useDeprecateFeatureNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 		};
 
 		const onCloseClick = () => {
-			document.cookie = `jetpack_deprecate_dismissed[${ id }]=1; expires=Fri, 31 Dec 9999 23:59:59 GMT; SameSite=None;`;
+			document.cookie = `jetpack_deprecate_dismissed[${ id }]=1; expires=Fri, 31 Dec 9999 23:59:59 GMT; SameSite=None; Secure`;
 			delete redBubbleAlerts[ deprecateAlerts[ 0 ] ];
 			resetNotice();
 		};

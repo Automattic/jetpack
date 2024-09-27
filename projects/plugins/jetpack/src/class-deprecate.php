@@ -8,9 +8,7 @@
 namespace Automattic\Jetpack\Plugin;
 
 use Automattic\Jetpack\Assets;
-use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Redirect;
-use Automattic\Jetpack\Status\Host;
 
 /**
  * Place to properly deprecate Jetpack features.
@@ -25,9 +23,31 @@ class Deprecate {
 	private static $instance;
 
 	/**
+	 * An array of notices to display.
+	 *
+	 * @var array
+	 */
+	private $notices = array();
+
+	/**
 	 * Initialize the class.
 	 */
 	private function __construct() {
+		// phpcs:disable Squiz.PHP.CommentedOutCode.Found
+		// Example $this->notices content:
+		// array(
+		// 'my-admin-deprecate-features' => array(
+		// 'title'     => __( "Retired feature: Jetpack's XYZ Feature", 'jetpack' ),
+		// 'message'   => __( "This feature is being retired and will be removed effective November, 2024. Please use the Classic Theme Helper plugin instead.", 'jetpack' ),
+		// 'link'      => array(
+		// 'label' => __( 'Learn more', 'jetpack' ),
+		// 'url'   => 'jetpack-support-xyz',
+		// ),
+		// 'condition' => 'show_feature_notice', // Method name to check if notice should show
+		// ),
+		// phpcs:enable Squiz.PHP.CommentedOutCode.Found
+		$this->notices = array();
+
 		if ( $this->has_notices() ) {
 			add_action( 'admin_notices', array( $this, 'render_admin_notices' ) );
 			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
@@ -78,14 +98,17 @@ class Deprecate {
 	 * @return void
 	 */
 	public function render_admin_notices() {
-		if ( $this->show_masterbar_notice() ) {
-			$support_url = Redirect::get_url( 'jetpack-support-masterbar' );
 
-			$this->render_notice(
-				'jetpack-masterbar-admin-removal-notice',
-				esc_html__( "Jetpack's WordPress.com Toolbar feature has been removed.", 'jetpack' )
-				. ' <a href="' . $support_url . '" target="_blank">' . esc_html__( 'To find out more about what this means for you, please refer to this document', 'jetpack' ) . '</a>.'
-			);
+		foreach ( $this->notices as $id => $notice ) {
+			if ( method_exists( $this, $notice['condition'] ) && $this->{$notice['condition']}() ) {
+				$support_url = Redirect::get_url( $notice['link']['url'] );
+
+				$this->render_notice(
+					$id,
+					esc_html( $notice['message'] ) .
+					' <a href="' . $support_url . '" target="_blank">' . esc_html( $notice['link']['label'] ) . '</a>.'
+				);
+			}
 		}
 	}
 
@@ -97,19 +120,21 @@ class Deprecate {
 	 * @return array
 	 */
 	public function add_my_jetpack_red_bubbles( $slugs ) {
-		if ( $this->show_masterbar_notice() ) {
-			$slugs['jetpack-masterbar-deprecate-feature'] = array(
-				'data' => array(
-					'text' => __( "Jetpack's WordPress.com Toolbar feature has been removed.", 'jetpack' ),
-					'link' => array(
-						'label' => esc_html__( 'See documentation', 'jetpack' ),
-						'url'   => Redirect::get_url( 'jetpack-support-masterbar' ),
-					),
-					'id'   => 'jetpack-masterbar-admin-removal-notice',
-				),
-			);
-		}
 
+		foreach ( $this->notices as $id => $notice ) {
+			if ( method_exists( $this, $notice['condition'] ) && $this->{$notice['condition']}() ) {
+				$slugs[ $id ] = array(
+					'data' => array(
+						'text' => $notice['message'],
+						'link' => array(
+							'label' => esc_html( $notice['link']['label'] ),
+							'url'   => Redirect::get_url( $notice['link']['url'] ),
+						),
+						'id'   => $id,
+					),
+				);
+			}
+		}
 		return $slugs;
 	}
 
@@ -154,18 +179,12 @@ class Deprecate {
 	 * @return bool
 	 */
 	private function has_notices() {
-		return $this->show_masterbar_notice();
-	}
-
-	/**
-	 * Check if Masterbar notice should show up.
-	 *
-	 * @return bool
-	 */
-	private function show_masterbar_notice() {
-		return ( new Modules() )->is_active( 'masterbar', false )
-			&& ! ( new Host() )->is_woa_site()
-			&& empty( $_COOKIE['jetpack_deprecate_dismissed']['jetpack-masterbar-admin-removal-notice'] );
+		foreach ( $this->notices as $notice ) {
+			if ( method_exists( $this, $notice['condition'] ) && $this->{$notice['condition']}() ) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
