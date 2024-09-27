@@ -3,25 +3,30 @@ import { Flex, FlexItem, DropdownMenu, Button } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n } from '@wordpress/i18n';
 import { moreHorizontalMobile } from '@wordpress/icons';
-import { useEffect } from 'react';
+import { useEffect, useCallback } from 'react';
 import useEvaluationRecommendations from '../../data/evaluation-recommendations/use-evaluation-recommendations';
 import useAnalytics from '../../hooks/use-analytics';
 import getPurchasePlanUrl from '../../utils/get-purchase-plan-url';
 import { JetpackModuleToProductCard } from '../product-cards-section/all';
 import styles from './style.module.scss';
 import type { WelcomeFlowExperiment } from '../welcome-flow';
+import type { FC } from 'react';
 
 interface Props {
 	welcomeFlowExperimentVariation: WelcomeFlowExperiment[ 'variation' ];
 }
 
-const EvaluationRecommendations: React.FC< Props > = ( { welcomeFlowExperimentVariation } ) => {
+const EvaluationRecommendations: FC< Props > = ( { welcomeFlowExperimentVariation } ) => {
 	const { recordEvent } = useAnalytics();
 	const { recommendedModules, isFirstRun, redoEvaluation, removeEvaluationResult } =
 		useEvaluationRecommendations();
 	const isTreatmentVariation = welcomeFlowExperimentVariation === 'treatment';
 
-	// We're defining each of these translations in separate variables here, otherwise optimizatuions in
+	const handleExploreAllPlansLinkClick = useCallback( () => {
+		recordEvent( 'jetpack_myjetpack_evaluation_recommendations_explore_all_plans_click' );
+	}, [ recordEvent ] );
+
+	// We're defining each of these translations in separate variables here, otherwise optimizations in
 	// the build step end up breaking the translations and causing error.
 	const recommendationsHeadline = _n(
 		'Our recommendation for you',
@@ -137,7 +142,7 @@ const EvaluationRecommendations: React.FC< Props > = ( { welcomeFlowExperimentVa
 									variant="link"
 									className={ styles[ 'evaluation-footer-link' ] }
 									href={ getPurchasePlanUrl() }
-									onClick={ null }
+									onClick={ handleExploreAllPlansLinkClick }
 								>
 									{ __( 'Explore all Jetpack plans', 'jetpack-my-jetpack' ) }
 								</Button>
