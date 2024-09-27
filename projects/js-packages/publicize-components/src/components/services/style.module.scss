@@ -211,7 +211,6 @@
 
 		@include break-small {
 			flex-direction: row;
-			// width: auto;
 		}
 	}
 
@@ -220,10 +219,6 @@
 		flex-direction: column;
 		gap: 0.5rem;
 		width: 100%;
-
-		@include break-medium {
-			// width: auto;
-		}
 	}
 
 	label {
