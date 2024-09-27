@@ -3,7 +3,7 @@
  * Module Name: Blocks
  * Module Description: Add additional blocks to your site and post editors.
  * Sort Order: 5
- * First Introduced: 13.9
+ * First Introduced: 13.9-a.8
  * Requires Connection: No
  * Auto Activate: Yes
  * Module Tags: blocks
