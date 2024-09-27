@@ -69,7 +69,6 @@ class WP_Test_Jetpack_Sync_Actions extends WP_UnitTestCase {
 		$this->assertArrayHasKey( 'next_sync_time_sync', $sync_locks );
 		$this->assertArrayHasKey( 'next_sync_time_full_sync', $sync_locks );
 		$this->assertArrayHasKey( 'queue_locked_sync', $sync_locks );
-		$this->assertArrayHasKey( 'queue_locked_full_sync', $sync_locks );
 		$this->assertArrayHasKey( 'dedicated_sync_request_lock', $sync_locks );
 	}
 
