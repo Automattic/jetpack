@@ -1,4 +1,4 @@
-import { type PricingSchema, usePricing } from '$lib/stores/pricing';
+import { usePricing } from '$lib/stores/pricing';
 import {
 	Button,
 	Notice,
@@ -11,7 +11,6 @@ import { boostFeatureList } from './lib/features';
 import { __ } from '@wordpress/i18n';
 
 type BoostPricingTableProps = {
-	pricing: PricingSchema;
 	onPremiumCTA: () => void;
 	onFreeCTA: () => void;
 	chosenFreePlan: boolean;
