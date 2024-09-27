@@ -169,8 +169,7 @@ function wpcom_add_shopping_cart( $wp_admin_bar ) {
 	// Get the current blog ID.
 	$blog_id = get_current_blog_id();
 
-	// Retrieve the current user's shopping cart for the current blog.
-	$cart = \Store_Shopping_Cart::get_existing_cart(
+	$is_empty = \Store_Shopping_Cart::is_cart_empty(
 		array(
 			'blog_id' => $blog_id,
 			'user_id' => get_current_user_id(),
@@ -178,7 +177,7 @@ function wpcom_add_shopping_cart( $wp_admin_bar ) {
 	);
 
 	// If the cart is empty (no products), do not add the cart menu.
-	if ( ! $cart->get_product_slugs() ) {
+	if ( $is_empty ) {
 		return;
 	}
 
