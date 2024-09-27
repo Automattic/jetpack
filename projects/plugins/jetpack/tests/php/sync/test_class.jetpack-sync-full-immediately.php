@@ -926,11 +926,11 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals(
 			array(
 				'started'  => false,
-				$full_sync_status,
 				'finished' => false,
 				'progress' => array(),
 				'config'   => array(),
-			)
+			),
+			$full_sync_status
 		);
 	}
 
