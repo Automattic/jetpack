@@ -25,4 +25,3 @@ function jetpack_load_infinite_scroll_annotation() {}
 function jetpack_can_activate_infinite_scroll() {
 	return (bool) current_theme_supports( 'infinite-scroll' );
 }
-add_filter( 'jetpack_can_activate_infinite-scroll', 'jetpack_can_activate_infinite_scroll' );
