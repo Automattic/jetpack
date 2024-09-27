@@ -717,3 +717,37 @@ a.jp-dash-item__manage-in-wpcom,
 		border-top: 1px solid $gray-5;
 	}
 }
+
+.jp-dash-item.jp-connection-type {
+	border: 1px solid transparent;
+	border-radius: 4px;
+
+	.jp-dash-item__card {
+		padding: 16px 16px 16px 24px;
+	}
+
+	.jp-dash-item__content {
+		display: block;
+	}
+
+	.jp-connection-settings__text {
+		flex-grow: 1;
+	}
+
+	.jp-dash-item__content,
+	.jp-connection-settings__text {
+		align-self: center;
+	}
+
+	.dops-banner {
+		padding: 0;
+
+		&__title {
+			padding: 0 0.5rem 0 0;
+		}
+	}
+
+	.dops-banner.dops-card {
+		display: block;
+	}
+}
