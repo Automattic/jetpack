@@ -723,7 +723,7 @@ a.jp-dash-item__manage-in-wpcom,
 	border-radius: 4px;
 
 	.jp-dash-item__card {
-		padding: 16px;
+		padding: 16px 16px 16px 24px;
 	}
 
 	.jp-dash-item__content {
@@ -743,7 +743,7 @@ a.jp-dash-item__manage-in-wpcom,
 		padding: 0;
 
 		&__title {
-			padding: 0 0.5rem;
+			padding: 0 0.5rem 0 0;
 		}
 	}
 
