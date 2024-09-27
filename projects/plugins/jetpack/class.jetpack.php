@@ -2232,6 +2232,15 @@ class Jetpack {
 			}
 		}
 
+		// Special case to convert block setting to a block module.
+		$block_key = array_search( 'blocks', $modules, true );
+		if ( $block_key !== false ) { // Only care if 'blocks' made it through the previous filters.
+			$block_option = get_option( 'jetpack_blocks_disabled', null );
+			if ( $block_option ) {
+				unset( $modules[ $block_key ] );
+			}
+		}
+
 		return $modules;
 	}
 
