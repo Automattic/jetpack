@@ -1,24 +1,27 @@
 import { Text, Button } from '@automattic/jetpack-components';
-import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
 import { help } from '@wordpress/icons';
-import { JETPACK_SCAN_SLUG } from '../../constants';
+import { useCallback } from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
+import usePlan from '../../hooks/use-plan';
+import useWafData from '../../hooks/use-waf-data';
 import IconTooltip from '../icon-tooltip';
 import styles from './styles.module.scss';
 
-const UpgradePrompt = ( { automaticRulesAvailable } ) => {
+const UpgradePrompt = () => {
+	const { recordEvent } = useAnalyticsTracks();
 	const { adminUrl } = window.jetpackProtectInitialState || {};
 	const firewallUrl = adminUrl + '#/firewall';
+	const { upgradePlan } = usePlan( { redirectUrl: firewallUrl } );
 
-	const { run } = useProductCheckoutWorkflow( {
-		productSlug: JETPACK_SCAN_SLUG,
-		redirectUrl: firewallUrl,
-		useBlogIdSuffix: true,
-	} );
+	const {
+		config: { automaticRulesAvailable },
+	} = useWafData();
 
-	const { recordEventHandler } = useAnalyticsTracks();
-	const getScan = recordEventHandler( 'jetpack_protect_waf_header_get_scan_link_click', run );
+	const getScan = useCallback( () => {
+		recordEvent( 'jetpack_protect_waf_header_get_scan_link_click' );
+		upgradePlan();
+	}, [ recordEvent, upgradePlan ] );
 
 	return (
 		<Button className={ styles[ 'upgrade-button' ] } onClick={ getScan }>
@@ -53,17 +56,19 @@ const FirewallSubheadingContent = ( { className, text = '', popover = false } ) 
 };
 
 const FirewallSubheading = ( {
+	jetpackWafIpBlockListEnabled,
+	jetpackWafIpAllowListEnabled,
 	hasPlan,
 	automaticRulesAvailable,
-	jetpackWafIpList,
 	jetpackWafAutomaticRules,
 	bruteForceProtectionIsEnabled,
 	wafSupported,
 } ) => {
-	const allRules = wafSupported && jetpackWafAutomaticRules && jetpackWafIpList;
-	const automaticRules = wafSupported && jetpackWafAutomaticRules && ! jetpackWafIpList;
-	const manualRules = wafSupported && ! jetpackWafAutomaticRules && jetpackWafIpList;
-	const noRules = wafSupported && ! jetpackWafAutomaticRules && ! jetpackWafIpList;
+	const allowOrBlockListEnabled = jetpackWafIpBlockListEnabled || jetpackWafIpAllowListEnabled;
+	const allRules = wafSupported && jetpackWafAutomaticRules && allowOrBlockListEnabled;
+	const automaticRules = wafSupported && jetpackWafAutomaticRules && ! allowOrBlockListEnabled;
+	const manualRules = wafSupported && ! jetpackWafAutomaticRules && allowOrBlockListEnabled;
+	const noRules = wafSupported && ! jetpackWafAutomaticRules && ! allowOrBlockListEnabled;
 
 	return (
 		<>
@@ -102,7 +107,7 @@ const FirewallSubheading = ( {
 					/>
 				) }
 			</div>
-			{ ! hasPlan && <UpgradePrompt automaticRulesAvailable={ automaticRulesAvailable } /> }
+			{ ! hasPlan && wafSupported && <UpgradePrompt /> }
 		</>
 	);
 };
