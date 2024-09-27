@@ -146,6 +146,17 @@ abstract class Module {
 	}
 
 	/**
+	 * Retrieve the actions that will be sent for this module during a full sync.
+	 *
+	 * @access public
+	 *
+	 * @return array Full sync actions of this module.
+	 */
+	public function get_full_sync_actions() {
+		return array( $this->full_sync_action_name() );
+	}
+
+	/**
 	 * Get the number of actions that we care about.
 	 *
 	 * @access protected
