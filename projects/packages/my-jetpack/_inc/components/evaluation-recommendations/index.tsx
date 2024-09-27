@@ -1,19 +1,52 @@
 import { Container, Col, Text } from '@automattic/jetpack-components';
-import { DropdownMenu } from '@wordpress/components';
-import { Flex } from '@wordpress/components';
-import { FlexItem } from '@wordpress/components';
+import { Flex, FlexItem, DropdownMenu, Button } from '@wordpress/components';
+import { createInterpolateElement } from '@wordpress/element';
 import { __, _n } from '@wordpress/i18n';
 import { moreHorizontalMobile } from '@wordpress/icons';
-import { useEffect } from 'react';
+import { useEffect, useCallback } from 'react';
 import useEvaluationRecommendations from '../../data/evaluation-recommendations/use-evaluation-recommendations';
 import useAnalytics from '../../hooks/use-analytics';
+import getPurchasePlanUrl from '../../utils/get-purchase-plan-url';
 import { JetpackModuleToProductCard } from '../product-cards-section/all';
 import styles from './style.module.scss';
+import type { WelcomeFlowExperiment } from '../welcome-flow';
+import type { FC } from 'react';
 
-const EvaluationRecommendations: React.FC = () => {
+interface Props {
+	welcomeFlowExperimentVariation: WelcomeFlowExperiment[ 'variation' ];
+}
+
+const EvaluationRecommendations: FC< Props > = ( { welcomeFlowExperimentVariation } ) => {
 	const { recordEvent } = useAnalytics();
-	const { recommendedModules, redoEvaluation, removeEvaluationResult } =
+	const { recommendedModules, isFirstRun, redoEvaluation, removeEvaluationResult } =
 		useEvaluationRecommendations();
+	const isTreatmentVariation = welcomeFlowExperimentVariation === 'treatment';
+
+	const handleExploreAllPlansLinkClick = useCallback( () => {
+		recordEvent( 'jetpack_myjetpack_evaluation_recommendations_explore_all_plans_click' );
+	}, [ recordEvent ] );
+
+	// We're defining each of these translations in separate variables here, otherwise optimizations in
+	// the build step end up breaking the translations and causing error.
+	const recommendationsHeadline = _n(
+		'Our recommendation for you',
+		'Our recommendations for you',
+		recommendedModules.length,
+		'jetpack-my-jetpack'
+	);
+	const recommendationsHeadlineTreatment = __( 'Recommended for your site', 'jetpack-my-jetpack' );
+	const menuRedoTitle = __( 'Redo', 'jetpack-my-jetpack' );
+	const menuRedoTitleTreatment = __( 'Customize recommendations', 'jetpack-my-jetpack' );
+	const menuDismissTitle = __( 'Dismiss', 'jetpack-my-jetpack' );
+	const menuDismissTitleTreatment = __( 'Close', 'jetpack-my-jetpack' );
+	const recommendationsRedoLink = __(
+		'Start over? <link>Analyze again for fresh recommendations</link>!',
+		'jetpack-my-jetpack'
+	);
+	const recommendationsRedoLinkTreatment = __(
+		'Find your perfect match by <link>letting us know what you’re looking for</link>!',
+		'jetpack-my-jetpack'
+	);
 
 	useEffect( () => {
 		recordEvent( 'jetpack_myjetpack_evaluation_recommendations_view', {
@@ -27,19 +60,18 @@ const EvaluationRecommendations: React.FC = () => {
 				<Flex>
 					<FlexItem>
 						<Text variant="headline-small" className={ styles.title }>
-							{ _n(
-								'Our recommendation for you',
-								'Our recommendations for you',
-								recommendedModules.length,
-								'jetpack-my-jetpack'
-							) }
+							{ isTreatmentVariation && isFirstRun
+								? recommendationsHeadlineTreatment
+								: recommendationsHeadline }
 						</Text>
-						<Text>
-							{ __(
-								'Here are the tools that we think will help you reach your website goals:',
-								'jetpack-my-jetpack'
-							) }
-						</Text>
+						{ ! isTreatmentVariation && (
+							<Text>
+								{ __(
+									'Here are the tools that we think will help you reach your website goals:',
+									'jetpack-my-jetpack'
+								) }
+							</Text>
+						) }
 					</FlexItem>
 					<FlexItem>
 						<DropdownMenu
@@ -49,11 +81,15 @@ const EvaluationRecommendations: React.FC = () => {
 							label={ __( 'Recommendations menu', 'jetpack-my-jetpack' ) }
 							controls={ [
 								{
-									title: __( 'Redo', 'jetpack-my-jetpack' ),
+									title:
+										isTreatmentVariation && isFirstRun ? menuRedoTitleTreatment : menuRedoTitle,
 									onClick: redoEvaluation,
 								},
 								{
-									title: __( 'Dismiss', 'jetpack-my-jetpack' ),
+									title:
+										isTreatmentVariation && isFirstRun
+											? menuDismissTitleTreatment
+											: menuDismissTitle,
 									onClick: removeEvaluationResult,
 								},
 							] }
@@ -81,6 +117,40 @@ const EvaluationRecommendations: React.FC = () => {
 					} ) }
 				</Container>
 			</Col>
+			{ isTreatmentVariation && (
+				<Col>
+					<Flex>
+						<FlexItem>
+							<Text variant="body">
+								{ createInterpolateElement(
+									isFirstRun ? recommendationsRedoLinkTreatment : recommendationsRedoLink,
+									{
+										link: (
+											<Button
+												variant="link"
+												className={ styles[ 'evaluation-footer-link' ] }
+												onClick={ redoEvaluation }
+											/>
+										),
+									}
+								) }
+							</Text>
+						</FlexItem>
+						<FlexItem>
+							<Text variant="body">
+								<Button
+									variant="link"
+									className={ styles[ 'evaluation-footer-link' ] }
+									href={ getPurchasePlanUrl() }
+									onClick={ handleExploreAllPlansLinkClick }
+								>
+									{ __( 'Explore all Jetpack plans', 'jetpack-my-jetpack' ) }
+								</Button>
+							</Text>
+						</FlexItem>
+					</Flex>
+				</Col>
+			) }
 		</Container>
 	);
 };
