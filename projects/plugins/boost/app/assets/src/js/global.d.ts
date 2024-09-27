@@ -2,10 +2,9 @@
  * Type definitions for the global namespace. i.e.: things we expect to find in window.
  */
 
-import type {
-	BrowserInterfaceIframe,
-	generateCriticalCSS,
-} from '@automattic/jetpack-critical-css-gen';
+const { BrowserInterfaceIframe, generateCriticalCSS } = await import(
+	'@automattic/jetpack-critical-css-gen'
+);
 
 // <reference types ="@types/jquery"/>
 
