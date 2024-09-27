@@ -1,6 +1,6 @@
 {
 	"name": "Jetpack",
-	"version": "13.9.0-a.5",
+	"version": "13.9.0-a.7",
 	"private": true,
 	"description": "[Jetpack](https://jetpack.com/) is a WordPress plugin that supercharges your self-hosted WordPress site with the awesome cloud power of [WordPress.com](https://wordpress.com).",
 	"homepage": "https://jetpack.com",
@@ -17,7 +17,7 @@
 	"scripts": {
 		"build": "pnpm run clean && pnpm run build-client && pnpm run build-extensions && pnpm run build-widget-visibility && pnpm run build-asset-cdn-json",
 		"build-asset-cdn-json": "php tools/build-asset-cdn-json.php",
-		"build-client": "concurrently --names js,css,masterbar,module-headings 'webpack --config ./tools/webpack.config.js' 'webpack --config ./tools/webpack.config.css.js' 'webpack --config ./tools/webpack.config.masterbar.js' 'php tools/build-module-headings-translations.php'",
+		"build-client": "concurrently --names js,css,module-headings 'webpack --config ./tools/webpack.config.js' 'webpack --config ./tools/webpack.config.css.js' 'php tools/build-module-headings-translations.php'",
 		"build-concurrently": "pnpm run clean && concurrently 'pnpm:compile-ts' 'pnpm:build-client' 'pnpm:build-extensions' 'pnpm:build-widget-visibility' && pnpm run build-asset-cdn-json",
 		"build-extensions": "webpack --config ./tools/webpack.config.extensions.js && tools/check-block-assets.php",
 		"build-production": "pnpm run clean && pnpm run build-production-client && pnpm run build-production-extensions && pnpm run build-production-widget-visibility && pnpm run build-asset-cdn-json",
@@ -38,7 +38,7 @@
 		"test-client": "NODE_PATH=tests:_inc/client jest --config=tests/jest.config.client.js",
 		"test-extensions": "TZ=UTC jest --config=tests/jest.config.extensions.js",
 		"test-gui": "NODE_PATH=tests:_inc/client jest --config=tests/jest.config.gui.js",
-		"watch": "concurrently --names client-js,client-css,masterbar,extensions,widget-visibility 'webpack watch --config ./tools/webpack.config.js' 'webpack watch --config ./tools/webpack.config.css.js' 'webpack watch --config ./tools/webpack.config.masterbar.js' 'webpack watch --config ./tools/webpack.config.extensions.js' 'webpack watch --config ./tools/webpack.config.widget-visibility.js'"
+		"watch": "concurrently --names client-js,client-css,extensions,widget-visibility 'webpack watch --config ./tools/webpack.config.js' 'webpack watch --config ./tools/webpack.config.css.js' 'webpack watch --config ./tools/webpack.config.extensions.js' 'webpack watch --config ./tools/webpack.config.widget-visibility.js'"
 	},
 	"browserslist": [
 		"extends @wordpress/browserslist-config"

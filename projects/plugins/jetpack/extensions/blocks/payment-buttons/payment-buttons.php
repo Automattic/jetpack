@@ -22,7 +22,8 @@ function register_block() {
 	}
 
 	require_once JETPACK__PLUGIN_DIR . '/modules/memberships/class-jetpack-memberships.php';
-	if ( \Jetpack_Memberships::is_enabled_jetpack_recurring_payments() ) {
+	if ( \Jetpack_Memberships::is_enabled_jetpack_recurring_payments() &&
+		\Jetpack_Memberships::should_enable_monetize_blocks_in_editor() ) {
 		Blocks::jetpack_register_block(
 			__DIR__,
 			array(

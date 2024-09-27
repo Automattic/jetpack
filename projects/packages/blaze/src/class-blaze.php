@@ -61,7 +61,7 @@ class Blaze {
 	 * @return void
 	 */
 	public static function add_post_links_actions() {
-		if ( self::should_initialize() ) {
+		if ( self::should_initialize()['can_init'] ) {
 			add_filter( 'post_row_actions', array( __CLASS__, 'jetpack_blaze_row_action' ), 10, 2 );
 			add_filter( 'page_row_actions', array( __CLASS__, 'jetpack_blaze_row_action' ), 10, 2 );
 		}
@@ -97,7 +97,7 @@ class Blaze {
 	 * @return void
 	 */
 	public static function enable_blaze_menu() {
-		if ( ! self::should_initialize() ) {
+		if ( ! self::should_initialize()['can_init'] ) {
 			return;
 		}
 
@@ -195,7 +195,7 @@ class Blaze {
 	 * Determines if criteria is met to enable Blaze features.
 	 * Keep in mind that this makes remote requests, so we want to avoid calling it when unnecessary, like in the frontend.
 	 *
-	 * @return bool
+	 * @return array
 	 */
 	public static function should_initialize() {
 		$is_wpcom   = defined( 'IS_WPCOM' ) && IS_WPCOM;
@@ -204,7 +204,10 @@ class Blaze {
 
 		// Only admins should be able to Blaze posts on a site.
 		if ( ! current_user_can( 'manage_options' ) ) {
-			return false;
+			return array(
+				'can_init' => false,
+				'reason'   => 'user_not_admin',
+			);
 		}
 
 		// Allow short-circuiting the Blaze initialization via a filter.
@@ -216,7 +219,12 @@ class Blaze {
 			 *
 			 * @param bool $should_initialize Whether Blaze should be enabled. Default to true.
 			 */
-			return apply_filters( 'jetpack_blaze_enabled', true );
+			$should_init = apply_filters( 'jetpack_blaze_enabled', true );
+
+			return array(
+				'can_init' => $should_init,
+				'reason'   => $should_init ? null : 'initialization_disabled',
+			);
 		}
 
 		// On self-hosted sites, we must do some additional checks.
@@ -227,25 +235,49 @@ class Blaze {
 			*/
 			if (
 				is_wp_error( $site_id )
-				|| ! $connection->is_connected()
-				|| ! $connection->is_user_connected()
 			) {
-				return false;
+				return array(
+					'can_init' => false,
+					'reason'   => 'wp_error',
+				);
+			}
+
+			if ( ! $connection->is_connected() ) {
+				return array(
+					'can_init' => false,
+					'reason'   => 'site_not_connected',
+				);
+			}
+
+			if ( ! $connection->is_user_connected() ) {
+				return array(
+					'can_init' => false,
+					'reason'   => 'user_not_connected',
+				);
 			}
 
 			// The whole thing is powered by Sync!
 			if ( ! Sync_Settings::is_sync_enabled() ) {
-				return false;
+				return array(
+					'can_init' => false,
+					'reason'   => 'sync_disabled',
+				);
 			}
 		}
 
 		// Check if the site supports Blaze.
 		if ( is_numeric( $site_id ) && ! self::site_supports_blaze( $site_id ) ) {
-			return false;
+			return array(
+				'can_init' => false,
+				'reason'   => 'site_not_eligible',
+			);
 		}
 
 		// Final fallback.
-		return true;
+		return array(
+			'can_init' => true,
+			'reason'   => null,
+		);
 	}
 
 	/**
@@ -368,7 +400,7 @@ class Blaze {
 			return;
 		}
 		// Bail if criteria is not met to enable Blaze features.
-		if ( ! self::should_initialize() ) {
+		if ( ! self::should_initialize()['can_init'] ) {
 			return;
 		}
 

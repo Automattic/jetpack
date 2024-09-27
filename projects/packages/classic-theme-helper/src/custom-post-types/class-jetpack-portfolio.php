@@ -67,6 +67,19 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Portfolio' ) ) {
 			} else {
 				add_action( 'init', array( $this, 'maybe_register_cpt' ) );
 			}
+
+			// Add a variable with the theme support status for the Jetpack Settings Portfolio toggle UI.
+			if ( current_theme_supports( self::CUSTOM_POST_TYPE ) ) {
+				wp_register_script( 'jetpack-portfolio-theme-supports', '', array(), '0.1.0', true );
+				wp_enqueue_script( 'jetpack-portfolio-theme-supports' );
+				$supports_portfolio = ( new Host() )->is_woa_site() ? 'true' : 'false';
+			} else {
+				$supports_portfolio = 'false';
+			}
+			wp_add_inline_script(
+				'jetpack-portfolio-theme-supports',
+				'const jetpack_portfolio_theme_supports = ' . $supports_portfolio
+			);
 		}
 
 		/**

@@ -1,0 +1,29 @@
+{
+	"translation-revision-date": "2024-07-04 16:54:06+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=2; plural=n != 1;", "lang": "sv_SE" },
+			"Remove premium styles": [ "Ta bort premiumstilar" ],
+			"Change all of your site's fonts, colors and more. Available on the %s plan.": [
+				"\u00c4ndra alla typsnitt, f\u00e4rger och mer p\u00e5 din webbplats. Tillg\u00e4ngligt p\u00e5 %s-paketet."
+			],
+			"Your site includes premium styles that are only visible to visitors after upgrading to the %s plan or higher.": [
+				"Din webbplats inkluderar anpassade stilar som endast \u00e4r synliga f\u00f6r bes\u00f6kare efter uppgradering till %s-paketet eller h\u00f6gre."
+			],
+			"Your site includes premium styles that are only visible to visitors after <a>upgrading to the %s plan or higher</a>.": [
+				"Din webbplats inkluderar anpassade stilar som endast \u00e4r synliga f\u00f6r bes\u00f6kare efter <a>uppgradering till %s-paketet eller h\u00f6gre</a>."
+			],
+			"Generating preview\u2026": [ "Genererar f\u00f6rhandsgranskning \u2026" ],
+			"Preview without premium styles": [ "F\u00f6rhandsgranska utan premiumstilar" ],
+			"Upgrade now": [ "Uppgradera nu" ],
+			"Upgrade plan": [ "Uppgradera paket" ],
+			"Try it out": [ "Prova det" ],
+			"A powerful new way to style your site": [
+				"Ett kraftfullt nytt s\u00e4tt att stils\u00e4tta din webbplats"
+			]
+		}
+	},
+	"comment": { "reference": "wpcom-global-styles/dist/wpcom-global-styles.js" }
+}

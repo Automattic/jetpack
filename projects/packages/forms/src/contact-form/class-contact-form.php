@@ -862,10 +862,10 @@ class Contact_Form extends Contact_Form_Shortcode {
 				$str = __( 'Message', 'jetpack-forms' );
 				break;
 			case 'checkbox-multiple':
-				$str = __( 'Choose several', 'jetpack-forms' );
+				$str = __( 'Choose several options', 'jetpack-forms' );
 				break;
 			case 'radio':
-				$str = __( 'Choose one', 'jetpack-forms' );
+				$str = __( 'Choose one option', 'jetpack-forms' );
 				break;
 			case 'select':
 				$str = __( 'Select one', 'jetpack-forms' );
@@ -1374,7 +1374,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		 * @param bool $remove_ip_address Should the IP address be removed. Default false.
 		 * @param string $ip_address IP address of the form submission.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.33.0
 		 */
 		if ( apply_filters( 'jetpack_contact_form_forget_ip_address', false, $comment_author_ip ) ) {
 			$comment_author_ip = null;
