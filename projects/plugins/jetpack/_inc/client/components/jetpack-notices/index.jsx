@@ -184,7 +184,7 @@ class JetpackNotices extends React.Component {
 		const dismissedNotices = Object.keys( cookieParsed )
 			.filter( key => key.startsWith( 'jetpack_deprecate_dismissed' ) )
 			.reduce( ( acc, key ) => {
-				acc[ key.replace( 'jetpack_deprecate_dismissed[', '' ).replace( ']', '' ) ] = '1';
+				acc[ key.replace( 'jetpack_deprecate_dismissed[', '' ).replace( /]/g, '' ) ] = '1';
 				return acc;
 			}, {} );
 
@@ -228,7 +228,7 @@ class JetpackNotices extends React.Component {
 		// const notices = [
 		//  {
 		//    noticeKey: 'my-xyz-removal-notice',
-		//    message: __( 'Jetpack's xyz feature has been removed.', 'jetpack' ),
+		//    message: __( "Jetpack's xyz feature has been removed.", 'jetpack' ),
 		//    link: getRedirectUrl( 'my-support' ),
 		//    show: this.props.showXYZNotice && ! this.isNoticeDismissed( 'my-xyz-removal-notice' )
 		//  }
