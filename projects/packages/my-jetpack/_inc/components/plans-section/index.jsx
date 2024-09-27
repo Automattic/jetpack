@@ -91,22 +91,22 @@ function PlanSectionFooter( { numberOfPurchases } ) {
 	const { recordEvent } = useAnalytics();
 	const { isUserConnected } = useMyJetpackConnection();
 
-	let planLinkDescription = __( 'Purchase a plan', 'jetpack-my-jetpack' );
-	if ( numberOfPurchases >= 1 ) {
-		planLinkDescription = _n(
-			'Manage your plan',
-			'Manage your plans',
-			numberOfPurchases,
-			'jetpack-my-jetpack'
-		);
-	}
+	const planManageDescription = _n(
+		'Manage your plan',
+		'Manage your plans',
+		numberOfPurchases,
+		'jetpack-my-jetpack'
+	);
 
-	const purchaseClickHandler = useCallback( () => {
-		const event = numberOfPurchases
-			? 'jetpack_myjetpack_plans_manage_click'
-			: 'jetpack_myjetpack_plans_purchase_click';
-		recordEvent( event );
-	}, [ numberOfPurchases, recordEvent ] );
+	const planPurchaseDescription = __( 'Purchase a plan', 'jetpack-my-jetpack' );
+
+	const planManageClickHandler = useCallback( () => {
+		recordEvent( 'jetpack_myjetpack_plans_manage_click' );
+	}, [ recordEvent ] );
+
+	const planPurchaseClickHandler = useCallback( () => {
+		recordEvent( 'jetpack_myjetpack_plans_purchase_click' );
+	}, [ recordEvent ] );
 
 	const navigateToConnectionPage = useMyJetpackNavigate( MyJetpackRoutes.Connection );
 	const activateLicenseClickHandler = useCallback( () => {
@@ -128,15 +128,28 @@ function PlanSectionFooter( { numberOfPurchases } ) {
 
 	return (
 		<ul>
+			{ numberOfPurchases > 0 && (
+				<li className={ styles[ 'actions-list-item' ] }>
+					<Button
+						onClick={ planManageClickHandler }
+						href={ getManageYourPlanUrl() }
+						weight="regular"
+						variant="link"
+						isExternalLink={ true }
+					>
+						{ planManageDescription }
+					</Button>
+				</li>
+			) }
 			<li className={ styles[ 'actions-list-item' ] }>
 				<Button
-					onClick={ purchaseClickHandler }
-					href={ numberOfPurchases ? getManageYourPlanUrl() : getPurchasePlanUrl() }
+					onClick={ planPurchaseClickHandler }
+					href={ getPurchasePlanUrl() }
 					weight="regular"
 					variant="link"
 					isExternalLink={ true }
 				>
-					{ planLinkDescription }
+					{ planPurchaseDescription }
 				</Button>
 			</li>
 			{ loadAddLicenseScreen && (
@@ -164,6 +177,8 @@ function PlanSectionFooter( { numberOfPurchases } ) {
  */
 export default function PlansSection() {
 	const userIsAdmin = !! getMyJetpackWindowInitialState( 'userIsAdmin' );
+	const { isSiteConnected } = useMyJetpackConnection();
+
 	const {
 		data: purchases,
 		isLoading,
@@ -171,6 +186,7 @@ export default function PlansSection() {
 	} = useSimpleQuery( {
 		name: QUERY_PURCHASES_KEY,
 		query: { path: REST_API_SITE_PURCHASES_ENDPOINT },
+		options: { enabled: isSiteConnected },
 	} );
 
 	const isDataLoaded = purchases && ! isLoading && ! isError;

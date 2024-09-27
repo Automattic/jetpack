@@ -1,0 +1,26 @@
+{
+	"translation-revision-date": "2023-11-09 02:13:32+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=2; plural=n != 1;", "lang": "es_CO" },
+			"Pick a pre-defined layout or continue with a blank page": [
+				"Elige un dise\u00f1o predefinido o contin\u00faa con una p\u00e1gina en blanco"
+			],
+			"Choose a Pattern": [ "Elegir un patr\u00f3n" ],
+			"Page categories": [ "Categor\u00edas de la p\u00e1gina" ],
+			"Blank page": [ "P\u00e1gina en blanco" ],
+			"Pick a pre-defined layout or start with a blank page.": [
+				"Elige un dise\u00f1o predefinido o empieza con una p\u00e1gina en blanco."
+			],
+			"Add a page": [ "A\u00f1adir una p\u00e1gina" ],
+			"Layout": [ "Dise\u00f1o" ],
+			"default vertical name\u0004Business": [ "Empresa" ],
+			"default company name\u0004Your Company Name": [ "Nombre de tu empresa" ],
+			"default phone number\u0004555-555-5555": [ "555-555-5555" ],
+			"default address\u0004123 Main St": [ "Calle principal, 123" ]
+		}
+	},
+	"comment": { "reference": "starter-page-templates/dist/starter-page-templates.js" }
+}

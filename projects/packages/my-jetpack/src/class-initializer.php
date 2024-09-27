@@ -42,7 +42,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '4.35.5';
+	const PACKAGE_VERSION = '4.35.8';
 
 	/**
 	 * HTML container ID for the IDC screen on My Jetpack page.
@@ -211,7 +211,7 @@ class Initializer {
 		 * Fires after the My Jetpack page is initialized.
 		 * Allows for enqueuing additional scripts only on the My Jetpack page.
 		 *
-		 * @since $$next-version$$
+		 * @since 4.35.7
 		 */
 		do_action( 'myjetpack_enqueue_scripts' );
 		Assets::register_script(
@@ -951,14 +951,6 @@ class Initializer {
 			$red_bubble_slugs[ self::MISSING_CONNECTION_NOTIFICATION_KEY ] = array(
 				'type'     => 'site',
 				'is_error' => true,
-			);
-			return $red_bubble_slugs;
-		}
-
-		if ( ! $connection->is_user_connected() && ! $connection->has_connected_owner() ) {
-			$red_bubble_slugs[ self::MISSING_CONNECTION_NOTIFICATION_KEY ] = array(
-				'type'     => 'user',
-				'is_error' => false,
 			);
 			return $red_bubble_slugs;
 		}

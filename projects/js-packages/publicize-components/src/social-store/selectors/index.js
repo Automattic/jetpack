@@ -11,8 +11,6 @@ const selectors = {
 	...socialImageGeneratorSettingsSelectors,
 	...shareStatusSelectors,
 	userConnectionUrl: state => state.userConnectionUrl,
-	useAdminUiV1: state => state.useAdminUiV1,
-	featureFlags: state => state.featureFlags,
 	hasPaidFeatures: state => state.hasPaidFeatures,
 };
 

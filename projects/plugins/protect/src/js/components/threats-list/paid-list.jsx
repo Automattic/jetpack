@@ -33,8 +33,9 @@ const ThreatAccordionItem = ( {
 	const { setModal } = useModal();
 	const { recordEvent } = useAnalyticsTracks();
 
-	const { fixersStatus } = useFixers();
-	const fixerInProgress = fixersStatus?.threats?.[ id ]?.status === 'in_progress';
+	const { isThreatFixInProgress, isThreatFixStale } = useFixers();
+	const isActiveFixInProgress = isThreatFixInProgress( id );
+	const isStaleFixInProgress = isThreatFixStale( id );
 
 	const learnMoreButton = source ? (
 		<Button variant="link" isExternalLink={ true } weight="regular" href={ source }>
@@ -145,7 +146,6 @@ const ThreatAccordionItem = ( {
 							isDestructive={ true }
 							variant="secondary"
 							onClick={ handleUnignoreThreatClick() }
-							disabled={ fixerInProgress }
 						>
 							{ __( 'Unignore threat', 'jetpack-protect' ) }
 						</Button>
@@ -156,11 +156,15 @@ const ThreatAccordionItem = ( {
 								isDestructive={ true }
 								variant="secondary"
 								onClick={ handleIgnoreThreatClick() }
+								disabled={ isActiveFixInProgress || isStaleFixInProgress }
 							>
 								{ __( 'Ignore threat', 'jetpack-protect' ) }
 							</Button>
 							{ fixable && (
-								<Button disabled={ fixerInProgress } onClick={ handleFixThreatClick() }>
+								<Button
+									disabled={ isActiveFixInProgress || isStaleFixInProgress }
+									onClick={ handleFixThreatClick() }
+								>
 									{ __( 'Fix threat', 'jetpack-protect' ) }
 								</Button>
 							) }

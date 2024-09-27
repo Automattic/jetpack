@@ -15,7 +15,7 @@ define( 'WPCOM_ADMIN_BAR_UNIFICATION', true );
  * Jetpack_Mu_Wpcom main class.
  */
 class Jetpack_Mu_Wpcom {
-	const PACKAGE_VERSION = '5.62.0';
+	const PACKAGE_VERSION = '5.64.0';
 	const PKG_DIR         = __DIR__ . '/../';
 	const BASE_DIR        = __DIR__ . '/';
 	const BASE_FILE       = __FILE__;
@@ -27,6 +27,24 @@ class Jetpack_Mu_Wpcom {
 		if ( did_action( 'jetpack_mu_wpcom_initialized' ) ) {
 			return;
 		}
+
+		add_filter(
+			'load_script_textdomain_relative_path',
+			function ( $relative ) {
+				// Check if $relative is a string and contains the required segment
+				if ( str_contains( $relative, 'vendor/automattic/jetpack-mu-wpcom/' ) ) {
+					$pattern = '#^(?:production|staging|moon|sun)/#'; // Matches the environment prefix on Simple Sites
+
+					if ( preg_match( $pattern, $relative ) ) {
+						$relative = preg_replace( $pattern, '', $relative ); // Remove the environment prefix
+					}
+				}
+
+				return $relative;
+			},
+			10,
+			2
+		);
 
 		// Shared code for src/features.
 		require_once self::PKG_DIR . 'src/common/index.php'; // phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
