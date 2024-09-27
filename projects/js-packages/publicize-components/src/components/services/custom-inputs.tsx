@@ -1,6 +1,6 @@
 import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement, useId } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { SupportedService } from '../services/use-supported-services';
 import styles from './style.module.scss';
 
@@ -21,11 +21,7 @@ export function CustomInputs( { service }: CustomInputsProps ) {
 		return (
 			<div className={ styles[ 'fields-item' ] }>
 				<label htmlFor={ `${ id }-handle` }>
-					{ __(
-						/* translators: The handle of a social media account. */
-						'Handle',
-						'jetpack'
-					) }
+					{ _x( 'Handle', 'The handle of a social media account.', 'jetpack' ) }
 				</label>
 				<p className="description" id={ `${ id }-handle-description` }>
 					{ __( 'You can find the handle in your Mastodon profile.', 'jetpack' ) }
@@ -52,11 +48,7 @@ export function CustomInputs( { service }: CustomInputsProps ) {
 			<>
 				<div className={ styles[ 'fields-item' ] }>
 					<label htmlFor={ `${ id }-handle` }>
-						{ __(
-							/* translators: The handle of a social media account. */
-							'Handle',
-							'jetpack'
-						) }
+						{ _x( 'Handle', 'The handle of a social media account.', 'jetpack' ) }
 					</label>
 					<p className="description" id={ `${ id }-handle-description` }>
 						{ __( 'You can find the handle in your Bluesky profile.', 'jetpack' ) }
