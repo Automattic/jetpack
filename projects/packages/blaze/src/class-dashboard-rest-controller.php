@@ -349,7 +349,7 @@ class Dashboard_REST_Controller {
 			$response['posts'] = $this->add_prices_in_posts( $response['posts'] );
 		}
 
-		$this->add_warnings_to_posts_response( $response );
+		$response = $this->add_warnings_to_posts_response( $response );
 
 		return $response;
 	}
@@ -358,6 +358,7 @@ class Dashboard_REST_Controller {
 	 * Adds warning flags to the posts response.
 	 *
 	 * @param array $response The response object.
+	 * @return array
 	 */
 	private function add_warnings_to_posts_response( $response ) {
 		if ( ! $this->are_posts_ready() && is_array( $response ) ) {
@@ -366,6 +367,7 @@ class Dashboard_REST_Controller {
 				$response['warnings'] ?? array()
 			);
 		}
+		return $response;
 	}
 
 	/**
@@ -420,7 +422,7 @@ class Dashboard_REST_Controller {
 			$response['results'] = $this->add_prices_in_posts( $response['results'] );
 		}
 
-		$this->add_warnings_to_posts_response( $response );
+		$response = $this->add_warnings_to_posts_response( $response );
 
 		return $response;
 	}
