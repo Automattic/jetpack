@@ -358,7 +358,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		$show_subscribers_total       = (bool) $instance['show_subscribers_total'];
 		$subscribers_total            = self::fetch_subscriber_count();
 		$subscribe_text               = empty( $instance['show_only_email_and_button'] ) ?
-			wp_kses_post( $instance['subscribe_text'] ) :
+			wp_kses_post( stripslashes( $instance['subscribe_text'] ) ) :
 			false;
 		$referer                      = esc_url_raw( ( is_ssl() ? 'https' : 'http' ) . '://' . ( isset( $_SERVER['HTTP_HOST'] ) ? wp_unslash( $_SERVER['HTTP_HOST'] ) : '' ) . ( isset( $_SERVER['REQUEST_URI'] ) ? wp_unslash( $_SERVER['REQUEST_URI'] ) : '' ) );
 		$source                       = 'widget';
@@ -499,7 +499,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 				<?php
 				if ( $subscribe_text && ( ! isset( $_GET['subscribe'] ) || 'success' !== $_GET['subscribe'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Non-sensitive informational output.
 					?>
-					<div id="subscribe-text"><?php echo wp_kses( wp_unslash( wpautop( str_replace( '[total-subscribers]', number_format_i18n( $subscribers_total ), $subscribe_text ) ) ), 'post' ); ?></div>
+					<div id="subscribe-text"><?php echo wp_kses( wpautop( str_replace( '[total-subscribers]', number_format_i18n( $subscribers_total ), $subscribe_text ) ), 'post' ); ?></div>
 					<?php
 				}
 
