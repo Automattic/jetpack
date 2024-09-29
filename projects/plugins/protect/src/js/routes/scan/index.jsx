@@ -21,7 +21,14 @@ import onboardingSteps from './onboarding-steps';
 import ScanSectionHeader from './scan-section-header';
 import styles from './styles.module.scss';
 
-const HeaderContainer = () => {
+/**
+ * Header Notices
+ *
+ * Component that renders the connection error notice and the Jetpack admin notices.
+ *
+ * @return {Component} The component.
+ */
+const HeaderNotices = () => {
 	const { hasConnectionError } = useConnectionErrorNotice();
 
 	return (
@@ -41,7 +48,6 @@ const HeaderContainer = () => {
 const ErrorSection = ( { errorMessage, errorCode } ) => {
 	return (
 		<>
-			<HeaderContainer />
 			<Container horizontalSpacing={ 3 } horizontalGap={ 4 }>
 				<Col>
 					<ScanSectionHeader />
@@ -71,7 +77,6 @@ const ScanningSection = ( { currentProgress } ) => {
 
 	return (
 		<>
-			<HeaderContainer />
 			<Container horizontalSpacing={ 3 } horizontalGap={ 4 }>
 				<Col>
 					<ScanSectionHeader />
@@ -127,7 +132,6 @@ const ScanningSection = ( { currentProgress } ) => {
 const DefaultSection = () => {
 	return (
 		<>
-			<HeaderContainer />
 			<Container horizontalSpacing={ 3 } horizontalGap={ 4 }>
 				<Col>
 					<Summary />
@@ -178,7 +182,10 @@ const ScanPage = () => {
 	return (
 		<OnboardingContext.Provider value={ onboardingSteps }>
 			<AdminPage>
-				<AdminSectionHero>{ renderSection }</AdminSectionHero>
+				<AdminSectionHero>
+					<HeaderNotices />
+					{ renderSection }
+				</AdminSectionHero>
 				<ScanFooter />
 			</AdminPage>
 		</OnboardingContext.Provider>
