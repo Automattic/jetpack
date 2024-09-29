@@ -163,6 +163,7 @@ const ScanPage = () => {
 		},
 	} );
 
+	// Render the appropriate section based on the scan status.
 	const renderSection = useMemo( () => {
 		if ( isScanInProgress( status ) ) {
 			return <ScanInProgressSection currentProgress={ status.currentProgress || 0 } />;
