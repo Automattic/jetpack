@@ -45,6 +45,15 @@ const HeaderNotices = () => {
 	);
 };
 
+/**
+ * Error Section
+ *
+ * @param {object} props              - Component props.
+ * @param {string} props.errorMessage - The error message.
+ * @param {string} props.errorCode    - The error code.
+ *
+ * @return {Component} The component.
+ */
 const ErrorSection = ( { errorMessage, errorCode } ) => {
 	return (
 		<>
@@ -62,7 +71,15 @@ const ErrorSection = ( { errorMessage, errorCode } ) => {
 	);
 };
 
-const ScanningSection = ( { currentProgress } ) => {
+/**
+ * Scan In Progress Section
+ *
+ * @param {object} props                 - Component props.
+ * @param {number} props.currentProgress - The current progress of the scan.
+ *
+ * @return {Component} The component.
+ */
+const ScanInProgressSection = ( { currentProgress } ) => {
 	const { hasPlan } = usePlan();
 	const { globalStats } = useWafData();
 	const totalVulnerabilities = parseInt( globalStats?.totalVulnerabilities );
@@ -122,7 +139,12 @@ const ScanningSection = ( { currentProgress } ) => {
 	);
 };
 
-const DefaultSection = () => {
+/**
+ * Scan Results Section
+ *
+ * @return {Component} The component.
+ */
+const ScanResultsSection = () => {
 	return (
 		<>
 			<Col>
@@ -135,6 +157,13 @@ const DefaultSection = () => {
 	);
 };
 
+/**
+ * Scan Page
+ *
+ * The entry point for the Scan page.
+ *
+ * @return {Component} The root component for the scan page.
+ */
 const ScanPage = () => {
 	const { hasPlan } = usePlan();
 	const { lastChecked } = useProtectData();
@@ -160,14 +189,14 @@ const ScanPage = () => {
 
 	const renderSection = useMemo( () => {
 		if ( isScanInProgress( status ) ) {
-			return <ScanningSection currentProgress={ status.currentProgress || 0 } />;
+			return <ScanInProgressSection currentProgress={ status.currentProgress || 0 } />;
 		}
 
 		if ( status.error ) {
 			return <ErrorSection errorMessage={ status.errorMessage } errorCode={ status.errorCode } />;
 		}
 
-		return <DefaultSection />;
+		return <ScanResultsSection />;
 	}, [ status ] );
 
 	return (
