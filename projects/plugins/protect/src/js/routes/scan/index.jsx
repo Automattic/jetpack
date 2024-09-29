@@ -1,5 +1,4 @@
 import { AdminSectionHero, Container, Col, H3, Text } from '@automattic/jetpack-components';
-import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-connection';
 import { Spinner } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { useMemo } from 'react';
@@ -19,31 +18,8 @@ import useProtectData from '../../hooks/use-protect-data';
 import useWafData from '../../hooks/use-waf-data';
 import onboardingSteps from './onboarding-steps';
 import ScanSectionHeader from './scan-section-header';
+import ScanSectionNotices from './scan-section-notices';
 import styles from './styles.module.scss';
-
-/**
- * Header Notices
- *
- * Component that renders the connection error notice and the Jetpack admin notices.
- *
- * @return {Component} The component.
- */
-const HeaderNotices = () => {
-	const { hasConnectionError } = useConnectionErrorNotice();
-
-	return (
-		<Container horizontalSpacing={ 0 }>
-			{ hasConnectionError && (
-				<Col className={ styles[ 'connection-error-col' ] }>
-					<ConnectionError />
-				</Col>
-			) }
-			<Col>
-				<div id="jp-admin-notices" className="my-jetpack-jitm-card" />
-			</Col>
-		</Container>
-	);
-};
 
 /**
  * Error Section
@@ -203,7 +179,7 @@ const ScanPage = () => {
 		<OnboardingContext.Provider value={ onboardingSteps }>
 			<AdminPage>
 				<AdminSectionHero>
-					<HeaderNotices />
+					<ScanSectionNotices />
 					<Container horizontalSpacing={ 3 } horizontalGap={ 4 }>
 						{ renderSection }
 					</Container>
