@@ -48,21 +48,16 @@ const HeaderNotices = () => {
 const ErrorSection = ( { errorMessage, errorCode } ) => {
 	return (
 		<>
-			<Container horizontalSpacing={ 3 } horizontalGap={ 4 }>
-				<Col>
-					<ScanSectionHeader />
-				</Col>
-				<Col>
-					<ErrorScreen
-						baseErrorMessage={ __(
-							'We are having problems scanning your site.',
-							'jetpack-protect'
-						) }
-						errorMessage={ errorMessage }
-						errorCode={ errorCode }
-					/>
-				</Col>
-			</Container>
+			<Col>
+				<ScanSectionHeader />
+			</Col>
+			<Col>
+				<ErrorScreen
+					baseErrorMessage={ __( 'We are having problems scanning your site.', 'jetpack-protect' ) }
+					errorMessage={ errorMessage }
+					errorCode={ errorCode }
+				/>
+			</Col>
 		</>
 	);
 };
@@ -77,54 +72,52 @@ const ScanningSection = ( { currentProgress } ) => {
 
 	return (
 		<>
-			<Container horizontalSpacing={ 3 } horizontalGap={ 4 }>
-				<Col>
-					<ScanSectionHeader />
-				</Col>
-				<Col>
-					<SeventyFiveLayout
-						main={
-							<div className={ styles[ 'main-content' ] }>
-								<Container horizontalSpacing={ 0 } horizontalGap={ 7 } fluid={ true }>
-									<Col className={ styles[ 'loading-content' ] }>
-										<Spinner
-											style={ {
-												color: 'black',
-												marginTop: 0,
-												marginLeft: 0,
-											} }
-										/>
-										<span>{ __( 'Scanning your site…', 'jetpack-protect' ) }</span>
-									</Col>
-									<Col>
-										<H3 style={ { textWrap: 'balance' } }>
-											{ __( 'Your results will be ready soon', 'jetpack-protect' ) }
-										</H3>
-										{ hasPlan && <ProgressBar value={ currentProgress || 0 } /> }
-										<Text>
-											{ sprintf(
-												// translators: placeholder is the number of total vulnerabilities i.e. "22,000".
-												__(
-													'We are scanning for security threats from our more than %s listed vulnerabilities, powered by WPScan. This could take a minute or two.',
-													'jetpack-protect'
-												),
-												totalVulnerabilitiesFormatted
-											) }
-										</Text>
-									</Col>
-								</Container>
-							</div>
-						}
-						secondary={
-							<div className={ styles.illustration }>
-								<img src={ inProgressImage } alt="" />
-							</div>
-						}
-						preserveSecondaryOnMobile={ false }
-						fluid={ true }
-					/>
-				</Col>
-			</Container>
+			<Col>
+				<ScanSectionHeader />
+			</Col>
+			<Col>
+				<SeventyFiveLayout
+					main={
+						<div className={ styles[ 'main-content' ] }>
+							<Container horizontalSpacing={ 0 } horizontalGap={ 7 } fluid={ true }>
+								<Col className={ styles[ 'loading-content' ] }>
+									<Spinner
+										style={ {
+											color: 'black',
+											marginTop: 0,
+											marginLeft: 0,
+										} }
+									/>
+									<span>{ __( 'Scanning your site…', 'jetpack-protect' ) }</span>
+								</Col>
+								<Col>
+									<H3 style={ { textWrap: 'balance' } }>
+										{ __( 'Your results will be ready soon', 'jetpack-protect' ) }
+									</H3>
+									{ hasPlan && <ProgressBar value={ currentProgress || 0 } /> }
+									<Text>
+										{ sprintf(
+											// translators: placeholder is the number of total vulnerabilities i.e. "22,000".
+											__(
+												'We are scanning for security threats from our more than %s listed vulnerabilities, powered by WPScan. This could take a minute or two.',
+												'jetpack-protect'
+											),
+											totalVulnerabilitiesFormatted
+										) }
+									</Text>
+								</Col>
+							</Container>
+						</div>
+					}
+					secondary={
+						<div className={ styles.illustration }>
+							<img src={ inProgressImage } alt="" />
+						</div>
+					}
+					preserveSecondaryOnMobile={ false }
+					fluid={ true }
+				/>
+			</Col>
 		</>
 	);
 };
@@ -132,14 +125,12 @@ const ScanningSection = ( { currentProgress } ) => {
 const DefaultSection = () => {
 	return (
 		<>
-			<Container horizontalSpacing={ 3 } horizontalGap={ 4 }>
-				<Col>
-					<Summary />
-				</Col>
-				<Col>
-					<ThreatsList />
-				</Col>
-			</Container>
+			<Col>
+				<Summary />
+			</Col>
+			<Col>
+				<ThreatsList />
+			</Col>
 		</>
 	);
 };
@@ -184,7 +175,9 @@ const ScanPage = () => {
 			<AdminPage>
 				<AdminSectionHero>
 					<HeaderNotices />
-					{ renderSection }
+					<Container horizontalSpacing={ 3 } horizontalGap={ 4 }>
+						{ renderSection }
+					</Container>
 				</AdminSectionHero>
 				<ScanFooter />
 			</AdminPage>
