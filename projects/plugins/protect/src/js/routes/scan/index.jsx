@@ -21,11 +21,11 @@ import onboardingSteps from './onboarding-steps';
 import ScanSectionHeader from './scan-section-header';
 import styles from './styles.module.scss';
 
-const ConnectionErrorCol = () => {
+const HeaderContainer = () => {
 	const { hasConnectionError } = useConnectionErrorNotice();
 
 	return (
-		<>
+		<Container horizontalSpacing={ 0 }>
 			{ hasConnectionError && (
 				<Col className={ styles[ 'connection-error-col' ] }>
 					<ConnectionError />
@@ -34,14 +34,6 @@ const ConnectionErrorCol = () => {
 			<Col>
 				<div id="jp-admin-notices" className="my-jetpack-jitm-card" />
 			</Col>
-		</>
-	);
-};
-
-const HeaderContainer = () => {
-	return (
-		<Container horizontalSpacing={ 0 }>
-			<ConnectionErrorCol />
 		</Container>
 	);
 };
