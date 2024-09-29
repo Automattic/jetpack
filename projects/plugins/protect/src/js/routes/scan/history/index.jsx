@@ -1,4 +1,12 @@
-import { AdminSectionHero, Container, Col, H3, Text, Title } from '@automattic/jetpack-components';
+import {
+	AdminSectionHero,
+	Container,
+	Col,
+	H3,
+	Text,
+	Title,
+	AdminSection,
+} from '@automattic/jetpack-components';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import { Navigate, useParams } from 'react-router-dom';
@@ -242,7 +250,7 @@ const ScanHistoryRoute = () => {
 	return (
 		<AdminPage>
 			<AdminSectionHero>
-				<Container horizontalSpacing={ 3 } horizontalGap={ 4 }>
+				<Container horizontalSpacing={ 7 } horizontalGap={ 4 }>
 					<Col>
 						<ScanSectionHeader
 							subtitle={ error ? null : __( 'Threat history', 'jetpack-protect' ) }
@@ -256,10 +264,15 @@ const ScanHistoryRoute = () => {
 											numAllThreats === 1 ? 'threat' : 'threats'
 									  )
 							}
+							showNavigation={ true }
 						/>
 					</Col>
-					{ error ? (
-						<Col>
+				</Container>
+			</AdminSectionHero>
+			<AdminSection>
+				<Container horizontalSpacing={ 7 } horizontalGap={ 4 }>
+					<Col>
+						{ error ? (
 							<ErrorScreen
 								baseErrorMessage={ __(
 									"An error occurred loading your site's threat history.",
@@ -268,9 +281,7 @@ const ScanHistoryRoute = () => {
 								errorMessage={ error.message }
 								errorCode={ error.code }
 							/>
-						</Col>
-					) : (
-						<Col>
+						) : (
 							<Container fluid horizontalSpacing={ 0 } horizontalGap={ 3 }>
 								<Col lg={ 4 }>
 									<ThreatsNavigation
@@ -315,10 +326,10 @@ const ScanHistoryRoute = () => {
 									) }
 								</Col>
 							</Container>
-						</Col>
-					) }
+						) }
+					</Col>
 				</Container>
-			</AdminSectionHero>
+			</AdminSection>
 			<ScanFooter />
 		</AdminPage>
 	);
