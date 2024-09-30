@@ -4,7 +4,7 @@ import { withModuleSettingsFormHelpers } from 'components/module-settings/with-m
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import analytics from 'lib/analytics';
-import { FEATURE_EMAIL_SUBSCRIPTION_JETPACK } from 'lib/plans/constants';
+import { FEATURE_NEWSLETTER_JETPACK } from 'lib/plans/constants';
 import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
 import { isOfflineMode } from 'state/connection';
@@ -32,7 +32,7 @@ function PaidNewsletter( props ) {
 			{ ...props }
 			header={ __( 'Paid Newsletter', 'jetpack' ) }
 			hideButton
-			feature={ FEATURE_EMAIL_SUBSCRIPTION_JETPACK }
+			feature={ FEATURE_NEWSLETTER_JETPACK }
 		>
 			<SettingsGroup
 				disableInOfflineMode

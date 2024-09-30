@@ -3,7 +3,7 @@ import { FormLabel } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
-import { FEATURE_EMAIL_SUBSCRIPTION_JETPACK } from 'lib/plans/constants';
+import { FEATURE_NEWSLETTER_JETPACK } from 'lib/plans/constants';
 import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
 import { isUnavailableInOfflineMode, isUnavailableInSiteConnectionMode } from 'state/connection';
@@ -44,7 +44,7 @@ const MessagesSetting = props => {
 		<SettingsCard
 			{ ...props }
 			header={ __( 'Messages', 'jetpack' ) }
-			feature={ FEATURE_EMAIL_SUBSCRIPTION_JETPACK }
+			feature={ FEATURE_NEWSLETTER_JETPACK }
 			module={ SUBSCRIPTIONS_MODULE_NAME }
 			saveDisabled={ disabled }
 		>

@@ -13,7 +13,7 @@ import {
 	FEATURE_SPAM_AKISMET_PLUS,
 	FEATURE_SEARCH_JETPACK,
 	FEATURE_SIMPLE_PAYMENTS_JETPACK,
-	FEATURE_EMAIL_SUBSCRIPTION_JETPACK,
+	FEATURE_NEWSLETTER_JETPACK,
 	getJetpackProductUpsellByFeature,
 } from 'lib/plans/constants';
 import { get, includes } from 'lodash';
@@ -324,7 +324,7 @@ export const SettingsCard = inprops => {
 					/>
 				);
 
-			case FEATURE_EMAIL_SUBSCRIPTION_JETPACK:
+			case FEATURE_NEWSLETTER_JETPACK:
 				if ( props.hasConnectedOwner ) {
 					return '';
 				}
@@ -333,7 +333,7 @@ export const SettingsCard = inprops => {
 					<JetpackBanner
 						title={ __( 'Connect your WordPress.com account to enable newsletters.', 'jetpack' ) }
 						callToAction={ connectLabel() }
-						plan={ getJetpackProductUpsellByFeature( FEATURE_EMAIL_SUBSCRIPTION_JETPACK ) }
+						plan={ getJetpackProductUpsellByFeature( FEATURE_NEWSLETTER_JETPACK ) }
 						feature={ feature }
 						onClick={ handleConnectClick( feature ) }
 						rna

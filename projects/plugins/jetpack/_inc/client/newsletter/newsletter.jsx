@@ -6,7 +6,7 @@ import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import analytics from 'lib/analytics';
-import { FEATURE_EMAIL_SUBSCRIPTION_JETPACK } from 'lib/plans/constants';
+import { FEATURE_NEWSLETTER_JETPACK } from 'lib/plans/constants';
 import React from 'react';
 import { connect } from 'react-redux';
 import { isCurrentUserLinked, isUnavailableInOfflineMode, isOfflineMode } from 'state/connection';
@@ -61,7 +61,7 @@ function Newsletter( props ) {
 			{ ...props }
 			header={ __( 'Newsletter', 'jetpack' ) }
 			hideButton
-			feature={ FEATURE_EMAIL_SUBSCRIPTION_JETPACK }
+			feature={ FEATURE_NEWSLETTER_JETPACK }
 			module={ SUBSCRIPTIONS_MODULE_NAME }
 		>
 			<SettingsGroup
