@@ -48,6 +48,7 @@ export class ConnectButton extends React.Component {
 		connectUser: PropTypes.bool,
 		from: PropTypes.string,
 		asLink: PropTypes.bool,
+		asBanner: PropTypes.bool,
 		connectLegend: PropTypes.string,
 		connectInPlace: PropTypes.bool,
 		customConnect: PropTypes.func,
@@ -137,19 +138,44 @@ export class ConnectButton extends React.Component {
 			);
 		}
 
-		return (
-			<JetpackBanner
-				title={ __(
-					'Get the most out of Jetpack by connecting your WordPress.com account',
-					'jetpack'
-				) }
-				noIcon
-				callToAction={ __( 'Connect', 'jetpack' ) }
-				onClick={ this.loadConnectionScreen }
-				eventFeature="connect-account"
-				path="dashboard"
-				eventProps={ { type: 'connect' } }
-			/>
+		if ( this.props.asBanner ) {
+			return (
+				<JetpackBanner
+					title={ __(
+						'Get the most out of Jetpack by connecting your WordPress.com account',
+						'jetpack'
+					) }
+					noIcon
+					callToAction={ __( 'Connect', 'jetpack' ) }
+					onClick={ this.loadConnectionScreen }
+					eventFeature="connect-account"
+					path="dashboard"
+					eventProps={ { type: 'connect' } }
+				/>
+			);
+		}
+
+		let connectUrl = this.props.connectUrl;
+		if ( this.props.from ) {
+			connectUrl += `&from=${ this.props.from }`;
+			connectUrl += '&additional-user';
+		}
+
+		const buttonProps = {
+				className: 'is-primary jp-jetpack-connect__button',
+				href: connectUrl,
+				disabled: this.props.fetchingConnectUrl || this.props.isAuthorizing,
+				onClick: this.loadConnectionScreen,
+			},
+			connectLegend =
+				this.props.connectLegend || __( 'Connect your WordPress.com account', 'jetpack' );
+
+		return this.props.asLink ? (
+			<a { ...buttonProps }>{ connectLegend }</a>
+		) : (
+			<Button rna={ this.props.rna } compact={ this.props.compact } { ...buttonProps }>
+				{ connectLegend }
+			</Button>
 		);
 	};
 
