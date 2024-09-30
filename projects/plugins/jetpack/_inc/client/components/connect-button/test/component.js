@@ -25,6 +25,7 @@ describe( 'ConnectButton', () => {
 		asLink: false,
 		connectInPlace: false,
 		doNotUseConnectionIframe: false,
+		asBanner: true,
 	};
 
 	describe( 'Initially', () => {
