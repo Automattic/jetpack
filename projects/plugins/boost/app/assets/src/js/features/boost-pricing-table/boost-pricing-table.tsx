@@ -17,6 +17,42 @@ type BoostPricingTableProps = {
 	chosenPaidPlan: boolean;
 };
 
+type BoostPricingTablesFeaturesListProps = {
+	features: {
+		included: boolean;
+		description?: string;
+		info?: {
+			title?: string;
+			content: string;
+			class?: string;
+		};
+	};
+};
+
+const BoostPricingTablesFeaturesList = ( { features }: BoostPricingTablesFeaturesListProps ) => {
+	const { description, included, info } = features;
+
+	let labelText;
+	if ( description ) {
+		labelText = <strong>{ description }</strong>;
+	}
+
+	return (
+		<PricingTableItem
+			isIncluded={ included }
+			label={ labelText }
+			tooltipTitle={ info?.title }
+			tooltipInfo={
+				// eslint-disable-next-line react/no-danger
+				info?.content ? (
+					<div dangerouslySetInnerHTML={ { __html: info?.content } } />
+				) : null
+			}
+			tooltipClassName={ info?.class }
+		/>
+	);
+};
+
 export const BoostPricingTable = ( {
 	onPremiumCTA,
 	onFreeCTA,
@@ -81,30 +117,12 @@ export const BoostPricingTable = ( {
 								{ __( 'Get Boost', 'jetpack-boost' ) }
 							</Button>
 						</PricingTableHeader>,
-						...featuresByTier.map( ( tierFeature, mapIndex ) => {
-							const { description, included, info } = tierFeature.tiers.upgraded;
-
-							let labelText;
-							if ( description ) {
-								labelText = <strong>{ description }</strong>;
-							}
-
-							return (
-								<PricingTableItem
-									key={ mapIndex }
-									isIncluded={ included }
-									label={ labelText }
-									tooltipTitle={ info?.title }
-									tooltipInfo={
-										// eslint-disable-next-line react/no-danger
-										info?.content ? (
-											<div dangerouslySetInnerHTML={ { __html: info?.content } } />
-										) : null
-									}
-									tooltipClassName={ info?.class }
-								/>
-							);
-						} ),
+						...featuresByTier.map( ( tierFeature, mapIndex ) => (
+							<BoostPricingTablesFeaturesList
+								key={ mapIndex }
+								features={ tierFeature.tiers.upgraded }
+							/>
+						) ),
 					] }
 				</PricingTableColumn>
 				<PricingTableColumn>
@@ -126,29 +144,12 @@ export const BoostPricingTable = ( {
 								{ __( 'Start for free', 'jetpack-boost' ) }
 							</Button>
 						</PricingTableHeader>,
-						...featuresByTier.map( ( tierFeature, mapIndex ) => {
-							const { description, included, info } = tierFeature.tiers.free;
-
-							let labelText;
-							if ( description ) {
-								labelText = <strong>{ description }</strong>;
-							}
-							return (
-								<PricingTableItem
-									key={ mapIndex }
-									isIncluded={ included }
-									label={ labelText }
-									tooltipTitle={ info?.title }
-									tooltipInfo={
-										// eslint-disable-next-line react/no-danger
-										info?.content ? (
-											<div dangerouslySetInnerHTML={ { __html: info?.content } } />
-										) : null
-									}
-									tooltipClassName={ info?.class }
-								/>
-							);
-						} ),
+						...featuresByTier.map( ( { tiers }, index ) => (
+							<BoostPricingTablesFeaturesList
+								key={ index }
+								features={ tiers.free }
+							/>
+						) ),
 					] }
 				</PricingTableColumn>
 			</PricingTable>
