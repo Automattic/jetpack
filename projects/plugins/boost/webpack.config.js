@@ -77,7 +77,6 @@ module.exports = [
 				MiniCssExtractPlugin: {
 					filename: 'jetpack-boost.css',
 				},
-				DependencyExtractionPlugin: { injectPolyfill: true },
 			} ),
 			new CopyPlugin( { patterns: cssGenCopyPatterns } ),
 		],
@@ -137,9 +136,7 @@ module.exports = [
 		},
 		node: false,
 		plugins: [
-			...jetpackWebpackConfig.StandardPlugins( {
-				DependencyExtractionPlugin: { injectPolyfill: true },
-			} ),
+			...jetpackWebpackConfig.StandardPlugins(),
 			new CopyPlugin( { patterns: imageGuideCopyPatterns } ),
 		],
 		module: {

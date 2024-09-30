@@ -147,7 +147,7 @@ module.exports = [
 		},
 		plugins: [
 			...sharedWebpackConfig.plugins,
-			...jetpackWebpackConfig.DependencyExtractionPlugin( { injectPolyfill: true } ),
+			...jetpackWebpackConfig.DependencyExtractionPlugin(),
 		],
 		externals: {
 			...sharedWebpackConfig.externals,

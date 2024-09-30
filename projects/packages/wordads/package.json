@@ -71,7 +71,6 @@
 		"@testing-library/react": "16.0.1",
 		"@wordpress/babel-plugin-import-jsx-pragma": "5.8.1",
 		"@wordpress/browserslist-config": "6.8.1",
-		"@wordpress/dependency-extraction-webpack-plugin": "6.8.3",
 		"babel-jest": "29.4.3",
 		"concurrently": "7.6.0",
 		"core-js": "3.38.1",
