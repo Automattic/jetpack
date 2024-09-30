@@ -230,6 +230,8 @@ function render_image( $media ) {
  */
 function get_image_crop_class( $width, $height ) {
 	$crop_class = '';
+	$width      = (int) $width;
+	$height     = (int) $height;
 	if ( ! $width || ! $height ) {
 		return $crop_class;
 	}
