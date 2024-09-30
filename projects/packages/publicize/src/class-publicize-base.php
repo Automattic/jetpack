@@ -297,16 +297,7 @@ abstract class Publicize_Base {
 	 * @return bool
 	 */
 	public function has_feature_flag( $flag_name, $feature_name ): bool {
-		// If the option is set, use it.
-		if ( get_option( 'jetpack_social_has_' . $flag_name, false ) ) {
-			return true;
-		}
-		// If the constant is set, use it.
-		if ( defined( 'JETPACK_SOCIAL_HAS_' . strtoupper( $flag_name ) ) && constant( 'JETPACK_SOCIAL_HAS_' . strtoupper( $flag_name ) ) ) {
-			return true;
-		}
-
-		return Current_Plan::supports( 'social-' . $feature_name );
+		return Publicize_Script_Data::has_feature_flag( $feature_name );
 	}
 
 	/**

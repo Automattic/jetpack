@@ -749,6 +749,7 @@ class WPCOM_Features {
 		self::INSTALL_THEMES                    => array(
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
+			self::JETPACK_ALL_SITES,
 			self::EXCLUDE_PLANS => array(
 				self::WPCOM_ECOMMERCE_TRIAL_PLANS,
 			),

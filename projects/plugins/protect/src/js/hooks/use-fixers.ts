@@ -1,15 +1,28 @@
-import { useMemo } from 'react';
+import { useCallback } from 'react';
 import useFixersMutation from '../data/scan/use-fixers-mutation';
 import useFixersQuery from '../data/scan/use-fixers-query';
 import useScanStatusQuery from '../data/scan/use-scan-status-query';
-import { FixersStatus } from '../types/fixers';
-import { Threat } from '../types/threats';
+import { FixersStatus, ThreatFixStatus } from '../types/fixers';
+
+const FIXER_IS_STALE_THRESHOLD = 1000 * 60 * 60 * 24; // 24 hours
+
+export const fixerTimestampIsStale = ( lastUpdatedTimestamp: string ) => {
+	const now = new Date();
+	const lastUpdated = new Date( lastUpdatedTimestamp );
+	return now.getTime() - lastUpdated.getTime() >= FIXER_IS_STALE_THRESHOLD;
+};
+
+export const fixerStatusIsStale = ( fixerStatus: ThreatFixStatus ) => {
+	return fixerStatus.status === 'in_progress' && fixerTimestampIsStale( fixerStatus.last_updated );
+};
 
 type UseFixersResult = {
-	fixableThreats: Threat[];
+	fixableThreatIds: number[];
 	fixersStatus: FixersStatus;
 	fixThreats: ( threatIds: number[] ) => Promise< unknown >;
 	isLoading: boolean;
+	isThreatFixInProgress: ( threatId: number ) => boolean;
+	isThreatFixStale: ( threatId: number ) => boolean;
 };
 
 /**
@@ -20,28 +33,32 @@ type UseFixersResult = {
 export default function useFixers(): UseFixersResult {
 	const { data: status } = useScanStatusQuery();
 	const fixersMutation = useFixersMutation();
-
-	const fixableThreats = useMemo( () => {
-		const threats = [
-			...( status?.core?.threats || [] ),
-			...( status?.plugins?.map( plugin => plugin.threats ).flat() || [] ),
-			...( status?.themes?.map( theme => theme.threats ).flat() || [] ),
-			...( status?.files || [] ),
-			...( status?.database || [] ),
-		];
-
-		return threats.filter( threat => threat.fixable );
-	}, [ status ] );
-
 	const { data: fixersStatus } = useFixersQuery( {
-		threatIds: fixableThreats.map( threat => threat.id ),
+		threatIds: status.fixableThreatIds,
 		usePolling: true,
 	} );
 
+	const isThreatFixInProgress = useCallback(
+		( threatId: number ) => {
+			return fixersStatus?.threats?.[ threatId ]?.status === 'in_progress';
+		},
+		[ fixersStatus ]
+	);
+
+	const isThreatFixStale = useCallback(
+		( threatId: number ) => {
+			const threatFixStatus = fixersStatus?.threats?.[ threatId ];
+			return threatFixStatus ? fixerStatusIsStale( threatFixStatus ) : false;
+		},
+		[ fixersStatus ]
+	);
+
 	return {
-		fixableThreats,
+		fixableThreatIds: status.fixableThreatIds,
 		fixersStatus,
 		fixThreats: fixersMutation.mutateAsync,
 		isLoading: fixersMutation.isPending,
+		isThreatFixInProgress,
+		isThreatFixStale,
 	};
 }

@@ -134,6 +134,7 @@ class Test_Scan_Status extends BaseTestCase {
 				'num_plugins_threats' => 1,
 				'num_themes_threats'  => 0,
 				'status'              => 'idle',
+				'fixable_threat_ids'  => array( '69353714' ),
 				'plugins'             => array(
 					new Extension_Model(
 						array(
@@ -302,6 +303,10 @@ class Test_Scan_Status extends BaseTestCase {
 		( new Tokens() )->update_blog_token( 'test.test' );
 		Jetpack_Options::update_option( 'id', 123 );
 		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+
+		// Since this uses WorDBless, our typical invalidation on option update does not work, so invalidate manually
+		$manager = new \Automattic\Jetpack\Connection\Manager();
+		$manager->reset_connection_status();
 	}
 
 	/**

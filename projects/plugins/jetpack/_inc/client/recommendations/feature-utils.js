@@ -1,6 +1,7 @@
 import formatCurrency from '@automattic/format-currency';
 import restApi from '@automattic/jetpack-api';
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { getSocialScriptData } from '@automattic/jetpack-publicize-components';
 import { sprintf, __, _x } from '@wordpress/i18n';
 import {
 	PLAN_JETPACK_SECURITY_T1_YEARLY,
@@ -14,7 +15,6 @@ import {
 	getSiteRawUrl,
 	getJetpackCloudUrl,
 	getStaticProductsForPurchase,
-	getSocialInitiaState,
 } from 'state/initial-state';
 import { updateSettings } from 'state/settings';
 import { fetchPluginsData } from 'state/site/plugins';
@@ -79,12 +79,12 @@ export const mapStateToSummaryFeatureProps = ( state, featureSlug ) => {
 			};
 		case 'publicize':
 			return {
-				configureButtonLabel: getSocialInitiaState( state ).useAdminUiV1
+				configureButtonLabel: getSocialScriptData().feature_flags.useAdminUiV1
 					? __( 'View Jetpack Social settings', 'jetpack' )
 					: _x( 'Manage connections', '', 'jetpack' ),
 				displayName: __( 'Social Media Sharing', 'jetpack' ),
 				summaryActivateButtonLabel: __( 'Enable', 'jetpack' ),
-				configLink: getSocialInitiaState( state ).useAdminUiV1
+				configLink: getSocialScriptData().feature_flags.useAdminUiV1
 					? '#/sharing'
 					: getRedirectUrl( 'calypso-marketing-connections', {
 							site: getSiteRawUrl( state ),
@@ -562,7 +562,7 @@ export const getStepContent = ( state, stepSlug ) => {
 					'jetpack'
 				),
 				ctaText: __( 'Manage Social Media Connections', 'jetpack' ),
-				ctaLink: getSocialInitiaState( state ).useAdminUiV1
+				ctaLink: getSocialScriptData().feature_flags.useAdminUiV1
 					? getSiteAdminUrl( state ) + 'admin.php?page=jetpack#/sharing'
 					: getRedirectUrl( 'calypso-marketing-connections', {
 							site: getSiteRawUrl( state ),

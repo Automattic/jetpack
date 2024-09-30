@@ -103,6 +103,7 @@ export const PLAN_JETPACK_SECURITY_REALTIME_MONTHLY = 'jetpack_security_realtime
 export const PLAN_JETPACK_STATS_BI_YEARLY = 'jetpack_stats_bi_yearly';
 export const PLAN_JETPACK_STATS = 'jetpack_stats';
 export const PLAN_JETPACK_STATS_MONTHLY = 'jetpack_stats_monthly';
+export const PLAN_JETPACK_STATS_YEARLY = 'jetpack_stats_yearly';
 export const PLAN_JETPACK_STATS_PWYW_YEARLY = 'jetpack_stats_pwyw_yearly';
 export const PLAN_JETPACK_STATS_FREE = 'jetpack_stats_free_yearly';
 
@@ -323,6 +324,7 @@ export const JETPACK_STATS_PRODUCTS = [
 	PLAN_JETPACK_STATS_BI_YEARLY,
 	PLAN_JETPACK_STATS,
 	PLAN_JETPACK_STATS_MONTHLY,
+	PLAN_JETPACK_STATS_YEARLY,
 	PLAN_JETPACK_STATS_PWYW_YEARLY,
 	PLAN_JETPACK_STATS_FREE,
 ];
@@ -394,6 +396,9 @@ export const FEATURE_WORDADS_JETPACK = 'wordads-jetpack';
 export const FEATURE_GOOGLE_ANALYTICS_JETPACK = 'google-analytics-jetpack';
 export const FEATURE_SEARCH_JETPACK = 'search-jetpack';
 export const FEATURE_VIDEOPRESS = 'videopress-jetpack';
+export const FEATURE_JETPACK_AI = 'ai-jetpack';
+export const FEATURE_JETPACK_CRM = 'crm-jetpack';
+export const FEATURE_JETPACK_BOOST = 'boost-jetpack';
 export const FEATURE_SIMPLE_PAYMENTS_JETPACK = 'simple-payments-jetpack';
 
 // Upsells
@@ -409,6 +414,8 @@ export const JETPACK_FEATURE_PRODUCT_UPSELL_MAP = {
 	[ FEATURE_SPAM_AKISMET_PLUS ]: PLAN_JETPACK_ANTI_SPAM,
 	[ FEATURE_VIDEOPRESS ]: PLAN_JETPACK_VIDEOPRESS,
 	[ FEATURE_SIMPLE_PAYMENTS_JETPACK ]: PLAN_JETPACK_SECURITY_T1_YEARLY,
+	[ FEATURE_JETPACK_AI ]: PLAN_JETPACK_AI_YEARLY,
+	[ FEATURE_JETPACK_BOOST ]: PLAN_JETPACK_BOOST,
 };
 
 /**
@@ -775,6 +782,7 @@ export function getPlanClass( plan ) {
 		case PLAN_JETPACK_STATS_BI_YEARLY:
 		case PLAN_JETPACK_STATS:
 		case PLAN_JETPACK_STATS_MONTHLY:
+		case PLAN_JETPACK_STATS_YEARLY:
 		case PLAN_JETPACK_STATS_PWYW_YEARLY:
 			return 'is-jetpack-stats-plan';
 		case PLAN_JETPACK_STATS_FREE:

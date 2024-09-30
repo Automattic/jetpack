@@ -787,6 +787,36 @@ class Jetpack_Core_Json_Api_Endpoints {
 				),
 			)
 		);
+
+		/**
+		 * Get the list of available Jetpack features.
+		 *
+		 * @since 13.9
+		 */
+		register_rest_route(
+			'jetpack/v4',
+			'/features/available',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( static::class, 'get_features_available' ),
+				'permission_callback' => array( static::class, 'get_features_permission_check' ),
+			)
+		);
+
+		/**
+		 * Get the list of enabled Jetpack features.
+		 *
+		 * @since 13.9
+		 */
+		register_rest_route(
+			'jetpack/v4',
+			'/features/enabled',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( static::class, 'get_features_enabled' ),
+				'permission_callback' => array( static::class, 'get_features_permission_check' ),
+			)
+		);
 	}
 
 	/**
@@ -4466,5 +4496,54 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'data' => $data,
 			)
 		);
+	}
+
+	/**
+	 * Return the list of available features.
+	 *
+	 * @return array
+	 */
+	public static function get_features_available() {
+		$raw_modules = Jetpack::get_available_modules();
+		$modules     = array();
+		foreach ( $raw_modules as $module ) {
+			$modules[] = Jetpack::get_module_slug( $module );
+		}
+
+		return $modules;
+	}
+
+	/**
+	 * Returns what features are enabled. Uses the slug of the modules files.
+	 *
+	 * @return array
+	 */
+	public static function get_features_enabled() {
+		$raw_modules = Jetpack::get_active_modules();
+		$modules     = array();
+		foreach ( $raw_modules as $module ) {
+			$modules[] = Jetpack::get_module_slug( $module );
+		}
+
+		return $modules;
+	}
+
+	/**
+	 * Verify that the API client is allowed to replace user token.
+	 *
+	 * @since 1.29.0
+	 *
+	 * @return bool|WP_Error
+	 */
+	public static function get_features_permission_check() {
+		if ( ! Rest_Authentication::is_signed_with_blog_token() ) {
+			$message = esc_html__(
+				'You do not have the correct user permissions to perform this action. Please contact your site admin if you think this is a mistake.',
+				'jetpack'
+			);
+			return new WP_Error( 'invalid_permission_fetch_features', $message, array( 'status' => rest_authorization_required_code() ) );
+		}
+
+		return true;
 	}
 } // class end

@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, arsihasi, azaozz, barry, batmoo, beaulebens, bindlegirl, biskobe, bjorsch, blobaugh, brbrr, brileyhooper, cainm, cena, cfinke, cgastrell, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, daniloercoli, davoraltman, delawski, designsimply, dkmyta, dllh, drawmyface, dsmart, dun2mis, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, joen, jblz, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lhkowalski, lschuyler, macmanx, martinremy, matt, mattwiebe, matveb, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, miguelxavierpenha, mikeyarce, mkaz, nancythanki, nickmomrik, njweller, nunyvega, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, renatoagds, retrofox, richardmtl, richardmuscat, robertbpugh, roccotripaldi, ryancowles, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, thehenridev, tmoorewp, tyxla, Viper007Bond, westi, williamvianas, wpkaren, yoavf, zinigor
 Tags: Security, backup, malware, scan, performance
-Stable tag: 13.8
+Stable tag: 13.8.1
 Requires at least: 6.5
 Requires PHP: 7.0
 Tested up to: 6.6
@@ -326,9 +326,14 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.9-a.3 - 2024-09-10
+### 13.9-a.7 - 2024-09-23
+#### Enhancements
+- Jetpack AI: Add AI SEO title optimization.
+
 #### Bug fixes
-- WooCommerce Analytics: Check whether a constant is defined before attempting to use it, for compatibility with WooCommerce <8.4.0.
+- Shortcode: Fix the YouTube URL for the private videos.
+- Social: Fix social previews button sometimes not fitting all the text.
+- Blocks: Prevent Memberships blocks from being registered when the site is not connected to Jetpack.
 
 --------
 
