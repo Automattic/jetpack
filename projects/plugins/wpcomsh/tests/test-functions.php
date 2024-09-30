@@ -26,6 +26,7 @@ class FunctionsTest extends WP_UnitTestCase {
 	 * @preserveGlobalState disabled
 	 */
 	public function test_wpcomsh_get_atomic_client_id_defined() {
+		$this->expectNotice();
 		define( 'ATOMIC_CLIENT_ID', '2' );
 		add_filter(
 			'wpcomsh_get_atomic_client_id',
