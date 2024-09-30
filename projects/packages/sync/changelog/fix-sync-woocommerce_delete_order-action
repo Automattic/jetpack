@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Jetpack Sync: Fix a bug in syncing HPOS 'woocommerce_delete_order' actions
