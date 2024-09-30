@@ -88,10 +88,11 @@ const usePricingData = ( slug: string ) => {
 	);
 
 	const { isUserConnected } = useMyJetpackConnection();
-	const { myJetpackUrl, siteSuffix } = getMyJetpackWindowInitialState();
+	const { myJetpackUrl, siteSuffix, adminUrl } = getMyJetpackWindowInitialState();
 	const { activate, isPending: isActivating } = useActivate( slug );
 	const { run: runCheckout } = useProductCheckoutWorkflow( {
 		from: 'my-jetpack',
+		adminUrl,
 		productSlug: wpcomProductSlug,
 		redirectUrl: myJetpackUrl,
 		connectAfterCheckout: ! isUserConnected,
@@ -99,6 +100,7 @@ const usePricingData = ( slug: string ) => {
 	} );
 	const { run: runFreeCheckout } = useProductCheckoutWorkflow( {
 		from: 'my-jetpack',
+		adminUrl,
 		productSlug: wpcomFreeProductSlug,
 		redirectUrl: myJetpackUrl,
 		connectAfterCheckout: ! isUserConnected,
