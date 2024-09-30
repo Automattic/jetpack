@@ -164,6 +164,7 @@ class Help_Center {
 				'help-center',
 				'const helpCenterData = ' . wp_json_encode(
 					array(
+						'isProxied'   => boolval( self::is_proxied() ),
 						'currentUser' => array(
 							'ID'           => $user_id,
 							'username'     => $username,
