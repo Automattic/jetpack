@@ -333,7 +333,7 @@ export const SettingsCard = inprops => {
 					<JetpackBanner
 						title={ __( 'Connect your WordPress.com account to enable newsletters.', 'jetpack' ) }
 						callToAction={ connectLabel() }
-						plan={ getJetpackProductUpsellByFeature( FEATURE_EMAIL_SUBSCRIPTION_JETPACK ) }
+						icon="envelope"
 						feature={ feature }
 						onClick={ handleConnectClick( feature ) }
 						rna
