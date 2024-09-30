@@ -2,6 +2,39 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 13.9-beta - 2024-09-30
+### Major Enhancements
+- Jetpack plugin: Remove the 'WordPress.com Toolbar' module. [#39406]
+
+### Enhancements
+- Blocks: Transition from an option to a module to improve caching. [#39449]
+- My Jetpack: Visual update to the GlobalNotice component for better mobile presentation. [#39537]
+- Performance: Set the concatenated CSS to off by default. The era where this was helpful is passing. [#39486]
+
+### Improved compatibility
+- Dashboard: Disable portfolio toggle if theme supports portfolio for specific environments. [#39508]
+
+### Bug fixes
+- Shortcode: Fix the YouTube URL for the `/embed` type. [#39502]
+- Subscriptions: Fix added slashes in the Follow Blog widget. [#39433]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Blocks: Fix 'Division by zero' fatal error in the Story block. [#39577]
+- Dashboard: Add icons for all product cards. [#39513]
+- Dashboard: Clean and deprecate unused functionality on Jetpack admin pages. [#39547]
+- Dashboard: Remove deprecated IDC flag from admin pages. [#39531]
+- Dashboard: Remove user connection nudges where they aren't needed. Add user connection nudges where needed. [#39533]
+- General: Added test instructions for Jetpack 13.9. [#39481]
+- Infinite scroll: Remove unused code. [#39570]
+- Jetpack AI: Add the beta flag to support styles dropdown on the logo generator. [#39510]
+- Jetpack AI: Pass prop/flag to `showStyleSelector` on the logo generator modal. [#39530]
+- Jetpack AI: Show button label on logo block toolbar if site's logo is empty. [#39550]
+- Jetpack WAF: Removed deprecation notice as the firewall feature will not be removed in the next release. [#39568]
+- Social: Remove excessive hook from social logos and genericons. [#39564]
+- Stats: Remove user connection nudge from Stats module on the dashboard. [#39496]
+- Title Optimization: improve button behaviors when handling errors. [#39554]
+- Write Brief: Turn spelling mistakes and long sentences on by default when the tool is enabled. [#39495]
+
 ## 13.9-a.7 - 2024-09-23
 ### Enhancements
 - Jetpack AI: Add AI SEO title optimization. [#39363]

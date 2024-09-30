@@ -326,14 +326,21 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.9-a.7 - 2024-09-23
+### 13.9-beta - 2024-09-30
+#### Major Enhancements
+- Jetpack plugin: Remove the 'WordPress.com Toolbar' module.
+
 #### Enhancements
-- Jetpack AI: Add AI SEO title optimization.
+- Blocks: Transition from an option to a module to improve caching.
+- My Jetpack: Visual update to the GlobalNotice component for better mobile presentation.
+- Performance: Set the concatenated CSS to off by default. The era where this was helpful is passing.
+
+#### Improved compatibility
+- Dashboard: Disable portfolio toggle if theme supports portfolio for specific environments.
 
 #### Bug fixes
-- Shortcode: Fix the YouTube URL for the private videos.
-- Social: Fix social previews button sometimes not fitting all the text.
-- Blocks: Prevent Memberships blocks from being registered when the site is not connected to Jetpack.
+- Shortcode: Fix the YouTube URL for the `/embed` type.
+- Subscriptions: Fix added slashes in the Follow Blog widget.
 
 --------
 
