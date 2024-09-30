@@ -2,9 +2,9 @@
 
 namespace Automattic\Jetpack_Boost\Admin;
 
+use Automattic\Jetpack\My_Jetpack\Products;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
-
 /**
  * Handle the configuration constants.
  *
@@ -37,6 +37,7 @@ class Config {
 				'prefix'    => JETPACK_BOOST_REST_PREFIX,
 			),
 			'postTypes'       => (object) $this->get_custom_post_types(),
+			'product'         => Products::get_product( 'boost' ),
 		);
 
 		/**

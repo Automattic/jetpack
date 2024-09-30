@@ -5,9 +5,9 @@ import {
 	PricingTable,
 	PricingTableColumn,
 	PricingTableHeader,
+	PricingTableItem,
 	ProductPrice,
 } from '@automattic/jetpack-components';
-import { boostFeatureList } from './lib/features';
 import { __ } from '@wordpress/i18n';
 
 type BoostPricingTableProps = {
@@ -31,6 +31,18 @@ export const BoostPricingTable = ( {
 		: undefined;
 
 	const isDiscounted = pricing?.priceBefore && pricing?.priceBefore > pricing?.priceAfter;
+	const featuresByTier = Jetpack_Boost.product?.features_by_tier ?? [];
+
+	// The feature list/descriptions for the pricing table.
+	const pricingTableItems = Jetpack_Boost.product?.features_by_tier.map( ( { name, info } ) => ( {
+		name,
+		tooltipTitle: info?.title,
+		tooltipInfo: info?.content ? (
+			// eslint-disable-next-line react/no-danger
+			<div dangerouslySetInnerHTML={ { __html: info?.content } } />
+		) : null,
+		tooltipPlacement: 'bottom-start',
+	} ) );
 
 	return (
 		<>
@@ -48,7 +60,7 @@ export const BoostPricingTable = ( {
 
 			<PricingTable
 				title={ __( 'The easiest speed optimization plugin for WordPress', 'jetpack-boost' ) }
-				items={ boostFeatureList.map( feature => feature.description ) }
+				items={ pricingTableItems }
 			>
 				<PricingTableColumn primary>
 					{ [
@@ -69,7 +81,30 @@ export const BoostPricingTable = ( {
 								{ __( 'Get Boost', 'jetpack-boost' ) }
 							</Button>
 						</PricingTableHeader>,
-						...boostFeatureList.map( feature => feature.premium ),
+						...featuresByTier.map( ( tierFeature, mapIndex ) => {
+							const { description, included, info } = tierFeature.tiers.upgraded;
+
+							let labelText;
+							if ( description ) {
+								labelText = <strong>{ description }</strong>;
+							}
+
+							return (
+								<PricingTableItem
+									key={ mapIndex }
+									isIncluded={ included }
+									label={ labelText }
+									tooltipTitle={ info?.title }
+									tooltipInfo={
+										// eslint-disable-next-line react/no-danger
+										info?.content ? (
+											<div dangerouslySetInnerHTML={ { __html: info?.content } } />
+										) : null
+									}
+									tooltipClassName={ info?.class }
+								/>
+							);
+						} ),
 					] }
 				</PricingTableColumn>
 				<PricingTableColumn>
@@ -91,7 +126,29 @@ export const BoostPricingTable = ( {
 								{ __( 'Start for free', 'jetpack-boost' ) }
 							</Button>
 						</PricingTableHeader>,
-						...boostFeatureList.map( feature => feature.free ),
+						...featuresByTier.map( ( tierFeature, mapIndex ) => {
+							const { description, included, info } = tierFeature.tiers.free;
+
+							let labelText;
+							if ( description ) {
+								labelText = <strong>{ description }</strong>;
+							}
+							return (
+								<PricingTableItem
+									key={ mapIndex }
+									isIncluded={ included }
+									label={ labelText }
+									tooltipTitle={ info?.title }
+									tooltipInfo={
+										// eslint-disable-next-line react/no-danger
+										info?.content ? (
+											<div dangerouslySetInnerHTML={ { __html: info?.content } } />
+										) : null
+									}
+									tooltipClassName={ info?.class }
+								/>
+							);
+						} ),
 					] }
 				</PricingTableColumn>
 			</PricingTable>
