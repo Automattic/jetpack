@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Fix parameters to allow for connectAfterCheckout flow from recommendation card

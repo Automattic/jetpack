@@ -15,7 +15,7 @@ const {
 	apiNonce,
 	siteSuffix: defaultSiteSuffix,
 } = window?.JP_CONNECTION_INITIAL_STATE || getScriptData()?.connection || {};
-const defaultAdminUrl =
+const defaultAdminUrl = () =>
 	typeof window !== 'undefined' ? window?.myJetpackInitialState?.adminUrl : null;
 
 /**
@@ -38,7 +38,7 @@ export default function useProductCheckoutWorkflow( {
 	productSlug,
 	redirectUrl,
 	siteSuffix = defaultSiteSuffix,
-	adminUrl = defaultAdminUrl,
+	adminUrl = defaultAdminUrl(),
 	connectAfterCheckout = false,
 	siteProductAvailabilityHandler = null,
 	quantity = null,
