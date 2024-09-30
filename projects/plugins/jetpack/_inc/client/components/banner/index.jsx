@@ -62,7 +62,6 @@ export class Banner extends Component {
 			}
 			return `/plans/${ siteSlug }`;
 		}
-
 		return href;
 	}
 

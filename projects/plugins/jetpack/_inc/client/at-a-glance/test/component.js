@@ -84,7 +84,7 @@ describe( 'Connections', () => {
 		it( 'shows a disconnection link', () => {
 			render( <DashConnections { ...testProps } />, { initialState: buildInitialState() } );
 			expect(
-				withinCard( 'Site connection' ).getByRole( 'button', { name: 'Manage' } )
+				withinCard( 'Site connection' ).getByRole( 'button', { name: 'Manage site connection' } )
 			).toBeInTheDocument();
 		} );
 
@@ -128,8 +128,8 @@ describe( 'Connections', () => {
 				initialState: buildInitialState( { userIsLinked: false } ),
 			} );
 			expect(
-				withinCard( 'Account connection' ).getByRole( 'button', {
-					name: 'Connect',
+				withinCard( 'Account connection' ).getByRole( 'link', {
+					name: 'Connect your WordPress.com account',
 				} )
 			).toBeInTheDocument();
 		} );
