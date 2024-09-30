@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+In 'connect_url_redirect' hook, redirect to 'redirect_after_auth` url if already connected (for connect_after_checkout flow).
