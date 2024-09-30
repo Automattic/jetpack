@@ -44,9 +44,7 @@ const BoostPricingTablesFeaturesList = ( { features }: BoostPricingTablesFeature
 			tooltipTitle={ info?.title }
 			tooltipInfo={
 				// eslint-disable-next-line react/no-danger
-				info?.content ? (
-					<div dangerouslySetInnerHTML={ { __html: info?.content } } />
-				) : null
+				info?.content ? <div dangerouslySetInnerHTML={ { __html: info?.content } } /> : null
 			}
 			tooltipClassName={ info?.class }
 		/>
@@ -69,17 +67,6 @@ export const BoostPricingTable = ( {
 	const isDiscounted = pricing?.priceBefore && pricing?.priceBefore > pricing?.priceAfter;
 	const featuresByTier = Jetpack_Boost.product?.features_by_tier ?? [];
 
-	// The feature list/descriptions for the pricing table.
-	const pricingTableItems = Jetpack_Boost.product?.features_by_tier.map( ( { name, info } ) => ( {
-		name,
-		tooltipTitle: info?.title,
-		tooltipInfo: info?.content ? (
-			// eslint-disable-next-line react/no-danger
-			<div dangerouslySetInnerHTML={ { __html: info?.content } } />
-		) : null,
-		tooltipPlacement: 'bottom-start',
-	} ) );
-
 	return (
 		<>
 			{ ! pricing && (
@@ -96,7 +83,15 @@ export const BoostPricingTable = ( {
 
 			<PricingTable
 				title={ __( 'The easiest speed optimization plugin for WordPress', 'jetpack-boost' ) }
-				items={ pricingTableItems }
+				items={ featuresByTier.map( ( { name, info } ) => ( {
+					name,
+					tooltipTitle: info?.title,
+					tooltipInfo: info?.content ? (
+						// eslint-disable-next-line react/no-danger
+						<div dangerouslySetInnerHTML={ { __html: info?.content } } />
+					) : null,
+					tooltipPlacement: 'bottom-start',
+				} ) ) }
 			>
 				<PricingTableColumn primary>
 					{ [
@@ -145,10 +140,7 @@ export const BoostPricingTable = ( {
 							</Button>
 						</PricingTableHeader>,
 						...featuresByTier.map( ( { tiers }, index ) => (
-							<BoostPricingTablesFeaturesList
-								key={ index }
-								features={ tiers.free }
-							/>
+							<BoostPricingTablesFeaturesList key={ index } features={ tiers.free } />
 						) ),
 					] }
 				</PricingTableColumn>
