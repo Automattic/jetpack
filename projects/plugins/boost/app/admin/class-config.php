@@ -37,7 +37,7 @@ class Config {
 				'prefix'    => JETPACK_BOOST_REST_PREFIX,
 			),
 			'postTypes'       => (object) $this->get_custom_post_types(),
-			'product'         => Products::get_product( 'boost' ),
+			'product'         => $this->get_product(),
 		);
 
 		/**
@@ -48,6 +48,18 @@ class Config {
 		 * @since   1.0.0
 		 */
 		return apply_filters( 'jetpack_boost_js_constants', $constants );
+	}
+
+	public function get_product() {
+		$product = Products::get_product_class( 'boost' );
+		if ( ! $product ) {
+			return array();
+		}
+
+		return array(
+			'tiers'            => $product::get_tiers(),
+			'features_by_tier' => $product::get_features_by_tier(),
+		);
 	}
 
 	/**
