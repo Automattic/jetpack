@@ -127,6 +127,7 @@ class Jetpack_Options {
 			'dismissed_welcome_banner',            // (bool) Determines if the welcome banner has been dismissed or not.
 			'recommendations_evaluation',          // (object) Catalog of recommended modules with corresponding score following successful site evaluation in Welcome Banner.
 			'dismissed_recommendations',           // (bool) Determines if the recommendations have been dismissed or not.
+			'recommendations_first_run',           // (bool) Determines if the current recommendations are the initial default auto-loaded ones (without user input).
 			'historically_active_modules',         // (array) List of installed plugins/enabled modules that have at one point in time been active and working
 		);
 	}

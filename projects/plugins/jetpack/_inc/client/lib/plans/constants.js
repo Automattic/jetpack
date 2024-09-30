@@ -396,6 +396,9 @@ export const FEATURE_WORDADS_JETPACK = 'wordads-jetpack';
 export const FEATURE_GOOGLE_ANALYTICS_JETPACK = 'google-analytics-jetpack';
 export const FEATURE_SEARCH_JETPACK = 'search-jetpack';
 export const FEATURE_VIDEOPRESS = 'videopress-jetpack';
+export const FEATURE_JETPACK_AI = 'ai-jetpack';
+export const FEATURE_JETPACK_CRM = 'crm-jetpack';
+export const FEATURE_JETPACK_BOOST = 'boost-jetpack';
 export const FEATURE_SIMPLE_PAYMENTS_JETPACK = 'simple-payments-jetpack';
 export const FEATURE_EMAIL_SUBSCRIPTION_JETPACK = 'email-subscription';
 
@@ -412,6 +415,8 @@ export const JETPACK_FEATURE_PRODUCT_UPSELL_MAP = {
 	[ FEATURE_SPAM_AKISMET_PLUS ]: PLAN_JETPACK_ANTI_SPAM,
 	[ FEATURE_VIDEOPRESS ]: PLAN_JETPACK_VIDEOPRESS,
 	[ FEATURE_SIMPLE_PAYMENTS_JETPACK ]: PLAN_JETPACK_SECURITY_T1_YEARLY,
+	[ FEATURE_JETPACK_AI ]: PLAN_JETPACK_AI_YEARLY,
+	[ FEATURE_JETPACK_BOOST ]: PLAN_JETPACK_BOOST,
 };
 
 /**
