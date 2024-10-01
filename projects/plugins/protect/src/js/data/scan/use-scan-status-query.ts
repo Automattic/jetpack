@@ -11,28 +11,22 @@ import { ScanStatus } from '../../types/scans';
 import { QUERY_SCAN_STATUS_KEY } from './../../constants';
 
 export const isRequestedScanNotStarted = ( status: ScanStatus ) => {
-	// If the scan status is not "idle", always return the fresh API data
 	if ( status.status !== 'idle' ) {
 		return false;
 	}
 
-	// Retrieve last scan timestamp from localStorage and convert to number
 	const lastRequestedScanTimestamp = Number( localStorage.getItem( 'last_requested_scan' ) );
 
-	// If there is no stored timestamp, return the API data
 	if ( ! lastRequestedScanTimestamp ) {
 		return false;
 	}
 
-	// Check if the last scan request is more than 5 minutes old
 	if ( lastRequestedScanTimestamp < Date.now() - 5 * 60 * 1000 ) {
 		return false;
 	}
 
-	// Convert the lastChecked date string to a Unix timestamp
 	const lastCheckedTimestamp = new Date( status.lastChecked + ' UTC' ).getTime();
 
-	// Check if the scan request is completed based on the last checked time
 	const isScanCompleted = lastCheckedTimestamp > lastRequestedScanTimestamp;
 	if ( isScanCompleted ) {
 		return false;
