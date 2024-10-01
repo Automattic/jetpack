@@ -61,7 +61,7 @@ class WP_Test_Jetpack_Admin_Menu extends WP_UnitTestCase {
 			return;
 		}
 		$submenu_names = array_column( $submenu['jetpack'], 3 );
-		print_r( $submenu );
+
 		// Capture the positions of these submenu items.
 		$stats_submenu_position        = array_search( 'Stats', $submenu_names, true );
 		$videopress_submenu_position   = array_search( 'Jetpack VideoPress', $submenu_names, true );
@@ -72,20 +72,21 @@ class WP_Test_Jetpack_Admin_Menu extends WP_UnitTestCase {
 		$settings_submenu_position     = array_search( 'Settings', $submenu_names, true );
 		$dashboard_submenu_position    = array_search( 'Dashboard', $submenu_names, true );
 
-		// Some sites - multisites / some WoA for example - may not have these items.
+		// Some sites - multisites / WoA for example - may not have all of the menu items.
 		if ( in_array( 'My Jetpack', $submenu_names, true ) ) {
 			$my_jetpack_submenu_position = array_search( 'My Jetpack', $submenu_names, true );
-			if ( in_array( 'Stats', $submenu_names, true ) ) {
-				$stats_submenu_position = array_search( 'Stats', $submenu_names, true );
 				$this->assertTrue( $my_jetpack_submenu_position < $stats_submenu_position, 'My Jetpack should be above Stats in the submenu order.' );
-				$this->assertTrue( $stats_submenu_position < $videopress_submenu_position, 'Stats should be above Search in the submenu order.' );
-			} else {
-				$this->assertTrue( $my_jetpack_submenu_position < $videopress_submenu_position, 'My Jetpack should be above Search in the submenu order.' );
-			}
 		}
+
+		if ( in_array( 'Activity Log', $submenu_names, true ) ) {
+			$this->assertTrue( $activity_log_submenu_position < $search_submenu_position, 'Activity Log should be above Search in the submenu order.' );
+			$this->assertTrue( $backup_submenu_position < $activity_log_submenu_position, 'Jetpack VaultPress Backup should be above Activity Log in the submenu order.' );
+		} else {
+			$this->assertTrue( $backup_submenu_position < $search_submenu_position, 'Jetpack VaultPress Backup should be above Search in the submenu order.' );
+		}
+
+		$this->assertTrue( $stats_submenu_position < $videopress_submenu_position, 'Stats should be above VideoPress in the submenu order.' );
 		$this->assertTrue( $videopress_submenu_position < $backup_submenu_position, 'Jetpack VideoPress should be above Jetpack VaultPress Backup in the submenu order.' );
-		$this->assertTrue( $backup_submenu_position < $activity_log_submenu_position, 'Jetpack VaultPress Backup should be above Activity Log in the submenu order.' );
-		$this->assertTrue( $activity_log_submenu_position < $search_submenu_position, 'Activity Log should be above Search in the submenu order.' );
 		$this->assertTrue( $search_submenu_position < $wordads_submenu_position, 'Search should be above WordAds in the submenu order.' );
 		$this->assertTrue( $wordads_submenu_position < $settings_submenu_position, 'WordAds should be above Settings in the submenu order.' );
 		$this->assertTrue( $settings_submenu_position < $dashboard_submenu_position, 'Settings should be above Dashboard in the submenu order.' );
