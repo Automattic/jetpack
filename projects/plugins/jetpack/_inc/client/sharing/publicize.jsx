@@ -6,7 +6,6 @@ import {
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import Card from 'components/card';
-import ConnectUserBar from 'components/connect-user-bar';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
@@ -15,6 +14,7 @@ import analytics from 'lib/analytics';
 import React, { Component } from 'react';
 import './style.scss';
 import { FormFieldset } from '../components/forms';
+import { FEATURE_JETPACK_SOCIAL } from '../lib/plans/constants';
 import SocialImageGeneratorSection from './features/social-image-generator-section';
 
 export const Publicize = withModuleSettingsFormHelpers(
@@ -44,7 +44,6 @@ export const Publicize = withModuleSettingsFormHelpers(
 
 			const unavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'publicize' ),
 				isLinked = this.props.isLinked,
-				isOfflineMode = this.props.isOfflineMode,
 				siteRawUrl = this.props.siteRawUrl,
 				blogID = this.props.blogID,
 				siteAdminUrl = this.props.siteAdminUrl,
@@ -95,6 +94,7 @@ export const Publicize = withModuleSettingsFormHelpers(
 					header={ _x( 'Jetpack Social', 'Settings header', 'jetpack' ) }
 					module="publicize"
 					hideButton
+					feature={ FEATURE_JETPACK_SOCIAL }
 				>
 					{ userCanManageModules && (
 						<SettingsGroup
@@ -164,15 +164,6 @@ export const Publicize = withModuleSettingsFormHelpers(
 							</RefreshJetpackSocialSettingsWrapper>
 						</SettingsGroup>
 					) }
-
-					{ ! isLinked && ! isOfflineMode && (
-						<ConnectUserBar
-							feature="publicize"
-							featureLabel={ __( 'Jetpack Social', 'jetpack' ) }
-							text={ __( 'Connect to add your social media accounts.', 'jetpack' ) }
-						/>
-					) }
-
 					{ isActive && ! useAdminUiV1 && configCard() }
 				</SettingsCard>
 			);
