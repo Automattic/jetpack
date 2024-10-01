@@ -36,7 +36,6 @@
 		"@wordpress/browserslist-config": "6.7.0",
 		"@wordpress/dependency-extraction-webpack-plugin": "6.7.0",
 		"autoprefixer": "10.4.14",
-		"core-js": "3.23.5",
 		"glob": "10.4.1",
 		"postcss": "8.4.31",
 		"postcss-loader": "6.2.0",
