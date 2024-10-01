@@ -5,11 +5,7 @@ import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import React, { useCallback, useMemo } from 'react';
 import { connect } from 'react-redux';
-import {
-	isUnavailableInOfflineMode,
-	isUnavailableInSiteConnectionMode,
-	requiresConnection,
-} from 'state/connection';
+import { isUnavailableInOfflineMode, requiresConnection } from 'state/connection';
 import { getModule } from 'state/modules';
 import Card from '../components/card';
 import { withModuleSettingsFormHelpers } from '../components/module-settings/with-module-settings-form-helpers';
@@ -44,7 +40,6 @@ function NewsletterCategories( props ) {
 		newsletterCategories,
 		categories,
 		unavailableInOfflineMode,
-		unavailableInSiteConnectionMode,
 		subscriptionsModule,
 		updateFormStateOptionValue,
 		isSavingAnyOption,
@@ -85,11 +80,7 @@ function NewsletterCategories( props ) {
 		NEWSLETTER_CATEGORIES_ENABLED_OPTION,
 		NEWSLETTER_CATEGORIES_OPTION,
 	] );
-	const disabled =
-		! isSubscriptionsActive ||
-		unavailableInOfflineMode ||
-		unavailableInSiteConnectionMode ||
-		isSaving;
+	const disabled = ! isSubscriptionsActive || unavailableInOfflineMode || isSaving;
 
 	return (
 		<SettingsCard
@@ -102,7 +93,6 @@ function NewsletterCategories( props ) {
 			<SettingsGroup
 				hasChild
 				disableInOfflineMode
-				disableInSiteConnectionMode
 				module={ subscriptionsModule }
 				support={ {
 					text: __(
@@ -173,10 +163,6 @@ export default withModuleSettingsFormHelpers(
 			categories: ownProps.getOptionValue( 'categories' ),
 			requiresConnection: requiresConnection( state, SUBSCRIPTIONS_MODULE_NAME ),
 			unavailableInOfflineMode: isUnavailableInOfflineMode( state, SUBSCRIPTIONS_MODULE_NAME ),
-			unavailableInSiteConnectionMode: isUnavailableInSiteConnectionMode(
-				state,
-				SUBSCRIPTIONS_MODULE_NAME
-			),
 		};
 	} )( NewsletterCategories )
 );

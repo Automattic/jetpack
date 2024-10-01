@@ -9,12 +9,7 @@ import SettingsGroup from 'components/settings-group';
 import analytics from 'lib/analytics';
 import React from 'react';
 import { connect } from 'react-redux';
-import {
-	isCurrentUserLinked,
-	isUnavailableInOfflineMode,
-	isOfflineMode,
-	isUnavailableInSiteConnectionMode,
-} from 'state/connection';
+import { isCurrentUserLinked, isUnavailableInOfflineMode, isOfflineMode } from 'state/connection';
 import { getModule } from 'state/modules';
 import { SUBSCRIPTIONS_MODULE_NAME } from './constants';
 
@@ -38,7 +33,6 @@ function Newsletter( props ) {
 		isOffline,
 		isSubscriptionsActive,
 		unavailableInOfflineMode,
-		unavailableInSiteConnectionMode,
 		subscriptions,
 	} = props;
 
@@ -73,7 +67,6 @@ function Newsletter( props ) {
 			<SettingsGroup
 				hasChild
 				disableInOfflineMode
-				disableInSiteConnectionMode
 				module={ subscriptions }
 				support={ {
 					text: __(
@@ -85,7 +78,7 @@ function Newsletter( props ) {
 			>
 				<ModuleToggle
 					slug="subscriptions"
-					disabled={ unavailableInOfflineMode || unavailableInSiteConnectionMode }
+					disabled={ unavailableInOfflineMode }
 					activated={ isSubscriptionsActive }
 					toggling={ isSavingAnyOption( SUBSCRIPTIONS_MODULE_NAME ) }
 					toggleModule={ toggleModuleNow }
@@ -119,10 +112,6 @@ export default withModuleSettingsFormHelpers(
 			isOffline: isOfflineMode( state ),
 			isSubscriptionsActive: ownProps.getOptionValue( SUBSCRIPTIONS_MODULE_NAME ),
 			unavailableInOfflineMode: isUnavailableInOfflineMode( state, SUBSCRIPTIONS_MODULE_NAME ),
-			unavailableInSiteConnectionMode: isUnavailableInSiteConnectionMode(
-				state,
-				SUBSCRIPTIONS_MODULE_NAME
-			),
 			subscriptions: getModule( state, SUBSCRIPTIONS_MODULE_NAME ),
 		};
 	} )( Newsletter )

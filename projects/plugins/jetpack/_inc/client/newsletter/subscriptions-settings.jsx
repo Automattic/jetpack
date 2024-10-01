@@ -8,12 +8,7 @@ import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
-import {
-	isCurrentUserLinked,
-	isUnavailableInOfflineMode,
-	isOfflineMode,
-	isUnavailableInSiteConnectionMode,
-} from 'state/connection';
+import { isCurrentUserLinked, isUnavailableInOfflineMode, isOfflineMode } from 'state/connection';
 import {
 	currentThemeIsBlockTheme,
 	currentThemeStylesheet,
@@ -32,7 +27,6 @@ import { SUBSCRIPTIONS_MODULE_NAME } from './constants';
 function SubscriptionsSettings( props ) {
 	const {
 		unavailableInOfflineMode,
-		unavailableInSiteConnectionMode,
 		isSavingAnyOption,
 		isStbEnabled,
 		isStcEnabled,
@@ -119,8 +113,7 @@ function SubscriptionsSettings( props ) {
 		);
 	}, [ updateFormStateModuleOption ] );
 
-	const isDisabled =
-		! isSubscriptionsActive || unavailableInOfflineMode || unavailableInSiteConnectionMode;
+	const isDisabled = ! isSubscriptionsActive || unavailableInOfflineMode;
 
 	return (
 		<SettingsCard
@@ -129,7 +122,7 @@ function SubscriptionsSettings( props ) {
 			module={ SUBSCRIPTIONS_MODULE_NAME }
 			header={ __( 'Subscriptions', 'jetpack' ) }
 		>
-			<SettingsGroup disableInOfflineMode disableInSiteConnectionMode module={ subscriptions }>
+			<SettingsGroup disableInOfflineMode module={ subscriptions }>
 				<p>
 					{ __(
 						'Automatically add subscription forms to your site and turn visitors into subscribers.',
@@ -282,10 +275,6 @@ export default withModuleSettingsFormHelpers(
 			isOffline: isOfflineMode( state ),
 			isSubscriptionsActive: ownProps.getOptionValue( SUBSCRIPTIONS_MODULE_NAME ),
 			unavailableInOfflineMode: isUnavailableInOfflineMode( state, SUBSCRIPTIONS_MODULE_NAME ),
-			unavailableInSiteConnectionMode: isUnavailableInSiteConnectionMode(
-				state,
-				SUBSCRIPTIONS_MODULE_NAME
-			),
 			subscriptions: getModule( state, SUBSCRIPTIONS_MODULE_NAME ),
 			isStbEnabled: ownProps.getOptionValue( 'stb_enabled' ),
 			isStcEnabled: ownProps.getOptionValue( 'stc_enabled' ),

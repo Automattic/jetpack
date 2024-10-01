@@ -3,9 +3,9 @@ import { FormLabel } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
-import React, { useCallback } from 'react';
+import { useCallback } from 'react';
 import { connect } from 'react-redux';
-import { isUnavailableInOfflineMode, isUnavailableInSiteConnectionMode } from 'state/connection';
+import { isUnavailableInOfflineMode } from 'state/connection';
 import { getModule } from 'state/modules';
 import Textarea from '../components/textarea';
 import { SUBSCRIPTIONS_MODULE_NAME } from './constants';
@@ -20,7 +20,6 @@ const MessagesSetting = props => {
 		onOptionChange,
 		welcomeMessage,
 		unavailableInOfflineMode,
-		unavailableInSiteConnectionMode,
 	} = props;
 
 	const changeWelcomeMessageState = useCallback(
@@ -34,11 +33,7 @@ const MessagesSetting = props => {
 	);
 
 	const isSaving = isSavingAnyOption( [ SUBSCRIPTION_OPTIONS ] );
-	const disabled =
-		! isSubscriptionsActive ||
-		unavailableInOfflineMode ||
-		unavailableInSiteConnectionMode ||
-		isSaving;
+	const disabled = ! isSubscriptionsActive || unavailableInOfflineMode || isSaving;
 
 	return (
 		<SettingsCard
@@ -48,12 +43,7 @@ const MessagesSetting = props => {
 			saveDisabled={ isSaving }
 			isDisabled={ disabled }
 		>
-			<SettingsGroup
-				hasChild
-				disableInOfflineMode
-				disableInSiteConnectionMode
-				module={ subscriptionsModule }
-			>
+			<SettingsGroup hasChild disableInOfflineMode module={ subscriptionsModule }>
 				<p className="jp-settings-card__email-settings">
 					{ __(
 						'These settings change the emails sent from your site to your readers.',
@@ -92,10 +82,6 @@ export default withModuleSettingsFormHelpers(
 			onOptionChange: ownProps.onOptionChange,
 			welcomeMessage: ownProps.getOptionValue( SUBSCRIPTION_OPTIONS )?.welcome || '',
 			unavailableInOfflineMode: isUnavailableInOfflineMode( state, SUBSCRIPTIONS_MODULE_NAME ),
-			unavailableInSiteConnectionMode: isUnavailableInSiteConnectionMode(
-				state,
-				SUBSCRIPTIONS_MODULE_NAME
-			),
 		};
 	} )( MessagesSetting )
 );
