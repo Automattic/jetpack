@@ -536,21 +536,6 @@ importers:
       '@babel/preset-typescript':
         specifier: 7.24.7
         version: 7.24.7(@babel/core@7.24.7)
-      '@rollup/plugin-commonjs':
-        specifier: 26.0.1
-        version: 26.0.1(rollup@3.29.5)
-      '@rollup/plugin-json':
-        specifier: 6.1.0
-        version: 6.1.0(rollup@3.29.5)
-      '@rollup/plugin-node-resolve':
-        specifier: 15.3.0
-        version: 15.3.0(rollup@3.29.5)
-      '@rollup/plugin-terser':
-        specifier: 0.4.3
-        version: 0.4.3(rollup@3.29.5)
-      '@rollup/plugin-typescript':
-        specifier: 12.1.0
-        version: 12.1.0(rollup@3.29.5)(tslib@2.5.0)(typescript@5.0.4)
       '@types/clean-css':
         specifier: 4.2.11
         version: 4.2.11
@@ -575,12 +560,6 @@ importers:
       prettier:
         specifier: npm:wp-prettier@3.0.3
         version: wp-prettier@3.0.3
-      rollup:
-        specifier: 3.29.5
-        version: 3.29.5
-      rollup-plugin-polyfill-node:
-        specifier: 0.13.0
-        version: 0.13.0(rollup@3.29.5)
       source-map:
         specifier: 0.7.4
         version: 0.7.4
@@ -6659,15 +6638,6 @@ packages:
     engines: {node: '>=16.0.0 || 14 >= 14.17'}
     peerDependencies:
       rollup: ^2.68.0||^3.0.0||^4.0.0
-    peerDependenciesMeta:
-      rollup:
-        optional: true
-
-  '@rollup/plugin-inject@5.0.5':
-    resolution: {integrity: sha512-2+DEJbNBoPROPkgTDNe8/1YXWcqxbN5DTjASVIOx8HS+pITXushyNiBV56RB08zuptzz8gT3YfkqriTBVycepg==}
-    engines: {node: '>=14.0.0'}
-    peerDependencies:
-      rollup: ^1.20.0||^2.0.0||^3.0.0||^4.0.0
     peerDependenciesMeta:
       rollup:
         optional: true
@@ -12901,11 +12871,6 @@ packages:
     resolution: {integrity: sha512-vqQZ/UQowTW7VoiKEM5ouNW90wE5/GZLfdWuR0ELxyKOJUIaj+uismPZZaICU4DnWPVjnpCDDxEqwU7pcKY/PA==}
     engines: {node: '>=8.3'}
 
-  rollup-plugin-polyfill-node@0.13.0:
-    resolution: {integrity: sha512-FYEvpCaD5jGtyBuBFcQImEGmTxDTPbiHjJdrYIp+mFIwgXiXabxvKUK7ZT9P31ozu2Tqm9llYQMRWsfvTMTAOw==}
-    peerDependencies:
-      rollup: ^1.20.0 || ^2.0.0 || ^3.0.0 || ^4.0.0
-
   rollup-plugin-postcss@4.0.2:
     resolution: {integrity: sha512-05EaY6zvZdmvPUDi3uCcAQoESDcYnv8ogJJQRp6V5kZ6J6P7uAVJlrTZcaaA20wTH527YTnKfkAoPxWI/jPp4w==}
     engines: {node: '>=10'}
@@ -16579,14 +16544,6 @@ snapshots:
       estree-walker: 2.0.2
       glob: 10.4.1
       is-reference: 1.2.1
-      magic-string: 0.30.11
-    optionalDependencies:
-      rollup: 3.29.5
-
-  '@rollup/plugin-inject@5.0.5(rollup@3.29.5)':
-    dependencies:
-      '@rollup/pluginutils': 5.1.0(rollup@3.29.5)
-      estree-walker: 2.0.2
       magic-string: 0.30.11
     optionalDependencies:
       rollup: 3.29.5
@@ -25604,11 +25561,6 @@ snapshots:
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
-
-  rollup-plugin-polyfill-node@0.13.0(rollup@3.29.5):
-    dependencies:
-      '@rollup/plugin-inject': 5.0.5(rollup@3.29.5)
-      rollup: 3.29.5
 
   rollup-plugin-postcss@4.0.2(postcss@8.4.31):
     dependencies:

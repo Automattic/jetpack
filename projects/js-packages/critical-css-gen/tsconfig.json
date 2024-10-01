@@ -1,9 +1,9 @@
 {
 	"extends": "jetpack-js-tools/tsconfig.tsc.json",
-	"include": [ "src/browser.ts", "src/module.ts" ],
+	"include": [ "src/browser.ts", "src/playwright.ts" ],
 	"exclude": [ "node_modules/**/*" ],
 	"compilerOptions": {
-		"outDir": "./build-module",
+		"outDir": "./build",
 		"target": "es2019",
 		"sourceMap": true,
 		"allowJs": false,
