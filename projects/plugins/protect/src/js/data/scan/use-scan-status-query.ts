@@ -10,6 +10,37 @@ import {
 import { ScanStatus } from '../../types/scans';
 import { QUERY_SCAN_STATUS_KEY } from './../../constants';
 
+export const isRequestedScanNotStarted = ( status: ScanStatus ) => {
+	// If the scan status is not "idle", always return the fresh API data
+	if ( status.status !== 'idle' ) {
+		return false;
+	}
+
+	// Retrieve last scan timestamp from localStorage and convert to number
+	const lastRequestedScanTimestamp = Number( localStorage.getItem( 'last_requested_scan' ) );
+
+	// If there is no stored timestamp, return the API data
+	if ( ! lastRequestedScanTimestamp ) {
+		return false;
+	}
+
+	// Check if the last scan request is more than 5 minutes old
+	if ( lastRequestedScanTimestamp < Date.now() - 5 * 60 * 1000 ) {
+		return false;
+	}
+
+	// Convert the lastChecked date string to a Unix timestamp
+	const lastCheckedTimestamp = new Date( status.lastChecked + ' UTC' ).getTime();
+
+	// Check if the scan request is completed based on the last checked time
+	const isScanCompleted = lastCheckedTimestamp > lastRequestedScanTimestamp;
+	if ( isScanCompleted ) {
+		return false;
+	}
+
+	return true;
+};
+
 export const isScanInProgress = ( status: ScanStatus ) => {
 	// If there has never been a scan, and the scan status is idle or unavailable, then we must still be getting set up.
 	const scanIsInitializing =
@@ -46,35 +77,11 @@ export default function useScanStatusQuery( {
 			// Fetch scan status data from the API
 			const data = await API.getScanStatus();
 
-			// If the scan status is not "idle", always return the fresh API data
-			if ( data.status !== 'idle' ) {
-				return data;
-			}
-
-			// Retrieve last scan timestamp from localStorage and convert to number
-			const lastRequestedScanTimestamp = Number( localStorage.getItem( 'last_requested_scan' ) );
-
-			// If there is no stored timestamp, return the API data
-			if ( ! lastRequestedScanTimestamp ) {
-				return data;
-			}
-
-			// Check if the last scan request is more than 5 minutes old
-			const isLastRequestedScanTimestampExpired =
-				lastRequestedScanTimestamp < Date.now() - 5 * 60 * 1000;
-
-			// Convert the lastChecked date string to a Unix timestamp
-			const lastCheckedTimestamp = new Date( data.lastChecked + ' UTC' ).getTime();
-
-			// Check if the scan request is completed based on the last checked time
-			// TODO: Ensure the timestamps we are comparing are in the same timezone
-			const isScanCompleted = lastCheckedTimestamp > lastRequestedScanTimestamp;
-
-			// Get cached data for the query
-			const cachedData = queryClient.getQueryData( [ QUERY_SCAN_STATUS_KEY ] );
-
 			// Return cached data if conditions are met
-			if ( ! isLastRequestedScanTimestampExpired && ! isScanCompleted ) {
+			if ( isRequestedScanNotStarted( data ) ) {
+				// Get cached data for the query
+				const cachedData = queryClient.getQueryData( [ QUERY_SCAN_STATUS_KEY ] );
+
 				return cachedData;
 			}
 
