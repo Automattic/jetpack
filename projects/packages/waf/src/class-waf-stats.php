@@ -32,10 +32,10 @@ class Waf_Stats {
 	 *
 	 * @return int The number of valid IP addresses in the allow list
 	 *
-	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Waf\Waf_Blocklog_Manager API instead.
+	 * @deprecated 0.20.1 Use Automattic\Jetpack\Waf\Waf_Blocklog_Manager API instead.
 	 */
 	public static function get_ip_allow_list_count() {
-		_deprecated_function( __METHOD__, 'waf-$$next-version$$', 'Automattic\Jetpack\Waf\Waf_Blocklog_Manager' );
+		_deprecated_function( __METHOD__, 'waf-0.20.1', 'Automattic\Jetpack\Waf\Waf_Blocklog_Manager' );
 
 		$ip_allow_list = get_option( Waf_Rules_Manager::IP_ALLOW_LIST_OPTION_NAME );
 
@@ -53,10 +53,10 @@ class Waf_Stats {
 	 *
 	 * @return int The number of valid IP addresses in the block list
 	 *
-	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Waf\Waf_Blocklog_Manager API instead.
+	 * @deprecated 0.20.1 Use Automattic\Jetpack\Waf\Waf_Blocklog_Manager API instead.
 	 */
 	public static function get_ip_block_list_count() {
-		_deprecated_function( __METHOD__, 'waf-$$next-version$$', 'Automattic\Jetpack\Waf\Waf_Blocklog_Manager' );
+		_deprecated_function( __METHOD__, 'waf-0.20.1', 'Automattic\Jetpack\Waf\Waf_Blocklog_Manager' );
 
 		$ip_block_list = get_option( Waf_Rules_Manager::IP_BLOCK_LIST_OPTION_NAME );
 
