@@ -17,12 +17,12 @@ export default function useFixersMutation(): UseMutationResult {
 		mutationFn: API.fixThreats,
 		onSuccess: data => {
 			// Handle a top level error
-			if ( data?.error ) {
+			if ( data.ok === false ) {
 				throw new Error( data.error );
 			}
 
-			const isThreatLevelError = Object.values( data?.threats ).every(
-				( threat: { error?: string } ) => Boolean( threat?.error )
+			const isThreatLevelError = Object.values( data.threats ).every(
+				( threat: { error?: string } ) => Boolean( threat.error )
 			);
 
 			// Handle a threat level error
