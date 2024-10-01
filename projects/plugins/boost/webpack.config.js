@@ -5,34 +5,6 @@ const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpac
 // eslint-disable-next-line import/no-extraneous-dependencies
 const CopyPlugin = require( 'copy-webpack-plugin' );
 
-const isProduction = process.env.NODE_ENV === 'production';
-
-const cssGenPath = path.dirname(
-	path.dirname( require.resolve( '@automattic/jetpack-critical-css-gen' ) )
-);
-
-let cssGenCopyPatterns;
-
-if ( isProduction ) {
-	cssGenCopyPatterns = [
-		{
-			from: path.join( cssGenPath, 'build-browser/bundle.js' ),
-			to: 'critical-css-gen.js',
-		},
-	];
-} else {
-	cssGenCopyPatterns = [
-		{
-			from: path.join( cssGenPath, 'build-browser/bundle.full.js' ),
-			to: 'critical-css-gen.js',
-		},
-		{
-			from: path.join( cssGenPath, 'build-browser/bundle.full.js.map' ),
-			to: 'bundle.full.js.map',
-		},
-	];
-}
-
 const imageGuideCopyPatterns = [
 	{
 		from: path.join(
@@ -94,7 +66,6 @@ module.exports = [
 				},
 				DependencyExtractionPlugin: { injectPolyfill: true },
 			} ),
-			new CopyPlugin( { patterns: cssGenCopyPatterns } ),
 			new webpack.ProvidePlugin( {
 				process: require.resolve( 'process/browser' ),
 			} ),
