@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.2] - 2024-09-30
+### Added
+- Admin dashboard: Disable portfolio toggle if theme supports portfolio and site is WoA [#39508]
+
 ## [0.6.1] - 2024-09-23
 ### Fixed
 - Portfolios: Ensure these are enabled and working properly on themes that support portfolios [#39431]
@@ -122,6 +126,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Add wordpress folder on gitignore. [#37177]
 
+[0.6.2]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.6.1...v0.6.2
 [0.6.1]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.6.0...v0.6.1
 [0.6.0]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.5.6...v0.6.0
 [0.5.6]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.5.5...v0.5.6

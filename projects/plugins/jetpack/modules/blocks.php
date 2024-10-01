@@ -22,7 +22,7 @@ add_action( 'jetpack_activate_module_blocks', 'jetpack_blocks_activate_module' )
  * We'll leave that in place so _until the module is activated_ we will be sure to respect the previous
  * setting.
  *
- * @since $$next-version$$
+ * @since 13.9
  * @return void
  */
 function jetpack_blocks_activate_module() {

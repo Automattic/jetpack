@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fixed a bug where the purchases and highlights APIs were being called without a valid Jetpack connection

@@ -8,4 +8,4 @@
  * @package automattic/jetpack
  */
 
-_deprecated_file( __FILE__, 'jetpack-$$next-version$$' );
+_deprecated_file( __FILE__, 'jetpack-13.9' );

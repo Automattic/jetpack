@@ -18,7 +18,7 @@ abstract class Jetpack_Admin_Page {
 	 * Jetpack Object.
 	 *
 	 * @var Jetpack
-	 * @deprecated $$next-version$$ Use `Jetpack::init()` instead.
+	 * @deprecated 13.9 Use `Jetpack::init()` instead.
 	 */
 	public $jetpack;
 
@@ -61,7 +61,7 @@ abstract class Jetpack_Admin_Page {
 		 * Keeping it for backward compatibility in case the `$jetpack` property is still in use.
 		 * To be removed.
 		 *
-		 * @deprecated $$next-version$$
+		 * @deprecated 13.9
 		 */
 		add_action( 'jetpack_loaded', array( $this, 'on_jetpack_loaded' ) );
 	}
@@ -69,7 +69,7 @@ abstract class Jetpack_Admin_Page {
 	/**
 	 * Runs on Jetpack being ready to load its packages.
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 13.9
 	 *
 	 * @param Jetpack $jetpack object.
 	 */
@@ -145,7 +145,7 @@ abstract class Jetpack_Admin_Page {
 	/**
 	 * Doesn't do anything anymore.
 	 *
-	 * @deprecated $$next-version$$ No longer used.
+	 * @deprecated 13.9 No longer used.
 	 */
 	public function admin_help() {}
 

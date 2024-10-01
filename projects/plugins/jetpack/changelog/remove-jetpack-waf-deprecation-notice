@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Removed deprecation notice as the firewall feature will not be removed in the next release.
