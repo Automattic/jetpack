@@ -79,7 +79,6 @@ export default function useScanStatusQuery( {
 
 			// Return cached data if conditions are met
 			if ( isRequestedScanNotStarted( data ) ) {
-				// Get cached data for the query
 				return queryClient.getQueryData( [ QUERY_SCAN_STATUS_KEY ] );
 			}
 
