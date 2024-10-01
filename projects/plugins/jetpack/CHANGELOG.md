@@ -2,7 +2,7 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 13.9-beta - 2024-09-30
+## 13.9 - 2024-10-01
 ### Major Enhancements
 - Jetpack plugin: Remove the 'WordPress.com Toolbar' module. [#39406]
 
