@@ -5,6 +5,11 @@
  * @package automattic/jetpack-connection
  */
 
+if ( function_exists( 'is_admin' ) && ! is_admin() ) {
+	// Only initialize the assets in the admin area, or if we aren't quite sure about it.
+	return;
+}
+
 // If WordPress's plugin API is available already, use it. If not,
 // drop data into `$wp_filter` for `WP_Hook::build_preinitialized_hooks()`.
 if ( function_exists( 'add_action' ) ) {
