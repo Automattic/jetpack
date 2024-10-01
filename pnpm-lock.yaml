@@ -1090,9 +1090,6 @@ importers:
       '@types/wordpress__editor':
         specifier: 13.6.8
         version: 13.6.8(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@types/wordpress__media-utils':
-        specifier: 4.14.4
-        version: 4.14.4(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/babel-plugin-import-jsx-pragma':
         specifier: 5.8.1
         version: 5.8.1(@babel/core@7.24.7)
