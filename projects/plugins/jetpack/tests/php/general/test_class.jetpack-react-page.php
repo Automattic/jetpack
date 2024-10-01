@@ -15,8 +15,6 @@ class WP_Test_Jetpack_Admin_Menu extends WP_UnitTestCase {
 			)
 		);
 		$user_id->add_cap( 'jetpack_connect_user' );
-		$user_id->add_cap( 'jetpack_manage_modules' );
-		$user_id->add_cap( 'jetpack_configure_modules' );
 		wp_set_current_user( $user_id->ID );
 
 		// Mock a connection
@@ -33,8 +31,6 @@ class WP_Test_Jetpack_Admin_Menu extends WP_UnitTestCase {
 		Jetpack_Options::delete_option( array( 'id', 'user_tokens' ) );
 		$user_id = wp_get_current_user();
 		$user_id->remove_cap( 'jetpack_connect_user' );
-		$user_id->remove_cap( 'jetpack_manage_modules' );
-		$user_id->remove_cap( 'jetpack_configure_modules' );
 	}
 
 	public function test_jetpack_admin_menu_order() {
