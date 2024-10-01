@@ -80,9 +80,8 @@ export default function useScanStatusQuery( {
 			// Return cached data if conditions are met
 			if ( isRequestedScanNotStarted( data ) ) {
 				// Get cached data for the query
-				const cachedData = queryClient.getQueryData( [ QUERY_SCAN_STATUS_KEY ] );
+				return queryClient.getQueryData( [ QUERY_SCAN_STATUS_KEY ] );
 
-				return cachedData;
 			}
 
 			// If cached data is not applicable or expired, return the fresh API data
