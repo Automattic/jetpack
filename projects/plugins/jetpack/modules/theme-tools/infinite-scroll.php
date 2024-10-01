@@ -8,7 +8,7 @@
 /**
  * The function doesn't do anything.
  *
- * @deprecated $$next-version$$
+ * @deprecated 13.9
  *
  * @return void
  */
@@ -17,7 +17,7 @@ function jetpack_load_infinite_scroll_annotation() {}
 /**
  * Prevent IS from being activated if theme doesn't support it
  *
- * @deprecated $$next-version$$ The function is no longer in use.
+ * @deprecated 13.9 The function is no longer in use.
  *
  * @filter jetpack_can_activate_infinite-scroll
  * @return bool

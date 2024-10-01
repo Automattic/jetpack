@@ -445,7 +445,7 @@ class Jetpack_Gutenberg {
 		 * Defaults to true if (connected or in offline mode) and the Blocks module is active.
 		 *
 		 * @since 6.5.0
-		 * @since $$next-version$$ Filter is able to activate or deactivate Gutenberg blocks.
+		 * @since 13.9 Filter is able to activate or deactivate Gutenberg blocks.
 		 *
 		 * @param bool true Whether to load Gutenberg blocks
 		 */

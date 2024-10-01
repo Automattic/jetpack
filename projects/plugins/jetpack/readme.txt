@@ -326,14 +326,38 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.9-a.7 - 2024-09-23
+### 13.9-beta - 2024-09-30
+#### Major Enhancements
+- Jetpack plugin: Remove the 'WordPress.com Toolbar' module.
+
 #### Enhancements
+- Blocks: Transition from an option to a module to improve caching.
 - Jetpack AI: Add AI SEO title optimization.
+- Jetpack Stats: Do not check for capabilities if the user is not signed in when deciding whether to show the admin bar widget.
+- My Jetpack: Visual update to the GlobalNotice component for better mobile presentation.
+- Performance: Set the concatenated CSS to off by default. The era where this was helpful is passing.
+- SSO: Remove legacy codebase in favor of the newer SSO codebase introduced in Jetpack 13.5.
+
+#### Improved compatibility
+- Dashboard: Disable portfolio toggle if theme supports portfolio for specific environments.
 
 #### Bug fixes
-- Shortcode: Fix the YouTube URL for the private videos.
-- Social: Fix social previews button sometimes not fitting all the text.
+- Ai Assistant: Do not show Jetpack AI excerpt UI outside of correct context.
+- AI Assistant: Fix Write Brief highlight position on spelling mistake following ignored special word.
+- AI Assistant: Remove autofocus on extended blocks while previewing.
+- AI Content Lens: Fix the feature of the AI Content Lens is gone.
 - Blocks: Prevent Memberships blocks from being registered when the site is not connected to Jetpack.
+- Dashboard: Display the yearly Stats plan in the Jetpack dashboard immediately after you've purchased the plan.
+- Help Center: Fix the icon color when previewing color scheme.
+- Hosting Configuration: Make the menu title under the settings the same as the destination.
+- Jetpack REST API: Fix missing requirement in admin-menu endpoint.
+- Shortcode: Fix the YouTube URL embedding failure due to the trailing question mark of the ID.
+- Shortcode: Fix the YouTube URL for the private videos.
+- Shortcode: Fix the YouTube URL for the `/embed` type.
+- Sidebar: Show correct product name for "VaultPress Backup".
+- Social: Fix social previews button sometimes not fitting all the text.
+- Subscriptions: Fix added slashes in the Follow Blog widget.
+- WooCommerce Analytics: Check whether a constant is defined before attempting to use it, for compatibility with WooCommerce <8.4.0.
 
 --------
 
