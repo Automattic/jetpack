@@ -326,7 +326,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.9-beta - 2024-09-30
+### 13.9 - 2024-10-01
 #### Major Enhancements
 - Jetpack plugin: Remove the 'WordPress.com Toolbar' module.
 
