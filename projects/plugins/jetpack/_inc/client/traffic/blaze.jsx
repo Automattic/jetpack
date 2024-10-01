@@ -1,7 +1,6 @@
 import { getRedirectUrl, ToggleControl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import Card from 'components/card';
-import ConnectUserBar from 'components/connect-user-bar';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
@@ -15,6 +14,7 @@ import {
 	shouldInitializeBlaze,
 } from 'state/initial-state';
 import { getModule } from 'state/modules';
+import { FEATURE_JETPACK_BLAZE } from '../lib/plans/constants';
 
 const trackDashboardClick = () => {
 	analytics.tracks.recordJetpackClick( 'blaze-dashboard' );
@@ -102,7 +102,13 @@ function Blaze( props ) {
 	};
 
 	return (
-		<SettingsCard { ...props } header={ __( 'Blaze', 'jetpack' ) } module="blaze" hideButton>
+		<SettingsCard
+			{ ...props }
+			header={ __( 'Blaze', 'jetpack' ) }
+			module="blaze"
+			hideButton
+			feature={ FEATURE_JETPACK_BLAZE }
+		>
 			<SettingsGroup
 				module={ { module: 'blaze' } }
 				disableInOfflineMode
@@ -115,13 +121,6 @@ function Blaze( props ) {
 				{ blazeToggle() }
 			</SettingsGroup>
 			{ canInit && blazeActive && ! isOfflineMode && blazeDashboardLink() }
-			{ ! canInit && reason === 'user_not_connected' && ! isOfflineMode && (
-				<ConnectUserBar
-					feature="blaze"
-					featureLabel={ __( 'Blaze', 'jetpack' ) }
-					text={ __( 'Connect to set up campaigns and promote your content.', 'jetpack' ) }
-				/>
-			) }
 		</SettingsCard>
 	);
 }
