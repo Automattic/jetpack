@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-webpack-config",
-	"version": "3.4.1",
+	"version": "3.4.2",
 	"description": "Library of pieces for webpack config in Jetpack projects.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/webpack-config/#readme",
 	"bugs": {
@@ -35,7 +35,7 @@
 		"css-loader": "6.5.1",
 		"css-minimizer-webpack-plugin": "5.0.1",
 		"fork-ts-checker-webpack-plugin": "9.0.2",
-		"mini-css-extract-plugin": "2.4.5",
+		"mini-css-extract-plugin": "2.9.1",
 		"terser-webpack-plugin": "5.3.3",
 		"thread-loader": "3.0.4"
 	},

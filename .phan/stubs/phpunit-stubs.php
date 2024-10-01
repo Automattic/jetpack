@@ -1,6 +1,6 @@
 <?php
 /**
- * Stubs automatically generated from PHPUnit 9.6.20
+ * Stubs automatically generated from PHPUnit 9.6.21
  * using the definition file `tools/stubs/phpunit-stub-defs.php` in the Jetpack monorepo.
  *
  * Do not edit this directly! Run tools/stubs/update-stubs.sh to regenerate it.
@@ -7152,7 +7152,7 @@ abstract class UnaryOperator extends \PHPUnit\Framework\Constraint\Operator
     {
     }
     /**
-     * Transforms string returned by the memeber constraint's toString() or
+     * Transforms string returned by the member constraint's toString() or
      * failureDescription() such that it reflects constraint's participation in
      * this expression.
      *

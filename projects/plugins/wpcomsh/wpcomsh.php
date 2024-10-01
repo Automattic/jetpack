@@ -2,14 +2,14 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 5.8.0
+ * Version: 5.10.0
  * Author: Automattic
  * Author URI: http://automattic.com/
  *
  * @package wpcomsh
  */
 
-define( 'WPCOMSH_VERSION', '5.8.0' );
+define( 'WPCOMSH_VERSION', '5.10.0' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -132,6 +132,9 @@ require_once __DIR__ . '/notices/php-version-notices.php';
 require_once __DIR__ . '/notices/media-library-private-site-cdn-notice.php';
 require_once __DIR__ . '/notices/anyone-can-register-notice.php';
 require_once __DIR__ . '/notices/feature-moved-to-jetpack-notices.php';
+
+// Performance Profiler
+require_once __DIR__ . '/performance-profiler/performance-profiler.php';
 
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
 	require_once __DIR__ . '/class-wpcomsh-cli-commands.php';
@@ -670,13 +673,3 @@ if (
 	0 === strncmp( $_SERVER['REQUEST_URI'], '/wp-admin/widgets.php?', strlen( '/wp-admin/widgets.php?' ) ) ) { //phpcs:ignore WordPress.Security.ValidatedSanitizedInput
 	add_action( 'plugins_loaded', 'wpcomsh_avoid_proxied_v2_banner' );
 }
-
-// Temporary feature flag for the new Reading Settings page.
-add_filter( 'calypso_use_modernized_reading_settings', '__return_true' );
-
-/**
- * Temporary feature flags for the new Newsletter and podcasting Settings pages,
- * its removal should be preceded by a removal of the filter's usage in Jetpack: https://github.com/Automattic/jetpack/pull/32146
- */
-add_filter( 'calypso_use_newsletter_settings', '__return_true' );
-add_filter( 'calypso_use_podcasting_settings', '__return_true' );

@@ -57,25 +57,18 @@ function wpcom_enqueue_admin_bar_assets() {
 	);
 
 	/**
-	 * Hotfix the order of the admin menu items due to WP 6.6
-	 * See https://core.trac.wordpress.org/ticket/61615.
+	 * Force the Atomic debug bar menu to be the first menu at the top-right.
 	 */
-	$wp_version = get_bloginfo( 'version' );
-	if ( version_compare( $wp_version, '6.6', '<=' ) && version_compare( $wp_version, '6.6.RC', '>=' ) ) {
+	if ( defined( 'AT_PROXIED_REQUEST' ) && AT_PROXIED_REQUEST ) {
 		wp_add_inline_style(
 			'wpcom-admin-bar',
 			<<<CSS
 				#wpadminbar .quicklinks #wp-admin-bar-top-secondary {
 					display: flex;
-					flex-direction: row-reverse;
 				}
 
-				#wpadminbar .quicklinks #wp-admin-bar-top-secondary #wp-admin-bar-search {
+				#wpadminbar .quicklinks #wp-admin-bar-top-secondary #wp-admin-bar-debug-bar {
 					order: -1;
-				}
-
-				#wpadminbar .quicklinks #wp-admin-bar-top-secondary #wp-admin-bar-help-center {
-					order: 1;
 				}
 CSS
 		);
@@ -176,8 +169,7 @@ function wpcom_add_shopping_cart( $wp_admin_bar ) {
 	// Get the current blog ID.
 	$blog_id = get_current_blog_id();
 
-	// Retrieve the current user's shopping cart for the current blog.
-	$cart = \Store_Shopping_Cart::get_existing_cart(
+	$is_empty = \Store_Shopping_Cart::is_cart_empty(
 		array(
 			'blog_id' => $blog_id,
 			'user_id' => get_current_user_id(),
@@ -185,7 +177,7 @@ function wpcom_add_shopping_cart( $wp_admin_bar ) {
 	);
 
 	// If the cart is empty (no products), do not add the cart menu.
-	if ( ! $cart->get_product_slugs() ) {
+	if ( $is_empty ) {
 		return;
 	}
 

@@ -271,7 +271,7 @@ class Waf_Runtime {
 			$reason = $this->sanitize_output( $reason );
 		}
 
-		$this->write_blocklog( $rule_id, $reason );
+		Waf_Blocklog_Manager::write_blocklog( $rule_id, $reason );
 		error_log( "Jetpack WAF Blocked Request\t$action\t$rule_id\t$status_code\t$reason" );
 		header( "X-JetpackWAF-Blocked: $status_code - rule $rule_id" );
 		if ( defined( 'JETPACK_WAF_MODE' ) && 'normal' === JETPACK_WAF_MODE ) {
@@ -279,106 +279,6 @@ class Waf_Runtime {
 			header( $protocol . ' 403 Forbidden', true, $status_code );
 			die( "rule $rule_id - reason $reason" );
 		}
-	}
-
-	/**
-	 * Get the headers for logging purposes.
-	 */
-	public function get_request_headers() {
-		$all_headers     = getallheaders();
-		$exclude_headers = array( 'Authorization', 'Cookie', 'Proxy-Authorization', 'Set-Cookie' );
-
-		foreach ( $exclude_headers as $header ) {
-			unset( $all_headers[ $header ] );
-		}
-
-		return $all_headers;
-	}
-
-	/**
-	 * Write block logs. We won't write to the file if it exceeds 100 mb.
-	 *
-	 * @param string $rule_id Rule id.
-	 * @param string $reason Block reason.
-	 */
-	public function write_blocklog( $rule_id, $reason ) {
-		$log_data                 = array();
-		$log_data['rule_id']      = $rule_id;
-		$log_data['reason']       = $reason;
-		$log_data['timestamp']    = gmdate( 'Y-m-d H:i:s' );
-		$log_data['request_uri']  = isset( $_SERVER['REQUEST_URI'] ) ? \stripslashes( $_SERVER['REQUEST_URI'] ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash
-		$log_data['user_agent']   = isset( $_SERVER['HTTP_USER_AGENT'] ) ? \stripslashes( $_SERVER['HTTP_USER_AGENT'] ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash
-		$log_data['referer']      = isset( $_SERVER['HTTP_REFERER'] ) ? \stripslashes( $_SERVER['HTTP_REFERER'] ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash
-		$log_data['content_type'] = isset( $_SERVER['CONTENT_TYPE'] ) ? \stripslashes( $_SERVER['CONTENT_TYPE'] ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash
-		$log_data['get_params']   = json_encode( $_GET );
-
-		if ( defined( 'JETPACK_WAF_SHARE_DEBUG_DATA' ) && JETPACK_WAF_SHARE_DEBUG_DATA ) {
-			$log_data['post_params'] = json_encode( $_POST );
-			$log_data['headers']     = $this->get_request_headers();
-		}
-
-		if ( defined( 'JETPACK_WAF_SHARE_DATA' ) && JETPACK_WAF_SHARE_DATA ) {
-			$file_path   = JETPACK_WAF_DIR . '/waf-blocklog';
-			$file_exists = file_exists( $file_path );
-
-			if ( ! $file_exists || filesize( $file_path ) < ( 100 * 1024 * 1024 ) ) {
-				$fp = fopen( $file_path, 'a+' );
-
-				if ( $fp ) {
-					try {
-						fwrite( $fp, json_encode( $log_data ) . "\n" );
-					} finally {
-						fclose( $fp );
-					}
-				}
-			}
-		}
-
-		$this->write_blocklog_row( $log_data );
-	}
-
-	/**
-	 * Write block logs to database.
-	 *
-	 * @param array $log_data Log data.
-	 */
-	private function write_blocklog_row( $log_data ) {
-		$conn = $this->connect_to_wordpress_db();
-
-		if ( ! $conn ) {
-			return;
-		}
-
-		global $table_prefix;
-
-		$statement = $conn->prepare( "INSERT INTO {$table_prefix}jetpack_waf_blocklog(reason,rule_id, timestamp) VALUES (?, ?, ?)" );
-		if ( false !== $statement ) {
-			$statement->bind_param( 'sis', $log_data['reason'], $log_data['rule_id'], $log_data['timestamp'] );
-			$statement->execute();
-
-			if ( $conn->insert_id > 100 ) {
-				$conn->query( "DELETE FROM {$table_prefix}jetpack_waf_blocklog ORDER BY log_id LIMIT 1" );
-			}
-		}
-	}
-
-	/**
-	 * Connect to WordPress database.
-	 */
-	private function connect_to_wordpress_db() {
-		if ( ! file_exists( JETPACK_WAF_WPCONFIG ) ) {
-			return;
-		}
-
-		require_once JETPACK_WAF_WPCONFIG;
-		$conn = new \mysqli( DB_HOST, DB_USER, DB_PASSWORD, DB_NAME ); // phpcs:ignore WordPress.DB.RestrictedClasses.mysql__mysqli
-
-		if ( $conn->connect_error ) {
-			error_log( 'Could not connect to the database:' . $conn->connect_error );
-			return null;
-		}
-
-		return $conn;
 	}
 
 	/**
@@ -703,8 +603,8 @@ class Waf_Runtime {
 		$array_length = count( $array );
 
 		for ( $i = 0; $i < $array_length; $i++ ) {
-			// Check if the IP matches a provided range.
-			$range = explode( '-', $array[ $i ] );
+			// Check if the IP matches a provided range or CIDR notation.
+			$range = strpos( $array[ $i ], '/' ) !== false ? array( $array[ $i ], null ) : explode( '-', $array[ $i ] );
 			if ( count( $range ) === 2 ) {
 				if ( IP_Utils::ip_address_is_in_range( $real_ip, $range[0], $range[1] ) ) {
 					return true;

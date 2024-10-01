@@ -120,7 +120,6 @@ export function useSupportedServices(): Array< SupportedService > {
 			...availableServices.threads,
 			icon: props => <SocialServiceIcon serviceName="threads" { ...props } />,
 			description: __( 'Share posts to your Threads feed.', 'jetpack' ),
-			badges: [ badgeNew ],
 			examples: [
 				() => (
 					<>
@@ -202,6 +201,23 @@ export function useSupportedServices(): Array< SupportedService > {
 					<>
 						{ __(
 							'To share to Mastodon please enter your Mastodon username below, then click connect.',
+							'jetpack'
+						) }
+					</>
+				),
+			],
+		},
+		{
+			...availableServices.bluesky,
+			needsCustomInputs: true,
+			icon: props => <SocialServiceIcon serviceName="bluesky" { ...props } />,
+			badges: [ badgeNew ],
+			description: __( 'Share with your network.', 'jetpack' ),
+			examples: [
+				() => (
+					<>
+						{ __(
+							'To share to Bluesky please enter your Bluesky handle and app password below, then click connect.',
 							'jetpack'
 						) }
 					</>

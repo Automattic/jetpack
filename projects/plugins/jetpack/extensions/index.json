@@ -75,11 +75,11 @@
 	],
 	"beta": [
 		"google-docs-embed",
-		"launchpad-save-modal",
 		"recipe",
 		"v6-video-frame-poster",
 		"videopress/video-chapters",
-		"ai-assistant-backend-prompts"
+		"ai-assistant-backend-prompts",
+		"ai-logo-style-selector-support"
 	],
 	"experimental": [],
 	"no-post-editor": [

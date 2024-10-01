@@ -42,47 +42,6 @@ function wpcomsh_remove_gutenberg_experimental_menu() {
 }
 
 /**
- * Updates the site_logo option when the custom_logo theme-mod gets updated.
- *
- * Registered on the `pre_set_theme_mod_custom_logo` hook.
- *
- * @param  mixed $value Attachment ID of the custom logo or an empty value.
- * @return mixed
- */
-function wpcomsh_sync_custom_logo_to_site_logo( $value ) {
-	if ( empty( $value ) ) {
-		delete_option( 'site_logo' );
-	} else {
-		update_option( 'site_logo', $value );
-	}
-
-	return $value;
-}
-
-/**
- * Hotfix a Gutenberg bug that prevents updating a logo from the Customizer.
- *
- * These fixes are from https://github.com/WordPress/gutenberg/pull/33179, and can be
- * removed when that change is released in Gutenberg and all Atomic sites are updated.
- *
- * Ported from wpcom hotfix: D63662-code
- */
-function wpcomsh_hotfix_gutenberg_logo_bug() {
-	// Only add the filter if Gutenberg is active and the current version is missing the filter.
-	if (
-		( defined( 'GUTENBERG_VERSION' ) || defined( 'GUTENBERG_DEVELOPMENT_MODE' ) ) &&
-		false === has_action( 'pre_set_theme_mod_custom_logo', 'gutenberg__sync_custom_logo_to_site_logo' )
-	) {
-		add_filter( 'pre_set_theme_mod_custom_logo', 'wpcomsh_sync_custom_logo_to_site_logo' );
-	}
-
-	// Remove a function that can inadvertently delete your logo.
-	remove_action( 'update_option_site_logo', 'gutenberg__sync_site_logo_to_custom_logo', 10 );
-}
-// Wait until after Gutenberg has registered the Site Logo block on the `init` action, priority 10.
-add_action( 'init', 'wpcomsh_hotfix_gutenberg_logo_bug', 11 );
-
-/**
  * Hotfix a Gutenberg bug that inadvertently loads wp-reset-editor-syles stylesheet in the
  * iframed site editor.
  *

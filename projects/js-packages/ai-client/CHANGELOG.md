@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.20.0] - 2024-09-30
+### Added
+- AI Client: add support for showStyleSelector on logo generator and use-image-generator [#39530]
+
+## [0.19.0] - 2024-09-23
+### Changed
+- AI Client: Don't send a default style to jetpack-ai-image endpoint, default is handled in backend and we need to not send it until we're ready for it to be a user option. [#39494]
+- Jetpack AI: Point upgrade links and buttons to checkout instead of product interstitial. [#39469]
+- Logo generator: Get selection from the prompt's document rather than the global `window`. [#39364]
+
 ## [0.18.1] - 2024-09-10
 ### Changed
 - Updated package dependencies. [#39302]
@@ -409,6 +419,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies. [#31659]
 - Updated package dependencies. [#31785]
 
+[0.20.0]: https://github.com/Automattic/jetpack-ai-client/compare/v0.19.0...v0.20.0
+[0.19.0]: https://github.com/Automattic/jetpack-ai-client/compare/v0.18.1...v0.19.0
 [0.18.1]: https://github.com/Automattic/jetpack-ai-client/compare/v0.18.0...v0.18.1
 [0.18.0]: https://github.com/Automattic/jetpack-ai-client/compare/v0.17.0...v0.18.0
 [0.17.0]: https://github.com/Automattic/jetpack-ai-client/compare/v0.16.4...v0.17.0

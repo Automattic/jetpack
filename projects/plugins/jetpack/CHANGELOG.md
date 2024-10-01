@@ -2,6 +2,65 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 13.9-beta - 2024-09-30
+### Major Enhancements
+- Jetpack plugin: Remove the 'WordPress.com Toolbar' module. [#39406]
+
+### Enhancements
+- Blocks: Transition from an option to a module to improve caching. [#39449]
+- My Jetpack: Visual update to the GlobalNotice component for better mobile presentation. [#39537]
+- Performance: Set the concatenated CSS to off by default. The era where this was helpful is passing. [#39486]
+
+### Improved compatibility
+- Dashboard: Disable portfolio toggle if theme supports portfolio for specific environments. [#39508]
+
+### Bug fixes
+- Shortcode: Fix the YouTube URL for the `/embed` type. [#39502]
+- Subscriptions: Fix added slashes in the Follow Blog widget. [#39433]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Blocks: Fix 'Division by zero' fatal error in the Story block. [#39577]
+- Dashboard: Add icons for all product cards. [#39513]
+- Dashboard: Clean and deprecate unused functionality on Jetpack admin pages. [#39547]
+- Dashboard: Remove deprecated IDC flag from admin pages. [#39531]
+- Dashboard: Remove user connection nudges where they aren't needed. Add user connection nudges where needed. [#39533]
+- General: Added test instructions for Jetpack 13.9. [#39481]
+- Infinite scroll: Remove unused code. [#39570]
+- Jetpack AI: Add the beta flag to support styles dropdown on the logo generator. [#39510]
+- Jetpack AI: Pass prop/flag to `showStyleSelector` on the logo generator modal. [#39530]
+- Jetpack AI: Show button label on logo block toolbar if site's logo is empty. [#39550]
+- Jetpack WAF: Removed deprecation notice as the firewall feature will not be removed in the next release. [#39568]
+- Social: Remove excessive hook from social logos and genericons. [#39564]
+- Stats: Remove user connection nudge from Stats module on the dashboard. [#39496]
+- Title Optimization: improve button behaviors when handling errors. [#39554]
+- Write Brief: Turn spelling mistakes and long sentences on by default when the tool is enabled. [#39495]
+
+## 13.9-a.7 - 2024-09-23
+### Enhancements
+- Jetpack AI: Add AI SEO title optimization. [#39363]
+
+### Bug fixes
+- Shortcode: Fix the YouTube URL for the private videos. [#39454]
+- Social: Fix social previews button sometimes not fitting all the text. [#39430]
+- Blocks: Prevent Memberships blocks from being registered when the site is not connected to Jetpack. [#39390]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Blocks: Get active element or selection from target element's document instead of the global `document`. [#39364]
+- Build: Do not ship TypeScript files in the production version of Jetpack. [#39428]
+- Connection: Move features enabled rest endpoint into the Jetpack plugin. [#39475]
+- Email preview: Fix disabling pointer events preventing scroll in Firefox. [#39457]
+- General: Create the 'features/available' REST endpoint. [#39442]
+- General: Send non-connected users to a "connect after checkout" flow. [#39444]
+- General: Use React properties rather than pass-throughs (e.g. `className` rather than `class`). [#39414]
+- Jetpack AI: Point upgrade links and buttons to checkout instead of product interstitial. [#39469]
+- Jetpack AI: Remove style parameter from image generation requests until we mean it. [#39494]
+- Jetpack AI: Use custom placeholders on the Jetpack Form AI extension input component. [#39482]
+- Removed launchpad-save-modal. [#39429]
+- REST API: Added social share status endpoint for WPCOM. [#39490]
+- SubscribeBlock: Fix white-space issues. [#39478]
+- Subscription widget: Fix PHP warnings. [#39458]
+- WP.com: Ensure portfolios are enabled and working properly on themes that support portfolios. [#39431]
+
 ## 13.9-a.5 - 2024-09-16
 ### Enhancements
 - Jetpack Stats: Do not check for capabilities if the user is not signed in when deciding whether to show the admin bar widget. [#39402]

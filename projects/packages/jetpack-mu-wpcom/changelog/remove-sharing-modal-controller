@@ -1,0 +1,4 @@
+Significance: minor
+Type: removed
+
+Removed import of the class-wp-rest-wpcom-block-editor-sharing-modal-controller.php controller

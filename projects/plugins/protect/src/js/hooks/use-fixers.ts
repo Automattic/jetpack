@@ -1,15 +1,28 @@
-import { useMemo } from 'react';
+import { useCallback } from 'react';
 import useFixersMutation from '../data/scan/use-fixers-mutation';
 import useFixersQuery from '../data/scan/use-fixers-query';
 import useScanStatusQuery from '../data/scan/use-scan-status-query';
-import { FixersStatus } from '../types/fixers';
+import { FixersStatus, ThreatFixStatus } from '../types/fixers';
+
+const FIXER_IS_STALE_THRESHOLD = 1000 * 60 * 60 * 24; // 24 hours
+
+export const fixerTimestampIsStale = ( lastUpdatedTimestamp: string ) => {
+	const now = new Date();
+	const lastUpdated = new Date( lastUpdatedTimestamp );
+	return now.getTime() - lastUpdated.getTime() >= FIXER_IS_STALE_THRESHOLD;
+};
+
+export const fixerStatusIsStale = ( fixerStatus: ThreatFixStatus ) => {
+	return fixerStatus.status === 'in_progress' && fixerTimestampIsStale( fixerStatus.last_updated );
+};
 
 type UseFixersResult = {
 	fixableThreatIds: number[];
-	fixInProgressThreatIds: number[];
 	fixersStatus: FixersStatus;
 	fixThreats: ( threatIds: number[] ) => Promise< unknown >;
 	isLoading: boolean;
+	isThreatFixInProgress: ( threatId: number ) => boolean;
+	isThreatFixStale: ( threatId: number ) => boolean;
 };
 
 /**
@@ -25,22 +38,27 @@ export default function useFixers(): UseFixersResult {
 		usePolling: true,
 	} );
 
-	// List of threat IDs that are currently being fixed.
-	const fixInProgressThreatIds = useMemo(
-		() =>
-			Object.entries( fixersStatus?.threats || {} )
-				.filter(
-					( [ , threat ]: [ string, { status?: string } ] ) => threat.status === 'in_progress'
-				)
-				.map( ( [ id ] ) => parseInt( id ) ),
+	const isThreatFixInProgress = useCallback(
+		( threatId: number ) => {
+			return fixersStatus?.threats?.[ threatId ]?.status === 'in_progress';
+		},
+		[ fixersStatus ]
+	);
+
+	const isThreatFixStale = useCallback(
+		( threatId: number ) => {
+			const threatFixStatus = fixersStatus?.threats?.[ threatId ];
+			return threatFixStatus ? fixerStatusIsStale( threatFixStatus ) : false;
+		},
 		[ fixersStatus ]
 	);
 
 	return {
 		fixableThreatIds: status.fixableThreatIds,
-		fixInProgressThreatIds,
 		fixersStatus,
 		fixThreats: fixersMutation.mutateAsync,
 		isLoading: fixersMutation.isPending,
+		isThreatFixInProgress,
+		isThreatFixStale,
 	};
 }

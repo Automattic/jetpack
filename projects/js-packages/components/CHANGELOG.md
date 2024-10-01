@@ -2,6 +2,14 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [0.56.0] - 2024-09-25
+### Added
+- Added StatCard component export [#35739]
+
+## [0.55.17] - 2024-09-18
+### Changed
+- Internal updates.
+
 ## [0.55.16] - 2024-09-16
 ### Changed
 - Updated package dependencies. [#39332]
@@ -1164,6 +1172,8 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[0.56.0]: https://github.com/Automattic/jetpack-components/compare/0.55.17...0.56.0
+[0.55.17]: https://github.com/Automattic/jetpack-components/compare/0.55.16...0.55.17
 [0.55.16]: https://github.com/Automattic/jetpack-components/compare/0.55.15...0.55.16
 [0.55.15]: https://github.com/Automattic/jetpack-components/compare/0.55.14...0.55.15
 [0.55.14]: https://github.com/Automattic/jetpack-components/compare/0.55.13...0.55.14

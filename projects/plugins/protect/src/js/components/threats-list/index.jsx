@@ -7,7 +7,8 @@ import {
 	Text,
 } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
+import useFixers from '../../hooks/use-fixers';
 import useModal from '../../hooks/use-modal';
 import usePlan from '../../hooks/use-plan';
 import OnboardingPopover from '../onboarding-popover';
@@ -22,8 +23,18 @@ import useThreatsList from './use-threats-list';
 const ThreatsList = () => {
 	const { hasPlan } = usePlan();
 	const { item, list, selected, setSelected } = useThreatsList();
-	const fixableList = list.filter( obj => obj.fixable );
 	const [ isSm ] = useBreakpointMatch( 'sm' );
+	const { isThreatFixInProgress, isThreatFixStale } = useFixers();
+
+	// List of fixable threats that do not have a fix in progress
+	const fixableList = useMemo( () => {
+		return list.filter( threat => {
+			const threatId = parseInt( threat.id );
+			return (
+				threat.fixable && ! isThreatFixInProgress( threatId ) && ! isThreatFixStale( threatId )
+			);
+		} );
+	}, [ list, isThreatFixInProgress, isThreatFixStale ] );
 
 	// Popover anchors
 	const [ yourScanResultsPopoverAnchor, setYourScanResultsPopoverAnchor ] = useState( null );
@@ -31,11 +42,11 @@ const ThreatsList = () => {
 
 	const { setModal } = useModal();
 
-	const [ fixAllThreatsPopoverAnchor, setFixAllThreatsPopoverAnchor ] = useState( null );
+	const [ showAutoFixersPopoverAnchor, setShowAutoFixersPopoverAnchor ] = useState( null );
 	const [ dailyAndManualScansPopoverAnchor, setDailyAndManualScansPopoverAnchor ] =
 		useState( null );
 
-	const handleFixAllThreatsClick = threatList => {
+	const handleShowAutoFixersClick = threatList => {
 		return event => {
 			event.preventDefault();
 			setModal( {
@@ -111,9 +122,9 @@ const ThreatsList = () => {
 									{ fixableList.length > 0 && (
 										<>
 											<Button
-												ref={ setFixAllThreatsPopoverAnchor }
+												ref={ setShowAutoFixersPopoverAnchor }
 												variant="primary"
-												onClick={ handleFixAllThreatsClick( fixableList ) }
+												onClick={ handleShowAutoFixersClick( fixableList ) }
 											>
 												{ sprintf(
 													/* translators: Translates to Show auto fixers $s: Number of fixable threats. */
@@ -124,7 +135,7 @@ const ThreatsList = () => {
 											<OnboardingPopover
 												id="paid-fix-all-threats"
 												position={ isSm ? 'bottom right' : 'middle left' }
-												anchor={ fixAllThreatsPopoverAnchor }
+												anchor={ showAutoFixersPopoverAnchor }
 											/>
 										</>
 									) }
