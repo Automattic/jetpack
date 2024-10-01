@@ -259,7 +259,7 @@ export const SettingsCard = inprops => {
 					return '';
 				}
 
-				return props.hasConnectedOwner ? (
+				return (
 					<JetpackBanner
 						callToAction={
 							isSearchNewPricingLaunched202208()
@@ -276,18 +276,6 @@ export const SettingsCard = inprops => {
 						href={ props.searchUpgradeUrl }
 						rna
 					/>
-				) : (
-					<JetpackBanner
-						callToAction={ connectLabel() }
-						title={ __(
-							'Connect your WordPress.com account to upgrade and help visitors quickly find answers with highly relevant instant search results and powerful filtering.',
-							'jetpack'
-						) }
-						plan={ getJetpackProductUpsellByFeature( FEATURE_SEARCH_JETPACK ) }
-						feature={ feature }
-						onClick={ handleConnectClick( feature ) }
-						rna
-					/>
 				);
 
 			case FEATURE_SPAM_AKISMET_PLUS:
@@ -295,25 +283,13 @@ export const SettingsCard = inprops => {
 					return '';
 				}
 
-				return props.hasConnectedOwner ? (
+				return (
 					<JetpackBanner
 						callToAction={ upgradeLabel() }
 						title={ __( 'Automatically clear spam from comments and forms.', 'jetpack' ) }
 						plan={ getJetpackProductUpsellByFeature( FEATURE_SPAM_AKISMET_PLUS ) }
 						feature={ feature }
 						href={ props.spamUpgradeUrl }
-						rna
-					/>
-				) : (
-					<JetpackBanner
-						callToAction={ connectLabel() }
-						title={ __(
-							'Connect your WordPress.com account to upgrade and automatically clear spam from comments and forms.',
-							'jetpack'
-						) }
-						plan={ getJetpackProductUpsellByFeature( FEATURE_SPAM_AKISMET_PLUS ) }
-						feature={ feature }
-						onclick={ props.doConnectUser }
 						rna
 					/>
 				);

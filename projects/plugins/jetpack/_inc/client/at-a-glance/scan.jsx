@@ -262,7 +262,6 @@ class DashScan extends Component {
 				path="dashboard"
 				plan={ getJetpackProductUpsellByFeature( FEATURE_SECURITY_SCANNING_JETPACK ) }
 				trackBannerDisplay={ this.props.trackUpgradeButtonView }
-				noIcon
 			/>
 		);
 	}
@@ -380,11 +379,9 @@ class DashScan extends Component {
 	}
 
 	getUpgradeContent() {
-		const { hasConnectedOwner } = this.props;
-
 		return renderCard( {
 			className: 'jp-dash-item__is-inactive',
-			overrideContent: hasConnectedOwner ? this.getUpgradeBanner() : this.getConnectBanner(),
+			overrideContent: this.getUpgradeBanner(),
 		} );
 	}
 

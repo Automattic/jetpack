@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Blocks: transition from an option to a module to improve caching
