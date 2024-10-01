@@ -43,6 +43,11 @@ class WP_Test_Jetpack_Admin_Menu extends WP_UnitTestCase {
 		Jetpack_Options::delete_option( 'user_tokens' );
 	}
 
+	/**
+	 * Test the order of many of the Jetpack admin menu items.
+	 *
+	 * @see https://github.com/Automattic/jetpack-roadmap/issues/856#issuecomment-2308599496
+	 */
 	public function test_jetpack_admin_menu_order() {
 		global $submenu;
 
