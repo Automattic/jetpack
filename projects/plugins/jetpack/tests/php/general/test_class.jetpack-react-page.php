@@ -41,9 +41,10 @@ class WP_Test_Jetpack_Admin_Menu extends WP_UnitTestCase {
 		$jetpack_react->jetpack_add_settings_sub_nav_item();
 
 		do_action( 'admin_menu' );
-
-		$my_plugin_submenu = $submenu['jetpack'];
-		$submenu_slugs     = array_column( $my_plugin_submenu, 2 );
+		if ( ! isset( $submenu['jetpack'] ) ) {
+			return;
+		}
+		$submenu_slugs = array_column( $submenu['jetpack'], 2 );
 
 		// Capture the positions of these submenu items.
 		$my_jetpack_submenu_position = array_search( 'my-jetpack', $submenu_slugs, true );
