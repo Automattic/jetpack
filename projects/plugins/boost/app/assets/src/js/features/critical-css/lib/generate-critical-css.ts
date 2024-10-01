@@ -140,7 +140,7 @@ async function createBrowserInterface(
 	requestGetParameters: Record< string, string >,
 	proxyNonce: string
 ) {
-	const CriticalCSSGenerator = await import( '@automattic/jetpack-critical-css-gen/browser' );
+	const CriticalCSSGenerator = await import( '@automattic/jetpack-critical-css-gen' );
 	return new ( class extends CriticalCSSGenerator.BrowserInterfaceIframe {
 		constructor() {
 			super( {
@@ -183,7 +183,7 @@ async function generateForKeys(
 	callbacks: ProviderCallbacks,
 	signal: AbortSignal
 ): Promise< void > {
-	const CriticalCSSGenerator = await import( '@automattic/jetpack-critical-css-gen/browser' );
+	const CriticalCSSGenerator = await import( '@automattic/jetpack-critical-css-gen' );
 	try {
 		CriticalCSSGeneratorSchema.parse( CriticalCSSGenerator );
 	} catch ( err ) {

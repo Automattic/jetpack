@@ -1,3 +1,4 @@
+const webpack = require( 'webpack' );
 const path = require( 'path' );
 // eslint-disable-next-line import/no-extraneous-dependencies
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
@@ -70,6 +71,20 @@ module.exports = [
 				$css: path.resolve( './app/assets/src/css' ),
 				$images: path.resolve( './app/assets/static/images' ),
 			},
+			// These are needed for the build to work,
+			// otherwise it errors out because of the clean-css dependency.
+			fallback: {
+				...jetpackWebpackConfig.resolve.fallback,
+				path: require.resolve( 'path-browserify' ),
+				process: require.resolve( 'process/browser' ),
+				url: false,
+				https: false,
+				http: false,
+				os: false,
+				buffer: false,
+				events: false,
+				fs: false,
+			},
 		},
 		node: false,
 		plugins: [
@@ -80,6 +95,9 @@ module.exports = [
 				DependencyExtractionPlugin: { injectPolyfill: true },
 			} ),
 			new CopyPlugin( { patterns: cssGenCopyPatterns } ),
+			new webpack.ProvidePlugin( {
+				process: require.resolve( 'process/browser' ),
+			} ),
 		],
 		module: {
 			strictExportPresence: true,
