@@ -209,6 +209,20 @@ export function isMastodonAccountAlreadyConnected( state, username ) {
 }
 
 /**
+ * Whether a Bluesky account is already connected.
+ *
+ * @param {import("../types").SocialStoreState} state  - State object.
+ * @param {string}                              handle - The Bluesky handle.
+ *
+ * @return {boolean} Whether the Bluesky account is already connected.
+ */
+export function isBlueskyAccountAlreadyConnected( state, handle ) {
+	return getConnectionsByService( state, 'bluesky' ).some( connection => {
+		return connection.external_display === handle;
+	} );
+}
+
+/**
  * Returns the latest KeyringResult from the store.
  *
  * @param {import("../types").SocialStoreState} state - State object.

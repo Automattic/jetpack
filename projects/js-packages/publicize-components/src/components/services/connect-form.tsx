@@ -1,11 +1,12 @@
 import { Button } from '@automattic/jetpack-components';
 import { useDispatch, useSelect } from '@wordpress/data';
+import { useCallback } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { useCallback } from 'react';
 import { store } from '../../social-store';
 import { KeyringResult } from '../../social-store/types';
 import { SupportedService } from '../services/use-supported-services';
+import { CustomInputs } from './custom-inputs';
 import styles from './style.module.scss';
 import { useRequestAccess } from './use-request-access';
 
@@ -63,6 +64,7 @@ export function ConnectForm( {
 			}
 
 			const formData = new FormData( event.target as HTMLFormElement );
+
 			requestAccess( formData );
 		},
 		[ onSubmit, requestAccess ]
@@ -74,31 +76,30 @@ export function ConnectForm( {
 			onSubmit={ onSubmitForm }
 		>
 			{ displayInputs ? (
-				<>
-					{ 'mastodon' === service.ID ? (
-						<input
-							required
-							type="text"
-							name="instance"
-							aria-label={ __( 'Mastodon username', 'jetpack' ) }
-							placeholder={ '@mastodon@mastodon.social' }
-						/>
-					) : null }
-				</>
+				<div className={ styles[ 'fields-wrapper' ] }>
+					<CustomInputs service={ service } />
+				</div>
 			) : null }
-			<Button
-				variant={ hasConnections ? 'secondary' : 'primary' }
-				type="submit"
-				className={ styles[ 'connect-button' ] }
-			>
-				{ ( label => {
-					if ( label ) {
-						return label;
-					}
 
-					return hasConnections ? _x( 'Connect more', '', 'jetpack' ) : __( 'Connect', 'jetpack' );
-				} )( buttonLabel ) }
-			</Button>
+			<div className={ styles[ 'fields-wrapper' ] }>
+				<div className={ styles[ 'fields-item' ] }>
+					<Button
+						variant={ hasConnections ? 'secondary' : 'primary' }
+						type="submit"
+						className={ styles[ 'connect-button' ] }
+					>
+						{ ( label => {
+							if ( label ) {
+								return label;
+							}
+
+							return hasConnections
+								? _x( 'Connect more', '', 'jetpack' )
+								: __( 'Connect', 'jetpack' );
+						} )( buttonLabel ) }
+					</Button>
+				</div>
+			</div>
 		</form>
 	);
 }
