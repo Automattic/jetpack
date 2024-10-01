@@ -57,7 +57,7 @@ class WP_Test_Jetpack_Admin_Menu extends WP_UnitTestCase {
 		$dashboard_submenu_position = array_search( 'http://example.org/wp-admin/admin.php?page=jetpack#/dashboard', $submenu_slugs, true );
 
 		// Multisites do not show the My Jetpack menu item
-		if ( ! in_array( 'my-jetpack', $submenu_slugs, true ) ) {
+		if ( in_array( 'my-jetpack', $submenu_slugs, true ) ) {
 			$my_jetpack_submenu_position = array_search( 'my-jetpack', $submenu_slugs, true );
 			$this->assertTrue( $my_jetpack_submenu_position < $stats_submenu_position, 'My Jetpack should be above Stats in the submenu order.' );
 		}
