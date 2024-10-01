@@ -139,7 +139,7 @@ class Jetpack_Slideshow_Shortcode {
 		$gallery = array();
 		foreach ( $attachments as $attachment ) {
 			$attachment_image_src   = wp_get_attachment_image_src( $attachment->ID, $attr['size'] );
-			$attachment_image_src   = $attachment_image_src[0]; // [url, width, height].
+			$attachment_image_src   = false !== $attachment_image_src ? $attachment_image_src[0] : ''; // [url, width, height].
 			$attachment_image_title = get_the_title( $attachment->ID );
 			$attachment_image_alt   = get_post_meta( $attachment->ID, '_wp_attachment_image_alt', true );
 			/**
