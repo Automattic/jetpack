@@ -18,11 +18,10 @@
 		"build:browser": "rollup -c",
 		"build:node": "tsc",
 		"build": "pnpm run clean && pnpm run build:browser && pnpm run build:node",
-		"clean": "rm -rf build-node/ && rm -rf build-browser/",
+		"clean": "rm -rf build-module/ && rm -rf build-browser/",
 		"test": "pnpm build && NODE_ENV=test NODE_PATH=./node_modules jest --forceExit --config=tests/config/jest.config.js"
 	},
-	"main": "./build-node/node.js",
-	"browser": "./build-browser/bundle.js",
+	"main": "./build-module/browser.js",
 	"devDependencies": {
 		"@babel/core": "7.24.7",
 		"@babel/preset-env": "7.24.7",
@@ -51,13 +50,9 @@
 	},
 	"exports": {
 		".": {
-			"jetpack:src": "./src/node.ts",
-			"types": "./build-node/node.d.ts",
-			"default": "./build-node/node.js"
-		},
-		"./browser": {
 			"jetpack:src": "./src/browser.ts",
-			"default": "./build-browser/bundle.js"
+			"types": "./build-module/browser.d.ts",
+			"default": "./build-module/browser.js"
 		}
 	},
 	"dependencies": {
