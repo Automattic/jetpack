@@ -336,11 +336,11 @@ importers:
         specifier: workspace:*
         version: link:../social-logos
       uplot:
-        specifier: 1.6.24
-        version: 1.6.24
+        specifier: 1.6.31
+        version: 1.6.31
       uplot-react:
         specifier: 1.1.4
-        version: 1.1.4(react@18.3.1)(uplot@1.6.24)
+        version: 1.1.4(react@18.3.1)(uplot@1.6.31)
     devDependencies:
       '@automattic/jetpack-base-styles':
         specifier: workspace:*
@@ -14009,8 +14009,8 @@ packages:
       react: '>=16.8.6'
       uplot: ^1.6.7
 
-  uplot@1.6.24:
-    resolution: {integrity: sha512-WpH2BsrFrqxkMu+4XBvc0eCDsRBhzoq9crttYeSI0bfxpzR5YoSVzZXOKFVWcVC7sp/aDXrdDPbDZGCtck2PVg==}
+  uplot@1.6.31:
+    resolution: {integrity: sha512-sQZqSwVCbJGnFB4IQjQYopzj5CoTZJ4Br1fG/xdONimqgHmsacvCjNesdGDypNKFbrhLGIeshYhy89FxPF+H+w==}
 
   upper-case-first@2.0.2:
     resolution: {integrity: sha512-514ppYHBaKwfJRK/pNC6c/OxfGa0obSnAl106u97Ed0I625Nin96KAjttZF6ZL3e1XLtphxnqrOi9iWgm+u+bg==}
@@ -26874,12 +26874,12 @@ snapshots:
       escalade: 3.2.0
       picocolors: 1.1.0
 
-  uplot-react@1.1.4(react@18.3.1)(uplot@1.6.24):
+  uplot-react@1.1.4(react@18.3.1)(uplot@1.6.31):
     dependencies:
       react: 18.3.1
-      uplot: 1.6.24
+      uplot: 1.6.31
 
-  uplot@1.6.24: {}
+  uplot@1.6.31: {}
 
   upper-case-first@2.0.2:
     dependencies:
