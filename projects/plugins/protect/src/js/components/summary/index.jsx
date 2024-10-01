@@ -17,6 +17,9 @@ const Summary = () => {
 	} = useProtectData();
 	const { hasPlan } = usePlan();
 
+	// Convert the last checked UTC date to a local timestamp
+	const lastCheckedLocalTimestamp = new Date( lastChecked + ' UTC' ).getTime();
+
 	// Popover anchors
 	const [ dailyScansPopoverAnchor, setDailyScansPopoverAnchor ] = useState( null );
 
@@ -38,7 +41,7 @@ const Summary = () => {
 						{ sprintf(
 							/* translators: %s: Latest check date  */
 							__( 'Latest results as of %s', 'jetpack-protect' ),
-							dateI18n( 'F jS', lastChecked )
+							dateI18n( 'F jS', lastCheckedLocalTimestamp )
 						) }
 					</div>
 					{ ! hasPlan && (
