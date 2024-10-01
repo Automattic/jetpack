@@ -315,7 +315,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'woo_launch_site',
 			),
 		),
-		'migration'               => array(
+		'post-migration'          => array(
 			'get_title' => function () {
 				return __( 'Site migration', 'jetpack-mu-wpcom' );
 			},
