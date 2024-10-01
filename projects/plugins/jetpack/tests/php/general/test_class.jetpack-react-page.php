@@ -15,6 +15,8 @@ class WP_Test_Jetpack_Admin_Menu extends WP_UnitTestCase {
 			)
 		);
 		$user_id->add_cap( 'jetpack_connect_user' );
+		$user_id->add_cap( 'jetpack_manage_modules' );
+		$user_id->add_cap( 'jetpack_configure_modules' );
 		wp_set_current_user( $user_id->ID );
 
 		// Mock a connection
@@ -29,8 +31,10 @@ class WP_Test_Jetpack_Admin_Menu extends WP_UnitTestCase {
 	 */
 	public function tear_down() {
 		Jetpack_Options::delete_option( array( 'id', 'user_tokens' ) );
-		$user = wp_get_current_user();
-		$user->remove_cap( 'jetpack_connect_user' );
+		$user_id = wp_get_current_user();
+		$user_id->remove_cap( 'jetpack_connect_user' );
+		$user_id->remove_cap( 'jetpack_manage_modules' );
+		$user_id->remove_cap( 'jetpack_configure_modules' );
 	}
 
 	public function test_jetpack_admin_menu_order() {
@@ -52,6 +56,10 @@ class WP_Test_Jetpack_Admin_Menu extends WP_UnitTestCase {
 		$settings_submenu_position   = array_search( 'http://example.org/wp-admin/admin.php?page=jetpack#/settings', $submenu_slugs, true );
 		$dashboard_submenu_position  = array_search( 'http://example.org/wp-admin/admin.php?page=jetpack#/dashboard', $submenu_slugs, true );
 
+		// Multisites do not show the My Jetpack menu item
+		if ( ! is_multisite() ) {
+			$this->assertTrue( $my_jetpack_submenu_position < $search_submenu_position, 'My Jetpack should be above Search in the submenu order.' );
+		}
 		$this->assertTrue( $my_jetpack_submenu_position < $search_submenu_position, 'My Jetpack should be above Search in the submenu order.' );
 		$this->assertTrue( $search_submenu_position < $settings_submenu_position, 'Search should be above Settings in the submenu order.' );
 		$this->assertTrue( $settings_submenu_position < $dashboard_submenu_position, 'Settings should be above Dashboard in the submenu order.' );
