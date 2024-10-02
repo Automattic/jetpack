@@ -318,17 +318,17 @@ const VideoPressUploader = ( {
 		);
 	}
 
-	const needsConnectionText = __(
-		'Connect your WordPress.com account to enable high-quality, ad-free video.',
-		'jetpack-videopress-pkg'
-	);
-
-	const needsActivationText = __(
-		'Activate the VideoPress module to enable high-quality, ad-free video.',
-		'jetpack-videopress-pkg'
-	);
-
 	if ( ! isActive ) {
+		const needsConnectionText = __(
+			'Connect your WordPress.com account to enable high-quality, ad-free video.',
+			'jetpack-videopress-pkg'
+		);
+
+		const needsActivationText = __(
+			'Activate the VideoPress module to enable high-quality, ad-free video.',
+			'jetpack-videopress-pkg'
+		);
+
 		return (
 			<PlaceholderWrapper disableInstructions className="disabled">
 				<span>{ ! hasConnectedOwner ? needsConnectionText : needsActivationText }</span>
