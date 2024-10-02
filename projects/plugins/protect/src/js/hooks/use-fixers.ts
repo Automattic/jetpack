@@ -48,7 +48,7 @@ export default function useFixers(): UseFixersResult {
 				return false;
 			}
 			const threatFix = fixersStatus.threats?.[ threatId ];
-			return 'status' in threatFix && threatFix.status === 'in_progress';
+			return threatFix && 'status' in threatFix && threatFix.status === 'in_progress';
 		},
 		[ fixersStatus ]
 	);
