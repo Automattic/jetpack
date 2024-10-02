@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Make sitemap storing more efficient but not querying the full post content when storing the updated sitemap
