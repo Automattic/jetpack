@@ -16,8 +16,10 @@
 	"author": "Automattic",
 	"scripts": {
 		"build": "pnpm run clean && tsc",
+		"build:test": "pnpm run clean:test && webpack --config tests/data/webpack.config.cjs",
 		"clean": "rm -rf build/",
-		"test": "pnpm build && webpack --config tests/data/webpack.config.cjs && NODE_ENV=test NODE_PATH=./node_modules jest --forceExit --config=tests/config/jest.config.js"
+		"clean:test": "rm -rf tests/build/",
+		"test": "pnpm build:test && NODE_ENV=test NODE_PATH=./node_modules jest --forceExit --config=tests/config/jest.config.js"
 	},
 	"main": "./build/browser.js",
 	"devDependencies": {
