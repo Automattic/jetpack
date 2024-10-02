@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2024-08-06 10:28:54+0000\n"
+"PO-Revision-Date: 2024-09-09 11:55:31+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -726,7 +726,7 @@ msgstr ""
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:750
 msgid "Customize your store"
-msgstr ""
+msgstr "Přizpůsobit obchod"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:69
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:70
@@ -1630,7 +1630,7 @@ msgstr ""
 
 #: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:178
 msgid "Clean"
-msgstr ""
+msgstr "Čistý"
 
 #: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:177
 msgid "Yes"
