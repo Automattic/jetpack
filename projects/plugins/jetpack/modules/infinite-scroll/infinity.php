@@ -753,11 +753,12 @@ class The_Neverending_Home_Page {
 
 			$sort_field = self::get_query_sort_field( $query );
 
-			if ( 'post_date' !== $sort_field || 'DESC' !== $_REQUEST['query_args']['order'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotValidated -- no changes made to the site.
+			if ( 'post_date' !== $sort_field ||
+			! isset( $_REQUEST['query_args']['order'] ) || 'DESC' !== $_REQUEST['query_args']['order'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- no changes made to the site.
 				return $where;
 			}
 
-			$query_before = sanitize_text_field( wp_unslash( $_REQUEST['query_before'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotValidated -- no changes made to the site.
+			$query_before = isset( $_REQUEST['query_before'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['query_before'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- no changes made to the site.
 
 			if ( empty( $query_before ) ) {
 				return $where;
