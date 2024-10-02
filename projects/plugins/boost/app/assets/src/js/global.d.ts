@@ -4,19 +4,6 @@
 
 import type { BrowserInterfaceIframe, generateCriticalCSS } from 'jetpack-boost-critical-css-gen';
 
-type ProductStatus =
-	| 'active'
-	| 'inactive'
-	| 'module_disabled'
-	| 'site_connection_error'
-	| 'plugin_absent'
-	| 'plugin_absent_with_plan'
-	| 'needs_plan'
-	| 'needs_activation'
-	| 'needs_first_site_connection'
-	| 'user_connection_error'
-	| 'can_upgrade';
-
 // <reference types ="@types/jquery"/>
 
 declare global {
