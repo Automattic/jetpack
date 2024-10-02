@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2024-08-10 17:55:20+0000\n"
+"PO-Revision-Date: 2024-10-02 13:01:36+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -11,15 +11,151 @@ msgstr ""
 "Language: ro\n"
 "Project-Id-Version: WordPress.com - Site Helper\n"
 
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-profile-settings/profile-settings-link-to-wpcom.php:48
+msgid "You can manage your profile on WordPress.com Profile settings (First / Last / Display Names, Website, and Biographical Info)"
+msgstr "Poți să îți administrezi profilul în setările WordPress.com Profil (nume, prenume, nume de afișat, site web și informații biografice)"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-profile-settings/profile-settings-link-to-wpcom.php:44
+msgid "Your admin interface language is managed on WordPress.com Account settings"
+msgstr "Limba interfeței tale de administrare este administrată în setările Cont din WordPress.com"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:232
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:233
+msgid "Newsletter"
+msgstr "Buletin de știri"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:212
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:213
+msgid "Scan"
+msgstr "Scanează"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:193
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:194
+msgid "VaultPress"
+msgstr "VaultPress"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:184
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:185
+msgid "Activity Log"
+msgstr "Jurnal de activități"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:131
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:132
+msgid "Site Settings"
+msgstr "Setări site"
+
+#. translators: Hidden accessibility text.
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-bar/wpcom-admin-bar.php:200
+msgid "Cart"
+msgstr "Coș de cumpărături"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1607
+msgid " per "
+msgstr " per "
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1604
+msgid " once"
+msgstr "o singura dată"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1578
+msgid "per %s"
+msgstr "per %s"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1438
+msgid "Scheduled"
+msgstr "Programate"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1437
+msgid "Draft"
+msgstr "Schițe"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1404
+msgid "Jetpack donations is disabled in favour of Newspack donations."
+msgstr "Donațiile Jetpack sunt dezactivate în favoarea donațiilor Newspack."
+
+#. translators: separates all but the last two sponsor names; needs a space at
+#. the end.
+#: vendor/automattic/jetpack-mu-wpcom/src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:993
+msgid ", "
+msgstr ", "
+
+#. translators: separates last two sponsor names; needs a space on either side.
+#: vendor/automattic/jetpack-mu-wpcom/src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:990
+msgid " and "
+msgstr " și "
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:889
+msgid "Common"
+msgstr "Common"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:490
+msgctxt "post author"
+msgid " and "
+msgstr " și "
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:473
+msgctxt "post author"
+msgid "by"
+msgstr "de"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:400
+msgid "Something went wrong. Please refresh the page and/or try again."
+msgstr "Ceva nu a mers bine. Te rog reîncarcă pagina și/sau încearcă din nou."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:393
+msgid "Load more posts"
+msgstr "Încarcă mai multe articole"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/newspack-blocks/synced-newspack-blocks/blocks/carousel/view.php:288
+msgid "Play Slideshow"
+msgstr "Rulează prezentarea"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/newspack-blocks/synced-newspack-blocks/blocks/carousel/view.php:287
+msgid "Pause Slideshow"
+msgstr "Întrerupe prezentarea"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/newspack-blocks/synced-newspack-blocks/blocks/carousel/view.php:243
+msgid "Next Slide"
+msgstr "Diapozitivul următor"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/newspack-blocks/synced-newspack-blocks/blocks/carousel/view.php:242
+msgid "Previous Slide"
+msgstr "Diapozitivul anterior"
+
+#. translators: %d: Slide number.
+#: vendor/automattic/jetpack-mu-wpcom/src/features/newspack-blocks/synced-newspack-blocks/blocks/carousel/view.php:221
+msgid "Go to slide %d"
+msgstr "Mergi la diapozitivul %d"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:320
+msgid "Site migration"
+msgstr "Migrare site"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:807
+msgid "Migrating the site"
+msgstr "Migrez site-ul"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:95
+msgid "Continue to write your first post"
+msgstr "Continuă să scrii primul tău articol"
+
+#: performance-profiler/performance-profiler.php:90
+msgid "The performance report URL for this site."
+msgstr ""
+
+#: performance-profiler/performance-profiler.php:20
+msgid "The performance report URL for this page."
+msgstr ""
+
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-profile-settings/profile-settings-notices.php:28
 msgid "The Toolbar is always visible on Atomic sites while connected to the Automattic proxy."
 msgstr "Bara de unelte este mereu vizibilă pe site-urile Atomic când ești conectat la proxy-ul Automattic."
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-profile-settings/profile-settings-link-to-wpcom.php:48
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-profile-settings/profile-settings-link-to-wpcom.php:56
 msgid "Your WordPress.com password is managed on WordPress.com Security settings"
 msgstr "Parola ta WordPress.com este administrată în setările Securitate din WordPress.com"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-profile-settings/profile-settings-link-to-wpcom.php:44
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-profile-settings/profile-settings-link-to-wpcom.php:52
 msgid "Your WordPress.com email is managed on WordPress.com Account settings"
 msgstr "Adresa ta de email WordPress.com este administrată în setările Cont din WordPress.com"
 
@@ -205,43 +341,43 @@ msgstr "Meniu"
 msgid "Invalid parent type."
 msgstr "Tipul de părinte este invalid."
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/starter-page-templates/class-starter-page-templates.php:240
+#: vendor/automattic/jetpack-mu-wpcom/src/features/starter-page-templates/class-starter-page-templates.php:243
 msgid "Current"
 msgstr "Actual"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/starter-page-templates/class-starter-page-templates.php:235
+#: vendor/automattic/jetpack-mu-wpcom/src/features/starter-page-templates/class-starter-page-templates.php:238
 msgid "Blank"
 msgstr "Gol"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/starter-page-templates/class-starter-page-templates.php:225
+#: vendor/automattic/jetpack-mu-wpcom/src/features/starter-page-templates/class-starter-page-templates.php:228
 msgid "No templates available. Skipped showing modal window with template selection."
 msgstr "Niciun șablon disponibil. Am sărit peste afișarea ferestrei modale cu selectarea șablonului."
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:122
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:127
 msgid "Customize content with AI"
 msgstr "Personalizezi conținutul cu ajutorul AI."
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-global-styles/index.php:549
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-global-styles/index.php:548
 msgid "Upgrade required"
 msgstr "Actualizare necesară"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-global-styles/index.php:546
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-global-styles/index.php:545
 msgid "Upgrade"
 msgstr "Actualizează"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-global-styles/index.php:538
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-global-styles/index.php:537
 msgid "Preview premium styles"
 msgstr "Previzualizează stilurile premium"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-global-styles/index.php:533
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-global-styles/index.php:532
 msgid "Remove premium styles"
 msgstr "Înlătură stilurile premium"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-global-styles/index.php:523
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-global-styles/index.php:522
 msgid "Upgrade now"
 msgstr "Actualizează acum"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-global-styles/index.php:500
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-global-styles/index.php:499
 msgid "Your site includes <a href=\"%1$s\" target=\"_blank\">premium styles</a> that are only visible to visitors after upgrading to the %2$s plan or higher."
 msgstr "Site-ul tău include <a href=\"%1$s\" target=\"_blank\">stiluri premium</a> care vor fi vizibile vizitatorilor numai după ce actualizezi la planul %2$s sau la unul de nivel superior."
 
@@ -271,54 +407,55 @@ msgstr "Ești gata să publici primul tău articol? <a href=\"%1$s\">Începe de 
 msgid "There are currently no posts to display."
 msgstr "Niciun articol de afișat acum."
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-blocks/a8c-posts-list/a8c-posts-list.php:30
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-blocks/a8c-posts-list/a8c-posts-list.php:28
 msgid "Read more"
 msgstr "Citește mai multe"
 
 #. translators: %s: Name of current post
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-blocks/a8c-posts-list/a8c-posts-list.php:27
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-blocks/a8c-posts-list/a8c-posts-list.php:25
 msgid "Continue reading %s"
 msgstr "Continuă lectura %s"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-bar/wpcom-admin-bar.php:196
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-bar/wpcom-admin-bar.php:275
 msgid "My Account"
 msgstr "Contul meu"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-bar/wpcom-admin-bar.php:150
+#. translators: Hidden accessibility text.
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-bar/wpcom-admin-bar.php:225
 msgid "Reader"
 msgstr "Cititor"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/tags-education/tags-education.php:30
+#: vendor/automattic/jetpack-mu-wpcom/src/features/tags-education/tags-education.php:28
 msgid "Build your audience with tags"
 msgstr "Clădește-ți audiența cu etichete"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/paragraph-block-placeholder/paragraph-block-placeholder.php:60
+#: vendor/automattic/jetpack-mu-wpcom/src/features/paragraph-block-placeholder/paragraph-block-placeholder.php:57
 msgid "Add a post title"
 msgstr "Adaugă un titlu articolului"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/paragraph-block-placeholder/paragraph-block-placeholder.php:38
-#: vendor/automattic/jetpack-mu-wpcom/src/features/paragraph-block-placeholder/paragraph-block-placeholder.php:75
+#: vendor/automattic/jetpack-mu-wpcom/src/features/paragraph-block-placeholder/paragraph-block-placeholder.php:35
+#: vendor/automattic/jetpack-mu-wpcom/src/features/paragraph-block-placeholder/paragraph-block-placeholder.php:72
 msgid "Start writing or type '/' to insert a block"
 msgstr "Începe să scrii sau tastează „/” pentru a insera un bloc"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/mailerlite/subscriber-popup.php:123
+#: vendor/automattic/jetpack-mu-wpcom/src/features/mailerlite/subscriber-popup.php:120
 msgid "UUID:"
 msgstr "UUID:"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/mailerlite/subscriber-popup.php:120
+#: vendor/automattic/jetpack-mu-wpcom/src/features/mailerlite/subscriber-popup.php:117
 msgid "Account ID <a href=\"%s\" target=\"_blank\">(instructions)</a>:"
 msgstr "ID cont <a href=\"%s\" target=\"_blank\">(instrucțiuni)</a>:"
 
 #. translators: %1$s - URL to manage the widget, %2$s - documentation URL.
-#: vendor/automattic/jetpack-mu-wpcom/src/features/mailerlite/subscriber-popup.php:51
+#: vendor/automattic/jetpack-mu-wpcom/src/features/mailerlite/subscriber-popup.php:48
 msgid "You need to enter your numeric account ID and UUID for the <a href=\"%1$s\">Mailerlite Widget</a> to work correctly. <a href=\"%2$s\" target=\"_blank\">Full instructions</a>."
 msgstr "Trebuie să introduci ID-ul numeric al contului și UUID pentru ca <a href=\"%1$s\">piesa Mailerlite</a> să lucreze corect. <a href=\"%2$s\" target=\"_blank\">Instrucțiuni complete</a>."
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/mailerlite/subscriber-popup.php:29
+#: vendor/automattic/jetpack-mu-wpcom/src/features/mailerlite/subscriber-popup.php:26
 msgid "Display Mailerlite subscriber popup"
 msgstr "Afișează popup-ul pentru abonare Mailerlite"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/mailerlite/subscriber-popup.php:26
+#: vendor/automattic/jetpack-mu-wpcom/src/features/mailerlite/subscriber-popup.php:23
 msgid "Mailerlite subscriber popup"
 msgstr "Popup pentru abonare Mailerlite"
 
@@ -393,13 +530,13 @@ msgstr "Comentariu"
 
 #. translators: Name of the Plugins submenu that links to the Plugins
 #. Marketplace
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:317
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:319
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:427
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:429
 msgid "Marketplace"
 msgstr "Piață de desfacere"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:299
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:300
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:409
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:410
 msgid "Add New Plugin"
 msgstr "Adaugă modul nou"
 
@@ -451,47 +588,47 @@ msgstr "Autentificare..."
 msgid "Before we continue, please log in to your Jetpack site."
 msgstr "Înainte de a continua, te rog autentifică-te în situl tău Jetpack."
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:266
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:268
 msgid "Admin interface style changed."
 msgstr "Am schimbat stilul interfeței de administrare."
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:229
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:231
 msgid "Click here to access your sites, domains, Reader, account settings, and more."
 msgstr "Dă clic aici pentru a accesa site-urile, domeniile, Cititorul, setările contului și altele."
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:228
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:230
 msgid "All your sites"
 msgstr "Toate site-urile tale"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:222
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:224
 msgid "Access the new site management panel and all developer tools such as hosting configuration, GitHub deployments, metrics, PHP logs, and server logs."
 msgstr "Ai acces la noul panou de administrare al site-ului și la toate instrumentele pentru dezvoltatori, cum ar fi configurarea pentru găzduire, implementările GitHub, valorile metrice, jurnalele PHP și jurnalele serverului."
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:221
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:223
 msgid "Hosting overview"
 msgstr "Prezentare generală găzduire"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:215
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:217
 msgid "The Hosting menu contains the My Home page and all items from the Upgrades menu, including Plans, Domains, Emails, Purchases, and more."
 msgstr "Meniul Găzduire conține prima mea pagină și toate elementele din meniul Actualizări, inclusiv planuri, domenii, emailuri, cumpărături și altele."
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:214
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:216
 msgid "Upgrades is now Hosting"
 msgstr "Actualizările sunt acum Găzduire"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:172
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:174
 msgid "Got it!"
 msgstr "Am înțeles!"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:171
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:173
 msgid "Next"
 msgstr "Următoare"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:170
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:172
 msgid "Previous"
 msgstr "Anterioară"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:169
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:171
 msgid "Step {{currentStep}} of {{totalSteps}}"
 msgstr "Pasul {{currentStep}} din {{totalSteps}}"
 
@@ -503,77 +640,77 @@ msgstr "Lasă un răspuns"
 msgid "Manage your privacy settings"
 msgstr "Administrează setările pentru confidențialitate"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:1207
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:1206
 msgid "Switch"
 msgstr "Comută"
 
 #. translators: how long ago the stylesheet was modified.
-#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:1188
-#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:1200
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:1187
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:1199
 msgid "(modified %s ago)"
 msgstr "(modificat acum %s)"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:1178
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:1177
 msgid "Select a theme&hellip;"
 msgstr "Selectează o temă&hellip;"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:1176
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:1175
 msgid "Select another theme to view its custom CSS."
 msgstr "Selectează a altă temă pentru a-i vedea CSS-ul personalizat."
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:772
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:771
 msgid "Don't use the theme's original CSS."
 msgstr "Nu folosi CSS-ul original al temei."
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:762
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:761
 msgid "Media Width"
 msgstr "Lățime media"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:359
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:358
 msgctxt "Toolbar button to get help with custom CSS"
 msgid "Help"
 msgstr "Ajutor"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:358
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:357
 msgctxt "Toolbar button to see full CSS revision history"
 msgid "See full history"
 msgstr "Vezi istoricul complet"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:356
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:355
 msgid "On Mobile"
 msgstr "Pe mobil"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:355
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:354
 msgid "Start Fresh"
 msgstr "Începe nou"
 
 #. translators: the theme name and then the default width.
-#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:338
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:337
 msgid " The default media width for the <strong>%1$s</strong> theme is %2$d pixel."
 msgid_plural " The default media width for the <strong>%1$s</strong> theme is %2$d pixels."
 msgstr[0] "Lățimea implicită a elementelor media pentru tema <strong>%1$s</strong> este de %2$d pixel."
 msgstr[1] "Lățimea implicită a elementelor media pentru tema <strong>%1$s</strong> este de %2$d pixeli."
 msgstr[2] "Lățimea implicită a elementelor media pentru tema <strong>%1$s</strong> este de %2$d de pixeli."
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:334
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:333
 msgid "Set a different media width for full size images."
 msgstr "Setează o altă lățime a elementelor media pentru imaginile în dimensiune completă."
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:241
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:240
 msgid "Custom CSS is now managed in the Customizer."
 msgstr "CSS-ul personalizat este acum administrat în personalizator."
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:236
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:235
 msgid "Manage with Live Preview"
 msgstr "Administrează din Previzualizare live"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:230
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:229
 msgid "Custom CSS"
 msgstr "CSS personalizat"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:131
-#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:247
-#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:805
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:130
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:246
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:804
 msgid "Preprocessor"
 msgstr "Preprocesor"
 
@@ -592,8 +729,8 @@ msgstr "%1$s pe <a href=\"%2$s\">%3$s</a>"
 msgid "You can modify your Gravatar from your <a href=\"%s\">profile page</a>."
 msgstr "Poți să-ți modifici Gravatarul în <a href=\"%s\">pagina de profil</a>. "
 
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:122
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:123
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:124
 msgid "Marketing"
 msgstr "Marketing"
 
@@ -601,14 +738,14 @@ msgstr "Marketing"
 msgid "Sorry, you are not allowed to access this page."
 msgstr "Regret, nu ai voie să accesezi această pagină."
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:286
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:287
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:396
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:397
 msgid "Plugins"
 msgstr "Module"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:31
-msgid "Use WordPress.com’s legacy dashboard to manage your site."
-msgstr "Folosește panoul de control vechi al WordPress.com ca să-ți administrezi site-ul."
+msgid "Use WordPress.com’s native dashboard to manage your site."
+msgstr ""
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:31
 msgid "Default style"
@@ -700,36 +837,36 @@ msgstr "Luminoasă"
 msgid "Transparent"
 msgstr "Transparent"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:810
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:797
 msgid "Launch your store"
 msgstr "Lansează-ți magazinul"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:800
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:787
 msgid "Add a domain"
 msgstr "Adaugă un domeniu"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:790
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:777
 msgid "Grow your business"
 msgstr "Dezvoltă-ți afacerea"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:780
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:767
 msgid "Collect sales tax"
 msgstr "Colectezi impozitele pe vânzări"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:770
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:757
 msgid "Get paid with WooPayments"
 msgstr "Cu WooPayments, primești plăți"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:760
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:747
 msgid "Add your products"
 msgstr "Adaugă produsele tale"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:750
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:737
 msgid "Customize your store"
 msgstr "Personalizează-ți magazinul"
 
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:68
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:69
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:70
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-management-widget/class-wpcom-site-management-widget.php:188
 msgid "Overview"
 msgstr "Prezentare generală"
@@ -739,13 +876,13 @@ msgstr "Prezentare generală"
 msgid "Share &#8220;%s&#8221; via Jetpack Social"
 msgstr "Partajează &#8222;%s&#8221; prin Jetpack Social"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:132
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:133
-msgid "Settings"
-msgstr "Setări"
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:222
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:223
+msgid "Subscribers"
+msgstr "Abonați"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:168
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:169
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:202
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:203
 msgid "Monetize"
 msgstr "Câștigi bani"
 
@@ -753,39 +890,39 @@ msgstr "Câștigi bani"
 msgid "Monitoring"
 msgstr "Monitorizare"
 
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:113
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:114
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:115
 msgid "Purchases"
 msgstr "Cumpărături"
 
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:104
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:105
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:106
 msgid "Emails"
 msgstr "Emailuri"
 
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:95
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:96
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:97
 msgid "Domains"
 msgstr "Domenii"
 
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:86
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:87
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:88
 msgid "Add-ons"
 msgstr "Suplimente"
 
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:77
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:78
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:79
 msgid "Plans"
 msgstr "Planuri"
 
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:48
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:49
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:50
 msgid "Hosting"
 msgstr "Găzduire"
 
 #. translators: Hidden accessibility text.
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-bar/wpcom-admin-bar.php:130
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-bar/wpcom-admin-bar.php:134
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-bar/wpcom-admin-bar.php:144
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-bar/wpcom-admin-bar.php:148
 msgid "All Sites"
 msgstr "Toate site-urile"
 
@@ -976,12 +1113,12 @@ msgstr "Folosește importatorul ghidat de la WordPress.com ca să imporți artic
 msgid "Visit %1$sJetpack Settings%2$s for more writing settings powered by Jetpack."
 msgstr "Pentru mai multe setări pentru scriere oferite de Jetpack, mergi la %1$sSetări Jetpack%2$s."
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:334
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:335
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:444
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:445
 msgid "Scheduled Updates"
 msgstr "Actualizări programate"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:738
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:725
 msgid "Verify the email address for your domains"
 msgstr "Confirmă-ți adresa de email pentru domenii deținute"
 
@@ -989,23 +1126,23 @@ msgstr "Confirmă-ți adresa de email pentru domenii deținute"
 msgid "Site setup"
 msgstr "Inițializare site"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:728
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:715
 msgid "Finish Sensei setup"
 msgstr "Finalizează inițializarea Sensei"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:718
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:705
 msgid "Finish store setup"
 msgstr "Finalizează inițializarea magazinului"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:701
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:688
 msgid "Update your site's design"
 msgstr "Actualizează designul site-ului"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:692
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:679
 msgid "Enable post sharing"
 msgstr "Activează partajarea articolelor"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:683
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:670
 msgid "Install the mobile app"
 msgstr "Instalează aplicația pentru mobil"
 
@@ -1101,83 +1238,83 @@ msgstr "Importul copiei de siguranță a fost anulat."
 msgid "Next steps for your site"
 msgstr "Pașii următori pentru site-ul tău"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:673
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:660
 msgid "Add the Subscribe Block to your site"
 msgstr "Adaugă blocul Abonare pe site-ul tău"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:659
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:649
 msgid "Import existing subscribers"
 msgstr "Importă abonații existenți"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:650
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:640
 msgid "View site metrics"
 msgstr "Vezi valorile metrice pentru site"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:641
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:631
 msgid "Set up ssh"
 msgstr "Configurează SSH"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:629
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:619
 msgid "Install a custom plugin"
 msgstr "Instalează un modul personalizat"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:617
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:607
 msgid "Choose a theme"
 msgstr "Alege o temă"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:602
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:595
 msgid "Set up an offer for your supporters"
 msgstr "Configurează o ofertă pentru susținătorii tăi"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:582
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:578
 msgid "Connect a Stripe account to collect payments"
 msgstr "Conectează un cont Stripe pentru a colecta plăți"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:567
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:563
 msgid "Add your About page"
 msgstr "Adaugă pagina ta Despre"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:557
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:553
 msgid "Manage your paid Newsletter plan"
 msgstr "Administrează planul plătit Buletin de știri"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:549
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:545
 msgid "Connect your social media accounts"
 msgstr "Conectează-ți conturile media socială"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:535
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:534
 msgid "Manage your subscribers"
 msgstr "Administrează-ți abonații"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:522
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:521
 msgid "Write 3 posts"
 msgstr "Scrie 3 articole"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:507
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:509
 msgid "Get your first 10 subscribers"
 msgstr "Ai primii 10 abonați"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:495
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:497
 msgid "Enable subscribers modal"
 msgstr "Activează fereastra modală pentru abonați"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:483
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:485
 msgid "Customize welcome message"
 msgstr "Personalizează mesajul de bun venit"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:473
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:475
 msgid "Earn money with your newsletter"
 msgstr "Câștigi bani cu buletinul tău de știri"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:416
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:418
 msgid "Update your About page"
 msgstr "Actualizează pagina Despre"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:254
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:256
 msgid "Migrate content"
 msgstr "Migrează conținutul"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:175
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:180
 msgid "Verify email address"
 msgstr "Confirmă adresa de email"
 
@@ -1240,36 +1377,36 @@ msgstr "Fișierul nu există"
 msgid "Could not determine importer type."
 msgstr "Nu am putut să determin tipul de importator"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:465
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:467
 msgid "Share your site"
 msgstr "Partajează-ți site-ul"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:435
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:437
 msgid "Edit a page"
 msgstr "Editează o pagină"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1725
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1719
 msgid "Your site contains premium styles. Upgrade now to publish them and unlock tons of other features."
 msgstr "Site-ul tău are stiluri premium. Actualizează acum ca să le publici și să deblochezi și alte funcționalități."
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:450
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:452
 msgid "Customize your domain"
 msgstr "Personalizează-ți domeniul"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:403
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:405
 msgid "Add a new page"
 msgstr "Adaugă o pagină nouă"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:393
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:395
 msgid "Drive traffic to your site"
 msgstr "Aduci trafic pe site-ul tău"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:154
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:379
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:159
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:381
 msgid "Give your site a name"
 msgstr "Dă-i site-ului un nume"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:76
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:66
 msgid "Claim your free one-year domain"
 msgstr "Beneficiezi de un domeniu gratuit în primul an"
 
@@ -1288,87 +1425,87 @@ msgctxt "Share the post on social networks"
 msgid "Share"
 msgstr "Partajează"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1169
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1740
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1163
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1734
 msgid "Upgrade plan"
 msgstr "Actualizează plan"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:202
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:207
 msgid "Create paid Newsletter"
 msgstr "Creează un buletin de știri cu plată"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:224
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:229
 msgid "Set up payment method"
 msgstr "Configurează metoda de plată"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:87
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:77
 msgid "Choose a domain"
 msgstr "Alege un domeniu"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:336
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:338
 msgid "Launch your blog"
 msgstr "Lansează-ți blogul"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:43
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:33
 msgid "Edit site design"
 msgstr "Editează designul site-ului"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:370
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:372
 msgid "Set up your site"
 msgstr "Inițializează-ți site-ul"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:344
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:346
 msgid "Name your blog"
 msgstr "Numește-ți blogul"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:356
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:358
 msgid "Personalize your site"
 msgstr "Personalizează-ți site-ul"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:315
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:317
 msgid "Upload your first video"
 msgstr "Încarcă primul tău video"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:308
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:310
 msgid "Set up your video site"
 msgstr "Inițializează-ți site-ul Video"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:167
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:269
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:172
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:271
 msgid "Launch your site"
 msgstr "Lansează-ți site-ul"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:277
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:279
 msgid "Add links"
 msgstr "Adaugă legături"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:289
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:291
 msgid "Personalize Link in Bio"
 msgstr "Personalizează Link in Bio"
 
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:46
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:56
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:66
 msgid "Select a design"
 msgstr "Selectează un design"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:188
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:193
 msgid "Start writing"
 msgstr "Începe să scrii"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:102
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:94
 msgid "Write your first post"
 msgstr "Scrie primul tău articol"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:241
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:246
 msgid "Add subscribers"
 msgstr "Adaugă abonați"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:131
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:143
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:136
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:148
 msgid "Choose a plan"
 msgstr "Alege un plan"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:212
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:217
 msgid "Personalize newsletter"
 msgstr "Personalizează buletinul de știri"
 
@@ -1377,12 +1514,12 @@ msgid "Unable to load class %1$s. Please add the package that contains it using 
 msgstr "Nu pot încărca clasa %1$s. Te rog adaugă pachetul care o conține folosind compozitorul și asigură-te că ceri încărcătorul automat Jetpack"
 
 #. translators: 1: wp_default_scripts. 2: Name of the domain being aliased.
-#: vendor/automattic/jetpack-assets/src/class-assets.php:577
+#: vendor/automattic/jetpack-assets/src/class-assets.php:586
 msgid "Textdomain aliases should be registered before the %1$s hook. This notice was triggered by the %2$s domain."
 msgstr "Un alias pentru domeniu-text trebuie înregistrat înainte de cârligul %1$s. Această notificare a fost declanșată de domeniul %2$s."
 
 #. translators: %s is the script handle.
-#: vendor/automattic/jetpack-assets/src/class-assets.php:406
+#: vendor/automattic/jetpack-assets/src/class-assets.php:407
 msgid "Script \"%s\" depends on wp-i18n but does not specify \"textdomain\""
 msgstr "Scriptul „%s” depinde de wp-i18n dar nu specifică „textdomain”"
 
@@ -1556,7 +1693,7 @@ msgstr "Font implicit temă"
 
 #: vendor/automattic/custom-fonts/custom-fonts.php:147
 #: vendor/automattic/custom-fonts/custom-fonts.php:163
-#: vendor/automattic/jetpack-mu-wpcom/src/features/jetpack-global-styles/class-global-styles.php:277
+#: vendor/automattic/jetpack-mu-wpcom/src/features/jetpack-global-styles/class-global-styles.php:274
 msgid "Fonts"
 msgstr "Fonturi"
 
@@ -1822,8 +1959,8 @@ msgid "Edit"
 msgstr "Editează"
 
 #: private-site/logged-in-banner.php:168
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:59
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:60
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:61
 msgid "My Home"
 msgstr "Pagina mea de pornire"
 
@@ -1885,7 +2022,7 @@ msgstr "Numai pentru împuterniciți: poți să vezi asta deoarece ești împute
 msgid "You do not have permission to access this page."
 msgstr "Nu ai permisiunea să accesezi această pagină."
 
-#: feature-plugins/masterbar.php:100
+#: feature-plugins/masterbar.php:54
 msgid "Set your color scheme on WordPress.com."
 msgstr "Setează schema de culori pe WordPress.com."
 
@@ -1894,8 +2031,8 @@ msgid "Additional CSS"
 msgstr "CSS suplimentar"
 
 #: feature-plugins/additional-css.php:40 feature-plugins/additional-css.php:43
-#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:130
-#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:244
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:129
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:243
 msgid "CSS"
 msgstr "CSS"
 
@@ -1932,17 +2069,17 @@ msgstr "Acest site este privat. Trebuie să te autentifici în previzualizare pe
 msgid "This site is private. You need to log in as a user with permissions before previewing it."
 msgstr "Acest site este privat. Înainte de a-l previzualiza, trebuie să te autentifici ca utilizator cu permisiuni."
 
-#: private-site/access-denied-coming-soon-template.php:56
+#: private-site/access-denied-coming-soon-template.php:54
 #: vendor/automattic/jetpack-mu-wpcom/src/features/coming-soon/fallback-coming-soon-page.php:294
 msgid "Start your website"
 msgstr "Începe-ți site-ul web"
 
-#: private-site/access-denied-coming-soon-template.php:52
+#: private-site/access-denied-coming-soon-template.php:50
 #: vendor/automattic/jetpack-mu-wpcom/src/features/coming-soon/fallback-coming-soon-page.php:290
 msgid "Build a website. Sell your stuff. Write a blog. And so much more."
 msgstr "Construiești un site web. Vinzi produse și alte lucruri. Scrii pe un blog. Și multe altele."
 
-#: private-site/access-denied-coming-soon-template.php:46
+#: private-site/access-denied-coming-soon-template.php:44
 #: vendor/automattic/jetpack-mu-wpcom/src/features/coming-soon/fallback-coming-soon-page.php:273
 msgid "Coming Soon"
 msgstr "În curând"
@@ -2006,11 +2143,11 @@ msgid "Update visibility"
 msgstr "Actualizează vizibilitatea"
 
 #: private-site/logged-in-banner.php:90
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:301
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:303
 msgid "Launch site"
 msgstr "Lansează site-ul"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:165
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:167
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-sidebar-notice/wpcom-sidebar-notice.php:67
 msgid "Dismiss"
 msgstr "Respinge"
@@ -2208,11 +2345,11 @@ msgid "Display your about.me profile with thumbnail"
 msgstr "Afișează-ți profilul about.me cu miniatură"
 
 #: safeguard/utils.php:68
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1390
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1401
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1455
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1466
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1474
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1384
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1395
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1449
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1460
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1468
 msgid "Unable to fetch the requested data."
 msgstr "Nu am putut aduce datele cerute."
 
@@ -2579,7 +2716,7 @@ msgstr "Stânga"
 
 #: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:81
 #: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:292
-#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:793
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:792
 #: widgets/class-gravatar-widget.php:153
 #: widgets/class-widget-top-clicks.php:163
 msgid "None"
@@ -2672,7 +2809,7 @@ msgstr "Site privat"
 msgid "This site is private."
 msgstr "Acest site este privat."
 
-#: private-site/access-denied-coming-soon-template.php:55
+#: private-site/access-denied-coming-soon-template.php:53
 #: private-site/access-denied-private-site-template.php:47
 #: vendor/automattic/jetpack-mu-wpcom/src/features/coming-soon/fallback-coming-soon-page.php:293
 msgid "Log in"
