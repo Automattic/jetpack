@@ -36,36 +36,6 @@ declare global {
 		postTypes: {
 			[ key: string ]: string;
 		};
-		product?: {
-			tiers: string[];
-			features_by_tier: Array< {
-				name: string;
-				info: {
-					title?: string;
-					content: string;
-				};
-				tiers: {
-					free: {
-						included: boolean;
-						description?: string;
-						info?: {
-							title?: string;
-							content: string;
-							class?: string;
-						};
-					};
-					upgraded: {
-						included: boolean;
-						description?: string;
-						info?: {
-							title?: string;
-							content: string;
-							class?: string;
-						};
-					};
-				};
-			} >;
-		};
 	};
 
 	// Critical CSS Generator library.

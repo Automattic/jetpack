@@ -1,4 +1,5 @@
 import { usePricing } from '$lib/stores/pricing';
+import { useProduct } from '$lib/stores/product';
 import {
 	Button,
 	Notice,
@@ -58,6 +59,7 @@ export const BoostPricingTable = ( {
 	chosenPaidPlan,
 }: BoostPricingTableProps ) => {
 	const pricing = usePricing();
+	const product = useProduct();
 
 	// If the first year discount ends, we want to show the default label.
 	const legend = pricing?.isIntroductoryOffer
@@ -65,7 +67,7 @@ export const BoostPricingTable = ( {
 		: undefined;
 
 	const isDiscounted = pricing?.priceBefore && pricing?.priceBefore > pricing?.priceAfter;
-	const featuresByTier = Jetpack_Boost.product?.features_by_tier ?? [];
+	const featuresByTier = product?.features_by_tier ?? [];
 
 	return (
 		<>
