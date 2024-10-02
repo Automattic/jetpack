@@ -6,7 +6,7 @@ import API from '../../api';
 import { QUERY_FIXERS_KEY, QUERY_HISTORY_KEY, QUERY_SCAN_STATUS_KEY } from '../../constants';
 import { fixerTimestampIsStale } from '../../hooks/use-fixers';
 import useNotices from '../../hooks/use-notices';
-import { FixersStatus } from '../../types/fixers';
+import { FixersStatus, ThreatFixStatus } from '../../types/fixers';
 
 const initialData: FixersStatus = window.jetpackProtectInitialState?.fixerStatus || {
 	ok: true,
@@ -83,31 +83,26 @@ export default function useFixersQuery( {
 			const failures: string[] = [];
 
 			Object.keys( data.threats || {} ).forEach( threatId => {
-				const threat = data?.threats[ threatId ];
+				const threat = data.threats[ threatId ];
 
-				if ( cachedData.ok === true && cachedData?.threats ) {
+				if ( cachedData.ok === true ) {
 					const cachedThreat = cachedData.threats?.[ threatId ];
 
-					if ( cachedThreat?.status === 'in_progress' ) {
-						// If still in progress
-						if ( threat?.status === 'in_progress' ) {
+					if ( cachedThreat && cachedThreat.status === 'in_progress' ) {
+						if ( threat.status === 'in_progress' ) {
 							if (
 								! fixerTimestampIsStale( cachedThreat.last_updated ) &&
 								fixerTimestampIsStale( threat.last_updated )
 							) {
 								failures.push( threatId );
 							}
-						}
-
-						// Handle completion of fixers
-						if ( threat?.status !== 'in_progress' ) {
+						} else {
 							queryClient.invalidateQueries( { queryKey: [ QUERY_SCAN_STATUS_KEY ] } );
 							queryClient.invalidateQueries( { queryKey: [ QUERY_HISTORY_KEY ] } );
 
-							if ( threat?.status === 'fixed' ) {
+							if ( threat.status === 'fixed' ) {
 								successes.push( threatId );
 							} else {
-								// Handle unsuccessful statuses and threat level errors
 								failures.push( threatId );
 							}
 						}
@@ -128,10 +123,12 @@ export default function useFixersQuery( {
 
 			const data = query.state.data;
 
-			if ( data.ok === true && data?.threats ) {
+			if ( data.ok === true ) {
 				const inProgressNotStale = Object.values( data.threats ).some(
-					( threat: { status?: string; last_updated?: string } ) =>
-						threat.status === 'in_progress' && ! fixerTimestampIsStale( threat.last_updated )
+					( threat: ThreatFixStatus ) =>
+						'status' in threat &&
+						threat.status === 'in_progress' &&
+						! fixerTimestampIsStale( threat.last_updated )
 				);
 
 				// Refetch while any threats are still in progress and not stale.
