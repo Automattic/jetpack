@@ -6,7 +6,7 @@ import API from '../../api';
 import { QUERY_FIXERS_KEY, QUERY_HISTORY_KEY, QUERY_SCAN_STATUS_KEY } from '../../constants';
 import { fixerTimestampIsStale } from '../../hooks/use-fixers';
 import useNotices from '../../hooks/use-notices';
-import { FixersStatus } from '../../types/fixers';
+import { FixersStatus, ThreatFixStatus } from '../../types/fixers';
 
 const initialData: FixersStatus = window.jetpackProtectInitialState?.fixerStatus || {
 	ok: true,
@@ -74,33 +74,37 @@ export default function useFixersQuery( {
 				| FixersStatus
 				| undefined;
 
+			// Handle a top level error
+			if ( data.ok === false ) {
+				throw new Error( data.error );
+			}
+
 			const successes: string[] = [];
 			const failures: string[] = [];
 
-			Object.keys( data?.threats || {} ).forEach( threatId => {
+			Object.keys( data.threats || {} ).forEach( threatId => {
 				const threat = data.threats[ threatId ];
-				const cachedThreat = cachedData?.threats?.[ threatId ];
 
-				if ( cachedThreat?.status === 'in_progress' ) {
-					// If still in progress
-					if ( threat.status === 'in_progress' ) {
-						if (
-							! fixerTimestampIsStale( cachedThreat.last_updated ) &&
-							fixerTimestampIsStale( threat.last_updated )
-						) {
-							failures.push( threatId );
-						}
-					}
+				if ( cachedData.ok === true ) {
+					const cachedThreat = cachedData.threats?.[ threatId ];
 
-					// Handle completion of fixers
-					if ( threat.status !== 'in_progress' ) {
-						queryClient.invalidateQueries( { queryKey: [ QUERY_SCAN_STATUS_KEY ] } );
-						queryClient.invalidateQueries( { queryKey: [ QUERY_HISTORY_KEY ] } );
-
-						if ( threat.status === 'fixed' ) {
-							successes.push( threatId );
+					if ( cachedThreat && cachedThreat.status === 'in_progress' ) {
+						if ( threat.status === 'in_progress' ) {
+							if (
+								! fixerTimestampIsStale( cachedThreat.last_updated ) &&
+								fixerTimestampIsStale( threat.last_updated )
+							) {
+								failures.push( threatId );
+							}
 						} else {
-							failures.push( threatId );
+							queryClient.invalidateQueries( { queryKey: [ QUERY_SCAN_STATUS_KEY ] } );
+							queryClient.invalidateQueries( { queryKey: [ QUERY_HISTORY_KEY ] } );
+
+							if ( threat.status === 'fixed' ) {
+								successes.push( threatId );
+							} else {
+								failures.push( threatId );
+							}
 						}
 					}
 				}
@@ -117,15 +121,21 @@ export default function useFixersQuery( {
 				return false;
 			}
 
-			const inProgressNotStale = Object.values( query.state.data.threats ).some(
-				( threat: { status: string; last_updated: string } ) =>
-					threat.status === 'in_progress' && ! fixerTimestampIsStale( threat.last_updated )
-			);
+			const data = query.state.data;
 
-			// Refetch while any threats are still in progress and not stale.
-			if ( inProgressNotStale ) {
-				// Refetch on a shorter interval first, then slow down if it is taking a while.
-				return query.state.dataUpdateCount < 5 ? 5000 : 15000;
+			if ( data.ok === true ) {
+				const inProgressNotStale = Object.values( data.threats ).some(
+					( threat: ThreatFixStatus ) =>
+						'status' in threat &&
+						threat.status === 'in_progress' &&
+						! fixerTimestampIsStale( threat.last_updated )
+				);
+
+				// Refetch while any threats are still in progress and not stale.
+				if ( inProgressNotStale ) {
+					// Refetch on a shorter interval first, then slow down if it is taking a while.
+					return query.state.dataUpdateCount < 5 ? 5000 : 15000;
+				}
 			}
 
 			return false;
