@@ -8,7 +8,9 @@ import { getUserInfoCookie, isAuthRequired } from '../../utils';
 import { NewCommentEmail } from '../new-comment-email';
 import { NewPostsEmail } from '../new-posts-email';
 import { EmailFormCookieConsent } from './email-form-cookie-consent';
+import { getHovercard } from './hovercard';
 import type { ChangeEvent } from 'preact/compat';
+import '@gravatar-com/hovercards/dist/style.css';
 import './style.scss';
 
 interface EmailFormProps {
@@ -44,6 +46,8 @@ export const EmailForm = ( { shouldShowEmailForm }: EmailFormProps ) => {
 	const { subscribeToComment, subscribeToBlog } = VerbumComments;
 	const [ emailNewComment, setEmailNewComment ] = useState( false );
 	const [ emailNewPosts, setEmailNewPosts ] = useState( false );
+	const [ hovercard, setHovercard ] = useState( null );
+	const [ profileEmails, setProfileEmails ] = useState( [] );
 	const [ deliveryFrequency, setDeliveryFrequency ] = useState( 'instantly' );
 	const authRequired = isAuthRequired();
 	const dispose = effect( () => {
@@ -75,6 +79,17 @@ export const EmailForm = ( { shouldShowEmailForm }: EmailFormProps ) => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] );
 
+	const blurEmail = async () => {
+		if ( profileEmails.includes( userEmail.value ) ) {
+			return;
+		}
+
+		const card = await getHovercard( userEmail.value );
+
+		setHovercard( card.outerHTML );
+		setProfileEmails( [ ...profileEmails, userEmail.value ] );
+	};
+
 	return (
 		<div
 			className={ clsx( 'verbum-form', {
@@ -100,6 +115,7 @@ export const EmailForm = ( { shouldShowEmailForm }: EmailFormProps ) => {
 									isEmailTouched.value = true;
 									setFormData( event );
 								} }
+								onBlur={ isValidEmail.value && blurEmail }
 								value={ userEmail }
 								name="email"
 								placeholder={ `${ translate( 'Email' ) } ${ translate(
@@ -107,6 +123,25 @@ export const EmailForm = ( { shouldShowEmailForm }: EmailFormProps ) => {
 								) }` }
 							/>
 						</label>
+
+						{ /* eslint-disable-next-line jsx-a11y/label-has-associated-control -- https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/issues/869 */ }
+						{ hovercard && (
+							<div className="verbum__gravatar">
+								<div
+									// eslint-disable-next-line react/no-danger
+									dangerouslySetInnerHTML={ { __html: hovercard } }
+								/>
+								<p>
+									<a
+										href="https://support.gravatar.com/profiles/hovercards/"
+										target="_blank"
+										rel="noreferrer"
+									>
+										{ translate( 'What is a Gravatar card?' ) }
+									</a>
+								</p>
+							</div>
+						) }
 
 						{ /* eslint-disable-next-line jsx-a11y/label-has-associated-control -- https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/issues/869 */ }
 						<label className="verbum__label">
