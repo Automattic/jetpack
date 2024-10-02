@@ -10,6 +10,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import { usePermission } from '../../../../../admin/hooks/use-permission';
 import useResumableUploader from '../../../../../hooks/use-resumable-uploader';
 import { uploadFromLibrary } from '../../../../../hooks/use-uploader';
 import { buildVideoPressURL, pickVideoBlockAttributesFromUrl } from '../../../../../lib/url';
@@ -35,6 +36,8 @@ const VideoPressUploader = ( {
 	const [ uploadedVideoData, setUploadedVideoData ] = useState( false );
 	const [ isUploadingInProgress, setIsUploadingInProgress ] = useState( false );
 	const [ isVerifyingLocalMedia, setIsVerifyingLocalMedia ] = useState( false );
+
+	const { hasConnectedOwner } = usePermission();
 
 	/*
 	 * When the file to upload is set, start the upload process
@@ -315,15 +318,20 @@ const VideoPressUploader = ( {
 		);
 	}
 
+	const needsConnectionText = __(
+		'Connect your WordPress.com account to enable high-quality, ad-free video.',
+		'jetpack-videopress-pkg'
+	);
+
+	const needsActivationText = __(
+		'Activate the VideoPress module to enable high-quality, ad-free video.',
+		'jetpack-videopress-pkg'
+	);
+
 	if ( ! isActive ) {
 		return (
 			<PlaceholderWrapper disableInstructions className="disabled">
-				<span>
-					{ __(
-						'Connect your WordPress.com account to enable high-quality, ad-free video.',
-						'jetpack-videopress-pkg'
-					) }
-				</span>
+				<span>{ ! hasConnectedOwner ? needsConnectionText : needsActivationText }</span>
 			</PlaceholderWrapper>
 		);
 	}

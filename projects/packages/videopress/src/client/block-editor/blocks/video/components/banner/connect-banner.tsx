@@ -35,6 +35,8 @@ export default function ConnectBanner( {
 		return null;
 	}
 
+	const needsActivation = isConnected && ! isModuleActive;
+
 	let connectButtonText = __( 'Connect Jetpack', 'jetpack-videopress-pkg' );
 	if ( isConnecting ) {
 		connectButtonText = __( 'Redirecting…', 'jetpack-videopress-pkg' );
@@ -63,12 +65,12 @@ export default function ConnectBanner( {
 					disabled={ isConnecting }
 					isBusy={ isConnecting }
 				>
-					{ ! isModuleActive ? activateButtonText : connectButtonText }
+					{ needsActivation ? activateButtonText : connectButtonText }
 				</Button>
 			}
 			icon={ '' }
 		>
-			{ ! isModuleActive ? connectJetpackModuleMessage : connectYourAccountMessage }
+			{ needsActivation ? connectJetpackModuleMessage : connectYourAccountMessage }
 		</Banner>
 	);
 }
