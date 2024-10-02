@@ -350,6 +350,7 @@ interface Window {
 		recommendedModules: {
 			modules: JetpackModule[] | null;
 			dismissed: boolean;
+			isFirstRun: boolean;
 		};
 		themes: {
 			[ key: string ]: {
