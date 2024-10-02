@@ -102,9 +102,23 @@ The easiest way is to use the Custom Message option in the publishing options bo
 6. Managing Social media accounts in the post editor
 
 == Changelog ==
-### 5.3.1 - 2024-09-06
+### 5.4.0 - 2024-10-01
+#### Added
+- Added support for Bluesky 🎉
+- Social: adds hook for plugin developers to be able to pull social share URLs on save.
+
 #### Changed
-- Internal updates.
+- Social: Migrated useAdminUiV1 feature flag to new script data
+- Updated package dependencies.
+
+#### Removed
+- Connection: Removed deprecated method features_available
+- Connection: Removed features_enabled deprecated method
+- Social: Cleaned up media auto-conversion backend logic
+
+#### Fixed
+- My Jetpack: visual update to the GlobalNotice component look better on mobile.
+- Social: Updated social previews button styles to fit the translated string
 
 == Upgrade Notice ==
 
