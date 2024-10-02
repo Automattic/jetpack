@@ -384,6 +384,6 @@ class Test_Atomic_Admin_Menu extends TestCase {
 		static::$admin_menu->add_jetpack_menu();
 		$links = wp_list_pluck( array_values( $submenu['jetpack'] ), 2 );
 
-		$this->assertContains( 'https://wordpress.com/scan/history/' . static::$domain, $links );
+		$this->assertContains( 'https://wordpress.com/scan/' . static::$domain, $links );
 	}
 }

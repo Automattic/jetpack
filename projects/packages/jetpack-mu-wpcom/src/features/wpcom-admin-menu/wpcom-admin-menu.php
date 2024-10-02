@@ -176,7 +176,7 @@ function wpcom_add_jetpack_submenu() {
 	$monetize_url     = 'https://wordpress.com/earn/' . $domain;
 	$subscribers_url  = 'https://wordpress.com/subscribers/' . $domain;
 	$newsletter_url   = 'https://wordpress.com/settings/newsletter/' . $domain;
-	$scan_url         = 'https://wordpress.com/scan/history/' . $domain;
+	$scan_url         = 'https://wordpress.com/scan/' . $domain;
 
 	// Add submenu items that link to WordPress.com.
 	add_submenu_page(
