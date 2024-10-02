@@ -2,132 +2,108 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 13.9-beta - 2024-09-30
+## 13.9 - 2024-10-01
 ### Major Enhancements
 - Jetpack plugin: Remove the 'WordPress.com Toolbar' module. [#39406]
 
 ### Enhancements
 - Blocks: Transition from an option to a module to improve caching. [#39449]
+- Jetpack AI: Add AI SEO title optimization. [#39363]
+- Jetpack Stats: Do not check for capabilities if the user is not signed in when deciding whether to show the admin bar widget. [#39402]
 - My Jetpack: Visual update to the GlobalNotice component for better mobile presentation. [#39537]
 - Performance: Set the concatenated CSS to off by default. The era where this was helpful is passing. [#39486]
+- SSO: Remove legacy codebase in favor of the newer SSO codebase introduced in Jetpack 13.5. [#39327]
 
 ### Improved compatibility
 - Dashboard: Disable portfolio toggle if theme supports portfolio for specific environments. [#39508]
 
 ### Bug fixes
-- Shortcode: Fix the YouTube URL for the `/embed` type. [#39502]
-- Subscriptions: Fix added slashes in the Follow Blog widget. [#39433]
-
-### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- Blocks: Fix 'Division by zero' fatal error in the Story block. [#39577]
-- Dashboard: Add icons for all product cards. [#39513]
-- Dashboard: Clean and deprecate unused functionality on Jetpack admin pages. [#39547]
-- Dashboard: Remove deprecated IDC flag from admin pages. [#39531]
-- Dashboard: Remove user connection nudges where they aren't needed. Add user connection nudges where needed. [#39533]
-- General: Added test instructions for Jetpack 13.9. [#39481]
-- Infinite scroll: Remove unused code. [#39570]
-- Jetpack AI: Add the beta flag to support styles dropdown on the logo generator. [#39510]
-- Jetpack AI: Pass prop/flag to `showStyleSelector` on the logo generator modal. [#39530]
-- Jetpack AI: Show button label on logo block toolbar if site's logo is empty. [#39550]
-- Jetpack WAF: Removed deprecation notice as the firewall feature will not be removed in the next release. [#39568]
-- Social: Remove excessive hook from social logos and genericons. [#39564]
-- Stats: Remove user connection nudge from Stats module on the dashboard. [#39496]
-- Title Optimization: improve button behaviors when handling errors. [#39554]
-- Write Brief: Turn spelling mistakes and long sentences on by default when the tool is enabled. [#39495]
-
-## 13.9-a.7 - 2024-09-23
-### Enhancements
-- Jetpack AI: Add AI SEO title optimization. [#39363]
-
-### Bug fixes
-- Shortcode: Fix the YouTube URL for the private videos. [#39454]
-- Social: Fix social previews button sometimes not fitting all the text. [#39430]
+- Ai Assistant: Do not show Jetpack AI excerpt UI outside of correct context. [#39248]
+- AI Assistant: Fix Write Brief highlight position on spelling mistake following ignored special word. [#39282]
+- AI Assistant: Remove autofocus on extended blocks while previewing. [#39216]
+- AI Content Lens: Fix the feature of the AI Content Lens is gone. [#39292]
 - Blocks: Prevent Memberships blocks from being registered when the site is not connected to Jetpack. [#39390]
-
-### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- Blocks: Get active element or selection from target element's document instead of the global `document`. [#39364]
-- Build: Do not ship TypeScript files in the production version of Jetpack. [#39428]
-- Connection: Move features enabled rest endpoint into the Jetpack plugin. [#39475]
-- Email preview: Fix disabling pointer events preventing scroll in Firefox. [#39457]
-- General: Create the 'features/available' REST endpoint. [#39442]
-- General: Send non-connected users to a "connect after checkout" flow. [#39444]
-- General: Use React properties rather than pass-throughs (e.g. `className` rather than `class`). [#39414]
-- Jetpack AI: Point upgrade links and buttons to checkout instead of product interstitial. [#39469]
-- Jetpack AI: Remove style parameter from image generation requests until we mean it. [#39494]
-- Jetpack AI: Use custom placeholders on the Jetpack Form AI extension input component. [#39482]
-- Removed launchpad-save-modal. [#39429]
-- REST API: Added social share status endpoint for WPCOM. [#39490]
-- SubscribeBlock: Fix white-space issues. [#39478]
-- Subscription widget: Fix PHP warnings. [#39458]
-- WP.com: Ensure portfolios are enabled and working properly on themes that support portfolios. [#39431]
-
-## 13.9-a.5 - 2024-09-16
-### Enhancements
-- Jetpack Stats: Do not check for capabilities if the user is not signed in when deciding whether to show the admin bar widget. [#39402]
-- SSO: Remove legacy codebase in favor of the newer SSO codebase introduced in Jetpack 13.5. [#39327]
-
-### Bug fixes
 - Dashboard: Display the yearly Stats plan in the Jetpack dashboard immediately after you've purchased the plan. [#39326]
 - Help Center: Fix the icon color when previewing color scheme. [#39371]
+- Hosting Configuration: Make the menu title under the settings the same as the destination. [#39183]
+- Jetpack REST API: Fix missing requirement in admin-menu endpoint. [#39256]
 - Shortcode: Fix the YouTube URL embedding failure due to the trailing question mark of the ID. [#39309]
-
-### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- A4A: Add `is_a4a_dev_site` to `jetpack_response_field_additions`. [#39373]
-- Content Options: Ensure the feature is loaded via the Classic Theme Helper package instead of Jetpack module. [#39210]
-- Custom Content Types: Require feature along with portfolios from the Classic Theme Helper package. [#39268]
-- Jetpack AI: Fix checkout URL redirect to the right yearly product. [#39323]
-- Jetpack AI: Remove ai-image and ai-paragraph block code since they are not used and never made it to an actual functional block. [#39304]
-- Launchpad: Support Launchpad experiment. [#39237]
-- General: Move leading and trailing spaces out of i18n messages. Use en-dash for numeric ranges in i18n messages. [#39305]
-- SEO: Open SEO upsell post in help center. [#39339]
-- Social: Cleaned up media auto-conversion backend logic. [#38587]
-- Social: Migrated useAdminUiV1 feature flag to new script data. [#39137]
-- Styles: Update styling for external links. [#39337]
-- Terms of Service: optimize initialization. [#39286]
-- Title Optimization: Handle enter/return key to trigger a generation when they are pressed. [#39399]
-- Title Optimization: Properly handle errors and show the correct UI for each. [#39340]
-- Updated package dependencies. [#39332]
-
-## 13.9-a.3 - 2024-09-10
-### Bug fixes
+- Shortcode: Fix the YouTube URL for the private videos. [#39454]
+- Shortcode: Fix the YouTube URL for the `/embed` type. [#39502]
+- Sidebar: Show correct product name for "VaultPress Backup". [#39203]
+- Social: Fix social previews button sometimes not fitting all the text. [#39430]
+- Subscriptions: Fix added slashes in the Follow Blog widget. [#39433]
 - WooCommerce Analytics: Check whether a constant is defined before attempting to use it, for compatibility with WooCommerce <8.4.0. [#39306]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- Premium Content: Remove checks for deprecated function. [#39319]
-- Updated package dependencies. [#39302]
-
-## 13.9-a.1 - 2024-09-09
-### Bug fixes
-- AI Assistant: Remove autofocus on extended blocks while previewing. [#39216]
-- Ai Assistant: Do not show Jetpack AI excerpt UI outside of correct context. [#39248]
-- AI Assistant: Fix Write Brief highlight position on spelling mistake following ignored special word. [#39282]
-- AI Content Lens: Fix the feature of the AI Content Lens is gone. [#39292]
-- Hosting Configuration: Make the menu title under the settings the same as the destination. [#39183]
-- Jetpack REST API: Fix missing requirement in admin-menu endpoint. [#39256]
-- Sidebar: Show correct product name for "VaultPress Backup". [#39203]
-
-### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- A4A: Add `is_a4a_dev_site` to `jetpack_response_field_additions`. [#39373]
 - AI Assistant: Optimize repeated requests for unavailable WPCOM. [#39218]
 - AI Assistant: Remove dead code from transformative extensions. [#39245]
 - AI Assistant: Update empty help text for Write Brief. [#39204]
 - Akismet/Anti-spam: Always use Akismet logo in plugin header. [#39047]
+- Blocks: Fix 'Division by zero' fatal error in the Story block. [#39577]
+- Blocks: Get active element or selection from target element's document instead of the global `document`. [#39364]
+- Build: Do not ship TypeScript files in the production version of Jetpack. [#39428]
+- Connection: Move features enabled rest endpoint into the Jetpack plugin. [#39475]
+- Content Options: Ensure the feature is loaded via the Classic Theme Helper package instead of Jetpack module. [#39210]
+- Custom Content Types: Require feature along with portfolios from the Classic Theme Helper package. [#39268]
 - Custom CSS: Remove outdated link from admin menu. [#39169]
-- Dashboard: Only display the Jetpack menu for contributor roles and above. [#39081]
+- Dashboard: Add icons for all product cards. [#39513]
+- Dashboard: Clean and deprecate unused functionality on Jetpack admin pages. [#39547]
 - Dashboard: Enable Users -> Profile on all sites. [#39181]
-- Deprecated Jetpack Onboarding system. [#39229]
 - Dashboard: Make dashboard gracefully fail when user data fetch failed. [#39179]
-- Jetpack sync: Gutenberg footnotes meta. [#38878]
+- Dashboard: Only display the Jetpack menu for contributor roles and above. [#39081]
+- Dashboard: Remove deprecated IDC flag from admin pages. [#39531]
+- Dashboard: Remove user connection nudges where they aren't needed. Add user connection nudges where needed. [#39533]
+- Deprecated Jetpack Onboarding system. [#39229]
+- Email preview: Fix disabling pointer events preventing scroll in Firefox. [#39457]
+- General: Added test instructions for Jetpack 13.9. [#39481]
+- General: Create the 'features/available' REST endpoint. [#39442]
+- General: Move leading and trailing spaces out of i18n messages. Use en-dash for numeric ranges in i18n messages. [#39305]
 - General: Replace error triggering with thrown exceptions for PHP 8.4 compatibility. [#39187]
+- General: Send non-connected users to a "connect after checkout" flow. [#39444]
 - General: Updated connection js to load its bundle via connection package. [#38877]
+- General: Use React properties rather than pass-throughs (e.g. `className` rather than `class`). [#39414]
+- Infinite scroll: Remove unused code. [#39570]
+- Jetpack AI: Add the beta flag to support styles dropdown on the logo generator. [#39510]
+- Jetpack AI: Fix checkout URL redirect to the right yearly product. [#39323]
+- Jetpack AI: Pass prop/flag to `showStyleSelector` on the logo generator modal. [#39530]
+- Jetpack AI: Point upgrade links and buttons to checkout instead of product interstitial. [#39469]
+- Jetpack AI: Remove ai-image and ai-paragraph block code since they are not used and never made it to an actual functional block. [#39304]
+- Jetpack AI: Remove style parameter from image generation requests until we mean it. [#39494]
+- Jetpack AI: Show button label on logo block toolbar if site's logo is empty. [#39550]
+- Jetpack AI: Use custom placeholders on the Jetpack Form AI extension input component. [#39482]
+- Jetpack sync: Gutenberg footnotes meta. [#38878]
+- Jetpack WAF: Removed deprecation notice as the firewall feature will not be removed in the next release. [#39568]
+- Launchpad: Support Launchpad experiment. [#39237]
 - Newsletters: UI changes to a not yet released feature. [#39079]
+- Premium Content: Remove checks for deprecated function. [#39319]
+- Removed launchpad-save-modal. [#39429]
+- REST API: Added social share status endpoint for WPCOM. [#39490]
+- SEO: Open SEO upsell post in help center. [#39339]
 - Site Settings API: Include is_fully_managed_agency_site site option in the response, and allow for its modification. [#39223]
 - Social: Added a way to reshare in an asynchronous way. [#39227]
+- Social: Cleaned up media auto-conversion backend logic. [#38587]
+- Social: Migrated useAdminUiV1 feature flag to new script data. [#39137]
+- Social: Remove excessive hook from social logos and genericons. [#39564]
 - Stats: Fix the 'invalid date' error on new site stats. [#39284]
+- Stats: Remove user connection nudge from Stats module on the dashboard. [#39496]
+- Styles: Update styling for external links. [#39337]
+- SubscribeBlock: Fix white-space issues. [#39478]
 - Subscriptions: Fix Subscribe Modal spacing. [#39199]
 - Subscriptions: Hook the Subscribe block only after single post content. [#39188]
 - Subscriptions: Make Subscription overlay dismiss cookie a session cookie. [#39097]
+- Subscription widget: Fix PHP warnings. [#39458]
+- Terms of Service: optimize initialization. [#39286]
+- Title Optimization: Handle enter/return key to trigger a generation when they are pressed. [#39399]
+- Title Optimization: improve button behaviors when handling errors. [#39554]
+- Title Optimization: Properly handle errors and show the correct UI for each. [#39340]
 - Updated package dependencies. [#39176] [#39278] [#39288]
+- Updated package dependencies. [#39302]
+- Updated package dependencies. [#39332]
 - Updated to not check for onboarding option from the frontend. [#39246]
+- WP.com: Ensure portfolios are enabled and working properly on themes that support portfolios. [#39431]
+- Write Brief: Turn spelling mistakes and long sentences on by default when the tool is enabled. [#39495]
 
 ## 13.8.1 - 2024-09-10
 ### Bug fixes
