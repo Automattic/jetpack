@@ -17,10 +17,11 @@
 	"scripts": {
 		"build": "pnpm run clean && tsc",
 		"clean": "rm -rf build/",
-		"test": "pnpm build && NODE_ENV=test NODE_PATH=./node_modules jest --forceExit --config=tests/config/jest.config.js"
+		"test": "pnpm build && webpack --config tests/data/webpack.config.cjs && NODE_ENV=test NODE_PATH=./node_modules jest --forceExit --config=tests/config/jest.config.js"
 	},
 	"main": "./build/browser.js",
 	"devDependencies": {
+		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@babel/core": "7.24.7",
 		"@babel/preset-env": "7.24.7",
 		"@babel/preset-typescript": "7.24.7",
@@ -29,14 +30,17 @@
 		"@types/node": "^20.4.2",
 		"express": "4.20.0",
 		"jest": "29.7.0",
+		"path-browserify": "1.0.1",
 		"playwright": "1.45.1",
 		"playwright-core": "^1.45.1",
 		"prettier": "npm:wp-prettier@3.0.3",
+		"process": "0.11.10",
 		"source-map": "0.7.4",
 		"source-map-js": "1.2.0",
 		"tslib": "2.5.0",
 		"typescript": "5.0.4",
 		"webpack": "5.94.0",
+		"webpack-cli": "4.9.1",
 		"webpack-dev-middleware": "5.3.4"
 	},
 	"exports": {
