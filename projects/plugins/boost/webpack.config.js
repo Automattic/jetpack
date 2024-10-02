@@ -31,6 +31,9 @@ module.exports = [
 		},
 		optimization: {
 			...jetpackWebpackConfig.optimization,
+			splitChunks: {
+				minChunks: 2,
+			},
 		},
 		resolve: {
 			...jetpackWebpackConfig.resolve,
