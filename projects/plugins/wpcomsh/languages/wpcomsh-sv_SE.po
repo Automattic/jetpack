@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2024-08-06 13:17:33+0000\n"
+"PO-Revision-Date: 2024-08-16 10:59:20+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -17,11 +17,11 @@ msgstr "Verktygsfältet är alltid synligt på Atomic-webbplatser när det är a
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-profile-settings/profile-settings-link-to-wpcom.php:48
 msgid "Your WordPress.com password is managed on WordPress.com Security settings"
-msgstr ""
+msgstr "Ditt WordPress.com-lösenord hanteras i WordPress.com-säkerhetsinställningarna"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-profile-settings/profile-settings-link-to-wpcom.php:44
 msgid "Your WordPress.com email is managed on WordPress.com Account settings"
-msgstr ""
+msgstr "Din WordPress.com-e-postadress hanteras i WordPress.com-kontoinställningarna"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template.php:149
 msgid "Footer"
@@ -29,66 +29,66 @@ msgstr "Sidfot"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template.php:147
 msgid "Header"
-msgstr "Header"
+msgstr "Sidhuvud"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:552
 msgid "Back to template part types"
-msgstr ""
+msgstr "Tillbaka till malldelstyper"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:551
 msgid "No template part types found."
-msgstr ""
+msgstr "Inga malldelstyper hittades."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:550
 msgid "Search Template Part Types"
-msgstr ""
+msgstr "Sök malldelstyper"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:549
 msgid "Parent Template Part Type:"
-msgstr ""
+msgstr "Överordnad malldelstyp:"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:548
 msgid "Parent Template Part Type"
-msgstr ""
+msgstr "Överordnad malldelstyp"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:547
 msgid "New Template Part Type"
-msgstr ""
+msgstr "Ny malldelstyp"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:546
 msgid "Add New Template Part Type"
-msgstr ""
+msgstr "Lägg till ny malldelstyp"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:545
 msgid "Update Template Part Type"
-msgstr ""
+msgstr "Uppdatera malldelstyp"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:544
 msgid "View Template Part Type"
-msgstr ""
+msgstr "Visa malldelstyp"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:543
 msgid "Edit Template Part Type"
-msgstr ""
+msgstr "Redigera malldelstyp"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:542
 msgid "All Template Part Types"
-msgstr ""
+msgstr "Alla malldelstyper"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:541
 msgctxt "admin menu"
 msgid "Template Part Types"
-msgstr ""
+msgstr "Malldelstyper"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:540
 msgctxt "taxonomy singular name"
 msgid "Template Part Type"
-msgstr ""
+msgstr "Malldelstyp"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:539
 msgctxt "taxonomy general name"
 msgid "Template Part Types"
-msgstr ""
+msgstr "Malldelstyper"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:504
 msgid "Template part updated."
@@ -96,11 +96,11 @@ msgstr "Malldel uppdaterad."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:503
 msgid "Template part scheduled."
-msgstr ""
+msgstr "Malldel schemalagd."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:502
 msgid "Template part reverted to draft."
-msgstr ""
+msgstr "Malldel återställd till utkast."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:501
 msgid "Template part published privately."
@@ -215,7 +215,7 @@ msgstr "Blank"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/starter-page-templates/class-starter-page-templates.php:225
 msgid "No templates available. Skipped showing modal window with template selection."
-msgstr ""
+msgstr "Inga mallar tillgängliga. Visar inte lägesfönstret med mallval."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:122
 msgid "Customize content with AI"
@@ -286,7 +286,7 @@ msgstr "Mitt konto"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-bar/wpcom-admin-bar.php:150
 msgid "Reader"
-msgstr "Läsaren"
+msgstr "Läsare"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/tags-education/tags-education.php:30
 msgid "Build your audience with tags"
@@ -299,7 +299,7 @@ msgstr "Lägg till en inläggsrubrik"
 #: vendor/automattic/jetpack-mu-wpcom/src/features/paragraph-block-placeholder/paragraph-block-placeholder.php:38
 #: vendor/automattic/jetpack-mu-wpcom/src/features/paragraph-block-placeholder/paragraph-block-placeholder.php:75
 msgid "Start writing or type '/' to insert a block"
-msgstr "Börja skriva eller tryck på \"/\" för att infoga ett block"
+msgstr "Börja skriva eller skriv ”/” för att infoga ett block"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/mailerlite/subscriber-popup.php:123
 msgid "UUID:"
@@ -437,7 +437,7 @@ msgstr "Panel för webbplatshantering"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-block-editor/class-jetpack-wpcom-block-editor.php:357
 msgid "Underline"
-msgstr "Understruken"
+msgstr "Understreck"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-block-editor/class-jetpack-wpcom-block-editor.php:356
 msgid "Justify"
@@ -445,11 +445,11 @@ msgstr "Justera"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-block-editor/class-jetpack-wpcom-block-editor.php:200
 msgid "Logging In..."
-msgstr "Loggar in..."
+msgstr "Loggar in …"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-block-editor/class-jetpack-wpcom-block-editor.php:185
 msgid "Before we continue, please log in to your Jetpack site."
-msgstr "Logga in på din Jetpack-webbplats innan vi går vidare."
+msgstr "Innan vi fortsätter, logga in på din Jetpack-webbplats."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:266
 msgid "Admin interface style changed."
@@ -481,7 +481,7 @@ msgstr "Uppgraderingar finns nu under Webbhotell"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:172
 msgid "Got it!"
-msgstr "Klart!"
+msgstr "Jag förstår!"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:171
 msgid "Next"
@@ -515,7 +515,7 @@ msgstr "(modifierad för %s sedan)"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:1178
 msgid "Select a theme&hellip;"
-msgstr "Välj ett tema ..."
+msgstr "Välj ett tema …"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:1176
 msgid "Select another theme to view its custom CSS."
@@ -541,7 +541,7 @@ msgstr "Se fullständig historik"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:356
 msgid "On Mobile"
-msgstr "På mobilen"
+msgstr "På mobil"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:355
 msgid "Start Fresh"
@@ -560,7 +560,7 @@ msgstr "Ställ in en annan mediabredd för bilder i full storlek."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:241
 msgid "Custom CSS is now managed in the Customizer."
-msgstr "Anpassad CSS hanteras nu i Anpassa."
+msgstr "Anpassad CSS hanteras nu i anpassaren."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:236
 msgid "Manage with Live Preview"
@@ -631,7 +631,7 @@ msgstr "Utforska tillägg"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-plugins/wpcom-plugins.php:43
 msgid "Access a variety of free and paid plugins that can enhance your site's functionality and features."
-msgstr "Få tillgång till en mängd gratis och betalda tillägg som kan förbättra webbplatsens funktioner."
+msgstr "Få åtkomst till en mängd gratis och betalda tillägg som kan förbättra din webbplats funktionalitet och funktioner."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-plugins/wpcom-plugins.php:42
 msgid "Flex your site's features with plugins"
@@ -648,7 +648,7 @@ msgstr "Utforska teman"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-themes/wpcom-themes.php:40
 msgid "Dive deep into the world of WordPress.com themes. Discover the responsive and stunning designs waiting to bring your site to life."
-msgstr "Djupdyk i WordPress.coms temavärld. Upptäck de responsiva och fantastiska designförslagen som väntar på att ge din webbplats liv."
+msgstr "Dyk djupt in i världen av WordPress.com-teman. Upptäck de responsiva och fantastiska designerna som väntar på att ge din webbplats liv."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-themes/wpcom-themes.php:39
 msgid "Find the perfect theme for your site"
@@ -693,11 +693,11 @@ msgstr "Mörk"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:80
 msgid "Light"
-msgstr "Light"
+msgstr "Ljus"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:82
 msgid "Transparent"
-msgstr "Genomskinlig"
+msgstr "Transparent"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:810
 msgid "Launch your store"
@@ -859,11 +859,11 @@ msgstr "Vi håller dig uppdaterad!"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:220
 msgid "Optional"
-msgstr "Frivillig"
+msgstr "Valfritt"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:219
 msgid "Website"
-msgstr "Webbplatser"
+msgstr "Webbplats"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:218
 msgid "Write a reply..."
@@ -883,7 +883,7 @@ msgstr "E-posta mig nya inlägg"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:213
 msgid "Notify me of new posts"
-msgstr "Meddela mig om nya inlägg"
+msgstr "Avisera mig om nya inlägg"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:212
 msgid "Weekly"
@@ -936,11 +936,11 @@ msgstr "Lämna en kommentar. (inloggning valfritt)"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:198
 msgid "Leave a reply. (log in optional)"
-msgstr "Lämna ett svar. (logga in valfritt)"
+msgstr "Lämna ett svar. (inloggning valfritt)"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:197
 msgid "Website (optional)"
-msgstr "Webbplats (frivilligt)"
+msgstr "Webbplats (valfritt)"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:196
 msgid "Email (address never made public)"
@@ -986,7 +986,7 @@ msgstr "Verifiera e-postadressen för dina domäner"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:292
 msgid "Site setup"
-msgstr "Webbplatskonfigurering"
+msgstr "Webbplatsinställning"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:728
 msgid "Finish Sensei setup"
@@ -1102,7 +1102,7 @@ msgstr "Nästa steg för din webbplats"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:673
 msgid "Add the Subscribe Block to your site"
-msgstr "Lägg till blocket Prenumerera på din webbplats"
+msgstr "Lägg till blocket ”Prenumerera” på din webbplats"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:659
 msgid "Import existing subscribers"
@@ -1232,12 +1232,12 @@ msgstr "Kunde inte skapa mapp"
 
 #: imports/utils/class-fileextractor.php:29
 msgid "File not exists"
-msgstr "Filen finns inte"
+msgstr "Fil finns inte"
 
 #: imports/class-backup-import-manager.php:326
 #: imports/class-backup-import-manager.php:345
 msgid "Could not determine importer type."
-msgstr "Kunde inte fastställa typ av importör"
+msgstr "Kunde inte bestämma typ av importör."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:465
 msgid "Share your site"
@@ -1261,7 +1261,7 @@ msgstr "Lägg till en ny sida"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:393
 msgid "Drive traffic to your site"
-msgstr "Styr trafik till din webbplats"
+msgstr "Driv trafik till din webbplats"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:154
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:379
@@ -1388,7 +1388,7 @@ msgstr "Skriptet \"%s\" är beroende av wp-i18n, men anger inte \"textdomain\""
 #: vendor/automattic/custom-fonts/providers/google.php:280
 msgctxt "Add new subset (greek, cyrillic, devanagari, vietnamese)"
 msgid "no-subset"
-msgstr "latin"
+msgstr "no-subset"
 
 #: vendor/automattic/custom-fonts/providers/base.php:302
 msgctxt "font-style"
@@ -1800,7 +1800,7 @@ msgstr "Du har utnyttjat hela ditt tilldelade filutrymme. Radera några filer in
 
 #: private-site/logged-in-banner.php:132
 msgid "Change theme"
-msgstr "Byt tema"
+msgstr "Ändra tema"
 
 #: private-site/logged-in-banner.php:131
 msgid "Change"
@@ -1823,7 +1823,7 @@ msgstr "Redigera"
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:60
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:61
 msgid "My Home"
-msgstr "Min startsida"
+msgstr "Mitt hem"
 
 #: private-site/logged-in-banner.php:91
 msgid "Launch"
@@ -2006,7 +2006,7 @@ msgstr "Uppdatera synlighet"
 #: private-site/logged-in-banner.php:90
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:301
 msgid "Launch site"
-msgstr "Lansera webbplatsen"
+msgstr "Lansera webbplats"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:165
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-sidebar-notice/wpcom-sidebar-notice.php:67
@@ -2238,7 +2238,7 @@ msgstr "En WordPress.com-webbplats"
 
 #: footer-credit/footer-credit/footer-credit.php:101
 msgid "WordPress.com Logo"
-msgstr "WordPress.com Logo"
+msgstr "WordPress.com-logga"
 
 #: footer-credit/footer-credit/footer-credit.php:41
 #: footer-credit/footer-credit/footer-credit.php:208
@@ -2267,7 +2267,7 @@ msgstr "Standard"
 
 #: footer-credit/footer-credit-optimizations.php:171
 msgid "Design by"
-msgstr "Designad av"
+msgstr "Design av"
 
 #: footer-credit/footer-credit-optimizations.php:157
 msgid "by"

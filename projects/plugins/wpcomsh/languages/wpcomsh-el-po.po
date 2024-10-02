@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2024-08-06 10:28:54+0000\n"
+"PO-Revision-Date: 2024-08-09 17:43:36+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -327,7 +327,7 @@ msgstr ""
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/jetpack-global-styles/class-global-styles-fonts-message-control.php:40
 msgid "Learn more about changing fonts using Global Styles."
-msgstr ""
+msgstr "Μάθετε περισσότερα γιὰ τὴν ἀλλαγὴ γραμματοσειρῶν μὲ χρήση τοῦ Global Styles."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/jetpack-global-styles/class-global-styles-fonts-message-control.php:27
 msgid "You can change your fonts using Global Styles, which can be found in the Block Editor."
@@ -424,7 +424,7 @@ msgstr ""
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-management-widget/class-wpcom-site-management-widget.php:193
 msgid "Get a quick overview of your plans, storage, and domains, or easily access your development tools using the links provided below:"
-msgstr ""
+msgstr "Μιὰ γρήγορη ἀνασκόπηση τῶν πακέτων, τοῦ χώρου καὶ τῶν τομέων σας ἢ μιὰ εὔκολη πρόσβαση  μέσῳ τῶν κατωτέρω συνδέσμων στὰ ἐργαλεῖα ἀνάπτυξης ποὺ χρησιμοποιεῖτε:"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-management-widget/class-wpcom-site-management-widget.php:176
 msgid "Your Site management widget requires JavaScript to function properly."
@@ -432,7 +432,7 @@ msgstr ""
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-management-widget/class-wpcom-site-management-widget.php:159
 msgid "Site Management Panel"
-msgstr ""
+msgstr "Πίνακας διαχειρίσεως ἱστοτόπου"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-block-editor/class-jetpack-wpcom-block-editor.php:357
 msgid "Underline"
@@ -464,11 +464,11 @@ msgstr "Ὅλοι οἱ ἱστότοπό σας"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:222
 msgid "Access the new site management panel and all developer tools such as hosting configuration, GitHub deployments, metrics, PHP logs, and server logs."
-msgstr ""
+msgstr "Πρόσβαση στὸν νέο πίνακα διαχειρίσεως ἱστοτόπου καὶ σὲ ὅλα τὰ ἐργαλεῖα ἀναπτύξεως, ὅπως τὶς παραμέτρους φιλοξενίας, τὶς διανομὲς μέσῳ GitHub, τὰ στοιχεῖα μετρήσεων, τὶς ἀναφορὲς PHP, καθὼς καὶ τὶς ἀναφορὲς τοῦ διακομιστῆ."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:221
 msgid "Hosting overview"
-msgstr ""
+msgstr "Ἐπισκόπηση φιλοξενίας"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:215
 msgid "The Hosting menu contains the My Home page and all items from the Upgrades menu, including Plans, Domains, Emails, Purchases, and more."
