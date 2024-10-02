@@ -29,6 +29,7 @@ const VideoPressUploader = ( {
 	fileToUpload,
 	isReplacing,
 	onReplaceCancel,
+	isActive,
 } ) => {
 	const [ uploadPaused, setUploadPaused ] = useState( false );
 	const [ uploadedVideoData, setUploadedVideoData ] = useState( false );
@@ -314,6 +315,19 @@ const VideoPressUploader = ( {
 		);
 	}
 
+	if ( ! isActive ) {
+		return (
+			<PlaceholderWrapper disableInstructions className="disabled">
+				<span>
+					{ __(
+						'Connect your WordPress.com account to enable high-quality, ad-free video.',
+						'jetpack-videopress-pkg'
+					) }
+				</span>
+			</PlaceholderWrapper>
+		);
+	}
+
 	// Default view to select file to upload
 	return (
 		<MediaPlaceholder
@@ -338,6 +352,7 @@ const VideoPressUploader = ( {
 				noticeOperations.removeAllNotices();
 				noticeOperations.createErrorNotice( error );
 			} }
+			disableDropZone={ ! isActive }
 		/>
 	);
 };

@@ -71,6 +71,7 @@ export const PlaceholderWrapper = withNotices( function ( {
 	noticeOperations,
 	instructions = description,
 	disableInstructions,
+	className,
 } ) {
 	useEffect( () => {
 		if ( ! errorMessage ) {
@@ -87,6 +88,7 @@ export const PlaceholderWrapper = withNotices( function ( {
 			label={ title }
 			instructions={ disableInstructions ? null : instructions }
 			notices={ noticeUI }
+			className={ className }
 		>
 			{ children }
 		</Placeholder>
@@ -414,6 +416,7 @@ export default function VideoPressEdit( {
 						fileToUpload={ fileToUpload }
 						isReplacing={ isReplacingFile?.isReplacing }
 						onReplaceCancel={ cancelReplacingVideoFile }
+						isActive={ isActive }
 					/>
 				</>
 			</div>
