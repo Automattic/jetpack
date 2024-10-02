@@ -1,10 +1,10 @@
 import { __ } from '@wordpress/i18n';
-import { MediaItem, uploadMedia } from '@wordpress/media-utils';
+import { uploadMedia, type Attachment } from '@wordpress/media-utils';
 import { useCallback, useMemo, useState } from 'react';
 
 export type SaveImageToLibraryOptions = {
 	onError?: ( error: Error ) => void;
-	onSuccess?: ( image: MediaItem ) => void;
+	onSuccess?: ( image: Partial< Attachment > ) => void;
 };
 
 export type SaveImageToLibrary = {
