@@ -5,8 +5,8 @@
  * @package automattic/jetpack-connection
  */
 
-if ( function_exists( 'is_admin' ) && ! is_admin() ) {
-	// Only initialize the assets in the admin area, or if we aren't quite sure about it.
+if ( function_exists( 'is_admin' ) && ! is_admin() && ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) ) {
+	// Don't initialize the assets in the frontend on self-hosted and WoA.
 	return;
 }
 
