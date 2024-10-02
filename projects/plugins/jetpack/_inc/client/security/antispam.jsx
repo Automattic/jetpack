@@ -11,7 +11,7 @@ import TextInput from 'components/text-input';
 import analytics from 'lib/analytics';
 import { FEATURE_SPAM_AKISMET_PLUS } from 'lib/plans/constants';
 import { assign, debounce, isEmpty, trim } from 'lodash';
-import React, { Component } from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
 import { isAkismetKeyValid, checkAkismetKey, isCheckingAkismetKey } from 'state/at-a-glance';
 

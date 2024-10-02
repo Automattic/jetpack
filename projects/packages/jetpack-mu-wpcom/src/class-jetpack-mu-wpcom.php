@@ -28,24 +28,6 @@ class Jetpack_Mu_Wpcom {
 			return;
 		}
 
-		add_filter(
-			'load_script_textdomain_relative_path',
-			function ( $relative ) {
-				// Check if $relative is a string and contains the required segment
-				if ( str_contains( $relative, 'vendor/automattic/jetpack-mu-wpcom/' ) ) {
-					$pattern = '#^(?:production|staging|moon|sun)/#'; // Matches the environment prefix on Simple Sites
-
-					if ( preg_match( $pattern, $relative ) ) {
-						$relative = preg_replace( $pattern, '', $relative ); // Remove the environment prefix
-					}
-				}
-
-				return $relative;
-			},
-			10,
-			2
-		);
-
 		// Shared code for src/features.
 		require_once self::PKG_DIR . 'src/common/index.php'; // phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 		require_once __DIR__ . '/utils.php';

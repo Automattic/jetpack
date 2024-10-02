@@ -13,7 +13,14 @@ import {
 	FEATURE_SPAM_AKISMET_PLUS,
 	FEATURE_SEARCH_JETPACK,
 	FEATURE_SIMPLE_PAYMENTS_JETPACK,
+	FEATURE_NEWSLETTER_JETPACK,
+	FEATURE_DOWNTIME_MONITORING_JETPACK,
+	FEATURE_SSO,
+	FEATURE_JETPACK_SOCIAL,
+	FEATURE_POST_BY_EMAIL,
 	getJetpackProductUpsellByFeature,
+	FEATURE_JETPACK_BLAZE,
+	FEATURE_JETPACK_EARN,
 } from 'lib/plans/constants';
 import { get, includes } from 'lodash';
 import ProStatus from 'pro-status';
@@ -22,19 +29,20 @@ import {
 	isSearchNewPricingLaunched202208,
 } from 'product-descriptions/utils';
 import PropTypes from 'prop-types';
-import React from 'react';
 import { connect } from 'react-redux';
 import { isAkismetKeyValid, isCheckingAkismetKey, getVaultPressData } from 'state/at-a-glance';
 import {
 	hasConnectedOwner as hasConnectedOwnerSelector,
 	isOfflineMode,
 	connectUser,
+	isUnavailableInOfflineMode,
 } from 'state/connection';
 import {
 	getSiteAdminUrl,
 	getUpgradeUrl,
 	isMultisite,
 	userCanManageModules,
+	shouldInitializeBlaze,
 } from 'state/initial-state';
 import { getModuleOverride, getModule } from 'state/modules';
 import { siteHasFeature, isFetchingSiteData } from 'state/site';
@@ -223,6 +231,113 @@ export const SettingsCard = inprops => {
 					/>
 				);
 
+			case FEATURE_DOWNTIME_MONITORING_JETPACK:
+				if ( props.hasConnectedOwner || props.inOfflineMode ) {
+					return '';
+				}
+
+				return (
+					<JetpackBanner
+						title={ __(
+							'Connect your WordPress.com account to set up your status alerts.',
+							'jetpack'
+						) }
+						callToAction={ connectLabel() }
+						plan={ getJetpackProductUpsellByFeature( FEATURE_DOWNTIME_MONITORING_JETPACK ) }
+						feature={ feature }
+						onClick={ handleConnectClick( feature ) }
+						rna
+					/>
+				);
+
+			case FEATURE_SSO:
+				if ( props.hasConnectedOwner || props.inOfflineMode ) {
+					return '';
+				}
+
+				return (
+					<JetpackBanner
+						title={ __( 'Connect your WordPress.com account to enable Secure Sign-On', 'jetpack' ) }
+						callToAction={ connectLabel() }
+						plan={ getJetpackProductUpsellByFeature( FEATURE_SSO ) }
+						feature={ feature }
+						onClick={ handleConnectClick( feature ) }
+						rna
+					/>
+				);
+
+			case FEATURE_POST_BY_EMAIL:
+				if ( props.hasConnectedOwner || props.isUnavailableInOfflineMode( 'post-by-email' ) ) {
+					return '';
+				}
+
+				return (
+					<JetpackBanner
+						title={ __(
+							'Connect your WordPress.com account to enable publishing via email.',
+							'jetpack'
+						) }
+						callToAction={ connectLabel() }
+						plan={ getJetpackProductUpsellByFeature( FEATURE_POST_BY_EMAIL ) }
+						feature={ feature }
+						onClick={ handleConnectClick( feature ) }
+						rna
+					/>
+				);
+
+			case FEATURE_JETPACK_SOCIAL:
+				if ( props.hasConnectedOwner || props.inOfflineMode ) {
+					return '';
+				}
+
+				return (
+					<JetpackBanner
+						title={ __(
+							'Connect your WordPress.com account to add your social media accounts.',
+							'jetpack'
+						) }
+						callToAction={ connectLabel() }
+						plan={ getJetpackProductUpsellByFeature( FEATURE_JETPACK_SOCIAL ) }
+						feature={ feature }
+						onClick={ handleConnectClick( feature ) }
+						rna
+					/>
+				);
+
+			case FEATURE_JETPACK_BLAZE:
+				if ( props.blazeAvailable.can_init || props.inOfflineMode ) {
+					return '';
+				}
+
+				return (
+					<JetpackBanner
+						title={ __(
+							'Connect your WordPress.com account to set up campaigns and promote your content.',
+							'jetpack'
+						) }
+						callToAction={ connectLabel() }
+						plan={ getJetpackProductUpsellByFeature( FEATURE_JETPACK_BLAZE ) }
+						feature={ feature }
+						onClick={ handleConnectClick( feature ) }
+						rna
+					/>
+				);
+
+			case FEATURE_JETPACK_EARN:
+				return (
+					<JetpackBanner
+						title={ __(
+							'Connect your WordPress.com account to discover tools to earn money with your site.',
+							'jetpack'
+						) }
+						callToAction={ connectLabel() }
+						plan={ getJetpackProductUpsellByFeature( FEATURE_JETPACK_EARN ) }
+						feature={ feature }
+						onClick={ handleConnectClick( feature ) }
+						rna
+					/>
+				);
+
 			case FEATURE_GOOGLE_ANALYTICS_JETPACK:
 				if ( props.hasGoogleAnalytics ) {
 					return '';
@@ -257,7 +372,7 @@ export const SettingsCard = inprops => {
 					return '';
 				}
 
-				return props.hasConnectedOwner ? (
+				return (
 					<JetpackBanner
 						callToAction={
 							isSearchNewPricingLaunched202208()
@@ -274,18 +389,6 @@ export const SettingsCard = inprops => {
 						href={ props.searchUpgradeUrl }
 						rna
 					/>
-				) : (
-					<JetpackBanner
-						callToAction={ connectLabel() }
-						title={ __(
-							'Connect your WordPress.com account to upgrade and help visitors quickly find answers with highly relevant instant search results and powerful filtering.',
-							'jetpack'
-						) }
-						plan={ getJetpackProductUpsellByFeature( FEATURE_SEARCH_JETPACK ) }
-						feature={ feature }
-						onClick={ handleConnectClick( feature ) }
-						rna
-					/>
 				);
 
 			case FEATURE_SPAM_AKISMET_PLUS:
@@ -293,25 +396,13 @@ export const SettingsCard = inprops => {
 					return '';
 				}
 
-				return props.hasConnectedOwner ? (
+				return (
 					<JetpackBanner
 						callToAction={ upgradeLabel() }
 						title={ __( 'Automatically clear spam from comments and forms.', 'jetpack' ) }
 						plan={ getJetpackProductUpsellByFeature( FEATURE_SPAM_AKISMET_PLUS ) }
 						feature={ feature }
 						href={ props.spamUpgradeUrl }
-						rna
-					/>
-				) : (
-					<JetpackBanner
-						callToAction={ connectLabel() }
-						title={ __(
-							'Connect your WordPress.com account to upgrade and automatically clear spam from comments and forms.',
-							'jetpack'
-						) }
-						plan={ getJetpackProductUpsellByFeature( FEATURE_SPAM_AKISMET_PLUS ) }
-						feature={ feature }
-						onclick={ props.doConnectUser }
 						rna
 					/>
 				);
@@ -343,6 +434,22 @@ export const SettingsCard = inprops => {
 						plan={ getJetpackProductUpsellByFeature( FEATURE_SIMPLE_PAYMENTS_JETPACK ) }
 						feature={ feature }
 						onclick={ props.doConnectUser }
+						rna
+					/>
+				);
+
+			case FEATURE_NEWSLETTER_JETPACK:
+				if ( props.hasConnectedOwner ) {
+					return '';
+				}
+
+				return (
+					<JetpackBanner
+						title={ __( 'Connect your WordPress.com account to enable newsletters.', 'jetpack' ) }
+						callToAction={ connectLabel() }
+						plan={ getJetpackProductUpsellByFeature( FEATURE_NEWSLETTER_JETPACK ) }
+						feature={ feature }
+						onClick={ handleConnectClick( feature ) }
 						rna
 					/>
 				);
@@ -502,6 +609,8 @@ export default connect(
 			hasSimplePayments: siteHasFeature( state, 'simple-payments' ),
 			hasVideoPress: siteHasFeature( state, 'videopress' ),
 			hasWordAds: siteHasFeature( state, 'wordads' ),
+			isUnavailableInOfflineMode: module_name => isUnavailableInOfflineMode( state, module_name ),
+			blazeAvailable: shouldInitializeBlaze( state ),
 		};
 	},
 	dispatch => ( {
