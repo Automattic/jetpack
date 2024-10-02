@@ -38,3 +38,5 @@ export type ThreatFixStatusSuccess = {
 	status: FixerStatus; // Threat fix status (one of 'not_started', 'in_progress', etc.)
 	last_updated: string; // Last updated timestamp
 };
+
+export type ThreatFixStatus = ThreatFixError | ThreatFixStatusSuccess;
