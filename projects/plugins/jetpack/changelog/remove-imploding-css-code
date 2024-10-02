@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Removed the option to use a combined CSS file for Jetpack features. Previous to Jetpack 13.9, this was the default behavior. In Jetpack 13.9, it was made optional to rely on individual CSS files for the features used on each page to improve page loading.
