@@ -400,6 +400,7 @@ export const FEATURE_JETPACK_AI = 'ai-jetpack';
 export const FEATURE_JETPACK_CRM = 'crm-jetpack';
 export const FEATURE_JETPACK_BOOST = 'boost-jetpack';
 export const FEATURE_SIMPLE_PAYMENTS_JETPACK = 'simple-payments-jetpack';
+export const FEATURE_NEWSLETTER_JETPACK = 'newsletter-jetpack';
 export const FEATURE_DOWNTIME_MONITORING_JETPACK = 'downtime-monitoring-jetpack';
 export const FEATURE_SSO = 'sso-jetpack';
 export const FEATURE_POST_BY_EMAIL = 'post-by-email-jetpack';
@@ -426,6 +427,7 @@ export const JETPACK_FEATURE_PRODUCT_UPSELL_MAP = {
 	[ FEATURE_SSO ]: PLAN_JETPACK_SECURITY_T1_YEARLY,
 	[ FEATURE_VIDEO_HOSTING_JETPACK ]: PLAN_JETPACK_SECURITY_T1_YEARLY,
 	[ FEATURE_VIDEOPRESS ]: PLAN_JETPACK_VIDEOPRESS,
+	[ FEATURE_NEWSLETTER_JETPACK ]: PLAN_JETPACK_CREATOR_YEARLY,
 	[ FEATURE_WORDADS_JETPACK ]: PLAN_JETPACK_SECURITY_T1_YEARLY,
 };
 

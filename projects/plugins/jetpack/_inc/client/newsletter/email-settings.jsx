@@ -18,6 +18,7 @@ import SettingsGroup from 'components/settings-group';
 import SupportInfo from 'components/support-info';
 import TextInput from 'components/text-input';
 import analytics from 'lib/analytics';
+import { FEATURE_NEWSLETTER_JETPACK } from 'lib/plans/constants';
 import { useCallback, useState } from 'react';
 import { connect } from 'react-redux';
 import { isUnavailableInOfflineMode, isUnavailableInSiteConnectionMode } from 'state/connection';
@@ -179,6 +180,7 @@ const EmailSettings = props => {
 			{ ...props }
 			header={ __( 'Email configuration', 'jetpack' ) }
 			hideButton
+			feature={ FEATURE_NEWSLETTER_JETPACK }
 			module={ SUBSCRIPTIONS_MODULE_NAME }
 			saveDisabled={ disabled }
 		>
