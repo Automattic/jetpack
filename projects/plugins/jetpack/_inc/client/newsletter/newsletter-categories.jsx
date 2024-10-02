@@ -3,6 +3,7 @@ import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
+import { FEATURE_NEWSLETTER_JETPACK } from 'lib/plans/constants';
 import React, { useCallback, useMemo } from 'react';
 import { connect } from 'react-redux';
 import {
@@ -91,6 +92,7 @@ function NewsletterCategories( props ) {
 		<SettingsCard
 			{ ...props }
 			header={ __( 'Newsletter categories', 'jetpack' ) }
+			feature={ FEATURE_NEWSLETTER_JETPACK }
 			module={ SUBSCRIPTIONS_MODULE_NAME }
 			saveDisabled={ disabled }
 		>
