@@ -21,9 +21,7 @@ export default function useFixersMutation(): UseMutationResult {
 				throw new Error( data.error );
 			}
 
-			const isThreatLevelError = Object.values( data.threats ).every(
-				( threat: { error?: string } ) => Boolean( threat.error )
-			);
+			const isThreatLevelError = Object.values( data.threats ).every( threat => 'error' in threat );
 
 			// Handle a threat level error
 			if ( isThreatLevelError ) {

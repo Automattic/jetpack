@@ -1,42 +1,40 @@
 export type FixerStatus = 'not_started' | 'in_progress' | 'fixed' | 'not_fixed';
 
-// Discriminated union for top-level error
-export type FixersStatusTopLevelError = {
-	ok: false; // Discriminator for overall failure
-	error: string; // When `ok` is false, top-level error is required
+/**
+ * Threat Fix Status
+ *
+ * Individual fixer status for a threat.
+ */
+export type ThreatFixStatusError = {
+	error: string;
 };
 
-// Discriminated union for threat-level errors
-export type FixersStatusThreatError = {
-	ok: true; // Discriminator for overall success
-	threats: {
-		[ key: number ]: ThreatFixError; // At least one threat has an error
-	};
-};
-
-// Discriminated union for success scenario
-export type FixersStatusSuccess = {
-	ok: true; // Discriminator for overall success
-	threats: {
-		[ key: number ]: ThreatFixStatusSuccess; // Threats with successful statuses
-	};
-};
-
-// Union type for fixers status (top-level or threat-level error, or success)
-export type FixersStatus =
-	| FixersStatusTopLevelError
-	| FixersStatusThreatError
-	| FixersStatusSuccess;
-
-// Threat-level error (discriminated)
-export type ThreatFixError = {
-	error: string; // Discriminator for threat-level error
-};
-
-// Threat-level success (discriminated)
 export type ThreatFixStatusSuccess = {
-	status: FixerStatus; // Threat fix status (one of 'not_started', 'in_progress', etc.)
-	last_updated: string; // Last updated timestamp
+	status: FixerStatus;
+	last_updated: string;
 };
 
-export type ThreatFixStatus = ThreatFixError | ThreatFixStatusSuccess;
+export type ThreatFixStatus = ThreatFixStatusError | ThreatFixStatusSuccess;
+
+/**
+ * Fixers Status
+ *
+ * Overall status of all fixers.
+ */
+type FixersStatusBase = {
+	ok: boolean; // Discriminator for overall success
+};
+
+export type FixersStatusError = FixersStatusBase & {
+	ok: false;
+	error: string;
+};
+
+export type FixersStatusSuccess = FixersStatusBase & {
+	ok: true;
+	threats: {
+		[ key: number ]: ThreatFixStatus;
+	};
+};
+
+export type FixersStatus = FixersStatusSuccess | FixersStatusError;
