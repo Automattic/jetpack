@@ -360,7 +360,6 @@ const VideoPressUploader = ( {
 				noticeOperations.removeAllNotices();
 				noticeOperations.createErrorNotice( error );
 			} }
-			disableDropZone={ ! isActive }
 		/>
 	);
 };
