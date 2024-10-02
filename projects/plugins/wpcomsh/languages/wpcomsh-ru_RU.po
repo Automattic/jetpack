@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2024-08-06 13:14:54+0000\n"
+"PO-Revision-Date: 2024-08-15 23:54:03+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -17,11 +17,11 @@ msgstr "Если прокси-сервер Automattic подключён, пан
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-profile-settings/profile-settings-link-to-wpcom.php:48
 msgid "Your WordPress.com password is managed on WordPress.com Security settings"
-msgstr ""
+msgstr "Управлять паролем WordPress.com можно в настройках системы безопасности на WordPress.com"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-profile-settings/profile-settings-link-to-wpcom.php:44
 msgid "Your WordPress.com email is managed on WordPress.com Account settings"
-msgstr ""
+msgstr "Управлять электронной почтой WordPress.com можно в настройках учётной записи на WordPress.com"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template.php:149
 msgid "Footer"
@@ -33,62 +33,62 @@ msgstr "Шапка"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:552
 msgid "Back to template part types"
-msgstr ""
+msgstr "Назад к типам частей шаблона"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:551
 msgid "No template part types found."
-msgstr ""
+msgstr "Типов частей шаблонов не найдено."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:550
 msgid "Search Template Part Types"
-msgstr ""
+msgstr "Поиск типов частей шаблонов"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:549
 msgid "Parent Template Part Type:"
-msgstr ""
+msgstr "Родительский тип части шаблона:"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:548
 msgid "Parent Template Part Type"
-msgstr ""
+msgstr "Родительский тип части шаблона"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:547
 msgid "New Template Part Type"
-msgstr ""
+msgstr "Новый тип части шаблона"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:546
 msgid "Add New Template Part Type"
-msgstr ""
+msgstr "Добавить новый тип части шаблона"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:545
 msgid "Update Template Part Type"
-msgstr ""
+msgstr "Обновить тип части шаблона"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:544
 msgid "View Template Part Type"
-msgstr ""
+msgstr "Просмотр типа части шаблона"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:543
 msgid "Edit Template Part Type"
-msgstr ""
+msgstr "Изменить тип части шаблона"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:542
 msgid "All Template Part Types"
-msgstr ""
+msgstr "Все типы частей шаблона"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:541
 msgctxt "admin menu"
 msgid "Template Part Types"
-msgstr ""
+msgstr "Типы частей шаблона"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:540
 msgctxt "taxonomy singular name"
 msgid "Template Part Type"
-msgstr ""
+msgstr "Тип части шаблона"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:539
 msgctxt "taxonomy general name"
 msgid "Template Part Types"
-msgstr ""
+msgstr "Типы частей шаблона"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:504
 msgid "Template part updated."
@@ -96,19 +96,19 @@ msgstr "Часть шаблона обновлена."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:503
 msgid "Template part scheduled."
-msgstr ""
+msgstr "Часть шаблона запланирована."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:502
 msgid "Template part reverted to draft."
-msgstr ""
+msgstr "Часть шаблона возвращена в черновики."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:501
 msgid "Template part published privately."
-msgstr ""
+msgstr "Часть шаблона опубликована как личная."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:500
 msgid "Template part published."
-msgstr ""
+msgstr "Часть шаблона опубликована."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:499
 msgid "Template parts list"
@@ -162,12 +162,12 @@ msgstr "Добавить новый"
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:487
 msgctxt "add new on admin bar"
 msgid "Template Part"
-msgstr ""
+msgstr "Часть шаблона"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:486
 msgctxt "admin menu"
 msgid "Template Parts"
-msgstr ""
+msgstr "Части шаблона"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:485
 msgctxt "post type singular name"
@@ -182,7 +182,7 @@ msgstr "Части шаблона"
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:447
 msgctxt "Default page title"
 msgid "Contact"
-msgstr ""
+msgstr "Контакт"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:435
 msgctxt "Default page title"
@@ -215,7 +215,7 @@ msgstr "Пустой"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/starter-page-templates/class-starter-page-templates.php:225
 msgid "No templates available. Skipped showing modal window with template selection."
-msgstr ""
+msgstr "Нет шаблонов. Пропущено отображение модального окна с выбором шаблона."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:122
 msgid "Customize content with AI"

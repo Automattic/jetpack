@@ -17,11 +17,11 @@ msgstr "Die Werkzeugliste wird auf Atomic-Websites immer angezeigt, wenn eine Ve
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-profile-settings/profile-settings-link-to-wpcom.php:48
 msgid "Your WordPress.com password is managed on WordPress.com Security settings"
-msgstr ""
+msgstr "Dein WordPress.com-Passwort wird in den WordPress.com-Sicherheitseinstellungen verwaltet"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-profile-settings/profile-settings-link-to-wpcom.php:44
 msgid "Your WordPress.com email is managed on WordPress.com Account settings"
-msgstr ""
+msgstr "Deine WordPress.com-E-Mail-Adresse wird in den WordPress.com-Kontoeinstellungen verwaltet"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template.php:149
 msgid "Footer"
@@ -33,62 +33,62 @@ msgstr "Header"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:552
 msgid "Back to template part types"
-msgstr ""
+msgstr "Zurück zu Template-Teiltypen"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:551
 msgid "No template part types found."
-msgstr ""
+msgstr "Keine Template-Teiltypen gefunden."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:550
 msgid "Search Template Part Types"
-msgstr ""
+msgstr "Template-Teiltypen durchsuchen"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:549
 msgid "Parent Template Part Type:"
-msgstr ""
+msgstr "Übergeordneter Template-Teiltyp:"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:548
 msgid "Parent Template Part Type"
-msgstr ""
+msgstr "Übergeordneter Template-Teiltyp"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:547
 msgid "New Template Part Type"
-msgstr ""
+msgstr "Neuer Template-Teiltyp"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:546
 msgid "Add New Template Part Type"
-msgstr ""
+msgstr "Neuen Template-Teiltyp hinzufügen"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:545
 msgid "Update Template Part Type"
-msgstr ""
+msgstr "Template-Teiltyp aktualisieren"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:544
 msgid "View Template Part Type"
-msgstr ""
+msgstr "Template-Teiltyp anzeigen"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:543
 msgid "Edit Template Part Type"
-msgstr ""
+msgstr "Template-Teiltyp bearbeiten"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:542
 msgid "All Template Part Types"
-msgstr ""
+msgstr "Alle Template-Teiltypen"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:541
 msgctxt "admin menu"
 msgid "Template Part Types"
-msgstr ""
+msgstr "Template-Teiltypen"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:540
 msgctxt "taxonomy singular name"
 msgid "Template Part Type"
-msgstr ""
+msgstr "Template-Teiltyp"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:539
 msgctxt "taxonomy general name"
 msgid "Template Part Types"
-msgstr ""
+msgstr "Template-Teiltypen"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:504
 msgid "Template part updated."
@@ -96,19 +96,19 @@ msgstr "Der Template-Teil wurde aktualisiert."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:503
 msgid "Template part scheduled."
-msgstr ""
+msgstr "Template-Teil geplant."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:502
 msgid "Template part reverted to draft."
-msgstr ""
+msgstr "Template-Teil auf Entwurf zurückgesetzt."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:501
 msgid "Template part published privately."
-msgstr ""
+msgstr "Template-Teil privat veröffentlicht."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:500
 msgid "Template part published."
-msgstr ""
+msgstr "Template-Teil veröffentlicht."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:499
 msgid "Template parts list"
@@ -162,12 +162,12 @@ msgstr "Hinzufügen"
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:487
 msgctxt "add new on admin bar"
 msgid "Template Part"
-msgstr ""
+msgstr "Template-Teil"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:486
 msgctxt "admin menu"
 msgid "Template Parts"
-msgstr ""
+msgstr "Template-Teile"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:485
 msgctxt "post type singular name"
@@ -182,7 +182,7 @@ msgstr "Template-Teile"
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:447
 msgctxt "Default page title"
 msgid "Contact"
-msgstr ""
+msgstr "Kontakt"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:435
 msgctxt "Default page title"

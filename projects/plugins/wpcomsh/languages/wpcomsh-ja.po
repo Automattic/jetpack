@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2024-08-06 13:21:48+0000\n"
+"PO-Revision-Date: 2024-08-16 09:54:03+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -17,11 +17,11 @@ msgstr "Automattic プロキシに接続されている間、Atomic サイトで
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-profile-settings/profile-settings-link-to-wpcom.php:48
 msgid "Your WordPress.com password is managed on WordPress.com Security settings"
-msgstr ""
+msgstr "WordPress.com のパスワードは WordPress.com のセキュリティ設定で管理されています"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-profile-settings/profile-settings-link-to-wpcom.php:44
 msgid "Your WordPress.com email is managed on WordPress.com Account settings"
-msgstr ""
+msgstr "WordPress.com のメールアドレスは WordPress.com のアカウント設定で管理されています"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template.php:149
 msgid "Footer"
@@ -33,62 +33,62 @@ msgstr "ヘッダ"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:552
 msgid "Back to template part types"
-msgstr ""
+msgstr "テンプレートパーツタイプに戻る"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:551
 msgid "No template part types found."
-msgstr ""
+msgstr "テンプレートパーツタイプが見つかりません。"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:550
 msgid "Search Template Part Types"
-msgstr ""
+msgstr "テンプレートパーツタイプを検索"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:549
 msgid "Parent Template Part Type:"
-msgstr ""
+msgstr "親テンプレートパーツタイプ:"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:548
 msgid "Parent Template Part Type"
-msgstr ""
+msgstr "親テンプレートパーツタイプ"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:547
 msgid "New Template Part Type"
-msgstr ""
+msgstr "新規テンプレートパーツタイプ"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:546
 msgid "Add New Template Part Type"
-msgstr ""
+msgstr "新規テンプレートパーツタイプを追加"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:545
 msgid "Update Template Part Type"
-msgstr ""
+msgstr "テンプレートパーツタイプを更新"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:544
 msgid "View Template Part Type"
-msgstr ""
+msgstr "テンプレートパーツタイプを表示"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:543
 msgid "Edit Template Part Type"
-msgstr ""
+msgstr "テンプレートパーツタイプを編集"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:542
 msgid "All Template Part Types"
-msgstr ""
+msgstr "テンプレートパーツタイプ一覧"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:541
 msgctxt "admin menu"
 msgid "Template Part Types"
-msgstr ""
+msgstr "テンプレートパーツタイプ"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:540
 msgctxt "taxonomy singular name"
 msgid "Template Part Type"
-msgstr ""
+msgstr "テンプレートパーツタイプ"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:539
 msgctxt "taxonomy general name"
 msgid "Template Part Types"
-msgstr ""
+msgstr "テンプレートパーツタイプ"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:504
 msgid "Template part updated."
@@ -96,19 +96,19 @@ msgstr "テンプレートパーツを更新しました。"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:503
 msgid "Template part scheduled."
-msgstr ""
+msgstr "テンプレートパーツを公開予約しました。"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:502
 msgid "Template part reverted to draft."
-msgstr ""
+msgstr "テンプレートパーツを下書きに戻しました。"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:501
 msgid "Template part published privately."
-msgstr ""
+msgstr "テンプレートパーツを限定公開しました。"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:500
 msgid "Template part published."
-msgstr ""
+msgstr "テンプレートパーツを公開しました。"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:499
 msgid "Template parts list"
@@ -162,12 +162,12 @@ msgstr "新規追加"
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:487
 msgctxt "add new on admin bar"
 msgid "Template Part"
-msgstr ""
+msgstr "テンプレートパーツ"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:486
 msgctxt "admin menu"
 msgid "Template Parts"
-msgstr ""
+msgstr "テンプレートパーツ"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:485
 msgctxt "post type singular name"
@@ -182,7 +182,7 @@ msgstr "テンプレートパーツ"
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:447
 msgctxt "Default page title"
 msgid "Contact"
-msgstr ""
+msgstr "お問い合わせ"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:435
 msgctxt "Default page title"
@@ -215,7 +215,7 @@ msgstr "空白"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/starter-page-templates/class-starter-page-templates.php:225
 msgid "No templates available. Skipped showing modal window with template selection."
-msgstr ""
+msgstr "テンプレートがありません。 テンプレートを選択するモーダルウィンドウの表示をスキップしました。"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:122
 msgid "Customize content with AI"

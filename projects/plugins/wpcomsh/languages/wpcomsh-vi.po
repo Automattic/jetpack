@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2024-08-06 10:28:54+0000\n"
+"PO-Revision-Date: 2024-09-16 02:15:01+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -13,15 +13,15 @@ msgstr ""
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-profile-settings/profile-settings-notices.php:28
 msgid "The Toolbar is always visible on Atomic sites while connected to the Automattic proxy."
-msgstr ""
+msgstr "Thanh công cụ luôn hiển thị trên các trang web Atomic khi kết nối với proxy của Automattic."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-profile-settings/profile-settings-link-to-wpcom.php:48
 msgid "Your WordPress.com password is managed on WordPress.com Security settings"
-msgstr ""
+msgstr "Mật khẩu WordPress.com của bạn được quản lý trong cài đặt bảo mật WordPress.com"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-profile-settings/profile-settings-link-to-wpcom.php:44
 msgid "Your WordPress.com email is managed on WordPress.com Account settings"
-msgstr ""
+msgstr "Email WordPress.com của bạn được quản lý trong cài đặt tài khoản WordPress.com"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template.php:149
 msgid "Footer"
@@ -29,7 +29,7 @@ msgstr "Footer"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template.php:147
 msgid "Header"
-msgstr "Tiêu đề"
+msgstr "Đầu trang"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:552
 msgid "Back to template part types"
@@ -182,7 +182,7 @@ msgstr "Template Part"
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:447
 msgctxt "Default page title"
 msgid "Contact"
-msgstr ""
+msgstr "Liên hệ"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:435
 msgctxt "Default page title"
@@ -191,11 +191,11 @@ msgstr "Giới thiệu"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/blocks/navigation-menu/index.php:90
 msgid "collapsed"
-msgstr ""
+msgstr "thu gọn"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/blocks/navigation-menu/index.php:89
 msgid "expanded"
-msgstr ""
+msgstr "mở rộng"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/blocks/navigation-menu/index.php:86
 msgid "Menu"
@@ -215,15 +215,15 @@ msgstr "Trống"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/starter-page-templates/class-starter-page-templates.php:225
 msgid "No templates available. Skipped showing modal window with template selection."
-msgstr ""
+msgstr "Không có mẫu nào khả dụng. Bỏ qua hiển thị cửa sổ bật lên với lựa chọn mẫu."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:122
 msgid "Customize content with AI"
-msgstr ""
+msgstr "Tùy chỉnh nội dung với AI"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-global-styles/index.php:549
 msgid "Upgrade required"
-msgstr ""
+msgstr "Cần nâng cấp"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-global-styles/index.php:546
 msgid "Upgrade"
@@ -235,7 +235,7 @@ msgstr ""
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-global-styles/index.php:533
 msgid "Remove premium styles"
-msgstr ""
+msgstr "Loại bỏ phong cách cao cấp"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-global-styles/index.php:523
 msgid "Upgrade now"
@@ -247,7 +247,7 @@ msgstr ""
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-global-styles/api/class-global-styles-status-rest-api.php:53
 msgid "Your user is not permitted to access this resource."
-msgstr ""
+msgstr "Người dùng của bạn không được phép truy cập tài nguyên này."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-blocks/a8c-posts-list/templates/posts-list.php:30
 msgid "View all posts"
@@ -256,7 +256,7 @@ msgstr "Xem tất cả bài viết"
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-blocks/a8c-posts-list/templates/post-item.php:31
 msgctxt "designating the post author (eg: by John Doe"
 msgid "by"
-msgstr ""
+msgstr "bởi"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-blocks/a8c-posts-list/templates/post-item.php:23
 msgid "Featured"
@@ -269,7 +269,7 @@ msgstr "Sẵn sàng viết bài đầu tiên? <a href=\"%1$s\">Hãy bắt đầu
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-blocks/a8c-posts-list/templates/no-posts.php:11
 msgid "There are currently no posts to display."
-msgstr ""
+msgstr "Hiện tại không có bài viết nào để hiển thị."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-blocks/a8c-posts-list/a8c-posts-list.php:30
 msgid "Read more"
@@ -294,16 +294,16 @@ msgstr "Tiếp cận độc giả bằng thẻ"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/paragraph-block-placeholder/paragraph-block-placeholder.php:60
 msgid "Add a post title"
-msgstr ""
+msgstr "Thêm tiêu đề bài viết"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/paragraph-block-placeholder/paragraph-block-placeholder.php:38
 #: vendor/automattic/jetpack-mu-wpcom/src/features/paragraph-block-placeholder/paragraph-block-placeholder.php:75
 msgid "Start writing or type '/' to insert a block"
-msgstr ""
+msgstr "Bắt đầu viết hoặc gõ '/' để chèn một khối"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/mailerlite/subscriber-popup.php:123
 msgid "UUID:"
-msgstr ""
+msgstr "UUID:"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/mailerlite/subscriber-popup.php:120
 msgid "Account ID <a href=\"%s\" target=\"_blank\">(instructions)</a>:"
@@ -316,76 +316,76 @@ msgstr ""
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/mailerlite/subscriber-popup.php:29
 msgid "Display Mailerlite subscriber popup"
-msgstr ""
+msgstr "Hiển thị popup đăng ký Mailerlite"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/mailerlite/subscriber-popup.php:26
 msgid "Mailerlite subscriber popup"
-msgstr ""
+msgstr "Popup đăng ký Mailerlite"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/jetpack-global-styles/class-global-styles-fonts-message-control.php:63
 msgid "Click here to open the Block Editor and change your fonts."
-msgstr ""
+msgstr "Nhấp vào đây để mở Trình chỉnh sửa Khối và thay đổi phông chữ của bạn."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/jetpack-global-styles/class-global-styles-fonts-message-control.php:40
 msgid "Learn more about changing fonts using Global Styles."
-msgstr ""
+msgstr "Tìm hiểu thêm về cách thay đổi phông chữ bằng cách sử dụng Phong cách toàn cầu."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/jetpack-global-styles/class-global-styles-fonts-message-control.php:27
 msgid "You can change your fonts using Global Styles, which can be found in the Block Editor."
-msgstr ""
+msgstr "Bạn có thể thay đổi phông chữ của mình bằng cách sử dụng Phong cách toàn cầu, có thể tìm thấy trong Trình chỉnh sửa Khối."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/help-center/class-wp-rest-help-center-odie.php:178
 msgid "Whether to mark this as a test chat (a11n-only)."
-msgstr ""
+msgstr "Có nên đánh dấu đây là cuộc trò chuyện thử nghiệm (chỉ dành cho a11n) hay không."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/help-center/class-wp-rest-help-center-odie.php:144
 msgid "The feedback rating value."
-msgstr ""
+msgstr "Giá trị đánh giá phản hồi."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/help-center/class-wp-rest-help-center-odie.php:139
 msgid "The message id for the existing message."
-msgstr ""
+msgstr "ID tin nhắn cho tin nhắn hiện có."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/help-center/class-wp-rest-help-center-odie.php:91
 #: vendor/automattic/jetpack-mu-wpcom/src/features/help-center/class-wp-rest-help-center-odie.php:168
 msgid "The context to continue the chat with."
-msgstr ""
+msgstr "Bối cảnh để tiếp tục cuộc trò chuyện."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/help-center/class-wp-rest-help-center-odie.php:85
 #: vendor/automattic/jetpack-mu-wpcom/src/features/help-center/class-wp-rest-help-center-odie.php:173
 msgid "The message to add to the chat"
-msgstr ""
+msgstr "Tin nhắn để thêm vào cuộc trò chuyện"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/help-center/class-wp-rest-help-center-odie.php:80
 #: vendor/automattic/jetpack-mu-wpcom/src/features/help-center/class-wp-rest-help-center-odie.php:134
 msgid "The chat id for the existing chat."
-msgstr ""
+msgstr "ID cuộc trò chuyện cho cuộc trò chuyện hiện tại."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/help-center/class-wp-rest-help-center-odie.php:75
 #: vendor/automattic/jetpack-mu-wpcom/src/features/help-center/class-wp-rest-help-center-odie.php:129
 #: vendor/automattic/jetpack-mu-wpcom/src/features/help-center/class-wp-rest-help-center-odie.php:163
 msgid "The bot id to chat with."
-msgstr ""
+msgstr "ID của bot để trò chuyện."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/help-center/class-wp-rest-help-center-odie.php:64
 msgid "If true, include the feedback rating value for each message in the response."
-msgstr ""
+msgstr "Nếu đúng, bao gồm giá trị đánh giá phản hồi cho mỗi tin nhắn trong phản hồi."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/help-center/class-wp-rest-help-center-odie.php:56
 msgid "The number of items per page."
-msgstr ""
+msgstr "Số lượng mục trên mỗi trang."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/help-center/class-wp-rest-help-center-odie.php:50
 msgid "The number of the page to retrieve, limited to 100"
-msgstr ""
+msgstr "Số trang cần truy xuất, giới hạn tối đa là 100"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/help-center/class-wp-rest-help-center-odie.php:45
 msgid "The chat id to get the chat for."
-msgstr ""
+msgstr "ID chat để lấy chat."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/help-center/class-wp-rest-help-center-odie.php:40
 msgid "The bot id to get the chat for."
-msgstr ""
+msgstr "ID của bot để lấy cuộc trò chuyện."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:210
 msgid "Comment"
@@ -405,11 +405,11 @@ msgstr "Cài plugin"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-management-widget/class-wpcom-site-management-widget.php:217
 msgid "Server Settings"
-msgstr ""
+msgstr "Cài đặt khoảng cách"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-management-widget/class-wpcom-site-management-widget.php:213
 msgid "Staging Site"
-msgstr ""
+msgstr "Trang web tạm thời"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-management-widget/class-wpcom-site-management-widget.php:209
 msgid "Logs"
@@ -417,23 +417,23 @@ msgstr "Nhật ký"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-management-widget/class-wpcom-site-management-widget.php:201
 msgid "Deployments"
-msgstr ""
+msgstr "Triển khai"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-management-widget/class-wpcom-site-management-widget.php:195
 msgid "DEV TOOLS:"
-msgstr ""
+msgstr "CÔNG CỤ PHÁT TRIỂN:"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-management-widget/class-wpcom-site-management-widget.php:193
 msgid "Get a quick overview of your plans, storage, and domains, or easily access your development tools using the links provided below:"
-msgstr ""
+msgstr "Nhận tổng quan nhanh về kế hoạch, lưu trữ và tên miền của bạn, hoặc dễ dàng truy cập các công cụ phát triển của bạn bằng các liên kết được cung cấp bên dưới:"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-management-widget/class-wpcom-site-management-widget.php:176
 msgid "Your Site management widget requires JavaScript to function properly."
-msgstr ""
+msgstr "Tiện ích quản lý trang web của bạn yêu cầu JavaScript để hoạt động bình thường."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-management-widget/class-wpcom-site-management-widget.php:159
 msgid "Site Management Panel"
-msgstr ""
+msgstr "Bảng điều khiển quản lý trang web"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-block-editor/class-jetpack-wpcom-block-editor.php:357
 msgid "Underline"
@@ -449,35 +449,35 @@ msgstr ""
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-block-editor/class-jetpack-wpcom-block-editor.php:185
 msgid "Before we continue, please log in to your Jetpack site."
-msgstr ""
+msgstr "Trước khi tiếp tục, vui lòng đăng nhập vào trang web Jetpack của bạn."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:266
 msgid "Admin interface style changed."
-msgstr ""
+msgstr "Giao diện quản trị đã thay đổi."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:229
 msgid "Click here to access your sites, domains, Reader, account settings, and more."
-msgstr ""
+msgstr "Nhấp vào đây để truy cập các trang web, miền, Reader, cài đặt tài khoản và nhiều hơn nữa."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:228
 msgid "All your sites"
-msgstr ""
+msgstr "Tất cả các trang web của bạn"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:222
 msgid "Access the new site management panel and all developer tools such as hosting configuration, GitHub deployments, metrics, PHP logs, and server logs."
-msgstr ""
+msgstr "Truy cập bảng điều khiển quản lý trang web mới và tất cả các công cụ dành cho nhà phát triển như cấu hình lưu trữ, triển khai GitHub, số liệu, nhật ký PHP và nhật ký máy chủ."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:221
 msgid "Hosting overview"
-msgstr ""
+msgstr "Tổng quan về Lưu trữ"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:215
 msgid "The Hosting menu contains the My Home page and all items from the Upgrades menu, including Plans, Domains, Emails, Purchases, and more."
-msgstr ""
+msgstr "Menu Hosting chứa trang My Home và tất cả các mục từ menu Nâng cấp, bao gồm Kế hoạch, Miền, Email, Mua hàng, và nhiều hơn nữa."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:214
 msgid "Upgrades is now Hosting"
-msgstr ""
+msgstr "Nâng cấp hiện tại là Lưu trữ"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:172
 msgid "Got it!"
@@ -501,7 +501,7 @@ msgstr "Trả lời"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/replace-site-visibility/replace-site-visibility.php:37
 msgid "Manage your privacy settings"
-msgstr ""
+msgstr "Quản lý cài đặt quyền riêng tư của bạn"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:1207
 msgid "Switch"
@@ -511,41 +511,41 @@ msgstr "Chuyển đổi"
 #: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:1188
 #: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:1200
 msgid "(modified %s ago)"
-msgstr ""
+msgstr "(đã sửa đổi %s trước)"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:1178
 msgid "Select a theme&hellip;"
-msgstr ""
+msgstr "Chọn một chủ đề&hellip;"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:1176
 msgid "Select another theme to view its custom CSS."
-msgstr ""
+msgstr "Chọn chủ đề khác để xem CSS tùy chỉnh của nó."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:772
 msgid "Don't use the theme's original CSS."
-msgstr ""
+msgstr "Không sử dụng CSS gốc của chủ đề."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:762
 msgid "Media Width"
-msgstr ""
+msgstr "Độ rộng phương tiện"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:359
 msgctxt "Toolbar button to get help with custom CSS"
 msgid "Help"
-msgstr ""
+msgstr "Trợ giúp"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:358
 msgctxt "Toolbar button to see full CSS revision history"
 msgid "See full history"
-msgstr ""
+msgstr "Xem toàn bộ lịch sử"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:356
 msgid "On Mobile"
-msgstr ""
+msgstr "Trên Di động"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:355
 msgid "Start Fresh"
-msgstr ""
+msgstr "Bắt đầu lại"
 
 #. translators: the theme name and then the default width.
 #: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:338
@@ -559,7 +559,7 @@ msgstr "Đổi chiều rộng để hiển thị đầy đủ kích cỡ hình."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:241
 msgid "Custom CSS is now managed in the Customizer."
-msgstr ""
+msgstr "CSS tùy chỉnh hiện được quản lý trong Trình tùy chỉnh."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:236
 msgid "Manage with Live Preview"
@@ -573,7 +573,7 @@ msgstr "CSS tùy chỉnh"
 #: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:247
 #: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:805
 msgid "Preprocessor"
-msgstr ""
+msgstr "Bộ tiền xử lý"
 
 #. translators: comments widget: 1: comment author, 2: comment link, 3: comment
 #. title
@@ -606,23 +606,23 @@ msgstr "Plugin"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:31
 msgid "Use WordPress.com’s legacy dashboard to manage your site."
-msgstr ""
+msgstr "Sử dụng bảng điều khiển cũ của WordPress.com để quản lý trang web của bạn."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:31
 msgid "Default style"
-msgstr ""
+msgstr "Kiểu mặc định"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:30
 msgid "Use WP-Admin to manage your site."
-msgstr ""
+msgstr "Sử dụng WP-Admin để quản lý trang web của bạn."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:30
 msgid "Classic style"
-msgstr ""
+msgstr "Kiểu cổ điển"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:28
 msgid "Admin Interface Style"
-msgstr ""
+msgstr "Kiểu giao diện quản trị"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-plugins/wpcom-plugins.php:45
 msgid "Explore plugins"
@@ -630,44 +630,44 @@ msgstr "Khám phá plugin"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-plugins/wpcom-plugins.php:43
 msgid "Access a variety of free and paid plugins that can enhance your site's functionality and features."
-msgstr ""
+msgstr "Truy cập vào nhiều plugin miễn phí và trả phí khác nhau để nâng cao chức năng và tính năng của trang web."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-plugins/wpcom-plugins.php:42
 msgid "Flex your site's features with plugins"
-msgstr ""
+msgstr "Nâng cao tính năng của trang web với các plugin"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-themes/wpcom-themes.php:66
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-themes/wpcom-themes.php:67
 msgid "Theme Showcase"
-msgstr ""
+msgstr "Trình bày giao diện"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-themes/wpcom-themes.php:42
 msgid "Explore themes"
-msgstr ""
+msgstr "Khám phá các chủ đề"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-themes/wpcom-themes.php:40
 msgid "Dive deep into the world of WordPress.com themes. Discover the responsive and stunning designs waiting to bring your site to life."
-msgstr ""
+msgstr "Khám phá thế giới các chủ đề WordPress.com. Khám phá những thiết kế tuyệt đẹp và phản hồi nhanh chóng đang chờ đợi để mang trang web của bạn đến với cuộc sống."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-themes/wpcom-themes.php:39
 msgid "Find the perfect theme for your site"
-msgstr ""
+msgstr "Tìm giao diện phù hợp nhất cho trang web của bạn"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:230
 msgid "A few catchy words to motivate your readers to comment"
-msgstr ""
+msgstr "Một vài từ ngữ hấp dẫn để khuyến khích độc giả của bạn bình luận"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:192
 msgid "Enable blocks in comments"
-msgstr ""
+msgstr "Bật khối trong bình luận"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:181
 msgid "Let visitors use a WordPress.com or Facebook account to comment"
-msgstr ""
+msgstr "Cho phép khách truy cập sử dụng tài khoản WordPress.com hoặc Facebook để bình luận"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:170
 msgid "Adjust your Comments form with a clever greeting and color-scheme."
-msgstr ""
+msgstr "Điều chỉnh biểu mẫu bình luận của bạn với lời chào thông minh và bảng màu."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:149
 #: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:262
@@ -676,15 +676,15 @@ msgstr "Tông màu"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:132
 msgid "Greeting Text"
-msgstr ""
+msgstr "Lời chào"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:116
 msgid "Allow Blocks"
-msgstr ""
+msgstr "Tất cả block"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:103
 msgid "Verbum"
-msgstr ""
+msgstr "Verbum"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:81
 msgid "Dark"
@@ -696,11 +696,11 @@ msgstr "Nhẹ nhàng"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:82
 msgid "Transparent"
-msgstr ""
+msgstr "Trong suốt"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:810
 msgid "Launch your store"
-msgstr "Khởi chạy cửa hàng của bạn"
+msgstr "Khởi chạy trang web của bạn"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:800
 msgid "Add a domain"
@@ -745,11 +745,11 @@ msgstr "Các cài đặt"
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:168
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:169
 msgid "Monetize"
-msgstr ""
+msgstr "Kiếm tiền"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-management-widget/class-wpcom-site-management-widget.php:205
 msgid "Monitoring"
-msgstr ""
+msgstr "Giám sát"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:114
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:115
@@ -759,7 +759,7 @@ msgstr "Thanh toán"
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:105
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:106
 msgid "Emails"
-msgstr "Emails"
+msgstr "Email"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:96
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:97
@@ -769,7 +769,7 @@ msgstr "Tên miền"
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:87
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:88
 msgid "Add-ons"
-msgstr ""
+msgstr "Phụ kiện"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:78
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:79
@@ -779,7 +779,7 @@ msgstr "Gói"
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:49
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:50
 msgid "Hosting"
-msgstr ""
+msgstr "Lưu trữ"
 
 #. translators: Hidden accessibility text.
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-bar/wpcom-admin-bar.php:130
@@ -789,13 +789,13 @@ msgstr "Tất cả blog"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:465
 msgid "Error: please try commenting again."
-msgstr ""
+msgstr "Lỗi: vui lòng thử bình luận lại."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:390
 #: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:396
 #: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:403
 msgid "Error: your Facebook login has expired."
-msgstr ""
+msgstr "Lỗi: Phiên đăng nhập Facebook của bạn đã hết hạn."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:301
 msgid "Cancel reply"
@@ -816,7 +816,7 @@ msgstr "Lưu tên, email và trang web của tôi trong trình duyệt này cho 
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:232
 msgid "Comment sent successfully"
-msgstr ""
+msgstr "Bình luận đã được gửi thành công"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:231
 msgid "Subscribe"
@@ -828,11 +828,11 @@ msgstr "Nhập địa chỉ email"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:229
 msgid "Interested in getting blog post updates? Simply click the button below to stay in the loop!"
-msgstr ""
+msgstr "Bạn có muốn nhận cập nhật bài đăng blog? Chỉ cần nhấp vào nút bên dưới để theo dõi!"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:228
 msgid "Never miss a beat!"
-msgstr ""
+msgstr "Đừng bỏ lỡ bất kỳ nhịp nào!"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:227
 msgid "Continue reading"
@@ -840,21 +840,21 @@ msgstr "Đọc tiếp"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:226
 msgid "Subscribe now to keep reading and get access to the full archive."
-msgstr ""
+msgstr "Đăng ký ngay để tiếp tục đọc và truy cập toàn bộ kho lưu trữ."
 
 #. translators: %s is the name of the site
 #: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:225
 msgid "Discover more from %s"
-msgstr ""
+msgstr "Khám phá thêm từ %s"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:223
 msgid "Loading your comment..."
-msgstr ""
+msgstr "Đang tải bình luận của bạn..."
 
 #. translators: Success message of a modal when user subscribes
 #: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:222
 msgid "We'll keep you in the loop!"
-msgstr ""
+msgstr "Chúng tôi sẽ giữ bạn cập nhật!"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:220
 msgid "Optional"
@@ -866,7 +866,7 @@ msgstr "Website"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:218
 msgid "Write a reply..."
-msgstr ""
+msgstr "Viết một câu trả lời..."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:216
 msgid "Cancel"
@@ -894,7 +894,7 @@ msgstr "WordPress"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:96
 msgid "Comments"
-msgstr ""
+msgstr "Bình luận"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:209
 msgid "Reply"
@@ -919,48 +919,48 @@ msgstr "Đi ra khỏi nhà THchansan"
 #. translators: %s is the name of the provider (WordPress, Facebook, Twitter)
 #: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:203
 msgid "Logged in via %s"
-msgstr ""
+msgstr "Đăng nhập qua %s"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:201
 msgid "Log in to leave a comment."
-msgstr ""
+msgstr "Đăng nhập để để lại nhận xét."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:200
 msgid "Log in to leave a reply."
-msgstr ""
+msgstr "Đăng nhập để để lại phản hồi."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:199
 msgid "Leave a comment. (log in optional)"
-msgstr ""
+msgstr "Để lại nhận xét. (Đăng nhập tùy chọn)"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:198
 msgid "Leave a reply. (log in optional)"
-msgstr ""
+msgstr "Để lại phản hồi. (Đăng nhập tùy chọn)"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:197
 msgid "Website (optional)"
-msgstr ""
+msgstr "Trang web (tùy chọn)"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:196
 msgid "Email (address never made public)"
-msgstr ""
+msgstr "Email (địa chỉ không bao giờ được công khai)"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:194
 msgid "Receive web and mobile notifications for posts on this site."
-msgstr ""
+msgstr "Nhận thông báo web và di động cho các bài đăng trên trang web này."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:193
 msgid "Log in or provide your name and email to leave a comment."
-msgstr ""
+msgstr "Đăng nhập hoặc cung cấp tên và email của bạn để để lại nhận xét."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:192
 msgid "Log in or provide your name and email to leave a reply."
-msgstr ""
+msgstr "Đăng nhập hoặc cung cấp tên và email của bạn để để lại phản hồi."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-gutenberg-editor.php:30
 #: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:217
 msgid "Write a comment..."
-msgstr ""
+msgstr "Viết lời bình"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/import-customizations/import-customizations.php:39
 msgid "Get started"
@@ -968,7 +968,7 @@ msgstr "Tham gia"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/import-customizations/import-customizations.php:37
 msgid "Use WordPress.com’s guided importer to import posts and comments from Medium, Substack, Squarespace, Wix, and more."
-msgstr ""
+msgstr "Sử dụng trình nhập khẩu có hướng dẫn của WordPress.com để nhập bài đăng và nhận xét từ Medium, Substack, Squarespace, Wix và nhiều hơn nữa."
 
 #: notices/feature-moved-to-jetpack-notices.php:21
 msgid "Visit %1$sJetpack Settings%2$s for more writing settings powered by Jetpack."
@@ -977,11 +977,11 @@ msgstr ""
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:334
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:335
 msgid "Scheduled Updates"
-msgstr ""
+msgstr "Cập nhật đã lên lịch"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:738
 msgid "Verify the email address for your domains"
-msgstr ""
+msgstr "Xác minh địa chỉ email cho miền của bạn"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:292
 msgid "Site setup"
@@ -989,11 +989,11 @@ msgstr "Thiết lập blog"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:728
 msgid "Finish Sensei setup"
-msgstr ""
+msgstr "Hoàn tất cài đặt Sensei"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:718
 msgid "Finish store setup"
-msgstr ""
+msgstr "Hoàn thành thiết lập cửa hàng"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:701
 msgid "Update your site's design"
@@ -1033,7 +1033,7 @@ msgstr ""
 
 #: imports/playground/class-sql-postprocessor.php:296
 msgid "The site is not connected."
-msgstr ""
+msgstr "Trang web không được kết nối."
 
 #: imports/playground/class-sql-postprocessor.php:288
 msgid "Jetpack is not installed."
@@ -1097,27 +1097,27 @@ msgstr ""
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:261
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:277
 msgid "Next steps for your site"
-msgstr ""
+msgstr "Các bước tiếp theo cho trang web của bạn"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:673
 msgid "Add the Subscribe Block to your site"
-msgstr ""
+msgstr "Thêm khối đăng ký vào trang web của bạn"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:659
 msgid "Import existing subscribers"
-msgstr ""
+msgstr "Nhập người đăng ký hiện có"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:650
 msgid "View site metrics"
-msgstr ""
+msgstr "Xem số liệu trang web"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:641
 msgid "Set up ssh"
-msgstr ""
+msgstr "Thiết lập ssh"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:629
 msgid "Install a custom plugin"
-msgstr ""
+msgstr "Cài đặt plugin tùy chỉnh"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:617
 msgid "Choose a theme"
@@ -1125,89 +1125,89 @@ msgstr "Chọn một theme"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:602
 msgid "Set up an offer for your supporters"
-msgstr ""
+msgstr "Thiết lập một ưu đãi cho những người ủng hộ của bạn"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:582
 msgid "Connect a Stripe account to collect payments"
-msgstr ""
+msgstr "Kết nối tài khoản Stripe để thu thập thanh toán"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:567
 msgid "Add your About page"
-msgstr ""
+msgstr "Thêm trang Giới thiệu của bạn"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:557
 msgid "Manage your paid Newsletter plan"
-msgstr ""
+msgstr "Quản lý kế hoạch Báo cáo trả phí của bạn"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:549
 msgid "Connect your social media accounts"
-msgstr ""
+msgstr "Kết nối tài khoản mạng xã hội của bạn"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:535
 msgid "Manage your subscribers"
-msgstr ""
+msgstr "Quản lý người đăng ký của bạn"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:522
 msgid "Write 3 posts"
-msgstr ""
+msgstr "Viết 3 bài đăng"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:507
 msgid "Get your first 10 subscribers"
-msgstr ""
+msgstr "Nhận 10 người đăng ký đầu tiên của bạn"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:495
 msgid "Enable subscribers modal"
-msgstr ""
+msgstr "Cho phép cửa sổ bật lên người đăng ký"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:483
 msgid "Customize welcome message"
-msgstr ""
+msgstr "Tùy chỉnh tin nhắn chào mừng"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:473
 msgid "Earn money with your newsletter"
-msgstr ""
+msgstr "Kiếm tiền với bản tin của bạn"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:416
 msgid "Update your About page"
-msgstr ""
+msgstr "Cập nhật trang Giới thiệu của bạn"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:254
 msgid "Migrate content"
-msgstr ""
+msgstr "Di chuyển nội dung"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:175
 msgid "Verify email address"
-msgstr ""
+msgstr "Xác minh địa chỉ email"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/locked-mode.php:120
 msgid "Prevents new post and page from being created as well as existing posts and pages from being edited, and closes comments site wide."
-msgstr ""
+msgstr "Ngăn chặn việc tạo bài đăng và trang mới cũng như chỉnh sửa bài đăng và trang hiện có, đồng thời đóng phần bình luận trên toàn trang web."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/locked-mode.php:119
 msgid "Enable Locked Mode"
-msgstr ""
+msgstr "Bật Chế độ Khóa"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/locked-mode.php:102
 msgid "Locked Mode"
-msgstr ""
+msgstr "Chế độ Khóa"
 
 #. translators: link to the help page: https://wordpress.com/help
 #: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/enhanced-ownership.php:102
 msgid "To take ownership of the site, we ask that the person you designate contacts us at %s with a copy of the death certificate."
-msgstr ""
+msgstr "Để sở hữu trang web, chúng tôi yêu cầu người được bạn chỉ định liên hệ với chúng tôi tại %s với một bản sao giấy chứng tử."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/enhanced-ownership.php:97
 msgid "Choose someone to look after your site when you pass away."
-msgstr ""
+msgstr "Chọn một người để quản lý trang web của bạn khi bạn qua đời."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/enhanced-ownership.php:80
 msgid "Legacy Contact"
-msgstr ""
+msgstr "Liên hệ cũ"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/enhanced-ownership.php:73
 #: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/locked-mode.php:95
 msgid "Enhanced Ownership"
-msgstr ""
+msgstr "Quyền sở hữu nâng cao"
 
 #: notices/anyone-can-register-notice.php:79
 msgid "The <a href=\"%2$s\">\"Anyone can register\" option</a> is currently active. The current default role is %1$s. %4$s <strong>Please consider disabling this option if open registration is not needed.<strong>"
@@ -1240,19 +1240,19 @@ msgstr ""
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:465
 msgid "Share your site"
-msgstr ""
+msgstr "Chia sẻ trang web của bạn"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:435
 msgid "Edit a page"
-msgstr ""
+msgstr "Chỉnh sửa trang"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1725
 msgid "Your site contains premium styles. Upgrade now to publish them and unlock tons of other features."
-msgstr ""
+msgstr "Trang web của bạn có các kiểu dáng cao cấp. Nâng cấp ngay để xuất bản chúng và mở khóa nhiều tính năng khác."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:450
 msgid "Customize your domain"
-msgstr ""
+msgstr "Tùy chỉnh tên miền của bạn"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:403
 msgid "Add a new page"
@@ -1269,13 +1269,13 @@ msgstr "Đặt tên blog của bạn"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:76
 msgid "Claim your free one-year domain"
-msgstr ""
+msgstr "Nhận miền miễn phí một năm"
 
 #: frontend-notices/gifting-banner/gifting-banner.php:138
 #: frontend-notices/gifting-banner/gifting-banner.php:160
 msgctxt "verb"
 msgid "Gift"
-msgstr ""
+msgstr "Quà tặng"
 
 #: vendor/automattic/jetpack-post-list/src/class-post-list.php:211
 msgid "Thumbnail"
@@ -1284,20 +1284,20 @@ msgstr "Ảnh thu nhỏ"
 #: vendor/automattic/jetpack-post-list/src/class-post-list.php:191
 msgctxt "Share the post on social networks"
 msgid "Share"
-msgstr ""
+msgstr "Chia sẻ"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1169
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1740
 msgid "Upgrade plan"
-msgstr ""
+msgstr "Nâng cấp gói"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:202
 msgid "Create paid Newsletter"
-msgstr ""
+msgstr "Tạo bản tin trả phí"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:224
 msgid "Set up payment method"
-msgstr ""
+msgstr "Thiết lập phương thức thanh toán"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:87
 msgid "Choose a domain"
@@ -1305,15 +1305,15 @@ msgstr "Chọn tên miền"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:336
 msgid "Launch your blog"
-msgstr ""
+msgstr "Khởi chạy blog của bạn"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:43
 msgid "Edit site design"
-msgstr ""
+msgstr "Chỉnh sửa thiết kế trang web"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:370
 msgid "Set up your site"
-msgstr ""
+msgstr "Cài đặt trang web của bạn"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:344
 msgid "Name your blog"
@@ -1321,15 +1321,15 @@ msgstr "Tên blog của bạn"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:356
 msgid "Personalize your site"
-msgstr ""
+msgstr "Cá nhân hóa trang web của bạn"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:315
 msgid "Upload your first video"
-msgstr ""
+msgstr "Tải lên video đầu tiên của bạn"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:308
 msgid "Set up your video site"
-msgstr ""
+msgstr "Thiết lập trang web video của bạn"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:167
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:269
@@ -1338,16 +1338,16 @@ msgstr "Khởi chạy trang web của bạn"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:277
 msgid "Add links"
-msgstr ""
+msgstr "Thêm liên kết"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:289
 msgid "Personalize Link in Bio"
-msgstr ""
+msgstr "Cá nhân hóa Liên kết trong Bio"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:56
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:66
 msgid "Select a design"
-msgstr ""
+msgstr "Chọn một thiết kế"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:188
 msgid "Start writing"
@@ -1355,11 +1355,11 @@ msgstr "Bắt đầu viết"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:102
 msgid "Write your first post"
-msgstr ""
+msgstr "Viết bài đăng đầu tiên của bạn"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:241
 msgid "Add subscribers"
-msgstr ""
+msgstr "Thêm người đăng ký"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:131
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:143
@@ -1368,21 +1368,21 @@ msgstr "Chọn một gói"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:212
 msgid "Personalize newsletter"
-msgstr ""
+msgstr "Cá nhân hóa bản tin"
 
 #: vendor/automattic/jetpack-config/src/class-config.php:189
 msgid "Unable to load class %1$s. Please add the package that contains it using composer and make sure you are requiring the Jetpack autoloader"
-msgstr ""
+msgstr "Không thể tải lớp %1$s. Vui lòng thêm gói chứa nó bằng composer và đảm bảo bạn đang yêu cầu bộ tải tự động của Jetpack"
 
 #. translators: 1: wp_default_scripts. 2: Name of the domain being aliased.
 #: vendor/automattic/jetpack-assets/src/class-assets.php:577
 msgid "Textdomain aliases should be registered before the %1$s hook. This notice was triggered by the %2$s domain."
-msgstr ""
+msgstr "Biệt danh textdomain nên được đăng ký trước móc %1$s. Thông báo này được kích hoạt bởi miền %2$s."
 
 #. translators: %s is the script handle.
 #: vendor/automattic/jetpack-assets/src/class-assets.php:406
 msgid "Script \"%s\" depends on wp-i18n but does not specify \"textdomain\""
-msgstr ""
+msgstr "Kịch bản \"%s\" phụ thuộc vào wp-i18n nhưng không chỉ định \"textdomain\""
 
 #: vendor/automattic/custom-fonts/providers/google.php:280
 msgctxt "Add new subset (greek, cyrillic, devanagari, vietnamese)"
@@ -1392,137 +1392,137 @@ msgstr "vietnamese"
 #: vendor/automattic/custom-fonts/providers/base.php:302
 msgctxt "font-style"
 msgid "Ultra Bold Oblique"
-msgstr ""
+msgstr "In nghiêng Siêu Đậm"
 
 #: vendor/automattic/custom-fonts/providers/base.php:301
 msgctxt "font-style"
 msgid "Ultra Bold Italic"
-msgstr ""
+msgstr "In nghiêng Siêu Đậm"
 
 #: vendor/automattic/custom-fonts/providers/base.php:300
 msgctxt "font-style"
 msgid "Ultra Bold"
-msgstr ""
+msgstr "Siêu Đậm"
 
 #: vendor/automattic/custom-fonts/providers/base.php:299
 msgctxt "font-style"
 msgid "Extra Bold Oblique"
-msgstr ""
+msgstr "In nghiêng Đậm Đặc Biệt"
 
 #: vendor/automattic/custom-fonts/providers/base.php:298
 msgctxt "font-style"
 msgid "Extra Bold Italic"
-msgstr ""
+msgstr "In nghiêng Đậm Đặc Biệt"
 
 #: vendor/automattic/custom-fonts/providers/base.php:297
 msgctxt "font-style"
 msgid "Extra Bold"
-msgstr ""
+msgstr "Đậm Đặc Biệt"
 
 #: vendor/automattic/custom-fonts/providers/base.php:296
 msgctxt "font-style"
 msgid "Bold Oblique"
-msgstr ""
+msgstr "In nghiêng Đậm"
 
 #: vendor/automattic/custom-fonts/providers/base.php:295
 msgctxt "font-style"
 msgid "Bold Italic"
-msgstr ""
+msgstr "In nghiêng Đậm"
 
 #: vendor/automattic/custom-fonts/providers/base.php:294
 msgctxt "font-style"
 msgid "Bold"
-msgstr ""
+msgstr "Đậm"
 
 #: vendor/automattic/custom-fonts/providers/base.php:293
 msgctxt "font-style"
 msgid "Semibold Oblique"
-msgstr ""
+msgstr "In nghiêng Nửa đậm"
 
 #: vendor/automattic/custom-fonts/providers/base.php:292
 msgctxt "font-style"
 msgid "Semibold Italic"
-msgstr ""
+msgstr "In nghiêng Nửa đậm"
 
 #: vendor/automattic/custom-fonts/providers/base.php:291
 msgctxt "font-style"
 msgid "Semibold"
-msgstr ""
+msgstr "Nửa đậm"
 
 #: vendor/automattic/custom-fonts/providers/base.php:290
 msgctxt "font-style"
 msgid "Medium Oblique"
-msgstr ""
+msgstr "In nghiêng Trung bình"
 
 #: vendor/automattic/custom-fonts/providers/base.php:289
 msgctxt "font-style"
 msgid "Medium Italic"
-msgstr ""
+msgstr "In nghiêng Trung bình"
 
 #: vendor/automattic/custom-fonts/providers/base.php:288
 msgctxt "font-style"
 msgid "Medium"
-msgstr ""
+msgstr "Trung bình"
 
 #: vendor/automattic/custom-fonts/providers/base.php:287
 msgctxt "font-style"
 msgid "Oblique"
-msgstr ""
+msgstr "In nghiêng"
 
 #: vendor/automattic/custom-fonts/providers/base.php:286
 msgctxt "font-style"
 msgid "Italic"
-msgstr ""
+msgstr "In nghiêng"
 
 #: vendor/automattic/custom-fonts/providers/base.php:285
 msgctxt "font-style"
 msgid "Regular"
-msgstr ""
+msgstr "Bình thường"
 
 #: vendor/automattic/custom-fonts/providers/base.php:284
 msgctxt "font-style"
 msgid "Light Oblique"
-msgstr ""
+msgstr "In nghiêng Nhẹ"
 
 #: vendor/automattic/custom-fonts/providers/base.php:283
 msgctxt "font-style"
 msgid "Light Italic"
-msgstr ""
+msgstr "In nghiêng Nhẹ"
 
 #: vendor/automattic/custom-fonts/providers/base.php:282
 msgctxt "font-style"
 msgid "Light"
-msgstr ""
+msgstr "Nhẹ"
 
 #: vendor/automattic/custom-fonts/providers/base.php:281
 msgctxt "font-style"
 msgid "Extra Light Oblique"
-msgstr ""
+msgstr "In nghiêng Nhẹ Đặc Biệt"
 
 #: vendor/automattic/custom-fonts/providers/base.php:280
 msgctxt "font-style"
 msgid "Extra Light Italic"
-msgstr ""
+msgstr "In nghiêng Nhẹ Đặc Biệt"
 
 #: vendor/automattic/custom-fonts/providers/base.php:279
 msgctxt "font-style"
 msgid "Extra Light"
-msgstr ""
+msgstr "Siêu nhẹ"
 
 #: vendor/automattic/custom-fonts/providers/base.php:278
 msgctxt "font-style"
 msgid "Thin Oblique"
-msgstr ""
+msgstr "Mỏng nghiêng"
 
 #: vendor/automattic/custom-fonts/providers/base.php:277
 msgctxt "font-style"
 msgid "Thin Italic"
-msgstr ""
+msgstr "Mỏng nghiêng"
 
 #: vendor/automattic/custom-fonts/providers/base.php:276
 msgctxt "font-style"
 msgid "Thin"
-msgstr ""
+msgstr "Mỏng"
 
 #: vendor/automattic/custom-fonts/fonts-customize-control.php:41
 msgid "Huge"
@@ -1534,7 +1534,7 @@ msgstr "Lớn"
 
 #: vendor/automattic/custom-fonts/fonts-customize-control.php:39
 msgid "Normal Size"
-msgstr ""
+msgstr "Kích thước bình thường"
 
 #: vendor/automattic/custom-fonts/fonts-customize-control.php:38
 msgid "Normal"
@@ -1546,11 +1546,11 @@ msgstr "Nhỏ"
 
 #: vendor/automattic/custom-fonts/fonts-customize-control.php:36
 msgid "Tiny"
-msgstr ""
+msgstr "Rất nhỏ"
 
 #: vendor/automattic/custom-fonts/fonts-customize-control.php:35
 msgid "Default Theme Font"
-msgstr ""
+msgstr "Phông chữ mặc định của chủ đề"
 
 #: vendor/automattic/custom-fonts/custom-fonts.php:147
 #: vendor/automattic/custom-fonts/custom-fonts.php:163
@@ -1572,23 +1572,23 @@ msgstr "Tiêu đề"
 
 #: vendor/automattic/custom-fonts-typekit/advanced-mode.php:56
 msgid "You added a Typekit kit ID through our legacy interface, which is no longer supported. Uncheck the checkbox below and click \"Save\" to remove your kit from this blog and use our easy new interface for choosing fonts."
-msgstr ""
+msgstr "Bạn đã thêm ID bộ Typekit thông qua giao diện cũ của chúng tôi, hiện không còn được hỗ trợ. Bỏ chọn hộp kiểm bên dưới và nhấp vào \"Lưu\" để xóa bộ của bạn khỏi blog này và sử dụng giao diện mới dễ dàng của chúng tôi để chọn phông chữ."
 
 #: vendor/automattic/custom-fonts-typekit/advanced-mode.php:54
 msgid "Lucky you! Your theme designers chose specific fonts for you that you can’t pick otherwise. If you aren’t happy with these fonts, uncheck the checkbox below and click \"Save\" to choose other fonts."
-msgstr ""
+msgstr "May mắn cho bạn! Các nhà thiết kế chủ đề của bạn đã chọn các phông chữ cụ thể cho bạn mà bạn không thể chọn theo cách khác. Nếu bạn không hài lòng với các phông chữ này, hãy bỏ chọn hộp kiểm bên dưới và nhấp vào \"Lưu\" để chọn phông chữ khác."
 
 #: vendor/automattic/custom-fonts-typekit/advanced-mode.php:23
 msgid "Uncheck to disable"
-msgstr ""
+msgstr "Bỏ chọn để vô hiệu hóa"
 
 #: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:109
 msgid "Spotify Feed ID"
-msgstr ""
+msgstr "ID nguồn cấp dữ liệu Spotify"
 
 #: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:103
 msgid "Apple Podcasts Feed ID"
-msgstr ""
+msgstr "ID nguồn cấp dữ liệu Apple Podcasts"
 
 #: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:97
 msgid "Title"
@@ -1596,39 +1596,39 @@ msgstr "Tựa đề"
 
 #: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:81
 msgid "Podcast RSS Feed"
-msgstr ""
+msgstr "Nguồn cấp dữ liệu RSS Podcast"
 
 #: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:78
 msgid "Listen on Spotify"
-msgstr ""
+msgstr "Nghe trên Spotify"
 
 #: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:73
 msgid "Listen on Apple Podcasts"
-msgstr ""
+msgstr "Nghe trên Apple Podcasts"
 
 #: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:15
 msgid "Display information about your Podcast and allow visitors to follow via iTunes"
-msgstr ""
+msgstr "Hiển thị thông tin về Podcast của bạn và cho phép người truy cập theo dõi qua iTunes"
 
 #: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:13
 msgid "Podcast"
-msgstr ""
+msgstr "Podcast"
 
 #: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:290
 msgid "Select iTunes category:"
-msgstr ""
+msgstr "Chọn danh mục iTunes:"
 
 #: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:287
 msgid "Set podcast category"
-msgstr ""
+msgstr "Thiết lập danh mục podcast"
 
 #: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:189
 msgid "Set podcast image"
-msgstr ""
+msgstr "Thiết lập hình ảnh podcast"
 
 #: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:178
 msgid "Clean"
-msgstr ""
+msgstr "Sạch sẽ"
 
 #: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:177
 msgid "Yes"
@@ -1640,31 +1640,31 @@ msgstr "Không"
 
 #: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:173
 msgid "Set podcast as explicit"
-msgstr ""
+msgstr "Thiết lập podcast là rõ ràng"
 
 #: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:163
 msgid "Set podcast copyright"
-msgstr ""
+msgstr "Thiết lập bản quyền podcast"
 
 #: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:148
 msgid "Set podcast summary"
-msgstr ""
+msgstr "Thiết lập tóm tắt podcast"
 
 #: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:130
 msgid "Set podcast author"
-msgstr ""
+msgstr "Thiết lập tác giả podcast"
 
 #: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:116
 msgid "Set podcast title"
-msgstr ""
+msgstr "Thiết lập tiêu đề podcast"
 
 #: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:98
 msgid "This is the URL you submit to iTunes or podcasting service."
-msgstr ""
+msgstr "Đây là URL bạn gửi đến iTunes hoặc dịch vụ podcasting."
 
 #: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:97
 msgid "Your podcast feed: %1$s"
-msgstr ""
+msgstr "Luồng podcast của bạn: %1$s"
 
 #: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:79
 msgid "Select podcast category:"
@@ -1672,43 +1672,43 @@ msgstr "Chọn chuyên mục podcast"
 
 #: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:76
 msgid "Blog category for podcasts"
-msgstr ""
+msgstr "Danh mục blog cho podcast"
 
 #: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:47
 msgid "Podcast category 3"
-msgstr ""
+msgstr "Danh mục podcast 3"
 
 #: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:44
 msgid "Podcast category 2"
-msgstr ""
+msgstr "Danh mục podcast 2"
 
 #: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:41
 msgid "Podcast category 1"
-msgstr ""
+msgstr "Danh mục podcast 1"
 
 #: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:37
 msgid "Podcast image"
-msgstr ""
+msgstr "Hình ảnh Podcast"
 
 #: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:34
 msgid "Mark as explicit"
-msgstr ""
+msgstr "Đánh dấu là rõ ràng"
 
 #: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:31
 msgid "Podcast copyright"
-msgstr ""
+msgstr "Bản quyền Podcast"
 
 #: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:28
 msgid "Podcast summary"
-msgstr ""
+msgstr "Tóm tắt Podcast"
 
 #: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:25
 msgid "Podcast talent name"
-msgstr ""
+msgstr "Tên tài năng podcast"
 
 #: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:22
 msgid "Podcast title"
-msgstr ""
+msgstr "Tiêu đề Podcast"
 
 #: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:18
 msgid "Category to set as feed"
@@ -1721,7 +1721,7 @@ msgstr "Podcast"
 #. translators: %s is the Twitter account name
 #: widgets/class-jetpack-widget-twitter.php:67
 msgid "Tweets by %s"
-msgstr ""
+msgstr "Tweet của %s"
 
 #: private-site/logged-in-banner.php:168
 msgid "Next steps"
@@ -1766,7 +1766,7 @@ msgstr "Tặng chủ blog một gói WordPress.com."
 #: frontend-notices/gifting-banner/gifting-banner.php:238
 msgid "Gift the author a WordPress.com plan before it expires in %d day."
 msgid_plural "Gift the author a WordPress.com plan before it expires in %d days."
-msgstr[0] ""
+msgstr[0] "Tặng tác giả một gói WordPress.com trước khi nó hết hạn trong %d ngày."
 
 #: frontend-notices/gifting-banner/gifting-banner.php:227
 msgid "Gift the author a WordPress.com upgrade."
@@ -1825,7 +1825,7 @@ msgstr "Tổng quan"
 
 #: private-site/logged-in-banner.php:91
 msgid "Launch"
-msgstr ""
+msgstr "Khởi chạy"
 
 #: private-site/logged-in-banner.php:87
 msgid "Update"
@@ -1853,7 +1853,7 @@ msgstr ""
 
 #: frontend-notices/gifting-banner/gifting-banner.php:206
 msgid "Enjoy this site?"
-msgstr ""
+msgstr "Thích trang web này?"
 
 #. translators: 1: opening anchor tag; 2: closing anchor tag.
 #: feature-plugins/full-site-editing.php:127
@@ -1953,23 +1953,23 @@ msgstr ""
 
 #: widgets/class-wpcom-category-cloud-widget.php:211
 msgid "Click for more information"
-msgstr ""
+msgstr "Nhấp để biết thêm thông tin"
 
 #: widgets/class-wpcom-category-cloud-widget.php:209
 msgid "Count items in sub-categories toward parent total."
-msgstr ""
+msgstr "Đếm các mục trong danh mục con vào tổng số mục cha."
 
 #: widgets/class-wpcom-category-cloud-widget.php:201
 msgid "Maximum font percentage:"
-msgstr ""
+msgstr "Tỷ lệ phần trăm phông chữ tối đa:"
 
 #: widgets/class-wpcom-category-cloud-widget.php:195
 msgid "Minimum font percentage:"
-msgstr ""
+msgstr "Tỷ lệ phần trăm phông chữ tối thiểu:"
 
 #: widgets/class-wpcom-category-cloud-widget.php:190
 msgid "Category IDs, separated by commas"
-msgstr ""
+msgstr "ID danh mục, phân cách bằng dấu phẩy"
 
 #: widgets/class-wpcom-category-cloud-widget.php:188
 msgid "Exclude:"
@@ -1977,7 +1977,7 @@ msgstr "Ngoại trừ:"
 
 #: widgets/class-wpcom-category-cloud-widget.php:182
 msgid "Maximum number of categories to show:"
-msgstr ""
+msgstr "Số lượng tối đa danh mục hiển thị:"
 
 #. translators: link to support doc about categories
 #: widgets/class-wpcom-category-cloud-widget.php:141
@@ -1986,7 +1986,7 @@ msgstr ""
 
 #: widgets/class-wpcom-category-cloud-widget.php:29
 msgid "Your most used categories in cloud format."
-msgstr ""
+msgstr "Danh mục bạn sử dụng nhiều nhất ở định dạng đám mây."
 
 #: widgets/class-wpcom-category-cloud-widget.php:27
 #: widgets/class-wpcom-category-cloud-widget.php:65
@@ -1995,11 +1995,11 @@ msgstr "Mây chuyên mục"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/replace-site-visibility/replace-site-visibility.php:32
 msgid "Jetpack is disconnected & site is private. Reconnect Jetpack to manage site visibility settings."
-msgstr ""
+msgstr "Jetpack đã bị ngắt kết nối & trang web là riêng tư. Kết nối lại Jetpack để quản lý cài đặt hiển thị trang web."
 
 #: private-site/logged-in-banner.php:86
 msgid "Update visibility"
-msgstr ""
+msgstr "Cập nhật mức độ hiển thị"
 
 #: private-site/logged-in-banner.php:90
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:301
@@ -2021,7 +2021,7 @@ msgstr "Tên đăng nhập Twitter:"
 
 #: widgets/twitter.php:353
 msgid "Please switch to the 'Twitter Timeline' widget. This widget will be going away in the future and the new widget allows for more customization."
-msgstr ""
+msgstr "Vui lòng chuyển sang tiện ích \"Dòng thời gian Twitter\". Tiện ích này sẽ bị loại bỏ trong tương lai và tiện ích mới cho phép tùy chỉnh nhiều hơn."
 
 #: widgets/twitter.php:61
 msgid "Twitter Updates"
@@ -2033,7 +2033,7 @@ msgstr ""
 
 #: widgets/twitter.php:29
 msgid "Display your Tweets from Twitter"
-msgstr ""
+msgstr "Hiển thị các Tweets của bạn từ Twitter"
 
 #: widgets/twitter.php:26
 msgid "Twitter"
@@ -2053,11 +2053,11 @@ msgstr "Hiển thị số lượng bài viết cho từng thẻ"
 
 #: widgets/tag-cloud-widget.php:139
 msgid "Maximum number of tags displayed"
-msgstr ""
+msgstr "Số lượng thẻ tối đa hiển thị"
 
 #: widgets/tag-cloud-widget.php:137
 msgid "Number of Tags:"
-msgstr ""
+msgstr "Số lượng thẻ:"
 
 #: widgets/tag-cloud-widget.php:41
 msgid "Tags"
@@ -2105,7 +2105,7 @@ msgstr ""
 
 #: widgets/aboutme.php:148
 msgid "Apps"
-msgstr ""
+msgstr "Ứng dụng"
 
 #: widgets/instagram/instagram.php:245
 msgid "New images may take up to %d minutes to show up on your site."
@@ -2113,7 +2113,7 @@ msgstr ""
 
 #: widgets/instagram/instagram.php:237
 msgid "Number of columns:"
-msgstr ""
+msgstr "Số lượng cột:"
 
 #: widgets/instagram/instagram.php:236
 msgid "Layout"
@@ -2121,7 +2121,7 @@ msgstr "Sơ đồ trình bày"
 
 #: widgets/instagram/instagram.php:226
 msgid "Number to display:"
-msgstr ""
+msgstr "Số lượng hiển thị:"
 
 #: widgets/instagram/instagram.php:225
 msgid "Images"
@@ -2133,15 +2133,15 @@ msgstr "Tựa đề Widget"
 
 #: widgets/instagram/instagram.php:189
 msgid "No Instagram images were found."
-msgstr ""
+msgstr "Không tìm thấy ảnh Instagram nào."
 
 #: widgets/instagram/instagram.php:186
 msgid "There was an error retrieving images from Instagram. An attempt will be remade in a few minutes."
-msgstr ""
+msgstr "Đã xảy ra lỗi khi truy xuất ảnh từ Instagram. Hệ thống sẽ thử lại trong vài phút nữa."
 
 #: widgets/instagram/instagram.php:30
 msgid "Display your latest Instagram photos."
-msgstr ""
+msgstr "Hiển thị những bức ảnh Instagram mới nhất của bạn."
 
 #: widgets/instagram/instagram.php:28 widgets/instagram/instagram.php:43
 msgid "Instagram"
@@ -2149,7 +2149,7 @@ msgstr "Instagram"
 
 #: widgets/class-aboutme-widget.php:149
 msgid "Biography"
-msgstr ""
+msgstr "Tiểu sử"
 
 #: widgets/class-aboutme-widget.php:142
 msgid "Headline"
@@ -2218,7 +2218,7 @@ msgstr "Tạo một website miễn phí hoặc 1 blog với WordPress.com"
 
 #: footer-credit/theme-optimizations.php:57
 msgid "Create a free website at WordPress.com"
-msgstr ""
+msgstr "Tạo trang web miễn phí trên WordPress.com"
 
 #: footer-credit/footer-credit/footer-credit.php:104
 msgid "Powered by WordPress.com"
@@ -2236,7 +2236,7 @@ msgstr "Trang web từ WordPress.com"
 
 #: footer-credit/footer-credit/footer-credit.php:101
 msgid "WordPress.com Logo"
-msgstr ""
+msgstr "Logo WordPress.com"
 
 #: footer-credit/footer-credit/footer-credit.php:41
 #: footer-credit/footer-credit/footer-credit.php:208
@@ -2249,7 +2249,7 @@ msgstr "Dấu hiệu cuối trang"
 
 #: footer-credit/footer-credit/customizer.php:80
 msgid "Upgrade to Business"
-msgstr ""
+msgstr "Nâng cấp lên Business"
 
 #: footer-credit/footer-credit/customizer.php:72
 msgid "Hide (Business Plan Required)"
@@ -2265,7 +2265,7 @@ msgstr "Mặc định"
 
 #: footer-credit/footer-credit-optimizations.php:171
 msgid "Design by"
-msgstr ""
+msgstr "Thiết kế bởi"
 
 #: footer-credit/footer-credit-optimizations.php:157
 msgid "by"
@@ -2277,7 +2277,7 @@ msgstr "Giao diện"
 
 #: footer-credit/footer-credit-optimizations.php:119
 msgid "Proudly powered by WordPress"
-msgstr ""
+msgstr "Được hỗ trợ bởi WordPress"
 
 #: customizer-fixes/customizer-fixes.php:26
 msgid "Save Settings"
@@ -2285,7 +2285,7 @@ msgstr "Lưu cài đạt"
 
 #: customizer-fixes/customizer-fixes.php:25
 msgid "Are you sure you want to discard your unsaved changes?"
-msgstr ""
+msgstr "Bạn có chắc muốn bỏ qua những thay đổi chưa được lưu?"
 
 #: customizer-fixes/customizer-fixes.php:24
 msgid "Saved"
@@ -2301,7 +2301,7 @@ msgstr "Lưu lại"
 
 #: customizer-fixes/customizer-fixes.php:21
 msgid "Activate &amp; Save"
-msgstr ""
+msgstr "Kích hoạt & Lưu"
 
 #: wpcomsh.php:338
 msgid "This plugin was installed by WordPress.com and provides features offered in your plan subscription."
@@ -2309,7 +2309,7 @@ msgstr ""
 
 #: wpcomsh.php:335
 msgid "%s is automatically managed for you."
-msgstr ""
+msgstr "%s được quản lý tự động cho bạn."
 
 #: widgets/top-rated.php:141
 msgid "How many items would you like to display?"
@@ -2321,15 +2321,15 @@ msgstr "Lọc theo danh mục"
 
 #: widgets/top-rated.php:131
 msgid "Show for comments"
-msgstr ""
+msgstr "Hiển thị cho bình luận"
 
 #: widgets/top-rated.php:125
 msgid "Show for pages"
-msgstr ""
+msgstr "Hiển thị cho trang"
 
 #: widgets/top-rated.php:119
 msgid "Show for posts"
-msgstr ""
+msgstr "Hiển thị cho bài viết"
 
 #: widgets/top-rated.php:11 widgets/top-rated.php:32
 msgid "Top Rated"
@@ -2337,7 +2337,7 @@ msgstr "Được đánh giá cao nhất"
 
 #: widgets/top-rated.php:10
 msgid "A list of your top rated posts, pages or comments."
-msgstr ""
+msgstr "Danh sách các bài viết, trang hoặc bình luận được đánh giá cao nhất của bạn."
 
 #: widgets/top-clicks.php:61
 msgid "Top Clicks are calculated from 48-72 hours of stats. They take a while to change."
@@ -2349,7 +2349,7 @@ msgstr "Đường dẫn hiển thị"
 
 #: widgets/top-clicks.php:47
 msgid "Display length:"
-msgstr ""
+msgstr "Độ dài hiển thị:"
 
 #: widgets/top-clicks.php:14
 msgid "List the most-clicked links on your blog."
@@ -2358,23 +2358,23 @@ msgstr ""
 #: widgets/top-clicks.php:13 widgets/top-clicks.php:22
 #: widgets/top-clicks.php:66
 msgid "Top Clicks"
-msgstr ""
+msgstr "Lượt nhấp chuột hàng đầu"
 
 #: widgets/tlkio/tlkio.php:59
 msgid "Height (in pixel):"
-msgstr ""
+msgstr "Chiều cao (tính bằng pixel):"
 
 #: widgets/tlkio/tlkio.php:55
 msgid "Channel:"
-msgstr ""
+msgstr "Kênh:"
 
 #: widgets/tlkio/tlkio.php:26
 msgid "tlk.io Webchat"
-msgstr ""
+msgstr "Trò chuyện trực tuyến tlk.io"
 
 #: widgets/tlkio/tlkio.php:25
 msgid "Add a tlk.io webchat."
-msgstr ""
+msgstr "Thêm trò chuyện trực tuyến tlk.io."
 
 #: widgets/reservations.php:55
 msgid "Show:"
@@ -2382,19 +2382,19 @@ msgstr "Hiển thị:"
 
 #: widgets/reservations.php:50
 msgid "E-mail Subject:"
-msgstr ""
+msgstr "Chủ đề Email:"
 
 #: widgets/reservations.php:44
 msgid "Recipient E-mail Address:"
-msgstr ""
+msgstr "Địa chỉ email người nhận:"
 
 #: widgets/reservations.php:29
 msgid "Departure"
-msgstr ""
+msgstr "Khởi hành"
 
 #: widgets/reservations.php:28
 msgid "Arrival"
-msgstr ""
+msgstr "Đến"
 
 #: widgets/reservations.php:27
 msgid "# Children"
@@ -2424,16 +2424,16 @@ msgstr "Tên"
 
 #: widgets/class-wpcom-widget-reservations.php:33
 msgid "Reservation Inquiry"
-msgstr ""
+msgstr "Yêu cầu đặt chỗ"
 
 #: widgets/class-wpcom-widget-reservations.php:27
 #: widgets/class-wpcom-widget-reservations.php:32
 msgid "Reservations"
-msgstr ""
+msgstr "Đặt chỗ"
 
 #: widgets/class-wpcom-widget-recent-comments.php:477
 msgid "Show comments from:"
-msgstr ""
+msgstr "Hiển thị bình luận từ:"
 
 #: widgets/class-wpcom-widget-recent-comments.php:472
 msgid "Text background color:"
@@ -2457,7 +2457,7 @@ msgstr "Số bài được hiển thị:"
 
 #: widgets/class-wpcom-widget-recent-comments.php:362
 msgid "There are no public comments available to display."
-msgstr ""
+msgstr "Không có bình luận công khai nào để hiển thị."
 
 #: widgets/class-wpcom-widget-recent-comments.php:312
 msgid "Anonymous"
@@ -2465,7 +2465,7 @@ msgstr "Ẩn danh"
 
 #: widgets/class-wpcom-widget-recent-comments.php:56
 msgid "Display your site's most recent comments"
-msgstr ""
+msgstr "Hiển thị các bình luận gần đây nhất trên trang web của bạn"
 
 #: widgets/class-wpcom-widget-recent-comments.php:53
 #: widgets/class-wpcom-widget-recent-comments.php:192
@@ -2485,11 +2485,11 @@ msgstr "trên"
 #: widgets/class-jetpack-posts-i-like-widget.php:243
 msgctxt "1: Post Title, 2: Blog Name"
 msgid "%1$s on %2$s"
-msgstr ""
+msgstr "%1$s trên %2$s"
 
 #: widgets/class-jetpack-posts-i-like-widget.php:118
 msgid "Author's likes to display:"
-msgstr ""
+msgstr "Số lượt thích của tác giả để hiển thị:"
 
 #: widgets/class-jetpack-posts-i-like-widget.php:100
 msgid "Grid"
@@ -2501,33 +2501,33 @@ msgstr "Danh sách"
 
 #: widgets/class-jetpack-posts-i-like-widget.php:97
 msgid "Display as:"
-msgstr ""
+msgstr "Hiển thị dưới dạng:"
 
 #: widgets/class-jetpack-posts-i-like-widget.php:92
 msgid "Number of posts to show (1 to 15):"
-msgstr ""
+msgstr "Số bài viết hiển thị (từ 1 đến 15):"
 
 #: widgets/class-jetpack-posts-i-like-widget.php:22
 msgid "A list of the posts I most recently liked"
-msgstr ""
+msgstr "Danh sách các bài đăng mà tôi thích gần đây nhất"
 
 #: widgets/class-jetpack-posts-i-like-widget.php:20
 #: widgets/class-jetpack-posts-i-like-widget.php:27
 msgid "Posts I Like"
-msgstr ""
+msgstr "Bài viết tôi thích"
 
 #: widgets/class-music-player-widget.php:96
 msgid "Choose songs"
-msgstr ""
+msgstr "Chọn bài hát"
 
 #: widgets/class-music-player-widget.php:18
 #: widgets/class-music-player-widget.php:101
 msgid "Music Player"
-msgstr ""
+msgstr "Trình phát nhạc"
 
 #: widgets/class-music-player-widget.php:16
 msgid "A multi-song music player"
-msgstr ""
+msgstr "Trình phát nhạc nhiều bài hát"
 
 #: widgets/class-jetpack-i-voted-widget.php:30
 msgid "I Voted"
@@ -2539,27 +2539,27 @@ msgstr ""
 
 #: widgets/class-gravatar-widget.php:199
 msgid "Text displayed after Gravatar. This is optional and can be used to describe yourself or what your blog is about."
-msgstr ""
+msgstr "Văn bản hiển thị sau Gravatar. Điều này là tùy chọn và có thể được sử dụng để mô tả bản thân hoặc blog của bạn."
 
 #: widgets/class-gravatar-widget.php:198
 msgid "Gravatar link. This is an optional URL that will be used when anyone clicks on your Gravatar:"
-msgstr ""
+msgstr "Liên kết Gravatar. Đây là URL tùy chọn sẽ được sử dụng khi ai đó nhấp vào Gravatar của bạn:"
 
 #: widgets/class-gravatar-widget.php:188
 msgid "Gravatar alignment:"
-msgstr ""
+msgstr "Căn chỉnh Gravatar:"
 
 #: widgets/class-gravatar-widget.php:177
 msgid "Size:"
-msgstr ""
+msgstr "Kích thước:"
 
 #: widgets/class-gravatar-widget.php:174
 msgid "Custom Email Address:"
-msgstr ""
+msgstr "Địa chỉ Email tùy chỉnh:"
 
 #: widgets/class-gravatar-widget.php:161
 msgid "Select a user or pick \"custom\" and enter a custom email address."
-msgstr ""
+msgstr "Chọn một người dùng hoặc chọn \"tùy chỉnh\" và nhập địa chỉ email tùy chỉnh."
 
 #: widgets/class-gravatar-widget.php:156
 msgid "Center"
@@ -2583,19 +2583,19 @@ msgstr "Trống"
 
 #: widgets/class-gravatar-widget.php:150
 msgid "Extra Large (256 pixels)"
-msgstr ""
+msgstr "Rất lớn (256 pixel)"
 
 #: widgets/class-gravatar-widget.php:149
 msgid "Large (128 pixels)"
-msgstr ""
+msgstr "Lớn (128 pixel)"
 
 #: widgets/class-gravatar-widget.php:148
 msgid "Medium (96 pixels)"
-msgstr ""
+msgstr "Trung bình (96 pixel)"
 
 #: widgets/class-gravatar-widget.php:147
 msgid "Small (64 pixels)"
-msgstr ""
+msgstr "Nhỏ (64 pixel)"
 
 #. translators: %s is the URL to the widget settings.
 #: widgets/class-gravatar-widget.php:98
@@ -2608,11 +2608,11 @@ msgstr "Gravatar"
 
 #: widgets/class-gravatar-widget.php:17
 msgid "Insert a Gravatar image"
-msgstr ""
+msgstr "Chèn hình ảnh Gravatar"
 
 #: widgets/class-wpcom-freshly-pressed-widget.php:84
 msgid "Choose an image to display in your sidebar:"
-msgstr ""
+msgstr "Chọn hình ảnh để hiển thị trong thanh bên:"
 
 #: widgets/class-wpcom-freshly-pressed-widget.php:16
 msgid "Freshly Pressed"
@@ -2620,7 +2620,7 @@ msgstr "Mới đăng"
 
 #: widgets/class-wpcom-freshly-pressed-widget.php:13
 msgid "Display a Freshly Pressed badge in your sidebar"
-msgstr ""
+msgstr "Hiển thị huy hiệu Freshly Pressed trong thanh bên của bạn"
 
 #: widgets/class-widget-authors-grid.php:143
 #: widgets/class-wpcom-widget-recent-comments.php:453
@@ -2653,11 +2653,11 @@ msgstr "Tác giả"
 
 #: widgets/class-widget-authors-grid.php:17
 msgid "Show a grid of author avatar images."
-msgstr ""
+msgstr "Hiển thị lưới hình đại diện của tác giả."
 
 #: widgets/class-widget-authors-grid.php:14
 msgid "Author Grid"
-msgstr ""
+msgstr "Lưới tác giả"
 
 #: private-site/private-site.php:616
 msgid "Private Site"

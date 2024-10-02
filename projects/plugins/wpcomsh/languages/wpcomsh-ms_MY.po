@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2024-08-06 10:28:54+0000\n"
+"PO-Revision-Date: 2024-08-26 11:50:13+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -207,7 +207,7 @@ msgstr "Jenis induk tidak sah."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/starter-page-templates/class-starter-page-templates.php:240
 msgid "Current"
-msgstr ""
+msgstr "Semasa"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/starter-page-templates/class-starter-page-templates.php:235
 msgid "Blank"

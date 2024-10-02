@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2024-08-06 10:28:54+0000\n"
+"PO-Revision-Date: 2024-08-23 07:59:14+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -223,7 +223,7 @@ msgstr ""
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-global-styles/index.php:549
 msgid "Upgrade required"
-msgstr ""
+msgstr "Потрібне оновлення"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-global-styles/index.php:546
 msgid "Upgrade"
@@ -1291,7 +1291,7 @@ msgstr ""
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1169
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1740
 msgid "Upgrade plan"
-msgstr ""
+msgstr "План оновлення"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:202
 msgid "Create paid Newsletter"
@@ -1630,7 +1630,7 @@ msgstr "Встановити зображення подкасту"
 
 #: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:178
 msgid "Clean"
-msgstr ""
+msgstr "Clean"
 
 #: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:177
 msgid "Yes"

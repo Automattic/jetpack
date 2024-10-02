@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2024-08-06 13:19:07+0000\n"
+"PO-Revision-Date: 2024-09-03 19:19:41+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -17,11 +17,11 @@ msgstr "La barra degli strumenti è sempre visibile su siti Atomic mentre si è 
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-profile-settings/profile-settings-link-to-wpcom.php:48
 msgid "Your WordPress.com password is managed on WordPress.com Security settings"
-msgstr ""
+msgstr "La tua password WordPress.com è gestita dalle impostazioni di sicurezza di WordPress.com"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-profile-settings/profile-settings-link-to-wpcom.php:44
 msgid "Your WordPress.com email is managed on WordPress.com Account settings"
-msgstr ""
+msgstr "La tua e-mail WordPress.com è gestita dalle impostazioni account di WordPress.com"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template.php:149
 msgid "Footer"
@@ -33,62 +33,62 @@ msgstr "Intestazione"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:552
 msgid "Back to template part types"
-msgstr ""
+msgstr "Torna ai tipi di parte del modello"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:551
 msgid "No template part types found."
-msgstr ""
+msgstr "Nessun tipo di parte del modello trovato."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:550
 msgid "Search Template Part Types"
-msgstr ""
+msgstr "Cerca tipi di parte del modello"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:549
 msgid "Parent Template Part Type:"
-msgstr ""
+msgstr "Tipo di parte del modello principale:"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:548
 msgid "Parent Template Part Type"
-msgstr ""
+msgstr "Tipo di parte del modello principale"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:547
 msgid "New Template Part Type"
-msgstr ""
+msgstr "Nuovo tipo di parte del modello"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:546
 msgid "Add New Template Part Type"
-msgstr ""
+msgstr "Aggiungi nuovo tipo di parte del modello"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:545
 msgid "Update Template Part Type"
-msgstr ""
+msgstr "Aggiorna tipo di parte del modello"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:544
 msgid "View Template Part Type"
-msgstr ""
+msgstr "Visualizza tipo di parte del modello"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:543
 msgid "Edit Template Part Type"
-msgstr ""
+msgstr "Modifica tipo di parte del modello"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:542
 msgid "All Template Part Types"
-msgstr ""
+msgstr "Tutti i tipi di parte del modello"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:541
 msgctxt "admin menu"
 msgid "Template Part Types"
-msgstr ""
+msgstr "Tipi di parte del modello"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:540
 msgctxt "taxonomy singular name"
 msgid "Template Part Type"
-msgstr ""
+msgstr "Tipo di parte del modello"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:539
 msgctxt "taxonomy general name"
 msgid "Template Part Types"
-msgstr ""
+msgstr "Tipi di parte del modello"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:504
 msgid "Template part updated."
@@ -96,19 +96,19 @@ msgstr "La parte del template è stata aggiornata."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:503
 msgid "Template part scheduled."
-msgstr ""
+msgstr "Parte del modello programmata."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:502
 msgid "Template part reverted to draft."
-msgstr ""
+msgstr "Parte del modello riconvertita in bozza."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:501
 msgid "Template part published privately."
-msgstr ""
+msgstr "Parte del modello pubblicata privatamente."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:500
 msgid "Template part published."
-msgstr ""
+msgstr "Parte del modello pubblicata."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:499
 msgid "Template parts list"
@@ -162,12 +162,12 @@ msgstr "Aggiungi nuovo"
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:487
 msgctxt "add new on admin bar"
 msgid "Template Part"
-msgstr ""
+msgstr "Parte template"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:486
 msgctxt "admin menu"
 msgid "Template Parts"
-msgstr ""
+msgstr "Parti modello"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:485
 msgctxt "post type singular name"
@@ -215,7 +215,7 @@ msgstr "Vuoto"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/starter-page-templates/class-starter-page-templates.php:225
 msgid "No templates available. Skipped showing modal window with template selection."
-msgstr ""
+msgstr "Nessun template disponibile. Visualizzazione della finestra in primo piano con selezione del template saltata."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:122
 msgid "Customize content with AI"
@@ -324,15 +324,15 @@ msgstr "Popup per abbonati Mailerlite"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/jetpack-global-styles/class-global-styles-fonts-message-control.php:63
 msgid "Click here to open the Block Editor and change your fonts."
-msgstr "Fai clic qui per aprire l'Editor a blocchi e cambiare i tipi di carattere."
+msgstr "Fai clic qui per aprire l'Editor a blocchi e cambiare i font."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/jetpack-global-styles/class-global-styles-fonts-message-control.php:40
 msgid "Learn more about changing fonts using Global Styles."
-msgstr "Scopri di più sulla modifica dei tipi di carattere utilizzando Stili globali."
+msgstr "Scopri di più sulla modifica dei tipi di font utilizzando Stili globali."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/jetpack-global-styles/class-global-styles-fonts-message-control.php:27
 msgid "You can change your fonts using Global Styles, which can be found in the Block Editor."
-msgstr "Puoi cambiare i tipi di carattere usando Stili globali, disponibile nell'Editor a blocchi."
+msgstr "Puoi cambiare i tipi di font usando Stili globali, disponibile nell'Editor a blocchi."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/help-center/class-wp-rest-help-center-odie.php:178
 msgid "Whether to mark this as a test chat (a11n-only)."
@@ -1551,13 +1551,13 @@ msgstr "Piccolo"
 
 #: vendor/automattic/custom-fonts/fonts-customize-control.php:35
 msgid "Default Theme Font"
-msgstr "Carattere predefinito del tema"
+msgstr "Font predefinito del tema"
 
 #: vendor/automattic/custom-fonts/custom-fonts.php:147
 #: vendor/automattic/custom-fonts/custom-fonts.php:163
 #: vendor/automattic/jetpack-mu-wpcom/src/features/jetpack-global-styles/class-global-styles.php:277
 msgid "Fonts"
-msgstr "Caratteri"
+msgstr "Font"
 
 #: vendor/automattic/custom-fonts/css-generator.php:63
 msgid "Headings"
@@ -1565,7 +1565,7 @@ msgstr "Titoli"
 
 #: vendor/automattic/custom-fonts/css-generator.php:56
 msgid "Base Font"
-msgstr "Carattere di base"
+msgstr "Font di base"
 
 #: vendor/automattic/custom-fonts/css-generator.php:49
 msgid "Site Title"
@@ -1573,11 +1573,11 @@ msgstr "Titolo del sito"
 
 #: vendor/automattic/custom-fonts-typekit/advanced-mode.php:56
 msgid "You added a Typekit kit ID through our legacy interface, which is no longer supported. Uncheck the checkbox below and click \"Save\" to remove your kit from this blog and use our easy new interface for choosing fonts."
-msgstr "Hai aggiunto un ID kit Typekit tramite la nostra interfaccia legacy, che non è più supportata. Deseleziona la casella di controllo sottostante e fai clic su \"Salva\" per rimuovere il kit da questo blog e usare la nostra nuova e semplice interfaccia per la scelta dei caratteri."
+msgstr "Hai aggiunto un ID kit Typekit tramite la nostra interfaccia legacy, che non è più supportata. Deseleziona la casella di controllo sottostante e fai clic su \"Salva\" per rimuovere il kit da questo blog e usare la nostra nuova e semplice interfaccia per la scelta dei font."
 
 #: vendor/automattic/custom-fonts-typekit/advanced-mode.php:54
 msgid "Lucky you! Your theme designers chose specific fonts for you that you can’t pick otherwise. If you aren’t happy with these fonts, uncheck the checkbox below and click \"Save\" to choose other fonts."
-msgstr "Sei fortunato! I designer del tuo tema hanno scelto caratteri specifici per te che non potrai selezionare altrimenti. Se non ti piacciono questi caratteri, deseleziona la casella di seguito e fai clic su \"Salva\" per sceglierne altri."
+msgstr "Sei fortunato! I designer del tuo tema hanno scelto font specifici per te che non potrai selezionare altrimenti. Se non ti piacciono questi font, deseleziona la casella di seguito e fai clic su \"Salva\" per sceglierne altri."
 
 #: vendor/automattic/custom-fonts-typekit/advanced-mode.php:23
 msgid "Uncheck to disable"
@@ -1963,11 +1963,11 @@ msgstr "Includi gli elementi nelle sottocategorie nel conteggio totale della cat
 
 #: widgets/class-wpcom-category-cloud-widget.php:201
 msgid "Maximum font percentage:"
-msgstr "Percentuale massima dei caratteri:"
+msgstr "Percentuale massima dei font::"
 
 #: widgets/class-wpcom-category-cloud-widget.php:195
 msgid "Minimum font percentage:"
-msgstr "Percentuale minima dei caratteri:"
+msgstr "Percentuale minima dei font::"
 
 #: widgets/class-wpcom-category-cloud-widget.php:190
 msgid "Category IDs, separated by commas"

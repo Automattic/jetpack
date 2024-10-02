@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2024-08-06 10:28:54+0000\n"
+"PO-Revision-Date: 2024-08-10 17:55:20+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -17,11 +17,11 @@ msgstr "Bara de unelte este mereu vizibilă pe site-urile Atomic când ești con
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-profile-settings/profile-settings-link-to-wpcom.php:48
 msgid "Your WordPress.com password is managed on WordPress.com Security settings"
-msgstr ""
+msgstr "Parola ta WordPress.com este administrată în setările Securitate din WordPress.com"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-profile-settings/profile-settings-link-to-wpcom.php:44
 msgid "Your WordPress.com email is managed on WordPress.com Account settings"
-msgstr ""
+msgstr "Adresa ta de email WordPress.com este administrată în setările Cont din WordPress.com"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template.php:149
 msgid "Footer"
@@ -1782,7 +1782,7 @@ msgstr "Planul pentru acest site a expirat."
 
 #: notices/plan-notices.php:130
 msgid "The Business plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Business plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
-msgstr ""
+msgstr "Planul Business pentru <strong>%3$s</strong> a expirat pe %2$s. <a href=\"%1$s\">Reactivează planul</a> ca să păstrezi funcționalitățile planului Business, cum ar fi module și teme personalizate, SFTP și acces la phpMyAdmin."
 
 #: notices/plan-notices.php:109
 msgid "The Pro plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Pro plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
@@ -1790,11 +1790,11 @@ msgstr "Planul Pro pentru <strong>%3$s</strong> expiră pe %2$s. <a href=\"%1$s\
 
 #: notices/plan-notices.php:99
 msgid "The Business plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Business plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
-msgstr ""
+msgstr "Planul Business pentru <strong>%3$s</strong> expiră pe %2$s. <a href=\"%1$s\">Reînnoiește planul</a> pentru a-ți păstra funcționalitățile planului Business, cum ar fi module și teme personalizate, SFTP și acces la phpMyAdmin."
 
 #: notices/plan-notices.php:104
 msgid "The Commerce plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Commerce plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
-msgstr ""
+msgstr "Planul Commerce pentru <strong>%3$s</strong> expiră pe %2$s. <a href=\"%1$s\">Reînnoiește-l</a> ca să păstrezi funcționalitățile planului Commerce, cum ar fi module și teme personalizate și acces la SFTP și phpMyAdmin."
 
 #: storage/storage.php:33
 msgid "You have used your space quota. Please delete files before uploading."
@@ -1837,19 +1837,19 @@ msgstr "Actualizează"
 
 #: notices/plan-notices.php:125
 msgid "The Premium plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Premium plan features such as site monetization, VideoPress, and Google Analytics support."
-msgstr ""
+msgstr "Planul Premium pentru <strong>%3$s</strong> a expirat pe %2$s. <a href=\"%1$s\">Reactivează planul</a> ca să păstrezi funcționalitățile planului Premium, cum ar fi câștiguri în bani pe site, VideoPress și suport Google Analytics."
 
 #: notices/plan-notices.php:120
 msgid "The Personal plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Personal plan features such as 6 GB storage space, no WordPress.com ads, and Subscriber-only content."
-msgstr ""
+msgstr "Planul Personal pentru <strong>%3$s</strong> a expirat pe %2$s. <a href=\"%1$s\">Reactivează planul</a> ca să păstrezi funcționalitățile planului Premium, cum ar fi spațiu de stocare de 6 Go, fără reclame WordPress.com și conținut numai pentru abonați."
 
 #: notices/plan-notices.php:94
 msgid "The Premium plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Premium plan features such as site monetization, VideoPress, and Google Analytics support."
-msgstr ""
+msgstr "Planul Premium pentru <strong>%3$s</strong> expiră pe %2$s. <a href=\"%1$s\">Reînnoiește planul</a> ca să păstrezi funcționalitățile planului Premium, cum ar fi câștiguri în bani pe site, VideoPress și suport Google Analytics."
 
 #: notices/plan-notices.php:89
 msgid "The Personal plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Personal plan features such as 6 GB storage space, no WordPress.com ads, and Subscriber-only content."
-msgstr ""
+msgstr "Planul Personal pentru <strong>%3$s</strong> expiră pe %2$s. <a href=\"%1$s\">Reînnoiește planul</a> ca să păstrezi funcționalitățile planului Premium, cum ar fi spațiu de stocare de 6 Go, fără reclame WordPress.com și conținut numai pentru abonați."
 
 #: notices/php-version-notices.php:30
 msgid "You are currently using PHP <strong>%1$s</strong> which will no longer receive security updates as of %2$s. Please update to PHP %3$s or higher by changing your <a href=\"%4$s\">hosting configuration</a>."
@@ -1918,7 +1918,7 @@ msgstr "Actualizările sunt administrate de WordPress.com"
 
 #: notices/plan-notices.php:135
 msgid "The Commerce plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Commerce plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
-msgstr ""
+msgstr "Planul Commerce pentru <strong>%3$s</strong> a expirat pe %2$s. <a href=\"%1$s\">Reactivează planul</a> ca să păstrezi funcționalitățile planului Commerce, cum ar fi module și teme personalizate, SFTP și acces la phpMyAdmin."
 
 #: notices/plan-notices.php:140
 msgid "The Pro plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Pro plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
