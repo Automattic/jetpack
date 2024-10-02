@@ -35,7 +35,7 @@ export default function ConnectBanner( {
 		return null;
 	}
 
-	let connectButtonText = __( 'Connect', 'jetpack-videopress-pkg' );
+	let connectButtonText = __( 'Enable', 'jetpack-videopress-pkg' );
 	if ( isConnecting ) {
 		connectButtonText = __( 'Redirecting…', 'jetpack-videopress-pkg' );
 	}
