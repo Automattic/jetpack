@@ -2,7 +2,7 @@ import './view.scss';
 import '../../shared/memberships.scss';
 
 import domReady from '@wordpress/dom-ready';
-import {getTokenFromCookie, showModal, spinner} from '../../shared/memberships';
+import { getTokenFromCookie, showModal, spinner } from '../../shared/memberships';
 
 // @ts-ignore
 function show_iframe_retrieve_subscriptions_from_email() {
@@ -56,14 +56,17 @@ function show_iframe_get_current_user_email( blog, emailInput ) {
 
 	document.body.appendChild( iframe );
 
-	const handleIframeMessage = ( message ) => {
-		console.log( message );
-		if ( message.origin === 'https://subscribe.wordpress.com' && message.data.action === 'current_user_email' && message.data.email ) {
+	const handleIframeMessage = message => {
+		if (
+			message.origin === 'https://subscribe.wordpress.com' &&
+			message.data.action === 'current_user_email' &&
+			message.data.email
+		) {
 			emailInput.value = message.data.email;
 			emailInput.disabled = true;
 			window.removeEventListener( 'message', handleIframeMessage, false );
 		}
-	}
+	};
 
 	window.addEventListener( 'message', handleIframeMessage, false );
 }
