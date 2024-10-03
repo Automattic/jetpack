@@ -4225,6 +4225,9 @@ importers:
       '@wordpress/data':
         specifier: 10.8.3
         version: 10.8.3(react@18.3.1)
+      '@wordpress/dataviews':
+        specifier: 4.4.4
+        version: 4.4.4(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/date':
         specifier: 5.8.2
         version: 5.8.2

@@ -9,7 +9,7 @@ import ProgressBar from '../../components/progress-bar';
 import ScanFooter from '../../components/scan-footer';
 import SeventyFiveLayout from '../../components/seventy-five-layout';
 import Summary from '../../components/summary';
-import ThreatsList from '../../components/threats-list';
+import ThreatsDataViews from '../../components/threats-dataviews';
 import useScanStatusQuery, { isScanInProgress } from '../../data/scan/use-scan-status-query';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import { OnboardingContext } from '../../hooks/use-onboarding';
@@ -127,7 +127,7 @@ const ScanResultsSection = () => {
 				<Summary />
 			</Col>
 			<Col>
-				<ThreatsList />
+				<ThreatsDataViews />
 			</Col>
 		</>
 	);
