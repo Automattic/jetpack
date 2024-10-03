@@ -8,8 +8,8 @@ use Brain\Monkey\Functions;
 class My_Jetpack_Test extends Base_Test_Case {
 	private $product;
 
-	protected function setUp() {
-		parent::setUp();
+	protected function set_up() {
+		parent::set_up();
 
 		// Set up the __ function mock once for all tests
 		Functions\when( '__' )->returnArg();
