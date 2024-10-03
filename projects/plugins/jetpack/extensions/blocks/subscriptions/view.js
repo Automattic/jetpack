@@ -36,7 +36,11 @@ function show_iframe( data ) {
 	return showModal( url );
 }
 
-function show_iframe_get_current_user_email( blog ) {
+function show_iframe_get_current_user_email( blog, emailInput ) {
+	const existingIframe = document.getElementById( 'jp-subscribe-current-user-email-iframe' );
+	if ( existingIframe ) {
+		return;
+	}
 	const params = new URLSearchParams( {
 		blog,
 		plan: 'newsletter',
@@ -46,16 +50,21 @@ function show_iframe_get_current_user_email( blog ) {
 	const url = 'https://subscribe.wordpress.com/memberships/?' + params.toString();
 
 	const iframe = document.createElement( 'iframe' );
+	iframe.setAttribute( 'id', 'jp-subscribe-current-user-email-iframe' );
 	iframe.style.display = 'none';
 	iframe.src = url;
 
 	document.body.appendChild( iframe );
 
-	window.addEventListener( 'message', function ( message ) {
-		if ( message.origin === 'https://subscribe.wordpress.com' && message.data ) {
-			console.log( message );
+	const handleIframeMessage = ( message ) => {
+		if ( message.origin === 'https://subscribe.wordpress.com' && message.data.action === 'current_user_email' && message.data.email ) {
+			emailInput.value = message.data.email;
+			emailInput.disabled = true;
+			window.removeEventListener( 'message', handleIframeMessage, false );
 		}
-	}, false );
+	}
+
+	window.addEventListener( 'message', handleIframeMessage, false );
 }
 
 domReady( function () {
@@ -77,9 +86,11 @@ domReady( function () {
 			// Injects loading animation in hidden state
 			button.insertAdjacentHTML( 'beforeend', spinner );
 
-			const currentUserEmail = form.querySelector( 'input[type=email]' )?.value ?? '';
+			const emailInput = form.querySelector( 'input[type=email]' );
+
+			const currentUserEmail = emailInput?.value ?? '';
 			if ( ! currentUserEmail ) {
-				show_iframe_get_current_user_email( form.dataset.blog );
+				show_iframe_get_current_user_email( form.dataset.blog, emailInput );
 			}
 
 			form.addEventListener( 'submit', function ( event ) {
@@ -93,7 +104,7 @@ domReady( function () {
 
 				// If email is empty, we will ask for it in the modal that opens
 				// Email input can be hidden for "button only style" for example.
-				let email = form.querySelector( 'input[type=email]' )?.value ?? '';
+				let email = emailInput?.value ?? '';
 
 				// Fallback to provided email from the logged in user when set
 				if ( ! email && form.dataset.subscriber_email ) {
