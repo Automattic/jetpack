@@ -1,3 +1,4 @@
+import { useConnection } from '@automattic/jetpack-connection';
 import { InspectorControls, useBlockProps, InnerBlocks } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
 import { PanelBody, ToggleControl, FlexBlock, Spinner, Notice } from '@wordpress/components';
@@ -5,6 +6,7 @@ import { dispatch } from '@wordpress/data';
 import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
+import ConnectBanner from '../../shared/components/connect-banner';
 import BlogrollAppender from './components/blogroll-appender';
 import useRecommendations from './use-recommendations';
 import { useSiteRecommendationSync } from './use-site-recommendations';
@@ -20,6 +22,8 @@ export function BlogRollEdit( { className, attributes, setAttributes, clientId }
 		ignore_user_blogs,
 		load_placeholders,
 	} = attributes;
+
+	const { hasConnectedOwner } = useConnection();
 
 	const {
 		isLoading: isLoadingRecommendations,
@@ -54,6 +58,19 @@ export function BlogRollEdit( { className, attributes, setAttributes, clientId }
 			'hide-description': ! show_description,
 		} ),
 	} );
+
+	if ( ! hasConnectedOwner ) {
+		return (
+			<>
+				<ConnectBanner
+					explanation={ __(
+						'Connect your WordPress.com account to use the Blogroll block.',
+						'jetpack'
+					) }
+				/>
+			</>
+		);
+	}
 
 	const errorMessage = recommendationsErrorMessage || subscriptionsErrorMessage;
 
