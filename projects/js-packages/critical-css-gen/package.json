@@ -52,8 +52,9 @@
 			"default": "./build/browser.js"
 		},
 		"./playwright": {
-			"default": "./build/playwright.js",
-			"types": "./build/playwright.d.ts"
+			"jetpack:src": "./src/playwright.ts",
+			"types": "./build/playwright.d.ts",
+			"default": "./build/playwright.js"
 		}
 	},
 	"dependencies": {
