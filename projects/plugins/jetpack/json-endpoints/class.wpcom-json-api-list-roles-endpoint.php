@@ -124,7 +124,7 @@ class WPCOM_JSON_API_List_Roles_Endpoint extends WPCOM_JSON_API_Endpoint {
 			return new WP_Error( 'unauthorized', 'User cannot view roles for specified site', 403 );
 		}
 
-		if ( method_exists( $wp_roles, 'get_names' ) ) {
+		if ( $wp_roles instanceof WP_Roles ) {
 			$role_names = $wp_roles->get_names();
 
 			$role_keys = array_keys( $role_names );
