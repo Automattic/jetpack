@@ -57,6 +57,7 @@ function show_iframe_get_current_user_email( blog, emailInput ) {
 	document.body.appendChild( iframe );
 
 	const handleIframeMessage = ( message ) => {
+		console.log( message );
 		if ( message.origin === 'https://subscribe.wordpress.com' && message.data.action === 'current_user_email' && message.data.email ) {
 			emailInput.value = message.data.email;
 			emailInput.disabled = true;
