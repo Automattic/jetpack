@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Added a check for function presence to avoid fatal errors.

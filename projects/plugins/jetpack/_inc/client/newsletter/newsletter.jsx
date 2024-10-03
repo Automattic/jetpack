@@ -1,12 +1,12 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import Card from 'components/card';
-import ConnectUserBar from 'components/connect-user-bar';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import analytics from 'lib/analytics';
+import { FEATURE_NEWSLETTER_JETPACK } from 'lib/plans/constants';
 import React from 'react';
 import { connect } from 'react-redux';
 import { isCurrentUserLinked, isUnavailableInOfflineMode, isOfflineMode } from 'state/connection';
@@ -30,7 +30,6 @@ function Newsletter( props ) {
 		toggleModuleNow,
 		isSavingAnyOption,
 		isLinked,
-		isOffline,
 		isSubscriptionsActive,
 		unavailableInOfflineMode,
 		subscriptions,
@@ -62,6 +61,7 @@ function Newsletter( props ) {
 			{ ...props }
 			header={ __( 'Newsletter', 'jetpack' ) }
 			hideButton
+			feature={ FEATURE_NEWSLETTER_JETPACK }
 			module={ SUBSCRIPTIONS_MODULE_NAME }
 		>
 			<SettingsGroup
@@ -93,14 +93,6 @@ function Newsletter( props ) {
 			</SettingsGroup>
 
 			{ getSubClickableCard() }
-
-			{ ! isLinked && ! isOffline && (
-				<ConnectUserBar
-					feature="subscriptions"
-					featureLabel={ __( 'Newsletter', 'jetpack' ) }
-					text={ __( 'Connect to manage your subscriptions settings.', 'jetpack' ) }
-				/>
-			) }
 		</SettingsCard>
 	);
 }
