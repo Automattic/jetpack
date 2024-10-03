@@ -179,7 +179,7 @@ const ThreatsDataViews = withNotices( ( { noticeOperations, noticeUI } ) => {
 				const handleClick = useCallback( () => {
 					closeModal();
 					window.open( item.urls[ size ], '_blank' );
-				}, [ item, size ] );
+				}, [ closeModal, item, size ] );
 
 				return (
 					<VStack spacing="5">
