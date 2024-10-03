@@ -55,6 +55,11 @@ domReady( function () {
 			// Injects loading animation in hidden state
 			button.insertAdjacentHTML( 'beforeend', spinner );
 
+			const currentUserEmail = form.querySelector( 'input[type=email]' )?.value ?? '';
+			if ( ! currentUserEmail ) {
+				console.log( 'hey!' );
+			}
+
 			form.addEventListener( 'submit', function ( event ) {
 				if ( form.resubmitted ) {
 					return;
