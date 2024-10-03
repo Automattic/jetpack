@@ -2682,8 +2682,8 @@ importers:
         specifier: 4.17.21
         version: 4.17.21
       photon:
-        specifier: 4.0.0
-        version: 4.0.0
+        specifier: 4.1.1
+        version: 4.1.1
       preact:
         specifier: 10.22.1
         version: 10.22.1
@@ -3042,8 +3042,8 @@ importers:
         specifier: 4.17.21
         version: 4.17.21
       photon:
-        specifier: 4.0.0
-        version: 4.0.0
+        specifier: 4.1.1
+        version: 4.1.1
       preact:
         specifier: 10.22.1
         version: 10.22.1
@@ -3897,8 +3897,8 @@ importers:
         specifier: 2.1.5
         version: 2.1.5
       photon:
-        specifier: 4.0.0
-        version: 4.0.0
+        specifier: 4.1.1
+        version: 4.1.1
       postcss-custom-properties:
         specifier: 12.1.7
         version: 12.1.7(postcss@8.4.31)
@@ -7477,6 +7477,9 @@ packages:
 
   '@types/retry@0.12.0':
     resolution: {integrity: sha512-wWKOClTTiizcZhXnPY4wikVAwmdYHp8q6DmC+EJUzAMsycb7HB32Kh9RN4+0gExjmPmZSAQjgURXIGATPegAvA==}
+
+  '@types/seed-random@2.2.4':
+    resolution: {integrity: sha512-M4wSiHb23w6oRFo69SrjWiYMXocfhRyzX5kuGkAJmLrYJDD//8zmhsY+9t6t87RLYhyIcE4h3feYwqOFdaslHw==}
 
   '@types/semver@7.5.8':
     resolution: {integrity: sha512-I8EUhyrgfLrcTkzV3TSsGyl1tSuPrEDzr0yd5m90UgNxQkyDXULk3b6MlQqTCpZpNtWe1K0hzclnZkTcLBe2UQ==}
@@ -12067,8 +12070,8 @@ packages:
   periscopic@3.1.0:
     resolution: {integrity: sha512-vKiQ8RRtkl9P+r/+oefh25C3fhybptkHKCZSPlcXiJux2tJF55GnEj3BVn4A5gKfq9NWWXXrxkHBwVPUfH0opw==}
 
-  photon@4.0.0:
-    resolution: {integrity: sha512-RD3buB17jW9B+OOPjIqv/cE9imCyR+WJ4ALWtb1Q1mVg8OfYnHAyvdVTxa/+bZFNI2FWaQBKry3i1mItmW3H3A==}
+  photon@4.1.1:
+    resolution: {integrity: sha512-YPsf1/tpjc8IjaOmDOLOY3fe4ajvLjsYY6Vlwn4SsoeI9U022u+U0skzB/Tk6jX6rtmNpoc6wj72de0oB267JQ==}
 
   picocolors@1.1.0:
     resolution: {integrity: sha512-TQ92mBOW0l3LeMeyLV6mzy/kWr8lkd/hp3mTg7wYK7zJhuBStmGMBG0BdeDZS/dZx1IukaX6Bk11zcln25o1Aw==}
@@ -14528,7 +14531,7 @@ snapshots:
 
   '@automattic/calypso-url@1.1.0':
     dependencies:
-      photon: 4.0.0
+      photon: 4.1.1
     transitivePeerDependencies:
       - supports-color
 
@@ -17782,6 +17785,8 @@ snapshots:
   '@types/resolve@1.20.6': {}
 
   '@types/retry@0.12.0': {}
+
+  '@types/seed-random@2.2.4': {}
 
   '@types/semver@7.5.8': {}
 
@@ -24809,12 +24814,13 @@ snapshots:
       estree-walker: 3.0.3
       is-reference: 3.0.2
 
-  photon@4.0.0:
+  photon@4.1.1:
     dependencies:
-      '@babel/runtime': 7.24.7
+      '@types/seed-random': 2.2.4
       crc32: 0.2.2
       debug: 4.3.4
       seed-random: 2.2.0
+      tslib: 2.5.0
     transitivePeerDependencies:
       - supports-color
 
