@@ -46,6 +46,12 @@ interface GeneratorCallbacks extends ProviderCallbacks {
 	onFinished: () => void; // Called when the generator is finished, regardless of success or failure.
 }
 
+async function criticalCssGenerator() {
+	return await import(
+		/* webpackChunkName: "jetpack-critical-css-gen" */ '@automattic/jetpack-critical-css-gen'
+	);
+}
+
 /**
  * Run the local Critical CSS Generator for a set of providers, if it is not already running.
  * The result of generation will not be returned to the caller; it will be sent to the given
@@ -140,9 +146,7 @@ async function createBrowserInterface(
 	requestGetParameters: Record< string, string >,
 	proxyNonce: string
 ) {
-	const CriticalCSSGenerator = await import(
-		/* webpackChunkName: "jetpack-critical-css-gen" */ '@automattic/jetpack-critical-css-gen'
-	);
+	const CriticalCSSGenerator = await criticalCssGenerator();
 	return new ( class extends CriticalCSSGenerator.BrowserInterfaceIframe {
 		constructor() {
 			super( {
@@ -185,9 +189,7 @@ async function generateForKeys(
 	callbacks: ProviderCallbacks,
 	signal: AbortSignal
 ): Promise< void > {
-	const CriticalCSSGenerator = await import(
-		/* webpackChunkName: "jetpack-critical-css-gen" */ '@automattic/jetpack-critical-css-gen'
-	);
+	const CriticalCSSGenerator = await criticalCssGenerator();
 	try {
 		CriticalCSSGeneratorSchema.parse( CriticalCSSGenerator );
 	} catch ( err ) {
