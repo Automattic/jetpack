@@ -37,7 +37,7 @@ class Image_Guide_Proxy {
 		}
 
 		$photon_url = Image_CDN_Core::cdn_url( $proxy_url );
-		if ( ! Image_CDN_Core::is_photon_url( $proxy_url ) ) {
+		if ( ! Image_CDN_Core::is_cdn_url( $proxy_url ) ) {
 			wp_send_json_error( 'Failed to proxy the image.', 400 );
 		}
 

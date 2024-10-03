@@ -161,7 +161,7 @@ class Image_CDN_Core {
 		// Alternately, if it's a *.files.wordpress.com url or an image on a private WordPress.com Simple site,
 		// then keep the domain as is.
 		if (
-			self::is_photon_url( $image_url )
+			self::is_cdn_url( $image_url )
 			|| $is_wpcom_image
 			|| $is_wpcom_private_site
 		) {
@@ -246,7 +246,7 @@ class Image_CDN_Core {
 	 * @param string $url The URL to check.
 	 * @return bool True if the URL is a Photon URL, false otherwise.
 	 */
-	public static function is_photon_url( $url ) {
+	public static function is_cdn_url( $url ) {
 		$parsed_url = wp_parse_url( $url );
 
 		if ( ! $parsed_url ) {
