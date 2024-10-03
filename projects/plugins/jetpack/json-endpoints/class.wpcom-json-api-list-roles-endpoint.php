@@ -134,7 +134,7 @@ class WPCOM_JSON_API_List_Roles_Endpoint extends WPCOM_JSON_API_Endpoint {
 				$role_details->display_name = translate_user_role( $role_names[ $role_key ] );
 				$roles[]                    = $role_details;
 			}
-		} else {
+		} elseif ( is_array( $wp_roles ) ) {
 			// Jetpack Shadow Site side of things.
 			foreach ( $wp_roles as $role_key => $role ) {
 				$roles[] = (object) array(
