@@ -2,7 +2,7 @@ import './view.scss';
 import '../../shared/memberships.scss';
 
 import domReady from '@wordpress/dom-ready';
-import { showModal, spinner } from '../../shared/memberships';
+import {getTokenFromCookie, showModal, spinner} from '../../shared/memberships';
 
 // @ts-ignore
 function show_iframe_retrieve_subscriptions_from_email() {
@@ -36,6 +36,28 @@ function show_iframe( data ) {
 	return showModal( url );
 }
 
+function show_iframe_get_current_user_email( blog ) {
+	const params = new URLSearchParams( {
+		blog,
+		plan: 'newsletter',
+		source: 'jetpack_subscribe_current_user_email',
+		jwt_token: getTokenFromCookie(),
+	} );
+	const url = 'https://subscribe.wordpress.com/memberships/?' + params.toString();
+
+	const iframe = document.createElement( 'iframe' );
+	iframe.style.display = 'none';
+	iframe.src = url;
+
+	document.body.appendChild( iframe );
+
+	window.addEventListener( 'message', function ( message ) {
+		if ( message.origin === 'https://subscribe.wordpress.com' && message.data ) {
+			console.log( message );
+		}
+	}, false );
+}
+
 domReady( function () {
 	const link = document.querySelector( '#jp_retrieve_subscriptions_link' );
 	if ( link ) {
@@ -57,7 +79,7 @@ domReady( function () {
 
 			const currentUserEmail = form.querySelector( 'input[type=email]' )?.value ?? '';
 			if ( ! currentUserEmail ) {
-				console.log( 'hey!' );
+				show_iframe_get_current_user_email( form.dataset.blog );
 			}
 
 			form.addEventListener( 'submit', function ( event ) {
