@@ -1,5 +1,5 @@
 Significance: patch
 Type: other
-Comment: Remove disabled visuals from controls that are active.
+Comment: Disable controls that require user connection.
 
 
