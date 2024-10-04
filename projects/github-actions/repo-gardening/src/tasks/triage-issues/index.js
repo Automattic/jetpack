@@ -60,27 +60,18 @@ You must analyze this content, and suggest labels related to the content.
 The labels you will suggest must all come from the list below.
 Each item on the list of labels below follows the following format: - <label name>: <label description if it exists>
 
-
 ${ repoLabels
 	.map( label => `- ${ label.name }${ label?.description ? `: ${ label.description }` : '' }` )
 	.join( '\n' ) }
 
 Analyze the issue and suggest relevant labels. Rules:
-# Updated prompt: Ensures 'Product', 'Platform' and 'Type' issues are always added.
 - Use only existing labels provided.
-- Include 1 '[Product]' label.
 - Include 1 '[Feature Group]' label.
 - Include 1 to 3 '[Feature]' labels.
 - Include the "[Platform] Simple" AND/OR "[Platform] Atomic" labels as appropriate.
-- Only if NOT present: Add 1 of the following labels based on your assessment of the issue type: '[Type] Bug', '[Type] Enhancement', or '[Type] Feature'.
 - Briefly explain each label choice in 1 sentence.
-- Format your response as a JSON object, with 'labels' and 'explanations' keys.- Use only existing labels provided.
-
-# Original prompt
-#- Include 1 '[Feature Group]' label.
-#- Include 1 to 3 '[Feature]' labels.
-#- Briefly explain each label choice in 1 sentence.
-#- Format your response as a JSON object, with each suggested label as a key, and your explanation of the label choice as the value.
+- Format your response as a JSON object, with 'labels' and 'explanations' keys.
+- Use only existing labels provided.
 
 Example response format:
 {
