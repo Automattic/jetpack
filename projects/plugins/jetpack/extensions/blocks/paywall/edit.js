@@ -1,4 +1,5 @@
 import './editor.scss';
+import { useConnection } from '@automattic/jetpack-connection';
 import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils';
 import { BlockControls, InspectorControls, useBlockProps } from '@wordpress/block-editor';
 import { MenuGroup, MenuItem, PanelBody, ToolbarDropdownMenu } from '@wordpress/components';
@@ -7,6 +8,7 @@ import { store as editorStore } from '@wordpress/editor';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { arrowDown, Icon, people, check } from '@wordpress/icons';
+import ConnectBanner from '../../shared/components/connect-banner';
 import PlansSetupDialog from '../../shared/components/plans-setup-dialog';
 import { accessOptions } from '../../shared/memberships/constants';
 import { useAccessLevel } from '../../shared/memberships/edit';
@@ -16,6 +18,7 @@ function PaywallEdit() {
 	const blockProps = useBlockProps();
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
 	const accessLevel = useAccessLevel( postType );
+	const { hasConnectedOwner } = useConnection();
 
 	const { stripeConnectUrl, hasTierPlans } = useSelect( select => {
 		const { getNewsletterTierProducts, getConnectUrl } = select( 'jetpack/membership-products' );
@@ -41,6 +44,19 @@ function PaywallEdit() {
 			return;
 		}
 		setAccess( value );
+	}
+
+	if ( ! hasConnectedOwner ) {
+		return (
+			<div { ...blockProps }>
+				<ConnectBanner
+					explanation={ __(
+						'Connect your WordPress.com account to enable a paywall for your site.',
+						'jetpack'
+					) }
+				/>
+			</div>
+		);
 	}
 
 	const getText = key => {

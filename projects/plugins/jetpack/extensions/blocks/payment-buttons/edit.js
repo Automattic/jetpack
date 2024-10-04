@@ -1,8 +1,11 @@
+import { useConnection } from '@automattic/jetpack-connection';
 import { BlockControls, useBlockProps, useInnerBlocksProps } from '@wordpress/block-editor';
 import { useSelect } from '@wordpress/data';
 import { useEffect } from '@wordpress/element';
 import { addFilter } from '@wordpress/hooks';
+import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
+import ConnectBanner from '../../shared/components/connect-banner';
 import StripeConnectToolbarButton from '../../shared/components/stripe-connect-toolbar-button';
 import { StripeNudge } from '../../shared/components/stripe-nudge';
 import { store as membershipProductsStore } from '../../store/membership-products';
@@ -11,6 +14,7 @@ const ALLOWED_BLOCKS = [ 'jetpack/recurring-payments' ];
 
 function PaymentButtonsEdit( { clientId, attributes } ) {
 	const { layout, fontSize } = attributes;
+	const { hasConnectedOwner } = useConnection();
 	const { connectUrl, isApiConnected } = useSelect( select => {
 		const { getConnectUrl, isApiStateConnected } = select( membershipProductsStore );
 		return {
@@ -71,6 +75,20 @@ function PaymentButtonsEdit( { clientId, attributes } ) {
 	// will then be positioned in relation to this.
 	delete innerBlocksProps.id;
 	delete innerBlocksProps[ 'data-block' ];
+
+	if ( ! hasConnectedOwner ) {
+		return (
+			<div { ...blockProps }>
+				<ConnectBanner
+					explanation={ __(
+						'Connect your WordPress.com account to enable payment buttons on your site.',
+						'jetpack'
+					) }
+				/>
+			</div>
+		);
+	}
+
 	return (
 		<div { ...blockProps }>
 			{ showStripeConnectAction && (
