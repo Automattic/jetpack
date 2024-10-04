@@ -9,7 +9,20 @@ domReady( () => {
 		return lastDismissed ? Date.now() - lastDismissed > Jetpack_Subscriptions.modalInterval : true;
 	}
 
-	if ( ! modal || ! hasEnoughTimePassed() ) {
+	// Subscriber ended up here e.g. from emails:
+	// we won't show the modal to them in future since they most likely are already a subscriber.
+	function skipModal() {
+		const urlParams = new URLSearchParams( window.location.search );
+		const skip = urlParams.get( 'jetpack_skip_subscription_popup' );
+		if ( skip ) {
+			storeCloseTimestamp();
+			return true;
+		}
+
+		return false;
+	}
+
+	if ( ! modal || ! hasEnoughTimePassed() || skipModal() ) {
 		return;
 	}
 

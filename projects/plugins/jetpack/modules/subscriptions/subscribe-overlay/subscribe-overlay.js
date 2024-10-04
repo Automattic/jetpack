@@ -6,7 +6,20 @@ domReady( function () {
 	const hasOverlayDismissedCookie =
 		document.cookie && document.cookie.indexOf( overlayDismissedCookie ) > -1;
 
-	if ( ! overlay || hasOverlayDismissedCookie ) {
+	// Subscriber ended up here e.g. from emails:
+	// we won't show the overlay to them in future since they most likely are already a subscriber.
+	function skipOverlay() {
+		const urlParams = new URLSearchParams( window.location.search );
+		const skip = urlParams.get( 'jetpack_skip_subscription_popup' );
+		if ( skip ) {
+			setOverlayDismissedCookie();
+			return true;
+		}
+
+		return false;
+	}
+
+	if ( ! overlay || hasOverlayDismissedCookie || skipOverlay() ) {
 		return;
 	}
 
