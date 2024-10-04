@@ -3,6 +3,7 @@ const { domReady } = wp;
 domReady( () => {
 	const modal = document.querySelector( '.jetpack-subscribe-modal' );
 	const modalDismissedCookie = 'jetpack_post_subscribe_modal_dismissed';
+	const skipUrlParam = 'jetpack_skip_subscription_popup';
 
 	function hasEnoughTimePassed() {
 		const lastDismissed = localStorage.getItem( modalDismissedCookie );
@@ -12,9 +13,10 @@ domReady( () => {
 	// Subscriber ended up here e.g. from emails:
 	// we won't show the modal to them in future since they most likely are already a subscriber.
 	function skipModal() {
-		const urlParams = new URLSearchParams( window.location.search );
-		const skip = urlParams.get( 'jetpack_skip_subscription_popup' );
-		if ( skip ) {
+		const url = new URL( window.location.href );
+		if ( url.searchParams.has( skipUrlParam ) ) {
+			url.searchParams.delete( skipUrlParam );
+			window.history.pushState( {}, '', url );
 			storeCloseTimestamp();
 			return true;
 		}

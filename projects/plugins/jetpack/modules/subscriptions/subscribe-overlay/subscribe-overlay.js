@@ -3,15 +3,17 @@ const { domReady } = wp;
 domReady( function () {
 	const overlay = document.querySelector( '.jetpack-subscribe-overlay' );
 	const overlayDismissedCookie = 'jetpack_post_subscribe_overlay_dismissed';
+	const skipUrlParam = 'jetpack_skip_subscription_popup';
 	const hasOverlayDismissedCookie =
 		document.cookie && document.cookie.indexOf( overlayDismissedCookie ) > -1;
 
 	// Subscriber ended up here e.g. from emails:
 	// we won't show the overlay to them in future since they most likely are already a subscriber.
 	function skipOverlay() {
-		const urlParams = new URLSearchParams( window.location.search );
-		const skip = urlParams.get( 'jetpack_skip_subscription_popup' );
-		if ( skip ) {
+		const url = new URL( window.location.href );
+		if ( url.searchParams.has( skipUrlParam ) ) {
+			url.searchParams.delete( skipUrlParam );
+			window.history.pushState( {}, '', url );
 			setOverlayDismissedCookie();
 			return true;
 		}
