@@ -266,6 +266,24 @@ class WP_Test_Image_CDN_Core extends BaseTestCase {
 	}
 
 	/**
+	 * @covers ::Image_CDN_Core::is_cdn_url
+	 * @since  $$next-version$$
+	 * @group  jetpack_photon_filter_network_path
+	 */
+	public function test_is_cdn_url_method() {
+		$this->apply_custom_domain( '//photon.test' );
+		$this->assertTrue( Image_CDN_Core::is_cdn_url( '//photon.test/example.com/img.jpg' ) );
+
+		$this->assertTrue( Image_CDN_Core::is_cdn_url( 'https://i0.wp.com/example.com/img.jpg' ) );
+		$this->assertTrue( Image_CDN_Core::is_cdn_url( 'http://i1.wp.com/example.com/img.jpg' ) );
+		$this->assertTrue( Image_CDN_Core::is_cdn_url( '//i2.wp.com/example.com/img.jpg' ) );
+		$this->assertFalse( Image_CDN_Core::is_cdn_url( '//i3.wp.com/example.com/img.jpg' ) );
+		$this->assertFalse( Image_CDN_Core::is_cdn_url( 'http://example.com/img.jpg' ) );
+		$this->assertFalse( Image_CDN_Core::is_cdn_url( 'https://example.com/img.jpg' ) );
+		$this->assertFalse( Image_CDN_Core::is_cdn_url( '//example.com/img.jpg' ) );
+	}
+
+	/**
 	 * @author aduth
 	 * @covers ::Image_CDN_Core::cdn_url_scheme
 	 * @since  4.5.0
