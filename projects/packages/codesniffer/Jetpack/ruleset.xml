@@ -121,4 +121,9 @@
 		<exclude name="Universal.NamingConventions.NoReservedKeywordParameterNames" />
 	</rule>
 
+	<!-- Needs discussion before we enable this. It doesn't auto-fix, and boolean operator precedence should be pretty basic knowledge. -->
+	<rule ref="Generic.CodeAnalysis.RequireExplicitBooleanOperatorPrecedence">
+		<exclude name="Generic.CodeAnalysis.RequireExplicitBooleanOperatorPrecedence.MissingParentheses" />
+	</rule>
+
 </ruleset>
