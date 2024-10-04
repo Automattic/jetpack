@@ -1,4 +1,4 @@
-Significance: patch
+Significance: major
 Type: changed
 
-Updated package dependencies.
+Use mediawiki/mediawiki-codesniffer v44.
