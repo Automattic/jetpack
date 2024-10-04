@@ -822,11 +822,12 @@ class Launchpad_Task_Lists {
 	 * among several tasks, calling several completion IDs from the same callback.
 	 *
 	 * @param string $task_id The task ID.
+	 * @param string $task_list_id Optional. The task list ID.
 	 * @return bool True if successful, false if not.
 	 */
-	public function mark_task_complete_if_active( $task_id ) {
+	public function mark_task_complete_if_active( $task_id, $task_list_id = null ) {
 		// Ensure that the task is an active one
-		$active_tasks_by_task_id = wp_list_filter( $this->get_active_tasks(), array( 'id' => $task_id ) );
+		$active_tasks_by_task_id = wp_list_filter( $this->get_active_tasks( $task_list_id ), array( 'id' => $task_id ) );
 		if ( empty( $active_tasks_by_task_id ) ) {
 			return false;
 		}

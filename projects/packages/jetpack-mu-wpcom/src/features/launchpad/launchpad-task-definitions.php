@@ -1092,10 +1092,11 @@ add_action( 'init', 'wpcom_launchpad_init_task_definitions', 11 );
  * among several tasks, calling several completion IDs from the same callback.
  *
  * @param string $task_id The task ID.
+ * @param string $task_list_id Optional. The task list ID.
  * @return bool True if successful, false if not.
  */
-function wpcom_launchpad_mark_launchpad_task_complete_if_active( $task_id ) {
-	if ( wpcom_launchpad_checklists()->mark_task_complete_if_active( $task_id ) ) {
+function wpcom_launchpad_mark_launchpad_task_complete_if_active( $task_id, $task_list_id = null ) {
+	if ( wpcom_launchpad_checklists()->mark_task_complete_if_active( $task_id, $task_list_id ) ) {
 		wpcom_launchpad_track_completed_task( $task_id );
 		return true;
 	}
