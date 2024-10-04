@@ -9,7 +9,12 @@ import SettingsGroup from 'components/settings-group';
 import { FEATURE_NEWSLETTER_JETPACK } from 'lib/plans/constants';
 import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
-import { isCurrentUserLinked, isUnavailableInOfflineMode, isOfflineMode } from 'state/connection';
+import {
+	isCurrentUserLinked,
+	isUnavailableInOfflineMode,
+	isOfflineMode,
+	hasConnectedOwner,
+} from 'state/connection';
 import {
 	currentThemeIsBlockTheme,
 	currentThemeStylesheet,
@@ -43,6 +48,7 @@ function SubscriptionsSettings( props ) {
 		isBlockTheme,
 		siteAdminUrl,
 		themeStylesheet,
+		siteHasConnectedUser,
 	} = props;
 
 	const subscribeModalEditorUrl =
@@ -114,7 +120,7 @@ function SubscriptionsSettings( props ) {
 		);
 	}, [ updateFormStateModuleOption ] );
 
-	const isDisabled = ! isSubscriptionsActive || unavailableInOfflineMode;
+	const isDisabled = ! isSubscriptionsActive || unavailableInOfflineMode || ! siteHasConnectedUser;
 
 	return (
 		<SettingsCard
@@ -123,6 +129,7 @@ function SubscriptionsSettings( props ) {
 			feature={ FEATURE_NEWSLETTER_JETPACK }
 			module={ SUBSCRIPTIONS_MODULE_NAME }
 			header={ __( 'Subscriptions', 'jetpack' ) }
+			isDisabled={ ! siteHasConnectedUser }
 		>
 			<SettingsGroup disableInOfflineMode module={ subscriptions }>
 				<p>
@@ -295,6 +302,7 @@ export default withModuleSettingsFormHelpers(
 			isBlockTheme: currentThemeIsBlockTheme( state ),
 			siteAdminUrl: getSiteAdminUrl( state ),
 			themeStylesheet: currentThemeStylesheet( state ),
+			siteHasConnectedUser: hasConnectedOwner( state ),
 		};
 	} )( SubscriptionsSettings )
 );

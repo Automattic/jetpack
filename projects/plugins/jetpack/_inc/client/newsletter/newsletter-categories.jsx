@@ -6,7 +6,11 @@ import SettingsGroup from 'components/settings-group';
 import { FEATURE_NEWSLETTER_JETPACK } from 'lib/plans/constants';
 import React, { useCallback, useMemo } from 'react';
 import { connect } from 'react-redux';
-import { isUnavailableInOfflineMode, requiresConnection } from 'state/connection';
+import {
+	isUnavailableInOfflineMode,
+	requiresConnection,
+	hasConnectedOwner,
+} from 'state/connection';
 import { getModule } from 'state/modules';
 import Card from '../components/card';
 import { withModuleSettingsFormHelpers } from '../components/module-settings/with-module-settings-form-helpers';
@@ -44,6 +48,7 @@ function NewsletterCategories( props ) {
 		subscriptionsModule,
 		updateFormStateOptionValue,
 		isSavingAnyOption,
+		siteHasConnectedUser,
 	} = props;
 
 	const handleEnableNewsletterCategoriesToggleChange = useCallback( () => {
@@ -81,7 +86,8 @@ function NewsletterCategories( props ) {
 		NEWSLETTER_CATEGORIES_ENABLED_OPTION,
 		NEWSLETTER_CATEGORIES_OPTION,
 	] );
-	const disabled = ! isSubscriptionsActive || unavailableInOfflineMode || isSaving;
+	const disabled =
+		! siteHasConnectedUser || ! isSubscriptionsActive || unavailableInOfflineMode || isSaving;
 
 	return (
 		<SettingsCard
@@ -165,6 +171,7 @@ export default withModuleSettingsFormHelpers(
 			categories: ownProps.getOptionValue( 'categories' ),
 			requiresConnection: requiresConnection( state, SUBSCRIPTIONS_MODULE_NAME ),
 			unavailableInOfflineMode: isUnavailableInOfflineMode( state, SUBSCRIPTIONS_MODULE_NAME ),
+			siteHasConnectedUser: hasConnectedOwner( state ),
 		};
 	} )( NewsletterCategories )
 );

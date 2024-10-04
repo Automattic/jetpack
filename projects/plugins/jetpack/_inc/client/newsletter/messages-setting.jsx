@@ -6,7 +6,7 @@ import SettingsGroup from 'components/settings-group';
 import { FEATURE_NEWSLETTER_JETPACK } from 'lib/plans/constants';
 import { useCallback } from 'react';
 import { connect } from 'react-redux';
-import { isUnavailableInOfflineMode } from 'state/connection';
+import { isUnavailableInOfflineMode, hasConnectedOwner } from 'state/connection';
 import { getModule } from 'state/modules';
 import Textarea from '../components/textarea';
 import { SUBSCRIPTIONS_MODULE_NAME } from './constants';
@@ -21,6 +21,7 @@ const MessagesSetting = props => {
 		onOptionChange,
 		welcomeMessage,
 		unavailableInOfflineMode,
+		siteHasConnectedUser,
 	} = props;
 
 	const changeWelcomeMessageState = useCallback(
@@ -34,7 +35,8 @@ const MessagesSetting = props => {
 	);
 
 	const isSaving = isSavingAnyOption( [ SUBSCRIPTION_OPTIONS ] );
-	const disabled = ! isSubscriptionsActive || unavailableInOfflineMode || isSaving;
+	const disabled =
+		! siteHasConnectedUser || ! isSubscriptionsActive || unavailableInOfflineMode || isSaving;
 
 	return (
 		<SettingsCard
@@ -84,6 +86,7 @@ export default withModuleSettingsFormHelpers(
 			onOptionChange: ownProps.onOptionChange,
 			welcomeMessage: ownProps.getOptionValue( SUBSCRIPTION_OPTIONS )?.welcome || '',
 			unavailableInOfflineMode: isUnavailableInOfflineMode( state, SUBSCRIPTIONS_MODULE_NAME ),
+			siteHasConnectedUser: hasConnectedOwner( state ),
 		};
 	} )( MessagesSetting )
 );
