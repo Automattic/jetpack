@@ -26,7 +26,9 @@ export function ShareStatusLabel( { status, message } ) {
 			title={ __( 'Sharing failed with the following message:', 'jetpack' ) }
 			className={ styles[ 'share-status-icon-tooltip' ] }
 		>
-			<Text variant="body-small">{ message }</Text>
+			<Text variant="body-small" className={ styles[ 'tooltip-text' ] }>
+				{ message }
+			</Text>
 		</IconTooltip>
 	);
 
