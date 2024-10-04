@@ -330,7 +330,7 @@ class WafRequestTest extends PHPUnit\Framework\TestCase {
 	}
 
 	/**
-	 * Test that the Waf_Request class returns POST-ed data correctly decoded from JSON via Waf_Request::get_post_vars().
+	 * Test that the Waf_Request class returns POST-ed data correctly decoded from URLENCODED body via Waf_Request::get_post_vars().
 	 */
 	public function testGetVarsPostWithUrlencodedBodyProcessor() {
 		$_SERVER['CONTENT_TYPE'] = 'irrelevant';
