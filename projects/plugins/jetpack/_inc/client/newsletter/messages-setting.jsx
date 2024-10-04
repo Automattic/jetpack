@@ -47,7 +47,12 @@ const MessagesSetting = props => {
 			saveDisabled={ isSaving }
 			isDisabled={ disabled }
 		>
-			<SettingsGroup hasChild disableInOfflineMode module={ subscriptionsModule }>
+			<SettingsGroup
+				hasChild
+				disableInOfflineMode
+				disableInSiteConnectionMode={ ! siteHasConnectedUser }
+				module={ subscriptionsModule }
+			>
 				<p className="jp-settings-card__email-settings">
 					{ __(
 						'These settings change the emails sent from your site to your readers.',

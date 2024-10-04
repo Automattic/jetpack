@@ -131,7 +131,11 @@ function SubscriptionsSettings( props ) {
 			header={ __( 'Subscriptions', 'jetpack' ) }
 			isDisabled={ ! siteHasConnectedUser }
 		>
-			<SettingsGroup disableInOfflineMode module={ subscriptions }>
+			<SettingsGroup
+				disableInOfflineMode
+				disableInSiteConnectionMode={ ! siteHasConnectedUser }
+				module={ subscriptions }
+			>
 				<p>
 					{ __(
 						'Automatically add subscription forms to your site and turn visitors into subscribers.',

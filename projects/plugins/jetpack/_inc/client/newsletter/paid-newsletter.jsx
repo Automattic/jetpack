@@ -36,7 +36,11 @@ function PaidNewsletter( props ) {
 			feature={ FEATURE_NEWSLETTER_JETPACK }
 			isDisabled={ ! siteHasConnectedUser }
 		>
-			<SettingsGroup disableInOfflineMode module={ subscriptionsModule }>
+			<SettingsGroup
+				disableInOfflineMode
+				disableInSiteConnectionMode={ ! siteHasConnectedUser }
+				module={ subscriptionsModule }
+			>
 				<p className="jp-settings-card__email-settings">
 					{ __(
 						'Earn money through your Newsletter. Reward your most loyal subscribers with exclusive content or add a paywall to monetize content.',

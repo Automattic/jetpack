@@ -188,6 +188,7 @@ const EmailSettings = props => {
 			<SettingsGroup
 				hasChild
 				disableInOfflineMode
+				disableInSiteConnectionMode={ ! siteHasConnectedUser }
 				module={ subscriptionsModule }
 				support={ {
 					link: featuredImageInEmailSupportUrl,
@@ -212,6 +213,7 @@ const EmailSettings = props => {
 			<SettingsGroup
 				hasChild
 				disableInOfflineMode
+				disableInSiteConnectionMode={ ! siteHasConnectedUser }
 				module={ subscriptionsModule }
 				className="newsletter-group"
 			>
@@ -320,6 +322,7 @@ const EmailSettings = props => {
 			<SettingsGroup
 				hasChild
 				disableInOfflineMode
+				disableInSiteConnectionMode={ ! siteHasConnectedUser }
 				module={ subscriptionsModule }
 				support={ {
 					link: subscriptionsAndNewslettersSupportUrl,
@@ -357,6 +360,7 @@ const EmailSettings = props => {
 			<SettingsGroup
 				hasChild
 				disableInOfflineMode
+				disableInSiteConnectionMode={ ! siteHasConnectedUser }
 				module={ subscriptionsModule }
 				className="newsletter-group"
 				support={ {

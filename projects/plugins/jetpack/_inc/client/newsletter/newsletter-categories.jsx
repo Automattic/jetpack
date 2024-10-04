@@ -101,6 +101,7 @@ function NewsletterCategories( props ) {
 			<SettingsGroup
 				hasChild
 				disableInOfflineMode
+				disableInSiteConnectionMode={ ! siteHasConnectedUser }
 				module={ subscriptionsModule }
 				support={ {
 					text: __(
