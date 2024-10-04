@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Added a public method to check if a URL is CDN url
