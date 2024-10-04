@@ -809,6 +809,19 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'is_visible_callback'  => '__return_true',
 		),
+		'migrating_review_plugins'        => array(
+			'get_title'             => function () {
+				return __( 'Review the plugins', 'jetpack-mu-wpcom' );
+			},
+			'is_visible_callback'   => '__return_true',
+			'is_complete_callback'  => 'wpcom_launchpad_is_task_option_completed',
+			'add_listener_callback' => function () {
+				add_action( 'current_screen', 'wpcom_launchpad_track_review_plugins_task' );
+			},
+			'get_calypso_path'      => function () {
+				return admin_url( 'plugins.php' );
+			},
+		),
 	);
 
 	$extended_task_definitions = apply_filters( 'wpcom_launchpad_extended_task_definitions', array() );
@@ -2752,4 +2765,17 @@ function wpcom_launchpad_get_latest_draft_id() {
 	$cached_draft_id = reset( $latest_draft_id );
 
 	return $cached_draft_id;
+}
+
+/**
+ * Callback for completing review plugins task when the plugins page is loaded.
+ *
+ * @param WP_Screen $current_screen The current screen object.
+ *
+ * @return void
+ */
+function wpcom_launchpad_track_review_plugins_task( $current_screen ) {
+	if ( $current_screen->id === 'plugins' ) {
+		wpcom_launchpad_mark_launchpad_task_complete_if_active( 'migrating_review_plugins', 'post-migration' );
+	}
 }
