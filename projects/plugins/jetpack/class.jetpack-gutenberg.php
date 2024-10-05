@@ -674,6 +674,10 @@ class Jetpack_Gutenberg {
 		// wp-edit-post but wp-edit-post's styles break the Widget Editor and
 		// Site Editor) until a real fix gets unblocked.
 		// @todo Remove this once #20357 is properly fixed.
+		$wp_styles_fix = wp_styles()->query( 'jetpack-blocks-editor', 'registered' );
+		if ( empty( $wp_styles_fix ) ) {
+			wp_die( 'Your installation of Jetpack is incomplete. Please run "jetpack build plugins/jetpack" in your dev env.' );
+		}
 		wp_styles()->query( 'jetpack-blocks-editor', 'registered' )->deps = array();
 
 		Assets::enqueue_script( 'jetpack-blocks-editor' );
