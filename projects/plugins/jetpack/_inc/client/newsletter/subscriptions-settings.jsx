@@ -32,6 +32,7 @@ function SubscriptionsSettings( props ) {
 		isStbEnabled,
 		isStcEnabled,
 		isSmEnabled,
+		isCommentSubscribeModalEnabled,
 		isSubscribeOverlayEnabled,
 		isSubscribePostEndEnabled,
 		isLoginNavigationEnabled,
@@ -50,6 +51,15 @@ function SubscriptionsSettings( props ) {
 			? addQueryArgs( `${ siteAdminUrl }site-editor.php`, {
 					postType: 'wp_template_part',
 					postId: `${ themeStylesheet }//jetpack-subscribe-modal`,
+					canvas: 'edit',
+			  } )
+			: null;
+
+	const commentSubscribeModalEditorUrl =
+		siteAdminUrl && themeStylesheet
+			? addQueryArgs( `${ siteAdminUrl }site-editor.php`, {
+					postType: 'wp_template_part',
+					postId: `${ themeStylesheet }//jetpack-subscription-modal`,
 					canvas: 'edit',
 			  } )
 			: null;
@@ -112,6 +122,10 @@ function SubscriptionsSettings( props ) {
 			SUBSCRIPTIONS_MODULE_NAME,
 			'jetpack_subscriptions_subscribe_navigation_enabled'
 		);
+	}, [ updateFormStateModuleOption ] );
+
+	const handleCommentsSubscribeModalToggleChange = useCallback( () => {
+		updateFormStateModuleOption( SUBSCRIPTIONS_MODULE_NAME, 'jetpack_verbum_subscription_modal' );
 	}, [ updateFormStateModuleOption ] );
 
 	const isDisabled = ! isSubscriptionsActive || unavailableInOfflineMode;
@@ -264,6 +278,25 @@ function SubscriptionsSettings( props ) {
 							</span>
 						}
 					/>
+					<ToggleControl
+						checked={ isSubscriptionsActive && isCommentSubscribeModalEnabled }
+						disabled={ isDisabled }
+						toggling={ isSavingAnyOption( [ 'jetpack_verbum_subscription_modal' ] ) }
+						onChange={ handleCommentsSubscribeModalToggleChange }
+						label={
+							<span className="jp-form-toggle-explanation">
+								{ __( 'Show subscription pop-up after commenting on a post', 'jetpack' ) }
+								{ isSubscriptionSiteEditSupported && commentSubscribeModalEditorUrl && (
+									<>
+										{ '. ' }
+										<ExternalLink href={ commentSubscribeModalEditorUrl }>
+											{ __( 'Preview and edit', 'jetpack' ) }
+										</ExternalLink>
+									</>
+								) }
+							</span>
+						}
+					/>
 				</FormFieldset>
 			</SettingsGroup>
 		</SettingsCard>
@@ -282,6 +315,9 @@ export default withModuleSettingsFormHelpers(
 			isStcEnabled: ownProps.getOptionValue( 'stc_enabled' ),
 			isSmEnabled: ownProps.getOptionValue( 'sm_enabled' ),
 			isSubscribeOverlayEnabled: ownProps.getOptionValue( 'jetpack_subscribe_overlay_enabled' ),
+			isCommentSubscribeModalEnabled: ownProps.getOptionValue(
+				'jetpack_verbum_subscription_modal'
+			),
 			isSubscribePostEndEnabled: ownProps.getOptionValue(
 				'jetpack_subscriptions_subscribe_post_end_enabled'
 			),

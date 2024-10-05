@@ -8,7 +8,6 @@
  */
 
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Abstract_Token_Subscription_Service;
-use Automattic\Jetpack\Status\Host;
 use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS;
 
 /**
@@ -46,10 +45,9 @@ class Jetpack_Subscription_Modal_On_Comment {
 
 	/**
 	 * Jetpack_Subscription_Modal_On_Comment class constructor.
-	 * Limited to Atomic sites.
 	 */
 	public function __construct() {
-		if ( ( new Host() )->is_woa_site() && get_option( 'jetpack_verbum_subscription_modal', true ) ) {
+		if ( get_option( 'jetpack_verbum_subscription_modal', true ) ) {
 			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 			add_action( 'wp_footer', array( $this, 'add_subscription_modal_to_frontend' ) );
 			add_filter( 'get_block_template', array( $this, 'get_block_template_filter' ), 10, 3 );

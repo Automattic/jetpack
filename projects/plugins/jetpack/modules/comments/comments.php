@@ -763,19 +763,19 @@ HTML;
 	 * @return boolean
 	 */
 	public function should_show_subscription_modal() {
-
-		// Not allow it to run on self-hosted or simple sites
-		if ( ! ( new Host() )->is_wpcom_platform() || ( new Host() )->is_wpcom_simple() ) {
+		// phpcs:disable WordPress.Security.NonceVerification.Missing
+		$is_current_user_subscribed = (bool) isset( $_POST['is_current_user_subscribed'] ) ? filter_var( wp_unslash( $_POST['is_current_user_subscribed'] ) ) : null;
+		if ( $is_current_user_subscribed ) {
 			return false;
 		}
 
-		// phpcs:disable WordPress.Security.NonceVerification.Missing
-		$is_current_user_subscribed = (bool) isset( $_POST['is_current_user_subscribed'] ) ? filter_var( wp_unslash( $_POST['is_current_user_subscribed'] ) ) : null;
+		// Are subscriptions disabled? They're always enabled on simple sites.
+		if ( ! ( new Host() )->is_wpcom_simple() || ! \Jetpack::is_module_active( 'subscriptions' ) ) {
+			return false;
+		}
 
-		// Atomic sites with jetpack_verbum_subscription_modal option enabled
-		$modal_enabled = ( new Host() )->is_woa_site() && get_option( 'jetpack_verbum_subscription_modal', true );
-
-		return $modal_enabled && ! $is_current_user_subscribed;
+		// Is the modal enabled (by default it is)
+		return get_option( 'jetpack_verbum_subscription_modal', true );
 	}
 
 	/**
@@ -805,10 +805,8 @@ HTML;
 	 */
 	public function subscription_modal_status_track_event() {
 		$tracking_event = 'hidden_disabled';
-		// Not allow it to run on self-hosted or simple sites
-		if ( ! ( new Host() )->is_wpcom_platform() || ( new Host() )->is_wpcom_simple() ) {
-			$tracking_event = 'hidden_self_hosted';
-		}
+
+		$platform = ( new Host() )->is_wpcom_platform() ? 'wpcom' : 'jetpack';
 
 		// phpcs:disable WordPress.Security.NonceVerification.Missing
 		$is_current_user_subscribed = (bool) isset( $_POST['is_current_user_subscribed'] ) ? filter_var( wp_unslash( $_POST['is_current_user_subscribed'] ) ) : null;
@@ -820,6 +818,7 @@ HTML;
 		$jetpack = Jetpack::init();
 		// $jetpack->stat automatically prepends the stat group with 'jetpack-'
 		$jetpack->stat( 'subscribe-modal-comm', $tracking_event );
+		$jetpack->stat( 'subscribe-modal-comm-platform', $tracking_event . '-' . $platform );
 		$jetpack->do_stats( 'server_side' );
 	}
 
