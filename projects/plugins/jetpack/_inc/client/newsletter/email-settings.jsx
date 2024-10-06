@@ -21,7 +21,7 @@ import analytics from 'lib/analytics';
 import { FEATURE_NEWSLETTER_JETPACK } from 'lib/plans/constants';
 import { useCallback, useState } from 'react';
 import { connect } from 'react-redux';
-import { isUnavailableInOfflineMode, isUnavailableInSiteConnectionMode } from 'state/connection';
+import { isUnavailableInOfflineMode, hasConnectedOwner } from 'state/connection';
 import {
 	getSiteTitle,
 	getUserGravatar,
@@ -59,17 +59,17 @@ const EmailSettings = props => {
 		subscriptionReplyTo,
 		subscriptionFromName,
 		updateFormStateAndSaveOptionValue,
-		unavailableInSiteConnectionMode,
 		gravatar,
 		email,
 		adminUrl,
 		displayName,
 		dateExample,
 		siteName,
+		siteHasConnectedUser,
 	} = props;
 
-	const disabled =
-		! isSubscriptionsActive || unavailableInOfflineMode || unavailableInSiteConnectionMode;
+	const disabled = ! siteHasConnectedUser || ! isSubscriptionsActive || unavailableInOfflineMode;
+	const isSaving = isSavingAnyOption( [ GRAVATER_OPTION, AUTHOR_OPTION, POST_DATE_OPTION ] );
 	const gravatarInputDisabled = disabled || isSavingAnyOption( [ GRAVATER_OPTION ] );
 	const authorInputDisabled = disabled || isSavingAnyOption( [ AUTHOR_OPTION ] );
 	const postDateInputDisabled = disabled || isSavingAnyOption( [ POST_DATE_OPTION ] );
@@ -182,12 +182,13 @@ const EmailSettings = props => {
 			hideButton
 			feature={ FEATURE_NEWSLETTER_JETPACK }
 			module={ SUBSCRIPTIONS_MODULE_NAME }
-			saveDisabled={ disabled }
+			saveDisabled={ isSaving }
+			isDisabled={ disabled }
 		>
 			<SettingsGroup
 				hasChild
 				disableInOfflineMode
-				disableInSiteConnectionMode
+				disableInSiteConnectionMode={ ! siteHasConnectedUser }
 				module={ subscriptionsModule }
 				support={ {
 					link: featuredImageInEmailSupportUrl,
@@ -212,7 +213,7 @@ const EmailSettings = props => {
 			<SettingsGroup
 				hasChild
 				disableInOfflineMode
-				disableInSiteConnectionMode
+				disableInSiteConnectionMode={ ! siteHasConnectedUser }
 				module={ subscriptionsModule }
 				className="newsletter-group"
 			>
@@ -321,7 +322,7 @@ const EmailSettings = props => {
 			<SettingsGroup
 				hasChild
 				disableInOfflineMode
-				disableInSiteConnectionMode
+				disableInSiteConnectionMode={ ! siteHasConnectedUser }
 				module={ subscriptionsModule }
 				support={ {
 					link: subscriptionsAndNewslettersSupportUrl,
@@ -359,7 +360,7 @@ const EmailSettings = props => {
 			<SettingsGroup
 				hasChild
 				disableInOfflineMode
-				disableInSiteConnectionMode
+				disableInSiteConnectionMode={ ! siteHasConnectedUser }
 				module={ subscriptionsModule }
 				className="newsletter-group"
 				support={ {
@@ -477,10 +478,7 @@ export default withModuleSettingsFormHelpers(
 			subscriptionFromName: ownProps.getOptionValue( FROM_NAME_OPTION ),
 			dateExample: getNewsetterDateExample( state ),
 			unavailableInOfflineMode: isUnavailableInOfflineMode( state, SUBSCRIPTIONS_MODULE_NAME ),
-			unavailableInSiteConnectionMode: isUnavailableInSiteConnectionMode(
-				state,
-				SUBSCRIPTIONS_MODULE_NAME
-			),
+			siteHasConnectedUser: hasConnectedOwner( state ),
 		};
 	} )( EmailSettings )
 );
