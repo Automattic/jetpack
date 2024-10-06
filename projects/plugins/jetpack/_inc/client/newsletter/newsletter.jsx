@@ -9,7 +9,12 @@ import analytics from 'lib/analytics';
 import { FEATURE_NEWSLETTER_JETPACK } from 'lib/plans/constants';
 import React from 'react';
 import { connect } from 'react-redux';
-import { isCurrentUserLinked, isUnavailableInOfflineMode, isOfflineMode } from 'state/connection';
+import {
+	isCurrentUserLinked,
+	isUnavailableInOfflineMode,
+	isOfflineMode,
+	hasConnectedOwner,
+} from 'state/connection';
 import { getModule } from 'state/modules';
 import { SUBSCRIPTIONS_MODULE_NAME } from './constants';
 
@@ -33,6 +38,7 @@ function Newsletter( props ) {
 		isSubscriptionsActive,
 		unavailableInOfflineMode,
 		subscriptions,
+		siteHasConnectedUser,
 	} = props;
 
 	const getSubClickableCard = () => {
@@ -63,11 +69,12 @@ function Newsletter( props ) {
 			hideButton
 			feature={ FEATURE_NEWSLETTER_JETPACK }
 			module={ SUBSCRIPTIONS_MODULE_NAME }
+			isDisabled={ ! siteHasConnectedUser }
 		>
 			<SettingsGroup
 				hasChild
 				disableInOfflineMode
-				disableInSiteConnectionMode
+				disableInSiteConnectionMode={ ! siteHasConnectedUser }
 				module={ subscriptions }
 				support={ {
 					text: __(
@@ -79,7 +86,7 @@ function Newsletter( props ) {
 			>
 				<ModuleToggle
 					slug="subscriptions"
-					disabled={ unavailableInOfflineMode }
+					disabled={ ! siteHasConnectedUser || unavailableInOfflineMode }
 					activated={ isSubscriptionsActive }
 					toggling={ isSavingAnyOption( SUBSCRIPTIONS_MODULE_NAME ) }
 					toggleModule={ toggleModuleNow }
@@ -106,6 +113,7 @@ export default withModuleSettingsFormHelpers(
 			isSubscriptionsActive: ownProps.getOptionValue( SUBSCRIPTIONS_MODULE_NAME ),
 			unavailableInOfflineMode: isUnavailableInOfflineMode( state, SUBSCRIPTIONS_MODULE_NAME ),
 			subscriptions: getModule( state, SUBSCRIPTIONS_MODULE_NAME ),
+			siteHasConnectedUser: hasConnectedOwner( state ),
 		};
 	} )( Newsletter )
 );

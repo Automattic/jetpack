@@ -51,6 +51,7 @@ export const SettingsCard = inprops => {
 	const props = {
 		action: '',
 		saveDisabled: false,
+		isDisabled: false,
 		...inprops,
 	};
 
@@ -94,6 +95,7 @@ export const SettingsCard = inprops => {
 		return <span />;
 	}
 
+	const isDisabled = props.isDisabled;
 	const isSaving = props.saveDisabled,
 		feature = props.feature ? props.feature : false;
 	let header = props.header ? props.header : '';
@@ -545,11 +547,17 @@ export const SettingsCard = inprops => {
 			<form
 				{ ...( moduleId ? { id: moduleId } : null ) }
 				className={ `jp-form-settings-card` }
-				onSubmit={ ! isSaving ? props.onSubmit : undefined }
+				onSubmit={ ! isDisabled && ! isSaving ? props.onSubmit : undefined }
 			>
 				<SectionHeader label={ header }>
 					{ ! props.hideButton && (
-						<Button primary rna compact type="submit" disabled={ isSaving || ! props.isDirty() }>
+						<Button
+							primary
+							rna
+							compact
+							type="submit"
+							disabled={ isDisabled || isSaving || ! props.isDirty() }
+						>
 							{ isSaving
 								? _x( 'Saving…', 'Button caption', 'jetpack' )
 								: _x(
@@ -578,6 +586,7 @@ export const SettingsCard = inprops => {
 SettingsCard.propTypes = {
 	action: PropTypes.string,
 	saveDisabled: PropTypes.bool,
+	isDisabled: PropTypes.bool,
 };
 
 export default connect(

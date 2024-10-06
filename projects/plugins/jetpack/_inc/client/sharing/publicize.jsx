@@ -51,7 +51,8 @@ export const Publicize = withModuleSettingsFormHelpers(
 				hasSocialImageGenerator = this.props.hasSocialImageGenerator,
 				isAtomicSite = this.props.isAtomicSite,
 				activeFeatures = this.props.activeFeatures,
-				useAdminUiV1 = this.props.useAdminUiV1;
+				useAdminUiV1 = this.props.useAdminUiV1,
+				isOfflineMode = this.props.isOfflineMode;
 
 			const showUpgradeLink =
 				! isAtomicSite &&
@@ -95,6 +96,7 @@ export const Publicize = withModuleSettingsFormHelpers(
 					module="publicize"
 					hideButton
 					feature={ FEATURE_JETPACK_SOCIAL }
+					isDisabled={ isOfflineMode || ! isLinked }
 				>
 					{ userCanManageModules && (
 						<SettingsGroup
@@ -138,7 +140,7 @@ export const Publicize = withModuleSettingsFormHelpers(
 							) : null }
 							<ModuleToggle
 								slug="publicize"
-								disabled={ unavailableInOfflineMode }
+								disabled={ isOfflineMode || ! isLinked }
 								activated={ isActive }
 								toggling={ this.props.isSavingAnyOption( 'publicize' ) }
 								toggleModule={ this.props.toggleModuleNow }

@@ -8,8 +8,8 @@ import React, { useCallback, useMemo } from 'react';
 import { connect } from 'react-redux';
 import {
 	isUnavailableInOfflineMode,
-	isUnavailableInSiteConnectionMode,
 	requiresConnection,
+	hasConnectedOwner,
 } from 'state/connection';
 import { getModule } from 'state/modules';
 import Card from '../components/card';
@@ -45,10 +45,10 @@ function NewsletterCategories( props ) {
 		newsletterCategories,
 		categories,
 		unavailableInOfflineMode,
-		unavailableInSiteConnectionMode,
 		subscriptionsModule,
 		updateFormStateOptionValue,
 		isSavingAnyOption,
+		siteHasConnectedUser,
 	} = props;
 
 	const handleEnableNewsletterCategoriesToggleChange = useCallback( () => {
@@ -82,11 +82,12 @@ function NewsletterCategories( props ) {
 		[ checkedCategoriesIds, updateFormStateOptionValue ]
 	);
 
+	const isSaving = isSavingAnyOption( [
+		NEWSLETTER_CATEGORIES_ENABLED_OPTION,
+		NEWSLETTER_CATEGORIES_OPTION,
+	] );
 	const disabled =
-		! isSubscriptionsActive ||
-		unavailableInOfflineMode ||
-		unavailableInSiteConnectionMode ||
-		isSavingAnyOption( [ NEWSLETTER_CATEGORIES_ENABLED_OPTION, NEWSLETTER_CATEGORIES_OPTION ] );
+		! siteHasConnectedUser || ! isSubscriptionsActive || unavailableInOfflineMode || isSaving;
 
 	return (
 		<SettingsCard
@@ -94,12 +95,13 @@ function NewsletterCategories( props ) {
 			header={ __( 'Newsletter categories', 'jetpack' ) }
 			feature={ FEATURE_NEWSLETTER_JETPACK }
 			module={ SUBSCRIPTIONS_MODULE_NAME }
-			saveDisabled={ disabled }
+			saveDisabled={ isSaving }
+			isDisabled={ disabled }
 		>
 			<SettingsGroup
 				hasChild
 				disableInOfflineMode
-				disableInSiteConnectionMode
+				disableInSiteConnectionMode={ ! siteHasConnectedUser }
 				module={ subscriptionsModule }
 				support={ {
 					text: __(
@@ -170,10 +172,7 @@ export default withModuleSettingsFormHelpers(
 			categories: ownProps.getOptionValue( 'categories' ),
 			requiresConnection: requiresConnection( state, SUBSCRIPTIONS_MODULE_NAME ),
 			unavailableInOfflineMode: isUnavailableInOfflineMode( state, SUBSCRIPTIONS_MODULE_NAME ),
-			unavailableInSiteConnectionMode: isUnavailableInSiteConnectionMode(
-				state,
-				SUBSCRIPTIONS_MODULE_NAME
-			),
+			siteHasConnectedUser: hasConnectedOwner( state ),
 		};
 	} )( NewsletterCategories )
 );
