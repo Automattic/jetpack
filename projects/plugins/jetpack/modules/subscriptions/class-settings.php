@@ -18,7 +18,7 @@ class Settings {
 	 *
 	 * @var string
 	 */
-	public $default_reply_to = 'comment';
+	public static $default_reply_to = 'comment';
 
 	/**
 	 * Validate the reply-to option.
