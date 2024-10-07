@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Minor internal optimization to PSR-4 autoloader; no user-facing impact or action required.
+
+
