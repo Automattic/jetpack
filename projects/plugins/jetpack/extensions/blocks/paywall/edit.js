@@ -18,7 +18,7 @@ function PaywallEdit() {
 	const blockProps = useBlockProps();
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
 	const accessLevel = useAccessLevel( postType );
-	const { hasConnectedOwner } = useConnection();
+	const { isUserConnected } = useConnection();
 
 	const { stripeConnectUrl, hasTierPlans } = useSelect( select => {
 		const { getNewsletterTierProducts, getConnectUrl } = select( 'jetpack/membership-products' );
@@ -46,7 +46,7 @@ function PaywallEdit() {
 		setAccess( value );
 	}
 
-	if ( ! hasConnectedOwner ) {
+	if ( ! isUserConnected ) {
 		return (
 			<div { ...blockProps }>
 				<ConnectBanner

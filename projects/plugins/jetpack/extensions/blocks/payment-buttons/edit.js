@@ -14,7 +14,7 @@ const ALLOWED_BLOCKS = [ 'jetpack/recurring-payments' ];
 
 function PaymentButtonsEdit( { clientId, attributes } ) {
 	const { layout, fontSize } = attributes;
-	const { hasConnectedOwner } = useConnection();
+	const { isUserConnected } = useConnection();
 	const { connectUrl, isApiConnected } = useSelect( select => {
 		const { getConnectUrl, isApiStateConnected } = select( membershipProductsStore );
 		return {
@@ -76,7 +76,7 @@ function PaymentButtonsEdit( { clientId, attributes } ) {
 	delete innerBlocksProps.id;
 	delete innerBlocksProps[ 'data-block' ];
 
-	if ( ! hasConnectedOwner ) {
+	if ( ! isUserConnected ) {
 		return (
 			<div { ...blockProps }>
 				<ConnectBanner

@@ -22,7 +22,7 @@ const Edit = props => {
 	const blockProps = useBlockProps();
 	const [ loadingError, setLoadingError ] = useState( '' );
 	const [ products, setProducts ] = useState( [] );
-	const { hasConnectedOwner } = useConnection();
+	const { isUserConnected } = useConnection();
 
 	const { lockPostSaving, unlockPostSaving } = useDispatch( 'core/editor' );
 	const post = useSelect( select => select( 'core/editor' ).getCurrentPost(), [] );
@@ -137,7 +137,7 @@ const Edit = props => {
 
 	let content;
 
-	if ( ! hasConnectedOwner ) {
+	if ( ! isUserConnected ) {
 		content = (
 			<ConnectBanner
 				explanation={ __( 'Connect your WordPress.com account to enable donations.', 'jetpack' ) }

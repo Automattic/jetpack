@@ -26,7 +26,7 @@ export default function JetpackPaymentsIntroEdit( { name, clientId } ) {
 		};
 	} );
 
-	const { hasConnectedOwner } = useConnection();
+	const { isUserConnected } = useConnection();
 
 	const { replaceBlock, selectBlock, updateSettings } = useDispatch( blockEditorStore );
 
@@ -71,7 +71,7 @@ export default function JetpackPaymentsIntroEdit( { name, clientId } ) {
 
 	let content;
 
-	if ( ! hasConnectedOwner ) {
+	if ( ! isUserConnected ) {
 		content = (
 			<ConnectBanner
 				explanation={ __(

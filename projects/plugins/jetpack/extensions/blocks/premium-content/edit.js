@@ -62,7 +62,7 @@ function Edit( { clientId, isSelected, attributes, setAttributes } ) {
 
 	const [ selectedTab, selectTab ] = useState( tabs[ WALL_TAB ] );
 	const blockProps = useBlockProps();
-	const { hasConnectedOwner } = useConnection();
+	const { isUserConnected } = useConnection();
 
 	const setSelectedProductIds = productIds => setAttributes( { selectedPlanIds: productIds } );
 
@@ -102,7 +102,7 @@ function Edit( { clientId, isSelected, attributes, setAttributes } ) {
 
 	const isSmallViewport = useViewportMatch( 'medium', '<' );
 
-	if ( ! hasConnectedOwner ) {
+	if ( ! isUserConnected ) {
 		return (
 			<div { ...blockProps }>
 				<ConnectBanner
