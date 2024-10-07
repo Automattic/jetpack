@@ -14,17 +14,14 @@ return [
     // PhanImpossibleCondition : 1 occurrence
     // PhanPluginSimplifyExpressionBool : 1 occurrence
     // PhanRedundantCondition : 1 occurrence
-    // PhanTypeMismatchProperty : 1 occurrence
-    // PhanUndeclaredTypeParameter : 1 occurrence
     // PhanUnreferencedUseNormal : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
         'src/class-data-sync-entry-adapter.php' => ['PhanParamTooFew'],
         'src/class-ds-utils.php' => ['PhanImpossibleCondition', 'PhanRedundantCondition'],
-        'src/class-registry.php' => ['PhanUndeclaredTypeParameter'],
         'src/contracts/interface-lazy-entry.php' => ['PhanUnreferencedUseNormal'],
-        'src/endpoints/class-action-endpoint.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchProperty'],
+        'src/endpoints/class-action-endpoint.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'src/endpoints/class-endpoint.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginSimplifyExpressionBool'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
