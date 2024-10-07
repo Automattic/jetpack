@@ -1801,7 +1801,8 @@ class Contact_Form_Plugin {
 		/**
 		 * Print CSV headers
 		 */
-		fputcsv( $output, $fields );
+		// @todo When we drop support for PHP <7.4, consider passing empty-string for `$escape` here for better spec compatibility.
+		fputcsv( $output, $fields, ',', '"', '\\' );
 
 		/**
 		 * Print rows to the output.
@@ -1820,7 +1821,8 @@ class Contact_Form_Plugin {
 			/**
 			 * Output the complete CSV row
 			 */
-			fputcsv( $output, $current_row );
+			// @todo When we drop support for PHP <7.4, consider passing empty-string for `$escape` here for better spec compatibility.
+			fputcsv( $output, $current_row, ',', '"', '\\' );
 		}
 
 		fclose( $output ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
