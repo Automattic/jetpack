@@ -279,8 +279,8 @@ class Terms extends Module {
 	 * @return array|boolean False if blacklisted taxonomy or no change in terms, the original hook args otherwise.
 	 */
 	public function filter_set_object_terms_no_update( $args ) {
-		$args = $this->filter_blacklisted_taxonomies( $args );
-		if ( false === $args ) {
+		// Check if the taxonomy is blacklisted. $args[3] is the taxonomy.
+		if ( in_array( $args[3], Settings::get_setting( 'taxonomies_blacklist' ), true ) ) {
 			return false;
 		}
 		// There is potential for other plugins to modify args, therefore lets validate # of and types.
