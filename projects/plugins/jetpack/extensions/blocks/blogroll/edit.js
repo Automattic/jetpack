@@ -23,7 +23,7 @@ export function BlogRollEdit( { className, attributes, setAttributes, clientId }
 		load_placeholders,
 	} = attributes;
 
-	const { hasConnectedOwner } = useConnection();
+	const { isUserConnected } = useConnection();
 
 	const {
 		isLoading: isLoadingRecommendations,
@@ -59,7 +59,7 @@ export function BlogRollEdit( { className, attributes, setAttributes, clientId }
 		} ),
 	} );
 
-	if ( ! hasConnectedOwner ) {
+	if ( ! isUserConnected ) {
 		return (
 			<>
 				<ConnectBanner
