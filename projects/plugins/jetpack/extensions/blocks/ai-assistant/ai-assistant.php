@@ -197,15 +197,3 @@ add_action(
 		}
 	}
 );
-
-/**
- * Register the `ai-logo-style-selector-support` extension.
- */
-add_action(
-	'jetpack_register_gutenberg_extensions',
-	function () {
-		if ( apply_filters( 'jetpack_ai_enabled', true ) && apply_filters( 'jetpack_ai_logo_style_selector_enabled', false ) ) {
-			\Jetpack_Gutenberg::set_extension_available( 'ai-logo-style-selector-support' );
-		}
-	}
-);

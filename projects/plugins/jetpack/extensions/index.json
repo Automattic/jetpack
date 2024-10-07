@@ -78,8 +78,7 @@
 		"recipe",
 		"v6-video-frame-poster",
 		"videopress/video-chapters",
-		"ai-assistant-backend-prompts",
-		"ai-logo-style-selector-support"
+		"ai-assistant-backend-prompts"
 	],
 	"experimental": [],
 	"no-post-editor": [

@@ -49,7 +49,6 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 	siteDetails,
 	context,
 	placement,
-	showStyleSelector,
 } ) => {
 	const { tracks } = useAnalytics();
 	const { recordEvent: recordTracksEvent } = tracks;
@@ -243,9 +242,7 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 	} else {
 		body = (
 			<>
-				{ ! logoAccepted && (
-					<Prompt initialPrompt={ initialPrompt } showStyleSelector={ showStyleSelector } />
-				) }
+				{ ! logoAccepted && <Prompt initialPrompt={ initialPrompt } /> }
 
 				<LogoPresenter
 					logo={ selectedLogo }
