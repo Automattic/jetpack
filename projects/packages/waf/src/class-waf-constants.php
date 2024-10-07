@@ -22,6 +22,7 @@ class Waf_Constants {
 		self::define_waf_directory();
 		self::define_wpconfig_path();
 		self::define_killswitch();
+		self::define_entrypoint();
 	}
 
 	/**
@@ -77,6 +78,15 @@ class Waf_Constants {
 		if ( ! defined( 'JETPACK_WAF_MODE' ) ) {
 			$mode_option = get_option( Waf_Runner::MODE_OPTION_NAME );
 			define( 'JETPACK_WAF_MODE', $mode_option );
+		}
+	}
+
+	/**
+	 * Set the entrypoint definition if it has not been set.
+	 */
+	public static function define_entrypoint() {
+		if ( ! defined( 'JETPACK_WAF_ENTRYPOINT' ) ) {
+			define( 'JETPACK_WAF_ENTRYPOINT', 'rules/rules.php' );
 		}
 	}
 

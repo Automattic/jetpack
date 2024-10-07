@@ -20,7 +20,6 @@ class Waf_Runner {
 	const MODE_OPTION_NAME             = 'jetpack_waf_mode';
 	const SHARE_DATA_OPTION_NAME       = 'jetpack_waf_share_data';
 	const SHARE_DEBUG_DATA_OPTION_NAME = 'jetpack_waf_share_debug_data';
-	const ENTRYPOINT_FILE              = '/rules/rules.php';
 
 	/**
 	 * Run the WAF
@@ -32,6 +31,7 @@ class Waf_Runner {
 			return;
 		}
 		Waf_Constants::define_mode();
+		Waf_Constants::define_entrypoint();
 		Waf_Constants::define_share_data();
 
 		if ( ! self::is_allowed_mode( JETPACK_WAF_MODE ) ) {
@@ -257,7 +257,7 @@ class Waf_Runner {
 			$waf = new Waf_Runtime( new Waf_Transforms(), new Waf_Operators() );
 
 			// execute waf rules.
-			$rules_file_path = self::get_waf_file_path( self::ENTRYPOINT_FILE );
+			$rules_file_path = self::get_waf_file_path( JETPACK_WAF_ENTRYPOINT );
 			if ( file_exists( $rules_file_path ) ) {
 				// phpcs:ignore
 				include $rules_file_path;
@@ -367,14 +367,15 @@ class Waf_Runner {
 
 		global $wp_filesystem;
 		self::initialize_filesystem();
+		Waf_Constants::define_entrypoint();
 
 		// If the rules file doesn't exist, there's nothing else to do.
-		if ( ! $wp_filesystem->exists( self::get_waf_file_path( self::ENTRYPOINT_FILE ) ) ) {
+		if ( ! $wp_filesystem->exists( self::get_waf_file_path( JETPACK_WAF_ENTRYPOINT ) ) ) {
 			return;
 		}
 
 		// Empty the rules entrypoint file.
-		if ( ! $wp_filesystem->put_contents( self::get_waf_file_path( self::ENTRYPOINT_FILE ), "<?php\n" ) ) {
+		if ( ! $wp_filesystem->put_contents( self::get_waf_file_path( JETPACK_WAF_ENTRYPOINT ), "<?php\n" ) ) {
 			throw new File_System_Exception( 'Failed to empty rules.php file.' );
 		}
 	}

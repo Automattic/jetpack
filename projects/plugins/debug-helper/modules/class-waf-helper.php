@@ -223,7 +223,7 @@ class Waf_Helper {
 		<hr>
 
 		<h2>Rules Entrypoint</h2>
-		<?php $this->render_waf_file( Waf_Runner::ENTRYPOINT_FILE ); ?>
+		<?php $this->render_waf_file( defined( 'JETPACK_WAF_ENTRYPOINT' ) && JETPACK_WAF_ENTRYPOINT ); ?>
 
 		<hr>
 
