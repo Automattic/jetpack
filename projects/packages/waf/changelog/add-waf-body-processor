@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Firewall Runtime: Added support for rule files to specify body parser type.

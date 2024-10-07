@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-VideoPress: fix thumbnail update bug that showed the old thumbnail for a couple seconds on the details page.

@@ -243,7 +243,7 @@ class Image_CDN_Core {
 	/**
 	 * Checks if a given URL is a Photon URL.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.5.0
 	 * @param string $url The URL to check.
 	 * @return bool True if the URL is a Photon URL, false otherwise.
 	 */

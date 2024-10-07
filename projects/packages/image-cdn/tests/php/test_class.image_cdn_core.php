@@ -267,7 +267,7 @@ class WP_Test_Image_CDN_Core extends BaseTestCase {
 
 	/**
 	 * @covers ::Image_CDN_Core::is_cdn_url
-	 * @since  $$next-version$$
+	 * @since  0.5.0
 	 * @group  jetpack_photon_filter_network_path
 	 */
 	public function test_is_cdn_url_method() {
