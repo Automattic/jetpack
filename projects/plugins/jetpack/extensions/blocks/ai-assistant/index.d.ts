@@ -1,5 +1,6 @@
 interface Window {
 	Jetpack_Editor_Initial_State: {
+		siteFragment: string;
 		siteLocale: string;
 		adminUrl: string;
 		available_blocks: {
