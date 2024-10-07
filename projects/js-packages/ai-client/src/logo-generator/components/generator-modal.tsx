@@ -13,7 +13,6 @@ import { useState, useEffect, useCallback, useRef } from 'react';
  * Internal dependencies
  */
 import {
-	DEFAULT_LOGO_COST,
 	EVENT_MODAL_OPEN,
 	EVENT_FEEDBACK,
 	EVENT_MODAL_CLOSE,
@@ -64,14 +63,8 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 	const requestedFeatureData = useRef< boolean >( false );
 	const [ needsFeature, setNeedsFeature ] = useState( false );
 	const [ needsMoreRequests, setNeedsMoreRequests ] = useState( false );
-	const {
-		selectedLogo,
-		getAiAssistantFeature,
-		generateFirstPrompt,
-		generateLogo,
-		setContext,
-		tierPlansEnabled,
-	} = useLogoGenerator();
+	const { selectedLogo, getAiAssistantFeature, generateFirstPrompt, generateLogo, setContext } =
+		useLogoGenerator();
 	const { featureFetchError, firstLogoPromptFetchError, clearErrors } = useRequestErrors();
 	const siteId = siteDetails?.ID;
 	const [ logoAccepted, setLogoAccepted ] = useState( false );
@@ -106,21 +99,15 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 		try {
 			const hasHistory = ! isLogoHistoryEmpty( String( siteId ) );
 
-			const logoCost = feature?.costs?.[ 'jetpack-ai-logo-generator' ]?.logo ?? DEFAULT_LOGO_COST;
-			const promptCreationCost = 1;
-			const currentLimit = feature?.currentTier?.value || 0;
-			const currentUsage = feature?.usagePeriod?.requestsCount || 0;
-			const isUnlimited = ! tierPlansEnabled ? currentLimit > 0 : currentLimit === 1;
+			const currentLimit = feature?.currentTier?.value || 0; // ? shouldn't we set this to free requests limit?
+			const currentUsage =
+				currentLimit === 0 ? feature?.requestsCount : feature?.usagePeriod?.requestsCount || 0;
+			const isUnlimited = currentLimit > 0;
 			const hasNoNextTier = ! feature?.nextTier; // If there is no next tier, the user cannot upgrade.
 
 			// The user needs an upgrade immediately if they have no logos and not enough requests remaining for one prompt and one logo generation.
 			const siteNeedsMoreRequests =
-				! isUnlimited &&
-				! hasNoNextTier &&
-				! hasHistory &&
-				( tierPlansEnabled
-					? currentLimit - currentUsage < logoCost + promptCreationCost
-					: currentLimit < currentUsage );
+				! isUnlimited && ! hasNoNextTier && ! hasHistory && currentLimit < currentUsage;
 
 			// If the site requires an upgrade, show the upgrade screen immediately.
 			setNeedsFeature( currentLimit === 0 );

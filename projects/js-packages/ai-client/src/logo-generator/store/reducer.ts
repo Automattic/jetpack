@@ -9,7 +9,6 @@ import {
 	ACTION_STORE_AI_ASSISTANT_FEATURE,
 	ASYNC_REQUEST_COUNTDOWN_INIT_VALUE,
 	FREE_PLAN_REQUESTS_LIMIT,
-	UNLIMITED_PLAN_REQUESTS_LIMIT,
 	ACTION_SET_TIER_PLANS_ENABLED,
 	ACTION_SET_SITE_DETAILS,
 	ACTION_SET_SELECTED_LOGO_INDEX,
@@ -149,30 +148,15 @@ export default function reducer(
 			// Current tier value
 			const currentTierValue = state?.features?.aiAssistantFeature?.currentTier?.value;
 
-			const isFreeTierPlan =
-				( typeof currentTierValue === 'undefined' &&
-					! state?.features?.aiAssistantFeature?.hasFeature ) ||
-				currentTierValue === 0;
-
-			const isUnlimitedTierPlan =
-				( typeof currentTierValue === 'undefined' &&
-					state?.features?.aiAssistantFeature?.hasFeature ) ||
-				currentTierValue === 1;
+			const isFreeTierPlan = currentTierValue === 0;
 
 			// Request limit defined with the current tier limit by default.
-			let requestsLimit: TierLimitProp =
+			const requestsLimit: TierLimitProp =
 				state?.features?.aiAssistantFeature?.currentTier?.limit || FREE_PLAN_REQUESTS_LIMIT;
 
-			if ( isUnlimitedTierPlan ) {
-				requestsLimit = UNLIMITED_PLAN_REQUESTS_LIMIT;
-			} else if ( isFreeTierPlan ) {
-				requestsLimit = state?.features?.aiAssistantFeature?.requestsLimit as TierLimitProp;
-			}
-
-			const currentCount =
-				isUnlimitedTierPlan || isFreeTierPlan // @todo: update once tier data is available
-					? requestsCount
-					: state?.features?.aiAssistantFeature?.usagePeriod?.requestsCount || 0;
+			const currentCount = isFreeTierPlan
+				? requestsCount
+				: state?.features?.aiAssistantFeature?.usagePeriod?.requestsCount || 0;
 
 			/**
 			 * Compute the AI Assistant Feature data optimistically,
@@ -182,8 +166,7 @@ export default function reducer(
 			const isOverLimit = currentCount >= requestsLimit;
 
 			// highest tier holds a soft limit so requireUpgrade is false on that case (nextTier null means highest tier)
-			const requireUpgrade =
-				isFreeTierPlan || ( isOverLimit && state?.features?.aiAssistantFeature?.nextTier !== null );
+			const requireUpgrade = isOverLimit;
 
 			return {
 				...state,

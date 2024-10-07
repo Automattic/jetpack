@@ -20,11 +20,10 @@ import type { Selectors } from '../store/types.js';
 const debug = debugFactory( 'ai-client:logo-generator:use-checkout' );
 
 export const useCheckout = () => {
-	const { nextTier, tierPlansEnabled } = useSelect( select => {
+	const { nextTier } = useSelect( select => {
 		const selectors: Selectors = select( STORE_NAME );
 		return {
 			nextTier: selectors.getAiAssistantFeature().nextTier,
-			tierPlansEnabled: selectors.getAiAssistantFeature().tierPlansEnabled,
 		};
 	}, [] );
 
@@ -45,10 +44,7 @@ export const useCheckout = () => {
 	const checkoutUrl = new URL( `https://jetpack.com/redirect/` );
 	checkoutUrl.searchParams.set( 'source', redirectSource );
 	checkoutUrl.searchParams.set( 'site', siteFragment );
-	checkoutUrl.searchParams.set(
-		'path',
-		tierPlansEnabled ? `jetpack_ai_yearly:-q-${ nextTier?.limit }` : 'jetpack_ai_yearly'
-	);
+	checkoutUrl.searchParams.set( 'path', 'jetpack_ai_yearly' );
 
 	// For Jetpack sites, the redirect_to parameter is handled by the Jetpack redirect source
 	if ( ! isJetpackSite ) {

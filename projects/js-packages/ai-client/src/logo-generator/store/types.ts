@@ -13,7 +13,7 @@ export type UpgradeTypeProp = 'vip' | 'default';
 
 export type TierUnlimitedProps = {
 	slug: 'ai-assistant-tier-unlimited';
-	limit: 999999999;
+	limit: 3000;
 	value: 1;
 	readableLimit: string;
 };
@@ -97,7 +97,6 @@ export type FeatureControl = {
 export type FeaturesControl = { [ key: string ]: FeatureControl };
 
 export type AiFeatureProps = {
-	hasFeature: boolean;
 	isOverLimit: boolean;
 	requestsCount: number;
 	requestsLimit: number;
@@ -191,7 +190,6 @@ export type Selectors = {
  */
 export type AiAssistantFeatureEndpointResponseProps = {
 	'is-enabled': boolean;
-	'has-feature': boolean;
 	'is-over-limit': boolean;
 	'requests-count': number;
 	'requests-limit': number;

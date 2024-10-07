@@ -26,7 +26,6 @@ import { useCheckout } from '../hooks/use-checkout.js';
 import useLogoGenerator from '../hooks/use-logo-generator.js';
 import useRequestErrors from '../hooks/use-request-errors.js';
 import { FairUsageNotice } from './fair-usage-notice.js';
-import { UpgradeNudge } from './upgrade-nudge.js';
 import './prompt.scss';
 /**
  * Types
@@ -62,7 +61,6 @@ export const Prompt = ( { initialPrompt = '', showStyleSelector = false }: Promp
 		getAiAssistantFeature,
 		requireUpgrade,
 		context,
-		tierPlansEnabled,
 		getImageStyles,
 	} = useLogoGenerator();
 
@@ -242,8 +240,7 @@ export const Prompt = ( { initialPrompt = '', showStyleSelector = false }: Promp
 						</Tooltip>
 					</div>
 				) }
-				{ requireUpgrade && tierPlansEnabled && <UpgradeNudge /> }
-				{ requireUpgrade && ! tierPlansEnabled && <FairUsageNotice /> }
+				{ requireUpgrade && <FairUsageNotice /> }
 				{ enhancePromptFetchError && (
 					<div className="jetpack-ai-logo-generator__prompt-error">
 						{ __( 'Error enhancing prompt. Please try again.', 'jetpack-ai-client' ) }

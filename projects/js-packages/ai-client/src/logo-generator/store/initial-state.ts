@@ -8,7 +8,6 @@ const INITIAL_STATE: LogoGeneratorStateProp = {
 	siteDetails: {},
 	features: {
 		aiAssistantFeature: {
-			hasFeature: true,
 			isOverLimit: false,
 			requestsCount: 0,
 			requestsLimit: FREE_PLAN_REQUESTS_LIMIT,

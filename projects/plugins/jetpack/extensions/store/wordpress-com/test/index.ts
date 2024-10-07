@@ -13,7 +13,6 @@ import { AiFeatureProps, PlanStateProps } from '../types';
 describe( 'actions', () => {
 	it( 'should create an action to store the AI Assistant feature', () => {
 		const feature_in_free_plan: AiFeatureProps = {
-			hasFeature: false,
 			isOverLimit: false,
 			requestsCount: 10,
 			requestsLimit: FREE_PLAN_REQUESTS_LIMIT,
@@ -37,7 +36,6 @@ describe( 'reducer', () => {
 			plans: [],
 			features: {
 				aiAssistant: {
-					hasFeature: false,
 					isOverLimit: false,
 					requestsCount: 19, // 1 request left :screams:
 					requestsLimit: FREE_PLAN_REQUESTS_LIMIT,
@@ -70,7 +68,6 @@ describe( 'reducer', () => {
 			features: {
 				aiAssistant: {
 					...initialState.features.aiAssistant,
-					hasFeature: false,
 					isOverLimit: true,
 					requestsCount: 20,
 					requireUpgrade: true,
@@ -90,7 +87,6 @@ describe( 'reducer', () => {
 			plans: [],
 			features: {
 				aiAssistant: {
-					hasFeature: true,
 					isOverLimit: false,
 					requestsCount: 12345,
 					requestsLimit: UNLIMITED_PLAN_REQUESTS_LIMIT,
@@ -114,7 +110,6 @@ describe( 'reducer', () => {
 			features: {
 				aiAssistant: {
 					...initialState.features.aiAssistant,
-					hasFeature: true,
 					isOverLimit: false,
 					requestsCount: 12346,
 					requireUpgrade: false,
@@ -134,7 +129,6 @@ describe( 'reducer', () => {
 			plans: [],
 			features: {
 				aiAssistant: {
-					hasFeature: true,
 					isOverLimit: false,
 					requestsCount: 123, // ignored for Tier plans
 					requestsLimit: UNLIMITED_PLAN_REQUESTS_LIMIT, // ignored for Tier plans
@@ -161,7 +155,6 @@ describe( 'reducer', () => {
 			features: {
 				aiAssistant: {
 					...initialState.features.aiAssistant,
-					hasFeature: true,
 					isOverLimit: false,
 					requestsCount: 124,
 					requireUpgrade: false,
@@ -181,7 +174,6 @@ describe( 'reducer', () => {
 			plans: [],
 			features: {
 				aiAssistant: {
-					hasFeature: true,
 					isOverLimit: false,
 					requestsCount: 123, // ignored for Tier plans
 					requestsLimit: UNLIMITED_PLAN_REQUESTS_LIMIT, // ignored for Tier plans
@@ -208,7 +200,6 @@ describe( 'reducer', () => {
 			features: {
 				aiAssistant: {
 					...initialState.features.aiAssistant,
-					hasFeature: true, // @todo: should it be false?
 					isOverLimit: true,
 					requestsCount: 124,
 					requireUpgrade: true,
