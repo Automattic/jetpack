@@ -120,6 +120,7 @@ export default () => {
 		processing,
 		isDeleting,
 		updateVideoPrivacy,
+		isUpdatingPoster,
 	} = useVideo( Number( videoId ), true );
 
 	const { playbackToken, isFetchingPlaybackToken } = usePlaybackToken( video );
@@ -331,5 +332,6 @@ export default () => {
 		selectedTime,
 		...metaEditData,
 		...posterEditData,
+		isUpdatingPoster,
 	};
 };

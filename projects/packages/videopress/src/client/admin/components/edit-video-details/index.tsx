@@ -223,6 +223,7 @@ const EditVideoDetails = () => {
 		selectPosterImageFromLibrary,
 		posterImageSource,
 		libraryAttachment,
+		isUpdatingPoster,
 	} = useEditDetails();
 
 	const { canPerformAction } = usePermission();
@@ -312,7 +313,7 @@ const EditVideoDetails = () => {
 							<VideoThumbnail
 								thumbnail={ thumbnail }
 								loading={ isFetchingData }
-								processing={ processing }
+								processing={ processing || isUpdatingPoster }
 								deleting={ isDeleting }
 								updating={ updating }
 								duration={ duration }
