@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Disable new `Generic.CodeAnalysis.RequireExplicitBooleanOperatorPrecedence.MissingParentheses` sniff for now, pending discussion.
