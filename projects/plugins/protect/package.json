@@ -41,7 +41,6 @@
 		"@wordpress/url": "4.8.1",
 		"camelize": "1.0.1",
 		"clsx": "2.1.1",
-		"diff": "^4.0.2",
 		"moment": "2.29.4",
 		"prop-types": "15.8.1",
 		"react": "18.3.1",

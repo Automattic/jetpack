@@ -4243,9 +4243,6 @@ importers:
       clsx:
         specifier: 2.1.1
         version: 2.1.1
-      diff:
-        specifier: ^4.0.2
-        version: 4.0.2
       moment:
         specifier: 2.29.4
         version: 2.29.4

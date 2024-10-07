@@ -78,4 +78,5 @@ export { default as UpsellBanner } from './components/upsell-banner';
 export { getUserLocale, cleanLocale } from './lib/locale';
 export { default as RadioControl } from './components/radio-control';
 export { default as StatCard } from './components/stat-card';
+export { default as DiffViewer } from './components/diff-viewer';
 export * from './components/global-notices';
