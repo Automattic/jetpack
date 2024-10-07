@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.33.1] - 2024-09-30
+### Changed
+- Internal updates.
+
 ## [0.33.0] - 2024-09-23
 ### Added
 - New filter to allow for excluding the contact form submission IP from being saved or e-mailed. [#39395]
@@ -673,6 +677,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[0.33.1]: https://github.com/automattic/jetpack-forms/compare/v0.33.0...v0.33.1
 [0.33.0]: https://github.com/automattic/jetpack-forms/compare/v0.32.16...v0.33.0
 [0.32.16]: https://github.com/automattic/jetpack-forms/compare/v0.32.15...v0.32.16
 [0.32.15]: https://github.com/automattic/jetpack-forms/compare/v0.32.14...v0.32.15

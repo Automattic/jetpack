@@ -158,7 +158,8 @@ class A8c_Mc_Stats {
 	public function build_stats_url( $args ) {
 		$defaults = array(
 			'v'    => 'wpcom2',
-			'rand' => md5( wp_rand( 0, 999 ) . time() ),
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.rand_rand -- There can be a case where pluggables are not yet loaded.
+			'rand' => md5( ( function_exists( 'wp_rand' ) ? wp_rand( 0, 999 ) : rand( 0, 999 ) ) . time() ),
 		);
 		$args     = wp_parse_args( $args, $defaults );
 		$gifname  = true === $this->use_transparent_pixel ? 'b.gif' : 'g.gif';

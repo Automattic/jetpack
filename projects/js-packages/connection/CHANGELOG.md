@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## [0.35.10] - 2024-09-30
+### Changed
+- Fetch adminUrl current value on function run [#39578]
+
 ## [0.35.9] - 2024-09-25
 ### Changed
 - Update dependencies.
@@ -855,6 +859,7 @@
 - `Main` and `ConnectUser` components added.
 - `JetpackRestApiClient` API client added.
 
+[0.35.10]: https://github.com/Automattic/jetpack-connection-js/compare/v0.35.9...v0.35.10
 [0.35.9]: https://github.com/Automattic/jetpack-connection-js/compare/v0.35.8...v0.35.9
 [0.35.8]: https://github.com/Automattic/jetpack-connection-js/compare/v0.35.7...v0.35.8
 [0.35.7]: https://github.com/Automattic/jetpack-connection-js/compare/v0.35.6...v0.35.7

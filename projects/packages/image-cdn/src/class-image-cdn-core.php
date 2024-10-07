@@ -156,17 +156,12 @@ class Image_CDN_Core {
 			}
 		}
 
-		/** This filter is documented below. */
-		$custom_photon_url = apply_filters( 'jetpack_photon_domain', '', $image_url );
-		$custom_photon_url = esc_url( $custom_photon_url );
-
 		// You can't run a Photon URL through Photon again because query strings are stripped.
 		// So if the image is already a Photon URL, append the new arguments to the existing URL.
 		// Alternately, if it's a *.files.wordpress.com url or an image on a private WordPress.com Simple site,
 		// then keep the domain as is.
 		if (
-			in_array( $image_url_parts['host'], array( 'i0.wp.com', 'i1.wp.com', 'i2.wp.com' ), true )
-			|| wp_parse_url( $custom_photon_url, PHP_URL_HOST ) === $image_url_parts['host']
+			self::is_cdn_url( $image_url )
 			|| $is_wpcom_image
 			|| $is_wpcom_private_site
 		) {
@@ -242,6 +237,28 @@ class Image_CDN_Core {
 		}
 
 		return self::cdn_url_scheme( $photon_url, $scheme );
+	}
+
+	/**
+	 * Checks if a given URL is a Photon URL.
+	 *
+	 * @since $$next-version$$
+	 * @param string $url The URL to check.
+	 * @return bool True if the URL is a Photon URL, false otherwise.
+	 */
+	public static function is_cdn_url( $url ) {
+		$parsed_url = wp_parse_url( $url );
+
+		if ( ! $parsed_url ) {
+			return false;
+		}
+
+		// See usage in ::cdn_url for documentation of this filter
+		$custom_photon_url = apply_filters( 'jetpack_photon_domain', '', $url );
+		$custom_photon_url = esc_url( $custom_photon_url );
+
+		return in_array( $parsed_url['host'], array( 'i0.wp.com', 'i1.wp.com', 'i2.wp.com' ), true )
+			|| wp_parse_url( $custom_photon_url, PHP_URL_HOST ) === $parsed_url['host'];
 	}
 
 	/**

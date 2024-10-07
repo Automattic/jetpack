@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Disable controls that require user connection.
+
+
