@@ -527,6 +527,9 @@ importers:
         specifier: ^2.3.1
         version: 2.3.1
     devDependencies:
+      '@automattic/jetpack-webpack-config':
+        specifier: workspace:*
+        version: link:../webpack-config
       '@babel/core':
         specifier: 7.24.7
         version: 7.24.7
@@ -536,21 +539,6 @@ importers:
       '@babel/preset-typescript':
         specifier: 7.24.7
         version: 7.24.7(@babel/core@7.24.7)
-      '@rollup/plugin-commonjs':
-        specifier: 26.0.1
-        version: 26.0.1(rollup@3.29.5)
-      '@rollup/plugin-json':
-        specifier: 6.1.0
-        version: 6.1.0(rollup@3.29.5)
-      '@rollup/plugin-node-resolve':
-        specifier: 15.3.0
-        version: 15.3.0(rollup@3.29.5)
-      '@rollup/plugin-terser':
-        specifier: 0.4.3
-        version: 0.4.3(rollup@3.29.5)
-      '@rollup/plugin-typescript':
-        specifier: 12.1.0
-        version: 12.1.0(rollup@3.29.5)(tslib@2.5.0)(typescript@5.0.4)
       '@types/clean-css':
         specifier: 4.2.11
         version: 4.2.11
@@ -566,6 +554,9 @@ importers:
       jest:
         specifier: 29.7.0
         version: 29.7.0(@types/node@20.16.5)
+      path-browserify:
+        specifier: 1.0.1
+        version: 1.0.1
       playwright:
         specifier: 1.45.1
         version: 1.45.1
@@ -575,12 +566,9 @@ importers:
       prettier:
         specifier: npm:wp-prettier@3.0.3
         version: wp-prettier@3.0.3
-      rollup:
-        specifier: 3.29.5
-        version: 3.29.5
-      rollup-plugin-polyfill-node:
-        specifier: 0.13.0
-        version: 0.13.0(rollup@3.29.5)
+      process:
+        specifier: 0.11.10
+        version: 0.11.10
       source-map:
         specifier: 0.7.4
         version: 0.7.4
@@ -595,10 +583,13 @@ importers:
         version: 5.0.4
       webpack:
         specifier: 5.94.0
-        version: 5.94.0
+        version: 5.94.0(webpack-cli@4.9.1)
+      webpack-cli:
+        specifier: 4.9.1
+        version: 4.9.1(webpack@5.94.0)
       webpack-dev-middleware:
         specifier: 5.3.4
-        version: 5.3.4(webpack@5.94.0)
+        version: 5.3.4(webpack@5.94.0(webpack-cli@4.9.1))
 
   projects/js-packages/eslint-changed:
     dependencies:
@@ -3352,9 +3343,6 @@ importers:
       history:
         specifier: 5.3.0
         version: 5.3.0
-      jetpack-boost-critical-css-gen:
-        specifier: github:automattic/jetpack-boost-critical-css-gen#release-0.0.11
-        version: https://codeload.github.com/automattic/jetpack-boost-critical-css-gen/tar.gz/56adf5a550475fd30962cd4e8f8bfcaf71f84177
       prettier:
         specifier: npm:wp-prettier@3.0.3
         version: wp-prettier@3.0.3
@@ -3380,6 +3368,9 @@ importers:
       '@automattic/jetpack-components':
         specifier: workspace:*
         version: link:../../js-packages/components
+      '@automattic/jetpack-critical-css-gen':
+        specifier: workspace:*
+        version: link:../../js-packages/critical-css-gen
       '@automattic/jetpack-image-guide':
         specifier: workspace:*
         version: link:../../js-packages/image-guide
@@ -3422,9 +3413,15 @@ importers:
       livereload:
         specifier: 0.9.3
         version: 0.9.3
+      path-browserify:
+        specifier: 1.0.1
+        version: 1.0.1
       postcss:
         specifier: 8.4.31
         version: 8.4.31
+      process:
+        specifier: 0.11.10
+        version: 0.11.10
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -6641,15 +6638,6 @@ packages:
     engines: {node: '>=16.0.0 || 14 >= 14.17'}
     peerDependencies:
       rollup: ^2.68.0||^3.0.0||^4.0.0
-    peerDependenciesMeta:
-      rollup:
-        optional: true
-
-  '@rollup/plugin-inject@5.0.5':
-    resolution: {integrity: sha512-2+DEJbNBoPROPkgTDNe8/1YXWcqxbN5DTjASVIOx8HS+pITXushyNiBV56RB08zuptzz8gT3YfkqriTBVycepg==}
-    engines: {node: '>=14.0.0'}
-    peerDependencies:
-      rollup: ^1.20.0||^2.0.0||^3.0.0||^4.0.0
     peerDependenciesMeta:
       rollup:
         optional: true
@@ -10490,10 +10478,6 @@ packages:
   ini@1.3.8:
     resolution: {integrity: sha512-JV/yugV2uzW5iMRSiZAyDtQd+nxtUnjeLt0acNdw98kKLrvuRVyB80tsREOE7yvGVgalhZ6RNXCmEHkUKBKxew==}
 
-  install@0.13.0:
-    resolution: {integrity: sha512-zDml/jzr2PKU9I8J/xyZBQn8rPCAY//UOYNmR01XwNwyfhEWObo2SWfSl1+0tm1u6PhxLwDnfsT/6jB7OUxqFA==}
-    engines: {node: '>= 0.10'}
-
   internal-slot@1.0.7:
     resolution: {integrity: sha512-NGnrKwXzSms2qUUih/ILZ5JBqNTSa1+ZmP6flaIp6KmSElgE9qdndzS3cqjrDovwFdmwsGsLdeFgB6suw+1e9g==}
     engines: {node: '>= 0.4'}
@@ -10966,12 +10950,8 @@ packages:
       node-notifier:
         optional: true
 
-  jetpack-boost-critical-css-gen@https://codeload.github.com/automattic/jetpack-boost-critical-css-gen/tar.gz/56adf5a550475fd30962cd4e8f8bfcaf71f84177:
-    resolution: {tarball: https://codeload.github.com/automattic/jetpack-boost-critical-css-gen/tar.gz/56adf5a550475fd30962cd4e8f8bfcaf71f84177}
-    version: 0.0.11
-
-  jiti@2.0.0:
-    resolution: {integrity: sha512-CJ7e7Abb779OTRv3lomfp7Mns/Sy1+U4pcAx5VbjxCZD5ZM/VJaXPpPjNKjtSvWQy/H86E49REXR34dl1JEz9w==}
+  jiti@2.1.0:
+    resolution: {integrity: sha512-Nftp80J8poC3u+93ZxpjstsgfQ5d0o5qyD6yStv32sgnWr74xRxBppEwsUoA/GIdrJpgGRkC1930YkLcAsFdSw==}
     hasBin: true
 
   joi@17.13.3:
@@ -11698,85 +11678,6 @@ packages:
   npm-run-path@5.3.0:
     resolution: {integrity: sha512-ppwTtiJZq0O/ai0z7yfudtBpWIoxM8yE6nHi1X47eFR2EWORqfbu6CnPlNsjeN683eT0qG6H/Pyf9fCcvjnnnQ==}
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
-
-  npm@8.19.4:
-    resolution: {integrity: sha512-3HANl8i9DKnUA89P4KEgVNN28EjSeDCmvEqbzOAuxCFDzdBZzjUl99zgnGpOUumvW5lvJo2HKcjrsc+tfyv1Hw==}
-    engines: {node: ^12.13.0 || ^14.15.0 || >=16.0.0}
-    hasBin: true
-    bundledDependencies:
-      - '@isaacs/string-locale-compare'
-      - '@npmcli/arborist'
-      - '@npmcli/ci-detect'
-      - '@npmcli/config'
-      - '@npmcli/fs'
-      - '@npmcli/map-workspaces'
-      - '@npmcli/package-json'
-      - '@npmcli/run-script'
-      - abbrev
-      - archy
-      - cacache
-      - chalk
-      - chownr
-      - cli-columns
-      - cli-table3
-      - columnify
-      - fastest-levenshtein
-      - fs-minipass
-      - glob
-      - graceful-fs
-      - hosted-git-info
-      - ini
-      - init-package-json
-      - is-cidr
-      - json-parse-even-better-errors
-      - libnpmaccess
-      - libnpmdiff
-      - libnpmexec
-      - libnpmfund
-      - libnpmhook
-      - libnpmorg
-      - libnpmpack
-      - libnpmpublish
-      - libnpmsearch
-      - libnpmteam
-      - libnpmversion
-      - make-fetch-happen
-      - minimatch
-      - minipass
-      - minipass-pipeline
-      - mkdirp
-      - mkdirp-infer-owner
-      - ms
-      - node-gyp
-      - nopt
-      - npm-audit-report
-      - npm-install-checks
-      - npm-package-arg
-      - npm-pick-manifest
-      - npm-profile
-      - npm-registry-fetch
-      - npm-user-validate
-      - npmlog
-      - opener
-      - p-map
-      - pacote
-      - parse-conflict-json
-      - proc-log
-      - qrcode-terminal
-      - read
-      - read-package-json
-      - read-package-json-fast
-      - readdir-scoped-modules
-      - rimraf
-      - semver
-      - ssri
-      - tar
-      - text-table
-      - tiny-relative-date
-      - treeverse
-      - validate-npm-package-name
-      - which
-      - write-file-atomic
 
   nspell@2.1.5:
     resolution: {integrity: sha512-PSStyugKMiD9mHmqI/CR5xXrSIGejUXPlo88FBRq5Og1kO5QwQ5Ilu8D8O5I/SHpoS+mibpw6uKA8rd3vXd2Sg==}
@@ -13000,11 +12901,6 @@ packages:
     resolution: {integrity: sha512-vqQZ/UQowTW7VoiKEM5ouNW90wE5/GZLfdWuR0ELxyKOJUIaj+uismPZZaICU4DnWPVjnpCDDxEqwU7pcKY/PA==}
     engines: {node: '>=8.3'}
 
-  rollup-plugin-polyfill-node@0.13.0:
-    resolution: {integrity: sha512-FYEvpCaD5jGtyBuBFcQImEGmTxDTPbiHjJdrYIp+mFIwgXiXabxvKUK7ZT9P31ozu2Tqm9llYQMRWsfvTMTAOw==}
-    peerDependencies:
-      rollup: ^1.20.0 || ^2.0.0 || ^3.0.0 || ^4.0.0
-
   rollup-plugin-postcss@4.0.2:
     resolution: {integrity: sha512-05EaY6zvZdmvPUDi3uCcAQoESDcYnv8ogJJQRp6V5kZ6J6P7uAVJlrTZcaaA20wTH527YTnKfkAoPxWI/jPp4w==}
     engines: {node: '>=10'}
@@ -13742,8 +13638,8 @@ packages:
   tinycolor2@1.4.2:
     resolution: {integrity: sha512-vJhccZPs965sV/L2sU4oRQVAos0pQXwsvTLkWYdqJ+a8Q5kPFzJTuOFwy7UniPli44NKQGAglksjvOcpo95aZA==}
 
-  tinyglobby@0.2.8:
-    resolution: {integrity: sha512-AMLZywN0vbhiZi2neFEaj9VIIxC+PjDMsp0nAK6tpR86LJavZgHqGz0S/FOONwBygC+mu7R0/TyAQw0gx0Mu9Q==}
+  tinyglobby@0.2.9:
+    resolution: {integrity: sha512-8or1+BGEdk1Zkkw2ii16qSS7uVrQJPre5A9o/XkWPATkk23FZh/15BKFxPnlTy6vkljZxLqYCzzBMj30ZrSvjw==}
     engines: {node: '>=12.0.0'}
 
   tinyqueue@2.0.3:
@@ -16680,14 +16576,6 @@ snapshots:
       estree-walker: 2.0.2
       glob: 10.4.1
       is-reference: 1.2.1
-      magic-string: 0.30.11
-    optionalDependencies:
-      rollup: 3.29.5
-
-  '@rollup/plugin-inject@5.0.5(rollup@3.29.5)':
-    dependencies:
-      '@rollup/pluginutils': 5.1.0(rollup@3.29.5)
-      estree-walker: 2.0.2
       magic-string: 0.30.11
     optionalDependencies:
       rollup: 3.29.5
@@ -22818,8 +22706,6 @@ snapshots:
 
   ini@1.3.8: {}
 
-  install@0.13.0: {}
-
   internal-slot@1.0.7:
     dependencies:
       es-errors: 1.3.0
@@ -23551,14 +23437,7 @@ snapshots:
       - supports-color
       - ts-node
 
-  jetpack-boost-critical-css-gen@https://codeload.github.com/automattic/jetpack-boost-critical-css-gen/tar.gz/56adf5a550475fd30962cd4e8f8bfcaf71f84177:
-    dependencies:
-      clean-css: 5.3.3
-      css-tree: 2.3.1
-      install: 0.13.0
-      npm: 8.19.4
-
-  jiti@2.0.0: {}
+  jiti@2.1.0: {}
 
   joi@17.13.3:
     dependencies:
@@ -24488,8 +24367,6 @@ snapshots:
   npm-run-path@5.3.0:
     dependencies:
       path-key: 4.0.0
-
-  npm@8.19.4: {}
 
   nspell@2.1.5:
     dependencies:
@@ -25836,11 +25713,6 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  rollup-plugin-polyfill-node@0.13.0(rollup@3.29.5):
-    dependencies:
-      '@rollup/plugin-inject': 5.0.5(rollup@3.29.5)
-      rollup: 3.29.5
-
   rollup-plugin-postcss@4.0.2(postcss@8.4.31):
     dependencies:
       chalk: 4.1.2
@@ -26108,11 +25980,11 @@ snapshots:
     dependencies:
       bytes-iec: 3.1.1
       chokidar: 4.0.1
-      jiti: 2.0.0
+      jiti: 2.1.0
       lilconfig: 3.1.2
       nanospinner: 1.1.0
       picocolors: 1.1.0
-      tinyglobby: 0.2.8
+      tinyglobby: 0.2.9
     optionalDependencies:
       '@size-limit/preset-app': 11.1.6(size-limit@11.1.6)
 
@@ -26673,15 +26545,6 @@ snapshots:
       terser: 5.32.0
       webpack: 5.94.0(webpack-cli@4.9.1)
 
-  terser-webpack-plugin@5.3.10(webpack@5.94.0):
-    dependencies:
-      '@jridgewell/trace-mapping': 0.3.25
-      jest-worker: 27.5.1
-      schema-utils: 3.3.0
-      serialize-javascript: 6.0.2
-      terser: 5.32.0
-      webpack: 5.94.0
-
   terser-webpack-plugin@5.3.3(webpack@5.94.0(webpack-cli@4.9.1)):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.25
@@ -26733,7 +26596,7 @@ snapshots:
 
   tinycolor2@1.4.2: {}
 
-  tinyglobby@0.2.8:
+  tinyglobby@0.2.9:
     dependencies:
       fdir: 6.4.0(picomatch@4.0.2)
       picomatch: 4.0.2
@@ -27197,14 +27060,14 @@ snapshots:
       webpack: 5.94.0(webpack-cli@4.9.1)
       webpack-merge: 5.10.0
 
-  webpack-dev-middleware@5.3.4(webpack@5.94.0):
+  webpack-dev-middleware@5.3.4(webpack@5.94.0(webpack-cli@4.9.1)):
     dependencies:
       colorette: 2.0.20
       memfs: 3.5.3
       mime-types: 2.1.35
       range-parser: 1.2.1
       schema-utils: 4.2.0
-      webpack: 5.94.0
+      webpack: 5.94.0(webpack-cli@4.9.1)
 
   webpack-dev-middleware@6.1.3(webpack@5.94.0(webpack-cli@4.9.1)):
     dependencies:
@@ -27236,36 +27099,6 @@ snapshots:
   webpack-sources@3.2.3: {}
 
   webpack-virtual-modules@0.6.2: {}
-
-  webpack@5.94.0:
-    dependencies:
-      '@types/estree': 1.0.5
-      '@webassemblyjs/ast': 1.12.1
-      '@webassemblyjs/wasm-edit': 1.12.1
-      '@webassemblyjs/wasm-parser': 1.12.1
-      acorn: 8.12.1
-      acorn-import-attributes: 1.9.5(acorn@8.12.1)
-      browserslist: 4.23.1
-      chrome-trace-event: 1.0.4
-      enhanced-resolve: 5.17.1
-      es-module-lexer: 1.5.4
-      eslint-scope: 5.1.1
-      events: 3.3.0
-      glob-to-regexp: 0.4.1
-      graceful-fs: 4.2.11
-      json-parse-even-better-errors: 2.3.1
-      loader-runner: 4.3.0
-      mime-types: 2.1.35
-      neo-async: 2.6.2
-      schema-utils: 3.3.0
-      tapable: 2.2.1
-      terser-webpack-plugin: 5.3.10(webpack@5.94.0)
-      watchpack: 2.4.2
-      webpack-sources: 3.2.3
-    transitivePeerDependencies:
-      - '@swc/core'
-      - esbuild
-      - uglify-js
 
   webpack@5.94.0(webpack-cli@4.9.1):
     dependencies:

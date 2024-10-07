@@ -1,0 +1,4 @@
+Significance: major
+Type: changed
+
+Change default entry point of package to include BrowserInterfaceIframe instead of BrowserInterfacePlaywright.
