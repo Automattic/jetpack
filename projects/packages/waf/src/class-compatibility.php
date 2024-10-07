@@ -30,7 +30,7 @@ class Waf_Compatibility {
 		 * @see peb6dq-2HL-p2
 		 */
 		if ( ! defined( 'Waf_Rules_Manager::IP_ALLOW_LIST_ENABLED_OPTION_NAME' ) ) {
-			'jetpack_waf_ip_allow_list_enabled';
+			return 'jetpack_waf_ip_allow_list_enabled';
 		}
 
 		return Waf_Rules_Manager::IP_ALLOW_LIST_ENABLED_OPTION_NAME;
@@ -50,7 +50,7 @@ class Waf_Compatibility {
 		 * @see peb6dq-2HL-p2
 		 */
 		if ( ! defined( 'Waf_Rules_Manager::IP_BLOCK_LIST_ENABLED_OPTION_NAME' ) ) {
-			'jetpack_waf_ip_block_list_enabled';
+			return 'jetpack_waf_ip_block_list_enabled';
 		}
 
 		return Waf_Rules_Manager::IP_BLOCK_LIST_ENABLED_OPTION_NAME;
