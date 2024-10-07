@@ -280,7 +280,7 @@ class Terms extends Module {
 	 */
 	public function filter_set_object_terms_no_update( $args ) {
 		// Check if the taxonomy is blacklisted. $args[3] is the taxonomy.
-		if ( in_array( $args[3], Settings::get_setting( 'taxonomies_blacklist' ), true ) ) {
+		if ( isset( $args[3] ) && in_array( $args[3], Settings::get_setting( 'taxonomies_blacklist' ), true ) ) {
 			return false;
 		}
 		// There is potential for other plugins to modify args, therefore lets validate # of and types.
