@@ -223,7 +223,7 @@ class Waf_Helper {
 		<hr>
 
 		<h2>Rules Entrypoint</h2>
-		<?php $this->render_waf_file( Waf_Rules_Manager::RULES_ENTRYPOINT_FILE ); ?>
+		<?php $this->render_waf_file( Waf_Runner::ENTRYPOINT_FILE ); ?>
 
 		<hr>
 
