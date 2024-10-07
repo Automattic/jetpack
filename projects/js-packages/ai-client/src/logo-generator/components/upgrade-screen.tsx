@@ -7,6 +7,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import getRedirectUrl from '../../../../components/tools/jp-redirect/index.js';
 import { EVENT_PLACEMENT_FREE_USER_SCREEN, EVENT_UPGRADE } from '../constants.js';
 import useLogoGenerator from '../hooks/use-logo-generator.js';
 /**
@@ -31,6 +32,10 @@ export const UpgradeScreen: React.FC< {
 		'jetpack-ai-client'
 	);
 
+	const upgradeInfoUrl = getRedirectUrl( 'ai-logo-generator-fair-usage-policy', {
+		anchor: 'usage-limitations-and-upgrades',
+	} );
+
 	const { context } = useLogoGenerator();
 
 	const handleUpgradeClick = () => {
@@ -45,7 +50,7 @@ export const UpgradeScreen: React.FC< {
 					{ reason === 'feature' ? upgradeMessageFeature : upgradeMessageRequests }
 				</span>
 				&nbsp;
-				<Button variant="link" href="https://jetpack.com/ai/" target="_blank">
+				<Button variant="link" href={ upgradeInfoUrl } target="_blank">
 					{ __( 'Learn more about Jetpack AI.', 'jetpack-ai-client' ) }
 				</Button>
 			</div>
