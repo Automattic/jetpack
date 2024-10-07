@@ -41,7 +41,8 @@ jobs:
         run: |
           CHANGED="$(EXTRA=test .github/files/list-changed-projects.sh)"
 
-          WPCOMSH_CHANGED="$(jq --argjson changed "$CHANGED" -n '$changed | has( "plugins/wpcomsh" ) ')"
+          # WPCOMSH_CHANGED="$(jq --argjson changed "$CHANGED" -n '$changed | has( "plugins/wpcomsh" ) ')"
+          WPCOMSH_CHANGED="true"
           echo "wpcomsh=${WPCOMSH_CHANGED}" >> "$GITHUB_OUTPUT"
 
       - name: Configure Github to be able to SSH to the Atomic site
