@@ -118,43 +118,7 @@ const entries = {
 };
 
 // CSS that needs to have the rtl files renamed using the above RenamerPlugin.
-const weirdRtlEntries = {
-	'css/jetpack': [
-		// When making changes to that list, you must also update $concatenated_style_handles in class.jetpack.php.
-		'modules/carousel/swiper-bundle.css',
-		'modules/carousel/jetpack-carousel.css',
-		'jetpack_vendor/automattic/jetpack-forms/src/contact-form/css/grunion.css',
-		'modules/infinite-scroll/infinity.css',
-		'modules/likes/style.css',
-		'modules/related-posts/related-posts.css',
-		'modules/sharedaddy/sharing.css',
-		'modules/shortcodes/css/slideshow-shortcode.css',
-		'modules/shortcodes/css/style.css', // TODO: Should be renamed to shortcode-presentations
-		'modules/shortcodes/css/quiz.css',
-		'modules/subscriptions/subscriptions.css',
-		'modules/theme-tools/responsive-videos/responsive-videos.css',
-		'modules/theme-tools/social-menu/social-menu.css',
-		'modules/tiled-gallery/tiled-gallery/tiled-gallery.css',
-		'modules/widgets/wordpress-post-widget/style.css',
-		'modules/widgets/gravatar-profile.css',
-		'modules/widgets/goodreads/css/goodreads.css',
-		'modules/widgets/social-media-icons/style.css',
-		'modules/widgets/top-posts/style.css',
-		'modules/widgets/image-widget/style.css',
-		'modules/widgets/my-community/style.css',
-		'modules/widgets/authors/style.css',
-		'modules/wordads/css/style.css',
-		'modules/widgets/eu-cookie-law/style.css',
-		'modules/widgets/flickr/style.css',
-		'modules/widgets/instagram/instagram.css',
-		'jetpack_vendor/automattic/jetpack-search/src/widgets/css/search-widget-frontend.css',
-		'modules/widgets/simple-payments/style.css',
-		'modules/widgets/social-icons/social-icons.css',
-		'modules/widgets/milestone/milestone-widget.css',
-		'modules/subscriptions/subscribe-modal/subscribe-modal.css',
-		'modules/subscriptions/subscribe-overlay/subscribe-overlay.css',
-	].map( n => path.join( __dirname, '..', n ) ),
-};
+const weirdRtlEntries = {};
 
 // Non-minified CSS, that also needs to have the rtl files renamed using the above RenamerPlugin.
 const weirdRtlNominEntries = {};
@@ -171,10 +135,6 @@ for ( const name of [
 	'modules/videopress/css/videopress-editor-style',
 	'modules/widget-visibility/widget-conditions/widget-conditions',
 	'modules/widgets/gallery/css/admin',
-	'modules/sso/jetpack-sso-login',
-	'modules/sso/jetpack-sso-admin-create-user',
-	'modules/masterbar/admin-menu/admin-menu',
-	'modules/masterbar/admin-menu/admin-menu-nav-unification',
 ] ) {
 	weirdRtlNominEntries[ name ] = path.join( __dirname, '..', name + '.css' );
 	weirdRtlEntries[ name + '.min' ] = path.join( __dirname, '..', name + '.css' );

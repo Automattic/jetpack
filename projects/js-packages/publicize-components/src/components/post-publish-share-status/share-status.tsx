@@ -6,16 +6,24 @@ import Notice from '../notice';
 import { ShareStatusModalTrigger } from '../share-status';
 import styles from './styles.module.scss';
 
+type ShareStatusProps = {
+	reShareTimestamp?: number;
+};
+
 /**
  * Share status component.
  *
- *
- * @return {import('react').ReactNode} - Share status UI.
+ * @param {ShareStatusProps} props - component props
+ * @return {import('react').ReactNode} - React element
  */
-export function ShareStatus() {
+export function ShareStatus( { reShareTimestamp }: ShareStatusProps ) {
 	const shareStatus = useSelect( select => select( socialStore ).getPostShareStatus(), [] );
 
-	if ( shareStatus.loading || ! shareStatus.done ) {
+	const currentShares = reShareTimestamp
+		? shareStatus.shares.filter( share => share.timestamp > reShareTimestamp )
+		: shareStatus.shares;
+
+	if ( shareStatus.polling ) {
 		return (
 			<div className={ styles[ 'loading-block' ] }>
 				<Spinner />
@@ -26,9 +34,7 @@ export function ShareStatus() {
 		);
 	}
 
-	const numberOfFailedShares = shareStatus.shares.filter(
-		share => share.status === 'failure'
-	).length;
+	const numberOfFailedShares = currentShares.filter( share => share.status === 'failure' ).length;
 
 	if ( numberOfFailedShares > 0 ) {
 		return (
@@ -45,14 +51,30 @@ export function ShareStatus() {
 						numberOfFailedShares
 					) }
 				</p>
-				<ShareStatusModalTrigger variant="link">
+				<ShareStatusModalTrigger
+					variant="link"
+					analyticsData={ { location: 'post-publish-panel' } }
+				>
 					{ __( 'Review status and try again', 'jetpack' ) }
 				</ShareStatusModalTrigger>
 			</Notice>
 		);
 	}
 
-	if ( ! shareStatus.shares.length ) {
+	if ( ! shareStatus.done ) {
+		// If we are here, it means that polling has finished/timedout
+		// but we don't know the share status yet.
+		return (
+			<span>
+				{ __( 'The request to share your post is still in progress.', 'jetpack' ) }
+				&nbsp;
+				{ __( 'Please refresh and check again in a few minutes.', 'jetpack' ) }
+			</span>
+		);
+	}
+
+	if ( ! currentShares.length ) {
+		// We should ideally never reach here but just in case.
 		return <span>{ __( 'Your post was not shared.', 'jetpack' ) }</span>;
 	}
 
@@ -65,13 +87,17 @@ export function ShareStatus() {
 					_n(
 						'You post was successfuly shared to %d connection.',
 						'You post was successfuly shared to %d connections.',
-						shareStatus.shares.length,
+						currentShares.length,
 						'jetpack'
 					),
-					shareStatus.shares.length
+					currentShares.length
 				) }
 			</p>
-			<ShareStatusModalTrigger />
+			<ShareStatusModalTrigger
+				analyticsData={ {
+					location: reShareTimestamp ? 'resharing-section' : 'post-publish-panel',
+				} }
+			/>
 		</>
 	);
 }

@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { Button, Tooltip } from '@wordpress/components';
+import { Button, Tooltip, SelectControl } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, info } from '@wordpress/icons';
 import debugFactory from 'debug';
@@ -10,12 +10,17 @@ import { useCallback, useEffect, useState, useRef } from 'react';
 /**
  * Internal dependencies
  */
+import {
+	IMAGE_STYLE_MONTY_PYTHON,
+	IMAGE_STYLE_LINE_ART,
+} from '../../hooks/use-image-generator/constants.js';
 import AiIcon from '../assets/icons/ai.js';
 import {
 	EVENT_GENERATE,
 	MINIMUM_PROMPT_LENGTH,
 	EVENT_UPGRADE,
 	EVENT_PLACEMENT_INPUT_FOOTER,
+	EVENT_SWITCH_STYLE,
 } from '../constants.js';
 import { useCheckout } from '../hooks/use-checkout.js';
 import useLogoGenerator from '../hooks/use-logo-generator.js';
@@ -23,10 +28,19 @@ import useRequestErrors from '../hooks/use-request-errors.js';
 import { FairUsageNotice } from './fair-usage-notice.js';
 import { UpgradeNudge } from './upgrade-nudge.js';
 import './prompt.scss';
+/**
+ * Types
+ */
+import type { ImageStyle } from '../../hooks/use-image-generator/constants.js';
 
 const debug = debugFactory( 'jetpack-ai-calypso:prompt-box' );
 
-export const Prompt: React.FC< { initialPrompt?: string } > = ( { initialPrompt = '' } ) => {
+type PromptProps = {
+	initialPrompt?: string;
+	showStyleSelector?: boolean;
+};
+
+export const Prompt = ( { initialPrompt = '', showStyleSelector = false }: PromptProps ) => {
 	const { tracks } = useAnalytics();
 	const { recordEvent: recordTracksEvent } = tracks;
 	const [ prompt, setPrompt ] = useState< string >( initialPrompt );
@@ -34,6 +48,9 @@ export const Prompt: React.FC< { initialPrompt?: string } > = ( { initialPrompt 
 	const { enhancePromptFetchError, logoFetchError } = useRequestErrors();
 	const { nextTierCheckoutURL: checkoutUrl, hasNextTier } = useCheckout();
 	const hasPrompt = prompt?.length >= MINIMUM_PROMPT_LENGTH;
+	const [ style, setStyle ] = useState< ImageStyle >(
+		showStyleSelector ? IMAGE_STYLE_LINE_ART : null
+	);
 
 	const {
 		generateLogo,
@@ -46,6 +63,7 @@ export const Prompt: React.FC< { initialPrompt?: string } > = ( { initialPrompt 
 		requireUpgrade,
 		context,
 		tierPlansEnabled,
+		getImageStyles,
 	} = useLogoGenerator();
 
 	const enhancingLabel = __( 'Enhancing…', 'jetpack-ai-client' );
@@ -91,9 +109,10 @@ export const Prompt: React.FC< { initialPrompt?: string } > = ( { initialPrompt 
 	}, [ prompt ] );
 
 	const onGenerate = useCallback( async () => {
-		recordTracksEvent( EVENT_GENERATE, { context, tool: 'image' } );
-		generateLogo( { prompt } );
-	}, [ context, generateLogo, prompt ] );
+		// shouldn't tool be "logo-generator" to be more specific?
+		recordTracksEvent( EVENT_GENERATE, { context, tool: 'image', style } );
+		generateLogo( { prompt, style } );
+	}, [ context, generateLogo, prompt, style ] );
 
 	const onPromptInput = ( event: React.ChangeEvent< HTMLInputElement > ) => {
 		setPrompt( event.target.textContent || '' );
@@ -102,13 +121,14 @@ export const Prompt: React.FC< { initialPrompt?: string } > = ( { initialPrompt 
 	const onPromptPaste = ( event: React.ClipboardEvent< HTMLInputElement > ) => {
 		event.preventDefault();
 
-		// Paste plain text only
-		const text = event.clipboardData.getData( 'text/plain' );
-
-		const selection = window.getSelection();
+		const selection = event.currentTarget.ownerDocument.getSelection();
 		if ( ! selection || ! selection.rangeCount ) {
 			return;
 		}
+
+		// Paste plain text only
+		const text = event.clipboardData.getData( 'text/plain' );
+
 		selection.deleteFromDocument();
 		const range = selection.getRangeAt( 0 );
 		range.insertNode( document.createTextNode( text ) );
@@ -120,6 +140,20 @@ export const Prompt: React.FC< { initialPrompt?: string } > = ( { initialPrompt 
 	const onUpgradeClick = () => {
 		recordTracksEvent( EVENT_UPGRADE, { context, placement: EVENT_PLACEMENT_INPUT_FOOTER } );
 	};
+
+	const updateStyle = useCallback(
+		( imageStyle: ImageStyle ) => {
+			debug( 'change style', imageStyle );
+			setStyle( imageStyle );
+			recordTracksEvent( EVENT_SWITCH_STYLE, { context, style: imageStyle } );
+		},
+		[ context, setStyle, recordTracksEvent ]
+	);
+
+	const imageStyles = getImageStyles();
+	const availableStyles = Object.keys( imageStyles ).filter(
+		( styleKey: ImageStyle ) => styleKey !== IMAGE_STYLE_MONTY_PYTHON
+	);
 
 	return (
 		<div className="jetpack-ai-logo-generator__prompt">
@@ -134,9 +168,21 @@ export const Prompt: React.FC< { initialPrompt?: string } > = ( { initialPrompt 
 						onClick={ onEnhance }
 					>
 						<AiIcon />
-						<span>{ enhanceButtonLabel }</span>
+						{ enhanceButtonLabel }
 					</Button>
 				</div>
+				{ showStyleSelector && availableStyles && (
+					<SelectControl
+						// label={ __( 'Style', 'jetpack-ai-client' ) }
+						__nextHasNoMarginBottom
+						value={ style }
+						options={ availableStyles.map( imageStyle => ( {
+							label: imageStyles[ imageStyle ],
+							value: imageStyle,
+						} ) ) }
+						onChange={ updateStyle }
+					/>
+				) }
 			</div>
 			<div className="jetpack-ai-logo-generator__prompt-query">
 				<div

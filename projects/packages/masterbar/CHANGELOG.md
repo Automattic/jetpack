@@ -5,6 +5,40 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.4] - 2024-09-30
+### Changed
+- Remove user connection nudges where they aren't needed. Add user connection nudges where needed [#39533]
+
+### Removed
+- Masterbar: Remove User Info side-panel [#39546]
+
+### Fixed
+- Admin bar: don't enqueue obsolete Core CSS overrides for Default scheme [#39453]
+
+## [0.9.3] - 2024-09-23
+### Changed
+- Update dependencies.
+
+## [0.9.2] - 2024-09-16
+### Fixed
+- Admin bar: align colors with Calypso's [#39314]
+- Help Center: Fix the icon color when previewing color scheme [#39371]
+
+## [0.9.1] - 2024-09-10
+### Changed
+- Updated package dependencies. [#39302]
+
+## [0.9.0] - 2024-09-09
+### Added
+- Admin menu: Add text-overflow ellipsis for the site title and domain. [#39224]
+
+### Changed
+- Enable Users -> Profile (profile.php) on all sites [#39181]
+- Updated package dependencies. [#39176]
+
+### Fixed
+- Hosting Configuration: Make the menu title under the settings the same as the destination [#39183]
+
 ## [0.8.1] - 2024-08-30
 ### Changed
 - Updated package dependencies. [#39111]
@@ -106,6 +140,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies. [#37669]
 - Updated package dependencies. [#37706]
 
+[0.9.4]: https://github.com/Automattic/jetpack-masterbar/compare/v0.9.3...v0.9.4
+[0.9.3]: https://github.com/Automattic/jetpack-masterbar/compare/v0.9.2...v0.9.3
+[0.9.2]: https://github.com/Automattic/jetpack-masterbar/compare/v0.9.1...v0.9.2
+[0.9.1]: https://github.com/Automattic/jetpack-masterbar/compare/v0.9.0...v0.9.1
+[0.9.0]: https://github.com/Automattic/jetpack-masterbar/compare/v0.8.1...v0.9.0
 [0.8.1]: https://github.com/Automattic/jetpack-masterbar/compare/v0.8.0...v0.8.1
 [0.8.0]: https://github.com/Automattic/jetpack-masterbar/compare/v0.7.0...v0.8.0
 [0.7.0]: https://github.com/Automattic/jetpack-masterbar/compare/v0.6.1...v0.7.0

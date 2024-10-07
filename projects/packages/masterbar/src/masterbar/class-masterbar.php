@@ -723,16 +723,6 @@ class Masterbar {
 
 		$wp_admin_bar->add_group(
 			array(
-				'parent' => 'blog',
-				'id'     => 'blog-secondary',
-				'meta'   => array(
-					'class' => 'ab-sub-secondary',
-				),
-			)
-		);
-
-		$wp_admin_bar->add_group(
-			array(
 				'id'   => 'top-secondary',
 				'meta' => array(
 					'class' => 'ab-top-secondary',
@@ -764,69 +754,6 @@ class Masterbar {
 				'href'   => 'https://wordpress.com/me',
 				'meta'   => array(
 					'class' => $class,
-				),
-			)
-		);
-
-		/** This filter is documented in modules/masterbar.php */
-		if ( apply_filters( 'jetpack_load_admin_menu_class', false ) ) {
-			return;
-		}
-
-		$id = 'user-actions';
-		$wp_admin_bar->add_group(
-			array(
-				'parent' => 'my-account',
-				'id'     => $id,
-			)
-		);
-
-		$logout_url = wp_logout_url();
-		$logout_url = add_query_arg( 'context', 'masterbar', $logout_url );
-
-		$user_info  = get_avatar( $this->user_email, 128, 'mm', '', array( 'force_display' => true ) );
-		$user_info .= '<span class="display-name">' . $this->display_name . '</span>';
-		$user_info .= '<span class="username">' . $this->user_login . '</span>';
-
-		$blog_id = Connection_Manager::get_site_id( true );
-
-		$args = array();
-		if ( $blog_id ) {
-			$args['site'] = $blog_id;
-		}
-
-		$wp_admin_bar->add_menu(
-			array(
-				'parent' => $id,
-				'id'     => 'user-info',
-				'title'  => $user_info,
-				'meta'   => array(
-					'class'    => 'user-info user-info-item',
-					'tabindex' => -1,
-				),
-			)
-		);
-
-		$wp_admin_bar->add_menu(
-			array(
-				'parent' => $id,
-				'id'     => 'profile',
-				'title'  => esc_html__( 'Profile', 'jetpack-masterbar' ),
-				'href'   => Redirect::get_url( 'calypso-me', $args ),
-				'meta'   => array(
-					'class' => 'mb-icon',
-				),
-			)
-		);
-
-		$wp_admin_bar->add_menu(
-			array(
-				'parent' => $id,
-				'id'     => 'logout',
-				'title'  => esc_html__( 'Log Out', 'jetpack-masterbar' ),
-				'href'   => $logout_url,
-				'meta'   => array(
-					'class' => 'mb-icon',
 				),
 			)
 		);
@@ -870,15 +797,6 @@ class Masterbar {
 	 * @param WP_Admin_Bar $wp_admin_bar Admin Bar instance.
 	 */
 	public function add_my_sites_submenu( $wp_admin_bar ) {
-		$blog_name = get_bloginfo( 'name' );
-		if ( empty( $blog_name ) ) {
-			$blog_name = $this->primary_site_slug;
-		}
-
-		if ( mb_strlen( $blog_name ) > 20 ) {
-			$blog_name = mb_substr( html_entity_decode( $blog_name, ENT_QUOTES ), 0, 20 ) . '&hellip;';
-		}
-
 		$my_site_url = 'https://wordpress.com/sites/' . $this->primary_site_url;
 		if ( 'wp-admin' === get_option( 'wpcom_admin_interface' ) ) {
 			$my_site_url = 'https://wordpress.com/sites';

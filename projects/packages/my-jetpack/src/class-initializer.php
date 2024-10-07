@@ -42,7 +42,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '4.35.0';
+	const PACKAGE_VERSION = '4.35.10';
 
 	/**
 	 * HTML container ID for the IDC screen on My Jetpack page.
@@ -99,16 +99,8 @@ class Initializer {
 		// Add custom WP REST API endoints.
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_endpoints' ) );
 
-		$page_suffix = Admin_Menu::add_menu(
-			__( 'My Jetpack', 'jetpack-my-jetpack' ),
-			__( 'My Jetpack', 'jetpack-my-jetpack' ),
-			'edit_posts',
-			'my-jetpack',
-			array( __CLASS__, 'admin_page' ),
-			-1
-		);
+		add_action( 'admin_menu', array( __CLASS__, 'add_my_jetpack_menu_item' ) );
 
-		add_action( 'load-' . $page_suffix, array( __CLASS__, 'admin_init' ) );
 		add_action( 'admin_init', array( __CLASS__, 'setup_historically_active_jetpack_modules_sync' ) );
 		// This is later than the admin-ui package, which runs on 1000
 		add_action( 'admin_init', array( __CLASS__, 'maybe_show_red_bubble' ), 1001 );
@@ -167,6 +159,23 @@ class Initializer {
 	}
 
 	/**
+	 * Add My Jetpack menu item to the admin menu.
+	 *
+	 * @return void
+	 */
+	public static function add_my_jetpack_menu_item() {
+		$page_suffix = Admin_Menu::add_menu(
+			__( 'My Jetpack', 'jetpack-my-jetpack' ),
+			__( 'My Jetpack', 'jetpack-my-jetpack' ),
+			'edit_posts',
+			'my-jetpack',
+			array( __CLASS__, 'admin_page' ),
+			-1
+		);
+		add_action( 'load-' . $page_suffix, array( __CLASS__, 'admin_init' ) );
+	}
+
+	/**
 	 * Callback for the load my jetpack page hook.
 	 *
 	 * @return void
@@ -198,6 +207,13 @@ class Initializer {
 	 * @return void
 	 */
 	public static function enqueue_scripts() {
+		/**
+		 * Fires after the My Jetpack page is initialized.
+		 * Allows for enqueuing additional scripts only on the My Jetpack page.
+		 *
+		 * @since 4.35.7
+		 */
+		do_action( 'myjetpack_enqueue_scripts' );
 		Assets::register_script(
 			'my_jetpack_main_app',
 			'../build/index.js',
@@ -264,8 +280,9 @@ class Initializer {
 				),
 				'redBubbleAlerts'        => self::get_red_bubble_alerts(),
 				'recommendedModules'     => array(
-					'modules'   => self::get_recommended_modules(),
-					'dismissed' => \Jetpack_Options::get_option( 'dismissed_recommendations', false ),
+					'modules'    => self::get_recommended_modules(),
+					'isFirstRun' => \Jetpack_Options::get_option( 'recommendations_first_run', true ),
+					'dismissed'  => \Jetpack_Options::get_option( 'dismissed_recommendations', false ),
 				),
 				'isStatsModuleActive'    => $modules->is_active( 'stats' ),
 				'isUserFromKnownHost'    => self::is_user_from_known_host(),
@@ -935,14 +952,6 @@ class Initializer {
 			$red_bubble_slugs[ self::MISSING_CONNECTION_NOTIFICATION_KEY ] = array(
 				'type'     => 'site',
 				'is_error' => true,
-			);
-			return $red_bubble_slugs;
-		}
-
-		if ( ! $connection->is_user_connected() && ! $connection->has_connected_owner() ) {
-			$red_bubble_slugs[ self::MISSING_CONNECTION_NOTIFICATION_KEY ] = array(
-				'type'     => 'user',
-				'is_error' => false,
 			);
 			return $red_bubble_slugs;
 		}

@@ -1,0 +1,42 @@
+{
+	"translation-revision-date": "2024-07-04 19:54:06+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": {
+				"domain": "messages",
+				"plural-forms": "nplurals=3; plural=(n % 10 == 1 && n % 100 != 11) ? 0 : ((n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14)) ? 1 : 2);",
+				"lang": "ru"
+			},
+			"Pick a pre-defined layout or continue with a blank page": [
+				"\u0412\u044b\u0431\u0435\u0440\u0438\u0442\u0435 \u0433\u043e\u0442\u043e\u0432\u0443\u044e \u0440\u0430\u0437\u043c\u0435\u0442\u043a\u0443 \u0438\u043b\u0438 \u043f\u0440\u043e\u0434\u043e\u043b\u0436\u0438\u0442\u0435 \u0440\u0430\u0431\u043e\u0442\u0443 \u0441 \u043f\u0443\u0441\u0442\u043e\u0439 \u0441\u0442\u0440\u0430\u043d\u0438\u0446\u044b."
+			],
+			"Choose a Pattern": [
+				"\u0412\u044b\u0431\u0435\u0440\u0438\u0442\u0435 \u0448\u0430\u0431\u043b\u043e\u043d"
+			],
+			"Page categories": [
+				"\u041a\u0430\u0442\u0435\u0433\u043e\u0440\u0438\u0438 \u0441\u0442\u0440\u0430\u043d\u0438\u0446"
+			],
+			"Blank page": [
+				"\u041f\u0443\u0441\u0442\u0430\u044f \u0441\u0442\u0440\u0430\u043d\u0438\u0446\u0430"
+			],
+			"Pick a pre-defined layout or start with a blank page.": [
+				"\u0412\u044b\u0431\u0435\u0440\u0438\u0442\u0435 \u0433\u043e\u0442\u043e\u0432\u0443\u044e \u0440\u0430\u0437\u043c\u0435\u0442\u043a\u0443 \u0438\u043b\u0438 \u043d\u0430\u0447\u043d\u0438\u0442\u0435 \u0440\u0430\u0431\u043e\u0442\u0443 \u0441 \u043f\u0443\u0441\u0442\u043e\u0439 \u0441\u0442\u0440\u0430\u043d\u0438\u0446\u044b."
+			],
+			"Add a page": [
+				"\u0414\u043e\u0431\u0430\u0432\u0438\u0442\u044c \u0441\u0442\u0440\u0430\u043d\u0438\u0446\u0443"
+			],
+			"Layout": [ "\u041c\u0430\u043a\u0435\u0442" ],
+			"default vertical name\u0004Business": [ "\u0411\u0438\u0437\u043d\u0435\u0441" ],
+			"default company name\u0004Your Company Name": [
+				"\u041d\u0430\u0437\u0432\u0430\u043d\u0438\u0435 \u0432\u0430\u0448\u0435\u0439 \u043e\u0440\u0433\u0430\u043d\u0438\u0437\u0430\u0446\u0438\u0438"
+			],
+			"default phone number\u0004555-555-5555": [ "555-555-5555" ],
+			"default address\u0004123 Main St": [
+				"\u0443\u043b\u0438\u0446\u0430 \u041b\u0438\u0437\u044e\u043a\u043e\u0432\u0430 1"
+			]
+		}
+	},
+	"comment": { "reference": "starter-page-templates/dist/starter-page-templates.js" }
+}

@@ -5,6 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.24.10] - 2024-09-30
+### Changed
+- Update dependencies. [#39528]
+
+## [0.24.9] - 2024-09-23
+### Changed
+- Update dependencies. [#38595]
+
+## [0.24.8] - 2024-09-16
+### Changed
+- Updated package dependencies. [#39332]
+
+## [0.24.7] - 2024-09-10
+### Changed
+- Updated package dependencies. [#39302]
+
+## [0.24.6] - 2024-09-09
+### Changed
+- Updated package dependencies. [#39278]
+
+## [0.24.5] - 2024-09-05
+### Changed
+- Updated package dependencies. [#39176]
+
+### Fixed
+- Fix translation issue with VideoPress data [#39242]
+
 ## [0.24.4] - 2024-09-02
 ### Changed
 - Admin menu: change order of Jetpack sub-menu items [#39095]
@@ -1421,6 +1448,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.24.10]: https://github.com/Automattic/jetpack-videopress/compare/v0.24.9...v0.24.10
+[0.24.9]: https://github.com/Automattic/jetpack-videopress/compare/v0.24.8...v0.24.9
+[0.24.8]: https://github.com/Automattic/jetpack-videopress/compare/v0.24.7...v0.24.8
+[0.24.7]: https://github.com/Automattic/jetpack-videopress/compare/v0.24.6...v0.24.7
+[0.24.6]: https://github.com/Automattic/jetpack-videopress/compare/v0.24.5...v0.24.6
+[0.24.5]: https://github.com/Automattic/jetpack-videopress/compare/v0.24.4...v0.24.5
 [0.24.4]: https://github.com/Automattic/jetpack-videopress/compare/v0.24.3...v0.24.4
 [0.24.3]: https://github.com/Automattic/jetpack-videopress/compare/v0.24.2...v0.24.3
 [0.24.2]: https://github.com/Automattic/jetpack-videopress/compare/v0.24.1...v0.24.2

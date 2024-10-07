@@ -5,6 +5,67 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.35.10] - 2024-10-02
+### Changed
+- Internal updates.
+
+## [4.35.9] - 2024-09-30
+### Changed
+- Fix parameters to allow for connectAfterCheckout flow from recommendation card [#39578]
+- My Jetpack Welcome Flow: Display default recommendations upfront first, then offer optional survey for customized recommendations. [#39485]
+
+### Fixed
+- Fixed a bug where the purchases and highlights APIs were being called without a valid Jetpack connection [#39522]
+- My Jetpack: visual update to make the GlobalNotice component look better on mobile. [#39537]
+
+## [4.35.8] - 2024-09-25
+### Changed
+- Update dependencies. [#38910]
+
+## [4.35.7] - 2024-09-23
+### Changed
+- Get active element from tooltip button's document rather than the global `document`. [#39364]
+- My Jetpack product interstitial: Don't show intro offer price if user is not eligible for the offer. [#39403]
+- Send non-connected users to a "connect after checkout" flow [#39444]
+
+### Fixed
+- Fix issue on interstitials show both buttons loading when only one is pressed [#39356]
+- Fix issue where recommendations are showing slightly before the welcome banner dismisses [#39383]
+
+## [4.35.6] - 2024-09-16
+### Added
+- Add new action myjetpack_enqueue_scripts [#39380]
+
+### Changed
+- My Jetpack: Always show the purchase link regardless of the number of plans owned. [#39299]
+- Updated package dependencies. [#39332]
+
+## [4.35.5] - 2024-09-10
+### Changed
+- Updated package dependencies. [#39302]
+
+## [4.35.4] - 2024-09-09
+### Added
+- Jetpack AI: add fair usage policy link to the Jetpack AI product interstitial. [#39281]
+
+### Changed
+- Updated package dependencies. [#39278]
+
+### Fixed
+- Jetpack AI: fix default_content filter so it doesn't enforce parameter type [#39276]
+
+## [4.35.3] - 2024-09-06
+### Fixed
+- Optimize repeated requests for unavailable WPCOM. [#39218]
+
+## [4.35.2] - 2024-09-06
+### Changed
+- Internal updates.
+
+## [4.35.1] - 2024-09-05
+### Changed
+- Internal updates.
+
 ## [4.35.0] - 2024-09-05
 ### Added
 - My Jetpack: add support for feature-specific handling to product interstitials. [#38661]
@@ -1698,6 +1759,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[4.35.10]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.35.9...4.35.10
+[4.35.9]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.35.8...4.35.9
+[4.35.8]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.35.7...4.35.8
+[4.35.7]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.35.6...4.35.7
+[4.35.6]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.35.5...4.35.6
+[4.35.5]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.35.4...4.35.5
+[4.35.4]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.35.3...4.35.4
+[4.35.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.35.2...4.35.3
+[4.35.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.35.1...4.35.2
+[4.35.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.35.0...4.35.1
 [4.35.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.34.0...4.35.0
 [4.34.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.33.1...4.34.0
 [4.33.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.33.0...4.33.1

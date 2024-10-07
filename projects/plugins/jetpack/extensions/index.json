@@ -70,19 +70,18 @@
 		"ai-assistant-experimental-image-generation-support",
 		"ai-general-purpose-image-generator",
 		"ai-proofread-breve",
-		"ai-assistant-site-logo-support"
+		"ai-assistant-site-logo-support",
+		"ai-title-optimization-keywords-support"
 	],
 	"beta": [
 		"google-docs-embed",
-		"launchpad-save-modal",
 		"recipe",
 		"v6-video-frame-poster",
 		"videopress/video-chapters",
 		"ai-assistant-backend-prompts",
-		"ai-assistant-extensions-support",
-		"ai-title-optimization-keywords-support"
+		"ai-logo-style-selector-support"
 	],
-	"experimental": [ "ai-image", "ai-paragraph" ],
+	"experimental": [],
 	"no-post-editor": [
 		"ai-assistant",
 		"business-hours",

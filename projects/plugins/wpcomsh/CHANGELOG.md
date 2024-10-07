@@ -1,5 +1,36 @@
 # Changelog
 
+## 5.10.0 - 2024-09-23
+### Added
+- Performance Profiler: Ensure the associated url created when the performance report is generated is accessible for each page or as part of site settings for the home/main url. [#39310]
+
+### Removed
+- Connection: Removed deprecated method features_available. [#39442] [#39475]
+
+### Fixed
+- Portfolios: Ensure these are enabled and working properly on themes that support portfolios. [#39431]
+
+## 5.9.0 - 2024-09-18
+### Changed
+- WPCOMSH: change call to so it doesn't trigger if not necessary [#39336]
+
+### Removed
+- Wpcomsh: Remove actions and filters related to the Masterbar module [#39367]
+
+### Fixed
+- Color Scheme: Avoid wpcom user data overriding the admin color after flushing cache [#39368]
+- WPCOM Features: Add INSTALL_THEMES feature to Jetpack sites so that they are not erroneously seeing the "upgrade" badge when looking at dotorg themes in the wordpress.com showcase [#39392]
+
+## 5.8.0 - 2024-09-10
+### Changed
+- Enable Users -> Profile (profile.php) on all sites [#39181]
+- SSO: Show wp-admin login form if site has local users [#39139]
+- Updated package dependencies. [#39288]
+- Update wc-calypso-bridge dependency to 2.6.0 [#39313]
+
+### Fixed
+- Checks an array key before attempting to read it. [#39240]
+
 ## 5.7.0 - 2024-09-02
 ### Added
 - WPCOM Marketplace: Added software manager to install marketplace products. [#38705]

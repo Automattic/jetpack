@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.2] - 2024-09-30
+### Added
+- Admin dashboard: Disable portfolio toggle if theme supports portfolio and site is WoA [#39508]
+
+## [0.6.1] - 2024-09-23
+### Fixed
+- Portfolios: Ensure these are enabled and working properly on themes that support portfolios [#39431]
+
+## [0.6.0] - 2024-09-16
+### Added
+- Content Options: Ensuring feature is now required. [#39210]
+
+### Changed
+- Custom Content Types: Require feature along with portfolios from the package [#39268]
+
+## [0.5.6] - 2024-09-10
+### Changed
+- Updated package dependencies. [#39302]
+
+## [0.5.5] - 2024-09-09
+### Added
+- Site Breadcrumbs: Ensure main function is not created when host is WordPress.com. [#39235]
+
+### Changed
+- Updated package dependencies. [#39176]
+
+### Fixed
+- Content Options: Add back value to filter in package version of Content Options file. [#39200]
+
 ## [0.5.4] - 2024-08-30
 ### Security
 - Social Menu: Switch to more appropriate method of calling the SVG icon file. [#39136]
@@ -97,6 +126,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Add wordpress folder on gitignore. [#37177]
 
+[0.6.2]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.6.1...v0.6.2
+[0.6.1]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.6.0...v0.6.1
+[0.6.0]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.5.6...v0.6.0
+[0.5.6]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.5.5...v0.5.6
+[0.5.5]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.5.4...v0.5.5
 [0.5.4]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.5.3...v0.5.4
 [0.5.3]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.5.2...v0.5.3
 [0.5.2]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.5.1...v0.5.2

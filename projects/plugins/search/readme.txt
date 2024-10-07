@@ -122,15 +122,9 @@ If you are using the Jetpack Search free option, and you have more than 5000 rec
 5. Manage all of your Jetpack products, including Search, in a single place.
 
 == Changelog ==
-### 2.1.0 - 2024-05-23
-#### Added
-- Trigger a red bubble notification when bad plugin install is detected.
-
+### 3.0.1 - 2024-09-06
 #### Changed
-- Update WordPRess tested version to 6.5.
-- Update minimum WordPress version requirement to WordPress 6.4.
-- Only show installation errors on the plugins page.
-- Show My Jetpack link on the plugins page even if the plugin is not installed.
+- Internal updates.
 
 == Testimonials ==
 

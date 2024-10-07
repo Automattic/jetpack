@@ -5,12 +5,11 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __, _x, _n, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import Button from 'components/button';
-import ConnectButton from 'components/connect-button';
 import analytics from 'lib/analytics';
 import PropTypes from 'prop-types';
-import React, { Component } from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
-import { isOdysseyStatsEnabled, isWoASite, userCanConnectAccount } from 'state/initial-state';
+import { isOdysseyStatsEnabled } from 'state/initial-state';
 
 class DashStatsBottom extends Component {
 	statsBottom() {
@@ -70,9 +69,11 @@ class DashStatsBottom extends Component {
 										numberFormat( s.bestDay.count )
 								  ) }
 						</h3>
-						<p className="jp-at-a-glance__stat-details">
-							{ '-' === s.bestDay.day ? '-' : dateI18n( this.props.dateFormat, s.bestDay.day ) }
-						</p>
+						{ s.bestDay.day && (
+							<p className="jp-at-a-glance__stat-details">
+								{ '-' === s.bestDay.day ? '-' : dateI18n( this.props.dateFormat, s.bestDay.day ) }
+							</p>
+						) }
 					</div>
 					<div className="jp-at-a-glance__stats-summary-alltime-views">
 						<p className="jp-at-a-glance__stat-details">
@@ -106,16 +107,6 @@ class DashStatsBottom extends Component {
 								),
 							} )
 						}
-						{ ! this.props.isLinked && this.props.userCanConnectAccount && (
-							<ConnectButton
-								connectUser={ true }
-								from="unlinked-user-connect"
-								connectLegend={ __(
-									'Connect your WordPress.com account for more metrics',
-									'jetpack'
-								) }
-							/>
-						) }
 						{ this.props.isLinked &&
 							! this.props.isOdysseyStatsEnabled && // Only show if Odyssey Stats is disabled
 							createInterpolateElement(
@@ -163,7 +154,5 @@ DashStatsBottom.defaultProps = {
 export default connect( state => {
 	return {
 		isOdysseyStatsEnabled: isOdysseyStatsEnabled( state ),
-		isWoASite: isWoASite( state ),
-		userCanConnectAccount: userCanConnectAccount( state ),
 	};
 } )( DashStatsBottom );

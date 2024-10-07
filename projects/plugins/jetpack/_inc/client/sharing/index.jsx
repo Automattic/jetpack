@@ -1,3 +1,4 @@
+import { getSocialScriptData } from '@automattic/jetpack-publicize-components';
 import { __ } from '@wordpress/i18n';
 import QuerySite from 'components/data/query-site';
 import React, { Component } from 'react';
@@ -27,6 +28,8 @@ import { ShareButtons } from './share-buttons';
 
 class Sharing extends Component {
 	render() {
+		const { useAdminUiV1 } = getSocialScriptData().feature_flags;
+
 		const commonProps = {
 			settings: this.props.settings,
 			getModule: this.props.module,
@@ -45,16 +48,16 @@ class Sharing extends Component {
 			isAtomicSite: this.props.isAtomicSite,
 			hasSharingBlock: this.props.hasSharingBlock,
 			isBlockTheme: this.props.isBlockTheme,
-			useAdminUiV1: this.props.useAdminUiV1,
+			useAdminUiV1,
 		};
-
-		const foundPublicize = this.props.isModuleFound( 'publicize' ),
-			foundSharing = this.props.isModuleFound( 'sharedaddy' ),
-			foundLikes = this.props.isModuleFound( 'likes' );
 
 		if ( ! this.props.searchTerm && ! this.props.active ) {
 			return null;
 		}
+
+		const foundPublicize = this.props.isModuleFound( 'publicize' ),
+			foundSharing = this.props.isModuleFound( 'sharedaddy' ),
+			foundLikes = this.props.isModuleFound( 'likes' );
 
 		if ( ! foundPublicize && ! foundSharing && ! foundLikes ) {
 			return null;
@@ -100,6 +103,5 @@ export default connect( state => {
 		isAtomicSite: isAtomicSite( state ),
 		hasSharingBlock: isSharingBlockAvailable( state ),
 		isBlockTheme: currentThemeIsBlockTheme( state ),
-		useAdminUiV1: state.jetpack.initialState.socialInitialState.useAdminUiV1,
 	};
 } )( Sharing );

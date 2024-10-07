@@ -56,6 +56,10 @@ inputs:
     description: "Mapping of team assignments for labels"
     required: false
     default: ""
+  openai_api_key:
+    description: "OpenAI API key"
+    required: false
+    default: ""
 runs:
   using: node20
   main: "dist/index.js"

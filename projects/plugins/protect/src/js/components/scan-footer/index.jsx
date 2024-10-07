@@ -7,31 +7,25 @@ import {
 	Col,
 	Container,
 } from '@automattic/jetpack-components';
-import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { __, sprintf } from '@wordpress/i18n';
-import React from 'react';
-import { JETPACK_SCAN_SLUG } from '../../constants';
+import React, { useCallback } from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
-import useProtectData from '../../hooks/use-protect-data';
+import usePlan from '../../hooks/use-plan';
 import useWafData from '../../hooks/use-waf-data';
 import SeventyFiveLayout from '../seventy-five-layout';
 import styles from './styles.module.scss';
 
 const ProductPromotion = () => {
-	const { adminUrl, siteSuffix, blogID } = window.jetpackProtectInitialState || {};
+	const { recordEvent } = useAnalyticsTracks();
+	const { hasPlan, upgradePlan } = usePlan();
+	const { siteSuffix, blogID } = window.jetpackProtectInitialState || {};
 
-	const { run } = useProductCheckoutWorkflow( {
-		productSlug: JETPACK_SCAN_SLUG,
-		redirectUrl: adminUrl,
-		useBlogIdSuffix: true,
-	} );
+	const getScan = useCallback( () => {
+		recordEvent( 'jetpack_protect_footer_get_scan_link_click' );
+		upgradePlan();
+	}, [ recordEvent, upgradePlan ] );
 
-	const { recordEventHandler } = useAnalyticsTracks();
-	const getScan = recordEventHandler( 'jetpack_protect_footer_get_scan_link_click', run );
-
-	const { hasRequiredPlan } = useProtectData();
-
-	if ( hasRequiredPlan ) {
+	if ( hasPlan ) {
 		const goToCloudUrl = getRedirectUrl( 'jetpack-scan-dash', { site: blogID ?? siteSuffix } );
 
 		return (
@@ -39,7 +33,7 @@ const ProductPromotion = () => {
 				<Title>{ __( 'Get access to our Cloud', 'jetpack-protect' ) }</Title>
 				<Text mb={ 3 }>
 					{ __(
-						'With your Protect upgrade, you have free access to scan your site on our Cloud, so you can be aware and fix your threats even if your site goes down. ',
+						'With your Protect upgrade, you have free access to scan your site on our Cloud, so you can be aware and fix your threats even if your site goes down.',
 						'jetpack-protect'
 					) }
 				</Text>
@@ -74,14 +68,14 @@ const ProductPromotion = () => {
 };
 
 const FooterInfo = () => {
-	const { hasRequiredPlan } = useProtectData();
+	const { hasPlan } = usePlan();
 	const { globalStats } = useWafData();
 	const totalVulnerabilities = parseInt( globalStats?.totalVulnerabilities );
 	const totalVulnerabilitiesFormatted = isNaN( totalVulnerabilities )
 		? '50,000'
 		: totalVulnerabilities.toLocaleString();
 
-	if ( hasRequiredPlan ) {
+	if ( hasPlan ) {
 		const learnMoreScanUrl = getRedirectUrl( 'protect-footer-learn-more-scan' );
 
 		return (
@@ -89,9 +83,9 @@ const FooterInfo = () => {
 				<Title>{ __( 'Line-by-line scanning', 'jetpack-protect' ) }</Title>
 				<Text mb={ 2 }>
 					{ __(
-						'We actively review line-by-line of your site files to identify threats and vulnerabilities. Jetpack monitors millions of websites to keep your site secure all the time. ',
+						'We actively review line-by-line of your site files to identify threats and vulnerabilities. Jetpack monitors millions of websites to keep your site secure all the time.',
 						'jetpack-protect'
-					) }
+					) }{ ' ' }
 					<Button variant="link" target="_blank" weight="regular" href={ learnMoreScanUrl }>
 						{ __( 'Learn more', 'jetpack-protect' ) }
 					</Button>

@@ -23,6 +23,7 @@ const PluginInstallSection = ( {
 	pluginLink,
 	installOrActivatePrompt,
 	installedPrompt,
+	plan,
 } ) => {
 	const [ isActivating, setIsActivating ] = useState( false );
 	const [ isInstalling, setIsInstalling ] = useState( false );
@@ -98,7 +99,7 @@ const PluginInstallSection = ( {
 				) }
 				title={ installOrActivatePrompt }
 				onClick={ activateOrInstallPlugin }
-				noIcon
+				plan={ plan }
 			/>
 		);
 	} else if ( ! aPluginIsActive ) {
@@ -111,7 +112,7 @@ const PluginInstallSection = ( {
 				) }
 				title={ installOrActivatePrompt }
 				onClick={ activateOrInstallPlugin }
-				noIcon
+				plan={ plan }
 			/>
 		);
 	}
@@ -124,7 +125,7 @@ const PluginInstallSection = ( {
 			) }
 			title={ installedPrompt ?? __( 'Plugin is installed & active.', 'jetpack' ) }
 			href={ pluginLink }
-			noIcon
+			plan={ plan }
 		/>
 	);
 };

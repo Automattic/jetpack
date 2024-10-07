@@ -9,8 +9,11 @@ if ( ! function_exists( 'jetpack_post_details_enqueue_scripts' ) ) {
 
 	/**
 	 * The function to include Post Details in a theme's stylesheet.
+	 *
+	 * @deprecated 13.9 Moved to Classic Theme Helper package.
 	 */
 	function jetpack_post_details_enqueue_scripts() {
+		_deprecated_function( __FUNCTION__, 'jetpack-13.9' );
 		// Make sure we can proceed.
 		list( $should_run, $options, $definied, $post_details ) = jetpack_post_details_should_run();
 
@@ -71,9 +74,11 @@ if ( ! function_exists( 'jetpack_post_details_body_classes' ) ) {
 	/**
 	 * Adds custom classes to the array of body classes.
 	 *
+	 * @deprecated 13.9 Moved to Classic Theme Helper package.
 	 * @param array $classes Classes for the body element.
 	 */
 	function jetpack_post_details_body_classes( $classes ) {
+		_deprecated_function( __FUNCTION__, 'jetpack-13.9' );
 		// Make sure we can proceed.
 		list( $should_run, $options, $definied ) = jetpack_post_details_should_run();
 
@@ -119,8 +124,11 @@ if ( ! function_exists( 'jetpack_post_details_should_run' ) ) {
 
 	/**
 	 * Determines if Post Details should run.
+	 *
+	 * @deprecated 13.9 Moved to Classic Theme Helper package.
 	 */
 	function jetpack_post_details_should_run() {
+		_deprecated_function( __FUNCTION__, 'jetpack-13.9' );
 		// Empty value representing falsy return value.
 		$void = array( false, null, null, null );
 

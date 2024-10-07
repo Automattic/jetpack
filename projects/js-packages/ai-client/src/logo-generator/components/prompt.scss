@@ -9,12 +9,12 @@
 
 .jetpack-ai-logo-generator__prompt-header {
 	display: flex;
-	justify-content: space-between;
-	align-items: flex-start;
-	align-self: stretch;
+	gap: 16px;
+	align-items: center;
 
 	.jetpack-ai-logo-generator__prompt-label {
 		font-weight: 500;
+		flex-grow: 1;
 	}
 
 	.jetpack-ai-logo-generator__prompt-actions {
@@ -24,6 +24,8 @@
 
 		.jetpack-ai-logo-generator-icon {
 			margin-right: 4px;
+			// the svg icon with this class has no fill, only paths
+			stroke: currentColor;
 		}
 	}
 }

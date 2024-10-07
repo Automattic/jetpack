@@ -6,11 +6,11 @@ import {
 	useBreakpointMatch,
 	Text,
 } from '@automattic/jetpack-components';
-import { useDispatch } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
-import React, { useCallback, useState } from 'react';
-import useProtectData from '../../hooks/use-protect-data';
-import { STORE_ID } from '../../state/store';
+import React, { useCallback, useMemo, useState } from 'react';
+import useFixers from '../../hooks/use-fixers';
+import useModal from '../../hooks/use-modal';
+import usePlan from '../../hooks/use-plan';
 import OnboardingPopover from '../onboarding-popover';
 import ScanButton from '../scan-button';
 import EmptyList from './empty';
@@ -21,22 +21,32 @@ import styles from './styles.module.scss';
 import useThreatsList from './use-threats-list';
 
 const ThreatsList = () => {
-	const { hasRequiredPlan } = useProtectData();
+	const { hasPlan } = usePlan();
 	const { item, list, selected, setSelected } = useThreatsList();
-	const fixableList = list.filter( obj => obj.fixable );
 	const [ isSm ] = useBreakpointMatch( 'sm' );
+	const { isThreatFixInProgress, isThreatFixStale } = useFixers();
+
+	// List of fixable threats that do not have a fix in progress
+	const fixableList = useMemo( () => {
+		return list.filter( threat => {
+			const threatId = parseInt( threat.id );
+			return (
+				threat.fixable && ! isThreatFixInProgress( threatId ) && ! isThreatFixStale( threatId )
+			);
+		} );
+	}, [ list, isThreatFixInProgress, isThreatFixStale ] );
 
 	// Popover anchors
 	const [ yourScanResultsPopoverAnchor, setYourScanResultsPopoverAnchor ] = useState( null );
 	const [ understandSeverityPopoverAnchor, setUnderstandSeverityPopoverAnchor ] = useState( null );
 
-	const { setModal } = useDispatch( STORE_ID );
+	const { setModal } = useModal();
 
-	const [ fixAllThreatsPopoverAnchor, setFixAllThreatsPopoverAnchor ] = useState( null );
+	const [ showAutoFixersPopoverAnchor, setShowAutoFixersPopoverAnchor ] = useState( null );
 	const [ dailyAndManualScansPopoverAnchor, setDailyAndManualScansPopoverAnchor ] =
 		useState( null );
 
-	const handleFixAllThreatsClick = threatList => {
+	const handleShowAutoFixersClick = threatList => {
 		return event => {
 			event.preventDefault();
 			setModal( {
@@ -97,7 +107,7 @@ const ThreatsList = () => {
 					<ThreatsNavigation selected={ selected } onSelect={ setSelected } />
 				</div>
 				<OnboardingPopover
-					id={ hasRequiredPlan ? 'paid-scan-results' : 'free-scan-results' }
+					id={ hasPlan ? 'paid-scan-results' : 'free-scan-results' }
 					position="top"
 					anchor={ yourScanResultsPopoverAnchor }
 				/>
@@ -107,14 +117,14 @@ const ThreatsList = () => {
 					<>
 						<div className={ styles[ 'list-header' ] }>
 							<Title className={ styles[ 'list-title' ] }>{ getTitle() }</Title>
-							{ hasRequiredPlan && (
+							{ hasPlan && (
 								<div className={ styles[ 'list-header__controls' ] }>
 									{ fixableList.length > 0 && (
 										<>
 											<Button
-												ref={ setFixAllThreatsPopoverAnchor }
+												ref={ setShowAutoFixersPopoverAnchor }
 												variant="primary"
-												onClick={ handleFixAllThreatsClick( fixableList ) }
+												onClick={ handleShowAutoFixersClick( fixableList ) }
 											>
 												{ sprintf(
 													/* translators: Translates to Show auto fixers $s: Number of fixable threats. */
@@ -125,7 +135,7 @@ const ThreatsList = () => {
 											<OnboardingPopover
 												id="paid-fix-all-threats"
 												position={ isSm ? 'bottom right' : 'middle left' }
-												anchor={ fixAllThreatsPopoverAnchor }
+												anchor={ showAutoFixersPopoverAnchor }
 											/>
 										</>
 									) }
@@ -140,7 +150,7 @@ const ThreatsList = () => {
 								</div>
 							) }
 						</div>
-						{ hasRequiredPlan ? (
+						{ hasPlan ? (
 							<>
 								<div ref={ setUnderstandSeverityPopoverAnchor }>
 									<PaidList list={ list } />

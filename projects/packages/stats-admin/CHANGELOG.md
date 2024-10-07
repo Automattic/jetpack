@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.22.1 - 2024-09-23
+### Changed
+- Update dependencies. [#39303]
+
+## 0.22.0 - 2024-09-16
+### Added
+- Create the user feedback endpoint proxy with a user login status check. [#39287]
+
+## 0.21.2 - 2024-09-09
+### Changed
+- Update dependencies. [#39253]
+
 ## 0.21.1 - 2024-08-23
 ### Changed
 - Updated package dependencies. [#39004]

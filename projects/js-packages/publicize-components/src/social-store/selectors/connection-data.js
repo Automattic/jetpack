@@ -1,3 +1,4 @@
+import { checkConnectionCode } from '../../utils/connections';
 import { REQUEST_TYPE_DEFAULT } from '../actions/constants';
 
 /**
@@ -21,6 +22,24 @@ export function getConnections( state ) {
  */
 export function getConnectionById( state, connectionId ) {
 	return getConnections( state ).find( connection => connection.connection_id === connectionId );
+}
+
+/**
+ * Returns the broken connections.
+ *
+ * @param {import("../types").SocialStoreState} state - State object.
+ * @return {Array<import("../types").Connection>} List of broken connections.
+ */
+export function getBrokenConnections( state ) {
+	return getConnections( state ).filter( connection => {
+		return (
+			connection.status === 'broken' ||
+			// This is a legacy check for connections that are not healthy.
+			// TODO remove this check when we are sure that all connections have
+			// the status property (same schema for connections endpoints), e.g. on Simple/Atomic sites
+			checkConnectionCode( connection, 'broken' )
+		);
+	} );
 }
 
 /**
@@ -186,6 +205,20 @@ export function getAbortControllers( state, requestType = REQUEST_TYPE_DEFAULT )
 export function isMastodonAccountAlreadyConnected( state, username ) {
 	return getConnectionsByService( state, 'mastodon' ).some( connection => {
 		return connection.external_display === username;
+	} );
+}
+
+/**
+ * Whether a Bluesky account is already connected.
+ *
+ * @param {import("../types").SocialStoreState} state  - State object.
+ * @param {string}                              handle - The Bluesky handle.
+ *
+ * @return {boolean} Whether the Bluesky account is already connected.
+ */
+export function isBlueskyAccountAlreadyConnected( state, handle ) {
+	return getConnectionsByService( state, 'bluesky' ).some( connection => {
+		return connection.external_display === handle;
 	} );
 }
 

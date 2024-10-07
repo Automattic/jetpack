@@ -56,8 +56,6 @@
 	 */
 	function onError( response ) {
 		// Too bad we can't just use wp.updates.updatePluginError(), but it assumes it's on one of core's pages.
-		const $adminBarUpdates = $( '#wp-admin-bar-updates' );
-
 		if ( ! wp.updates.isValidResponse( response, 'update' ) ) {
 			return;
 		}
@@ -65,6 +63,8 @@
 		if ( wp.updates.maybeHandleCredentialError( response, 'update-plugin' ) ) {
 			return;
 		}
+
+		const $adminBarUpdates = $( '#wp-admin-bar-updates' );
 
 		let $notice;
 		if ( response.plugin ) {
@@ -100,15 +100,16 @@
 	 * @param {Event} event - Event interface.
 	 */
 	$updateNotices.on( 'click', '[data-plugin] .update-branch', function ( event ) {
-		const $button = $( event.target ),
-			$notice = $button.parents( '.dops-card' ),
-			$adminBarUpdates = $( '#wp-admin-bar-updates' );
+		const $button = $( event.target );
 
 		event.preventDefault();
 
 		if ( $button.hasClass( 'is-disabled' ) ) {
 			return;
 		}
+
+		const $notice = $button.parents( '.dops-card' ),
+			$adminBarUpdates = $( '#wp-admin-bar-updates' );
 
 		$notice.removeClass( 'is-error' );
 		$notice.find( '.error-message' ).remove();
