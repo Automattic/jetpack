@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Sync: Ensure we don't sync set_object_terms action for terms with blacklisted taxonomies
