@@ -606,9 +606,13 @@ class REST_Controller {
 
 		// It shouldn't be a problem because only title and ID are exposed.
 		return array(
-			'ID'    => $post->ID,
-			'title' => $post->post_title,
-			'URL'   => get_permalink( $post->ID ),
+			'ID'       => $post->ID,
+			'site_ID'  => Jetpack_Options::get_option( 'id' ),
+			'title'    => $post->post_title,
+			'URL'      => get_permalink( $post->ID ),
+			'type'     => $post->post_type,
+			'status'   => $post->post_status,
+			'comments' => intval( $post->comment_count ),
 		);
 	}
 
