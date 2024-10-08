@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - 2024-10-07
+### Added
+- Add a public method to check if a URL is CDN url. [#39635]
+
 ## [0.4.9] - 2024-09-09
 ### Changed
 - Update dependencies. [#39260]
@@ -126,6 +130,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Add image CDN package. [#29561]
 
+[0.5.0]: https://github.com/Automattic/jetpack-image-cdn/compare/v0.4.9...v0.5.0
 [0.4.9]: https://github.com/Automattic/jetpack-image-cdn/compare/v0.4.8...v0.4.9
 [0.4.8]: https://github.com/Automattic/jetpack-image-cdn/compare/v0.4.7...v0.4.8
 [0.4.7]: https://github.com/Automattic/jetpack-image-cdn/compare/v0.4.6...v0.4.7

@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [0.56.2] - 2024-10-07
+### Changed
+- Updated package dependencies. [#39594]
+
 ## [0.56.1] - 2024-10-02
 ### Changed
 - Updated package dependencies. [#39610]
@@ -1176,6 +1180,7 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[0.56.2]: https://github.com/Automattic/jetpack-components/compare/0.56.1...0.56.2
 [0.56.1]: https://github.com/Automattic/jetpack-components/compare/0.56.0...0.56.1
 [0.56.0]: https://github.com/Automattic/jetpack-components/compare/0.55.17...0.56.0
 [0.55.17]: https://github.com/Automattic/jetpack-components/compare/0.55.16...0.55.17
