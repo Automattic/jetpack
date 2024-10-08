@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Prevent welcome tour keyboard navigation from hijacking left right keys on the editor 
