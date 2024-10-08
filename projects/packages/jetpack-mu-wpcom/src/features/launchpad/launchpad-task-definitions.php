@@ -834,6 +834,9 @@ function wpcom_launchpad_get_task_definitions() {
 			'get_title'            => function () {
 				return __( 'Connect your domain', 'jetpack-mu-wpcom' );
 			},
+			'get_calypso_path'      => function ( $task, $default, $data ) {
+				return '/domains/add/use-my-domain/' . $data['site_slug_encoded'];
+			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'is_visible_callback'  => '__return_true',
 		),
