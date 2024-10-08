@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Change done to avoid fatal in wpcom when using v1 endpoint with force wpcom param

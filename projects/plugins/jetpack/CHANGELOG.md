@@ -2,6 +2,24 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 14.0-a.1 - 2024-10-07
+### Enhancements
+- Sitemap: Improve sitemap write efficienty. [#39572]
+- CSS: Rely esclusively on individual CSS files instead of a combined one for the features used on each page to improve page loading. [#39518]
+- Social: Add support for Bluesky 🎉. [#39561]
+- Scan: Update Jetpack Scan link in the WP Admin menu. [#39619]
+
+### Bug fixes
+- Social: Prevent text overflow in the share status tooltip. [#39599]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Admin menu: Adding tests to check for 'current' class when menu item selected. [#39374]
+- Blogging Prompt: Preserve language on answers link. [#36730]
+- Email preview modal: Improve error state visuals. [#39476]
+- Unify connection nudge design on Jetpack Settings. [#39591]
+- Unify connection related CTAs on At A Glance. [#39585]
+- Updated package dependencies. [#39594] [#39639]
+
 ## 13.9 - 2024-10-01
 ### Major Enhancements
 - Jetpack plugin: Remove the 'WordPress.com Toolbar' module. [#39406]
