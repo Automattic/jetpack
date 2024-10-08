@@ -27,6 +27,12 @@ const useKeydownHandler = ( {
 		);
 	}, [ tourContainerRef ] );
 
+	const focusTourContainer = useCallback( () => {
+		(
+			tourContainerRef.current?.querySelector( '.tour-kit-frame__container' ) as HTMLElement
+		 )?.focus();
+	}, [ tourContainerRef ] );
+
 	const handleKeydown = useCallback(
 		( event: KeyboardEvent ) => {
 			let handled = false;
@@ -39,6 +45,8 @@ const useKeydownHandler = ( {
 						}
 
 						onEscape();
+						// focus the container after minimizing so the user can dismiss it
+						focusTourContainer();
 						handled = true;
 					}
 					break;
@@ -71,29 +79,27 @@ const useKeydownHandler = ( {
 				event.stopPropagation();
 			}
 		},
-		[ isActiveElementOutsideTourContainer, onEscape, onArrowRight, onArrowLeft ]
+		[ onEscape, onArrowRight, onArrowLeft, isActiveElementOutsideTourContainer, focusTourContainer ]
 	);
-
-	const isFocusable = ( element: HTMLElement ) => {
-		const focusableElements = [ 'A', 'INPUT', 'BUTTON', 'TEXTAREA', 'SELECT' ];
-
-		// Check if the element is focusable by its tag or has a tabindex >= 0
-		return focusableElements.includes( element?.tagName ) || element?.tabIndex >= 0;
-	};
 
 	// when clicking on the container, if the target is not a focusable element,
 	// force focus on the first children so keyboard navigation works
 	const handleTourContainerClick = useCallback(
 		( event: MouseEvent ) => {
+			const isFocusable = ( element: HTMLElement ) => {
+				const focusableElements = [ 'A', 'INPUT', 'BUTTON', 'TEXTAREA', 'SELECT' ];
+
+				// Check if the element is focusable by its tag or has a tabindex >= 0
+				return focusableElements.includes( element?.tagName ) || element?.tabIndex >= 0;
+			};
+
 			if ( isFocusable( event.target as HTMLElement ) ) {
 				return;
 			}
 
-			(
-				tourContainerRef.current?.querySelector( '.tour-kit-frame__container' ) as HTMLElement
-			 )?.focus();
+			focusTourContainer();
 		},
-		[ tourContainerRef ]
+		[ focusTourContainer ]
 	);
 
 	useEffect( () => {
