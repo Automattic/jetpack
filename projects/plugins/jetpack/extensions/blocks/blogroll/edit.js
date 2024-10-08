@@ -1,4 +1,3 @@
-import { useConnection } from '@automattic/jetpack-connection';
 import { InspectorControls, useBlockProps, InnerBlocks } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
 import { PanelBody, ToggleControl, FlexBlock, Spinner, Notice } from '@wordpress/components';
@@ -7,6 +6,7 @@ import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import ConnectBanner from '../../shared/components/connect-banner';
+import useIsUserConnected from '../../shared/use-is-user-connected';
 import BlogrollAppender from './components/blogroll-appender';
 import useRecommendations from './use-recommendations';
 import { useSiteRecommendationSync } from './use-site-recommendations';
@@ -23,7 +23,7 @@ export function BlogRollEdit( { className, attributes, setAttributes, clientId }
 		load_placeholders,
 	} = attributes;
 
-	const { isUserConnected } = useConnection();
+	const isUserConnected = useIsUserConnected();
 
 	const {
 		isLoading: isLoadingRecommendations,
