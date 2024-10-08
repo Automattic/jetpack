@@ -78,8 +78,6 @@ return [
         'src/modules/class-users.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchDefault', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
         'src/modules/class-woocommerce-hpos-orders.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
         'src/replicastore/class-table-checksum.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchPropertyDefault', 'PhanTypeMismatchPropertyProbablyReal'],
-        'src/sync-queue/class-queue-storage-options.php' => ['PhanUndeclaredTypeReturnType'],
-        'src/sync-queue/class-queue-storage-table.php' => ['PhanUndeclaredTypeReturnType'],
         'tests/php/test-actions.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal'],
         'tests/php/test-dedicated-sender.php' => ['PhanDeprecatedFunction', 'PhanUndeclaredProperty'],
         'tests/php/test-rest-endpoints.php' => ['PhanNoopNew', 'PhanTypeMismatchReturn'],
