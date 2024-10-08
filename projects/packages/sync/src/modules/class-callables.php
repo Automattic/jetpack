@@ -396,13 +396,13 @@ class Callables extends Module {
 				'edit'       => '',
 			);
 			/** This filter is documented in src/wp-admin/includes/class-wp-plugins-list-table.php */
-			$action_links = apply_filters( 'plugin_action_links', $action_links, $plugin_file, null, 'all' );
+			$action_links = apply_filters( 'plugin_action_links', $action_links, $plugin_file, array(), 'all' );
 			// Verify $action_links is still an array.
 			if ( ! is_array( $action_links ) ) {
 				$action_links = array();
 			}
 			/** This filter is documented in src/wp-admin/includes/class-wp-plugins-list-table.php */
-			$action_links = apply_filters( "plugin_action_links_{$plugin_file}", $action_links, $plugin_file, null, 'all' );
+			$action_links = apply_filters( "plugin_action_links_{$plugin_file}", $action_links, $plugin_file, array(), 'all' );
 			// Verify $action_links is still an array to resolve warnings from filters not returning an array.
 			if ( is_array( $action_links ) ) {
 				$action_links = array_filter( $action_links );
