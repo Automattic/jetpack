@@ -68,9 +68,6 @@ class Waf_Initializer {
 	 * @return bool|WP_Error True if the WAF activation is successful, WP_Error otherwise.
 	 */
 	public static function on_waf_activation() {
-		update_option( Waf_Runner::MODE_OPTION_NAME, 'normal' );
-		add_option( Waf_Rules_Manager::AUTOMATIC_RULES_ENABLED_OPTION_NAME, false );
-
 		try {
 			Waf_Runner::activate();
 			( new Waf_Standalone_Bootstrap() )->generate();
