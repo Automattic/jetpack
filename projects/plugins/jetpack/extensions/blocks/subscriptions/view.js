@@ -59,6 +59,7 @@ function show_iframe_get_current_user_email( blog, emailInput ) {
 	const handleIframeMessage = message => {
 		if (
 			message.origin === 'https://subscribe.wordpress.com' &&
+			typeof message.data === 'object' &&
 			message.data.action === 'current_user_email' &&
 			message.data.email
 		) {
