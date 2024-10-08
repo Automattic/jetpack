@@ -319,6 +319,11 @@ class Waf_Runner {
 			add_option( Waf_Rules_Manager::VERSION_OPTION_NAME, Waf_Rules_Manager::RULES_VERSION );
 		}
 
+		$mode = get_option( self::MODE_OPTION_NAME );
+		if ( ! $mode ) {
+			add_option( self::MODE_OPTION_NAME, 'normal' );
+		}
+
 		add_option( self::SHARE_DATA_OPTION_NAME, true );
 
 		self::initialize_filesystem();
