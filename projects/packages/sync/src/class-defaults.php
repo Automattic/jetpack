@@ -213,6 +213,7 @@ class Defaults {
 		'jetpack_waf_share_data',
 		'jetpack_waf_share_debug_data',
 		'jetpack_waf_automatic_rules_last_updated_timestamp',
+		'woocommerce_analytics_first_activation',
 	);
 
 	/**
