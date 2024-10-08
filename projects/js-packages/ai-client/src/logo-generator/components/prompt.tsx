@@ -10,7 +10,7 @@ import { useCallback, useEffect, useState, useRef } from 'react';
 /**
  * Internal dependencies
  */
-import { IMAGE_STYLE_LINE_ART } from '../../hooks/use-image-generator/constants.js';
+import { IMAGE_STYLE_NONE, IMAGE_STYLE_AUTO } from '../../hooks/use-image-generator/constants.js';
 import AiIcon from '../assets/icons/ai.js';
 import {
 	EVENT_GENERATE,
@@ -28,7 +28,7 @@ import './prompt.scss';
 /**
  * Types
  */
-import type { ImageStyle } from '../../hooks/use-image-generator/constants.js';
+import type { ImageStyle, ImageStyleObject } from '../../hooks/use-image-generator/constants.js';
 
 const debug = debugFactory( 'jetpack-ai-calypso:prompt-box' );
 
@@ -46,6 +46,7 @@ export const Prompt = ( { initialPrompt = '' }: PromptProps ) => {
 	const hasPrompt = prompt?.length >= MINIMUM_PROMPT_LENGTH;
 	const [ showStyleSelector, setShowStyleSelector ] = useState( false );
 	const [ style, setStyle ] = useState< ImageStyle >( null );
+	const [ styles, setStyles ] = useState< Array< ImageStyleObject > >( [] );
 
 	const {
 		generateLogo,
@@ -105,9 +106,20 @@ export const Prompt = ( { initialPrompt = '' }: PromptProps ) => {
 
 	useEffect( () => {
 		if ( imageStyles.length > 0 ) {
+			// Sort styles to have "None" and "Auto" first
+			setStyles(
+				[
+					imageStyles.find( ( { value } ) => value === IMAGE_STYLE_NONE ),
+					imageStyles.find( ( { value } ) => value === IMAGE_STYLE_AUTO ),
+					...imageStyles.filter(
+						( { value } ) => ! [ IMAGE_STYLE_NONE, IMAGE_STYLE_AUTO ].includes( value )
+					),
+				].filter( v => v ) // simplest way to get rid of empty values
+			);
 			setShowStyleSelector( true );
-			setStyle( IMAGE_STYLE_LINE_ART );
+			setStyle( IMAGE_STYLE_NONE );
 		} else {
+			setStyles( [] );
 			setShowStyleSelector( false );
 			setStyle( null );
 		}
@@ -175,7 +187,7 @@ export const Prompt = ( { initialPrompt = '' }: PromptProps ) => {
 					<SelectControl
 						__nextHasNoMarginBottom
 						value={ style }
-						options={ imageStyles }
+						options={ styles }
 						onChange={ updateStyle }
 					/>
 				) }
