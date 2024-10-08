@@ -1,8 +1,10 @@
 import { Spinner } from '@automattic/jetpack-components';
+import { useConnection } from '@automattic/jetpack-connection';
 import { useBlockProps } from '@wordpress/block-editor';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import ConnectBanner from '../../shared/components/connect-banner';
 import { StripeNudge } from '../../shared/components/stripe-nudge';
 import { SUPPORTED_CURRENCIES } from '../../shared/currencies';
 import getConnectUrl from '../../shared/get-connect-url';
@@ -20,6 +22,7 @@ const Edit = props => {
 	const blockProps = useBlockProps();
 	const [ loadingError, setLoadingError ] = useState( '' );
 	const [ products, setProducts ] = useState( [] );
+	const { isUserConnected } = useConnection();
 
 	const { lockPostSaving, unlockPostSaving } = useDispatch( 'core/editor' );
 	const post = useSelect( select => select( 'core/editor' ).getCurrentPost(), [] );
@@ -134,7 +137,13 @@ const Edit = props => {
 
 	let content;
 
-	if ( loadingError ) {
+	if ( ! isUserConnected ) {
+		content = (
+			<ConnectBanner
+				explanation={ __( 'Connect your WordPress.com account to enable donations.', 'jetpack' ) }
+			/>
+		);
+	} else if ( loadingError ) {
 		content = <LoadingError error={ loadingError } />;
 	} else if ( stripeConnectUrl ) {
 		// Need to connect Stripe first

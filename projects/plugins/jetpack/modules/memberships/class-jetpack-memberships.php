@@ -7,7 +7,6 @@
  */
 
 use Automattic\Jetpack\Blocks;
-use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Abstract_Token_Subscription_Service;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
@@ -751,7 +750,7 @@ class Jetpack_Memberships {
 
 	/**
 	 * Whether to enable the blocks in the editor.
-	 * All Monetize blocks (except Simple Payments) need an active connecting and a user with at least `edit_posts` capability
+	 * All Monetize blocks (except Simple Payments) need a user with at least `edit_posts` capability
 	 *
 	 * @return bool
 	 */
@@ -762,10 +761,8 @@ class Jetpack_Memberships {
 
 		}
 
-		$manager                          = new Connection_Manager( 'jetpack' );
-		$jetpack_ready_and_connected      = $manager->is_connected() && $manager->has_connected_owner();
 		$is_offline_mode                  = ( new Status() )->is_offline_mode();
-		$enable_monetize_blocks_in_editor = ( new Host() )->is_wpcom_simple() || ( $jetpack_ready_and_connected && ! $is_offline_mode );
+		$enable_monetize_blocks_in_editor = ( new Host() )->is_wpcom_simple() || ( ! $is_offline_mode );
 		return $enable_monetize_blocks_in_editor;
 	}
 
