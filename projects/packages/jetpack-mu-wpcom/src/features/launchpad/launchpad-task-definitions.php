@@ -834,7 +834,7 @@ function wpcom_launchpad_get_task_definitions() {
 			'get_title'            => function () {
 				return __( 'Connect your domain', 'jetpack-mu-wpcom' );
 			},
-			'get_calypso_path'      => function ( $task, $default, $data ) {
+			'get_calypso_path'     => function ( $task, $default, $data ) {
 				$domain = get_option( 'migration_source_site_domain', null );
 				$path   = $domain ? '/domains/add/use-my-domain/' . $data['site_slug_encoded'] . '/?initialQuery=' . $domain : '/domains/add/use-my-domain/' . $data['site_slug_encoded'];
 				return $path;
