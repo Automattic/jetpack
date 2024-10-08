@@ -8,6 +8,7 @@
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 
@@ -126,8 +127,13 @@ class Sharing_Admin {
 	 */
 	public function subscription_menu() {
 		$wpcom_is_wp_admin_interface = get_option( 'wpcom_admin_interface' ) === 'wp-admin';
+		$is_user_connected           = ( new Connection_Manager() )->is_user_connected();
 
-		if ( ( new Status() )->is_offline_mode() || $wpcom_is_wp_admin_interface ) {
+		if (
+			( new Status() )->is_offline_mode()
+			|| $wpcom_is_wp_admin_interface
+			|| ! $is_user_connected
+		) {
 			add_submenu_page(
 				'options-general.php',
 				__( 'Sharing Settings', 'jetpack' ),
