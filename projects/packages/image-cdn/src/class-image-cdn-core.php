@@ -191,8 +191,7 @@ class Image_CDN_Core {
 			}
 		}
 
-		$image_host_path = $image_url_parts['host'] . $image_url_parts['path'];
-
+		$image_host_path = $image_url_parts['host'] . static::escape_path( $image_url_parts['path'] );
 		/**
 		 * Filters the domain used by the Photon module.
 		 *
@@ -260,6 +259,22 @@ class Image_CDN_Core {
 
 		return in_array( $parsed_url['host'], array( 'i0.wp.com', 'i1.wp.com', 'i2.wp.com' ), true )
 			|| wp_parse_url( $custom_photon_url, PHP_URL_HOST ) === $parsed_url['host'];
+	}
+
+	/**
+	 * URL-encodes each path component.
+	 *
+	 * Example:
+	 * Input: "foo/bar baz/baz"
+	 * Output: "foo/bar%20baz/baz"
+	 *
+	 * @param string $path The path to escape.
+	 * @return string The escaped path.
+	 */
+	private static function escape_path( $path ) {
+		$parts = explode( '/', $path );
+		$parts = array_map( 'rawurlencode', $parts );
+		return implode( '/', $parts );
 	}
 
 	/**
