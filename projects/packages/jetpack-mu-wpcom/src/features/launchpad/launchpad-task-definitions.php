@@ -809,6 +809,7 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'is_visible_callback'  => '__return_true',
 		),
+		// Post-migration tasks.
 		'review_site'                     => array(
 			'get_title'            => function () {
 				return __( "Review the site's content", 'jetpack-mu-wpcom' );
@@ -828,6 +829,13 @@ function wpcom_launchpad_get_task_definitions() {
 			'get_calypso_path'      => function () {
 				return admin_url( 'plugins.php' );
 			},
+		),
+		'connect_migration_domain'        => array(
+			'get_title'            => function () {
+				return __( 'Connect your domain', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'is_visible_callback'  => '__return_true',
 		),
 	);
 
