@@ -10,9 +10,9 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { usePermission } from '../../../../../admin/hooks/use-permission';
 import useResumableUploader from '../../../../../hooks/use-resumable-uploader';
 import { uploadFromLibrary } from '../../../../../hooks/use-uploader';
+import { isUserConnected } from '../../../../../lib/connection';
 import { buildVideoPressURL, pickVideoBlockAttributesFromUrl } from '../../../../../lib/url';
 import { VIDEOPRESS_VIDEO_ALLOWED_MEDIA_TYPES } from '../../constants';
 import { PlaceholderWrapper } from '../../edit';
@@ -37,7 +37,7 @@ const VideoPressUploader = ( {
 	const [ isUploadingInProgress, setIsUploadingInProgress ] = useState( false );
 	const [ isVerifyingLocalMedia, setIsVerifyingLocalMedia ] = useState( false );
 
-	const { hasConnectedOwner } = usePermission();
+	const hasUserConnection = isUserConnected();
 
 	/*
 	 * When the file to upload is set, start the upload process
@@ -331,7 +331,7 @@ const VideoPressUploader = ( {
 
 		return (
 			<PlaceholderWrapper disableInstructions className="disabled">
-				<span>{ ! hasConnectedOwner ? needsConnectionText : needsActivationText }</span>
+				<span>{ ! hasUserConnection ? needsConnectionText : needsActivationText }</span>
 			</PlaceholderWrapper>
 		);
 	}

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix bug where connection banner was showing in P2s and other atomic/simple sites
