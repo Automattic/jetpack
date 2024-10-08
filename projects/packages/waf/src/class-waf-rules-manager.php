@@ -44,6 +44,13 @@ class Waf_Rules_Manager {
 	const IP_BLOCK_RULES_FILE  = '/rules/block-ip.php';
 
 	/**
+	 * Rules Entrypoint File
+	 *
+	 * @deprecated $$next-version$$ Use JETPACK_WAF_ENTRYPOINT instead.
+	 */
+	const RULES_ENTRYPOINT_FILE = '/rules/rules.php';
+
+	/**
 	 * Whether automatic rules are enabled.
 	 *
 	 * @return bool
