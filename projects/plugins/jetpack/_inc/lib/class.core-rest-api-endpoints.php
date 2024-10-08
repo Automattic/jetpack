@@ -33,8 +33,6 @@ add_action( 'rest_api_init', array( 'Jetpack_Core_Json_Api_Endpoints', 'register
 // Each of these is a class that will register its own routes on 'rest_api_init'.
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/core-api/load-wpcom-endpoints.php';
 
-require_once JETPACK__PLUGIN_DIR . 'modules/subscriptions/class-settings.php';
-
 /**
  * Class Jetpack_Core_Json_Api_Endpoints
  *
@@ -2706,7 +2704,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'jetpack_subscriptions_reply_to'        => array(
 				'description'       => esc_html__( 'Reply to email behaviour for newsletters emails', 'jetpack' ),
 				'type'              => 'string',
-				'default'           => Automattic\Jetpack\Modules\Subscriptions\Settings::$default_reply_to,
+				'default'           => 'no-reply',
 				'validate_callback' => __CLASS__ . '::validate_subscriptions_reply_to',
 				'jp_group'          => 'subscriptions',
 			),
