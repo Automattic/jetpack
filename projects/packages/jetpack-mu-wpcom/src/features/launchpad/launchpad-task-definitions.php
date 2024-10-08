@@ -839,7 +839,7 @@ function wpcom_launchpad_get_task_definitions() {
 				$path   = $domain ? '/domains/add/use-my-domain/' . $data['site_slug_encoded'] . '/?initialQuery=' . $domain : '/domains/add/use-my-domain/' . $data['site_slug_encoded'];
 				return $path;
 			},
-			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'is_complete_callback' => 'wpcom_launchpad_is_domain_customize_completed',
 			'is_visible_callback'  => '__return_true',
 		),
 	);
