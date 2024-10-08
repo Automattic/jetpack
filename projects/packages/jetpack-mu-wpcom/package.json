@@ -56,7 +56,7 @@
 		"@automattic/typography": "1.0.0",
 		"@popperjs/core": "^2.11.8",
 		"@preact/signals": "^1.2.2",
-		"@sentry/browser": "7.80.1",
+		"@sentry/browser": "8.33.0",
 		"@tanstack/react-query": "^5.15.5",
 		"@wordpress/api-fetch": "7.8.2",
 		"@wordpress/base-styles": "5.8.1",

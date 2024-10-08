@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Just adding a nicer error message that would only display in dev environments.
+
+

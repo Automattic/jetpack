@@ -1,36 +1,9 @@
+const webpack = require( 'webpack' );
 const path = require( 'path' );
 // eslint-disable-next-line import/no-extraneous-dependencies
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 // eslint-disable-next-line import/no-extraneous-dependencies
 const CopyPlugin = require( 'copy-webpack-plugin' );
-
-const isProduction = process.env.NODE_ENV === 'production';
-
-const cssGenPath = path.dirname(
-	path.dirname( require.resolve( 'jetpack-boost-critical-css-gen' ) )
-);
-
-let cssGenCopyPatterns;
-
-if ( isProduction ) {
-	cssGenCopyPatterns = [
-		{
-			from: path.join( cssGenPath, 'dist/bundle.js' ),
-			to: 'critical-css-gen.js',
-		},
-	];
-} else {
-	cssGenCopyPatterns = [
-		{
-			from: path.join( cssGenPath, 'dist/bundle.full.js' ),
-			to: 'critical-css-gen.js',
-		},
-		{
-			from: path.join( cssGenPath, 'dist/bundle.full.js.map' ),
-			to: 'bundle.full.js.map',
-		},
-	];
-}
 
 const imageGuideCopyPatterns = [
 	{
@@ -58,6 +31,9 @@ module.exports = [
 		},
 		optimization: {
 			...jetpackWebpackConfig.optimization,
+			splitChunks: {
+				minChunks: 2,
+			},
 		},
 		resolve: {
 			...jetpackWebpackConfig.resolve,
@@ -70,6 +46,20 @@ module.exports = [
 				$css: path.resolve( './app/assets/src/css' ),
 				$images: path.resolve( './app/assets/static/images' ),
 			},
+			// These are needed for the build to work,
+			// otherwise it errors out because of the clean-css dependency.
+			fallback: {
+				...jetpackWebpackConfig.resolve.fallback,
+				path: require.resolve( 'path-browserify' ),
+				process: require.resolve( 'process/browser' ),
+				url: false,
+				https: false,
+				http: false,
+				os: false,
+				buffer: false,
+				events: false,
+				fs: false,
+			},
 		},
 		node: false,
 		plugins: [
@@ -79,7 +69,9 @@ module.exports = [
 				},
 				DependencyExtractionPlugin: { injectPolyfill: true },
 			} ),
-			new CopyPlugin( { patterns: cssGenCopyPatterns } ),
+			new webpack.ProvidePlugin( {
+				process: require.resolve( 'process/browser' ),
+			} ),
 		],
 		module: {
 			strictExportPresence: true,

@@ -809,6 +809,13 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'is_visible_callback'  => '__return_true',
 		),
+		'review_site'                     => array(
+			'get_title'            => function () {
+				return __( "Review the site's content", 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'is_visible_callback'  => '__return_true',
+		),
 	);
 
 	$extended_task_definitions = apply_filters( 'wpcom_launchpad_extended_task_definitions', array() );

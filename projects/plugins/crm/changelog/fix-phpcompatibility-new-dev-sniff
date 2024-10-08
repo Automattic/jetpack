@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Improve spec compliance of CSV output: `\"` sequences will now be correctly escaped by doubling the `"`.
