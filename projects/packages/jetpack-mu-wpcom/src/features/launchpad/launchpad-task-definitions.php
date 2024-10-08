@@ -829,6 +829,14 @@ function wpcom_launchpad_get_task_definitions() {
 				return admin_url( 'plugins.php' );
 			},
 		),
+		'check_ssl_status'                => array(
+			'get_title'            => function () {
+				return __( 'Check the SSL status', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'is_visible_callback'  => '__return_true',
+			'is_disabled_callback' => 'wpcom_launchpad_is_ssl_task_disabled',
+		),
 	);
 
 	$extended_task_definitions = apply_filters( 'wpcom_launchpad_extended_task_definitions', array() );
@@ -2779,4 +2787,13 @@ function wpcom_launchpad_get_latest_draft_id() {
 	$cached_draft_id = reset( $latest_draft_id );
 
 	return $cached_draft_id;
+}
+
+/**
+ * Check if the SSL task should be disabled.
+ *
+ * @return bool Will return true if the primary domain is a WPCOM domain.
+ */
+function wpcom_launchpad_is_ssl_task_disabled() {
+	return false;
 }
