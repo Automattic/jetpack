@@ -679,7 +679,12 @@ final class Image_CDN {
 						$processor->set_attribute( 'data-recalc-dims', '1' );
 					}
 				}
-			} elseif ( preg_match( '#^http(s)?://i[\d]{1}.wp.com#', $src ) && is_string( $nearest_preceding_href ) && self::validate_image_url( $nearest_preceding_href ) ) {
+			} elseif (
+				is_string( $src )
+				&& preg_match( '#^http(s)?://i[\d]{1}.wp.com#', $src )
+				&& is_string( $nearest_preceding_href )
+				&& self::validate_image_url( $nearest_preceding_href )
+			) {
 				$processor->seek( 'link' );
 				$processor->set_attribute( 'href', Image_CDN_Core::cdn_url( $nearest_preceding_href ) );
 				$processor->seek( 'image' );
