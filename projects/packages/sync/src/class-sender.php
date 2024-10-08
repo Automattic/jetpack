@@ -297,14 +297,14 @@ class Sender {
 		}
 
 		// Sync not started or Sync finished.
-		'@phan-var Modules\Full_Sync_Immediately';
+		'@phan-var Modules\Full_Sync_Immediately $full_sync_module';
 		$status = $sync_module->get_status();
 		if ( false === $status['started'] || ( ! empty( $status['started'] ) && ! empty( $status['finished'] ) ) ) {
 			return false;
 		}
 
 		$this->continue_sending();
-		'@phan-var Modules\Full_Sync_Immediately';
+		'@phan-var Modules\Full_Sync_Immediately $full_sync_module';
 		$status = $sync_module->get_status();
 		// Sync not started or Sync finished.
 		if ( false === $status['started'] || ( ! empty( $status['started'] ) && ! empty( $status['finished'] ) ) ) {
@@ -326,7 +326,7 @@ class Sender {
 		}
 
 		$full_sync_module = Modules::get_module( 'full-sync' );
-		'@phan-var Modules\Full_Sync_Immediately';
+		'@phan-var Modules\Full_Sync_Immediately $full_sync_module';
 		$full_sync_module->continue_sending();
 	}
 
