@@ -89,6 +89,7 @@
 	<rule ref="PHPCompatibility.Constants.NewConstants.sodium_library_major_versionFound" />
 	<rule ref="PHPCompatibility.Constants.NewConstants.sodium_library_minor_versionFound" />
 	<rule ref="PHPCompatibility.Constants.NewConstants.sodium_library_versionFound" />
+	<rule ref="PHPCompatibility.FunctionUse.NewFunctions.array_is_listFound" />
 	<rule ref="PHPCompatibility.FunctionUse.NewFunctions.array_key_firstFound" />
 	<rule ref="PHPCompatibility.FunctionUse.NewFunctions.array_key_lastFound" />
 	<rule ref="PHPCompatibility.FunctionUse.NewFunctions.is_countableFound" />
