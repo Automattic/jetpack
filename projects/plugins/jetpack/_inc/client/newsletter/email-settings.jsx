@@ -410,17 +410,9 @@ const EmailSettings = props => {
 				</p>
 				<RadioControl
 					className="jp-form-radio-gap"
-					selected={ subscriptionReplyTo || 'no-reply' }
+					selected={ subscriptionReplyTo || 'comment' }
 					disabled={ replyToInputDisabled }
 					options={ [
-						{
-							label: (
-								<span className="jp-form-toggle-explanation">
-									{ __( 'Replies are not allowed', 'jetpack' ) }
-								</span>
-							),
-							value: 'no-reply',
-						},
 						{
 							label: (
 								<span className="jp-form-toggle-explanation">
@@ -436,6 +428,14 @@ const EmailSettings = props => {
 								</span>
 							),
 							value: 'author',
+						},
+						{
+							label: (
+								<span className="jp-form-toggle-explanation">
+									{ __( 'Replies are not allowed', 'jetpack' ) }
+								</span>
+							),
+							value: 'no-reply',
 						},
 					] }
 					onChange={ handleSubscriptionReplyToChange }

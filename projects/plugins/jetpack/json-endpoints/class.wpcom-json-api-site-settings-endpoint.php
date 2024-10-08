@@ -1003,7 +1003,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					require_once JETPACK__PLUGIN_DIR . 'modules/subscriptions/class-settings.php';
 					$to_set_value = Automattic\Jetpack\Modules\Subscriptions\Settings::is_valid_reply_to( $value )
 						? (string) $value
-						: Automattic\Jetpack\Modules\Subscriptions\Settings::get_default_reply_to();
+						: Automattic\Jetpack\Modules\Subscriptions\Settings::$default_reply_to;
 
 					if ( update_option( $key, $to_set_value ) ) {
 						$updated[ $key ] = $to_set_value;
@@ -1302,7 +1302,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 		$reply_to = get_option( 'jetpack_subscriptions_reply_to', null );
 		if ( $reply_to === null ) {
 			require_once JETPACK__PLUGIN_DIR . 'modules/subscriptions/class-settings.php';
-			return Automattic\Jetpack\Modules\Subscriptions\Settings::get_default_reply_to();
+			return Automattic\Jetpack\Modules\Subscriptions\Settings::$default_reply_to;
 		}
 		return $reply_to;
 	}
