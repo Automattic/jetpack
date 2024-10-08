@@ -1,4 +1,3 @@
-import { useConnection } from '@automattic/jetpack-connection';
 import { store as blockEditorStore, useBlockProps } from '@wordpress/block-editor';
 import { Disabled, Placeholder, Spinner } from '@wordpress/components';
 import { useViewportMatch } from '@wordpress/compose';
@@ -9,6 +8,7 @@ import ConnectBanner from '../../shared/components/connect-banner';
 import ProductManagementControls from '../../shared/components/product-management-controls';
 import { PRODUCT_TYPE_SUBSCRIPTION } from '../../shared/components/product-management-controls/constants';
 import { StripeNudge } from '../../shared/components/stripe-nudge';
+import useIsUserConnected from '../../shared/use-is-user-connected';
 import { store as membershipProductsStore } from '../../store/membership-products';
 import Blocks from './_inc/blocks';
 import Context from './_inc/context';
@@ -62,7 +62,7 @@ function Edit( { clientId, isSelected, attributes, setAttributes } ) {
 
 	const [ selectedTab, selectTab ] = useState( tabs[ WALL_TAB ] );
 	const blockProps = useBlockProps();
-	const { isUserConnected } = useConnection();
+	const isUserConnected = useIsUserConnected();
 
 	const setSelectedProductIds = productIds => setAttributes( { selectedPlanIds: productIds } );
 
