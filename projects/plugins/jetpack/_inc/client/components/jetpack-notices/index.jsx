@@ -227,10 +227,10 @@ class JetpackNotices extends React.Component {
 		// Add notices here. Example:
 		// const notices = [
 		//  {
-		//    noticeKey: 'my-xyz-removal-notice',
+		//    noticeKey: 'my-xyz-deprecate-feature',
 		//    message: __( "Jetpack's xyz feature has been removed.", 'jetpack' ),
 		//    link: getRedirectUrl( 'my-support' ),
-		//    show: this.props.showXYZNotice && ! this.isNoticeDismissed( 'my-xyz-removal-notice' )
+		//    show: this.props.showXYZNotice && ! this.isNoticeDismissed( 'my-xyz-deprecate-feature' )
 		//  }
 		// ];
 		const notices = [ {} ];
