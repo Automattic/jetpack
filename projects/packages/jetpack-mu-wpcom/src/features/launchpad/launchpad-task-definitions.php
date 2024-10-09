@@ -831,11 +831,15 @@ function wpcom_launchpad_get_task_definitions() {
 		),
 		'check_ssl_status'                => array(
 			'get_title'            => function () {
-				return __( 'Check the SSL status', 'jetpack-mu-wpcom' );
+				return __( 'Provision SSL certificate', 'jetpack-mu-wpcom' );
 			},
-			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'is_complete_callback' => 'wpcom_launchpad_is_ssl_task_completed',
 			'is_visible_callback'  => '__return_true',
 			'is_disabled_callback' => 'wpcom_launchpad_is_ssl_task_disabled',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				$domain = $data['site_slug_encoded'];
+				return '/domains/manage/' . $domain . '/edit/' . $domain;
+			},
 		),
 	);
 
@@ -2806,4 +2810,36 @@ function wpcom_launchpad_is_ssl_task_disabled() {
 	}
 
 	return $is_wpcom_domain;
+}
+
+/**
+ * Check if the `check_ssl_status` task is complete.
+ *
+ * @return bool
+ */
+function wpcom_launchpad_is_ssl_task_completed() {
+	$blog_id = get_current_blog_id();
+
+	$primary_domain_mapping = Domain_Mapping::find_primary_by_blog_id( $blog_id );
+
+	if ( null === $primary_domain_mapping ) {
+		return false;
+	}
+
+	$certificate_flag_manager = WPCOM\Container\DI::get( Domain_Certificate_Flags_Manager::class );
+	$certificate_flags        = $certificate_flag_manager->get_flags( $primary_domain_mapping->get_domain_name() );
+
+	if ( empty( $certificate_flags ) ) {
+		return false;
+	}
+
+	if ( count( $certificate_flags ) > 1 ) {
+		return false;
+	}
+
+	if ( isset( $certificate_flags[ Domain_Certificate_Flag_Group::CERTIFICATE_PROVISIONED ] ) ) {
+		return true;
+	}
+
+	return false;
 }
