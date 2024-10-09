@@ -1,4 +1,5 @@
 import {
+	AdminSectionHero,
 	Text,
 	Button,
 	Title,
@@ -125,18 +126,23 @@ const FooterInfo = () => {
 
 const ScanFooter = () => {
 	const { waf } = window.jetpackProtectInitialState || {};
-	return waf.wafSupported ? (
-		<SeventyFiveLayout
-			main={ <ProductPromotion /> }
-			secondary={ <FooterInfo /> }
-			preserveSecondaryOnMobile={ true }
-		/>
-	) : (
-		<Container horizontalSpacing={ 0 } horizontalGap={ 0 } fluid={ false }>
-			<Col>
-				<FooterInfo />
-			</Col>
-		</Container>
+	return (
+		<AdminSectionHero>
+			{ waf.wafSupported ? (
+				<SeventyFiveLayout
+					main={ <ProductPromotion /> }
+					secondary={ <FooterInfo /> }
+					preserveSecondaryOnMobile={ true }
+				/>
+			) : (
+				<Container horizontalSpacing={ 0 } horizontalGap={ 0 } fluid={ false }>
+					<Col>
+						<FooterInfo />
+					</Col>
+				</Container>
+			) }
+			;
+		</AdminSectionHero>
 	);
 };
 

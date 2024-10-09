@@ -103,19 +103,21 @@ const EmptyList = () => {
 				{ __( "Don't worry about a thing", 'jetpack-protect' ) }
 			</H3>
 			<Text mb={ 4 }>
-				{ createInterpolateElement(
-					sprintf(
-						// translators: placeholder is the amount of time since the last scan, i.e. "5 minutes ago".
-						__(
-							'The last Protect scan ran <strong>%s</strong> and everything looked great.',
-							'jetpack-protect'
-						),
-						timeSinceLastScan
-					),
-					{
-						strong: <strong />,
-					}
-				) }
+				{ timeSinceLastScan
+					? createInterpolateElement(
+							sprintf(
+								// translators: placeholder is the amount of time since the last scan, i.e. "5 minutes ago".
+								__(
+									'The last Protect scan ran <strong>%s</strong> and everything looked great.',
+									'jetpack-protect'
+								),
+								timeSinceLastScan
+							),
+							{
+								strong: <strong />,
+							}
+					  )
+					: __( 'No threats have been detected by the current scan.', 'jetpack-protect' ) }
 			</Text>
 			{ hasPlan && (
 				<>
