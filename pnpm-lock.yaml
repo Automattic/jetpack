@@ -973,8 +973,8 @@ importers:
         specifier: 1.0.2
         version: 1.0.2
       '@automattic/social-previews':
-        specifier: 2.1.0-beta.7
-        version: 2.1.0-beta.7(@babel/runtime@7.24.7)(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 2.1.0-beta.8
+        version: 2.1.0-beta.8(@babel/runtime@7.24.7)(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/annotations':
         specifier: 3.9.0
         version: 3.9.0(react@18.3.1)
@@ -3777,8 +3777,8 @@ importers:
         specifier: 1.0.0
         version: 1.0.0
       '@automattic/social-previews':
-        specifier: 2.1.0-beta.7
-        version: 2.1.0-beta.7(@babel/runtime@7.24.7)(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 2.1.0-beta.8
+        version: 2.1.0-beta.8(@babel/runtime@7.24.7)(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@automattic/viewport':
         specifier: 1.0.0
         version: 1.0.0
@@ -5016,8 +5016,8 @@ packages:
   '@automattic/request-external-access@1.0.0':
     resolution: {integrity: sha512-vhN72lwPFzhCVMP1l2ODBqt7fI5jfeJz1JyBnq/AUCg9PpsJfdk4vZxhSOLhSSds8VMkU5WaNnaztkYfkkYOiA==}
 
-  '@automattic/social-previews@2.1.0-beta.7':
-    resolution: {integrity: sha512-IJpIBlN4oiPXTjwMvZOpa8BL0rQXgFsURNPTYm50W1NkuP0wYtn0Fmu159t5CvjxGBv23glokQ9P1DpX9JX4XQ==}
+  '@automattic/social-previews@2.1.0-beta.8':
+    resolution: {integrity: sha512-DakeRnV8JUhi8eD2Ft3HhrPPSnMgWnQDb0K/fuhrolNNbl/gVNng1gAF8Y8WrpGRVN5h0xdVhuszJeG6r4RotA==}
     peerDependencies:
       '@babel/runtime': ^7.24.5
       react: ^18.3.1
@@ -14292,7 +14292,7 @@ snapshots:
     dependencies:
       '@automattic/popup-monitor': 1.0.2
 
-  '@automattic/social-previews@2.1.0-beta.7(@babel/runtime@7.24.7)(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@automattic/social-previews@2.1.0-beta.8(@babel/runtime@7.24.7)(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@emotion/react': 11.13.3(@types/react@18.3.3)(react@18.3.1)
       '@wordpress/components': 28.9.0(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
