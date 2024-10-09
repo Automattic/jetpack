@@ -27,6 +27,11 @@ class My_Jetpack_Test extends Base_Test_Case {
 		$this->assertEquals( $expected, $actual );
 	}
 
+	public function test_is_correct_features_count() {
+		$total_features = 11;
+		$this->assertCount( $total_features, $this->product['features_by_tier'], 'Expected ' . $total_features . ' features, got ' . count( $this->product['features_by_tier'] ) );
+	}
+
 	public function test_all_features_have_required_keys() {
 		foreach ( $this->product['features_by_tier'] as $feature ) {
 			$this->checkForRequiredKeys( $feature );
