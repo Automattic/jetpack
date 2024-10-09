@@ -314,7 +314,7 @@ class Jetpack_VideoPress {
 			<script type="text/javascript">
 				( function( $ ) {
 					window.setTimeout( function() {
-						$('#wp-media-grid .page-title-action').click();
+						$('body.upload-php a.page-title-action[href$="media-new.php"]').click();
 					}, 500 );
 
 				}( jQuery ) );
