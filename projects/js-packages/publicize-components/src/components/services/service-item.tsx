@@ -22,7 +22,7 @@ export function ServiceItem( { service, serviceConnections }: ServicesItemProps 
 
 	const [ isPanelOpen, togglePanel ] = useReducer( state => ! state, false );
 
-	const isMastodonPanelOpen = isPanelOpen && service.ID === 'mastodon';
+	const areCustomInputsVisible = isPanelOpen && service.needsCustomInputs;
 
 	const brokenConnections = serviceConnections.filter( ( { status } ) => status === 'broken' );
 
@@ -31,9 +31,9 @@ export function ServiceItem( { service, serviceConnections }: ServicesItemProps 
 	);
 
 	const hideInitialConnectForm =
-		// For Mastodon, the initial connect form opens the panel,
+		// For services with custom inputs, the initial Connect button opens the panel,
 		// so we don't want to show it if the panel is already open
-		isMastodonPanelOpen ||
+		areCustomInputsVisible ||
 		// For services with broken connections, we want to show the "Fix connections" button
 		// which opens the panel, so we don't want to show the initial connect form when the panel is already open
 		( hasOwnBrokenConnections && isPanelOpen );
@@ -97,18 +97,20 @@ export function ServiceItem( { service, serviceConnections }: ServicesItemProps 
 			<Panel className={ styles[ 'service-panel' ] }>
 				<PanelBody opened={ isPanelOpen } onToggle={ togglePanel }>
 					<ServiceItemDetails service={ service } serviceConnections={ serviceConnections } />
-
-					{ /* Only show the connect form for Mastodon if there are no broken connections */ }
-					{ service.ID === 'mastodon' && ! hasOwnBrokenConnections ? (
-						<div className={ styles[ 'connect-form-wrapper' ] }>
-							<ConnectForm
-								service={ service }
-								displayInputs
-								isSmall={ false }
-								buttonLabel={ __( 'Connect', 'jetpack' ) }
-							/>
-						</div>
-					) : null }
+					{
+						// Connect form for services that need custom inputs
+						// should be shown only if there are no broken connections
+						service.needsCustomInputs && ! hasOwnBrokenConnections ? (
+							<div className={ styles[ 'connect-form-wrapper' ] }>
+								<ConnectForm
+									service={ service }
+									displayInputs
+									isSmall={ false }
+									buttonLabel={ __( 'Connect', 'jetpack' ) }
+								/>
+							</div>
+						) : null
+					}
 				</PanelBody>
 			</Panel>
 		</div>

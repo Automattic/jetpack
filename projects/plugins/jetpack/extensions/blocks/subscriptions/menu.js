@@ -59,13 +59,17 @@ const NewsletterMenu = () => {
 									) }
 								</p>
 								<HStack wrap={ true }>
-									<Button onClick={ openPreviewModal } variant="secondary" disabled={ isPublished }>
+									<Button
+										onClick={ openPreviewModal }
+										variant="secondary"
+										disabled={ isPublished || ! postId }
+									>
 										{ __( 'Preview email', 'jetpack' ) }
 									</Button>
 									<Button
 										onClick={ openTestEmailModal }
 										variant="secondary"
-										disabled={ isPublished }
+										disabled={ isPublished || ! postId }
 									>
 										{ __( 'Send test email', 'jetpack' ) }
 									</Button>
