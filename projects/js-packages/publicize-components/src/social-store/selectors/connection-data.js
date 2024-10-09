@@ -218,7 +218,7 @@ export function isMastodonAccountAlreadyConnected( state, username ) {
  */
 export function isBlueskyAccountAlreadyConnected( state, handle ) {
 	return getConnectionsByService( state, 'bluesky' ).some( connection => {
-		return connection.external_display === handle;
+		return connection.external_name === handle;
 	} );
 }
 
