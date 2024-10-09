@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+yBlocks: ensure registering the blocks does not trigger a warning notice with the upcoming version of WordPress, 6.7.
