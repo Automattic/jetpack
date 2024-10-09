@@ -66,6 +66,15 @@ class Jetpack_Gutenberg {
 	);
 
 	/**
+	 * Storing the contents of the preset file.
+	 *
+	 * Already been json_decode.
+	 *
+	 * @var null|object JSON decoded object after first usage.
+	 */
+	private static $preset_cache = null;
+
+	/**
 	 * Check to see if a minimum version of Gutenberg is available. Because a Gutenberg version is not available in
 	 * php if the Gutenberg plugin is not installed, if we know which minimum WP release has the required version we can
 	 * optionally fall back to that.
@@ -245,26 +254,40 @@ class Jetpack_Gutenberg {
 	/**
 	 * Checks for a given .json file in the blocks folder.
 	 *
+	 * @deprecated $$next-version$$
+	 *
 	 * @param string $preset The name of the .json file to look for.
 	 *
 	 * @return bool True if the file is found.
 	 */
 	public static function preset_exists( $preset ) {
+		_deprecated_function( __METHOD__, '$$next-version$$' );
 		return file_exists( JETPACK__PLUGIN_DIR . self::get_blocks_directory() . $preset . '.json' );
 	}
 
 	/**
-	 * Decodes JSON loaded from a preset file in the blocks folder
+	 * Decodes JSON loaded from the preset file in the blocks folder
 	 *
-	 * @param string $preset The name of the .json file to load.
+	 * @since $$next-version$$ Deprecated argument. Only one value is ever used.
+	 *
+	 * @param null $deprecated No longer used.
 	 *
 	 * @return mixed Returns an object if the file is present, or false if a valid .json file is not present.
 	 */
-	public static function get_preset( $preset ) {
-		return json_decode(
-			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
-			file_get_contents( JETPACK__PLUGIN_DIR . self::get_blocks_directory() . $preset . '.json' )
+	public static function get_preset( $deprecated = null ) {
+		if ( $deprecated ) {
+			_deprecated_argument( __METHOD__, '$$next-version', 'The $preset argument is no longer needed or used.' );
+		}
+
+		if ( self::$preset_cache ) {
+			return self::$preset_cache;
+		}
+
+		self::$preset_cache = json_decode(
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+			file_get_contents( JETPACK__PLUGIN_DIR . self::get_blocks_directory() . 'index.json' )
 		);
+		return self::$preset_cache;
 	}
 
 	/**
@@ -273,9 +296,7 @@ class Jetpack_Gutenberg {
 	 * @return array A list of blocks: eg [ 'publicize', 'markdown' ]
 	 */
 	public static function get_jetpack_gutenberg_extensions_allowed_list() {
-		$preset_extensions_manifest = self::preset_exists( 'index' )
-			? self::get_preset( 'index' )
-			: (object) array();
+		$preset_extensions_manifest = self::get_preset();
 		$blocks_variation           = self::blocks_variation();
 
 		return self::get_extensions_preset_for_variation( $preset_extensions_manifest, $blocks_variation );
