@@ -438,6 +438,6 @@ define( \'WP_CACHE\', true ); // ' . Page_Cache::ADVANCED_CACHE_SIGNATURE,
 	private static function get_wp_filesystem() {
 		require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-base.php';
 		require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-direct.php';
-		return new \WP_Filesystem_Direct( new \stdClass() );
+		return new \WP_Filesystem_Direct( null );
 	}
 }
