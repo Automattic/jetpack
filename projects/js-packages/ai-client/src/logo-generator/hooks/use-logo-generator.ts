@@ -7,6 +7,7 @@ import { useCallback } from 'react';
 /**
  * Internal dependencies
  */
+import askQuestionSync from '../../ask-question/sync.js';
 import useImageGenerator from '../../hooks/use-image-generator/index.js';
 import useSaveToMediaLibrary from '../../hooks/use-save-to-media-library/index.js';
 import requestJwt from '../../jwt/index.js';
@@ -18,6 +19,7 @@ import useRequestErrors from './use-request-errors.js';
  * Types
  */
 import type { ImageStyle, ImageStyleObject } from '../../hooks/use-image-generator/constants.js';
+import type { RoleType } from '../../types.js';
 import type { Logo, Selectors, SaveLogo, LogoGeneratorFeatureControl } from '../store/types.js';
 
 const debug = debugFactory( 'jetpack-ai-calypso:use-logo-generator' );
