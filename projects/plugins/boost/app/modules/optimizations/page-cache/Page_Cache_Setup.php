@@ -262,7 +262,7 @@ define( \'WP_CACHE\', true ); // ' . Page_Cache::ADVANCED_CACHE_SIGNATURE,
 			$content
 		);
 
-		$result = self::get_wp_filesystem()->put_contents( $config_file, $content );
+		$result = self::write_to_file( $config_file, $content );
 		if ( $result === false ) {
 			return new \WP_Error( 'wp-config-not-writable' );
 		}
@@ -424,14 +424,15 @@ define( \'WP_CACHE\', true ); // ' . Page_Cache::ADVANCED_CACHE_SIGNATURE,
 		}
 	}
 
+	private static function write_to_file( $file, $content ) {
+		$filesystem = self::get_wp_filesystem();
+		$chmod      = $filesystem->getchmod( $file );
+		return $filesystem->put_contents( $file, $content, $chmod );
+	}
+
 	private static function get_wp_filesystem() {
-		global $wp_filesystem;
-
-		if ( ! isset( $wp_filesystem ) ) {
-			require_once ABSPATH . '/wp-admin/includes/file.php';
-			WP_Filesystem();
-		}
-
-		return $wp_filesystem;
+		require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-base.php';
+		require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-direct.php';
+		return new \WP_Filesystem_Direct( new \stdClass() );
 	}
 }
