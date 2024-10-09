@@ -59,7 +59,7 @@ export function PreviewSection() {
 					} )
 			);
 		},
-		[ getService, shouldBeDisabled ]
+		[ canBeTurnedOn, getService, shouldBeDisabled ]
 	);
 
 	const { toggleConnectionById } = useDispatch( socialStore );

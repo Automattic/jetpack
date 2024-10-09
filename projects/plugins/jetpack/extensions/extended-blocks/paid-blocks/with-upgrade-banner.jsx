@@ -37,7 +37,7 @@ const withUpgradeBanner = createHigherOrderComponent(
 		const bannerContext = 'editor-canvas';
 		const hasChildrenSelected = useSelect(
 			select => select( 'core/block-editor' ).hasSelectedInnerBlock( clientId, true ),
-			[]
+			[ clientId ]
 		);
 		const { hasParentBanner } = useContext( PaidBlockContext ) || {};
 		// Banner should be not be displayed if one of its parents is already displaying a banner.

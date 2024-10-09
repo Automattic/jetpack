@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Use React `setState` instead of directly modifying `state`.

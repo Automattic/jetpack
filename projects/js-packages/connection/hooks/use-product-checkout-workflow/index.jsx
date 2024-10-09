@@ -52,7 +52,7 @@ export default function useProductCheckoutWorkflow( {
 	const [ hasCheckoutStarted, setCheckoutStarted ] = useState( false );
 	const { registerSite } = useDispatch( STORE_ID );
 
-	const blogID = useSelect( select => select( STORE_ID ).getBlogId(), [ STORE_ID ] );
+	const blogID = useSelect( select => select( STORE_ID ).getBlogId(), [] );
 	debug( 'blogID is %s', blogID ?? 'undefined' );
 
 	useBlogIdSuffix = useBlogIdSuffix && !! blogID;

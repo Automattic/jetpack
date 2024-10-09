@@ -18,7 +18,7 @@ const useModuleStatus = name => {
 				isLoadingModules: data.areModulesLoading( name ),
 			};
 		},
-		[ JETPACK_MODULES_STORE_ID ]
+		[ name ]
 	);
 
 	const { updateJetpackModuleStatus } = useDispatch( JETPACK_MODULES_STORE_ID );

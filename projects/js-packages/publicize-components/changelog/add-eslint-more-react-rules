@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Add missing deps in calls to the `useSelect` React hook.
