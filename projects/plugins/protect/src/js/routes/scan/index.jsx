@@ -3,7 +3,6 @@ import {
 	Container,
 	Col,
 	Text,
-	getIconBySlug,
 	useBreakpointMatch,
 } from '@automattic/jetpack-components';
 import { dateI18n } from '@wordpress/date';
@@ -44,8 +43,6 @@ const ScanPage = () => {
 
 	// Popover anchor
 	const [ dailyScansPopoverAnchor, setDailyScansPopoverAnchor ] = useState( null );
-
-	const Icon = getIconBySlug( 'protect' );
 
 	let currentScanStatus;
 	if ( status.error ) {
@@ -94,22 +91,20 @@ const ScanPage = () => {
 				status={ 'active' }
 				statusLabel={ __( 'Active', 'jetpack-protect' ) }
 				heading={
-					<>
-						{ numThreats > 0
-							? sprintf(
-									/* translators: %s: Total number of threats/vulnerabilities */
-									__( '%1$s %2$s found', 'jetpack-protect' ),
-									numThreats,
-									numThreats === 1 ? singularType : pluralType
-							  )
-							: sprintf(
-									/* translators: %s: Pluralized type of threat/vulnerability */
-									__( 'No %s found', 'jetpack-protect' ),
-									pluralType
-							  ) }
-						<Icon className={ styles[ 'heading-icon' ] } size={ 32 } />
-					</>
+					numThreats > 0
+						? sprintf(
+								/* translators: %s: Total number of threats/vulnerabilities */
+								__( '%1$s %2$s found', 'jetpack-protect' ),
+								numThreats,
+								numThreats === 1 ? singularType : pluralType
+						  )
+						: sprintf(
+								/* translators: %s: Pluralized type of threat/vulnerability */
+								__( 'No %s found', 'jetpack-protect' ),
+								pluralType
+						  )
 				}
+				showIcon={ true }
 				subheading={
 					<>
 						<Text ref={ setDailyScansPopoverAnchor }>
@@ -137,15 +132,7 @@ const ScanPage = () => {
 				showNavigation={ true }
 			/>
 		);
-	}, [
-		status,
-		Icon,
-		lastCheckedLocalTimestamp,
-		numThreats,
-		hasPlan,
-		isSm,
-		dailyScansPopoverAnchor,
-	] );
+	}, [ status, lastCheckedLocalTimestamp, numThreats, hasPlan, isSm, dailyScansPopoverAnchor ] );
 
 	return (
 		<OnboardingContext.Provider value={ onboardingSteps }>

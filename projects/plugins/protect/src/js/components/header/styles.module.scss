@@ -12,9 +12,9 @@
     align-items: flex-end;
 }
 
-.heading {
-    display: flex;
-    align-items: center;
+.heading-icon {
+    margin-left: var( --spacing-base ); // 8px
+    margin-bottom: calc( var( --spacing-base ) / 2 * -1 ); // -4px
 }
 
 .subheading {

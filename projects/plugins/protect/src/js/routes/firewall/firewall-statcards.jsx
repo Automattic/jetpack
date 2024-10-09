@@ -9,7 +9,7 @@ const FirewallStatCards = ( { supported, hasPlan, currentDayStats, thirtyDaysSta
 
 	const defaultArgs = useMemo(
 		() => ( {
-			className: supported !== 'on' || ! hasPlan ? styles.disabled : styles.active,
+			className: ! supported || ! hasPlan ? styles.disabled : styles.active,
 			variant: isSmall ? 'horizontal' : 'square',
 		} ),
 		[ supported, isSmall, hasPlan ]
@@ -60,7 +60,7 @@ const FirewallStatCards = ( { supported, hasPlan, currentDayStats, thirtyDaysSta
 			...defaultArgs,
 			icon: getIcon( shield ),
 			label: getLabel( 24, 'hours' ),
-			value: supported !== 'on' || ! hasPlan ? 0 : currentDayStats,
+			value: ! supported || ! hasPlan ? 0 : currentDayStats,
 		} ),
 		[ defaultArgs, getIcon, getLabel, supported, hasPlan, currentDayStats ]
 	);
@@ -70,7 +70,7 @@ const FirewallStatCards = ( { supported, hasPlan, currentDayStats, thirtyDaysSta
 			...defaultArgs,
 			icon: getIcon( chartBar ),
 			label: getLabel( 30, 'days' ),
-			value: supported !== 'on' || ! hasPlan ? 0 : thirtyDaysStats,
+			value: ! supported || ! hasPlan ? 0 : thirtyDaysStats,
 		} ),
 		[ defaultArgs, getIcon, getLabel, supported, hasPlan, thirtyDaysStats ]
 	);

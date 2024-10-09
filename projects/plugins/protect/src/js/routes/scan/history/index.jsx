@@ -1,12 +1,4 @@
-import {
-	AdminSection,
-	Container,
-	Col,
-	H3,
-	Text,
-	Title,
-	getIconBySlug,
-} from '@automattic/jetpack-components';
+import { AdminSection, Container, Col, H3, Text, Title } from '@automattic/jetpack-components';
 import { dateI18n } from '@wordpress/date';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { useCallback } from 'react';
@@ -255,8 +247,6 @@ const ScanHistoryRoute = () => {
 		return <Navigate to="/scan/history" />;
 	}
 
-	const Icon = getIconBySlug( 'protect' );
-
 	return (
 		<AdminPage>
 			{ error ? (
@@ -273,18 +263,16 @@ const ScanHistoryRoute = () => {
 					status={ 'active' }
 					statusLabel={ __( 'Active', 'jetpack-protect' ) }
 					heading={
-						<>
-							{ numAllThreats > 0
-								? sprintf(
-										/* translators: %s: Total number of threats  */
-										__( '%1$s previously active %2$s', 'jetpack-protect' ),
-										numAllThreats,
-										numAllThreats === 1 ? 'threat' : 'threats'
-								  )
-								: __( 'No previously active threats', 'jetpack-protect' ) }
-							<Icon className={ styles[ 'heading-icon' ] } size={ 32 } />
-						</>
+						numAllThreats > 0
+							? sprintf(
+									/* translators: %s: Total number of threats  */
+									__( '%1$s previously active %2$s', 'jetpack-protect' ),
+									numAllThreats,
+									numAllThreats === 1 ? 'threat' : 'threats'
+							  )
+							: __( 'No previously active threats', 'jetpack-protect' )
 					}
+					showIcon={ true }
 					subheading={
 						<Text>
 							{ oldestfirstDetected ? (

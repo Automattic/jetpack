@@ -673,7 +673,6 @@ const FirewallPage = () => {
 				statusLabel={ statusLabel }
 				heading={ heading }
 				subheading={ subheading }
-				showNavigation={ false }
 				secondary={ Secondary }
 			/>
 		);

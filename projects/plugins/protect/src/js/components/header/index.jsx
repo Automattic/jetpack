@@ -1,4 +1,11 @@
-import { AdminSectionHero, Status, H3, Container, Col } from '@automattic/jetpack-components';
+import {
+	AdminSectionHero,
+	Status,
+	H3,
+	Container,
+	Col,
+	getIconBySlug,
+} from '@automattic/jetpack-components';
 import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-connection';
 import ScanNavigation from '../scan-navigation';
 import SeventyFiveLayout from '../seventy-five-layout';
@@ -24,11 +31,14 @@ const ConnectionErrorSection = () => {
 const Header = ( {
 	status = null,
 	statusLabel,
-	showNavigation,
+	showNavigation = false,
 	heading = null,
+	showIcon = false,
 	subheading,
 	secondary,
 } ) => {
+	const Icon = getIconBySlug( 'protect' );
+
 	return (
 		<AdminSectionHero>
 			<ConnectionErrorSection />
@@ -39,6 +49,7 @@ const Header = ( {
 						{ status && <Status status={ status } label={ statusLabel } /> }
 						<H3 className={ styles.heading } mt={ 2 } mb={ 2 }>
 							{ heading }
+							{ showIcon && <Icon className={ styles[ 'heading-icon' ] } size={ 32 } /> }
 						</H3>
 						{ subheading && <div className={ styles.subheading }>{ subheading }</div> }
 						{ showNavigation && <ScanNavigation /> }
