@@ -70,6 +70,7 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 		generateLogo,
 		setContext,
 		tierPlansEnabled,
+		site,
 	} = useLogoGenerator();
 	const { featureFetchError, firstLogoPromptFetchError, clearErrors } = useRequestErrors();
 	const siteId = siteDetails?.ID;
@@ -136,14 +137,25 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 			loadLogoHistory( siteId );
 
 			// If there is any logo, we do not need to generate a first logo again.
-			if ( ! isLogoHistoryEmpty( String( siteId ) ) ) {
+			if ( hasHistory ) {
 				setLoadingState( null );
 				setIsLoadingHistory( false );
 				return;
 			}
 
-			// If the site does not require an upgrade and has no logos stored, generate the first prompt based on the site's data.
-			generateFirstLogo();
+			// If the site does not require an upgrade and has no logos stored
+			// and has title and description, generate the first prompt based on the site's data.
+			if (
+				site &&
+				site.name &&
+				site.description &&
+				site.name !== __( 'Site Title', 'jetpack-ai-client' )
+			) {
+				generateFirstLogo();
+			} else {
+				setLoadingState( null );
+				setIsLoadingHistory( false );
+			}
 		} catch ( error ) {
 			debug( 'Error fetching feature', error );
 			setLoadingState( null );
