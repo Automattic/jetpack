@@ -7,7 +7,6 @@ import {
 	getSiteFragment,
 } from '@automattic/jetpack-shared-extension-utils';
 import { useSelect } from '@wordpress/data';
-import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
@@ -16,8 +15,6 @@ import { STORE_NAME } from '../store/index.js';
  * Types
  */
 import type { Selectors } from '../store/types.js';
-
-const debug = debugFactory( 'ai-client:logo-generator:use-checkout' );
 
 export const useCheckout = () => {
 	const { nextTier, tierPlansEnabled } = useSelect( select => {
@@ -59,8 +56,6 @@ export const useCheckout = () => {
 	}
 
 	const nextTierCheckoutURL = checkoutUrl.toString();
-
-	debug( 'Next tier checkout URL: ', nextTierCheckoutURL );
 
 	return {
 		nextTierCheckoutURL,

@@ -111,6 +111,7 @@ const UseOnSiteButton: React.FC< { onApplyLogo: ( mediaId: number ) => void } > 
 			className="jetpack-ai-logo-generator-modal-presenter__action"
 			onClick={ handleClick }
 			disabled={ isSavingLogoToLibrary || ! selectedLogo?.mediaId }
+			variant="secondary"
 		>
 			<Icon icon={ <LogoIcon /> } />
 			<span className="action-text">{ __( 'Use on block', 'jetpack-ai-client' ) }</span>
@@ -135,6 +136,17 @@ const LogoFetching: React.FC = () => {
 			<ImageLoader className="jetpack-ai-logo-generator-modal-presenter__logo" />
 			<span className="jetpack-ai-logo-generator-modal-presenter__loading-text">
 				{ __( 'Fetching previous logos…', 'jetpack-ai-client' ) }
+			</span>
+		</>
+	);
+};
+
+const LogoEmpty: React.FC = () => {
+	return (
+		<>
+			<div style={ { width: 0, height: '229px' } }></div>
+			<span className="jetpack-ai-logo-generator-modal-presenter__loading-text">
+				{ __( 'Once you generate a logo, it will show up here', 'jetpack-ai-client' ) }
 			</span>
 		</>
 	);
@@ -194,7 +206,9 @@ export const LogoPresenter: React.FC< LogoPresenterProps > = ( {
 
 	let logoContent: React.ReactNode;
 
-	if ( ! logo ) {
+	if ( ! logo && ! isRequestingImage ) {
+		logoContent = <LogoEmpty />;
+	} else if ( ! logo ) {
 		debug( 'No logo provided, history still loading or logo being generated' );
 		logoContent = <LogoFetching />;
 	} else if ( loading || isRequestingImage ) {
