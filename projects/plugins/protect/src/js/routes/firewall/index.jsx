@@ -322,7 +322,7 @@ const FirewallPage = () => {
 									mb={ 3 }
 								>
 									{ __(
-										'Turn on Jetpack Firewall to automatically protect your site with the latest security rules.',
+										'Turn on Automatic firewall protection to apply the latest security rules.',
 										'jetpack-protect'
 									) }
 								</Text>
