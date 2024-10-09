@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+WAF: reduce amount of classes autoloaded during standalone mode execution
