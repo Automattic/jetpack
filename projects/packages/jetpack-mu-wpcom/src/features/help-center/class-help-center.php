@@ -52,7 +52,7 @@ class Help_Center {
 	/**
 	 * Creates instance.
 	 *
-	 * @return \A8C\FSE\Help_Center
+	 * @return \A8C\FSE\Help_Center|void
 	 */
 	public static function init() {
 		if ( defined( 'MU_WPCOM_HELP_CENTER' ) && MU_WPCOM_HELP_CENTER ) {
