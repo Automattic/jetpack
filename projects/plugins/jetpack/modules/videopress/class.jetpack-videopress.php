@@ -268,6 +268,7 @@ class Jetpack_VideoPress {
 			'post.php',
 			'upload.php',
 			'customize.php',
+			'media-new.php',
 		);
 
 		// Only load on the post, new post, or upload pages.
@@ -315,6 +316,7 @@ class Jetpack_VideoPress {
 				( function( $ ) {
 					window.setTimeout( function() {
 						$('body.upload-php a.page-title-action[href$="media-new.php"]').click();
+						console.log('Test');
 					}, 500 );
 
 				}( jQuery ) );
