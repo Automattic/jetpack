@@ -19,7 +19,7 @@ type BoostPricingTableProps = {
 };
 
 type BoostPricingTablesFeaturesListProps = {
-	features: {
+	feature: {
 		included: boolean;
 		description?: string;
 		info?: {
@@ -30,8 +30,8 @@ type BoostPricingTablesFeaturesListProps = {
 	};
 };
 
-const BoostPricingTablesFeaturesList = ( { features }: BoostPricingTablesFeaturesListProps ) => {
-	const { description, included, info } = features;
+const BoostPricingTablesFeaturesList = ( { feature }: BoostPricingTablesFeaturesListProps ) => {
+	const { description, included, info } = feature;
 
 	let labelText;
 	if ( description ) {
@@ -117,7 +117,7 @@ export const BoostPricingTable = ( {
 						...featuresByTier.map( ( tierFeature, mapIndex ) => (
 							<BoostPricingTablesFeaturesList
 								key={ mapIndex }
-								features={ tierFeature.tiers.upgraded }
+								feature={ tierFeature.tiers.upgraded }
 							/>
 						) ),
 					] }
@@ -142,7 +142,7 @@ export const BoostPricingTable = ( {
 							</Button>
 						</PricingTableHeader>,
 						...featuresByTier.map( ( { tiers }, index ) => (
-							<BoostPricingTablesFeaturesList key={ index } features={ tiers.free } />
+							<BoostPricingTablesFeaturesList key={ index } feature={ tiers.free } />
 						) ),
 					] }
 				</PricingTableColumn>
