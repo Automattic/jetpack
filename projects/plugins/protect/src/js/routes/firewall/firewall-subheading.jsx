@@ -81,7 +81,8 @@ const FirewallSubheading = ( {
 			  )
 			: __(
 					'The free version of the firewall does not receive updates to automatic security rules.',
-					'jetpack-protect'
+					'jetpack-protect',
+					/* dummy arg to avoid bad minification */ 0
 			  );
 	}, [ automaticRulesAvailable ] );
 
