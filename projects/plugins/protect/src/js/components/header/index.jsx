@@ -1,6 +1,6 @@
 import { AdminSectionHero, Status, H3, Container, Col } from '@automattic/jetpack-components';
 import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-connection';
-import ScanNavigation from '../scan-navigation/scan-navigation';
+import ScanNavigation from '../scan-navigation';
 import SeventyFiveLayout from '../seventy-five-layout';
 import styles from './styles.module.scss';
 
