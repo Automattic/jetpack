@@ -1,6 +1,6 @@
 /* global jetpack_redirects */
 
-import { GetRedirectUrlArgs, QueryVars } from './types';
+import { GetRedirectUrlArgs, QueryVars } from './types.js';
 
 /**
  * Builds an URL using the jetpack.com/redirect/ service
