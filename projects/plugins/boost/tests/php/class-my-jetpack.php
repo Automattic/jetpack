@@ -27,56 +27,19 @@ class My_Jetpack_Test extends Base_Test_Case {
 		$this->assertEquals( $expected, $actual );
 	}
 
-	public function test_is_correct_features_by_tier_auto_css_optimization() {
-		$this->assertHasRequiredKeys( $this->product['features_by_tier'][0] );
-	}
-
-	public function test_is_correct_features_by_tier_auto_image_size_analysis() {
-		$this->assertHasRequiredKeys( $this->product['features_by_tier'][1] );
-	}
-
-	public function test_is_correct_features_by_tier_historical_performance_scores() {
-		$this->assertHasRequiredKeys( $this->product['features_by_tier'][2] );
-	}
-
-	public function test_is_correct_features_by_tier_dedicated_email_support() {
-		$this->assertHasRequiredKeys( $this->product['features_by_tier'][3] );
-	}
-
-	public function test_is_correct_features_by_tier_page_cache() {
-		$this->assertHasRequiredKeys( $this->product['features_by_tier'][4] );
-	}
-
-	public function test_is_correct_features_by_tier_image_cdn_quality_settings() {
-		$this->assertHasRequiredKeys( $this->product['features_by_tier'][5] );
-	}
-
-	public function test_is_correct_features_by_tier_image_cdn_auto_resize_lazy_images() {
-		$this->assertHasRequiredKeys( $this->product['features_by_tier'][6] );
-	}
-
-	public function test_is_correct_features_by_tier_image_cdn() {
-		$this->assertHasRequiredKeys( $this->product['features_by_tier'][7] );
-	}
-
-	public function test_is_correct_features_by_tier_image_guide() {
-		$this->assertHasRequiredKeys( $this->product['features_by_tier'][8] );
-	}
-
-	public function test_is_correct_features_by_tier_defer_non_essential_javascript() {
-		$this->assertHasRequiredKeys( $this->product['features_by_tier'][9] );
-	}
-
-	public function test_is_correct_features_by_tier_concatenate_js_and_css() {
-		$this->assertHasRequiredKeys( $this->product['features_by_tier'][10] );
+	public function test_all_features_have_required_keys() {
+		foreach ( $this->product['features_by_tier'] as $feature ) {
+			$this->checkForRequiredKeys( $feature );
+		}
 	}
 
 	/**
-	 * Assert that the feature has the keys required to render the UI.
+	 * Checks that a feature has the required keys
+	 * for rendering the UI.
 	 *
-	 * @param array $feature The feature to assert.
+	 * @param array $feature The feature to check.
 	 */
-	private function assertHasRequiredKeys( $feature ) {
+	private function checkForRequiredKeys( $feature ) {
 		$this->assertIsArray( $feature );
 		$this->assertIsString( $feature['name'] );
 		$this->assertIsArray( $feature['info'] );
