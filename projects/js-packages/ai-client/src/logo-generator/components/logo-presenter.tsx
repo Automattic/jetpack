@@ -144,7 +144,7 @@ const LogoFetching: React.FC = () => {
 const LogoEmpty: React.FC = () => {
 	return (
 		<>
-			<div className="jetpack-ai-logo-generator-modal__loader jetpack-ai-logo-generator-modal-presenter__logo"></div>
+			<div style={ { width: 0, height: '229px' } }></div>
 			<span className="jetpack-ai-logo-generator-modal-presenter__loading-text">
 				{ __( 'Once you generate a logo, it will show up here', 'jetpack-ai-client' ) }
 			</span>
