@@ -1,21 +1,55 @@
-import { type PricingSchema, usePricing } from '$lib/stores/pricing';
+import { usePricing } from '$lib/stores/pricing';
+import { useProduct } from '$lib/stores/product';
 import {
 	Button,
 	Notice,
 	PricingTable,
 	PricingTableColumn,
 	PricingTableHeader,
+	PricingTableItem,
 	ProductPrice,
 } from '@automattic/jetpack-components';
-import { boostFeatureList } from './lib/features';
 import { __ } from '@wordpress/i18n';
 
 type BoostPricingTableProps = {
-	pricing: PricingSchema;
 	onPremiumCTA: () => void;
 	onFreeCTA: () => void;
 	chosenFreePlan: boolean;
 	chosenPaidPlan: boolean;
+};
+
+type BoostPricingTablesFeaturesListProps = {
+	feature: {
+		included: boolean;
+		description?: string;
+		info?: {
+			title?: string;
+			content: string;
+			class?: string;
+		};
+	};
+};
+
+const BoostPricingTablesFeaturesList = ( { feature }: BoostPricingTablesFeaturesListProps ) => {
+	const { description, included, info } = feature;
+
+	let labelText;
+	if ( description ) {
+		labelText = <strong>{ description }</strong>;
+	}
+
+	return (
+		<PricingTableItem
+			isIncluded={ included }
+			label={ labelText }
+			tooltipTitle={ info?.title }
+			tooltipInfo={
+				// eslint-disable-next-line react/no-danger
+				info?.content ? <div dangerouslySetInnerHTML={ { __html: info?.content } } /> : null
+			}
+			tooltipClassName={ info?.class }
+		/>
+	);
 };
 
 export const BoostPricingTable = ( {
@@ -25,6 +59,7 @@ export const BoostPricingTable = ( {
 	chosenPaidPlan,
 }: BoostPricingTableProps ) => {
 	const pricing = usePricing();
+	const product = useProduct();
 
 	// If the first year discount ends, we want to show the default label.
 	const legend = pricing?.isIntroductoryOffer
@@ -32,6 +67,7 @@ export const BoostPricingTable = ( {
 		: undefined;
 
 	const isDiscounted = pricing?.priceBefore && pricing?.priceBefore > pricing?.priceAfter;
+	const featuresByTier = product?.features_by_tier ?? [];
 
 	return (
 		<>
@@ -49,7 +85,15 @@ export const BoostPricingTable = ( {
 
 			<PricingTable
 				title={ __( 'The easiest speed optimization plugin for WordPress', 'jetpack-boost' ) }
-				items={ boostFeatureList.map( feature => feature.description ) }
+				items={ featuresByTier.map( ( { name, info } ) => ( {
+					name,
+					tooltipTitle: info?.title,
+					tooltipInfo: info?.content ? (
+						// eslint-disable-next-line react/no-danger
+						<div dangerouslySetInnerHTML={ { __html: info?.content } } />
+					) : null,
+					tooltipPlacement: 'bottom-start',
+				} ) ) }
 			>
 				<PricingTableColumn primary>
 					{ [
@@ -70,7 +114,12 @@ export const BoostPricingTable = ( {
 								{ __( 'Get Boost', 'jetpack-boost' ) }
 							</Button>
 						</PricingTableHeader>,
-						...boostFeatureList.map( feature => feature.premium ),
+						...featuresByTier.map( ( tierFeature, mapIndex ) => (
+							<BoostPricingTablesFeaturesList
+								key={ mapIndex }
+								feature={ tierFeature.tiers.upgraded }
+							/>
+						) ),
 					] }
 				</PricingTableColumn>
 				<PricingTableColumn>
@@ -92,7 +141,9 @@ export const BoostPricingTable = ( {
 								{ __( 'Start for free', 'jetpack-boost' ) }
 							</Button>
 						</PricingTableHeader>,
-						...boostFeatureList.map( feature => feature.free ),
+						...featuresByTier.map( ( { tiers }, index ) => (
+							<BoostPricingTablesFeaturesList key={ index } feature={ tiers.free } />
+						) ),
 					] }
 				</PricingTableColumn>
 			</PricingTable>
