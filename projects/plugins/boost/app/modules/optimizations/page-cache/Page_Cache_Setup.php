@@ -262,8 +262,8 @@ define( \'WP_CACHE\', true ); // ' . Page_Cache::ADVANCED_CACHE_SIGNATURE,
 			$content
 		);
 
-		$result = Filesystem_Utils::write_to_file( $config_file, $content );
-		if ( $result instanceof Boost_Cache_Error ) {
+		$result = self::get_wp_filesystem()->put_contents( $config_file, $content );
+		if ( $result === false ) {
 			return new \WP_Error( 'wp-config-not-writable' );
 		}
 		self::clear_opcache( $config_file );
@@ -422,5 +422,16 @@ define( \'WP_CACHE\', true ); // ' . Page_Cache::ADVANCED_CACHE_SIGNATURE,
 		if ( function_exists( 'opcache_invalidate' ) ) {
 			opcache_invalidate( $file, true );
 		}
+	}
+
+	private static function get_wp_filesystem() {
+		global $wp_filesystem;
+
+		if ( ! isset( $wp_filesystem ) ) {
+			require_once ABSPATH . '/wp-admin/includes/file.php';
+			WP_Filesystem();
+		}
+
+		return $wp_filesystem;
 	}
 }
