@@ -357,11 +357,21 @@ final class Image_CDN {
 				continue;
 			}
 
+			// Identify image source.
+			$src_orig = $processor->get_attribute( 'src' );
+			$src      = $src_orig;
+
 			/*
-			 * Only examine tags that are considered an image. If encountering
-			 * a closing tag then this is not the image being sought.
+			 * Only examine tags that are considered an image,
+			 * with a valid src attribute.
+			 * If encountering a closing tag then this is not the image being sought.
 			 */
-			if ( $processor->is_tag_closer() || ! in_array( $processor->get_tag(), $image_tags, true ) ) {
+			if (
+				$processor->is_tag_closer()
+				|| ! in_array( $processor->get_tag(), $image_tags, true )
+				|| ! is_string( $src )
+				|| $src === ''
+			) {
 				continue;
 			}
 
@@ -396,10 +406,6 @@ final class Image_CDN {
 
 			// Flag if we need to munge a fullsize URL.
 			$fullsize_url = false;
-
-			// Identify image source.
-			$src_orig = $processor->get_attribute( 'src' );
-			$src      = $src_orig;
 
 			/**
 			 * Allow specific images to be skipped by Photon.
@@ -680,8 +686,7 @@ final class Image_CDN {
 					}
 				}
 			} elseif (
-				is_string( $src )
-				&& preg_match( '#^http(s)?://i[\d]{1}.wp.com#', $src )
+				preg_match( '#^http(s)?://i[\d]{1}.wp.com#', $src )
 				&& is_string( $nearest_preceding_href )
 				&& self::validate_image_url( $nearest_preceding_href )
 			) {
