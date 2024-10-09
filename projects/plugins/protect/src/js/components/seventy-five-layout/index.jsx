@@ -10,13 +10,24 @@ import React from 'react';
  * in large lg viewport size.
  *
  * @param {object}          props                           - Component props
+ * @param {number}          props.spacing                   - Horizontal spacing
+ * @param {number}          props.gap                       - Horizontal gap
  * @param {React.ReactNode} props.main                      - Main section component
  * @param {React.ReactNode} props.secondary                 - Secondary section component
  * @param {boolean}         props.preserveSecondaryOnMobile - Whether to show secondary section on mobile
  * @param {boolean}         props.fluid                     - Whether to use fluid layout
  * @return {React.ReactNode} - React meta-component
  */
-const SeventyFiveLayout = ( { main, secondary, preserveSecondaryOnMobile = false, fluid } ) => {
+const SeventyFiveLayout = ( {
+	spacing = 0,
+	gap = 0,
+	main,
+	mainClassName,
+	secondary,
+	secondaryClassName,
+	preserveSecondaryOnMobile = false,
+	fluid,
+} ) => {
 	const [ isSmall, isLarge ] = useBreakpointMatch( [ 'sm', 'lg' ] );
 
 	/*
@@ -27,14 +38,14 @@ const SeventyFiveLayout = ( { main, secondary, preserveSecondaryOnMobile = false
 	const hideSecondarySection = ! preserveSecondaryOnMobile && isSmall;
 
 	return (
-		<Container horizontalSpacing={ 0 } horizontalGap={ 0 } fluid={ fluid }>
+		<Container horizontalSpacing={ spacing } horizontalGap={ gap } fluid={ fluid }>
 			{ ! hideSecondarySection && (
 				<>
-					<Col sm={ 12 } md={ 4 } lg={ 6 }>
+					<Col className={ mainClassName } sm={ 12 } md={ 4 } lg={ 6 }>
 						{ main }
 					</Col>
 					{ isLarge && <Col lg={ 1 } /> }
-					<Col sm={ 12 } md={ 4 } lg={ 5 }>
+					<Col className={ secondaryClassName } sm={ 12 } md={ 4 } lg={ 5 }>
 						{ secondary }
 					</Col>
 				</>

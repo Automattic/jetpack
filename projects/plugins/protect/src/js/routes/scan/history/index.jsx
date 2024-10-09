@@ -1,9 +1,19 @@
-import { AdminSectionHero, Container, Col, H3, Text, Title } from '@automattic/jetpack-components';
+import {
+	AdminSection,
+	Container,
+	Col,
+	H3,
+	Text,
+	Title,
+	getIconBySlug,
+} from '@automattic/jetpack-components';
+import { dateI18n } from '@wordpress/date';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import { Navigate, useParams } from 'react-router-dom';
 import AdminPage from '../../../components/admin-page';
-import ErrorScreen from '../../../components/error-section';
+import ErrorHeader from '../../../components/error-header';
+import Header from '../../../components/header';
 import ProtectCheck from '../../../components/protect-check-icon';
 import ScanFooter from '../../../components/scan-footer';
 import ThreatsNavigation from '../../../components/threats-list/navigation';
@@ -12,7 +22,6 @@ import useThreatsList from '../../../components/threats-list/use-threats-list';
 import useAnalyticsTracks from '../../../hooks/use-analytics-tracks';
 import usePlan from '../../../hooks/use-plan';
 import useProtectData from '../../../hooks/use-protect-data';
-import ScanSectionHeader from '../scan-section-header';
 import StatusFilters from './status-filters';
 import styles from './styles.module.scss';
 
@@ -45,6 +54,13 @@ const ScanHistoryRoute = () => {
 		filter: { status: 'ignored', key: selected },
 	} );
 	const { threats: numIgnored } = ignoredCounts.current;
+
+	let oldestfirstDetected = null;
+	if ( list.length > 0 ) {
+		oldestfirstDetected = list.reduce( ( oldest, current ) =>
+			new Date( current.firstDetected ) < new Date( oldest.firstDetected ) ? current : oldest
+		).firstDetected;
+	}
 
 	/**
 	 * Get the title for the threats list based on the selected filters and the amount of threats.
@@ -239,37 +255,57 @@ const ScanHistoryRoute = () => {
 		return <Navigate to="/scan/history" />;
 	}
 
+	const Icon = getIconBySlug( 'protect' );
+
 	return (
 		<AdminPage>
-			<AdminSectionHero>
-				<Container horizontalSpacing={ 3 } horizontalGap={ 4 }>
-					<Col>
-						<ScanSectionHeader
-							subtitle={ error ? null : __( 'Threat history', 'jetpack-protect' ) }
-							title={
-								error
-									? null
-									: sprintf(
-											/* translators: %s: Total number of threats  */
-											__( '%1$s previously active %2$s', 'jetpack-protect' ),
-											numAllThreats,
-											numAllThreats === 1 ? 'threat' : 'threats'
-									  )
-							}
-						/>
-					</Col>
-					{ error ? (
-						<Col>
-							<ErrorScreen
-								baseErrorMessage={ __(
-									"An error occurred loading your site's threat history.",
-									'jetpack-protect'
-								) }
-								errorMessage={ error.message }
-								errorCode={ error.code }
-							/>
-						</Col>
-					) : (
+			{ error ? (
+				<ErrorHeader
+					baseErrorMessage={ __(
+						'We are having problems loading your history.',
+						'jetpack-protect'
+					) }
+					errorMessage={ error?.message }
+					errorCode={ error?.code }
+				/>
+			) : (
+				<Header
+					status={ 'active' }
+					statusLabel={ __( 'Active', 'jetpack-protect' ) }
+					heading={
+						<>
+							{ numAllThreats > 0
+								? sprintf(
+										/* translators: %s: Total number of threats  */
+										__( '%1$s previously active %2$s', 'jetpack-protect' ),
+										numAllThreats,
+										numAllThreats === 1 ? 'threat' : 'threats'
+								  )
+								: __( 'No previously active threats', 'jetpack-protect' ) }
+							<Icon className={ styles[ 'heading-icon' ] } size={ 32 } />
+						</>
+					}
+					subheading={
+						<Text>
+							{ oldestfirstDetected ? (
+								<span className={ styles[ 'subheading-content' ] }>
+									{ sprintf(
+										/* translators: %s: Oldest first detected date */
+										__( '%s - Today', 'jetpack-protect' ),
+										dateI18n( 'F jS g:i A', oldestfirstDetected )
+									) }
+								</span>
+							) : (
+								__( 'Most recent results', 'jetpack-protect' )
+							) }
+						</Text>
+					}
+					showNavigation={ true }
+				/>
+			) }
+			{ ( ! error || ( error && numAllThreats > 0 ) ) && (
+				<AdminSection>
+					<Container horizontalSpacing={ 3 } horizontalGap={ 4 }>
 						<Col>
 							<Container fluid horizontalSpacing={ 0 } horizontalGap={ 3 }>
 								<Col lg={ 4 }>
@@ -316,9 +352,9 @@ const ScanHistoryRoute = () => {
 								</Col>
 							</Container>
 						</Col>
-					) }
-				</Container>
-			</AdminSectionHero>
+					</Container>
+				</AdminSection>
+			) }
 			<ScanFooter />
 		</AdminPage>
 	);
