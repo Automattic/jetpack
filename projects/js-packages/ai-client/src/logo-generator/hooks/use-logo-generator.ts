@@ -87,6 +87,10 @@ const useLogoGenerator = () => {
 
 	const aiAssistantFeatureData = getAiAssistantFeature( siteId );
 	const logoGenerationCost = aiAssistantFeatureData?.costs?.[ 'jetpack-ai-logo-generator' ]?.logo;
+	const logoGeneratorControl = aiAssistantFeatureData?.featuresControl?.[
+		'logo-generator'
+	] as LogoGeneratorFeatureControl;
+	const imageStyles: Array< ImageStyleObject > = logoGeneratorControl?.styles;
 
 	const generateFirstPrompt = useCallback(
 		async function (): Promise< string > {
@@ -367,11 +371,6 @@ User request:${ prompt }`;
 		},
 		[ logoGenerationCost, increaseAiAssistantRequestsCount, saveLogo, storeLogo, generateImage ]
 	);
-
-	const logoGeneratorControl = aiAssistantFeatureData?.featuresControl?.[
-		'logo-generator'
-	] as LogoGeneratorFeatureControl;
-	const imageStyles: Array< ImageStyleObject > = logoGeneratorControl?.styles;
 
 	return {
 		logos,

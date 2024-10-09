@@ -17,6 +17,8 @@ export const IMAGE_STYLE_3D_MODEL = '3d-model';
 export const IMAGE_STYLE_PIXEL_ART = 'pixel-art';
 export const IMAGE_STYLE_TEXTURE = 'texture';
 export const IMAGE_STYLE_MONTY_PYTHON = 'monty-python';
+export const IMAGE_STYLE_AUTO = 'auto';
+export const IMAGE_STYLE_NONE = 'none';
 
 export type ImageStyle =
 	| typeof IMAGE_STYLE_ENHANCE
@@ -36,7 +38,9 @@ export type ImageStyle =
 	| typeof IMAGE_STYLE_3D_MODEL
 	| typeof IMAGE_STYLE_PIXEL_ART
 	| typeof IMAGE_STYLE_TEXTURE
-	| typeof IMAGE_STYLE_MONTY_PYTHON;
+	| typeof IMAGE_STYLE_MONTY_PYTHON
+	| typeof IMAGE_STYLE_AUTO
+	| typeof IMAGE_STYLE_NONE;
 
 export type ImageStyleObject = {
 	label: string;
