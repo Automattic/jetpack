@@ -34,6 +34,7 @@ const KeyboardNavigation: React.FunctionComponent< Props > = ( {
 			onEscape: onMinimize,
 			onArrowRight: onNextStepProgression,
 			onArrowLeft: onPreviousStepProgression,
+			tourContainerRef,
 		} );
 		useFocusTrap( tourContainerRef );
 
@@ -44,7 +45,7 @@ const KeyboardNavigation: React.FunctionComponent< Props > = ( {
 	 * Minimize Tour Nav
 	 */
 	function MinimizedTourNav() {
-		useKeydownHandler( { onEscape: onDismiss( 'esc-key-minimized' ) } );
+		useKeydownHandler( { onEscape: onDismiss( 'esc-key-minimized' ), tourContainerRef } );
 
 		return null;
 	}
