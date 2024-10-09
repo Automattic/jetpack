@@ -262,7 +262,7 @@ define( \'WP_CACHE\', true ); // ' . Page_Cache::ADVANCED_CACHE_SIGNATURE,
 			$content
 		);
 
-		$result = self::write_to_file( $config_file, $content );
+		$result = self::write_to_file_direct( $config_file, $content );
 		if ( $result === false ) {
 			return new \WP_Error( 'wp-config-not-writable' );
 		}
@@ -424,7 +424,7 @@ define( \'WP_CACHE\', true ); // ' . Page_Cache::ADVANCED_CACHE_SIGNATURE,
 		}
 	}
 
-	private static function write_to_file( $file, $content ) {
+	private static function write_to_file_direct( $file, $content ) {
 		$filesystem = self::get_wp_filesystem();
 		$chmod      = $filesystem->getchmod( $file );
 		if ( $chmod === false ) {
