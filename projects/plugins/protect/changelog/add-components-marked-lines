@@ -1,4 +1,4 @@
-Significance: minor
-Type: added
+Significance: patch
+Type: changed
 
-Add MarkedLines component
+Use MarkedLines component from package
