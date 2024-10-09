@@ -427,6 +427,11 @@ define( \'WP_CACHE\', true ); // ' . Page_Cache::ADVANCED_CACHE_SIGNATURE,
 	private static function write_to_file( $file, $content ) {
 		$filesystem = self::get_wp_filesystem();
 		$chmod      = $filesystem->getchmod( $file );
+		if ( $chmod === false ) {
+			$chmod = 0644; // Default to a common permission for files
+		} else {
+			$chmod = intval( '0' . $chmod, 8 ); // Ensure leading zero
+		}
 		return $filesystem->put_contents( $file, $content, $chmod );
 	}
 
