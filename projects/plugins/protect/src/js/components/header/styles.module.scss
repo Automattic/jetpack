@@ -1,0 +1,26 @@
+.header-main {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+.header-secondary {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-end;
+}
+
+.heading {
+    display: flex;
+    align-items: center;
+}
+
+.subheading {
+    width: 100%;
+}
+
+.connection-error-col {
+	margin-top: calc( var( --spacing-base ) * 3 + 1px ); // 25px
+}

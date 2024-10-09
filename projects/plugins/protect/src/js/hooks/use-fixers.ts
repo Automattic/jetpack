@@ -13,11 +13,7 @@ export const fixerTimestampIsStale = ( lastUpdatedTimestamp: string ) => {
 };
 
 export const fixerStatusIsStale = ( fixerStatus: ThreatFixStatus ) => {
-	return (
-		'status' in fixerStatus &&
-		fixerStatus.status === 'in_progress' &&
-		fixerTimestampIsStale( fixerStatus.last_updated )
-	);
+	return fixerStatus.status === 'in_progress' && fixerTimestampIsStale( fixerStatus.last_updated );
 };
 
 type UseFixersResult = {
@@ -44,20 +40,13 @@ export default function useFixers(): UseFixersResult {
 
 	const isThreatFixInProgress = useCallback(
 		( threatId: number ) => {
-			if ( fixersStatus.ok === false ) {
-				return false;
-			}
-			const threatFix = fixersStatus.threats?.[ threatId ];
-			return threatFix && 'status' in threatFix && threatFix.status === 'in_progress';
+			return fixersStatus?.threats?.[ threatId ]?.status === 'in_progress';
 		},
 		[ fixersStatus ]
 	);
 
 	const isThreatFixStale = useCallback(
 		( threatId: number ) => {
-			if ( fixersStatus.ok === false ) {
-				return false;
-			}
 			const threatFixStatus = fixersStatus?.threats?.[ threatId ];
 			return threatFixStatus ? fixerStatusIsStale( threatFixStatus ) : false;
 		},

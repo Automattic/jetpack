@@ -1,5 +1,5 @@
 import { useConnection } from '@automattic/jetpack-connection';
-import { useQuery, UseQueryResult, useQueryClient } from '@tanstack/react-query';
+import { useQuery, UseQueryResult } from '@tanstack/react-query';
 import camelize from 'camelize';
 import API from '../../api';
 import {
@@ -9,31 +9,6 @@ import {
 } from '../../constants';
 import { ScanStatus } from '../../types/scans';
 import { QUERY_SCAN_STATUS_KEY } from './../../constants';
-
-export const isRequestedScanNotStarted = ( status: ScanStatus ) => {
-	if ( status.status !== 'idle' ) {
-		return false;
-	}
-
-	const lastRequestedScanTimestamp = Number( localStorage.getItem( 'last_requested_scan' ) );
-
-	if ( ! lastRequestedScanTimestamp ) {
-		return false;
-	}
-
-	if ( lastRequestedScanTimestamp < Date.now() - 5 * 60 * 1000 ) {
-		return false;
-	}
-
-	const lastCheckedTimestamp = new Date( status.lastChecked + ' UTC' ).getTime();
-
-	const isScanCompleted = lastCheckedTimestamp > lastRequestedScanTimestamp;
-	if ( isScanCompleted ) {
-		return false;
-	}
-
-	return true;
-};
 
 export const isScanInProgress = ( status: ScanStatus ) => {
 	// If there has never been a scan, and the scan status is idle or unavailable, then we must still be getting set up.
@@ -57,7 +32,6 @@ export const isScanInProgress = ( status: ScanStatus ) => {
 export default function useScanStatusQuery( {
 	usePolling,
 }: { usePolling?: boolean } = {} ): UseQueryResult< ScanStatus > {
-	const queryClient = useQueryClient();
 	const { isRegistered } = useConnection( {
 		autoTrigger: false,
 		from: 'protect',
@@ -67,18 +41,7 @@ export default function useScanStatusQuery( {
 
 	return useQuery( {
 		queryKey: [ QUERY_SCAN_STATUS_KEY ],
-		queryFn: async () => {
-			// Fetch scan status data from the API
-			const data = await API.getScanStatus();
-
-			// Return cached data if conditions are met
-			if ( isRequestedScanNotStarted( data ) ) {
-				return queryClient.getQueryData( [ QUERY_SCAN_STATUS_KEY ] );
-			}
-
-			// If cached data is not applicable or expired, return the fresh API data
-			return data;
-		},
+		queryFn: API.getScanStatus,
 		initialData: camelize( window?.jetpackProtectInitialState?.status ),
 		enabled: isRegistered,
 		refetchInterval( query ) {
