@@ -229,7 +229,12 @@ function render_image( $media ) {
  * @return string The CSS class which will display a cropped image
  */
 function get_image_crop_class( $width, $height ) {
-	$crop_class          = '';
+	$crop_class = '';
+	$width      = (int) $width;
+	$height     = (int) $height;
+	if ( ! $width || ! $height ) {
+		return $crop_class;
+	}
 	$media_aspect_ratio  = $width / $height;
 	$target_aspect_ratio = EMBED_SIZE[0] / EMBED_SIZE[1];
 	if ( $media_aspect_ratio >= $target_aspect_ratio ) {

@@ -11,7 +11,6 @@ import {
 	useBreakpointMatch,
 	ActionButton,
 } from '@automattic/jetpack-components';
-import { useExperiment } from '@automattic/jetpack-explat';
 import clsx from 'clsx';
 import { useContext, useEffect, useLayoutEffect, useState } from 'react';
 /*
@@ -77,7 +76,10 @@ const GlobalNotice = ( { message, title, options } ) => {
  * @return {object} The MyJetpackScreen component.
  */
 export default function MyJetpackScreen() {
-	useExperiment( 'explat_test_jetpack_implementation_aa_test' );
+	const [ welcomeFlowExperiment, setWelcomeFlowExperiment ] = useState( {
+		isLoading: false,
+		variation: 'control',
+	} );
 	useNotificationWatcher();
 	const { redBubbleAlerts } = getMyJetpackWindowInitialState();
 	const { jetpackManage = {}, adminUrl } = getMyJetpackWindowInitialState();
@@ -143,7 +145,10 @@ export default function MyJetpackScreen() {
 				</Container>
 			) }
 			{ isWelcomeBannerVisible ? (
-				<WelcomeFlow>
+				<WelcomeFlow
+					welcomeFlowExperiment={ welcomeFlowExperiment }
+					setWelcomeFlowExperiment={ setWelcomeFlowExperiment }
+				>
 					{ noticeMessage && siteIsRegistered && (
 						<GlobalNotice
 							message={ noticeMessage }
@@ -165,7 +170,11 @@ export default function MyJetpackScreen() {
 					</Container>
 				)
 			) }
-			{ ! isWelcomeBannerVisible && isSectionVisible && <EvaluationRecommendations /> }
+			{ ! isWelcomeBannerVisible && isSectionVisible && (
+				<EvaluationRecommendations
+					welcomeFlowExperimentVariation={ welcomeFlowExperiment.variation }
+				/>
+			) }
 
 			<ProductCardsSection />
 

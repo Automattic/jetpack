@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Deferred JS: Exclude all scripts produced by a shortcode.
