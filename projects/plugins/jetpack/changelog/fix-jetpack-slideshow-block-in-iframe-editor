@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Slideshow block: Render correctly in iframed editor.
