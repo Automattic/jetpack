@@ -4,7 +4,6 @@ namespace Automattic\Jetpack_Boost\Admin;
 
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
-
 /**
  * Handle the configuration constants.
  *
