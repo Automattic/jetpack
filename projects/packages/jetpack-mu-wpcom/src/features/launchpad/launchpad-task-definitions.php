@@ -2795,5 +2795,15 @@ function wpcom_launchpad_get_latest_draft_id() {
  * @return bool Will return true if the primary domain is a WPCOM domain.
  */
 function wpcom_launchpad_is_ssl_task_disabled() {
-	return false;
+	$blog_id = get_current_blog_id();
+
+	$primary_domain_mapping = Domain_Mapping::find_primary_by_blog_id( $blog_id );
+	$is_wpcom_domain        = true;
+
+	if ( null !== $primary_domain_mapping ) {
+		$wpcom_domain    = new WPCOM_Domain( $primary_domain_mapping->get_domain_name() );
+		$is_wpcom_domain = $wpcom_domain->is_wpcom_tld();
+	}
+
+	return $is_wpcom_domain;
 }
