@@ -51,10 +51,6 @@ class Test_Admin_Color_Schemes extends BaseTestCase {
 			)
 		);
 
-		if ( 'test_enqueue_core_color_schemes_overrides_for_classic_sites' === $this->getName() ) {
-			update_option( 'wpcom_admin_interface', 'wp-admin' );
-		}
-
 		new Admin_Color_Schemes();
 
 		do_action( 'rest_api_init' );
@@ -149,27 +145,5 @@ class Test_Admin_Color_Schemes extends BaseTestCase {
 
 		$this->assertSame( WP_Http::FORBIDDEN, $response->get_status() );
 		$this->assertSame( 'rest_cannot_edit', $data['code'] );
-	}
-
-	public function test_enqueue_core_color_schemes_overrides_for_default_and_self_hosted_sites() {
-		wp_set_current_user( static::$user_id );
-		update_user_option( static::$user_id, 'admin_color', 'coffee' );
-		set_current_screen( 'edit-post' );
-		$this->assertFalse( wp_style_is( 'jetpack-core-color-schemes-overrides' ) );
-		$this->assertFalse( wp_style_is( 'jetpack-core-color-schemes-overrides-sidebar-notice' ) );
-		do_action( 'admin_enqueue_scripts' );
-		$this->assertTrue( wp_style_is( 'jetpack-core-color-schemes-overrides' ) );
-		$this->assertFalse( wp_style_is( 'jetpack-core-color-schemes-overrides-sidebar-notice' ) );
-	}
-
-	public function test_enqueue_core_color_schemes_overrides_for_classic_sites() {
-		wp_set_current_user( static::$user_id );
-		update_user_option( static::$user_id, 'admin_color', 'coffee' );
-		set_current_screen( 'edit-post' );
-		$this->assertFalse( wp_style_is( 'jetpack-core-color-schemes-overrides' ) );
-		$this->assertFalse( wp_style_is( 'jetpack-core-color-schemes-overrides-sidebar-notice' ) );
-		do_action( 'admin_enqueue_scripts' );
-		$this->assertFalse( wp_style_is( 'jetpack-core-color-schemes-overrides' ) );
-		$this->assertTrue( wp_style_is( 'jetpack-core-color-schemes-overrides-sidebar-notice' ) );
 	}
 }

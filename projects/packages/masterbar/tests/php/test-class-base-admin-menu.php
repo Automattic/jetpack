@@ -86,8 +86,6 @@ class Test_Base_Admin_Menu extends TestCase {
 	public function tear_down() {
 		wp_deregister_script( 'jetpack-admin-menu' );
 		wp_deregister_style( 'jetpack-admin-menu' );
-		wp_deregister_script( 'jetpack-admin-nav-unification' );
-		wp_deregister_style( 'jetpack-admin-nav-unification' );
 		WorDBless_Options::init()->clear_options();
 		WorDBless_Users::init()->clear_all_users();
 	}
@@ -178,8 +176,6 @@ class Test_Base_Admin_Menu extends TestCase {
 		do_action( 'admin_enqueue_scripts' );
 		$this->assertTrue( wp_script_is( 'jetpack-admin-menu' ) );
 		$this->assertTrue( wp_style_is( 'jetpack-admin-menu' ) );
-		$this->assertFalse( wp_script_is( 'jetpack-admin-nav-unification' ) );
-		$this->assertFalse( wp_style_is( 'jetpack-admin-nav-unification' ) );
 	}
 
 	/**
@@ -191,8 +187,6 @@ class Test_Base_Admin_Menu extends TestCase {
 		do_action( 'admin_enqueue_scripts' );
 		$this->assertTrue( wp_script_is( 'jetpack-admin-menu' ) );
 		$this->assertTrue( wp_style_is( 'jetpack-admin-menu' ) );
-		$this->assertTrue( wp_script_is( 'jetpack-admin-nav-unification' ) );
-		$this->assertTrue( wp_style_is( 'jetpack-admin-nav-unification' ) );
 	}
 
 	/**
@@ -209,10 +203,8 @@ class Test_Base_Admin_Menu extends TestCase {
 
 		$styles            = wp_styles();
 		$admin_menu_styles = $styles->registered['jetpack-admin-menu'];
-		$nav_unific_styles = $styles->registered['jetpack-admin-nav-unification'];
 
 		$this->assertStringContainsString( 'rtl.css', $admin_menu_styles->src );
-		$this->assertStringContainsString( 'rtl.css', $nav_unific_styles->src );
 	}
 
 	/**
