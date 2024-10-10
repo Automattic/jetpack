@@ -842,7 +842,7 @@ function wpcom_launchpad_get_task_definitions() {
 				$path   = $domain ? '/domains/add/use-my-domain/' . $data['site_slug_encoded'] . '/?initialQuery=' . $domain : '/domains/add/use-my-domain/' . $data['site_slug_encoded'];
 				return $path;
 			},
-			'is_complete_callback' => 'wpcom_launchpad_is_connect_migration_domain_completed',
+			'is_complete_callback' => 'wpcom_launchpad_is_domain_customize_completed',
 			'is_visible_callback'  => '__return_true',
 		),
 	);
@@ -2638,38 +2638,6 @@ function wpcom_launchpad_domain_customize_check_purchases() {
 	}
 
 	return array( $has_bundle, $has_domain );
-}
-
-/**
- * Determines whether or not the migrated domain is connected.
- *
- * @return bool True if connect migrated domain task is complete.
- */
-function wpcom_launchpad_is_connect_migration_domain_completed() {
-	// Only run on WPCOM platform.
-	if ( ! ( new Automattic\Jetpack\Status\Host() )->is_wpcom_platform() ) {
-		return false;
-	}
-
-	$blog_id = get_current_blog_id();
-
-	if ( ! class_exists( 'Domain_Mapping' ) || ! class_exists( 'WPCOM_Domain' ) ) {
-		return false;
-	}
-
-	// @phan-suppress-next-line PhanUndeclaredClassMethod -- Being checked before being called.
-	$primary_domain_mapping = Domain_Mapping::find_primary_by_blog_id( $blog_id );
-	$is_wpcom_domain        = true;
-
-	if ( null !== $primary_domain_mapping ) {
-		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Being checked before being called.
-		$wpcom_domain = new WPCOM_Domain( $primary_domain_mapping->get_domain_name() );
-		// @phan-suppress-next-line PhanUndeclaredClassMethod
-		$is_wpcom_domain = $wpcom_domain->is_wpcom_tld();
-	}
-
-	// The primary mapped domain is not a WPCOM domain, so the task is complete.
-	return ! $is_wpcom_domain;
 }
 
 /**
