@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Remove an unnecessary dep to `useSelect`, and escape apostrophes in a storybook story. Should be no change to functionality.
-
-
