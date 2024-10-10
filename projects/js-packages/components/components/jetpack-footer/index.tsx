@@ -48,20 +48,17 @@ const JetpackFooter: React.FC< JetpackFooterProps > = ( {
 	const [ isMd ] = useBreakpointMatch( 'md', '<=' );
 	const [ isLg ] = useBreakpointMatch( 'lg', '>' );
 
-	const { isActive, connectedPlugins } = useSelect(
-		select => {
-			const connectionStatus = select( CONNECTION_STORE_ID ) as {
-				getConnectedPlugins: () => { slug: string }[];
-				getConnectionStatus: () => { isActive: boolean };
-			};
+	const { isActive, connectedPlugins } = useSelect( select => {
+		const connectionStatus = select( CONNECTION_STORE_ID ) as {
+			getConnectedPlugins: () => { slug: string }[];
+			getConnectionStatus: () => { isActive: boolean };
+		};
 
-			return {
-				connectedPlugins: connectionStatus?.getConnectedPlugins(),
-				...connectionStatus.getConnectionStatus(),
-			};
-		},
-		[ CONNECTION_STORE_ID ]
-	);
+		return {
+			connectedPlugins: connectionStatus?.getConnectedPlugins(),
+			...connectionStatus.getConnectionStatus(),
+		};
+	}, [] );
 	const siteAdminUrl = getSiteAdminUrl();
 	const areAdminLinksEnabled =
 		siteAdminUrl &&

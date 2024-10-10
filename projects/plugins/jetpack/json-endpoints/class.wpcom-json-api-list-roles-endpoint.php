@@ -124,7 +124,7 @@ class WPCOM_JSON_API_List_Roles_Endpoint extends WPCOM_JSON_API_Endpoint {
 			return new WP_Error( 'unauthorized', 'User cannot view roles for specified site', 403 );
 		}
 
-		if ( method_exists( $wp_roles, 'get_names' ) ) {
+		if ( $wp_roles instanceof WP_Roles ) {
 			$role_names = $wp_roles->get_names();
 
 			$role_keys = array_keys( $role_names );
@@ -134,7 +134,7 @@ class WPCOM_JSON_API_List_Roles_Endpoint extends WPCOM_JSON_API_Endpoint {
 				$role_details->display_name = translate_user_role( $role_names[ $role_key ] );
 				$roles[]                    = $role_details;
 			}
-		} else {
+		} elseif ( is_array( $wp_roles ) ) {
 			// Jetpack Shadow Site side of things.
 			foreach ( $wp_roles as $role_key => $role ) {
 				$roles[] = (object) array(

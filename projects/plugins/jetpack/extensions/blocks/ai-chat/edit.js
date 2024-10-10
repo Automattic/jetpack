@@ -12,7 +12,7 @@ import { useSelect } from '@wordpress/data';
  * Internal dependencies
  */
 import './editor.scss';
-import ConnectPrompt from './components/nudge-connect';
+import ConnectBanner from '../../shared/components/connect-banner';
 import EnableJetpackSearchPrompt from './components/nudge-enable-search';
 import { DEFAULT_ASK_BUTTON_LABEL, DEFAULT_PLACEHOLDER } from './constants';
 import { AiChatControls } from './controls';
@@ -34,7 +34,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	);
 	return (
 		<div { ...blockProps }>
-			<ConnectPrompt />
+			<ConnectBanner />
 			<EnableJetpackSearchPrompt />
 			<div className="jetpack-ai-chat-question-wrapper">
 				<TextControl

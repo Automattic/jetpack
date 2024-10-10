@@ -1,3 +1,4 @@
+import type { ImageStyleObject } from '../../hooks/use-image-generator/constants.js';
 import type { SiteDetails } from '../types.js';
 
 /**
@@ -88,10 +89,14 @@ export type TierValueProp =
 	| Tier750Props[ 'value' ]
 	| Tier1000Props[ 'value' ];
 
+export type LogoGeneratorFeatureControl = FeatureControl & {
+	styles: Array< ImageStyleObject > | [];
+};
+
 export type FeatureControl = {
 	enabled: boolean;
 	'min-jetpack-version': string;
-	[ key: string ]: FeatureControl | boolean | string;
+	[ key: string ]: FeatureControl | LogoGeneratorFeatureControl | boolean | string;
 };
 
 export type FeaturesControl = { [ key: string ]: FeatureControl };

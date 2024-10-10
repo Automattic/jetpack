@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Changes the error Blaze shows during sync to be a warning
