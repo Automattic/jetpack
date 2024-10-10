@@ -383,7 +383,7 @@ class Callables extends Module {
 		if ( ! empty( $plugins_lock ) && ( isset( $current_screeen->id ) && 'plugins' !== $current_screeen->id ) ) {
 			return;
 		}
-		$plugins = array_keys( Functions::get_plugins() );
+		$plugins = Functions::get_plugins();
 		foreach ( $plugins as $plugin_file => $plugin_data ) {
 			/**
 			 *  Plugins often like to unset things but things break if they are not able to.
