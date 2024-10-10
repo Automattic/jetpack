@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-General: Update minimum required version to 6.5 in main plugin file. Previous release only changed plugin readme.
+General: Update minimum required WordPress version to 6.5 in main plugin file. Previous release only changed plugin readme.
