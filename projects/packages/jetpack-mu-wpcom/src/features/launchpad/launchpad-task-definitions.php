@@ -836,7 +836,7 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'get_calypso_path'     => function ( $task, $default, $data ) {
 				// Attempt to get the domain from the pre-transfer site option if the function exists, otherwise check the current site option.
-				// @phan-suppress-next-line PhanUndeclaredClassMethod -- Being checked before being called.
+				// @phan-suppress-next-line PhanUndeclaredFunction -- Being checked before being called.
   				$domain = function_exists( 'wpcom_get_migration_source_site_domain' ) ? wpcom_get_migration_source_site_domain( $data['site_id'] ) : get_option( 'migration_source_site_domain', null );
 				$path   = $domain ? '/domains/add/use-my-domain/' . $data['site_slug_encoded'] . '/?initialQuery=' . $domain : '/domains/add/use-my-domain/' . $data['site_slug_encoded'];
 				return $path;
