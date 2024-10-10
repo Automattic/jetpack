@@ -766,7 +766,7 @@ abstract class SAL_Site {
 			$post_status_obj = get_post_status_object( $post->post_status );
 		}
 
-		$authorized = (
+		$authorized = null !== $post_status_obj && (
 			$post_status_obj->public ||
 			( is_user_logged_in() &&
 				(
