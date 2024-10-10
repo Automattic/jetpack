@@ -285,6 +285,9 @@ class Jetpack_Media {
 
 		$pathname = $dirname . '/' . $filename;
 
+		if ( ! function_exists( 'wp_generate_attachment_metadata' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/image.php';
+		}
 		// remove thumbnails.
 		$metadata = wp_generate_attachment_metadata( $media_id, $pathname );
 
@@ -470,6 +473,9 @@ class Jetpack_Media {
 		// Check maximum amount of revision_history before updating the attachment metadata.
 		self::limit_revision_history( $media_id );
 
+		if ( ! function_exists( 'wp_generate_attachment_metadata' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/image.php';
+		}
 		$new_metadata = wp_generate_attachment_metadata( $media_id, $uploaded_path );
 		wp_update_attachment_metadata( $media_id, $new_metadata );
 
