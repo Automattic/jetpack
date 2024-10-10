@@ -39,10 +39,10 @@ function wpcom_plugins_show_banner() {
 		'wpcomPluginsBanner',
 		array(
 			'logo'             => esc_url( $wpcom_logo ),
-			'title'            => esc_html__( "Flex your site's features with plugins", 'jetpack-mu-wpcom' ),
-			'description'      => esc_html__( "Access a variety of free and paid plugins that can enhance your site's functionality and features.", 'jetpack-mu-wpcom' ),
+			'title'            => esc_html__( 'Unlock more with premium and free plugins', 'jetpack-mu-wpcom' ),
+			'description'      => esc_html__( "Discover a curated selection of free and premium plugins designed to enhance your site's functionality and features.", 'jetpack-mu-wpcom' ),
 			'actionUrl'        => esc_url( "https://wordpress.com/plugins/$site_slug?ref=woa-plugin-banner" ),
-			'actionText'       => esc_html__( 'Explore plugins', 'jetpack-mu-wpcom' ),
+			'actionText'       => esc_html__( 'Explore marketplace plugins', 'jetpack-mu-wpcom' ),
 			'bannerBackground' => esc_url( $background_image ),
 		)
 	);
