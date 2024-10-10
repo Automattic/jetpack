@@ -2642,11 +2642,9 @@ function wpcom_launchpad_domain_customize_check_purchases() {
 /**
  * Determines whether or not the migrated domain is connected.
  *
- * @param Task  $task    The Task object.
- * @param mixed $default The default value.
  * @return bool True if connect migrated domain task is complete.
  */
-function wpcom_launchpad_is_connect_migration_domain_completed( $task, $default ) {
+function wpcom_launchpad_is_connect_migration_domain_completed() {
 	// Only run on WPCOM platform.
 	if ( ! ( new Automattic\Jetpack\Status\Host() )->is_wpcom_platform() ) {
 		return false;
