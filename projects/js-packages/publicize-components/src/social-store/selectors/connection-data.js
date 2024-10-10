@@ -141,11 +141,22 @@ export function getConnectionProfileDetails( state, service, { forceDefaults = f
 		);
 
 		if ( connection ) {
-			const { display_name, profile_display_name, profile_picture, external_display } = connection;
+			const {
+				display_name,
+				profile_display_name,
+				profile_picture,
+				external_display,
+				external_name,
+			} = connection;
 
 			displayName = 'twitter' === service ? profile_display_name : display_name || external_display;
 			username = 'twitter' === service ? display_name : connection.username;
 			profileImage = profile_picture;
+
+			// Connections schema is a mess
+			if ( 'bluesky' === service ) {
+				username = external_name;
+			}
 		}
 	}
 

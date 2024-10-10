@@ -6,6 +6,7 @@ export type Connection = {
 	display_name: string;
 	external_display?: string;
 	external_id: string;
+	external_name?: string;
 	username: string;
 	enabled: boolean;
 	done: boolean;

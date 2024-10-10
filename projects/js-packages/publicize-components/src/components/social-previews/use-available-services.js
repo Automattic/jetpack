@@ -3,6 +3,7 @@ import { __, _x } from '@wordpress/i18n';
 import React, { useMemo } from 'react';
 import { CONNECTION_SERVICE_THREADS } from '../../social-store';
 import { getSupportedAdditionalConnections } from '../../utils';
+import BlueskyPreview from './bluesky';
 import FacebookPreview from './facebook';
 import GoogleSearch from './google-search';
 import { Instagram } from './instagram';
@@ -84,6 +85,12 @@ export function useAvailableSerivces() {
 					icon: props => <SocialServiceIcon serviceName="mastodon" { ...props } />,
 					name: 'mastodon',
 					preview: MastodonPreview,
+				},
+				{
+					title: __( 'Bluesky', 'jetpack' ),
+					icon: props => <SocialServiceIcon serviceName="bluesky" { ...props } />,
+					name: 'bluesky',
+					preview: BlueskyPreview,
 				},
 			].filter( Boolean ),
 		[ isThreadsSupported ]
