@@ -835,11 +835,13 @@ function wpcom_launchpad_get_task_definitions() {
 				return __( 'Connect your domain', 'jetpack-mu-wpcom' );
 			},
 			'get_calypso_path'     => function ( $task, $default, $data ) {
-				$domain = get_option( 'migration_source_site_domain', null );
+				// Attempt to get the domain from the pre-transfer site option if the function exists, otherwise check the current site option.
+				// @phan-suppress-next-line PhanUndeclaredClassMethod -- Being checked before being called.
+  				$domain = function_exists( 'wpcom_get_migration_source_site_domain' ) ? wpcom_get_migration_source_site_domain( $data['site_id'] ) : get_option( 'migration_source_site_domain', null );
 				$path   = $domain ? '/domains/add/use-my-domain/' . $data['site_slug_encoded'] . '/?initialQuery=' . $domain : '/domains/add/use-my-domain/' . $data['site_slug_encoded'];
 				return $path;
 			},
-			'is_complete_callback' => 'wpcom_launchpad_is_domain_customize_completed',
+			'is_complete_callback' => 'wpcom_launchpad_is_connect_migration_domain_completed',
 			'is_visible_callback'  => '__return_true',
 		),
 	);
@@ -2635,6 +2637,40 @@ function wpcom_launchpad_domain_customize_check_purchases() {
 	}
 
 	return array( $has_bundle, $has_domain );
+}
+
+/**
+ * Determines whether or not the migrated domain is connected.
+ *
+ * @param Task  $task    The Task object.
+ * @param mixed $default The default value.
+ * @return bool True if connect migrated domain task is complete.
+ */
+function wpcom_launchpad_is_connect_migration_domain_completed( $task, $default ) {
+	// Only run on WPCOM platform.
+	if ( ! ( new Automattic\Jetpack\Status\Host() )->is_wpcom_platform() ) {
+		return false;
+	}
+
+	$blog_id = get_current_blog_id();
+
+	if ( ! class_exists( 'Domain_Mapping' ) || ! class_exists( 'WPCOM_Domain' ) ) {
+		return false;
+	}
+
+	// @phan-suppress-next-line PhanUndeclaredClassMethod -- Being checked before being called.
+	$primary_domain_mapping = Domain_Mapping::find_primary_by_blog_id( $blog_id );
+	$is_wpcom_domain        = true;
+
+	if ( null !== $primary_domain_mapping ) {
+		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Being checked before being called.
+		$wpcom_domain = new WPCOM_Domain( $primary_domain_mapping->get_domain_name() );
+		// @phan-suppress-next-line PhanUndeclaredClassMethod
+		$is_wpcom_domain = $wpcom_domain->is_wpcom_tld();
+	}
+
+	// The primary mapped domain is not a WPCOM domain, so the task is complete.
+	return ! $is_wpcom_domain;
 }
 
 /**
