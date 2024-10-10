@@ -2801,6 +2801,10 @@ function wpcom_launchpad_get_latest_draft_id() {
 function wpcom_launchpad_is_ssl_task_disabled() {
 	$blog_id = get_current_blog_id();
 
+	if ( ! class_exists( 'Domain_Mapping' ) || ! class_exists( 'WPCOM_Domain' ) ) {
+		return true;
+	}
+
 	$primary_domain_mapping = Domain_Mapping::find_primary_by_blog_id( $blog_id );
 	$is_wpcom_domain        = true;
 
@@ -2823,6 +2827,10 @@ function wpcom_launchpad_is_ssl_task_completed() {
 	// If the task is already complete, return true.
 	if ( wpcom_launchpad_is_task_option_completed( $task_id ) ) {
 		return true;
+	}
+
+	if ( ! class_exists( 'Domain_Mapping' ) || ! class_exists( 'Domain_Certificate_Flag_Group' ) || ! class_exists( 'WPCOM\Container\DI' ) || ! class_exists( 'Domain_Certificate_Flags_Manager' ) ) {
+		return false;
 	}
 
 	$blog_id = get_current_blog_id();
