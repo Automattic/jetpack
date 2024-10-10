@@ -141,7 +141,6 @@ const ScanFooter = () => {
 					</Col>
 				</Container>
 			) }
-			;
 		</AdminSectionHero>
 	);
 };
