@@ -83,7 +83,7 @@ class Jetpack_VideoPress {
 				__( 'VideoPress uploads are not supported here. To upload to VideoPress, add your videos from the <a href="%s">Media Library</a> or the block editor using the Video block.', 'jetpack' ),
 				array( 'a' => array( 'href' => array() ) )
 			),
-			esc_url( admin_url( 'upload.php' ) )
+			esc_url( admin_url( 'upload.php?mode=grid&action=add-new' ) )
 		);
 		wp_admin_notice(
 			$message,
