@@ -2,10 +2,14 @@ import jQuery from 'jquery';
 
 import '../css/jetpack-admin-jitm.scss';
 
-const initJetpackJITM = function ( $ ) {
+jQuery( document ).ready( function ( $ ) {
+	/**
+	 * Allow external scripts to contol the function to run only for once or even disable it.
+	 */
 	if( window.hasRunJetpackJITM ) {
 		return;
 	}
+
 	var templates = {
 		default: function ( envelope ) {
 			const EXTERNAL_LINK_ICON = `
@@ -353,8 +357,4 @@ const initJetpackJITM = function ( $ ) {
 			reFetch();
 		}
 	} );
-};
-
-jQuery( document ).ready( initJetpackJITM );
-
-window && ( window.initJetpackJITM = initJetpackJITM );
+} );
