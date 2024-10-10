@@ -39,6 +39,7 @@ class Odyssey_Assets {
 			'enqueue_css'          => true,
 		);
 		$options         = wp_parse_args( $options, $default_options );
+
 		if ( file_exists( __DIR__ . "/../dist/{$asset_name}.js" ) ) {
 			// Load local assets for the convinience of development.
 			Assets::register_script(
@@ -69,6 +70,19 @@ class Odyssey_Assets {
 			$asset_handle,
 			( new Odyssey_Config_Data() )->get_js_config_data( $options['config_variable_name'], $options['config_data'] ),
 			'before'
+		);
+
+		wp_localize_script(
+			$asset_handle,
+			'jitm_config',
+			array(
+				'api_root'               => esc_url_raw( rest_url() ),
+				'activate_module_text'   => esc_html__( 'Activate', 'jetpack-stats-admin' ),
+				'activated_module_text'  => esc_html__( 'Activated', 'jetpack-stats-admin' ),
+				'activating_module_text' => esc_html__( 'Activating', 'jetpack-stats-admin' ),
+				'settings_module_text'   => esc_html__( 'Settings', 'jetpack-stats-admin' ),
+				'nonce'                  => wp_create_nonce( 'wp_rest' ),
+			)
 		);
 	}
 

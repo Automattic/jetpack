@@ -52,6 +52,17 @@ class Main {
 	 */
 	private function __construct() {
 		add_action( 'rest_api_init', array( new REST_Controller(), 'register_rest_routes' ) );
+		add_filter(
+			'jetpack_display_jitms_on_screen',
+			function ( $show, $screen_id ) {
+				if ( 'jetpack_page_stats' === $screen_id ) {
+					return false;
+				}
+				return $show;
+			},
+			10,
+			2
+		);
 	}
 
 	/**
