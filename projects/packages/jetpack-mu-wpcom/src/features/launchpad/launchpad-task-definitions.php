@@ -2810,12 +2810,12 @@ function wpcom_launchpad_is_ssl_task_disabled() {
 		return true;
 	}
 
-	// @phan-suppress-next-line PhanUndeclaredClassMethod -- Being checked before being called.
+	// @phan-suppress-next-line PhanUndeclaredClass -- Being checked before being called.
 	$primary_domain_mapping = Domain_Mapping::find_primary_by_blog_id( $blog_id );
 	$is_wpcom_domain        = true;
 
 	if ( null !== $primary_domain_mapping ) {
-		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Being checked before being called.
+		// @phan-suppress-next-line PhanUndeclaredClass -- Being checked before being called.
 		$wpcom_domain    = new WPCOM_Domain( $primary_domain_mapping->get_domain_name() );
 		$is_wpcom_domain = $wpcom_domain->is_wpcom_tld();
 	}
@@ -2847,7 +2847,7 @@ function wpcom_launchpad_is_ssl_task_completed() {
 
 	$blog_id = get_current_blog_id();
 
-	// @phan-suppress-next-line PhanUndeclaredClassMethod -- Being checked before being called.
+	// @phan-suppress-next-line PhanUndeclaredClass -- Being checked before being called.
 	$primary_domain_mapping = Domain_Mapping::find_primary_by_blog_id( $blog_id );
 
 	// If the site doesn't have a primary domain mapping, the task is not complete.
