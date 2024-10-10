@@ -831,7 +831,7 @@ class Jetpack_Gutenberg {
 			 * Look for files that match our list of available Jetpack Gutenberg extensions (blocks and plugins).
 			 * If available, load them.
 			 */
-			$directories = array( 'blocks', 'plugins', 'extended-blocks', 'shared' );
+			$directories = array( 'blocks', 'plugins', 'extended-blocks' );
 
 			foreach ( static::get_extensions() as $extension ) {
 				foreach ( $directories as $dirname ) {
