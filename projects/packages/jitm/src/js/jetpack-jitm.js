@@ -2,7 +2,7 @@ import jQuery from 'jquery';
 
 import '../css/jetpack-admin-jitm.scss';
 
-const initJetpackJTIM = function ( $ ) {
+const initJetpackJITM = function ( $ ) {
 	var templates = {
 		default: function ( envelope ) {
 			const EXTERNAL_LINK_ICON = `
@@ -349,6 +349,6 @@ const initJetpackJTIM = function ( $ ) {
 	} );
 };
 
-jQuery( document ).ready( initJetpackJTIM );
+jQuery( document ).ready( initJetpackJITM );
 
-window && ( window.initJetpackJTIM = initJetpackJTIM );
+window && ( window.initJetpackJITM = initJetpackJITM );
