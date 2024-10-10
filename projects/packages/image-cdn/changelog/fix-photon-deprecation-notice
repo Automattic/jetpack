@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Avoid deprecation notice when an image URL does not have an expected format.
