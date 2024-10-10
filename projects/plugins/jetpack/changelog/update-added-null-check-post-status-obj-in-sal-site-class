@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+SAL_Site class: Added null check to posts_status_obj to avoid Warnings
