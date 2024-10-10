@@ -285,7 +285,7 @@ class WP_Test_Image_CDN_Core extends BaseTestCase {
 
 	/**
 	 * @covers ::Image_CDN_Core::cdn_url
-	 * @since  $$next-version$$
+	 * @since  0.5.1
 	 * @group  jetpack_photon_filter_url_encoding
 	 */
 	public function test_photon_url_filter_url_encodes_path_parts() {

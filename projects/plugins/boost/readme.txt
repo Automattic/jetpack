@@ -183,9 +183,15 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 3.5.1 - 2024-09-26
+### 3.5.2-beta - 2024-10-10
 #### Changed
-- Support: Increased minumum required WordPress version to 6.5
+- Deferred JS: Exclude all scripts produced by a shortcode.
+- General: Sync Boost's Getting Started page with My Jetpack's version.
+- General: Update minimum required WordPress version to 6.5 in main plugin file. Previous release only changed plugin readme.
+
+#### Fixed
+- Image CDN: URL encode image path parts for RSS feed compatibility
+- Image Guide: Improve check for Jetpack Image CDN URLs
 
 --------
 
