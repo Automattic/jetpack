@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Fixed rendering of goodreads block when there is not id attribute so to not result in a PHP warning
