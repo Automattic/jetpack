@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+WAF: Add new properties to the WAF feature's REST API endpoint.

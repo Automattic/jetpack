@@ -6,9 +6,15 @@ import { FormLegend, FormFieldset } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
+import { FEATURE_NEWSLETTER_JETPACK } from 'lib/plans/constants';
 import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
-import { isCurrentUserLinked, isUnavailableInOfflineMode, isOfflineMode } from 'state/connection';
+import {
+	isCurrentUserLinked,
+	isUnavailableInOfflineMode,
+	isOfflineMode,
+	hasConnectedOwner,
+} from 'state/connection';
 import {
 	currentThemeIsBlockTheme,
 	currentThemeStylesheet,
@@ -42,6 +48,7 @@ function SubscriptionsSettings( props ) {
 		isBlockTheme,
 		siteAdminUrl,
 		themeStylesheet,
+		siteHasConnectedUser,
 	} = props;
 
 	const subscribeModalEditorUrl =
@@ -113,16 +120,22 @@ function SubscriptionsSettings( props ) {
 		);
 	}, [ updateFormStateModuleOption ] );
 
-	const isDisabled = ! isSubscriptionsActive || unavailableInOfflineMode;
+	const isDisabled = ! isSubscriptionsActive || unavailableInOfflineMode || ! siteHasConnectedUser;
 
 	return (
 		<SettingsCard
 			{ ...props }
 			hideButton
+			feature={ FEATURE_NEWSLETTER_JETPACK }
 			module={ SUBSCRIPTIONS_MODULE_NAME }
 			header={ __( 'Subscriptions', 'jetpack' ) }
+			isDisabled={ ! siteHasConnectedUser }
 		>
-			<SettingsGroup disableInOfflineMode disableInSiteConnectionMode module={ subscriptions }>
+			<SettingsGroup
+				disableInOfflineMode
+				disableInSiteConnectionMode={ ! siteHasConnectedUser }
+				module={ subscriptions }
+			>
 				<p>
 					{ __(
 						'Automatically add subscription forms to your site and turn visitors into subscribers.',
@@ -293,6 +306,7 @@ export default withModuleSettingsFormHelpers(
 			isBlockTheme: currentThemeIsBlockTheme( state ),
 			siteAdminUrl: getSiteAdminUrl( state ),
 			themeStylesheet: currentThemeStylesheet( state ),
+			siteHasConnectedUser: hasConnectedOwner( state ),
 		};
 	} )( SubscriptionsSettings )
 );

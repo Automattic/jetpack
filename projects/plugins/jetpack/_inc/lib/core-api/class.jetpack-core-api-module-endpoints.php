@@ -952,7 +952,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					require_once JETPACK__PLUGIN_DIR . 'modules/subscriptions/class-settings.php';
 					$sub_value = Automattic\Jetpack\Modules\Subscriptions\Settings::is_valid_reply_to( $value )
 						? $value
-						: Automattic\Jetpack\Modules\Subscriptions\Settings::get_default_reply_to();
+						: Automattic\Jetpack\Modules\Subscriptions\Settings::$default_reply_to;
 
 						$updated = (string) get_option( $option ) !== (string) $sub_value ? update_option( $option, $sub_value ) : true;
 					break;

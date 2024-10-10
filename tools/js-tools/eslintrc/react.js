@@ -23,10 +23,6 @@ module.exports = {
 		'react/prefer-es6-class': 'warn',
 
 		// Temporarily override plugin:@wordpress/react so we can clean up failing stuff in separate PRs.
-		'react-hooks/exhaustive-deps': [ 'warn', { additionalHooks: '' } ],
 		'react/jsx-key': 'off',
-		'react/no-direct-mutation-state': 'off',
-		'react/no-find-dom-node': 'off',
-		'react/no-unescaped-entities': 'off',
 	},
 };

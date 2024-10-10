@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Components - getRedirectUrl: use file extension on import for linter to find definitions
