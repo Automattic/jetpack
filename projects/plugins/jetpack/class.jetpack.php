@@ -3538,12 +3538,8 @@ p {
 				'_inc/build/plugins-page.js',
 				JETPACK__PLUGIN_FILE,
 				array(
-					'in_footer'    => true,
-					'textdomain'   => 'jetpack',
-					'dependencies' => array(
-						'wp-polyfill',
-						'wp-components',
-					),
+					'in_footer'  => true,
+					'textdomain' => 'jetpack',
 				)
 			);
 			Assets::enqueue_script( 'jetpack-plugins-page-js' );
