@@ -816,14 +816,17 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'is_visible_callback'  => '__return_true',
 		),
-		'review_plugins'                => array(
-			'get_title'            => function () {
+		'review_plugins'                  => array(
+			'get_title'             => function () {
 				return __( 'Review the migrated plugins', 'jetpack-mu-wpcom' );
 			},
-			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
-			'is_visible_callback'  => '__return_true',
+			'is_complete_callback'  => 'wpcom_launchpad_is_task_option_completed',
+			'is_visible_callback'   => '__return_true',
 			'add_listener_callback' => function () {
 				add_action( 'pre_current_active_plugins', 'wpcom_launchpad_mark_review_plugins_complete' );
+			},
+			'get_calypso_path'      => function () {
+				return admin_url( 'plugins.php' );
 			},
 		),
 	);
