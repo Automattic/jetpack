@@ -82,8 +82,8 @@ class Odyssey_Assets {
 				'activating_module_text' => esc_html__( 'Activating', 'jetpack-stats-admin' ),
 				'settings_module_text'   => esc_html__( 'Settings', 'jetpack-stats-admin' ),
 				'nonce'                  => wp_create_nonce( 'wp_rest' ),
-				'jitm_base_url'          => Assets::normalize_path( plugins_url( '../../jetpack-jitm', __FILE__ ) ),
-				'jitm_version'           => Main::VERSION,
+				'base_url'               => Assets::normalize_path( plugins_url( '../../jetpack-jitm', __FILE__ ) ),
+				'version'                => Main::VERSION,
 			)
 		);
 	}
