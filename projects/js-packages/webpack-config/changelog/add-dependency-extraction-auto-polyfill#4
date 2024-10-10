@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Update documentation for `DependencyExtractionPlugin` after #38877 and #38430.

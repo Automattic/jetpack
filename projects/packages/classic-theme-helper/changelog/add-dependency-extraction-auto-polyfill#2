@@ -1,0 +1,5 @@
+Significance: patch
+Type: removed
+Comment: Remove unnecessary JS dep on `@wordpress/dependency-extraction-webpack-plugin`
+
+
