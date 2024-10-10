@@ -110,6 +110,7 @@ class Jetpack_Gutenberg {
 		}
 
 		if ( ! $version_available ) {
+			$slug = self::remove_extension_prefix( $slug );
 			self::set_extension_unavailable(
 				$slug,
 				'incorrect_gutenberg_version',
@@ -170,7 +171,7 @@ class Jetpack_Gutenberg {
 	 * @param string $slug Slug of the extension.
 	 */
 	public static function set_extension_available( $slug ) {
-		self::$availability[ self::remove_extension_prefix( $slug ) ] = true;
+		self::$availability[ $slug ] = true;
 	}
 
 	/**
@@ -206,7 +207,7 @@ class Jetpack_Gutenberg {
 			$reason .= '__nudge_disabled';
 		}
 
-		self::$availability[ self::remove_extension_prefix( $slug ) ] = array(
+		self::$availability[ $slug ] = array(
 			'reason'  => $reason,
 			'details' => $details,
 		);
@@ -823,6 +824,8 @@ class Jetpack_Gutenberg {
 	 * @see wp_common_block_scripts_and_styles()
 	 */
 	public static function load_independent_blocks() {
+		// Add temporary timing code. Remove before setting for review.
+		do_action( 'qm/start', 'jp_ind_blocks' ); // phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores
 		if ( self::should_load() ) {
 			/**
 			 * Look for files that match our list of available Jetpack Gutenberg extensions (blocks and plugins).
@@ -840,6 +843,7 @@ class Jetpack_Gutenberg {
 					}
 				}
 			}
+			do_action( 'qm/stop', 'jp_ind_blocks' );  // phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores
 		}
 	}
 
