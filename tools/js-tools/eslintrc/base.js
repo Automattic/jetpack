@@ -210,6 +210,5 @@ module.exports = {
 		// Temporarily override plugin:@wordpress/* so we can clean up failing stuff in separate PRs.
 		'jsx-a11y/label-has-associated-control': [ 'error', { assert: 'either' } ],
 		'object-shorthand': 'off',
-		'@wordpress/no-base-control-with-label-without-id': 'off',
 	},
 };

@@ -1,7 +1,6 @@
 import { getCurrencyDefaults } from '@automattic/format-currency';
 import { InspectorControls } from '@wordpress/block-editor';
 import {
-	BaseControl,
 	Disabled,
 	ExternalLink,
 	PanelBody,
@@ -412,22 +411,19 @@ class SimplePaymentsEdit extends Component {
 	renderSettings = () => (
 		<InspectorControls>
 			<PanelBody title={ __( 'Settings', 'jetpack' ) } initialOpen={ false }>
-				<BaseControl
+				<TextControl
 					label={ __( 'Purchase link text', 'jetpack' ) }
 					help={ __(
 						'Enter the text you want to display on a purchase link used as fallback when the PayPal button cannot be used (e.g. emails, AMP, etc.)',
 						'jetpack'
 					) }
 					className="jetpack-simple-payments__purchase-link-text"
-				>
-					<TextControl
-						placeholder={ __( 'Click here to purchase', 'jetpack' ) }
-						onChange={ newPostLinkText =>
-							this.props.setAttributes( { postLinkText: newPostLinkText } )
-						}
-						value={ this.props.attributes.postLinkText }
-					/>
-				</BaseControl>
+					placeholder={ __( 'Click here to purchase', 'jetpack' ) }
+					onChange={ newPostLinkText =>
+						this.props.setAttributes( { postLinkText: newPostLinkText } )
+					}
+					value={ this.props.attributes.postLinkText }
+				/>
 			</PanelBody>
 		</InspectorControls>
 	);
