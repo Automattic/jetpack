@@ -37,12 +37,7 @@ class Waf_Runner {
 		if ( ! self::is_allowed_mode( JETPACK_WAF_MODE ) ) {
 			return;
 		}
-		// Don't run if in standalone mode
-		if ( function_exists( 'add_action' ) ) {
-			self::add_hooks();
-			Waf_Rules_Manager::add_hooks();
-			Waf_Rules_Manager::schedule_rules_cron();
-		}
+
 		if ( ! self::did_run() ) {
 			self::run();
 		}
@@ -52,11 +47,10 @@ class Waf_Runner {
 	 * Set action hooks
 	 *
 	 * @return void
+	 *
+	 * @deprecated $$next-version$$ Hooks have been moved to Waf_Initializer class.
 	 */
-	public static function add_hooks() {
-		// Register REST routes.
-		add_action( 'rest_api_init', array( new REST_Controller(), 'register_rest_routes' ) );
-	}
+	public static function add_hooks() {}
 
 	/**
 	 * Did the WAF run yet or not?
