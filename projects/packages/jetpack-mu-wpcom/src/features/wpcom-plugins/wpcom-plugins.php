@@ -33,7 +33,7 @@ function wpcom_plugins_show_banner() {
 	 */
 	function should_use_new_translation( $string ) { // phpcs:ignore MediaWiki.Usage.NestedFunctions.NestedFunction
 		if ( function_exists( 'wpcom_launchpad_has_translation' ) ) {
-			return wpcom_launchpad_has_translation( $string );
+			return wpcom_launchpad_has_translation( $string, 'jetpack-mu-wpcom' );
 		}
 		// If that function no longer exists in this context, we can assume the new strings have
 		// been translated by now.
