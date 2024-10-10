@@ -108,22 +108,19 @@ function AiPostExcerpt() {
 	}, [ stopSuggestion, reset ] );
 
 	// Pick raw post content
-	const postContent = useSelect(
-		select => {
-			const content = ( select( editorStore ) as typeof EditorSelectors ).getEditedPostContent();
-			if ( ! content ) {
-				return '';
-			}
+	const postContent = useSelect( select => {
+		const content = ( select( editorStore ) as typeof EditorSelectors ).getEditedPostContent();
+		if ( ! content ) {
+			return '';
+		}
 
-			const document = new window.DOMParser().parseFromString( content, 'text/html' );
+		const document = new window.DOMParser().parseFromString( content, 'text/html' );
 
-			const documentRawText = document.body.textContent || document.body.innerText || '';
+		const documentRawText = document.body.textContent || document.body.innerText || '';
 
-			// Keep only one break line (\n) between blocks.
-			return documentRawText.replace( /\n{2,}/g, '\n' ).trim();
-		},
-		[ postId ]
-	);
+		// Keep only one break line (\n) between blocks.
+		return documentRawText.replace( /\n{2,}/g, '\n' ).trim();
+	}, [] );
 
 	// Show custom prompt number of words
 	const currentExcerpt = suggestion || excerpt;

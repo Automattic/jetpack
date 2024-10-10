@@ -5,7 +5,7 @@ import { Bullet } from './components';
 export const ProgressBullet = ( { key, playerId, index, disabled, isSelected, onClick } ) => {
 	const progress = useSelect(
 		select => select( 'jetpack/story/player' ).getCurrentSlideProgressPercentage( playerId ),
-		[]
+		[ playerId ]
 	);
 
 	return (
@@ -25,7 +25,7 @@ export const ProgressBar = ( { playerId, slides, disabled, onSlideSeek, maxBulle
 		select => ( {
 			currentSlideIndex: select( 'jetpack/story/player' ).getCurrentSlideIndex( playerId ),
 		} ),
-		[]
+		[ playerId ]
 	);
 
 	const bulletCount = Math.min( slides.length, maxBullets );
