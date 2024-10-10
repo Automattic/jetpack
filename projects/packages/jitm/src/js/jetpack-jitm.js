@@ -3,6 +3,9 @@ import jQuery from 'jquery';
 import '../css/jetpack-admin-jitm.scss';
 
 const initJetpackJITM = function ( $ ) {
+	if( window.hasRunJetpackJITM ) {
+		return;
+	}
 	var templates = {
 		default: function ( envelope ) {
 			const EXTERNAL_LINK_ICON = `
