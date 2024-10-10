@@ -1,6 +1,6 @@
 /** @ssr-ready **/
 /* eslint-disable jsx-a11y/click-events-have-key-events */
-/* eslint-disable jsx-a11y/label-has-for */
+/* eslint-disable jsx-a11y/label-has-associated-control */
 
 import React from 'react';
 

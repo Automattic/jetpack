@@ -21,7 +21,7 @@ const FormLabel: FunctionComponent< Props & LabelProps > = ( {
 	const hasChildren: boolean = Children.count( children ) > 0;
 
 	return (
-		// eslint-disable-next-line jsx-a11y/label-has-for
+		// eslint-disable-next-line jsx-a11y/label-has-associated-control
 		<label { ...labelProps } className={ clsx( className, 'form-label' ) }>
 			{ children }
 			{ hasChildren && required && (
