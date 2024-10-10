@@ -39,6 +39,7 @@ const ScanningHeader = ( { currentProgress } ) => {
 					<img src={ inProgressImage } alt="" />
 				</div>
 			}
+			preserveSecondaryOnMobile={ false }
 		/>
 	);
 };

@@ -144,14 +144,6 @@ const ThreatsList = () => {
 											/>
 										</>
 									) }
-									<div>
-										<ScanButton ref={ setDailyAndManualScansPopoverAnchor } />
-										<OnboardingPopover
-											id="paid-daily-and-manual-scans"
-											position={ isSm ? 'bottom left' : 'middle left' }
-											anchor={ dailyAndManualScansPopoverAnchor }
-										/>
-									</div>
 								</div>
 							) }
 						</div>

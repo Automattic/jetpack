@@ -12,10 +12,10 @@ const ErrorHeader = ( { baseErrorMessage, errorMessage, errorCode } ) => {
 	return (
 		<Header
 			heading={
-				<>
+				<div className={ styles.heading }>
 					<Icon className={ styles.warning } icon={ warning } size={ 54 } />
 					{ __( 'An error occurred', 'jetpack-protect' ) }
-				</>
+				</div>
 			}
 			subheading={ <Text>{ displayErrorMessage }</Text> }
 			showNavigation={ true }
@@ -24,6 +24,7 @@ const ErrorHeader = ( { baseErrorMessage, errorMessage, errorCode } ) => {
 					<img src={ inProgressImage } alt="" />
 				</div>
 			}
+			preserveSecondaryOnMobile={ false }
 		/>
 	);
 };

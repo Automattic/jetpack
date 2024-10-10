@@ -36,6 +36,7 @@ const Header = ( {
 	showIcon = false,
 	subheading,
 	secondary,
+	preserveSecondaryOnMobile = true,
 } ) => {
 	const Icon = getIconBySlug( 'protect' );
 
@@ -58,7 +59,7 @@ const Header = ( {
 				mainClassName={ styles[ 'header-main' ] }
 				secondary={ secondary }
 				secondaryClassName={ styles[ 'header-secondary' ] }
-				preserveSecondaryOnMobile={ true }
+				preserveSecondaryOnMobile={ preserveSecondaryOnMobile }
 				fluid={ false }
 			/>
 		</AdminSectionHero>
