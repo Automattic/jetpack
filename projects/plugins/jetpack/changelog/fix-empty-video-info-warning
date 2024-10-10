@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Add missing check for empty video_info on get_media_item_v1_1
+
+
