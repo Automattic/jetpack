@@ -816,6 +816,19 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'is_visible_callback'  => '__return_true',
 		),
+		'review_plugins'                  => array(
+			'get_title'             => function () {
+				return __( 'Review the migrated plugins', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback'  => 'wpcom_launchpad_is_task_option_completed',
+			'is_visible_callback'   => '__return_true',
+			'add_listener_callback' => function () {
+				add_action( 'pre_current_active_plugins', 'wpcom_launchpad_mark_review_plugins_complete' );
+			},
+			'get_calypso_path'      => function () {
+				return admin_url( 'plugins.php' );
+			},
+		),
 	);
 
 	$extended_task_definitions = apply_filters( 'wpcom_launchpad_extended_task_definitions', array() );
@@ -1774,6 +1787,14 @@ function wpcom_track_site_launch_task() {
 	}
 }
 
+/**
+ * Mark the plugins reviewed task as complete.
+ *
+ * @return void
+ */
+function wpcom_launchpad_mark_review_plugins_complete() {
+	wpcom_mark_launchpad_task_complete( 'review_plugins' );
+}
 /**
  * Callback that conditionally adds the site launch listener based on platform.
  *
