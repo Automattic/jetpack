@@ -257,6 +257,7 @@ const FirewallPage = () => {
 			children={ <Text>{ __( 'Re-enable the Firewall to continue.', 'jetpack-protect' ) }</Text> }
 			actions={ [
 				<Button
+					key="enable"
 					variant="link"
 					onClick={ toggleWaf }
 					isLoading={ isUpdating }

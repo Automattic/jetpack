@@ -62,7 +62,7 @@ const Section = ( { title, data, children = null } ) => (
 		<h1 className={ styles.title }>{ title }</h1>
 		<Container fluid>
 			{ Object.keys( data ).map( key => (
-				<Col lg={ 3 } className={ styles.box }>
+				<Col key={ key } lg={ 3 } className={ styles.box }>
 					<Container fluid horizontalGap={ 2 }>
 						<Col className={ styles.key }>{ key }</Col>
 						{ children && <Col className={ styles.example }>{ children( data[ key ] ) }</Col> }
@@ -103,7 +103,11 @@ Tokens.parameters = {
 export const Typographies = args => (
 	<div className={ styles[ 'instances-wrapper' ] }>
 		{ Object.keys( typography ).map( key => (
-			<div className={ styles[ 'font-instance' ] } style={ { fontSize: typography[ key ] } }>
+			<div
+				key={ key }
+				className={ styles[ 'font-instance' ] }
+				style={ { fontSize: typography[ key ] } }
+			>
 				{ args?.[ 'Text Instance' ] || `${ key } (${ typography[ key ] } )` }
 
 				<ClipboardButton variant="tertiary" text={ key } className={ styles[ 'copy-button' ] }>
@@ -125,6 +129,7 @@ export const Colors = () => (
 	<div className={ styles[ 'instances-wrapper' ] }>
 		{ Object.keys( colors ).map( key => (
 			<div
+				key={ key }
 				className={ styles[ 'color-instance' ] }
 				style={ { backgroundColor: colors[ key ], color: getContrast( colors[ key ] ) } }
 			>

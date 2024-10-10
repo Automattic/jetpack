@@ -307,8 +307,10 @@ class DashScan extends Component {
 		return (
 			<>
 				{ renderActiveCard( [
-					<h2 className="jp-dash-item__count is-alert">{ numberFormat( numberOfThreats ) }</h2>,
-					<p className="jp-dash-item__description">
+					<h2 key="header" className="jp-dash-item__count is-alert">
+						{ numberFormat( numberOfThreats ) }
+					</h2>,
+					<p key="description" className="jp-dash-item__description">
 						{ createInterpolateElement(
 							_n(
 								'Security threat found. <a>Click here</a> to fix them immediately.',

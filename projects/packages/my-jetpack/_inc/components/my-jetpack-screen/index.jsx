@@ -54,7 +54,9 @@ const GlobalNotice = ( { message, title, options } ) => {
 	const [ isBiggerThanMedium ] = useBreakpointMatch( [ 'md' ], [ '>' ] );
 
 	const actionButtons = options.actions?.map( action => {
-		return <ActionButton customClass={ styles.cta } { ...action } />;
+		return (
+			<ActionButton key={ action.key || action.label } customClass={ styles.cta } { ...action } />
+		);
 	} );
 
 	return (

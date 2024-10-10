@@ -34,7 +34,10 @@ export function Instagram( props ) {
 			<Notice
 				hideCloseButton
 				actions={ [
-					<ExternalLink href={ getRedirectUrl( 'jetpack-social-share-to-instagram' ) }>
+					<ExternalLink
+						key="learn-more"
+						href={ getRedirectUrl( 'jetpack-social-share-to-instagram' ) }
+					>
 						{ __( 'Learn more', 'jetpack' ) }
 					</ExternalLink>,
 				] }

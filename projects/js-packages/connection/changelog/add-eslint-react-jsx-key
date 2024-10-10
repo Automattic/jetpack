@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Add `key` to DisconnectSurvey options. Should be no change to functionality.
+
+

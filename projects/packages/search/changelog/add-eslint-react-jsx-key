@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Add `key` to tag and cat lists in `SearchResultMinimal` to improve behavior if lists change at runtime.
