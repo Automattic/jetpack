@@ -34,7 +34,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	);
 	return (
 		<div { ...blockProps }>
-			<ConnectBanner />
+			<ConnectBanner block="Jetpack AI Search" />
 			<EnableJetpackSearchPrompt />
 			<div className="jetpack-ai-chat-question-wrapper">
 				<TextControl
