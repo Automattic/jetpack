@@ -758,15 +758,15 @@ abstract class SAL_Site {
 		if ( ! $post || is_wp_error( $post ) ) {
 			return false;
 		}
-
-		if ( 'inherit' === $post->post_status ) {
+		// If the post is of status inherit, check if the parent exists ( different to 0 ) to check for the parent status object.
+		if ( 'inherit' === $post->post_status && 0 !== (int) $post->post_parent ) {
 			$parent_post     = get_post( $post->post_parent );
 			$post_status_obj = get_post_status_object( $parent_post->post_status );
 		} else {
 			$post_status_obj = get_post_status_object( $post->post_status );
 		}
 
-		$authorized = null !== $post_status_obj && (
+		$authorized = (
 			$post_status_obj->public ||
 			( is_user_logged_in() &&
 				(
