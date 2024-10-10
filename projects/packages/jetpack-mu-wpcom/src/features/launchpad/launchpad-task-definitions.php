@@ -2799,16 +2799,23 @@ function wpcom_launchpad_get_latest_draft_id() {
  * @return bool Will return true if the primary domain is a WPCOM domain.
  */
 function wpcom_launchpad_is_ssl_task_disabled() {
+	// Only run on WPCOM platform.
+	if ( ! ( new Automattic\Jetpack\Status\Host() )->is_wpcom_platform() ) {
+		return true;
+	}
+
 	$blog_id = get_current_blog_id();
 
 	if ( ! class_exists( 'Domain_Mapping' ) || ! class_exists( 'WPCOM_Domain' ) ) {
 		return true;
 	}
 
+	// @phan-suppress-next-line PhanUndeclaredClassMethod -- Being checked before being called.
 	$primary_domain_mapping = Domain_Mapping::find_primary_by_blog_id( $blog_id );
 	$is_wpcom_domain        = true;
 
 	if ( null !== $primary_domain_mapping ) {
+		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Being checked before being called.
 		$wpcom_domain    = new WPCOM_Domain( $primary_domain_mapping->get_domain_name() );
 		$is_wpcom_domain = $wpcom_domain->is_wpcom_tld();
 	}
@@ -2822,10 +2829,15 @@ function wpcom_launchpad_is_ssl_task_disabled() {
  * @return bool
  */
 function wpcom_launchpad_is_ssl_task_completed() {
+	// Only run on WPCOM platform.
+	if ( ! ( new Automattic\Jetpack\Status\Host() )->is_wpcom_platform() ) {
+		return false;
+	}
+
 	$task_id = 'check_ssl_status';
 
 	// If the task is already complete, return true.
-	if ( wpcom_launchpad_is_task_option_completed( $task_id ) ) {
+	if ( wpcom_launchpad_is_task_option_completed( array( 'id' => $task_id ) ) ) {
 		return true;
 	}
 
@@ -2835,6 +2847,7 @@ function wpcom_launchpad_is_ssl_task_completed() {
 
 	$blog_id = get_current_blog_id();
 
+	// @phan-suppress-next-line PhanUndeclaredClassMethod -- Being checked before being called.
 	$primary_domain_mapping = Domain_Mapping::find_primary_by_blog_id( $blog_id );
 
 	// If the site doesn't have a primary domain mapping, the task is not complete.
@@ -2844,6 +2857,7 @@ function wpcom_launchpad_is_ssl_task_completed() {
 		return false;
 	}
 	// This way of checking for the certificate was extracted from the get_ssl_status function in wp-content/rest-api-plugins/endpoints/domains-ssl.php
+	// @phan-suppress-next-line PhanUndeclaredClass -- Being checked before being called.
 	$certificate_flag_manager = WPCOM\Container\DI::get( Domain_Certificate_Flags_Manager::class );
 	$certificate_flags        = $certificate_flag_manager->get_flags( $primary_domain_mapping->get_domain_name() );
 
@@ -2855,6 +2869,7 @@ function wpcom_launchpad_is_ssl_task_completed() {
 		return false;
 	}
 
+	// @phan-suppress-next-line PhanUndeclaredClass -- Being checked before being called.
 	if ( isset( $certificate_flags[ Domain_Certificate_Flag_Group::CERTIFICATE_PROVISIONED ] ) ) {
 		// Mark task as complete if the certificate is provisioned.
 		wpcom_mark_launchpad_task_complete( $task_id );
