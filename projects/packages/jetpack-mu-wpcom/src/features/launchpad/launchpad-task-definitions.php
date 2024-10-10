@@ -835,7 +835,7 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_ssl_task_completed',
 			'is_visible_callback'  => '__return_true',
-			'is_disabled_callback' => 'wpcom_launchpad_is_ssl_task_disabled',
+			'is_disabled_callback' => 'wpcom_launchpad_is_primary_domain_wpcom',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
 				$domain = $data['site_slug_encoded'];
 				return '/domains/manage/' . $domain . '/edit/' . $domain;
@@ -2794,21 +2794,20 @@ function wpcom_launchpad_get_latest_draft_id() {
 }
 
 /**
- * Check if the SSL task should be disabled.
+ * Checks if the current site primary domain is a WPCOM domain.
  *
  * @return bool Will return true if the primary domain is a WPCOM domain.
  */
-function wpcom_launchpad_is_ssl_task_disabled() {
-	// Only run on WPCOM platform.
+function wpcom_launchpad_is_primary_domain_wpcom() {
 	if ( ! ( new Automattic\Jetpack\Status\Host() )->is_wpcom_platform() ) {
-		return true;
+		return false;
+	}
+
+	if ( ! class_exists( 'Domain_Mapping' ) || ! class_exists( 'WPCOM_Domain' ) ) {
+		return false;
 	}
 
 	$blog_id = get_current_blog_id();
-
-	if ( ! class_exists( 'Domain_Mapping' ) || ! class_exists( 'WPCOM_Domain' ) ) {
-		return true;
-	}
 
 	// @phan-suppress-next-line PhanUndeclaredClassMethod -- Being checked before being called.
 	$primary_domain_mapping = Domain_Mapping::find_primary_by_blog_id( $blog_id );
