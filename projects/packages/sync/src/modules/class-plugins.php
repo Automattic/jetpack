@@ -388,6 +388,8 @@ class Plugins extends Module {
 
 	/**
 	 * Helper method for firing the 'jetpack_plugins_updated' action on shutdown.
+	 *
+	 * @access public
 	 */
 	public function sync_plugins_updated() {
 		/**
