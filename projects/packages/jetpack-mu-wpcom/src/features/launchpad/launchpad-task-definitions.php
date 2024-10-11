@@ -829,11 +829,50 @@ function wpcom_launchpad_get_task_definitions() {
 				return admin_url( 'plugins.php' );
 			},
 		),
+		'email_setup'                     => array(
+			'get_title'            => function () {
+				return __( 'Set up email', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'is_visible_callback'  => 'wpcom_launchpad_is_email_setup_visible',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				return '/domains/manage/' . $data['site_slug_encoded'] . '/dns/' . $data['site_slug_encoded'];
+			},
+		),
 	);
 
 	$extended_task_definitions = apply_filters( 'wpcom_launchpad_extended_task_definitions', array() );
 
 	return array_merge( $extended_task_definitions, $task_definitions );
+}
+
+function wpcom_launchpad_is_email_setup_visible() {
+	return true;
+	if ( ! ( new Automattic\Jetpack\Status\Host() )->is_wpcom_platform() ) {
+		return false;
+	}
+
+	if ( ! class_exists( 'Domain_DNS_Records' ) ) {
+		return false;
+	}
+
+	$blog_id = get_current_blog_id();
+
+	$primary_domain_mapping = Domain_Mapping::find_primary_by_blog_id( $blog_id );
+	if ( null === $primary_domain_mapping ) {
+		return false;
+	}
+
+	$primary_domain     = $primary_domain_mapping->domain;
+	$domain_dns_records = Domain_DNS_Records::get_for_domain( $primary_domain );
+
+	foreach ( $domain_dns_records as $record ) {
+		if ( $record->type === 'MX' ) {
+			return true;
+		}
+	}
+
+	return false;
 }
 
 /**
