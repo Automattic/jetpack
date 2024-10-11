@@ -33,7 +33,7 @@ function load_wpcom_dashboard_widgets() {
 				'id'   => $wpcom_dashboard_widget['id'],
 				'name' => $wpcom_dashboard_widget['name'],
 			),
-			$wpcom_dashboard_widget['context'] ?? 'normal',
+			'normal',
 			$wpcom_dashboard_widget['priority']
 		);
 	}
