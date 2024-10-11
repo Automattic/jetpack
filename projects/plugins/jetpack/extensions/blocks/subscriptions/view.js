@@ -36,7 +36,7 @@ function show_iframe( data ) {
 	return showModal( url );
 }
 
-function show_iframe_get_current_user_email( blog, emailInput ) {
+function render_iframe_current_user_email( blog ) {
 	const existingIframe = document.getElementById( 'jp-subscribe-current-user-email-iframe' );
 	if ( existingIframe ) {
 		return;
@@ -55,6 +55,10 @@ function show_iframe_get_current_user_email( blog, emailInput ) {
 	iframe.src = url;
 
 	document.body.appendChild( iframe );
+}
+
+function get_current_user_email( blog, emailInput ) {
+	render_iframe_current_user_email( blog );
 
 	const handleIframeMessage = message => {
 		if (
@@ -95,7 +99,7 @@ domReady( function () {
 
 			const currentUserEmail = emailInput?.value ?? '';
 			if ( ! currentUserEmail ) {
-				show_iframe_get_current_user_email( form.dataset.blog, emailInput );
+				get_current_user_email( form.dataset.blog, emailInput );
 			}
 
 			form.addEventListener( 'submit', function ( event ) {
