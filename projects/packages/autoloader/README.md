@@ -46,7 +46,7 @@ During development, you can force the autoloader to use development package vers
   - Versions with a `dev-` prefix.
 
 
-Autoloader Limitations
+Autoloader Limitations and Caveats
 -----
 
 ### Plugin Updates
@@ -63,7 +63,7 @@ For instance, if your newer version of a class comes from a new package versione
 
 ### Jetpack Autoloader uses transient cache
 
-It's not a limitation per se, more a thing to be aware of when dealing with issues. The JP Autoloader uses transients to cache a list of available plugins to speed up the lookup process. This can sometimes mask problems that arise when loading code too early. See the [Debugging](#debugging) section for more information on how to detect situations like this.
+This is a caveat to be aware of when dealing with issues. The JP Autoloader uses transients to cache a list of available plugins to speed up the lookup process. This can sometimes mask problems that arise when loading code too early. See the [Debugging](#debugging) section for more information on how to detect situations like this.
 
 Debugging
 -----
