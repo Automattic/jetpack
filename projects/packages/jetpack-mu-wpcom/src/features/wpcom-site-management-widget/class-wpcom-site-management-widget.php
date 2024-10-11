@@ -2,6 +2,7 @@
 /**
  * A class that adds the WPCOM site management widget to the WordPress admin dashboard.
  *
+ * @todo Remove this file in the follow-up PR as it's not required.
  * @package automattic/jetpack-mu-plugins
  */
 
