@@ -72,6 +72,7 @@ class Odyssey_Assets {
 			'before'
 		);
 
+		// Config data for JITM.
 		wp_localize_script(
 			$asset_handle,
 			'jitm_config',
