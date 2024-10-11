@@ -63,6 +63,7 @@ export function BlogRollEdit( { className, attributes, setAttributes, clientId }
 		return (
 			<>
 				<ConnectBanner
+					block="Blogroll"
 					explanation={ __(
 						'Connect your WordPress.com account to use the Blogroll block.',
 						'jetpack'

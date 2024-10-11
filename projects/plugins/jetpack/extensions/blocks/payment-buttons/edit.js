@@ -80,6 +80,7 @@ function PaymentButtonsEdit( { clientId, attributes } ) {
 		return (
 			<div { ...blockProps }>
 				<ConnectBanner
+					block="Payment Buttons"
 					explanation={ __(
 						'Connect your WordPress.com account to enable payment buttons on your site.',
 						'jetpack'
