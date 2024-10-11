@@ -18,6 +18,7 @@ import {
 	EVENT_UPGRADE,
 	EVENT_PLACEMENT_INPUT_FOOTER,
 	EVENT_SWITCH_STYLE,
+	EVENT_GUESS_STYLE,
 } from '../constants.js';
 import { useCheckout } from '../hooks/use-checkout.js';
 import useLogoGenerator from '../hooks/use-logo-generator.js';
@@ -60,6 +61,7 @@ export const Prompt = ( { initialPrompt = '' }: PromptProps ) => {
 		context,
 		tierPlansEnabled,
 		imageStyles,
+		guessStyle,
 	} = useLogoGenerator();
 
 	const enhancingLabel = __( 'Enhancing…', 'jetpack-ai-client' );
@@ -126,9 +128,19 @@ export const Prompt = ( { initialPrompt = '' }: PromptProps ) => {
 	}, [ imageStyles ] );
 
 	const onGenerate = useCallback( async () => {
-		// shouldn't tool be "logo-generator" to be more specific?
-		recordTracksEvent( EVENT_GENERATE, { context, tool: 'image', style } );
-		generateLogo( { prompt, style } );
+		debug( context );
+		if ( style === IMAGE_STYLE_AUTO ) {
+			setIsEnhancingPrompt( true );
+			recordTracksEvent( EVENT_GUESS_STYLE, { context, tool: 'image' } );
+			const guessedStyle = ( await guessStyle( prompt ) ) || IMAGE_STYLE_NONE;
+			setStyle( guessedStyle );
+			recordTracksEvent( EVENT_GENERATE, { context, tool: 'image', style: guessedStyle } );
+			setIsEnhancingPrompt( false );
+			generateLogo( { prompt, style: guessedStyle } );
+		} else {
+			recordTracksEvent( EVENT_GENERATE, { context, tool: 'image', style } );
+			generateLogo( { prompt, style } );
+		}
 	}, [ context, generateLogo, prompt, style ] );
 
 	const onPromptInput = ( event: React.ChangeEvent< HTMLInputElement > ) => {
@@ -196,6 +208,7 @@ export const Prompt = ( { initialPrompt = '' }: PromptProps ) => {
 						value={ style }
 						options={ styles }
 						onChange={ updateStyle }
+						disabled={ isBusy || requireUpgrade }
 					/>
 				) }
 			</div>
