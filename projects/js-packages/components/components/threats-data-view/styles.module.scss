@@ -1,0 +1,45 @@
+@import '@wordpress/dataviews/build-style/style.css';
+
+:global {
+    .dataviews-view-table td, .dataviews-view-table th {
+        white-space: initial;
+    }
+}
+
+.icon-check {
+	fill: var( --jp-green-40 );
+}
+
+.icon-info {
+	fill: var( --jp-red );
+}
+
+.support-link {
+	color: inherit;
+
+	&:focus,
+	&:hover {
+		color: inherit;
+		box-shadow: none;
+	}
+}
+
+.threat__subtitle {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	font-size: 0.75rem; // 12px
+	line-height: 1.25rem; // 20px 
+	color: var( --jp-gray-80 );
+	font-weight: 400;
+}
+
+.threat__title {
+	color: var( --jp-gray-80 );
+	font-size: 0.875rem; // 14px
+	font-weight: 510;
+}
+
+.threat__description {
+	color: var( --jp-gray-80 );
+}
