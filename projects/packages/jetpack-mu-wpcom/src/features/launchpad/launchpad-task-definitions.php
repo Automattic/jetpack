@@ -2845,6 +2845,10 @@ function wpcom_launchpad_is_ssl_task_completed() {
 		return false;
 	}
 
+	if ( ! wpcom_launchpad_is_primary_domain_wpcom() ) {
+		return false;
+	}
+
 	$blog_id = get_current_blog_id();
 
 	// @phan-suppress-next-line PhanUndeclaredClassMethod -- Being checked before being called.
@@ -2859,22 +2863,13 @@ function wpcom_launchpad_is_ssl_task_completed() {
 	// This way of checking for the certificate was extracted from the get_ssl_status function in wp-content/rest-api-plugins/endpoints/domains-ssl.php
 	// @phan-suppress-next-line PhanUndeclaredClassMethod, PhanUndeclaredClassReference
 	$certificate_flag_manager = WPCOM\Container\DI::get( Domain_Certificate_Flags_Manager::class );
-	$certificate_flags        = $certificate_flag_manager->get_flags( $primary_domain_mapping->get_domain_name() );
+	$is_provisioned           = $certificate_flag_manager->has_certificate_provisioned_flag( $primary_domain_mapping->get_domain_name() );
 
-	if ( empty( $certificate_flags ) ) {
+	if ( ! $is_provisioned ) {
 		return false;
 	}
 
-	if ( count( $certificate_flags ) > 1 ) {
-		return false;
-	}
-
-	// @phan-suppress-next-line PhanUndeclaredClassConstant
-	if ( isset( $certificate_flags[ Domain_Certificate_Flag_Group::CERTIFICATE_PROVISIONED ] ) ) {
-		// Mark task as complete if the certificate is provisioned.
-		wpcom_mark_launchpad_task_complete( $task_id );
-		return true;
-	}
-
-	return false;
+	// Mark task as complete if the certificate is provisioned.
+	wpcom_mark_launchpad_task_complete( $task_id );
+	return true;
 }
