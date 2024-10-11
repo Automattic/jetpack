@@ -76,73 +76,6 @@ class Jetpack {
 	public $xmlrpc_server = null;
 
 	/**
-	 * List of Jetpack modules that have CSS that gets concatenated into jetpack.css.
-	 *
-	 * See $concatenated_style_handles for the list of handles,
-	 * and the implode_frontend_css method for more details.
-	 *
-	 * When updating this list, make sure to update $concatenated_style_handles as well.
-	 *
-	 * @var array List of Jetpack modules.
-	 */
-	public $modules_with_concatenated_css = array(
-		'carousel',
-		'contact-form',
-		'infinite-scroll',
-		'likes',
-		'related-posts',
-		'sharedaddy',
-		'shortcodes',
-		'subscriptions',
-		'tiled-gallery',
-		'widgets',
-	);
-
-	/**
-	 * The handles of styles that are concatenated into jetpack.css.
-	 *
-	 * When making changes to that list,
-	 * you must also update concat_list in tools/webpack.config.css.js,
-	 * and to $modules_with_concatenated_css if necessary.
-	 *
-	 * @var array The handles of styles that are concatenated into jetpack.css.
-	 */
-	public $concatenated_style_handles = array(
-		'jetpack-carousel-swiper-css',
-		'jetpack-carousel',
-		'grunion.css',
-		'the-neverending-homepage',
-		'jetpack_likes',
-		'jetpack_related-posts',
-		'sharedaddy',
-		'jetpack-slideshow',
-		'presentations',
-		'quiz',
-		'jetpack-subscriptions',
-		'jetpack-responsive-videos',
-		'jetpack-social-menu',
-		'tiled-gallery',
-		'jetpack_display_posts_widget',
-		'gravatar-profile-widget',
-		'goodreads-widget',
-		'jetpack_social_media_icons_widget',
-		'jetpack-top-posts-widget',
-		'jetpack_image_widget',
-		'jetpack-my-community-widget',
-		'jetpack-authors-widget',
-		'wordads',
-		'eu-cookie-law-style',
-		'flickr-widget-style',
-		'jetpack-search-widget',
-		'jetpack-simple-payments-widget-style',
-		'jetpack-widget-social-icons-styles',
-		'wpcom_instagram_widget',
-		'milestone-widget',
-		'subscribe-modal-css',
-		'subscribe-overlay-css',
-	);
-
-	/**
 	 * Contains all assets that have had their URL rewritten to minified versions.
 	 *
 	 * @var array
@@ -762,17 +695,6 @@ class Jetpack {
 
 		// Update the site's Jetpack plan and products from API on heartbeats.
 		add_action( 'jetpack_heartbeat', array( Jetpack_Plan::class, 'refresh_from_wpcom' ) );
-
-		/**
-		 * This is the hack to concatenate all css files into one.
-		 * For description and reasoning see the implode_frontend_css method.
-		 *
-		 * Super late priority so we catch all the registered styles.
-		 */
-		if ( ! is_admin() ) {
-			add_action( 'wp_print_styles', array( $this, 'implode_frontend_css' ), -1 ); // Run first.
-			add_action( 'wp_print_footer_scripts', array( $this, 'implode_frontend_css' ), -1 ); // Run first to trigger before `print_late_styles`.
-		}
 
 		// Actually push the stats on shutdown.
 		if ( ! has_action( 'shutdown', array( $this, 'push_stats' ) ) ) {
@@ -2235,6 +2157,15 @@ class Jetpack {
 			}
 		}
 
+		// Special case to convert block setting to a block module.
+		$block_key = array_search( 'blocks', $modules, true );
+		if ( $block_key !== false ) { // Only care if 'blocks' made it through the previous filters.
+			$block_option = get_option( 'jetpack_blocks_disabled', null );
+			if ( $block_option ) {
+				unset( $modules[ $block_key ] );
+			}
+		}
+
 		return $modules;
 	}
 
@@ -3561,54 +3492,14 @@ p {
 	}
 
 	/**
-	 * Add help to the Jetpack page
+	 * Doesn't do anything anymore.
+	 *
+	 * @deprecated 13.9 We no longer show the "Help" button.
 	 *
 	 * @since Jetpack (1.2.3)
 	 * @return void
 	 */
-	public function admin_help() {
-		$current_screen = get_current_screen();
-
-		// Overview.
-		$current_screen->add_help_tab(
-			array(
-				'id'      => 'home',
-				'title'   => __( 'Home', 'jetpack' ),
-				'content' =>
-					'<p><strong>' . __( 'Jetpack', 'jetpack' ) . '</strong></p>' .
-					'<p>' . __( 'Jetpack supercharges your self-hosted WordPress site with the awesome cloud power of WordPress.com.', 'jetpack' ) . '</p>' .
-					'<p>' . __( 'On this page, you are able to view the modules available within Jetpack, learn more about them, and activate or deactivate them as needed.', 'jetpack' ) . '</p>',
-			)
-		);
-
-		// Screen Content.
-		if ( current_user_can( 'manage_options' ) ) {
-			$current_screen->add_help_tab(
-				array(
-					'id'      => 'settings',
-					'title'   => __( 'Settings', 'jetpack' ),
-					'content' =>
-						'<p><strong>' . __( 'Jetpack', 'jetpack' ) . '</strong></p>' .
-						'<p>' . __( 'You can activate or deactivate individual Jetpack modules to suit your needs.', 'jetpack' ) . '</p>' .
-						'<ol>' .
-							'<li>' . __( 'Each module has an Activate or Deactivate link so you can toggle one individually.', 'jetpack' ) . '</li>' .
-							'<li>' . __( 'Using the checkboxes next to each module, you can select multiple modules to toggle via the Bulk Actions menu at the top of the list.', 'jetpack' ) . '</li>' .
-						'</ol>' .
-						'<p>' . __( 'Using the tools on the right, you can search for specific modules, filter by module categories or which are active, or change the sorting order.', 'jetpack' ) . '</p>',
-				)
-			);
-		}
-
-		// Help Sidebar.
-		$support_url = Redirect::get_url( 'jetpack-support' );
-		$faq_url     = Redirect::get_url( 'jetpack-faq' );
-		$current_screen->set_help_sidebar(
-			'<p><strong>' . __( 'For more information:', 'jetpack' ) . '</strong></p>' .
-			'<p><a href="' . esc_url( $faq_url ) . '" rel="noopener noreferrer" target="_blank">' . __( 'Jetpack FAQ', 'jetpack' ) . '</a></p>' .
-			'<p><a href="' . esc_url( $support_url ) . '" rel="noopener noreferrer" target="_blank">' . __( 'Jetpack Support', 'jetpack' ) . '</a></p>' .
-			'<p><a href="' . esc_url( self::admin_url( array( 'page' => 'jetpack-debugger' ) ) ) . '">' . __( 'Jetpack Debugging Center', 'jetpack' ) . '</a></p>'
-		);
-	}
+	public function admin_help() {}
 
 	/**
 	 * Add action links for the Jetpack plugin.
@@ -3650,12 +3541,8 @@ p {
 				'_inc/build/plugins-page.js',
 				JETPACK__PLUGIN_FILE,
 				array(
-					'in_footer'    => true,
-					'textdomain'   => 'jetpack',
-					'dependencies' => array(
-						'wp-polyfill',
-						'wp-components',
-					),
+					'in_footer'  => true,
+					'textdomain' => 'jetpack',
 				)
 			);
 			Assets::enqueue_script( 'jetpack-plugins-page-js' );
@@ -5533,6 +5420,8 @@ endif;
 				'replacement' => null,
 				'version'     => 'jetpack-13.4.0',
 			),
+			// jetpack_implode_frontend_css has been removed, but is not listed here. The updated behavior is exactly the only use of the filter.
+			// We can reassess formally deprecating it here later; for now, it would be noise with no functional difference.
 		);
 
 		foreach ( $filter_deprecated_list as $tag => $args ) {
@@ -5662,127 +5551,6 @@ endif;
 		}
 
 		return $css;
-	}
-
-	/**
-	 * This methods removes all of the registered css files on the front end
-	 * from Jetpack in favor of using a single file. In effect "imploding"
-	 * all the files into one file.
-	 *
-	 * Pros:
-	 * - Uses only ONE css asset connection instead of 15
-	 * - Saves a minimum of 56k
-	 * - Reduces server load
-	 * - Reduces time to first painted byte
-	 *
-	 * Cons:
-	 * - Loads css for ALL modules. However all selectors are prefixed so it
-	 *      should not cause any issues with themes.
-	 * - Plugins/themes dequeuing styles no longer do anything. See
-	 *      jetpack_implode_frontend_css filter for a workaround
-	 *
-	 * For some situations developers may wish to disable css imploding and
-	 * instead operate in legacy mode where each file loads seperately and
-	 * can be edited individually or dequeued. This can be accomplished with
-	 * the following line:
-	 *
-	 * add_filter( 'jetpack_implode_frontend_css', '__return_false' );
-	 *
-	 * @param bool $travis_test Is this a test run.
-	 *
-	 * @since 3.2
-	 * @since $$next-version$$ Default to not imploding. Requires a filter to enable. This may be temporary before dropping completely.
-	 */
-	public function implode_frontend_css( $travis_test = false ) {
-		$do_implode = false;
-		if ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
-			// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-			// $do_implode = false;
-		}
-
-		// Do not implode CSS when the page loads via the AMP plugin.
-		if ( class_exists( Jetpack_AMP_Support::class ) && Jetpack_AMP_Support::is_amp_request() ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
-			// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-			// $do_implode = false;
-		}
-
-		/*
-		 * Only proceed if at least 2 modules with concatenated CSS are active.
-		 * There is no point in serving a big concatenated CSS file
-		 * if there are no features (or only one) that actually need some CSS loaded.
-		 */
-		$active_modules                = self::get_active_modules();
-		$modules_with_concatenated_css = $this->modules_with_concatenated_css;
-		$active_module_with_css_count  = count( array_intersect( $active_modules, $modules_with_concatenated_css ) );
-		if ( $active_module_with_css_count < 2 ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
-			// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-			// $do_implode = false;
-		}
-
-		/**
-		 * Allow CSS to be concatenated into a single jetpack.css file.
-		 *
-		 * @since 3.2.0
-		 *
-		 * @param bool $do_implode Should CSS be concatenated? Default to true.
-		 */
-		$do_implode = apply_filters( 'jetpack_implode_frontend_css', $do_implode );
-
-		// Do not use the imploded file when default behavior was altered through the filter.
-		if ( ! $do_implode ) {
-			return;
-		}
-
-		// We do not want to use the imploded file in dev mode, or if not connected.
-		if ( ( new Status() )->is_offline_mode() || ! self::is_connection_ready() ) {
-			if ( ! $travis_test ) {
-				return;
-			}
-		}
-
-		// Do not use the imploded file if sharing css was dequeued via the sharing settings screen.
-		if ( get_option( 'sharedaddy_disable_resources' ) ) {
-			return;
-		}
-
-		/*
-		 * Now we assume Jetpack is connected and able to serve the single
-		 * file.
-		 *
-		 * In the future there will be a check here to serve the file locally
-		 * or potentially from the Jetpack CDN
-		 *
-		 * For now:
-		 * - Enqueue a single imploded css file
-		 * - Zero out the style_loader_tag for the bundled ones
-		 * - Be happy, drink scotch
-		 */
-
-		add_filter( 'style_loader_tag', array( $this, 'concat_remove_style_loader_tag' ), 10, 2 );
-
-		$version = self::is_development_version() ? filemtime( JETPACK__PLUGIN_DIR . 'css/jetpack.css' ) : JETPACK__VERSION;
-
-		wp_enqueue_style( 'jetpack_css', plugins_url( 'css/jetpack.css', __FILE__ ), array(), $version );
-		wp_style_add_data( 'jetpack_css', 'rtl', 'replace' );
-	}
-
-	/**
-	 * Removes styles that are part of concatenated group.
-	 *
-	 * @param string $tag Style tag.
-	 * @param string $handle Style handle.
-	 *
-	 * @return string
-	 */
-	public function concat_remove_style_loader_tag( $tag, $handle ) {
-		if ( in_array( $handle, $this->concatenated_style_handles, true ) ) {
-			$tag = '';
-			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-				$tag = '<!-- `' . esc_html( $handle ) . "` is included in the concatenated jetpack.css -->\r\n";
-			}
-		}
-
-		return $tag;
 	}
 
 	/**

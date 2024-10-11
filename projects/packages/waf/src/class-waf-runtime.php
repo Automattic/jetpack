@@ -39,6 +39,14 @@ class Waf_Runtime {
 	const NORMALIZE_ARRAY_MATCH_VALUES = 2;
 
 	/**
+	 * The version of this runtime class. Used by rule files to ensure compatibility.
+	 *
+	 * @since 0.21.0
+	 *
+	 * @var int
+	 */
+	public $version = 1;
+	/**
 	 * Last rule.
 	 *
 	 * @var string
@@ -68,6 +76,12 @@ class Waf_Runtime {
 	 * @var string
 	 */
 	public $matched_var_name = '';
+	/**
+	 * Body Processor.
+	 *
+	 * @var string 'URLENCODED' | 'JSON' | ''
+	 */
+	private $body_processor = '';
 
 	/**
 	 * State.
@@ -438,7 +452,7 @@ class Waf_Runtime {
 					$value = $this->args_names( $this->meta( 'args_get' ) );
 					break;
 				case 'args_post':
-					$value = $this->request->get_post_vars();
+					$value = $this->request->get_post_vars( $this->get_body_processor() );
 					break;
 				case 'args_post_names':
 					$value = $this->args_names( $this->meta( 'args_post' ) );
@@ -486,6 +500,28 @@ class Waf_Runtime {
 		}
 
 		return $output;
+	}
+
+	/**
+	 * Get the body processor.
+	 *
+	 * @return string
+	 */
+	private function get_body_processor() {
+		return $this->body_processor;
+	}
+
+	/**
+	 * Set the body processor.
+	 *
+	 * @param string $processor Processor to set. Either 'URLENCODED' or 'JSON'.
+	 *
+	 * @return void
+	 */
+	public function set_body_processor( $processor ) {
+		if ( $processor === 'URLENCODED' || $processor === 'JSON' ) {
+			$this->body_processor = $processor;
+		}
 	}
 
 	/**

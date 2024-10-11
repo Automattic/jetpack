@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.71.1] - 2024-10-07
+### Changed
+- Updated package dependencies. [#39594]
+
+### Fixed
+- Social: Fixed share status tooltip text overflow [#39599]
+
+## [0.71.0] - 2024-10-01
+### Added
+- Social: Added support for Bluesky [#39561]
+
+## [0.70.1] - 2024-09-30
+### Changed
+- Update dependencies. [#39528]
+
 ## [0.70.0] - 2024-09-23
 ### Added
 - Added tracking for the resharing action [#39408]
@@ -944,6 +959,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#24470]
 
+[0.71.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.71.0...v0.71.1
+[0.71.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.70.1...v0.71.0
+[0.70.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.70.0...v0.70.1
 [0.70.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.69.0...v0.70.0
 [0.69.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.68.0...v0.69.0
 [0.68.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.67.0...v0.68.0

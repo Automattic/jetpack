@@ -102,7 +102,7 @@ The easiest way is to use the Custom Message option in the publishing options bo
 6. Managing Social media accounts in the post editor
 
 == Changelog ==
-### 5.3.1 - 2024-09-06
+### 5.4.1 - 2024-10-02
 #### Changed
 - Internal updates.
 

@@ -1,7 +1,6 @@
 import { MastodonPreviews } from '@automattic/social-previews';
 import { useSelect } from '@wordpress/data';
 import { decodeEntities } from '@wordpress/html-entities';
-import { usePostMeta } from '../../hooks/use-post-meta';
 import useSocialMediaMessage from '../../hooks/use-social-media-message';
 import { SOCIAL_STORE_ID, CONNECTION_SERVICE_MASTODON } from '../../social-store';
 
@@ -16,7 +15,6 @@ const MastodonPreview = props => {
 			siteName: decodeEntities( getUnstableBase().name ),
 		};
 	} );
-	const { attachedMedia } = usePostMeta();
 
 	const user = useSelect( select => {
 		const {
@@ -40,7 +38,6 @@ const MastodonPreview = props => {
 			description={ content }
 			customText={ message }
 			customImage={ customImage }
-			isSocialPost={ attachedMedia.length > 0 }
 		/>
 	);
 };

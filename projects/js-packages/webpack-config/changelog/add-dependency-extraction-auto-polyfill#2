@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Babel preset: Add default for base `targets` option, replacing default `.presetEnv.targets`.

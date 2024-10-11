@@ -326,14 +326,15 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.9-a.7 - 2024-09-23
+### 14.0-a.1 - 2024-10-07
 #### Enhancements
-- Jetpack AI: Add AI SEO title optimization.
+- Sitemap: Improve sitemap write efficienty.
+- CSS: Rely esclusively on individual CSS files instead of a combined one for the features used on each page to improve page loading.
+- Social: Add support for Bluesky 🎉.
+- Scan: Update Jetpack Scan link in the WP Admin menu.
 
 #### Bug fixes
-- Shortcode: Fix the YouTube URL for the private videos.
-- Social: Fix social previews button sometimes not fitting all the text.
-- Blocks: Prevent Memberships blocks from being registered when the site is not connected to Jetpack.
+- Social: Prevent text overflow in the share status tooltip.
 
 --------
 

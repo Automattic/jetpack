@@ -262,7 +262,6 @@ class DashScan extends Component {
 				path="dashboard"
 				plan={ getJetpackProductUpsellByFeature( FEATURE_SECURITY_SCANNING_JETPACK ) }
 				trackBannerDisplay={ this.props.trackUpgradeButtonView }
-				noIcon
 			/>
 		);
 	}
@@ -308,8 +307,10 @@ class DashScan extends Component {
 		return (
 			<>
 				{ renderActiveCard( [
-					<h2 className="jp-dash-item__count is-alert">{ numberFormat( numberOfThreats ) }</h2>,
-					<p className="jp-dash-item__description">
+					<h2 key="header" className="jp-dash-item__count is-alert">
+						{ numberFormat( numberOfThreats ) }
+					</h2>,
+					<p key="description" className="jp-dash-item__description">
 						{ createInterpolateElement(
 							_n(
 								'Security threat found. <a>Click here</a> to fix them immediately.',
@@ -380,11 +381,9 @@ class DashScan extends Component {
 	}
 
 	getUpgradeContent() {
-		const { hasConnectedOwner } = this.props;
-
 		return renderCard( {
 			className: 'jp-dash-item__is-inactive',
-			overrideContent: hasConnectedOwner ? this.getUpgradeBanner() : this.getConnectBanner(),
+			overrideContent: this.getUpgradeBanner(),
 		} );
 	}
 

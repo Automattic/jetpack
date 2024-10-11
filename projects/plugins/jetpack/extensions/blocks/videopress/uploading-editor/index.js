@@ -129,7 +129,10 @@ export const UploadingEditor = props => {
 						value={ title }
 					/>
 					<div className="uploading-editor__content">
-						<BaseControl label={ __( 'Video poster (optional)', 'jetpack' ) }>
+						<BaseControl>
+							<BaseControl.VisualLabel>
+								{ __( 'Video poster (optional)', 'jetpack' ) }
+							</BaseControl.VisualLabel>
 							{ canDisplayThumbnailScrubber ? (
 								<>
 									<div className="uploading-editor__video-container">

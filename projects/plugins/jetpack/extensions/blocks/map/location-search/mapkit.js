@@ -1,4 +1,4 @@
-import { BaseControl, TextControl } from '@wordpress/components';
+import { TextControl } from '@wordpress/components';
 import { useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import Lookup from '../lookup';
@@ -88,10 +88,11 @@ const MapkitLocationSearch = ( { label, onAddPoint } ) => {
 
 	return (
 		<div ref={ containerRef }>
-			<BaseControl label={ label } className="components-location-search">
+			<div className="components-location-search">
 				<Lookup completer={ autocompleter } onReset={ onReset }>
 					{ ( { isExpanded, listBoxId, activeId, onChange, onKeyDown } ) => (
 						<TextControl
+							label={ label }
 							placeholder={ placeholderText }
 							ref={ textRef }
 							onChange={ onChange }
@@ -102,7 +103,7 @@ const MapkitLocationSearch = ( { label, onAddPoint } ) => {
 						/>
 					) }
 				</Lookup>
-			</BaseControl>
+			</div>
 		</div>
 	);
 };

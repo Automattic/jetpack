@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Add `key` in JetpackFieldControls controls. Should be no change to functionality.
+
+

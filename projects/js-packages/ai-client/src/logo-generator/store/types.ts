@@ -1,3 +1,4 @@
+import type { ImageStyleObject } from '../../hooks/use-image-generator/constants.js';
 import type { SiteDetails } from '../types.js';
 
 /**
@@ -13,7 +14,7 @@ export type UpgradeTypeProp = 'vip' | 'default';
 
 export type TierUnlimitedProps = {
 	slug: 'ai-assistant-tier-unlimited';
-	limit: 999999999;
+	limit: 999999999 | 3000;
 	value: 1;
 	readableLimit: string;
 };
@@ -88,10 +89,14 @@ export type TierValueProp =
 	| Tier750Props[ 'value' ]
 	| Tier1000Props[ 'value' ];
 
+export type LogoGeneratorFeatureControl = FeatureControl & {
+	styles: Array< ImageStyleObject > | [];
+};
+
 export type FeatureControl = {
 	enabled: boolean;
 	'min-jetpack-version': string;
-	[ key: string ]: FeatureControl | boolean | string;
+	[ key: string ]: FeatureControl | LogoGeneratorFeatureControl | boolean | string;
 };
 
 export type FeaturesControl = { [ key: string ]: FeatureControl };

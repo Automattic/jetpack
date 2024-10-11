@@ -1,6 +1,7 @@
 /**
  * WordPress dependencies
  */
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { isBlobURL, getBlobByURL } from '@wordpress/blob';
 import { store as blockEditorStore } from '@wordpress/block-editor';
 import {
@@ -26,6 +27,7 @@ import {
 	isVideoPressActive,
 	isVideoPressModuleActive,
 } from '../../../lib/connection';
+import { isUserConnected } from '../../../lib/connection';
 import { buildVideoPressURL, getVideoPressUrl } from '../../../lib/url';
 import { usePreview } from '../../hooks/use-preview';
 import { useSyncMedia } from '../../hooks/use-sync-media';
@@ -71,6 +73,7 @@ export const PlaceholderWrapper = withNotices( function ( {
 	noticeOperations,
 	instructions = description,
 	disableInstructions,
+	className,
 } ) {
 	useEffect( () => {
 		if ( ! errorMessage ) {
@@ -87,6 +90,7 @@ export const PlaceholderWrapper = withNotices( function ( {
 			label={ title }
 			instructions={ disableInstructions ? null : instructions }
 			notices={ noticeUI }
+			className={ className }
 		>
 			{ children }
 		</Placeholder>
@@ -148,6 +152,8 @@ export default function VideoPressEdit( {
 
 	// Get the redirect URI for the connection flow.
 	const [ isRedirectingToMyJetpack, setIsRedirectingToMyJetpack ] = useState( false );
+	const hasUserConnection = isUserConnected();
+	const { tracks: analyticsTracks } = useAnalytics();
 
 	// Detect if the chapter file is auto-generated.
 	const chapter = tracks?.filter( track => track.kind === 'chapters' )?.[ 0 ];
@@ -395,15 +401,21 @@ export default function VideoPressEdit( {
 			<div { ...blockProps } className={ blockMainClassName }>
 				<>
 					<ConnectBanner
-						isConnected={ isActive }
+						isConnected={ hasUserConnection }
 						isModuleActive={ isModuleActive || isStandalonePluginActive }
 						isConnecting={ isRedirectingToMyJetpack }
 						onConnect={ () => {
 							setIsRedirectingToMyJetpack( true );
-							if ( ! isStandalonePluginActive ) {
-								return ( window.location.href = jetpackVideoPressSettingUrl );
+							if ( ! hasUserConnection ) {
+								analyticsTracks.recordEvent( 'jetpack_editor_connect_banner_click', {
+									block: 'VideoPress',
+								} );
+								return ( window.location.href = myJetpackConnectUrl );
 							}
-							window.location.href = myJetpackConnectUrl;
+							analyticsTracks.recordEvent( 'jetpack_editor_activate_banner_click', {
+								block: 'VideoPress',
+							} );
+							window.location.href = jetpackVideoPressSettingUrl;
 						} }
 					/>
 
@@ -414,6 +426,7 @@ export default function VideoPressEdit( {
 						fileToUpload={ fileToUpload }
 						isReplacing={ isReplacingFile?.isReplacing }
 						onReplaceCancel={ cancelReplacingVideoFile }
+						isActive={ isActive }
 					/>
 				</>
 			</div>
@@ -592,15 +605,20 @@ export default function VideoPressEdit( {
 
 			<ConnectBanner
 				isModuleActive={ isModuleActive || isStandalonePluginActive }
-				isConnected={ isActive }
+				isConnected={ hasUserConnection }
 				isConnecting={ isRedirectingToMyJetpack }
 				onConnect={ () => {
 					setIsRedirectingToMyJetpack( true );
-					if ( ! isStandalonePluginActive ) {
-						return ( window.location.href = jetpackVideoPressSettingUrl );
+					if ( ! hasUserConnection ) {
+						analyticsTracks.recordEvent( 'jetpack_editor_connect_banner_click', {
+							block: 'VideoPress',
+						} );
+						return ( window.location.href = myJetpackConnectUrl );
 					}
-
-					window.location.href = myJetpackConnectUrl;
+					analyticsTracks.recordEvent( 'jetpack_editor_activate_banner_click', {
+						block: 'VideoPress',
+					} );
+					window.location.href = jetpackVideoPressSettingUrl;
 				} }
 			/>
 

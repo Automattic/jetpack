@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Babel preset: Fix `pluginPreserveI18n` option.

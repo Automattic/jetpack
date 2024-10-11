@@ -315,6 +315,16 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'woo_launch_site',
 			),
 		),
+		'post-migration'          => array(
+			'get_title' => function () {
+				return __( 'Site migration', 'jetpack-mu-wpcom' );
+			},
+			'task_ids'  => array(
+				'migrating_site',
+				'review_site',
+				'review_plugins',
+			),
+		),
 	);
 
 	$extended_task_list_definitions = apply_filters( 'wpcom_launchpad_extended_task_list_definitions', array() );

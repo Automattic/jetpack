@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.14.0] - 2024-10-10
+### Added
+- Jetpack Sync: Add 'woocommerce_analytics_first_activation' in options' whitelist
+
+### Changed
+- Sync: Ensure we don't sync set_object_terms action for terms with blacklisted taxonomies
+
+## [3.13.2] - 2024-09-30
+### Fixed
+- Jetpack Sync: Fix a bug in syncing HPOS 'woocommerce_delete_order' actions [#39562]
+
 ## [3.13.1] - 2024-09-23
 ### Changed
 - Update dependencies.
@@ -1295,6 +1306,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Move sync to a classmapped package
 
+[3.14.0]: https://github.com/Automattic/jetpack-sync/compare/v3.13.2...v3.14.0
+[3.13.2]: https://github.com/Automattic/jetpack-sync/compare/v3.13.1...v3.13.2
 [3.13.1]: https://github.com/Automattic/jetpack-sync/compare/v3.13.0...v3.13.1
 [3.13.0]: https://github.com/Automattic/jetpack-sync/compare/v3.12.0...v3.13.0
 [3.12.0]: https://github.com/Automattic/jetpack-sync/compare/v3.11.0...v3.12.0

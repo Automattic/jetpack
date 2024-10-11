@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+AI Client: if site details show empty or default, do not trigger a logo generation, use empty placeholders

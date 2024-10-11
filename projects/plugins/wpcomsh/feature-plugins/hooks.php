@@ -307,11 +307,6 @@ function wpcomsh_maybe_redirect_to_calypso_plugin_pages() {
 		wp_safe_redirect( 'https://wordpress.com/plugins/' . $site );
 		exit;
 	}
-
-	if ( 0 === strpos( $request_uri, '/wp-admin/plugins.php' ) ) {
-		wp_safe_redirect( 'https://wordpress.com/plugins/manage/' . $site );
-		exit;
-	}
 }
 add_action( 'plugins_loaded', 'wpcomsh_maybe_redirect_to_calypso_plugin_pages' );
 

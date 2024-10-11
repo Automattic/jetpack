@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.5.2-beta] - 2024-10-10
+### Changed
+- Deferred JS: Exclude all scripts produced by a shortcode. [#39616]
+- General: Sync Boost's Getting Started page with My Jetpack's version. [#39130]
+- General: Update minimum required WordPress version to 6.5 in main plugin file. Previous release only changed plugin readme. [#39719]
+
+### Fixed
+- Image CDN: URL encode image path parts for RSS feed compatibility [#39560]
+- Image Guide: Improve check for Jetpack Image CDN URLs [#39635]
+
+## [3.5.1] - 2024-09-26
+### Changed
+- Support: Increased minumum required WordPress version to 6.5 [#39540]
+
 ## [3.5.0] - 2024-09-25
 ### Changed
 - General: Show a simplified getting started page if the pricing is not available [#39526]
@@ -510,6 +524,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - First public alpha release
 
+[3.5.2-beta]: https://github.com/Automattic/jetpack-boost-production/compare/3.5.1...3.5.2-beta
+[3.5.1]: https://github.com/Automattic/jetpack-boost-production/compare/3.5.0...3.5.1
 [3.5.0]: https://github.com/Automattic/jetpack-boost-production/compare/3.4.9...3.5.0
 [3.4.9]: https://github.com/Automattic/jetpack-boost-production/compare/3.4.8...3.4.9
 [3.4.8]: https://github.com/Automattic/jetpack-boost-production/compare/3.4.7...3.4.8

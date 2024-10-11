@@ -802,6 +802,33 @@ function wpcom_launchpad_get_task_definitions() {
 				return site_url( '/wp-admin/admin.php?page=wc-admin&task=launch_site' );
 			},
 		),
+		'migrating_site'                  => array(
+			'get_title'            => function () {
+				return __( 'Migrating the site', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'is_visible_callback'  => '__return_true',
+		),
+		'review_site'                     => array(
+			'get_title'            => function () {
+				return __( "Review the site's content", 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'is_visible_callback'  => '__return_true',
+		),
+		'review_plugins'                  => array(
+			'get_title'             => function () {
+				return __( 'Review the migrated plugins', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback'  => 'wpcom_launchpad_is_task_option_completed',
+			'is_visible_callback'   => '__return_true',
+			'add_listener_callback' => function () {
+				add_action( 'pre_current_active_plugins', 'wpcom_launchpad_mark_review_plugins_complete' );
+			},
+			'get_calypso_path'      => function () {
+				return admin_url( 'plugins.php' );
+			},
+		),
 	);
 
 	$extended_task_definitions = apply_filters( 'wpcom_launchpad_extended_task_definitions', array() );
@@ -1761,6 +1788,14 @@ function wpcom_track_site_launch_task() {
 }
 
 /**
+ * Mark the plugins reviewed task as complete.
+ *
+ * @return void
+ */
+function wpcom_launchpad_mark_review_plugins_complete() {
+	wpcom_mark_launchpad_task_complete( 'review_plugins' );
+}
+/**
  * Callback that conditionally adds the site launch listener based on platform.
  *
  * @return void
@@ -2134,11 +2169,14 @@ function wpcom_launchpad_find_site_about_page_id() {
 	$headstart_about_pages = array_filter(
 		$annotation['content'],
 		function ( $page ) {
-			if ( 'page' !== $page['post_type'] ) {
+			if ( isset( $page['post_type'] ) && 'page' !== $page['post_type'] ) {
 				return false;
 			}
 
-			if ( 'about' === $page['post_name'] || str_contains( $page['post_title'], 'About' ) ) {
+			if ( isset( $page['post_name'] ) && 'about' === $page['post_name'] ) {
+				return true;
+			}
+			if ( isset( $page['post_title'] ) && str_contains( $page['post_title'], 'About' ) ) {
 				return true;
 			}
 		}

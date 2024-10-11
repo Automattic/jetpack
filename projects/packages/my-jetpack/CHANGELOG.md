@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.35.12] - 2024-10-10
+### Changed
+- Update Boost's pricing table to include latest feature list. [#39130]
+- Updated package dependencies. [#39669]
+- Updated package dependencies. [#39707]
+
+### Fixed
+- Fixed My Jetpack recommendations VideoPress product card not showing Purchase and Learn more buttons. [#39612]
+
+## [4.35.11] - 2024-10-07
+### Changed
+- Updated package dependencies. [#39594]
+
+## [4.35.10] - 2024-10-02
+### Changed
+- Internal updates.
+
+## [4.35.9] - 2024-09-30
+### Changed
+- Fix parameters to allow for connectAfterCheckout flow from recommendation card [#39578]
+- My Jetpack Welcome Flow: Display default recommendations upfront first, then offer optional survey for customized recommendations. [#39485]
+
+### Fixed
+- Fixed a bug where the purchases and highlights APIs were being called without a valid Jetpack connection [#39522]
+- My Jetpack: visual update to make the GlobalNotice component look better on mobile. [#39537]
+
 ## [4.35.8] - 2024-09-25
 ### Changed
 - Update dependencies. [#38910]
@@ -1746,6 +1772,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[4.35.12]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.35.11...4.35.12
+[4.35.11]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.35.10...4.35.11
+[4.35.10]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.35.9...4.35.10
+[4.35.9]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.35.8...4.35.9
 [4.35.8]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.35.7...4.35.8
 [4.35.7]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.35.6...4.35.7
 [4.35.6]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.35.5...4.35.6

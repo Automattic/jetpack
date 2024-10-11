@@ -26,6 +26,7 @@ type CoreSelect = {
 		url: string;
 		title: string;
 		description: string;
+		site_logo: number;
 	};
 };
 
@@ -80,6 +81,7 @@ const useSiteDetails = () => {
 		domain: window?.Jetpack_Editor_Initial_State?.siteFragment,
 		name: siteSettings?.title,
 		description: siteSettings?.description,
+		siteLogo: siteSettings?.site_logo || 0,
 	};
 };
 
@@ -127,7 +129,7 @@ const siteLogoEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			<>
 				<BlockEdit { ...props } />
 				<BlockControls group="block">
-					<AiToolbarButton clickHandler={ showModal } />
+					<AiToolbarButton showButtonText={ ! siteDetails?.siteLogo } clickHandler={ showModal } />
 				</BlockControls>
 				<GeneratorModal
 					isOpen={ isLogoGeneratorModalVisible }
