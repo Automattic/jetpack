@@ -321,6 +321,8 @@ function wpcom_launchpad_get_task_list_definitions() {
 			},
 			'task_ids'  => array(
 				'migrating_site',
+				'review_site',
+				'review_plugins',
 			),
 		),
 	);

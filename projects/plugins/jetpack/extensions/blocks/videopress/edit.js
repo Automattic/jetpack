@@ -567,10 +567,10 @@ const VideoPressEdit = CoreVideoEdit =>
 								help={ this.getPreloadHelp() }
 							/>
 							<MediaUploadCheck>
-								<BaseControl
-									className="editor-video-poster-control"
-									label={ __( 'Poster Image', 'jetpack' ) }
-								>
+								<BaseControl className="editor-video-poster-control">
+									<BaseControl.VisualLabel>
+										{ __( 'Poster Image', 'jetpack' ) }
+									</BaseControl.VisualLabel>
 									<MediaUpload
 										title={ __( 'Select Poster Image', 'jetpack' ) }
 										onSelect={ this.onSelectPoster }

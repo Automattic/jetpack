@@ -17,8 +17,8 @@ import useRequestErrors from './use-request-errors.js';
 /**
  * Types
  */
-import type { ImageStyle } from '../../hooks/use-image-generator/constants.js';
-import type { Logo, Selectors, SaveLogo } from '../store/types.js';
+import type { ImageStyle, ImageStyleObject } from '../../hooks/use-image-generator/constants.js';
+import type { Logo, Selectors, SaveLogo, LogoGeneratorFeatureControl } from '../store/types.js';
 
 const debug = debugFactory( 'jetpack-ai-calypso:use-logo-generator' );
 
@@ -79,7 +79,7 @@ const useLogoGenerator = () => {
 		setLogoUpdateError,
 	} = useRequestErrors();
 
-	const { generateImageWithParameters, getImageStyles } = useImageGenerator();
+	const { generateImageWithParameters } = useImageGenerator();
 	const { saveToMediaLibrary } = useSaveToMediaLibrary();
 
 	const { ID = null, name = null, description = null } = siteDetails || {};
@@ -87,6 +87,10 @@ const useLogoGenerator = () => {
 
 	const aiAssistantFeatureData = getAiAssistantFeature( siteId );
 	const logoGenerationCost = aiAssistantFeatureData?.costs?.[ 'jetpack-ai-logo-generator' ]?.logo;
+	const logoGeneratorControl = aiAssistantFeatureData?.featuresControl?.[
+		'logo-generator'
+	] as LogoGeneratorFeatureControl;
+	const imageStyles: Array< ImageStyleObject > = logoGeneratorControl?.styles;
 
 	const generateFirstPrompt = useCallback(
 		async function (): Promise< string > {
@@ -401,7 +405,7 @@ User request:${ prompt }`;
 		tierPlansEnabled,
 		isLoadingHistory,
 		setIsLoadingHistory,
-		getImageStyles,
+		imageStyles,
 	};
 };
 

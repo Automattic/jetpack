@@ -562,7 +562,6 @@ class Jetpack_Gutenberg {
 		// Enqueue script.
 		$script_relative_path  = self::get_blocks_directory() . $type . '/view.js';
 		$script_deps_path      = JETPACK__PLUGIN_DIR . self::get_blocks_directory() . $type . '/view.asset.php';
-		$script_dependencies[] = 'wp-polyfill';
 		$script_dependencies[] = 'jetpack-blocks-assets-base-url';
 		if ( file_exists( $script_deps_path ) ) {
 			$asset_manifest      = include $script_deps_path;
@@ -674,6 +673,10 @@ class Jetpack_Gutenberg {
 		// wp-edit-post but wp-edit-post's styles break the Widget Editor and
 		// Site Editor) until a real fix gets unblocked.
 		// @todo Remove this once #20357 is properly fixed.
+		$wp_styles_fix = wp_styles()->query( 'jetpack-blocks-editor', 'registered' );
+		if ( empty( $wp_styles_fix ) ) {
+			wp_die( 'Your installation of Jetpack is incomplete. Please run "jetpack build plugins/jetpack" in your dev env.' );
+		}
 		wp_styles()->query( 'jetpack-blocks-editor', 'registered' )->deps = array();
 
 		Assets::enqueue_script( 'jetpack-blocks-editor' );

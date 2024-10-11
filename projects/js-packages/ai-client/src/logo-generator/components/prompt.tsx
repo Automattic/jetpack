@@ -10,10 +10,7 @@ import { useCallback, useEffect, useState, useRef } from 'react';
 /**
  * Internal dependencies
  */
-import {
-	IMAGE_STYLE_MONTY_PYTHON,
-	IMAGE_STYLE_LINE_ART,
-} from '../../hooks/use-image-generator/constants.js';
+import { IMAGE_STYLE_NONE, IMAGE_STYLE_AUTO } from '../../hooks/use-image-generator/constants.js';
 import AiIcon from '../assets/icons/ai.js';
 import {
 	EVENT_GENERATE,
@@ -31,16 +28,15 @@ import './prompt.scss';
 /**
  * Types
  */
-import type { ImageStyle } from '../../hooks/use-image-generator/constants.js';
+import type { ImageStyle, ImageStyleObject } from '../../hooks/use-image-generator/constants.js';
 
 const debug = debugFactory( 'jetpack-ai-calypso:prompt-box' );
 
 type PromptProps = {
 	initialPrompt?: string;
-	showStyleSelector?: boolean;
 };
 
-export const Prompt = ( { initialPrompt = '', showStyleSelector = false }: PromptProps ) => {
+export const Prompt = ( { initialPrompt = '' }: PromptProps ) => {
 	const { tracks } = useAnalytics();
 	const { recordEvent: recordTracksEvent } = tracks;
 	const [ prompt, setPrompt ] = useState< string >( initialPrompt );
@@ -48,9 +44,9 @@ export const Prompt = ( { initialPrompt = '', showStyleSelector = false }: Promp
 	const { enhancePromptFetchError, logoFetchError } = useRequestErrors();
 	const { nextTierCheckoutURL: checkoutUrl, hasNextTier } = useCheckout();
 	const hasPrompt = prompt?.length >= MINIMUM_PROMPT_LENGTH;
-	const [ style, setStyle ] = useState< ImageStyle >(
-		showStyleSelector ? IMAGE_STYLE_LINE_ART : null
-	);
+	const [ showStyleSelector, setShowStyleSelector ] = useState( false );
+	const [ style, setStyle ] = useState< ImageStyle >( null );
+	const [ styles, setStyles ] = useState< Array< ImageStyleObject > >( [] );
 
 	const {
 		generateLogo,
@@ -63,7 +59,7 @@ export const Prompt = ( { initialPrompt = '', showStyleSelector = false }: Promp
 		requireUpgrade,
 		context,
 		tierPlansEnabled,
-		getImageStyles,
+		imageStyles,
 	} = useLogoGenerator();
 
 	const enhancingLabel = __( 'Enhancing…', 'jetpack-ai-client' );
@@ -108,6 +104,27 @@ export const Prompt = ( { initialPrompt = '', showStyleSelector = false }: Promp
 		}
 	}, [ prompt ] );
 
+	useEffect( () => {
+		if ( imageStyles.length > 0 ) {
+			// Sort styles to have "None" and "Auto" first
+			setStyles(
+				[
+					imageStyles.find( ( { value } ) => value === IMAGE_STYLE_NONE ),
+					imageStyles.find( ( { value } ) => value === IMAGE_STYLE_AUTO ),
+					...imageStyles.filter(
+						( { value } ) => ! [ IMAGE_STYLE_NONE, IMAGE_STYLE_AUTO ].includes( value )
+					),
+				].filter( v => v ) // simplest way to get rid of empty values
+			);
+			setShowStyleSelector( true );
+			setStyle( IMAGE_STYLE_NONE );
+		} else {
+			setStyles( [] );
+			setShowStyleSelector( false );
+			setStyle( null );
+		}
+	}, [ imageStyles ] );
+
 	const onGenerate = useCallback( async () => {
 		// shouldn't tool be "logo-generator" to be more specific?
 		recordTracksEvent( EVENT_GENERATE, { context, tool: 'image', style } );
@@ -150,10 +167,12 @@ export const Prompt = ( { initialPrompt = '', showStyleSelector = false }: Promp
 		[ context, setStyle, recordTracksEvent ]
 	);
 
-	const imageStyles = getImageStyles();
-	const availableStyles = Object.keys( imageStyles ).filter(
-		( styleKey: ImageStyle ) => styleKey !== IMAGE_STYLE_MONTY_PYTHON
-	);
+	const onKeyDown = ( event: React.KeyboardEvent ) => {
+		if ( event.key === 'Enter' ) {
+			event.preventDefault();
+			onGenerate();
+		}
+	};
 
 	return (
 		<div className="jetpack-ai-logo-generator__prompt">
@@ -171,21 +190,19 @@ export const Prompt = ( { initialPrompt = '', showStyleSelector = false }: Promp
 						{ enhanceButtonLabel }
 					</Button>
 				</div>
-				{ showStyleSelector && availableStyles && (
+				{ showStyleSelector && (
 					<SelectControl
-						// label={ __( 'Style', 'jetpack-ai-client' ) }
 						__nextHasNoMarginBottom
 						value={ style }
-						options={ availableStyles.map( imageStyle => ( {
-							label: imageStyles[ imageStyle ],
-							value: imageStyle,
-						} ) ) }
+						options={ styles }
 						onChange={ updateStyle }
 					/>
 				) }
 			</div>
 			<div className="jetpack-ai-logo-generator__prompt-query">
 				<div
+					role="textbox"
+					tabIndex={ 0 }
 					ref={ inputRef }
 					contentEditable={ ! isBusy && ! requireUpgrade }
 					// The content editable div is expected to be updated by the enhance prompt, so warnings are suppressed
@@ -193,6 +210,7 @@ export const Prompt = ( { initialPrompt = '', showStyleSelector = false }: Promp
 					className="prompt-query__input"
 					onInput={ onPromptInput }
 					onPaste={ onPromptPaste }
+					onKeyDown={ onKeyDown }
 					data-placeholder={ __(
 						'Describe your site or simply ask for a logo specifying some details about it',
 						'jetpack-ai-client'

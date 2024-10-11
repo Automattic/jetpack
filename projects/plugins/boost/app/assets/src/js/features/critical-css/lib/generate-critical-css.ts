@@ -6,7 +6,6 @@ import { logPreCriticalCSSGeneration } from '$lib/utils/console';
 import { isSameOrigin } from '$lib/utils/is-same-origin';
 import { prepareAdminAjaxRequest } from '$lib/utils/make-admin-ajax-request';
 import { standardizeError } from '$lib/utils/standardize-error';
-import { SuccessTargetError } from 'jetpack-boost-critical-css-gen';
 
 type Viewport = {
 	width: number;
@@ -45,6 +44,12 @@ interface ProviderCallbacks {
 interface GeneratorCallbacks extends ProviderCallbacks {
 	onError: ( error: Error ) => void; // Called when the generator fails with a critical error.
 	onFinished: () => void; // Called when the generator is finished, regardless of success or failure.
+}
+
+async function criticalCssGenerator() {
+	return await import(
+		/* webpackChunkName: "jetpack-critical-css-gen" */ '@automattic/jetpack-critical-css-gen'
+	);
 }
 
 /**
@@ -137,10 +142,11 @@ async function generateCriticalCss(
  * @param {Object} requestGetParameters - GET parameters to include with each request.
  * @param {string} proxyNonce           - Nonce to use when proxying CSS requests.
  */
-function createBrowserInterface(
+async function createBrowserInterface(
 	requestGetParameters: Record< string, string >,
 	proxyNonce: string
 ) {
+	const CriticalCSSGenerator = await criticalCssGenerator();
 	return new ( class extends CriticalCSSGenerator.BrowserInterfaceIframe {
 		constructor() {
 			super( {
@@ -164,10 +170,6 @@ function createBrowserInterface(
 	} )();
 }
 
-function isSuccessTargetError( err: unknown ): err is SuccessTargetError {
-	return err instanceof Error && 'isSuccessTargetError' in err;
-}
-
 /**
  * Generate Critical CSS for the specified Provider Keys, sending each block
  * to the server. Throws on error or cancellation.
@@ -187,11 +189,18 @@ async function generateForKeys(
 	callbacks: ProviderCallbacks,
 	signal: AbortSignal
 ): Promise< void > {
+	const CriticalCSSGenerator = await criticalCssGenerator();
 	try {
 		CriticalCSSGeneratorSchema.parse( CriticalCSSGenerator );
 	} catch ( err ) {
 		recordBoostEvent( 'critical_css_library_failure', {} );
 		throw new Error( 'css-gen-library-failure' );
+	}
+
+	function isSuccessTargetError(
+		err: unknown
+	): err is InstanceType< typeof CriticalCSSGenerator.SuccessTargetError > {
+		return err instanceof CriticalCSSGenerator.SuccessTargetError;
 	}
 
 	// eslint-disable-next-line @wordpress/no-unused-vars-before-return
@@ -209,7 +218,7 @@ async function generateForKeys(
 
 		try {
 			const [ css ] = await CriticalCSSGenerator.generateCriticalCSS( {
-				browserInterface: createBrowserInterface( requestGetParameters, proxyNonce ),
+				browserInterface: await createBrowserInterface( requestGetParameters, proxyNonce ),
 				urls,
 				viewports,
 				progressCallback: ( step: number, total: number ) => {
@@ -336,7 +345,7 @@ function keepAtRule( name: string ): boolean {
 /**
  * Helper method to filter out properties that we don't want.
  * Note this function is used as a filter in the generateCriticalCSS function
- * in the jetpack-boost-critical-css-gen library (https://github.com/Automattic/jetpack-boost-critical-css-gen).
+ * in the @automattic/jetpack-critical-css-gen library (https://github.com/Automattic/jetpack-critical-css-gen).
  *
  * This function has a value parameter which is not being used here but other implementations of this
  * helper function for the library may require the value parameter for filtering.
@@ -355,7 +364,7 @@ function keepProperty( name: string, _value: string ): boolean {
  * Function to verify that a specific page is valid to run the Critical CSS process on it.
  *
  * Note that this function is used as a callback in the generateCriticalCSS function
- * in the jetpack-boost-critical-css-gen library (https://github.com/Automattic/jetpack-boost-critical-css-gen).
+ * in the @automattic/jetpack-critical-css-gen library (https://github.com/Automattic/jetpack-critical-css-gen).
  *
  * This function has a url and innerWindow parameters which are not being used here but this method
  * is called with URL and InnerWindow in that library to offer flexibility of the verification for other implementation.

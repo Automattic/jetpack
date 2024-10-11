@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+AI Client - Logo generator: add image styles 'auto' and 'none'. Order styles so those are on top in the dropdown selector
