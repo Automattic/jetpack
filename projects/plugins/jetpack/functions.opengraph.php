@@ -99,7 +99,7 @@ function jetpack_og_tags() {
 		$tags['og:title'] = wp_get_document_title();
 
 		$archive = get_queried_object();
-		if ( ! empty( $archive ) ) {
+		if ( ! empty( $archive ) && $archive instanceof WP_Term ) {
 			if ( is_category() || is_tag() || is_tax() ) {
 				$tags['og:url']         = get_term_link( $archive->term_id, $archive->taxonomy );
 				$tags['og:description'] = $archive->description;
@@ -245,8 +245,24 @@ function jetpack_og_tags() {
 
 	foreach ( (array) $tags as $tag_property => $tag_content ) {
 		// to accommodate multiple images.
-		$tag_content = (array) $tag_content;
+
+		$is_multidimensional_array = false;
+		$stored_array              = null;
+		$tag_content               = (array) $tag_content;
+		// If the array is multidimensional, we need to unset and store the subarray and set a flag.
+		foreach ( $tag_content as $key => $string ) {
+			if ( is_array( $string ) ) {
+				$is_multidimensional_array = true;
+				$stored_array              = $string;
+				unset( $tag_content[ $key ] );
+			}
+		}
+		// Clean up the array.
 		$tag_content = array_unique( $tag_content );
+		// Restore removed subarray.
+		if ( $is_multidimensional_array ) {
+			$tag_content[] = $stored_array;
+		}
 
 		foreach ( $tag_content as $tag_content_single ) {
 			if ( empty( $tag_content_single ) && ! in_array( $tag_property, $allowed_empty_tags, true ) ) {
