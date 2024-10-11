@@ -203,6 +203,9 @@ export default function spellingMistakes( text: string ): Array< HighlightedText
 		const subWords = word.split( /[-/]/ );
 
 		subWords.forEach( subWord => {
+			// remove single quotes from beginning/end
+			subWord = subWord.replace( /^'+|'+$/g, '' );
+
 			if ( ! spellChecker.correct( subWord ) ) {
 				const subWordStartIndex = startIndex + word.indexOf( subWord );
 
