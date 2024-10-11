@@ -2692,13 +2692,22 @@ abstract class WPCOM_JSON_API_Endpoint {
 		$allow_blog_token = $this->allow_fallback_to_jetpack_blog_token || $this->allow_jetpack_site_auth;
 
 		if ( ( $allow_blog_token && Rest_Authentication::is_signed_with_blog_token() ) || ( $user_id && Rest_Authentication::is_signed_with_user_token() ) ) {
-			$success = $this->rest_permission_callback_custom();
+			$custom_permission_result = $this->rest_permission_callback_custom();
 
-			if ( $success && $user_id ) {
-				wp_set_current_user( $user_id );
+			// Successful custom permission check.
+			if ( $custom_permission_result === true ) {
+				if ( $user_id ) {
+					wp_set_current_user( $user_id );
+				}
+				return true;
 			}
 
-			return $success;
+			// Custom permission check errored, returning the error.
+			if ( is_wp_error( $custom_permission_result ) ) {
+				return $custom_permission_result;
+			}
+
+			// Custom permission check failed, but didn't return a specific error. Proceed to returning the generic error.
 		}
 
 		$message = esc_html__(
