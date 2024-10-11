@@ -30,11 +30,12 @@
 						$( '#TB_window' ).addClass( 'jetpack-disconnect-modal' );
 						deactivationModalCentralize();
 
-						$( '#TB_closeWindowButton, #TB_overlay' ).on( 'click', function ( e ) {
+						$( '#TB_closeWindowButton, #TB_overlay' ).on( 'click', function () {
 							deactivationModalTrackCloseEvent();
 						} );
 
 						document.onkeyup = function ( e ) {
+							var keycode;
 							if ( e === null ) {
 								// ie
 								keycode = event.keyCode;
@@ -42,7 +43,7 @@
 								// mozilla
 								keycode = e.which;
 							}
-							if ( keycode == 27 ) {
+							if ( keycode === 27 ) {
 								// close
 								deactivationModalTrackCloseEvent();
 							}
@@ -77,12 +78,12 @@
 	deactivateLinkElem.attr( 'title', deactivate_dialog.title );
 	deactivateLinkElem.addClass( 'thickbox' );
 	deactivateLinkElem.html( deactivate_dialog.deactivate_label );
-	deactivateLinkElem.on( 'click', function ( e ) {
+	deactivateLinkElem.on( 'click', function () {
 		observer.observe( body, { childList: true } );
 		analytics.tracks.recordEvent( 'jetpack_termination_dialog_open', tracksProps );
 	} );
 
-	$( '#jetpack_deactivation_dialog_content__button-cancel' ).on( 'click', function ( e ) {
+	$( '#jetpack_deactivation_dialog_content__button-cancel' ).on( 'click', function () {
 		tb_remove();
 		deactivationModalTrackCloseEvent();
 	} );
