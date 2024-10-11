@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Jetpack Sync: Move 'jetpack_plugins_updated' action to shutdown to decrease its associated lag
+
+
