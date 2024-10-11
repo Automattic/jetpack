@@ -46,9 +46,6 @@ export default {
 		wide: {
 			control: { type: 'boolean' },
 		},
-		hoverShow: {
-			control: { type: 'boolean' },
-		},
 	},
 };
 
@@ -108,12 +105,4 @@ Wide.args = {
 	children: <div>This is a wide tooltip!</div>,
 	wide: true,
 	placement: 'bottom-start',
-};
-
-export const HoverShow = Template.bind( {} );
-HoverShow.args = {
-	title: 'This is title!',
-	children: <div>This is a hover tooltip!</div>,
-	placement: 'bottom-start',
-	hoverShow: true,
 };
