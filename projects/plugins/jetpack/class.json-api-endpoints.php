@@ -2726,6 +2726,11 @@ abstract class WPCOM_JSON_API_Endpoint {
 		return true;
 	}
 
+	/**
+	 * Build the REST endpoint URL.
+	 *
+	 * @return string
+	 */
 	public function build_rest_route() {
 		$version_prefix = $this->max_version ? 'v' . $this->max_version : '';
 		return $version_prefix . $this->rest_route;
