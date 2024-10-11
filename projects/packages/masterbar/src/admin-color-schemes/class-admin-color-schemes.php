@@ -35,6 +35,7 @@ class Admin_Color_Schemes {
 		if ( ( new Host() )->is_wpcom_platform() ) { // Simple and Atomic sites.
 			add_filter( 'css_do_concat', array( $this, 'disable_css_concat_for_color_schemes' ), 10, 2 );
 			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_color_scheme_for_sidebar_notice' ) );
+			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_color_scheme_overrides' ) );
 		}
 	}
 
@@ -158,6 +159,18 @@ class Admin_Color_Schemes {
 		);
 
 		wp_admin_css_color(
+			'modern',
+			__( 'Modern', 'jetpack-masterbar' ),
+			admin_url( 'css/colors/modern/colors.css' ),
+			array( '#1e1e1e', '#3858e9', '#7b90ff' ),
+			array(
+				'base'    => '#f3f1f1',
+				'focus'   => '#fff',
+				'current' => '#fff',
+			)
+		);
+
+		wp_admin_css_color(
 			'nightfall',
 			__( 'Nightfall', 'jetpack-masterbar' ),
 			$this->get_admin_color_scheme_url( 'nightfall' ),
@@ -215,6 +228,21 @@ class Admin_Color_Schemes {
 			wp_enqueue_style(
 				'jetpack-core-color-schemes-overrides-sidebar-notice',
 				$this->get_admin_color_scheme_url( $color_scheme, 'sidebar-notice.css' ),
+				array(),
+				Main::PACKAGE_VERSION
+			);
+		}
+	}
+
+	/**
+	 * Enqueues dotcom-specific color scheme overrides.
+	 */
+	public function enqueue_color_scheme_overrides() {
+		$color_scheme = get_user_option( 'admin_color' );
+		if ( $color_scheme === 'modern' ) {
+			wp_enqueue_style(
+				'jetpack-core-color-schemes-overrides-modern',
+				$this->get_admin_color_scheme_url( $color_scheme ),
 				array(),
 				Main::PACKAGE_VERSION
 			);
