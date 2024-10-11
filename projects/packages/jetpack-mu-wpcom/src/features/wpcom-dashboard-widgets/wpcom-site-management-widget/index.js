@@ -63,7 +63,7 @@ const WpcomSiteManagementWidget = ( { siteName, siteDomain, siteIconUrl } ) => {
 					<div className="wpcom_site_management_widget__dev-tools-content">
 						<ul>
 							{ devToolItems.map( item => (
-								<li>
+								<li key={ item.name }>
 									<a href={ `https://wordpress.com${ item.href }` }>{ item.name }</a>
 								</li>
 							) ) }
