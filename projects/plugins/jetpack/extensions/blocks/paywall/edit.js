@@ -50,6 +50,7 @@ function PaywallEdit() {
 		return (
 			<div { ...blockProps }>
 				<ConnectBanner
+					block="Paywall"
 					explanation={ __(
 						'Connect your WordPress.com account to enable a paywall for your site.',
 						'jetpack'

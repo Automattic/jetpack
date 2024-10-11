@@ -74,6 +74,7 @@ export default function JetpackPaymentsIntroEdit( { name, clientId } ) {
 	if ( ! isUserConnected ) {
 		content = (
 			<ConnectBanner
+				block="Payments"
 				explanation={ __(
 					'Connect your WordPress.com account to start using payments blocks.',
 					'jetpack'
