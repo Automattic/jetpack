@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Add `key` to React components in some stories. Should be no change to functionality.
+
+

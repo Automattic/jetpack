@@ -35,10 +35,6 @@ class Main {
 
 		$host = new Host();
 
-		if ( ! $host->is_wpcom_simple() && ! ( defined( 'WPCOM_ADMIN_BAR_UNIFICATION' ) && WPCOM_ADMIN_BAR_UNIFICATION ) ) {
-			new Masterbar();
-		}
-
 		if ( $host->is_wpcom_platform() ) {
 			new Inline_Help();
 			require_once __DIR__ . '/wp-posts-list/bootstrap.php';
