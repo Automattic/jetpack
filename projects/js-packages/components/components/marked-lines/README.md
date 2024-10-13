@@ -1,6 +1,6 @@
 # Marked Lines viewer
 
-Forked over from [Calypso](https://github.com/Automattic/wp-calypso/tree/b7a4a07/client/components/marked-lines).
+Originally forked over from [Calypso](https://github.com/Automattic/wp-calypso/tree/b7a4a07/client/components/marked-lines).
 
 This component is designed to show contextualized lines from a file with
 optional highlighting or marks to point out specific parts of one or more lines.

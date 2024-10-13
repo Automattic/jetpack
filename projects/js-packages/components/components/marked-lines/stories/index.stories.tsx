@@ -1,9 +1,7 @@
-/* eslint-disable react/react-in-jsx-scope */
-import React from 'react';
-import MarkedLines from '../index.jsx';
+import MarkedLines from '../index.js';
 
 export default {
-	title: 'Plugins/Protect/Marked Lines',
+	title: 'JS Packages/Components/Marked Lines',
 	component: MarkedLines,
 };
 
@@ -15,6 +13,7 @@ export const Default = args => (
 		} }
 	/>
 );
+
 Default.args = {
 	lines: {
 		10: 'add :: Num a => a -> a -> a',
