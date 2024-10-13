@@ -60,7 +60,7 @@
 }
 
 /* This prevents images from overflowing the comment area. */
-.wp-block-comment-content img {
+:not(.wp-block-comment-template) .comment img, .wp-block-comment-content img {
 	max-width: 100%;
 }
 
