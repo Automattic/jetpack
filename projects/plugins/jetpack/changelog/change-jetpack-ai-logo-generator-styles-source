@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Janitorial: add siteFragment to JP initial state definition, avoid linter warnings
