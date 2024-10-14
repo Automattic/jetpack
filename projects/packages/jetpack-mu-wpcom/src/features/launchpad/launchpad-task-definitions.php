@@ -851,9 +851,6 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'is_visible_callback'  => '__return_true',
-			'get_calypso_path'     => function () {
-				return '/support/domains/connect-existing-domain/#step-2-connect-your-domain';
-			},
 		),
 	);
 
