@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Contact Form: ensure that submitted forms can only be accessed by logged in users allowed to view form submissions.
