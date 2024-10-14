@@ -6,14 +6,8 @@ export type DataViewThreat = {
 	/** The threat's unique ID. */
 	id: number;
 
-	/** The threat type. */
-	type: 'plugin' | 'theme' | 'core' | 'file' | 'database';
-
 	/** The threat's signature. */
 	signature: string;
-
-	/** The threat's subtitle. */
-	subtitle: string;
 
 	/** The threat's title. */
 	title: string;
@@ -52,6 +46,8 @@ export type DataViewThreat = {
 	extension?: {
 		name: string;
 		slug: string;
+		type: 'plugin' | 'theme';
+		version: string;
 	};
 
 	/** The threat's context. */
