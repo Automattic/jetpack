@@ -35,19 +35,15 @@ export function useProtectTooltipCopy(): TooltipContent {
 		themes,
 		protect: { scanData, wafConfig: wafData },
 	} = getMyJetpackWindowInitialState();
-	const {
-		plugins: fromScanPlugins,
-		themes: fromScanThemes,
-		num_threats: numThreats = 0,
-	} = scanData || {};
+	const numThreats = scanData.threats.length;
 	const {
 		jetpack_waf_automatic_rules: isAutoFirewallEnabled,
 		blocked_logins: blockedLoginsCount,
 		brute_force_protection: hasBruteForceProtection,
 	} = wafData || {};
 
-	const pluginsCount = fromScanPlugins.length || Object.keys( plugins ).length;
-	const themesCount = fromScanThemes.length || Object.keys( themes ).length;
+	const pluginsCount = Object.keys( plugins ).length;
+	const themesCount = Object.keys( themes ).length;
 
 	const settingsLink = useMemo( () => {
 		if ( isProtectPluginActive ) {

@@ -132,130 +132,113 @@ class Protect_Status extends Status {
 	 * @return Status_Model
 	 */
 	protected static function normalize_protect_report_data( $report_data ) {
+		global $wp_version;
+
 		$status              = new Status_Model();
 		$status->data_source = 'protect_report';
 
-		// map report data properties directly into the Status_Model
-		$status->status              = isset( $report_data->status ) ? $report_data->status : null;
-		$status->last_checked        = isset( $report_data->last_checked ) ? $report_data->last_checked : null;
-		$status->num_threats         = isset( $report_data->num_vulnerabilities ) ? $report_data->num_vulnerabilities : null;
-		$status->num_themes_threats  = isset( $report_data->num_themes_vulnerabilities ) ? $report_data->num_themes_vulnerabilities : null;
-		$status->num_plugins_threats = isset( $report_data->num_plugins_vulnerabilities ) ? $report_data->num_plugins_vulnerabilities : null;
+		$status->status       = isset( $report_data->status ) ? $report_data->status : null;
+		$status->last_checked = isset( $report_data->last_checked ) ? $report_data->last_checked : null;
 
-		// merge plugins from report with all installed plugins before mapping into the Status_Model
+		// Plugin Vulnerabilities
 		$installed_plugins   = Plugins_Installer::get_plugins();
 		$last_report_plugins = isset( $report_data->plugins ) ? $report_data->plugins : new \stdClass();
-		$status->plugins     = self::merge_installed_and_checked_lists( $installed_plugins, $last_report_plugins, array( 'type' => 'plugins' ) );
-
-		// merge themes from report with all installed plugins before mapping into the Status_Model
-		$installed_themes   = Sync_Functions::get_themes();
-		$last_report_themes = isset( $report_data->themes ) ? $report_data->themes : new \stdClass();
-		$status->themes     = self::merge_installed_and_checked_lists( $installed_themes, $last_report_themes, array( 'type' => 'themes' ) );
-
-		// normalize WordPress core report data and map into Status_Model
-		$status->core = self::normalize_core_information( isset( $report_data->core ) ? $report_data->core : new \stdClass() );
-
-		// check if any installed items (themes, plugins, or core) have not been checked in the report
-		$all_items                   = array_merge( $status->plugins, $status->themes, array( $status->core ) );
-		$unchecked_items             = array_filter(
-			$all_items,
-			function ( $item ) {
-				return ! isset( $item->checked ) || ! $item->checked;
+		foreach ( $installed_plugins as $installed_slug => $installed_plugin ) {
+			// Skip vulnerabilities for plugins that are not installed
+			if ( ! isset( $last_report_plugins->{ $installed_slug } ) ) {
+				continue;
 			}
-		);
-		$status->has_unchecked_items = ! empty( $unchecked_items );
 
-		return $status;
-	}
+			$report_plugin = $last_report_plugins->{ $installed_slug };
 
-	/**
-	 * Merges the list of installed extensions with the list of extensions that were checked for known vulnerabilities and return a normalized list to be used in the UI
-	 *
-	 * @param array  $installed The list of installed extensions, where each attribute key is the extension slug.
-	 * @param object $checked   The list of checked extensions.
-	 * @param array  $append    Additional data to append to each result in the list.
-	 * @return array Normalized list of extensions.
-	 */
-	protected static function merge_installed_and_checked_lists( $installed, $checked, $append ) {
-		$new_list = array();
-		foreach ( array_keys( $installed ) as $slug ) {
+			// Skip vulnerabilities for plugins with a mismatched version
+			if ( $report_plugin->version !== $installed_plugin['Version'] ) {
+				continue;
+			}
 
-			$checked = (object) $checked;
-
-			$extension = new Extension_Model(
-				array_merge(
+			foreach ( $report_plugin->vulnerabilities as $report_vulnerability ) {
+				$status->threats[] = new Threat_Model(
 					array(
-						'name'    => $installed[ $slug ]['Name'],
-						'version' => $installed[ $slug ]['Version'],
-						'slug'    => $slug,
-						'threats' => array(),
-						'checked' => false,
-					),
-					$append
-				)
-			);
-
-			if ( isset( $checked->{ $slug } ) && $checked->{ $slug }->version === $installed[ $slug ]['Version'] ) {
-				$extension->version = $checked->{ $slug }->version;
-				$extension->checked = true;
-
-				if ( is_array( $checked->{ $slug }->vulnerabilities ) ) {
-					foreach ( $checked->{ $slug }->vulnerabilities as $threat ) {
-						$extension->threats[] = new Threat_Model(
+						'id'          => $report_vulnerability->id,
+						'title'       => $report_vulnerability->title,
+						'fixed_in'    => $report_vulnerability->fixed_in,
+						'description' => isset( $report_vulnerability->description ) ? $report_vulnerability->description : null,
+						'source'      => isset( $report_vulnerability->id ) ? Redirect::get_url( 'jetpack-protect-vul-info', array( 'path' => $report_vulnerability->id ) ) : null,
+						'extension'   => new Extension_Model(
 							array(
-								'id'          => $threat->id,
-								'title'       => $threat->title,
-								'fixed_in'    => $threat->fixed_in,
-								'description' => isset( $threat->description ) ? $threat->description : null,
-								'source'      => isset( $threat->id ) ? Redirect::get_url( 'jetpack-protect-vul-info', array( 'path' => $threat->id ) ) : null,
+								'slug'    => $installed_slug,
+								'name'    => $installed_plugin['Name'],
+								'version' => $installed_plugin['Version'],
+								'type'    => 'plugin',
 							)
-						);
-					}
-				}
-			}
-
-			$new_list[] = $extension;
-
-		}
-
-		$new_list = parent::sort_threats( $new_list );
-
-		return $new_list;
-	}
-
-	/**
-	 * Check if the WordPress version that was checked matches the current installed version.
-	 *
-	 * @param object $core_check The object returned by Protect wpcom endpoint.
-	 * @return object The object representing the current status of core checks.
-	 */
-	protected static function normalize_core_information( $core_check ) {
-		global $wp_version;
-
-		$core = new Extension_Model(
-			array(
-				'type'    => 'core',
-				'name'    => 'WordPress',
-				'version' => $wp_version,
-				'checked' => false,
-			)
-		);
-
-		if ( isset( $core_check->version ) && $core_check->version === $wp_version ) {
-			if ( is_array( $core_check->vulnerabilities ) ) {
-				$core->checked = true;
-				$core->set_threats(
-					array_map(
-						function ( $vulnerability ) {
-							$vulnerability->source = isset( $vulnerability->id ) ? Redirect::get_url( 'jetpack-protect-vul-info', array( 'path' => $vulnerability->id ) ) : null;
-							return $vulnerability;
-						},
-						$core_check->vulnerabilities
+						),
 					)
 				);
 			}
 		}
 
-		return $core;
+		// Theme Vulnerabilities
+		$installed_themes   = Sync_Functions::get_themes();
+		$last_report_themes = isset( $report_data->themes ) ? $report_data->themes : new \stdClass();
+		foreach ( $installed_themes as $installed_slug => $installed_theme ) {
+			// Skip vulnerabilities for themes that are not installed
+			if ( ! isset( $last_report_themes->{ $installed_slug } ) ) {
+				continue;
+			}
+
+			$report_theme = $last_report_themes->{ $installed_slug };
+
+			// Skip vulnerabilities for themes with a mismatched version
+			if ( $report_theme->version !== $installed_theme['Version'] ) {
+				continue;
+			}
+
+			foreach ( $report_theme->vulnerabilities as $report_vulnerability ) {
+				$status->threats[] = new Threat_Model(
+					array(
+						'id'          => $report_vulnerability->id,
+						'title'       => $report_vulnerability->title,
+						'fixed_in'    => $report_vulnerability->fixed_in,
+						'description' => isset( $report_vulnerability->description ) ? $report_vulnerability->description : null,
+						'source'      => isset( $report_vulnerability->id ) ? Redirect::get_url( 'jetpack-protect-vul-info', array( 'path' => $report_vulnerability->id ) ) : null,
+						'extension'   => new Extension_Model(
+							array(
+								'slug'    => $installed_slug,
+								'name'    => $installed_theme['Name'],
+								'version' => $installed_theme['Version'],
+								'type'    => 'theme',
+							)
+						),
+					)
+				);
+			}
+		}
+
+		// WordPress Core Vulnerabilities
+		$last_report_core = isset( $report_data->core ) ? $report_data->core : new \stdClass();
+		if ( isset( $last_report_core->version ) && $last_report_core->version === $wp_version ) {
+			if ( is_array( $last_report_core->vulnerabilities ) ) {
+				$core_threats    =
+					array_map(
+						function ( $vulnerability ) use ( $last_report_core ) {
+							$threat            = new Threat_Model( $vulnerability );
+							$threat->source    = isset( $threat->id ) ? Redirect::get_url( 'jetpack-protect-vul-info', array( 'path' => $threat->id ) ) : null;
+							$threat->extension = new Extension_Model(
+								array(
+									'slug'    => 'wordpress',
+									'name'    => 'WordPress',
+									'version' => $last_report_core->version,
+									'type'    => 'core',
+								)
+							);
+							return $threat;
+						},
+						$last_report_core->vulnerabilities
+					);
+				$status->threats = array_merge( $status->threats, $core_threats );
+			}
+		}
+
+		return $status;
 	}
 }

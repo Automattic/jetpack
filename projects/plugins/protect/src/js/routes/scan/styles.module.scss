@@ -21,3 +21,10 @@
 .scan-navigation {
 	margin-top: calc( var( --spacing-base ) * 3 ); // 24px
 }
+
+:global {
+	.dataviews-wrapper {
+		margin-left: -48px;
+		margin-right: -48px;
+	}
+}

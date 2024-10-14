@@ -56,4 +56,12 @@ export type Threat = {
 
 	/** The diff showing the threat's modified file contents. */
 	diff?: string;
+
+	/** The affected extension. */
+	extension?: {
+		slug: string;
+		name: string;
+		version: string;
+		type: 'plugin' | 'theme' | 'core';
+	};
 };

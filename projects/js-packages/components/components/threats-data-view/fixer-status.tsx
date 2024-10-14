@@ -55,7 +55,7 @@ export default function FixerStatusIcon( {
 			<IconTooltip
 				icon={ info }
 				iconClassName={ styles[ 'icon-info' ] }
-				iconSize={ 24 }
+				iconSize={ size }
 				text={ createInterpolateElement(
 					__(
 						'An error occurred auto-fixing this threat. Please try again or <supportLink>contact support</supportLink>.',
@@ -124,7 +124,7 @@ function FixerStatusText( { fixer }: { fixer?: ThreatFixStatus } ): JSX.Element 
 export function FixerStatusBadge( { fixer }: { fixer?: ThreatFixStatus } ): JSX.Element {
 	return (
 		<div className={ styles[ 'fixer-status' ] }>
-			<FixerStatusIcon fixer={ fixer } />
+			<FixerStatusIcon fixer={ fixer } size={ 20 } />
 			<FixerStatusText fixer={ fixer } />
 		</div>
 	);
