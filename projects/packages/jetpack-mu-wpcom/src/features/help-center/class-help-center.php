@@ -52,7 +52,7 @@ class Help_Center {
 	/**
 	 * Creates instance.
 	 *
-	 * @return \A8C\FSE\Help_Center|null
+	 * @return void
 	 */
 	public static function init() {
 		$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
@@ -64,7 +64,6 @@ class Help_Center {
 		if ( self::$instance === null ) {
 			self::$instance = new self();
 		}
-		return self::$instance;
 	}
 
 	/**
