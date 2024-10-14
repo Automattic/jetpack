@@ -155,13 +155,15 @@ class Note {
 	 * @return array The allowed blocks.
 	 */
 	public function restrict_blocks_for_social_note( $allowed_blocks, $post ) {
-		if ( 'jetpack-social-note' === $post->post_type ) {
-			// Only allow the paragraph block and the featured image block.
-			$allowed_blocks = array(
-				'core/paragraph',
-				'core/post-featured-image',
-			);
+		if ( 'jetpack-social-note' !== $post->post_type ) { // Let 'em pass.
+			return $allowed_blocks;
 		}
+
+		// Only allow the paragraph block and the featured image block.
+		$allowed_blocks = array(
+			'core/paragraph',
+			'core/post-featured-image',
+		);
 
 		/**
 		 * Filters the blocks available to the Social Notes CPT.
