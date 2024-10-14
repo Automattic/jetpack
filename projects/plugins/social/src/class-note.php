@@ -159,22 +159,22 @@ class Note {
 			return $allowed_blocks;
 		}
 
-			// Only allow the paragraph block and the featured image block.
-			$allowed_blocks = array(
-				'core/paragraph',
-				'core/post-featured-image',
-			);
+		// Only allow the paragraph block and the featured image block.
+		$allowed_blocks = array(
+			'core/paragraph',
+			'core/post-featured-image',
+		);
 
-			/**
-			 * Filters the blocks available to the Social Notes CPT.
-			 *
-			 * Default is ['core/paragraph', 'core/post-featured-image']
-			 *
-			 * @since $$next-version$$
-			 *
-			 * @param array $allowed_blocks A linear array of blocks allowed by the CPT.
-			 */
-			return apply_filters( 'jetpack_social_allowed_blocks', $allowed_blocks );
+		/**
+		 * Filters the blocks available to the Social Notes CPT.
+		 *
+		 * Default is ['core/paragraph', 'core/post-featured-image']
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param array $allowed_blocks A linear array of blocks allowed by the CPT.
+		 */
+		return apply_filters( 'jetpack_social_allowed_blocks', $allowed_blocks );
 	}
 
 	/**
