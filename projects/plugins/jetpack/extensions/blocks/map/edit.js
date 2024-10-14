@@ -244,6 +244,7 @@ const MapEdit = ( {
 				<img
 					alt={ __( 'Map Preview', 'jetpack' ) }
 					src={ mapStyleObject ? mapStyleObject.preview : previewPlaceholder }
+					style={ { width: '100%', maxHeight: '400px', objectFit: 'cover' } }
 				/>
 			</div>
 		);
