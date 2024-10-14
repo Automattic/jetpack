@@ -155,24 +155,26 @@ class Note {
 	 * @return array The allowed blocks.
 	 */
 	public function restrict_blocks_for_social_note( $allowed_blocks, $post ) {
-		if ( 'jetpack-social-note' === $post->post_type ) {
+		if ( 'jetpack-social-note' !== $post->post_type ) { // Let 'em pass.
+			return $allowed_blocks;
+		}
+
 			// Only allow the paragraph block and the featured image block.
 			$allowed_blocks = array(
 				'core/paragraph',
 				'core/post-featured-image',
 			);
-		}
 
-		/**
-		 * Filters the blocks available to the Social Notes CPT.
-		 *
-		 * Default is ['core/paragraph', 'core/post-featured-image']
-		 *
-		 * @since $$next-version$$
-		 *
-		 * @param array $allowed_blocks A linear array of blocks allowed by the CPT.
-		 */
-		return apply_filters( 'jetpack_social_allowed_blocks', $allowed_blocks );
+			/**
+			 * Filters the blocks available to the Social Notes CPT.
+			 *
+			 * Default is ['core/paragraph', 'core/post-featured-image']
+			 *
+			 * @since $$next-version$$
+			 *
+			 * @param array $allowed_blocks A linear array of blocks allowed by the CPT.
+			 */
+			return apply_filters( 'jetpack_social_allowed_blocks', $allowed_blocks );
 	}
 
 	/**
