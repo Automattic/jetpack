@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Jetpack Sync: Ensure Full Sync is only triggered on backend admin POST requests
