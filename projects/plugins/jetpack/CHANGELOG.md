@@ -55,6 +55,10 @@
 - Unify connection related CTAs on At A Glance. [#39585]
 - Updated package dependencies. [#39594] [#39639]
 
+## 13.9.1 - 2024-10-14
+### Bug fixes
+- Contact Form: Ensure that submitted forms can only be accessed by logged in users allowed to view form submissions. [#39759]
+
 ## 13.9 - 2024-10-01
 ### Major Enhancements
 - Jetpack plugin: Remove the 'WordPress.com Toolbar' module. [#39406]
