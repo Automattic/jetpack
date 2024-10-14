@@ -639,6 +639,10 @@ function render_block( $attributes ) {
 		return '';
 	}
 
+	if ( ! class_exists( 'Jetpack_Subscriptions_Widget' ) ) {
+		return '';
+	}
+
 	if ( class_exists( '\Jetpack_Memberships' ) ) {
 		// We only want the sites that have newsletter feature enabled to be graced by this JavaScript.
 		Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
@@ -657,9 +661,7 @@ function render_block( $attributes ) {
 	}
 
 	// The block is using the Jetpack_Subscriptions_Widget backend, hence the need to increase the instance count.
-	if ( class_exists( 'Jetpack_Subscriptions_Widget' ) ) {
-		++Jetpack_Subscriptions_Widget::$instance_count;
-	}
+	++Jetpack_Subscriptions_Widget::$instance_count;
 
 	$classes = get_element_class_names_from_attributes( $attributes );
 	$styles  = get_element_styles_from_attributes( $attributes );
