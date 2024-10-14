@@ -806,7 +806,7 @@ function wpcom_launchpad_get_task_definitions() {
 			'get_title'            => function () {
 				return __( 'Migrating the site', 'jetpack-mu-wpcom' );
 			},
-			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'is_complete_callback' => '__return_true',
 			'is_visible_callback'  => '__return_true',
 		),
 		// Post-migration tasks.
