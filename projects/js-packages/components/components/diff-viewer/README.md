@@ -1,6 +1,6 @@
 # Unified Diff Viewer
 
-Forked over from [Calypso](https://github.com/Automattic/wp-calypso/tree/b7a4a07/client/components/diff-viewer).
+Originally forked over from [Calypso](https://github.com/Automattic/wp-calypso/tree/b7a4a07/client/components/diff-viewer).
 
 This component renders the output of a unified diff (`git diff` or `diff -u`) in a
 visual format recognizable by someone who works with `diff` and comparing files.
@@ -29,9 +29,9 @@ export const CommitView = ( { commitHash, description, diff } ) => (
 ### Additional usage information
 
 The diff output should be the full text produced by the diff command (including newlines).
-Internally this component relies on `jsdiff` to parse the output (the patch) and produce
-the data structure used to display files, hunks (sections of change in the files), and
-the actual lines of change and context.
+Internally this component parses the output (the patch) and produces the data structure 
+used to display files, hunks (sections of change in the files), and the actual lines of 
+change and context.
 
 ```
 diff --git a/circle.yml b/circle.yml
