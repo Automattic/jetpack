@@ -2,6 +2,11 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [0.57.0] - 2024-10-14
+### Added
+- Add JetpackProtectLogo component. [#39703]
+- Add MarkedLines component. [#39674]
+
 ## [0.56.3] - 2024-10-10
 ### Changed
 - Components - getRedirectUrl: use file extension on import for linter to find definitions
@@ -1185,6 +1190,7 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[0.57.0]: https://github.com/Automattic/jetpack-components/compare/0.56.3...0.57.0
 [0.56.3]: https://github.com/Automattic/jetpack-components/compare/0.56.2...0.56.3
 [0.56.2]: https://github.com/Automattic/jetpack-components/compare/0.56.1...0.56.2
 [0.56.1]: https://github.com/Automattic/jetpack-components/compare/0.56.0...0.56.1

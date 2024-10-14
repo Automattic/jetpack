@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Clean up `<BaseControl label>` without `id`. Should be no change in functionality.
-
-

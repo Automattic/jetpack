@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-General: Only include `wp-polyfill` as a script dependency when needed.

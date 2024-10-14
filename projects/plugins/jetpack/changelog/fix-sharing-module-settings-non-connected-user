@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Sharing: ensure the sharing settings can be accessed even when a user is not connected to WordPress.com.

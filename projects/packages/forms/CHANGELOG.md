@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.33.3] - 2024-10-14
+### Changed
+- Only include `wp-polyfill` as a script dependency when needed. [#39629]
+- Updated package dependencies. [#39707]
+
+### Fixed
+- Improve security of the form endpoint. [#39759]
+
 ## [0.33.2] - 2024-10-07
 ### Changed
 - Updated package dependencies. [#39594]
@@ -681,6 +689,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[0.33.3]: https://github.com/automattic/jetpack-forms/compare/v0.33.2...v0.33.3
 [0.33.2]: https://github.com/automattic/jetpack-forms/compare/v0.33.1...v0.33.2
 [0.33.1]: https://github.com/automattic/jetpack-forms/compare/v0.33.0...v0.33.1
 [0.33.0]: https://github.com/automattic/jetpack-forms/compare/v0.32.16...v0.33.0
