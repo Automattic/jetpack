@@ -639,15 +639,15 @@ function render_block( $attributes ) {
 		return '';
 	}
 
-	if ( ! class_exists( 'Jetpack_Subscriptions_Widget' ) ) {
-		return '';
-	}
-
 	if ( class_exists( '\Jetpack_Memberships' ) ) {
 		// We only want the sites that have newsletter feature enabled to be graced by this JavaScript.
 		Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
 	} else {
 		Jetpack_Gutenberg::load_styles_as_required( FEATURE_NAME );
+	}
+
+	if ( ! class_exists( 'Jetpack_Subscriptions_Widget' ) ) {
+		return '';
 	}
 
 	$subscribe_email = Jetpack_Memberships::get_current_user_email();
