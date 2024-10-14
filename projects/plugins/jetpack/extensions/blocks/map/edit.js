@@ -1,6 +1,11 @@
 import { getBlockIconComponent } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
-import { BlockControls, InspectorControls, useBlockProps } from '@wordpress/block-editor';
+import {
+	BlockControls,
+	InspectorControls,
+	useBlockProps,
+	store as blockEditorStore,
+} from '@wordpress/block-editor';
 import {
 	Button,
 	ExternalLink,
@@ -10,7 +15,7 @@ import {
 	ResizableBox,
 } from '@wordpress/components';
 import { compose } from '@wordpress/compose';
-import { withDispatch } from '@wordpress/data';
+import { withDispatch, useSelect } from '@wordpress/data';
 import { useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { getActiveStyleName } from '../../shared/block-styles';
@@ -66,6 +71,14 @@ const MapEdit = ( {
 		mapHeight,
 		showFullscreenButton,
 	} = attributes;
+
+	const { isPreviewMode } = useSelect( select => {
+		const { getSettings } = select( blockEditorStore );
+		const settings = getSettings();
+		return {
+			isPreviewMode: settings.__unstableIsPreviewMode,
+		};
+	}, [] );
 
 	const [ addPointVisibility, setAddPointVisibility ] = useState( false );
 	const [ apiState, setApiState ] = useState( API_STATE_LOADING );
@@ -223,7 +236,7 @@ const MapEdit = ( {
 
 	let content;
 
-	if ( preview ) {
+	if ( preview || isPreviewMode ) {
 		const mapStyleObject = styles.find( styleObject => styleObject.name === mapStyle );
 
 		content = (
