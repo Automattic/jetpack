@@ -3,13 +3,6 @@ import jQuery from 'jquery';
 import '../css/jetpack-admin-jitm.scss';
 
 jQuery( document ).ready( function ( $ ) {
-	/**
-	 * Allow external scripts to contol the function to run only for once or even disable it.
-	 */
-	if( window.hasRunJetpackJITM ) {
-		return;
-	}
-
 	var templates = {
 		default: function ( envelope ) {
 			const EXTERNAL_LINK_ICON = `
