@@ -1,4 +1,3 @@
-import { useConnection } from '@automattic/jetpack-connection';
 import { BlockControls, useBlockProps, useInnerBlocksProps } from '@wordpress/block-editor';
 import { useSelect } from '@wordpress/data';
 import { useEffect } from '@wordpress/element';
@@ -8,13 +7,13 @@ import clsx from 'clsx';
 import ConnectBanner from '../../shared/components/connect-banner';
 import StripeConnectToolbarButton from '../../shared/components/stripe-connect-toolbar-button';
 import { StripeNudge } from '../../shared/components/stripe-nudge';
+import useIsUserConnected from '../../shared/use-is-user-connected';
 import { store as membershipProductsStore } from '../../store/membership-products';
 
 const ALLOWED_BLOCKS = [ 'jetpack/recurring-payments' ];
 
 function PaymentButtonsEdit( { clientId, attributes } ) {
 	const { layout, fontSize } = attributes;
-	const { isUserConnected } = useConnection();
 	const { connectUrl, isApiConnected } = useSelect( select => {
 		const { getConnectUrl, isApiStateConnected } = select( membershipProductsStore );
 		return {
@@ -22,6 +21,7 @@ function PaymentButtonsEdit( { clientId, attributes } ) {
 			isApiConnected: isApiStateConnected(),
 		};
 	} );
+	const isUserConnected = useIsUserConnected();
 
 	const paymentButtonBlocks = useSelect(
 		select =>
@@ -80,6 +80,7 @@ function PaymentButtonsEdit( { clientId, attributes } ) {
 		return (
 			<div { ...blockProps }>
 				<ConnectBanner
+					block="Payment Buttons"
 					explanation={ __(
 						'Connect your WordPress.com account to enable payment buttons on your site.',
 						'jetpack'

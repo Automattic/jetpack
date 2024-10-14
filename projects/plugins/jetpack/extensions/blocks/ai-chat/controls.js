@@ -1,11 +1,5 @@
 import { InspectorAdvancedControls, InspectorControls } from '@wordpress/block-editor';
-import {
-	BaseControl,
-	PanelBody,
-	TextControl,
-	TextareaControl,
-	ToggleControl,
-} from '@wordpress/components';
+import { PanelBody, TextControl, TextareaControl, ToggleControl } from '@wordpress/components';
 import { useEntityProp } from '@wordpress/core-data';
 import { __ } from '@wordpress/i18n';
 import { DEFAULT_PLACEHOLDER } from './constants';
@@ -26,28 +20,25 @@ export function AiChatControls( {
 		<>
 			<InspectorControls>
 				<PanelBody title={ __( 'Settings', 'jetpack' ) } initialOpen={ false }>
-					<BaseControl
+					<TextControl
 						label={ __( 'Placeholder Text', 'jetpack' ) }
 						className="jetpack-ai-chat__ask-button-text"
-					>
-						<TextControl
-							placeholder={ DEFAULT_PLACEHOLDER }
-							onChange={ newPlaceholder => setAttributes( { placeholder: newPlaceholder } ) }
-							value={ placeholder }
-						/>
-					</BaseControl>
+						placeholder={ DEFAULT_PLACEHOLDER }
+						onChange={ newPlaceholder => setAttributes( { placeholder: newPlaceholder } ) }
+						value={ placeholder }
+					/>
 				</PanelBody>
 			</InspectorControls>
 			<InspectorAdvancedControls>
-				<BaseControl
+				<TextareaControl
 					label={ __( 'Additional instructions', 'jetpack' ) }
 					help={ __(
 						'Give Jetpack AI additional instructions for answer length, format, and tone.',
 						'jetpack'
 					) }
-				>
-					<TextareaControl value={ promptOverride } onChange={ setPromptOverride } />
-				</BaseControl>
+					value={ promptOverride }
+					onChange={ setPromptOverride }
+				/>
 				<ToggleControl
 					label={ __( 'Show copy answer button.', 'jetpack' ) }
 					help={ __( 'Allow users to easily copy the answer.', 'jetpack' ) }

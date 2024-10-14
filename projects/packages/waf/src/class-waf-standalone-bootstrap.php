@@ -154,6 +154,7 @@ class Waf_Standalone_Bootstrap {
 			. sprintf( "define( 'JETPACK_WAF_SHARE_DEBUG_DATA', %s );\n", var_export( $share_debug_data_option, true ) )
 			. sprintf( "define( 'JETPACK_WAF_DIR', %s );\n", var_export( JETPACK_WAF_DIR, true ) )
 			. sprintf( "define( 'JETPACK_WAF_WPCONFIG', %s );\n", var_export( JETPACK_WAF_WPCONFIG, true ) )
+			. sprintf( "define( 'JETPACK_WAF_ENTRYPOINT', %s );\n", var_export( JETPACK_WAF_ENTRYPOINT, true ) )
 			. 'require_once ' . var_export( $autoloader_file, true ) . ";\n"
 			. "Automattic\Jetpack\Waf\Waf_Runner::initialize();\n";
 		// phpcs:enable

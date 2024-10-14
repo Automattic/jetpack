@@ -1,5 +1,4 @@
 import './editor.scss';
-import { useConnection } from '@automattic/jetpack-connection';
 import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils';
 import { BlockControls, InspectorControls, useBlockProps } from '@wordpress/block-editor';
 import { MenuGroup, MenuItem, PanelBody, ToolbarDropdownMenu } from '@wordpress/components';
@@ -13,12 +12,13 @@ import PlansSetupDialog from '../../shared/components/plans-setup-dialog';
 import { accessOptions } from '../../shared/memberships/constants';
 import { useAccessLevel } from '../../shared/memberships/edit';
 import { NewsletterAccessRadioButtons, useSetAccess } from '../../shared/memberships/settings';
+import useIsUserConnected from '../../shared/use-is-user-connected';
 
 function PaywallEdit() {
 	const blockProps = useBlockProps();
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
 	const accessLevel = useAccessLevel( postType );
-	const { isUserConnected } = useConnection();
+	const isUserConnected = useIsUserConnected();
 
 	const { stripeConnectUrl, hasTierPlans } = useSelect( select => {
 		const { getNewsletterTierProducts, getConnectUrl } = select( 'jetpack/membership-products' );
@@ -50,6 +50,7 @@ function PaywallEdit() {
 		return (
 			<div { ...blockProps }>
 				<ConnectBanner
+					block="Paywall"
 					explanation={ __(
 						'Connect your WordPress.com account to enable a paywall for your site.',
 						'jetpack'
