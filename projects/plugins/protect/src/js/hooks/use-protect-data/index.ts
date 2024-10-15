@@ -3,6 +3,12 @@ import { useMemo } from 'react';
 import useHistoryQuery from '../../data/scan/use-history-query';
 import useScanStatusQuery from '../../data/scan/use-scan-status-query';
 import useProductDataQuery from '../../data/use-product-data-query';
+import { ExtensionStatus } from '../../types/scans';
+import { Threat, ThreatStatus } from '../../types/threats';
+
+type ThreatFilterKey = 'all' | 'core' | 'files' | 'database' | string;
+
+type Filter = { key: ThreatFilterKey; status: ThreatStatus | 'all' };
 
 // Valid "key" values for filtering.
 const KEY_FILTERS = [ 'all', 'core', 'plugins', 'themes', 'files', 'database' ];
@@ -12,13 +18,13 @@ const KEY_FILTERS = [ 'all', 'core', 'plugins', 'themes', 'files', 'database' ];
  *
  * @param {Array}  threats       - The threats to filter.
  * @param {object} filter        - The filter to apply to the data.
- * @param {string} filter.status - The status to filter: 'all', 'fixed', or 'ignored'.
+ * @param {string} filter.status - The status to filter: 'all', 'current', 'fixed', or 'ignored'.
  * @param {string} filter.key    - The key to filter: 'all', 'core', 'files', 'database', or an extension name.
  * @param {string} key           - The threat's key: 'all', 'core', 'files', 'database', or an extension name.
  *
  * @return {Array} The filtered threats.
  */
-const filterThreats = ( threats, filter, key ) => {
+const filterThreats = ( threats: Threat[], filter: Filter, key: ThreatFilterKey ): Threat[] => {
 	if ( ! Array.isArray( threats ) ) {
 		return [];
 	}
@@ -92,7 +98,7 @@ export default function useProtectData(
 		};
 
 		// Loop through the provided extensions, and update the result object.
-		const processExtensions = ( extensions, key ) => {
+		const processExtensions = ( extensions: Array< ExtensionStatus >, key: ThreatFilterKey ) => {
 			if ( ! Array.isArray( extensions ) ) {
 				return [];
 			}
@@ -103,7 +109,7 @@ export default function useProtectData(
 
 				// Filter the extension's threats based on the current filters.
 				const filteredThreats = filterThreats(
-					extension?.threats,
+					extension?.threats || [],
 					filter,
 					KEY_FILTERS.includes( filter.key ) ? key : extension?.name
 				);
@@ -118,7 +124,7 @@ export default function useProtectData(
 		};
 
 		// Loop through the provided threats, and update the result object.
-		const processThreats = ( threatsToProcess, key ) => {
+		const processThreats = ( threatsToProcess: Threat[], key: ThreatFilterKey ) => {
 			if ( ! Array.isArray( threatsToProcess ) ) {
 				return [];
 			}
@@ -135,7 +141,7 @@ export default function useProtectData(
 
 		// Core data may be either a single object or an array of multiple objects.
 		let cores = Array.isArray( data.core ) ? data.core : [];
-		if ( data.core.threats ) {
+		if ( data?.core?.threats ) {
 			cores = [ data.core ];
 		}
 
