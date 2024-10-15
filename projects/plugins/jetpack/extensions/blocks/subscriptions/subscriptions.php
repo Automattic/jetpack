@@ -646,6 +646,10 @@ function render_block( $attributes ) {
 		Jetpack_Gutenberg::load_styles_as_required( FEATURE_NAME );
 	}
 
+	if ( ! class_exists( 'Jetpack_Subscriptions_Widget' ) ) {
+		return '';
+	}
+
 	$subscribe_email = Jetpack_Memberships::get_current_user_email();
 
 	/** This filter is documented in \Automattic\Jetpack\Forms\ContactForm\Contact_Form */
