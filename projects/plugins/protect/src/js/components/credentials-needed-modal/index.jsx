@@ -11,7 +11,7 @@ import styles from './styles.module.scss';
 const CredentialsNeededModal = () => {
 	const queryClient = useQueryClient();
 	const { setModal } = useModal();
-	const { data: credentials } = useCredentialsQuery( { usePolling: true } );
+	const { data: credentials } = useCredentialsQuery();
 	const { siteSuffix, blogID } = window.jetpackProtectInitialState;
 
 	const handleCancelClick = () => {
