@@ -3,7 +3,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import inProgressImage from '../../../../assets/images/in-progress.png';
 import usePlan from '../../hooks/use-plan';
 import useWafData from '../../hooks/use-waf-data';
-import Header from '../header';
+import AdminSectionHero from '../admin-section-hero';
 import ProgressBar from '../progress-bar';
 import styles from './styles.module.scss';
 
@@ -16,7 +16,7 @@ const ScanningHeader = ( { currentProgress } ) => {
 		: totalVulnerabilities.toLocaleString();
 
 	return (
-		<Header
+		<AdminSectionHero
 			heading={ __( 'Your results will be ready soon', 'jetpack-protect' ) }
 			subheading={
 				<>

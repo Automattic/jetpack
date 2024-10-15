@@ -1,5 +1,5 @@
 import {
-	AdminSectionHero,
+	AdminSectionHero as JetpackAdminSectionHero,
 	Status,
 	H3,
 	Container,
@@ -28,7 +28,7 @@ const ConnectionErrorSection = () => {
 	);
 };
 
-const Header = ( {
+const AdminSectionHero = ( {
 	status = null,
 	statusLabel,
 	showNavigation = false,
@@ -41,7 +41,7 @@ const Header = ( {
 	const Icon = getIconBySlug( 'protect' );
 
 	return (
-		<AdminSectionHero>
+		<JetpackAdminSectionHero>
 			<ConnectionErrorSection />
 			<SeventyFiveLayout
 				spacing={ 7 }
@@ -62,8 +62,8 @@ const Header = ( {
 				preserveSecondaryOnMobile={ preserveSecondaryOnMobile }
 				fluid={ false }
 			/>
-		</AdminSectionHero>
+		</JetpackAdminSectionHero>
 	);
 };
 
-export default Header;
+export default AdminSectionHero;

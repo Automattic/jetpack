@@ -9,8 +9,8 @@ import { dateI18n } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
 import { useMemo, useState } from 'react';
 import AdminPage from '../../components/admin-page';
+import AdminSectionHero from '../../components/admin-section-hero';
 import ErrorHeader from '../../components/error-header';
-import Header from '../../components/header';
 import OnboardingPopover from '../../components/onboarding-popover';
 import ScanFooter from '../../components/scan-footer';
 import ScanningHeader from '../../components/scanning-header';
@@ -87,7 +87,7 @@ const ScanPage = () => {
 		}
 
 		return (
-			<Header
+			<AdminSectionHero
 				status={ 'active' }
 				statusLabel={ __( 'Active', 'jetpack-protect' ) }
 				heading={

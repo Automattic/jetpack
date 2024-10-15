@@ -4,8 +4,8 @@ import { __, _n, sprintf } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import { Navigate, useParams } from 'react-router-dom';
 import AdminPage from '../../../components/admin-page';
+import AdminSectionHero from '../../../components/admin-section-hero';
 import ErrorHeader from '../../../components/error-header';
-import Header from '../../../components/header';
 import ProtectCheck from '../../../components/protect-check-icon';
 import ScanFooter from '../../../components/scan-footer';
 import ThreatsNavigation from '../../../components/threats-list/navigation';
@@ -259,7 +259,7 @@ const ScanHistoryRoute = () => {
 					errorCode={ error?.code }
 				/>
 			) : (
-				<Header
+				<AdminSectionHero
 					status={ 'active' }
 					statusLabel={ __( 'Active', 'jetpack-protect' ) }
 					heading={

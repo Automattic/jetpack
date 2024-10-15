@@ -14,9 +14,9 @@ import { Icon, closeSmall } from '@wordpress/icons';
 import moment from 'moment';
 import { useCallback, useEffect, useState, useMemo } from 'react';
 import AdminPage from '../../components/admin-page';
+import AdminSectionHero from '../../components/admin-section-hero';
 import FirewallFooter from '../../components/firewall-footer';
 import FormToggle from '../../components/form-toggle';
-import Header from '../../components/header';
 import ScanFooter from '../../components/scan-footer';
 import Textarea from '../../components/textarea';
 import { FREE_PLUGIN_SUPPORT_URL, PAID_PLUGIN_SUPPORT_URL } from '../../constants';
@@ -668,7 +668,7 @@ const FirewallPage = () => {
 		}
 
 		return (
-			<Header
+			<AdminSectionHero
 				status={ 'on' === status ? 'active' : 'inactive' }
 				statusLabel={ statusLabel }
 				heading={ heading }

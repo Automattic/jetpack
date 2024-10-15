@@ -1,12 +1,12 @@
-import Header from '..';
+import AdminSectionHero from '..';
 import inProgressImage from '../../../../../assets/images/in-progress.png';
 
 export default {
-	title: 'Plugins/Protect/Header',
-	component: Header,
+	title: 'Plugins/Protect/AdminSectionHero',
+	component: AdminSectionHero,
 };
 
-export const Default = args => <Header { ...args } />;
+export const Default = args => <AdminSectionHero { ...args } />;
 Default.args = {
 	status: 'active',
 	statusLabel: 'Active',
