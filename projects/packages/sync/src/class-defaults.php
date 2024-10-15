@@ -462,6 +462,11 @@ class Defaults {
 		'wprss_feed_item',
 		'memberships_coupon',
 		'memberships_gift',
+		'tribe-ea-record', // The Events Calendar Plugin - Store Event Aggregator record information.
+		'wphb_minify_group', // Hummingbird Plugin - Used internally to keep data about assets minification.
+		'bigcommerce_task', // BigCommerce Plugin - Store import queue.
+		'secupress_log_err404', // SecuPress Plugin - Log 404 pages
+		'iw_omnibus_price_log', // Omnibus Plugin - Log price changes.
 	);
 
 	/**
