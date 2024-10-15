@@ -29,9 +29,6 @@ export default function useCredentialsQuery( {
 			if ( ! usePolling ) {
 				return false;
 			}
-			if ( ! query.state.data ) {
-				return false;
-			}
 			if ( query.state.data?.length ) {
 				return false;
 			}
