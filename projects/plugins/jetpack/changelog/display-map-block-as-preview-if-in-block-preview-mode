@@ -1,4 +1,4 @@
 Significance: patch
 Type: other
 
-Map block: Use block editor store preview flag to determine whether or not to display the placeholder
+Map block: Display a static map image when the block is rendered in a pattern preview
