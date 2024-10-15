@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Update plugin action links filter parameter to avoid conflicts with other plugins.

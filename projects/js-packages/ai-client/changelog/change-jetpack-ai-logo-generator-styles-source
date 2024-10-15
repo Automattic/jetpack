@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-AI Client: remove provision of image styles via flag prop and internal definition, take it from ai-assistant-feature payload now
