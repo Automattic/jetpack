@@ -1,4 +1,12 @@
-import { AdminSection, Container, Col, H3, Text, Title } from '@automattic/jetpack-components';
+import {
+	AdminSection,
+	Container,
+	Col,
+	H3,
+	Text,
+	Title,
+	Status,
+} from '@automattic/jetpack-components';
 import { dateI18n } from '@wordpress/date';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { useCallback } from 'react';
@@ -8,6 +16,7 @@ import AdminSectionHero from '../../../components/admin-section-hero';
 import ErrorHeader from '../../../components/error-header';
 import ProtectCheck from '../../../components/protect-check-icon';
 import ScanFooter from '../../../components/scan-footer';
+import ScanNavigation from '../../../components/scan-navigation';
 import ThreatsNavigation from '../../../components/threats-list/navigation';
 import PaidList from '../../../components/threats-list/paid-list';
 import useThreatsList from '../../../components/threats-list/use-threats-list';
@@ -260,35 +269,37 @@ const ScanHistoryRoute = () => {
 				/>
 			) : (
 				<AdminSectionHero
-					status={ 'active' }
-					statusLabel={ __( 'Active', 'jetpack-protect' ) }
-					heading={
-						numAllThreats > 0
-							? sprintf(
-									/* translators: %s: Total number of threats  */
-									__( '%1$s previously active %2$s', 'jetpack-protect' ),
-									numAllThreats,
-									numAllThreats === 1 ? 'threat' : 'threats'
-							  )
-							: __( 'No previously active threats', 'jetpack-protect' )
-					}
-					showIcon={ true }
-					subheading={
-						<Text>
-							{ oldestfirstDetected ? (
-								<span className={ styles[ 'subheading-content' ] }>
-									{ sprintf(
-										/* translators: %s: Oldest first detected date */
-										__( '%s - Today', 'jetpack-protect' ),
-										dateI18n( 'F jS g:i A', oldestfirstDetected )
+					main={
+						<>
+							<Status status="active" label={ __( 'Active', 'jetpack-protect' ) } />
+							<AdminSectionHero.Heading showIcon>
+								{ numAllThreats > 0
+									? sprintf(
+											/* translators: %s: Total number of threats  */
+											__( '%1$s previously active %2$s', 'jetpack-protect' ),
+											numAllThreats,
+											numAllThreats === 1 ? 'threat' : 'threats'
+									  )
+									: __( 'No previously active threats', 'jetpack-protect' ) }
+							</AdminSectionHero.Heading>
+							<AdminSectionHero.Subheading>
+								<Text>
+									{ oldestfirstDetected ? (
+										<span className={ styles[ 'subheading-content' ] }>
+											{ sprintf(
+												/* translators: %s: Oldest first detected date */
+												__( '%s - Today', 'jetpack-protect' ),
+												dateI18n( 'F jS g:i A', oldestfirstDetected )
+											) }
+										</span>
+									) : (
+										__( 'Most recent results', 'jetpack-protect' )
 									) }
-								</span>
-							) : (
-								__( 'Most recent results', 'jetpack-protect' )
-							) }
-						</Text>
+								</Text>
+							</AdminSectionHero.Subheading>
+							<ScanNavigation />
+						</>
 					}
-					showNavigation={ true }
 				/>
 			) }
 			{ ( ! error || ( error && numAllThreats > 0 ) ) && (

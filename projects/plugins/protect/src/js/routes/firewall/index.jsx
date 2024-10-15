@@ -6,6 +6,7 @@ import {
 	ContextualUpgradeTrigger,
 	useBreakpointMatch,
 	Notice as JetpackNotice,
+	Status,
 } from '@automattic/jetpack-components';
 import { Popover } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
@@ -669,10 +670,13 @@ const FirewallPage = () => {
 
 		return (
 			<AdminSectionHero
-				status={ 'on' === status ? 'active' : 'inactive' }
-				statusLabel={ statusLabel }
-				heading={ heading }
-				subheading={ subheading }
+				main={
+					<>
+						<Status status={ 'on' === status ? 'active' : 'inactive' } label={ statusLabel } />
+						<AdminSectionHero.Heading>{ heading }</AdminSectionHero.Heading>
+						<AdminSectionHero.Subheading>{ subheading }</AdminSectionHero.Subheading>
+					</>
+				}
 				secondary={ Secondary }
 			/>
 		);

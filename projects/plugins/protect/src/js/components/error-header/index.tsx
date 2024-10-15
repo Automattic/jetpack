@@ -3,6 +3,7 @@ import { __ } from '@wordpress/i18n';
 import { Icon, warning } from '@wordpress/icons';
 import inProgressImage from '../../../../assets/images/in-progress.png';
 import AdminSectionHero from '../admin-section-hero';
+import ScanNavigation from '../scan-navigation';
 import styles from './styles.module.scss';
 
 interface ErrorHeaderProps {
@@ -21,14 +22,20 @@ const ErrorHeader: React.FC< ErrorHeaderProps > = ( {
 
 	return (
 		<AdminSectionHero
-			heading={
-				<div className={ styles.heading }>
-					<Icon className={ styles.warning } icon={ warning } size={ 54 } />
-					{ __( 'An error occurred', 'jetpack-protect' ) }
-				</div>
+			main={
+				<>
+					<AdminSectionHero.Heading>
+						<div className={ styles.heading }>
+							<Icon className={ styles.warning } icon={ warning } size={ 54 } />
+							{ __( 'An error occurred', 'jetpack-protect' ) }
+						</div>
+					</AdminSectionHero.Heading>
+					<AdminSectionHero.Subheading>
+						<Text>{ displayErrorMessage }</Text>
+					</AdminSectionHero.Subheading>
+					<ScanNavigation />
+				</>
 			}
-			subheading={ <Text>{ displayErrorMessage }</Text> }
-			showNavigation={ true }
 			secondary={
 				<div className={ styles.illustration }>
 					<img src={ inProgressImage } alt="" />

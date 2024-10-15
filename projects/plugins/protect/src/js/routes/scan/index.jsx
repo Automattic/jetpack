@@ -4,6 +4,7 @@ import {
 	Col,
 	Text,
 	useBreakpointMatch,
+	Status,
 } from '@automattic/jetpack-components';
 import { dateI18n } from '@wordpress/date';
 import { __, _n, sprintf } from '@wordpress/i18n';
@@ -13,6 +14,7 @@ import AdminSectionHero from '../../components/admin-section-hero';
 import ErrorHeader from '../../components/error-header';
 import OnboardingPopover from '../../components/onboarding-popover';
 import ScanFooter from '../../components/scan-footer';
+import ScanNavigation from '../../components/scan-navigation';
 import ScanningHeader from '../../components/scanning-header';
 import ThreatsList from '../../components/threats-list';
 import useScanStatusQuery, { isScanInProgress } from '../../data/scan/use-scan-status-query';
@@ -85,56 +87,58 @@ const ScanPage = () => {
 
 		return (
 			<AdminSectionHero
-				status={ 'active' }
-				statusLabel={ __( 'Active', 'jetpack-protect' ) }
-				heading={
-					numThreats > 0
-						? sprintf(
-								/* translators: %s: Total number of threats/vulnerabilities */
-								__( '%1$s %2$s found', 'jetpack-protect' ),
-								numThreats,
-								hasPlan
-									? _n( 'threat', 'threats', numThreats, 'jetpack-protect' )
-									: _n( 'vulnerability', 'vulnerabilities', numThreats, 'jetpack-protect' )
-						  )
-						: sprintf(
-								/* translators: %s: Pluralized type of threat/vulnerability */
-								__( 'No %s found', 'jetpack-protect' ),
-								hasPlan
-									? __( 'threats', 'jetpack-protect' )
-									: __(
-											'vulnerabilities',
-											'jetpack-protect',
-											/* dummy arg to avoid bad minification */ 0
-									  )
-						  )
-				}
-				showIcon={ true }
-				subheading={
+				main={
 					<>
-						<Text ref={ setDailyScansPopoverAnchor }>
-							{ lastCheckedLocalTimestamp ? (
-								<>
-									<span className={ styles[ 'subheading-content' ] }>
-										{ dateI18n( 'F jS g:i A', lastCheckedLocalTimestamp ) }
-									</span>
-									&nbsp;
-									{ __( 'results', 'jetpack-protect' ) }
-								</>
-							) : (
-								__( 'Most recent results', 'jetpack-protect' )
-							) }
-						</Text>
-						{ ! hasPlan && (
-							<OnboardingPopover
-								id="free-daily-scans"
-								position={ isSm ? 'bottom' : 'middle left' }
-								anchor={ dailyScansPopoverAnchor }
-							/>
-						) }
+						<Status status={ 'active' } label={ __( 'Active', 'jetpack-protect' ) } />
+						<AdminSectionHero.Heading showIcon>
+							{ numThreats > 0
+								? sprintf(
+										/* translators: %s: Total number of threats/vulnerabilities */
+										__( '%1$s %2$s found', 'jetpack-protect' ),
+										numThreats,
+										hasPlan
+											? _n( 'threat', 'threats', numThreats, 'jetpack-protect' )
+											: _n( 'vulnerability', 'vulnerabilities', numThreats, 'jetpack-protect' )
+								  )
+								: sprintf(
+										/* translators: %s: Pluralized type of threat/vulnerability */
+										__( 'No %s found', 'jetpack-protect' ),
+										hasPlan
+											? __( 'threats', 'jetpack-protect' )
+											: __(
+													'vulnerabilities',
+													'jetpack-protect',
+													/* dummy arg to avoid bad minification */ 0
+											  )
+								  ) }
+						</AdminSectionHero.Heading>
+						<AdminSectionHero.Subheading>
+							<>
+								<Text ref={ setDailyScansPopoverAnchor }>
+									{ lastCheckedLocalTimestamp ? (
+										<>
+											<span className={ styles[ 'subheading-content' ] }>
+												{ dateI18n( 'F jS g:i A', lastCheckedLocalTimestamp ) }
+											</span>
+											&nbsp;
+											{ __( 'results', 'jetpack-protect' ) }
+										</>
+									) : (
+										__( 'Most recent results', 'jetpack-protect' )
+									) }
+								</Text>
+								{ ! hasPlan && (
+									<OnboardingPopover
+										id="free-daily-scans"
+										position={ isSm ? 'bottom' : 'middle left' }
+										anchor={ dailyScansPopoverAnchor }
+									/>
+								) }
+							</>
+						</AdminSectionHero.Subheading>
+						<ScanNavigation />
 					</>
 				}
-				showNavigation={ true }
 			/>
 		);
 	}, [ status, lastCheckedLocalTimestamp, numThreats, hasPlan, isSm, dailyScansPopoverAnchor ] );
