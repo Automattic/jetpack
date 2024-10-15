@@ -212,11 +212,7 @@ class JetpackNotices extends React.Component {
 			},
 		} ) );
 
-		document.cookie = cookie.serialize( `jetpack_deprecate_dismissed[${ noticeKey }]`, '1', {
-			path: '/',
-			maxAge: 365 * 24 * 60 * 60, // 1 year
-			SameSite: 'None',
-		} );
+		document.cookie = `jetpack_deprecate_dismissed[${ noticeKey }]=1; expires=Fri, 31 Dec 9999 23:59:59 GMT; path=/; Secure; SameSite=None`;
 	};
 
 	isNoticeDismissed = noticeKey => {
