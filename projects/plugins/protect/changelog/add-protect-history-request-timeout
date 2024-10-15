@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Increased threat history request timeout limit from 10 to 30 seconds.
+
+
