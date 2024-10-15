@@ -102,7 +102,11 @@ const ScanPage = () => {
 								__( 'No %s found', 'jetpack-protect' ),
 								hasPlan
 									? __( 'threats', 'jetpack-protect' )
-									: __( 'vulnerabilities', 'jetpack-protect' )
+									: __(
+											'vulnerabilities',
+											'jetpack-protect',
+											/* dummy arg to avoid bad minification */ 0
+									  )
 						  )
 				}
 				showIcon={ true }
