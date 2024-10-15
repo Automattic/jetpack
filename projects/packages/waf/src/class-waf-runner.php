@@ -300,7 +300,7 @@ class Waf_Runner {
 	}
 
 	/**
-	 * Activates the WAF by generating the rules script and setting the version
+	 * Activates the WAF by generating the rules script and setting the related options.
 	 *
 	 * @throws Waf_Exception If the firewall mode is invalid.
 	 * @throws Waf_Exception If the activation fails.
@@ -308,16 +308,15 @@ class Waf_Runner {
 	 * @return void
 	 */
 	public static function activate() {
-		$version = get_option( Waf_Rules_Manager::VERSION_OPTION_NAME );
-		if ( ! $version ) {
-			add_option( Waf_Rules_Manager::VERSION_OPTION_NAME, Waf_Rules_Manager::RULES_VERSION );
+		// Ensure version and mode options exist and have non-empty values.
+		if ( ! get_option( Waf_Rules_Manager::VERSION_OPTION_NAME ) ) {
+			update_option( Waf_Rules_Manager::VERSION_OPTION_NAME, Waf_Rules_Manager::RULES_VERSION );
+		}
+		if ( ! get_option( self::MODE_OPTION_NAME ) ) {
+			update_option( self::MODE_OPTION_NAME, 'normal' );
 		}
 
-		$mode = get_option( self::MODE_OPTION_NAME );
-		if ( ! $mode ) {
-			add_option( self::MODE_OPTION_NAME, 'normal' );
-		}
-
+		// Ensure options exist.
 		add_option( Waf_Rules_Manager::AUTOMATIC_RULES_ENABLED_OPTION_NAME, false );
 		add_option( self::SHARE_DATA_OPTION_NAME, true );
 
