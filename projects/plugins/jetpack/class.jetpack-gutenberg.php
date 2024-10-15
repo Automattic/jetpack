@@ -824,8 +824,6 @@ class Jetpack_Gutenberg {
 	 * @see wp_common_block_scripts_and_styles()
 	 */
 	public static function load_independent_blocks() {
-		// Add temporary timing code. Remove before setting for review.
-		do_action( 'qm/start', 'jp_ind_blocks' ); // phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores
 		if ( self::should_load() ) {
 			/**
 			 * Look for files that match our list of available Jetpack Gutenberg extensions (blocks and plugins).
@@ -843,7 +841,6 @@ class Jetpack_Gutenberg {
 					}
 				}
 			}
-			do_action( 'qm/stop', 'jp_ind_blocks' );  // phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores
 		}
 	}
 
