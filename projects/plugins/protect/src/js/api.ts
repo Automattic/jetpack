@@ -53,7 +53,7 @@ const API = {
 		apiFetch( {
 			path: 'jetpack-protect/v1/scan-history',
 			method: 'GET',
-		} ).then( camelize ) as Promise< ScanStatus >,
+		} ).then( camelize ),
 
 	scan: () =>
 		apiFetch( {
