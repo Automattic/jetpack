@@ -2826,48 +2826,7 @@ function wpcom_launchpad_is_primary_domain_wpcom() {
 		return false;
 	}
 
-	if ( ! class_exists( 'Domain_Mapping' ) || ! class_exists( 'WPCOM_Domain' ) ) {
-		return false;
-	}
-
-	$blog_id = get_current_blog_id();
-
-	$primary_domain  = wpcom_launchpad_get_primary_domain( $blog_id );
-	$is_wpcom_domain = true;
-
-	if ( null !== $primary_domain ) {
-		// @phan-suppress-next-line PhanUndeclaredClassMethod
-		$is_wpcom_domain = $primary_domain->is_wpcom_tld();
-	}
-
-	return $is_wpcom_domain;
-}
-
-/**
- * Returns the primary domain for a given blog ID.
- * This function caches the result for the current request.
- *
- * @param int $blog_id The blog ID.
- * @return WPCOM_Domain|null
- * @phan-suppress-next-line PhanUndeclaredTypeReturnType
- */
-function wpcom_launchpad_get_primary_domain( $blog_id ) {
-	static $last_blog_id;
-	static $primary_domain;
-
-	if ( $last_blog_id === $blog_id && $primary_domain !== null ) {
-		return $primary_domain;
-	}
-
-	// @phan-suppress-next-line PhanUndeclaredClassMethod
-	$primary_domain_mapping = Domain_Mapping::find_primary_by_blog_id( $blog_id );
-	if ( ! $primary_domain_mapping ) {
-		return null;
-	}
-
-	$last_blog_id = $blog_id;
-
-	// @phan-suppress-next-line PhanUndeclaredClassMethod
-	$primary_domain = new WPCOM_Domain( $primary_domain_mapping->get_domain_name() );
-	return $primary_domain;
+	$site_slug = wpcom_get_site_slug();
+	// If site_slug ends with wpcomstaging.com return true
+	return str_ends_with( $site_slug, 'wpcomstaging.com' );
 }
