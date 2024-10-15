@@ -6,7 +6,7 @@ import {
 	useBreakpointMatch,
 } from '@automattic/jetpack-components';
 import { dateI18n } from '@wordpress/date';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { useMemo, useState } from 'react';
 import AdminPage from '../../components/admin-page';
 import AdminSectionHero from '../../components/admin-section-hero';
@@ -69,9 +69,6 @@ const ScanPage = () => {
 	}
 
 	const renderHeader = useMemo( () => {
-		const singularType = hasPlan ? 'threat' : 'vulnerability';
-		const pluralType = hasPlan ? 'threats' : 'vulnerabilities';
-
 		if ( isScanInProgress( status ) ) {
 			return <ScanningHeader currentProgress={ status?.currentProgress } />;
 		}
@@ -96,12 +93,16 @@ const ScanPage = () => {
 								/* translators: %s: Total number of threats/vulnerabilities */
 								__( '%1$s %2$s found', 'jetpack-protect' ),
 								numThreats,
-								numThreats === 1 ? singularType : pluralType
+								hasPlan
+									? _n( 'threat', 'threats', numThreats, 'jetpack-protect' )
+									: _n( 'vulnerability', 'vulnerabilities', numThreats, 'jetpack-protect' )
 						  )
 						: sprintf(
 								/* translators: %s: Pluralized type of threat/vulnerability */
 								__( 'No %s found', 'jetpack-protect' ),
-								pluralType
+								hasPlan
+									? __( 'threats', 'jetpack-protect' )
+									: __( 'vulnerabilities', 'jetpack-protect' )
 						  )
 				}
 				showIcon={ true }
