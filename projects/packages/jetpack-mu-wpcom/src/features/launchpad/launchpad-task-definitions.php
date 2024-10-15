@@ -845,6 +845,13 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_complete_callback' => 'wpcom_launchpad_is_domain_customize_completed',
 			'is_visible_callback'  => '__return_true',
 		),
+		'domain_dns_mapped'               => array(
+			'get_title'            => function () {
+				return __( "Update your domain's DNS", 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'is_visible_callback'  => '__return_true',
+		),
 	);
 
 	$extended_task_definitions = apply_filters( 'wpcom_launchpad_extended_task_definitions', array() );
