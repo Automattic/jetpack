@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Optimize the 'admin_init' hook callback for Sharing module.

@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Fix Fatal Error: Class 'Jetpack_Subscriptions_Widget' not found during REST API

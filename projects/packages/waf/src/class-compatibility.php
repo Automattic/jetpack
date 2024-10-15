@@ -19,7 +19,7 @@ class Waf_Compatibility {
 	/**
 	 * Returns the name for the IP allow list enabled/disabled option.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.22.0
 	 *
 	 * @return string
 	 */
@@ -39,7 +39,7 @@ class Waf_Compatibility {
 	/**
 	 * Returns the name for the IP block list enabled/disabled option.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.22.0
 	 *
 	 * @return string
 	 */
