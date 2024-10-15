@@ -2,7 +2,7 @@ import { Container, Col } from '@automattic/jetpack-components';
 import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-connection';
 import styles from './styles.module.scss';
 
-const AdminSectionHeroNotices = () => {
+const AdminSectionHeroNotices: React.FC = () => {
 	const { hasConnectionError } = useConnectionErrorNotice();
 
 	return (

@@ -5,7 +5,17 @@ import inProgressImage from '../../../../assets/images/in-progress.png';
 import AdminSectionHero from '../admin-section-hero';
 import styles from './styles.module.scss';
 
-const ErrorHeader = ( { baseErrorMessage, errorMessage, errorCode } ) => {
+interface ErrorHeaderProps {
+	baseErrorMessage: string;
+	errorMessage?: string;
+	errorCode?: string;
+}
+
+const ErrorHeader: React.FC< ErrorHeaderProps > = ( {
+	baseErrorMessage,
+	errorMessage,
+	errorCode,
+} ) => {
 	let displayErrorMessage = errorMessage ? `${ errorMessage } (${ errorCode }).` : baseErrorMessage;
 	displayErrorMessage += ' ' + __( 'Try again in a few minutes.', 'jetpack-protect' );
 

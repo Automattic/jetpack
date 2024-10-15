@@ -1,6 +1,18 @@
 import { Container, Col, useBreakpointMatch } from '@automattic/jetpack-components';
 import React from 'react';
 
+// Define the props interface for the SeventyFiveLayout component
+interface SeventyFiveLayoutProps {
+	spacing?: number;
+	gap?: number;
+	main: React.ReactNode;
+	mainClassName?: string;
+	secondary: React.ReactNode;
+	secondaryClassName?: string;
+	preserveSecondaryOnMobile?: boolean;
+	fluid?: boolean;
+}
+
 /**
  * SeventyFive layout meta component
  * The component name references to
@@ -13,12 +25,14 @@ import React from 'react';
  * @param {number}          props.spacing                   - Horizontal spacing
  * @param {number}          props.gap                       - Horizontal gap
  * @param {React.ReactNode} props.main                      - Main section component
+ * @param {string}          props.mainClassName             - Main section class name
  * @param {React.ReactNode} props.secondary                 - Secondary section component
+ * @param {string}          props.secondaryClassName        - Secondary section class name
  * @param {boolean}         props.preserveSecondaryOnMobile - Whether to show secondary section on mobile
  * @param {boolean}         props.fluid                     - Whether to use fluid layout
  * @return {React.ReactNode} - React meta-component
  */
-const SeventyFiveLayout = ( {
+const SeventyFiveLayout: React.FC< SeventyFiveLayoutProps > = ( {
 	spacing = 0,
 	gap = 0,
 	main,
@@ -28,6 +42,7 @@ const SeventyFiveLayout = ( {
 	preserveSecondaryOnMobile = false,
 	fluid,
 } ) => {
+	// Ensure the correct typing for useBreakpointMatch
 	const [ isSmall, isLarge ] = useBreakpointMatch( [ 'sm', 'lg' ] );
 
 	/*

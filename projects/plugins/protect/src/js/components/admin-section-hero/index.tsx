@@ -9,7 +9,18 @@ import SeventyFiveLayout from '../seventy-five-layout';
 import AdminSectionHeroNotices from './admin-section-hero-notices';
 import styles from './styles.module.scss';
 
-const AdminSectionHero = ( {
+interface AdminSectionHeroProps {
+	status?: 'active' | 'error' | 'inactive' | 'action' | 'initializing' | null;
+	statusLabel?: string;
+	showNavigation?: boolean;
+	heading?: React.ReactNode;
+	showIcon?: boolean;
+	subheading?: React.ReactNode;
+	secondary?: React.ReactNode;
+	preserveSecondaryOnMobile?: boolean;
+}
+
+const AdminSectionHero: React.FC< AdminSectionHeroProps > = ( {
 	status = null,
 	statusLabel,
 	showNavigation = false,
@@ -26,6 +37,7 @@ const AdminSectionHero = ( {
 			<AdminSectionHeroNotices />
 			<SeventyFiveLayout
 				spacing={ 7 }
+				gap={ 0 }
 				main={
 					<>
 						{ status && <Status status={ status } label={ statusLabel } /> }

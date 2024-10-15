@@ -7,10 +7,14 @@ import AdminSectionHero from '../admin-section-hero';
 import ProgressBar from '../progress-bar';
 import styles from './styles.module.scss';
 
-const ScanningHeader = ( { currentProgress } ) => {
+interface ScanningHeaderProps {
+	currentProgress?: number;
+}
+
+const ScanningHeader: React.FC< ScanningHeaderProps > = ( { currentProgress } ) => {
 	const { hasPlan } = usePlan();
 	const { globalStats } = useWafData();
-	const totalVulnerabilities = parseInt( globalStats?.totalVulnerabilities );
+	const totalVulnerabilities = parseInt( globalStats?.totalVulnerabilities || '0' );
 	const totalVulnerabilitiesFormatted = isNaN( totalVulnerabilities )
 		? '50,000'
 		: totalVulnerabilities.toLocaleString();
@@ -20,7 +24,9 @@ const ScanningHeader = ( { currentProgress } ) => {
 			heading={ __( 'Your results will be ready soon', 'jetpack-protect' ) }
 			subheading={
 				<>
-					{ hasPlan && <ProgressBar value={ currentProgress } /> }
+					{ hasPlan && (
+						<ProgressBar className={ styles.progress } value={ currentProgress } total={ 100 } />
+					) }
 					<Text>
 						{ sprintf(
 							// translators: placeholder is the number of total vulnerabilities i.e. "22,000".
