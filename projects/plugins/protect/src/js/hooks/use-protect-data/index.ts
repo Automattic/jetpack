@@ -141,7 +141,7 @@ export default function useProtectData(
 
 		// Core data may be either a single object or an array of multiple objects.
 		let cores = Array.isArray( data.core ) ? data.core : [];
-		if ( data.core.threats ) {
+		if ( data?.core?.threats ) {
 			cores = [ data.core ];
 		}
 
