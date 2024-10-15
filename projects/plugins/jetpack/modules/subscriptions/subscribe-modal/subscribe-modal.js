@@ -16,7 +16,7 @@ domReady( () => {
 		const url = new URL( window.location.href );
 		if ( url.searchParams.has( skipUrlParam ) ) {
 			url.searchParams.delete( skipUrlParam );
-			window.history.pushState( {}, '', url );
+			window.history.replaceState( {}, '', url );
 			storeCloseTimestamp();
 			return true;
 		}
