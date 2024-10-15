@@ -67,7 +67,6 @@ const MapEdit = ( {
 		zoom,
 		mapCenter,
 		markerColor,
-		preview,
 		mapHeight,
 		showFullscreenButton,
 	} = attributes;
@@ -236,7 +235,7 @@ const MapEdit = ( {
 
 	let content;
 
-	if ( preview || isPreviewMode ) {
+	if ( isPreviewMode ) {
 		const mapStyleObject = styles.find( styleObject => styleObject.name === mapStyle );
 
 		content = (
