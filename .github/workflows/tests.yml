@@ -27,7 +27,7 @@ jobs:
 
   run-tests:
     name: ${{ matrix.name }}
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.runner }}
     needs: create-matrix
     services:
       database:
