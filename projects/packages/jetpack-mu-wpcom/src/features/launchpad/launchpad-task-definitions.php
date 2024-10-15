@@ -852,6 +852,18 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'is_visible_callback'  => '__return_true',
 		),
+		'check_ssl_status'                => array(
+			'get_title'            => function () {
+				return __( 'Provision SSL certificate', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => '__return_false',
+			'is_visible_callback'  => '__return_true',
+			'is_disabled_callback' => 'wpcom_launchpad_is_primary_domain_wpcom',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				$domain = $data['site_slug_encoded'];
+				return '/domains/manage/' . $domain . '/edit/' . $domain;
+			},
+		),
 	);
 
 	$extended_task_definitions = apply_filters( 'wpcom_launchpad_extended_task_definitions', array() );
@@ -2802,4 +2814,60 @@ function wpcom_launchpad_get_latest_draft_id() {
 	$cached_draft_id = reset( $latest_draft_id );
 
 	return $cached_draft_id;
+}
+
+/**
+ * Checks if the current site primary domain is a WPCOM domain.
+ *
+ * @return bool Will return true if the primary domain is a WPCOM domain.
+ */
+function wpcom_launchpad_is_primary_domain_wpcom() {
+	if ( ! ( new Automattic\Jetpack\Status\Host() )->is_wpcom_platform() ) {
+		return false;
+	}
+
+	if ( ! class_exists( 'Domain_Mapping' ) || ! class_exists( 'WPCOM_Domain' ) ) {
+		return false;
+	}
+
+	$blog_id = get_current_blog_id();
+
+	$primary_domain  = wpcom_launchpad_get_primary_domain( $blog_id );
+	$is_wpcom_domain = true;
+
+	if ( null !== $primary_domain ) {
+		// @phan-suppress-next-line PhanUndeclaredClassMethod
+		$is_wpcom_domain = $primary_domain->is_wpcom_tld();
+	}
+
+	return $is_wpcom_domain;
+}
+
+/**
+ * Returns the primary domain for a given blog ID.
+ * This function caches the result for the current request.
+ *
+ * @param int $blog_id The blog ID.
+ * @return WPCOM_Domain|null
+ * @phan-suppress-next-line PhanUndeclaredTypeReturnType
+ */
+function wpcom_launchpad_get_primary_domain( $blog_id ) {
+	static $last_blog_id;
+	static $primary_domain;
+
+	if ( $last_blog_id === $blog_id && $primary_domain !== null ) {
+		return $primary_domain;
+	}
+
+	// @phan-suppress-next-line PhanUndeclaredClassMethod
+	$primary_domain_mapping = Domain_Mapping::find_primary_by_blog_id( $blog_id );
+	if ( ! $primary_domain_mapping ) {
+		return null;
+	}
+
+	$last_blog_id = $blog_id;
+
+	// @phan-suppress-next-line PhanUndeclaredClassMethod
+	$primary_domain = new WPCOM_Domain( $primary_domain_mapping->get_domain_name() );
+	return $primary_domain;
 }
