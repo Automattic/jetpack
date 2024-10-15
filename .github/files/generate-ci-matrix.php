@@ -26,6 +26,9 @@ $default_matrix_vars = array(
 	// {string} Name for the job. Required, and must be unique.
 	'name'                => null,
 
+	// {string} Runner name as found in https://github.com/actions/runner-images/.
+	'runner'              => 'ubuntu-latest',
+
 	// {string} Composer script for the job. Required.
 	'script'              => null,
 
