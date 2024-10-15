@@ -63,7 +63,7 @@ export default function useProtectData(
 
 	const { counts, results, error, lastChecked, hasUncheckedItems } = useMemo( () => {
 		// This hook can provide data from two sources: the current scan or the scan history.
-		const data = sourceType === 'history' ? { ...( scanHistory || {} ) } : { ...status };
+		const data = sourceType === 'history' ? { ...scanHistory } : { ...status };
 
 		// Prepare the result object.
 		const result = {
