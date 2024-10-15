@@ -2,31 +2,12 @@ import {
 	AdminSectionHero as JetpackAdminSectionHero,
 	Status,
 	H3,
-	Container,
-	Col,
 	getIconBySlug,
 } from '@automattic/jetpack-components';
-import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-connection';
 import ScanNavigation from '../scan-navigation';
 import SeventyFiveLayout from '../seventy-five-layout';
+import AdminSectionHeroNotices from './admin-section-hero-notices';
 import styles from './styles.module.scss';
-
-const ConnectionErrorSection = () => {
-	const { hasConnectionError } = useConnectionErrorNotice();
-
-	return (
-		<Container horizontalSpacing={ 0 }>
-			{ hasConnectionError && (
-				<Col className={ styles[ 'connection-error-col' ] }>
-					<ConnectionError />
-				</Col>
-			) }
-			<Col>
-				<div id="jp-admin-notices" className="my-jetpack-jitm-card" />
-			</Col>
-		</Container>
-	);
-};
 
 const AdminSectionHero = ( {
 	status = null,
@@ -42,7 +23,7 @@ const AdminSectionHero = ( {
 
 	return (
 		<JetpackAdminSectionHero>
-			<ConnectionErrorSection />
+			<AdminSectionHeroNotices />
 			<SeventyFiveLayout
 				spacing={ 7 }
 				main={
