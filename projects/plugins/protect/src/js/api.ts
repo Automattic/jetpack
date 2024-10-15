@@ -49,7 +49,7 @@ const API = {
 			data: { step_ids: stepIds },
 		} ),
 
-	getScanHistory: (): Promise< ScanStatus > =>
+	getScanHistory: (): Promise< ScanStatus | false > =>
 		apiFetch( {
 			path: 'jetpack-protect/v1/scan-history',
 			method: 'GET',
