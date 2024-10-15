@@ -32,8 +32,8 @@ import {
 } from 'state/initial-state';
 import { getLicensingError, clearLicensingError } from 'state/licensing';
 import { getSiteDataErrors } from 'state/site';
+import DeprecationNotice from './deprecation-notice';
 import DismissableNotices from './dismissable';
-import DeprecationNotice from './generic-notice';
 import JetpackConnectionErrors from './jetpack-connection-errors';
 import PlanConflictWarning from './plan-conflict-warning';
 import JetpackStateNotices from './state-notices';
@@ -224,8 +224,10 @@ class JetpackNotices extends React.Component {
 		// const notices = [
 		//  {
 		//    noticeKey: 'my-xyz-deprecate-feature',
-		//    message: __( "Jetpack's xyz feature has been removed.", 'jetpack' ),
+		//    title: __( "Retired feature: Jetpack's XYZ Feature", 'jetpack' ),
+		//    message: __( "This feature is being retired and will be removed effective November, 2024. Please use the Classic Theme Helper plugin instead.", 'jetpack' ),
 		//    link: getRedirectUrl( 'my-support' ),
+		//    linkText: __( 'Learn more', 'jetpack' ),
 		//    show: this.props.showXYZNotice && ! this.isNoticeDismissed( 'my-xyz-deprecate-feature' )
 		//  }
 		// ];
@@ -289,15 +291,17 @@ class JetpackNotices extends React.Component {
 					/>
 				) }
 
-				{ notices.map( ( { noticeKey, message, link, show } ) => (
+				{ notices.map( ( { noticeKey, message, link, show, title, linkText } ) => (
 					<DeprecationNotice
 						key={ noticeKey }
 						show={ show && ! this.isNoticeDismissed( noticeKey ) }
 						noticeKey={ noticeKey }
 						// eslint-disable-next-line react/jsx-no-bind
 						dismissNotice={ () => this.dismissNotice( noticeKey ) }
+						title={ title }
 						message={ message }
 						link={ link }
+						linkText={ linkText }
 					/>
 				) ) }
 			</div>

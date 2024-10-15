@@ -3,7 +3,7 @@ import { __ } from '@wordpress/i18n';
 import SimpleNotice from 'components/notice';
 import PropTypes from 'prop-types';
 
-const DeprecationNotice = ( { show, dismissNotice, message, link } ) => {
+const DeprecationNotice = ( { show, dismissNotice, message, link, linkText, title } ) => {
 	if ( ! show ) {
 		return;
 	}
@@ -13,15 +13,9 @@ const DeprecationNotice = ( { show, dismissNotice, message, link } ) => {
 			dismissText={ __( 'Dismiss', 'jetpack' ) }
 			onDismissClick={ dismissNotice }
 		>
+			<div style={ { fontWeight: 600 } }>{ title }</div>
 			<div>{ message }</div>
-			{ link && (
-				<ExternalLink href={ link }>
-					{ __(
-						'To find out more about what this means for you, please refer to this document.',
-						'jetpack'
-					) }
-				</ExternalLink>
-			) }
+			{ link && <ExternalLink href={ link }>{ linkText }</ExternalLink> }
 		</SimpleNotice>
 	);
 };
@@ -32,6 +26,8 @@ DeprecationNotice.propTypes = {
 	dismissNotice: PropTypes.func.isRequired,
 	message: PropTypes.string.isRequired,
 	link: PropTypes.string,
+	linkText: PropTypes.string,
+	title: PropTypes.string,
 };
 
 export default DeprecationNotice;
