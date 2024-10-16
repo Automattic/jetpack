@@ -28,14 +28,18 @@ const FirewallAdminSectionHero = () => {
 		case 'on':
 			statusLabel = standaloneMode
 				? __( 'Standalone mode', 'jetpack-protect' )
-				: __( 'Active', 'jetpack-protect' );
+				: __( 'Active', 'jetpack-protect', /* dummy arg to avoid bad minification */ 0 );
 			heading = (
 				<>
 					{ ! wafSupported && __( 'Brute force protection is active', 'jetpack-protect' ) }
 					{ wafSupported &&
 						( jetpackWafAutomaticRules
 							? __( 'Automatic firewall is on', 'jetpack-protect' )
-							: __( 'Firewall is on', 'jetpack-protect' ) ) }
+							: __(
+									'Firewall is on',
+									'jetpack-protect',
+									/* dummy arg to avoid bad minification */ 0
+							  ) ) }
 				</>
 			);
 			subheading = <FirewallSubheading />;
@@ -49,7 +53,11 @@ const FirewallAdminSectionHero = () => {
 					{ wafSupported &&
 						( automaticRulesAvailable
 							? __( 'Automatic firewall is off', 'jetpack-protect' )
-							: __( 'Firewall is off', 'jetpack-protect' ) ) }
+							: __(
+									'Firewall is off',
+									'jetpack-protect',
+									/* dummy arg to avoid bad minification */ 0
+							  ) ) }
 				</>
 			);
 			subheading = <FirewallSubheading />;
