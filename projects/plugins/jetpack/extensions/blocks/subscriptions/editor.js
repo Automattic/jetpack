@@ -1,5 +1,4 @@
-import { recordTracksEvent } from '@automattic/jetpack-analytics';
-import { registerJetpackPlugin } from '@automattic/jetpack-shared-extension-utils';
+import { registerJetpackPlugin, useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { createBlock } from '@wordpress/blocks';
 import { select } from '@wordpress/data';
 import { PluginPreviewMenuItem } from '@wordpress/editor';
@@ -79,12 +78,15 @@ const shouldShowNewsletterMenu = () => {
 const useNewsletterPreview = () => {
 	const [ isPreviewModalOpen, setIsPreviewModalOpen ] = useState( false );
 	const postId = select( 'core/editor' ).getCurrentPostId();
+	const { tracks } = useAnalytics();
 
-	const openPreviewModal = useCallback( source => {
-		setIsPreviewModalOpen( true );
-		// Add tracking event
-		recordTracksEvent( 'jetpack_newsletter_preview_opened', { source } );
-	}, [] );
+	const openPreviewModal = useCallback(
+		source => {
+			setIsPreviewModalOpen( true );
+			tracks.recordEvent( 'jetpack_newsletter_preview_opened', { source } );
+		},
+		[ tracks ]
+	);
 
 	const closePreviewModal = useCallback( () => {
 		setIsPreviewModalOpen( false );
