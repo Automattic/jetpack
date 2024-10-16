@@ -47,6 +47,7 @@ addEventListener( 'DOMContentLoaded', () => {
 			transform: translate(-50%, -50%);
 		}
 
+		/* Customize the styling of content within the notice container */
 		.jetpack-deprecation-notice-container {
 			align-items: flex-start;
 			display: flex;

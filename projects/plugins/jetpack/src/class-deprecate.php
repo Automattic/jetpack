@@ -204,18 +204,4 @@ class Deprecate {
 		return false;
 	}
 
-	/**
-	 * Remove Masterbar from the old Module list.
-	 * Available at wp-admin/admin.php?page=jetpack_modules
-	 * We only need this function until the Masterbar is fully removed from Jetpack (including notices).
-	 *
-	 * @param array $items Array of Jetpack modules.
-	 * @return array
-	 */
-	public function remove_masterbar_module_list( $items ) {
-		if ( isset( $items['masterbar'] ) && get_option( 'wpcom_admin_interface' ) !== 'wp-admin' ) {
-			unset( $items['masterbar'] );
-		}
-		return $items;
-	}
 }

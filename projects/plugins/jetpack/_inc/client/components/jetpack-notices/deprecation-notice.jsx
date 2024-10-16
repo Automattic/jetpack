@@ -13,14 +13,13 @@ const DeprecationNotice = ( { show, dismissNotice, message, link, linkText, titl
 			dismissText={ __( 'Dismiss', 'jetpack' ) }
 			onDismissClick={ dismissNotice }
 		>
-			<div style={ { fontWeight: 600 } }>{ title }</div>
+			{ title && <div style={ { fontWeight: 600 } }>{ title }</div> }
 			<div>{ message }</div>
 			{ link && <ExternalLink href={ link }>{ linkText }</ExternalLink> }
 		</SimpleNotice>
 	);
 };
 
-// PropTypes for type checking
 DeprecationNotice.propTypes = {
 	show: PropTypes.bool.isRequired,
 	dismissNotice: PropTypes.func.isRequired,
