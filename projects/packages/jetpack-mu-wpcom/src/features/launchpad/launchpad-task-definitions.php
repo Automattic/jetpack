@@ -856,8 +856,7 @@ function wpcom_launchpad_get_task_definitions() {
 			'get_title'            => function () {
 				return __( 'Provision SSL certificate', 'jetpack-mu-wpcom' );
 			},
-			'is_complete_callback' => '__return_false',
-			'is_visible_callback'  => '__return_true',
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'is_disabled_callback' => 'wpcom_launchpad_is_primary_domain_wpcom',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
 				$domain = $data['site_slug_encoded'];
