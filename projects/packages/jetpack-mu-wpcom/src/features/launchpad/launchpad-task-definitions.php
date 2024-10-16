@@ -2827,6 +2827,6 @@ function wpcom_launchpad_is_primary_domain_wpcom() {
 	}
 
 	$site_slug = wpcom_get_site_slug();
-	// If site_slug ends with wpcomstaging.com return true
-	return str_ends_with( $site_slug, 'wpcomstaging.com' );
+	// If site_slug ends with .wpcomstaging.com return true
+	return str_ends_with( $site_slug, '.wpcomstaging.com' );
 }
