@@ -1,20 +1,18 @@
 import { Text } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
 import inProgressImage from '../../../../assets/images/in-progress.png';
+import AdminSectionHero from '../../components/admin-section-hero';
+import ProgressBar from '../../components/progress-bar';
+import ScanNavigation from '../../components/scan-navigation';
+import useScanStatusQuery from '../../data/scan/use-scan-status-query';
 import usePlan from '../../hooks/use-plan';
 import useWafData from '../../hooks/use-waf-data';
-import AdminSectionHero from '../admin-section-hero';
-import ProgressBar from '../progress-bar';
-import ScanNavigation from '../scan-navigation';
 import styles from './styles.module.scss';
 
-interface ScanningHeaderProps {
-	currentProgress?: number;
-}
-
-const ScanningHeader: React.FC< ScanningHeaderProps > = ( { currentProgress } ) => {
+const ScanningAdminSectionHero: React.FC = () => {
 	const { hasPlan } = usePlan();
 	const { globalStats } = useWafData();
+	const { data: status } = useScanStatusQuery( { usePolling: true } );
 	const totalVulnerabilities = parseInt( globalStats?.totalVulnerabilities || '0' );
 	const totalVulnerabilitiesFormatted = isNaN( totalVulnerabilities )
 		? '50,000'
@@ -32,7 +30,7 @@ const ScanningHeader: React.FC< ScanningHeaderProps > = ( { currentProgress } ) 
 							{ hasPlan && (
 								<ProgressBar
 									className={ styles.progress }
-									value={ currentProgress }
+									value={ status?.currentProgress }
 									total={ 100 }
 								/>
 							) }
@@ -61,4 +59,4 @@ const ScanningHeader: React.FC< ScanningHeaderProps > = ( { currentProgress } ) 
 	);
 };
 
-export default ScanningHeader;
+export default ScanningAdminSectionHero;

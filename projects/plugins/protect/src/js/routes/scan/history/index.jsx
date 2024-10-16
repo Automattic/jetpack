@@ -1,28 +1,17 @@
-import {
-	AdminSection,
-	Container,
-	Col,
-	H3,
-	Text,
-	Title,
-	Status,
-} from '@automattic/jetpack-components';
-import { dateI18n } from '@wordpress/date';
+import { AdminSection, Container, Col, H3, Text, Title } from '@automattic/jetpack-components';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import { Navigate, useParams } from 'react-router-dom';
 import AdminPage from '../../../components/admin-page';
-import AdminSectionHero from '../../../components/admin-section-hero';
-import ErrorHeader from '../../../components/error-header';
 import ProtectCheck from '../../../components/protect-check-icon';
 import ScanFooter from '../../../components/scan-footer';
-import ScanNavigation from '../../../components/scan-navigation';
 import ThreatsNavigation from '../../../components/threats-list/navigation';
 import PaidList from '../../../components/threats-list/paid-list';
 import useThreatsList from '../../../components/threats-list/use-threats-list';
 import useAnalyticsTracks from '../../../hooks/use-analytics-tracks';
 import usePlan from '../../../hooks/use-plan';
 import useProtectData from '../../../hooks/use-protect-data';
+import HistoryAdminSectionHero from './history-admin-section-hero';
 import StatusFilters from './status-filters';
 import styles from './styles.module.scss';
 
@@ -55,13 +44,6 @@ const ScanHistoryRoute = () => {
 		filter: { status: 'ignored', key: selected },
 	} );
 	const { threats: numIgnored } = ignoredCounts.current;
-
-	let oldestfirstDetected = null;
-	if ( list.length > 0 ) {
-		oldestfirstDetected = list.reduce( ( oldest, current ) =>
-			new Date( current.firstDetected ) < new Date( oldest.firstDetected ) ? current : oldest
-		).firstDetected;
-	}
 
 	/**
 	 * Get the title for the threats list based on the selected filters and the amount of threats.
@@ -258,50 +240,7 @@ const ScanHistoryRoute = () => {
 
 	return (
 		<AdminPage>
-			{ error ? (
-				<ErrorHeader
-					baseErrorMessage={ __(
-						'We are having problems loading your history.',
-						'jetpack-protect'
-					) }
-					errorMessage={ error?.message }
-					errorCode={ error?.code }
-				/>
-			) : (
-				<AdminSectionHero
-					main={
-						<>
-							<Status status="active" label={ __( 'Active', 'jetpack-protect' ) } />
-							<AdminSectionHero.Heading showIcon>
-								{ numAllThreats > 0
-									? sprintf(
-											/* translators: %s: Total number of threats  */
-											__( '%1$s previously active %2$s', 'jetpack-protect' ),
-											numAllThreats,
-											numAllThreats === 1 ? 'threat' : 'threats'
-									  )
-									: __( 'No previously active threats', 'jetpack-protect' ) }
-							</AdminSectionHero.Heading>
-							<AdminSectionHero.Subheading>
-								<Text>
-									{ oldestfirstDetected ? (
-										<span className={ styles[ 'subheading-content' ] }>
-											{ sprintf(
-												/* translators: %s: Oldest first detected date */
-												__( '%s - Today', 'jetpack-protect' ),
-												dateI18n( 'F jS g:i A', oldestfirstDetected )
-											) }
-										</span>
-									) : (
-										__( 'Most recent results', 'jetpack-protect' )
-									) }
-								</Text>
-							</AdminSectionHero.Subheading>
-							<ScanNavigation />
-						</>
-					}
-				/>
-			) }
+			<HistoryAdminSectionHero />
 			{ ( ! error || ( error && numAllThreats > 0 ) ) && (
 				<AdminSection>
 					<Container horizontalSpacing={ 3 } horizontalGap={ 4 }>

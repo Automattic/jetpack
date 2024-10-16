@@ -6,13 +6,13 @@ import AdminSectionHero from '../admin-section-hero';
 import ScanNavigation from '../scan-navigation';
 import styles from './styles.module.scss';
 
-interface ErrorHeaderProps {
+interface ErrorAdminSectionHeroProps {
 	baseErrorMessage: string;
 	errorMessage?: string;
 	errorCode?: string;
 }
 
-const ErrorHeader: React.FC< ErrorHeaderProps > = ( {
+const ErrorAdminSectionHero: React.FC< ErrorAdminSectionHeroProps > = ( {
 	baseErrorMessage,
 	errorMessage,
 	errorCode,
@@ -46,4 +46,4 @@ const ErrorHeader: React.FC< ErrorHeaderProps > = ( {
 	);
 };
 
-export default ErrorHeader;
+export default ErrorAdminSectionHero;

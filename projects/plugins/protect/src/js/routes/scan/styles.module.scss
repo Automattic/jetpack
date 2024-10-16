@@ -1,3 +1,14 @@
 .subheading-content {
     font-weight: bold;
 }
+
+.illustration {
+	display: flex;
+	align-items: center;
+	height: 100%;
+	img {
+		// let's fit images
+		object-fit: cover;
+		width: 100%;
+	}
+}
