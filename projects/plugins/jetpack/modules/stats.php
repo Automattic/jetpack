@@ -1668,7 +1668,7 @@ function stats_get_remote_csv( $url ) {
  */
 function stats_str_getcsv( $csv ) {
 	// @todo Correctly handle embedded newlines. Note, despite claims online, `str_getcsv( $csv, "\n" )` does not actually work.
-	$lines = explode( "\n", $csv );
+	$lines = explode( "\n", rtrim( $csv, "\n" ) );
 	return array_map(
 		function ( $line ) {
 			// @todo When we drop support for PHP <7.4, consider passing empty-string for `$escape` here for better spec compatibility.
