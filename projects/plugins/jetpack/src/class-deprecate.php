@@ -203,5 +203,4 @@ class Deprecate {
 		}
 		return false;
 	}
-
 }
