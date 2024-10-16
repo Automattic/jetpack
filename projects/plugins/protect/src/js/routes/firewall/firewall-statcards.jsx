@@ -2,17 +2,32 @@ import { Text, useBreakpointMatch, StatCard } from '@automattic/jetpack-componen
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, shield, chartBar } from '@wordpress/icons';
 import { useCallback, useMemo } from 'react';
+import usePlan from '../../hooks/use-plan';
+import useWafData from '../../hooks/use-waf-data';
 import styles from './styles.module.scss';
 
-const FirewallStatCards = ( { supported, hasPlan, currentDayStats, thirtyDaysStats } ) => {
+const FirewallStatCards = () => {
+	const { hasPlan } = usePlan();
+	const {
+		config: { bruteForceProtection: isBruteForceModuleEnabled },
+		isEnabled: isWafModuleEnabled,
+		wafSupported,
+		stats,
+	} = useWafData();
+	const isSupportedWafFeatureEnabled = wafSupported
+		? isWafModuleEnabled
+		: isBruteForceModuleEnabled;
 	const [ isSmall ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
+	const { currentDay: currentDayBlockCount, thirtyDays: thirtyDayBlockCounts } = stats
+		? stats.blockedRequests
+		: { currentDay: 0, thirtyDays: 0 };
 
 	const defaultArgs = useMemo(
 		() => ( {
-			className: ! supported || ! hasPlan ? styles.disabled : styles.active,
+			className: ! isSupportedWafFeatureEnabled || ! hasPlan ? styles.disabled : styles.active,
 			variant: isSmall ? 'horizontal' : 'square',
 		} ),
-		[ supported, isSmall, hasPlan ]
+		[ isSupportedWafFeatureEnabled, isSmall, hasPlan ]
 	);
 
 	const getIcon = useCallback(
@@ -60,9 +75,9 @@ const FirewallStatCards = ( { supported, hasPlan, currentDayStats, thirtyDaysSta
 			...defaultArgs,
 			icon: getIcon( shield ),
 			label: getLabel( 24, 'hours' ),
-			value: ! supported || ! hasPlan ? 0 : currentDayStats,
+			value: ! isSupportedWafFeatureEnabled || ! hasPlan ? 0 : currentDayBlockCount,
 		} ),
-		[ defaultArgs, getIcon, getLabel, supported, hasPlan, currentDayStats ]
+		[ defaultArgs, getIcon, getLabel, isSupportedWafFeatureEnabled, hasPlan, currentDayBlockCount ]
 	);
 
 	const thirtyDaysArgs = useMemo(
@@ -70,9 +85,9 @@ const FirewallStatCards = ( { supported, hasPlan, currentDayStats, thirtyDaysSta
 			...defaultArgs,
 			icon: getIcon( chartBar ),
 			label: getLabel( 30, 'days' ),
-			value: ! supported || ! hasPlan ? 0 : thirtyDaysStats,
+			value: ! isSupportedWafFeatureEnabled || ! hasPlan ? 0 : thirtyDayBlockCounts,
 		} ),
-		[ defaultArgs, getIcon, getLabel, supported, hasPlan, thirtyDaysStats ]
+		[ defaultArgs, getIcon, getLabel, isSupportedWafFeatureEnabled, hasPlan, thirtyDayBlockCounts ]
 	);
 
 	return (

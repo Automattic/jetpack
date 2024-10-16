@@ -3,18 +3,23 @@ import { __ } from '@wordpress/i18n';
 import { help } from '@wordpress/icons';
 import { useMemo } from 'react';
 import IconTooltip from '../../components/icon-tooltip';
+import usePlan from '../../hooks/use-plan';
+import useWafData from '../../hooks/use-waf-data';
 import FirewallUpgradePrompt from './firewall-upgrade-prompt';
 import styles from './styles.module.scss';
 
-const FirewallSubheading = ( {
-	jetpackWafIpBlockListEnabled,
-	jetpackWafIpAllowListEnabled,
-	jetpackWafAutomaticRules,
-	bruteForceProtectionIsEnabled,
-	hasPlan,
-	automaticRulesAvailable,
-	wafSupported,
-} ) => {
+const FirewallSubheading = () => {
+	const { hasPlan } = usePlan();
+	const {
+		config: {
+			jetpackWafAutomaticRules,
+			jetpackWafIpBlockListEnabled,
+			jetpackWafIpAllowListEnabled,
+			automaticRulesAvailable,
+			bruteForceProtection: isBruteForceModuleEnabled,
+		},
+		wafSupported,
+	} = useWafData();
 	const allowOrBlockListEnabled = useMemo(
 		() => jetpackWafIpBlockListEnabled || jetpackWafIpAllowListEnabled,
 		[ jetpackWafIpBlockListEnabled, jetpackWafIpAllowListEnabled ]
@@ -43,7 +48,7 @@ const FirewallSubheading = ( {
 	const content = useMemo( () => {
 		const textSegments = [];
 
-		if ( wafSupported && bruteForceProtectionIsEnabled ) {
+		if ( wafSupported && isBruteForceModuleEnabled ) {
 			textSegments.push( __( 'Brute force protection is active.', 'jetpack-protect' ) );
 		}
 
@@ -64,14 +69,7 @@ const FirewallSubheading = ( {
 		}
 
 		return textSegments.join( ' ' );
-	}, [
-		wafSupported,
-		bruteForceProtectionIsEnabled,
-		noRules,
-		automaticRules,
-		manualRules,
-		allRules,
-	] );
+	}, [ wafSupported, isBruteForceModuleEnabled, noRules, automaticRules, manualRules, allRules ] );
 
 	const tooltipText = useMemo( () => {
 		return ! automaticRulesAvailable

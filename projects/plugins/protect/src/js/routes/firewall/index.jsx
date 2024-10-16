@@ -6,7 +6,6 @@ import {
 	ContextualUpgradeTrigger,
 	useBreakpointMatch,
 	Notice as JetpackNotice,
-	Status,
 } from '@automattic/jetpack-components';
 import { Popover } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
@@ -15,7 +14,6 @@ import { Icon, closeSmall } from '@wordpress/icons';
 import moment from 'moment';
 import { useCallback, useEffect, useState, useMemo } from 'react';
 import AdminPage from '../../components/admin-page';
-import AdminSectionHero from '../../components/admin-section-hero';
 import FirewallFooter from '../../components/firewall-footer';
 import FormToggle from '../../components/form-toggle';
 import ScanFooter from '../../components/scan-footer';
@@ -26,8 +24,7 @@ import useWafUpgradeSeenMutation from '../../data/waf/use-waf-upgrade-seen-mutat
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import usePlan from '../../hooks/use-plan';
 import useWafData from '../../hooks/use-waf-data';
-import FirewallStatCards from './firewall-statcards';
-import FirewallSubheading from './firewall-subheading';
+import FirewallAdminSectionHero from './firewall-admin-section-hero';
 import styles from './styles.module.scss';
 
 const ADMIN_URL = window?.jetpackProtectInitialState?.adminUrl;
@@ -42,7 +39,6 @@ const FirewallPage = () => {
 			jetpackWafIpBlockList,
 			jetpackWafIpAllowList,
 			automaticRulesAvailable,
-			standaloneMode,
 			bruteForceProtection: isBruteForceModuleEnabled,
 		},
 		currentIp,
@@ -60,22 +56,13 @@ const FirewallPage = () => {
 		saveIpBlockList,
 		toggleBruteForceProtection,
 		toggleWaf,
-		isToggling,
 	} = useWafData();
 	const { hasPlan } = usePlan();
 	const { upgradePlan } = usePlan( { redirectUrl: `${ ADMIN_URL }#/firewall` } );
 	const { recordEvent } = useAnalyticsTracks();
 	const wafSeenMutation = useWafSeenMutation();
 	const wafUpgradeSeenMutation = useWafUpgradeSeenMutation();
-
-	const isSupportedWafFeatureEnabled = wafSupported
-		? isWafModuleEnabled
-		: isBruteForceModuleEnabled;
-	const currentStatus = isSupportedWafFeatureEnabled ? 'on' : 'off';
 	const { automaticRulesLastUpdated } = stats;
-	const { currentDay: currentDayBlockCount, thirtyDays: thirtyDayBlockCounts } = stats
-		? stats.blockedRequests
-		: { currentDay: 0, thirtyDays: 0 };
 
 	/**
 	 * Automatic Rules Installation Error State
@@ -587,107 +574,12 @@ const FirewallPage = () => {
 		</>
 	);
 
-	const Secondary = wafSupported && (
-		<FirewallStatCards
-			supported={ isSupportedWafFeatureEnabled }
-			hasPlan={ hasPlan }
-			currentDayStats={ currentDayBlockCount }
-			thirtyDaysStats={ thirtyDayBlockCounts }
-		/>
-	);
-
-	const renderHeader = status => {
-		let statusLabel, heading, subheading;
-
-		switch ( status ) {
-			case 'on':
-				statusLabel = standaloneMode
-					? __( 'Standalone mode', 'jetpack-protect' )
-					: __( 'Active', 'jetpack-protect', /* dummy arg to avoid bad minification */ 0 );
-				heading = (
-					<>
-						{ ! wafSupported && __( 'Brute force protection is active', 'jetpack-protect' ) }
-						{ wafSupported &&
-							( jetpackWafAutomaticRules
-								? __( 'Automatic firewall is on', 'jetpack-protect' )
-								: __(
-										'Firewall is on',
-										'jetpack-protect',
-										/* dummy arg to avoid bad minification */ 0
-								  ) ) }
-					</>
-				);
-				subheading = (
-					<FirewallSubheading
-						jetpackWafIpBlockListEnabled={ jetpackWafIpBlockListEnabled }
-						jetpackWafIpAllowListEnabled={ jetpackWafIpAllowListEnabled }
-						jetpackWafAutomaticRules={ jetpackWafAutomaticRules }
-						bruteForceProtectionIsEnabled={ isBruteForceModuleEnabled }
-						hasPlan={ hasPlan }
-						automaticRulesAvailable={ automaticRulesAvailable }
-						wafSupported={ wafSupported }
-					/>
-				);
-				break;
-
-			case 'off':
-				statusLabel = __( 'Inactive', 'jetpack-protect' );
-				heading = (
-					<>
-						{ ! wafSupported && __( 'Brute force protection is disabled', 'jetpack-protect' ) }
-						{ wafSupported &&
-							( automaticRulesAvailable
-								? __( 'Automatic firewall is off', 'jetpack-protect' )
-								: __(
-										'Firewall is off',
-										'jetpack-protect',
-										/* dummy arg to avoid bad minification */ 0
-								  ) ) }
-					</>
-				);
-				subheading = (
-					<FirewallSubheading
-						jetpackWafIpBlockListEnabled={ jetpackWafIpBlockListEnabled }
-						jetpackWafIpAllowListEnabled={ jetpackWafIpAllowListEnabled }
-						jetpackWafAutomaticRules={ jetpackWafAutomaticRules }
-						bruteForceProtectionIsEnabled={ isBruteForceModuleEnabled }
-						hasPlan={ hasPlan }
-						automaticRulesAvailable={ automaticRulesAvailable }
-						wafSupported={ wafSupported }
-					/>
-				);
-				break;
-
-			case 'loading':
-				statusLabel = __( 'Inactive', 'jetpack-protect' );
-				heading = __( 'Automatic firewall is being set up', 'jetpack-protect' );
-				subheading = <Text>{ __( 'Please wait…', 'jetpack-protect' ) }</Text>;
-				break;
-
-			default:
-				return null; // Fallback case for unexpected status
-		}
-
-		return (
-			<AdminSectionHero
-				main={
-					<>
-						<Status status={ 'on' === status ? 'active' : 'inactive' } label={ statusLabel } />
-						<AdminSectionHero.Heading>{ heading }</AdminSectionHero.Heading>
-						<AdminSectionHero.Subheading>{ subheading }</AdminSectionHero.Subheading>
-					</>
-				}
-				secondary={ Secondary }
-			/>
-		);
-	};
-
 	/**
 	 * Render
 	 */
 	return (
 		<AdminPage>
-			{ renderHeader( isToggling ? 'loading' : currentStatus ) }
+			<FirewallAdminSectionHero />
 			<Container className={ styles.container } horizontalSpacing={ 8 } horizontalGap={ 4 }>
 				{ wafSupported && ! isWafModuleEnabled && <Col>{ moduleDisabledNotice } </Col> }
 				<Col>
