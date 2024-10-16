@@ -14,36 +14,38 @@ const FirewallStatCards = () => {
 		wafSupported,
 		stats,
 	} = useWafData();
+	const [ isSmall ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
+
 	const isSupportedWafFeatureEnabled = wafSupported
 		? isWafModuleEnabled
 		: isBruteForceModuleEnabled;
-	const [ isSmall ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
 	const { currentDay: currentDayBlockCount, thirtyDays: thirtyDayBlockCounts } = stats
 		? stats.blockedRequests
 		: { currentDay: 0, thirtyDays: 0 };
+	const isFeatureDisabled = ! isSupportedWafFeatureEnabled || ! hasPlan;
 
 	const defaultArgs = useMemo(
 		() => ( {
-			className: ! isSupportedWafFeatureEnabled || ! hasPlan ? styles.disabled : styles.active,
+			className: isFeatureDisabled ? styles.disabled : styles.active,
 			variant: isSmall ? 'horizontal' : 'square',
 		} ),
-		[ isSupportedWafFeatureEnabled, isSmall, hasPlan ]
+		[ isFeatureDisabled, isSmall ]
 	);
 
-	const getIcon = useCallback(
-		icon => (
+	const StatCardIcon = useCallback(
+		( { icon } ) => (
 			<span className={ styles[ 'stat-card-icon' ] }>
 				<Icon icon={ icon } />
 				{ ! isSmall && ! hasPlan && (
-					<Text variant={ 'label' }>{ __( 'Paid feature', 'jetpack-protect' ) }</Text>
+					<Text variant="label">{ __( 'Paid feature', 'jetpack-protect' ) }</Text>
 				) }
 			</span>
 		),
 		[ isSmall, hasPlan ]
 	);
 
-	const getLabel = useCallback(
-		( period, units ) =>
+	const StatCardLabel = useCallback(
+		( { period, units } ) =>
 			isSmall ? (
 				<span>
 					{ sprintf(
@@ -73,21 +75,21 @@ const FirewallStatCards = () => {
 	const currentDayArgs = useMemo(
 		() => ( {
 			...defaultArgs,
-			icon: getIcon( shield ),
-			label: getLabel( 24, 'hours' ),
-			value: ! isSupportedWafFeatureEnabled || ! hasPlan ? 0 : currentDayBlockCount,
+			icon: <StatCardIcon icon={ shield } />,
+			label: <StatCardLabel period={ 24 } units="hours" />,
+			value: isFeatureDisabled ? 0 : currentDayBlockCount,
 		} ),
-		[ defaultArgs, getIcon, getLabel, isSupportedWafFeatureEnabled, hasPlan, currentDayBlockCount ]
+		[ defaultArgs, StatCardIcon, StatCardLabel, isFeatureDisabled, currentDayBlockCount ]
 	);
 
 	const thirtyDaysArgs = useMemo(
 		() => ( {
 			...defaultArgs,
-			icon: getIcon( chartBar ),
-			label: getLabel( 30, 'days' ),
-			value: ! isSupportedWafFeatureEnabled || ! hasPlan ? 0 : thirtyDayBlockCounts,
+			icon: <StatCardIcon icon={ chartBar } />,
+			label: <StatCardLabel period={ 30 } units="days" />,
+			value: isFeatureDisabled ? 0 : thirtyDayBlockCounts,
 		} ),
-		[ defaultArgs, getIcon, getLabel, isSupportedWafFeatureEnabled, hasPlan, thirtyDayBlockCounts ]
+		[ defaultArgs, StatCardIcon, StatCardLabel, isFeatureDisabled, thirtyDayBlockCounts ]
 	);
 
 	return (
