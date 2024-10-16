@@ -1,8 +1,8 @@
-import { registerJetpackPlugin, useAnalytics } from '@automattic/jetpack-shared-extension-utils';
+import { registerJetpackPlugin } from '@automattic/jetpack-shared-extension-utils';
 import { createBlock } from '@wordpress/blocks';
 import { select } from '@wordpress/data';
 import { PluginPreviewMenuItem } from '@wordpress/editor';
-import { useState } from '@wordpress/element';
+import { useState, useCallback } from '@wordpress/element';
 import { addFilter } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
 import { atSymbol, send } from '@wordpress/icons';
@@ -75,48 +75,48 @@ const shouldShowNewsletterMenu = () => {
 	return isPost;
 };
 
-const SubscriptionsEditorAdditions = () => {
+const useNewsletterPreview = () => {
 	const [ isPreviewModalOpen, setIsPreviewModalOpen ] = useState( false );
-	const { tracks } = useAnalytics();
-
 	const postId = select( 'core/editor' ).getCurrentPostId();
+
+	const openPreviewModal = useCallback( () => {
+		setIsPreviewModalOpen( true );
+	}, [] );
+
+	const closePreviewModal = useCallback( () => {
+		setIsPreviewModalOpen( false );
+	}, [] );
+
+	return { isPreviewModalOpen, openPreviewModal, closePreviewModal, postId };
+};
+
+const NewsletterEditor = () => {
+	const { isPreviewModalOpen, openPreviewModal, closePreviewModal, postId } =
+		useNewsletterPreview();
 
 	return (
 		<>
-			<PluginPreviewMenuItem
-				onClick={ () => {
-					tracks.recordEvent( 'jetpack_newsletter_preview_menu_item_click' );
-					setIsPreviewModalOpen( true );
-				} }
-				icon={ send }
-			>
-				{ __( 'Email Preview', 'jetpack' ) }
-			</PluginPreviewMenuItem>
-			<NewsletterPreviewModal
-				isOpen={ isPreviewModalOpen }
-				onClose={ () => setIsPreviewModalOpen( false ) }
-				postId={ postId }
-			/>
+			<SubscribePanels />
+			{ shouldShowNewsletterMenu() && (
+				<>
+					<PluginPreviewMenuItem onClick={ openPreviewModal } icon={ send }>
+						{ __( 'Email Preview', 'jetpack' ) }
+					</PluginPreviewMenuItem>
+					<NewsletterPreviewModal
+						isOpen={ isPreviewModalOpen }
+						onClose={ closePreviewModal }
+						postId={ postId }
+					/>
+					<NewsletterMenu openPreviewModal={ openPreviewModal } />
+				</>
+			) }
+			<CommandPalette />
 		</>
 	);
 };
 
-// Registers slot/fill panels defined via settings.render and command palette commands
 registerJetpackPlugin( blockName, {
-	render: () => {
-		return (
-			<>
-				<SubscribePanels />
-				{ shouldShowNewsletterMenu() && (
-					<>
-						<SubscriptionsEditorAdditions />
-						<NewsletterMenu />
-					</>
-				) }
-				<CommandPalette />
-			</>
-		);
-	},
+	render: () => <NewsletterEditor />,
 	icon: shouldShowNewsletterMenu() ? atSymbol : undefined,
 } );
 
