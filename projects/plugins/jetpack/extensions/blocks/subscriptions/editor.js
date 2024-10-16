@@ -109,7 +109,7 @@ const NewsletterEditor = () => {
 							onClick={ () => openPreviewModal( 'preview_menu' ) }
 							icon={ send }
 						>
-							{ __( 'Email Preview', 'jetpack' ) }
+							{ __( 'Email preview', 'jetpack' ) }
 						</PluginPreviewMenuItem>
 					) : null }
 					<NewsletterPreviewModal
