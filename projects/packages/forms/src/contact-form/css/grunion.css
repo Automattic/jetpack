@@ -634,6 +634,11 @@ on production builds, the attributes are being reordered, causing side-effects
 	line-height: var(--jetpack--contact-form--button-outline--line-height);
 }
 
+.contact-form .grunion-field-wrap.grunion-field-checkbox-multiple-wrap.is-style-button-wrap .contact-form-field,
+.contact-form .grunion-field-wrap.is-style-button-wrap .grunion-checkbox-multiple-label {
+	color: var(--jetpack--contact-form--button-outline--text-color);
+}
+
 .contact-form .grunion-field-wrap.is-style-button-wrap .grunion-field.radio.is-style-button {
 	/* visually-hidden */
 	clip: rect(0 0 0 0);

@@ -78,6 +78,20 @@ window.jetpackForms.generateStyleVariables = function ( formNode ) {
 		lineHeight: buttonOutlineLineHeight,
 	} = window.getComputedStyle( buttonOutlineNode );
 
+	// This provides a fallback for the button outline text color when the button outline background color is the same as the text color.
+	let safeButtonOutlineTextColor = buttonOutlineTextColor;
+	if ( buttonOutlineBackgroundColor === buttonOutlineTextColor ) {
+		const elements = document.querySelectorAll(
+			'.contact-form .grunion-field-wrap.grunion-field-checkbox-multiple-wrap.is-style-button-wrap .contact-form-field, .contact-form .grunion-field-wrap.is-style-button-wrap .grunion-radio-label'
+		);
+		if ( elements.length > 0 ) {
+			const buttonLink = document.querySelector( '.wp-block-button__link' );
+			safeButtonOutlineTextColor = buttonLink
+				? getComputedStyle( buttonLink ).getPropertyValue( 'color' )
+				: '#FFFFFF';
+		}
+	}
+
 	const buttonOutlineBackgroundColorFallback =
 		window.jetpackForms.getBackgroundColor( buttonOutlineNode );
 
@@ -126,7 +140,7 @@ window.jetpackForms.generateStyleVariables = function ( formNode ) {
 			buttonOutlineBackgroundColorFallback,
 		'--jetpack--contact-form--button-outline--border-size': buttonOutlineBorderSize,
 		'--jetpack--contact-form--button-outline--border-radius': buttonOutlineBorderRadius,
-		'--jetpack--contact-form--button-outline--text-color': buttonOutlineTextColor,
+		'--jetpack--contact-form--button-outline--text-color': safeButtonOutlineTextColor,
 		'--jetpack--contact-form--button-outline--line-height': buttonOutlineLineHeight,
 	};
 };
