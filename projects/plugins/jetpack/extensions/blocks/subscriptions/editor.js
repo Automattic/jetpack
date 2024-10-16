@@ -1,3 +1,4 @@
+import { recordTracksEvent } from '@automattic/jetpack-analytics';
 import { registerJetpackPlugin } from '@automattic/jetpack-shared-extension-utils';
 import { createBlock } from '@wordpress/blocks';
 import { select } from '@wordpress/data';
@@ -79,8 +80,10 @@ const useNewsletterPreview = () => {
 	const [ isPreviewModalOpen, setIsPreviewModalOpen ] = useState( false );
 	const postId = select( 'core/editor' ).getCurrentPostId();
 
-	const openPreviewModal = useCallback( () => {
+	const openPreviewModal = useCallback( source => {
 		setIsPreviewModalOpen( true );
+		// Add tracking event
+		recordTracksEvent( 'jetpack_newsletter_preview_opened', { source } );
 	}, [] );
 
 	const closePreviewModal = useCallback( () => {
@@ -99,7 +102,7 @@ const NewsletterEditor = () => {
 			<SubscribePanels />
 			{ shouldShowNewsletterMenu() && (
 				<>
-					<PluginPreviewMenuItem onClick={ openPreviewModal } icon={ send }>
+					<PluginPreviewMenuItem onClick={ () => openPreviewModal( 'preview_menu' ) } icon={ send }>
 						{ __( 'Email Preview', 'jetpack' ) }
 					</PluginPreviewMenuItem>
 					<NewsletterPreviewModal
@@ -107,7 +110,7 @@ const NewsletterEditor = () => {
 						onClose={ closePreviewModal }
 						postId={ postId }
 					/>
-					<NewsletterMenu openPreviewModal={ openPreviewModal } />
+					<NewsletterMenu openPreviewModal={ () => openPreviewModal( 'newsletter_menu' ) } />
 				</>
 			) }
 			<CommandPalette />
