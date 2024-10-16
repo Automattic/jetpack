@@ -326,23 +326,8 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.0-a.3 - 2024-10-14
-#### Enhancements
-- Newsletter: Update the default "reply to" setting value from not allowed to replies being posted as public comments.
-- Social: Add Bluesky to social previews.
-
-#### Improved compatibility
-- Image CDN: URL encode image path parts for RSS feed compatibility.
-- Related Posts: Allow Related Posts on non-post CPTs where the block is already able to be used.
-
-#### Bug fixes
-- Blocks: Fix rendering of the goodreads block to avoid PHP warnings caused by missing attributes.
-- Blocks: Render the slideshow block correctly inside an iframe editor.
-- Contact Form: Ensure that submitted forms can only be accessed by logged in users allowed to view form submissions.
-- General: Only include `wp-polyfill` as a script dependency when needed.
-- Newsletter: Ensure `Enable featured image on your new post emails` setting displays the right value.
-- Sharing: Ensure the sharing settings can be accessed even when a user is not connected to WordPress.com.
-- Stats: Fix top post card on the Insight page.
+### 14.0-a.5 - 2024-10-16
+Fix: do not include Related Posts on non-post posts on classic themes.
 
 --------
 
