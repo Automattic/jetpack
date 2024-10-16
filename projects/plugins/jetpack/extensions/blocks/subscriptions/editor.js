@@ -104,9 +104,14 @@ const NewsletterEditor = () => {
 			<SubscribePanels />
 			{ shouldShowNewsletterMenu() && (
 				<>
-					<PluginPreviewMenuItem onClick={ () => openPreviewModal( 'preview_menu' ) } icon={ send }>
-						{ __( 'Email Preview', 'jetpack' ) }
-					</PluginPreviewMenuItem>
+					{ PluginPreviewMenuItem ? (
+						<PluginPreviewMenuItem
+							onClick={ () => openPreviewModal( 'preview_menu' ) }
+							icon={ send }
+						>
+							{ __( 'Email Preview', 'jetpack' ) }
+						</PluginPreviewMenuItem>
+					) : null }
 					<NewsletterPreviewModal
 						isOpen={ isPreviewModalOpen }
 						onClose={ closePreviewModal }
