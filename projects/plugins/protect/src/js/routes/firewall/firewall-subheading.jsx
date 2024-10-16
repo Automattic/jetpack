@@ -20,28 +20,16 @@ const FirewallSubheading = () => {
 		},
 		wafSupported,
 	} = useWafData();
-	const allowOrBlockListEnabled = useMemo(
-		() => jetpackWafIpBlockListEnabled || jetpackWafIpAllowListEnabled,
-		[ jetpackWafIpBlockListEnabled, jetpackWafIpAllowListEnabled ]
-	);
 
-	const allRules = useMemo(
-		() => wafSupported && jetpackWafAutomaticRules && allowOrBlockListEnabled,
-		[ wafSupported, jetpackWafAutomaticRules, allowOrBlockListEnabled ]
-	);
+	const allowOrBlockListEnabled = jetpackWafIpBlockListEnabled || jetpackWafIpAllowListEnabled;
 
-	const automaticRules = useMemo(
-		() => wafSupported && jetpackWafAutomaticRules && ! allowOrBlockListEnabled,
-		[ wafSupported, jetpackWafAutomaticRules, allowOrBlockListEnabled ]
-	);
-
-	const manualRules = useMemo(
-		() => wafSupported && ! jetpackWafAutomaticRules && allowOrBlockListEnabled,
-		[ wafSupported, jetpackWafAutomaticRules, allowOrBlockListEnabled ]
-	);
-
-	const noRules = useMemo(
-		() => wafSupported && ! jetpackWafAutomaticRules && ! allowOrBlockListEnabled,
+	const wafRules = useMemo(
+		() => ( {
+			allRules: wafSupported && jetpackWafAutomaticRules && allowOrBlockListEnabled,
+			automaticRules: wafSupported && jetpackWafAutomaticRules && ! allowOrBlockListEnabled,
+			manualRules: wafSupported && ! jetpackWafAutomaticRules && allowOrBlockListEnabled,
+			noRules: wafSupported && ! jetpackWafAutomaticRules && ! allowOrBlockListEnabled,
+		} ),
 		[ wafSupported, jetpackWafAutomaticRules, allowOrBlockListEnabled ]
 	);
 
@@ -52,24 +40,24 @@ const FirewallSubheading = () => {
 			textSegments.push( __( 'Brute force protection is active.', 'jetpack-protect' ) );
 		}
 
-		if ( noRules ) {
+		if ( wafRules.noRules ) {
 			textSegments.push( __( 'There are no firewall rules applied.', 'jetpack-protect' ) );
 		}
 
-		if ( automaticRules ) {
+		if ( wafRules.automaticRules ) {
 			textSegments.push( __( 'Automatic firewall rules apply.', 'jetpack-protect' ) );
 		}
 
-		if ( manualRules ) {
+		if ( wafRules.manualRules ) {
 			textSegments.push( __( 'Only manual IP list rules apply.', 'jetpack-protect' ) );
 		}
 
-		if ( allRules ) {
+		if ( wafRules.allRules ) {
 			textSegments.push( __( 'All firewall rules apply.', 'jetpack-protect' ) );
 		}
 
 		return textSegments.join( ' ' );
-	}, [ wafSupported, isBruteForceModuleEnabled, noRules, automaticRules, manualRules, allRules ] );
+	}, [ wafSupported, isBruteForceModuleEnabled, wafRules ] );
 
 	const tooltipText = useMemo( () => {
 		return ! automaticRulesAvailable
@@ -84,13 +72,18 @@ const FirewallSubheading = () => {
 			  );
 	}, [ automaticRulesAvailable ] );
 
+	const renderTooltip = () => {
+		if ( ! hasPlan && ( wafRules.automaticRules || wafRules.manualRules || wafRules.allRules ) ) {
+			return <IconTooltip icon={ help } text={ tooltipText } />;
+		}
+		return null;
+	};
+
 	return (
 		<>
 			<div className={ styles[ 'firewall-subheading' ] }>
 				<Text>{ content }</Text>
-				{ ! hasPlan && ( automaticRules || manualRules || allRules ) && (
-					<IconTooltip icon={ help } text={ tooltipText } />
-				) }
+				{ renderTooltip() }
 			</div>
 			{ ! hasPlan && wafSupported && <FirewallUpgradePrompt /> }
 		</>
