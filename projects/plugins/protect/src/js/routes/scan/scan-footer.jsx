@@ -10,10 +10,10 @@ import {
 } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
 import React, { useCallback } from 'react';
+import SeventyFiveLayout from '../../components/seventy-five-layout';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import usePlan from '../../hooks/use-plan';
 import useWafData from '../../hooks/use-waf-data';
-import SeventyFiveLayout from '../seventy-five-layout';
 import styles from './styles.module.scss';
 
 const ProductPromotion = () => {

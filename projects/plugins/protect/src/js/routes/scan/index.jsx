@@ -1,6 +1,5 @@
 import { AdminSection, Container, Col } from '@automattic/jetpack-components';
 import AdminPage from '../../components/admin-page';
-import ScanFooter from '../../components/scan-footer';
 import ThreatsList from '../../components/threats-list';
 import useScanStatusQuery from '../../data/scan/use-scan-status-query';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
@@ -9,6 +8,7 @@ import usePlan from '../../hooks/use-plan';
 import useProtectData from '../../hooks/use-protect-data';
 import onboardingSteps from './onboarding-steps';
 import ScanAdminSectionHero from './scan-admin-section-hero';
+import ScanFooter from './scan-footer';
 
 /**
  * Scan Page
