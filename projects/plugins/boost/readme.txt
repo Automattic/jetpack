@@ -5,7 +5,7 @@ Tags: performance, speed, web vitals, critical css, cache
 Requires at least: 6.5
 Tested up to: 6.6
 Requires PHP: 7.0
-Stable tag: 3.5.1
+Stable tag: 3.5.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -183,7 +183,7 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 3.5.2-beta - 2024-10-10
+### 3.5.2 - 2024-10-15
 #### Changed
 - Deferred JS: Exclude all scripts produced by a shortcode.
 - General: Sync Boost's Getting Started page with My Jetpack's version.

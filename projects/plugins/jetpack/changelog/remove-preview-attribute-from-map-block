@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Map: remove preview attribute. The mechanism to determine if the block is in preview mode changed internally.

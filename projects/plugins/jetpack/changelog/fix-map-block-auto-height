@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Map block: Fix issue where blocks placed underneath would overlap with the map block.
