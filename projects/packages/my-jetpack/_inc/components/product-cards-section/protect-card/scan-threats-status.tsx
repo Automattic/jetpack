@@ -24,28 +24,14 @@ export const ScanAndThreatStatus = () => {
 	const {
 		protect: { scanData },
 	} = getMyJetpackWindowInitialState();
-	const { plugins, themes, num_threats: numThreats = 0 } = scanData || {};
+	const numThreats = scanData.threats.length;
 
 	const criticalScanThreatCount = useMemo( () => {
-		const { core, database, files, num_plugins_threats, num_themes_threats } = scanData || {};
-		const pluginsThreats = num_plugins_threats
-			? plugins.reduce( ( accum, plugin ) => accum.concat( plugin.threats ), [] )
-			: [];
-		const themesThreats = num_themes_threats
-			? themes.reduce( ( accum, theme ) => accum.concat( theme.threats ), [] )
-			: [];
-		const allThreats = [
-			...pluginsThreats,
-			...themesThreats,
-			...( core?.threats ?? [] ),
-			...database,
-			...files,
-		];
-		return allThreats.reduce(
+		return scanData.threats.reduce(
 			( accum, threat ) => ( threat.severity >= 5 ? ( accum += 1 ) : accum ),
 			0
 		);
-	}, [ plugins, themes, scanData ] );
+	}, [ scanData.threats ] );
 
 	if ( isPluginActive && isSiteConnected ) {
 		if ( hasProtectPaidPlan ) {
