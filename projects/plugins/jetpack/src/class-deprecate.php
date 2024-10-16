@@ -104,18 +104,20 @@ class Deprecate {
 
 				$this->render_notice(
 					$id,
-					'<div style="padding-left: 12px; padding-bottom: 22px; padding-top: 17px; display: flex; align-items: flex-start;">' .
-					'<div style="margin-right: 10px; padding-top:10px">' .
-					'<svg class="gridicon gridicons-info-outline needs-offset" height="20" width="20" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" color="#000000" style="margin-right: 8px;">' .
-					'<g><path d="M13 9h-2V7h2v2zm0 2h-2v6h2v-6zm-1-7c-4.41 0-8 3.59-8 8s3.59 8 8 8 8-3.59 8-8-3.59-8-8-8m0-2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2z"></path></g>' .
-					'</svg>' .
-					'</div>' .
-					'<div style="display: block;">' .
-					'<p style="font-weight: bold;">' . esc_html( $notice['title'] ) . '</p>' .
-					'<p>' . esc_html( $notice['message'] ) . '</p>' .
-					'<a href="' . $support_url . '" target="_blank" class="jetpack-deprecation-notice-link" style="font-weight: bold; color: #000000;"> ' . esc_html( $notice['link']['label'] ) .
-					'</a> <svg class="gridicons-external" height="14" width="14" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 22 20"><g><path d="M19 13v6c0 1.105-.895 2-2 2H5c-1.105 0-2-.895-2-2V7c0-1.105.895-2 2-2h6v2H5v12h12v-6h2zM13 3v2h4.586l-7.793 7.793 1.414 1.414L19 6.414V11h2V3h-8z"></path></g></svg>' .
-					'</div>' .
+					'<div class="jetpack-deprecation-notice-container">' .
+						'<div class="jetpack-deprecation-notice-svg">' .
+							'<svg class="jetpack-deprecation-notice-icon gridicon gridicons-info-outline needs-offset" height="20" width="20" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" color="#000000">' .
+								'<g><path d="M13 9h-2V7h2v2zm0 2h-2v6h2v-6zm-1-7c-4.41 0-8 3.59-8 8s3.59 8 8 8 8-3.59 8-8-3.59-8-8-8m0-2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2z"></path></g>' .
+							'</svg>' .
+						'</div>' .
+						'<div class="jetpack-deprecation-notice-text">' .
+							'<p class="jetpack-deprection-notice-title">' . esc_html( $notice['title'] ) . '</p>' .
+							'<p>' . esc_html( $notice['message'] ) . '</p>' .
+							'<a href="' . $support_url . '" target="_blank" class="jetpack-deprecation-notice-link"> ' . esc_html( $notice['link']['label'] ) . '</a>' .
+							'<svg class="gridicons-external" height="14" width="14" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 22 20">' . 
+								'<g><path d="M19 13v6c0 1.105-.895 2-2 2H5c-1.105 0-2-.895-2-2V7c0-1.105.895-2 2-2h6v2H5v12h12v-6h2zM13 3v2h4.586l-7.793 7.793 1.414 1.414L19 6.414V11h2V3h-8z"></path></g>' .
+								'</svg>' .
+						'</div>' .
 					'</div>'
 				);
 			}
