@@ -852,6 +852,17 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'is_visible_callback'  => '__return_true',
 		),
+		'check_ssl_status'                => array(
+			'get_title'            => function () {
+				return __( 'Provision SSL certificate', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'is_disabled_callback' => 'wpcom_launchpad_is_primary_domain_wpcom',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				$domain = $data['site_slug_encoded'];
+				return '/domains/manage/' . $domain . '/edit/' . $domain;
+			},
+		),
 	);
 
 	$extended_task_definitions = apply_filters( 'wpcom_launchpad_extended_task_definitions', array() );
@@ -2802,4 +2813,21 @@ function wpcom_launchpad_get_latest_draft_id() {
 	$cached_draft_id = reset( $latest_draft_id );
 
 	return $cached_draft_id;
+}
+
+/**
+ * Checks if the current site primary domain is a WPCOM domain.
+ *
+ * @return bool Will return true if the primary domain is a WPCOM domain.
+ */
+function wpcom_launchpad_is_primary_domain_wpcom() {
+	if ( ! ( new Automattic\Jetpack\Status\Host() )->is_wpcom_platform() ) {
+		return false;
+	}
+
+	$url  = home_url();
+	$host = wp_parse_url( $url, PHP_URL_HOST );
+
+	// If site_slug ends with .wpcomstaging.com return true
+	return str_ends_with( $host, '.wpcomstaging.com' );
 }
