@@ -18,7 +18,7 @@ export const Slide = ( {
 			currentSlideIndex: select( 'jetpack/story/player' ).getCurrentSlideIndex( playerId ),
 			buffering: select( 'jetpack/story/player' ).isBuffering( playerId ),
 		} ),
-		[]
+		[ playerId ]
 	);
 
 	const { slideReady } = useDispatch( 'jetpack/story/player' );

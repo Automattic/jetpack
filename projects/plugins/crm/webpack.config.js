@@ -283,9 +283,7 @@ module.exports = [
 			path: path.resolve( './build' ),
 		},
 		plugins: [
-			...jetpackWebpackConfig.StandardPlugins( {
-				DependencyExtractionPlugin: { injectPolyfill: true },
-			} ),
+			...jetpackWebpackConfig.StandardPlugins(),
 		],
 		module: {
 			...crmWebpackConfig.module,

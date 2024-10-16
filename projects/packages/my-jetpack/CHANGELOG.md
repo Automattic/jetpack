@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.35.13] - 2024-10-14
+### Changed
+- Only include `wp-polyfill` as a script dependency when needed. [#39629]
+
+## [4.35.12] - 2024-10-10
+### Changed
+- Update Boost's pricing table to include latest feature list. [#39130]
+- Updated package dependencies. [#39669]
+- Updated package dependencies. [#39707]
+
+### Fixed
+- Fixed My Jetpack recommendations VideoPress product card not showing Purchase and Learn more buttons. [#39612]
+
 ## [4.35.11] - 2024-10-07
 ### Changed
 - Updated package dependencies. [#39594]
@@ -1763,6 +1776,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[4.35.13]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.35.12...4.35.13
+[4.35.12]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.35.11...4.35.12
 [4.35.11]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.35.10...4.35.11
 [4.35.10]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.35.9...4.35.10
 [4.35.9]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.35.8...4.35.9

@@ -14,11 +14,7 @@ const socialWebpackConfig = {
 		...jetpackWebpackConfig.resolve,
 	},
 	node: false,
-	plugins: [
-		...jetpackWebpackConfig.StandardPlugins( {
-			DependencyExtractionPlugin: { injectPolyfill: true },
-		} ),
-	],
+	plugins: [ ...jetpackWebpackConfig.StandardPlugins() ],
 	module: {
 		strictExportPresence: true,
 		rules: [

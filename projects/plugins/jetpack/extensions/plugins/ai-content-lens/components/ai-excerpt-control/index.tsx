@@ -90,10 +90,8 @@ export function AiExcerptControl( {
 
 	return (
 		<div className="jetpack-ai-generate-excerpt-control">
-			<BaseControl
-				className="jetpack-ai-generate-excerpt-control__header"
-				label={ __( 'Settings', 'jetpack' ) }
-			>
+			<BaseControl className="jetpack-ai-generate-excerpt-control__header">
+				<BaseControl.VisualLabel>{ __( 'Settings', 'jetpack' ) }</BaseControl.VisualLabel>
 				<Button
 					label={ __( 'Advanced AI options', 'jetpack' ) }
 					icon={ aiAssistantIcon }

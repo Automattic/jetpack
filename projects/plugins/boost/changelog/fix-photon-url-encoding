@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Image CDN: URL encode image path parts for RSS feed compatibility

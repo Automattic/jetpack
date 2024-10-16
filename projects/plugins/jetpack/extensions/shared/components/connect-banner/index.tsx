@@ -1,6 +1,7 @@
 /*
  * External dependencies
  */
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { __ } from '@wordpress/i18n';
 /*
  * Internal dependencies
@@ -10,16 +11,19 @@ import { Nudge } from '../upgrade-nudge';
 import type { MouseEvent, FC } from 'react';
 
 interface ConnectBannerProps {
+	block: string;
 	explanation?: string;
 }
 
 import './style.scss';
 
-const ConnectBanner: FC< ConnectBannerProps > = ( { explanation = null } ) => {
+const ConnectBanner: FC< ConnectBannerProps > = ( { block, explanation = null } ) => {
 	const checkoutUrl = `${ window?.Jetpack_Editor_Initial_State?.adminUrl }admin.php?page=my-jetpack#/connection`;
 	const { autosaveAndRedirect, isRedirecting } = useAutosaveAndRedirect( checkoutUrl );
+	const { tracks } = useAnalytics();
 
 	const goToCheckoutPage = ( event: MouseEvent< HTMLButtonElement > ) => {
+		tracks.recordEvent( 'jetpack_editor_connect_banner_click', { block } );
 		autosaveAndRedirect( event );
 	};
 

@@ -809,9 +809,45 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'is_visible_callback'  => '__return_true',
 		),
+		// Post-migration tasks.
 		'review_site'                     => array(
 			'get_title'            => function () {
 				return __( "Review the site's content", 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'is_visible_callback'  => '__return_true',
+		),
+		'review_plugins'                  => array(
+			'get_title'             => function () {
+				return __( 'Review the migrated plugins', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback'  => 'wpcom_launchpad_is_task_option_completed',
+			'is_visible_callback'   => '__return_true',
+			'add_listener_callback' => function () {
+				add_action( 'pre_current_active_plugins', 'wpcom_launchpad_mark_review_plugins_complete' );
+			},
+			'get_calypso_path'      => function () {
+				return admin_url( 'plugins.php' );
+			},
+		),
+		'connect_migration_domain'        => array(
+			'get_title'            => function () {
+				return __( 'Connect your domain', 'jetpack-mu-wpcom' );
+			},
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				$site_id = get_current_blog_id();
+				// Attempt to get the domain from the pre-transfer site option if the function exists, otherwise check the current site option.
+				// @phan-suppress-next-line PhanUndeclaredFunction -- Being checked before being called.
+				$domain = function_exists( 'wpcom_get_migration_source_site_domain' ) ? wpcom_get_migration_source_site_domain( $site_id ) : get_option( 'migration_source_site_domain', null );
+				$path   = $domain ? '/domains/add/use-my-domain/' . $data['site_slug_encoded'] . '/?initialQuery=' . $domain : '/domains/add/use-my-domain/' . $data['site_slug_encoded'];
+				return $path;
+			},
+			'is_complete_callback' => 'wpcom_launchpad_is_domain_customize_completed',
+			'is_visible_callback'  => '__return_true',
+		),
+		'domain_dns_mapped'               => array(
+			'get_title'            => function () {
+				return __( "Update your domain's DNS", 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'is_visible_callback'  => '__return_true',
@@ -1774,6 +1810,14 @@ function wpcom_track_site_launch_task() {
 	}
 }
 
+/**
+ * Mark the plugins reviewed task as complete.
+ *
+ * @return void
+ */
+function wpcom_launchpad_mark_review_plugins_complete() {
+	wpcom_mark_launchpad_task_complete( 'review_plugins' );
+}
 /**
  * Callback that conditionally adds the site launch listener based on platform.
  *

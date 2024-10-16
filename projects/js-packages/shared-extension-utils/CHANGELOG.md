@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.15.13] - 2024-10-14
+### Changed
+- Updated package dependencies. [#39707]
+
+### Fixed
+- Add missing deps in calls to the `useSelect` React hook. [#39421]
+
 ## [0.15.12] - 2024-10-07
 ### Changed
 - Updated package dependencies. [#39594]
@@ -464,6 +471,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Core: prepare utility for release
 
+[0.15.13]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.15.12...0.15.13
 [0.15.12]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.15.11...0.15.12
 [0.15.11]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.15.10...0.15.11
 [0.15.10]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.15.9...0.15.10
