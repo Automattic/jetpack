@@ -8,15 +8,13 @@ import ErrorScreen from '../../components/error-section';
 import ProgressBar from '../../components/progress-bar';
 import ScanFooter from '../../components/scan-footer';
 import SeventyFiveLayout from '../../components/seventy-five-layout';
-import Summary from '../../components/summary';
-import ThreatsList from '../../components/threats-list';
 import useScanStatusQuery, { isScanInProgress } from '../../data/scan/use-scan-status-query';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import { OnboardingContext } from '../../hooks/use-onboarding';
 import usePlan from '../../hooks/use-plan';
-import useProtectData from '../../hooks/use-protect-data';
 import useWafData from '../../hooks/use-waf-data';
 import onboardingSteps from './onboarding-steps';
+import ScanResultsDataView from './scan-results-data-view';
 import ScanSectionHeader from './scan-section-header';
 import ScanSectionNotices from './scan-section-notices';
 import styles from './styles.module.scss';
@@ -116,24 +114,6 @@ const ScanInProgressSection = ( { currentProgress } ) => {
 };
 
 /**
- * Scan Results Section
- *
- * @return {Component} The component.
- */
-const ScanResultsSection = () => {
-	return (
-		<>
-			<Col>
-				<Summary />
-			</Col>
-			<Col>
-				<ThreatsList />
-			</Col>
-		</>
-	);
-};
-
-/**
  * Scan Page
  *
  * The entry point for the Scan page.
@@ -142,13 +122,12 @@ const ScanResultsSection = () => {
  */
 const ScanPage = () => {
 	const { hasPlan } = usePlan();
-	const { lastChecked } = useProtectData();
 	const { data: status } = useScanStatusQuery( { usePolling: true } );
 
 	let currentScanStatus;
 	if ( status.error ) {
 		currentScanStatus = 'error';
-	} else if ( ! lastChecked ) {
+	} else if ( ! status.lastChecked ) {
 		currentScanStatus = 'in_progress';
 	} else {
 		currentScanStatus = 'active';
@@ -173,7 +152,11 @@ const ScanPage = () => {
 			return <ErrorSection errorMessage={ status.errorMessage } errorCode={ status.errorCode } />;
 		}
 
-		return <ScanResultsSection />;
+		return (
+			<Col>
+				<ScanResultsDataView />
+			</Col>
+		);
 	}, [ status ] );
 
 	return (

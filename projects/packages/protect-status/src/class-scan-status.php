@@ -9,11 +9,9 @@ namespace Automattic\Jetpack\Protect_Status;
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Protect_Models\Extension_Model;
 use Automattic\Jetpack\Protect_Models\Status_Model;
 use Automattic\Jetpack\Protect_Models\Threat_Model;
-use Automattic\Jetpack\Sync\Functions as Sync_Functions;
 use Jetpack_Options;
 use WP_Error;
 
@@ -145,9 +143,6 @@ class Scan_Status extends Status {
 		$status                      = new Status_Model();
 		$status->data_source         = 'scan_api';
 		$status->status              = isset( $scan_data->state ) ? $scan_data->state : null;
-		$status->num_threats         = 0;
-		$status->num_themes_threats  = 0;
-		$status->num_plugins_threats = 0;
 		$status->has_unchecked_items = false;
 		$status->current_progress    = isset( $scan_data->current->progress ) ? $scan_data->current->progress : null;
 
@@ -158,109 +153,52 @@ class Scan_Status extends Status {
 			}
 		}
 
-		$status->core = new Extension_Model(
-			array(
-				'type'    => 'core',
-				'name'    => 'WordPress',
-				'version' => $wp_version,
-				'checked' => true, // to do: default to false once Scan API has manifest
-			)
-		);
-
 		if ( isset( $scan_data->threats ) && is_array( $scan_data->threats ) ) {
 			foreach ( $scan_data->threats as $threat ) {
 				if ( isset( $threat->fixable ) && $threat->fixable ) {
 					$status->fixable_threat_ids[] = $threat->id;
 				}
 
+				// Plugin and Theme Threats
 				if ( isset( $threat->extension->type ) ) {
-					if ( 'plugin' === $threat->extension->type ) {
-						// add the extension if it does not yet exist in the status
-						if ( ! isset( $status->plugins[ $threat->extension->slug ] ) ) {
-							$status->plugins[ $threat->extension->slug ] = new Extension_Model(
+					$status->threats[] = new Threat_Model(
+						array(
+							'id'                        => isset( $threat->id ) ? $threat->id : null,
+							'signature'                 => isset( $threat->signature ) ? $threat->signature : null,
+							'title'                     => isset( $threat->title ) ? $threat->title : null,
+							'description'               => isset( $threat->description ) ? $threat->description : null,
+							'vulnerability_description' => isset( $threat->vulnerability_description ) ? $threat->vulnerability_description : null,
+							'fix_description'           => isset( $threat->fix_description ) ? $threat->fix_description : null,
+							'payload_subtitle'          => isset( $threat->payload_subtitle ) ? $threat->payload_subtitle : null,
+							'payload_description'       => isset( $threat->payload_description ) ? $threat->payload_description : null,
+							'first_detected'            => isset( $threat->first_detected ) ? $threat->first_detected : null,
+							'fixed_in'                  => isset( $threat->fixer->fixer ) && 'update' === $threat->fixer->fixer ? $threat->fixer->target : null,
+							'severity'                  => isset( $threat->severity ) ? $threat->severity : null,
+							'fixable'                   => isset( $threat->fixer ) ? $threat->fixer : null,
+							'status'                    => isset( $threat->status ) ? $threat->status : null,
+							'filename'                  => isset( $threat->filename ) ? $threat->filename : null,
+							'context'                   => isset( $threat->context ) ? $threat->context : null,
+							'source'                    => isset( $threat->source ) ? $threat->source : null,
+							'extension'                 => new Extension_Model(
 								array(
 									'name'    => isset( $threat->extension->name ) ? $threat->extension->name : null,
 									'slug'    => isset( $threat->extension->slug ) ? $threat->extension->slug : null,
 									'version' => isset( $threat->extension->version ) ? $threat->extension->version : null,
-									'type'    => 'plugin',
-									'checked' => true,
-									'threats' => array(),
+									'type'    => $threat->extension->type,
 								)
-							);
-						}
-
-						$status->plugins[ $threat->extension->slug ]->threats[] = new Threat_Model(
-							array(
-								'id'                  => isset( $threat->id ) ? $threat->id : null,
-								'signature'           => isset( $threat->signature ) ? $threat->signature : null,
-								'title'               => isset( $threat->title ) ? $threat->title : null,
-								'description'         => isset( $threat->description ) ? $threat->description : null,
-								'vulnerability_description' => isset( $threat->vulnerability_description ) ? $threat->vulnerability_description : null,
-								'fix_description'     => isset( $threat->fix_description ) ? $threat->fix_description : null,
-								'payload_subtitle'    => isset( $threat->payload_subtitle ) ? $threat->payload_subtitle : null,
-								'payload_description' => isset( $threat->payload_description ) ? $threat->payload_description : null,
-								'first_detected'      => isset( $threat->first_detected ) ? $threat->first_detected : null,
-								'fixed_in'            => isset( $threat->fixer->fixer ) && 'update' === $threat->fixer->fixer ? $threat->fixer->target : null,
-								'severity'            => isset( $threat->severity ) ? $threat->severity : null,
-								'fixable'             => isset( $threat->fixer ) ? $threat->fixer : null,
-								'status'              => isset( $threat->status ) ? $threat->status : null,
-								'filename'            => isset( $threat->filename ) ? $threat->filename : null,
-								'context'             => isset( $threat->context ) ? $threat->context : null,
-								'source'              => isset( $threat->source ) ? $threat->source : null,
-							)
-						);
-						++$status->num_threats;
-						++$status->num_plugins_threats;
-						continue;
-					}
-
-					if ( 'theme' === $threat->extension->type ) {
-						// add the extension if it does not yet exist in the status
-						if ( ! isset( $status->themes[ $threat->extension->slug ] ) ) {
-							$status->themes[ $threat->extension->slug ] = new Extension_Model(
-								array(
-									'name'    => isset( $threat->extension->name ) ? $threat->extension->name : null,
-									'slug'    => isset( $threat->extension->slug ) ? $threat->extension->slug : null,
-									'version' => isset( $threat->extension->version ) ? $threat->extension->version : null,
-									'type'    => 'theme',
-									'checked' => true,
-									'threats' => array(),
-								)
-							);
-						}
-
-						$status->themes[ $threat->extension->slug ]->threats[] = new Threat_Model(
-							array(
-								'id'                  => isset( $threat->id ) ? $threat->id : null,
-								'signature'           => isset( $threat->signature ) ? $threat->signature : null,
-								'title'               => isset( $threat->title ) ? $threat->title : null,
-								'description'         => isset( $threat->description ) ? $threat->description : null,
-								'vulnerability_description' => isset( $threat->vulnerability_description ) ? $threat->vulnerability_description : null,
-								'fix_description'     => isset( $threat->fix_description ) ? $threat->fix_description : null,
-								'payload_subtitle'    => isset( $threat->payload_subtitle ) ? $threat->payload_subtitle : null,
-								'payload_description' => isset( $threat->payload_description ) ? $threat->payload_description : null,
-								'first_detected'      => isset( $threat->first_detected ) ? $threat->first_detected : null,
-								'fixed_in'            => isset( $threat->fixer->fixer ) && 'update' === $threat->fixer->fixer ? $threat->fixer->target : null,
-								'severity'            => isset( $threat->severity ) ? $threat->severity : null,
-								'fixable'             => isset( $threat->fixer ) ? $threat->fixer : null,
-								'status'              => isset( $threat->status ) ? $threat->status : null,
-								'filename'            => isset( $threat->filename ) ? $threat->filename : null,
-								'context'             => isset( $threat->context ) ? $threat->context : null,
-								'source'              => isset( $threat->source ) ? $threat->source : null,
-							)
-						);
-						++$status->num_threats;
-						++$status->num_themes_threats;
-						continue;
-					}
+							),
+						)
+					);
+					continue;
 				}
 
+				// WordPress Core Threats
 				if ( isset( $threat->signature ) && 'Vulnerable.WP.Core' === $threat->signature ) {
 					if ( $threat->version !== $wp_version ) {
 						continue;
 					}
 
-					$status->core->threats[] = new Threat_Model(
+					$status->threats[] = new Threat_Model(
 						array(
 							'id'             => $threat->id,
 							'signature'      => $threat->signature,
@@ -268,99 +206,34 @@ class Scan_Status extends Status {
 							'description'    => $threat->description,
 							'first_detected' => $threat->first_detected,
 							'severity'       => $threat->severity,
+							'extension'      => new Extension_Model(
+								array(
+									'name'    => 'WordPress',
+									'slug'    => 'wordpress',
+									'version' => $wp_version,
+									'type'    => 'core',
+								)
+							),
 						)
 					);
-					++$status->num_threats;
 
 					continue;
 				}
 
+				// File Threats
 				if ( ! empty( $threat->filename ) ) {
-					$status->files[] = new Threat_Model( $threat );
-					++$status->num_threats;
+					$status->threats[] = new Threat_Model( $threat );
 					continue;
 				}
 
+				// Database Threats
 				if ( ! empty( $threat->table ) ) {
-					$status->database[] = new Threat_Model( $threat );
-					++$status->num_threats;
+					$status->threats[] = new Threat_Model( $threat );
 					continue;
 				}
-			}
-		}
-
-		$installed_plugins = Plugins_Installer::get_plugins();
-		$status->plugins   = self::merge_installed_and_checked_lists( $installed_plugins, $status->plugins, array( 'type' => 'plugins' ), true );
-
-		$installed_themes = Sync_Functions::get_themes();
-		$status->themes   = self::merge_installed_and_checked_lists( $installed_themes, $status->themes, array( 'type' => 'themes' ), true );
-
-		foreach ( array_merge( $status->themes, $status->plugins ) as $extension ) {
-			if ( ! $extension->checked ) {
-				$status->has_unchecked_items = true;
-				break;
 			}
 		}
 
 		return $status;
-	}
-
-	/**
-	 * Merges the list of installed extensions with the list of extensions that were checked for known vulnerabilities and return a normalized list to be used in the UI
-	 *
-	 * @param array  $installed The list of installed extensions, where each attribute key is the extension slug.
-	 * @param object $checked   The list of checked extensions.
-	 * @param array  $append    Additional data to append to each result in the list.
-	 * @return array Normalized list of extensions.
-	 */
-	protected static function merge_installed_and_checked_lists( $installed, $checked, $append ) {
-		$new_list = array();
-		$checked  = (object) $checked;
-
-		foreach ( array_keys( $installed ) as $slug ) {
-			/**
-			 * Extension Type Map
-			 *
-			 * @var array $extension_type_map Key value pairs of extension types and their corresponding
-			 *                                 identifier used by the Scan API data source.
-			 */
-			$extension_type_map = array(
-				'themes'  => 'r1',
-				'plugins' => 'r2',
-			);
-
-			$version        = $installed[ $slug ]['Version'];
-			$short_slug     = str_replace( '.php', '', explode( '/', $slug )[0] );
-			$scanifest_slug = $extension_type_map[ $append['type'] ] . ":$short_slug@$version";
-
-			$extension = new Extension_Model(
-				array_merge(
-					array(
-						'name'    => $installed[ $slug ]['Name'],
-						'version' => $version,
-						'slug'    => $slug,
-						'threats' => array(),
-						'checked' => false,
-					),
-					$append
-				)
-			);
-
-			if ( ! isset( $checked->extensions ) // no extension data available from Scan API
-				|| is_array( $checked->extensions ) && in_array( $scanifest_slug, $checked->extensions, true ) // extension data matches Scan API
-			) {
-				$extension->checked = true;
-				if ( isset( $checked->{ $short_slug }->threats ) ) {
-					$extension->threats = $checked->{ $short_slug }->threats;
-				}
-			}
-
-			$new_list[] = $extension;
-
-		}
-
-		$new_list = parent::sort_threats( $new_list );
-
-		return $new_list;
 	}
 }

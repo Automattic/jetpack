@@ -39,14 +39,8 @@ export type ScanStatus = {
 	/** The time the last scan was checked, in YYYY-MM-DD HH:MM:SS format. */
 	lastChecked: string | null;
 
-	/** The number of plugin threats found in the latest status. */
-	numPluginsThreats: number;
-
-	/** The number of theme threats found in the latest status. */
-	numThemesThreats: number;
-
-	/** The total number of threats found in the latest status. */
-	numThreats: number;
+	/** The security threats identified in the latest scan. */
+	threats: Threat[];
 
 	/** Whether there was an error in the scan results. */
 	error: boolean | null;
@@ -56,26 +50,4 @@ export type ScanStatus = {
 
 	/** The error message. */
 	errorMessage: string | null;
-
-	/** WordPress Core Status */
-	core: {
-		checked: boolean;
-		name: string;
-		slug: string;
-		threats: Threat[];
-		type: 'core';
-		version: string;
-	} | null;
-
-	/** Plugins Status */
-	plugins: ExtensionStatus[];
-
-	/** Themes Status */
-	themes: ExtensionStatus[];
-
-	/** File Threats */
-	files: Threat[];
-
-	/** Database Threats */
-	database: Threat[];
 };
