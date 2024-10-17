@@ -1,6 +1,6 @@
 {
 	"extends": "jetpack-js-tools/tsconfig.base.json",
-	"include": [ "./src/js" ],
+	"include": [ "./src/js", "../../js-packages/components/components/threats-data-view" ],
 	"compilerOptions": {
 		"sourceMap": true,
 		"outDir": "./build/",
