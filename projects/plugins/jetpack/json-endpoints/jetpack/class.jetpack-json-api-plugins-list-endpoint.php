@@ -5,6 +5,7 @@ new Jetpack_JSON_API_Plugins_List_Endpoint(
 		'description'             => 'Get installed Plugins on your blog',
 		'method'                  => 'GET',
 		'path'                    => '/sites/%s/plugins',
+		'rest_route'              => '/plugins',
 		'stat'                    => 'plugins',
 		'min_version'             => '1',
 		'max_version'             => '1.1',
