@@ -23,6 +23,7 @@ export type ConnectionService = {
 export interface ApiPaths {
 	refreshConnections: string;
 	resharePost: string;
+	shareStatus: string;
 }
 
 export interface SocialScriptData {
