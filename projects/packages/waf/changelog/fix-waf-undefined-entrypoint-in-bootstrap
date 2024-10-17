@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Firewall: improve backwards compatibility for sites running outdated bootstrap scripts via standalone mode.
