@@ -43,6 +43,11 @@ type SocialNotesSettingsSelectors = {
 	isSocialNotesSettingsUpdating: () => boolean;
 };
 
+type ShareTitleOnlySelectors = {
+	isShareTitleOnlyEnabled: () => boolean;
+	isUpdatingShareTitleOnly: () => boolean;
+};
+
 /**
  * Types of the Social Store selectors.
  *
@@ -52,4 +57,5 @@ export type SocialStoreSelectors = JetpackSettingsSelectors &
 	ConnectionDataSelectors &
 	SiteDataSelectors &
 	SocialImageGeneratorSettingsSelectors &
-	SocialNotesSettingsSelectors;
+	SocialNotesSettingsSelectors &
+	ShareTitleOnlySelectors;

@@ -771,6 +771,7 @@ class Jetpack_Gutenberg {
 				'jetpackSharingSettingsUrl'       => esc_url_raw( admin_url( 'admin.php?page=jetpack#/sharing' ) ),
 				'userConnectionUrl'               => esc_url_raw( admin_url( 'admin.php?page=my-jetpack#/connection' ) ),
 				'useAdminUiV1'                    => $social_initial_state['useAdminUiV1'],
+				'shareTitleOnly'                  => $social_initial_state['shareTitleOnly'],
 			);
 
 			// Add connectionData if we are using the new Connection UI.

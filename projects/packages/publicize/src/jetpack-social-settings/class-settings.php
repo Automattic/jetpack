@@ -31,6 +31,8 @@ class Settings {
 		'template' => Templates::DEFAULT_TEMPLATE,
 	);
 
+	const SHARE_TITLE_ONLY = 'share_title_only';
+
 	/**
 	 * Feature flags. Each item has 3 keys because of the naming conventions:
 	 * - flag_name: The name of the feature flag for the option check.
@@ -129,6 +131,20 @@ class Settings {
 			)
 		);
 
+		register_setting(
+			'jetpack_social',
+			self::OPTION_PREFIX . self::SHARE_TITLE_ONLY,
+			array(
+				'type'         => 'boolean',
+				'default'      => false,
+				'show_in_rest' => array(
+					'schema' => array(
+						'type' => 'boolean',
+					),
+				),
+			)
+		);
+
 		add_filter( 'rest_pre_update_setting', array( $this, 'update_settings' ), 10, 3 );
 	}
 
@@ -144,6 +160,7 @@ class Settings {
 
 		$settings = array(
 			'socialImageGeneratorSettings' => get_option( self::OPTION_PREFIX . self::IMAGE_GENERATOR_SETTINGS, self::DEFAULT_IMAGE_GENERATOR_SETTINGS ),
+			'shareTitleOnly'               => array( 'isEnabled' => get_option( self::OPTION_PREFIX . self::SHARE_TITLE_ONLY, false ) ),
 		);
 
 		// The feature cannot be enabled without Publicize.
@@ -213,6 +230,11 @@ class Settings {
 		if ( self::OPTION_PREFIX . self::IMAGE_GENERATOR_SETTINGS === $name ) {
 			return $this->update_social_image_generator_settings( $value );
 		}
+
+		if ( self::OPTION_PREFIX . self::SHARE_TITLE_ONLY === $name ) {
+			return update_option( self::OPTION_PREFIX . self::SHARE_TITLE_ONLY, $value );
+		}
+
 		return $updated;
 	}
 
