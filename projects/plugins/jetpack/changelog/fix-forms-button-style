@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Forms: Ensure single and multi choice button text and backgrounds won't be the same color.
