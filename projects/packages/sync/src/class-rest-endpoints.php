@@ -693,15 +693,6 @@ class REST_Endpoints {
 
 		$queue = new Queue( $queue_name );
 
-		$items = $queue->peek_by_id( $request_body['item_ids'] );
-
-		// Update Full Sync Status if queue is "full_sync".
-		if ( 'full_sync' === $queue_name ) {
-			$full_sync_module = Modules::get_module( 'full-sync' );
-			'@phan-var Modules\Full_Sync_Immediately|Modules\Full_Sync $full_sync_module';
-			$full_sync_module->update_sent_progress_action( $items );
-		}
-
 		$buffer   = new Queue_Buffer( $request_body['buffer_id'], $request_body['item_ids'] );
 		$response = $queue->close( $buffer, $request_body['item_ids'] );
 
