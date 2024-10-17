@@ -1,3 +1,4 @@
+import { getMyJetpackUrl } from '@automattic/jetpack-script-data';
 import { PanelRow } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import usePublicizeConfig from '../../hooks/use-publicize-config';
@@ -7,7 +8,7 @@ import styles from './styles.module.scss';
 
 export const ConnectionNotice: React.FC = () => {
 	const { hasConnections } = useSocialMediaConnections();
-	const { needsUserConnection, userConnectionUrl } = usePublicizeConfig();
+	const { needsUserConnection } = usePublicizeConfig();
 
 	if ( needsUserConnection ) {
 		return (
@@ -18,7 +19,7 @@ export const ConnectionNotice: React.FC = () => {
 						'jetpack'
 					) }
 					&nbsp;
-					<a href={ userConnectionUrl }>{ __( 'Connect now', 'jetpack' ) }</a>
+					<a href={ getMyJetpackUrl( '#/connection' ) }>{ __( 'Connect now', 'jetpack' ) }</a>
 				</p>
 			</PanelRow>
 		);
