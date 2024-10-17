@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+WAF: Ensure mode option is set during activation
