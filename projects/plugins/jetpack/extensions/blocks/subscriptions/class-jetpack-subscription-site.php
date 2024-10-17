@@ -141,7 +141,7 @@ class Jetpack_Subscription_Site {
 			function ( $hooked_blocks, $relative_position, $anchor_block, $context ) {
 				if (
 					$anchor_block === 'core/navigation' &&
-					$relative_position === 'last_child' &&
+					$relative_position === 'after' &&
 					self::is_header_context( $context )
 				) {
 					$hooked_blocks[] = 'jetpack/subscriptions';
