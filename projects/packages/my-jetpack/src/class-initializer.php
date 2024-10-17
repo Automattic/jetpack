@@ -940,17 +940,18 @@ class Initializer {
 		$broken_modules = self::check_for_broken_modules();
 		$connection     = new Connection_Manager();
 
-		if ( ! empty( $broken_modules['needs_user_connection'] ) ) {
+		// Checking for site connection issues first.
+		if ( ! empty( $broken_modules['needs_site_connection'] ) ) {
 			$red_bubble_slugs[ self::MISSING_CONNECTION_NOTIFICATION_KEY ] = array(
-				'type'     => 'user',
+				'type'     => 'site',
 				'is_error' => true,
 			);
 			return $red_bubble_slugs;
 		}
 
-		if ( ! empty( $broken_modules['needs_site_connection'] ) ) {
+		if ( ! empty( $broken_modules['needs_user_connection'] ) ) {
 			$red_bubble_slugs[ self::MISSING_CONNECTION_NOTIFICATION_KEY ] = array(
-				'type'     => 'site',
+				'type'     => 'user',
 				'is_error' => true,
 			);
 			return $red_bubble_slugs;
