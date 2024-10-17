@@ -21,6 +21,11 @@ function load_wpcom_dashboard_widgets() {
 			'name'     => __( 'Site Management Panel', 'jetpack-mu-wpcom' ),
 			'priority' => 'high',
 		),
+		array(
+			'id'       => 'wpcom_launchpad_widget',
+			'name'     => __( 'Launchpad Panel', 'jetpack-mu-wpcom' ),
+			'priority' => 'high',
+		),
 	);
 
 	foreach ( $wpcom_dashboard_widgets as $wpcom_dashboard_widget ) {
@@ -56,7 +61,10 @@ function enqueue_wpcom_dashboard_widgets() {
 
 	wp_add_inline_script(
 		$handle,
-		"var JETPACK_MU_WPCOM_DASHBOARD_WIDGETS = $data;",
+		"
+		var JETPACK_MU_WPCOM_DASHBOARD_WIDGETS = $data;
+		var configData = {};
+		",
 		'before'
 	);
 }
