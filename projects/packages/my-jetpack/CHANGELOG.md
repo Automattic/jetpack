@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.35.14] - 2024-10-15
+### Changed
+- Update dependencies. [#38910]
+
 ## [4.35.13] - 2024-10-14
 ### Changed
 - Only include `wp-polyfill` as a script dependency when needed. [#39629]
@@ -1776,6 +1780,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[4.35.14]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.35.13...4.35.14
 [4.35.13]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.35.12...4.35.13
 [4.35.12]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.35.11...4.35.12
 [4.35.11]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.35.10...4.35.11
