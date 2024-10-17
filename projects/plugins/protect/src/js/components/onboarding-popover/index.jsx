@@ -1,7 +1,6 @@
 import { ActionPopover } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import { useContext, useEffect } from 'react';
-import useScanStatusQuery, { isScanInProgress } from '../../data/scan/use-scan-status-query';
 import useOnboarding, { OnboardingRenderedContext } from '../../hooks/use-onboarding';
 
 const OnboardingPopover = ( { id, anchor, position } ) => {
@@ -12,8 +11,6 @@ const OnboardingPopover = ( { id, anchor, position } ) => {
 		completeCurrentStep,
 		completeAllCurrentSteps,
 	} = useOnboarding();
-
-	const { data: status } = useScanStatusQuery( { usePolling: true } );
 
 	// keep track of which onboarding steps are currently being rendered
 	const { setRenderedSteps } = useContext( OnboardingRenderedContext );
@@ -29,11 +26,6 @@ const OnboardingPopover = ( { id, anchor, position } ) => {
 
 	// do not render if this is not the current step
 	if ( currentStep?.id !== id ) {
-		return null;
-	}
-
-	// do not render if the scan is in progress
-	if ( isScanInProgress( status ) ) {
 		return null;
 	}
 

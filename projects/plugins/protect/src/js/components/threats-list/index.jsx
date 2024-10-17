@@ -8,6 +8,7 @@ import {
 } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
 import React, { useCallback, useMemo, useState } from 'react';
+import useScanStatusQuery, { isScanInProgress } from '../../data/scan/use-scan-status-query';
 import useFixers from '../../hooks/use-fixers';
 import useModal from '../../hooks/use-modal';
 import usePlan from '../../hooks/use-plan';
@@ -25,6 +26,9 @@ const ThreatsList = () => {
 	const { item, list, selected, setSelected } = useThreatsList();
 	const [ isSm ] = useBreakpointMatch( 'sm' );
 	const { isThreatFixInProgress, isThreatFixStale } = useFixers();
+
+	const { data: status } = useScanStatusQuery();
+	const scanning = isScanInProgress( status );
 
 	// List of fixable threats that do not have a fix in progress
 	const fixableList = useMemo( () => {
@@ -105,11 +109,13 @@ const ThreatsList = () => {
 				<div ref={ setYourScanResultsPopoverAnchor }>
 					<ThreatsNavigation selected={ selected } onSelect={ setSelected } />
 				</div>
-				<OnboardingPopover
-					id={ hasPlan ? 'paid-scan-results' : 'free-scan-results' }
-					position="top"
-					anchor={ yourScanResultsPopoverAnchor }
-				/>
+				{ ! scanning && (
+					<OnboardingPopover
+						id={ hasPlan ? 'paid-scan-results' : 'free-scan-results' }
+						position="top"
+						anchor={ yourScanResultsPopoverAnchor }
+					/>
+				) }
 			</Col>
 			<Col lg={ 8 }>
 				{ list?.length > 0 ? (
@@ -131,17 +137,21 @@ const ThreatsList = () => {
 													fixableList.length
 												) }
 											</Button>
-											<OnboardingPopover
-												id="paid-fix-all-threats"
-												position={ isSm ? 'bottom right' : 'middle left' }
-												anchor={ showAutoFixersPopoverAnchor }
-											/>
+											{ ! scanning && (
+												<OnboardingPopover
+													id="paid-fix-all-threats"
+													position={ isSm ? 'bottom right' : 'middle left' }
+													anchor={ showAutoFixersPopoverAnchor }
+												/>
+											) }
 											<ScanButton ref={ setDailyAndManualScansPopoverAnchor } />
-											<OnboardingPopover
-												id="paid-daily-and-manual-scans"
-												position={ isSm ? 'bottom left' : 'middle left' }
-												anchor={ dailyAndManualScansPopoverAnchor }
-											/>
+											{ ! scanning && (
+												<OnboardingPopover
+													id="paid-daily-and-manual-scans"
+													position={ isSm ? 'bottom left' : 'middle left' }
+													anchor={ dailyAndManualScansPopoverAnchor }
+												/>
+											) }
 										</>
 									) }
 								</div>
@@ -161,11 +171,13 @@ const ThreatsList = () => {
 										<ScanButton />
 									</div>
 								</div>
-								<OnboardingPopover
-									id="paid-understand-severity"
-									position="top"
-									anchor={ understandSeverityPopoverAnchor }
-								/>
+								{ ! scanning && (
+									<OnboardingPopover
+										id="paid-understand-severity"
+										position="top"
+										anchor={ understandSeverityPopoverAnchor }
+									/>
+								) }
 							</>
 						) : (
 							<FreeList list={ list } />
