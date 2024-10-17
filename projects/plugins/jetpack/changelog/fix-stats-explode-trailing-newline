@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Fix bug in #39665 related to a trailing newline in the CSV data.
+
+
