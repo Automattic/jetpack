@@ -2,10 +2,10 @@ import { AdminSectionHero, Title, Text, Button } from '@automattic/jetpack-compo
 import { CheckboxControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { useState, useEffect, useCallback } from 'react';
+import SeventyFiveLayout from '../../components/seventy-five-layout';
 import useModal from '../../hooks/use-modal';
 import useNotices from '../../hooks/use-notices';
 import useWafData from '../../hooks/use-waf-data';
-import SeventyFiveLayout from '../seventy-five-layout';
 import styles from './styles.module.scss';
 
 const StandaloneMode = () => {
