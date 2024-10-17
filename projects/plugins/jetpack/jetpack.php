@@ -116,13 +116,11 @@ if ( version_compare( $GLOBALS['wp_version'], JETPACK__MINIMUM_WP_VERSION, '<' )
 	 * @since 7.2.0
 	 */
 	function jetpack_admin_unsupported_wp_notice() {
-		wp_admin_notice(
-			esc_html__( 'Jetpack requires a more recent version of WordPress and has been paused. Please update WordPress to continue enjoying Jetpack.', 'jetpack' ),
-			array(
-				'type'        => 'error',
-				'dismissible' => true,
-			)
-		);
+		?>
+		<div class="notice notice-error is-dismissible">
+			<p><?php esc_html_e( 'Jetpack requires a more recent version of WordPress and has been paused. Please update WordPress to continue enjoying Jetpack.', 'jetpack' ); ?></p>
+		</div>
+		<?php
 	}
 
 	add_action( 'admin_notices', 'jetpack_admin_unsupported_wp_notice' );
