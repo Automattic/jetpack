@@ -122,6 +122,9 @@ class Jetpack_Subscribe_Floating_Button {
 	public function enqueue_assets() {
 		if ( $this->should_user_see_floating_button() ) {
 			wp_enqueue_style( 'subscribe-floating-button-css', plugins_url( 'subscribe-floating-button.css', __FILE__ ), array(), JETPACK__VERSION );
+
+			// Disables WP.com action bar as the features collide/overlap
+			add_filter( 'wpcom_disable_logged_out_follow', '__return_true', 10, 1 );
 		}
 	}
 
