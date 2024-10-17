@@ -26,7 +26,6 @@ const Header = () => {
 		return {
 			hasConnections: store.getConnections().length > 0,
 			isModuleEnabled: store.isModuleEnabled(),
-			newPostUrl: `${ store.getAdminUrl() }post-new.php`,
 		};
 	} );
 
