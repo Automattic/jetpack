@@ -74,6 +74,13 @@ beforeEach( () => {
 } );
 
 describe( 'Inspector controls', () => {
+	beforeEach( () => {
+		window.JetpackScriptData = {
+			social: {
+				urls: {},
+			},
+		};
+	} );
 	describe( 'Gradient settings panel', () => {
 		test( 'displays gradient settings control panel', () => {
 			render( <SubscriptionsInspectorControls { ...defaultProps } /> );
