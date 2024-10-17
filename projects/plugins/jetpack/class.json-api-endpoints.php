@@ -8,6 +8,7 @@
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication;
+use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Status;
 
 require_once __DIR__ . '/json-api-config.php';
@@ -2669,9 +2670,33 @@ abstract class WPCOM_JSON_API_Endpoint {
 		$this->api->initialize();
 		$this->api->endpoint = $this;
 
-		return call_user_func_array(
+		$response = call_user_func_array(
 			array( $this, 'callback' ),
 			array_values( array( $this->path, $blog_id ) + $request->get_url_params() )
+		);
+
+		$token_data = ( new Manager() )->verify_xml_rpc_signature();
+
+		if ( ! $token_data || empty( $token_data['token_key'] ) || ! array_key_exists( 'user_id', $token_data ) ) {
+			return new WP_Error( 'response_signature_error' );
+		}
+
+		$token = ( new Tokens() )->get_access_token( $token_data['user_id'], $token_data['token_key'] );
+		if ( is_wp_error( $token ) ) {
+			return $token;
+		}
+		if ( ! $token ) {
+			return new WP_Error( 'response_signature_error' );
+		}
+
+		$response = wp_json_encode( $response );
+		$nonce    = wp_generate_password( 10, false );
+		$hmac     = hash_hmac( 'sha1', $nonce . $response, $token->secret );
+
+		return array(
+			$response,
+			(string) $nonce,
+			(string) $hmac,
 		);
 	}
 
