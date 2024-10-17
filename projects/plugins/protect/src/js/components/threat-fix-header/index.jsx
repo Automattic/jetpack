@@ -44,13 +44,13 @@ export const getFixerMessage = fixable => {
 };
 
 /**
- * Threat Fix AdminSectionHero
+ * Threat Fix Header
  *
  * @param {object} props              - Props.
  * @param {object} props.threat       - Threat object
  * @param {string} props.fixAllDialog - Boolean indicating whether this is the fix all modal or not
  * @param {string} props.onCheckFix   - Callback called when checkbox is selected
- * @return { React.ReactNode }           The Threat Fix AdminSectionHero component.
+ * @return { React.ReactNode }           The Threat Fix Header component.
  */
 export default function ThreatFixHeader( { threat, fixAllDialog, onCheckFix } ) {
 	const [ checkedFix, setCheckedFix ] = useState( true );
