@@ -33,7 +33,9 @@ const ErrorAdminSectionHero: React.FC< ErrorAdminSectionHeroProps > = ( {
 					<AdminSectionHero.Subheading>
 						<Text>{ displayErrorMessage }</Text>
 					</AdminSectionHero.Subheading>
-					<ScanNavigation />
+					<div className={ styles[ 'scan-navigation' ] }>
+						<ScanNavigation />
+					</div>
 				</>
 			}
 			secondary={

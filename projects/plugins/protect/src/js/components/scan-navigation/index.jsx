@@ -3,7 +3,7 @@ import React, { useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import usePlan from '../../hooks/use-plan';
 import ButtonGroup from '../button-group';
-import styles from './styles.module.scss';
+
 /**
  * Navigation for scan sections.
  *
@@ -24,7 +24,7 @@ export default function ScanNavigation() {
 	}
 
 	return (
-		<div className={ styles[ 'scan-navigation' ] }>
+		<>
 			<ButtonGroup>
 				<ButtonGroup.Button
 					variant={ viewingScanPage ? 'primary' : 'secondary' }
@@ -39,6 +39,6 @@ export default function ScanNavigation() {
 					{ __( 'History', 'jetpack-protect' ) }
 				</ButtonGroup.Button>
 			</ButtonGroup>
-		</div>
+		</>
 	);
 }

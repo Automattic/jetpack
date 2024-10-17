@@ -21,3 +21,7 @@
 		width: 100%;
 	}
 }
+
+.scan-navigation {
+	margin-top: calc( var( --spacing-base ) * 3 ); // 24px
+}

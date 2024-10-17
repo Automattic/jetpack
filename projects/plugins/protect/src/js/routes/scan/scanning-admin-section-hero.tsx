@@ -46,7 +46,9 @@ const ScanningAdminSectionHero: React.FC = () => {
 							</Text>
 						</>
 					</AdminSectionHero.Subheading>
-					<ScanNavigation />
+					<div className={ styles[ 'scan-navigation' ] }>
+						<ScanNavigation />
+					</div>
 				</>
 			}
 			secondary={

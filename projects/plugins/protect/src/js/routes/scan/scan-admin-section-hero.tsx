@@ -97,7 +97,9 @@ const ScanAdminSectionHero: React.FC = () => {
 							) }
 						</>
 					</AdminSectionHero.Subheading>
-					<ScanNavigation />
+					<div className={ styles[ 'scan-navigation' ] }>
+						<ScanNavigation />
+					</div>
 				</>
 			}
 		/>

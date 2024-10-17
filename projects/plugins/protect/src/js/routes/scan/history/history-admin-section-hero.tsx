@@ -68,7 +68,9 @@ const HistoryAdminSectionHero: React.FC = () => {
 							) }
 						</Text>
 					</AdminSectionHero.Subheading>
-					<ScanNavigation />
+					<div className={ styles[ 'scan-navigation' ] }>
+						<ScanNavigation />
+					</div>
 				</>
 			}
 		/>
