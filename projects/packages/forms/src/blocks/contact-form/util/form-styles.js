@@ -88,7 +88,7 @@ window.jetpackForms.generateStyleVariables = function ( formNode ) {
 			const buttonLink = document.querySelector( '.wp-block-button__link' );
 			safeButtonOutlineTextColor = buttonLink
 				? getComputedStyle( buttonLink ).getPropertyValue( 'color' )
-				: '#FFFFFF';
+				: backgroundColor;
 		}
 	}
 
