@@ -77,6 +77,48 @@ function register_block() {
 		return;
 	}
 
+	if ( function_exists( 'register_block_bindings_source' ) ) {
+		register_block_bindings_source(
+			'jetpack/subscribers',
+			array(
+				'label'              => _x( 'Jetpack Newsletter subscribers', 'Block bindings source label', 'jetpack' ),
+				'get_value_callback' => __NAMESPACE__ . '\bindings_subscribers_callback',
+			)
+		);
+
+		register_block_pattern_category(
+			'jetpack/newsletter',
+			array(
+				'label'       => __( 'Newsletter', 'jetpack' ),
+				'description' => __( 'Jetpack Newsletter patterns', 'jetpack' ),
+			)
+		);
+
+		$pattern_content = Jetpack_Memberships::get_join_others_text( 10 );
+
+		// Paragraph pattern
+		register_block_pattern(
+			'jetpack/subscribers-count-paragraph',
+			array(
+				'title'       => __( 'Subscribers count paragraph', 'jetpack' ),
+				'description' => _x( 'Show newsletter subscribers count.', 'Block pattern description', 'jetpack' ),
+				'categories'  => array( 'jetpack/newsletter' ),
+				'content'     => '<!-- wp:paragraph {"metadata":{"bindings":{"content":{"source":"jetpack/subscribers","args":{"key":"count"}}}}} --><p>' . esc_html( $pattern_content ) . '</p><!-- /wp:paragraph -->',
+			)
+		);
+
+		// Heading pattern
+		register_block_pattern(
+			'jetpack/subscribers-count-heading',
+			array(
+				'title'       => __( 'Subscribers count heading', 'jetpack' ),
+				'description' => _x( 'Show newsletter subscribers count.', 'Block pattern description', 'jetpack' ),
+				'categories'  => array( 'jetpack/newsletter' ),
+				'content'     => '<!-- wp:heading {"metadata":{"bindings":{"content":{"source":"jetpack/subscribers","args":{"key":"count"}}}}} --><h2 class="wp-block-heading">' . esc_html( $pattern_content ) . '</h2><!-- /wp:heading -->',
+			)
+		);
+	}
+
 	register_post_meta(
 		'post',
 		META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS,
@@ -201,6 +243,26 @@ add_action( 'init', __NAMESPACE__ . '\register_block', 9 );
  */
 function is_wpcom() {
 	return defined( 'IS_WPCOM' ) && IS_WPCOM;
+}
+
+/**
+ * Gets values for subscriber count
+ *
+ * @param array $source_attrs Array containing source arguments used to look up the value
+ *                            Examples: array( "key" => "count" ).
+ * @return mixed The value or null
+ */
+function bindings_subscribers_callback( $source_attrs ) {
+	if ( ! isset( $source_attrs['key'] ) ) {
+		return null;
+	}
+
+	if ( $source_attrs['key'] === 'count' ) {
+		$count = get_subscriber_count( false );
+		return esc_html( Jetpack_Memberships::get_join_others_text( $count ) );
+	}
+
+	return null;
 }
 
 /**
