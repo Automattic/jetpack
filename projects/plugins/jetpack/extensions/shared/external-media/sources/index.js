@@ -4,6 +4,7 @@ import { GooglePhotosIcon, OpenverseIcon, PexelsIcon, JetpackMobileAppIcon } fro
 import {
 	SOURCE_WORDPRESS,
 	SOURCE_GOOGLE_PHOTOS,
+	SOURCE_GOOGLE_PHOTOS_PICKER,
 	SOURCE_OPENVERSE,
 	SOURCE_PEXELS,
 	SOURCE_JETPACK_APP_MEDIA,
@@ -12,6 +13,7 @@ import {
 	SOURCE_JETPACK_AI_GENERAL_PURPOSE_IMAGE_FOR_BLOCK,
 } from '../constants';
 import GooglePhotosMedia from './google-photos';
+import GooglePhotosPickerMedia from './google-photos-picker';
 import JetpackAIFeaturedImage from './jetpack-ai-featured-image';
 import JetpackAIGeneralPurposeImageForBlock from './jetpack-ai-general-purpose-image-for-block';
 import JetpackAIGeneralPurposeImageForMediaSource from './jetpack-ai-general-purpose-image-for-media-source';
@@ -53,6 +55,12 @@ export const generalPurposeImageExclusiveMediaSources = [
 ];
 
 export const externalMediaSources = [
+	{
+		id: SOURCE_GOOGLE_PHOTOS_PICKER,
+		label: __( 'Google Photos (picker)', 'jetpack' ),
+		icon: <GooglePhotosIcon className="components-menu-items__item-icon" />,
+		keyword: 'google photos',
+	},
 	{
 		id: SOURCE_GOOGLE_PHOTOS,
 		label: __( 'Google Photos', 'jetpack' ),
@@ -103,6 +111,8 @@ export function canDisplayPlaceholder( props ) {
 export function getExternalLibrary( type ) {
 	if ( type === SOURCE_PEXELS ) {
 		return PexelsMedia;
+	} else if ( type === SOURCE_GOOGLE_PHOTOS_PICKER ) {
+		return GooglePhotosPickerMedia;
 	} else if ( type === SOURCE_GOOGLE_PHOTOS ) {
 		return GooglePhotosMedia;
 	} else if ( type === SOURCE_OPENVERSE ) {
