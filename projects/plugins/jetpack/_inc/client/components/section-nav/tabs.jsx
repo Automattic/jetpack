@@ -155,7 +155,7 @@ class NavTabs extends React.Component {
 			case 32: // space
 			case 13: // enter
 				event.preventDefault();
-				document.activeElement.click();
+				event.target.ownerDocument.activeElement.click();
 				break;
 		}
 	};
