@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+New utility function `needsUserConnection` to determine if a user connection is required based on the current user's connection status and site type.
