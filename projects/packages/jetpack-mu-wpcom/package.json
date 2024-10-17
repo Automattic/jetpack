@@ -73,6 +73,7 @@
 		"@wordpress/url": "4.9.0",
 		"clsx": "2.1.1",
 		"debug": "4.3.4",
+		"events": "^3.3.0",
 		"preact": "^10.13.1",
 		"react": "^18.2.0",
 		"react-dom": "^18.2.0",

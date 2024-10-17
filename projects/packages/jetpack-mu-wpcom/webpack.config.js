@@ -70,6 +70,10 @@ module.exports = [
 				/** Replace the classnames used by @automattic/newspack-blocks with clsx because we changed to use clsx */
 				classnames: findPackage( 'clsx' ),
 			},
+			fallback: {
+				...jetpackWebpackConfig.resolve.fallback,
+				events: require.resolve( 'events/' ),
+			},
 		},
 		node: false,
 		plugins: [
