@@ -39,12 +39,11 @@ const ThreatsList = () => {
 	// Popover anchors
 	const [ yourScanResultsPopoverAnchor, setYourScanResultsPopoverAnchor ] = useState( null );
 	const [ understandSeverityPopoverAnchor, setUnderstandSeverityPopoverAnchor ] = useState( null );
-
-	const { setModal } = useModal();
-
-	const [ showAutoFixersPopoverAnchor, setShowAutoFixersPopoverAnchor ] = useState( null );
 	const [ dailyAndManualScansPopoverAnchor, setDailyAndManualScansPopoverAnchor ] =
 		useState( null );
+	const [ showAutoFixersPopoverAnchor, setShowAutoFixersPopoverAnchor ] = useState( null );
+
+	const { setModal } = useModal();
 
 	const handleShowAutoFixersClick = threatList => {
 		return event => {
@@ -137,16 +136,14 @@ const ThreatsList = () => {
 												position={ isSm ? 'bottom right' : 'middle left' }
 												anchor={ showAutoFixersPopoverAnchor }
 											/>
+											<ScanButton ref={ setDailyAndManualScansPopoverAnchor } />
+											<OnboardingPopover
+												id="paid-daily-and-manual-scans"
+												position={ 'bottom middle' }
+												anchor={ dailyAndManualScansPopoverAnchor }
+											/>
 										</>
 									) }
-									<div>
-										<ScanButton ref={ setDailyAndManualScansPopoverAnchor } />
-										<OnboardingPopover
-											id="paid-daily-and-manual-scans"
-											position={ isSm ? 'bottom left' : 'middle left' }
-											anchor={ dailyAndManualScansPopoverAnchor }
-										/>
-									</div>
 								</div>
 							) }
 						</div>

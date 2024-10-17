@@ -1,14 +1,23 @@
-import { AdminSectionHero, Container, Col, H3, Text } from '@automattic/jetpack-components';
+import {
+	AdminSectionHero,
+	Container,
+	Col,
+	H3,
+	Text,
+	AdminSection,
+	useBreakpointMatch,
+} from '@automattic/jetpack-components';
 import { Spinner } from '@wordpress/components';
+import { dateI18n } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import inProgressImage from '../../../../assets/images/in-progress.png';
 import AdminPage from '../../components/admin-page';
 import ErrorScreen from '../../components/error-section';
+import OnboardingPopover from '../../components/onboarding-popover';
 import ProgressBar from '../../components/progress-bar';
 import ScanFooter from '../../components/scan-footer';
 import SeventyFiveLayout from '../../components/seventy-five-layout';
-import Summary from '../../components/summary';
 import ThreatsList from '../../components/threats-list';
 import useScanStatusQuery, { isScanInProgress } from '../../data/scan/use-scan-status-query';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
@@ -18,34 +27,9 @@ import useProtectData from '../../hooks/use-protect-data';
 import useWafData from '../../hooks/use-waf-data';
 import onboardingSteps from './onboarding-steps';
 import ScanSectionHeader from './scan-section-header';
+import ScanSectionNavigation from './scan-section-navigation';
 import ScanSectionNotices from './scan-section-notices';
 import styles from './styles.module.scss';
-
-/**
- * Error Section
- *
- * @param {object} props              - Component props.
- * @param {string} props.errorMessage - The error message.
- * @param {string} props.errorCode    - The error code.
- *
- * @return {Component} The component.
- */
-const ErrorSection = ( { errorMessage, errorCode } ) => {
-	return (
-		<>
-			<Col>
-				<ScanSectionHeader />
-			</Col>
-			<Col>
-				<ErrorScreen
-					baseErrorMessage={ __( 'We are having problems scanning your site.', 'jetpack-protect' ) }
-					errorMessage={ errorMessage }
-					errorCode={ errorCode }
-				/>
-			</Col>
-		</>
-	);
-};
 
 /**
  * Scan In Progress Section
@@ -55,7 +39,7 @@ const ErrorSection = ( { errorMessage, errorCode } ) => {
  *
  * @return {Component} The component.
  */
-const ScanInProgressSection = ( { currentProgress } ) => {
+const ScanInProgressHero = ( { currentProgress } ) => {
 	const { hasPlan } = usePlan();
 	const { globalStats } = useWafData();
 	const totalVulnerabilities = parseInt( globalStats?.totalVulnerabilities );
@@ -64,54 +48,48 @@ const ScanInProgressSection = ( { currentProgress } ) => {
 		: totalVulnerabilities.toLocaleString();
 
 	return (
-		<>
-			<Col>
-				<ScanSectionHeader />
-			</Col>
-			<Col>
-				<SeventyFiveLayout
-					main={
-						<div className={ styles[ 'main-content' ] }>
-							<Container horizontalSpacing={ 0 } horizontalGap={ 7 } fluid={ true }>
-								<Col className={ styles[ 'loading-content' ] }>
-									<Spinner
-										style={ {
-											color: 'black',
-											marginTop: 0,
-											marginLeft: 0,
-										} }
-									/>
-									<span>{ __( 'Scanning your site…', 'jetpack-protect' ) }</span>
-								</Col>
-								<Col>
-									<H3 style={ { textWrap: 'balance' } }>
-										{ __( 'Your results will be ready soon', 'jetpack-protect' ) }
-									</H3>
-									{ hasPlan && <ProgressBar value={ currentProgress || 0 } /> }
-									<Text>
-										{ sprintf(
-											// translators: placeholder is the number of total vulnerabilities i.e. "22,000".
-											__(
-												'We are scanning for security threats from our more than %s listed vulnerabilities, powered by WPScan. This could take a minute or two.',
-												'jetpack-protect'
-											),
-											totalVulnerabilitiesFormatted
-										) }
-									</Text>
-								</Col>
-							</Container>
-						</div>
-					}
-					secondary={
-						<div className={ styles.illustration }>
-							<img src={ inProgressImage } alt="" />
-						</div>
-					}
-					preserveSecondaryOnMobile={ false }
-					fluid={ true }
-				/>
-			</Col>
-		</>
+		<SeventyFiveLayout
+			main={
+				<Container horizontalSpacing={ 0 } horizontalGap={ 4 } fluid={ true }>
+					<Col className={ styles[ 'loading-content' ] }>
+						<Spinner
+							style={ {
+								color: 'black',
+								marginTop: 0,
+								marginLeft: 0,
+							} }
+						/>
+						<span>{ __( 'Scanning your site…', 'jetpack-protect' ) }</span>
+					</Col>
+					<Col>
+						<H3 style={ { textWrap: 'balance' } }>
+							{ __( 'Your results will be ready soon', 'jetpack-protect' ) }
+						</H3>
+						{ hasPlan && <ProgressBar value={ currentProgress || 0 } /> }
+						<Text>
+							{ sprintf(
+								// translators: placeholder is the number of total vulnerabilities i.e. "22,000".
+								__(
+									'We are scanning for security threats from our more than %s listed vulnerabilities, powered by WPScan. This could take a minute or two.',
+									'jetpack-protect'
+								),
+								totalVulnerabilitiesFormatted
+							) }
+						</Text>
+					</Col>
+					<Col>
+						<ScanSectionNavigation />
+					</Col>
+				</Container>
+			}
+			secondary={
+				<div className={ styles.illustration }>
+					<img src={ inProgressImage } alt="" />
+				</div>
+			}
+			preserveSecondaryOnMobile={ false }
+			fluid={ true }
+		/>
 	);
 };
 
@@ -120,16 +98,51 @@ const ScanInProgressSection = ( { currentProgress } ) => {
  *
  * @return {Component} The component.
  */
-const ScanResultsSection = () => {
+const ScanResultsHero = () => {
+	const [ isSm ] = useBreakpointMatch( 'sm' );
+	const {
+		counts: {
+			current: { threats: numThreats },
+		},
+		lastChecked,
+	} = useProtectData();
+	const { hasPlan } = usePlan();
+
+	// Popover anchors
+	const [ dailyScansPopoverAnchor, setDailyScansPopoverAnchor ] = useState( null );
+
 	return (
-		<>
-			<Col>
-				<Summary />
-			</Col>
-			<Col>
-				<ThreatsList />
-			</Col>
-		</>
+		<ScanSectionHeader
+			title={
+				numThreats > 0
+					? sprintf(
+							/* translators: %s: Total number of threats  */
+							__( '%1$s %2$s found', 'jetpack-protect' ),
+							numThreats,
+							numThreats === 1 ? 'threat' : 'threats'
+					  )
+					: undefined
+			}
+			subtitle={
+				<>
+					<div ref={ setDailyScansPopoverAnchor }>
+						{ sprintf(
+							/* translators: %s: Latest check date  */
+							__( 'Latest results as of %s', 'jetpack-protect' ),
+							dateI18n( 'F jS', lastChecked )
+						) }
+					</div>
+					{ ! hasPlan && (
+						<OnboardingPopover
+							id="free-daily-scans"
+							position={ isSm ? 'bottom' : 'middle right' }
+							anchor={ dailyScansPopoverAnchor }
+						/>
+					) }
+				</>
+			}
+			showNavigation={ hasPlan }
+		/>
 	);
 };
 
@@ -164,16 +177,22 @@ const ScanPage = () => {
 	} );
 
 	// Render the appropriate section based on the scan status.
-	const renderSection = useMemo( () => {
+	const renderSectionHero = useMemo( () => {
 		if ( isScanInProgress( status ) ) {
-			return <ScanInProgressSection currentProgress={ status.currentProgress || 0 } />;
+			return <ScanInProgressHero currentProgress={ status.currentProgress || 0 } />;
 		}
 
 		if ( status.error ) {
-			return <ErrorSection errorMessage={ status.errorMessage } errorCode={ status.errorCode } />;
+			return (
+				<ErrorScreen
+					baseErrorMessage={ __( 'We are having problems scanning your site.', 'jetpack-protect' ) }
+					errorMessage={ status.errorMessage }
+					errorCode={ status.errorCode }
+				/>
+			);
 		}
 
-		return <ScanResultsSection />;
+		return <ScanResultsHero />;
 	}, [ status ] );
 
 	return (
@@ -181,10 +200,17 @@ const ScanPage = () => {
 			<AdminPage>
 				<AdminSectionHero>
 					<ScanSectionNotices />
-					<Container horizontalSpacing={ 3 } horizontalGap={ 4 }>
-						{ renderSection }
+					<Container horizontalSpacing={ 7 } horizontalGap={ 4 }>
+						<Col>{ renderSectionHero }</Col>
 					</Container>
 				</AdminSectionHero>
+				<AdminSection>
+					<Container horizontalSpacing={ 7 } horizontalGap={ 0 } fluid={ false }>
+						<Col>
+							<ThreatsList />
+						</Col>
+					</Container>
+				</AdminSection>
 				<ScanFooter />
 			</AdminPage>
 		</OnboardingContext.Provider>
