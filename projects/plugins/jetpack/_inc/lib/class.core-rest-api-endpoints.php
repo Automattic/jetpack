@@ -2732,7 +2732,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'jp_group'          => 'subscriptions',
 			),
 			'jetpack_subscribe_floating_button_enabled' => array(
-				'description'       => esc_html__( "Show a floating subscribe button on site's bottom corner.", 'jetpack' ),
+				'description'       => esc_html__( 'Show a floating subscribe button.', 'jetpack' ),
 				'type'              => 'boolean',
 				'default'           => 0,
 				'validate_callback' => __CLASS__ . '::validate_boolean',
