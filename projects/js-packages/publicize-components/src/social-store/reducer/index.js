@@ -12,7 +12,6 @@ const reducer = combineReducers( {
 	socialImageGeneratorSettings,
 	shareStatus,
 	hasPaidPlan: ( state = false ) => state,
-	userConnectionUrl: ( state = '' ) => state,
 	hasPaidFeatures: ( state = false ) => state,
 } );
 
