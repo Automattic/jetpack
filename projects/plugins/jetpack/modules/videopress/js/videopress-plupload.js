@@ -1,4 +1,4 @@
-/* global pluploadL10n, plupload, _wpPluploadSettings, JSON */
+/* global pluploadL10n, plupload, _wpPluploadSettings */
 
 window.wp = window.wp || {};
 
