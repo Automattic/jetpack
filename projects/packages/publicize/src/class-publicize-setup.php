@@ -45,6 +45,7 @@ class Publicize_Setup {
 
 		add_action( 'rest_api_init', array( static::class, 'register_core_options' ) );
 		add_action( 'admin_init', array( static::class, 'register_core_options' ) );
+		add_action( 'save_post', array( static::class, 'update_post_meta_on_save' ) );
 
 		( new Social_Image_Generator\Setup() )->init();
 	}
@@ -55,6 +56,31 @@ class Publicize_Setup {
 	public static function register_core_options() {
 		( new Jetpack_Social_Settings\Settings() )->register_settings();
 		( new Jetpack_Social_Settings\Dismissed_Notices() )->register();
+	}
+
+	/**
+	 * Update the post meta with the post title when the post is saved, if the corresponding option is set.
+	 *
+	 * @param int $post_id The post ID.
+	 */
+	public static function update_post_meta_on_save( $post_id ) {
+		$share_title_only_option = get_option( Jetpack_Social_Settings\Settings::OPTION_PREFIX . Jetpack_Social_Settings\Settings::SHARE_TITLE_ONLY, false );
+
+		if ( ! $share_title_only_option ) {
+			return;
+		}
+
+		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+			return;
+		}
+
+		if ( get_post_status( $post_id ) === 'auto-draft' ) {
+			return;
+		}
+
+		$post_title = get_the_title( $post_id );
+
+		update_post_meta( $post_id, '_wpas_mess', $post_title );
 	}
 
 	/**

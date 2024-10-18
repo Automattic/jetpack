@@ -7,6 +7,9 @@ export const UPDATE_SOCIAL_IMAGE_GENERATOR_SETTINGS = 'UPDATE_SOCIAL_IMAGE_GENER
 
 export const FETCH_JETPACK_SOCIAL_SETTINGS = 'FETCH_JETPACK_SOCIAL_SETTINGS';
 
+export const FETCH_SHARE_TITLE_ONLY = 'FETCH_SHARE_TITLE_ONLY';
+export const UPDATE_SHARE_TITLE_ONLY = 'UPDATE_SHARE_TITLE_ONLY';
+
 /**
  * fetchJetpackSettings action
  *
@@ -66,6 +69,19 @@ export const fetchJetpackSocialSettings = () => {
 	};
 };
 
+export const fetchShareTitleOnly = () => {
+	return {
+		type: FETCH_SHARE_TITLE_ONLY,
+	};
+};
+
+export const updateShareTitleOnly = settings => {
+	return {
+		type: UPDATE_SHARE_TITLE_ONLY,
+		settings,
+	};
+};
+
 export default {
 	[ FETCH_JETPACK_SETTINGS ]: function () {
 		return apiFetch( { path: '/jetpack/v4/social/settings' } );
@@ -94,6 +110,20 @@ export default {
 	[ FETCH_JETPACK_SOCIAL_SETTINGS ]: function () {
 		return apiFetch( {
 			path: '/wp/v2/settings?_fields=jetpack_social_image_generator_settings',
+		} );
+	},
+	[ FETCH_SHARE_TITLE_ONLY ]: function () {
+		return apiFetch( {
+			path: '/wp/v2/settings?_fields=jetpack_social_share_title_only',
+		} );
+	},
+	[ UPDATE_SHARE_TITLE_ONLY ]: function ( action ) {
+		return apiFetch( {
+			path: '/wp/v2/settings',
+			method: 'POST',
+			data: {
+				jetpack_social_share_title_only: action.settings,
+			},
 		} );
 	},
 };
