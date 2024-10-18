@@ -188,6 +188,26 @@ const ActionButton: FC< ActionButtonProps > = ( {
 						PRODUCT_STATUSES.INACTIVE in primaryActionOverride &&
 						primaryActionOverride[ PRODUCT_STATUSES.INACTIVE ] ),
 				};
+			case PRODUCT_STATUSES.EXPIRING_SOON:
+				return {
+					...buttonState,
+					href: '#/connection',
+					variant: 'primary',
+					label: __( 'Renew my plan', 'jetpack-my-jetpack' ),
+					...( primaryActionOverride &&
+						PRODUCT_STATUSES.EXPIRING_SOON in primaryActionOverride &&
+						primaryActionOverride[ PRODUCT_STATUSES.EXPIRING_SOON ] ),
+				};
+			case PRODUCT_STATUSES.EXPIRED:
+				return {
+					...buttonState,
+					href: '#/connection',
+					variant: 'primary',
+					label: __( 'Resume my plan', 'jetpack-my-jetpack' ),
+					...( primaryActionOverride &&
+						PRODUCT_STATUSES.EXPIRED in primaryActionOverride &&
+						primaryActionOverride[ PRODUCT_STATUSES.EXPIRED ] ),
+				};
 			default:
 				return null;
 		}
