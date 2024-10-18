@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Subscriptions: stops loading editor functionality (i.e. the block and panels) when subscriptions module is disabled.
