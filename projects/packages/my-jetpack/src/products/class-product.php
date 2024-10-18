@@ -408,6 +408,39 @@ abstract class Product {
 	}
 
 	/**
+	 * Gets the paid plan's expiry status, or null if: no paid plan, or not expired, or not expiring soon.
+	 *
+	 * @return string
+	 */
+	public static function get_paid_plan_expiration_status() {
+		if ( ! static::has_paid_plan_for_product() ) {
+			return null;
+		}
+		$product_slug   = static::get_wpcom_product_slug();
+		$purchases_data = Wpcom_Products::get_site_current_purchases();
+		if ( is_wp_error( $purchases_data ) ) {
+			return null;
+		}
+		if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
+			foreach ( $purchases_data as $purchase ) {
+				if ( strpos( $purchase->product_slug, $product_slug ) !== false ) {
+					// Check if expired or expiring soon
+					$now           = time();
+					$expiry_date   = strtotime( $purchase->expiry_date );
+					$expiring_soon = strtotime( $purchase->expiry_date . ' -30 days' );
+					if ( $now > $expiring_soon && $now < $expiry_date ) {
+						return Products::STATUS_EXPIRING_SOON;
+					}
+					if ( $now > $expiry_date ) {
+						return Products::STATUS_EXPIRED;
+					}
+				}
+			}
+		}
+		return null;
+	}
+
+	/**
 	 * Checks whether the product supports trial or not
 	 *
 	 * Returns true if it supports. Return false otherwise.
@@ -508,6 +541,8 @@ abstract class Product {
 				$status = Products::STATUS_USER_CONNECTION_ERROR;
 			} elseif ( static::is_upgradable() ) {
 				$status = Products::STATUS_CAN_UPGRADE;
+			} elseif ( static::has_paid_plan_for_product() && in_array( static::get_paid_plan_expiration_status(), Products::$expiring_or_expired_module_statuses, true ) ) {
+				$status = static::get_paid_plan_expiration_status();
 			}
 			// Check specifically for inactive modules, which will prevent a product from being active
 		} elseif ( static::$module_name && ! static::is_module_active() ) {
