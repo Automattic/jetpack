@@ -31,10 +31,6 @@ if ( ! class_exists( 'Jetpack_Flickr_Widget' ) ) {
 				),
 				array()
 			);
-
-			if ( is_customize_preview() ) {
-				add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_style' ) );
-			}
 		}
 
 		/**

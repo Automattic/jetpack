@@ -34,10 +34,6 @@ class Jetpack_Widget_Authors extends WP_Widget {
 			)
 		);
 
-		if ( is_customize_preview() ) {
-			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_style' ) );
-		}
-
 		add_action( 'publish_post', array( __CLASS__, 'flush_cache' ) );
 		add_action( 'deleted_post', array( __CLASS__, 'flush_cache' ) );
 		add_action( 'switch_theme', array( __CLASS__, 'flush_cache' ) );

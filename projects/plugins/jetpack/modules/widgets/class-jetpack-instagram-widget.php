@@ -47,10 +47,6 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 			)
 		);
 
-		if ( is_customize_preview() ) {
-			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_css' ) );
-		}
-
 		add_action( 'wp_ajax_wpcom_instagram_widget_update_widget_token_id', array( $this, 'ajax_update_widget_token_id' ) );
 
 		$this->valid_options = array(

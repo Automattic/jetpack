@@ -84,9 +84,6 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 			'twitch'     => array( 'Twitch', 'https://www.twitch.tv/%s/' ),
 			'tumblr'     => array( 'Tumblr', 'https://%s.tumblr.com' ),
 		);
-		if ( is_customize_preview() ) {
-			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_style' ) );
-		}
 	}
 
 	/**

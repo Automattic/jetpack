@@ -93,10 +93,6 @@ if ( ! class_exists( 'Jetpack_EU_Cookie_Law_Widget' ) ) {
 				),
 				array()
 			);
-
-			if ( is_customize_preview() ) {
-				add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_frontend_scripts' ) );
-			}
 		}
 
 		/**

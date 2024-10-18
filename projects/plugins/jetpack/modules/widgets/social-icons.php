@@ -53,12 +53,6 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 			add_action( 'admin_print_footer_scripts', array( $this, 'render_admin_js' ) );
 		}
 
-		// Enqueue scripts and styles for the display of the widget in the customizer.
-		if ( is_customize_preview() ) {
-			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_icon_scripts' ) );
-			add_action( 'wp_footer', array( $this, 'include_svg_icons' ), 9999 );
-		}
-
 		add_filter( 'widget_types_to_hide_from_legacy_widget_block', array( $this, 'hide_widget_in_block_editor' ) );
 	}
 

@@ -73,10 +73,6 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 
 		$this->default_title = __( 'Top Posts &amp; Pages', 'jetpack' );
 
-		if ( is_customize_preview() ) {
-			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_style' ) );
-		}
-
 		/**
 		 * Add explanation about how the statistics are calculated.
 		 *

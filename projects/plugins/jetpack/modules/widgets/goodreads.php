@@ -45,9 +45,6 @@ class WPCOM_Widget_Goodreads extends WP_Widget {
 			'to-read'           => _x( 'To Read', 'my list of books to read', 'jetpack' ),
 		);
 
-		if ( is_customize_preview() ) {
-			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_style' ) );
-		}
 		add_filter( 'widget_types_to_hide_from_legacy_widget_block', array( $this, 'hide_widget_in_block_editor' ) );
 	}
 
