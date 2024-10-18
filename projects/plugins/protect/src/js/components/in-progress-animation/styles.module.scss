@@ -1,44 +1,26 @@
-.scan__animation {
+.inProgressAnimation {
 	position: relative;
-
-	@media ( max-width: 1240px ) {
-		display: none;
-	}
 }
 
-.scan__animation_el_1,
-.scan__animation_el_2,
-.scan__animation_el_3 {
+.inProgressAnimation__el {
+	position: relative;
+	animation: inprogress 4s ease-in-out 0.8s infinite normal forwards;
+	transform: translateY( 24px );
 	opacity: 0;
-	position: absolute;
-	z-index: 4;
-	animation: animation-el-3 4s ease-in-out 0.8s infinite normal forwards;
 }
 
-.scan__animation_el_1 {
-	bottom: 24px;
-	right: 230px;
-	animation-name: animation_el_1;
+.inProgressAnimation__el:nth-of-type(2) {
 	animation-delay: 0.6s;
 }
 
-.scan__animation_el_2 {
-	bottom: -19px;
-	right: 10px;
-	animation-name: animation_el_2;
+.inProgressAnimation__el:nth-of-type(3) {
 	animation-delay: 0.7s;
 }
 
-.scan__animation_el_3 {
-	bottom: -164px;
-	right: -40px;
-	animation-name: animation_el_3;
-}
-
-@keyframes animation_el_1 {
+@keyframes inprogress {
 	0% {
 		opacity: 0;
-		transform: translateY( 32px );
+		transform: translateY( 24px );
 	}
 	20% {
 		opacity: 1;
@@ -50,56 +32,16 @@
 	}
 	60% {
 		opacity: 0;
-		transform: translateY( -96px );
+		transform: translateY( -48px );
 	}
 	100% {
 		opacity: 0;
-		transform: translateY( -96px );
+		transform: translateY( -48px );
 	}
 }
 
-@keyframes animation_el_2 {
-	0% {
-		opacity: 0;
-		transform: translateY( 64px );
-	}
-	20% {
-		opacity: 1;
-		transform: translateY( 0 );
-	}
-	50% {
-		opacity: 1;
-		transform: translateY( 0 );
-	}
-	60% {
-		opacity: 0;
-		transform: translateY( -96px );
-	}
-	100% {
-		opacity: 0;
-		transform: translateY( -96px );
-	}
-}
-
-@keyframes animation_el_3 {
-	0% {
-		opacity: 0;
-		transform: translateY( 44px );
-	}
-	20% {
-		opacity: 1;
-		transform: translateY( 0 );
-	}
-	50% {
-		opacity: 1;
-		transform: translateY( 0 );
-	}
-	60% {
-		opacity: 0;
-		transform: translateY( -84px );
-	}
-	100% {
-		opacity: 0;
-		transform: translateY( -84px );
+@media (prefers-reduced-motion: reduce) {
+	.inProgressAnimation__el {
+		animation: none;
 	}
 }
