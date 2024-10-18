@@ -139,7 +139,7 @@ function enhanced_og_video( $tags ) {
 			$secure_video_url = 'https://www.youtube.com/embed/' . $id;
 		} elseif ( strstr( $video_url, 'vimeo' ) ) {
 			preg_match( '|vimeo\.com/(\d+)/?$|i', $video_url, $match );
-			$id               = (int) $match[1];
+			$id               = isset( $match[1] ) ? (int) $match[1] : null;
 			$video_url        = 'http://vimeo.com/moogaloop.swf?clip_id=' . $id;
 			$secure_video_url = 'https://vimeo.com/moogaloop.swf?clip_id=' . $id;
 		}
