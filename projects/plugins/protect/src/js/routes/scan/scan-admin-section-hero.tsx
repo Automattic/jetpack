@@ -91,7 +91,7 @@ const ScanAdminSectionHero: React.FC = () => {
 							{ ! hasPlan && (
 								<OnboardingPopover
 									id="free-daily-scans"
-									position={ isSm ? 'bottom' : 'middle left' }
+									position={ isSm ? 'bottom' : 'middle right' }
 									anchor={ dailyScansPopoverAnchor }
 								/>
 							) }
