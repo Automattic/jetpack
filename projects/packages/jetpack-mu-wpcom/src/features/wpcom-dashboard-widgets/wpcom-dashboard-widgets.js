@@ -28,7 +28,7 @@ widgets.forEach( ( { id, Widget } ) => {
 	if ( container ) {
 		const root = ReactDOM.createRoot( container );
 		root.render(
-			<ErrorBoundary fallback={ <p>Something went wrong</p> }>
+			<ErrorBoundary>
 				<Widget { ...data } />
 			</ErrorBoundary>
 		);

@@ -1,7 +1,8 @@
+import { __ } from '@wordpress/i18n';
 import React from 'react';
 
 interface Props {
-	fallback: React.ReactNode;
+	fallback?: React.ReactNode;
 	children: React.ReactNode;
 }
 
@@ -26,10 +27,18 @@ class ErrorBoundary extends React.Component< Props, State > {
 	}
 
 	render(): React.ReactNode {
-		if ( this.state.hasError ) {
-			return this.props.fallback || null;
+		const { children, fallback } = this.props;
+		const { hasError } = this.state;
+
+		if ( hasError ) {
+			return fallback !== undefined ? (
+				fallback
+			) : (
+				<p>{ __( 'Something went wrong', 'jetpack-mu-wpcom' ) } </p>
+			);
 		}
-		return this.props.children;
+
+		return children;
 	}
 }
 
