@@ -1,6 +1,6 @@
 import { Filter, View } from '@wordpress/dataviews';
 import { code, color, grid, plugins, shield, wordpress } from '@wordpress/icons';
-import { Threat } from '../../../../plugins/protect/src/js/types/threats';
+import { DataViewThreat } from './types';
 
 const applyFilter = ( data: Record< string, unknown >, filter: Filter ): boolean => {
 	const value = data[ filter.field ];
@@ -37,7 +37,7 @@ const applyFilter = ( data: Record< string, unknown >, filter: Filter ): boolean
  *
  * @return {boolean} Whether the threat should be displayed.
  */
-export function filterThreatByView( threat: Threat, view: View ): boolean {
+export function filterThreatByView( threat: DataViewThreat, view: View ): boolean {
 	if ( ! view.filters.every( filter => applyFilter( threat, filter ) ) ) {
 		return false;
 	}
@@ -80,7 +80,9 @@ export function sortThreatsByView( a: Threat, b: Threat, view: View ): number {
 	return 0;
 }
 
-export const getThreatIconByType = ( type: string ) => {
+export const getThreatIcon = ( threat: Threat ) => {
+	const type = getThreatType( threat );
+
 	switch ( type ) {
 		case 'plugin':
 			return plugins;
@@ -94,5 +96,40 @@ export const getThreatIconByType = ( type: string ) => {
 			return grid;
 		default:
 			return shield;
+	}
+};
+
+export const getThreatType = ( threat: DataViewThreat ) => {
+	if ( threat.signature === 'Vulnerable.WP.Core' ) {
+		return 'core';
+	}
+	if ( threat.extension ) {
+		return threat.extension.type;
+	}
+	if ( threat.filename ) {
+		return 'file';
+	}
+	if ( threat.table ) {
+		return 'database';
+	}
+
+	return null;
+};
+
+export const getThreatSubtitle = ( threat: DataViewThreat ) => {
+	const type = getThreatType( threat );
+
+	switch ( type ) {
+		case 'plugin':
+		case 'theme':
+			return `${ threat.extension?.name } (${ threat.extension?.version })`;
+		case 'core':
+			return 'WordPress Core';
+		case 'file':
+			return threat.filename;
+		case 'database':
+			return threat.table;
+		default:
+			return '';
 	}
 };

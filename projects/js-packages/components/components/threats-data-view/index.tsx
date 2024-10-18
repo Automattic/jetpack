@@ -14,7 +14,7 @@ import { THREAT_STATUSES, THREAT_TYPES } from './constants';
 import FixerStatus from './fixer-status';
 import styles from './styles.module.scss';
 import { DataViewThreat, ThreatsDataViewActionCallback } from './types';
-import { filterThreatByView, getThreatIconByType, sortThreatsByView } from './utils';
+import { filterThreatByView, getThreatIcon, getThreatSubtitle, sortThreatsByView } from './utils';
 
 /**
  * DataView component for displaying security threats.
@@ -66,15 +66,15 @@ export default function ThreatsDataView( {
 				id: 'threat',
 				label: __( 'Threat', 'jetpack' ),
 				enableHiding: false,
-				getValue( { item } ) {
+				getValue( { item }: { item: DataViewThreat } ) {
 					return item.title;
 				},
-				render( { item } ) {
+				render( { item }: { item: DataViewThreat } ) {
 					return (
 						<div>
 							<Text mb={ 1 } className={ styles.threat__subtitle }>
-								<Icon icon={ getThreatIconByType( item.type ) } size={ 18 } />
-								{ item.subtitle }
+								<Icon icon={ getThreatIcon( item ) } size={ 18 } />
+								{ getThreatSubtitle( item ) }
 							</Text>
 							<Text variant="body" className={ styles.threat__title }>
 								{ item.title }
@@ -87,7 +87,7 @@ export default function ThreatsDataView( {
 			{
 				id: 'severity',
 				label: __( 'Severity', 'jetpack' ),
-				getValue( { item } ) {
+				getValue( { item }: { item: DataViewThreat } ) {
 					return <ThreatSeverityBadge severity={ item.severity } />;
 				},
 			},
@@ -95,7 +95,7 @@ export default function ThreatsDataView( {
 				id: 'status',
 				label: __( 'Status', 'jetpack' ),
 				elements: THREAT_STATUSES,
-				getValue( { item } ) {
+				getValue( { item }: { item: DataViewThreat } ) {
 					return (
 						THREAT_STATUSES.find( ( { value } ) => value === item.status )?.label ?? item.status
 					);
@@ -104,10 +104,10 @@ export default function ThreatsDataView( {
 			{
 				id: 'auto-fix',
 				label: __( 'Auto-fix', 'jetpack' ),
-				getValue( { item } ) {
+				getValue( { item }: { item: DataViewThreat } ) {
 					return !! item.fixable;
 				},
-				render( { item } ) {
+				render( { item }: { item: DataViewThreat } ) {
 					return item.fixable ? (
 						<FixerStatus isActiveFixInProgress={ false } isStaleFixInProgress={ false } />
 					) : null;
@@ -127,7 +127,7 @@ export default function ThreatsDataView( {
 				id: 'extension',
 				label: __( 'Extension', 'jetpack' ),
 				elements: extensions,
-				getValue( { item } ) {
+				getValue( { item }: { item: DataViewThreat } ) {
 					return extensions.find( ( { slug } ) => slug === item.extension.slug )?.label ?? null;
 				},
 			},
@@ -135,6 +135,22 @@ export default function ThreatsDataView( {
 				id: 'type',
 				label: __( 'Type', 'jetpack' ),
 				elements: THREAT_TYPES,
+				getValue( { item }: { item: DataViewThreat } ) {
+					if ( 'signature' in item && item.signature === 'Vulnerable.WP.Core' ) {
+						return 'core';
+					}
+					if ( 'extension' in item ) {
+						return item.extension.type;
+					}
+					if ( 'filename' in item && item.filename ) {
+						return 'file';
+					}
+					if ( 'table' in item && item.table ) {
+						return 'database';
+					}
+
+					return null;
+				},
 			},
 		],
 		[ data, extensions ]
