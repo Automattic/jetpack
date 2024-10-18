@@ -958,7 +958,7 @@ function createReadMeTxt( answers ) {
 		'Tags: jetpack, stuff\n' +
 		'Requires at least: 6.5\n' +
 		'Requires PHP: 7.0\n' +
-		'Tested up to: 6.6\n' +
+		'Tested up to: 6.7\n' +
 		`Stable tag: ${ answers.version }\n` +
 		'License: GPLv2 or later\n' +
 		'License URI: http://www.gnu.org/licenses/gpl-2.0.html\n' +
