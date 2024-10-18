@@ -243,7 +243,7 @@ const ScanHistoryRoute = () => {
 			<HistoryAdminSectionHero />
 			{ ( ! error || numAllThreats ) && (
 				<AdminSection>
-					<Container horizontalSpacing={ 3 } horizontalGap={ 4 }>
+					<Container horizontalSpacing={ 7 } horizontalGap={ 4 }>
 						<Col>
 							<Container fluid horizontalSpacing={ 0 } horizontalGap={ 3 }>
 								<Col lg={ 4 }>
