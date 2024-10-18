@@ -9,7 +9,6 @@ namespace Automattic\Jetpack\Sync\Modules;
 
 use Automattic\Jetpack\Constants as Jetpack_Constants;
 use Automattic\Jetpack\Roles;
-use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Settings;
 
 /**
@@ -246,48 +245,7 @@ class Posts extends Module {
 		add_filter( 'jetpack_sync_before_send_updated_post_meta', array( $this, 'trim_post_meta' ) );
 		add_filter( 'jetpack_sync_before_send_deleted_post_meta', array( $this, 'trim_post_meta' ) );
 		// Full sync.
-		$sync_module = Modules::get_module( 'full-sync' );
-		if ( $sync_module instanceof Full_Sync_Immediately ) {
-			add_filter( 'jetpack_sync_before_send_jetpack_full_sync_posts', array( $this, 'add_term_relationships' ) );
-		} else {
-			add_filter( 'jetpack_sync_before_send_jetpack_full_sync_posts', array( $this, 'expand_posts_with_metadata_and_terms' ) );
-		}
-	}
-
-	/**
-	 * Enqueue the posts actions for full sync.
-	 *
-	 * @access public
-	 *
-	 * @param array   $config               Full sync configuration for this sync module.
-	 * @param int     $max_items_to_enqueue Maximum number of items to enqueue.
-	 * @param boolean $state                True if full sync has finished enqueueing this module, false otherwise.
-	 * @return array Number of actions enqueued, and next module state.
-	 */
-	public function enqueue_full_sync_actions( $config, $max_items_to_enqueue, $state ) {
-		global $wpdb;
-
-		return $this->enqueue_all_ids_as_action( 'jetpack_full_sync_posts', $wpdb->posts, 'ID', $this->get_where_sql( $config ), $max_items_to_enqueue, $state );
-	}
-
-	/**
-	 * Retrieve an estimated number of actions that will be enqueued.
-	 *
-	 * @access public
-	 *
-	 * @todo Use $wpdb->prepare for the SQL query.
-	 *
-	 * @param array $config Full sync configuration for this sync module.
-	 * @return array Number of items yet to be enqueued.
-	 */
-	public function estimate_full_sync_actions( $config ) {
-		global $wpdb;
-
-		$query = "SELECT count(*) FROM $wpdb->posts WHERE " . $this->get_where_sql( $config );
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-		$count = (int) $wpdb->get_var( $query );
-
-		return (int) ceil( $count / self::ARRAY_CHUNK_SIZE );
+		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_posts', array( $this, 'add_term_relationships' ) );
 	}
 
 	/**
@@ -307,17 +265,6 @@ class Posts extends Module {
 		}
 
 		return $where_sql;
-	}
-
-	/**
-	 * Retrieve the actions that will be sent for this module during a full sync.
-	 *
-	 * @access public
-	 *
-	 * @return array Full sync actions of this module.
-	 */
-	public function get_full_sync_actions() {
-		return array( 'jetpack_full_sync_posts' );
 	}
 
 	/**
@@ -816,30 +763,6 @@ class Posts extends Module {
 			$filtered_posts,
 			$filtered_posts_metadata,
 			$this->get_term_relationships( $filtered_post_ids ),
-			$previous_interval_end,
-		);
-	}
-
-	/**
-	 * Expand post IDs to post objects within a hook before they are serialized and sent to the server.
-	 * This is used in Legacy Full Sync
-	 *
-	 * @access public
-	 *
-	 * @param array $args The hook parameters.
-	 * @return array $args The expanded hook parameters.
-	 */
-	public function expand_posts_with_metadata_and_terms( $args ) {
-		list( $post_ids, $previous_interval_end ) = $args;
-
-		$posts              = $this->expand_posts( $post_ids );
-		$posts_metadata     = $this->get_metadata( $post_ids, 'post', Settings::get_setting( 'post_meta_whitelist' ) );
-		$term_relationships = $this->get_term_relationships( $post_ids );
-
-		return array(
-			$posts,
-			$posts_metadata,
-			$term_relationships,
 			$previous_interval_end,
 		);
 	}

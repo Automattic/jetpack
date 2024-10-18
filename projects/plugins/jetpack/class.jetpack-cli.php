@@ -941,7 +941,6 @@ class Jetpack_CLI extends WP_CLI_Command {
 				$listener = Listener::get_instance();
 				if ( empty( $assoc_args['queue'] ) ) {
 					$listener->get_sync_queue()->reset();
-					$listener->get_full_sync_queue()->reset();
 					/* translators: %s is the site URL */
 					WP_CLI::log( sprintf( __( 'Reset Full Sync and Regular Queues Queue on %s', 'jetpack' ), get_site_url() ) );
 					break;
@@ -953,11 +952,6 @@ class Jetpack_CLI extends WP_CLI_Command {
 							$listener->get_sync_queue()->reset();
 							/* translators: %s is the site URL */
 							WP_CLI::log( sprintf( __( 'Reset Regular Sync Queue on %s', 'jetpack' ), get_site_url() ) );
-							break;
-						case 'full':
-							$listener->get_full_sync_queue()->reset();
-							/* translators: %s is the site URL */
-							WP_CLI::log( sprintf( __( 'Reset Full Sync Queue on %s', 'jetpack' ), get_site_url() ) );
 							break;
 						default:
 							WP_CLI::error( __( 'Please specify what type of queue do you want to reset: `full` or `regular`.', 'jetpack' ) );
