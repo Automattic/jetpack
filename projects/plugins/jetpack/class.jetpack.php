@@ -626,8 +626,8 @@ class Jetpack {
 		 * Prepare Gutenberg Editor functionality
 		 */
 		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-gutenberg.php';
-		add_action( 'plugins_loaded', array( 'Jetpack_Gutenberg', 'load_independent_blocks' ) );
-		add_action( 'plugins_loaded', array( 'Jetpack_Gutenberg', 'load_block_editor_extensions' ), 9 );
+		add_action( 'after_setup_theme', array( 'Jetpack_Gutenberg', 'load_independent_blocks' ) );
+		add_action( 'after_setup_theme', array( 'Jetpack_Gutenberg', 'load_block_editor_extensions' ), 9 );
 		/**
 		 * We've switched from enqueue_block_editor_assets to enqueue_block_assets in WP-Admin because the assets with the former are loaded on the main site-editor.php.
 		 *
