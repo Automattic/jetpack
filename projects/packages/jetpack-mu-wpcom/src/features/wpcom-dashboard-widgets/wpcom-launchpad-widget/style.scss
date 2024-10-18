@@ -5,3 +5,22 @@
 		display: none;
 	}
 }
+
+#wpcom_launchpad_widget_main {
+	.wpcom-launchpad-widget__header {
+		display: flex;
+		align-items: center;
+
+		.wpcom-launchpad-widget__title {
+			flex: 1;
+			font-size: 1.125rem;
+			font-weight: 500;
+		}
+
+		.wpcom-launchpad-widget__progress-bar-container {
+			display: flex;
+			flex-direction: row;
+			gap: 20px;
+		}
+	}
+}

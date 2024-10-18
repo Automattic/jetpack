@@ -1,4 +1,5 @@
 import '../../common/public-path';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import ErrorBoundary from '../../common/components/error-boundary';
@@ -20,13 +21,17 @@ const renderWidgets = () => {
 		},
 	];
 
+	const queryClient = new QueryClient();
+
 	widgets.forEach( ( { id, Widget } ) => {
 		const container = document.getElementById( id );
 		if ( container ) {
 			const root = ReactDOM.createRoot( container );
 			root.render(
 				<ErrorBoundary>
-					<Widget { ...window.wpcomDashboardWidgetsData } />
+					<QueryClientProvider client={ queryClient }>
+						<Widget { ...window.wpcomDashboardWidgetsData } />
+					</QueryClientProvider>
 				</ErrorBoundary>
 			);
 		}

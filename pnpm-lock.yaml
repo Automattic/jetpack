@@ -2205,6 +2205,12 @@ importers:
       '@automattic/color-studio':
         specifier: 2.6.0
         version: 2.6.0
+      '@automattic/components':
+        specifier: 2.2.0-rc.4
+        version: 2.2.0-rc.4(@babel/runtime@7.24.7)(@types/react@18.3.3)(@wordpress/data@10.9.0(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@automattic/data-stores':
+        specifier: 3.1.0-rc.6
+        version: 3.1.0-rc.6(@babel/runtime@7.24.7)(@types/react@18.3.3)(@wordpress/data@10.9.0(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@automattic/i18n-utils':
         specifier: 1.2.3
         version: 1.2.3
@@ -14617,7 +14623,7 @@ snapshots:
       '@wordpress/api-fetch': 7.9.0
       '@wordpress/data': 10.9.0(react@18.3.1)
       '@wordpress/data-controls': 4.10.0(react@18.3.1)
-      '@wordpress/deprecated': 4.9.0
+      '@wordpress/deprecated': 4.10.0
       '@wordpress/element': 6.9.0
       '@wordpress/i18n': 5.9.0
       '@wordpress/primitives': 4.9.0(react@18.3.1)
