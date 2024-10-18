@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Story block: fix console warning related to 'key' not being a prop.
