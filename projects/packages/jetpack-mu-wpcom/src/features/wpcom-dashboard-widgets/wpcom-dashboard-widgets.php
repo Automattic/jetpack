@@ -20,15 +20,21 @@ function load_wpcom_dashboard_widgets() {
 			'id'       => 'wpcom_site_management_widget',
 			'name'     => __( 'Site Management Panel', 'jetpack-mu-wpcom' ),
 			'priority' => 'high',
+			'enabled'  => true,
 		),
 		array(
 			'id'       => 'wpcom_launchpad_widget',
 			'name'     => __( 'Launchpad Panel', 'jetpack-mu-wpcom' ),
 			'priority' => 'high',
+			'enabled'  => ! empty( $_GET['wpcom_launchpad_widget'] ), // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		),
 	);
 
 	foreach ( $wpcom_dashboard_widgets as $wpcom_dashboard_widget ) {
+		if ( ! $wpcom_dashboard_widget['enabled'] ) {
+			continue;
+		}
+
 		wp_add_dashboard_widget(
 			$wpcom_dashboard_widget['id'],
 			$wpcom_dashboard_widget['name'],
