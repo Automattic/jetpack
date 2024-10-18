@@ -1,4 +1,4 @@
-Significance: minor
-Type: added
+Significance: patch
+Type: changed
 
-Adds an InProgressAnimation component
+Animated the "scan in progress" placeholder image
