@@ -60,6 +60,11 @@ class Publicize_Script_Data {
 			$data['site']['plan'] = Current_Plan::get();
 		}
 
+		// Override features for simple sites.
+		if ( ( new Host() )->is_wpcom_simple() ) {
+			$data['site']['plan']['features'] = Current_Plan::get_simple_site_specific_features();
+		}
+
 		return $data;
 	}
 
