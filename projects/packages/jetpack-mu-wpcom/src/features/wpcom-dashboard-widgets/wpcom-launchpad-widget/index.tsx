@@ -1,6 +1,7 @@
 import { Launchpad } from '@automattic/launchpad';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { Site } from '../types';
+import './style.scss';
 
 interface Props {
 	site: Site;
