@@ -1,13 +1,11 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { siteHasFeature } from '@automattic/jetpack-script-data';
 import { ExternalLink } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { usePublicizeConfig } from '../../..';
 import Notice from '../notice';
 
 export const InstagramNoMediaNotice: React.FC = () => {
-	const { isEnhancedPublishingEnabled } = usePublicizeConfig();
-
-	return isEnhancedPublishingEnabled ? (
+	return siteHasFeature( 'social-enhanced-publishing' ) ? (
 		<Notice type={ 'warning' }>
 			{ __(
 				'To share to Instagram, add an image/video, or enable Social Image Generator.',

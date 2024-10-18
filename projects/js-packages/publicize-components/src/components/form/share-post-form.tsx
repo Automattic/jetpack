@@ -1,4 +1,4 @@
-import { usePublicizeConfig } from '../../..';
+import { siteHasFeature } from '@automattic/jetpack-script-data';
 import useSocialMediaMessage from '../../hooks/use-social-media-message';
 import MediaSection from '../media-section';
 import MessageBoxControl from '../message-box-control';
@@ -16,8 +16,6 @@ type SharePostFormProps = {
 export const SharePostForm: React.FC< SharePostFormProps > = ( { analyticsData = null } ) => {
 	const { message, updateMessage, maxLength } = useSocialMediaMessage();
 
-	const { isEnhancedPublishingEnabled } = usePublicizeConfig();
-
 	return (
 		<>
 			<MessageBoxControl
@@ -26,7 +24,9 @@ export const SharePostForm: React.FC< SharePostFormProps > = ( { analyticsData =
 				message={ message }
 				analyticsData={ analyticsData }
 			/>
-			{ isEnhancedPublishingEnabled && <MediaSection analyticsData={ analyticsData } /> }
+			{ siteHasFeature( 'social-enhanced-publishing' ) && (
+				<MediaSection analyticsData={ analyticsData } />
+			) }
 		</>
 	);
 };
