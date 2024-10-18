@@ -73,7 +73,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 
 		$this->default_title = __( 'Top Posts &amp; Pages', 'jetpack' );
 
-		if ( is_active_widget( false, false, $this->id_base ) || is_customize_preview() ) {
+		if ( is_customize_preview() ) {
 			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_style' ) );
 		}
 
@@ -305,6 +305,9 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 
 		/** This filter is documented in core/src/wp-includes/default-widgets.php */
 		$title = apply_filters( 'widget_title', $title );
+
+		// Enqueue front end assets.
+		$this->enqueue_style();
 
 		$count = isset( $instance['count'] ) ? (int) $instance['count'] : false;
 		if ( $count < 1 || 10 < $count ) {

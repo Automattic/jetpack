@@ -164,7 +164,7 @@ class Search_Widget extends \WP_Widget {
 	 * @since 5.8.0
 	 */
 	public function enqueue_frontend_scripts() {
-		if ( ! is_active_widget( false, false, $this->id_base, true ) || Options::is_instant_enabled() ) {
+		if ( Options::is_instant_enabled() ) {
 			return;
 		}
 		Assets::register_script(
@@ -178,9 +178,9 @@ class Search_Widget extends \WP_Widget {
 				// @see https://github.com/Automattic/jetpack/blob/b3de78dce3d88b0d9b283282a5b04515245c8057/projects/plugins/jetpack/tools/builder/frontend-css.js#L52.
 				// @see https://github.com/Automattic/jetpack/blob/bb1b6a9a9cfa98600441f8fa31c9f9c4ef9a04a5/projects/plugins/jetpack/class.jetpack.php#L106.
 				'css_path'   => 'css/search-widget-frontend.css',
+				'enqueue'    => true,
 			)
 		);
-		Assets::enqueue_script( 'jetpack-search-widget' );
 	}
 
 	/**
@@ -300,6 +300,9 @@ class Search_Widget extends \WP_Widget {
 			echo $args['after_widget']; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			return;
 		}
+
+		// Enqueue front end assets.
+		$this->enqueue_frontend_scripts();
 
 		if ( Options::is_instant_enabled() ) {
 			if ( array_key_exists( 'id', $args ) && Instant_Search::INSTANT_SEARCH_SIDEBAR === $args['id'] ) {

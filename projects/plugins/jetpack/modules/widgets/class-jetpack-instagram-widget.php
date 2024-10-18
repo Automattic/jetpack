@@ -47,7 +47,7 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 			)
 		);
 
-		if ( is_active_widget( false, false, self::ID_BASE ) || is_active_widget( false, false, 'monster' ) || is_customize_preview() ) {
+		if ( is_customize_preview() ) {
 			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_css' ) );
 		}
 
@@ -274,6 +274,9 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 		if ( ( ! $status['valid'] || ! is_array( $images ) ) && ! current_user_can( 'edit_theme_options' ) ) {
 			return;
 		}
+
+		// Enqueue front end assets.
+		$this->enqueue_css();
 
 		echo $args['before_widget']; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 

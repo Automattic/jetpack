@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Extra Sidebar Widgets: update assets' enqueuing strategy to ensure compatibility with the Elementor plugin.

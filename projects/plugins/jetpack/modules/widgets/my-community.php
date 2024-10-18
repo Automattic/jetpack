@@ -44,7 +44,7 @@ class Jetpack_My_Community_Widget extends WP_Widget {
 			)
 		);
 
-		if ( is_active_widget( false, false, $this->id_base ) || is_active_widget( false, false, 'monster' ) || is_customize_preview() ) {
+		if ( is_customize_preview() ) {
 			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_style' ) );
 		}
 
@@ -190,6 +190,9 @@ class Jetpack_My_Community_Widget extends WP_Widget {
 		if ( false === $title ) {
 			$title = $this->default_title;
 		}
+
+		// Enqueue front end assets.
+		$this->enqueue_style();
 
 		echo $args['before_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 

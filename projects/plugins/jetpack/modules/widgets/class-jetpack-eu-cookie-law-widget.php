@@ -94,7 +94,7 @@ if ( ! class_exists( 'Jetpack_EU_Cookie_Law_Widget' ) ) {
 				array()
 			);
 
-			if ( is_active_widget( false, false, $this->id_base ) || is_customize_preview() ) {
+			if ( is_customize_preview() ) {
 				add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_frontend_scripts' ) );
 			}
 		}
@@ -164,6 +164,9 @@ if ( ! class_exists( 'Jetpack_EU_Cookie_Law_Widget' ) ) {
 			if ( apply_filters( 'jetpack_disable_eu_cookie_law_widget', false ) ) {
 				return;
 			}
+
+			// Enqueue front end assets.
+			$this->enqueue_frontend_scripts();
 
 			$instance = wp_parse_args( $instance, $this->defaults() );
 
