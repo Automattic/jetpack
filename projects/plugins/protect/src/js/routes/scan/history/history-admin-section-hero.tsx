@@ -1,6 +1,7 @@
 import { Status, Text } from '@automattic/jetpack-components';
 import { dateI18n } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
+import { useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import AdminSectionHero from '../../../components/admin-section-hero';
 import ErrorAdminSectionHero from '../../../components/error-admin-section-hero';
@@ -21,12 +22,17 @@ const HistoryAdminSectionHero: React.FC = () => {
 	} );
 	const { threats: numAllThreats } = counts.all;
 
-	let oldestfirstDetected = null;
-	if ( list.length > 0 ) {
-		oldestfirstDetected = list.reduce( ( oldest, current ) =>
-			new Date( current.firstDetected ) < new Date( oldest.firstDetected ) ? current : oldest
-		).firstDetected;
-	}
+	const oldestFirstDetected = useMemo( () => {
+		if ( ! list.length ) {
+			return null;
+		}
+
+		return list.reduce( ( oldest, current ) => {
+			return new Date( current.firstDetected ) < new Date( oldest.firstDetected )
+				? current
+				: oldest;
+		} ).firstDetected;
+	}, [ list ] );
 
 	if ( error ) {
 		return (
@@ -55,12 +61,12 @@ const HistoryAdminSectionHero: React.FC = () => {
 					</AdminSectionHero.Heading>
 					<AdminSectionHero.Subheading>
 						<Text>
-							{ oldestfirstDetected ? (
+							{ oldestFirstDetected ? (
 								<span className={ styles[ 'subheading-content' ] }>
 									{ sprintf(
 										/* translators: %s: Oldest first detected date */
 										__( '%s - Today', 'jetpack-protect' ),
-										dateI18n( 'F jS g:i A', oldestfirstDetected, false )
+										dateI18n( 'F jS g:i A', oldestFirstDetected, false )
 									) }
 								</span>
 							) : (
