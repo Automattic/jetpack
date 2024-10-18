@@ -12,11 +12,11 @@ const renderWidgets = () => {
 
 	const widgets = [
 		{
-			id: 'wpcom_site_management_widget_main',
+			id: 'wpcom-site-management-widget-main',
 			Widget: WpcomSiteManagementWidget,
 		},
 		{
-			id: 'wpcom_launchpad_widget_main',
+			id: 'wpcom-launchpad-widget-main',
 			Widget: WpcomLaunchpadWidget,
 		},
 	];

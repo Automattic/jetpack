@@ -17,13 +17,13 @@ function load_wpcom_dashboard_widgets() {
 
 	$wpcom_dashboard_widgets = array(
 		array(
-			'id'       => 'wpcom_site_management_widget',
+			'id'       => 'wpcom-site-management-widget',
 			'name'     => __( 'Site Management Panel', 'jetpack-mu-wpcom' ),
 			'priority' => 'high',
 			'enabled'  => true,
 		),
 		array(
-			'id'       => 'wpcom_launchpad_widget',
+			'id'       => 'wpcom-launchpad-widget',
 			'name'     => __( 'Launchpad Panel', 'jetpack-mu-wpcom' ),
 			'priority' => 'high',
 			'enabled'  => get_option( 'launch-status' ) !== 'launched' && ! empty( $_GET['wpcom_launchpad_widget'] ), // phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -95,7 +95,7 @@ function enqueue_wpcom_dashboard_widgets() {
  */
 function render_wpcom_dashboard_widget( $post, $callback_args ) {
 	$args         = $callback_args['args'];
-	$widget_id    = $args['id'] . '_main';
+	$widget_id    = implode( '-', array( $args['id'], 'main' ) );
 	$widget_class = $args['class'] ?? $args['id'];
 	$widget_name  = $args['name'];
 

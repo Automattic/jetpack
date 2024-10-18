@@ -34,8 +34,8 @@ const WpcomSiteManagementWidget = ( { site }: Props ) => {
 
 	return (
 		<>
-			<div className="wpcom_site_management_widget__header">
-				<div className="wpcom_site_management_widget__site-favicon">
+			<div className="wpcom-site-management-widget__header">
+				<div className="wpcom-site-management-widget__site-favicon">
 					{
 						/* webclip.png is the default on WoA sites. Anything other than that means we have a custom site icon. */
 						iconUrl && iconUrl !== 'https://s0.wp.com/i/webclip.png' ? (
@@ -45,28 +45,28 @@ const WpcomSiteManagementWidget = ( { site }: Props ) => {
 						)
 					}
 				</div>
-				<div className="wpcom_site_management_widget__site-info">
-					<div className="wpcom_site_management_widget__site-name">{ name }</div>
-					<div className="wpcom_site_management_widget__site-url">{ domain }</div>
+				<div className="wpcom-site-management-widget__site-info">
+					<div className="wpcom-site-management-widget__site-name">{ name }</div>
+					<div className="wpcom-site-management-widget__site-url">{ domain }</div>
 				</div>
-				<div className="wpcom_site_management_widget__site-actions">
+				<div className="wpcom-site-management-widget__site-actions">
 					<a className="button-primary" href={ `https://wordpress.com/overview/${ domain }` }>
 						{ __( 'Overview', 'jetpack-mu-wpcom' ) }
 					</a>
 				</div>
 			</div>
-			<div className="wpcom_site_management_widget__content">
+			<div className="wpcom-site-management-widget__content">
 				<p>
 					{ __(
 						'Get a quick overview of your plans, storage, and domains, or easily access your development tools using the links provided below:',
 						'jetpack-mu-wpcom'
 					) }
 				</p>
-				<div className="wpcom_site_management_widget__dev-tools">
-					<div className="wpcom_site_management_widget__dev-tools-title">
+				<div className="wpcom-site-management-widget__dev-tools">
+					<div className="wpcom-site-management-widget__dev-tools-title">
 						{ __( 'DEV TOOLS:', 'jetpack-mu-wpcom' ) }
 					</div>
-					<div className="wpcom_site_management_widget__dev-tools-content">
+					<div className="wpcom-site-management-widget__dev-tools-content">
 						<ul>
 							{ devToolItems.map( item => (
 								<li key={ item.name }>
