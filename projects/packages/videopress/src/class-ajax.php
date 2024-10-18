@@ -205,7 +205,7 @@ class AJAX {
 		);
 
 		$endpoint = "sites/{$video_blog_id}/media/token";
-		$result   = Client::wpcom_json_api_request_as_blog( $endpoint, Client::WPCOM_JSON_API_VERSION, $args );
+		$result   = Client::wpcom_json_api_request_as_user( $endpoint, Client::WPCOM_JSON_API_VERSION, $args );
 
 		if ( is_wp_error( $result ) ) {
 			wp_send_json_error( array( 'message' => __( 'Could not obtain a VideoPress upload token. Please try again later.', 'jetpack-videopress-pkg' ) ) );
