@@ -1,15 +1,8 @@
-import { Col, Container } from '@automattic/jetpack-components';
-import { ConnectionError, useConnectionErrorNotice } from '@automattic/jetpack-connection';
+import { Container, Col } from '@automattic/jetpack-components';
+import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-connection';
 import styles from './styles.module.scss';
 
-/**
- * Scan Section Notices
- *
- * Component that renders the connection error notice and the Jetpack admin notices.
- *
- * @return {Component} The component.
- */
-export default function ScanSectionNotices() {
+const AdminSectionHeroNotices: React.FC = () => {
 	const { hasConnectionError } = useConnectionErrorNotice();
 
 	return (
@@ -24,4 +17,6 @@ export default function ScanSectionNotices() {
 			</Col>
 		</Container>
 	);
-}
+};
+
+export default AdminSectionHeroNotices;

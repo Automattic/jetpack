@@ -10,11 +10,7 @@ import styles from './style.module.scss';
  * @param {number} props.value     - Progress integer
  * @return {object} ProgressBar React component.
  */
-const ProgressBar = ( { className, total = 100, value } ) => {
-	if ( value == null ) {
-		return null;
-	}
-
+const ProgressBar = ( { className, total = 100, value = 0 } ) => {
 	// The percentage should not be allowed to be more than 100
 	const progress = Math.min( Math.round( ( value / total ) * 100 ), 100 );
 

@@ -1,5 +1,14 @@
-.subheading-content {
-    font-weight: bold;
+.heading {
+	display: flex;
+	align-items: center;
+}
+
+.warning {
+    width: 54px;
+    height: 54px;
+    fill: var( --jp-red );
+    margin-left: -8px;
+    margin-right: var( --spacing-base ); // 8px
 }
 
 .illustration {
@@ -11,11 +20,6 @@
 		object-fit: cover;
 		width: 100%;
 	}
-}
-
-.product-section, .info-section {
-	margin-top: calc( var( --spacing-base ) * 7 ); // 56px
-	margin-bottom: calc( var( --spacing-base ) * 7 ); // 56px
 }
 
 .scan-navigation {
