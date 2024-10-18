@@ -10,7 +10,6 @@ const selectors = {
 	...jetpackSettingSelectors,
 	...socialImageGeneratorSettingsSelectors,
 	...shareStatusSelectors,
-	userConnectionUrl: state => state.userConnectionUrl,
 	hasPaidFeatures: state => state.hasPaidFeatures,
 };
 
