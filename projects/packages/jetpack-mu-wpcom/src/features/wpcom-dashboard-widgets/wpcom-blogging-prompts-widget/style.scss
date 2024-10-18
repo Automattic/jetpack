@@ -1,0 +1,80 @@
+#wpcom-blogging-prompts-widget {
+	min-height: 132px;
+
+	h2 {
+		flex-grow: initial;
+
+		&::before {
+			font-family: dashicons;
+			content: "\f339";
+			margin-right: 5px;
+		}
+	}
+}
+
+.wpcom-blogging-prompts-widget {
+	&__prompt {
+		display: flex;
+		gap: 10px;
+		justify-content: space-between;
+		margin-bottom: 20px;
+
+		&--prev, &--next {
+			align-self: center;
+			font-family: dashicons;
+			font-size: 15px;
+			text-decoration: none;
+			border: 1px solid;
+			border-radius: 100%;
+			text-align: center;
+
+			&::before {
+				display: inline-block;
+				height: 21px;
+				width: 21px;
+			}
+
+			&.disabled {
+				color: #a7aaad;
+			}
+		}
+
+		&--prev:before {
+			content: "\f341";
+		}
+
+		&--next:before {
+			content: "\f345";
+		}
+
+		p {
+			flex-grow: 1;
+			margin: 0 0 0;
+			line-height: 21px;
+		}
+	}
+
+	&__actions {
+		display: flex;
+
+		.wpcom-blogging-prompts-widget__responses {
+			margin-left: auto;
+			height: 30px;
+
+			&-users {
+				display: inline-block;
+				vertical-align: middle;
+				margin-right: 5px;
+
+				img {
+					height: 22px;
+					width: 22px;
+					border: 2px solid white;
+					border-radius: 100%;
+					margin-top: 2px;
+					margin-left: -10px;
+				}
+			}
+		}
+	}
+}
