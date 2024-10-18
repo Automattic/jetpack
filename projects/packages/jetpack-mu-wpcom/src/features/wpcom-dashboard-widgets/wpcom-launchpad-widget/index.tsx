@@ -1,14 +1,17 @@
 import { Launchpad } from '@automattic/launchpad';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import type { Site } from '../types';
 
-const WpcomLaunchpadWidget = ( { siteDomain } ) => {
+interface Props {
+	site: Site;
+}
+
+const WpcomLaunchpadWidget = ( { site }: Props ) => {
+	const { domain } = site;
+
 	return (
 		<QueryClientProvider client={ new QueryClient() }>
-			<Launchpad
-				siteSlug={ siteDomain }
-				checklistSlug="build"
-				launchpadContext="dashboard-widget"
-			/>
+			<Launchpad siteSlug={ domain } checklistSlug="build" launchpadContext="dashboard-widget" />
 		</QueryClientProvider>
 	);
 };

@@ -1,28 +1,34 @@
 import { __ } from '@wordpress/i18n';
 import React from 'react';
 import './style.scss';
+import type { Site } from '../types';
 
-const WpcomSiteManagementWidget = ( { siteName, siteDomain, siteIconUrl } ) => {
+interface Props {
+	site: Site;
+}
+
+const WpcomSiteManagementWidget = ( { site }: Props ) => {
+	const { name, domain, iconUrl } = site;
 	const devToolItems = [
 		{
 			name: __( 'Deployments', 'jetpack-mu-wpcom' ),
-			href: `/github-deployments/${ siteDomain }`,
+			href: `/github-deployments/${ domain }`,
 		},
 		{
 			name: __( 'Monitoring', 'jetpack-mu-wpcom' ),
-			href: `/site-monitoring/${ siteDomain }`,
+			href: `/site-monitoring/${ domain }`,
 		},
 		{
 			name: __( 'Logs', 'jetpack-mu-wpcom' ),
-			href: `/site-logs/${ siteDomain }/php`,
+			href: `/site-logs/${ domain }/php`,
 		},
 		{
 			name: __( 'Staging Site', 'jetpack-mu-wpcom' ),
-			href: `/staging-site/${ siteDomain }`,
+			href: `/staging-site/${ domain }`,
 		},
 		{
 			name: __( 'Server Settings', 'jetpack-mu-wpcom' ),
-			href: `/hosting-config/${ siteDomain }`,
+			href: `/hosting-config/${ domain }`,
 		},
 	];
 
@@ -32,19 +38,19 @@ const WpcomSiteManagementWidget = ( { siteName, siteDomain, siteIconUrl } ) => {
 				<div className="wpcom_site_management_widget__site-favicon">
 					{
 						/* webclip.png is the default on WoA sites. Anything other than that means we have a custom site icon. */
-						siteIconUrl && siteIconUrl !== 'https://s0.wp.com/i/webclip.png' ? (
-							<img src={ siteIconUrl } alt="favicon" />
+						iconUrl && iconUrl !== 'https://s0.wp.com/i/webclip.png' ? (
+							<img src={ iconUrl } alt="favicon" />
 						) : (
-							<span>{ siteName[ 0 ] }</span>
+							<span>{ name[ 0 ] }</span>
 						)
 					}
 				</div>
 				<div className="wpcom_site_management_widget__site-info">
-					<div className="wpcom_site_management_widget__site-name">{ siteName }</div>
-					<div className="wpcom_site_management_widget__site-url">{ siteDomain }</div>
+					<div className="wpcom_site_management_widget__site-name">{ name }</div>
+					<div className="wpcom_site_management_widget__site-url">{ domain }</div>
 				</div>
 				<div className="wpcom_site_management_widget__site-actions">
-					<a className="button-primary" href={ `https://wordpress.com/overview/${ siteDomain }` }>
+					<a className="button-primary" href={ `https://wordpress.com/overview/${ domain }` }>
 						{ __( 'Overview', 'jetpack-mu-wpcom' ) }
 					</a>
 				</div>

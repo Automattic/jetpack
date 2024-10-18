@@ -46,6 +46,19 @@ function load_wpcom_dashboard_widgets() {
 add_action( 'wp_dashboard_setup', 'load_wpcom_dashboard_widgets' );
 
 /**
+ * Get the site data
+ */
+function wpcom_dashboard_widgets_get_site_data() {
+	$data = array(
+		'name'    => get_bloginfo( 'name' ),
+		'domain'  => wp_parse_url( home_url(), PHP_URL_HOST ),
+		'iconUrl' => get_site_icon_url( 38 ),
+	);
+
+	return $data;
+}
+
+/**
  * Enqueue the assets of the wpcom dashboard widgets.
  */
 function enqueue_wpcom_dashboard_widgets() {
@@ -53,16 +66,14 @@ function enqueue_wpcom_dashboard_widgets() {
 
 	$data = wp_json_encode(
 		array(
-			'siteName'    => get_bloginfo( 'name' ),
-			'siteDomain'  => wp_parse_url( home_url(), PHP_URL_HOST ),
-			'siteIconUrl' => get_site_icon_url( 38 ),
+			'site' => wpcom_dashboard_widgets_get_site_data(),
 		)
 	);
 
 	wp_add_inline_script(
 		$handle,
 		"
-		var JETPACK_MU_WPCOM_DASHBOARD_WIDGETS = $data;
+		var wpcomDashboardWidgetsData = $data;
 		var configData = {};
 		",
 		'before'
