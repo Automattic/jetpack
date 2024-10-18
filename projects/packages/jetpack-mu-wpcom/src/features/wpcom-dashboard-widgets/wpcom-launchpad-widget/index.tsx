@@ -7,11 +7,15 @@ interface Props {
 }
 
 const WpcomLaunchpadWidget = ( { site }: Props ) => {
-	const { domain } = site;
+	const { domain, siteIntent } = site;
 
 	return (
 		<QueryClientProvider client={ new QueryClient() }>
-			<Launchpad siteSlug={ domain } checklistSlug="build" launchpadContext="dashboard-widget" />
+			<Launchpad
+				siteSlug={ domain }
+				checklistSlug={ siteIntent }
+				launchpadContext="dashboard-widget"
+			/>
 		</QueryClientProvider>
 	);
 };

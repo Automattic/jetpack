@@ -50,9 +50,10 @@ add_action( 'wp_dashboard_setup', 'load_wpcom_dashboard_widgets' );
  */
 function wpcom_dashboard_widgets_get_site_data() {
 	$data = array(
-		'name'    => get_bloginfo( 'name' ),
-		'domain'  => wp_parse_url( home_url(), PHP_URL_HOST ),
-		'iconUrl' => get_site_icon_url( 38 ),
+		'name'       => get_bloginfo( 'name' ),
+		'domain'     => wp_parse_url( home_url(), PHP_URL_HOST ),
+		'iconUrl'    => get_site_icon_url( 38 ),
+		'siteIntent' => get_option( 'site_intent' ),
 	);
 
 	return $data;

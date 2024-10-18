@@ -2,6 +2,7 @@ export interface Site {
 	name: string;
 	domain: string;
 	iconUrl: string;
+	siteIntent: string;
 }
 
 export interface DashboardWidgetsData {
