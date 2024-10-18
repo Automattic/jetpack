@@ -81,8 +81,6 @@ class Search_Widget extends \WP_Widget {
 
 		if ( is_admin() ) {
 			add_action( 'sidebar_admin_setup', array( $this, 'widget_admin_setup' ) );
-		} else {
-			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_frontend_scripts' ) );
 		}
 
 		add_action( 'jetpack_search_render_filters_widget_title', array( 'Automattic\Jetpack\Search\Template_Tags', 'render_widget_title' ), 10, 3 );
