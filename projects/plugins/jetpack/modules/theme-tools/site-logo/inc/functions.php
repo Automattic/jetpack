@@ -139,6 +139,25 @@ function jetpack_the_site_logo() {
 		$logo_id = $jetpack_logo_id;
 	}
 
+	// Check if the logo id is set before generating the markup.
+	$logo_html = '';
+	if ( $logo_id ) {
+		$logo_html = sprintf(
+			'<a href="%1$s" class="site-logo-link" rel="home" itemprop="url">%2$s</a>',
+			esc_url( home_url( '/' ) ),
+			wp_get_attachment_image(
+				$logo_id,
+				$size,
+				false,
+				array(
+					'class'     => "site-logo attachment-$size",
+					'data-size' => $size,
+					'itemprop'  => 'logo',
+				)
+			)
+		);
+	}
+
 	/*
 	 * Reason: the output is escaped in the sprintf.
 	 * phpcs:disable WordPress.Security.EscapeOutput
@@ -156,20 +175,7 @@ function jetpack_the_site_logo() {
 	 */
 	echo apply_filters(
 		'jetpack_the_site_logo',
-		sprintf(
-			'<a href="%1$s" class="site-logo-link" rel="home" itemprop="url">%2$s</a>',
-			esc_url( home_url( '/' ) ),
-			wp_get_attachment_image(
-				$logo_id,
-				$size,
-				false,
-				array(
-					'class'     => "site-logo attachment-$size",
-					'data-size' => $size,
-					'itemprop'  => 'logo',
-				)
-			)
-		),
+		$logo_html,
 		// Return array format in filter for back compatibility.
 		array(
 			'id'    => $jetpack_logo_id,
