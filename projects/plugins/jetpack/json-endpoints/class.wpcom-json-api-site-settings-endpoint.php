@@ -474,7 +474,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'jetpack_subscriptions_subscribe_navigation_enabled' => (bool) get_option( 'jetpack_subscriptions_subscribe_navigation_enabled' ),
 						'wpcom_gifting_subscription'       => (bool) get_option( 'wpcom_gifting_subscription', $this->get_wpcom_gifting_subscription_default() ),
 						'wpcom_reader_views_enabled'       => (bool) get_option( 'wpcom_reader_views_enabled', true ),
-						'wpcom_subscription_emails_use_excerpt' => $this->get_wpcom_subscription_emails_use_excerpt_option(),
+						'wpcom_subscription_emails_use_excerpt' => (bool) get_option( 'wpcom_subscription_emails_use_excerpt' ),
 						'jetpack_subscriptions_reply_to'   => (string) $this->get_subscriptions_reply_to_option(),
 						'jetpack_subscriptions_from_name'  => (string) get_option( 'jetpack_subscriptions_from_name' ),
 						'show_on_front'                    => (string) get_option( 'show_on_front' ),
@@ -1273,23 +1273,6 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 		return array(
 			'updated' => $updated,
 		);
-	}
-
-	/**
-	 * Get the value of the wpcom_subscription_emails_use_excerpt option.
-	 * When the option is not set, it will return the value of the rss_use_excerpt option.
-	 *
-	 * @return bool
-	 */
-	protected function get_wpcom_subscription_emails_use_excerpt_option() {
-		$wpcom_subscription_emails_use_excerpt = get_option( 'wpcom_subscription_emails_use_excerpt', null );
-
-		if ( $wpcom_subscription_emails_use_excerpt === null ) {
-			$rss_use_excerpt                       = get_option( 'rss_use_excerpt', null );
-			$wpcom_subscription_emails_use_excerpt = $rss_use_excerpt === null ? false : $rss_use_excerpt;
-		}
-
-		return (bool) $wpcom_subscription_emails_use_excerpt;
 	}
 
 	/**
