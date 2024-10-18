@@ -24,7 +24,7 @@ function load_wpcom_dashboard_widgets() {
 		),
 		array(
 			'id'       => 'wpcom-launchpad-widget',
-			'name'     => __( 'Launchpad Panel', 'jetpack-mu-wpcom' ),
+			'name'     => __( 'Site Setup Panel', 'jetpack-mu-wpcom' ),
 			'priority' => 'high',
 			'enabled'  => get_option( 'launch-status' ) !== 'launched' && ! empty( $_GET['wpcom_launchpad_widget'] ), // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		),
