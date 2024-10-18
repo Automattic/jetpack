@@ -51,8 +51,7 @@ const ScanPage = () => {
 				<ScanAdminSectionHero />
 				{ ( ! status.error || numThreats ) && (
 					<AdminSection>
-						{ ' ' }
-						<Container horizontalSpacing={ 3 } horizontalGap={ 4 }>
+						<Container horizontalSpacing={ 7 } horizontalGap={ 4 }>
 							<Col>
 								<ThreatsList />
 							</Col>
