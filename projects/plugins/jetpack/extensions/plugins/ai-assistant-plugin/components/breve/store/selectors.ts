@@ -43,6 +43,10 @@ export function getReloadFlag( state: BreveState ) {
 	return state.configuration?.reload;
 }
 
+export function getLanguage( state: BreveState ) {
+	return state.configuration?.language;
+}
+
 // Suggestions
 
 export function getBlockMd5( state: BreveState, blockId: string ) {
