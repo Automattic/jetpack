@@ -4,7 +4,7 @@
 		"Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
 		"This file is @generated automatically"
 	],
-	"content-hash": "123885af37389b4c687c46a31399b7d6",
+	"content-hash": "54c15a84f90d98912dbab7efd49e36f7",
 	"packages": [
 		{
 			"name": "automattic/jetpack-a8c-mc-stats",
@@ -525,6 +525,106 @@
 				"GPL-2.0-or-later"
 			],
 			"description": "Register and manage blocks within a plugin. Used to manage block registration, enqueues, and more.",
+			"transport-options": {
+				"relative": true
+			}
+		},
+		{
+			"name": "automattic/jetpack-boost",
+			"version": "3.5.2",
+			"dist": {
+				"type": "path",
+				"url": "../../plugins/boost",
+				"reference": "27d4096d35632c2fe8a1ffc8bf9f34ad0217a48f"
+			},
+			"require": {
+				"automattic/jetpack-admin-ui": "@dev",
+				"automattic/jetpack-assets": "@dev",
+				"automattic/jetpack-autoloader": "@dev",
+				"automattic/jetpack-boost-core": "@dev",
+				"automattic/jetpack-boost-speed-score": "@dev",
+				"automattic/jetpack-composer-plugin": "@dev",
+				"automattic/jetpack-config": "@dev",
+				"automattic/jetpack-connection": "@dev",
+				"automattic/jetpack-device-detection": "@dev",
+				"automattic/jetpack-image-cdn": "@dev",
+				"automattic/jetpack-my-jetpack": "@dev",
+				"automattic/jetpack-plugin-deactivation": "@dev",
+				"automattic/jetpack-schema": "@dev",
+				"automattic/jetpack-status": "@dev",
+				"automattic/jetpack-sync": "@dev",
+				"automattic/jetpack-wp-js-data-sync": "@dev",
+				"ext-json": "*",
+				"matthiasmullie/minify": "^1.3",
+				"tubalmartin/cssmin": "^4.1"
+			},
+			"require-dev": {
+				"automattic/jetpack-changelogger": "@dev",
+				"automattic/wordbless": "0.4.2",
+				"brain/monkey": "2.6.1",
+				"yoast/phpunit-polyfills": "^1.1.1"
+			},
+			"type": "library",
+			"extra": {
+				"mirror-repo": "Automattic/jetpack-boost-production",
+				"autorelease": true,
+				"autotagger": {
+					"v": false
+				},
+				"release-branch-prefix": "boost",
+				"version-constants": {
+					"JETPACK_BOOST_VERSION": "jetpack-boost.php"
+				},
+				"wp-plugin-slug": "jetpack-boost",
+				"wp-svn-autopublish": true,
+				"changelogger": {
+					"link-template": "https://github.com/Automattic/jetpack-boost-production/compare/${old}...${new}"
+				}
+			},
+			"autoload": {
+				"classmap": [
+					"app/"
+				]
+			},
+			"autoload-dev": {
+				"psr-4": {
+					"Automattic\\Jetpack_Boost\\Tests\\": "./tests/php"
+				}
+			},
+			"scripts": {
+				"phpunit": [
+					"./vendor/phpunit/phpunit/phpunit --colors=always"
+				],
+				"test-php": [
+					"@composer phpunit"
+				],
+				"build-development": [
+					"pnpm run build"
+				],
+				"build-production": [
+					"pnpm run build-production-concurrently"
+				],
+				"watch": [
+					"Composer\\Config::disableProcessTimeout",
+					"pnpm run watch"
+				],
+				"post-install-cmd": [
+					"WorDBless\\Composer\\InstallDropin::copy"
+				],
+				"post-update-cmd": [
+					"WorDBless\\Composer\\InstallDropin::copy"
+				]
+			},
+			"license": [
+				"GPL-2.0-or-later"
+			],
+			"authors": [
+				{
+					"name": "Automattic, Inc.",
+					"email": "support@jetpack.com"
+				}
+			],
+			"description": "Boost your WordPress site's performance, from the creators of Jetpack",
 			"transport-options": {
 				"relative": true
 			}
@@ -1966,6 +2066,71 @@
 			}
 		},
 		{
+			"name": "automattic/jetpack-plugin-deactivation",
+			"version": "dev-trunk",
+			"dist": {
+				"type": "path",
+				"url": "../../packages/plugin-deactivation",
+				"reference": "bc916add364c9661485ad0f397422d594c1c4794"
+			},
+			"require": {
+				"automattic/jetpack-assets": "@dev",
+				"php": ">=7.0"
+			},
+			"require-dev": {
+				"automattic/jetpack-changelogger": "@dev",
+				"yoast/phpunit-polyfills": "^1.1.1"
+			},
+			"suggest": {
+				"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+			},
+			"type": "jetpack-library",
+			"extra": {
+				"mirror-repo": "Automattic/jetpack-plugin-deactivation",
+				"changelogger": {
+					"link-template": "https://github.com/Automattic/jetpack-plugin-deactivation/compare/v${old}...v${new}"
+				},
+				"autotagger": true,
+				"branch-alias": {
+					"dev-trunk": "0.2.x-dev"
+				},
+				"textdomain": "jetpack-plugin-deactivation",
+				"version-constants": {
+					"::PACKAGE_VERSION": "src/class-deactivation-handler.php"
+				}
+			},
+			"autoload": {
+				"classmap": [
+					"src/"
+				]
+			},
+			"scripts": {
+				"phpunit": [
+					"./vendor/phpunit/phpunit/phpunit --colors=always"
+				],
+				"test-php": [
+					"@composer phpunit"
+				],
+				"build-development": [
+					"pnpm run build"
+				],
+				"build-production": [
+					"NODE_ENV=production pnpm run build"
+				],
+				"watch": [
+					"Composer\\Config::disableProcessTimeout",
+					"pnpm run watch"
+				]
+			},
+			"license": [
+				"GPL-2.0-or-later"
+			],
+			"description": "Ask for feedback while deactivating a plugin",
+			"transport-options": {
+				"relative": true
+			}
+		},
+		{
 			"name": "automattic/jetpack-plugins-installer",
 			"version": "dev-trunk",
 			"dist": {
@@ -2396,6 +2561,73 @@
 				"GPL-2.0-or-later"
 			],
 			"description": "Utilities, related with user roles and capabilities.",
+			"transport-options": {
+				"relative": true
+			}
+		},
+		{
+			"name": "automattic/jetpack-schema",
+			"version": "dev-trunk",
+			"dist": {
+				"type": "path",
+				"url": "../../packages/schema",
+				"reference": "be04299bd366af85656cead6917aa99a2d61cdd8"
+			},
+			"require": {
+				"php": ">=7.0"
+			},
+			"require-dev": {
+				"automattic/jetpack-changelogger": "@dev",
+				"automattic/wordbless": "dev-master",
+				"yoast/phpunit-polyfills": "^1.1.1"
+			},
+			"suggest": {
+				"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+			},
+			"type": "jetpack-library",
+			"extra": {
+				"autotagger": true,
+				"branch-alias": {
+					"dev-trunk": "0.1.x-dev"
+				},
+				"changelogger": {
+					"link-template": "https://github.com/Automattic/jetpack-schema/compare/v${old}...v${new}"
+				},
+				"mirror-repo": "Automattic/jetpack-schema",
+				"textdomain": "jetpack-schema",
+				"version-constants": {
+					"::PACKAGE_VERSION": "src/class-schema.php"
+				}
+			},
+			"autoload": {
+				"classmap": [
+					"src/"
+				]
+			},
+			"scripts": {
+				"build-development": [
+					"echo 'Add your build step to composer.json, please!'"
+				],
+				"build-production": [
+					"echo 'Add your build step to composer.json, please!'"
+				],
+				"phpunit": [
+					"./vendor/phpunit/phpunit/phpunit --colors=always"
+				],
+				"test-php": [
+					"@composer phpunit"
+				],
+				"post-install-cmd": [
+					"WorDBless\\Composer\\InstallDropin::copy"
+				],
+				"post-update-cmd": [
+					"WorDBless\\Composer\\InstallDropin::copy"
+				]
+			},
+			"license": [
+				"GPL-2.0-or-later"
+			],
+			"description": "Define a schema to validate or sanitize data in php",
 			"transport-options": {
 				"relative": true
 			}
@@ -2983,6 +3215,74 @@
 			}
 		},
 		{
+			"name": "automattic/jetpack-wp-js-data-sync",
+			"version": "dev-trunk",
+			"dist": {
+				"type": "path",
+				"url": "../../packages/wp-js-data-sync",
+				"reference": "47509e3b3baaea36a0ae646e8054b742455361b0"
+			},
+			"require": {
+				"automattic/jetpack-schema": "@dev",
+				"php": ">=7.0"
+			},
+			"require-dev": {
+				"automattic/jetpack-changelogger": "@dev",
+				"automattic/wordbless": "dev-master",
+				"yoast/phpunit-polyfills": "^1.1.1"
+			},
+			"suggest": {
+				"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+			},
+			"type": "jetpack-library",
+			"extra": {
+				"mirror-repo": "Automattic/jetpack-wp-js-data-sync",
+				"changelogger": {
+					"link-template": "https://github.com/Automattic/jetpack-wp-js-data-sync/compare/v${old}...v${new}"
+				},
+				"autotagger": true,
+				"branch-alias": {
+					"dev-trunk": "0.5.x-dev"
+				},
+				"textdomain": "jetpack-wp-js-data-sync",
+				"version-constants": {
+					"::PACKAGE_VERSION": "src/class-data-sync.php"
+				}
+			},
+			"autoload": {
+				"classmap": [
+					"src/"
+				]
+			},
+			"scripts": {
+				"phpunit": [
+					"./vendor/phpunit/phpunit/phpunit --colors=always"
+				],
+				"test-php": [
+					"@composer phpunit"
+				],
+				"build-production": [
+					"echo 'Add your build step to composer.json, please!'"
+				],
+				"build-development": [
+					"echo 'Add your build step to composer.json, please!'"
+				],
+				"post-install-cmd": [
+					"WorDBless\\Composer\\InstallDropin::copy"
+				],
+				"post-update-cmd": [
+					"WorDBless\\Composer\\InstallDropin::copy"
+				]
+			},
+			"license": [
+				"GPL-2.0-or-later"
+			],
+			"description": "A package to setup REST API and script localization to pass data to a JavaScript client.",
+			"transport-options": {
+				"relative": true
+			}
+		},
+		{
 			"name": "automattic/woocommerce-analytics",
 			"version": "dev-trunk",
 			"dist": {
@@ -3043,6 +3343,130 @@
 			"transport-options": {
 				"relative": true
 			}
+		},
+		{
+			"name": "matthiasmullie/minify",
+			"version": "1.3.73",
+			"source": {
+				"type": "git",
+				"url": "https://github.com/matthiasmullie/minify.git",
+				"reference": "cb7a9297b4ab070909cefade30ee95054d4ae87a"
+			},
+			"dist": {
+				"type": "zip",
+				"url": "https://api.github.com/repos/matthiasmullie/minify/zipball/cb7a9297b4ab070909cefade30ee95054d4ae87a",
+				"reference": "cb7a9297b4ab070909cefade30ee95054d4ae87a",
+				"shasum": ""
+			},
+			"require": {
+				"ext-pcre": "*",
+				"matthiasmullie/path-converter": "~1.1",
+				"php": ">=5.3.0"
+			},
+			"require-dev": {
+				"friendsofphp/php-cs-fixer": ">=2.0",
+				"matthiasmullie/scrapbook": ">=1.3",
+				"phpunit/phpunit": ">=4.8",
+				"squizlabs/php_codesniffer": ">=3.0"
+			},
+			"suggest": {
+				"psr/cache-implementation": "Cache implementation to use with Minify::cache"
+			},
+			"bin": [
+				"bin/minifycss",
+				"bin/minifyjs"
+			],
+			"type": "library",
+			"autoload": {
+				"psr-4": {
+					"MatthiasMullie\\Minify\\": "src/"
+				}
+			},
+			"notification-url": "https://packagist.org/downloads/",
+			"license": [
+				"MIT"
+			],
+			"authors": [
+				{
+					"name": "Matthias Mullie",
+					"email": "minify@mullie.eu",
+					"homepage": "https://www.mullie.eu",
+					"role": "Developer"
+				}
+			],
+			"description": "CSS & JavaScript minifier, in PHP. Removes whitespace, strips comments, combines files (incl. @import statements and small assets in CSS files), and optimizes/shortens a few common programming patterns.",
+			"homepage": "https://github.com/matthiasmullie/minify",
+			"keywords": [
+				"JS",
+				"css",
+				"javascript",
+				"minifier",
+				"minify"
+			],
+			"support": {
+				"issues": "https://github.com/matthiasmullie/minify/issues",
+				"source": "https://github.com/matthiasmullie/minify/tree/1.3.73"
+			},
+			"funding": [
+				{
+					"url": "https://github.com/matthiasmullie",
+					"type": "github"
+				}
+			],
+			"time": "2024-03-15T10:27:10+00:00"
+		},
+		{
+			"name": "matthiasmullie/path-converter",
+			"version": "1.1.3",
+			"source": {
+				"type": "git",
+				"url": "https://github.com/matthiasmullie/path-converter.git",
+				"reference": "e7d13b2c7e2f2268e1424aaed02085518afa02d9"
+			},
+			"dist": {
+				"type": "zip",
+				"url": "https://api.github.com/repos/matthiasmullie/path-converter/zipball/e7d13b2c7e2f2268e1424aaed02085518afa02d9",
+				"reference": "e7d13b2c7e2f2268e1424aaed02085518afa02d9",
+				"shasum": ""
+			},
+			"require": {
+				"ext-pcre": "*",
+				"php": ">=5.3.0"
+			},
+			"require-dev": {
+				"phpunit/phpunit": "~4.8"
+			},
+			"type": "library",
+			"autoload": {
+				"psr-4": {
+					"MatthiasMullie\\PathConverter\\": "src/"
+				}
+			},
+			"notification-url": "https://packagist.org/downloads/",
+			"license": [
+				"MIT"
+			],
+			"authors": [
+				{
+					"name": "Matthias Mullie",
+					"email": "pathconverter@mullie.eu",
+					"homepage": "http://www.mullie.eu",
+					"role": "Developer"
+				}
+			],
+			"description": "Relative path converter",
+			"homepage": "http://github.com/matthiasmullie/path-converter",
+			"keywords": [
+				"converter",
+				"path",
+				"paths",
+				"relative"
+			],
+			"support": {
+				"issues": "https://github.com/matthiasmullie/path-converter/issues",
+				"source": "https://github.com/matthiasmullie/path-converter/tree/1.1.3"
+			},
+			"time": "2019-02-05T23:41:09+00:00"
 		},
 		{
 			"name": "scssphp/scssphp",
@@ -3123,6 +3547,63 @@
 				"source": "https://github.com/scssphp/scssphp/tree/v1.12.0"
 			},
 			"time": "2023-11-14T14:56:09+00:00"
+		},
+		{
+			"name": "tubalmartin/cssmin",
+			"version": "v4.1.1",
+			"source": {
+				"type": "git",
+				"url": "https://github.com/tubalmartin/YUI-CSS-compressor-PHP-port.git",
+				"reference": "3cbf557f4079d83a06f9c3ff9b957c022d7805cf"
+			},
+			"dist": {
+				"type": "zip",
+				"url": "https://api.github.com/repos/tubalmartin/YUI-CSS-compressor-PHP-port/zipball/3cbf557f4079d83a06f9c3ff9b957c022d7805cf",
+				"reference": "3cbf557f4079d83a06f9c3ff9b957c022d7805cf",
+				"shasum": ""
+			},
+			"require": {
+				"ext-pcre": "*",
+				"php": ">=5.3.2"
+			},
+			"require-dev": {
+				"cogpowered/finediff": "0.3.*",
+				"phpunit/phpunit": "4.8.*"
+			},
+			"bin": [
+				"cssmin"
+			],
+			"type": "library",
+			"autoload": {
+				"psr-4": {
+					"tubalmartin\\CssMin\\": "src"
+				}
+			},
+			"notification-url": "https://packagist.org/downloads/",
+			"license": [
+				"BSD-3-Clause"
+			],
+			"authors": [
+				{
+					"name": "Túbal Martín",
+					"homepage": "http://tubalmartin.me/"
+				}
+			],
+			"description": "A PHP port of the YUI CSS compressor",
+			"homepage": "https://github.com/tubalmartin/YUI-CSS-compressor-PHP-port",
+			"keywords": [
+				"compress",
+				"compressor",
+				"css",
+				"cssmin",
+				"minify",
+				"yui"
+			],
+			"support": {
+				"issues": "https://github.com/tubalmartin/YUI-CSS-compressor-PHP-port/issues",
+				"source": "https://github.com/tubalmartin/YUI-CSS-compressor-PHP-port"
+			},
+			"time": "2018-01-15T15:26:51+00:00"
 		},
 		{
 			"name": "wikimedia/aho-corasick",
