@@ -113,10 +113,10 @@ class Source_Providers {
 	 *
 	 * @return array
 	 */
-	public function get_provider_sources() {
+	public function get_provider_sources( $context_posts = array() ) {
 		$sources = array();
 
-		$wp_core_provider_urls = WP_Core_Provider::get_critical_source_urls();
+		$wp_core_provider_urls = WP_Core_Provider::get_critical_source_urls( $context_posts );
 		$flat_wp_core_urls     = array();
 		foreach ( $wp_core_provider_urls as $urls ) {
 			$flat_wp_core_urls = array_merge( $flat_wp_core_urls, $urls );
@@ -127,7 +127,7 @@ class Source_Providers {
 
 			// For each provider,
 			// Gather a list of URLs that are going to be used as Critical CSS source.
-			foreach ( $provider::get_critical_source_urls() as $group => $urls ) {
+			foreach ( $provider::get_critical_source_urls( $context_posts ) as $group => $urls ) {
 				if ( empty( $urls ) ) {
 					continue;
 				}
