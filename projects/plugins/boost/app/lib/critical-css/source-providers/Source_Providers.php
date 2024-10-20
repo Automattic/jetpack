@@ -164,7 +164,13 @@ class Source_Providers {
 			}
 		}
 
-		return $sources;
+		/**
+		 * Filters the list of Critical CSS source providers.
+		 *
+		 * @param array $sources The list of Critical CSS source providers.
+		 * @since $$next-version$$
+		 */
+		return apply_filters( 'jetpack_boost_critical_css_providers', $sources );
 	}
 
 	/**
