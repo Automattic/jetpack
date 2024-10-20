@@ -7,6 +7,7 @@ use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Data_Sync_Entry;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync_Readonly;
 use Automattic\Jetpack_Boost\Data_Sync\Critical_CSS_Meta_Entry;
+use Automattic\Jetpack_Boost\Data_Sync\Foundation_Pages_Entry;
 use Automattic\Jetpack_Boost\Data_Sync\Getting_Started_Entry;
 use Automattic\Jetpack_Boost\Data_Sync\Mergeable_Array_Entry;
 use Automattic\Jetpack_Boost\Data_Sync\Minify_Excludes_State_Entry;
@@ -383,3 +384,5 @@ jetpack_boost_register_action( 'page_cache', 'clear-page-cache', Schema::as_void
 jetpack_boost_register_action( 'page_cache', 'deactivate-wpsc', Schema::as_void(), new Deactivate_WPSC() );
 
 jetpack_boost_register_option( 'image_cdn_liar', Schema::as_boolean()->fallback( false ), new Status( Liar::get_slug() ) );
+
+jetpack_boost_register_option( 'foundation_pages', Schema::as_array( Schema::as_string() )->fallback( array() ), new Foundation_Pages_Entry( 'foundation_pages' ) );
