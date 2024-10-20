@@ -146,19 +146,19 @@ class Source_Providers {
 
 				$key = $provider_name . '_' . $group;
 
-				// For each URL
+				// For each provider
 				// Track the state and errors in a state array.
 				$sources[] = array(
 					'key'           => $key,
 					'label'         => $provider::describe_key( $key ),
 					/**
-					 * Filters the URLs used by Critical CSS
+					 * Filters the URLs used by Critical CSS for each provider.
 					 *
 					 * @param array $urls The list of URLs to be used to generate critical CSS
-					 *
+					 * @param string $provider The provider name.
 					 * @since   1.0.0
 					 */
-					'urls'          => apply_filters( 'jetpack_boost_critical_css_urls', $urls ),
+					'urls'          => apply_filters( 'jetpack_boost_critical_css_urls', $urls, $provider ),
 					'success_ratio' => $provider::get_success_ratio(),
 				);
 			}
