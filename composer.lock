@@ -1139,20 +1139,20 @@
         },
         {
             "name": "php-stubs/wordpress-tests-stubs",
-            "version": "v6.6.0",
+            "version": "v6.6.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-stubs/wordpress-tests-stubs.git",
-                "reference": "bbb91ebd5477134a672b45718ecd120ed2d739c7"
+                "reference": "4878404d72cd92dfd6c5143ca3f1758575c50bee"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-stubs/wordpress-tests-stubs/zipball/bbb91ebd5477134a672b45718ecd120ed2d739c7",
-                "reference": "bbb91ebd5477134a672b45718ecd120ed2d739c7",
+                "url": "https://api.github.com/repos/php-stubs/wordpress-tests-stubs/zipball/4878404d72cd92dfd6c5143ca3f1758575c50bee",
+                "reference": "4878404d72cd92dfd6c5143ca3f1758575c50bee",
                 "shasum": ""
             },
             "require-dev": {
-                "php": "~7.3 || ~8.0",
+                "php": "^7.3 || ^8.0",
                 "php-stubs/generator": "^0.8.0"
             },
             "suggest": {
@@ -1173,9 +1173,9 @@
             ],
             "support": {
                 "issues": "https://github.com/php-stubs/wordpress-tests-stubs/issues",
-                "source": "https://github.com/php-stubs/wordpress-tests-stubs/tree/v6.6.0"
+                "source": "https://github.com/php-stubs/wordpress-tests-stubs/tree/v6.6.2"
             },
-            "time": "2024-07-17T07:56:06+00:00"
+            "time": "2024-10-18T12:17:46+00:00"
         },
         {
             "name": "php-stubs/wp-cli-stubs",
@@ -1768,16 +1768,16 @@
         },
         {
             "name": "phpstan/phpdoc-parser",
-            "version": "1.32.0",
+            "version": "1.33.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpdoc-parser.git",
-                "reference": "6ca22b154efdd9e3c68c56f5d94670920a1c19a4"
+                "reference": "82a311fd3690fb2bf7b64d5c98f912b3dd746140"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpdoc-parser/zipball/6ca22b154efdd9e3c68c56f5d94670920a1c19a4",
-                "reference": "6ca22b154efdd9e3c68c56f5d94670920a1c19a4",
+                "url": "https://api.github.com/repos/phpstan/phpdoc-parser/zipball/82a311fd3690fb2bf7b64d5c98f912b3dd746140",
+                "reference": "82a311fd3690fb2bf7b64d5c98f912b3dd746140",
                 "shasum": ""
             },
             "require": {
@@ -1809,9 +1809,9 @@
             "description": "PHPDoc parser with support for nullable, intersection and generic types",
             "support": {
                 "issues": "https://github.com/phpstan/phpdoc-parser/issues",
-                "source": "https://github.com/phpstan/phpdoc-parser/tree/1.32.0"
+                "source": "https://github.com/phpstan/phpdoc-parser/tree/1.33.0"
             },
-            "time": "2024-09-26T07:23:32+00:00"
+            "time": "2024-10-13T11:25:22+00:00"
         },
         {
             "name": "psr/container",
@@ -3114,6 +3114,6 @@
     "platform": {
         "ext-json": "*"
     },
-    "platform-dev": {},
+    "platform-dev": [],
     "plugin-api-version": "2.6.0"
 }
