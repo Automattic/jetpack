@@ -1,4 +1,5 @@
 import { ExternalLink, Spinner } from '@wordpress/components';
+import { View } from '@wordpress/dataviews';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
@@ -14,16 +15,23 @@ import { fixerStatusIsStale } from './utils';
  *
  * @param {object}  props       - Component props.
  * @param {boolean} props.fixer - The fixer status.
+ * @param {number}  props.size  - The size of the icon.
  *
  * @return {JSX.Element} The component.
  */
-export default function FixerStatus( { fixer }: { fixer?: ThreatFixStatus } ): JSX.Element {
+export default function FixerStatusIcon( {
+	fixer,
+	size = 24,
+}: {
+	fixer?: ThreatFixStatus;
+	size?: number;
+} ): JSX.Element {
 	if ( fixer && fixerStatusIsStale( fixer ) ) {
 		return (
 			<IconTooltip
 				icon={ info }
 				iconClassName={ styles[ 'icon-info' ] }
-				iconSize={ 24 }
+				iconSize={ size }
 				text={ createInterpolateElement(
 					__(
 						'The fixer is taking longer than expected. Please try again or <supportLink>contact support</supportLink>.',
@@ -71,4 +79,62 @@ export default function FixerStatus( { fixer }: { fixer?: ThreatFixStatus } ): J
 	}
 
 	return <Icon icon={ check } className={ styles[ 'icon-check' ] } size={ 28 } />;
+}
+
+/**
+ * FixerStatusText component.
+ * @param {object}  props       - Component props.
+ * @param {boolean} props.fixer - The fixer status.
+ * @return {string} The component.
+ */
+function FixerStatusText( { fixer }: { fixer?: ThreatFixStatus } ): string {
+	if ( fixer && fixerStatusIsStale( fixer ) ) {
+		return __( 'Fixer is taking longer than expected', 'jetpack' );
+	}
+
+	if ( fixer && 'error' in fixer && fixer.error ) {
+		return __( 'Error auto-fixing threat', 'jetpack' );
+	}
+
+	if ( fixer && 'status' in fixer && fixer.status === 'in_progress' ) {
+		return __( 'Auto-fix in progress', 'jetpack' );
+	}
+
+	return __( 'Auto-fixable', 'jetpack' );
+}
+
+/**
+ * FixerStatusBadge component.
+ * @param {object}  props       - Component props.
+ * @param {boolean} props.fixer - The fixer status.
+ * @return {string} The component.
+ */
+export function FixerStatusBadge( { fixer }: { fixer?: ThreatFixStatus } ): JSX.Element {
+	return (
+		<div className={ styles[ 'fixer-status-badge' ] }>
+			<FixerStatusIcon fixer={ fixer } size={ 12 } />
+			<FixerStatusText fixer={ fixer } />
+		</div>
+	);
+}
+
+/**
+ * FixerStatusText component.
+ * @param {object}  props       - Component props.
+ * @param {boolean} props.fixer - The fixer status.
+ * @param {object}  props.view  - The view.
+ * @return {string} The component.
+ */
+export function DataViewFixerStatus( {
+	fixer,
+	view,
+}: {
+	fixer?: ThreatFixStatus;
+	view: View;
+} ): JSX.Element {
+	if ( view.type === 'table' ) {
+		return <FixerStatusIcon fixer={ fixer } />;
+	}
+
+	return <FixerStatusBadge fixer={ fixer } />;
 }

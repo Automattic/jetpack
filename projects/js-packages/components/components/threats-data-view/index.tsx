@@ -9,13 +9,14 @@ import {
 	SupportedLayouts,
 	type View,
 } from '@wordpress/dataviews';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
+import clsx from 'clsx';
 import { useCallback, useMemo, useState } from 'react';
 import { THREAT_STATUSES, THREAT_TYPES } from './constants';
-import FixerStatus from './fixer-status';
+import { DataViewFixerStatus } from './fixer-status';
 import styles from './styles.module.scss';
 import { DataViewThreat, ThreatsDataViewActionCallback } from './types';
-import { getThreatIcon, getThreatSubtitle } from './utils';
+import { getThreatIcon, getThreatSubtitle, getThreatType } from './utils';
 
 /**
  * DataView component for displaying security threats.
@@ -52,12 +53,44 @@ export default function ThreatsDataView( {
 	onUnignoreThreat?: ThreatsDataViewActionCallback;
 } ): JSX.Element {
 	/**
+	 * DataView default layouts.
+	 *
+	 * This property provides layout information about the view types that are active. If empty, enables all layout types (see “Layout Types”) with empty layout data.
+	 *
+	 * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-dataviews/#defaultlayouts-record-string-view
+	 */
+	const defaultLayouts: SupportedLayouts = {
+		table: {
+			fields: [ 'severity', 'threat', 'auto-fix' ],
+			layout: {
+				primaryField: 'severity',
+				combinedFields: [
+					{
+						id: 'threat',
+						label: __( 'Threat', 'jetpack' ),
+						children: [ 'subtitle', 'title', 'description' ],
+						direction: 'vertical',
+					},
+				],
+			},
+		},
+		list: {
+			layout: {
+				primaryField: 'title',
+				mediaField: 'icon',
+			},
+			fields: [ 'severity', 'subtitle', 'signature', 'auto-fix' ],
+		},
+	};
+
+	/**
 	 * DataView view object - configures how the dataset is visible to the user.
 	 *
 	 * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-dataviews/#view-object
 	 */
 	const [ view, setView ] = useState< View >( {
 		type: 'table',
+		...defaultLayouts.table,
 		search: '',
 		filters: filters || [],
 		page: 1,
@@ -66,8 +99,6 @@ export default function ThreatsDataView( {
 			field: 'severity',
 			direction: 'desc',
 		},
-		fields: [ 'severity', 'threat', 'auto-fix' ],
-		layout: {},
 	} );
 
 	/**
@@ -89,8 +120,8 @@ export default function ThreatsDataView( {
 
 				// Signatures
 				if ( threat?.signature ) {
-					if ( ! acc.extensions.find( ( { value } ) => value === threat.signature ) ) {
-						acc.extensions.push( { value: threat.signature, label: threat.signature } );
+					if ( ! acc.signatures.find( ( { value } ) => value === threat.signature ) ) {
+						acc.signatures.push( { value: threat.signature, label: threat.signature } );
 					}
 				}
 
@@ -122,84 +153,19 @@ export default function ThreatsDataView( {
 	 * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-dataviews/#fields-object
 	 */
 	const fields = useMemo( () => {
-		const result: Field< DataViewThreat >[] = [
-			{
-				id: 'threat',
-				label: __( 'Threat', 'jetpack' ),
-				enableHiding: false,
-				enableGlobalSearch: true,
-				getValue( { item }: { item: DataViewThreat } ) {
-					return `${ item.title } ${ item.description }`;
-				},
-				render( { item }: { item: DataViewThreat } ) {
-					return (
-						<div>
-							<Text mb={ 1 } className={ styles.threat__subtitle }>
-								<Icon icon={ getThreatIcon( item ) } size={ 20 } />
-								{ getThreatSubtitle( item ) }
-							</Text>
-							<Text variant="body" className={ styles.threat__title }>
-								{ item.title }
-							</Text>
-							<Text variant="body-extra-small">{ item.description }</Text>
-						</div>
-					);
-				},
-			},
-			{
-				id: 'status',
-				label: __( 'Status', 'jetpack' ),
-				elements: THREAT_STATUSES,
-				getValue( { item }: { item: DataViewThreat } ) {
-					return (
-						THREAT_STATUSES.find( ( { value } ) => value === item.status )?.value ?? item.status
-					);
-				},
-			},
-			{
-				id: 'extension',
-				label: __( 'Extension', 'jetpack' ),
-				enableGlobalSearch: true,
-				elements: extensions,
-				getValue( { item }: { item: DataViewThreat } ) {
-					return item.extension ? item.extension.slug : '';
-				},
-			},
-			{
-				id: 'type',
-				label: __( 'Category', 'jetpack' ),
-				elements: THREAT_TYPES,
-				getValue( { item }: { item: DataViewThreat } ) {
-					if ( 'signature' in item && item.signature === 'Vulnerable.WP.Core' ) {
-						return 'core';
-					}
-					if ( 'extension' in item && item.extension ) {
-						return item.extension.type;
-					}
-					if ( 'filename' in item && item.filename ) {
-						return 'file';
-					}
-					if ( 'table' in item && item.table ) {
-						return 'database';
-					}
+		const result: Field< DataViewThreat >[] = [];
 
-					return 'uncategorized';
-				},
+		result.push( {
+			id: 'status',
+			label: __( 'Status', 'jetpack' ),
+			elements: THREAT_STATUSES,
+			getValue( { item }: { item: DataViewThreat } ) {
+				if ( ! item.status ) {
+					return 'current';
+				}
+				return THREAT_STATUSES.find( ( { value } ) => value === item.status )?.value ?? item.status;
 			},
-		];
-
-		if ( dataFields.includes( 'fixable' ) ) {
-			result.push( {
-				id: 'auto-fix',
-				label: __( 'Auto-fix', 'jetpack' ),
-				getValue( { item }: { item: DataViewThreat } ) {
-					return item.fixable ? 'Yes' : '';
-				},
-				render( { item }: { item: DataViewThreat } ) {
-					return item.fixable ? <FixerStatus fixer={ item.fixer } /> : null;
-				},
-			} );
-		}
+		} );
 
 		if ( dataFields.includes( 'severity' ) ) {
 			result.push( {
@@ -209,10 +175,127 @@ export default function ThreatsDataView( {
 					return item.severity ?? 0;
 				},
 				render( { item }: { item: DataViewThreat } ) {
+					if ( view.type === 'list' ) {
+						if ( item.severity >= 5 ) {
+							return _x(
+								'Critical Severity',
+								'Severity label for issues rated 5 or higher.',
+								'jetpack'
+							);
+						} else if ( item.severity >= 3 && item.severity < 5 ) {
+							return _x(
+								'High Severity',
+								'Severity label for issues rated between 3 and 5.',
+								'jetpack'
+							);
+						}
+						return _x( 'Low Severity', 'Severity label for issues rated below 3.', 'jetpack' );
+					}
+
 					return <ThreatSeverityBadge severity={ item.severity } />;
 				},
 			} );
 		}
+
+		result.push( {
+			id: 'extension',
+			label: __( 'Extension', 'jetpack' ),
+			enableGlobalSearch: true,
+			elements: extensions,
+			getValue( { item }: { item: DataViewThreat } ) {
+				return item.extension ? item.extension.slug : '';
+			},
+		} );
+
+		result.push( {
+			id: 'type',
+			label: __( 'Category', 'jetpack' ),
+			elements: THREAT_TYPES,
+			getValue( { item }: { item: DataViewThreat } ) {
+				if ( 'signature' in item && item.signature === 'Vulnerable.WP.Core' ) {
+					return 'core';
+				}
+				if ( 'extension' in item && item.extension ) {
+					return item.extension.type;
+				}
+				if ( 'filename' in item && item.filename ) {
+					return 'file';
+				}
+				if ( 'table' in item && item.table ) {
+					return 'database';
+				}
+
+				return 'uncategorized';
+			},
+		} );
+
+		result.push( {
+			id: 'subtitle',
+			label: __( 'Affected Item', 'jetpack' ),
+			getValue( { item }: { item: DataViewThreat } ) {
+				return getThreatSubtitle( item );
+			},
+			render( { item }: { item: DataViewThreat } ) {
+				if ( view.type === 'table' ) {
+					return (
+						<Text className={ styles.threat__subtitle }>
+							<Icon icon={ getThreatIcon( item ) } size={ 20 } />
+							{ getThreatSubtitle( item ) }
+						</Text>
+					);
+				}
+
+				return getThreatSubtitle( item );
+			},
+		} );
+
+		result.push( {
+			id: 'icon',
+			label: __( 'Icon', 'jetpack' ),
+			getValue( { item }: { item: DataViewThreat } ) {
+				return getThreatType( item );
+			},
+			render( { item }: { item: DataViewThreat } ) {
+				return (
+					<div
+						className={ clsx( styles.media, {
+							[ styles[ 'media--critical' ] ]: item.severity >= 5,
+							[ styles[ 'media--high' ] ]: item.severity >= 3 && item.severity < 5,
+						} ) }
+					>
+						<Icon icon={ getThreatIcon( item ) } size={ 20 } />
+					</div>
+				);
+			},
+			enableHiding: false,
+		} );
+
+		result.push( {
+			id: 'title',
+			label: __( 'Title', 'jetpack' ),
+			enableGlobalSearch: true,
+			enableHiding: false,
+			render( { item }: { item: DataViewThreat } ) {
+				if ( view.type === 'list' ) {
+					return item.title;
+				}
+				return (
+					<Text variant="body" className={ styles.threat__title }>
+						{ item.title }
+					</Text>
+				);
+			},
+		} );
+
+		result.push( {
+			id: 'description',
+			label: __( 'Description', 'jetpack' ),
+			enableGlobalSearch: true,
+			enableHiding: false,
+			render( { item }: { item: DataViewThreat } ) {
+				return <Text variant="body-extra-small">{ item.description }</Text>;
+			},
+		} );
 
 		if ( dataFields.includes( 'signature' ) ) {
 			result.push( {
@@ -220,11 +303,28 @@ export default function ThreatsDataView( {
 				label: __( 'Signature', 'jetpack' ),
 				elements: signatures,
 				enableGlobalSearch: true,
+				getValue( { item }: { item: DataViewThreat } ) {
+					return item.signature || '';
+				},
+			} );
+		}
+
+		if ( dataFields.includes( 'fixable' ) ) {
+			result.push( {
+				id: 'auto-fix',
+				label: __( 'Auto-fix', 'jetpack' ),
+				enableHiding: false,
+				getValue( { item }: { item: DataViewThreat } ) {
+					return item.fixable ? 'Yes' : '';
+				},
+				render( { item }: { item: DataViewThreat } ) {
+					return item.fixable ? <DataViewFixerStatus fixer={ item.fixer } view={ view } /> : null;
+				},
 			} );
 		}
 
 		return result;
-	}, [ extensions, signatures, dataFields ] );
+	}, [ extensions, signatures, dataFields, view ] );
 
 	/**
 	 * DataView actions - collection of operations that can be performed upon each record.
@@ -303,15 +403,6 @@ export default function ThreatsDataView( {
 		isThreatEligibleForIgnore,
 		isThreatEligibleForUnignore,
 	] );
-
-	/**
-	 * DataView default layouts.
-	 *
-	 * This property provides layout information about the view types that are active. If empty, enables all layout types (see “Layout Types”) with empty layout data.
-	 *
-	 * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-dataviews/#defaultlayouts-record-string-view
-	 */
-	const defaultLayouts: SupportedLayouts = {};
 
 	/**
 	 * Apply the view settings (i.e. filters, sorting, pagination) to the dataset.
