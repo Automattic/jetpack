@@ -55,6 +55,18 @@
 	display: flex;
 	align-items: center;
 	line-height: 0;
+
+	.icon-spinner {
+		margin-left: 1px;
+	}
+
+	.icon-info {
+		margin-left: -3px;
+	}
+
+	.icon-check {
+		margin-left: -6px;
+	}
 }
 
 .threat__primary {
@@ -86,13 +98,25 @@
 	font-size: 12px;
 }
 
-.spinner {
+.icon-spinner {
 	svg {
 		margin: 0;
 	}
 }
 
+.spinner-spacer {
+	margin-left: 8px;
+}
+
+.info-spacer {
+	margin-left: 4px;
+}
+
+.check-spacer {
+	margin-left: -2px;
+}
+
 .threat__fixer {
-	min-width: 48px;
+	min-width: 50px;
 	text-align: center;
 }
