@@ -4,16 +4,16 @@
 
 ## 14.0-a.7 - 2024-10-21
 ### Enhancements
-- Newsletters: Add an e-mail preview option to the preview menu. [#39782]
+- Newsletters: Add an email preview option to the preview menu. [#39782]
 - Newsletters: Allow skipping newsletter modals with a URL query param. [#39644]
 
 ### Improved compatibility
-- General: Ensure the notice displayed when running an old version of WordPress can always be displayed without errors. [#39745]
+- General: Ensure notice displays without errors when running an old version of WordPress. [#39745]
 - Plugin action links filters: Update parameter to avoid conflicts with other plugins. [#39681]
 
 ### Bug fixes
 - Map Block: Fix issue where blocks placed underneath would overlap with the map block. [#39744]
-- Newsletters: Fix use excerpt setting. [#39815]
+- Newsletters: Fix "Use excerpt" setting. [#39815]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
 - Map Block: Display a static map image when the block is rendered in a pattern preview. [#39768]

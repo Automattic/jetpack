@@ -7,8 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.71.3] - 2024-10-21
 ### Changed
-- Initial state: Migrated URLs in the editor to the new script data. [#39799]
-- Initial State: Migrated URLs to script data. [#39797]
+- Initial state: Migrated URLs in the editor to the new script data. [#39799] [#39797]
 - Update dependencies. [#39781]
 
 ### Fixed
