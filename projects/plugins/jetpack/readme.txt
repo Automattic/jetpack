@@ -326,8 +326,18 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.0-a.5 - 2024-10-16
-Fix: do not include Related Posts on non-post posts on classic themes.
+### 14.0-a.7 - 2024-10-21
+#### Enhancements
+- Newsletters: Add an e-mail preview option to the preview menu.
+- Newsletters: Allow skipping newsletter modals with a URL query param.
+
+#### Improved compatibility
+- General: Ensure the notice displayed when running an old version of WordPress can always be displayed without errors.
+- Plugin action links filters: Update parameter to avoid conflicts with other plugins.
+
+#### Bug fixes
+- Map Block: Fix issue where blocks placed underneath would overlap with the map block.
+- Newsletters: Fix use excerpt setting.
 
 --------
 
