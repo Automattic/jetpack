@@ -72,3 +72,5 @@ add_filter( 'is_jetpack_site', '__return_true' );
 require_once JETPACK__PLUGIN_DIR . '3rd-party/3rd-party.php';
 
 Jetpack::init();
+
+require_once JETPACK__PLUGIN_DIR . 'jetpack-boost-loader.php';
