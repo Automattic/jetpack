@@ -181,7 +181,7 @@ export function getUpdatingConnections( state ) {
  * @return {import("../types").ConnectionData['reconnectingAccount']} The account being reconnected.
  */
 export function getReconnectingAccount( state ) {
-	return state.connectionData?.reconnectingAccount ?? '';
+	return state.connectionData?.reconnectingAccount;
 }
 
 /**

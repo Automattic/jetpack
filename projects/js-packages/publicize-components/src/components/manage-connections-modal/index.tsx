@@ -24,14 +24,15 @@ export const ManageConnectionsModal = () => {
 		};
 	}, [] );
 
-	const { setKeyringResult, closeConnectionsModal } = useDispatch( store );
+	const { setKeyringResult, closeConnectionsModal, setReconnectingAccount } = useDispatch( store );
 
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
 
 	const closeModal = useCallback( () => {
 		setKeyringResult( null );
+		setReconnectingAccount( undefined );
 		closeConnectionsModal();
-	}, [ closeConnectionsModal, setKeyringResult ] );
+	}, [ closeConnectionsModal, setKeyringResult, setReconnectingAccount ] );
 
 	const hasKeyringResult = Boolean( keyringResult?.ID );
 

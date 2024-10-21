@@ -25,7 +25,7 @@ export type ConnectionData = {
 	connections: Connection[];
 	deletingConnections?: Array< number | string >;
 	updatingConnections?: Array< number | string >;
-	reconnectingAccount?: string;
+	reconnectingAccount?: Connection;
 	keyringResult?: KeyringResult;
 };
 
