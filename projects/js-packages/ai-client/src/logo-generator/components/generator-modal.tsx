@@ -45,7 +45,7 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 	isOpen,
 	onClose,
 	onApplyLogo,
-	onReload,
+	onReload = null,
 	siteDetails,
 	context,
 	placement,
@@ -201,6 +201,15 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 		recordTracksEvent( EVENT_MODAL_CLOSE, { context, placement } );
 	};
 
+	const handleReload = useCallback( () => {
+		if ( ! onReload ) {
+			return;
+		}
+		closeModal();
+		requestedFeatureData.current = false;
+		onReload();
+	}, [ onReload, closeModal ] );
+
 	const handleApplyLogo = ( mediaId: number ) => {
 		setLogoAccepted( true );
 		onApplyLogo?.( mediaId );
@@ -248,10 +257,7 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 		body = (
 			<FeatureFetchFailureScreen
 				onCancel={ closeModal }
-				onRetry={ () => {
-					closeModal();
-					onReload?.();
-				} }
+				onRetry={ onReload ? handleReload : null }
 			/>
 		);
 	} else if ( needsFeature || needsMoreRequests ) {
