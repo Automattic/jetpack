@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { dispatch } from '@wordpress/data';
+import { dispatch, select } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import debugFactory from 'debug';
 import nspell from 'nspell';
@@ -19,6 +19,8 @@ import type {
 	HighlightedText,
 	SpellChecker,
 	BreveDispatch,
+	BreveLanguage,
+	BreveSelect,
 } from '../../types';
 
 const debug = debugFactory( 'jetpack-ai-breve:spelling-mistakes' );
@@ -36,7 +38,12 @@ const contextRequests: {
 	[ key: string ]: { loading: boolean; loaded: boolean; failed: boolean };
 } = {};
 
-const fetchContext = async ( language: string ) => {
+const getLanguage = () => {
+	const selector = select( 'jetpack/ai-breve' ) as BreveSelect;
+	return selector.getLanguage();
+};
+
+const fetchContext = async ( language: BreveLanguage ) => {
 	debug( 'Fetching spelling context from the server' );
 
 	const { setDictionaryLoading } = dispatch( 'jetpack/ai-breve' ) as BreveDispatch;
@@ -63,7 +70,7 @@ const fetchContext = async ( language: string ) => {
 	}
 };
 
-const getContext = ( language: string ) => {
+const getContext = ( language: BreveLanguage ) => {
 	// First check if the context is already defined in local storage
 	const storedContext = localStorage.getItem( `jetpack-ai-breve-spelling-context-${ language }` );
 	let context: SpellingDictionaryContext | null = null;
@@ -80,7 +87,7 @@ const getContext = ( language: string ) => {
 	return context;
 };
 
-export const getSpellChecker = ( { language = 'en' }: { language?: string } = {} ) => {
+export const getSpellChecker = ( { language = 'en' }: { language?: BreveLanguage } = {} ) => {
 	if ( spellCheckers[ language ] ) {
 		return spellCheckers[ language ];
 	}
@@ -114,10 +121,8 @@ export const getSpellChecker = ( { language = 'en' }: { language?: string } = {}
 	return spellCheckers[ language ];
 };
 
-export const addTextToDictionary = (
-	text: string,
-	{ language = 'en' }: { language?: string } = {}
-) => {
+export const addTextToDictionary = ( text: string ) => {
+	const language = getLanguage();
 	const spellChecker = getSpellChecker( { language } );
 	const { reloadDictionary } = dispatch( 'jetpack/ai-breve' ) as BreveDispatch;
 
@@ -152,10 +157,8 @@ export const addTextToDictionary = (
 	debug( 'Added text to the dictionary', text );
 };
 
-export const suggestSpellingFixes = (
-	text: string,
-	{ language = 'en' }: { language?: string } = {}
-) => {
+export const suggestSpellingFixes = ( text: string ) => {
+	const language = getLanguage();
 	const spellChecker = getSpellChecker( { language } );
 
 	if ( ! spellChecker || ! text ) {
@@ -174,7 +177,9 @@ export const suggestSpellingFixes = (
 
 export default function spellingMistakes( text: string ): Array< HighlightedText > {
 	const highlightedTexts: Array< HighlightedText > = [];
-	const spellChecker = getSpellChecker();
+	const language = getLanguage();
+
+	const spellChecker = getSpellChecker( { language } );
 
 	if ( ! spellChecker ) {
 		return highlightedTexts;

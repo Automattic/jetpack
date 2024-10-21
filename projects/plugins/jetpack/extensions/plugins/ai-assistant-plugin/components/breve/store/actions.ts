@@ -4,7 +4,7 @@
 import { askQuestionSync } from '@automattic/jetpack-ai-client';
 import { select } from '@wordpress/data';
 import { BREVE_FEATURE_NAME } from '../constants';
-import { Anchor } from '../types';
+import { Anchor, BreveLanguage } from '../types';
 import { getRequestMessages } from '../utils/get-request-messages';
 
 // ACTIONS
@@ -27,6 +27,13 @@ export function setPopoverAnchor( anchor: Anchor ) {
 	return {
 		type: 'SET_POPOVER_ANCHOR',
 		anchor,
+	};
+}
+
+export function setLanguage( language: BreveLanguage ) {
+	return {
+		type: 'SET_LANGUAGE',
+		language,
 	};
 }
 

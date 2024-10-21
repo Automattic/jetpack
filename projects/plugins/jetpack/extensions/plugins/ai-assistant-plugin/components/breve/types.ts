@@ -20,6 +20,7 @@ export type BreveState = {
 		disabled?: Array< string >;
 		loading?: Array< string >;
 		reload?: boolean;
+		language?: BreveLanguage;
 	};
 	suggestions?: {
 		[ key: string ]: {
@@ -46,6 +47,7 @@ export type BreveSelect = {
 	isFeatureDictionaryLoading: ( feature: string ) => boolean;
 	getDisabledFeatures: () => Array< string >;
 	getBlockMd5: ( blockId: string ) => string;
+	getLanguage: () => BreveLanguage;
 	getSuggestionsLoading: ( {
 		feature,
 		id,
@@ -142,3 +144,5 @@ export type FeatureControl = {
 	'min-jetpack-version': string;
 	[ key: string ]: FeatureControl | boolean | string;
 };
+
+export type BreveLanguage = 'en' | 'en-gb';

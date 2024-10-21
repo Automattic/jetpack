@@ -2,6 +2,7 @@
  * WordPress dependencies
  */
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
+import { SelectControl } from '@wordpress/components';
 import {
 	BaseControl,
 	PanelRow,
@@ -40,14 +41,24 @@ export const useInit = init => {
 
 const Controls = ( { blocks, disabledFeatures } ) => {
 	const [ gradeLevel, setGradeLevel ] = useState< string | null >( null );
-	const { toggleFeature, toggleProofread, setPopoverHover, setHighlightHover, setPopoverAnchor } =
-		useDispatch( 'jetpack/ai-breve' );
+	const {
+		toggleFeature,
+		toggleProofread,
+		setPopoverHover,
+		setHighlightHover,
+		setPopoverAnchor,
+		setLanguage,
+	} = useDispatch( 'jetpack/ai-breve' );
 	const { tracks } = useAnalytics();
 
-	const isProofreadEnabled = useSelect(
-		select => ( select( 'jetpack/ai-breve' ) as BreveSelect ).isProofreadEnabled(),
-		[]
-	);
+	const { isProofreadEnabled, language } = useSelect( select => {
+		const selectors: BreveSelect = select( 'jetpack/ai-breve' );
+
+		return {
+			isProofreadEnabled: selectors.isProofreadEnabled(),
+			language: selectors.getLanguage(),
+		};
+	}, [] );
 
 	const updateGradeLevel = useCallback( () => {
 		if ( ! isProofreadEnabled ) {
@@ -104,6 +115,16 @@ const Controls = ( { blocks, disabledFeatures } ) => {
 	return (
 		<div className="jetpack-ai-proofread">
 			<p> { __( 'Improve your writing with AI.', 'jetpack' ) }</p>
+			<SelectControl
+				__nextHasNoMarginBottom
+				label="Language"
+				value={ language }
+				options={ [
+					{ label: 'English (US)', value: 'en' },
+					{ label: 'English (GB)', value: 'en-gb' },
+				] }
+				onChange={ setLanguage }
+			/>
 			<PanelRow>
 				<BaseControl>
 					<div className="grade-level-container">
