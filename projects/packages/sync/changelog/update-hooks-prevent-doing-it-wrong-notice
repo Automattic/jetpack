@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Hooks: Change several action priorities to ensure translation loading is not triggered too early.
