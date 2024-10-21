@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Social: Fixed Bluesky display name when it's not set in Bluesky profile
