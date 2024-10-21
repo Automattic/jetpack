@@ -17,7 +17,7 @@ import '@wordpress/notices';
 function getPlanUrl() {
 	const siteFragment = getSiteFragment();
 
-	if ( undefined !== typeof window && window.location && siteFragment ) {
+	if ( window?.location && siteFragment ) {
 		if ( isSimpleSite() || isAtomicSite() ) {
 			return `https://wordpress.com/plans/my-plan/${ siteFragment }`;
 		}
@@ -38,7 +38,7 @@ function getPlanUrl() {
  * after redirection from WPCOM.
  */
 ( async () => {
-	if ( undefined !== typeof window && window.location ) {
+	if ( window?.location ) {
 		const queryParams = new URLSearchParams( window.location.search );
 
 		if ( queryParams.get( 'plan_upgraded' ) ) {

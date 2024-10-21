@@ -124,7 +124,7 @@ export function withModuleSettingsFormHelpers( InnerComponent ) {
 					const saneOptions = {};
 
 					each( this.state.options, ( value, key ) => {
-						key = key.replace( /\-/, '_' );
+						key = key.replace( /-/, '_' );
 						saneOptions[ key ] = value;
 					} );
 

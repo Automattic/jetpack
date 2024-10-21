@@ -21,7 +21,7 @@ export class Composing extends React.Component {
 	 * @return {*}           the updated value
 	 */
 	updateFormStateByMarkdown = module => {
-		if ( !! this.props.getSettingCurrentValue( 'wpcom_publish_comments_with_markdown', module ) ) {
+		if ( this.props.getSettingCurrentValue( 'wpcom_publish_comments_with_markdown', module ) ) {
 			return this.props.updateFormStateModuleOption( module, 'wpcom_publish_posts_with_markdown' );
 		}
 		return this.props.updateFormStateModuleOption(
