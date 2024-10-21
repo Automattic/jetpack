@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Classic Theme Helper Plugin: Removed unused Settings page and added Jetpack version checks to class loaders.
