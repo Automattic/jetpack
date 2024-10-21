@@ -291,7 +291,7 @@ class Jetpack_Debug_Data {
 
 		/** Sync Debug Information */
 		$sync_module = Modules::get_module( 'full-sync' );
-		'@phan-var \Automattic\Jetpack\Sync\Modules\Full_Sync_Immediately|\Automattic\Jetpack\Sync\Modules\Full_Sync $sync_module';
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Full_Sync_Immediately $sync_module';
 		if ( $sync_module ) {
 			$sync_statuses              = $sync_module->get_status();
 			$human_readable_sync_status = array();
@@ -317,19 +317,6 @@ class Jetpack_Debug_Data {
 		$debug_info['sync_lag']  = array(
 			'label'   => 'Sync Queue Lag',
 			'value'   => self::seconds_to_time( $queue->lag() ),
-			'private' => false,
-		);
-
-		$full_sync_queue = Sender::get_instance()->get_full_sync_queue();
-
-		$debug_info['full_sync_size'] = array(
-			'label'   => 'Full Sync Queue Size',
-			'value'   => $full_sync_queue->size(),
-			'private' => false,
-		);
-		$debug_info['full_sync_lag']  = array(
-			'label'   => 'Full Sync Queue Lag',
-			'value'   => self::seconds_to_time( $full_sync_queue->lag() ),
 			'private' => false,
 		);
 

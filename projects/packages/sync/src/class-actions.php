@@ -360,8 +360,7 @@ class Actions {
 		// Sync locks.
 		$debug['debug_details']['dedicated_sync_enabled'] = Settings::is_dedicated_sync_enabled();
 
-		$queue      = self::$sender->get_sync_queue();
-		$full_queue = self::$sender->get_full_sync_queue();
+		$queue = self::$sender->get_sync_queue();
 
 		$debug['debug_details']['sync_locks'] = array(
 			'retry_time_sync'                       => get_option( self::RETRY_AFTER_PREFIX . 'sync' ),
@@ -369,7 +368,6 @@ class Actions {
 			'next_sync_time_sync'                   => self::$sender->get_next_sync_time( 'sync' ),
 			'next_sync_time_full_sync'              => self::$sender->get_next_sync_time( 'full_sync' ),
 			'queue_locked_sync'                     => $queue->is_locked(),
-			'queue_locked_full_sync'                => $full_queue->is_locked(),
 			'dedicated_sync_request_lock'           => \Jetpack_Options::get_raw_option( Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME, null ),
 			'dedicated_sync_temporary_disable_flag' => get_transient( Dedicated_Sender::DEDICATED_SYNC_TEMPORARY_DISABLE_FLAG ),
 		);
@@ -595,7 +593,7 @@ class Actions {
 
 		// Don't start new sync if a full sync is in process.
 		$full_sync_module = Modules::get_module( 'full-sync' );
-		'@phan-var Modules\Full_Sync_Immediately|Modules\Full_Sync $full_sync_module';
+		'@phan-var Modules\Full_Sync_Immediately $full_sync_module';
 		if ( $full_sync_module && $full_sync_module->is_started() && ! $full_sync_module->is_finished() ) {
 			return false;
 		}
@@ -618,7 +616,7 @@ class Actions {
 	 */
 	public static function do_only_first_initial_sync() {
 		$full_sync_module = Modules::get_module( 'full-sync' );
-		'@phan-var Modules\Full_Sync_Immediately|Modules\Full_Sync $full_sync_module';
+		'@phan-var Modules\Full_Sync_Immediately $full_sync_module';
 		if ( $full_sync_module && $full_sync_module->is_started() ) {
 			return false;
 		}
@@ -641,7 +639,7 @@ class Actions {
 		}
 
 		$full_sync_module = Modules::get_module( 'full-sync' );
-		'@phan-var Modules\Full_Sync_Immediately|Modules\Full_Sync $full_sync_module';
+		'@phan-var Modules\Full_Sync_Immediately $full_sync_module';
 
 		if ( ! $full_sync_module ) {
 			return false;
@@ -1050,7 +1048,7 @@ class Actions {
 		self::initialize_sender();
 
 		$sync_module = Modules::get_module( 'full-sync' );
-		'@phan-var Modules\Full_Sync_Immediately|Modules\Full_Sync $sync_module';
+		'@phan-var Modules\Full_Sync_Immediately $sync_module';
 		$queue = self::$sender->get_sync_queue();
 
 		// _get_cron_array can be false
@@ -1084,8 +1082,6 @@ class Actions {
 
 		$full_sync_status = ( $sync_module ) ? $sync_module->get_status() : array();
 
-		$full_queue = self::$sender->get_full_sync_queue();
-
 		$result = array_merge(
 			$full_sync_status,
 			$checksums,
@@ -1100,11 +1096,6 @@ class Actions {
 			)
 		);
 
-		// Verify $sync_module is not false.
-		if ( $sync_module && ! $sync_module instanceof Modules\Full_Sync_Immediately ) {
-			$result['full_queue_size'] = $full_queue->size();
-			$result['full_queue_lag']  = $full_queue->lag();
-		}
 		return $result;
 	}
 
@@ -1136,9 +1127,6 @@ class Actions {
 		if ( $unlock_queues ) {
 			$sync_queue = new Queue( 'sync' );
 			$sync_queue->unlock();
-
-			$full_sync_queue = new Queue( 'full_sync' );
-			$full_sync_queue->unlock();
 		}
 	}
 

@@ -17,7 +17,7 @@ class WP_Test_Jetpack_Sync_WooCommerce extends WP_Test_Jetpack_Sync_Base {
 
 	protected $post;
 	protected $callable_module;
-	/** @var \Automattic\Jetpack\Sync\Modules\Full_Sync_Immediately|\Automattic\Jetpack\Sync\Modules\Full_Sync */
+	/** @var \Automattic\Jetpack\Sync\Modules\Full_Sync_Immediately */
 	protected $full_sync;
 
 	/**
