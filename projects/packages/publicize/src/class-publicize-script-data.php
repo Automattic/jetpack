@@ -208,18 +208,20 @@ class Publicize_Script_Data {
 	 */
 	public static function get_api_paths() {
 
-		$is_simple_site = ( new Host() )->is_wpcom_simple();
+		$is_wpcom = ( new Host() )->is_wpcom_platform();
 
-		if ( $is_simple_site ) {
+		if ( $is_wpcom ) {
 			return array(
 				'refreshConnections' => '/wpcom/v2/publicize/connection-test-results',
 				'resharePost'        => '/wpcom/v2/posts/{postId}/publicize',
+				'shareStatus'        => '/wpcom/v2/publicize/share-status/{postId}',
 			);
 		}
 
 		return array(
 			'refreshConnections' => '/jetpack/v4/publicize/connections?test_connections=1',
 			'resharePost'        => '/jetpack/v4/publicize/{postId}',
+			'shareStatus'        => '/jetpack/v4/social/share-status/{postId}',
 		);
 	}
 
