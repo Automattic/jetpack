@@ -103,7 +103,11 @@ export function DataViewFixerStatus( {
 	view: View;
 } ): JSX.Element {
 	if ( view.type === 'table' ) {
-		return <FixerStatusIcon fixer={ fixer } />;
+		return (
+			<div className={ styles.threat__fixer }>
+				<FixerStatusIcon fixer={ fixer } />
+			</div>
+		);
 	}
 
 	return <FixerStatusBadge fixer={ fixer } />;
