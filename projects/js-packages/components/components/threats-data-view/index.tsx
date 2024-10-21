@@ -1,4 +1,4 @@
-import { Text, ThreatSeverityBadge } from '@automattic/jetpack-components';
+import { ThreatSeverityBadge } from '@automattic/jetpack-components';
 import { Icon } from '@wordpress/components';
 import {
 	Action,
@@ -6,6 +6,7 @@ import {
 	Field,
 	Filter,
 	filterSortAndPaginate,
+	SortDirection,
 	SupportedLayouts,
 	type View,
 } from '@wordpress/dataviews';
@@ -24,18 +25,19 @@ import { getThreatIcon, getThreatSubtitle, getThreatType } from './utils';
  * @param {object}   props                             - Component props.
  * @param {Array}    props.data                        - Threats data.
  * @param {Array}    props.filters                     - Initial DataView filters.
+ * @param {Function} props.onChangeSelection           - Callback function run when an item is selected.
  * @param {Function} props.onFixThreat                 - Threat fix action callback.
  * @param {Function} props.onIgnoreThreat              - Threat ignore action callback.
  * @param {Function} props.onUnignoreThreat            - Threat unignore action callback.
  * @param {Function} props.isThreatEligibleForFix      - Function to determine if a threat is eligible for fixing.
  * @param {Function} props.isThreatEligibleForIgnore   - Function to determine if a threat is eligible for ignoring.
  * @param {Function} props.isThreatEligibleForUnignore - Function to determine if a threat is eligible for unignoring.
- *
  * @return {JSX.Element} The component.
  */
 export default function ThreatsDataView( {
 	data,
 	filters,
+	onChangeSelection,
 	isThreatEligibleForFix,
 	isThreatEligibleForIgnore,
 	isThreatEligibleForUnignore,
@@ -45,6 +47,7 @@ export default function ThreatsDataView( {
 }: {
 	data: DataViewThreat[];
 	filters?: Filter[];
+	onChangeSelection?: ( selectedItemIds: string[] ) => void;
 	isThreatEligibleForFix?: ( threat: DataViewThreat ) => boolean;
 	isThreatEligibleForIgnore?: ( threat: DataViewThreat ) => boolean;
 	isThreatEligibleForUnignore?: ( threat: DataViewThreat ) => boolean;
@@ -52,6 +55,17 @@ export default function ThreatsDataView( {
 	onIgnoreThreat?: ThreatsDataViewActionCallback;
 	onUnignoreThreat?: ThreatsDataViewActionCallback;
 } ): JSX.Element {
+	const baseView = {
+		sort: {
+			field: 'severity',
+			direction: 'desc' as SortDirection,
+		},
+		search: '',
+		filters: filters || [],
+		page: 1,
+		perPage: 25,
+	};
+
 	/**
 	 * DataView default layouts.
 	 *
@@ -61,6 +75,7 @@ export default function ThreatsDataView( {
 	 */
 	const defaultLayouts: SupportedLayouts = {
 		table: {
+			...baseView,
 			fields: [ 'severity', 'threat', 'auto-fix' ],
 			layout: {
 				primaryField: 'severity',
@@ -75,11 +90,12 @@ export default function ThreatsDataView( {
 			},
 		},
 		list: {
+			...baseView,
+			fields: [ 'severity', 'subtitle', 'signature', 'auto-fix' ],
 			layout: {
 				primaryField: 'title',
 				mediaField: 'icon',
 			},
-			fields: [ 'severity', 'subtitle', 'signature', 'auto-fix' ],
 		},
 	};
 
@@ -91,14 +107,6 @@ export default function ThreatsDataView( {
 	const [ view, setView ] = useState< View >( {
 		type: 'table',
 		...defaultLayouts.table,
-		search: '',
-		filters: filters || [],
-		page: 1,
-		perPage: 25,
-		sort: {
-			field: 'severity',
-			direction: 'desc',
-		},
 	} );
 
 	/**
@@ -106,7 +114,7 @@ export default function ThreatsDataView( {
 	 *
 	 * @member {object} extensions - List of unique threat extensions.
 	 * @member {object} signatures - List of unique threat signatures.
-	 * @member {Array}  dataFields - List of unique threat data fields.
+	 * @member {Array}  dataFields - List of unique fields.
 	 */
 	const { extensions, signatures, dataFields } = useMemo( () => {
 		return data.reduce(
@@ -153,175 +161,176 @@ export default function ThreatsDataView( {
 	 * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-dataviews/#fields-object
 	 */
 	const fields = useMemo( () => {
-		const result: Field< DataViewThreat >[] = [];
-
-		result.push( {
-			id: 'status',
-			label: __( 'Status', 'jetpack' ),
-			elements: THREAT_STATUSES,
-			getValue( { item }: { item: DataViewThreat } ) {
-				if ( ! item.status ) {
-					return 'current';
-				}
-				return THREAT_STATUSES.find( ( { value } ) => value === item.status )?.value ?? item.status;
-			},
-		} );
-
-		if ( dataFields.includes( 'severity' ) ) {
-			result.push( {
-				id: 'severity',
-				label: __( 'Severity', 'jetpack' ),
-				getValue( { item }: { item: DataViewThreat } ) {
-					return item.severity ?? 0;
-				},
+		const result: Field< DataViewThreat >[] = [
+			{
+				id: 'title',
+				label: __( 'Title', 'jetpack' ),
+				enableGlobalSearch: true,
+				enableHiding: false,
 				render( { item }: { item: DataViewThreat } ) {
 					if ( view.type === 'list' ) {
-						if ( item.severity >= 5 ) {
-							return _x(
-								'Critical Severity',
-								'Severity label for issues rated 5 or higher.',
-								'jetpack'
-							);
-						} else if ( item.severity >= 3 && item.severity < 5 ) {
-							return _x(
-								'High Severity',
-								'Severity label for issues rated between 3 and 5.',
-								'jetpack'
-							);
-						}
-						return _x( 'Low Severity', 'Severity label for issues rated below 3.', 'jetpack' );
+						return item.title;
 					}
-
-					return <ThreatSeverityBadge severity={ item.severity } />;
+					return <span className={ styles.threat__title }>{ item.title }</span>;
 				},
-			} );
-		}
-
-		result.push( {
-			id: 'extension',
-			label: __( 'Extension', 'jetpack' ),
-			enableGlobalSearch: true,
-			elements: extensions,
-			getValue( { item }: { item: DataViewThreat } ) {
-				return item.extension ? item.extension.slug : '';
 			},
-		} );
-
-		result.push( {
-			id: 'type',
-			label: __( 'Category', 'jetpack' ),
-			elements: THREAT_TYPES,
-			getValue( { item }: { item: DataViewThreat } ) {
-				if ( 'signature' in item && item.signature === 'Vulnerable.WP.Core' ) {
-					return 'core';
-				}
-				if ( 'extension' in item && item.extension ) {
-					return item.extension.type;
-				}
-				if ( 'filename' in item && item.filename ) {
-					return 'file';
-				}
-				if ( 'table' in item && item.table ) {
-					return 'database';
-				}
-
-				return 'uncategorized';
-			},
-		} );
-
-		result.push( {
-			id: 'subtitle',
-			label: __( 'Affected Item', 'jetpack' ),
-			getValue( { item }: { item: DataViewThreat } ) {
-				return getThreatSubtitle( item );
-			},
-			render( { item }: { item: DataViewThreat } ) {
-				if ( view.type === 'table' ) {
-					return (
-						<Text className={ styles.threat__subtitle }>
-							<Icon icon={ getThreatIcon( item ) } size={ 20 } />
-							{ getThreatSubtitle( item ) }
-						</Text>
-					);
-				}
-
-				return getThreatSubtitle( item );
-			},
-		} );
-
-		result.push( {
-			id: 'icon',
-			label: __( 'Icon', 'jetpack' ),
-			getValue( { item }: { item: DataViewThreat } ) {
-				return getThreatType( item );
-			},
-			render( { item }: { item: DataViewThreat } ) {
-				return (
-					<div
-						className={ clsx( styles.media, {
-							[ styles[ 'media--critical' ] ]: item.severity >= 5,
-							[ styles[ 'media--high' ] ]: item.severity >= 3 && item.severity < 5,
-						} ) }
-					>
-						<Icon icon={ getThreatIcon( item ) } size={ 20 } />
-					</div>
-				);
-			},
-			enableHiding: false,
-		} );
-
-		result.push( {
-			id: 'title',
-			label: __( 'Title', 'jetpack' ),
-			enableGlobalSearch: true,
-			enableHiding: false,
-			render( { item }: { item: DataViewThreat } ) {
-				if ( view.type === 'list' ) {
-					return item.title;
-				}
-				return (
-					<Text variant="body" className={ styles.threat__title }>
-						{ item.title }
-					</Text>
-				);
-			},
-		} );
-
-		result.push( {
-			id: 'description',
-			label: __( 'Description', 'jetpack' ),
-			enableGlobalSearch: true,
-			enableHiding: false,
-			render( { item }: { item: DataViewThreat } ) {
-				return <Text variant="body-extra-small">{ item.description }</Text>;
-			},
-		} );
-
-		if ( dataFields.includes( 'signature' ) ) {
-			result.push( {
-				id: 'signature',
-				label: __( 'Signature', 'jetpack' ),
-				elements: signatures,
+			{
+				id: 'description',
+				label: __( 'Description', 'jetpack' ),
 				enableGlobalSearch: true,
-				getValue( { item }: { item: DataViewThreat } ) {
-					return item.signature || '';
-				},
-			} );
-		}
-
-		if ( dataFields.includes( 'fixable' ) ) {
-			result.push( {
-				id: 'auto-fix',
-				label: __( 'Auto-fix', 'jetpack' ),
 				enableHiding: false,
+				render( { item }: { item: DataViewThreat } ) {
+					return <span className={ styles.threat__description }>{ item.description }</span>;
+				},
+			},
+			{
+				id: 'icon',
+				label: __( 'Icon', 'jetpack' ),
 				getValue( { item }: { item: DataViewThreat } ) {
-					return item.fixable ? 'Yes' : '';
+					return getThreatType( item );
 				},
 				render( { item }: { item: DataViewThreat } ) {
-					return item.fixable ? <DataViewFixerStatus fixer={ item.fixer } view={ view } /> : null;
+					return (
+						<div
+							className={ clsx( styles.media, {
+								[ styles[ 'media--critical' ] ]: item.severity >= 5,
+								[ styles[ 'media--high' ] ]: item.severity >= 3 && item.severity < 5,
+							} ) }
+						>
+							<Icon icon={ getThreatIcon( item ) } size={ 20 } />
+						</div>
+					);
 				},
-			} );
-		}
+				enableHiding: false,
+			},
+			{
+				id: 'status',
+				label: __( 'Status', 'jetpack' ),
+				elements: THREAT_STATUSES,
+				getValue( { item }: { item: DataViewThreat } ) {
+					if ( ! item.status ) {
+						return 'current';
+					}
+					return (
+						THREAT_STATUSES.find( ( { value } ) => value === item.status )?.value ?? item.status
+					);
+				},
+			},
+			...( dataFields.includes( 'severity' )
+				? [
+						{
+							id: 'severity',
+							label: __( 'Severity', 'jetpack' ),
+							getValue( { item }: { item: DataViewThreat } ) {
+								return item.severity ?? 0;
+							},
+							render( { item }: { item: DataViewThreat } ) {
+								if ( view.type === 'list' ) {
+									if ( item.severity >= 5 ) {
+										return _x(
+											'Critical Severity',
+											'Severity label for issues rated 5 or higher.',
+											'jetpack'
+										);
+									} else if ( item.severity >= 3 && item.severity < 5 ) {
+										return _x(
+											'High Severity',
+											'Severity label for issues rated between 3 and 5.',
+											'jetpack'
+										);
+									}
+									return _x(
+										'Low Severity',
+										'Severity label for issues rated below 3.',
+										'jetpack'
+									);
+								}
+
+								return <ThreatSeverityBadge severity={ item.severity } />;
+							},
+						},
+				  ]
+				: [] ),
+			{
+				id: 'extension',
+				label: __( 'Extension', 'jetpack' ),
+				enableGlobalSearch: true,
+				elements: extensions,
+				getValue( { item }: { item: DataViewThreat } ) {
+					return item.extension ? item.extension.slug : '';
+				},
+			},
+			{
+				id: 'type',
+				label: __( 'Category', 'jetpack' ),
+				elements: THREAT_TYPES,
+				getValue( { item }: { item: DataViewThreat } ) {
+					if ( 'signature' in item && item.signature === 'Vulnerable.WP.Core' ) {
+						return 'core';
+					}
+					if ( 'extension' in item && item.extension ) {
+						return item.extension.type;
+					}
+					if ( 'filename' in item && item.filename ) {
+						return 'file';
+					}
+					if ( 'table' in item && item.table ) {
+						return 'database';
+					}
+
+					return 'uncategorized';
+				},
+			},
+			{
+				id: 'subtitle',
+				label: __( 'Affected Item', 'jetpack' ),
+				getValue( { item }: { item: DataViewThreat } ) {
+					return getThreatSubtitle( item );
+				},
+				render( { item }: { item: DataViewThreat } ) {
+					if ( view.type === 'table' ) {
+						return (
+							<div className={ styles.threat__subtitle }>
+								<Icon icon={ getThreatIcon( item ) } size={ 20 } />
+								{ getThreatSubtitle( item ) }
+							</div>
+						);
+					}
+
+					return getThreatSubtitle( item );
+				},
+			},
+			...( dataFields.includes( 'signature' )
+				? [
+						{
+							id: 'signature',
+							label: __( 'Signature', 'jetpack' ),
+							elements: signatures,
+							enableGlobalSearch: true,
+							getValue( { item }: { item: DataViewThreat } ) {
+								return item.signature || '';
+							},
+						},
+				  ]
+				: [] ),
+			...( dataFields.includes( 'fixable' )
+				? [
+						{
+							id: 'auto-fix',
+							label: __( 'Auto-fix', 'jetpack' ),
+							enableHiding: false,
+							getValue( { item }: { item: DataViewThreat } ) {
+								return item.fixable ? 'Yes' : '';
+							},
+							render( { item }: { item: DataViewThreat } ) {
+								return item.fixable ? (
+									<DataViewFixerStatus fixer={ item.fixer } view={ view } />
+								) : null;
+							},
+						},
+				  ]
+				: [] ),
+		];
 
 		return result;
 	}, [ extensions, signatures, dataFields, view ] );
@@ -436,6 +445,7 @@ export default function ThreatsDataView( {
 			defaultLayouts={ defaultLayouts }
 			fields={ fields }
 			getItemId={ getItemId }
+			onChangeSelection={ onChangeSelection }
 			onChangeView={ onChangeView }
 			paginationInfo={ paginationInfo }
 			view={ view }
