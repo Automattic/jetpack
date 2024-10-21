@@ -11,7 +11,6 @@ const reducer = combineReducers( {
 	jetpackSettings,
 	socialImageGeneratorSettings,
 	shareStatus,
-	hasPaidPlan: ( state = false ) => state,
 	hasPaidFeatures: ( state = false ) => state,
 } );
 

@@ -81,12 +81,6 @@ export default function usePublicizeConfig() {
 	const hidePublicizeFeature = isPostPublished && ! isRePublicizeFeatureAvailable;
 
 	/**
-	 * hasPaidPlan:
-	 * Whether the site has a paid plan. This could be either the Basic or the Advanced plan.
-	 */
-	const hasPaidPlan = !! getJetpackData()?.social?.hasPaidPlan;
-
-	/**
 	 * isEnhancedPublishingEnabled:
 	 * Whether the site has the enhanced publishing feature enabled. If true, it means that
 	 * the site has the Advanced plan.
@@ -109,7 +103,6 @@ export default function usePublicizeConfig() {
 		isRePublicizeUpgradableViaUpsell,
 		hidePublicizeFeature,
 		isPostAlreadyShared,
-		hasPaidPlan,
 		isEnhancedPublishingEnabled,
 		isSocialImageGeneratorAvailable:
 			!! getJetpackData()?.social?.isSocialImageGeneratorAvailable && ! isJetpackSocialNote,
