@@ -9,7 +9,7 @@
 	},
 	"scripts": {
 		"build-development": "./tools/build",
-		"build-production": "./tools/build --prod"
+		"build-production": "./tools/build && ./tests/tests.js"
 	},
 	"repositories": [
 		{
