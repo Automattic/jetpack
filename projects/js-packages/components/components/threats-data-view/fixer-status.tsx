@@ -75,7 +75,11 @@ export default function FixerStatusIcon( {
 	}
 
 	if ( fixer && 'status' in fixer && fixer.status === 'in_progress' ) {
-		return <Spinner color="black" />;
+		return (
+			<span className={ styles.spinner }>
+				<Spinner color="black" />
+			</span>
+		);
 	}
 
 	return <Icon icon={ check } className={ styles[ 'icon-check' ] } size={ 28 } />;
@@ -119,7 +123,7 @@ function FixerStatusText( { fixer }: { fixer?: ThreatFixStatus } ): JSX.Element 
  */
 export function FixerStatusBadge( { fixer }: { fixer?: ThreatFixStatus } ): JSX.Element {
 	return (
-		<div className={ styles[ 'fixer-status-badge' ] }>
+		<div className={ styles[ 'fixer-status' ] }>
 			<FixerStatusIcon fixer={ fixer } />
 			<FixerStatusText fixer={ fixer } />
 		</div>

@@ -7,10 +7,6 @@
 
 	.dataviews-view-table td, .dataviews-view-table th {
 		white-space: initial;
-
-		svg {
-			margin: 0;
-		}
 	}
 
 	.dataviews-view-table td .components-flex {
@@ -65,13 +61,10 @@
 	}
 }
 
-.fixer-status-badge {
+.fixer-status {
 	display: flex;
 	align-items: center;
-	
-	svg {
-		margin: 0;
-	}
+	line-height: 0;
 }
 
 .threat__primary {
@@ -111,14 +104,16 @@
 	color: var( --jp-red-60 );
 }
 
-.icon-popover {
-	line-height: 0;
+.spinner {
+	svg {
+		margin: 0;
+	}
+}
+
+.spinner-spacer {
+	margin-left: 8px;
 }
 
 .info-spacer {
 	margin-left: 4px;
-}
-
-.spinner-spacer {
-	margin-left: 6px;
 }
