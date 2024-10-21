@@ -60,10 +60,6 @@
 		margin-left: 1px;
 	}
 
-	.icon-info {
-		margin-left: -3px;
-	}
-
 	.icon-check {
 		margin-left: -6px;
 	}
@@ -119,4 +115,16 @@
 .threat__fixer {
 	min-width: 54px;
 	text-align: center;
+}
+
+.icon-tooltip {
+
+	&__container {
+		text-align: left;
+		height: 20px;
+	}
+
+	&__icon {
+		color: var( --jp-red );
+	}
 }

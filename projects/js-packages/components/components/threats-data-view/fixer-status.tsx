@@ -128,7 +128,12 @@ export function InfoIconTooltip( {
 	size?: number;
 } ): JSX.Element {
 	return (
-		<IconTooltip placement={ 'top' } iconSize={ size }>
+		<IconTooltip
+			placement={ 'top' }
+			className={ styles[ 'icon-tooltip__container' ] }
+			iconClassName={ styles[ 'icon-tooltip__icon' ] }
+			iconSize={ size }
+		>
 			<Text variant={ 'body-small' }>
 				{ message }{ ' ' }
 				{ createInterpolateElement(
