@@ -180,4 +180,4 @@ class Tiled_Gallery {
 	}
 }
 
-Tiled_Gallery::register();
+add_action( 'init', array( 'Automattic\\Jetpack\\Extensions\\Tiled_Gallery', 'register' ) );
