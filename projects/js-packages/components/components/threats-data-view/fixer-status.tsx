@@ -33,7 +33,11 @@ export default function FixerStatusIcon( { fixer }: { fixer?: ThreatFixStatus } 
 	}
 
 	if ( fixer && 'status' in fixer && fixer.status === 'in_progress' ) {
-		return <Spinner color="black" />;
+		return (
+			<span className={ styles[ 'icon-spinner' ] }>
+				<Spinner color="black" />
+			</span>
+		);
 	}
 
 	return <Icon icon={ check } className={ styles[ 'icon-check' ] } size={ 28 } />;
@@ -47,18 +51,26 @@ export default function FixerStatusIcon( { fixer }: { fixer?: ThreatFixStatus } 
  */
 function FixerStatusText( { fixer }: { fixer?: ThreatFixStatus } ): JSX.Element {
 	if ( fixer && fixerStatusIsStale( fixer ) ) {
-		return <span>{ __( 'Fixer is taking longer than expected', 'jetpack' ) }</span>;
+		return (
+			<span className={ styles[ 'info-spacer' ] }>
+				{ __( 'Fixer is taking longer than expected', 'jetpack' ) }
+			</span>
+		);
 	}
 
 	if ( fixer && 'error' in fixer && fixer.error ) {
-		return <span>{ __( 'Error auto-fixing threat', 'jetpack' ) }</span>;
+		return (
+			<span className={ styles[ 'info-spacer' ] }>
+				{ __( 'An error occurred auto-fixing this threat', 'jetpack' ) }
+			</span>
+		);
 	}
 
 	if ( fixer && 'status' in fixer && fixer.status === 'in_progress' ) {
-		return <span>{ __( 'Auto-fix in progress', 'jetpack' ) }</span>;
+		return <span className={ styles[ 'spinner-spacer' ] }>{ __( 'Auto-fixing', 'jetpack' ) }</span>;
 	}
 
-	return <span>{ __( 'Auto-fixable', 'jetpack' ) }</span>;
+	return <span className={ styles[ 'check-spacer' ] }>{ __( 'Auto-fixable', 'jetpack' ) }</span>;
 }
 
 /**
@@ -69,7 +81,7 @@ function FixerStatusText( { fixer }: { fixer?: ThreatFixStatus } ): JSX.Element 
  */
 export function FixerStatusBadge( { fixer }: { fixer?: ThreatFixStatus } ): JSX.Element {
 	return (
-		<div className={ styles[ 'fixer-status-badge' ] }>
+		<div className={ styles[ 'fixer-status' ] }>
 			<FixerStatusIcon fixer={ fixer } />
 			<FixerStatusText fixer={ fixer } />
 		</div>
@@ -77,7 +89,7 @@ export function FixerStatusBadge( { fixer }: { fixer?: ThreatFixStatus } ): JSX.
 }
 
 /**
- * FixerStatusText component.
+ * DataViewFixerStatus component.
  * @param {object}  props       - Component props.
  * @param {boolean} props.fixer - The fixer status.
  * @param {object}  props.view  - The view.
