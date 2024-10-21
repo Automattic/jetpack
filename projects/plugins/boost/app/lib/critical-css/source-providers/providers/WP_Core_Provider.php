@@ -28,6 +28,8 @@ class WP_Core_Provider extends Provider {
 		$urls = array();
 
 		$front_page = get_option( 'page_on_front' );
+		$posts_page = get_option( 'page_for_posts' );
+
 		if ( ! empty( $front_page ) && empty( $context_posts ) ) {
 			$permalink = get_permalink( $front_page );
 			if ( ! empty( $permalink ) ) {
@@ -36,10 +38,11 @@ class WP_Core_Provider extends Provider {
 		}
 
 		$context_post_types = wp_list_pluck( $context_posts, 'post_type' );
+		$context_post_ids   = wp_list_pluck( $context_posts, 'ID' );
 
 		// The blog page is only in context if the context posts include a 'post' post_type.
-		if ( empty( $context_post_types ) || in_array( 'post', $context_post_types, true ) ) {
-			$posts_page = get_option( 'page_for_posts' );
+		// Or, if the blog page itself is in context.
+		if ( empty( $context_post_types ) || in_array( 'post', $context_post_types, true ) || in_array( $posts_page, $context_post_ids, true ) ) {
 			if ( ! empty( $posts_page ) ) {
 				$permalink = get_permalink( $posts_page );
 				if ( ! empty( $permalink ) ) {
