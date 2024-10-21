@@ -4,6 +4,7 @@ namespace Automattic\Jetpack_Boost\Data_Sync;
 
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Get;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Set;
+use Automattic\Jetpack_Boost\Lib\Premium_Features;
 
 class Foundation_Pages_Entry implements Entry_Can_Get, Entry_Can_Set {
 
@@ -22,6 +23,12 @@ class Foundation_Pages_Entry implements Entry_Can_Get, Entry_Can_Set {
 	}
 	public function set( $value ) {
 		$value = $this->sanitize_value( $value );
+
+		// Free users get 1 and premium users get 10.
+		$max_patterns = Premium_Features::has_any() ? 10 : 1;
+		if ( count( $value ) > $max_patterns ) {
+			$value = array_slice( $value, 0, $max_patterns );
+		}
 
 		update_option( $this->option_key, $value );
 	}
