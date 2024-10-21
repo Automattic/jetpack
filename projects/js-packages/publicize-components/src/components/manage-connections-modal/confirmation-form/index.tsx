@@ -90,7 +90,7 @@ export function ConfirmationForm( { keyringResult, onComplete, isAdmin }: Confir
 		// If user account is supported, add it to the list
 		if ( ! service.external_users_only ) {
 			options.push( {
-				label: keyringResult.external_display,
+				label: keyringResult.external_display || keyringResult.external_name,
 				value: keyringResult.external_ID,
 				profile_picture: keyringResult.external_profile_picture,
 			} );
@@ -150,7 +150,7 @@ export function ConfirmationForm( { keyringResult, onComplete, isAdmin }: Confir
 			);
 
 			if ( reconnectingAccount ) {
-				setReconnectingAccount( '' );
+				setReconnectingAccount( undefined );
 			}
 
 			// Do not await the connection creation to unblock the UI
@@ -215,7 +215,8 @@ export function ConfirmationForm( { keyringResult, onComplete, isAdmin }: Confir
 								// If we are reconnecting an account, preselect it,
 								// otherwise, preselect the first account
 								const defaultChecked = reconnectingAccount
-									? reconnectingAccount === `${ service?.ID }:${ option.value }`
+									? reconnectingAccount.service_name === service?.ID &&
+									  reconnectingAccount.external_id === option.value
 									: index === 0;
 
 								return (
