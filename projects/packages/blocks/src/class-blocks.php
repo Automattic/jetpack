@@ -318,6 +318,7 @@ class Blocks {
 			! $version_available
 			&& ! self::is_standalone_block() // This is only useful in Jetpack.
 		) {
+			$slug = Jetpack_Gutenberg::remove_extension_prefix( $slug );
 			Jetpack_Gutenberg::set_extension_unavailable(
 				$slug,
 				'incorrect_gutenberg_version',
