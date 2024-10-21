@@ -2206,11 +2206,11 @@ importers:
         specifier: 2.6.0
         version: 2.6.0
       '@automattic/components':
-        specifier: 2.2.0-rc.4
-        version: 2.2.0-rc.4(@babel/runtime@7.24.7)(@types/react@18.3.3)(@wordpress/data@10.9.0(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 2.2.0
+        version: 2.2.0(@babel/runtime@7.24.7)(@types/react@18.3.3)(@wordpress/data@10.9.0(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@automattic/data-stores':
-        specifier: 3.1.0-rc.6
-        version: 3.1.0-rc.6(@babel/runtime@7.24.7)(@types/react@18.3.3)(@wordpress/data@10.9.0(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 3.1.0
+        version: 3.1.0(@babel/runtime@7.24.7)(@types/react@18.3.3)(@wordpress/data@10.9.0(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@automattic/i18n-utils':
         specifier: 1.2.3
         version: 1.2.3
@@ -2221,8 +2221,8 @@ importers:
         specifier: workspace:*
         version: link:../../js-packages/shared-extension-utils
       '@automattic/launchpad':
-        specifier: 1.1.0-rc.3
-        version: 1.1.0-rc.3(@babel/runtime@7.24.7)(@types/react@18.3.3)(@wordpress/data@10.9.0(react@18.3.1))(@wordpress/element@6.9.0)(@wordpress/i18n@5.9.0)(debug@4.3.4)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(redux@4.2.1)
+        specifier: 1.1.0
+        version: 1.1.0(@babel/runtime@7.24.7)(@types/react@18.3.3)(@wordpress/data@10.9.0(react@18.3.1))(@wordpress/element@6.9.0)(@wordpress/i18n@5.9.0)(debug@4.3.4)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(redux@4.2.1)
       '@automattic/page-pattern-modal':
         specifier: 1.1.5
         version: 1.1.5(@types/react-dom@18.3.0)(@types/react@18.3.3)(@wordpress/data@10.9.0(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(redux@4.2.1)
@@ -4994,8 +4994,8 @@ packages:
   '@automattic/calypso-config@1.2.0':
     resolution: {integrity: sha512-7NE5oVOEyQ4KRz1VNnPIHgW+mcwxnkcs/+Cymba7OA7SYKARiTg3ETGlZGX19S0F7gjYZMq+IeLHeAZSrNjz/Q==}
 
-  '@automattic/calypso-products@1.2.1-rc.1':
-    resolution: {integrity: sha512-EZW0PVB4KI8tlStveIFBDDPnHNCLu8X9t/StjSdYA0Wkono5Ib2snyGu8hgJpOPEvup4BwTloki8hhY2f9DaaA==}
+  '@automattic/calypso-products@1.2.1':
+    resolution: {integrity: sha512-SeDOPquZRMV5ljubKQUbY3EHh0JZB5OCRUqqT9eN1J8SpWOZZArxYTxsqW3ocFb7dyvd/R1153TmDsNxfZILTw==}
     peerDependencies:
       '@wordpress/data': ^10.8.0
       react: ^18.3.1
@@ -5009,15 +5009,15 @@ packages:
   '@automattic/color-studio@3.0.3':
     resolution: {integrity: sha512-2GXkwfu4ndGEWWSlQQamCdXIQ9qJ1zbqbGROxJzE6F4kS2EXGgXvkMolpaa6X7ZjosqlGhtTTvYOwgIw/2qD7A==}
 
-  '@automattic/components@2.2.0-rc.4':
-    resolution: {integrity: sha512-2WCFKXxvXVPiMw8JA5djQNGyiz4XNreBobsf+9VtFO2rtCSfXkDrImdvhTWS78/ajd62Wl9c+hIIfjnn4j9H4Q==}
+  '@automattic/components@2.2.0':
+    resolution: {integrity: sha512-AMuCD49xEPqR5b68l5MsVq/Lv/r8CpfXd/xJzZixhAFxTROtX+pcSaq7bR6SvMXuVhq+Mx+R+M7S2igS1H2L/g==}
     peerDependencies:
       '@wordpress/data': ^10.8.0
       react: ^18.3.1
       react-dom: ^18.3.1
 
-  '@automattic/data-stores@3.1.0-rc.6':
-    resolution: {integrity: sha512-XfCBDUUmpDbgagt5vkz4cRR8Vgxw+au++ZpljWIK4m8lxdusd35NQvnOUv36lpMO8Y56kTOxj8y7OW8LizqeUw==}
+  '@automattic/data-stores@3.1.0':
+    resolution: {integrity: sha512-Z1FaeGAgzVFhOPkcdFS/sjWqZMEFoqs+roer3h535Auqn+Apzf9bw86nJkFFaP2hbYMIUvq5nE7bKAlL5KAGLA==}
     peerDependencies:
       '@wordpress/data': ^10.8.0
       react: ^18.3.1
@@ -5053,8 +5053,8 @@ packages:
   '@automattic/languages@1.0.0':
     resolution: {integrity: sha512-froTyDbTmLitHkvY9WLCpFdjUo6moOLkDKw63J2fLiB2gBApy2thkBV+LRx4Z0kIF5iXVkQF4yYOPYkT9Sr13Q==}
 
-  '@automattic/launchpad@1.1.0-rc.3':
-    resolution: {integrity: sha512-7A7yDV/44DYPEjzcxmkDFCBZXl2EtuIxRDmMFIVn/5MbhZNBInZJrB2mimcl1GBZKTfjPa1Z3kj3CC9UaUHGIA==}
+  '@automattic/launchpad@1.1.0':
+    resolution: {integrity: sha512-FQaQmS9DLH926IGgy0nMrqR60ps1SET8LBHkz79/sY6+U/WRY3d6Ac/yhNQxT4xwA9wtNXX1fPDwF6kP04b7Zg==}
     peerDependencies:
       '@wordpress/data': ^10.8.0
       '@wordpress/element': ^6.8.0
@@ -5070,8 +5070,8 @@ packages:
   '@automattic/material-design-icons@1.0.0':
     resolution: {integrity: sha512-8baJ1l8ftLq/UdLeucOeGXo4/wpaB/pSOBO587/pKC/xv2Oo8Ok21g1WKwp0Y8hEq4+3JNtCzOGVxmIgDBTYvA==}
 
-  '@automattic/oauth-token@1.0.0-rc.1':
-    resolution: {integrity: sha512-kdmiGaP4fZVpaN0tCZZrN/HANUiQS1wdR1LWzuDU81NW/7kkcvporGqckZuTCguknQjAfhzkX4pMXLnFhAmklg==}
+  '@automattic/oauth-token@1.0.0':
+    resolution: {integrity: sha512-SaAQ7ZNiaGNkdVbE01qyYGhu1zKTF/gpO1O5te3s8NPQaUy7456zoQSnuZqNawBuU09RwccDqvaFiVT0SqSYBw==}
 
   '@automattic/page-pattern-modal@1.1.5':
     resolution: {integrity: sha512-cFA82qWUDSSFhOHfOkOqh7X8I9As5fNGp7w3LVw7ZDRl6wSiQZveLvWp4msNDnLmeiJTpxWVOZWvCirxYUE3Sw==}
@@ -5086,14 +5086,8 @@ packages:
   '@automattic/request-external-access@1.0.0':
     resolution: {integrity: sha512-vhN72lwPFzhCVMP1l2ODBqt7fI5jfeJz1JyBnq/AUCg9PpsJfdk4vZxhSOLhSSds8VMkU5WaNnaztkYfkkYOiA==}
 
-  '@automattic/shopping-cart@2.0.0':
-    resolution: {integrity: sha512-R6BYKd6YLmYjyxWaDak+Ef1jybmSYc2d8VFmVrgywDAfMbbTUuDrRwSLu9cJTrh5rP/jlKcVzXGtoJebNyv2pA==}
-    peerDependencies:
-      react: ^16.12.0
-      react-dom: ^16.12.0
-
-  '@automattic/shopping-cart@2.0.1-rc.1':
-    resolution: {integrity: sha512-OCzN7H9CwXem0eUIainbM9ExoNV8AdivFKr1OPz/JoOJGxoFZVUig5wE0Emw40VWxt5a1s8XtOUvyb6FxpnXUQ==}
+  '@automattic/shopping-cart@2.0.1':
+    resolution: {integrity: sha512-Vnfi+PtgiJu9VSmenTgbFrzB8G7eShVm9EAov7zIt54KeOBS44pn01ZJiZwZRRiA8pi8CkPHRW1sfpR/SAcKiw==}
     peerDependencies:
       react: ^18.3.1
       react-dom: ^18.3.1
@@ -5114,8 +5108,8 @@ packages:
   '@automattic/urls@1.0.0':
     resolution: {integrity: sha512-dTunk7PqvF/w0b7DFb8aUW85XbkqEwChTllManUq1uMDdeA6S6YWeCs7t5bBei0D1RFUs9FDdyspeLisNxfbAg==}
 
-  '@automattic/viewport-react@1.0.1-rc.1':
-    resolution: {integrity: sha512-YeMnMpjMMmoxEG/uuLyc7nKkbI8MKlsEgQpufHch3J8QtHt0qn7+1ZPBQ7fDZvMocZctMivHz1WHldiTL5KX1w==}
+  '@automattic/viewport-react@1.0.1':
+    resolution: {integrity: sha512-CFPY3rd0Stk2TdCVJRJ4KLerpjXTuJi0ArshwikYfQCcCcZm+YKbLi3oPiqmtBIN5QOzL7AlqbD9Wwc9NiBBMA==}
     peerDependencies:
       react: ^18.3.1
       react-dom: ^18.3.1
@@ -14301,6 +14295,9 @@ packages:
   wpcom-proxy-request@7.0.5:
     resolution: {integrity: sha512-IJ0AYAxA6zOaIt8mD3aKDcaTQrOQiaV41/AKU42fL+GkH2chV7MGYf02hQrtMifLAjdAg0Xwm7IlGCfv+cy9XQ==}
 
+  wpcom-proxy-request@7.0.6:
+    resolution: {integrity: sha512-Hzo3AWwT89/4TWHiMdzClu0hlDptZLmQjaP3vQL2kw7dhNsWD6yE52sOOrzyfCSsoJZbZOk9j38A1+2csNfppQ==}
+
   wrap-ansi@3.0.1:
     resolution: {integrity: sha512-iXR3tDXpbnTpzjKSylUJRkLuOrEC7hwEB221cgn6wtF8wpmz28puFXAEfPT5zrjM3wahygB//VuWEr1vTkDcNQ==}
     engines: {node: '>=4'}
@@ -14539,12 +14536,12 @@ snapshots:
 
   '@automattic/calypso-config@1.2.0': {}
 
-  '@automattic/calypso-products@1.2.1-rc.1(@babel/runtime@7.24.7)(@types/react@18.3.3)(@wordpress/data@10.9.0(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@automattic/calypso-products@1.2.1(@babel/runtime@7.24.7)(@types/react@18.3.3)(@wordpress/data@10.9.0(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@automattic/calypso-config': 1.2.0
-      '@automattic/components': 2.2.0-rc.4(@babel/runtime@7.24.7)(@types/react@18.3.3)(@wordpress/data@10.9.0(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@automattic/components': 2.2.0(@babel/runtime@7.24.7)(@types/react@18.3.3)(@wordpress/data@10.9.0(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@automattic/i18n-utils': 1.2.3
-      '@automattic/shopping-cart': 2.0.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@automattic/shopping-cart': 2.0.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@automattic/urls': 1.0.0
       '@wordpress/data': 10.9.0(react@18.3.1)
       i18n-calypso: 7.0.0(@types/react@18.3.3)(react@18.3.1)
@@ -14566,7 +14563,7 @@ snapshots:
 
   '@automattic/color-studio@3.0.3': {}
 
-  '@automattic/components@2.2.0-rc.4(@babel/runtime@7.24.7)(@types/react@18.3.3)(@wordpress/data@10.9.0(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@automattic/components@2.2.0(@babel/runtime@7.24.7)(@types/react@18.3.3)(@wordpress/data@10.9.0(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@automattic/calypso-analytics': 1.1.2
       '@automattic/calypso-color-schemes': 3.1.3
@@ -14577,7 +14574,7 @@ snapshots:
       '@automattic/load-script': 1.0.0
       '@automattic/material-design-icons': 1.0.0
       '@automattic/typography': 1.0.0
-      '@automattic/viewport-react': 1.0.1-rc.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@automattic/viewport-react': 1.0.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@emotion/css': 11.13.4
       '@emotion/react': 11.13.3(@types/react@18.3.3)(react@18.3.1)
       '@emotion/styled': 11.13.0(@emotion/react@11.13.3(@types/react@18.3.3)(react@18.3.1))(@types/react@18.3.3)(react@18.3.1)
@@ -14608,17 +14605,17 @@ snapshots:
       - '@types/react'
       - supports-color
 
-  '@automattic/data-stores@3.1.0-rc.6(@babel/runtime@7.24.7)(@types/react@18.3.3)(@wordpress/data@10.9.0(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@automattic/data-stores@3.1.0(@babel/runtime@7.24.7)(@types/react@18.3.3)(@wordpress/data@10.9.0(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@automattic/calypso-analytics': 1.1.2
       '@automattic/calypso-config': 1.2.0
-      '@automattic/calypso-products': 1.2.1-rc.1(@babel/runtime@7.24.7)(@types/react@18.3.3)(@wordpress/data@10.9.0(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@automattic/calypso-products': 1.2.1(@babel/runtime@7.24.7)(@types/react@18.3.3)(@wordpress/data@10.9.0(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@automattic/format-currency': 2.0.0
       '@automattic/i18n-utils': 1.2.3
       '@automattic/js-utils': 0.1.0
       '@automattic/load-script': 1.0.0
-      '@automattic/oauth-token': 1.0.0-rc.1
-      '@automattic/shopping-cart': 2.0.1-rc.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@automattic/oauth-token': 1.0.0
+      '@automattic/shopping-cart': 2.0.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@tanstack/react-query': 5.20.5(react@18.3.1)
       '@wordpress/api-fetch': 7.9.0
       '@wordpress/data': 10.9.0(react@18.3.1)
@@ -14639,7 +14636,7 @@ snapshots:
       use-debounce: 3.4.3(react@18.3.1)
       utility-types: 3.11.0
       validator: 13.12.0
-      wpcom-proxy-request: 7.0.5
+      wpcom-proxy-request: 7.0.6
     transitivePeerDependencies:
       - '@babel/runtime'
       - '@emotion/is-prop-valid'
@@ -14688,12 +14685,12 @@ snapshots:
     dependencies:
       tslib: 2.5.0
 
-  '@automattic/launchpad@1.1.0-rc.3(@babel/runtime@7.24.7)(@types/react@18.3.3)(@wordpress/data@10.9.0(react@18.3.1))(@wordpress/element@6.9.0)(@wordpress/i18n@5.9.0)(debug@4.3.4)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(redux@4.2.1)':
+  '@automattic/launchpad@1.1.0(@babel/runtime@7.24.7)(@types/react@18.3.3)(@wordpress/data@10.9.0(react@18.3.1))(@wordpress/element@6.9.0)(@wordpress/i18n@5.9.0)(debug@4.3.4)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(redux@4.2.1)':
     dependencies:
       '@automattic/calypso-analytics': 1.1.2
       '@automattic/calypso-config': 1.2.0
-      '@automattic/components': 2.2.0-rc.4(@babel/runtime@7.24.7)(@types/react@18.3.3)(@wordpress/data@10.9.0(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@automattic/data-stores': 3.1.0-rc.6(@babel/runtime@7.24.7)(@types/react@18.3.3)(@wordpress/data@10.9.0(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@automattic/components': 2.2.0(@babel/runtime@7.24.7)(@types/react@18.3.3)(@wordpress/data@10.9.0(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@automattic/data-stores': 3.1.0(@babel/runtime@7.24.7)(@types/react@18.3.3)(@wordpress/data@10.9.0(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@automattic/i18n-utils': 1.2.3
       '@automattic/typography': 1.0.0
       '@automattic/viewport': 1.1.0
@@ -14712,7 +14709,7 @@ snapshots:
       redux: 4.2.1
       tslib: 2.5.0
       utility-types: 3.11.0
-      wpcom-proxy-request: 7.0.5
+      wpcom-proxy-request: 7.0.6
     transitivePeerDependencies:
       - '@babel/runtime'
       - '@emotion/is-prop-valid'
@@ -14728,7 +14725,7 @@ snapshots:
 
   '@automattic/material-design-icons@1.0.0': {}
 
-  '@automattic/oauth-token@1.0.0-rc.1':
+  '@automattic/oauth-token@1.0.0':
     dependencies:
       cookie: 0.4.2
       store: 2.0.12
@@ -14766,15 +14763,7 @@ snapshots:
     dependencies:
       '@automattic/popup-monitor': 1.0.2
 
-  '@automattic/shopping-cart@2.0.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
-    dependencies:
-      debug: 4.3.4
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
-    transitivePeerDependencies:
-      - supports-color
-
-  '@automattic/shopping-cart@2.0.1-rc.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@automattic/shopping-cart@2.0.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       debug: 4.3.4
       react: 18.3.1
@@ -14804,7 +14793,7 @@ snapshots:
 
   '@automattic/urls@1.0.0': {}
 
-  '@automattic/viewport-react@1.0.1-rc.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@automattic/viewport-react@1.0.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@automattic/viewport': 1.1.0
       '@wordpress/compose': 7.9.0(react@18.3.1)
@@ -27394,6 +27383,14 @@ snapshots:
     dependencies:
       debug: 4.3.4
       uuid: 8.3.2
+      wp-error: 1.3.0
+    transitivePeerDependencies:
+      - supports-color
+
+  wpcom-proxy-request@7.0.6:
+    dependencies:
+      debug: 4.3.4
+      uuid: 9.0.1
       wp-error: 1.3.0
     transitivePeerDependencies:
       - supports-color
