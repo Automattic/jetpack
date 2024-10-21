@@ -1,5 +1,5 @@
 import { Button } from '@automattic/jetpack-components';
-import { __ } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import React, { useEffect, useState } from 'react';
 import clsx from 'clsx';
 import styles from './meta.module.scss';
@@ -17,7 +17,11 @@ const Meta = () => {
 	return (
 		<div className={ styles.wrapper } data-testid="foundation-pages-meta">
 			<div className={ styles.body }>
-				<BypassPatterns patterns={ foundationPages.join( '\n' ) } setPatterns={ updatePatterns } />
+				<BypassPatterns
+					patterns={ foundationPages.join( '\n' ) }
+					setPatterns={ updatePatterns }
+					maxPatterns={ 1 }
+				/>
 			</div>
 		</div>
 	);
@@ -26,9 +30,14 @@ const Meta = () => {
 type BypassPatternsProps = {
 	patterns: string;
 	setPatterns: ( newValue: string ) => void;
+	maxPatterns: number;
 };
 
-const BypassPatterns: React.FC< BypassPatternsProps > = ( { patterns, setPatterns } ) => {
+const BypassPatterns: React.FC< BypassPatternsProps > = ( {
+	patterns,
+	setPatterns,
+	maxPatterns,
+} ) => {
 	const [ inputValue, setInputValue ] = useState( patterns );
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const [ inputInvalid, setInputInvalid ] = useState( false );
@@ -46,6 +55,11 @@ const BypassPatterns: React.FC< BypassPatternsProps > = ( { patterns, setPattern
 
 		// There should always be at least one foundation page.
 		if ( lines.length === 0 ) {
+			return false;
+		}
+
+		// Check if the number of patterns exceeds maxPatterns
+		if ( lines.length > maxPatterns ) {
 			return false;
 		}
 
@@ -79,6 +93,20 @@ const BypassPatterns: React.FC< BypassPatternsProps > = ( { patterns, setPattern
 			>
 				{ __( 'Save', 'jetpack-boost' ) }
 			</Button>
+			{ inputInvalid && (
+				<p className={ styles.error }>
+					{ sprintf(
+						/* translators: %d is the maximum number of foundation pages. */
+						_n(
+							'You can have only %d foundation page.',
+							'You can have only %d foundation pages.',
+							maxPatterns,
+							'jetpack-boost'
+						),
+						maxPatterns
+					) }
+				</p>
+			) }
 		</div>
 	);
 };
