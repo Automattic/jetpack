@@ -1,0 +1,26 @@
+.header-main {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+.header-secondary {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-end;
+}
+
+.heading-icon {
+    margin-left: var( --spacing-base ); // 8px
+    margin-bottom: calc( var( --spacing-base ) / 2 * -1 ); // -4px
+}
+
+.subheading {
+    width: fit-content;
+}
+
+.connection-error-col {
+	margin-top: calc( var( --spacing-base ) * 3 + 1px ); // 25px
+}
