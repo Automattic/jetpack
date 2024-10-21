@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
 use Automattic\Jetpack\My_Jetpack\Hybrid_Product;
+use Automattic\Jetpack\My_Jetpack\Products;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 
 /**
@@ -199,5 +200,42 @@ class Videopress extends Hybrid_Product {
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * Gets the paid plan's expiry status, or null if: no paid plan, or not expired, or not expiring soon.
+	 *
+	 * @return boolean
+	 */
+	public static function get_paid_plan_expiration_status() {
+		$plans_with_videopress = array(
+			'jetpack_videopress',
+			'jetpack_complete',
+			'jetpack_business',
+			'jetpack_premium',
+		);
+		$purchases_data        = Wpcom_Products::get_site_current_purchases();
+		if ( is_wp_error( $purchases_data ) ) {
+			return null;
+		}
+		if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
+			foreach ( $purchases_data as $purchase ) {
+				foreach ( $plans_with_videopress as $plan ) {
+					if ( strpos( $purchase->product_slug, $plan ) !== false ) {
+						// Check if expired or expiring soon
+						$now           = time();
+						$expiry_date   = strtotime( $purchase->expiry_date );
+						$expiring_soon = strtotime( $purchase->expiry_date . ' -30 days' );
+						if ( $now > $expiring_soon && $now < $expiry_date ) {
+							return Products::STATUS_EXPIRING_SOON;
+						}
+						if ( $now > $expiry_date ) {
+							return Products::STATUS_EXPIRED;
+						}
+					}
+				}
+			}
+		}
+		return null;
 	}
 }
