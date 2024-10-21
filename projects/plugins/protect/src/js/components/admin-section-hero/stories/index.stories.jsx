@@ -1,6 +1,6 @@
 import { Status, Text } from '@automattic/jetpack-components';
 import AdminSectionHero from '..';
-import inProgressImage from '../../../../../assets/images/in-progress.png';
+import InProgressAnimation from '../../in-progress-animation';
 
 export default {
 	title: 'Plugins/Protect/AdminSectionHero',
@@ -18,5 +18,5 @@ Default.args = {
 			</AdminSectionHero.Subheading>
 		</>
 	),
-	secondary: <img src={ inProgressImage } alt="" />,
+	secondary: <InProgressAnimation />,
 };
