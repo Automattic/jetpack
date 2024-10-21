@@ -182,6 +182,10 @@ class REST_Controller {
 									'type'     => 'array',
 									'required' => true,
 								),
+								'share_log'         => array(
+									'type'     => 'array',
+									'required' => true,
+								),
 							),
 						),
 					),
@@ -652,6 +656,23 @@ class REST_Controller {
 		$post_id   = $request->get_param( 'id' );
 		$post_meta = $request_body['meta'];
 		$post      = get_post( $post_id );
+
+		$share_log = $post_meta['share_log'];
+
+		foreach ( $share_log as $share_meta ) {
+			$post_id = wp_insert_post(
+				array(
+					'post_title'  => $share_meta['post_title'],
+					'post_type'   => 'social_share_log',
+					'post_status' => 'publish',
+					'meta_input'  => $share_meta,
+				)
+			);
+		}
+
+		if ( is_wp_error( $post_id ) ) {
+			return $post_id;
+		}
 
 		if ( $post && 'publish' === $post->post_status && isset( $post_meta[ self::SOCIAL_SHARES_POST_META_KEY ] ) ) {
 			update_post_meta( $post_id, self::SOCIAL_SHARES_POST_META_KEY, $post_meta[ self::SOCIAL_SHARES_POST_META_KEY ] );
