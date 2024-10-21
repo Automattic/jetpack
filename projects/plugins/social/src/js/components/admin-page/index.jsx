@@ -8,6 +8,7 @@ import {
 } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
 import { store as socialStore } from '@automattic/jetpack-publicize-components';
+import { siteHasFeature } from '@automattic/jetpack-script-data';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useState, useCallback, useEffect, useRef } from '@wordpress/element';
 import React from 'react';
@@ -36,7 +37,6 @@ const Admin = () => {
 		showPricingPage,
 		hasPaidFeatures,
 		pluginVersion,
-		isSocialImageGeneratorAvailable,
 		isUpdatingJetpackSettings,
 	} = useSelect( select => {
 		const store = select( socialStore );
@@ -45,7 +45,6 @@ const Admin = () => {
 			showPricingPage: store.showPricingPage(),
 			hasPaidFeatures: store.hasPaidFeatures(),
 			pluginVersion: store.getPluginVersion(),
-			isSocialImageGeneratorAvailable: store.isSocialImageGeneratorAvailable(),
 			isUpdatingJetpackSettings: store.isUpdatingJetpackSettings(),
 		};
 	} );
@@ -53,11 +52,15 @@ const Admin = () => {
 	const hasEnabledModule = useRef( isModuleEnabled );
 
 	useEffect( () => {
-		if ( isModuleEnabled && ! hasEnabledModule.current && isSocialImageGeneratorAvailable ) {
+		if (
+			isModuleEnabled &&
+			! hasEnabledModule.current &&
+			siteHasFeature( 'social-image-generator' )
+		) {
 			hasEnabledModule.current = true;
 			refreshJetpackSocialSettings();
 		}
-	}, [ isModuleEnabled, isSocialImageGeneratorAvailable, refreshJetpackSocialSettings ] );
+	}, [ isModuleEnabled, refreshJetpackSocialSettings ] );
 
 	const moduleName = `Jetpack Social ${ pluginVersion }`;
 
@@ -92,7 +95,7 @@ const Admin = () => {
 					<AdminSection>
 						<SocialModuleToggle />
 						{ isModuleEnabled && <SocialNotesToggle disabled={ isUpdatingJetpackSettings } /> }
-						{ isModuleEnabled && isSocialImageGeneratorAvailable && (
+						{ isModuleEnabled && siteHasFeature( 'social-image-generator' ) && (
 							<SocialImageGeneratorToggle disabled={ isUpdatingJetpackSettings } />
 						) }
 					</AdminSection>

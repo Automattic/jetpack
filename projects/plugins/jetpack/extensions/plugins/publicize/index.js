@@ -10,7 +10,7 @@
 import {
 	PublicizePanel,
 	SocialImageGeneratorPanel,
-	usePublicizeConfig,
+	usePostCanUseSig,
 	PostPublishPanels,
 	GlobalModals,
 } from '@automattic/jetpack-publicize-components';
@@ -29,7 +29,7 @@ export const name = 'publicize';
 const PublicizeSettings = () => {
 	const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
 		useModuleStatus( name );
-	const { isSocialImageGeneratorAvailable } = usePublicizeConfig();
+	const postCanUseSig = usePostCanUseSig();
 
 	let children = null;
 	let panels = null;
@@ -50,12 +50,12 @@ const PublicizeSettings = () => {
 				<PublicizePanel>
 					<UpsellNotice />
 				</PublicizePanel>
-				{ isSocialImageGeneratorAvailable && <SocialImageGeneratorPanel /> }
+				{ postCanUseSig && <SocialImageGeneratorPanel /> }
 			</>
 		);
 		panels = (
 			<>
-				<PrePublishPanels isSocialImageGeneratorAvailable={ isSocialImageGeneratorAvailable } />
+				<PrePublishPanels />
 				<PostPublishPanels />
 				<GlobalModals />
 			</>

@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Initial state: Migrated isSocialImageGeneratorAvailable to feature check
+
+
