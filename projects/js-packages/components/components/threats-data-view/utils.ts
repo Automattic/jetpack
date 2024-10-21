@@ -47,6 +47,10 @@ export const getThreatSubtitle = ( threat: DataViewThreat ) => {
 		case 'core':
 			return 'WordPress Core';
 		case 'file':
+			// Trim leading slash
+			if ( threat.filename.startsWith( '/' ) ) {
+				return threat.filename.slice( 1 );
+			}
 			return threat.filename;
 		case 'database':
 			return threat.table;
