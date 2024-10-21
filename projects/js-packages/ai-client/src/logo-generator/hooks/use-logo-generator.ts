@@ -92,7 +92,7 @@ const useLogoGenerator = () => {
 	const logoGeneratorControl = aiAssistantFeatureData?.featuresControl?.[
 		'logo-generator'
 	] as LogoGeneratorFeatureControl;
-	const imageStyles: Array< ImageStyleObject > = logoGeneratorControl?.styles;
+	const imageStyles: Array< ImageStyleObject > = logoGeneratorControl?.styles || [];
 
 	const generateFirstPrompt = useCallback(
 		async function (): Promise< string > {
