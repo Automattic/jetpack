@@ -91,6 +91,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'stc_enabled'                                  => false,
 			'sm_enabled'                                   => false,
 			'jetpack_subscribe_overlay_enabled'            => false,
+			'jetpack_subscribe_floating_button_enabled'    => false,
 			'jetpack_subscriptions_subscribe_post_end_enabled' => false,
 			'jetpack_subscriptions_login_navigation_enabled' => false,
 			'jetpack_subscriptions_subscribe_navigation_enabled' => false,
