@@ -1,7 +1,6 @@
 import { Button } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import React, { useEffect, useState } from 'react';
-import clsx from 'clsx';
 import styles from './meta.module.scss';
 import { useFoundationPages } from '../lib/stores/foundation-pages';
 
@@ -30,28 +29,9 @@ type BypassPatternsProps = {
 
 const BypassPatterns: React.FC< BypassPatternsProps > = ( { patterns, setPatterns } ) => {
 	const [ inputValue, setInputValue ] = useState( patterns );
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	const [ inputInvalid, setInputInvalid ] = useState( false );
 
 	const validateInputValue = ( value: string ) => {
 		setInputValue( value );
-		setInputInvalid( ! validatePatterns( value ) );
-	};
-
-	const validatePatterns = ( value: string ) => {
-		const lines = value
-			.split( '\n' )
-			.map( line => line.trim() )
-			.filter( line => line.trim() !== '' );
-
-		// check if it's a valid regex
-		try {
-			lines.forEach( line => new RegExp( line ) );
-		} catch ( e ) {
-			return false;
-		}
-
-		return true;
 	};
 
 	useEffect( () => {
@@ -63,22 +43,14 @@ const BypassPatterns: React.FC< BypassPatternsProps > = ( { patterns, setPattern
 	}
 
 	return (
-		<div
-			className={ clsx( styles.section, {
-				[ styles[ 'has-error' ] ]: inputInvalid,
-			} ) }
-		>
+		<div className={ styles.section }>
 			<textarea
 				value={ inputValue }
 				rows={ 3 }
 				onChange={ e => validateInputValue( e.target.value ) }
 				id="jb-foundation-pages"
 			/>
-			<Button
-				disabled={ patterns === inputValue || inputInvalid }
-				onClick={ save }
-				className={ styles.button }
-			>
+			<Button disabled={ patterns === inputValue } onClick={ save } className={ styles.button }>
 				{ __( 'Save', 'jetpack-boost' ) }
 			</Button>
 		</div>
