@@ -429,6 +429,7 @@ class WPCOM_Features {
 	public const STAGING_SITES                     = 'staging-sites';
 	public const STATS_FREE                        = 'stats-free';
 	public const STATS_PAID                        = 'stats-paid';
+	public const STUDIO_SYNC                       = 'studio-sync';
 	public const SUBSCRIBER_UNLIMITED_IMPORTS      = 'subscriber-unlimited-imports';
 	public const SUBSCRIPTION_GIFTING              = 'subscription-gifting';
 	public const SUPPORT                           = 'support';
@@ -1153,6 +1154,9 @@ class WPCOM_Features {
 			self::JETPACK_STATS_BI_YEARLY,
 			self::JETPACK_STATS_YEARLY,
 			self::JETPACK_COMPLETE_PLANS,
+		),
+		self::STUDIO_SYNC                       => array(
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 		),
 
 		// Importing subscribers to the site without limits.
