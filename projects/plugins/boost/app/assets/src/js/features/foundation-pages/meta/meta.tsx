@@ -4,9 +4,12 @@ import React, { useEffect, useState } from 'react';
 import clsx from 'clsx';
 import styles from './meta.module.scss';
 import { useFoundationPages } from '../lib/stores/foundation-pages';
+import { usePremiumFeatures } from '$lib/stores/premium-features';
 
 const Meta = () => {
 	const [ foundationPages, setFoundationPages ] = useFoundationPages();
+	const premiumFeatures = usePremiumFeatures();
+	const maxPatterns = premiumFeatures.includes( 'cloud-critical-css' ) ? 10 : 1;
 
 	const updatePatterns = ( newValue: string ) => {
 		const newPatterns = newValue.split( '\n' ).map( line => line.trim() );
@@ -20,7 +23,7 @@ const Meta = () => {
 				<BypassPatterns
 					patterns={ foundationPages.join( '\n' ) }
 					setPatterns={ updatePatterns }
-					maxPatterns={ 1 }
+					maxPatterns={ maxPatterns }
 				/>
 			</div>
 		</div>
