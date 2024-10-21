@@ -1,6 +1,7 @@
 import '../../common/public-path';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import WpcomBloggingPromptsWidget from './wpcom-blogging-prompts-widget';
 import WpcomSiteManagementWidget from './wpcom-site-management-widget';
 
 const data = typeof window === 'object' ? window.JETPACK_MU_WPCOM_DASHBOARD_WIDGETS : {};
@@ -9,6 +10,10 @@ const widgets = [
 	{
 		id: 'wpcom_site_management_widget_main',
 		Widget: WpcomSiteManagementWidget,
+	},
+	{
+		id: 'wpcom-blogging-prompts-widget_main',
+		Widget: WpcomBloggingPromptsWidget,
 	},
 ];
 
