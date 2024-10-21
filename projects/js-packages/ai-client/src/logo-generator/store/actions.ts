@@ -93,6 +93,10 @@ const actions = {
 					query: 'force=wpcom',
 				} );
 
+				if ( response.data ) {
+					throw new Error( 'Failed to fetch' );
+				}
+
 				// Store the feature in the store.
 				dispatch(
 					actions.storeAiAssistantFeature( mapAiFeatureResponseToAiFeatureProps( response ) )
