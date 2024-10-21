@@ -1,4 +1,3 @@
-import { ThreatSeverityBadge } from '@automattic/jetpack-components';
 import { Icon } from '@wordpress/components';
 import {
 	Action,
@@ -11,8 +10,8 @@ import {
 	type View,
 } from '@wordpress/dataviews';
 import { __, _x } from '@wordpress/i18n';
-import clsx from 'clsx';
 import { useCallback, useMemo, useState } from 'react';
+import Badge from '../badge';
 import { THREAT_STATUSES, THREAT_TYPES } from './constants';
 import { DataViewFixerStatus } from './fixer-status';
 import styles from './styles.module.scss';
@@ -191,12 +190,7 @@ export default function ThreatsDataView( {
 				},
 				render( { item }: { item: DataViewThreat } ) {
 					return (
-						<div
-							className={ clsx( styles.media, {
-								[ styles[ 'media--critical' ] ]: item.severity >= 5,
-								[ styles[ 'media--high' ] ]: item.severity >= 3 && item.severity < 5,
-							} ) }
-						>
+						<div className={ styles.media }>
 							<Icon icon={ getThreatIcon( item ) } size={ 20 } />
 						</div>
 					);
@@ -216,41 +210,6 @@ export default function ThreatsDataView( {
 					);
 				},
 			},
-			...( dataFields.includes( 'severity' )
-				? [
-						{
-							id: 'severity',
-							label: __( 'Severity', 'jetpack' ),
-							getValue( { item }: { item: DataViewThreat } ) {
-								return item.severity ?? 0;
-							},
-							render( { item }: { item: DataViewThreat } ) {
-								if ( view.type === 'list' ) {
-									if ( item.severity >= 5 ) {
-										return _x(
-											'Critical Severity',
-											'Severity label for issues rated 5 or higher.',
-											'jetpack'
-										);
-									} else if ( item.severity >= 3 && item.severity < 5 ) {
-										return _x(
-											'High Severity',
-											'Severity label for issues rated between 3 and 5.',
-											'jetpack'
-										);
-									}
-									return _x(
-										'Low Severity',
-										'Severity label for issues rated below 3.',
-										'jetpack'
-									);
-								}
-
-								return <ThreatSeverityBadge severity={ item.severity } />;
-							},
-						},
-				  ]
-				: [] ),
 			{
 				id: 'extension',
 				label: __( 'Extension', 'jetpack' ),
@@ -309,6 +268,39 @@ export default function ThreatsDataView( {
 							enableGlobalSearch: true,
 							getValue( { item }: { item: DataViewThreat } ) {
 								return item.signature || '';
+							},
+						},
+				  ]
+				: [] ),
+			...( dataFields.includes( 'severity' )
+				? [
+						{
+							id: 'severity',
+							label: __( 'Severity', 'jetpack' ),
+							getValue( { item }: { item: DataViewThreat } ) {
+								return item.severity ?? 0;
+							},
+							render( { item }: { item: DataViewThreat } ) {
+								let text = _x( 'Low', 'Severity label for issues rated below 3.', 'jetpack' );
+								let variant: 'danger' | 'warning' | undefined;
+
+								if ( item.severity >= 5 ) {
+									text = _x(
+										'Critical',
+										'Severity label for issues rated 5 or higher.',
+										'jetpack'
+									);
+									variant = 'danger';
+								} else if ( item.severity >= 3 && item.severity < 5 ) {
+									text = _x(
+										'High',
+										'Severity label for issues rated between 3 and 5.',
+										'jetpack'
+									);
+									variant = 'warning';
+								}
+
+								return <Badge variant={ variant }>{ text }</Badge>;
 							},
 						},
 				  ]

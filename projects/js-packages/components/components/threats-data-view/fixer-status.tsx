@@ -93,23 +93,15 @@ export default function FixerStatusIcon( {
  */
 function FixerStatusText( { fixer }: { fixer?: ThreatFixStatus } ): JSX.Element {
 	if ( fixer && fixerStatusIsStale( fixer ) ) {
-		return (
-			<span className={ styles[ 'info-spacer' ] }>
-				{ __( 'Fixer is taking longer than expected', 'jetpack' ) }
-			</span>
-		);
+		return <span>{ __( 'Fixer is taking longer than expected', 'jetpack' ) }</span>;
 	}
 
 	if ( fixer && 'error' in fixer && fixer.error ) {
-		return (
-			<span className={ styles[ 'info-spacer' ] }>
-				{ __( 'An error occurred auto-fixing this threat', 'jetpack' ) }
-			</span>
-		);
+		return <span>{ __( 'An error occurred auto-fixing this threat', 'jetpack' ) }</span>;
 	}
 
 	if ( fixer && 'status' in fixer && fixer.status === 'in_progress' ) {
-		return <span className={ styles[ 'spinner-spacer' ] }>{ __( 'Auto-fixing', 'jetpack' ) }</span>;
+		return <span>{ __( 'Auto-fixing', 'jetpack' ) }</span>;
 	}
 
 	return <span>{ __( 'Auto-fixable', 'jetpack' ) }</span>;

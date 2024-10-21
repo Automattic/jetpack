@@ -33,16 +33,6 @@
 	}
 }
 
-.media--critical {
-	background-color: var( --jp-red-5 );
-	color: var( --jp-red-80 );
-}
-
-.media--high {
-	background-color:  var( --jp-yellow-5 );
-	color: var( --jp-yellow-60 );
-}
-
 .icon-check {
 	fill: var( --jp-green-40 );
 }
@@ -96,27 +86,12 @@
 	font-size: 12px;
 }
 
-.threat__severityHigh {
-	color: var( --jp-yellow-60 );
-}
-
-.threat__severityCritical {
-	color: var( --jp-red-60 );
-}
-
 .spinner {
 	svg {
 		margin: 0;
 	}
 }
 
-.spinner-spacer {
-	margin-left: 8px;
-}
-
-.info-spacer {
-	margin-left: 4px;
-}
 .threat__fixer {
 	min-width: 48px;
 	text-align: center;
