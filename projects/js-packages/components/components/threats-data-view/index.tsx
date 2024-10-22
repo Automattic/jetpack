@@ -338,8 +338,13 @@ export default function ThreatsDataView( {
 		if ( dataFields.includes( 'fixable' ) ) {
 			result.push( {
 				id: 'fix',
-				label: __( 'Auto-Fix', 'jetpack' ),
+				label: __( 'Auto-fix', 'jetpack' ),
 				isPrimary: true,
+				icon: (
+					<span className={ `${ styles.threat__action } ${ styles[ 'auto-fix' ] }` }>
+						{ __( 'Auto-fix', 'jetpack' ) }
+					</span>
+				),
 				callback: onFixThreat,
 				isEligible( item ) {
 					if ( ! onFixThreat ) {
@@ -350,7 +355,6 @@ export default function ThreatsDataView( {
 					}
 					return !! item.fixable;
 				},
-				icon: 'check',
 			} );
 		}
 
@@ -359,7 +363,8 @@ export default function ThreatsDataView( {
 				id: 'ignore',
 				label: __( 'Ignore', 'jetpack' ),
 				isPrimary: true,
-				isDestructive: true,
+				icon: <span className={ styles.threat__action }>{ __( 'Ignore', 'jetpack' ) }</span>,
+				// isDestructive: true,
 				callback: onIgnoreThreat,
 				isEligible( item ) {
 					if ( ! onIgnoreThreat ) {
@@ -370,7 +375,6 @@ export default function ThreatsDataView( {
 					}
 					return item.status === 'current';
 				},
-				icon: 'unseen',
 			} );
 		}
 
@@ -379,7 +383,8 @@ export default function ThreatsDataView( {
 				id: 'un-ignore',
 				label: __( 'Unignore', 'jetpack' ),
 				isPrimary: true,
-				isDestructive: true,
+				icon: <span className={ styles.threat__action }>{ __( 'Un-ignore', 'jetpack' ) }</span>,
+				// isDestructive: true,
 				callback: onUnignoreThreat,
 				isEligible( item ) {
 					if ( ! onUnignoreThreat ) {
@@ -390,7 +395,6 @@ export default function ThreatsDataView( {
 					}
 					return item.status === 'ignored';
 				},
-				icon: 'seen',
 			} );
 		}
 
