@@ -11,6 +11,7 @@ import MinifyMeta from '$features/minify-meta/minify-meta';
 import { QualitySettings, ImageCdnLiar } from '$features/image-cdn';
 import styles from './index.module.scss';
 import { RecommendationsMeta } from '$features/image-size-analysis';
+import FoundationPages from '$features/foundation-pages/foundation-pages';
 import { useRegenerateCriticalCssAction } from '$features/critical-css/lib/stores/critical-css-state';
 import PremiumTooltip from '$features/premium-tooltip/premium-tooltip';
 import Upgraded from '$features/ui/upgraded/upgraded';
@@ -36,6 +37,7 @@ const Index = () => {
 
 	return (
 		<div className="jb-container--narrow">
+			<FoundationPages />
 			<Module
 				slug="critical_css"
 				title={ __( 'Optimize Critical CSS Loading (manual)', 'jetpack-boost' ) }

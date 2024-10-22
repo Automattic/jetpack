@@ -23,6 +23,16 @@ class Foundation_Pages implements Has_Setup {
 	}
 
 	public function get_pages() {
-		return array();
+		return jetpack_boost_ds_get( 'foundation_pages_list' );
+	}
+
+	public function get_properties() {
+		return array(
+			'max_pages' => $this->get_max_pages(),
+		);
+	}
+
+	private function get_max_pages() {
+		return Premium_Features::has_any() ? 10 : 1;
 	}
 }
