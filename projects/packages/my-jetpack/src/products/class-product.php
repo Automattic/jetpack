@@ -101,6 +101,13 @@ abstract class Product {
 	public static $requires_plan = false;
 
 	/**
+	 * The feature slug that identifies the highest paid plan
+	 *
+	 * @var string
+	 */
+	public static $feature_identifying_paid_plan = '';
+
+	/**
 	 * Get the plugin slug
 	 *
 	 * @return ?string
@@ -189,7 +196,7 @@ abstract class Product {
 	 *
 	 * @return WP_Error|array
 	 */
-	private static function get_site_features_from_wpcom() {
+	public static function get_site_features_from_wpcom() {
 		static $features = null;
 
 		if ( $features !== null ) {
@@ -206,7 +213,11 @@ abstract class Product {
 
 		$body           = wp_remote_retrieve_body( $response );
 		$feature_return = json_decode( $body );
-		$features       = $feature_return->active;
+
+		$features = array(
+			'active'    => $feature_return->active,
+			'available' => $feature_return->available,
+		);
 
 		return $features;
 	}
@@ -228,7 +239,7 @@ abstract class Product {
 			return false;
 		}
 
-		return in_array( $feature, $features, true );
+		return in_array( $feature, $features['active'], true );
 	}
 
 	/**
@@ -408,31 +419,60 @@ abstract class Product {
 	}
 
 	/**
+	 * Get the product-slugs of the paid plans for this product (not including bundles).
+	 *
+	 * @return array
+	 */
+	public static function get_paid_plan_product_slugs() {
+		return array();
+	}
+
+	/**
+	 * Get the product-slugs of the paid bundles/plans that this product/module is included in
+	 *
+	 * @return array
+	 */
+	public static function get_paid_bundles_that_include_product() {
+		$features = static::get_site_features_from_wpcom();
+		if ( is_wp_error( $features ) ) {
+			return array();
+		}
+		$idendifying_feature = static::$feature_identifying_paid_plan;
+		if ( empty( $features['available'] ) || empty( $idendifying_feature ) ) {
+			return array();
+		}
+		$paid_bundles = $features['available']->$idendifying_feature;
+
+		return $paid_bundles;
+	}
+
+	/**
 	 * Gets the paid plan's expiry status, or null if: no paid plan, or not expired, or not expiring soon.
 	 *
-	 * @return string
+	 * @return string|null
 	 */
 	public static function get_paid_plan_expiration_status() {
-		if ( ! static::has_paid_plan_for_product() ) {
-			return null;
-		}
-		$product_slug   = static::get_wpcom_product_slug();
+		$paid_plans = array_merge(
+			static::get_paid_plan_product_slugs(),
+			static::get_paid_bundles_that_include_product()
+		);
+
 		$purchases_data = Wpcom_Products::get_site_current_purchases();
 		if ( is_wp_error( $purchases_data ) ) {
 			return null;
 		}
+
 		if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
 			foreach ( $purchases_data as $purchase ) {
-				if ( strpos( $purchase->product_slug, $product_slug ) !== false ) {
-					// Check if expired or expiring soon
-					$now           = time();
-					$expiry_date   = strtotime( $purchase->expiry_date );
-					$expiring_soon = strtotime( $purchase->expiry_date . ' -30 days' );
-					if ( $now > $expiring_soon && $now < $expiry_date ) {
-						return Products::STATUS_EXPIRING_SOON;
-					}
-					if ( $now > $expiry_date ) {
-						return Products::STATUS_EXPIRED;
+				foreach ( $paid_plans as $plan ) {
+					if ( strpos( $purchase->product_slug, $plan ) !== false ) {
+						// Check if expired or expiring soon
+						if ( $purchase->expiry_status === Products::STATUS_EXPIRING_SOON ) {
+							return Products::STATUS_EXPIRING_SOON;
+						}
+						if ( $purchase->expiry_status === Products::STATUS_EXPIRED ) {
+							return Products::STATUS_EXPIRED;
+						}
 					}
 				}
 			}
@@ -539,10 +579,10 @@ abstract class Product {
 				}
 			} elseif ( static::$requires_user_connection && ! ( new Connection_Manager() )->has_connected_owner() ) {
 				$status = Products::STATUS_USER_CONNECTION_ERROR;
-			} elseif ( static::is_upgradable() ) {
-				$status = Products::STATUS_CAN_UPGRADE;
 			} elseif ( static::has_paid_plan_for_product() && in_array( static::get_paid_plan_expiration_status(), Products::$expiring_or_expired_module_statuses, true ) ) {
 				$status = static::get_paid_plan_expiration_status();
+			} elseif ( static::is_upgradable() ) {
+				$status = Products::STATUS_CAN_UPGRADE;
 			}
 			// Check specifically for inactive modules, which will prevent a product from being active
 		} elseif ( static::$module_name && ! static::is_module_active() ) {

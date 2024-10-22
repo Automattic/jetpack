@@ -20,7 +20,7 @@ class Products {
 	const STATUS_USER_CONNECTION_ERROR       = 'user_connection_error';
 	const STATUS_ACTIVE                      = 'active';
 	const STATUS_CAN_UPGRADE                 = 'can_upgrade';
-	const STATUS_EXPIRING_SOON               = 'expiring_soon';
+	const STATUS_EXPIRING_SOON               = 'expiring';
 	const STATUS_EXPIRED                     = 'expired';
 	const STATUS_INACTIVE                    = 'inactive';
 	const STATUS_MODULE_DISABLED             = 'module_disabled';

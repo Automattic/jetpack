@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
 use Automattic\Jetpack\My_Jetpack\Hybrid_Product;
-use Automattic\Jetpack\My_Jetpack\Products;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 
 /**
@@ -68,6 +67,13 @@ class Videopress extends Hybrid_Product {
 	 * @var bool
 	 */
 	public static $has_free_offering = true;
+
+	/**
+	 * The feature slug that identifies the paid plan
+	 *
+	 * @var string
+	 */
+	public static $feature_identifying_paid_plan = 'videopress-1tb-storage';
 
 	/**
 	 * Get the product name
@@ -203,39 +209,15 @@ class Videopress extends Hybrid_Product {
 	}
 
 	/**
-	 * Gets the paid plan's expiry status, or null if: no paid plan, or not expired, or not expiring soon.
+	 * Get the product-slugs of the paid plans for this product (not including bundles)
 	 *
-	 * @return boolean
+	 * @return array
 	 */
-	public static function get_paid_plan_expiration_status() {
-		$plans_with_videopress = array(
+	public static function get_paid_plan_product_slugs() {
+		return array(
 			'jetpack_videopress',
-			'jetpack_complete',
-			'jetpack_business',
-			'jetpack_premium',
+			'jetpack_videopress_monthly',
+			'jetpack_videopress_bi_yearly',
 		);
-		$purchases_data        = Wpcom_Products::get_site_current_purchases();
-		if ( is_wp_error( $purchases_data ) ) {
-			return null;
-		}
-		if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
-			foreach ( $purchases_data as $purchase ) {
-				foreach ( $plans_with_videopress as $plan ) {
-					if ( strpos( $purchase->product_slug, $plan ) !== false ) {
-						// Check if expired or expiring soon
-						$now           = time();
-						$expiry_date   = strtotime( $purchase->expiry_date );
-						$expiring_soon = strtotime( $purchase->expiry_date . ' -30 days' );
-						if ( $now > $expiring_soon && $now < $expiry_date ) {
-							return Products::STATUS_EXPIRING_SOON;
-						}
-						if ( $now > $expiry_date ) {
-							return Products::STATUS_EXPIRED;
-						}
-					}
-				}
-			}
-		}
-		return null;
 	}
 }

@@ -68,6 +68,13 @@ class Stats extends Module_Product {
 	public static $has_free_offering = true;
 
 	/**
+	 * The feature slug that identifies the paid plan
+	 *
+	 * @var string
+	 */
+	public static $feature_identifying_paid_plan = 'stats-paid';
+
+	/**
 	 * Get the product name
 	 *
 	 * @return string
@@ -235,6 +242,20 @@ class Stats extends Module_Product {
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * Get the product-slugs of the paid plans for this product (not including bundles)
+	 *
+	 * @return array
+	 */
+	public static function get_paid_plan_product_slugs() {
+		return array(
+			'jetpack_stats_yearly',
+			'jetpack_stats_monthly',
+			'jetpack_stats_bi_yearly',
+			'jetpack_stats_pwyw_yearly',
+		);
 	}
 
 	/**
