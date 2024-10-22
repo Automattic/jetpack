@@ -278,7 +278,6 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'jetpack_waf_share_data'                       => true,
 			'jetpack_waf_share_debug_data'                 => false,
 			'jetpack_waf_automatic_rules_last_updated_timestamp' => 0,
-			'woocommerce_analytics_first_activation'       => false,
 		);
 
 		$theme_mod_key             = 'theme_mods_' . get_option( 'stylesheet' );
