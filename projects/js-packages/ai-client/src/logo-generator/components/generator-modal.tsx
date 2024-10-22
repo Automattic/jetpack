@@ -189,6 +189,7 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 		isLogoHistoryEmpty,
 		siteId,
 		requireUpgrade,
+		setFeatureFetchError,
 	] );
 
 	const handleModalOpen = useCallback( async () => {
@@ -248,16 +249,16 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 	// Handles modal opening logic
 	useEffect( () => {
 		// While the modal is not open, the siteId is not set, or the feature data is not available, do nothing.
-		// if ( ! isOpen || ! feature?.costs ) {
-		// 	return;
-		// }
+		if ( ! isOpen ) {
+			return;
+		}
 
 		// Prevent multiple calls of the handleModalOpen function
 		if ( needsToHandleModalOpen.current ) {
 			needsToHandleModalOpen.current = false;
 			handleModalOpen();
 		}
-	}, [ isOpen, siteId, handleModalOpen, feature ] );
+	}, [ isOpen, handleModalOpen ] );
 
 	let body: React.ReactNode;
 
