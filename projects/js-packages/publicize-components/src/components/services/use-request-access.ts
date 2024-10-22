@@ -96,7 +96,10 @@ export function useRequestAccess( { service, onConfirm }: RequestAccessOptions )
 					}
 
 					url.searchParams.set( 'handle', handle );
-					url.searchParams.set( 'app_password', formData.get( 'app_password' ).toString().trim() );
+					url.searchParams.set(
+						'app_password',
+						( formData.get( 'app_password' )?.toString() || '' ).trim()
+					);
 					break;
 				}
 
