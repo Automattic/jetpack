@@ -1,0 +1,4 @@
+Significance: minor
+Type: fixed
+
+AI Client: fix initial state being mapped even when fetch fails, making the default state nonsensical
