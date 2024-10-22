@@ -9,7 +9,7 @@ use Automattic\Jetpack_Boost\Lib\Analytics;
 class Image_Guide implements Pluggable {
 
 	public function setup() {
-		if ( is_admin() || is_user_logged_in() || current_user_can( 'manage_options' ) ) {
+		if ( is_user_logged_in() && current_user_can( 'manage_options' ) ) {
 			Image_Guide_Proxy::init();
 		}
 
