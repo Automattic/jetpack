@@ -144,7 +144,7 @@ const List: React.FC< ListProps > = ( { items, setItems, maxItems } ) => {
 		>
 			<textarea
 				value={ inputValue }
-				rows={ 3 }
+				rows={ maxItems }
 				onChange={ e => validateInputValue( e.target.value ) }
 				id="jb-foundation-pages"
 			/>
