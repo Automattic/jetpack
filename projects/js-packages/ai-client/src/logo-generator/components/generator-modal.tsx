@@ -125,10 +125,10 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 					: currentLimit < currentUsage );
 
 			// If the site requires an upgrade, show the upgrade screen immediately.
-			setNeedsFeature( currentLimit === 0 );
+			setNeedsFeature( currentValue === 0 );
 			setNeedsMoreRequests( siteNeedsMoreRequests );
 
-			if ( currentLimit === 0 || siteNeedsMoreRequests ) {
+			if ( currentValue === 0 || siteNeedsMoreRequests ) {
 				setLoadingState( null );
 				return;
 			}
