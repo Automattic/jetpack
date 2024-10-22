@@ -104,6 +104,8 @@ const List: React.FC< ListProps > = ( { items, setItems, maxItems } ) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const [ inputInvalid, setInputInvalid ] = useState( false );
 
+	const inputRows = Math.min( maxItems, 10 );
+
 	const validateInputValue = ( value: string ) => {
 		setInputValue( value );
 		setInputInvalid( ! validateItems( value ) );
@@ -144,7 +146,7 @@ const List: React.FC< ListProps > = ( { items, setItems, maxItems } ) => {
 		>
 			<textarea
 				value={ inputValue }
-				rows={ maxItems }
+				rows={ inputRows }
 				onChange={ e => validateInputValue( e.target.value ) }
 				id="jb-foundation-pages"
 			/>
