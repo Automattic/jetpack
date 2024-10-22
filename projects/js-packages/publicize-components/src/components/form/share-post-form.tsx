@@ -1,5 +1,6 @@
 import { siteHasFeature } from '@automattic/jetpack-script-data';
 import useSocialMediaMessage from '../../hooks/use-social-media-message';
+import { features } from '../../utils/constants';
 import MediaSection from '../media-section';
 import MessageBoxControl from '../message-box-control';
 
@@ -24,7 +25,7 @@ export const SharePostForm: React.FC< SharePostFormProps > = ( { analyticsData =
 				message={ message }
 				analyticsData={ analyticsData }
 			/>
-			{ siteHasFeature( 'social-enhanced-publishing' ) && (
+			{ siteHasFeature( features.ENHANCED_PUBLISHING ) && (
 				<MediaSection analyticsData={ analyticsData } />
 			) }
 		</>

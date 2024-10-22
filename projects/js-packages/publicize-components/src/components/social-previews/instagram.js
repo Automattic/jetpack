@@ -7,6 +7,7 @@ import { __, _x } from '@wordpress/i18n';
 import React from 'react';
 import useSocialMediaMessage from '../../hooks/use-social-media-message';
 import { SOCIAL_STORE_ID, CONNECTION_SERVICE_INSTAGRAM_BUSINESS } from '../../social-store';
+import { features } from '../../utils/constants';
 
 /**
  * The Instagram tab component.
@@ -41,7 +42,7 @@ export function Instagram( props ) {
 					</ExternalLink>,
 				] }
 			>
-				{ siteHasFeature( 'social-enhanced-publishing' )
+				{ siteHasFeature( features.ENHANCED_PUBLISHING )
 					? __(
 							'To share to Instagram, add an image/video, or enable Social Image Generator.',
 							'jetpack'
