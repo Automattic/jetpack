@@ -136,7 +136,7 @@ class Source_Providers {
 
 				// This removes the home and blog pages from the list of pages,
 				// so they don't belong to two separate groups.
-				if ( $provider !== WP_Core_Provider::class ) {
+				if ( ! in_array( $provider, array( WP_Core_Provider::class, Foundation_Provider::class ), true ) ) {
 					$urls = array_values( array_diff( $urls, $flat_wp_core_urls ) );
 				}
 
