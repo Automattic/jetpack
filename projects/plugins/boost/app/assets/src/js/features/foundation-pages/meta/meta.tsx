@@ -15,20 +15,20 @@ const Meta = () => {
 	const [ foundationPages, setFoundationPages ] = useFoundationPages();
 	const foundationPagesProperties = useFoundationPagesProperties();
 
-	const updatePatterns = ( newValue: string ) => {
-		const newPatterns = newValue.split( '\n' ).map( line => line.trim() );
+	const updateFoundationPages = ( newValue: string ) => {
+		const newItems = newValue.split( '\n' ).map( line => line.trim() );
 
-		setFoundationPages( newPatterns );
+		setFoundationPages( newItems );
 	};
 
 	let content = null;
 
 	if ( foundationPagesProperties !== undefined ) {
 		content = (
-			<BypassPatterns
-				patterns={ foundationPages.join( '\n' ) }
-				setPatterns={ updatePatterns }
-				maxPatterns={ foundationPagesProperties.max_pages }
+			<List
+				items={ foundationPages.join( '\n' ) }
+				setItems={ updateFoundationPages }
+				maxItems={ foundationPagesProperties.max_pages }
 			/>
 		);
 	} else {
@@ -93,27 +93,23 @@ const Meta = () => {
 	);
 };
 
-type BypassPatternsProps = {
-	patterns: string;
-	setPatterns: ( newValue: string ) => void;
-	maxPatterns: number;
+type ListProps = {
+	items: string;
+	setItems: ( newValue: string ) => void;
+	maxItems: number;
 };
 
-const BypassPatterns: React.FC< BypassPatternsProps > = ( {
-	patterns,
-	setPatterns,
-	maxPatterns,
-} ) => {
-	const [ inputValue, setInputValue ] = useState( patterns );
+const List: React.FC< ListProps > = ( { items, setItems, maxItems } ) => {
+	const [ inputValue, setInputValue ] = useState( items );
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const [ inputInvalid, setInputInvalid ] = useState( false );
 
 	const validateInputValue = ( value: string ) => {
 		setInputValue( value );
-		setInputInvalid( ! validatePatterns( value ) );
+		setInputInvalid( ! validateItems( value ) );
 	};
 
-	const validatePatterns = ( value: string ) => {
+	const validateItems = ( value: string ) => {
 		const lines = value
 			.split( '\n' )
 			.map( line => line.trim() )
@@ -124,8 +120,8 @@ const BypassPatterns: React.FC< BypassPatternsProps > = ( {
 			return false;
 		}
 
-		// Check if the number of patterns exceeds maxPatterns
-		if ( lines.length > maxPatterns ) {
+		// Check if the number of items exceeds maxItems
+		if ( lines.length > maxItems ) {
 			return false;
 		}
 
@@ -133,11 +129,11 @@ const BypassPatterns: React.FC< BypassPatternsProps > = ( {
 	};
 
 	useEffect( () => {
-		setInputValue( patterns );
-	}, [ patterns ] );
+		setInputValue( items );
+	}, [ items ] );
 
 	function save() {
-		setPatterns( inputValue );
+		setItems( inputValue );
 	}
 
 	return (
@@ -159,15 +155,15 @@ const BypassPatterns: React.FC< BypassPatternsProps > = ( {
 						_n(
 							'You must provide %d foundation page URL.',
 							'You must provide between 1 and %d foundation page URLs.',
-							maxPatterns,
+							maxItems,
 							'jetpack-boost'
 						),
-						maxPatterns
+						maxItems
 					) }
 				</p>
 			) }
 			<Button
-				disabled={ patterns === inputValue || inputInvalid }
+				disabled={ items === inputValue || inputInvalid }
 				onClick={ save }
 				className={ styles.button }
 			>
