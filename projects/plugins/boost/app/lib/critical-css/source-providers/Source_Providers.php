@@ -4,6 +4,7 @@ namespace Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers;
 
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Storage;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Providers\Archive_Provider;
+use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Providers\Foundation_Provider;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Providers\Post_ID_Provider;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Providers\Provider;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Providers\Singular_Post_Provider;
@@ -42,6 +43,7 @@ class Source_Providers {
 		Singular_Post_Provider::class,
 		Archive_Provider::class,
 		Taxonomy_Provider::class,
+		Foundation_Provider::class,
 	);
 
 	public function get_providers() {
@@ -134,7 +136,7 @@ class Source_Providers {
 
 				// This removes the home and blog pages from the list of pages,
 				// so they don't belong to two separate groups.
-				if ( $provider !== WP_Core_Provider::class ) {
+				if ( ! in_array( $provider, array( WP_Core_Provider::class, Foundation_Provider::class ), true ) ) {
 					$urls = array_values( array_diff( $urls, $flat_wp_core_urls ) );
 				}
 
