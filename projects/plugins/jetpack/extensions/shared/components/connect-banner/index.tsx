@@ -1,6 +1,7 @@
 /*
  * External dependencies
  */
+import { useConnection } from '@automattic/jetpack-connection';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { __ } from '@wordpress/i18n';
 /*
@@ -17,12 +18,25 @@ interface ConnectBannerProps {
 
 import './style.scss';
 
+const getRedirectUri = () => {
+	const pathname = window?.location?.pathname.replace( 'wp-admin/', '' );
+	const search = window?.location?.search;
+
+	return `${ pathname }${ search }`;
+};
+
 const ConnectBanner: FC< ConnectBannerProps > = ( { block, explanation = null } ) => {
-	const checkoutUrl = `${ window?.Jetpack_Editor_Initial_State?.adminUrl }admin.php?page=my-jetpack#/connection`;
-	const { autosaveAndRedirect, isRedirecting } = useAutosaveAndRedirect( checkoutUrl );
+	const { handleConnectUser } = useConnection( {
+		from: 'editor',
+		redirectUri: getRedirectUri(),
+		autoTrigger: false,
+		skipPricingPage: true,
+	} );
+	const { autosaveAndRedirect, isRedirecting } = useAutosaveAndRedirect();
 	const { tracks } = useAnalytics();
 
 	const goToCheckoutPage = ( event: MouseEvent< HTMLButtonElement > ) => {
+		handleConnectUser();
 		tracks.recordEvent( 'jetpack_editor_connect_banner_click', { block } );
 		autosaveAndRedirect( event );
 	};
@@ -31,10 +45,10 @@ const ConnectBanner: FC< ConnectBannerProps > = ( { block, explanation = null } 
 		<div>
 			<Nudge
 				buttonText={ __( 'Connect Jetpack', 'jetpack' ) }
-				checkoutUrl={ checkoutUrl }
 				className="jetpack-connect-banner-nudge"
 				description={ __( 'Your account is not connected to Jetpack at the moment.', 'jetpack' ) }
 				goToCheckoutPage={ goToCheckoutPage }
+				checkoutUrl={ '#' }
 				isRedirecting={ isRedirecting }
 			/>
 			<div className="jetpack-connect-banner">
