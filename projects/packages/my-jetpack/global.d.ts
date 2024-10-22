@@ -48,6 +48,12 @@ type ThreatItem = {
 	fixed_in: string;
 	description: string | null;
 	source: string | null;
+	extension: {
+		slug: string;
+		name: string;
+		version: string;
+		type: 'plugin' | 'theme' | 'core';
+	};
 	// Scan API properties (paid plan)
 	context: string | null;
 	filename: string | null;
@@ -56,15 +62,6 @@ type ThreatItem = {
 	severity: number | null;
 	signature: string | null;
 	status: number | null;
-};
-
-type ScanItem = {
-	checked: boolean;
-	name: string;
-	slug: string;
-	threats: ThreatItem[];
-	type: string;
-	version: string;
 };
 
 interface Window {
@@ -211,22 +208,15 @@ interface Window {
 		};
 		protect: {
 			scanData: {
-				core: ScanItem;
+				threats: ThreatItem[];
 				current_progress?: string;
 				data_source: string;
-				database: string[];
 				error: boolean;
 				error_code?: string;
 				error_message?: string;
-				files: string[];
 				has_unchecked_items: boolean;
 				last_checked: string;
-				num_plugins_threats: number;
-				num_themes_threats: number;
-				num_threats: number;
-				plugins: ScanItem[];
 				status: string;
-				themes: ScanItem[];
 			};
 			wafConfig: {
 				automatic_rules_available: boolean;

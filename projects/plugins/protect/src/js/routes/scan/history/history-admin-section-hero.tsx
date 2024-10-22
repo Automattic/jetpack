@@ -2,44 +2,37 @@ import { Status, Text } from '@automattic/jetpack-components';
 import { dateI18n } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
 import { useMemo } from 'react';
-import { useParams } from 'react-router-dom';
+// import { useParams } from 'react-router-dom';
 import AdminSectionHero from '../../../components/admin-section-hero';
 import ErrorAdminSectionHero from '../../../components/error-admin-section-hero';
 import ScanNavigation from '../../../components/scan-navigation';
-import useThreatsList from '../../../components/threats-list/use-threats-list';
-import useProtectData from '../../../hooks/use-protect-data';
+import useHistoryQuery from '../../../data/scan/use-history-query';
 import styles from './styles.module.scss';
 
 const HistoryAdminSectionHero: React.FC = () => {
-	const { filter = 'all' } = useParams();
-	const { list } = useThreatsList( {
-		source: 'history',
-		status: filter,
-	} );
-	const { counts, error } = useProtectData( {
-		sourceType: 'history',
-		filter: { status: filter },
-	} );
-	const { threats: numAllThreats } = counts.all;
+	// const { filter = 'all' } = useParams(); // to do: apply filter to history query
+	const { data: history } = useHistoryQuery();
+
+	const numAllThreats = history ? history.threats.length : 0;
 
 	const oldestFirstDetected = useMemo( () => {
-		if ( ! list.length ) {
+		if ( ! history || ! history.threats.length ) {
 			return null;
 		}
 
-		return list.reduce( ( oldest, current ) => {
+		return history.threats.reduce( ( oldest, current ) => {
 			return new Date( current.firstDetected ) < new Date( oldest.firstDetected )
 				? current
 				: oldest;
 		} ).firstDetected;
-	}, [ list ] );
+	}, [ history ] );
 
-	if ( error ) {
+	if ( history && history.error ) {
 		return (
 			<ErrorAdminSectionHero
 				baseErrorMessage={ __( 'We are having problems loading your history.', 'jetpack-protect' ) }
-				errorMessage={ error?.message }
-				errorCode={ error?.code }
+				errorMessage={ history.errorMessage }
+				errorCode={ history.errorCode }
 			/>
 		);
 	}

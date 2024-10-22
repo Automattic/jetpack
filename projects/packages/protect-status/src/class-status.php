@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\Protect_Status;
 
-use Automattic\Jetpack\Protect_Models\Extension_Model;
 use Automattic\Jetpack\Protect_Models\Status_Model;
 
 /**
@@ -163,7 +162,7 @@ class Status {
 	 */
 	public static function get_total_threats() {
 		$status = static::get_status();
-		return isset( $status->num_threats ) && is_int( $status->num_threats ) ? $status->num_threats : 0;
+		return isset( $status->threats ) && is_array( $status->threats ) ? count( $status->threats ) : 0;
 	}
 
 	/**
@@ -172,140 +171,7 @@ class Status {
 	 * @return array
 	 */
 	public static function get_all_threats() {
-		return array_merge(
-			self::get_wordpress_threats(),
-			self::get_themes_threats(),
-			self::get_plugins_threats(),
-			self::get_files_threats(),
-			self::get_database_threats()
-		);
-	}
-
-	/**
-	 * Get threats found for WordPress core
-	 *
-	 * @return array
-	 */
-	public static function get_wordpress_threats() {
-		return self::get_threats( 'core' );
-	}
-
-	/**
-	 * Get threats found for themes
-	 *
-	 * @return array
-	 */
-	public static function get_themes_threats() {
-		return self::get_threats( 'themes' );
-	}
-
-	/**
-	 * Get threats found for plugins
-	 *
-	 * @return array
-	 */
-	public static function get_plugins_threats() {
-		return self::get_threats( 'plugins' );
-	}
-
-	/**
-	 * Get threats found for files
-	 *
-	 * @return array
-	 */
-	public static function get_files_threats() {
-		return self::get_threats( 'files' );
-	}
-
-	/**
-	 * Get threats found for plugins
-	 *
-	 * @return array
-	 */
-	public static function get_database_threats() {
-		return self::get_threats( 'database' );
-	}
-
-	/**
-	 * Get the threats for one type of extension or core
-	 *
-	 * @param string $type What threats you want to get. Possible values are 'core', 'themes' and 'plugins'.
-	 *
-	 * @return array
-	 */
-	public static function get_threats( $type ) {
 		$status = static::get_status();
-
-		if ( 'core' === $type ) {
-			return isset( $status->$type ) && ! empty( $status->$type->threats ) ? $status->$type->threats : array();
-		}
-
-		if ( 'files' === $type || 'database' === $type ) {
-			return isset( $status->$type ) && ! empty( $status->$type ) ? $status->$type : array();
-		}
-
-		$threats = array();
-		if ( isset( $status->$type ) ) {
-			foreach ( (array) $status->$type as $item ) {
-				if ( ! empty( $item->threats ) ) {
-					$threats = array_merge( $threats, $item->threats );
-				}
-			}
-		}
-		return $threats;
-	}
-
-	/**
-	 * Check if the WordPress version that was checked matches the current installed version.
-	 *
-	 * @param object $core_check The object returned by Protect wpcom endpoint.
-	 * @return object The object representing the current status of core checks.
-	 */
-	protected static function normalize_core_information( $core_check ) {
-		global $wp_version;
-
-		$core = new Extension_Model(
-			array(
-				'type'    => 'core',
-				'name'    => 'WordPress',
-				'version' => $wp_version,
-				'checked' => false,
-			)
-		);
-
-		if ( isset( $core_check->version ) && $core_check->version === $wp_version ) {
-			if ( is_array( $core_check->vulnerabilities ) ) {
-				$core->checked = true;
-				$core->set_threats( $core_check->vulnerabilities );
-			}
-		}
-
-		return $core;
-	}
-
-	/**
-	 * Sort By Threats
-	 *
-	 * @param array<object> $threats Array of threats to sort.
-	 *
-	 * @return array<object> The sorted $threats array.
-	 */
-	protected static function sort_threats( $threats ) {
-		usort(
-			$threats,
-			function ( $a, $b ) {
-				// sort primarily based on the presence of threats
-				$ret = empty( $a->threats ) <=> empty( $b->threats );
-
-				// sort secondarily on whether the item has been checked
-				if ( ! $ret ) {
-					$ret = $a->checked <=> $b->checked;
-				}
-
-				return $ret;
-			}
-		);
-
-		return $threats;
+		return isset( $status->threats ) && is_array( $status->threats ) ? $status->threats : array();
 	}
 }

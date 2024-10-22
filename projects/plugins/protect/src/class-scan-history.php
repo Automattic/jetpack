@@ -211,89 +211,18 @@ class Scan_History {
 	 * @return History_Model
 	 */
 	private static function normalize_api_data( $scan_data ) {
-		$history                      = new History_Model();
-		$history->num_threats         = 0;
-		$history->num_core_threats    = 0;
-		$history->num_plugins_threats = 0;
-		$history->num_themes_threats  = 0;
-
+		$history               = new History_Model();
 		$history->last_checked = $scan_data->last_checked;
 
 		if ( empty( $scan_data->threats ) || ! is_array( $scan_data->threats ) ) {
 			return $history;
 		}
 
-		foreach ( $scan_data->threats as $threat ) {
-			if ( isset( $threat->extension->type ) ) {
-				if ( 'plugin' === $threat->extension->type ) {
-					self::handle_extension_threats( $threat, $history, 'plugin' );
-					continue;
-				}
-
-				if ( 'theme' === $threat->extension->type ) {
-					self::handle_extension_threats( $threat, $history, 'theme' );
-					continue;
-				}
-			}
-
-			if ( 'Vulnerable.WP.Core' === $threat->signature ) {
-				self::handle_core_threats( $threat, $history );
-				continue;
-			}
-
-			self::handle_additional_threats( $threat, $history );
+		foreach ( $scan_data->threats as $source_threat ) {
+			$history->threats[] = new Threat_Model( $source_threat );
 		}
 
 		return $history;
-	}
-
-	/**
-	 * Handles threats for extensions such as plugins or themes.
-	 *
-	 * @param object $threat The threat object.
-	 * @param object $history The history object.
-	 * @param string $type The type of extension ('plugin' or 'theme').
-	 * @return void
-	 */
-	private static function handle_extension_threats( $threat, $history, $type ) {
-		$extension_list = $type === 'plugin' ? 'plugins' : 'themes';
-		$extensions     = &$history->{ $extension_list};
-		$found_index    = null;
-
-		// Check if the extension does not exist in the array
-		foreach ( $extensions as $index => $extension ) {
-			if ( $extension->slug === $threat->extension->slug ) {
-				$found_index = $index;
-				break;
-			}
-		}
-
-		// Add the extension if it does not yet exist in the history
-		if ( $found_index === null ) {
-			$new_extension = new Extension_Model(
-				array(
-					'name'    => $threat->extension->name ?? null,
-					'slug'    => $threat->extension->slug ?? null,
-					'version' => $threat->extension->version ?? null,
-					'type'    => $type,
-					'checked' => true,
-					'threats' => array(),
-				)
-			);
-			$extensions[]  = $new_extension;
-			$found_index   = array_key_last( $extensions );
-		}
-
-		// Add the threat to the found extension
-		$extensions[ $found_index ]->threats[] = new Threat_Model( $threat );
-
-		// Increment the threat counts
-		++$history->num_threats;
-		if ( $type === 'plugin' ) {
-			++$history->num_plugins_threats;
-		} elseif ( $type === 'theme' ) {
-			++$history->num_themes_threats;
-		}
 	}
 
 	/**

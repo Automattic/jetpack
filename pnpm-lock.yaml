@@ -1175,6 +1175,9 @@ importers:
       '@wordpress/i18n':
         specifier: 5.9.0
         version: 5.9.0
+      '@wordpress/icons':
+        specifier: 10.9.0
+        version: 10.9.0(react@18.3.1)
       '@wordpress/url':
         specifier: 4.9.0
         version: 4.9.0
@@ -4207,6 +4210,9 @@ importers:
       '@automattic/jetpack-connection':
         specifier: workspace:*
         version: link:../../js-packages/connection
+      '@automattic/jetpack-scan':
+        specifier: workspace:*
+        version: link:../../js-packages/scan
       '@tanstack/react-query':
         specifier: 5.20.5
         version: 5.20.5(react@18.3.1)
@@ -19344,9 +19350,9 @@ snapshots:
 
   '@wordpress/icons@10.9.0(react@18.3.1)':
     dependencies:
-      '@babel/runtime': 7.24.7
+      '@babel/runtime': 7.25.7
       '@wordpress/element': 6.9.0
-      '@wordpress/primitives': 4.9.0(react@18.3.1)
+      '@wordpress/primitives': 4.10.0(react@18.3.1)
       react: 18.3.1
 
   '@wordpress/interactivity-router@2.9.0':

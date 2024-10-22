@@ -98,6 +98,15 @@
 	font-size: 12px;
 }
 
+.threat__fixedOn,
+.threat__firstDetected {
+	white-space: nowrap;
+}
+
+.threat__fixedOn {
+	color: var( --jp-green-70 );
+}
+
 .icon-spinner {
 	svg {
 		margin: 0;
