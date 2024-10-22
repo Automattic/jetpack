@@ -45,7 +45,7 @@ const IconTooltip: React.FC< IconTooltipProps > = ( {
 } ) => {
 	const POPOVER_HELPER_WIDTH = 124;
 	const [ isVisible, setIsVisible ] = useState( false );
-	const [ timeoutId, setTimeoutId ] = useState< NodeJS.Timeout | null >( null );
+	const [ timeoutId, setTimeoutId ] = useState< number | null >( null );
 
 	const hideTooltip = useCallback( () => setIsVisible( false ), [ setIsVisible ] );
 	const toggleTooltip = useCallback(
