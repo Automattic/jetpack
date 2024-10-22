@@ -1,8 +1,9 @@
 import { Container, Col, Text } from '@automattic/jetpack-components';
-import { Flex, FlexItem, DropdownMenu } from '@wordpress/components';
+import { Icon, Flex, FlexItem, DropdownMenu, Button } from '@wordpress/components';
 import { __, _n } from '@wordpress/i18n';
 import { moreHorizontalMobile } from '@wordpress/icons';
-import { useEffect } from 'react';
+import { chevronLeft, chevronRight } from '@wordpress/icons';
+import { useEffect, useCallback, useRef } from 'react';
 import useEvaluationRecommendations from '../../data/evaluation-recommendations/use-evaluation-recommendations';
 import useAnalytics from '../../hooks/use-analytics';
 import { JetpackModuleToProductCard } from '../product-cards-section/all';
@@ -10,9 +11,33 @@ import styles from './style.module.scss';
 import type { FC } from 'react';
 
 const EvaluationRecommendations: FC = () => {
+	const containerRef = useRef( null );
 	const { recordEvent } = useAnalytics();
 	const { recommendedModules, redoEvaluation, removeEvaluationResult } =
 		useEvaluationRecommendations();
+
+	const handleSlide = (
+		cardContainerRef: React.RefObject< HTMLUListElement >,
+		direction: number,
+		gap: number = 24
+	) => {
+		if ( cardContainerRef.current ) {
+			const cardWidth = cardContainerRef.current.querySelector( 'li' ).clientWidth;
+
+			cardContainerRef.current.scrollBy( {
+				left: direction * ( cardWidth + gap ),
+				behavior: 'smooth',
+			} );
+		}
+	};
+
+	const handleNextSlide = useCallback( () => {
+		handleSlide( containerRef, 1 );
+	}, [ containerRef ] );
+
+	const handlePrevSlide = useCallback( () => {
+		handleSlide( containerRef, -1 );
+	}, [ containerRef ] );
 
 	// We're defining each of these translations in separate variables here, otherwise optimizations in
 	// the build step end up breaking the translations and causing error.
@@ -68,6 +93,7 @@ const EvaluationRecommendations: FC = () => {
 			</Col>
 			<Col>
 				<Container
+					ref={ containerRef }
 					tagName="ul"
 					className={ styles[ 'recommendations-list' ] }
 					horizontalGap={ 4 }
@@ -85,6 +111,18 @@ const EvaluationRecommendations: FC = () => {
 						);
 					} ) }
 				</Container>
+				<Flex align="center" justify="center">
+					<FlexItem>
+						<Button onClick={ handlePrevSlide }>
+							<Icon icon={ chevronLeft } />
+						</Button>
+					</FlexItem>
+					<FlexItem>
+						<Button onClick={ handleNextSlide }>
+							<Icon icon={ chevronRight } />
+						</Button>
+					</FlexItem>
+				</Flex>
 			</Col>
 		</Container>
 	);
