@@ -44,11 +44,11 @@ class Admin_UI {
 	}
 
 	/**
-	 * Add the page suffix, separately to init due to translations needing to run early.
+	 * Enable the menu, separately to init due to translations needing to run early for the page suffix.
 	 *
 	 * @return void
 	 */
-	public static function load_page_suffix() {
+	public static function enable_menu() {
 		$page_suffix = Admin_Menu::add_menu(
 			__( 'Jetpack VideoPress', 'jetpack-videopress-pkg' ),
 			_x( 'VideoPress', 'The Jetpack VideoPress product name, without the Jetpack prefix', 'jetpack-videopress-pkg' ),
