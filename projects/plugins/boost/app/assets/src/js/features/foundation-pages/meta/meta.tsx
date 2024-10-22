@@ -155,10 +155,10 @@ const BypassPatterns: React.FC< BypassPatternsProps > = ( {
 			{ inputInvalid && (
 				<p className={ styles.error }>
 					{ sprintf(
-						/* translators: %d is the maximum number of foundation pages. */
+						/* translators: %d is the maximum number of foundation page URLs. */
 						_n(
-							'You can have only %d foundation page.',
-							'You can have only %d foundation pages.',
+							'You must provide %d foundation page URL.',
+							'You must provide between 1 and %d foundation page URLs.',
 							maxPatterns,
 							'jetpack-boost'
 						),
