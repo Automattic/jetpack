@@ -7,7 +7,7 @@ import {
 	GlobalNotices,
 } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
-import { store as socialStore } from '@automattic/jetpack-publicize-components';
+import { store as socialStore, features } from '@automattic/jetpack-publicize-components';
 import { siteHasFeature } from '@automattic/jetpack-script-data';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useState, useCallback, useEffect, useRef } from '@wordpress/element';
@@ -55,7 +55,7 @@ const Admin = () => {
 		if (
 			isModuleEnabled &&
 			! hasEnabledModule.current &&
-			siteHasFeature( 'social-image-generator' )
+			siteHasFeature( features.IMAGE_GENERATOR )
 		) {
 			hasEnabledModule.current = true;
 			refreshJetpackSocialSettings();
@@ -95,7 +95,7 @@ const Admin = () => {
 					<AdminSection>
 						<SocialModuleToggle />
 						{ isModuleEnabled && <SocialNotesToggle disabled={ isUpdatingJetpackSettings } /> }
-						{ isModuleEnabled && siteHasFeature( 'social-image-generator' ) && (
+						{ isModuleEnabled && siteHasFeature( features.IMAGE_GENERATOR ) && (
 							<SocialImageGeneratorToggle disabled={ isUpdatingJetpackSettings } />
 						) }
 					</AdminSection>

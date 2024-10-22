@@ -1,6 +1,7 @@
 import { siteHasFeature } from '@automattic/jetpack-script-data';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
+import { features } from '../../utils/constants';
 
 /**
  * When a post can use the Social Image Generator (SIG).
@@ -16,5 +17,5 @@ export function usePostCanUseSig() {
 		return 'jetpack-social-note' === currentPostType;
 	}, [] );
 
-	return ! isJetpackSocialNote && siteHasFeature( 'social-image-generator' );
+	return ! isJetpackSocialNote && siteHasFeature( features.IMAGE_GENERATOR );
 }
