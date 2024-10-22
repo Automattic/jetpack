@@ -59,7 +59,6 @@ const ConnectScreen: React.FC< Props > = ( {
 	skipPricingPage,
 	logo,
 } ) => {
-	console.log( skipPricingPage );
 	const {
 		handleRegisterSite,
 		siteIsRegistering,
