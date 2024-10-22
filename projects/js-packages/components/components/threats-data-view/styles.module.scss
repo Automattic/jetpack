@@ -11,7 +11,7 @@
 	}
 
 	.dataviews-view-table td .components-flex {
-		gap: 8px;
+		gap: 4px;
 	}
 
 	.dataviews-view-list .dataviews-views-list__fields {
@@ -23,7 +23,9 @@
 	}
 
 	.dataviews-view-table tr .dataviews-item-actions {
-		.components-button:not(.dataviews-all-actions-button) {
+		gap: 16px;
+
+		.components-button:not( .dataviews-all-actions-button ) {
 			opacity: 1;
 		}
 	  
