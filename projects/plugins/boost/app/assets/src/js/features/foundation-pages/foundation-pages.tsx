@@ -3,6 +3,12 @@ import Meta from './meta/meta';
 import SettingsItem from '$features/ui/settings-item/settings-item';
 
 const FoundationPages = () => {
+	const { developmentFeatures } = Jetpack_Boost;
+
+	if ( ! developmentFeatures ) {
+		return null;
+	}
+
 	return (
 		<SettingsItem
 			title={ __( 'Foundation Pages', 'jetpack-boost' ) }
