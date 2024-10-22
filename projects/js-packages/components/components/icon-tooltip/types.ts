@@ -87,5 +87,5 @@ export type IconTooltipProps = {
 	/**
 	 * Enables the Popover to show on hover.
 	 */
-	hoverEnabled?: boolean;
+	hoverShow?: boolean;
 };

@@ -41,10 +41,12 @@ const IconTooltip: React.FC< IconTooltipProps > = ( {
 	wide = false,
 	inline = true,
 	shift = false,
-	hoverEnabled = false,
+	hoverShow = false,
 } ) => {
 	const POPOVER_HELPER_WIDTH = 124;
 	const [ isVisible, setIsVisible ] = useState( false );
+	const [ timeoutId, setTimeoutId ] = useState< NodeJS.Timeout | null >( null );
+
 	const hideTooltip = useCallback( () => setIsVisible( false ), [ setIsVisible ] );
 	const toggleTooltip = useCallback(
 		e => {
@@ -53,6 +55,26 @@ const IconTooltip: React.FC< IconTooltipProps > = ( {
 		},
 		[ isVisible, setIsVisible ]
 	);
+
+	const handleMouseEnter = useCallback( () => {
+		if ( hoverShow ) {
+			if ( timeoutId ) {
+				clearTimeout( timeoutId );
+				setTimeoutId( null );
+			}
+			setIsVisible( true );
+		}
+	}, [ hoverShow, timeoutId ] );
+
+	const handleMouseLeave = useCallback( () => {
+		if ( hoverShow ) {
+			const id = setTimeout( () => {
+				setIsVisible( false );
+				setTimeoutId( null );
+			}, 100 );
+			setTimeoutId( id );
+		}
+	}, [ hoverShow ] );
 
 	const args = {
 		// To be compatible with deprecating prop `position`.
@@ -80,7 +102,12 @@ const IconTooltip: React.FC< IconTooltipProps > = ( {
 	const isForcedToShow = isAnchorWrapper && forceShow;
 
 	return (
-		<div className={ wrapperClassNames } data-testid="icon-tooltip_wrapper">
+		<div
+			className={ wrapperClassNames }
+			data-testid="icon-tooltip_wrapper"
+			onMouseEnter={ handleMouseEnter }
+			onMouseLeave={ handleMouseLeave }
+		>
 			{ ! isAnchorWrapper && (
 				<Button variant="link" onMouseDown={ toggleTooltip }>
 					<Gridicon className={ iconClassName } icon={ iconCode } size={ iconSize } />
@@ -90,7 +117,7 @@ const IconTooltip: React.FC< IconTooltipProps > = ( {
 				className={ clsx( 'icon-tooltip-helper', { 'is-wide': wide } ) }
 				style={ iconShiftBySize }
 			>
-				{ ( isForcedToShow || isVisible || hoverEnabled ) && (
+				{ ( isForcedToShow || isVisible ) && (
 					<Popover { ...args }>
 						<div>
 							{ title && <div className="icon-tooltip-title">{ title }</div> }
