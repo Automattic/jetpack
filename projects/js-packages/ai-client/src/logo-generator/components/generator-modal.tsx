@@ -73,7 +73,8 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 		site,
 		requireUpgrade,
 	} = useLogoGenerator();
-	const { featureFetchError, firstLogoPromptFetchError, clearErrors } = useRequestErrors();
+	const { featureFetchError, setFeatureFetchError, firstLogoPromptFetchError, clearErrors } =
+		useRequestErrors();
 	const siteId = siteDetails?.ID;
 	const [ logoAccepted, setLogoAccepted ] = useState( false );
 	const { nextTierCheckoutURL: upgradeURL } = useCheckout();
@@ -105,6 +106,15 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 	 */
 	const initializeModal = useCallback( async () => {
 		try {
+			if ( ! siteId ) {
+				throw new Error( 'Site ID is missing' );
+			}
+
+			if ( ! feature?.featuresControl?.[ 'logo-generator' ]?.enabled ) {
+				setFeatureFetchError( 'Failed to fetch feature data' );
+				throw new Error( 'Failed to fetch feature data' );
+			}
+
 			const hasHistory = ! isLogoHistoryEmpty( String( siteId ) );
 
 			const logoCost = feature?.costs?.[ 'jetpack-ai-logo-generator' ]?.logo ?? DEFAULT_LOGO_COST;
@@ -238,9 +248,9 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 	// Handles modal opening logic
 	useEffect( () => {
 		// While the modal is not open, the siteId is not set, or the feature data is not available, do nothing.
-		if ( ! isOpen || ! siteId || ! feature?.costs ) {
-			return;
-		}
+		// if ( ! isOpen || ! feature?.costs ) {
+		// 	return;
+		// }
 
 		// Prevent multiple calls of the handleModalOpen function
 		if ( needsToHandleModalOpen.current ) {
