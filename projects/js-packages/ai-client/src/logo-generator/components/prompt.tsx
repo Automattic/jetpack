@@ -44,12 +44,14 @@ export const AiModalPromptInput = ( {
 	disabled = false,
 	generateHandler = () => {},
 	placeholder = '',
+	buttonLabel = '',
 }: {
 	prompt: string;
 	setPrompt: Dispatch< SetStateAction< string > >;
 	disabled: boolean;
 	generateHandler: () => void;
 	placeholder?: string;
+	buttonLabel?: string;
 } ) => {
 	const inputRef = useRef< HTMLDivElement | null >( null );
 	const hasPrompt = prompt?.length >= MINIMUM_PROMPT_LENGTH;
@@ -105,7 +107,7 @@ export const AiModalPromptInput = ( {
 				onClick={ generateHandler }
 				disabled={ disabled || ! hasPrompt }
 			>
-				{ __( 'Generate', 'jetpack-ai-client' ) }
+				{ buttonLabel || __( 'Generate', 'jetpack-ai-client' ) }
 			</Button>
 		</div>
 	);
