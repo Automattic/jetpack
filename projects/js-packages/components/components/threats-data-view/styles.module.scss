@@ -42,6 +42,12 @@
 			box-shadow: none;
 		}
 	}
+
+	.dataviews-view-list .dataviews-view-list__item-actions {
+		div:first-of-type {
+			display: none;
+		}
+	}
 }
 
 .media {
