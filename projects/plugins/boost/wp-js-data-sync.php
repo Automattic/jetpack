@@ -17,6 +17,7 @@ use Automattic\Jetpack_Boost\Lib\Critical_CSS\Data_Sync_Actions\Regenerate_CSS;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Data_Sync_Actions\Set_Provider_CSS;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Data_Sync_Actions\Set_Provider_Error_Dismissed;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Data_Sync_Actions\Set_Provider_Errors;
+use Automattic\Jetpack_Boost\Lib\Foundation_Pages;
 use Automattic\Jetpack_Boost\Lib\My_Jetpack;
 use Automattic\Jetpack_Boost\Lib\Premium_Features;
 use Automattic\Jetpack_Boost\Lib\Premium_Pricing;
@@ -385,4 +386,6 @@ jetpack_boost_register_action( 'page_cache', 'deactivate-wpsc', Schema::as_void(
 
 jetpack_boost_register_option( 'image_cdn_liar', Schema::as_boolean()->fallback( false ), new Status( Liar::get_slug() ) );
 
-jetpack_boost_register_option( 'foundation_pages', Schema::as_array( Schema::as_string() )->fallback( array() ), new Foundation_Pages_Entry( 'foundation_pages' ) );
+jetpack_boost_register_option( 'foundation_pages_list', Schema::as_array( Schema::as_string() )->fallback( array( '/' ) ), new Foundation_Pages_Entry( 'foundation_pages_list' ) );
+
+jetpack_boost_register_readonly_option( 'foundation_pages_properties', array( new Foundation_Pages(), 'get_properties' ) );
