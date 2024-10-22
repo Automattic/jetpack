@@ -364,7 +364,6 @@ export default function ThreatsDataView( {
 				label: __( 'Ignore', 'jetpack' ),
 				isPrimary: true,
 				icon: <span className={ styles.threat__action }>{ __( 'Ignore', 'jetpack' ) }</span>,
-				// isDestructive: true,
 				callback: onIgnoreThreat,
 				isEligible( item ) {
 					if ( ! onIgnoreThreat ) {
@@ -384,7 +383,6 @@ export default function ThreatsDataView( {
 				label: __( 'Unignore', 'jetpack' ),
 				isPrimary: true,
 				icon: <span className={ styles.threat__action }>{ __( 'Un-ignore', 'jetpack' ) }</span>,
-				// isDestructive: true,
 				callback: onUnignoreThreat,
 				isEligible( item ) {
 					if ( ! onUnignoreThreat ) {
