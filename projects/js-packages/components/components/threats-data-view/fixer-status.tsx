@@ -76,9 +76,9 @@ export default function FixerStatusIcon( {
 
 	if ( fixer && 'status' in fixer && fixer.status === 'in_progress' ) {
 		return (
-			<span className={ styles[ 'icon-spinner' ] }>
+			<div className={ styles[ 'icon-spinner' ] }>
 				<Spinner color="black" />
-			</span>
+			</div>
 		);
 	}
 
