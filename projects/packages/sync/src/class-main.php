@@ -24,9 +24,6 @@ class Main {
 		if ( Actions::sync_allowed() ) {
 			add_action( 'plugins_loaded', array( __CLASS__, 'on_plugins_loaded_early' ), 5 );
 			add_action( 'plugins_loaded', array( __CLASS__, 'on_plugins_loaded_late' ), 90 );
-			// Init after plugins loaded and very early in the `init` action. This helps with issues where plugins init
-			// with a high priority or sites that use alternate cron.
-			add_action( 'init', array( 'Automattic\Jetpack\Sync\Actions', 'init' ), 1 );
 		}
 
 		// Add REST endpoints.
@@ -107,6 +104,11 @@ class Main {
 	 * @action plugins_loaded
 	 */
 	public static function on_plugins_loaded_late() {
+		/*
+		 * Init after plugins loaded and before the `init` action. This helps with issues where plugins init
+		 * with a high priority or sites that use alternate cron.
+		 */
+		Sync_Actions::init();
 
 		// Enable non-blocking Jetpack Sync flow.
 		$non_block_enabled = (bool) get_option( 'jetpack_sync_non_blocking', false );
