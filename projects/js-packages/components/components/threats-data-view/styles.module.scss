@@ -114,10 +114,12 @@
 
 .threat__fixer {
 	min-width: 54px;
-	text-align: center;
+	display: flex;
+	justify-content: center;
 }
 
 .icon-tooltip {
+	width: fit-content;
 
 	&__container {
 		text-align: left;

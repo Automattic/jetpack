@@ -4,6 +4,7 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
 import { check } from '@wordpress/icons';
+import React, { useState, useCallback } from 'react';
 import IconTooltip from '../icon-tooltip';
 import Text from '../text';
 import { PAID_PLUGIN_SUPPORT_URL } from './constants';
@@ -127,27 +128,60 @@ export function InfoIconTooltip( {
 	message?: string;
 	size?: number;
 } ): JSX.Element {
+	const [ showPopover, setShowPopover ] = useState( false );
+	const [ timeoutId, setTimeoutId ] = useState( null );
+
+	const handleEnter = useCallback( () => {
+		// Clear any existing timeout if user hovers back quickly
+		if ( timeoutId ) {
+			clearTimeout( timeoutId );
+			setTimeoutId( null );
+		}
+		setShowPopover( true );
+	}, [ timeoutId ] );
+
+	const handleOut = useCallback( () => {
+		// Set a timeout to delay the hiding of the popover
+		const id = setTimeout( () => {
+			setShowPopover( false );
+			setTimeoutId( null ); // Clear the timeout ID after the popover is hidden
+		}, 100 );
+
+		setTimeoutId( id );
+	}, [] );
+
 	return (
-		<IconTooltip
-			placement={ 'top' }
-			className={ styles[ 'icon-tooltip__container' ] }
-			iconClassName={ styles[ 'icon-tooltip__icon' ] }
-			iconSize={ size }
+		<div
+			className={ styles[ 'icon-tooltip' ] }
+			onMouseLeave={ handleOut }
+			onMouseEnter={ handleEnter }
+			onClick={ handleEnter }
+			onFocus={ handleEnter }
+			onBlur={ handleOut }
+			role="presentation"
 		>
-			<Text variant={ 'body-small' }>
-				{ message }{ ' ' }
-				{ createInterpolateElement(
-					__( 'Please try again or <supportLink>contact support</supportLink>.', 'jetpack' ),
-					{
-						supportLink: (
-							<ExternalLink
-								className={ styles[ 'support-link' ] }
-								href={ PAID_PLUGIN_SUPPORT_URL }
-							/>
-						),
-					}
-				) }
-			</Text>
-		</IconTooltip>
+			<IconTooltip
+				placement={ 'top' }
+				className={ styles[ 'icon-tooltip__container' ] }
+				iconClassName={ styles[ 'icon-tooltip__icon' ] }
+				iconSize={ size }
+				hoverEnabled={ showPopover }
+			>
+				<Text variant={ 'body-small' }>
+					{ message }{ ' ' }
+					{ createInterpolateElement(
+						__( 'Please try again or <supportLink>contact support</supportLink>.', 'jetpack' ),
+						{
+							supportLink: (
+								<ExternalLink
+									className={ styles[ 'support-link' ] }
+									href={ PAID_PLUGIN_SUPPORT_URL }
+								/>
+							),
+						}
+					) }
+				</Text>
+			</IconTooltip>
+		</div>
 	);
 }
