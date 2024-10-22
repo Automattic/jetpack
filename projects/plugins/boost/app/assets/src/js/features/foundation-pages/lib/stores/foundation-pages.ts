@@ -18,7 +18,10 @@ export function useFoundationPages(): [ string[], ( newValue: string[] ) => void
 	return [ data || [], updatePages ];
 }
 
-const FoundationPagesProperties = z.object( { max_pages: z.number() } );
+const FoundationPagesProperties = z.object( {
+	max_pages: z.number(),
+	blog_url: z.string().nullable(),
+} );
 type FoundationPagesProperties = z.infer< typeof FoundationPagesProperties >;
 
 export function useFoundationPagesProperties(): FoundationPagesProperties | undefined {

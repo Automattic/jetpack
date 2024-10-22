@@ -29,6 +29,14 @@ const Meta = () => {
 				items={ foundationPages.join( '\n' ) }
 				setItems={ updateFoundationPages }
 				maxItems={ foundationPagesProperties.max_pages }
+				description={
+					foundationPagesProperties.blog_url &&
+					sprintf(
+						/* translators: %s is the blog URL. */
+						__( 'No need to include the blog URL (%s), it is already included.', 'jetpack-boost' ),
+						foundationPagesProperties.blog_url
+					)
+				}
 			/>
 		);
 	} else {
@@ -97,9 +105,10 @@ type ListProps = {
 	items: string;
 	setItems: ( newValue: string ) => void;
 	maxItems: number;
+	description: React.ReactNode | null;
 };
 
-const List: React.FC< ListProps > = ( { items, setItems, maxItems } ) => {
+const List: React.FC< ListProps > = ( { items, setItems, maxItems, description } ) => {
 	const [ inputValue, setInputValue ] = useState( items );
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const [ inputInvalid, setInputInvalid ] = useState( false );
@@ -164,6 +173,7 @@ const List: React.FC< ListProps > = ( { items, setItems, maxItems } ) => {
 					) }
 				</p>
 			) }
+			{ description && <div className={ styles.description }>{ description }</div> }
 			<Button
 				disabled={ items === inputValue || inputInvalid }
 				onClick={ save }

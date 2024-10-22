@@ -37,11 +37,27 @@ class Foundation_Pages implements Has_Setup {
 	public function get_properties() {
 		return array(
 			'max_pages' => $this->get_max_pages(),
+			'blog_url'  => $this->get_blog_url(),
 		);
 	}
 
 	private function get_max_pages() {
 		return Premium_Features::has_any() ? 10 : 1;
+	}
+
+	private function get_blog_url() {
+		$front_page = (int) get_option( 'page_on_front' );
+		$posts_page = (int) get_option( 'page_for_posts' );
+		if ( $posts_page ) {
+			$permalink = get_permalink( $posts_page );
+			if ( ! empty( $permalink ) ) {
+				return $permalink;
+			}
+		} elseif ( ! $front_page ) {
+			return home_url( '/' );
+		}
+
+		return null;
 	}
 
 	private function is_development_features_enabled() {
