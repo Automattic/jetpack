@@ -34,6 +34,21 @@ class Admin_UI {
 	 * @return void
 	 */
 	public static function init() {
+
+		add_action( 'admin_footer-upload.php', array( __CLASS__, 'attachment_details_two_column_template' ) );
+		add_action( 'admin_footer-post.php', array( __CLASS__, 'attachment_details_template' ), 20 );
+
+		add_filter( 'get_edit_post_link', array( __CLASS__, 'edit_video_link' ), 10, 3 );
+
+		add_action( 'admin_init', array( __CLASS__, 'remove_jetpack_hooks' ) );
+	}
+
+	/**
+	 * Add the page suffix, separately to init due to translations needing to run early.
+	 *
+	 * @return void
+	 */
+	public static function load_page_suffix() {
 		$page_suffix = Admin_Menu::add_menu(
 			__( 'Jetpack VideoPress', 'jetpack-videopress-pkg' ),
 			_x( 'VideoPress', 'The Jetpack VideoPress product name, without the Jetpack prefix', 'jetpack-videopress-pkg' ),
@@ -43,13 +58,6 @@ class Admin_UI {
 			3
 		);
 		add_action( 'load-' . $page_suffix, array( __CLASS__, 'admin_init' ) );
-
-		add_action( 'admin_footer-upload.php', array( __CLASS__, 'attachment_details_two_column_template' ) );
-		add_action( 'admin_footer-post.php', array( __CLASS__, 'attachment_details_template' ), 20 );
-
-		add_filter( 'get_edit_post_link', array( __CLASS__, 'edit_video_link' ), 10, 3 );
-
-		add_action( 'admin_init', array( __CLASS__, 'remove_jetpack_hooks' ) );
 	}
 
 	/**
