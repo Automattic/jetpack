@@ -1,6 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import Meta from './meta/meta';
-import SettingsItem from '../ui/settings-item/settings-item';
+import SettingsItem from '$features/ui/settings-item/settings-item';
 
 const FoundationPages = () => {
 	return (
