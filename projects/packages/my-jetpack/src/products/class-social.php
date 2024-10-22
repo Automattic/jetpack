@@ -145,6 +145,38 @@ class Social extends Hybrid_Product {
 	}
 
 	/**
+	 * Get the product-slugs of the paid bundles/plans that this product/module is included in
+	 *
+	 * @return array
+	 */
+	public static function get_paid_bundles_that_include_product() {
+		return array(
+			'jetpack_complete',
+			'jetpack_complete_monthly',
+			'jetpack_complete_bi-yearly',
+			'jetpack_business',
+			'jetpack_business_monthly',
+			'jetpack_premium',
+			'jetpack_premium_monthly',
+			'jetpack_personal',
+			'jetpack_personal_monthly',
+		);
+	}
+
+	/**
+	 * Get the product-slugs of the paid plans for this product (not including bundles)
+	 *
+	 * @return array
+	 */
+	public static function get_paid_plan_product_slugs() {
+		return array(
+			'jetpack_social_v1_yearly',
+			'jetpack_social_v1_monthly',
+			'jetpack_social_v1_bi_yearly',
+		);
+	}
+
+	/**
 	 * Checks whether the current plan (or purchases) of the site already supports the product
 	 *
 	 * @return boolean

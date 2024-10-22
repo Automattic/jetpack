@@ -101,7 +101,7 @@ abstract class Product {
 	public static $requires_plan = false;
 
 	/**
-	 * The feature slug that identifies the highest paid plan
+	 * The feature slug that identifies the paid plan
 	 *
 	 * @var string
 	 */

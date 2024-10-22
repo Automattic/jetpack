@@ -172,4 +172,15 @@ class Crm extends Product {
 
 		return false;
 	}
+
+	/**
+	 * Get the product-slugs of the paid bundles/plans that this product/module is included in
+	 *
+	 * @return array
+	 */
+	public static function get_paid_bundles_that_include_product() {
+		return array(
+			'jetpack_complete',
+		);
+	}
 }

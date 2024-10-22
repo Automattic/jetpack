@@ -445,6 +445,19 @@ class Jetpack_Ai extends Product {
 	}
 
 	/**
+	 * Get the product-slugs of the paid plans for this product (not including bundles)
+	 *
+	 * @return array
+	 */
+	public static function get_paid_plan_product_slugs() {
+		return array(
+			'jetpack_ai_yearly',
+			'jetpack_ai_monthly',
+			'jetpack_ai_bi_yearly',
+		);
+	}
+
+	/**
 	 * Checks whether the site has a paid plan for this product
 	 *
 	 * @return boolean

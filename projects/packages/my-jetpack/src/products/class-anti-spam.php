@@ -107,6 +107,41 @@ class Anti_Spam extends Product {
 	}
 
 	/**
+	 * Get the product-slugs of the paid bundles/plans that this product/module is included in
+	 *
+	 * @return array
+	 */
+	public static function get_paid_bundles_that_include_product() {
+		return array(
+			'jetpack_security_t1_yearly',
+			'jetpack_security_t1_monthly',
+			'jetpack_security_t1_bi-yearly',
+			'jetpack_complete',
+			'jetpack_complete_monthly',
+			'jetpack_complete_bi-yearly',
+			'jetpack_business',
+			'jetpack_business_monthly',
+			'jetpack_premium',
+			'jetpack_premium_monthly',
+			'jetpack_personal',
+			'jetpack_personal_monthly',
+		);
+	}
+
+	/**
+	 * Get the product-slugs of the paid plans for this product (not including bundles)
+	 *
+	 * @return array
+	 */
+	public static function get_paid_plan_product_slugs() {
+		return array(
+			'jetpack_anti_spam',
+			'jetpack_anti_spam_monthly',
+			'jetpack_anti_spam_bi_yearly',
+		);
+	}
+
+	/**
 	 * Determine if the site has an Akismet plan by checking for an API key
 	 * Note that some Akismet Plans are free - we're just checking for an API key and don't have the perspective of the plan attached to it here
 	 *

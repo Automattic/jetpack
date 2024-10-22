@@ -72,6 +72,13 @@ class Protect extends Product {
 	public static $has_standalone_plugin = true;
 
 	/**
+	 * The feature slug that identifies the paid plan
+	 *
+	 * @var string
+	 */
+	public static $feature_identifying_paid_plan = 'scan';
+
+	/**
 	 * Get the product name
 	 *
 	 * @return string
@@ -261,6 +268,19 @@ class Protect extends Product {
 					Wpcom_Products::get_product_pricing( self::UPGRADED_TIER_PRODUCT_SLUG )
 				),
 			),
+		);
+	}
+
+	/**
+	 * Get the product-slugs of the paid plans for this product (not including bundles)
+	 *
+	 * @return array
+	 */
+	public static function get_paid_plan_product_slugs() {
+		return array(
+			'jetpack_scan',
+			'jetpack_scan_monthly',
+			'jetpack_scan_bi_yearly',
 		);
 	}
 
