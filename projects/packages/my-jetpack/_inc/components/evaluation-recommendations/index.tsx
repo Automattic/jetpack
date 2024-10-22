@@ -1,9 +1,11 @@
 import { Container, Col, Text } from '@automattic/jetpack-components';
 import { Flex, FlexItem, DropdownMenu, Button } from '@wordpress/components';
+import { Icon } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n } from '@wordpress/i18n';
 import { moreHorizontalMobile } from '@wordpress/icons';
-import { useEffect, useCallback } from 'react';
+import { chevronLeft, chevronRight } from '@wordpress/icons';
+import { useEffect, useCallback, useRef } from 'react';
 import useEvaluationRecommendations from '../../data/evaluation-recommendations/use-evaluation-recommendations';
 import useAnalytics from '../../hooks/use-analytics';
 import getPurchasePlanUrl from '../../utils/get-purchase-plan-url';
@@ -17,6 +19,7 @@ interface Props {
 }
 
 const EvaluationRecommendations: FC< Props > = ( { welcomeFlowExperimentVariation } ) => {
+	const containerRef = useRef( null );
 	const { recordEvent } = useAnalytics();
 	const { recommendedModules, isFirstRun, redoEvaluation, removeEvaluationResult } =
 		useEvaluationRecommendations();
@@ -25,6 +28,29 @@ const EvaluationRecommendations: FC< Props > = ( { welcomeFlowExperimentVariatio
 	const handleExploreAllPlansLinkClick = useCallback( () => {
 		recordEvent( 'jetpack_myjetpack_evaluation_recommendations_explore_all_plans_click' );
 	}, [ recordEvent ] );
+
+	const handleSlide = (
+		cardContainerRef: React.RefObject< HTMLUListElement >,
+		direction: number,
+		gap: number = 24
+	) => {
+		if ( cardContainerRef.current ) {
+			const cardWidth = cardContainerRef.current.querySelector( 'li' ).clientWidth;
+
+			cardContainerRef.current.scrollBy( {
+				left: direction * ( cardWidth + gap ),
+				behavior: 'smooth',
+			} );
+		}
+	};
+
+	const handleNextSlide = useCallback( () => {
+		handleSlide( containerRef, 1 );
+	}, [ containerRef ] );
+
+	const handlePrevSlide = useCallback( () => {
+		handleSlide( containerRef, -1 );
+	}, [ containerRef ] );
 
 	// We're defining each of these translations in separate variables here, otherwise optimizations in
 	// the build step end up breaking the translations and causing error.
@@ -99,6 +125,7 @@ const EvaluationRecommendations: FC< Props > = ( { welcomeFlowExperimentVariatio
 			</Col>
 			<Col>
 				<Container
+					ref={ containerRef }
 					tagName="ul"
 					className={ styles[ 'recommendations-list' ] }
 					horizontalGap={ 4 }
@@ -116,6 +143,18 @@ const EvaluationRecommendations: FC< Props > = ( { welcomeFlowExperimentVariatio
 						);
 					} ) }
 				</Container>
+				<Flex align="center" justify="center">
+					<FlexItem>
+						<Button onClick={ handlePrevSlide }>
+							<Icon icon={ chevronLeft } />
+						</Button>
+					</FlexItem>
+					<FlexItem>
+						<Button onClick={ handleNextSlide }>
+							<Icon icon={ chevronRight } />
+						</Button>
+					</FlexItem>
+				</Flex>
 			</Col>
 			{ isTreatmentVariation && (
 				<Col>
