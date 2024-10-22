@@ -7,6 +7,10 @@ use Automattic\Jetpack_Boost\Contracts\Has_Setup;
 class Foundation_Pages implements Has_Setup {
 
 	public function setup() {
+		if ( ! $this->is_development_features_enabled() ) {
+			return;
+		}
+
 		add_filter( 'jetpack_boost_critical_css_providers', array( $this, 'remove_ccss_front_page_provider' ), 10, 2 );
 	}
 
@@ -23,6 +27,10 @@ class Foundation_Pages implements Has_Setup {
 	}
 
 	public function get_pages() {
+		if ( ! $this->is_development_features_enabled() ) {
+			return array();
+		}
+
 		return jetpack_boost_ds_get( 'foundation_pages_list' );
 	}
 
@@ -34,5 +42,9 @@ class Foundation_Pages implements Has_Setup {
 
 	private function get_max_pages() {
 		return Premium_Features::has_any() ? 10 : 1;
+	}
+
+	private function is_development_features_enabled() {
+		return defined( 'JETPACK_BOOST_DEVELOPMENT_FEATURES' ) && JETPACK_BOOST_DEVELOPMENT_FEATURES;
 	}
 }
