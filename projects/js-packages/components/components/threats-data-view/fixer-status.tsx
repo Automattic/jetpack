@@ -75,7 +75,11 @@ export default function FixerStatusIcon( {
 	}
 
 	if ( fixer && 'status' in fixer && fixer.status === 'in_progress' ) {
-		return <Spinner color="black" />;
+		return (
+			<div className={ styles[ 'icon-spinner' ] }>
+				<Spinner color="black" />
+			</div>
+		);
 	}
 
 	return <Icon icon={ check } className={ styles[ 'icon-check' ] } size={ 28 } />;
@@ -87,20 +91,28 @@ export default function FixerStatusIcon( {
  * @param {boolean} props.fixer - The fixer status.
  * @return {string} The component.
  */
-function FixerStatusText( { fixer }: { fixer?: ThreatFixStatus } ): string {
+function FixerStatusText( { fixer }: { fixer?: ThreatFixStatus } ): JSX.Element {
 	if ( fixer && fixerStatusIsStale( fixer ) ) {
-		return __( 'Fixer is taking longer than expected', 'jetpack' );
+		return (
+			<span className={ styles[ 'info-spacer' ] }>
+				{ __( 'Fixer is taking longer than expected', 'jetpack' ) }
+			</span>
+		);
 	}
 
 	if ( fixer && 'error' in fixer && fixer.error ) {
-		return __( 'Error auto-fixing threat', 'jetpack' );
+		return (
+			<span className={ styles[ 'info-spacer' ] }>
+				{ __( 'An error occurred auto-fixing this threat', 'jetpack' ) }
+			</span>
+		);
 	}
 
 	if ( fixer && 'status' in fixer && fixer.status === 'in_progress' ) {
-		return __( 'Auto-fix in progress', 'jetpack' );
+		return <span className={ styles[ 'spinner-spacer' ] }>{ __( 'Auto-fixing', 'jetpack' ) }</span>;
 	}
 
-	return __( 'Auto-fixable', 'jetpack' );
+	return <span className={ styles[ 'check-spacer' ] }>{ __( 'Auto-fixable', 'jetpack' ) }</span>;
 }
 
 /**
@@ -111,15 +123,15 @@ function FixerStatusText( { fixer }: { fixer?: ThreatFixStatus } ): string {
  */
 export function FixerStatusBadge( { fixer }: { fixer?: ThreatFixStatus } ): JSX.Element {
 	return (
-		<div className={ styles[ 'fixer-status-badge' ] }>
-			<FixerStatusIcon fixer={ fixer } size={ 12 } />
+		<div className={ styles[ 'fixer-status' ] }>
+			<FixerStatusIcon fixer={ fixer } />
 			<FixerStatusText fixer={ fixer } />
 		</div>
 	);
 }
 
 /**
- * FixerStatusText component.
+ * DataViewFixerStatus component.
  * @param {object}  props       - Component props.
  * @param {boolean} props.fixer - The fixer status.
  * @param {object}  props.view  - The view.
