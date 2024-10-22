@@ -113,8 +113,7 @@ Wide.args = {
 export const HoverShow = Template.bind( {} );
 HoverShow.args = {
 	title: 'This is title!',
-	children: <div>This is a wide tooltip!</div>,
-	wide: true,
+	children: <div>This is a tooltip!</div>,
 	placement: 'bottom-start',
 	hoverShow: true,
 };
