@@ -178,7 +178,7 @@ The new Jetpack Protect plugin is different from the Jetpack feature formerly kn
 4. The Jetpack Firewall is a web application firewall (known as WAF) designed to protect your WordPress site from malicious requests.
 
 == Changelog ==
-### 3.0.2 - 2024-09-06
+### 3.1.1 - 2024-10-17
 #### Changed
-- Internal updates.
+- Firewall: Fix backwards compatibility for sites running standalone mode with outdated packages autoloaded.
 

@@ -33,7 +33,7 @@ export function SettingsButton( { label, variant = 'primary' }: SettingsButtonPr
 		};
 	}, [] );
 	const { openConnectionsModal } = useDispatch( store );
-	const { connectionsAdminUrl } = usePublicizeConfig();
+	const { connectionsPageUrl } = usePublicizeConfig();
 
 	const text = label || __( 'Manage connections', 'jetpack' );
 	const hasConnections = connections.length > 0;
@@ -48,7 +48,7 @@ export function SettingsButton( { label, variant = 'primary' }: SettingsButtonPr
 			{ text }
 		</Button>
 	) : (
-		<ExternalLink className={ styles[ 'settings-button' ] } href={ connectionsAdminUrl }>
+		<ExternalLink className={ styles[ 'settings-button' ] } href={ connectionsPageUrl }>
 			{ text }
 		</ExternalLink>
 	);
