@@ -152,8 +152,8 @@ export function useSetProviderErrorsAction() {
  * Hook which creates a callable action for regenerating Critical CSS.
  */
 export function useRegenerateCriticalCssAction() {
-	const [ , resetReason ] = useRegenerationReason();
-	return useCriticalCssAction( 'request-regenerate', z.void(), resetReason );
+	const [ , updateReason ] = useRegenerationReason();
+	return useCriticalCssAction( 'request-regenerate', z.void(), () => updateReason( null ) );
 }
 
 /**

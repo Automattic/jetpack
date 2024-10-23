@@ -9,16 +9,21 @@ import { useFoundationPages, useFoundationPagesProperties } from '../lib/stores/
 import { createInterpolateElement } from '@wordpress/element';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import getSupportLink from '$lib/utils/get-support-link';
+import { useRegenerationReason } from '$features/critical-css/lib/stores/suggest-regenerate';
 
 const Meta = () => {
 	const [ isExpanded, setIsExpanded ] = useState( false );
 	const [ foundationPages, setFoundationPages ] = useFoundationPages();
 	const foundationPagesProperties = useFoundationPagesProperties();
+	const [ , updateRegenerateReason ] = useRegenerationReason();
 
 	const updateFoundationPages = ( newValue: string ) => {
 		const newItems = newValue.split( '\n' ).map( line => line.trim() );
 
 		setFoundationPages( newItems );
+		// @todo - Running setFoundationPages does not necessarily mean that the value was updated.
+		// This should happen only IF the value got updated.
+		updateRegenerateReason( 'foundation_pages_list_updated' );
 	};
 
 	let content = null;
