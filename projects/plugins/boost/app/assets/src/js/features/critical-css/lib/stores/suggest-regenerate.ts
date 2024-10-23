@@ -7,6 +7,7 @@ const allowedSuggestions = [
 	'post_saved',
 	'switched_theme',
 	'plugin_change',
+	'foundation_page_saved',
 ] as const;
 
 export type RegenerationReason = ( typeof allowedSuggestions )[ number ];

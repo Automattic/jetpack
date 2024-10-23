@@ -19,6 +19,10 @@ const suggestionMap: { [ key: string ]: string } = {
 		"We noticed you've recently updated a plugin that may affect your site's HTML/CSS structure.",
 		'jetpack-boost'
 	),
+	foundation_page_saved: __(
+		"We noticed you've recently updated a Foundation page that may affect your site's HTML/CSS structure.",
+		'jetpack-boost'
+	),
 };
 
 const getSuggestionMessage = ( type: RegenerationReason | null ) => {
