@@ -3,7 +3,7 @@ import { Icon, Flex, FlexItem, DropdownMenu, Button } from '@wordpress/component
 import { __, _n } from '@wordpress/i18n';
 import { moreHorizontalMobile } from '@wordpress/icons';
 import { chevronLeft, chevronRight } from '@wordpress/icons';
-import { useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import useEvaluationRecommendations from '../../data/evaluation-recommendations/use-evaluation-recommendations';
 import useAnalytics from '../../hooks/use-analytics';
 import { JetpackModuleToProductCard } from '../product-cards-section/all';
@@ -15,6 +15,16 @@ const EvaluationRecommendations: FC = () => {
 	const { recordEvent } = useAnalytics();
 	const { recommendedModules, redoEvaluation, removeEvaluationResult } =
 		useEvaluationRecommendations();
+	const [ isAtStart, setIsAtStart ] = useState( true );
+	const [ isAtEnd, setIsAtEnd ] = useState( false );
+
+	const checkScrollPosition = useCallback( () => {
+		if ( containerRef.current ) {
+			const { scrollLeft, scrollWidth, clientWidth } = containerRef.current;
+			setIsAtStart( scrollLeft === 0 );
+			setIsAtEnd( scrollLeft + clientWidth >= scrollWidth );
+		}
+	}, [ containerRef ] );
 
 	const handleSlide = (
 		cardContainerRef: React.RefObject< HTMLUListElement >,
@@ -49,6 +59,21 @@ const EvaluationRecommendations: FC = () => {
 	);
 	const menuRedoTitle = __( 'Redo', 'jetpack-my-jetpack' );
 	const menuDismissTitle = __( 'Dismiss', 'jetpack-my-jetpack' );
+
+	useEffect( () => {
+		const container = containerRef.current;
+
+		if ( container ) {
+			container.addEventListener( 'scroll', checkScrollPosition );
+			checkScrollPosition();
+		}
+
+		return () => {
+			if ( container ) {
+				container.removeEventListener( 'scroll', checkScrollPosition );
+			}
+		};
+	}, [ checkScrollPosition ] );
 
 	useEffect( () => {
 		recordEvent( 'jetpack_myjetpack_evaluation_recommendations_view', {
@@ -113,12 +138,12 @@ const EvaluationRecommendations: FC = () => {
 				</Container>
 				<Flex align="center" justify="center">
 					<FlexItem>
-						<Button onClick={ handlePrevSlide }>
+						<Button onClick={ handlePrevSlide } disabled={ isAtStart } aria-disabled={ isAtStart }>
 							<Icon icon={ chevronLeft } />
 						</Button>
 					</FlexItem>
 					<FlexItem>
-						<Button onClick={ handleNextSlide }>
+						<Button onClick={ handleNextSlide } disabled={ isAtEnd } aria-disabled={ isAtEnd }>
 							<Icon icon={ chevronRight } />
 						</Button>
 					</FlexItem>
