@@ -76,6 +76,7 @@ const ShareDebugData = () => {
 					checked={ Boolean( settings.jetpack_waf_share_debug_data ) }
 					onChange={ handleShareDebugDataChange }
 					disabled={ isUpdating }
+					__nextHasNoMarginBottom={ true }
 				/>
 				<Text>
 					{ __(
@@ -120,6 +121,7 @@ const ShareData = () => {
 					checked={ Boolean( settings.jetpack_waf_share_data ) }
 					onChange={ handleShareDataChange }
 					disabled={ isUpdating }
+					__nextHasNoMarginBottom={ true }
 				/>
 				<Text>
 					{ __(

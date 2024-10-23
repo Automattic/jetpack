@@ -515,6 +515,7 @@ const VideoPressEdit = CoreVideoEdit =>
 								onChange={ this.toggleAttribute( 'autoplay' ) }
 								checked={ autoplay }
 								help={ this.getAutoplayHelp }
+								__nextHasNoMarginBottom={ true }
 							/>
 							<ToggleControl
 								label={ this.renderControlLabelWithTooltip(
@@ -524,11 +525,13 @@ const VideoPressEdit = CoreVideoEdit =>
 								) }
 								onChange={ this.toggleAttribute( 'loop' ) }
 								checked={ loop }
+								__nextHasNoMarginBottom={ true }
 							/>
 							<ToggleControl
 								label={ __( 'Muted', 'jetpack' ) }
 								onChange={ this.toggleAttribute( 'muted' ) }
 								checked={ muted }
+								__nextHasNoMarginBottom={ true }
 							/>
 							<ToggleControl
 								label={ this.renderControlLabelWithTooltip(
@@ -538,6 +541,7 @@ const VideoPressEdit = CoreVideoEdit =>
 								) }
 								onChange={ this.toggleAttribute( 'controls' ) }
 								checked={ controls }
+								__nextHasNoMarginBottom={ true }
 							/>
 							<ToggleControl
 								label={ this.renderControlLabelWithTooltip(
@@ -547,6 +551,7 @@ const VideoPressEdit = CoreVideoEdit =>
 								) }
 								onChange={ this.toggleAttribute( 'playsinline' ) }
 								checked={ playsinline }
+								__nextHasNoMarginBottom={ true }
 							/>
 							<SelectControl
 								label={ this.renderControlLabelWithTooltip(
@@ -565,6 +570,7 @@ const VideoPressEdit = CoreVideoEdit =>
 									{ value: 'none', label: _x( 'None', 'VideoPress preload setting', 'jetpack' ) },
 								] }
 								help={ this.getPreloadHelp() }
+								__nextHasNoMarginBottom={ true }
 							/>
 							<MediaUploadCheck>
 								<BaseControl className="editor-video-poster-control">
@@ -649,6 +655,7 @@ const VideoPressEdit = CoreVideoEdit =>
 									},
 								] }
 								onChange={ this.onChangeRating }
+								__nextHasNoMarginBottom={ true }
 							/>
 							<ToggleControl
 								label={ this.renderControlLabelWithTooltip(
@@ -662,6 +669,7 @@ const VideoPressEdit = CoreVideoEdit =>
 								onChange={ this.onChangeAllowDownload }
 								checked={ allowDownload }
 								disabled={ isFetchingMedia || isUpdatingAllowDownload }
+								__nextHasNoMarginBottom={ true }
 							/>
 							<SelectControl
 								label={ __( 'Video Privacy', 'jetpack' ) }
@@ -683,6 +691,7 @@ const VideoPressEdit = CoreVideoEdit =>
 									},
 								] }
 								disabled={ isFetchingMedia || isUpdatingPrivacySetting }
+								__nextHasNoMarginBottom={ true }
 							/>
 						</PanelBody>
 					</InspectorControls>

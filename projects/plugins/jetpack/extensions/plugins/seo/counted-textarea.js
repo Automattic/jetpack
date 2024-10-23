@@ -22,7 +22,13 @@ export const CountedTextArea = ( { suggestedLimit, value, label, ...inputProps }
 
 	return (
 		<div className="jetpack-seo-message-box">
-			<TextareaControl label={ label } help={ help } value={ value } { ...inputProps } />
+			<TextareaControl
+				__nextHasNoMarginBottom={ true }
+				label={ label }
+				help={ help }
+				value={ value }
+				{ ...inputProps }
+			/>
 		</div>
 	);
 };

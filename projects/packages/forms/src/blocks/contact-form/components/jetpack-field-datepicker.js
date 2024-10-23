@@ -97,6 +97,7 @@ const JetpackDatePicker = props => {
 									'Select the format in which the date will be displayed.',
 									'jetpack-forms'
 								) }
+								__nextHasNoMarginBottom={ true }
 							/>
 						),
 					},

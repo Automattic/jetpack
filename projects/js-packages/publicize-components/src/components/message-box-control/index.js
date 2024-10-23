@@ -55,6 +55,7 @@ export default function MessageBoxControl( {
 				_n( '%d character remaining', '%d characters remaining', charactersRemaining, 'jetpack' ),
 				charactersRemaining
 			) }
+			__nextHasNoMarginBottom={ true }
 		/>
 	);
 }

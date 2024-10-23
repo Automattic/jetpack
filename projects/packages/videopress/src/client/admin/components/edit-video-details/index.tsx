@@ -371,6 +371,7 @@ const EditVideoDetails = () => {
 												value: VIDEO_PRIVACY_LEVEL_PRIVATE,
 											},
 										] }
+										__nextHasNoMarginBottom={ true }
 									/>
 								) }
 								{ isFetchingData ? (
@@ -388,6 +389,7 @@ const EditVideoDetails = () => {
 												'jetpack-videopress-pkg'
 											) }
 											onChange={ value => setDisplayEmbed( value ? 1 : 0 ) }
+											__nextHasNoMarginBottom={ true }
 										/>
 									</>
 								) }
@@ -406,6 +408,7 @@ const EditVideoDetails = () => {
 												'jetpack-videopress-pkg'
 											) }
 											onChange={ value => setAllowDownload( value ? 1 : 0 ) }
+											__nextHasNoMarginBottom={ true }
 										/>
 									</>
 								) }

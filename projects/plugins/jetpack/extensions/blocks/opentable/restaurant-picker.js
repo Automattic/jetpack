@@ -43,6 +43,7 @@ export default function RestaurantPicker( props ) {
 			label={ _n( 'Restaurant', 'Restaurants', selectedRestaurants.length, 'jetpack' ) }
 			{ ...props }
 			onChange={ onChange }
+			__nextHasNoMarginBottom={ true }
 		/>
 	);
 
