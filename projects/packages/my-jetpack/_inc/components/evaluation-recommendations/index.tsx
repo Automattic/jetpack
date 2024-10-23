@@ -5,6 +5,7 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __, _n } from '@wordpress/i18n';
 import { moreHorizontalMobile } from '@wordpress/icons';
 import { chevronLeft, chevronRight } from '@wordpress/icons';
+import clsx from 'clsx';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import useEvaluationRecommendations from '../../data/evaluation-recommendations/use-evaluation-recommendations';
 import useAnalytics from '../../hooks/use-analytics';
@@ -171,12 +172,24 @@ const EvaluationRecommendations: FC< Props > = ( { welcomeFlowExperimentVariatio
 				</Container>
 				<Flex align="center" justify="center">
 					<FlexItem>
-						<Button onClick={ handlePrevSlide } disabled={ isAtStart } aria-disabled={ isAtStart }>
+						<Button
+							className={ clsx( styles[ 'slider-button' ], styles[ 'prev-button' ] ) }
+							onClick={ handlePrevSlide }
+							disabled={ isAtStart }
+							aria-disabled={ isAtStart }
+							aria-label={ __( 'Previous', 'jetpack-my-jetpack' ) }
+						>
 							<Icon icon={ chevronLeft } />
 						</Button>
 					</FlexItem>
 					<FlexItem>
-						<Button onClick={ handleNextSlide } disabled={ isAtEnd } aria-disabled={ isAtEnd }>
+						<Button
+							className={ clsx( styles[ 'slider-button' ], styles[ 'next-button' ] ) }
+							onClick={ handleNextSlide }
+							disabled={ isAtEnd }
+							aria-disabled={ isAtEnd }
+							aria-label={ __( 'Next', 'jetpack-my-jetpack' ) }
+						>
 							<Icon icon={ chevronRight } />
 						</Button>
 					</FlexItem>
