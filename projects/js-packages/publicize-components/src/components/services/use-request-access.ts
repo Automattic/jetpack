@@ -11,10 +11,10 @@ const isValidMastodonUsername = ( username: string ) =>
 
 /**
  * Example valid handles:
+ * - domain.tld
  * - username.bsky.social
  * - user-name.bsky.social
- * - my_domain.com.bsky.social
- * - my-domain.com.my-own-server.com
+ * - my-domain.com
  *
  * @param {string} handle - Handle to validate
  *
@@ -23,8 +23,8 @@ const isValidMastodonUsername = ( username: string ) =>
 function isValidBlueskyHandle( handle: string ) {
 	const parts = handle.split( '.' ).filter( Boolean );
 
-	// A valid handle should have at least 3 parts - username, domain, and tld
-	if ( parts.length < 3 ) {
+	// A valid handle should have at least 2 parts - domain, and tld
+	if ( parts.length < 2 ) {
 		return false;
 	}
 
