@@ -200,7 +200,7 @@ export default function spellingMistakes( text: string ): Array< HighlightedText
 		}
 
 		// Skip anything that is a valid number
-		if ( ! isNaN( word ) ) {
+		if ( ! isNaN( Number( word ) ) ) {
 			return;
 		}
 
