@@ -48,6 +48,7 @@ class WP_Core_Provider extends Provider {
 				if ( ! empty( $permalink ) ) {
 					$urls['posts_page'] = array( $permalink );
 				}
+			}
 		} elseif ( ! $front_page ) {
 			$urls['posts_page'] = array( home_url( '/' ) );
 		}
