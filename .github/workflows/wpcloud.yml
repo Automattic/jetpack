@@ -48,8 +48,7 @@ jobs:
       - name: Configure Github to be able to SSH to the Atomic site
         if: steps.changed.outputs.wpcomsh == 'true'
         run: |
-          echo "Intializing"
-          echo "::group::setup"
+          echo "::group::Intializing"
 
           mkdir -vp ~/.ssh/
           chmod -v 700 ~/.ssh
@@ -65,8 +64,16 @@ jobs:
 
           echo "::endgroup::"
 
+          echo "::group::Transferring wpcomsh to the testing server"
+          jetpack rsync wpcomsh jetpackwpcomshtester.wordpress.com@sftp.wp.com:~/htdocs/wp-content/mu-plugins
+          scp -r projects/plugins/wpcomsh/bin jetpackwpcomshtester.wordpress.com@sftp.wp.com:/srv/htdocs/wp-content/mu-plugins/wpcomsh
+          scp -r projects/plugins/wpcomsh/tests jetpackwpcomshtester.wordpress.com@sftp.wp.com:/srv/htdocs/wp-content/mu-plugins/wpcomsh/
+          scp projects/plugins/wpcomsh/phpunit.xml.dist jetpackwpcomshtester.wordpress.com@sftp.wp.com:/srv/htdocs/wp-content/mu-plugins/wpcomsh/
+
+          echo "::engroup::"
+
           echo "::group::execution"
-          ssh -i ~/.ssh/id_site jetpackwpcomshtester.wordpress.com@sftp.wp.com "ls" || CODE=$?
+          ssh -i ~/.ssh/id_site jetpackwpcomshtester.wordpress.com@sftp.wp.com "~/htdocs/github-action-handler.sh" || CODE=$?
           echo "::endgroup::"
 
           echo "::group::teardown"
