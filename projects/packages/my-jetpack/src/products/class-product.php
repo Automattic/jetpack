@@ -11,6 +11,7 @@ use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Plugins_Installer;
+use Automattic\Jetpack\Status;
 use Jetpack_Options;
 use WP_Error;
 
@@ -188,6 +189,7 @@ abstract class Product {
 			'class'                           => static::class,
 			'post_checkout_url'               => static::get_post_checkout_url(),
 			'post_checkout_urls_by_feature'   => static::get_post_checkout_urls_by_feature(),
+			'manage_paid_plan_purchase_url'   => static::get_manage_paid_plan_purchase_url(),
 		);
 	}
 
@@ -447,11 +449,11 @@ abstract class Product {
 	}
 
 	/**
-	 * Gets the paid plan's expiry status, or null if: no paid plan, or not expired, or not expiring soon.
+	 * Gets the paid plan's purchase/subsciption info, or null if no paid plan purchases.
 	 *
-	 * @return string|null
+	 * @return object|null
 	 */
-	public static function get_paid_plan_expiration_status() {
+	public static function get_paid_plan_purchase_for_product() {
 		$paid_plans = array_merge(
 			static::get_paid_plan_product_slugs(),
 			static::get_paid_bundles_that_include_product()
@@ -466,17 +468,47 @@ abstract class Product {
 			foreach ( $purchases_data as $purchase ) {
 				foreach ( $paid_plans as $plan ) {
 					if ( strpos( $purchase->product_slug, $plan ) !== false ) {
-						// Check if expired or expiring soon
-						if ( $purchase->expiry_status === Products::STATUS_EXPIRING_SOON ) {
-							return Products::STATUS_EXPIRING_SOON;
-						}
-						if ( $purchase->expiry_status === Products::STATUS_EXPIRED ) {
-							return Products::STATUS_EXPIRED;
-						}
+						return $purchase;
 					}
 				}
 			}
 		}
+
+		return null;
+	}
+
+	/**
+	 * Gets the paid plan's expiry status, or null if: no paid plan, or not expired, or not expiring soon.
+	 *
+	 * @return string|null
+	 */
+	public static function get_paid_plan_expiration_status() {
+		$purchase = static::get_paid_plan_purchase_for_product();
+		if ( $purchase ) {
+			if ( $purchase->expiry_status === Products::STATUS_EXPIRING_SOON ) {
+				return Products::STATUS_EXPIRING_SOON;
+			}
+			if ( $purchase->expiry_status === Products::STATUS_EXPIRED ) {
+				return Products::STATUS_EXPIRED;
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Gets the url to manage the paid plan's purchased subscription (For renewing, canceling).
+	 *
+	 * @return string|null
+	 */
+	public static function get_manage_paid_plan_purchase_url() {
+		$purchase    = static::get_paid_plan_purchase_for_product();
+		$site_suffix = ( new Status() )->get_site_suffix();
+
+		if ( $purchase && $site_suffix ) {
+			return 'https://wordpress.com/me/purchases/' . $site_suffix . '/' . $purchase->ID;
+		}
+
 		return null;
 	}
 
