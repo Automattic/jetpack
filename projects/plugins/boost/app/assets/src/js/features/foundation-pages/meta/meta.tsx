@@ -135,11 +135,6 @@ const List: React.FC< ListProps > = ( { items, setItems, maxItems, description }
 			.map( line => line.trim() )
 			.filter( line => line.trim() !== '' );
 
-		// There should always be at least one foundation page.
-		if ( lines.length === 0 ) {
-			return false;
-		}
-
 		// Check if the number of items exceeds maxItems
 		if ( lines.length > maxItems ) {
 			return false;
