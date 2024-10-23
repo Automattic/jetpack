@@ -9,16 +9,20 @@ import { useFoundationPages, useFoundationPagesProperties } from '../lib/stores/
 import { createInterpolateElement } from '@wordpress/element';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import getSupportLink from '$lib/utils/get-support-link';
+import { useRegenerationReason } from '$features/critical-css/lib/stores/suggest-regenerate';
 
 const Meta = () => {
 	const [ isExpanded, setIsExpanded ] = useState( false );
 	const [ foundationPages, setFoundationPages ] = useFoundationPages();
 	const foundationPagesProperties = useFoundationPagesProperties();
+	const [ { refetch: refetchRegenerationReason } ] = useRegenerationReason();
 
 	const updateFoundationPages = ( newValue: string ) => {
 		const newItems = newValue.split( '\n' ).map( line => line.trim() );
 
-		setFoundationPages( newItems );
+		setFoundationPages( newItems, () => {
+			refetchRegenerationReason();
+		} );
 	};
 
 	let content = null;
