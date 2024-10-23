@@ -311,7 +311,8 @@ async function changelogAdd( argv ) {
 		return;
 	}
 
-	let changelogInfo, needChangelog;
+	let changelogInfo,
+		needChangelog = [];
 
 	if ( argv.project ) {
 		needChangelog = [ argv.project ];
@@ -695,7 +696,11 @@ async function checkChangelogFiles() {
 	const branchReg = /\/branch-/; // match example: jetpack/branch-1.2.3
 	if ( currentBranch.match( branchReg ) ) {
 		console.log( chalk.green( 'Release branch detected. No changelog required.' ) );
-		return [];
+		return {
+			touched: [],
+			files: new Map(),
+			need: [],
+		};
 	}
 
 	const re1 = /^projects\/([^/]+\/[^/]+)\//; // regex matches project file path, ie 'project/packages/connection/..'
