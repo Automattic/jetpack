@@ -5,7 +5,7 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __, _n } from '@wordpress/i18n';
 import { moreHorizontalMobile } from '@wordpress/icons';
 import { chevronLeft, chevronRight } from '@wordpress/icons';
-import { useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import useEvaluationRecommendations from '../../data/evaluation-recommendations/use-evaluation-recommendations';
 import useAnalytics from '../../hooks/use-analytics';
 import getPurchasePlanUrl from '../../utils/get-purchase-plan-url';
@@ -23,7 +23,18 @@ const EvaluationRecommendations: FC< Props > = ( { welcomeFlowExperimentVariatio
 	const { recordEvent } = useAnalytics();
 	const { recommendedModules, isFirstRun, redoEvaluation, removeEvaluationResult } =
 		useEvaluationRecommendations();
+	const [ isAtStart, setIsAtStart ] = useState( true );
+	const [ isAtEnd, setIsAtEnd ] = useState( false );
+
 	const isTreatmentVariation = welcomeFlowExperimentVariation === 'treatment';
+
+	const checkScrollPosition = useCallback( () => {
+		if ( containerRef.current ) {
+			const { scrollLeft, scrollWidth, clientWidth } = containerRef.current;
+			setIsAtStart( scrollLeft === 0 );
+			setIsAtEnd( scrollLeft + clientWidth >= scrollWidth );
+		}
+	}, [ containerRef ] );
 
 	const handleExploreAllPlansLinkClick = useCallback( () => {
 		recordEvent( 'jetpack_myjetpack_evaluation_recommendations_explore_all_plans_click' );
@@ -73,6 +84,21 @@ const EvaluationRecommendations: FC< Props > = ( { welcomeFlowExperimentVariatio
 		'Find your perfect match by <link>letting us know what you’re looking for</link>!',
 		'jetpack-my-jetpack'
 	);
+
+	useEffect( () => {
+		const container = containerRef.current;
+
+		if ( container ) {
+			container.addEventListener( 'scroll', checkScrollPosition );
+			checkScrollPosition();
+		}
+
+		return () => {
+			if ( container ) {
+				container.removeEventListener( 'scroll', checkScrollPosition );
+			}
+		};
+	}, [ checkScrollPosition ] );
 
 	useEffect( () => {
 		recordEvent( 'jetpack_myjetpack_evaluation_recommendations_view', {
@@ -145,12 +171,12 @@ const EvaluationRecommendations: FC< Props > = ( { welcomeFlowExperimentVariatio
 				</Container>
 				<Flex align="center" justify="center">
 					<FlexItem>
-						<Button onClick={ handlePrevSlide }>
+						<Button onClick={ handlePrevSlide } disabled={ isAtStart } aria-disabled={ isAtStart }>
 							<Icon icon={ chevronLeft } />
 						</Button>
 					</FlexItem>
 					<FlexItem>
-						<Button onClick={ handleNextSlide }>
+						<Button onClick={ handleNextSlide } disabled={ isAtEnd } aria-disabled={ isAtEnd }>
 							<Icon icon={ chevronRight } />
 						</Button>
 					</FlexItem>
