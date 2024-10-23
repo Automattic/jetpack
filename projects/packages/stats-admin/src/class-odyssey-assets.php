@@ -77,34 +77,53 @@ class Odyssey_Assets {
 	 * Development mode doesn't need this, as it's handled by `Assets` class.
 	 */
 	protected function get_cdn_asset_cache_buster() {
+		$now = time();
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( isset( $_GET['force_refresh'] ) ) {
-			set_transient( self::ODYSSEY_STATS_CACHE_BUSTER_CACHE_KEY, floor( microtime( true ) * 1000 ), 15 * MINUTE_IN_SECONDS );
+			update_option( self::ODYSSEY_STATS_CACHE_BUSTER_CACHE_KEY, $this->get_cache_buster_option_value( $now ), false );
 		}
 
 		// Use cached cache buster in production.
-		$remote_asset_version = get_transient( self::ODYSSEY_STATS_CACHE_BUSTER_CACHE_KEY );
+		$remote_asset_version = get_option( self::ODYSSEY_STATS_CACHE_BUSTER_CACHE_KEY );
 
 		if ( ! empty( $remote_asset_version ) ) {
-			return $remote_asset_version;
+			$remote_asset_version = json_decode( $remote_asset_version, true );
+			if ( ! empty( $remote_asset_version['cache_buster'] ) && $remote_asset_version['cached_at'] > $now - MINUTE_IN_SECONDS * 15 ) {
+				return $remote_asset_version['cache_buster'];
+			}
 		}
 
 		// If no cached cache buster, we fetch it from CDN and set to transient.
-		$response = wp_remote_get( sprintf( self::ODYSSEY_CDN_URL, self::ODYSSEY_STATS_VERSION, 'build_meta.json?t=' . time() ), array( 'timeout' => 5 ) );
+		$response = wp_remote_get( sprintf( self::ODYSSEY_CDN_URL, self::ODYSSEY_STATS_VERSION, 'build_meta.json?t=' . $now ), array( 'timeout' => 5 ) );
 
 		if ( is_wp_error( $response ) ) {
-			// fallback to the package version.
-			return Main::VERSION;
+			// fallback to current timestamp.
+			return $now;
 		}
 
 		$build_meta = json_decode( wp_remote_retrieve_body( $response ), true );
 		if ( ! empty( $build_meta['cache_buster'] ) ) {
 			// Cache the cache buster for 15 mins.
-			set_transient( self::ODYSSEY_STATS_CACHE_BUSTER_CACHE_KEY, $build_meta['cache_buster'], 15 * MINUTE_IN_SECONDS );
+			update_option( self::ODYSSEY_STATS_CACHE_BUSTER_CACHE_KEY, $this->get_cache_buster_option_value( $build_meta['cache_buster'] ), false );
 			return $build_meta['cache_buster'];
 		}
 
-		// fallback to the package version.
-		return Main::VERSION;
+		// fallback to current timestamp.
+		return $now;
+	}
+
+	/**
+	 * Get the cache buster option value.
+	 *
+	 * @param string $cache_buster The cache buster.
+	 * @return string|false
+	 */
+	protected function get_cache_buster_option_value( $cache_buster ) {
+		return wp_json_encode(
+			array(
+				'cache_buster' => (string) $cache_buster,
+				'cached_at'    => time(),
+			)
+		);
 	}
 }
