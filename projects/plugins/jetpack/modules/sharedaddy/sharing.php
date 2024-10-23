@@ -29,7 +29,11 @@ class Sharing_Admin {
 	public function __construct() {
 		require_once WP_SHARING_PLUGIN_DIR . 'sharing-service.php';
 
-		add_action( 'admin_init', array( $this, 'admin_init' ) );
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- nonces are handled in process_requests.
+		if ( isset( $_GET['page'] ) && ( $_GET['page'] === 'sharing.php' || $_GET['page'] === 'sharing' ) ) {
+			add_action( 'admin_init', array( $this, 'admin_init' ) );
+		}
+
 		add_action( 'admin_menu', array( $this, 'subscription_menu' ) );
 
 		// Insert our CSS and JS
@@ -91,9 +95,7 @@ class Sharing_Admin {
 	 * @return void
 	 */
 	public function admin_init() {
-		if ( isset( $_GET['page'] ) && ( $_GET['page'] === 'sharing.php' || $_GET['page'] === 'sharing' ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- nonces are handled in process_requests.
-			$this->process_requests();
-		}
+		$this->process_requests();
 	}
 
 	/**

@@ -1,4 +1,9 @@
-import { Spinner, Text, useBreakpointMatch } from '@automattic/jetpack-components';
+import {
+	Spinner,
+	Text,
+	ThreatSeverityBadge,
+	useBreakpointMatch,
+} from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
 import { createInterpolateElement } from '@wordpress/element';
@@ -9,7 +14,6 @@ import React, { useState, useCallback, useContext, useMemo } from 'react';
 import { PAID_PLUGIN_SUPPORT_URL } from '../../constants';
 import useFixers from '../../hooks/use-fixers';
 import IconTooltip from '../icon-tooltip';
-import ThreatSeverityBadge from '../severity';
 import styles from './styles.module.scss';
 
 // Extract context provider for clarity and reusability

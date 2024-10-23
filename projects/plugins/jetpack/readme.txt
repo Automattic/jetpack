@@ -326,15 +326,8 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.0-a.1 - 2024-10-07
-#### Enhancements
-- Sitemap: Improve sitemap write efficienty.
-- CSS: Rely esclusively on individual CSS files instead of a combined one for the features used on each page to improve page loading.
-- Social: Add support for Bluesky 🎉.
-- Scan: Update Jetpack Scan link in the WP Admin menu.
-
-#### Bug fixes
-- Social: Prevent text overflow in the share status tooltip.
+### 14.0-a.5 - 2024-10-16
+Fix: do not include Related Posts on non-post posts on classic themes.
 
 --------
 

@@ -806,9 +806,10 @@ function wpcom_launchpad_get_task_definitions() {
 			'get_title'            => function () {
 				return __( 'Migrating the site', 'jetpack-mu-wpcom' );
 			},
-			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'is_complete_callback' => '__return_true',
 			'is_visible_callback'  => '__return_true',
 		),
+		// Post-migration tasks.
 		'review_site'                     => array(
 			'get_title'            => function () {
 				return __( "Review the site's content", 'jetpack-mu-wpcom' );
@@ -827,6 +828,39 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'get_calypso_path'      => function () {
 				return admin_url( 'plugins.php' );
+			},
+		),
+		'connect_migration_domain'        => array(
+			'get_title'            => function () {
+				return __( 'Connect your domain', 'jetpack-mu-wpcom' );
+			},
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				$site_id = get_current_blog_id();
+				// Attempt to get the domain from the pre-transfer site option if the function exists, otherwise check the current site option.
+				// @phan-suppress-next-line PhanUndeclaredFunction -- Being checked before being called.
+				$domain = function_exists( 'wpcom_get_migration_source_site_domain' ) ? wpcom_get_migration_source_site_domain( $site_id ) : get_option( 'migration_source_site_domain', null );
+				$path   = $domain ? '/domains/add/use-my-domain/' . $data['site_slug_encoded'] . '/?initialQuery=' . $domain : '/domains/add/use-my-domain/' . $data['site_slug_encoded'];
+				return $path;
+			},
+			'is_complete_callback' => 'wpcom_launchpad_is_domain_customize_completed',
+			'is_visible_callback'  => '__return_true',
+		),
+		'domain_dns_mapped'               => array(
+			'get_title'            => function () {
+				return __( "Update your domain's DNS", 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'is_visible_callback'  => '__return_true',
+		),
+		'check_ssl_status'                => array(
+			'get_title'            => function () {
+				return __( 'Provision SSL certificate', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'is_disabled_callback' => 'wpcom_launchpad_is_primary_domain_wpcom',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				$domain = $data['site_slug_encoded'];
+				return '/domains/manage/' . $domain . '/edit/' . $domain;
 			},
 		),
 	);
@@ -2779,4 +2813,21 @@ function wpcom_launchpad_get_latest_draft_id() {
 	$cached_draft_id = reset( $latest_draft_id );
 
 	return $cached_draft_id;
+}
+
+/**
+ * Checks if the current site primary domain is a WPCOM domain.
+ *
+ * @return bool Will return true if the primary domain is a WPCOM domain.
+ */
+function wpcom_launchpad_is_primary_domain_wpcom() {
+	if ( ! ( new Automattic\Jetpack\Status\Host() )->is_wpcom_platform() ) {
+		return false;
+	}
+
+	$url  = home_url();
+	$host = wp_parse_url( $url, PHP_URL_HOST );
+
+	// If site_slug ends with .wpcomstaging.com return true
+	return str_ends_with( $host, '.wpcomstaging.com' );
 }

@@ -59,7 +59,11 @@ class User_Admin {
 		add_filter( 'manage_users_columns', array( $this, 'jetpack_user_connected_th' ) );
 		add_filter( 'manage_users_custom_column', array( $this, 'jetpack_show_connection_status' ), 10, 3 );
 		add_action( 'user_row_actions', array( $this, 'jetpack_user_table_row_actions' ), 10, 2 );
-		add_action( 'admin_notices', array( $this, 'handle_invitation_results' ) );
+
+		if ( isset( $_GET['jetpack-sso-invite-user'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			add_action( 'admin_notices', array( $this, 'handle_invitation_results' ) );
+		}
+
 		add_action( 'admin_post_jetpack_invite_user_to_wpcom', array( $this, 'invite_user_to_wpcom' ) );
 		add_action( 'admin_post_jetpack_revoke_invite_user_to_wpcom', array( $this, 'handle_request_revoke_invite' ) );
 		add_action( 'admin_post_jetpack_resend_invite_user_to_wpcom', array( $this, 'handle_request_resend_invite' ) );
