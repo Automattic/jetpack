@@ -14,12 +14,13 @@ namespace Automattic\Jetpack_Boost\Lib;
  */
 class Environment_Change_Detector {
 
-	const ENV_CHANGE_LEGACY                = '1';
-	const ENV_CHANGE_PAGE_SAVED            = 'page_saved';
-	const ENV_CHANGE_POST_SAVED            = 'post_saved';
-	const ENV_CHANGE_SWITCHED_THEME        = 'switched_theme';
-	const ENV_CHANGE_PLUGIN_CHANGE         = 'plugin_change';
-	const ENV_CHANGE_FOUNDATION_PAGE_SAVED = 'foundation_page_saved';
+	const ENV_CHANGE_LEGACY                        = '1';
+	const ENV_CHANGE_PAGE_SAVED                    = 'page_saved';
+	const ENV_CHANGE_POST_SAVED                    = 'post_saved';
+	const ENV_CHANGE_SWITCHED_THEME                = 'switched_theme';
+	const ENV_CHANGE_PLUGIN_CHANGE                 = 'plugin_change';
+	const ENV_CHANGE_FOUNDATION_PAGE_SAVED         = 'foundation_page_saved';
+	const ENV_CHANGE_FOUNDATION_PAGES_LIST_UPDATED = 'foundation_pages_list_updated';
 
 	/**
 	 * Initialize the change detection hooks.
@@ -56,6 +57,10 @@ class Environment_Change_Detector {
 
 	public function handle_plugin_change() {
 		$this->do_action( false, $this::ENV_CHANGE_PLUGIN_CHANGE );
+	}
+
+	public function handle_foundation_pages_list_update() {
+		$this->do_action( false, $this::ENV_CHANGE_FOUNDATION_PAGES_LIST_UPDATED );
 	}
 
 	/**

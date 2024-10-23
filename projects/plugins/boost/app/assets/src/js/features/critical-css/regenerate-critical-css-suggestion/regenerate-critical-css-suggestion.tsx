@@ -20,6 +20,7 @@ const suggestionMap: { [ key: string ]: string } = {
 		'jetpack-boost'
 	),
 	foundation_page_saved: __( 'A Foundation page was updated.', 'jetpack-boost' ),
+	foundation_pages_list_updated: __( 'The list of Foundation pages was updated.', 'jetpack-boost' ),
 };
 
 const getSuggestionMessage = ( type: RegenerationReason | null ) => {

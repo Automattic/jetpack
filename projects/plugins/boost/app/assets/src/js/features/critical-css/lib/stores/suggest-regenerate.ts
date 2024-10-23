@@ -8,15 +8,19 @@ const allowedSuggestions = [
 	'switched_theme',
 	'plugin_change',
 	'foundation_page_saved',
+	'foundation_pages_list_updated',
 ] as const;
 
-export type RegenerationReason = ( typeof allowedSuggestions )[ number ];
+export type RegenerationReason = ( typeof allowedSuggestions )[ number ] | null;
 
 /**
  * Hook to get the reason why (if any) we should recommend users regenerate their Critical CSS.
  */
-export function useRegenerationReason(): [ RegenerationReason | null, () => void ] {
-	const [ { data }, { mutate } ] = useDataSync(
+export function useRegenerationReason(): [
+	{ data: RegenerationReason; refetch: () => void },
+	() => void,
+] {
+	const [ { data, refetch }, { mutate } ] = useDataSync(
 		'jetpack_boost_ds',
 		'critical_css_suggest_regenerate',
 		z.enum( allowedSuggestions ).nullable()
@@ -26,5 +30,5 @@ export function useRegenerationReason(): [ RegenerationReason | null, () => void
 		mutate( null );
 	}
 
-	return [ data || null, reset ];
+	return [ { data: data || null, refetch }, reset ];
 }

@@ -177,6 +177,7 @@ $critical_css_suggest_regenerate_schema = Schema::enum(
 		'switched_theme',
 		'plugin_change',
 		'foundation_page_saved',
+		'foundation_pages_list_updated',
 	)
 )->nullable();
 
