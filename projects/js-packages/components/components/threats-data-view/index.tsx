@@ -1,15 +1,17 @@
-import { Icon } from '@wordpress/components';
 import {
 	Action,
 	DataViews,
 	Field,
+	FieldType,
 	Filter,
 	filterSortAndPaginate,
 	SortDirection,
 	SupportedLayouts,
 	type View,
 } from '@wordpress/dataviews';
+import { dateI18n } from '@wordpress/date';
 import { __, _x } from '@wordpress/i18n';
+import { Icon } from '@wordpress/icons';
 import { useCallback, useMemo, useState } from 'react';
 import Badge from '../badge';
 import { THREAT_STATUSES, THREAT_TYPES } from './constants';
@@ -62,7 +64,7 @@ export default function ThreatsDataView( {
 		search: '',
 		filters: filters || [],
 		page: 1,
-		perPage: 25,
+		perPage: 20,
 	};
 
 	/**
@@ -209,6 +211,15 @@ export default function ThreatsDataView( {
 						THREAT_STATUSES.find( ( { value } ) => value === item.status )?.value ?? item.status
 					);
 				},
+				render( { item }: { item: DataViewThreat } ) {
+					if ( item.status ) {
+						const status = THREAT_STATUSES.find( ( { value } ) => value === item.status );
+						if ( status ) {
+							return <Badge variant={ status?.variant }>{ status?.label }</Badge>;
+						}
+					}
+					return <Badge variant="warning">{ __( 'Active', 'jetpack' ) }</Badge>;
+				},
 			},
 			{
 				id: 'extension',
@@ -318,6 +329,44 @@ export default function ThreatsDataView( {
 								return item.fixable ? (
 									<DataViewFixerStatus fixer={ item.fixer } view={ view } />
 								) : null;
+							},
+						},
+				  ]
+				: [] ),
+			...( dataFields.includes( 'firstDetected' )
+				? [
+						{
+							id: 'first-detected',
+							label: __( 'First Detected', 'jetpack' ),
+							type: 'datetime' as FieldType,
+							getValue( { item }: { item: DataViewThreat } ) {
+								return new Date( item.firstDetected );
+							},
+							render( { item }: { item: DataViewThreat } ) {
+								return (
+									<span className={ styles.threat__firstDetected }>
+										{ dateI18n( 'F j Y', item.firstDetected, false ) }
+									</span>
+								);
+							},
+						},
+				  ]
+				: [] ),
+			...( dataFields.includes( 'fixedOn' )
+				? [
+						{
+							id: 'fixed-on',
+							label: __( 'Fixed On', 'jetpack' ),
+							type: 'datetime' as FieldType,
+							getValue( { item }: { item: DataViewThreat } ) {
+								return new Date( item.firstDetected );
+							},
+							render( { item }: { item: DataViewThreat } ) {
+								return (
+									<span className={ styles.threat__fixedOn }>
+										{ dateI18n( 'F j Y', item.firstDetected, false ) }
+									</span>
+								);
 							},
 						},
 				  ]

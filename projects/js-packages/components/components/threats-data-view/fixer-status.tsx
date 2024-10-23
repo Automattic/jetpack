@@ -55,7 +55,7 @@ export default function FixerStatusIcon( {
 			<IconTooltip
 				icon={ info }
 				iconClassName={ styles[ 'icon-info' ] }
-				iconSize={ 24 }
+				iconSize={ size }
 				text={ createInterpolateElement(
 					__(
 						'An error occurred auto-fixing this threat. Please try again or <supportLink>contact support</supportLink>.',

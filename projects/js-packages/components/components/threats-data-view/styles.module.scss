@@ -17,7 +17,7 @@
 	.dataviews-view-list .dataviews-views-list__fields {
 		align-items: center;
 	}
-
+  
 	.dataviews-view-table th.dataviews-view-table__actions-column {
 		text-align: left;
 	}
@@ -130,27 +130,13 @@
 	font-size: 12px;
 }
 
-.icon-spinner {
-	svg {
-		margin: 0;
-	}
+.threat__fixedOn,
+.threat__firstDetected {
+	white-space: nowrap;
 }
 
-.spinner-spacer {
-	margin-left: 8px;
-}
-
-.info-spacer {
-	margin-left: 4px;
-}
-
-.check-spacer {
-	margin-left: -2px;
-}
-
-.threat__fixer {
-	min-width: 54px;
-	text-align: center;
+.threat__fixedOn {
+	color: var( --jp-green-70 );
 }
 
 .threat__action {

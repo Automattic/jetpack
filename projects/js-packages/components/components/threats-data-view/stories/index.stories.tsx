@@ -32,7 +32,7 @@ Default.args = {
 			fixedOn: null,
 			severity: 8,
 			fixable: { fixer: 'rollback', target: 'January 26, 2024, 6:49 am', extensionStatus: '' },
-			fixer: { status: 'in_progress', last_updated: new Date().toISOString() },
+			fixer: { status: 'not_started' },
 			status: 'current',
 			filename: '/var/www/html/wp-content/index.php',
 			context: {
@@ -94,6 +94,7 @@ Default.args = {
 			fixedOn: null,
 			severity: 3,
 			fixable: { fixer: 'update', target: '1.12.4', extensionStatus: 'inactive' },
+			fixer: { status: 'in_progress', last_updated: new Date().toISOString() },
 			status: 'current',
 			filename: null,
 			context: null,
