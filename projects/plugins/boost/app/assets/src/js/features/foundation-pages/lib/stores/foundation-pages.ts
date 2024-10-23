@@ -25,7 +25,6 @@ export function useFoundationPages(): [
 
 const FoundationPagesProperties = z.object( {
 	max_pages: z.number(),
-	blog_url: z.string().nullable(),
 } );
 type FoundationPagesProperties = z.infer< typeof FoundationPagesProperties >;
 

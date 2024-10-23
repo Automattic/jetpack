@@ -33,17 +33,19 @@ const Meta = () => {
 				items={ foundationPages.join( '\n' ) }
 				setItems={ updateFoundationPages }
 				maxItems={ foundationPagesProperties.max_pages }
-				description={
-					foundationPagesProperties.blog_url &&
+				description={ createInterpolateElement(
 					sprintf(
-						/* translators: %s is the blog URL. */
+						/* translators: %s is the site URL. */
 						__(
-							'No need to add the blog URL (%s) to the list, it is automatically kept up to date.',
+							'Add one URL per line. Only URLs starting with <b>%s</b> will be included. Relative URLs are automatically expanded.',
 							'jetpack-boost'
 						),
-						foundationPagesProperties.blog_url
-					)
-				}
+						Jetpack_Boost.site.url
+					),
+					{
+						b: <b />,
+					}
+				) }
 			/>
 		);
 	} else {
@@ -119,12 +121,20 @@ const List: React.FC< ListProps > = ( { items, setItems, maxItems, description }
 	const [ inputValue, setInputValue ] = useState( items );
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const [ inputInvalid, setInputInvalid ] = useState( false );
+	const [ validationError, setValidationError ] = useState< Error | null >( null );
 
 	const inputRows = Math.min( maxItems, 10 );
 
 	const validateInputValue = ( value: string ) => {
 		setInputValue( value );
-		setInputInvalid( ! validateItems( value ) );
+		try {
+			const isValid = validateItems( value );
+			setInputInvalid( ! isValid );
+			setValidationError( null );
+		} catch ( e ) {
+			setInputInvalid( true );
+			setValidationError( e as Error );
+		}
 	};
 
 	const validateItems = ( value: string ) => {
@@ -133,14 +143,41 @@ const List: React.FC< ListProps > = ( { items, setItems, maxItems, description }
 			.map( line => line.trim() )
 			.filter( line => line.trim() !== '' );
 
-		// There should always be at least one foundation page.
-		if ( lines.length === 0 ) {
-			return false;
-		}
-
 		// Check if the number of items exceeds maxItems
 		if ( lines.length > maxItems ) {
-			return false;
+			const message = sprintf(
+				/* translators: %d is the maximum number of foundation page URLs. */
+				_n(
+					'You can add only %d foundation page URL.',
+					'You can add up to %d foundation page URLs.',
+					maxItems,
+					'jetpack-boost'
+				),
+				maxItems
+			);
+			throw new Error( message );
+		}
+
+		for ( const line of lines ) {
+			let url: URL | undefined;
+			try {
+				url = new URL( line );
+			} catch ( e ) {
+				// If the URL is invalid, they have provided a relative URL, which we will allow.
+			}
+			if (
+				url &&
+				url.origin.replace( /\/$/, '' ) !== Jetpack_Boost.site.url.replace( /\/$/, '' )
+			) {
+				throw new Error(
+					sprintf(
+						/* translators: %1$s is the URL that didn't match the site URL, %2$s is the site URL */
+						__( 'The URL %1$s does not belong to the site %2$s.', 'jetpack-boost' ),
+						line,
+						Jetpack_Boost.site.url
+					)
+				);
+			}
 		}
 
 		return true;
@@ -166,20 +203,7 @@ const List: React.FC< ListProps > = ( { items, setItems, maxItems, description }
 				onChange={ e => validateInputValue( e.target.value ) }
 				id="jb-foundation-pages"
 			/>
-			{ inputInvalid && (
-				<p className={ styles.error }>
-					{ sprintf(
-						/* translators: %d is the maximum number of foundation page URLs. */
-						_n(
-							'You must provide %d foundation page URL.',
-							'You must provide between 1 and %d foundation page URLs.',
-							maxItems,
-							'jetpack-boost'
-						),
-						maxItems
-					) }
-				</p>
-			) }
+			{ inputInvalid && <p className={ styles.error }>{ validationError?.message }</p> }
 			{ description && <div className={ styles.description }>{ description }</div> }
 			<Button
 				disabled={ items === inputValue || inputInvalid }
