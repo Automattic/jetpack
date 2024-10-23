@@ -33,17 +33,19 @@ const Meta = () => {
 				items={ foundationPages.join( '\n' ) }
 				setItems={ updateFoundationPages }
 				maxItems={ foundationPagesProperties.max_pages }
-				description={
-					foundationPagesProperties.blog_url &&
+				description={ createInterpolateElement(
 					sprintf(
-						/* translators: %s is the blog URL. */
+						/* translators: %s is the site URL. */
 						__(
-							'No need to add the blog URL (%s) to the list, it is automatically kept up to date.',
+							'Add one URL per line. Only URLs starting with <b>%s</b> will be included. Relative URLs are automatically expanded.',
 							'jetpack-boost'
 						),
-						foundationPagesProperties.blog_url
-					)
-				}
+						Jetpack_Boost.site.url
+					),
+					{
+						b: <b />,
+					}
+				) }
 			/>
 		);
 	} else {
