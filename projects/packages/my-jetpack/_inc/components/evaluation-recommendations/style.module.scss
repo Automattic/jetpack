@@ -37,3 +37,15 @@ ul.recommendations-list {
 		}
 	}
 }
+
+.slider-button {
+	transition: all 0.3s ease;
+}
+
+.prev-button:not(:disabled):hover {
+	transform: translateX(-4px);
+}
+
+.next-button:not(:disabled):hover {
+	transform: translateX(4px);
+}
