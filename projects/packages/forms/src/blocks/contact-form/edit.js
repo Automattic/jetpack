@@ -214,7 +214,7 @@ export const JetpackContactFormEdit = forwardRef(
 				</>
 			);
 		};
-		// Look here.
+
 		const renderVariationPicker = () => {
 			return (
 				<div className={ formClassnames }>

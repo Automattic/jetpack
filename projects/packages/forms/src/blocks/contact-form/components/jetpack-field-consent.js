@@ -86,7 +86,7 @@ const JetpackFieldConsent = ( {
 		</div>
 	);
 };
-// Look here.
+
 export default compose(
 	withSharedFieldAttributes( [
 		'borderRadius',
