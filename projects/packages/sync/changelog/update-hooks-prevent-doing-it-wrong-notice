@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Hooks: Change several action priorities to ensure translation loading is not triggered too early.
+Hooks: Hook init_sync_cron_jobs into init to ensure translation loading within the function is not triggered too early.
