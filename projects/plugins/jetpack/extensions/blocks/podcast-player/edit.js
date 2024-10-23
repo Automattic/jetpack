@@ -332,6 +332,7 @@ const PodcastPlayerEdit = ( {
 								max={ defaultMaxItems }
 								required
 								disabled={ !! selectedGuid }
+								__nextHasNoMarginBottom={ true }
 							/>
 						) }
 						{ ComboboxControl && (

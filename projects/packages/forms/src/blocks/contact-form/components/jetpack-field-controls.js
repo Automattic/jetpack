@@ -183,6 +183,7 @@ const JetpackFieldControls = ( {
 						<FontSizePicker
 							withReset={ true }
 							size="__unstable-large"
+							__nextHasNoMarginBottom
 							onChange={ fieldFontSize => setAttributes( { fieldFontSize } ) }
 							value={ attributes.fieldFontSize }
 						/>
@@ -205,6 +206,7 @@ const JetpackFieldControls = ( {
 								onChange={ setNumberAttribute( 'buttonBorderWidth' ) }
 								min={ 0 }
 								max={ 100 }
+								__nextHasNoMarginBottom={ true }
 							/>
 							<RangeControl
 								label={ __( 'Button Border Radius', 'jetpack-forms' ) }
@@ -213,6 +215,7 @@ const JetpackFieldControls = ( {
 								onChange={ setNumberAttribute( 'buttonBorderRadius' ) }
 								min={ 0 }
 								max={ 100 }
+								__nextHasNoMarginBottom={ true }
 							/>
 						</>
 					) }
@@ -225,6 +228,7 @@ const JetpackFieldControls = ( {
 								onChange={ setNumberAttribute( 'borderWidth' ) }
 								min={ 0 }
 								max={ 100 }
+								__nextHasNoMarginBottom={ true }
 							/>
 							<RangeControl
 								label={ __( 'Border Radius', 'jetpack-forms' ) }
@@ -233,6 +237,7 @@ const JetpackFieldControls = ( {
 								onChange={ setNumberAttribute( 'borderRadius' ) }
 								min={ 0 }
 								max={ 100 }
+								__nextHasNoMarginBottom={ true }
 							/>
 						</>
 					) }
@@ -242,6 +247,7 @@ const JetpackFieldControls = ( {
 						<FontSizePicker
 							withReset={ true }
 							size="__unstable-large"
+							__nextHasNoMarginBottom
 							onChange={ labelFontSize => setAttributes( { labelFontSize } ) }
 							value={ attributes.labelFontSize }
 						/>
