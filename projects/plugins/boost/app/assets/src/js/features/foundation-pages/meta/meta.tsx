@@ -170,12 +170,8 @@ const List: React.FC< ListProps > = ( { items, setItems, maxItems, description }
 				url.origin.replace( /\/$/, '' ) !== Jetpack_Boost.site.url.replace( /\/$/, '' )
 			) {
 				throw new Error(
-					sprintf(
-						/* translators: %1$s is the URL that didn't match the site URL, %2$s is the site URL */
-						__( 'The URL %1$s does not belong to the site %2$s.', 'jetpack-boost' ),
-						line,
-						Jetpack_Boost.site.url
-					)
+					/* translators: %s is the URL that didn't match the site URL */
+					sprintf( __( 'The URL seems to be a different site: %s', 'jetpack-boost' ), line )
 				);
 			}
 		}
