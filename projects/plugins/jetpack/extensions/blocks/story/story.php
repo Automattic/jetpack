@@ -444,6 +444,7 @@ function render_block( $attributes ) {
 	static $story_block_counter = 0;
 
 	if ( 0 === $story_block_counter ) {
+		// @todo Fix the webpack tree shaking so the block's view.js no longer depends on jetpack-connection, then remove this.
 		Connection_Assets::register_assets();
 	}
 
