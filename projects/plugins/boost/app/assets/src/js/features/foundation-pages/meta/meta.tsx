@@ -33,7 +33,10 @@ const Meta = () => {
 					foundationPagesProperties.blog_url &&
 					sprintf(
 						/* translators: %s is the blog URL. */
-						__( 'No need to include the blog URL (%s), it is already included.', 'jetpack-boost' ),
+						__(
+							'No need to add the blog URL (%s) to the list, it is automatically kept up to date.',
+							'jetpack-boost'
+						),
 						foundationPagesProperties.blog_url
 					)
 				}
