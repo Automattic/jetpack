@@ -55,15 +55,6 @@ export function getConnectionsByService( state, serviceName ) {
 }
 
 /**
- * Returns the connections admin URL from the store.
- * @param {import("../types").SocialStoreState} state - State object.
- * @return {string|null} The connections admin URL.
- */
-export function getConnectionsAdminUrl( state ) {
-	return state.connectionData?.adminUrl ?? null;
-}
-
-/**
  * Returns whether there are connections in the store.
  * @param {import("../types").SocialStoreState} state - State object.
  * @return {boolean} Whether there are connections.
@@ -141,11 +132,22 @@ export function getConnectionProfileDetails( state, service, { forceDefaults = f
 		);
 
 		if ( connection ) {
-			const { display_name, profile_display_name, profile_picture, external_display } = connection;
+			const {
+				display_name,
+				profile_display_name,
+				profile_picture,
+				external_display,
+				external_name,
+			} = connection;
 
 			displayName = 'twitter' === service ? profile_display_name : display_name || external_display;
 			username = 'twitter' === service ? display_name : connection.username;
 			profileImage = profile_picture;
+
+			// Connections schema is a mess
+			if ( 'bluesky' === service ) {
+				username = external_name;
+			}
 		}
 	}
 
@@ -179,7 +181,7 @@ export function getUpdatingConnections( state ) {
  * @return {import("../types").ConnectionData['reconnectingAccount']} The account being reconnected.
  */
 export function getReconnectingAccount( state ) {
-	return state.connectionData?.reconnectingAccount ?? '';
+	return state.connectionData?.reconnectingAccount;
 }
 
 /**
@@ -218,7 +220,7 @@ export function isMastodonAccountAlreadyConnected( state, username ) {
  */
 export function isBlueskyAccountAlreadyConnected( state, handle ) {
 	return getConnectionsByService( state, 'bluesky' ).some( connection => {
-		return connection.external_display === handle;
+		return connection.external_name === handle;
 	} );
 }
 

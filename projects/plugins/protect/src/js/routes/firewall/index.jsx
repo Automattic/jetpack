@@ -14,10 +14,7 @@ import { Icon, closeSmall } from '@wordpress/icons';
 import moment from 'moment';
 import { useCallback, useEffect, useState, useMemo } from 'react';
 import AdminPage from '../../components/admin-page';
-import FirewallFooter from '../../components/firewall-footer';
-import ConnectedFirewallHeader from '../../components/firewall-header';
 import FormToggle from '../../components/form-toggle';
-import ScanFooter from '../../components/scan-footer';
 import Textarea from '../../components/textarea';
 import { FREE_PLUGIN_SUPPORT_URL, PAID_PLUGIN_SUPPORT_URL } from '../../constants';
 import useWafSeenMutation from '../../data/waf/use-waf-seen-mutation';
@@ -25,6 +22,9 @@ import useWafUpgradeSeenMutation from '../../data/waf/use-waf-upgrade-seen-mutat
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import usePlan from '../../hooks/use-plan';
 import useWafData from '../../hooks/use-waf-data';
+import ScanFooter from '../scan/scan-footer';
+import FirewallAdminSectionHero from './firewall-admin-section-hero';
+import FirewallFooter from './firewall-footer';
 import styles from './styles.module.scss';
 
 const ADMIN_URL = window?.jetpackProtectInitialState?.adminUrl;
@@ -48,7 +48,7 @@ const FirewallPage = () => {
 		displayUpgradeBadge,
 		wafSupported,
 		isUpdating,
-		stats: { automaticRulesLastUpdated },
+		stats,
 		toggleAutomaticRules,
 		toggleIpAllowList,
 		saveIpAllowList,
@@ -62,6 +62,8 @@ const FirewallPage = () => {
 	const { recordEvent } = useAnalyticsTracks();
 	const wafSeenMutation = useWafSeenMutation();
 	const wafUpgradeSeenMutation = useWafUpgradeSeenMutation();
+	const { automaticRulesLastUpdated } = stats;
+
 	/**
 	 * Automatic Rules Installation Error State
 	 *
@@ -257,6 +259,7 @@ const FirewallPage = () => {
 			children={ <Text>{ __( 'Re-enable the Firewall to continue.', 'jetpack-protect' ) }</Text> }
 			actions={ [
 				<Button
+					key="enable"
 					variant="link"
 					onClick={ toggleWaf }
 					isLoading={ isUpdating }
@@ -308,7 +311,7 @@ const FirewallPage = () => {
 									mb={ 3 }
 								>
 									{ __(
-										'Turn on Jetpack Firewall to automatically protect your site with the latest security rules.',
+										'Turn on Automatic firewall protection to apply the latest security rules.',
 										'jetpack-protect'
 									) }
 								</Text>
@@ -577,7 +580,7 @@ const FirewallPage = () => {
 	 */
 	return (
 		<AdminPage>
-			<ConnectedFirewallHeader />
+			<FirewallAdminSectionHero />
 			<Container className={ styles.container } horizontalSpacing={ 8 } horizontalGap={ 4 }>
 				{ wafSupported && ! isWafModuleEnabled && <Col>{ moduleDisabledNotice } </Col> }
 				<Col>

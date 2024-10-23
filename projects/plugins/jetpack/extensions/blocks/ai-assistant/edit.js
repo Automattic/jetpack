@@ -26,8 +26,8 @@ import clsx from 'clsx';
  */
 import UsagePanel from '../../plugins/ai-assistant-plugin/components/usage-panel';
 import { USAGE_PANEL_PLACEMENT_BLOCK_SETTINGS_SIDEBAR } from '../../plugins/ai-assistant-plugin/components/usage-panel/types';
+import ConnectBanner from '../../shared/components/connect-banner';
 import { PLAN_TYPE_FREE, PLAN_TYPE_UNLIMITED, usePlanType } from '../../shared/use-plan-type';
-import ConnectPrompt from './components/connect-prompt';
 import FeedbackControl from './components/feedback-control';
 import QuotaExceededMessage, { FairUsageNotice } from './components/quota-exceeded-message';
 import ToolbarControls from './components/toolbar-controls';
@@ -305,7 +305,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 	const banner = (
 		<>
 			{ isOverLimit && isSelected && <QuotaExceededMessage placement="ai-assistant-block" /> }
-			{ ! connected && <ConnectPrompt /> }
+			{ ! connected && <ConnectBanner block="AI Assistant" /> }
 		</>
 	);
 

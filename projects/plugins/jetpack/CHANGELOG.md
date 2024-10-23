@@ -2,6 +2,90 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 14.0-a.7 - 2024-10-21
+### Enhancements
+- Newsletters: Add an email preview option to the preview menu. [#39782]
+- Newsletters: Allow skipping newsletter modals with a URL query param. [#39644]
+
+### Improved compatibility
+- General: Ensure notice displays without errors when running an old version of WordPress. [#39745]
+- Plugin action links filters: Update parameter to avoid conflicts with other plugins. [#39681]
+
+### Bug fixes
+- Map Block: Fix issue where blocks placed underneath would overlap with the map block. [#39744]
+- Newsletters: Fix "Use excerpt" setting. [#39815]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Map Block: Display a static map image when the block is rendered in a pattern preview. [#39768]
+- Map: Remove preview attribute. [#39768]
+- Newsletters: Fix 'class Jetpack_Subscriptions_Widget not found' fatal error during REST API. [#39765]
+- Slideshow Block: Fix console warning related to images with the same key. [#39821]
+- Story Block: Avoid error when previewing block styles in development version of the Gutenberg plugin. [#39807]
+- Story Block: Fix console warning related to 'key' not being a prop. [#39822]
+- Tests: Fix unit tests. [#39799]
+- Update VideoPress notice URL on Media Library. [#39731]
+
+## 14.0-a.5 - 2024-10-16
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Related Posts: refine how related posts are made available on singular views in block themes. [#39784]
+
+## 14.0-a.3 - 2024-10-14
+### Enhancements
+- Newsletter: Update the default "reply to" setting value from not allowed to replies being posted as public comments. [#39657]
+- Social: Add Bluesky to social previews. [#39659]
+
+### Improved compatibility
+- Image CDN: URL encode image path parts for RSS feed compatibility. [#39560]
+- Related Posts: Allow Related Posts on non-post CPTs where the block is already able to be used. [#39730]
+
+### Bug fixes
+- Blocks: Fix rendering of the goodreads block to avoid PHP warnings caused by missing attributes. [#39713]
+- Blocks: Render the slideshow block correctly inside an iframe editor. [#39551]
+- Contact Form: Ensure that submitted forms can only be accessed by logged in users allowed to view form submissions. [#39759]
+- General: Only include `wp-polyfill` as a script dependency when needed. [#39629]
+- Newsletter: Ensure `Enable featured image on your new post emails` setting displays the right value. [#39700]
+- Sharing: Ensure the sharing settings can be accessed even when a user is not connected to WordPress.com. [#39677]
+- Stats: Fix top post card on the Insight page. [#39691]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add connection nudge for blocks that are missing it. [#39647]
+- Add missing deps in calls to the `useSelect` React hook. [#39421]
+- Add tracks to connection banner. [#39732]
+- AI Assistant: Make Breve no longer flag single quotes as spelling errors. [#39735]
+- Fix issue where connection banner was showing for simple sites. [#39687]
+- Infinite-scroll: Add isset checks to validate input data. [#39618]
+- Janitorial: Add siteFragment to JP initial state definition, avoid linter warnings. [#39589]
+- Jetpack AI: Change constant value for fair usage, accept both values on type definitions. [#39705]
+- JSON Endpoints: Handle null input for update post endpoint. [#39676]
+- Optimize the 'admin_init' hook callback for Sharing module. [#39737]
+- SAL_Site class: Add null check to posts_status_obj to avoid warnings. [#39727]
+- Show connection nudge instead of error if user is not connected on blogroll block. [#39638]
+- Update package dependencies. [#39649] [#39653] [#39707]
+- Use React setState instead of directly modifying state. [#39421]
+- Widget Visibility: Add check to ensure post exists before accesing post_author. [#39746]
+
+## 14.0-a.1 - 2024-10-07
+### Enhancements
+- Sitemap: Improve sitemap write efficienty. [#39572]
+- CSS: Rely esclusively on individual CSS files instead of a combined one for the features used on each page to improve page loading. [#39518]
+- Social: Add support for Bluesky 🎉. [#39561]
+- Scan: Update Jetpack Scan link in the WP Admin menu. [#39619]
+
+### Bug fixes
+- Social: Prevent text overflow in the share status tooltip. [#39599]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Admin menu: Adding tests to check for 'current' class when menu item selected. [#39374]
+- Blogging Prompt: Preserve language on answers link. [#36730]
+- Email preview modal: Improve error state visuals. [#39476]
+- Unify connection nudge design on Jetpack Settings. [#39591]
+- Unify connection related CTAs on At A Glance. [#39585]
+- Updated package dependencies. [#39594] [#39639]
+
+## 13.9.1 - 2024-10-14
+### Bug fixes
+- Contact Form: Ensure that submitted forms can only be accessed by logged in users allowed to view form submissions. [#39759]
+
 ## 13.9 - 2024-10-01
 ### Major Enhancements
 - Jetpack plugin: Remove the 'WordPress.com Toolbar' module. [#39406]

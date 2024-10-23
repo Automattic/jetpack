@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.6] - 2024-10-14
+### Changed
+- Updated package dependencies. [#39707]
+
+### Fixed
+- Admin bar: Clean up WPCOM_ADMIN_BAR_UNIFICATION feature flag. [#39692]
+
+## [0.9.5] - 2024-10-07
+### Changed
+- Updated package dependencies. [#39594]
+- Update Jetpack Scan link. [#39619]
+
 ## [0.9.4] - 2024-09-30
 ### Changed
 - Remove user connection nudges where they aren't needed. Add user connection nudges where needed [#39533]
@@ -140,6 +152,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies. [#37669]
 - Updated package dependencies. [#37706]
 
+[0.9.6]: https://github.com/Automattic/jetpack-masterbar/compare/v0.9.5...v0.9.6
+[0.9.5]: https://github.com/Automattic/jetpack-masterbar/compare/v0.9.4...v0.9.5
 [0.9.4]: https://github.com/Automattic/jetpack-masterbar/compare/v0.9.3...v0.9.4
 [0.9.3]: https://github.com/Automattic/jetpack-masterbar/compare/v0.9.2...v0.9.3
 [0.9.2]: https://github.com/Automattic/jetpack-masterbar/compare/v0.9.1...v0.9.2

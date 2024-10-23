@@ -6,6 +6,7 @@ export type Connection = {
 	display_name: string;
 	external_display?: string;
 	external_id: string;
+	external_name?: string;
 	username: string;
 	enabled: boolean;
 	done: boolean;
@@ -24,7 +25,7 @@ export type ConnectionData = {
 	connections: Connection[];
 	deletingConnections?: Array< number | string >;
 	updatingConnections?: Array< number | string >;
-	reconnectingAccount?: string;
+	reconnectingAccount?: Connection;
 	keyringResult?: KeyringResult;
 };
 

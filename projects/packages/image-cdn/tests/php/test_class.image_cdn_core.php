@@ -267,7 +267,7 @@ class WP_Test_Image_CDN_Core extends BaseTestCase {
 
 	/**
 	 * @covers ::Image_CDN_Core::is_cdn_url
-	 * @since  $$next-version$$
+	 * @since  0.5.0
 	 * @group  jetpack_photon_filter_network_path
 	 */
 	public function test_is_cdn_url_method() {
@@ -281,6 +281,18 @@ class WP_Test_Image_CDN_Core extends BaseTestCase {
 		$this->assertFalse( Image_CDN_Core::is_cdn_url( 'http://example.com/img.jpg' ) );
 		$this->assertFalse( Image_CDN_Core::is_cdn_url( 'https://example.com/img.jpg' ) );
 		$this->assertFalse( Image_CDN_Core::is_cdn_url( '//example.com/img.jpg' ) );
+	}
+
+	/**
+	 * @covers ::Image_CDN_Core::cdn_url
+	 * @since  0.5.1
+	 * @group  jetpack_photon_filter_url_encoding
+	 */
+	public function test_photon_url_filter_url_encodes_path_parts() {
+		// The first two spaces are not standard spaces - https://www.compart.com/en/unicode/U+202F
+		$url = Image_CDN_Core::cdn_url( '//example.com/narrow no-break space/name with spaces.jpg', array(), 'https' );
+
+		$this->assertEquals( 'https://i0.wp.com/example.com/narrow%E2%80%AFno-break%E2%80%AFspace/name%20with%20spaces.jpg', $url );
 	}
 
 	/**

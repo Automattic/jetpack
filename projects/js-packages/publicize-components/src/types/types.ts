@@ -1,3 +1,7 @@
+export interface SocialUrls {
+	connectionsManagementPage: string;
+}
+
 export type SharesData = {
 	to_be_publicized_count: number;
 	publicized_count: number;
@@ -31,6 +35,7 @@ export interface SocialScriptData {
 	feature_flags: FeatureFlags;
 	supported_services: Array< ConnectionService >;
 	shares_data: SharesData;
+	urls: SocialUrls;
 }
 
 type JetpackSettingsSelectors = {
@@ -47,7 +52,6 @@ type JetpackSettingsSelectors = {
 
 type ConnectionDataSelectors = {
 	getConnections: () => Array< object >;
-	getConnectionsAdminUrl: () => string;
 	hasConnections: () => boolean;
 };
 

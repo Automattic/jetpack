@@ -90,7 +90,15 @@ class REST_Controller {
 	 * @return WP_REST_Response
 	 */
 	public static function waf() {
-		return rest_ensure_response( Waf_Runner::get_config() );
+		return rest_ensure_response(
+			array_merge(
+				Waf_Runner::get_config(),
+				array(
+					'waf_supported'                => Waf_Runner::is_supported_environment(),
+					'automatic_rules_last_updated' => Waf_Stats::get_automatic_rules_last_updated(),
+				)
+			)
+		);
 	}
 
 	/**

@@ -140,14 +140,6 @@ module.exports = {
 
 		'jsx-a11y/anchor-has-content': 'off',
 		'jsx-a11y/anchor-is-valid': 'off',
-		'jsx-a11y/label-has-for': [
-			'error',
-			{
-				required: {
-					some: [ 'nesting', 'id' ],
-				},
-			},
-		],
 		// Redundant roles are sometimes necessary for screen reader support. For instance, VoiceOver
 		// on Safari requires `role=list` to announce the list if the style is overwritten.
 		'jsx-a11y/no-redundant-roles': 'off',
@@ -207,9 +199,6 @@ module.exports = {
 		// We may want to keep these overrides. To decide later.
 		eqeqeq: [ 'error', 'always', { null: 'ignore' } ],
 		'no-unused-expressions': [ 'error', { allowShortCircuit: true, allowTernary: true } ],
-		// Temporarily override plugin:@wordpress/* so we can clean up failing stuff in separate PRs.
-		'jsx-a11y/label-has-associated-control': [ 'error', { assert: 'either' } ],
 		'object-shorthand': 'off',
-		'@wordpress/no-base-control-with-label-without-id': 'off',
 	},
 };

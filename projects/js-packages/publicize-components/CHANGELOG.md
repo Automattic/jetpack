@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.71.3] - 2024-10-21
+### Changed
+- Initial state: Migrated URLs in the editor to the new script data. [#39799] [#39797]
+- Update dependencies. [#39781]
+
+### Fixed
+- Social: Fixed Bluesky display name when it's not set in Bluesky profile. [#39840]
+
+## [0.71.2] - 2024-10-14
+### Added
+- Social: Added Bluesky to social previews. [#39659]
+
+### Changed
+- Updated package dependencies. [#39707]
+
+### Fixed
+- Add missing deps in calls to the `useSelect` React hook. [#39421]
+- Social: Updated the check to see if Bluesky is already connected. [#39661]
+
+## [0.71.1] - 2024-10-07
+### Changed
+- Updated package dependencies. [#39594]
+
+### Fixed
+- Social: Fixed share status tooltip text overflow [#39599]
+
 ## [0.71.0] - 2024-10-01
 ### Added
 - Social: Added support for Bluesky [#39561]
@@ -952,6 +978,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#24470]
 
+[0.71.3]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.71.2...v0.71.3
+[0.71.2]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.71.1...v0.71.2
+[0.71.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.71.0...v0.71.1
 [0.71.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.70.1...v0.71.0
 [0.70.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.70.0...v0.70.1
 [0.70.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.69.0...v0.70.0

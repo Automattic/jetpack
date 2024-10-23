@@ -69,7 +69,7 @@
 			color: var(--studio-gray-50, #646970);
 		}
 
-		&[data-placeholder]:empty:focus::before {
+		&[data-placeholder]:empty:focus::before:not([contentEditable="false"]) {
 			content: "";
 		}
 	}

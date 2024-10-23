@@ -24,7 +24,7 @@ export default function ProductManagementControls( {
 				selectedProductIds,
 				setSelectedProductIds
 			),
-		[]
+		[ productType, selectedProductIds, setSelectedProductIds ]
 	);
 
 	const { connectUrl, isApiConnected, areSelectedProductsInvalid } = useSelect( select => {

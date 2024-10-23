@@ -2,15 +2,22 @@ import { useSelect } from '@wordpress/data';
 import { range } from 'lodash';
 import { Bullet } from './components';
 
-export const ProgressBullet = ( { key, playerId, index, disabled, isSelected, onClick } ) => {
+export const ProgressBullet = ( {
+	bulletIndex,
+	playerId,
+	index,
+	disabled,
+	isSelected,
+	onClick,
+} ) => {
 	const progress = useSelect(
 		select => select( 'jetpack/story/player' ).getCurrentSlideProgressPercentage( playerId ),
-		[]
+		[ playerId ]
 	);
 
 	return (
 		<Bullet
-			key={ key }
+			key={ `bullet-${ bulletIndex }` }
 			index={ index }
 			progress={ progress }
 			disabled={ disabled }
@@ -25,7 +32,7 @@ export const ProgressBar = ( { playerId, slides, disabled, onSlideSeek, maxBulle
 		select => ( {
 			currentSlideIndex: select( 'jetpack/story/player' ).getCurrentSlideIndex( playerId ),
 		} ),
-		[]
+		[ playerId ]
 	);
 
 	const bulletCount = Math.min( slides.length, maxBullets );
@@ -63,6 +70,7 @@ export const ProgressBar = ( { playerId, slides, disabled, onSlideSeek, maxBulle
 					return (
 						<ProgressBullet
 							playerId={ playerId }
+							bulletIndex={ bulletIndex }
 							key={ `bullet-${ bulletIndex }` }
 							index={ slideIndex }
 							disabled={ disabled }

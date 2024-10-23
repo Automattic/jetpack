@@ -45,11 +45,10 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 	isOpen,
 	onClose,
 	onApplyLogo,
-	onReload,
+	onReload = null,
 	siteDetails,
 	context,
 	placement,
-	showStyleSelector,
 } ) => {
 	const { tracks } = useAnalytics();
 	const { recordEvent: recordTracksEvent } = tracks;
@@ -71,8 +70,11 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 		generateLogo,
 		setContext,
 		tierPlansEnabled,
+		site,
+		requireUpgrade,
 	} = useLogoGenerator();
-	const { featureFetchError, firstLogoPromptFetchError, clearErrors } = useRequestErrors();
+	const { featureFetchError, setFeatureFetchError, firstLogoPromptFetchError, clearErrors } =
+		useRequestErrors();
 	const siteId = siteDetails?.ID;
 	const [ logoAccepted, setLogoAccepted ] = useState( false );
 	const { nextTierCheckoutURL: upgradeURL } = useCheckout();
@@ -104,13 +106,23 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 	 */
 	const initializeModal = useCallback( async () => {
 		try {
+			if ( ! siteId ) {
+				throw new Error( 'Site ID is missing' );
+			}
+
+			if ( ! feature?.featuresControl?.[ 'logo-generator' ]?.enabled ) {
+				setFeatureFetchError( 'Failed to fetch feature data' );
+				throw new Error( 'Failed to fetch feature data' );
+			}
+
 			const hasHistory = ! isLogoHistoryEmpty( String( siteId ) );
 
 			const logoCost = feature?.costs?.[ 'jetpack-ai-logo-generator' ]?.logo ?? DEFAULT_LOGO_COST;
 			const promptCreationCost = 1;
-			const currentLimit = feature?.currentTier?.value || 0;
+			const currentLimit = feature?.currentTier?.limit || 0;
+			const currentValue = feature?.currentTier?.value || 0;
 			const currentUsage = feature?.usagePeriod?.requestsCount || 0;
-			const isUnlimited = ! tierPlansEnabled ? currentLimit > 0 : currentLimit === 1;
+			const isUnlimited = ! tierPlansEnabled ? currentValue > 0 : currentValue === 1;
 			const hasNoNextTier = ! feature?.nextTier; // If there is no next tier, the user cannot upgrade.
 
 			// The user needs an upgrade immediately if they have no logos and not enough requests remaining for one prompt and one logo generation.
@@ -123,10 +135,10 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 					: currentLimit < currentUsage );
 
 			// If the site requires an upgrade, show the upgrade screen immediately.
-			setNeedsFeature( currentLimit === 0 );
+			setNeedsFeature( currentValue === 0 );
 			setNeedsMoreRequests( siteNeedsMoreRequests );
 
-			if ( currentLimit === 0 || siteNeedsMoreRequests ) {
+			if ( currentValue === 0 || siteNeedsMoreRequests ) {
 				setLoadingState( null );
 				return;
 			}
@@ -137,14 +149,33 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 			loadLogoHistory( siteId );
 
 			// If there is any logo, we do not need to generate a first logo again.
-			if ( ! isLogoHistoryEmpty( String( siteId ) ) ) {
+			if ( hasHistory ) {
 				setLoadingState( null );
 				setIsLoadingHistory( false );
 				return;
 			}
 
-			// If the site does not require an upgrade and has no logos stored, generate the first prompt based on the site's data.
-			generateFirstLogo();
+			// if site requires an upgrade, just return and set loaders to null,
+			// prompt component will take over the situation
+			if ( requireUpgrade ) {
+				setLoadingState( null );
+				setIsLoadingHistory( false );
+				return;
+			}
+
+			// If the site does not require an upgrade and has no logos stored
+			// and has title and description, generate the first prompt based on the site's data.
+			if (
+				site &&
+				site.name &&
+				site.description &&
+				site.name !== __( 'Site Title', 'jetpack-ai-client' )
+			) {
+				generateFirstLogo();
+			} else {
+				setLoadingState( null );
+				setIsLoadingHistory( false );
+			}
 		} catch ( error ) {
 			debug( 'Error fetching feature', error );
 			setLoadingState( null );
@@ -157,6 +188,8 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 		clearDeletedMedia,
 		isLogoHistoryEmpty,
 		siteId,
+		requireUpgrade,
+		setFeatureFetchError,
 	] );
 
 	const handleModalOpen = useCallback( async () => {
@@ -178,6 +211,15 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 		setIsLoadingHistory( false );
 		recordTracksEvent( EVENT_MODAL_CLOSE, { context, placement } );
 	};
+
+	const handleReload = useCallback( () => {
+		if ( ! onReload ) {
+			return;
+		}
+		closeModal();
+		requestedFeatureData.current = false;
+		onReload();
+	}, [ onReload, closeModal ] );
 
 	const handleApplyLogo = ( mediaId: number ) => {
 		setLogoAccepted( true );
@@ -207,7 +249,7 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 	// Handles modal opening logic
 	useEffect( () => {
 		// While the modal is not open, the siteId is not set, or the feature data is not available, do nothing.
-		if ( ! isOpen || ! siteId || ! feature?.costs ) {
+		if ( ! isOpen ) {
 			return;
 		}
 
@@ -216,7 +258,7 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 			needsToHandleModalOpen.current = false;
 			handleModalOpen();
 		}
-	}, [ isOpen, siteId, handleModalOpen, feature ] );
+	}, [ isOpen, handleModalOpen ] );
 
 	let body: React.ReactNode;
 
@@ -226,10 +268,7 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 		body = (
 			<FeatureFetchFailureScreen
 				onCancel={ closeModal }
-				onRetry={ () => {
-					closeModal();
-					onReload?.();
-				} }
+				onRetry={ onReload ? handleReload : null }
 			/>
 		);
 	} else if ( needsFeature || needsMoreRequests ) {
@@ -243,9 +282,7 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 	} else {
 		body = (
 			<>
-				{ ! logoAccepted && (
-					<Prompt initialPrompt={ initialPrompt } showStyleSelector={ showStyleSelector } />
-				) }
+				{ ! logoAccepted && <Prompt initialPrompt={ initialPrompt } /> }
 
 				<LogoPresenter
 					logo={ selectedLogo }

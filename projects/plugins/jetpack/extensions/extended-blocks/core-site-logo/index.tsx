@@ -102,10 +102,10 @@ const siteLogoEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			setIsLogoGeneratorModalVisible( false );
 		}, [] );
 
-		const reloadModal = useCallback( () => {
-			closeModal();
-			showModal();
-		}, [ closeModal, showModal ] );
+		// const reloadModal = useCallback( () => {
+		// 	closeModal();
+		// 	showModal();
+		// }, [ closeModal, showModal ] );
 
 		const applyLogoHandler = useCallback(
 			( mediaId: number ) => {
@@ -125,8 +125,6 @@ const siteLogoEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 
 		const siteDetails = useSiteDetails();
 
-		const styleLogoFeatureEnabled = getFeatureAvailability( 'ai-logo-style-selector-support' );
-
 		return (
 			<>
 				<BlockEdit { ...props } />
@@ -137,11 +135,11 @@ const siteLogoEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 					isOpen={ isLogoGeneratorModalVisible }
 					onClose={ closeModal }
 					onApplyLogo={ applyLogoHandler }
-					onReload={ reloadModal }
+					// reload is not working right and can end up showing a non functional modal
+					// onReload={ reloadModal }
 					context={ PLACEMENT_CONTEXT }
 					placement={ TOOL_PLACEMENT }
 					siteDetails={ siteDetails }
-					showStyleSelector={ styleLogoFeatureEnabled }
 				/>
 			</>
 		);
