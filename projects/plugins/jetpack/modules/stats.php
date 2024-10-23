@@ -54,7 +54,10 @@ add_action( 'jetpack_modules_loaded', 'stats_load' );
 function stats_load() {
 	Jetpack::enable_module_configurable( __FILE__ );
 
-	add_action( 'wp_head', 'stats_admin_bar_head', 100 );
+	// Only run the callback for those who can see the stats.
+	if ( is_user_logged_in() && current_user_can( 'view_stats' ) ) {
+		add_action( 'wp_head', 'stats_admin_bar_head', 100 );
+	}
 
 	add_action( 'jetpack_admin_menu', 'stats_admin_menu' );
 

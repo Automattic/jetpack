@@ -95,7 +95,7 @@ class Help_Center {
 					$wp_admin_bar->add_menu(
 						array(
 							'id'     => 'help-center',
-							'title'  => self::download_asset( 'widgets.wp.com/help-center/help-icon.svg', false ),
+							'title'  => '<span title="' . __( 'Help', 'jetpack-mu-wpcom' ) . '">' . self::download_asset( 'widgets.wp.com/help-center/help-icon.svg', false ) . '</span>',
 							'parent' => 'top-secondary',
 							'href'   => $this->get_help_center_url(),
 							'meta'   => array(
