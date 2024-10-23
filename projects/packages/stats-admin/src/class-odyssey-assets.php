@@ -90,6 +90,7 @@ class Odyssey_Assets {
 
 		if ( ! empty( $remote_asset_version ) ) {
 			$remote_asset_version = json_decode( $remote_asset_version, true );
+			// If cache buster is cached and not expired (valid in 15 min), return it.
 			if ( ! empty( $remote_asset_version['cache_buster'] ) && $remote_asset_version['cached_at'] > $now_in_ms - MINUTE_IN_SECONDS * 1000 * 15 ) {
 				return $remote_asset_version['cache_buster'];
 			}
