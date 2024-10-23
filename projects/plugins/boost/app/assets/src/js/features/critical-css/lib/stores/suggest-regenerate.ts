@@ -17,18 +17,18 @@ export type RegenerationReason = ( typeof allowedSuggestions )[ number ] | null;
  * Hook to get the reason why (if any) we should recommend users regenerate their Critical CSS.
  */
 export function useRegenerationReason(): [
-	RegenerationReason,
-	( reason: RegenerationReason ) => void,
+	{ data: RegenerationReason; refetch: () => void },
+	() => void,
 ] {
-	const [ { data }, { mutate } ] = useDataSync(
+	const [ { data, refetch }, { mutate } ] = useDataSync(
 		'jetpack_boost_ds',
 		'critical_css_suggest_regenerate',
 		z.enum( allowedSuggestions ).nullable()
 	);
 
-	const updateReason = ( reason: RegenerationReason ) => {
-		mutate( reason );
-	};
+	function reset() {
+		mutate( null );
+	}
 
-	return [ data || null, updateReason ];
+	return [ { data: data || null, refetch }, reset ];
 }

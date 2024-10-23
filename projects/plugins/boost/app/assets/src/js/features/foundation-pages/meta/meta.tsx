@@ -15,13 +15,13 @@ const Meta = () => {
 	const [ isExpanded, setIsExpanded ] = useState( false );
 	const [ foundationPages, setFoundationPages ] = useFoundationPages();
 	const foundationPagesProperties = useFoundationPagesProperties();
-	const [ , updateRegenerateReason ] = useRegenerationReason();
+	const [ { refetch: refetchRegenerationReason } ] = useRegenerationReason();
 
 	const updateFoundationPages = ( newValue: string ) => {
 		const newItems = newValue.split( '\n' ).map( line => line.trim() );
 
 		setFoundationPages( newItems, () => {
-			updateRegenerateReason( 'foundation_pages_list_updated' );
+			refetchRegenerationReason();
 		} );
 	};
 
