@@ -478,22 +478,39 @@ abstract class Product {
 	}
 
 	/**
-	 * Gets the paid plan's expiry status, or null if: no paid plan, or not expired, or not expiring soon.
+	 * Gets the paid plan's expiry status.
 	 *
-	 * @return string|null
+	 * @return string
 	 */
 	public static function get_paid_plan_expiration_status() {
 		$purchase = static::get_paid_plan_purchase_for_product();
-		if ( $purchase ) {
-			if ( $purchase->expiry_status === Products::STATUS_EXPIRING_SOON ) {
-				return Products::STATUS_EXPIRING_SOON;
-			}
-			if ( $purchase->expiry_status === Products::STATUS_EXPIRED ) {
-				return Products::STATUS_EXPIRED;
-			}
+		if ( ! $purchase ) {
+			return 'paid-plan-does-not-exist';
 		}
 
-		return null;
+		return $purchase->expiry_status;
+	}
+
+	/**
+	 * Checks if the paid plan is expired or not.
+	 *
+	 * @return bool
+	 */
+	public static function is_paid_plan_expired() {
+		$expiry_status = static::get_paid_plan_expiration_status();
+
+		return $expiry_status === Products::STATUS_EXPIRED;
+	}
+
+	/**
+	 * Checks if the paid plan is expiring soon or not.
+	 *
+	 * @return bool
+	 */
+	public static function is_paid_plan_expiring() {
+		$expiry_status = static::get_paid_plan_expiration_status();
+
+		return $expiry_status === Products::STATUS_EXPIRING_SOON;
 	}
 
 	/**
@@ -611,8 +628,12 @@ abstract class Product {
 				}
 			} elseif ( static::$requires_user_connection && ! ( new Connection_Manager() )->has_connected_owner() ) {
 				$status = Products::STATUS_USER_CONNECTION_ERROR;
-			} elseif ( static::has_paid_plan_for_product() && in_array( static::get_paid_plan_expiration_status(), Products::$expiring_or_expired_module_statuses, true ) ) {
-				$status = static::get_paid_plan_expiration_status();
+			} elseif ( static::has_paid_plan_for_product() ) {
+				if ( static::is_paid_plan_expired() ) {
+					$status = Products::STATUS_EXPIRED;
+				} elseif ( static::is_paid_plan_expiring() ) {
+					$status = Products::STATUS_EXPIRING_SOON;
+				}
 			} elseif ( static::is_upgradable() ) {
 				$status = Products::STATUS_CAN_UPGRADE;
 			}
