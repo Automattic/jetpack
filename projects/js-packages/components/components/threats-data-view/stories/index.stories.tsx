@@ -32,7 +32,7 @@ Default.args = {
 			fixedOn: null,
 			severity: 8,
 			fixable: { fixer: 'rollback', target: 'January 26, 2024, 6:49 am', extensionStatus: '' },
-			fixer: { status: 'in_progress', last_updated: new Date().toISOString() },
+			fixer: { status: 'not_started' },
 			status: 'current',
 			filename: '/var/www/html/wp-content/index.php',
 			context: {
@@ -94,6 +94,7 @@ Default.args = {
 			fixedOn: null,
 			severity: 3,
 			fixable: { fixer: 'update', target: '1.12.4', extensionStatus: 'inactive' },
+			fixer: { status: 'in_progress', last_updated: new Date().toISOString() },
 			status: 'current',
 			filename: null,
 			context: null,
@@ -119,10 +120,7 @@ Default.args = {
 				file: '/var/www/html/wp-admin/index.php',
 				extensionStatus: '',
 			},
-			fixer: {
-				status: 'in_progress',
-				last_updated: new Date( '1999-09-09T19:19:19.000Z' ).toISOString(),
-			},
+			fixer: null,
 			filename: '/var/www/html/wp-admin/index.php',
 			diff: "--- /tmp/wordpress/6.6.2/wordpress/wp-admin/index.php\t2024-10-07 20:40:04.887546480 +0000\n+++ /var/www/html/wp-admin/index.php\t2024-10-07 20:39:58.775512965 +0000\n@@ -210,3 +210,4 @@\n wp_print_community_events_templates();\n \n require_once ABSPATH . 'wp-admin/admin-footer.php';\n+if ( true === false ) exit();\n\\ No newline at end of file\n",
 		},

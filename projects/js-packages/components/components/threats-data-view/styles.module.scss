@@ -55,7 +55,11 @@
 	.icon-spinner {
 		margin-left: 1px;
 	}
-  
+
+	.icon-info {
+		margin-left: -3px;
+	}
+
 	.icon-check {
 		margin-left: -6px;
 	}
@@ -88,6 +92,15 @@
 .threat__description {
 	color: var( --jp-gray-80 );
 	font-size: 12px;
+}
+
+.threat__fixedOn,
+.threat__firstDetected {
+	white-space: nowrap;
+}
+
+.threat__fixedOn {
+	color: var( --jp-green-70 );
 }
 
 .icon-spinner {
