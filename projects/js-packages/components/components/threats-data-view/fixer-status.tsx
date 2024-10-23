@@ -124,7 +124,7 @@ function FixerStatusText( { fixer }: { fixer?: ThreatFixStatus } ): JSX.Element 
 export function FixerStatusBadge( { fixer }: { fixer?: ThreatFixStatus } ): JSX.Element {
 	return (
 		<div className={ styles[ 'fixer-status' ] }>
-			<FixerStatusIcon fixer={ fixer } size={ 20 } />
+			<FixerStatusIcon fixer={ fixer } />
 			<FixerStatusText fixer={ fixer } />
 		</div>
 	);

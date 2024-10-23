@@ -5,7 +5,8 @@
 		min-height: 0;
 	}
 
-	.dataviews-view-table td, .dataviews-view-table th {
+	.dataviews-view-table td,
+	.dataviews-view-table th {
 		white-space: initial;
 	}
 
@@ -15,6 +16,37 @@
 
 	.dataviews-view-list .dataviews-views-list__fields {
 		align-items: center;
+	}
+  
+	.dataviews-view-table th.dataviews-view-table__actions-column {
+		text-align: left;
+	}
+
+	.dataviews-view-table tr .dataviews-item-actions {
+		gap: 16px;
+
+		.components-button:not( .dataviews-all-actions-button ) {
+			opacity: 1;
+		}
+	  
+		.dataviews-all-actions-button {
+			display: none;
+		}
+	}
+
+	.dataviews-view-table__actions-column .dataviews-item-actions .components-button.is-compact.has-icon {
+		width: fit-content;
+
+		&:focus,
+		&:focus-visible {
+			box-shadow: none;
+		}
+	}
+
+	.dataviews-view-list .dataviews-view-list__item-actions {
+		div:first-of-type {
+			display: none;
+		}
 	}
 }
 
@@ -127,5 +159,28 @@
 
 .threat__fixer {
 	min-width: 54px;
-	text-align: center;
+	display: flex;
+	justify-content: center;
+}
+
+.threat__action {
+	text-wrap: nowrap;
+	padding: 8px;
+
+	&:hover {
+		color: var( --jp-highlight );
+	}
+
+	&.auto-fix {
+		background: var( --jp-highlight );
+		color: var( --jp-white );
+		border: 1px solid var( --jp-highlight );
+		border-radius: 3px;
+
+		&:hover {
+			background: var( --jp-white );
+			color: var( --jp-highlight );
+			border: 1px solid var( --jp-highlight );
+		}
+	}
 }

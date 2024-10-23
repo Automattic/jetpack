@@ -120,7 +120,10 @@ Default.args = {
 				file: '/var/www/html/wp-admin/index.php',
 				extensionStatus: '',
 			},
-			fixer: null,
+			fixer: {
+				status: 'in_progress',
+				last_updated: new Date( '1999-09-09T19:19:19.000Z' ).toISOString(),
+			},
 			filename: '/var/www/html/wp-admin/index.php',
 			diff: "--- /tmp/wordpress/6.6.2/wordpress/wp-admin/index.php\t2024-10-07 20:40:04.887546480 +0000\n+++ /var/www/html/wp-admin/index.php\t2024-10-07 20:39:58.775512965 +0000\n@@ -210,3 +210,4 @@\n wp_print_community_events_templates();\n \n require_once ABSPATH . 'wp-admin/admin-footer.php';\n+if ( true === false ) exit();\n\\ No newline at end of file\n",
 		},
