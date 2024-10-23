@@ -168,8 +168,8 @@ const List: React.FC< ListProps > = ( { items, setItems, maxItems, description }
 					{ sprintf(
 						/* translators: %d is the maximum number of foundation page URLs. */
 						_n(
-							'You must provide %d foundation page URL.',
-							'You must provide between 1 and %d foundation page URLs.',
+							'You can add only %d foundation page URL.',
+							'You can add up to %d foundation page URLs.',
 							maxItems,
 							'jetpack-boost'
 						),
