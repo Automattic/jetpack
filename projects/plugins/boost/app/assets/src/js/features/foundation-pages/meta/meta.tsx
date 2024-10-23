@@ -121,12 +121,20 @@ const List: React.FC< ListProps > = ( { items, setItems, maxItems, description }
 	const [ inputValue, setInputValue ] = useState( items );
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const [ inputInvalid, setInputInvalid ] = useState( false );
+	const [ validationError, setValidationError ] = useState< Error | null >( null );
 
 	const inputRows = Math.min( maxItems, 10 );
 
 	const validateInputValue = ( value: string ) => {
 		setInputValue( value );
-		setInputInvalid( ! validateItems( value ) );
+		try {
+			const isValid = validateItems( value );
+			setInputInvalid( ! isValid );
+			setValidationError( null );
+		} catch ( e ) {
+			setInputInvalid( true );
+			setValidationError( e as Error );
+		}
 	};
 
 	const validateItems = ( value: string ) => {
@@ -137,7 +145,39 @@ const List: React.FC< ListProps > = ( { items, setItems, maxItems, description }
 
 		// Check if the number of items exceeds maxItems
 		if ( lines.length > maxItems ) {
-			return false;
+			const message = sprintf(
+				/* translators: %d is the maximum number of foundation page URLs. */
+				_n(
+					'You can add only %d foundation page URL.',
+					'You can add up to %d foundation page URLs.',
+					maxItems,
+					'jetpack-boost'
+				),
+				maxItems
+			);
+			throw new Error( message );
+		}
+
+		for ( const line of lines ) {
+			let url: URL | undefined;
+			try {
+				url = new URL( line );
+			} catch ( e ) {
+				// If the URL is invalid, they have provided a relative URL, which we will allow.
+			}
+			if (
+				url &&
+				url.origin.replace( /\/$/, '' ) !== Jetpack_Boost.site.url.replace( /\/$/, '' )
+			) {
+				throw new Error(
+					sprintf(
+						/* translators: %1$s is the URL that didn't match the site URL, %2$s is the site URL */
+						__( 'The URL %1$s does not belong to the site %2$s.', 'jetpack-boost' ),
+						line,
+						Jetpack_Boost.site.url
+					)
+				);
+			}
 		}
 
 		return true;
@@ -163,20 +203,7 @@ const List: React.FC< ListProps > = ( { items, setItems, maxItems, description }
 				onChange={ e => validateInputValue( e.target.value ) }
 				id="jb-foundation-pages"
 			/>
-			{ inputInvalid && (
-				<p className={ styles.error }>
-					{ sprintf(
-						/* translators: %d is the maximum number of foundation page URLs. */
-						_n(
-							'You can add only %d foundation page URL.',
-							'You can add up to %d foundation page URLs.',
-							maxItems,
-							'jetpack-boost'
-						),
-						maxItems
-					) }
-				</p>
-			) }
+			{ inputInvalid && <p className={ styles.error }>{ validationError?.message }</p> }
 			{ description && <div className={ styles.description }>{ description }</div> }
 			<Button
 				disabled={ items === inputValue || inputInvalid }
