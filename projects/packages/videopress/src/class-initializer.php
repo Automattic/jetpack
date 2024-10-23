@@ -132,7 +132,6 @@ class Initializer {
 		add_filter( 'embed_oembed_html', array( __CLASS__, 'enqueue_videopress_iframe_api_script' ), 10, 4 );
 
 		if ( self::should_initialize_admin_ui() ) {
-			add_action( 'admin_menu', array( '\Automattic\Jetpack\VideoPress\Admin_UI', 'enable_menu' ) );
 			Admin_UI::init();
 		}
 
