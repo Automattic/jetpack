@@ -98,7 +98,7 @@ class Environment_Change_Detector {
 	/**
 	 * Get the type of change for a specific post.
 	 *
-	 * @param WP_Post $post The post object.
+	 * @param \WP_Post $post The post object.
 	 * @return string The change type.
 	 */
 	private function get_post_change_type( $post ) {
