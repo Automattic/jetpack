@@ -58,11 +58,18 @@ const EvaluationRecommendations: FC< Props > = ( { welcomeFlowExperimentVariatio
 
 	const handleNextSlide = useCallback( () => {
 		handleSlide( containerRef, 1 );
-	}, [ containerRef ] );
+
+		recordEvent( 'jetpack_myjetpack_recommendations_slide_arrow_click', {
+			direction: 'next',
+		} );
+	}, [ recordEvent, containerRef ] );
 
 	const handlePrevSlide = useCallback( () => {
 		handleSlide( containerRef, -1 );
-	}, [ containerRef ] );
+		recordEvent( 'jetpack_myjetpack_recommendations_slide_arrow_click', {
+			direction: 'previous',
+		} );
+	}, [ recordEvent, containerRef ] );
 
 	// We're defining each of these translations in separate variables here, otherwise optimizations in
 	// the build step end up breaking the translations and causing error.
