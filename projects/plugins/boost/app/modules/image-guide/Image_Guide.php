@@ -21,6 +21,7 @@ class Image_Guide implements Pluggable {
 		// Enqueue the tracks library.
 		add_action( 'wp_enqueue_scripts', array( Analytics::class, 'init_tracks_scripts' ) );
 
+		// Enqueue the assets.
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 
 		/**
