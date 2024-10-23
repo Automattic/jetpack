@@ -139,6 +139,30 @@
 	color: var( --jp-green-70 );
 }
 
+.icon-spinner {
+	svg {
+		margin: 0;
+	}
+}
+
+.spinner-spacer {
+	margin-left: 8px;
+}
+
+.info-spacer {
+	margin-left: 4px;
+}
+
+.check-spacer {
+	margin-left: -2px;
+}
+
+.threat__fixer {
+	min-width: 54px;
+	display: flex;
+	justify-content: center;
+}
+
 .threat__action {
 	text-wrap: nowrap;
 	padding: 8px;
