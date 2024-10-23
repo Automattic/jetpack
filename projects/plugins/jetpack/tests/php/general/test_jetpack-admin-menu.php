@@ -95,10 +95,7 @@ class WP_Test_Jetpack_Admin_Menu extends WP_UnitTestCase {
 			$this->assertTrue( $activity_log_submenu_position < $search_submenu_position, 'Activity Log should be above Search in the submenu order.' );
 			$this->assertTrue( $backup_submenu_position < $activity_log_submenu_position, 'Jetpack VaultPress Backup should be above Activity Log in the submenu order.' );
 		}
-		// The VideoPress menu item may load late and affect this particular test.
-		if ( in_array( 'Jetpack VideoPress', $submenu_names, true ) ) {
-			$this->assertTrue( $stats_submenu_position < $videopress_submenu_position, 'Stats should be above VideoPress in the submenu order.' );
-		}
+		$this->assertTrue( $stats_submenu_position < $videopress_submenu_position, 'Stats should be above VideoPress in the submenu order.' );
 		$this->assertTrue( $videopress_submenu_position < $backup_submenu_position, 'Jetpack VideoPress should be above Jetpack VaultPress Backup in the submenu order.' );
 		$this->assertTrue( $backup_submenu_position < $search_submenu_position, 'Jetpack VaultPress Backup should be above Search in the submenu order.' );
 		$this->assertTrue( $search_submenu_position < $wordads_submenu_position, 'Search should be above WordAds in the submenu order.' );
