@@ -75,12 +75,14 @@ class Odyssey_Assets {
 	/**
 	 * Returns cache buster string for assets.
 	 * Development mode doesn't need this, as it's handled by `Assets` class.
+	 *
+	 * @return string
 	 */
 	protected function get_cdn_asset_cache_buster() {
-		$now = time();
+		$now_in_ms = floor( microtime( true ) * 1000 );
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( isset( $_GET['force_refresh'] ) ) {
-			update_option( self::ODYSSEY_STATS_CACHE_BUSTER_CACHE_KEY, $this->get_cache_buster_option_value( $now ), false );
+			update_option( self::ODYSSEY_STATS_CACHE_BUSTER_CACHE_KEY, $this->get_cache_buster_option_value( $now_in_ms ), false );
 		}
 
 		// Use cached cache buster in production.
@@ -88,17 +90,17 @@ class Odyssey_Assets {
 
 		if ( ! empty( $remote_asset_version ) ) {
 			$remote_asset_version = json_decode( $remote_asset_version, true );
-			if ( ! empty( $remote_asset_version['cache_buster'] ) && $remote_asset_version['cached_at'] > $now - MINUTE_IN_SECONDS * 15 ) {
+			if ( ! empty( $remote_asset_version['cache_buster'] ) && $remote_asset_version['cached_at'] > $now_in_ms - MINUTE_IN_SECONDS * 1000 * 15 ) {
 				return $remote_asset_version['cache_buster'];
 			}
 		}
 
 		// If no cached cache buster, we fetch it from CDN and set to transient.
-		$response = wp_remote_get( sprintf( self::ODYSSEY_CDN_URL, self::ODYSSEY_STATS_VERSION, 'build_meta.json?t=' . $now ), array( 'timeout' => 5 ) );
+		$response = wp_remote_get( sprintf( self::ODYSSEY_CDN_URL, self::ODYSSEY_STATS_VERSION, 'build_meta.json?t=' . $now_in_ms ), array( 'timeout' => 5 ) );
 
 		if ( is_wp_error( $response ) ) {
 			// fallback to current timestamp.
-			return $now;
+			return (string) $now_in_ms;
 		}
 
 		$build_meta = json_decode( wp_remote_retrieve_body( $response ), true );
@@ -109,7 +111,7 @@ class Odyssey_Assets {
 		}
 
 		// fallback to current timestamp.
-		return $now;
+		return (string) $now_in_ms;
 	}
 
 	/**
@@ -122,7 +124,7 @@ class Odyssey_Assets {
 		return wp_json_encode(
 			array(
 				'cache_buster' => (string) $cache_buster,
-				'cached_at'    => time(),
+				'cached_at'    => floor( microtime( true ) * 1000 ), // milliseconds.
 			)
 		);
 	}
