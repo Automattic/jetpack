@@ -20,10 +20,9 @@ const Meta = () => {
 	const updateFoundationPages = ( newValue: string ) => {
 		const newItems = newValue.split( '\n' ).map( line => line.trim() );
 
-		setFoundationPages( newItems );
-		// @todo - Running setFoundationPages does not necessarily mean that the value was updated.
-		// This should happen only IF the value got updated.
-		updateRegenerateReason( 'foundation_pages_list_updated' );
+		setFoundationPages( newItems, () => {
+			updateRegenerateReason( 'foundation_pages_list_updated' );
+		} );
 	};
 
 	let content = null;
