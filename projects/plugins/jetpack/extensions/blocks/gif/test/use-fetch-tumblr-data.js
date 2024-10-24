@@ -21,7 +21,7 @@ const TUMBLR_RESPONSE = {
 				],
 				attribution: {
 					type: 'post',
-					url: 'https://www.tumblr.com/blog/view/everydayschristmas/180564007940',
+					url: 'https://www.tumblr.com/blog/view/everydayschristmas',
 					blog: { name: 'everydayschristmas', url: 'everydayschristmas.tumblr.com' },
 				},
 			},
