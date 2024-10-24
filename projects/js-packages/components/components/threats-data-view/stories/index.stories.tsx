@@ -161,13 +161,13 @@ Default.args = {
 			},
 		},
 	],
-	filters: [
-		{
-			field: 'status',
-			operator: 'isAny',
-			value: [ 'current' ],
-		},
-	],
+	// filters: [
+	// 	{
+	// 		field: 'status',
+	// 		operator: 'isAny',
+	// 		value: [ 'current' ],
+	// 	},
+	// ],
 	onFixThreat: () =>
 		alert( 'Threat fix action callback triggered! This is handled by the component consumer.' ), // eslint-disable-line no-alert
 	onIgnoreThreat: () =>
