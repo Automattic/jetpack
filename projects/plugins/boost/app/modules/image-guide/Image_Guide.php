@@ -9,15 +9,12 @@ use Automattic\Jetpack_Boost\Lib\Analytics;
 class Image_Guide implements Pluggable {
 
 	public function setup() {
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$override = isset( $_GET['jb-debug-ig'] );
-
-		if ( is_admin() || is_user_logged_in() || current_user_can( 'manage_options' ) ) {
+		if ( is_user_logged_in() && current_user_can( 'manage_options' ) ) {
 			Image_Guide_Proxy::init();
 		}
 
 		// Show the UI only when the user is logged in, with sufficient permissions and isn't looking at the dashboard.
-		if ( true !== $override && ( is_admin() || ! is_user_logged_in() || ! current_user_can( 'manage_options' ) ) ) {
+		if ( is_admin() || ! is_user_logged_in() || ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
 

@@ -2,7 +2,7 @@ import { spawn } from 'child_process';
 import { readFileSync, writeFileSync, existsSync } from 'fs';
 import path from 'path';
 import { URL } from 'url';
-import { mergeWith, isArray } from 'lodash';
+import { mergeWith, isArray } from 'lodash-es';
 import { prerequisitesBuilder } from '../env/prerequisites.js';
 import { execSyncShellCommand, execWpCommand, resolveSiteUrl } from '../helpers/utils-helper.js';
 

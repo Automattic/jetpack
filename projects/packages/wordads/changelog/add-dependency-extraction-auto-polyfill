@@ -1,5 +1,0 @@
-Significance: patch
-Type: changed
-Comment: Update Babel config to disable new `autoWpPolyfill` option.
-
-

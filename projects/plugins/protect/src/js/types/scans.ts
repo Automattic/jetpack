@@ -28,7 +28,7 @@ export type ScanStatus = {
 	fixableThreatIds: number[];
 
 	/** The current scan progress, only available from the Scan API. */
-	current_progress: number | null;
+	currentProgress: number | null;
 
 	/** The data source for the scan status. */
 	dataSource: 'protect_report' | 'scan_api';

@@ -10,9 +10,33 @@
   - Or add the following to something like a code snippet plugin: `add_filter( 'jetpack_blocks_variation', function () { return 'beta'; } );`
 	- To test Breve further in the document please enable the feature with the following snippet: `add_filter( 'breve_enabled', '__return_true' );`
 
-### Your Feature
+### AI Logo Generator
 
-Add testing instructions below.
+On top of the already available AI Logo generator, we've now added a styles dropdown to allow more control for the user without depending entirely on the provided prompt.
+
+The logo generator is not available for free users, test with a plan or subscription. Also, it's currenlty available for a12s (and will soon be open to public), but if you need to test with another account and have access to a sandbox, you can add a filter to enable the styles on your 0-sandbox.php file: `add_filter( 'jetpack_ai_logo_style_selector_enabled', '__return_true' );`
+
+- Load the editor and add a Logo block.
+- On the network tab you should see a request to `ai-assistant-feature`
+  - If using an a11n account (or focing the filter to `true`), the response should include `featuresControl['logo-generator'].styles` as a collection of style objects.
+  - If NOT using an a11n account, the `styles` property should be an empty array.
+```
+{
+  ...
+  featuresControl: {
+    'logo-generator': {
+      enabled: true,
+      styles: [ COLLECTION OF SYLES HERE ]
+    }
+  }
+}
+```
+- Use the block's AI toolbar button to open the Logo generator modal, you should see a style dropdown on the top-right corner
+- Feel free to play with the styles to achieve different results
+- Confirm that using style "Auto" will try to guess the style based on the prompt (AI query request) and set the style prior to sending the image generation request
+- If possible, try different combinations of plans and cases:
+  - use `add_filter( 'jetpack_ai_tier_licensed_quantity', function() { return 0 | 100 | 1; } );` filter to mock free/tier100/unlimited plans
+	- sandbox the API, but then don't connect to sandbox to mock a disconnected situation
 
 ### And More!
 

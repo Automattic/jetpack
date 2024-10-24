@@ -52,13 +52,18 @@ class Help_Center {
 	/**
 	 * Creates instance.
 	 *
-	 * @return \A8C\FSE\Help_Center
+	 * @return void
 	 */
 	public static function init() {
+		$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
+
+		if ( str_contains( $request_uri, 'wp-content/plugins/gutenberg-core' ) || str_contains( $request_uri, 'preview=true' ) ) {
+			return;
+		}
+
 		if ( self::$instance === null ) {
 			self::$instance = new self();
 		}
-		return self::$instance;
 	}
 
 	/**
@@ -90,7 +95,7 @@ class Help_Center {
 					$wp_admin_bar->add_menu(
 						array(
 							'id'     => 'help-center',
-							'title'  => self::download_asset( 'widgets.wp.com/help-center/help-icon.svg', false ),
+							'title'  => '<span title="' . __( 'Help', 'jetpack-mu-wpcom' ) . '">' . self::download_asset( 'widgets.wp.com/help-center/help-icon.svg', false ) . '</span>',
 							'parent' => 'top-secondary',
 							'href'   => $this->get_help_center_url(),
 							'meta'   => array(

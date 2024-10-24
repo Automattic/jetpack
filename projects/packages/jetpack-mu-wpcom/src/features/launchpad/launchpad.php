@@ -323,6 +323,9 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'migrating_site',
 				'review_site',
 				'review_plugins',
+				'connect_migration_domain',
+				'domain_dns_mapped',
+				'check_ssl_status',
 			),
 		),
 	);

@@ -305,7 +305,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 	const banner = (
 		<>
 			{ isOverLimit && isSelected && <QuotaExceededMessage placement="ai-assistant-block" /> }
-			{ ! connected && <ConnectBanner /> }
+			{ ! connected && <ConnectBanner block="AI Assistant" /> }
 		</>
 	);
 

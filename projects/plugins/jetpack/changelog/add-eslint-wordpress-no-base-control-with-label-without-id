@@ -1,5 +1,0 @@
-Significance: patch
-Type: other
-Comment: Clean up `<BaseControl label>` without `id`. Should be no change in functionality, other than in a few cases being able to click the label to focus the field now.
-
-
