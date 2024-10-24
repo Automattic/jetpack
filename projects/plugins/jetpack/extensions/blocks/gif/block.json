@@ -36,6 +36,9 @@
 		},
 		"attributionName": {
 			"type": "string"
+		},
+		"giphyUrl": {
+			"type": "string"
 		}
 	},
 	"example": {

@@ -36,28 +36,42 @@ function render_block( $attr ) {
 	$padding_top      = isset( $attr['paddingTop'] ) ? $attr['paddingTop'] : '56.2%';
 	$style            = 'padding-top:' . esc_attr( $padding_top );
 	$gif_url          = isset( $attr['gifUrl'] ) ? esc_url( $attr['gifUrl'] ) : null;
+	$giphy_url        = isset( $attr['giphyUrl'] ) ? esc_url( $attr['giphyUrl'] ) : null;
 	$search_text      = isset( $attr['searchText'] ) ? esc_attr( $attr['searchText'] ) : '';
 	$caption          = isset( $attr['caption'] ) ? wp_kses_post( $attr['caption'] ) : null;
 	$attribution_url  = isset( $attr['attributionUrl'] ) ? esc_url( $attr['attributionUrl'] ) : null;
 	$attribution_name = isset( $attr['attributionName'] ) ? esc_html( $attr['attributionName'] ) : '';
 
-	if ( ! $gif_url ) {
+	if ( ! $gif_url && ! $giphy_url ) {
 		return null;
 	}
 
-	$classes = Blocks::classes( Blocks::get_block_feature( __DIR__ ), $attr );
+	$classes     = Blocks::classes( Blocks::get_block_feature( __DIR__ ), $attr );
+	$placeholder = sprintf( '<a href="%s">%s</a>', esc_url( $giphy_url ), esc_attr( $search_text ) );
 
 	ob_start();
 	?>
 	<div class="<?php echo esc_attr( $classes ); ?>">
 		<figure>
-			<div class="wp-block-jetpack-gif-wrapper" style="<?php echo esc_attr( $style ); ?>">
+			<?php if ( $giphy_url ) : ?>
+				<?php if ( Blocks::is_amp_request() ) : ?>
+					<amp-iframe src="<?php echo esc_url( $giphy_url ); ?>" width="100" height="<?php echo absint( $padding_top ); ?>" sandbox="allow-scripts allow-same-origin" layout="responsive">
+						<div placeholder>
+							<?php echo wp_kses_post( $placeholder ); ?>
+						</div>
+					</amp-iframe>
+				<?php else : ?>
+					<div class="wp-block-jetpack-gif-wrapper" style="<?php echo esc_attr( $style ); ?>">
+				<iframe src="<?php echo esc_url( $giphy_url ); ?>" title="<?php echo esc_attr( $search_text ); ?>"></iframe>
+					</div>
+				<?php endif; ?>
+			<?php else : ?>
 				<img src="<?php echo esc_url( $gif_url ); ?>" alt="<?php echo esc_attr( $search_text ); ?>" />
-			</div>
+			<?php endif; ?>
 			<?php if ( $caption ) : ?>
 				<figcaption class="wp-block-jetpack-gif-caption gallery-caption"><?php echo wp_kses_post( $caption ); ?></figcaption>
 			<?php endif; ?>
-			<?php if ( $attribution_url && $attribution_name ) : ?>
+			<?php if ( $attribution_url && $attribution_name && $gif_url ) : ?>
 				<figcaption class="wp-block-jetpack-gif-attribution">
 					<a href="<?php echo esc_url( $attribution_url ); ?>" target="_blank" rel="noopener noreferrer">
 						<?php

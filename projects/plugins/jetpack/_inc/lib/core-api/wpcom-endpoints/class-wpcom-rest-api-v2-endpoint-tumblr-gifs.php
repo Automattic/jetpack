@@ -177,7 +177,7 @@ class WPCOM_REST_API_V2_Endpoint_Tumblr_Gifs extends WP_REST_Controller {
 	 * @return array The response from the Tumblr API.
 	 */
 	protected function proxy_tumblr_request( $endpoint, $params ) {
-		$params['api_key'] = TUMBLR_API_KEY; // Ensure you define this constant in your configuration.
+		$params['api_key'] = TUMBLR_API_KEY;
 		$url               = add_query_arg( $params, "https://api.tumblr.com/v2/{$endpoint}" );
 
 		$response = wp_remote_get( $url );
