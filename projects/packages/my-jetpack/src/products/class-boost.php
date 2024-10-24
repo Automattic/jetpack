@@ -66,6 +66,13 @@ class Boost extends Product {
 	public static $has_free_offering = true;
 
 	/**
+	 * The feature slug that identifies the paid plan
+	 *
+	 * @var string
+	 */
+	public static $feature_identifying_paid_plan = 'cloud-critical-css';
+
+	/**
 	 * Get the product name
 	 *
 	 * @return string
@@ -390,5 +397,18 @@ class Boost extends Product {
 		update_option( 'jb_get_started', false );
 
 		return $product_activation;
+	}
+
+	/**
+	 * Get the product-slugs of the paid plans for this product (not including bundles)
+	 *
+	 * @return array
+	 */
+	public static function get_paid_plan_product_slugs() {
+		return array(
+			'jetpack_boost_yearly',
+			'jetpack_boost_monthly',
+			'jetpack_boost_bi_yearly',
+		);
 	}
 }

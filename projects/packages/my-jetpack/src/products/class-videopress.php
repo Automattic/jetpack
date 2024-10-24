@@ -69,6 +69,13 @@ class Videopress extends Hybrid_Product {
 	public static $has_free_offering = true;
 
 	/**
+	 * The feature slug that identifies the paid plan
+	 *
+	 * @var string
+	 */
+	public static $feature_identifying_paid_plan = 'videopress-1tb-storage';
+
+	/**
 	 * Get the product name
 	 *
 	 * @return string
@@ -199,5 +206,18 @@ class Videopress extends Hybrid_Product {
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * Get the product-slugs of the paid plans for this product (not including bundles)
+	 *
+	 * @return array
+	 */
+	public static function get_paid_plan_product_slugs() {
+		return array(
+			'jetpack_videopress',
+			'jetpack_videopress_monthly',
+			'jetpack_videopress_bi_yearly',
+		);
 	}
 }

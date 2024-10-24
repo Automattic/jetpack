@@ -11,6 +11,7 @@ use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Plugins_Installer;
+use Automattic\Jetpack\Status;
 use Jetpack_Options;
 use WP_Error;
 
@@ -101,6 +102,13 @@ abstract class Product {
 	public static $requires_plan = false;
 
 	/**
+	 * The feature slug that identifies the paid plan
+	 *
+	 * @var string
+	 */
+	public static $feature_identifying_paid_plan = '';
+
+	/**
 	 * Get the plugin slug
 	 *
 	 * @return ?string
@@ -181,6 +189,7 @@ abstract class Product {
 			'class'                           => static::class,
 			'post_checkout_url'               => static::get_post_checkout_url(),
 			'post_checkout_urls_by_feature'   => static::get_post_checkout_urls_by_feature(),
+			'manage_paid_plan_purchase_url'   => static::get_manage_paid_plan_purchase_url(),
 		);
 	}
 
@@ -189,7 +198,7 @@ abstract class Product {
 	 *
 	 * @return WP_Error|array
 	 */
-	private static function get_site_features_from_wpcom() {
+	public static function get_site_features_from_wpcom() {
 		static $features = null;
 
 		if ( $features !== null ) {
@@ -206,7 +215,11 @@ abstract class Product {
 
 		$body           = wp_remote_retrieve_body( $response );
 		$feature_return = json_decode( $body );
-		$features       = $feature_return->active;
+
+		$features = array(
+			'active'    => $feature_return->active,
+			'available' => $feature_return->available,
+		);
 
 		return $features;
 	}
@@ -228,7 +241,7 @@ abstract class Product {
 			return false;
 		}
 
-		return in_array( $feature, $features, true );
+		return in_array( $feature, $features['active'], true );
 	}
 
 	/**
@@ -408,6 +421,115 @@ abstract class Product {
 	}
 
 	/**
+	 * Get the product-slugs of the paid plans for this product (not including bundles).
+	 *
+	 * @return array
+	 */
+	public static function get_paid_plan_product_slugs() {
+		return array();
+	}
+
+	/**
+	 * Get the product-slugs of the paid bundles/plans that this product/module is included in
+	 *
+	 * @return array
+	 */
+	public static function get_paid_bundles_that_include_product() {
+		$features = static::get_site_features_from_wpcom();
+		if ( is_wp_error( $features ) ) {
+			return array();
+		}
+		$idendifying_feature = static::$feature_identifying_paid_plan;
+		if ( empty( $features['available'] ) || empty( $idendifying_feature ) ) {
+			return array();
+		}
+		$paid_bundles = $features['available']->$idendifying_feature;
+
+		return $paid_bundles;
+	}
+
+	/**
+	 * Gets the paid plan's purchase/subsciption info, or null if no paid plan purchases.
+	 *
+	 * @return object|null
+	 */
+	public static function get_paid_plan_purchase_for_product() {
+		$paid_plans = array_merge(
+			static::get_paid_plan_product_slugs(),
+			static::get_paid_bundles_that_include_product()
+		);
+
+		$purchases_data = Wpcom_Products::get_site_current_purchases();
+		if ( is_wp_error( $purchases_data ) ) {
+			return null;
+		}
+
+		if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
+			foreach ( $purchases_data as $purchase ) {
+				foreach ( $paid_plans as $plan ) {
+					if ( strpos( $purchase->product_slug, $plan ) !== false ) {
+						return $purchase;
+					}
+				}
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Gets the paid plan's expiry status.
+	 *
+	 * @return string
+	 */
+	public static function get_paid_plan_expiration_status() {
+		$purchase = static::get_paid_plan_purchase_for_product();
+		if ( ! $purchase ) {
+			return 'paid-plan-does-not-exist';
+		}
+
+		return $purchase->expiry_status;
+	}
+
+	/**
+	 * Checks if the paid plan is expired or not.
+	 *
+	 * @return bool
+	 */
+	public static function is_paid_plan_expired() {
+		$expiry_status = static::get_paid_plan_expiration_status();
+
+		return $expiry_status === Products::STATUS_EXPIRED;
+	}
+
+	/**
+	 * Checks if the paid plan is expiring soon or not.
+	 *
+	 * @return bool
+	 */
+	public static function is_paid_plan_expiring() {
+		$expiry_status = static::get_paid_plan_expiration_status();
+
+		return $expiry_status === Products::STATUS_EXPIRING_SOON;
+	}
+
+	/**
+	 * Gets the url to manage the paid plan's purchased subscription (For renewing, canceling).
+	 *
+	 * @return string|null
+	 */
+	public static function get_manage_paid_plan_purchase_url() {
+		$purchase    = static::get_paid_plan_purchase_for_product();
+		$site_suffix = ( new Status() )->get_site_suffix();
+
+		if ( $purchase && $site_suffix ) {
+			return 'https://wordpress.com/me/purchases/' . $site_suffix . '/' . $purchase->ID;
+		}
+
+		return null;
+	}
+
+	/**
 	 * Checks whether the product supports trial or not
 	 *
 	 * Returns true if it supports. Return false otherwise.
@@ -506,6 +628,12 @@ abstract class Product {
 				}
 			} elseif ( static::$requires_user_connection && ! ( new Connection_Manager() )->has_connected_owner() ) {
 				$status = Products::STATUS_USER_CONNECTION_ERROR;
+			} elseif ( static::has_paid_plan_for_product() ) {
+				if ( static::is_paid_plan_expired() ) {
+					$status = Products::STATUS_EXPIRED;
+				} elseif ( static::is_paid_plan_expiring() ) {
+					$status = Products::STATUS_EXPIRING_SOON;
+				}
 			} elseif ( static::is_upgradable() ) {
 				$status = Products::STATUS_CAN_UPGRADE;
 			}

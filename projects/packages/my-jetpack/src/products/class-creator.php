@@ -340,6 +340,32 @@ class Creator extends Product {
 	}
 
 	/**
+	 * Get the product-slugs of the paid bundles/plans that this product/module is included in
+	 *
+	 * @return array
+	 */
+	public static function get_paid_bundles_that_include_product() {
+		return array(
+			'jetpack_complete',
+			'jetpack_complete_monthly',
+			'jetpack_complete_bi-yearly',
+		);
+	}
+
+	/**
+	 * Get the product-slugs of the paid plans for this product (not including bundles)
+	 *
+	 * @return array
+	 */
+	public static function get_paid_plan_product_slugs() {
+		return array(
+			'jetpack_creator_yearly',
+			'jetpack_creator_monthly',
+			'jetpack_creator_bi_yearly',
+		);
+	}
+
+	/**
 	 * Checks whether the product can be upgraded - i.e. this shows the /#add-creator interstitial
 	 *
 	 * @return boolean

@@ -81,6 +81,13 @@ class Search extends Hybrid_Product {
 	public static $requires_user_connection = true;
 
 	/**
+	 * The feature slug that identifies the paid plan
+	 *
+	 * @var string
+	 */
+	public static $feature_identifying_paid_plan = 'instant-search';
+
+	/**
 	 * Get the product name
 	 *
 	 * @return string
@@ -309,6 +316,19 @@ class Search extends Hybrid_Product {
 	 */
 	public static function has_trial_support() {
 		return static::is_new_pricing_202208();
+	}
+
+	/**
+	 * Get the product-slugs of the paid plans for this product (not including bundles)
+	 *
+	 * @return array
+	 */
+	public static function get_paid_plan_product_slugs() {
+		return array(
+			'jetpack_search',
+			'jetpack_search_monthly',
+			'jetpack_search_bi_yearly',
+		);
 	}
 
 	/**
