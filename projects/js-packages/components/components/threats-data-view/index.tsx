@@ -1,4 +1,8 @@
 import {
+	__experimentalToggleGroupControl as ToggleGroupControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	__experimentalToggleGroupControlOption as ToggleGroupControlOption, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+} from '@wordpress/components';
+import {
 	Action,
 	DataViews,
 	Field,
@@ -10,15 +14,107 @@ import {
 	type View,
 } from '@wordpress/dataviews';
 import { dateI18n } from '@wordpress/date';
-import { __, _x } from '@wordpress/i18n';
+import { __, sprintf, _x } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
 import { useCallback, useMemo, useState } from 'react';
+import React from 'react';
 import Badge from '../badge';
 import { THREAT_STATUSES, THREAT_TYPES } from './constants';
 import { DataViewFixerStatus } from './fixer-status';
 import styles from './styles.module.scss';
 import { DataViewThreat, ThreatsDataViewActionCallback } from './types';
 import { getThreatIcon, getThreatSubtitle, getThreatType } from './utils';
+
+/**
+ * ToggleGroupControl component for filtering threats by status.
+ * @param {object}   props          - Component props.
+ * @param { Filter } props.filter   - Current filter value.
+ * @param {Function} props.onChange - Callback function to update the filter value.
+ * @param {Array}    props.data     - Array of threats data with status values.
+ * @return {JSX.Element} The component.
+ */
+export function ThreatsStatusFilter( {
+	filter,
+	onChange,
+	data, // Array of threats data with status values
+}: {
+	filter: Filter[];
+	onChange: ( newValue: string ) => void;
+	data: Array< { status: string } >;
+} ): JSX.Element {
+	const activeCount = data.filter( item => item.status === 'current' ).length;
+	const historicCount = data.filter(
+		item => item.status === 'fixed' || item.status === 'ignored'
+	).length;
+
+	let isActive = false;
+	let isHistoric = false;
+
+	filter.forEach( item => {
+		if ( item.field === 'status' ) {
+			// Check if the value is ['current'] for isActive
+			if (
+				Array.isArray( item.value ) &&
+				item.value.length === 1 &&
+				item.value[ 0 ] === 'current'
+			) {
+				isActive = true;
+			}
+
+			// Check if the value is ['ignored', 'fixed'] for isHistoric
+			if (
+				Array.isArray( item.value ) &&
+				item.value.length === 2 &&
+				item.value.includes( 'ignored' ) &&
+				item.value.includes( 'fixed' )
+			) {
+				isHistoric = true;
+			}
+		}
+	} );
+
+	let toggleValue = '';
+
+	if ( isActive ) {
+		toggleValue = 'Active';
+	} else if ( isHistoric ) {
+		toggleValue = 'Historic';
+	}
+
+	return (
+		<ToggleGroupControl
+			className={ styles[ 'toggle-group-control' ] }
+			value={ toggleValue }
+			onChange={ onChange }
+		>
+			<ToggleGroupControlOption
+				key="Active"
+				value="Active"
+				label={
+					<span>
+						{ sprintf(
+							/* translators: %d: number of active threats */ __( 'Active (%d)', 'jetpack' ),
+							activeCount
+						) }
+					</span>
+				}
+			/>
+			<ToggleGroupControlOption
+				key="Historic"
+				value="Historic"
+				label={
+					<span className={ styles[ 'toggle-control' ] }>
+						{ sprintf(
+							/* translators: %d: number of historic threats */
+							__( 'Historic (%d)', 'jetpack' ),
+							historicCount
+						) }
+					</span>
+				}
+			/>
+		</ToggleGroupControl>
+	);
+}
 
 /**
  * DataView component for displaying security threats.
@@ -479,6 +575,45 @@ export default function ThreatsDataView( {
 	 */
 	const getItemId = useCallback( ( item: DataViewThreat ) => item.id.toString(), [] );
 
+	/**
+	 * Callback function to update the selection state.
+	 *
+	 * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-dataviews/#onchangeselection-function
+	 */
+	// const [ statusFilter, setStatusFilter ] = useState< string >( 'Active' );
+
+	/**
+	 * Callback function to handle the status change filter.
+	 *
+	 * @param {string} newStatus - The new status filter value.
+	 */
+	const handleStatusChange = useCallback(
+		( newStatus: string ) => {
+			const updatedFilters = view.filters.filter( filter => filter.field !== 'status' );
+
+			if ( newStatus === 'Active' ) {
+				updatedFilters.push( {
+					field: 'status',
+					operator: 'isAny',
+					value: [ 'current' ],
+				} );
+			} else if ( newStatus === 'Historic' ) {
+				updatedFilters.push( {
+					field: 'status',
+					operator: 'isAny',
+					value: [ 'fixed', 'ignored' ],
+				} );
+			}
+
+			setView( {
+				...view,
+				filters: updatedFilters,
+			} );
+			// setStatusFilter( newStatus );
+		},
+		[ view ]
+	);
+
 	return (
 		<DataViews
 			actions={ actions }
@@ -490,6 +625,13 @@ export default function ThreatsDataView( {
 			onChangeView={ onChangeView }
 			paginationInfo={ paginationInfo }
 			view={ view }
+			header={
+				<ThreatsStatusFilter
+					filter={ view.filters }
+					onChange={ handleStatusChange }
+					data={ data }
+				/> // Value here should be relevant to the filter applied
+			}
 		/>
 	);
 }
