@@ -178,7 +178,7 @@ return [
         'extensions/blocks/blog-stats/blog-stats.php' => ['PhanTypeMismatchReturnProbablyReal'],
         'extensions/blocks/blogroll/blogroll-item/blogroll-item.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'extensions/blocks/calendly/calendly.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturnProbablyReal'],
-        'extensions/blocks/contact-info/contact-info.php' => ['PhanTypeMismatchReturn'],
+        'extensions/blocks/contact-info/class-jetpack-contact-info-block.php' => ['PhanTypeMismatchReturn'],
         'extensions/blocks/cookie-consent/cookie-consent.php' => ['PhanParamTooMany'],
         'extensions/blocks/donations/donations.php' => ['PhanTypeMismatchArgument'],
         'extensions/blocks/gif/gif.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchReturnProbablyReal'],
