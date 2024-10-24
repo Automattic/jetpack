@@ -6,6 +6,9 @@
  */
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\Manager;
+use Automattic\Jetpack\Connection\Rest_Authentication;
+use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Status;
 
 require_once __DIR__ . '/json-api-config.php';
@@ -123,6 +126,13 @@ abstract class WPCOM_JSON_API_Endpoint {
 	 * @var array
 	 */
 	public $path_labels = array();
+
+	/**
+	 * The REST endpoint if available.
+	 *
+	 * @var string
+	 */
+	public $rest_route = null;
 
 	/**
 	 * Accepted query parameters
@@ -278,6 +288,11 @@ abstract class WPCOM_JSON_API_Endpoint {
 	public $allow_fallback_to_jetpack_blog_token = false;
 
 	/**
+	 * REST namespace.
+	 */
+	const REST_NAMESPACE = 'jetpack/rest';
+
+	/**
 	 * Constructor.
 	 *
 	 * @param string|array|object $args Args.
@@ -300,6 +315,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			'new_version'                          => WPCOM_JSON_API__CURRENT_VERSION,
 			'jp_disabled'                          => false,
 			'path_labels'                          => array(),
+			'rest_route'                           => null,
 			'request_format'                       => array(),
 			'response_format'                      => array(),
 			'query_parameters'                     => array(),
@@ -334,6 +350,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 		$this->method      = $args['method'];
 		$this->path        = $args['path'];
 		$this->path_labels = $args['path_labels'];
+		$this->rest_route  = $args['rest_route'];
 		$this->min_version = $args['min_version'];
 		$this->max_version = $args['max_version'];
 		$this->deprecated  = $args['deprecated'];
@@ -387,6 +404,10 @@ abstract class WPCOM_JSON_API_Endpoint {
 		$this->example_response     = $args['example_response'];
 
 		$this->api->add( $this );
+
+		if ( $this->rest_route && ( ! defined( 'XMLRPC_REQUEST' ) || ! XMLRPC_REQUEST ) ) {
+			$this->create_rest_route_for_endpoint();
+		}
 	}
 
 	/**
@@ -2616,6 +2637,128 @@ abstract class WPCOM_JSON_API_Endpoint {
 			// Bing AMP Cache.
 			sprintf( 'https://%s.bing-amp.com', $subdomain ),
 		);
+	}
+
+	/**
+	 * Register a REST route for this jsonAPI endpoint.
+	 *
+	 * @return void
+	 * @throws Exception The exception if something goes wrong.
+	 */
+	public function create_rest_route_for_endpoint() {
+		register_rest_route(
+			static::REST_NAMESPACE,
+			$this->build_rest_route(),
+			array(
+				'methods'             => $this->method,
+				'callback'            => array( $this, 'rest_callback' ),
+				'permission_callback' => array( $this, 'rest_permission_callback' ),
+			)
+		);
+	}
+
+	/**
+	 * Handle the rest call.
+	 *
+	 * @param WP_REST_Request $request The request object.
+	 *
+	 * @return mixed|WP_Error
+	 */
+	public function rest_callback( WP_REST_Request $request ) {
+		$blog_id = Jetpack_Options::get_option( 'id' );
+
+		$this->api->initialize();
+		$this->api->endpoint = $this;
+
+		$response = call_user_func_array(
+			array( $this, 'callback' ),
+			array_values( array( $this->path, $blog_id ) + $request->get_url_params() )
+		);
+
+		$token_data = ( new Manager() )->verify_xml_rpc_signature();
+
+		if ( ! $token_data || empty( $token_data['token_key'] ) || ! array_key_exists( 'user_id', $token_data ) ) {
+			return new WP_Error( 'response_signature_error' );
+		}
+
+		$token = ( new Tokens() )->get_access_token( $token_data['user_id'], $token_data['token_key'] );
+		if ( is_wp_error( $token ) ) {
+			return $token;
+		}
+		if ( ! $token ) {
+			return new WP_Error( 'response_signature_error' );
+		}
+
+		$response = wp_json_encode( $response );
+		$nonce    = wp_generate_password( 10, false );
+		$hmac     = hash_hmac( 'sha1', $nonce . $response, $token->secret );
+
+		return array(
+			$response,
+			(string) $nonce,
+			(string) $hmac,
+		);
+	}
+
+	/**
+	 * The REST endpoint should only be available for requests signed with a valid blog or user token.
+	 * Declaring it "final" so individual endpoints couldn't remove this requirement.
+	 *
+	 * @return true|WP_Error
+	 */
+	final public function rest_permission_callback() {
+		$manager = new Manager( 'jetpack' );
+		if ( ! $manager->is_connected() ) {
+			return new WP_Error( 'site_not_connected' );
+		}
+
+		$user_id = Rest_Authentication::init()->wp_rest_authenticate( false );
+
+		$allow_blog_token = $this->allow_fallback_to_jetpack_blog_token || $this->allow_jetpack_site_auth;
+
+		if ( ( $allow_blog_token && Rest_Authentication::is_signed_with_blog_token() ) || ( $user_id && Rest_Authentication::is_signed_with_user_token() ) ) {
+			$custom_permission_result = $this->rest_permission_callback_custom();
+
+			// Successful custom permission check.
+			if ( $custom_permission_result === true ) {
+				if ( $user_id ) {
+					wp_set_current_user( $user_id );
+				}
+				return true;
+			}
+
+			// Custom permission check errored, returning the error.
+			if ( is_wp_error( $custom_permission_result ) ) {
+				return $custom_permission_result;
+			}
+
+			// Custom permission check failed, but didn't return a specific error. Proceed to returning the generic error.
+		}
+
+		$message = esc_html__(
+			'You do not have the correct user permissions to perform this action. Please contact your site admin if you think this is a mistake.',
+			'jetpack'
+		);
+		return new WP_Error( 'rest_api_invalid_permission', $message, array( 'status' => rest_authorization_required_code() ) );
+	}
+
+	/**
+	 * Redefine in individual endpoint classes to further customize the permission check.
+	 *
+	 * @return true|WP_Error
+	 */
+	public function rest_permission_callback_custom() {
+		return true;
+	}
+
+	/**
+	 * Build the REST endpoint URL.
+	 *
+	 * @return string
+	 */
+	public function build_rest_route() {
+		$version_prefix = $this->max_version ? 'v' . $this->max_version : '';
+		return $version_prefix . $this->rest_route;
 	}
 
 	/**
