@@ -7,6 +7,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { Icon, info } from '@wordpress/icons';
 import debugFactory from 'debug';
 import { useCallback, useEffect, useState, useRef } from 'react';
+import { Dispatch, SetStateAction } from 'react';
 /**
  * Internal dependencies
  */
@@ -35,6 +36,81 @@ const debug = debugFactory( 'jetpack-ai-calypso:prompt-box' );
 
 type PromptProps = {
 	initialPrompt?: string;
+};
+
+export const AiModalPromptInput = ( {
+	prompt = '',
+	setPrompt = () => {},
+	disabled = false,
+	generateHandler = () => {},
+	placeholder = '',
+	buttonLabel = '',
+}: {
+	prompt: string;
+	setPrompt: Dispatch< SetStateAction< string > >;
+	disabled: boolean;
+	generateHandler: () => void;
+	placeholder?: string;
+	buttonLabel?: string;
+} ) => {
+	const inputRef = useRef< HTMLDivElement | null >( null );
+	const hasPrompt = prompt?.length >= MINIMUM_PROMPT_LENGTH;
+
+	const onPromptInput = ( event: React.ChangeEvent< HTMLInputElement > ) => {
+		setPrompt( event.target.textContent || '' );
+	};
+
+	const onPromptPaste = ( event: React.ClipboardEvent< HTMLInputElement > ) => {
+		event.preventDefault();
+
+		const selection = event.currentTarget.ownerDocument.getSelection();
+		if ( ! selection || ! selection.rangeCount ) {
+			return;
+		}
+
+		// Paste plain text only
+		const text = event.clipboardData.getData( 'text/plain' );
+
+		selection.deleteFromDocument();
+		const range = selection.getRangeAt( 0 );
+		range.insertNode( document.createTextNode( text ) );
+		selection.collapseToEnd();
+
+		setPrompt( inputRef.current?.textContent || '' );
+	};
+
+	const onKeyDown = ( event: React.KeyboardEvent ) => {
+		if ( event.key === 'Enter' ) {
+			event.preventDefault();
+			generateHandler();
+		}
+	};
+
+	return (
+		<div className="jetpack-ai-logo-generator__prompt-query">
+			<div
+				role="textbox"
+				tabIndex={ 0 }
+				ref={ inputRef }
+				contentEditable={ ! disabled }
+				// The content editable div is expected to be updated by the enhance prompt, so warnings are suppressed
+				suppressContentEditableWarning
+				className="prompt-query__input"
+				onInput={ onPromptInput }
+				onPaste={ onPromptPaste }
+				onKeyDown={ onKeyDown }
+				data-placeholder={ placeholder }
+			></div>
+			<Button
+				variant="primary"
+				className="jetpack-ai-logo-generator__prompt-submit"
+				onClick={ generateHandler }
+				disabled={ disabled || ! hasPrompt }
+			>
+				{ buttonLabel || __( 'Generate', 'jetpack-ai-client' ) }
+			</Button>
+		</div>
+	);
 };
 
 export const Prompt = ( { initialPrompt = '' }: PromptProps ) => {
@@ -143,29 +219,6 @@ export const Prompt = ( { initialPrompt = '' }: PromptProps ) => {
 		}
 	}, [ context, generateLogo, prompt, style ] );
 
-	const onPromptInput = ( event: React.ChangeEvent< HTMLInputElement > ) => {
-		setPrompt( event.target.textContent || '' );
-	};
-
-	const onPromptPaste = ( event: React.ClipboardEvent< HTMLInputElement > ) => {
-		event.preventDefault();
-
-		const selection = event.currentTarget.ownerDocument.getSelection();
-		if ( ! selection || ! selection.rangeCount ) {
-			return;
-		}
-
-		// Paste plain text only
-		const text = event.clipboardData.getData( 'text/plain' );
-
-		selection.deleteFromDocument();
-		const range = selection.getRangeAt( 0 );
-		range.insertNode( document.createTextNode( text ) );
-		selection.collapseToEnd();
-
-		setPrompt( inputRef.current?.textContent || '' );
-	};
-
 	const onUpgradeClick = () => {
 		recordTracksEvent( EVENT_UPGRADE, { context, placement: EVENT_PLACEMENT_INPUT_FOOTER } );
 	};
@@ -178,13 +231,6 @@ export const Prompt = ( { initialPrompt = '' }: PromptProps ) => {
 		},
 		[ context, setStyle, recordTracksEvent ]
 	);
-
-	const onKeyDown = ( event: React.KeyboardEvent ) => {
-		if ( event.key === 'Enter' ) {
-			event.preventDefault();
-			onGenerate();
-		}
-	};
 
 	return (
 		<div className="jetpack-ai-logo-generator__prompt">
@@ -212,32 +258,16 @@ export const Prompt = ( { initialPrompt = '' }: PromptProps ) => {
 					/>
 				) }
 			</div>
-			<div className="jetpack-ai-logo-generator__prompt-query">
-				<div
-					role="textbox"
-					tabIndex={ 0 }
-					ref={ inputRef }
-					contentEditable={ ! isBusy && ! requireUpgrade }
-					// The content editable div is expected to be updated by the enhance prompt, so warnings are suppressed
-					suppressContentEditableWarning
-					className="prompt-query__input"
-					onInput={ onPromptInput }
-					onPaste={ onPromptPaste }
-					onKeyDown={ onKeyDown }
-					data-placeholder={ __(
-						'Describe your site or simply ask for a logo specifying some details about it',
-						'jetpack-ai-client'
-					) }
-				></div>
-				<Button
-					variant="primary"
-					className="jetpack-ai-logo-generator__prompt-submit"
-					onClick={ onGenerate }
-					disabled={ isBusy || requireUpgrade || ! hasPrompt }
-				>
-					{ __( 'Generate', 'jetpack-ai-client' ) }
-				</Button>
-			</div>
+			<AiModalPromptInput
+				prompt={ prompt }
+				setPrompt={ setPrompt }
+				generateHandler={ onGenerate }
+				disabled={ isBusy || requireUpgrade }
+				placeholder={ __(
+					'Describe your site or simply ask for a logo specifying some details about it',
+					'jetpack-ai-client'
+				) }
+			/>
 			<div className="jetpack-ai-logo-generator__prompt-footer">
 				{ ! isUnlimited && ! requireUpgrade && (
 					<div className="jetpack-ai-logo-generator__prompt-requests">
