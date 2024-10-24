@@ -28,68 +28,53 @@ import { getThreatIcon, getThreatSubtitle, getThreatType } from './utils';
 /**
  * ToggleGroupControl component for filtering threats by status.
  * @param {object}   props          - Component props.
- * @param { Filter } props.filter   - Current filter value.
+ * @param {Filter[]} props.filters  - Current filters value.
  * @param {Function} props.onChange - Callback function to update the filter value.
  * @param {Array}    props.data     - Array of threats data with status values.
  * @return {JSX.Element} The component.
  */
 export function ThreatsStatusFilter( {
-	filter,
+	filters,
 	onChange,
 	data, // Array of threats data with status values
 }: {
-	filter: Filter[];
+	filters: Filter[];
 	onChange: ( newValue: string ) => void;
 	data: Array< { status: string } >;
 } ): JSX.Element {
-	const activeCount = data.filter( item => item.status === 'current' ).length;
-	const historicCount = data.filter(
-		item => item.status === 'fixed' || item.status === 'ignored'
-	).length;
+	const activeCount = useMemo(
+		() => data.filter( item => item.status === 'current' ).length,
+		[ data ]
+	);
+	const historicCount = useMemo(
+		() => data.filter( item => [ 'fixed', 'ignored' ].includes( item.status ) ).length,
+		[ data ]
+	);
 
-	let isActive = false;
-	let isHistoric = false;
+	const isExactStatusSelected = ( statuses: string[] ) =>
+		filters.some(
+			filter =>
+				filter.field === 'status' &&
+				Array.isArray( filter.value ) &&
+				filter.value.length === statuses.length &&
+				statuses.every( status => filter.value.includes( status ) )
+		);
 
-	filter.forEach( item => {
-		if ( item.field === 'status' ) {
-			// Check if the value is ['current'] for isActive
-			if (
-				Array.isArray( item.value ) &&
-				item.value.length === 1 &&
-				item.value[ 0 ] === 'current'
-			) {
-				isActive = true;
-			}
-
-			// Check if the value is ['ignored', 'fixed'] for isHistoric
-			if (
-				Array.isArray( item.value ) &&
-				item.value.length === 2 &&
-				item.value.includes( 'ignored' ) &&
-				item.value.includes( 'fixed' )
-			) {
-				isHistoric = true;
-			}
-		}
-	} );
-
-	let toggleValue = '';
-
-	if ( isActive ) {
-		toggleValue = 'Active';
-	} else if ( isHistoric ) {
-		toggleValue = 'Historic';
+	let selectedValue = '';
+	if ( isExactStatusSelected( [ 'current' ] ) ) {
+		selectedValue = 'active';
+	} else if ( isExactStatusSelected( [ 'fixed', 'ignored' ] ) ) {
+		selectedValue = 'historic';
 	}
 
 	return (
 		<ToggleGroupControl
 			className={ styles[ 'toggle-group-control' ] }
-			value={ toggleValue }
+			value={ selectedValue }
 			onChange={ onChange }
 		>
 			<ToggleGroupControlOption
-				key="Active"
-				value="Active"
+				value="active"
 				label={
 					<span>
 						{ sprintf(
@@ -100,8 +85,7 @@ export function ThreatsStatusFilter( {
 				}
 			/>
 			<ToggleGroupControlOption
-				key="Historic"
-				value="Historic"
+				value="historic"
 				label={
 					<span className={ styles[ 'toggle-control' ] }>
 						{ sprintf(
@@ -627,10 +611,10 @@ export default function ThreatsDataView( {
 			view={ view }
 			header={
 				<ThreatsStatusFilter
-					filter={ view.filters }
+					filters={ view.filters }
 					onChange={ handleStatusChange }
 					data={ data }
-				/> // Value here should be relevant to the filter applied
+				/>
 			}
 		/>
 	);
