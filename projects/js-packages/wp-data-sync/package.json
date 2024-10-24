@@ -1,0 +1,36 @@
+{
+	"private": true,
+	"name": "@automattic/wp-data-sync",
+	"version": "0.1.0-alpha",
+	"description": "Sync data from client to server and vice versa using @wordpress/data stores.",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/wp-data-sync/#readme",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/labels/[JS Package] Wp Data Sync"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/js-packages/wp-data-sync"
+	},
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"scripts": {
+		"build": "pnpm run clean && pnpm exec tsc --pretty",
+		"clean": "rm -rf build/",
+		"test": "jest tests"
+	},
+	"dependencies": {
+		"@wordpress/api-fetch": "7.9.0"
+	},
+	"devDependencies": {
+		"jest": "29.7.0",
+		"typescript": "5.0.4"
+	},
+	"exports": {
+		".": {
+			"jetpack:src": "./src/index.ts",
+			"types": "./build/index.d.ts",
+			"default": "./build/index.js"
+		}
+	}
+}
