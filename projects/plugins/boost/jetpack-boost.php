@@ -36,8 +36,13 @@ if ( ! defined( 'JETPACK_BOOST_CLIENT_NAME' ) ) {
 	define( 'JETPACK_BOOST_CLIENT_NAME', 'jetpack-boost-wp-plugin' );
 }
 
-define( 'JETPACK_BOOST_DIR_PATH', __DIR__ );
-define( 'JETPACK_BOOST_PATH', __FILE__ );
+if ( ! defined( 'JETPACK_BOOST_DIR_PATH' ) ) {
+	define( 'JETPACK_BOOST_DIR_PATH', __DIR__ );
+}
+
+if ( ! defined( 'JETPACK_BOOST_PATH' ) ) {
+	define( 'JETPACK_BOOST_PATH', __FILE__ );
+}
 
 if ( ! defined( 'JETPACK_BOOST_PLUGIN_BASE' ) ) {
 	define( 'JETPACK_BOOST_PLUGIN_BASE', plugin_basename( __FILE__ ) );
