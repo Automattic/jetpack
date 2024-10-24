@@ -1,9 +1,12 @@
 import { Container, Col, Text } from '@automattic/jetpack-components';
 import { Flex, FlexItem, DropdownMenu, Button } from '@wordpress/components';
+import { Icon } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n } from '@wordpress/i18n';
 import { moreHorizontalMobile } from '@wordpress/icons';
-import { useEffect, useCallback } from 'react';
+import { chevronLeft, chevronRight } from '@wordpress/icons';
+import clsx from 'clsx';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import useEvaluationRecommendations from '../../data/evaluation-recommendations/use-evaluation-recommendations';
 import useAnalytics from '../../hooks/use-analytics';
 import getPurchasePlanUrl from '../../utils/get-purchase-plan-url';
@@ -17,14 +20,56 @@ interface Props {
 }
 
 const EvaluationRecommendations: FC< Props > = ( { welcomeFlowExperimentVariation } ) => {
+	const containerRef = useRef( null );
 	const { recordEvent } = useAnalytics();
 	const { recommendedModules, isFirstRun, redoEvaluation, removeEvaluationResult } =
 		useEvaluationRecommendations();
+	const [ isAtStart, setIsAtStart ] = useState( true );
+	const [ isAtEnd, setIsAtEnd ] = useState( false );
+
 	const isTreatmentVariation = welcomeFlowExperimentVariation === 'treatment';
+
+	const checkScrollPosition = useCallback( () => {
+		if ( containerRef.current ) {
+			const { scrollLeft, scrollWidth, clientWidth } = containerRef.current;
+			setIsAtStart( scrollLeft === 0 );
+			setIsAtEnd( scrollLeft + clientWidth >= scrollWidth );
+		}
+	}, [ containerRef ] );
 
 	const handleExploreAllPlansLinkClick = useCallback( () => {
 		recordEvent( 'jetpack_myjetpack_evaluation_recommendations_explore_all_plans_click' );
 	}, [ recordEvent ] );
+
+	const handleSlide = (
+		cardContainerRef: React.RefObject< HTMLUListElement >,
+		direction: number,
+		gap: number = 24
+	) => {
+		if ( cardContainerRef.current ) {
+			const cardWidth = cardContainerRef.current.querySelector( 'li' ).clientWidth;
+
+			cardContainerRef.current.scrollBy( {
+				left: direction * ( cardWidth + gap ),
+				behavior: 'smooth',
+			} );
+		}
+	};
+
+	const handleNextSlide = useCallback( () => {
+		handleSlide( containerRef, 1 );
+
+		recordEvent( 'jetpack_myjetpack_recommendations_slide_arrow_click', {
+			direction: 'next',
+		} );
+	}, [ recordEvent, containerRef ] );
+
+	const handlePrevSlide = useCallback( () => {
+		handleSlide( containerRef, -1 );
+		recordEvent( 'jetpack_myjetpack_recommendations_slide_arrow_click', {
+			direction: 'previous',
+		} );
+	}, [ recordEvent, containerRef ] );
 
 	// We're defining each of these translations in separate variables here, otherwise optimizations in
 	// the build step end up breaking the translations and causing error.
@@ -47,6 +92,21 @@ const EvaluationRecommendations: FC< Props > = ( { welcomeFlowExperimentVariatio
 		'Find your perfect match by <link>letting us know what you’re looking for</link>!',
 		'jetpack-my-jetpack'
 	);
+
+	useEffect( () => {
+		const container = containerRef.current;
+
+		if ( container ) {
+			container.addEventListener( 'scroll', checkScrollPosition );
+			checkScrollPosition();
+		}
+
+		return () => {
+			if ( container ) {
+				container.removeEventListener( 'scroll', checkScrollPosition );
+			}
+		};
+	}, [ checkScrollPosition ] );
 
 	useEffect( () => {
 		recordEvent( 'jetpack_myjetpack_evaluation_recommendations_view', {
@@ -99,6 +159,7 @@ const EvaluationRecommendations: FC< Props > = ( { welcomeFlowExperimentVariatio
 			</Col>
 			<Col>
 				<Container
+					ref={ containerRef }
 					tagName="ul"
 					className={ styles[ 'recommendations-list' ] }
 					horizontalGap={ 4 }
@@ -116,6 +177,30 @@ const EvaluationRecommendations: FC< Props > = ( { welcomeFlowExperimentVariatio
 						);
 					} ) }
 				</Container>
+				<Flex align="center" justify="center">
+					<FlexItem>
+						<Button
+							className={ clsx( styles[ 'slider-button' ], styles[ 'prev-button' ] ) }
+							onClick={ handlePrevSlide }
+							disabled={ isAtStart }
+							aria-disabled={ isAtStart }
+							aria-label={ __( 'Previous', 'jetpack-my-jetpack' ) }
+						>
+							<Icon icon={ chevronLeft } />
+						</Button>
+					</FlexItem>
+					<FlexItem>
+						<Button
+							className={ clsx( styles[ 'slider-button' ], styles[ 'next-button' ] ) }
+							onClick={ handleNextSlide }
+							disabled={ isAtEnd }
+							aria-disabled={ isAtEnd }
+							aria-label={ __( 'Next', 'jetpack-my-jetpack' ) }
+						>
+							<Icon icon={ chevronRight } />
+						</Button>
+					</FlexItem>
+				</Flex>
 			</Col>
 			{ isTreatmentVariation && (
 				<Col>
