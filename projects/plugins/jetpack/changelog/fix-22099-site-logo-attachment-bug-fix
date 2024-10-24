@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Site Logo: Prevent logo markup being generated when logo id is not set
