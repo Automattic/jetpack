@@ -26,14 +26,14 @@ class WP_Test_VideoPress_Player extends WP_UnitTestCase {
 					'cover' => true,
 				),
 				// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
-				"<iframe title='VideoPress Video Player' aria-label='VideoPress Video Player' width='0' height='0' src='https://videopress.com/embed/testguid?cover=1&amp;hd=0' frameborder='0' allowfullscreen data-resize-to-parent=\"true\" allow='clipboard-write'></iframe><script src='https://s0.wp.com/wp-content/plugins/video/assets/js/next/videopress-iframe.js'></script>",
+				"<iframe title='VideoPress Video Player' aria-label='VideoPress Video Player' width='100%' height='0' style='max-width:0px;' src='https://videopress.com/embed/testguid?cover=1&amp;hd=0' frameborder='0' allowfullscreen data-resize-to-parent=\"true\" allow='clipboard-write'></iframe><script src='https://s0.wp.com/wp-content/plugins/video/assets/js/next/videopress-iframe.js'></script>",
 			),
 			'cover_disabled' => array(
 				array(
 					'cover' => false,
 				),
 				// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
-				"<iframe title='VideoPress Video Player' aria-label='VideoPress Video Player' width='0' height='0' src='https://videopress.com/embed/testguid?cover=0&amp;hd=0' frameborder='0' allowfullscreen allow='clipboard-write'></iframe><script src='https://s0.wp.com/wp-content/plugins/video/assets/js/next/videopress-iframe.js'></script>",
+				"<iframe title='VideoPress Video Player' aria-label='VideoPress Video Player' width='100%' height='0' style='max-width:0px;' src='https://videopress.com/embed/testguid?cover=0&amp;hd=0' frameborder='0' allowfullscreen allow='clipboard-write'></iframe><script src='https://s0.wp.com/wp-content/plugins/video/assets/js/next/videopress-iframe.js'></script>",
 			),
 		);
 	}
