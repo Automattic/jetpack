@@ -20,6 +20,7 @@ const ToggleSection: React.FC< ToggleSectionProps > = ( {
 				disabled={ disabled }
 				checked={ checked }
 				onChange={ onChange }
+				__nextHasNoMarginBottom={ true }
 			/>
 			<Text className={ styles.title } variant="title-medium">
 				{ title }

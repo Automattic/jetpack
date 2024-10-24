@@ -276,6 +276,7 @@ const PodcastPlayerEdit = ( {
 						value={ state.editedUrl }
 						className={ 'components-placeholder__input' }
 						onChange={ editedUrl => dispatch( { type: actions.EDIT_URL, payload: editedUrl } ) }
+						__nextHasNoMarginBottom={ true }
 					/>
 					<Button variant="primary" type="submit">
 						{ __( 'Embed', 'jetpack' ) }
@@ -331,6 +332,7 @@ const PodcastPlayerEdit = ( {
 								max={ defaultMaxItems }
 								required
 								disabled={ !! selectedGuid }
+								__nextHasNoMarginBottom={ true }
 							/>
 						) }
 						{ ComboboxControl && (
@@ -341,24 +343,28 @@ const PodcastPlayerEdit = ( {
 								options={ state.feedData.options || [] }
 								label={ __( 'Episode', 'jetpack' ) }
 								onFilterValueChange={ noop }
+								__nextHasNoMarginBottom={ true }
 							/>
 						) }
 						<ToggleControl
 							label={ __( 'Show Cover Art', 'jetpack' ) }
 							checked={ showCoverArt }
 							onChange={ value => setAttributes( { showCoverArt: value } ) }
+							__nextHasNoMarginBottom={ true }
 						/>
 
 						<ToggleControl
 							label={ __( 'Show Episode Title', 'jetpack' ) }
 							checked={ showEpisodeTitle }
 							onChange={ value => setAttributes( { showEpisodeTitle: value } ) }
+							__nextHasNoMarginBottom={ true }
 						/>
 
 						<ToggleControl
 							label={ __( 'Show Episode Description', 'jetpack' ) }
 							checked={ showEpisodeDescription }
 							onChange={ value => setAttributes( { showEpisodeDescription: value } ) }
+							__nextHasNoMarginBottom={ true }
 						/>
 					</PanelBody>
 					<PanelColorSettings

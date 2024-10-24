@@ -63,6 +63,7 @@ function JetpackFieldCheckbox( props ) {
 							label={ __( 'Checked by default', 'jetpack-forms' ) }
 							checked={ defaultValue }
 							onChange={ value => setAttributes( { defaultValue: value ? 'true' : '' } ) }
+							__nextHasNoMarginBottom={ true }
 						/>
 					</PanelBody>
 				</InspectorControls>
@@ -77,6 +78,7 @@ function JetpackFieldCheckbox( props ) {
 							checked={ required }
 							onChange={ value => setAttributes( { required: value } ) }
 							help={ __( 'You can edit the "required" label in the editor', 'jetpack-forms' ) }
+							__nextHasNoMarginBottom={ true }
 						/>
 						<JetpackFieldWidth setAttributes={ setAttributes } width={ width } />
 
@@ -85,6 +87,7 @@ function JetpackFieldCheckbox( props ) {
 							checked={ attributes.shareFieldAttributes }
 							onChange={ value => setAttributes( { shareFieldAttributes: value } ) }
 							help={ __( 'Deactivate for individual styling of this block', 'jetpack-forms' ) }
+							__nextHasNoMarginBottom={ true }
 						/>
 					</PanelBody>
 					<PanelColorSettings

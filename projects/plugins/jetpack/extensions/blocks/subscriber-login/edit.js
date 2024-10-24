@@ -27,21 +27,32 @@ function SubscriberLoginEdit( { attributes, setAttributes } ) {
 						label={ __( 'Redirect to current URL', 'jetpack' ) }
 						checked={ redirectToCurrent }
 						onChange={ () => setAttributes( { redirectToCurrent: ! redirectToCurrent } ) }
+						__nextHasNoMarginBottom={ true }
 					/>
-					<BaseControl label={ __( 'Log in label', 'jetpack' ) } id={ logInInputId }>
+					<BaseControl
+						label={ __( 'Log in label', 'jetpack' ) }
+						id={ logInInputId }
+						__nextHasNoMarginBottom={ true }
+					>
 						<TextControl
 							placeholder={ __( 'Log in', 'jetpack' ) }
 							onChange={ value => setAttributes( { logInLabel: value } ) }
 							value={ logInLabel }
 							id={ logInInputId }
+							__nextHasNoMarginBottom={ true }
 						/>
 					</BaseControl>
-					<BaseControl label={ __( 'Log out label', 'jetpack' ) } id={ logOutInputId }>
+					<BaseControl
+						label={ __( 'Log out label', 'jetpack' ) }
+						id={ logOutInputId }
+						__nextHasNoMarginBottom={ true }
+					>
 						<TextControl
 							placeholder={ __( 'Log out', 'jetpack' ) }
 							onChange={ value => setAttributes( { logOutLabel: value } ) }
 							value={ logOutLabel }
 							id={ logOutInputId }
+							__nextHasNoMarginBottom={ true }
 						/>
 					</BaseControl>
 					<ToggleControl
@@ -50,17 +61,20 @@ function SubscriberLoginEdit( { attributes, setAttributes } ) {
 						onChange={ () =>
 							setAttributes( { showManageSubscriptionsLink: ! showManageSubscriptionsLink } )
 						}
+						__nextHasNoMarginBottom={ true }
 					/>
 					{ showManageSubscriptionsLink && (
 						<BaseControl
 							label={ __( 'Manage subscription label', 'jetpack' ) }
 							id={ manageSubscriptionsInputId }
+							__nextHasNoMarginBottom={ true }
 						>
 							<TextControl
 								placeholder={ __( 'Manage subscription', 'jetpack' ) }
 								onChange={ value => setAttributes( { manageSubscriptionsLabel: value } ) }
 								value={ manageSubscriptionsLabel }
 								id={ manageSubscriptionsInputId }
+								__nextHasNoMarginBottom={ true }
 							/>
 						</BaseControl>
 					) }

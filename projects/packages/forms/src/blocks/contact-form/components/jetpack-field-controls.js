@@ -113,6 +113,7 @@ const JetpackFieldControls = ( {
 			checked={ required }
 			onChange={ value => setAttributes( { required: value } ) }
 			help={ __( 'You can edit the "required" label in the editor', 'jetpack-forms' ) }
+			__nextHasNoMarginBottom={ true }
 		/>,
 		! hidePlaceholder && (
 			<TextControl
@@ -124,6 +125,7 @@ const JetpackFieldControls = ( {
 					'Show visitors an example of the type of content expected. Otherwise, leave blank.',
 					'jetpack-forms'
 				) }
+				__nextHasNoMarginBottom={ true }
 			/>
 		),
 		<JetpackFieldWidth key="width" setAttributes={ setAttributes } width={ width } />,
@@ -133,6 +135,7 @@ const JetpackFieldControls = ( {
 			checked={ attributes.shareFieldAttributes }
 			onChange={ value => setAttributes( { shareFieldAttributes: value } ) }
 			help={ __( 'Deactivate for individual styling of this block', 'jetpack-forms' ) }
+			__nextHasNoMarginBottom={ true }
 		/>,
 	];
 
@@ -203,6 +206,7 @@ const JetpackFieldControls = ( {
 								onChange={ setNumberAttribute( 'buttonBorderWidth' ) }
 								min={ 0 }
 								max={ 100 }
+								__nextHasNoMarginBottom={ true }
 							/>
 							<RangeControl
 								label={ __( 'Button Border Radius', 'jetpack-forms' ) }
@@ -211,6 +215,7 @@ const JetpackFieldControls = ( {
 								onChange={ setNumberAttribute( 'buttonBorderRadius' ) }
 								min={ 0 }
 								max={ 100 }
+								__nextHasNoMarginBottom={ true }
 							/>
 						</>
 					) }
@@ -223,6 +228,7 @@ const JetpackFieldControls = ( {
 								onChange={ setNumberAttribute( 'borderWidth' ) }
 								min={ 0 }
 								max={ 100 }
+								__nextHasNoMarginBottom={ true }
 							/>
 							<RangeControl
 								label={ __( 'Border Radius', 'jetpack-forms' ) }
@@ -231,6 +237,7 @@ const JetpackFieldControls = ( {
 								onChange={ setNumberAttribute( 'borderRadius' ) }
 								min={ 0 }
 								max={ 100 }
+								__nextHasNoMarginBottom={ true }
 							/>
 						</>
 					) }
@@ -266,6 +273,7 @@ const JetpackFieldControls = ( {
 						"Customize the input's name/ID. Only alphanumeric, dash and underscore characters are allowed",
 						'jetpack-forms'
 					) }
+					__nextHasNoMarginBottom={ true }
 				/>
 			</InspectorAdvancedControls>
 		</>

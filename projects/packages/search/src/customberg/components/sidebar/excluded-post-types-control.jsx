@@ -58,6 +58,7 @@ export default function ExcludedPostTypesControl( {
 					label={ VALID_POST_TYPES[ type ].name }
 					onChange={ changeHandler( type ) }
 					value={ type }
+					__nextHasNoMarginBottom={ true }
 				/>
 			) ) }
 		</div>

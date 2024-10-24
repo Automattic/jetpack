@@ -81,6 +81,7 @@ function OpenverseMedia( props ) {
 					value={ searchQuery }
 					onChange={ setSearchQuery }
 					disabled={ !! isCopying }
+					__nextHasNoMarginBottom={ true }
 				/>
 				<Button
 					isPrimary

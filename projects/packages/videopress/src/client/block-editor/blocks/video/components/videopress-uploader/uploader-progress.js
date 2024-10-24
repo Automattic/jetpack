@@ -209,6 +209,7 @@ const UploaderProgress = ( {
 				onChange={ newTitle => setAttributes( { title: newTitle } ) }
 				value={ title }
 				placeholder={ filename }
+				__nextHasNoMarginBottom={ true }
 			/>
 
 			<UploadingEditor

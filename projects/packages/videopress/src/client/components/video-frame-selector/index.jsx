@@ -82,6 +82,7 @@ const VideoFrameSelector = ( {
 				showTooltip={ false }
 				withInputField={ false }
 				onChange={ onRangeChange }
+				__nextHasNoMarginBottom={ true }
 			/>
 		</div>
 	);

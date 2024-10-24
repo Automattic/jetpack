@@ -327,6 +327,7 @@ export function NewsletterEmailDocumentSettings() {
 						disabled={ isPostPublished || ! canEdit }
 						onChange={ toggleSendEmail }
 						isBlock
+						__nextHasNoMarginBottom={ true }
 					>
 						<ToggleGroupControlOption label={ __( 'Post & email', 'jetpack' ) } value={ true } />
 						<ToggleGroupControlOption label={ __( 'Post only', 'jetpack' ) } value={ false } />

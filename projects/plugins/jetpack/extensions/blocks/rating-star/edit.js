@@ -85,6 +85,7 @@ export default Symbol =>
 							onChange={ setNewMaxRating }
 							min={ 2 }
 							max={ 10 }
+							__nextHasNoMarginBottom={ true }
 						/>
 						<PanelColorSettings
 							title={ __( 'Color Settings', 'jetpack' ) }

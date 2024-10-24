@@ -90,7 +90,10 @@ export function AiExcerptControl( {
 
 	return (
 		<div className="jetpack-ai-generate-excerpt-control">
-			<BaseControl className="jetpack-ai-generate-excerpt-control__header">
+			<BaseControl
+				className="jetpack-ai-generate-excerpt-control__header"
+				__nextHasNoMarginBottom={ true }
+			>
 				<BaseControl.VisualLabel>{ __( 'Settings', 'jetpack' ) }</BaseControl.VisualLabel>
 				<Button
 					label={ __( 'Advanced AI options', 'jetpack' ) }
@@ -131,6 +134,7 @@ export function AiExcerptControl( {
 				) }
 				showTooltip={ false }
 				disabled={ disabled }
+				__nextHasNoMarginBottom={ true }
 			/>
 		</div>
 	);

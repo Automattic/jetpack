@@ -19,6 +19,7 @@ function CategoryOption( { value, updateFilter } ) {
 			value={ value }
 			options={ GOOGLE_PHOTOS_CATEGORIES }
 			onChange={ updateFilter }
+			__nextHasNoMarginBottom={ true }
 		/>
 	);
 }
@@ -36,6 +37,7 @@ function DateOption( { value, updateFilter } ) {
 				value={ selectedRange }
 				options={ GOOGLE_PHOTOS_DATE_PRESETS }
 				onChange={ range => updateFilter( { range } ) }
+				__nextHasNoMarginBottom={ true }
 			/>
 			{ selectedRange === DATE_RANGE_CUSTOM && (
 				<Fragment>
@@ -44,6 +46,7 @@ function DateOption( { value, updateFilter } ) {
 						value={ month }
 						options={ MONTH_SELECT_OPTIONS }
 						onChange={ setMonth }
+						__nextHasNoMarginBottom={ true }
 					/>
 					<NumberControl
 						className="components-base-control"

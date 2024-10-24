@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Components: Add __nextHasNoMarginBottom to BaseControl-based components, preventing deprecation notices.

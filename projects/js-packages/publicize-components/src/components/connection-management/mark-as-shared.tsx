@@ -45,6 +45,7 @@ export function MarkAsShared( { connection }: MarkAsSharedProps ) {
 			onChange={ onChange }
 			disabled={ isUpdating || connection.status === 'broken' }
 			label={ __( 'Mark the connection as shared', 'jetpack' ) }
+			__nextHasNoMarginBottom={ true }
 		/>
 	);
 }

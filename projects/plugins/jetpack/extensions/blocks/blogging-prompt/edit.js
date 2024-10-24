@@ -149,11 +149,13 @@ function BloggingPromptEdit( { attributes, noticeOperations, noticeUI, setAttrib
 						label={ __( 'Show prompt label', 'jetpack' ) }
 						checked={ showLabel }
 						onChange={ onShowLabelChange }
+						__nextHasNoMarginBottom={ true }
 					/>
 					<ToggleControl
 						label={ __( 'Show other responses', 'jetpack' ) }
 						checked={ showResponses }
 						onChange={ onShowResponsesChange }
+						__nextHasNoMarginBottom={ true }
 					/>
 				</PanelBody>
 			</InspectorControls>
