@@ -31,7 +31,7 @@ import { getThreatIcon, getThreatSubtitle, getThreatType } from './utils';
  * @param {Array}    props.data     - Array of threats data with status values.
  * @param {string}   props.value    - The current filter value.
  * @param {Function} props.onChange - Callback function to change the filter value.
- * @return {JSX.Element} The component.
+ * @return {JSX.Element|null} The component or null.
  */
 export function ThreatsStatusFilter( {
 	value,
@@ -51,6 +51,10 @@ export function ThreatsStatusFilter( {
 		[ data ]
 	);
 	const totalCount = activeCount + historicCount;
+
+	if ( ! totalCount ) {
+		return null;
+	}
 
 	return (
 		<ToggleGroupControl
@@ -232,26 +236,29 @@ export default function ThreatsDataView( {
 		);
 	}, [ data ] );
 
+	const activeData = useMemo( () => data.filter( item => item.status === 'current' ), [ data ] );
+	const historicData = useMemo(
+		() => data.filter( item => [ 'fixed', 'ignored' ].includes( item.status ) ),
+		[ data ]
+	);
 	const [ status, setStatus ] = useState< string >( 'active' );
-	const [ filteredData, setFilteredData ] = useState< DataViewThreat[] >( data );
+	const [ filteredData, setFilteredData ] = useState< DataViewThreat[] >( activeData );
 
 	const onChange = useCallback(
 		( newValue: string ) => {
-			view.filters = [];
-			setView( { ...view } ); // Reset tje filters
-			setStatus( newValue ); // Set the selected value from the toggle
+			view.filters = []; // TODO: Only reset status filters?
+			setView( { ...view } );
+			setStatus( newValue );
+
 			if ( newValue === 'active' ) {
-				// Show only active threats (status = 'current')
-				setFilteredData( data.filter( item => item.status === 'current' ) );
+				setFilteredData( activeData );
 			} else if ( newValue === 'historic' ) {
-				// Show only historic threats (status = 'fixed' or 'ignored')
-				setFilteredData( data.filter( item => [ 'fixed', 'ignored' ].includes( item.status ) ) );
+				setFilteredData( historicData );
 			} else {
-				// Show all threats (active + historic)
 				setFilteredData( data );
 			}
 		},
-		[ view, data ]
+		[ view, activeData, historicData, data ]
 	);
 
 	/**
@@ -260,16 +267,16 @@ export default function ThreatsDataView( {
 	 * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-dataviews/#fields-object
 	 */
 	const fields = useMemo( () => {
-		let currentThreatsStatuses = [];
-
+		let currentThreatStatuses = [];
 		switch ( status ) {
 			case 'all':
-				currentThreatsStatuses = THREAT_STATUSES;
+				currentThreatStatuses = THREAT_STATUSES;
 				break;
 			case 'historic':
-				currentThreatsStatuses = HISTORIC_THREAT_STATUSES;
+				currentThreatStatuses = HISTORIC_THREAT_STATUSES;
 				break;
 		}
+
 		const result: Field< DataViewThreat >[] = [
 			{
 				id: 'title',
@@ -310,21 +317,19 @@ export default function ThreatsDataView( {
 			{
 				id: 'status',
 				label: __( 'Status', 'jetpack' ),
-				elements: currentThreatsStatuses, //Could hide or modify this in different status views...
+				elements: currentThreatStatuses, //Could hide or modify this in different status views...
 				getValue( { item }: { item: DataViewThreat } ) {
 					if ( ! item.status ) {
 						return 'current';
 					}
 					return (
-						currentThreatsStatuses.find( ( { value } ) => value === item.status )?.value ??
+						currentThreatStatuses.find( ( { value } ) => value === item.status )?.value ??
 						item.status
 					);
 				},
 				render( { item }: { item: DataViewThreat } ) {
 					if ( item.status ) {
-						const itemStatus = currentThreatsStatuses.find(
-							( { value } ) => value === item.status
-						);
+						const itemStatus = currentThreatStatuses.find( ( { value } ) => value === item.status );
 						if ( status ) {
 							return <Badge variant={ itemStatus?.variant }>{ itemStatus?.label }</Badge>;
 						}
