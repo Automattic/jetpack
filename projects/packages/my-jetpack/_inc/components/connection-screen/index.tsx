@@ -6,8 +6,9 @@ import CloseLink from '../close-link';
 import ConnectionScreenBody from './body';
 import ConnectionScreenFooter from './footer';
 import styles from './styles.module.scss';
+import type { FC } from 'react';
 
-const ConnectionScreen: React.FC = () => {
+const ConnectionScreen: FC = () => {
 	const returnToPage = useMyJetpackReturnToPage();
 	const { apiRoot, apiNonce, registrationNonce } = useMyJetpackConnection();
 

@@ -72,15 +72,16 @@ const setIsOfflineMode = isOfflineMode => {
 /**
  * Connect site with wp.com user
  *
- * @param {object}   Object               - contains from and redirectFunc
- * @param {string}   Object.from          - Value that represents the redirect origin
- * @param {Function} Object.redirectFunc  - A function to handle the redirect, defaults to location.assign
- * @param {string}   [Object.redirectUri] - A URI that the user will be redirected to
+ * @param {object}   Object                   - contains from and redirectFunc
+ * @param {string}   Object.from              - Value that represents the redirect origin
+ * @param {Function} Object.redirectFunc      - A function to handle the redirect, defaults to location.assign
+ * @param {string}   [Object.redirectUri]     - A URI that the user will be redirected to
+ * @param {boolean}  [Object.skipPricingPage] - A flag to skip the pricing page in the connection flow
  * @yield {object} Action object that will be yielded
  */
-function* connectUser( { from, redirectFunc, redirectUri } = {} ) {
+function* connectUser( { from, redirectFunc, redirectUri, skipPricingPage } = {} ) {
 	yield setUserIsConnecting( true );
-	yield { type: CONNECT_USER, from, redirectFunc, redirectUri };
+	yield { type: CONNECT_USER, from, redirectFunc, redirectUri, skipPricingPage };
 }
 
 /**
