@@ -2,7 +2,7 @@ import './view.scss';
 import '../../shared/memberships.scss';
 
 import domReady from '@wordpress/dom-ready';
-import { showModal, spinner } from '../../shared/memberships';
+import { getTokenFromCookie, showModal, spinner } from '../../shared/memberships';
 
 // @ts-ignore
 function show_iframe_retrieve_subscriptions_from_email() {
@@ -36,6 +36,46 @@ function show_iframe( data ) {
 	return showModal( url );
 }
 
+function render_iframe_current_user_email( blog ) {
+	const existingIframe = document.getElementById( 'jp-subscribe-current-user-email-iframe' );
+	if ( existingIframe ) {
+		return;
+	}
+	const params = new URLSearchParams( {
+		blog,
+		plan: 'newsletter',
+		source: 'jetpack_subscribe_current_user_email',
+		jwt_token: getTokenFromCookie(),
+	} );
+	const url = 'https://subscribe.wordpress.com/memberships/?' + params.toString();
+
+	const iframe = document.createElement( 'iframe' );
+	iframe.setAttribute( 'id', 'jp-subscribe-current-user-email-iframe' );
+	iframe.style.display = 'none';
+	iframe.src = url;
+
+	document.body.appendChild( iframe );
+}
+
+function get_current_user_email( blog, emailInput ) {
+	render_iframe_current_user_email( blog );
+
+	const handleIframeMessage = message => {
+		if (
+			message.origin === 'https://subscribe.wordpress.com' &&
+			typeof message.data === 'object' &&
+			message.data.action === 'current_user_email' &&
+			message.data.email
+		) {
+			emailInput.value = message.data.email;
+			emailInput.disabled = true;
+			window.removeEventListener( 'message', handleIframeMessage, false );
+		}
+	};
+
+	window.addEventListener( 'message', handleIframeMessage, false );
+}
+
 domReady( function () {
 	const link = document.querySelector( '#jp_retrieve_subscriptions_link' );
 	if ( link ) {
@@ -55,6 +95,13 @@ domReady( function () {
 			// Injects loading animation in hidden state
 			button.insertAdjacentHTML( 'beforeend', spinner );
 
+			const emailInput = form.querySelector( 'input[type=email]' );
+
+			const currentUserEmail = emailInput?.value ?? '';
+			if ( ! currentUserEmail ) {
+				get_current_user_email( form.dataset.blog, emailInput );
+			}
+
 			form.addEventListener( 'submit', function ( event ) {
 				if ( form.resubmitted ) {
 					return;
@@ -66,7 +113,7 @@ domReady( function () {
 
 				// If email is empty, we will ask for it in the modal that opens
 				// Email input can be hidden for "button only style" for example.
-				let email = form.querySelector( 'input[type=email]' )?.value ?? '';
+				let email = emailInput?.value ?? '';
 
 				// Fallback to provided email from the logged in user when set
 				if ( ! email && form.dataset.subscriber_email ) {
