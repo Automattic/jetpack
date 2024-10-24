@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Dashboard: Fixed an issue where the CRM contacts graph displayed incorrect values in some instances
