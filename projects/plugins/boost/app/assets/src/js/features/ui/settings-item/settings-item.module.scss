@@ -1,4 +1,4 @@
-.module {
+.wrapper {
 	margin-bottom: 2em;
 	display: flex;
 	margin-left: auto;
@@ -18,19 +18,11 @@
 		margin: 1em 0;
 	}
 
+	.content {
+		width: 100%;
+	}
+
 	.content h3:focus-visible {
 		outline: none;
 	}
-}
-
-.toggle {
-	// Compensate for header line height
-	// Manually move the switch to align it better
-	transform: translateY(8px);
-	margin-right: 2em;
-	min-width: 36px;
-}
-
-.content {
-	width: 100%;
 }
