@@ -111,7 +111,7 @@ function GifEdit( { attributes, setAttributes, isSelected } ) {
 							role="button"
 							tabIndex="0"
 						/>
-						{ giphyUrl ? (
+						{ giphyUrl && ! gifUrl ? (
 							<iframe src={ giphyUrl } title={ searchText } />
 						) : (
 							<img src={ gifUrl } alt={ searchText } />
