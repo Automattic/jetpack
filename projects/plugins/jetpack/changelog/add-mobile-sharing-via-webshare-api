@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Add generic Share button for devices that support the Web Share API (mainly mobile devices)
