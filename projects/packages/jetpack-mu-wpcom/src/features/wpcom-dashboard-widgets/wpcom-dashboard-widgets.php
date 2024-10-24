@@ -48,7 +48,7 @@ function enqueue_wpcom_dashboard_widgets() {
 
 	$data = wp_json_encode(
 		array(
-			'siteName'    => get_bloginfo( 'name' ),
+			'siteName'    => wp_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES ),
 			'siteDomain'  => wp_parse_url( home_url(), PHP_URL_HOST ),
 			'siteIconUrl' => get_site_icon_url( 38 ),
 		)
