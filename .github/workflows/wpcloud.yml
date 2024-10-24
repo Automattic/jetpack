@@ -64,6 +64,10 @@ jobs:
 
           echo "::endgroup::"
 
+          echo "::group::Installing and building wpcomsh"
+          pnpm jetpack build plugins/wpcomsh
+          echo "::endgroup::"
+
           echo "::group::Transferring wpcomsh to the testing server"
           pnpm jetpack rsync wpcomsh jetpackwpcomshtester.wordpress.com@sftp.wp.com:~/htdocs/wp-content/mu-plugins
           scp -r projects/plugins/wpcomsh/bin jetpackwpcomshtester.wordpress.com@sftp.wp.com:/srv/htdocs/wp-content/mu-plugins/wpcomsh
