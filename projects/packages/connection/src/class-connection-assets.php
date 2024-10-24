@@ -25,6 +25,9 @@ class Connection_Assets {
 
 	/**
 	 * Register assets.
+	 *
+	 * NOTICE: Please think twice before including Connection scripts in the frontend.
+	 * Those scripts are intended to be used in WP admin area.
 	 */
 	public static function register_assets() {
 

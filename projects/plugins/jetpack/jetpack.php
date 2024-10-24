@@ -4,7 +4,7 @@
  * Plugin URI: https://jetpack.com
  * Description: Security, performance, and marketing tools made by WordPress experts. Jetpack keeps your site protected so you can focus on more important things.
  * Author: Automattic
- * Version: 14.0-a.5
+ * Version: 14.0-a.7
  * Author URI: https://jetpack.com
  * License: GPL2+
  * Text Domain: jetpack
@@ -34,7 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 define( 'JETPACK__MINIMUM_WP_VERSION', '6.5' );
 define( 'JETPACK__MINIMUM_PHP_VERSION', '7.0' );
-define( 'JETPACK__VERSION', '14.0-a.5' );
+define( 'JETPACK__VERSION', '14.0-a.7' );
 
 /**
  * Constant used to fetch the connection owner token
@@ -116,13 +116,11 @@ if ( version_compare( $GLOBALS['wp_version'], JETPACK__MINIMUM_WP_VERSION, '<' )
 	 * @since 7.2.0
 	 */
 	function jetpack_admin_unsupported_wp_notice() {
-		wp_admin_notice(
-			esc_html__( 'Jetpack requires a more recent version of WordPress and has been paused. Please update WordPress to continue enjoying Jetpack.', 'jetpack' ),
-			array(
-				'type'        => 'error',
-				'dismissible' => true,
-			)
-		);
+		?>
+		<div class="notice notice-error is-dismissible">
+			<p><?php esc_html_e( 'Jetpack requires a more recent version of WordPress and has been paused. Please update WordPress to continue enjoying Jetpack.', 'jetpack' ); ?></p>
+		</div>
+		<?php
 	}
 
 	add_action( 'admin_notices', 'jetpack_admin_unsupported_wp_notice' );

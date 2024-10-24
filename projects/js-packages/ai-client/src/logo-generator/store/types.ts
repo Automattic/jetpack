@@ -95,11 +95,11 @@ export type LogoGeneratorFeatureControl = FeatureControl & {
 
 export type FeatureControl = {
 	enabled: boolean;
-	'min-jetpack-version': string;
-	[ key: string ]: FeatureControl | LogoGeneratorFeatureControl | boolean | string;
 };
 
-export type FeaturesControl = { [ key: string ]: FeatureControl };
+export type FeaturesControl = {
+	[ key: string ]: FeatureControl | LogoGeneratorFeatureControl;
+};
 
 export type AiFeatureProps = {
 	hasFeature: boolean;
@@ -220,6 +220,7 @@ export type AiAssistantFeatureEndpointResponseProps = {
 		};
 	};
 	'features-control'?: FeaturesControl;
+	data?: string; // when WP responds with a 200 status code but it's the error wrap
 };
 
 export type SaveLogo = ( logo: Logo ) => Promise< { mediaId: number; mediaURL: string } >;

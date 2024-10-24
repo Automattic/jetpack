@@ -966,6 +966,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 				case 'stc_enabled':
 				case 'sm_enabled':
 				case 'jetpack_subscribe_overlay_enabled':
+				case 'jetpack_subscribe_floating_button_enabled':
 				case 'wpcom_newsletter_categories_enabled':
 				case 'wpcom_featured_image_in_email':
 				case 'jetpack_gravatar_in_email':
