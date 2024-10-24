@@ -42,12 +42,18 @@ class Waf_Initializer {
 		// Update the WAF after installing or upgrading a relevant Jetpack plugin
 		add_action( 'upgrader_process_complete', __CLASS__ . '::update_waf_after_plugin_upgrade', 10, 2 );
 
+		// Update the WAF after updating the rules settings
+		Waf_Rules_Manager::add_hooks();
+
 		// Check for compatibility updates
 		add_action( 'admin_init', __CLASS__ . '::check_for_updates' );
 
 		// WAF activation/deactivation hooks
 		add_action( 'jetpack_activate_module_waf', __CLASS__ . '::on_waf_activation' );
 		add_action( 'jetpack_deactivate_module_waf', __CLASS__ . '::on_waf_deactivation' );
+
+		// Update the WAF rule files on a schedule
+		Waf_Rules_Manager::schedule_rules_cron();
 
 		// Brute force protection activation/deactivation hooks
 		add_action( 'jetpack_activate_module_protect', __CLASS__ . '::on_brute_force_protection_activation' );
@@ -68,9 +74,6 @@ class Waf_Initializer {
 	 * @return bool|WP_Error True if the WAF activation is successful, WP_Error otherwise.
 	 */
 	public static function on_waf_activation() {
-		update_option( Waf_Runner::MODE_OPTION_NAME, 'normal' );
-		add_option( Waf_Rules_Manager::AUTOMATIC_RULES_ENABLED_OPTION_NAME, false );
-
 		try {
 			Waf_Runner::activate();
 			( new Waf_Standalone_Bootstrap() )->generate();
