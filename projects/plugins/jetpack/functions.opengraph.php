@@ -574,11 +574,15 @@ function jetpack_add_fediverse_creator_open_graph_tag( $tags ) {
 	$publicize = publicize_init();
 
 	global $post;
+	$publicize_shares = get_post_meta( $post->ID, '_publicize_shares', true );
+
 	if (
 		! is_singular()
 		|| ! $post instanceof WP_Post
 		|| ! isset( $post->ID )
 		|| empty( $post->post_author )
+		|| ! is_array( $publicize_shares )
+		|| empty( $publicize_shares )
 	) {
 		return $tags;
 	}
@@ -593,7 +597,20 @@ function jetpack_add_fediverse_creator_open_graph_tag( $tags ) {
 
 		// services can have multiple connections. Store them all in our array.
 		foreach ( $connections as $connection ) {
-			$connection_id   = $publicize->get_connection_id( $connection );
+			$connection_id = $publicize->get_connection_id( $connection );
+
+			$shares_to_connection = array_filter(
+				$publicize_shares,
+				function ( $share ) use ( $connection_id ) {
+					return $share['connection_id'] === (int) $connection_id;
+				}
+			);
+
+			// If we didn't share to this connection we return.
+			if ( empty( $shares_to_connection ) ) {
+				continue;
+			}
+
 			$connection_meta = $publicize->get_connection_meta( $connection );
 
 			$connection_data    = $connection_meta['connection_data'] ?? array();
@@ -604,16 +621,13 @@ function jetpack_add_fediverse_creator_open_graph_tag( $tags ) {
 				continue;
 			}
 
-			// Did we skip this connection for this post?
-			if ( get_post_meta( $post->ID, $publicize->POST_SKIP_PUBLICIZE . $connection_id, true ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-				continue;
-			}
+			$last_share = end( $shares_to_connection );
 
 			$post_mastodon_connections[] = array(
 				'user_id'       => (int) $connection_user_id,
 				'connection_id' => (int) $connection_id,
 				'handle'        => $mastodon_handle,
-				'global'        => 0 === (int) $connection_user_id,
+				'global'        => isset( $last_share->shared ) ? (bool) $last_share->shared : 0 === (int) $connection_user_id,
 			);
 		}
 	}
