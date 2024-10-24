@@ -32,10 +32,11 @@ class WP_REST_Help_Center_Odie extends \WP_REST_Controller {
 			array(
 				// Get a chat. Supports pagination of messages.
 				array(
-					'methods'             => \WP_REST_Server::READABLE,
-					'callback'            => array( $this, 'get_chat' ),
-					'permission_callback' => 'is_user_logged_in',
-					'args'                => array(
+					'wpcom_required_scope' => 'chat',
+					'methods'              => \WP_REST_Server::READABLE,
+					'callback'             => array( $this, 'get_chat' ),
+					'permission_callback'  => 'is_user_logged_in',
+					'args'                 => array(
 						'bot_id'           => array(
 							'description' => __( 'The bot id to get the chat for.', 'jetpack-mu-wpcom' ),
 							'type'        => 'string',
@@ -67,10 +68,11 @@ class WP_REST_Help_Center_Odie extends \WP_REST_Controller {
 				),
 				// Add a message to a chat.
 				array(
-					'methods'             => \WP_REST_Server::CREATABLE,
-					'callback'            => array( $this, 'send_chat_message' ),
-					'permission_callback' => 'is_user_logged_in',
-					'args'                => array(
+					'wpcom_required_scope' => 'chat',
+					'methods'              => \WP_REST_Server::CREATABLE,
+					'callback'             => array( $this, 'send_chat_message' ),
+					'permission_callback'  => 'is_user_logged_in',
+					'args'                 => array(
 						'bot_id'  => array(
 							'description' => __( 'The bot id to chat with.', 'jetpack-mu-wpcom' ),
 							'type'        => 'string',
@@ -103,15 +105,17 @@ class WP_REST_Help_Center_Odie extends \WP_REST_Controller {
 			// Get last chat ID.
 			array(
 				array(
-					'methods'             => \WP_REST_Server::READABLE,
-					'callback'            => array( $this, 'get_last_chat_id' ),
-					'permission_callback' => 'is_user_logged_in',
+					'wpcom_required_scope' => 'chat',
+					'methods'              => \WP_REST_Server::READABLE,
+					'callback'             => array( $this, 'get_last_chat_id' ),
+					'permission_callback'  => 'is_user_logged_in',
 				),
 				// Set last chat ID.
 				array(
-					'methods'             => \WP_REST_Server::CREATABLE,
-					'callback'            => array( $this, 'set_last_chat_id' ),
-					'permission_callback' => 'is_user_logged_in',
+					'wpcom_required_scope' => 'chat',
+					'methods'              => \WP_REST_Server::CREATABLE,
+					'callback'             => array( $this, 'set_last_chat_id' ),
+					'permission_callback'  => 'is_user_logged_in',
 				),
 			)
 		);
@@ -121,10 +125,11 @@ class WP_REST_Help_Center_Odie extends \WP_REST_Controller {
 			$this->rest_base . '/chat/(?P<bot_id>[a-zA-Z0-9-]+)/(?P<chat_id>\d+)/(?P<message_id>\d+)/feedback',
 			array(
 				array(
-					'methods'             => \WP_REST_Server::CREATABLE,
-					'callback'            => array( $this, 'save_chat_message_feedback' ),
-					'permission_callback' => 'is_user_logged_in',
-					'args'                => array(
+					'wpcom_required_scope' => 'chat',
+					'methods'              => \WP_REST_Server::CREATABLE,
+					'callback'             => array( $this, 'save_chat_message_feedback' ),
+					'permission_callback'  => 'is_user_logged_in',
+					'args'                 => array(
 						'bot_id'       => array(
 							'description' => __( 'The bot id to chat with.', 'jetpack-mu-wpcom' ),
 							'type'        => 'string',
@@ -155,10 +160,11 @@ class WP_REST_Help_Center_Odie extends \WP_REST_Controller {
 			$this->rest_base . '/chat/(?P<bot_id>[a-zA-Z0-9-]+)',
 			array(
 				array(
-					'methods'             => \WP_REST_Server::CREATABLE,
-					'callback'            => array( $this, 'send_chat_message' ),
-					'permission_callback' => 'is_user_logged_in',
-					'args'                => array(
+					'wpcom_required_scope' => 'chat',
+					'methods'              => \WP_REST_Server::CREATABLE,
+					'callback'             => array( $this, 'send_chat_message' ),
+					'permission_callback'  => 'is_user_logged_in',
+					'args'                 => array(
 						'bot_id'  => array(
 							'description' => __( 'The bot id to chat with.', 'jetpack-mu-wpcom' ),
 							'type'        => 'string',
