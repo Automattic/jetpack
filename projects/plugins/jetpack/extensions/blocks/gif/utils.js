@@ -16,8 +16,6 @@ export const getUrl = ( searchText = '' ) => {
 
 export const getPaddingTop = media => `${ Math.floor( ( media.height / media.width ) * 100 ) }%`;
 
-export const getEmbedUrl = item => item?.embed_url;
-
 export const getSelectedGifAttributes = item => {
 	const media = item.media[ 0 ];
 	const attribution = item.attribution || {};
