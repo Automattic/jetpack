@@ -1672,6 +1672,19 @@ importers:
         specifier: 4.9.1
         version: 4.9.1(webpack@5.94.0)
 
+  projects/js-packages/wp-data-sync:
+    dependencies:
+      '@wordpress/api-fetch':
+        specifier: 7.9.0
+        version: 7.9.0
+    devDependencies:
+      jest:
+        specifier: 29.7.0
+        version: 29.7.0
+      typescript:
+        specifier: 5.0.4
+        version: 5.0.4
+
   projects/packages/admin-ui: {}
 
   projects/packages/assets:
