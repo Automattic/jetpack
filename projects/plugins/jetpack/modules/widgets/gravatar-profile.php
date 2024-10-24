@@ -267,7 +267,7 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 
 		<?php
 		foreach ( $accounts as $account ) :
-			if ( 'true' !== $account['verified'] ) {
+			if ( true !== $account['verified'] ) {
 				continue;
 			}
 
@@ -304,13 +304,6 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 			array(),
 			'20120711'
 		);
-
-		wp_enqueue_style(
-			'gravatar-card-services',
-			'https://secure.gravatar.com/css/services.css',
-			array(),
-			defined( 'GROFILES__CACHE_BUSTER' ) ? GROFILES__CACHE_BUSTER : gmdate( 'YW' )
-		);
 	}
 
 	/**
@@ -324,7 +317,7 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 		$email_user          = isset( $instance['email_user'] ) ? $instance['email_user'] : get_current_user_id();
 		$show_personal_links = isset( $instance['show_personal_links'] ) ? (bool) $instance['show_personal_links'] : '';
 		$show_account_links  = isset( $instance['show_account_links'] ) ? (bool) $instance['show_account_links'] : '';
-		$profile_url         = 'https://gravatar.com/profile/edit';
+		$profile_url         = 'https://gravatar.com/profile';
 
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			$profile_url = admin_url( 'profile.php' );
@@ -449,7 +442,7 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 
 		if ( ! $profile ) {
 			$profile_url = sprintf(
-				'https://secure.gravatar.com/%s.json',
+				'https://gravatar.com/%s.json',
 				$hashed_email
 			);
 
