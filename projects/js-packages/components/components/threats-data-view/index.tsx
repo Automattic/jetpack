@@ -1,4 +1,8 @@
 import {
+	__experimentalToggleGroupControl as ToggleGroupControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	__experimentalToggleGroupControlOption as ToggleGroupControlOption, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+} from '@wordpress/components';
+import {
 	Action,
 	DataViews,
 	Field,
@@ -10,15 +14,91 @@ import {
 	type View,
 } from '@wordpress/dataviews';
 import { dateI18n } from '@wordpress/date';
-import { __, _x } from '@wordpress/i18n';
+import { __, sprintf, _x } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
 import { useCallback, useMemo, useState } from 'react';
+import React from 'react';
 import Badge from '../badge';
-import { THREAT_STATUSES, THREAT_TYPES } from './constants';
+import { THREAT_STATUSES, HISTORIC_THREAT_STATUSES, THREAT_TYPES } from './constants';
 import { DataViewFixerStatus } from './fixer-status';
 import styles from './styles.module.scss';
 import { DataViewThreat, ThreatsDataViewActionCallback } from './types';
 import { getThreatIcon, getThreatSubtitle, getThreatType } from './utils';
+
+/**
+ * ToggleGroupControl component for filtering threats by status.
+ * @param {object}   props                - Component props.
+ * @param {Array}    props.data           - Array of threats data with status values.
+ * @param {string}   props.value          - The current filter value.
+ * @param {Function} props.onStatusChange - Callback function to change the filter value.
+ * @return {JSX.Element|null} The component or null.
+ */
+export function ThreatsStatusFilter( {
+	value,
+	onStatusChange,
+	data,
+}: {
+	value: string;
+	onStatusChange: ( newValue: string ) => void;
+	data: DataViewThreat[];
+} ): JSX.Element {
+	const activeCount = useMemo(
+		() => data.filter( item => item.status === 'current' ).length,
+		[ data ]
+	);
+	const historicCount = useMemo(
+		() => data.filter( item => [ 'fixed', 'ignored' ].includes( item.status ) ).length,
+		[ data ]
+	);
+	const totalCount = activeCount + historicCount;
+
+	if ( ! totalCount ) {
+		return null;
+	}
+
+	return (
+		<ToggleGroupControl
+			className={ styles[ 'toggle-group-control' ] }
+			value={ value }
+			onChange={ onStatusChange }
+		>
+			<ToggleGroupControlOption
+				value="all"
+				label={
+					<span className={ styles[ 'toggle-control' ] }>
+						{ sprintf(
+							/* translators: %d: total number of threats */ __( 'All (%d)', 'jetpack' ),
+							totalCount
+						) }
+					</span>
+				}
+			/>
+			<ToggleGroupControlOption
+				value="active"
+				label={
+					<span className={ styles[ 'toggle-control' ] }>
+						{ sprintf(
+							/* translators: %d: number of active threats */ __( 'Active (%d)', 'jetpack' ),
+							activeCount
+						) }
+					</span>
+				}
+			/>
+			<ToggleGroupControlOption
+				value="historic"
+				label={
+					<span className={ styles[ 'toggle-control' ] }>
+						{ sprintf(
+							/* translators: %d: number of historic threats */
+							__( 'Historic (%d)', 'jetpack' ),
+							historicCount
+						) }
+					</span>
+				}
+			/>
+		</ToggleGroupControl>
+	);
+}
 
 /**
  * DataView component for displaying security threats.
@@ -156,12 +236,52 @@ export default function ThreatsDataView( {
 		);
 	}, [ data ] );
 
+	const activeData = useMemo( () => data.filter( item => item.status === 'current' ), [ data ] );
+	const historicData = useMemo(
+		() => data.filter( item => [ 'fixed', 'ignored' ].includes( item.status ) ),
+		[ data ]
+	);
+	const [ status, setStatus ] = useState< string >( 'active' );
+	const [ filteredData, setFilteredData ] = useState< DataViewThreat[] >( activeData );
+
+	const onStatusChange = useCallback(
+		( newValue: string ) => {
+			setStatus( newValue );
+
+			// Reset status filters
+			const updatedFilters = view.filters.filter( filter => filter.field !== 'status' );
+			setView( {
+				...view,
+				filters: updatedFilters,
+			} );
+
+			if ( newValue === 'active' ) {
+				setFilteredData( activeData );
+			} else if ( newValue === 'historic' ) {
+				setFilteredData( historicData );
+			} else {
+				setFilteredData( data );
+			}
+		},
+		[ view, activeData, historicData, data ]
+	);
+
 	/**
 	 * DataView fields - describes the visible items for each record in the dataset.
 	 *
 	 * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-dataviews/#fields-object
 	 */
 	const fields = useMemo( () => {
+		let currentThreatStatuses = [];
+		switch ( status ) {
+			case 'all':
+				currentThreatStatuses = THREAT_STATUSES;
+				break;
+			case 'historic':
+				currentThreatStatuses = HISTORIC_THREAT_STATUSES;
+				break;
+		}
+
 		const result: Field< DataViewThreat >[] = [
 			{
 				id: 'title',
@@ -202,20 +322,21 @@ export default function ThreatsDataView( {
 			{
 				id: 'status',
 				label: __( 'Status', 'jetpack' ),
-				elements: THREAT_STATUSES,
+				elements: currentThreatStatuses, //Could hide or modify this in different status views...
 				getValue( { item }: { item: DataViewThreat } ) {
 					if ( ! item.status ) {
 						return 'current';
 					}
 					return (
-						THREAT_STATUSES.find( ( { value } ) => value === item.status )?.value ?? item.status
+						currentThreatStatuses.find( ( { value } ) => value === item.status )?.value ??
+						item.status
 					);
 				},
 				render( { item }: { item: DataViewThreat } ) {
 					if ( item.status ) {
-						const status = THREAT_STATUSES.find( ( { value } ) => value === item.status );
+						const itemStatus = currentThreatStatuses.find( ( { value } ) => value === item.status );
 						if ( status ) {
-							return <Badge variant={ status?.variant }>{ status?.label }</Badge>;
+							return <Badge variant={ itemStatus?.variant }>{ itemStatus?.label }</Badge>;
 						}
 					}
 					return <Badge variant="warning">{ __( 'Active', 'jetpack' ) }</Badge>;
@@ -374,7 +495,7 @@ export default function ThreatsDataView( {
 		];
 
 		return result;
-	}, [ extensions, signatures, dataFields, view ] );
+	}, [ status, extensions, signatures, dataFields, view ] );
 
 	/**
 	 * DataView actions - collection of operations that can be performed upon each record.
@@ -460,8 +581,8 @@ export default function ThreatsDataView( {
 	 * @see https://github.com/WordPress/gutenberg/blob/trunk/packages/dataviews/src/filter-and-sort-data-view.ts
 	 */
 	const { data: processedData, paginationInfo } = useMemo( () => {
-		return filterSortAndPaginate( data, view, fields );
-	}, [ data, view, fields ] );
+		return filterSortAndPaginate( filteredData, view, fields );
+	}, [ filteredData, view, fields ] );
 
 	/**
 	 * Callback function to update the view state.
@@ -490,6 +611,9 @@ export default function ThreatsDataView( {
 			onChangeView={ onChangeView }
 			paginationInfo={ paginationInfo }
 			view={ view }
+			header={
+				<ThreatsStatusFilter value={ status } onStatusChange={ onStatusChange } data={ data } />
+			}
 		/>
 	);
 }

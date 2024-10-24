@@ -139,7 +139,7 @@ Default.args = {
 			source: '',
 		},
 		{
-			id: '7275a176-d579-471a-8492-df8edbdf27de',
+			id: 105846602,
 			signature: null,
 			title: 'WooCommerce <= 3.4.5 - Authenticated Stored XSS',
 			description:
@@ -159,13 +159,6 @@ Default.args = {
 				version: '3.4.5',
 				type: 'plugin',
 			},
-		},
-	],
-	filters: [
-		{
-			field: 'status',
-			operator: 'is',
-			value: 'current',
 		},
 	],
 	onFixThreat: () =>
