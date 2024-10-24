@@ -7,13 +7,10 @@ type JetpackSettingsSelectors = {
 	isModuleEnabled: () => boolean;
 	showPricingPage: () => boolean;
 	isUpdatingJetpackSettings: () => boolean;
-	hasPaidPlan: () => boolean;
-	hasPaidFeatures: () => boolean;
 };
 
 type ConnectionDataSelectors = {
 	getConnections: () => Array< object >;
-	getConnectionsAdminUrl: () => string;
 	hasConnections: () => boolean;
 };
 

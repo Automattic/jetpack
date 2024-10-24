@@ -45,7 +45,7 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 	isOpen,
 	onClose,
 	onApplyLogo,
-	onReload,
+	onReload = null,
 	siteDetails,
 	context,
 	placement,
@@ -73,7 +73,8 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 		site,
 		requireUpgrade,
 	} = useLogoGenerator();
-	const { featureFetchError, firstLogoPromptFetchError, clearErrors } = useRequestErrors();
+	const { featureFetchError, setFeatureFetchError, firstLogoPromptFetchError, clearErrors } =
+		useRequestErrors();
 	const siteId = siteDetails?.ID;
 	const [ logoAccepted, setLogoAccepted ] = useState( false );
 	const { nextTierCheckoutURL: upgradeURL } = useCheckout();
@@ -105,6 +106,15 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 	 */
 	const initializeModal = useCallback( async () => {
 		try {
+			if ( ! siteId ) {
+				throw new Error( 'Site ID is missing' );
+			}
+
+			if ( ! feature?.featuresControl?.[ 'logo-generator' ]?.enabled ) {
+				setFeatureFetchError( 'Failed to fetch feature data' );
+				throw new Error( 'Failed to fetch feature data' );
+			}
+
 			const hasHistory = ! isLogoHistoryEmpty( String( siteId ) );
 
 			const logoCost = feature?.costs?.[ 'jetpack-ai-logo-generator' ]?.logo ?? DEFAULT_LOGO_COST;
@@ -125,10 +135,10 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 					: currentLimit < currentUsage );
 
 			// If the site requires an upgrade, show the upgrade screen immediately.
-			setNeedsFeature( currentLimit === 0 );
+			setNeedsFeature( currentValue === 0 );
 			setNeedsMoreRequests( siteNeedsMoreRequests );
 
-			if ( currentLimit === 0 || siteNeedsMoreRequests ) {
+			if ( currentValue === 0 || siteNeedsMoreRequests ) {
 				setLoadingState( null );
 				return;
 			}
@@ -179,6 +189,7 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 		isLogoHistoryEmpty,
 		siteId,
 		requireUpgrade,
+		setFeatureFetchError,
 	] );
 
 	const handleModalOpen = useCallback( async () => {
@@ -200,6 +211,15 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 		setIsLoadingHistory( false );
 		recordTracksEvent( EVENT_MODAL_CLOSE, { context, placement } );
 	};
+
+	const handleReload = useCallback( () => {
+		if ( ! onReload ) {
+			return;
+		}
+		closeModal();
+		requestedFeatureData.current = false;
+		onReload();
+	}, [ onReload, closeModal ] );
 
 	const handleApplyLogo = ( mediaId: number ) => {
 		setLogoAccepted( true );
@@ -229,7 +249,7 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 	// Handles modal opening logic
 	useEffect( () => {
 		// While the modal is not open, the siteId is not set, or the feature data is not available, do nothing.
-		if ( ! isOpen || ! siteId || ! feature?.costs ) {
+		if ( ! isOpen ) {
 			return;
 		}
 
@@ -238,7 +258,7 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 			needsToHandleModalOpen.current = false;
 			handleModalOpen();
 		}
-	}, [ isOpen, siteId, handleModalOpen, feature ] );
+	}, [ isOpen, handleModalOpen ] );
 
 	let body: React.ReactNode;
 
@@ -248,10 +268,7 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 		body = (
 			<FeatureFetchFailureScreen
 				onCancel={ closeModal }
-				onRetry={ () => {
-					closeModal();
-					onReload?.();
-				} }
+				onRetry={ onReload ? handleReload : null }
 			/>
 		);
 	} else if ( needsFeature || needsMoreRequests ) {

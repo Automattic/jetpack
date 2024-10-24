@@ -36,7 +36,7 @@ jobs:
           npx playwright install chromium --with-deps
           npm run build:packages
 
-      - name: Setup tools for J
+      - name: Setup tools for Jetpack
         uses: ./.github/actions/tool-setup
 
       - name: Build Production Jetpack

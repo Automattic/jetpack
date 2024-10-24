@@ -441,7 +441,7 @@ export function updatingConnection( connectionId, updating = true ) {
 /**
  * Sets the reconnecting account.
  *
- * @param {string} reconnectingAccount - Account being reconnected.
+ * @param {import('../types').Connection} reconnectingAccount - Account being reconnected.
  *
  * @return {object} Reconnecting account action.
  */

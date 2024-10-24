@@ -136,14 +136,14 @@ class Slideshow extends Component {
 					ref={ this.slideshowRef }
 				>
 					<ul className="wp-block-jetpack-slideshow_swiper-wrapper swiper-wrapper">
-						{ images.map( ( { alt, caption, id, url } ) => (
+						{ images.map( ( { alt, caption, id, url }, index ) => (
 							<li
 								className={ clsx(
 									'wp-block-jetpack-slideshow_slide',
 									'swiper-slide',
 									isBlobURL( url ) && 'is-transient'
 								) }
-								key={ id ? id : url }
+								key={ id ? `${ id }-${ index }` : `${ url }-${ index }` }
 							>
 								<figure>
 									<img

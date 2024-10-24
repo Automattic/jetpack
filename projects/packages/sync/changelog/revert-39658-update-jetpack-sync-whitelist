@@ -1,0 +1,5 @@
+Significance: patch
+Type: removed
+Comment: Revert "Jetpack Sync: Add 'woocommerce_analytics_first_activation' in options' whitelist"
+
+

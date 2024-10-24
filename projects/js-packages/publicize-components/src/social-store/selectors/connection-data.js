@@ -55,15 +55,6 @@ export function getConnectionsByService( state, serviceName ) {
 }
 
 /**
- * Returns the connections admin URL from the store.
- * @param {import("../types").SocialStoreState} state - State object.
- * @return {string|null} The connections admin URL.
- */
-export function getConnectionsAdminUrl( state ) {
-	return state.connectionData?.adminUrl ?? null;
-}
-
-/**
  * Returns whether there are connections in the store.
  * @param {import("../types").SocialStoreState} state - State object.
  * @return {boolean} Whether there are connections.
@@ -190,7 +181,7 @@ export function getUpdatingConnections( state ) {
  * @return {import("../types").ConnectionData['reconnectingAccount']} The account being reconnected.
  */
 export function getReconnectingAccount( state ) {
-	return state.connectionData?.reconnectingAccount ?? '';
+	return state.connectionData?.reconnectingAccount;
 }
 
 /**

@@ -220,7 +220,7 @@ function wpcom_add_reader_menu( $wp_admin_bar ) {
 	$wp_admin_bar->add_menu(
 		array(
 			'id'     => 'reader',
-			'title'  => '<span class="ab-icon" aria-hidden="true"></span><span class="screen-reader-text">' .
+			'title'  => '<span class="ab-icon" title="' . __( 'Read the blogs and topics you follow', 'jetpack-mu-wpcom' ) . '" aria-hidden="true"></span><span class="screen-reader-text">' .
 						/* translators: Hidden accessibility text. */
 						__( 'Reader', 'jetpack-mu-wpcom' ) .
 						'</span>',
