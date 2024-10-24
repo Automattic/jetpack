@@ -506,22 +506,12 @@ class Jetpack_JSON_API_Sync_Close_Endpoint extends Jetpack_JSON_API_Sync_Endpoin
 
 		$queue = new Queue( $queue_name );
 
-		$items = $queue->peek_by_id( $request_body['item_ids'] );
-
-		// Update Full Sync Status if queue is "full_sync".
-		if ( 'full_sync' === $queue_name ) {
-			$full_sync_module = Modules::get_module( 'full-sync' );
-			'@phan-var \Automattic\Jetpack\Sync\Modules\Full_Sync_Immediately|\Automattic\Jetpack\Sync\Modules\Full_Sync $full_sync_module';
-
-			$full_sync_module->update_sent_progress_action( $items );
-		}
-
 		$buffer   = new Queue_Buffer( $request_body['buffer_id'], $request_body['item_ids'] );
 		$response = $queue->close( $buffer, $request_body['item_ids'] );
 
 		// Perform another checkout?
 		if ( isset( $request_body['continue'] ) && $request_body['continue'] ) {
-			if ( in_array( $queue_name, array( 'full_sync', 'immediate' ), true ) ) {
+			if ( in_array( $queue_name, array( 'immediate' ), true ) ) {
 				// Send Full Sync Actions.
 				Sender::get_instance()->do_full_sync();
 			} elseif ( $queue->has_any_items() ) {

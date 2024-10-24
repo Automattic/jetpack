@@ -90,31 +90,6 @@ class Network_Options extends Module {
 	}
 
 	/**
-	 * Enqueue the network options actions for full sync.
-	 *
-	 * @access public
-	 *
-	 * @param array   $config               Full sync configuration for this sync module.
-	 * @param int     $max_items_to_enqueue Maximum number of items to enqueue.
-	 * @param boolean $state                True if full sync has finished enqueueing this module, false otherwise.
-	 * @return array Number of actions enqueued, and next module state.
-	 */
-	public function enqueue_full_sync_actions( $config, $max_items_to_enqueue, $state ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		/**
-		 * Tells the client to sync all options to the server
-		 *
-		 * @since 1.6.3
-		 * @since-jetpack 4.2.0
-		 *
-		 * @param boolean Whether to expand options (should always be true)
-		 */
-		do_action( 'jetpack_full_sync_network_options', true );
-
-		// The number of actions enqueued, and next module state (true == done).
-		return array( 1, true );
-	}
-
-	/**
 	 * Send the network options actions for full sync.
 	 *
 	 * @access public
@@ -131,29 +106,6 @@ class Network_Options extends Module {
 
 		// The number of actions enqueued, and next module state (true == done).
 		return array( 'finished' => true );
-	}
-
-	/**
-	 * Retrieve an estimated number of actions that will be enqueued.
-	 *
-	 * @access public
-	 *
-	 * @param array $config Full sync configuration for this sync module.
-	 * @return array Number of items yet to be enqueued.
-	 */
-	public function estimate_full_sync_actions( $config ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		return 1;
-	}
-
-	/**
-	 * Retrieve the actions that will be sent for this module during a full sync.
-	 *
-	 * @access public
-	 *
-	 * @return array Full sync actions of this module.
-	 */
-	public function get_full_sync_actions() {
-		return array( 'jetpack_full_sync_network_options' );
 	}
 
 	/**

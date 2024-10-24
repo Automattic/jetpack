@@ -146,36 +146,6 @@ abstract class Module {
 	}
 
 	/**
-	 * Enqueue the module actions for full sync.
-	 *
-	 * @access public
-	 *
-	 * @param array   $config               Full sync configuration for this sync module.
-	 * @param int     $max_items_to_enqueue Maximum number of items to enqueue.
-	 * @param boolean $state                True if full sync has finished enqueueing this module, false otherwise.
-	 * @return array  Number of actions enqueued, and next module state.
-	 */
-	public function enqueue_full_sync_actions( $config, $max_items_to_enqueue, $state ) {
-		// In subclasses, return the number of actions enqueued, and next module state (true == done).
-		return array( null, true );
-	}
-
-	/**
-	 * Retrieve an estimated number of actions that will be enqueued.
-	 *
-	 * @access public
-	 *
-	 * @param array $config Full sync configuration for this sync module.
-	 * @return array Number of items yet to be enqueued.
-	 */
-	public function estimate_full_sync_actions( $config ) {
-		// In subclasses, return the number of items yet to be enqueued.
-		return null;
-	}
-
-	// phpcs:enable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-
-	/**
 	 * Retrieve the actions that will be sent for this module during a full sync.
 	 *
 	 * @access public
@@ -183,7 +153,7 @@ abstract class Module {
 	 * @return array Full sync actions of this module.
 	 */
 	public function get_full_sync_actions() {
-		return array();
+		return array( $this->full_sync_action_name() );
 	}
 
 	/**
@@ -285,14 +255,11 @@ abstract class Module {
 				$remaining_items_count                      = $max_items_to_enqueue - $chunk_count;
 				$remaining_items                            = array_slice( $chunked_ids, 0, $remaining_items_count );
 				$remaining_items_with_previous_interval_end = $this->get_chunks_with_preceding_end( $remaining_items, $previous_interval_end );
-				$listener->bulk_enqueue_full_sync_actions( $action_name, $remaining_items_with_previous_interval_end );
 
 				$last_chunk = end( $remaining_items );
 				return array( $remaining_items_count + $chunk_count, end( $last_chunk ) );
 			}
 			$chunked_ids_with_previous_end = $this->get_chunks_with_preceding_end( $chunked_ids, $previous_interval_end );
-
-			$listener->bulk_enqueue_full_sync_actions( $action_name, $chunked_ids_with_previous_end );
 
 			$chunk_count += count( $chunked_ids );
 			++$page;

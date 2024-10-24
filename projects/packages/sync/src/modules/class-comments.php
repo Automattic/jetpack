@@ -323,46 +323,6 @@ class Comments extends Module {
 	}
 
 	/**
-	 * Enqueue the comments actions for full sync.
-	 *
-	 * @access public
-	 *
-	 * @param array   $config               Full sync configuration for this sync module.
-	 * @param int     $max_items_to_enqueue Maximum number of items to enqueue.
-	 * @param boolean $state                True if full sync has finished enqueueing this module, false otherwise.
-	 * @return array Number of actions enqueued, and next module state.
-	 */
-	public function enqueue_full_sync_actions( $config, $max_items_to_enqueue, $state ) {
-		global $wpdb;
-		return $this->enqueue_all_ids_as_action( 'jetpack_full_sync_comments', $wpdb->comments, 'comment_ID', $this->get_where_sql( $config ), $max_items_to_enqueue, $state );
-	}
-
-	/**
-	 * Retrieve an estimated number of actions that will be enqueued.
-	 *
-	 * @access public
-	 *
-	 * @param array $config Full sync configuration for this sync module.
-	 * @return int Number of items yet to be enqueued.
-	 */
-	public function estimate_full_sync_actions( $config ) {
-		global $wpdb;
-
-		$query = "SELECT count(*) FROM $wpdb->comments";
-
-		$where_sql = $this->get_where_sql( $config );
-		if ( $where_sql ) {
-			$query .= ' WHERE ' . $where_sql;
-		}
-
-		// TODO: Call $wpdb->prepare on the following query.
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-		$count = (int) $wpdb->get_var( $query );
-
-		return (int) ceil( $count / self::ARRAY_CHUNK_SIZE );
-	}
-
-	/**
 	 * Retrieve the WHERE SQL clause based on the module config.
 	 *
 	 * @access public
@@ -376,29 +336,6 @@ class Comments extends Module {
 		}
 
 		return '1=1';
-	}
-
-	/**
-	 * Retrieve the actions that will be sent for this module during a full sync.
-	 *
-	 * @access public
-	 *
-	 * @return array Full sync actions of this module.
-	 */
-	public function get_full_sync_actions() {
-		return array( 'jetpack_full_sync_comments' );
-	}
-
-	/**
-	 * Count all the actions that are going to be sent.
-	 *
-	 * @access public
-	 *
-	 * @param array $action_names Names of all the actions that will be sent.
-	 * @return int Number of actions.
-	 */
-	public function count_full_sync_actions( $action_names ) {
-		return $this->count_actions( $action_names, array( 'jetpack_full_sync_comments' ) );
 	}
 
 	/**
