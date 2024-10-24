@@ -38,6 +38,30 @@ The logo generator is not available for free users, test with a plan or subscrip
   - use `add_filter( 'jetpack_ai_tier_licensed_quantity', function() { return 0 | 100 | 1; } );` filter to mock free/tier100/unlimited plans
 	- sandbox the API, but then don't connect to sandbox to mock a disconnected situation
 
+### GIF Block
+
+The GIF block is now powered by Tumblr, which means that you can now search for and insert GIFs from Tumblr in your posts.
+
+**Creating a new GIF**
+* Create a new post or edit an existing post.
+* Add the GIF block and insert it into the post.
+* Enter a search term in the "Search" field.
+* Select a GIF from Tumblr.
+* Add a caption to the GIF (optional).
+* Save or update the post.
+* View the post on the frontend site.
+* Check that the GIF displays correctly with the caption and attribution.
+
+**Testing an existing GIPHY GIF**
+* Before updating Jetpack, create a new post or edit an existing post.
+* Add the GIF block and insert it into the post.
+* Enter a search term in the "Search" field.
+* Select a GIF from GIPHY.
+* Save or update the post.
+* Switch Jetpack to use this branch.
+* View the post on the frontend site.
+* Check that the GIPHY GIF still displays correctly.
+
 ### And More!
 
 You can see a [full list of changes in this release here](https://github.com/Automattic/jetpack-production/blob/trunk/CHANGELOG.md). Please feel free to test any and all functionality mentioned!
