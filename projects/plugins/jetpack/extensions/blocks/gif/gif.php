@@ -34,7 +34,7 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  */
 function render_block( $attr ) {
 	$padding_top      = isset( $attr['paddingTop'] ) ? $attr['paddingTop'] : '56.2%';
-	$style            = 'padding-top:' . esc_attr( $padding_top );
+	$style            = 'padding-top:' . esc_attr( $padding_top ) . '; width: 100%;';
 	$gif_url          = isset( $attr['gifUrl'] ) ? esc_url( $attr['gifUrl'] ) : null;
 	$giphy_url        = isset( $attr['giphyUrl'] ) ? esc_url( $attr['giphyUrl'] ) : null;
 	$search_text      = isset( $attr['searchText'] ) ? esc_attr( $attr['searchText'] ) : '';
@@ -53,7 +53,7 @@ function render_block( $attr ) {
 	?>
 	<div class="<?php echo esc_attr( $classes ); ?>">
 		<figure>
-			<?php if ( $giphy_url ) : ?>
+			<?php if ( $giphy_url && ! $gif_url ) : ?>
 				<?php if ( Blocks::is_amp_request() ) : ?>
 					<amp-iframe src="<?php echo esc_url( $giphy_url ); ?>" width="100" height="<?php echo absint( $padding_top ); ?>" sandbox="allow-scripts allow-same-origin" layout="responsive">
 						<div placeholder>
@@ -66,7 +66,9 @@ function render_block( $attr ) {
 					</div>
 				<?php endif; ?>
 			<?php else : ?>
-				<img src="<?php echo esc_url( $gif_url ); ?>" alt="<?php echo esc_attr( $search_text ); ?>" />
+				<div class="wp-block-jetpack-gif-wrapper" style="<?php echo esc_attr( $style ); ?>">
+					<img src="<?php echo esc_url( $gif_url ); ?>" alt="<?php echo esc_attr( $search_text ); ?>" />
+				</div>
 			<?php endif; ?>
 			<?php if ( $caption ) : ?>
 				<figcaption class="wp-block-jetpack-gif-caption gallery-caption"><?php echo wp_kses_post( $caption ); ?></figcaption>
