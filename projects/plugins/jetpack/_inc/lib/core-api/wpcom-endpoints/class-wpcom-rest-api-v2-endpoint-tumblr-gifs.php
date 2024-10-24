@@ -114,6 +114,14 @@ class WPCOM_REST_API_V2_Endpoint_Tumblr_Gifs extends WP_REST_Controller {
 			return current_user_can( 'manage_options' );
 		}
 
+		// If we are logged in as a user, we can allow access to the endpoint, as it is a request from a WordPress.com blog
+		if ( is_user_logged_in() ) {
+			return true;
+		}
+
+		// If we are not logged in as a user, we need to check if the site is an Atomic site or a Jetpack site
+		// and has a valid Jetpack blog token.
+
 		if ( ! class_exists( 'WPCOM_REST_API_V2_Endpoint_Jetpack_Auth' ) ) {
 			require_once dirname( __DIR__ ) . '/rest-api-plugins/endpoints/jetpack-auth.php';
 		}
