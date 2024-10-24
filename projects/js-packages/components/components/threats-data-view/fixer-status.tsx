@@ -3,9 +3,10 @@ import { View } from '@wordpress/dataviews';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
-import { check, info } from '@wordpress/icons';
+import { check } from '@wordpress/icons';
+import IconTooltip from '../icon-tooltip';
+import Text from '../text';
 import { PAID_PLUGIN_SUPPORT_URL } from './constants';
-import IconTooltip from './icon-tooltip';
 import styles from './styles.module.scss';
 import { ThreatFixStatus } from './types';
 import { fixerStatusIsStale } from './utils';
@@ -15,62 +16,19 @@ import { fixerStatusIsStale } from './utils';
  *
  * @param {object}  props       - Component props.
  * @param {boolean} props.fixer - The fixer status.
- * @param {number}  props.size  - The size of the icon.
  *
  * @return {JSX.Element} The component.
  */
-export default function FixerStatusIcon( {
-	fixer,
-	size = 24,
-}: {
-	fixer?: ThreatFixStatus;
-	size?: number;
-} ): JSX.Element {
+export default function FixerStatusIcon( { fixer }: { fixer?: ThreatFixStatus } ): JSX.Element {
 	if ( fixer && fixerStatusIsStale( fixer ) ) {
 		return (
-			<IconTooltip
-				icon={ info }
-				iconClassName={ styles[ 'icon-info' ] }
-				iconSize={ size }
-				text={ createInterpolateElement(
-					__(
-						'The fixer is taking longer than expected. Please try again or <supportLink>contact support</supportLink>.',
-						'jetpack'
-					),
-					{
-						supportLink: (
-							<ExternalLink
-								className={ styles[ 'support-link' ] }
-								href={ PAID_PLUGIN_SUPPORT_URL }
-							/>
-						),
-					}
-				) }
-			/>
+			<InfoIconTooltip message={ __( 'The fixer is taking longer than expected.', 'jetpack' ) } />
 		);
 	}
 
 	if ( fixer && 'error' in fixer && fixer.error ) {
 		return (
-			<IconTooltip
-				icon={ info }
-				iconClassName={ styles[ 'icon-info' ] }
-				iconSize={ size }
-				text={ createInterpolateElement(
-					__(
-						'An error occurred auto-fixing this threat. Please try again or <supportLink>contact support</supportLink>.',
-						'jetpack'
-					),
-					{
-						supportLink: (
-							<ExternalLink
-								className={ styles[ 'support-link' ] }
-								href={ PAID_PLUGIN_SUPPORT_URL }
-							/>
-						),
-					}
-				) }
-			/>
+			<InfoIconTooltip message={ __( 'An error occurred auto-fixing this threat.', 'jetpack' ) } />
 		);
 	}
 
@@ -89,7 +47,7 @@ export default function FixerStatusIcon( {
  * FixerStatusText component.
  * @param {object}  props       - Component props.
  * @param {boolean} props.fixer - The fixer status.
- * @return {string} The component.
+ * @return {JSX.Element} The component.
  */
 function FixerStatusText( { fixer }: { fixer?: ThreatFixStatus } ): JSX.Element {
 	if ( fixer && fixerStatusIsStale( fixer ) ) {
@@ -124,7 +82,7 @@ function FixerStatusText( { fixer }: { fixer?: ThreatFixStatus } ): JSX.Element 
 export function FixerStatusBadge( { fixer }: { fixer?: ThreatFixStatus } ): JSX.Element {
 	return (
 		<div className={ styles[ 'fixer-status' ] }>
-			<FixerStatusIcon fixer={ fixer } size={ 20 } />
+			<FixerStatusIcon fixer={ fixer } />
 			<FixerStatusText fixer={ fixer } />
 		</div>
 	);
@@ -153,4 +111,44 @@ export function DataViewFixerStatus( {
 	}
 
 	return <FixerStatusBadge fixer={ fixer } />;
+}
+
+/**
+ * InfoIconTooltip component.
+ * @param {object}  props         - Component props.
+ * @param {boolean} props.message - The popover message.
+ * @param {object}  props.size    - The size of the icon.
+ * @return {JSX.Elenment} The component.
+ */
+export function InfoIconTooltip( {
+	message,
+	size = 20,
+}: {
+	message?: string;
+	size?: number;
+} ): JSX.Element {
+	return (
+		<IconTooltip
+			placement={ 'top' }
+			className={ styles[ 'icon-tooltip__container' ] }
+			iconClassName={ styles[ 'icon-tooltip__icon' ] }
+			iconSize={ size }
+			hoverShow={ true }
+		>
+			<Text variant={ 'body-small' }>
+				{ message }{ ' ' }
+				{ createInterpolateElement(
+					__( 'Please try again or <supportLink>contact support</supportLink>.', 'jetpack' ),
+					{
+						supportLink: (
+							<ExternalLink
+								className={ styles[ 'support-link' ] }
+								href={ PAID_PLUGIN_SUPPORT_URL }
+							/>
+						),
+					}
+				) }
+			</Text>
+		</IconTooltip>
+	);
 }

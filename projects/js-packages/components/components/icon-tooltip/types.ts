@@ -83,4 +83,9 @@ export type IconTooltipProps = {
 	 * Enables the Popover to shift in order to stay in view when meeting the viewport edges.
 	 */
 	shift?: boolean;
+
+	/**
+	 * Enables the Popover to show on hover.
+	 */
+	hoverShow?: boolean;
 };
