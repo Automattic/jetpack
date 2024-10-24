@@ -33,39 +33,55 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  * @return string
  */
 function render_block( $attr ) {
-	$padding_top = isset( $attr['paddingTop'] ) ? $attr['paddingTop'] : 0;
-	$style       = 'padding-top:' . $padding_top;
-	$giphy_url   = isset( $attr['giphyUrl'] )
-		? Jetpack_Gutenberg::validate_block_embed_url( $attr['giphyUrl'], array( 'giphy.com' ) )
-		: null;
-	$search_text = isset( $attr['searchText'] ) ? $attr['searchText'] : '';
-	$caption     = isset( $attr['caption'] ) ? $attr['caption'] : null;
+	$padding_top      = isset( $attr['paddingTop'] ) ? $attr['paddingTop'] : '56.2%';
+	$style            = 'padding-top:' . esc_attr( $padding_top ) . '; width: 100%;';
+	$gif_url          = isset( $attr['gifUrl'] ) ? esc_url( $attr['gifUrl'] ) : null;
+	$giphy_url        = isset( $attr['giphyUrl'] ) ? esc_url( $attr['giphyUrl'] ) : null;
+	$search_text      = isset( $attr['searchText'] ) ? esc_attr( $attr['searchText'] ) : '';
+	$caption          = isset( $attr['caption'] ) ? wp_kses_post( $attr['caption'] ) : null;
+	$attribution_url  = isset( $attr['attributionUrl'] ) ? esc_url( $attr['attributionUrl'] ) : null;
+	$attribution_name = isset( $attr['attributionName'] ) ? esc_html( $attr['attributionName'] ) : '';
 
-	if ( ! $giphy_url ) {
+	if ( ! $gif_url && ! $giphy_url ) {
 		return null;
 	}
 
-	$classes = Blocks::classes( Blocks::get_block_feature( __DIR__ ), $attr );
-
-	$placeholder = sprintf( '<a href="%s">%s</a>', esc_url( $giphy_url ), esc_attr( $search_text ) );
+	$classes     = Blocks::classes( Blocks::get_block_feature( __DIR__ ), $attr );
+	$placeholder = sprintf( '<a href="%s">%s</a>', $giphy_url ? esc_url( $giphy_url ) : '', esc_attr( $search_text ) );
 
 	ob_start();
 	?>
 	<div class="<?php echo esc_attr( $classes ); ?>">
 		<figure>
-			<?php if ( Blocks::is_amp_request() ) : ?>
-				<amp-iframe src="<?php echo esc_url( $giphy_url ); ?>" width="100" height="<?php echo absint( $padding_top ); ?>" sandbox="allow-scripts allow-same-origin" layout="responsive">
-					<div placeholder>
-						<?php echo wp_kses_post( $placeholder ); ?>
-					</div>
-				</amp-iframe>
+			<?php if ( $giphy_url && ! $gif_url ) : ?>
+					<?php if ( Blocks::is_amp_request() ) : ?>
+						<amp-iframe src="<?php echo esc_url( $giphy_url ); ?>" width="100" height="<?php echo absint( $padding_top ); ?>" sandbox="allow-scripts allow-same-origin" layout="responsive">
+							<div placeholder>
+								<?php echo wp_kses_post( $placeholder ); ?>
+							</div>
+						</amp-iframe>
+					<?php else : ?>
+						<div class="wp-block-jetpack-gif-wrapper" style="<?php echo esc_attr( $style ); ?>">
+							<iframe src="<?php echo esc_url( $giphy_url ); ?>" title="<?php echo esc_attr( $search_text ); ?>"></iframe>
+						</div>
+					<?php endif; ?>
 			<?php else : ?>
 				<div class="wp-block-jetpack-gif-wrapper" style="<?php echo esc_attr( $style ); ?>">
-					<iframe src="<?php echo esc_url( $giphy_url ); ?>" title="<?php echo esc_attr( $search_text ); ?>"></iframe>
+					<img src="<?php echo $gif_url ? esc_url( $gif_url ) : ''; ?>" alt="<?php echo esc_attr( $search_text ); ?>" />
 				</div>
 			<?php endif; ?>
 			<?php if ( $caption ) : ?>
 				<figcaption class="wp-block-jetpack-gif-caption gallery-caption"><?php echo wp_kses_post( $caption ); ?></figcaption>
+			<?php endif; ?>
+			<?php if ( $attribution_url && $attribution_name && $gif_url ) : ?>
+				<figcaption class="wp-block-jetpack-gif-attribution">
+					<a href="<?php echo esc_url( $attribution_url ); ?>" target="_blank" rel="noopener noreferrer">
+						<?php
+						/* translators: %s: attribution name */
+						printf( esc_html__( 'GIF by %s on Tumblr', 'jetpack' ), esc_html( $attribution_name ) );
+						?>
+					</a>
+				</figcaption>
 			<?php endif; ?>
 		</figure>
 	</div>

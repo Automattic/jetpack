@@ -28,13 +28,43 @@
 		padding: calc( 56.2% + 12px ) 0 0 0;
 		position: relative;
 		width: 100%;
-		iframe {
+		iframe, img {
 			border: 0;
 			inset-inline-start: 0;
 			height: 100%;
 			position: absolute;
 			top: 0;
 			width: 100%;
+		}
+	}
+	
+	.wp-block-jetpack-gif-attribution {
+		margin-top: 0.5em;
+		font-size: 0.8em;
+		color: $gray-600;
+		text-align: right;
+		a {
+			color: $gray-600;
+			text-decoration: none;
+			&:hover {
+				text-decoration: underline;
+			}
+		}
+	}
+}
+
+.gif-branding-text {
+	font-weight: bold;
+	text-align: center;
+	font-size: 1.2em;
+	margin: 0;
+	color: #333;
+
+	a {
+		color: #333;
+		text-decoration: none;
+		&:hover {
+			text-decoration: underline;
 		}
 	}
 }

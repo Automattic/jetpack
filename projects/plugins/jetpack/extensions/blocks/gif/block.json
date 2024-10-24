@@ -4,7 +4,7 @@
 	"name": "jetpack/gif",
 	"title": "GIF",
 	"description": "Search for and insert an animated image.",
-	"keywords": [ "animated", "giphy", "image" ],
+	"keywords": [ "animated", "tumblr", "image" ],
 	"version": "12.5.0",
 	"textdomain": "jetpack",
 	"category": "embed",
@@ -21,7 +21,7 @@
 		"caption": {
 			"type": "string"
 		},
-		"giphyUrl": {
+		"gifUrl": {
 			"type": "string"
 		},
 		"searchText": {
@@ -30,12 +30,21 @@
 		"paddingTop": {
 			"type": "string",
 			"default": "56.2%"
+		},
+		"attributionUrl": {
+			"type": "string"
+		},
+		"attributionName": {
+			"type": "string"
+		},
+		"giphyUrl": {
+			"type": "string"
 		}
 	},
 	"example": {
 		"attributes": {
 			"align": "center",
-			"giphyUrl": "https://giphy.com/embed/fxKWgoOG9hzPPkE1oc",
+			"gifUrl": "https://64.media.tumblr.com/3131b9d2a05485e7ae7838a8b1314ab2/2d72fb0f707ea67a-5f/s500x750/d45e10288e4ff6a775c879978f52c87d3318ff8d.gif",
 			"paddingTop": "100%",
 			"searchText": "WordPress"
 		}

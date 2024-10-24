@@ -1,14 +1,14 @@
-import { render, fireEvent } from '@testing-library/react';
+import { fireEvent, render } from '@testing-library/react';
 import GifEdit from '../edit';
-import useFetchGiphyData from '../hooks/use-fetch-giphy-data';
-import { getUrl, getPaddingTop, getEmbedUrl } from '../utils';
+import useFetchTumblrData from '../hooks/use-fetch-tumblr-data';
+import { getPaddingTop, getUrl } from '../utils';
 
 const setAttributes = jest.fn();
 
 const defaultAttributes = {
 	align: 'left',
 	caption: '',
-	giphyUrl: '',
+	gifUrl: '',
 	searchText: '',
 	paddingTop: 0,
 };
@@ -20,54 +20,38 @@ const defaultProps = {
 	isSelected: false,
 };
 
-const GIPHY_DATA = [
+const TUMBLR_DATA = [
 	{
-		id: '9',
-		embed_url: 'pony',
-		images: {
-			downsized_still: {
-				url: 'chips',
-			},
-			original: {
-				height: 10,
-				width: 10,
-			},
-		},
+		media_key: '9',
+		media: [ { url: 'pony', poster: { url: 'chips' }, height: 10, width: 10 } ],
+		attribution: { blog: { name: 'Tumblr Blog' }, url: 'https://tumblr.com' },
 	},
 	{
-		id: '99',
-		embed_url: 'horsey',
-		images: {
-			downsized_still: {
-				url: 'fish',
-			},
-			original: {
-				height: 12,
-				width: 12,
-			},
-		},
+		media_key: '99',
+		media: [ { url: 'horsey', poster: { url: 'fish' }, height: 12, width: 12 } ],
+		attribution: { blog: { name: 'Another Blog' }, url: 'https://tumblr.com' },
 	},
 ];
 
-const fetchGiphyData = jest.fn();
+const fetchTumblrData = jest.fn();
 
-jest.mock( './../hooks/use-fetch-giphy-data' );
+jest.mock( './../hooks/use-fetch-tumblr-data' );
 
 describe( 'GifEdit', () => {
 	beforeEach( () => {
-		useFetchGiphyData.mockImplementation( () => {
+		useFetchTumblrData.mockImplementation( () => {
 			return {
-				fetchGiphyData,
-				giphyData: [],
+				fetchTumblrData,
+				tumblrData: [],
 				isFetching: false,
 			};
 		} );
 	} );
 
 	afterEach( async () => {
-		fetchGiphyData.mockReset();
+		fetchTumblrData.mockReset();
 		setAttributes.mockReset();
-		useFetchGiphyData.mockReset();
+		useFetchTumblrData.mockReset();
 	} );
 
 	test( 'adds class names', () => {
@@ -78,7 +62,7 @@ describe( 'GifEdit', () => {
 		).toBeInTheDocument();
 	} );
 
-	test( 'loads default search form and not the gallery where there is no giphy URL', () => {
+	test( 'loads default search form and not the gallery where there is no gif URL', () => {
 		const { container } = render( <GifEdit { ...defaultProps } /> );
 		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
 		expect( container.querySelector( '.wp-block-jetpack-gif_placeholder' ) ).toBeInTheDocument();
@@ -86,11 +70,11 @@ describe( 'GifEdit', () => {
 		expect( container.querySelector( 'figure' ) ).not.toBeInTheDocument();
 	} );
 
-	test( 'calls API and returns giphy images', async () => {
-		useFetchGiphyData.mockImplementationOnce( () => {
+	test( 'calls API and returns tumblr images', async () => {
+		useFetchTumblrData.mockImplementationOnce( () => {
 			return {
-				fetchGiphyData,
-				giphyData: GIPHY_DATA,
+				fetchTumblrData,
+				tumblrData: TUMBLR_DATA,
 				isFetching: false,
 			};
 		} );
@@ -99,7 +83,7 @@ describe( 'GifEdit', () => {
 			isSelected: true,
 			attributes: {
 				...defaultAttributes,
-				giphyUrl: 'https://itsalong.way/to/the/top/if/you/want',
+				gifUrl: 'https://itsalong.way/to/the/top/if/you/want',
 				searchText: 'a sausage roll',
 			},
 		};
@@ -113,10 +97,14 @@ describe( 'GifEdit', () => {
 		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
 		fireEvent.submit( container.querySelector( 'form' ) );
 
-		expect( fetchGiphyData ).toHaveBeenCalledWith( await getUrl( newProps.attributes.searchText ) );
+		expect( fetchTumblrData ).toHaveBeenCalledWith(
+			await getUrl( newProps.attributes.searchText )
+		);
 		expect( setAttributes.mock.calls[ 0 ][ 0 ] ).toStrictEqual( {
-			giphyUrl: getEmbedUrl( GIPHY_DATA[ 0 ] ),
-			paddingTop: getPaddingTop( GIPHY_DATA[ 0 ] ),
+			gifUrl: TUMBLR_DATA[ 0 ].media[ 0 ].url,
+			paddingTop: getPaddingTop( TUMBLR_DATA[ 0 ].media[ 0 ] ),
+			attributionUrl: TUMBLR_DATA[ 0 ].attribution.url,
+			attributionName: TUMBLR_DATA[ 0 ].attribution.blog.name,
 		} );
 
 		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
@@ -124,10 +112,43 @@ describe( 'GifEdit', () => {
 		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
 		expect( container.querySelector( 'figcaption' ) ).toBeInTheDocument();
 		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
-		expect( container.querySelector( '.wp-block-jetpack-gif-wrapper iframe' ) ).toBeInTheDocument();
+		expect( container.querySelector( '.wp-block-jetpack-gif-wrapper img' ) ).toBeInTheDocument();
 		expect(
 			// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
 			container.querySelectorAll( '.wp-block-jetpack-gif_thumbnail-container' )
 		).toHaveLength( 2 );
+	} );
+
+	test( 'renders iframe for legacy Giphy block', () => {
+		useFetchTumblrData.mockImplementation( () => {
+			return {
+				fetchTumblrData: jest.fn(),
+				tumblrData: [],
+				isFetching: false,
+			};
+		} );
+
+		const propsWithGiphyUrl = {
+			attributes: {
+				align: 'center',
+				caption: '',
+				giphyUrl: 'https://giphy.com/embed/some-giphy-id',
+				searchText: '',
+				paddingTop: '56.2%',
+			},
+			setAttributes,
+			isSelected: false,
+		};
+
+		const { container } = render( <GifEdit { ...propsWithGiphyUrl } /> );
+
+		// Check if the iframe is rendered
+		expect(
+			// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
+			container.querySelector( 'iframe[src="https://giphy.com/embed/some-giphy-id"]' )
+		).toBeInTheDocument();
+
+		// Ensure fetchTumblrData is not called
+		expect( useFetchTumblrData().fetchTumblrData ).not.toHaveBeenCalled();
 	} );
 } );
