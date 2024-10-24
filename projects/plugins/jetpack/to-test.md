@@ -60,6 +60,30 @@ The Growth bundle is replacing the Creator product. Make sure you don't see any 
 - Visit the post in the frontend and make sure the Slideshow works properly. 
 - Test the multiple Slideshow blocks inside a Row and inside Columns, and make sure it also works properly in the different scenarios. 
 
+### GIF Block
+
+The GIF block is now powered by Tumblr, which means that you can now search for and insert GIFs from Tumblr in your posts.
+
+**Creating a new GIF**
+* Create a new post or edit an existing post.
+* Add the GIF block and insert it into the post.
+* Enter a search term in the "Search" field.
+* Select a GIF from Tumblr.
+* Add a caption to the GIF (optional).
+* Save or update the post.
+* View the post on the frontend site.
+* Check that the GIF displays correctly with the caption and attribution.
+
+**Testing an existing GIPHY GIF**
+* Before updating Jetpack, create a new post or edit an existing post.
+* Add the GIF block and insert it into the post.
+* Enter a search term in the "Search" field.
+* Select a GIF from GIPHY.
+* Save or update the post.
+* Switch Jetpack to use this branch.
+* View the post on the frontend site.
+* Check that the GIPHY GIF still displays correctly.
+
 ### And More!
 
 Other particularly noteworthy changes in 14.0 include:
