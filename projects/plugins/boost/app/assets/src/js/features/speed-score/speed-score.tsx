@@ -20,10 +20,14 @@ import { useLocalCriticalCssGeneratorStatus } from '$features/critical-css/local
 import { queryClient } from '@automattic/jetpack-react-data-sync-client';
 import ErrorBoundary from '$features/error-boundary/error-boundary';
 import PopOut from './pop-out/pop-out';
+import { useFoundationPages } from '$features/foundation-pages/lib/stores/foundation-pages';
 
 const SpeedScore = () => {
-	const { site } = Jetpack_Boost;
-	const [ { status, error, scores }, loadScore ] = useSpeedScores( site.url );
+	const [ foundationPages ] = useFoundationPages();
+	const { site, developmentFeatures } = Jetpack_Boost;
+	const pageSpeedUrl =
+		developmentFeatures && foundationPages.length > 0 ? foundationPages[ 0 ] : site.url;
+	const [ { status, error, scores }, loadScore ] = useSpeedScores( pageSpeedUrl );
 	const scoreLetter = scores ? getScoreLetter( scores.current.mobile, scores.current.desktop ) : '';
 	const showPrevScores = scores && didScoresChange( scores ) && ! scores.isStale;
 	const [ { data } ] = useModulesState();
