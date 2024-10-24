@@ -9,7 +9,7 @@ import features from '../features';
 /**
  * Types
  */
-import type { Anchor, BreveState } from '../types';
+import type { Anchor, BreveLanguage, BreveState } from '../types';
 
 const enabledFromLocalStorage = window.localStorage.getItem( 'jetpack-ai-breve-enabled' );
 const disabledFeaturesFromLocalStorage = window.localStorage.getItem(
@@ -27,7 +27,13 @@ const initialConfiguration = {
 
 export function configuration(
 	state: BreveState[ 'configuration' ] = initialConfiguration,
-	action: { type: string; enabled?: boolean; feature?: string; loading?: boolean }
+	action: {
+		type: string;
+		enabled?: boolean;
+		feature?: string;
+		loading?: boolean;
+		language?: BreveLanguage;
+	}
 ) {
 	switch ( action.type ) {
 		case 'SET_PROOFREAD_ENABLED': {
@@ -37,6 +43,13 @@ export function configuration(
 			return {
 				...state,
 				enabled,
+			};
+		}
+
+		case 'SET_LANGUAGE': {
+			return {
+				...state,
+				language: action.language,
 			};
 		}
 
