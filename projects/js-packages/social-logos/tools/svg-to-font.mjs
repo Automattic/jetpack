@@ -1,4 +1,15 @@
 #!/usr/bin/env node
+
+import { spawnSync } from 'child_process';
+import fs from 'fs';
+import path from 'path';
+import process from 'process';
+import { fileURLToPath } from 'url';
+import { glob } from 'glob';
+import svg2ttf from 'svg2ttf';
+import { SVGIcons2SVGFontStream } from 'svgicons2svgfont';
+import wawoff2 from 'wawoff2';
+
 /* eslint-disable no-console */
 const svgDir = 'build/svg-clean';
 const srcSvgDir = 'src/svg';
@@ -7,17 +18,8 @@ const destFontDir = 'build/font';
 const cssFile = destFontDir + '/social-logos.css';
 const woff2FontFile = destFontDir + '/social-logos.woff2';
 
-const { spawnSync } = require( 'child_process' );
-const fs = require( 'fs' );
-const path = require( 'path' );
-const process = require( 'process' );
-const { glob } = require( 'glob' );
-const svg2ttf = require( 'svg2ttf' );
-const SVGIcons2SVGFontStream = require( 'svgicons2svgfont' );
-const wawoff2 = require( 'wawoff2' );
-
 // Start in the right folder.
-const rootDir = __dirname + '/..';
+const rootDir = fileURLToPath( new URL( '..', import.meta.url ) );
 process.chdir( rootDir );
 
 const getCodepoint = name => {
@@ -93,7 +95,7 @@ ${ cssCodepoints }*/`;
 // Make destination dir as needed.
 fs.mkdirSync( destFontDir, { recursive: true } );
 
-const codepoints = require( path.resolve( codepointsFile ) );
+const codepoints = JSON.parse( fs.readFileSync( path.resolve( codepointsFile ) ) );
 let maxCodepoint = Math.max( ...Object.values( codepoints ) );
 
 let fontBuffer = Buffer.alloc( 0 );
@@ -109,7 +111,7 @@ const fontStream = new SVGIcons2SVGFontStream( {
 fontStream
 	.on( 'data', data => {
 		// This concats to the font buffer each time a glyph is written.
-		fontBuffer = Buffer.concat( [ fontBuffer, data ] );
+		fontBuffer = Buffer.concat( [ fontBuffer, Buffer.from( data ) ] );
 	} )
 	.on( 'finish', async function () {
 		const woff2Buffer = await svg2woff2( fontBuffer );
