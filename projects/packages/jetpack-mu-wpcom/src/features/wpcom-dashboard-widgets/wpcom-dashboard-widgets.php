@@ -17,13 +17,24 @@ function load_wpcom_dashboard_widgets() {
 
 	$wpcom_dashboard_widgets = array(
 		array(
-			'id'       => 'wpcom_site_management_widget',
+			'id'       => 'wpcom-site-management-widget',
 			'name'     => __( 'Site Management Panel', 'jetpack-mu-wpcom' ),
 			'priority' => 'high',
+			'enabled'  => true,
+		),
+		array(
+			'id'       => 'wpcom-launchpad-widget',
+			'name'     => __( 'Site Setup Panel', 'jetpack-mu-wpcom' ),
+			'priority' => 'high',
+			'enabled'  => get_option( 'launch-status' ) !== 'launched' && ! empty( $_GET['wpcom_launchpad_widget'] ), // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		),
 	);
 
 	foreach ( $wpcom_dashboard_widgets as $wpcom_dashboard_widget ) {
+		if ( ! $wpcom_dashboard_widget['enabled'] ) {
+			continue;
+		}
+
 		wp_add_dashboard_widget(
 			$wpcom_dashboard_widget['id'],
 			$wpcom_dashboard_widget['name'],
@@ -41,6 +52,20 @@ function load_wpcom_dashboard_widgets() {
 add_action( 'wp_dashboard_setup', 'load_wpcom_dashboard_widgets' );
 
 /**
+ * Get the site data
+ */
+function wpcom_dashboard_widgets_get_site_data() {
+	$data = array(
+		'name'       => get_bloginfo( 'name' ),
+		'domain'     => wp_parse_url( home_url(), PHP_URL_HOST ),
+		'iconUrl'    => get_site_icon_url( 38 ),
+		'siteIntent' => get_option( 'site_intent' ),
+	);
+
+	return $data;
+}
+
+/**
  * Enqueue the assets of the wpcom dashboard widgets.
  */
 function enqueue_wpcom_dashboard_widgets() {
@@ -48,15 +73,16 @@ function enqueue_wpcom_dashboard_widgets() {
 
 	$data = wp_json_encode(
 		array(
-			'siteName'    => get_bloginfo( 'name' ),
-			'siteDomain'  => wp_parse_url( home_url(), PHP_URL_HOST ),
-			'siteIconUrl' => get_site_icon_url( 38 ),
+			'site' => wpcom_dashboard_widgets_get_site_data(),
 		)
 	);
 
 	wp_add_inline_script(
 		$handle,
-		"var JETPACK_MU_WPCOM_DASHBOARD_WIDGETS = $data;",
+		"
+		var wpcomDashboardWidgetsData = $data;
+		var configData = {};
+		",
 		'before'
 	);
 }
@@ -69,7 +95,7 @@ function enqueue_wpcom_dashboard_widgets() {
  */
 function render_wpcom_dashboard_widget( $post, $callback_args ) {
 	$args         = $callback_args['args'];
-	$widget_id    = $args['id'] . '_main';
+	$widget_id    = implode( '-', array( $args['id'], 'main' ) );
 	$widget_class = $args['class'] ?? $args['id'];
 	$widget_name  = $args['name'];
 

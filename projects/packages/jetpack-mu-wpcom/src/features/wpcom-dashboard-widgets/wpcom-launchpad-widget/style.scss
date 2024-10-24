@@ -1,0 +1,26 @@
+#wpcom-launchpad-widget {
+	color: #1e1e1e;
+
+	.postbox-title-action {
+		display: none;
+	}
+}
+
+#wpcom-launchpad-widget-main {
+	.wpcom-launchpad-widget__header {
+		display: flex;
+		align-items: center;
+
+		.wpcom-launchpad-widget__title {
+			flex: 1;
+			font-size: 1.125rem;
+			font-weight: 500;
+		}
+
+		.wpcom-launchpad-widget__progress-bar-container {
+			display: flex;
+			flex-direction: row;
+			gap: 20px;
+		}
+	}
+}
