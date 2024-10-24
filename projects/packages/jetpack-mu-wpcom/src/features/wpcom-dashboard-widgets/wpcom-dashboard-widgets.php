@@ -21,6 +21,11 @@ function load_wpcom_dashboard_widgets() {
 			'name'     => __( 'Site Management Panel', 'jetpack-mu-wpcom' ),
 			'priority' => 'high',
 		),
+		array(
+			'id'       => 'wpcom-blogging-prompts-widget',
+			'name'     => __( 'Daily Writing Prompt', 'jetpack-mu-wpcom' ),
+			'priority' => 'high',
+		),
 	);
 
 	foreach ( $wpcom_dashboard_widgets as $wpcom_dashboard_widget ) {
@@ -28,7 +33,7 @@ function load_wpcom_dashboard_widgets() {
 			$wpcom_dashboard_widget['id'],
 			$wpcom_dashboard_widget['name'],
 			'render_wpcom_dashboard_widget',
-			function () {},
+			null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal
 			array(
 				'id'   => $wpcom_dashboard_widget['id'],
 				'name' => $wpcom_dashboard_widget['name'],
@@ -48,9 +53,11 @@ function enqueue_wpcom_dashboard_widgets() {
 
 	$data = wp_json_encode(
 		array(
-			'siteName'    => get_bloginfo( 'name' ),
-			'siteDomain'  => wp_parse_url( home_url(), PHP_URL_HOST ),
-			'siteIconUrl' => get_site_icon_url( 38 ),
+			'siteId'       => get_current_blog_id(),
+			'siteName'     => get_bloginfo( 'name' ),
+			'siteDomain'   => wp_parse_url( home_url(), PHP_URL_HOST ),
+			'siteIconUrl'  => get_site_icon_url( 38 ),
+			'siteAdminUrl' => get_admin_url(),
 		)
 	);
 
@@ -80,7 +87,7 @@ function render_wpcom_dashboard_widget( $post, $callback_args ) {
 	);
 
 	?>
-	<div style="min-height: 200px;">
+	<div>
 		<div class="hide-if-js">
 			<?php echo esc_html( $warning ); ?>
 		</div>
