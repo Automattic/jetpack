@@ -5,6 +5,8 @@
  * @package automattic/jetpack
  */
 
+declare(strict_types=1);
+
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager;
 
