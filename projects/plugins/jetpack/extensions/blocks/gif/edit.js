@@ -1,22 +1,23 @@
 import { getBlockIconComponent } from '@automattic/jetpack-shared-extension-utils';
 import { RichText, useBlockProps } from '@wordpress/block-editor';
 import { Placeholder } from '@wordpress/components';
-import { createRef, useState, useEffect } from '@wordpress/element';
+import { createRef, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import metadata from './block.json';
 import SearchForm from './components/search-form';
 import Controls from './controls';
-import useFetchGiphyData from './hooks/use-fetch-giphy-data';
-import { getUrl, getSelectedGiphyAttributes } from './utils';
+import useFetchTumblrData from './hooks/use-fetch-tumblr-data';
+import { getSelectedGifAttributes, getUrl } from './utils';
 
 const icon = getBlockIconComponent( metadata );
 
 function GifEdit( { attributes, setAttributes, isSelected } ) {
-	const { align, caption, giphyUrl, searchText, paddingTop } = attributes;
+	const { align, caption, gifUrl, searchText, paddingTop, attributionUrl, attributionName } =
+		attributes;
 	const [ captionFocus, setCaptionFocus ] = useState( false );
 	const searchFormInputRef = createRef();
-	const { isFetching, giphyData, fetchGiphyData } = useFetchGiphyData();
+	const { isFetching, tumblrData, fetchTumblrData } = useFetchTumblrData();
 	const blockProps = useBlockProps();
 
 	const setSearchInputFocus = () => {
@@ -25,10 +26,10 @@ function GifEdit( { attributes, setAttributes, isSelected } ) {
 	};
 
 	useEffect( () => {
-		if ( giphyData && giphyData[ 0 ] ) {
-			setAttributes( getSelectedGiphyAttributes( giphyData[ 0 ] ) );
+		if ( tumblrData && tumblrData[ 0 ] ) {
+			setAttributes( getSelectedGifAttributes( tumblrData[ 0 ] ) );
 		}
-	}, [ giphyData, setAttributes ] );
+	}, [ tumblrData, setAttributes ] );
 
 	const onSubmit = async event => {
 		event.preventDefault();
@@ -40,22 +41,22 @@ function GifEdit( { attributes, setAttributes, isSelected } ) {
 		const url = await getUrl( attributes.searchText );
 
 		if ( url ) {
-			fetchGiphyData( url );
+			fetchTumblrData( url );
 		}
 	};
 
 	const onChange = event => setAttributes( { searchText: event.target.value } );
-	const onSelectThumbnail = thumbnail => setAttributes( getSelectedGiphyAttributes( thumbnail ) );
+	const onSelectThumbnail = thumbnail => setAttributes( getSelectedGifAttributes( thumbnail ) );
 
 	return (
 		<div { ...blockProps } className={ clsx( blockProps.className, `align${ align }` ) }>
 			<Controls />
-			{ ! giphyUrl ? (
+			{ ! gifUrl ? (
 				<Placeholder
 					className="wp-block-jetpack-gif_placeholder"
 					icon={ icon }
 					label={ metadata.title }
-					instructions={ __( 'Search for a term or paste a Giphy URL', 'jetpack' ) }
+					instructions={ __( 'Search for a term or paste a Tumblr GIF URL', 'jetpack' ) }
 				>
 					<SearchForm
 						onSubmit={ onSubmit }
@@ -74,16 +75,16 @@ function GifEdit( { attributes, setAttributes, isSelected } ) {
 							ref={ searchFormInputRef }
 						/>
 					) }
-					{ isSelected && giphyData && giphyData.length > 1 && (
+					{ isSelected && tumblrData && tumblrData.length > 1 && (
 						<div className="wp-block-jetpack-gif_thumbnails-container">
-							{ giphyData.map( thumbnail => {
+							{ tumblrData.map( thumbnail => {
 								const thumbnailStyle = {
-									backgroundImage: `url(${ thumbnail.images.downsized_still.url })`,
+									backgroundImage: `url(${ thumbnail.media[ 0 ].poster.url })`,
 								};
 								return (
 									<button
 										className="wp-block-jetpack-gif_thumbnail-container"
-										key={ thumbnail.id }
+										key={ thumbnail.media_key }
 										onClick={ e => {
 											e.preventDefault();
 											onSelectThumbnail( thumbnail );
@@ -102,9 +103,16 @@ function GifEdit( { attributes, setAttributes, isSelected } ) {
 							role="button"
 							tabIndex="0"
 						/>
-						<iframe src={ giphyUrl } title={ searchText } />
+						<img src={ gifUrl } alt={ searchText } />
 					</div>
-					{ ( ! RichText.isEmpty( caption ) || isSelected ) && !! giphyUrl && (
+					{ attributionUrl && (
+						<figcaption className="wp-block-jetpack-gif-attribution">
+							<a href={ attributionUrl } target="_blank" rel="noopener noreferrer">
+								{ `GIF by ${ attributionName } on Tumblr` }
+							</a>
+						</figcaption>
+					) }
+					{ ( ! RichText.isEmpty( caption ) || isSelected ) && !! gifUrl && (
 						<RichText
 							className="wp-block-jetpack-gif-caption gallery-caption"
 							inlineToolbar
