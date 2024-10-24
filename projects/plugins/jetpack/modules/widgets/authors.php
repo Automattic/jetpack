@@ -34,10 +34,6 @@ class Jetpack_Widget_Authors extends WP_Widget {
 			)
 		);
 
-		if ( is_active_widget( false, false, $this->id_base ) || is_active_widget( false, false, 'monster' ) || is_customize_preview() ) {
-			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_style' ) );
-		}
-
 		add_action( 'publish_post', array( __CLASS__, 'flush_cache' ) );
 		add_action( 'deleted_post', array( __CLASS__, 'flush_cache' ) );
 		add_action( 'switch_theme', array( __CLASS__, 'flush_cache' ) );
@@ -68,6 +64,9 @@ class Jetpack_Widget_Authors extends WP_Widget {
 	 * @param array $instance Widget settings for the instance.
 	 */
 	public function widget( $args, $instance ) {
+		// Enqueue front end assets.
+		$this->enqueue_style();
+
 		$cache_bucket = is_ssl() ? 'widget_authors_ssl' : 'widget_authors';
 
 		if ( '%BEG_OF_TITLE%' !== $args['before_title'] ) {

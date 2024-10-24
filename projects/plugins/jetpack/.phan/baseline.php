@@ -82,7 +82,6 @@ return [
     // PhanUndeclaredClassInCallable : 2 occurrences
     // PhanUndeclaredClassMethod : 2 occurrences
     // PhanDeprecatedPartiallySupportedCallable : 1 occurrence
-    // PhanEmptyFQSENInCallable : 1 occurrence
     // PhanEmptyForeach : 1 occurrence
     // PhanPluginDuplicateSwitchCase : 1 occurrence
     // PhanPluginInvalidPregRegex : 1 occurrence
@@ -454,7 +453,7 @@ return [
         'modules/widgets/flickr/form.php' => ['PhanTypeMismatchArgument'],
         'modules/widgets/follow-button.php' => ['PhanPluginUseReturnValueInternalKnown', 'PhanTypeMissingReturn'],
         'modules/widgets/gallery.php' => ['PhanParamTooMany', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypeMissingReturn'],
-        'modules/widgets/goodreads.php' => ['PhanEmptyFQSENInCallable', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMissingReturn'],
+        'modules/widgets/goodreads.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMissingReturn'],
         'modules/widgets/google-translate.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanRedundantCondition', 'PhanTypeMissingReturn'],
         'modules/widgets/gravatar-profile.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMissingReturn'],
         'modules/widgets/image-widget.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMissingReturn'],

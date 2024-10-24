@@ -31,10 +31,6 @@ if ( ! class_exists( 'Jetpack_Flickr_Widget' ) ) {
 				),
 				array()
 			);
-
-			if ( is_active_widget( false, false, $this->id_base ) || is_customize_preview() ) {
-				add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_style' ) );
-			}
 		}
 
 		/**
@@ -73,6 +69,9 @@ if ( ! class_exists( 'Jetpack_Flickr_Widget' ) ) {
 		 */
 		public function widget( $args, $instance ) {
 			$instance = wp_parse_args( $instance, $this->defaults() );
+
+			// Enqueue front end assets.
+			$this->enqueue_style();
 
 			if ( ! empty( $instance['flickr_rss_url'] ) ) {
 				/*
