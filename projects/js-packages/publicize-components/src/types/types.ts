@@ -67,7 +67,6 @@ type SocialImageGeneratorSettingsSelectors = {
 			template: string;
 		};
 	};
-	isSocialImageGeneratorAvailable: () => boolean;
 	isSocialImageGeneratorEnabled: () => boolean;
 	isUpdatingSocialImageGeneratorSettings: () => boolean;
 	getSocialImageGeneratorDefaultTemplate: () => string;

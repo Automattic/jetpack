@@ -25,7 +25,6 @@ export default function usePublicizeConfig() {
 	const isRePublicizeFeatureAvailable =
 		isJetpackSite || getJetpackExtensionAvailability( republicizeFeatureName )?.available;
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
-	const currentPostType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
 	const { isUserConnected } = useConnection();
 	const { urls } = getSocialScriptData();
 
@@ -80,11 +79,6 @@ export default function usePublicizeConfig() {
 	 */
 	const hidePublicizeFeature = isPostPublished && ! isRePublicizeFeatureAvailable;
 
-	/**\
-	 * Returns true if the post type is a Jetpack Social Note.
-	 */
-	const isJetpackSocialNote = 'jetpack-social-note' === currentPostType;
-
 	const needsUserConnection = ! isUserConnected && ! isSimpleSite();
 
 	return {
@@ -96,11 +90,8 @@ export default function usePublicizeConfig() {
 		isRePublicizeUpgradableViaUpsell,
 		hidePublicizeFeature,
 		isPostAlreadyShared,
-		isSocialImageGeneratorAvailable:
-			!! getJetpackData()?.social?.isSocialImageGeneratorAvailable && ! isJetpackSocialNote,
 		isSocialImageGeneratorEnabled: !! getJetpackData()?.social?.isSocialImageGeneratorEnabled,
 		connectionsPageUrl: urls.connectionsManagementPage,
-		isJetpackSocialNote,
 		needsUserConnection,
 	};
 }
