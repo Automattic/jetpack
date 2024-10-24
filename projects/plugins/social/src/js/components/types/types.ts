@@ -7,7 +7,6 @@ type JetpackSettingsSelectors = {
 	isModuleEnabled: () => boolean;
 	showPricingPage: () => boolean;
 	isUpdatingJetpackSettings: () => boolean;
-	hasPaidFeatures: () => boolean;
 };
 
 type ConnectionDataSelectors = {

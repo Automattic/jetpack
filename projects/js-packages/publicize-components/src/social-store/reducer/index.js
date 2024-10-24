@@ -11,7 +11,6 @@ const reducer = combineReducers( {
 	jetpackSettings,
 	socialImageGeneratorSettings,
 	shareStatus,
-	hasPaidFeatures: ( state = false ) => state,
 } );
 
 export default reducer;

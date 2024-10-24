@@ -80,13 +80,6 @@ export default function usePublicizeConfig() {
 	 */
 	const hidePublicizeFeature = isPostPublished && ! isRePublicizeFeatureAvailable;
 
-	/**
-	 * isEnhancedPublishingEnabled:
-	 * Whether the site has the enhanced publishing feature enabled. If true, it means that
-	 * the site has the Advanced plan.
-	 */
-	const isEnhancedPublishingEnabled = !! getJetpackData()?.social?.isEnhancedPublishingEnabled;
-
 	/**\
 	 * Returns true if the post type is a Jetpack Social Note.
 	 */
@@ -103,7 +96,6 @@ export default function usePublicizeConfig() {
 		isRePublicizeUpgradableViaUpsell,
 		hidePublicizeFeature,
 		isPostAlreadyShared,
-		isEnhancedPublishingEnabled,
 		isSocialImageGeneratorAvailable:
 			!! getJetpackData()?.social?.isSocialImageGeneratorAvailable && ! isJetpackSocialNote,
 		isSocialImageGeneratorEnabled: !! getJetpackData()?.social?.isSocialImageGeneratorEnabled,
