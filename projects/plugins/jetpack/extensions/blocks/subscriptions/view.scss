@@ -58,6 +58,7 @@
 			white-space: nowrap !important;
 			min-width: auto !important;
 			cursor: pointer;
+			height: auto; // Avoid theme styles leaking in
 		}
 
 		// Prevent white-space issues on Firefox
