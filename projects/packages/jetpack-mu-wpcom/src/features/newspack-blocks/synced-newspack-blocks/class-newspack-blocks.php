@@ -1400,7 +1400,7 @@ class Newspack_Blocks {
 
 		// Tell Jetpack to mark the donations feature as unavailable.
 		Jetpack_Gutenberg::set_extension_unavailable(
-			'jetpack/donations',
+			'donations',
 			esc_html__( 'Jetpack donations is disabled in favour of Newspack donations.', 'jetpack-mu-wpcom' )
 		);
 	}

@@ -103,9 +103,9 @@ class VideoPress_Gutenberg {
 	public function set_extension_availability() {
 		$availability = $this->check_videopress_availability();
 		if ( $availability['available'] ) {
-			Jetpack_Gutenberg::set_extension_available( 'jetpack/videopress' );
+			Jetpack_Gutenberg::set_extension_available( 'videopress' );
 		} else {
-			Jetpack_Gutenberg::set_extension_unavailable( 'jetpack/videopress', $availability['unavailable_reason'] );
+			Jetpack_Gutenberg::set_extension_unavailable( 'videopress', $availability['unavailable_reason'] );
 		}
 	}
 

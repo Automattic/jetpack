@@ -887,7 +887,7 @@ class Jetpack_Memberships {
 			);
 		} else {
 			Jetpack_Gutenberg::set_extension_unavailable(
-				'jetpack/recurring-payments',
+				'recurring-payments',
 				'missing_plan',
 				array(
 					'required_feature' => 'memberships',
