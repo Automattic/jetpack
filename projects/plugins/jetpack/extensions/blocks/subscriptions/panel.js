@@ -6,6 +6,8 @@ import {
 	JetpackEditorPanelLogo,
 	useAnalytics,
 	useModuleStatus,
+	isSimpleSite,
+	isAtomicSite,
 } from '@automattic/jetpack-shared-extension-utils';
 import { Button, ExternalLink, Flex, FlexItem, Notice, PanelRow } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
@@ -200,6 +202,9 @@ function NewsletterPostPublishSettingsPanel( { accessLevel } ) {
 		};
 	} );
 
+	const isJetpackSite = ! isAtomicSite() && ! isSimpleSite();
+	const monetizeRedirectUrl = isJetpackSite ? 'jetpack-monetize' : 'wpcom-earn';
+
 	return (
 		<>
 			<PluginPostPublishPanel
@@ -229,7 +234,7 @@ function NewsletterPostPublishSettingsPanel( { accessLevel } ) {
 						<Button
 							target="_blank"
 							variant="secondary"
-							href={ getRedirectUrl( 'wpcom-earn', {
+							href={ getRedirectUrl( monetizeRedirectUrl, {
 								site: getSiteFragment(),
 							} ) }
 						>
