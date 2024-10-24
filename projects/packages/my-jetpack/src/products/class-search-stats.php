@@ -137,6 +137,8 @@ class Search_Stats {
 			return $results;
 		}
 
+		error_log( ' test ' );
+
 		$query = "SELECT post_type, post_status, COUNT( * ) AS num_posts
 		FROM {$wpdb->posts}
 		WHERE post_password = ''
