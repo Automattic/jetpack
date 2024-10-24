@@ -270,9 +270,11 @@ abstract class Jetpack_Sitemap_Buffer {
 		$return_string = false;
 
 		if ( null === $parent ) {
-			$return_string = true;
-			$root          = new DOMDocument();
-			$parent        = $root;
+			$return_string            = true;
+			$root                     = new DOMDocument();
+			$root->formatOutput       = true; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			$root->preserveWhiteSpace = false; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			$parent                   = $root;
 		}
 
 		if ( is_array( $array ) ) {

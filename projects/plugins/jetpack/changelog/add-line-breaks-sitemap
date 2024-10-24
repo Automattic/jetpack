@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Sitemaps: include line breaks for easier debugging
