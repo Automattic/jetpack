@@ -7,7 +7,11 @@ import {
 	GlobalNotices,
 } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
-import { store as socialStore, features } from '@automattic/jetpack-publicize-components';
+import {
+	hasSocialPaidFeatures,
+	store as socialStore,
+	features,
+} from '@automattic/jetpack-publicize-components';
 import { siteHasFeature } from '@automattic/jetpack-script-data';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useState, useCallback, useEffect, useRef } from '@wordpress/element';
@@ -32,22 +36,17 @@ const Admin = () => {
 
 	const onPricingPageDismiss = useCallback( () => setForceDisplayPricingPage( false ), [] );
 
-	const {
-		isModuleEnabled,
-		showPricingPage,
-		hasPaidFeatures,
-		pluginVersion,
-		isUpdatingJetpackSettings,
-	} = useSelect( select => {
-		const store = select( socialStore );
-		return {
-			isModuleEnabled: store.isModuleEnabled(),
-			showPricingPage: store.showPricingPage(),
-			hasPaidFeatures: store.hasPaidFeatures(),
-			pluginVersion: store.getPluginVersion(),
-			isUpdatingJetpackSettings: store.isUpdatingJetpackSettings(),
-		};
-	} );
+	const { isModuleEnabled, showPricingPage, pluginVersion, isUpdatingJetpackSettings } = useSelect(
+		select => {
+			const store = select( socialStore );
+			return {
+				isModuleEnabled: store.isModuleEnabled(),
+				showPricingPage: store.showPricingPage(),
+				pluginVersion: store.getPluginVersion(),
+				isUpdatingJetpackSettings: store.isUpdatingJetpackSettings(),
+			};
+		}
+	);
 
 	const hasEnabledModule = useRef( isModuleEnabled );
 
@@ -79,7 +78,7 @@ const Admin = () => {
 	return (
 		<AdminPage moduleName={ moduleName } header={ <AdminPageHeader /> }>
 			<GlobalNotices />
-			{ ( ! hasPaidFeatures && showPricingPage ) || forceDisplayPricingPage ? (
+			{ ( ! hasSocialPaidFeatures() && showPricingPage ) || forceDisplayPricingPage ? (
 				<AdminSectionHero>
 					<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 						<Col>
