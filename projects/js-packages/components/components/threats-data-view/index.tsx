@@ -27,19 +27,19 @@ import { getThreatIcon, getThreatSubtitle, getThreatType } from './utils';
 
 /**
  * ToggleGroupControl component for filtering threats by status.
- * @param {object}   props          - Component props.
- * @param {Array}    props.data     - Array of threats data with status values.
- * @param {string}   props.value    - The current filter value.
- * @param {Function} props.onChange - Callback function to change the filter value.
+ * @param {object}   props                - Component props.
+ * @param {Array}    props.data           - Array of threats data with status values.
+ * @param {string}   props.value          - The current filter value.
+ * @param {Function} props.onStatusChange - Callback function to change the filter value.
  * @return {JSX.Element|null} The component or null.
  */
 export function ThreatsStatusFilter( {
 	value,
-	onChange,
+	onStatusChange,
 	data,
 }: {
 	value: string;
-	onChange: ( newValue: string ) => void;
+	onStatusChange: ( newValue: string ) => void;
 	data: DataViewThreat[];
 } ): JSX.Element {
 	const activeCount = useMemo(
@@ -60,7 +60,7 @@ export function ThreatsStatusFilter( {
 		<ToggleGroupControl
 			className={ styles[ 'toggle-group-control' ] }
 			value={ value }
-			onChange={ onChange }
+			onChange={ onStatusChange }
 		>
 			<ToggleGroupControlOption
 				value="all"
@@ -244,11 +244,16 @@ export default function ThreatsDataView( {
 	const [ status, setStatus ] = useState< string >( 'active' );
 	const [ filteredData, setFilteredData ] = useState< DataViewThreat[] >( activeData );
 
-	const onChange = useCallback(
+	const onStatusChange = useCallback(
 		( newValue: string ) => {
-			view.filters = []; // TODO: Only reset status filters?
-			setView( { ...view } );
 			setStatus( newValue );
+
+			// Reset status filters
+			const updatedFilters = view.filters.filter( filter => filter.field !== 'status' );
+			setView( {
+				...view,
+				filters: updatedFilters,
+			} );
 
 			if ( newValue === 'active' ) {
 				setFilteredData( activeData );
@@ -606,7 +611,9 @@ export default function ThreatsDataView( {
 			onChangeView={ onChangeView }
 			paginationInfo={ paginationInfo }
 			view={ view }
-			header={ <ThreatsStatusFilter value={ status } onChange={ onChange } data={ data } /> }
+			header={
+				<ThreatsStatusFilter value={ status } onStatusChange={ onStatusChange } data={ data } />
+			}
 		/>
 	);
 }
