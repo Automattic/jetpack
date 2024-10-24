@@ -560,13 +560,6 @@ export default function ThreatsDataView( {
 	const getItemId = useCallback( ( item: DataViewThreat ) => item.id.toString(), [] );
 
 	/**
-	 * Callback function to update the selection state.
-	 *
-	 * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-dataviews/#onchangeselection-function
-	 */
-	// const [ statusFilter, setStatusFilter ] = useState< string >( 'Active' );
-
-	/**
 	 * Callback function to handle the status change filter.
 	 *
 	 * @param {string} newStatus - The new status filter value.
@@ -593,7 +586,6 @@ export default function ThreatsDataView( {
 				...view,
 				filters: updatedFilters,
 			} );
-			// setStatusFilter( newStatus );
 		},
 		[ view ]
 	);
