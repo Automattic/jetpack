@@ -1,0 +1,90 @@
+name: WPCloud Unit Testing for WPCOMSH
+
+on:
+  pull_request:
+  push:
+    branches: ['trunk', '*/branch-*']
+concurrency:
+  group: wpcloud-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Run phpunit on WPCloud site
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # codecov.io requires a fetch depth > 1.
+          fetch-depth: 2
+
+      # For pull requests, list-changed-projects.sh needs the merge base.
+      # But it doesn't have to be checked out.
+      - name: Deepen to merge base
+        if: github.event_name == 'pull_request'
+        uses: ./.github/actions/deepen-to-merge-base
+        with:
+          checkout: false
+
+      - name: Setup tools
+        uses: ./.github/actions/tool-setup
+        with:
+          php: ${{ matrix.php }}
+          node: ${{ matrix.node }}
+      - name: Monorepo install
+        run: |
+          echo "::group::Pnpm"
+          pnpm install
+          echo "::endgroup::"
+      - name: Detect if wpcomsh has changed
+        id: changed
+        run: |
+          CHANGED="$(EXTRA=test .github/files/list-changed-projects.sh)"
+
+          # WPCOMSH_CHANGED="$(jq --argjson changed "$CHANGED" -n '$changed | has( "plugins/wpcomsh" ) ')"
+          WPCOMSH_CHANGED="true"
+          echo "wpcomsh=${WPCOMSH_CHANGED}" >> "$GITHUB_OUTPUT"
+
+      - name: Configure Github to be able to SSH to the Atomic site
+        if: steps.changed.outputs.wpcomsh == 'true'
+        run: |
+          echo "::group::Intializing"
+
+          mkdir -vp ~/.ssh/
+          chmod -v 700 ~/.ssh
+
+          touch ~/.ssh/id_site
+          touch ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/id_site
+          chmod 600 ~/.ssh/known_hosts
+          echo "$SSH_KEY" > ~/.ssh/id_site
+          echo "wrote ~/.ssh/id_site"
+          echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          echo "wrote ~/.ssh/known_hosts"
+
+          echo "::endgroup::"
+
+          echo "::group::Installing and building wpcomsh"
+          pnpm jetpack build plugins/wpcomsh
+          echo "::endgroup::"
+
+          echo "::group::Transferring wpcomsh to the testing server"
+          pnpm jetpack rsync wpcomsh jetpackwpcomshtester.wordpress.com@sftp.wp.com:~/htdocs/wp-content/mu-plugins
+          scp -r projects/plugins/wpcomsh/bin jetpackwpcomshtester.wordpress.com@sftp.wp.com:/srv/htdocs/wp-content/mu-plugins/wpcomsh
+          scp -r projects/plugins/wpcomsh/tests jetpackwpcomshtester.wordpress.com@sftp.wp.com:/srv/htdocs/wp-content/mu-plugins/wpcomsh/
+          scp projects/plugins/wpcomsh/phpunit.xml.dist jetpackwpcomshtester.wordpress.com@sftp.wp.com:/srv/htdocs/wp-content/mu-plugins/wpcomsh/
+
+          echo "::engroup::"
+
+          echo "::group::execution"
+          ssh -i ~/.ssh/id_site jetpackwpcomshtester.wordpress.com@sftp.wp.com "~/htdocs/github-action-handler.sh" || CODE=$?
+          echo "::endgroup::"
+
+          echo "::group::teardown"
+          rm -rvf ~/.ssh/
+          echo "::endgroup::"
+          echo "Exiting with exit code $CODE"
+          exit $CODE
+        env:
+          SSH_KEY: ${{ secrets.UPDATEJETPACKSTAGING_SSH_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.UPDATEJETPACKSTAGING_SSH_KNOWN_HOSTS }}

@@ -5,9 +5,10 @@
  * @package wpcomsh
  */
 
-$_tests_dir = getenv( 'WP_TESTS_DIR' );
-$_core_dir  = getenv( 'WP_CORE_DIR' );
-$wp_branch  = getenv( 'WP_BRANCH' );
+$_tests_dir      = getenv( 'WP_TESTS_DIR' );
+$_core_dir       = getenv( 'WP_CORE_DIR' );
+$_wp_content_dir = getenv( 'WP_CONTENT_DIR' ) ?? $_core_dir;
+$wp_branch       = getenv( 'WP_BRANCH' );
 
 if ( ! $_tests_dir ) {
 	if ( $wp_branch ) {
@@ -26,7 +27,7 @@ if ( ! $_core_dir ) {
 }
 
 define( 'IS_ATOMIC', true );
-define( 'WPMU_PLUGIN_DIR', "{$_core_dir}wp-content/mu-plugins" );
+define( 'WPMU_PLUGIN_DIR', "{$_wp_content_dir}/mu-plugins" );
 
 if ( ! file_exists( $_tests_dir . '/includes/functions.php' ) ) {
 	echo "Could not find $_tests_dir/includes/functions.php, have you run bin/install-wp-tests.sh ?" . PHP_EOL; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -52,6 +53,17 @@ function _manually_load_plugin() {
 	require_once dirname( __DIR__ ) . '/wpcomsh.php';
 }
 tests_add_filter( 'muplugins_loaded', '_manually_load_plugin' );
+
+if ( ! function_exists( 'wp_cache_flush_runtime' ) ) {
+	/**
+	 * Removes all cache items from the in-memory runtime cache.
+	 *
+	 * @return bool True on success, false on failure.
+	 */
+	function wp_cache_flush_runtime() {
+		return wp_cache_flush();
+	}
+}
 
 // Start up the WP testing environment.
 require_once $_tests_dir . '/includes/bootstrap.php';
