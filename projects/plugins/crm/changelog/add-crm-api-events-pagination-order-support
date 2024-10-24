@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+API-events: Add the pagination result sort/order capability to the endpoint.
