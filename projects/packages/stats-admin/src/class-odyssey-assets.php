@@ -118,7 +118,7 @@ class Odyssey_Assets {
 	/**
 	 * Get the cache buster option value.
 	 *
-	 * @param string|int $cache_buster The cache buster.
+	 * @param string|int|float $cache_buster The cache buster.
 	 * @return string|false
 	 */
 	protected function get_cache_buster_option_value( $cache_buster ) {
