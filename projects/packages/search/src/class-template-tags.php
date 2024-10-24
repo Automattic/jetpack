@@ -115,9 +115,9 @@ class Template_Tags {
 		}
 
 		?>
-		<h4 class="jetpack-search-filters-widget__sub-heading">
+		<h3 class="jetpack-search-filters-widget__sub-heading">
 			<?php echo esc_html( $filter['name'] ); ?>
-		</h4>
+		</h3>
 		<?php if ( $clear_url ) : ?>
 			<div class="jetpack-search-filters-widget__clear">
 				<a href="<?php echo esc_url( $clear_url ); ?>">
