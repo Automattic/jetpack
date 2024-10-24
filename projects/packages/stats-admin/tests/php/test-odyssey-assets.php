@@ -97,10 +97,10 @@ class Test_Odyssey_Assets extends Stats_Test_Case {
 	/**
 	 * Test remote cache buster.
 	 *
-	 * @param mixed $response  The response array .
-	 * @param mixed $parsed_args  The parsed args .
-	 * @param mixed $url  The URL .
-	 * @return array | void
+	 * @param mixed $response  The response array.
+	 * @param mixed $parsed_args  The parsed args.
+	 * @param mixed $url  The URL.
+	 * @return WP_Error | void
 	 */
 	public function break_cdn_cache_buster_request( $response, $parsed_args, $url ) {
 		if ( strpos( $url, '/build_meta.json' ) !== false ) {
