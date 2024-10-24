@@ -1,4 +1,8 @@
 import {
+	__experimentalToggleGroupControl as ToggleGroupControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	__experimentalToggleGroupControlOption as ToggleGroupControlOption, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+} from '@wordpress/components';
+import {
 	Action,
 	DataViews,
 	Field,
@@ -10,15 +14,91 @@ import {
 	type View,
 } from '@wordpress/dataviews';
 import { dateI18n } from '@wordpress/date';
-import { __, _x } from '@wordpress/i18n';
+import { __, sprintf, _x } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
 import { useCallback, useMemo, useState } from 'react';
+import React from 'react';
 import Badge from '../badge';
 import { THREAT_STATUSES, THREAT_TYPES } from './constants';
 import { DataViewFixerStatus } from './fixer-status';
 import styles from './styles.module.scss';
 import { DataViewThreat, ThreatsDataViewActionCallback } from './types';
 import { getThreatIcon, getThreatSubtitle, getThreatType } from './utils';
+
+/**
+ * ToggleGroupControl component for filtering threats by status.
+ * @param {object}   props          - Component props.
+ * @param {Filter[]} props.filters  - Current filters value.
+ * @param {Function} props.onChange - Callback function to update the filter value.
+ * @param {Array}    props.data     - Array of threats data with status values.
+ * @return {JSX.Element} The component.
+ */
+export function ThreatsStatusFilter( {
+	filters,
+	onChange,
+	data,
+}: {
+	filters: Filter[];
+	onChange: ( newValue: string ) => void;
+	data: DataViewThreat[];
+} ): JSX.Element {
+	const activeCount = useMemo(
+		() => data.filter( item => item.status === 'current' ).length,
+		[ data ]
+	);
+	const historicCount = useMemo(
+		() => data.filter( item => [ 'fixed', 'ignored' ].includes( item.status ) ).length,
+		[ data ]
+	);
+
+	const isExactStatusSelected = ( statuses: string[] ) =>
+		filters.some(
+			filter =>
+				filter.field === 'status' &&
+				Array.isArray( filter.value ) &&
+				filter.value.length === statuses.length &&
+				statuses.every( status => filter.value.includes( status ) )
+		);
+
+	let selectedValue = '';
+	if ( isExactStatusSelected( [ 'current' ] ) ) {
+		selectedValue = 'active';
+	} else if ( isExactStatusSelected( [ 'fixed', 'ignored' ] ) ) {
+		selectedValue = 'historic';
+	}
+
+	return (
+		<ToggleGroupControl
+			className={ styles[ 'toggle-group-control' ] }
+			value={ selectedValue }
+			onChange={ onChange }
+		>
+			<ToggleGroupControlOption
+				value="active"
+				label={
+					<span>
+						{ sprintf(
+							/* translators: %d: number of active threats */ __( 'Active (%d)', 'jetpack' ),
+							activeCount
+						) }
+					</span>
+				}
+			/>
+			<ToggleGroupControlOption
+				value="historic"
+				label={
+					<span className={ styles[ 'toggle-control' ] }>
+						{ sprintf(
+							/* translators: %d: number of historic threats */
+							__( 'Historic (%d)', 'jetpack' ),
+							historicCount
+						) }
+					</span>
+				}
+			/>
+		</ToggleGroupControl>
+	);
+}
 
 /**
  * DataView component for displaying security threats.
@@ -479,6 +559,37 @@ export default function ThreatsDataView( {
 	 */
 	const getItemId = useCallback( ( item: DataViewThreat ) => item.id.toString(), [] );
 
+	/**
+	 * Callback function to handle the status change filter.
+	 *
+	 * @param {string} newStatus - The new status filter value.
+	 */
+	const handleStatusChange = useCallback(
+		( newStatus: string ) => {
+			const updatedFilters = view.filters.filter( filter => filter.field !== 'status' );
+
+			if ( newStatus === 'active' ) {
+				updatedFilters.push( {
+					field: 'status',
+					operator: 'isAny',
+					value: [ 'current' ],
+				} );
+			} else if ( newStatus === 'historic' ) {
+				updatedFilters.push( {
+					field: 'status',
+					operator: 'isAny',
+					value: [ 'fixed', 'ignored' ],
+				} );
+			}
+
+			setView( {
+				...view,
+				filters: updatedFilters,
+			} );
+		},
+		[ view ]
+	);
+
 	return (
 		<DataViews
 			actions={ actions }
@@ -490,6 +601,13 @@ export default function ThreatsDataView( {
 			onChangeView={ onChangeView }
 			paginationInfo={ paginationInfo }
 			view={ view }
+			header={
+				<ThreatsStatusFilter
+					filters={ view.filters }
+					onChange={ handleStatusChange }
+					data={ data }
+				/>
+			}
 		/>
 	);
 }
