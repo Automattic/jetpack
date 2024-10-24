@@ -8,7 +8,6 @@
 declare(strict_types=1);
 
 use Automattic\Jetpack\Connection\Client;
-use Automattic\Jetpack\Connection\Manager;
 
 /**
  * WPCOM_REST_API_V2_Endpoint_Tumblr_Gifs class.
@@ -111,7 +110,22 @@ class WPCOM_REST_API_V2_Endpoint_Tumblr_Gifs extends WP_REST_Controller {
 	 * @return bool
 	 */
 	public function check_permissions() {
-		return current_user_can( 'manage_options' );
+		if ( ! $this->is_wpcom ) {
+			return current_user_can( 'manage_options' );
+		}
+
+		if ( ! class_exists( 'WPCOM_REST_API_V2_Endpoint_Jetpack_Auth' ) ) {
+			require_once dirname( __DIR__ ) . '/rest-api-plugins/endpoints/jetpack-auth.php';
+		}
+
+		$jp_auth_endpoint                                  = new WPCOM_REST_API_V2_Endpoint_Jetpack_Auth();
+		$jp_auth_endpoint->wpcom_is_site_specific_endpoint = $this->wpcom_is_site_specific_endpoint;
+
+		if ( is_wp_error( $jp_auth_endpoint->is_jetpack_authorized_for_site() ) || ! $jp_auth_endpoint->is_jetpack_authorized_for_site() ) {
+			return false;
+		}
+
+		return true;
 	}
 
 	/**
@@ -216,10 +230,7 @@ class WPCOM_REST_API_V2_Endpoint_Tumblr_Gifs extends WP_REST_Controller {
 		$path    = rawurldecode( $this->rest_base ) . ( $path ? '/' . rawurldecode( $path ) : '' );
 		$api_url = add_query_arg( $request->get_query_params(), $path );
 
-		// Prefer request as user, if possible. Fall back to blog request to show prompt data for unconnected users.
-		$response = ( new Manager() )->is_user_connected()
-			? Client::wpcom_json_api_request_as_user( $api_url, 'v2', array(), null, 'wpcom' )
-			: Client::wpcom_json_api_request_as_blog( $api_url, 'v2', array(), null, 'wpcom' );
+		$response = Client::wpcom_json_api_request_as_blog( $api_url, 'v2', array(), null, 'wpcom' );
 
 		if ( is_wp_error( $response ) ) {
 			return $response;
