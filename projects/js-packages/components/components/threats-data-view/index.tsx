@@ -36,11 +36,11 @@ import { getThreatIcon, getThreatSubtitle, getThreatType } from './utils';
 export function ThreatsStatusFilter( {
 	filters,
 	onChange,
-	data, // Array of threats data with status values
+	data,
 }: {
 	filters: Filter[];
 	onChange: ( newValue: string ) => void;
-	data: Array< { status: string } >;
+	data: DataViewThreat[];
 } ): JSX.Element {
 	const activeCount = useMemo(
 		() => data.filter( item => item.status === 'current' ).length,
