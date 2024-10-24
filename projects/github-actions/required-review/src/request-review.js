@@ -21,7 +21,9 @@ async function requestReviewer( teams ) {
 	const teamReviews = [];
 
 	for ( const t of teams ) {
-		if ( t.startsWith( '@' ) ) {
+		if ( t.startsWith( '@' ) && t.endsWith( '[bot]' ) ) {
+			core.info( `Skipping ${ t }, appears to be a bot` );
+		} else if ( t.startsWith( '@' ) ) {
 			userReviews.push( t.slice( 1 ) );
 		} else {
 			teamReviews.push( t );
