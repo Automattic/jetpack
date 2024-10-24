@@ -15,17 +15,15 @@ class Test_Odyssey_Assets extends Stats_Test_Case {
 	 * Test remote cache buster.
 	 */
 	public function test_get_cdn_asset_cache_buster() {
-		list($get_cdn_asset_cache_buster, $odyssey_assets) = $this->get_cdn_asset_cache_buster_callable();
-		$this->assertEquals( 'calypso-4917-8664-g72a154d63a', $get_cdn_asset_cache_buster->invoke( $odyssey_assets ) );
+		$this->assertEquals( 'calypso-4917-8664-g72a154d63a', $this->get_cdn_asset_cache_buster_callable() );
 	}
 
 	/**
 	 * Test remote cache buster breaking.
 	 */
 	public function test_get_cdn_asset_cache_buster_force_refresh() {
-		list($get_cdn_asset_cache_buster, $odyssey_assets) = $this->get_cdn_asset_cache_buster_callable();
 		add_filter( 'pre_http_request', array( $this, 'break_cdn_cache_buster_request' ), 15, 3 );
-		$this->assertEquals( time(), floor( $get_cdn_asset_cache_buster->invoke( $odyssey_assets ) / 1000 ) );
+		$this->assertEquals( time(), floor( $this->get_cdn_asset_cache_buster_callable() / 1000 ) );
 		remove_filter( 'pre_http_request', array( $this, 'break_cdn_cache_buster_request' ), 15 );
 	}
 
@@ -33,7 +31,6 @@ class Test_Odyssey_Assets extends Stats_Test_Case {
 	 * Test already cached cache buster.
 	 */
 	public function test_get_cdn_asset_cache_buster_already_cached() {
-		list($get_cdn_asset_cache_buster, $odyssey_assets) = $this->get_cdn_asset_cache_buster_callable();
 		update_option(
 			Odyssey_Assets::ODYSSEY_STATS_CACHE_BUSTER_CACHE_KEY,
 			wp_json_encode(
@@ -44,7 +41,7 @@ class Test_Odyssey_Assets extends Stats_Test_Case {
 			),
 			false
 		);
-		$this->assertEquals( 'calypso-4917-8664-123456', $get_cdn_asset_cache_buster->invoke( $odyssey_assets ) );
+		$this->assertEquals( 'calypso-4917-8664-123456', $this->get_cdn_asset_cache_buster_callable() );
 	}
 
 	/**
@@ -61,15 +58,13 @@ class Test_Odyssey_Assets extends Stats_Test_Case {
 			),
 			false
 		);
-		list($get_cdn_asset_cache_buster, $odyssey_assets) = $this->get_cdn_asset_cache_buster_callable();
-		$this->assertEquals( 'calypso-4917-8664-g72a154d63a', $get_cdn_asset_cache_buster->invoke( $odyssey_assets ) );
+		$this->assertEquals( 'calypso-4917-8664-g72a154d63a', $this->get_cdn_asset_cache_buster_callable() );
 	}
 
 	/**
 	 * Test already cached cache buster expired and failed to fetch new one.
 	 */
 	public function test_get_cdn_asset_cache_buster_failed_to_fetch() {
-		list($get_cdn_asset_cache_buster, $odyssey_assets) = $this->get_cdn_asset_cache_buster_callable();
 		add_filter( 'pre_http_request', array( $this, 'break_cdn_cache_buster_request' ), 15, 3 );
 		update_option(
 			Odyssey_Assets::ODYSSEY_STATS_CACHE_BUSTER_CACHE_KEY,
@@ -81,7 +76,7 @@ class Test_Odyssey_Assets extends Stats_Test_Case {
 			),
 			false
 		);
-		$this->assertEquals( time(), floor( $get_cdn_asset_cache_buster->invoke( $odyssey_assets ) / 1000 ) );
+		$this->assertEquals( time(), floor( $this->get_cdn_asset_cache_buster_callable() / 1000 ) );
 		remove_filter( 'pre_http_request', array( $this, 'break_cdn_cache_buster_request' ), 15 );
 	}
 
@@ -89,9 +84,8 @@ class Test_Odyssey_Assets extends Stats_Test_Case {
 	 * Test force refresh cache buster.
 	 */
 	public function test_get_cdn_asset_cache_buster_force_refresh_expired() {
-		list($get_cdn_asset_cache_buster, $odyssey_assets) = $this->get_cdn_asset_cache_buster_callable();
-		$_GET['force_refresh']                             = 1;
-		$this->assertEquals( time(), floor( $get_cdn_asset_cache_buster->invoke( $odyssey_assets ) / 1000 ) );
+		$_GET['force_refresh'] = 1;
+		$this->assertEquals( time(), floor( $this->get_cdn_asset_cache_buster_callable() / 1000 ) );
 	}
 
 	/**
@@ -115,6 +109,7 @@ class Test_Odyssey_Assets extends Stats_Test_Case {
 		$odyssey_assets             = new Odyssey_Assets();
 		$get_cdn_asset_cache_buster = new \ReflectionMethod( $odyssey_assets, 'get_cdn_asset_cache_buster' );
 		$get_cdn_asset_cache_buster->setAccessible( true );
-		return array( $get_cdn_asset_cache_buster, $odyssey_assets );
+
+		return $get_cdn_asset_cache_buster->invoke( $odyssey_assets );
 	}
 }
