@@ -111,7 +111,7 @@ class Jetpack_Contact_Info_Block {
 	 * @param array $attr Array containing the block attributes.
 	 * @param array $omit Array containing the block attributes that we ignore.
 	 *
-	 * @return string
+	 * @return bool
 	 */
 	public static function has_attributes( $attr, $omit = array() ) {
 		foreach ( $attr as $attribute => $value ) {
