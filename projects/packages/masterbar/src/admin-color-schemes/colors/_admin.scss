@@ -484,6 +484,10 @@ ul#adminmenu > li.current > a.current:after {
 	color: $menu-icon;
 }
 
+#wpadminbar #wp-admin-bar-notes.bell #wpnt-notes-unread-count.wpn-unread{
+	background-color: $notification-color;
+}
+
 
 /* Admin Bar: search */
 
