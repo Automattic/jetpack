@@ -47,27 +47,27 @@ function render_block( $attr ) {
 	}
 
 	$classes     = Blocks::classes( Blocks::get_block_feature( __DIR__ ), $attr );
-	$placeholder = sprintf( '<a href="%s">%s</a>', esc_url( $giphy_url ), esc_attr( $search_text ) );
+	$placeholder = sprintf( '<a href="%s">%s</a>', $giphy_url ? esc_url( $giphy_url ) : '', esc_attr( $search_text ) );
 
 	ob_start();
 	?>
 	<div class="<?php echo esc_attr( $classes ); ?>">
 		<figure>
 			<?php if ( $giphy_url && ! $gif_url ) : ?>
-				<?php if ( Blocks::is_amp_request() ) : ?>
-					<amp-iframe src="<?php echo esc_url( $giphy_url ); ?>" width="100" height="<?php echo absint( $padding_top ); ?>" sandbox="allow-scripts allow-same-origin" layout="responsive">
-						<div placeholder>
-							<?php echo wp_kses_post( $placeholder ); ?>
+					<?php if ( Blocks::is_amp_request() ) : ?>
+						<amp-iframe src="<?php echo esc_url( $giphy_url ); ?>" width="100" height="<?php echo absint( $padding_top ); ?>" sandbox="allow-scripts allow-same-origin" layout="responsive">
+							<div placeholder>
+								<?php echo wp_kses_post( $placeholder ); ?>
+							</div>
+						</amp-iframe>
+					<?php else : ?>
+						<div class="wp-block-jetpack-gif-wrapper" style="<?php echo esc_attr( $style ); ?>">
+							<iframe src="<?php echo esc_url( $giphy_url ); ?>" title="<?php echo esc_attr( $search_text ); ?>"></iframe>
 						</div>
-					</amp-iframe>
-				<?php else : ?>
-					<div class="wp-block-jetpack-gif-wrapper" style="<?php echo esc_attr( $style ); ?>">
-				<iframe src="<?php echo esc_url( $giphy_url ); ?>" title="<?php echo esc_attr( $search_text ); ?>"></iframe>
-					</div>
-				<?php endif; ?>
+					<?php endif; ?>
 			<?php else : ?>
 				<div class="wp-block-jetpack-gif-wrapper" style="<?php echo esc_attr( $style ); ?>">
-					<img src="<?php echo esc_url( $gif_url ); ?>" alt="<?php echo esc_attr( $search_text ); ?>" />
+					<img src="<?php echo $gif_url ? esc_url( $gif_url ) : ''; ?>" alt="<?php echo esc_attr( $search_text ); ?>" />
 				</div>
 			<?php endif; ?>
 			<?php if ( $caption ) : ?>
