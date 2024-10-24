@@ -58,7 +58,7 @@
 	text-align: center;
 	font-size: 1.2em;
 	margin: 0;
-	color: #333; // Adjust color as needed
+	color: #333;
 
 	a {
 		color: #333;
@@ -67,10 +67,4 @@
 			text-decoration: underline;
 		}
 	}
-}
-
-.wp-block-jetpack-gif_thumbnails-container {
-	display: flex;
-	overflow-x: auto; // Ensure horizontal scrolling is enabled
-	// ... existing styles ...
 }
