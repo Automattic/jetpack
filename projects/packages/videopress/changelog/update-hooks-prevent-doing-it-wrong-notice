@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Admin: Changed initialization load order for menu items to prevent translation error.
