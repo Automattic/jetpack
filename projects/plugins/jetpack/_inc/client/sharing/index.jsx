@@ -1,4 +1,7 @@
-import { getSocialScriptData } from '@automattic/jetpack-publicize-components';
+import {
+	getSocialScriptData,
+	hasSocialPaidFeatures,
+} from '@automattic/jetpack-publicize-components';
 import { __ } from '@wordpress/i18n';
 import QuerySite from 'components/data/query-site';
 import React, { Component } from 'react';
@@ -97,7 +100,7 @@ export default connect( state => {
 		blogID: getSiteId( state ),
 		siteAdminUrl: getSiteAdminUrl( state ),
 		activeFeatures: getActiveFeatures( state ),
-		hasPaidFeatures: siteHasFeature( state, 'social-enhanced-publishing' ),
+		hasPaidFeatures: hasSocialPaidFeatures(),
 		hasSocialImageGenerator: siteHasFeature( state, 'social-image-generator' ),
 		userCanManageModules: userCanManageModules( state ),
 		isAtomicSite: isAtomicSite( state ),

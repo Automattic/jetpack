@@ -5,20 +5,17 @@ import {
 	isSimpleSite,
 } from '@automattic/jetpack-shared-extension-utils';
 import { Button, PanelRow } from '@wordpress/components';
-import { useSelect } from '@wordpress/data';
 import { _x } from '@wordpress/i18n';
-import { store as socialStore } from '../../social-store';
+import { hasSocialPaidFeatures } from '../../utils';
 import styles from './styles.module.scss';
 import { useAutoSaveAndRedirect } from './use-auto-save-and-redirect';
 
 export const EnhancedFeaturesNudge: React.FC = () => {
-	const hasPaidFeatures = useSelect( select => select( socialStore ).hasPaidFeatures(), [] );
-
 	const autosaveAndRedirect = useAutoSaveAndRedirect();
 
 	const isWpcom = isSimpleSite() || isAtomicSite();
 
-	if ( isWpcom || hasPaidFeatures ) {
+	if ( isWpcom || hasSocialPaidFeatures() ) {
 		return null;
 	}
 
