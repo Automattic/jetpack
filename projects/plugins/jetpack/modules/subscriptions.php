@@ -132,6 +132,9 @@ class Jetpack_Subscriptions {
 
 		// Hide subscription messaging in Publish panel for posts that were published in the past
 		add_action( 'init', array( $this, 'register_post_meta' ), 20 );
+
+		add_action( 'init', array( $this, 'register_email_post_type' ) );
+
 		add_action( 'transition_post_status', array( $this, 'maybe_set_first_published_status' ), 10, 3 );
 
 		// Add Subscribers menu to Jetpack navigation.
@@ -163,6 +166,62 @@ class Jetpack_Subscriptions {
 				'jetpack.subscriptions.subscribe' => array( $this, 'subscribe' ),
 			)
 		);
+	}
+
+	/**
+	 * Register Email custom post type for Jetpack Subscriptions.
+	 */
+	public function register_email_post_type() {
+		$labels = array(
+			'name'                  => _x( 'Emails', 'Post type general name', 'jetpack' ),
+			'singular_name'         => _x( 'Email', 'Post type singular name', 'jetpack' ),
+			'menu_name'             => _x( 'Emails', 'Admin Menu text', 'jetpack' ),
+			'name_admin_bar'        => _x( 'Email', 'Add New on Toolbar', 'jetpack' ),
+			'add_new'               => __( 'Add New', 'jetpack' ),
+			'add_new_item'          => __( 'Add New Email', 'jetpack' ),
+			'new_item'              => __( 'New Email', 'jetpack' ),
+			'edit_item'             => __( 'Edit Email', 'jetpack' ),
+			'view_item'             => __( 'View Email', 'jetpack' ),
+			'all_items'             => __( 'All Emails', 'jetpack' ),
+			'search_items'          => __( 'Search Emails', 'jetpack' ),
+			'parent_item_colon'     => __( 'Parent Emails:', 'jetpack' ),
+			'not_found'             => __( 'No Emails found.', 'jetpack' ),
+			'not_found_in_trash'    => __( 'No Emails found in Trash.', 'jetpack' ),
+			'featured_image'        => _x( 'Email Cover Image', 'Overrides the "Featured Image" phrase for this post type. Added in 4.3', 'jetpack' ),
+			'set_featured_image'    => _x( 'Set cover image', 'Overrides the "Set featured image" phrase for this post type. Added in 4.3', 'jetpack' ),
+			'remove_featured_image' => _x( 'Remove cover image', 'Overrides the "Remove featured image" phrase for this post type. Added in 4.3', 'jetpack' ),
+			'use_featured_image'    => _x( 'Use as cover image', 'Overrides the "Use as featured image" phrase for this post type. Added in 4.3', 'jetpack' ),
+			'archives'              => _x( 'Email archives', 'The post type archive label used in nav menus. Default "Post Archives". Added in 4.4', 'jetpack' ),
+			'insert_into_item'      => _x( 'Insert into Email', 'Overrides the "Insert into post"/"Insert into page" phrase (used when inserting media into a post). Added in 4.4', 'jetpack' ),
+			'uploaded_to_this_item' => _x( 'Uploaded to this Email', 'Overrides the "Uploaded to this post"/"Uploaded to this page" phrase (used when viewing media attached to a post). Added in 4.4', 'jetpack' ),
+			'filter_items_list'     => _x( 'Filter Emails list', 'Screen reader text for the filter links heading on the post type listing screen. Default "Filter posts list"/"Filter pages list". Added in 4.4', 'jetpack' ),
+			'items_list_navigation' => _x( 'Emails list navigation', 'Screen reader text for the pagination heading on the post type listing screen. Default "Posts list navigation"/"Pages list navigation". Added in 4.4', 'jetpack' ),
+			'items_list'            => _x( 'Emails list', 'Screen reader text for the items list heading on the post type listing screen. Default "Posts list"/"Pages list". Added in 4.4', 'jetpack' ),
+		);
+
+		$args = array(
+			'labels'             => $labels,
+			'public'             => false,
+			'publicly_queryable' => false,
+			'show_ui'            => true,
+			'show_in_menu'       => true,
+			'query_var'          => false,
+			'capability_type'    => 'post',
+			'has_archive'        => false,
+			'hierarchical'       => false,
+			'menu_position'      => null,
+			'menu_icon'          => 'dashicons-email-alt2',
+			'supports'           => array( 'title', 'editor' ),
+			'show_in_rest'       => true,
+			'capabilities'       => array(
+				'create_posts' => 'edit_posts',
+				'edit_post'    => 'edit_posts',
+				'read_post'    => 'edit_posts',
+				'delete_post'  => 'edit_posts',
+			),
+		);
+
+		register_post_type( 'jetpack_email', $args );
 	}
 
 	/**
@@ -266,8 +325,8 @@ class Jetpack_Subscriptions {
 			return false;
 		}
 
-		// Only posts are currently supported.
-		if ( 'post' !== $post->post_type ) {
+		// Only posts and emails are currently supported.
+		if ( ! in_array( $post->post_type, array( 'post', 'jetpack_email' ), true ) ) {
 			return false;
 		}
 
