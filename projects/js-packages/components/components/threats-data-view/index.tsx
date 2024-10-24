@@ -575,13 +575,13 @@ export default function ThreatsDataView( {
 		( newStatus: string ) => {
 			const updatedFilters = view.filters.filter( filter => filter.field !== 'status' );
 
-			if ( newStatus === 'Active' ) {
+			if ( newStatus === 'active' ) {
 				updatedFilters.push( {
 					field: 'status',
 					operator: 'isAny',
 					value: [ 'current' ],
 				} );
-			} else if ( newStatus === 'Historic' ) {
+			} else if ( newStatus === 'historic' ) {
 				updatedFilters.push( {
 					field: 'status',
 					operator: 'isAny',
