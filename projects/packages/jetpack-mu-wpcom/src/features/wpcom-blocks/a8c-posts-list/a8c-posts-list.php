@@ -9,8 +9,6 @@ namespace Automattic\Jetpack\Jetpack_Mu_Wpcom\A8C_Posts_List;
 
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 
-define( 'MU_WPCOM_POSTS_LIST_BLOCK', true );
-
 require_once __DIR__ . '/utils.php';
 
 /**

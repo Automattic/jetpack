@@ -85,7 +85,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function get_item( $request ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter, VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		if ( ! ( new Host() )->is_wpcom_platform() && get_option( 'wpcom_admin_interface' ) !== 'wp-admin' ) {
+		if ( ! ( new Host() )->is_wpcom_platform() ) {
 			require_once JETPACK__PLUGIN_DIR . 'jetpack_vendor/automattic/jetpack-masterbar/src/admin-menu/load.php';
 		}
 
@@ -119,13 +119,11 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 
 			remove_action( 'customize_register', array( 'Jetpack_Fonts_Typekit', 'maybe_override_for_advanced_mode' ), 20 );
 
-			// TODO: Remove the conditional when we start using the package code on WPCOM.
 			if ( class_exists( 'Automattic\Jetpack\Masterbar' ) ) {
 				remove_action( 'customize_register', 'Automattic\Jetpack\Masterbar\register_css_nudge_control' );
-			} else {
-				remove_action( 'customize_register', 'Automattic\Jetpack\Dashboard_Customizations\register_css_nudge_control' );
 			}
 
+			// @phan-suppress-next-line PhanUndeclaredClassInCallable
 			remove_action( 'customize_register', array( 'Jetpack_Custom_CSS_Enhancements', 'customize_register' ) );
 		}
 	}

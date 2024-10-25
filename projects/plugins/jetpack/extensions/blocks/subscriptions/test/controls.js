@@ -23,7 +23,7 @@ beforeAll( () => {
 		'blockEditor.useSetting.before',
 		'extensions/blocks/button/test/controls',
 		( value, path ) => {
-			if ( overrideSettings.hasOwnProperty( path ) ) {
+			if ( Object.hasOwn( overrideSettings, path ) ) {
 				return overrideSettings[ path ];
 			}
 			return value;
@@ -74,6 +74,13 @@ beforeEach( () => {
 } );
 
 describe( 'Inspector controls', () => {
+	beforeEach( () => {
+		window.JetpackScriptData = {
+			social: {
+				urls: {},
+			},
+		};
+	} );
 	describe( 'Gradient settings panel', () => {
 		test( 'displays gradient settings control panel', () => {
 			render( <SubscriptionsInspectorControls { ...defaultProps } /> );

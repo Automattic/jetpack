@@ -21,7 +21,7 @@ const parsePromotedProductInfo = response => {
 /**
  * Hook to retrieve the product info for the pricing page.
  *
- * @returns {object} - The product info containing the currency and the plan prices.
+ * @return {object} - The product info containing the currency and the plan prices.
  */
 export default function useProductInfo() {
 	const [ productInfo, setProductInfo ] = useState( null );

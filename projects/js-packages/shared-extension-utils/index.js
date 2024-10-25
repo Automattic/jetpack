@@ -20,3 +20,4 @@ export { default as JetpackEditorPanelLogo } from './src/components/jetpack-edit
 export { getBlockIconComponent, getBlockIconProp } from './src/get-block-icon-from-metadata';
 export { default as getJetpackBlocksVariation } from './src/get-jetpack-blocks-variation';
 export * from './src/modules-state';
+export { default as isMyJetpackAvailable } from './src/is-my-jetpack-available';

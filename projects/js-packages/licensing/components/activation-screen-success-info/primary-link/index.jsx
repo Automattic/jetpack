@@ -20,6 +20,7 @@ const PrimaryLink = props => {
 	const isJetpackSocialActive = isPluginActive( 'Jetpack Social' );
 	const isJetpackSocialProduct =
 		productGroup === 'jetpack_social_advanced' || productGroup === 'jetpack_social_basic';
+	const isJetpackProtectActive = isPluginActive( 'Jetpack Protect' );
 
 	if ( isFetching ) {
 		return (
@@ -44,6 +45,17 @@ const PrimaryLink = props => {
 				}
 			>
 				{ __( 'Configure my site', 'jetpack' ) }
+			</Button>
+		);
+	}
+
+	if ( productGroup === 'jetpack_scan' ) {
+		const redirectSource = isJetpackProtectActive
+			? siteAdminUrl + 'admin.php?page=jetpack-protect'
+			: getRedirectUrl( 'jetpack-license-activation-success-scan', { site: siteRawUrl } );
+		return (
+			<Button className="jp-license-activation-screen-success-info--button" href={ redirectSource }>
+				{ __( 'View scan results', 'jetpack' ) }
 			</Button>
 		);
 	}

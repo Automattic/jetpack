@@ -12,6 +12,7 @@ test.describe( 'Cache module', () => {
 	test.beforeAll( async ( { browser } ) => {
 		page = await browser.newPage( playwrightConfig.use );
 		await boostPrerequisitesBuilder( page )
+			.withLoggedIn( true )
 			.withInactiveModules( [
 				'page_cache', // Make sure it's inactive.
 			] )
@@ -58,7 +59,7 @@ test.describe( 'Cache module', () => {
 			}
 
 			expect(
-				response.headers().hasOwnProperty( 'X-Jetpack-Boost-Cache'.toLowerCase() ),
+				Object.hasOwn( response.headers(), 'X-Jetpack-Boost-Cache'.toLowerCase() ),
 				'Page Cache header should not be present'
 			).toBeFalsy();
 		} );
@@ -122,13 +123,13 @@ test.describe( 'Cache module', () => {
 			// First visit should always be a miss.
 			if ( totalVisits === 1 ) {
 				expect(
-					responseHeaders.hasOwnProperty( cacheHeaderName ) &&
+					Object.hasOwn( responseHeaders, cacheHeaderName ) &&
 						responseHeaders[ cacheHeaderName ] === 'miss',
 					'Page Cache header should be set to miss on first visit.'
 				).toBeTruthy();
 			} else {
 				expect(
-					responseHeaders.hasOwnProperty( cacheHeaderName ) &&
+					Object.hasOwn( responseHeaders, cacheHeaderName ) &&
 						responseHeaders[ cacheHeaderName ] === 'hit',
 					'Page Cache header should be set to hit on second visit.'
 				).toBeTruthy();

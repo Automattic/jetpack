@@ -52,7 +52,8 @@ class Jetpack_Social {
 			_x( 'Social', 'The Jetpack Social product name, without the Jetpack prefix', 'jetpack-social' ),
 			'manage_options',
 			'jetpack-social',
-			array( $this, 'plugin_settings_page' )
+			array( $this, 'plugin_settings_page' ),
+			4
 		);
 
 		add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
@@ -338,7 +339,6 @@ class Jetpack_Social {
 			'isEnhancedPublishingEnabled'     => $publicize->has_enhanced_publishing_feature(),
 			'isSocialImageGeneratorAvailable' => $social_state['socialImageGeneratorSettings']['available'],
 			'isSocialImageGeneratorEnabled'   => $social_state['socialImageGeneratorSettings']['enabled'],
-			'autoConversionSettings'          => $social_state['autoConversionSettings'],
 			'useAdminUiV1'                    => $social_state['useAdminUiV1'],
 			'dismissedNotices'                => Dismissed_Notices::get_dismissed_notices(),
 			'supportedAdditionalConnections'  => $publicize->get_supported_additional_connections(),
@@ -351,6 +351,8 @@ class Jetpack_Social {
 
 			$initial_state['connectionRefreshPath'] = $social_state['connectionRefreshPath'];
 		}
+
+		$initial_state['featureFlags'] = $social_state['featureFlags'];
 
 		wp_localize_script(
 			'jetpack-social-editor',

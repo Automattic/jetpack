@@ -7,12 +7,15 @@ import {
 	GlobalNotices,
 } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
-import { store as socialStore } from '@automattic/jetpack-publicize-components';
+import {
+	hasSocialPaidFeatures,
+	store as socialStore,
+	features,
+} from '@automattic/jetpack-publicize-components';
+import { siteHasFeature } from '@automattic/jetpack-script-data';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useState, useCallback, useEffect, useRef } from '@wordpress/element';
 import React from 'react';
-import AdvancedUpsellNotice from '../advanced-upsell-notice';
-import AutoConversionToggle from '../auto-conversion-toggle';
 import PricingPage from '../pricing-page';
 import SocialImageGeneratorToggle from '../social-image-generator-toggle';
 import SocialModuleToggle from '../social-module-toggle';
@@ -33,28 +36,17 @@ const Admin = () => {
 
 	const onPricingPageDismiss = useCallback( () => setForceDisplayPricingPage( false ), [] );
 
-	const {
-		isModuleEnabled,
-		showPricingPage,
-		hasPaidFeatures,
-		pluginVersion,
-		isSocialImageGeneratorAvailable,
-		isAutoConversionAvailable,
-		shouldShowAdvancedPlanNudge,
-		isUpdatingJetpackSettings,
-	} = useSelect( select => {
-		const store = select( socialStore );
-		return {
-			isModuleEnabled: store.isModuleEnabled(),
-			showPricingPage: store.showPricingPage(),
-			hasPaidFeatures: store.hasPaidFeatures(),
-			pluginVersion: store.getPluginVersion(),
-			isSocialImageGeneratorAvailable: store.isSocialImageGeneratorAvailable(),
-			isAutoConversionAvailable: store.isAutoConversionAvailable(),
-			shouldShowAdvancedPlanNudge: store.shouldShowAdvancedPlanNudge(),
-			isUpdatingJetpackSettings: store.isUpdatingJetpackSettings(),
-		};
-	} );
+	const { isModuleEnabled, showPricingPage, pluginVersion, isUpdatingJetpackSettings } = useSelect(
+		select => {
+			const store = select( socialStore );
+			return {
+				isModuleEnabled: store.isModuleEnabled(),
+				showPricingPage: store.showPricingPage(),
+				pluginVersion: store.getPluginVersion(),
+				isUpdatingJetpackSettings: store.isUpdatingJetpackSettings(),
+			};
+		}
+	);
 
 	const hasEnabledModule = useRef( isModuleEnabled );
 
@@ -62,17 +54,12 @@ const Admin = () => {
 		if (
 			isModuleEnabled &&
 			! hasEnabledModule.current &&
-			( isAutoConversionAvailable || isSocialImageGeneratorAvailable )
+			siteHasFeature( features.IMAGE_GENERATOR )
 		) {
 			hasEnabledModule.current = true;
 			refreshJetpackSocialSettings();
 		}
-	}, [
-		isAutoConversionAvailable,
-		isModuleEnabled,
-		isSocialImageGeneratorAvailable,
-		refreshJetpackSocialSettings,
-	] );
+	}, [ isModuleEnabled, refreshJetpackSocialSettings ] );
 
 	const moduleName = `Jetpack Social ${ pluginVersion }`;
 
@@ -91,7 +78,7 @@ const Admin = () => {
 	return (
 		<AdminPage moduleName={ moduleName } header={ <AdminPageHeader /> }>
 			<GlobalNotices />
-			{ ( ! hasPaidFeatures && showPricingPage ) || forceDisplayPricingPage ? (
+			{ ( ! hasSocialPaidFeatures() && showPricingPage ) || forceDisplayPricingPage ? (
 				<AdminSectionHero>
 					<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 						<Col>
@@ -105,13 +92,9 @@ const Admin = () => {
 						<Header />
 					</AdminSectionHero>
 					<AdminSection>
-						{ shouldShowAdvancedPlanNudge && <AdvancedUpsellNotice /> }
 						<SocialModuleToggle />
 						{ isModuleEnabled && <SocialNotesToggle disabled={ isUpdatingJetpackSettings } /> }
-						{ isModuleEnabled && isAutoConversionAvailable && (
-							<AutoConversionToggle disabled={ isUpdatingJetpackSettings } />
-						) }
-						{ isModuleEnabled && isSocialImageGeneratorAvailable && (
+						{ isModuleEnabled && siteHasFeature( features.IMAGE_GENERATOR ) && (
 							<SocialImageGeneratorToggle disabled={ isUpdatingJetpackSettings } />
 						) }
 					</AdminSection>

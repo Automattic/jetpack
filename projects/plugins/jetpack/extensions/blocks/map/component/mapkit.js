@@ -1,4 +1,12 @@
-import { Children, forwardRef, memo, useCallback, useEffect, useRef } from '@wordpress/element';
+import {
+	Children,
+	forwardRef,
+	memo,
+	useCallback,
+	useEffect,
+	useRef,
+	useState,
+} from '@wordpress/element';
 import { get } from 'lodash';
 import { MapkitProvider } from '../mapkit/context';
 import {
@@ -45,12 +53,30 @@ const MapkitComponent = forwardRef(
 				return child;
 			}
 		} );
+		const [ isSelected, setIsSelected ] = useState( false );
 
 		useEffect( () => {
 			if ( error ) {
 				onError( 'mapkit_error', error );
 			}
 		}, [ error, onError ] );
+
+		const handleBlockClick = () => {
+			setIsSelected( true );
+		};
+
+		useEffect( () => {
+			const handleClickOutside = event => {
+				if ( ! mapRef.current.contains( event.target ) ) {
+					setIsSelected( false );
+				}
+			};
+
+			document.addEventListener( 'mousedown', handleClickOutside );
+			return () => {
+				document.removeEventListener( 'mousedown', handleClickOutside );
+			};
+		}, [ mapRef ] );
 
 		return (
 			<MapkitProvider
@@ -80,11 +106,26 @@ const MapkitComponent = forwardRef(
 						onMapLoaded={ onMapLoaded }
 					/>
 				) : null }
+
+				{ /* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */ }
 				<div
-					style={ { height: mapHeight ? `${ mapHeight }px` : '400px' } }
-					className="wp-block-jetpack-map__gm-container"
+					style={ { height: mapHeight ? `${ mapHeight }px` : '400px', position: 'relative' } }
+					className="wp-block-jetpack-map__mapkit-wrapper"
 					ref={ mapRef }
-				/>
+					onClick={ handleBlockClick }
+				>
+					{ ! isSelected && <div className="wp-block-jetpack-map__select-overlay" /> }
+					{ /* Map container */ }
+					<div
+						className="wp-block-jetpack-map__gm-container"
+						style={ {
+							height: `${ mapHeight }px`,
+							position: 'absolute',
+							pointerEvents: isSelected ? 'auto' : 'none',
+						} }
+					></div>
+				</div>
+
 				{ addPoint }
 				<InfoWindow mapProvider="mapkit" />
 			</MapkitProvider>

@@ -7,8 +7,6 @@
 
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 
-define( 'MU_WPCOM_BLOCK_INSERTER_MODIFICATIONS', true );
-
 /**
  * Enqueue script for the Block Inserter modifications.
  */

@@ -1,19 +1,9 @@
 import { IconTooltip } from '@automattic/jetpack-components';
-import React from 'react';
 import { __ } from '@wordpress/i18n';
-import { recordBoostEvent } from '$lib/utils/analytics';
 import styles from './premium-tooltip.module.scss';
-import { useNavigate } from 'react-router-dom';
+import UpgradeCTA from '$features/upgrade-cta/upgrade-cta';
 
 const PremiumTooltip = () => {
-	const navigate = useNavigate();
-
-	function showBenefits( event: React.MouseEvent< HTMLAnchorElement > ) {
-		event.preventDefault();
-		const eventProps = {};
-		recordBoostEvent( 'upsell_cta_from_settings_page_tooltip_in_plugin', eventProps );
-		navigate( '/upgrade' );
-	}
 	return (
 		<IconTooltip
 			title={ __( 'Manual Critical CSS regeneration', 'jetpack-boost' ) }
@@ -50,12 +40,14 @@ const PremiumTooltip = () => {
 					) }
 				</li>
 			</ul>
-			{ __( 'If you’d like automatic Critical CSS regeneration', 'jetpack-boost' ) }
-			<br />
-			{ /* eslint-disable-next-line jsx-a11y/anchor-is-valid */ }
-			<a href="#" onClick={ showBenefits }>
-				{ __( 'Upgrade now', 'jetpack-boost' ) }
-			</a>
+
+			<div className={ styles[ 'upgrade-cta' ] }>
+				<UpgradeCTA
+					identifier="critical-css-tooltip"
+					description={ __( 'Automatic Critical CSS regeneration', 'jetpack-boost' ) }
+					eventName="upsell_cta_from_settings_page_tooltip_in_plugin"
+				/>
+			</div>
 		</IconTooltip>
 	);
 };

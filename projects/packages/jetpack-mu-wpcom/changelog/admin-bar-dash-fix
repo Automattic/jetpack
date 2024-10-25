@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Superadmin bar: always point to wp-admin even on Default admin interface style

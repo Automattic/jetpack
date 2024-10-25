@@ -515,6 +515,12 @@ class Jetpack_PostImages {
 			if ( stripos( $img_src, '/smilies/' ) ) {
 				continue;
 			}
+
+			// Do not grab Gravatar images.
+			if ( stripos( $img_src, 'gravatar.com' ) ) {
+				continue;
+			}
+
 			// First try to get the width and height from the img attributes, but if they are not set, check to see if they are specified in the url. WordPress automatically names files like foo-1024x768.jpg during the upload process
 			$width  = (int) $image_tag->getAttribute( 'width' );
 			$height = (int) $image_tag->getAttribute( 'height' );

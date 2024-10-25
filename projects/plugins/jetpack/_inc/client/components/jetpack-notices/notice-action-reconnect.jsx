@@ -42,7 +42,7 @@ const NoticeActionReconnect = props => {
 	/**
 	 * Initiate the restore connection process.
 	 *
-	 * @returns {Promise} - The API request promise.
+	 * @return {Promise} - The API request promise.
 	 */
 	const doReconnect = useCallback( () => {
 		props.beforeReconnectSite();

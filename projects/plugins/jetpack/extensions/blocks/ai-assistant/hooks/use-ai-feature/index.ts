@@ -2,11 +2,7 @@
  * External dependencies
  */
 import { useDispatch, useSelect } from '@wordpress/data';
-import {
-	PLAN_TYPE_FREE,
-	PLAN_TYPE_TIERED,
-	usePlanType as getPlanType,
-} from '../../../../shared/use-plan-type';
+import { PLAN_TYPE_FREE, usePlanType as getPlanType } from '../../../../shared/use-plan-type';
 import type { WordPressPlansSelectors } from 'extensions/store/wordpress-com';
 
 export default function useAiFeature() {
@@ -26,10 +22,11 @@ export default function useAiFeature() {
 
 		const planType = getPlanType( currentTier );
 
+		const currentTierLimit = currentTier?.limit || freeRequestsLimit;
+
 		const actualRequestsCount =
-			planType === PLAN_TYPE_TIERED ? usagePeriod?.requestsCount : allTimeRequestsCount;
-		const actualRequestsLimit =
-			planType === PLAN_TYPE_FREE ? freeRequestsLimit : currentTier?.limit;
+			planType === PLAN_TYPE_FREE ? allTimeRequestsCount : usagePeriod?.requestsCount;
+		const actualRequestsLimit = planType === PLAN_TYPE_FREE ? freeRequestsLimit : currentTierLimit;
 
 		return {
 			data: featureData,

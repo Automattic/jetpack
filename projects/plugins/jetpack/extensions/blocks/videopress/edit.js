@@ -427,7 +427,6 @@ const VideoPressEdit = CoreVideoEdit =>
 					// check for wpcom status field, if set
 					if ( status in result && 200 !== result.status ) {
 						onRevert();
-						return;
 					}
 				} )
 				.catch( () => onRevert() )
@@ -568,10 +567,10 @@ const VideoPressEdit = CoreVideoEdit =>
 								help={ this.getPreloadHelp() }
 							/>
 							<MediaUploadCheck>
-								<BaseControl
-									className="editor-video-poster-control"
-									label={ __( 'Poster Image', 'jetpack' ) }
-								>
+								<BaseControl className="editor-video-poster-control">
+									<BaseControl.VisualLabel>
+										{ __( 'Poster Image', 'jetpack' ) }
+									</BaseControl.VisualLabel>
 									<MediaUpload
 										title={ __( 'Select Poster Image', 'jetpack' ) }
 										onSelect={ this.onSelectPoster }
@@ -723,7 +722,7 @@ const VideoPressEdit = CoreVideoEdit =>
 			/**
 			 * Determines if api requests should be made via the `gutenberg-video-upload` script (Jetpack only).
 			 *
-			 * @returns {boolean} if the upload script should be used or not.
+			 * @return {boolean} if the upload script should be used or not.
 			 */
 			const shouldUseJetpackVideoFetch = () => {
 				return 'videoPressUploadPoster' in window;

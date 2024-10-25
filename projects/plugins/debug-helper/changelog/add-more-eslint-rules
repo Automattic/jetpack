@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Actually call `e.preventDefault()` in various 'click' handlers.

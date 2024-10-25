@@ -3,6 +3,7 @@ import { __, _x } from '@wordpress/i18n';
 import React, { useMemo } from 'react';
 import { CONNECTION_SERVICE_THREADS } from '../../social-store';
 import { getSupportedAdditionalConnections } from '../../utils';
+import BlueskyPreview from './bluesky';
 import FacebookPreview from './facebook';
 import GoogleSearch from './google-search';
 import { Instagram } from './instagram';
@@ -16,7 +17,7 @@ import Twitter from './twitter';
 /**
  * Returns the list of available services.
  *
- * @returns {Array<{title: string, icon: React.Component, name: string, preview: React.Component}>} The list of available services.
+ * @return {Array<{title: string, icon: React.Component, name: string, preview: React.Component}>} The list of available services.
  */
 export function useAvailableSerivces() {
 	const additionalConnections = getSupportedAdditionalConnections();
@@ -84,6 +85,12 @@ export function useAvailableSerivces() {
 					icon: props => <SocialServiceIcon serviceName="mastodon" { ...props } />,
 					name: 'mastodon',
 					preview: MastodonPreview,
+				},
+				{
+					title: __( 'Bluesky', 'jetpack' ),
+					icon: props => <SocialServiceIcon serviceName="bluesky" { ...props } />,
+					name: 'bluesky',
+					preview: BlueskyPreview,
 				},
 			].filter( Boolean ),
 		[ isThreadsSupported ]

@@ -69,6 +69,8 @@ the following modules will be enabled no matter the configuration:
 - `Automattic\\Jetpack\\Sync\\Modules\\Stats`
 - `Automattic\\Jetpack\\Sync\\Modules\\Updates`
 
+**Attention**: Sync currently only supports configuring the list of [default Sync modules](https://github.com/Automattic/jetpack/blob/trunk/projects/packages/sync/src/class-modules.php#L25). Any modules that Sync already loads conditionally, such as `WooCommerce` or `Search` are **NOT** configurable.
+
 ##### `jetpack_sync_options_whitelist` / `jetpack_sync_options_contentless`
 
 **Controlled by the Sync Options Module, which is required.**

@@ -15,8 +15,8 @@ import { glob } from 'glob';
  * List secrets.
  *
  * @param {Octokit} octokit - Octokit object.
- * @param {string}  slug - GitHub repo slug.
- * @returns {Promise} Empty
+ * @param {string}  slug    - GitHub repo slug.
+ * @return {Promise} Empty
  */
 async function listSecrets( octokit, slug ) {
 	const [ owner, repo ] = slug.split( '/', 2 );

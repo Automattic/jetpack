@@ -791,7 +791,7 @@ abstract class SAL_Post {
 		// phpcs:disable WordPress.NamingConventions.ValidVariableName
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			$active_blog = get_active_blog_for_user( $user->ID );
-			$site_id     = $active_blog->blog_id;
+			$site_id     = $active_blog->blog_id ?? -1;
 			$profile_URL = "https://gravatar.com/{$user->user_login}";
 		} else {
 			$profile_URL = 'https://gravatar.com/' . md5( strtolower( trim( $user->user_email ) ) );
@@ -1017,11 +1017,9 @@ abstract class SAL_Post {
 					}
 				}
 
-				$response['videopress_guid']            = $info->guid;
+				$response['videopress_guid']            = $info->guid ?? null;
 				$response['videopress_processing_done'] = true;
-				if ( '0000-00-00 00:00:00' === $info->finish_date_gmt ) {
-					$response['videopress_processing_done'] = false;
-				}
+				$response['videopress_processing_done'] = isset( $info->finish_date_gmt ) && '0000-00-00 00:00:00' !== $info->finish_date_gmt ? $info->finish_date_gmt : false;
 			}
 		}
 

@@ -1,8 +1,7 @@
 import { useBlockProps } from '@wordpress/block-editor';
 import { Button, DateTimePicker, Dropdown, Placeholder } from '@wordpress/components';
 import { useInstanceId } from '@wordpress/compose';
-// eslint-disable-next-line wpcalypso/no-unsafe-wp-apis
-import { dateI18n, __experimentalGetSettings } from '@wordpress/date';
+import { dateI18n, __experimentalGetSettings } from '@wordpress/date'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import moment from 'moment';
@@ -13,10 +12,10 @@ const TIMEZONELESS_FORMAT = 'YYYY-MM-DDTHH:mm:ss';
 
 /**
  * Assigns timezone to a date without altering it
- * @param {string} date - a date in YYYY-MM-DDTHH:mm:ss format
+ * @param {string} date   - a date in YYYY-MM-DDTHH:mm:ss format
  * @param {number} offset - the offset in hours
  * @param {string} format - the format of the date
- * @returns {object} a moment instance
+ * @return {object} a moment instance
  */
 function assignTimezone( date, offset, format = TIMEZONELESS_FORMAT ) {
 	// passing the `true` flag to `utcOffset` keeps the date unaltered, only adds a tz

@@ -1,28 +1,61 @@
 import { Button, useBreakpointMatch } from '@automattic/jetpack-components';
 import { Panel, PanelBody } from '@wordpress/components';
-import { useReducer } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { useEffect, useReducer, useRef } from '@wordpress/element';
+import { __, _x } from '@wordpress/i18n';
 import { Icon, chevronDown, chevronUp } from '@wordpress/icons';
 import { ConnectForm } from './connect-form';
 import { ServiceItemDetails, ServicesItemDetailsProps } from './service-item-details';
 import { ServiceStatus } from './service-status';
 import styles from './style.module.scss';
 
-export type ServicesItemProps = ServicesItemDetailsProps;
+export type ServicesItemProps = ServicesItemDetailsProps & {
+	isPanelDefaultOpen?: boolean;
+};
 
 /**
  * Service item component
  *
  * @param {ServicesItemProps} props - Component props
  *
- * @returns {import('react').ReactNode} Service item component
+ * @return {import('react').ReactNode} Service item component
  */
-export function ServiceItem( { service, serviceConnections }: ServicesItemProps ) {
+export function ServiceItem( {
+	service,
+	serviceConnections,
+	isPanelDefaultOpen,
+}: ServicesItemProps ) {
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
 
-	const [ isPanelOpen, togglePanel ] = useReducer( state => ! state, false );
+	const [ isPanelOpen, togglePanel ] = useReducer( state => ! state, isPanelDefaultOpen );
+	const panelRef = useRef< HTMLDivElement >( null );
 
-	const isMastodonPanelOpen = isPanelOpen && service.ID === 'mastodon';
+	useEffect( () => {
+		if ( isPanelDefaultOpen ) {
+			panelRef.current?.scrollIntoView( { block: 'center', behavior: 'smooth' } );
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [] );
+
+	const areCustomInputsVisible = isPanelOpen && service.needsCustomInputs;
+
+	const brokenConnections = serviceConnections.filter( ( { status } ) => status === 'broken' );
+
+	const hasOwnBrokenConnections = brokenConnections.some(
+		( { can_disconnect } ) => can_disconnect
+	);
+
+	const hideInitialConnectForm =
+		// For services with custom inputs, the initial Connect button opens the panel,
+		// so we don't want to show it if the panel is already open
+		areCustomInputsVisible ||
+		// For services with broken connections, we want to show the "Fix connections" button
+		// which opens the panel, so we don't want to show the initial connect form when the panel is already open
+		( hasOwnBrokenConnections && isPanelOpen );
+
+	const buttonLabel =
+		brokenConnections.length > 1
+			? _x( 'Fix connections', 'Fix the social media connections', 'jetpack' )
+			: _x( 'Fix connection', 'Fix social media connection', 'jetpack' );
 
 	return (
 		<div className={ styles[ 'service-item' ] }>
@@ -48,17 +81,19 @@ export function ServiceItem( { service, serviceConnections }: ServicesItemProps 
 					) : null }
 					<ServiceStatus
 						serviceConnections={ serviceConnections }
-						// If the panel is already open, we don't need the click handler
-						onClickBroken={ isPanelOpen ? undefined : togglePanel }
+						brokenConnections={ brokenConnections }
 					/>
 				</div>
 				<div className={ styles.actions }>
-					{ ! isMastodonPanelOpen ? (
+					{ ! hideInitialConnectForm ? (
 						<ConnectForm
 							service={ service }
 							isSmall={ isSmall }
-							onSubmit={ service.needsCustomInputs ? togglePanel : undefined }
+							onSubmit={
+								hasOwnBrokenConnections || service.needsCustomInputs ? togglePanel : undefined
+							}
 							hasConnections={ serviceConnections.length > 0 }
+							buttonLabel={ hasOwnBrokenConnections ? buttonLabel : undefined }
 						/>
 					) : null }
 					<Button
@@ -73,20 +108,23 @@ export function ServiceItem( { service, serviceConnections }: ServicesItemProps 
 				</div>
 			</div>
 
-			<Panel className={ styles[ 'service-panel' ] }>
+			<Panel className={ styles[ 'service-panel' ] } ref={ panelRef }>
 				<PanelBody opened={ isPanelOpen } onToggle={ togglePanel }>
 					<ServiceItemDetails service={ service } serviceConnections={ serviceConnections } />
-
-					{ service.ID === 'mastodon' ? (
-						<div className={ styles[ 'connect-form-wrapper' ] }>
-							<ConnectForm
-								service={ service }
-								displayInputs
-								isSmall={ false }
-								buttonLabel={ __( 'Connect', 'jetpack' ) }
-							/>
-						</div>
-					) : null }
+					{
+						// Connect form for services that need custom inputs
+						// should be shown only if there are no broken connections
+						service.needsCustomInputs && ! hasOwnBrokenConnections ? (
+							<div className={ styles[ 'connect-form-wrapper' ] }>
+								<ConnectForm
+									service={ service }
+									displayInputs
+									isSmall={ false }
+									buttonLabel={ __( 'Connect', 'jetpack' ) }
+								/>
+							</div>
+						) : null
+					}
 				</PanelBody>
 			</Panel>
 		</div>

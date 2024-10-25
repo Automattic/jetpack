@@ -1,4 +1,0 @@
-Significance: patch
-Type: compat
-
-Map block: Changed defaultProp usage to make use of default parameters, for React 19 compatibility.

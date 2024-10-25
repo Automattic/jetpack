@@ -9,7 +9,7 @@
  */
 return [
     // # Issue statistics:
-    // PhanParamTooMany : 2 occurrences
+    // PhanParamTooMany : 3 occurrences
     // PhanNoopNew : 1 occurrence
     // PhanPluginDuplicateConditionalNullCoalescing : 1 occurrence
     // PhanTypeMismatchReturnProbablyReal : 1 occurrence
@@ -19,7 +19,6 @@ return [
         'jetpack-protect.php' => ['PhanNoopNew'],
         'src/class-credentials.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchReturnProbablyReal'],
         'src/class-rest-controller.php' => ['PhanParamTooMany'],
-        'src/class-threats.php' => ['PhanParamTooMany'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
     // (directory_suppressions will currently be ignored by subsequent calls to --save-baseline, but may be preserved in future Phan releases)

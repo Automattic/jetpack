@@ -30,7 +30,6 @@ return [
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        'src/auto-conversion-settings/class-rest-settings-controller.php' => ['PhanPluginMixedKeyNoKey'],
         'src/class-connections-post-field.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'src/class-keyring-helper.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchDefault'],
         'src/class-publicize-base.php' => ['PhanImpossibleCondition', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginSimplifyExpressionBool', 'PhanSuspiciousMagicConstant', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeMismatchDimFetch', 'PhanTypeMismatchReturn'],
@@ -42,7 +41,6 @@ return [
         'src/social-image-generator/class-rest-settings-controller.php' => ['PhanPluginMixedKeyNoKey'],
         'src/social-image-generator/class-settings.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'src/social-image-generator/class-setup.php' => ['PhanTypeMismatchArgumentNullable'],
-        'tests/php/jetpack-social-settings/test-auto-conversion.php' => ['PhanDeprecatedFunction', 'PhanPluginDuplicateConditionalNullCoalescing'],
         'tests/php/jetpack-social-settings/test-jetpack-social-settings.php' => ['PhanDeprecatedFunction'],
         'tests/php/test-connections-post-field.php' => ['PhanDeprecatedFunction', 'PhanTypeMismatchArgument'],
         'tests/php/test-publicize-og-optimization.php' => ['PhanDeprecatedFunction'],

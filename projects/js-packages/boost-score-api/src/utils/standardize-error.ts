@@ -6,7 +6,7 @@ import type { JSONValue } from './json-types';
  *
  * @param {*}               data           - Any thrown error data to interpret as an Error (or subclass)
  * @param {JSONValue|Error} defaultMessage - A default message to throw if no sensible error can be found.
- * @returns {Error} the data guaranteed to be an Error or subclass thereof.
+ * @return {Error} the data guaranteed to be an Error or subclass thereof.
  */
 export function standardizeError( data: JSONValue | Error, defaultMessage?: string ): Error {
 	if ( data instanceof Error ) {

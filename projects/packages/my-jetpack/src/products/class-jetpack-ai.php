@@ -93,6 +93,10 @@ class Jetpack_Ai extends Product {
 	 * @return string[] Slugs of the available tiers
 	 */
 	public static function get_tiers() {
+		if ( ! self::are_tier_plans_enabled() ) {
+			return parent::get_tiers();
+		}
+
 		return array(
 			self::UPGRADED_TIER_SLUG,
 			self::CURRENT_TIER_SLUG,
@@ -105,6 +109,10 @@ class Jetpack_Ai extends Product {
 	 * @return array[] Protect features comparison
 	 */
 	public static function get_features_by_tier() {
+		if ( ! self::are_tier_plans_enabled() ) {
+			return parent::get_features_by_tier();
+		}
+
 		$current_tier        = self::get_current_usage_tier();
 		$current_description = 0 === $current_tier
 			? __( 'Up to 20 requests', 'jetpack-my-jetpack' )
@@ -194,13 +202,15 @@ class Jetpack_Ai extends Product {
 	 */
 	public static function get_next_usage_tier() {
 		if ( ! self::is_site_connected() || ! self::has_paid_plan_for_product() ) {
+			// without site connection we can't know if tiers are enabled or not,
+			// hence we can't know if the next tier is 100 or 1 (unlimited).
 			return 100;
 		}
 
 		$info = self::get_ai_assistant_feature();
 
-		// Bail early if it's not possible to fetch the feature data.
-		if ( is_wp_error( $info ) ) {
+		// Bail early if it's not possible to fetch the feature data or if it's included in a plan.
+		if ( is_wp_error( $info ) || empty( $info ) ) {
 			return null;
 		}
 
@@ -216,7 +226,7 @@ class Jetpack_Ai extends Product {
 	 * @return string
 	 */
 	public static function get_description() {
-		return __( 'The most powerful AI tool for WordPress', 'jetpack-my-jetpack' );
+		return __( 'Enhance your writing and productivity with our AI suite', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -253,14 +263,22 @@ class Jetpack_Ai extends Product {
 	 * @return string
 	 */
 	public static function get_features_by_usage_tier( $tier ) {
+		$is_tier_plan = $tier && intval( $tier ) > 1;
+
+		if ( $tier === 100 && ( ! self::is_site_connected() || ! self::has_paid_plan_for_product() ) ) {
+			// in these cases, get_next_usage_tier() will return 100
+			// 100 is fine as default when tiered plans are enabled, but not otherwise
+			$is_tier_plan = false;
+		}
+
 		$features = array(
-			1 => array(
-				__( 'Artificial intelligence chatbot', 'jetpack-my-jetpack' ),
-				__( 'Generate text, tables, lists, and forms', 'jetpack-my-jetpack' ),
-				__( 'Refine the tone and content to your liking', 'jetpack-my-jetpack' ),
-				__( 'Get feedback about your post', 'jetpack-my-jetpack' ),
-				__( 'Seamless WordPress editor integration', 'jetpack-my-jetpack' ),
-			),
+			__( 'High request capacity *', 'jetpack-my-jetpack' ),
+			__( 'Generate text, tables, lists, and forms', 'jetpack-my-jetpack' ),
+			__( 'Easily refine content to your liking', 'jetpack-my-jetpack' ),
+			__( 'Make your content easier to read', 'jetpack-my-jetpack' ),
+			__( 'Generate images with one-click', 'jetpack-my-jetpack' ),
+			__( 'Optimize your titles for better performance', 'jetpack-my-jetpack' ),
+			__( 'Priority support', 'jetpack-my-jetpack' ),
 		);
 
 		$tiered_features = array(
@@ -274,7 +292,7 @@ class Jetpack_Ai extends Product {
 			sprintf( __( 'Up to %d requests per month', 'jetpack-my-jetpack' ), $tier ),
 		);
 
-		return isset( $features[ $tier ] ) ? $features[ $tier ] : $tiered_features;
+		return $is_tier_plan ? $tiered_features : $features;
 	}
 
 	/**
@@ -305,11 +323,7 @@ class Jetpack_Ai extends Product {
 			return array();
 		}
 
-		// get info about the feature.
-		$info = self::get_ai_assistant_feature();
-
-		// flag to indicate if the tiers are enabled, case the info is available.
-		$tier_plans_enabled = ( ! is_wp_error( $info ) && isset( $info['tier-plans-enabled'] ) ) ? boolval( $info['tier-plans-enabled'] ) : false;
+		$tier_plans_enabled = self::are_tier_plans_enabled();
 
 		/*
 		 * when tiers are enabled and the price tier list is empty,
@@ -360,6 +374,18 @@ class Jetpack_Ai extends Product {
 	 * @return array Pricing details
 	 */
 	public static function get_pricing_for_ui() {
+		// no tiers
+		if ( ! self::are_tier_plans_enabled() ) {
+			return array_merge(
+				array(
+					'available'          => true,
+					'wpcom_product_slug' => static::get_wpcom_product_slug(),
+				),
+				// hardcoding 1 as next tier if tiers are not enabled
+				self::get_pricing_for_ui_by_usage_tier( 1 )
+			);
+		}
+
 		$next_tier              = self::get_next_usage_tier();
 		$current_tier           = self::get_current_usage_tier();
 		$current_call_to_action = $current_tier === 0
@@ -444,8 +470,21 @@ class Jetpack_Ai extends Product {
 	 * @return boolean
 	 */
 	public static function is_upgradable() {
-		$has_ai_feature = static::does_site_have_feature( 'ai-assistant' );
-		$current_tier   = self::get_current_usage_tier();
+		$has_ai_feature     = static::does_site_have_feature( 'ai-assistant' );
+		$tier_plans_enabled = self::are_tier_plans_enabled();
+		$current_tier       = self::get_current_usage_tier();
+
+		if ( $has_ai_feature && ! $tier_plans_enabled && $current_tier >= 1 ) {
+			return false;
+		}
+
+		$next_tier = self::get_next_usage_tier();
+
+		// The check below is debatable, not having the feature should not flag as not upgradable.
+		// If user is free (tier = 0), not unlimited (tier = 1) and has a next tier, then it's upgradable.
+		if ( $current_tier !== null && $current_tier !== 1 && $next_tier ) {
+			return true;
+		}
 
 		// Mark as not upgradable if user is on unlimited tier or does not have any plan.
 		if ( ! $has_ai_feature || null === $current_tier || 1 === $current_tier ) {
@@ -461,7 +500,7 @@ class Jetpack_Ai extends Product {
 	 * @return ?string
 	 */
 	public static function get_post_checkout_url() {
-		return '/wp-admin/admin.php?page=my-jetpack#/jetpack-ai';
+		return 'admin.php?page=my-jetpack#/jetpack-ai';
 	}
 
 	/**
@@ -479,7 +518,7 @@ class Jetpack_Ai extends Product {
 	 * @return ?string
 	 */
 	public static function get_manage_url() {
-		return '/wp-admin/admin.php?page=my-jetpack#/add-jetpack-ai';
+		return '/wp-admin/admin.php?page=my-jetpack#/jetpack-ai';
 	}
 
 	/**
@@ -537,6 +576,25 @@ class Jetpack_Ai extends Product {
 	}
 
 	/**
+	 * Get the AI Assistant tiered plans status
+	 *
+	 * @return boolean
+	 */
+	public static function are_tier_plans_enabled() {
+		$info = self::get_ai_assistant_feature();
+		if ( is_wp_error( $info ) ) {
+			// this is another faulty default value, we'll assume disabled while
+			// production is enabled
+			return false;
+		}
+
+		if ( ! empty( $info ) && isset( $info['tier-plans-enabled'] ) ) {
+			return boolval( $info['tier-plans-enabled'] );
+		}
+		return false;
+	}
+
+	/**
 	 * Checks whether the site is connected to WordPress.com.
 	 *
 	 * @return boolean
@@ -553,7 +611,7 @@ class Jetpack_Ai extends Product {
 	 * @return void
 	 */
 	public static function extend_plugin_action_links() {
-		add_action( 'admin_enqueue_scripts', array( static::class, 'admin_enqueue_scripts' ) );
+		add_action( 'myjetpack_enqueue_scripts', array( static::class, 'admin_enqueue_scripts' ) );
 		add_filter( 'default_content', array( static::class, 'add_ai_block' ), 10, 2 );
 	}
 
@@ -591,9 +649,11 @@ class Jetpack_Ai extends Product {
 	 * @param WP_Post $post The post object.
 	 * @return string
 	 */
-	public static function add_ai_block( $content, WP_Post $post ) {
+	public static function add_ai_block( $content, $post ) {
 		if ( isset( $_GET['use_ai_block'] ) && isset( $_GET['_wpnonce'] )
 			&& wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ), 'ai-assistant-content-nonce' )
+			&& ! empty( $post )
+			&& ! is_wp_error( $post )
 			&& current_user_can( 'edit_post', $post->ID )
 			&& '' === $content
 		) {

@@ -976,13 +976,15 @@ class Jetpack_Widget_Conditions {
 						}
 						break;
 					case 'author':
-						$post = get_post();
 						if ( ! $rule['minor'] && is_author() ) {
 							$condition_result = true;
 						} elseif ( $rule['minor'] && is_author( $rule['minor'] ) ) {
 							$condition_result = true;
-						} elseif ( is_singular() && $rule['minor'] && $rule['minor'] === $post->post_author ) {
-							$condition_result = true;
+						} elseif ( is_singular() && $rule['minor'] ) {
+							$post = get_post();
+							if ( $post && $rule['minor'] === $post->post_author ) {
+								$condition_result = true;
+							}
 						}
 						break;
 					case 'role':

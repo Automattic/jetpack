@@ -10,13 +10,12 @@
 return [
     // # Issue statistics:
     // PhanPluginDuplicateConditionalNullCoalescing : 45+ occurrences
-    // PhanParamTooMany : 6 occurrences
     // PhanTypeMismatchArgument : 5 occurrences
+    // PhanParamTooMany : 4 occurrences
     // PhanTypeMismatchProperty : 2 occurrences
-    // PhanTypeMismatchReturnProbablyReal : 2 occurrences
-    // PhanNoopNew : 1 occurrence
     // PhanPluginSimplifyExpressionBool : 1 occurrence
     // PhanRedundantCondition : 1 occurrence
+    // PhanTypeMismatchReturnProbablyReal : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [

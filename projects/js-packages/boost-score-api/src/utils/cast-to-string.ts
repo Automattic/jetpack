@@ -6,7 +6,7 @@
  * @template DefaultType
  * @param {*}           value        - External value to process as a string
  * @param {DefaultType} defaultValue - Default value to return if not a string
- * @returns {string | DefaultType} value as a string, of defaultValue.
+ * @return {string | DefaultType} value as a string, of defaultValue.
  */
 export function castToString< DefaultType = undefined >(
 	value: unknown,

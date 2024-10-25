@@ -91,7 +91,7 @@ class Stats extends Module_Product {
 	 * @return string
 	 */
 	public static function get_description() {
-		return __( 'Simple, yet powerful analytics', 'jetpack-my-jetpack' );
+		return __( 'The simplest way to track visitor insights and unlock your site’s growth', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -100,7 +100,7 @@ class Stats extends Module_Product {
 	 * @return string
 	 */
 	public static function get_long_description() {
-		return __( 'With Jetpack Stats, you don’t need to be a data scientist to see how your site is performing.', 'jetpack-my-jetpack' );
+		return __( 'With Jetpack Stats, you don’t need to be a data scientist to see how your site is performing, understand your visitors, and grow your site.', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -173,7 +173,7 @@ class Stats extends Module_Product {
 		if ( Products::STATUS_MODULE_DISABLED === $status && ! Initializer::is_registered() ) {
 			// If the site has never been connected before, show the "Learn more" CTA,
 			// that points to the add Stats product interstitial.
-			$status = Products::STATUS_NEEDS_PURCHASE_OR_FREE;
+			$status = Products::STATUS_NEEDS_FIRST_SITE_CONNECTION;
 		}
 		return $status;
 	}

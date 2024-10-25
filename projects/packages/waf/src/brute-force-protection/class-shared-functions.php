@@ -139,20 +139,30 @@ class Brute_Force_Protection_Shared_Functions {
 	 * @return object An IP Address object.
 	 */
 	private static function create_ip_object( $ip_address ) {
-		$range = false;
+		// Hyphenated range notation.
 		if ( strpos( $ip_address, '-' ) ) {
-			$ip_address = explode( '-', $ip_address );
-			$range      = true;
+			$ip_range_parts = explode( '-', $ip_address );
+			return (object) array(
+				'range'      => true,
+				'range_low'  => trim( $ip_range_parts[0] ),
+				'range_high' => trim( $ip_range_parts[1] ),
+			);
 		}
-		$new_item        = new \stdClass();
-		$new_item->range = $range;
-		if ( $range ) {
-			$new_item->range_low  = trim( $ip_address[0] );
-			$new_item->range_high = trim( $ip_address[1] );
-		} else {
-			$new_item->ip_address = $ip_address;
+
+		// CIDR notation.
+		if ( strpos( $ip_address, '/' ) !== false ) {
+			return (object) array(
+				'range'      => true,
+				'range_low'  => $ip_address,
+				'range_high' => null,
+			);
 		}
-		return $new_item;
+
+		// Single IP Address.
+		return (object) array(
+			'range'      => false,
+			'ip_address' => $ip_address,
+		);
 	}
 
 	/**

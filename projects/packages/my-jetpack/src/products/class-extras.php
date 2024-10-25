@@ -81,7 +81,6 @@ class Extras extends Product {
 	 */
 	public static function get_features() {
 		return array(
-			__( 'Measure your impact with beautiful stats', 'jetpack-my-jetpack' ),
 			__( 'Speed up your site with optimized images', 'jetpack-my-jetpack' ),
 			__( 'Protect your site against bot attacks', 'jetpack-my-jetpack' ),
 			__( 'Get notifications if your site goes offline', 'jetpack-my-jetpack' ),

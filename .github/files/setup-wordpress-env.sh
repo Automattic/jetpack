@@ -30,27 +30,11 @@ mysql -e "CREATE DATABASE wordpress_tests;"
 echo "::endgroup::"
 
 echo "::group::Preparing WordPress from \"$WP_BRANCH\" branch";
-case "$WP_BRANCH" in
-	trunk)
-		TAG=trunk
-		;;
-	latest)
-		TAG=$(php ./tools/get-wp-version.php)
-		;;
-	previous)
-		# We hard-code the version here because there's a time near WP releases where
-		# we've dropped the old 'previous' but WP hasn't actually released the new 'latest'
-		TAG=6.4
-		;;
-	*)
-		echo "Unrecognized value for WP_BRANCH: $WP_BRANCH" >&2
-		exit 1
-		;;
-esac
-git clone --depth=1 --branch "$TAG" git://develop.git.wordpress.org/ "/tmp/wordpress-$WP_BRANCH"
+source .github/files/select-wordpress-tag.sh
+git clone --depth=1 --branch "$WORDPRESS_TAG" git://develop.git.wordpress.org/ "/tmp/wordpress-$WP_BRANCH"
 # We need a built version of WordPress to test against, so download that into the src directory instead of what's in wordpress-develop.
 rm -rf "/tmp/wordpress-$WP_BRANCH/src"
-git clone --depth=1 --branch "$TAG" git://core.git.wordpress.org/ "/tmp/wordpress-$WP_BRANCH/src"
+git clone --depth=1 --branch "$WORDPRESS_TAG" git://core.git.wordpress.org/ "/tmp/wordpress-$WP_BRANCH/src"
 echo "::endgroup::"
 
 if [[ -n "$GITHUB_ENV" ]]; then
@@ -122,6 +106,19 @@ for PLUGIN in projects/plugins/*/composer.json; do
 		fi
 	fi
 	cd "$BASE"
+
+	# Upgrade/downgrade WorDBless if necessary.
+	if [[ ( "$WP_BRANCH" == 'trunk' || "$WP_BRANCH" == 'previous' ) && "$TEST_SCRIPT" == "test-php" ]]; then
+		VER=$(composer --format=json --working-dir="$DIR" show | jq -r '.installed[] | select( .name == "roots/wordpress" ) | .version')
+		if [[ -n "$VER" ]]; then
+			INSVER=$WORDPRESS_TAG
+			[[ "$WORDPRESS_TAG" == 'trunk' ]] && INSVER="dev-main as $VER"
+			echo "Supposed to run tests against WordPress $WORDPRESS_TAG, so setting roots/wordpress and roots/wordpress-no-content to \"$INSVER\""
+			# Composer seems to sometimes have issues with deleting the wordpress dir on its own, so do it manually first.
+			rm -rf "$DIR/wordpress"
+			composer --working-dir="$DIR" require --dev roots/wordpress="$INSVER" roots/wordpress-no-content="$INSVER"
+		fi
+	fi
 
 	cp -r "$DIR" "/tmp/wordpress-$WP_BRANCH/src/wp-content/plugins/$NAME"
 	# Plugin dir for tests in WP >= 5.6-beta1

@@ -44,7 +44,6 @@ describe( 'NavigationSettings', () => {
 			monitor: true,
 			vaultpress: true,
 			stats: true,
-			masterbar: true,
 			'google-analytics': true,
 			'seo-tools': true,
 			wordads: true,

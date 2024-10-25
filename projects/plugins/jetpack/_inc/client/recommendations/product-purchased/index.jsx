@@ -44,11 +44,9 @@ const getPurchasedSuggestion = ( {
 
 	if ( isArray( activePurchases ) ) {
 		const matchingProduct = suggestions.find( suggestion => {
-			if (
-				activePurchases.find( activePurchase => suggestion.slug === activePurchase.product_slug )
-			) {
-				return suggestion;
-			}
+			return activePurchases.find(
+				activePurchase => suggestion.slug === activePurchase.product_slug
+			);
 		} );
 
 		if ( matchingProduct ) {

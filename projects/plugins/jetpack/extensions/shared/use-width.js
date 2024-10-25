@@ -1,7 +1,7 @@
 import { useEffect, useRef } from '@wordpress/element';
 
 const usePrevious = value => {
-	const ref = useRef();
+	const ref = useRef( undefined );
 
 	useEffect( () => {
 		ref.current = value;

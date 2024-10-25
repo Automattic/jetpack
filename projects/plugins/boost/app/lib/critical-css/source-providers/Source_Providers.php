@@ -142,6 +142,8 @@ class Source_Providers {
 					continue;
 				}
 
+				$urls = $this->make_absolute_urls( $urls );
+
 				$key = $provider_name . '_' . $group;
 
 				// For each URL
@@ -163,5 +165,30 @@ class Source_Providers {
 		}
 
 		return $sources;
+	}
+
+	/**
+	 * Make URLs absolute.
+	 *
+	 * @param array $urls The list of URLs to make absolute.
+	 *
+	 * @return array
+	 */
+	private function make_absolute_urls( $urls ) {
+		$absolute_urls = array();
+		foreach ( $urls as $url ) {
+			if ( class_exists( '\WP_Http' ) && method_exists( '\WP_Http', 'make_absolute_url' ) ) {
+				$absolute_urls[] = \WP_Http::make_absolute_url( $url, home_url() );
+				continue;
+			}
+
+			if ( stripos( $url, home_url() ) === 0 ) {
+				$absolute_urls[] = $url;
+			} else {
+				$absolute_urls[] = home_url( $url );
+			}
+		}
+
+		return $absolute_urls;
 	}
 }

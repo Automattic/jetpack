@@ -4,6 +4,13 @@ declare module '*.module.scss' {
 	export default classes;
 }
 
+// Add the process declaration
+declare const process: {
+	env: {
+		NODE_ENV: 'development' | 'production' | 'test';
+	};
+};
+
 type AvailableBlockProps =
 	| {
 			available?: boolean;
@@ -99,6 +106,7 @@ interface Window {
 			userid: string;
 			username: string;
 		};
+		siteFragment?: string;
 	};
 	myJetpackInitialState?: {
 		adminUrl?: string;

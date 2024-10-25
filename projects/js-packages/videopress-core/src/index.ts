@@ -6,7 +6,7 @@
  *
  * @param {number} a - First number.
  * @param {number} b - Second number.
- * @returns {number} The sum.
+ * @return {number} The sum.
  */
 export function addition( a: number, b: number ): number {
 	return a + b;

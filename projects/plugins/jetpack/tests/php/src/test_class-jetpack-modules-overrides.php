@@ -43,6 +43,9 @@ class WP_Test_Jetpack_Modules_Overrides extends WP_UnitTestCase {
 	 * @covers Jetpack_Modules_Overrides::do_overrides_exist
 	 */
 	public function test_do_overrides_exist( $filter_name ) {
+		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
+			$this->markTestSkipped( 'is irrelevant because there are already overrides on tested filters in Atomic.' );
+		}
 		$this->assertFalse( $this->instance->do_overrides_exist() );
 
 		add_filter( $filter_name, '__return_true' );
@@ -104,6 +107,12 @@ class WP_Test_Jetpack_Modules_Overrides extends WP_UnitTestCase {
 			'photon'     => 'active',
 			'photon-cdn' => 'active',
 		);
+
+		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
+
+			// Atomic does not override either.
+			$expected = array();
+		}
 		$this->assertSame( $expected, $this->instance->get_overrides() );
 
 		add_filter( $filter_name, array( $this, 'force_inactive_module' ) );
@@ -120,6 +129,10 @@ class WP_Test_Jetpack_Modules_Overrides extends WP_UnitTestCase {
 	 * @covers Jetpack_Modules_Overrides::get_module_override
 	 */
 	public function test_get_module_override( $filter_name ) {
+		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
+			$this->markTestSkipped( 'is unnecessary in Atomic environment.' );
+		}
+
 		$this->assertFalse( $this->instance->get_module_override( 'photon' ) );
 		$this->assertFalse( $this->instance->get_module_override( 'photon-cdn' ) );
 		$this->assertFalse( $this->instance->get_module_override( 'sitemaps' ) );

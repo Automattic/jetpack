@@ -3,10 +3,25 @@ const { domReady } = wp;
 domReady( function () {
 	const overlay = document.querySelector( '.jetpack-subscribe-overlay' );
 	const overlayDismissedCookie = 'jetpack_post_subscribe_overlay_dismissed';
+	const skipUrlParam = 'jetpack_skip_subscription_popup';
 	const hasOverlayDismissedCookie =
 		document.cookie && document.cookie.indexOf( overlayDismissedCookie ) > -1;
 
-	if ( ! overlay || hasOverlayDismissedCookie ) {
+	// Subscriber ended up here e.g. from emails:
+	// we won't show the overlay to them in future since they most likely are already a subscriber.
+	function skipOverlay() {
+		const url = new URL( window.location.href );
+		if ( url.searchParams.has( skipUrlParam ) ) {
+			url.searchParams.delete( skipUrlParam );
+			window.history.replaceState( {}, '', url );
+			setOverlayDismissedCookie();
+			return true;
+		}
+
+		return false;
+	}
+
+	if ( ! overlay || hasOverlayDismissedCookie || skipOverlay() ) {
 		return;
 	}
 
@@ -51,9 +66,7 @@ domReady( function () {
 	}
 
 	function setOverlayDismissedCookie() {
-		// Expires in 7 days
-		const expires = new Date( Date.now() + 7 * 86400 * 1000 ).toUTCString();
-		document.cookie = `${ overlayDismissedCookie }=true; expires=${ expires }; path=/;`;
+		document.cookie = `${ overlayDismissedCookie }=true; path=/;`;
 	}
 
 	openOverlay();

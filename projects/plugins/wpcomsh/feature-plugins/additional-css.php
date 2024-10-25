@@ -14,11 +14,6 @@ function wpcomsh_maybe_disable_custom_css() {
 		return;
 	}
 
-	// Do not execute for older versions of Jetpack.
-	if ( version_compare( JETPACK__VERSION, '9.9-alpha', '<' ) ) {
-		return;
-	}
-
 	if ( wpcom_site_has_feature( WPCOM_Features::CUSTOM_DESIGN ) ) {
 		return;
 	}

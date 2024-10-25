@@ -1,6 +1,6 @@
 import {
 	getColorClassName,
-	__experimentalGetGradientClass as getGradientClass, // eslint-disable-line wpcalypso/no-unsafe-wp-apis
+	__experimentalGetGradientClass as getGradientClass, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	getFontSizeClass,
 } from '@wordpress/block-editor';
 import { RawHTML } from '@wordpress/element';
@@ -19,7 +19,7 @@ export const DEFAULT_FONTSIZE_VALUE = '16px';
  *
  * @see https://codex.wordpress.org/Shortcode_API#Attributes
  * @param {string} value - Value to encode.
- * @returns {string} Encoded value.
+ * @return {string} Encoded value.
  */
 export const encodeValueForShortcodeAttribute = value => {
 	return value

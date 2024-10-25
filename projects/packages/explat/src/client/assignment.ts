@@ -10,11 +10,16 @@ const fetchExperimentAssignment =
 		experimentName: string;
 		anonId: string | null;
 	} ): Promise< unknown > => {
+		if ( ! anonId ) {
+			throw new Error( `Tracking is disabled, can't fetch experimentAssignment` );
+		}
+
 		const params = {
 			experiment_name: experimentName,
 			anon_id: anonId ?? undefined,
 			as_connected_user: asConnectedUser,
 		};
+
 		const assignmentsRequestUrl = addQueryArgs( 'jetpack/v4/explat/assignments', params );
 
 		return await apiFetch( { path: assignmentsRequestUrl } );

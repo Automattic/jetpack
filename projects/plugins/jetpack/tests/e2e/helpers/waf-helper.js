@@ -3,7 +3,7 @@ import logger from 'jetpack-e2e-commons/logger.js';
 
 /**
  * Enable automatic rules
- * @returns {string} wp-cli 'jetpack-waf generate_rules' command output
+ * @return {string} wp-cli 'jetpack-waf generate_rules' command output
  */
 export async function enableAutomaticRules() {
 	logger.sync( 'Enabling automatic firewall rules' );
@@ -14,7 +14,7 @@ export async function enableAutomaticRules() {
 
 /**
  * Generate firewall rules
- * @returns {string} wp-cli command output
+ * @return {string} wp-cli command output
  */
 export async function generateRules() {
 	logger.sync( 'Generating firewall rules' );

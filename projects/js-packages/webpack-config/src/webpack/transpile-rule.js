@@ -5,7 +5,7 @@ const path = require( 'path' );
  * Make the condition to include certain node_modules prefixes.
  *
  * @param {string[]} modules - Module prefixes to include.
- * @returns {Function} Condition function.
+ * @return {Function} Condition function.
  */
 function makeIncludeNodeModulesCondition( modules ) {
 	return file => {

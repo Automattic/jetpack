@@ -1,5 +1,164 @@
 # Changelog
 
+## 5.10.0 - 2024-09-23
+### Added
+- Performance Profiler: Ensure the associated url created when the performance report is generated is accessible for each page or as part of site settings for the home/main url. [#39310]
+
+### Removed
+- Connection: Removed deprecated method features_available. [#39442] [#39475]
+
+### Fixed
+- Portfolios: Ensure these are enabled and working properly on themes that support portfolios. [#39431]
+
+## 5.9.0 - 2024-09-18
+### Changed
+- WPCOMSH: change call to so it doesn't trigger if not necessary [#39336]
+
+### Removed
+- Wpcomsh: Remove actions and filters related to the Masterbar module [#39367]
+
+### Fixed
+- Color Scheme: Avoid wpcom user data overriding the admin color after flushing cache [#39368]
+- WPCOM Features: Add INSTALL_THEMES feature to Jetpack sites so that they are not erroneously seeing the "upgrade" badge when looking at dotorg themes in the wordpress.com showcase [#39392]
+
+## 5.8.0 - 2024-09-10
+### Changed
+- Enable Users -> Profile (profile.php) on all sites [#39181]
+- SSO: Show wp-admin login form if site has local users [#39139]
+- Updated package dependencies. [#39288]
+- Update wc-calypso-bridge dependency to 2.6.0 [#39313]
+
+### Fixed
+- Checks an array key before attempting to read it. [#39240]
+
+## 5.7.0 - 2024-09-02
+### Added
+- WPCOM Marketplace: Added software manager to install marketplace products. [#38705]
+
+## 5.6.2 - 2024-08-30
+### Added
+- Added a switch that will enable rolling trunk releases. [#38994]
+
+## 5.6.1 - 2024-08-26
+### Changed
+- Internal updates.
+
+## 5.6.0 - 2024-08-23
+### Added
+- Added social share status feature [#39023]
+
+### Changed
+- SSO: Automatic logic for Calypso users of classic sites [#38996]
+- Updated package dependencies. [#39004]
+
+## 5.5.0 - 2024-08-21
+### Changed
+- Site Level User Profile: expose all relevant fields on profile.php [#38949]
+
+### Fixed
+- Revert recent SVG image optimizations. [#38981]
+
+## 5.4.1 - 2024-08-19
+### Added
+- Incompatible Plugins: Added one-click-ssl [#38918]
+
+### Changed
+- Updated package dependencies. [#38822]
+
+### Fixed
+- Lossless image optimization for images (should improve performance with no visible changes). [#38750]
+
+## 5.4.0 - 2024-08-13
+### Changed
+- rum data: include WooCommerce active status [#38846]
+
+## 5.3.3 - 2024-08-12
+### Changed
+- Internal updates.
+
+## 5.3.2 - 2024-08-12
+### Changed
+- Internal updates.
+
+## 5.3.1 - 2024-08-09
+### Added
+- Added safeguards against erroneous WordPress hook invocations. [#37859]
+
+## 5.3.0 - 2024-08-08
+### Changed
+- Plan name change: Add translations [#38726]
+- Update translation files [#38736]
+
+### Fixed
+- Update wpcomsh POT file [#38728]
+
+## 5.2.1 - 2024-08-05
+### Changed
+- Internal updates.
+
+## 5.2.0 - 2024-08-05
+### Changed
+- Add target_blog_id prop to AIOWP tracks events [#38615]
+- My Jetpack: modify Jetpack AI product class and interstitial links [#38602]
+- Plan names: Revert plan names to Personal/Premium/Business/Commerce [#38668]
+
+## 5.1.2 - 2024-07-30
+### Changed
+- Fixup versions [#38612]
+
+## 5.1.1 - 2024-07-30
+### Removed
+- Remove the old plugin banner code [#38605]
+
+## 5.1.0 - 2024-07-29
+### Changed
+- Hide the plugin banner on non-wpcom-connected users or agency-managed users [#38532]
+
+## 5.0.3 - 2024-07-26
+### Removed
+- Footer credit: Remove customizer option for block themes [#38559]
+
+## 5.0.2 - 2024-07-26
+### Fixed
+- Fix the "The parent theme is missing" issue [#38557]
+
+## 5.0.1 - 2024-07-25
+### Changed
+- WooCommerce Calypso Bridge version update to 2.5.5 [#38469]
+
+## 5.0.0 - 2024-07-23
+### Added
+- Added new feature for social editor preview. [#38425]
+- Added checks to remove WP.com items and links in WP Admin for users who are not connected to WP.com. [#38401]
+- i18n: Updated language files. [#38447]
+
+### Changed
+- Improve plugin-dance command. [#38423]
+- Updated package dependencies. [#38464]
+- Updated WooCommerce Calypso Brdige version to 2.5.4. [#38451]
+
+### Removed
+- Footer credit: Removed customizer option for block themes. [#38473]
+- Footer credit: Render default credit on block themes. [#38458]
+- Removed checks for Jetpack versions over a year old. [#38386]
+- Removed code for compatibility with WordPress before 6.5. [#38386]
+
+## 4.0.0 - 2024-07-18
+### Removed
+- General: update WordPress version requirements to WordPress 6.5. [#38382]
+- Removed code that disables Jetpack staging mode for WordPress.com staging sites. [#38355]
+
+### Fixed
+- Removed access to WPCom Themes to WP_CLI [#38351]
+
+## 3.28.0 - 2024-07-15
+### Added
+- Added a check to hide the plugins banner for non-wpcom connected users. [#38241]
+- WOA Post Transfer: Ensure that HPOS is enabled for WooCommerce sites. [#38119]
+
+### Changed
+- WooCommerce Calypso Bridge: Update version to 2.5.3 [#38302]
+
 ## 3.27.3 - 2024-07-08
 ### Added
 - Add post transfer woo express deactivate plugins, post process cache flush, and post clone set staging environment [#38183]

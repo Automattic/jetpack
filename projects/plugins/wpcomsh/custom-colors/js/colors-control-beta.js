@@ -1,10 +1,9 @@
-/* jshint maxerr: 10000 */
-( function ( wp, $, _, undef ) {
+/* global wp, _, ColorsTool, _wpCustomizeSettings, Backbone */
+( function ( wp, $, _ ) {
 	// Open closure
 
-	var api, fetchImage;
 	wp = wp || {};
-	api = wp.customize;
+	const api = wp.customize;
 
 	/**
 	 * Our very own customizer handler
@@ -22,9 +21,8 @@
 		backgroundChangeView: {},
 
 		ready: function () {
-			var ct = this,
-				hex,
-				cat;
+			const ct = this;
+			let hex, cat;
 
 			// Some variables
 			ct.tool = $( '#customize-control-colors-tool' );
@@ -61,7 +59,7 @@
 			ct.showHeaderTextColorControl();
 
 			// set up the color grid.
-			ct.color.each( function ( index ) {
+			ct.color.each( function () {
 				cat = $( this ).data( 'role' );
 
 				if ( cat in ct.orig ) {
@@ -90,11 +88,11 @@
 			// Updates the grid back to default colors
 			$( '.revert' ).on( 'click', function () {
 				// pick the colors to restore to.
-				var colors = $( this ).hasClass( 'revert-default' )
+				const colors = $( this ).hasClass( 'revert-default' )
 					? ct.opts.defaultColors
 					: ct.opts.colors;
 
-				ct.color.each( function ( index ) {
+				ct.color.each( function () {
 					cat = $( this ).data( 'role' );
 
 					if ( cat in colors ) {
@@ -142,9 +140,9 @@
 		},
 
 		showHeaderTextColorControl: function () {
-			var ct = this,
+			const ct = this,
 				toggleControl = function () {
-					var headerControl = $( '.customize-control-header-text-color' );
+					const headerControl = $( '.customize-control-header-text-color' );
 
 					if ( ct.status() === 'default' ) {
 						headerControl.show();
@@ -168,7 +166,7 @@
 			} );
 
 			api.bind( 'change', function ( control ) {
-				if ( 'colors_manager[colors]' == control.id ) {
+				if ( 'colors_manager[colors]' === control.id ) {
 					toggleControl();
 
 					// reset regardless of ct.status()
@@ -178,7 +176,7 @@
 		},
 
 		resetHeaderTextColor: function () {
-			var picker = $( '#customize-control-header_textcolor' ).find( 'input.wp-color-picker' ),
+			const picker = $( '#customize-control-header_textcolor' ).find( 'input.wp-color-picker' ),
 				color = picker.wpColorPicker( 'defaultColor' );
 
 			if ( api( 'header_textcolor' ).get() !== 'blank' ) {
@@ -199,9 +197,14 @@
 		},
 
 		overrideCoreBg: function () {
-			var ct = this;
+			const ct = this;
 
-			function bgCallback( to, from ) {
+			/**
+			 * Background setter callback.
+			 *
+			 * @param {string} to - set the background to this.
+			 */
+			function bgCallback( to ) {
 				if ( to ) {
 					ct.grid.find( '.bg' ).css( 'background-image', 'url(' + to + ')' );
 					ct.bgPrompt.find( '.choose-pattern' ).css( 'background-image', 'url(' + to + ')' );
@@ -226,7 +229,7 @@
 		},
 
 		initPatterns: function () {
-			var ct = this;
+			const ct = this;
 			if (
 				! ct.opts.themeSupport.customBackground ||
 				ct.grid.find( '.bg' ).hasClass( 'unavailable' )
@@ -273,12 +276,12 @@
 					}
 
 					if (
-						( ! ct.fetchingPatterns && 0 == ct.patterns.length ) ||
-						ct.patternIndex == ct.patterns.length - 5
+						( ! ct.fetchingPatterns && 0 === ct.patterns.length ) ||
+						ct.patternIndex === ct.patterns.length - 5
 					) {
 						ct.fetchingPatterns = true;
 
-						var query_arguments = {
+						const query_arguments = {
 							action: 'pattern_recommendations',
 							limit: '30',
 							offset: ct.patterns.length,
@@ -300,7 +303,7 @@
 
 								ct.fetchingPatterns = false;
 
-								if ( 0 == ct.patternIndex ) {
+								if ( 0 === ct.patternIndex ) {
 									ct.showPatterns();
 								}
 							},
@@ -313,7 +316,7 @@
 		},
 
 		initPalettes: function () {
-			var ct = this;
+			const ct = this;
 
 			ct.colorPalettes();
 
@@ -353,7 +356,7 @@
 
 								$.merge( ct.palettes, data.palettes );
 								if (
-									0 == ct.paletteIndex ||
+									0 === ct.paletteIndex ||
 									ct.paletteIndex >= ct.palettes.length - data.palettes.length - ct.palettesAtATime
 								) {
 									$( '#more-palettes' ).click();
@@ -379,13 +382,11 @@
 		 * Uses the tonesque library for color sampling
 		 */
 		generatePaletteFromHeader: function () {
-			var ct = this,
-				text,
-				colors,
-				cat,
+			let colors, cat;
+			const ct = this,
 				generatePalette = $( '#generate-palette' ),
 				checkValidImage = function ( value ) {
-					var badValues = [ 'remove-header', 'random-uploaded-image', 'random-default-image' ];
+					const badValues = [ 'remove-header', 'random-uploaded-image', 'random-default-image' ];
 					if ( value && ! _.contains( badValues, value ) ) {
 						ct.opts.headerImage = value;
 						generatePalette.show();
@@ -400,7 +401,7 @@
 
 			// Actions for the "Match header image" button
 			api.bind( 'change', function ( control ) {
-				if ( 'header_image' == control.id ) {
+				if ( 'header_image' === control.id ) {
 					checkValidImage( control._value );
 				}
 			} );
@@ -410,7 +411,7 @@
 			checkValidImage( ct.opts.headerImage );
 
 			// Store button text
-			text = generatePalette.text();
+			const text = generatePalette.text();
 
 			generatePalette.on( 'click', function () {
 				// Don't do this if it's free mode
@@ -428,10 +429,11 @@
 						image: ct.opts.headerImage,
 					},
 					function ( data ) {
-						colors = data[ 'colors' ];
+						colors = data.colors;
 
 						if ( colors ) {
-							ct.color.each( function ( index ) {
+							ct.color.each( function () {
+								let hex;
 								cat = $( this ).data( 'role' );
 
 								if ( cat in colors ) {
@@ -457,10 +459,12 @@
 		},
 
 		/**
-		 * Set up Iris Color Picker
+		 * Set up Iris Color Picker.
+		 *
+		 * @return {object} - iris Color Picker object.
 		 */
 		irisPicker: function () {
-			var ct = this,
+			const ct = this,
 				container = $( '#iris' );
 
 			if ( ! ( 'iris' in container ) ) {
@@ -484,7 +488,7 @@
 				hide: false,
 				width: 260,
 				change: function ( event, ui ) {
-					if ( ct.getColor( ct.activeColor ).toUpperCase() != ui.color.toString().toUpperCase() ) {
+					if ( ct.getColor( ct.activeColor ).toUpperCase() !== ui.color.toString().toUpperCase() ) {
 						ct.setColor( ct.activeColor, ui.color.toString() );
 						ct.grid.trigger( 'color-change', $( ct.activeColor ).data( 'role' ) );
 					}
@@ -493,12 +497,12 @@
 		},
 
 		status: function () {
-			var ct = this;
+			const ct = this;
 
-			for ( var i = 0, _len = ct.color.length; i < _len; i++ ) {
-				var $self = $( ct.color.get( i ) );
+			for ( let i = 0, _len = ct.color.length; i < _len; i++ ) {
+				const $self = $( ct.color.get( i ) );
 
-				if ( ct.getColor( $self ) != ct.opts.defaultColors[ $self.data( 'role' ) ] ) {
+				if ( ct.getColor( $self ) !== ct.opts.defaultColors[ $self.data( 'role' ) ] ) {
 					return 'saved';
 				}
 			}
@@ -506,7 +510,7 @@
 			return 'default';
 		},
 		getColor: function ( el ) {
-			var color = $( el ).data( 'color' );
+			let color = $( el ).data( 'color' );
 
 			if ( typeof color === 'undefined' ) {
 				color = $( el ).text();
@@ -525,13 +529,7 @@
 		 * Color Grid & Picker
 		 */
 		colorPicker: function () {
-			var ct = this,
-				tooltip = $( '#color-tooltip' ),
-				other_colors,
-				selected_color,
-				label,
-				bubble,
-				width;
+			const ct = this;
 
 			// Bind to click event on each color li
 			ct.grid.on( 'click', 'li:not(.text-placeholder)', function () {
@@ -548,7 +546,7 @@
 				}
 
 				ct.picker.hide();
-				var self = $( this );
+				const self = $( this );
 
 				// Check to see if the clicked element was already active
 				if ( $( this ).hasClass( 'selected' ) ) {
@@ -580,7 +578,7 @@
 
 			// Apply a color suggestions to main grid
 			ct.picker.find( '.color-suggestions' ).on( 'click', 'li', function () {
-				var selected = ct.grid.find( '.selected' ),
+				const selected = ct.grid.find( '.selected' ),
 					color = ct.getColor( this );
 
 				ct.setColor( selected.get( 0 ), color );
@@ -604,9 +602,8 @@
 		},
 
 		showColorChangeOptions: function ( activeColor ) {
-			var ct = this,
+			const ct = this,
 				self = $( activeColor ),
-				other_colors = [],
 				selected_color = ct.getColor( self );
 
 			// ct.bgPrompt.hide();
@@ -623,14 +620,14 @@
 			}
 
 			// Display which $cat we are editing
-			label = self.data( 'title' );
+			const label = self.data( 'title' );
 			if ( label !== undefined ) {
 				ct.reference.html( label ).show();
 			} else {
 				ct.reference.hide();
 			}
 
-			var query_arguments = {
+			const query_arguments = {
 				action: 'color_recommendations',
 				color: selected_color,
 				role: self.data( 'role' ),
@@ -638,7 +635,7 @@
 			};
 
 			ct.color.each( function () {
-				if ( ct.getColor( this ) != selected_color ) {
+				if ( ct.getColor( this ) !== selected_color ) {
 					query_arguments[ 'colors[' + $( this ).data( 'role' ) + ']' ] = ct.getColor( this );
 				}
 			} );
@@ -647,10 +644,10 @@
 				'/wp-admin/admin-ajax.php',
 				query_arguments,
 				function ( data ) {
-					var suggestions = $( '.color-suggestions li' ),
-						color;
+					let color;
+					const suggestions = $( '.color-suggestions li' );
 
-					for ( var i = 0, _len = data.colors.length; i < _len; i++ ) {
+					for ( let i = 0, _len = data.colors.length; i < _len; i++ ) {
 						color = '#' + data.colors[ i ];
 						ct.setColor( suggestions.get( i ), color );
 						suggestions.eq( i ).show();
@@ -664,7 +661,7 @@
 
 		showBackgroundColorChangeOptions: function () {
 			if ( this.opts.themeSupport.customBackground ) {
-				if ( 0 == this.patterns.length ) {
+				if ( 0 === this.patterns.length ) {
 					// Populates the patterns for the matching palette
 					$( '#more-patterns' ).click();
 				}
@@ -691,10 +688,10 @@
 		 * Color Palettes
 		 */
 		colorPalettes: function () {
-			var ct = this,
-				palettes = {},
+			let palettes = {},
 				color,
 				role;
+			const ct = this;
 
 			$( '#colourlovers-palettes' ).on( 'click', '.colour-lovers', function () {
 				// Don't apply non-featured palettes for free mode
@@ -713,7 +710,7 @@
 					} );
 
 				// Apply colors to our main grid
-				ct.color.each( function ( index, item ) {
+				ct.color.each( function () {
 					ct.setColor( this, palettes[ $( this ).attr( 'data-role' ) ] );
 				} );
 
@@ -748,10 +745,8 @@
 		 * Drag & Drop for main grid
 		 */
 		dragColor: function () {
-			var ct = this,
-				old,
-				color,
-				toSwap;
+			let old, color, toSwap;
+			const ct = this;
 
 			if ( this.opts.isFreeMode ) {
 				return;
@@ -765,7 +760,7 @@
 					zIndex: 1000,
 					cursor: 'move',
 					// On drag-stop do the color swap
-					stop: function ( event, ui ) {
+					stop: function () {
 						if ( ct.color.hasClass( 'color-swap' ) ) {
 							// Store the original color
 							old = ct.getColor( this );
@@ -790,31 +785,31 @@
 				.droppable( {
 					tolerance: 'pointer',
 					// If you drop a color on top of another, give that color a class
-					drop: function ( event, ui ) {
+					drop: function () {
 						$( this ).addClass( 'color-swap' );
 					},
 				} );
 		},
 		addChangeListener: function () {
-			var ct = this;
+			const ct = this;
 
 			// Binds to color-change
 			ct.grid.on( 'color-change', function ( e, role ) {
 				ct.setting( ct.currentPalette() );
 
 				// Save the background color in the core custom background color setting too.
-				if ( ct.status() == 'default' ) {
+				if ( ct.status() === 'default' ) {
 					api( 'background_color' ).set( '' );
 				} else {
 					api( 'background_color' ).set( ct.getColor( ct.grid.find( '.bg' ) ) );
 				}
 
 				// If the entire palette or background color has changed, reset the background image.
-				if ( ! role || 'bg' == role ) {
-					var backgroundImage = api( 'background_image' ).get();
+				if ( ! role || 'bg' === role ) {
+					const backgroundImage = api( 'background_image' ).get();
 					if (
 						backgroundImage &&
-						( backgroundImage.indexOf( 'colourlovers' ) != -1 ||
+						( backgroundImage.indexOf( 'colourlovers' ) !== -1 ||
 							backgroundImage === ct.opts.defaultImage ||
 							backgroundImage === ct.origBackground )
 					) {
@@ -834,27 +829,27 @@
 			} );
 		},
 		currentPalette: function () {
-			var ct = this,
+			const ct = this,
 				colors = {};
 
-			ct.grid.children().each( function ( i, val ) {
+			ct.grid.children().each( function () {
 				colors[ $( this ).data( 'role' ) ] = ct.getColor( this );
 			} );
 
 			return colors;
 		},
 		showPalettes: function ( paletteIndex ) {
-			var ct = this,
+			const ct = this,
 				palette_container = $( '#colourlovers-palettes' ).html( '' );
 
 			// Construct the color palettes
-			for ( var i = paletteIndex, _len = paletteIndex + 6; i < _len; i++ ) {
-				var new_palette = $( '<ul/>' )
+			for ( let i = paletteIndex, _len = paletteIndex + 6; i < _len; i++ ) {
+				const new_palette = $( '<ul/>' )
 					.addClass( 'color-grid colour-lovers' )
 					.attr( 'title', ct.opts.dragHelp );
 
-				for ( var color_key in ct.palettes[ i ].colors ) {
-					var new_color = $( '<li />' )
+				for ( const color_key in ct.palettes[ i ].colors ) {
+					const new_color = $( '<li />' )
 						.addClass( color_key )
 						.attr( 'data-role', color_key )
 						.text( '#' + ct.palettes[ i ].colors[ color_key ] );
@@ -867,28 +862,27 @@
 				// Check if the palette is theme generated or not
 				// Only show the registered colors if it's less than five
 				if ( ! $.isNumeric( ct.palettes[ i ].id ) ) {
-					var availableColors = new Array(),
-						length;
+					const availableColors = new Array();
 
 					new_palette.addClass( 'featured' );
 
-					for ( var colors in ct.palettes[ i ].colors ) {
+					for ( const colors in ct.palettes[ i ].colors ) {
 						if ( ct.palettes[ i ].colors[ colors ] ) {
 							availableColors.push( ct.palettes[ i ].colors[ colors ] );
 						}
 					}
 
-					length = availableColors.length;
+					const length = availableColors.length;
 
 					// Remove the empty li(s)
 					if ( length < 5 ) {
-						var colorsList = new_palette.find( 'li' );
+						const colorsList = new_palette.find( 'li' );
 
 						// Controls the display of the palettes
 						new_palette.addClass( 'items-' + length );
 
 						colorsList.each( function () {
-							if ( $( this ).text() == '#' ) {
+							if ( $( this ).text() === '#' ) {
 								$( this ).remove();
 							}
 						} );
@@ -907,12 +901,12 @@
 				helper: 'clone',
 				cursor: 'move',
 				cursorAt: { top: 25 / 2, left: 25 / 2 },
-				start: function ( event, ui ) {
+				start: function () {
 					// need to make the droppable areas more tolerant for clones.
 					ct.color.droppable( 'option', 'tolerance', 'touch' );
 				},
-				stop: function ( event, ui ) {
-					var toSwap;
+				stop: function () {
+					let toSwap;
 					if ( ct.color.hasClass( 'color-swap' ) ) {
 						toSwap = ct.grid.find( '.color-swap' );
 						// Change the color
@@ -946,7 +940,7 @@
 				patternIndex = 0;
 			}
 
-			var pageSize = this.patternPageSize,
+			const pageSize = this.patternPageSize,
 				pattern_container = this.patternPicker.find( 'ul' ).html( '' );
 
 			if ( patternIndex >= this.patterns.length ) {
@@ -971,13 +965,13 @@
 			}
 
 			for (
-				var i = patternIndex, _len = Math.min( patternIndex + pageSize, this.patterns.length );
+				let i = patternIndex, _len = Math.min( patternIndex + pageSize, this.patterns.length );
 				i < _len;
 				i++
 			) {
-				var pattern = $( '<li/> ' ).addClass( 'pattern' );
-				var pattern_link = $( '<a/>' ).addClass( 'thumbnail' );
-				var pattern_image = $( '<img/>' )
+				const pattern = $( '<li/> ' ).addClass( 'pattern' );
+				const pattern_link = $( '<a/>' ).addClass( 'thumbnail' );
+				const pattern_image = $( '<img/>' )
 					.attr( 'src', this.patterns[ i ].preview_image_url )
 					.addClass( 'pattern' );
 				pattern_link.data( 'customizeImageValue', pattern_image.attr( 'src' ) );
@@ -1000,7 +994,7 @@
 				$( '#less-patterns' ).hide();
 			}
 
-			if ( this.patterns.length == 0 ) {
+			if ( this.patterns.length === 0 ) {
 				patternIndex = 0;
 			} else {
 				this.patternIndex = patternIndex + pageSize;
@@ -1009,7 +1003,7 @@
 
 		// Displays a notice when you access the paid features
 		buyNotice: function () {
-			var ct = this,
+			const ct = this,
 				container = $( '.accordion-section-colors_manager_tool' );
 
 			// If the element is already present, show it
@@ -1033,8 +1027,8 @@
 	} );
 
 	/* Helper */
-	fetchImage = function ( url ) {
-		var deferred = $.Deferred(),
+	const fetchImage = function ( url ) {
+		const deferred = $.Deferred(),
 			img = new Image();
 		if ( ! url ) {
 			deferred.reject();
@@ -1071,13 +1065,11 @@
 			this.render();
 		},
 		updateImage: function ( control ) {
-			var settings;
-
 			if ( control && control.id.indexOf( 'background' ) !== 0 ) {
 				return;
 			}
 
-			settings = api.get();
+			const settings = api.get();
 			this.currentBgImage = settings.background_image;
 			this.currentBgColor = settings.background_color || this.controller.opts.defaultColors.bg;
 
@@ -1094,7 +1086,7 @@
 			}
 		},
 		updateBgSize: function ( img ) {
-			var ratio = img.width / img.height,
+			const ratio = img.width / img.height,
 				rW = this.rectangle.width(),
 				rH = this.rectangle.height(),
 				isPattern = img.width < rW || img.height < rH;
@@ -1102,14 +1094,14 @@
 			if ( isPattern ) {
 				this.currentBgSize = '50%';
 			} else {
-				var edge = rW / rH,
+				const edge = rW / rH,
 					isLong = ratio > edge;
 
 				this.currentBgSize = isLong ? 'auto 100%' : '100% auto';
 			}
 		},
 		updateRectangleStyle: function () {
-			var settings = api.get();
+			const settings = api.get();
 
 			api.trigger( 'loaded' );
 			this.rectangle.css( {
@@ -1143,8 +1135,8 @@
 			this.showPickerBorder();
 		},
 		toggleOptions: function () {
-			var button = this.$el.find( '.button.background-options' ),
-				v = this.optionsView;
+			let v = this.optionsView;
+			const button = this.$el.find( '.button.background-options' );
 
 			if ( ! v ) {
 				v = this.optionsView = new api.ColorsTool.BackgroundOptionsView( {
@@ -1161,7 +1153,7 @@
 			}
 		},
 		hideOptions: function () {
-			var button = this.$el.find( '.button.background-options' ),
+			const button = this.$el.find( '.button.background-options' ),
 				v = this.optionsView;
 			if ( v ) {
 				button.removeClass( 'pressed' );
@@ -1184,7 +1176,7 @@
 			this.frame.on(
 				'select',
 				function () {
-					var attachment = this.frame.state().get( 'selection' ).first();
+					const attachment = this.frame.state().get( 'selection' ).first();
 					api( 'background_image' ).set( attachment.get( 'url' ) );
 					Backbone.trigger( 'custom-colors:stat', 'colors-background', 'image-chosen' );
 				},
@@ -1199,7 +1191,7 @@
 			this.controller.picker.css( 'border-top-width', this.borderWidth );
 		},
 		hidePickerBorder: function () {
-			var width = this.controller.picker.css( 'border-top-width' );
+			const width = this.controller.picker.css( 'border-top-width' );
 			if ( width !== '0px' ) {
 				this.borderWidth = width;
 			}
@@ -1255,7 +1247,7 @@
 			this.$el.hide();
 		},
 		set: function ( event ) {
-			var input = $( event.currentTarget ),
+			const input = $( event.currentTarget ),
 				name = input.attr( 'name' ),
 				checked = input.is( ':checked' ),
 				value = checked ? input.val() : this._defaults[ name ];
@@ -1267,7 +1259,7 @@
 			this.options.changeView.hideImage();
 		},
 		setupIris: function () {
-			var input = this.$el.find( '#underlying-color' ),
+			const input = this.$el.find( '#underlying-color' ),
 				label = this.$el.find( 'label[for=underlying-color]' ),
 				target = this.$el.find( '.iris-container' ),
 				ct = this.options.changeView.controller;
@@ -1277,7 +1269,7 @@
 				palettes: true,
 				target: target,
 				change: function ( event, ui ) {
-					var color = ui.color.toString(),
+					const color = ui.color.toString(),
 						palette = ct.currentPalette();
 					palette.bg = color;
 					ct.setting( palette );
@@ -1288,7 +1280,7 @@
 				input.iris( 'toggle' );
 			} );
 			api.bind( 'change', function ( control ) {
-				if ( 'background_color' == control.id ) {
+				if ( 'background_color' === control.id ) {
 					label.css( 'background-color', control._value );
 				}
 			} );
@@ -1296,7 +1288,7 @@
 	} );
 
 	Backbone.on( 'custom-colors:stat', function ( bucket, stat ) {
-		var url =
+		const url =
 			document.location.protocol +
 			'//stats.wordpress.com/g.gif?v=wpcom-no-pv&x_' +
 			bucket +
@@ -1309,4 +1301,4 @@
 
 	// let's use it.
 	api.controlConstructor.colorsTool = api.ColorsTool;
-} )( wp, jQuery, _, undefined ); // Close closure. She sells sea shells.
+} )( wp, jQuery, _ ); // Close closure. She sells sea shells.

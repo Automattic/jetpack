@@ -1,0 +1,26 @@
+{
+	"translation-revision-date": "2024-07-04 16:54:06+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=2; plural=n != 1;", "lang": "sv_SE" },
+			"Pick a pre-defined layout or continue with a blank page": [
+				"V\u00e4lj en f\u00f6rdefinierad layout eller forts\u00e4tt med en tom sida"
+			],
+			"Choose a Pattern": [ "V\u00e4lj ett m\u00f6nster" ],
+			"Page categories": [ "Sidkategorier" ],
+			"Blank page": [ "Tom sida" ],
+			"Pick a pre-defined layout or start with a blank page.": [
+				"V\u00e4lj en f\u00f6rdefinierad layout eller b\u00f6rja med en tom sida."
+			],
+			"Add a page": [ "L\u00e4gg till en sida" ],
+			"Layout": [ "Layout" ],
+			"default vertical name\u0004Business": [ "F\u00f6retag" ],
+			"default company name\u0004Your Company Name": [ "Ditt f\u00f6retagsnamn" ],
+			"default phone number\u0004555-555-5555": [ "+1-555-555-5555" ],
+			"default address\u0004123 Main St": [ "Storgatan 123" ]
+		}
+	},
+	"comment": { "reference": "starter-page-templates/dist/starter-page-templates.js" }
+}

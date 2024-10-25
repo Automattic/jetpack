@@ -8,7 +8,7 @@ import type React from 'react';
  * JP Container
  *
  * @param {ContainerProps} props - Component properties.
- * @returns {React.ReactElement}   Container component.
+ * @return {React.ReactElement}   Container component.
  */
 const Container: React.FC< ContainerProps > = ( {
 	children,

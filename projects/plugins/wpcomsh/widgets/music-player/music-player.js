@@ -1,38 +1,39 @@
-(function(win, $, wp) {
-
-	$('#widgets-right').on('click', '.music-player-edit', function( event ) {
-		var shortcode, $shortcode, id, frame, attrs;
+/* global wp */
+( function ( win, $, wp ) {
+	$( '#widgets-right' ).on( 'click', '.music-player-edit', function ( event ) {
+		let shortcode, frame, attrs;
 		event.preventDefault();
-		id = $( this ).data( 'widget_id' );
-		$shortcode = $( '#' + id );
+		const id = $( this ).data( 'widget_id' );
+		const $shortcode = $( '#' + id );
 		shortcode = $shortcode.val();
 
 		if ( ! shortcode ) {
-			frame = wp.media({
-				frame:     'post',
-				state:     'playlist-edit',
-				editing:   false,
-				multiple:  true
-			}).open();
-
+			frame = wp
+				.media( {
+					frame: 'post',
+					state: 'playlist-edit',
+					editing: false,
+					multiple: true,
+				} )
+				.open();
 		} else {
-
 			shortcode = wp.shortcode.next( 'playlist', shortcode );
 
 			if ( ! shortcode ) {
 				if ( window.console ) {
 					window.console.error( 'Playlist shortcode malformed.' );
 				}
-				$shortcode.val('');
+				$shortcode.val( '' );
 
-				frame = wp.media({
-					frame:     'post',
-					state:     'playlist-edit',
-					editing:   false,
-					multiple:  true
-				}).open();
+				frame = wp
+					.media( {
+						frame: 'post',
+						state: 'playlist-edit',
+						editing: false,
+						multiple: true,
+					} )
+					.open();
 			} else {
-
 				shortcode = shortcode.shortcode;
 
 				// Update old .com attributes to the post-3.9 form
@@ -55,10 +56,10 @@
 			}
 		}
 
-		frame.state('playlist-edit').on('update', function(selection) {
-			var shortcode = wp.media.playlist.shortcode( selection ).string();
-			$shortcode.val( shortcode ).change();
+		frame.state( 'playlist-edit' ).on( 'update', function ( selection ) {
+			const shortcodeString = wp.media.playlist.shortcode( selection ).string();
+			$shortcode.val( shortcodeString ).change();
 			frame.detach();
-		});
-	});
-})(window, jQuery, wp);
+		} );
+	} );
+} )( window, jQuery, wp );

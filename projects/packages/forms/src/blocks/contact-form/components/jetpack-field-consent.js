@@ -1,4 +1,4 @@
-import { InspectorControls, PanelColorSettings } from '@wordpress/block-editor';
+import { InspectorControls, PanelColorSettings, useBlockProps } from '@wordpress/block-editor';
 import { BaseControl, PanelBody, SelectControl, ToggleControl } from '@wordpress/components';
 import { compose, withInstanceId } from '@wordpress/compose';
 import { __, sprintf } from '@wordpress/i18n';
@@ -16,11 +16,13 @@ const JetpackFieldConsent = ( {
 	setAttributes,
 	attributes,
 } ) => {
+	const blockProps = useBlockProps( {
+		id: `jetpack-field-consent-${ instanceId }`,
+		className: 'jetpack-field jetpack-field-consent',
+	} );
+
 	return (
-		<div
-			id={ `jetpack-field-consent-${ instanceId }` }
-			className="jetpack-field jetpack-field-consent"
-		>
+		<div { ...blockProps }>
 			{ consentType === 'explicit' && (
 				<input className="jetpack-field-consent__checkbox" type="checkbox" disabled />
 			) }

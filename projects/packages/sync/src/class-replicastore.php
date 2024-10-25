@@ -1175,7 +1175,6 @@ class Replicastore implements Replicastore_Interface {
 
 	/**
 	 * Retrieve all the checksums we are interested in.
-	 * Currently that is posts, comments, post meta and comment meta.
 	 *
 	 * @access public
 	 *
@@ -1237,6 +1236,29 @@ class Replicastore implements Replicastore_Interface {
 				$result['woocommerce_order_itemmeta'] = $this->summarize_checksum_histogram( $woocommerce_order_itemmeta_checksum );
 			} catch ( Exception $ex ) {
 				$result['woocommerce_order_itemmeta'] = null;
+			}
+
+			if ( Table_Checksum::enable_woocommerce_hpos_tables() ) {
+				try {
+					$woocommerce_hpos_orders_checksum = $this->checksum_histogram( 'wc_orders' );
+					$result['wc_orders']              = $this->summarize_checksum_histogram( $woocommerce_hpos_orders_checksum );
+				} catch ( Exception $ex ) {
+					$result['wc_orders'] = null;
+				}
+
+				try {
+					$woocommerce_hpos_order_addresses_checksum = $this->checksum_histogram( 'wc_order_addresses' );
+					$result['wc_order_addresses']              = $this->summarize_checksum_histogram( $woocommerce_hpos_order_addresses_checksum );
+				} catch ( Exception $ex ) {
+					$result['wc_order_addresses'] = null;
+				}
+
+				try {
+					$woocommerce_hpos_order_operational_data_checksum = $this->checksum_histogram( 'wc_order_operational_data' );
+					$result['wc_order_operational_data']              = $this->summarize_checksum_histogram( $woocommerce_hpos_order_operational_data_checksum );
+				} catch ( Exception $ex ) {
+					$result['wc_order_operational_data'] = null;
+				}
 			}
 		}
 

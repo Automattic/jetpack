@@ -7,7 +7,7 @@ import { Period } from '.';
  * Custom tooltips plugin for uPlot.
  *
  * @param {Period[]} periods - The periods to display in the tooltip.
- * @returns {object} The uPlot plugin object with hooks.
+ * @return {object} The uPlot plugin object with hooks.
  */
 export function tooltipsPlugin( periods ) {
 	const reactRoot = document.createElement( 'div' );
@@ -17,13 +17,14 @@ export function tooltipsPlugin( periods ) {
 	/**
 	 * Initializes the tooltips plugin.
 	 *
-	 * @param {uPlot} u - The uPlot instance.
+	 * @param {uPlot}  u     - The uPlot instance.
 	 * @param {object} _opts - Options for the uPlot instance.
 	 */
 	function init( u: uPlot, _opts: object ) {
 		container.classList.add( 'jb-score-tooltips-container' );
-
-		reactDom = ReactDOM.createRoot( reactRoot );
+		if ( ! reactDom ) {
+			reactDom = ReactDOM.createRoot( reactRoot );
+		}
 		reactRoot.style.position = 'absolute';
 		reactRoot.style.bottom = -20 + 'px';
 		reactRoot.style.translate = '-50% calc( 100% - 20px )';

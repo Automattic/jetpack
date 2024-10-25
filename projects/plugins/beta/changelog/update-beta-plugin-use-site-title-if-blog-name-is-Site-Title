@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Use site url in email subject if the site title exists and is equale to "Site Title"

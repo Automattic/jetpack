@@ -57,7 +57,7 @@ const TABS = [
 ];
 
 const Inbox = () => {
-	const stickySentinel = useRef();
+	const stickySentinel = useRef( undefined );
 	const [ responseAnimationDirection, setResponseAnimationDirection ] = useState( 1 );
 	const [ showExportModal, setShowExportModal ] = useState( false );
 	const [ isSticky, setSticky ] = useState( false );

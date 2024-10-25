@@ -8,8 +8,8 @@ import { IconsCardProps } from './types';
  * Icons composition for a bundle product,
  * based on the list of supported products.
  *
- * @param {IconsCardProps} props         - Component props.
- * @returns {React.ReactNode}      Bundle product icons react component.
+ * @param {IconsCardProps} props - Component props.
+ * @return {React.ReactNode}      Bundle product icons react component.
  */
 export const IconsCard: React.FC< IconsCardProps > = ( { products, icon, size = 24 } ) => {
 	if ( icon ) {

@@ -27,3 +27,18 @@
 	bottom: 0;
 	fill: #8c8f94;
 }
+
+.upgrade-cta {
+	p {
+		display: block;
+	}
+
+	:global(button) {
+		margin-top: 0;
+		margin-bottom: 0;
+	}
+
+	:global(svg) {
+		position: relative;
+	}
+}

@@ -134,7 +134,9 @@ class Jetpack_Google_Font_Face {
 	 * @param string $font_slug The font slug.
 	 */
 	public function add_font( $font_slug ) {
-		$this->fonts_in_use[] = $this->format_font( $font_slug );
+		if ( is_string( $font_slug ) ) {
+			$this->fonts_in_use[] = $this->format_font( $font_slug );
+		}
 	}
 
 	/**

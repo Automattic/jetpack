@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.3] - 2024-09-05
+### Changed
+- Update dependencies.
+
+## [0.4.2] - 2024-08-26
+### Changed
+- Updated package dependencies. [#39004]
+
+## [0.4.1] - 2024-08-15
+### Fixed
+- Fix incorrect next-version tokens in php `@since` and/or `@deprecated` docs. [#38869]
+
 ## [0.4.0] - 2024-05-20
 ### Deprecated
 - Extract the 'is_current_request_activating_plugin_from_plugins_screen' method into Status package. [#37430]
@@ -86,6 +98,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fix method logic
 
+[0.4.3]: https://github.com/Automattic/jetpack-plugins-installer/compare/v0.4.2...v0.4.3
+[0.4.2]: https://github.com/Automattic/jetpack-plugins-installer/compare/v0.4.1...v0.4.2
+[0.4.1]: https://github.com/Automattic/jetpack-plugins-installer/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/Automattic/jetpack-plugins-installer/compare/v0.3.5...v0.4.0
 [0.3.5]: https://github.com/Automattic/jetpack-plugins-installer/compare/v0.3.4...v0.3.5
 [0.3.4]: https://github.com/Automattic/jetpack-plugins-installer/compare/v0.3.3...v0.3.4

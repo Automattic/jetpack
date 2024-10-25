@@ -28,7 +28,6 @@
 		"automattic/jetpack-device-detection": "@dev",
 		"automattic/jetpack-error": "@dev",
 		"automattic/jetpack-forms": "@dev",
-		"automattic/jetpack-google-analytics": "@dev",
 		"automattic/jetpack-image-cdn": "@dev",
 		"automattic/jetpack-import": "@dev",
 		"automattic/jetpack-ip": "@dev",
@@ -58,7 +57,7 @@
 		"automattic/jetpack-changelogger": "@dev",
 		"automattic/patchwork-redefine-exit": "@dev",
 		"johnkary/phpunit-speedtrap": "^4.0.0 || ^2.0.0",
-		"yoast/phpunit-polyfills": "1.1.0"
+		"yoast/phpunit-polyfills": "^1.1.1"
 	},
 	"scripts": {
 		"build-production": [
@@ -103,7 +102,7 @@
 		"platform": {
 			"ext-intl": "0.0.0"
 		},
-		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ13_7_a_2",
+		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ14_0_a_7",
 		"allow-plugins": {
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true

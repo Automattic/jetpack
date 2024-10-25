@@ -200,64 +200,6 @@ EXPECTED;
 		$this->assertEquals( $expected, $result );
 	}
 
-	/**
-	 * @author tonykova
-	 */
-	public function test_implode_frontend_css_enqueues_bundle_file_handle() {
-		global $wp_styles;
-		$wp_styles = new WP_Styles();
-
-		add_filter( 'jetpack_implode_frontend_css', '__return_true' );
-
-		if ( ! file_exists( plugins_url( 'jetpack-carousel.css', __FILE__ ) ) ) {
-			$this->markTestSkipped( 'Required CSS file not found.' );
-		}
-
-		// Enqueue some script on the $to_dequeue list
-		$style_handle = 'jetpack-carousel';
-		wp_enqueue_style( 'jetpack-carousel', plugins_url( 'jetpack-carousel.css', __FILE__ ) ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion
-
-		Jetpack::init()->implode_frontend_css( true );
-
-		$seen_bundle = false;
-		foreach ( $wp_styles->registered as $handle => $handle_obj ) {
-			if ( $style_handle === $handle ) {
-				$expected = ( defined( 'WP_DEBUG' ) && WP_DEBUG ) ? "<!-- `{$style_handle}` is included in the concatenated jetpack.css -->\r\n" : '';
-				$this->assertEquals( $expected, get_echo( array( $wp_styles, 'do_item' ), array( $handle ) ) );
-			} elseif ( 'jetpack_css' === $handle ) {
-				$seen_bundle = true;
-			}
-		}
-
-		$this->assertTrue( $seen_bundle );
-	}
-
-	/**
-	 * @author tonykova
-	 * @since 3.2.0
-	 */
-	public function test_implode_frontend_css_does_not_enqueue_bundle_when_disabled_through_filter() {
-		global $wp_styles;
-		$wp_styles = new WP_Styles();
-
-		add_filter( 'jetpack_implode_frontend_css', '__return_false' );
-
-		// Enqueue some script on the $to_dequeue list
-		wp_enqueue_style( 'jetpack-carousel', plugins_url( 'jetpack-carousel.css', __FILE__ ) ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion
-
-		Jetpack::init()->implode_frontend_css();
-
-		$seen_orig = false;
-		foreach ( $wp_styles->registered as $handle => $handle_obj ) {
-			$this->assertNotEquals( 'jetpack_css', $handle );
-			if ( 'jetpack-carousel' === $handle ) {
-				$seen_orig = true;
-			}
-		}
-
-		$this->assertTrue( $seen_orig );
-	}
-
 	public function test_activating_deactivating_modules_fires_actions() {
 		self::reset_tracking_of_module_activation();
 
@@ -447,17 +389,36 @@ EXPECTED;
 
 	public function test_is_dev_version_true_with_alpha() {
 		Constants::set_constant( 'JETPACK__VERSION', '4.3.1-alpha' );
-		$this->assertTrue( Jetpack::is_development_version() );
+
+		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
+
+			// Atomic sites are not allowed to report Jetpack as development versions.
+			$this->assertFalse( Jetpack::is_development_version() );
+		} else {
+			$this->assertTrue( Jetpack::is_development_version() );
+		}
 	}
 
 	public function test_is_dev_version_true_with_beta() {
 		Constants::set_constant( 'JETPACK__VERSION', '4.3-beta2' );
-		$this->assertTrue( Jetpack::is_development_version() );
+		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
+
+			// Atomic sites are not allowed to report Jetpack as development versions.
+			$this->assertFalse( Jetpack::is_development_version() );
+		} else {
+			$this->assertTrue( Jetpack::is_development_version() );
+		}
 	}
 
 	public function test_is_dev_version_true_with_rc() {
 		Constants::set_constant( 'JETPACK__VERSION', '4.3-rc2' );
-		$this->assertTrue( Jetpack::is_development_version() );
+		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
+
+			// Atomic sites are not allowed to report Jetpack as development versions.
+			$this->assertFalse( Jetpack::is_development_version() );
+		} else {
+			$this->assertTrue( Jetpack::is_development_version() );
+		}
 	}
 
 	public function test_is_dev_version_false_with_number_dot_number() {

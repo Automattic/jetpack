@@ -108,6 +108,7 @@ class WPCOM_REST_API_V2_Endpoint_Publicize_Share_Post extends WP_REST_Controller
 		$post_id             = $request->get_param( 'postId' );
 		$message             = trim( $request->get_param( 'message' ) );
 		$skip_connection_ids = $request->get_param( 'skipped_connections' );
+		$async               = (bool) $request->get_param( 'async' );
 
 		if ( $this->is_wpcom ) {
 			$post = get_post( $post_id );
@@ -120,14 +121,14 @@ class WPCOM_REST_API_V2_Endpoint_Publicize_Share_Post extends WP_REST_Controller
 			}
 
 			$publicize = publicize_init();
-			$result    = $publicize->republicize_post( (int) $post_id, $message, $skip_connection_ids, true );
+			$result    = $publicize->republicize_post( (int) $post_id, $message, $skip_connection_ids, true, ! $async );
 			if ( false === $result ) {
 				return new WP_Error( 'not_found', 'Cannot find that post', array( 'status' => 404 ) );
 			}
 
 			return $result;
 		} else {
-			$response = $this->proxy_request( $post_id, $message, $skip_connection_ids );
+			$response = $this->proxy_request( $post_id, $message, $skip_connection_ids, $async );
 			if ( is_wp_error( $response ) ) {
 				return rest_ensure_response( $response );
 			}
@@ -142,10 +143,11 @@ class WPCOM_REST_API_V2_Endpoint_Publicize_Share_Post extends WP_REST_Controller
 	 * @param int    $post_id             The post ID being shared.
 	 * @param string $message             The custom message to be used.
 	 * @param array  $skip_connection_ids An array of connection IDs where the post shouldn't be shared.
+	 * @param bool   $async               Whether to share the post asynchronously.
 	 *
 	 * @return array|WP_Error $response Response data, else WP_Error on failure.
 	 */
-	public function proxy_request( $post_id, $message, $skip_connection_ids ) {
+	public function proxy_request( $post_id, $message, $skip_connection_ids, $async = false ) {
 		/*
 		 * Publicize endpoint on WPCOM:
 		 * [POST] wpcom/v2/sites/{$siteId}/posts/{$postId}/publicize
@@ -168,6 +170,7 @@ class WPCOM_REST_API_V2_Endpoint_Publicize_Share_Post extends WP_REST_Controller
 			array(
 				'message'             => $message,
 				'skipped_connections' => $skip_connection_ids,
+				'async'               => $async,
 			)
 		);
 	}

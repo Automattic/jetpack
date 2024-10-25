@@ -199,6 +199,10 @@ class Webhooks {
 			wp_safe_redirect( $redirect );
 			$this->do_exit();
 		} else {
+			if ( 'connect-after-checkout' === $from && $redirect ) {
+				wp_safe_redirect( $redirect );
+				$this->do_exit();
+			}
 			$connect_url = add_query_arg(
 				array(
 					'from'               => $from,

@@ -16,8 +16,8 @@ class CommentsComponent extends React.Component {
 	 * If markdown module is inactive and this is toggling markdown for comments on, activate module.
 	 * If markdown for posts is off and this is toggling markdown for comments off, deactivate module.
 	 *
-	 * @param {string} module	- the module slug.
-	 * @returns {*}             the updated value
+	 * @param {string} module - the module slug.
+	 * @return {*}             the updated value
 	 */
 	updateFormStateByMarkdown = module => {
 		if ( this.props.getSettingCurrentValue( 'wpcom_publish_posts_with_markdown', module ) ) {

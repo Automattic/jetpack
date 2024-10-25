@@ -17,5 +17,8 @@ return make_phan_config(
 		'exclude_file_regex' => array(
 			'tests/php/tmp/',
 		),
+		'exclude_file_list'  => array(
+			'vendor/composer/ClassLoader.php',
+		),
 	)
 );

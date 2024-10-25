@@ -11,7 +11,7 @@ export type GlobalNoticesProps = {
  *
  * @param {GlobalNoticesProps} props - Component props.
  *
- * @returns {import('react').ReactNode} The rendered notices list.
+ * @return {import('react').ReactNode} The rendered notices list.
  */
 export function GlobalNotices( { maxVisibleNotices = 3 }: GlobalNoticesProps ) {
 	const { getNotices, removeNotice } = useGlobalNotices();

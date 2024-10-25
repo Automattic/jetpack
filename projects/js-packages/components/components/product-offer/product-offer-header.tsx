@@ -9,7 +9,7 @@ import type React from 'react';
  * Product Detail Card Header component.
  *
  * @param {ProductOfferHeaderProps} props - Component props.
- * @returns {React.ReactNode}  ProductOfferHeader react component.
+ * @return {React.ReactNode}  ProductOfferHeader react component.
  */
 export const ProductOfferHeader: React.FC< ProductOfferHeaderProps > = ( {
 	title = __( 'Popular upgrade', 'jetpack' ),

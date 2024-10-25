@@ -9,7 +9,7 @@
 		"automattic/custom-fonts": "^3.0",
 		"automattic/custom-fonts-typekit": "^2.0",
 		"automattic/text-media-widget-styles": "^2.0",
-		"automattic/wc-calypso-bridge": "2.5.3",
+		"automattic/wc-calypso-bridge": "2.8.0",
 		"wordpress/classic-editor-plugin": "1.5",
 		"automattic/jetpack-config": "@dev",
 		"automattic/jetpack-post-list": "@dev",
@@ -20,13 +20,11 @@
 		"automattic/jetpack-changelogger": "@dev",
 		"automattic/wordbless": "0.4.2",
 		"dealerdirect/phpcodesniffer-composer-installer": "^1.0",
-		"phpunit/phpunit": "^9",
-		"yoast/phpunit-polyfills": "1.1.0",
+		"yoast/phpunit-polyfills": "^1.1.1",
 		"wp-coding-standards/wpcs": "^3.0"
 	},
 	"autoload": {
 		"classmap": [
-			"block-theme-footer-credits",
 			"customizer-fixes",
 			"custom-colors",
 			"endpoints",
@@ -50,7 +48,6 @@
 			"widgets",
 			"wpcom-features",
 			"wpcom-migration-helpers",
-			"wpcom-plugins",
 			"wpcom-themes"
 		]
 	},
@@ -130,21 +127,23 @@
 			"composer/installers": true,
 			"roots/wordpress-core-installer": true
 		},
-		"autoloader-suffix": "26841ac2064774301cbe06d174833bfc_wpcomshⓥ3_28_0_alpha"
+		"autoloader-suffix": "26841ac2064774301cbe06d174833bfc_wpcomshⓥ5_10_0"
 	},
 	"extra": {
 		"mirror-repo": "Automattic/wpcom-site-helper",
-		"autorelease": true,
+		"autorelease": {
+			"rolling-release": true,
+			"titlefmt": "wpcomsh %s"
+		},
 		"autotagger": true,
 		"beta-plugin-slug": "wpcomsh",
-		"release-branch-prefix": [
-			"wpcomsh",
-			"weekly"
-		],
-		"installer-disable": true,
 		"changelogger": {
 			"versioning": "semver"
 		},
+		"installer-disable": true,
+		"release-branch-prefix": [
+			"wpcomsh"
+		],
 		"version-constants": {
 			"WPCOMSH_VERSION": "wpcomsh.php"
 		}

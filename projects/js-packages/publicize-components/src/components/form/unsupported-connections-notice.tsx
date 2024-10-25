@@ -3,13 +3,13 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { usePublicizeConfig } from '../../..';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
+import { checkConnectionCode } from '../../utils/connections';
 import Notice from '../notice';
-import { checkConnectionCode } from './utils';
 
 export const UnsupportedConnectionsNotice: React.FC = () => {
 	const { connections } = useSocialMediaConnections();
 
-	const { connectionsAdminUrl } = usePublicizeConfig();
+	const { connectionsPageUrl } = usePublicizeConfig();
 
 	const unsupportedConnections = connections.filter( connection =>
 		checkConnectionCode( connection, 'unsupported' )
@@ -24,7 +24,7 @@ export const UnsupportedConnectionsNotice: React.FC = () => {
 						'jetpack'
 					),
 					{
-						moreInfo: <ExternalLink href={ connectionsAdminUrl } />,
+						moreInfo: <ExternalLink href={ connectionsPageUrl } />,
 					}
 				) }
 			</Notice>

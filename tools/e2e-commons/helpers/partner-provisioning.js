@@ -11,7 +11,7 @@ import { execSyncShellCommand, execWpCommand, resolveSiteUrl } from './utils-hel
  * @param {number} userId - WPCOM user ID
  * @param {string} plan   - One of free, personal, premium, or professional.
  * @param {string} user   - Local user name, id, or e-mail
- * @returns {string} authentication URL
+ * @return {string} authentication URL
  */
 export async function provisionJetpackStartConnection( userId, plan = 'free', user = 'wordpress' ) {
 	logger.info( `Provisioning Jetpack start connection [userId: ${ userId }, plan: ${ plan }]` );

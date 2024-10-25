@@ -1,10 +1,9 @@
-/* eslint-disable wpcalypso/no-unsafe-wp-apis */
 import { useGlobalNotices } from '@automattic/jetpack-components';
 import {
 	PanelBody,
 	ToggleControl,
 	Button,
-	__experimentalHStack as HStack,
+	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
 import { useCallback, useState, Fragment } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';

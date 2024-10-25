@@ -1,6 +1,5 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
-use Automattic\Jetpack\Google_Analytics\GA_Manager;
 
 new WPCOM_JSON_API_Site_Settings_V1_3_Endpoint(
 	array(
@@ -136,54 +135,5 @@ class WPCOM_JSON_API_Site_Settings_V1_3_Endpoint extends WPCOM_JSON_API_Site_Set
 			'ec_track_purchases'   => false,
 			'ec_track_add_to_cart' => false,
 		);
-	}
-
-	/**
-	 * Filter the parent's response to include the fields
-	 * added to 1.3 (and their defaults)
-	 *
-	 * @deprecated 13.6
-	 *
-	 * @param array $settings - the settings array.
-	 *
-	 * @return array
-	 */
-	public function filter_site_settings_endpoint_get( $settings ) {
-		if ( class_exists( GA_Manager::class ) ) {
-			$option_name = GA_Manager::get_instance()->get_google_analytics_option_name();
-		} else {
-			// @phan-suppress-next-line PhanDeprecatedFunction
-			$option_name = $this->get_google_analytics_option_name();
-		}
-
-		$option          = get_option( $option_name, array() );
-		$settings['wga'] = wp_parse_args( $option, $this->get_defaults() );
-		return $settings;
-	}
-
-	/**
-	 * Filter the parent's response to consume our new fields
-	 *
-	 * @param array $wga - Array of existing Google Analytics settings.
-	 * @param array $new_values - the new values we're adding.
-	 *
-	 * @deprecated 13.6
-	 *
-	 * @return array
-	 */
-	public function filter_update_google_analytics( $wga, $new_values ) {
-		$wga_keys = array_keys( $this->get_defaults() );
-		foreach ( $wga_keys as $wga_key ) {
-			// Skip code since the parent class has handled it
-			if ( 'code' === $wga_key ) {
-				continue;
-			}
-			// All our new keys are booleans, so let's coerce each key's value
-			// before updating the value in settings
-			if ( array_key_exists( $wga_key, $new_values ) ) {
-				$wga[ $wga_key ] = WPCOM_JSON_API::is_truthy( $new_values[ $wga_key ] );
-			}
-		}
-		return $wga;
 	}
 }

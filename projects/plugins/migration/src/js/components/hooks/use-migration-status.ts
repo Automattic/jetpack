@@ -4,15 +4,15 @@ import { ErrorResponse, MigrationStatus } from '../migration/types';
 /**
  * Get migration status
  *
- * @param {object} restApi - Configured restApi
+ * @param {object}                       restApi                      - Configured restApi
  * @param {restApi.fetchMigrationStatus} restApi.fetchMigrationStatus - Fetch status method
- * @returns {MigrationStatus} - MigrationStatus object
+ * @return {MigrationStatus} - MigrationStatus object
  */
 export function useMigrationstatus( restApi: {
 	fetchMigrationStatus: () => Promise< MigrationStatus >;
 } ): MigrationStatus {
 	const FETCH_INTERVAL = 3000;
-	const activeIntervalId = useRef();
+	const activeIntervalId = useRef( undefined );
 	const [ migrationStatus, setMigrationStatus ] = useState();
 
 	const clearActiveInterval = () => {

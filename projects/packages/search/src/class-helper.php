@@ -891,7 +891,7 @@ class Helper {
 			 *
 			 * @module search
 			 *
-			 * @since $next-version$
+			 * @since 0.41.0
 			 *
 			 * @param bool Prevent cookie reset for automattic sites as default value.
 			 */

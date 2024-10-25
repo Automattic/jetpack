@@ -2,6 +2,84 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## [0.35.14] - 2024-10-15
+### Changed
+- Update dependencies.
+
+## [0.35.13] - 2024-10-14
+### Changed
+- Internal updates.
+
+## [0.35.12] - 2024-10-10
+### Changed
+- Updated package dependencies.
+
+## [0.35.11] - 2024-10-07
+### Changed
+- Updated package dependencies. [#39594]
+
+## [0.35.10] - 2024-09-30
+### Changed
+- Fetch adminUrl current value on function run [#39578]
+
+## [0.35.9] - 2024-09-25
+### Changed
+- Update dependencies.
+
+## [0.35.8] - 2024-09-16
+### Changed
+- Updated package dependencies. [#39332]
+
+## [0.35.7] - 2024-09-10
+### Changed
+- Updated package dependencies. [#39302]
+
+## [0.35.6] - 2024-09-09
+### Changed
+- Updated package dependencies. [#39278]
+
+## [0.35.5] - 2024-09-05
+### Changed
+- Internal updates.
+
+## [0.35.4] - 2024-09-05
+### Changed
+- Updated package dependencies. [#39176]
+
+## [0.35.3] - 2024-08-21
+### Changed
+- Internal updates.
+
+## [0.35.2] - 2024-08-19
+### Changed
+- Updated package dependencies. [#38893]
+
+### Fixed
+- Lossless image optimization for images (should improve performance with no visible changes). [#38750]
+
+## [0.35.1] - 2024-08-15
+### Changed
+- Updated package dependencies. [#38665]
+
+## [0.35.0] - 2024-08-13
+### Added
+- Updated the connection initial state to fallback on the new consolidated Jetpack script data [#38825]
+
+## [0.34.2] - 2024-08-09
+### Added
+- React 19 compatibility: Making sure useRef includes an argument. [#38765]
+
+### Removed
+- Tests: Removed react-test-renderer. [#38755]
+
+## [0.34.1] - 2024-07-22
+### Added
+- Display the proper error message for suspended sites on site registration. [#38359]
+
+## [0.34.0] - 2024-07-18
+### Changed
+- Connection Screen: remove mention of Stats from the list of available free features. [#38328]
+
 ## [0.33.19] - 2024-07-03
 ### Changed
 - Updated package dependencies. [#38132]
@@ -797,6 +875,24 @@
 - `Main` and `ConnectUser` components added.
 - `JetpackRestApiClient` API client added.
 
+[0.35.14]: https://github.com/Automattic/jetpack-connection-js/compare/v0.35.13...v0.35.14
+[0.35.13]: https://github.com/Automattic/jetpack-connection-js/compare/v0.35.12...v0.35.13
+[0.35.12]: https://github.com/Automattic/jetpack-connection-js/compare/v0.35.11...v0.35.12
+[0.35.11]: https://github.com/Automattic/jetpack-connection-js/compare/v0.35.10...v0.35.11
+[0.35.10]: https://github.com/Automattic/jetpack-connection-js/compare/v0.35.9...v0.35.10
+[0.35.9]: https://github.com/Automattic/jetpack-connection-js/compare/v0.35.8...v0.35.9
+[0.35.8]: https://github.com/Automattic/jetpack-connection-js/compare/v0.35.7...v0.35.8
+[0.35.7]: https://github.com/Automattic/jetpack-connection-js/compare/v0.35.6...v0.35.7
+[0.35.6]: https://github.com/Automattic/jetpack-connection-js/compare/v0.35.5...v0.35.6
+[0.35.5]: https://github.com/Automattic/jetpack-connection-js/compare/v0.35.4...v0.35.5
+[0.35.4]: https://github.com/Automattic/jetpack-connection-js/compare/v0.35.3...v0.35.4
+[0.35.3]: https://github.com/Automattic/jetpack-connection-js/compare/v0.35.2...v0.35.3
+[0.35.2]: https://github.com/Automattic/jetpack-connection-js/compare/v0.35.1...v0.35.2
+[0.35.1]: https://github.com/Automattic/jetpack-connection-js/compare/v0.35.0...v0.35.1
+[0.35.0]: https://github.com/Automattic/jetpack-connection-js/compare/v0.34.2...v0.35.0
+[0.34.2]: https://github.com/Automattic/jetpack-connection-js/compare/v0.34.1...v0.34.2
+[0.34.1]: https://github.com/Automattic/jetpack-connection-js/compare/v0.34.0...v0.34.1
+[0.34.0]: https://github.com/Automattic/jetpack-connection-js/compare/v0.33.19...v0.34.0
 [0.33.19]: https://github.com/Automattic/jetpack-connection-js/compare/v0.33.18...v0.33.19
 [0.33.18]: https://github.com/Automattic/jetpack-connection-js/compare/v0.33.17...v0.33.18
 [0.33.17]: https://github.com/Automattic/jetpack-connection-js/compare/v0.33.16...v0.33.17

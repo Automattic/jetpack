@@ -4,6 +4,7 @@
     display: flex;
     border-radius: var( --jp-border-radius ); // 4px
     overflow: hidden;
+    z-index: 1;
 
     &.notice--info {
         border-left: 4px solid var( --jp-yellow-20 );

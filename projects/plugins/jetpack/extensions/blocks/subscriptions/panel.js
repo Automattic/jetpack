@@ -31,7 +31,7 @@ import {
 } from '../../shared/memberships/utils';
 import { store as membershipProductsStore } from '../../store/membership-products';
 import metadata from './block.json';
-import EmailPreview from './email-preview';
+import { NewsletterTestEmailModal } from './email-preview';
 
 import './panel.scss';
 
@@ -283,7 +283,7 @@ export default function SubscribePanels() {
 				} }
 			/>
 			{ isModuleActive && <NewsletterPostPublishSettingsPanel accessLevel={ accessLevel } /> }
-			<EmailPreview isModalOpen={ isModalOpen } closeModal={ () => setIsModalOpen( false ) } />
+			<NewsletterTestEmailModal isOpen={ isModalOpen } onClose={ () => setIsModalOpen( false ) } />
 		</>
 	);
 }

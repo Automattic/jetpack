@@ -35,10 +35,16 @@ export const ServiceConnectionInfo = ( {
 			<div className={ styles[ 'connection-details' ] }>
 				<ConnectionName connection={ connection } />
 				{ ( conn => {
-					if ( conn.status === 'broken' ) {
+					/**
+					 * Showing only the connection status makes sense only
+					 * if the user can disconnect the connection.
+					 * Otherwise, non-admin authors will see only the status without any further context.
+					 */
+					if ( conn.status === 'broken' && conn.can_disconnect ) {
 						return <ConnectionStatus connection={ conn } service={ service } />;
 					}
 
+					// Only admins can mark connections as shared
 					if ( isAdmin ) {
 						return (
 							<div className={ styles[ 'mark-shared-wrap' ] }>
@@ -53,10 +59,19 @@ export const ServiceConnectionInfo = ( {
 						);
 					}
 
+					/**
+					 * Now if the user is not an admin, we tell them that the connection
+					 * was added by an admin and show the connection status if it's broken.
+					 */
 					return ! conn.can_disconnect ? (
-						<Text className={ styles.description }>
-							{ __( 'This connection is added by a site administrator.', 'jetpack' ) }
-						</Text>
+						<>
+							<Text className={ styles.description }>
+								{ __( 'This connection is added by a site administrator.', 'jetpack' ) }
+							</Text>
+							{ conn.status === 'broken' ? (
+								<ConnectionStatus connection={ conn } service={ service } />
+							) : null }
+						</>
 					) : null;
 				} )( connection ) }
 			</div>

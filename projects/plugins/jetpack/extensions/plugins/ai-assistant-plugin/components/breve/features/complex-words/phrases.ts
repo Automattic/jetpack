@@ -1,3 +1,4 @@
+// All phrases need to be lowercase
 const phrases = {
 	'a and/or b': 'a or b or both',
 	'able to': 'can',
@@ -239,7 +240,7 @@ const phrases = {
 	'under the provisions of': 'under',
 	'until such time as': 'until',
 	utilize: 'use',
-	URL: 'link',
+	url: 'link',
 	validate: 'confirm',
 	viable: 'workable',
 	vice: 'instead of',
@@ -249,7 +250,6 @@ const phrases = {
 	'with the exception of': 'except for',
 	witnessed: 'saw',
 	'x and/or y': 'x, y, or both',
-	'/': 'or',
 };
 
 export default phrases;

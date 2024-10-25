@@ -127,7 +127,7 @@ class Jetpack_Subscribe_Overlay {
 
 		$tagline_block
 
-		<!-- wp:jetpack/subscriptions /-->
+		<!-- wp:jetpack/subscriptions {"appSource":"subscribe-overlay"} /-->
 
 		<!-- wp:paragraph {"align":"center","className":"jetpack-subscribe-overlay__to-content"} -->
 		<p class="has-text-align-center jetpack-subscribe-overlay__to-content"><a href="$home_url">$skip_to_content ↓</a></p>

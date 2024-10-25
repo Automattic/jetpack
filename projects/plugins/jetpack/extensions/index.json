@@ -50,7 +50,6 @@
 		"payments-intro",
 		"post-publish-qr-post-panel",
 		"payment-buttons",
-		"site-editor-snackbars",
 		"videopress/video",
 		"ai-assistant-support",
 		"ai-assistant-form-support",
@@ -69,19 +68,19 @@
 		"ai-featured-image-generator",
 		"ai-title-optimization",
 		"ai-assistant-experimental-image-generation-support",
-		"ai-general-purpose-image-generator"
+		"ai-general-purpose-image-generator",
+		"ai-proofread-breve",
+		"ai-assistant-site-logo-support",
+		"ai-title-optimization-keywords-support"
 	],
 	"beta": [
 		"google-docs-embed",
-		"launchpad-save-modal",
 		"recipe",
 		"v6-video-frame-poster",
 		"videopress/video-chapters",
-		"ai-assistant-backend-prompts",
-		"ai-assistant-extensions-support",
-		"ai-proofread-breve"
+		"ai-assistant-backend-prompts"
 	],
-	"experimental": [ "ai-image", "ai-paragraph" ],
+	"experimental": [],
 	"no-post-editor": [
 		"ai-assistant",
 		"business-hours",

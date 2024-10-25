@@ -42,13 +42,6 @@
 			rangeStrategy: 'widen',
 		},
 
-		// Forbid `@wordpress/dependency-extraction-webpack-plugin` v6 until WP 6.5 support is dropped.
-		// https://github.com/WordPress/gutenberg/issues/62202
-		{
-			matchPackageNames: [ '@wordpress/dependency-extraction-webpack-plugin' ],
-			allowedVersions: '<6.0.0',
-		},
-
 		// Various other monorepos and package groupings.
 		{
 			extends: [ 'monorepo:wordpress' ],
@@ -73,7 +66,7 @@
 		// These aren't a monorepo, but we may as well do them all together anyway.
 		{
 			groupName: 'GitHub API packages',
-			matchPackagePatterns: [ '^@actions/', '^@octokit/' ],
+			matchPackageNames: [ '@actions/**', '@octokit/**' ],
 		},
 		{
 			groupName: 'GitHub actions upload/download artifact',
@@ -83,12 +76,12 @@
 		{
 			groupName: 'Codeception packages',
 			matchDatasources: [ 'packagist' ],
-			matchPackagePrefixes: [ 'codeception/' ],
+			matchPackageNames: [ 'codeception/**' ],
 		},
 		{
 			groupName: 'Docker actions',
 			matchDepTypes: [ 'action' ],
-			matchPackagePrefixes: [ 'docker/' ],
+			matchPackageNames: [ 'docker/**' ],
 		},
 
 		// 🤷

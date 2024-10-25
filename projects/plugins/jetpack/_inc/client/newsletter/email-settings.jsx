@@ -7,6 +7,7 @@ import {
 	Chip,
 	Button as JetpackButton,
 } from '@automattic/jetpack-components';
+import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import Button from 'components/button';
@@ -17,9 +18,10 @@ import SettingsGroup from 'components/settings-group';
 import SupportInfo from 'components/support-info';
 import TextInput from 'components/text-input';
 import analytics from 'lib/analytics';
+import { FEATURE_NEWSLETTER_JETPACK } from 'lib/plans/constants';
 import { useCallback, useState } from 'react';
 import { connect } from 'react-redux';
-import { isUnavailableInOfflineMode, isUnavailableInSiteConnectionMode } from 'state/connection';
+import { isUnavailableInOfflineMode, hasConnectedOwner } from 'state/connection';
 import {
 	getSiteTitle,
 	getUserGravatar,
@@ -45,6 +47,7 @@ const FROM_NAME_OPTION = 'jetpack_subscriptions_from_name';
 
 const EmailSettings = props => {
 	const {
+		isSubscriptionsActive,
 		isSavingAnyOption,
 		subscriptionsModule,
 		unavailableInOfflineMode,
@@ -56,16 +59,17 @@ const EmailSettings = props => {
 		subscriptionReplyTo,
 		subscriptionFromName,
 		updateFormStateAndSaveOptionValue,
-		unavailableInSiteConnectionMode,
 		gravatar,
 		email,
 		adminUrl,
 		displayName,
 		dateExample,
 		siteName,
+		siteHasConnectedUser,
 	} = props;
 
-	const disabled = unavailableInOfflineMode || unavailableInSiteConnectionMode;
+	const disabled = ! siteHasConnectedUser || ! isSubscriptionsActive || unavailableInOfflineMode;
+	const isSaving = isSavingAnyOption( [ GRAVATER_OPTION, AUTHOR_OPTION, POST_DATE_OPTION ] );
 	const gravatarInputDisabled = disabled || isSavingAnyOption( [ GRAVATER_OPTION ] );
 	const authorInputDisabled = disabled || isSavingAnyOption( [ AUTHOR_OPTION ] );
 	const postDateInputDisabled = disabled || isSavingAnyOption( [ POST_DATE_OPTION ] );
@@ -176,13 +180,15 @@ const EmailSettings = props => {
 			{ ...props }
 			header={ __( 'Email configuration', 'jetpack' ) }
 			hideButton
+			feature={ FEATURE_NEWSLETTER_JETPACK }
 			module={ SUBSCRIPTIONS_MODULE_NAME }
-			saveDisabled={ disabled }
+			saveDisabled={ isSaving }
+			isDisabled={ disabled }
 		>
 			<SettingsGroup
 				hasChild
 				disableInOfflineMode
-				disableInSiteConnectionMode
+				disableInSiteConnectionMode={ ! siteHasConnectedUser }
 				module={ subscriptionsModule }
 				support={ {
 					link: featuredImageInEmailSupportUrl,
@@ -194,7 +200,7 @@ const EmailSettings = props => {
 			>
 				<ToggleControl
 					disabled={ featuredImageInputDisabled }
-					checked={ isFeaturedImageInEmailEnabled }
+					checked={ isFeaturedImageInEmailEnabled && isSubscriptionsActive }
 					toogling={ isSavingAnyOption( [ FEATURED_IMAGE_IN_EMAIL_OPTION ] ) }
 					label={
 						<span className="jp-form-toggle-explanation">
@@ -207,7 +213,7 @@ const EmailSettings = props => {
 			<SettingsGroup
 				hasChild
 				disableInOfflineMode
-				disableInSiteConnectionMode
+				disableInSiteConnectionMode={ ! siteHasConnectedUser }
 				module={ subscriptionsModule }
 				className="newsletter-group"
 			>
@@ -232,7 +238,7 @@ const EmailSettings = props => {
 				<div className="email-settings__gravatar">
 					<ToggleControl
 						disabled={ gravatarInputDisabled }
-						checked={ isGravatarEnabled }
+						checked={ isGravatarEnabled && isSubscriptionsActive }
 						toogling={ isSavingAnyOption( [ GRAVATER_OPTION ] ) }
 						label={
 							<span className="jp-form-toggle-explanation">
@@ -278,7 +284,7 @@ const EmailSettings = props => {
 				</div>
 				<ToggleControl
 					disabled={ authorInputDisabled }
-					checked={ isAuthorEnabled }
+					checked={ isAuthorEnabled && isSubscriptionsActive }
 					toogling={ isSavingAnyOption( [ AUTHOR_OPTION ] ) }
 					label={
 						<span className="jp-form-toggle-explanation">
@@ -290,7 +296,7 @@ const EmailSettings = props => {
 
 				<ToggleControl
 					disabled={ postDateInputDisabled }
-					checked={ isPostDateEnabled }
+					checked={ isPostDateEnabled && isSubscriptionsActive }
 					toogling={ isSavingAnyOption( [ POST_DATE_OPTION ] ) }
 					label={
 						<span className="jp-form-toggle-explanation">
@@ -307,13 +313,7 @@ const EmailSettings = props => {
 								'jetpack'
 							),
 							{
-								settingsLink: (
-									<JetpackButton
-										variant="link"
-										isExternalLink={ true }
-										href={ adminUrl + 'options-general.php' }
-									/>
-								),
+								settingsLink: <ExternalLink href={ adminUrl + 'options-general.php' } />,
 							}
 						) }
 					</div>
@@ -322,7 +322,7 @@ const EmailSettings = props => {
 			<SettingsGroup
 				hasChild
 				disableInOfflineMode
-				disableInSiteConnectionMode
+				disableInSiteConnectionMode={ ! siteHasConnectedUser }
 				module={ subscriptionsModule }
 				support={ {
 					link: subscriptionsAndNewslettersSupportUrl,
@@ -360,11 +360,22 @@ const EmailSettings = props => {
 			<SettingsGroup
 				hasChild
 				disableInOfflineMode
-				disableInSiteConnectionMode
+				disableInSiteConnectionMode={ ! siteHasConnectedUser }
 				module={ subscriptionsModule }
 				className="newsletter-group"
+				support={ {
+					link: getRedirectUrl( 'jetpack-support-subscriptions', {
+						anchor: 'reply-to-email-address',
+					} ),
+					text: __(
+						"Sets the reply to email address for your newsletter emails. It's the email where subscribers send their replies.",
+						'jetpack'
+					),
+				} }
 			>
-				<FormLegend className="jp-form-label-wide">{ __( 'Sender name', 'jetpack' ) }</FormLegend>
+				<FormLegend className="jp-form-label-wide">
+					{ __( 'Sender name and reply-to settings', 'jetpack' ) }
+				</FormLegend>
 				<p>
 					{ __(
 						"This is the name that appears in subscribers' inboxes. It's usually the name of your newsletter or the author.",
@@ -390,35 +401,8 @@ const EmailSettings = props => {
 							{ __( 'Save', 'jetpack' ) }
 						</Button>
 					</Col>
-					<Col className="sender-name-example">
-						{ sprintf(
-							/* translators: 1. placeholder is the user entered value for From Name, 2. is the example email */
-							__( 'Example: %1$s <%2$s>', 'jetpack' ),
-							fromNameState.value || siteName,
-							getExampleEmail( subscriptionReplyTo )
-						) }
-					</Col>
 				</Container>
-			</SettingsGroup>
-			<SettingsGroup
-				hasChild
-				disableInOfflineMode
-				disableInSiteConnectionMode
-				module={ subscriptionsModule }
-				support={ {
-					link: getRedirectUrl( 'jetpack-support-subscriptions', {
-						anchor: 'reply-to-email-address',
-					} ),
-					text: __(
-						"Sets the reply to email address for your newsletter emails. It's the email where subscribers send their replies.",
-						'jetpack'
-					),
-				} }
-			>
-				<FormLegend className="jp-form-label-wide">
-					{ __( 'Reply-to email', 'jetpack' ) }
-				</FormLegend>
-				<p>
+				<p className="reply-to">
 					{ __(
 						'Choose who receives emails when subscribers reply to your newsletter.',
 						'jetpack'
@@ -426,17 +410,9 @@ const EmailSettings = props => {
 				</p>
 				<RadioControl
 					className="jp-form-radio-gap"
-					selected={ subscriptionReplyTo || 'no-reply' }
+					selected={ subscriptionReplyTo || 'comment' }
 					disabled={ replyToInputDisabled }
 					options={ [
-						{
-							label: (
-								<span className="jp-form-toggle-explanation">
-									{ __( 'Replies are not allowed', 'jetpack' ) }
-								</span>
-							),
-							value: 'no-reply',
-						},
 						{
 							label: (
 								<span className="jp-form-toggle-explanation">
@@ -453,9 +429,27 @@ const EmailSettings = props => {
 							),
 							value: 'author',
 						},
+						{
+							label: (
+								<span className="jp-form-toggle-explanation">
+									{ __( 'Replies are not allowed', 'jetpack' ) }
+								</span>
+							),
+							value: 'no-reply',
+						},
 					] }
 					onChange={ handleSubscriptionReplyToChange }
 				/>
+				<Container horizontalGap={ 0 } fluid className="sender-name">
+					<Col className="sender-name-example byline-preview">
+						{ sprintf(
+							/* translators: 1. Site name or user entered replacement value 2. is the example email */
+							__( 'Preview: %1$s <%2$s>', 'jetpack' ),
+							fromNameState.value || siteName,
+							getExampleEmail( subscriptionReplyTo )
+						) }
+					</Col>
+				</Container>
 			</SettingsGroup>
 		</SettingsCard>
 	);
@@ -466,6 +460,7 @@ export default withModuleSettingsFormHelpers(
 		return {
 			moduleName: ownProps.moduleName,
 			subscriptionsModule: getModule( state, SUBSCRIPTIONS_MODULE_NAME ),
+			isSubscriptionsActive: ownProps.getOptionValue( SUBSCRIPTIONS_MODULE_NAME ),
 			isSavingAnyOption: ownProps.isSavingAnyOption,
 			isFeaturedImageInEmailEnabled: ownProps.getOptionValue( FEATURED_IMAGE_IN_EMAIL_OPTION ),
 			isGravatarEnabled: ownProps.getOptionValue( GRAVATER_OPTION ),
@@ -483,10 +478,7 @@ export default withModuleSettingsFormHelpers(
 			subscriptionFromName: ownProps.getOptionValue( FROM_NAME_OPTION ),
 			dateExample: getNewsetterDateExample( state ),
 			unavailableInOfflineMode: isUnavailableInOfflineMode( state, SUBSCRIPTIONS_MODULE_NAME ),
-			unavailableInSiteConnectionMode: isUnavailableInSiteConnectionMode(
-				state,
-				SUBSCRIPTIONS_MODULE_NAME
-			),
+			siteHasConnectedUser: hasConnectedOwner( state ),
 		};
 	} )( EmailSettings )
 );

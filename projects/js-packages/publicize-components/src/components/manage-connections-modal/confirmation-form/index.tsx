@@ -2,8 +2,7 @@ import { Button, useGlobalNotices } from '@automattic/jetpack-components';
 import {
 	BaseControl,
 	FlexBlock,
-	// eslint-disable-next-line wpcalypso/no-unsafe-wp-apis
-	__experimentalHStack as HStack,
+	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useMemo } from '@wordpress/element';
@@ -31,7 +30,7 @@ type AccountInfoProps = {
  *
  * @param {AccountInfoProps} props - Component props
  *
- * @returns {import('react').ReactNode} Account info component
+ * @return {import('react').ReactNode} Account info component
  */
 function AccountInfo( { label, profile_picture }: AccountInfoProps ) {
 	return (
@@ -49,7 +48,7 @@ function AccountInfo( { label, profile_picture }: AccountInfoProps ) {
  *
  * @param {ConfirmationFormProps} props - Component props
  *
- * @returns {import('react').ReactNode} Connection confirmation component
+ * @return {import('react').ReactNode} Connection confirmation component
  */
 export function ConfirmationForm( { keyringResult, onComplete, isAdmin }: ConfirmationFormProps ) {
 	const supportedServices = useSupportedServices();
@@ -91,7 +90,7 @@ export function ConfirmationForm( { keyringResult, onComplete, isAdmin }: Confir
 		// If user account is supported, add it to the list
 		if ( ! service.external_users_only ) {
 			options.push( {
-				label: keyringResult.external_display,
+				label: keyringResult.external_display || keyringResult.external_name,
 				value: keyringResult.external_ID,
 				profile_picture: keyringResult.external_profile_picture,
 			} );
@@ -151,7 +150,7 @@ export function ConfirmationForm( { keyringResult, onComplete, isAdmin }: Confir
 			);
 
 			if ( reconnectingAccount ) {
-				setReconnectingAccount( '' );
+				setReconnectingAccount( undefined );
 			}
 
 			// Do not await the connection creation to unblock the UI
@@ -216,7 +215,8 @@ export function ConfirmationForm( { keyringResult, onComplete, isAdmin }: Confir
 								// If we are reconnecting an account, preselect it,
 								// otherwise, preselect the first account
 								const defaultChecked = reconnectingAccount
-									? reconnectingAccount === `${ service?.ID }:${ option.value }`
+									? reconnectingAccount.service_name === service?.ID &&
+									  reconnectingAccount.external_id === option.value
 									: index === 0;
 
 								return (
@@ -241,6 +241,7 @@ export function ConfirmationForm( { keyringResult, onComplete, isAdmin }: Confir
 
 						{ isAdmin ? (
 							<BaseControl
+								__nextHasNoMarginBottom={ true }
 								id="mark-connection-as-shared"
 								help={ `${ __(
 									'If enabled, the connection will be available to all administrators, editors, and authors.',

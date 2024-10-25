@@ -36,8 +36,8 @@ const instagramVariation = {
  * [0] https://github.com/WordPress/gutenberg/pull/24472.
  *
  * @param {object} settings - Block settings object.
- * @param {string} name - The block name
- * @returns {object} The settings for the given block with the patched variations.
+ * @param {string} name     - The block name
+ * @return {object} The settings for the given block with the patched variations.
  */
 function reactivateInstagramEmbedBlockVariation( settings, name ) {
 	if ( name !== 'core/embed' || ! settings.variations || ! isActive() ) {

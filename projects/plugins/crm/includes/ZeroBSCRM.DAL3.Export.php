@@ -288,7 +288,8 @@ function jpcrm_export_process_file_export() {
 					$columnHeaders[] = __( 'Owner Username', 'zero-bs-crm' );
 				}
 				}
-				fputcsv( $output, $columnHeaders );
+				// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase -- Just ignore until someone fixes all of these, otherwise we wind up having to rewrite half the function.
+				fputcsv( $output, $columnHeaders, ',', '"', '' );
 
 				// actual export lines
 
@@ -421,7 +422,8 @@ function jpcrm_export_process_file_export() {
 						} // / foreach field in each obj row
 
 							// output row
-							fputcsv( $output, $objRow );
+							// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase -- Just ignore until someone fixes all of these, otherwise we wind up having to rewrite half the function.
+							fputcsv( $output, $objRow, ',', '"', '' );
 
 					} // / foreach obj
 				}

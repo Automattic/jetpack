@@ -110,6 +110,7 @@ class Test_REST_Endpoints extends TestCase {
 		Constants::$set_constants['JETPACK__API_BASE'] = 'https://jetpack.wordpress.com/jetpack.';
 
 		set_transient( 'jetpack_assumed_site_creation_date', '2020-02-28 01:13:27' );
+		$this->reset_connection_status();
 	}
 
 	/**
@@ -137,6 +138,20 @@ class Test_REST_Endpoints extends TestCase {
 		$_GET = array();
 
 		Connection_Rest_Authentication::init()->reset_saved_auth_state();
+		$this->reset_connection_status();
+	}
+
+	/**
+	 * Reset the connection status.
+	 * Needed because the connection status is memoized and not reset between tests.
+	 * WorDBless does not fire the options update hooks that would reset the connection status.
+	 */
+	public function reset_connection_status() {
+		static $manager = null;
+		if ( ! $manager ) {
+			$manager = new \Automattic\Jetpack\Connection\Manager();
+		}
+		$manager->reset_connection_status();
 	}
 
 	/**
@@ -470,10 +485,7 @@ class Test_REST_Endpoints extends TestCase {
 
 		add_action( 'jetpack_updated_user_token', $action_hook, 10, 2 );
 
-		$token     = 'new:1:0';
-		$timestamp = (string) time();
-		$nonce     = 'testing123';
-		$body_hash = '';
+		$this->mock_signed_post_request_with_blog_token();
 
 		wp_cache_set(
 			1,
@@ -483,38 +495,6 @@ class Test_REST_Endpoints extends TestCase {
 			),
 			'users'
 		);
-
-		$_SERVER['REQUEST_METHOD'] = 'POST';
-
-		$_GET['_for']      = 'jetpack';
-		$_GET['token']     = $token;
-		$_GET['timestamp'] = $timestamp;
-		$_GET['nonce']     = $nonce;
-		$_GET['body-hash'] = $body_hash;
-		// This is intentionally using base64_encode().
-		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
-		$_GET['signature'] = base64_encode(
-			hash_hmac(
-				'sha1',
-				implode(
-					"\n",
-					$data  = array(
-						$token,
-						$timestamp,
-						$nonce,
-						$body_hash,
-						'POST',
-						'anything.example',
-						'80',
-						'',
-					)
-				) . "\n",
-				'blogtoken',
-				true
-			)
-		);
-
-		Connection_Rest_Authentication::init()->wp_rest_authenticate( false );
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/user-token' );
 		$request->set_header( 'Content-Type', 'application/json' );
@@ -673,6 +653,33 @@ class Test_REST_Endpoints extends TestCase {
 
 		remove_filter( 'pre_http_request', array( $this, 'mock_xmlrpc_success' ), 10 );
 		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ), 10 );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame( 'success', $response_data['code'] );
+	}
+
+	/**
+	 * Testing the `POST /jetpack/v4/connection` endpoint, aka site disconnect endpoint, on success with a site-level connection (blog token).
+	 */
+	public function test_disconnect_site_site_connection_success() {
+		wp_set_current_user( 0 );
+		// Mock full connection established.
+		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ), 10, 2 );
+
+		$this->mock_signed_post_request_with_blog_token();
+
+		// Mock site successfully disconnected on WPCOM.
+		add_filter( 'pre_http_request', array( $this, 'mock_xmlrpc_success' ), 10, 3 );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/connection' );
+		$request->set_header( 'Content-Type', 'application/json' );
+		$request->set_body( wp_json_encode( array( 'isActive' => false ) ) );
+
+		$response      = $this->server->dispatch( $request );
+		$response_data = $response->get_data();
+
+		remove_filter( 'pre_http_request', array( $this, 'mock_xmlrpc_success' ), 10 );
+		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ), 10 );
 
 		$this->assertSame( 200, $response->get_status() );
 		$this->assertSame( 'success', $response_data['code'] );
@@ -942,37 +949,7 @@ class Test_REST_Endpoints extends TestCase {
 		// Mock full connection established.
 		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ), 10, 2 );
 
-		$_SERVER['REQUEST_METHOD'] = 'POST';
-
-		$_GET['_for']      = 'jetpack';
-		$_GET['token']     = 'new:1:0';
-		$_GET['timestamp'] = (string) time();
-		$_GET['nonce']     = 'testing123';
-		$_GET['body-hash'] = '';
-		// This is intentionally using base64_encode().
-		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
-		$_GET['signature'] = base64_encode(
-			hash_hmac(
-				'sha1',
-				implode(
-					"\n",
-					$data  = array(
-						$_GET['token'],
-						$_GET['timestamp'],
-						$_GET['nonce'],
-						$_GET['body-hash'],
-						'POST',
-						'anything.example',
-						'80',
-						'',
-					)
-				) . "\n",
-				'blogtoken',
-				true
-			)
-		);
-
-		Connection_Rest_Authentication::init()->wp_rest_authenticate( false );
+		$this->mock_signed_post_request_with_blog_token();
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/remote_register' );
 		$request->set_header( 'Content-Type', 'application/json' );
@@ -1027,37 +1004,7 @@ class Test_REST_Endpoints extends TestCase {
 		// Mock full connection established.
 		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ), 10, 2 );
 
-		$_SERVER['REQUEST_METHOD'] = 'POST';
-
-		$_GET['_for']      = 'jetpack';
-		$_GET['token']     = 'new:1:0';
-		$_GET['timestamp'] = (string) time();
-		$_GET['nonce']     = 'testing123';
-		$_GET['body-hash'] = '';
-		// This is intentionally using base64_encode().
-		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
-		$_GET['signature'] = base64_encode(
-			hash_hmac(
-				'sha1',
-				implode(
-					"\n",
-					$data  = array(
-						$_GET['token'],
-						$_GET['timestamp'],
-						$_GET['nonce'],
-						$_GET['body-hash'],
-						'POST',
-						'anything.example',
-						'80',
-						'',
-					)
-				) . "\n",
-				'blogtoken',
-				true
-			)
-		);
-
-		Connection_Rest_Authentication::init()->wp_rest_authenticate( false );
+		$this->mock_signed_post_request_with_blog_token();
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/remote_provision' );
 		$request->set_header( 'Content-Type', 'application/json' );
@@ -1108,37 +1055,7 @@ class Test_REST_Endpoints extends TestCase {
 		// Mock full connection established.
 		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ), 10, 2 );
 
-		$_SERVER['REQUEST_METHOD'] = 'POST';
-
-		$_GET['_for']      = 'jetpack';
-		$_GET['token']     = 'new:1:0';
-		$_GET['timestamp'] = (string) time();
-		$_GET['nonce']     = 'testing123';
-		$_GET['body-hash'] = '';
-		// This is intentionally using base64_encode().
-		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
-		$_GET['signature'] = base64_encode(
-			hash_hmac(
-				'sha1',
-				implode(
-					"\n",
-					$data  = array(
-						$_GET['token'],
-						$_GET['timestamp'],
-						$_GET['nonce'],
-						$_GET['body-hash'],
-						'POST',
-						'anything.example',
-						'80',
-						'',
-					)
-				) . "\n",
-				'blogtoken',
-				true
-			)
-		);
-
-		Connection_Rest_Authentication::init()->wp_rest_authenticate( false );
+		$this->mock_signed_post_request_with_blog_token();
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/remote_connect' );
 		$request->set_header( 'Content-Type', 'application/json' );
@@ -1195,37 +1112,7 @@ class Test_REST_Endpoints extends TestCase {
 		// Mock full connection established.
 		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ), 10, 2 );
 
-		$_SERVER['REQUEST_METHOD'] = 'POST';
-
-		$_GET['_for']      = 'jetpack';
-		$_GET['token']     = 'new:1:0';
-		$_GET['timestamp'] = (string) time();
-		$_GET['nonce']     = 'testing123';
-		$_GET['body-hash'] = '';
-		// This is intentionally using base64_encode().
-		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
-		$_GET['signature'] = base64_encode(
-			hash_hmac(
-				'sha1',
-				implode(
-					"\n",
-					array(
-						$_GET['token'],
-						$_GET['timestamp'],
-						$_GET['nonce'],
-						$_GET['body-hash'],
-						'POST',
-						'anything.example',
-						'80',
-						'',
-					)
-				) . "\n",
-				'blogtoken',
-				true
-			)
-		);
-
-		Connection_Rest_Authentication::init()->wp_rest_authenticate( false );
+		$this->mock_signed_post_request_with_blog_token();
 
 		$request = new WP_REST_Request( 'GET', '/jetpack/v4/heartbeat/data' );
 		$request->set_header( 'Content-Type', 'application/json' );
@@ -1269,37 +1156,7 @@ class Test_REST_Endpoints extends TestCase {
 		// Mock full connection established.
 		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ), 10, 2 );
 
-		$_SERVER['REQUEST_METHOD'] = 'POST';
-
-		$_GET['_for']      = 'jetpack';
-		$_GET['token']     = 'new:1:0';
-		$_GET['timestamp'] = (string) time();
-		$_GET['nonce']     = 'testing123';
-		$_GET['body-hash'] = '';
-		// This is intentionally using base64_encode().
-		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
-		$_GET['signature'] = base64_encode(
-			hash_hmac(
-				'sha1',
-				implode(
-					"\n",
-					array(
-						$_GET['token'],
-						$_GET['timestamp'],
-						$_GET['nonce'],
-						$_GET['body-hash'],
-						'POST',
-						'anything.example',
-						'80',
-						'',
-					)
-				) . "\n",
-				'blogtoken',
-				true
-			)
-		);
-
-		Connection_Rest_Authentication::init()->wp_rest_authenticate( false );
+		$this->mock_signed_post_request_with_blog_token();
 
 		$request = new WP_REST_Request( 'GET', '/jetpack/v4/connection/check' );
 		$request->set_header( 'Content-Type', 'application/json' );
@@ -1764,6 +1621,7 @@ class Test_REST_Endpoints extends TestCase {
 		}
 
 		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ), 10, 2 );
+		$this->reset_connection_status();
 	}
 
 	/**
@@ -1816,5 +1674,45 @@ class Test_REST_Endpoints extends TestCase {
 		}
 
 		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ), 10 );
+		$this->reset_connection_status();
+	}
+
+	private function mock_signed_post_request_with_blog_token() {
+		$token     = 'new:1:0';
+		$timestamp = (string) time();
+		$nonce     = 'testing123';
+		$body_hash = '';
+
+		$_SERVER['REQUEST_METHOD'] = 'POST';
+
+		$_GET['_for']      = 'jetpack';
+		$_GET['token']     = $token;
+		$_GET['timestamp'] = $timestamp;
+		$_GET['nonce']     = $nonce;
+		$_GET['body-hash'] = $body_hash;
+		// This is intentionally using base64_encode().
+		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+		$_GET['signature'] = base64_encode(
+			hash_hmac(
+				'sha1',
+				implode(
+					"\n",
+					$data  = array(
+						$token,
+						$timestamp,
+						$nonce,
+						$body_hash,
+						'POST',
+						'anything.example',
+						'80',
+						'',
+					)
+				) . "\n",
+				'blogtoken',
+				true
+			)
+		);
+
+		Connection_Rest_Authentication::init()->wp_rest_authenticate( false );
 	}
 }

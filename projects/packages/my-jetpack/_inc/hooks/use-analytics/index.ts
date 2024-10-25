@@ -5,7 +5,7 @@ import useMyJetpackConnection from '../use-my-jetpack-connection';
 
 type TracksRecordEvent = (
 	event: `jetpack_${ string }`, // Enforces the event name to start with "jetpack_"
-	properties?: Record< string, unknown >
+	properties?: Record< Lowercase< string >, unknown >
 ) => void;
 
 const useAnalytics = () => {
@@ -37,15 +37,15 @@ const useAnalytics = () => {
 	/**
 	 * Like tracks.recordEvent but provides specifics to My Jetpack
 	 *
-	 * @param {string} event       - event name
-	 * @param {object} properties  - event propeties
+	 * @param {string} event      - event name
+	 * @param {object} properties - event propeties
 	 */
 	const recordEvent = useCallback< TracksRecordEvent >( ( event, properties ) => {
 		jetpackAnalytics.tracks.recordEvent( event, {
 			...properties,
 			version: myJetpackVersion,
-			isSiteConnected,
-			isUserConnected,
+			is_site_connected: isSiteConnected,
+			is_user_connected: isUserConnected,
 			referring_plugins: connectedPluginsSlugs,
 		} );
 		// eslint-disable-next-line react-hooks/exhaustive-deps

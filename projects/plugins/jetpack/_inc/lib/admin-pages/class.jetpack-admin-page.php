@@ -18,6 +18,7 @@ abstract class Jetpack_Admin_Page {
 	 * Jetpack Object.
 	 *
 	 * @var Jetpack
+	 * @deprecated 13.9 Use `Jetpack::init()` instead.
 	 */
 	public $jetpack;
 
@@ -46,16 +47,6 @@ abstract class Jetpack_Admin_Page {
 	abstract public function page_render();
 
 	/**
-	 * Should we block the page rendering because the site is in IDC?
-	 * Beware that the property is set early on, and might not always reflect the actual value.
-	 *
-	 * @var bool
-	 *
-	 * @deprecated 13.2 Use `$this->block_page_rendering_for_idc()` instead.
-	 */
-	public static $block_page_rendering_for_idc;
-
-	/**
 	 * Function called after admin_styles to load any additional needed styles.
 	 *
 	 * @since 4.3.0
@@ -66,20 +57,24 @@ abstract class Jetpack_Admin_Page {
 	 * The constructor.
 	 */
 	public function __construct() {
+		/**
+		 * Keeping it for backward compatibility in case the `$jetpack` property is still in use.
+		 * To be removed.
+		 *
+		 * @deprecated 13.9
+		 */
 		add_action( 'jetpack_loaded', array( $this, 'on_jetpack_loaded' ) );
 	}
 
 	/**
 	 * Runs on Jetpack being ready to load its packages.
 	 *
+	 * @deprecated 13.9
+	 *
 	 * @param Jetpack $jetpack object.
 	 */
 	public function on_jetpack_loaded( $jetpack ) {
 		$this->jetpack = $jetpack;
-
-		self::$block_page_rendering_for_idc = (
-			Jetpack::is_connection_ready() && Identity_Crisis::validate_sync_error_idc_option() && ! Jetpack_Options::get_option( 'safe_mode_confirmed' )
-		);
 	}
 
 	/**
@@ -107,7 +102,6 @@ abstract class Jetpack_Admin_Page {
 		$hook = $this->get_page_hook();
 
 		// Attach hooks common to all Jetpack admin pages based on the created hook.
-		add_action( "load-$hook", array( $this, 'admin_help' ) );
 		add_action( "load-$hook", array( $this, 'admin_page_load' ) );
 		add_action( "admin_print_styles-$hook", array( $this, 'admin_styles' ) );
 		add_action( "admin_print_scripts-$hook", array( $this, 'admin_scripts' ) );
@@ -124,6 +118,9 @@ abstract class Jetpack_Admin_Page {
 	 * Render the page with a common top and bottom part, and page specific content.
 	 */
 	public function render() {
+		/** This action is documented in class.jetpack.php */
+		do_action( 'jetpack_initialize_tracking' );
+
 		// We're in an IDC: we need a decision made before we show the UI again.
 		if ( $this->block_page_rendering_for_idc() ) {
 			return;
@@ -146,19 +143,17 @@ abstract class Jetpack_Admin_Page {
 	}
 
 	/**
-	 * Load Help tab.
+	 * Doesn't do anything anymore.
 	 *
-	 * @todo This may no longer be used.
+	 * @deprecated 13.9 No longer used.
 	 */
-	public function admin_help() {
-		$this->jetpack->admin_help();
-	}
+	public function admin_help() {}
 
 	/**
 	 * Call the existing admin page events.
 	 */
 	public function admin_page_load() {
-		$this->jetpack->admin_page_load();
+		Jetpack::init()->admin_page_load();
 	}
 
 	/**
@@ -166,7 +161,7 @@ abstract class Jetpack_Admin_Page {
 	 */
 	public function admin_scripts() {
 		$this->page_admin_scripts(); // Delegate to inheriting class.
-		add_action( 'admin_footer', array( $this->jetpack, 'do_stats' ) );
+		add_action( 'admin_footer', array( Jetpack::init(), 'do_stats' ) );
 	}
 
 	/**
@@ -175,7 +170,7 @@ abstract class Jetpack_Admin_Page {
 	public function admin_styles() {
 		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
 
-		wp_enqueue_style( 'jetpack-admin', plugins_url( "css/jetpack-admin{$min}.css", JETPACK__PLUGIN_FILE ), array( 'genericons' ), JETPACK__VERSION . '-20121016' );
+		wp_enqueue_style( 'jetpack-admin', plugins_url( "css/jetpack-admin{$min}.css", JETPACK__PLUGIN_FILE ), array( 'genericons', 'jetpack-connection' ), JETPACK__VERSION . '-20121016' );
 		wp_style_add_data( 'jetpack-admin', 'rtl', 'replace' );
 		wp_style_add_data( 'jetpack-admin', 'suffix', $min );
 	}

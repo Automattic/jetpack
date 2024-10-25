@@ -14,6 +14,7 @@ import Sharing from 'sharing';
 import { isModuleActivated as isModuleActivatedSelector } from 'state/modules';
 import Traffic from 'traffic';
 import Writing from 'writing';
+import { FEATURE_JETPACK_EARN } from '../lib/plans/constants';
 
 class Settings extends React.Component {
 	static displayName = 'SearchableSettings';
@@ -66,7 +67,12 @@ class Settings extends React.Component {
 						active={ '/newsletter' === pathname }
 						{ ...commonProps }
 					/>
-					<Earn siteRawUrl={ siteRawUrl } active={ '/earn' === pathname } { ...commonProps } />
+					<Earn
+						siteRawUrl={ siteRawUrl }
+						active={ '/earn' === pathname }
+						feature={ FEATURE_JETPACK_EARN }
+						{ ...commonProps }
+					/>
 					<Performance active={ '/performance' === pathname } { ...commonProps } />
 					<Traffic
 						siteRawUrl={ siteRawUrl }

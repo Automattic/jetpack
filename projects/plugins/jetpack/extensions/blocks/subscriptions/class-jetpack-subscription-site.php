@@ -111,19 +111,28 @@ class Jetpack_Subscription_Site {
 	}
 
 	/**
+	 * Returns true if context is recognized as a single post element.
+	 *
+	 * @param WP_Block_Template|WP_Post|array $context The block template, template part, or pattern the anchor block belongs to.
+	 *
+	 * @return bool
+	 */
+	protected function is_single_post_context( $context ) {
+		return $context instanceof WP_Block_Template && $context->slug === 'single';
+	}
+
+	/**
 	 * Handles Subscription block navigation placement.
 	 *
 	 * @return void
 	 */
 	protected function handle_subscribe_block_navigation_placement() {
-		global $wp_version;
-
 		$is_enabled = get_option( 'jetpack_subscriptions_subscribe_navigation_enabled', false );
 		if ( ! $is_enabled ) {
 			return;
 		}
 
-		if ( ! wp_is_block_theme() || version_compare( $wp_version, '6.5-beta2', '<' ) ) { // TODO Fallback for classic themes and wp core < 6.5-beta2.
+		if ( ! wp_is_block_theme() ) { // TODO Fallback for classic themes.
 			return;
 		}
 
@@ -155,6 +164,7 @@ class Jetpack_Subscription_Site {
 						: 'is-style-button';
 
 					$hooked_block['attrs']['className'] = $class_name;
+					$hooked_block['attrs']['appSource'] = 'subscribe-block-navigation';
 				}
 
 				return $hooked_block;
@@ -170,20 +180,18 @@ class Jetpack_Subscription_Site {
 	 * @return void
 	 */
 	protected function handle_subscribe_block_post_end_placement() {
-		global $wp_version;
-
 		$subscribe_post_end_enabled = get_option( 'jetpack_subscriptions_subscribe_post_end_enabled', false );
 		if ( ! $subscribe_post_end_enabled ) {
 			return;
 		}
 
-		if ( ! wp_is_block_theme() || version_compare( $wp_version, '6.5-beta2', '<' ) ) { // Fallback for classic themes and wp core < 6.5-beta2.
+		if ( ! wp_is_block_theme() ) { // Fallback for classic themes.
 			add_filter(
 				'the_content',
 				function ( $content ) {
 					// Check if we're inside the main loop in a single Post.
 					if (
-						is_singular() &&
+						is_single() &&
 						in_the_loop() &&
 						is_main_query() &&
 						$this->user_can_view_post()
@@ -230,10 +238,11 @@ HTML
 
 		add_filter(
 			'hooked_block_types',
-			function ( $hooked_blocks, $relative_position, $anchor_block ) {
+			function ( $hooked_blocks, $relative_position, $anchor_block, $context ) {
 				if (
 					$anchor_block === 'core/post-content' &&
 					$relative_position === 'after' &&
+					self::is_single_post_context( $context ) &&
 					$this->user_can_view_post()
 				) {
 					$hooked_blocks[] = 'jetpack/subscriptions';
@@ -242,7 +251,7 @@ HTML
 				return $hooked_blocks;
 			},
 			10,
-			3
+			4
 		);
 
 		add_filter(

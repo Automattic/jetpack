@@ -729,7 +729,7 @@ class AssetsTest extends TestCase {
 
 		// @phan-suppress-next-line PhanDeprecatedFunction -- Keep using setMethods until we drop PHP 7.0 support.
 		$mock = $this->getMockBuilder( \stdClass::class )
-			->setMethods( array( 'add', 'add_inline_script' ) )
+			->setMethods( array( 'add', 'add_inline_script', 'add_data' ) )
 			->getMock();
 
 		// Unfortunately PHPUnit deprecated withConsecutive with no replacement, so we have to roll our own version.
@@ -757,7 +757,8 @@ class AssetsTest extends TestCase {
 			return $funcs;
 		};
 
-		$mock->expects( $this->exactly( 2 ) )->method( 'add' )
+		// @todo: Remove `react-jsx-runtime` from the list of dependencies once we drop support for WordPress 6.5 and remove the dependency from wp_default_scripts_hook.
+		$mock->expects( $this->exactly( 3 ) )->method( 'add' )
 			->with(
 				...$with_consecutive(
 					array(
@@ -768,7 +769,12 @@ class AssetsTest extends TestCase {
 						),
 						array( 'wp-i18n' ),
 					),
-					array( 'wp-jp-i18n-state', false, array( 'wp-deprecated', 'wp-jp-i18n-loader' ) )
+					array( 'wp-jp-i18n-state', false, array( 'wp-deprecated', 'wp-jp-i18n-loader' ) ),
+					array(
+						'react-jsx-runtime',
+						'http://www.example.com/wp-content/plugins/jetpack/packages/assets/build/react-jsx-runtime.js',
+						array( 'react' ),
+					)
 				)
 			);
 		$mock->expects( $this->exactly( 3 ) )->method( 'add_inline_script' )
@@ -777,6 +783,13 @@ class AssetsTest extends TestCase {
 					array( 'wp-jp-i18n-loader', $expect_js ),
 					array( 'wp-jp-i18n-state', 'wp.deprecated( "wp-jp-i18n-state", { alternative: "wp-jp-i18n-loader" } );' ),
 					array( 'wp-jp-i18n-state', 'wp.jpI18nState = wp.jpI18nLoader.state;' )
+				)
+			);
+		$mock->expects( $this->exactly( 2 ) )->method( 'add_data' )
+			->with(
+				...$with_consecutive(
+					array( 'wp-jp-i18n-loader', 'group', 1 ),
+					array( 'react-jsx-runtime', 'group', 1 )
 				)
 			);
 

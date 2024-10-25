@@ -4,7 +4,7 @@
  * Plugin Name: Jetpack VaultPress Backup
  * Plugin URI: https://jetpack.com/jetpack-backup
  * Description: Easily restore or download a backup of your site from a specific moment in time.
- * Version: 2.8-alpha
+ * Version: 2.9
  * Author: Automattic - Jetpack Backup team
  * Author URI: https://jetpack.com/
  * License: GPLv2 or later
@@ -71,13 +71,15 @@ if ( is_wp_error( $jetpack_backup_meets_requirements ) ) {
 	add_action(
 		'admin_notices',
 		function () use ( $jetpack_backup_meets_requirements ) {
-			wp_admin_notice(
-				esc_html( $jetpack_backup_meets_requirements->get_error_message() ),
-				array(
-					'type'        => 'error',
-					'dismissible' => true,
-				)
-			);
+			?>
+		<div class="notice notice-error is-dismissible">
+			<p>
+				<?php
+				echo esc_html( $jetpack_backup_meets_requirements->get_error_message() );
+				?>
+			</p>
+		</div>
+			<?php
 		}
 	);
 

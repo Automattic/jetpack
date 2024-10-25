@@ -4,7 +4,6 @@ namespace Automattic\Jetpack_Boost\Admin;
 
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
-
 /**
  * Handle the configuration constants.
  *
@@ -27,10 +26,10 @@ class Config {
 			'assetPath'       => plugins_url( $internal_path, JETPACK_BOOST_PATH ),
 			'canResizeImages' => wp_image_editor_supports( array( 'methods' => array( 'resize' ) ) ),
 			'site'            => array(
-				'url'      => get_home_url(),
-				'domain'   => ( new Status() )->get_site_suffix(),
-				'online'   => ! ( new Status() )->is_offline_mode(),
-				'isAtomic' => ( new Host() )->is_woa_site(),
+				'url'    => get_home_url(),
+				'domain' => ( new Status() )->get_site_suffix(),
+				'online' => ! ( new Status() )->is_offline_mode() && ! ( new Status() )->is_private_site(),
+				'host'   => ( new Host() )->get_known_host_guess(),
 			),
 			'api'             => array(
 				'namespace' => JETPACK_BOOST_REST_NAMESPACE,

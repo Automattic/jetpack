@@ -125,10 +125,12 @@ export const VideoPressLibrary = ( { videos, totalVideos, loading }: VideoLibrar
 	const history = useHistory();
 	const { search } = useVideos();
 	const videosToDisplay = [
-		// First comes the videos that are uploading
+		// First comes video upload errors
+		...videos.filter( video => video.error ),
+		// Then comes the videos that are uploading
 		...videos.filter( video => video.uploading ),
 		// Then the videos that are not uploading, at most 6
-		...videos.filter( video => ! video.uploading ).slice( 0, 6 ),
+		...videos.filter( video => ! video.uploading && ! video.error ).slice( 0, 6 ),
 	];
 
 	const libraryTypeFromLocalStorage = localStorage.getItem(

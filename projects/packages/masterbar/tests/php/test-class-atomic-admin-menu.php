@@ -104,54 +104,6 @@ class Test_Atomic_Admin_Menu extends TestCase {
 	}
 
 	/**
-	 * Tests add_browse_sites_link.
-	 *
-	 * @covers ::add_browse_sites_link
-	 */
-	public function test_add_browse_sites_link() {
-		global $menu;
-
-		// No output when executed in single site mode.
-		static::$admin_menu->add_browse_sites_link();
-		$this->assertArrayNotHasKey( 0, $menu );
-	}
-
-	/**
-	 * Tests add_browse_sites_link.
-	 *
-	 * @covers ::add_browse_sites_link
-	 */
-	public function test_add_browse_sites_link_multisite() {
-		if ( ! is_multisite() ) {
-			$this->markTestSkipped( 'Only used on multisite' );
-		}
-
-		global $menu;
-
-		// No output when user has just one site.
-		static::$admin_menu->add_browse_sites_link();
-		$this->assertArrayNotHasKey( 0, $menu );
-
-		// Give user a second site.
-		update_user_option( static::$user_id, 'wpcom_site_count', 2 );
-
-		static::$admin_menu->add_browse_sites_link();
-
-		$browse_sites_menu_item = array(
-			'Browse sites',
-			'read',
-			'https://wordpress.com/sites',
-			'site-switcher',
-			'menu-top toplevel_page_https://wordpress.com/sites',
-			'toplevel_page_https://wordpress.com/sites',
-			'dashicons-arrow-left-alt2',
-		);
-		$this->assertSame( $menu[0], $browse_sites_menu_item );
-
-		delete_user_option( static::$user_id, 'wpcom_site_count' );
-	}
-
-	/**
 	 * Tests add_new_site_link.
 	 *
 	 * @covers ::add_new_site_link
@@ -334,7 +286,12 @@ class Test_Atomic_Admin_Menu extends TestCase {
 		global $submenu;
 
 		static::$admin_menu->add_options_menu();
-		$this->assertSame( 'https://wordpress.com/hosting-config/' . static::$domain, $submenu['options-general.php'][11][2] );
+
+		if ( function_exists( 'wpcom_site_has_feature' ) && wpcom_site_has_feature( \WPCOM_Features::ATOMIC ) ) {
+			$this->assertSame( 'https://wordpress.com/hosting-config/' . static::$domain, $submenu['options-general.php'][11][2] );
+		} else {
+			$this->assertSame( 'https://wordpress.com/hosting-features/' . static::$domain, $submenu['options-general.php'][11][2] );
+		}
 	}
 
 	/**
@@ -348,9 +305,9 @@ class Test_Atomic_Admin_Menu extends TestCase {
 		static::$admin_menu->add_users_menu();
 		$this->assertSame( 'https://wordpress.com/people/team/' . static::$domain, $submenu['users.php'][0][2] );
 		$this->assertSame( 'user-new.php', $submenu['users.php'][2][2] );
+		$this->assertSame( 'profile.php', $submenu['users.php'][3][2] );
 		$this->assertSame( 'https://wordpress.com/subscribers/' . static::$domain, $submenu['users.php'][4][2] );
-		$this->assertSame( 'https://wordpress.com/me', $submenu['users.php'][5][2] );
-		$this->assertSame( 'https://wordpress.com/me/account', $submenu['users.php'][6][2] );
+		$this->assertSame( 'https://wordpress.com/me/account', $submenu['users.php'][5][2] );
 	}
 
 	/**
@@ -427,6 +384,6 @@ class Test_Atomic_Admin_Menu extends TestCase {
 		static::$admin_menu->add_jetpack_menu();
 		$links = wp_list_pluck( array_values( $submenu['jetpack'] ), 2 );
 
-		$this->assertContains( 'https://wordpress.com/scan/history/' . static::$domain, $links );
+		$this->assertContains( 'https://wordpress.com/scan/' . static::$domain, $links );
 	}
 }

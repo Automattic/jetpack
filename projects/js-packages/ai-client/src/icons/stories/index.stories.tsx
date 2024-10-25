@@ -27,7 +27,7 @@ const meta: AIControlStoryMeta = {
 /**
  * Icons story components.
  *
- * @returns {object} - story component
+ * @return {object} - story component
  */
 function IconsStory() {
 	return (

@@ -18,6 +18,24 @@ if ( ! class_exists( 'Jetpack_Google_Font_Face' ) ) {
  * @return object[] The collection data of the Google Fonts.
  */
 function jetpack_get_google_fonts_data() {
+	/**
+	 * Filters the Google Fonts data before the default retrieval process.
+	 *
+	 * This filter allows short-circuiting the default Google Fonts data retrieval process.
+	 * Returning a non-null value from this filter will bypass the default retrieval
+	 * and return the filtered value instead.
+	 *
+	 * @module google-fonts
+	 *
+	 * @since 13.7
+	 *
+	 * @param null|array $pre The pre-filtered Google Fonts data, default null.
+	 */
+	$pre = apply_filters( 'pre_jetpack_get_google_fonts_data', null );
+	if ( null !== $pre ) {
+		return $pre;
+	}
+
 	$default_google_fonts_api_url        = 'https://fonts.gstatic.com';
 	$jetpack_google_fonts_collection_url = 'https://s0.wp.com/i/font-collections/jetpack-google-fonts.json';
 	$cache_key                           = 'jetpack_google_fonts_' . md5( $jetpack_google_fonts_collection_url );
@@ -40,6 +58,8 @@ function jetpack_get_google_fonts_data() {
 	$custom_google_fonts_api_url = \esc_url(
 		/**
 		 * Filters the Google Fonts API URL.
+		 *
+		 * @module google-fonts
 		 *
 		 * @since 12.8
 		 *

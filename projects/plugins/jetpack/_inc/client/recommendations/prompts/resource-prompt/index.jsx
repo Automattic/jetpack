@@ -29,7 +29,7 @@ import { PromptLayout } from '../prompt-layout';
  *
  * @param {object} props - Component props.
  * @function Object() { [native code] }
- * @returns {Element} - A react component.
+ * @return {Element} - A react component.
  */
 const ResourcePromptComponent = props => {
 	const {
@@ -45,6 +45,7 @@ const ResourcePromptComponent = props => {
 		illustration,
 		ctaText,
 		ctaLink,
+		ctaForceExternal,
 		hasNoAction,
 		skipText,
 		stepSlug,
@@ -119,7 +120,8 @@ const ResourcePromptComponent = props => {
 		return null;
 	}, [ stepProgressValue, progressValue ] );
 
-	const ctaLinkIsExternal = ctaLink?.match( /^https:\/\/jetpack.com\/redirect/ );
+	const ctaLinkIsExternal =
+		ctaLink?.match( /^https:\/\/jetpack.com\/redirect/ ) || ctaForceExternal;
 
 	return (
 		<PromptLayout

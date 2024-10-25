@@ -135,7 +135,7 @@ class Dashboard_REST_Controller {
 		// WordAds DSP API Campaigns routes
 		register_rest_route(
 			static::$namespace,
-			sprintf( '/sites/%d/wordads/dsp/api/v1/campaigns(?P<sub_path>[a-zA-Z0-9-_\/]*)(\?.*)?', $site_id ),
+			sprintf( '/sites/%d/wordads/dsp/api/(?P<api_version>v[0-9]+\.?[0-9]*)/campaigns(?P<sub_path>[a-zA-Z0-9-_\/]*)(\?.*)?', $site_id ),
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_dsp_campaigns' ),
@@ -329,10 +329,6 @@ class Dashboard_REST_Controller {
 			return array();
 		}
 
-		if ( ! $this->are_posts_ready() ) {
-			return new WP_Error( 'posts_not_ready', 'Posts are not synced yet.' );
-		}
-
 		// We don't use sub_path in the blaze posts, only query strings
 		if ( isset( $req['sub_path'] ) ) {
 			unset( $req['sub_path'] );
@@ -353,6 +349,24 @@ class Dashboard_REST_Controller {
 			$response['posts'] = $this->add_prices_in_posts( $response['posts'] );
 		}
 
+		$response = $this->add_warnings_to_posts_response( $response );
+
+		return $response;
+	}
+
+	/**
+	 * Adds warning flags to the posts response.
+	 *
+	 * @param array $response The response object.
+	 * @return array
+	 */
+	private function add_warnings_to_posts_response( $response ) {
+		if ( ! $this->are_posts_ready() && is_array( $response ) ) {
+			$response['warnings'] = array_merge(
+				array( 'sync_in_progress' ),
+				$response['warnings'] ?? array()
+			);
+		}
 		return $response;
 	}
 
@@ -392,10 +406,6 @@ class Dashboard_REST_Controller {
 			return array();
 		}
 
-		if ( ! $this->are_posts_ready() ) {
-			return new WP_Error( 'posts_not_ready', 'Posts are not synced yet.' );
-		}
-
 		// We don't use sub_path in the blaze posts, only query strings
 		if ( isset( $req['sub_path'] ) ) {
 			unset( $req['sub_path'] );
@@ -411,6 +421,8 @@ class Dashboard_REST_Controller {
 		if ( isset( $response['results'] ) && count( $response['results'] ) > 0 ) {
 			$response['results'] = $this->add_prices_in_posts( $response['results'] );
 		}
+
+		$response = $this->add_warnings_to_posts_response( $response );
 
 		return $response;
 	}
@@ -525,7 +537,8 @@ class Dashboard_REST_Controller {
 	 * @return array|WP_Error
 	 */
 	public function get_dsp_campaigns( $req ) {
-		return $this->get_dsp_generic( 'v1/campaigns', $req );
+		$version = $req->get_param( 'api_version' ) ?? 'v1';
+		return $this->get_dsp_generic( "{$version}/campaigns", $req );
 	}
 
 	/**
@@ -664,7 +677,7 @@ class Dashboard_REST_Controller {
 	 * @return array|WP_Error
 	 */
 	public function edit_wpcom_checkout( $req ) {
-		return $this->edit_dsp_generic( 'v1/wpcom/checkout', $req, array( 'timeout' => 20 ) );
+		return $this->edit_dsp_generic( 'v1/wpcom/checkout', $req, array( 'timeout' => 60 ) );
 	}
 
 	/**
@@ -675,7 +688,7 @@ class Dashboard_REST_Controller {
 	 */
 	public function edit_dsp_campaigns( $req ) {
 		$version = $req->get_param( 'api_version' ) ?? 'v1';
-		return $this->edit_dsp_generic( "{$version}/campaigns", $req, array( 'timeout' => 20 ) );
+		return $this->edit_dsp_generic( "{$version}/campaigns", $req, array( 'timeout' => 60 ) );
 	}
 
 	/**

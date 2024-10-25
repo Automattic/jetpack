@@ -123,7 +123,6 @@ export default function useAiImage( {
 					feature,
 					size: '1792x1024', // the size, when the generation happens with DALL-E-3
 					responseFormat: 'b64_json', // the response format, when the generation happens with DALL-E-3
-					style: 'photographic', // the style of the image, when the generation happens with Stable Diffusion
 					messages: [
 						{
 							role: 'jetpack-ai',

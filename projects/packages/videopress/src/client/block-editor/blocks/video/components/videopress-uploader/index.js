@@ -12,6 +12,7 @@ import { __ } from '@wordpress/i18n';
  */
 import useResumableUploader from '../../../../../hooks/use-resumable-uploader';
 import { uploadFromLibrary } from '../../../../../hooks/use-uploader';
+import { isUserConnected } from '../../../../../lib/connection';
 import { buildVideoPressURL, pickVideoBlockAttributesFromUrl } from '../../../../../lib/url';
 import { VIDEOPRESS_VIDEO_ALLOWED_MEDIA_TYPES } from '../../constants';
 import { PlaceholderWrapper } from '../../edit';
@@ -29,11 +30,14 @@ const VideoPressUploader = ( {
 	fileToUpload,
 	isReplacing,
 	onReplaceCancel,
+	isActive,
 } ) => {
 	const [ uploadPaused, setUploadPaused ] = useState( false );
 	const [ uploadedVideoData, setUploadedVideoData ] = useState( false );
 	const [ isUploadingInProgress, setIsUploadingInProgress ] = useState( false );
 	const [ isVerifyingLocalMedia, setIsVerifyingLocalMedia ] = useState( false );
+
+	const hasUserConnection = isUserConnected();
 
 	/*
 	 * When the file to upload is set, start the upload process
@@ -79,7 +83,9 @@ const VideoPressUploader = ( {
 				const parsedBody = JSON.parse( body );
 				setUploadErrorDataState( parsedBody );
 				return;
-			} catch {}
+			} catch {
+				// If it failed to parse, handle generically below.
+			}
 		}
 
 		setUploadErrorDataState( error );
@@ -100,7 +106,7 @@ const VideoPressUploader = ( {
 	 * Handler to add a video via an URL.
 	 *
 	 * @param {string} videoSource - URL of the video to attach
-	 * @param {string} id - Attachment ID if available
+	 * @param {string} id          - Attachment ID if available
 	 */
 	function onSelectURL( videoSource, id ) {
 		// If the video source is a VideoPress URL, we can use it directly.
@@ -159,7 +165,7 @@ const VideoPressUploader = ( {
 	 * Uploading file handler.
 	 *
 	 * @param {File} media - media file to upload
-	 * @returns {void}
+	 * @return {void}
 	 */
 	function onSelectVideo( media ) {
 		/*
@@ -308,6 +314,24 @@ const VideoPressUploader = ( {
 					<Spinner />
 					<span>{ __( 'Loading…', 'jetpack-videopress-pkg' ) }</span>
 				</div>
+			</PlaceholderWrapper>
+		);
+	}
+
+	if ( ! isActive ) {
+		const needsConnectionText = __(
+			'Connect your WordPress.com account to enable high-quality, ad-free video.',
+			'jetpack-videopress-pkg'
+		);
+
+		const needsActivationText = __(
+			'Activate the VideoPress module to enable high-quality, ad-free video.',
+			'jetpack-videopress-pkg'
+		);
+
+		return (
+			<PlaceholderWrapper disableInstructions className="disabled">
+				<span>{ ! hasUserConnection ? needsConnectionText : needsActivationText }</span>
 			</PlaceholderWrapper>
 		);
 	}

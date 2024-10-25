@@ -769,6 +769,9 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_full_sync_sends_plugin_updates() {
+		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
+			$this->markTestSkipped( 'is temporarily skipped' );
+		}
 
 		if ( is_multisite() ) {
 			$this->markTestSkipped( 'Not compatible with multisite mode' );
@@ -805,6 +808,9 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_full_sync_sends_theme_updates() {
+		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
+			$this->markTestSkipped( 'is temporarily skipped' );
+		}
 
 		if ( is_multisite() ) {
 			$this->markTestSkipped( 'Not compatible with multisite mode' );

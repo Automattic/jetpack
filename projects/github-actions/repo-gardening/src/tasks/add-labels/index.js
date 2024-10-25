@@ -11,7 +11,7 @@ const getFiles = require( '../../utils/get-files' );
  * - Capitalize.
  *
  * @param {string} name - Feature name.
- * @returns {string} Cleaned up feature name.
+ * @return {string} Cleaned up feature name.
  */
 function cleanName( name ) {
 	const name_exceptions = {
@@ -51,13 +51,13 @@ function cleanName( name ) {
 /**
  * Build a list of labels to add to the issue, based off our file list.
  *
- * @param {GitHub} octokit - Initialized Octokit REST client.
- * @param {string} owner   - Repository owner.
- * @param {string} repo    - Repository name.
- * @param {string} number  - PR number.
+ * @param {GitHub}  octokit  - Initialized Octokit REST client.
+ * @param {string}  owner    - Repository owner.
+ * @param {string}  repo     - Repository name.
+ * @param {string}  number   - PR number.
  * @param {boolean} isDraft  - Whether the pull request is a draft.
- * @param {boolean} isRevert  - Whether the pull request is a revert.
- * @returns {Promise<Array>} Promise resolving to an array of keywords we'll search for.
+ * @param {boolean} isRevert - Whether the pull request is a revert.
+ * @return {Promise<Array>} Promise resolving to an array of keywords we'll search for.
  */
 async function getLabelsToAdd( octokit, owner, repo, number, isDraft, isRevert ) {
 	const keywords = new Set();
@@ -71,7 +71,7 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft, isRevert )
 
 	debug( 'add-labels: Loop through all files modified in this PR and add matching labels.' );
 
-	files.map( file => {
+	for ( const file of files ) {
 		// Projects.
 		const project = file.match( /^projects\/(?<ptype>[^/]*)\/(?<pname>[^/]*)\// );
 		if ( project && project.groups.ptype && project.groups.pname ) {
@@ -273,7 +273,7 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft, isRevert )
 		if ( anyTestFile ) {
 			keywords.add( '[Tests] Includes Tests' );
 		}
-	} );
+	}
 
 	// The Image CDN was previously named "Photon".
 	// If we're touching that package, let's add the Photon label too

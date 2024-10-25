@@ -80,7 +80,14 @@ class Full_Sync_Immediately extends Module {
 		$this->reset_data();
 
 		if ( ! is_array( $full_sync_config ) ) {
-			$full_sync_config = Defaults::$default_full_sync_config;
+			/*
+			 * Filter default sync config to allow injecting custom configuration.
+			 *
+			 * @param array $full_sync_config Sync configuration for all sync modules.
+			 *
+			 * @since 3.10.0
+			 */
+			$full_sync_config = apply_filters( 'jetpack_full_sync_config', Defaults::$default_full_sync_config );
 			if ( is_multisite() ) {
 				$full_sync_config['network_options'] = 1;
 			}

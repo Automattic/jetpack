@@ -55,7 +55,8 @@ function wpcomsh_rest_api_export( $request = null ) {
 	// Create a placeholder file in upload directory to stream exported content to.
 	$timestamp = time();
 	$filename  = "$export_name-$timestamp.xml";
-	$upload    = wp_upload_bits( $filename, null, '', null );
+	// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal @phan-suppress-current-line UnusedSuppression -- Phpdoc fixed in WP 6.6, but then we need a suppression for the WP 6.5 compat run. @todo Remove this line when we drop WP 6.5.
+	$upload = wp_upload_bits( $filename, null, '', null );
 
 	// Disable uploading of WXR file type.
 	remove_filter( 'upload_mimes', 'wpcomsh_whitelist_xml_upload' );

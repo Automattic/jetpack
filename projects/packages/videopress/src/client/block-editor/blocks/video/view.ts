@@ -11,7 +11,7 @@ import './style.scss';
 /**
  * Preview on Hover effect for VideoPress videos.
  *
- * @returns {void}
+ * @return {void}
  */
 function previewOnHoverEffect(): void {
 	/*

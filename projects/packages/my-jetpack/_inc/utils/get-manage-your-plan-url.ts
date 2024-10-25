@@ -5,7 +5,7 @@ import { getMyJetpackWindowInitialState } from '../data/utils/get-my-jetpack-win
 /**
  * Return the redurect URL, according to the Jetpack redurects source.
  *
- * @returns {string}            the redirect URL
+ * @return {string}            the redirect URL
  */
 const getManageYourPlanUrl = () => {
 	const { siteSuffix: site = '', blogID } = getMyJetpackWindowInitialState();

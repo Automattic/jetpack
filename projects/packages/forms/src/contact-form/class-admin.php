@@ -190,8 +190,8 @@ class Admin {
 		$grunion     = Contact_Form_Plugin::init();
 		$export_data = $grunion->get_feedback_entries_from_post();
 
-		$fields    = array_keys( $export_data );
-		$row_count = count( reset( $export_data ) );
+		$fields    = is_array( $export_data ) ? array_keys( $export_data ) : array();
+		$row_count = ! is_array( $export_data ) || empty( $export_data ) ? 0 : count( reset( $export_data ) );
 
 		$sheet_data = array( $fields );
 
@@ -738,6 +738,18 @@ class Admin {
 			}
 		}
 
+		// Extract IP address if we still do not have it at this point.
+		if (
+			! isset( $content_fields['_feedback_ip'] )
+			&& is_array( $chunks )
+			&& ! empty( $chunks[0] )
+		) {
+			preg_match( '/^IP: (.+)$/m', $chunks[0], $matches );
+			if ( ! empty( $matches[1] ) ) {
+				$content_fields['_feedback_ip'] = $matches[1];
+			}
+		}
+
 		$response_fields = array_diff_key( $response_fields, array_flip( $non_printable_keys ) );
 
 		echo '<hr class="feedback_response__mobile-separator" />';
@@ -757,7 +769,7 @@ class Admin {
 		echo '<hr />';
 
 		echo '<div class="feedback_response__item">';
-		if ( isset( $content_fields['_feedback_ip'] ) ) {
+		if ( ! empty( $content_fields['_feedback_ip'] ) ) {
 			echo '<div class="feedback_response__item-key">' . esc_html__( 'IP', 'jetpack-forms' ) . '</div>';
 			echo '<div class="feedback_response__item-value">' . esc_html( $content_fields['_feedback_ip'] ) . '</div>';
 		}

@@ -37,6 +37,16 @@
 		"**/jetpack_vendor/**",
 		"**/vendor/**"
 	],
+	// Custom settings for PHP files.
+	"[php]": {
+		// Ensure that PHP files are formatted with PHPCS.
+		"editor.formatOnSave": true,
+		"editor.defaultFormatter": "obliviousharmony.vscode-php-codesniffer"
+	},
+	// Run Code Actions for the editor.
+	"editor.codeActionsOnSave": {
+		"source.fixAll": "explicit"
+	},
 	// Use this wp-prettier from this path.
 	"prettier.prettierPath": "tools/js-tools/node_modules/prettier/index.cjs"
 }

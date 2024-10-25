@@ -5,7 +5,7 @@ export default function ImageTransition( { src, alt, spacing } ) {
 	const [ loaded, setLoaded ] = useState( false );
 	const [ containerHeight, setContainerHeight ] = useState( 'auto' );
 
-	const img = useRef();
+	const img = useRef( undefined );
 
 	const onImageLoad = () => {
 		setLoaded( true );

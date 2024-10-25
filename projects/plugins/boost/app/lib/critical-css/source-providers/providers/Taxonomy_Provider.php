@@ -72,6 +72,10 @@ class Taxonomy_Provider extends Provider {
 			return array();
 		}
 
+		if ( ! get_queried_object() ) {
+			return array();
+		}
+
 		// For example: "taxonomy_category".
 		return array( self::$name . '_' . get_queried_object()->taxonomy );
 	}

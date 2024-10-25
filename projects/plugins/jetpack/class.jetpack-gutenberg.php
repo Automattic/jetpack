@@ -12,6 +12,8 @@ use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
+use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Dismissed_Notices;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
@@ -431,18 +433,23 @@ class Jetpack_Gutenberg {
 			return false;
 		}
 
-		if ( get_option( 'jetpack_blocks_disabled', false ) ) {
-			return false;
+		$return = true;
+
+		if ( ! ( new Modules() )->is_active( 'blocks' ) ) {
+			$return = false;
 		}
 
 		/**
-		 * Filter to disable Gutenberg blocks
+		 * Filter to enable Gutenberg blocks.
+		 *
+		 * Defaults to true if (connected or in offline mode) and the Blocks module is active.
 		 *
 		 * @since 6.5.0
+		 * @since 13.9 Filter is able to activate or deactivate Gutenberg blocks.
 		 *
 		 * @param bool true Whether to load Gutenberg blocks
 		 */
-		return (bool) apply_filters( 'jetpack_gutenberg', true );
+		return (bool) apply_filters( 'jetpack_gutenberg', $return );
 	}
 
 	/**
@@ -555,7 +562,6 @@ class Jetpack_Gutenberg {
 		// Enqueue script.
 		$script_relative_path  = self::get_blocks_directory() . $type . '/view.js';
 		$script_deps_path      = JETPACK__PLUGIN_DIR . self::get_blocks_directory() . $type . '/view.asset.php';
-		$script_dependencies[] = 'wp-polyfill';
 		$script_dependencies[] = 'jetpack-blocks-assets-base-url';
 		if ( file_exists( $script_deps_path ) ) {
 			$asset_manifest      = include $script_deps_path;
@@ -667,6 +673,10 @@ class Jetpack_Gutenberg {
 		// wp-edit-post but wp-edit-post's styles break the Widget Editor and
 		// Site Editor) until a real fix gets unblocked.
 		// @todo Remove this once #20357 is properly fixed.
+		$wp_styles_fix = wp_styles()->query( 'jetpack-blocks-editor', 'registered' );
+		if ( empty( $wp_styles_fix ) ) {
+			wp_die( 'Your installation of Jetpack is incomplete. Please run "jetpack build plugins/jetpack" in your dev env.' );
+		}
 		wp_styles()->query( 'jetpack-blocks-editor', 'registered' )->deps = array();
 
 		Assets::enqueue_script( 'jetpack-blocks-editor' );
@@ -718,13 +728,16 @@ class Jetpack_Gutenberg {
 				'is_coming_soon'                => $status->is_coming_soon(),
 				'is_offline_mode'               => $status->is_offline_mode(),
 				'is_newsletter_feature_enabled' => class_exists( '\Jetpack_Memberships' ),
+				// this is the equivalent of JP initial state siteData.showMyJetpack (class-jetpack-redux-state-helper)
+				// used to determine if we can link to My Jetpack from the block editor
+				'is_my_jetpack_available'       => My_Jetpack_Initializer::should_initialize(),
 				/**
 				 * Enable the RePublicize UI in the block editor context.
 				 *
 				 * @module publicize
 				 *
 				 * @since 10.3.0
-				 * @deprecated $$next_version$$ This is a feature flag that is no longer used.
+				 * @deprecated 11.5 This is a feature flag that is no longer used.
 				 *
 				 * @param bool true Enable the RePublicize UI in the block editor context. Defaults to true.
 				 */
@@ -755,7 +768,6 @@ class Jetpack_Gutenberg {
 				'isSocialImageGeneratorEnabled'   => $social_initial_state['socialImageGeneratorSettings']['enabled'],
 				'dismissedNotices'                => Dismissed_Notices::get_dismissed_notices(),
 				'supportedAdditionalConnections'  => $publicize->get_supported_additional_connections(),
-				'autoConversionSettings'          => $social_initial_state['autoConversionSettings'],
 				'jetpackSharingSettingsUrl'       => esc_url_raw( admin_url( 'admin.php?page=jetpack#/sharing' ) ),
 				'userConnectionUrl'               => esc_url_raw( admin_url( 'admin.php?page=my-jetpack#/connection' ) ),
 				'useAdminUiV1'                    => $social_initial_state['useAdminUiV1'],
@@ -767,6 +779,8 @@ class Jetpack_Gutenberg {
 
 				$initial_state['social']['connectionRefreshPath'] = $social_initial_state['connectionRefreshPath'];
 			}
+
+			$initial_state['social']['featureFlags'] = $social_initial_state['featureFlags'];
 		}
 
 		wp_localize_script(

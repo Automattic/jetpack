@@ -9,7 +9,7 @@ import { PreflightTestStatus } from './constants';
  * - If all tests are successful, the overall status is SUCCESS.
  * - If none of the above conditions are met, the overall status defaults to PENDING.
  * @param {Array} tests - An array of PreflightTest objects.
- * @returns {string} The overall status as a string.
+ * @return {string} The overall status as a string.
  */
 export const calculateOverallStatus = tests => {
 	// If there are no tests, the overall status is PENDING.

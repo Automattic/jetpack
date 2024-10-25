@@ -42,7 +42,7 @@ export default function PlayerUI( { id, slides, metadata, disabled } ) {
 			[ id ]
 		);
 
-	const slideContainerRef = useRef();
+	const slideContainerRef = useRef( undefined );
 	const [ maxSlideWidth, setMaxSlideWidth ] = useState( null );
 	const [ resizeListener, { width, height } ] = useResizeObserver();
 	const [ targetAspectRatio, setTargetAspectRatio ] = useState( settings.defaultAspectRatio );

@@ -5,7 +5,7 @@ const extras = require( './extra-context' );
  * Decides if the current workflow failed
  *
  * @param {string} token - GitHub token
- * @returns {boolean} Whether it failed.
+ * @return {boolean} Whether it failed.
  */
 async function isWorkflowFailed( token ) {
 	// eslint-disable-next-line new-cap
@@ -37,7 +37,7 @@ async function isWorkflowFailed( token ) {
  * Creates and returns a run url
  *
  * @param {boolean} withAttempt - whether to include the run attempt in the url
- * @returns {string} the run url
+ * @return {string} the run url
  */
 function getRunUrl( withAttempt = true ) {
 	const { serverUrl, runId } = github.context;

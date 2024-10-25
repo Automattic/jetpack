@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Blog Privacy: Do not add custom rules to wpcom's robots.txt if blog_public=0

@@ -417,6 +417,25 @@ abstract class SAL_Site {
 	abstract public function is_deleted();
 
 	/**
+	 * Indicates that a site is an A4A client. Not used in Jetpack.
+	 *
+	 * @see class.json-api-site-jetpack.php for implementation.
+	 */
+	abstract public function is_a4a_client();
+
+	/**
+	 * Indicates that a site is an A4A dev site.
+	 *
+	 * @return bool
+	 */
+	public function is_a4a_dev_site() {
+		if ( function_exists( 'has_blog_sticker' ) ) {
+			return has_blog_sticker( 'a4a-is-dev-site' );
+		}
+		return false;
+	}
+
+	/**
 	 * Return the user interactions with a site. Not used in Jetpack.
 	 *
 	 * @param string $role The capability to check.
@@ -739,8 +758,8 @@ abstract class SAL_Site {
 		if ( ! $post || is_wp_error( $post ) ) {
 			return false;
 		}
-
-		if ( 'inherit' === $post->post_status ) {
+		// If the post is of status inherit, check if the parent exists ( different to 0 ) to check for the parent status object.
+		if ( 'inherit' === $post->post_status && 0 !== (int) $post->post_parent ) {
 			$parent_post     = get_post( $post->post_parent );
 			$post_status_obj = get_post_status_object( $parent_post->post_status );
 		} else {
@@ -1048,6 +1067,29 @@ abstract class SAL_Site {
 	 **/
 	public function get_theme_slug() {
 		return get_option( 'stylesheet' );
+	}
+
+	/**
+	 * Returns a list of errors for broken themes on the site.
+	 *
+	 * @return array
+	 */
+	public function get_theme_errors() {
+		$themes_with_errors = wp_get_themes( array( 'errors' => true ) );
+		$theme_errors       = array();
+
+		foreach ( $themes_with_errors as $theme ) {
+			$errors = $theme->errors();
+
+			if ( is_wp_error( $errors ) && ! empty( $errors->get_error_messages() ) ) {
+				$theme_errors[] = array(
+					'name'   => sanitize_title( $theme->get( 'Name' ) ),
+					'errors' => (array) $errors->get_error_messages(),
+				);
+			}
+		}
+
+		return $theme_errors;
 	}
 
 	/**

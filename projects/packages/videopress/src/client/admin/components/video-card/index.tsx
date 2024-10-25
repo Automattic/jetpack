@@ -60,7 +60,7 @@ const QuickActions = ( {
  * Video Card component
  *
  * @param {VideoCardProps} props - Component props.
- * @returns {React.ReactNode} - VideoCard react component.
+ * @return {React.ReactNode} - VideoCard react component.
  */
 export const VideoCard = ( {
 	title,

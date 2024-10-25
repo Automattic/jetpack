@@ -2,14 +2,14 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 3.28.0-alpha
+ * Version: 5.10.0
  * Author: Automattic
  * Author URI: http://automattic.com/
  *
  * @package wpcomsh
  */
 
-define( 'WPCOMSH_VERSION', '3.28.0-alpha' );
+define( 'WPCOMSH_VERSION', '5.10.0' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -21,6 +21,7 @@ if ( ! class_exists( 'Atomic_Persistent_Data' ) ) {
 
 require_once __DIR__ . '/constants.php';
 require_once __DIR__ . '/wpcom-features/functions-wpcom-features.php';
+require_once __DIR__ . '/wpcom-marketplace/software/class-marketplace-software-manager.php';
 require_once __DIR__ . '/functions.php';
 require_once __DIR__ . '/i18n.php';
 require_once __DIR__ . '/lib/require-lib.php';
@@ -28,7 +29,6 @@ require_once __DIR__ . '/lib/require-lib.php';
 require_once __DIR__ . '/plugin-hotfixes.php';
 
 require_once __DIR__ . '/footer-credit/footer-credit.php';
-require_once __DIR__ . '/block-theme-footer-credits/block-theme-footer-credits.php';
 require_once __DIR__ . '/storefront/storefront.php';
 require_once __DIR__ . '/custom-colors/colors.php';
 require_once __DIR__ . '/storage/storage.php';
@@ -133,6 +133,9 @@ require_once __DIR__ . '/notices/media-library-private-site-cdn-notice.php';
 require_once __DIR__ . '/notices/anyone-can-register-notice.php';
 require_once __DIR__ . '/notices/feature-moved-to-jetpack-notices.php';
 
+// Performance Profiler
+require_once __DIR__ . '/performance-profiler/performance-profiler.php';
+
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
 	require_once __DIR__ . '/class-wpcomsh-cli-commands.php';
 	require_once __DIR__ . '/woa.php';
@@ -140,8 +143,10 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 
 require_once __DIR__ . '/wpcom-migration-helpers/site-migration-helpers.php';
 
-require_once __DIR__ . '/wpcom-plugins/plugins.php';
-require_once __DIR__ . '/wpcom-themes/themes.php';
+// We include WPCom Themes results and installation on non-WP_CLI context.
+if ( ! defined( 'WP_CLI' ) || ! WP_CLI ) {
+	require_once __DIR__ . '/wpcom-themes/themes.php';
+}
 
 require_once __DIR__ . '/class-jetpack-plugin-compatibility.php';
 Jetpack_Plugin_Compatibility::get_instance();
@@ -216,9 +221,40 @@ function wpcomsh_jetpack_sso_auth_cookie_expiration( $seconds ) {
 add_filter( 'jetpack_sso_auth_cookie_expiration', 'wpcomsh_jetpack_sso_auth_cookie_expiration' );
 
 /**
- * If a user is logged in to WordPress.com, log him in automatically to wp-login
+ * Determine if users should be enforced to log in with their WP.com account.
+ *
+ * Sites without local users:
+ * - WP.com login, always.
+ *
+ * Sites with local users:
+ * - If user comes from Calypso: WP.com login
+ * - Otherwise: Jetpack SSO login, so they can decide whether to use a WP.com account or a local account.
  */
-add_filter( 'jetpack_sso_bypass_login_forward_wpcom', '__return_true' );
+function wpcomsh_bypass_jetpack_sso_login() {
+	$calypso_domains = array(
+		'https://wordpress.com/',
+		'https://horizon.wordpress.com/',
+		'https://wpcalypso.wordpress.com/',
+		'http://calypso.localhost:3000/',
+		'http://127.0.0.1:41050/', // Desktop App.
+	);
+	if ( in_array( wp_get_referer(), $calypso_domains, true ) ) {
+		return true;
+	}
+
+	if ( class_exists( '\Automattic\Jetpack\Connection\Manager' ) ) {
+		$connection_manager = new \Automattic\Jetpack\Connection\Manager( 'jetpack' );
+		$users              = get_users( array( 'fields' => array( 'ID' ) ) );
+		foreach ( $users as $user ) {
+			if ( ! $connection_manager->is_user_connected( $user->ID ) ) {
+				return false;
+			}
+		}
+	}
+
+	return true;
+}
+add_filter( 'jetpack_sso_bypass_login_forward_wpcom', 'wpcomsh_bypass_jetpack_sso_login' );
 
 /**
  * Overwrite the default value of SSO "Match by Email" setting.
@@ -521,13 +557,49 @@ function wpcomsh_footer_rum_js() {
 		}
 	}
 
+	$rum_kv = array();
+	$rum_kv = wpcomsh_get_woo_rum_data( $rum_kv );
+
+	if ( count( $rum_kv ) > 0 ) {
+		$rum_kv = wp_json_encode( $rum_kv, JSON_FORCE_OBJECT );
+		if ( is_string( $rum_kv ) ) {
+			$rum_kv = 'data-customproperties="' . esc_attr( $rum_kv ) . '"';
+		} else {
+			$rum_kv = '';
+		}
+	} else {
+		$rum_kv = '';
+	}
+
 	printf(
-		'<script defer id="bilmur" data-provider="wordpress.com" data-service="%1$s" %2$s src="%3$s"></script>' . "\n", //phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
+		'<script defer id="bilmur" %1$s data-provider="wordpress.com" data-service="%2$s" %3$s src="%4$s"></script>' . "\n", //phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
+		$rum_kv, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		esc_attr( $service ),
 		wp_kses_post( $allow_iframe ),
 		esc_url( 'https://s0.wp.com/wp-content/js/bilmur.min.js?m=' . gmdate( 'YW' ) )
 	);
 }
+
+/**
+ * Adds WooCommerce-related data to the Real User Monitoring (RUM) array.
+ *
+ * This function checks if WooCommerce is active on the site and adds
+ * this information to the provided RUM data array. It's designed to be
+ * used as part of the RUM data collection process for Atomic sites.
+ *
+ * @param array $rum_kv An array of existing RUM key-value pairs.
+ *                      If not provided, an empty array will be used.
+ *
+ * @return array The input array with added WooCommerce data.
+ *               The 'woo_active' key will be added with a boolean value
+ *               indicating whether WooCommerce is active.
+ */
+function wpcomsh_get_woo_rum_data( $rum_kv = array() ) {
+	$woo_active           = class_exists( 'WooCommerce' ) ? '1' : '0';
+	$rum_kv['woo_active'] = $woo_active;
+	return $rum_kv;
+}
+
 add_action( 'wp_footer', 'wpcomsh_footer_rum_js' );
 add_action( 'admin_footer', 'wpcomsh_footer_rum_js' );
 
@@ -601,13 +673,3 @@ if (
 	0 === strncmp( $_SERVER['REQUEST_URI'], '/wp-admin/widgets.php?', strlen( '/wp-admin/widgets.php?' ) ) ) { //phpcs:ignore WordPress.Security.ValidatedSanitizedInput
 	add_action( 'plugins_loaded', 'wpcomsh_avoid_proxied_v2_banner' );
 }
-
-// Temporary feature flag for the new Reading Settings page.
-add_filter( 'calypso_use_modernized_reading_settings', '__return_true' );
-
-/**
- * Temporary feature flags for the new Newsletter and podcasting Settings pages,
- * its removal should be preceded by a removal of the filter's usage in Jetpack: https://github.com/Automattic/jetpack/pull/32146
- */
-add_filter( 'calypso_use_newsletter_settings', '__return_true' );
-add_filter( 'calypso_use_podcasting_settings', '__return_true' );

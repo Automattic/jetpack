@@ -7,7 +7,7 @@ import {
 	withColors,
 	withFontSizes,
 	useBlockProps,
-	__experimentalUseGradient as useGradient, // eslint-disable-line wpcalypso/no-unsafe-wp-apis
+	__experimentalUseGradient as useGradient, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/block-editor';
 import { TextControl, Toolbar, withFallbackStyles } from '@wordpress/components';
 import { compose, usePrevious } from '@wordpress/compose';
@@ -39,6 +39,7 @@ import SubscriptionSkeletonLoader from './subscription-skeleton-loader';
 
 const { getComputedStyle } = window;
 const isGradientAvailable = !! useGradient;
+const useGradientIfAvailable = isGradientAvailable ? useGradient : () => ( {} );
 const name = metadata.name.replace( 'jetpack/', '' );
 
 const applyFallbackStyles = withFallbackStyles( ( node, ownProps ) => {
@@ -125,18 +126,14 @@ export function SubscriptionEdit( props ) {
 		};
 	} );
 
-	const emailFieldGradient = isGradientAvailable
-		? useGradient( {
-				gradientAttribute: 'emailFieldGradient',
-				customGradientAttribute: 'customEmailFieldGradient',
-		  } )
-		: {};
-	const buttonGradient = isGradientAvailable
-		? useGradient( {
-				gradientAttribute: 'buttonGradient',
-				customGradientAttribute: 'customButtonGradient',
-		  } )
-		: {};
+	const emailFieldGradient = useGradientIfAvailable( {
+		gradientAttribute: 'emailFieldGradient',
+		customGradientAttribute: 'customEmailFieldGradient',
+	} );
+	const buttonGradient = useGradientIfAvailable( {
+		gradientAttribute: 'buttonGradient',
+		customGradientAttribute: 'customButtonGradient',
+	} );
 
 	const sharedClasses = {
 		'no-border-radius': borderRadius === 0,
@@ -296,6 +293,7 @@ export function SubscriptionEdit( props ) {
 							<div className="wp-block-jetpack-subscriptions__form-elements">
 								{ activeStyleName !== 'button' && (
 									<TextControl
+										__nextHasNoMarginBottom={ true }
 										placeholder={ subscribePlaceholder }
 										disabled={ true }
 										className={ clsx(

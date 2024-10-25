@@ -42,95 +42,6 @@ function wpcomsh_remove_gutenberg_experimental_menu() {
 }
 
 /**
- * Adds a polyfill for DOMRect in environments which do not support it.
- *
- * This can be removed when plugin support requires WordPress 5.4.0+.
- *
- * @see gutenberg_add_url_polyfill
- * @see https://core.trac.wordpress.org/ticket/49360
- * @see https://developer.mozilla.org/en-US/docs/Web/API/DOMRect
- * @see https://developer.wordpress.org/reference/functions/wp_default_packages_vendor/
- *
- * @param WP_Scripts $scripts WP_Scripts object.
- */
-function wpcomsh_add_dom_rect_polyfill( $scripts ) {
-	// WP.com: Only register if viewing the block editor.
-	global $pagenow;
-	if ( ! ( 'post.php' === $pagenow || 'post-new.php' === $pagenow ) ) {
-		return;
-	}
-
-	/*
-	 * Only register polyfill if not already registered. This prevents handling
-	 * in an environment where core has updated to manage the polyfill. This
-	 * depends on the action being handled after default script registration.
-	 */
-	$is_polyfill_script_registered = (bool) $scripts->query( 'wp-polyfill-dom-rect', 'registered' );
-	if ( $is_polyfill_script_registered ) {
-		return;
-	}
-
-	$scripts->add(
-		'wp-polyfill-dom-rect',
-		plugins_url( 'assets/wp-polyfill-dom-rect.js', __DIR__ ),
-		array(),
-		'3.42.0'
-	);
-
-	did_action( 'init' ) && $scripts->add_inline_script(
-		'wp-polyfill',
-		wp_get_script_polyfill(
-			$scripts,
-			array(
-				'window.DOMRect' => 'wp-polyfill-dom-rect',
-			)
-		)
-	);
-}
-add_action( 'wp_default_scripts', 'wpcomsh_add_dom_rect_polyfill', 30 );
-
-/**
- * Updates the site_logo option when the custom_logo theme-mod gets updated.
- *
- * Registered on the `pre_set_theme_mod_custom_logo` hook.
- *
- * @param  mixed $value Attachment ID of the custom logo or an empty value.
- * @return mixed
- */
-function wpcomsh_sync_custom_logo_to_site_logo( $value ) {
-	if ( empty( $value ) ) {
-		delete_option( 'site_logo' );
-	} else {
-		update_option( 'site_logo', $value );
-	}
-
-	return $value;
-}
-
-/**
- * Hotfix a Gutenberg bug that prevents updating a logo from the Customizer.
- *
- * These fixes are from https://github.com/WordPress/gutenberg/pull/33179, and can be
- * removed when that change is released in Gutenberg and all Atomic sites are updated.
- *
- * Ported from wpcom hotfix: D63662-code
- */
-function wpcomsh_hotfix_gutenberg_logo_bug() {
-	// Only add the filter if Gutenberg is active and the current version is missing the filter.
-	if (
-		( defined( 'GUTENBERG_VERSION' ) || defined( 'GUTENBERG_DEVELOPMENT_MODE' ) ) &&
-		false === has_action( 'pre_set_theme_mod_custom_logo', 'gutenberg__sync_custom_logo_to_site_logo' )
-	) {
-		add_filter( 'pre_set_theme_mod_custom_logo', 'wpcomsh_sync_custom_logo_to_site_logo' );
-	}
-
-	// Remove a function that can inadvertently delete your logo.
-	remove_action( 'update_option_site_logo', 'gutenberg__sync_site_logo_to_custom_logo', 10 );
-}
-// Wait until after Gutenberg has registered the Site Logo block on the `init` action, priority 10.
-add_action( 'init', 'wpcomsh_hotfix_gutenberg_logo_bug', 11 );
-
-/**
  * Hotfix a Gutenberg bug that inadvertently loads wp-reset-editor-syles stylesheet in the
  * iframed site editor.
  *
@@ -204,11 +115,6 @@ function gutenberg_enqueue_block_styles_assets() {
 			}
 		}
 	}
-}
-
-if ( version_compare( get_bloginfo( 'version' ), '5.8.2', '<' ) && 30 === has_action( 'enqueue_block_assets', 'enqueue_block_styles_assets' ) && false === has_action( 'enqueue_block_assets', 'gutenberg_enqueue_block_styles_assets' ) ) {
-	remove_action( 'enqueue_block_assets', 'enqueue_block_styles_assets', 30 );
-	add_action( 'enqueue_block_assets', 'gutenberg_enqueue_block_styles_assets', 30 );
 }
 
 /**

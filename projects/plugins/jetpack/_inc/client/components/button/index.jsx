@@ -44,7 +44,9 @@ export default class Button extends React.Component {
 		} );
 
 		props.className = clsx( className, buttonClasses );
-		props.ref = node => ( this.domNode = node );
+		props.ref = node => {
+			this.domNode = node;
+		};
 
 		return React.createElement( element, props, this.props.children );
 	}

@@ -66,11 +66,11 @@ type ParsedApiResponse = {
  * Kick off a request to generate speed scores for this site. Will automatically
  * poll for a response until the task is done, returning a SpeedScores object.
  *
- * @param {boolean} force - Force regenerate speed scores.
- * @param {string} rootUrl - Root URL for the HTTP request.
- * @param {string} siteUrl - URL of the site.
- * @param {string} nonce - Nonce to use for authentication.
- * @returns {SpeedScoresSet} Speed scores returned by the server.
+ * @param {boolean} force   - Force regenerate speed scores.
+ * @param {string}  rootUrl - Root URL for the HTTP request.
+ * @param {string}  siteUrl - URL of the site.
+ * @param {string}  nonce   - Nonce to use for authentication.
+ * @return {SpeedScoresSet} Speed scores returned by the server.
  */
 export async function requestSpeedScores(
 	force = false,
@@ -103,8 +103,8 @@ export async function requestSpeedScores(
  *
  * @param {string} rootUrl - Root URL for the HTTP request.
  * @param {string} siteUrl - URL of the site.
- * @param {string} nonce - Nonce to use for authentication.
- * @returns {SpeedHistoryResponse} Speed score history returned by the server.
+ * @param {string} nonce   - Nonce to use for authentication.
+ * @return {SpeedHistoryResponse} Speed score history returned by the server.
  */
 export async function requestSpeedScoresHistory(
 	rootUrl: string,
@@ -128,7 +128,7 @@ export async function requestSpeedScoresHistory(
  * scores (if ready), and a status (success|pending|error).
  *
  * @param {JSONObject} response - API response to parse
- * @returns {ParsedApiResponse} API response, processed.
+ * @return {ParsedApiResponse} API response, processed.
  */
 function parseResponse( response: JSONObject ): ParsedApiResponse {
 	// Handle an explicit error
@@ -181,8 +181,8 @@ function parseResponse( response: JSONObject ): ParsedApiResponse {
  *
  * @param {string} rootUrl - Root URL of the site to request metrics for
  * @param {string} siteUrl - Site URL to request metrics for
- * @param {string} nonce - Nonce to use for authentication
- * @returns {SpeedScoresSet} Speed scores returned by the server.
+ * @param {string} nonce   - Nonce to use for authentication
+ * @return {SpeedScoresSet} Speed scores returned by the server.
  */
 async function pollRequest(
 	rootUrl: string,
@@ -211,7 +211,7 @@ async function pollRequest(
  *
  * @param {number} mobile  - Mobile speed score
  * @param {number} desktop - Desktop speed score
- * @returns {string} letter score
+ * @return {string} letter score
  */
 export function getScoreLetter( mobile: number, desktop: number ): string {
 	const sum = mobile + desktop;
@@ -240,7 +240,7 @@ export function getScoreLetter( mobile: number, desktop: number ): string {
  * The message varies depending on the results of the speed scores so lets modify this
  *
  * @param {SpeedScoresSet} scores - Speed scores returned by the server.
- * @returns {boolean} true if scores changed.
+ * @return {boolean} true if scores changed.
  */
 export function didScoresChange( scores: SpeedScoresSet ): boolean {
 	const current = scores.current;
@@ -265,7 +265,7 @@ export function didScoresChange( scores: SpeedScoresSet ): boolean {
  * Determine the change in scores to pass through to other functions.
  *
  * @param {SpeedScoresSet} scores - Speed scores returned by the server.
- * @returns {number} - The change in scores in percentage.
+ * @return {number} - The change in scores in percentage.
  */
 export function getScoreMovementPercentage( scores: SpeedScoresSet ): number {
 	const current = scores.current;
@@ -286,7 +286,7 @@ export function getScoreMovementPercentage( scores: SpeedScoresSet ): number {
  * Determine the number of days since the last timestamp.
  *
  * @param {number} timestamp - the timestamp returned by the server.
- * @returns {number} - The number of days.
+ * @return {number} - The number of days.
  */
 export function calculateDaysSince( timestamp: number ): number {
 	// Create Date objects for the provided timestamp and the current date

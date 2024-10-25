@@ -25,7 +25,7 @@ import type { UsageBarProps, UsageControlProps } from './types';
  * UsageBar component
  *
  * @param {UsageBarProps} props - Component props.
- * @returns {React.ReactNode}     UsageBar react component.
+ * @return {React.ReactNode}     UsageBar react component.
  */
 export const UsageBar = ( { usage }: UsageBarProps ): React.JSX.Element => {
 	if ( usage == null ) {
@@ -121,7 +121,8 @@ function UsageControl( {
 	);
 
 	return (
-		<BaseControl help={ help } label={ __( 'Available Requests', 'jetpack' ) }>
+		<BaseControl help={ help }>
+			<BaseControl.VisualLabel>{ __( 'Available Requests', 'jetpack' ) }</BaseControl.VisualLabel>
 			{ ! loading && usageDisplay }
 			{ loading && loadingPlaceholder }
 		</BaseControl>

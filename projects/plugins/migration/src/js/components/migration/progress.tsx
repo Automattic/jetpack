@@ -19,7 +19,7 @@ interface Props {
  * Migration progress screen
  *
  * @param {object} props - Props
- * @returns {React.ReactElement} JSX Element
+ * @return {React.ReactElement} JSX Element
  */
 export function MigrationProgress( props: Props ) {
 	const { apiRoot, apiNonce, sourceSiteSlug } = props;

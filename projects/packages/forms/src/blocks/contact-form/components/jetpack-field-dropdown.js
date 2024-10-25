@@ -1,4 +1,4 @@
-import { RichText } from '@wordpress/block-editor';
+import { RichText, useBlockProps } from '@wordpress/block-editor';
 import { compose } from '@wordpress/compose';
 import { useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -14,12 +14,15 @@ import { useJetpackFieldStyles } from './use-jetpack-field-styles';
 
 const JetpackDropdown = ( { attributes, clientId, isSelected, name, setAttributes } ) => {
 	const { id, label, options, required, requiredText, toggleLabel, width } = attributes;
-	const optionsWrapper = useRef();
+	const optionsWrapper = useRef( undefined );
 	const formStyle = useFormStyle( clientId );
-
-	const classes = clsx( 'jetpack-field jetpack-field-dropdown', {
-		'is-selected': isSelected,
-		'has-placeholder': ! isEmpty( toggleLabel ),
+	const { blockStyle } = useJetpackFieldStyles( attributes );
+	const blockProps = useBlockProps( {
+		className: clsx( 'jetpack-field jetpack-field-dropdown', {
+			'is-selected': isSelected,
+			'has-placeholder': ! isEmpty( toggleLabel ),
+		} ),
+		style: blockStyle,
 	} );
 
 	useFormWrapper( { attributes, clientId, name } );
@@ -112,10 +115,8 @@ const JetpackDropdown = ( { attributes, clientId, isSelected, name, setAttribute
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] );
 
-	const { blockStyle } = useJetpackFieldStyles( attributes );
-
 	return (
-		<div className={ classes } style={ blockStyle }>
+		<div { ...blockProps }>
 			<div className="jetpack-field-dropdown__wrapper">
 				<JetpackFieldLabel
 					required={ required }

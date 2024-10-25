@@ -3,9 +3,10 @@ import { FormLabel } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
-import React, { useCallback } from 'react';
+import { FEATURE_NEWSLETTER_JETPACK } from 'lib/plans/constants';
+import { useCallback } from 'react';
 import { connect } from 'react-redux';
-import { isUnavailableInOfflineMode, isUnavailableInSiteConnectionMode } from 'state/connection';
+import { isUnavailableInOfflineMode, hasConnectedOwner } from 'state/connection';
 import { getModule } from 'state/modules';
 import Textarea from '../components/textarea';
 import { SUBSCRIPTIONS_MODULE_NAME } from './constants';
@@ -14,12 +15,13 @@ const SUBSCRIPTION_OPTIONS = 'subscription_options';
 
 const MessagesSetting = props => {
 	const {
+		isSubscriptionsActive,
 		isSavingAnyOption,
 		subscriptionsModule,
 		onOptionChange,
 		welcomeMessage,
 		unavailableInOfflineMode,
-		unavailableInSiteConnectionMode,
+		siteHasConnectedUser,
 	} = props;
 
 	const changeWelcomeMessageState = useCallback(
@@ -32,22 +34,23 @@ const MessagesSetting = props => {
 		[ onOptionChange ]
 	);
 
+	const isSaving = isSavingAnyOption( [ SUBSCRIPTION_OPTIONS ] );
 	const disabled =
-		unavailableInOfflineMode ||
-		unavailableInSiteConnectionMode ||
-		isSavingAnyOption( [ SUBSCRIPTION_OPTIONS ] );
+		! siteHasConnectedUser || ! isSubscriptionsActive || unavailableInOfflineMode || isSaving;
 
 	return (
 		<SettingsCard
 			{ ...props }
 			header={ __( 'Messages', 'jetpack' ) }
+			feature={ FEATURE_NEWSLETTER_JETPACK }
 			module={ SUBSCRIPTIONS_MODULE_NAME }
-			saveDisabled={ disabled }
+			saveDisabled={ isSaving }
+			isDisabled={ disabled }
 		>
 			<SettingsGroup
 				hasChild
 				disableInOfflineMode
-				disableInSiteConnectionMode
+				disableInSiteConnectionMode={ ! siteHasConnectedUser }
 				module={ subscriptionsModule }
 			>
 				<p className="jp-settings-card__email-settings">
@@ -81,16 +84,14 @@ const MessagesSetting = props => {
 export default withModuleSettingsFormHelpers(
 	connect( ( state, ownProps ) => {
 		return {
+			isSubscriptionsActive: ownProps.getOptionValue( SUBSCRIPTIONS_MODULE_NAME ),
 			subscriptionsModule: getModule( state, SUBSCRIPTIONS_MODULE_NAME ),
 			isSavingAnyOption: ownProps.isSavingAnyOption,
 			moduleName: ownProps.moduleName,
 			onOptionChange: ownProps.onOptionChange,
 			welcomeMessage: ownProps.getOptionValue( SUBSCRIPTION_OPTIONS )?.welcome || '',
 			unavailableInOfflineMode: isUnavailableInOfflineMode( state, SUBSCRIPTIONS_MODULE_NAME ),
-			unavailableInSiteConnectionMode: isUnavailableInSiteConnectionMode(
-				state,
-				SUBSCRIPTIONS_MODULE_NAME
-			),
+			siteHasConnectedUser: hasConnectedOwner( state ),
 		};
 	} )( MessagesSetting )
 );

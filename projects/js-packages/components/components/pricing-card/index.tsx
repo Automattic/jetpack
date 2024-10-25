@@ -15,7 +15,7 @@ import './style.scss';
  * doesn't exist.
  *
  * @param {CurrencyObject} currencyObject -- A currency object returned from `getCurrencyObject`.
- * @returns {boolean} Whether or not to display the price decimal part.
+ * @return {boolean} Whether or not to display the price decimal part.
  */
 const showPriceDecimals = ( currencyObject: CurrencyObject ): boolean => {
 	return currencyObject.fraction.indexOf( '00' ) === -1;
@@ -25,7 +25,7 @@ const showPriceDecimals = ( currencyObject: CurrencyObject ): boolean => {
  * The Pricing card component.
  *
  * @param {PricingCardProps} props -- The component props.
- * @returns {React.ReactNode} The rendered component.
+ * @return {React.ReactNode} The rendered component.
  */
 const PricingCard: React.FC< PricingCardProps > = ( {
 	currencyCode = 'USD',

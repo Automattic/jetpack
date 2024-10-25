@@ -13,7 +13,7 @@ const getLabels = require( './get-labels' );
  * @param {string} number     - Issue number.
  * @param {string} action     - Action that triggered the event ('opened', 'reopened', 'labeled').
  * @param {object} eventLabel - Label that was added to the issue.
- * @returns {Promise<Array>} Promise resolving to an array of Priority labels.
+ * @return {Promise<Array>} Promise resolving to an array of Priority labels.
  */
 async function hasPriorityLabels( octokit, owner, repo, number, action, eventLabel ) {
 	const labels = await getLabels( octokit, owner, repo, number );

@@ -1,7 +1,7 @@
 import { createPortal, useCallback, useEffect, useState } from '@wordpress/element';
 
 export const shadowRootSupported =
-	window && window.Element && window.Element.prototype.hasOwnProperty( 'attachShadow' );
+	window && window.Element && Object.hasOwn( window.Element.prototype, 'attachShadow' );
 
 export default function ShadowRoot( {
 	enabled,
@@ -93,6 +93,7 @@ function Styles( { globalStyleElements } ) {
 						</style>
 					);
 				}
+				return undefined;
 			} ) }
 		</>
 	);

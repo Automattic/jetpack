@@ -116,15 +116,36 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 	public function include_svg_icons() {
 		// Define SVG sprite file in Jetpack.
 		$svg_icons = dirname( __DIR__ ) . '/theme-tools/social-menu/social-menu.svg';
-
+		$svg_icons = class_exists( 'Automattic\Jetpack\Classic_Theme_Helper\Main' ) ? JETPACK__PLUGIN_DIR . 'jetpack_vendor/automattic/jetpack-classic-theme-helper/src/social-menu/social-menu.svg' : dirname( __DIR__ ) . '/theme-tools/social-menu/social-menu.svg';
 		// Define SVG sprite file in WPCOM.
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			$svg_icons = dirname( __DIR__ ) . '/social-menu/social-menu.svg';
+			$svg_icons = class_exists( 'Automattic\Jetpack\Classic_Theme_Helper\Main' ) ? JETPACK__PLUGIN_DIR . 'jetpack_vendor/automattic/jetpack-classic-theme-helper/src/social-menu/social-menu.svg' : dirname( __DIR__ ) . '/social-menu/social-menu.svg';
 		}
 
 		// If it exists, include it.
 		if ( is_file( $svg_icons ) ) {
-			require_once $svg_icons;
+			$svg_contents = file_get_contents( $svg_icons ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Only reading a local file.
+		}
+
+		if ( ! empty( $svg_contents ) ) {
+			$allowed_tags = array(
+				'svg'    => array(
+					'style'       => true,
+					'version'     => true,
+					'xmlns'       => true,
+					'xmlns:xlink' => true,
+				),
+				'defs'   => array(),
+				'symbol' => array(
+					'id'      => true,
+					'viewbox' => true,
+				),
+				'path'   => array(
+					'd'     => true,
+					'style' => true,
+				),
+			);
+			echo wp_kses( $svg_contents, $allowed_tags );
 		}
 	}
 

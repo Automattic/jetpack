@@ -1,5 +1,10 @@
-import { ThemeProvider, useBreakpointMatch } from '@automattic/jetpack-components';
-import { Modal } from '@wordpress/components';
+import {
+	getRedirectUrl,
+	Text,
+	ThemeProvider,
+	useBreakpointMatch,
+} from '@automattic/jetpack-components';
+import { ExternalLink, Modal } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
@@ -19,14 +24,15 @@ export const ManageConnectionsModal = () => {
 		};
 	}, [] );
 
-	const { setKeyringResult, closeConnectionsModal } = useDispatch( store );
+	const { setKeyringResult, closeConnectionsModal, setReconnectingAccount } = useDispatch( store );
 
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
 
 	const closeModal = useCallback( () => {
 		setKeyringResult( null );
+		setReconnectingAccount( undefined );
 		closeConnectionsModal();
-	}, [ closeConnectionsModal, setKeyringResult ] );
+	}, [ closeConnectionsModal, setKeyringResult, setReconnectingAccount ] );
 
 	const hasKeyringResult = Boolean( keyringResult?.ID );
 
@@ -57,7 +63,25 @@ export const ManageConnectionsModal = () => {
 						);
 					}
 
-					return <ServicesList />;
+					return (
+						<>
+							<ServicesList />
+							<div className={ styles[ 'manual-share' ] }>
+								<em>
+									<Text>
+										{ __(
+											`Want to share to other networks? Use our Manual Sharing feature from the editor.`,
+											'jetpack'
+										) }
+										&nbsp;
+										<ExternalLink href={ getRedirectUrl( 'jetpack-social-manual-sharing-help' ) }>
+											{ __( 'Learn more', 'jetpack' ) }
+										</ExternalLink>
+									</Text>
+								</em>
+							</div>
+						</>
+					);
 				} )()
 			}
 		</Modal>
@@ -69,7 +93,7 @@ export const ManageConnectionsModal = () => {
  *
  * This component can be used to avoid dealing with modal state management.
  *
- * @returns {import('react').ReactNode} - React element
+ * @return {import('react').ReactNode} - React element
  */
 export function ThemedConnectionsModal() {
 	const shouldModalBeOpen = useSelect( select => {

@@ -1,7 +1,9 @@
+import { localizeUrl } from '@automattic/i18n-utils';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button, ExternalLink } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
+import React from 'react';
 import { useState, JSXElementConstructor, ReactElement } from 'react';
 
 interface Props {
@@ -15,18 +17,18 @@ interface Props {
 /**
  * Create the block description link.
  *
- * @param {Props} props                                                               - The component props.
+ * @param {Props}                                                      props          - The component props.
  * @param {string | ReactElement<string | JSXElementConstructor<any>>} props.children - The component children.
- * @param {string} props.title                                                        - Block title.
- * @param {string} props.url                                                          - Support link URL.
- * @param {number} props.postId                                                       - Post ID.
+ * @param {string}                                                     props.title    - Block title.
+ * @param {string}                                                     props.url      - Support link URL.
+ * @param {number}                                                     props.postId   - Post ID.
  */
 export default function DescriptionSupportLink( {
 	children,
 	title,
 	url,
 	postId,
-}: Props ): JSX.Element {
+}: Props ): React.JSX.Element {
 	// This was cooked up to only apply the link in the BlockEditor sidebar.
 	// Since there was no identifier in the environment to differentiate.
 	const [ ref, setRef ] = useState< Element | null >();
@@ -36,7 +38,7 @@ export default function DescriptionSupportLink( {
 	const setShowSupportDoc = helpCenterDispatch?.setShowSupportDoc;
 
 	if ( ref && ! ref?.closest( '.block-editor-block-inspector' ) ) {
-		return children as JSX.Element;
+		return children as React.JSX.Element;
 	}
 
 	return (
@@ -47,7 +49,7 @@ export default function DescriptionSupportLink( {
 				<Button
 					onClick={ () => {
 						setShowHelpCenter( true );
-						setShowSupportDoc( url, postId );
+						setShowSupportDoc( localizeUrl( url ), postId );
 						tracks.recordEvent( 'jetpack_mu_wpcom_block_description_support_link_click', {
 							block: title,
 							support_link: url,

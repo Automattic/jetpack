@@ -22,7 +22,7 @@ import type { ReactNode } from 'react';
  * Video Upload Area component
  *
  * @param {VideoUploadAreaProps} props - Component props.
- * @returns {ReactNode} - VideoUploadArea react component.
+ * @return {ReactNode} - VideoUploadArea react component.
  */
 const VideoUploadArea = ( { className, onSelectFiles }: VideoUploadAreaProps ) => {
 	const [ isSm ] = useBreakpointMatch( 'sm' );

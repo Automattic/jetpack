@@ -1,12 +1,3 @@
-export type SharesData = {
-	is_share_limit_enabled: boolean;
-	to_be_publicized_count: number;
-	share_limit: number;
-	publicized_count: number;
-	show_advanced_plan_upgrade_nudge: boolean;
-	shared_posts_count: number;
-};
-
 export type ConnectionStatus = 'ok' | 'broken';
 
 export type Connection = {
@@ -15,6 +6,7 @@ export type Connection = {
 	display_name: string;
 	external_display?: string;
 	external_id: string;
+	external_name?: string;
 	username: string;
 	enabled: boolean;
 	done: boolean;
@@ -29,21 +21,11 @@ export type Connection = {
 	status: ConnectionStatus;
 };
 
-export type ConnectionService = {
-	ID: string;
-	label: string;
-	type: 'publicize' | 'other';
-	description: string;
-	connect_URL: string;
-	external_users_only?: boolean;
-	multiple_external_user_ID_support?: boolean;
-};
-
 export type ConnectionData = {
 	connections: Connection[];
 	deletingConnections?: Array< number | string >;
 	updatingConnections?: Array< number | string >;
-	reconnectingAccount?: string;
+	reconnectingAccount?: Connection;
 	keyringResult?: KeyringResult;
 };
 
@@ -51,15 +33,43 @@ export type JetpackSettings = {
 	showNudge?: boolean;
 };
 
+export type ShareStatusItem = Pick< Connection, 'profile_link' | 'profile_picture' > & {
+	connection_id: number;
+	status: 'success' | 'failure';
+	message: string;
+	timestamp: number;
+	service: string;
+	external_name: string;
+	external_id: string;
+};
+
+export type PostShareStatus = {
+	shares: Array< ShareStatusItem >;
+	done?: boolean;
+	/**
+	 * Whether an API request is in flight.
+	 */
+	loading?: boolean;
+
+	/**
+	 * Whether the polling is in progress, which includes
+	 * - the API request wait time
+	 * - the polling interval/delay
+	 */
+	polling?: boolean;
+};
+
+export type ShareStatus = {
+	isModalOpen?: boolean;
+	[ PostId: number ]: PostShareStatus;
+};
+
 // TODO we should have a consistent structure across all the pages - editor, dashboard, admin page etc.
 export type SocialStoreState = {
 	connectionData: ConnectionData;
-	sharesData: SharesData;
-	// on post editor
-	hasPaidPlan?: boolean;
 	// on Jetack Social admin page
 	jetpackSettings?: JetpackSettings;
-	useAdminUiV1?: boolean;
+	shareStatus?: ShareStatus;
 };
 
 export interface KeyringAdditionalUser {

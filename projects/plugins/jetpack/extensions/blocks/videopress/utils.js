@@ -11,7 +11,7 @@ import { ASPECT_RATIOS, DEFAULT_EMBED_BLOCK } from './constants';
  * existing class names.
  *
  * @param {string} existingClassNames - Any existing class names.
- * @returns {string} The class names without any aspect ratio related class.
+ * @return {string} The class names without any aspect ratio related class.
  */
 export const removeAspectRatioClasses = existingClassNames => {
 	const aspectRatioClassNames = ASPECT_RATIOS.reduce(
@@ -30,7 +30,7 @@ export const removeAspectRatioClasses = existingClassNames => {
  * @param {string}  html               - The preview HTML that possibly contains an iframe with width and height set.
  * @param {string}  existingClassNames - Any existing class names.
  * @param {boolean} allowResponsive    - If the responsive class names should be added, or removed.
- * @returns {string} Deduped class names.
+ * @return {string} Deduped class names.
  */
 export function getClassNames( html, existingClassNames = '', allowResponsive = true ) {
 	if ( ! allowResponsive ) {
@@ -86,7 +86,7 @@ export const pickGUIDFromUrl = url => {
  * based on the passed attributes.
  *
  * @param {object} attributes - Block attributes.
- * @returns {boolean} 	        Whether the block is a VideoPress block instance.
+ * @return {boolean} Whether the block is a VideoPress block instance.
  */
 export const isVideoPressBlockBasedOnAttributes = attributes => {
 	const { guid, videoPressTracks, isVideoPressExample } = attributes;
@@ -114,7 +114,7 @@ export const isVideoPressBlockBasedOnAttributes = attributes => {
  * Creates an embed block if a VideoPress URL is passed.
  *
  * @param {object} props - The block's props.
- * @returns {object|undefined} The embed block, if appropriate.
+ * @return {object|undefined} The embed block, if appropriate.
  */
 export const createVideoPressEmbedBlock = props => {
 	const { attributes = {} } = props;

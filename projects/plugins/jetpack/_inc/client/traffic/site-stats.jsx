@@ -121,7 +121,7 @@ class SiteStatsComponent extends React.Component {
 					countRoles
 				)
 			) {
-				this.state[ `count_roles_${ role }` ] = includes( countRoles, role, false );
+				this.setState( { [ `count_roles_${ role }` ]: includes( countRoles, role, false ) } );
 			}
 		} );
 	}
@@ -136,7 +136,7 @@ class SiteStatsComponent extends React.Component {
 			if (
 				! [ 'administrator', 'editor', 'author', 'subscriber', 'contributor' ].includes( role )
 			) {
-				this.state[ `roles_${ role }` ] = includes( roles, role, false );
+				this.setState( { [ `roles_${ role }` ]: includes( roles, role, false ) } );
 			}
 		} );
 	}
@@ -203,13 +203,10 @@ class SiteStatsComponent extends React.Component {
 								? __( 'Unavailable in Offline Mode', 'jetpack' )
 								: createInterpolateElement(
 										__(
-											'<Button>Activate Jetpack Stats</Button> to see page views, likes, followers, subscribers, and more! <a>Learn More</a>',
+											'Activate Jetpack Stats to see page views, likes, followers, subscribers, and more! <a>Learn More</a>',
 											'jetpack'
 										),
 										{
-											Button: (
-												<Button rna className="jp-link-button" onClick={ this.activateStats } />
-											),
 											a: (
 												<a
 													href={ getRedirectUrl( 'jetpack-support-wordpress-com-stats' ) }

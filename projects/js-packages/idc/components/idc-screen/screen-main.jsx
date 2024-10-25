@@ -13,7 +13,7 @@ import SafeMode from '../safe-mode';
  * Retrieve the main screen body.
  *
  * @param {object} props - The properties.
- * @returns {React.Component} The ScreenMain component.
+ * @return {React.Component} The ScreenMain component.
  */
 const ScreenMain = props => {
 	const {

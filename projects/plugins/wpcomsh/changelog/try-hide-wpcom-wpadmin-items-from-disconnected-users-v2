@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Added a check to hide the plugins banner for non-wpcom connected users.

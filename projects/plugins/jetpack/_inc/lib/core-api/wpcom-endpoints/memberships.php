@@ -58,6 +58,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 										'gutenberg',
 										'gutenberg-wpcom',
 										'launchpad',
+										'import-paid-subscribers',
 									),
 									true
 								);

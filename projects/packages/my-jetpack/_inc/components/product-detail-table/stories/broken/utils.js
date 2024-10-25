@@ -10,7 +10,7 @@ const mapResponse = {
  * Helper function that returns the story mock data.
  *
  * @param {string} product - Product slug
- * @returns {Array}          Story mock data
+ * @return {Array}          Story mock data
  */
 export function getMockData( product ) {
 	const isArray = product.constructor === Array;
@@ -43,7 +43,7 @@ export function getMockData( product ) {
 /**
  * Return all product mocked data.
  *
- * @returns {Array} All products mocked data.
+ * @return {Array} All products mocked data.
  */
 export function getAllMockData() {
 	return getMockData( [ ...Object.keys( mapResponse ) ] );
@@ -52,7 +52,7 @@ export function getAllMockData() {
 /**
  * Return product slugs list
  *
- * @returns {Array} product slugs list.
+ * @return {Array} product slugs list.
  */
 export function getProductSlugs() {
 	return [ 'boost', 'protect', 'social' ];

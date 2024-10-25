@@ -115,7 +115,7 @@ EOF;
 	public function __construct(
 		ModuleContainer $moduleContainer,
 		$config = array(),
-		WordPressConnector $client = null
+		?WordPressConnector $client = null
 	) {
 		parent::__construct( $moduleContainer, $config );
 

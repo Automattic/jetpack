@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useRef } from '@wordpress/element';
 
 const useLongPress = callback => {
-	const touchTimer = useRef();
-	const targetElement = useRef();
+	const touchTimer = useRef( undefined );
+	const targetElement = useRef( undefined );
 	const savedCallback = useRef( callback );
 
 	const preventGhostClick = useCallback( event => {

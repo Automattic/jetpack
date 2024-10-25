@@ -150,35 +150,37 @@ abstract class Product {
 			throw new \Exception( 'Product classes must declare the $slug attribute.' );
 		}
 		return array(
-			'slug'                      => static::$slug,
-			'plugin_slug'               => static::$plugin_slug,
-			'name'                      => static::get_name(),
-			'title'                     => static::get_title(),
-			'description'               => static::get_description(),
-			'long_description'          => static::get_long_description(),
-			'tiers'                     => static::get_tiers(),
-			'features'                  => static::get_features(),
-			'features_by_tier'          => static::get_features_by_tier(),
-			'disclaimers'               => static::get_disclaimers(),
-			'status'                    => static::get_status(),
-			'pricing_for_ui'            => static::get_pricing_for_ui(),
-			'is_bundle'                 => static::is_bundle_product(),
-			'is_plugin_active'          => static::is_plugin_active(),
-			'is_upgradable'             => static::is_upgradable(),
-			'is_upgradable_by_bundle'   => static::is_upgradable_by_bundle(),
-			'supported_products'        => static::get_supported_products(),
-			'wpcom_product_slug'        => static::get_wpcom_product_slug(),
-			'requires_user_connection'  => static::$requires_user_connection,
-			'has_any_plan_for_product'  => static::has_any_plan_for_product(),
-			'has_free_plan_for_product' => static::has_free_plan_for_product(),
-			'has_paid_plan_for_product' => static::has_paid_plan_for_product(),
-			'has_free_offering'         => static::$has_free_offering,
-			'manage_url'                => static::get_manage_url(),
-			'purchase_url'              => static::get_purchase_url(),
-			'post_activation_url'       => static::get_post_activation_url(),
-			'standalone_plugin_info'    => static::get_standalone_info(),
-			'class'                     => static::class,
-			'post_checkout_url'         => static::get_post_checkout_url(),
+			'slug'                            => static::$slug,
+			'plugin_slug'                     => static::$plugin_slug,
+			'name'                            => static::get_name(),
+			'title'                           => static::get_title(),
+			'description'                     => static::get_description(),
+			'long_description'                => static::get_long_description(),
+			'tiers'                           => static::get_tiers(),
+			'features'                        => static::get_features(),
+			'features_by_tier'                => static::get_features_by_tier(),
+			'disclaimers'                     => static::get_disclaimers(),
+			'status'                          => static::get_status(),
+			'pricing_for_ui'                  => static::get_pricing_for_ui(),
+			'is_bundle'                       => static::is_bundle_product(),
+			'is_plugin_active'                => static::is_plugin_active(),
+			'is_upgradable'                   => static::is_upgradable(),
+			'is_upgradable_by_bundle'         => static::is_upgradable_by_bundle(),
+			'supported_products'              => static::get_supported_products(),
+			'wpcom_product_slug'              => static::get_wpcom_product_slug(),
+			'requires_user_connection'        => static::$requires_user_connection,
+			'has_any_plan_for_product'        => static::has_any_plan_for_product(),
+			'has_free_plan_for_product'       => static::has_free_plan_for_product(),
+			'has_paid_plan_for_product'       => static::has_paid_plan_for_product(),
+			'has_free_offering'               => static::$has_free_offering,
+			'manage_url'                      => static::get_manage_url(),
+			'purchase_url'                    => static::get_purchase_url(),
+			'post_activation_url'             => static::get_post_activation_url(),
+			'post_activation_urls_by_feature' => static::get_manage_urls_by_feature(),
+			'standalone_plugin_info'          => static::get_standalone_info(),
+			'class'                           => static::class,
+			'post_checkout_url'               => static::get_post_checkout_url(),
+			'post_checkout_urls_by_feature'   => static::get_post_checkout_urls_by_feature(),
 		);
 	}
 
@@ -198,7 +200,8 @@ abstract class Product {
 		$response = Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d/features', $site_id ), '1.1' );
 
 		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
-			return new WP_Error( 'site_features_fetch_failed' );
+			$features = new WP_Error( 'site_features_fetch_failed' );
+			return $features;
 		}
 
 		$body           = wp_remote_retrieve_body( $response );
@@ -306,6 +309,15 @@ abstract class Product {
 	abstract public static function get_manage_url();
 
 	/**
+	 * Get the URL where the user manages the product for each product feature
+	 *
+	 * @return ?array
+	 */
+	public static function get_manage_urls_by_feature() {
+		return null;
+	}
+
+	/**
 	 * Get the URL the user is taken after activating the product
 	 *
 	 * @return ?string
@@ -320,6 +332,15 @@ abstract class Product {
 	 * @return ?string
 	 */
 	public static function get_post_checkout_url() {
+		return null;
+	}
+
+	/**
+	 * Get the URL the user is taken after purchasing the product through the checkout for each product feature
+	 *
+	 * @return ?array
+	 */
+	public static function get_post_checkout_urls_by_feature() {
 		return null;
 	}
 
@@ -439,6 +460,30 @@ abstract class Product {
 	}
 
 	/**
+	 * Determine if the product is owned or not
+	 * An owned product is defined as a product that is any of the following
+	 * - Active
+	 * - Has historically been active
+	 * - The user has a plan that includes the product
+	 * - The user has the standalone plugin for the product installed
+	 *
+	 * @return boolean
+	 */
+	public static function is_owned() {
+		$historically_active_modules = Jetpack_Options::get_option( 'historically_active_modules', array() );
+		$standalone_info             = static::get_standalone_info();
+		if ( ( static::is_active() && Jetpack_Options::get_option( 'id' ) ) ||
+			$standalone_info['is_standalone_installed'] ||
+			in_array( static::$slug, $historically_active_modules, true ) ||
+			static::has_any_plan_for_product()
+		) {
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
 	 * Undocumented function
 	 *
 	 * @return string
@@ -454,7 +499,7 @@ abstract class Product {
 			// We only consider missing site & user connection an error when the Product is active.
 			if ( static::$requires_site_connection && ! ( new Connection_Manager() )->is_connected() ) {
 				// Site has never been connected before
-				if ( ! Jetpack_Options::get_option( 'id' ) ) {
+				if ( ! Jetpack_Options::get_option( 'id' ) && ! static::is_owned() ) {
 					$status = Products::STATUS_NEEDS_FIRST_SITE_CONNECTION;
 				} else {
 					$status = Products::STATUS_SITE_CONNECTION_ERROR;
@@ -472,10 +517,10 @@ abstract class Product {
 			// However if the standalone plugin for this product is active, then we will defer to showing errors that prevent the module from being active
 			// This is because if a standalone plugin is installed, we expect the product to not show as "inactive" on My Jetpack
 			if ( static::$requires_plan || ( ! static::has_any_plan_for_product() && static::$has_standalone_plugin && ! self::is_plugin_active() ) ) {
-				$status = static::$has_free_offering ? Products::STATUS_NEEDS_PURCHASE_OR_FREE : Products::STATUS_NEEDS_PURCHASE;
+				$status = static::is_owned() && static::$has_free_offering && ! static::$requires_plan ? Products::STATUS_NEEDS_ACTIVATION : Products::STATUS_NEEDS_PLAN;
 			} elseif ( static::$requires_site_connection && ! ( new Connection_Manager() )->is_connected() ) {
-				// Site has never been connected before
-				if ( ! Jetpack_Options::get_option( 'id' ) ) {
+				// Site has never been connected before and product is not owned
+				if ( ! Jetpack_Options::get_option( 'id' ) && ! static::is_owned() ) {
 					$status = Products::STATUS_NEEDS_FIRST_SITE_CONNECTION;
 				} else {
 					$status = Products::STATUS_SITE_CONNECTION_ERROR;
@@ -484,7 +529,7 @@ abstract class Product {
 				$status = Products::STATUS_USER_CONNECTION_ERROR;
 			}
 		} elseif ( ! static::has_any_plan_for_product() ) {
-			$status = static::$has_free_offering ? Products::STATUS_NEEDS_PURCHASE_OR_FREE : Products::STATUS_NEEDS_PURCHASE;
+			$status = static::is_owned() && static::$has_free_offering && ! static::$requires_plan ? Products::STATUS_NEEDS_ACTIVATION : Products::STATUS_NEEDS_PLAN;
 		} else {
 			$status = Products::STATUS_INACTIVE;
 		}

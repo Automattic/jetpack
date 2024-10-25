@@ -290,6 +290,17 @@ abstract class Publicize_Base {
 	}
 
 	/**
+	 * Whether the site has the feature flag enabled.
+	 *
+	 * @param string $flag_name The feature flag to check. Will be prefixed with 'jetpack_social_has_' for the option.
+	 * @param string $feature_name The feature name to check for for the Current_Plan check, without the social- prefix.
+	 * @return bool
+	 */
+	public function has_feature_flag( $flag_name, $feature_name ): bool {
+		return Publicize_Script_Data::has_feature_flag( $feature_name );
+	}
+
+	/**
 	 * Does the given user have a connection to the service on the given blog?
 	 *
 	 * @param string    $service_name 'facebook', 'twitter', etc.
@@ -486,6 +497,10 @@ abstract class Publicize_Base {
 			return 'https://instagram.com/' . $cmeta['connection_data']['meta']['username'];
 		}
 
+		if ( 'threads' === $service_name && isset( $connection['external_name'] ) ) {
+			return 'https://www.threads.net/@' . $connection['external_name'];
+		}
+
 		if ( 'mastodon' === $service_name && isset( $cmeta['external_name'] ) ) {
 			return 'https://mastodon.social/@' . $cmeta['external_name'];
 		}
@@ -500,6 +515,10 @@ abstract class Publicize_Base {
 
 		if ( 'twitter' === $service_name ) {
 			return 'https://twitter.com/' . substr( $cmeta['external_display'], 1 ); // Has a leading '@'.
+		}
+
+		if ( 'bluesky' === $service_name ) {
+			return 'https://bsky.app/profile/' . $cmeta['external_id'];
 		}
 
 		if ( 'linkedin' === $service_name ) {
@@ -2003,6 +2022,8 @@ abstract class Publicize_Base {
 
 	/**
 	 * Check if the auto-conversion feature is one of the active features.
+	 *
+	 * TODO: Remove this after certain releases of Jetpack v15.
 	 *
 	 * @param string $type Whether image or video.
 	 *

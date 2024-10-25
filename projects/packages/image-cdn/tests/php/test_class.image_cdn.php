@@ -1221,6 +1221,48 @@ class WP_Test_Image_CDN extends Image_CDN_Attachment_Test_Case {
 	}
 
 	/**
+	 * Tests that Photon ignores empty dimensions. It should fall back to e.g. a "size-foo" class.
+	 *
+	 * @covers Image_CDN::filter_the_content
+	 */
+	public function test_image_cdn_filter_the_content_empty_width_and_height() {
+		$sample_html      = '<img src="http://example.com/test.png" class="test size-large" width="" height="" />';
+		$filtered_content = Image_CDN::filter_the_content( $sample_html );
+		$attributes       = wp_kses_hair( $filtered_content, wp_allowed_protocols() );
+		$query_str        = wp_parse_url( $attributes['src']['value'], PHP_URL_QUERY );
+		parse_str( $query_str, $query_params );
+
+		$this->assertArrayHasKey( 'width', $attributes );
+		$this->assertSame( '1024', $attributes['width']['value'] );
+		$this->assertArrayHasKey( 'height', $attributes );
+		$this->assertSame( '768', $attributes['height']['value'] );
+
+		$this->assertArrayHasKey( 'fit', $query_params );
+		$this->assertEquals( '1024,768', $query_params['fit'] );
+	}
+
+	/**
+	 * Tests that Photon ignores bogus dimensions. It should fall back to e.g. a "size-foo" class.
+	 *
+	 * @covers Image_CDN::filter_the_content
+	 */
+	public function test_image_cdn_filter_the_content_bogus_width_and_height() {
+		$sample_html      = '<img src="http://example.com/test.png" class="test size-large" width="1vh" height="1vh" />';
+		$filtered_content = Image_CDN::filter_the_content( $sample_html );
+		$attributes       = wp_kses_hair( $filtered_content, wp_allowed_protocols() );
+		$query_str        = wp_parse_url( $attributes['src']['value'], PHP_URL_QUERY );
+		parse_str( $query_str, $query_params );
+
+		$this->assertArrayHasKey( 'width', $attributes );
+		$this->assertSame( '1024', $attributes['width']['value'] );
+		$this->assertArrayHasKey( 'height', $attributes );
+		$this->assertSame( '768', $attributes['height']['value'] );
+
+		$this->assertArrayHasKey( 'fit', $query_params );
+		$this->assertEquals( '1024,768', $query_params['fit'] );
+	}
+
+	/**
 	 * Tests that Photon will filter for an AMP response.
 	 *
 	 * @author westonruter

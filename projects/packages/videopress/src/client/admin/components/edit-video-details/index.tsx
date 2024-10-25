@@ -223,6 +223,7 @@ const EditVideoDetails = () => {
 		selectPosterImageFromLibrary,
 		posterImageSource,
 		libraryAttachment,
+		isUpdatingPoster,
 	} = useEditDetails();
 
 	const { canPerformAction } = usePermission();
@@ -251,7 +252,7 @@ const EditVideoDetails = () => {
 		history.push( '/' );
 	}
 
-	let thumbnail: string | JSX.Element = posterImage;
+	let thumbnail: string | React.JSX.Element = posterImage;
 
 	if ( posterImageSource === 'video' && useVideoAsThumbnail ) {
 		thumbnail = <VideoPlayer src={ url } currentTime={ selectedTime } />;
@@ -312,7 +313,7 @@ const EditVideoDetails = () => {
 							<VideoThumbnail
 								thumbnail={ thumbnail }
 								loading={ isFetchingData }
-								processing={ processing }
+								processing={ processing || isUpdatingPoster }
 								deleting={ isDeleting }
 								updating={ updating }
 								duration={ duration }

@@ -1,0 +1,31 @@
+{
+	"translation-revision-date": "2024-07-04 10:54:06+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=1; plural=0;", "lang": "zh_CN" },
+			"Remove premium styles": [ "\u5220\u9664\u9ad8\u7ea7\u6837\u5f0f" ],
+			"Change all of your site's fonts, colors and more. Available on the %s plan.": [
+				"\u66f4\u6539\u60a8\u7ad9\u70b9\u7684\u6240\u6709\u5b57\u4f53\u3001\u989c\u8272\u7b49\u3002 %s \u5957\u9910\u63d0\u4f9b\u6b64\u529f\u80fd\u3002"
+			],
+			"Your site includes premium styles that are only visible to visitors after upgrading to the %s plan or higher.": [
+				"\u60a8\u7684\u7ad9\u70b9\u5305\u542b\u9ad8\u7ea7\u6837\u5f0f\uff0c\u8fd9\u4e9b\u6837\u5f0f\u4ec5\u5bf9\u5347\u7ea7\u5230 %s \u5957\u9910\u6216\u66f4\u9ad8\u7ea7\u522b\u5957\u9910\u7684\u8bbf\u5ba2\u53ef\u89c1\u3002"
+			],
+			"Your site includes premium styles that are only visible to visitors after <a>upgrading to the %s plan or higher</a>.": [
+				"\u60a8\u7684\u7ad9\u70b9\u5305\u542b\u9ad8\u7ea7\u6837\u5f0f\uff0c\u8fd9\u4e9b\u6837\u5f0f\u4ec5\u5bf9<a>\u5347\u7ea7\u5230 %s \u5957\u9910\u6216\u66f4\u9ad8\u7ea7\u522b\u5957\u9910</a>\u7684\u8bbf\u5ba2\u53ef\u89c1\u3002"
+			],
+			"Generating preview\u2026": [ "\u6b63\u5728\u751f\u6210\u9884\u89c8\u2026" ],
+			"Preview without premium styles": [
+				"\u9884\u89c8\uff08\u4e0d\u5305\u542b\u9ad8\u7ea7\u6837\u5f0f\uff09"
+			],
+			"Upgrade now": [ "\u7acb\u5373\u5347\u7ea7" ],
+			"Upgrade plan": [ "\u5347\u7ea7\u5957\u9910" ],
+			"Try it out": [ "\u8bd5\u8bd5\u770b" ],
+			"A powerful new way to style your site": [
+				"\u4e00\u79cd\u7528\u6765\u8bbe\u8ba1\u60a8\u7ad9\u70b9\u6837\u5f0f\u7684\u5f3a\u5927\u65b0\u65b9\u5f0f"
+			]
+		}
+	},
+	"comment": { "reference": "wpcom-global-styles/dist/wpcom-global-styles.js" }
+}

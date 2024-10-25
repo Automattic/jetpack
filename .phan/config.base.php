@@ -63,6 +63,7 @@ function make_phan_config( $dir, $options = array() ) {
 	$extra_stubs    = array();
 	$global_stubs   = array();
 	$internal_stubs = array();
+
 	foreach ( array_merge( $options['stubs'], $options['+stubs'] ) as $stub ) {
 		switch ( $stub ) {
 			case 'akismet':
@@ -104,6 +105,7 @@ function make_phan_config( $dir, $options = array() ) {
 				$stubs[] = "$root/.phan/stubs/wpcom-stubs.php";
 				if ( $dir !== "$root/projects/plugins/wpcomsh" ) {
 					$extra_stubs[] = "$root/projects/plugins/wpcomsh/feature-plugins/nav-redesign.php";
+					$extra_stubs[] = "$root/projects/plugins/wpcomsh/feature-plugins/masterbar.php";
 					$extra_stubs[] = "$root/projects/plugins/wpcomsh/footer-credit/footer-credit/customizer.php";
 					$extra_stubs[] = "$root/projects/plugins/wpcomsh/footer-credit/theme-optimizations.php";
 					$extra_stubs[] = "$root/projects/plugins/wpcomsh/lib/require-lib.php";
@@ -264,6 +266,12 @@ function make_phan_config( $dir, $options = array() ) {
 	$composer = json_decode( file_get_contents( "$dir/composer.json" ), true );
 	if ( isset( $composer['require']['php'] ) && preg_match( '/^>=\s*(\d+\.\d+)(?:\.\d+)?\s*$/', $composer['require']['php'], $m ) ) {
 		$config['minimum_target_php_version'] = $m[1];
+	}
+
+	// Disable PhanDeprecatedImplicitNullableParam if still supporting PHP 7.0
+	// @todo Remove this once we drop PHP 7.0 support everywhere.
+	if ( isset( $config['minimum_target_php_version'] ) && version_compare( $config['minimum_target_php_version'], '7.1.0', '<' ) ) {
+		$config['suppress_issue_types'][] = 'PhanDeprecatedImplicitNullableParam';
 	}
 
 	return $config;

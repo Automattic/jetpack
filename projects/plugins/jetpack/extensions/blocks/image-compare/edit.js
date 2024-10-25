@@ -14,34 +14,30 @@ import './view.js';
 
 const Edit = ( { attributes, clientId, isSelected, setAttributes } ) => {
 	const { align, imageBefore, imageAfter, caption, orientation } = attributes;
-	// Check for useResizeObserver, not available in older Gutenberg.
-	let resizeListener = null;
-	let sizes = null;
 
 	const blockProps = useBlockProps();
-	const juxtaposeRef = useRef();
-	if ( useResizeObserver ) {
-		// Let's look for resize so we can trigger the thing.
-		[ resizeListener, sizes ] = useResizeObserver();
+	const juxtaposeRef = useRef( undefined );
 
-		useDebounce(
-			sz => {
-				if ( sz > 0 ) {
-					if ( typeof juxtapose !== 'undefined' && juxtapose.sliders ) {
-						// only update for *this* slide
-						juxtapose.sliders.forEach( elem => {
-							const parentElem = elem.wrapper.parentElement;
-							if ( parentElem.id === clientId ) {
-								elem.optimizeWrapper( sz );
-							}
-						} );
-					}
+	// Let's look for resize so we can trigger the thing.
+	const [ resizeListener, sizes ] = useResizeObserver();
+
+	useDebounce(
+		sz => {
+			if ( sz > 0 ) {
+				if ( typeof juxtapose !== 'undefined' && juxtapose.sliders ) {
+					// only update for *this* slide
+					juxtapose.sliders.forEach( elem => {
+						const parentElem = elem.wrapper.parentElement;
+						if ( parentElem.id === clientId ) {
+							elem.optimizeWrapper( sz );
+						}
+					} );
 				}
-			},
-			200,
-			sizes.width
-		);
-	}
+			}
+		},
+		200,
+		sizes.width
+	);
 
 	// Initial state if attributes already set or not.
 	// If both images are set, add juxtapose class, which is picked up by the library.

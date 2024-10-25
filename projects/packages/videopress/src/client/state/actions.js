@@ -2,7 +2,9 @@
  * External dependencies
  */
 import apiFetch from '@wordpress/api-fetch';
+import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
+import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
@@ -33,6 +35,7 @@ import {
 	VIDEO_PRIVACY_LEVELS,
 	WP_REST_API_MEDIA_ENDPOINT,
 	SET_VIDEO_UPLOADING,
+	SET_VIDEO_UPLOADING_ERROR,
 	SET_VIDEO_PROCESSING,
 	SET_VIDEO_UPLOADED,
 	SET_IS_FETCHING_PURCHASES,
@@ -53,9 +56,12 @@ import {
 	UPDATE_PAGINATION_AFTER_DELETE,
 	FLUSH_DELETED_VIDEOS,
 	UPDATE_VIDEO_IS_PRIVATE,
+	DISMISS_ERRORED_VIDEO,
 } from './constants';
 import { mapVideoFromWPV2MediaEndpoint } from './utils/map-videos';
 import { videoIsPrivate } from './utils/video-is-private';
+
+const debug = debugFactory( 'videopress:actions' );
 
 /**
  * Utility function to pool the video data until poster is ready.
@@ -204,7 +210,7 @@ const updateVideoPrivacy =
  * used as a primary hint for the UI to update.
  *
  * @param {string|number} id - Video post ID
- * @returns {object} Action object
+ * @return {object} Action object
  */
 const removeVideo = id => {
 	return { type: REMOVE_VIDEO, id };
@@ -214,7 +220,7 @@ const removeVideo = id => {
  * Thunk action to remove a video from the state,
  *
  * @param {string|number} id - Video post ID
- * @returns {Function} Thunk action
+ * @return {Function} Thunk action
  */
 const deleteVideo =
 	id =>
@@ -258,22 +264,21 @@ const deleteVideo =
  * Thunk action to upload videos for VideoPress.
  *
  * @param {File} file - File to upload
- * @returns {Function} Thunk action
+ * @return {Function} Thunk action
  */
 const uploadVideo =
 	file =>
 	async ( { dispatch } ) => {
 		const tempId = uid();
 
-		// @todo: implement progress and error handler
-		const noop = () => {};
-
+		debug( 'Uploading video' );
 		dispatch( { type: SET_VIDEO_UPLOADING, id: tempId, title: file?.name } );
 
 		// @todo: this should be stored in the state
 		const tokenData = await getMediaToken( 'upload-jwt' );
 
 		const onSuccess = async data => {
+			debug( 'Video uploaded', data );
 			dispatch( { type: SET_VIDEO_PROCESSING, id: tempId, data } );
 			const video = await pollingUploadedVideoData( data );
 			dispatch( { type: SET_VIDEO_UPLOADED, video } );
@@ -283,10 +288,18 @@ const uploadVideo =
 			dispatch( { type: SET_VIDEO_UPLOAD_PROGRESS, id: tempId, bytesSent, bytesTotal } );
 		};
 
+		const onError = err => {
+			debug( 'Upload error', err );
+			const error =
+				err?.originalResponse?.getHeader( 'x-videopress-upload-error' ) ||
+				__( 'Upload error', 'jetpack-videopress-pkg' );
+			dispatch( { type: SET_VIDEO_UPLOADING_ERROR, id: tempId, error } );
+		};
+
 		fileUploader( {
 			tokenData,
 			file,
-			onError: noop,
+			onError,
 			onProgress,
 			onSuccess,
 		} );
@@ -296,7 +309,7 @@ const uploadVideo =
  * Thunk action to upload local videos for VideoPress.
  *
  * @param {object} file - File data
- * @returns {Function} Thunk action
+ * @return {Function} Thunk action
  */
 const uploadVideoFromLibrary =
 	file =>
@@ -435,7 +448,7 @@ const setVideoPressSettings = videoPressSettings => {
  * Thunk action to remove a video from the state,
  *
  * @param {object} settings - VideoPress settings
- * @returns {Function}        Thunk action
+ * @return {Function}        Thunk action
  */
 const updateVideoPressSettings =
 	settings =>
@@ -474,6 +487,10 @@ const updateVideoIsPrivate = ( id, isPrivate ) => {
 
 const dismissFirstVideoPopover = () => {
 	return { type: DISMISS_FIRST_VIDEO_POPOVER };
+};
+
+const dismissErroredVideo = id => {
+	return { type: DISMISS_ERRORED_VIDEO, id };
 };
 
 const actions = {
@@ -521,6 +538,7 @@ const actions = {
 	updateVideoPressSettings,
 
 	updateVideoIsPrivate,
+	dismissErroredVideo,
 };
 
 export { actions as default };

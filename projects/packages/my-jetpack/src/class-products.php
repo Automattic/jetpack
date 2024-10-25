@@ -24,8 +24,8 @@ class Products {
 	const STATUS_MODULE_DISABLED             = 'module_disabled';
 	const STATUS_PLUGIN_ABSENT               = 'plugin_absent';
 	const STATUS_PLUGIN_ABSENT_WITH_PLAN     = 'plugin_absent_with_plan';
-	const STATUS_NEEDS_PURCHASE              = 'needs_purchase';
-	const STATUS_NEEDS_PURCHASE_OR_FREE      = 'needs_purchase_or_free';
+	const STATUS_NEEDS_PLAN                  = 'needs_plan';
+	const STATUS_NEEDS_ACTIVATION            = 'needs_activation';
 	const STATUS_NEEDS_FIRST_SITE_CONNECTION = 'needs_first_site_connection';
 
 	/**
@@ -40,8 +40,7 @@ class Products {
 		self::STATUS_MODULE_DISABLED,
 		self::STATUS_PLUGIN_ABSENT,
 		self::STATUS_PLUGIN_ABSENT_WITH_PLAN,
-		self::STATUS_NEEDS_PURCHASE,
-		self::STATUS_NEEDS_PURCHASE_OR_FREE,
+		self::STATUS_NEEDS_ACTIVATION,
 		self::STATUS_NEEDS_FIRST_SITE_CONNECTION,
 	);
 
@@ -53,6 +52,18 @@ class Products {
 	public static $broken_module_statuses = array(
 		self::STATUS_SITE_CONNECTION_ERROR,
 		self::STATUS_USER_CONNECTION_ERROR,
+	);
+
+	/**
+	 * List of statuses that display the module as needing attention with a warning
+	 *
+	 * @var array
+	 */
+	public static $warning_module_statuses = array(
+		self::STATUS_SITE_CONNECTION_ERROR,
+		self::STATUS_USER_CONNECTION_ERROR,
+		self::STATUS_PLUGIN_ABSENT_WITH_PLAN,
+		self::STATUS_NEEDS_PLAN,
 	);
 
 	/**
@@ -79,8 +90,8 @@ class Products {
 		self::STATUS_MODULE_DISABLED,
 		self::STATUS_PLUGIN_ABSENT,
 		self::STATUS_PLUGIN_ABSENT_WITH_PLAN,
-		self::STATUS_NEEDS_PURCHASE,
-		self::STATUS_NEEDS_PURCHASE_OR_FREE,
+		self::STATUS_NEEDS_PLAN,
+		self::STATUS_NEEDS_ACTIVATION,
 		self::STATUS_NEEDS_FIRST_SITE_CONNECTION,
 	);
 
@@ -150,6 +161,63 @@ class Products {
 			$products[ $product_slug ] = $class::get_info();
 		}
 		return $products;
+	}
+
+	/**
+	 * Get a list of products sorted by whether or not the user owns them
+	 * An owned product is defined as a product that is any of the following
+	 * - Active
+	 * - Has historically been active
+	 * - The user has a plan that includes the product
+	 * - The user has the standalone plugin for the product installed
+	 *
+	 * @param string $type The type of ownership to return ('owned' or 'unowned').
+	 *
+	 * @return array
+	 */
+	public static function get_products_by_ownership( $type ) {
+		$owned_active_products   = array();
+		$owned_warning_products  = array();
+		$owned_inactive_products = array();
+		$unowned_products        = array();
+
+		foreach ( self::get_products_classes() as $class ) {
+			$product_slug = $class::$slug;
+			$status       = $class::get_status();
+
+			if ( $class::is_owned() ) {
+				// This sorts the the products in the order of active -> warning -> inactive.
+				// This enables the frontend to display them in that order.
+				// This is not needed for unowned products as those will always have a status of 'inactive'
+				if ( in_array( $status, self::$active_module_statuses, true ) ) {
+					array_push( $owned_active_products, $product_slug );
+				} elseif ( in_array( $status, self::$warning_module_statuses, true ) ) {
+					array_push( $owned_warning_products, $product_slug );
+				} else {
+					array_push( $owned_inactive_products, $product_slug );
+				}
+				continue;
+			}
+
+			array_push( $unowned_products, $product_slug );
+		}
+
+		$data = array(
+			'owned'   => array_values(
+				array_unique(
+					array_merge(
+						$owned_active_products,
+						$owned_warning_products,
+						$owned_inactive_products
+					)
+				)
+			),
+			'unowned' => array_values(
+				array_unique( $unowned_products )
+			),
+		);
+
+		return $data[ $type ];
 	}
 
 	/**

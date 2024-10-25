@@ -3,7 +3,7 @@
  * Plugin Name: Jetpack Debug Tools
  * Description: Give me a Jetpack connection, and I'll break it every way possible.
  * Author: Automattic - Jetpack Crew
- * Version: 2.1.0-alpha
+ * Version: 2.0.1
  * Text Domain: jetpack
  *
  * @package automattic/jetpack-debug-helper.
@@ -33,7 +33,7 @@ define( 'JETPACK_DEBUG_HELPER_BASE_PLUGIN_FILE', __FILE__ );
  * The plugin version.
  * Increase that if you do any edits to ensure refreshing the cached assets.
  */
-define( 'JETPACK_DEBUG_HELPER_VERSION', '2.1.0-alpha' );
+define( 'JETPACK_DEBUG_HELPER_VERSION', '2.0.1' );
 
 /**
  * Include file names from the modules directory here.
@@ -108,6 +108,11 @@ $jetpack_dev_debug_modules = array(
 		'file'        => 'class-xmlrpc-logger.php',
 		'name'        => 'XMLRPC Logger',
 		'description' => 'Logs incoming XMLRPC requests into the debug.log file.',
+	),
+	'xmlrpc-blocker'            => array(
+		'file'        => 'class-xmlrpc-blocker.php',
+		'name'        => 'Broken XML-RPC',
+		'description' => 'Break XML-RPC API any way you want.',
 	),
 );
 

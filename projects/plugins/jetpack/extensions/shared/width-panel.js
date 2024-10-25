@@ -3,7 +3,7 @@ import {
 	Button,
 	ButtonGroup,
 	PanelBody,
-	__experimentalUnitControl as UnitControl, // eslint-disable-line wpcalypso/no-unsafe-wp-apis
+	__experimentalUnitControl as UnitControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -56,7 +56,10 @@ export function WidthControl( { align, width, onChange, showLabel = true } ) {
 	}
 
 	return (
-		<BaseControl label={ showLabel && __( 'Width', 'jetpack' ) }>
+		<BaseControl __nextHasNoMarginBottom={ true }>
+			{ showLabel && (
+				<BaseControl.VisualLabel>{ __( 'Width', 'jetpack' ) }</BaseControl.VisualLabel>
+			) }
 			<div
 				className={ clsx( 'jetpack-block-width-controls', {
 					'is-aligned': isAlignedLeftOrRight,

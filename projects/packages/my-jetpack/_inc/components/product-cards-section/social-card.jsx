@@ -1,9 +1,9 @@
 import PropTypes from 'prop-types';
-import React from 'react';
+import { PRODUCT_SLUGS } from '../../data/constants';
 import ProductCard from '../connected-product-card';
 
-const SocialCard = ( { admin } ) => {
-	return <ProductCard admin={ admin } slug="social" showMenu />;
+const SocialCard = props => {
+	return <ProductCard slug={ PRODUCT_SLUGS.SOCIAL } showMenu { ...props } />;
 };
 
 SocialCard.propTypes = {

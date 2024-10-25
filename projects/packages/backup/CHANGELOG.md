@@ -5,6 +5,72 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.4.15] - 2024-10-21
+### Changed
+- Update dependencies. [#39781]
+
+## [3.4.14] - 2024-10-14
+### Changed
+- Only include `wp-polyfill` as a script dependency when needed. [#39629]
+- Updated package dependencies. [#39707]
+
+## [3.4.13] - 2024-10-07
+### Changed
+- Updated package dependencies. [#39594]
+
+## [3.4.12] - 2024-09-30
+### Changed
+- Update dependencies. [#39528]
+
+## [3.4.11] - 2024-09-23
+### Changed
+- Update dependencies. [#38958]
+
+## [3.4.10] - 2024-09-16
+### Changed
+- Updated package dependencies. [#39332]
+
+### Fixed
+- Remove unnecessary leading space from i18n message. [#39305]
+- Stop considering discarded backups as successful backups on the admin page [#39385]
+
+## [3.4.9] - 2024-09-10
+### Changed
+- Updated package dependencies. [#39302]
+
+## [3.4.8] - 2024-09-09
+### Changed
+- Updated package dependencies. [#39278]
+
+## [3.4.7] - 2024-09-05
+### Changed
+- Updated package dependencies. [#39176]
+
+## [3.4.6] - 2024-09-02
+### Changed
+- Admin menu: change order of Jetpack sub-menu items [#39095]
+- Updated package dependencies. [#39111]
+
+## [3.4.5] - 2024-08-26
+### Changed
+- Updated package dependencies. [#39004]
+
+## [3.4.4] - 2024-08-21
+### Fixed
+- Decoupled backup connection screens from useConnection hook to avoid unnecessary loading and prevent duplicated API calls. [#38948]
+- Revert recent SVG image optimizations. [#38981]
+
+## [3.4.3] - 2024-08-19
+### Changed
+- Update dependencies. [#38861] [#38662]
+
+### Fixed
+- Lossless image optimization for images (should improve performance with no visible changes). [#38750]
+
+## [3.4.2] - 2024-07-22
+### Changed
+- Update dependencies. [#38402]
+
 ## [3.4.1] - 2024-07-08
 ### Changed
 - Updated package dependencies. [#38132]
@@ -656,6 +722,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add API endpoints and Jetpack Backup package for managing Help…
 
+[3.4.15]: https://github.com/Automattic/jetpack-backup/compare/v3.4.14...v3.4.15
+[3.4.14]: https://github.com/Automattic/jetpack-backup/compare/v3.4.13...v3.4.14
+[3.4.13]: https://github.com/Automattic/jetpack-backup/compare/v3.4.12...v3.4.13
+[3.4.12]: https://github.com/Automattic/jetpack-backup/compare/v3.4.11...v3.4.12
+[3.4.11]: https://github.com/Automattic/jetpack-backup/compare/v3.4.10...v3.4.11
+[3.4.10]: https://github.com/Automattic/jetpack-backup/compare/v3.4.9...v3.4.10
+[3.4.9]: https://github.com/Automattic/jetpack-backup/compare/v3.4.8...v3.4.9
+[3.4.8]: https://github.com/Automattic/jetpack-backup/compare/v3.4.7...v3.4.8
+[3.4.7]: https://github.com/Automattic/jetpack-backup/compare/v3.4.6...v3.4.7
+[3.4.6]: https://github.com/Automattic/jetpack-backup/compare/v3.4.5...v3.4.6
+[3.4.5]: https://github.com/Automattic/jetpack-backup/compare/v3.4.4...v3.4.5
+[3.4.4]: https://github.com/Automattic/jetpack-backup/compare/v3.4.3...v3.4.4
+[3.4.3]: https://github.com/Automattic/jetpack-backup/compare/v3.4.2...v3.4.3
+[3.4.2]: https://github.com/Automattic/jetpack-backup/compare/v3.4.1...v3.4.2
 [3.4.1]: https://github.com/Automattic/jetpack-backup/compare/v3.4.0...v3.4.1
 [3.4.0]: https://github.com/Automattic/jetpack-backup/compare/v3.3.17...v3.4.0
 [3.3.17]: https://github.com/Automattic/jetpack-backup/compare/v3.3.16...v3.3.17

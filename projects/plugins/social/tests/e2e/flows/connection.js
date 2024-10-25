@@ -4,7 +4,7 @@ import { JetpackSocialPage } from '../pages/index.js';
 
 /**
  * Connect Jetpack Social
- * @param {page} page - Playwright page object
+ * @param {page}    page    - Playwright page object
  * @param {boolean} premium - Whether to connect with a Premium plan
  */
 export async function connect( page, premium = false ) {

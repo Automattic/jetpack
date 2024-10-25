@@ -55,6 +55,13 @@ class Threat_Model {
 	public $fixed_in;
 
 	/**
+	 * The date the threat is fixed on.
+	 *
+	 * @var null|string
+	 */
+	public $fixed_on;
+
+	/**
 	 * The severity of the threat between 1-5.
 	 *
 	 * @var null|int

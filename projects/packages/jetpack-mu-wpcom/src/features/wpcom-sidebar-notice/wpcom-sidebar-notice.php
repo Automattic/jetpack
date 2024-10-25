@@ -20,7 +20,7 @@ if ( get_option( 'wpcom_admin_interface' ) !== 'wp-admin' ) {
 function wpcom_enqueue_sidebar_notice_assets() {
 	wp_enqueue_script(
 		'wpcom-sidebar-notice',
-		plugins_url( 'wpcom-sidebar-notice.js', __FILE__ ),
+		plugins_url( 'build/wpcom-sidebar-notice/wpcom-sidebar-notice.js', Jetpack_Mu_Wpcom::BASE_FILE ),
 		array(),
 		Jetpack_Mu_Wpcom::PACKAGE_VERSION,
 		array(
@@ -89,9 +89,6 @@ add_action( 'admin_enqueue_scripts', 'wpcom_enqueue_sidebar_notice_assets' );
  * @return array | null
  */
 function wpcom_get_sidebar_notice() {
-	if ( is_agency_managed_site() ) {
-		return null;
-	}
 	$message_path = 'calypso:sites:sidebar_notice';
 
 	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {

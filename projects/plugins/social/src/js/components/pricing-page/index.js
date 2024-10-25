@@ -55,18 +55,13 @@ const PricingPage = ( { onDismiss = () => {} } = {} ) => {
 					),
 				},
 				{
-					name: __( 'Engagement optimizer', 'jetpack-social' ),
-					tooltipInfo: __(
-						'Enhance social media engagement with personalized posts.',
-						'jetpack-social'
-					),
+					name: __( 'Upload custom images with your posts', 'jetpack-social' ),
 				},
 				{
-					name: __( 'Video sharing', 'jetpack-social' ),
-					tooltipInfo: __( 'Upload and share videos to your social platforms.', 'jetpack-social' ),
+					name: __( 'Upload videos with your posts', 'jetpack-social' ),
 				},
 				{
-					name: __( 'Image generator', 'jetpack-social' ),
+					name: __( 'Automatically generate images for posts', 'jetpack-social' ),
 					tooltipInfo: __(
 						'Automatically create custom images, saving you hours of tedious work.',
 						'jetpack-social'

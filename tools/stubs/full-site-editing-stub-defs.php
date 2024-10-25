@@ -29,10 +29,7 @@ return array(
 	HEAD,
 	'basedir' => "$work_dir/full-site-editing/",
 	'files'   => array(
-		'wpcom-global-styles/index.php' => array(
-			'function' => array( 'wpcom_global_styles_in_use', 'wpcom_should_limit_global_styles' ),
-		),
-		'dotcom-fse/helpers.php'        => array(
+		'dotcom-fse/helpers.php' => array(
 			'function' => array( 'A8C\FSE\is_full_site_editing_active', 'A8C\FSE\is_site_eligible_for_full_site_editing' ),
 		),
 	),

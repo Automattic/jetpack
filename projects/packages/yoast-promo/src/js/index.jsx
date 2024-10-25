@@ -3,7 +3,7 @@ import { getSiteFragment, isSimpleSite } from '@automattic/jetpack-shared-extens
 import { PanelRow, ExternalLink, Button } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { PluginPrePublishPanel } from '@wordpress/edit-post';
-import { useState } from '@wordpress/element';
+import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import Gridicon from 'gridicons';
 import { JetpackYoastLogos } from './JetpackYoastLogos';
@@ -38,10 +38,10 @@ export const YoastPromo = () => {
 			[ isDismissed ]
 		) || {};
 
-	const handleDismiss = () => {
+	const handleDismiss = useCallback( () => {
 		setIsDismissed( true );
 		dismissedStore.set( 'true' );
-	};
+	}, [ setIsDismissed ] );
 
 	const getContent = () => {
 		if ( ! isYoastFreeActive && ! isYoastPremiumActive ) {

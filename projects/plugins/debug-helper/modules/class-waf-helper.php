@@ -5,6 +5,7 @@
  * @package automattic/jetpack-debug-helper
  */
 
+use Automattic\Jetpack\Waf\Waf_Constants;
 use Automattic\Jetpack\Waf\Waf_Rules_Manager;
 use Automattic\Jetpack\Waf\Waf_Runner;
 
@@ -223,7 +224,8 @@ class Waf_Helper {
 		<hr>
 
 		<h2>Rules Entrypoint</h2>
-		<?php $this->render_waf_file( Waf_Rules_Manager::RULES_ENTRYPOINT_FILE ); ?>
+		<?php Waf_Constants::define_entrypoint(); ?>
+		<?php defined( 'JETPACK_WAF_ENTRYPOINT' ) ? $this->render_waf_file( (string) JETPACK_WAF_ENTRYPOINT ) : 'Not set'; ?>
 
 		<hr>
 

@@ -55,30 +55,3 @@ function replace_site_visibility() {
 		<?php
 }
 add_action( 'blog_privacy_selector', 'replace_site_visibility' );
-
-/**
- * Hide the "Site visibility" setting in Reading Settings if is_agency_managed_site is true.
- */
-function wpcom_hide_site_visibility_setting() {
-	if ( ! is_agency_managed_site() ) {
-		return;
-	}
-	// Check if the current page is the Reading Settings page.
-	$screen = get_current_screen();
-	if ( $screen->id === 'options-reading' ) {
-		echo '<style>
-            .option-site-visibility {
-                display: none !important;
-            }
-        </style>';
-	}
-}
-add_action( 'admin_head', 'wpcom_hide_site_visibility_setting' );
-
-/**
- * Remove the "Update Services" section in Writing Settings if is_agency_managed_site is true.
- */
-function wpcom_remove_update_services_section() {
-	return ! is_agency_managed_site();
-}
-add_filter( 'enable_update_services_configuration', 'wpcom_remove_update_services_section' );

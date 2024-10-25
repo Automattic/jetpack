@@ -19,12 +19,16 @@ use WP_Post;
  * registration if we need to.
  */
 function register_block() {
-	Blocks::jetpack_register_block(
-		__DIR__,
-		array(
-			'render_callback' => __NAMESPACE__ . '\render_block',
-		)
-	);
+
+	require_once JETPACK__PLUGIN_DIR . '/modules/memberships/class-jetpack-memberships.php';
+	if ( \Jetpack_Memberships::should_enable_monetize_blocks_in_editor() ) {
+		Blocks::jetpack_register_block(
+			__DIR__,
+			array(
+				'render_callback' => __NAMESPACE__ . '\render_block',
+			)
+		);
+	}
 }
 add_action( 'init', __NAMESPACE__ . '\register_block' );
 
@@ -39,6 +43,18 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
 function render_block( $attr, $content ) {
 	// Keep content as-is if rendered in other contexts than frontend (i.e. feed, emails, API, etc.).
 	if ( ! jetpack_is_frontend() ) {
+		$parsed = parse_blocks( $content );
+		if ( ! empty( $parsed[0] ) ) {
+			// Inject the link of the current post from the server side as the fallback link to make sure the donations block
+			// points to the correct post when it's inserted from the synced pattern (aka “My Pattern”).
+			$post_link                             = get_permalink();
+			$parsed[0]['attrs']['fallbackLinkUrl'] = $post_link;
+			$content                               = \render_block( $parsed[0] );
+			if ( preg_match( '/<a\s+class="jetpack-donations-fallback-link"\s+href="([^"]*)"/', $content, $matches ) ) {
+				$content = str_replace( $matches[1], $post_link, $content );
+			}
+		}
+
 		return $content;
 	}
 

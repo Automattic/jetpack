@@ -124,7 +124,8 @@ class Jetpack_Backup {
 			_x( 'VaultPress Backup', 'The Jetpack VaultPress Backup product name, without the Jetpack prefix', 'jetpack-backup-pkg' ),
 			'manage_options',
 			'jetpack-backup',
-			array( __CLASS__, 'plugin_settings_page' )
+			array( __CLASS__, 'plugin_settings_page' ),
+			7
 		);
 		add_action( 'load-' . $page_suffix, array( __CLASS__, 'admin_init' ) );
 

@@ -7,9 +7,6 @@ namespace A8C\FSE\Mailerlite;
 
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 
-// Turn off the feature on ETK plugin.
-define( 'MU_WPCOM_MAILERLITE_WIDGET', true );
-
 /**
  * Mailerlite widget class
  * Display a subscriber popup for Mailerlite.
@@ -124,6 +121,7 @@ class WPCOM_Widget_Mailerlite extends \WP_Widget {
     $html .= '<input class="widefat" id="' . esc_attr( $this->get_field_id( 'uuid' ) ) . '" name="' . esc_attr( $this->get_field_name( 'uuid' ) ) . '" type="text" value="' . esc_attr( $instance['uuid'] ) . '" />';
     $html .= '</label></p>';
 
+		echo $html;
 		return $html;
 	}
 }

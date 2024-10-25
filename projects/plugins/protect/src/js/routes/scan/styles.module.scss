@@ -1,11 +1,5 @@
-// Alert section
-.main-content {
-	padding: calc( var( --spacing-base ) * 7 ) 0; // 56px | 0px
-}
-
-.loading-content {
-	display: flex;
-	align-items: center;
+.subheading-content {
+    font-weight: bold;
 }
 
 .illustration {
@@ -19,6 +13,11 @@
 	}
 }
 
-.connection-error-col {
-	margin-top: calc( var( --spacing-base ) * 3 + 1px ); // 25px
+.product-section, .info-section {
+	margin-top: calc( var( --spacing-base ) * 7 ); // 56px
+	margin-bottom: calc( var( --spacing-base ) * 7 ); // 56px
+}
+
+.scan-navigation {
+	margin-top: calc( var( --spacing-base ) * 3 ); // 24px
 }

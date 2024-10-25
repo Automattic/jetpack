@@ -20,7 +20,6 @@ return [
     // PhanImpossibleCondition : 3 occurrences
     // PhanTypeArraySuspiciousNullable : 3 occurrences
     // PhanUndeclaredClassMethod : 3 occurrences
-    // PhanUndeclaredFunctionInCallable : 3 occurrences
     // PhanNoopNew : 2 occurrences
     // PhanTypeVoidArgument : 2 occurrences
     // PhanUndeclaredProperty : 2 occurrences
@@ -32,10 +31,10 @@ return [
     // PhanPluginUseReturnValueInternalKnown : 1 occurrence
     // PhanPossiblyUndeclaredVariable : 1 occurrence
     // PhanTypeMismatchArgumentNullableInternal : 1 occurrence
-    // PhanTypeMismatchArgumentProbablyReal : 1 occurrence
     // PhanTypeObjectUnsetDeclaredProperty : 1 occurrence
     // PhanUndeclaredClassConstant : 1 occurrence
     // PhanUndeclaredClassStaticProperty : 1 occurrence
+    // PhanUndeclaredFunctionInCallable : 1 occurrence
     // PhanUndeclaredMethod : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
@@ -46,10 +45,8 @@ return [
         'custom-colors/colors.php' => ['PhanTypeMismatchArgumentNullable'],
         'custom-colors/core-bg-admin-notice.php' => ['PhanContextNotObject'],
         'endpoints/class-marketplace-webhook-response.php' => ['PhanPluginMixedKeyNoKey'],
-        'endpoints/rest-api-export.php' => ['PhanTypeMismatchArgumentProbablyReal'],
         'feature-plugins/autosave-revision.php' => ['PhanPluginRedundantAssignment', 'PhanTypeMismatchArgumentNullable'],
         'feature-plugins/coblocks-mods.php' => ['PhanUndeclaredClassConstant', 'PhanUndeclaredClassMethod'],
-        'feature-plugins/gutenberg-mods.php' => ['PhanUndeclaredFunctionInCallable'],
         'feature-plugins/managed-plugins.php' => ['PhanRedundantCondition', 'PhanUndeclaredClassMethod', 'PhanUndeclaredFunctionInCallable'],
         'feature-plugins/sensei-pro-mods.php' => ['PhanUndeclaredClassMethod'],
         'footer-credit/theme-optimizations.php' => ['PhanUndeclaredConstant', 'PhanUndeclaredStaticMethod'],

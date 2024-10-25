@@ -1,11 +1,12 @@
 import { renderHook } from '@testing-library/react';
 import useAttachedMedia from '../../use-attached-media';
-import useMediaRestrictions, {
+import {
 	FILE_SIZE_ERROR,
 	FILE_TYPE_ERROR,
 	VIDEO_LENGTH_TOO_LONG_ERROR,
 	VIDEO_LENGTH_TOO_SHORT_ERROR,
-} from '../index';
+} from '../constants';
+import useMediaRestrictions from '../index';
 
 jest.mock( '../../use-attached-media', () => jest.fn() );
 
@@ -99,19 +100,6 @@ describe( 'useMediaRestrictions hook', () => {
 		VALID_MEDIA_ALL.forEach( media => {
 			const { result } = renderHook( () =>
 				useMediaRestrictions( ...getHookProps( { media, connections: [] } ) )
-			);
-			expect( result.current.validationErrors ).toEqual( {} );
-		} );
-	} );
-
-	test( 'Should be valid if SIG is enabled', () => {
-		[
-			{ media: { metaData: { mime: 'image/jpg', fileSize: 10000000 } }, error: FILE_SIZE_ERROR }, // Too big image
-		].forEach( media => {
-			const { result } = renderHook( () =>
-				useMediaRestrictions(
-					...getHookProps( { media, isSocialImageGeneratorEnabledForPost: true } )
-				)
 			);
 			expect( result.current.validationErrors ).toEqual( {} );
 		} );

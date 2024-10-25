@@ -27,7 +27,7 @@ const PROPS_FROM_WINDOW = {
 /**
  * Component for wrapping Jetpack Instant Search application.
  *
- * @returns {Element} component instance
+ * @return {Element} component instance
  */
 export default function AppWrapper() {
 	const {

@@ -7,22 +7,11 @@ type JetpackSettingsSelectors = {
 	isModuleEnabled: () => boolean;
 	showPricingPage: () => boolean;
 	isUpdatingJetpackSettings: () => boolean;
-	hasPaidPlan: () => boolean;
-	useAdminUiV1: () => boolean;
-	hasPaidFeatures: () => boolean;
 };
 
 type ConnectionDataSelectors = {
 	getConnections: () => Array< object >;
-	getConnectionsAdminUrl: () => string;
 	hasConnections: () => boolean;
-};
-
-type SharesDataSelectors = {
-	getSharesCount: () => number;
-	getPostsCount: () => number;
-	isShareLimitEnabled: () => boolean;
-	numberOfSharesRemaining: () => number;
 };
 
 type SiteDataSelectors = {
@@ -40,20 +29,9 @@ type SocialImageGeneratorSettingsSelectors = {
 			template: string;
 		};
 	};
-	isSocialImageGeneratorAvailable: () => boolean;
 	isSocialImageGeneratorEnabled: () => boolean;
 	isUpdatingSocialImageGeneratorSettings: () => boolean;
 	getSocialImageGeneratorDefaultTemplate: () => string;
-};
-
-type AutoConversionSettingsSelectors = {
-	getAutoConversionSettings: () => {
-		available: boolean;
-		[ 'auto-conversion' ]: boolean;
-	};
-	isAutoConversionAvailable: () => boolean;
-	isAutoConversionEnabled: () => boolean;
-	isAutoConversionSettingsUpdating: () => boolean;
 };
 
 type SocialNotesSettingsSelectors = {
@@ -68,8 +46,6 @@ type SocialNotesSettingsSelectors = {
  */
 export type SocialStoreSelectors = JetpackSettingsSelectors &
 	ConnectionDataSelectors &
-	SharesDataSelectors &
 	SiteDataSelectors &
 	SocialImageGeneratorSettingsSelectors &
-	AutoConversionSettingsSelectors &
 	SocialNotesSettingsSelectors;

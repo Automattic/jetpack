@@ -2,6 +2,118 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [0.58.0] - 2024-10-15
+### Added
+- Add DiffViewer component [#39672]
+- Add ThreatSeverityBadge component [#39758]
+
+## [0.57.0] - 2024-10-14
+### Added
+- Add JetpackProtectLogo component. [#39703]
+- Add MarkedLines component. [#39674]
+
+## [0.56.3] - 2024-10-10
+### Changed
+- Components - getRedirectUrl: use file extension on import for linter to find definitions
+- Updated package dependencies.
+
+## [0.56.2] - 2024-10-07
+### Changed
+- Updated package dependencies. [#39594]
+
+## [0.56.1] - 2024-10-02
+### Changed
+- Updated package dependencies. [#39610]
+
+## [0.56.0] - 2024-09-25
+### Added
+- Added StatCard component export [#35739]
+
+## [0.55.17] - 2024-09-18
+### Changed
+- Internal updates.
+
+## [0.55.16] - 2024-09-16
+### Changed
+- Updated package dependencies. [#39332]
+
+## [0.55.15] - 2024-09-10
+### Changed
+- Updated package dependencies. [#39302]
+
+## [0.55.14] - 2024-09-09
+### Changed
+- Updated package dependencies. [#39278]
+
+## [0.55.13] - 2024-09-05
+### Changed
+- Internal updates.
+
+## [0.55.12] - 2024-09-05
+### Changed
+- Updated package dependencies. [#39176]
+
+### Fixed
+- ToggleControl: Update styles for WordPress/gutenberg#63490. [#39176]
+
+## [0.55.11] - 2024-08-29
+### Changed
+- Updated package dependencies. [#39111]
+
+## [0.55.10] - 2024-08-23
+### Changed
+- Internal updates.
+
+## [0.55.9] - 2024-08-21
+### Fixed
+- Revert recent SVG image optimizations. [#38981]
+
+## [0.55.8] - 2024-08-19
+### Changed
+- Updated package dependencies. [#38893]
+
+### Fixed
+- Lossless image optimization for images (should improve performance with no visible changes). [#38750]
+
+## [0.55.7] - 2024-08-15
+### Changed
+- Updated package dependencies. [#38665]
+
+## [0.55.6] - 2024-08-09
+### Removed
+- Tests: Removed react-test-renderer. [#38755]
+
+## [0.55.5] - 2024-08-05
+### Fixed
+- Fixed TS types for Notice components by marking optional props as such [#38686]
+
+## [0.55.4] - 2024-08-01
+### Added
+- Update Welcome Banner and set async site-only connection [#38534]
+
+## [0.55.3] - 2024-07-30
+### Changed
+- React: Changing global JSX namespace to React.JSX [#38585]
+
+## [0.55.2] - 2024-07-26
+### Added
+- Export button props type to be used elsewhere [#38549]
+
+## [0.55.1] - 2024-07-25
+### Added
+- Added `className` prop to `Alert` component [#38450]
+
+### Changed
+- React compatibility: Ensuring createRoot is not called more than once. [#38495]
+
+## [0.55.0] - 2024-07-22
+### Removed
+- Remove compatibility with WordPress 6.4. [#38386]
+
+## [0.54.4] - 2024-07-18
+### Changed
+- Internal updates.
+
 ## [0.54.3] - 2024-07-03
 ### Changed
 - Updated package dependencies. [#38132]
@@ -1083,6 +1195,31 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[0.58.0]: https://github.com/Automattic/jetpack-components/compare/0.57.0...0.58.0
+[0.57.0]: https://github.com/Automattic/jetpack-components/compare/0.56.3...0.57.0
+[0.56.3]: https://github.com/Automattic/jetpack-components/compare/0.56.2...0.56.3
+[0.56.2]: https://github.com/Automattic/jetpack-components/compare/0.56.1...0.56.2
+[0.56.1]: https://github.com/Automattic/jetpack-components/compare/0.56.0...0.56.1
+[0.56.0]: https://github.com/Automattic/jetpack-components/compare/0.55.17...0.56.0
+[0.55.17]: https://github.com/Automattic/jetpack-components/compare/0.55.16...0.55.17
+[0.55.16]: https://github.com/Automattic/jetpack-components/compare/0.55.15...0.55.16
+[0.55.15]: https://github.com/Automattic/jetpack-components/compare/0.55.14...0.55.15
+[0.55.14]: https://github.com/Automattic/jetpack-components/compare/0.55.13...0.55.14
+[0.55.13]: https://github.com/Automattic/jetpack-components/compare/0.55.12...0.55.13
+[0.55.12]: https://github.com/Automattic/jetpack-components/compare/0.55.11...0.55.12
+[0.55.11]: https://github.com/Automattic/jetpack-components/compare/0.55.10...0.55.11
+[0.55.10]: https://github.com/Automattic/jetpack-components/compare/0.55.9...0.55.10
+[0.55.9]: https://github.com/Automattic/jetpack-components/compare/0.55.8...0.55.9
+[0.55.8]: https://github.com/Automattic/jetpack-components/compare/0.55.7...0.55.8
+[0.55.7]: https://github.com/Automattic/jetpack-components/compare/0.55.6...0.55.7
+[0.55.6]: https://github.com/Automattic/jetpack-components/compare/0.55.5...0.55.6
+[0.55.5]: https://github.com/Automattic/jetpack-components/compare/0.55.4...0.55.5
+[0.55.4]: https://github.com/Automattic/jetpack-components/compare/0.55.3...0.55.4
+[0.55.3]: https://github.com/Automattic/jetpack-components/compare/0.55.2...0.55.3
+[0.55.2]: https://github.com/Automattic/jetpack-components/compare/0.55.1...0.55.2
+[0.55.1]: https://github.com/Automattic/jetpack-components/compare/0.55.0...0.55.1
+[0.55.0]: https://github.com/Automattic/jetpack-components/compare/0.54.4...0.55.0
+[0.54.4]: https://github.com/Automattic/jetpack-components/compare/0.54.3...0.54.4
 [0.54.3]: https://github.com/Automattic/jetpack-components/compare/0.54.2...0.54.3
 [0.54.2]: https://github.com/Automattic/jetpack-components/compare/0.54.1...0.54.2
 [0.54.1]: https://github.com/Automattic/jetpack-components/compare/0.54.0...0.54.1

@@ -94,9 +94,9 @@ export const resumableUploader = ( { onUploadUuidRetrieved, onError, onProgress,
 
 				req._xhr.open( req._method, req._url, true );
 				// Set the headers again, reopening the xhr resets them.
-				Object.keys( req._headers ).map( function ( headerName ) {
+				for ( const headerName of Object.keys( req._headers ) ) {
 					req.setHeader( headerName, req._headers[ headerName ] );
-				} );
+				}
 
 				if ( 'POST' === method ) {
 					const hasJWT = !! data.token;

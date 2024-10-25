@@ -67,7 +67,9 @@
 
 <svelte:window bind:scrollY />
 <Portal>
-	<!-- eslint-disable-next-line svelte/valid-compile -- Complains about the div needing an ARIA role, but I have no idea what might be correct for this. -->
+	<!-- Clear up complaints about needing an ARIA role: -->
+	<!-- svelte-ignore a11y-no-static-element-interactions -->
+	<!-- eslint-disable-next-line svelte/valid-compile -->
 	<div
 		class="jetpack-boost-guide-popup keep-guide-open"
 		in:fly={{ duration: 150, y: 4, easing: backOut }}

@@ -11,6 +11,7 @@ import {
 	ISAStatus,
 } from '$features/image-size-analysis';
 import clsx from 'clsx';
+import styles from './table.module.scss';
 
 const toggleImageFix = ( imageDetails: IsaImage ) => {
 	const imageFixer = useImageFixer();
@@ -50,11 +51,11 @@ const Table = ( { isaDataLoading, images, isaReport }: TableProps ) => {
 			</div>
 
 			{ ! isaDataLoading && images.length === 0 ? (
-				<h1>
+				<h4 className={ styles[ 'header-no-issues' ] }>
 					{ isaReport?.status === ISAStatus.Completed
 						? __( '🥳 No image size issues found!', 'jetpack-boost' )
 						: __( 'No image size issues found yet…', 'jetpack-boost' ) }
-				</h1>
+				</h4>
 			) : (
 				<div className={ clsx( 'jb-table', { 'jb-loading': isaDataLoading } ) }>
 					<div className="jb-table-header jb-recommendation-page-grid">

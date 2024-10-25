@@ -35,7 +35,9 @@
 	}
 </script>
 
-<!-- eslint-disable-next-line svelte/valid-compile -- Complains about the div needing an ARIA role, but I have no idea what might be correct for this. -->
+<!-- Clear up complaints about needing an ARIA role: -->
+<!-- svelte-ignore a11y-no-static-element-interactions -->
+<!-- eslint-disable-next-line svelte/valid-compile -->
 <div
 	class="interaction-area {severity}"
 	bind:this={bubble}

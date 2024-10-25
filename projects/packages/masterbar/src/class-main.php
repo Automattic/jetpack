@@ -14,7 +14,7 @@ use Automattic\Jetpack\Status\Host;
  */
 class Main {
 
-	const PACKAGE_VERSION = '0.3.1-alpha';
+	const PACKAGE_VERSION = '0.9.6';
 
 	/**
 	 * Initializer.
@@ -34,10 +34,6 @@ class Main {
 		}
 
 		$host = new Host();
-
-		if ( ! $host->is_wpcom_simple() ) {
-			new Masterbar();
-		}
 
 		if ( $host->is_wpcom_platform() ) {
 			new Inline_Help();

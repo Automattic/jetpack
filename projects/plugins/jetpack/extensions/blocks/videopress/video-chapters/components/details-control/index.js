@@ -18,6 +18,11 @@ const CHARACTERS_PER_LINE = 31;
 
 export default function DetailsControl( { isRequestingVideoItem } ) {
 	const { attributes, setAttributes } = useBlockAttributes();
+
+	if ( ! isVideoChaptersEnabled ) {
+		return null;
+	}
+
 	const { title, description } = attributes;
 	const isBeta = isBetaExtension( VIDEOPRESS_VIDEO_CHAPTERS_FEATURE );
 
@@ -32,10 +37,6 @@ export default function DetailsControl( { isRequestingVideoItem } ) {
 		: minRows;
 
 	const descriptionControlRows = Math.min( maxRows, Math.max( rows, minRows ) );
-
-	if ( ! isVideoChaptersEnabled ) {
-		return null;
-	}
 
 	const setTitleAttribute = newTitle => {
 		setAttributes( { title: newTitle } );

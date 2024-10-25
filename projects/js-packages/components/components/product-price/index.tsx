@@ -16,7 +16,7 @@ import type React from 'react';
  * React component to render the price.
  *
  * @param {ProductPriceProps} props - Component props.
- * @returns {React.ReactNode} Price react component.
+ * @return {React.ReactNode} Price react component.
  */
 const ProductPrice: React.FC< ProductPriceProps > = ( {
 	price,

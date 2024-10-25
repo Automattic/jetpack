@@ -9,7 +9,7 @@ import './style.scss';
  * The initial renderer function.
  */
 function render() {
-	if ( ! window.hasOwnProperty( 'JP_IDENTITY_CRISIS__INITIAL_STATE' ) ) {
+	if ( ! Object.hasOwn( window, 'JP_IDENTITY_CRISIS__INITIAL_STATE' ) ) {
 		return;
 	}
 
@@ -47,10 +47,10 @@ function render() {
 				tracksUserData={ tracksUserData || {} }
 				tracksEventData={ tracksEventData }
 				customContent={
-					consumerData.hasOwnProperty( 'customContent' ) ? consumerData.customContent : {}
+					Object.hasOwn( consumerData, 'customContent' ) ? consumerData.customContent : {}
 				}
 				isAdmin={ isAdmin }
-				logo={ consumerData.hasOwnProperty( 'logo' ) ? consumerData.logo : undefined }
+				logo={ Object.hasOwn( consumerData, 'logo' ) ? consumerData.logo : undefined }
 				possibleDynamicSiteUrlDetected={ possibleDynamicSiteUrlDetected }
 				isDevelopmentSite={ isDevelopmentSite }
 			/>

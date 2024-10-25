@@ -7,9 +7,6 @@
 
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 
-// Turn off the feature on ETK plugin.
-define( 'A8C_USE_FONT_SMOOTHING_ANTIALIASED', false );
-
 /**
  * Adds custom classes to the admin body classes.
  *

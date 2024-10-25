@@ -1,0 +1,5 @@
+# Copy-pasted libraries that we don't want to mess with linting.
+# @todo Can we bring these in via pnpm instead?
+jmpress.js
+jquery.cycle.min.js
+recipes-printthis.js

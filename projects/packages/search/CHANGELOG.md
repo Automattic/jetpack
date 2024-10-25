@@ -5,6 +5,89 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.45.9] - 2024-10-21
+### Changed
+- Update dependencies. [#39781]
+
+## [0.45.8] - 2024-10-14
+### Changed
+- Updated package dependencies. [#39707]
+
+### Fixed
+- Add `key` to tag and cat lists in `SearchResultMinimal` to improve behavior if lists change at runtime. [#39709]
+
+## [0.45.7] - 2024-10-07
+### Changed
+- Updated package dependencies. [#39592]
+- Updated package dependencies. [#39594]
+- Updated package dependencies. [#39595]
+- Updated package dependencies. [#39639]
+
+## [0.45.6] - 2024-09-30
+### Changed
+- Update dependencies. [#39528]
+
+## [0.45.5] - 2024-09-23
+### Changed
+- Instant search: Use triggering element's document instead of the global `document`. [#39364]
+- Search: reduce database calls by ensuring plan support before checking options [#39384]
+
+### Fixed
+- Use React properties rather than pass-throughs (e.g. `className` rather than `class`). [#39414]
+
+## [0.45.4] - 2024-09-16
+### Changed
+- Updated package dependencies. [#39332]
+
+### Fixed
+- Move trailing spaces out of i18n messages. [#39305]
+
+## [0.45.3] - 2024-09-10
+### Changed
+- Updated package dependencies. [#39302]
+
+## [0.45.2] - 2024-09-09
+### Changed
+- Updated package dependencies. [#39278]
+
+## [0.45.1] - 2024-09-05
+### Changed
+- Updated package dependencies. [#39176]
+
+## [0.45.0] - 2024-09-02
+### Added
+- Search: allow customizing highlighted fields [#39053]
+
+### Changed
+- Admin menu: change order of Jetpack sub-menu items [#39095]
+- Updated package dependencies. [#39111]
+
+### Fixed
+- Search: Use the user's locale when formatting request limits. [#38946]
+
+## [0.44.17] - 2024-08-26
+### Changed
+- Updated package dependencies. [#39004]
+
+## [0.44.16] - 2024-08-21
+### Changed
+- Internal updates.
+
+## [0.44.15] - 2024-08-19
+### Changed
+- Update dependencies. [#38861] [#38662]
+
+### Fixed
+- Fix incorrect next-version tokens in php `@since` and/or `@deprecated` docs. [#38869]
+
+## [0.44.14] - 2024-08-05
+### Changed
+- React compatibility: Changing ReactDOM.render usage to be via ReactDOM.createRoot. [#38649]
+
+## [0.44.13] - 2024-07-22
+### Changed
+- Update dependencies. [#38402]
+
 ## [0.44.12] - 2024-07-08
 ### Changed
 - Updated package dependencies. [#38132] [#38133]
@@ -988,6 +1071,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
 
+[0.45.9]: https://github.com/Automattic/jetpack-search/compare/v0.45.8...v0.45.9
+[0.45.8]: https://github.com/Automattic/jetpack-search/compare/v0.45.7...v0.45.8
+[0.45.7]: https://github.com/Automattic/jetpack-search/compare/v0.45.6...v0.45.7
+[0.45.6]: https://github.com/Automattic/jetpack-search/compare/v0.45.5...v0.45.6
+[0.45.5]: https://github.com/Automattic/jetpack-search/compare/v0.45.4...v0.45.5
+[0.45.4]: https://github.com/Automattic/jetpack-search/compare/v0.45.3...v0.45.4
+[0.45.3]: https://github.com/Automattic/jetpack-search/compare/v0.45.2...v0.45.3
+[0.45.2]: https://github.com/Automattic/jetpack-search/compare/v0.45.1...v0.45.2
+[0.45.1]: https://github.com/Automattic/jetpack-search/compare/v0.45.0...v0.45.1
+[0.45.0]: https://github.com/Automattic/jetpack-search/compare/v0.44.17...v0.45.0
+[0.44.17]: https://github.com/Automattic/jetpack-search/compare/v0.44.16...v0.44.17
+[0.44.16]: https://github.com/Automattic/jetpack-search/compare/v0.44.15...v0.44.16
+[0.44.15]: https://github.com/Automattic/jetpack-search/compare/v0.44.14...v0.44.15
+[0.44.14]: https://github.com/Automattic/jetpack-search/compare/v0.44.13...v0.44.14
+[0.44.13]: https://github.com/Automattic/jetpack-search/compare/v0.44.12...v0.44.13
 [0.44.12]: https://github.com/Automattic/jetpack-search/compare/v0.44.11...v0.44.12
 [0.44.11]: https://github.com/Automattic/jetpack-search/compare/v0.44.10...v0.44.11
 [0.44.10]: https://github.com/Automattic/jetpack-search/compare/v0.44.9...v0.44.10

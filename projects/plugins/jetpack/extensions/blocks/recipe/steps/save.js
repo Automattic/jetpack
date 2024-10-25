@@ -14,9 +14,9 @@ const RecipeStepsSave = ( { attributes } ) => {
 	return (
 		<ol
 			style={ styles }
-			itemscope=""
-			itemprop="recipeInstructions"
-			itemtype="https://schema.org/HowTo"
+			itemScope=""
+			itemProp="recipeInstructions"
+			itemType="https://schema.org/HowTo"
 		>
 			<InnerBlocks.Content />
 		</ol>

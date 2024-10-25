@@ -27,6 +27,7 @@ export class Footer extends React.Component {
 	static displayName = 'Footer';
 
 	resetOnClick = () => {
+		// eslint-disable-next-line no-alert -- @todo Is there a better dialog we could use?
 		if ( window.confirm( __( 'This will reset all Jetpack options, are you sure?', 'jetpack' ) ) ) {
 			this.props.resetOptions();
 		}

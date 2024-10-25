@@ -14,9 +14,9 @@ const debug = console.error; // eslint-disable-line no-console
 /**
  * Build a query string.
  *
- * @param {string|object} group - Stat group, or object mapping groups to names.
- * @param {string} [name] - Stat name, when `group` is a string.
- * @returns {string} Query string fragment.
+ * @param {string|object} group  - Stat group, or object mapping groups to names.
+ * @param {string}        [name] - Stat name, when `group` is a string.
+ * @return {string} Query string fragment.
  */
 function buildQuerystring( group, name ) {
 	let uriComponent = '';

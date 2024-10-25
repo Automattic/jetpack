@@ -5,6 +5,50 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.5.2] - 2024-10-15
+### Changed
+- Deferred JS: Exclude all scripts produced by a shortcode. [#39616]
+- General: Sync Boost's Getting Started page with My Jetpack's version. [#39130]
+- General: Update minimum required WordPress version to 6.5 in main plugin file. Previous release only changed plugin readme. [#39719]
+
+### Fixed
+- Image CDN: URL encode image path parts for RSS feed compatibility [#39560]
+- Image Guide: Improve check for Jetpack Image CDN URLs [#39635]
+
+## [3.5.1] - 2024-09-26
+### Changed
+- Support: Increased minumum required WordPress version to 6.5 [#39540]
+
+## [3.5.0] - 2024-09-25
+### Changed
+- General: Show a simplified getting started page if the pricing is not available [#39526]
+- General: Skip the pricing page if the site is private, just like if offline [#39523]
+
+### Removed
+- General: Removed WP Super Cache promos from settings page as well as related code [#39202]
+
+### Fixed
+- Compatibility: Ensure React JSX polyfill is loaded for pre WP 6.6 support [#39521]
+- Critical CSS: Make sure all URLs that are being processed are absolute instead of relative. [#39456]
+
+## [3.4.9] - 2024-09-03
+### Fixed
+- Update `automattic/jetpack-image-cdn` package to resolve a PHP fatal error.
+
+## [3.4.8] - 2024-09-02
+### Changed
+- Admin menu: change order of Jetpack sub-menu items [#39095]
+- Page Cache: Update notice for WP Cloud clients.
+- React: Changing global JSX namespace to React.JSX [#38585]
+
+### Fixed
+- Cloud CSS: Fixed not properly storing CSS returned from the cloud after a theme switch. [#38985]
+- Lossless image optimization for images (should improve performance with no visible changes). [#38750]
+- Misc: Fix PHP warning when generating critical css for some taxonomy pages. [#38807]
+- Revert recent SVG image optimizations. [#38981]
+- UI: Fix inconsistencies. [#39072]
+- Updated package dependencies. [#38464]
+
 ## [3.4.7] - 2024-07-10
 ### Security
 - General: Improved image and CSS proxy functionalities with CDN support, caching, and other enhancements. [#38252]
@@ -480,6 +524,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - First public alpha release
 
+[3.5.2]: https://github.com/Automattic/jetpack-boost-production/compare/3.5.1...3.5.2
+[3.5.1]: https://github.com/Automattic/jetpack-boost-production/compare/3.5.0...3.5.1
+[3.5.0]: https://github.com/Automattic/jetpack-boost-production/compare/3.4.9...3.5.0
+[3.4.9]: https://github.com/Automattic/jetpack-boost-production/compare/3.4.8...3.4.9
+[3.4.8]: https://github.com/Automattic/jetpack-boost-production/compare/3.4.7...3.4.8
 [3.4.7]: https://github.com/Automattic/jetpack-boost-production/compare/3.4.6...3.4.7
 [3.4.6]: https://github.com/Automattic/jetpack-boost-production/compare/3.4.4...3.4.6
 [3.4.4]: https://github.com/Automattic/jetpack-boost-production/compare/3.4.3...3.4.4

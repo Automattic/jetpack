@@ -13,7 +13,14 @@ import {
 	FEATURE_SPAM_AKISMET_PLUS,
 	FEATURE_SEARCH_JETPACK,
 	FEATURE_SIMPLE_PAYMENTS_JETPACK,
+	FEATURE_NEWSLETTER_JETPACK,
+	FEATURE_DOWNTIME_MONITORING_JETPACK,
+	FEATURE_SSO,
+	FEATURE_JETPACK_SOCIAL,
+	FEATURE_POST_BY_EMAIL,
 	getJetpackProductUpsellByFeature,
+	FEATURE_JETPACK_BLAZE,
+	FEATURE_JETPACK_EARN,
 } from 'lib/plans/constants';
 import { get, includes } from 'lodash';
 import ProStatus from 'pro-status';
@@ -22,19 +29,20 @@ import {
 	isSearchNewPricingLaunched202208,
 } from 'product-descriptions/utils';
 import PropTypes from 'prop-types';
-import React from 'react';
 import { connect } from 'react-redux';
 import { isAkismetKeyValid, isCheckingAkismetKey, getVaultPressData } from 'state/at-a-glance';
 import {
 	hasConnectedOwner as hasConnectedOwnerSelector,
 	isOfflineMode,
 	connectUser,
+	isUnavailableInOfflineMode,
 } from 'state/connection';
 import {
 	getSiteAdminUrl,
 	getUpgradeUrl,
 	isMultisite,
 	userCanManageModules,
+	shouldInitializeBlaze,
 } from 'state/initial-state';
 import { getModuleOverride, getModule } from 'state/modules';
 import { siteHasFeature, isFetchingSiteData } from 'state/site';
@@ -43,6 +51,7 @@ export const SettingsCard = inprops => {
 	const props = {
 		action: '',
 		saveDisabled: false,
+		isDisabled: false,
 		...inprops,
 	};
 
@@ -86,6 +95,7 @@ export const SettingsCard = inprops => {
 		return <span />;
 	}
 
+	const isDisabled = props.isDisabled;
 	const isSaving = props.saveDisabled,
 		feature = props.feature ? props.feature : false;
 	let header = props.header ? props.header : '';
@@ -95,16 +105,19 @@ export const SettingsCard = inprops => {
 	}
 
 	const getBanner = () => {
-		const upgradeLabel = _x(
-				'Upgrade',
-				'A caption for a button to upgrade an existing paid feature to a higher tier.',
-				'jetpack'
-			),
-			connectLabel = _x(
-				'Connect',
-				'A caption for a button to connect a user account to access paid features.',
-				'jetpack'
-			);
+		// We'll only need one of these at most. Avoid unnecessary i18n loading by using callbacks to fetch when needed.
+		const upgradeLabel = () =>
+				_x(
+					'Upgrade',
+					'A caption for a button to upgrade an existing paid feature to a higher tier.',
+					'jetpack'
+				),
+			connectLabel = () =>
+				_x(
+					'Connect',
+					'A caption for a button to connect a user account to access paid features.',
+					'jetpack'
+				);
 
 		switch ( feature ) {
 			case FEATURE_VIDEO_HOSTING_JETPACK:
@@ -118,7 +131,7 @@ export const SettingsCard = inprops => {
 							'Connect your WordPress.com account to enable high-quality, ad-free video.',
 							'jetpack'
 						) }
-						callToAction={ connectLabel }
+						callToAction={ connectLabel() }
 						plan={ getJetpackProductUpsellByFeature( FEATURE_VIDEO_HOSTING_JETPACK ) }
 						feature={ feature }
 						onClick={ handleConnectClick( feature ) }
@@ -138,7 +151,7 @@ export const SettingsCard = inprops => {
 								{ __( 'Generate income with high-quality ads.', 'jetpack' ) }
 							</span>
 						}
-						callToAction={ upgradeLabel }
+						callToAction={ upgradeLabel() }
 						plan={ getJetpackProductUpsellByFeature( FEATURE_WORDADS_JETPACK ) }
 						feature={ feature }
 						onClick={ handleClickForTracking( feature ) }
@@ -151,7 +164,7 @@ export const SettingsCard = inprops => {
 							'Connect your WordPress.com account to upgrade and generate income with high-quality ads.',
 							'jetpack'
 						) }
-						callToAction={ connectLabel }
+						callToAction={ connectLabel() }
 						plan={ getJetpackProductUpsellByFeature( FEATURE_WORDADS_JETPACK ) }
 						feature={ feature }
 						onClick={ handleConnectClick( feature ) }
@@ -172,7 +185,7 @@ export const SettingsCard = inprops => {
 								'jetpack'
 							) }
 							plan={ getJetpackProductUpsellByFeature( FEATURE_SITE_BACKUPS_JETPACK ) }
-							callToAction={ upgradeLabel }
+							callToAction={ upgradeLabel() }
 							feature={ feature }
 							onClick={ handleClickForTracking( feature ) }
 							href={ props.securityUpgradeUrl }
@@ -185,7 +198,7 @@ export const SettingsCard = inprops => {
 								'jetpack'
 							) }
 							plan={ getJetpackProductUpsellByFeature( FEATURE_SITE_BACKUPS_JETPACK ) }
-							callToAction={ connectLabel }
+							callToAction={ connectLabel() }
 							feature={ feature }
 							onClick={ handleConnectClick( feature ) }
 							rna
@@ -195,7 +208,7 @@ export const SettingsCard = inprops => {
 
 				return props.hasConnectedOwner ? (
 					<JetpackBanner
-						callToAction={ upgradeLabel }
+						callToAction={ upgradeLabel() }
 						title={ __(
 							'Automated scanning and one-click fixes keep your site ahead of security threats.',
 							'jetpack'
@@ -208,12 +221,119 @@ export const SettingsCard = inprops => {
 					/>
 				) : (
 					<JetpackBanner
-						callToAction={ connectLabel }
+						callToAction={ connectLabel() }
 						title={ __(
 							'Connect your WordPress.com account to upgrade for automated scanning and one-click fixes keep your site ahead of security threats.',
 							'jetpack'
 						) }
 						plan={ getJetpackProductUpsellByFeature( FEATURE_SECURITY_SCANNING_JETPACK ) }
+						feature={ feature }
+						onClick={ handleConnectClick( feature ) }
+						rna
+					/>
+				);
+
+			case FEATURE_DOWNTIME_MONITORING_JETPACK:
+				if ( props.hasConnectedOwner || props.inOfflineMode ) {
+					return '';
+				}
+
+				return (
+					<JetpackBanner
+						title={ __(
+							'Connect your WordPress.com account to set up your status alerts.',
+							'jetpack'
+						) }
+						callToAction={ connectLabel() }
+						plan={ getJetpackProductUpsellByFeature( FEATURE_DOWNTIME_MONITORING_JETPACK ) }
+						feature={ feature }
+						onClick={ handleConnectClick( feature ) }
+						rna
+					/>
+				);
+
+			case FEATURE_SSO:
+				if ( props.hasConnectedOwner || props.inOfflineMode ) {
+					return '';
+				}
+
+				return (
+					<JetpackBanner
+						title={ __( 'Connect your WordPress.com account to enable Secure Sign-On', 'jetpack' ) }
+						callToAction={ connectLabel() }
+						plan={ getJetpackProductUpsellByFeature( FEATURE_SSO ) }
+						feature={ feature }
+						onClick={ handleConnectClick( feature ) }
+						rna
+					/>
+				);
+
+			case FEATURE_POST_BY_EMAIL:
+				if ( props.hasConnectedOwner || props.isUnavailableInOfflineMode( 'post-by-email' ) ) {
+					return '';
+				}
+
+				return (
+					<JetpackBanner
+						title={ __(
+							'Connect your WordPress.com account to enable publishing via email.',
+							'jetpack'
+						) }
+						callToAction={ connectLabel() }
+						plan={ getJetpackProductUpsellByFeature( FEATURE_POST_BY_EMAIL ) }
+						feature={ feature }
+						onClick={ handleConnectClick( feature ) }
+						rna
+					/>
+				);
+
+			case FEATURE_JETPACK_SOCIAL:
+				if ( props.hasConnectedOwner || props.inOfflineMode ) {
+					return '';
+				}
+
+				return (
+					<JetpackBanner
+						title={ __(
+							'Connect your WordPress.com account to add your social media accounts.',
+							'jetpack'
+						) }
+						callToAction={ connectLabel() }
+						plan={ getJetpackProductUpsellByFeature( FEATURE_JETPACK_SOCIAL ) }
+						feature={ feature }
+						onClick={ handleConnectClick( feature ) }
+						rna
+					/>
+				);
+
+			case FEATURE_JETPACK_BLAZE:
+				if ( props.blazeAvailable.can_init || props.inOfflineMode ) {
+					return '';
+				}
+
+				return (
+					<JetpackBanner
+						title={ __(
+							'Connect your WordPress.com account to set up campaigns and promote your content.',
+							'jetpack'
+						) }
+						callToAction={ connectLabel() }
+						plan={ getJetpackProductUpsellByFeature( FEATURE_JETPACK_BLAZE ) }
+						feature={ feature }
+						onClick={ handleConnectClick( feature ) }
+						rna
+					/>
+				);
+
+			case FEATURE_JETPACK_EARN:
+				return (
+					<JetpackBanner
+						title={ __(
+							'Connect your WordPress.com account to discover tools to earn money with your site.',
+							'jetpack'
+						) }
+						callToAction={ connectLabel() }
+						plan={ getJetpackProductUpsellByFeature( FEATURE_JETPACK_EARN ) }
 						feature={ feature }
 						onClick={ handleConnectClick( feature ) }
 						rna
@@ -227,7 +347,7 @@ export const SettingsCard = inprops => {
 
 				return props.hasConnectedOwner ? (
 					<JetpackBanner
-						callToAction={ upgradeLabel }
+						callToAction={ upgradeLabel() }
 						title={ __( 'Connect your site to Google Analytics.', 'jetpack' ) }
 						plan={ getJetpackProductUpsellByFeature( FEATURE_GOOGLE_ANALYTICS_JETPACK ) }
 						feature={ feature }
@@ -237,7 +357,7 @@ export const SettingsCard = inprops => {
 					/>
 				) : (
 					<JetpackBanner
-						callToAction={ connectLabel }
+						callToAction={ connectLabel() }
 						title={ __(
 							'Connect your WordPress.com account to upgrade and connect your site to Google Analytics.',
 							'jetpack'
@@ -254,7 +374,7 @@ export const SettingsCard = inprops => {
 					return '';
 				}
 
-				return props.hasConnectedOwner ? (
+				return (
 					<JetpackBanner
 						callToAction={
 							isSearchNewPricingLaunched202208()
@@ -271,18 +391,6 @@ export const SettingsCard = inprops => {
 						href={ props.searchUpgradeUrl }
 						rna
 					/>
-				) : (
-					<JetpackBanner
-						callToAction={ connectLabel }
-						title={ __(
-							'Connect your WordPress.com account to upgrade and help visitors quickly find answers with highly relevant instant search results and powerful filtering.',
-							'jetpack'
-						) }
-						plan={ getJetpackProductUpsellByFeature( FEATURE_SEARCH_JETPACK ) }
-						feature={ feature }
-						onClick={ handleConnectClick( feature ) }
-						rna
-					/>
 				);
 
 			case FEATURE_SPAM_AKISMET_PLUS:
@@ -290,25 +398,13 @@ export const SettingsCard = inprops => {
 					return '';
 				}
 
-				return props.hasConnectedOwner ? (
+				return (
 					<JetpackBanner
-						callToAction={ upgradeLabel }
+						callToAction={ upgradeLabel() }
 						title={ __( 'Automatically clear spam from comments and forms.', 'jetpack' ) }
 						plan={ getJetpackProductUpsellByFeature( FEATURE_SPAM_AKISMET_PLUS ) }
 						feature={ feature }
 						href={ props.spamUpgradeUrl }
-						rna
-					/>
-				) : (
-					<JetpackBanner
-						callToAction={ connectLabel }
-						title={ __(
-							'Connect your WordPress.com account to upgrade and automatically clear spam from comments and forms.',
-							'jetpack'
-						) }
-						plan={ getJetpackProductUpsellByFeature( FEATURE_SPAM_AKISMET_PLUS ) }
-						feature={ feature }
-						onclick={ props.doConnectUser }
 						rna
 					/>
 				);
@@ -320,7 +416,7 @@ export const SettingsCard = inprops => {
 
 				return props.hasConnectedOwner ? (
 					<JetpackBanner
-						callToAction={ upgradeLabel }
+						callToAction={ upgradeLabel() }
 						title={ __(
 							'Start accepting PayPal payments for physical products, digital goods, or donations.',
 							'jetpack'
@@ -332,7 +428,7 @@ export const SettingsCard = inprops => {
 					/>
 				) : (
 					<JetpackBanner
-						callToAction={ connectLabel }
+						callToAction={ connectLabel() }
 						title={ __(
 							'Connect your WordPress.com account to upgrade and access PayPal features in your editor.',
 							'jetpack'
@@ -340,6 +436,22 @@ export const SettingsCard = inprops => {
 						plan={ getJetpackProductUpsellByFeature( FEATURE_SIMPLE_PAYMENTS_JETPACK ) }
 						feature={ feature }
 						onclick={ props.doConnectUser }
+						rna
+					/>
+				);
+
+			case FEATURE_NEWSLETTER_JETPACK:
+				if ( props.hasConnectedOwner ) {
+					return '';
+				}
+
+				return (
+					<JetpackBanner
+						title={ __( 'Connect your WordPress.com account to enable newsletters.', 'jetpack' ) }
+						callToAction={ connectLabel() }
+						plan={ getJetpackProductUpsellByFeature( FEATURE_NEWSLETTER_JETPACK ) }
+						feature={ feature }
+						onClick={ handleConnectClick( feature ) }
 						rna
 					/>
 				);
@@ -435,11 +547,17 @@ export const SettingsCard = inprops => {
 			<form
 				{ ...( moduleId ? { id: moduleId } : null ) }
 				className={ `jp-form-settings-card` }
-				onSubmit={ ! isSaving ? props.onSubmit : undefined }
+				onSubmit={ ! isDisabled && ! isSaving ? props.onSubmit : undefined }
 			>
 				<SectionHeader label={ header }>
 					{ ! props.hideButton && (
-						<Button primary rna compact type="submit" disabled={ isSaving || ! props.isDirty() }>
+						<Button
+							primary
+							rna
+							compact
+							type="submit"
+							disabled={ isDisabled || isSaving || ! props.isDirty() }
+						>
 							{ isSaving
 								? _x( 'Saving…', 'Button caption', 'jetpack' )
 								: _x(
@@ -468,6 +586,7 @@ export const SettingsCard = inprops => {
 SettingsCard.propTypes = {
 	action: PropTypes.string,
 	saveDisabled: PropTypes.bool,
+	isDisabled: PropTypes.bool,
 };
 
 export default connect(
@@ -499,6 +618,8 @@ export default connect(
 			hasSimplePayments: siteHasFeature( state, 'simple-payments' ),
 			hasVideoPress: siteHasFeature( state, 'videopress' ),
 			hasWordAds: siteHasFeature( state, 'wordads' ),
+			isUnavailableInOfflineMode: module_name => isUnavailableInOfflineMode( state, module_name ),
+			blazeAvailable: shouldInitializeBlaze( state ),
 		};
 	},
 	dispatch => ( {

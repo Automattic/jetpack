@@ -5,6 +5,128 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.55.0] - 2024-10-25
+### Fixed
+- Social: Fix Bsky profile URL [#39849]
+
+## [0.54.4] - 2024-10-21
+### Changed
+- Initial State: Migrated URLs to script data. [#39797]
+
+### Fixed
+- Fixed the site features for Simple sites. [#39817]
+
+## [0.54.3] - 2024-10-14
+### Changed
+- Updated package dependencies. [#39707]
+
+## [0.54.2] - 2024-10-07
+### Changed
+- Updated package dependencies. [#39594]
+
+## [0.54.1] - 2024-10-02
+### Fixed
+- Social: Fixed Bluesky not showing up on page load [#39597]
+
+## [0.54.0] - 2024-09-23
+### Added
+- Added tracking for the resharing action [#39408]
+
+### Changed
+- Social: Disabled resharing on Simple sites in classic editor [#39419]
+- Social: Migrated useEditorPreview feature flag to new script data [#39405]
+- Social: Migrated useShareStatus feature flag to new script data [#39404]
+
+## [0.53.0] - 2024-09-16
+### Added
+- Social: adds hook for plugin developers to be able to pull social share URLs on save. [#39398]
+
+### Changed
+- Moved initialization of Publicize UI from init action to admin_init action [#39342]
+- Social: Migrated useAdminUiV1 feature flag to new script data [#39137]
+
+### Removed
+- Social: Cleaned up media auto-conversion backend logic [#38587]
+
+### Fixed
+- Hide share logs not belonging to current admin. [#39379]
+
+## [0.52.3] - 2024-09-10
+### Changed
+- Updated package dependencies. [#39302]
+
+## [0.52.2] - 2024-09-09
+### Changed
+- Internal updates.
+
+## [0.52.1] - 2024-09-06
+### Changed
+- Internal updates.
+
+## [0.52.0] - 2024-09-05
+### Changed
+- Made resharing async [#39227]
+- Updated package dependencies. [#39176]
+
+## [0.51.0] - 2024-09-02
+### Added
+- Add share status log modal to published posts [#39051]
+
+## [0.50.1] - 2024-08-29
+### Added
+- Added share status info to Jetpack sidebar [#39073]
+
+### Changed
+- Updated package dependencies. [#39111]
+
+## [0.50.0] - 2024-08-26
+### Added
+- Added the new feature flag for the social share status [#39015]
+
+### Changed
+- Social: Migrated shares data to the new script data [#38988]
+- Updated package dependencies. [#39004]
+
+## [0.49.2] - 2024-08-21
+### Changed
+- Social; Migrated the API paths from initial state to the new script data [#38962]
+
+## [0.49.1] - 2024-08-19
+### Changed
+- Social: Migrated services list to the initial state. [#38924]
+- Updated package dependencies. [#38662]
+
+### Fixed
+- Fix incorrect next-version tokens in php `@since` and/or `@deprecated` docs. [#38869]
+- Social: Fixed connection services list crash on simple sites. [#38954]
+
+## [0.49.0] - 2024-08-12
+### Changed
+- Open Graph Meta Tags: Stopped handling Fediverse tags from Publicize package. [#38809]
+- Social: Updated intial state logic to use the new consolidated initial state. [#38606]
+
+## [0.48.0] - 2024-08-05
+### Added
+- Added endpoint to sync shares post meta back to the self-hosted site. [#38702]
+- Added feature flag management for social [#38669]
+
+### Fixed
+- Cleaned-up publicize shares rest endpoint [#38709]
+
+## [0.47.4] - 2024-08-01
+### Removed
+- Removed Fediverse og filters to fix fatals [#38612]
+
+### Fixed
+- Fixed Threads connections not having a profile_url [#38611]
+
+## [0.47.3] - 2024-07-15
+### Added
+- Mastodon: display a Fediverse Creator tag when the post author has connected their account to a Mastodon account. [#38198]
+
+### Changed
+- Social: Removed unnecessary feature checks for social connections [#38216]
+
 ## [0.47.2] - 2024-07-08
 ### Fixed
 - Social | Fixed the permissions for update and disconnection connections endpoints [#38187]
@@ -618,6 +740,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.55.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.54.4...v0.55.0
+[0.54.4]: https://github.com/Automattic/jetpack-publicize/compare/v0.54.3...v0.54.4
+[0.54.3]: https://github.com/Automattic/jetpack-publicize/compare/v0.54.2...v0.54.3
+[0.54.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.54.1...v0.54.2
+[0.54.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.54.0...v0.54.1
+[0.54.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.53.0...v0.54.0
+[0.53.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.52.3...v0.53.0
+[0.52.3]: https://github.com/Automattic/jetpack-publicize/compare/v0.52.2...v0.52.3
+[0.52.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.52.1...v0.52.2
+[0.52.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.52.0...v0.52.1
+[0.52.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.51.0...v0.52.0
+[0.51.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.50.1...v0.51.0
+[0.50.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.50.0...v0.50.1
+[0.50.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.49.2...v0.50.0
+[0.49.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.49.1...v0.49.2
+[0.49.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.49.0...v0.49.1
+[0.49.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.48.0...v0.49.0
+[0.48.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.47.4...v0.48.0
+[0.47.4]: https://github.com/Automattic/jetpack-publicize/compare/v0.47.3...v0.47.4
+[0.47.3]: https://github.com/Automattic/jetpack-publicize/compare/v0.47.2...v0.47.3
 [0.47.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.47.1...v0.47.2
 [0.47.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.47.0...v0.47.1
 [0.47.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.46.3...v0.47.0
