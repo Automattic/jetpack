@@ -34,7 +34,7 @@ import { getThreatIcon, getThreatSubtitle, getThreatType } from './utils';
  * @param {number}   props.historicThreatsCount     - Number of historic threats.
  * @param {boolean}  props.isViewingActiveThreats   - Whether the active status is selected.
  * @param {boolean}  props.isViewingHistoricThreats - Whether the historic status is selected.
- * @param {Function} props.onThreatsStatusChange    - Callback function to update the filter value.
+ * @param {Function} props.onStatusFilterChange     - Callback function to update the filter value.
  * @return {JSX.Element|null} The component or null.
  */
 export function ThreatsStatusToggleGroupControl( {
@@ -42,13 +42,13 @@ export function ThreatsStatusToggleGroupControl( {
 	historicThreatsCount,
 	isViewingActiveThreats,
 	isViewingHistoricThreats,
-	onThreatsStatusChange,
+	onStatusFilterChange,
 }: {
 	activeThreatsCount: number;
 	historicThreatsCount: number;
 	isViewingActiveThreats: boolean;
 	isViewingHistoricThreats: boolean;
-	onThreatsStatusChange: ( newValue: string ) => void;
+	onStatusFilterChange: ( newValue: string ) => void;
 } ): JSX.Element {
 	if ( ! ( activeThreatsCount && historicThreatsCount ) ) {
 		return null;
@@ -65,7 +65,7 @@ export function ThreatsStatusToggleGroupControl( {
 		<ToggleGroupControl
 			className={ styles[ 'toggle-group-control' ] }
 			value={ selectedValue }
-			onChange={ onThreatsStatusChange }
+			onChange={ onStatusFilterChange }
 		>
 			<ToggleGroupControlOption
 				value="active"
@@ -569,7 +569,7 @@ export default function ThreatsDataViews( {
 	 *
 	 * @param {string} newStatus - The new status filter value.
 	 */
-	const onThreatsStatusChange = useCallback(
+	const onStatusFilterChange = useCallback(
 		( newStatus: string ) => {
 			const updatedFilters = view.filters.filter( filter => filter.field !== 'status' );
 
@@ -628,7 +628,7 @@ export default function ThreatsDataViews( {
 					historicThreatsCount={ historicThreatsCount }
 					isViewingActiveThreats={ isViewingActiveThreats }
 					isViewingHistoricThreats={ isViewingHistoricThreats }
-					onThreatsStatusChange={ onThreatsStatusChange }
+					onStatusFilterChange={ onStatusFilterChange }
 				/>
 			}
 		/>
