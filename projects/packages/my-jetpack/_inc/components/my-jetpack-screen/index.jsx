@@ -172,11 +172,7 @@ export default function MyJetpackScreen() {
 					</Container>
 				)
 			) }
-			{ ! isWelcomeBannerVisible && isSectionVisible && (
-				<EvaluationRecommendations
-					welcomeFlowExperimentVariation={ welcomeFlowExperiment.variation }
-				/>
-			) }
+			{ ! isWelcomeBannerVisible && isSectionVisible && <EvaluationRecommendations /> }
 
 			<ProductCardsSection />
 
