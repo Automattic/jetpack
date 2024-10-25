@@ -55,7 +55,7 @@ class zbsDAL_ObjectLayer {
 	/** Suffix used to fix name clashes
 	 * See: https://github.com/Automattic/zero-bs-crm/issues/3477
 	 */
-	protected const NAME_CLASH_FIX_SUFFIX = '_zbs-avoid-name-clash-temporary-fix';
+	protected const NAME_CLASH_FIX_SUFFIX = '_zbs-name-clash-tmp-fix';
 
     function __construct($args=array()) {
 
