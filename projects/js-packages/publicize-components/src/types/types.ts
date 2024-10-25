@@ -1,3 +1,5 @@
+import { SocialStoreState } from '../store/types';
+
 export interface SocialUrls {
 	connectionsManagementPage: string;
 }
@@ -36,6 +38,7 @@ export interface SocialScriptData {
 	supported_services: Array< ConnectionService >;
 	shares_data: SharesData;
 	urls: SocialUrls;
+	store_initial_state: SocialStoreState;
 }
 
 type JetpackSettingsSelectors = {

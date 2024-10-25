@@ -3,3 +3,8 @@ export type SocialImageGeneratorConfig = {
 	template?: string;
 };
 
+export type SocialStoreState = {
+	settings: {
+		socialImageGenerator: { data: SocialImageGeneratorConfig };
+	};
+};
