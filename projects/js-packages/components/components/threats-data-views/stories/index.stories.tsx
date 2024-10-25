@@ -1,8 +1,8 @@
-import ThreatsDataView from '..';
+import ThreatsDataViews from '..';
 
 export default {
 	title: 'JS Packages/Components/Threats Data View',
-	component: ThreatsDataView,
+	component: ThreatsDataViews,
 	parameters: {
 		backgrounds: {
 			default: 'light',
@@ -18,7 +18,7 @@ export default {
 	],
 };
 
-export const Default = args => <ThreatsDataView { ...args } />;
+export const Default = args => <ThreatsDataViews { ...args } />;
 Default.args = {
 	data: [
 		{
@@ -139,12 +139,12 @@ Default.args = {
 			source: '',
 		},
 		{
-			id: '7275a176-d579-471a-8492-df8edbdf27de',
+			id: 105846602,
 			signature: null,
 			title: 'WooCommerce <= 3.4.5 - Authenticated Stored XSS',
 			description:
 				'The WooCommerce WordPress plugin was affected by an Authenticated Stored XSS security vulnerability.',
-			firstDetected: '2024-07-15T21:56:50.000Z',
+			firstDetected: null,
 			fixedIn: '3.4.6',
 			fixedOn: null,
 			severity: null,
@@ -164,22 +164,22 @@ Default.args = {
 	filters: [
 		{
 			field: 'status',
-			operator: 'is',
-			value: 'current',
+			operator: 'isAny',
+			value: [ 'current' ],
 		},
 	],
-	onFixThreats: () =>
+	onFixThreat: () =>
 		alert( 'Threat fix action callback triggered! This is handled by the component consumer.' ), // eslint-disable-line no-alert
-	onIgnoreThreats: () =>
+	onIgnoreThreat: () =>
 		alert( 'Ignore threat action callback triggered! This is handled by the component consumer.' ), // eslint-disable-line no-alert
-	onUnignoreThreats: () =>
+	onUnignoreThreat: () =>
 		// eslint-disable-next-line no-alert
 		alert(
 			'Unignore threat action callback triggered! This is handled by the component consumer.'
 		),
 };
 
-export const FixerStatuses = args => <ThreatsDataView { ...args } />;
+export const FixerStatuses = args => <ThreatsDataViews { ...args } />;
 FixerStatuses.args = {
 	data: [
 		{
@@ -288,7 +288,7 @@ FixerStatuses.args = {
 	],
 };
 
-export const FreeResults = args => <ThreatsDataView { ...args } />;
+export const FreeResults = args => <ThreatsDataViews { ...args } />;
 FreeResults.args = {
 	data: [
 		{

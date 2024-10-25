@@ -1,7 +1,7 @@
 import { code, color, grid, plugins, shield, wordpress } from '@wordpress/icons';
-import { type Threat, type ThreatFixStatus } from './types';
+import { DataViewsThreat, ThreatFixStatus } from './types';
 
-export const getThreatIcon = ( threat: Threat ) => {
+export const getThreatIcon = ( threat: DataViewsThreat ) => {
 	const type = getThreatType( threat );
 
 	switch ( type ) {
@@ -20,7 +20,7 @@ export const getThreatIcon = ( threat: Threat ) => {
 	}
 };
 
-export const getThreatType = ( threat: Threat ) => {
+export const getThreatType = ( threat: DataViewsThreat ) => {
 	if ( threat.signature === 'Vulnerable.WP.Core' ) {
 		return 'core';
 	}
@@ -37,7 +37,7 @@ export const getThreatType = ( threat: Threat ) => {
 	return null;
 };
 
-export const getThreatSubtitle = ( threat: Threat ) => {
+export const getThreatSubtitle = ( threat: DataViewsThreat ) => {
 	const type = getThreatType( threat );
 
 	switch ( type ) {

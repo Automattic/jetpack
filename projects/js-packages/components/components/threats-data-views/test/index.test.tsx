@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
-import ThreatsDataView from '..';
-import { type Threat } from '../types';
+import ThreatsDataViews from '..';
+import { DataViewsThreat } from '../types';
 
 const data = [
 	{
@@ -23,13 +23,12 @@ const data = [
 			marks: {},
 		},
 		source: null,
-		fixer: null,
 	},
-] as Threat[];
+] as DataViewsThreat[];
 
-describe( 'ThreatsDataView', () => {
+describe( 'ThreatsDataViews', () => {
 	it( 'renders threat data', () => {
-		render( <ThreatsDataView data={ data } /> );
+		render( <ThreatsDataViews data={ data } /> );
 		expect( screen.getByText( 'Malicious code found in file: index.php' ) ).toBeInTheDocument();
 	} );
 } );

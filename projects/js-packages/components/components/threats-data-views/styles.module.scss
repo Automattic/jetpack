@@ -65,7 +65,6 @@
 	justify-content: center;
 }
 
-
 .fixer-status {
 	display: flex;
 	align-items: center;
@@ -125,4 +124,8 @@
 		color: inherit;
 		box-shadow: none;
 	}
+}
+
+.toggle-control {
+	white-space: nowrap;
 }

@@ -2,7 +2,7 @@ export type ThreatStatus = 'fixed' | 'ignored' | 'current';
 
 export type ThreatFixType = 'replace' | 'delete' | 'update' | string;
 
-export type DataViewThreat = {
+export type DataViewsThreat = {
 	/** The threat's unique ID. */
 	id: number;
 
@@ -69,9 +69,9 @@ export type DataViewThreat = {
 	diff?: string;
 };
 
-export type ThreatsDataViewActionCallback = (
+export type ThreatsDataViewsActionCallback = (
 	items: Threat[],
-	context: { registry: unknown; onActionPerformed?: ( threats: DataViewThreat[] ) => void }
+	context: { registry: unknown; onActionPerformed?: ( threats: DataViewsThreat[] ) => void }
 ) => void;
 
 export type FixerStatus = 'not_started' | 'in_progress' | 'fixed' | 'not_fixed';
