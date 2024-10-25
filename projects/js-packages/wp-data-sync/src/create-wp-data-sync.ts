@@ -143,16 +143,19 @@ export type WpDataSyncOptions< Shape extends object > = {
 	 * The endpoint to sync the data with.
 	 */
 	endpoint: string;
+
 	/**
 	 * The initial state of the data
 	 */
 	initialState?: Shape;
+
 	/**
 	 * A function to extract the data from the fetch response.
 	 *
 	 * If not provided, the response will be used as is.
 	 */
 	extractFetchResponse?: ( response: unknown ) => Partial< Shape >;
+
 	/**
 	 * A function to prepare the request for updating the data.
 	 *
@@ -167,6 +170,29 @@ export type WpDataSyncOptions< Shape extends object > = {
 	 * or if you use a reducer key different from the name.
 	 */
 	getSliceFromState?: ( state: object ) => WpDataSyncState< Shape >;
+
+	/**
+	 * Whether to fetch the data on initialization.
+	 *
+	 * You may disable it if you set the initial state.
+	 *
+	 * @default true
+	 */
+	fetchOnInit?: boolean;
+
+	/**
+	 * Whether to fetch the data on update.
+	 *
+	 * @default false
+	 */
+	fetchAfterUpdate?: boolean;
+
+	/**
+	 * Whether to do optimistic updates.
+	 *
+	 * @default true
+	 */
+	doOptimisticUpdates?: boolean;
 };
 
 /**
@@ -180,8 +206,11 @@ export type WpDataSyncOptions< Shape extends object > = {
 export function createWpDataSync< Shape extends object, Name extends string >(
 	name: Name,
 	{
+		doOptimisticUpdates = true,
 		endpoint,
 		extractFetchResponse,
+		fetchAfterUpdate = false,
+		fetchOnInit = true,
 		getSliceFromState = defaultGetSliceFromState( name ),
 		initialState,
 		prepareUpdateRequest,
@@ -193,7 +222,9 @@ export function createWpDataSync< Shape extends object, Name extends string >(
 		resolvers: {
 			[ `get${ capitalizedName }` as const ]: () => {
 				return async function ( { dispatch } ) {
-					await dispatch[ `fetch${ capitalizedName }` ]();
+					if ( fetchOnInit ) {
+						await dispatch[ `fetch${ capitalizedName }` ]();
+					}
 				};
 			},
 		},
@@ -266,14 +297,20 @@ export function createWpDataSync< Shape extends object, Name extends string >(
 					const setStatus = dispatch[ `setStatusFor${ capitalizedName }` ];
 
 					try {
-						// Optimistically update the data.
-						dispatch[ `set${ capitalizedName }` ]( payload );
+						if ( doOptimisticUpdates ) {
+							// Optimistically update the data.
+							dispatch[ `set${ capitalizedName }` ]( payload );
+						}
 
 						setStatus( 'updating' );
 
 						const data = prepareUpdateRequest?.( payload ) ?? payload;
 
 						await apiFetch( { method: 'POST', path: endpoint, data } );
+
+						if ( fetchAfterUpdate ) {
+							await dispatch[ `fetch${ capitalizedName }` ]();
+						}
 
 						setStatus( 'idle' );
 					} catch ( error ) {
