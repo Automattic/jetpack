@@ -2083,7 +2083,6 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 										'company',
 										'lastlog',
 										'owner',
-										'company',
 										'invoices',
 										'quotes',
 										'transactions',
