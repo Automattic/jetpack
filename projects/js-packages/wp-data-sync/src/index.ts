@@ -1,1 +1,1 @@
-export * from './create-wp-data-sync.js';
+export * from './create-wp-data-sync';

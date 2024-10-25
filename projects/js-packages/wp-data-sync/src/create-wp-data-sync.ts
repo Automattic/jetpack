@@ -245,7 +245,6 @@ export function createWpDataSync< Shape extends object, Name extends string >(
 					setStatus( 'fetching' );
 
 					try {
-						// @ts-expect-error apiFetch is callable
 						const response = await apiFetch< Response >( { path: endpoint } );
 
 						const result = extractFetchResponse?.( response ) ?? response;
@@ -274,7 +273,6 @@ export function createWpDataSync< Shape extends object, Name extends string >(
 
 						const data = prepareUpdateRequest?.( payload ) ?? payload;
 
-						// @ts-expect-error apiFetch is callable
 						await apiFetch( { method: 'POST', path: endpoint, data } );
 
 						setStatus( 'idle' );

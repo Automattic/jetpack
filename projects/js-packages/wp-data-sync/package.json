@@ -12,7 +12,6 @@
 		"url": "https://github.com/Automattic/jetpack.git",
 		"directory": "projects/js-packages/wp-data-sync"
 	},
-	"type": "module",
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"scripts": {
