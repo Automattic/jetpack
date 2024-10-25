@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Hooks: Hook init_sync_cron_jobs into init to ensure translation loading within the function is not triggered too early.

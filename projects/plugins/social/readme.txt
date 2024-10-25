@@ -102,9 +102,20 @@ The easiest way is to use the Custom Message option in the publishing options bo
 6. Managing Social media accounts in the post editor
 
 == Changelog ==
-### 5.4.1 - 2024-10-02
+### 5.5.0 - 2024-10-25
+#### Added
+- Added Bluesky to social previews
+- Social Notes: add support for the ActivityPub Reply-To block.
+
 #### Changed
-- Internal updates.
+- General: indicate compatibility with the upcoming version of WordPress - 6.7.
+- Initial State: Migrated URLs to script data
+- Only include `wp-polyfill` as a script dependency when needed.
+- Updated package dependencies.
+
+#### Fixed
+- Added Jetpack Beta's slug to Social OG conflicting plugins
+- Social: Fixed share status tooltip text overflow
 
 == Upgrade Notice ==
 

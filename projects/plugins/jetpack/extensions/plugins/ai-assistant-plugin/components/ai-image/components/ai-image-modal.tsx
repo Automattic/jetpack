@@ -1,9 +1,10 @@
 /**
  * External dependencies
  */
-import { Button, Tooltip, KeyboardShortcuts } from '@wordpress/components';
+import { AiModalPromptInput } from '@automattic/jetpack-ai-client';
+import { Button } from '@wordpress/components';
 import { useCallback, useRef, useState, useEffect } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { Icon, external } from '@wordpress/icons';
 /**
  * Internal dependencies
@@ -34,13 +35,11 @@ export default function AiImageModal( {
 	isUnlimited = false,
 	upgradeDescription = null,
 	hasError = false,
-	postContent = null,
 	handlePreviousImage = () => {},
 	handleNextImage = () => {},
 	acceptButton = null,
 	autoStart = false,
 	autoStartAction = null,
-	generateButtonLabel = null,
 	instructionsPlaceholder = null,
 }: {
 	title: string;
@@ -72,13 +71,6 @@ export default function AiImageModal( {
 	const [ userPrompt, setUserPrompt ] = useState( '' );
 	const triggeredAutoGeneration = useRef( false );
 
-	const handleUserPromptChange = useCallback(
-		( e: React.ChangeEvent< HTMLTextAreaElement > ) => {
-			setUserPrompt( e.target.value.trim() );
-		},
-		[ setUserPrompt ]
-	);
-
 	const handleTryAgain = useCallback( () => {
 		onTryAgain?.( { userPrompt } );
 	}, [ onTryAgain, userPrompt ] );
@@ -87,37 +79,13 @@ export default function AiImageModal( {
 		onGenerate?.( { userPrompt } );
 	}, [ onGenerate, userPrompt ] );
 
-	const costTooltipTextSingular = __( '1 request per image', 'jetpack' );
-
-	const costTooltipTextPlural = sprintf(
-		// Translators: %d is the cost of generating one image.
-		__( '%d requests per image', 'jetpack' ),
-		cost
-	);
-
-	const costTooltipText = cost === 1 ? costTooltipTextSingular : costTooltipTextPlural;
-
 	// Controllers
 	const instructionsDisabled = notEnoughRequests || generating || requireUpgrade;
 	const upgradePromptVisible = ( requireUpgrade || notEnoughRequests ) && ! generating;
 	const counterVisible = Boolean( ! isUnlimited && cost && currentLimit );
-	const tryAgainButtonDisabled = ! userPrompt && ! postContent;
-	const generateButtonDisabled =
-		notEnoughRequests || generating || ( ! userPrompt && ! postContent );
 
-	const tryAgainButton = (
-		<Button onClick={ handleTryAgain } variant="secondary" disabled={ tryAgainButtonDisabled }>
-			{ __( 'Try again', 'jetpack' ) }
-		</Button>
-	);
-
-	const generateButton = (
-		<Tooltip text={ costTooltipText } placement="bottom">
-			<Button onClick={ handleGenerate } variant="secondary" disabled={ generateButtonDisabled }>
-				{ generateButtonLabel }
-			</Button>
-		</Tooltip>
-	);
+	const generateLabel = __( 'Generate', 'jetpack' );
+	const tryAgainLabel = __( 'Try again', 'jetpack' );
 
 	/**
 	 * Trigger image generation automatically.
@@ -136,28 +104,14 @@ export default function AiImageModal( {
 			{ open && (
 				<AiAssistantModal handleClose={ onClose } title={ title }>
 					<div className="ai-image-modal__content">
-						<div className="ai-image-modal__user-prompt">
-							<div className="ai-image-modal__user-prompt-textarea">
-								<KeyboardShortcuts
-									bindGlobal
-									shortcuts={ {
-										enter: () => {
-											if ( ! generateButtonDisabled ) {
-												handleGenerate();
-											}
-										},
-									} }
-								>
-									<textarea
-										disabled={ instructionsDisabled }
-										maxLength={ 1000 }
-										rows={ 2 }
-										onChange={ handleUserPromptChange }
-										placeholder={ instructionsPlaceholder }
-									></textarea>
-								</KeyboardShortcuts>
-							</div>
-						</div>
+						<AiModalPromptInput
+							prompt={ userPrompt }
+							setPrompt={ setUserPrompt }
+							disabled={ instructionsDisabled }
+							generateHandler={ hasError ? handleTryAgain : handleGenerate }
+							placeholder={ instructionsPlaceholder }
+							buttonLabel={ hasError ? tryAgainLabel : generateLabel }
+						/>
 						{ upgradePromptVisible && (
 							<QuotaExceededMessage
 								description={ upgradeDescription }
@@ -174,11 +128,6 @@ export default function AiImageModal( {
 										currentUsage={ currentUsage }
 									/>
 								) }
-							</div>
-							<div className="ai-image-modal__actions-right">
-								<div className="ai-image-modal__action-buttons">
-									{ hasError ? tryAgainButton : generateButton }
-								</div>
 							</div>
 						</div>
 						<div className="ai-image-modal__image-canvas">
