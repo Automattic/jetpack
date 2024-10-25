@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.55.0] - 2024-10-25
+### Fixed
+- Social: Fix Bsky profile URL [#39849]
+
 ## [0.54.4] - 2024-10-21
 ### Changed
 - Initial State: Migrated URLs to script data. [#39797]
@@ -736,6 +740,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.55.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.54.4...v0.55.0
 [0.54.4]: https://github.com/Automattic/jetpack-publicize/compare/v0.54.3...v0.54.4
 [0.54.3]: https://github.com/Automattic/jetpack-publicize/compare/v0.54.2...v0.54.3
 [0.54.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.54.1...v0.54.2

@@ -9,6 +9,7 @@ import {
 	useSyncPostDataToStore,
 	PostPublishPanels,
 	GlobalModals,
+	usePostCanUseSig,
 } from '@automattic/jetpack-publicize-components';
 import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils';
 import { PanelBody } from '@wordpress/components';
@@ -51,8 +52,9 @@ const JetpackSocialSidebar = () => {
 	const closeModal = useCallback( () => setIsModalOpened( false ), [] );
 
 	const { hasConnections, hasEnabledConnections } = useSocialMediaConnections();
-	const { isPublicizeEnabled, hidePublicizeFeature, isSocialImageGeneratorAvailable } =
-		usePublicizeConfig();
+	const { isPublicizeEnabled, hidePublicizeFeature } = usePublicizeConfig();
+	const postCanUseSig = usePostCanUseSig();
+
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
 	const PanelDescription = () => (
 		<Description
@@ -79,7 +81,7 @@ const JetpackSocialSidebar = () => {
 				<PublicizePanel>
 					<PanelDescription />
 				</PublicizePanel>
-				{ isSocialImageGeneratorAvailable && <SocialImageGeneratorPanel /> }
+				{ postCanUseSig && <SocialImageGeneratorPanel /> }
 				<PanelBody title={ __( 'Social Previews', 'jetpack-social' ) }>
 					<SocialPreviewsPanel openModal={ openModal } />
 				</PanelBody>
@@ -95,7 +97,7 @@ const JetpackSocialSidebar = () => {
 				</PublicizePanel>
 			</PluginPrePublishPanel>
 
-			{ isSocialImageGeneratorAvailable && (
+			{ postCanUseSig && (
 				<PluginPrePublishPanel
 					initialOpen
 					title={ __( 'Social Image Generator', 'jetpack-social' ) }
