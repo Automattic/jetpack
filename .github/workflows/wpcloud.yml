@@ -80,7 +80,7 @@ jobs:
     name: Run PHPUnit on the WPCloud test site
     runs-on: ubuntu-latest
     needs: build
-    if: needs.build.changed.outputs.wpcomsh == 'true'
+    if: jobs.build.changed.outputs.wpcomsh == 'true'
     steps:
       - uses: actions/checkout@v4
 
