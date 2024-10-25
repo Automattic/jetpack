@@ -26,7 +26,7 @@ module.exports = {
 		'no-unused-vars': 'warn',
 		'no-useless-escape': 0,
 		'no-control-regex': 0,
-		'no-unused-expressions': 'warn',
+		'no-unused-expressions': [ 'warn', { allowShortCircuit: true, allowTernary: true } ],
 
 		'no-caller': 'error',
 		'no-cond-assign': [ 'error', 'except-parens' ],
