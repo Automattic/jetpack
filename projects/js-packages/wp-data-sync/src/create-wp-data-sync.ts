@@ -14,67 +14,65 @@ function capitalize< Str extends string >( str: Str ): Capitalize< Str > {
 /**
  * The state of a data sync.
  */
-export type WpDataSyncState< Key extends string, Shape extends object > = {
-	[ K in Key ]: {
-		/**
-		 * The actual data being synced.
-		 */
-		data?: Shape;
-		/**
-		 * The status of the data sync.
-		 */
-		status?: 'initial' | 'idle' | 'fetching' | 'updating' | 'error';
-		/**
-		 * The last error that occurred.
-		 */
-		lastError?: unknown;
-	};
+export type WpDataSyncState< Shape extends object > = {
+	/**
+	 * The actual data being synced.
+	 */
+	data?: Shape;
+	/**
+	 * The status of the data sync.
+	 */
+	status?: 'initial' | 'idle' | 'fetching' | 'updating' | 'error';
+	/**
+	 * The last error that occurred.
+	 */
+	lastError?: unknown;
 };
 
 /**
  * Possible action types
  */
-type ActionType< Key extends string > =
-	| `setErrorFor${ Capitalize< Key > }`
-	| `setStatusFor${ Capitalize< Key > }`
-	| `set${ Capitalize< Key > }`
-	| `update${ Capitalize< Key > }`
-	| `fetch${ Capitalize< Key > }`;
+type ActionType< Name extends string > =
+	| `setErrorFor${ Capitalize< Name > }`
+	| `setStatusFor${ Capitalize< Name > }`
+	| `set${ Capitalize< Name > }`
+	| `update${ Capitalize< Name > }`
+	| `fetch${ Capitalize< Name > }`;
 
 /**
  * Action objects that can be dispatched.
  */
-type ActionObjects< Key extends string, Shape extends object > =
+type ActionObjects< Name extends string, Shape extends object > =
 	| {
-			type: `setErrorFor${ Capitalize< Key > }`;
+			type: `setErrorFor${ Capitalize< Name > }`;
 			payload: {
 				error: unknown;
 			};
 	  }
 	| {
-			type: `setStatusFor${ Capitalize< Key > }`;
+			type: `setStatusFor${ Capitalize< Name > }`;
 			payload: {
-				status: WpDataSyncState< Key, Shape >[ Key ][ 'status' ];
+				status: WpDataSyncState< Shape >[ 'status' ];
 			};
 	  }
 	| {
-			type: `set${ Capitalize< Key > }`;
+			type: `set${ Capitalize< Name > }`;
 			payload: Partial< Shape >;
 	  };
 
 /**
  * The signature of the actions that can be dispatched.
  */
-type ActionSignature< Key extends string, Shape extends object > = {
+type ActionSignature< Name extends string, Shape extends object > = {
 	setStatusFor: (
-		status: WpDataSyncState< Key, Shape >[ Key ][ 'status' ]
-	) => Extract< ActionObjects< Key, Shape >, { type: `setStatusFor${ Capitalize< Key > }` } >;
+		status: WpDataSyncState< Shape >[ 'status' ]
+	) => Extract< ActionObjects< Name, Shape >, { type: `setStatusFor${ Capitalize< Name > }` } >;
 	setErrorFor: (
 		error: unknown
-	) => Extract< ActionObjects< Key, Shape >, { type: `setErrorFor${ Capitalize< Key > }` } >;
+	) => Extract< ActionObjects< Name, Shape >, { type: `setErrorFor${ Capitalize< Name > }` } >;
 	set: (
 		payload: Partial< Shape >
-	) => Extract< ActionObjects< Key, Shape >, { type: `set${ Capitalize< Key > }` } >;
+	) => Extract< ActionObjects< Name, Shape >, { type: `set${ Capitalize< Name > }` } >;
 	// Thunks
 	fetch: () => () => Promise< void >;
 	update: ( payload: Partial< Shape > ) => () => Promise< void >;
@@ -83,57 +81,55 @@ type ActionSignature< Key extends string, Shape extends object > = {
 /**
  * The actions that get generated automatically.
  */
-export type GeneratedActions< Key extends string, Shape extends object > = {
-	[ K in ActionType< Key > ]: K extends `setStatusFor${ Capitalize< Key > }`
-		? ActionSignature< Key, Shape >[ 'setStatusFor' ]
-		: K extends `setErrorFor${ Capitalize< Key > }`
-		? ActionSignature< Key, Shape >[ 'setErrorFor' ]
-		: K extends `set${ Capitalize< Key > }`
-		? ActionSignature< Key, Shape >[ 'set' ]
-		: K extends `update${ Capitalize< Key > }`
-		? ActionSignature< Key, Shape >[ 'update' ]
-		: K extends `fetch${ Capitalize< Key > }`
-		? ActionSignature< Key, Shape >[ 'fetch' ]
+export type GeneratedActions< Name extends string, Shape extends object > = {
+	[ K in ActionType< Name > ]: K extends `setStatusFor${ Capitalize< Name > }`
+		? ActionSignature< Name, Shape >[ 'setStatusFor' ]
+		: K extends `setErrorFor${ Capitalize< Name > }`
+		? ActionSignature< Name, Shape >[ 'setErrorFor' ]
+		: K extends `set${ Capitalize< Name > }`
+		? ActionSignature< Name, Shape >[ 'set' ]
+		: K extends `update${ Capitalize< Name > }`
+		? ActionSignature< Name, Shape >[ 'update' ]
+		: K extends `fetch${ Capitalize< Name > }`
+		? ActionSignature< Name, Shape >[ 'fetch' ]
 		: never;
 };
 
 /**
  * Possible selectors that can be generated.
  */
-export type PossibleSelectors< Key extends string > =
-	| `get${ Capitalize< Key > }LastError`
-	| `get${ Capitalize< Key > }Status`
-	| `get${ Capitalize< Key > }`;
+export type PossibleSelectors< Name extends string > =
+	| `get${ Capitalize< Name > }LastError`
+	| `get${ Capitalize< Name > }Status`
+	| `get${ Capitalize< Name > }`;
 
 /**
  * The selectors that get generated automatically.
  */
-export type GeneratedSelectors< Key extends string, Shape extends object > = {
-	[ K in PossibleSelectors< Key > ]: (
-		state: WpDataSyncState< Key, Shape >
-	) => K extends `get${ Capitalize< Key > }Status`
-		? WpDataSyncState< Key, Shape >[ Key ][ 'status' ]
-		: K extends `get${ Capitalize< Key > }LastError`
-		? WpDataSyncState< Key, Shape >[ Key ][ 'lastError' ]
-		: K extends `get${ Capitalize< Key > }`
-		? WpDataSyncState< Key, Shape >[ Key ][ 'data' ]
+export type GeneratedSelectors< Name extends string, Shape extends object > = {
+	[ K in PossibleSelectors< Name > ]: (
+		state: object
+	) => K extends `get${ Capitalize< Name > }Status`
+		? WpDataSyncState< Shape >[ 'status' ]
+		: K extends `get${ Capitalize< Name > }LastError`
+		? WpDataSyncState< Shape >[ 'lastError' ]
+		: K extends `get${ Capitalize< Name > }`
+		? WpDataSyncState< Shape >[ 'data' ]
 		: never;
 };
 
 /**
  * The return type of the createWpDataSync function.
  */
-export interface CreateWpDataSyncReturn< Key extends string, Shape extends object > {
-	actions: GeneratedActions< Key, Shape >;
-	reducers: {
-		[ K in Key ]: (
-			state: WpDataSyncState< Key, Shape >[ Key ],
-			action: ActionObjects< Key, Shape >
-		) => WpDataSyncState< Key, Shape >[ Key ];
-	};
-	selectors: GeneratedSelectors< Key, Shape >;
+export interface CreateWpDataSyncReturn< Name extends string, Shape extends object > {
+	actions: GeneratedActions< Name, Shape >;
+	reducer: (
+		state: WpDataSyncState< Shape >,
+		action: ActionObjects< Name, Shape >
+	) => WpDataSyncState< Shape >;
+	selectors: GeneratedSelectors< Name, Shape >;
 	resolvers: {
-		[ K in `get${ Capitalize< Key > }` ]: () => () => Promise< void >;
+		[ K in `get${ Capitalize< Name > }` ]: () => () => Promise< void >;
 	};
 }
 
@@ -161,74 +157,86 @@ export type WpDataSyncOptions< Shape extends object > = {
 	 * If not provided, the payload will be used as is.
 	 */
 	prepareUpdateRequest?: ( data: Partial< Shape > ) => unknown;
+
+	/**
+	 * A function to get the slice from the state.
+	 * This is useful when the data is nested in the state.
+	 */
+	getSliceFromState: ( state: object ) => WpDataSyncState< Shape >;
 };
 
 /**
  * Creates a set of actions, reducers, selectors, and resolvers for a data sync.
  *
- * @param {string}            key     - The key for the data sync.
+ * @param {string}            name    - The name to use in actions, selectors and resolvers.
  * @param {WpDataSyncOptions} options - The options for the data sync.
  *
  * @return {CreateWpDataSyncReturn} The actions, reducers, selectors, and resolvers for the data sync.
  */
-export function createWpDataSync< Shape extends object, Key extends string >(
-	key: Key,
-	{ endpoint, extractFetchResponse, initialState, prepareUpdateRequest }: WpDataSyncOptions< Shape >
+export function createWpDataSync< Shape extends object, Name extends string >(
+	name: Name,
+	{
+		endpoint,
+		extractFetchResponse,
+		getSliceFromState,
+		initialState,
+		prepareUpdateRequest,
+	}: WpDataSyncOptions< Shape >
 ) {
-	const capitalizedKey = capitalize( key );
+	const capitalizedName = capitalize( name );
 
 	return {
 		resolvers: {
-			[ `get${ capitalizedKey }` as const ]: () => {
+			[ `get${ capitalizedName }` as const ]: () => {
 				return async function ( { dispatch } ) {
-					await dispatch[ `fetch${ capitalizedKey }` ]();
+					await dispatch[ `fetch${ capitalizedName }` ]();
 				};
 			},
 		},
 		selectors: {
-			[ `get${ capitalizedKey }` as const ]: ( state: WpDataSyncState< Key, Shape > ) => {
-				return state[ key ]?.data;
+			[ `get${ capitalizedName }` as const ]: ( state: object ) => {
+				return getSliceFromState( state )?.data;
 			},
-			[ `get${ capitalizedKey }Status` as const ]: ( state: WpDataSyncState< Key, Shape > ) => {
-				return state[ key ]?.status;
+			[ `get${ capitalizedName }Status` as const ]: ( state: object ) => {
+				return getSliceFromState( state )?.status;
 			},
-			[ `get${ capitalizedKey }LastError` as const ]: ( state: WpDataSyncState< Key, Shape > ) => {
-				return state[ key ]?.lastError;
+			[ `get${ capitalizedName }LastError` as const ]: ( state: object ) => {
+				return getSliceFromState( state )?.lastError;
 			},
 		},
 		actions: {
-			[ `set${ capitalizedKey }` as const ]: ( payload: Partial< Shape > ) => {
+			[ `set${ capitalizedName }` as const ]: ( payload: Partial< Shape > ) => {
 				return {
-					type: `set${ capitalizedKey }` as const,
+					type: `set${ capitalizedName }` as const,
 					payload,
 				};
 			},
-			[ `setErrorFor${ capitalizedKey }` as const ]: ( error: unknown ) => {
+			[ `setErrorFor${ capitalizedName }` as const ]: ( error: unknown ) => {
 				return {
-					type: `setErrorFor${ capitalizedKey }` as const,
+					type: `setErrorFor${ capitalizedName }` as const,
 					payload: {
 						error,
 					},
 				};
 			},
-			[ `setStatusFor${ capitalizedKey }` as const ]: (
-				status: WpDataSyncState< Key, Shape >[ Key ][ 'status' ]
+			[ `setStatusFor${ capitalizedName }` as const ]: (
+				status: WpDataSyncState< Shape >[ 'status' ]
 			) => {
 				return {
-					type: `setStatusFor${ capitalizedKey }` as const,
+					type: `setStatusFor${ capitalizedName }` as const,
 					payload: {
 						status,
 					},
 				};
 			},
-			[ `fetch${ capitalizedKey }` as const ]: () => {
+			[ `fetch${ capitalizedName }` as const ]: () => {
 				return async function ( { dispatch, select } ) {
-					const status = select[ `get${ capitalizedKey }Status` ]();
+					const status = select[ `get${ capitalizedName }Status` ]();
 
 					if ( status === 'fetching' || status === 'updating' ) {
 						return;
 					}
-					const setStatus = dispatch[ `setStatusFor${ capitalizedKey }` ];
+					const setStatus = dispatch[ `setStatusFor${ capitalizedName }` ];
 
 					setStatus( 'fetching' );
 
@@ -238,25 +246,25 @@ export function createWpDataSync< Shape extends object, Key extends string >(
 
 						const result = extractFetchResponse?.( response ) ?? response;
 
-						dispatch[ `set${ capitalizedKey }` ]( result );
+						dispatch[ `set${ capitalizedName }` ]( result );
 
 						setStatus( 'idle' );
 					} catch ( error ) {
 						setStatus( 'error' );
 
-						dispatch[ `setErrorFor${ capitalizedKey }` ]( error );
+						dispatch[ `setErrorFor${ capitalizedName }` ]( error );
 					}
 				};
 			},
-			[ `update${ capitalizedKey }` as const ]: ( payload: Partial< Shape > ) => {
+			[ `update${ capitalizedName }` as const ]: ( payload: Partial< Shape > ) => {
 				return async function ( { dispatch, select } ) {
-					const prevValue = select[ `get${ capitalizedKey }` ]();
+					const prevValue = select[ `get${ capitalizedName }` ]();
 
-					const setStatus = dispatch[ `setStatusFor${ capitalizedKey }` ];
+					const setStatus = dispatch[ `setStatusFor${ capitalizedName }` ];
 
 					try {
 						// Optimistically update the data.
-						dispatch[ `set${ capitalizedKey }` ]( payload );
+						dispatch[ `set${ capitalizedName }` ]( payload );
 
 						setStatus( 'updating' );
 
@@ -268,49 +276,47 @@ export function createWpDataSync< Shape extends object, Key extends string >(
 						setStatus( 'idle' );
 					} catch ( error ) {
 						// Revert the value to its previous state.
-						dispatch[ `set${ capitalizedKey }` ]( prevValue );
+						dispatch[ `set${ capitalizedName }` ]( prevValue );
 
 						setStatus( 'error' );
 
-						dispatch[ `setErrorFor${ capitalizedKey }` ]( error );
+						dispatch[ `setErrorFor${ capitalizedName }` ]( error );
 					}
 				};
 			},
 		},
-		reducers: {
-			[ key ]: (
-				state: WpDataSyncState< Key, Shape >[ Key ] = { data: initialState, status: 'initial' },
-				action: ActionObjects< Key, Shape >
-			): WpDataSyncState< Key, Shape >[ Key ] => {
-				switch ( action.type ) {
-					case `setStatusFor${ capitalizedKey }` as const: {
-						return {
-							...state,
-							status: 'status' in action.payload ? action.payload.status : state.status,
-						};
-					}
-					case `setErrorFor${ capitalizedKey }` as const: {
-						return {
-							...state,
-							lastError: 'error' in action.payload ? action.payload.error : state.lastError,
-						};
-					}
-
-					case `set${ capitalizedKey }` as const: {
-						return {
-							...state,
-							data: {
-								...state.data,
-								...action.payload,
-							},
-						};
-					}
-
-					default: {
-						return state;
-					}
+		reducer: (
+			state: WpDataSyncState< Shape > = { data: initialState, status: 'initial' },
+			action: ActionObjects< Name, Shape >
+		): WpDataSyncState< Shape > => {
+			switch ( action.type ) {
+				case `setStatusFor${ capitalizedName }` as const: {
+					return {
+						...state,
+						status: 'status' in action.payload ? action.payload.status : state.status,
+					};
 				}
-			},
+				case `setErrorFor${ capitalizedName }` as const: {
+					return {
+						...state,
+						lastError: 'error' in action.payload ? action.payload.error : state.lastError,
+					};
+				}
+
+				case `set${ capitalizedName }` as const: {
+					return {
+						...state,
+						data: {
+							...state.data,
+							...action.payload,
+						},
+					};
+				}
+
+				default: {
+					return state;
+				}
+			}
 		},
-	} as CreateWpDataSyncReturn< Key, Shape >;
+	} as CreateWpDataSyncReturn< Name, Shape >;
 }

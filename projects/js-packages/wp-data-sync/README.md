@@ -2,7 +2,9 @@
 
 Sync data from client to server and vice versa using @wordpress/data stores.
 
-This package exports a function named `createWpDataSync` which lets you avoid creating all the boilerplate code to handle API calls, which means that you don't need to create any reducers, selectors or actions to handle the data sync.
+Often, when working on settings page UIs, we need to fetch the settings from and sync back to the server. This results in a lot of boiler plate code to define actions, action type constants, thinks, selectors, resolvers and reducers, which are often repeated for different sections.
+
+This package exports a function named `createWpDataSync`, which abstracts that boiler plate away and adds a way to simply define what data you need and where to get from and then it gives you the required selectors, actions, resolvers, and a reducer which you can pass to `@wordpress/data` store.
 
 ## How to install wp-data-sync
 
@@ -37,7 +39,9 @@ const initialState: PluginSettings = {
 // Create the data sync
 const myPluginSettings = createWpDataSync( 'myPluginSettings', {
 	endpoint: '/wp/v2/settings',
-	initialState, // Optional
+	getSliceFromState( state: SocialStoreState ) {
+		return state.settings.myPluginSettings;
+	},
 	extractFetchResponse: response => response.my_plugin_settings, // Optional
 	prepareUpdateRequest: data => ( { my_plugin_settings: data } ), // Optional
 } );
@@ -50,7 +54,7 @@ const myPluginSettings = createWpDataSync( 'myPluginSettings', {
 // For example, if you only need the selectors, you can pass only the selectors.
 export const store = createReduxStore( 'some-store-id', {
 	reducer: combineReducers( {
-		...myPluginSettings.reducers,
+		myPluginSettings: myPluginSettings.reducer,
 		// Other reducers
 	} ),
 	actions: {
@@ -64,6 +68,11 @@ export const store = createReduxStore( 'some-store-id', {
 	resolvers: {
 		...myPluginSettings.resolvers,
 		// Other resolvers
+	},
+	initialState: {
+		settings: {
+			myPluginSettings: initialState,
+		},
 	},
 } );
 
