@@ -80,13 +80,12 @@ jobs:
     name: Run PHPUnit on the WPCloud test site
     runs-on: ubuntu-latest
     needs: build
-    if: jobs.build.changed.outputs.wpcomsh == 'true'
+    if: needs.build.outputs.wpcomsh == 'true'
     steps:
       - uses: actions/checkout@v4
 
       - name: Restore wpcomsh build cache
         id: wpcomsh-build-cache
-        if: needs.build.result == 'success'
         uses: actions/cache/restore@v4
         with:
           path: |
