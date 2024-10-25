@@ -170,7 +170,7 @@ class Note {
 		 *
 		 * Default is ['core/paragraph', 'core/post-featured-image']
 		 *
-		 * @since $$next-version$$
+		 * @since 5.5.0
 		 *
 		 * @param array $allowed_blocks A linear array of blocks allowed by the CPT.
 		 */
