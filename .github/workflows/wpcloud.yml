@@ -12,6 +12,8 @@ jobs:
   build:
     name: Install the Monorepo and build wpcomsh
     runs-on: ubuntu-latest
+    outputs:
+      wpcomsh: ${{ steps.changed.outputs.wpcomsh }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -51,13 +53,55 @@ jobs:
           pnpm jetpack build -v --deps plugins/wpcomsh
           echo "::endgroup::"
 
+          # We only want to save the files that were actually created or changed.
+          # But we can't just list them for actions/cache/save, "Argument list too long".
+          # So instead we delete all the unchanged files so we can tell actions/cache/save
+          # to save everything that's left.
+          git -c core.quotepath=off diff --name-only | sort > /tmp/changed.txt
+          if [[ -s /tmp/changed.txt ]]; then
+            grep -F -x -v -f /tmp/changed.txt /tmp/before.txt > /tmp/remove.txt
+          else
+            cp /tmp/before.txt /tmp/remove.txt
+          fi
+          xargs -d '\n' rm < /tmp/remove.txt
+          find . -type d -empty -delete
+
+      - name: Save wpcomsh build cache
+        if: steps.changed.outputs.wpcomsh == 'true'
+        id: wpcomsh-build-cache-save
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            .
+            !./.github/
+          key: ${{ github.sha }}
   deploy:
     name: Run PHPUnit on the WPCloud test site
     runs-on: ubuntu-latest
     needs: build
+    if: needs.build.changed.outputs.wpcomsh == 'true'
     steps:
+      - uses: actions/checkout@v4
+
+      - name: Restore wpcomsh build cache
+        id: wpcomsh-build-cache
+        if: needs.build.result == 'success'
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            .
+            !./.github/
+          key: ${{ github.sha }}
+          fail-on-cache-miss: true
+
+      - name: Setup tools
+        uses: ./.github/actions/tool-setup
+
+      - name: Install monorepo
+        run: |
+          pnpm install
+
       - name: Configure Github to be able to SSH to the Atomic site
-        if: needs.build.changed.outputs.wpcomsh == 'true'
         run: |
           echo "::group::Intializing"
 
