@@ -1,9 +1,5 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import {
-	ConnectionManagement,
-	RefreshJetpackSocialSettingsWrapper,
-	features,
-} from '@automattic/jetpack-publicize-components';
+import { ConnectionManagement, features } from '@automattic/jetpack-publicize-components';
 import { siteHasFeature } from '@automattic/jetpack-script-data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
@@ -151,21 +147,17 @@ export const Publicize = withModuleSettingsFormHelpers(
 									{ __( 'Automatically share your posts to social networks', 'jetpack' ) }
 								</span>
 							</ModuleToggle>
-							<RefreshJetpackSocialSettingsWrapper
-								shouldRefresh={ ! isActive && this.props.isSavingAnyOption( 'publicize' ) }
-							>
-								{ shouldShowChildElements && hasSocialImageGenerator && (
-									<SocialImageGeneratorSection />
-								) }
-								{ isActive &&
-								isLinked &&
-								useAdminUiV1 &&
-								! this.props.isSavingAnyOption( 'publicize' ) ? (
-									<FormFieldset className="jp-settings__connection-management">
-										<ConnectionManagement />
-									</FormFieldset>
-								) : null }
-							</RefreshJetpackSocialSettingsWrapper>
+							{ shouldShowChildElements && hasSocialImageGenerator && (
+								<SocialImageGeneratorSection />
+							) }
+							{ isActive &&
+							isLinked &&
+							useAdminUiV1 &&
+							! this.props.isSavingAnyOption( 'publicize' ) ? (
+								<FormFieldset className="jp-settings__connection-management">
+									<ConnectionManagement />
+								</FormFieldset>
+							) : null }
 						</SettingsGroup>
 					) }
 					{ isActive && ! useAdminUiV1 && configCard() }
