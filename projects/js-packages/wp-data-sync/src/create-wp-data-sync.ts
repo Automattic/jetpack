@@ -187,13 +187,13 @@ export function createWpDataSync< Shape extends object, Key extends string >(
 		},
 		selectors: {
 			[ `get${ capitalizedKey }` as const ]: ( state: WpDataSyncState< Key, Shape > ) => {
-				return state[ key ].data;
+				return state[ key ]?.data;
 			},
 			[ `get${ capitalizedKey }Status` as const ]: ( state: WpDataSyncState< Key, Shape > ) => {
-				return state[ key ].status;
+				return state[ key ]?.status;
 			},
 			[ `get${ capitalizedKey }LastError` as const ]: ( state: WpDataSyncState< Key, Shape > ) => {
-				return state[ key ].lastError;
+				return state[ key ]?.lastError;
 			},
 		},
 		actions: {
@@ -233,6 +233,7 @@ export function createWpDataSync< Shape extends object, Key extends string >(
 					setStatus( 'fetching' );
 
 					try {
+						// @ts-expect-error apiFetch is callable
 						const response = await apiFetch< Response >( { path: endpoint } );
 
 						const result = extractFetchResponse?.( response ) ?? response;
@@ -261,6 +262,7 @@ export function createWpDataSync< Shape extends object, Key extends string >(
 
 						const data = prepareUpdateRequest?.( payload ) ?? payload;
 
+						// @ts-expect-error apiFetch is callable
 						await apiFetch( { method: 'POST', path: endpoint, data } );
 
 						setStatus( 'idle' );

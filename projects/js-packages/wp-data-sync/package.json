@@ -12,6 +12,7 @@
 		"url": "https://github.com/Automattic/jetpack.git",
 		"directory": "projects/js-packages/wp-data-sync"
 	},
+	"type": "module",
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"scripts": {
@@ -23,7 +24,13 @@
 		"@wordpress/api-fetch": "7.9.0"
 	},
 	"devDependencies": {
+		"@babel/core": "^7.0.0",
+		"@babel/preset-env": "7.24.7",
+		"@babel/preset-typescript": "7.24.7",
+		"@types/jest": "29.5.12",
+		"@wordpress/data": "10.9.0",
 		"jest": "29.7.0",
+		"react": "18.3.1",
 		"typescript": "5.0.4"
 	},
 	"exports": {
