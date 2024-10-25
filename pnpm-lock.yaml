@@ -3767,6 +3767,9 @@ importers:
       '@automattic/jetpack-publicize-components':
         specifier: workspace:*
         version: link:../../js-packages/publicize-components
+      '@automattic/jetpack-script-data':
+        specifier: workspace:*
+        version: link:../../js-packages/script-data
       '@automattic/jetpack-shared-extension-utils':
         specifier: workspace:*
         version: link:../../js-packages/shared-extension-utils

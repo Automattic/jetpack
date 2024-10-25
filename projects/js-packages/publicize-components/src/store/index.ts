@@ -17,7 +17,7 @@ export const socialStore = createReduxStore( 'jetpack-social', {
 	resolvers: {
 		...sig.resolvers,
 	},
-	initialState: getSocialScriptData().store_initial_state,
+	initialState: getSocialScriptData()?.store_initial_state,
 } );
 
 register( socialStore );
