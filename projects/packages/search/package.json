@@ -84,7 +84,7 @@
 		"core-js": "3.38.1",
 		"jest": "29.7.0",
 		"jest-environment-jsdom": "29.7.0",
-		"postcss": "8.4.31",
+		"postcss": "8.4.47",
 		"postcss-custom-properties": "12.1.7",
 		"postcss-loader": "6.2.0",
 		"prettier": "npm:wp-prettier@3.0.3",
