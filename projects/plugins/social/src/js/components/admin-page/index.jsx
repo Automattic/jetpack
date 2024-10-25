@@ -7,7 +7,10 @@ import {
 	GlobalNotices,
 } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
-import { store as socialStore } from '@automattic/jetpack-publicize-components';
+import {
+	hasSocialPaidFeatures,
+	store as socialStore,
+} from '@automattic/jetpack-publicize-components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useState, useCallback, useEffect, useRef } from '@wordpress/element';
 import React from 'react';
@@ -34,7 +37,6 @@ const Admin = () => {
 	const {
 		isModuleEnabled,
 		showPricingPage,
-		hasPaidFeatures,
 		pluginVersion,
 		isSocialImageGeneratorAvailable,
 		isUpdatingJetpackSettings,
@@ -43,7 +45,6 @@ const Admin = () => {
 		return {
 			isModuleEnabled: store.isModuleEnabled(),
 			showPricingPage: store.showPricingPage(),
-			hasPaidFeatures: store.hasPaidFeatures(),
 			pluginVersion: store.getPluginVersion(),
 			isSocialImageGeneratorAvailable: store.isSocialImageGeneratorAvailable(),
 			isUpdatingJetpackSettings: store.isUpdatingJetpackSettings(),
@@ -76,7 +77,7 @@ const Admin = () => {
 	return (
 		<AdminPage moduleName={ moduleName } header={ <AdminPageHeader /> }>
 			<GlobalNotices />
-			{ ( ! hasPaidFeatures && showPricingPage ) || forceDisplayPricingPage ? (
+			{ ( ! hasSocialPaidFeatures() && showPricingPage ) || forceDisplayPricingPage ? (
 				<AdminSectionHero>
 					<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 						<Col>
