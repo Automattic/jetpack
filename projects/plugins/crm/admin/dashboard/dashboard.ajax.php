@@ -69,6 +69,9 @@ function jetpackcrm_dash_refresh() {
 		);
 	}
 
+	$tz_offset = jpcrm_get_wp_timezone_offset();
+	$wpdb->query( 'SET time_zone = "' . $tz_offset . '";' );
+
 	// next we want the contact chart which is total contacts between the dates grouped by day, week, month, year
 	$sql    = $wpdb->prepare( 'SELECT count(ID) as count, YEAR(FROM_UNIXTIME(zbsc_created)) as year FROM ' . $ZBSCRM_t['contacts'] . ' WHERE zbsc_created > %d AND zbsc_created < %d GROUP BY year ORDER BY year', $start_date, $end_date ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 	$yearly = $wpdb->get_results( $sql );
