@@ -517,7 +517,7 @@ export default function ThreatsDataViews( {
 						return false;
 					}
 					if ( isThreatEligibleForUnignore ) {
-						// TODO: Should not be able to bulk select or individually select errored threats
+						// TODO: Should not be able to bulk select or individually select errored fixers
 						return isThreatEligibleForUnignore( item );
 					}
 					return item.status === 'ignored';
