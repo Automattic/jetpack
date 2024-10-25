@@ -175,6 +175,7 @@ class Verbum_Comments {
 		$jetpack_username             = isset( $__get['hc_username'] ) && is_string( $__get['hc_username'] ) ? $__get['hc_username'] : '';
 		$jetpack_user_id              = isset( $__get['hc_userid'] ) && is_numeric( $__get['hc_userid'] ) ? (int) $__get['hc_userid'] : 0;
 		$jetpack_signature            = isset( $__get['sig'] ) && is_string( $__get['sig'] ) ? $__get['sig'] : '';
+		$iframe_unique_id             = isset( $__get['iframe_unique_id'] ) && is_numeric( $__get['iframe_unique_id'] ) ? (int) $__get['iframe_unique_id'] : 0;
 		list( $jetpack_avatar )       = wpcom_get_avatar_url( "$email_hash@md5.gravatar.com" );
 		$comment_registration_enabled = boolval( get_blog_option( $this->blog_id, 'comment_registration' ) );
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -255,6 +256,7 @@ class Verbum_Comments {
 					'verbumBundleUrl'                    => plugins_url( 'dist/index.js', __FILE__ ),
 					'isRTL'                              => is_rtl( $locale ),
 					'vbeCacheBuster'                     => $vbe_cache_buster,
+					'iframeUniqueId'                     => $iframe_unique_id,
 				)
 			),
 			'before'

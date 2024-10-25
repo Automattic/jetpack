@@ -1,19 +1,10 @@
 ( function ( window, $, items, models, views, i18n, modalinfo, nonces ) {
 	'use strict';
 
-	var modules,
-		list_table,
-		handle_module_tag_click,
-		$the_table,
-		$the_filters,
-		$the_search,
-		$jp_frame,
-		$bulk_button;
+	var modules, list_table, handle_module_tag_click, $the_filters, $the_search, $bulk_button;
 
-	$the_table = $( '.wp-list-table.jetpack-modules' );
 	$the_filters = $( '.navbar-form' );
 	$the_search = $( '#srch-term-search-input' );
-	$jp_frame = $( '.jp-frame' );
 	$bulk_button = $( '#doaction' );
 
 	modules = new models.Modules( {

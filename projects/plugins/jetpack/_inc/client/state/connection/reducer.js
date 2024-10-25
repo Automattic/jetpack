@@ -73,9 +73,10 @@ export const user = ( state = window.Initial_State.userData || {}, action ) => {
 		case USER_CONNECTION_DATA_FETCH_SUCCESS:
 			return assign( {}, state, action.userConnectionData );
 
-		case UNLINK_USER_SUCCESS:
+		case UNLINK_USER_SUCCESS: {
 			const currentUser = assign( {}, state.currentUser, { isConnected: false } );
 			return assign( {}, state, { currentUser } );
+		}
 
 		case MOCK_SWITCH_USER_PERMISSIONS:
 			return merge( {}, state, action.initialState );

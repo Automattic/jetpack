@@ -3,7 +3,7 @@
  * of the card with customized content.
  */
 
-/* global jetpackPluginSearch, JSON, jpTracksAJAX */
+/* global jetpackPluginSearch, jpTracksAJAX */
 
 var JetpackPSH = {};
 
