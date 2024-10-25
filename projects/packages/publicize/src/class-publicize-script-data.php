@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Publicize;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Current_Plan;
+use Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Settings;
 use Automattic\Jetpack\Publicize\Publicize_Utils as Utils;
 use Automattic\Jetpack\Status\Host;
 use Jetpack_Options;
@@ -108,14 +109,30 @@ class Publicize_Script_Data {
 		return array_merge(
 			$basic_data,
 			array(
-				'api_paths'          => self::get_api_paths(),
-				'supported_services' => self::get_supported_services(),
-				'shares_data'        => self::get_shares_data(),
-				'urls'               => self::get_urls(),
-				/**
-				 * 'store'       => self::get_store_script_data(),
-				 */
+				'api_paths'           => self::get_api_paths(),
+				'supported_services'  => self::get_supported_services(),
+				'shares_data'         => self::get_shares_data(),
+				'urls'                => self::get_urls(),
+				'store_initial_state' => self::get_store_initial_state(),
 			)
+		);
+	}
+
+	/**
+	 * Get initial state for social store.
+	 *
+	 * @return array
+	 */
+	public static function get_store_initial_state() {
+
+		$settings = ( new Settings() );
+
+		return array(
+			'settings' => array(
+				'socialImageGenerator' => array(
+					'data' => $settings->get_image_generator_settings(),
+				),
+			),
 		);
 	}
 
