@@ -39,9 +39,7 @@ const initialState: PluginSettings = {
 // Create the data sync
 const myPluginSettings = createWpDataSync( 'myPluginSettings', {
 	endpoint: '/wp/v2/settings',
-	getSliceFromState( state: SocialStoreState ) {
-		return state.settings.myPluginSettings;
-	},
+	getSliceFromState: state => state.myPluginSettings, // Optional
 	extractFetchResponse: response => response.my_plugin_settings, // Optional
 	prepareUpdateRequest: data => ( { my_plugin_settings: data } ), // Optional
 } );
@@ -70,9 +68,7 @@ export const store = createReduxStore( 'some-store-id', {
 		// Other resolvers
 	},
 	initialState: {
-		settings: {
-			myPluginSettings: initialState,
-		},
+		myPluginSettings: initialState,
 	},
 } );
 

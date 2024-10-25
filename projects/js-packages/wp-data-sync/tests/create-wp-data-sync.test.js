@@ -7,7 +7,6 @@ jest.mock( '@wordpress/api-fetch' );
 const registerStore = () => {
 	const { reducer, ...config } = createWpDataSync( 'testSettings', {
 		endpoint: '/test',
-		getSliceFromState: state => state.testSettings,
 	} );
 
 	const store = createReduxStore( 'some-store-id', {

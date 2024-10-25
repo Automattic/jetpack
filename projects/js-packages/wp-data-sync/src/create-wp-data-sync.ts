@@ -133,6 +133,8 @@ export interface CreateWpDataSyncReturn< Name extends string, Shape extends obje
 	};
 }
 
+const defaultGetSliceFromState = ( name: string ) => ( state: object ) => state[ name ];
+
 /**
  * The options for the data sync.
  */
@@ -160,9 +162,11 @@ export type WpDataSyncOptions< Shape extends object > = {
 
 	/**
 	 * A function to get the slice from the state.
-	 * This is useful when the data is nested in the state.
+	 *
+	 * This is useful when the data is nested in the state
+	 * or if you use a reducer key different from the name.
 	 */
-	getSliceFromState: ( state: object ) => WpDataSyncState< Shape >;
+	getSliceFromState?: ( state: object ) => WpDataSyncState< Shape >;
 };
 
 /**
@@ -178,7 +182,7 @@ export function createWpDataSync< Shape extends object, Name extends string >(
 	{
 		endpoint,
 		extractFetchResponse,
-		getSliceFromState,
+		getSliceFromState = defaultGetSliceFromState( name ),
 		initialState,
 		prepareUpdateRequest,
 	}: WpDataSyncOptions< Shape >
