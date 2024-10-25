@@ -25,11 +25,7 @@ interface Props extends PropsWithChildren {
 	setWelcomeFlowExperiment: React.Dispatch< React.SetStateAction< WelcomeFlowExperiment > >;
 }
 
-const WelcomeFlow: FC< Props > = ( {
-	welcomeFlowExperiment,
-	setWelcomeFlowExperiment,
-	children,
-} ) => {
+const WelcomeFlow: FC< Props > = ( { children } ) => {
 	const { recordEvent } = useAnalytics();
 	const { dismissWelcomeBanner } = useWelcomeBanner();
 	const { recommendedModules, submitEvaluation, saveEvaluationResult } =
@@ -131,8 +127,7 @@ const WelcomeFlow: FC< Props > = ( {
 						{ 'connection' === currentStep && (
 							<ConnectionStep
 								onActivateSite={ handleRegisterSite }
-								onUpdateWelcomeFlowExperiment={ setWelcomeFlowExperiment }
-								isActivating={ siteIsRegistering || welcomeFlowExperiment.isLoading }
+								isActivating={ siteIsRegistering }
 							/>
 						) }
 						{ 'evaluation' === currentStep && (
