@@ -4,6 +4,7 @@ import {
 } from '@wordpress/components';
 import {
 	Action,
+	ActionButton,
 	DataViews,
 	Field,
 	FieldType,
@@ -14,15 +15,15 @@ import {
 	type View,
 } from '@wordpress/dataviews';
 import { dateI18n } from '@wordpress/date';
-import { __, sprintf, _x } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
 import { useCallback, useMemo, useState } from 'react';
-import React from 'react';
 import Badge from '../badge';
+import ThreatSeverityBadge from '../threat-severity-badge';
 import { THREAT_STATUSES, THREAT_TYPES } from './constants';
 import FixerStatusIcon, { FixerStatusBadge } from './fixer-status';
 import styles from './styles.module.scss';
-import { DataViewsThreat, ThreatsDataViewsActionCallback } from './types';
+import { type Threat } from './types';
 import { getThreatIcon, getThreatSubtitle, getThreatType } from './utils';
 
 /**
@@ -40,7 +41,7 @@ export function ThreatsStatusFilter( {
 }: {
 	filters: Filter[];
 	onChange: ( newValue: string ) => void;
-	data: DataViewsThreat[];
+	data: Threat[];
 } ): JSX.Element {
 	const activeCount = useMemo(
 		() => data.filter( item => item.status === 'current' ).length,
@@ -109,15 +110,16 @@ export function ThreatsStatusFilter( {
  *
  * @param {object}   props                             - Component props.
  * @param {Array}    props.data                        - Threats data.
- * @param {Array}    props.filters                     - Initial DataViews filters.
+ * @param {Array}    props.filters                     - Initial DataView filters.
  * @param {Function} props.onChangeSelection           - Callback function run when an item is selected.
- * @param {Function} props.onFixThreat                 - Threat fix action callback.
- * @param {Function} props.onIgnoreThreat              - Threat ignore action callback.
- * @param {Function} props.onUnignoreThreat            - Threat unignore action callback.
+ * @param {Function} props.onFixThreats                - Threat fix action callback.
+ * @param {Function} props.onIgnoreThreats             - Threat ignore action callback.
+ * @param {Function} props.onUnignoreThreats           - Threat unignore action callback.
  * @param {Function} props.isThreatEligibleForFix      - Function to determine if a threat is eligible for fixing.
  * @param {Function} props.isThreatEligibleForIgnore   - Function to determine if a threat is eligible for ignoring.
  * @param {Function} props.isThreatEligibleForUnignore - Function to determine if a threat is eligible for unignoring.
- * @return {JSX.Element} The component.
+ *
+ * @return {JSX.Element} The ThreatsDataViews component.
  */
 export default function ThreatsDataViews( {
 	data,
@@ -126,19 +128,19 @@ export default function ThreatsDataViews( {
 	isThreatEligibleForFix,
 	isThreatEligibleForIgnore,
 	isThreatEligibleForUnignore,
-	onFixThreat,
-	onIgnoreThreat,
-	onUnignoreThreat,
+	onFixThreats,
+	onIgnoreThreats,
+	onUnignoreThreats,
 }: {
-	data: DataViewsThreat[];
+	data: Threat[];
 	filters?: Filter[];
 	onChangeSelection?: ( selectedItemIds: string[] ) => void;
-	isThreatEligibleForFix?: ( threat: DataViewsThreat ) => boolean;
-	isThreatEligibleForIgnore?: ( threat: DataViewsThreat ) => boolean;
-	isThreatEligibleForUnignore?: ( threat: DataViewsThreat ) => boolean;
-	onFixThreat?: ThreatsDataViewsActionCallback;
-	onIgnoreThreat?: ThreatsDataViewsActionCallback;
-	onUnignoreThreat?: ThreatsDataViewsActionCallback;
+	isThreatEligibleForFix?: ( threat: Threat ) => boolean;
+	isThreatEligibleForIgnore?: ( threat: Threat ) => boolean;
+	isThreatEligibleForUnignore?: ( threat: Threat ) => boolean;
+	onFixThreats?: ActionButton< Threat >[ 'callback' ];
+	onIgnoreThreats?: ActionButton< Threat >[ 'callback' ];
+	onUnignoreThreats?: ActionButton< Threat >[ 'callback' ];
 } ): JSX.Element {
 	const baseView = {
 		sort: {
@@ -152,7 +154,7 @@ export default function ThreatsDataViews( {
 	};
 
 	/**
-	 * DataViews default layouts.
+	 * DataView default layouts.
 	 *
 	 * This property provides layout information about the view types that are active. If empty, enables all layout types (see “Layout Types”) with empty layout data.
 	 *
@@ -164,14 +166,6 @@ export default function ThreatsDataViews( {
 			fields: [ 'severity', 'threat', 'auto-fix' ],
 			layout: {
 				primaryField: 'severity',
-				combinedFields: [
-					{
-						id: 'threat',
-						label: __( 'Threat', 'jetpack' ),
-						children: [ 'subtitle', 'title', 'description' ],
-						direction: 'vertical',
-					},
-				],
 			},
 		},
 		list: {
@@ -185,7 +179,7 @@ export default function ThreatsDataViews( {
 	};
 
 	/**
-	 * DataViews view object - configures how the dataset is visible to the user.
+	 * DataView view object - configures how the dataset is visible to the user.
 	 *
 	 * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-dataviews/#view-object
 	 */
@@ -195,24 +189,32 @@ export default function ThreatsDataViews( {
 	} );
 
 	/**
-	 * Compute values based on the threats data.
+	 * Compute values from the provided threats data.
 	 *
 	 * @member {object} extensions - List of unique threat extensions.
 	 * @member {object} signatures - List of unique threat signatures.
 	 * @member {Array}  dataFields - List of unique fields.
 	 */
-	const { extensions, signatures, dataFields } = useMemo( () => {
+	const {
+		extensions,
+		signatures,
+		dataFields,
+	}: {
+		extensions: { value: string; label: string }[];
+		signatures: { value: string; label: string }[];
+		dataFields: string[];
+	} = useMemo( () => {
 		return data.reduce(
 			( acc, threat ) => {
 				// Extensions
-				if ( threat?.extension ) {
+				if ( threat.extension ) {
 					if ( ! acc.extensions.find( ( { value } ) => value === threat.extension.slug ) ) {
 						acc.extensions.push( { value: threat.extension.slug, label: threat.extension.name } );
 					}
 				}
 
 				// Signatures
-				if ( threat?.signature ) {
+				if ( threat.signature ) {
 					if ( ! acc.signatures.find( ( { value } ) => value === threat.signature ) ) {
 						acc.signatures.push( { value: threat.signature, label: threat.signature } );
 					}
@@ -233,61 +235,67 @@ export default function ThreatsDataViews( {
 				return acc;
 			},
 			{
-				extensions: [] as { value: string; label: string }[],
-				signatures: [] as { value: string; label: string }[],
-				dataFields: [] as string[],
+				extensions: [],
+				signatures: [],
+				dataFields: [],
 			}
 		);
 	}, [ data ] );
 
 	/**
-	 * DataViews fields - describes the visible items for each record in the dataset.
+	 * DataView fields - describes the visible items for each record in the dataset.
 	 *
 	 * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-dataviews/#fields-object
 	 */
 	const fields = useMemo( () => {
-		const result: Field< DataViewsThreat >[] = [
+		const result: Field< Threat >[] = [
+			{
+				id: 'threat',
+				label: __( 'Threat', 'jetpack' ),
+				enableGlobalSearch: true,
+				enableHiding: false,
+				getValue( { item }: { item: Threat } ) {
+					return item.title + item.description;
+				},
+				render( { item }: { item: Threat } ) {
+					return (
+						<div className={ styles.threat__primary }>
+							<div className={ styles.threat__subtitle }>
+								<Icon icon={ getThreatIcon( item ) } size={ 20 } />
+								{ getThreatSubtitle( item ) }
+							</div>
+							<div className={ styles.threat__title }>{ item.title }</div>
+							<div className={ styles.threat__description }>{ item.description }</div>
+						</div>
+					);
+				},
+			},
 			{
 				id: 'title',
 				label: __( 'Title', 'jetpack' ),
 				enableGlobalSearch: true,
 				enableHiding: false,
-				render( { item }: { item: DataViewsThreat } ) {
-					if ( view.type === 'list' ) {
-						return item.title;
-					}
-					return <span className={ styles.threat__title }>{ item.title }</span>;
-				},
-			},
-			{
-				id: 'description',
-				label: __( 'Description', 'jetpack' ),
-				enableGlobalSearch: true,
-				enableHiding: false,
-				render( { item }: { item: DataViewsThreat } ) {
-					return <span className={ styles.threat__description }>{ item.description }</span>;
-				},
 			},
 			{
 				id: 'icon',
 				label: __( 'Icon', 'jetpack' ),
-				getValue( { item }: { item: DataViewsThreat } ) {
+				enableHiding: false,
+				getValue( { item }: { item: Threat } ) {
 					return getThreatType( item );
 				},
-				render( { item }: { item: DataViewsThreat } ) {
+				render( { item }: { item: Threat } ) {
 					return (
-						<div className={ styles.media }>
+						<div className={ styles.threat__media }>
 							<Icon icon={ getThreatIcon( item ) } size={ 20 } />
 						</div>
 					);
 				},
-				enableHiding: false,
 			},
 			{
 				id: 'status',
 				label: __( 'Status', 'jetpack' ),
 				elements: THREAT_STATUSES,
-				getValue( { item }: { item: DataViewsThreat } ) {
+				getValue( { item }: { item: Threat } ) {
 					if ( ! item.status ) {
 						return 'current';
 					}
@@ -295,11 +303,11 @@ export default function ThreatsDataViews( {
 						THREAT_STATUSES.find( ( { value } ) => value === item.status )?.value ?? item.status
 					);
 				},
-				render( { item }: { item: DataViewsThreat } ) {
+				render( { item }: { item: Threat } ) {
 					if ( item.status ) {
 						const status = THREAT_STATUSES.find( ( { value } ) => value === item.status );
 						if ( status ) {
-							return <Badge variant={ status?.variant }>{ status?.label }</Badge>;
+							return <Badge variant={ status?.variant }>{ status.label }</Badge>;
 						}
 					}
 					return <Badge variant="warning">{ __( 'Active', 'jetpack' ) }</Badge>;
@@ -310,7 +318,7 @@ export default function ThreatsDataViews( {
 				label: __( 'Extension', 'jetpack' ),
 				enableGlobalSearch: true,
 				elements: extensions,
-				getValue( { item }: { item: DataViewsThreat } ) {
+				getValue( { item }: { item: Threat } ) {
 					return item.extension ? item.extension.slug : '';
 				},
 			},
@@ -318,17 +326,17 @@ export default function ThreatsDataViews( {
 				id: 'type',
 				label: __( 'Category', 'jetpack' ),
 				elements: THREAT_TYPES,
-				getValue( { item }: { item: DataViewsThreat } ) {
-					if ( 'signature' in item && item.signature === 'Vulnerable.WP.Core' ) {
+				getValue( { item }: { item: Threat } ) {
+					if ( item.signature === 'Vulnerable.WP.Core' ) {
 						return 'core';
 					}
-					if ( 'extension' in item && item.extension ) {
+					if ( item.extension ) {
 						return item.extension.type;
 					}
-					if ( 'filename' in item && item.filename ) {
+					if ( item.filename ) {
 						return 'file';
 					}
-					if ( 'table' in item && item.table ) {
+					if ( item.table ) {
 						return 'database';
 					}
 
@@ -338,19 +346,8 @@ export default function ThreatsDataViews( {
 			{
 				id: 'subtitle',
 				label: __( 'Affected Item', 'jetpack' ),
-				getValue( { item }: { item: DataViewsThreat } ) {
-					return getThreatSubtitle( item );
-				},
-				render( { item }: { item: DataViewsThreat } ) {
-					if ( view.type === 'table' ) {
-						return (
-							<div className={ styles.threat__subtitle }>
-								<Icon icon={ getThreatIcon( item ) } size={ 20 } />
-								{ getThreatSubtitle( item ) }
-							</div>
-						);
-					}
-
+				enableHiding: false,
+				getValue( { item }: { item: Threat } ) {
 					return getThreatSubtitle( item );
 				},
 			},
@@ -361,7 +358,7 @@ export default function ThreatsDataViews( {
 							label: __( 'Signature', 'jetpack' ),
 							elements: signatures,
 							enableGlobalSearch: true,
-							getValue( { item }: { item: DataViewsThreat } ) {
+							getValue( { item }: { item: Threat } ) {
 								return item.signature || '';
 							},
 						},
@@ -372,30 +369,12 @@ export default function ThreatsDataViews( {
 						{
 							id: 'severity',
 							label: __( 'Severity', 'jetpack' ),
-							getValue( { item }: { item: DataViewsThreat } ) {
+							type: 'integer' as FieldType,
+							getValue( { item }: { item: Threat } ) {
 								return item.severity ?? 0;
 							},
-							render( { item }: { item: DataViewsThreat } ) {
-								let text = _x( 'Low', 'Severity label for issues rated below 3.', 'jetpack' );
-								let variant: 'danger' | 'warning' | undefined;
-
-								if ( item.severity >= 5 ) {
-									text = _x(
-										'Critical',
-										'Severity label for issues rated 5 or higher.',
-										'jetpack'
-									);
-									variant = 'danger';
-								} else if ( item.severity >= 3 && item.severity < 5 ) {
-									text = _x(
-										'High',
-										'Severity label for issues rated between 3 and 5.',
-										'jetpack'
-									);
-									variant = 'warning';
-								}
-
-								return <Badge variant={ variant }>{ text }</Badge>;
+							render( { item }: { item: Threat } ) {
+								return <ThreatSeverityBadge severity={ item.severity } />;
 							},
 						},
 				  ]
@@ -406,10 +385,11 @@ export default function ThreatsDataViews( {
 							id: 'auto-fix',
 							label: __( 'Auto-fix', 'jetpack' ),
 							enableHiding: false,
-							getValue( { item }: { item: DataViewsThreat } ) {
-								return item.fixable ? 'Yes' : '';
+							type: 'integer' as FieldType,
+							getValue( { item }: { item: Threat } ) {
+								return item.fixable ? 1 : 0;
 							},
-							render( { item }: { item: DataViewsThreat } ) {
+							render( { item }: { item: Threat } ) {
 								if ( ! item.fixable ) {
 									return null;
 								}
@@ -433,15 +413,15 @@ export default function ThreatsDataViews( {
 							id: 'first-detected',
 							label: __( 'First Detected', 'jetpack' ),
 							type: 'datetime' as FieldType,
-							getValue( { item }: { item: DataViewsThreat } ) {
-								return new Date( item.firstDetected );
+							getValue( { item }: { item: Threat } ) {
+								return item.firstDetected ? new Date( item.firstDetected ) : null;
 							},
-							render( { item }: { item: DataViewsThreat } ) {
-								return (
+							render( { item }: { item: Threat } ) {
+								return item.firstDetected ? (
 									<span className={ styles.threat__firstDetected }>
 										{ dateI18n( 'F j Y', item.firstDetected, false ) }
 									</span>
-								);
+								) : null;
 							},
 						},
 				  ]
@@ -452,15 +432,15 @@ export default function ThreatsDataViews( {
 							id: 'fixed-on',
 							label: __( 'Fixed On', 'jetpack' ),
 							type: 'datetime' as FieldType,
-							getValue( { item }: { item: DataViewsThreat } ) {
-								return new Date( item.firstDetected );
+							getValue( { item }: { item: Threat } ) {
+								return item.fixedOn ? new Date( item.fixedOn ) : null;
 							},
-							render( { item }: { item: DataViewsThreat } ) {
-								return (
+							render( { item }: { item: Threat } ) {
+								return item.fixedOn ? (
 									<span className={ styles.threat__fixedOn }>
-										{ dateI18n( 'F j Y', item.firstDetected, false ) }
+										{ dateI18n( 'F j Y', item.fixedOn, false ) }
 									</span>
-								);
+								) : null;
 							},
 						},
 				  ]
@@ -471,21 +451,22 @@ export default function ThreatsDataViews( {
 	}, [ extensions, signatures, dataFields, view ] );
 
 	/**
-	 * DataViews actions - collection of operations that can be performed upon each record.
+	 * DataView actions - collection of operations that can be performed upon each record.
 	 *
 	 * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-dataviews/#actions-object
 	 */
 	const actions = useMemo( () => {
-		const result: Action< DataViewsThreat >[] = [];
+		const result: Action< Threat >[] = [];
 
 		if ( dataFields.includes( 'fixable' ) ) {
 			result.push( {
 				id: 'fix',
 				label: __( 'Auto-Fix', 'jetpack' ),
 				isPrimary: true,
-				callback: onFixThreat,
+				supportsBulk: true,
+				callback: onFixThreats,
 				isEligible( item ) {
-					if ( ! onFixThreat ) {
+					if ( ! onFixThreats ) {
 						return false;
 					}
 					if ( isThreatEligibleForFix ) {
@@ -493,7 +474,6 @@ export default function ThreatsDataViews( {
 					}
 					return !! item.fixable;
 				},
-				icon: 'check',
 			} );
 		}
 
@@ -503,9 +483,9 @@ export default function ThreatsDataViews( {
 				label: __( 'Ignore', 'jetpack' ),
 				isPrimary: true,
 				isDestructive: true,
-				callback: onIgnoreThreat,
+				callback: onIgnoreThreats,
 				isEligible( item ) {
-					if ( ! onIgnoreThreat ) {
+					if ( ! onIgnoreThreats ) {
 						return false;
 					}
 					if ( isThreatEligibleForIgnore ) {
@@ -513,7 +493,6 @@ export default function ThreatsDataViews( {
 					}
 					return item.status === 'current';
 				},
-				icon: 'unseen',
 			} );
 		}
 
@@ -523,9 +502,9 @@ export default function ThreatsDataViews( {
 				label: __( 'Unignore', 'jetpack' ),
 				isPrimary: true,
 				isDestructive: true,
-				callback: onUnignoreThreat,
+				callback: onUnignoreThreats,
 				isEligible( item ) {
-					if ( ! onUnignoreThreat ) {
+					if ( ! onUnignoreThreats ) {
 						return false;
 					}
 					if ( isThreatEligibleForUnignore ) {
@@ -533,16 +512,15 @@ export default function ThreatsDataViews( {
 					}
 					return item.status === 'ignored';
 				},
-				icon: 'seen',
 			} );
 		}
 
 		return result;
 	}, [
 		dataFields,
-		onFixThreat,
-		onIgnoreThreat,
-		onUnignoreThreat,
+		onFixThreats,
+		onIgnoreThreats,
+		onUnignoreThreats,
 		isThreatEligibleForFix,
 		isThreatEligibleForIgnore,
 		isThreatEligibleForUnignore,
@@ -567,11 +545,11 @@ export default function ThreatsDataViews( {
 	}, [] );
 
 	/**
-	 * DataViews getItemId function - returns the unique ID for each record in the dataset.
+	 * DataView getItemId function - returns the unique ID for each record in the dataset.
 	 *
 	 * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-dataviews/#getitemid-function
 	 */
-	const getItemId = useCallback( ( item: DataViewsThreat ) => item.id.toString(), [] );
+	const getItemId = useCallback( ( item: Threat ) => item.id.toString(), [] );
 
 	/**
 	 * Callback function to handle the status change filter.

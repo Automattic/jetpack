@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import ThreatsDataViews from '..';
-import { DataViewsThreat } from '../types';
+import { Threat } from '../types';
 
 const data = [
 	{
@@ -24,7 +24,7 @@ const data = [
 		},
 		source: null,
 	},
-] as DataViewsThreat[];
+] as Threat[];
 
 describe( 'ThreatsDataViews', () => {
 	it( 'renders threat data', () => {

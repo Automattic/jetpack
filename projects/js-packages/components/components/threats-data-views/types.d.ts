@@ -2,7 +2,7 @@ export type ThreatStatus = 'fixed' | 'ignored' | 'current';
 
 export type ThreatFixType = 'replace' | 'delete' | 'update' | string;
 
-export type DataViewsThreat = {
+export type Threat = {
 	/** The threat's unique ID. */
 	id: number;
 
@@ -39,19 +39,11 @@ export type DataViewsThreat = {
 		  }
 		| false;
 
-	/** If available, the threat's latest fixer status. */
-	fixer?: ThreatFixStatus;
+	/** The fixer status. */
+	fixer: ThreatFixStatus;
 
 	/** The threat's source. */
 	source?: string;
-
-	/** The threat's affected extension. */
-	extension?: {
-		name: string;
-		slug: string;
-		type: 'plugin' | 'theme' | 'core';
-		version: string;
-	};
 
 	/** The threat's context. */
 	context?: Record< string, unknown > | null;
@@ -67,12 +59,15 @@ export type DataViewsThreat = {
 
 	/** The diff showing the threat's modified file contents. */
 	diff?: string;
-};
 
-export type ThreatsDataViewsActionCallback = (
-	items: Threat[],
-	context: { registry: unknown; onActionPerformed?: ( threats: DataViewsThreat[] ) => void }
-) => void;
+	/** The affected extension. */
+	extension?: {
+		slug: string;
+		name: string;
+		version: string;
+		type: 'plugin' | 'theme' | 'core';
+	};
+};
 
 export type FixerStatus = 'not_started' | 'in_progress' | 'fixed' | 'not_fixed';
 
