@@ -49,6 +49,7 @@ jobs:
       - name: Build wpcomsh
         if: steps.changed.outputs.wpcomsh == 'true'
         run: |
+          find . -path ./.github -prune -o -type f -print | sort > /tmp/before.txt
           echo "::group::Installing and building wpcomsh"
           pnpm jetpack build -v --deps plugins/wpcomsh
           echo "::endgroup::"
