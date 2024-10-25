@@ -56,6 +56,9 @@ const WelcomeFlow: FC< Props > = ( {
 				return null;
 			}
 
+			if ( ! recommendedModules && isJetpackUserNew() ) {
+				return 'evaluation-processing';
+			}
 			// Otherwise, it means user is either new or just repeats the recommendation
 			return 'evaluation';
 		}
