@@ -132,7 +132,14 @@ abstract class WPCOM_JSON_API_Endpoint {
 	 *
 	 * @var string
 	 */
-	public $rest_route = null;
+	public $rest_route;
+
+	/**
+	 * Jetpack Version in which REST support was introduced.
+	 *
+	 * @var string
+	 */
+	public $rest_min_jp_version;
 
 	/**
 	 * Accepted query parameters
@@ -316,6 +323,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			'jp_disabled'                          => false,
 			'path_labels'                          => array(),
 			'rest_route'                           => null,
+			'rest_min_jp_version'                  => null,
 			'request_format'                       => array(),
 			'response_format'                      => array(),
 			'query_parameters'                     => array(),
@@ -350,11 +358,13 @@ abstract class WPCOM_JSON_API_Endpoint {
 		$this->method      = $args['method'];
 		$this->path        = $args['path'];
 		$this->path_labels = $args['path_labels'];
-		$this->rest_route  = $args['rest_route'];
 		$this->min_version = $args['min_version'];
 		$this->max_version = $args['max_version'];
 		$this->deprecated  = $args['deprecated'];
 		$this->new_version = $args['new_version'];
+
+		$this->rest_route          = $args['rest_route'];
+		$this->rest_min_jp_version = $args['rest_min_jp_version'];
 
 		// Ensure max version is not less than min version.
 		if ( version_compare( $this->min_version, $this->max_version, '>' ) ) {
@@ -2759,6 +2769,15 @@ abstract class WPCOM_JSON_API_Endpoint {
 	public function build_rest_route() {
 		$version_prefix = $this->max_version ? 'v' . $this->max_version : '';
 		return $version_prefix . $this->rest_route;
+	}
+
+	/**
+	 * Get Jetpack Version where support for the endpoint was introduced.
+	 *
+	 * @return string
+	 */
+	public function get_rest_min_jp_version() {
+		return $this->rest_min_jp_version;
 	}
 
 	/**
