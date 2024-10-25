@@ -69,7 +69,7 @@ function jetpackcrm_dash_refresh() {
 		);
 	}
 
-	$tz_offset = jpcrm_get_wp_timezone_offset();
+	$tz_offset = esc_sql( (string) jpcrm_get_wp_timezone_offset() );
 	$wpdb->query( 'SET time_zone = "' . $tz_offset . '";' );
 
 	// next we want the contact chart which is total contacts between the dates grouped by day, week, month, year
