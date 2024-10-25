@@ -2,7 +2,9 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import {
 	ConnectionManagement,
 	RefreshJetpackSocialSettingsWrapper,
+	features,
 } from '@automattic/jetpack-publicize-components';
+import { siteHasFeature } from '@automattic/jetpack-script-data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import Card from 'components/card';
@@ -48,7 +50,7 @@ export const Publicize = withModuleSettingsFormHelpers(
 				blogID = this.props.blogID,
 				siteAdminUrl = this.props.siteAdminUrl,
 				hasPaidFeatures = this.props.hasPaidFeatures,
-				hasSocialImageGenerator = this.props.hasSocialImageGenerator,
+				hasSocialImageGenerator = siteHasFeature( features.IMAGE_GENERATOR ),
 				isAtomicSite = this.props.isAtomicSite,
 				activeFeatures = this.props.activeFeatures,
 				useAdminUiV1 = this.props.useAdminUiV1,
