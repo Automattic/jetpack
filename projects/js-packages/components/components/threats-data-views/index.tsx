@@ -31,7 +31,7 @@ import { getThreatIcon, getThreatSubtitle, getThreatType } from './utils';
  * @param {Filter[]} props.filters  - Current filters value.
  * @param {Function} props.onChange - Callback function to update the filter value.
  * @param {Array}    props.data     - Array of threats data with status values.
- * @return {JSX.Element} The component.
+ * @return {JSX.Element|null} The component or null.
  */
 export function ThreatsStatusFilter( {
 	filters,
@@ -50,6 +50,10 @@ export function ThreatsStatusFilter( {
 		() => data.filter( item => [ 'fixed', 'ignored' ].includes( item.status ) ).length,
 		[ data ]
 	);
+
+	if ( ! ( activeCount && historicCount ) ) {
+		return null;
+	}
 
 	const isExactStatusSelected = ( statuses: string[] ) =>
 		filters.some(
