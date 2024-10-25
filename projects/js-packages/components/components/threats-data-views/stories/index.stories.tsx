@@ -144,7 +144,7 @@ Default.args = {
 			title: 'WooCommerce <= 3.4.5 - Authenticated Stored XSS',
 			description:
 				'The WooCommerce WordPress plugin was affected by an Authenticated Stored XSS security vulnerability.',
-			firstDetected: null,
+			firstDetected: '2024-07-15T21:56:50.000Z',
 			fixedIn: '3.4.6',
 			fixedOn: null,
 			severity: null,
@@ -168,11 +168,11 @@ Default.args = {
 			value: [ 'current' ],
 		},
 	],
-	onFixThreat: () =>
+	onFixThreats: () =>
 		alert( 'Threat fix action callback triggered! This is handled by the component consumer.' ), // eslint-disable-line no-alert
-	onIgnoreThreat: () =>
+	onIgnoreThreats: () =>
 		alert( 'Ignore threat action callback triggered! This is handled by the component consumer.' ), // eslint-disable-line no-alert
-	onUnignoreThreat: () =>
+	onUnignoreThreats: () =>
 		// eslint-disable-next-line no-alert
 		alert(
 			'Unignore threat action callback triggered! This is handled by the component consumer.'
