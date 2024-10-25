@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import ThreatsDataViews from '..';
-import { Threat } from '../types';
+import { type Threat } from '../types';
 
 const data = [
 	{
@@ -23,6 +23,7 @@ const data = [
 			marks: {},
 		},
 		source: null,
+		fixer: null,
 	},
 ] as Threat[];
 
