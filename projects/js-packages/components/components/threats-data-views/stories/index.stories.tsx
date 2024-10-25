@@ -148,8 +148,8 @@ Default.args = {
 			fixedIn: '3.4.6',
 			fixedOn: null,
 			severity: null,
-			fixable: null,
-			status: null,
+			fixable: false,
+			status: 'current',
 			filename: null,
 			context: null,
 			source: 'https://wpscan.com/vulnerability/7275a176-d579-471a-8492-df8edbdf27de',
@@ -168,14 +168,26 @@ Default.args = {
 			value: [ 'current' ],
 		},
 	],
-	onFixThreats: () =>
-		alert( 'Threat fix action callback triggered! This is handled by the component consumer.' ), // eslint-disable-line no-alert
-	onIgnoreThreats: () =>
-		alert( 'Ignore threat action callback triggered! This is handled by the component consumer.' ), // eslint-disable-line no-alert
-	onUnignoreThreats: () =>
+	onFixThreats: threats =>
 		// eslint-disable-next-line no-alert
 		alert(
-			'Unignore threat action callback triggered! This is handled by the component consumer.'
+			`Fix threats action callback triggered for threats IDs: ${ threats
+				.map( threat => threat )
+				.join( ', ' ) }. This is handled by the component consumer.`
+		),
+	onIgnoreThreats: threats =>
+		// eslint-disable-next-line no-alert
+		alert(
+			`Ignore threats action callback triggered for threats IDs: ${ threats
+				.map( threat => threat )
+				.join( ', ' ) }. This is handled by the component consumer.`
+		),
+	onUnignoreThreats: threats =>
+		// eslint-disable-next-line no-alert
+		alert(
+			`Un-ignore threats action callback triggered for threats IDs: ${ threats
+				.map( threat => threat )
+				.join( ', ' ) }. This is handled by the component consumer.`
 		),
 };
 
@@ -191,7 +203,7 @@ FixerStatuses.args = {
 			severity: 4,
 			fixer: null,
 			fixedOn: '2024-07-15T22:01:42.000Z',
-			status: 'fixed',
+			status: 'ignored',
 			fixable: { fixer: 'update', target: '6.4.4', extensionStatus: 'inactive' },
 			version: '6.4.3',
 			source: '',

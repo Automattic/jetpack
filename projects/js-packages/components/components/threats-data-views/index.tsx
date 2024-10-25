@@ -16,6 +16,7 @@ import {
 } from '@wordpress/dataviews';
 import { dateI18n } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
+import { tool, unseen, seen } from '@wordpress/icons';
 import { Icon } from '@wordpress/icons';
 import { useCallback, useMemo, useState } from 'react';
 import Badge from '../badge';
@@ -23,52 +24,40 @@ import ThreatSeverityBadge from '../threat-severity-badge';
 import { THREAT_STATUSES, THREAT_TYPES } from './constants';
 import FixerStatusIcon, { FixerStatusBadge } from './fixer-status';
 import styles from './styles.module.scss';
-import { type Threat } from './types';
+import { type Threat, type ThreatStatus } from './types';
 import { getThreatIcon, getThreatSubtitle, getThreatType } from './utils';
 
 /**
  * ToggleGroupControl component for filtering threats by status.
- * @param {object}   props          - Component props.
- * @param {Filter[]} props.filters  - Current filters value.
- * @param {Function} props.onChange - Callback function to update the filter value.
- * @param {Array}    props.data     - Array of threats data with status values.
+ * @param {object}   props                          - Component props.
+ * @param {number}   props.activeThreatsCount       - Number of active threats.
+ * @param {number}   props.historicThreatsCount     - Number of historic threats.
+ * @param {boolean}  props.isViewingActiveThreats   - Whether the active status is selected.
+ * @param {boolean}  props.isViewingHistoricThreats - Whether the historic status is selected.
+ * @param {Function} props.onThreatsStatusChange    - Callback function to update the filter value.
  * @return {JSX.Element|null} The component or null.
  */
-export function ThreatsStatusFilter( {
-	filters,
-	onChange,
-	data,
+export function ThreatsStatusToggleGroupControl( {
+	activeThreatsCount,
+	historicThreatsCount,
+	isViewingActiveThreats,
+	isViewingHistoricThreats,
+	onThreatsStatusChange,
 }: {
-	filters: Filter[];
-	onChange: ( newValue: string ) => void;
-	data: Threat[];
+	activeThreatsCount: number;
+	historicThreatsCount: number;
+	isViewingActiveThreats: boolean;
+	isViewingHistoricThreats: boolean;
+	onThreatsStatusChange: ( newValue: string ) => void;
 } ): JSX.Element {
-	const activeCount = useMemo(
-		() => data.filter( item => item.status === 'current' ).length,
-		[ data ]
-	);
-	const historicCount = useMemo(
-		() => data.filter( item => [ 'fixed', 'ignored' ].includes( item.status ) ).length,
-		[ data ]
-	);
-
-	if ( ! ( activeCount && historicCount ) ) {
+	if ( ! ( activeThreatsCount && historicThreatsCount ) ) {
 		return null;
 	}
 
-	const isExactStatusSelected = ( statuses: string[] ) =>
-		filters.some(
-			filter =>
-				filter.field === 'status' &&
-				Array.isArray( filter.value ) &&
-				filter.value.length === statuses.length &&
-				statuses.every( status => filter.value.includes( status ) )
-		);
-
 	let selectedValue = '';
-	if ( isExactStatusSelected( [ 'current' ] ) ) {
+	if ( isViewingActiveThreats ) {
 		selectedValue = 'active';
-	} else if ( isExactStatusSelected( [ 'fixed', 'ignored' ] ) ) {
+	} else if ( isViewingHistoricThreats ) {
 		selectedValue = 'historic';
 	}
 
@@ -76,7 +65,7 @@ export function ThreatsStatusFilter( {
 		<ToggleGroupControl
 			className={ styles[ 'toggle-group-control' ] }
 			value={ selectedValue }
-			onChange={ onChange }
+			onChange={ onThreatsStatusChange }
 		>
 			<ToggleGroupControlOption
 				value="active"
@@ -84,7 +73,7 @@ export function ThreatsStatusFilter( {
 					<span>
 						{ sprintf(
 							/* translators: %d: number of active threats */ __( 'Active (%d)', 'jetpack' ),
-							activeCount
+							activeThreatsCount
 						) }
 					</span>
 				}
@@ -96,7 +85,7 @@ export function ThreatsStatusFilter( {
 						{ sprintf(
 							/* translators: %d: number of historic threats */
 							__( 'Historic (%d)', 'jetpack' ),
-							historicCount
+							historicThreatsCount
 						) }
 					</span>
 				}
@@ -450,6 +439,19 @@ export default function ThreatsDataViews( {
 		return result;
 	}, [ extensions, signatures, dataFields, view ] );
 
+	const isStatusFilterSelected = ( threatStatuses: ThreatStatus[] ) =>
+		view.filters.some(
+			filter =>
+				filter.field === 'status' &&
+				Array.isArray( filter.value ) &&
+				filter.value.length === threatStatuses.length &&
+				threatStatuses.every( threatStatus => filter.value.includes( threatStatus ) )
+		);
+
+	const isViewingActiveThreats = isStatusFilterSelected( [ 'current' ] );
+	const isViewingIgnoredThreats = isStatusFilterSelected( [ 'ignored' ] );
+	const isViewingHistoricThreats = isStatusFilterSelected( [ 'fixed', 'ignored' ] );
+
 	/**
 	 * DataView actions - collection of operations that can be performed upon each record.
 	 *
@@ -462,14 +464,16 @@ export default function ThreatsDataViews( {
 			result.push( {
 				id: 'fix',
 				label: __( 'Auto-Fix', 'jetpack' ),
-				isPrimary: true,
-				supportsBulk: true,
-				callback: onFixThreats,
+				icon: tool,
+				supportsBulk: isViewingActiveThreats,
+				callback: items => onFixThreats( items.map( item => item.id ) ),
 				isEligible( item ) {
 					if ( ! onFixThreats ) {
+						// TODO: Ensure we continue to handle this properly?
 						return false;
 					}
 					if ( isThreatEligibleForFix ) {
+						// TODO: Should not be able to bulk select or individually select in_progress/errored fixers
 						return isThreatEligibleForFix( item );
 					}
 					return !! item.fixable;
@@ -481,14 +485,17 @@ export default function ThreatsDataViews( {
 			result.push( {
 				id: 'ignore',
 				label: __( 'Ignore', 'jetpack' ),
-				isPrimary: true,
+				icon: unseen,
 				isDestructive: true,
-				callback: onIgnoreThreats,
+				supportsBulk: isViewingActiveThreats,
+				callback: items => onIgnoreThreats( items.map( item => item.id ) ),
 				isEligible( item ) {
 					if ( ! onIgnoreThreats ) {
+						// TODO: Ensure we continue to handle this properly?
 						return false;
 					}
 					if ( isThreatEligibleForIgnore ) {
+						// TODO: Should not be able to bulk select or individually select errored fixers
 						return isThreatEligibleForIgnore( item );
 					}
 					return item.status === 'current';
@@ -500,14 +507,17 @@ export default function ThreatsDataViews( {
 			result.push( {
 				id: 'un-ignore',
 				label: __( 'Unignore', 'jetpack' ),
-				isPrimary: true,
 				isDestructive: true,
-				callback: onUnignoreThreats,
+				icon: seen,
+				supportsBulk: isViewingIgnoredThreats || isViewingHistoricThreats,
+				callback: items => onUnignoreThreats( items.map( item => item.id ) ),
 				isEligible( item ) {
 					if ( ! onUnignoreThreats ) {
+						// TODO: Ensure we continue to handle this properly?
 						return false;
 					}
 					if ( isThreatEligibleForUnignore ) {
+						// TODO: Should not be able to bulk select or individually select errored threats
 						return isThreatEligibleForUnignore( item );
 					}
 					return item.status === 'ignored';
@@ -518,6 +528,9 @@ export default function ThreatsDataViews( {
 		return result;
 	}, [
 		dataFields,
+		isViewingActiveThreats,
+		isViewingIgnoredThreats,
+		isViewingHistoricThreats,
 		onFixThreats,
 		onIgnoreThreats,
 		onUnignoreThreats,
@@ -556,7 +569,7 @@ export default function ThreatsDataViews( {
 	 *
 	 * @param {string} newStatus - The new status filter value.
 	 */
-	const handleStatusChange = useCallback(
+	const onThreatsStatusChange = useCallback(
 		( newStatus: string ) => {
 			const updatedFilters = view.filters.filter( filter => filter.field !== 'status' );
 
@@ -582,6 +595,22 @@ export default function ThreatsDataViews( {
 		[ view ]
 	);
 
+	/**
+	 * Compute the number of active and historic threats.
+	 */
+	const activeThreatsCount = useMemo(
+		() => data.filter( item => item.status === 'current' ).length,
+		[ data ]
+	);
+
+	/**
+	 * Compute the number of active and historic threats.
+	 */
+	const historicThreatsCount = useMemo(
+		() => data.filter( item => [ 'fixed', 'ignored' ].includes( item.status ) ).length,
+		[ data ]
+	);
+
 	return (
 		<DataViews
 			actions={ actions }
@@ -594,10 +623,12 @@ export default function ThreatsDataViews( {
 			paginationInfo={ paginationInfo }
 			view={ view }
 			header={
-				<ThreatsStatusFilter
-					filters={ view.filters }
-					onChange={ handleStatusChange }
-					data={ data }
+				<ThreatsStatusToggleGroupControl
+					activeThreatsCount={ activeThreatsCount }
+					historicThreatsCount={ historicThreatsCount }
+					isViewingActiveThreats={ isViewingActiveThreats }
+					isViewingHistoricThreats={ isViewingHistoricThreats }
+					onThreatsStatusChange={ onThreatsStatusChange }
 				/>
 			}
 		/>
