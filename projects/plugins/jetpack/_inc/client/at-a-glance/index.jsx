@@ -9,7 +9,7 @@ import QuerySitePlugins from 'components/data/query-site-plugins';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import analytics from 'lib/analytics';
 import { chunk, get } from 'lodash';
-import React, { Component } from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
 import { isOfflineMode, hasConnectedOwner, getConnectionStatus } from 'state/connection';
 import {

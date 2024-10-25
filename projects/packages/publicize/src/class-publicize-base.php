@@ -517,6 +517,10 @@ abstract class Publicize_Base {
 			return 'https://twitter.com/' . substr( $cmeta['external_display'], 1 ); // Has a leading '@'.
 		}
 
+		if ( 'bluesky' === $service_name ) {
+			return 'https://bsky.app/profile/' . $cmeta['external_id'];
+		}
+
 		if ( 'linkedin' === $service_name ) {
 			if ( ! isset( $cmeta['connection_data']['meta']['profile_url'] ) ) {
 				return false;

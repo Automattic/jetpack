@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Social: adds hook for plugin developers to be able to pull social share URLs on save.

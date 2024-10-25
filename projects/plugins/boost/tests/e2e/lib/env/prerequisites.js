@@ -1,5 +1,6 @@
 import logger from 'jetpack-e2e-commons/logger.js';
 import { execWpCommand } from 'jetpack-e2e-commons/helpers/utils-helper.js';
+import { ensureUserIsLoggedIn } from 'jetpack-e2e-commons/env/prerequisites.js';
 
 import { expect } from '@playwright/test';
 import { JetpackBoostPage } from '../pages/index.js';
@@ -8,6 +9,7 @@ export function boostPrerequisitesBuilder( page ) {
 	const state = {
 		testPostTitles: [],
 		clean: undefined,
+		loggedIn: undefined,
 		modules: { active: undefined, inactive: undefined },
 		connected: undefined,
 		jetpackDeactivated: undefined,
@@ -23,6 +25,10 @@ export function boostPrerequisitesBuilder( page ) {
 		},
 		withInactiveModules( modules = [] ) {
 			state.modules.inactive = modules;
+			return this;
+		},
+		withLoggedIn( shouldBeLoggedIn ) {
+			state.loggedIn = shouldBeLoggedIn;
 			return this;
 		},
 		withConnection( shouldBeConnected ) {
@@ -58,6 +64,7 @@ export function boostPrerequisitesBuilder( page ) {
 async function buildPrerequisites( state, page ) {
 	const functions = {
 		modules: () => ensureModulesState( state.modules ),
+		loggedIn: () => ensureUserIsLoggedIn( page ),
 		connected: () => ensureConnectedState( state.connected, page ),
 		testPostTitles: () => ensureTestPosts( state.testPostTitles ),
 		clean: () => ensureCleanState( state.clean ),

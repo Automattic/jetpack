@@ -36,9 +36,7 @@ module.exports = [
 		},
 		node: false,
 		plugins: [
-			...jetpackWebpackConfig.StandardPlugins( {
-				DependencyExtractionPlugin: { injectPolyfill: true },
-			} ),
+			...jetpackWebpackConfig.StandardPlugins(),
 			new CopyWebpackPlugin( {
 				patterns: [
 					{

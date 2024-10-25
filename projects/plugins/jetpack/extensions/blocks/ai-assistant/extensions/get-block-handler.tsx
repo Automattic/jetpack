@@ -58,6 +58,7 @@ export function getBlockHandler( blockType: ExtendedBlockProp, clientId: string 
 		onSuggestion: handler.onSuggestion.bind( handler ),
 		onDone: handler.onDone.bind( handler ),
 		getContent: handler.getContent.bind( handler ),
+		getExtensionInputPlaceholder: handler.getExtensionInputPlaceholder.bind( handler ),
 		behavior: handler.behavior,
 		isChildBlock: handler.isChildBlock,
 		feature: handler.feature,

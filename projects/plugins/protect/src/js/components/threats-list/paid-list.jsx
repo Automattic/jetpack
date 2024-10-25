@@ -1,11 +1,15 @@
-import { Text, Button, useBreakpointMatch } from '@automattic/jetpack-components';
+import {
+	Text,
+	Button,
+	DiffViewer,
+	MarkedLines,
+	useBreakpointMatch,
+} from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
 import React, { useCallback } from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import useFixers from '../../hooks/use-fixers';
 import useModal from '../../hooks/use-modal';
-import DiffViewer from '../diff-viewer';
-import MarkedLines from '../marked-lines';
 import PaidAccordion, { PaidAccordionItem } from '../paid-accordion';
 import Pagination from './pagination';
 import styles from './styles.module.scss';
@@ -33,8 +37,9 @@ const ThreatAccordionItem = ( {
 	const { setModal } = useModal();
 	const { recordEvent } = useAnalyticsTracks();
 
-	const { fixInProgressThreatIds } = useFixers();
-	const fixerInProgress = fixInProgressThreatIds.includes( id );
+	const { isThreatFixInProgress, isThreatFixStale } = useFixers();
+	const isActiveFixInProgress = isThreatFixInProgress( id );
+	const isStaleFixInProgress = isThreatFixStale( id );
 
 	const learnMoreButton = source ? (
 		<Button variant="link" isExternalLink={ true } weight="regular" href={ source }>
@@ -155,12 +160,15 @@ const ThreatAccordionItem = ( {
 								isDestructive={ true }
 								variant="secondary"
 								onClick={ handleIgnoreThreatClick() }
-								disabled={ fixerInProgress }
+								disabled={ isActiveFixInProgress || isStaleFixInProgress }
 							>
 								{ __( 'Ignore threat', 'jetpack-protect' ) }
 							</Button>
 							{ fixable && (
-								<Button disabled={ fixerInProgress } onClick={ handleFixThreatClick() }>
+								<Button
+									disabled={ isActiveFixInProgress || isStaleFixInProgress }
+									onClick={ handleFixThreatClick() }
+								>
 									{ __( 'Fix threat', 'jetpack-protect' ) }
 								</Button>
 							) }

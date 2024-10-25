@@ -182,7 +182,10 @@ class Scan_History {
 		$response = Client::wpcom_json_api_request_as_blog(
 			$api_url,
 			'2',
-			array( 'method' => 'GET' ),
+			array(
+				'method'  => 'GET',
+				'timeout' => 30,
+			),
 			null,
 			'wpcom'
 		);

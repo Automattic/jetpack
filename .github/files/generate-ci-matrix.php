@@ -26,6 +26,9 @@ $default_matrix_vars = array(
 	// {string} Name for the job. Required, and must be unique.
 	'name'                => null,
 
+	// {string} Runner name as found in https://github.com/actions/runner-images/.
+	'runner'              => 'ubuntu-latest',
+
 	// {string} Composer script for the job. Required.
 	'script'              => null,
 
@@ -68,9 +71,10 @@ foreach ( array( '7.2', '7.3', '7.4', '8.0', '8.1', '8.2', '8.3' ) as $php ) {
 	);
 }
 
-// TODO: When WordPress 6.5 is no longer supported, this can be removed.
+// TODO: When WordPress 6.5 is no longer supported, this can be removed. Runs too slow on ubuntu-24.04 (ubuntu-latest).
 $matrix[] = array(
 	'name'                => 'PHP tests: PHP 7.0 WP previous',
+	'runner'              => 'ubuntu-22.04',
 	'script'              => 'test-php',
 	'php'                 => '7.0',
 	'wp'                  => 'previous',

@@ -13,10 +13,10 @@ import { getJetpackProductUpsellByFeature, FEATURE_SPAM_AKISMET_PLUS } from 'lib
 import { noop } from 'lodash';
 import { getProductDescriptionUrl } from 'product-descriptions/utils';
 import PropTypes from 'prop-types';
-import React, { Component } from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
 import { getAkismetData } from 'state/at-a-glance';
-import { hasConnectedOwner, isOfflineMode, connectUser } from 'state/connection';
+import { isOfflineMode, connectUser } from 'state/connection';
 import { getApiNonce, isAtomicSite } from 'state/initial-state';
 import { siteHasFeature } from 'state/site';
 
@@ -31,7 +31,6 @@ class DashAkismet extends Component {
 			.isRequired,
 		isOfflineMode: PropTypes.bool.isRequired,
 		upgradeUrl: PropTypes.string.isRequired,
-		hasConnectedOwner: PropTypes.bool.isRequired,
 	};
 
 	static defaultProps = {
@@ -129,30 +128,12 @@ class DashAkismet extends Component {
 					path="dashboard"
 					plan={ getJetpackProductUpsellByFeature( FEATURE_SPAM_AKISMET_PLUS ) }
 					trackBannerDisplay={ this.props.trackUpgradeButtonView }
-					noIcon
-				/>
-			);
-		};
-
-		const getConnectBanner = () => {
-			return (
-				<JetpackBanner
-					callToAction={ __( 'Connect', 'jetpack' ) }
-					title={ __(
-						'Connect your WordPress.com account to upgrade and automatically clear spam from comments and forms',
-						'jetpack'
-					) }
-					disableHref="false"
-					onClick={ this.props.connectUser }
-					eventFeature="akismet"
-					path="dashboard"
-					plan={ getJetpackProductUpsellByFeature( FEATURE_SPAM_AKISMET_PLUS ) }
 				/>
 			);
 		};
 
 		const getBanner = () => {
-			return this.props.hasConnectedOwner ? getAkismetUpgradeBanner() : getConnectBanner();
+			return getAkismetUpgradeBanner();
 		};
 
 		const getAkismetCounter = () => {
@@ -271,7 +252,6 @@ export default connect(
 			isOfflineMode: isOfflineMode( state ),
 			upgradeUrl: getProductDescriptionUrl( state, 'akismet' ),
 			nonce: getApiNonce( state ),
-			hasConnectedOwner: hasConnectedOwner( state ),
 			hasAntiSpam: siteHasFeature( state, 'antispam' ),
 			hasAkismet: siteHasFeature( state, 'akismet' ),
 		};

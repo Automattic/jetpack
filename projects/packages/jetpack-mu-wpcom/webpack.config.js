@@ -38,6 +38,8 @@ module.exports = [
 			'wpcom-blocks-timeline-view': './src/features/wpcom-blocks/timeline/view.js',
 			'wpcom-block-description-links': './src/features/wpcom-block-description-links/index.tsx',
 			'wpcom-block-editor-nux': './src/features/wpcom-block-editor-nux/index.js',
+			'wpcom-dashboard-widgets':
+				'./src/features/wpcom-dashboard-widgets/wpcom-dashboard-widgets.js',
 			'wpcom-global-styles-editor': './src/features/wpcom-global-styles/index.js',
 			'wpcom-global-styles-frontend':
 				'./src/features/wpcom-global-styles/wpcom-global-styles-view.js',

@@ -115,7 +115,6 @@ class DashVideoPress extends Component {
 									title={ bannerText }
 									disableHref="false"
 									eventFeature="videopress"
-									noIcon
 									path={ 'dashboard' }
 									plan={ getJetpackProductUpsellByFeature( FEATURE_VIDEOPRESS ) }
 									feature="jetpack_videopress"
@@ -149,7 +148,6 @@ class DashVideoPress extends Component {
 							eventFeature="videopress"
 							path="dashboard"
 							plan={ getJetpackProductUpsellByFeature( FEATURE_VIDEOPRESS ) }
-							icon="video"
 						/>
 					) : null
 				}

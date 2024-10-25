@@ -5,6 +5,36 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.45.9] - 2024-10-21
+### Changed
+- Update dependencies. [#39781]
+
+## [0.45.8] - 2024-10-14
+### Changed
+- Updated package dependencies. [#39707]
+
+### Fixed
+- Add `key` to tag and cat lists in `SearchResultMinimal` to improve behavior if lists change at runtime. [#39709]
+
+## [0.45.7] - 2024-10-07
+### Changed
+- Updated package dependencies. [#39592]
+- Updated package dependencies. [#39594]
+- Updated package dependencies. [#39595]
+- Updated package dependencies. [#39639]
+
+## [0.45.6] - 2024-09-30
+### Changed
+- Update dependencies. [#39528]
+
+## [0.45.5] - 2024-09-23
+### Changed
+- Instant search: Use triggering element's document instead of the global `document`. [#39364]
+- Search: reduce database calls by ensuring plan support before checking options [#39384]
+
+### Fixed
+- Use React properties rather than pass-throughs (e.g. `className` rather than `class`). [#39414]
+
 ## [0.45.4] - 2024-09-16
 ### Changed
 - Updated package dependencies. [#39332]
@@ -1041,6 +1071,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
 
+[0.45.9]: https://github.com/Automattic/jetpack-search/compare/v0.45.8...v0.45.9
+[0.45.8]: https://github.com/Automattic/jetpack-search/compare/v0.45.7...v0.45.8
+[0.45.7]: https://github.com/Automattic/jetpack-search/compare/v0.45.6...v0.45.7
+[0.45.6]: https://github.com/Automattic/jetpack-search/compare/v0.45.5...v0.45.6
+[0.45.5]: https://github.com/Automattic/jetpack-search/compare/v0.45.4...v0.45.5
 [0.45.4]: https://github.com/Automattic/jetpack-search/compare/v0.45.3...v0.45.4
 [0.45.3]: https://github.com/Automattic/jetpack-search/compare/v0.45.2...v0.45.3
 [0.45.2]: https://github.com/Automattic/jetpack-search/compare/v0.45.1...v0.45.2

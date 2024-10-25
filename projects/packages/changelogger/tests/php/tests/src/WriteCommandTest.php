@@ -749,6 +749,54 @@ class WriteCommandTest extends CommandTestCase {
 				true,
 				"# Changelog\n\n## 1.0.1 - $date\n\nPrologue for v1.0.1\n\n### Added\n- Stuff.\n- ZZZ.\n\n### Removed\n- Other stuff.\n- Broken stuff.\n\nEpilogue for v1.0.1\n\n## 1.0.0 - 2021-02-23\n\n- Initial release.\n",
 			),
+			'Amend, beta to release'                       => array(
+				array( '--amend' => true ),
+				array(
+					'composer.json' => array( 'link-template' => 'https://example.org/diff/${old}..${new}' ),
+					'changes'       => array(),
+					'changelog'     => "# Changelog\n\n## [1.0.1-beta] - $date\n\nPrologue for v1.0.1\n\n### Added\n- New stuff.\n- Stuff.\n- ZZZ.\n\n### Removed\n- Other stuff.\n\n### Fixed\n- Broken stuff.\n\nEpilogue for v1.0.1\n\n## 1.0.0 - 2021-02-23\n\n- Initial release.\n\n[1.0.1-beta]: https://example.org/new-link\n",
+				),
+				array( 'Y' ),
+				0,
+				array(
+					'{^No changes were found! Proceed\? \[y/N\] $}m',
+				),
+				true,
+				"# Changelog\n\n## [1.0.1] - $date\n\nPrologue for v1.0.1\n\n### Added\n- New stuff.\n- Stuff.\n- ZZZ.\n\n### Removed\n- Other stuff.\n\n### Fixed\n- Broken stuff.\n\nEpilogue for v1.0.1\n\n## 1.0.0 - 2021-02-23\n\n- Initial release.\n\n[1.0.1]: https://example.org/new-link\n",
+			),
+			'Amend, ignore default link'                   => array(
+				array( '--amend' => true ),
+				array(
+					'composer.json' => array( 'link-template' => 'https://example.org/diff/${old}..${new}' ),
+					'changes'       => array(),
+					'changelog'     => "# Changelog\n\n## [1.0.1-beta] - $date\n\nPrologue for v1.0.1\n\n### Added\n- New stuff.\n- Stuff.\n- ZZZ.\n\n### Removed\n- Other stuff.\n\n### Fixed\n- Broken stuff.\n\nEpilogue for v1.0.1\n\n## 1.0.0 - 2021-02-23\n\n- Initial release.\n\n[1.0.1-beta]: https://example.org/diff/1.0.0..1.0.1-beta\n",
+				),
+				array( 'Y' ),
+				0,
+				array(
+					'{^No changes were found! Proceed\? \[y/N\] $}m',
+				),
+				true,
+				"# Changelog\n\n## [1.0.1] - $date\n\nPrologue for v1.0.1\n\n### Added\n- New stuff.\n- Stuff.\n- ZZZ.\n\n### Removed\n- Other stuff.\n\n### Fixed\n- Broken stuff.\n\nEpilogue for v1.0.1\n\n## 1.0.0 - 2021-02-23\n\n- Initial release.\n\n[1.0.1]: https://example.org/diff/1.0.0..1.0.1\n",
+			),
+			'Amend, manually override default link'        => array(
+				array(
+					'--amend' => true,
+					'--link'  => 'https://example.org/new-link',
+				),
+				array(
+					'composer.json' => array( 'link-template' => 'https://example.org/diff/${old}..${new}' ),
+					'changes'       => array(),
+					'changelog'     => "# Changelog\n\n## [1.0.1-beta] - $date\n\nPrologue for v1.0.1\n\n### Added\n- New stuff.\n- Stuff.\n- ZZZ.\n\n### Removed\n- Other stuff.\n\n### Fixed\n- Broken stuff.\n\nEpilogue for v1.0.1\n\n## 1.0.0 - 2021-02-23\n\n- Initial release.\n\n[1.0.1-beta]: https://example.org/diff/1.0.0..1.0.1-beta\n",
+				),
+				array( 'Y' ),
+				0,
+				array(
+					'{^No changes were found! Proceed\? \[y/N\] $}m',
+				),
+				true,
+				"# Changelog\n\n## [1.0.1] - $date\n\nPrologue for v1.0.1\n\n### Added\n- New stuff.\n- Stuff.\n- ZZZ.\n\n### Removed\n- Other stuff.\n\n### Fixed\n- Broken stuff.\n\nEpilogue for v1.0.1\n\n## 1.0.0 - 2021-02-23\n\n- Initial release.\n\n[1.0.1]: https://example.org/new-link\n",
+			),
 
 			'--use-version invalid'                        => array(
 				array( '--use-version' => '2.0' ),

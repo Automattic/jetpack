@@ -16,6 +16,7 @@ export interface IBlockHandler {
 	onSuggestion: OnSuggestion;
 	onDone: ( suggestion: string ) => void;
 	getContent: () => string;
+	getExtensionInputPlaceholder: () => string | null;
 	behavior: BlockBehavior;
 	isChildBlock?: boolean;
 	feature: string;

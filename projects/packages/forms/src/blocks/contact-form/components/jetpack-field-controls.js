@@ -107,6 +107,7 @@ const JetpackFieldControls = ( {
 
 	let fieldSettings = [
 		<ToggleControl
+			key="required"
 			label={ __( 'Field is required', 'jetpack-forms' ) }
 			className="jetpack-field-label__required"
 			checked={ required }
@@ -115,6 +116,7 @@ const JetpackFieldControls = ( {
 		/>,
 		! hidePlaceholder && (
 			<TextControl
+				key="placeholderField"
 				label={ __( 'Placeholder text', 'jetpack-forms' ) }
 				value={ placeholder || '' }
 				onChange={ value => setAttributes( { [ placeholderField ]: value } ) }
@@ -124,8 +126,9 @@ const JetpackFieldControls = ( {
 				) }
 			/>
 		),
-		<JetpackFieldWidth setAttributes={ setAttributes } width={ width } />,
+		<JetpackFieldWidth key="width" setAttributes={ setAttributes } width={ width } />,
 		<ToggleControl
+			key="shareFieldAttributes"
 			label={ __( 'Sync fields style', 'jetpack-forms' ) }
 			checked={ attributes.shareFieldAttributes }
 			onChange={ value => setAttributes( { shareFieldAttributes: value } ) }

@@ -2,20 +2,24 @@
  * External dependencies
  */
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { Button, Tooltip } from '@wordpress/components';
+import { Button, Tooltip, SelectControl } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, info } from '@wordpress/icons';
 import debugFactory from 'debug';
 import { useCallback, useEffect, useState, useRef } from 'react';
+import { Dispatch, SetStateAction } from 'react';
 /**
  * Internal dependencies
  */
+import { IMAGE_STYLE_NONE, IMAGE_STYLE_AUTO } from '../../hooks/use-image-generator/constants.js';
 import AiIcon from '../assets/icons/ai.js';
 import {
 	EVENT_GENERATE,
 	MINIMUM_PROMPT_LENGTH,
 	EVENT_UPGRADE,
 	EVENT_PLACEMENT_INPUT_FOOTER,
+	EVENT_SWITCH_STYLE,
+	EVENT_GUESS_STYLE,
 } from '../constants.js';
 import { useCheckout } from '../hooks/use-checkout.js';
 import useLogoGenerator from '../hooks/use-logo-generator.js';
@@ -23,10 +27,93 @@ import useRequestErrors from '../hooks/use-request-errors.js';
 import { FairUsageNotice } from './fair-usage-notice.js';
 import { UpgradeNudge } from './upgrade-nudge.js';
 import './prompt.scss';
+/**
+ * Types
+ */
+import type { ImageStyle, ImageStyleObject } from '../../hooks/use-image-generator/constants.js';
 
 const debug = debugFactory( 'jetpack-ai-calypso:prompt-box' );
 
-export const Prompt: React.FC< { initialPrompt?: string } > = ( { initialPrompt = '' } ) => {
+type PromptProps = {
+	initialPrompt?: string;
+};
+
+export const AiModalPromptInput = ( {
+	prompt = '',
+	setPrompt = () => {},
+	disabled = false,
+	generateHandler = () => {},
+	placeholder = '',
+	buttonLabel = '',
+}: {
+	prompt: string;
+	setPrompt: Dispatch< SetStateAction< string > >;
+	disabled: boolean;
+	generateHandler: () => void;
+	placeholder?: string;
+	buttonLabel?: string;
+} ) => {
+	const inputRef = useRef< HTMLDivElement | null >( null );
+	const hasPrompt = prompt?.length >= MINIMUM_PROMPT_LENGTH;
+
+	const onPromptInput = ( event: React.ChangeEvent< HTMLInputElement > ) => {
+		setPrompt( event.target.textContent || '' );
+	};
+
+	const onPromptPaste = ( event: React.ClipboardEvent< HTMLInputElement > ) => {
+		event.preventDefault();
+
+		const selection = event.currentTarget.ownerDocument.getSelection();
+		if ( ! selection || ! selection.rangeCount ) {
+			return;
+		}
+
+		// Paste plain text only
+		const text = event.clipboardData.getData( 'text/plain' );
+
+		selection.deleteFromDocument();
+		const range = selection.getRangeAt( 0 );
+		range.insertNode( document.createTextNode( text ) );
+		selection.collapseToEnd();
+
+		setPrompt( inputRef.current?.textContent || '' );
+	};
+
+	const onKeyDown = ( event: React.KeyboardEvent ) => {
+		if ( event.key === 'Enter' ) {
+			event.preventDefault();
+			generateHandler();
+		}
+	};
+
+	return (
+		<div className="jetpack-ai-logo-generator__prompt-query">
+			<div
+				role="textbox"
+				tabIndex={ 0 }
+				ref={ inputRef }
+				contentEditable={ ! disabled }
+				// The content editable div is expected to be updated by the enhance prompt, so warnings are suppressed
+				suppressContentEditableWarning
+				className="prompt-query__input"
+				onInput={ onPromptInput }
+				onPaste={ onPromptPaste }
+				onKeyDown={ onKeyDown }
+				data-placeholder={ placeholder }
+			></div>
+			<Button
+				variant="primary"
+				className="jetpack-ai-logo-generator__prompt-submit"
+				onClick={ generateHandler }
+				disabled={ disabled || ! hasPrompt }
+			>
+				{ buttonLabel || __( 'Generate', 'jetpack-ai-client' ) }
+			</Button>
+		</div>
+	);
+};
+
+export const Prompt = ( { initialPrompt = '' }: PromptProps ) => {
 	const { tracks } = useAnalytics();
 	const { recordEvent: recordTracksEvent } = tracks;
 	const [ prompt, setPrompt ] = useState< string >( initialPrompt );
@@ -34,6 +121,9 @@ export const Prompt: React.FC< { initialPrompt?: string } > = ( { initialPrompt 
 	const { enhancePromptFetchError, logoFetchError } = useRequestErrors();
 	const { nextTierCheckoutURL: checkoutUrl, hasNextTier } = useCheckout();
 	const hasPrompt = prompt?.length >= MINIMUM_PROMPT_LENGTH;
+	const [ showStyleSelector, setShowStyleSelector ] = useState( false );
+	const [ style, setStyle ] = useState< ImageStyle >( null );
+	const [ styles, setStyles ] = useState< Array< ImageStyleObject > >( [] );
 
 	const {
 		generateLogo,
@@ -46,6 +136,8 @@ export const Prompt: React.FC< { initialPrompt?: string } > = ( { initialPrompt 
 		requireUpgrade,
 		context,
 		tierPlansEnabled,
+		imageStyles,
+		guessStyle,
 	} = useLogoGenerator();
 
 	const enhancingLabel = __( 'Enhancing…', 'jetpack-ai-client' );
@@ -90,37 +182,55 @@ export const Prompt: React.FC< { initialPrompt?: string } > = ( { initialPrompt 
 		}
 	}, [ prompt ] );
 
-	const onGenerate = useCallback( async () => {
-		recordTracksEvent( EVENT_GENERATE, { context, tool: 'image' } );
-		generateLogo( { prompt } );
-	}, [ context, generateLogo, prompt ] );
-
-	const onPromptInput = ( event: React.ChangeEvent< HTMLInputElement > ) => {
-		setPrompt( event.target.textContent || '' );
-	};
-
-	const onPromptPaste = ( event: React.ClipboardEvent< HTMLInputElement > ) => {
-		event.preventDefault();
-
-		const selection = event.currentTarget.ownerDocument.getSelection();
-		if ( ! selection || ! selection.rangeCount ) {
-			return;
+	useEffect( () => {
+		if ( imageStyles && imageStyles.length > 0 ) {
+			// Sort styles to have "None" and "Auto" first
+			setStyles(
+				[
+					imageStyles.find( ( { value } ) => value === IMAGE_STYLE_NONE ),
+					imageStyles.find( ( { value } ) => value === IMAGE_STYLE_AUTO ),
+					...imageStyles.filter(
+						( { value } ) => ! [ IMAGE_STYLE_NONE, IMAGE_STYLE_AUTO ].includes( value )
+					),
+				].filter( v => v ) // simplest way to get rid of empty values
+			);
+			setShowStyleSelector( true );
+			setStyle( IMAGE_STYLE_NONE );
+		} else {
+			setStyles( [] );
+			setShowStyleSelector( false );
+			setStyle( null );
 		}
+	}, [ imageStyles ] );
 
-		// Paste plain text only
-		const text = event.clipboardData.getData( 'text/plain' );
-
-		selection.deleteFromDocument();
-		const range = selection.getRangeAt( 0 );
-		range.insertNode( document.createTextNode( text ) );
-		selection.collapseToEnd();
-
-		setPrompt( inputRef.current?.textContent || '' );
-	};
+	const onGenerate = useCallback( async () => {
+		debug( context );
+		if ( style === IMAGE_STYLE_AUTO ) {
+			setIsEnhancingPrompt( true );
+			recordTracksEvent( EVENT_GUESS_STYLE, { context, tool: 'image' } );
+			const guessedStyle = ( await guessStyle( prompt ) ) || IMAGE_STYLE_NONE;
+			setStyle( guessedStyle );
+			recordTracksEvent( EVENT_GENERATE, { context, tool: 'image', style: guessedStyle } );
+			setIsEnhancingPrompt( false );
+			generateLogo( { prompt, style: guessedStyle } );
+		} else {
+			recordTracksEvent( EVENT_GENERATE, { context, tool: 'image', style } );
+			generateLogo( { prompt, style } );
+		}
+	}, [ context, generateLogo, prompt, style ] );
 
 	const onUpgradeClick = () => {
 		recordTracksEvent( EVENT_UPGRADE, { context, placement: EVENT_PLACEMENT_INPUT_FOOTER } );
 	};
+
+	const updateStyle = useCallback(
+		( imageStyle: ImageStyle ) => {
+			debug( 'change style', imageStyle );
+			setStyle( imageStyle );
+			recordTracksEvent( EVENT_SWITCH_STYLE, { context, style: imageStyle } );
+		},
+		[ context, setStyle, recordTracksEvent ]
+	);
 
 	return (
 		<div className="jetpack-ai-logo-generator__prompt">
@@ -135,33 +245,29 @@ export const Prompt: React.FC< { initialPrompt?: string } > = ( { initialPrompt 
 						onClick={ onEnhance }
 					>
 						<AiIcon />
-						<span>{ enhanceButtonLabel }</span>
+						{ enhanceButtonLabel }
 					</Button>
 				</div>
+				{ showStyleSelector && (
+					<SelectControl
+						__nextHasNoMarginBottom
+						value={ style }
+						options={ styles }
+						onChange={ updateStyle }
+						disabled={ isBusy || requireUpgrade }
+					/>
+				) }
 			</div>
-			<div className="jetpack-ai-logo-generator__prompt-query">
-				<div
-					ref={ inputRef }
-					contentEditable={ ! isBusy && ! requireUpgrade }
-					// The content editable div is expected to be updated by the enhance prompt, so warnings are suppressed
-					suppressContentEditableWarning
-					className="prompt-query__input"
-					onInput={ onPromptInput }
-					onPaste={ onPromptPaste }
-					data-placeholder={ __(
-						'Describe your site or simply ask for a logo specifying some details about it',
-						'jetpack-ai-client'
-					) }
-				></div>
-				<Button
-					variant="primary"
-					className="jetpack-ai-logo-generator__prompt-submit"
-					onClick={ onGenerate }
-					disabled={ isBusy || requireUpgrade || ! hasPrompt }
-				>
-					{ __( 'Generate', 'jetpack-ai-client' ) }
-				</Button>
-			</div>
+			<AiModalPromptInput
+				prompt={ prompt }
+				setPrompt={ setPrompt }
+				generateHandler={ onGenerate }
+				disabled={ isBusy || requireUpgrade }
+				placeholder={ __(
+					'Describe your site or simply ask for a logo specifying some details about it',
+					'jetpack-ai-client'
+				) }
+			/>
 			<div className="jetpack-ai-logo-generator__prompt-footer">
 				{ ! isUnlimited && ! requireUpgrade && (
 					<div className="jetpack-ai-logo-generator__prompt-requests">

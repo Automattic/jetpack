@@ -15,18 +15,28 @@ use Automattic\Jetpack\IP\Utils as IP_Utils;
 class Waf_Stats {
 
 	/**
-	 * The global stats cache
+	 * Retrieve blocked requests from database
 	 *
-	 * @var array|null
+	 * @return array
 	 */
-	public static $global_stats = null;
+	public static function get_blocked_requests() {
+		return array(
+			'current_day' => Waf_Blocklog_Manager::get_current_day_block_count(),
+			'thirty_days' => Waf_Blocklog_Manager::get_thirty_days_block_counts(),
+			'all_time'    => Waf_Blocklog_Manager::get_all_time_block_count(),
+		);
+	}
 
 	/**
 	 * Get IP allow list count
 	 *
 	 * @return int The number of valid IP addresses in the allow list
+	 *
+	 * @deprecated 0.20.1 Use Automattic\Jetpack\Waf\Waf_Blocklog_Manager API instead.
 	 */
 	public static function get_ip_allow_list_count() {
+		_deprecated_function( __METHOD__, 'waf-0.20.1', 'Automattic\Jetpack\Waf\Waf_Blocklog_Manager' );
+
 		$ip_allow_list = get_option( Waf_Rules_Manager::IP_ALLOW_LIST_OPTION_NAME );
 
 		if ( ! $ip_allow_list ) {
@@ -42,8 +52,12 @@ class Waf_Stats {
 	 * Get IP block list count
 	 *
 	 * @return int The number of valid IP addresses in the block list
+	 *
+	 * @deprecated 0.20.1 Use Automattic\Jetpack\Waf\Waf_Blocklog_Manager API instead.
 	 */
 	public static function get_ip_block_list_count() {
+		_deprecated_function( __METHOD__, 'waf-0.20.1', 'Automattic\Jetpack\Waf\Waf_Blocklog_Manager' );
+
 		$ip_block_list = get_option( Waf_Rules_Manager::IP_BLOCK_LIST_OPTION_NAME );
 
 		if ( ! $ip_block_list ) {
@@ -54,6 +68,12 @@ class Waf_Stats {
 
 		return count( $results );
 	}
+
+	/** The global stats cache
+	 *
+	 * @var array|null
+	 */
+	public static $global_stats = null;
 
 	/**
 	 * Get Rules version

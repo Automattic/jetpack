@@ -4,9 +4,10 @@ import { withModuleSettingsFormHelpers } from 'components/module-settings/with-m
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import analytics from 'lib/analytics';
+import { FEATURE_NEWSLETTER_JETPACK } from 'lib/plans/constants';
 import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
-import { isOfflineMode } from 'state/connection';
+import { isOfflineMode, hasConnectedOwner } from 'state/connection';
 import { getJetpackCloudUrl } from 'state/initial-state';
 import { getModule } from 'state/modules';
 import { SUBSCRIPTIONS_MODULE_NAME } from './constants';
@@ -18,7 +19,8 @@ import { SUBSCRIPTIONS_MODULE_NAME } from './constants';
  * @return {React.Component} Paid Newsletter component.
  */
 function PaidNewsletter( props ) {
-	const { isSubscriptionsActive, setupPaymentPlansUrl, subscriptionsModule } = props;
+	const { isSubscriptionsActive, setupPaymentPlansUrl, subscriptionsModule, siteHasConnectedUser } =
+		props;
 
 	const setupPaymentPlansButtonDisabled = ! isSubscriptionsActive;
 
@@ -27,10 +29,16 @@ function PaidNewsletter( props ) {
 	}, [] );
 
 	return (
-		<SettingsCard { ...props } header={ __( 'Paid Newsletter', 'jetpack' ) } hideButton>
+		<SettingsCard
+			{ ...props }
+			header={ __( 'Paid Newsletter', 'jetpack' ) }
+			hideButton
+			feature={ FEATURE_NEWSLETTER_JETPACK }
+			isDisabled={ ! siteHasConnectedUser }
+		>
 			<SettingsGroup
 				disableInOfflineMode
-				disableInSiteConnectionMode
+				disableInSiteConnectionMode={ ! siteHasConnectedUser }
 				module={ subscriptionsModule }
 			>
 				<p className="jp-settings-card__email-settings">
@@ -43,7 +51,7 @@ function PaidNewsletter( props ) {
 				<Button
 					href={ ! setupPaymentPlansButtonDisabled ? setupPaymentPlansUrl : undefined }
 					onClick={ trackSetupPaymentPlansButtonClick }
-					disabled={ setupPaymentPlansButtonDisabled }
+					disabled={ ! siteHasConnectedUser || setupPaymentPlansButtonDisabled }
 					primary
 					rna
 				>
@@ -61,6 +69,7 @@ export default withModuleSettingsFormHelpers(
 			setupPaymentPlansUrl: getJetpackCloudUrl( state, 'monetize/payments' ),
 			subscriptionsModule: getModule( state, SUBSCRIPTIONS_MODULE_NAME ),
 			isOffline: isOfflineMode( state ),
+			siteHasConnectedUser: hasConnectedOwner( state ),
 		};
 	} )( PaidNewsletter )
 );

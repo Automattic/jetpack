@@ -6,6 +6,10 @@
     width: 200px;
 }
 
+.evaluation-footer-link {
+	font-size: var( --font-body );
+}
+
 // Setting min-width of recommendation (product) cards to 300px; see: /components/product-cards-section/style.module.scss:62
 @media screen and (min-width: 599px) and (max-width: 1290px) {
 	ul.recommendations-list {

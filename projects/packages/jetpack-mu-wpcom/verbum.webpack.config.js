@@ -42,7 +42,6 @@ module.exports = [
 		node: false,
 		plugins: [
 			...jetpackConfig.StandardPlugins( {
-				DependencyExtractionPlugin: { injectPolyfill: false },
 				MiniCssExtractPlugin: { filename: '[name]/[name].css' },
 			} ),
 			new webpack.ProvidePlugin( {
@@ -103,11 +102,7 @@ module.exports = [
 			...jetpackConfig.resolve,
 		},
 		node: false,
-		plugins: [
-			...jetpackConfig.StandardPlugins( {
-				DependencyExtractionPlugin: { injectPolyfill: false },
-			} ),
-		],
+		plugins: [ ...jetpackConfig.StandardPlugins() ],
 		module: {
 			strictExportPresence: true,
 			rules: [

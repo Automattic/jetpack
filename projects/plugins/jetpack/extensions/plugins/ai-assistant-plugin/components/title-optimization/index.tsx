@@ -177,8 +177,16 @@ export default function TitleOptimization( {
 
 	const handleTryAgain = useCallback( () => {
 		setError( null );
-		handleRequest( true ); // retry the generation
-	}, [ handleRequest ] );
+
+		/**
+		 * Only try to generate again if there are no options available.
+		 * If there are options, show them so the user can choose one
+		 * or ask for new suggestions.
+		 */
+		if ( options.length === 0 ) {
+			handleRequest( true ); // retry the generation
+		}
+	}, [ handleRequest, options ] );
 
 	const handleTitleOptimizationWithKeywords = useCallback( () => {
 		handleRequest();
@@ -204,6 +212,7 @@ export default function TitleOptimization( {
 	);
 
 	const handleClose = useCallback( () => {
+		setError( null );
 		toggleTitleOptimizationModal();
 		setOptimizationKeywords( '' );
 		stopSuggestion();
@@ -275,7 +284,7 @@ export default function TitleOptimization( {
 								</>
 							) }
 							<div className="jetpack-ai-title-optimization__cta">
-								<Button variant="secondary" onClick={ toggleTitleOptimizationModal }>
+								<Button variant="secondary" onClick={ handleClose }>
 									{ __( 'Cancel', 'jetpack' ) }
 								</Button>
 								{ showTryAgainButton && (

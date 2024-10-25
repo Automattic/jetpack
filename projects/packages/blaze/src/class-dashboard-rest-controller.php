@@ -329,10 +329,6 @@ class Dashboard_REST_Controller {
 			return array();
 		}
 
-		if ( ! $this->are_posts_ready() ) {
-			return new WP_Error( 'posts_not_ready', 'Posts are not synced yet.' );
-		}
-
 		// We don't use sub_path in the blaze posts, only query strings
 		if ( isset( $req['sub_path'] ) ) {
 			unset( $req['sub_path'] );
@@ -353,6 +349,24 @@ class Dashboard_REST_Controller {
 			$response['posts'] = $this->add_prices_in_posts( $response['posts'] );
 		}
 
+		$response = $this->add_warnings_to_posts_response( $response );
+
+		return $response;
+	}
+
+	/**
+	 * Adds warning flags to the posts response.
+	 *
+	 * @param array $response The response object.
+	 * @return array
+	 */
+	private function add_warnings_to_posts_response( $response ) {
+		if ( ! $this->are_posts_ready() && is_array( $response ) ) {
+			$response['warnings'] = array_merge(
+				array( 'sync_in_progress' ),
+				$response['warnings'] ?? array()
+			);
+		}
 		return $response;
 	}
 
@@ -392,10 +406,6 @@ class Dashboard_REST_Controller {
 			return array();
 		}
 
-		if ( ! $this->are_posts_ready() ) {
-			return new WP_Error( 'posts_not_ready', 'Posts are not synced yet.' );
-		}
-
 		// We don't use sub_path in the blaze posts, only query strings
 		if ( isset( $req['sub_path'] ) ) {
 			unset( $req['sub_path'] );
@@ -411,6 +421,8 @@ class Dashboard_REST_Controller {
 		if ( isset( $response['results'] ) && count( $response['results'] ) > 0 ) {
 			$response['results'] = $this->add_prices_in_posts( $response['results'] );
 		}
+
+		$response = $this->add_warnings_to_posts_response( $response );
 
 		return $response;
 	}

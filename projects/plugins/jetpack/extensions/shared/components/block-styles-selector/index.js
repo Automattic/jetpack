@@ -51,13 +51,10 @@ export default function BlockStylesSelector( {
 	viewportWidth,
 	title,
 } ) {
-	let block;
-	if ( useSelect ) {
-		block = useSelect( select => {
-			const { getBlock } = select( 'core/block-editor' );
-			return getBlock( clientId );
-		} );
-	}
+	const block = useSelect( select => {
+		const { getBlock } = select( 'core/block-editor' );
+		return getBlock( clientId );
+	} );
 
 	return (
 		<>
@@ -105,8 +102,7 @@ export default function BlockStylesSelector( {
 									<div className="block-editor-block-styles__item-preview">
 										{ styleOption.preview
 											? styleOption.preview
-											: useSelect &&
-											  block && (
+											: block && (
 													<StylePreviewComponent
 														blockName={ block.name }
 														styleOption={ styleOption }

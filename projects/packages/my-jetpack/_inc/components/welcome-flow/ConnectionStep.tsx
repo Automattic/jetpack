@@ -8,7 +8,7 @@ import useProductsByOwnership from '../../data/products/use-products-by-ownershi
 import useAnalytics from '../../hooks/use-analytics';
 import sideloadTracks from '../../utils/side-load-tracks';
 import styles from './style.module.scss';
-import { WelcomeFlowExperiment } from '.';
+import type { WelcomeFlowExperiment } from '.';
 import type { Dispatch, SetStateAction } from 'react';
 
 type ConnectionStepProps = {
@@ -50,12 +50,12 @@ const ConnectionStep = ( {
 			initializeExPlat();
 
 			const { variationName } = await loadExperimentAssignment(
-				'jetpack_my_jetpack_evaluation_recommendations_202409'
+				'jetpack_my_jetpack_welcome_flow_display_default_recommendations_upfront_202410'
 			);
 
 			onUpdateWelcomeFlowExperiment( state => ( {
 				...state,
-				variation: variationName as WelcomeFlowExperiment[ 'variation' ], // casting to 'control' or 'treatment'
+				variation: ( variationName ?? 'control' ) as WelcomeFlowExperiment[ 'variation' ], // casting to 'control' or 'treatment'
 			} ) );
 		} finally {
 			resetNotice();

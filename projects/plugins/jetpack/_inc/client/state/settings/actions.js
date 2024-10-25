@@ -95,11 +95,10 @@ export const updateSettings = ( newOptionValues, noticeMessages = {} ) => {
 			...noticeMessages,
 		};
 
-		// Changes to these options affect WordPress.com Toolbar appearance,
-		// and we need to reload the page for them to take effect.
-		const reloadForOptionValues = [ 'masterbar', 'jetpack_testimonial', 'jetpack_portfolio' ];
+		// For changes to these options we need to reload the page in order for them to take effect.
+		const reloadForOptionValues = [ 'jetpack_testimonial', 'jetpack_portfolio' ];
 
-		// Adapt message for masterbar toggle, since it needs to reload.
+		// Adapt message for above options, since it needs to reload.
 		if (
 			'object' === typeof newOptionValues &&
 			some( reloadForOptionValues, optionValue => optionValue in newOptionValues )

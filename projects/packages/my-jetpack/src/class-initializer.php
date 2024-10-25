@@ -42,7 +42,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '4.35.6';
+	const PACKAGE_VERSION = '4.35.15';
 
 	/**
 	 * HTML container ID for the IDC screen on My Jetpack page.
@@ -211,7 +211,7 @@ class Initializer {
 		 * Fires after the My Jetpack page is initialized.
 		 * Allows for enqueuing additional scripts only on the My Jetpack page.
 		 *
-		 * @since $$next-version$$
+		 * @since 4.35.7
 		 */
 		do_action( 'myjetpack_enqueue_scripts' );
 		Assets::register_script(
@@ -280,8 +280,9 @@ class Initializer {
 				),
 				'redBubbleAlerts'        => self::get_red_bubble_alerts(),
 				'recommendedModules'     => array(
-					'modules'   => self::get_recommended_modules(),
-					'dismissed' => \Jetpack_Options::get_option( 'dismissed_recommendations', false ),
+					'modules'    => self::get_recommended_modules(),
+					'isFirstRun' => \Jetpack_Options::get_option( 'recommendations_first_run', true ),
+					'dismissed'  => \Jetpack_Options::get_option( 'dismissed_recommendations', false ),
 				),
 				'isStatsModuleActive'    => $modules->is_active( 'stats' ),
 				'isUserFromKnownHost'    => self::is_user_from_known_host(),
@@ -939,17 +940,18 @@ class Initializer {
 		$broken_modules = self::check_for_broken_modules();
 		$connection     = new Connection_Manager();
 
-		if ( ! empty( $broken_modules['needs_user_connection'] ) ) {
+		// Checking for site connection issues first.
+		if ( ! empty( $broken_modules['needs_site_connection'] ) ) {
 			$red_bubble_slugs[ self::MISSING_CONNECTION_NOTIFICATION_KEY ] = array(
-				'type'     => 'user',
+				'type'     => 'site',
 				'is_error' => true,
 			);
 			return $red_bubble_slugs;
 		}
 
-		if ( ! empty( $broken_modules['needs_site_connection'] ) ) {
+		if ( ! empty( $broken_modules['needs_user_connection'] ) ) {
 			$red_bubble_slugs[ self::MISSING_CONNECTION_NOTIFICATION_KEY ] = array(
-				'type'     => 'site',
+				'type'     => 'user',
 				'is_error' => true,
 			);
 			return $red_bubble_slugs;

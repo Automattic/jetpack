@@ -5,6 +5,60 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.71.4] - 2024-10-25
+### Changed
+- Initial state: Migrated isEnhancedPublishingEnabled to feature check [#39835]
+
+### Fixed
+- Fixed Bsky conneciton management profile name [#39889]
+- Fixed reconnection for broken Bluesky connections [#39844]
+- Social: Fixed Bluesky custom domain handle not being accepted [#39872]
+
+## [0.71.3] - 2024-10-21
+### Changed
+- Initial state: Migrated URLs in the editor to the new script data. [#39799] [#39797]
+- Update dependencies. [#39781]
+
+### Fixed
+- Social: Fixed Bluesky display name when it's not set in Bluesky profile. [#39840]
+
+## [0.71.2] - 2024-10-14
+### Added
+- Social: Added Bluesky to social previews. [#39659]
+
+### Changed
+- Updated package dependencies. [#39707]
+
+### Fixed
+- Add missing deps in calls to the `useSelect` React hook. [#39421]
+- Social: Updated the check to see if Bluesky is already connected. [#39661]
+
+## [0.71.1] - 2024-10-07
+### Changed
+- Updated package dependencies. [#39594]
+
+### Fixed
+- Social: Fixed share status tooltip text overflow [#39599]
+
+## [0.71.0] - 2024-10-01
+### Added
+- Social: Added support for Bluesky [#39561]
+
+## [0.70.1] - 2024-09-30
+### Changed
+- Update dependencies. [#39528]
+
+## [0.70.0] - 2024-09-23
+### Added
+- Added tracking for the resharing action [#39408]
+
+### Changed
+- Social: Migrated useEditorPreview feature flag to new script data [#39405]
+- Social: Migrated useShareStatus feature flag to new script data [#39404]
+
+### Fixed
+- Social: Updated social previews button styles to fit the translated string [#39430]
+
 ## [0.69.0] - 2024-09-16
 ### Added
 - Social: Share status | Updated retry to show spinner and start polling [#39293]
@@ -933,6 +987,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#24470]
 
+[0.71.4]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.71.3...v0.71.4
+[0.71.3]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.71.2...v0.71.3
+[0.71.2]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.71.1...v0.71.2
+[0.71.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.71.0...v0.71.1
+[0.71.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.70.1...v0.71.0
+[0.70.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.70.0...v0.70.1
+[0.70.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.69.0...v0.70.0
 [0.69.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.68.0...v0.69.0
 [0.68.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.67.0...v0.68.0
 [0.67.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.66.1...v0.67.0

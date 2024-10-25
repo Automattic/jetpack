@@ -3,8 +3,7 @@
 node_modules           export-ignore
 
 # Files to include in the mirror repo
-/build-browser/**      production-include
-/build-node/**         production-include
+/build/**              production-include
 
 # Files to exclude from the mirror repo
 /changelog/**          production-exclude

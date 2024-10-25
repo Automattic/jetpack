@@ -1,4 +1,5 @@
 import {
+	BlueskyPostPreview,
 	FacebookLinkPreview,
 	FacebookPostPreview,
 	InstagramPostPreview,
@@ -34,6 +35,7 @@ export function PostPreview( { connection }: PostPreviewProps ) {
 		() => ( {
 			displayName: connection.display_name || connection.external_display,
 			profileImage: connection.profile_picture,
+			externalName: connection.external_name,
 		} ),
 		[ connection ]
 	);
@@ -64,6 +66,28 @@ export function PostPreview( { connection }: PostPreviewProps ) {
 	);
 
 	switch ( connection.service_name ) {
+		case 'bluesky': {
+			const firstMediaItem = media?.[ 0 ];
+
+			const customImage = firstMediaItem?.type.startsWith( 'image/' ) ? firstMediaItem.url : null;
+
+			return (
+				<BlueskyPostPreview
+					{ ...commonProps }
+					description={ decodeEntities( excerpt ) }
+					user={ {
+						avatarUrl: user.profileImage,
+						address: user.externalName,
+						displayName: user.displayName,
+					} }
+					customText={ decodeEntities(
+						message || `${ title }\n\n${ excerpt.replaceAll( /[\s\n]/g, ' ' ) }`
+					) }
+					customImage={ customImage }
+				/>
+			);
+		}
+
 		case 'facebook':
 			return hasMedia ? (
 				<FacebookPostPreview

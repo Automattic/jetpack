@@ -59,7 +59,7 @@ export function Threads( { excerpt, title, description, image, url, media } ) {
 				},
 			];
 		},
-		[ title, image, description, media, url ]
+		[ excerpt, title, image, description, media, url, shareMessage ]
 	);
 
 	const threadsConnections = useSelect(

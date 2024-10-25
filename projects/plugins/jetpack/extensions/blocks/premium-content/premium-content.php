@@ -25,17 +25,21 @@ require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/subscriptions/constants.ph
  * registration if we need to.
  */
 function register_block() {
-	Blocks::jetpack_register_block(
-		__DIR__,
-		array(
-			'render_callback'  => __NAMESPACE__ . '\render_block',
-			'provides_context' => array(
-				'premium-content/planId'  => 'selectedPlanId', // Deprecated.
-				'premium-content/planIds' => 'selectedPlanIds',
-				'isPremiumContentChild'   => 'isPremiumContentChild',
-			),
-		)
-	);
+
+	require_once JETPACK__PLUGIN_DIR . '/modules/memberships/class-jetpack-memberships.php';
+	if ( \Jetpack_Memberships::should_enable_monetize_blocks_in_editor() ) {
+		Blocks::jetpack_register_block(
+			__DIR__,
+			array(
+				'render_callback'  => __NAMESPACE__ . '\render_block',
+				'provides_context' => array(
+					'premium-content/planId'  => 'selectedPlanId', // Deprecated.
+					'premium-content/planIds' => 'selectedPlanIds',
+					'isPremiumContentChild'   => 'isPremiumContentChild',
+				),
+			)
+		);
+	}
 
 	register_post_meta(
 		'post',

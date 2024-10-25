@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.12] - 2024-09-23
+### Changed
+- Update dependencies.
+
 ## [0.2.11] - 2024-09-05
 ### Changed
 - Update dependencies.
@@ -73,6 +77,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Introduce new package. [#31163]
 
+[0.2.12]: https://github.com/Automattic/jetpack-boost-core/compare/v0.2.11...v0.2.12
 [0.2.11]: https://github.com/Automattic/jetpack-boost-core/compare/v0.2.10...v0.2.11
 [0.2.10]: https://github.com/Automattic/jetpack-boost-core/compare/v0.2.9...v0.2.10
 [0.2.9]: https://github.com/Automattic/jetpack-boost-core/compare/v0.2.8...v0.2.9

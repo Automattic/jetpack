@@ -5,6 +5,8 @@ import { dispatch } from '@wordpress/data';
 import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
+import ConnectBanner from '../../shared/components/connect-banner';
+import useIsUserConnected from '../../shared/use-is-user-connected';
 import BlogrollAppender from './components/blogroll-appender';
 import useRecommendations from './use-recommendations';
 import { useSiteRecommendationSync } from './use-site-recommendations';
@@ -20,6 +22,8 @@ export function BlogRollEdit( { className, attributes, setAttributes, clientId }
 		ignore_user_blogs,
 		load_placeholders,
 	} = attributes;
+
+	const isUserConnected = useIsUserConnected();
 
 	const {
 		isLoading: isLoadingRecommendations,
@@ -54,6 +58,20 @@ export function BlogRollEdit( { className, attributes, setAttributes, clientId }
 			'hide-description': ! show_description,
 		} ),
 	} );
+
+	if ( ! isUserConnected ) {
+		return (
+			<>
+				<ConnectBanner
+					block="Blogroll"
+					explanation={ __(
+						'Connect your WordPress.com account to use the Blogroll block.',
+						'jetpack'
+					) }
+				/>
+			</>
+		);
+	}
 
 	const errorMessage = recommendationsErrorMessage || subscriptionsErrorMessage;
 

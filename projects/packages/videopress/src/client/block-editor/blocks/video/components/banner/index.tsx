@@ -34,7 +34,7 @@ export default function BlockBanner( {
 }: BlockBannerProps ): React.ReactElement {
 	return (
 		<div className="block-banner">
-			<Icon icon={ icon } />
+			{ icon && <Icon icon={ icon } /> }
 			<div className="block-banner__content">{ children }</div>
 			{ isLoading && <Spinner /> }
 			{ action && <div className="block-banner__action">{ action }</div> }

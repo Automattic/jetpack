@@ -54,7 +54,10 @@ add_action( 'jetpack_modules_loaded', 'stats_load' );
 function stats_load() {
 	Jetpack::enable_module_configurable( __FILE__ );
 
-	add_action( 'wp_head', 'stats_admin_bar_head', 100 );
+	// Only run the callback for those who can see the stats.
+	if ( is_user_logged_in() && current_user_can( 'view_stats' ) ) {
+		add_action( 'wp_head', 'stats_admin_bar_head', 100 );
+	}
 
 	add_action( 'jetpack_admin_menu', 'stats_admin_menu' );
 
@@ -1667,8 +1670,15 @@ function stats_get_remote_csv( $url ) {
  * @return array
  */
 function stats_str_getcsv( $csv ) {
-	$lines = str_getcsv( $csv, "\n" );
-	return array_map( 'str_getcsv', $lines );
+	// @todo Correctly handle embedded newlines. Note, despite claims online, `str_getcsv( $csv, "\n" )` does not actually work.
+	$lines = explode( "\n", rtrim( $csv, "\n" ) );
+	return array_map(
+		function ( $line ) {
+			// @todo When we drop support for PHP <7.4, consider passing empty-string for `$escape` here for better spec compatibility.
+			return str_getcsv( $line, ',', '"', '\\' );
+		},
+		$lines
+	);
 }
 
 /**

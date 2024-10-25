@@ -56,10 +56,13 @@ class VideoPress_Player {
 	 * @param array  $options Player customizations.
 	 */
 	public function __construct( $guid, $maxwidth = 0, $options = array() ) {
-		list( $html_id, $id_count ) = get_videopress_html_id( $guid );
-		self::$shown[ $guid ]       = $id_count;
+		if ( empty( self::$shown[ $guid ] ) ) {
+			self::$shown[ $guid ] = 0;
+		}
 
-		$this->video_container_id = $html_id;
+		++self::$shown[ $guid ];
+
+		$this->video_container_id = 'v-' . $guid . '-' . self::$shown[ $guid ];
 		$this->video_id           = $this->video_container_id . '-video';
 
 		if ( is_array( $options ) ) {

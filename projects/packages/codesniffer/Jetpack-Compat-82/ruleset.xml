@@ -114,9 +114,11 @@
 		<exclude name="PHPCompatibility.Constants.NewConstants.tcp_keepidleFound" />
 		<exclude name="PHPCompatibility.Constants.NewConstants.tcp_keepintvlFound" />
 		<exclude name="PHPCompatibility.Constants.NewConstants.tcp_notsent_lowatFound" />
+		<exclude name="PHPCompatibility.FunctionDeclarations.NewParamTypeDeclarations.DNFTypeFound" />
 		<exclude name="PHPCompatibility.FunctionDeclarations.NewParamTypeDeclarations.NonUnionFalse" />
 		<exclude name="PHPCompatibility.FunctionDeclarations.NewParamTypeDeclarations.NonUnionNull" />
 		<exclude name="PHPCompatibility.FunctionDeclarations.NewParamTypeDeclarations.trueFound" />
+		<exclude name="PHPCompatibility.FunctionDeclarations.NewReturnTypeDeclarations.DNFTypeFound" />
 		<exclude name="PHPCompatibility.FunctionDeclarations.NewReturnTypeDeclarations.NonUnionFalse" />
 		<exclude name="PHPCompatibility.FunctionDeclarations.NewReturnTypeDeclarations.NonUnionNull" />
 		<exclude name="PHPCompatibility.FunctionDeclarations.NewReturnTypeDeclarations.trueFound" />

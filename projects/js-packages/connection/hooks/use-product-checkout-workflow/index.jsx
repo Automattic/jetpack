@@ -15,7 +15,7 @@ const {
 	apiNonce,
 	siteSuffix: defaultSiteSuffix,
 } = window?.JP_CONNECTION_INITIAL_STATE || getScriptData()?.connection || {};
-const defaultAdminUrl =
+const defaultAdminUrl = () =>
 	typeof window !== 'undefined' ? window?.myJetpackInitialState?.adminUrl : null;
 
 /**
@@ -38,7 +38,7 @@ export default function useProductCheckoutWorkflow( {
 	productSlug,
 	redirectUrl,
 	siteSuffix = defaultSiteSuffix,
-	adminUrl = defaultAdminUrl,
+	adminUrl = defaultAdminUrl(),
 	connectAfterCheckout = false,
 	siteProductAvailabilityHandler = null,
 	quantity = null,
@@ -52,7 +52,7 @@ export default function useProductCheckoutWorkflow( {
 	const [ hasCheckoutStarted, setCheckoutStarted ] = useState( false );
 	const { registerSite } = useDispatch( STORE_ID );
 
-	const blogID = useSelect( select => select( STORE_ID ).getBlogId(), [ STORE_ID ] );
+	const blogID = useSelect( select => select( STORE_ID ).getBlogId(), [] );
 	debug( 'blogID is %s', blogID ?? 'undefined' );
 
 	useBlogIdSuffix = useBlogIdSuffix && !! blogID;

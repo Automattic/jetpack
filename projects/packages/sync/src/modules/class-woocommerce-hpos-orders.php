@@ -118,9 +118,9 @@ class WooCommerce_HPOS_Orders extends Module {
 			add_filter( "jetpack_sync_before_enqueue_woocommerce_after_{$type}_object_save", array( $this, 'expand_order_object' ) );
 		}
 		add_action( 'woocommerce_delete_order', $callable );
-		add_filter( 'jetpack_sync_before_enqueue_woocommerce_delete_order', array( $this, 'expand_order_object' ) );
+		add_filter( 'jetpack_sync_before_enqueue_woocommerce_delete_order', array( $this, 'on_before_enqueue_order_trash_delete' ) );
 		add_action( 'woocommerce_trash_order', $callable );
-		add_filter( 'jetpack_sync_before_enqueue_woocommerce_trash_order', array( $this, 'expand_order_object' ) );
+		add_filter( 'jetpack_sync_before_enqueue_woocommerce_trash_order', array( $this, 'on_before_enqueue_order_trash_delete' ) );
 	}
 
 	/**
@@ -257,6 +257,28 @@ class WooCommerce_HPOS_Orders extends Module {
 		}
 
 		return $this->filter_order_data( $order_object );
+	}
+
+	/**
+	 * Convert order ID to array.
+	 *
+	 * @access public
+	 *
+	 * @param array $args Order ID.
+	 *
+	 * @return array
+	 */
+	public function on_before_enqueue_order_trash_delete( $args ) {
+		if ( ! is_array( $args ) || ! isset( $args[0] ) ) {
+			return false;
+		}
+		$order_id = $args[0];
+
+		if ( ! is_int( $order_id ) ) {
+			return false;
+		}
+
+		return array( 'id' => $order_id );
 	}
 
 	/**

@@ -17,6 +17,11 @@ const UpgradeCTA = ( {
 	identifier,
 	eventName = 'upsell_cta_from_settings_page_in_plugin',
 }: UpgradeCTAProps ) => {
+	// No need to show the upgrade CTA if the site is unreachable.
+	if ( ! Jetpack_Boost.site.online ) {
+		return null;
+	}
+
 	const navigate = useNavigate();
 
 	const showBenefits = () => {

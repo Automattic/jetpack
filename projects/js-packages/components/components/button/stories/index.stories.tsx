@@ -313,7 +313,7 @@ export const VariantsAndProps = () => {
 					<Text size="body-extra-small">no props</Text>
 				</Col>
 				{ variants.map( variant => (
-					<Col sm={ 4 } md={ 2 } lg={ 3 }>
+					<Col key={ 'normal-' + variant } sm={ 4 } md={ 2 } lg={ 3 }>
 						<Button { ...ButtonPrimary.args } variant={ variant } />
 					</Col>
 				) ) }
@@ -322,7 +322,7 @@ export const VariantsAndProps = () => {
 					<Text size="body-extra-small">size: small</Text>
 				</Col>
 				{ variants.map( variant => (
-					<Col sm={ 4 } md={ 2 } lg={ 3 }>
+					<Col key={ 'small-' + variant } sm={ 4 } md={ 2 } lg={ 3 }>
 						<Button { ...ButtonPrimary.args } variant={ variant } size="small" />
 					</Col>
 				) ) }
@@ -331,7 +331,7 @@ export const VariantsAndProps = () => {
 					<Text size="body-extra-small">weight: regular</Text>
 				</Col>
 				{ variants.map( variant => (
-					<Col sm={ 4 } md={ 2 } lg={ 3 }>
+					<Col key={ 'regular-' + variant } sm={ 4 } md={ 2 } lg={ 3 }>
 						<Button { ...ButtonPrimary.args } variant={ variant } weight="regular" />
 					</Col>
 				) ) }
@@ -340,7 +340,7 @@ export const VariantsAndProps = () => {
 					<Text size="body-extra-small">icon (cloud)</Text>
 				</Col>
 				{ variants.map( variant => (
-					<Col sm={ 4 } md={ 2 } lg={ 3 }>
+					<Col key={ 'icon-' + variant } sm={ 4 } md={ 2 } lg={ 3 }>
 						<Button
 							{ ...ButtonPrimary.args }
 							variant={ variant }
@@ -353,7 +353,7 @@ export const VariantsAndProps = () => {
 					<Text size="body-extra-small">disabled</Text>
 				</Col>
 				{ variants.map( variant => (
-					<Col sm={ 4 } md={ 2 } lg={ 3 }>
+					<Col key={ 'disabled-' + variant } sm={ 4 } md={ 2 } lg={ 3 }>
 						<Button { ...ButtonPrimary.args } variant={ variant } disabled />
 					</Col>
 				) ) }
@@ -362,7 +362,7 @@ export const VariantsAndProps = () => {
 					<Text size="body-extra-small">isDestructive</Text>
 				</Col>
 				{ variants.map( variant => (
-					<Col sm={ 4 } md={ 2 } lg={ 3 }>
+					<Col key={ 'destructive-' + variant } sm={ 4 } md={ 2 } lg={ 3 }>
 						<Button { ...ButtonPrimary.args } variant={ variant } isDestructive />
 					</Col>
 				) ) }
@@ -371,7 +371,7 @@ export const VariantsAndProps = () => {
 					<Text size="body-extra-small">isExternalLink</Text>
 				</Col>
 				{ variants.map( variant => (
-					<Col sm={ 4 } md={ 2 } lg={ 3 }>
+					<Col key={ 'external-' + variant } sm={ 4 } md={ 2 } lg={ 3 }>
 						<Button { ...ButtonPrimary.args } variant={ variant } isExternalLink />
 					</Col>
 				) ) }
@@ -380,7 +380,7 @@ export const VariantsAndProps = () => {
 					<Text size="body-extra-small">isLoading</Text>
 				</Col>
 				{ variants.map( variant => (
-					<Col sm={ 4 } md={ 2 } lg={ 3 }>
+					<Col key={ 'loading-' + variant } sm={ 4 } md={ 2 } lg={ 3 }>
 						<Button { ...ButtonPrimary.args } variant={ variant } isLoading />
 					</Col>
 				) ) }
@@ -389,7 +389,7 @@ export const VariantsAndProps = () => {
 					<Text size="body-extra-small">fullWidth</Text>
 				</Col>
 				{ variants.map( variant => (
-					<Col sm={ 4 } md={ 2 } lg={ 3 }>
+					<Col key={ 'fullwidth-' + variant } sm={ 4 } md={ 2 } lg={ 3 }>
 						<Button { ...ButtonPrimary.args } variant={ variant } fullWidth />
 					</Col>
 				) ) }

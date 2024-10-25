@@ -566,6 +566,7 @@ class Publicize extends Publicize_Base {
 			'instagram-business' => array(),
 			'nextdoor'           => array(),
 			'threads'            => array(),
+			'bluesky'            => array(),
 		);
 
 		if ( 'all' === $filter ) {

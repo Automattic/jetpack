@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ManageConnectionsModal } from '..';
 import { setup } from '../../../utils/test-factory';
@@ -13,6 +13,12 @@ describe( 'ManageConnectionsModal', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
 		( { stubSetKeyringResult, stubGetKeyringResult } = setup() );
+		jest.useFakeTimers();
+	} );
+
+	afterEach( () => {
+		jest.runOnlyPendingTimers();
+		jest.useRealTimers();
 	} );
 
 	it( 'renders ServicesList when there is no keyringResult', () => {
@@ -32,11 +38,16 @@ describe( 'ManageConnectionsModal', () => {
 	} );
 
 	it( 'closes the modal and resets keyringResult when closeModal is called', async () => {
-		const user = userEvent.setup();
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 
 		render( <ManageConnectionsModal /> );
 
 		await user.click( screen.getByRole( 'button', { name: /close/i } ) );
+
+		// Dialog has a close animation. Wait for it to finish.
+		await act( () => {
+			jest.runAllTimers();
+		} );
 
 		expect( stubSetKeyringResult ).toHaveBeenCalledWith( null );
 	} );

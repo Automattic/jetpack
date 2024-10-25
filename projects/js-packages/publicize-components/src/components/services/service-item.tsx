@@ -1,6 +1,6 @@
 import { Button, useBreakpointMatch } from '@automattic/jetpack-components';
 import { Panel, PanelBody } from '@wordpress/components';
-import { useReducer } from '@wordpress/element';
+import { useEffect, useReducer, useRef } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { Icon, chevronDown, chevronUp } from '@wordpress/icons';
 import { ConnectForm } from './connect-form';
@@ -8,7 +8,9 @@ import { ServiceItemDetails, ServicesItemDetailsProps } from './service-item-det
 import { ServiceStatus } from './service-status';
 import styles from './style.module.scss';
 
-export type ServicesItemProps = ServicesItemDetailsProps;
+export type ServicesItemProps = ServicesItemDetailsProps & {
+	isPanelDefaultOpen?: boolean;
+};
 
 /**
  * Service item component
@@ -17,12 +19,24 @@ export type ServicesItemProps = ServicesItemDetailsProps;
  *
  * @return {import('react').ReactNode} Service item component
  */
-export function ServiceItem( { service, serviceConnections }: ServicesItemProps ) {
+export function ServiceItem( {
+	service,
+	serviceConnections,
+	isPanelDefaultOpen,
+}: ServicesItemProps ) {
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
 
-	const [ isPanelOpen, togglePanel ] = useReducer( state => ! state, false );
+	const [ isPanelOpen, togglePanel ] = useReducer( state => ! state, isPanelDefaultOpen );
+	const panelRef = useRef< HTMLDivElement >( null );
 
-	const isMastodonPanelOpen = isPanelOpen && service.ID === 'mastodon';
+	useEffect( () => {
+		if ( isPanelDefaultOpen ) {
+			panelRef.current?.scrollIntoView( { block: 'center', behavior: 'smooth' } );
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [] );
+
+	const areCustomInputsVisible = isPanelOpen && service.needsCustomInputs;
 
 	const brokenConnections = serviceConnections.filter( ( { status } ) => status === 'broken' );
 
@@ -31,9 +45,9 @@ export function ServiceItem( { service, serviceConnections }: ServicesItemProps 
 	);
 
 	const hideInitialConnectForm =
-		// For Mastodon, the initial connect form opens the panel,
+		// For services with custom inputs, the initial Connect button opens the panel,
 		// so we don't want to show it if the panel is already open
-		isMastodonPanelOpen ||
+		areCustomInputsVisible ||
 		// For services with broken connections, we want to show the "Fix connections" button
 		// which opens the panel, so we don't want to show the initial connect form when the panel is already open
 		( hasOwnBrokenConnections && isPanelOpen );
@@ -94,21 +108,23 @@ export function ServiceItem( { service, serviceConnections }: ServicesItemProps 
 				</div>
 			</div>
 
-			<Panel className={ styles[ 'service-panel' ] }>
+			<Panel className={ styles[ 'service-panel' ] } ref={ panelRef }>
 				<PanelBody opened={ isPanelOpen } onToggle={ togglePanel }>
 					<ServiceItemDetails service={ service } serviceConnections={ serviceConnections } />
-
-					{ /* Only show the connect form for Mastodon if there are no broken connections */ }
-					{ service.ID === 'mastodon' && ! hasOwnBrokenConnections ? (
-						<div className={ styles[ 'connect-form-wrapper' ] }>
-							<ConnectForm
-								service={ service }
-								displayInputs
-								isSmall={ false }
-								buttonLabel={ __( 'Connect', 'jetpack' ) }
-							/>
-						</div>
-					) : null }
+					{
+						// Connect form for services that need custom inputs
+						// should be shown only if there are no broken connections
+						service.needsCustomInputs && ! hasOwnBrokenConnections ? (
+							<div className={ styles[ 'connect-form-wrapper' ] }>
+								<ConnectForm
+									service={ service }
+									displayInputs
+									isSmall={ false }
+									buttonLabel={ __( 'Connect', 'jetpack' ) }
+								/>
+							</div>
+						) : null
+					}
 				</PanelBody>
 			</Panel>
 		</div>

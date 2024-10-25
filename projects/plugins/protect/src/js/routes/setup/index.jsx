@@ -4,10 +4,10 @@ import {
 	Col,
 	Container,
 	Text,
+	JetpackProtectLogo,
 } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import Logo from '../../components/logo';
 import ConnectedPricingTable from '../../components/pricing-table';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import styles from './styles.module.scss';
@@ -25,7 +25,7 @@ const SetupRoute = () => {
 			moduleName={ __( 'Jetpack Protect', 'jetpack-protect' ) }
 			header={
 				<div className={ styles[ 'protect-header' ] }>
-					<Logo />
+					<JetpackProtectLogo />
 					<Text variant="body-small">
 						{ createInterpolateElement(
 							__(

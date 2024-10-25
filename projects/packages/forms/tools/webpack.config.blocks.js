@@ -27,11 +27,7 @@ const sharedWebpackConfig = {
 		...jetpackWebpackConfig.resolve,
 	},
 	node: {},
-	plugins: [
-		...jetpackWebpackConfig.StandardPlugins( {
-			DependencyExtractionPlugin: { injectPolyfill: true },
-		} ),
-	],
+	plugins: [ ...jetpackWebpackConfig.StandardPlugins() ],
 	externals: {
 		...jetpackWebpackConfig.externals,
 		jetpackConfig: JSON.stringify( {

@@ -54,6 +54,7 @@ function SocialLogosExample() {
 
 	const allSocialLogos = SocialLogoData.map( logo => (
 		<SocialLogoItemExample
+			key={ logo.name }
 			name={ logo.name }
 			iconSize={ iconSize }
 			showIconNames={ showIconNames }

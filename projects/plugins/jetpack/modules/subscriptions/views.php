@@ -358,7 +358,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		$show_subscribers_total       = (bool) $instance['show_subscribers_total'];
 		$subscribers_total            = self::fetch_subscriber_count();
 		$subscribe_text               = empty( $instance['show_only_email_and_button'] ) ?
-			wp_kses_post( $instance['subscribe_text'] ) :
+			wp_kses_post( stripslashes( $instance['subscribe_text'] ) ) :
 			false;
 		$referer                      = esc_url_raw( ( is_ssl() ? 'https' : 'http' ) . '://' . ( isset( $_SERVER['HTTP_HOST'] ) ? wp_unslash( $_SERVER['HTTP_HOST'] ) : '' ) . ( isset( $_SERVER['REQUEST_URI'] ) ? wp_unslash( $_SERVER['REQUEST_URI'] ) : '' ) );
 		$source                       = 'widget';

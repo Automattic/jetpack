@@ -134,7 +134,7 @@ class Boost extends Product {
 	public static function get_features_by_tier() {
 		return array(
 			array(
-				'name'  => __( 'Optimize CSS Loading', 'jetpack-my-jetpack' ),
+				'name'  => __( 'Auto CSS Optimization', 'jetpack-my-jetpack' ),
 				'info'  => array(
 					'content' => __(
 						'Move important styling information to the start of the page, which helps pages display your content sooner, so your users don’t have to wait for the entire page to load. Commonly referred to as Critical CSS.',
@@ -143,8 +143,8 @@ class Boost extends Product {
 				),
 				'tiers' => array(
 					self::FREE_TIER_SLUG     => array(
-						'included'    => true,
-						'description' => __( 'Must be done manually', 'jetpack-my-jetpack' ),
+						'included'    => false,
+						'description' => __( 'Manual', 'jetpack-my-jetpack' ),
 						'info'        => array(
 							'title'   => __( 'Manual Critical CSS regeneration', 'jetpack-my-jetpack' ),
 							'content' => __(
@@ -163,7 +163,7 @@ class Boost extends Product {
 					),
 					self::UPGRADED_TIER_SLUG => array(
 						'included'    => true,
-						'description' => __( 'Automatically updated', 'jetpack-my-jetpack' ),
+						'description' => __( 'Included', 'jetpack-my-jetpack' ),
 						'info'        => array(
 							'title'   => __( 'Automatic Critical CSS regeneration', 'jetpack-my-jetpack' ),
 							'content' => __(
@@ -176,15 +176,51 @@ class Boost extends Product {
 				),
 			),
 			array(
-				'name'  => __( 'Defer non-essential JavaScript', 'jetpack-my-jetpack' ),
+				'name'  => __( 'Automatic image size analysis', 'jetpack-my-jetpack' ),
 				'info'  => array(
 					'content' => __(
-						'Run non-essential JavaScript after the page has loaded so that styles and images can load more quickly.',
+						'Scan your site for images that aren’t properly sized for the device they’re being viewed on.',
 						'jetpack-my-jetpack'
 					),
-					'link'    => array(
-						'id'    => 'jetpack-boost-defer-js',
-						'title' => 'web.dev',
+				),
+				'tiers' => array(
+					self::FREE_TIER_SLUG     => array( 'included' => false ),
+					self::UPGRADED_TIER_SLUG => array( 'included' => true ),
+				),
+			),
+			array(
+				'name'  => __( 'Historical performance scores', 'jetpack-my-jetpack' ),
+				'info'  => array(
+					'content' => __(
+						'Get access to your historical performance scores and see advanced Core Web Vitals data.',
+						'jetpack-my-jetpack'
+					),
+				),
+				'tiers' => array(
+					self::FREE_TIER_SLUG     => array( 'included' => false ),
+					self::UPGRADED_TIER_SLUG => array( 'included' => true ),
+				),
+			),
+			array(
+				'name'  => __( 'Dedicated email support', 'jetpack-my-jetpack' ),
+				'info'  => array(
+					'content' => __(
+						'<p>Paid customers get dedicated email support from our world-class Happiness Engineers to help with any issue.</p>
+						 <p>All other questions are handled by our team as quickly as we are able to go through the WordPress support forum.</p>',
+						'jetpack-my-jetpack'
+					),
+				),
+				'tiers' => array(
+					self::FREE_TIER_SLUG     => array( 'included' => false ),
+					self::UPGRADED_TIER_SLUG => array( 'included' => true ),
+				),
+			),
+			array(
+				'name'  => __( 'Page Cache', 'jetpack-my-jetpack' ),
+				'info'  => array(
+					'content' => __(
+						'Page caching speeds up load times by storing a copy of each web page on the first visit, allowing subsequent visits to be served instantly. This reduces server load and improves user experience by delivering content faster, without waiting for the page to be generated again.',
+						'jetpack-my-jetpack'
 					),
 				),
 				'tiers' => array(
@@ -193,15 +229,37 @@ class Boost extends Product {
 				),
 			),
 			array(
-				'name'  => __( 'Lazy image loading', 'jetpack-my-jetpack' ),
+				'name'  => __( 'Image CDN Quality Settings', 'jetpack-my-jetpack' ),
 				'info'  => array(
 					'content' => __(
-						'Improve page loading speed by only loading images when they are required.',
+						'Fine-tune image quality settings to your liking.',
 						'jetpack-my-jetpack'
 					),
-					'link'    => array(
-						'id'    => 'jetpack-boost-lazy-load',
-						'title' => 'web.dev',
+				),
+				'tiers' => array(
+					self::FREE_TIER_SLUG     => array( 'included' => false ),
+					self::UPGRADED_TIER_SLUG => array( 'included' => true ),
+				),
+			),
+			array(
+				'name'  => __( 'Image CDN Auto-Resize Lazy Images', 'jetpack-my-jetpack' ),
+				'info'  => array(
+					'content' => __(
+						'Optimizes lazy-loaded images by dynamically serving perfectly sized images for each device.',
+						'jetpack-my-jetpack'
+					),
+				),
+				'tiers' => array(
+					self::FREE_TIER_SLUG     => array( 'included' => false ),
+					self::UPGRADED_TIER_SLUG => array( 'included' => true ),
+				),
+			),
+			array(
+				'name'  => __( 'Image CDN', 'jetpack-my-jetpack' ),
+				'info'  => array(
+					'content' => __(
+						'Deliver images from Jetpack\'s Content Delivery Network. Automatically resizes your images to an appropriate size, converts them to modern efficient formats like WebP, and serves them from a worldwide network of servers.',
+						'jetpack-my-jetpack'
 					),
 				),
 				'tiers' => array(
@@ -223,10 +281,10 @@ class Boost extends Product {
 				),
 			),
 			array(
-				'name'  => __( 'Image CDN', 'jetpack-my-jetpack' ),
+				'name'  => __( 'Defer non-essential JavaScript', 'jetpack-my-jetpack' ),
 				'info'  => array(
 					'content' => __(
-						'Deliver images from Jetpack\'s Content Delivery Network. Automatically resizes your images to an appropriate size, converts them to modern efficient formats like WebP, and serves them from a worldwide network of servers.',
+						'Run non-essential JavaScript after the page has loaded so that styles and images can load more quickly.',
 						'jetpack-my-jetpack'
 					),
 				),
@@ -236,16 +294,15 @@ class Boost extends Product {
 				),
 			),
 			array(
-				'name'  => __( 'Dedicated email support', 'jetpack-my-jetpack' ),
+				'name'  => __( 'Concatenate JS and CSS', 'jetpack-my-jetpack' ),
 				'info'  => array(
 					'content' => __(
-						'<p>Paid customers get dedicated email support from our world-class Happiness Engineers to help with any issue.</p>
-						 <p>All other questions are handled by our team as quickly as we are able to go through the WordPress support forum.</p>',
+						'Boost your website performance by merging and compressing JavaScript and CSS files, reducing site loading time and number of requests.',
 						'jetpack-my-jetpack'
 					),
 				),
 				'tiers' => array(
-					self::FREE_TIER_SLUG     => array( 'included' => false ),
+					self::FREE_TIER_SLUG     => array( 'included' => true ),
 					self::UPGRADED_TIER_SLUG => array( 'included' => true ),
 				),
 			),

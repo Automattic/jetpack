@@ -8,7 +8,7 @@
  44 | WARNING | [x] require_once keyword must not be used as a function. (MediaWiki.ExtraCharacters.ParenthesesAroundKeyword.ParenthesesAroundKeywords)
  44 | ERROR   | [ ] Absolute include path must be used. Use `get_template_directory()`, `get_stylesheet_directory()` or `plugin_dir_path()`. (WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath)
  45 | WARNING | [x] clone keyword must not be used as a function. (MediaWiki.ExtraCharacters.ParenthesesAroundKeyword.ParenthesesAroundKeywords)
- 48 | WARNING | [x] Use (bool) instead of !! (MediaWiki.Usage.DoubleNotOperator.DoubleNotOperator)
+ 48 | ERROR   | [x] Double negative detected. Use a (bool) cast  instead. Found: ! ! (Universal.CodeAnalysis.NoDoubleNegative.FoundDouble)
  51 | WARNING | [x] Use rtrim() instead of chop (MediaWiki.Usage.ForbiddenFunctions.chop)
  52 | WARNING | [x] Use mb_strlen() instead of mbstrlen (MediaWiki.Usage.ForbiddenFunctions.mbstrlen)
  57 | ERROR   | [ ] Found slow in_array( …, array_keys() ), should be array_key_exists() or isset() (MediaWiki.Usage.InArrayUsage.Found)

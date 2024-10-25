@@ -176,7 +176,7 @@ function wpcom_add_jetpack_submenu() {
 	$monetize_url     = 'https://wordpress.com/earn/' . $domain;
 	$subscribers_url  = 'https://wordpress.com/subscribers/' . $domain;
 	$newsletter_url   = 'https://wordpress.com/settings/newsletter/' . $domain;
-	$scan_url         = 'https://wordpress.com/scan/history/' . $domain;
+	$scan_url         = 'https://wordpress.com/scan/' . $domain;
 
 	// Add submenu items that link to WordPress.com.
 	add_submenu_page(
@@ -301,7 +301,7 @@ function wpcom_hide_customizer_submenu_on_block_theme() {
 
 		remove_action( 'customize_register', array( 'Jetpack_Fonts_Typekit', 'maybe_override_for_advanced_mode' ), 20 );
 
-		remove_action( 'customize_register', 'Automattic\Jetpack\Dashboard_Customizations\register_css_nudge_control' );
+		remove_action( 'customize_register', 'Automattic\Jetpack\Masterbar\register_css_nudge_control' );
 
 		remove_action( 'customize_register', array( 'Jetpack_Custom_CSS_Enhancements', 'customize_register' ) );
 	}

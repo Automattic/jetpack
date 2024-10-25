@@ -42,6 +42,24 @@ class Plugins extends Module {
 	private $plugins = array();
 
 	/**
+	 * List of all updated plugins.
+	 *
+	 * @access private
+	 *
+	 * @var array
+	 */
+	private $plugins_updated = array();
+
+	/**
+	 * State
+	 *
+	 * @access private
+	 *
+	 * @var array
+	 */
+	private $state = array();
+
+	/**
 	 * Sync module name.
 	 *
 	 * @access public
@@ -131,10 +149,10 @@ class Plugins extends Module {
 
 		switch ( $details['action'] ) {
 			case 'update':
-				$state  = array(
+				$this->state = array(
 					'is_autoupdate' => Jetpack_Constants::is_true( 'JETPACK_PLUGIN_AUTOUPDATE' ),
 				);
-				$errors = $this->get_errors( $upgrader->skin );
+				$errors      = $this->get_errors( $upgrader->skin );
 				if ( $errors ) {
 					foreach ( $plugins as $slug ) {
 						/**
@@ -149,13 +167,20 @@ class Plugins extends Module {
 						 * @param        string  Error code
 						 * @param        string  Error message
 						 */
-						do_action( 'jetpack_plugin_update_failed', $this->get_plugin_info( $slug ), $errors['code'], $errors['message'], $state );
+						do_action( 'jetpack_plugin_update_failed', $this->get_plugin_info( $slug ), $errors['code'], $errors['message'], $this->state );
 					}
 
 					return;
 				}
+
+				$this->plugins_updated = array_map( array( $this, 'get_plugin_info' ), $plugins );
+				add_action( 'shutdown', array( $this, 'sync_plugins_updated' ), 9 );
+
+				break;
+			case 'install':
 				/**
-				 * Sync that a plugin update
+				 * Signals to the sync listener that a plugin was installed and a sync action
+				 * reflecting the installation and the plugin info should be sent
 				 *
 				 * @since 1.6.3
 				 * @since-jetpack 5.8.0
@@ -164,26 +189,7 @@ class Plugins extends Module {
 				 *
 				 * @param array () $plugin, Plugin Data
 				 */
-				do_action( 'jetpack_plugins_updated', array_map( array( $this, 'get_plugin_info' ), $plugins ), $state );
-				break;
-			case 'install':
-		}
-
-		if ( 'install' === $details['action'] ) {
-			/**
-			 * Signals to the sync listener that a plugin was installed and a sync action
-			 * reflecting the installation and the plugin info should be sent
-			 *
-			 * @since 1.6.3
-			 * @since-jetpack 5.8.0
-			 *
-			 * @module sync
-			 *
-			 * @param array () $plugin, Plugin Data
-			 */
-			do_action( 'jetpack_plugin_installed', array_map( array( $this, 'get_plugin_info' ), $plugins ) );
-
-			return;
+				do_action( 'jetpack_plugin_installed', array_map( array( $this, 'get_plugin_info' ), $plugins ) );
 		}
 	}
 
@@ -378,5 +384,24 @@ class Plugins extends Module {
 			$args[1],
 			$plugin_data,
 		);
+	}
+
+	/**
+	 * Helper method for firing the 'jetpack_plugins_updated' action on shutdown.
+	 *
+	 * @access public
+	 */
+	public function sync_plugins_updated() {
+		/**
+		 * Sync that a plugin update
+		 *
+		 * @since 1.6.3
+		 * @since-jetpack 5.8.0
+		 *
+		 * @module sync
+		 *
+		 * @param array () $plugin, Plugin Data
+		 */
+		do_action( 'jetpack_plugins_updated', $this->plugins_updated, $this->state );
 	}
 }

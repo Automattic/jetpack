@@ -2,6 +2,30 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## [0.35.14] - 2024-10-15
+### Changed
+- Update dependencies.
+
+## [0.35.13] - 2024-10-14
+### Changed
+- Internal updates.
+
+## [0.35.12] - 2024-10-10
+### Changed
+- Updated package dependencies.
+
+## [0.35.11] - 2024-10-07
+### Changed
+- Updated package dependencies. [#39594]
+
+## [0.35.10] - 2024-09-30
+### Changed
+- Fetch adminUrl current value on function run [#39578]
+
+## [0.35.9] - 2024-09-25
+### Changed
+- Update dependencies.
+
 ## [0.35.8] - 2024-09-16
 ### Changed
 - Updated package dependencies. [#39332]
@@ -851,6 +875,12 @@
 - `Main` and `ConnectUser` components added.
 - `JetpackRestApiClient` API client added.
 
+[0.35.14]: https://github.com/Automattic/jetpack-connection-js/compare/v0.35.13...v0.35.14
+[0.35.13]: https://github.com/Automattic/jetpack-connection-js/compare/v0.35.12...v0.35.13
+[0.35.12]: https://github.com/Automattic/jetpack-connection-js/compare/v0.35.11...v0.35.12
+[0.35.11]: https://github.com/Automattic/jetpack-connection-js/compare/v0.35.10...v0.35.11
+[0.35.10]: https://github.com/Automattic/jetpack-connection-js/compare/v0.35.9...v0.35.10
+[0.35.9]: https://github.com/Automattic/jetpack-connection-js/compare/v0.35.8...v0.35.9
 [0.35.8]: https://github.com/Automattic/jetpack-connection-js/compare/v0.35.7...v0.35.8
 [0.35.7]: https://github.com/Automattic/jetpack-connection-js/compare/v0.35.6...v0.35.7
 [0.35.6]: https://github.com/Automattic/jetpack-connection-js/compare/v0.35.5...v0.35.6

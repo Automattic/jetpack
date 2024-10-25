@@ -15,9 +15,9 @@ class RunProcess {
 	/**
 	 * RunProcess constructor.
 	 *
-	 * @param $cmd
-	 * @param string $outputFile
-	 * @param bool   $append
+	 * @param string|null $cmd
+	 * @param string      $outputFile
+	 * @param bool        $append
 	 */
 	public function __construct( $cmd, $outputFile = '/dev/null', $append = false ) {
 		$this->cmd        = $cmd;

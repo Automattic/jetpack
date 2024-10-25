@@ -28,6 +28,7 @@ class Jetpack_Plugin_Compatibility {
 		'cf7-pipedrive-integration/class-cf7-pipedrive.php' => '"cf7-pipedrive-integration" has been deactivated, it interferes with site operation and is not supported on WordPress.com.',
 		'database-browser/database-browser.php'            => '"database-browser" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 		'duplicator/duplicator.php'                        => '"duplicator" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
+		'duplicator-pro/duplicator-pro.php'                => '"duplicator-pro" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 		'extended-wp-reset/extended-wp-reset.php'          => '"extended-wp-reset" has been deactivated, it interferes with site operation and is not supported on WordPress.com.',
 		'file-manager-advanced/file_manager_advanced.php'  => '"file-manager-advanced" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 		'file-manager/file-manager.php'                    => '"file-manager" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
@@ -57,6 +58,7 @@ class Jetpack_Plugin_Compatibility {
 		'wpmu-database-reset/wpmu-database-reset.php'      => '"wpmu-database-reset" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 		'wps-hide-login/wps-hide-login.php'                => '"wps-hide-login" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 		'z-inventory-manager/z-inventory-manager.php'      => '"z-inventory-manager" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
+		'wp-downgrade/wp-downgrade.php'                    => '"wp-downgrade" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 
 		// Backup.
 		'backup-wd/backup-wd.php'                          => '"backup-wd" has been deactivated, WordPress.com handles managing your site backups for you.',
@@ -169,7 +171,6 @@ class Jetpack_Plugin_Compatibility {
 		'wp-monero-miner-pro/monero-miner-pro.php'         => '"wp-monero-miner-pro" is not supported on WordPress.com.',
 		'wp-monero-miner-using-coin-hive/wp-coin-hive.php' => '"wp-monero-miner-using-coin-hive" is not supported on WordPress.com.',
 		'wp-optimize-by-xtraffic/wp-optimize-by-xtraffic.php' => '"wp-optimize-by-xtraffic" is not supported on WordPress.com.',
-		'wpcom-migration/wpcom-migration.php'              => '"wpcom-migration" is not supported on WordPress.com.',
 		'wpematico/wpematico.php'                          => '"wpematico" is not supported on WordPress.com.',
 		'wpstagecoach/wpstagecoach.php'                    => '"wpstagecoach" is not supported on WordPress.com.', // p9F6qB-66o-p2
 		'yuzo-related-post/yuzo_related_post.php'          => '"yuzo-related-post" is not supported on WordPress.com.',

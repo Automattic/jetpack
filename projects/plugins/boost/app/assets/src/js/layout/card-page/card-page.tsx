@@ -11,7 +11,7 @@ type CardPageProps = {
 	showActivateLicense?: boolean;
 	showBackButton?: boolean;
 	sidebarItem?: React.ReactNode;
-	footerNote?: string;
+	footerNote?: React.ReactNode;
 };
 
 const CardPage = ( {

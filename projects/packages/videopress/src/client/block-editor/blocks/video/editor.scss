@@ -52,6 +52,10 @@
 	}
 }
 
+.components-placeholder.disabled {
+	min-height: 0;
+}
+
 .loading-wrapper {
 	display: flex;
 	width: 100%;

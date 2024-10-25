@@ -265,7 +265,7 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 		add_menu_page( esc_attr__( 'Tools', 'jetpack-masterbar' ), __( 'Tools', 'jetpack-masterbar' ), 'publish_posts', 'tools.php', null, 'dashicons-admin-tools', 75 );
 		add_submenu_page( 'tools.php', esc_attr__( 'Marketing', 'jetpack-masterbar' ), __( 'Marketing', 'jetpack-masterbar' ), 'publish_posts', 'https://wordpress.com/marketing/tools/' . $this->domain );
 
-		if ( Blaze::should_initialize() ) {
+		if ( Blaze::should_initialize()['can_init'] ) {
 			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 			add_submenu_page( 'tools.php', esc_attr__( 'Advertising', 'jetpack-masterbar' ), __( 'Advertising', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/advertising/' . $this->domain, null, 1 );
 		}

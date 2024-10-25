@@ -5,6 +5,34 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.22.1] - 2024-10-17
+### Fixed
+- WAF: Improve backwards compatibility for sites running outdated bootstrap scripts via standalone mode. [#39812]
+
+## [0.22.0] - 2024-10-14
+### Added
+- WAF: Add new properties to the WAF feature's REST API endpoint. [#39511]
+
+### Fixed
+- Improve backwards compatibility for sites running in standalone mode. [#39652]
+- WAF: Reduce amount of classes autoloaded during standalone mode execution. [#38944]
+
+## [0.21.0] - 2024-10-07
+### Added
+- Firewall Runtime: Added support for rule files to specify body parser type. [#39516]
+
+## [0.20.1] - 2024-10-01
+### Deprecated
+- Added back public API as deprecated. [#39606]
+
+## [0.20.0] - 2024-09-30
+### Added
+- Added Waf_Blocklog_Manager class [#35739]
+
+## [0.19.0] - 2024-09-23
+### Added
+- Firewall: add support for CIDR ranges in IP lists. [#39425]
+
 ## [0.18.5] - 2024-09-06
 ### Changed
 - Updated package dependencies. [#39253]
@@ -366,6 +394,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Core: do not ship .phpcs.dir.xml in production builds.
 
+[0.22.1]: https://github.com/Automattic/jetpack-waf/compare/v0.22.0...v0.22.1
+[0.22.0]: https://github.com/Automattic/jetpack-waf/compare/v0.21.0...v0.22.0
+[0.21.0]: https://github.com/Automattic/jetpack-waf/compare/v0.20.1...v0.21.0
+[0.20.1]: https://github.com/Automattic/jetpack-waf/compare/v0.20.0...v0.20.1
+[0.20.0]: https://github.com/Automattic/jetpack-waf/compare/v0.19.0...v0.20.0
+[0.19.0]: https://github.com/Automattic/jetpack-waf/compare/v0.18.5...v0.19.0
 [0.18.5]: https://github.com/Automattic/jetpack-waf/compare/v0.18.4...v0.18.5
 [0.18.4]: https://github.com/Automattic/jetpack-waf/compare/v0.18.3...v0.18.4
 [0.18.3]: https://github.com/Automattic/jetpack-waf/compare/v0.18.2...v0.18.3

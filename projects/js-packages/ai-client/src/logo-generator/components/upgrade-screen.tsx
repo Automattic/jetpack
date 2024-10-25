@@ -7,6 +7,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import getRedirectUrl from '../../../../components/tools/jp-redirect/index.js';
 import { EVENT_PLACEMENT_FREE_USER_SCREEN, EVENT_UPGRADE } from '../constants.js';
 import useLogoGenerator from '../hooks/use-logo-generator.js';
 /**
@@ -21,8 +22,9 @@ export const UpgradeScreen: React.FC< {
 } > = ( { onCancel, upgradeURL, reason } ) => {
 	const { tracks } = useAnalytics();
 	const { recordEvent: recordTracksEvent } = tracks;
+
 	const upgradeMessageFeature = __(
-		'The logo generator requires a paid Jetpack AI plan. Upgrade your plan to access exclusive features, including logo generation. The upgrade will also increase the amount of requests you can use in all AI-powered features.',
+		'Upgrade your Jetpack AI for access to logo generation. This upgrade will also increase the amount of monthly requests you can use in for all AI-powered features.',
 		'jetpack-ai-client'
 	);
 
@@ -30,6 +32,10 @@ export const UpgradeScreen: React.FC< {
 		'Not enough requests left to generate a logo. Upgrade your Jetpack AI to increase the amount of requests you can use in all AI-powered features.',
 		'jetpack-ai-client'
 	);
+
+	const upgradeInfoUrl = getRedirectUrl( 'ai-logo-generator-fair-usage-policy', {
+		anchor: 'usage-limitations-and-upgrades',
+	} );
 
 	const { context } = useLogoGenerator();
 
@@ -45,7 +51,7 @@ export const UpgradeScreen: React.FC< {
 					{ reason === 'feature' ? upgradeMessageFeature : upgradeMessageRequests }
 				</span>
 				&nbsp;
-				<Button variant="link" href="https://jetpack.com/ai/" target="_blank">
+				<Button variant="link" href={ upgradeInfoUrl } target="_blank">
 					{ __( 'Learn more about Jetpack AI.', 'jetpack-ai-client' ) }
 				</Button>
 			</div>

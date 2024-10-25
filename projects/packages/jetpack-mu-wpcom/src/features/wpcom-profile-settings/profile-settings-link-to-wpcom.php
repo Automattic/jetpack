@@ -41,19 +41,27 @@ function wpcom_profile_settings_add_links_to_wpcom() {
 		array(
 			'language'             => array(
 				'link' => esc_url( 'https://wordpress.com/me/account' ),
-				'text' => __( 'Your admin interface language is managed on WordPress.com Account settings', 'jetpack-mu-wpcom' ),
+				'text' => __( 'Manage your WordPress.com account language ↗', 'jetpack-mu-wpcom' ),
 			),
-			'synced'               => array(
+			'name'                 => array(
 				'link' => esc_url( 'https://wordpress.com/me' ),
-				'text' => __( 'You can manage your profile on WordPress.com Profile settings (First / Last / Display Names, Website, and Biographical Info)', 'jetpack-mu-wpcom' ),
+				'text' => __( 'Manage your WordPress.com profile ↗', 'jetpack-mu-wpcom' ),
+			),
+			'website'              => array(
+				'link' => esc_url( 'https://wordpress.com/me' ),
+				'text' => __( 'Manage your WordPress.com profile website ↗', 'jetpack-mu-wpcom' ),
+			),
+			'bio'                  => array(
+				'link' => esc_url( 'https://wordpress.com/me' ),
+				'text' => __( 'Manage your WordPress.com profile bio ↗', 'jetpack-mu-wpcom' ),
 			),
 			'email'                => array(
 				'link' => esc_url( 'https://wordpress.com/me/account' ),
-				'text' => __( 'Your WordPress.com email is managed on WordPress.com Account settings', 'jetpack-mu-wpcom' ),
+				'text' => __( 'Manage your WordPress.com account email ↗', 'jetpack-mu-wpcom' ),
 			),
 			'password'             => array(
 				'link' => esc_url( 'https://wordpress.com/me/security' ),
-				'text' => __( 'Your WordPress.com password is managed on WordPress.com Security settings', 'jetpack-mu-wpcom' ),
+				'text' => __( 'Manage your WordPress.com password ↗', 'jetpack-mu-wpcom' ),
 			),
 			'isWpcomAtomicClassic' => $is_wpcom_atomic_classic,
 		)

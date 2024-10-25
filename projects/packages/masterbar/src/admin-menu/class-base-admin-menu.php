@@ -81,11 +81,6 @@ abstract class Base_Admin_Menu {
 			add_action( 'admin_footer', array( $this, 'dashboard_switcher_scripts' ) );
 			add_action( 'admin_menu', array( $this, 'handle_preferred_view' ), 99997 );
 			add_filter( 'admin_body_class', array( $this, 'admin_body_class' ) );
-
-			// Do not inject core mobile toggle when the user wants to use the WP Admin interface.
-			if ( ! $this->use_wp_admin_interface() ) {
-				add_action( 'adminmenu', array( $this, 'inject_core_mobile_toggle' ) );
-			}
 		}
 	}
 
@@ -275,19 +270,6 @@ abstract class Base_Admin_Menu {
 				'jitmDismissNonce' => wp_create_nonce( 'jitm_dismiss' ),
 			)
 		);
-
-		// Load nav unification styles for the admin bar when the user isn't using wp-admin interface style.
-		if ( ! $this->use_wp_admin_interface() && ! ( defined( 'WPCOM_ADMIN_BAR_UNIFICATION' ) && WPCOM_ADMIN_BAR_UNIFICATION ) ) {
-			Assets::register_script(
-				'jetpack-admin-nav-unification',
-				$assets_base_path . 'admin-menu-nav-unification.js',
-				__FILE__,
-				array(
-					'enqueue'  => true,
-					'css_path' => $assets_base_path . 'admin-menu-nav-unification.css',
-				)
-			);
-		}
 
 		$this->configure_colors_for_rtl_stylesheets();
 	}
@@ -758,20 +740,6 @@ abstract class Base_Admin_Menu {
 	 */
 	public function should_link_to_wp_admin() {
 		return get_user_option( 'jetpack_admin_menu_link_destination' );
-	}
-
-	/**
-	 * Injects the core's mobile toggle for proper positioning of the submenus.
-	 *
-	 * @see https://core.trac.wordpress.org/ticket/32747
-	 *
-	 * @return void
-	 */
-	public function inject_core_mobile_toggle() {
-		if ( defined( 'WPCOM_ADMIN_BAR_UNIFICATION' ) && WPCOM_ADMIN_BAR_UNIFICATION ) {
-			return;
-		}
-		echo '<span id="wp-admin-bar-menu-toggle" style="display: none!important">';
 	}
 
 	/**

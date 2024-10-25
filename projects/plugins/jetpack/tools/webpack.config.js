@@ -81,7 +81,6 @@ const supportedModules = [
 	'tiled-gallery',
 	'likes',
 	'infinite-scroll',
-	'masterbar',
 	'videopress',
 	'comment-likes',
 	'scan',
@@ -148,7 +147,7 @@ module.exports = [
 		},
 		plugins: [
 			...sharedWebpackConfig.plugins,
-			...jetpackWebpackConfig.DependencyExtractionPlugin( { injectPolyfill: true } ),
+			...jetpackWebpackConfig.DependencyExtractionPlugin(),
 		],
 		externals: {
 			...sharedWebpackConfig.externals,

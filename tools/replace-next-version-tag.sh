@@ -87,6 +87,8 @@ for FILE in $(git ls-files "projects/$SLUG/"); do
 	rm "$FILE.bak" # We need a backup file because macOS requires it.
 	sed -i.bak -E -e $'s!(^\t*_deprecated_(function|constructor|file|argument|hook|class)\\( .*, \'[^\']*)\\$\\$next-version\\$\\$\'!\\1'"$VE"$'\'!g' "$FILE"
 	rm "$FILE.bak" # We need a backup file because macOS requires it.
+	sed -i.bak -E -e $'s!((do_action|apply_filters)_deprecated\\( .*, \'[^\']*)\\$\\$next-version\\$\\$\'!\\1'"$VE"$'\'!g' "$FILE"
+	rm "$FILE.bak" # We need a backup file because macOS requires it.
 
 	if grep -F -q '$$next-version$$' "$FILE"; then
 		EXIT=1

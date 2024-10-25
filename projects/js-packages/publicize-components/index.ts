@@ -32,6 +32,7 @@ export * from './src/components/share-post';
 export * from './src/hooks/use-sync-post-data-to-store';
 export * from './src/hooks/use-saving-post';
 export * from './src/hooks/use-post-meta';
+export * from './src/hooks/use-post-can-use-sig';
 export * from './src/components/share-buttons';
 export * from './src/components/manage-connections-modal';
 export * from './src/utils/script-data';

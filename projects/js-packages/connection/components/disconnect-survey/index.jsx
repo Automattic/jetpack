@@ -108,6 +108,7 @@ const DisconnectSurvey = props => {
 		return options.map( option => {
 			return (
 				<SurveyChoice
+					key={ option.id }
 					id={ option.id }
 					onClick={ setSelectedAnswer }
 					onKeyDown={ handleAnswerKeyDown }

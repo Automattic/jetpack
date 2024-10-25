@@ -35,6 +35,7 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
+		"npmjs-autopublish": true,
 		"autotagger": true,
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-critical-css-gen/compare/v${old}...v${new}"

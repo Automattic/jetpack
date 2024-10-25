@@ -5,6 +5,38 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.55.0] - 2024-10-25
+### Fixed
+- Social: Fix Bsky profile URL [#39849]
+
+## [0.54.4] - 2024-10-21
+### Changed
+- Initial State: Migrated URLs to script data. [#39797]
+
+### Fixed
+- Fixed the site features for Simple sites. [#39817]
+
+## [0.54.3] - 2024-10-14
+### Changed
+- Updated package dependencies. [#39707]
+
+## [0.54.2] - 2024-10-07
+### Changed
+- Updated package dependencies. [#39594]
+
+## [0.54.1] - 2024-10-02
+### Fixed
+- Social: Fixed Bluesky not showing up on page load [#39597]
+
+## [0.54.0] - 2024-09-23
+### Added
+- Added tracking for the resharing action [#39408]
+
+### Changed
+- Social: Disabled resharing on Simple sites in classic editor [#39419]
+- Social: Migrated useEditorPreview feature flag to new script data [#39405]
+- Social: Migrated useShareStatus feature flag to new script data [#39404]
+
 ## [0.53.0] - 2024-09-16
 ### Added
 - Social: adds hook for plugin developers to be able to pull social share URLs on save. [#39398]
@@ -708,6 +740,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.55.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.54.4...v0.55.0
+[0.54.4]: https://github.com/Automattic/jetpack-publicize/compare/v0.54.3...v0.54.4
+[0.54.3]: https://github.com/Automattic/jetpack-publicize/compare/v0.54.2...v0.54.3
+[0.54.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.54.1...v0.54.2
+[0.54.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.54.0...v0.54.1
+[0.54.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.53.0...v0.54.0
 [0.53.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.52.3...v0.53.0
 [0.52.3]: https://github.com/Automattic/jetpack-publicize/compare/v0.52.2...v0.52.3
 [0.52.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.52.1...v0.52.2

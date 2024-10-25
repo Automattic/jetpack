@@ -1,0 +1,26 @@
+{
+	"translation-revision-date": "2024-06-27 11:45:59+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=2; plural=n != 1;", "lang": "nl" },
+			"Pick a pre-defined layout or continue with a blank page": [
+				"Kies een vooraf ingestelde lay-out of ga door met een lege pagina"
+			],
+			"Choose a Pattern": [ "Kies een patroon" ],
+			"Page categories": [ "Pagina categorie\u00ebn" ],
+			"Blank page": [ "Lege pagina" ],
+			"Pick a pre-defined layout or start with a blank page.": [
+				"Kies een vooraf ingestelde lay-out of begin met een lege pagina."
+			],
+			"Add a page": [ "Een pagina toevoegen" ],
+			"Layout": [ "Lay-out" ],
+			"default vertical name\u0004Business": [ "Bedrijf" ],
+			"default company name\u0004Your Company Name": [ "Je bedrijfsnaam" ],
+			"default phone number\u0004555-555-5555": [ "+316 12345678" ],
+			"default address\u0004123 Main St": [ "Dorpsstraat 123" ]
+		}
+	},
+	"comment": { "reference": "starter-page-templates/dist/starter-page-templates.js" }
+}

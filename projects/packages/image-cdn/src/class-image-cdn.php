@@ -12,7 +12,7 @@ namespace Automattic\Jetpack\Image_CDN;
  */
 final class Image_CDN {
 
-	const PACKAGE_VERSION = '0.4.9';
+	const PACKAGE_VERSION = '0.5.1';
 
 	/**
 	 * Singleton.
@@ -357,11 +357,21 @@ final class Image_CDN {
 				continue;
 			}
 
+			// Identify image source.
+			$src_orig = $processor->get_attribute( 'src' );
+			$src      = $src_orig;
+
 			/*
-			 * Only examine tags that are considered an image. If encountering
-			 * a closing tag then this is not the image being sought.
+			 * Only examine tags that are considered an image,
+			 * with a valid src attribute.
+			 * If encountering a closing tag then this is not the image being sought.
 			 */
-			if ( $processor->is_tag_closer() || ! in_array( $processor->get_tag(), $image_tags, true ) ) {
+			if (
+				$processor->is_tag_closer()
+				|| ! in_array( $processor->get_tag(), $image_tags, true )
+				|| ! is_string( $src )
+				|| $src === ''
+			) {
 				continue;
 			}
 
@@ -396,10 +406,6 @@ final class Image_CDN {
 
 			// Flag if we need to munge a fullsize URL.
 			$fullsize_url = false;
-
-			// Identify image source.
-			$src_orig = $processor->get_attribute( 'src' );
-			$src      = $src_orig;
 
 			/**
 			 * Allow specific images to be skipped by Photon.
@@ -679,7 +685,11 @@ final class Image_CDN {
 						$processor->set_attribute( 'data-recalc-dims', '1' );
 					}
 				}
-			} elseif ( preg_match( '#^http(s)?://i[\d]{1}.wp.com#', $src ) && is_string( $nearest_preceding_href ) && self::validate_image_url( $nearest_preceding_href ) ) {
+			} elseif (
+				preg_match( '#^http(s)?://i[\d]{1}.wp.com#', $src )
+				&& is_string( $nearest_preceding_href )
+				&& self::validate_image_url( $nearest_preceding_href )
+			) {
 				$processor->seek( 'link' );
 				$processor->set_attribute( 'href', Image_CDN_Core::cdn_url( $nearest_preceding_href ) );
 				$processor->seek( 'image' );

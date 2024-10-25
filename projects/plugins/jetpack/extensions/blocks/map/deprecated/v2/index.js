@@ -41,10 +41,6 @@ const attributes = {
 		type: 'string',
 		default: 'red',
 	},
-	preview: {
-		type: 'boolean',
-		default: false,
-	},
 	scrollToZoom: {
 		type: 'boolean',
 		default: false,

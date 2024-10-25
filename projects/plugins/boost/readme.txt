@@ -2,10 +2,10 @@
 Contributors: automattic, xwp, adnan007, bjorsch, danwalmsley, davidlonjon, dilirity, donncha, ebinnion, exelero, jeherve, jpolakovic, karthikbhatb, kraftbj, luchad0res, pyronaur, rheinardkorf, scruffian, thingalon
 Donate link: https://automattic.com
 Tags: performance, speed, web vitals, critical css, cache
-Requires at least: 5.5
-Tested up to: 6.6
+Requires at least: 6.5
+Tested up to: 6.7
 Requires PHP: 7.0
-Stable tag: 3.4.9
+Stable tag: 3.5.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -183,9 +183,15 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 3.4.9 - 2024-09-03
+### 3.5.2 - 2024-10-15
+#### Changed
+- Deferred JS: Exclude all scripts produced by a shortcode.
+- General: Sync Boost's Getting Started page with My Jetpack's version.
+- General: Update minimum required WordPress version to 6.5 in main plugin file. Previous release only changed plugin readme.
+
 #### Fixed
-- Update `automattic/jetpack-image-cdn` package to resolve a PHP fatal error.
+- Image CDN: URL encode image path parts for RSS feed compatibility
+- Image Guide: Improve check for Jetpack Image CDN URLs
 
 --------
 

@@ -297,7 +297,7 @@ export default function () {
 									actions={
 										tierPlansEnabled
 											? [
-													<Button isPrimary onClick={ upgradeClickHandler }>
+													<Button key="upgrade" isPrimary onClick={ upgradeClickHandler }>
 														{ showRenewalNotice ? renewalNoticeCta : upgradeNoticeCta }
 													</Button>,
 											  ]

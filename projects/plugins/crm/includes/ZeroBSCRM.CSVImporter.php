@@ -253,7 +253,8 @@ function jpcrm_csvimporter_lite_preflight_checks( $stage ) {
 
 	$file = fopen( $file_path, 'r' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen
 	while ( ! feof( $file ) ) {
-		$csv_data[] = fgetcsv( $file );
+		// @todo Consider passing empty-string for `$escape` for better spec compatibility.
+		$csv_data[] = fgetcsv( $file, 0, ',', '"', '\\' );
 	}
 
 	fclose( $file ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose

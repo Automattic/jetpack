@@ -69,6 +69,15 @@
 				align-items: center;
 			}
 		}
+
+		@media screen and ( max-width: 600px ) {
+			padding-top: 24px;
+
+			// this is the selector for `.icon-wrapper` in the .notice component
+			& > div:has(svg) {
+				position: initial;
+			}
+		}
 	}
 
 	.cta {

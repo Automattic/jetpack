@@ -135,7 +135,7 @@ class Version_Loader {
 	 * @return array|null $data The version and path path to the file if found, null otherwise.
 	 */
 	private function find_psr4_file( $class_name ) {
-		if ( ! isset( $this->psr4_map ) ) {
+		if ( empty( $this->psr4_map ) ) {
 			return null;
 		}
 

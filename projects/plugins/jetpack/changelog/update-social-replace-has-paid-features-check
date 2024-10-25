@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Initial State: Migrated hasPaidFeatures flag with feature check on front-end
+
+

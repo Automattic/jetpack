@@ -3,7 +3,6 @@ import { useConnection } from '@automattic/jetpack-connection';
 import { Button, ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
-import ConnectUserBar from 'components/connect-user-bar';
 import { FormFieldset } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
@@ -12,6 +11,7 @@ import SettingsGroup from 'components/settings-group';
 import cookie from 'cookie';
 import { useState, Component } from 'react';
 import ReactDOM from 'react-dom';
+import { FEATURE_SSO } from '../lib/plans/constants';
 
 const SSOSurveyNotice = () => {
 	const { userConnectionData } = useConnection();
@@ -140,6 +140,7 @@ export const SSO = withModuleSettingsFormHelpers(
 						hideButton
 						module="sso"
 						header={ _x( 'WordPress.com login', 'Settings header, noun.', 'jetpack' ) }
+						feature={ FEATURE_SSO }
 					>
 						<SettingsGroup
 							hasChild
@@ -239,14 +240,6 @@ export const SSO = withModuleSettingsFormHelpers(
 								/>
 							</FormFieldset>
 						</SettingsGroup>
-
-						{ ! this.props.hasConnectedOwner && ! this.props.isOfflineMode && (
-							<ConnectUserBar
-								feature="sso"
-								featureLabel={ __( 'Secure Sign-On', 'jetpack' ) }
-								text={ __( 'Connect to enable WordPress.com Secure Sign-On.', 'jetpack' ) }
-							/>
-						) }
 					</SettingsCard>
 					{ this.state.showSSODisableModal &&
 						ReactDOM.createPortal( <SSOSurveyNotice />, document.body ) }

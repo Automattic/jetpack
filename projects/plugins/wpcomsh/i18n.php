@@ -63,7 +63,7 @@ add_filter( 'load_textdomain_mofile', 'wpcomsh_wporg_to_wpcom_locale_mo_file', 9
 
 // Load translations for wpcomsh itself via MO file.
 add_action(
-	'plugins_loaded',
+	'after_setup_theme',
 	function () {
 		load_muplugin_textdomain( 'wpcomsh', 'wpcomsh/languages' );
 	}

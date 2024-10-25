@@ -81,6 +81,20 @@ class Manager {
 	private static $disconnected_users = array();
 
 	/**
+	 * Cached connection status.
+	 *
+	 * @var bool|null True if the site is connected, false if not, null if not determined yet.
+	 */
+	private static $is_connected = null;
+
+	/**
+	 * Tracks whether connection status invalidation hooks have been added.
+	 *
+	 * @var bool
+	 */
+	private static $connection_invalidators_added = false;
+
+	/**
 	 * Initialize the object.
 	 * Make sure to call the "Configure" first.
 	 *
@@ -140,6 +154,8 @@ class Manager {
 		add_action( 'deleted_user', array( $manager, 'disconnect_user_force' ), 9, 1 );
 		add_action( 'remove_user_from_blog', array( $manager, 'disconnect_user_force' ), 9, 1 );
 
+		$manager->add_connection_status_invalidation_hooks();
+
 		// Set up package version hook.
 		add_filter( 'jetpack_package_versions', __NAMESPACE__ . '\Package_Version::send_package_version_to_tracker' );
 
@@ -155,6 +171,27 @@ class Manager {
 
 		// Initial Partner management.
 		Partner::init();
+	}
+
+	/**
+	 * Adds hooks to invalidate the memoized connection status.
+	 */
+	private function add_connection_status_invalidation_hooks() {
+		if ( self::$connection_invalidators_added ) {
+			return;
+		}
+
+		// Force is_connected() to recompute after important actions.
+		add_action( 'jetpack_site_registered', array( $this, 'reset_connection_status' ) );
+		add_action( 'jetpack_site_disconnected', array( $this, 'reset_connection_status' ) );
+		add_action( 'jetpack_sync_register_user', array( $this, 'reset_connection_status' ) );
+		add_action( 'pre_update_jetpack_option_id', array( $this, 'reset_connection_status' ) );
+		add_action( 'pre_update_jetpack_option_blog_token', array( $this, 'reset_connection_status' ) );
+		add_action( 'pre_update_jetpack_option_user_token', array( $this, 'reset_connection_status' ) );
+		add_action( 'pre_update_jetpack_option_user_tokens', array( $this, 'reset_connection_status' ) );
+		add_action( 'switch_blog', array( $this, 'reset_connection_status' ) );
+
+		self::$connection_invalidators_added = true;
 	}
 
 	/**
@@ -596,9 +633,31 @@ class Manager {
 	 * @return bool
 	 */
 	public function is_connected() {
-		$has_blog_id    = (bool) \Jetpack_Options::get_option( 'id' );
-		$has_blog_token = (bool) $this->get_tokens()->get_access_token();
-		return $has_blog_id && $has_blog_token;
+		if ( self::$is_connected === null ) {
+			if ( ! self::$connection_invalidators_added ) {
+				$this->add_connection_status_invalidation_hooks();
+			}
+
+			$has_blog_id = (bool) \Jetpack_Options::get_option( 'id' );
+			if ( $has_blog_id ) {
+				$has_blog_token     = (bool) $this->get_tokens()->get_access_token();
+				self::$is_connected = ( $has_blog_id && $has_blog_token );
+			} else {
+				// Short-circuit, no need to check for tokens if there's no blog ID.
+				self::$is_connected = false;
+			}
+		}
+		return self::$is_connected;
+	}
+
+	/**
+	 * Resets the memoized connection status.
+	 * This will force the connection status to be recomputed on the next check.
+	 *
+	 * @since 5.0.0
+	 */
+	public function reset_connection_status() {
+		self::$is_connected = null;
 	}
 
 	/**

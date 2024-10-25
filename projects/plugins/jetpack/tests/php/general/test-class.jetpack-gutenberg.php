@@ -26,6 +26,7 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 		Jetpack_Options::update_option( 'master_user', $this->master_user_id );
 		Jetpack_Options::update_option( 'id', 1234 );
 		Jetpack_Options::update_option( 'blog_token', 'asd.asd.1' );
+		Jetpack::activate_default_modules();
 
 		add_filter( 'jetpack_set_available_extensions', array( __CLASS__, 'get_extensions_whitelist' ) );
 		delete_option( 'jetpack_excluded_extensions' );

@@ -1,12 +1,14 @@
-/* global ColorsTool, Color */
+/* global ColorsTool, Color, wp */
 /**
  * Listen to your heart. Or postMessage, I forget.
+ * @param {object}    $     - the jQuery object.
+ * @param {undefined} undef - the undefined object.
  */
 ( function ( $, undef ) {
 	// store 'em
-	var _setColors = {},
-		// for adding/removing body class
-		body = $( 'body' ),
+	// for adding/removing body class
+	const body = $( 'body' );
+	let _setColors = {},
 		// holding container for style element
 		colorsStyle = false;
 
@@ -14,6 +16,9 @@
 		value.bind( applyColors );
 	} );
 
+	/**
+	 * Sets up the style element for embedding the CSS.
+	 */
 	function primeColorsStyleElement() {
 		if ( colorsStyle !== false && colorsStyle.length ) {
 			return;
@@ -32,8 +37,13 @@
 		}
 	}
 
+	/**
+	 * Applies the colors passed in the arguments.
+	 *
+	 * @param {object} colors - the Colors object.
+	 */
 	function applyColors( colors ) {
-		var css;
+		let css;
 		primeColorsStyleElement();
 		// store 'em = _setColors is defined one step up
 		_setColors = colors;
@@ -56,20 +66,20 @@
 			if ( extra.rules === undef ) {
 				return;
 			}
-			$.each( extra.rules, function ( i, rule ) {
+			$.each( extra.rules, function ( j, rule ) {
 				css += cssRule( rule, extra.color );
 			} );
 		} );
 
 		// user colors
 		$.each( ColorsTool.colors, function ( i, val ) {
-			var color = colors[ i ];
+			const color = colors[ i ];
 			// sanity check
 			if ( color === undef ) {
 				return;
 			}
-			$.each( val, function ( i, val ) {
-				css += cssRule( val, color );
+			$.each( val, function ( j, value ) {
+				css += cssRule( value, color );
 			} );
 		} );
 
@@ -77,10 +87,15 @@
 		colorsStyle.text( css );
 	}
 
-	// this makes a CSS rule
-	// [selector, prop, opacity(optional)]
+	/**
+	 * This makes a CSS rule.
+	 *
+	 * @param {Array}  rule  - the rule description: [selector, prop, opacity(optional)]
+	 * @param {string} color - the assigned color.
+	 * @return {string} CSS
+	 */
 	function cssRule( rule, color ) {
-		var css = '',
+		let css = '',
 			workingColor,
 			modType,
 			modifier,
@@ -89,11 +104,10 @@
 			firstChar;
 
 		if ( rule[ 2 ] !== undef ) {
-			( workingColor = new Color( color ) ),
-				( modType = typeof rule[ 2 ] ),
-				( modifier = parseFloat( rule[ 2 ] ) ),
-				bgColor,
-				contrast;
+			workingColor = new Color( color );
+			modType = typeof rule[ 2 ];
+			modifier = parseFloat( rule[ 2 ] );
+
 			// ensure contrast or darken/lighten
 			if ( modType === 'string' ) {
 				firstChar = rule[ 2 ].substring( 0, 1 );
@@ -130,10 +144,16 @@
 		return css;
 	}
 
-	// Simplistic object comparer
+	/**
+	 * Simplistic object comparer.
+	 *
+	 * @param {object} colors - color object.
+	 * @return {boolean} isDefault
+	 */
 	function isDefaultColors( colors ) {
-		var defaults = ColorsTool.defaultColors,
-			key;
+		let key;
+		const defaults = ColorsTool.defaultColors;
+
 		for ( key in defaults ) {
 			if (
 				colors[ key ] === undef ||

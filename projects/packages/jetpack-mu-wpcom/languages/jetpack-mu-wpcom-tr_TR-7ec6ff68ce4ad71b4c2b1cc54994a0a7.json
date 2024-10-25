@@ -1,0 +1,167 @@
+{
+	"translation-revision-date": "2024-07-03 16:54:08+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": {
+				"domain": "messages",
+				"plural-forms": "nplurals=2; plural=n > 1;",
+				"lang": "tr"
+			},
+			"Post Answer": [ "Yan\u0131t\u0131n\u0131z\u0131 Payla\u015f\u0131n" ],
+			"Show next prompt": [ "Sonraki konuyu g\u00f6ster" ],
+			"Show previous prompt": [ "\u00d6nceki konuyu g\u00f6ster" ],
+			"Some ideas for writing topics": [ "Yazma konusu olarak ilham olacak baz\u0131 fikirler" ],
+			"Add these tags": [ "Bu etiketleri ekle" ],
+			"Adding tags can help drive more traffic to your post.": [
+				"Etiket eklemek, g\u00f6nderinize daha fazla ziyaret\u00e7i trafi\u011fi \u00e7ekmenize yard\u0131mc\u0131 olabilir."
+			],
+			"Based on the topics and themes in your post, here are some suggested tags to consider:": [
+				"G\u00f6nderinizdeki konulara ve temalara dayanarak \u00f6nerilen, g\u00f6z \u00f6n\u00fcnde bulundurabilece\u011finiz baz\u0131 etiketler:"
+			],
+			"Recommended tags:": [ "\u00d6nerilen etiketler:" ],
+			"No Tags Added.": [ "Hi\u00e7bir Etiket Eklenmedi." ],
+			"Tag Added.": [ "Etiket Eklendi.", "Etiketler Eklendi." ],
+			"Share Post": [ "Yaz\u0131y\u0131 payla\u015f" ],
+			"Don't show again": [ "Tekrar g\u00f6sterme" ],
+			"Get more traffic to your post by sharing:": [
+				"Yaz\u0131n\u0131z\u0131 payla\u015farak daha fazla trafik al\u0131n:"
+			],
+			"Post published!": [ "Yaz\u0131 yay\u0131mland\u0131!" ],
+			"Link copied to clipboard.": [ "Ba\u011flant\u0131 panoya kopyaland\u0131." ],
+			"Next Steps": [ "Sonraki Ad\u0131mlar" ],
+			"Take the tour": [ "Tura kat\u0131l" ],
+			"This is the Site Editor, where you can change everything about your site, including adding content to your homepage. <link_to_site_editor_course>Watch these short videos</link_to_site_editor_course> and take this tour to get started.": [
+				"Bu, ana sayfan\u0131za i\u00e7erik eklemeyi de i\u00e7eren sitenizle ilgili her \u015feyi de\u011fi\u015ftirebilece\u011finiz Site D\u00fczenleyicisidir. <link_to_site_editor_course>Bu k\u0131sa videolar\u0131 izleyin</link_to_site_editor_course> ve kullanmaya ba\u015flamak i\u00e7in tura kat\u0131l\u0131n."
+			],
+			"Nice job! Your new page is set up.": [
+				"\u0130yi i\u015f \u00e7\u0131kard\u0131n\u0131z! Yeni sayfan\u0131z olu\u015fturuldu."
+			],
+			"Feel free to keep editing your homepage, or continue and launch your site.": [
+				"Ana sayfan\u0131z\u0131 d\u00fczenlemeye devam etmekten \u00e7ekinmeyin veya devam edin ve web sitenizi ba\u015flat\u0131n."
+			],
+			"Continue and launch": [ "Devam edin ve ba\u015flat\u0131n" ],
+			"Keep editing": [ "D\u00fczenlemeye devam et" ],
+			"Design everything on your site - from the header right down to the footer - in the Site Editor. <link_to_fse_docs>Learn more</link_to_fse_docs>": [
+				"Site D\u00fczenleyicisi'nde \u00fcst bilgiden alt bilgiye kadar sitenizdeki her \u015feyi tasarlay\u0131n. <link_to_fse_docs>Daha fazla bilgi edinin</link_to_fse_docs>"
+			],
+			"Take this short, interactive tour to learn the fundamentals of the WordPress Site Editor.": [
+				"WordPress Site D\u00fczenleyicisi ile ilgili temel bilgileri \u00f6\u011frenmek i\u00e7in bu k\u0131sa, etkile\u015fimli tura kat\u0131l\u0131n."
+			],
+			"Use the toolbar to change the appearance of a selected block. Try replacing a video!": [
+				"Se\u00e7ili bir blo\u011fun g\u00f6r\u00fcn\u00fcm\u00fcn\u00fc de\u011fi\u015ftirmek i\u00e7in ara\u00e7 \u00e7ubu\u011funu kullan\u0131n. Bir videoyu de\u011fi\u015ftirmeyi deneyin!"
+			],
+			"Congrats! Premium blocks are now available to use.": [
+				"Tebrikler! Premium bloklar art\u0131k kullan\u0131labilir."
+			],
+			"The Payments block": [ "\u00d6demeler bloku" ],
+			"Learn more": [ "Daha fazlas\u0131n\u0131 \u00f6\u011frenin" ],
+			"Design everything on your site - from the header right down to the footer - in the Site Editor.": [
+				"Site D\u00fczenleyicisi'nde \u00fcst bilgiden alt bilgiye kadar sitenizdeki her \u015feyi tasarlay\u0131n."
+			],
+			"Edit your site": [ "Sitenizi d\u00fczenleyin" ],
+			"The Payments block allows you to accept payments for one-time, monthly recurring, or annual payments on your website": [
+				"\u00d6demeler bloku, web sitenizde bir kerelik, ayl\u0131k yinelenen veya y\u0131ll\u0131k \u00f6demeleri kabul etmenize olanak tan\u0131r."
+			],
+			"Tour Media": [ "Medya Turu" ],
+			"Resume tour <span>(%1$d/%2$d)</span>": [ "Tura devam et <span>(%1$d/%2$d)</span>" ],
+			"View your product": [ "\u00dcr\u00fcn\u00fcn\u00fcz\u00fc g\u00f6r\u00fcnt\u00fcleyin" ],
+			"Preview your product on your site before launching and sharing with others.": [
+				"Lansmandan ve ba\u015fkalar\u0131yla payla\u015fmadan \u00f6nce \u00fcr\u00fcn\u00fcn\u00fcz\u00fc sitenizde \u00f6nizleyin."
+			],
+			"You've added your first product!": [
+				"\u0130lk \u00fcr\u00fcn\u00fcn\u00fcz\u00fc eklediniz!"
+			],
+			"Pagination control": [ "Sayfaland\u0131rma kontrol\u00fc" ],
+			"Use List View to see all the blocks you've added. Click and drag any block to move it around.": [
+				"Ekledi\u011finiz t\u00fcm bloklar\u0131 g\u00f6rmek i\u00e7in Liste G\u00f6r\u00fcn\u00fcm\u00fcn\u00fc kullan\u0131n. Ta\u015f\u0131mak i\u00e7in herhangi bir bloka t\u0131klay\u0131p s\u00fcr\u00fckleyin."
+			],
+			"Find your way": [ "Yolunuzu bulun" ],
+			"To move blocks around, tap the up and down arrows.": [
+				"Bloklar\u0131 ta\u015f\u0131mak i\u00e7in yukar\u0131 ve a\u015fa\u011f\u0131 oklara dokunun."
+			],
+			"Tap the settings icon to see even more options.": [
+				"Daha fazla se\u00e7enek g\u00f6rmek i\u00e7in ayarlar simgesine dokunun."
+			],
+			"Tap + to open the inserter. Then tap the block you want to add.": [
+				"Ekleyiciyi a\u00e7mak i\u00e7in + \u00f6\u011fesine dokunun. Ard\u0131ndan eklemek istedi\u011finiz bloka dokunun."
+			],
+			"View Post": [ "Yaz\u0131y\u0131 g\u00f6ster" ],
+			"Congratulations! You did it. View your post to see how it will look on your site.": [
+				"Tebrikler! Ba\u015fard\u0131n\u0131z. G\u00f6nderinizi g\u00f6r\u00fcnt\u00fcleyerek sitenizde nas\u0131l g\u00f6r\u00fcnece\u011fini \u00f6\u011frenin."
+			],
+			"Your first post is published!": [ "\u0130lk blog g\u00f6nderiniz yay\u0131nland\u0131!" ],
+			"Resume Tour": [ "Tura Devam Et" ],
+			"I'm not ready": [ "Haz\u0131r de\u011filim" ],
+			"Start writing": [ "Yazmaya ba\u015flay\u0131n" ],
+			"It\u2019s time to flex those writing muscles and start drafting your first post!": [
+				"Yaz\u0131 yazma kaslar\u0131n\u0131z\u0131 \u00e7al\u0131\u015ft\u0131rman\u0131n ve ilk yaz\u0131n\u0131z\u0131 haz\u0131rlamaya ba\u015flaman\u0131n zaman\u0131 geldi!"
+			],
+			"Write your first post": [ "\u0130lk yaz\u0131n\u0131z\u0131 yaz\u0131n" ],
+			"workaround\u0004Take this short, interactive tour to learn the fundamentals of the WordPress editor.": [
+				"WordPress d\u00fczenleyicisiyle ilgili temel bilgileri edinmek i\u00e7in bu k\u0131sa tura devam edin."
+			],
+			"You've learned the basics. Remember, your site is private until you <link_to_launch_site_docs>decide to launch</link_to_launch_site_docs>. View the <link_to_editor_docs>block editing docs</link_to_editor_docs> to learn more.": [
+				"Art\u0131k temel bilgileri ald\u0131n\u0131z. Siz <link_to_launch_site_docs>yay\u0131nlamaya karar verene kadar</link_to_launch_site_docs> sitenizin gizli kalaca\u011f\u0131n\u0131 unutmay\u0131n. Daha fazla bilgi edinmek i\u00e7in <link_to_editor_docs>blok d\u00fczenleme belgelerini</link_to_editor_docs> g\u00f6r\u00fcnt\u00fcleyin."
+			],
+			"Restart tour": [ "Turu yeniden ba\u015flat" ],
+			"Did you find this guide helpful?": [ "Bu k\u0131lavuzu faydal\u0131 buldunuz mu?" ],
+			"Rate thumbs down": [ "Be\u011fenmeme oran\u0131" ],
+			"Rate thumbs up": [ "Be\u011fenme oran\u0131" ],
+			"Close Tour": [ "Turu Kapat " ],
+			"Minimize Tour": [ "Turu Simge Durumuna K\u00fc\u00e7\u00fclt" ],
+			"Next": [ "Sonraki" ],
+			"Skip": [ "Atla" ],
+			"To move blocks around, click and drag the handle.": [
+				"Bloklar\u0131 ta\u015f\u0131mak i\u00e7in tutamac\u0131 t\u0131klay\u0131p s\u00fcr\u00fckleyin."
+			],
+			"Congratulations!": [ "Tebrikler!" ],
+			"Drag & drop": [ "S\u00fcr\u00fckle b\u0131rak" ],
+			"Click the Undo button if you've made a mistake.": [
+				"Bir hata yapt\u0131ysan\u0131z Geri Al d\u00fc\u011fmesini t\u0131klay\u0131n."
+			],
+			"Undo any mistake": [ "Herhangi bir hatay\u0131 geri al\u0131n" ],
+			"Click the settings icon to see even more options.": [
+				"Daha fazla se\u00e7enek g\u00f6rmek i\u00e7in ayarlar simgesini t\u0131klay\u0131n."
+			],
+			"More Options": [ "Daha fazla se\u00e7enek" ],
+			"Use the toolbar to change the appearance of a selected block. Try making it bold.": [
+				"Se\u00e7ili bir blo\u011fun g\u00f6r\u00fcn\u00fcm\u00fcn\u00fc de\u011fi\u015ftirmek i\u00e7in ara\u00e7 \u00e7ubu\u011funu kullan\u0131n. Kal\u0131n yaz\u0131 tipi yapmay\u0131 deneyin."
+			],
+			"Click a block to change it": [
+				"De\u011fi\u015ftirmek i\u00e7in bir blo\u011fu t\u0131klay\u0131n"
+			],
+			"Click + to open the inserter. Then click the block you want to add.": [
+				"Ekleyiciyi a\u00e7mak i\u00e7in + simgesine t\u0131klay\u0131n. Ard\u0131ndan eklemek istedi\u011finiz blo\u011fa t\u0131klay\u0131n."
+			],
+			"Adding a new block": [ "Yeni bir blok ekleme" ],
+			"Everything is a block": [ "Her \u015fey bir blok" ],
+			"workaround\u0004Welcome to WordPress!": [ "WordPress\u2019e ho\u015fgeldiniz!" ],
+			"Page %1$d of %2$d": [ "Sayfa %1$d / %2$d" ],
+			"Continue editing": [ "D\u00fczenlemeye devam et" ],
+			"Copy Link": [ "Ba\u011flant\u0131y\u0131 kopyala" ],
+			"Your site will remain hidden until launched. Click \u201cLaunch\u201d in the toolbar to share it with the world.": [
+				"Siteniz ba\u015flat\u0131lana kadar gizli kalacakt\u0131r. T\u00fcm d\u00fcnyayla payla\u015fmak i\u00e7in ara\u00e7 \u00e7ubu\u011fundan \"Ba\u015flat\"\u0131 t\u0131klay\u0131n."
+			],
+			"Hidden until you\u2019re ready": [ "Siz haz\u0131r olana kadar gizli" ],
+			"As you edit your site content, click \u201cPreview\u201d to see your site the way your visitors will.": [
+				"Site i\u00e7eri\u011finizi d\u00fczenlerken, sitenizi ziyaret\u00e7ilerinizin g\u00f6rece\u011fi \u015fekilde g\u00f6rmek i\u00e7in \"\u00d6nizleme\"yi t\u0131klay\u0131n."
+			],
+			"Preview your site as you go": [ "D\u00fczenlemeye devam ederken sitenizi \u00f6nizleyin" ],
+			"Edit the placeholder content we\u2019ve started you off with, or click the plus sign to add more content.": [
+				"Ba\u015flad\u0131\u011f\u0131n\u0131z yerdeki yer tutucu i\u00e7eri\u011fi d\u00fczenleyin veya daha fazla i\u00e7erik eklemek i\u00e7in art\u0131 i\u015faretini t\u0131klay\u0131n."
+			],
+			"Add or edit your content": [ "\u0130\u00e7erik ekleyin veya d\u00fczenleyin" ],
+			"Edit your homepage, add the pages you need, and change your site\u2019s look and feel.": [
+				"Ana sayfan\u0131z\u0131 d\u00fczenleyin, ihtiyac\u0131n\u0131z olan sayfalar\u0131 ekleyin ve sitenizin g\u00f6r\u00fcn\u00fcm\u00fcn\u00fc ve tarz\u0131n\u0131 de\u011fi\u015ftirin."
+			],
+			"Welcome to your website": [ "Web sitenize ho\u015f geldiniz" ],
+			"Get started": [ "Ba\u015fla" ],
+			"Tags": [ "Etiketler" ]
+		}
+	},
+	"comment": {
+		"reference": "wpcom-block-editor-nux/dist/wpcom-block-editor-nux.js"
+	}
+}

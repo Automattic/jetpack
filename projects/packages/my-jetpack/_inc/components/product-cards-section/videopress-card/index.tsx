@@ -18,7 +18,7 @@ import './style.scss';
 
 const slug = PRODUCT_SLUGS.VIDEOPRESS;
 
-const VideopressCard: ProductCardComponent = ( { admin } ) => {
+const VideopressCard: ProductCardComponent = props => {
 	const { detail } = useProduct( slug );
 	const { status } = detail || {};
 	const { videopress: data } = getMyJetpackWindowInitialState();
@@ -70,9 +70,9 @@ const VideopressCard: ProductCardComponent = ( { admin } ) => {
 
 	return (
 		<ProductCard
+			{ ...props }
 			slug={ slug }
 			showMenu
-			admin={ admin }
 			Description={ Description }
 			customLoadTracks={ customLoadTracks }
 		>
