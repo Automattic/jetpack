@@ -5,8 +5,9 @@ import { createWpDataSync } from '../src/create-wp-data-sync';
 jest.mock( '@wordpress/api-fetch' );
 
 const registerStore = () => {
-	const { reducers, ...config } = createWpDataSync( 'testSettings', {
+	const { reducer, ...config } = createWpDataSync( 'testSettings', {
 		endpoint: '/test',
+		getSliceFromState: state => state.testSettings,
 	} );
 
 	const store = createReduxStore( 'some-store-id', {
@@ -15,7 +16,7 @@ const registerStore = () => {
 				if ( action.type === 'RESET' ) {
 					return {};
 				}
-				return reducers.testSettings( state, action );
+				return reducer( state, action );
 			},
 		} ),
 		...config,
