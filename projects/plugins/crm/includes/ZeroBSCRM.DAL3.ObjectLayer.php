@@ -1356,8 +1356,6 @@ class zbsDAL_ObjectLayer {
 				$this->name_clashes_temp_fix[] = $key;
 				$new_key                       = $key . self::NAME_CLASH_FIX_SUFFIX;
 				$array[ $new_key ]             = $array[ $key ];
-
-				unset( $array[ $key ] );
 			}
 		}
 	}
