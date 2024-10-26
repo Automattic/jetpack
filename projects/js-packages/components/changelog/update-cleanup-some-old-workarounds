@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: https://github.com/storybookjs/storybook/issues/7215 was fixed a while back, remove TODOs. And fix a wrong prop in one story.
+
+

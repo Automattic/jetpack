@@ -5,9 +5,8 @@ import ActionButton from '../index.jsx';
 export default {
 	title: 'JS Packages/Components/Action Button',
 	component: ActionButton,
-	// TODO: Storybook Actions are not working. See https://github.com/storybookjs/storybook/issues/7215
 	argTypes: {
-		onButtonClick: { action: 'clicked' },
+		onClick: { action: 'clicked' },
 	},
 };
 
@@ -15,7 +14,7 @@ export default {
 const Template = args => <ActionButton { ...args } />;
 
 const DefaultArgs = {
-	onButtonClick: action( 'onButtonClick' ),
+	onClick: action( 'onButtonClick' ),
 	displayError: false,
 	isLoading: false,
 	label: 'Action!',
