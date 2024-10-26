@@ -341,6 +341,17 @@ class Jetpack_Backup {
 			)
 		);
 
+		// Get backup schedule time
+		register_rest_route(
+			'jetpack/v4',
+			'/site/backup/schedule',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::get_site_backup_schedule_time',
+				'permission_callback' => __CLASS__ . '::backups_permissions_callback',
+			)
+		);
+
 		// Get site policies
 		register_rest_route(
 			'jetpack/v4',
@@ -772,6 +783,31 @@ class Jetpack_Backup {
 			array(
 				'method' => 'POST',
 			),
+			null,
+			'wpcom'
+		);
+
+		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			return null;
+		}
+
+		return rest_ensure_response(
+			json_decode( $response['body'], true )
+		);
+	}
+
+	/**
+	 * Get site backup schedule time
+	 *
+	 * @return string|WP_Error A JSON object with the backup schedule time if the request was successful, or a WP_Error otherwise.
+	 */
+	public static function get_site_backup_schedule_time() {
+		$blog_id = Jetpack_Options::get_option( 'id' );
+
+		$response = Client::wpcom_json_api_request_as_user(
+			'/sites/' . $blog_id . '/rewind/scheduled',
+			'v2',
+			array(),
 			null,
 			'wpcom'
 		);
