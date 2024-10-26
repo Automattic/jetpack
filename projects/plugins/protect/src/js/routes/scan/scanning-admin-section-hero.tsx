@@ -53,6 +53,7 @@ const ScanningAdminSectionHero: React.FC = () => {
 			}
 			secondary={ <InProgressAnimation /> }
 			preserveSecondaryOnMobile={ false }
+			spacing={ 4 }
 		/>
 	);
 };
