@@ -27,7 +27,7 @@ const NextScheduledBackup: FunctionComponent< Props > = () => {
 	const { hasLoaded, nextBackupDate, timeRange } = useNextBackupSchedule();
 
 	const onModifyClick = useCallback( () => {
-		tracks.recordTracksEvent( 'jetpack_backup_schedule_modify_click' );
+		tracks.recordEvent( 'jetpack_backup_schedule_modify_click' );
 	}, [ tracks ] );
 
 	if ( ! hasLoaded ) {
