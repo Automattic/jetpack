@@ -1719,12 +1719,15 @@ importers:
       '@automattic/jetpack-connection':
         specifier: workspace:*
         version: link:../../js-packages/connection
+      '@tanstack/react-query':
+        specifier: 5.20.5
+        version: 5.20.5(react@18.3.1)
       '@wordpress/api-fetch':
         specifier: 7.9.0
         version: 7.9.0
       '@wordpress/components':
         specifier: 28.9.0
-        version: 28.9.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 28.9.0(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/data':
         specifier: 10.9.0
         version: 10.9.0(react@18.3.1)
@@ -1737,6 +1740,9 @@ importers:
       '@wordpress/i18n':
         specifier: 5.9.0
         version: 5.9.0
+      moment:
+        specifier: 2.29.4
+        version: 2.29.4
       prop-types:
         specifier: ^15.8.1
         version: 15.8.1
@@ -1767,10 +1773,13 @@ importers:
         version: 10.4.0
       '@testing-library/react':
         specifier: 16.0.1
-        version: 16.0.1(@testing-library/dom@10.4.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 16.0.1(@testing-library/dom@10.4.0)(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@testing-library/user-event':
         specifier: 14.5.2
         version: 14.5.2(@testing-library/dom@10.4.0)
+      '@types/react':
+        specifier: 18.3.3
+        version: 18.3.3
       '@wordpress/browserslist-config':
         specifier: 6.9.0
         version: 6.9.0
@@ -1789,6 +1798,9 @@ importers:
       sass-loader:
         specifier: 12.4.0
         version: 12.4.0(sass@1.64.1)(webpack@5.94.0(webpack-cli@4.9.1))
+      typescript:
+        specifier: 5.0.4
+        version: 5.0.4
       webpack:
         specifier: 5.94.0
         version: 5.94.0(webpack-cli@4.9.1)
