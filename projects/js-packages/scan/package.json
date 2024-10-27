@@ -53,8 +53,6 @@
 	"dependencies": {
 		"@automattic/jetpack-api": "workspace:*",
 		"@automattic/jetpack-base-styles": "workspace:*",
-		"@automattic/jetpack-connection": "workspace:*",
-		"@automattic/jetpack-shared-extension-utils": "workspace:*",
 		"@wordpress/api-fetch": "7.9.0",
 		"@wordpress/element": "6.9.0",
 		"@wordpress/i18n": "5.9.0",
