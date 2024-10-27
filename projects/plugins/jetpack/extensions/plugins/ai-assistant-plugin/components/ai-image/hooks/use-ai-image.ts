@@ -108,10 +108,12 @@ export default function useAiImage( {
 			userPrompt,
 			postContent,
 			notEnoughRequests,
+			style = null,
 		}: {
 			userPrompt?: string | null;
 			postContent?: string | null;
 			notEnoughRequests: boolean;
+			style?: string;
 		} ) => {
 			return new Promise( ( resolve, reject ) => {
 				updateImages( { generating: true, error: null }, pointer.current );
@@ -145,9 +147,11 @@ export default function useAiImage( {
 								type,
 								request: userPrompt ? userPrompt : null,
 								content: postContent,
+								style,
 							},
 						},
 					],
+					style: style || '',
 				} );
 
 				const name = getImageNameSuggestion( userPrompt );
