@@ -34,13 +34,6 @@ class Extension_Model {
 	public $version;
 
 	/**
-	 * A collection of threats related to this version of the extension.
-	 *
-	 * @var array<Threat_Model>
-	 */
-	public $threats = array();
-
-	/**
 	 * Whether the extension has been checked for threats.
 	 *
 	 * @var null|bool
@@ -76,35 +69,5 @@ class Extension_Model {
 				$this->$property = $value;
 			}
 		}
-	}
-
-	/**
-	 * Set Threats
-	 *
-	 * @param array<Threat_Model|array|object> $threats An array of threat data to add to the extension.
-	 */
-	public function set_threats( $threats ) {
-		if ( ! is_array( $threats ) ) {
-			$this->threats = array();
-			return;
-		}
-
-		// convert each provided threat item into an instance of Threat_Model
-		$threats = array_map(
-			function ( $threat ) {
-				if ( is_a( $threat, 'Threat_Model' ) ) {
-					return $threat;
-				}
-
-				if ( is_object( $threat ) ) {
-					$threat = (array) $threat;
-				}
-
-				return new Threat_Model( $threat );
-			},
-			$threats
-		);
-
-		$this->threats = $threats;
 	}
 }

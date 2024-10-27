@@ -124,8 +124,6 @@ class Test_Scan_Status extends BaseTestCase {
 	 * @return object
 	 */
 	public function get_sample_status() {
-		global $wp_version;
-
 		return new Status_Model(
 			array(
 				'data_source'         => 'scan_api',
@@ -135,53 +133,7 @@ class Test_Scan_Status extends BaseTestCase {
 				'num_themes_threats'  => 0,
 				'status'              => 'idle',
 				'fixable_threat_ids'  => array( '69353714' ),
-				'plugins'             => array(
-					new Extension_Model(
-						array(
-							'version' => '3.0.0',
-							'name'    => 'Woocommerce',
-							'checked' => true,
-							'type'    => 'plugins',
-							'threats' => array(
-								new Threat_Model(
-									array(
-										'id'             => '71625245',
-										'signature'      => 'Vulnerable.WP.Extension',
-										'description'    => 'The plugin WooCommerce (version 3.0.0) has a known vulnerability. ',
-										'first_detected' => '2022-07-27T17:22:16.000Z',
-										'severity'       => 3,
-										'fixable'        => null,
-										'status'         => 'current',
-										'source'         => 'https://wpvulndb.com/vulnerabilities/10220',
-									)
-								),
-							),
-							'slug'    => 'woocommerce',
-						)
-					),
-				),
-				'themes'              => array(
-					new Extension_Model(
-						array(
-							'name'    => 'Sample Theme',
-							'slug'    => 'theme-1',
-							'version' => '1.0.2',
-							'type'    => 'themes',
-							'threats' => array(),
-							'checked' => true,
-						)
-					),
-				),
-				'core'                => new Extension_Model(
-					array(
-						'version' => $wp_version,
-						'threats' => array(),
-						'checked' => true,
-						'name'    => 'WordPress',
-						'type'    => 'core',
-					)
-				),
-				'files'               => array(
+				'threats'             => array(
 					new Threat_Model(
 						array(
 							'id'             => 71626681,
@@ -196,6 +148,26 @@ class Test_Scan_Status extends BaseTestCase {
 								'15'    => 'echo <<',
 								'17'    => 'HTML;',
 								'marks' => new \stdClass(),
+							),
+						)
+					),
+					new Threat_Model(
+						array(
+							'id'             => '71625245',
+							'signature'      => 'Vulnerable.WP.Extension',
+							'description'    => 'The plugin WooCommerce (version 3.0.0) has a known vulnerability. ',
+							'first_detected' => '2022-07-27T17:22:16.000Z',
+							'severity'       => 3,
+							'fixable'        => null,
+							'status'         => 'current',
+							'source'         => 'https://wpvulndb.com/vulnerabilities/10220',
+							'extension'      => new Extension_Model(
+								array(
+									'slug'    => 'woocommerce',
+									'version' => '3.0.0',
+									'name'    => 'WooCommerce',
+									'type'    => 'plugin',
+								)
 							),
 						)
 					),
@@ -217,8 +189,6 @@ class Test_Scan_Status extends BaseTestCase {
 						)
 					),
 				),
-				'database'            => array(),
-				'has_unchecked_items' => false,
 			)
 		);
 	}
@@ -362,72 +332,6 @@ class Test_Scan_Status extends BaseTestCase {
 		remove_filter( 'jetpack_sync_get_themes_callable', array( $this, 'return_sample_themes' ) );
 
 		$this->assertSame( 3, $status );
-	}
-
-	/**
-	 * Test get all threats
-	 */
-	public function test_get_all_threats() {
-		$this->mock_connection();
-
-		$expected = array(
-			new Threat_Model(
-				array(
-					'id'             => '71625245',
-					'signature'      => 'Vulnerable.WP.Extension',
-					'description'    => 'The plugin WooCommerce (version 3.0.0) has a known vulnerability. ',
-					'first_detected' => '2022-07-27T17:22:16.000Z',
-					'severity'       => 3,
-					'fixable'        => null,
-					'status'         => 'current',
-					'source'         => 'https://wpvulndb.com/vulnerabilities/10220',
-				)
-			),
-			new Threat_Model(
-				array(
-					'id'             => 71626681,
-					'signature'      => 'EICAR_AV_Test_Critical',
-					'description'    => 'This is the standard EICAR antivirus test code, and not a real infection. If your site contains this code when you don\'t expect it to, contact Jetpack support for some help.',
-					'first_detected' => '2022-07-27T17 => 49 => 35.000Z',
-					'severity'       => 5,
-					'fixer'          => null,
-					'status'         => 'current',
-					'filename'       => '/var/www/html/wp-content/uploads/jptt_eicar.php',
-					'context'        => (object) array(
-						'15'    => 'echo <<',
-						'17'    => 'HTML;',
-						'marks' => new \stdClass(),
-					),
-				)
-			),
-			new Threat_Model(
-				array(
-					'id'             => 69353714,
-					'signature'      => 'Core.File.Modification',
-					'description'    => 'Core WordPress files are not normally changed. If you did not make these changes you should review the code.',
-					'first_detected' => '2022-06-23T18:42:29.000Z',
-					'severity'       => 4,
-					'status'         => 'current',
-					'fixable'        => (object) array(
-						'fixer'           => 'replace',
-						'file'            => '/var/www/html/wp-admin/index.php',
-						'extensionStatus' => '',
-					),
-					'filename'       => '/var/www/html/wp-admin/index.php',
-					'diff'           => "--- /tmp/wordpress/6.0-en_US/wordpress/wp-admin/index.php\t2021-11-03 03:16:57.000000000 +0000\n+++ /tmp/6299071296/core-file-23271BW6i4wLCe3T7\t2022-06-23 18:42:29.087377846 +0000\n@@ -209,3 +209,4 @@\n wp_print_community_events_templates();\n \n require_once ABSPATH . 'wp-admin/admin-footer.php';\n+if ( true === false ) exit();\n\\ No newline at end of file\n",
-				)
-			),
-		);
-
-		add_filter( 'pre_http_request', array( $this, 'return_sample_response' ) );
-		add_filter( 'all_plugins', array( $this, 'return_sample_plugins' ) );
-		add_filter( 'jetpack_sync_get_themes_callable', array( $this, 'return_sample_themes' ) );
-		$all_threats = Scan_Status::get_all_threats();
-		remove_filter( 'pre_http_request', array( $this, 'return_sample_response' ) );
-		remove_filter( 'all_plugins', array( $this, 'return_sample_plugins' ) );
-		remove_filter( 'jetpack_sync_get_themes_callable', array( $this, 'return_sample_themes' ) );
-
-		$this->assertEquals( $expected, $all_threats );
 	}
 
 	/**

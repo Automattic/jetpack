@@ -29,6 +29,7 @@
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/jetpack-connection": "workspace:*",
+		"@automattic/jetpack-scan": "workspace:*",
 		"@tanstack/react-query": "5.20.5",
 		"@tanstack/react-query-devtools": "5.20.5",
 		"@wordpress/api-fetch": "7.9.0",

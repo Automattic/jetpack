@@ -19,67 +19,11 @@ class History_Model {
 	public $last_checked;
 
 	/**
-	 * The number of threats.
-	 *
-	 * @var int
-	 */
-	public $num_threats;
-
-	/**
-	 * The number of core threats.
-	 *
-	 * @var int
-	 */
-	public $num_core_threats;
-
-	/**
-	 * The number of plugin threats.
-	 *
-	 * @var int
-	 */
-	public $num_plugins_threats;
-
-	/**
-	 * The number of theme threats.
-	 *
-	 * @var int
-	 */
-	public $num_themes_threats;
-
-	/**
-	 * WordPress core.
-	 *
-	 * @var array<Extension_Model>
-	 */
-	public $core = array();
-
-	/**
-	 * Status themes.
-	 *
-	 * @var array<Extension_Model>
-	 */
-	public $themes = array();
-
-	/**
-	 * Status plugins.
-	 *
-	 * @var array<Extension_Model>
-	 */
-	public $plugins = array();
-
-	/**
-	 * File threats.
-	 *
-	 * @var array<Extension_Model>
-	 */
-	public $files = array();
-
-	/**
 	 * Database threats.
 	 *
-	 * @var array<Extension_Model>
+	 * @var array<Threat_Model>
 	 */
-	public $database = array();
+	public $threats = array();
 
 	/**
 	 * Whether there was an error loading the history.

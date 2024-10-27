@@ -1,4 +1,5 @@
 import { Button, getRedirectUrl, Text, ThreatSeverityBadge } from '@automattic/jetpack-components';
+import { getThreatIcon, getThreatSubtitle } from '@automattic/jetpack-scan';
 import { createInterpolateElement, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
@@ -7,10 +8,11 @@ import useModal from '../../hooks/use-modal';
 import UserConnectionGate from '../user-connection-gate';
 import styles from './styles.module.scss';
 
-const IgnoreThreatModal = ( { id, title, label, icon, severity } ) => {
+const IgnoreThreatModal = ( { threat } ) => {
 	const { setModal } = useModal();
 	const ignoreThreatMutation = useIgnoreThreatMutation();
 	const codeableURL = getRedirectUrl( 'jetpack-protect-codeable-referral' );
+	const icon = getThreatIcon( threat );
 
 	const [ isIgnoring, setIsIgnoring ] = useState( false );
 
@@ -25,7 +27,7 @@ const IgnoreThreatModal = ( { id, title, label, icon, severity } ) => {
 		return async event => {
 			event.preventDefault();
 			setIsIgnoring( true );
-			await ignoreThreatMutation.mutateAsync( id );
+			await ignoreThreatMutation.mutateAsync( threat.id );
 			setModal( { type: null } );
 			setIsIgnoring( false );
 		};
@@ -42,12 +44,12 @@ const IgnoreThreatModal = ( { id, title, label, icon, severity } ) => {
 				<Icon icon={ icon } className={ styles.threat__icon } />
 				<div className={ styles.threat__summary }>
 					<Text className={ styles.threat__summary__label } mb={ 1 }>
-						{ label }
+						{ getThreatSubtitle( threat ) }
 					</Text>
-					<Text className={ styles.threat__summary__title }>{ title }</Text>
+					<Text className={ styles.threat__summary__title }>{ threat.title }</Text>
 				</div>
 				<div className={ styles.threat__severity }>
-					<ThreatSeverityBadge severity={ severity } />
+					<ThreatSeverityBadge severity={ threat.severity } />
 				</div>
 			</div>
 

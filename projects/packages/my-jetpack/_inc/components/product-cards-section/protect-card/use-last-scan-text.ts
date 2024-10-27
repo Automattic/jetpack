@@ -13,14 +13,10 @@ export const useLastScanText = () => {
 		themes,
 		protect: { scanData },
 	} = getMyJetpackWindowInitialState();
-	const {
-		plugins: fromScanPlugins,
-		themes: fromScanThemes,
-		last_checked: lastScanTime = null,
-	} = scanData || {};
+	const { last_checked: lastScanTime = null } = scanData || {};
 
-	const pluginsCount = fromScanPlugins.length || Object.keys( plugins ).length;
-	const themesCount = fromScanThemes.length || Object.keys( themes ).length;
+	const pluginsCount = Object.keys( plugins ).length;
+	const themesCount = Object.keys( themes ).length;
 
 	const timeSinceLastScan = lastScanTime ? timeSince( Date.parse( lastScanTime ) ) : false;
 

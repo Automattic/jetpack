@@ -104,6 +104,13 @@ class Threat_Model {
 	public $source;
 
 	/**
+	 * The threat's extension information.
+	 *
+	 * @var null|Extension_Model
+	 */
+	public $extension;
+
+	/**
 	 * Threat Constructor
 	 *
 	 * @param array|object $threat Threat data to load into the class instance.
@@ -114,6 +121,10 @@ class Threat_Model {
 		}
 
 		foreach ( $threat as $property => $value ) {
+			if ( 'extension' === $property ) {
+				$this->extension = new Extension_Model( $value );
+				continue;
+			}
 			if ( property_exists( $this, $property ) ) {
 				$this->$property = $value;
 			}

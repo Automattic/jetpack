@@ -26,27 +26,6 @@ class Status_Model {
 	public $last_checked;
 
 	/**
-	 * The number of threats.
-	 *
-	 * @var int
-	 */
-	public $num_threats;
-
-	/**
-	 * The number of plugin threats.
-	 *
-	 * @var int
-	 */
-	public $num_plugins_threats;
-
-	/**
-	 * The number of theme threats.
-	 *
-	 * @var int
-	 */
-	public $num_themes_threats;
-
-	/**
 	 * The current report status.
 	 *
 	 * @var string in_progress|scheduled|idle|scanning|provisioning|unavailable
@@ -61,39 +40,11 @@ class Status_Model {
 	public $fixable_threat_ids = array();
 
 	/**
-	 * WordPress core status.
+	 * Threats.
 	 *
-	 * @var object
+	 * @var array<Threat_Model>
 	 */
-	public $core;
-
-	/**
-	 * Status themes.
-	 *
-	 * @var array<Extension_Model>
-	 */
-	public $themes = array();
-
-	/**
-	 * Status plugins.
-	 *
-	 * @var array<Extension_Model>
-	 */
-	public $plugins = array();
-
-	/**
-	 * File threats.
-	 *
-	 * @var array<Extension_Model>
-	 */
-	public $files = array();
-
-	/**
-	 * Database threats.
-	 *
-	 * @var array<Extension_Model>
-	 */
-	public $database = array();
+	public $threats = array();
 
 	/**
 	 * Whether the site includes items that have not been checked.
@@ -136,9 +87,6 @@ class Status_Model {
 	 * @param array $status The status data to load into the class instance.
 	 */
 	public function __construct( $status = array() ) {
-		// set status defaults
-		$this->core = new \stdClass();
-
 		foreach ( $status as $property => $value ) {
 			if ( property_exists( $this, $property ) ) {
 				$this->$property = $value;

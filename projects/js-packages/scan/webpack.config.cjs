@@ -4,7 +4,7 @@ const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpac
 module.exports = [
 	{
 		entry: {
-			index: './src/js/index.tsx',
+			index: './src/index.ts',
 		},
 		mode: jetpackWebpackConfig.mode,
 		devtool: jetpackWebpackConfig.devtool,
@@ -19,7 +19,7 @@ module.exports = [
 			...jetpackWebpackConfig.resolve,
 		},
 		node: false,
-		plugins: [ ...jetpackWebpackConfig.StandardPlugins( { I18nCheckPlugin: { warnOnly: true } } ) ], // to do: handle i18n warnings from @automattic/jetpack-components/node_modules/@wordpress/dataviews
+		plugins: [ ...jetpackWebpackConfig.StandardPlugins() ],
 		module: {
 			strictExportPresence: true,
 			rules: [
@@ -31,11 +31,6 @@ module.exports = [
 				// Transpile @automattic/jetpack-* in node_modules too.
 				jetpackWebpackConfig.TranspileRule( {
 					includeNodeModules: [ '@automattic/jetpack-' ],
-				} ),
-
-				// Transpile @wordpress in node_modules too.
-				jetpackWebpackConfig.TranspileRule( {
-					includeNodeModules: [ '@wordpress' ],
 				} ),
 
 				// Handle CSS.
@@ -51,7 +46,7 @@ module.exports = [
 		externals: {
 			...jetpackWebpackConfig.externals,
 			jetpackConfig: JSON.stringify( {
-				consumer_slug: 'jetpack-protect',
+				consumer_slug: 'my_jetpack',
 			} ),
 		},
 	},

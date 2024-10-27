@@ -8,28 +8,23 @@ import OnboardingPopover from '../../components/onboarding-popover';
 import ScanNavigation from '../../components/scan-navigation';
 import useScanStatusQuery, { isScanInProgress } from '../../data/scan/use-scan-status-query';
 import usePlan from '../../hooks/use-plan';
-import useProtectData from '../../hooks/use-protect-data';
 import ScanningAdminSectionHero from './scanning-admin-section-hero';
 import styles from './styles.module.scss';
 
 const ScanAdminSectionHero: React.FC = () => {
 	const { hasPlan } = usePlan();
 	const [ isSm ] = useBreakpointMatch( 'sm' );
-	const {
-		counts: {
-			current: { threats: numThreats },
-		},
-		lastChecked,
-	} = useProtectData();
+
 	const { data: status } = useScanStatusQuery();
+	const numThreats = status.threats.length;
 
 	// Popover anchor
 	const [ dailyScansPopoverAnchor, setDailyScansPopoverAnchor ] = useState( null );
 
 	let lastCheckedLocalTimestamp = null;
-	if ( lastChecked ) {
+	if ( status.lastChecked ) {
 		// Convert the lastChecked UTC date to a local timestamp
-		lastCheckedLocalTimestamp = new Date( lastChecked + ' UTC' ).getTime();
+		lastCheckedLocalTimestamp = new Date( status.lastChecked + ' UTC' ).getTime();
 	}
 
 	if ( isScanInProgress( status ) ) {
