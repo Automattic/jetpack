@@ -2,6 +2,29 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 14.0-a.7 - 2024-10-21
+### Enhancements
+- Newsletters: Add an email preview option to the preview menu. [#39782]
+- Newsletters: Allow skipping newsletter modals with a URL query param. [#39644]
+
+### Improved compatibility
+- General: Ensure notice displays without errors when running an old version of WordPress. [#39745]
+- Plugin action links filters: Update parameter to avoid conflicts with other plugins. [#39681]
+
+### Bug fixes
+- Map Block: Fix issue where blocks placed underneath would overlap with the map block. [#39744]
+- Newsletters: Fix "Use excerpt" setting. [#39815]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Map Block: Display a static map image when the block is rendered in a pattern preview. [#39768]
+- Map: Remove preview attribute. [#39768]
+- Newsletters: Fix 'class Jetpack_Subscriptions_Widget not found' fatal error during REST API. [#39765]
+- Slideshow Block: Fix console warning related to images with the same key. [#39821]
+- Story Block: Avoid error when previewing block styles in development version of the Gutenberg plugin. [#39807]
+- Story Block: Fix console warning related to 'key' not being a prop. [#39822]
+- Tests: Fix unit tests. [#39799]
+- Update VideoPress notice URL on Media Library. [#39731]
+
 ## 14.0-a.5 - 2024-10-16
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
 - Related Posts: refine how related posts are made available on singular views in block themes. [#39784]

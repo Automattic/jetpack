@@ -9,6 +9,7 @@ import {
 	ConnectionManagement,
 	SOCIAL_STORE_ID,
 	getSocialScriptData,
+	hasSocialPaidFeatures,
 } from '@automattic/jetpack-publicize-components';
 import { ExternalLink } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
@@ -26,7 +27,6 @@ const SocialModuleToggle: React.FC = () => {
 		isUpdating,
 		siteSuffix,
 		blogID,
-		hasPaidFeatures,
 	} = useSelect( select => {
 		const store = select( SOCIAL_STORE_ID ) as SocialStoreSelectors;
 		return {
@@ -34,7 +34,6 @@ const SocialModuleToggle: React.FC = () => {
 			isUpdating: store.isUpdatingJetpackSettings(),
 			siteSuffix: store.getSiteSuffix(),
 			blogID: store.getBlogID(),
-			hasPaidFeatures: store.hasPaidFeatures(),
 		};
 	}, [] );
 
@@ -97,7 +96,7 @@ const SocialModuleToggle: React.FC = () => {
 					{ __( 'Learn more', 'jetpack-social' ) }
 				</ExternalLink>
 			</Text>
-			{ ! hasPaidFeatures ? (
+			{ ! hasSocialPaidFeatures() ? (
 				<ContextualUpgradeTrigger
 					className={ clsx( styles.cut, { [ styles.small ]: isSmall } ) }
 					description={ __( 'Unlock advanced sharing options', 'jetpack-social' ) }
