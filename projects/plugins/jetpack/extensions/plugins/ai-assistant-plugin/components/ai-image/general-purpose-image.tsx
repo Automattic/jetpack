@@ -87,7 +87,7 @@ export default function GeneralPurposeImage( {
 
 	const handleGenerate = useCallback(
 		async ( { userPrompt, style }: { userPrompt?: string; style?: string } ) => {
-			debug( userPrompt, style );
+			debug( 'handleGenerate', userPrompt, style );
 
 			// track the generate image event
 			recordEvent( 'jetpack_ai_general_image_generation_generate_image', {
@@ -120,23 +120,27 @@ export default function GeneralPurposeImage( {
 	);
 
 	const handleRegenerate = useCallback(
-		( { userPrompt }: { userPrompt?: string } ) => {
+		( { userPrompt, style }: { userPrompt?: string; style?: string } ) => {
+			debug( 'handleRegenerate', userPrompt );
 			// track the regenerate image event
 			recordEvent( 'jetpack_ai_general_image_generation_generate_another_image', {
 				placement,
 				model: generalImageActiveModel,
 				site_type: siteType,
+				style,
 			} );
 
 			setCurrent( crrt => crrt + 1 );
-			processImageGeneration( { userPrompt, postContent, notEnoughRequests } ).catch( error => {
-				recordEvent( 'jetpack_ai_general_image_generation_error', {
-					placement,
-					error: error?.message,
-					model: generalImageActiveModel,
-					site_type: siteType,
-				} );
-			} );
+			processImageGeneration( { userPrompt, postContent, notEnoughRequests, style } ).catch(
+				error => {
+					recordEvent( 'jetpack_ai_general_image_generation_error', {
+						placement,
+						error: error?.message,
+						model: generalImageActiveModel,
+						site_type: siteType,
+					} );
+				}
+			);
 		},
 		[
 			recordEvent,
@@ -151,22 +155,26 @@ export default function GeneralPurposeImage( {
 	);
 
 	const handleTryAgain = useCallback(
-		( { userPrompt }: { userPrompt?: string } ) => {
+		( { userPrompt, style }: { userPrompt?: string; style?: string } ) => {
+			debug( 'handleTryAgain', userPrompt );
 			// track the try again event
 			recordEvent( 'jetpack_ai_general_image_generation_try_again', {
 				placement,
 				model: generalImageActiveModel,
 				site_type: siteType,
+				style,
 			} );
 
-			processImageGeneration( { userPrompt, postContent, notEnoughRequests } ).catch( error => {
-				recordEvent( 'jetpack_ai_general_image_generation_error', {
-					placement,
-					error: error?.message,
-					model: generalImageActiveModel,
-					site_type: siteType,
-				} );
-			} );
+			processImageGeneration( { userPrompt, postContent, notEnoughRequests, style } ).catch(
+				error => {
+					recordEvent( 'jetpack_ai_general_image_generation_error', {
+						placement,
+						error: error?.message,
+						model: generalImageActiveModel,
+						site_type: siteType,
+					} );
+				}
+			);
 		},
 		[
 			recordEvent,
