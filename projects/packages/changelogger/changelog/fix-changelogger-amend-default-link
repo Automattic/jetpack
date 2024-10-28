@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-When amending, do not preserve a default link. We'll want the link to be updated to the new default.

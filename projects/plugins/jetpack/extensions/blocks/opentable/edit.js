@@ -119,7 +119,7 @@ function OpenTableEdit( {
 		// Need to force attribute to be updated after switch to using block styles
 		// so it still meets frontend rendering expectations.
 		setAttributes( { style } );
-	}, [ style ] );
+	}, [ align, style, prevStyle, setAttributes ] );
 
 	const parseEmbedCode = embedCode => {
 		const newAttributes = getAttributesFromEmbedCode( embedCode );

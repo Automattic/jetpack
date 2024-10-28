@@ -10,7 +10,9 @@ import { useConnection } from '@automattic/jetpack-connection';
 import {
 	hasSocialPaidFeatures,
 	store as socialStore,
+	features,
 } from '@automattic/jetpack-publicize-components';
+import { siteHasFeature } from '@automattic/jetpack-script-data';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useState, useCallback, useEffect, useRef } from '@wordpress/element';
 import React from 'react';
@@ -34,31 +36,30 @@ const Admin = () => {
 
 	const onPricingPageDismiss = useCallback( () => setForceDisplayPricingPage( false ), [] );
 
-	const {
-		isModuleEnabled,
-		showPricingPage,
-		pluginVersion,
-		isSocialImageGeneratorAvailable,
-		isUpdatingJetpackSettings,
-	} = useSelect( select => {
-		const store = select( socialStore );
-		return {
-			isModuleEnabled: store.isModuleEnabled(),
-			showPricingPage: store.showPricingPage(),
-			pluginVersion: store.getPluginVersion(),
-			isSocialImageGeneratorAvailable: store.isSocialImageGeneratorAvailable(),
-			isUpdatingJetpackSettings: store.isUpdatingJetpackSettings(),
-		};
-	} );
+	const { isModuleEnabled, showPricingPage, pluginVersion, isUpdatingJetpackSettings } = useSelect(
+		select => {
+			const store = select( socialStore );
+			return {
+				isModuleEnabled: store.isModuleEnabled(),
+				showPricingPage: store.showPricingPage(),
+				pluginVersion: store.getPluginVersion(),
+				isUpdatingJetpackSettings: store.isUpdatingJetpackSettings(),
+			};
+		}
+	);
 
 	const hasEnabledModule = useRef( isModuleEnabled );
 
 	useEffect( () => {
-		if ( isModuleEnabled && ! hasEnabledModule.current && isSocialImageGeneratorAvailable ) {
+		if (
+			isModuleEnabled &&
+			! hasEnabledModule.current &&
+			siteHasFeature( features.IMAGE_GENERATOR )
+		) {
 			hasEnabledModule.current = true;
 			refreshJetpackSocialSettings();
 		}
-	}, [ isModuleEnabled, isSocialImageGeneratorAvailable, refreshJetpackSocialSettings ] );
+	}, [ isModuleEnabled, refreshJetpackSocialSettings ] );
 
 	const moduleName = `Jetpack Social ${ pluginVersion }`;
 
@@ -93,7 +94,7 @@ const Admin = () => {
 					<AdminSection>
 						<SocialModuleToggle />
 						{ isModuleEnabled && <SocialNotesToggle disabled={ isUpdatingJetpackSettings } /> }
-						{ isModuleEnabled && isSocialImageGeneratorAvailable && (
+						{ isModuleEnabled && siteHasFeature( features.IMAGE_GENERATOR ) && (
 							<SocialImageGeneratorToggle disabled={ isUpdatingJetpackSettings } />
 						) }
 					</AdminSection>

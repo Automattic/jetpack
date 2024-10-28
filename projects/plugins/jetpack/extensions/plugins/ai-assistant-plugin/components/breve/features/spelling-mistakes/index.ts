@@ -185,9 +185,9 @@ export default function spellingMistakes( text: string ): Array< HighlightedText
 	// \p{M} matches any Unicode mark (combining characters)
 	// The regex has three main parts:
 	// 1. [@#+$/]{0,1} - Optionally matches a single special character at the start
-	// 2. [\p{L}\p{M}'-]+ - Matches one or more letters, marks, apostrophes, or hyphens
-	// 3. (?:\/[\p{L}\p{M}'-]+)* - Optionally matches additional parts separated by slashes
-	const wordRegex = new RegExp( /[@#+$/]{0,1}[\p{L}\p{M}'-]+(?:\/[\p{L}\p{M}'-]+)*/gu );
+	// 2. [\p{L}\p{M}\p{N}'-]+ - Matches one or more letters, marks, numbers, apostrophes, or hyphens
+	// 3. (?:\/[\p{L}\p{M}\p{N}'-]+)* - Optionally matches additional parts separated by slashes
+	const wordRegex = new RegExp( /[@#+$/]{0,1}[\p{L}\p{M}\p{N}'-]+(?:\/[\p{L}\p{M}\p{N}'-]+)*/gu );
 	const matches = Array.from( text.matchAll( wordRegex ) );
 
 	matches.forEach( match => {
@@ -196,6 +196,11 @@ export default function spellingMistakes( text: string ): Array< HighlightedText
 
 		// Skip words that start with special characters
 		if ( [ '@', '#', '+', '$', '/' ].indexOf( word[ 0 ] ) !== -1 ) {
+			return;
+		}
+
+		// Skip anything that is a valid number
+		if ( ! isNaN( Number( word ) ) ) {
 			return;
 		}
 
