@@ -70,6 +70,7 @@ const SocialImageGeneratorSettingsModal = ( { onClose } ) => {
 						{ label: __( 'No Image', 'jetpack' ), value: 'none' },
 					] }
 					onChange={ setEditedImageType }
+					__nextHasNoMarginBottom={ true }
 				/>
 
 				{ localImageType === 'custom' && (
@@ -92,6 +93,7 @@ const SocialImageGeneratorSettingsModal = ( { onClose } ) => {
 						'By default the post title is used for the image. You can use this field to set your own text.',
 						'jetpack'
 					) }
+					__nextHasNoMarginBottom={ true }
 				/>
 				<BaseControl __nextHasNoMarginBottom={ true } className={ styles.templateControl }>
 					<BaseControl.VisualLabel>{ __( 'Templates', 'jetpack' ) }</BaseControl.VisualLabel>

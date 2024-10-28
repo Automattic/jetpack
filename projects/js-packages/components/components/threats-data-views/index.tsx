@@ -126,7 +126,7 @@ export default function ThreatsDataViews( {
 	isThreatEligibleForFix?: ( threat: Threat ) => boolean;
 	isThreatEligibleForIgnore?: ( threat: Threat ) => boolean;
 	isThreatEligibleForUnignore?: ( threat: Threat ) => boolean;
-	onFixThreats?: ActionButton< Threat >[ 'callback' ];
+	onFixThreats?: ( threats: Threat[] ) => void;
 	onIgnoreThreats?: ActionButton< Threat >[ 'callback' ];
 	onUnignoreThreats?: ActionButton< Threat >[ 'callback' ];
 } ): JSX.Element {
@@ -151,14 +151,22 @@ export default function ThreatsDataViews( {
 	const defaultLayouts: SupportedLayouts = {
 		table: {
 			...baseView,
-			fields: [ 'severity', 'threat', 'auto-fix' ],
+			fields: [ 'severity', 'threat', 'type', 'auto-fix' ],
 			layout: {
 				primaryField: 'severity',
+				combinedFields: [
+					{
+						id: 'threat',
+						label: __( 'Threat', 'jetpack' ),
+						children: [ 'title', 'description' ],
+						direction: 'vertical',
+					},
+				],
 			},
 		},
 		list: {
 			...baseView,
-			fields: [ 'severity', 'subtitle', 'signature', 'auto-fix' ],
+			fields: [ 'severity', 'type', 'signature' ],
 			layout: {
 				primaryField: 'title',
 				mediaField: 'icon',
@@ -238,31 +246,22 @@ export default function ThreatsDataViews( {
 	const fields = useMemo( () => {
 		const result: Field< Threat >[] = [
 			{
-				id: 'threat',
-				label: __( 'Threat', 'jetpack' ),
-				enableGlobalSearch: true,
-				enableHiding: false,
-				getValue( { item }: { item: Threat } ) {
-					return item.title + item.description;
-				},
-				render( { item }: { item: Threat } ) {
-					return (
-						<div className={ styles.threat__primary }>
-							<div className={ styles.threat__subtitle }>
-								<Icon icon={ getThreatIcon( item ) } size={ 20 } />
-								{ getThreatSubtitle( item ) }
-							</div>
-							<div className={ styles.threat__title }>{ item.title }</div>
-							<div className={ styles.threat__description }>{ item.description }</div>
-						</div>
-					);
-				},
-			},
-			{
 				id: 'title',
 				label: __( 'Title', 'jetpack' ),
 				enableGlobalSearch: true,
 				enableHiding: false,
+				render: ( { item }: { item: Threat } ) => (
+					<div className={ styles.threat__title }>{ item.title }</div>
+				),
+			},
+			{
+				id: 'description',
+				label: __( 'Description', 'jetpack' ),
+				enableGlobalSearch: true,
+				enableHiding: false,
+				render: ( { item }: { item: Threat } ) => (
+					<div className={ styles.threat__description }>{ item.description }</div>
+				),
 			},
 			{
 				id: 'icon',
@@ -272,13 +271,51 @@ export default function ThreatsDataViews( {
 					return getThreatType( item );
 				},
 				render( { item }: { item: Threat } ) {
+					const type = getThreatType( item );
+
+					let icon;
+					switch ( type ) {
+						case 'plugin':
+							icon = plugins;
+							break;
+						case 'theme':
+							icon = color;
+							break;
+						case 'core':
+							icon = wordpress;
+							break;
+						case 'file':
+							icon = code;
+							break;
+						case 'database':
+							icon = grid;
+							break;
+						default:
+							icon = shield;
+					}
+
 					return (
 						<div className={ styles.threat__media }>
-							<Icon icon={ getThreatIcon( item ) } size={ 20 } />
+							<Icon icon={ icon } size={ 20 } />
 						</div>
 					);
 				},
 			},
+			...( dataFields.includes( 'severity' )
+				? [
+						{
+							id: 'severity',
+							label: __( 'Severity', 'jetpack' ),
+							type: 'integer' as FieldType,
+							getValue( { item }: { item: Threat } ) {
+								return item.severity ?? 0;
+							},
+							render( { item }: { item: Threat } ) {
+								return <ThreatSeverityBadge severity={ item.severity } />;
+							},
+						},
+				  ]
+				: [] ),
 			{
 				id: 'status',
 				label: __( 'Status', 'jetpack' ),
@@ -312,31 +349,10 @@ export default function ThreatsDataViews( {
 			},
 			{
 				id: 'type',
-				label: __( 'Category', 'jetpack' ),
+				label: __( 'Type', 'jetpack' ),
 				elements: THREAT_TYPES,
 				getValue( { item }: { item: Threat } ) {
-					if ( item.signature === 'Vulnerable.WP.Core' ) {
-						return 'core';
-					}
-					if ( item.extension ) {
-						return item.extension.type;
-					}
-					if ( item.filename ) {
-						return 'file';
-					}
-					if ( item.table ) {
-						return 'database';
-					}
-
-					return 'uncategorized';
-				},
-			},
-			{
-				id: 'subtitle',
-				label: __( 'Affected Item', 'jetpack' ),
-				enableHiding: false,
-				getValue( { item }: { item: Threat } ) {
-					return getThreatSubtitle( item );
+					return getThreatType( item ) ?? '';
 				},
 			},
 			...( dataFields.includes( 'signature' )
@@ -352,45 +368,31 @@ export default function ThreatsDataViews( {
 						},
 				  ]
 				: [] ),
-			...( dataFields.includes( 'severity' )
-				? [
-						{
-							id: 'severity',
-							label: __( 'Severity', 'jetpack' ),
-							type: 'integer' as FieldType,
-							getValue( { item }: { item: Threat } ) {
-								return item.severity ?? 0;
-							},
-							render( { item }: { item: Threat } ) {
-								return <ThreatSeverityBadge severity={ item.severity } />;
-							},
-						},
-				  ]
-				: [] ),
 			...( dataFields.includes( 'fixable' )
 				? [
 						{
 							id: 'auto-fix',
-							label: __( 'Auto-fix', 'jetpack' ),
+							label: __( 'Auto-Fix', 'jetpack' ),
 							enableHiding: false,
-							type: 'integer' as FieldType,
+							elements: [
+								{
+									value: 'yes',
+									label: __( 'Yes', 'jetpack' ),
+								},
+								{
+									value: 'no',
+									label: __( 'No', 'jetpack' ),
+								},
+							],
 							getValue( { item }: { item: Threat } ) {
-								return item.fixable ? 1 : 0;
+								return item.fixable ? 'yes' : 'no';
 							},
 							render( { item }: { item: Threat } ) {
 								if ( ! item.fixable ) {
 									return null;
 								}
 
-								if ( view.type === 'table' ) {
-									return (
-										<div className={ styles.threat__fixer }>
-											<FixerStatusIcon fixer={ item.fixer } />
-										</div>
-									);
-								}
-
-								return <FixerStatusBadge fixer={ item.fixer } />;
+								return <ThreatFixerButton threat={ item } onClick={ onFixThreats } />;
 							},
 						},
 				  ]
@@ -436,7 +438,7 @@ export default function ThreatsDataViews( {
 		];
 
 		return result;
-	}, [ extensions, signatures, dataFields, view ] );
+	}, [ dataFields, extensions, signatures, onFixThreats ] );
 
 	const isStatusFilterSelected = ( threatStatuses: ThreatStatus[] ) =>
 		view.filters.some(

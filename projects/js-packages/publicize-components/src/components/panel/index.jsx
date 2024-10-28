@@ -68,6 +68,7 @@ const PublicizePanel = ( { prePublish, children } ) => {
 							onChange={ togglePublicizeFeature }
 							checked={ isPublicizeEnabled && hasConnections }
 							disabled={ ! hasConnections }
+							__nextHasNoMarginBottom={ true }
 						/>
 					) }
 

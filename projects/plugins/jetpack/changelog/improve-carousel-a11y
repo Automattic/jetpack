@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Carousel: Further improve accessibility by being more selective over which images to apply attributes to
