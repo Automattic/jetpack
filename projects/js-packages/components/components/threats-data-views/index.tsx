@@ -1,5 +1,6 @@
 import { ThreatStatus, type Threat } from '@automattic/jetpack-scan';
 import {
+	Button,
 	__experimentalToggleGroupControl as ToggleGroupControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalToggleGroupControlOption as ToggleGroupControlOption, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
@@ -17,7 +18,6 @@ import {
 } from '@wordpress/dataviews';
 import { dateI18n } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
-import { tool, unseen, seen } from '@wordpress/icons';
 import { Icon } from '@wordpress/icons';
 import { useCallback, useMemo, useState } from 'react';
 import Badge from '../badge';
@@ -100,7 +100,6 @@ export function ThreatsStatusToggleGroupControl( {
  * @param {object}   props                             - Component props.
  * @param {Array}    props.data                        - Threats data.
  * @param {Array}    props.filters                     - Initial DataView filters.
- * @param {Function} props.onChangeSelection           - Callback function run when an item is selected.
  * @param {Function} props.onFixThreats                - Threat fix action callback.
  * @param {Function} props.onIgnoreThreats             - Threat ignore action callback.
  * @param {Function} props.onUnignoreThreats           - Threat unignore action callback.
@@ -113,7 +112,6 @@ export function ThreatsStatusToggleGroupControl( {
 export default function ThreatsDataViews( {
 	data,
 	filters,
-	onChangeSelection,
 	isThreatEligibleForFix,
 	isThreatEligibleForIgnore,
 	isThreatEligibleForUnignore,
@@ -123,7 +121,6 @@ export default function ThreatsDataViews( {
 }: {
 	data: Threat[];
 	filters?: Filter[];
-	onChangeSelection?: ( selectedItemIds: string[] ) => void;
 	isThreatEligibleForFix?: ( threat: Threat ) => boolean;
 	isThreatEligibleForIgnore?: ( threat: Threat ) => boolean;
 	isThreatEligibleForUnignore?: ( threat: Threat ) => boolean;
@@ -168,6 +165,11 @@ export default function ThreatsDataViews( {
 	};
 
 	/**
+	 * DataView selection object - stores the selected item IDs.
+	 */
+	const [ selection, setSelection ] = useState< string[] >( [] );
+
+	/**
 	 * DataView view object - configures how the dataset is visible to the user.
 	 *
 	 * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-dataviews/#view-object
@@ -178,23 +180,53 @@ export default function ThreatsDataViews( {
 	} );
 
 	/**
+	 * Memoized function to determine if a status filter is selected.
+	 *
+	 * @param {Array} threatStatuses - List of threat statuses.
+	 */
+	const isStatusFilterSelected = useMemo(
+		() => ( threatStatuses: ThreatStatus[] ) =>
+			view.filters.some(
+				filter =>
+					filter.field === 'status' &&
+					Array.isArray( filter.value ) &&
+					filter.value.length === threatStatuses.length &&
+					threatStatuses.every( threatStatus => filter.value.includes( threatStatus ) )
+			),
+		[ view.filters ]
+	);
+
+	/**
 	 * Compute values from the provided threats data.
 	 *
+	 * @member {Array}  activeThreatIds - List of active threat IDs.
+	 * @member {Array}  historicThreatIds - List of historic threat IDs.
 	 * @member {object} extensions - List of unique threat extensions.
 	 * @member {object} signatures - List of unique threat signatures.
 	 * @member {Array}  dataFields - List of unique fields.
 	 */
 	const {
+		activeThreatIds,
+		historicThreatIds,
 		extensions,
 		signatures,
 		dataFields,
 	}: {
+		activeThreatIds: string[];
+		historicThreatIds: string[];
 		extensions: { value: string; label: string }[];
 		signatures: { value: string; label: string }[];
 		dataFields: string[];
 	} = useMemo( () => {
 		return data.reduce(
 			( acc, threat ) => {
+				// Active/Historic Threat IDs
+				if ( threat.status === 'current' ) {
+					acc.activeThreatIds.push( threat.id );
+				} else {
+					acc.historicThreatIds.push( threat.id );
+				}
+
 				// Extensions
 				if ( threat.extension ) {
 					if ( ! acc.extensions.find( ( { value } ) => value === threat.extension.slug ) ) {
@@ -224,6 +256,8 @@ export default function ThreatsDataViews( {
 				return acc;
 			},
 			{
+				activeThreatIds: [],
+				historicThreatIds: [],
 				extensions: [],
 				signatures: [],
 				dataFields: [],
@@ -439,19 +473,6 @@ export default function ThreatsDataViews( {
 		return result;
 	}, [ extensions, signatures, dataFields, view ] );
 
-	const isStatusFilterSelected = ( threatStatuses: ThreatStatus[] ) =>
-		view.filters.some(
-			filter =>
-				filter.field === 'status' &&
-				Array.isArray( filter.value ) &&
-				filter.value.length === threatStatuses.length &&
-				threatStatuses.every( threatStatus => filter.value.includes( threatStatus ) )
-		);
-
-	const isViewingActiveThreats = isStatusFilterSelected( [ 'current' ] );
-	const isViewingIgnoredThreats = isStatusFilterSelected( [ 'ignored' ] );
-	const isViewingHistoricThreats = isStatusFilterSelected( [ 'fixed', 'ignored' ] );
-
 	/**
 	 * DataView actions - collection of operations that can be performed upon each record.
 	 *
@@ -463,17 +484,15 @@ export default function ThreatsDataViews( {
 		if ( dataFields.includes( 'fixable' ) ) {
 			result.push( {
 				id: 'fix',
-				label: __( 'Auto-Fix', 'jetpack' ),
-				icon: tool,
-				supportsBulk: isViewingActiveThreats,
+				label: __( 'Auto-fix', 'jetpack' ),
+				supportsBulk: true,
 				callback: items => onFixThreats( items.map( item => item.id ) ),
 				isEligible( item ) {
 					if ( ! onFixThreats ) {
-						// TODO: Ensure we continue to handle this properly?
 						return false;
 					}
 					if ( isThreatEligibleForFix ) {
-						// TODO: Should not be able to bulk select or individually select in_progress/errored fixers
+						// TODO: Should not be able to bulk select or individually select threats with in_progress/errored fixers
 						return isThreatEligibleForFix( item );
 					}
 					return !! item.fixable;
@@ -485,17 +504,12 @@ export default function ThreatsDataViews( {
 			result.push( {
 				id: 'ignore',
 				label: __( 'Ignore', 'jetpack' ),
-				icon: unseen,
-				isDestructive: true,
-				supportsBulk: isViewingActiveThreats,
 				callback: items => onIgnoreThreats( items.map( item => item.id ) ),
 				isEligible( item ) {
 					if ( ! onIgnoreThreats ) {
-						// TODO: Ensure we continue to handle this properly?
 						return false;
 					}
 					if ( isThreatEligibleForIgnore ) {
-						// TODO: Should not be able to bulk select or individually select errored fixers
 						return isThreatEligibleForIgnore( item );
 					}
 					return item.status === 'current';
@@ -507,17 +521,12 @@ export default function ThreatsDataViews( {
 			result.push( {
 				id: 'un-ignore',
 				label: __( 'Unignore', 'jetpack' ),
-				isDestructive: true,
-				icon: seen,
-				supportsBulk: isViewingIgnoredThreats || isViewingHistoricThreats,
 				callback: items => onUnignoreThreats( items.map( item => item.id ) ),
 				isEligible( item ) {
 					if ( ! onUnignoreThreats ) {
-						// TODO: Ensure we continue to handle this properly?
 						return false;
 					}
 					if ( isThreatEligibleForUnignore ) {
-						// TODO: Should not be able to bulk select or individually select errored fixers
 						return isThreatEligibleForUnignore( item );
 					}
 					return item.status === 'ignored';
@@ -528,9 +537,6 @@ export default function ThreatsDataViews( {
 		return result;
 	}, [
 		dataFields,
-		isViewingActiveThreats,
-		isViewingIgnoredThreats,
-		isViewingHistoricThreats,
 		onFixThreats,
 		onIgnoreThreats,
 		onUnignoreThreats,
@@ -547,6 +553,15 @@ export default function ThreatsDataViews( {
 	const { data: processedData, paginationInfo } = useMemo( () => {
 		return filterSortAndPaginate( data, view, fields );
 	}, [ data, view, fields ] );
+
+	/**
+	 * Callback function to update the selection state.
+	 *
+	 * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-dataviews/#onchangeselection-function
+	 */
+	const onChangeSelection = useCallback( ( selectedItemIds: string[] ) => {
+		setSelection( selectedItemIds );
+	}, [] );
 
 	/**
 	 * Callback function to update the view state.
@@ -595,21 +610,9 @@ export default function ThreatsDataViews( {
 		[ view ]
 	);
 
-	/**
-	 * Compute the number of active and historic threats.
-	 */
-	const activeThreatsCount = useMemo(
-		() => data.filter( item => item.status === 'current' ).length,
-		[ data ]
-	);
-
-	/**
-	 * Compute the number of active and historic threats.
-	 */
-	const historicThreatsCount = useMemo(
-		() => data.filter( item => [ 'fixed', 'ignored' ].includes( item.status ) ).length,
-		[ data ]
-	);
+	const handleBulkFixThreatsClick = useCallback( () => {
+		onFixThreats( selection );
+	}, [ selection, onFixThreats ] );
 
 	return (
 		<DataViews
@@ -623,13 +626,24 @@ export default function ThreatsDataViews( {
 			paginationInfo={ paginationInfo }
 			view={ view }
 			header={
-				<ThreatsStatusToggleGroupControl
-					activeThreatsCount={ activeThreatsCount }
-					historicThreatsCount={ historicThreatsCount }
-					isViewingActiveThreats={ isViewingActiveThreats }
-					isViewingHistoricThreats={ isViewingHistoricThreats }
-					onStatusFilterChange={ onStatusFilterChange }
-				/>
+				<>
+					<ThreatsStatusToggleGroupControl
+						activeThreatsCount={ activeThreatIds.length }
+						historicThreatsCount={ historicThreatIds.length }
+						isViewingActiveThreats={ isStatusFilterSelected( [ 'current' ] ) }
+						isViewingHistoricThreats={ isStatusFilterSelected( [ 'fixed', 'ignored' ] ) }
+						onStatusFilterChange={ onStatusFilterChange }
+					/>
+					{ selection.length > 0 && (
+						<Button variant={ 'secondary' } onClick={ handleBulkFixThreatsClick }>
+							{ sprintf(
+								/* translators: %d: number of selected threats */
+								__( 'Auto-fix (%d)', 'jetpack' ),
+								selection.length
+							) }
+						</Button>
+					) }
+				</>
 			}
 		/>
 	);
