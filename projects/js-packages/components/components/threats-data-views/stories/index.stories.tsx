@@ -1,7 +1,7 @@
 import ThreatsDataViews from '..';
 
 export default {
-	title: 'JS Packages/Components/Threats Data View',
+	title: 'JS Packages/Components/Threats Data Views',
 	component: ThreatsDataViews,
 	parameters: {
 		backgrounds: {
@@ -148,7 +148,7 @@ Default.args = {
 			fixedIn: '3.4.6',
 			fixedOn: null,
 			severity: null,
-			fixable: false,
+			fixable: null,
 			status: 'current',
 			filename: null,
 			context: null,

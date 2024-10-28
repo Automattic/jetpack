@@ -1,3 +1,4 @@
+import { ThreatStatus, type Threat } from '@automattic/jetpack-scan';
 import {
 	__experimentalToggleGroupControl as ToggleGroupControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalToggleGroupControlOption as ToggleGroupControlOption, // eslint-disable-line @wordpress/no-unsafe-wp-apis
@@ -24,7 +25,6 @@ import ThreatSeverityBadge from '../threat-severity-badge';
 import { THREAT_STATUSES, THREAT_TYPES } from './constants';
 import FixerStatusIcon, { FixerStatusBadge } from './fixer-status';
 import styles from './styles.module.scss';
-import { type Threat, type ThreatStatus } from './types';
 import { getThreatIcon, getThreatSubtitle, getThreatType } from './utils';
 
 /**
@@ -34,7 +34,7 @@ import { getThreatIcon, getThreatSubtitle, getThreatType } from './utils';
  * @param {number}   props.historicThreatsCount     - Number of historic threats.
  * @param {boolean}  props.isViewingActiveThreats   - Whether the active status is selected.
  * @param {boolean}  props.isViewingHistoricThreats - Whether the historic status is selected.
- * @param {Function} props.onStatusFilterChange     - Callback function to update the filter value.
+ * @param {Function} props.onStatusFilterChange     - Callback function to handle the status filter change.
  * @return {JSX.Element|null} The component or null.
  */
 export function ThreatsStatusToggleGroupControl( {

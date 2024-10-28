@@ -38,15 +38,14 @@ const IconTooltip: React.FC< IconTooltipProps > = ( {
 	children,
 	popoverAnchorStyle = 'icon',
 	forceShow = false,
+	hoverShow = false,
 	wide = false,
 	inline = true,
 	shift = false,
-	hoverShow = false,
 } ) => {
 	const POPOVER_HELPER_WIDTH = 124;
 	const [ isVisible, setIsVisible ] = useState( false );
-	const [ timeoutId, setTimeoutId ] = useState( null );
-
+	const [ hoverTimeout, setHoverTimeout ] = useState( null );
 	const hideTooltip = useCallback( () => setIsVisible( false ), [ setIsVisible ] );
 	const toggleTooltip = useCallback(
 		e => {
@@ -55,26 +54,6 @@ const IconTooltip: React.FC< IconTooltipProps > = ( {
 		},
 		[ isVisible, setIsVisible ]
 	);
-
-	const handleMouseEnter = useCallback( () => {
-		if ( hoverShow ) {
-			if ( timeoutId ) {
-				clearTimeout( timeoutId );
-				setTimeoutId( null );
-			}
-			setIsVisible( true );
-		}
-	}, [ hoverShow, timeoutId ] );
-
-	const handleMouseLeave = useCallback( () => {
-		if ( hoverShow ) {
-			const id = setTimeout( () => {
-				setIsVisible( false );
-				setTimeoutId( null );
-			}, 100 );
-			setTimeoutId( id );
-		}
-	}, [ hoverShow ] );
 
 	const args = {
 		// To be compatible with deprecating prop `position`.
@@ -100,6 +79,26 @@ const IconTooltip: React.FC< IconTooltipProps > = ( {
 	};
 
 	const isForcedToShow = isAnchorWrapper && forceShow;
+
+	const handleMouseEnter = useCallback( () => {
+		if ( hoverShow ) {
+			if ( hoverTimeout ) {
+				clearTimeout( hoverTimeout );
+				setHoverTimeout( null );
+			}
+			setIsVisible( true );
+		}
+	}, [ hoverShow, hoverTimeout ] );
+
+	const handleMouseLeave = useCallback( () => {
+		if ( hoverShow ) {
+			const id = setTimeout( () => {
+				setIsVisible( false );
+				setHoverTimeout( null );
+			}, 100 );
+			setHoverTimeout( id );
+		}
+	}, [ hoverShow ] );
 
 	return (
 		<div

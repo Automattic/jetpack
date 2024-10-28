@@ -1,3 +1,4 @@
+import { type ThreatFixStatus } from '@automattic/jetpack-scan';
 import { ExternalLink, Spinner } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
@@ -7,7 +8,6 @@ import IconTooltip from '../icon-tooltip';
 import Text from '../text';
 import { PAID_PLUGIN_SUPPORT_URL } from './constants';
 import styles from './styles.module.scss';
-import { type ThreatFixStatus } from './types';
 import { fixerStatusIsStale } from './utils';
 
 /**

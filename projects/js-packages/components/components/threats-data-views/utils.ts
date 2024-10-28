@@ -1,5 +1,5 @@
+import { type Threat, type ThreatFixStatus } from '@automattic/jetpack-scan';
 import { code, color, grid, plugins, shield, wordpress } from '@wordpress/icons';
-import { type Threat, type ThreatFixStatus } from './types';
 
 export const getThreatIcon = ( threat: Threat ) => {
 	const type = getThreatType( threat );

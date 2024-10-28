@@ -3,16 +3,18 @@ import {
 	SocialImageGeneratorPanel,
 	useSyncPostDataToStore,
 	useSocialMediaConnections,
+	usePostCanUseSig,
 } from '@automattic/jetpack-publicize-components';
 import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils';
 import { PluginPrePublishPanel } from '@wordpress/edit-post';
 import { __ } from '@wordpress/i18n';
 import UpsellNotice from './components/upsell';
 
-const PrePublishPanels = ( { isSocialImageGeneratorAvailable } ) => {
+const PrePublishPanels = () => {
 	useSyncPostDataToStore();
 
 	const { hasEnabledConnections } = useSocialMediaConnections();
+	const postCanUseSig = usePostCanUseSig();
 
 	return (
 		<>
@@ -31,7 +33,7 @@ const PrePublishPanels = ( { isSocialImageGeneratorAvailable } ) => {
 				</PublicizePanel>
 			</PluginPrePublishPanel>
 
-			{ isSocialImageGeneratorAvailable && (
+			{ postCanUseSig && (
 				<PluginPrePublishPanel
 					initialOpen
 					title={ __( 'Social Image Generator', 'jetpack' ) }
