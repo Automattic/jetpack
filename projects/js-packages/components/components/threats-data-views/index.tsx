@@ -124,9 +124,9 @@ export default function ThreatsDataViews( {
 	isThreatEligibleForFix?: ( threat: Threat ) => boolean;
 	isThreatEligibleForIgnore?: ( threat: Threat ) => boolean;
 	isThreatEligibleForUnignore?: ( threat: Threat ) => boolean;
-	onFixThreats?: ActionButton< Threat >[ 'callback' ];
-	onIgnoreThreats?: ActionButton< Threat >[ 'callback' ];
-	onUnignoreThreats?: ActionButton< Threat >[ 'callback' ];
+	onFixThreats?: ActionButton< string | number >[ 'callback' ];
+	onIgnoreThreats?: ActionButton< string | number >[ 'callback' ];
+	onUnignoreThreats?: ActionButton< string | number >[ 'callback' ];
 } ): JSX.Element {
 	const baseView = {
 		sort: {
@@ -486,13 +486,21 @@ export default function ThreatsDataViews( {
 				id: 'fix',
 				label: __( 'Auto-fix', 'jetpack' ),
 				supportsBulk: true,
-				callback: items => onFixThreats( items.map( item => item.id ) ),
+				callback: items =>
+					onFixThreats(
+						items.map( item => item.id ),
+						null // TODO: is context: { registry: any, onActionPerformed?: ... } prop necessary?
+					),
 				isEligible( item ) {
+					// TODO: Account for this here, or in isThreatEligibleForFix?
+					if ( item.fixer?.status !== 'not_started' ) {
+						return false;
+					}
+
 					if ( ! onFixThreats ) {
 						return false;
 					}
 					if ( isThreatEligibleForFix ) {
-						// TODO: Should not be able to bulk select or individually select threats with in_progress/errored fixers
 						return isThreatEligibleForFix( item );
 					}
 					return !! item.fixable;
@@ -504,8 +512,17 @@ export default function ThreatsDataViews( {
 			result.push( {
 				id: 'ignore',
 				label: __( 'Ignore', 'jetpack' ),
-				callback: items => onIgnoreThreats( items.map( item => item.id ) ),
+				callback: items =>
+					onIgnoreThreats(
+						items.map( item => item.id ),
+						null // TODO: is context: { registry: any, onActionPerformed?: ... } prop necessary?
+					),
 				isEligible( item ) {
+					// TODO: Account for this here, or in isThreatEligibleForIgnore?
+					if ( item.fixer?.status !== 'not_started' ) {
+						return false;
+					}
+
 					if ( ! onIgnoreThreats ) {
 						return false;
 					}
@@ -521,7 +538,11 @@ export default function ThreatsDataViews( {
 			result.push( {
 				id: 'un-ignore',
 				label: __( 'Unignore', 'jetpack' ),
-				callback: items => onUnignoreThreats( items.map( item => item.id ) ),
+				callback: items =>
+					onUnignoreThreats(
+						items.map( item => item.id ),
+						null // TODO: is context: { registry: any, onActionPerformed?: ... } prop necessary?
+					),
 				isEligible( item ) {
 					if ( ! onUnignoreThreats ) {
 						return false;
