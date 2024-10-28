@@ -1,4 +1,4 @@
-import { ThreatStatus, type Threat } from '@automattic/jetpack-scan';
+import { getThreatType, type Threat } from '@automattic/jetpack-scan';
 import {
 	__experimentalToggleGroupControl as ToggleGroupControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalToggleGroupControlOption as ToggleGroupControlOption, // eslint-disable-line @wordpress/no-unsafe-wp-apis
@@ -17,14 +17,14 @@ import {
 } from '@wordpress/dataviews';
 import { dateI18n } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
+import { code, color, grid, plugins, shield, wordpress } from '@wordpress/icons';
 import { Icon } from '@wordpress/icons';
 import { useCallback, useMemo, useState } from 'react';
 import Badge from '../badge';
+import ThreatFixerButton from '../threat-fixer-button';
 import ThreatSeverityBadge from '../threat-severity-badge';
 import { THREAT_STATUSES, THREAT_TYPES } from './constants';
-import FixerStatusIcon, { FixerStatusBadge } from './fixer-status';
 import styles from './styles.module.scss';
-import { getThreatIcon, getThreatSubtitle, getThreatType } from './utils';
 
 /**
  * ToggleGroupControl component for filtering threats by status.
