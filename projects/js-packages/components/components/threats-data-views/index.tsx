@@ -1,4 +1,8 @@
-import { type Threat } from '@automattic/jetpack-scan';
+import { ThreatStatus, type Threat } from '@automattic/jetpack-scan';
+import {
+	__experimentalToggleGroupControl as ToggleGroupControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	__experimentalToggleGroupControlOption as ToggleGroupControlOption, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+} from '@wordpress/components';
 import {
 	Action,
 	ActionButton,
@@ -12,7 +16,7 @@ import {
 	type View,
 } from '@wordpress/dataviews';
 import { dateI18n } from '@wordpress/date';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
 import { useCallback, useMemo, useState } from 'react';
 import Badge from '../badge';
@@ -21,6 +25,73 @@ import { THREAT_STATUSES, THREAT_TYPES } from './constants';
 import FixerStatusIcon, { FixerStatusBadge } from './fixer-status';
 import styles from './styles.module.scss';
 import { getThreatIcon, getThreatSubtitle, getThreatType } from './utils';
+
+/**
+ * ToggleGroupControl component for filtering threats by status.
+ * @param {object}   props                          - Component props.
+ * @param {number}   props.activeThreatsCount       - Number of active threats.
+ * @param {number}   props.historicThreatsCount     - Number of historic threats.
+ * @param {boolean}  props.isViewingActiveThreats   - Whether the active status is selected.
+ * @param {boolean}  props.isViewingHistoricThreats - Whether the historic status is selected.
+ * @param {Function} props.onStatusFilterChange     - Callback function to handle the status filter change.
+ * @return {JSX.Element|null} The component or null.
+ */
+export function ThreatsStatusToggleGroupControl( {
+	activeThreatsCount,
+	historicThreatsCount,
+	isViewingActiveThreats,
+	isViewingHistoricThreats,
+	onStatusFilterChange,
+}: {
+	activeThreatsCount: number;
+	historicThreatsCount: number;
+	isViewingActiveThreats: boolean;
+	isViewingHistoricThreats: boolean;
+	onStatusFilterChange: ( newValue: string ) => void;
+} ): JSX.Element {
+	if ( ! ( activeThreatsCount && historicThreatsCount ) ) {
+		return null;
+	}
+
+	let selectedValue = '';
+	if ( isViewingActiveThreats ) {
+		selectedValue = 'active';
+	} else if ( isViewingHistoricThreats ) {
+		selectedValue = 'historic';
+	}
+
+	return (
+		<ToggleGroupControl
+			className={ styles[ 'toggle-group-control' ] }
+			value={ selectedValue }
+			onChange={ onStatusFilterChange }
+		>
+			<ToggleGroupControlOption
+				value="active"
+				label={
+					<span>
+						{ sprintf(
+							/* translators: %d: number of active threats */ __( 'Active (%d)', 'jetpack' ),
+							activeThreatsCount
+						) }
+					</span>
+				}
+			/>
+			<ToggleGroupControlOption
+				value="historic"
+				label={
+					<span className={ styles[ 'toggle-control' ] }>
+						{ sprintf(
+							/* translators: %d: number of historic threats */
+							__( 'Historic (%d)', 'jetpack' ),
+							historicThreatsCount
+						) }
+					</span>
+				}
+			/>
+		</ToggleGroupControl>
+	);
+}
 
 /**
  * DataViews component for displaying security threats.
@@ -367,6 +438,18 @@ export default function ThreatsDataViews( {
 		return result;
 	}, [ extensions, signatures, dataFields, view ] );
 
+	const isStatusFilterSelected = ( threatStatuses: ThreatStatus[] ) =>
+		view.filters.some(
+			filter =>
+				filter.field === 'status' &&
+				Array.isArray( filter.value ) &&
+				filter.value.length === threatStatuses.length &&
+				threatStatuses.every( threatStatus => filter.value.includes( threatStatus ) )
+		);
+
+	const isViewingActiveThreats = isStatusFilterSelected( [ 'current' ] );
+	const isViewingHistoricThreats = isStatusFilterSelected( [ 'fixed', 'ignored' ] );
+
 	/**
 	 * DataView actions - collection of operations that can be performed upon each record.
 	 *
@@ -468,6 +551,53 @@ export default function ThreatsDataViews( {
 	 */
 	const getItemId = useCallback( ( item: Threat ) => item.id.toString(), [] );
 
+	/**
+	 * Callback function to handle the status change filter.
+	 *
+	 * @param {string} newStatus - The new status filter value.
+	 */
+	const onStatusFilterChange = useCallback(
+		( newStatus: string ) => {
+			const updatedFilters = view.filters.filter( filter => filter.field !== 'status' );
+
+			if ( newStatus === 'active' ) {
+				updatedFilters.push( {
+					field: 'status',
+					operator: 'isAny',
+					value: [ 'current' ],
+				} );
+			} else if ( newStatus === 'historic' ) {
+				updatedFilters.push( {
+					field: 'status',
+					operator: 'isAny',
+					value: [ 'fixed', 'ignored' ],
+				} );
+			}
+
+			setView( {
+				...view,
+				filters: updatedFilters,
+			} );
+		},
+		[ view ]
+	);
+
+	/**
+	 * Compute the number of active and historic threats.
+	 */
+	const activeThreatsCount = useMemo(
+		() => data.filter( item => item.status === 'current' ).length,
+		[ data ]
+	);
+
+	/**
+	 * Compute the number of active and historic threats.
+	 */
+	const historicThreatsCount = useMemo(
+		() => data.filter( item => [ 'fixed', 'ignored' ].includes( item.status ) ).length,
+		[ data ]
+	);
+
 	return (
 		<DataViews
 			actions={ actions }
@@ -479,6 +609,15 @@ export default function ThreatsDataViews( {
 			onChangeView={ onChangeView }
 			paginationInfo={ paginationInfo }
 			view={ view }
+			header={
+				<ThreatsStatusToggleGroupControl
+					activeThreatsCount={ activeThreatsCount }
+					historicThreatsCount={ historicThreatsCount }
+					isViewingActiveThreats={ isViewingActiveThreats }
+					isViewingHistoricThreats={ isViewingHistoricThreats }
+					onStatusFilterChange={ onStatusFilterChange }
+				/>
+			}
 		/>
 	);
 }
