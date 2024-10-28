@@ -175,6 +175,7 @@ export default function AiImageModal( {
 										value={ style }
 										options={ styles }
 										onChange={ updateStyle }
+										// TODO: disable when necessary
 										// disabled={ isBusy || requireUpgrade }
 									/>
 								</div>
