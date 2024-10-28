@@ -123,9 +123,9 @@ export default function ThreatsDataViews( {
 	isThreatEligibleForFix?: ( threat: Threat ) => boolean;
 	isThreatEligibleForIgnore?: ( threat: Threat ) => boolean;
 	isThreatEligibleForUnignore?: ( threat: Threat ) => boolean;
-	onFixThreats?: ( threatsIds: ( string | number )[] ) => void;
-	onIgnoreThreats?: ( threatsIds: ( string | number )[] ) => void;
-	onUnignoreThreats?: ( threatsIds: ( string | number )[] ) => void;
+	onFixThreats?: ( threatIds: ( string | number )[] ) => void;
+	onIgnoreThreats?: ( threatIds: ( string | number )[] ) => void;
+	onUnignoreThreats?: ( threatIds: ( string | number )[] ) => void;
 } ): JSX.Element {
 	const baseView = {
 		sort: {
