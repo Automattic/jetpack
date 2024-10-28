@@ -1,4 +1,4 @@
-import { ThreatStatus, type Threat } from '@automattic/jetpack-scan';
+import { getThreatType, type Threat, type ThreatStatus } from '@automattic/jetpack-scan';
 import {
 	Button,
 	__experimentalToggleGroupControl as ToggleGroupControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
@@ -6,7 +6,6 @@ import {
 } from '@wordpress/components';
 import {
 	Action,
-	ActionButton,
 	DataViews,
 	Field,
 	FieldType,
@@ -18,14 +17,14 @@ import {
 } from '@wordpress/dataviews';
 import { dateI18n } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
+import { code, color, grid, plugins, shield, wordpress } from '@wordpress/icons';
 import { Icon } from '@wordpress/icons';
 import { useCallback, useMemo, useState } from 'react';
 import Badge from '../badge';
+import ThreatFixerButton from '../threat-fixer-button';
 import ThreatSeverityBadge from '../threat-severity-badge';
 import { THREAT_STATUSES, THREAT_TYPES } from './constants';
-import FixerStatusIcon, { FixerStatusBadge } from './fixer-status';
 import styles from './styles.module.scss';
-import { getThreatIcon, getThreatSubtitle, getThreatType } from './utils';
 
 /**
  * ToggleGroupControl component for filtering threats by status.
@@ -124,9 +123,9 @@ export default function ThreatsDataViews( {
 	isThreatEligibleForFix?: ( threat: Threat ) => boolean;
 	isThreatEligibleForIgnore?: ( threat: Threat ) => boolean;
 	isThreatEligibleForUnignore?: ( threat: Threat ) => boolean;
-	onFixThreats?: ActionButton< string | number >[ 'callback' ];
-	onIgnoreThreats?: ActionButton< string | number >[ 'callback' ];
-	onUnignoreThreats?: ActionButton< string | number >[ 'callback' ];
+	onFixThreats?: ( threatsIds: ( string | number )[] ) => void;
+	onIgnoreThreats?: ( threatsIds: ( string | number )[] ) => void;
+	onUnignoreThreats?: ( threatsIds: ( string | number )[] ) => void;
 } ): JSX.Element {
 	const baseView = {
 		sort: {
@@ -149,14 +148,22 @@ export default function ThreatsDataViews( {
 	const defaultLayouts: SupportedLayouts = {
 		table: {
 			...baseView,
-			fields: [ 'severity', 'threat', 'auto-fix' ],
+			fields: [ 'severity', 'threat', 'type', 'auto-fix' ],
 			layout: {
 				primaryField: 'severity',
+				combinedFields: [
+					{
+						id: 'threat',
+						label: __( 'Threat', 'jetpack' ),
+						children: [ 'title', 'description' ],
+						direction: 'vertical',
+					},
+				],
 			},
 		},
 		list: {
 			...baseView,
-			fields: [ 'severity', 'subtitle', 'signature', 'auto-fix' ],
+			fields: [ 'severity', 'type', 'signature' ],
 			layout: {
 				primaryField: 'title',
 				mediaField: 'icon',
@@ -212,8 +219,8 @@ export default function ThreatsDataViews( {
 		signatures,
 		dataFields,
 	}: {
-		activeThreatIds: string[];
-		historicThreatIds: string[];
+		activeThreatIds: ( string | number )[];
+		historicThreatIds: ( string | number )[];
 		extensions: { value: string; label: string }[];
 		signatures: { value: string; label: string }[];
 		dataFields: string[];
@@ -273,31 +280,22 @@ export default function ThreatsDataViews( {
 	const fields = useMemo( () => {
 		const result: Field< Threat >[] = [
 			{
-				id: 'threat',
-				label: __( 'Threat', 'jetpack' ),
-				enableGlobalSearch: true,
-				enableHiding: false,
-				getValue( { item }: { item: Threat } ) {
-					return item.title + item.description;
-				},
-				render( { item }: { item: Threat } ) {
-					return (
-						<div className={ styles.threat__primary }>
-							<div className={ styles.threat__subtitle }>
-								<Icon icon={ getThreatIcon( item ) } size={ 20 } />
-								{ getThreatSubtitle( item ) }
-							</div>
-							<div className={ styles.threat__title }>{ item.title }</div>
-							<div className={ styles.threat__description }>{ item.description }</div>
-						</div>
-					);
-				},
-			},
-			{
 				id: 'title',
 				label: __( 'Title', 'jetpack' ),
 				enableGlobalSearch: true,
 				enableHiding: false,
+				render: ( { item }: { item: Threat } ) => (
+					<div className={ styles.threat__title }>{ item.title }</div>
+				),
+			},
+			{
+				id: 'description',
+				label: __( 'Description', 'jetpack' ),
+				enableGlobalSearch: true,
+				enableHiding: false,
+				render: ( { item }: { item: Threat } ) => (
+					<div className={ styles.threat__description }>{ item.description }</div>
+				),
 			},
 			{
 				id: 'icon',
@@ -307,13 +305,51 @@ export default function ThreatsDataViews( {
 					return getThreatType( item );
 				},
 				render( { item }: { item: Threat } ) {
+					const type = getThreatType( item );
+
+					let icon;
+					switch ( type ) {
+						case 'plugin':
+							icon = plugins;
+							break;
+						case 'theme':
+							icon = color;
+							break;
+						case 'core':
+							icon = wordpress;
+							break;
+						case 'file':
+							icon = code;
+							break;
+						case 'database':
+							icon = grid;
+							break;
+						default:
+							icon = shield;
+					}
+
 					return (
 						<div className={ styles.threat__media }>
-							<Icon icon={ getThreatIcon( item ) } size={ 20 } />
+							<Icon icon={ icon } size={ 20 } />
 						</div>
 					);
 				},
 			},
+			...( dataFields.includes( 'severity' )
+				? [
+						{
+							id: 'severity',
+							label: __( 'Severity', 'jetpack' ),
+							type: 'integer' as FieldType,
+							getValue( { item }: { item: Threat } ) {
+								return item.severity ?? 0;
+							},
+							render( { item }: { item: Threat } ) {
+								return <ThreatSeverityBadge severity={ item.severity } />;
+							},
+						},
+				  ]
+				: [] ),
 			{
 				id: 'status',
 				label: __( 'Status', 'jetpack' ),
@@ -347,31 +383,10 @@ export default function ThreatsDataViews( {
 			},
 			{
 				id: 'type',
-				label: __( 'Category', 'jetpack' ),
+				label: __( 'Type', 'jetpack' ),
 				elements: THREAT_TYPES,
 				getValue( { item }: { item: Threat } ) {
-					if ( item.signature === 'Vulnerable.WP.Core' ) {
-						return 'core';
-					}
-					if ( item.extension ) {
-						return item.extension.type;
-					}
-					if ( item.filename ) {
-						return 'file';
-					}
-					if ( item.table ) {
-						return 'database';
-					}
-
-					return 'uncategorized';
-				},
-			},
-			{
-				id: 'subtitle',
-				label: __( 'Affected Item', 'jetpack' ),
-				enableHiding: false,
-				getValue( { item }: { item: Threat } ) {
-					return getThreatSubtitle( item );
+					return getThreatType( item ) ?? '';
 				},
 			},
 			...( dataFields.includes( 'signature' )
@@ -387,45 +402,33 @@ export default function ThreatsDataViews( {
 						},
 				  ]
 				: [] ),
-			...( dataFields.includes( 'severity' )
-				? [
-						{
-							id: 'severity',
-							label: __( 'Severity', 'jetpack' ),
-							type: 'integer' as FieldType,
-							getValue( { item }: { item: Threat } ) {
-								return item.severity ?? 0;
-							},
-							render( { item }: { item: Threat } ) {
-								return <ThreatSeverityBadge severity={ item.severity } />;
-							},
-						},
-				  ]
-				: [] ),
 			...( dataFields.includes( 'fixable' )
 				? [
 						{
 							id: 'auto-fix',
-							label: __( 'Auto-fix', 'jetpack' ),
+							label: __( 'Auto-Fix', 'jetpack' ),
 							enableHiding: false,
-							type: 'integer' as FieldType,
+							elements: [
+								{
+									value: 'yes',
+									label: __( 'Yes', 'jetpack' ),
+								},
+								{
+									value: 'no',
+									label: __( 'No', 'jetpack' ),
+								},
+							],
 							getValue( { item }: { item: Threat } ) {
-								return item.fixable ? 1 : 0;
+								return item.fixable ? 'yes' : 'no';
 							},
 							render( { item }: { item: Threat } ) {
 								if ( ! item.fixable ) {
 									return null;
 								}
 
-								if ( view.type === 'table' ) {
-									return (
-										<div className={ styles.threat__fixer }>
-											<FixerStatusIcon fixer={ item.fixer } />
-										</div>
-									);
-								}
-
-								return <FixerStatusBadge fixer={ item.fixer } />;
+								return (
+									<ThreatFixerButton threat={ item } onClick={ onFixThreats( [ item.id ] ) } />
+								);
 							},
 						},
 				  ]
@@ -471,7 +474,7 @@ export default function ThreatsDataViews( {
 		];
 
 		return result;
-	}, [ extensions, signatures, dataFields, view ] );
+	}, [ dataFields, extensions, signatures, onFixThreats ] );
 
 	/**
 	 * DataView actions - collection of operations that can be performed upon each record.
@@ -486,14 +489,10 @@ export default function ThreatsDataViews( {
 				id: 'fix',
 				label: __( 'Auto-fix', 'jetpack' ),
 				supportsBulk: true,
-				callback: items =>
-					onFixThreats(
-						items.map( item => item.id ),
-						null // TODO: is context: { registry: any, onActionPerformed?: ... } prop necessary?
-					),
+				callback: items => onFixThreats( items.map( item => item.id ) ),
 				isEligible( item ) {
 					// TODO: Account for this here, or in isThreatEligibleForFix?
-					if ( item.fixer?.status !== 'not_started' ) {
+					if ( item.fixer.status !== 'not_started' ) {
 						return false;
 					}
 
@@ -512,14 +511,10 @@ export default function ThreatsDataViews( {
 			result.push( {
 				id: 'ignore',
 				label: __( 'Ignore', 'jetpack' ),
-				callback: items =>
-					onIgnoreThreats(
-						items.map( item => item.id ),
-						null // TODO: is context: { registry: any, onActionPerformed?: ... } prop necessary?
-					),
+				callback: items => onIgnoreThreats( items.map( item => item.id ) ),
 				isEligible( item ) {
 					// TODO: Account for this here, or in isThreatEligibleForIgnore?
-					if ( item.fixer?.status !== 'not_started' ) {
+					if ( item.fixer.status !== 'not_started' ) {
 						return false;
 					}
 
@@ -538,11 +533,7 @@ export default function ThreatsDataViews( {
 			result.push( {
 				id: 'un-ignore',
 				label: __( 'Unignore', 'jetpack' ),
-				callback: items =>
-					onUnignoreThreats(
-						items.map( item => item.id ),
-						null // TODO: is context: { registry: any, onActionPerformed?: ... } prop necessary?
-					),
+				callback: items => onUnignoreThreats( items.map( item => item.id ) ),
 				isEligible( item ) {
 					if ( ! onUnignoreThreats ) {
 						return false;

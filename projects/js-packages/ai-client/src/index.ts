@@ -16,6 +16,7 @@ export { default as useAudioTranscription } from './hooks/use-audio-transcriptio
 export { default as useTranscriptionPostProcessing } from './hooks/use-transcription-post-processing/index.js';
 export { default as useAudioValidation } from './hooks/use-audio-validation/index.js';
 export { default as useImageGenerator } from './hooks/use-image-generator/index.js';
+export * from './hooks/use-image-generator/constants.js';
 
 /*
  * Components: Icons

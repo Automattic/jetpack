@@ -298,6 +298,15 @@ FixerStatuses.args = {
 			source: null,
 		},
 	],
+	onFixThreats: () =>
+		alert( 'Threat fix action callback triggered! This is handled by the component consumer.' ), // eslint-disable-line no-alert
+	onIgnoreThreats: () =>
+		alert( 'Ignore threat action callback triggered! This is handled by the component consumer.' ), // eslint-disable-line no-alert
+	onUnignoreThreats: () =>
+		// eslint-disable-next-line no-alert
+		alert(
+			'Unignore threat action callback triggered! This is handled by the component consumer.'
+		),
 };
 
 export const FreeResults = args => <ThreatsDataViews { ...args } />;

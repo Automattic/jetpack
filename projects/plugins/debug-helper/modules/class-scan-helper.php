@@ -581,14 +581,8 @@ class Scan_Helper {
 	 * @return string|WP_Error Success message on success, WP_Error object on failure.
 	 */
 	private function generate_fuzzy_hash_threat() {
-		$content = base64_decode(
-			'PEZpbGVzTWF0Y2ggIi4ocHl8ZXhlfHBocCkkIj4KIE9yZGVyIGFsbG93LGRlbnkKIERlbnkgZnJvbSBhbGwKPC9GaWxlc01hdG' .
-			'NoPgo8RmlsZXNNYXRjaCAiXihhYm91dC5waHB8cmFkaW8ucGhwfGluZGV4LnBocHxjb250ZW50LnBocHxsb2NrMzYwLnBocCkkIj4KIE' .
-			'9yZGVyIGFsbG93LGRlbnkKIEFsbG93IGZyb20gYWxsCjwvRmlsZXNNYXRjaD4KPElmTW9kdWxlIG1vZF9yZXdyaXRlLmM+ClJld3JpdG' .
-			'VFbmdpbmUgT24KUmV3cml0ZUJhc2UgLwpSZXdyaXRlUnVsZSBeaW5kZXhcLnBocCQgLSBbTF0KUmV3cml0ZUNvbmQgJXtSRVFVRVNUX0' .
-			'ZJTEVOQU1FfSAhLWYKUmV3cml0ZUNvbmQgJXtSRVFVRVNUX0ZJTEVOQU1FfSAhLWQKUmV3cml0ZVJ1bGUgLiAvaW5kZXgucGhwIFtMXQ' .
-			'o8L0lmTW9kdWxlPg=='
-		);
+		// We need at least 4 kilobyte, 201 * 20 = 4020 bytes
+		$content = str_repeat( 'JETPACK-TEST-THREAT-', 201 );
 
 		if ( ! $this->write_file( $this->threats['fuzzy_hash_file'], $content ) ) {
 			return new WP_Error( 'could-not-write', "Unable to write threat to {$this->threats['fuzzy_hash_file']}" );

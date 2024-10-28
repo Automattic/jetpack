@@ -1,3 +1,5 @@
+import { ThreatFixStatus } from './fixers.js';
+
 export type ThreatStatus = 'fixed' | 'ignored' | 'current';
 
 export type ThreatFixType = 'replace' | 'delete' | 'update' | string;

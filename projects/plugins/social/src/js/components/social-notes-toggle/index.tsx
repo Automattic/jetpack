@@ -125,6 +125,7 @@ const SocialNotesToggle: React.FC< SocialNotesToggleProps > = ( { disabled } ) =
 						className={ styles.toggle }
 						onChange={ onToggleAppendLink }
 						help={ __( 'Whether to append the post link when sharing a note.', 'jetpack-social' ) }
+						__nextHasNoMarginBottom={ true }
 					/>
 					{ appendLink && ! isAppendLinkToggleUpdating ? (
 						<SelectControl
@@ -149,6 +150,7 @@ const SocialNotesToggle: React.FC< SocialNotesToggleProps > = ( { disabled } ) =
 									</ExternalLink>
 								</span>
 							}
+							__nextHasNoMarginBottom={ true }
 						/>
 					) : null }
 				</div>

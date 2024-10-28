@@ -92,6 +92,7 @@ const ChangingValueTemplate: StoryFn< typeof TimestampControl > = args => {
 				value={ value }
 				onChange={ setValue }
 				max={ args.max }
+				__nextHasNoMarginBottom={ true }
 			/>
 		</>
 	);

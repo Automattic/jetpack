@@ -1,7 +1,5 @@
 import { __ } from '@wordpress/i18n';
 
-export const PAID_PLUGIN_SUPPORT_URL = 'https://jetpack.com/contact-support/?rel=support';
-
 export const THREAT_STATUSES: { value: string; label: string; variant?: 'success' | 'warning' }[] =
 	[
 		{ value: 'current', label: __( 'Active', 'jetpack' ), variant: 'warning' },
