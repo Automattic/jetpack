@@ -31,6 +31,10 @@
 	border-color: #EDFFEE;
 
 	svg {
-		fill: black;
+		fill: var( --jp-black );
 	}
+}
+
+.toggle-control {
+	white-space: nowrap;
 }

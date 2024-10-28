@@ -1,4 +1,4 @@
-import { getThreatType, type Threat } from '@automattic/jetpack-scan';
+import { getThreatType, type Threat, type ThreatStatus } from '@automattic/jetpack-scan';
 import {
 	__experimentalToggleGroupControl as ToggleGroupControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalToggleGroupControlOption as ToggleGroupControlOption, // eslint-disable-line @wordpress/no-unsafe-wp-apis
@@ -185,23 +185,53 @@ export default function ThreatsDataViews( {
 	} );
 
 	/**
+	 * Memoized function to determine if a status filter is selected.
+	 *
+	 * @param {Array} threatStatuses - List of threat statuses.
+	 */
+	const isStatusFilterSelected = useMemo(
+		() => ( threatStatuses: ThreatStatus[] ) =>
+			view.filters.some(
+				filter =>
+					filter.field === 'status' &&
+					Array.isArray( filter.value ) &&
+					filter.value.length === threatStatuses.length &&
+					threatStatuses.every( threatStatus => filter.value.includes( threatStatus ) )
+			),
+		[ view.filters ]
+	);
+
+	/**
 	 * Compute values from the provided threats data.
 	 *
+	 * @member {Array}  activeThreatIds - List of active threat IDs.
+	 * @member {Array}  historicThreatIds - List of historic threat IDs.
 	 * @member {object} extensions - List of unique threat extensions.
 	 * @member {object} signatures - List of unique threat signatures.
 	 * @member {Array}  dataFields - List of unique fields.
 	 */
 	const {
+		activeThreatIds,
+		historicThreatIds,
 		extensions,
 		signatures,
 		dataFields,
 	}: {
+		activeThreatIds: ( string | number )[];
+		historicThreatIds: ( string | number )[];
 		extensions: { value: string; label: string }[];
 		signatures: { value: string; label: string }[];
 		dataFields: string[];
 	} = useMemo( () => {
 		return data.reduce(
 			( acc, threat ) => {
+				// Active/Historic Threat IDs
+				if ( threat.status === 'current' ) {
+					acc.activeThreatIds.push( threat.id );
+				} else {
+					acc.historicThreatIds.push( threat.id );
+				}
+
 				// Extensions
 				if ( threat.extension ) {
 					if ( ! acc.extensions.find( ( { value } ) => value === threat.extension.slug ) ) {
@@ -231,6 +261,8 @@ export default function ThreatsDataViews( {
 				return acc;
 			},
 			{
+				activeThreatIds: [],
+				historicThreatIds: [],
 				extensions: [],
 				signatures: [],
 				dataFields: [],
@@ -440,18 +472,6 @@ export default function ThreatsDataViews( {
 		return result;
 	}, [ dataFields, extensions, signatures, onFixThreats ] );
 
-	const isStatusFilterSelected = ( threatStatuses: ThreatStatus[] ) =>
-		view.filters.some(
-			filter =>
-				filter.field === 'status' &&
-				Array.isArray( filter.value ) &&
-				filter.value.length === threatStatuses.length &&
-				threatStatuses.every( threatStatus => filter.value.includes( threatStatus ) )
-		);
-
-	const isViewingActiveThreats = isStatusFilterSelected( [ 'current' ] );
-	const isViewingHistoricThreats = isStatusFilterSelected( [ 'fixed', 'ignored' ] );
-
 	/**
 	 * DataView actions - collection of operations that can be performed upon each record.
 	 *
@@ -584,22 +604,6 @@ export default function ThreatsDataViews( {
 		[ view ]
 	);
 
-	/**
-	 * Compute the number of active and historic threats.
-	 */
-	const activeThreatsCount = useMemo(
-		() => data.filter( item => item.status === 'current' ).length,
-		[ data ]
-	);
-
-	/**
-	 * Compute the number of active and historic threats.
-	 */
-	const historicThreatsCount = useMemo(
-		() => data.filter( item => [ 'fixed', 'ignored' ].includes( item.status ) ).length,
-		[ data ]
-	);
-
 	return (
 		<DataViews
 			actions={ actions }
@@ -613,10 +617,10 @@ export default function ThreatsDataViews( {
 			view={ view }
 			header={
 				<ThreatsStatusToggleGroupControl
-					activeThreatsCount={ activeThreatsCount }
-					historicThreatsCount={ historicThreatsCount }
-					isViewingActiveThreats={ isViewingActiveThreats }
-					isViewingHistoricThreats={ isViewingHistoricThreats }
+					activeThreatsCount={ activeThreatIds.length }
+					historicThreatsCount={ historicThreatIds.length }
+					isViewingActiveThreats={ isStatusFilterSelected( [ 'current' ] ) }
+					isViewingHistoricThreats={ isStatusFilterSelected( [ 'fixed', 'ignored' ] ) }
 					onStatusFilterChange={ onStatusFilterChange }
 				/>
 			}
