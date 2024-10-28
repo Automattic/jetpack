@@ -412,7 +412,11 @@ EOF
 					$input->setOption( 'epilogue', $latest->getEpilogue() );
 				}
 				if ( $input->getOption( 'link' ) === null ) {
-					$input->setOption( 'link', $latest->getLink() );
+					$oldLink     = $latest->getLink();
+					$defaultLink = $changelog->getLatestEntry() ? Config::link( $changelog->getLatestEntry()->getVersion(), $latest->getVersion() ) : null;
+					if ( $oldLink !== $defaultLink ) {
+						$input->setOption( 'link', $latest->getLink() );
+					}
 				}
 			} else {
 				$output->writeln( 'No version to amend, ignoring --amend.', OutputInterface::VERBOSITY_DEBUG );

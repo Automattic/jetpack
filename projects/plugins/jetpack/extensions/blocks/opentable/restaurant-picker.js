@@ -11,7 +11,7 @@ export default function RestaurantPicker( props ) {
 	const { restaurants, hasRequestFailed } = useRestaurantSearch( input, MAX_SUGGESTIONS );
 	const [ selectedRestaurants, setSelectedRestaurants ] = useState( props.rids || [] );
 
-	const idRegex = /^(\d+)$|\(\#(\d+)\)$/;
+	const idRegex = /^(\d+)$|\(#(\d+)\)$/;
 
 	const onChange = selected => {
 		const selectedIds = selected.map( restaurant => {
@@ -43,6 +43,7 @@ export default function RestaurantPicker( props ) {
 			label={ _n( 'Restaurant', 'Restaurants', selectedRestaurants.length, 'jetpack' ) }
 			{ ...props }
 			onChange={ onChange }
+			__nextHasNoMarginBottom={ true }
 		/>
 	);
 

@@ -41,6 +41,7 @@ export default function ImageCdnLiar( { isPremium }: ImageCdnLiarProps ) {
 						className={ styles[ 'toggle-control' ] }
 						checked={ imageCdnLiar.data }
 						onChange={ handleToggle }
+						__nextHasNoMarginBottom={ true }
 					/>
 				</div>
 			</div>

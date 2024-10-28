@@ -157,7 +157,7 @@
 		"jest-environment-jsdom": "29.7.0",
 		"jquery": "3.6.0",
 		"lodash": "4.17.21",
-		"postcss": "8.4.31",
+		"postcss": "8.4.47",
 		"postcss-loader": "6.2.0",
 		"regenerator-runtime": "0.13.9",
 		"sass-loader": "12.4.0",
