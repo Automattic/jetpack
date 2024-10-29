@@ -585,10 +585,12 @@ export default function ThreatsDataViews( {
 			selectedItemIds.forEach( id => {
 				const threat = data.find( item => item.id === parseInt( id, 10 ) );
 				if ( threat ) {
-					if ( threat.fixable ) {
-						fixableIds.push( threat.id );
-					} else if ( threat.status === 'current' ) {
+					if ( threat.status === 'current' ) {
 						ignorableIds.push( threat.id );
+
+						if ( threat.fixable ) {
+							fixableIds.push( threat.id );
+						}
 					} else if ( threat.status === 'ignored' ) {
 						unignorableIds.push( threat.id );
 					}
