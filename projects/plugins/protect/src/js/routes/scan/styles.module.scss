@@ -2,17 +2,6 @@
     font-weight: bold;
 }
 
-.illustration {
-	display: flex;
-	align-items: center;
-	height: 100%;
-	img {
-		// let's fit images
-		object-fit: cover;
-		width: 100%;
-	}
-}
-
 .product-section, .info-section {
 	margin-top: calc( var( --spacing-base ) * 7 ); // 56px
 	margin-bottom: calc( var( --spacing-base ) * 7 ); // 56px

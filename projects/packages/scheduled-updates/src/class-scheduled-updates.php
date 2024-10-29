@@ -20,7 +20,7 @@ class Scheduled_Updates {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.13.4';
+	const PACKAGE_VERSION = '0.13.5';
 
 	/**
 	 * The cron event hook for the scheduled plugins update.
