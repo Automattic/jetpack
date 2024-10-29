@@ -118,11 +118,13 @@ export function photonizedImgProps( img, galleryAtts = {} ) {
 function isVIP() {
 	/*global jetpack_plan*/
 	// Use `jetpackPlanFromState` if available, otherwise fall back to `jetpack_plan` defined within the render function in tiled-gallery.php.
-	const jetpackPlan = jetpackPlanFromState ? jetpackPlanFromState : jetpack_plan;
-	if ( typeof jetpackPlan !== 'undefined' && jetpackPlan.data === 'vip' ) {
-		return true;
+	let jetpackPlan;
+	if ( typeof jetpackPlanFromState !== 'undefined' ) {
+		jetpackPlan = jetpackPlanFromState;
+	} else if ( typeof jetpack_plan !== 'undefined' ) {
+		jetpackPlan = jetpack_plan;
 	}
-	return false;
+	return jetpackPlan && jetpackPlan.data === 'vip';
 }
 
 /**
