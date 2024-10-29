@@ -38,6 +38,13 @@ The logo generator is not available for free users, test with a plan or subscrip
   - use `add_filter( 'jetpack_ai_tier_licensed_quantity', function() { return 0 | 100 | 1; } );` filter to mock free/tier100/unlimited plans
 	- sandbox the API, but then don't connect to sandbox to mock a disconnected situation
 
+### AI Image Generator
+
+The styles added to the logo generator are now also available on general image creation.
+It is currently available for a12s as well, but if you need to test with another account, the filter to enable it on your 0-sandbox.php file is: `add_filter( 'jetpack_ai_image_style_selector_enabled', '__return_true' );`
+
+The testing steps are the same as the logo generator steps above, except that now you should add an Image block instead and click on the "Generate with AI" button.
+
 ### And More!
 
 You can see a [full list of changes in this release here](https://github.com/Automattic/jetpack-production/blob/trunk/CHANGELOG.md). Please feel free to test any and all functionality mentioned!
