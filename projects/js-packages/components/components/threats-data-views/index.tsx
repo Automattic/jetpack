@@ -426,9 +426,7 @@ export default function ThreatsDataViews( {
 									return null;
 								}
 
-								return (
-									<ThreatFixerButton threat={ item } onClick={ onFixThreats( [ item.id ] ) } />
-								);
+								return <ThreatFixerButton threat={ item } onClick={ onFixThreats } />;
 							},
 						},
 				  ]
@@ -492,7 +490,7 @@ export default function ThreatsDataViews( {
 				callback: items => onFixThreats( items.map( item => item.id ) ),
 				isEligible( item ) {
 					// TODO: Account for this here, or in isThreatEligibleForFix?
-					if ( item.fixer.status !== 'not_started' ) {
+					if ( item.fixer && 'status' in item.fixer && item.fixer.status !== 'not_started' ) {
 						return false;
 					}
 
@@ -514,7 +512,7 @@ export default function ThreatsDataViews( {
 				callback: items => onIgnoreThreats( items.map( item => item.id ) ),
 				isEligible( item ) {
 					// TODO: Account for this here, or in isThreatEligibleForIgnore?
-					if ( item.fixer.status !== 'not_started' ) {
+					if ( item.fixer && 'status' in item.fixer && item.fixer.status !== 'not_started' ) {
 						return false;
 					}
 
