@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed the outdated JS build for script-data
