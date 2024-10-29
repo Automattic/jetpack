@@ -14,7 +14,7 @@
 
 On top of the already available AI Logo generator, we've now added a styles dropdown to allow more control for the user without depending entirely on the provided prompt.
 
-The logo generator is not available for free users, test with a plan or subscription. Also, it's currenlty available for a12s (and will soon be open to public), but if you need to test with another account and have access to a sandbox, you can add a filter to enable the styles on your 0-sandbox.php file: `add_filter( 'jetpack_ai_logo_style_selector_enabled', '__return_true' );`
+The logo generator is not available for free users, test with a plan or subscription. Also, it's currenlty available for a12s only (and will soon be open to public).
 
 - Load the editor and add a Logo block.
 - On the network tab you should see a request to `ai-assistant-feature`
@@ -35,13 +35,13 @@ The logo generator is not available for free users, test with a plan or subscrip
 - Feel free to play with the styles to achieve different results
 - Confirm that using style "Auto" will try to guess the style based on the prompt (AI query request) and set the style prior to sending the image generation request
 - If possible, try different combinations of plans and cases:
-  - use `add_filter( 'jetpack_ai_tier_licensed_quantity', function() { return 0 | 100 | 1; } );` filter to mock free/tier100/unlimited plans
+  - use `add_filter( 'jetpack_ai_tier_licensed_quantity', function() { return 0 | 100 | 1; } );` on your `0-sandbox.php` file filter to mock free/tier100/unlimited plans
 	- sandbox the API, but then don't connect to sandbox to mock a disconnected situation
 
 ### AI Image Generator
 
 The styles added to the logo generator are now also available on general image creation.
-It is currently available for a12s as well, but if you need to test with another account, the filter to enable it on your 0-sandbox.php file is: `add_filter( 'jetpack_ai_image_style_selector_enabled', '__return_true' );`
+It is currently only available for a12s as well, so test in a site where you are logged in with your A8c account.
 
 The testing steps are the same as the logo generator steps above, except that now you should add an Image block instead and click on the "Generate with AI" button.
 
