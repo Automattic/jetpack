@@ -3,7 +3,7 @@ Contributors: automattic, xwp, adnan007, bjorsch, danwalmsley, davidlonjon, dili
 Donate link: https://automattic.com
 Tags: performance, speed, web vitals, critical css, cache
 Requires at least: 6.5
-Tested up to: 6.6
+Tested up to: 6.7
 Requires PHP: 7.0
 Stable tag: 3.5.2
 License: GPLv2 or later

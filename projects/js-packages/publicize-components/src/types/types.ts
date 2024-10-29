@@ -47,7 +47,6 @@ type JetpackSettingsSelectors = {
 	isModuleEnabled: () => boolean;
 	showPricingPage: () => boolean;
 	isUpdatingJetpackSettings: () => boolean;
-	hasPaidPlan: () => boolean;
 };
 
 type ConnectionDataSelectors = {
@@ -68,7 +67,6 @@ type SocialImageGeneratorSettingsSelectors = {
 			template: string;
 		};
 	};
-	isSocialImageGeneratorAvailable: () => boolean;
 	isSocialImageGeneratorEnabled: () => boolean;
 	isUpdatingSocialImageGeneratorSettings: () => boolean;
 	getSocialImageGeneratorDefaultTemplate: () => string;

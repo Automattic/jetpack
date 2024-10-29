@@ -5,6 +5,8 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Blocks;
+
 /**
  * Helper class that lets us add schema attributes dynamically because they are not something that is store with the content.
  * Due to the limitations of wp_kses.
@@ -12,6 +14,45 @@
  * @since 7.1.0
  */
 class Jetpack_Contact_Info_Block {
+
+	/**
+	 * Registers the block for use in Gutenberg
+	 * This is done via an action so that we can disable
+	 * registration if we need to.
+	 */
+	public static function register_block() {
+
+		Blocks::jetpack_register_block(
+			__DIR__,
+			array(
+				'render_callback' => __NAMESPACE__ . '\render',
+			)
+		);
+
+		Blocks::jetpack_register_block(
+			'jetpack/address',
+			array(
+				'parent'          => array( 'jetpack/contact-info' ),
+				'render_callback' => __NAMESPACE__ . '\render_adress',
+			)
+		);
+
+		Blocks::jetpack_register_block(
+			'jetpack/email',
+			array(
+				'parent'          => array( 'jetpack/contact-info' ),
+				'render_callback' => __NAMESPACE__ . '\render_email',
+			)
+		);
+
+		Blocks::jetpack_register_block(
+			'jetpack/phone',
+			array(
+				'parent'          => array( 'jetpack/contact-info' ),
+				'render_callback' => __NAMESPACE__ . '\render_phone',
+			)
+		);
+	}
 
 	/**
 	 * Adds contact info schema attributes.
@@ -70,7 +111,7 @@ class Jetpack_Contact_Info_Block {
 	 * @param array $attr Array containing the block attributes.
 	 * @param array $omit Array containing the block attributes that we ignore.
 	 *
-	 * @return string
+	 * @return bool
 	 */
 	public static function has_attributes( $attr, $omit = array() ) {
 		foreach ( $attr as $attribute => $value ) {

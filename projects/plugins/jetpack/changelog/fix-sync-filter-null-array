@@ -1,4 +1,0 @@
-Significance: patch
-Type: compat
-
-Plugin action links filters: update parameter to avoid any conflicts with other plugins.
