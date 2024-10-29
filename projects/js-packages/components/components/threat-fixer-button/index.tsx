@@ -32,10 +32,10 @@ export default function ThreatFixerButton( {
 		if ( ! threat.fixable ) {
 			return null;
 		}
-		if ( threat.fixer && threat.fixer.error ) {
+		if ( threat.fixer && 'error' in threat.fixer && threat.fixer.error ) {
 			return __( 'Error', 'jetpack' );
 		}
-		if ( threat.fixer && threat.fixer.status === 'in_progress' ) {
+		if ( threat.fixer && 'status' in threat.fixer && threat.fixer.status === 'in_progress' ) {
 			return __( 'Fixing…', 'jetpack' );
 		}
 		if ( threat.fixable.fixer === 'delete' ) {
@@ -88,11 +88,18 @@ export default function ThreatFixerButton( {
 				onClick={ handleClick }
 				children={ children }
 				className={ className }
-				disabled={ threat.fixer && threat.fixer.status === 'in_progress' && ! errorMessage }
-				isLoading={ threat.fixer && threat.fixer.status === 'in_progress' }
+				disabled={
+					threat.fixer &&
+					'status' in threat.fixer &&
+					threat.fixer.status === 'in_progress' &&
+					! errorMessage
+				}
+				isLoading={
+					threat.fixer && 'status' in threat.fixer && threat.fixer.status === 'in_progress'
+				}
 				isDestructive={
 					( threat.fixable && threat.fixable.fixer === 'delete' ) ||
-					( threat.fixer && threat.fixer.error ) ||
+					( threat.fixer && 'error' in threat.fixer && threat.fixer.error ) ||
 					( threat.fixer && fixerStatusIsStale( threat.fixer ) )
 				}
 				style={ { minWidth: '72px' } }
