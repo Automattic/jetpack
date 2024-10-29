@@ -27,7 +27,7 @@ const getRedirectUri = () => {
 };
 
 const ConnectBanner: FC< ConnectBannerProps > = ( { block, explanation = null } ) => {
-	const [ isRedirecting, setIsRedirecting ] = useState( false );
+	const [ isReadyToRedirect, setIsReadyToRedirect ] = useState( false );
 	const [ isSaving, setIsSaving ] = useState( false );
 	const { handleConnectUser } = useConnection( {
 		from: 'editor',
@@ -38,11 +38,11 @@ const ConnectBanner: FC< ConnectBannerProps > = ( { block, explanation = null } 
 	const { autosave } = useAutosaveAndRedirect();
 	const { tracks } = useAnalytics();
 
-	const goToCheckoutPage = ( event: MouseEvent< HTMLButtonElement > ) => {
+	const goToConnectPage = ( event: MouseEvent< HTMLButtonElement > ) => {
 		setIsSaving( true );
 		autosave( event ).then( () => {
 			tracks.recordEvent( 'jetpack_editor_connect_banner_click', { block } );
-			setIsRedirecting( true );
+			setIsReadyToRedirect( true );
 			setIsSaving( false );
 		} );
 	};
@@ -51,10 +51,10 @@ const ConnectBanner: FC< ConnectBannerProps > = ( { block, explanation = null } 
 		// The redirection is handled this way to ensure we get the right redirectUri
 		// In the case that the post is new and unsaved, the component requires a re-render
 		// in order to get the correct URI when the handler is called.
-		if ( isRedirecting ) {
+		if ( isReadyToRedirect ) {
 			handleConnectUser();
 		}
-	}, [ isRedirecting, handleConnectUser ] );
+	}, [ isReadyToRedirect, handleConnectUser ] );
 
 	return (
 		<div>
@@ -62,9 +62,9 @@ const ConnectBanner: FC< ConnectBannerProps > = ( { block, explanation = null } 
 				buttonText={ __( 'Connect Jetpack', 'jetpack' ) }
 				className="jetpack-connect-banner-nudge"
 				description={ __( 'Your account is not connected to Jetpack at the moment.', 'jetpack' ) }
-				goToCheckoutPage={ goToCheckoutPage }
+				goToCheckoutPage={ goToConnectPage }
 				checkoutUrl={ '#' }
-				isRedirecting={ isRedirecting || isSaving }
+				isRedirecting={ isReadyToRedirect || isSaving }
 			/>
 			<div className="jetpack-connect-banner">
 				{ explanation && (
