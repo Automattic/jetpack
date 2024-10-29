@@ -18,18 +18,18 @@ function MediaButtonMenu( props ) {
 		);
 	}
 
-	let label = __( 'Select Image', 'jetpack' );
+	let label = __( 'Select image', 'jetpack' );
 
 	if ( mediaProps.multiple ) {
-		label = __( 'Select Images', 'jetpack' );
+		label = __( 'Select images', 'jetpack' );
 	}
 
 	if ( mediaProps.allowedTypes.length > 1 ) {
-		label = __( 'Select Media', 'jetpack' );
+		label = __( 'Select media', 'jetpack' );
 	}
 
 	if ( isFeatured ) {
-		label = __( 'Replace Image', 'jetpack' );
+		label = __( 'Replace image', 'jetpack' );
 		variant = 'secondary';
 	}
 
