@@ -84,7 +84,7 @@ class Foundation_Pages implements Has_Setup {
 			return $urls;
 		}
 
-		$shop_page_id = wc_get_page_id( 'shop' );
+		$shop_page_id = \wc_get_page_id( 'shop' );
 		if ( $shop_page_id ) {
 			$url = get_permalink( $shop_page_id );
 			if ( $url ) {
