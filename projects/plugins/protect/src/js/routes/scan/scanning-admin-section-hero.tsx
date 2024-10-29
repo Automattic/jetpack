@@ -1,7 +1,7 @@
 import { Text } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
-import inProgressImage from '../../../../assets/images/in-progress.png';
 import AdminSectionHero from '../../components/admin-section-hero';
+import InProgressAnimation from '../../components/in-progress-animation';
 import ProgressBar from '../../components/progress-bar';
 import ScanNavigation from '../../components/scan-navigation';
 import useScanStatusQuery from '../../data/scan/use-scan-status-query';
@@ -51,12 +51,9 @@ const ScanningAdminSectionHero: React.FC = () => {
 					</div>
 				</>
 			}
-			secondary={
-				<div className={ styles.illustration }>
-					<img src={ inProgressImage } alt="" />
-				</div>
-			}
+			secondary={ <InProgressAnimation /> }
 			preserveSecondaryOnMobile={ false }
+			spacing={ 4 }
 		/>
 	);
 };
