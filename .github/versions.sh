@@ -1,7 +1,7 @@
 # Versions of tools to use in CI.
 PHP_VERSION=8.2
 COMPOSER_VERSION=2.7.7
-NODE_VERSION=20.8.1
+NODE_VERSION=22.9.0
 PNPM_VERSION=9.3.0
 
 # Other useful version numbers.

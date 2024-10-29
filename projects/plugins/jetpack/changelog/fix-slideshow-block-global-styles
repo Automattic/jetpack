@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Slideshow block: fix console warning related to images with the same key.

@@ -4,6 +4,7 @@ namespace Automattic\Jetpack_Boost\Data_Sync;
 
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Get;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Set;
+use Automattic\Jetpack_Boost\Lib\Environment_Change_Detector;
 
 class Foundation_Pages_Entry implements Entry_Can_Get, Entry_Can_Set {
 
@@ -26,7 +27,15 @@ class Foundation_Pages_Entry implements Entry_Can_Get, Entry_Can_Set {
 	public function set( $value ) {
 		$value = $this->sanitize_value( $value );
 
-		update_option( $this->option_key, $value );
+		if ( empty( $value ) || count( $value ) === 1 && $value[0] === '' ) {
+			delete_option( $this->option_key );
+			return;
+		}
+
+		$updated = update_option( $this->option_key, $value );
+		if ( $updated ) {
+			( new Environment_Change_Detector() )->handle_foundation_pages_list_update();
+		}
 	}
 
 	private function sanitize_value( $value ) {

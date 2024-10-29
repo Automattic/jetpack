@@ -4,15 +4,20 @@ import { z } from 'zod';
 /**
  * Hook to get the Foundation Pages.
  */
-export function useFoundationPages(): [ string[], ( newValue: string[] ) => void ] {
+export function useFoundationPages(): [
+	string[],
+	( newValue: string[], onSuccessCallback?: () => void ) => void,
+] {
 	const [ { data }, { mutate } ] = useDataSync(
 		'jetpack_boost_ds',
 		'foundation_pages_list',
 		z.array( z.string() )
 	);
 
-	function updatePages( newValue: string[] ) {
-		mutate( newValue );
+	function updatePages( newValue: string[], onSuccessCallback?: () => void ) {
+		mutate( newValue, {
+			onSuccess: onSuccessCallback,
+		} );
 	}
 
 	return [ data || [], updatePages ];
@@ -20,7 +25,6 @@ export function useFoundationPages(): [ string[], ( newValue: string[] ) => void
 
 const FoundationPagesProperties = z.object( {
 	max_pages: z.number(),
-	blog_url: z.string().nullable(),
 } );
 type FoundationPagesProperties = z.infer< typeof FoundationPagesProperties >;
 
