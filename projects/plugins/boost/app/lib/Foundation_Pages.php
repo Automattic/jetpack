@@ -69,8 +69,10 @@ class Foundation_Pages implements Has_Setup {
 		$urls = array();
 		foreach ( $yoast_cornerstone_content as $post ) {
 			$permalink = get_permalink( $post->ID );
-			$permalink = $this->make_relative_url( $permalink );
-			$urls[]    = $permalink;
+			if ( $permalink ) {
+				$relative_permalink = $this->make_relative_url( $permalink );
+				$urls[]             = $relative_permalink;
+			}
 		}
 
 		return $urls;
@@ -85,10 +87,12 @@ class Foundation_Pages implements Has_Setup {
 		$shop_page_id = wc_get_page_id( 'shop' );
 		if ( $shop_page_id ) {
 			$url = get_permalink( $shop_page_id );
-			$url = $this->make_relative_url( $url );
-
 			if ( $url ) {
-				$urls[] = $url;
+				$relative_url = $this->make_relative_url( $url );
+
+				if ( $relative_url ) {
+					$urls[] = $relative_url;
+				}
 			}
 		}
 
