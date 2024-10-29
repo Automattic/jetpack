@@ -43,12 +43,14 @@ export class Locations extends Component {
 					label="Marker Title"
 					value={ point.title }
 					onChange={ title => this.setMarkerField( 'title', title, index ) }
+					__nextHasNoMarginBottom={ true }
 				/>
 				<TextareaControl
 					label="Marker Caption"
 					value={ point.caption }
 					rows="3"
 					onChange={ caption => this.setMarkerField( 'caption', caption, index ) }
+					__nextHasNoMarginBottom={ true }
 				/>
 				<Button
 					data-id={ index }

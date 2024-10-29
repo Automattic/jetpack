@@ -62,6 +62,7 @@ export default function AiModelSelectorControl( {
 			value={ model }
 			disabled={ disabled }
 			help={ help }
+			__nextHasNoMarginBottom={ true }
 		>
 			<ToggleGroupControlOption
 				label={ __( 'GTP-3.5 Turbo', 'jetpack' ) }
