@@ -49,7 +49,7 @@ export function ThreatsStatusToggleGroupControl( {
 	isViewingHistoricThreats: boolean;
 	onStatusFilterChange: ( newValue: string ) => void;
 } ): JSX.Element {
-	if ( ! ( activeThreatsCount && historicThreatsCount ) ) {
+	if ( ! ( activeThreatsCount + historicThreatsCount ) ) {
 		return null;
 	}
 
