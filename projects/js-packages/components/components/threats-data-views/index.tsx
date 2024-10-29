@@ -171,10 +171,15 @@ export default function ThreatsDataViews( {
 		},
 	};
 
-	/**
-	 * DataView selection object - stores the selected item IDs.
-	 */
-	const [ selection, setSelection ] = useState< string[] >( [] );
+	const [ selectedThreatIds, setSelectedThreatIds ] = useState< {
+		fixable: ( string | number )[];
+		ignorable: ( string | number )[];
+		unignorable: ( string | number )[];
+	} >( {
+		fixable: [],
+		ignorable: [],
+		unignorable: [],
+	} );
 
 	/**
 	 * DataView view object - configures how the dataset is visible to the user.
@@ -509,6 +514,7 @@ export default function ThreatsDataViews( {
 			result.push( {
 				id: 'ignore',
 				label: __( 'Ignore', 'jetpack' ),
+				supportsBulk: true,
 				callback: items => onIgnoreThreats( items.map( item => item.id ) ),
 				isEligible( item ) {
 					// TODO: Account for this here, or in isThreatEligibleForIgnore?
@@ -530,7 +536,8 @@ export default function ThreatsDataViews( {
 		if ( dataFields.includes( 'status' ) ) {
 			result.push( {
 				id: 'un-ignore',
-				label: __( 'Unignore', 'jetpack' ),
+				label: __( 'Un-ignore', 'jetpack' ),
+				supportsBulk: true,
 				callback: items => onUnignoreThreats( items.map( item => item.id ) ),
 				isEligible( item ) {
 					if ( ! onUnignoreThreats ) {
@@ -565,13 +572,37 @@ export default function ThreatsDataViews( {
 	}, [ data, view, fields ] );
 
 	/**
-	 * Callback function to update the selection state.
+	 * Callback function to update the selected threats states on selection change.
 	 *
 	 * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-dataviews/#onchangeselection-function
 	 */
-	const onChangeSelection = useCallback( ( selectedItemIds: string[] ) => {
-		setSelection( selectedItemIds );
-	}, [] );
+	const onChangeSelection = useCallback(
+		( selectedItemIds: string[] ) => {
+			const fixableIds: ( string | number )[] = [];
+			const ignorableIds: ( string | number )[] = [];
+			const unignorableIds: ( string | number )[] = [];
+
+			selectedItemIds.forEach( id => {
+				const threat = data.find( item => item.id === parseInt( id, 10 ) );
+				if ( threat ) {
+					if ( threat.fixable ) {
+						fixableIds.push( threat.id );
+					} else if ( threat.status === 'current' ) {
+						ignorableIds.push( threat.id );
+					} else if ( threat.status === 'ignored' ) {
+						unignorableIds.push( threat.id );
+					}
+				}
+			} );
+
+			setSelectedThreatIds( {
+				fixable: fixableIds,
+				ignorable: ignorableIds,
+				unignorable: unignorableIds,
+			} );
+		},
+		[ data ]
+	);
 
 	/**
 	 * Callback function to update the view state.
@@ -621,8 +652,16 @@ export default function ThreatsDataViews( {
 	);
 
 	const handleBulkFixThreatsClick = useCallback( () => {
-		onFixThreats( selection );
-	}, [ selection, onFixThreats ] );
+		onFixThreats( selectedThreatIds.fixable );
+	}, [ onFixThreats, selectedThreatIds.fixable ] );
+
+	const handleBulkIgnoreThreatsClick = useCallback( () => {
+		onIgnoreThreats( selectedThreatIds.ignorable );
+	}, [ onIgnoreThreats, selectedThreatIds.ignorable ] );
+
+	const handleBulkUnignoreThreatsClick = useCallback( () => {
+		onUnignoreThreats( selectedThreatIds.unignorable );
+	}, [ onUnignoreThreats, selectedThreatIds.unignorable ] );
 
 	return (
 		<DataViews
@@ -644,12 +683,30 @@ export default function ThreatsDataViews( {
 						isViewingHistoricThreats={ isStatusFilterSelected( [ 'fixed', 'ignored' ] ) }
 						onStatusFilterChange={ onStatusFilterChange }
 					/>
-					{ selection.length > 0 && (
+					{ selectedThreatIds.fixable.length > 0 && (
 						<Button variant={ 'secondary' } onClick={ handleBulkFixThreatsClick }>
 							{ sprintf(
-								/* translators: %d: number of selected threats */
+								/* translators: %d: number of selected fixable threats */
 								__( 'Auto-fix (%d)', 'jetpack' ),
-								selection.length
+								selectedThreatIds.fixable.length
+							) }
+						</Button>
+					) }
+					{ selectedThreatIds.ignorable.length > 0 && (
+						<Button variant={ 'secondary' } onClick={ handleBulkIgnoreThreatsClick }>
+							{ sprintf(
+								/* translators: %d: number of selected ignorable threats */
+								__( 'Ignore (%d)', 'jetpack' ),
+								selectedThreatIds.ignorable.length
+							) }
+						</Button>
+					) }
+					{ selectedThreatIds.unignorable.length > 0 && (
+						<Button variant={ 'secondary' } onClick={ handleBulkUnignoreThreatsClick }>
+							{ sprintf(
+								/* translators: %d: number of selected un-ignorable threats */
+								__( 'Un-ignore (%d)', 'jetpack' ),
+								selectedThreatIds.unignorable.length
 							) }
 						</Button>
 					) }
