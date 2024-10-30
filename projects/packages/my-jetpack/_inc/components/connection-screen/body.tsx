@@ -5,9 +5,47 @@ import { __ } from '@wordpress/i18n';
 import { Icon, external } from '@wordpress/icons';
 import connectImage from './connect.png';
 import styles from './styles.module.scss';
-import type { Props as ConnectScreenProps } from '@automattic/jetpack-connection';
+import type { FC } from 'react';
 
-const ConnectionScreenBody: React.FC< ConnectScreenProps > = props => {
+// This is copied from the connection package.
+// The connection package main file is not TypeScript currently and therefore cannot export types.
+// Doing this here to avoid editing the connection package too much as it is widely used.
+interface ConnectScreenProps {
+	// API root
+	apiRoot: string;
+	// API nonce
+	apiNonce: string;
+	// Registration nonce
+	registrationNonce: string;
+	// The redirect admin UR
+	redirectUri: string;
+	// Additional page elements to show before the call to action
+	children?: React.ReactNode;
+	// The Title
+	title?: string;
+	// The Connect Button label
+	buttonLabel?: string;
+	// The text read by screen readers when connecting
+	loadingLabel?: string;
+	// Where the connection request is coming from
+	from?: string;
+	// Whether to initiate the connection process automatically upon rendering the component
+	autoTrigger?: boolean;
+	// Images to display on the right side
+	images?: string[];
+	// The assets base URL
+	assetBaseUrl?: string;
+	// Whether to not require a user connection and just redirect after site connection
+	skipUserConnection?: boolean;
+	// Whether to skip the pricing page after the connection screen
+	skipPricingPage?: boolean;
+	// Additional page elements to show after the call to action
+	footer?: React.ReactNode;
+	// The logo to display at the top of the component
+	logo?: React.ReactNode;
+}
+
+const ConnectionScreenBody: FC< ConnectScreenProps > = props => {
 	const { title } = props;
 
 	return (
