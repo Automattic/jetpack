@@ -787,6 +787,6 @@ class ManagerTest extends TestCase {
 		);
 
 		$this->assertFalse( $this->manager->verify_xml_rpc_signature() );
-		$this->assertEquals( $error_code, $error->get_error_code() );
+		$this->assertEquals( $error_code, $error !== null && $error->get_error_code() );
 	}
 }
