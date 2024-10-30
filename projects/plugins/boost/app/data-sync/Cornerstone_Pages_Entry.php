@@ -56,6 +56,10 @@ class Cornerstone_Pages_Entry implements Entry_Can_Get, Entry_Can_Set {
 			$url = substr( $url, strlen( home_url() ) );
 		}
 
+		// Ensure the URL starts with a slash.
+		$url = ltrim( $url, '/' );
+		$url = '/' . $url;
+
 		return $url;
 	}
 
