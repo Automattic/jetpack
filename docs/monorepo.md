@@ -185,6 +185,8 @@ The following environment variables are available for all tests:
 
 - `ARTIFACTS_DIR`: If your tests generate any artifacts that might be useful for debugging, you may place them in the directory specified by this variable and they will be uploaded to GitHub after the test run. There's no need to be concerned about collisions with other projects' artifacts, a separate directory is used per project.
 - `MONOREPO_BASE`: Path to the monorepo. Useful if you're using things in `tools/` from plugin tests.
+- `WORDPRESS_DIR`: Path to a copy of WordPress. Other than plugin tests, though, you should probably avoid using this.
+- `WORDPRESS_DEVELOP_DIR`: Path to a checkout of wordpress-develop. Other than plugin tests, though, you should probably avoid using this.
 - `NODE_VERSION`: The version of Node in use, as specified in `.github/versions.sh`.
 - `PHP_VERSION`: The version of PHP in use. Unless otherwise specified below, it will be the same as in `.github/versions.sh`.
 - `TEST_SCRIPT`: The test script being run.
@@ -283,7 +285,7 @@ We currently make use of the following packages in testing; it's encouraged to u
 
 #### PHP tests for plugins
 
-WordPress plugins generally want to run within WordPress. All monorepo plugins are copied into place in a WordPress installation and tests are run from there.
+WordPress plugins may want to run within WordPress. All monorepo plugins are copied into place in a WordPress installation. Environment variable `WORDPRESS_DIR` points to this installation, and `WORDPRESS_DEVELOP_DIR` points a directory with WordPress's `tests/phpunit/`.
 
 Tests will be run against the latest version of WordPress using the variety of supported PHP versions, and against the previous and trunk versions of WordPress using the PHP version in `.github/versions.sh`. The environment variable `WP_BRANCH` will be set to 'latest', 'previous', or 'trunk' accordingly. If you have tests that only need to be run once, run them when `WP_BRANCH` is 'latest'.
 

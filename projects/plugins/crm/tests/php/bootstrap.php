@@ -19,13 +19,13 @@ $_plugin_root = dirname( __DIR__, 2 );
  * Locate WordPress or wordpress-develop. We look in several places.
  */
 if ( defined( 'WP_DEV_LOCATION' ) ) {
-	$test_root = WP_DEVELOP_DIR;
+	$test_root = WORDPRESS_DEVELOP_DIR;
 	if ( file_exists( "$test_root/tests/phpunit/" ) ) {
 		$test_root .= '/tests/phpunit/';
 	}
-} elseif ( false !== getenv( 'WP_DEVELOP_DIR' ) ) {
+} elseif ( false !== getenv( 'WORDPRESS_DEVELOP_DIR' ) ) {
 	// Jetpack Monorepo environment variable defined on command line.
-	$test_root = getenv( 'WP_DEVELOP_DIR' );
+	$test_root = getenv( 'WORDPRESS_DEVELOP_DIR' );
 	if ( file_exists( "$test_root/tests/phpunit/" ) ) {
 		$test_root .= '/tests/phpunit/';
 	}
@@ -52,7 +52,7 @@ if ( ! isset( $test_root ) || ! file_exists( $test_root . '/includes/bootstrap.p
 		<<<'EOF'
 Failed to automatically locate WordPress or wordpress-develop to run tests.
 
-Set the WP_DEVELOP_DIR environment variable to point to a copy of WordPress
+Set the WORDPRESS_DEVELOP_DIR environment variable to point to a copy of WordPress
 or wordpress-develop.
 
 EOF

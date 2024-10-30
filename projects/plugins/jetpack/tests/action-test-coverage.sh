@@ -2,10 +2,6 @@
 
 set -eo pipefail
 
-PLUGINDIR="$PWD"
-
-cd "$MONOREPO_BASE/projects/plugins/jetpack"
-
 echo "::group::Jetpack Admimnpage coverage"
 pnpm run test-client --coverage --collectCoverageFrom='_inc/client/state/**/*.js' --coverageDirectory="$COVERAGE_DIR/client" --coverageReporters=clover
 pnpm run test-gui --coverage --collectCoverageFrom='_inc/client/**/*.js' --coverageDirectory="$COVERAGE_DIR/gui" --coverageReporters=clover
@@ -14,8 +10,6 @@ echo "::endgroup::"
 echo "::group::Jetpack Extensions coverage"
 pnpm run test-extensions --coverage --collectCoverageFrom='extensions/**/*.js' --coverageDirectory="$COVERAGE_DIR/extensions" --coverageReporters=clover
 echo "::endgroup::"
-
-cd "$PLUGINDIR"
 
 echo "::group::Jetpack Backend coverage"
 php -dpcov.directory=. "$(command -v phpunit)" --coverage-clover "$COVERAGE_DIR/backend/clover.xml"

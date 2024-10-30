@@ -31,7 +31,7 @@
 		],
 		"test-coverage": [
 			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/php/clover.xml\"",
-			"cd \"$MONOREPO_BASE/projects/plugins/starter-plugin\" && pnpm run test-coverage"
+			"pnpm run test-coverage"
 		],
 		"test-js": [
 			"pnpm run test"
