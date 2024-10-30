@@ -104,10 +104,6 @@ class Cornerstone_Pages implements Has_Setup {
 	}
 
 	public function get_pages() {
-		if ( ! $this->is_development_features_enabled() ) {
-			return array();
-		}
-
 		return jetpack_boost_ds_get( 'cornerstone_pages_list' );
 	}
 
