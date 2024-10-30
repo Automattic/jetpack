@@ -30,11 +30,11 @@
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
 		],
 		"test-coverage": [
-			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\"",
-			"pnpm run test-coverage"
+			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/php/clover.xml\"",
+			"cd \"$MONOREPO_BASE/projects/plugins/boost\" && pnpm run test-coverage"
 		],
 		"test-js": [
-			"pnpm run test-coverage"
+			"pnpm run test"
 		],
 		"test-php": [
 			"@composer phpunit"

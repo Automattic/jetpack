@@ -15,7 +15,7 @@
 	"author": "Automattic",
 	"scripts": {
 		"test": "jest tests/",
-		"test-coverage": "pnpm run test --coverage --collectCoverageFrom='src/**/*.js' --coverageDirectory=\"$COVERAGE_DIR\" --coverageReporters=clover"
+		"test-coverage": "pnpm run test --coverage --collectCoverageFrom='src/**/*.js' --coverageDirectory=\"$COVERAGE_DIR/js\" --coverageReporters=clover"
 	},
 	"dependencies": {
 		"debug": "^4.3.2"

@@ -640,7 +640,7 @@ function createPackageJson( packageJson, answers ) {
 		packageJson.scripts = {
 			test: 'jest tests',
 			'test-coverage':
-				'jest tests --coverage --collectCoverageFrom=\'src/**/*.js\' --coverageDirectory="$COVERAGE_DIR" --coverageReporters=clover',
+				'jest tests --coverage --collectCoverageFrom=\'src/**/*.js\' --coverageDirectory="$COVERAGE_DIR/js" --coverageReporters=clover',
 		};
 
 		packageJson.devDependencies.jest = findVersionFromPnpmLock( 'jest' );
