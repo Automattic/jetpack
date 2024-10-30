@@ -12,7 +12,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/device-detection",
-                "reference": "d97d4ed63b8e702834bb60496f02e99d30197619"
+                "reference": "dcb0f631be3592d280acfda76b8e7a5e2b203857"
             },
             "require": {
                 "php": ">=7.0"
@@ -44,6 +44,9 @@
                 "phpunit": [
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],
+                "test-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                ],
                 "test-php": [
                     "@composer phpunit"
                 ]
@@ -64,7 +67,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/changelogger",
-                "reference": "8489a82ca328626854da99e29f3cb0f017529cb5"
+                "reference": "9123fc398578dfefcd782121708c32dce96116dd"
             },
             "require": {
                 "php": ">=7.0",
@@ -107,6 +110,9 @@
             "scripts": {
                 "phpunit": [
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
                     "@composer phpunit"

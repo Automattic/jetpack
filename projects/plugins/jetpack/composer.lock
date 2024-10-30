@@ -12,7 +12,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/a8c-mc-stats",
-				"reference": "1608695e54d44f088960b6a7bfa0c5779c372ee6"
+				"reference": "42558e3c1a2f6556148031d02aa74d6405f4f0e5"
 			},
 			"require": {
 				"php": ">=7.0"
@@ -44,6 +44,9 @@
 				"phpunit": [
 					"./vendor/phpunit/phpunit/phpunit --colors=always"
 				],
+				"test-coverage": [
+					"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+				],
 				"test-php": [
 					"@composer phpunit"
 				]
@@ -62,7 +65,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/admin-ui",
-				"reference": "7330d0d7b9011e4b516c62a87c10d64f1a168eb7"
+				"reference": "a8119dc5ed4ce65b16730ad1695d083a0456ca0a"
 			},
 			"require": {
 				"php": ">=7.0"
@@ -100,6 +103,9 @@
 				"phpunit": [
 					"./vendor/phpunit/phpunit/phpunit --colors=always"
 				],
+				"test-coverage": [
+					"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+				],
 				"test-php": [
 					"@composer phpunit"
 				],
@@ -124,7 +130,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/assets",
-				"reference": "58de4ea5a64ffa0899cd5903840499c76d253f4b"
+				"reference": "03ee0fb0731ded8c7d6b9d229e4adc711a45fba1"
 			},
 			"require": {
 				"automattic/jetpack-constants": "@dev",
@@ -169,6 +175,10 @@
 				"phpunit": [
 					"./vendor/phpunit/phpunit/phpunit --colors=always"
 				],
+				"test-coverage": [
+					"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/php/clover.xml\"",
+					"pnpm run test-coverage"
+				],
 				"test-js": [
 					"pnpm run test"
 				],
@@ -190,7 +200,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/autoloader",
-				"reference": "0f56ec98bb673d1b6fe8129b1bbdc0ab7eb30879"
+				"reference": "eb527007a09a7114c2e01da2bd43f4ecb1bfcef6"
 			},
 			"require": {
 				"composer-plugin-api": "^1.1 || ^2.0",
@@ -228,6 +238,10 @@
 				"phpunit": [
 					"./vendor/phpunit/phpunit/phpunit --colors=always"
 				],
+				"test-coverage": [
+					"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"./tests/php/tmp/coverage-report.php\"",
+					"php ./tests/php/bin/test-coverage.php \"$COVERAGE_DIR/clover.xml\""
+				],
 				"test-php": [
 					"@composer phpunit"
 				]
@@ -254,7 +268,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/backup",
-				"reference": "952a01e67d1f63be1f900fb8bcb1869b1c53133a"
+				"reference": "ef240489faeb9ddc3b44acaf44316f05a29c4827"
 			},
 			"require": {
 				"automattic/jetpack-admin-ui": "@dev",
@@ -304,6 +318,10 @@
 				"phpunit": [
 					"./vendor/phpunit/phpunit/phpunit --colors=always"
 				],
+				"test-coverage": [
+					"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/php/clover.xml\"",
+					"pnpm run test-coverage"
+				],
 				"test-js": [
 					"pnpm run test"
 				],
@@ -341,7 +359,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/backup-helper-script-manager",
-				"reference": "460d4932cc27b84f375cb04f47691faeb57d67ad"
+				"reference": "89bab99ff445554c002863cf4d583343954f5990"
 			},
 			"require": {
 				"php": ">=7.0"
@@ -374,6 +392,9 @@
 				"phpunit": [
 					"./vendor/phpunit/phpunit/phpunit --colors=always"
 				],
+				"test-coverage": [
+					"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+				],
 				"test-php": [
 					"@composer phpunit"
 				],
@@ -398,7 +419,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/blaze",
-				"reference": "57fb7e43c9c75b2dc852691be9ffa36f7884edbf"
+				"reference": "ad5aa1eee2212f54093aa4e6632e15d2d8182fe5"
 			},
 			"require": {
 				"automattic/jetpack-assets": "@dev",
@@ -442,6 +463,9 @@
 				"phpunit": [
 					"./vendor/phpunit/phpunit/phpunit --colors=always"
 				],
+				"test-coverage": [
+					"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+				],
 				"test-php": [
 					"@composer phpunit"
 				],
@@ -476,7 +500,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/blocks",
-				"reference": "2d1b34d2e22edcee8f156d75a0d5782e4c29d9a2"
+				"reference": "5f2d5be8df043a8dfc2b2cb35709cc45a305d370"
 			},
 			"require": {
 				"automattic/jetpack-constants": "@dev",
@@ -517,6 +541,9 @@
 				"post-update-cmd": [
 					"WorDBless\\Composer\\InstallDropin::copy"
 				],
+				"test-coverage": [
+					"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+				],
 				"test-php": [
 					"@composer phpunit"
 				]
@@ -535,7 +562,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/boost-core",
-				"reference": "254e450eefc86995a797518cc1cbc041f1509222"
+				"reference": "4bfae02c2bbb1e32f8119c12681e6016db8fe5b5"
 			},
 			"require": {
 				"automattic/jetpack-connection": "@dev",
@@ -570,6 +597,9 @@
 				"phpunit": [
 					"./vendor/phpunit/phpunit/phpunit --colors=always"
 				],
+				"test-coverage": [
+					"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+				],
 				"test-php": [
 					"@composer phpunit"
 				],
@@ -600,7 +630,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/boost-speed-score",
-				"reference": "6d24ca9aca1b0cda4e925bbe6dcaad4bbd3a16be"
+				"reference": "c550593a9ce10284510e93949cebabd9fc65dbd3"
 			},
 			"require": {
 				"automattic/jetpack-boost-core": "@dev",
@@ -643,6 +673,9 @@
 				"phpunit": [
 					"./vendor/phpunit/phpunit/phpunit --colors=always"
 				],
+				"test-coverage": [
+					"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+				],
 				"test-php": [
 					"@composer phpunit"
 				],
@@ -673,7 +706,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/classic-theme-helper",
-				"reference": "7e41cb31355e36d266e20ce88bf6da892947cda5"
+				"reference": "ab687513649f3a898c25e0d839755b120d28c45a"
 			},
 			"require": {
 				"automattic/jetpack-assets": "@dev",
@@ -722,6 +755,9 @@
 				],
 				"post-update-cmd": [
 					"WorDBless\\Composer\\InstallDropin::copy"
+				],
+				"test-coverage": [
+					"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
 				],
 				"test-php": [
 					"@composer phpunit"
@@ -778,7 +814,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/composer-plugin",
-				"reference": "b6fe2427cac6dd3bbef0a7e915c16bef55ad7c9b"
+				"reference": "0c5d8458473f8ffd210a697c3f476e6d767801de"
 			},
 			"require": {
 				"composer-plugin-api": "^2.1.0",
@@ -810,6 +846,9 @@
 			"scripts": {
 				"phpunit": [
 					"./vendor/phpunit/phpunit/phpunit --colors=always"
+				],
+				"test-coverage": [
+					"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
 				],
 				"test-php": [
 					"@composer phpunit"
@@ -907,7 +946,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/connection",
-				"reference": "7a548420dc6a883bc3d49b17b110a04caa97713b"
+				"reference": "8ef8659a01c928384e5f16bee69f1aedf95418a5"
 			},
 			"require": {
 				"automattic/jetpack-a8c-mc-stats": "@dev",
@@ -978,6 +1017,9 @@
 				"post-update-cmd": [
 					"WorDBless\\Composer\\InstallDropin::copy"
 				],
+				"test-coverage": [
+					"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+				],
 				"test-php": [
 					"@composer phpunit"
 				]
@@ -996,7 +1038,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/constants",
-				"reference": "e58ffa801a8e816c562f15bdc4731824f8f9c64a"
+				"reference": "447895064f75fd3113cf7c2895cef037be0e2a0e"
 			},
 			"require": {
 				"php": ">=7.0"
@@ -1029,6 +1071,9 @@
 				"phpunit": [
 					"./vendor/phpunit/phpunit/phpunit --colors=always"
 				],
+				"test-coverage": [
+					"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+				],
 				"test-php": [
 					"@composer phpunit"
 				]
@@ -1047,7 +1092,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/device-detection",
-				"reference": "d97d4ed63b8e702834bb60496f02e99d30197619"
+				"reference": "dcb0f631be3592d280acfda76b8e7a5e2b203857"
 			},
 			"require": {
 				"php": ">=7.0"
@@ -1079,6 +1124,9 @@
 				"phpunit": [
 					"./vendor/phpunit/phpunit/phpunit --colors=always"
 				],
+				"test-coverage": [
+					"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+				],
 				"test-php": [
 					"@composer phpunit"
 				]
@@ -1097,7 +1145,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/error",
-				"reference": "6fa9bb23ca4fe24284149ca750e6148621139517"
+				"reference": "361d8775c369ee8ccc7c18531426fee2c5bed0d8"
 			},
 			"require": {
 				"php": ">=7.0"
@@ -1129,6 +1177,9 @@
 				"phpunit": [
 					"./vendor/phpunit/phpunit/phpunit --colors=always"
 				],
+				"test-coverage": [
+					"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+				],
 				"test-php": [
 					"@composer phpunit"
 				]
@@ -1147,7 +1198,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/explat",
-				"reference": "d53b06a5550c6f8c2f009c183b5ab037e6c648c5"
+				"reference": "b7d1334d60ada3ca1e3c5576a572185bf4ed8b68"
 			},
 			"require": {
 				"automattic/jetpack-connection": "@dev",
@@ -1184,11 +1235,15 @@
 				"phpunit": [
 					"./vendor/phpunit/phpunit/phpunit --colors=always"
 				],
+				"test-coverage": [
+					"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\"",
+					"pnpm run test-coverage"
+				],
 				"test-php": [
 					"@composer phpunit"
 				],
 				"test-js": [
-					"echo 'Run `pnpm run test` when ready'"
+					"pnpm run test"
 				],
 				"test-js-watch": [
 					"Composer\\Config::disableProcessTimeout",
@@ -1219,7 +1274,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/forms",
-				"reference": "63b9e5f845df2ee57e412f02312703a532e0b7c0"
+				"reference": "9ef674a5edc8f936c0cd1db9196045f7d7ad4e0f"
 			},
 			"require": {
 				"automattic/jetpack-assets": "@dev",
@@ -1263,6 +1318,10 @@
 				"phpunit": [
 					"./vendor/phpunit/phpunit/phpunit --colors=always"
 				],
+				"test-coverage": [
+					"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\"",
+					"pnpm run test-coverage"
+				],
 				"test-php": [
 					"@composer phpunit"
 				],
@@ -1300,7 +1359,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/image-cdn",
-				"reference": "63a179625ebed6c7e5d21ddfb1949983e16dda4d"
+				"reference": "440e2d9456ab25d879f0349228e2c5e4b1572792"
 			},
 			"require": {
 				"automattic/jetpack-assets": "@dev",
@@ -1339,6 +1398,9 @@
 				"phpunit": [
 					"./vendor/phpunit/phpunit/phpunit --colors=always"
 				],
+				"test-coverage": [
+					"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+				],
 				"test-php": [
 					"@composer phpunit"
 				],
@@ -1363,7 +1425,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/import",
-				"reference": "5b2ce5d8cf7f355b792b2bfd8fa2e0cd4ec9a83d"
+				"reference": "a6dd106da13a77b9a34602caf85e611b476d844f"
 			},
 			"require": {
 				"automattic/jetpack-connection": "@dev",
@@ -1402,6 +1464,9 @@
 				"phpunit": [
 					"./vendor/phpunit/phpunit/phpunit --colors=always"
 				],
+				"test-coverage": [
+					"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+				],
 				"test-php": [
 					"@composer phpunit"
 				],
@@ -1432,7 +1497,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/ip",
-				"reference": "69723619a7d0b3c2eb897e68745e08f346312471"
+				"reference": "f075a43c335b83703cf986f69fd35d6ac5a76e83"
 			},
 			"require": {
 				"php": ">=7.0"
@@ -1469,6 +1534,9 @@
 				"phpunit": [
 					"./vendor/phpunit/phpunit/phpunit --colors=always"
 				],
+				"test-coverage": [
+					"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+				],
 				"test-php": [
 					"@composer phpunit"
 				]
@@ -1487,7 +1555,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/jitm",
-				"reference": "695db30039999154283059f6b2fe34fff746cd25"
+				"reference": "d7671e05224400c03451d4f72f77ebea5907d69d"
 			},
 			"require": {
 				"automattic/jetpack-a8c-mc-stats": "@dev",
@@ -1537,6 +1605,9 @@
 				"phpunit": [
 					"./vendor/phpunit/phpunit/phpunit --colors=always"
 				],
+				"test-coverage": [
+					"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+				],
 				"test-php": [
 					"@composer phpunit"
 				],
@@ -1559,7 +1630,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/licensing",
-				"reference": "2507ac1d1f2bbc7a12e8dddb1cb9fa3f9423d8d7"
+				"reference": "a247c44ac09ed9757cefb55696b06a4bbe905d16"
 			},
 			"require": {
 				"automattic/jetpack-connection": "@dev",
@@ -1600,6 +1671,9 @@
 				"post-update-cmd": [
 					"WorDBless\\Composer\\InstallDropin::copy"
 				],
+				"test-coverage": [
+					"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+				],
 				"test-php": [
 					"@composer phpunit"
 				]
@@ -1618,7 +1692,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/logo",
-				"reference": "0cbca46f49b19ea8f252cba7a7c67cf2b222824f"
+				"reference": "4c5c666cce4159a69735b4b37a38202593a6fc45"
 			},
 			"require": {
 				"php": ">=7.0"
@@ -1650,6 +1724,9 @@
 				"phpunit": [
 					"./vendor/phpunit/phpunit/phpunit --colors=always"
 				],
+				"test-coverage": [
+					"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+				],
 				"test-php": [
 					"@composer phpunit"
 				]
@@ -1668,7 +1745,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/masterbar",
-				"reference": "ddf74ee40ebf515961a93be34f48fb966f70b454"
+				"reference": "82e9a013d152dac324ca78c91f5121059f2156e6"
 			},
 			"require": {
 				"automattic/jetpack-assets": "@dev",
@@ -1728,6 +1805,9 @@
 				"post-update-cmd": [
 					"WorDBless\\Composer\\InstallDropin::copy"
 				],
+				"test-coverage": [
+					"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+				],
 				"test-php": [
 					"pnpm run build-production",
 					"@composer phpunit"
@@ -1747,7 +1827,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/my-jetpack",
-				"reference": "bd64433575233a1be4480fcbd6a8113bfa29ccc0"
+				"reference": "5a28f244843a54487ce46a3005e68c459966ae1e"
 			},
 			"require": {
 				"automattic/jetpack-admin-ui": "@dev",
@@ -1807,6 +1887,10 @@
 				"phpunit": [
 					"./vendor/phpunit/phpunit/phpunit --colors=always"
 				],
+				"test-coverage": [
+					"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/coverage.xml\"",
+					"pnpm run test-coverage"
+				],
 				"test-php": [
 					"@composer phpunit"
 				],
@@ -1848,7 +1932,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/password-checker",
-				"reference": "b10057021f5d77cc3617afaa2672044e1e8ce1d5"
+				"reference": "90441186416cdb36517c484f55b28aacf2cdc5b7"
 			},
 			"require": {
 				"php": ">=7.0"
@@ -1882,6 +1966,9 @@
 				"phpunit": [
 					"./vendor/phpunit/phpunit/phpunit --colors=always"
 				],
+				"test-coverage": [
+					"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+				],
 				"test-php": [
 					"@composer phpunit"
 				],
@@ -1906,7 +1993,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/plans",
-				"reference": "5b2084083304385b29ab96840abf799afd0f79c2"
+				"reference": "233588d850ce8f662bc1f5315bbc0fe92c85b0ef"
 			},
 			"require": {
 				"automattic/jetpack-connection": "@dev",
@@ -1941,6 +2028,9 @@
 				"phpunit": [
 					"./vendor/phpunit/phpunit/phpunit --colors=always"
 				],
+				"test-coverage": [
+					"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+				],
 				"test-php": [
 					"@composer phpunit"
 				],
@@ -1971,7 +2061,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/plugins-installer",
-				"reference": "94f77ef5fa17584be1cf6ff0f3157c78ca888e31"
+				"reference": "64c02a425ea2a8da4e5ad40dab1b6b5abd5865c1"
 			},
 			"require": {
 				"automattic/jetpack-a8c-mc-stats": "@dev",
@@ -2006,6 +2096,9 @@
 				"phpunit": [
 					"./vendor/phpunit/phpunit/phpunit --colors=always"
 				],
+				"test-coverage": [
+					"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+				],
 				"test-php": [
 					"@composer phpunit"
 				]
@@ -2024,7 +2117,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/post-list",
-				"reference": "31b15eb96fcb892ced260b76d1b861a0d23165e7"
+				"reference": "5f61b15f5eea3c0d3d3e2b54687737ba44bc87ad"
 			},
 			"require": {
 				"automattic/jetpack-assets": "@dev",
@@ -2062,6 +2155,9 @@
 				"phpunit": [
 					"./vendor/phpunit/phpunit/phpunit --colors=always"
 				],
+				"test-coverage": [
+					"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+				],
 				"test-php": [
 					"@composer phpunit"
 				],
@@ -2086,7 +2182,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/protect-models",
-				"reference": "3bf84c840bde41d41a4daa6652ccac08916e0c90"
+				"reference": "56f4c53b2866f33a24fc249b8236d4a214fd6642"
 			},
 			"require": {
 				"php": ">=7.0"
@@ -2129,6 +2225,9 @@
 				"phpunit": [
 					"./vendor/phpunit/phpunit/phpunit --colors=always"
 				],
+				"test-coverage": [
+					"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+				],
 				"test-php": [
 					"@composer phpunit"
 				],
@@ -2153,7 +2252,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/protect-status",
-				"reference": "c0092882367ee3ef1a30326ac0dbb058d0adc5e3"
+				"reference": "71df893bb46443011d196ec0fb9b1368d28aa493"
 			},
 			"require": {
 				"automattic/jetpack-connection": "@dev",
@@ -2207,6 +2306,9 @@
 				"post-update-cmd": [
 					"WorDBless\\Composer\\InstallDropin::copy"
 				],
+				"test-coverage": [
+					"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+				],
 				"test-php": [
 					"@composer phpunit"
 				]
@@ -2225,7 +2327,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/publicize",
-				"reference": "1fc54eab768a14c867ab64b3a5b169c662bb6b77"
+				"reference": "f80e52d06a163c254eba55052e6f56ecde60bafb"
 			},
 			"require": {
 				"automattic/jetpack-assets": "@dev",
@@ -2269,6 +2371,9 @@
 				"phpunit": [
 					"./vendor/phpunit/phpunit/phpunit --colors=always"
 				],
+				"test-coverage": [
+					"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+				],
 				"test-php": [
 					"@composer phpunit"
 				],
@@ -2303,7 +2408,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/redirect",
-				"reference": "3a861643edfc325a9150008bbde9a13d3aa77bb6"
+				"reference": "bfaa7be4a735e84c770ccc59cc229946a1616f7d"
 			},
 			"require": {
 				"automattic/jetpack-status": "@dev",
@@ -2337,6 +2442,9 @@
 				"phpunit": [
 					"./vendor/phpunit/phpunit/phpunit --colors=always"
 				],
+				"test-coverage": [
+					"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+				],
 				"test-php": [
 					"@composer phpunit"
 				]
@@ -2355,7 +2463,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/roles",
-				"reference": "f89c7b97f2a26162f238096d290765510b387458"
+				"reference": "9c72908e1e85280eaef9425c7fdbfccbed651554"
 			},
 			"require": {
 				"php": ">=7.0"
@@ -2388,6 +2496,9 @@
 				"phpunit": [
 					"./vendor/phpunit/phpunit/phpunit --colors=always"
 				],
+				"test-coverage": [
+					"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+				],
 				"test-php": [
 					"@composer phpunit"
 				]
@@ -2406,7 +2517,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/search",
-				"reference": "4a9b9673c10487fd58880b66e58c0be16170a4f5"
+				"reference": "625e9cc6e076d2427a81b0b48315eb6251322ef0"
 			},
 			"require": {
 				"automattic/jetpack-assets": "@dev",
@@ -2460,6 +2571,10 @@
 				"phpunit": [
 					"./vendor/phpunit/phpunit/phpunit --colors=always"
 				],
+				"test-coverage": [
+					"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\"",
+					"pnpm run test-coverage"
+				],
 				"test-js": [
 					"pnpm run test"
 				],
@@ -2491,7 +2606,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/stats",
-				"reference": "d532b2e0e9034ea1bedf2be0f16b2eb69d776713"
+				"reference": "35b68225edf2cb731f6725937b43e6640e384708"
 			},
 			"require": {
 				"automattic/jetpack-connection": "@dev",
@@ -2531,6 +2646,9 @@
 				"phpunit": [
 					"./vendor/phpunit/phpunit/phpunit --colors=always"
 				],
+				"test-coverage": [
+					"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+				],
 				"test-php": [
 					"@composer phpunit"
 				],
@@ -2555,7 +2673,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/stats-admin",
-				"reference": "630e6fb00f151665ac79b3431ebecb7886a5f1be"
+				"reference": "de7331532d77cee460b6077bcfa822d8f7ffc7ec"
 			},
 			"require": {
 				"automattic/jetpack-connection": "@dev",
@@ -2595,6 +2713,9 @@
 				"phpunit": [
 					"./vendor/phpunit/phpunit/phpunit --colors=always"
 				],
+				"test-coverage": [
+					"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+				],
 				"test-php": [
 					"@composer phpunit"
 				],
@@ -2625,7 +2746,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/status",
-				"reference": "fb9d7919368d5fcea47f659fa2a7532ada3477a0"
+				"reference": "8fcbb0085fea185b9bb58406f5daa1fe5fcbaefc"
 			},
 			"require": {
 				"automattic/jetpack-constants": "@dev",
@@ -2668,6 +2789,9 @@
 				"phpunit": [
 					"./vendor/phpunit/phpunit/phpunit --colors=always"
 				],
+				"test-coverage": [
+					"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+				],
 				"test-php": [
 					"@composer phpunit"
 				]
@@ -2686,7 +2810,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/sync",
-				"reference": "ac7496c921263d9ce7eaa77cac67d945c4f30fea"
+				"reference": "881ab6682446ade02ced3da5c0589b0ae6511b59"
 			},
 			"require": {
 				"automattic/jetpack-connection": "@dev",
@@ -2737,6 +2861,9 @@
 				"phpunit": [
 					"./vendor/phpunit/phpunit/phpunit --colors=always"
 				],
+				"test-coverage": [
+					"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+				],
 				"test-php": [
 					"@composer phpunit"
 				],
@@ -2761,7 +2888,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/videopress",
-				"reference": "d1d13e7078cf764ebd17b136992f2f575930df33"
+				"reference": "0a71896abda8f68c14490af923e251efa7425aae"
 			},
 			"require": {
 				"automattic/jetpack-admin-ui": "@dev",
@@ -2804,6 +2931,10 @@
 				"phpunit": [
 					"./vendor/phpunit/phpunit/phpunit --colors=always"
 				],
+				"test-coverage": [
+					"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\"",
+					"pnpm run test-coverage"
+				],
 				"test-php": [
 					"@composer phpunit"
 				],
@@ -2841,7 +2972,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/waf",
-				"reference": "44068e3c71aa5634458967a6191535ba25c51639"
+				"reference": "bd055015e868e229fb1c71724aa95bd2373e4d67"
 			},
 			"require": {
 				"automattic/jetpack-connection": "@dev",
@@ -2890,6 +3021,9 @@
 				"post-update-cmd": [
 					"WorDBless\\Composer\\InstallDropin::copy"
 				],
+				"test-coverage": [
+					"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+				],
 				"test-coverage-html": [
 					"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-html ./coverage --configuration tests/php/integration/phpunit.xml.dist",
 					"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-html ./coverage --configuration tests/php/unit/phpunit.xml.dist"
@@ -2912,7 +3046,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/wordads",
-				"reference": "d401d5dee453857997f670c11352a6c85e62ee3d"
+				"reference": "d3c61aa0f420134a9bce468fe9c7b75ce8d6eea3"
 			},
 			"require": {
 				"automattic/jetpack-assets": "@dev",
@@ -2963,6 +3097,10 @@
 				"phpunit": [
 					"./vendor/phpunit/phpunit/phpunit --colors=always"
 				],
+				"test-coverage": [
+					"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\"",
+					"pnpm run test-coverage"
+				],
 				"test-js": [
 					"pnpm run test"
 				],
@@ -2988,7 +3126,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/woocommerce-analytics",
-				"reference": "595f8f553e413545332fc516dfe8503f2fc6fb97"
+				"reference": "570026ebb40e23eb78046b14ced0c15a1e463fba"
 			},
 			"require": {
 				"automattic/jetpack-connection": "@dev",
@@ -3025,6 +3163,9 @@
 			"scripts": {
 				"phpunit": [
 					"./vendor/phpunit/phpunit/phpunit --colors=always"
+				],
+				"test-coverage": [
+					"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
 				],
 				"test-php": [
 					"@composer phpunit"
@@ -3231,7 +3372,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/changelogger",
-				"reference": "8489a82ca328626854da99e29f3cb0f017529cb5"
+				"reference": "9123fc398578dfefcd782121708c32dce96116dd"
 			},
 			"require": {
 				"php": ">=7.0",
@@ -3275,6 +3416,9 @@
 				"phpunit": [
 					"./vendor/phpunit/phpunit/phpunit --colors=always"
 				],
+				"test-coverage": [
+					"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+				],
 				"test-php": [
 					"@composer phpunit"
 				],
@@ -3305,7 +3449,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/patchwork-redefine-exit",
-				"reference": "8746e7b07685991b1b6e8dbc37c8a6f7f13e013d"
+				"reference": "d70cd288fc5f55404a07fe9c6b7dd1c7f03482d3"
 			},
 			"require": {
 				"antecedent/patchwork": "^2.1",
@@ -3334,6 +3478,9 @@
 			"scripts": {
 				"phpunit": [
 					"./vendor/phpunit/phpunit/phpunit --colors=always"
+				],
+				"test-coverage": [
+					"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
 				],
 				"test-php": [
 					"@composer phpunit"
