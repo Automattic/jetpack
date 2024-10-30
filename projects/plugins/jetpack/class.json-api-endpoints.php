@@ -415,7 +415,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 		$this->api->add( $this );
 
-		if ( $this->rest_route && ( ! defined( 'XMLRPC_REQUEST' ) || ! XMLRPC_REQUEST ) ) {
+		if ( ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) && $this->rest_route && ( ! defined( 'XMLRPC_REQUEST' ) || ! XMLRPC_REQUEST ) ) {
 			$this->create_rest_route_for_endpoint();
 		}
 	}
