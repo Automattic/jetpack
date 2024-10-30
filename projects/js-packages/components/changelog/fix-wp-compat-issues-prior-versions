@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Button: Ensure padding styles aren't applied to the Clipboard Input button
