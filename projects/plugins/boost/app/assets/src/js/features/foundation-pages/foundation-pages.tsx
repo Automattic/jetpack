@@ -1,6 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import Meta from './meta/meta';
 import SettingsItem from '$features/ui/settings-item/settings-item';
+import Pill from '$features/ui/pill/pill';
 
 const FoundationPages = () => {
 	const { developmentFeatures } = Jetpack_Boost;
@@ -11,7 +12,12 @@ const FoundationPages = () => {
 
 	return (
 		<SettingsItem
-			title={ __( 'Foundation Pages', 'jetpack-boost' ) }
+			title={
+				<>
+					{ __( 'Foundation Pages', 'jetpack-boost' ) }
+					<Pill text="Experiment" />
+				</>
+			}
 			description={
 				<p>
 					{ __(

@@ -1,7 +1,7 @@
 import styles from './settings-item.module.scss';
 
 type SettingsItemProps = {
-	title: string;
+	title: React.ReactNode;
 	description: React.ReactNode;
 	children: React.ReactNode;
 };
