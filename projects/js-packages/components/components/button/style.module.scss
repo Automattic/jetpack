@@ -33,9 +33,7 @@
 		font-size: var(--font-body);
 		line-height: 24px;
 
-		&:not(.components-clipboard-button) {
-			padding: var(--spacing-base) calc( var(--spacing-base) * 3); // 8px - 24px
-		}
+		padding: var(--spacing-base) calc( var(--spacing-base) * 3); // 8px - 24px
 
 		// With icon
 		&.icon {
