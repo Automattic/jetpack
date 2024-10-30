@@ -4,9 +4,9 @@ namespace Automattic\Jetpack_Boost\Lib;
 
 use Automattic\Jetpack\Schema\Schema;
 use Automattic\Jetpack_Boost\Contracts\Has_Setup;
-use Automattic\Jetpack_Boost\Data_Sync\Foundation_Pages_Entry;
+use Automattic\Jetpack_Boost\Data_Sync\Cornerstone_Pages_Entry;
 
-class Foundation_Pages implements Has_Setup {
+class Cornerstone_Pages implements Has_Setup {
 
 	const PREMIUM_MAX_PAGES = 10;
 	const FREE_MAX_PAGES    = 1;
@@ -23,8 +23,8 @@ class Foundation_Pages implements Has_Setup {
 
 	public function register_ds_stores() {
 		$schema = Schema::as_array( Schema::as_string() )->fallback( self::default_pages() );
-		jetpack_boost_register_option( 'foundation_pages_list', $schema, new Foundation_Pages_Entry( 'foundation_pages_list' ) );
-		jetpack_boost_register_readonly_option( 'foundation_pages_properties', array( $this, 'get_properties' ) );
+		jetpack_boost_register_option( 'cornerstone_pages_list', $schema, new Cornerstone_Pages_Entry( 'cornerstone_pages_list' ) );
+		jetpack_boost_register_readonly_option( 'cornerstone_pages_properties', array( $this, 'get_properties' ) );
 	}
 
 	public function remove_ccss_front_page_provider( $providers ) {
@@ -112,7 +112,7 @@ class Foundation_Pages implements Has_Setup {
 			return array();
 		}
 
-		return jetpack_boost_ds_get( 'foundation_pages_list' );
+		return jetpack_boost_ds_get( 'cornerstone_pages_list' );
 	}
 
 	public function get_properties() {
@@ -122,13 +122,13 @@ class Foundation_Pages implements Has_Setup {
 	}
 
 	public function add_display_post_states( $post_states, $post ) {
-		$foundation_pages = $this->get_pages();
-		if ( ! empty( $foundation_pages ) ) {
-			$post_url         = untrailingslashit( get_permalink( $post ) );
-			$foundation_pages = array_map( 'untrailingslashit', $foundation_pages );
+		$cornerstone_pages = $this->get_pages();
+		if ( ! empty( $cornerstone_pages ) ) {
+			$post_url          = untrailingslashit( get_permalink( $post ) );
+			$cornerstone_pages = array_map( 'untrailingslashit', $cornerstone_pages );
 
-			if ( in_array( $post_url, $foundation_pages, true ) ) {
-				$post_states[] = __( 'Foundation Page', 'jetpack-boost' );
+			if ( in_array( $post_url, $cornerstone_pages, true ) ) {
+				$post_states[] = __( 'Cornerstone Page', 'jetpack-boost' );
 			}
 		}
 

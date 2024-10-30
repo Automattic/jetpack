@@ -3,7 +3,7 @@ import Meta from './meta/meta';
 import SettingsItem from '$features/ui/settings-item/settings-item';
 import Pill from '$features/ui/pill/pill';
 
-const FoundationPages = () => {
+const CornerstonePages = () => {
 	const { developmentFeatures } = Jetpack_Boost;
 
 	if ( ! developmentFeatures ) {
@@ -14,14 +14,14 @@ const FoundationPages = () => {
 		<SettingsItem
 			title={
 				<>
-					{ __( 'Foundation Pages', 'jetpack-boost' ) }
+					{ __( 'Cornerstone Pages', 'jetpack-boost' ) }
 					<Pill text="Experiment" />
 				</>
 			}
 			description={
 				<p>
 					{ __(
-						'List the most important pages of your site. They will be optimized. The Page Speed scores are based on the first foundation page.',
+						'List the most important pages of your site. They will be optimized. The Page Speed scores are based on the first cornerstone page.',
 						'jetpack-boost'
 					) }
 				</p>
@@ -32,4 +32,4 @@ const FoundationPages = () => {
 	);
 };
 
-export default FoundationPages;
+export default CornerstonePages;

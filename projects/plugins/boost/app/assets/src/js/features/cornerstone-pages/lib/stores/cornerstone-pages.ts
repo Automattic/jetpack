@@ -2,15 +2,15 @@ import { useDataSync } from '@automattic/jetpack-react-data-sync-client';
 import { z } from 'zod';
 
 /**
- * Hook to get the Foundation Pages.
+ * Hook to get the Cornerstone Pages.
  */
-export function useFoundationPages(): [
+export function useCornerstonePages(): [
 	string[],
 	( newValue: string[], onSuccessCallback?: () => void ) => void,
 ] {
 	const [ { data }, { mutate } ] = useDataSync(
 		'jetpack_boost_ds',
-		'foundation_pages_list',
+		'cornerstone_pages_list',
 		z.array( z.string() )
 	);
 
@@ -23,16 +23,16 @@ export function useFoundationPages(): [
 	return [ data || [], updatePages ];
 }
 
-const FoundationPagesProperties = z.object( {
+const CornerstonePagesProperties = z.object( {
 	max_pages: z.number(),
 } );
-type FoundationPagesProperties = z.infer< typeof FoundationPagesProperties >;
+type CornerstonePagesProperties = z.infer< typeof CornerstonePagesProperties >;
 
-export function useFoundationPagesProperties(): FoundationPagesProperties | undefined {
+export function useCornerstonePagesProperties(): CornerstonePagesProperties | undefined {
 	const [ { data } ] = useDataSync(
 		'jetpack_boost_ds',
-		'foundation_pages_properties',
-		FoundationPagesProperties
+		'cornerstone_pages_properties',
+		CornerstonePagesProperties
 	);
 
 	return data;

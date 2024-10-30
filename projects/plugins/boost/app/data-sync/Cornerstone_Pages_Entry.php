@@ -6,7 +6,7 @@ use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Get;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Set;
 use Automattic\Jetpack_Boost\Lib\Environment_Change_Detector;
 
-class Foundation_Pages_Entry implements Entry_Can_Get, Entry_Can_Set {
+class Cornerstone_Pages_Entry implements Entry_Can_Get, Entry_Can_Set {
 
 	private $option_key;
 
@@ -34,7 +34,7 @@ class Foundation_Pages_Entry implements Entry_Can_Get, Entry_Can_Set {
 
 		$updated = update_option( $this->option_key, $value );
 		if ( $updated ) {
-			( new Environment_Change_Detector() )->handle_foundation_pages_list_update();
+			( new Environment_Change_Detector() )->handle_cornerstone_pages_list_update();
 		}
 	}
 

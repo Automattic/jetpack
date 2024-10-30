@@ -5,7 +5,10 @@ import ChevronUp from '$svg/chevron-up';
 import React, { useEffect, useState } from 'react';
 import clsx from 'clsx';
 import styles from './meta.module.scss';
-import { useFoundationPages, useFoundationPagesProperties } from '../lib/stores/foundation-pages';
+import {
+	useCornerstonePages,
+	useCornerstonePagesProperties,
+} from '../lib/stores/cornerstone-pages';
 import { createInterpolateElement } from '@wordpress/element';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import getSupportLink from '$lib/utils/get-support-link';
@@ -15,29 +18,29 @@ import { useNavigate } from 'react-router-dom';
 
 const Meta = () => {
 	const [ isExpanded, setIsExpanded ] = useState( false );
-	const [ foundationPages, setFoundationPages ] = useFoundationPages();
-	const foundationPagesProperties = useFoundationPagesProperties();
+	const [ cornerstonePages, setCornerstonePages ] = useCornerstonePages();
+	const cornerstonePagesProperties = useCornerstonePagesProperties();
 	const [ { refetch: refetchRegenerationReason } ] = useRegenerationReason();
 	const premiumFeatures = usePremiumFeatures();
 	const isPremium = premiumFeatures.includes( 'support' );
 	const navigate = useNavigate();
 
-	const updateFoundationPages = ( newValue: string ) => {
+	const updateCornerstonePages = ( newValue: string ) => {
 		const newItems = newValue.split( '\n' ).map( line => line.trim() );
 
-		setFoundationPages( newItems, () => {
+		setCornerstonePages( newItems, () => {
 			refetchRegenerationReason();
 		} );
 	};
 
 	let content = null;
 
-	if ( foundationPagesProperties !== undefined ) {
+	if ( cornerstonePagesProperties !== undefined ) {
 		content = (
 			<List
-				items={ foundationPages.join( '\n' ) }
-				setItems={ updateFoundationPages }
-				maxItems={ foundationPagesProperties.max_pages }
+				items={ cornerstonePages.join( '\n' ) }
+				setItems={ updateCornerstonePages }
+				maxItems={ cornerstonePagesProperties.max_pages }
 				description={
 					<>
 						{ createInterpolateElement(
@@ -60,7 +63,7 @@ const Meta = () => {
 								<b>
 									{ createInterpolateElement(
 										__(
-											'Free users can add only one foundation page. <link>Upgrade to add more</link>.',
+											'Free users can add only one cornerstone page. <link>Upgrade to add more</link>.',
 											'jetpack-boost'
 										),
 										{
@@ -69,7 +72,7 @@ const Meta = () => {
 												<a
 													href="#/upgrade"
 													onClick={ () => {
-														recordBoostEvent( 'foundation_pages_upgrade_link_clicked', {} );
+														recordBoostEvent( 'cornerstone_pages_upgrade_link_clicked', {} );
 														navigate( '/upgrade' );
 													} }
 												/>
@@ -104,7 +107,7 @@ const Meta = () => {
 									target="_blank"
 									rel="noopener noreferrer"
 									onClick={ () => {
-										recordBoostEvent( 'foundation_pages_properties_failed', {} );
+										recordBoostEvent( 'cornerstone_pages_properties_failed', {} );
 									} }
 								/>
 							),
@@ -116,15 +119,15 @@ const Meta = () => {
 	}
 
 	return (
-		<div className={ styles.wrapper } data-testid="foundation-pages-meta">
+		<div className={ styles.wrapper } data-testid="cornerstone-pages-meta">
 			<div className={ styles.head }>
 				<div className={ styles.summary }>
-					{ foundationPagesProperties &&
+					{ cornerstonePagesProperties &&
 						sprintf(
-							/* translators: %1$d is the number of foundation pages added, %2$d is the maximum number allowed */
+							/* translators: %1$d is the number of cornerstone pages added, %2$d is the maximum number allowed */
 							__( '%1$d / %2$d added', 'jetpack-boost' ),
-							foundationPages.length,
-							foundationPagesProperties.max_pages
+							cornerstonePages.length,
+							cornerstonePagesProperties.max_pages
 						) }
 				</div>
 				<div className={ styles.actions }>
@@ -181,10 +184,10 @@ const List: React.FC< ListProps > = ( { items, setItems, maxItems, description }
 		// Check if the number of items exceeds maxItems
 		if ( lines.length > maxItems ) {
 			const message = sprintf(
-				/* translators: %d is the maximum number of foundation page URLs. */
+				/* translators: %d is the maximum number of cornerstone page URLs. */
 				_n(
-					'You can add only %d foundation page URL.',
-					'You can add up to %d foundation page URLs.',
+					'You can add only %d cornerstone page URL.',
+					'You can add up to %d cornerstone page URLs.',
 					maxItems,
 					'jetpack-boost'
 				),
@@ -232,7 +235,7 @@ const List: React.FC< ListProps > = ( { items, setItems, maxItems, description }
 				value={ inputValue }
 				rows={ inputRows }
 				onChange={ e => validateInputValue( e.target.value ) }
-				id="jb-foundation-pages"
+				id="jb-cornerstone-pages"
 			/>
 			{ inputInvalid && <p className={ styles.error }>{ validationError?.message }</p> }
 			{ description && <div className={ styles.description }>{ description }</div> }

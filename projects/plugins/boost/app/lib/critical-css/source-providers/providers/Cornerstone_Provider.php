@@ -1,36 +1,36 @@
 <?php
 /**
- * Provider for the foundation pages
+ * Provider for the cornerstone pages
  *
  * @package automattic/jetpack-boost
  */
 
 namespace Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Providers;
 
-use Automattic\Jetpack_Boost\Lib\Foundation_Pages;
+use Automattic\Jetpack_Boost\Lib\Cornerstone_Pages;
 
 /**
- * Class Foundation_Provider
+ * Class Cornerstone_Provider
  *
  * @package Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Providers
  */
-class Foundation_Provider extends Provider {
+class Cornerstone_Provider extends Provider {
 
 	/**
 	 * @var string
 	 */
-	protected static $name = 'foundation';
+	protected static $name = 'cornerstone';
 
 	/**
-	 * Get the providers for foundation pages.
+	 * Get the providers for cornerstone pages.
 	 *
-	 * @param array $_context_posts Context posts, not used. Foundation pages are always available.
+	 * @param array $_context_posts Context posts, not used. Cornerstone pages are always available.
 	 * @return array
 	 */
 	public static function get_critical_source_urls( $_context_posts = array() ) {
-		$foundation_pages = new Foundation_Pages();
+		$cornerstone_pages = new Cornerstone_Pages();
 
-		$urls = $foundation_pages->get_pages();
+		$urls = $cornerstone_pages->get_pages();
 
 		$groups = array();
 		foreach ( $urls as $url ) {
@@ -41,7 +41,7 @@ class Foundation_Provider extends Provider {
 	}
 
 	/**
-	 * Get the current storage keys for foundation pages.
+	 * Get the current storage keys for cornerstone pages.
 	 *
 	 * @return array
 	 */
@@ -62,13 +62,13 @@ class Foundation_Provider extends Provider {
 	}
 
 	/**
-	 * Get the keys for foundation pages.
+	 * Get the keys for cornerstone pages.
 	 *
 	 * @return array
 	 */
 	public static function get_keys() {
-		$foundation_pages = new Foundation_Pages();
-		$urls             = $foundation_pages->get_pages();
+		$cornerstone_pages = new Cornerstone_Pages();
+		$urls              = $cornerstone_pages->get_pages();
 
 		return array_map( array( __CLASS__, 'get_hash_for_url' ), $urls );
 	}
@@ -86,7 +86,7 @@ class Foundation_Provider extends Provider {
 	 * @inheritdoc
 	 */
 	public static function describe_key( $_key ) {
-		return __( 'Foundation page', 'jetpack-boost' );
+		return __( 'Cornerstone page', 'jetpack-boost' );
 	}
 
 	/**
