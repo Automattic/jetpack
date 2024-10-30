@@ -128,6 +128,7 @@ jobs:
               SLUG="${DIR#projects/}"
             fi
 
+            export WP_DEVELOP_DIR="/tmp/wordpress-$WP_BRANCH"
             if [[ "${SLUG%%/*}" != "plugins" && "$WP_BRANCH" != 'latest' && "$WP_BRANCH" != 'none' && "$FORCE_PACKAGE_TESTS" != "true" ]]; then
               echo "Skipping $SLUG, only plugins run for WP_BRANCH = $WP_BRANCH"
               continue
