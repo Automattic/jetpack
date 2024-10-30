@@ -16,6 +16,7 @@ import { useRegenerateCriticalCssAction } from '$features/critical-css/lib/store
 import PremiumTooltip from '$features/premium-tooltip/premium-tooltip';
 import Upgraded from '$features/ui/upgraded/upgraded';
 import PageCacheModule from '$features/page-cache/page-cache';
+import Pill from '$features/ui/pill/pill';
 
 const Index = () => {
 	const criticalCssLink = getRedirectUrl( 'jetpack-boost-critical-css' );
@@ -270,7 +271,7 @@ const Index = () => {
 					title={
 						<>
 							{ __( 'Image Size Analysis', 'jetpack-boost' ) }
-							<span className={ styles.beta }>Beta</span>
+							<Pill text="Beta" />
 						</>
 					}
 					description={
