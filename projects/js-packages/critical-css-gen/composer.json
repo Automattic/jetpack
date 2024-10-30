@@ -20,10 +20,10 @@
 			"NODE_ENV=production pnpm run build"
 		],
 		"test-coverage": [
-			"pnpm exec playwright install && pnpm run test-coverage"
+			"pnpm exec playwright install --with-deps chromium && pnpm run test-coverage"
 		],
 		"test-js": [
-			"pnpm exec playwright install && pnpm run test"
+			"pnpm exec playwright install --with-deps chromium && pnpm run test"
 		]
 	},
 	"repositories": [
