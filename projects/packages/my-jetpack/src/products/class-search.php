@@ -21,6 +21,16 @@ use WP_Error;
  */
 class Search extends Hybrid_Product {
 	/**
+	 * Constant used to check if the paid product is active.
+	 */
+	const PAID_FEATURE_FOR_PRODUCT = 'jetpack-search';
+
+	/**
+	 * Constant used to check if the free product is active.
+	 */
+	const FREE_FEATURE_FOR_PRODUCT = 'jetpack-search-free';
+
+	/**
 	 * The product slug
 	 *
 	 * @var string
@@ -312,11 +322,18 @@ class Search extends Hybrid_Product {
 	}
 
 	/**
+	 * Check if the site features include paid search plan
+	 */
+	public static function has_paid_plan_for_product() {
+		return Initializer::site_has_feature( PAID_FEATURE_FOR_PRODUCT );
+	}
+
+	/**
 	 * Checks if the site purchases contain a paid search plan
 	 *
 	 * @return bool
 	 */
-	public static function has_paid_plan_for_product() {
+	public static function check_paid_plan_for_product() {
 		$purchases_data = Wpcom_Products::get_site_current_purchases();
 		if ( is_wp_error( $purchases_data ) ) {
 			return false;
@@ -335,11 +352,20 @@ class Search extends Hybrid_Product {
 	}
 
 	/**
-	 * Checks if the site purchases contain a free search plan
+	 * Checks if the site features include free search plan
 	 *
 	 * @return bool
 	 */
 	public static function has_free_plan_for_product() {
+		return Initializer::site_has_feature( FREE_FEATURE_FOR_PRODUCT );
+	}
+
+	/**
+	 * Checks if the site purchases contain a free search plan
+	 *
+	 * @return bool
+	 */
+	public static function check_free_plan_for_product() {
 		$purchases_data = Wpcom_Products::get_site_current_purchases();
 		if ( is_wp_error( $purchases_data ) ) {
 			return false;

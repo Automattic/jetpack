@@ -74,6 +74,13 @@ class Initializer {
 	public static $site_info;
 
 	/**
+	 * Features available on the site
+	 *
+	 * @var array
+	 */
+	public static $site_features = array();
+
+	/**
 	 * Initialize My Jetpack
 	 *
 	 * @return void
@@ -720,6 +727,16 @@ class Initializer {
 		set_transient( self::MY_JETPACK_SITE_INFO_TRANSIENT_KEY, $site_info, DAY_IN_SECONDS );
 
 		return $site_info;
+	}
+
+	/**
+	 * Check if a site has a specific feature enabled.
+	 *
+	 * @param string $feature_slug The feature slug to check for.
+	 * @return bool
+	 */
+	public static function site_has_feature( $feature_slug ) {
+		return in_array( $feature_slug, self::$site_features, true );
 	}
 
 	/**
