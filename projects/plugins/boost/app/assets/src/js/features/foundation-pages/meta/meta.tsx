@@ -10,12 +10,17 @@ import { createInterpolateElement } from '@wordpress/element';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import getSupportLink from '$lib/utils/get-support-link';
 import { useRegenerationReason } from '$features/critical-css/lib/stores/suggest-regenerate';
+import { usePremiumFeatures } from '$lib/stores/premium-features';
+import { useNavigate } from 'react-router-dom';
 
 const Meta = () => {
 	const [ isExpanded, setIsExpanded ] = useState( false );
 	const [ foundationPages, setFoundationPages ] = useFoundationPages();
 	const foundationPagesProperties = useFoundationPagesProperties();
 	const [ { refetch: refetchRegenerationReason } ] = useRegenerationReason();
+	const premiumFeatures = usePremiumFeatures();
+	const isPremium = premiumFeatures.includes( 'support' );
+	const navigate = useNavigate();
 
 	const updateFoundationPages = ( newValue: string ) => {
 		const newItems = newValue.split( '\n' ).map( line => line.trim() );
@@ -33,19 +38,49 @@ const Meta = () => {
 				items={ foundationPages.join( '\n' ) }
 				setItems={ updateFoundationPages }
 				maxItems={ foundationPagesProperties.max_pages }
-				description={ createInterpolateElement(
-					sprintf(
-						/* translators: %s is the site URL. */
-						__(
-							'Add one URL per line. Only URLs starting with <b>%s</b> will be included. Relative URLs are automatically expanded.',
-							'jetpack-boost'
-						),
-						Jetpack_Boost.site.url
-					),
-					{
-						b: <b />,
-					}
-				) }
+				description={
+					<>
+						{ createInterpolateElement(
+							sprintf(
+								/* translators: %s is the site URL. */
+								__(
+									'Add one URL per line. Only URLs starting with <b>%s</b> will be included. Relative URLs are automatically expanded.',
+									'jetpack-boost'
+								),
+								Jetpack_Boost.site.url
+							),
+							{
+								b: <b />,
+							}
+						) }
+						{ ! isPremium && (
+							<>
+								<br />
+								<br />
+								<b>
+									{ createInterpolateElement(
+										__(
+											'Free users can add only one foundation page. <link>Upgrade to add more</link>.',
+											'jetpack-boost'
+										),
+										{
+											link: (
+												// eslint-disable-next-line jsx-a11y/anchor-has-content
+												<a
+													href="#/upgrade"
+													onClick={ () => {
+														recordBoostEvent( 'foundation_pages_upgrade_link_clicked', {} );
+														navigate( '/upgrade' );
+													} }
+												/>
+											),
+										}
+									) }
+								</b>
+							</>
+						) }
+					</>
+				}
 			/>
 		);
 	} else {
