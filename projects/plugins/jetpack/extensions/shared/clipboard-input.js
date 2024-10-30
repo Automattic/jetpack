@@ -1,24 +1,13 @@
 import { CopyToClipboard } from '@automattic/jetpack-components';
-import { TextControl } from '@wordpress/components'; // So this is what needs changing.
+import { TextControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
 import './clipboard-input.scss';
 
-const ClipboardInput = () => {
-	const { link } = this.props;
-
-	if ( ! link ) {
-		return null;
-	}
-
+const ClipboardInput = ( { link } ) => {
 	return (
 		<div className="jetpack-clipboard-input">
-			<TextControl
-				readOnly
-				onFocus={ this.onFocus }
-				value={ link }
-				__nextHasNoMarginBottom={ true }
-			/>
+			<TextControl readOnly value={ link } __nextHasNoMarginBottom={ true } />
 			<CopyToClipboard
 				buttonStyle="icon-text"
 				className="components-clipboard-button"
