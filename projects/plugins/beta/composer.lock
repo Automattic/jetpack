@@ -12,7 +12,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/admin-ui",
-                "reference": "a8119dc5ed4ce65b16730ad1695d083a0456ca0a"
+                "reference": "14e0557c0a32cf9a34872b9540be3a1299e9f5ce"
             },
             "require": {
                 "php": ">=7.0"
@@ -51,7 +51,7 @@
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],
                 "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/php/clover.xml\""
                 ],
                 "test-php": [
                     "@composer phpunit"
@@ -77,7 +77,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/autoloader",
-                "reference": "eb527007a09a7114c2e01da2bd43f4ecb1bfcef6"
+                "reference": "b1c5d97a3530a17cbfda5364bddfd5643e133a63"
             },
             "require": {
                 "composer-plugin-api": "^1.1 || ^2.0",
@@ -117,7 +117,7 @@
                 ],
                 "test-coverage": [
                     "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"./tests/php/tmp/coverage-report.php\"",
-                    "php ./tests/php/bin/test-coverage.php \"$COVERAGE_DIR/clover.xml\""
+                    "php ./tests/php/bin/test-coverage.php \"$COVERAGE_DIR/php/clover.xml\""
                 ],
                 "test-php": [
                     "@composer phpunit"
@@ -278,7 +278,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/changelogger",
-                "reference": "9123fc398578dfefcd782121708c32dce96116dd"
+                "reference": "18abbbaaac05c85ddf1a95c73dbf46e3a04029bb"
             },
             "require": {
                 "php": ">=7.0",
@@ -323,7 +323,7 @@
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],
                 "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/php/clover.xml\""
                 ],
                 "test-php": [
                     "@composer phpunit"
