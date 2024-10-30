@@ -2722,8 +2722,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			return new WP_Error( 'site_not_connected' );
 		}
 
-		$user_id = Rest_Authentication::init()->wp_rest_authenticate( false );
-
+		$user_id          = get_current_user_id();
 		$allow_blog_token = $this->allow_fallback_to_jetpack_blog_token || $this->allow_jetpack_site_auth;
 
 		if ( ( $allow_blog_token && Rest_Authentication::is_signed_with_blog_token() ) || ( $user_id && Rest_Authentication::is_signed_with_user_token() ) ) {
@@ -2731,9 +2730,6 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 			// Successful custom permission check.
 			if ( $custom_permission_result === true ) {
-				if ( $user_id ) {
-					wp_set_current_user( $user_id );
-				}
 				return true;
 			}
 
