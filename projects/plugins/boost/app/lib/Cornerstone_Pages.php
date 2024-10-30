@@ -12,10 +12,6 @@ class Cornerstone_Pages implements Has_Setup {
 	const FREE_MAX_PAGES    = 1;
 
 	public function setup() {
-		if ( ! $this->is_development_features_enabled() ) {
-			return;
-		}
-
 		add_filter( 'jetpack_boost_critical_css_providers', array( $this, 'remove_ccss_front_page_provider' ), 10, 2 );
 		add_filter( 'display_post_states', array( $this, 'add_display_post_states' ), 10, 2 );
 		add_action( 'init', array( $this, 'register_ds_stores' ) );
@@ -137,9 +133,5 @@ class Cornerstone_Pages implements Has_Setup {
 
 	private function get_max_pages() {
 		return Premium_Features::has_any() ? static::PREMIUM_MAX_PAGES : static::FREE_MAX_PAGES;
-	}
-
-	private function is_development_features_enabled() {
-		return defined( 'JETPACK_BOOST_DEVELOPMENT_FEATURES' ) && JETPACK_BOOST_DEVELOPMENT_FEATURES;
 	}
 }
