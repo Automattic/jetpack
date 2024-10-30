@@ -57,17 +57,7 @@ async function notifyImportantIssues( octokit, payload, channel, recipients = 'd
 	const highPriorityIssue = priority === 'High' || priorityLabels.includes( '[Pri] High' );
 	const blockerIssue = priority === 'BLOCKER' || priorityLabels.includes( '[Pri] BLOCKER' );
 
-	const hasOtherPriorityLabels = priorityLabels.some( priLabel =>
-		/^\[Pri\] (?!High|BLOCKER|TBD)/.test( priLabel )
-	);
-
-	if (
-		isBugIssue &&
-		state === 'open' &&
-		! isEscalated &&
-		( highPriorityIssue || blockerIssue ) &&
-		! hasOtherPriorityLabels
-	) {
+	if ( isBugIssue && state === 'open' && ! isEscalated && ( highPriorityIssue || blockerIssue ) ) {
 		const message = `New ${
 			highPriorityIssue ? 'High-priority' : 'Blocker'
 		} bug! Please check the priority.`;
