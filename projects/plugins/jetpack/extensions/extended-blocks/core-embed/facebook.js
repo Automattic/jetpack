@@ -5,7 +5,7 @@ import { FacebookIcon } from '../../shared/icons';
 
 const facebookVariation = {
 	name: 'facebook',
-	title: 'Facebook',
+	title: 'Facebook Embed',
 	icon: {
 		src: FacebookIcon,
 		foreground: getIconColor(),

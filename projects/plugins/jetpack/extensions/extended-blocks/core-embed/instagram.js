@@ -6,7 +6,7 @@ import isActive from '../../shared/is-active';
 
 const instagramVariation = {
 	name: 'instagram',
-	title: 'Instagram',
+	title: 'Instagram Embed',
 	icon: {
 		src: InstagramIcon,
 		foreground: getIconColor(),
