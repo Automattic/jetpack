@@ -105,7 +105,7 @@ const Controls = ( { blocks, disabledFeatures } ) => {
 		<div className="jetpack-ai-proofread">
 			<p> { __( 'Improve your writing with AI.', 'jetpack' ) }</p>
 			<PanelRow>
-				<BaseControl>
+				<BaseControl __nextHasNoMarginBottom={ true }>
 					<div className="grade-level-container">
 						{ gradeLevel === null ? (
 							<p className="jetpack-ai-proofread__help-text">
@@ -126,11 +126,12 @@ const Controls = ( { blocks, disabledFeatures } ) => {
 			</PanelRow>
 
 			<PanelRow>
-				<BaseControl>
+				<BaseControl __nextHasNoMarginBottom={ true }>
 					<ToggleControl
 						checked={ isProofreadEnabled }
 						onChange={ handleAiFeedbackToggle }
 						label={ __( 'Show suggestions', 'jetpack' ) }
+						__nextHasNoMarginBottom={ true }
 					/>
 					<div className="feature-checkboxes-container">
 						{ features.map(
@@ -144,6 +145,7 @@ const Controls = ( { blocks, disabledFeatures } ) => {
 										label={ feature.config.title }
 										checked={ ! disabledFeatures.includes( feature.config.name ) }
 										onChange={ handleToggleFeature( feature.config.name ) }
+										__nextHasNoMarginBottom={ true }
 									/>
 								)
 						) }

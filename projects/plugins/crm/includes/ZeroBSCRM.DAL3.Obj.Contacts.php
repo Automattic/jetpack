@@ -2072,6 +2072,25 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 
                     }
 
+								// Checking and fixing name clashes between custom fields and linked objects
+								// (e.g. custom field with slug `company` and the company linked object)
+								// See: https://github.com/Automattic/zero-bs-crm/issues/3477
+								$this->add_name_clash_suffix_if_needed(
+									$resArr, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+									array(
+										'tags',
+										'dnd',
+										'company',
+										'lastlog',
+										'owner',
+										'invoices',
+										'quotes',
+										'transactions',
+										'tasks',
+										'external_sources',
+									)
+								);
+
                     if ($withTags){
 
                         // add all tags lines
@@ -2114,25 +2133,25 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 
                         if (is_array($potentialLogs) && count($potentialLogs) > 0) $resArr['lastlog'] = $potentialLogs[0];
 
-								// CONTACT logs specifically
-								// doesn't return singular, for now using arr
-								$potentialLogs = $this->DAL()->logs->getLogsForObj( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-									array(
+												// CONTACT logs specifically
+												// doesn't return singular, for now using arr
+												$potentialLogs = $this->DAL()->logs->getLogsForObj( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+													array(
 
-										'objtype'     => ZBS_TYPE_CONTACT,
-										'objid'       => $resDataLine->ID, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+														'objtype'     => ZBS_TYPE_CONTACT,
+														'objid'       => $resDataLine->ID, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
-										'notetypes'   => $zbs->DAL->logs->contact_log_types, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+														'notetypes'   => $zbs->DAL->logs->contact_log_types, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
-										'incMeta'     => true,
+														'incMeta'     => true,
 
-										'sortByField' => 'zbsl_created',
-										'sortOrder'   => 'DESC',
-										'page'        => 0,
-										'perPage'     => 1,
+														'sortByField' => 'zbsl_created',
+														'sortOrder'   => 'DESC',
+														'page'        => 0,
+														'perPage'     => 1,
 
-									)
-								);
+													)
+												);
 
                         if (is_array($potentialLogs) && count($potentialLogs) > 0) $resArr['lastcontactlog'] = $potentialLogs[0];
 

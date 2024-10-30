@@ -52,6 +52,7 @@ const InfoWindow = () => {
 						label={ __( 'Marker Title', 'jetpack' ) }
 						value={ title }
 						onChange={ value => updateActiveMarker( { title: value } ) }
+						__nextHasNoMarginBottom={ true }
 					/>
 					<TextareaControl
 						className="wp-block-jetpack-map__marker-caption"
@@ -60,6 +61,7 @@ const InfoWindow = () => {
 						rows="2"
 						tag="textarea"
 						onChange={ value => updateActiveMarker( { caption: value } ) }
+						__nextHasNoMarginBottom={ true }
 					/>
 					<Button onClick={ deleteActiveMarker } className="wp-block-jetpack-map__delete-btn">
 						<Dashicon icon="trash" size="15" /> { __( 'Delete Marker', 'jetpack' ) }

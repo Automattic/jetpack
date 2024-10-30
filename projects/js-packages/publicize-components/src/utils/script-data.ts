@@ -1,4 +1,4 @@
-import { getScriptData } from '@automattic/jetpack-script-data';
+import { getScriptData, siteHasFeature } from '@automattic/jetpack-script-data';
 import { SocialScriptData } from '../types/types';
 
 /**
@@ -8,4 +8,13 @@ import { SocialScriptData } from '../types/types';
  */
 export function getSocialScriptData(): SocialScriptData {
 	return getScriptData().social;
+}
+
+/**
+ * Check if the site has social paid features.
+ *
+ * @return {boolean} Whether the site has social paid features.
+ */
+export function hasSocialPaidFeatures() {
+	return siteHasFeature( 'social-enhanced-publishing' );
 }
