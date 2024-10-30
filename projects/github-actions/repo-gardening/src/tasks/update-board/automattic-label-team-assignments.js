@@ -85,7 +85,7 @@ export const automatticAssignments = {
 	},
 	'Monorepo tooling': {
 		team: 'Jetpack Garage',
-		labels: [ '[Tools] Development CLI', 'Actions' ],
+		labels: [ '[Tools] Development CLI', 'Actions', '[Package] Autoloader' ],
 		slack_id: 'CBG1CP4EN',
 		board_id: 'https://github.com/orgs/Automattic/projects/599',
 	},
