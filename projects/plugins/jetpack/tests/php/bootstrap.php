@@ -94,6 +94,8 @@ if ( '1' !== getenv( 'JETPACK_TEST_WPCOMSH' ) ) {
 
 if ( '1' !== getenv( 'JETPACK_TEST_WOOCOMMERCE' ) ) {
 	echo 'To run Jetpack woocommerce tests, prefix phpunit with JETPACK_TEST_WOOCOMMERCE=1' . PHP_EOL;
+} elseif ( getenv( 'WORDPRESS_DIR' ) !== false ) {
+	define( 'JETPACK_WOOCOMMERCE_INSTALL_DIR', getenv( 'WORDPRESS_DIR' ) . '/wp-content/plugins/woocommerce' );
 } else {
 	define( 'JETPACK_WOOCOMMERCE_INSTALL_DIR', __DIR__ . '/../../../woocommerce' );
 }
@@ -130,15 +132,13 @@ function _manually_install_woocommerce() {
  * Loading required mu-wpcom plugin files to be able to test with all required code.
  */
 function _manually_load_muplugin() {
-	if ( getenv( 'GITHUB_ACTIONS' ) ) {
-
-		// Using plugin code installed by .github/files/setup-wordpress-env.sh.
-		require_once __DIR__ . '/../../../../mu-plugins/wpcomsh/wpcomsh.php';
-		require_once __DIR__ . '/../../../../mu-plugins/wpcomsh/vendor/autoload.php';
+	if ( getenv( 'WORDPRESS_DIR' ) !== false ) {
+		define( 'JETPACK_WPCOMSH_INSTALL_DIR', getenv( 'WORDPRESS_DIR' ) . '/wp-content/mu-plugins/wpcomsh' );
 	} else {
-		require_once __DIR__ . '/../../../wpcomsh/wpcomsh.php';
-		require_once __DIR__ . '/../../../wpcomsh/vendor/autoload.php';
+		define( 'JETPACK_WPCOMSH_INSTALL_DIR', __DIR__ . '/../../../wpcomsh' );
 	}
+
+	require_once JETPACK_WPCOMSH_INSTALL_DIR . '/wpcomsh.php';
 	\Automattic\Jetpack\Jetpack_Mu_Wpcom::init();
 
 	defined( 'WPCOMSH_PREMIUM_THEMES_PATH' ) || define( 'WPCOMSH_PREMIUM_THEMES_PATH', sys_get_temp_dir() . '/premium' );
