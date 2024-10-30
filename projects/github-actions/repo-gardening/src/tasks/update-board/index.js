@@ -518,7 +518,7 @@ async function assignTeam( octokit, payload, projectInfo, projectItemId, priorit
 				', '
 			) }. The ${ team } team is interested in getting Slack updates for important issues. Let’s notify them.`
 		);
-		await notifyImportantIssues( octokit, payload, slack_id );
+		await notifyImportantIssues( octokit, payload, slack_id, 'devs' );
 	}
 
 	// Does the team have a Project board where they track work for this feature? We can add the issue to that board.

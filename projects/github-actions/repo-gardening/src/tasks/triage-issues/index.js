@@ -265,7 +265,7 @@ ${ Object.entries( explanations )
 
 	// Send a Slack notification if the issue is important.
 	if ( isBugIssue ) {
-		await notifyImportantIssues( octokit, payload, channel );
+		await notifyImportantIssues( octokit, payload, channel, 'product-ambassadors' );
 	}
 }
 module.exports = triageIssues;
