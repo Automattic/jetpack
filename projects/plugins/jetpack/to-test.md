@@ -14,7 +14,7 @@
 
 On top of the already available AI Logo generator, we've now added a styles dropdown to allow more control for the user without depending entirely on the provided prompt.
 
-The logo generator is not available for free users, test with a plan or subscription. Also, it's currenlty available for a12s (and will soon be open to public), but if you need to test with another account and have access to a sandbox, you can add a filter to enable the styles on your 0-sandbox.php file: `add_filter( 'jetpack_ai_logo_style_selector_enabled', '__return_true' );`
+The logo generator is not available for free users, test with a plan or subscription. Also, it's currenlty available for a12s only (and will soon be open to public).
 
 - Load the editor and add a Logo block.
 - On the network tab you should see a request to `ai-assistant-feature`
@@ -35,28 +35,35 @@ The logo generator is not available for free users, test with a plan or subscrip
 - Feel free to play with the styles to achieve different results
 - Confirm that using style "Auto" will try to guess the style based on the prompt (AI query request) and set the style prior to sending the image generation request
 - If possible, try different combinations of plans and cases:
-  - use `add_filter( 'jetpack_ai_tier_licensed_quantity', function() { return 0 | 100 | 1; } );` filter to mock free/tier100/unlimited plans
+  - use `add_filter( 'jetpack_ai_tier_licensed_quantity', function() { return 0 | 100 | 1; } );` on your `0-sandbox.php` file filter to mock free/tier100/unlimited plans
 	- sandbox the API, but then don't connect to sandbox to mock a disconnected situation
 
-## Floating subscribe button
+### AI Image Generator
+
+The styles added to the logo generator are now also available on general image creation.
+It is currently only available for a12s as well, so test in a site where you are logged in with your A8c account.
+
+The testing steps are the same as the logo generator steps above, except that now you should add an Image block instead and click on the "Generate with AI" button.
+
+### Floating subscribe button
 
 - Go to Jetpack -> Settings -> Newsletter.
 - Enable the “floating subscribe button”. Enable newsletter features first if these toggles are disabled.
 - On the frontend of the site, you should now see a floating subscribe button at the bottom/right corner.
 - If you’re using a block theme, next to the toggle, you see “preview and edit.” Clicking this should bring you to the site editor, where you can modify the button’s appearance.
 
-## Email Preview dropdown
+### Email Preview dropdown
 
 - You can preview blog posts as an email from post editor’s “Preview” dropdown when using latest Gutenberg or current RC release of core WordPress.
 
-## Newsletter default settings
+### Newsletter default settings
 
 - On a new Jetpack site, go to Jetpack -> Settings -> Newsletter, then:
 	- **Featured image**: “Whether to include the featured image in the email or not” setting default to disabled, can you can change it here. The emails have feature image set when enabled, when disabled no featured images in emails.
 	- **Excerpts**: From WordPress settings, set excerpt for RSS feeds enabled. In the newsletter settings, “For each new post email, include…” still defaults to “full text” and not to “excerpt”. New blog emails are sent in full, not as excerpt, while RSS feeds are shown with excerpts.
 	- **Replies**: default is set to “comments”, not to “no replies” or “reply to author”.
 
-## Don’t show subscription modals when a URL param is present
+### Don’t show subscription modals when a URL param is present
 
 - Enable subscription modals on posts (“popup”) and frontend (“overlay”) in the newsletter settings.
 - Try loading a post or the frontpage, the modal should pop up. Do not dismiss it!
@@ -64,13 +71,13 @@ The logo generator is not available for free users, test with a plan or subscrip
 - The modal should not show anymore.
 - Remove `?jetpack_skip_subscription_popup` from the URL. The modal/popup should remain hidden on subsequent reloads.
 
-## Story block
+### Story block
 
 - Create a “Story” block in a post/page.
 - Upload a couple of images.
 - Check the front-end: clicking on the block should “run the story” by switching pictures, not simply reload the page.
 
-## WordPress 6.7 Compatibility
+### WordPress 6.7 Compatibility
 
 - Install the WordPress Beta Tester plugin.
 - Go to Tools > Beta Testing, and set the plugin to use Beta/RC Only (as we’re now in the RC stage of the 6.7 release – nightly will give you 6.8).
