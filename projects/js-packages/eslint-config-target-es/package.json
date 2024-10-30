@@ -14,7 +14,8 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"scripts": {
-		"test": "jest tests"
+		"test": "jest tests",
+		"test-coverage": "jest tests --coverage --collectCoverageFrom='src/**/*.js' --coverageDirectory=\"$COVERAGE_DIR\" --coverageReporters=clover"
 	},
 	"dependencies": {
 		"@mdn/browser-compat-data": "5.5.49",

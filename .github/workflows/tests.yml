@@ -120,6 +120,7 @@ jobs:
         run: |
           EXIT=0
           mkdir artifacts
+          [[ "$TEST_SCRIPT" == "test-coverage" ]] && mkdir coverage
           for P in composer.json projects/*/*/composer.json; do
             if [[ "$P" == "composer.json" ]]; then
               DIR="."
