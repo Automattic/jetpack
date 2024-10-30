@@ -1,47 +1,35 @@
-import { ClipboardButton, TextControl } from '@wordpress/components';
-import { Component } from '@wordpress/element';
-import { __, _x } from '@wordpress/i18n';
+import { CopyToClipboard } from '@automattic/jetpack-components';
+import { TextControl } from '@wordpress/components'; // So this is what needs changing.
+import { __ } from '@wordpress/i18n';
 
 import './clipboard-input.scss';
 
-class ClipboardInput extends Component {
-	state = {
-		hasCopied: false,
-	};
+const ClipboardInput = () => {
+	const { link } = this.props;
 
-	onCopy = () => this.setState( { hasCopied: true } );
-
-	onFinishCopy = () => this.setState( { hasCopied: false } );
-
-	onFocus = event => event.target.select();
-
-	render() {
-		const { link } = this.props;
-		const { hasCopied } = this.state;
-
-		if ( ! link ) {
-			return null;
-		}
-
-		return (
-			<div className="jetpack-clipboard-input">
-				<TextControl
-					readOnly
-					onFocus={ this.onFocus }
-					value={ link }
-					__nextHasNoMarginBottom={ true }
-				/>
-				<ClipboardButton
-					variant="secondary"
-					onCopy={ this.onCopy }
-					onFinishCopy={ this.onFinishCopy }
-					text={ link }
-				>
-					{ hasCopied ? __( 'Copied!', 'jetpack' ) : _x( 'Copy', 'verb', 'jetpack' ) }
-				</ClipboardButton>
-			</div>
-		);
+	if ( ! link ) {
+		return null;
 	}
-}
+
+	return (
+		<div className="jetpack-clipboard-input">
+			<TextControl
+				readOnly
+				onFocus={ this.onFocus }
+				value={ link }
+				__nextHasNoMarginBottom={ true }
+			/>
+			<CopyToClipboard
+				buttonStyle="icon-text"
+				className="components-clipboard-button"
+				textToCopy={ link }
+				variant="secondary"
+				weight="regular"
+			>
+				{ __( 'Copy', 'jetpack' ) }
+			</CopyToClipboard>
+		</div>
+	);
+};
 
 export default ClipboardInput;

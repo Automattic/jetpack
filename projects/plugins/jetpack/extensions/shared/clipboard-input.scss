@@ -10,5 +10,13 @@
 
 	.components-clipboard-button {
 		margin-left: 6px;
+
+		svg {
+			padding-left: 5px;
+		}
+
+		span {
+			padding-right: 5px;
+		}
 	}
 }
