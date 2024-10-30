@@ -29,6 +29,9 @@ const briefData: {
 	};
 } = {};
 
+// Clear the local storage for the spelling context's old key. TODO: remove this after a few releases
+localStorage.removeItem( 'jetpack-ai-breve-spelling-context-en' );
+
 async function fetchFromServer( {
 	feature,
 	language,
