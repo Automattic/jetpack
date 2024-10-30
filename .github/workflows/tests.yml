@@ -55,7 +55,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          # codecov.io requires a fetch depth > 1.
+          # Test coverage checks require a fetch depth > 1.
           fetch-depth: 2
 
       # For pull requests, list-changed-projects.sh needs the merge base.
@@ -70,6 +70,7 @@ jobs:
         uses: ./.github/actions/tool-setup
         with:
           php: ${{ matrix.php }}
+          coverage: ${{ matrix.script == 'test-coverage' && 'pcov' || 'none' }}
           node: ${{ matrix.node }}
 
       - name: Monorepo install
@@ -79,7 +80,7 @@ jobs:
           echo "::endgroup::"
 
           # If we're going to be making WorDBless use WP "nightlies", remove the relevant package from Composer's cache to get the latest version.
-          if [[ "$WP_BRANCH" == 'trunk' && "$TEST_SCRIPT" == "test-php" ]]; then
+          if [[ "$WP_BRANCH" == 'trunk' && ( "$TEST_SCRIPT" == "test-php" || "$TEST_SCRIPT" == "test-coverage" ) ]]; then
             echo "::group::Clear composer cache for roots/wordpress"
             DIR=$(composer config cache-files-dir)
             rm -rf "$DIR/roots/wordpress" "$DIR/roots/wordpress-no-content"
@@ -160,7 +161,7 @@ jobs:
               echo "::group::Running tests for $SLUG"
 
               # Composer install, if appropriate. Note setup-wordpress-env.sh did it already for plugins.
-              if [[ "${SLUG%%/*}" != "plugins" && "$TEST_SCRIPT" == "test-php" ]]; then
+              if [[ "${SLUG%%/*}" != "plugins" && ( "$TEST_SCRIPT" == "test-php" || "$TEST_SCRIPT" == "test-coverage" ) ]]; then
                 if [[ ! -f "$DIR/composer.lock" ]]; then
                   echo 'No composer.lock, running `composer update`'
                   composer --working-dir="$DIR" update
@@ -187,6 +188,10 @@ jobs:
 
               mkdir -p "artifacts/$SLUG"
               export ARTIFACTS_DIR="$GITHUB_WORKSPACE/artifacts/$SLUG"
+              if [[ "$TEST_SCRIPT" == "test-coverage" ]]; then
+                mkdir -p "coverage/$SLUG"
+                export COVERAGE_DIR="$GITHUB_WORKSPACE/coverage/$SLUG"
+              fi
               FAIL=false
               if ! composer run --timeout=0 --working-dir="$DIR" "$TEST_SCRIPT"; then
                 FAIL=true
@@ -202,6 +207,13 @@ jobs:
             fi
           done
           exit $EXIT
+
+      - name: Process coverage results
+        env:
+          CHANGED: ${{ steps.changed.outputs.projects }}
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        if: matrix.script == 'test-coverage'
+        run: .github/files/process-coverage.sh
 
       - name: Check for artifacts
         id: check-artifacts
