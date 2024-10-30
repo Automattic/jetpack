@@ -162,6 +162,8 @@ function get_path_transformation_map( $report_file_paths ) {
  *
  * @param SebastianBergmann\CodeCoverage\CodeCoverage $report The report to process.
  * @return SebastianBergmann\CodeCoverage\CodeCoverage The processed report.
+ *
+ * @phan-suppress PhanAccessMethodInternal -- There's not really a way to avoid this.
  */
 function process_coverage_9( $report ) {
 	$data      = $report->getData( true );
