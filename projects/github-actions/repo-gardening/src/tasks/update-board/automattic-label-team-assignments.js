@@ -27,6 +27,29 @@ export const automatticAssignments = {
 		slack_id: 'C03NLNTPZ2T',
 		board_id: 'https://github.com/orgs/Automattic/projects/448',
 	},
+	'Site Migrations': {
+		team: 'Serenity',
+		labels: [ '[Feature] Site Migration' ],
+		slack_id: 'C0Q664T29',
+		board_id: 'https://github.com/orgs/Automattic/projects/964/',
+	},
+	Themes: {
+		team: 'Marvel',
+		labels: [
+			'[Feature Group] Appearance & Themes',
+			'[Feature] Global Styles',
+			'[Feature] Premium Automattic Themes',
+			'[Feature] Free Automattic Themes',
+			'[Feature] Third-Party Themes',
+			'[Feature] .Org Themes',
+			'[Feature] Customizer',
+			'[Feature] Theme Showcase',
+			'[Feature] Headstart',
+			'[Feature] Google Fonts',
+		],
+		slack_id: 'C048CUFRGFQ',
+		board_id: 'https://github.com/orgs/Automattic/projects/1106/',
+	},
 	// Jetpack Division.
 	'AI Tools': {
 		team: 'Agora',
