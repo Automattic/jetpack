@@ -15,6 +15,7 @@ function ShowSharingCheckbox( { checked, onChange } ) {
 			onChange={ value => {
 				onChange( { jetpack_sharing_enabled: value } );
 			} }
+			__nextHasNoMarginBottom={ true }
 		/>
 	);
 }

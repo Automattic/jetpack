@@ -1,11 +1,19 @@
 /**
  * External dependencies
  */
-import { AiModalPromptInput } from '@automattic/jetpack-ai-client';
-import { Button } from '@wordpress/components';
+import {
+	AiModalPromptInput,
+	IMAGE_STYLE_NONE,
+	IMAGE_STYLE_AUTO,
+	ImageStyleObject,
+	ImageStyle,
+} from '@automattic/jetpack-ai-client';
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
+import { Button, SelectControl } from '@wordpress/components';
 import { useCallback, useRef, useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, external } from '@wordpress/icons';
+import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
@@ -16,6 +24,8 @@ import Carrousel, { CarrouselImages } from './carrousel';
 import UsageCounter from './usage-counter';
 
 const FEATURED_IMAGE_UPGRADE_PROMPT_PLACEMENT = 'ai-image-generator';
+
+const debug = debugFactory( 'jetpack-ai:ai-image-modal' );
 
 export default function AiImageModal( {
 	title,
@@ -41,6 +51,8 @@ export default function AiImageModal( {
 	autoStart = false,
 	autoStartAction = null,
 	instructionsPlaceholder = null,
+	imageStyles = [],
+	onGuessStyle = null,
 }: {
 	title: string;
 	cost: number;
@@ -49,8 +61,8 @@ export default function AiImageModal( {
 	images: CarrouselImages;
 	currentIndex: number;
 	onClose: () => void;
-	onTryAgain: ( { userPrompt }: { userPrompt?: string } ) => void;
-	onGenerate: ( { userPrompt }: { userPrompt?: string } ) => void;
+	onTryAgain: ( { userPrompt, style }: { userPrompt?: string; style?: string } ) => void;
+	onGenerate: ( { userPrompt, style }: { userPrompt?: string; style?: string } ) => void;
 	generating: boolean;
 	notEnoughRequests: boolean;
 	requireUpgrade: boolean;
@@ -64,20 +76,50 @@ export default function AiImageModal( {
 	handleNextImage: () => void;
 	acceptButton: React.JSX.Element;
 	autoStart?: boolean;
-	autoStartAction?: ( { userPrompt }: { userPrompt?: string } ) => void;
+	autoStartAction?: ( { userPrompt, style }: { userPrompt?: string; style?: string } ) => void;
 	generateButtonLabel: string;
 	instructionsPlaceholder: string;
+	imageStyles?: Array< ImageStyleObject >;
+	onGuessStyle?: ( userPrompt: string ) => Promise< ImageStyle >;
 } ) {
+	const { tracks } = useAnalytics();
+	const { recordEvent: recordTracksEvent } = tracks;
 	const [ userPrompt, setUserPrompt ] = useState( '' );
 	const triggeredAutoGeneration = useRef( false );
+	const [ showStyleSelector, setShowStyleSelector ] = useState( false );
+	const [ style, setStyle ] = useState< ImageStyle >( null );
+	const [ styles, setStyles ] = useState< Array< ImageStyleObject > >( imageStyles || [] );
 
 	const handleTryAgain = useCallback( () => {
-		onTryAgain?.( { userPrompt } );
-	}, [ onTryAgain, userPrompt ] );
+		onTryAgain?.( { userPrompt, style } );
+	}, [ onTryAgain, userPrompt, style ] );
 
-	const handleGenerate = useCallback( () => {
-		onGenerate?.( { userPrompt } );
-	}, [ onGenerate, userPrompt ] );
+	const handleGenerate = useCallback( async () => {
+		if ( style === IMAGE_STYLE_AUTO ) {
+			recordTracksEvent( 'jetpack_ai_general_image_guess_style', {
+				context: 'block-editor',
+				tool: 'image',
+			} );
+			const guessedStyle = ( await onGuessStyle( userPrompt ) ) || IMAGE_STYLE_NONE;
+			setStyle( guessedStyle );
+			debug( 'guessed style', guessedStyle );
+			onGenerate?.( { userPrompt, style: guessedStyle } );
+		} else {
+			onGenerate?.( { userPrompt, style } );
+		}
+	}, [ onGenerate, userPrompt, style, onGuessStyle, recordTracksEvent ] );
+
+	const updateStyle = useCallback(
+		( imageStyle: ImageStyle ) => {
+			debug( 'change style', imageStyle );
+			setStyle( imageStyle );
+			recordTracksEvent( 'jetpack_ai_image_generator_switch_style', {
+				context: 'block-editor',
+				style: imageStyle,
+			} );
+		},
+		[ setStyle, recordTracksEvent ]
+	);
 
 	// Controllers
 	const instructionsDisabled = notEnoughRequests || generating || requireUpgrade;
@@ -99,11 +141,46 @@ export default function AiImageModal( {
 		}
 	}, [ placement, handleGenerate, autoStart, autoStartAction, userPrompt, open ] );
 
+	// initialize styles dropdown
+	useEffect( () => {
+		if ( imageStyles && imageStyles.length > 0 ) {
+			// Sort styles to have "None" and "Auto" first
+			setStyles(
+				[
+					imageStyles.find( ( { value } ) => value === IMAGE_STYLE_NONE ),
+					imageStyles.find( ( { value } ) => value === IMAGE_STYLE_AUTO ),
+					...imageStyles.filter(
+						( { value } ) => ! [ IMAGE_STYLE_NONE, IMAGE_STYLE_AUTO ].includes( value )
+					),
+				].filter( v => v ) // simplest way to get rid of empty values
+			);
+			setShowStyleSelector( true );
+			setStyle( IMAGE_STYLE_NONE );
+		}
+	}, [ imageStyles ] );
+
 	return (
 		<>
 			{ open && (
 				<AiAssistantModal handleClose={ onClose } title={ title }>
 					<div className="ai-image-modal__content">
+						{ showStyleSelector && (
+							<div style={ { display: 'flex', alignItems: 'center', gap: 16 } }>
+								<div style={ { fontWeight: 500, flexGrow: 1 } }>
+									{ __( 'Generate image', 'jetpack' ) }
+								</div>
+								<div>
+									<SelectControl
+										__nextHasNoMarginBottom
+										value={ style }
+										options={ styles }
+										onChange={ updateStyle }
+										// TODO: disable when necessary
+										// disabled={ isBusy || requireUpgrade }
+									/>
+								</div>
+							</div>
+						) }
 						<AiModalPromptInput
 							prompt={ userPrompt }
 							setPrompt={ setUserPrompt }

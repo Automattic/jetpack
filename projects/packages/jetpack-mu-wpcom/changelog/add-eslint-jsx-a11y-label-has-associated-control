@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Replace eslint:disable for `jsx-a11y/label-has-for` with `jsx-a11y/label-has-associated-control`.
-
-
