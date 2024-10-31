@@ -6,9 +6,10 @@ function MediaAiButton( props ) {
 	const { setSelectedSource } = props;
 	return (
 		<Button
-			variant="tertiary"
+			variant="secondary"
 			className="jetpack-external-media-button-menu"
 			aria-haspopup="false"
+			__next40pxDefaultSize
 			onClick={ () => {
 				setSelectedSource( SOURCE_JETPACK_AI_GENERAL_PURPOSE_IMAGE_FOR_BLOCK );
 			} }
