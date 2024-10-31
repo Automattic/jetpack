@@ -9,21 +9,29 @@ import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-
 import useAnalytics from '../../hooks/use-analytics';
 import sideloadTracks from '../../utils/side-load-tracks';
 import styles from './style.module.scss';
+import { WelcomeFlowExperiment } from '.';
+import type { Dispatch, SetStateAction } from 'react';
 
 type ConnectionStepProps = {
 	onActivateSite: ( e?: Event ) => Promise< void >;
+	onUpdateWelcomeFlowExperiment: Dispatch< SetStateAction< WelcomeFlowExperiment > >;
 	isActivating: boolean;
 };
 
 /**
  * Component that renders the Welcome banner on My Jetpack.
  *
- * @param {object}   props                - ConnectioStepProps
- * @param {Function} props.onActivateSite - Alias for handleRegisterSite
- * @param {boolean}  props.isActivating   - Alias for siteIsRegistering
+ * @param {object}   props                               - ConnectioStepProps
+ * @param {Function} props.onActivateSite                - Alias for handleRegisterSite
+ * @param {boolean}  props.isActivating                  - Alias for siteIsRegistering
+ * @param {Function} props.onUpdateWelcomeFlowExperiment - Function to update the welcomeFlowExperiment state
  * @return {object} The ConnectionStep component.
  */
-const ConnectionStep = ( { onActivateSite, isActivating }: ConnectionStepProps ) => {
+const ConnectionStep = ( {
+	onActivateSite,
+	onUpdateWelcomeFlowExperiment,
+	isActivating,
+}: ConnectionStepProps ) => {
 	const { recordEvent } = useAnalytics();
 	const { setNotice, resetNotice } = useContext( NoticeContext );
 
@@ -38,6 +46,7 @@ const ConnectionStep = ( { onActivateSite, isActivating }: ConnectionStepProps )
 
 	const onConnectSiteClick = useCallback( async () => {
 		recordEvent( 'jetpack_myjetpack_welcome_banner_connect_site_click' );
+		onUpdateWelcomeFlowExperiment( state => ( { ...state, isLoading: true } ) );
 		await onActivateSite();
 
 		recordEvent( 'jetpack_myjetpack_welcome_banner_connect_site_success' );
@@ -51,6 +60,11 @@ const ConnectionStep = ( { onActivateSite, isActivating }: ConnectionStepProps )
 				'jetpack_my_jetpack_recommendations_pricing_page_202411'
 			);
 
+			onUpdateWelcomeFlowExperiment( state => ( {
+				...state,
+				variation: ( variationName ?? 'control' ) as WelcomeFlowExperiment[ 'variation' ], // casting to 'control' or 'treatment'
+			} ) );
+
 			if ( variationName === 'treatment' ) {
 				window.location.href = jetpackPlansPath;
 			}
@@ -62,6 +76,7 @@ const ConnectionStep = ( { onActivateSite, isActivating }: ConnectionStepProps )
 	}, [
 		jetpackPlansPath,
 		onActivateSite,
+		onUpdateWelcomeFlowExperiment,
 		recordEvent,
 		refetchOwnershipData,
 		resetNotice,

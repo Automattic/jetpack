@@ -25,7 +25,11 @@ interface Props extends PropsWithChildren {
 	setWelcomeFlowExperiment: React.Dispatch< React.SetStateAction< WelcomeFlowExperiment > >;
 }
 
-const WelcomeFlow: FC< Props > = ( { children } ) => {
+const WelcomeFlow: FC< Props > = ( {
+	welcomeFlowExperiment,
+	setWelcomeFlowExperiment,
+	children,
+} ) => {
 	const { recordEvent } = useAnalytics();
 	const { dismissWelcomeBanner } = useWelcomeBanner();
 	const { recommendedModules, submitEvaluation, saveEvaluationResult } =
@@ -52,12 +56,21 @@ const WelcomeFlow: FC< Props > = ( { children } ) => {
 				return null;
 			}
 
+			if ( welcomeFlowExperiment.isLoading ) {
+				return 'evaluation-processing';
+			}
+
 			// Otherwise, it means user is either new or just repeats the recommendation
 			return 'evaluation';
 		}
 
 		return 'evaluation-processing';
-	}, [ isProcessingEvaluation, recommendedModules, siteIsRegistered ] );
+	}, [
+		isProcessingEvaluation,
+		recommendedModules,
+		siteIsRegistered,
+		welcomeFlowExperiment.isLoading,
+	] );
 
 	useEffect( () => {
 		if ( prevStep !== currentStep ) {
@@ -127,7 +140,8 @@ const WelcomeFlow: FC< Props > = ( { children } ) => {
 						{ 'connection' === currentStep && (
 							<ConnectionStep
 								onActivateSite={ handleRegisterSite }
-								isActivating={ siteIsRegistering }
+								onUpdateWelcomeFlowExperiment={ setWelcomeFlowExperiment }
+								isActivating={ siteIsRegistering || welcomeFlowExperiment.isLoading }
 							/>
 						) }
 						{ 'evaluation' === currentStep && (
