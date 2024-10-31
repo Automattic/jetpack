@@ -194,7 +194,7 @@ class WP_Test_Image_CDN extends Image_CDN_Attachment_Test_Case {
 	 * Tests that Image_CDN creates a singleton.
 	 *
 	 * @author scotchfield
-	 * @covers Image_CDN::instance
+	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN::instance
 	 * @since 3.2
 	 */
 	public function test_image_cdn_instance_singleton() {
@@ -413,7 +413,7 @@ class WP_Test_Image_CDN extends Image_CDN_Attachment_Test_Case {
 	/**
 	 * Tests Photon will parse the dimensions from a filename that contains query parameters.
 	 *
-	 * @covers Image_CDN::parse_dimensions_from_filename
+	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN::parse_dimensions_from_filename
 	 */
 	public function test_image_cdn_parse_dimensions_from_filename_with_query_parameters() {
 		$image_url = 'http://' . WP_TESTS_DOMAIN . '/no-dimensions-here-148x148.jpg?foo=bar&baz=qux';

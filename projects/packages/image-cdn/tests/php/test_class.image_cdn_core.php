@@ -399,7 +399,7 @@ class WP_Test_Image_CDN_Core extends BaseTestCase {
 	 * Tests that Photon will rely on native resizing for WordPress.com images.
 	 *
 	 * @author aforcier
-	 * @covers ::jetpack_photon_url
+	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN_Core::cdn_url
 	 * @since  9.5.0
 	 */
 	public function test_photonizing_wordpress_url() {
@@ -414,7 +414,7 @@ class WP_Test_Image_CDN_Core extends BaseTestCase {
 	 * Tests that Photon will rely on native resizing for VideoPress poster images.
 	 *
 	 * @author aforcier
-	 * @covers ::jetpack_photon_url
+	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN_Core::cdn_url
 	 * @since  9.5.0
 	 */
 	public function test_photonizing_videopress_url() {
