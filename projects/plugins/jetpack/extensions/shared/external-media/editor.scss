@@ -557,6 +557,11 @@ $grid-size: 8px;
 	@media only screen and ( min-width: 783px ) {
 		display: flex;
 		gap: $grid-size * 2;
+
+		:where(.is-medium, .is-small) & {
+			display: block;
+			gap: 0;
+		}
 	}
 }
 
