@@ -163,6 +163,17 @@ class Dashboard_REST_Controller {
 			)
 		);
 
+		// WordAds DSP API Site Stats routes
+		register_rest_route(
+			static::$namespace,
+			sprintf( '/sites/%1$d/wordads/dsp/api/v1.1/sites/%1$d/stats(?P<sub_path>[a-zA-Z0-9-_\/]*)(\?.*)?', $site_id ),
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_dsp_site_stats' ),
+				'permission_callback' => array( $this, 'can_user_view_dsp_callback' ),
+			)
+		);
+
 		// WordAds DSP API Search routes
 		register_rest_route(
 			static::$namespace,
@@ -554,6 +565,22 @@ class Dashboard_REST_Controller {
 		}
 
 		return $this->get_dsp_generic( sprintf( 'v1/sites/%d/campaigns', $site_id ), $req );
+	}
+
+	/**
+	 * Redirect GET requests to WordAds DSP Site Stats endpoint for the site.
+	 *
+	 * @param WP_REST_Request $req The request object.
+	 *
+	 * @return array|WP_Error
+	 */
+	public function get_dsp_site_stats( $req ) {
+		$site_id = $this->get_site_id();
+		if ( is_wp_error( $site_id ) ) {
+			return array();
+		}
+
+		return $this->get_dsp_generic( sprintf( 'v1/sites/%d/stats', $site_id ), $req );
 	}
 
 	/**
