@@ -577,7 +577,7 @@ class WP_Test_Contact_Form extends BaseTestCase {
 	 * Tests that 'grunion_delete_old_spam()' deletes an old post that is marked as spam.
 	 *
 	 * @author tonykova
-	 * @covers Util::grunion_delete_old_spam
+	 * @covers \Automattic\Jetpack\Forms\ContactForm\Util::grunion_delete_old_spam
 	 */
 	public function test_grunion_delete_old_spam_deletes_an_old_post_marked_as_spam() {
 		// grunion_Delete_old_spam performs direct DB queries which cannot be tested outside of a working WP install.
@@ -599,7 +599,7 @@ class WP_Test_Contact_Form extends BaseTestCase {
 	 * Tests that 'grunion_delete_old_spam' does not delete a new post that is marked as spam.
 	 *
 	 * @author tonykova
-	 * @covers Util::grunion_delete_old_spam
+	 * @covers \Automattic\Jetpack\Forms\ContactForm\Util::grunion_delete_old_spam
 	 */
 	public function test_grunion_delete_old_spam_does_not_delete_a_new_post_marked_as_spam() {
 		$post_id = wp_insert_post(
