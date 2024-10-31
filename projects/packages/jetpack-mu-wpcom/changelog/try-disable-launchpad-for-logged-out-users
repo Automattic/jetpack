@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Launchpad: disable Launchpad functionality for logged-out users
