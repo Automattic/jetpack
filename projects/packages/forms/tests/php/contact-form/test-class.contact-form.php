@@ -15,7 +15,7 @@ use WorDBless\Posts;
 /**
  * Test class for Contact_Form
  *
- * @covers Automattic\Jetpack\Forms\Contact_Form\Contact_Form
+ * @covers Automattic\Jetpack\Forms\ContactForm\Contact_Form
  */
 class WP_Test_Contact_Form extends BaseTestCase {
 
