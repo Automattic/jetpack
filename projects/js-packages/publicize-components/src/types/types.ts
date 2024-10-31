@@ -1,4 +1,4 @@
-import { SocialStoreState } from '../store/types';
+import { SocialImageGeneratorConfig } from '../social-store/types';
 
 export interface SocialUrls {
 	connectionsManagementPage: string;
@@ -31,6 +31,10 @@ export interface ApiPaths {
 	resharePost: string;
 }
 
+export type SocialSettings = {
+	socialImageGenerator: SocialImageGeneratorConfig;
+};
+
 export interface SocialScriptData {
 	api_paths: ApiPaths;
 	is_publicize_enabled: boolean;
@@ -38,7 +42,7 @@ export interface SocialScriptData {
 	supported_services: Array< ConnectionService >;
 	shares_data: SharesData;
 	urls: SocialUrls;
-	store_initial_state: SocialStoreState;
+	settings: SocialSettings;
 }
 
 type JetpackSettingsSelectors = {

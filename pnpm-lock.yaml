@@ -975,9 +975,6 @@ importers:
       '@automattic/social-previews':
         specifier: 2.1.0-beta.8
         version: 2.1.0-beta.8(@babel/runtime@7.24.7)(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@automattic/wp-data-sync':
-        specifier: workspace:*
-        version: link:../wp-data-sync
       '@wordpress/annotations':
         specifier: 3.9.0
         version: 3.9.0(react@18.3.1)

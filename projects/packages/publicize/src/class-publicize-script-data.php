@@ -109,30 +109,26 @@ class Publicize_Script_Data {
 		return array_merge(
 			$basic_data,
 			array(
-				'api_paths'           => self::get_api_paths(),
-				'supported_services'  => self::get_supported_services(),
-				'shares_data'         => self::get_shares_data(),
-				'urls'                => self::get_urls(),
-				'store_initial_state' => self::get_store_initial_state(),
+				'api_paths'          => self::get_api_paths(),
+				'supported_services' => self::get_supported_services(),
+				'shares_data'        => self::get_shares_data(),
+				'urls'               => self::get_urls(),
+				'settings'           => self::get_social_settings(),
 			)
 		);
 	}
 
 	/**
-	 * Get initial state for social store.
+	 * Get the social settings.
 	 *
 	 * @return array
 	 */
-	public static function get_store_initial_state() {
+	public static function get_social_settings() {
 
 		$settings = ( new Settings() );
 
 		return array(
-			'settings' => array(
-				'socialImageGenerator' => array(
-					'data' => $settings->get_image_generator_settings(),
-				),
-			),
+			'socialImageGenerator' => $settings->get_image_generator_settings(),
 		);
 	}
 

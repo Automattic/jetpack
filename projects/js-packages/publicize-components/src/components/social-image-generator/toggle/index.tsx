@@ -2,7 +2,7 @@ import { ToggleControl } from '@automattic/jetpack-components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import React from 'react';
-import { socialStore } from '../../../store';
+import { store as socialStore } from '../../../social-store';
 
 type SocialImageGeneratorToggleProps = {
 	/**
@@ -31,7 +31,7 @@ const SocialImageGeneratorToggle: React.FC< SocialImageGeneratorToggleProps > = 
 
 		return {
 			isEnabled: store.getSocialImageGeneratorConfig().enabled,
-			isUpdating: store.getSocialImageGeneratorConfigStatus() === 'updating',
+			isUpdating: store.isSavingSiteSettings(),
 		};
 	}, [] );
 

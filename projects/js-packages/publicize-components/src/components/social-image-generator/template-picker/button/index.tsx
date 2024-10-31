@@ -3,7 +3,7 @@ import { useSelect, useDispatch } from '@wordpress/data';
 import { useState, useCallback, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
-import { socialStore } from '../../../../store';
+import { store as socialStore } from '../../../../social-store';
 import TemplatePickerModal from '../modal';
 
 const TemplatePickerButton: React.FC = () => {
@@ -15,7 +15,7 @@ const TemplatePickerButton: React.FC = () => {
 		return {
 			isEnabled: config.enabled,
 			defaultTemplate: config.template,
-			isUpdating: store.getSocialImageGeneratorConfigStatus() === 'updating',
+			isUpdating: store.isSavingSiteSettings(),
 		};
 	}, [] );
 

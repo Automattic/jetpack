@@ -87,6 +87,15 @@ export interface KeyringResult extends KeyringAdditionalUser {
 	status: ConnectionStatus;
 }
 
+export type SocialImageGeneratorConfig = {
+	enabled: boolean;
+	template?: string;
+};
+
+export type SocialSettingsFields = {
+	jetpack_social_image_generator_settings: SocialImageGeneratorConfig;
+};
+
 declare global {
 	interface Window {
 		jetpackSocialInitialState?: SocialStoreState & {

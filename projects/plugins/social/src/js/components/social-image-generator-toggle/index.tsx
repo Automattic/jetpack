@@ -1,7 +1,7 @@
 import { Button, Text, useBreakpointMatch } from '@automattic/jetpack-components';
 import {
-	socialStore,
 	SocialImageGeneratorTemplatePickerModal as TemplatePickerModal,
+	store as socialStore,
 } from '@automattic/jetpack-publicize-components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
@@ -21,13 +21,12 @@ const SocialImageGeneratorToggle: React.FC< SocialImageGeneratorToggleProps > = 
 	disabled,
 } ) => {
 	const { isEnabled, isUpdating, defaultTemplate } = useSelect( select => {
-		const store = select( socialStore );
+		const config = select( socialStore ).getSocialImageGeneratorConfig();
 
-		const config = store.getSocialImageGeneratorConfig();
 		return {
 			isEnabled: config.enabled,
 			defaultTemplate: config.template,
-			isUpdating: store.getSocialImageGeneratorConfigStatus() === 'updating',
+			isUpdating: select( socialStore ).isSavingSiteSettings(),
 		};
 	}, [] );
 
