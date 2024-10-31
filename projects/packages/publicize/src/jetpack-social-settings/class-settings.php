@@ -31,6 +31,8 @@ class Settings {
 		'template' => Templates::DEFAULT_TEMPLATE,
 	);
 
+	const IS_UTM_ENABLED = 'is_utm_enabled';
+
 	/**
 	 * Feature flags. Each item has 3 keys because of the naming conventions:
 	 * - flag_name: The name of the feature flag for the option check.
@@ -129,6 +131,20 @@ class Settings {
 			)
 		);
 
+		register_setting(
+			'jetpack_social',
+			self::IS_UTM_ENABLED,
+			array(
+				'type'         => 'boolean',
+				'default'      => false,
+				'show_in_rest' => array(
+					'schema' => array(
+						'type' => 'boolean',
+					),
+				),
+			)
+		);
+
 		add_filter( 'rest_pre_update_setting', array( $this, 'update_settings' ), 10, 3 );
 	}
 
@@ -144,6 +160,7 @@ class Settings {
 
 		$settings = array(
 			'socialImageGeneratorSettings' => get_option( self::OPTION_PREFIX . self::IMAGE_GENERATOR_SETTINGS, self::DEFAULT_IMAGE_GENERATOR_SETTINGS ),
+			'isUtmEnabled'                 => get_option( self::OPTION_PREFIX . self::IS_UTM_ENABLED, false ),
 		);
 
 		// The feature cannot be enabled without Publicize.
@@ -213,6 +230,11 @@ class Settings {
 		if ( self::OPTION_PREFIX . self::IMAGE_GENERATOR_SETTINGS === $name ) {
 			return $this->update_social_image_generator_settings( $value );
 		}
+
+		if ( self::OPTION_PREFIX . self::IS_UTM_ENABLED === $name ) {
+			return update_option( self::OPTION_PREFIX . self::IS_UTM_ENABLED, $value );
+		}
+
 		return $updated;
 	}
 
