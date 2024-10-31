@@ -176,9 +176,6 @@ class Jetpack_XMLRPC_Methods {
 		define( 'REST_API_REQUEST', true );
 		define( 'WPCOM_JSON_API__BASE', 'public-api.wordpress.com/rest/v1' );
 
-		// needed?
-		require_once ABSPATH . 'wp-admin/includes/admin.php';
-
 		require_once JETPACK__PLUGIN_DIR . 'class.json-api.php';
 		$api                        = WPCOM_JSON_API::init( $method, $url, $post_body );
 		$api->token_details['user'] = $user_details;
