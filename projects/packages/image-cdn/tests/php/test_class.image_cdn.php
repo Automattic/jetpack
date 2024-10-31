@@ -337,7 +337,7 @@ class WP_Test_Image_CDN extends Image_CDN_Attachment_Test_Case {
 	 * Tests that Photon will parse a multiline html snippet.
 	 *
 	 * @author scotchfield
-	 * @coverAutomattic\Jetpack\Image_CDN\Image_CDN::parse_images_from_html
+	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN::parse_images_from_html
 	 * @since 3.2
 	 */
 	public function test_image_cdn_parse_images_from_html_multiline() {

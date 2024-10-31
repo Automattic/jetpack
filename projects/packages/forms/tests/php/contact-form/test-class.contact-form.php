@@ -580,7 +580,7 @@ class WP_Test_Contact_Form extends BaseTestCase {
 	 * @covers Util::grunion_delete_old_spam
 	 */
 	public function test_grunion_delete_old_spam_deletes_an_old_post_marked_as_spam() {
-		// grunion_Delete_old_spam performs direct DB queries which cannot be tested outisde of a working WP install.
+		// grunion_Delete_old_spam performs direct DB queries which cannot be tested outside of a working WP install.
 		$this->markTestSkipped();
 		// @phan-suppress-next-line PhanPluginUnreachableCode
 		$post_id = wp_insert_post(
