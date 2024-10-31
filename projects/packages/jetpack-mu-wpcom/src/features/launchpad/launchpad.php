@@ -390,6 +390,11 @@ function wpcom_launchpad_get_task_lists( $rebuild = false ) {
  * Register all tasks and task lists on init.
  */
 function wpcom_register_default_launchpad_checklists() {
+	// Only logged-in users should interact with the launchpad or trigger task completion.
+	if ( ! is_user_logged_in() ) {
+		return;
+	}
+
 	wpcom_launchpad_get_task_lists();
 	wpcom_add_active_task_listener_hooks_to_correct_action();
 }
