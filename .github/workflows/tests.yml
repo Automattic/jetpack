@@ -161,7 +161,7 @@ jobs:
               if [[ "${SLUG%%/*}" != "plugins" && ( "$TEST_SCRIPT" == "test-php" || "$TEST_SCRIPT" == "test-coverage" ) ]]; then
                 NEED_COMPOSER=true
                 if [[ "$TEST_SCRIPT" == "test-coverage" ]] &&
-                  ! jq -e '.scripts["test-php"]' "$DIR/composer.json"
+                  ! jq -e '.scripts["test-php"]' "$DIR/composer.json" &>/dev/null
                 then
                   echo "Skipping composer install, assuming test-coverage is only JS because the project has no test-php."
                   NEED_COMPOSER=false
