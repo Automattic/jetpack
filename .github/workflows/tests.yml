@@ -118,6 +118,8 @@ jobs:
           FORCE_PACKAGE_TESTS: ${{ matrix.force-package-tests && 'true' || 'false' }}
           CHANGED: ${{ steps.changed.outputs.projects }}
         run: |
+          set -o pipefail
+
           EXIT=0
           declare -A PIDS
           PIDS=()
@@ -128,6 +130,7 @@ jobs:
           for P in composer.json projects/*/*/composer.json; do
             if [[ ${#PIDS[@]} -ge $MAXPIDS ]]; then
               if ! wait -fn -p P "${!PIDS[@]}"; then
+                echo "::error::Tests for ${PIDS[$P]} failed!"
                 FAILED+=( "${PIDS[$P]}" )
                 EXIT=1
               fi
@@ -222,15 +225,16 @@ jobs:
                 rm -rf "$DIR/vendor" "$DIR/jetpack_vendor" "$DIR/wordpress"
 
                 if $FAIL; then
-                  echo "::error::Tests for $SLUG failed!"
+                  echo "Tests for $SLUG failed!"
                   exit 1
                 fi
               } 2>&1 | while IFS= read -r LINE; do echo "[$SLUG] $LINE"; done &
               PIDS[$!]=$SLUG
             fi
           done
-          if [[ ${#PIDS[@]} -ge $MAXPIDS ]]; then
+          while [[ ${#PIDS[@]} -gt 0 ]]; then
             if ! wait -fn -p P "${!PIDS[@]}"; then
+              echo "::error::Tests for ${PIDS[$P]} failed!"
               FAILED+=( "${PIDS[$P]}" )
               EXIT=1
             fi
