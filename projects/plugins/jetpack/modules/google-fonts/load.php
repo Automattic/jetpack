@@ -6,7 +6,7 @@
  */
 
 add_action(
-	'plugins_loaded',
+	'after_setup_theme',
 	function () {
 		if (
 			/**
