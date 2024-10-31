@@ -1,6 +1,6 @@
 <?php
 /**
- * Unit Tests for Automattic\Jetpack\Forms\Contact_Form\Contact_Form_Plugin.
+ * Unit Tests for Contact_Form_Plugin.
  *
  * @package automattic/jetpack-forms
  */
@@ -12,7 +12,7 @@ use WorDBless\BaseTestCase;
 /**
  * Test class for Contact_Form_Plugin
  *
- * @covers Contact_Form_Plugin
+ * @covers Automattic\Jetpack\Forms\Contact_Form\Contact_Form_Plugin
  */
 class WP_Test_Contact_Form_Plugin extends BaseTestCase {
 	/**
