@@ -563,13 +563,14 @@ $grid-size: 8px;
 	display: flex;
 }
 
+.is-medium .jetpack-external-media-button-wrapper {
+	flex-direction: column;
+}
+
 // Reset placeholder button margin.
 .components-placeholder__fieldset,
 .editor-post-featured-image {
 	.components-dropdown .jetpack-external-media-button-menu {
-		width: auto;
-		margin-bottom: 1em;
-
 		> svg {
 			display: none;
 		}

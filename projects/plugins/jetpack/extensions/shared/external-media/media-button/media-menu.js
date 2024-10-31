@@ -6,7 +6,7 @@ import MediaSources from './media-sources';
 function MediaButtonMenu( props ) {
 	const { mediaProps, open, setSelectedSource, isFeatured, isReplace, hasImage } = props;
 	const originalComponent = mediaProps.render;
-	let variant = 'tertiary';
+	let variant = 'secondary';
 
 	if ( isReplace ) {
 		return (
@@ -55,6 +55,7 @@ function MediaButtonMenu( props ) {
 							aria-haspopup="true"
 							aria-expanded={ isOpen }
 							onClick={ onToggle }
+							__next40pxDefaultSize
 						>
 							<div className="jetpack-external-media-button-menu__label">{ label }</div>
 							<Icon icon={ media } />
