@@ -56,7 +56,7 @@ describe( 'Business Hours', () => {
 
 		// Displays default days and business hours
 		await expect( screen.findByText( 'Monday' ) ).resolves.toBeInTheDocument();
-		expect( screen.getByText( 'Tuesday' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'XXXTuesday' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Wednesday' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Thursday' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Friday' ) ).toBeInTheDocument();

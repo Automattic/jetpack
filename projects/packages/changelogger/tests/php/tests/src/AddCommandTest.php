@@ -85,6 +85,7 @@ class AddCommandTest extends CommandTestCase {
 	 * Test failure in execute() when file exists.
 	 */
 	public function testExecute_fileExists() {
+		$this->fail( 'Fail for test' );
 		mkdir( 'changelog' );
 		file_put_contents( 'changelog/testing', '' );
 		$tester = $this->getTester( 'add' );
