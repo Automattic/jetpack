@@ -1463,7 +1463,6 @@ class WP_Test_Image_CDN extends Image_CDN_Attachment_Test_Case {
 
 	 * @author kraftbj
 	 * @requires PHPUnit 7.5
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN::should_rest_image_cdn_image_downsize_insert_attachment
 	 * @group rest-api
 	 */
 	public function test_image_cdn_cdn_in_rest_response_with_created_item() {
@@ -1499,7 +1498,6 @@ class WP_Test_Image_CDN extends Image_CDN_Attachment_Test_Case {
 	 *
 	 * @author ebinnion
 	 * @requires PHPUnit 7.5
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN::should_rest_image_cdn_image_downsize_insert_attachment
 	 * @group rest-api
 	 */
 	public function test_image_cdn_in_rest_response_external_media() {
