@@ -172,37 +172,33 @@ jobs:
               echo "Running tests for $SLUG"
               {
                 # Composer install, if appropriate. Note setup-wordpress-env.sh did it already for plugins.
-                NEED_COMPOSER=false
                 if [[ "${SLUG%%/*}" != "plugins" && ( "$TEST_SCRIPT" == "test-php" || "$TEST_SCRIPT" == "test-coverage" ) ]]; then
-                  NEED_COMPOSER=true
                   if [[ "$TEST_SCRIPT" == "test-coverage" ]] &&
                     ! jq -e '.scripts["test-php"]' "$DIR/composer.json" &>/dev/null
                   then
                     echo "Skipping composer install, assuming test-coverage is only JS because the project has no test-php."
-                    NEED_COMPOSER=false
-                  fi
-                fi
-                if $NEED_COMPOSER; then
-                  if [[ ! -f "$DIR/composer.lock" ]]; then
-                    echo 'No composer.lock, running `composer update`'
-                    composer --working-dir="$DIR" update
-                  elif composer --working-dir="$DIR" check-platform-reqs --lock; then
-                    echo 'Platform reqs pass, running `composer install`'
-                    composer --working-dir="$DIR" install
                   else
-                    echo 'Platform reqs failed, running `composer update`'
-                    composer --working-dir="$DIR" update
-                  fi
+                    if [[ ! -f "$DIR/composer.lock" ]]; then
+                      echo 'No composer.lock, running `composer update`'
+                      composer --working-dir="$DIR" update
+                    elif composer --working-dir="$DIR" check-platform-reqs --lock; then
+                      echo 'Platform reqs pass, running `composer install`'
+                      composer --working-dir="$DIR" install
+                    else
+                      echo 'Platform reqs failed, running `composer update`'
+                      composer --working-dir="$DIR" update
+                    fi
 
-                  if [[ "$WP_BRANCH" == 'trunk' || "$WP_BRANCH" == 'previous' ]]; then
-                    VER=$(composer --format=json --working-dir="$DIR" show | jq -r '.installed[] | select( .name == "roots/wordpress" ) | .version')
-                    if [[ -n "$VER" ]]; then
-                      INSVER=$WORDPRESS_TAG
-                      [[ "$WORDPRESS_TAG" == 'trunk' ]] && INSVER="dev-main as $VER"
-                      echo "Supposed to run tests against WordPress $WORDPRESS_TAG, so setting roots/wordpress and roots/wordpress-no-content to \"$INSVER\""
-                      # Composer seems to sometimes have issues with deleting the wordpress dir on its own, so do it manually first.
-                      rm -rf "$DIR/wordpress"
-                      composer --working-dir="$DIR" require --dev roots/wordpress="$INSVER" roots/wordpress-no-content="$INSVER"
+                    if [[ "$WP_BRANCH" == 'trunk' || "$WP_BRANCH" == 'previous' ]]; then
+                      VER=$(composer --format=json --working-dir="$DIR" show | jq -r '.installed[] | select( .name == "roots/wordpress" ) | .version')
+                      if [[ -n "$VER" ]]; then
+                        INSVER=$WORDPRESS_TAG
+                        [[ "$WORDPRESS_TAG" == 'trunk' ]] && INSVER="dev-main as $VER"
+                        echo "Supposed to run tests against WordPress $WORDPRESS_TAG, so setting roots/wordpress and roots/wordpress-no-content to \"$INSVER\""
+                        # Composer seems to sometimes have issues with deleting the wordpress dir on its own, so do it manually first.
+                        rm -rf "$DIR/wordpress"
+                        composer --working-dir="$DIR" require --dev roots/wordpress="$INSVER" roots/wordpress-no-content="$INSVER"
+                      fi
                     fi
                   fi
                 fi
