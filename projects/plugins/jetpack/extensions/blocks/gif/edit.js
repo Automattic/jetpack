@@ -64,7 +64,7 @@ function GifEdit( { attributes, setAttributes, isSelected } ) {
 					className="wp-block-jetpack-gif_placeholder"
 					icon={ icon }
 					label={ metadata.title }
-					instructions={ __( 'Search for a term or paste a Tumblr GIF URL', 'jetpack' ) }
+					instructions={ __( 'Search for a term and find a GIF', 'jetpack' ) }
 				>
 					<SearchForm
 						onSubmit={ onSubmit }

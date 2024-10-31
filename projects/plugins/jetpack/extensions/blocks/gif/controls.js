@@ -1,5 +1,5 @@
 import { InspectorControls } from '@wordpress/block-editor';
-import { PanelBody } from '@wordpress/components';
+import { ExternalLink, PanelBody } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
 export default function Controls() {
@@ -7,9 +7,9 @@ export default function Controls() {
 		<InspectorControls>
 			<PanelBody className="components-panel__body-gif-branding">
 				<p className="gif-branding-text">
-					<a href="https://www.tumblr.com" target="_blank" rel="noopener noreferrer">
+					<ExternalLink href="https://www.tumblr.com">
 						{ __( 'Powered by Tumblr', 'jetpack' ) }
-					</a>
+					</ExternalLink>
 				</p>
 			</PanelBody>
 		</InspectorControls>

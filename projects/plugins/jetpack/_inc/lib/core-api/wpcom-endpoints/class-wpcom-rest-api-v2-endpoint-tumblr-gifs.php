@@ -25,8 +25,8 @@ class WPCOM_REST_API_V2_Endpoint_Tumblr_Gifs extends WP_REST_Controller {
 		$this->version                         = 'v2';
 		$this->namespace                       = $this->base_api_path . '/' . $this->version;
 		$this->rest_base                       = '/tumblr-gifs';
-		$this->wpcom_is_site_specific_endpoint = false;
-		$this->wpcom_is_wpcom_only_endpoint    = false;
+		$this->wpcom_is_site_specific_endpoint = true;
+		$this->wpcom_is_wpcom_only_endpoint    = true;
 		$this->is_wpcom                        = defined( 'IS_WPCOM' ) && IS_WPCOM;
 		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
 	}
@@ -37,28 +37,6 @@ class WPCOM_REST_API_V2_Endpoint_Tumblr_Gifs extends WP_REST_Controller {
 	 * @return void
 	 */
 	public function register_routes() {
-		register_rest_route(
-			$this->namespace,
-			$this->rest_base . '/popular',
-			array(
-				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'get_popular_gifs' ),
-				'permission_callback' => array( $this, 'check_permissions' ),
-				'args'                => array(
-					'limit'  => array(
-						'default'           => 10,
-						'type'              => 'integer',
-						'validate_callback' => array( $this, 'validate_numeric' ),
-					),
-					'offset' => array(
-						'default'           => 0,
-						'type'              => 'integer',
-						'validate_callback' => array( $this, 'validate_numeric' ),
-					),
-				),
-			)
-		);
-
 		register_rest_route(
 			$this->namespace,
 			$this->rest_base . '/search/(?P<query>.+)',
@@ -85,23 +63,6 @@ class WPCOM_REST_API_V2_Endpoint_Tumblr_Gifs extends WP_REST_Controller {
 				),
 			)
 		);
-
-		register_rest_route(
-			$this->namespace,
-			$this->rest_base . '/feedback/(?P<token>.+)',
-			array(
-				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'get_feedback' ),
-				'permission_callback' => array( $this, 'check_permissions' ),
-				'args'                => array(
-					'token' => array(
-						'required'          => true,
-						'type'              => 'string',
-						'validate_callback' => 'rest_validate_request_arg',
-					),
-				),
-			)
-		);
 	}
 
 	/**
@@ -110,46 +71,27 @@ class WPCOM_REST_API_V2_Endpoint_Tumblr_Gifs extends WP_REST_Controller {
 	 * @return bool
 	 */
 	public function check_permissions() {
-		if ( ! $this->is_wpcom ) {
-			return current_user_can( 'manage_options' );
-		}
-
-		// If we are logged in as a user, we can allow access to the endpoint, as it is a request from a WordPress.com blog
-		if ( is_user_logged_in() ) {
+		if ( current_user_can( 'edit_posts' ) ) {
 			return true;
 		}
 
-		// If we are not logged in as a user, we need to check if the site is an Atomic site or a Jetpack site
-		// and has a valid Jetpack blog token.
+		// Allow "as blog" requests to wpcom so users without accounts can insert the GIF block in the editor.
+		if ( $this->is_wpcom && is_jetpack_site( get_current_blog_id() ) ) {
+			if ( ! class_exists( 'WPCOM_REST_API_V2_Endpoint_Jetpack_Auth' ) ) {
+				require_once dirname( __DIR__ ) . '/rest-api-plugins/endpoints/jetpack-auth.php';
+			}
 
-		if ( ! class_exists( 'WPCOM_REST_API_V2_Endpoint_Jetpack_Auth' ) ) {
-			require_once dirname( __DIR__ ) . '/rest-api-plugins/endpoints/jetpack-auth.php';
+			$jp_auth_endpoint = new WPCOM_REST_API_V2_Endpoint_Jetpack_Auth();
+			if ( true === $jp_auth_endpoint->is_jetpack_authorized_for_site() ) {
+				return true;
+			}
 		}
 
-		$jp_auth_endpoint                                  = new WPCOM_REST_API_V2_Endpoint_Jetpack_Auth();
-		$jp_auth_endpoint->wpcom_is_site_specific_endpoint = $this->wpcom_is_site_specific_endpoint;
-
-		if ( is_wp_error( $jp_auth_endpoint->is_jetpack_authorized_for_site() ) || ! $jp_auth_endpoint->is_jetpack_authorized_for_site() ) {
-			return false;
-		}
-
-		return true;
-	}
-
-	/**
-	 * Get popular GIFs from Tumblr.
-	 *
-	 * @param WP_REST_Request $request The request object.
-	 *
-	 * @return WP_REST_Response The response object.
-	 */
-	public function get_popular_gifs( $request ) {
-		if ( ! $this->is_wpcom ) {
-			return $this->proxy_request_to_wpcom( $request, 'popular' );
-		}
-
-		$response = $this->proxy_tumblr_request( 'gif/popular', $request->get_params() );
-		return rest_ensure_response( $response );
+		return new WP_Error(
+			'rest_cannot_read_gifs',
+			__( 'Sorry, you are not allowed to access Tumblr GIFs on this site.', 'jetpack' ),
+			array( 'status' => rest_authorization_required_code() )
+		);
 	}
 
 	/**
@@ -172,23 +114,6 @@ class WPCOM_REST_API_V2_Endpoint_Tumblr_Gifs extends WP_REST_Controller {
 		$params['blocks'] = true;
 
 		$response = $this->proxy_tumblr_request( "gif/search/{$query}", $params );
-		return rest_ensure_response( $response );
-	}
-
-	/**
-	 * Sends a 'feedback' request to Tumblr for a GIF search.
-	 *
-	 * @param WP_REST_Request $request The request object.
-	 *
-	 * @return WP_REST_Response The response object.
-	 */
-	public function get_feedback( $request ) {
-		if ( ! $this->is_wpcom ) {
-			return $this->proxy_request_to_wpcom( $request, 'feedback' );
-		}
-
-		$token    = $request['token'];
-		$response = $this->proxy_tumblr_request( "gif/feedback/{$token}", $request->get_params() );
 		return rest_ensure_response( $response );
 	}
 
@@ -235,7 +160,9 @@ class WPCOM_REST_API_V2_Endpoint_Tumblr_Gifs extends WP_REST_Controller {
 	 * @return mixed|WP_Error           Response from wpcom servers or an error.
 	 */
 	public function proxy_request_to_wpcom( $request, $path = '' ) {
-		$path    = rawurldecode( $this->rest_base ) . ( $path ? '/' . rawurldecode( $path ) : '' );
+		$blog_id = \Jetpack_Options::get_option( 'id' );
+		$blog_id = (string) $blog_id;
+		$path    = '/sites/' . rawurldecode( $blog_id ) . rawurldecode( $this->rest_base ) . ( $path ? '/' . rawurldecode( $path ) : '' );
 		$api_url = add_query_arg( $request->get_query_params(), $path );
 
 		$response = Client::wpcom_json_api_request_as_blog( $api_url, 'v2', array(), null, 'wpcom' );

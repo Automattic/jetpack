@@ -17,7 +17,7 @@ const useFetchTumblrData = ( initialValue = [] ) => {
 			setIsFetching( true );
 
 			try {
-				const jsonResponse = await apiFetch( { path: fetchUrl, global: true } );
+				const jsonResponse = await apiFetch( { path: fetchUrl } );
 				const gifs = jsonResponse.response.gifs || [];
 
 				setTumblrData( gifs );
