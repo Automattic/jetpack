@@ -17,7 +17,11 @@ require_once __DIR__ . '../../tools/class-automation-faker.php';
 /**
  * Test Automation's quote triggers
  *
- * @covers Automattic\Jetpack\CRM\Automation
+ * @covers Automattic\Jetpack\CRM\Automation\Quote_Accepted
+ * @covers Automattic\Jetpack\CRM\Automation\Quote_Created
+ * @covers Automattic\Jetpack\CRM\Automation\Quote_Deleted
+ * @covers Automattic\Jetpack\CRM\Automation\Quote_Status_Updated
+ * @covers Automattic\Jetpack\CRM\Automation\Quote_Updated
  */
 class Quote_Trigger_Test extends JPCRM_Base_Test_Case {
 

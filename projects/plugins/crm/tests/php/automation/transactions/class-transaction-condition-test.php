@@ -13,7 +13,7 @@ require_once __DIR__ . '../../tools/class-automation-faker.php';
 /**
  * Test Automation Transaction Condition functionalities
  *
- * @covers Automattic\Jetpack\CRM\Automation
+ * @covers Automattic\Jetpack\CRM\Automation\Transaction_Field
  */
 class Transaction_Condition_Test extends JPCRM_Base_Test_Case {
 
