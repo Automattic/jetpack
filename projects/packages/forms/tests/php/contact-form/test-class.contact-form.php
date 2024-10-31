@@ -599,7 +599,7 @@ class WP_Test_Contact_Form extends BaseTestCase {
 	 * Tests that 'grunion_delete_old_spam' does not delete a new post that is marked as spam.
 	 *
 	 * @author tonykova
-	 * @covers Automattic\Jetpack\Forms\ContactForm\Contact_Form::grunion_delete_old_spam
+	 * @covers Util::grunion_delete_old_spam
 	 */
 	public function test_grunion_delete_old_spam_does_not_delete_a_new_post_marked_as_spam() {
 		$post_id = wp_insert_post(
