@@ -129,13 +129,13 @@ jobs:
           [[ "$TEST_SCRIPT" == "test-coverage" ]] && mkdir coverage
           for P in composer.json projects/*/*/composer.json; do
             if [[ ${#PIDS[@]} -ge $MAXPIDS ]]; then
-              if ! wait -fn -p P "${!PIDS[@]}"; then
-                echo "::error::Tests for ${PIDS[$P]} failed!"
-                FAILED+=( "${PIDS[$P]}" )
+              if ! wait -fn -p PID "${!PIDS[@]}"; then
+                echo "::error::Tests for ${PIDS[$PID]} failed!"
+                FAILED+=( "${PIDS[$PID]}" )
                 EXIT=1
               fi
-              echo "Finished ${PIDS[$P]}"
-              unset PIDS[$P]
+              echo "Finished ${PIDS[$PID]}"
+              unset PIDS[$PID]
             fi
 
             if [[ "$P" == "composer.json" ]]; then
@@ -232,20 +232,20 @@ jobs:
               PIDS[$!]=$SLUG
             fi
           done
-          while [[ ${#PIDS[@]} -gt 0 ]]; then
-            if ! wait -fn -p P "${!PIDS[@]}"; then
-              echo "::error::Tests for ${PIDS[$P]} failed!"
-              FAILED+=( "${PIDS[$P]}" )
+          while [[ ${#PIDS[@]} -gt 0 ]]; do
+            if ! wait -fn -p PID "${!PIDS[@]}"; then
+              echo "::error::Tests for ${PIDS[$PID]} failed!"
+              FAILED+=( "${PIDS[$PID]}" )
               EXIT=1
             fi
-            echo "Finished ${PIDS[$P]}"
-            unset PIDS[$P]
-          fi
+            echo "Finished ${PIDS[$PID]}"
+            unset PIDS[$PID]
+          done
 
           if [[ ${#FAILED[@]} -gt 0 ]]; then
             echo ''
             echo 'The following tests failed:'
-            printf "- %s\n" "${FAILED[@]}"
+            printf " - %s\n" "${FAILED[@]}"
           fi
 
           exit $EXIT
