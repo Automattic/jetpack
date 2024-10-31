@@ -24,9 +24,8 @@ import { useCornerstonePages } from '$features/cornerstone-pages/lib/stores/corn
 
 const SpeedScore = () => {
 	const [ cornerstonePages ] = useCornerstonePages();
-	const { site, developmentFeatures } = Jetpack_Boost;
-	const pageSpeedUrl =
-		developmentFeatures && cornerstonePages.length > 0 ? cornerstonePages[ 0 ] : site.url;
+	const { site } = Jetpack_Boost;
+	const pageSpeedUrl = cornerstonePages[ 0 ];
 	const [ { status, error, scores }, loadScore ] = useSpeedScores( pageSpeedUrl );
 	const scoreLetter = scores ? getScoreLetter( scores.current.mobile, scores.current.desktop ) : '';
 	const showPrevScores = scores && didScoresChange( scores ) && ! scores.isStale;

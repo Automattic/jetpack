@@ -4,12 +4,6 @@ import SettingsItem from '$features/ui/settings-item/settings-item';
 import Pill from '$features/ui/pill/pill';
 
 const CornerstonePages = () => {
-	const { developmentFeatures } = Jetpack_Boost;
-
-	if ( ! developmentFeatures ) {
-		return null;
-	}
-
 	return (
 		<SettingsItem
 			title={
