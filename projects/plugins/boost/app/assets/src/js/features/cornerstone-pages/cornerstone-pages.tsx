@@ -9,7 +9,7 @@ const CornerstonePages = () => {
 			title={
 				<>
 					{ __( 'Cornerstone Pages', 'jetpack-boost' ) }
-					<Pill text="Experiment" />
+					<Pill text="Experimental" />
 				</>
 			}
 			description={
