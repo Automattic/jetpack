@@ -118,8 +118,6 @@ jobs:
           FORCE_PACKAGE_TESTS: ${{ matrix.force-package-tests && 'true' || 'false' }}
           CHANGED: ${{ steps.changed.outputs.projects }}
         run: |
-          set -o pipefail
-
           EXIT=0
           declare -A PIDS
           PIDS=()
@@ -228,7 +226,7 @@ jobs:
                   echo "Tests for $SLUG failed!"
                   exit 1
                 fi
-              } 2>&1 | while IFS= read -r LINE; do echo "[$SLUG] $LINE"; done &
+              } 2> >( sed -u 's!^!['"$SLUG"'] !' >&2 ) > >( sed -u 's!^!['"$SLUG"'] !' ) &
               PIDS[$!]=$SLUG
             fi
           done
