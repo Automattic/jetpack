@@ -157,7 +157,17 @@ jobs:
               echo "::group::Running tests for $SLUG"
 
               # Composer install, if appropriate. Note setup-wordpress-env.sh did it already for plugins.
+              NEED_COMPOSER=false
               if [[ "${SLUG%%/*}" != "plugins" && ( "$TEST_SCRIPT" == "test-php" || "$TEST_SCRIPT" == "test-coverage" ) ]]; then
+                NEED_COMPOSER=true
+                if [[ "$TEST_SCRIPT" == "test-coverage" ]] &&
+                  ! jq -e '.scripts["test-php"]' "$DIR/composer.json"
+                then
+                  echo "Skipping composer install, assuming test-coverage is only JS because the project has no test-php."
+                  NEED_COMPOSER=false
+                fi
+              fi
+              if $NEED_COMPOSER; then
                 if [[ ! -f "$DIR/composer.lock" ]]; then
                   echo 'No composer.lock, running `composer update`'
                   composer --working-dir="$DIR" update
