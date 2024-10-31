@@ -5,7 +5,7 @@ import { FacebookIcon } from '../../shared/icons';
 
 const facebookVariation = {
 	name: 'facebook',
-	title: 'Facebook Embed',
+	title: __( 'Facebook Embed', 'jetpack' ),
 	icon: {
 		src: FacebookIcon,
 		foreground: getIconColor(),
