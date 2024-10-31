@@ -1,5 +1,3 @@
-/* global JP_CONNECTION_INITIAL_STATE */
-
 export const wpcomTrackEvent = (
 	eventName,
 	eventProperties = {},
