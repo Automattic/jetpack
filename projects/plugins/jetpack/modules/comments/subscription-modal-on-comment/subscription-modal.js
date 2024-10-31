@@ -46,7 +46,7 @@ document.addEventListener( 'DOMContentLoaded', function () {
 			return;
 		}
 
-		if ( ! event.origin.includes( window.location.host ) ) {
+		if ( ! event.origin.endsWith( window.location.host ) ) {
 			return;
 		}
 

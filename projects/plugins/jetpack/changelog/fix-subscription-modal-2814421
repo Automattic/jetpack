@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Subscriptions: ensure that we correct detect the site URL when handling the Subscription modal appearing leaving a comment.
