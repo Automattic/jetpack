@@ -18,6 +18,7 @@ class WP_Test_Contact_Form_Plugin extends BaseTestCase {
 	/**
 	 * Test that ::revert_that_print works correctly
 	 *
+	 * @covers Automattic\Jetpack\Forms\Contact_Form\Contact_Form_Plugin::revert_that_print
 	 * @dataProvider arrayReversals
 	 */
 	public function testStaticPrintReversal( $array, $decode_html ) {
