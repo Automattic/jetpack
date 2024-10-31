@@ -2,7 +2,7 @@
 
 Sync data from client to server and vice versa using @wordpress/data stores.
 
-Often, when working on settings page UIs, we need to fetch the settings from and sync back to the server. This results in a lot of boiler plate code to define actions, action type constants, thinks, selectors, resolvers and reducers, which are often repeated for different sections.
+Often, when working on settings page UIs, we need to fetch the settings from and sync back to the server. This results in a lot of boilerplate code to define actions, action type constants, thunks, selectors, resolvers and reducers, which are often repeated for different sections.
 
 This package exports a function named `createWpDataSync`, which abstracts that boiler plate away and adds a way to simply define what data you need and where to get from and then it gives you the required selectors, actions, resolvers, and a reducer which you can pass to `@wordpress/data` store.
 
