@@ -207,6 +207,10 @@ jobs:
                   fi
                 fi
 
+                if [[ "${SLUG%%/*" == "plugins" ]]; then
+                  export WP_TESTS_CONFIG_FILE_PATH="$WORDPRESS_DEVELOP_DIR/wp-tests-config.${SLUG##*/}.php"
+                fi
+
                 mkdir -p "artifacts/$SLUG"
                 export ARTIFACTS_DIR="$GITHUB_WORKSPACE/artifacts/$SLUG"
                 if [[ "$TEST_SCRIPT" == "test-coverage" ]]; then

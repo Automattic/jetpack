@@ -183,6 +183,12 @@ if ( '1' === getenv( 'LEGACY_FULL_SYNC' ) ) {
 	tests_add_filter( 'jetpack_sync_modules', 'jetpack_full_sync_immediately_off' );
 }
 
+// Override WP_TESTS_CONFIG_FILE_PATH via environment.
+// Important for monorepo CI, if you don't do this then different test runs might collide!
+if ( false !== getenv( 'WP_TESTS_CONFIG_FILE_PATH' ) ) {
+	define( 'WP_TESTS_CONFIG_FILE_PATH', getenv( 'WP_TESTS_CONFIG_FILE_PATH' ) );
+}
+
 require $test_root . '/includes/bootstrap.php';
 
 // Load the shortcodes module to test properly.
