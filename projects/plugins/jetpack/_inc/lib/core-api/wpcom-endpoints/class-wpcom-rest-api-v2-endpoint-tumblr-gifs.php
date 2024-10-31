@@ -68,7 +68,7 @@ class WPCOM_REST_API_V2_Endpoint_Tumblr_Gifs extends WP_REST_Controller {
 	/**
 	 * Check if the request has permissions to access the endpoint.
 	 *
-	 * @return bool
+	 * @return bool|WP_Error
 	 */
 	public function check_permissions() {
 		if ( current_user_can( 'edit_posts' ) ) {
