@@ -207,7 +207,7 @@ jobs:
                   fi
                 fi
 
-                if [[ "${SLUG%%/*" == "plugins" ]]; then
+                if [[ "${SLUG%%/*}" == "plugins" ]]; then
                   export WP_TESTS_CONFIG_FILE_PATH="$WORDPRESS_DEVELOP_DIR/wp-tests-config.${SLUG##*/}.php"
                 fi
 
