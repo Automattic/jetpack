@@ -15,6 +15,7 @@ $white: #ffffff;
     translate: -50% calc( 100% - 20px );
     z-index: 1000;
     pointer-events: auto;
+    user-select: text;
 }
 
 .jb-score-tooltip {
