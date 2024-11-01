@@ -25,7 +25,7 @@
 		"build-dashboard": "webpack --config ./tools/webpack.dashboard.config.js",
 		"clean": "rm -rf build/ .cache/",
 		"test": "jest --passWithNoTests",
-		"test-coverage": "pnpm run test --coverage --coverageDirectory=\"$COVERAGE_DIR/js\" --coverageReporters=clover",
+		"test-coverage": "pnpm run test --coverage --coverageDirectory=\"$COVERAGE_DIR\" --coverageReporters=json",
 		"validate": "pnpm exec validate-es --no-error-on-unmatched-pattern build/",
 		"watch": "concurrently 'pnpm:build-dashboard --watch'"
 	},

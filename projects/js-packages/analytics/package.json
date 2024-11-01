@@ -25,6 +25,6 @@
 	},
 	"scripts": {
 		"test": "NODE_OPTIONS=--experimental-vm-modules jest",
-		"test-coverage": "pnpm run test --coverageDirectory=\"$COVERAGE_DIR/js\" --coverage --coverageReporters=clover"
+		"test-coverage": "pnpm run test --coverage --coverageDirectory=\"$COVERAGE_DIR\" --coverageReporters=json"
 	}
 }

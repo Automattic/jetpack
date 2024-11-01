@@ -17,7 +17,7 @@
 	"type": "module",
 	"scripts": {
 		"test": "jest",
-		"test-coverage": "pnpm run test --coverageDirectory=\"$COVERAGE_DIR/js\" --coverage --coverageReporters=clover"
+		"test-coverage": "pnpm run test --coverage --coverageDirectory=\"$COVERAGE_DIR\" --coverageReporters=json"
 	},
 	"dependencies": {
 		"@automattic/jetpack-analytics": "workspace:*",

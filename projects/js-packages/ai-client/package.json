@@ -19,7 +19,7 @@
 		"clean": "rm -rf build/",
 		"compile-ts": "tsc --pretty",
 		"test": "NODE_OPTIONS=--experimental-vm-modules jest",
-		"test-coverage": "pnpm run test --coverage --coverageDirectory=\"$COVERAGE_DIR/js\" --coverageReporters=clover",
+		"test-coverage": "pnpm run test --coverage --coverageDirectory=\"$COVERAGE_DIR\" --coverageReporters=json",
 		"watch": "tsc --watch --pretty"
 	},
 	"type": "module",

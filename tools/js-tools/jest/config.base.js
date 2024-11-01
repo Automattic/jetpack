@@ -27,7 +27,7 @@ module.exports = {
 		],
 	},
 	testMatch: [
-		// Note: Keep the patterns here in sync with tools/js-tools/eslintrc/base.js.
+		// Note: Keep the patterns here in sync with collectCoverageFrom below and tools/js-tools/eslintrc/base.js.
 		'<rootDir>/**/__tests__/**/*.[jt]s?(x)',
 		'<rootDir>/**/?(*.)+(spec|test).[jt]s?(x)',
 		'<rootDir>/**/test/*.[jt]s?(x)',
@@ -41,4 +41,21 @@ module.exports = {
 	setupFilesAfterEnv: [ path.join( __dirname, 'setup-after-env.js' ) ],
 	extensionsToTreatAsEsm: [ '.jsx', '.ts', '.tsx' ],
 	resolver: require.resolve( 'jetpack-js-tools/jest/jest-resolver.js' ),
+
+	// Approximately reproduces the default behavior but excluding non-JS, built files, node_modules/vendor, and tests.
+	// In your config feel free to override this with something more specific like
+	//   '<rootDir>/src/**/*.{js,mjs,cjs,jsx,ts,tsx,mts,cts}',
+	//   '!<rootDir>/src/**/test/**',
+	collectCoverageFrom: [
+		'**/*.{js,mjs,cjs,jsx,ts,tsx,mts,cts}',
+		'!<rootDir>/dist/**',
+		'!<rootDir>/build/**',
+		'!<rootDir>/build-*/**',
+		'!**/node_modules/**',
+		'!**/vendor/**',
+		'!**/jetpack_vendor/**',
+		'!<rootDir>/**/__tests__/**/*.[jt]s?(x)',
+		'!<rootDir>/**/?(*.)+(spec|test).[jt]s?(x)',
+		'!<rootDir>/**/test/*.[jt]s?(x)',
+	],
 };
