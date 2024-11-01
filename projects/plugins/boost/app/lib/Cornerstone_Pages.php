@@ -37,14 +37,14 @@ class Cornerstone_Pages implements Has_Setup {
 
 	private function default_pages() {
 		if ( $this->get_max_pages() === static::FREE_MAX_PAGES ) {
-			return array( '/' );
+			return array( '' );
 		}
 
 		$max_pages               = $this->get_max_pages();
 		$yoast_cornerstone_pages = $this->get_yoast_cornerstone_pages();
 		$woocommerce_pages       = $this->get_woocommerce_pages();
 
-		$homepage = array( '/' );
+		$homepage = array( '' );
 
 		$urls = array_unique( array_merge( $homepage, $woocommerce_pages, $yoast_cornerstone_pages ) );
 
