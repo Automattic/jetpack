@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Don't store trailing slashes for foundation pages.
+
+
