@@ -26,10 +26,13 @@ abstract class Provider {
 	/**
 	 * Each provider must return a list of URLs to generate CSS from.
 	 *
-	 * @param \WP_Post[] $context_posts The posts to generate CSS from.
+	 * @param null|\WP_Post[] $limit_to_posts The posts to generate CSS from.
+	 * If null is provided, it will remove the limitation and include all providers.
+	 * If an empty array is provided, only keep the essential providers that apply regardless of posts.
+	 *
 	 * @return array
 	 */
-	abstract public static function get_critical_source_urls( $context_posts = array() );
+	abstract public static function get_critical_source_urls( $limit_to_posts = null );
 
 	/**
 	 * What key should this provider look for during the current request?

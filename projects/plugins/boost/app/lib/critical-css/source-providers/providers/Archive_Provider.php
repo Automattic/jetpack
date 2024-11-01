@@ -23,7 +23,7 @@ class Archive_Provider extends Provider {
 
 	// phpcs:ignore Generic.Commenting.DocComment.MissingShort
 	/** @inheritdoc */
-	public static function get_critical_source_urls( $context_posts = array() ) { // phpcs:ignore Generic.Commenting.DocComment.MissingShort
+	public static function get_critical_source_urls( $context_posts = null ) { // phpcs:ignore Generic.Commenting.DocComment.MissingShort
 		$links              = array();
 		$context_post_types = wp_list_pluck( $context_posts, 'post_type' );
 

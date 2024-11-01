@@ -24,7 +24,7 @@ class WP_Core_Provider extends Provider {
 	// phpcs:ignore Generic.Commenting.DocComment.MissingShort
 	/** @inheritdoc */
 	// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-	public static function get_critical_source_urls( $context_posts = array() ) {
+	public static function get_critical_source_urls( $context_posts = null ) {
 		$urls = array();
 
 		$front_page = (int) get_option( 'page_on_front' );
@@ -37,12 +37,17 @@ class WP_Core_Provider extends Provider {
 			}
 		}
 
-		$context_post_types = wp_list_pluck( $context_posts, 'post_type' );
-		$context_post_ids   = wp_list_pluck( $context_posts, 'ID' );
+		$context_post_types = array();
+		$context_post_ids   = array();
+
+		if ( is_array( $context_posts ) ) {
+			$context_post_types = wp_list_pluck( $context_posts, 'post_type' );
+			$context_post_ids   = wp_list_pluck( $context_posts, 'ID' );
+		}
 
 		// The blog page is only in context if the context posts include a 'post' post_type.
 		// Or, if the blog page itself is in context.
-		if ( empty( $context_post_types ) || in_array( 'post', $context_post_types, true ) || in_array( $posts_page, $context_post_ids, true ) ) {
+		if ( $context_posts || in_array( 'post', $context_post_types, true ) || in_array( $posts_page, $context_post_ids, true ) ) {
 			if ( ! empty( $posts_page ) ) {
 				$permalink = get_permalink( $posts_page );
 				if ( ! empty( $permalink ) ) {
