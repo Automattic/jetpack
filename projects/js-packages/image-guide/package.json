@@ -27,7 +27,7 @@
 		"lint": "pnpm run reformat-files && echo 'Running eslint...' && pnpm eslint app/assets/src/js tests/e2e --fix && echo '✔ prettier and eslint ran successfully.'",
 		"clear-dist": "rm -rf app/assets/dist/*",
 		"test-coverage": "pnpm run test --coverage --coverageDirectory=\"$COVERAGE_DIR\" --coverageReporters=json",
-		"test": "NODE_OPTIONS=--experimental-vm-modules jest"
+		"test": "NODE_OPTIONS=--experimental-vm-modules jest --config=tests/jest.config.cjs"
 	},
 	"browser": {
 		"@automattic/jetpack-image-guide": false

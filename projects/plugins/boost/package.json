@@ -65,7 +65,7 @@
 		"build-concurrently": "pnpm run clean && concurrently 'pnpm:build-client'",
 		"build-production-concurrently": "pnpm run clean && concurrently 'NODE_ENV=production BABEL_ENV=production pnpm run build-client' && pnpm run validate",
 		"clean": "rm -rf app/assets/dist/",
-		"test": "jest app --env=jsdom",
+		"test": "jest --config=tests/jest.config.cjs app",
 		"test-coverage": "pnpm run test --coverage --coverageDirectory=\"$COVERAGE_DIR\" --coverageReporters=json",
 		"validate": "pnpm exec validate-es app/assets/dist",
 		"watch": "pnpm run build && webpack watch",
