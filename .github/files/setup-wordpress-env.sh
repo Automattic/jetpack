@@ -25,8 +25,6 @@ password=root
 EOF
 chmod 0600 ~/.my.cnf
 mysql -e "set global wait_timeout = 3600;"
-mysql -e "DROP DATABASE IF EXISTS wordpress_tests;"
-mysql -e "CREATE DATABASE wordpress_tests;"
 echo "::endgroup::"
 
 echo "::group::Preparing WordPress from \"$WP_BRANCH\" branch";
@@ -128,6 +126,22 @@ for PLUGIN in projects/plugins/*/composer.json; do
 	JSON="$(jq --tab --arg dir "$BASE/$DIR" --argjson pkgversions "$PKGVERSIONS" '( .repositories // empty | .[] | select( .options.monorepo ) ) |= ( .url |= "\($dir)/\(.)" | .options.symlink |= false | .options.versions |= $pkgversions )' "/tmp/wordpress-$WP_BRANCH/src/wp-content/plugins/$NAME/composer.json")"
 	echo "$JSON" > "/tmp/wordpress-$WP_BRANCH/src/wp-content/plugins/$NAME/composer.json"
 
+	# Set up a wp test config for each plugin.
+	WP_TEST_CONFIG="/tmp/wordpress-$WP_BRANCH/wp-tests-config.$NAME.php"
+	DBNAME="wptests_${NAME//-/_}"
+
+	mysql -e "DROP DATABASE IF EXISTS $DBNAME;"
+	mysql -e "CREATE DATABASE $DBNAME;"
+
+	cp "/tmp/wordpress-$WP_BRANCH/wp-tests-config-sample.php" "$WP_TEST_CONFIG"
+	sed -i "s/youremptytestdbnamehere/$DBNAME/" "$WP_TEST_CONFIG"
+	sed -i "s/yourusernamehere/root/" "$WP_TEST_CONFIG"
+	sed -i "s/yourpasswordhere/root/" "$WP_TEST_CONFIG"
+	sed -i "s/localhost/127.0.0.1/" "$WP_TEST_CONFIG"
+
+	# If WooCommerce is installed, be sure we get the monorepo versions rather than the versions distributed with that.
+	echo "define( 'JETPACK_AUTOLOAD_DEV', true );" >> "$WP_TEST_CONFIG"
+
 	echo "::endgroup::"
 done
 
@@ -173,15 +187,7 @@ if [[ "$WITH_WPCOMSH" == true ]]; then
 	echo "::endgroup::"
 fi
 
-cd "/tmp/wordpress-$WP_BRANCH"
-
-cp wp-tests-config-sample.php wp-tests-config.php
-sed -i "s/youremptytestdbnamehere/wordpress_tests/" wp-tests-config.php
-sed -i "s/yourusernamehere/root/" wp-tests-config.php
-sed -i "s/yourpasswordhere/root/" wp-tests-config.php
-sed -i "s/localhost/127.0.0.1/" wp-tests-config.php
-
-# If WooCommerce is installed, be sure we get the monorepo versions rather than the versions distributed with that.
-echo "define( 'JETPACK_AUTOLOAD_DEV', true );" >> wp-tests-config.php
+# Catch anything that doesn't use the WP_TESTS_CONFIG_FILE_PATH env variable.
+echo '<?php die( "Use the WP_TESTS_CONFIG_FILE_PATH environment variable to locate a customized config." );' > "/tmp/wordpress-$WP_BRANCH/wp-tests-config.php"
 
 exit $EXIT

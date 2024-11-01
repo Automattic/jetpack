@@ -1,0 +1,5 @@
+Significance: patch
+Type: added
+Comment: Add notice to prompt user to do critical css regeneration when they update a cornerstone page.
+
+

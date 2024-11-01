@@ -119,9 +119,23 @@ jobs:
           CHANGED: ${{ steps.changed.outputs.projects }}
         run: |
           EXIT=0
+          declare -A PIDS
+          PIDS=()
+          MAXPIDS=$( nproc )
+          FAILED=()
           mkdir artifacts
           [[ "$TEST_SCRIPT" == "test-coverage" ]] && mkdir coverage
           for P in composer.json projects/*/*/composer.json; do
+            if [[ ${#PIDS[@]} -ge $MAXPIDS ]]; then
+              if ! wait -fn -p PID "${!PIDS[@]}"; then
+                echo "::error::Tests for ${PIDS[$PID]} failed!"
+                FAILED+=( "${PIDS[$PID]}" )
+                EXIT=1
+              fi
+              echo "Finished ${PIDS[$PID]}"
+              unset PIDS[$PID]
+            fi
+
             if [[ "$P" == "composer.json" ]]; then
               DIR="."
               SLUG="monorepo"
@@ -149,69 +163,89 @@ jobs:
                   continue
                 elif [[ $CODE -ne 0 ]]; then
                   echo "::error::Script skip-$TEST_SCRIPT failed to run $CODE!"
+                  FAILED+=( "$SLUG" )
                   EXIT=1
                   continue
                 fi
               fi
 
-              echo "::group::Running tests for $SLUG"
+              echo "Running tests for $SLUG"
+              {
+                # Composer install, if appropriate. Note setup-wordpress-env.sh did it already for plugins.
+                if [[ "${SLUG%%/*}" != "plugins" && ( "$TEST_SCRIPT" == "test-php" || "$TEST_SCRIPT" == "test-coverage" ) ]]; then
+                  if [[ "$TEST_SCRIPT" == "test-coverage" ]] &&
+                    ! jq -e '.scripts["test-php"]' "$DIR/composer.json" &>/dev/null
+                  then
+                    echo "Skipping composer install, assuming test-coverage is only JS because the project has no test-php."
+                  else
+                    if [[ ! -f "$DIR/composer.lock" ]]; then
+                      echo 'No composer.lock, running `composer update`'
+                      composer --working-dir="$DIR" update
+                    elif composer --working-dir="$DIR" check-platform-reqs --lock; then
+                      echo 'Platform reqs pass, running `composer install`'
+                      composer --working-dir="$DIR" install
+                    else
+                      echo 'Platform reqs failed, running `composer update`'
+                      composer --working-dir="$DIR" update
+                    fi
 
-              # Composer install, if appropriate. Note setup-wordpress-env.sh did it already for plugins.
-              NEED_COMPOSER=false
-              if [[ "${SLUG%%/*}" != "plugins" && ( "$TEST_SCRIPT" == "test-php" || "$TEST_SCRIPT" == "test-coverage" ) ]]; then
-                NEED_COMPOSER=true
-                if [[ "$TEST_SCRIPT" == "test-coverage" ]] &&
-                  ! jq -e '.scripts["test-php"]' "$DIR/composer.json" &>/dev/null
-                then
-                  echo "Skipping composer install, assuming test-coverage is only JS because the project has no test-php."
-                  NEED_COMPOSER=false
-                fi
-              fi
-              if $NEED_COMPOSER; then
-                if [[ ! -f "$DIR/composer.lock" ]]; then
-                  echo 'No composer.lock, running `composer update`'
-                  composer --working-dir="$DIR" update
-                elif composer --working-dir="$DIR" check-platform-reqs --lock; then
-                  echo 'Platform reqs pass, running `composer install`'
-                  composer --working-dir="$DIR" install
-                else
-                  echo 'Platform reqs failed, running `composer update`'
-                  composer --working-dir="$DIR" update
-                fi
-
-                if [[ "$WP_BRANCH" == 'trunk' || "$WP_BRANCH" == 'previous' ]]; then
-                  VER=$(composer --format=json --working-dir="$DIR" show | jq -r '.installed[] | select( .name == "roots/wordpress" ) | .version')
-                  if [[ -n "$VER" ]]; then
-                    INSVER=$WORDPRESS_TAG
-                    [[ "$WORDPRESS_TAG" == 'trunk' ]] && INSVER="dev-main as $VER"
-                    echo "Supposed to run tests against WordPress $WORDPRESS_TAG, so setting roots/wordpress and roots/wordpress-no-content to \"$INSVER\""
-                    # Composer seems to sometimes have issues with deleting the wordpress dir on its own, so do it manually first.
-                    rm -rf "$DIR/wordpress"
-                    composer --working-dir="$DIR" require --dev roots/wordpress="$INSVER" roots/wordpress-no-content="$INSVER"
+                    if [[ "$WP_BRANCH" == 'trunk' || "$WP_BRANCH" == 'previous' ]]; then
+                      VER=$(composer --format=json --working-dir="$DIR" show | jq -r '.installed[] | select( .name == "roots/wordpress" ) | .version')
+                      if [[ -n "$VER" ]]; then
+                        INSVER=$WORDPRESS_TAG
+                        [[ "$WORDPRESS_TAG" == 'trunk' ]] && INSVER="dev-main as $VER"
+                        echo "Supposed to run tests against WordPress $WORDPRESS_TAG, so setting roots/wordpress and roots/wordpress-no-content to \"$INSVER\""
+                        # Composer seems to sometimes have issues with deleting the wordpress dir on its own, so do it manually first.
+                        rm -rf "$DIR/wordpress"
+                        composer --working-dir="$DIR" require --dev roots/wordpress="$INSVER" roots/wordpress-no-content="$INSVER"
+                      fi
+                    fi
                   fi
                 fi
-              fi
 
-              mkdir -p "artifacts/$SLUG"
-              export ARTIFACTS_DIR="$GITHUB_WORKSPACE/artifacts/$SLUG"
-              if [[ "$TEST_SCRIPT" == "test-coverage" ]]; then
-                mkdir -p "coverage/$SLUG"
-                export COVERAGE_DIR="$GITHUB_WORKSPACE/coverage/$SLUG"
-              fi
-              FAIL=false
-              if ! composer run --timeout=0 --working-dir="$DIR" "$TEST_SCRIPT"; then
-                FAIL=true
-                EXIT=1
-              fi
+                if [[ "${SLUG%%/*}" == "plugins" ]]; then
+                  export WP_TESTS_CONFIG_FILE_PATH="$WORDPRESS_DEVELOP_DIR/wp-tests-config.${SLUG##*/}.php"
+                fi
 
-              # Actions seems to slow down if there are a lot of files, so clean up Composer stuff after each test.
-              # We don't do it for JS stuff, as that might break things with how JS does package deps.
-              rm -rf "$DIR/vendor" "$DIR/jetpack_vendor" "$DIR/wordpress"
+                mkdir -p "artifacts/$SLUG"
+                export ARTIFACTS_DIR="$GITHUB_WORKSPACE/artifacts/$SLUG"
+                if [[ "$TEST_SCRIPT" == "test-coverage" ]]; then
+                  mkdir -p "coverage/$SLUG"
+                  export COVERAGE_DIR="$GITHUB_WORKSPACE/coverage/$SLUG"
+                fi
+                FAIL=false
+                if ! composer run --timeout=0 --working-dir="$DIR" "$TEST_SCRIPT"; then
+                  FAIL=true
+                fi
 
-              echo "::endgroup::"
-              $FAIL && echo "::error::Tests for $SLUG failed!"
+                # Actions seems to slow down if there are a lot of files, so clean up Composer stuff after each test.
+                # We don't do it for JS stuff, as that might break things with how JS does package deps.
+                rm -rf "$DIR/vendor" "$DIR/jetpack_vendor" "$DIR/wordpress"
+
+                if $FAIL; then
+                  echo "Tests for $SLUG failed!"
+                  exit 1
+                fi
+              } 2> >( sed -u 's!^!['"$SLUG"'] !' >&2 ) > >( sed -u 's!^!['"$SLUG"'] !' ) &
+              PIDS[$!]=$SLUG
             fi
           done
+          while [[ ${#PIDS[@]} -gt 0 ]]; do
+            if ! wait -fn -p PID "${!PIDS[@]}"; then
+              echo "::error::Tests for ${PIDS[$PID]} failed!"
+              FAILED+=( "${PIDS[$PID]}" )
+              EXIT=1
+            fi
+            echo "Finished ${PIDS[$PID]}"
+            unset PIDS[$PID]
+          done
+
+          if [[ ${#FAILED[@]} -gt 0 ]]; then
+            echo ''
+            echo 'The following tests failed:'
+            printf " - %s\n" "${FAILED[@]}"
+          fi
+
           exit $EXIT
 
       - name: Process coverage results

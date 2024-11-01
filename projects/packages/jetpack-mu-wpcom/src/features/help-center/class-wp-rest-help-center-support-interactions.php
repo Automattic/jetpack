@@ -18,7 +18,7 @@ class WP_REST_Help_Center_Support_Interactions extends \WP_REST_Controller {
 	 */
 	public function __construct() {
 		$this->namespace = 'help-center';
-		$this->rest_base = '/support-status';
+		$this->rest_base = '/support-interactions';
 	}
 
 	/**

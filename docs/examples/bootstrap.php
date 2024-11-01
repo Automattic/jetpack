@@ -65,6 +65,12 @@ function _manually_load_plugin() {
 }
 tests_add_filter( 'muplugins_loaded', '_manually_load_plugin' );
 
+// Override WP_TESTS_CONFIG_FILE_PATH via environment.
+// Important for monorepo CI, if you don't do this then different test runs might collide!
+if ( false !== getenv( 'WP_TESTS_CONFIG_FILE_PATH' ) ) {
+	define( 'WP_TESTS_CONFIG_FILE_PATH', getenv( 'WP_TESTS_CONFIG_FILE_PATH' ) );
+}
+
 // Start up the WP testing environment.
 require $_tests_dir . '/includes/bootstrap.php';
 
