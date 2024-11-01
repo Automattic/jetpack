@@ -124,7 +124,7 @@ function isVIP() {
 	} else if ( typeof jetpack_plan !== 'undefined' ) {
 		jetpackPlan = jetpack_plan;
 	}
-	return jetpackPlan && jetpackPlan.data === 'vip';
+	return jetpackPlan && jetpackPlan?.data === 'vip';
 }
 
 /**
