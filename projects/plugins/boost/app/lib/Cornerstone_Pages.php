@@ -104,7 +104,16 @@ class Cornerstone_Pages implements Has_Setup {
 	}
 
 	public function get_pages() {
-		return jetpack_boost_ds_get( 'cornerstone_pages_list' );
+		$pages = jetpack_boost_ds_get( 'cornerstone_pages_list' );
+
+		$permalink_structure = get_option( 'permalink_structure' );
+
+		// If permalink structure ends with slash, add trailing slashes
+		if ( $permalink_structure && substr( $permalink_structure, -1 ) === '/' ) {
+			$pages = array_map( 'trailingslashit', $pages );
+		}
+
+		return $pages;
 	}
 
 	public function get_properties() {
