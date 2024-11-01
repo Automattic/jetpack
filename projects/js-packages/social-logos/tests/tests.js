@@ -5,13 +5,14 @@
 //   0: All is well
 //   2: The production build isn't clean
 //   3: SVG optimization checks failed
-//   4: Other build files are missing
+//   4: Missing or extra build files detected
 
 const { spawnSync } = require( 'child_process' );
 const fs = require( 'fs' );
 const glob = require( 'glob' ); // Add this line to import the 'glob' module
 
 const helperFilesDir = 'tests/helper_files/';
+const svgSrcDir = 'src/svg/';
 const buildDir = 'build/';
 const svgBuildDir = buildDir + 'svg-clean/';
 
@@ -48,42 +49,56 @@ function verifySVGOptimization() {
  * is checked separately in `checkSVGBuilds()`.
  */
 function verifyOtherBuildFiles() {
-	// Here lie all expected built files (without the build folder prefix).
-	const expectedBuildFiles = [
-		'css/example.css',
-		'font/codepoints.json',
-		'font/social-logos.css',
-		'font/social-logos.woff2',
-		'react/stories/index.stories.d.ts',
-		'react/stories/index.stories.js',
-		'react/example.d.ts',
-		'react/example.js',
-		'react/index.d.ts',
-		'react/index.js',
-		'react/social-logo-data.d.ts',
-		'react/social-logo-data.js',
-		'react/social-logo.d.ts',
-		'react/social-logo.js',
-		'svg-sprite/example.html',
-		'svg-sprite/social-logos.svg',
-	];
 	console.log( 'Verifying other build files...' );
 
-	const actualBuildFiles = glob.sync( '**', {
-		cwd: buildDir,
-		ignore: 'svg-clean/**',
-		nodir: true,
-	} );
+	// Generate a list of expected SVG files.
+	const svgFiles = glob
+		.sync( '**', {
+			cwd: svgSrcDir,
+			nodir: true,
+		} )
+		.map( file => 'svg-clean/' + file );
 
-	let missingFileCount = 0;
-	expectedBuildFiles.forEach( file => {
-		if ( ! actualBuildFiles.includes( file ) ) {
+	// Here lie all expected built files (without the build folder prefix).
+	const expectedBuildFiles = new Set(
+		[
+			'css/example.css',
+			'font/codepoints.json',
+			'font/social-logos.css',
+			'font/social-logos.woff2',
+			'react/stories/index.stories.d.ts',
+			'react/stories/index.stories.js',
+			'react/example.d.ts',
+			'react/example.js',
+			'react/index.d.ts',
+			'react/index.js',
+			'react/social-logo-data.d.ts',
+			'react/social-logo-data.js',
+			'react/social-logo.d.ts',
+			'react/social-logo.js',
+			'svg-sprite/example.html',
+			'svg-sprite/social-logos.svg',
+		].concat( svgFiles )
+	);
+
+	const actualBuildFiles = new Set(
+		glob.sync( '**', {
+			cwd: buildDir,
+			nodir: true,
+		} )
+	);
+
+	const problemFiles = actualBuildFiles.symmetricDifference( expectedBuildFiles );
+
+	problemFiles.forEach( file => {
+		if ( ! actualBuildFiles.has( file ) ) {
 			console.error( 'Missing build file: ' + buildDir + file );
-			missingFileCount++;
+		} else if ( ! expectedBuildFiles.has( file ) ) {
+			console.error( 'Extra build file: ' + buildDir + file );
 		}
 	} );
 
-	if ( missingFileCount ) {
+	if ( problemFiles.size ) {
 		process.exit( 4 );
 	}
 }
