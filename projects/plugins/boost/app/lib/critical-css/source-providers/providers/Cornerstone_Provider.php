@@ -58,7 +58,7 @@ class Cornerstone_Provider extends Provider {
 			return home_url( $wp->request );
 		}
 
-		return add_query_arg( $wp->query_vars, home_url( '/' ) );
+		return add_query_arg( $wp->query_vars, home_url() );
 	}
 
 	/**
