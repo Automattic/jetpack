@@ -35,14 +35,13 @@ const ConnectionStep = ( {
 	const { recordEvent } = useAnalytics();
 	const { setNotice, resetNotice } = useContext( NoticeContext );
 
-	const { siteSuffix, siteUrl, adminUrl } = getMyJetpackWindowInitialState();
-	const redirectUri = `?redirect_uri=${ encodeURIComponent( window.location.href ) }`;
-	const connectAfterCheckoutUrl = `&connect_after_checkout=true&from_site_slug=${ siteUrl }&admin_url=${ adminUrl }`;
-	const query = `${ redirectUri }${ connectAfterCheckoutUrl }`;
-	const jetpackPlansPath = getRedirectUrl( 'jetpack-my-jetpack-site-only-plans', {
-		site: siteSuffix,
-		query,
-	} );
+	const { siteSuffix, adminUrl } = getMyJetpackWindowInitialState();
+	const connectAfterCheckoutUrl = `?connect_after_checkout=true&admin_url=${ encodeURIComponent(
+		adminUrl
+	) }&from_site_slug=${ siteSuffix }&source=my-jetpack`;
+	const redirectUri = `&redirect_to=${ encodeURIComponent( window.location.href ) }`;
+	const query = `${ connectAfterCheckoutUrl }${ redirectUri }&unlinked=1`;
+	const jetpackPlansPath = getRedirectUrl( 'jetpack-my-jetpack-site-only-plans', { query } );
 
 	const activationButtonLabel = __( 'Activate Jetpack in one click', 'jetpack-my-jetpack' );
 	const { refetch: refetchOwnershipData } = useProductsByOwnership();
@@ -75,6 +74,8 @@ const ConnectionStep = ( {
 			resetNotice();
 			setNotice( NOTICE_SITE_CONNECTED, resetNotice );
 			refetchOwnershipData();
+
+			onUpdateWelcomeFlowExperiment( state => ( { ...state, isLoading: false } ) );
 		}
 	}, [
 		jetpackPlansPath,
