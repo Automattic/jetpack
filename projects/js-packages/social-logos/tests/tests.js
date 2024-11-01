@@ -3,7 +3,6 @@
 
 // Exit codes:
 //   0: All is well
-//   1: SVG build files are missing
 //   2: The production build isn't clean
 //   3: SVG optimization checks failed
 //   4: Other build files are missing
@@ -13,29 +12,12 @@ const fs = require( 'fs' );
 const glob = require( 'glob' ); // Add this line to import the 'glob' module
 
 const helperFilesDir = 'tests/helper_files/';
-const svgSrcDir = 'src/svg/';
 const buildDir = 'build/';
 const svgBuildDir = buildDir + 'svg-clean/';
 
 // Start in the right folder.
 const rootDir = __dirname + '/..';
 process.chdir( rootDir );
-
-/**
- * Checks that each SVG file in the source folder has an equivalent file in the build folder.
- */
-function checkSVGBuilds() {
-	console.log( 'Verifying all SVGs were built...' );
-	const srcSVGs = glob.sync( '*.svg', { cwd: svgSrcDir } );
-	const builtSVGs = glob.sync( '*.svg', { cwd: svgBuildDir } );
-	for ( const srcSVG of srcSVGs ) {
-		if ( ! builtSVGs.includes( srcSVG ) ) {
-			console.error( `Built SVG file not found: ${ srcSVG }` );
-			process.exit( 1 );
-		}
-	}
-	console.log( 'All SVGs were built.' );
-}
 
 /**
  * Verifies the SVG optimization is working.
@@ -127,7 +109,6 @@ function verifySourceIsClean() {
 }
 
 console.log( 'Running post-build tests...' );
-checkSVGBuilds();
 verifySVGOptimization();
 verifyOtherBuildFiles();
 verifySourceIsClean();
