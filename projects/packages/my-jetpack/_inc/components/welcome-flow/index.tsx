@@ -47,17 +47,13 @@ const WelcomeFlow: FC< Props > = ( {
 	const [ prevStep, setPrevStep ] = useState( '' );
 
 	const currentStep = useMemo( () => {
-		if ( ! siteIsRegistered ) {
+		if ( ! siteIsRegistered || welcomeFlowExperiment.isLoading ) {
 			return 'connection';
 		} else if ( ! isProcessingEvaluation ) {
 			if ( ! recommendedModules && ! isJetpackUserNew() ) {
 				// If user is not new but doesn't have recommendations, we skip evaluation
 				// If user has recommendations, it means they redo the evaluation
 				return null;
-			}
-
-			if ( welcomeFlowExperiment.isLoading ) {
-				return 'evaluation-processing';
 			}
 
 			// Otherwise, it means user is either new or just repeats the recommendation
