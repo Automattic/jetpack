@@ -21,8 +21,9 @@
 		"build:contact-form": "webpack --config ./tools/webpack.config.contact-form.js",
 		"build:dashboard": "webpack --config ./tools/webpack.config.dashboard.js",
 		"clean": "rm -rf dist/ .cache/",
-		"test": "jest",
+		"test": "jest --config=tests/jest.config.js",
 		"test:contact-form": "jest --testPathPattern=tests/js/contact-form",
+		"test-coverage": "pnpm run test --coverage --coverageDirectory=\"$COVERAGE_DIR/js\" --coverageReporters=clover",
 		"validate": "pnpm exec validate-es --no-error-on-unmatched-pattern dist/",
 		"watch": "concurrently 'pnpm:build:blocks --watch' 'pnpm:build:contact-form --watch' 'pnpm:build:dashboard --watch'"
 	},

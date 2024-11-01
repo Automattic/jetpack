@@ -26,6 +26,7 @@
 		"reformat-files": "../../../tools/js-tools/node_modules/.bin/prettier --ignore-path .eslintignore --write --plugin-search-dir=. ./**/*.{svelte,js,ts,json}",
 		"lint": "pnpm run reformat-files && echo 'Running eslint...' && pnpm eslint app/assets/src/js tests/e2e --fix && echo '✔ prettier and eslint ran successfully.'",
 		"clear-dist": "rm -rf app/assets/dist/*",
+		"test-coverage": "pnpm run test --coverageDirectory=\"$COVERAGE_DIR/js\" --coverage --coverageReporters=clover",
 		"test": "NODE_OPTIONS=--experimental-vm-modules jest"
 	},
 	"browser": {

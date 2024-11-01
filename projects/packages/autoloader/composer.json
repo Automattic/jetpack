@@ -32,6 +32,10 @@
 		"phpunit": [
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
 		],
+		"test-coverage": [
+			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"./tests/php/tmp/coverage-report.php\"",
+			"php ./tests/php/bin/test-coverage.php \"$COVERAGE_DIR/php/clover.xml\""
+		],
 		"test-php": [
 			"@composer phpunit"
 		]

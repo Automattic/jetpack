@@ -18,7 +18,8 @@
 		"build-concurrently": "pnpm run clean && concurrently 'pnpm:build-client'",
 		"build-production-concurrently": "pnpm run clean && concurrently 'NODE_ENV=production BABEL_ENV=production pnpm run build-client' && pnpm run validate",
 		"clean": "rm -rf build/",
-		"test": "jest",
+		"test": "jest --passWithNoTests",
+		"test-coverage": "pnpm run test --coverage --coverageDirectory=\"$COVERAGE_DIR/js\" --coverageReporters=clover",
 		"validate": "pnpm exec validate-es build/",
 		"watch": "pnpm run build && webpack watch"
 	},
@@ -47,6 +48,7 @@
 		"@testing-library/dom": "10.4.0",
 		"@testing-library/react": "16.0.1",
 		"@wordpress/browserslist-config": "6.9.0",
+		"@wordpress/components": "28.9.0",
 		"babel-jest": "29.4.3",
 		"concurrently": "7.6.0",
 		"jest": "29.7.0",

@@ -15,6 +15,7 @@
 		"build-dashboard": "webpack --config ./tools/webpack.dashboard.config.js",
 		"clean": "rm -rf build/ .cache/",
 		"test": "concurrently 'pnpm:test-scripts' 'pnpm:test-size'",
+		"test-coverage": "pnpm run test-scripts --coverage --coverageDirectory=\"$COVERAGE_DIR/js\" --coverageReporters=clover",
 		"test-scripts": "jest --passWithNoTests",
 		"test-size": "NODE_ENV=production BABEL_ENV=production pnpm run build-instant && size-limit",
 		"validate": "pnpm exec validate-es --no-error-on-unmatched-pattern build/",

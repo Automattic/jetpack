@@ -69,6 +69,10 @@
 		"phpunit": [
 			"tests/action-phpunit.sh"
 		],
+		"test-coverage": [
+			"@php tools/build-module-headings-translations.php",
+			"tests/action-test-coverage.sh"
+		],
 		"test-js": [
 			"pnpm concurrently 'pnpm:compile-ts' 'pnpm:test-adminpage' 'pnpm:test-extensions'"
 		],

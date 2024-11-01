@@ -19,6 +19,9 @@
 		"build-production": [
 			"pnpm run build-production"
 		],
+		"test-coverage": [
+			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/php/clover.xml\""
+		],
 		"tests": "vendor/bin/codecept run acceptance --fail-fast",
 		"tests-debug": "vendor/bin/codecept run acceptance --fail-fast --debug",
 		"create-test": "vendor/bin/codecept generate:cest acceptance $1",

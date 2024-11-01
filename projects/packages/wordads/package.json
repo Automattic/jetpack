@@ -24,8 +24,8 @@
 		"build-development": "NODE_ENV=development BABEL_ENV=development pnpm run build",
 		"build-dashboard": "webpack --config ./tools/webpack.dashboard.config.js",
 		"clean": "rm -rf build/ .cache/",
-		"test": "concurrently 'pnpm:test-scripts'",
-		"test-scripts": "jest --passWithNoTests",
+		"test": "jest --passWithNoTests",
+		"test-coverage": "pnpm run test --coverage --coverageDirectory=\"$COVERAGE_DIR/js\" --coverageReporters=clover",
 		"validate": "pnpm exec validate-es --no-error-on-unmatched-pattern build/",
 		"watch": "concurrently 'pnpm:build-dashboard --watch'"
 	},

@@ -24,6 +24,7 @@ use Automattic\Jetpack_Boost\Data_Sync\Getting_Started_Entry;
 use Automattic\Jetpack_Boost\Lib\Analytics;
 use Automattic\Jetpack_Boost\Lib\CLI;
 use Automattic\Jetpack_Boost\Lib\Connection;
+use Automattic\Jetpack_Boost\Lib\Cornerstone_Pages;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Storage;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Generator;
@@ -107,6 +108,9 @@ class Jetpack_Boost {
 
 		$modules_setup = new Modules_Setup();
 		Setup::add( $modules_setup );
+
+		$cornerstone_pages = new Cornerstone_Pages();
+		Setup::add( $cornerstone_pages );
 
 		// Initialize the Admin experience.
 		$this->init_admin( $modules_setup );

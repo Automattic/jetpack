@@ -14,7 +14,8 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"scripts": {
-		"test": "jest"
+		"test": "jest",
+		"test-coverage": "pnpm run test --coverage --coverageDirectory=\"$COVERAGE_DIR/js\" --coverageReporters=clover"
 	},
 	"dependencies": {
 		"@automattic/jetpack-analytics": "workspace:*",

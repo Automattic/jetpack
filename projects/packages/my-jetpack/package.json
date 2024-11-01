@@ -19,7 +19,8 @@
 		"build-client": "pnpm webpack --config webpack.config.js",
 		"clean": "rm -rf build/",
 		"watch": "pnpm run build && pnpm webpack watch",
-		"test": "jest --config=tests/jest.config.js"
+		"test": "jest --config=tests/jest.config.js",
+		"test-coverage": "pnpm run test --coverage --coverageDirectory=\"$COVERAGE_DIR/js\" --coverageReporters=clover"
 	},
 	"dependencies": {
 		"@automattic/format-currency": "1.0.1",

@@ -13,7 +13,7 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/ignorefile",
-                "reference": "3ac0481862de59f65856b3ac2e086d9cdc86a8fd"
+                "reference": "834a96c1a69edb801392ecdc257a90a7065bac03"
             },
             "require": {
                 "php": ">=7.0"
@@ -42,6 +42,9 @@
                 "phpunit": [
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],
+                "test-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/php/clover.xml\""
+                ],
                 "test-php": [
                     "@composer phpunit"
                 ]
@@ -60,7 +63,7 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/codesniffer",
-                "reference": "7545c2efd2ce1a5f8cb85419035b3f1e952be125"
+                "reference": "da78e5b6b335d3d5034481677ed8f49c6a3d2108"
             },
             "require": {
                 "automattic/vipwpcs": "^3.0",
@@ -98,6 +101,9 @@
                 "phpunit": [
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],
+                "test-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/php/clover.xml\""
+                ],
                 "test-php": [
                     "@composer phpunit"
                 ]
@@ -124,7 +130,7 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/phan-plugins",
-                "reference": "d7a0268045b235a3158435f2b83179d7fecada39"
+                "reference": "6030c0e5428031c3d74ddfae0df1cfc25fc5d655"
             },
             "require": {
                 "phan/phan": "^5.4",
@@ -154,6 +160,9 @@
                 "phpunit": [
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],
+                "test-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/php/clover.xml\""
+                ],
                 "test-php": [
                     "@composer phpunit"
                 ]
@@ -178,7 +187,7 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/phpcs-filter",
-                "reference": "8eec63259d8259729921c7ce48393890cb9babdd"
+                "reference": "0e3de0f35848da2f53206880ea0d2450a1abe918"
             },
             "require": {
                 "automattic/ignorefile": "@dev",
@@ -203,6 +212,9 @@
             "scripts": {
                 "phpunit": [
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/php/clover.xml\""
                 ],
                 "test-php": [
                     "@composer phpunit"
@@ -3114,6 +3126,6 @@
     "platform": {
         "ext-json": "*"
     },
-    "platform-dev": {},
+    "platform-dev": [],
     "plugin-api-version": "2.6.0"
 }
