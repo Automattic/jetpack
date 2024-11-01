@@ -78,22 +78,59 @@ window.jetpackForms.generateStyleVariables = function ( formNode ) {
 		lineHeight: buttonOutlineLineHeight,
 	} = window.getComputedStyle( buttonOutlineNode );
 
-	// This provides a fallback for the button outline text color when the button outline background color is the same as the text color.
-	let safeButtonOutlineTextColor = buttonOutlineTextColor;
-	if ( buttonOutlineBackgroundColor === buttonOutlineTextColor ) {
-		const elements = document.querySelectorAll(
-			'.contact-form .grunion-field-wrap.grunion-field-checkbox-multiple-wrap.is-style-button-wrap .contact-form-field, .contact-form .grunion-field-wrap.is-style-button-wrap .grunion-radio-label'
-		);
-		if ( elements.length > 0 ) {
-			const buttonLink = document.querySelector( '.wp-block-button__link' );
-			safeButtonOutlineTextColor = buttonLink
-				? getComputedStyle( buttonLink ).getPropertyValue( 'color' )
-				: backgroundColor;
-		}
-	}
-
 	const buttonOutlineBackgroundColorFallback =
 		window.jetpackForms.getBackgroundColor( buttonOutlineNode );
+
+	// These functions are designed to determine the contrast ratio between two colors.
+	// See https://www.w3.org/TR/WCAG21/#dfn-relative-luminance for more information.
+	// See projects/plugins/jetpack/_inc/lib/class.color.php for similar logic.
+	function luminance( r, g, b ) {
+		const a = [ r, g, b ].map( v => {
+			v /= 255;
+			return v <= 0.03928 ? v / 12.92 : Math.pow( ( v + 0.055 ) / 1.055, 2.4 );
+		} );
+		return a[ 0 ] * 0.2126 + a[ 1 ] * 0.7152 + a[ 2 ] * 0.0722;
+	}
+
+	function contrastRatio( rgbStr1, rgbStr2 ) {
+		const rgb1 = rgbStr1.match( /\d+/g ).map( Number );
+		const rgb2 = rgbStr2.match( /\d+/g ).map( Number );
+		const lum1 = luminance( ...rgb1 );
+		const lum2 = luminance( ...rgb2 );
+		return ( Math.max( lum1, lum2 ) + 0.05 ) / ( Math.min( lum1, lum2 ) + 0.05 );
+	}
+
+	function isContrastLow( rgbStr1, rgbStr2, threshold = 4.5 ) {
+		return contrastRatio( rgbStr1, rgbStr2 ) < threshold;
+	}
+
+	// This provides a fallback for the button outline text color when the button outline background color is the same as the text color.
+	let safeButtonOutlineBackgroundColor = buttonOutlineBackgroundColor;
+
+	// What we're doing here is checking if the text color and background color of the button have a low contrast ratio. If they do, provide a background color that has a higher contrast ratio with the text color.
+	if ( isContrastLow( buttonOutlineTextColor, buttonOutlineBackgroundColor ) ) {
+		const buttonLink = document.querySelector(
+			'.wp-block-button__link:not(.is_style_outline > .wp-block-button__link):not(.wp-block-jetpack-contact-form .wp-block-button__link)'
+		);
+		if ( buttonLink ) {
+			const existingButtonTextColor = getComputedStyle( buttonLink ).getPropertyValue( 'color' );
+			safeButtonOutlineBackgroundColor =
+				existingButtonTextColor !== buttonOutlineTextColor
+					? existingButtonTextColor
+					: buttonOutlineBackgroundColor;
+		} else {
+			const entryContent = document.querySelector( '.entry-content' );
+			const editorWrapper = document.querySelector( '.editor-styles-wrapper' );
+			if ( entryContent ) {
+				safeButtonOutlineBackgroundColor =
+					getComputedStyle( entryContent ).getPropertyValue( 'background-color' );
+			} else {
+				safeButtonOutlineBackgroundColor = editorWrapper
+					? getComputedStyle( editorWrapper ).getPropertyValue( 'background-color' )
+					: 'rgb(255, 255, 255)';
+			}
+		}
+	}
 
 	const {
 		color: textColor,
@@ -135,12 +172,12 @@ window.jetpackForms.generateStyleVariables = function ( formNode ) {
 		'--jetpack--contact-form--button-primary--border-color': buttonPrimaryBorderColor,
 		'--jetpack--contact-form--button-outline--padding': buttonOutlinePadding,
 		'--jetpack--contact-form--button-outline--border': buttonOutlineBorder,
-		'--jetpack--contact-form--button-outline--background-color': buttonOutlineBackgroundColor,
+		'--jetpack--contact-form--button-outline--background-color': safeButtonOutlineBackgroundColor, // safeButtonOutlineBackgroundColor,
 		'--jetpack--contact-form--button-outline--background-color-fallback':
 			buttonOutlineBackgroundColorFallback,
 		'--jetpack--contact-form--button-outline--border-size': buttonOutlineBorderSize,
 		'--jetpack--contact-form--button-outline--border-radius': buttonOutlineBorderRadius,
-		'--jetpack--contact-form--button-outline--text-color': safeButtonOutlineTextColor,
+		'--jetpack--contact-form--button-outline--text-color': buttonOutlineTextColor,
 		'--jetpack--contact-form--button-outline--line-height': buttonOutlineLineHeight,
 	};
 };
