@@ -13,6 +13,7 @@ use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Storage;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Display_Critical_CSS;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Generator;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Source_Providers;
+use Automattic\Jetpack_Boost\Lib\Environment_Change_Detector;
 use Automattic\Jetpack_Boost\Lib\Premium_Features;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Has_Always_Available_Endpoints;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Update_Cloud_CSS;
@@ -30,6 +31,9 @@ class Cloud_CSS implements Pluggable, Has_Always_Available_Endpoints, Changes_Pa
 
 	/** Requesting a regeneration because the previous request had failed and this is a followup attempt to regenerate Critical CSS. */
 	const REGENERATE_REASON_FOLLOWUP = 'followup';
+
+	/** Cornerstone pages updated. */
+	const REGENERATE_REASON_CORNERSTONE_PAGES = 'cornerstone_pages_updated';
 
 	/**
 	 * Critical CSS storage class instance.
@@ -55,6 +59,7 @@ class Cloud_CSS implements Pluggable, Has_Always_Available_Endpoints, Changes_Pa
 		add_action( 'save_post', array( $this, 'handle_save_post' ), 10, 2 );
 		add_action( 'jetpack_boost_critical_css_invalidated', array( $this, 'handle_critical_css_invalidated' ) );
 		add_filter( 'jetpack_boost_total_problem_count', array( $this, 'update_total_problem_count' ) );
+		add_action( 'jetpack_boost_critical_css_environment_changed', array( $this, 'handle_critical_css_environment_changed' ), 10, 2 );
 
 		Generator::init();
 		Critical_CSS_Invalidator::init();
@@ -173,6 +178,12 @@ class Cloud_CSS implements Pluggable, Has_Always_Available_Endpoints, Changes_Pa
 	public function handle_critical_css_invalidated() {
 		$this->regenerate_cloud_css( self::REGENERATE_REASON_INVALIDATED, $this->get_all_providers() );
 		Cloud_CSS_Followup::schedule();
+	}
+
+	public function handle_critical_css_environment_changed( $is_major_change, $change_type ) {
+		if ( $change_type === Environment_Change_Detector::ENV_CHANGE_CORNERSTONE_PAGES_LIST_UPDATED ) {
+			$this->regenerate_cloud_css( self::REGENERATE_REASON_CORNERSTONE_PAGES, $this->get_all_providers( array() ) );
+		}
 	}
 
 	public function get_all_providers( $context_posts = array() ) {
