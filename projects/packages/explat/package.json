@@ -18,7 +18,8 @@
 		"build": "pnpm run clean && pnpm run compile",
 		"compile": "webpack",
 		"clean": "rm -rf build/",
-		"test": "jest tests/client",
+		"test": "jest tests/client --passWithNoTests",
+		"test-coverage": "pnpm run test --coverage --coverageDirectory=\"$COVERAGE_DIR/js\" --coverageReporters=clover",
 		"watch": "pnpm run build --watch"
 	},
 	"devDependencies": {

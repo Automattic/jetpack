@@ -18,7 +18,8 @@
 		"eslint-changed": "bin/eslint-changed.js"
 	},
 	"scripts": {
-		"test": "NODE_OPTIONS=--experimental-vm-modules jest --config=tests/jest.config.cjs"
+		"test": "NODE_OPTIONS=--experimental-vm-modules jest --config=tests/jest.config.cjs",
+		"test-coverage": "pnpm run test --coverage --coverageDirectory=\"$COVERAGE_DIR/js\" --coverageReporters=clover"
 	},
 	"dependencies": {
 		"chalk": "5.0.1",

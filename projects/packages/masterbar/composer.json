@@ -39,6 +39,10 @@
 		],
 		"post-install-cmd": "WorDBless\\Composer\\InstallDropin::copy",
 		"post-update-cmd": "WorDBless\\Composer\\InstallDropin::copy",
+		"test-coverage": [
+			"pnpm run build-production",
+			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/php/clover.xml\""
+		],
 		"test-php": [
 			"pnpm run build-production",
 			"@composer phpunit"

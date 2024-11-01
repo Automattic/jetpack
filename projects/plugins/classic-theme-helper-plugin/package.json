@@ -18,7 +18,8 @@
 		"build-concurrently": "pnpm run clean && concurrently 'pnpm:build-client'",
 		"build-production-concurrently": "pnpm run clean && concurrently 'NODE_ENV=production BABEL_ENV=production pnpm run build-client' && pnpm run validate",
 		"clean": "rm -rf build/",
-		"test": "jest",
+		"test": "jest --passWithNoTests",
+		"test-coverage": "pnpm run test --coverage --coverageDirectory=\"$COVERAGE_DIR/js\" --coverageReporters=clover",
 		"validate": "pnpm exec validate-es build/",
 		"watch": "pnpm run build && webpack watch"
 	},

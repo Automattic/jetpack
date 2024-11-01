@@ -18,8 +18,7 @@
 		"build": "pnpm run clean && pnpm run build-client",
 		"build-client": "pnpm webpack --config webpack.config.js",
 		"clean": "rm -rf build/",
-		"watch": "pnpm run build && pnpm webpack watch",
-		"test": "jest --config=tests/jest.config.js"
+		"watch": "pnpm run build && pnpm webpack watch"
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",

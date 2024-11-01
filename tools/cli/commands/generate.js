@@ -639,6 +639,8 @@ function createPackageJson( packageJson, answers ) {
 		};
 		packageJson.scripts = {
 			test: 'jest tests',
+			'test-coverage':
+				'jest tests --coverage --collectCoverageFrom=\'src/**/*.js\' --coverageDirectory="$COVERAGE_DIR/js" --coverageReporters=clover',
 		};
 
 		packageJson.devDependencies.jest = findVersionFromPnpmLock( 'jest' );
@@ -759,6 +761,7 @@ async function createComposerJson( composerJson, answers ) {
 			delete composerJson[ 'require-dev' ][ 'yoast/phpunit-polyfills' ];
 			composerJson.scripts = {
 				'test-js': [ 'pnpm run test' ],
+				'test-coverage': [ 'pnpm run test-coverage' ],
 			};
 			if ( ! answers.typescript.endsWith( '-src' ) ) {
 				composerJson.scripts = {

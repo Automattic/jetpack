@@ -18,7 +18,8 @@
 		"build": "pnpm run clean && pnpm run compile-ts",
 		"clean": "rm -rf build/",
 		"compile-ts": "tsc --pretty",
-		"test": "jest"
+		"test": "jest",
+		"test-coverage": "pnpm run test --coverage --coverageDirectory=\"$COVERAGE_DIR/js\" --coverageReporters=clover"
 	},
 	"type": "module",
 	"devDependencies": {

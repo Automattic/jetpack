@@ -17,7 +17,8 @@
 		"build": "pnpm run clean && webpack",
 		"clean": "rm -rf build/",
 		"watch": "pnpm run build && pnpm webpack watch",
-		"test": "jest tests"
+		"test": "jest tests",
+		"test-coverage": "pnpm run test --coverage --coverageDirectory=\"$COVERAGE_DIR/js\" --coverageReporters=clover"
 	},
 	"dependencies": {
 		"@wordpress/i18n": "5.9.0",
