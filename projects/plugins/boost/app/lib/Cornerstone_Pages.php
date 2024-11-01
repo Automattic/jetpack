@@ -18,7 +18,7 @@ class Cornerstone_Pages implements Has_Setup {
 	}
 
 	public function register_ds_stores() {
-		$schema = Schema::as_array( Schema::as_string() )->fallback( self::default_pages() );
+		$schema = Schema::as_array( Schema::as_string() )->fallback( $this->default_pages() );
 		jetpack_boost_register_option( 'cornerstone_pages_list', $schema, new Cornerstone_Pages_Entry( 'cornerstone_pages_list' ) );
 		jetpack_boost_register_readonly_option( 'cornerstone_pages_properties', array( $this, 'get_properties' ) );
 	}

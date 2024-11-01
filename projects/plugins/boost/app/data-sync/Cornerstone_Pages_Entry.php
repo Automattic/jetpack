@@ -14,11 +14,12 @@ class Cornerstone_Pages_Entry implements Entry_Can_Get, Entry_Can_Set {
 		$this->option_key = 'jetpack_boost_ds_' . $option_key;
 	}
 
-	public function get( $fallback_value = false ) {
-		if ( $fallback_value !== false ) {
-			$urls = get_option( $this->option_key, $fallback_value );
-		} else {
-			$urls = get_option( $this->option_key );
+	public function get( $fallback_value = array() ) {
+		$urls = get_option( $this->option_key, array() );
+
+		if ( empty( $urls ) && ! empty( $fallback_value ) ) {
+			$urls = $fallback_value;
+			$this->set( $urls );
 		}
 
 		return array_map( array( $this, 'transform_to_absolute' ), $urls );
