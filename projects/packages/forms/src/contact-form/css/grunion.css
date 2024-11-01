@@ -594,7 +594,7 @@ on production builds, the attributes are being reordered, causing side-effects
 
 .contact-form .grunion-field-wrap input.checkbox-multiple:checked::before {
 	content: "\2713";
-	
+
 	position: absolute;
 	top: calc(var(--jetpack--contact-form--font-size) / 2);
 	left: calc(var(--jetpack--contact-form--font-size) / 2);
@@ -632,11 +632,6 @@ on production builds, the attributes are being reordered, causing side-effects
 	color: var(--jetpack--contact-form--button-outline--text-color);
 
 	line-height: var(--jetpack--contact-form--button-outline--line-height);
-}
-
-.contact-form .grunion-field-wrap.grunion-field-checkbox-multiple-wrap.is-style-button-wrap .contact-form-field,
-.contact-form .grunion-field-wrap.is-style-button-wrap .grunion-checkbox-multiple-label {
-	color: var(--jetpack--contact-form--button-outline--text-color);
 }
 
 .contact-form .grunion-field-wrap.is-style-button-wrap .grunion-field.radio.is-style-button {

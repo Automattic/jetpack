@@ -104,7 +104,6 @@ window.jetpackForms.generateStyleVariables = function ( formNode ) {
 		return contrastRatio( rgbStr1, rgbStr2 ) < threshold;
 	}
 
-	// This provides a fallback for the button outline text color when the button outline background color is the same as the text color.
 	let safeButtonOutlineBackgroundColor = buttonOutlineBackgroundColor;
 
 	// What we're doing here is checking if the text color and background color of the button have a low contrast ratio. If they do, provide a background color that has a higher contrast ratio with the text color.
@@ -172,7 +171,7 @@ window.jetpackForms.generateStyleVariables = function ( formNode ) {
 		'--jetpack--contact-form--button-primary--border-color': buttonPrimaryBorderColor,
 		'--jetpack--contact-form--button-outline--padding': buttonOutlinePadding,
 		'--jetpack--contact-form--button-outline--border': buttonOutlineBorder,
-		'--jetpack--contact-form--button-outline--background-color': safeButtonOutlineBackgroundColor, // safeButtonOutlineBackgroundColor,
+		'--jetpack--contact-form--button-outline--background-color': safeButtonOutlineBackgroundColor,
 		'--jetpack--contact-form--button-outline--background-color-fallback':
 			buttonOutlineBackgroundColorFallback,
 		'--jetpack--contact-form--button-outline--border-size': buttonOutlineBorderSize,
