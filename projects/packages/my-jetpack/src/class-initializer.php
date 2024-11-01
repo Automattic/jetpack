@@ -203,27 +203,6 @@ class Initializer {
 	}
 
 	/**
-	 * Gets a purchase token that is used for Jetpack logged out visitor checkout.
-	 * The purchase token should be appended to all CTA url's that lead to checkout.
-	 *
-	 * @return string|boolean
-	 */
-	protected static function get_purchase_token() {
-		if ( ! self::current_user_can_purchase() ) {
-			return false;
-		}
-
-		$purchase_token = \Jetpack_Options::get_option( 'purchase_token', false );
-
-		if ( $purchase_token ) {
-			return $purchase_token;
-		}
-		// If the purchase token is not saved in the options table yet, then add it.
-		\Jetpack_Options::update_option( 'purchase_token', self::generate_purchase_token(), true );
-		return \Jetpack_Options::get_option( 'purchase_token', false );
-	}
-
-	/**
 	 * Enqueue admin page assets.
 	 *
 	 * @return void
@@ -287,7 +266,6 @@ class Initializer {
 				'loadAddLicenseScreen'   => self::is_licensing_ui_enabled(),
 				'adminUrl'               => esc_url( admin_url() ),
 				'IDCContainerID'         => static::get_idc_container_id(),
-				'purchaseToken'          => self::get_purchase_token(),
 				'userIsAdmin'            => current_user_can( 'manage_options' ),
 				'userIsNewToJetpack'     => self::is_jetpack_user_new(),
 				'lifecycleStats'         => array(
@@ -989,28 +967,5 @@ class Initializer {
 		}
 
 		return $red_bubble_slugs;
-	}
-
-	/**
-	 * Generates a purchase token that is used for Jetpack logged out visitor checkout.
-	 *
-	 * @return string
-	 */
-	protected static function generate_purchase_token() {
-		return wp_generate_password( 12, false );
-	}
-
-	/**
-	 * Determine if the current user is allowed to make Jetpack purchases.
-	 *
-	 * @return boolean True if the user can make purchases, false if not
-	 */
-	public static function current_user_can_purchase() {
-		// Make sure only administrators can make purchases.
-		if ( ! current_user_can( 'manage_options' ) ) {
-			return false;
-		}
-
-		return true;
 	}
 }

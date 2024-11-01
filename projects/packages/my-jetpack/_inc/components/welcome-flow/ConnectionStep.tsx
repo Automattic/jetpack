@@ -35,10 +35,10 @@ const ConnectionStep = ( {
 	const { recordEvent } = useAnalytics();
 	const { setNotice, resetNotice } = useContext( NoticeContext );
 
-	const { purchaseToken, siteUrl, adminUrl } = getMyJetpackWindowInitialState();
+	const { siteUrl, adminUrl } = getMyJetpackWindowInitialState();
 	const redirectUri = `?redirect_uri=${ encodeURIComponent( window.location.href ) }`;
 	const connectAfterCheckoutUrl = `&connect_after_checkout=true&from_site_slug=${ siteUrl }&admin_url=${ adminUrl }`;
-	const query = `${ redirectUri }${ purchaseToken }${ connectAfterCheckoutUrl }`;
+	const query = `${ redirectUri }${ connectAfterCheckoutUrl }`;
 	const jetpackPlansPath = getRedirectUrl( 'jetpack-nav-plans-no-site', { query } );
 
 	const activationButtonLabel = __( 'Activate Jetpack in one click', 'jetpack-my-jetpack' );
