@@ -39,7 +39,7 @@ const ConnectionStep = ( {
 	const redirectUri = `?redirect_uri=${ encodeURIComponent( window.location.href ) }`;
 	const connectAfterCheckoutUrl = `&connect_after_checkout=true&from_site_slug=${ siteUrl }&admin_url=${ adminUrl }`;
 	const query = `${ redirectUri }${ purchaseToken }${ connectAfterCheckoutUrl }`;
-	const jetpackPlansPath = getRedirectUrl( 'jetpack-plans', { query } );
+	const jetpackPlansPath = getRedirectUrl( 'jetpack-nav-plans-no-site', { query } );
 
 	const activationButtonLabel = __( 'Activate Jetpack in one click', 'jetpack-my-jetpack' );
 	const { refetch: refetchOwnershipData } = useProductsByOwnership();
