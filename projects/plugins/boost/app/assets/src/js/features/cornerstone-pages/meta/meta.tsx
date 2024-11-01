@@ -25,6 +25,13 @@ const Meta = () => {
 	const isPremium = premiumFeatures.includes( 'support' );
 	const navigate = useNavigate();
 
+	const toggleExpanded = ( newValue: boolean ) => {
+		recordBoostEvent( 'cornerstone_pages_show_options_toggle', {
+			status: newValue ? 'open' : 'close',
+		} );
+		setIsExpanded( newValue );
+	};
+
 	const updateCornerstonePages = ( newValue: string ) => {
 		const newItems = newValue.split( '\n' ).map( line => line.trim() );
 
@@ -137,7 +144,7 @@ const Meta = () => {
 						weight="regular"
 						iconSize={ 16 }
 						icon={ isExpanded ? <ChevronUp /> : <ChevronDown /> }
-						onClick={ () => setIsExpanded( ! isExpanded ) }
+						onClick={ () => toggleExpanded( ! isExpanded ) }
 					>
 						{ __( 'Show Options', 'jetpack-boost' ) }
 					</Button>
@@ -223,6 +230,9 @@ const List: React.FC< ListProps > = ( { items, setItems, maxItems, description }
 
 	function save() {
 		setItems( inputValue );
+		recordBoostEvent( 'cornerstone_pages_save', {
+			list_length: inputValue.split( '\n' ).length,
+		} );
 	}
 
 	return (
