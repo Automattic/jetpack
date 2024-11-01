@@ -15,7 +15,7 @@ const CornerstonePages = () => {
 			description={
 				<p>
 					{ __(
-						'List the most important pages of your site. They will be optimized. The Page Speed scores are based on the first cornerstone page.',
+						'List the most important pages of your site. These pages will receive specially tailored optimizations, including targeted critical CSS. The Page Speed scores are based on the first cornerstone page.',
 						'jetpack-boost'
 					) }
 				</p>
