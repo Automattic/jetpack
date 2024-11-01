@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Fixed dataviews styles imported in share status being added globally

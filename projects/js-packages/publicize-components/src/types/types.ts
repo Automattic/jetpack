@@ -1,3 +1,9 @@
+import { SocialImageGeneratorConfig } from '../social-store/types';
+
+export interface SocialUrls {
+	connectionsManagementPage: string;
+}
+
 export type SharesData = {
 	to_be_publicized_count: number;
 	publicized_count: number;
@@ -25,12 +31,18 @@ export interface ApiPaths {
 	resharePost: string;
 }
 
+export type SocialSettings = {
+	socialImageGenerator: SocialImageGeneratorConfig;
+};
+
 export interface SocialScriptData {
 	api_paths: ApiPaths;
 	is_publicize_enabled: boolean;
 	feature_flags: FeatureFlags;
 	supported_services: Array< ConnectionService >;
 	shares_data: SharesData;
+	urls: SocialUrls;
+	settings: SocialSettings;
 }
 
 type JetpackSettingsSelectors = {
@@ -42,32 +54,16 @@ type JetpackSettingsSelectors = {
 	isModuleEnabled: () => boolean;
 	showPricingPage: () => boolean;
 	isUpdatingJetpackSettings: () => boolean;
-	hasPaidPlan: () => boolean;
 };
 
 type ConnectionDataSelectors = {
 	getConnections: () => Array< object >;
-	getConnectionsAdminUrl: () => string;
 	hasConnections: () => boolean;
 };
 
 type SiteDataSelectors = {
 	getSiteData: () => Array< object >;
 	getSiteTitle: () => string;
-};
-
-type SocialImageGeneratorSettingsSelectors = {
-	getSocialImageGeneratorSettings: () => {
-		available: boolean;
-		enabled: boolean;
-		defaults: () => {
-			template: string;
-		};
-	};
-	isSocialImageGeneratorAvailable: () => boolean;
-	isSocialImageGeneratorEnabled: () => boolean;
-	isUpdatingSocialImageGeneratorSettings: () => boolean;
-	getSocialImageGeneratorDefaultTemplate: () => string;
 };
 
 /**
@@ -77,5 +73,4 @@ type SocialImageGeneratorSettingsSelectors = {
  */
 export type SocialStoreSelectors = JetpackSettingsSelectors &
 	ConnectionDataSelectors &
-	SiteDataSelectors &
-	SocialImageGeneratorSettingsSelectors;
+	SiteDataSelectors;

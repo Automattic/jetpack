@@ -1,5 +1,6 @@
 import { Text, Button, useBreakpointMatch } from '@automattic/jetpack-components';
 import { store as socialStore } from '@automattic/jetpack-publicize-components';
+import { getAdminUrl } from '@automattic/jetpack-script-data';
 import { ExternalLink, SelectControl, ToggleControl } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
@@ -29,16 +30,17 @@ const handleStateUpdating = ( updateFunction, updatingStateSetter, ...args ) => 
 };
 
 const SocialNotesToggle: React.FC< SocialNotesToggleProps > = ( { disabled } ) => {
-	const { isEnabled, notesConfig, newNoteUrl } = useSelect( select => {
+	const { isEnabled, notesConfig } = useSelect( select => {
 		const store = select( socialStore );
 		return {
 			isEnabled: store.isSocialNotesEnabled(),
 			notesConfig: store.getSocialNotesConfig(),
-			newNoteUrl: `${ store.getAdminUrl() }post-new.php?post_type=jetpack-social-note`,
 			// Temporarily we disable forever after action to wait for the page to reload.
 			// isUpdating: store.isSocialNotesSettingsUpdating(),
 		};
 	}, [] );
+
+	const newNoteUrl = getAdminUrl( 'post-new.php?post_type=jetpack-social-note' );
 
 	const [ isUpdating, setIsUpdating ] = useState( false );
 	const [ isAppendLinkToggleUpdating, setIsAppendLinkToggleUpdating ] = useState( false );
@@ -123,6 +125,7 @@ const SocialNotesToggle: React.FC< SocialNotesToggleProps > = ( { disabled } ) =
 						className={ styles.toggle }
 						onChange={ onToggleAppendLink }
 						help={ __( 'Whether to append the post link when sharing a note.', 'jetpack-social' ) }
+						__nextHasNoMarginBottom={ true }
 					/>
 					{ appendLink && ! isAppendLinkToggleUpdating ? (
 						<SelectControl
@@ -147,6 +150,7 @@ const SocialNotesToggle: React.FC< SocialNotesToggleProps > = ( { disabled } ) =
 									</ExternalLink>
 								</span>
 							}
+							__nextHasNoMarginBottom={ true }
 						/>
 					) : null }
 				</div>

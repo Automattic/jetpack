@@ -8,6 +8,7 @@
 		"build-production-js": "NODE_ENV=production BABEL_ENV=production pnpm run build-js",
 		"clean": "rm -rf build",
 		"test": "jest tests",
+		"test-coverage": "pnpm run test --coverage --collectCoverageFrom='src/**/*.js' --coverageDirectory=\"$COVERAGE_DIR/js\" --coverageReporters=clover",
 		"validate": "pnpm exec validate-es build/"
 	},
 	"dependencies": {

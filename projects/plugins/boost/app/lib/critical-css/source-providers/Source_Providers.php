@@ -4,6 +4,7 @@ namespace Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers;
 
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Storage;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Providers\Archive_Provider;
+use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Providers\Cornerstone_Provider;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Providers\Post_ID_Provider;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Providers\Provider;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Providers\Singular_Post_Provider;
@@ -42,6 +43,7 @@ class Source_Providers {
 		Singular_Post_Provider::class,
 		Archive_Provider::class,
 		Taxonomy_Provider::class,
+		Cornerstone_Provider::class,
 	);
 
 	public function get_providers() {
@@ -113,10 +115,10 @@ class Source_Providers {
 	 *
 	 * @return array
 	 */
-	public function get_provider_sources() {
+	public function get_provider_sources( $context_posts = array() ) {
 		$sources = array();
 
-		$wp_core_provider_urls = WP_Core_Provider::get_critical_source_urls();
+		$wp_core_provider_urls = WP_Core_Provider::get_critical_source_urls( $context_posts );
 		$flat_wp_core_urls     = array();
 		foreach ( $wp_core_provider_urls as $urls ) {
 			$flat_wp_core_urls = array_merge( $flat_wp_core_urls, $urls );
@@ -127,14 +129,14 @@ class Source_Providers {
 
 			// For each provider,
 			// Gather a list of URLs that are going to be used as Critical CSS source.
-			foreach ( $provider::get_critical_source_urls() as $group => $urls ) {
+			foreach ( $provider::get_critical_source_urls( $context_posts ) as $group => $urls ) {
 				if ( empty( $urls ) ) {
 					continue;
 				}
 
 				// This removes the home and blog pages from the list of pages,
 				// so they don't belong to two separate groups.
-				if ( $provider !== WP_Core_Provider::class ) {
+				if ( ! in_array( $provider, array( WP_Core_Provider::class, Cornerstone_Provider::class ), true ) ) {
 					$urls = array_values( array_diff( $urls, $flat_wp_core_urls ) );
 				}
 
@@ -146,25 +148,31 @@ class Source_Providers {
 
 				$key = $provider_name . '_' . $group;
 
-				// For each URL
+				// For each provider
 				// Track the state and errors in a state array.
 				$sources[] = array(
 					'key'           => $key,
 					'label'         => $provider::describe_key( $key ),
 					/**
-					 * Filters the URLs used by Critical CSS
+					 * Filters the URLs used by Critical CSS for each provider.
 					 *
 					 * @param array $urls The list of URLs to be used to generate critical CSS
-					 *
+					 * @param string $provider The provider name.
 					 * @since   1.0.0
 					 */
-					'urls'          => apply_filters( 'jetpack_boost_critical_css_urls', $urls ),
+					'urls'          => apply_filters( 'jetpack_boost_critical_css_urls', $urls, $provider ),
 					'success_ratio' => $provider::get_success_ratio(),
 				);
 			}
 		}
 
-		return $sources;
+		/**
+		 * Filters the list of Critical CSS source providers.
+		 *
+		 * @param array $sources The list of Critical CSS source providers.
+		 * @since $$next-version$$
+		 */
+		return apply_filters( 'jetpack_boost_critical_css_providers', $sources );
 	}
 
 	/**

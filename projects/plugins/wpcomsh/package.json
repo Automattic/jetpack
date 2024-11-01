@@ -29,6 +29,7 @@
 		"build-production-js": "echo 'Not implemented.'",
 		"clean": "true",
 		"test": "jest --bail --ci --verbose",
-		"test:watch": "jest --verbose --watchAll"
+		"test:watch": "jest --verbose --watchAll",
+		"test-coverage": "pnpm run test --coverage --coverageDirectory=\"$COVERAGE_DIR/js\" --coverageReporters=clover"
 	}
 }

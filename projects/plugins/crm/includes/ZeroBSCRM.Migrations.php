@@ -1254,6 +1254,13 @@ function zeroBSCRM_migration_invoice_language_fixes() {
  * From Gh Issue 3465, this migration increases the city field size to 200 chars
  */
 function zeroBSCRM_migration_gh3465_increase_city_field_size() {
+
+	// SQLite doesn't support column modification.
+	$db_engine = jpcrm_database_engine();
+	if ( $db_engine === 'sqlite' ) {
+		return;
+	}
+
 	global $wpdb, $ZBSCRM_t; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 	$sql = 'ALTER TABLE ' . $ZBSCRM_t['contacts'] . ' MODIFY COLUMN `zbsc_city` VARCHAR(200);'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase

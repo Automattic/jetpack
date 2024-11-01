@@ -25,35 +25,26 @@ export function tooltipsPlugin( periods ) {
 		if ( ! reactDom ) {
 			reactDom = ReactDOM.createRoot( reactRoot );
 		}
-		reactRoot.style.position = 'absolute';
-		reactRoot.style.bottom = -20 + 'px';
-		reactRoot.style.translate = '-50% calc( 100% - 20px )';
-		reactRoot.style.zIndex = '1000';
+		reactRoot.classList.add( 'jb-score-tooltip-react-root' );
 
 		container.appendChild( reactRoot );
 
 		u.over.appendChild( container );
 
-		/**
-		 * Hides all tooltips.
-		 */
-		function hideTips() {
-			reactRoot.style.display = 'none';
-		}
-
-		/**
-		 * Shows all tooltips.
-		 */
-		function showTips() {
-			reactRoot.style.display = null;
-		}
-
-		container.addEventListener( 'mouseleave', () => {
-			hideTips();
+		u.over.addEventListener( 'mouseenter', () => {
+			container.classList.add( 'visible' );
 		} );
 
-		container.addEventListener( 'mouseenter', () => {
-			showTips();
+		u.over.addEventListener( 'mouseleave', () => {
+			container.classList.remove( 'visible' );
+		} );
+
+		reactRoot.addEventListener( 'mouseenter', () => {
+			reactRoot.classList.add( 'visible' );
+		} );
+
+		reactRoot.addEventListener( 'mouseleave', () => {
+			reactRoot.classList.remove( 'visible' );
 		} );
 	}
 
@@ -62,7 +53,7 @@ export function tooltipsPlugin( periods ) {
 	 * @param {uPlot} u - The uPlot instance.
 	 */
 	function setSize( u: uPlot ) {
-		container.style.height = u.over.clientHeight + 'px';
+		container.style.paddingTop = u.over.clientHeight + 'px';
 	}
 
 	/**
@@ -74,6 +65,10 @@ export function tooltipsPlugin( periods ) {
 		const { idx } = u.cursor;
 
 		const period = periods[ idx ];
+
+		if ( ! period ) {
+			return;
+		}
 
 		// Timestamp of the cursor position
 		const timestamp = u.data[ 0 ][ idx ];

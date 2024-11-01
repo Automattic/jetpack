@@ -377,6 +377,12 @@
 			}
 		}
 
+		function makeGalleryImageAccessible( img ) {
+			img.role = 'button';
+			img.tabIndex = 0;
+			img.ariaLabel = jetpackCarouselStrings.image_label;
+		}
+
 		function initializeCarousel() {
 			if ( ! carousel.overlay ) {
 				carousel.overlay = document.querySelector( '.jp-carousel-overlay' );
@@ -734,6 +740,8 @@
 				if ( ! valid ) {
 					return;
 				}
+
+				makeGalleryImageAccessible( image );
 
 				// Make this node a gallery recognizable by event listener above.
 				link.classList.add( 'single-image-gallery' );
@@ -1579,6 +1587,11 @@
 		// Register the event listeners for starting the gallery
 		document.body.addEventListener( 'click', handleInteraction );
 		document.body.addEventListener( 'keydown', handleInteraction );
+		document.querySelectorAll( galleryItemSelector + 'img' ).forEach( function ( galleryImage ) {
+			if ( shouldOpenModal( galleryImage ) ) {
+				makeGalleryImageAccessible( galleryImage );
+			}
+		} );
 
 		function handleInteraction( e ) {
 			if ( e.type === 'click' ) {
@@ -1596,6 +1609,47 @@
 					return;
 				}
 			}
+		}
+
+		function shouldOpenModal( el ) {
+			var parent = el.parentElement;
+			var grandparent = parent.parentElement;
+
+			// If Gallery is made up of individual Image blocks check for custom link before
+			// loading carousel. The custom link may be the parent or could be a descendant
+			// of the parent if the image has rounded corners.
+			var parentHref = null;
+			if ( grandparent && grandparent.classList.contains( 'wp-block-image' ) ) {
+				parentHref = parent.getAttribute( 'href' );
+			} else if (
+				parent &&
+				parent.classList.contains( 'wp-block-image' ) &&
+				parent.querySelector( ':scope > a' )
+			) {
+				parentHref = parent.querySelector( ':scope > a' ).getAttribute( 'href' );
+			}
+
+			// If the link does not point to the attachment or media file then assume Image has
+			// a custom link so don't load the carousel.
+			if (
+				parentHref &&
+				parentHref.split( '?' )[ 0 ] !== el.getAttribute( 'data-orig-file' ).split( '?' )[ 0 ] &&
+				parentHref !== el.getAttribute( 'data-permalink' )
+			) {
+				return false;
+			}
+
+			// Do not open the modal if we are looking at a gallery caption from before WP5, which may contain a link.
+			if ( parent.classList.contains( 'gallery-caption' ) ) {
+				return false;
+			}
+
+			// Do not open the modal if we are looking at a caption of a gallery block, which may contain a link.
+			if ( domUtil.matches( parent, 'figcaption' ) ) {
+				return false;
+			}
+
+			return true;
 		}
 
 		function handleClick( e ) {
@@ -1616,41 +1670,7 @@
 					return;
 				}
 
-				var parent = target.parentElement;
-				var grandparent = parent.parentElement;
-
-				// If Gallery is made up of individual Image blocks check for custom link before
-				// loading carousel. The custom link may be the parent or could be a descendant
-				// of the parent if the image has rounded corners.
-				var parentHref = null;
-				if ( grandparent && grandparent.classList.contains( 'wp-block-image' ) ) {
-					parentHref = parent.getAttribute( 'href' );
-				} else if (
-					parent &&
-					parent.classList.contains( 'wp-block-image' ) &&
-					parent.querySelector( ':scope > a' )
-				) {
-					parentHref = parent.querySelector( ':scope > a' ).getAttribute( 'href' );
-				}
-
-				// If the link does not point to the attachment or media file then assume Image has
-				// a custom link so don't load the carousel.
-				if (
-					parentHref &&
-					parentHref.split( '?' )[ 0 ] !==
-						target.getAttribute( 'data-orig-file' ).split( '?' )[ 0 ] &&
-					parentHref !== target.getAttribute( 'data-permalink' )
-				) {
-					return;
-				}
-
-				// Do not open the modal if we are looking at a gallery caption from before WP5, which may contain a link.
-				if ( parent.classList.contains( 'gallery-caption' ) ) {
-					return;
-				}
-
-				// Do not open the modal if we are looking at a caption of a gallery block, which may contain a link.
-				if ( domUtil.matches( parent, 'figcaption' ) ) {
+				if ( ! shouldOpenModal( target ) ) {
 					return;
 				}
 

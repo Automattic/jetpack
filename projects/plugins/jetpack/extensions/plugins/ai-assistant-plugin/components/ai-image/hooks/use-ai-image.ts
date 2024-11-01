@@ -1,7 +1,12 @@
 /**
  * External dependencies
  */
-import { useImageGenerator } from '@automattic/jetpack-ai-client';
+import {
+	useImageGenerator,
+	ImageStyleObject,
+	ImageStyle,
+	askQuestionSync,
+} from '@automattic/jetpack-ai-client';
 import { useDispatch } from '@wordpress/data';
 import { useCallback, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -16,6 +21,12 @@ import useSaveToMediaLibrary from '../../../hooks/use-save-to-media-library';
  */
 import { FEATURED_IMAGE_FEATURE_NAME, GENERAL_IMAGE_FEATURE_NAME } from '../types';
 import type { CarrouselImageData, CarrouselImages } from '../components/carrousel';
+import type { RoleType } from '@automattic/jetpack-ai-client';
+import type { FeatureControl } from 'extensions/store/wordpress-com/types.js';
+
+type ImageFeatureControl = FeatureControl & {
+	styles: Array< ImageStyleObject > | [];
+};
 
 type AiImageType = 'featured-image-generation' | 'general-image-generation';
 type AiImageFeature = typeof FEATURED_IMAGE_FEATURE_NAME | typeof GENERAL_IMAGE_FEATURE_NAME;
@@ -40,6 +51,10 @@ export default function useAiImage( {
 	const pointer = useRef( 0 );
 	const [ current, setCurrent ] = useState( 0 );
 	const [ images, setImages ] = useState< CarrouselImages >( [ { generating: autoStart } ] );
+
+	const { featuresControl } = useAiFeature();
+	const imageFeatureControl = featuresControl?.image as ImageFeatureControl;
+	const imageStyles: Array< ImageStyleObject > = imageFeatureControl?.styles;
 
 	/* Merge the image data with the new data. */
 	const updateImages = useCallback( ( data: CarrouselImageData, index ) => {
@@ -93,10 +108,12 @@ export default function useAiImage( {
 			userPrompt,
 			postContent,
 			notEnoughRequests,
+			style = null,
 		}: {
 			userPrompt?: string | null;
 			postContent?: string | null;
 			notEnoughRequests: boolean;
+			style?: string;
 		} ) => {
 			return new Promise( ( resolve, reject ) => {
 				updateImages( { generating: true, error: null }, pointer.current );
@@ -130,9 +147,11 @@ export default function useAiImage( {
 								type,
 								request: userPrompt ? userPrompt : null,
 								content: postContent,
+								style,
 							},
 						},
 					],
+					style: style || '',
 				} );
 
 				const name = getImageNameSuggestion( userPrompt );
@@ -190,6 +209,42 @@ export default function useAiImage( {
 		setCurrent( Math.min( current + 1, images.length - 1 ) );
 	}, [ current, images.length ] );
 
+	const guessStyle = useCallback(
+		async function ( prompt: string ): Promise< ImageStyle | null > {
+			if ( ! imageStyles || ! imageStyles.length ) {
+				return null;
+			}
+
+			const messages = [
+				{
+					role: 'jetpack-ai' as RoleType,
+					context: {
+						type: 'general-image-guess-style',
+						request: prompt,
+					},
+				},
+			];
+
+			try {
+				const style = await askQuestionSync( messages, { feature: 'jetpack-ai-image-generator' } );
+
+				if ( ! style ) {
+					return null;
+				}
+				const styleObject = imageStyles.find( ( { value } ) => value === style );
+
+				if ( ! styleObject ) {
+					return null;
+				}
+
+				return styleObject.value;
+			} catch ( error ) {
+				Promise.reject( error );
+			}
+		},
+		[ imageStyles ]
+	);
+
 	return {
 		current,
 		setCurrent,
@@ -200,5 +255,7 @@ export default function useAiImage( {
 		currentPointer: images[ pointer.current ],
 		images,
 		pointer,
+		imageStyles,
+		guessStyle,
 	};
 }

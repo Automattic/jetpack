@@ -25,7 +25,7 @@ export type ConnectionData = {
 	connections: Connection[];
 	deletingConnections?: Array< number | string >;
 	updatingConnections?: Array< number | string >;
-	reconnectingAccount?: string;
+	reconnectingAccount?: Connection;
 	keyringResult?: KeyringResult;
 };
 
@@ -67,8 +67,6 @@ export type ShareStatus = {
 // TODO we should have a consistent structure across all the pages - editor, dashboard, admin page etc.
 export type SocialStoreState = {
 	connectionData: ConnectionData;
-	// on post editor
-	hasPaidPlan?: boolean;
 	// on Jetack Social admin page
 	jetpackSettings?: JetpackSettings;
 	shareStatus?: ShareStatus;
@@ -88,6 +86,15 @@ export interface KeyringResult extends KeyringAdditionalUser {
 	service: string;
 	status: ConnectionStatus;
 }
+
+export type SocialImageGeneratorConfig = {
+	enabled: boolean;
+	template?: string;
+};
+
+export type SocialSettingsFields = {
+	jetpack_social_image_generator_settings: SocialImageGeneratorConfig;
+};
 
 declare global {
 	interface Window {

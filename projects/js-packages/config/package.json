@@ -14,7 +14,8 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"scripts": {
-		"test": "jest"
+		"test": "jest",
+		"test-coverage": "pnpm run test --coverageDirectory=\"$COVERAGE_DIR/js\" --coverage --coverageReporters=clover"
 	},
 	"devDependencies": {
 		"jest": "29.7.0",
