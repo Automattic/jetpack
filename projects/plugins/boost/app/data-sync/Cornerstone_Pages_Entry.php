@@ -40,7 +40,7 @@ class Cornerstone_Pages_Entry implements Entry_Can_Get, Entry_Can_Set {
 
 	private function sanitize_value( $value ) {
 		if ( is_array( $value ) ) {
-			$value = array_values( array_unique( array_filter( array_map( array( $this, 'transform_to_relative' ), $value ) ) ) );
+			$value = array_values( array_unique( array_map( array( $this, 'transform_to_relative' ), $value ) ) );
 		} else {
 			$value = array();
 		}
@@ -57,8 +57,10 @@ class Cornerstone_Pages_Entry implements Entry_Can_Get, Entry_Can_Set {
 		}
 
 		// Ensure the URL starts with a slash.
-		$url = ltrim( $url, '/' );
-		$url = '/' . $url;
+		if ( $url !== '' ) {
+			$url = ltrim( $url, '/' );
+			$url = '/' . $url;
+		}
 
 		return $url;
 	}
