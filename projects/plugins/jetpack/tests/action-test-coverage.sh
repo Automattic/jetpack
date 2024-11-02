@@ -16,8 +16,8 @@ TESTS=()
 TESTS[php-normal]="php -dpcov.directory=. \"$(command -v phpunit)\" --coverage-php \"$COVERAGE_DIR/backend/php.cov\""
 TESTS[php-lfs]="WP_TESTS_CONFIG_FILE_PATH=\"${WP_TESTS_CONFIG_FILE_PATH%.php}.lfs.php\" LEGACY_FULL_SYNC=1 php -dpcov.directory=. \"$(command -v phpunit)\" --group=legacy-full-sync --coverage-php \"$COVERAGE_DIR/legacy-sync/php.cov\""
 TESTS[php-multisite]="WP_TESTS_CONFIG_FILE_PATH=\"${WP_TESTS_CONFIG_FILE_PATH%.php}.multi.php\" WP_MULTISITE=1 php -dpcov.directory=. \"$(command -v phpunit)\" -c tests/php.multisite.xml --coverage-php \"$COVERAGE_DIR/multisite/php.cov\""
-TESTS[client]="pnpm run test-client --coverage --coverageDirectory=\"$COVERAGE_DIR/client\" --coverageReporters=json"
-TESTS[gui]="pnpm run test-gui --coverage --coverageDirectory=\"$COVERAGE_DIR/client\" --coverageReporters=json"
-TESTS[extensions]="pnpm run test-extensions --coverage --coverageDirectory=\"$COVERAGE_DIR/client\" --coverageReporters=json"
+TESTS[client]="pnpm run test-client --coverage"
+TESTS[gui]="pnpm run test-gui --coverage"
+TESTS[extensions]="pnpm run test-extensions --coverage"
 
 pnpm exec concurrently --kill-others-on-fail --max-processes '100%' --names "$( IFS=,; echo "${!TESTS[*]}" )" "${TESTS[@]}"

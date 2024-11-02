@@ -30,6 +30,6 @@
 		"clean": "true",
 		"test": "jest --bail --ci --verbose --config=tests/jest.config.cjs",
 		"test:watch": "jest --verbose --watchAll --config=tests/jest.config.cjs",
-		"test-coverage": "pnpm run test --coverage --coverageDirectory=\"$COVERAGE_DIR\" --coverageReporters=json"
+		"test-coverage": "pnpm run test --coverage"
 	}
 }

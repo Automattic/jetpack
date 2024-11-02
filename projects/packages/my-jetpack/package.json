@@ -20,7 +20,7 @@
 		"clean": "rm -rf build/",
 		"watch": "pnpm run build && pnpm webpack watch",
 		"test": "jest --config=tests/jest.config.js",
-		"test-coverage": "pnpm run test --coverage --coverageDirectory=\"$COVERAGE_DIR\" --coverageReporters=json"
+		"test-coverage": "pnpm run test --coverage"
 	},
 	"dependencies": {
 		"@automattic/format-currency": "1.0.1",

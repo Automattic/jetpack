@@ -1,5 +1,7 @@
 // Fairly standard set of inclusions.
 module.exports = {
+	coverageDirectory: process.env.COVERAGE_DIR ?? '/',
+	coverageReporters: [ 'json' ],
 	collectCoverageFrom: [
 		// If you have directories other than src/ with JS files, repeat this as appropriate.
 		'<rootDir>/src/**/*.{js,mjs,cjs,jsx,ts,tsx,mts,cts}',

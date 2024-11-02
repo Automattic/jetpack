@@ -639,8 +639,7 @@ function createPackageJson( packageJson, answers ) {
 		};
 		packageJson.scripts = {
 			test: 'jest --config=tests/jest.config.cjs',
-			'test-coverage':
-				'pnpm run test --coverage --coverageDirectory="$COVERAGE_DIR" --coverageReporters=json',
+			'test-coverage': 'pnpm run test --coverage',
 		};
 
 		packageJson.devDependencies.jest = findVersionFromPnpmLock( 'jest' );

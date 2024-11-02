@@ -15,7 +15,7 @@
 	"author": "Automattic",
 	"scripts": {
 		"test": "jest",
-		"test-coverage": "pnpm run test --coverage --coverageDirectory=\"$COVERAGE_DIR\" --coverageReporters=json"
+		"test-coverage": "pnpm run test --coverage"
 	},
 	"devDependencies": {
 		"jest": "29.7.0",

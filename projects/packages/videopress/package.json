@@ -21,7 +21,7 @@
 		"validate": "pnpm exec validate-es build/",
 		"watch": "pnpm build && pnpm build-client --watch",
 		"test": "NODE_OPTIONS=--experimental-vm-modules jest",
-		"test-coverage": "pnpm run test --coverage --coverageDirectory=\"$COVERAGE_DIR\" --coverageReporters=json"
+		"test-coverage": "pnpm run test --coverage"
 	},
 	"devDependencies": {
 		"@automattic/calypso-color-schemes": "3.1.3",

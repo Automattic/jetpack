@@ -19,7 +19,7 @@
 		"compile": "webpack",
 		"clean": "rm -rf build/",
 		"test": "jest --config=tests/jest.config.cjs --passWithNoTests",
-		"test-coverage": "pnpm run test --coverage --coverageDirectory=\"$COVERAGE_DIR\" --coverageReporters=json",
+		"test-coverage": "pnpm run test --coverage",
 		"watch": "pnpm run build --watch"
 	},
 	"devDependencies": {

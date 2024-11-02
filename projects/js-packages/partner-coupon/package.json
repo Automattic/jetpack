@@ -17,7 +17,7 @@
 	"type": "module",
 	"scripts": {
 		"test": "NODE_OPTIONS=--experimental-vm-modules jest",
-		"test-coverage": "pnpm run test --coverage --coverageDirectory=\"$COVERAGE_DIR\" --coverageReporters=json"
+		"test-coverage": "pnpm run test --coverage"
 	},
 	"devDependencies": {
 		"@automattic/jetpack-analytics": "workspace:*",
