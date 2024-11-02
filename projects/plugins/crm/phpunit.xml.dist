@@ -3,6 +3,7 @@
   <coverage processUncoveredFiles="false">
     <include>
       <file>ZeroBSCRM.php</file>
+      <directory suffix=".php">admin</directory>
       <directory suffix=".php">api</directory>
       <directory suffix=".php">includes</directory>
       <directory suffix=".php">modules</directory>
