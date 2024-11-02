@@ -12,7 +12,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/autoloader",
-                "reference": "b1c5d97a3530a17cbfda5364bddfd5643e133a63"
+                "reference": "55bb380d5cde3e6bcb2f76cfa57c3cabeaf7abce"
             },
             "require": {
                 "composer-plugin-api": "^1.1 || ^2.0",
@@ -52,7 +52,7 @@
                 ],
                 "test-coverage": [
                     "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"./tests/php/tmp/coverage-report.php\"",
-                    "php ./tests/php/bin/test-coverage.php \"$COVERAGE_DIR/php/clover.xml\""
+                    "php ./tests/php/bin/test-coverage.php \"$COVERAGE_DIR/php.cov\""
                 ],
                 "test-php": [
                     "@composer phpunit"
