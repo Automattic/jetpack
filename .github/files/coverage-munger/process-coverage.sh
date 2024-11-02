@@ -20,12 +20,12 @@ trap 'rm -rf "$TMP_DIR"' exit
 echo "::group::Combining PHP coverage"
 composer --working-dir="$BASE" update
 "$BASE"/vendor/bin/phpcov merge --php artifacts/php-combined.cov coverage
-perl -i -pwe 'BEGIN { $prefix = shift; $re = qr/\Q$prefix\E/; $l = length( $prefix ); } s!s:(\d+):"$re! sprintf( qq(s:%d:"), $1 - $l ) !ge' "$GITHUB_WORKSPACE" artifacts/php-combined.cov
+perl -i -pwe 'BEGIN { $prefix = shift; $prefix=~s!/*$!/!; $re = qr/\Q$prefix\E/; $l = length( $prefix ); } s!s:(\d+):"$re! sprintf( qq(s:%d:"), $1 - $l ) !ge' "$GITHUB_WORKSPACE" artifacts/php-combined.cov
 echo '::endgroup::'
 
 echo "::group::Combining JS coverage"
-pnpm --filter=jetpack-gh-config-munger exec istanbul-merge --out "$PWD"/artifacts/js-combined.json $( find coverage -name '*.json' )
-perl -i -pwe 'BEGIN { $prefix = shift; $re = qr/\Q$prefix\E/; } s!"$re!"!g' "$GITHUB_WORKSPACE" artifacts/js-combined.json
+pnpm --filter=jetpack-gh-config-munger exec istanbul-merge --out "$PWD"/artifacts/js-combined.json $( find "$PWD/coverage" -name '*.json' )
+perl -i -pwe 'BEGIN { $prefix = shift; $prefix=~s!/*$!/!; $re = qr/\Q$prefix\E/; } s!"$re!"!g' "$GITHUB_WORKSPACE" artifacts/js-combined.json
 echo '::endgroup::'
 
 echo "::group::Creating PHP coverage summary"
