@@ -24,7 +24,7 @@ perl -i -pwe 'BEGIN { $prefix = shift; $re = qr/\Q$prefix\E/; $l = length( $pref
 echo '::endgroup::'
 
 echo "::group::Combining JS coverage"
-pnpm --filter=jetpack-gh-config-munger exec istanbul-merge --out artifacts/js-combined.json $( find coverage -name '*.json' )
+pnpm --filter=jetpack-gh-config-munger exec istanbul-merge --out "$PWD"/artifacts/js-combined.json $( find coverage -name '*.json' )
 perl -i -pwe 'BEGIN { $prefix = shift; $re = qr/\Q$prefix\E/; } s!"$re!"!g' "$GITHUB_WORKSPACE" artifacts/js-combined.json
 echo '::endgroup::'
 
