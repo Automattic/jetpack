@@ -11,6 +11,7 @@
 			<file>functions.php</file>
 			<file>options.php</file>
 			<directory suffix=".php">app</directory>
+			<directory suffix=".php">packages</directory>
 			<directory suffix=".php">src</directory>
 		</whitelist>
 	</filter>
