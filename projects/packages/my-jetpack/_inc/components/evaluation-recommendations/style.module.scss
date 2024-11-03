@@ -11,7 +11,7 @@
 }
 
 ul.recommendations-list {
-	grid-template-columns: 1fr;
+	grid-template-columns: repeat( 5, 1fr );
 	grid-auto-flow: column;
 	overflow-x: auto;
 	scroll-snap-type: x mandatory;
