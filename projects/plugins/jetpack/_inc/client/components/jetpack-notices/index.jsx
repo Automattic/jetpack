@@ -6,7 +6,6 @@ import ConnectionBanner from 'components/connection-banner';
 import NoticesList from 'components/global-notices';
 import SimpleNotice from 'components/notice';
 import NoticeAction from 'components/notice/notice-action.jsx';
-import cookie from 'cookie';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
@@ -176,22 +175,6 @@ UserUnlinked.propTypes = {
 
 class JetpackNotices extends React.Component {
 	static displayName = 'JetpackNotices';
-
-	constructor( props ) {
-		super( props );
-
-		const cookieParsed = cookie.parse( document.cookie );
-		const dismissedNotices = Object.keys( cookieParsed )
-			.filter( key => key.startsWith( 'jetpack_deprecate_dismissed' ) )
-			.reduce( ( acc, key ) => {
-				acc[ key.replace( 'jetpack_deprecate_dismissed[', '' ).replace( /]/g, '' ) ] = '1';
-				return acc;
-			}, {} );
-
-		this.state = {
-			dismissedNotices,
-		};
-	}
 
 	dismissNotice = noticeKey => {
 		document.cookie = `jetpack_deprecate_dismissed[${ noticeKey }]=1; expires=Fri, 31 Dec 9999 23:59:59 GMT; path=/; Secure; SameSite=None`;
