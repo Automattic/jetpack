@@ -54,6 +54,7 @@ const JetpackFieldConsent = ( {
 						checked={ attributes.shareFieldAttributes }
 						onChange={ value => setAttributes( { shareFieldAttributes: value } ) }
 						help={ __( 'Deactivate for individual styling of this block', 'jetpack-forms' ) }
+						__nextHasNoMarginBottom={ true }
 					/>
 				</PanelBody>
 				<PanelColorSettings
@@ -68,7 +69,7 @@ const JetpackFieldConsent = ( {
 					] }
 				/>
 				<PanelBody title={ __( 'Consent Settings', 'jetpack-forms' ) }>
-					<BaseControl>
+					<BaseControl __nextHasNoMarginBottom={ true }>
 						<SelectControl
 							label={ __( 'Permission to email', 'jetpack-forms' ) }
 							value={ consentType }
@@ -77,6 +78,7 @@ const JetpackFieldConsent = ( {
 								{ label: __( 'Add a privacy checkbox', 'jetpack-forms' ), value: 'explicit' },
 							] }
 							onChange={ value => setAttributes( { consentType: value } ) }
+							__nextHasNoMarginBottom={ true }
 						/>
 					</BaseControl>
 				</PanelBody>

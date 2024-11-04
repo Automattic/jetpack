@@ -21,6 +21,9 @@ const isGeneralPurposeImageGeneratorBetaEnabled =
 		GENERAL_PURPOSE_IMAGE_GENERATOR_BETA_FLAG
 	]?.available === true;
 
+// to-do: remove when Jetpack requires WordPress 6.7.
+const hasLargeButtons = window?.Jetpack_Editor_Initial_State?.next40pxDefaultSize;
+
 function MediaButton( props ) {
 	const { name } = useBlockEditContext();
 	const { mediaProps } = props;
@@ -56,9 +59,13 @@ function MediaButton( props ) {
 				isReplace={ isReplaceMenu( mediaProps ) }
 				isFeatured={ isFeatured }
 				hasImage={ mediaProps.value > 0 }
+				hasLargeButtons={ hasLargeButtons }
 			/>
 			{ isGeneralPurposeImageGeneratorBetaEnabled && ! isFeatured && hasAiButtonSupport && (
-				<MediaAiButton setSelectedSource={ setSelectedSource } />
+				<MediaAiButton
+					setSelectedSource={ setSelectedSource }
+					hasLargeButtons={ hasLargeButtons }
+				/>
 			) }
 
 			{ ExternalLibrary && <ExternalLibrary { ...mediaProps } onClose={ closeLibrary } /> }

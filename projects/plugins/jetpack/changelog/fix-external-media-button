@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+External Media: ensure that the image block's external media picker button remains consistent with the other buttons in the image block.

@@ -10,9 +10,11 @@ import { useConnection } from '@automattic/jetpack-connection';
 import {
 	hasSocialPaidFeatures,
 	store as socialStore,
+	features,
 } from '@automattic/jetpack-publicize-components';
-import { useSelect, useDispatch } from '@wordpress/data';
-import { useState, useCallback, useEffect, useRef } from '@wordpress/element';
+import { siteHasFeature } from '@automattic/jetpack-script-data';
+import { useSelect } from '@wordpress/data';
+import { useState, useCallback } from '@wordpress/element';
 import React from 'react';
 import PricingPage from '../pricing-page';
 import SocialImageGeneratorToggle from '../social-image-generator-toggle';
@@ -30,35 +32,19 @@ const Admin = () => {
 	const showConnectionCard = ! isRegistered || ! isUserConnected;
 	const [ forceDisplayPricingPage, setForceDisplayPricingPage ] = useState( false );
 
-	const refreshJetpackSocialSettings = useDispatch( socialStore ).refreshJetpackSocialSettings;
-
 	const onPricingPageDismiss = useCallback( () => setForceDisplayPricingPage( false ), [] );
 
-	const {
-		isModuleEnabled,
-		showPricingPage,
-		pluginVersion,
-		isSocialImageGeneratorAvailable,
-		isUpdatingJetpackSettings,
-	} = useSelect( select => {
-		const store = select( socialStore );
-		return {
-			isModuleEnabled: store.isModuleEnabled(),
-			showPricingPage: store.showPricingPage(),
-			pluginVersion: store.getPluginVersion(),
-			isSocialImageGeneratorAvailable: store.isSocialImageGeneratorAvailable(),
-			isUpdatingJetpackSettings: store.isUpdatingJetpackSettings(),
-		};
-	} );
-
-	const hasEnabledModule = useRef( isModuleEnabled );
-
-	useEffect( () => {
-		if ( isModuleEnabled && ! hasEnabledModule.current && isSocialImageGeneratorAvailable ) {
-			hasEnabledModule.current = true;
-			refreshJetpackSocialSettings();
+	const { isModuleEnabled, showPricingPage, pluginVersion, isUpdatingJetpackSettings } = useSelect(
+		select => {
+			const store = select( socialStore );
+			return {
+				isModuleEnabled: store.isModuleEnabled(),
+				showPricingPage: store.showPricingPage(),
+				pluginVersion: store.getPluginVersion(),
+				isUpdatingJetpackSettings: store.isUpdatingJetpackSettings(),
+			};
 		}
-	}, [ isModuleEnabled, isSocialImageGeneratorAvailable, refreshJetpackSocialSettings ] );
+	);
 
 	const moduleName = `Jetpack Social ${ pluginVersion }`;
 
@@ -93,7 +79,7 @@ const Admin = () => {
 					<AdminSection>
 						<SocialModuleToggle />
 						{ isModuleEnabled && <SocialNotesToggle disabled={ isUpdatingJetpackSettings } /> }
-						{ isModuleEnabled && isSocialImageGeneratorAvailable && (
+						{ isModuleEnabled && siteHasFeature( features.IMAGE_GENERATOR ) && (
 							<SocialImageGeneratorToggle disabled={ isUpdatingJetpackSettings } />
 						) }
 					</AdminSection>

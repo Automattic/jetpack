@@ -120,6 +120,14 @@ $matrix[] = array(
 	'timeout' => 15, // 2021-01-18: Successful runs seem to take ~5 minutes.
 );
 
+// Add Coverage tests.
+$matrix[] = array(
+	'name'    => 'Code coverage',
+	'script'  => 'test-coverage',
+	'wp'      => 'latest',
+	'timeout' => 40, // 2024-10-30: Successful runs seem to take ~30 minutes. We'll need to improve that.
+);
+
 // END matrix definitions.
 // Now, validation.
 

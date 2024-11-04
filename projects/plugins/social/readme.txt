@@ -102,9 +102,10 @@ The easiest way is to use the Custom Message option in the publishing options bo
 6. Managing Social media accounts in the post editor
 
 == Changelog ==
-### 5.4.1 - 2024-10-02
+### 5.5.1 - 2024-10-29
 #### Changed
-- Internal updates.
+- Components: Add __nextHasNoMarginBottom to BaseControl-based components, preventing deprecation notices.
+- Updated package dependencies.
 
 == Upgrade Notice ==
 

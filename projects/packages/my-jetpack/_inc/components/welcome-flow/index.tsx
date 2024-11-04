@@ -32,7 +32,7 @@ const WelcomeFlow: FC< Props > = ( {
 } ) => {
 	const { recordEvent } = useAnalytics();
 	const { dismissWelcomeBanner } = useWelcomeBanner();
-	const { recommendedModules, isFirstRun, submitEvaluation, saveEvaluationResult } =
+	const { recommendedModules, submitEvaluation, saveEvaluationResult } =
 		useEvaluationRecommendations();
 	const {
 		siteIsRegistered,
@@ -55,15 +55,7 @@ const WelcomeFlow: FC< Props > = ( {
 				// If user has recommendations, it means they redo the evaluation
 				return null;
 			}
-			// For the "treatment" experiment we immediately jump to the 'evaluation-processing' step if
-			// there are no `recommendedModules` loaded yet.
-			if (
-				'treatment' === welcomeFlowExperiment.variation &&
-				! recommendedModules &&
-				isJetpackUserNew()
-			) {
-				return 'evaluation-processing';
-			}
+
 			// Otherwise, it means user is either new or just repeats the recommendation
 			return 'evaluation';
 		}
@@ -74,7 +66,6 @@ const WelcomeFlow: FC< Props > = ( {
 		recommendedModules,
 		siteIsRegistered,
 		welcomeFlowExperiment.isLoading,
-		welcomeFlowExperiment.variation,
 	] );
 
 	useEffect( () => {
@@ -116,34 +107,6 @@ const WelcomeFlow: FC< Props > = ( {
 		},
 		[ dismissWelcomeBanner, recordEvent, saveEvaluationResult, submitEvaluation ]
 	);
-
-	useEffect( () => {
-		// For the "treatment" experiment, when there are no `recommendedModules` loaded yet,
-		// we immediately submit some default evaluation data (when we change from connection
-		// step to evaluation-processing step).
-		if (
-			'treatment' === welcomeFlowExperiment.variation &&
-			! recommendedModules &&
-			isFirstRun &&
-			prevStep === 'connection' &&
-			currentStep === 'evaluation-processing'
-		) {
-			handleEvaluation( {
-				protect: true,
-				performance: true,
-				audience: true,
-				content: true,
-				unsure: false,
-			} );
-		}
-	}, [
-		currentStep,
-		prevStep,
-		recommendedModules,
-		welcomeFlowExperiment.variation,
-		handleEvaluation,
-		isFirstRun,
-	] );
 
 	useEffect( () => {
 		if ( ! currentStep ) {

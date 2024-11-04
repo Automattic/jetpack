@@ -100,6 +100,7 @@ const MapkitLocationSearch = ( { label, onAddPoint } ) => {
 							aria-owns={ listBoxId }
 							aria-activedescendant={ activeId }
 							onKeyDown={ onKeyDown }
+							__nextHasNoMarginBottom={ true }
 						/>
 					) }
 				</Lookup>
