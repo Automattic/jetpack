@@ -9,7 +9,7 @@ import useEvaluationRecommendations from '../../data/evaluation-recommendations/
 import useAnalytics from '../../hooks/use-analytics';
 import { JetpackModuleToProductCard } from '../product-cards-section/all';
 import styles from './style.module.scss';
-import type { FC } from 'react';
+import type { FC, RefObject } from 'react';
 
 const EvaluationRecommendations: FC = () => {
 	const containerRef = useRef( null );
@@ -28,7 +28,7 @@ const EvaluationRecommendations: FC = () => {
 	}, [ containerRef ] );
 
 	const handleSlide = (
-		cardContainerRef: React.RefObject< HTMLUListElement >,
+		cardContainerRef: RefObject< HTMLUListElement >,
 		direction: number,
 		gap: number = 24
 	) => {
@@ -74,13 +74,11 @@ const EvaluationRecommendations: FC = () => {
 		if ( container ) {
 			container.addEventListener( 'scroll', checkScrollPosition );
 			checkScrollPosition();
-		}
 
-		return () => {
-			if ( container ) {
+			return () => {
 				container.removeEventListener( 'scroll', checkScrollPosition );
-			}
-		};
+			};
+		}
 	}, [ checkScrollPosition ] );
 
 	useEffect( () => {

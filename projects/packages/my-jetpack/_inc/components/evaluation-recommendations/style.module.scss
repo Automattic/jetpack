@@ -31,6 +31,14 @@ ul.recommendations-list {
 		grid-column-end: unset;
 	}
 
+	@media screen and (max-width: 600px) {
+		grid-template-columns: repeat( 5, 100% );
+
+		li {
+			min-width: unset;
+		}
+	}
+
 	@media screen and (max-width: 1024px) {
 		li {
 			min-width: 450px;
