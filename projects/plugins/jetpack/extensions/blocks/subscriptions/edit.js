@@ -39,6 +39,7 @@ import SubscriptionSkeletonLoader from './subscription-skeleton-loader';
 
 const { getComputedStyle } = window;
 const isGradientAvailable = !! useGradient;
+const useGradientIfAvailable = isGradientAvailable ? useGradient : () => ( {} );
 const name = metadata.name.replace( 'jetpack/', '' );
 
 const applyFallbackStyles = withFallbackStyles( ( node, ownProps ) => {
@@ -125,18 +126,14 @@ export function SubscriptionEdit( props ) {
 		};
 	} );
 
-	const emailFieldGradient = isGradientAvailable
-		? useGradient( {
-				gradientAttribute: 'emailFieldGradient',
-				customGradientAttribute: 'customEmailFieldGradient',
-		  } )
-		: {};
-	const buttonGradient = isGradientAvailable
-		? useGradient( {
-				gradientAttribute: 'buttonGradient',
-				customGradientAttribute: 'customButtonGradient',
-		  } )
-		: {};
+	const emailFieldGradient = useGradientIfAvailable( {
+		gradientAttribute: 'emailFieldGradient',
+		customGradientAttribute: 'customEmailFieldGradient',
+	} );
+	const buttonGradient = useGradientIfAvailable( {
+		gradientAttribute: 'buttonGradient',
+		customGradientAttribute: 'customButtonGradient',
+	} );
 
 	const sharedClasses = {
 		'no-border-radius': borderRadius === 0,

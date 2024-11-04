@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+API cache not refreshing when cache is bypassed

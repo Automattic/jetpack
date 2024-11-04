@@ -17,7 +17,6 @@ export { default as TemplatePickerButton } from './src/components/social-image-g
 export { default as PublicizePanel } from './src/components/panel';
 export { default as ReviewPrompt } from './src/components/review-prompt';
 export { default as PostPublishPanels } from './src/components/post-publish-panels';
-export { default as RefreshJetpackSocialSettingsWrapper } from './src/components/refresh-jetpack-social-settings';
 export { default as ConnectionManagement } from './src/components/connection-management';
 
 export { default as useSocialMediaConnections } from './src/hooks/use-social-media-connections';
@@ -32,6 +31,7 @@ export * from './src/components/share-post';
 export * from './src/hooks/use-sync-post-data-to-store';
 export * from './src/hooks/use-saving-post';
 export * from './src/hooks/use-post-meta';
+export * from './src/hooks/use-post-can-use-sig';
 export * from './src/components/share-buttons';
 export * from './src/components/manage-connections-modal';
 export * from './src/utils/script-data';

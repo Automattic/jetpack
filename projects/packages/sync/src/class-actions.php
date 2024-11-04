@@ -116,7 +116,7 @@ class Actions {
 		}
 
 		if ( self::sync_via_cron_allowed() ) {
-			self::init_sync_cron_jobs();
+			add_action( 'init', array( __CLASS__, 'init_sync_cron_jobs' ), 1 );
 		} elseif ( wp_next_scheduled( 'jetpack_sync_cron' ) ) {
 			self::clear_sync_cron_jobs();
 		}

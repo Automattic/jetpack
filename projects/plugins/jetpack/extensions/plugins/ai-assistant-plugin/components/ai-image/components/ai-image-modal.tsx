@@ -1,10 +1,19 @@
 /**
  * External dependencies
  */
-import { Button, Tooltip, KeyboardShortcuts } from '@wordpress/components';
+import {
+	AiModalPromptInput,
+	IMAGE_STYLE_NONE,
+	IMAGE_STYLE_AUTO,
+	ImageStyleObject,
+	ImageStyle,
+} from '@automattic/jetpack-ai-client';
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
+import { Button, SelectControl } from '@wordpress/components';
 import { useCallback, useRef, useState, useEffect } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { Icon, external } from '@wordpress/icons';
+import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
@@ -15,6 +24,8 @@ import Carrousel, { CarrouselImages } from './carrousel';
 import UsageCounter from './usage-counter';
 
 const FEATURED_IMAGE_UPGRADE_PROMPT_PLACEMENT = 'ai-image-generator';
+
+const debug = debugFactory( 'jetpack-ai:ai-image-modal' );
 
 export default function AiImageModal( {
 	title,
@@ -34,14 +45,14 @@ export default function AiImageModal( {
 	isUnlimited = false,
 	upgradeDescription = null,
 	hasError = false,
-	postContent = null,
 	handlePreviousImage = () => {},
 	handleNextImage = () => {},
 	acceptButton = null,
 	autoStart = false,
 	autoStartAction = null,
-	generateButtonLabel = null,
 	instructionsPlaceholder = null,
+	imageStyles = [],
+	onGuessStyle = null,
 }: {
 	title: string;
 	cost: number;
@@ -50,8 +61,8 @@ export default function AiImageModal( {
 	images: CarrouselImages;
 	currentIndex: number;
 	onClose: () => void;
-	onTryAgain: ( { userPrompt }: { userPrompt?: string } ) => void;
-	onGenerate: ( { userPrompt }: { userPrompt?: string } ) => void;
+	onTryAgain: ( { userPrompt, style }: { userPrompt?: string; style?: string } ) => void;
+	onGenerate: ( { userPrompt, style }: { userPrompt?: string; style?: string } ) => void;
 	generating: boolean;
 	notEnoughRequests: boolean;
 	requireUpgrade: boolean;
@@ -65,59 +76,58 @@ export default function AiImageModal( {
 	handleNextImage: () => void;
 	acceptButton: React.JSX.Element;
 	autoStart?: boolean;
-	autoStartAction?: ( { userPrompt }: { userPrompt?: string } ) => void;
+	autoStartAction?: ( { userPrompt, style }: { userPrompt?: string; style?: string } ) => void;
 	generateButtonLabel: string;
 	instructionsPlaceholder: string;
+	imageStyles?: Array< ImageStyleObject >;
+	onGuessStyle?: ( userPrompt: string ) => Promise< ImageStyle >;
 } ) {
+	const { tracks } = useAnalytics();
+	const { recordEvent: recordTracksEvent } = tracks;
 	const [ userPrompt, setUserPrompt ] = useState( '' );
 	const triggeredAutoGeneration = useRef( false );
-
-	const handleUserPromptChange = useCallback(
-		( e: React.ChangeEvent< HTMLTextAreaElement > ) => {
-			setUserPrompt( e.target.value.trim() );
-		},
-		[ setUserPrompt ]
-	);
+	const [ showStyleSelector, setShowStyleSelector ] = useState( false );
+	const [ style, setStyle ] = useState< ImageStyle >( null );
+	const [ styles, setStyles ] = useState< Array< ImageStyleObject > >( imageStyles || [] );
 
 	const handleTryAgain = useCallback( () => {
-		onTryAgain?.( { userPrompt } );
-	}, [ onTryAgain, userPrompt ] );
+		onTryAgain?.( { userPrompt, style } );
+	}, [ onTryAgain, userPrompt, style ] );
 
-	const handleGenerate = useCallback( () => {
-		onGenerate?.( { userPrompt } );
-	}, [ onGenerate, userPrompt ] );
+	const handleGenerate = useCallback( async () => {
+		if ( style === IMAGE_STYLE_AUTO ) {
+			recordTracksEvent( 'jetpack_ai_general_image_guess_style', {
+				context: 'block-editor',
+				tool: 'image',
+			} );
+			const guessedStyle = ( await onGuessStyle( userPrompt ) ) || IMAGE_STYLE_NONE;
+			setStyle( guessedStyle );
+			debug( 'guessed style', guessedStyle );
+			onGenerate?.( { userPrompt, style: guessedStyle } );
+		} else {
+			onGenerate?.( { userPrompt, style } );
+		}
+	}, [ onGenerate, userPrompt, style, onGuessStyle, recordTracksEvent ] );
 
-	const costTooltipTextSingular = __( '1 request per image', 'jetpack' );
-
-	const costTooltipTextPlural = sprintf(
-		// Translators: %d is the cost of generating one image.
-		__( '%d requests per image', 'jetpack' ),
-		cost
+	const updateStyle = useCallback(
+		( imageStyle: ImageStyle ) => {
+			debug( 'change style', imageStyle );
+			setStyle( imageStyle );
+			recordTracksEvent( 'jetpack_ai_image_generator_switch_style', {
+				context: 'block-editor',
+				style: imageStyle,
+			} );
+		},
+		[ setStyle, recordTracksEvent ]
 	);
-
-	const costTooltipText = cost === 1 ? costTooltipTextSingular : costTooltipTextPlural;
 
 	// Controllers
 	const instructionsDisabled = notEnoughRequests || generating || requireUpgrade;
 	const upgradePromptVisible = ( requireUpgrade || notEnoughRequests ) && ! generating;
 	const counterVisible = Boolean( ! isUnlimited && cost && currentLimit );
-	const tryAgainButtonDisabled = ! userPrompt && ! postContent;
-	const generateButtonDisabled =
-		notEnoughRequests || generating || ( ! userPrompt && ! postContent );
 
-	const tryAgainButton = (
-		<Button onClick={ handleTryAgain } variant="secondary" disabled={ tryAgainButtonDisabled }>
-			{ __( 'Try again', 'jetpack' ) }
-		</Button>
-	);
-
-	const generateButton = (
-		<Tooltip text={ costTooltipText } placement="bottom">
-			<Button onClick={ handleGenerate } variant="secondary" disabled={ generateButtonDisabled }>
-				{ generateButtonLabel }
-			</Button>
-		</Tooltip>
-	);
+	const generateLabel = __( 'Generate', 'jetpack' );
+	const tryAgainLabel = __( 'Try again', 'jetpack' );
 
 	/**
 	 * Trigger image generation automatically.
@@ -131,33 +141,54 @@ export default function AiImageModal( {
 		}
 	}, [ placement, handleGenerate, autoStart, autoStartAction, userPrompt, open ] );
 
+	// initialize styles dropdown
+	useEffect( () => {
+		if ( imageStyles && imageStyles.length > 0 ) {
+			// Sort styles to have "None" and "Auto" first
+			setStyles(
+				[
+					imageStyles.find( ( { value } ) => value === IMAGE_STYLE_NONE ),
+					imageStyles.find( ( { value } ) => value === IMAGE_STYLE_AUTO ),
+					...imageStyles.filter(
+						( { value } ) => ! [ IMAGE_STYLE_NONE, IMAGE_STYLE_AUTO ].includes( value )
+					),
+				].filter( v => v ) // simplest way to get rid of empty values
+			);
+			setShowStyleSelector( true );
+			setStyle( IMAGE_STYLE_NONE );
+		}
+	}, [ imageStyles ] );
+
 	return (
 		<>
 			{ open && (
 				<AiAssistantModal handleClose={ onClose } title={ title }>
 					<div className="ai-image-modal__content">
-						<div className="ai-image-modal__user-prompt">
-							<div className="ai-image-modal__user-prompt-textarea">
-								<KeyboardShortcuts
-									bindGlobal
-									shortcuts={ {
-										enter: () => {
-											if ( ! generateButtonDisabled ) {
-												handleGenerate();
-											}
-										},
-									} }
-								>
-									<textarea
-										disabled={ instructionsDisabled }
-										maxLength={ 1000 }
-										rows={ 2 }
-										onChange={ handleUserPromptChange }
-										placeholder={ instructionsPlaceholder }
-									></textarea>
-								</KeyboardShortcuts>
+						{ showStyleSelector && (
+							<div style={ { display: 'flex', alignItems: 'center', gap: 16 } }>
+								<div style={ { fontWeight: 500, flexGrow: 1 } }>
+									{ __( 'Generate image', 'jetpack' ) }
+								</div>
+								<div>
+									<SelectControl
+										__nextHasNoMarginBottom
+										value={ style }
+										options={ styles }
+										onChange={ updateStyle }
+										// TODO: disable when necessary
+										// disabled={ isBusy || requireUpgrade }
+									/>
+								</div>
 							</div>
-						</div>
+						) }
+						<AiModalPromptInput
+							prompt={ userPrompt }
+							setPrompt={ setUserPrompt }
+							disabled={ instructionsDisabled }
+							generateHandler={ hasError ? handleTryAgain : handleGenerate }
+							placeholder={ instructionsPlaceholder }
+							buttonLabel={ hasError ? tryAgainLabel : generateLabel }
+						/>
 						{ upgradePromptVisible && (
 							<QuotaExceededMessage
 								description={ upgradeDescription }
@@ -174,11 +205,6 @@ export default function AiImageModal( {
 										currentUsage={ currentUsage }
 									/>
 								) }
-							</div>
-							<div className="ai-image-modal__actions-right">
-								<div className="ai-image-modal__action-buttons">
-									{ hasError ? tryAgainButton : generateButton }
-								</div>
 							</div>
 						</div>
 						<div className="ai-image-modal__image-canvas">

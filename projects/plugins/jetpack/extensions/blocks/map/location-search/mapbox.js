@@ -86,6 +86,7 @@ export class MapboxLocationSearch extends Component {
 								aria-owns={ listBoxId }
 								aria-activedescendant={ activeId }
 								onKeyDown={ onKeyDown }
+								__nextHasNoMarginBottom={ true }
 							/>
 						) }
 					</Lookup>

@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Theme Tools: ensure theme-compat files are still loaded when a compatible theme is used.

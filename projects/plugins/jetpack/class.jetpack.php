@@ -867,8 +867,7 @@ class Jetpack {
 	 * @action plugins_loaded
 	 */
 	public function late_initialization() {
-		add_action( 'plugins_loaded', array( 'Jetpack', 'load_modules' ), 100 );
-
+		add_action( 'after_setup_theme', array( 'Jetpack', 'load_modules' ), 1 );
 		My_Jetpack_Initializer::init();
 
 		// Initialize Boost Speed Score

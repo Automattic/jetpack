@@ -25,7 +25,6 @@ export default function usePublicizeConfig() {
 	const isRePublicizeFeatureAvailable =
 		isJetpackSite || getJetpackExtensionAvailability( republicizeFeatureName )?.available;
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
-	const currentPostType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
 	const { isUserConnected } = useConnection();
 	const { urls } = getSocialScriptData();
 
@@ -80,24 +79,6 @@ export default function usePublicizeConfig() {
 	 */
 	const hidePublicizeFeature = isPostPublished && ! isRePublicizeFeatureAvailable;
 
-	/**
-	 * hasPaidPlan:
-	 * Whether the site has a paid plan. This could be either the Basic or the Advanced plan.
-	 */
-	const hasPaidPlan = !! getJetpackData()?.social?.hasPaidPlan;
-
-	/**
-	 * isEnhancedPublishingEnabled:
-	 * Whether the site has the enhanced publishing feature enabled. If true, it means that
-	 * the site has the Advanced plan.
-	 */
-	const isEnhancedPublishingEnabled = !! getJetpackData()?.social?.isEnhancedPublishingEnabled;
-
-	/**\
-	 * Returns true if the post type is a Jetpack Social Note.
-	 */
-	const isJetpackSocialNote = 'jetpack-social-note' === currentPostType;
-
 	const needsUserConnection = ! isUserConnected && ! isSimpleSite();
 
 	return {
@@ -109,13 +90,8 @@ export default function usePublicizeConfig() {
 		isRePublicizeUpgradableViaUpsell,
 		hidePublicizeFeature,
 		isPostAlreadyShared,
-		hasPaidPlan,
-		isEnhancedPublishingEnabled,
-		isSocialImageGeneratorAvailable:
-			!! getJetpackData()?.social?.isSocialImageGeneratorAvailable && ! isJetpackSocialNote,
 		isSocialImageGeneratorEnabled: !! getJetpackData()?.social?.isSocialImageGeneratorEnabled,
 		connectionsPageUrl: urls.connectionsManagementPage,
-		isJetpackSocialNote,
 		needsUserConnection,
 	};
 }

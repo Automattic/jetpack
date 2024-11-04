@@ -82,7 +82,7 @@ const JetpackAndSettingsContent = ( {
 		<>
 			{ showFairUsageNotice && (
 				<PanelRow className="jetpack-ai-sidebar__feature-section">
-					<BaseControl>
+					<BaseControl __nextHasNoMarginBottom={ true }>
 						<FairUsageNotice variant="muted" />
 					</BaseControl>
 				</PanelRow>
@@ -90,7 +90,7 @@ const JetpackAndSettingsContent = ( {
 
 			{ canWriteBriefBeEnabled() && isBreveAvailable && (
 				<PanelRow>
-					<BaseControl>
+					<BaseControl __nextHasNoMarginBottom={ true }>
 						<BaseControl.VisualLabel>
 							{ __( 'Write Brief with AI (BETA)', 'jetpack' ) }
 						</BaseControl.VisualLabel>
@@ -100,7 +100,7 @@ const JetpackAndSettingsContent = ( {
 			) }
 
 			<PanelRow className="jetpack-ai-sidebar__feature-section">
-				<BaseControl>
+				<BaseControl __nextHasNoMarginBottom={ true }>
 					<BaseControl.VisualLabel>{ __( 'AI Feedback', 'jetpack' ) }</BaseControl.VisualLabel>
 					<Feedback placement={ placement } busy={ false } disabled={ requireUpgrade } />
 				</BaseControl>
@@ -108,7 +108,7 @@ const JetpackAndSettingsContent = ( {
 
 			{ isAITitleOptimizationAvailable && (
 				<PanelRow className="jetpack-ai-sidebar__feature-section">
-					<BaseControl>
+					<BaseControl __nextHasNoMarginBottom={ true }>
 						<BaseControl.VisualLabel>{ titleOptimizationSectionLabel }</BaseControl.VisualLabel>
 						<TitleOptimization placement={ placement } busy={ false } disabled={ requireUpgrade } />
 					</BaseControl>
@@ -116,7 +116,7 @@ const JetpackAndSettingsContent = ( {
 			) }
 			{ isAIFeaturedImageAvailable && (
 				<PanelRow className="jetpack-ai-sidebar__feature-section">
-					<BaseControl>
+					<BaseControl __nextHasNoMarginBottom={ true }>
 						<BaseControl.VisualLabel>
 							{ __( 'AI Featured Image', 'jetpack' ) }
 						</BaseControl.VisualLabel>

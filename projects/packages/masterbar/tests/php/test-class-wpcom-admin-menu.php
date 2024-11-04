@@ -17,7 +17,7 @@ require_once __DIR__ . '/data/admin-menu.php';
 /**
  * Class Test_WPcom_Admin_Menu.
  *
- * @covers Automattic\Jetpack\Dashboard_Customizations\WPcom_Admin_Menu
+ * @covers Automattic\Jetpack\Masterbar\WPcom_Admin_Menu
  */
 class Test_WPcom_Admin_Menu extends TestCase {
 

@@ -9,6 +9,7 @@ export default function JetpackFieldWidth( { setAttributes, width } ) {
 				'jetpack-forms'
 			) }
 			className="jetpack-field-label__width"
+			__nextHasNoMarginBottom={ true }
 		>
 			<BaseControl.VisualLabel>{ __( 'Field Width', 'jetpack-forms' ) }</BaseControl.VisualLabel>
 			<ButtonGroup aria-label={ __( 'Field Width', 'jetpack-forms' ) }>

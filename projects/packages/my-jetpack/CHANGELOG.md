@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.35.16] - 2024-10-29
+### Changed
+- Components: Add __nextHasNoMarginBottom to BaseControl-based components, preventing deprecation notices. [#39877]
+
 ## [4.35.15] - 2024-10-17
 ### Fixed
 - Fix the "Missing site connection" notice. [#39809]
@@ -1784,6 +1788,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[4.35.16]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.35.15...4.35.16
 [4.35.15]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.35.14...4.35.15
 [4.35.14]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.35.13...4.35.14
 [4.35.13]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.35.12...4.35.13
