@@ -38,12 +38,12 @@ class Source_Providers {
 	 * @var Provider[]
 	 */
 	protected $providers = array(
+		Cornerstone_Provider::class,
 		Post_ID_Provider::class,
 		WP_Core_Provider::class,
 		Singular_Post_Provider::class,
 		Archive_Provider::class,
 		Taxonomy_Provider::class,
-		Cornerstone_Provider::class,
 	);
 
 	public function get_providers() {
