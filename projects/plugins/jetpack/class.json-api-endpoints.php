@@ -2714,6 +2714,10 @@ abstract class WPCOM_JSON_API_Endpoint {
 	 * The REST endpoint should only be available for requests signed with a valid blog or user token.
 	 * Declaring it "final" so individual endpoints couldn't remove this requirement.
 	 *
+	 * If you need to add custom permissions to individual endpoints, you can override method `rest_permission_callback_custom()`.
+	 *
+	 * @see self::rest_permission_callback_custom()
+	 *
 	 * @return true|WP_Error
 	 */
 	final public function rest_permission_callback() {
@@ -2746,7 +2750,10 @@ abstract class WPCOM_JSON_API_Endpoint {
 	}
 
 	/**
-	 * Redefine in individual endpoint classes to further customize the permission check.
+	 * You can override this method in individual endpoints to add custom permission checks.
+	 * This will run on top of `rest_permission_callback()`.
+	 *
+	 * @see self::rest_permission_callback()
 	 *
 	 * @return true|WP_Error
 	 */
