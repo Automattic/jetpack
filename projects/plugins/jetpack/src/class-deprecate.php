@@ -37,13 +37,12 @@ class Deprecate {
 		// Example $this->notices content. Note that the key must end with '-deprecate-feature' to display in My Jetpack - see packages/my-jetpack/_inc/hooks/use-notification-watcher/use-deprecate-feature-notice.ts:
 		// array(
 		// 'my-admin-deprecate-feature' => array(
-		// 'title'     => __( "Retired feature: Jetpack's XYZ Feature", 'jetpack' ),
-		// 'message'   => __( "This feature is being retired and will be removed effective November, 2024. Please use the Classic Theme Helper plugin instead.", 'jetpack' ),
-		// 'link'      => array(
+		// 'title'   => __( "Retired feature: Jetpack's XYZ Feature", 'jetpack' ),
+		// 'message' => __( 'This feature is being retired and will be removed effective November, 2024. Please use the Classic Theme Helper plugin instead.', 'jetpack' ),
+		// 'link'    => array(
 		// 'label' => __( 'Learn more', 'jetpack' ),
 		// 'url'   => 'jetpack-support-xyz',
 		// ),
-		// 'condition' => 'show_feature_notice', // Method name to check if notice should show
 		// ),
 		// phpcs:enable Squiz.PHP.CommentedOutCode.Found
 		$this->notices = array();
@@ -99,7 +98,7 @@ class Deprecate {
 	public function render_admin_notices() {
 
 		foreach ( $this->notices as $id => $notice ) {
-			if ( method_exists( $this, $notice['condition'] ) && $this->{$notice['condition']}() ) {
+			if ( $this->show_feature_notice( $id ) ) {
 				$support_url = Redirect::get_url( $notice['link']['url'] );
 
 				$this->render_notice(
@@ -134,7 +133,7 @@ class Deprecate {
 	public function add_my_jetpack_red_bubbles( $slugs ) {
 
 		foreach ( $this->notices as $id => $notice ) {
-			if ( method_exists( $this, $notice['condition'] ) && $this->{$notice['condition']}() ) {
+			if ( $this->show_feature_notice( $id ) ) {
 				$slugs[ $id ] = array(
 					'data' => array(
 						'text'  => $notice['message'],
@@ -196,11 +195,22 @@ class Deprecate {
 	 * @return bool
 	 */
 	private function has_notices() {
-		foreach ( $this->notices as $notice ) {
-			if ( method_exists( $this, $notice['condition'] ) && $this->{$notice['condition']}() ) {
+		foreach ( $this->notices as $id => $notice ) {
+			if ( $this->show_feature_notice( $id ) ) {
 				return true;
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * Check if the feature notice should be shown, based on the existence of the cookie.
+	 *
+	 * @param string $id The notice ID.
+	 *
+	 * @return bool
+	 */
+	private function show_feature_notice( $id ) {
+		return empty( $_COOKIE['jetpack_deprecate_dismissed'][ $id ] );
 	}
 }
