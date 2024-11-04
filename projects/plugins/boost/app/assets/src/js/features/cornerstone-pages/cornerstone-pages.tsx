@@ -2,6 +2,7 @@ import { __ } from '@wordpress/i18n';
 import Meta from './meta/meta';
 import SettingsItem from '$features/ui/settings-item/settings-item';
 import Pill from '$features/ui/pill/pill';
+import Upgraded from '$features/ui/upgraded/upgraded';
 
 const CornerstonePages = () => {
 	return (
@@ -9,7 +10,8 @@ const CornerstonePages = () => {
 			title={
 				<>
 					{ __( 'Cornerstone Pages', 'jetpack-boost' ) }
-					<Pill text="Experimental" />
+					<Pill text={ __( 'Experimental', 'jetpack-boost' ) } />
+					<Upgraded />
 				</>
 			}
 			description={
