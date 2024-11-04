@@ -92,6 +92,16 @@ export type SocialImageGeneratorConfig = {
 	template?: string;
 };
 
+export type SocialPluginSettings = {
+	publicize_active: boolean;
+	show_pricing_page: boolean;
+	social_notes_enabled: boolean;
+	social_notes_config: {
+		append_link: boolean;
+		link_format: 'full_url' | 'shortlink' | 'permashortcitation';
+	};
+};
+
 export type SocialSettingsFields = {
 	jetpack_social_image_generator_settings: SocialImageGeneratorConfig;
 };

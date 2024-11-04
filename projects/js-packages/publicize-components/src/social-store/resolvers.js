@@ -1,5 +1,7 @@
 import apiFetch from '@wordpress/api-fetch';
+import { store as coreStore } from '@wordpress/core-data';
 import { store as editorStore } from '@wordpress/editor';
+import { __ } from '@wordpress/i18n';
 import { getSocialScriptData } from '../utils/script-data';
 import { normalizeShareStatus } from '../utils/share-status';
 import { setConnections } from './actions/connection-data';
@@ -75,8 +77,31 @@ export function getPostShareStatus( _postId ) {
 	};
 }
 
+/**
+ * Resolves the social plugin settings to ensure the core-data entities are registered.
+ *
+ * @return {Function} Resolver
+ */
+export function getSocialPluginSettings() {
+	return async ( { registry } ) => {
+		const jetpackEntities = registry.select( coreStore ).getEntitiesConfig( 'jetpack/v4' );
+
+		if ( ! jetpackEntities.some( ( { name } ) => name === 'social/settings' ) ) {
+			await registry.dispatch( coreStore ).addEntities( [
+				{
+					kind: 'jetpack/v4',
+					name: 'social/settings',
+					baseURL: '/jetpack/v4/social/settings',
+					label: __( 'Social Settings', 'jetpack' ),
+				},
+			] );
+		}
+	};
+}
+
 export default {
 	getJetpackSettings,
 	getConnections,
 	getPostShareStatus,
+	getSocialPluginSettings,
 };
