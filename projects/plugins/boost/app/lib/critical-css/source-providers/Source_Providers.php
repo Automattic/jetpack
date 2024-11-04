@@ -110,6 +110,10 @@ class Source_Providers {
 		return $this->request_cached_css;
 	}
 
+	public function get_current_critical_css_key() {
+		return $this->current_critical_css_key;
+	}
+
 	/**
 	 * Get providers sources.
 	 *
