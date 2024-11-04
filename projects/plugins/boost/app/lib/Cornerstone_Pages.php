@@ -119,7 +119,6 @@ class Cornerstone_Pages implements Has_Setup {
 	public function get_properties() {
 		return array(
 			'max_pages'         => $this->get_max_pages(),
-			'max_pages_free'    => static::FREE_MAX_PAGES,
 			'max_pages_premium' => static::PREMIUM_MAX_PAGES,
 		);
 	}
