@@ -166,10 +166,20 @@ class Dashboard_REST_Controller {
 		// WordAds DSP API Site Stats routes
 		register_rest_route(
 			static::$namespace,
-			sprintf( '/sites/%1$d/wordads/dsp/api/(?P<api_version>v[0-9]+\.?[0-9]*)/sites/%1$d/stats(?P<sub_path>[a-zA-Z0-9-_\/]*)(\?.*)?', $site_id ),
+			sprintf( '/sites/%d/wordads/dsp/api/(?P<api_version>v[0-9]+\.?[0-9]*)/stats(?P<sub_path>[a-zA-Z0-9-_\/]*)(\?.*)?', $site_id ),
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'get_dsp_site_stats' ),
+				'callback'            => array( $this, 'get_dsp_stats' ),
+				'permission_callback' => array( $this, 'can_user_view_dsp_callback' ),
+			)
+		);
+
+		register_rest_route(
+			static::$namespace,
+			sprintf( '/sites/%d/wordads/dsp/api/(?P<api_version>v[0-9]+\.?[0-9]*)/stats(?P<sub_path>[a-zA-Z0-9-_\/]*)', $site_id ),
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => array( $this, 'edit_dsp_stats' ),
 				'permission_callback' => array( $this, 'can_user_view_dsp_callback' ),
 			)
 		);
@@ -568,19 +578,27 @@ class Dashboard_REST_Controller {
 	}
 
 	/**
-	 * Redirect GET requests to WordAds DSP Site Stats endpoint for the site.
+	 * Redirect GET requests to WordAds DSP Stats endpoint for the site.
 	 *
 	 * @param WP_REST_Request $req The request object.
 	 *
 	 * @return array|WP_Error
 	 */
-	public function get_dsp_site_stats( $req ) {
-		$site_id = $this->get_site_id();
-		if ( is_wp_error( $site_id ) ) {
-			return array();
-		}
+	public function get_dsp_stats( $req ) {
+		$version = $req->get_param( 'api_version' ) ?? 'v1';
+		return $this->get_dsp_generic( "{$version}/stats", $req );
+	}
 
-		return $this->get_dsp_generic( sprintf( 'v1/sites/%d/stats', $site_id ), $req );
+	/**
+	 * Redirect POST requests to WordAds DSP Stats endpoint for the site.
+	 *
+	 * @param WP_REST_Request $req The request object.
+	 *
+	 * @return array|WP_Error
+	 */
+	public function edit_dsp_stats( $req ) {
+		$version = $req->get_param( 'api_version' ) ?? 'v1';
+		return $this->get_dsp_generic( "{$version}/stats", $req );
 	}
 
 	/**
