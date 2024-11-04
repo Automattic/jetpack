@@ -166,7 +166,7 @@ class Dashboard_REST_Controller {
 		// WordAds DSP API Site Stats routes
 		register_rest_route(
 			static::$namespace,
-			sprintf( '/sites/%1$d/wordads/dsp/api/v1.1/sites/%1$d/stats(?P<sub_path>[a-zA-Z0-9-_\/]*)(\?.*)?', $site_id ),
+			sprintf( '/sites/%1$d/wordads/dsp/api/(?P<api_version>v[0-9]+\.?[0-9]*)/sites/%1$d/stats(?P<sub_path>[a-zA-Z0-9-_\/]*)(\?.*)?', $site_id ),
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_dsp_site_stats' ),
