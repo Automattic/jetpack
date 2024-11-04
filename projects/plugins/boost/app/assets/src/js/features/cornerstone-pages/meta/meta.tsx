@@ -23,7 +23,7 @@ const Meta = () => {
 	const cornerstonePagesProperties = useCornerstonePagesProperties();
 	const [ { refetch: refetchRegenerationReason } ] = useRegenerationReason();
 	const premiumFeatures = usePremiumFeatures();
-	const isPremium = premiumFeatures.includes( 'support' );
+	const isPremium = premiumFeatures.includes( 'cornerstone-10-pages' );
 	const navigate = useNavigate();
 	const regenerateAction = useRegenerateCriticalCssAction();
 
