@@ -36,11 +36,14 @@ export type SocialSettings = {
 	socialPlugin: SocialPluginSettings;
 };
 
+export type PluginInfo = Record< 'social' | 'jetpack', { version: string } >;
+
 export interface SocialScriptData {
 	api_paths: ApiPaths;
 	is_publicize_enabled: boolean;
 	feature_flags: FeatureFlags;
 	supported_services: Array< ConnectionService >;
+	plugin_info: PluginInfo;
 	shares_data: SharesData;
 	urls: SocialUrls;
 	settings: SocialSettings;
