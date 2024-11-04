@@ -222,14 +222,17 @@ class JetpackNotices extends React.Component {
 	render() {
 		// Add notices here. Example:
 		// const notices = [
-		//  {
-		//    noticeKey: 'my-admin-deprecate-feature',
-		//    title: __( "Retired feature: Jetpack's XYZ Feature", 'jetpack' ),
-		//    message: __( "This feature is being retired and will be removed effective November, 2024. Please use the Classic Theme Helper plugin instead.", 'jetpack' ),
-		//    link: getRedirectUrl( 'my-support' ),
-		//    linkText: __( 'Learn more', 'jetpack' ),
-		//    show: this.props.showXYZNotice && ! this.isNoticeDismissed( 'my-admin-deprecate-feature' )
-		//  }
+		// 	{
+		// 		noticeKey: 'my-admin-deprecate-feature',
+		// 		title: __( "Retired feature: Jetpack's XYZ Feature", 'jetpack' ),
+		// 		message: __(
+		// 			'This feature is being retired and will be removed effective November, 2024. Please use the Classic Theme Helper plugin instead.',
+		// 			'jetpack'
+		// 		),
+		// 		link: getRedirectUrl( 'my-support' ),
+		// 		linkText: __( 'Learn more', 'jetpack' ),
+		// 		show: this.props.showXYZNotice && ! this.isNoticeDismissed( 'my-admin-deprecate-feature' ),
+		// 	},
 		// ];
 		const notices = [ {} ];
 		const siteDataErrors = this.props.siteDataErrors.filter( error =>

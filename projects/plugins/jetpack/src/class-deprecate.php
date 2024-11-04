@@ -155,37 +155,18 @@ class Deprecate {
 	 *
 	 * @param string $id The notice ID.
 	 * @param string $text The notice text.
-	 * @param array  $params Additional notice params.
 	 *
 	 * @return void
 	 */
-	private function render_notice( $id, $text, $params = array() ) {
+	private function render_notice( $id, $text ) {
 		if ( ! empty( $_COOKIE['jetpack_deprecate_dismissed'][ $id ] ) ) {
 			return;
 		}
 
-		$params['id'] = $id;
-
-		if ( empty( $params['type'] ) ) {
-			$params['type'] = 'warning';
-		}
-
-		if ( empty( $params['dismissible'] ) ) {
-			$params['dismissible'] = true;
-		}
-
-		if ( $params['dismissible'] ) {
-			if ( empty( $params['additional_classes'] ) ) {
-				$params['additional_classes'] = array();
-			}
-
-			$params['additional_classes'][] = 'jetpack-deprecate-dismissible';
-		}
-
 		printf(
 			'<div id="%1$s" class="notice notice-warning is-dismissible jetpack-deprecate-dismissible" style="border-left-color: #000000;">%2$s</div>',
-			esc_html( $params['id'] ),
-			$text // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			esc_html( $id ),
+			$text // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Output already escaped in render_admin_notices
 		);
 	}
 
