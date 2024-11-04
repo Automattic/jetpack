@@ -229,15 +229,22 @@ class Jetpack_Social {
 			'version' => $this->get_plugin_version(),
 		);
 
+		$data['settings']['socialPlugin'] = array(
+			'publicize_active' => self::is_publicize_active(),
+
+		);
+
 		if ( $this->is_connected() ) {
 
 			$note = new Automattic\Jetpack\Social\Note();
 
-			$data['settings']['socialPlugin'] = array(
-				'publicize_active'     => self::is_publicize_active(),
-				'show_pricing_page'    => self::should_show_pricing_page(),
-				'social_notes_enabled' => $note->enabled(),
-				'social_notes_config'  => $note->get_config(),
+			$data['settings']['socialPlugin'] = array_merge(
+				$data['settings']['socialPlugin'],
+				array(
+					'show_pricing_page'    => self::should_show_pricing_page(),
+					'social_notes_enabled' => $note->enabled(),
+					'social_notes_config'  => $note->get_config(),
+				)
 			);
 		}
 
