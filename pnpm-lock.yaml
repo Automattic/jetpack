@@ -3262,6 +3262,9 @@ importers:
       '@wordpress/browserslist-config':
         specifier: 6.9.0
         version: 6.9.0
+      '@wordpress/components':
+        specifier: 28.9.0
+        version: 28.9.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       babel-jest:
         specifier: 29.4.3
         version: 29.4.3(@babel/core@7.24.7)
@@ -3764,6 +3767,9 @@ importers:
       '@automattic/jetpack-publicize-components':
         specifier: workspace:*
         version: link:../../js-packages/publicize-components
+      '@automattic/jetpack-script-data':
+        specifier: workspace:*
+        version: link:../../js-packages/script-data
       '@automattic/jetpack-shared-extension-utils':
         specifier: workspace:*
         version: link:../../js-packages/shared-extension-utils

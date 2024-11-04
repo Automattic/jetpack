@@ -144,7 +144,6 @@ $grid-size: 8px;
 	font-weight: 400;
 	line-height: 1.43;
 	color: var( --jp-gray-60 );
-	text-align: left;
 	margin: 0;
 }
 .jetpack-external-media-wrapper__jetpack_app_media-wrapper.has-no-image-uploaded {
@@ -543,33 +542,24 @@ $grid-size: 8px;
 }
 
 .jetpack-external-media-button-menu__dropdown {
-	width: 100%;
+	display: flex;
 
 	.jetpack-external-media-button-menu {
 		width: 100%;
 		flex-direction: row;
-		text-align: left;
 		padding-left: 12px;
 		padding-right: 12px;
-
-		.jetpack-external-media-button-menu__label {
-			flex-grow: 2;
-		}
 	}
 }
 
-// Set the wrapper as a flex container to allow displaying multiple buttons side by side.
 .jetpack-external-media-button-wrapper {
-	display: flex;
+	display: contents;
 }
 
 // Reset placeholder button margin.
 .components-placeholder__fieldset,
 .editor-post-featured-image {
 	.components-dropdown .jetpack-external-media-button-menu {
-		width: auto;
-		margin-bottom: 1em;
-
 		> svg {
 			display: none;
 		}

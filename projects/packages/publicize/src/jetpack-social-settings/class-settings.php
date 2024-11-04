@@ -149,6 +149,15 @@ class Settings {
 	}
 
 	/**
+	 * Get the image generator settings.
+	 *
+	 * @return array
+	 */
+	public function get_image_generator_settings() {
+		return get_option( self::OPTION_PREFIX . self::IMAGE_GENERATOR_SETTINGS, self::DEFAULT_IMAGE_GENERATOR_SETTINGS );
+	}
+
+	/**
 	 * Get the current settings.
 	 *
 	 * @param bool $with_available Whether to include the available status of the features.
@@ -159,8 +168,7 @@ class Settings {
 		$this->migrate_old_option();
 
 		$settings = array(
-			'socialImageGeneratorSettings' => get_option( self::OPTION_PREFIX . self::IMAGE_GENERATOR_SETTINGS, self::DEFAULT_IMAGE_GENERATOR_SETTINGS ),
-			'isUtmEnabled'                 => get_option( self::OPTION_PREFIX . self::IS_UTM_ENABLED, false ),
+			'socialImageGeneratorSettings' => $this->get_image_generator_settings(),
 		);
 
 		// The feature cannot be enabled without Publicize.

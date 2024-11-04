@@ -7,7 +7,7 @@ import { SocialScriptData } from '../types/types';
  * @return {SocialScriptData} The social script data.
  */
 export function getSocialScriptData(): SocialScriptData {
-	return getScriptData().social;
+	return getScriptData()?.social;
 }
 
 /**

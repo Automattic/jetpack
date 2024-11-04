@@ -3,6 +3,9 @@ description: "Setup needed versions of PHP, Node, and Pnpm."
 inputs:
   php:
     description: "Override the PHP version, or set 'false' to skip setting up PHP."
+  coverage:
+    description: "Set the PHP coverage driver, e.g. 'none' or 'pcov'."
+    default: 'none'
   node:
     description: "Override the Node version, or set 'false' to skip setting up Node and Pnpm."
 runs:
@@ -62,7 +65,7 @@ runs:
         ini-values: error_reporting=E_ALL, display_errors=On, zend.assertions=1
         tools: composer:${{ steps.versions.outputs.composer-version }}
         extensions: mysql, imagick
-        coverage: none
+        coverage: ${{ inputs.coverage }}
 
     - name: Configure composer
       if: steps.versions.outputs.php-version != 'false'

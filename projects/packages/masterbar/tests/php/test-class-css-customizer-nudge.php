@@ -1,6 +1,6 @@
 <?php
 /**
- * Test WPCOM_CSS_Customizer_Nudge.
+ * Test CSS_Customizer_Nudge.
  *
  * @package automattic/jetpack-masterbar
  */
@@ -15,7 +15,7 @@ require_once ABSPATH . WPINC . '/class-wp-customize-control.php';
 require_once dirname( __DIR__, 2 ) . '/src/nudges/bootstrap.php';
 
 /**
- * @covers Automattic\Jetpack\Masterbar\WPCOM_CSS_Customizer_Nudge
+ * @covers Automattic\Jetpack\Masterbar\CSS_Customizer_Nudge
  */
 class Test_CSS_Customizer_Nudge extends TestCase {
 	/**

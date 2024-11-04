@@ -13,8 +13,8 @@ import {
 	features,
 } from '@automattic/jetpack-publicize-components';
 import { siteHasFeature } from '@automattic/jetpack-script-data';
-import { useSelect, useDispatch } from '@wordpress/data';
-import { useState, useCallback, useEffect, useRef } from '@wordpress/element';
+import { useSelect } from '@wordpress/data';
+import { useState, useCallback } from '@wordpress/element';
 import React from 'react';
 import PricingPage from '../pricing-page';
 import SocialImageGeneratorToggle from '../social-image-generator-toggle';
@@ -33,8 +33,6 @@ const Admin = () => {
 	const showConnectionCard = ! isRegistered || ! isUserConnected;
 	const [ forceDisplayPricingPage, setForceDisplayPricingPage ] = useState( false );
 
-	const refreshJetpackSocialSettings = useDispatch( socialStore ).refreshJetpackSocialSettings;
-
 	const onPricingPageDismiss = useCallback( () => setForceDisplayPricingPage( false ), [] );
 
 	const { isModuleEnabled, showPricingPage, pluginVersion, isUpdatingJetpackSettings } = useSelect(
@@ -48,19 +46,6 @@ const Admin = () => {
 			};
 		}
 	);
-
-	const hasEnabledModule = useRef( isModuleEnabled );
-
-	useEffect( () => {
-		if (
-			isModuleEnabled &&
-			! hasEnabledModule.current &&
-			siteHasFeature( features.IMAGE_GENERATOR )
-		) {
-			hasEnabledModule.current = true;
-			refreshJetpackSocialSettings();
-		}
-	}, [ isModuleEnabled, refreshJetpackSocialSettings ] );
 
 	const moduleName = `Jetpack Social ${ pluginVersion }`;
 
