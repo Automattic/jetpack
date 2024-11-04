@@ -25,7 +25,6 @@ export function useCornerstonePages(): [
 
 const CornerstonePagesProperties = z.object( {
 	max_pages: z.number(),
-	max_pages_free: z.number(),
 	max_pages_premium: z.number(),
 } );
 type CornerstonePagesProperties = z.infer< typeof CornerstonePagesProperties >;
