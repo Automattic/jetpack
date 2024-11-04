@@ -64,11 +64,8 @@ export type ShareStatus = {
 	[ PostId: number ]: PostShareStatus;
 };
 
-// TODO we should have a consistent structure across all the pages - editor, dashboard, admin page etc.
 export type SocialStoreState = {
 	connectionData: ConnectionData;
-	// on Jetack Social admin page
-	jetpackSettings?: JetpackSettings;
 	shareStatus?: ShareStatus;
 };
 
