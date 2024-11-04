@@ -12,7 +12,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/autoloader",
-                "reference": "0f56ec98bb673d1b6fe8129b1bbdc0ab7eb30879"
+                "reference": "55bb380d5cde3e6bcb2f76cfa57c3cabeaf7abce"
             },
             "require": {
                 "composer-plugin-api": "^1.1 || ^2.0",
@@ -50,6 +50,10 @@
                 "phpunit": [
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],
+                "test-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"./tests/php/tmp/coverage-report.php\"",
+                    "php ./tests/php/bin/test-coverage.php \"$COVERAGE_DIR/php.cov\""
+                ],
                 "test-php": [
                     "@composer phpunit"
                 ]
@@ -76,7 +80,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/logo",
-                "reference": "0cbca46f49b19ea8f252cba7a7c67cf2b222824f"
+                "reference": "d760d29e84e858d603810db66d4e22b9c716e0a4"
             },
             "require": {
                 "php": ">=7.0"
@@ -108,6 +112,9 @@
                 "phpunit": [
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],
+                "test-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\""
+                ],
                 "test-php": [
                     "@composer phpunit"
                 ]
@@ -128,7 +135,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/changelogger",
-                "reference": "8489a82ca328626854da99e29f3cb0f017529cb5"
+                "reference": "0cc6743db37bf9031f4f3bc4bab4d6012d6540b7"
             },
             "require": {
                 "php": ">=7.0",
@@ -171,6 +178,9 @@
             "scripts": {
                 "phpunit": [
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\""
                 ],
                 "test-php": [
                     "@composer phpunit"

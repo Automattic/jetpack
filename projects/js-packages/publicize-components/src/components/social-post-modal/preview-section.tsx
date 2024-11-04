@@ -98,6 +98,7 @@ export function PreviewSection() {
 										}
 										checked={ isEnabled }
 										onChange={ toggleConnection( tab.connection_id, tab ) }
+										__nextHasNoMarginBottom={ true }
 									/>
 								) : null
 							}

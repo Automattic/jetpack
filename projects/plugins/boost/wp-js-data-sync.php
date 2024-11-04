@@ -174,6 +174,8 @@ $critical_css_suggest_regenerate_schema = Schema::enum(
 		'post_saved',
 		'switched_theme',
 		'plugin_change',
+		'cornerstone_page_saved',
+		'cornerstone_pages_list_updated',
 	)
 )->nullable();
 

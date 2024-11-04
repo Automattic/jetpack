@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Google Fonts: Fix the module is not fully loaded due to the chagne of the late_initialization

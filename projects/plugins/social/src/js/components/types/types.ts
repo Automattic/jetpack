@@ -7,8 +7,6 @@ type JetpackSettingsSelectors = {
 	isModuleEnabled: () => boolean;
 	showPricingPage: () => boolean;
 	isUpdatingJetpackSettings: () => boolean;
-	hasPaidPlan: () => boolean;
-	hasPaidFeatures: () => boolean;
 };
 
 type ConnectionDataSelectors = {
@@ -21,20 +19,6 @@ type SiteDataSelectors = {
 	getSiteTitle: () => string;
 	getSiteSuffix: () => string;
 	getBlogID: () => number;
-};
-
-type SocialImageGeneratorSettingsSelectors = {
-	getSocialImageGeneratorSettings: () => {
-		available: boolean;
-		enabled: boolean;
-		defaults: () => {
-			template: string;
-		};
-	};
-	isSocialImageGeneratorAvailable: () => boolean;
-	isSocialImageGeneratorEnabled: () => boolean;
-	isUpdatingSocialImageGeneratorSettings: () => boolean;
-	getSocialImageGeneratorDefaultTemplate: () => string;
 };
 
 type SocialNotesSettingsSelectors = {
@@ -50,5 +34,4 @@ type SocialNotesSettingsSelectors = {
 export type SocialStoreSelectors = JetpackSettingsSelectors &
 	ConnectionDataSelectors &
 	SiteDataSelectors &
-	SocialImageGeneratorSettingsSelectors &
 	SocialNotesSettingsSelectors;

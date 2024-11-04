@@ -15,7 +15,7 @@ use WorDBless\Users as WorDBless_Users;
 /**
  * Class Test_Dashboard_Switcher_Tracking
  *
- * @covers Dashboard_Switcher_Tracking
+ * @covers Automattic\Jetpack\Masterbar\Dashboard_Switcher_Tracking
  */
 class Test_Dashboard_Switcher_Tracking extends TestCase {
 	/**

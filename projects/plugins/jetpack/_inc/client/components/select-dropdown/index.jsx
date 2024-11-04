@@ -312,7 +312,7 @@ class SelectDropdown extends Component {
 		if ( ! this.state.isOpen ) {
 			return this.openDropdown();
 		}
-		document.activeElement.click();
+		this.dropdownContainerRef.current.ownerDocument.activeElement.click();
 	}
 
 	focusSibling( direction ) {
