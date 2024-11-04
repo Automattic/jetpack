@@ -72,9 +72,13 @@ const Meta = () => {
 								<br />
 								<b>
 									{ createInterpolateElement(
-										__(
-											'Free users can add only one cornerstone page. <link>Upgrade to add more</link>.',
-											'jetpack-boost'
+										sprintf(
+											/* translators: %d is the number of cornerstone pages. */
+											__(
+												'Premium users can add up to %d cornerstone pages. <link>Upgrade now</link>.',
+												'jetpack-boost'
+											),
+											cornerstonePagesProperties.max_pages_premium
 										),
 										{
 											link: (
