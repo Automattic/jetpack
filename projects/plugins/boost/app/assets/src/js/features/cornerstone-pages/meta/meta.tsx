@@ -15,6 +15,7 @@ import getSupportLink from '$lib/utils/get-support-link';
 import { useRegenerationReason } from '$features/critical-css/lib/stores/suggest-regenerate';
 import { usePremiumFeatures } from '$lib/stores/premium-features';
 import { useNavigate } from 'react-router-dom';
+import { useRegenerateCriticalCssAction } from '$features/critical-css/lib/stores/critical-css-state';
 
 const Meta = () => {
 	const [ isExpanded, setIsExpanded ] = useState( false );
@@ -24,6 +25,7 @@ const Meta = () => {
 	const premiumFeatures = usePremiumFeatures();
 	const isPremium = premiumFeatures.includes( 'support' );
 	const navigate = useNavigate();
+	const regenerateAction = useRegenerateCriticalCssAction();
 
 	const toggleExpanded = ( newValue: boolean ) => {
 		recordBoostEvent( 'cornerstone_pages_show_options_toggle', {
@@ -37,6 +39,7 @@ const Meta = () => {
 
 		setCornerstonePages( newItems, () => {
 			refetchRegenerationReason();
+			regenerateAction.mutate();
 		} );
 	};
 

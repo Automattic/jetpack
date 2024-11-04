@@ -37,14 +37,14 @@ class Cornerstone_Pages implements Has_Setup {
 
 	private function default_pages() {
 		if ( $this->get_max_pages() === static::FREE_MAX_PAGES ) {
-			return array( '/' );
+			return array( '' );
 		}
 
 		$max_pages               = $this->get_max_pages();
 		$yoast_cornerstone_pages = $this->get_yoast_cornerstone_pages();
 		$woocommerce_pages       = $this->get_woocommerce_pages();
 
-		$homepage = array( '/' );
+		$homepage = array( '' );
 
 		$urls = array_unique( array_merge( $homepage, $woocommerce_pages, $yoast_cornerstone_pages ) );
 
@@ -104,7 +104,16 @@ class Cornerstone_Pages implements Has_Setup {
 	}
 
 	public function get_pages() {
-		return jetpack_boost_ds_get( 'cornerstone_pages_list' );
+		$pages = jetpack_boost_ds_get( 'cornerstone_pages_list' );
+
+		$permalink_structure = get_option( 'permalink_structure' );
+
+		// If permalink structure ends with slash, add trailing slashes
+		if ( $permalink_structure && substr( $permalink_structure, -1 ) === '/' ) {
+			$pages = array_map( 'trailingslashit', $pages );
+		}
+
+		return $pages;
 	}
 
 	public function get_properties() {
