@@ -1567,7 +1567,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/publicize",
-				"reference": "834bebc9dc89de49d6dd231501e08d23206e07fd"
+				"reference": "7e1e42139907eee58c3516b9439f859718eda8db"
 			},
 			"require": {
 				"automattic/jetpack-assets": "@dev",
@@ -1576,6 +1576,7 @@
 				"automattic/jetpack-connection": "@dev",
 				"automattic/jetpack-plans": "@dev",
 				"automattic/jetpack-redirect": "@dev",
+				"automattic/jetpack-status": "@dev",
 				"php": ">=7.0"
 			},
 			"require-dev": {
