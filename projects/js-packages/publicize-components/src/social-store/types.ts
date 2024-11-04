@@ -94,6 +94,7 @@ export type SocialImageGeneratorConfig = {
 
 export type SocialSettingsFields = {
 	jetpack_social_image_generator_settings: SocialImageGeneratorConfig;
+	jetpack_social_is_utm_enabled: boolean;
 };
 
 declare global {

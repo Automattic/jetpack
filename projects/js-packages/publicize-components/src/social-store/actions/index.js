@@ -3,6 +3,7 @@ import siteSettingActions from './jetpack-settings';
 import * as shareStatus from './share-status';
 import * as sigActions from './social-image-generator';
 import socialNotesSettings from './social-notes-settings';
+import * as utmActions from './utm';
 
 const actions = {
 	...shareStatus,
@@ -10,6 +11,7 @@ const actions = {
 	...connectionData,
 	...socialNotesSettings,
 	...sigActions,
+	...utmActions,
 };
 
 export default actions;

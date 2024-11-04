@@ -1,4 +1,5 @@
 import { Text } from '@automattic/jetpack-components';
+import { store as socialStore } from '@automattic/jetpack-publicize-components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -15,18 +16,17 @@ type UtmToggleProps = {
 
 const UtmToggle: React.FC< UtmToggleProps > = ( { disabled } ) => {
 	const { isEnabled, isUpdating } = useSelect( select => {
-		// const store = select( SOCIAL_STORE_ID ) as SocialStoreSelectors;
 		return {
-			isEnabled: false, //store...(),
-			isUpdating: false, //store...(),
+			isEnabled: select( socialStore ).getIsUtmEnabled(),
+			isUpdating: select( socialStore ).isSavingSiteSettings(),
 		};
 	}, [] );
 
-	// const updateOptions = useDispatch( SOCIAL_STORE_ID )...;
+	const { updateIsUtmEnabled } = useDispatch( socialStore );
 
 	const toggleStatus = useCallback( () => {
-		// updateOptions( ! isEnabled );
-	}, [ isEnabled ] );
+		updateIsUtmEnabled( ! isEnabled );
+	}, [ isEnabled, updateIsUtmEnabled ] );
 
 	return (
 		<ToggleSection

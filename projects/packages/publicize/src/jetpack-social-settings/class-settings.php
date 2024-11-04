@@ -133,7 +133,7 @@ class Settings {
 
 		register_setting(
 			'jetpack_social',
-			self::IS_UTM_ENABLED,
+			self::OPTION_PREFIX . self::IS_UTM_ENABLED,
 			array(
 				'type'         => 'boolean',
 				'default'      => false,
@@ -158,6 +158,15 @@ class Settings {
 	}
 
 	/**
+	 * Get if the UTM params is enabled.
+	 *
+	 * @return bool
+	 */
+	public function get_is_utm_enabled() {
+		return get_option( self::OPTION_PREFIX . self::IS_UTM_ENABLED, false );
+	}
+
+	/**
 	 * Get the current settings.
 	 *
 	 * @param bool $with_available Whether to include the available status of the features.
@@ -169,6 +178,7 @@ class Settings {
 
 		$settings = array(
 			'socialImageGeneratorSettings' => $this->get_image_generator_settings(),
+			'isUtmEnabled'                 => $this->get_is_utm_enabled(),
 		);
 
 		// The feature cannot be enabled without Publicize.
