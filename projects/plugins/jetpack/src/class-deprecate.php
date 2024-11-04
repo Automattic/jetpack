@@ -37,12 +37,13 @@ class Deprecate {
 		// Example $this->notices content. Note that the key must end with '-deprecate-feature' to display in My Jetpack - see packages/my-jetpack/_inc/hooks/use-notification-watcher/use-deprecate-feature-notice.ts:
 		// array(
 		// 'my-admin-deprecate-feature' => array(
-		// 'title'   => __( "Retired feature: Jetpack's XYZ Feature", 'jetpack' ),
-		// 'message' => __( 'This feature is being retired and will be removed effective November, 2024. Please use the Classic Theme Helper plugin instead.', 'jetpack' ),
-		// 'link'    => array(
+		// 'title'     => __( "Retired feature: Jetpack's XYZ Feature", 'jetpack' ),
+		// 'message'   => __( 'This feature is being retired and will be removed effective November, 2024. Please use the Classic Theme Helper plugin instead.', 'jetpack' ),
+		// 'link'      => array(
 		// 'label' => __( 'Learn more', 'jetpack' ),
 		// 'url'   => 'jetpack-support-xyz',
 		// ),
+		// 'show'      => $this->show_feature_notice( 'my-admin-deprecate-feature' ),
 		// ),
 		// phpcs:enable Squiz.PHP.CommentedOutCode.Found
 		$this->notices = array();
@@ -88,6 +89,11 @@ class Deprecate {
 		}
 
 		wp_enqueue_script( 'jetpack-deprecate' );
+		wp_add_inline_script(
+			'jetpack-deprecate',
+			'window.noticeInfo = ' . wp_json_encode( $this->notices ) . ';',
+			'before'
+		);
 	}
 
 	/**

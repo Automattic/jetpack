@@ -193,48 +193,11 @@ class JetpackNotices extends React.Component {
 		};
 	}
 
-	componentDidMount() {
-		const noticeHandlers = {};
-		const noticeKeys = []; // Add more notice keys here
-
-		noticeKeys.forEach( noticeKey => {
-			noticeHandlers[ noticeKey ] = this.dismissNotice.bind( this, noticeKey );
-		} );
-
-		this.setState( { noticeHandlers } );
-	}
-
 	dismissNotice = noticeKey => {
-		this.setState( prevState => ( {
-			dismissedNotices: {
-				...prevState.dismissedNotices,
-				[ noticeKey ]: '1',
-			},
-		} ) );
-
 		document.cookie = `jetpack_deprecate_dismissed[${ noticeKey }]=1; expires=Fri, 31 Dec 9999 23:59:59 GMT; path=/; Secure; SameSite=None`;
 	};
 
-	isNoticeDismissed = noticeKey => {
-		return this.state.dismissedNotices[ noticeKey ] === '1';
-	};
-
 	render() {
-		// Add notices here. Example:
-		// const notices = [
-		// 	{
-		// 		noticeKey: 'my-admin-deprecate-feature',
-		// 		title: __( "Retired feature: Jetpack's XYZ Feature", 'jetpack' ),
-		// 		message: __(
-		// 			'This feature is being retired and will be removed effective November, 2024. Please use the Classic Theme Helper plugin instead.',
-		// 			'jetpack'
-		// 		),
-		// 		link: getRedirectUrl( 'my-support' ),
-		// 		linkText: __( 'Learn more', 'jetpack' ),
-		// 		show: this.props.showXYZNotice && ! this.isNoticeDismissed( 'my-admin-deprecate-feature' ),
-		// 	},
-		// ];
-		const notices = [ {} ];
 		const siteDataErrors = this.props.siteDataErrors.filter( error =>
 			Object.hasOwn( error, 'action' )
 		);
@@ -294,19 +257,22 @@ class JetpackNotices extends React.Component {
 					/>
 				) }
 
-				{ notices.map( ( { noticeKey, message, link, show, title, linkText } ) => (
-					<DeprecationNotice
-						key={ noticeKey }
-						show={ show && ! this.isNoticeDismissed( noticeKey ) }
-						noticeKey={ noticeKey }
-						// eslint-disable-next-line react/jsx-no-bind
-						dismissNotice={ () => this.dismissNotice( noticeKey ) }
-						title={ title }
-						message={ message }
-						link={ link }
-						linkText={ linkText }
-					/>
-				) ) }
+				{ window.noticeInfo &&
+					Object.entries( window.noticeInfo ).map(
+						( [ noticeKey, { title, message, link, show } ] ) => (
+							<DeprecationNotice
+								key={ noticeKey }
+								show={ show }
+								noticeKey={ noticeKey }
+								// eslint-disable-next-line react/jsx-no-bind
+								dismissNotice={ () => this.dismissNotice( noticeKey ) }
+								title={ title }
+								message={ message }
+								link={ link.url }
+								linkText={ link.label }
+							/>
+						)
+					) }
 			</div>
 		);
 	}
