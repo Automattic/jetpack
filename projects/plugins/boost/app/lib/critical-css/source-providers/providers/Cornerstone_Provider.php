@@ -77,6 +77,12 @@ class Cornerstone_Provider extends Provider {
 	 * @inheritdoc
 	 */
 	public static function get_hash_for_url( $url ) {
+		// Remove the home_url from the beginning of the URL.
+		$home_url = home_url();
+		if ( stripos( $url, $home_url ) === 0 ) {
+			$url = substr( $url, strlen( $home_url ) );
+		}
+
 		$hash = hash( 'md5', $url );
 
 		return substr( $hash, 0, 8 );

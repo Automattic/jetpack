@@ -118,7 +118,8 @@ class Cornerstone_Pages implements Has_Setup {
 
 	public function get_properties() {
 		return array(
-			'max_pages' => $this->get_max_pages(),
+			'max_pages'         => $this->get_max_pages(),
+			'max_pages_premium' => static::PREMIUM_MAX_PAGES,
 		);
 	}
 
@@ -137,6 +138,6 @@ class Cornerstone_Pages implements Has_Setup {
 	}
 
 	private function get_max_pages() {
-		return Premium_Features::has_any() ? static::PREMIUM_MAX_PAGES : static::FREE_MAX_PAGES;
+		return Premium_Features::has_feature( Premium_Features::CORNERSTONE_TEN_PAGES ) ? static::PREMIUM_MAX_PAGES : static::FREE_MAX_PAGES;
 	}
 }
