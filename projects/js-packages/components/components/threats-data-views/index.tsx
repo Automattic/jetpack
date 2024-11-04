@@ -69,9 +69,12 @@ export function ThreatsStatusToggleGroupControl( {
 			<ToggleGroupControlOption
 				value="active"
 				label={
-					<span>
+					<span className={ styles[ 'toggle-group-control__option' ] }>
 						{ sprintf(
-							/* translators: %d: number of active threats */ __( 'Active (%d)', 'jetpack' ),
+							/* translators: %d: number of active threats */ __(
+								'Active threats (%d)',
+								'jetpack'
+							),
 							activeThreatsCount
 						) }
 					</span>
@@ -80,10 +83,10 @@ export function ThreatsStatusToggleGroupControl( {
 			<ToggleGroupControlOption
 				value="historic"
 				label={
-					<span className={ styles[ 'toggle-control' ] }>
+					<span className={ styles[ 'toggle-group-control__option' ] }>
 						{ sprintf(
 							/* translators: %d: number of historic threats */
-							__( 'Historic (%d)', 'jetpack' ),
+							__( 'History (%d)', 'jetpack' ),
 							historicThreatsCount
 						) }
 					</span>
@@ -206,7 +209,7 @@ export default function ThreatsDataViews( {
 	 *
 	 * @member {Array}  activeThreatIds - List of active threat IDs.
 	 * @member {Array}  historicThreatIds - List of historic threat IDs.
-	 * @member {object} extensions - List of unique threat extensions.
+	 * @member {object} extensions - List of unique threat themes.
 	 * @member {object} signatures - List of unique threat signatures.
 	 * @member {Array}  dataFields - List of unique fields.
 	 */
