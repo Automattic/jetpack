@@ -82,9 +82,6 @@ class Cornerstone_Provider extends Provider {
 		if ( stripos( $url, $home_url ) === 0 ) {
 			$url = substr( $url, strlen( $home_url ) );
 		}
-		if ( $url === '' ) {
-			$url = '/';
-		}
 
 		$hash = hash( 'md5', $url );
 
