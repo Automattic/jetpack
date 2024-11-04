@@ -57,7 +57,7 @@ function jetpack_load_shortcodes() {
 	/**
 	 * This filter allows other plugins to override which shortcodes Jetpack loads.
 	 *
-	 * Fires as part of the `plugins_loaded` WP hook, so modifying code needs to be in a plugin, not in a theme's functions.php.
+	 * Fires as part of the `after_setup_theme` WP hook, so modifying code needs to be in a plugin, not in a theme's functions.php.
 	 *
 	 * @module shortcodes
 	 *

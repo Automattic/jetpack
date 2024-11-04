@@ -3262,6 +3262,9 @@ importers:
       '@wordpress/browserslist-config':
         specifier: 6.9.0
         version: 6.9.0
+      '@wordpress/components':
+        specifier: 28.9.0
+        version: 28.9.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       babel-jest:
         specifier: 29.4.3
         version: 29.4.3(@babel/core@7.24.7)
@@ -3764,6 +3767,9 @@ importers:
       '@automattic/jetpack-publicize-components':
         specifier: workspace:*
         version: link:../../js-packages/publicize-components
+      '@automattic/jetpack-script-data':
+        specifier: workspace:*
+        version: link:../../js-packages/script-data
       '@automattic/jetpack-shared-extension-utils':
         specifier: workspace:*
         version: link:../../js-packages/shared-extension-utils
@@ -8081,6 +8087,7 @@ packages:
   '@xmldom/xmldom@0.7.13':
     resolution: {integrity: sha512-lm2GW5PkosIzccsaZIz7tp8cPADSIlIHWDFTR1N0SzfinhhYgeIQjFMz4rYzanCScr3DqQLeomUDArp6MWKm+g==}
     engines: {node: '>=10.0.0'}
+    deprecated: this version is no longer supported, please update to at least 0.8.*
 
   '@xtuc/ieee754@1.2.0':
     resolution: {integrity: sha512-DX8nKgqcGwsc0eJSqYt5lwP4DH5FlHnmuWWBRy7X0NcaGR0ZtuyeESgMwTYVEtxmsNGY+qit4QYT/MIYTOTPeA==}

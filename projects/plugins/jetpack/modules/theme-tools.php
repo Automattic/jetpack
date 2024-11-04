@@ -60,7 +60,7 @@ function jetpack_load_theme_compat() {
 		_jetpack_require_compat_file( get_template(), $compat_files );
 	}
 }
-add_action( 'after_setup_theme', 'jetpack_load_theme_compat', -1 );
+add_action( 'after_setup_theme', 'jetpack_load_theme_compat' );
 
 /**
  * Requires a file once, if the passed key exists in the files array.

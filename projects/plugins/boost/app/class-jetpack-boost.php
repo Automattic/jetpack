@@ -24,6 +24,7 @@ use Automattic\Jetpack_Boost\Data_Sync\Getting_Started_Entry;
 use Automattic\Jetpack_Boost\Lib\Analytics;
 use Automattic\Jetpack_Boost\Lib\CLI;
 use Automattic\Jetpack_Boost\Lib\Connection;
+use Automattic\Jetpack_Boost\Lib\Cornerstone_Pages;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Storage;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Generator;
@@ -36,6 +37,7 @@ use Automattic\Jetpack_Boost\Modules\Modules_Setup;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Page_Cache;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Page_Cache_Setup;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache_Settings;
+use Automattic\Jetpack_Boost\REST_API\Endpoints\List_Cornerstone_Pages;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\List_Site_Urls;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\List_Source_Providers;
 use Automattic\Jetpack_Boost\REST_API\REST_API;
@@ -107,6 +109,9 @@ class Jetpack_Boost {
 
 		$modules_setup = new Modules_Setup();
 		Setup::add( $modules_setup );
+
+		$cornerstone_pages = new Cornerstone_Pages();
+		Setup::add( $cornerstone_pages );
 
 		// Initialize the Admin experience.
 		$this->init_admin( $modules_setup );
@@ -190,6 +195,8 @@ class Jetpack_Boost {
 	public function init_admin( $modules_setup ) {
 		REST_API::register( List_Site_Urls::class );
 		REST_API::register( List_Source_Providers::class );
+		REST_API::register( List_Cornerstone_Pages::class );
+
 		$this->connection->ensure_connection();
 		( new Admin() )->init( $modules_setup );
 	}

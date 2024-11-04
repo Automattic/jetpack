@@ -326,18 +326,12 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.0-a.7 - 2024-10-21
-#### Enhancements
-- Newsletters: Add an email preview option to the preview menu.
-- Newsletters: Allow skipping newsletter modals with a URL query param.
-
+### 14.0-a.11 - 2024-10-29
 #### Improved compatibility
-- General: Ensure notice displays without errors when running an old version of WordPress.
-- Plugin action links filters: Update parameter to avoid conflicts with other plugins.
+- Post Editor: Prevent deprecation notices with WordPress 6.7.
 
 #### Bug fixes
-- Map Block: Fix issue where blocks placed underneath would overlap with the map block.
-- Newsletters: Fix "Use excerpt" setting.
+- Carousel: Further improve accessibility by being more selective over which images to apply attributes to.
 
 --------
 
