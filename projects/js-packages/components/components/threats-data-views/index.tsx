@@ -13,8 +13,8 @@ import {
 } from '@wordpress/dataviews';
 import { dateI18n } from '@wordpress/date';
 import { __ } from '@wordpress/i18n';
+import { code, color, grid, plugins as pluginsIcon, shield, wordpress } from '@wordpress/icons';
 import { Icon } from '@wordpress/icons';
-import { code, color, grid, plugins, shield, wordpress } from '@wordpress/icons';
 import { useCallback, useMemo, useState } from 'react';
 import Badge from '../badge';
 import ThreatFixerButton from '../threat-fixer-button';
@@ -116,16 +116,19 @@ export default function ThreatsDataViews( {
 	/**
 	 * Compute values from the provided threats data.
 	 *
-	 * @member {object} extensions - List of unique threat extensions.
+	 * @member {object} themes - List of unique threat themes.
+	 * @member {object} plugins - List of unique threat plugins.
 	 * @member {object} signatures - List of unique threat signatures.
 	 * @member {Array}  dataFields - List of unique fields.
 	 */
 	const {
-		extensions,
+		themes,
+		plugins,
 		signatures,
 		dataFields,
 	}: {
-		extensions: { value: string; label: string }[];
+		themes: { value: string; label: string }[];
+		plugins: { value: string; label: string }[];
 		signatures: { value: string; label: string }[];
 		dataFields: string[];
 	} = useMemo( () => {
@@ -133,8 +136,18 @@ export default function ThreatsDataViews( {
 			( acc, threat ) => {
 				// Extensions
 				if ( threat.extension ) {
-					if ( ! acc.extensions.find( ( { value } ) => value === threat.extension.slug ) ) {
-						acc.extensions.push( { value: threat.extension.slug, label: threat.extension.name } );
+					// Themes
+					if ( 'theme' === threat.extension.type ) {
+						if ( ! acc.themes.find( ( { value } ) => value === threat.extension.slug ) ) {
+							acc.themes.push( { value: threat.extension.slug, label: threat.extension.name } );
+						}
+					}
+
+					// Plugins
+					if ( 'plugin' === threat.extension.type ) {
+						if ( ! acc.plugins.find( ( { value } ) => value === threat.extension.slug ) ) {
+							acc.plugins.push( { value: threat.extension.slug, label: threat.extension.name } );
+						}
 					}
 				}
 
@@ -160,7 +173,10 @@ export default function ThreatsDataViews( {
 				return acc;
 			},
 			{
-				extensions: [],
+				activeThreatIds: [],
+				historicThreatIds: [],
+				themes: [],
+				plugins: [],
 				signatures: [],
 				dataFields: [],
 			}
@@ -205,7 +221,7 @@ export default function ThreatsDataViews( {
 					let icon;
 					switch ( type ) {
 						case 'plugin':
-							icon = plugins;
+							icon = pluginsIcon;
 							break;
 						case 'theme':
 							icon = color;
@@ -268,10 +284,19 @@ export default function ThreatsDataViews( {
 				},
 			},
 			{
-				id: 'extension',
-				label: __( 'Extension', 'jetpack' ),
+				id: 'theme',
+				label: __( 'Theme', 'jetpack' ),
 				enableGlobalSearch: true,
-				elements: extensions,
+				elements: themes,
+				getValue( { item }: { item: Threat } ) {
+					return item.extension ? item.extension.slug : '';
+				},
+			},
+			{
+				id: 'plugin',
+				label: __( 'Plugin', 'jetpack' ),
+				enableGlobalSearch: true,
+				elements: plugins,
 				getValue( { item }: { item: Threat } ) {
 					return item.extension ? item.extension.slug : '';
 				},
@@ -367,7 +392,7 @@ export default function ThreatsDataViews( {
 		];
 
 		return result;
-	}, [ dataFields, extensions, signatures, onFixThreats ] );
+	}, [ dataFields, plugins, themes, signatures, onFixThreats ] );
 
 	/**
 	 * DataView actions - collection of operations that can be performed upon each record.
