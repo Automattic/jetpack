@@ -20,5 +20,5 @@ Notices show on the Jetpack Settings and Dashboard pages with the existing notic
 
 The existing notice display logic is based on cookies. If a notice is dismissed, a cookie is added. If that cookie exists when checked for, then the relevant notice won't show.
 
-Other relevant files with deprecation notice logic include the [`JetpackNotices`](/projects/plugins/jetpack/_inc/client/components/jetpack-notices/index.jsx) class and the associated [`DeprecationNotice`](/projects/plugins/jetpack/_inc/client/components/jetpack-notices/deprecation-notice.jsx) itself. It also includes a JavaScript file where style notices and where the cookie is set when a notice dismissed.
+Other relevant files with deprecation notice logic include the [`JetpackNotices`](/projects/plugins/jetpack/_inc/client/components/jetpack-notices/index.jsx) class and the associated [`DeprecationNotice`](/projects/plugins/jetpack/_inc/client/components/jetpack-notices/deprecation-notice.jsx) itself. It also includes a JavaScript file where style notices and where the cookie is set when a notice dismissed [here](/projects/plugins/jetpack/_inc/deprecate.js).
 
