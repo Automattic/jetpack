@@ -12,9 +12,6 @@ export const getThreatType = ( threat: Threat ) => {
 	if ( threat.filename ) {
 		return 'file';
 	}
-	if ( threat.table ) {
-		return 'database';
-	}
 
 	return null;
 };
