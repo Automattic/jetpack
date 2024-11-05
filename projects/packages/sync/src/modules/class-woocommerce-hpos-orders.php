@@ -118,10 +118,8 @@ class WooCommerce_HPOS_Orders extends Module {
 			add_filter( "jetpack_sync_before_enqueue_woocommerce_after_{$type}_object_save", array( $this, 'expand_order_object' ) );
 		}
 		add_action( 'woocommerce_delete_order', $callable );
-		add_action( 'woocommerce_delete_order_refund', $callable );
 		add_action( 'woocommerce_delete_subscription', $callable );
 		add_filter( 'jetpack_sync_before_enqueue_woocommerce_delete_order', array( $this, 'on_before_enqueue_order_trash_delete' ) );
-		add_filter( 'jetpack_sync_before_enqueue_woocommerce_delete_order_refund', array( $this, 'on_before_enqueue_order_trash_delete' ) );
 		add_filter( 'jetpack_sync_before_enqueue_woocommerce_delete_subscription', array( $this, 'on_before_enqueue_order_trash_delete' ) );
 		add_action( 'woocommerce_trash_order', $callable );
 		add_action( 'woocommerce_trash_subscription', $callable );
