@@ -3,12 +3,14 @@
 ### This is a list detailing changes for all Jetpack releases.
 
 ## 14.0 - 2024-11-05
-### Enhancements
+### Major enhancements
 - Newsletters: Add email previews and a floating subscribe button. [#37722] [#39782]
+- Social: Add support for Bluesky. [#39659] [#39561]
+
+### Enhancements
 - Newsletters: Allow skipping newsletter modals with the "jetpack_skip_subscription_popup" URL query param. [#39644]
 - Newsletters: Update the default "reply to" setting value from not allowed to replies being posted as public comments. [#39657]
 - Performance: Optimize CSS for better page load performance and improve sitemap write efficiency. [#39518] [#39572]
-- Social: Add support for Bluesky. [#39659] [#39561]
 
 ### Improved compatibility
 - Embed Blocks: Append 'Embed' to Facebook and Instagram embed blocks' titles. [#39970]
