@@ -46,7 +46,18 @@ class Deprecate {
 		// 'show'      => $this->show_feature_notice( 'my-admin-deprecate-feature' ),
 		// ),
 		// phpcs:enable Squiz.PHP.CommentedOutCode.Found
-		$this->notices = array();
+		// $this->notices = array();
+		$this->notices = array(
+			'my-admin-deprecate-feature' => array(
+				'title'   => __( "Retired feature: Jetpack's XYZ Feature", 'jetpack' ),
+				'message' => __( 'This feature is being retired and will be removed effective November, 2024. Please use the Classic Theme Helper plugin instead.', 'jetpack' ),
+				'link'    => array(
+					'label' => __( 'Learn more', 'jetpack' ),
+					'url'   => 'jetpack-support-xyz',
+				),
+				'show'    => $this->show_feature_notice( 'my-admin-deprecate-feature' ),
+			),
+		);
 
 		if ( $this->has_notices() ) {
 			add_action( 'load-index.php', array( $this, 'render_admin_notices' ) );
@@ -165,10 +176,6 @@ class Deprecate {
 	 * @return void
 	 */
 	private function render_notice( $id, $text ) {
-		if ( ! empty( $_COOKIE['jetpack_deprecate_dismissed'][ $id ] ) ) {
-			return;
-		}
-
 		printf(
 			'<div id="%1$s" class="notice notice-warning is-dismissible jetpack-deprecate-dismissible" style="border-left-color: #000000;">%2$s</div>',
 			esc_html( $id ),
