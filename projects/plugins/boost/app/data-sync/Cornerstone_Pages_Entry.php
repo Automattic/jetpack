@@ -4,6 +4,7 @@ namespace Automattic\Jetpack_Boost\Data_Sync;
 
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Get;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Set;
+use Automattic\Jetpack_Boost\Lib\Cornerstone_Pages;
 use Automattic\Jetpack_Boost\Lib\Environment_Change_Detector;
 
 class Cornerstone_Pages_Entry implements Entry_Can_Get, Entry_Can_Set {
@@ -29,8 +30,7 @@ class Cornerstone_Pages_Entry implements Entry_Can_Get, Entry_Can_Set {
 		$value = $this->sanitize_value( $value );
 
 		if ( empty( $value ) || count( $value ) === 1 && $value[0] === '' ) {
-			delete_option( $this->option_key );
-			return;
+			$value = ( new Cornerstone_Pages() )->default_pages();
 		}
 
 		$value = array_map( 'untrailingslashit', $value );
