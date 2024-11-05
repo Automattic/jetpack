@@ -37,15 +37,14 @@ class Deprecate {
 		// Modify the notices array to include the notices you want to display.
 		$this->notices = array(
 			'my-admin' => array(
-				'title'         => __( "Retired feature: Jetpack's XYZ Feature", 'jetpack' ),
-				'message'       => __( 'This feature is being retired and will be removed effective November, 2024. Please use the Classic Theme Helper plugin instead.', 'jetpack' ),
-				'link'          => array(
+				'title'       => __( "Retired feature: Jetpack's XYZ Feature", 'jetpack' ),
+				'message'     => __( 'This feature is being retired and will be removed effective November, 2024. Please use the Classic Theme Helper plugin instead.', 'jetpack' ),
+				'link'        => array(
 					'label' => __( 'Learn more', 'jetpack' ),
 					'url'   => 'jetpack-support-xyz',
 				),
-				'show'          => false, // 'show' is not required, but setting it to false will ensure that the notice will not be displayed.
-				'hide_in_woa'   => true, // 'hide_in_woa' is not required, but setting it to true will ensure that the notice will not be displayed in the WoA admin.
-				'hide_in_wpcom' => true, // 'hide_in_wpcom' is not required, but setting it to true will ensure that the notice will not be displayed in the WordPress.com admin.
+				'show'        => false, // 'show' is not required, but setting it to false will ensure that the notice will not be displayed.
+				'hide_in_woa' => true, // 'hide_in_woa' is not required, but setting it to true will ensure that the notice will not be displayed in the WoA admin (none will display in Simple regardless).
 			),
 		);
 		$this->set_notices();
@@ -116,10 +115,6 @@ class Deprecate {
 
 		foreach ( $this->notices as $id => $notice ) {
 			if ( $host->is_woa_site() && isset( $notice['hide_in_woa'] ) && true === $notice['hide_in_woa'] ) {
-				continue;
-			}
-
-			if ( $host->is_wpcom_simple() && isset( $notice['hide_in_wpcom'] ) && true === $notice['hide_in_wpcom'] ) {
 				continue;
 			}
 
