@@ -48,6 +48,7 @@ class Deprecate {
 		$this->set_notices();
 
 		if ( $this->has_notices() ) {
+			// We only want the notice to appear on the main WP Admin dashboard, which hooking into load-index.php will allow.
 			add_action(
 				'load-index.php',
 				function () {
