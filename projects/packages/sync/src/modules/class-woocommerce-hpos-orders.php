@@ -432,6 +432,7 @@ class WooCommerce_HPOS_Orders extends Module {
 		}
 
 		if ( function_exists( 'wcs_get_subscription_statuses' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredFunction -- Checked above. See also https://github.com/phan/phan/issues/1204.
 			$wc_subscription_statuses = array_keys( wcs_get_subscription_statuses() );
 			$wc_order_statuses        = array_merge( $wc_order_statuses, $wc_subscription_statuses );
 		}
