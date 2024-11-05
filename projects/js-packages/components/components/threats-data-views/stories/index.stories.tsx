@@ -164,8 +164,8 @@ Default.args = {
 	filters: [
 		{
 			field: 'status',
-			operator: 'is',
-			value: 'current',
+			operator: 'isAny',
+			value: [ 'current' ],
 		},
 	],
 	onFixThreats: () =>
