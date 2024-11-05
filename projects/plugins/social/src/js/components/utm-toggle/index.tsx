@@ -17,16 +17,16 @@ type UtmToggleProps = {
 const UtmToggle: React.FC< UtmToggleProps > = ( { disabled } ) => {
 	const { isEnabled, isUpdating } = useSelect( select => {
 		return {
-			isEnabled: select( socialStore ).getIsUtmEnabled(),
+			isEnabled: select( socialStore ).getUtmSettings().enabled,
 			isUpdating: select( socialStore ).isSavingSiteSettings(),
 		};
 	}, [] );
 
-	const { updateIsUtmEnabled } = useDispatch( socialStore );
+	const { updateUtmSettings } = useDispatch( socialStore );
 
 	const toggleStatus = useCallback( () => {
-		updateIsUtmEnabled( ! isEnabled );
-	}, [ isEnabled, updateIsUtmEnabled ] );
+		updateUtmSettings( { enabled: ! isEnabled } );
+	}, [ isEnabled, updateUtmSettings ] );
 
 	return (
 		<ToggleSection

@@ -31,7 +31,11 @@ class Settings {
 		'template' => Templates::DEFAULT_TEMPLATE,
 	);
 
-	const IS_UTM_ENABLED = 'is_utm_enabled';
+	const UTM_SETTINGS = 'utm_settings';
+
+	const DEFAULT_UTM_SETTINGS = array(
+		'enabled' => false,
+	);
 
 	/**
 	 * Feature flags. Each item has 3 keys because of the naming conventions:
@@ -133,13 +137,18 @@ class Settings {
 
 		register_setting(
 			'jetpack_social',
-			self::OPTION_PREFIX . self::IS_UTM_ENABLED,
+			self::OPTION_PREFIX . self::UTM_SETTINGS,
 			array(
 				'type'         => 'boolean',
 				'default'      => false,
 				'show_in_rest' => array(
 					'schema' => array(
-						'type' => 'boolean',
+						'type'       => 'object',
+						'properties' => array(
+							'enabled' => array(
+								'type' => 'boolean',
+							),
+						),
 					),
 				),
 			)
@@ -160,10 +169,10 @@ class Settings {
 	/**
 	 * Get if the UTM params is enabled.
 	 *
-	 * @return bool
+	 * @return array
 	 */
-	public function get_is_utm_enabled() {
-		return get_option( self::OPTION_PREFIX . self::IS_UTM_ENABLED, false );
+	public function get_utm_settings() {
+		return get_option( self::OPTION_PREFIX . self::UTM_SETTINGS, self::DEFAULT_UTM_SETTINGS );
 	}
 
 	/**
@@ -178,7 +187,7 @@ class Settings {
 
 		$settings = array(
 			'socialImageGeneratorSettings' => $this->get_image_generator_settings(),
-			'isUtmEnabled'                 => $this->get_is_utm_enabled(),
+			'utmSettings'                  => $this->get_utm_settings(),
 		);
 
 		// The feature cannot be enabled without Publicize.
@@ -249,8 +258,14 @@ class Settings {
 			return $this->update_social_image_generator_settings( $value );
 		}
 
-		if ( self::OPTION_PREFIX . self::IS_UTM_ENABLED === $name ) {
-			return update_option( self::OPTION_PREFIX . self::IS_UTM_ENABLED, $value );
+		if ( self::OPTION_PREFIX . self::UTM_SETTINGS === $name ) {
+			$current_utm_settings = $this->get_utm_settings();
+
+			if ( empty( $current_utm_settings ) || ! is_array( $current_utm_settings ) ) {
+				$current_utm_settings = self::DEFAULT_UTM_SETTINGS;
+			}
+
+			return update_option( self::OPTION_PREFIX . self::UTM_SETTINGS, array_replace_recursive( $current_utm_settings, $value ) );
 		}
 
 		return $updated;

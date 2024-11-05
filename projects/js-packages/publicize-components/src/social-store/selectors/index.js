@@ -5,7 +5,7 @@ import jetpackSettingSelectors from './jetpack-settings';
 import * as shareStatusSelectors from './share-status';
 import siteDataSelectors from './site-data';
 import * as sigSelectors from './social-image-generator';
-import * as utmSelectors from './utm';
+import * as utmSelectors from './utm-settings';
 
 /**
  * Returns whether the site settings are being saved.

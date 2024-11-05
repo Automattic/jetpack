@@ -129,7 +129,7 @@ class Publicize_Script_Data {
 
 		return array(
 			'socialImageGenerator' => $settings->get_image_generator_settings(),
-			'isUtmEnabled'         => $settings->get_is_utm_enabled(),
+			'utmSettings'          => $settings->get_utm_settings(),
 		);
 	}
 
