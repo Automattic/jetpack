@@ -35,7 +35,7 @@ class Cornerstone_Pages implements Has_Setup {
 		return $filtered_providers;
 	}
 
-	public function default_pages() {
+	private function default_pages() {
 		if ( $this->get_max_pages() === static::FREE_MAX_PAGES ) {
 			return array( '' );
 		}
