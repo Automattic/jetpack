@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-explat",
-	"version": "0.1.13",
+	"version": "0.1.14",
 	"description": "A package for running A/B tests on the Experimentation Platform (ExPlat) in the plugin.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/explat/#readme",
 	"bugs": {
@@ -18,7 +18,8 @@
 		"build": "pnpm run clean && pnpm run compile",
 		"compile": "webpack",
 		"clean": "rm -rf build/",
-		"test": "jest tests/client",
+		"test": "jest --config=tests/jest.config.cjs --passWithNoTests",
+		"test-coverage": "pnpm run test --coverage",
 		"watch": "pnpm run build --watch"
 	},
 	"devDependencies": {

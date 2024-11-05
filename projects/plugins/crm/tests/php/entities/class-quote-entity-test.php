@@ -9,7 +9,7 @@ use Automattic\Jetpack\CRM\Tests\JPCRM_Base_Integration_Test_Case;
 /**
  * Test Event Manager system.
  *
- * @covers Automattic\Jetpack\CRM\Entities
+ * @covers Automattic\Jetpack\CRM\Entities\Quote
  */
 class Quote_Entity_Test extends JPCRM_Base_Integration_Test_Case {
 

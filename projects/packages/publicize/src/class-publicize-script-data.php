@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Publicize;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Current_Plan;
+use Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Settings;
 use Automattic\Jetpack\Publicize\Publicize_Utils as Utils;
 use Automattic\Jetpack\Status\Host;
 use Jetpack_Options;
@@ -112,10 +113,22 @@ class Publicize_Script_Data {
 				'supported_services' => self::get_supported_services(),
 				'shares_data'        => self::get_shares_data(),
 				'urls'               => self::get_urls(),
-				/**
-				 * 'store'       => self::get_store_script_data(),
-				 */
+				'settings'           => self::get_social_settings(),
 			)
+		);
+	}
+
+	/**
+	 * Get the social settings.
+	 *
+	 * @return array
+	 */
+	public static function get_social_settings() {
+
+		$settings = ( new Settings() );
+
+		return array(
+			'socialImageGenerator' => $settings->get_image_generator_settings(),
 		);
 	}
 

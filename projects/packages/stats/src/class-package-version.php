@@ -12,7 +12,7 @@ namespace Automattic\Jetpack\Stats;
  */
 class Package_Version {
 
-	const PACKAGE_VERSION = '0.13.4';
+	const PACKAGE_VERSION = '0.13.5';
 
 	const PACKAGE_SLUG = 'stats';
 
