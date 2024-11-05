@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Plugin;
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Status\Host;
 
 /**
  * Place to properly deprecate Jetpack features.
@@ -36,13 +37,15 @@ class Deprecate {
 		// Modify the notices array to include the notices you want to display.
 		$this->notices = array(
 			'my-admin' => array(
-				'title'   => __( "Retired feature: Jetpack's XYZ Feature", 'jetpack' ),
-				'message' => __( 'This feature is being retired and will be removed effective November, 2024. Please use the Classic Theme Helper plugin instead.', 'jetpack' ),
-				'link'    => array(
+				'title'         => __( "Retired feature: Jetpack's XYZ Feature", 'jetpack' ),
+				'message'       => __( 'This feature is being retired and will be removed effective November, 2024. Please use the Classic Theme Helper plugin instead.', 'jetpack' ),
+				'link'          => array(
 					'label' => __( 'Learn more', 'jetpack' ),
 					'url'   => 'jetpack-support-xyz',
 				),
-				'show'    => false, // 'show' is not required, but setting it to false will ensure that the notice will not be displayed.
+				'show'          => false, // 'show' is not required, but setting it to false will ensure that the notice will not be displayed.
+				'hide_in_woa'   => true, // 'hide_in_woa' is not required, but setting it to true will ensure that the notice will not be displayed in the WoA admin.
+				'hide_in_wpcom' => true, // 'hide_in_wpcom' is not required, but setting it to true will ensure that the notice will not be displayed in the WordPress.com admin.
 			),
 		);
 		$this->set_notices();
@@ -109,11 +112,21 @@ class Deprecate {
 	private function set_notices() {
 		$notices            = array();
 		$required_id_suffix = '-deprecate-feature';
+		$host               = new Host();
 
 		foreach ( $this->notices as $id => $notice ) {
+			if ( $host->is_woa_site() && isset( $notice['hide_in_woa'] ) && true === $notice['hide_in_woa'] ) {
+				continue;
+			}
+
+			if ( $host->is_wpcom_simple() && isset( $notice['hide_in_wpcom'] ) && true === $notice['hide_in_wpcom'] ) {
+				continue;
+			}
+
 			if ( isset( $notice['show'] ) && false === $notice['show'] ) {
 				continue;
 			}
+
 			if ( empty( $notice['title'] ) || empty( $notice['message'] ) || empty( $notice['link']['url'] ) ) {
 				continue;
 			}
