@@ -2268,6 +2268,9 @@ importers:
       '@wordpress/private-apis':
         specifier: ^1.8.1
         version: 1.9.0
+      '@wordpress/router':
+        specifier: ^1.8.11
+        version: 1.9.0(react@18.3.1)
       '@wordpress/url':
         specifier: 4.9.0
         version: 4.9.0
