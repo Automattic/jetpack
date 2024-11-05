@@ -121,7 +121,8 @@ function UsageControl( {
 	);
 
 	return (
-		<BaseControl help={ help } label={ __( 'Available Requests', 'jetpack' ) }>
+		<BaseControl __nextHasNoMarginBottom={ true } help={ help }>
+			<BaseControl.VisualLabel>{ __( 'Available Requests', 'jetpack' ) }</BaseControl.VisualLabel>
 			{ ! loading && usageDisplay }
 			{ loading && loadingPlaceholder }
 		</BaseControl>

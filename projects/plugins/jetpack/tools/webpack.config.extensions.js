@@ -111,7 +111,6 @@ const sharedWebpackConfig = {
 	node: {},
 	plugins: [
 		...jetpackWebpackConfig.StandardPlugins( {
-			DependencyExtractionPlugin: { injectPolyfill: true },
 			MiniCssExtractPlugin: {
 				// This is a bit of a hack to handle simple cases of `import( './file.css' )` in block editor scripts.
 				// If we're ever able to get rid of the monolithic editor.js files, this should go away in favor

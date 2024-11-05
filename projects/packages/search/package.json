@@ -1,6 +1,6 @@
 {
 	"name": "jetpack-search",
-	"version": "0.45.7",
+	"version": "0.45.12",
 	"description": "Package for Jetpack Search products",
 	"main": "main.js",
 	"directories": {
@@ -15,6 +15,7 @@
 		"build-dashboard": "webpack --config ./tools/webpack.dashboard.config.js",
 		"clean": "rm -rf build/ .cache/",
 		"test": "concurrently 'pnpm:test-scripts' 'pnpm:test-size'",
+		"test-coverage": "pnpm run test-scripts --coverage",
 		"test-scripts": "jest --passWithNoTests",
 		"test-size": "NODE_ENV=production BABEL_ENV=production pnpm run build-instant && size-limit",
 		"validate": "pnpm exec validate-es --no-error-on-unmatched-pattern build/",
@@ -84,7 +85,7 @@
 		"core-js": "3.38.1",
 		"jest": "29.7.0",
 		"jest-environment-jsdom": "29.7.0",
-		"postcss": "8.4.31",
+		"postcss": "8.4.47",
 		"postcss-custom-properties": "12.1.7",
 		"postcss-loader": "6.2.0",
 		"prettier": "npm:wp-prettier@3.0.3",

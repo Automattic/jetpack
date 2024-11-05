@@ -1,6 +1,7 @@
 /**
  * WordPress dependencies
  */
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { isBlobURL, getBlobByURL } from '@wordpress/blob';
 import { store as blockEditorStore } from '@wordpress/block-editor';
 import {
@@ -152,6 +153,7 @@ export default function VideoPressEdit( {
 	// Get the redirect URI for the connection flow.
 	const [ isRedirectingToMyJetpack, setIsRedirectingToMyJetpack ] = useState( false );
 	const hasUserConnection = isUserConnected();
+	const { tracks: analyticsTracks } = useAnalytics();
 
 	// Detect if the chapter file is auto-generated.
 	const chapter = tracks?.filter( track => track.kind === 'chapters' )?.[ 0 ];
@@ -405,8 +407,14 @@ export default function VideoPressEdit( {
 						onConnect={ () => {
 							setIsRedirectingToMyJetpack( true );
 							if ( ! hasUserConnection ) {
+								analyticsTracks.recordEvent( 'jetpack_editor_connect_banner_click', {
+									block: 'VideoPress',
+								} );
 								return ( window.location.href = myJetpackConnectUrl );
 							}
+							analyticsTracks.recordEvent( 'jetpack_editor_activate_banner_click', {
+								block: 'VideoPress',
+							} );
 							window.location.href = jetpackVideoPressSettingUrl;
 						} }
 					/>
@@ -602,9 +610,14 @@ export default function VideoPressEdit( {
 				onConnect={ () => {
 					setIsRedirectingToMyJetpack( true );
 					if ( ! hasUserConnection ) {
+						analyticsTracks.recordEvent( 'jetpack_editor_connect_banner_click', {
+							block: 'VideoPress',
+						} );
 						return ( window.location.href = myJetpackConnectUrl );
 					}
-
+					analyticsTracks.recordEvent( 'jetpack_editor_activate_banner_click', {
+						block: 'VideoPress',
+					} );
 					window.location.href = jetpackVideoPressSettingUrl;
 				} }
 			/>

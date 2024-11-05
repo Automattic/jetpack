@@ -109,9 +109,10 @@ class ProStatus extends React.Component {
 				break;
 			case 'invalid_key':
 				return;
-			case 'rewind_connected':
+			case 'rewind_connected': {
 				const rewindMessage = this.getRewindMessage();
 				return <Status status={ rewindMessage.status } text={ rewindMessage.text } />;
+			}
 			case 'active':
 				return <Status status="active" />;
 		}

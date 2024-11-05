@@ -133,6 +133,23 @@ export function useSupportedServices(): Array< SupportedService > {
 			],
 		},
 		{
+			...availableServices.bluesky,
+			needsCustomInputs: true,
+			icon: props => <SocialServiceIcon serviceName="bluesky" { ...props } />,
+			badges: [ badgeNew ],
+			description: __( 'Share with your network.', 'jetpack' ),
+			examples: [
+				() => (
+					<>
+						{ __(
+							'To share to Bluesky please enter your Bluesky handle and app password below, then click connect.',
+							'jetpack'
+						) }
+					</>
+				),
+			],
+		},
+		{
 			...availableServices.linkedin,
 			icon: props => <SocialServiceIcon serviceName="linkedin" { ...props } />,
 			description: __( 'Share with your LinkedIn community.', 'jetpack' ),
@@ -201,23 +218,6 @@ export function useSupportedServices(): Array< SupportedService > {
 					<>
 						{ __(
 							'To share to Mastodon please enter your Mastodon username below, then click connect.',
-							'jetpack'
-						) }
-					</>
-				),
-			],
-		},
-		{
-			...availableServices.bluesky,
-			needsCustomInputs: true,
-			icon: props => <SocialServiceIcon serviceName="bluesky" { ...props } />,
-			badges: [ badgeNew ],
-			description: __( 'Share with your network.', 'jetpack' ),
-			examples: [
-				() => (
-					<>
-						{ __(
-							'To share to Bluesky please enter your Bluesky handle and app password below, then click connect.',
 							'jetpack'
 						) }
 					</>

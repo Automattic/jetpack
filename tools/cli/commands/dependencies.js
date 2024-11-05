@@ -20,6 +20,7 @@ infrastructureFileSets.base = new Set( [
 infrastructureFileSets.test = new Set( [
 	...infrastructureFileSets.base,
 	'.github/files/generate-ci-matrix.php',
+	'.github/files/process-coverage.sh',
 	'.github/files/setup-wordpress-env.sh',
 	'.github/workflows/tests.yml',
 ] );

@@ -31,6 +31,7 @@ export default function BlockNudge( {
 				// Use href to determine whether or not to display the Upgrade button.
 				href && [
 					<Button
+						key="nudge"
 						href={ href } // Only for server-side rendering, since onClick doesn't work there.
 						onClick={ handleClick }
 						target="_top"

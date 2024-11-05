@@ -22,6 +22,14 @@ class Current_Plan {
 	private static $active_plan_cache;
 
 	/**
+	 * Simple Site-specific features available.
+	 * Their calculation can be expensive and slow, so we're caching it for the request.
+	 *
+	 * @var array Site-specific features
+	 */
+	private static $simple_site_specific_features = array();
+
+	/**
 	 * The name of the option that will store the site's plan.
 	 *
 	 * @var string
@@ -374,7 +382,7 @@ class Current_Plan {
 			return true;
 		}
 
-		// As of 05 2023 - all plans support Earn features (minus 'simple-payments')
+		// As of 05 2023 - all plans support Earn features (minus 'simple-payments').
 		if ( in_array( $feature, array( 'donations', 'recurring-payments', 'premium-content/container' ), true ) ) {
 			return true;
 		}
@@ -389,5 +397,40 @@ class Current_Plan {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Retrieve site-specific features for Simple sites.
+	 *
+	 * See Jetpack_Gutenberg::get_site_specific_features()
+	 *
+	 * @return array
+	 */
+	public static function get_simple_site_specific_features() {
+		$is_simple_site = defined( 'IS_WPCOM' ) && constant( 'IS_WPCOM' );
+
+		if ( ! $is_simple_site ) {
+			return array(
+				'active'    => array(),
+				'available' => array(),
+			);
+		}
+
+		$current_blog_id = get_current_blog_id();
+
+		// Return the cached value if it exists.
+		if ( isset( self::$simple_site_specific_features[ $current_blog_id ] ) ) {
+			return self::$simple_site_specific_features[ $current_blog_id ];
+		}
+
+		if ( ! class_exists( '\Store_Product_List' ) ) {
+			require WP_CONTENT_DIR . '/admin-plugins/wpcom-billing/store-product-list.php';
+		}
+
+		$simple_site_specific_features = \Store_Product_List::get_site_specific_features_data( $current_blog_id );
+
+		self::$simple_site_specific_features[ $current_blog_id ] = $simple_site_specific_features;
+
+		return $simple_site_specific_features;
 	}
 }

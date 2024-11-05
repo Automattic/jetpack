@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+We now check if JP_CONNECTION_INITIAL_STATE is defined before accessing it when using Global Styles'

@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-partner-coupon",
-	"version": "0.2.91",
+	"version": "0.2.94",
 	"description": "This package aims to add components to make it easier to redeem partner coupons",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/partner-coupon/#readme",
 	"bugs": {
@@ -16,7 +16,8 @@
 	"author": "Automattic",
 	"type": "module",
 	"scripts": {
-		"test": "NODE_OPTIONS=--experimental-vm-modules jest"
+		"test": "NODE_OPTIONS=--experimental-vm-modules jest",
+		"test-coverage": "pnpm run test --coverage"
 	},
 	"devDependencies": {
 		"@automattic/jetpack-analytics": "workspace:*",

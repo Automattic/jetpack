@@ -33,7 +33,7 @@
 		"@rollup/plugin-terser": "0.4.3",
 		"@rollup/plugin-typescript": "12.1.0",
 		"@wordpress/i18n": "5.9.0",
-		"postcss": "8.4.31",
+		"postcss": "8.4.47",
 		"rollup": "3.29.5",
 		"rollup-plugin-livereload": "2.0.5",
 		"rollup-plugin-postcss": "4.0.2",

@@ -1,3 +1,11 @@
+## [3.1.10] - 2024-10-25
+### Changed
+- Updated package dependencies. [#39893]
+
+## [3.1.9] - 2024-10-14
+### Fixed
+- Add `key` in React example to make it more correct. [#39709]
+
 ## [3.1.8] - 2024-09-05
 ### Fixed
 - Address React usage issues found by eslint in example.tsx. [#39214]
@@ -153,6 +161,8 @@
 
 - Build: Refactored (aligned build system with Gridicons).
 
+[3.1.10]: https://github.com/Automattic/social-logos/compare/v3.1.9...v3.1.10
+[3.1.9]: https://github.com/Automattic/social-logos/compare/v3.1.8...v3.1.9
 [3.1.8]: https://github.com/Automattic/social-logos/compare/v3.1.7...v3.1.8
 [3.1.7]: https://github.com/Automattic/social-logos/compare/v3.1.6...v3.1.7
 [3.1.6]: https://github.com/Automattic/social-logos/compare/v3.1.5...v3.1.6

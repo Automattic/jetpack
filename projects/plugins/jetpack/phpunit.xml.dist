@@ -115,7 +115,45 @@
 	</groups>
 	<filter>
 		<whitelist>
-			<file>./*.php</file>
+			<!-- Can't just <directory>.</directory> because PHPUnit is dumb about scanning before applying any exclusions, and can't glob in <file>. Sigh. -->
+			<file>class.frame-nonce-preview.php</file>
+			<file>class.jetpack-admin.php</file>
+			<file>class.jetpack-affiliate.php</file>
+			<file>class.jetpack-autoupdate.php</file>
+			<file>class.jetpack-bbpress-json-api.compat.php</file>
+			<file>class.jetpack-client-server.php</file>
+			<file>class.jetpack-cli.php</file>
+			<file>class-jetpack-connection-status.php</file>
+			<file>class-jetpack-gallery-settings.php</file>
+			<file>class.jetpack-gutenberg.php</file>
+			<file>class.jetpack-heartbeat.php</file>
+			<file>class.jetpack-modules-list-table.php</file>
+			<file>class.jetpack-network.php</file>
+			<file>class.jetpack-network-sites-list-table.php</file>
+			<file>class.jetpack.php</file>
+			<file>class.jetpack-plan.php</file>
+			<file>class.jetpack-post-images.php</file>
+			<file>class-jetpack-pre-connection-jitms.php</file>
+			<file>class-jetpack-stats-dashboard-widget.php</file>
+			<file>class.jetpack-twitter-cards.php</file>
+			<file>class.jetpack-user-agent.php</file>
+			<file>class-jetpack-xmlrpc-methods.php</file>
+			<file>class.json-api-endpoints.php</file>
+			<file>class.json-api.php</file>
+			<file>class.photon.php</file>
+			<file>enhanced-open-graph.php</file>
+			<file>functions.compat.php</file>
+			<file>functions.cookies.php</file>
+			<file>functions.global.php</file>
+			<file>functions.is-mobile.php</file>
+			<file>functions.opengraph.php</file>
+			<file>functions.photon.php</file>
+			<file>jetpack.php</file>
+			<file>json-api-config.php</file>
+			<file>json-endpoints.php</file>
+			<file>load-jetpack.php</file>
+			<file>locales.php</file>
+			<file>uninstall.php</file>
 			<directory suffix=".php">3rd-party</directory>
 			<directory suffix=".php">extensions</directory>
 			<directory suffix=".php">_inc</directory>
@@ -123,6 +161,7 @@
 			<directory suffix=".php">modules</directory>
 			<directory suffix=".php">sal</directory>
 			<directory suffix=".php">src</directory>
+			<directory suffix=".php">views</directory>
 		</whitelist>
 	</filter>
 	<listeners>

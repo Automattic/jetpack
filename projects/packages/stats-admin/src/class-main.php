@@ -22,7 +22,7 @@ class Main {
 	/**
 	 * Stats version.
 	 */
-	const VERSION = '0.22.1';
+	const VERSION = '0.22.5';
 
 	/**
 	 * Singleton Main instance.
@@ -52,6 +52,19 @@ class Main {
 	 */
 	private function __construct() {
 		add_action( 'rest_api_init', array( new REST_Controller(), 'register_rest_routes' ) );
+		// Disable JITM assets on the Stats page.
+		// JITM is handled separately by Stats: https://github.com/Automattic/wp-calypso/pull/95273.
+		add_filter(
+			'jetpack_display_jitms_on_screen',
+			function ( $show, $screen_id ) {
+				if ( 'jetpack_page_stats' === $screen_id ) {
+					return false;
+				}
+				return $show;
+			},
+			10,
+			2
+		);
 	}
 
 	/**

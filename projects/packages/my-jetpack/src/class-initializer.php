@@ -42,7 +42,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '4.35.11';
+	const PACKAGE_VERSION = '4.36.0';
 
 	/**
 	 * HTML container ID for the IDC screen on My Jetpack page.
@@ -201,6 +201,7 @@ class Initializer {
 
 		return $tracking->should_enable_tracking( new Terms_Of_Service(), $status );
 	}
+
 	/**
 	 * Enqueue admin page assets.
 	 *
@@ -940,17 +941,18 @@ class Initializer {
 		$broken_modules = self::check_for_broken_modules();
 		$connection     = new Connection_Manager();
 
-		if ( ! empty( $broken_modules['needs_user_connection'] ) ) {
+		// Checking for site connection issues first.
+		if ( ! empty( $broken_modules['needs_site_connection'] ) ) {
 			$red_bubble_slugs[ self::MISSING_CONNECTION_NOTIFICATION_KEY ] = array(
-				'type'     => 'user',
+				'type'     => 'site',
 				'is_error' => true,
 			);
 			return $red_bubble_slugs;
 		}
 
-		if ( ! empty( $broken_modules['needs_site_connection'] ) ) {
+		if ( ! empty( $broken_modules['needs_user_connection'] ) ) {
 			$red_bubble_slugs[ self::MISSING_CONNECTION_NOTIFICATION_KEY ] = array(
-				'type'     => 'site',
+				'type'     => 'user',
 				'is_error' => true,
 			);
 			return $red_bubble_slugs;

@@ -5,6 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.6.0-beta] - 2024-11-04
+### Added
+- Cornerstone Pages: Added feature to allow selecting important pages. [#39863]
+
+### Changed
+- Critical CSS: Improve logic that generates URLs for critical CSS generation. [#39862]
+- Page Speed: Update speed scores to be based on first cornerstone page. [#39863]
+- General: Improve compatibility with WordPress 6.7. [#39877] [#39786]
+- General: Update badges used to show state of features. [#40031]
+
+### Removed
+- Image Guide: Remove URL parameter based override. [#39874]
+
+### Fixed
+- Page Speed: Fix typo in Overall Score tooltip. [#39974]
+- Performance History: Fixed tooltip behavior. [#39879]
+
+## [3.5.2] - 2024-10-15
+### Changed
+- Deferred JS: Exclude all scripts produced by a shortcode. [#39616]
+- General: Sync Boost's Getting Started page with My Jetpack's version. [#39130]
+- General: Update minimum required WordPress version to 6.5 in main plugin file. Previous release only changed plugin readme. [#39719]
+
+### Fixed
+- Image CDN: URL encode image path parts for RSS feed compatibility [#39560]
+- Image Guide: Improve check for Jetpack Image CDN URLs [#39635]
+
 ## [3.5.1] - 2024-09-26
 ### Changed
 - Support: Increased minumum required WordPress version to 6.5 [#39540]
@@ -514,6 +541,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - First public alpha release
 
+[3.6.0-beta]: https://github.com/Automattic/jetpack-boost-production/compare/3.5.2...3.6.0-beta
+[3.5.2]: https://github.com/Automattic/jetpack-boost-production/compare/3.5.1...3.5.2
 [3.5.1]: https://github.com/Automattic/jetpack-boost-production/compare/3.5.0...3.5.1
 [3.5.0]: https://github.com/Automattic/jetpack-boost-production/compare/3.4.9...3.5.0
 [3.4.9]: https://github.com/Automattic/jetpack-boost-production/compare/3.4.8...3.4.9

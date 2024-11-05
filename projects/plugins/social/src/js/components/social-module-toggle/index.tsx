@@ -9,6 +9,7 @@ import {
 	ConnectionManagement,
 	SOCIAL_STORE_ID,
 	getSocialScriptData,
+	hasSocialPaidFeatures,
 } from '@automattic/jetpack-publicize-components';
 import { ExternalLink } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
@@ -22,25 +23,23 @@ import styles from './styles.module.scss';
 const SocialModuleToggle: React.FC = () => {
 	const {
 		// TODO - replace some of these with values from initial state
-		connectionsAdminUrl,
 		isModuleEnabled,
 		isUpdating,
 		siteSuffix,
 		blogID,
-		hasPaidFeatures,
 	} = useSelect( select => {
 		const store = select( SOCIAL_STORE_ID ) as SocialStoreSelectors;
 		return {
 			isModuleEnabled: store.isModuleEnabled(),
 			isUpdating: store.isUpdatingJetpackSettings(),
-			connectionsAdminUrl: store.getConnectionsAdminUrl(),
 			siteSuffix: store.getSiteSuffix(),
 			blogID: store.getBlogID(),
-			hasPaidFeatures: store.hasPaidFeatures(),
 		};
 	}, [] );
 
-	const { useAdminUiV1 } = getSocialScriptData().feature_flags;
+	const { urls, feature_flags } = getSocialScriptData();
+
+	const useAdminUiV1 = feature_flags.useAdminUiV1;
 
 	const updateOptions = useDispatch( SOCIAL_STORE_ID ).updateJetpackSettings;
 
@@ -65,13 +64,13 @@ const SocialModuleToggle: React.FC = () => {
 			) : null;
 		}
 
-		return connectionsAdminUrl ? (
+		return urls.connectionsManagementPage ? (
 			<Button
 				fullWidth={ isSmall }
 				className={ styles.button }
 				variant="secondary"
 				isExternalLink={ true }
-				href={ connectionsAdminUrl }
+				href={ urls.connectionsManagementPage }
 				disabled={ isUpdating || ! isModuleEnabled }
 				target="_blank"
 			>
@@ -97,7 +96,7 @@ const SocialModuleToggle: React.FC = () => {
 					{ __( 'Learn more', 'jetpack-social' ) }
 				</ExternalLink>
 			</Text>
-			{ ! hasPaidFeatures ? (
+			{ ! hasSocialPaidFeatures() ? (
 				<ContextualUpgradeTrigger
 					className={ clsx( styles.cut, { [ styles.small ]: isSmall } ) }
 					description={ __( 'Unlock advanced sharing options', 'jetpack-social' ) }

@@ -12,6 +12,7 @@ test.describe( 'Cache module', () => {
 	test.beforeAll( async ( { browser } ) => {
 		page = await browser.newPage( playwrightConfig.use );
 		await boostPrerequisitesBuilder( page )
+			.withLoggedIn( true )
 			.withInactiveModules( [
 				'page_cache', // Make sure it's inactive.
 			] )

@@ -51,6 +51,7 @@ const SocialImageGeneratorPanel = ( { prePublish = false } ) => {
 				help={ ! isEnabled ? __( 'Social Image is disabled for this post.', 'jetpack' ) : '' }
 				checked={ isEnabled }
 				onChange={ setIsEnabled }
+				__nextHasNoMarginBottom={ true }
 			/>
 			{ isEnabled && (
 				<>

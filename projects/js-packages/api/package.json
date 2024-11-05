@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-api",
-	"version": "0.17.14",
+	"version": "0.17.16",
 	"description": "Jetpack Api Package",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/api/#readme",
 	"bugs": {
@@ -26,6 +26,7 @@
 		".": "./index.jsx"
 	},
 	"scripts": {
-		"test": "NODE_OPTIONS=--experimental-vm-modules jest"
+		"test": "NODE_OPTIONS=--experimental-vm-modules jest",
+		"test-coverage": "pnpm run test --coverage"
 	}
 }

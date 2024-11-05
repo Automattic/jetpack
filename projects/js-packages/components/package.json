@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-components",
-	"version": "0.56.2",
+	"version": "0.58.1",
 	"description": "Jetpack Components Package",
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
@@ -80,6 +80,7 @@
 	"scripts": {
 		"build": "pnpm run compile-ts",
 		"compile-ts": "tsc --pretty",
-		"test": "NODE_OPTIONS=--experimental-vm-modules jest"
+		"test": "NODE_OPTIONS=--experimental-vm-modules jest",
+		"test-coverage": "pnpm run test --coverage"
 	}
 }

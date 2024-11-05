@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Publicize;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Current_Plan;
+use Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Settings;
 use Automattic\Jetpack\Publicize\Publicize_Utils as Utils;
 use Automattic\Jetpack\Status\Host;
 use Jetpack_Options;
@@ -60,6 +61,11 @@ class Publicize_Script_Data {
 			$data['site']['plan'] = Current_Plan::get();
 		}
 
+		// Override features for simple sites.
+		if ( ( new Host() )->is_wpcom_simple() ) {
+			$data['site']['plan']['features'] = Current_Plan::get_simple_site_specific_features();
+		}
+
 		return $data;
 	}
 
@@ -86,6 +92,7 @@ class Publicize_Script_Data {
 			'feature_flags'        => self::get_feature_flags(),
 			'supported_services'   => array(),
 			'shares_data'          => array(),
+			'urls'                 => array(),
 		);
 
 		if ( ! Utils::is_publicize_active() ) {
@@ -105,11 +112,23 @@ class Publicize_Script_Data {
 				'api_paths'          => self::get_api_paths(),
 				'supported_services' => self::get_supported_services(),
 				'shares_data'        => self::get_shares_data(),
-				/**
-				 * 'store'       => self::get_store_script_data(),
-				 * 'urls'        => self::get_urls(),
-				 */
+				'urls'               => self::get_urls(),
+				'settings'           => self::get_social_settings(),
 			)
+		);
+	}
+
+	/**
+	 * Get the social settings.
+	 *
+	 * @return array
+	 */
+	public static function get_social_settings() {
+
+		$settings = ( new Settings() );
+
+		return array(
+			'socialImageGenerator' => $settings->get_image_generator_settings(),
 		);
 	}
 
@@ -215,5 +234,24 @@ class Publicize_Script_Data {
 			'refreshConnections' => '/jetpack/v4/publicize/connections?test_connections=1',
 			'resharePost'        => '/jetpack/v4/publicize/{postId}',
 		);
+	}
+
+	/**
+	 * Get the URLs.
+	 *
+	 * @return array
+	 */
+	public static function get_urls() {
+
+		$urls = array(
+			'connectionsManagementPage' => self::publicize()->publicize_connections_url(
+				'jetpack-social-connections-admin-page'
+			),
+		);
+
+		// Escape the URLs.
+		array_walk( $urls, 'esc_url_raw' );
+
+		return $urls;
 	}
 }

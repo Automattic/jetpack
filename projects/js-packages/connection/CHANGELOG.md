@@ -2,6 +2,25 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## [0.35.15] - 2024-11-04
+### Added
+- Enable test coverage. [#39961]
+
+### Changed
+- Skip pricing page when connecting via block editor. [#39865]
+
+## [0.35.14] - 2024-10-15
+### Changed
+- Update dependencies.
+
+## [0.35.13] - 2024-10-14
+### Changed
+- Internal updates.
+
+## [0.35.12] - 2024-10-10
+### Changed
+- Updated package dependencies.
+
 ## [0.35.11] - 2024-10-07
 ### Changed
 - Updated package dependencies. [#39594]
@@ -863,6 +882,10 @@
 - `Main` and `ConnectUser` components added.
 - `JetpackRestApiClient` API client added.
 
+[0.35.15]: https://github.com/Automattic/jetpack-connection-js/compare/v0.35.14...v0.35.15
+[0.35.14]: https://github.com/Automattic/jetpack-connection-js/compare/v0.35.13...v0.35.14
+[0.35.13]: https://github.com/Automattic/jetpack-connection-js/compare/v0.35.12...v0.35.13
+[0.35.12]: https://github.com/Automattic/jetpack-connection-js/compare/v0.35.11...v0.35.12
 [0.35.11]: https://github.com/Automattic/jetpack-connection-js/compare/v0.35.10...v0.35.11
 [0.35.10]: https://github.com/Automattic/jetpack-connection-js/compare/v0.35.9...v0.35.10
 [0.35.9]: https://github.com/Automattic/jetpack-connection-js/compare/v0.35.8...v0.35.9

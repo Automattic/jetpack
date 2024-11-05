@@ -59,8 +59,11 @@
 
 }
 
-/* This prevents images from overflowing the comment area. */
-.comment img {
+// This prevents images from overflowing the comment area. The :not() selector
+// handles comments in non-block themes, but is too general for block themes,
+// breaking flex layouts.
+.comment img:not(.wp-block-comment-template .comment img),
+.wp-block-comment-content img {
 	max-width: 100%;
 }
 
