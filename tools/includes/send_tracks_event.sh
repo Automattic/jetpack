@@ -1,5 +1,15 @@
 #!/bin/bash
 
+# Generate UUID
+function get_uuid {
+	if command -v uuidgen &>/dev/null; then
+		uuidgen
+	else
+		# Fallback
+		cat /proc/sys/kernel/random/uuid
+	fi
+}
+
 # Sends a tracks event.
 # - 1: Event name
 # - 2: An optional JSON-formatted payload of extra tracks params, e.g. `{"a":1, "b":2}`
@@ -8,6 +18,8 @@ function send_tracks_event {
 	if [[ -z "$1" ]]; then
 		return
 	fi
+
+	[[ -z "$RUN_ID" ]] && RUN_ID=$(get_uuid)
 
 	local TRACKS_URL TRACKS_RESPONSE USER_AGENT PAYLOAD
 	TRACKS_URL='https://public-api.wordpress.com/rest/v1.1/tracks/record?http_envelope=1'
@@ -18,7 +30,7 @@ function send_tracks_event {
 	)
 
 	# Add event name to payload.
-	PAYLOAD=$(jq -r --arg eventName "$1" '.events = [{_en: $eventName}]' <<< "$PAYLOAD")
+	PAYLOAD=$(jq -r --arg eventName "$1" --arg RUN_ID "$RUN_ID" '.events = [{_en: $eventName, run_id: $RUN_ID}]' <<< "$PAYLOAD")
 
 	# Add extra params to payload if provided.
 	if [[ -n "$2" ]]; then
