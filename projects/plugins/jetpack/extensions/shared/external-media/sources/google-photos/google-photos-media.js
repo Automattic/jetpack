@@ -128,7 +128,7 @@ function GooglePhotosMedia( props ) {
 			</div>
 
 			<MediaBrowser
-				className="jetpack-external-media-browser__google"
+				className="jetpack-external-media-browser__google test"
 				key={ listUrl }
 				media={ media }
 				isCopying={ isCopying }
