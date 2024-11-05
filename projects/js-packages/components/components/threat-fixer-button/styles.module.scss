@@ -7,3 +7,18 @@
 		box-shadow: none;
 	}
 }
+
+.tooltip {
+	display: block;
+	width: 72px;
+	height: 28px;
+
+	:global( .icon-tooltip-helper ) {
+		width: 100%;
+	}
+}
+
+.retry {
+	display: block;
+	margin-left: auto;
+}
