@@ -42,7 +42,7 @@ class Deprecate {
 					'label' => __( 'Learn more', 'jetpack' ),
 					'url'   => 'jetpack-support-xyz',
 				),
-				'show'    => true, // 'show' is not required, but setting it to false will ensure that the notice will not be displayed.
+				'show'    => false, // 'show' is not required, but setting it to false will ensure that the notice will not be displayed.
 			),
 		);
 		$this->set_notices();
