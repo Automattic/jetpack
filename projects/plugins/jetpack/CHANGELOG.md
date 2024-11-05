@@ -14,11 +14,11 @@
 
 ### Improved compatibility
 - Embed Blocks: Append 'Embed' to Facebook and Instagram embed blocks' titles. [#39970]
+- Filters: Update "plugin_action_links" filter parameter to avoid conflicts with other plugins. [#39681]
 - General: Ensure correct display of notices when running an old version of WordPress. [#39745]
 - General: Indicate compatibility with WordPress 6.7. [#39786] [#39877]
 - Image Block: Make the external media picker button consistent with other Image Block buttons. [#39985]
 - Image CDN: URL encode image path parts for RSS feed compatibility. [#39560]
-- Filters: Update "plugin_action_links" filter parameter to avoid conflicts with other plugins. [#39681]
 - Related Posts: Allow Related Posts on non-post CPTs where the block is already able to be used. [#39730]
 
 ### Bug fixes
@@ -47,8 +47,8 @@
 - Code: Enable test coverage. [#39961]
 - Code: Fix PHPUnit coverage warnings. [#39989]
 - Code: Run coverage tests in parallel. [#39988]
-- Code: Update testing instructions for Jetpack 14.0. [#39957]
 - Code: Updated package dependencies. [#39594] [#39639] [#39649] [#39653] [#39707]
+- Code: Update testing instructions for Jetpack 14.0. [#39957]
 - Code: Use React setState instead of directly modifying state. [#39421]
 - Connection: Add connection nudge for blocks that are missing it. [#39647]
 - Connection: Add tracks to connection banner. [#39732]
@@ -87,6 +87,7 @@
 - Subscriptions: Add source attribute for stats to the floating subscribe button. [#39860]
 - Tests: Fix unit tests. [#39799]
 - Theme Tools: ensure theme-compat files are still loaded when a compatible theme is used. [#39992]
+- Update "My Plan" page to only show Google Analytics for WoA sites. [#40044]
 - Verbum Comments: Update resize logic. [#39791]
 - VideoPress: Update VideoPress notice URL on Media Library. [#39731]
 - Widget Visibility: Add check to ensure post exists before accesing post_author. [#39746]
