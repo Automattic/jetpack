@@ -103,10 +103,10 @@ function jetpack_og_tags() {
 			if ( is_category() || is_tag() || is_tax() ) {
 				$tags['og:url']         = get_term_link( $archive->term_id, $archive->taxonomy );
 				$tags['og:description'] = $archive->description;
-			} elseif ( is_post_type_archive() ) {
+			}
+		} elseif ( ! empty( $archive ) && is_post_type_archive() ) {
 				$tags['og:url']         = get_post_type_archive_link( $archive->name );
 				$tags['og:description'] = $archive->description;
-			}
 		}
 	} elseif ( is_singular() && is_a( $data, 'WP_Post' ) ) {
 		$tags['og:type'] = 'article';
