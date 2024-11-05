@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+WIP use wp_register_block_metadata_collection() if available (see https://core.trac.wordpress.org/changeset/59132)
