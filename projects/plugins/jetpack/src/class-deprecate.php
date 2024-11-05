@@ -42,13 +42,18 @@ class Deprecate {
 					'label' => __( 'Learn more', 'jetpack' ),
 					'url'   => 'jetpack-support-xyz',
 				),
-				'show'    => false, // 'show' is not required, but setting it to false will ensure that the notice will not be displayed.
+				'show'    => true, // 'show' is not required, but setting it to false will ensure that the notice will not be displayed.
 			),
 		);
 		$this->set_notices();
 
 		if ( $this->has_notices() ) {
-			add_action( 'load-index.php', array( $this, 'render_admin_notices' ) );
+			add_action(
+				'load-index.php',
+				function () {
+					add_action( 'admin_notices', array( $this, 'render_admin_notices' ) );
+				}
+			);
 			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
 			add_filter( 'my_jetpack_red_bubble_notification_slugs', array( $this, 'add_my_jetpack_red_bubbles' ) );
 		}
