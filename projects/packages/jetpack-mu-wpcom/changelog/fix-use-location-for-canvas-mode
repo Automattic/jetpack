@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+wpcom-block-editor: Support getting the canvas mode from the query string after GB 19.6
