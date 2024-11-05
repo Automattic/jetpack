@@ -22,15 +22,16 @@
 - Related Posts: Allow Related Posts on non-post CPTs where the block is already able to be used. [#39730]
 
 ### Bug fixes
-- Goodreads Block: Avoid PHP warnings caused by missing attributes when rendering. [#39713]
-- Slideshow Block: Ensure the block renders correctly inside an iframe editor. [#39551]
+- AI Assistant: Fix false-positive spelling errors in Write Brief. [#39735] [#39880]
 - Carousel: Further improve accessibility by being more selective over which images to apply attributes to. [#39913]
 - Contact Form: Ensure that submitted forms can only be accessed by logged in users allowed to view form submissions. [#39759]
 - General: Include `wp-polyfill` as a script dependency only when needed. [#39629]
+- Goodreads Block: Avoid PHP warnings caused by missing attributes when rendering. [#39713]
 - Google Fonts: Fix module not fully loading in certain scenarios. [#39977]
 - Map Block: Prevent overlap with other blocks placed below. [#39744]
 - Newsletters: Fix "Enable featured image on your new post emails" and "Use excerpt" settings. [#39700] [#39815]
 - Sharing: Ensure the sharing settings can be accessed even when the user is not connected to WordPress.com. [#39677]
+- Slideshow Block: Ensure the block renders correctly inside an iframe editor. [#39551]
 - Social: Fix the maximum video length for Instagram Business reels. [#39930]
 - Social: Prevent share status styles from causing text overflow or affecting other elements on the page. [#39599] [#39991]
 - Stats: Fix top post card on the Insights page. [#39691]
@@ -38,8 +39,6 @@
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
 - Admin Menu: Adding tests to check for 'current' class when menu item selected. [#39374]
-- AI Assistant: Make Breve no longer flag single quotes as spelling errors. [#39735]
-- AI Assistant: Write Brief should not flag words like '2nd' and '100th' as spelling errors. [#39880]
 - Blocks: Initialize connection assets in Story block. [#39870]
 - Blogging Prompt: Preserve language on answers link. [#36730]
 - Code: Add missing deps in calls to the `useSelect` React hook. [#39421]
