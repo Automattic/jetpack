@@ -1,4 +1,4 @@
-import { ThreatFixStatus } from './fixers.js';
+import { ThreatFixStatus } from '..';
 
 export type ThreatStatus = 'fixed' | 'ignored' | 'current';
 

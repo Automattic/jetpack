@@ -5,6 +5,7 @@
 		"typeRoots": [ "./node_modules/@types/", "src/types/*" ],
 		"sourceMap": false,
 		"outDir": "./build/",
-		"target": "esnext"
+		"module": "ESNext",
+		"moduleResolution": "bundler"
 	}
 }
