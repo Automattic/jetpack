@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.6] - 2024-11-04
+### Added
+- Enable test coverage. [#39961]
+
 ## [0.4.5] - 2024-09-05
 ### Changed
 - Jetpack menu: only register Jetpack admin page for contributor roles and above. [#39081]
@@ -160,6 +164,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fixing menu visibility issues.
 
+[0.4.6]: https://github.com/Automattic/jetpack-admin-ui/compare/0.4.5...0.4.6
 [0.4.5]: https://github.com/Automattic/jetpack-admin-ui/compare/0.4.4...0.4.5
 [0.4.4]: https://github.com/Automattic/jetpack-admin-ui/compare/0.4.3...0.4.4
 [0.4.3]: https://github.com/Automattic/jetpack-admin-ui/compare/0.4.2...0.4.3
