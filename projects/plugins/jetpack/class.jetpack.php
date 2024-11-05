@@ -751,6 +751,8 @@ class Jetpack {
 		// Add 5-star
 		add_filter( 'plugin_row_meta', array( $this, 'add_5_star_review_link' ), 10, 2 );
 		add_action( 'init', array( Deprecate::class, 'instance' ) );
+
+		$this->register_block_metadata_collection();
 	}
 
 	/**
@@ -6140,4 +6142,15 @@ endif;
 			wp_safe_redirect( $redirect_url );
 		}
 	}
+
+	public function register_block_metadata_collection() {
+		$meta_file_path = REPLACEMEJPDIR . 'extensions/blocks/blocks-manifest.php';
+		if ( function_exists( 'wp_register_block_metadata_collection' ) && file_exists( $meta_file_path ) ) {
+			wp_register_block_metadata_collection(
+				REPLACEMEJPDIR . 'extensions/blocks/',
+				$meta_file_path
+			);
+		}
+	}
+
 }
