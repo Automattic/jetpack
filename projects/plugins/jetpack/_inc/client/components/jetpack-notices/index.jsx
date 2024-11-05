@@ -241,21 +241,18 @@ class JetpackNotices extends React.Component {
 				) }
 
 				{ window.noticeInfo &&
-					Object.entries( window.noticeInfo ).map(
-						( [ noticeKey, { title, message, link, show } ] ) => (
-							<DeprecationNotice
-								key={ noticeKey }
-								show={ show }
-								noticeKey={ noticeKey }
-								// eslint-disable-next-line react/jsx-no-bind
-								dismissNotice={ () => this.dismissNotice( noticeKey ) }
-								title={ title }
-								message={ message }
-								link={ link.url }
-								linkText={ link.label }
-							/>
-						)
-					) }
+					Object.entries( window.noticeInfo ).map( ( [ noticeKey, { title, message, link } ] ) => (
+						<DeprecationNotice
+							key={ noticeKey }
+							noticeKey={ noticeKey }
+							// eslint-disable-next-line react/jsx-no-bind
+							dismissNotice={ () => this.dismissNotice( noticeKey ) }
+							title={ title }
+							message={ message }
+							link={ link.url }
+							linkText={ link.label }
+						/>
+					) ) }
 			</div>
 		);
 	}

@@ -3,10 +3,7 @@ import { __ } from '@wordpress/i18n';
 import SimpleNotice from 'components/notice';
 import PropTypes from 'prop-types';
 
-const DeprecationNotice = ( { show, dismissNotice, message, link, linkText, title } ) => {
-	if ( ! show ) {
-		return;
-	}
+const DeprecationNotice = ( { dismissNotice, message, link, linkText, title } ) => {
 	return (
 		<SimpleNotice
 			status="is-warning"
@@ -21,7 +18,6 @@ const DeprecationNotice = ( { show, dismissNotice, message, link, linkText, titl
 };
 
 DeprecationNotice.propTypes = {
-	show: PropTypes.bool.isRequired,
 	dismissNotice: PropTypes.func.isRequired,
 	message: PropTypes.string.isRequired,
 	link: PropTypes.string,

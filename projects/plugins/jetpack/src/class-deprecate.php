@@ -33,31 +33,19 @@ class Deprecate {
 	 * Initialize the class.
 	 */
 	private function __construct() {
-		// phpcs:disable Squiz.PHP.CommentedOutCode.Found
-		// Example $this->notices content. Note that the key must end with '-deprecate-feature' to display in My Jetpack - see packages/my-jetpack/_inc/hooks/use-notification-watcher/use-deprecate-feature-notice.ts:
-		// array(
-		// 'my-admin-deprecate-feature' => array(
-		// 'title'     => __( "Retired feature: Jetpack's XYZ Feature", 'jetpack' ),
-		// 'message'   => __( 'This feature is being retired and will be removed effective November, 2024. Please use the Classic Theme Helper plugin instead.', 'jetpack' ),
-		// 'link'      => array(
-		// 'label' => __( 'Learn more', 'jetpack' ),
-		// 'url'   => 'jetpack-support-xyz',
-		// ),
-		// 'show'      => $this->show_feature_notice( 'my-admin-deprecate-feature' ),
-		// ),
-		// phpcs:enable Squiz.PHP.CommentedOutCode.Found
-		// $this->notices = array();
+		// Modify the notices array to include the notices you want to display.
 		$this->notices = array(
-			'my-admin-deprecate-feature' => array(
+			'my-admin' => array(
 				'title'   => __( "Retired feature: Jetpack's XYZ Feature", 'jetpack' ),
 				'message' => __( 'This feature is being retired and will be removed effective November, 2024. Please use the Classic Theme Helper plugin instead.', 'jetpack' ),
 				'link'    => array(
 					'label' => __( 'Learn more', 'jetpack' ),
 					'url'   => 'jetpack-support-xyz',
 				),
-				'show'    => $this->show_feature_notice( 'my-admin-deprecate-feature' ),
+				'show'    => false, // 'show' is not required, but setting it to false will ensure that the notice will not be displayed.
 			),
 		);
+		$this->set_notices();
 
 		if ( $this->has_notices() ) {
 			add_action( 'load-index.php', array( $this, 'render_admin_notices' ) );
@@ -105,6 +93,37 @@ class Deprecate {
 			'window.noticeInfo = ' . wp_json_encode( $this->notices ) . ';',
 			'before'
 		);
+	}
+
+	/**
+	 * Ensure the notices variable is properly formatted and includes the required suffix and show value.
+	 *
+	 * @return void
+	 */
+	private function set_notices() {
+		$notices            = array();
+		$required_id_suffix = '-deprecate-feature';
+
+		foreach ( $this->notices as $id => $notice ) {
+			if ( isset( $notice['show'] ) && false === $notice['show'] ) {
+				continue;
+			}
+			if ( empty( $notice['title'] ) || empty( $notice['message'] ) || empty( $notice['link']['url'] ) ) {
+				continue;
+			}
+
+			if ( empty( $notice['link']['label'] ) ) {
+				$notice['link']['label'] = __( 'Learn more', 'jetpack' );
+			}
+
+			if ( strpos( $id, $required_id_suffix ) === false ) {
+				$id .= $required_id_suffix;
+			}
+
+			$notices[ $id ] = $notice;
+		}
+
+		$this->notices = $notices;
 	}
 
 	/**
