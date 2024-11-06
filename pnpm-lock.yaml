@@ -318,8 +318,8 @@ importers:
         specifier: 10.9.0
         version: 10.9.0(react@18.3.1)
       '@wordpress/dataviews':
-        specifier: 4.5.0
-        version: 4.5.0(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 4.7.0
+        version: 4.7.0(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/date':
         specifier: 5.9.0
         version: 5.9.0
@@ -7823,6 +7823,12 @@ packages:
 
   '@wordpress/dataviews@4.5.0':
     resolution: {integrity: sha512-3vZN6jFR6gFDvuAitpS/0D80ByWYkhRfuTAAmzptq6rC9CkC4VNRbIJZbxMsKEt2qh44T7TVYVR6yVm2p+8+oQ==}
+    engines: {node: '>=18.12.0', npm: '>=8.19.2'}
+    peerDependencies:
+      react: ^18.0.0
+
+  '@wordpress/dataviews@4.7.0':
+    resolution: {integrity: sha512-Uc6iKqo7kbeX7eB1TjcWakD7wLLSCeo+61H0r/OnHWBBV61UVl1IekZ2QLbfVDl1wTLYKMZcz49g1WcB6iidZA==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
     peerDependencies:
       react: ^18.0.0
@@ -18589,10 +18595,32 @@ snapshots:
       - react-dom
       - supports-color
 
-  '@wordpress/dataviews@4.5.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@wordpress/dataviews@4.7.0(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@ariakit/react': 0.4.12(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@babel/runtime': 7.26.0
+      '@babel/runtime': 7.25.7
+      '@wordpress/components': 28.9.0(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/compose': 7.9.0(react@18.3.1)
+      '@wordpress/data': 10.9.0(react@18.3.1)
+      '@wordpress/element': 6.9.0
+      '@wordpress/i18n': 5.9.0
+      '@wordpress/icons': 10.9.0(react@18.3.1)
+      '@wordpress/primitives': 4.9.0(react@18.3.1)
+      '@wordpress/private-apis': 1.10.0
+      '@wordpress/warning': 3.10.0
+      clsx: 2.1.1
+      react: 18.3.1
+      remove-accents: 0.5.0
+    transitivePeerDependencies:
+      - '@emotion/is-prop-valid'
+      - '@types/react'
+      - react-dom
+      - supports-color
+
+  '@wordpress/dataviews@4.7.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@ariakit/react': 0.4.12(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@babel/runtime': 7.25.7
       '@wordpress/components': 28.9.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/compose': 7.9.0(react@18.3.1)
       '@wordpress/data': 10.9.0(react@18.3.1)
@@ -18738,7 +18766,7 @@ snapshots:
       '@wordpress/compose': 7.9.0(react@18.3.1)
       '@wordpress/core-data': 7.9.0(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/data': 10.9.0(react@18.3.1)
-      '@wordpress/dataviews': 4.5.0(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/dataviews': 4.7.0(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/date': 5.9.0
       '@wordpress/deprecated': 4.9.0
       '@wordpress/dom': 4.9.0
@@ -18797,7 +18825,7 @@ snapshots:
       '@wordpress/compose': 7.9.0(react@18.3.1)
       '@wordpress/core-data': 7.9.0(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/data': 10.9.0(react@18.3.1)
-      '@wordpress/dataviews': 4.5.0(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/dataviews': 4.7.0(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/date': 5.9.0
       '@wordpress/deprecated': 4.9.0
       '@wordpress/dom': 4.9.0
@@ -18856,7 +18884,7 @@ snapshots:
       '@wordpress/compose': 7.9.0(react@18.3.1)
       '@wordpress/core-data': 7.9.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/data': 10.9.0(react@18.3.1)
-      '@wordpress/dataviews': 4.5.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/dataviews': 4.7.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/date': 5.9.0
       '@wordpress/deprecated': 4.9.0
       '@wordpress/dom': 4.9.0
@@ -18969,7 +18997,7 @@ snapshots:
       '@wordpress/compose': 7.9.0(react@18.3.1)
       '@wordpress/core-data': 7.9.0(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/data': 10.9.0(react@18.3.1)
-      '@wordpress/dataviews': 4.5.0(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/dataviews': 4.7.0(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/element': 6.9.0
       '@wordpress/hooks': 4.9.0
       '@wordpress/html-entities': 4.9.0
@@ -19003,7 +19031,7 @@ snapshots:
       '@wordpress/compose': 7.9.0(react@18.3.1)
       '@wordpress/core-data': 7.9.0(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/data': 10.9.0(react@18.3.1)
-      '@wordpress/dataviews': 4.5.0(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/dataviews': 4.7.0(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/element': 6.9.0
       '@wordpress/hooks': 4.9.0
       '@wordpress/html-entities': 4.9.0
@@ -19037,7 +19065,7 @@ snapshots:
       '@wordpress/compose': 7.9.0(react@18.3.1)
       '@wordpress/core-data': 7.9.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/data': 10.9.0(react@18.3.1)
-      '@wordpress/dataviews': 4.5.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/dataviews': 4.7.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/element': 6.9.0
       '@wordpress/hooks': 4.9.0
       '@wordpress/html-entities': 4.9.0
