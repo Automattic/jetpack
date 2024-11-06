@@ -64,7 +64,6 @@ Update.args = {
 	onClick: () => alert( 'Update fixer callback triggered' ), // eslint-disable-line no-alert
 };
 
-// TODO: Add story for Replace salt keys
 export const ReplaceSaltKeys = args => <ThreatFixerButton { ...args } />;
 ReplaceSaltKeys.args = {
 	threat: { fixable: { fixer: 'replace' }, signature: 'php_hardening_WP_Config_NoSalts_001' },
@@ -96,17 +95,17 @@ Loading.args = {
 	onClick: () => alert( 'Update fixer callback triggered' ), // eslint-disable-line no-alert
 };
 
-export const ErrorFixer = args => <ThreatFixerButton { ...args } />;
-ErrorFixer.args = {
-	threat: { fixable: { fixer: 'update' }, fixer: { error: 'error' } },
-	onClick: () => alert( 'Update fixer callback triggered.' ), // eslint-disable-line no-alert
-};
-
 export const StaleFixer = args => <ThreatFixerButton { ...args } />;
 StaleFixer.args = {
 	threat: {
 		fixable: { fixer: 'update' },
 		fixer: { status: 'in_progress', lastUpdated: new Date( '1999-01-01' ).toISOString() },
 	},
+	onClick: () => alert( 'Update fixer callback triggered.' ), // eslint-disable-line no-alert
+};
+
+export const ErrorFixer = args => <ThreatFixerButton { ...args } />;
+ErrorFixer.args = {
+	threat: { fixable: { fixer: 'update' }, fixer: { error: 'error' } },
 	onClick: () => alert( 'Update fixer callback triggered.' ), // eslint-disable-line no-alert
 };
