@@ -9,10 +9,8 @@ import { usePostJustPublished } from '../use-saving-post';
 export function useSyncPostDataToStore() {
 	const { mergeConnections } = useDispatch( socialStore );
 
-	const { didPostSaveRequestSucceed, isCurrentPostPublished, getEditedPostAttribute } = useSelect(
-		select => select( editorStore ),
-		[]
-	);
+	const { didPostSaveRequestSucceed, isCurrentPostPublished, getEditedPostAttribute } =
+		useSelect( editorStore );
 
 	usePostJustPublished( () => {
 		/**

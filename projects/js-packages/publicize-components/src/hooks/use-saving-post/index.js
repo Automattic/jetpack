@@ -40,7 +40,6 @@ export function usePostJustPublished( fn, deps ) {
 		if ( ! ( wasPublishing && ! isPublishing ) ) {
 			return;
 		}
-		console.debug( `usePostJustPublished ${ wasPublishing } ${ isPublishing }` );
 
 		fn();
 	}, [ isPublishing, wasPublishing, fn, deps ] );
