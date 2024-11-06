@@ -1,6 +1,5 @@
-import { type Threat } from '@automattic/jetpack-scan';
 import { render, screen } from '@testing-library/react';
-import ThreatsDataView from '..';
+import ThreatsDataViews from '..';
 
 const data = [
 	// Scan API Data
@@ -14,9 +13,13 @@ const data = [
 		fixedIn: null,
 		fixedOn: '2024-10-07T20:45:06.000Z',
 		fixable: { fixer: 'rollback', target: 'January 26, 2024, 6:49 am', extensionStatus: '' },
-		fixer: { status: 'in_progress', startedAt: '2024-10-07T20:45:06.000Z' },
+		fixer: {
+			status: 'in_progress' as const,
+			startedAt: '2024-10-07T20:45:06.000Z',
+			lastUpdated: '2024-10-07T20:45:06.000Z',
+		},
 		severity: 8,
-		status: 'current',
+		status: 'current' as const,
 		filename: '/var/www/html/wp-content/index.php',
 		context: {
 			'1': 'echo <<<HTML',
@@ -24,7 +27,6 @@ const data = [
 			'3': 'HTML;',
 			marks: {},
 		},
-		source: null,
 	},
 	// Protect Report Data
 	{
@@ -37,24 +39,16 @@ const data = [
 			name: 'WooCommerce',
 			slug: 'woocommerce',
 			version: '3.2.3',
-			type: 'plugin',
+			type: 'plugin' as const,
 		},
 		fixedIn: '3.2.4',
-		context: null,
-		filename: null,
-		firstDetected: null,
-		fixable: null,
-		fixedOn: null,
-		fixer: null,
-		severity: null,
-		signature: null,
-		status: null,
+		status: 'current' as const,
 	},
-] as Threat[];
+];
 
 describe( 'ThreatsDataViews', () => {
 	it( 'renders threat data', () => {
-		render( <ThreatsDataView data={ data } /> );
+		render( <ThreatsDataViews data={ data } /> );
 		expect( screen.getByText( 'Malicious code found in file: index.php' ) ).toBeInTheDocument();
 		expect(
 			screen.getByText( 'WooCommerce <= 3.2.3 - Authenticated PHP Object Injection' )

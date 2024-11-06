@@ -63,4 +63,4 @@ class Upcoming_Events_Shortcode {
 		return sprintf( '<p>%s</p>', __( 'No upcoming events', 'jetpack' ) );
 	}
 }
-add_action( 'plugins_loaded', array( 'Upcoming_Events_Shortcode', 'init' ), 101 );
+add_action( 'after_setup_theme', array( 'Upcoming_Events_Shortcode', 'init' ), 2 );

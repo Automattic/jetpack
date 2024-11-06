@@ -27,7 +27,7 @@ module.exports = {
 		],
 	},
 	testMatch: [
-		// Note: Keep the patterns here in sync with tools/js-tools/eslintrc/base.js.
+		// Note: Keep the patterns here in sync with ./config.coverage.js and tools/js-tools/eslintrc/base.js.
 		'<rootDir>/**/__tests__/**/*.[jt]s?(x)',
 		'<rootDir>/**/?(*.)+(spec|test).[jt]s?(x)',
 		'<rootDir>/**/test/*.[jt]s?(x)',
@@ -41,4 +41,6 @@ module.exports = {
 	setupFilesAfterEnv: [ path.join( __dirname, 'setup-after-env.js' ) ],
 	extensionsToTreatAsEsm: [ '.jsx', '.ts', '.tsx' ],
 	resolver: require.resolve( 'jetpack-js-tools/jest/jest-resolver.js' ),
+
+	...require( './config.coverage.js' ),
 };

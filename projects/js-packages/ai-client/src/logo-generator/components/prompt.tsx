@@ -84,6 +84,7 @@ export const AiModalPromptInput = ( {
 			event.preventDefault();
 			generateHandler();
 		}
+		event.stopPropagation();
 	};
 
 	return (

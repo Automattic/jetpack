@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Add ToggleGroupControl to ThreatsDataViews for easily toggling between Active and Historical threats

@@ -8,7 +8,7 @@
 /**
  * Class for WPCOM_Enqueue_Dynamic_Script_Test.
  *
- * @covers WPCOM_Enqueue_Dynamic_Script.
+ * @covers WPCOM_Enqueue_Dynamic_Script
  */
 class WPCOM_Enqueue_Dynamic_Script_Test extends \WorDBless\BaseTestCase {
 	/**

@@ -49,7 +49,7 @@ export default function ThreatFixerButton( {
 
 	const errorMessage = useMemo( () => {
 		if ( threat.fixer && fixerStatusIsStale( threat.fixer ) ) {
-			return __( 'Fixer is taking longer than expected.', 'jetpack' );
+			return __( 'The fixer is taking longer than expected.', 'jetpack' );
 		}
 
 		if ( threat.fixer && 'error' in threat.fixer && threat.fixer.error ) {

@@ -857,7 +857,7 @@ function wpcom_launchpad_get_task_definitions() {
 				return __( 'Provision SSL certificate', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
-			'is_disabled_callback' => 'wpcom_launchpad_is_primary_domain_wpcom',
+			'is_visible_callback'  => 'wpcom_launchpad_is_ssl_task_visible',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
 				$domain = $data['site_slug_encoded'];
 				return '/domains/manage/' . $domain . '/edit/' . $domain;
@@ -2813,6 +2813,15 @@ function wpcom_launchpad_get_latest_draft_id() {
 	$cached_draft_id = reset( $latest_draft_id );
 
 	return $cached_draft_id;
+}
+
+/**
+ * Will return true if the primary domain is not a WPCOM domain.
+ *
+ * @return bool
+ */
+function wpcom_launchpad_is_ssl_task_visible() {
+	return ! wpcom_launchpad_is_primary_domain_wpcom();
 }
 
 /**

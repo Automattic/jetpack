@@ -8,18 +8,12 @@ import nspell from 'nspell';
 /**
  * Internal dependencies
  */
-import getDictionary from '../../utils/get-dictionary';
+import getFeatureData from '../../utils/get-feature-data';
 import a8c from './a8c';
 /**
  * Types
  */
-import type {
-	BreveFeatureConfig,
-	SpellingDictionaryContext,
-	HighlightedText,
-	SpellChecker,
-	BreveDispatch,
-} from '../../types';
+import type { BreveFeatureConfig, HighlightedText, SpellChecker, BreveDispatch } from '../../types';
 
 const debug = debugFactory( 'jetpack-ai-breve:spelling-mistakes' );
 
@@ -32,53 +26,6 @@ export const SPELLING_MISTAKES: BreveFeatureConfig = {
 };
 
 const spellCheckers: { [ key: string ]: SpellChecker } = {};
-const contextRequests: {
-	[ key: string ]: { loading: boolean; loaded: boolean; failed: boolean };
-} = {};
-
-const fetchContext = async ( language: string ) => {
-	debug( 'Fetching spelling context from the server' );
-
-	const { setDictionaryLoading } = dispatch( 'jetpack/ai-breve' ) as BreveDispatch;
-
-	setDictionaryLoading( SPELLING_MISTAKES.name, true );
-
-	try {
-		contextRequests[ language ] = { loading: true, loaded: false, failed: false };
-		const data = await getDictionary( SPELLING_MISTAKES.name, language );
-
-		localStorage.setItem(
-			`jetpack-ai-breve-spelling-context-${ language }`,
-			JSON.stringify( data )
-		);
-
-		contextRequests[ language ] = { loading: false, loaded: true, failed: false };
-		debug( 'Loaded spelling context from the server' );
-	} catch ( error ) {
-		debug( 'Failed to fetch spelling context', error );
-		contextRequests[ language ] = { loading: false, loaded: false, failed: true };
-		// TODO: Handle retries
-	} finally {
-		setDictionaryLoading( SPELLING_MISTAKES.name, false );
-	}
-};
-
-const getContext = ( language: string ) => {
-	// First check if the context is already defined in local storage
-	const storedContext = localStorage.getItem( `jetpack-ai-breve-spelling-context-${ language }` );
-	let context: SpellingDictionaryContext | null = null;
-	const { loading, failed } = contextRequests[ language ] || {};
-
-	if ( storedContext ) {
-		context = JSON.parse( storedContext );
-		debug( 'Loaded spelling context from local storage' );
-	} else if ( ! loading && ! failed ) {
-		// If the context is not in local storage and we haven't failed to fetch it before, try to fetch it once
-		fetchContext( language );
-	}
-
-	return context;
-};
 
 export const getSpellChecker = ( { language = 'en' }: { language?: string } = {} ) => {
 	if ( spellCheckers[ language ] ) {
@@ -87,7 +34,7 @@ export const getSpellChecker = ( { language = 'en' }: { language?: string } = {}
 
 	// Cannot await here as the Rich Text function needs to be synchronous.
 	// Load of the dictionary in the background if necessary and re-trigger the highlights later.
-	const spellingContext = getContext( language );
+	const spellingContext = getFeatureData( { feature: SPELLING_MISTAKES.name, language } );
 
 	if ( ! spellingContext ) {
 		return null;

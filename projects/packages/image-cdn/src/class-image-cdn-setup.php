@@ -20,7 +20,7 @@ class Image_CDN_Setup {
 			array(
 				'//i0.wp.com',
 			),
-			'dns-prefetch'
+			'preconnect'
 		);
 
 		Image_CDN::instance();

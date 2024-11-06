@@ -2,6 +2,30 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 14.0-beta - 2024-11-04
+### Improved compatibility
+- Embed Blocks: Append 'Embed' to the titles of Facebook and Instagram embed blocks. [#39970]
+- Image Block: Make the external media picker button consistent with the other buttons in the image block. [#39985]
+
+### Bug fixes
+- Google Fonts: Fix module not loading fully in certain scenarios. [#39977]
+- Social: Fix the Instagram maximum video length. [#39930]
+- Social: Prevent share status styles from affecting other independent elements on the page. [#39991]
+- Subscribe Block: Fix styling for the number of subscribers in the post editor sidebar. [#39929]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Code: Enable test coverage. [#39961]
+- Code: Fix PHPUnit coverage warnings. [#39989]
+- Code: Run coverage tests in parallel. [#39988]
+- Code: Update testing instructions for Jetpack 14.0. [#39957]
+- General: Skip pricing page when connecting from editor blocks. [#39865]
+- Jetpack AI: Add instructions to general image generation with styles to to-test file. [#39954]
+- Modules: Update any instances where functions are hooked into plugins_loaded, to use a later hook if needed. [#39993]
+- Social: Change order of jetpack social connections. [#40020]
+- Subscribe Block: adjust margin of the notice appearing in the block sidebar. [#39962]
+- Theme Tools: ensure theme-compat files are still loaded when a compatible theme is used. [#39992]
+- Write Brief: Load unconfident words from backend and update caching. [#39975]
+
 ## 14.0-a.11 - 2024-10-29
 ### Improved compatibility
 - Post Editor: Prevent deprecation notices with WordPress 6.7. [#39877]

@@ -6,8 +6,6 @@
  * @package automattic/jetpack
  */
 
-// phpcs:disable WordPress.WP.GlobalVariablesOverride
-
 chdir( __DIR__ . '/../' );
 
 /**
