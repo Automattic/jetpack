@@ -451,8 +451,14 @@ function wpcom_display_global_styles_launch_bar( $bar_controls ) {
 		$site_slug = wp_parse_url( $home_url, PHP_URL_HOST );
 	}
 
+	// @TODO Remove this once the global styles are available for all users on the Personal Plan.
+	$gs_upgrade_plan = WPCOM_VALUE_BUNDLE;
 	$upgrade_url = "https://wordpress.com/plans/$site_slug?plan=value_bundle&feature=style-customization";
-
+	if ( class_exists( 'WPCOM_Feature_Flags' ) && WPCOM_Feature_Flags::is_enabled( WPCOM_Feature_Flags::GLOBAL_STYLES_ON_PERSONAL_PLAN ) ) {
+		$gs_upgrade_plan = WPCOM_PERSONAL_BUNDLE;
+		$upgrade_url = "https://wordpress.com/plans/$site_slug?plan=personal-bundle&feature=style-customization";
+	}
+	
 	if ( wpcom_is_previewing_global_styles() ) {
 		$preview_location = add_query_arg( 'hide-global-styles', '' );
 	} else {
