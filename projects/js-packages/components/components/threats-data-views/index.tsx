@@ -49,27 +49,27 @@ import styles from './styles.module.scss';
 /**
  * ToggleGroupControl component for filtering threats by status.
  * @param {object}   props                          - Component props.
- * @param {number}   props.activeThreatsCount       - Number of active threats.
- * @param {number}   props.historicThreatsCount     - Number of historic threats.
+ * @param {number}   props.activeCount              - Number of active threats.
+ * @param {number}   props.historicCount            - Number of historic threats.
  * @param {boolean}  props.isViewingActiveThreats   - Whether the active status is selected.
  * @param {boolean}  props.isViewingHistoricThreats - Whether the historic status is selected.
  * @param {Function} props.onStatusFilterChange     - Callback function to handle the status filter change.
  * @return {JSX.Element|null} The component or null.
  */
 export function ThreatsStatusToggleGroupControl( {
-	activeThreatsCount,
-	historicThreatsCount,
+	activeCount,
+	historicCount,
 	isViewingActiveThreats,
 	isViewingHistoricThreats,
 	onStatusFilterChange,
 }: {
-	activeThreatsCount: number;
-	historicThreatsCount: number;
+	activeCount: number;
+	historicCount: number;
 	isViewingActiveThreats: boolean;
 	isViewingHistoricThreats: boolean;
 	onStatusFilterChange: ( newValue: string ) => void;
 } ): JSX.Element {
-	if ( ! ( activeThreatsCount + historicThreatsCount ) ) {
+	if ( ! ( activeCount + historicCount ) ) {
 		return null;
 	}
 
@@ -95,7 +95,7 @@ export function ThreatsStatusToggleGroupControl( {
 								'Active threats (%d)',
 								'jetpack'
 							),
-							activeThreatsCount
+							activeCount
 						) }
 					</span>
 				}
@@ -107,7 +107,7 @@ export function ThreatsStatusToggleGroupControl( {
 						{ sprintf(
 							/* translators: %d: number of historic threats */
 							__( 'History (%d)', 'jetpack' ),
-							historicThreatsCount
+							historicCount
 						) }
 					</span>
 				}
@@ -237,23 +237,23 @@ export default function ThreatsDataViews( {
 	/**
 	 * Compute values from the provided threats data.
 	 *
-	 * @member {Array}  activeThreatIds - List of active threat IDs.
-	 * @member {Array}  historicThreatIds - List of historic threat IDs.
+	 * @member {number}   activeThreatsCount - Count of active threats.
+	 * @member {number}   historicThreatsCount - Count of historic threats.
 	 * @member {object[]} themes - List of unique threat themes.
 	 * @member {object[]} plugins - List of unique threat plugins.
 	 * @member {object[]} signatures - List of unique threat signatures.
-	 * @member {Array}  dataFields - List of unique fields.
+	 * @member {Array}    dataFields - List of unique fields.
 	 */
 	const {
-		activeThreatIds,
-		historicThreatIds,
+		activeThreatsCount,
+		historicThreatsCount,
 		themes,
 		plugins,
 		signatures,
 		dataFields,
 	}: {
-		activeThreatIds: ( string | number )[];
-		historicThreatIds: ( string | number )[];
+		activeThreatsCount: number;
+		historicThreatsCount: number;
 		themes: { value: string; label: string }[];
 		plugins: { value: string; label: string }[];
 		signatures: { value: string; label: string }[];
@@ -261,12 +261,12 @@ export default function ThreatsDataViews( {
 	} = useMemo( () => {
 		return data.reduce(
 			( acc, threat ) => {
-				// Active/Historic Threat IDs
+				// Active/Historic Threats
 				if ( threat.status ) {
 					if ( threat.status === 'current' ) {
-						acc.activeThreatIds.push( threat.id );
+						acc.activeThreatsCount++;
 					} else {
-						acc.historicThreatIds.push( threat.id );
+						acc.historicThreatsCount++;
 					}
 				}
 
@@ -310,8 +310,8 @@ export default function ThreatsDataViews( {
 				return acc;
 			},
 			{
-				activeThreatIds: [],
-				historicThreatIds: [],
+				activeThreatsCount: 0,
+				historicThreatsCount: 0,
 				themes: [],
 				plugins: [],
 				signatures: [],
@@ -667,8 +667,8 @@ export default function ThreatsDataViews( {
 			view={ view }
 			header={
 				<ThreatsStatusToggleGroupControl
-					activeThreatsCount={ activeThreatIds.length }
-					historicThreatsCount={ historicThreatIds.length }
+					activeCount={ activeThreatsCount }
+					historicCount={ historicThreatsCount }
 					isViewingActiveThreats={ isStatusFilterSelected( [ 'current' ] ) }
 					isViewingHistoricThreats={ isStatusFilterSelected( [ 'fixed', 'ignored' ] ) }
 					onStatusFilterChange={ onStatusFilterChange }
