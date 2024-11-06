@@ -38,12 +38,12 @@ class Source_Providers {
 	 * @var Provider[]
 	 */
 	protected $providers = array(
+		Cornerstone_Provider::class,
 		Post_ID_Provider::class,
 		WP_Core_Provider::class,
 		Singular_Post_Provider::class,
 		Archive_Provider::class,
 		Taxonomy_Provider::class,
-		Cornerstone_Provider::class,
 	);
 
 	public function get_providers() {
@@ -110,6 +110,10 @@ class Source_Providers {
 		return $this->request_cached_css;
 	}
 
+	public function get_current_critical_css_key() {
+		return $this->current_critical_css_key;
+	}
+
 	/**
 	 * Get providers sources.
 	 *
@@ -170,7 +174,7 @@ class Source_Providers {
 		 * Filters the list of Critical CSS source providers.
 		 *
 		 * @param array $sources The list of Critical CSS source providers.
-		 * @since $$next-version$$
+		 * @since 3.6.0
 		 */
 		return apply_filters( 'jetpack_boost_critical_css_providers', $sources );
 	}

@@ -1,7 +1,16 @@
+import clsx from 'clsx';
 import styles from './pill.module.scss';
 
-const Pill = ( { text }: { text: string } ) => {
-	return <span className={ styles.pill }>{ text }</span>;
+const Pill = ( { text, altVersion }: { text: string; altVersion?: boolean } ) => {
+	return (
+		<span
+			className={ clsx( styles.pill, {
+				[ styles[ 'pill-alt' ] ]: altVersion,
+			} ) }
+		>
+			{ text }
+		</span>
+	);
 };
 
 export default Pill;
