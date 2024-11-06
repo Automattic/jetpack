@@ -39,12 +39,12 @@ return [
     // PhanPluginMixedKeyNoKey : 15+ occurrences
     // PhanSuspiciousMagicConstant : 15+ occurrences
     // PhanTypeExpectedObjectPropAccessButGotNull : 15+ occurrences
+    // PhanTypeMismatchArgumentNullableInternal : 15+ occurrences
     // PhanTypeMismatchPropertyDefault : 15+ occurrences
     // PhanPluginDuplicateExpressionAssignmentOperation : 10+ occurrences
     // PhanRedefineClass : 10+ occurrences
     // PhanRedundantConditionInLoop : 10+ occurrences
     // PhanTypeInvalidDimOffset : 10+ occurrences
-    // PhanTypeMismatchArgumentNullableInternal : 10+ occurrences
     // PhanTypeMismatchProperty : 10+ occurrences
     // PhanTypeMismatchReturnNullable : 10+ occurrences
     // PhanUndeclaredFunction : 10+ occurrences
@@ -532,7 +532,6 @@ return [
         'tests/php/modules/sitemaps/test-class.sitemap-buffer.php' => ['PhanParamTooMany', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchPropertyProbablyReal'],
         'tests/php/modules/sitemaps/test-class.sitemap-librarian.php' => ['PhanTypeMismatchArgument'],
         'tests/php/modules/subscriptions/test_class.jetpack-subscriptions.php' => ['PhanDeprecatedProperty', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal'],
-        'tests/php/modules/widgets/migrate-to-core/test_migrate-to-core-gallery-widget.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal'],
         'tests/php/modules/widgets/test_contact-info-widget.php' => ['PhanTypeMismatchArgumentProbablyReal'],
         'tests/php/modules/widgets/test_wordpress-post-widget.php' => ['PhanDeprecatedFunction', 'PhanTypeMismatchArgumentProbablyReal'],
         'tests/php/sync/class-test-jetpack-sync-search.php' => ['PhanStaticCallToNonStatic', 'PhanTypeMismatchArgumentInternal'],
