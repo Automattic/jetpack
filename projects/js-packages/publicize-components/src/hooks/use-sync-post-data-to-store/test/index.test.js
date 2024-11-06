@@ -81,6 +81,8 @@ describe( 'useSyncPostDataToStore', () => {
 				status: 'publish',
 				jetpack_publicize_connections: updatedConnections,
 			} );
+		} );
+		await act( async () => {
 			await registry.dispatch( editorStore ).savePost();
 		} );
 
