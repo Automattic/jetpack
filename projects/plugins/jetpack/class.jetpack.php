@@ -628,6 +628,7 @@ class Jetpack {
 		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-gutenberg.php';
 		add_action( 'plugins_loaded', array( 'Jetpack_Gutenberg', 'load_independent_blocks' ) );
 		add_action( 'plugins_loaded', array( 'Jetpack_Gutenberg', 'load_block_editor_extensions' ), 9 );
+		add_action( 'plugins_loaded', array( 'Jetpack_Gutenberg', 'register_block_metadata_collection' ) );
 		/**
 		 * We've switched from enqueue_block_editor_assets to enqueue_block_assets in WP-Admin because the assets with the former are loaded on the main site-editor.php.
 		 *
@@ -751,8 +752,6 @@ class Jetpack {
 		// Add 5-star
 		add_filter( 'plugin_row_meta', array( $this, 'add_5_star_review_link' ), 10, 2 );
 		add_action( 'init', array( Deprecate::class, 'instance' ) );
-
-		$this->register_block_metadata_collection();
 	}
 
 	/**
@@ -6140,28 +6139,6 @@ endif;
 			}
 
 			wp_safe_redirect( $redirect_url );
-		}
-	}
-
-	/**
-	 * Register block metadata collection for Jetpack blocks.
-	 * This allows for more efficient block metadata loading by avoiding
-	 * individual block.json file reads at runtime.
-	 *
-	 * Uses wp_register_block_metadata_collection() if available (WordPress 6.5+)
-	 * and if the manifest file exists. The manifest file is auto-generated
-	 * during the build process.
-	 *
-	 * @since $$next-version$$
-	 * @return void
-	 */
-	public function register_block_metadata_collection() {
-		$meta_file_path = JETPACK__PLUGIN_DIR . 'extensions/blocks/blocks-manifest.php';
-		if ( function_exists( 'wp_register_block_metadata_collection' ) && file_exists( $meta_file_path ) ) {
-			wp_register_block_metadata_collection(
-				JETPACK__PLUGIN_DIR . 'extensions/blocks/',
-				$meta_file_path
-			);
 		}
 	}
 }
