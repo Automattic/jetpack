@@ -638,9 +638,8 @@ function createPackageJson( packageJson, answers ) {
 			'./action-types': './src/state/action-types',
 		};
 		packageJson.scripts = {
-			test: 'jest tests',
-			'test-coverage':
-				'jest tests --coverage --collectCoverageFrom=\'src/**/*.js\' --coverageDirectory="$COVERAGE_DIR/js" --coverageReporters=clover',
+			test: 'jest --config=tests/jest.config.cjs',
+			'test-coverage': 'pnpm run test --coverage',
 		};
 
 		packageJson.devDependencies.jest = findVersionFromPnpmLock( 'jest' );

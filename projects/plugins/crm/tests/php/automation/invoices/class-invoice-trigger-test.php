@@ -16,7 +16,10 @@ require_once __DIR__ . '../../tools/class-automation-faker.php';
 /**
  * Test Automation Workflow functionalities
  *
- * @covers Automattic\Jetpack\CRM\Automation
+ * @covers Automattic\Jetpack\CRM\Automation\Triggers\Invoice_Created
+ * @covers Automattic\Jetpack\CRM\Automation\Triggers\Invoice_Deleted
+ * @covers Automattic\Jetpack\CRM\Automation\Triggers\Invoice_Status_Updated
+ * @covers Automattic\Jetpack\CRM\Automation\Triggers\Invoice_Updated
  */
 class Invoice_Trigger_Test extends JPCRM_Base_Test_Case {
 

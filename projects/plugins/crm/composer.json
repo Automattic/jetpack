@@ -20,7 +20,7 @@
 			"pnpm run build-production"
 		],
 		"test-coverage": [
-			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/php/clover.xml\""
+			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\""
 		],
 		"tests": "vendor/bin/codecept run acceptance --fail-fast",
 		"tests-debug": "vendor/bin/codecept run acceptance --fail-fast --debug",

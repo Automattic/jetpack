@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-my-jetpack",
-	"version": "4.35.16",
+	"version": "4.36.0",
 	"description": "WP Admin page with information and configuration shared among all Jetpack stand-alone plugins",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/my-jetpack/#readme",
 	"bugs": {
@@ -20,7 +20,7 @@
 		"clean": "rm -rf build/",
 		"watch": "pnpm run build && pnpm webpack watch",
 		"test": "jest --config=tests/jest.config.js",
-		"test-coverage": "pnpm run test --coverage --coverageDirectory=\"$COVERAGE_DIR/js\" --coverageReporters=clover"
+		"test-coverage": "pnpm run test --coverage"
 	},
 	"dependencies": {
 		"@automattic/format-currency": "1.0.1",
@@ -57,8 +57,8 @@
 	],
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@babel/core": "7.24.7",
-		"@babel/preset-env": "7.24.7",
+		"@babel/core": "7.26.0",
+		"@babel/preset-env": "7.26.0",
 		"@jest/globals": "29.7.0",
 		"@storybook/react": "8.3.5",
 		"@testing-library/dom": "10.4.0",

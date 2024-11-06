@@ -31,7 +31,7 @@ class WP_Test_Image_CDN_Core extends BaseTestCase {
 
 	/**
 	 * @author kraftbj
-	 * @covers ::Image_CDN_Core::cdn_url
+	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN_Core::cdn_url
 	 * @since 3.9.2
 	 */
 	public function test_photonizing_https_image_adds_ssl_query_arg() {
@@ -42,7 +42,7 @@ class WP_Test_Image_CDN_Core extends BaseTestCase {
 
 	/**
 	 * @author kraftbj
-	 * @covers ::Image_CDN_Core::cdn_url
+	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN_Core::cdn_url
 	 * @since  3.9.2
 	 */
 	public function test_photonizing_http_image_no_ssl_query_arg() {
@@ -53,7 +53,7 @@ class WP_Test_Image_CDN_Core extends BaseTestCase {
 
 	/**
 	 * @author donncha
-	 * @covers ::Image_CDN_Core::cdn_url
+	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN_Core::cdn_url
 	 * @since 0.2.3
 	 */
 	public function test_photon_url_with_query_parameters() {
@@ -71,7 +71,7 @@ class WP_Test_Image_CDN_Core extends BaseTestCase {
 
 	/**
 	 * @author aduth
-	 * @covers ::Image_CDN_Core::cdn_url
+	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN_Core::cdn_url
 	 * @since  4.5.0
 	 * @group  jetpack_photon_no_filter
 	 */
@@ -86,7 +86,7 @@ class WP_Test_Image_CDN_Core extends BaseTestCase {
 
 	/**
 	 * @author aduth
-	 * @covers ::Image_CDN_Core::cdn_url
+	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN_Core::cdn_url
 	 * @since  4.5.0
 	 * @group  jetpack_photon_no_filter
 	 */
@@ -101,7 +101,7 @@ class WP_Test_Image_CDN_Core extends BaseTestCase {
 
 	/**
 	 * @author aduth
-	 * @covers ::Image_CDN_Core::cdn_url
+	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN_Core::cdn_url
 	 * @since  4.5.0
 	 * @group  jetpack_photon_no_filter
 	 */
@@ -113,7 +113,7 @@ class WP_Test_Image_CDN_Core extends BaseTestCase {
 
 	/**
 	 * @author aduth
-	 * @covers ::Image_CDN_Core::cdn_url
+	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN_Core::cdn_url
 	 * @since  4.5.0
 	 * @group  jetpack_photon_no_filter
 	 */
@@ -125,7 +125,7 @@ class WP_Test_Image_CDN_Core extends BaseTestCase {
 
 	/**
 	 * @author aduth
-	 * @covers ::Image_CDN_Core::cdn_url
+	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN_Core::cdn_url
 	 * @since  4.5.0
 	 * @group  jetpack_photon_no_filter
 	 */
@@ -137,7 +137,7 @@ class WP_Test_Image_CDN_Core extends BaseTestCase {
 
 	/**
 	 * @author aduth
-	 * @covers ::Image_CDN_Core::cdn_url
+	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN_Core::cdn_url
 	 * @since  4.5.0
 	 * @group  jetpack_photon_filter_http
 	 */
@@ -150,7 +150,7 @@ class WP_Test_Image_CDN_Core extends BaseTestCase {
 
 	/**
 	 * @author aduth
-	 * @covers ::Image_CDN_Core::cdn_url
+	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN_Core::cdn_url
 	 * @since  4.5.0
 	 * @group  jetpack_photon_filter_http
 	 */
@@ -163,7 +163,7 @@ class WP_Test_Image_CDN_Core extends BaseTestCase {
 
 	/**
 	 * @author aduth
-	 * @covers ::Image_CDN_Core::cdn_url
+	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN_Core::cdn_url
 	 * @since  4.5.0
 	 * @group  jetpack_photon_filter_http
 	 */
@@ -176,7 +176,7 @@ class WP_Test_Image_CDN_Core extends BaseTestCase {
 
 	/**
 	 * @author aduth
-	 * @covers ::Image_CDN_Core::cdn_url
+	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN_Core::cdn_url
 	 * @since  4.5.0
 	 * @group  jetpack_photon_filter_http
 	 */
@@ -189,7 +189,7 @@ class WP_Test_Image_CDN_Core extends BaseTestCase {
 
 	/**
 	 * @author aduth
-	 * @covers ::Image_CDN_Core::cdn_url
+	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN_Core::cdn_url
 	 * @since  4.5.0
 	 * @group  jetpack_photon_filter_http
 	 */
@@ -202,7 +202,7 @@ class WP_Test_Image_CDN_Core extends BaseTestCase {
 
 	/**
 	 * @author aduth
-	 * @covers ::Image_CDN_Core::cdn_url
+	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN_Core::cdn_url
 	 * @since  4.5.0
 	 * @group  jetpack_photon_filter_network_path
 	 */
@@ -215,7 +215,7 @@ class WP_Test_Image_CDN_Core extends BaseTestCase {
 
 	/**
 	 * @author aduth
-	 * @covers ::Image_CDN_Core::cdn_url
+	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN_Core::cdn_url
 	 * @since  4.5.0
 	 * @group  jetpack_photon_filter_network_path
 	 */
@@ -228,7 +228,7 @@ class WP_Test_Image_CDN_Core extends BaseTestCase {
 
 	/**
 	 * @author aduth
-	 * @covers ::Image_CDN_Core::cdn_url
+	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN_Core::cdn_url
 	 * @since  4.5.0
 	 * @group  jetpack_photon_filter_network_path
 	 */
@@ -241,7 +241,7 @@ class WP_Test_Image_CDN_Core extends BaseTestCase {
 
 	/**
 	 * @author aduth
-	 * @covers ::Image_CDN_Core::cdn_url
+	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN_Core::cdn_url
 	 * @since  4.5.0
 	 * @group  jetpack_photon_filter_network_path
 	 */
@@ -254,7 +254,7 @@ class WP_Test_Image_CDN_Core extends BaseTestCase {
 
 	/**
 	 * @author aduth
-	 * @covers ::Image_CDN_Core::cdn_url
+	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN_Core::cdn_url
 	 * @since  4.5.0
 	 * @group  jetpack_photon_filter_network_path
 	 */
@@ -266,7 +266,7 @@ class WP_Test_Image_CDN_Core extends BaseTestCase {
 	}
 
 	/**
-	 * @covers ::Image_CDN_Core::is_cdn_url
+	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN_Core::is_cdn_url
 	 * @since  0.5.0
 	 * @group  jetpack_photon_filter_network_path
 	 */
@@ -284,7 +284,7 @@ class WP_Test_Image_CDN_Core extends BaseTestCase {
 	}
 
 	/**
-	 * @covers ::Image_CDN_Core::cdn_url
+	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN_Core::cdn_url
 	 * @since  0.5.1
 	 * @group  jetpack_photon_filter_url_encoding
 	 */
@@ -297,7 +297,7 @@ class WP_Test_Image_CDN_Core extends BaseTestCase {
 
 	/**
 	 * @author aduth
-	 * @covers ::Image_CDN_Core::cdn_url_scheme
+	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN_Core::cdn_url_scheme
 	 * @since  4.5.0
 	 * @group  Image_CDN_Core::cdn_url_scheme
 	 */
@@ -309,7 +309,7 @@ class WP_Test_Image_CDN_Core extends BaseTestCase {
 
 	/**
 	 * @author aduth
-	 * @covers ::Image_CDN_Core::cdn_url_scheme
+	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN_Core::cdn_url_scheme
 	 * @since  4.5.0
 	 * @group  Image_CDN_Core::cdn_url_scheme
 	 */
@@ -321,7 +321,7 @@ class WP_Test_Image_CDN_Core extends BaseTestCase {
 
 	/**
 	 * @author aduth
-	 * @covers ::Image_CDN_Core::cdn_url_scheme
+	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN_Core::cdn_url_scheme
 	 * @since  4.5.0
 	 * @group  Image_CDN_Core::cdn_url_scheme
 	 */
@@ -333,7 +333,7 @@ class WP_Test_Image_CDN_Core extends BaseTestCase {
 
 	/**
 	 * @author aduth
-	 * @covers ::Image_CDN_Core::cdn_url_scheme
+	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN_Core::cdn_url_scheme
 	 * @since  4.5.0
 	 * @group  Image_CDN_Core::cdn_url_scheme
 	 */
@@ -345,7 +345,7 @@ class WP_Test_Image_CDN_Core extends BaseTestCase {
 
 	/**
 	 * @author aduth
-	 * @covers ::Image_CDN_Core::cdn_url_scheme
+	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN_Core::cdn_url_scheme
 	 * @since  4.5.0
 	 * @group  Image_CDN_Core::cdn_url_scheme
 	 */
@@ -357,7 +357,7 @@ class WP_Test_Image_CDN_Core extends BaseTestCase {
 
 	/**
 	 * @author aduth
-	 * @covers ::Image_CDN_Core::cdn_url_scheme
+	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN_Core::cdn_url_scheme
 	 * @since  4.5.0
 	 * @group  Image_CDN_Core::cdn_url_scheme
 	 */
@@ -369,7 +369,7 @@ class WP_Test_Image_CDN_Core extends BaseTestCase {
 
 	/**
 	 * @author aduth
-	 * @covers ::Image_CDN_Core::cdn_url_scheme
+	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN_Core::cdn_url_scheme
 	 * @since  4.5.0
 	 * @group  Image_CDN_Core::cdn_url_scheme
 	 */
@@ -383,7 +383,7 @@ class WP_Test_Image_CDN_Core extends BaseTestCase {
 	 * Testing the filter allowing to skip Photon for specific domains.
 	 *
 	 * @author aduth
-	 * @covers ::Image_CDN_Core::banned_domains
+	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN_Core::banned_domains
 	 * @since  5.0.0
 	 * @group  Image_CDN_Core::banned_domains
 	 * @dataProvider get_photon_domains
@@ -399,7 +399,7 @@ class WP_Test_Image_CDN_Core extends BaseTestCase {
 	 * Tests that Photon will rely on native resizing for WordPress.com images.
 	 *
 	 * @author aforcier
-	 * @covers ::jetpack_photon_url
+	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN_Core::cdn_url
 	 * @since  9.5.0
 	 */
 	public function test_photonizing_wordpress_url() {
@@ -414,7 +414,7 @@ class WP_Test_Image_CDN_Core extends BaseTestCase {
 	 * Tests that Photon will rely on native resizing for VideoPress poster images.
 	 *
 	 * @author aforcier
-	 * @covers ::jetpack_photon_url
+	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN_Core::cdn_url
 	 * @since  9.5.0
 	 */
 	public function test_photonizing_videopress_url() {

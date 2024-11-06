@@ -188,6 +188,6 @@ if [[ "$WITH_WPCOMSH" == true ]]; then
 fi
 
 # Catch anything that doesn't use the WP_TESTS_CONFIG_FILE_PATH env variable.
-echo '<?php die( "Use the WP_TESTS_CONFIG_FILE_PATH environment variable to locate a customized config." );' > "/tmp/wordpress-$WP_BRANCH/wp-tests-config.php"
+echo '<?php throw new \Exception( "Use the WP_TESTS_CONFIG_FILE_PATH environment variable to locate a customized config." );' > "/tmp/wordpress-$WP_BRANCH/wp-tests-config.php"
 
 exit $EXIT

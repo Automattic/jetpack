@@ -14,8 +14,8 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"scripts": {
-		"test": "jest tests",
-		"test-coverage": "pnpm run test --coverage --collectCoverageFrom='src/**/*.js' --coverageDirectory=\"$COVERAGE_DIR/js\" --coverageReporters=clover"
+		"test": "jest --config=tests/jest.config.cjs",
+		"test-coverage": "pnpm run test --coverage"
 	},
 	"dependencies": {
 		"@mdn/browser-compat-data": "5.5.49",

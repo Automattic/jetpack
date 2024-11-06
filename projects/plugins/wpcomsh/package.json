@@ -28,8 +28,8 @@
 		"build-production": "echo 'Not implemented.'",
 		"build-production-js": "echo 'Not implemented.'",
 		"clean": "true",
-		"test": "jest --bail --ci --verbose",
-		"test:watch": "jest --verbose --watchAll",
-		"test-coverage": "pnpm run test --coverage --coverageDirectory=\"$COVERAGE_DIR/js\" --coverageReporters=clover"
+		"test": "jest --bail --ci --verbose --config=tests/jest.config.cjs",
+		"test:watch": "jest --verbose --watchAll --config=tests/jest.config.cjs",
+		"test-coverage": "pnpm run test --coverage"
 	}
 }

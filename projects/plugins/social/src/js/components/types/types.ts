@@ -21,19 +21,6 @@ type SiteDataSelectors = {
 	getBlogID: () => number;
 };
 
-type SocialImageGeneratorSettingsSelectors = {
-	getSocialImageGeneratorSettings: () => {
-		available: boolean;
-		enabled: boolean;
-		defaults: () => {
-			template: string;
-		};
-	};
-	isSocialImageGeneratorEnabled: () => boolean;
-	isUpdatingSocialImageGeneratorSettings: () => boolean;
-	getSocialImageGeneratorDefaultTemplate: () => string;
-};
-
 type SocialNotesSettingsSelectors = {
 	isSocialNotesEnabled: () => boolean;
 	isSocialNotesSettingsUpdating: () => boolean;
@@ -47,5 +34,4 @@ type SocialNotesSettingsSelectors = {
 export type SocialStoreSelectors = JetpackSettingsSelectors &
 	ConnectionDataSelectors &
 	SiteDataSelectors &
-	SocialImageGeneratorSettingsSelectors &
 	SocialNotesSettingsSelectors;
