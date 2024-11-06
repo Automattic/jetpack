@@ -30,7 +30,7 @@ function build_block_manifest( $base_path = null ) {
 	}
 
 	$blocks = array();
-	$files  = glob( $base_path . '/**/block.json' );
+	$files  = glob( $base_path . '/*/block.json' );
 
 	if ( empty( $files ) ) {
 		throw new Exception( "No block.json files found in: {$base_path}", 1 );
