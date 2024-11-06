@@ -12,6 +12,7 @@
 /.cache/
 
 ## FILES
+/extensions/blocks/blocks-manifest.php
 /modules/**/*/block.js
 /modules/**/*.css.map
 /modules/**/*.min.css
