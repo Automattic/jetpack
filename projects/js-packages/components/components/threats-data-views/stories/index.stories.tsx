@@ -136,6 +136,7 @@ Default.args = {
 				'The WooCommerce WordPress plugin was affected by an Authenticated Stored XSS security vulnerability.',
 			firstDetected: '2024-07-15T21:56:50.000Z',
 			fixedIn: '3.4.6',
+			status: 'current',
 			source: 'https://wpscan.com/vulnerability/7275a176-d579-471a-8492-df8edbdf27de',
 			extension: {
 				name: 'WooCommerce',
