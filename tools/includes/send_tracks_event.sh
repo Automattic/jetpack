@@ -19,8 +19,6 @@ function send_tracks_event {
 		return
 	fi
 
-	[[ -z "$RUN_ID" ]] && RUN_ID=$(get_uuid)
-
 	local TRACKS_URL TRACKS_RESPONSE USER_AGENT PAYLOAD
 	TRACKS_URL='https://public-api.wordpress.com/rest/v1.1/tracks/record?http_envelope=1'
 	USER_AGENT='jetpack-monorepo-cli'
@@ -30,7 +28,7 @@ function send_tracks_event {
 	)
 
 	# Add event name to payload.
-	PAYLOAD=$(jq -r --arg eventName "$1" --arg RUN_ID "$RUN_ID" '.events = [{_en: $eventName, run_id: $RUN_ID}]' <<< "$PAYLOAD")
+	PAYLOAD=$(jq -r --arg eventName "$1" --arg RUN_ID "$JP_SEND_TRACKS_RUN_ID" '.events = [{_en: $eventName, run_id: $RUN_ID}]' <<< "$PAYLOAD")
 
 	# Add extra params to payload if provided.
 	if [[ -n "$2" ]]; then
@@ -54,3 +52,7 @@ function send_tracks_event {
 		echo "Failed Tracks call: $TRACKS_RESPONSE"
 	fi
 }
+
+
+[[ -z "$JP_SEND_TRACKS_RUN_ID" ]] && JP_SEND_TRACKS_RUN_ID=$(get_uuid)
+export JP_SEND_TRACKS_RUN_ID
