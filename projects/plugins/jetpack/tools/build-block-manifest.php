@@ -1,7 +1,9 @@
-<?php // phpcs:ignore Squiz.Commenting.FileComment.MissingPackageTag
+<?php
 /**
  * Build script to generate a PHP manifest file containing block metadata from block.json files.
  * This reduces filesystem reads and JSON parsing at runtime.
+ *
+ * @package automattic/jetpack
  */
 
 // phpcs:disable WordPress.WP.AlternativeFunctions, WordPress.PHP.DevelopmentFunctions.error_log_var_export
