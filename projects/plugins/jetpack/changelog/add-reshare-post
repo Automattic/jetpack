@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Fixed bug with scheduled resharing when sharing another admin's posts.

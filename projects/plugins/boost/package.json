@@ -1,6 +1,6 @@
 {
 	"name": "jetpack-boost",
-	"version": "3.5.2",
+	"version": "3.6.0-beta",
 	"description": "Boost your WordPress site's performance, from the creators of Jetpack",
 	"directories": {
 		"test": "tests"
@@ -31,9 +31,9 @@
 		"@automattic/jetpack-critical-css-gen": "workspace:*",
 		"@automattic/jetpack-image-guide": "workspace:*",
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@babel/core": "7.24.7",
-		"@babel/preset-env": "7.24.7",
-		"@babel/preset-react": "7.24.7",
+		"@babel/core": "7.26.0",
+		"@babel/preset-env": "7.26.0",
+		"@babel/preset-react": "7.25.9",
 		"@storybook/react": "8.3.5",
 		"@types/jest": "29.5.12",
 		"@types/jquery": "3.5.30",
@@ -65,7 +65,8 @@
 		"build-concurrently": "pnpm run clean && concurrently 'pnpm:build-client'",
 		"build-production-concurrently": "pnpm run clean && concurrently 'NODE_ENV=production BABEL_ENV=production pnpm run build-client' && pnpm run validate",
 		"clean": "rm -rf app/assets/dist/",
-		"test": "jest app --env=jsdom",
+		"test": "jest --config=tests/jest.config.cjs app",
+		"test-coverage": "pnpm run test --coverage",
 		"validate": "pnpm exec validate-es app/assets/dist",
 		"watch": "pnpm run build && webpack watch",
 		"reformat-files": "../../../tools/js-tools/node_modules/.bin/prettier --ignore-path .eslintignore --write --plugin-search-dir=. ./**/*.{js,ts,json}",

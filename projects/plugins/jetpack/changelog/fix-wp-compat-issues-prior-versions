@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Components: Shortlink and Toolbar related components have been updated to ensure compatibility.

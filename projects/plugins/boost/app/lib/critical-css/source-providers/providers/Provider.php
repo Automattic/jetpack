@@ -82,7 +82,7 @@ abstract class Provider {
 	 * Returns the ratio of valid urls from the provider source urls
 	 * for the Critical CSS generation to be considered successful.
 	 *
-	 * @return array
+	 * @return float|int
 	 */
 	abstract public static function get_success_ratio();
 }

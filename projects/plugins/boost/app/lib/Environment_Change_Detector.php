@@ -14,11 +14,13 @@ namespace Automattic\Jetpack_Boost\Lib;
  */
 class Environment_Change_Detector {
 
-	const ENV_CHANGE_LEGACY         = '1';
-	const ENV_CHANGE_PAGE_SAVED     = 'page_saved';
-	const ENV_CHANGE_POST_SAVED     = 'post_saved';
-	const ENV_CHANGE_SWITCHED_THEME = 'switched_theme';
-	const ENV_CHANGE_PLUGIN_CHANGE  = 'plugin_change';
+	const ENV_CHANGE_LEGACY                         = '1';
+	const ENV_CHANGE_PAGE_SAVED                     = 'page_saved';
+	const ENV_CHANGE_POST_SAVED                     = 'post_saved';
+	const ENV_CHANGE_SWITCHED_THEME                 = 'switched_theme';
+	const ENV_CHANGE_PLUGIN_CHANGE                  = 'plugin_change';
+	const ENV_CHANGE_CORNERSTONE_PAGE_SAVED         = 'cornerstone_page_saved';
+	const ENV_CHANGE_CORNERSTONE_PAGES_LIST_UPDATED = 'cornerstone_pages_list_updated';
 
 	/**
 	 * Initialize the change detection hooks.
@@ -46,13 +48,7 @@ class Environment_Change_Detector {
 			return;
 		}
 
-		if ( 'page' === $post->post_type ) {
-			$change_type = $this::ENV_CHANGE_PAGE_SAVED;
-		} else {
-			$change_type = $this::ENV_CHANGE_POST_SAVED;
-		}
-
-		$this->do_action( false, $change_type );
+		$this->do_action( false, $this->get_post_change_type( $post ) );
 	}
 
 	public function handle_theme_change() {
@@ -61,6 +57,10 @@ class Environment_Change_Detector {
 
 	public function handle_plugin_change() {
 		$this->do_action( false, $this::ENV_CHANGE_PLUGIN_CHANGE );
+	}
+
+	public function handle_cornerstone_pages_list_update() {
+		$this->do_action( false, $this::ENV_CHANGE_CORNERSTONE_PAGES_LIST_UPDATED );
 	}
 
 	/**
@@ -98,5 +98,30 @@ class Environment_Change_Detector {
 		if ( is_post_type_viewable( $post_type ) ) {
 			return true;
 		}
+	}
+
+	/**
+	 * Get the type of change for a specific post.
+	 *
+	 * @param \WP_Post $post The post object.
+	 * @return string The change type.
+	 */
+	private function get_post_change_type( $post ) {
+		$cornerstone_pages = ( new Cornerstone_Pages() )->get_pages();
+		if ( $cornerstone_pages ) {
+			$cornerstone_pages_sanitized = array_map( 'untrailingslashit', $cornerstone_pages );
+			$current_url                 = untrailingslashit( get_permalink( $post ) );
+			if ( in_array( $current_url, $cornerstone_pages_sanitized, true ) ) {
+				return $this::ENV_CHANGE_CORNERSTONE_PAGE_SAVED;
+			}
+		}
+
+		if ( 'page' === $post->post_type ) {
+			$change_type = $this::ENV_CHANGE_PAGE_SAVED;
+		} else {
+			$change_type = $this::ENV_CHANGE_POST_SAVED;
+		}
+
+		return $change_type;
 	}
 }

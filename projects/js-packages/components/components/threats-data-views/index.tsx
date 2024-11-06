@@ -17,13 +17,33 @@ import {
 } from '@wordpress/dataviews';
 import { dateI18n } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
-import { code, color, grid, plugins, shield, wordpress } from '@wordpress/icons';
 import { Icon } from '@wordpress/icons';
 import { useCallback, useMemo, useState } from 'react';
 import Badge from '../badge';
 import ThreatFixerButton from '../threat-fixer-button';
 import ThreatSeverityBadge from '../threat-severity-badge';
-import { THREAT_STATUSES, THREAT_TYPES } from './constants';
+import {
+	THREAT_ACTION_FIX,
+	THREAT_ACTION_IGNORE,
+	THREAT_ACTION_UNIGNORE,
+	THREAT_FIELD_AUTO_FIX,
+	THREAT_FIELD_DESCRIPTION,
+	THREAT_FIELD_EXTENSION,
+	THREAT_FIELD_FIRST_DETECTED,
+	THREAT_FIELD_FIXED_ON,
+	THREAT_FIELD_ICON,
+	THREAT_FIELD_PLUGIN,
+	THREAT_FIELD_SEVERITY,
+	THREAT_FIELD_SIGNATURE,
+	THREAT_FIELD_STATUS,
+	THREAT_FIELD_THEME,
+	THREAT_FIELD_THREAT,
+	THREAT_FIELD_TITLE,
+	THREAT_FIELD_TYPE,
+	THREAT_ICONS,
+	THREAT_STATUSES,
+	THREAT_TYPES,
+} from './constants';
 import styles from './styles.module.scss';
 
 /**
@@ -154,14 +174,19 @@ export default function ThreatsDataViews( {
 	const defaultLayouts: SupportedLayouts = {
 		table: {
 			...baseView,
-			fields: [ 'severity', 'threat', 'type', 'auto-fix' ],
+			fields: [
+				THREAT_FIELD_SEVERITY,
+				THREAT_FIELD_THREAT,
+				THREAT_FIELD_TYPE,
+				THREAT_FIELD_AUTO_FIX,
+			],
 			layout: {
-				primaryField: 'severity',
+				primaryField: THREAT_FIELD_SEVERITY,
 				combinedFields: [
 					{
-						id: 'threat',
+						id: THREAT_FIELD_THREAT,
 						label: __( 'Threat', 'jetpack' ),
-						children: [ 'title', 'description' ],
+						children: [ THREAT_FIELD_TITLE, THREAT_FIELD_DESCRIPTION ],
 						direction: 'vertical',
 					},
 				],
@@ -169,10 +194,15 @@ export default function ThreatsDataViews( {
 		},
 		list: {
 			...baseView,
-			fields: [ 'severity', 'type', 'signature' ],
+			fields: [
+				THREAT_FIELD_SEVERITY,
+				THREAT_FIELD_TYPE,
+				THREAT_FIELD_EXTENSION,
+				THREAT_FIELD_SIGNATURE,
+			],
 			layout: {
-				primaryField: 'title',
-				mediaField: 'icon',
+				primaryField: THREAT_FIELD_TITLE,
+				mediaField: THREAT_FIELD_ICON,
 			},
 		},
 	};
@@ -209,36 +239,52 @@ export default function ThreatsDataViews( {
 	 *
 	 * @member {Array}  activeThreatIds - List of active threat IDs.
 	 * @member {Array}  historicThreatIds - List of historic threat IDs.
-	 * @member {object} extensions - List of unique threat themes.
+	 * @member {object} themes - List of unique threat themes.
+	 * @member {object} plugins - List of unique threat plugins.
 	 * @member {object} signatures - List of unique threat signatures.
 	 * @member {Array}  dataFields - List of unique fields.
 	 */
 	const {
 		activeThreatIds,
 		historicThreatIds,
-		extensions,
+		themes,
+		plugins,
 		signatures,
 		dataFields,
 	}: {
 		activeThreatIds: ( string | number )[];
 		historicThreatIds: ( string | number )[];
-		extensions: { value: string; label: string }[];
+		themes: { value: string; label: string }[];
+		plugins: { value: string; label: string }[];
 		signatures: { value: string; label: string }[];
 		dataFields: string[];
 	} = useMemo( () => {
 		return data.reduce(
 			( acc, threat ) => {
 				// Active/Historic Threat IDs
-				if ( threat.status === 'current' ) {
-					acc.activeThreatIds.push( threat.id );
-				} else {
-					acc.historicThreatIds.push( threat.id );
+				if ( threat.status ) {
+					if ( threat.status === 'current' ) {
+						acc.activeThreatIds.push( threat.id );
+					} else {
+						acc.historicThreatIds.push( threat.id );
+					}
 				}
 
-				// Extensions
+				// Extensions (Themes and Plugins)
 				if ( threat.extension ) {
-					if ( ! acc.extensions.find( ( { value } ) => value === threat.extension.slug ) ) {
-						acc.extensions.push( { value: threat.extension.slug, label: threat.extension.name } );
+					switch ( threat.extension.type ) {
+						case 'theme':
+							if ( ! acc.themes.find( ( { value } ) => value === threat.extension.slug ) ) {
+								acc.themes.push( { value: threat.extension.slug, label: threat.extension.name } );
+							}
+							break;
+						case 'plugin':
+							if ( ! acc.plugins.find( ( { value } ) => value === threat.extension.slug ) ) {
+								acc.plugins.push( { value: threat.extension.slug, label: threat.extension.name } );
+							}
+							break;
+						default:
+							break;
 					}
 				}
 
@@ -266,7 +312,8 @@ export default function ThreatsDataViews( {
 			{
 				activeThreatIds: [],
 				historicThreatIds: [],
-				extensions: [],
+				themes: [],
+				plugins: [],
 				signatures: [],
 				dataFields: [],
 			}
@@ -281,7 +328,7 @@ export default function ThreatsDataViews( {
 	const fields = useMemo( () => {
 		const result: Field< Threat >[] = [
 			{
-				id: 'title',
+				id: THREAT_FIELD_TITLE,
 				label: __( 'Title', 'jetpack' ),
 				enableGlobalSearch: true,
 				enableHiding: false,
@@ -290,7 +337,7 @@ export default function ThreatsDataViews( {
 				),
 			},
 			{
-				id: 'description',
+				id: THREAT_FIELD_DESCRIPTION,
 				label: __( 'Description', 'jetpack' ),
 				enableGlobalSearch: true,
 				enableHiding: false,
@@ -299,60 +346,22 @@ export default function ThreatsDataViews( {
 				),
 			},
 			{
-				id: 'icon',
+				id: THREAT_FIELD_ICON,
 				label: __( 'Icon', 'jetpack' ),
 				enableHiding: false,
 				getValue( { item }: { item: Threat } ) {
 					return getThreatType( item );
 				},
 				render( { item }: { item: Threat } ) {
-					const type = getThreatType( item );
-
-					let icon;
-					switch ( type ) {
-						case 'plugin':
-							icon = plugins;
-							break;
-						case 'theme':
-							icon = color;
-							break;
-						case 'core':
-							icon = wordpress;
-							break;
-						case 'file':
-							icon = code;
-							break;
-						case 'database':
-							icon = grid;
-							break;
-						default:
-							icon = shield;
-					}
-
 					return (
 						<div className={ styles.threat__media }>
-							<Icon icon={ icon } size={ 20 } />
+							<Icon icon={ THREAT_ICONS[ getThreatType( item ) ] } size={ 20 } />
 						</div>
 					);
 				},
 			},
-			...( dataFields.includes( 'severity' )
-				? [
-						{
-							id: 'severity',
-							label: __( 'Severity', 'jetpack' ),
-							type: 'integer' as FieldType,
-							getValue( { item }: { item: Threat } ) {
-								return item.severity ?? 0;
-							},
-							render( { item }: { item: Threat } ) {
-								return <ThreatSeverityBadge severity={ item.severity } />;
-							},
-						},
-				  ]
-				: [] ),
 			{
-				id: 'status',
+				id: THREAT_FIELD_STATUS,
 				label: __( 'Status', 'jetpack' ),
 				elements: THREAT_STATUSES,
 				getValue( { item }: { item: Threat } ) {
@@ -374,26 +383,64 @@ export default function ThreatsDataViews( {
 				},
 			},
 			{
-				id: 'extension',
-				label: __( 'Extension', 'jetpack' ),
-				enableGlobalSearch: true,
-				elements: extensions,
-				getValue( { item }: { item: Threat } ) {
-					return item.extension ? item.extension.slug : '';
-				},
-			},
-			{
-				id: 'type',
+				id: THREAT_FIELD_TYPE,
 				label: __( 'Type', 'jetpack' ),
 				elements: THREAT_TYPES,
 				getValue( { item }: { item: Threat } ) {
 					return getThreatType( item ) ?? '';
 				},
 			},
+			{
+				id: THREAT_FIELD_EXTENSION,
+				label: __( 'Extension', 'jetpack' ),
+				enableGlobalSearch: true,
+				enableHiding: true,
+				getValue( { item }: { item: Threat } ) {
+					return item.extension ? item.extension.slug : '';
+				},
+				render( { item }: { item: Threat } ) {
+					return item.extension ? item.extension.name : '';
+				},
+			},
+			{
+				id: THREAT_FIELD_PLUGIN,
+				label: __( 'Plugin', 'jetpack' ),
+				enableGlobalSearch: true,
+				enableHiding: false,
+				elements: plugins,
+				getValue( { item }: { item: Threat } ) {
+					return item.extension ? item.extension.slug : '';
+				},
+			},
+			{
+				id: THREAT_FIELD_THEME,
+				label: __( 'Theme', 'jetpack' ),
+				enableGlobalSearch: true,
+				enableHiding: false,
+				elements: themes,
+				getValue( { item }: { item: Threat } ) {
+					return item.extension ? item.extension.slug : '';
+				},
+			},
+			...( dataFields.includes( 'severity' )
+				? [
+						{
+							id: THREAT_FIELD_SEVERITY,
+							label: __( 'Severity', 'jetpack' ),
+							type: 'integer' as FieldType,
+							getValue( { item }: { item: Threat } ) {
+								return item.severity ?? 0;
+							},
+							render( { item }: { item: Threat } ) {
+								return <ThreatSeverityBadge severity={ item.severity } />;
+							},
+						},
+				  ]
+				: [] ),
 			...( dataFields.includes( 'signature' )
 				? [
 						{
-							id: 'signature',
+							id: THREAT_FIELD_SIGNATURE,
 							label: __( 'Signature', 'jetpack' ),
 							elements: signatures,
 							enableGlobalSearch: true,
@@ -403,10 +450,48 @@ export default function ThreatsDataViews( {
 						},
 				  ]
 				: [] ),
+			...( dataFields.includes( 'firstDetected' )
+				? [
+						{
+							id: THREAT_FIELD_FIRST_DETECTED,
+							label: __( 'First Detected', 'jetpack' ),
+							type: 'datetime' as FieldType,
+							getValue( { item }: { item: Threat } ) {
+								return item.firstDetected ? new Date( item.firstDetected ) : null;
+							},
+							render( { item }: { item: Threat } ) {
+								return item.firstDetected ? (
+									<span className={ styles.threat__firstDetected }>
+										{ dateI18n( 'F j Y', item.firstDetected, false ) }
+									</span>
+								) : null;
+							},
+						},
+				  ]
+				: [] ),
+			...( dataFields.includes( 'fixedOn' )
+				? [
+						{
+							id: THREAT_FIELD_FIXED_ON,
+							label: __( 'Fixed On', 'jetpack' ),
+							type: 'datetime' as FieldType,
+							getValue( { item }: { item: Threat } ) {
+								return item.fixedOn ? new Date( item.fixedOn ) : null;
+							},
+							render( { item }: { item: Threat } ) {
+								return item.fixedOn ? (
+									<span className={ styles.threat__fixedOn }>
+										{ dateI18n( 'F j Y', item.fixedOn, false ) }
+									</span>
+								) : null;
+							},
+						},
+				  ]
+				: [] ),
 			...( dataFields.includes( 'fixable' )
 				? [
 						{
-							id: 'auto-fix',
+							id: THREAT_FIELD_AUTO_FIX,
 							label: __( 'Auto-Fix', 'jetpack' ),
 							enableHiding: false,
 							elements: [
@@ -432,48 +517,10 @@ export default function ThreatsDataViews( {
 						},
 				  ]
 				: [] ),
-			...( dataFields.includes( 'firstDetected' )
-				? [
-						{
-							id: 'first-detected',
-							label: __( 'First Detected', 'jetpack' ),
-							type: 'datetime' as FieldType,
-							getValue( { item }: { item: Threat } ) {
-								return item.firstDetected ? new Date( item.firstDetected ) : null;
-							},
-							render( { item }: { item: Threat } ) {
-								return item.firstDetected ? (
-									<span className={ styles.threat__firstDetected }>
-										{ dateI18n( 'F j Y', item.firstDetected, false ) }
-									</span>
-								) : null;
-							},
-						},
-				  ]
-				: [] ),
-			...( dataFields.includes( 'fixedOn' )
-				? [
-						{
-							id: 'fixed-on',
-							label: __( 'Fixed On', 'jetpack' ),
-							type: 'datetime' as FieldType,
-							getValue( { item }: { item: Threat } ) {
-								return item.fixedOn ? new Date( item.fixedOn ) : null;
-							},
-							render( { item }: { item: Threat } ) {
-								return item.fixedOn ? (
-									<span className={ styles.threat__fixedOn }>
-										{ dateI18n( 'F j Y', item.fixedOn, false ) }
-									</span>
-								) : null;
-							},
-						},
-				  ]
-				: [] ),
 		];
 
 		return result;
-	}, [ dataFields, extensions, signatures, onFixThreats ] );
+	}, [ dataFields, plugins, themes, signatures, onFixThreats ] );
 
 	/**
 	 * DataView actions - collection of operations that can be performed upon each record.
@@ -485,7 +532,7 @@ export default function ThreatsDataViews( {
 
 		if ( dataFields.includes( 'fixable' ) ) {
 			result.push( {
-				id: 'fix',
+				id: THREAT_ACTION_FIX,
 				label: __( 'Auto-Fix', 'jetpack' ),
 				isPrimary: true,
 				supportsBulk: true,
@@ -504,7 +551,7 @@ export default function ThreatsDataViews( {
 
 		if ( dataFields.includes( 'status' ) ) {
 			result.push( {
-				id: 'ignore',
+				id: THREAT_ACTION_IGNORE,
 				label: __( 'Ignore', 'jetpack' ),
 				isPrimary: true,
 				isDestructive: true,
@@ -523,7 +570,7 @@ export default function ThreatsDataViews( {
 
 		if ( dataFields.includes( 'status' ) ) {
 			result.push( {
-				id: 'un-ignore',
+				id: THREAT_ACTION_UNIGNORE,
 				label: __( 'Unignore', 'jetpack' ),
 				isPrimary: true,
 				isDestructive: true,

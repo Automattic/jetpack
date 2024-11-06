@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.45.12] - 2024-11-04
+### Added
+- Enable test coverage. [#39961]
+
 ## [0.45.11] - 2024-10-29
 ### Changed
 - Components: Add __nextHasNoMarginBottom to BaseControl-based components, preventing deprecation notices. [#39877]
@@ -1079,6 +1083,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
 
+[0.45.12]: https://github.com/Automattic/jetpack-search/compare/v0.45.11...v0.45.12
 [0.45.11]: https://github.com/Automattic/jetpack-search/compare/v0.45.10...v0.45.11
 [0.45.10]: https://github.com/Automattic/jetpack-search/compare/v0.45.9...v0.45.10
 [0.45.9]: https://github.com/Automattic/jetpack-search/compare/v0.45.8...v0.45.9

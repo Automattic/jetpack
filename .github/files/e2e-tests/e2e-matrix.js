@@ -67,7 +67,7 @@ const projects = [
 		buildGroup: 'jetpack-boost',
 	},
 	{
-		project: 'Jetpack Boost - Concatenate JS/CSS',
+		project: 'Jetpack Boost - Concatenate JS and CSS',
 		path: 'projects/plugins/boost/tests/e2e',
 		testArgs: [ 'specs/concatenate', '--retries=1' ],
 		targets: [ 'plugins/boost' ],

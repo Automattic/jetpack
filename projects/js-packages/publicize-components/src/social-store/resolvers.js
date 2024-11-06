@@ -5,8 +5,7 @@ import { normalizeShareStatus } from '../utils/share-status';
 import { setConnections } from './actions/connection-data';
 import { setJetpackSettings } from './actions/jetpack-settings';
 import { fetchPostShareStatus, receivePostShareStaus } from './actions/share-status';
-import { setSocialImageGeneratorSettings } from './actions/social-image-generator-settings';
-import { fetchJetpackSettings, fetchSocialImageGeneratorSettings } from './controls';
+import { fetchJetpackSettings } from './controls';
 
 /**
  * Yield actions to get the Jetpack settings.
@@ -19,24 +18,6 @@ export function* getJetpackSettings() {
 		const settings = yield fetchJetpackSettings();
 		if ( settings ) {
 			return setJetpackSettings( settings );
-		}
-	} catch ( e ) {
-		// TODO: Add proper error handling here
-		console.log( e ); // eslint-disable-line no-console
-	}
-}
-
-/**
- * Yield actions to get the Social Image Generator settings.
- *
- * @yield {object} - an action object.
- * @return {object} - an action object.
- */
-export function* getSocialImageGeneratorSettings() {
-	try {
-		const settings = yield fetchSocialImageGeneratorSettings();
-		if ( settings ) {
-			return setSocialImageGeneratorSettings( settings.jetpack_social_image_generator_settings );
 		}
 	} catch ( e ) {
 		// TODO: Add proper error handling here
@@ -96,7 +77,6 @@ export function getPostShareStatus( _postId ) {
 
 export default {
 	getJetpackSettings,
-	getSocialImageGeneratorSettings,
 	getConnections,
 	getPostShareStatus,
 };

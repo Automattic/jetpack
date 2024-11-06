@@ -637,6 +637,16 @@ function wpcom_site_has_global_styles_feature( $blog_id = 0 ) {
 		}
 	}
 
+	// If the GLOBAL_STYLES_ON_PERSONAL_PLAN feature is enabled, we need to check if the site has a Personal plan and add the sticker.
+	if ( class_exists( 'WPCOM_Feature_Flags' ) && WPCOM_Feature_Flags::is_enabled( 'GLOBAL_STYLES_ON_PERSONAL_PLAN' ) ) {
+		if ( wpcom_site_has_personal_plan( $blog_id ) ) {
+			$note = 'Automated sticker. See paYJgx-5w2-p2';
+			$user = 'a8c'; // A non-empty string avoids storing the current user as author of the sticker change.
+			add_blog_sticker( 'wpcom-global-styles-personal-plan', $note, $user, $blog_id );
+			return true;
+		}
+	}
+
 	return false;
 }
 

@@ -20,11 +20,15 @@
 		"phpunit": [
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
 		],
+		"test-coverage": [
+			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\"",
+			"pnpm run test-coverage"
+		],
 		"test-php": [
 			"@composer phpunit"
 		],
 		"test-js": [
-			"echo 'Run `pnpm run test` when ready'"
+			"pnpm run test"
 		],
 		"test-js-watch": [
 			"Composer\\Config::disableProcessTimeout",

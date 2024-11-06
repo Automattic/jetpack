@@ -1,6 +1,6 @@
 <?php
 /**
- * Test_WPORG_Additional_Css_Manager class.
+ * Test_Atomic_Additional_CSS_Manager class.
  *
  * @package automattic/jetpack-masterbar
  */
@@ -16,7 +16,7 @@ require_once ABSPATH . WPINC . '/class-wp-customize-control.php';
 require_once ABSPATH . WPINC . '/class-wp-customize-section.php';
 
 /**
- * @covers Test_WPORG_Additional_Css_Manager
+ * @covers Automattic\Jetpack\Masterbar\Atomic_Additional_CSS_Manager
  */
 class Test_Atomic_Additional_CSS_Manager extends TestCase {
 	/**
