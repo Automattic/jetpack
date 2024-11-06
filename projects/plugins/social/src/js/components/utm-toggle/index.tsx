@@ -37,7 +37,7 @@ const UtmToggle: React.FC< UtmToggleProps > = ( { disabled } ) => {
 		>
 			<Text className={ styles.text }>
 				{ __(
-					"UTM parameters are tags added to links to help track where website visitors come from, improving our understanding of how content is shared. Don't worry, it doesn't change your experience or the link destination!",
+					"UTM parameters are tags added to links to help track where website visitors come from, improving our understanding of how content is shared. Don't worry, it doesn't change the experience or the link destination!",
 					'jetpack-social'
 				) }
 			</Text>
