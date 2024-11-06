@@ -1,8 +1,7 @@
 import { LAYOUT_DEFAULT } from './constants';
+import save from './save';
 
-export { default as save } from './save';
-
-export const attributes = {
+const attributes = {
 	// Set default align
 	align: {
 		default: 'center',
@@ -78,13 +77,13 @@ export const attributes = {
 	},
 };
 
-export const supports = {
+const supports = {
 	align: [ 'center', 'wide', 'full' ],
 	customClassName: false,
 	html: false,
 };
 
-export const migrate = oldAttributes => {
+const migrate = oldAttributes => {
 	// The column widths need to be updated to match the new precision
 	// implemented in the current version.
 	const precision = Math.pow( 10, 5 );
@@ -95,4 +94,11 @@ export const migrate = oldAttributes => {
 			column.map( width => Math.round( width * precision ) / precision )
 		),
 	};
+};
+
+export default {
+	attributes,
+	migrate,
+	supports,
+	save,
 };

@@ -1,5 +1,9 @@
 import { InnerBlocks } from '@wordpress/block-editor';
-export { default as attributes } from './attributes';
-export { default as supports } from './supports';
+import attributes from './attributes';
+import supports from './supports';
 
-export const save = () => <InnerBlocks.Content />;
+export default {
+	attributes,
+	supports,
+	save: () => <InnerBlocks.Content />,
+};

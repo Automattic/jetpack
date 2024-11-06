@@ -1,9 +1,8 @@
+import attributes from './attributes';
 import Slideshow from './slideshow';
+import supports from './supports';
 
-export { default as attributes } from './attributes';
-export { default as supports } from './supports';
-
-export const save = ( { attributes: { align, autoplay, delay, effect, images }, className } ) => (
+const save = ( { attributes: { align, autoplay, delay, effect, images }, className } ) => (
 	<Slideshow
 		align={ align }
 		autoplay={ autoplay }
@@ -13,3 +12,9 @@ export const save = ( { attributes: { align, autoplay, delay, effect, images }, 
 		images={ images }
 	/>
 );
+
+export default {
+	attributes,
+	supports,
+	save,
+};

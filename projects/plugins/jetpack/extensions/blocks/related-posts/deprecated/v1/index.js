@@ -1,9 +1,8 @@
 import { createBlock } from '@wordpress/blocks';
+import attributes from './attributes';
+import supports from './supports';
 
-export { default as attributes } from './attributes';
-export { default as supports } from './supports';
-
-export const migrate = ( attrs, innerBlocks ) => {
+const migrate = ( attrs, innerBlocks ) => {
 	return [
 		attrs,
 		attrs.headline
@@ -18,4 +17,9 @@ export const migrate = ( attrs, innerBlocks ) => {
 	];
 };
 
-export const save = () => null;
+export default {
+	attributes,
+	migrate,
+	supports,
+	save: () => null,
+};
