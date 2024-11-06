@@ -16,11 +16,13 @@
 	"dependencies": {
 		"@automattic/format-currency": "1.0.1",
 		"@automattic/jetpack-boost-score-api": "workspace:*",
+		"@automattic/jetpack-scan": "workspace:*",
 		"@babel/runtime": "^7",
 		"@wordpress/browserslist-config": "6.9.0",
 		"@wordpress/components": "28.9.0",
 		"@wordpress/compose": "7.9.0",
 		"@wordpress/data": "10.9.0",
+		"@wordpress/dataviews": "4.6.0",
 		"@wordpress/date": "5.9.0",
 		"@wordpress/element": "6.9.0",
 		"@wordpress/i18n": "5.9.0",
