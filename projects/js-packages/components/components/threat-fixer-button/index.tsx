@@ -88,15 +88,17 @@ export default function ThreatFixerButton( {
 					);
 				}
 
+				// Files
 				return __(
 					'Replaces the infected file with a previously backed up version that is clean.',
 					'jetpack'
 				);
 			}
 
-			// TODO: Salt keys
-
-			// TODO: Core?
+			// Salt keys
+			if ( threat.signature === 'php_hardening_WP_Config_NoSalts_001' ) {
+				return __( 'Replaces the default salt keys in wp-config.php with unique ones.', 'jetpack' );
+			}
 		}
 	}, [ threat ] );
 
