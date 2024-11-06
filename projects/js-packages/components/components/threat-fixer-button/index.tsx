@@ -95,6 +95,8 @@ export default function ThreatFixerButton( {
 			}
 
 			// TODO: Salt keys
+
+			// TODO: Core?
 		}
 	}, [ threat ] );
 
@@ -126,7 +128,7 @@ export default function ThreatFixerButton( {
 		return __( 'Fix', 'jetpack' );
 	}, [ threat.fixable, threat.fixer ] );
 
-	const [ showPopover, setShowPopover ] = useState( false );
+	const [ showTooltip, setShowTooltip ] = useState( false );
 
 	const handleClick = useCallback(
 		( event: React.MouseEvent ) => {
@@ -139,9 +141,9 @@ export default function ThreatFixerButton( {
 	const handleErrorClick = useCallback(
 		( event: React.MouseEvent ) => {
 			event.stopPropagation();
-			setShowPopover( ! showPopover );
+			setShowTooltip( ! showTooltip );
 		},
-		[ showPopover ]
+		[ showTooltip ]
 	);
 
 	if ( ! threat.fixable ) {
@@ -176,7 +178,7 @@ export default function ThreatFixerButton( {
 			<IconTooltip
 				className={ styles.tooltip }
 				hoverShow
-				forceShow={ showPopover }
+				forceShow={ showTooltip }
 				popoverAnchorStyle="wrapper"
 				placement="bottom"
 				offset={ -5 }
