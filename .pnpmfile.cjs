@@ -54,10 +54,15 @@ function fixDeps( pkg ) {
 				pkg.peerDependencies[ dep ] = ver.replace( /^\^?/, '>=' );
 			}
 		}
+	}
 
-		// Don't need these. We override the parser with our own options.
-		delete pkg.dependencies[ '@babel/eslint-parser' ];
-		delete pkg.dependencies[ '@wordpress/babel-preset-default' ];
+	// Unnecessarily explicit deps. I don't think we really even need @wordpress/babel-preset-default at all.
+	if ( pkg.name === '@wordpress/babel-preset-default' || pkg.name === '@wordpress/eslint-plugin' ) {
+		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
+			if ( dep.startsWith( '@babel/' ) && ! ver.startsWith( '^' ) && ! ver.startsWith( '>' ) ) {
+				pkg.dependencies[ dep ] = '^' + ver;
+			}
+		}
 	}
 
 	// Update localtunnel axios dep to avoid CVE
