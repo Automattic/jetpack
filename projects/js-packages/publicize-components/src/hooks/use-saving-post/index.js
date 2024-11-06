@@ -37,7 +37,6 @@ export function usePostJustPublished( fn, deps ) {
 	const wasPublishing = usePrevious( isPublishing );
 
 	useEffect( () => {
-		console.debug( `usePostJustPublished ${ wasPublishing } ${ isPublishing }` );
 		if ( ! ( wasPublishing && ! isPublishing ) ) {
 			return;
 		}
