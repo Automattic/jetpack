@@ -27,9 +27,7 @@ CustomHeader.args = {
 	header: (
 		<div className={ styles[ 'custom-header' ] }>
 			<JetpackLogo height={ 40 } />
-			<Text className={ styles[ 'logo-title' ] } weight="regular">
-				Next Product is coming up
-			</Text>
+			<Text className={ styles[ 'logo-title' ] }>Next Product is coming up</Text>
 		</div>
 	),
 };
