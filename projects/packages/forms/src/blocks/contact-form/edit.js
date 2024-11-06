@@ -174,6 +174,7 @@ export const JetpackContactFormEdit = forwardRef(
 							{ label: __( 'Redirect to another webpage', 'jetpack-forms' ), value: 'redirect' },
 						] }
 						onChange={ newMessage => setAttributes( { customThankyou: newMessage } ) }
+						__nextHasNoMarginBottom={ true }
 					/>
 
 					{ 'redirect' !== customThankyou && (
@@ -182,6 +183,7 @@ export const JetpackContactFormEdit = forwardRef(
 							value={ customThankyouHeading }
 							placeholder={ __( 'Your message has been sent', 'jetpack-forms' ) }
 							onChange={ newHeading => setAttributes( { customThankyouHeading: newHeading } ) }
+							__nextHasNoMarginBottom={ true }
 						/>
 					) }
 
@@ -191,6 +193,7 @@ export const JetpackContactFormEdit = forwardRef(
 							value={ customThankyouMessage }
 							placeholder={ __( 'Thank you for your submission!', 'jetpack-forms' ) }
 							onChange={ newMessage => setAttributes( { customThankyouMessage: newMessage } ) }
+							__nextHasNoMarginBottom={ true }
 						/>
 					) }
 
@@ -198,6 +201,7 @@ export const JetpackContactFormEdit = forwardRef(
 						<BaseControl
 							label={ __( 'Redirect Address', 'jetpack-forms' ) }
 							id={ `contact-form-${ instanceId }-thankyou-url` }
+							__nextHasNoMarginBottom={ true }
 						>
 							<URLInput
 								id={ `contact-form-${ instanceId }-thankyou-url` }

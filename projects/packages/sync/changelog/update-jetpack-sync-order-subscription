@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Jetpack Sync: Add missing handlers for removing or trashing shop_subscription orders

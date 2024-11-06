@@ -69,17 +69,20 @@ function jetpackcrm_dash_refresh() {
 		);
 	}
 
+	$tz_offset = esc_sql( (string) jpcrm_get_wp_timezone_offset() );
+	$wpdb->query( 'SET time_zone = "' . $tz_offset . '";' );
+
 	// next we want the contact chart which is total contacts between the dates grouped by day, week, month, year
 	$sql    = $wpdb->prepare( 'SELECT count(ID) as count, YEAR(FROM_UNIXTIME(zbsc_created)) as year FROM ' . $ZBSCRM_t['contacts'] . ' WHERE zbsc_created > %d AND zbsc_created < %d GROUP BY year ORDER BY year', $start_date, $end_date ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 	$yearly = $wpdb->get_results( $sql );
 
-	$sql     = $wpdb->prepare( 'SELECT count(ID) as count, zbsc_created as ts, MONTH(FROM_UNIXTIME(zbsc_created)) as month, YEAR(FROM_UNIXTIME(zbsc_created)) as year FROM ' . $ZBSCRM_t['contacts'] . ' WHERE zbsc_created > %d AND zbsc_created < %d GROUP BY month, year ORDER BY year, month', $start_date, $end_date ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	$sql     = $wpdb->prepare( 'SELECT count(ID) as count, MONTH(FROM_UNIXTIME(zbsc_created)) as month, YEAR(FROM_UNIXTIME(zbsc_created)) as year FROM ' . $ZBSCRM_t['contacts'] . ' WHERE zbsc_created > %d AND zbsc_created < %d GROUP BY month, year ORDER BY year, month', $start_date, $end_date ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 	$monthly = $wpdb->get_results( $sql );
 
-	$sql    = $wpdb->prepare( 'SELECT count(ID) as count, zbsc_created as ts, WEEK(FROM_UNIXTIME(zbsc_created), 1) as week, YEAR(FROM_UNIXTIME(zbsc_created)) as year FROM ' . $ZBSCRM_t['contacts'] . ' WHERE zbsc_created > %d AND zbsc_created < %d GROUP BY week, year ORDER BY year, week', $start_date, $end_date ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	$sql    = $wpdb->prepare( 'SELECT count(ID) as count, WEEK(FROM_UNIXTIME(zbsc_created), 1) as week, YEAR(FROM_UNIXTIME(zbsc_created)) as year FROM ' . $ZBSCRM_t['contacts'] . ' WHERE zbsc_created > %d AND zbsc_created < %d GROUP BY week, year ORDER BY year, week', $start_date, $end_date ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 	$weekly = $wpdb->get_results( $sql );
 
-	$sql   = $wpdb->prepare( 'SELECT count(ID) as count, zbsc_created as ts, DAY(FROM_UNIXTIME(zbsc_created)) as day, MONTH(FROM_UNIXTIME(zbsc_created)) as month, YEAR(FROM_UNIXTIME(zbsc_created)) as year FROM ' . $ZBSCRM_t['contacts'] . ' WHERE zbsc_created > %d AND zbsc_created < %d GROUP BY day, month, year ORDER BY year, month, day', $start_date, $end_date ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	$sql   = $wpdb->prepare( 'SELECT count(ID) as count, DAY(FROM_UNIXTIME(zbsc_created)) as day, MONTH(FROM_UNIXTIME(zbsc_created)) as month, YEAR(FROM_UNIXTIME(zbsc_created)) as year FROM ' . $ZBSCRM_t['contacts'] . ' WHERE zbsc_created > %d AND zbsc_created < %d GROUP BY day, month, year ORDER BY year, month, day', $start_date, $end_date ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 	$daily = $wpdb->get_results( $sql );
 
 	$zeros = jetpackcrm_create_zeros_array( $start_date, $end_date );
@@ -89,19 +92,20 @@ function jetpackcrm_dash_refresh() {
 		$zeros['year'][ $v->year ] = $v->count;
 	}
 
-	// convert the monthly array into a zero padded one
 	foreach ( $monthly as $v ) {
-		$the_month                    = gmdate( 'M y', $v->ts );
+		$datetime_month               = DateTime::createFromFormat( '!m Y', $v->month . ' ' . $v->year );
+		$the_month                    = $datetime_month->format( 'M y' );
 		$zeros['month'][ $the_month ] = $v->count;
 	}
 
 	foreach ( $weekly as $v ) {
-		$the_week                   = gmdate( 'W Y', $v->ts );
+		$the_week                   = str_pad( $v->week, 2, '0', STR_PAD_LEFT ) . ' ' . $v->year;
 		$zeros['week'][ $the_week ] = $v->count;
 	}
 
 	foreach ( $daily as $v ) {
-		$the_day                  = gmdate( 'd M y', $v->ts );
+		$datetime_day             = DateTime::createFromFormat( 'Y-m-d', $v->year . '-' . $v->month . '-' . $v->day );
+		$the_day                  = $datetime_day->format( 'd M y' );
 		$zeros['day'][ $the_day ] = $v->count;
 	}
 

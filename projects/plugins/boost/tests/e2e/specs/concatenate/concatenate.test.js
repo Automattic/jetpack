@@ -4,7 +4,7 @@ import { JetpackBoostPage } from '../../lib/pages/index.js';
 import { PostFrontendPage } from 'jetpack-e2e-commons/pages/index.js';
 import playwrightConfig from 'jetpack-e2e-commons/playwright.config.mjs';
 
-test.describe( 'Concatenate JS/CSS', () => {
+test.describe( 'Concatenate JS and CSS', () => {
 	let page;
 
 	test.beforeAll( async ( { browser } ) => {

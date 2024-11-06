@@ -28,13 +28,3 @@ else
 	echo 'Build failure!'
 	exit 1
 fi
-
-if [[ $1 == '--prod' ]]; then
-	echo 'Checking for changed source files...'
-	if ! git diff --exit-code --stat './src'; then
-		echo 'Production builds should not change the ./src folder!'
-		echo 'Did you forget to commit changes to ./src/react/social-logo-data.jsx?'
-		exit 2
-	fi
-	echo 'Build is clean.'
-fi

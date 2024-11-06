@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-AI Client: make reload handler prop optional as it still works in a fuzzy way. The error notice (modal) will instruct to reload the page when the optional prop is not provided
