@@ -4,6 +4,8 @@
  * This reduces filesystem reads and JSON parsing at runtime.
  */
 
+// phpcs:disable WordPress.WP.AlternativeFunctions, WordPress.PHP.DevelopmentFunctions.error_log_var_export
+
 function build_block_manifest() {
 	$base_path = __DIR__ . '/../extensions/blocks';
 
