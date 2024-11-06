@@ -85,6 +85,7 @@ export function ThreatsStatusToggleGroupControl( {
 			className={ styles[ 'toggle-group-control' ] }
 			value={ selectedValue }
 			onChange={ onStatusFilterChange }
+			__nextHasNoMarginBottom
 		>
 			<ToggleGroupControlOption
 				value="active"
