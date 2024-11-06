@@ -1337,7 +1337,7 @@ class Jetpack_Gutenberg {
 	 * This allows for more efficient block metadata loading by avoiding
 	 * individual block.json file reads at runtime.
 	 *
-	 * Uses wp_register_block_metadata_collection() if available (WordPress 6.5+)
+	 * Uses wp_register_block_metadata_collection() if available (WordPress 6.7+)
 	 * and if the manifest file exists. The manifest file is auto-generated
 	 * during the build process.
 	 *
