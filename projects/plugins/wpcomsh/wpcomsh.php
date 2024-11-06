@@ -175,16 +175,10 @@ if (
 
 // Force enable WPCOM_CORE_ATOMIC_PLUGINS in the case they got disbled during migration
 function wpcom_enable_core_atomic_plugins() {
+
 	foreach ( WPCOM_CORE_ATOMIC_PLUGINS as $plugin ) {
 		if ( ! is_plugin_active( $plugin ) ) {
 			activate_plugin( $plugin, '', false, true );
-			// For Jetpack we need to attempt fixing the connection
-			if ( 'jetpack/jetpack.php' === $plugin ) {
-				$blog_id = _wpcom_get_current_blog_id();
-				$url     = 'https://public-api.wordpress.com/rest/v1.2/sites/' . $blog_id . '/migration-force-reconnection';
-				// wp_remote_post( $url );
-
-			}
 		}
 	}
 }
