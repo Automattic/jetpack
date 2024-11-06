@@ -1,4 +1,4 @@
 Significance: patch
 Type: other
 
-Optimize widget migration hooks.
+Remove old widget migration code.
