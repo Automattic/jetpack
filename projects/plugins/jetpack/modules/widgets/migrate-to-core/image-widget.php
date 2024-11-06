@@ -221,7 +221,10 @@ function jetpack_migrate_image_widget() {
 
 	Jetpack_Options::update_option( 'image_widget_migration', true );
 }
-add_action( 'widgets_init', 'jetpack_migrate_image_widget' );
+
+if ( is_admin() ) {
+	add_action( 'widgets_init', 'jetpack_migrate_image_widget' );
+}
 
 /**
  * Refresh the widgets page to save changes

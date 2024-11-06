@@ -221,4 +221,7 @@ function jetpack_migrate_gallery_widget_bump_stats( $bin, $group = 'widget-migra
 		$jetpack->stat( $group, $bin );
 	}
 }
-add_action( 'widgets_init', 'jetpack_migrate_gallery_widget' );
+
+if ( is_admin() ) {
+	add_action( 'widgets_init', 'jetpack_migrate_gallery_widget' );
+}
