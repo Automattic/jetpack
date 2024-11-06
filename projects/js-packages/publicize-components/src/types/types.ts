@@ -1,4 +1,4 @@
-import { SocialImageGeneratorConfig } from '../social-store/types';
+import { SocialImageGeneratorConfig, UtmSettingsConfig } from '../social-store/types';
 
 export interface SocialUrls {
 	connectionsManagementPage: string;
@@ -33,6 +33,7 @@ export interface ApiPaths {
 
 export type SocialSettings = {
 	socialImageGenerator: SocialImageGeneratorConfig;
+	utmSettings: UtmSettingsConfig;
 };
 
 export interface SocialScriptData {
