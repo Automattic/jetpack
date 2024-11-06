@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Blocks: Ensure compatibility with Gutenberg by changing deprecation objects to single default objects.
