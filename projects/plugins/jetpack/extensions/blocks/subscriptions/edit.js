@@ -19,7 +19,7 @@ import { isEqual } from 'lodash';
 import { getActiveStyleName } from '../../shared/block-styles';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 import { isNewsletterFeatureEnabled } from '../../shared/memberships/edit';
-import GetAddPaidPlanButton from '../../shared/memberships/utils';
+import GetAddPaidPlanButton, { paidPlanButtonText } from '../../shared/memberships/utils';
 import './view.scss';
 import { store as membershipProductsStore } from '../../store/membership-products';
 import metadata from './block.json';
@@ -237,6 +237,8 @@ export function SubscriptionEdit( props ) {
 
 	let content;
 
+	const paidPlanLabel = paidPlanButtonText( hasTierPlans );
+
 	if ( isLoadingModules ) {
 		content = <SubscriptionSkeletonLoader />;
 	} else if ( ! isModuleActive ) {
@@ -281,7 +283,7 @@ export function SubscriptionEdit( props ) {
 				</InspectorControls>
 				{ isNewsletterFeatureEnabled() && (
 					<BlockControls>
-						<Toolbar>
+						<Toolbar label={ paidPlanLabel }>
 							<GetAddPaidPlanButton context={ 'toolbar' } hasTierPlans={ hasTierPlans } />
 						</Toolbar>
 					</BlockControls>

@@ -18851,11 +18851,6 @@ snapshots:
       '@babel/runtime': 7.25.7
       '@wordpress/deprecated': 4.10.0
 
-  '@wordpress/dom@4.10.0':
-    dependencies:
-      '@babel/runtime': 7.25.7
-      '@wordpress/deprecated': 4.10.0
-
   '@wordpress/dom@4.9.0':
     dependencies:
       '@babel/runtime': 7.26.0
@@ -19320,22 +19315,9 @@ snapshots:
     dependencies:
       '@babel/runtime': 7.25.7
 
-  '@wordpress/html-entities@4.10.0':
-    dependencies:
-      '@babel/runtime': 7.25.7
-
   '@wordpress/html-entities@4.9.0':
     dependencies:
       '@babel/runtime': 7.26.0
-
-  '@wordpress/i18n@5.10.0':
-    dependencies:
-      '@babel/runtime': 7.25.7
-      '@wordpress/hooks': 4.10.0
-      gettext-parser: 1.4.0
-      memize: 2.1.0
-      sprintf-js: 1.1.3
-      tannin: 1.2.0
 
   '@wordpress/i18n@5.10.0':
     dependencies:
@@ -19677,14 +19659,6 @@ snapshots:
       redux: 4.2.1
       rungen: 0.3.2
 
-  '@wordpress/redux-routine@5.10.0(redux@4.2.1)':
-    dependencies:
-      '@babel/runtime': 7.25.7
-      is-plain-object: 5.0.0
-      is-promise: 4.0.0
-      redux: 4.2.1
-      rungen: 0.3.2
-
   '@wordpress/redux-routine@5.9.0(redux@4.2.1)':
     dependencies:
       '@babel/runtime': 7.26.0
@@ -19872,11 +19846,6 @@ snapshots:
   '@wordpress/token-list@3.9.0':
     dependencies:
       '@babel/runtime': 7.26.0
-
-  '@wordpress/undo-manager@1.10.0':
-    dependencies:
-      '@babel/runtime': 7.25.7
-      '@wordpress/is-shallow-equal': 5.10.0
 
   '@wordpress/undo-manager@1.10.0':
     dependencies:
