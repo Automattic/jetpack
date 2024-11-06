@@ -1354,7 +1354,7 @@ class Jetpack_Gutenberg {
 			wp_register_block_metadata_collection(
 				JETPACK__PLUGIN_DIR . 'extensions/blocks/',
 				$meta_file_path
-			);
+			); // @phan-suppress-current-line PhanUndeclaredFunction -- New in WP 6.7. We're checking if it exists first.
 		}
 	}
 }
