@@ -506,7 +506,7 @@ function wpcom_display_global_styles_launch_bar( $bar_controls ) {
 							'jetpack-mu-wpcom'
 						),
 						$support_url,
-						get_store_product( WPCOM_VALUE_BUNDLE )->product_name
+						get_store_product( $gs_upgrade_plan )->product_name
 					);
 					printf(
 						wp_kses(
