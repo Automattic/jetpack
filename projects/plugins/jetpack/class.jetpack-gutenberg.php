@@ -1353,7 +1353,7 @@ class Jetpack_Gutenberg {
 		if ( function_exists( 'wp_register_block_metadata_collection' ) && file_exists( $meta_file_path ) ) {
 			// @phan-suppress-next-line PhanUndeclaredFunction -- New in WP 6.7. We're checking if it exists first.
 			wp_register_block_metadata_collection(
-				JETPACK__PLUGIN_DIR . 'extensions/blocks/',
+				JETPACK__PLUGIN_DIR . '_inc/blocks/',
 				$meta_file_path
 			);
 		}
