@@ -77,13 +77,11 @@ describe( 'useSyncPostDataToStore', () => {
 		const updatedConnections = connections.map( () => ( { enabled: false } ) );
 
 		await act( async () => {
-			registry.dispatch( editorStore ).editPost( {
+			await registry.dispatch( editorStore ).editPost( {
 				status: 'publish',
 				jetpack_publicize_connections: updatedConnections,
 			} );
-		} );
-		await act( async () => {
-			registry.dispatch( editorStore ).savePost();
+			await registry.dispatch( editorStore ).savePost();
 		} );
 
 		const freshConnections = registry.select( socialStore ).getConnections();
