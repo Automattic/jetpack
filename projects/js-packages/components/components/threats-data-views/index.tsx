@@ -239,9 +239,9 @@ export default function ThreatsDataViews( {
 	 *
 	 * @member {Array}  activeThreatIds - List of active threat IDs.
 	 * @member {Array}  historicThreatIds - List of historic threat IDs.
-	 * @member {object} themes - List of unique threat themes.
-	 * @member {object} plugins - List of unique threat plugins.
-	 * @member {object} signatures - List of unique threat signatures.
+	 * @member {object[]} themes - List of unique threat themes.
+	 * @member {object[]} plugins - List of unique threat plugins.
+	 * @member {object[]} signatures - List of unique threat signatures.
 	 * @member {Array}  dataFields - List of unique fields.
 	 */
 	const {
