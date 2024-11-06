@@ -26,7 +26,7 @@ export default function ThreatFixerButton( {
 } ): JSX.Element {
 	const errorMessage = useMemo( () => {
 		if ( threat.fixer && fixerStatusIsStale( threat.fixer ) ) {
-			return __( 'The fixer is taking longer than expected.', 'jetpack' );
+			return __( 'The auto-fixer is taking longer than expected.', 'jetpack' );
 		}
 
 		if ( threat.fixer && 'error' in threat.fixer && threat.fixer.error ) {
@@ -43,7 +43,7 @@ export default function ThreatFixerButton( {
 
 		if ( threat.fixer && 'status' in threat.fixer && threat.fixer.status === 'in_progress' ) {
 			return __(
-				'A fixer is in progress. This may take a moment, please check back shortly.',
+				'An auto-fixer is in progress. This may take a moment, please check back shortly.',
 				'jetpack'
 			);
 		}
@@ -94,7 +94,7 @@ export default function ThreatFixerButton( {
 			}
 		}
 
-		return __( 'A fixer is available.', 'jetpack' );
+		return __( 'An auto-fixer is available.', 'jetpack' );
 	}, [ threat ] );
 
 	const buttonText = useMemo( () => {
