@@ -6143,14 +6143,25 @@ endif;
 		}
 	}
 
+	/**
+	 * Register block metadata collection for Jetpack blocks.
+	 * This allows for more efficient block metadata loading by avoiding
+	 * individual block.json file reads at runtime.
+	 *
+	 * Uses wp_register_block_metadata_collection() if available (WordPress 6.5+)
+	 * and if the manifest file exists. The manifest file is auto-generated
+	 * during the build process.
+	 *
+	 * @since $$next-version$$
+	 * @return void
+	 */
 	public function register_block_metadata_collection() {
-		$meta_file_path = REPLACEMEJPDIR . 'extensions/blocks/blocks-manifest.php';
+		$meta_file_path = JETPACK__PLUGIN_DIR . 'extensions/blocks/blocks-manifest.php';
 		if ( function_exists( 'wp_register_block_metadata_collection' ) && file_exists( $meta_file_path ) ) {
 			wp_register_block_metadata_collection(
-				REPLACEMEJPDIR . 'extensions/blocks/',
+				JETPACK__PLUGIN_DIR . 'extensions/blocks/',
 				$meta_file_path
 			);
 		}
 	}
-
 }
