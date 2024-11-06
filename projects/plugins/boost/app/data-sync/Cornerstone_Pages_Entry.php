@@ -28,17 +28,11 @@ class Cornerstone_Pages_Entry implements Entry_Can_Get, Entry_Can_Set {
 	public function set( $value ) {
 		$value = $this->sanitize_value( $value );
 
-		if ( empty( $value ) || count( $value ) === 1 && $value[0] === '' ) {
-			delete_option( $this->option_key );
-			$this->list_updated();
-			return;
-		}
-
 		$value = array_map( 'untrailingslashit', $value );
 
 		$updated = update_option( $this->option_key, $value );
 		if ( $updated ) {
-			$this->list_updated();
+			( new Environment_Change_Detector() )->handle_cornerstone_pages_list_update();
 		}
 	}
 
@@ -71,9 +65,5 @@ class Cornerstone_Pages_Entry implements Entry_Can_Get, Entry_Can_Set {
 
 	private function transform_to_absolute( $url ) {
 		return home_url( $url );
-	}
-
-	private function list_updated() {
-		( new Environment_Change_Detector() )->handle_cornerstone_pages_list_update();
 	}
 }
