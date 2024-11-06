@@ -1,4 +1,4 @@
-# Publicize Components
+# Publicize Components?
 
 A library of JS components required by the Publicize editor plugin
 
