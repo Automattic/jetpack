@@ -9,36 +9,34 @@
 /**
  * Generates a manifest file containing block metadata from block.json files.
  *
- * Scans the extensions/blocks directory for block.json files, combines their
- * metadata into a single PHP file that returns an array. This improves performance
+ * Scans the given directory for block.json files, combines their metadata
+ * into a single PHP file that returns an array. This improves performance
  * by avoiding filesystem reads and JSON parsing at runtime.
  *
- * The function will exit with status code 1 if:
- * - The input directory doesn't exist
- * - No block.json files are found
- * - No valid block.json files could be processed
- * - Unable to write the output file
- *
- * @return void
+ * @param string $base_path Optional. Base directory to scan for block.json files.
+ *                         Defaults to Jetpack blocks directory.
+ * @return bool True on success, throws Exception with error message on failure.
+ * @throws Exception If directory doesn't exist, no files found, or write fails.
  */
-function build_block_manifest() {
-	$base_path = __DIR__ . '/../extensions/blocks';
+function build_block_manifest( $base_path = null ) {
+	if ( null === $base_path ) {
+		$base_path = __DIR__ . '/../extensions/blocks';
+	}
 
 	if ( ! file_exists( $base_path ) ) {
-		fwrite( STDERR, "\033[31mError:\033[0m Input directory does not exist: {$base_path}\n" );
-		exit( 1 );
+		throw new Exception( "Input directory does not exist: {$base_path}", 1 );
 	}
 
 	$blocks = array();
 	$files  = glob( $base_path . '/**/block.json' );
 
 	if ( empty( $files ) ) {
-		fwrite( STDERR, "\033[31mError:\033[0m No block.json files found in: {$base_path}\n" );
-		exit( 1 );
+		throw new Exception( "No block.json files found in: {$base_path}", 1 );
 	}
 
 	foreach ( $files as $file ) {
 		if ( ! file_exists( $file ) ) {
+			// Log warning but continue processing other files.
 			fwrite( STDERR, "\033[33mWarning:\033[0m Skipping missing file: {$file}\n" );
 			continue;
 		}
@@ -60,8 +58,7 @@ function build_block_manifest() {
 	}
 
 	if ( empty( $blocks ) ) {
-		fwrite( STDERR, "\033[31mError:\033[0m No valid block.json files were processed\n" );
-		exit( 1 );
+		throw new Exception( 'No valid block.json files were processed', 1 );
 	}
 
 	$output_path = $base_path . '/blocks-manifest.php';
@@ -77,12 +74,18 @@ function build_block_manifest() {
 
 	$file_put_result = file_put_contents( $output_path, $content );
 	if ( false === $file_put_result ) {
-		fwrite( STDERR, "\033[31mError:\033[0m Failed to write manifest file: {$output_path}\n" );
-		exit( 1 );
+		throw new Exception( "Failed to write manifest file: {$output_path}", 1 );
 	}
 
 	echo '✅ Generated block manifest at ' . $output_path . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	echo 'Found ' . count( $blocks ) . " blocks\n";
+
+	return true;
 }
 
-build_block_manifest();
+// Only run the function if this script is being executed directly
+if ( defined( 'ABSPATH' ) && defined( 'DOING_TESTS' ) ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
+	// Do nothing - we're in a test environment
+} else {
+	build_block_manifest();
+}
