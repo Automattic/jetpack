@@ -50,12 +50,10 @@ export default function ThreatFixerButton( {
 
 		if ( threat.fixable.fixer === 'delete' ) {
 			if ( threat.filename ) {
-				// Directory
 				if ( threat.filename.endsWith( '/' ) ) {
 					return __( 'Deletes the directory that the infected file is in.', 'jetpack' );
 				}
 
-				// Core files
 				if ( threat.signature === 'Core.File.Modification' ) {
 					return __( 'Deletes the unexpected file in a core WordPress directory.', 'jetpack' );
 				}
@@ -63,12 +61,10 @@ export default function ThreatFixerButton( {
 				return __( 'Deletes the infected file.', 'jetpack' );
 			}
 
-			// Plugins
 			if ( threat.extension?.type === 'plugin' ) {
 				return __( 'Deletes the plugin directory to fix the threat.', 'jetpack' );
 			}
 
-			// Themes
 			if ( threat.extension?.type === 'theme' ) {
 				return __( 'Deletes the theme directory to fix the threat.', 'jetpack' );
 			}
@@ -80,7 +76,6 @@ export default function ThreatFixerButton( {
 
 		if ( [ 'replace', 'rollback' ].includes( threat.fixable.fixer ) ) {
 			if ( threat.filename ) {
-				// Core files
 				if ( threat.signature === 'Core.File.Modification' ) {
 					return __(
 						'Replaces the modified core WordPress file with the original clean version from the WordPress source code.',
@@ -88,18 +83,18 @@ export default function ThreatFixerButton( {
 					);
 				}
 
-				// Files
 				return __(
 					'Replaces the infected file with a previously backed up version that is clean.',
 					'jetpack'
 				);
 			}
 
-			// Salt keys
 			if ( threat.signature === 'php_hardening_WP_Config_NoSalts_001' ) {
 				return __( 'Replaces the default salt keys in wp-config.php with unique ones.', 'jetpack' );
 			}
 		}
+
+		return __( 'A fixer is available.', 'jetpack' );
 	}, [ threat ] );
 
 	const buttonText = useMemo( () => {

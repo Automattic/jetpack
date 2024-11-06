@@ -18,7 +18,7 @@ export default {
 export const Default = args => <ThreatFixerButton { ...args } />;
 Default.args = {
 	threat: { fixable: { fixer: 'edit' } },
-	onClick: () => alert( 'Edit fixer callback triggered' ), // eslint-disable-line no-alert
+	onClick: () => alert( 'Fixer callback triggered' ), // eslint-disable-line no-alert
 };
 
 export const DeletePlugin = args => <ThreatFixerButton { ...args } />;
