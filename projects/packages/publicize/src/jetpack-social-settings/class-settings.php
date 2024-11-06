@@ -187,7 +187,6 @@ class Settings {
 
 		$settings = array(
 			'socialImageGeneratorSettings' => $this->get_image_generator_settings(),
-			'utmSettings'                  => $this->get_utm_settings(),
 		);
 
 		// The feature cannot be enabled without Publicize.
