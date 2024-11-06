@@ -173,7 +173,9 @@ if (
 	define( 'JETPACK_PLUGIN_AUTOUPDATE', true );
 }
 
-// Force enable WPCOM_CORE_ATOMIC_PLUGINS in the case they got disbled during migration
+/** Force enable WPCOM_CORE_ATOMIC_PLUGINS in the case
+ * they got disbled during migration
+ */
 function wpcom_enable_core_atomic_plugins() {
 
 	foreach ( WPCOM_CORE_ATOMIC_PLUGINS as $plugin ) {
