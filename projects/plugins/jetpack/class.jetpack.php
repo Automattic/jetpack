@@ -750,8 +750,7 @@ class Jetpack {
 
 		// Add 5-star
 		add_filter( 'plugin_row_meta', array( $this, 'add_5_star_review_link' ), 10, 2 );
-
-		Deprecate::instance();
+		add_action( 'init', array( Deprecate::class, 'instance' ) );
 	}
 
 	/**
