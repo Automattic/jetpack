@@ -1,5 +1,9 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { ConnectionManagement, features } from '@automattic/jetpack-publicize-components';
+import {
+	ConnectionManagement,
+	features,
+	getSocialScriptData,
+} from '@automattic/jetpack-publicize-components';
 import { siteHasFeature } from '@automattic/jetpack-script-data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
@@ -27,7 +31,7 @@ export const Publicize = withModuleSettingsFormHelpers(
 		componentDidUpdate() {
 			const isActive = this.props.getOptionValue( 'publicize' );
 			// Reload the page if Publicize is enabled.
-			if ( isActive && ! window.Initial_State.socialInitialState.is_publicize_enabled ) {
+			if ( isActive && ! getSocialScriptData().is_publicize_enabled ) {
 				window.location.reload();
 			}
 		}
