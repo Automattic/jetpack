@@ -276,8 +276,14 @@ export const authenticateMediaSource = ( source: MediaSource, isAuthenticated: b
 
 /**
  * Set Google Photos Picker session
- * @param { PickerSession } session
+ * @param {PickerSession} session
  */
 export const setGooglePhotosPickerSession = ( session: PickerSession ) => {
 	dispatch( mediaStore ).mediaPhotosPickerSessionSet( session );
 };
+
+/**
+ * Get Google Photos Picker session
+ * @return {PickerSession} Media URL.
+ */
+export const getGooglePhotosPickerSession = () => select( mediaStore ).mediaPhotosPickerSession();
