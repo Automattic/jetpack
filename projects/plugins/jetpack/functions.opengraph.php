@@ -100,10 +100,8 @@ function jetpack_og_tags() {
 
 		$archive = get_queried_object();
 		if ( $archive instanceof WP_Term ) {
-			if ( is_category() || is_tag() || is_tax() ) {
-				$tags['og:url']         = get_term_link( $archive->term_id, $archive->taxonomy );
-				$tags['og:description'] = $archive->description;
-			}
+			$tags['og:url']         = get_term_link( $archive->term_id, $archive->taxonomy );
+			$tags['og:description'] = $archive->description;
 		} elseif ( ! empty( $archive ) && is_post_type_archive() ) {
 				$tags['og:url']         = get_post_type_archive_link( $archive->name );
 				$tags['og:description'] = $archive->description;
