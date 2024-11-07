@@ -6,12 +6,32 @@ See the [coding-standards](/docs/coding-guidelines.md) document for more informa
 
 ## Adding deprecation notices in Jetpack
 
-This refers to styled deprecation notices on specific admin pages, with custom calls to action, within the Jetpack plugin.
+This refers to styled deprecation notices on specific admin pages, with custom calls to action, within the Jetpack plugin. These are meant for self-hosted and WoA sites, but not Simple sites (where notices won't show by default).
 
 In the [`Deprecate`](/projects/plugins/jetpack/src/class-deprecate.php) class within the Jetpack plugin, an array of notices exists within the constructor. By default this includes just one demo notice.
 
-In order to show a deprecation notice on WP Admin (dashboard only), Jetpack Settings and Dashboard page, as well as My Jetpack, you'll need to consider the following:
+In order to show a deprecation notice on WP Admin (dashboard only), Jetpack Settings and Dashboard page, as well as My Jetpack, you'll need to add to the `$notices` array in the `Deprecate` class. An demo already exists in the array.
 
+Here is an example:
+
+```
+$this->notices = array(
+	'my-admin' => array(
+		'title'       => __( "Retired feature: Jetpack's XYZ Feature", 'jetpack' ),
+		'message'     => __( 'This feature is being retired and will be removed effective November, 2024. Please use the Classic Theme Helper plugin instead.', 'jetpack' ),
+		'link'        => array(
+			'label' => __( 'Learn more', 'jetpack' ),
+			'url'   => 'jetpack-support-xyz',
+		),
+		'show'        => false,
+		'hide_in_woa' => true,
+	),
+);
+```
+To explain in more detail what the properties are:
+* The `title`, `message` and `url` properties are required.
+* The support URL is generated using the `Redirect` class, or `getRedirectUrl` for Jetpack dashboard / settings notice URLs.
+* The `label` property is not required, but the fallback label is 'Learn more'.
 * The `show` property is optional, but setting it to false will ensure the notice will not display anywhere.
 * The `hide_in_woa` property is also optional, and setting it to false will ensure the notice will not display on WoA sites.
 * If you need to add custom conditions beyond whether a site is WoA, then it would be better to modify the `show_feature_notice` function within the `Deprecate` class, then add a check in `has_notices` so that the notice is not added to the `$notices` variable.
