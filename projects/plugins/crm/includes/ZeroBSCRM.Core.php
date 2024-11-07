@@ -3042,14 +3042,6 @@ final class ZeroBSCRM {
 	}
 
 				/**
-				 * Autoload vendor libraries
-				 */
-	public function autoload_libraries() {
-
-		require_once ZEROBSCRM_PATH . 'vendor/autoload.php';
-	}
-
-				/**
 				 * Autoload files from a directory which match a regex filter
 				 */
 	public function autoload_from_directory( string $directory, string $regex_filter ) {
