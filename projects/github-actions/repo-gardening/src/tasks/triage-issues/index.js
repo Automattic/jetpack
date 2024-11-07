@@ -34,7 +34,7 @@ async function triageIssues( payload, octokit ) {
 		return;
 	}
 
-	const priorityLabels = await getIssuePriority( octokit, payload );
+	const priorityLabels = await getIssuePriority( payload, octokit );
 	const isBugIssue = await isBug( octokit, ownerLogin, name, number, action, label );
 	const qualityChannel = getInput( 'slack_quality_channel' );
 
@@ -96,7 +96,7 @@ async function triageIssues( payload, octokit ) {
 	}
 
 	// Use OpenAI to automatically add labels to issues.
-	await aiLabeling( octokit, payload );
+	await aiLabeling( payload, octokit );
 
 	// Triage the issue to a Project board if necessary and possible.
 	await updateBoard( payload, octokit, isBugIssue, priorityLabels );
