@@ -249,7 +249,7 @@ class JetpackNotices extends React.Component {
 							dismissNotice={ () => this.dismissNotice( noticeKey ) }
 							title={ title }
 							message={ message }
-							link={ getRedirectUrl( link.url ) }
+							link={ link.url }
 							linkText={ link.label }
 						/>
 					) ) }
