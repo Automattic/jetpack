@@ -144,9 +144,12 @@ class Publicize_Script_Data {
 	 */
 	public static function get_store_initial_state() {
 
+		$is_wpcom = ( new Host() )->is_wpcom_platform();
+
 		return array(
 			'connectionData' => array(
-				'connections' => self::publicize()->get_all_connections_for_user(),
+				// We do not have this method on WPCOM Publicize class yet.
+				'connections' => ! $is_wpcom ? self::publicize()->get_all_connections_for_user() : array(),
 			),
 			'shareStatus'    => array(
 				// Here goes the share status data for posts with key as post ID.
