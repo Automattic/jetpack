@@ -1008,6 +1008,9 @@ importers:
       '@wordpress/compose':
         specifier: 7.9.0
         version: 7.9.0(react@18.3.1)
+      '@wordpress/core-data':
+        specifier: 7.9.0
+        version: 7.9.0(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/data':
         specifier: 10.9.0
         version: 10.9.0(react@18.3.1)
@@ -1099,9 +1102,6 @@ importers:
       '@wordpress/babel-plugin-import-jsx-pragma':
         specifier: 5.9.0
         version: 5.9.0(@babel/core@7.26.0)
-      '@wordpress/core-data':
-        specifier: 7.9.0
-        version: 7.9.0(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       babel-jest:
         specifier: 29.4.3
         version: 29.4.3(@babel/core@7.26.0)
