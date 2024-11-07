@@ -11,7 +11,7 @@ export const SOCIAL_STORE_CONFIG = {
 	actions,
 	selectors,
 	resolvers,
-	initialState: getSocialScriptData().store_initial_state,
+	initialState: getSocialScriptData()?.store_initial_state,
 };
 
 export const CONNECTION_SERVICE_FACEBOOK = 'facebook';
