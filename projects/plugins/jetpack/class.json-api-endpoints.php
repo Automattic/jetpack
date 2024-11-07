@@ -2675,10 +2675,20 @@ abstract class WPCOM_JSON_API_Endpoint {
 	 * @return mixed|WP_Error
 	 */
 	public function rest_callback( WP_REST_Request $request ) {
+		// phpcs:ignore WordPress.PHP.IniSet.display_errors_Disallowed -- Making sure random warnings don't break JSON.
+		ini_set( 'display_errors', false );
+
 		$blog_id = Jetpack_Options::get_option( 'id' );
 
 		$this->api->initialize();
 		$this->api->endpoint = $this;
+
+		if ( $this->in_testing && ! WPCOM_JSON_API__DEBUG ) {
+			return new WP_Error( 'endpoint_not_available' );
+		}
+
+		/** This action is documented in class.json-api.php */
+		do_action( 'wpcom_json_api_output', $this->stat );
 
 		$response = call_user_func_array(
 			array( $this, 'callback' ),
