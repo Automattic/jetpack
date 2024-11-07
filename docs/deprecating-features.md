@@ -10,7 +10,7 @@ This refers to styled deprecation notices on specific admin pages, with custom c
 
 In the [`Deprecate`](/projects/plugins/jetpack/src/class-deprecate.php) class within the Jetpack plugin, an array of notices exists within the constructor. By default this includes just one demo notice.
 
-In order to show a deprecation notice on WP Admin (dashboard only), Jetpack Settings and Dashboard page, as well as My Jetpack, you'll need to add to the `$notices` array in the `Deprecate` class. An demo already exists in the array.
+In order to show a deprecation notice on WP Admin (dashboard only), Jetpack Settings and Dashboard page, as well as My Jetpack, you'll need to add to the `$notices` array in the `Deprecate` class. A demonstrative example already exists in the array.
 
 Here is an example:
 
