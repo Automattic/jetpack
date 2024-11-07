@@ -14,6 +14,8 @@ import { getMyJetpackWindowInitialState } from '../utils/get-my-jetpack-window-s
 import isJetpackUserNew from '../utils/is-jetpack-user-new';
 import useWelcomeBanner from '../welcome-banner/use-welcome-banner';
 
+const NUMBER_OF_RECOMMENDATIONS_TO_SHOW = 5;
+
 type SubmitRecommendationsResult = Record< string, number >;
 
 const getInitialRecommendedModules = (): JetpackModule[] | null => {
@@ -42,8 +44,10 @@ const useEvaluationRecommendations = () => {
 				? [ 'anti-spam', 'creator', 'extras', 'stats', 'jetpack-ai' ]
 				: getMyJetpackWindowInitialState( 'lifecycleStats' )?.ownedProducts || []
 		) as JetpackModule[];
-		// We filter out owned modules, and return top 3 recommendations
-		return recommendedModules?.filter( module => ! ownedProducts.includes( module ) ).slice( 0, 3 );
+		// We filter out owned modules, and return the top recommendations
+		return recommendedModules
+			?.filter( module => ! ownedProducts.includes( module ) )
+			.slice( 0, NUMBER_OF_RECOMMENDATIONS_TO_SHOW );
 	}, [ recommendedModules ] );
 
 	const isEligibleForRecommendations = useMemo( () => {

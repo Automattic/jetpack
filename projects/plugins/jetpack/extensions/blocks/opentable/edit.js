@@ -193,12 +193,14 @@ function OpenTableEdit( {
 					checked={ iframe }
 					onChange={ () => setAttributes( { iframe: ! iframe } ) }
 					className="is-opentable"
+					__nextHasNoMarginBottom={ true }
 				/>
 				{ 'button' === style && (
 					<ToggleControl
 						label={ __( 'Remove button margin', 'jetpack' ) }
 						checked={ negativeMargin }
 						onChange={ () => setAttributes( { negativeMargin: ! negativeMargin } ) }
+						__nextHasNoMarginBottom={ true }
 					/>
 				) }
 			</InspectorAdvancedControls>
@@ -210,11 +212,13 @@ function OpenTableEdit( {
 						value={ lang }
 						onChange={ newLang => setAttributes( { lang: newLang } ) }
 						options={ languageOptions }
+						__nextHasNoMarginBottom={ true }
 					/>
 					<ToggleControl
 						label={ __( 'Open in a new window', 'jetpack' ) }
 						checked={ newtab }
 						onChange={ () => setAttributes( { newtab: ! newtab } ) }
+						__nextHasNoMarginBottom={ true }
 					/>
 				</PanelBody>
 			</InspectorControls>

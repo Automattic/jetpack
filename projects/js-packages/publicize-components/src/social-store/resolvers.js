@@ -1,48 +1,11 @@
 import apiFetch from '@wordpress/api-fetch';
+import { store as coreStore } from '@wordpress/core-data';
 import { store as editorStore } from '@wordpress/editor';
+import { __ } from '@wordpress/i18n';
 import { getSocialScriptData } from '../utils/script-data';
 import { normalizeShareStatus } from '../utils/share-status';
 import { setConnections } from './actions/connection-data';
-import { setJetpackSettings } from './actions/jetpack-settings';
 import { fetchPostShareStatus, receivePostShareStaus } from './actions/share-status';
-import { setSocialImageGeneratorSettings } from './actions/social-image-generator-settings';
-import { fetchJetpackSettings, fetchSocialImageGeneratorSettings } from './controls';
-
-/**
- * Yield actions to get the Jetpack settings.
- *
- * @yield {object} - an action object.
- * @return {object} - an action object.
- */
-export function* getJetpackSettings() {
-	try {
-		const settings = yield fetchJetpackSettings();
-		if ( settings ) {
-			return setJetpackSettings( settings );
-		}
-	} catch ( e ) {
-		// TODO: Add proper error handling here
-		console.log( e ); // eslint-disable-line no-console
-	}
-}
-
-/**
- * Yield actions to get the Social Image Generator settings.
- *
- * @yield {object} - an action object.
- * @return {object} - an action object.
- */
-export function* getSocialImageGeneratorSettings() {
-	try {
-		const settings = yield fetchSocialImageGeneratorSettings();
-		if ( settings ) {
-			return setSocialImageGeneratorSettings( settings.jetpack_social_image_generator_settings );
-		}
-	} catch ( e ) {
-		// TODO: Add proper error handling here
-		console.log( e ); // eslint-disable-line no-console
-	}
-}
 
 /**
  * Resolves the connections from the post.
@@ -94,9 +57,30 @@ export function getPostShareStatus( _postId ) {
 	};
 }
 
+/**
+ * Resolves the social plugin settings to ensure the core-data entities are registered.
+ *
+ * @return {Function} Resolver
+ */
+export function getSocialPluginSettings() {
+	return async ( { registry } ) => {
+		const jetpackEntities = registry.select( coreStore ).getEntitiesConfig( 'jetpack/v4' );
+
+		if ( ! jetpackEntities.some( ( { name } ) => name === 'social/settings' ) ) {
+			await registry.dispatch( coreStore ).addEntities( [
+				{
+					kind: 'jetpack/v4',
+					name: 'social/settings',
+					baseURL: '/jetpack/v4/social/settings',
+					label: __( 'Social Settings', 'jetpack' ),
+				},
+			] );
+		}
+	};
+}
+
 export default {
-	getJetpackSettings,
-	getSocialImageGeneratorSettings,
 	getConnections,
 	getPostShareStatus,
+	getSocialPluginSettings,
 };

@@ -387,6 +387,7 @@ const visibilityAdvancedControls = createHigherOrderComponent(
 							label={ __( 'Match all rules', 'jetpack' ) }
 							checked={ conditions.match_all === '1' }
 							onChange={ toggleMatchAll }
+							__nextHasNoMarginBottom={ true }
 						/>
 					) }
 					<Button variant="secondary" onClick={ addNewRule }>

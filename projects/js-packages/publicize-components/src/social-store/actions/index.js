@@ -1,17 +1,13 @@
 import * as connectionData from './connection-data';
-import siteSettingActions from './jetpack-settings';
-import jetpackSocialSettings from './jetpack-social-settings';
 import * as shareStatus from './share-status';
-import socialImageGeneratorSettingActions from './social-image-generator-settings';
-import socialNotesSettings from './social-notes-settings';
+import * as sigActions from './social-image-generator';
+import * as socialPluginSettings from './social-plugin-settings';
 
 const actions = {
 	...shareStatus,
-	...siteSettingActions,
-	...socialImageGeneratorSettingActions,
-	...jetpackSocialSettings,
 	...connectionData,
-	...socialNotesSettings,
+	...sigActions,
+	...socialPluginSettings,
 };
 
 export default actions;

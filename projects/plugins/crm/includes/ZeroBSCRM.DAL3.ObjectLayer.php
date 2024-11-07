@@ -44,6 +44,18 @@ class zbsDAL_ObjectLayer {
     // e.g. Invoice object type may be commonly linked to 'contact' or 'company' object types
     protected $linkedToObjectTypes = array();
 
+	/** This field is used to store name clashes so we can change custom field names
+	 * with name clashes in function `fix_name_clash_if_needed()`
+	 * See: https://github.com/Automattic/zero-bs-crm/issues/3477
+	 *
+	 * @var array
+	 */
+	protected $name_clashes_temp_fix = array();
+
+	/** Suffix used to fix name clashes
+	 * See: https://github.com/Automattic/zero-bs-crm/issues/3477
+	 */
+	protected const NAME_CLASH_FIX_SUFFIX = '_zbs-name-clash-tmp-fix';
 
     function __construct($args=array()) {
 
@@ -1327,7 +1339,41 @@ class zbsDAL_ObjectLayer {
 
         }
 
+	/**
+	 * Fixes name clashes between linked objects (e.g. company) and custom fields with the same slug.
+	 * Adds a suffix to conflicting field names to prevent clashes.
+	 *
+	 * @param array    &$array The array containing the fields that need to be checked for name clashes.
+	 * @param string[] $keys An array of keys to check within the provided array for potential name clashes.
+	 *
+	 * @return void
+	 *
+	 * @see https://github.com/Automattic/zero-bs-crm/issues/3477
+	 */
+	public function add_name_clash_suffix_if_needed( &$array, $keys ) {
+		foreach ( $keys as $key ) {
+			if ( isset( $array[ $key ] ) ) {
+				$this->name_clashes_temp_fix[] = $key;
+				$new_key                       = $key . self::NAME_CLASH_FIX_SUFFIX;
+				$array[ $new_key ]             = $array[ $key ];
+			}
+		}
+	}
 
+	/**
+	 * Fixes a field name if it has been identified as having a name clash by appending a suffix.
+	 *
+	 * @param string &$field_name The field name to check and potentially modify to avoid a name clash.
+	 *
+	 * @return void
+	 *
+	 * @see https://github.com/Automattic/zero-bs-crm/issues/3477
+	 */
+	public function fix_name_clash_if_needed( &$field_name ) {
+		if ( in_array( $field_name, $this->name_clashes_temp_fix, true ) ) {
+			$field_name = $field_name . self::NAME_CLASH_FIX_SUFFIX;
+		}
+	}
 
     // =========== / DAL2 WRAPPERS ===================================================
     // ===============================================================================

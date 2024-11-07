@@ -86,6 +86,7 @@ export default function ColorPanel( { attributes, setAttributes } ) {
 							setAttributes( { useAverageColor: newUseAverageColor } )
 						}
 						checked={ useAverageColor }
+						__nextHasNoMarginBottom={ true }
 					/>
 				</PanelBody>
 

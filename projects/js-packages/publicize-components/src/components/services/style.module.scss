@@ -188,10 +188,6 @@
 	justify-content: flex-end;
 	width: 100%;
 
-	@include break-medium {
-		max-width: 25rem;
-	}
-
 	.connect-button {
 		&:global(.components-button) {
 			padding: 6px 16px;
@@ -204,12 +200,11 @@
 	.fields-wrapper {
 		display: flex;
 		flex-direction: column;
-		align-items: flex-end;
-		flex-wrap: wrap;
+		justify-content: flex-end;
 		width: 100%;
 		gap: 1rem;
 
-		@include break-small {
+		@include break-medium {
 			flex-direction: row;
 		}
 	}
@@ -218,7 +213,16 @@
 		display: flex;
 		flex-direction: column;
 		gap: 0.5rem;
-		width: 100%;
+		flex-basis: 100%;
+		@include break-medium {
+			flex-basis: 50%;
+		}
+
+		@include break-small {
+			button {
+				align-self: flex-end;
+			}
+		}
 	}
 
 	label {
