@@ -39,7 +39,9 @@ const Meta = () => {
 
 		setCornerstonePages( newItems, () => {
 			refetchRegenerationReason();
-			regenerateAction.mutate();
+			if ( isPremium ) {
+				regenerateAction.mutate();
+			}
 		} );
 	};
 
