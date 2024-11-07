@@ -1,0 +1,9 @@
+.support-link {
+	color: inherit;
+
+	&:focus,
+	&:hover {
+		color: inherit;
+		box-shadow: none;
+	}
+}

@@ -271,7 +271,7 @@ const Index = () => {
 					title={
 						<>
 							{ __( 'Image Size Analysis', 'jetpack-boost' ) }
-							<Pill text="Beta" />
+							<Pill text={ __( 'Beta', 'jetpack-boost' ) } />
 						</>
 					}
 					description={

@@ -1,4 +1,8 @@
-import { SocialImageGeneratorConfig, UtmSettingsConfig } from '../social-store/types';
+import {
+	SocialImageGeneratorConfig,
+	SocialPluginSettings,
+	UtmSettingsConfig,
+} from '../social-store/types';
 
 export interface SocialUrls {
 	connectionsManagementPage: string;
@@ -34,44 +38,18 @@ export interface ApiPaths {
 export type SocialSettings = {
 	socialImageGenerator: SocialImageGeneratorConfig;
 	utmSettings: UtmSettingsConfig;
+	socialPlugin: SocialPluginSettings;
 };
+
+export type PluginInfo = Record< 'social' | 'jetpack', { version: string } >;
 
 export interface SocialScriptData {
 	api_paths: ApiPaths;
-	is_publicize_enabled: boolean;
 	feature_flags: FeatureFlags;
-	supported_services: Array< ConnectionService >;
-	shares_data: SharesData;
-	urls: SocialUrls;
+	is_publicize_enabled: boolean;
+	plugin_info: PluginInfo;
 	settings: SocialSettings;
+	shares_data: SharesData;
+	supported_services: Array< ConnectionService >;
+	urls: SocialUrls;
 }
-
-type JetpackSettingsSelectors = {
-	getJetpackSettings: () => {
-		publicize_active: boolean;
-		show_pricing_page: boolean;
-		showNudge: boolean;
-	};
-	isModuleEnabled: () => boolean;
-	showPricingPage: () => boolean;
-	isUpdatingJetpackSettings: () => boolean;
-};
-
-type ConnectionDataSelectors = {
-	getConnections: () => Array< object >;
-	hasConnections: () => boolean;
-};
-
-type SiteDataSelectors = {
-	getSiteData: () => Array< object >;
-	getSiteTitle: () => string;
-};
-
-/**
- * Types of the Social Store selectors.
- *
- * @module projects/js-packages/publicize-components/src/social-store/index.js
- */
-export type SocialStoreSelectors = JetpackSettingsSelectors &
-	ConnectionDataSelectors &
-	SiteDataSelectors;

@@ -8,9 +8,10 @@ import {
 	getRedirectUrl,
 	useBreakpointMatch,
 } from '@automattic/jetpack-components';
-import { SOCIAL_STORE_ID } from '@automattic/jetpack-publicize-components';
+import { store as socialStore } from '@automattic/jetpack-publicize-components';
+import { getScriptData } from '@automattic/jetpack-script-data';
 import { Spinner } from '@wordpress/components';
-import { useSelect, useDispatch } from '@wordpress/data';
+import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import useProductInfo from '../../hooks/use-product-info';
@@ -19,19 +20,17 @@ import styles from './styles.module.scss';
 const PricingPage = ( { onDismiss = () => {} } = {} ) => {
 	const [ productInfo ] = useProductInfo();
 
-	const siteSuffix = useSelect( select => select( SOCIAL_STORE_ID ).getSiteSuffix() );
-	const blogID = useSelect( select => select( SOCIAL_STORE_ID ).getBlogID() );
-	const updateOptions = useDispatch( SOCIAL_STORE_ID ).updateJetpackSettings;
+	const blogID = getScriptData().site.wpcom.blog_id;
+	const siteSuffix = getScriptData().site.suffix;
+
+	const { updateSocialPluginSettings } = useDispatch( socialStore );
 
 	const [ isLarge ] = useBreakpointMatch( 'lg' );
 
 	const hidePricingPage = useCallback( () => {
-		const newOption = {
-			show_pricing_page: false,
-		};
-		updateOptions( newOption );
+		updateSocialPluginSettings( { show_pricing_page: false } );
 		onDismiss();
-	}, [ updateOptions, onDismiss ] );
+	}, [ updateSocialPluginSettings, onDismiss ] );
 
 	return (
 		<PricingTable

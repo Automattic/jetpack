@@ -1,10 +1,10 @@
 import { store as coreStore } from '@wordpress/core-data';
 import { createRegistrySelector } from '@wordpress/data';
 import * as connectionDataSelectors from './connection-data';
-import jetpackSettingSelectors from './jetpack-settings';
 import * as shareStatusSelectors from './share-status';
 import siteDataSelectors from './site-data';
 import * as sigSelectors from './social-image-generator';
+import * as socialPluginSelectors from './social-plugin-settings';
 import * as utmSelectors from './utm-settings';
 
 /**
@@ -19,11 +19,11 @@ export const isSavingSiteSettings = createRegistrySelector( select => () => {
 const selectors = {
 	...siteDataSelectors,
 	...connectionDataSelectors,
-	...jetpackSettingSelectors,
 	...shareStatusSelectors,
 	isSavingSiteSettings,
 	...sigSelectors,
 	...utmSelectors,
+	...socialPluginSelectors,
 };
 
 export default selectors;

@@ -1,10 +1,17 @@
 .pill {
 	background: var( --jp-green-5 );
 	color: var( --jp-green-60 );
-	padding: 2px 5px;
+	padding: 0.2em 0.4em;
 	border-radius: 3px;
 	font-size: 0.8rem;
 	margin-left: 10px;
-	transform: translateY( -4.5px );
+	transform: translateY( -4px );
 	display: inline-block;
+	border-radius: 0.4em;
+}
+
+.pill-alt {
+	background: transparent;
+	color: var( --gray-40 );
+	border: 1px solid;
 }

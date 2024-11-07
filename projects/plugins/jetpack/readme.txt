@@ -326,12 +326,46 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.0-a.11 - 2024-10-29
+### 14.0-beta - 2024-11-04
+#### Enhancements
+- CSS: Rely esclusively on individual CSS files instead of a combined one for the features used on each page to improve page loading.
+- Newsletter: Update the default "reply to" setting value from not allowed to replies being posted as public comments.
+- Newsletters: Add an email preview option to the preview menu.
+- Newsletters: Allow skipping newsletter modals with a URL query param.
+- Scan: Update Jetpack Scan link in the WP Admin menu.
+- Sitemap: Improve sitemap write efficienty.
+- Social: Add Bluesky to social previews.
+- Social: Add support for Bluesky 🎉.
+- Subscriptions: Add a floating subscribe button.
+
 #### Improved compatibility
+- Embed Blocks: Append 'Embed' to the titles of Facebook and Instagram embed blocks.
+- General: Ensure notice displays without errors when running an old version of WordPress.
+- Image Block: Make the external media picker button consistent with the other buttons in the image block.
+- Image CDN: URL encode image path parts for RSS feed compatibility.
+- Plugin action links filters: Update parameter to avoid conflicts with other plugins.
 - Post Editor: Prevent deprecation notices with WordPress 6.7.
+- Related Posts: Allow Related Posts on non-post CPTs where the block is already able to be used.
+
+#### Improved Compatibility
+- General: Indicate compatibility with WordPress 6.7.
 
 #### Bug fixes
+- Blocks: Fix rendering of the goodreads block to avoid PHP warnings caused by missing attributes.
+- Blocks: Render the slideshow block correctly inside an iframe editor.
 - Carousel: Further improve accessibility by being more selective over which images to apply attributes to.
+- Contact Form: Ensure that submitted forms can only be accessed by logged in users allowed to view form submissions.
+- General: Only include `wp-polyfill` as a script dependency when needed.
+- Google Fonts: Fix module not loading fully in certain scenarios.
+- Map Block: Fix issue where blocks placed underneath would overlap with the map block.
+- Newsletter: Ensure `Enable featured image on your new post emails` setting displays the right value.
+- Newsletters: Fix "Use excerpt" setting.
+- Sharing: Ensure the sharing settings can be accessed even when a user is not connected to WordPress.com.
+- Social: Fix the Instagram maximum video length.
+- Social: Prevent share status styles from affecting other independent elements on the page.
+- Social: Prevent text overflow in the share status tooltip.
+- Stats: Fix top post card on the Insight page.
+- Subscribe Block: Fix styling for the number of subscribers in the post editor sidebar.
 
 --------
 
