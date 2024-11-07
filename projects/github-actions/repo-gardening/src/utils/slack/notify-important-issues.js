@@ -1,8 +1,5 @@
 const debug = require( '../debug' );
 const hasEscalatedLabel = require( '../labels/has-escalated-label' );
-const hasPriorityLabels = require( '../labels/has-priority-labels' );
-const isBug = require( '../labels/is-bug' );
-const findPriority = require( '../parse-content/find-priority' );
 const formatSlackMessage = require( './format-slack-message' );
 const sendSlackMessage = require( './send-slack-message' );
 
@@ -25,7 +22,7 @@ const sendSlackMessage = require( './send-slack-message' );
  */
 async function notifyImportantIssues( octokit, payload, channel, recipients = 'devs' ) {
 	const { action, issue, label = {}, repository } = payload;
-	const { number, body, state } = issue;
+	const { number, state } = issue;
 	const { owner, name } = repository;
 	const ownerLogin = owner.login;
 
@@ -34,7 +31,6 @@ async function notifyImportantIssues( octokit, payload, channel, recipients = 'd
 			? '[Status] Priority Review Triggered'
 			: '[Status] Escalated to Product Ambassadors';
 
-	const isBugIssue = await isBug( octokit, ownerLogin, name, number, action, label );
 	const isEscalated = await hasEscalatedLabel(
 		octokit,
 		ownerLogin,
@@ -44,23 +40,9 @@ async function notifyImportantIssues( octokit, payload, channel, recipients = 'd
 		label,
 		escalatedLabel
 	);
-	const priorityLabels = await hasPriorityLabels(
-		octokit,
-		ownerLogin,
-		name,
-		number,
-		action,
-		label
-	);
-	const priority = findPriority( body );
 
-	const highPriorityIssue = priority === 'High' || priorityLabels.includes( '[Pri] High' );
-	const blockerIssue = priority === 'BLOCKER' || priorityLabels.includes( '[Pri] BLOCKER' );
-
-	if ( isBugIssue && state === 'open' && ! isEscalated && ( highPriorityIssue || blockerIssue ) ) {
-		const message = `New ${
-			highPriorityIssue ? 'High-priority' : 'Blocker'
-		} bug! Please check the priority.`;
+	if ( state === 'open' && ! isEscalated ) {
+		const message = `New high-priority bug! Please check the priority.`;
 		const slackMessageFormat = formatSlackMessage( payload, channel, message );
 		await sendSlackMessage( message, channel, payload, slackMessageFormat );
 
