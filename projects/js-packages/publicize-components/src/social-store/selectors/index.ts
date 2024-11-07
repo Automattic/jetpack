@@ -2,7 +2,6 @@ import { store as coreStore } from '@wordpress/core-data';
 import { createRegistrySelector } from '@wordpress/data';
 import * as connectionDataSelectors from './connection-data';
 import * as shareStatusSelectors from './share-status';
-import siteDataSelectors from './site-data';
 import * as sigSelectors from './social-image-generator';
 import * as socialPluginSelectors from './social-plugin-settings';
 
@@ -16,7 +15,6 @@ export const isSavingSiteSettings = createRegistrySelector( select => () => {
 } );
 
 const selectors = {
-	...siteDataSelectors,
 	...connectionDataSelectors,
 	...shareStatusSelectors,
 	isSavingSiteSettings,

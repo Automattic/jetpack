@@ -4,6 +4,7 @@ import { dispatch as coreDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { __, sprintf } from '@wordpress/i18n';
 import { getSocialScriptData } from '../../utils/script-data';
+import { Connection } from '../types';
 import {
 	ADD_CONNECTION,
 	DELETE_CONNECTION,
@@ -357,10 +358,7 @@ export function createConnection( data, optimisticData = {} ) {
 			// Mark the connection as updating to show the spinner.
 			dispatch( updatingConnection( tempId ) );
 
-			/**
-			 * @type {import('../types').Connection}
-			 */
-			const connection = await apiFetch( { method: 'POST', path, data } );
+			const connection = await apiFetch< Connection >( { method: 'POST', path, data } );
 
 			if ( connection ) {
 				dispatch(

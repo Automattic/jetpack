@@ -1,4 +1,5 @@
 import { createReduxStore, register } from '@wordpress/data';
+import { getSocialScriptData } from '../utils';
 import actions from './actions';
 import reducer from './reducer';
 import resolvers from './resolvers';
@@ -10,11 +11,7 @@ export const SOCIAL_STORE_CONFIG = {
 	actions,
 	selectors,
 	resolvers,
-	initialState:
-		window?.jetpackSocialInitialState || // Jetpack Social
-		window?.Initial_State?.socialInitialState || // Jetpack Dashboard
-		window?.Jetpack_Editor_Initial_State?.social || // Gutenberg
-		{},
+	initialState: getSocialScriptData().store_initial_state,
 };
 
 export const CONNECTION_SERVICE_FACEBOOK = 'facebook';

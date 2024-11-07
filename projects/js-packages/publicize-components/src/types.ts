@@ -1,4 +1,8 @@
-import { SocialImageGeneratorConfig, SocialPluginSettings } from '../social-store/types';
+import {
+	SocialImageGeneratorConfig,
+	SocialPluginSettings,
+	SocialStoreState,
+} from './social-store/types';
 
 export interface SocialUrls {
 	connectionsManagementPage: string;
@@ -45,6 +49,7 @@ export interface SocialScriptData {
 	plugin_info: PluginInfo;
 	settings: SocialSettings;
 	shares_data: SharesData;
+	store_initial_state: SocialStoreState;
 	supported_services: Array< ConnectionService >;
 	urls: SocialUrls;
 }

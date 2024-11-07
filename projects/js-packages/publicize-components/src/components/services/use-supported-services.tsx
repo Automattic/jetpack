@@ -8,7 +8,7 @@ import connectionsLinkedin from '../../assets/connections-linkedin.png';
 import connectionsNextdoor from '../../assets/connections-nextdoor.png';
 import connectionsThreads from '../../assets/connections-threads.png';
 import connectionsTumblr from '../../assets/connections-tumblr.png';
-import { ConnectionService } from '../../types/types';
+import { ConnectionService } from '../../types';
 import { getSocialScriptData } from '../../utils/script-data';
 
 export type Badge = {

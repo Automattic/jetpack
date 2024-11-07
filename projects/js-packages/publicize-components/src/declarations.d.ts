@@ -1,4 +1,4 @@
-import { SocialSettingsFields } from './social-store/types';
+import { SocialPluginSettings, SocialSettingsFields } from './social-store/types';
 import { SocialScriptData } from './types/types';
 
 // Use module augmentation to add the social property to JetpackInitialState

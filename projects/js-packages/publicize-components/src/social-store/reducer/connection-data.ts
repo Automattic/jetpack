@@ -13,6 +13,7 @@ import {
 	REMOVE_ABORT_CONTROLLERS,
 	REQUEST_TYPE_DEFAULT,
 } from '../actions/constants';
+import { ConnectionData } from '../types';
 
 /**
  * Connection data reducer
@@ -21,7 +22,7 @@ import {
  * @param {object}                            action - Action object.
  * @return {import('../types').ConnectionData} The new state.
  */
-const connectionData = ( state = {}, action ) => {
+const connectionData = ( state: ConnectionData = { connections: [] }, action ) => {
 	switch ( action.type ) {
 		case TOGGLE_CONNECTIONS_MODAL:
 			return {

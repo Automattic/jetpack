@@ -6,6 +6,7 @@ import { getSocialScriptData } from '../utils/script-data';
 import { normalizeShareStatus } from '../utils/share-status';
 import { setConnections } from './actions/connection-data';
 import { fetchPostShareStatus, receivePostShareStaus } from './actions/share-status';
+import { PostShareStatus } from './types';
 
 /**
  * Resolves the connections from the post.
@@ -44,7 +45,7 @@ export function getPostShareStatus( _postId ) {
 
 		try {
 			dispatch( fetchPostShareStatus( postId ) );
-			let result = await apiFetch( {
+			let result = await apiFetch< PostShareStatus >( {
 				path: `jetpack/v4/social/share-status/${ postId }`,
 			} );
 
