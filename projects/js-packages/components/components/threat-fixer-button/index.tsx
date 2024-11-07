@@ -30,36 +30,33 @@ export default function ThreatFixerButton( {
 	onClick: ( items: Threat[] ) => void;
 	className?: string;
 } ): JSX.Element {
-	const fixerInProgress = useMemo( () => {
-		return threat.fixer && fixerIsInProgress( threat.fixer );
-	}, [ threat.fixer ] );
+	const [ showTooltip, setShowTooltip ] = useState( false );
 
-	const fixerError = useMemo( () => {
-		return threat.fixer && fixerIsInError( threat.fixer );
-	}, [ threat.fixer ] );
-
-	const fixerIsStale = useMemo( () => {
-		return threat.fixer && fixerStatusIsStale( threat.fixer );
+	const fixerState = useMemo( () => {
+		const inProgress = threat.fixer && fixerIsInProgress( threat.fixer );
+		const error = threat.fixer && fixerIsInError( threat.fixer );
+		const stale = threat.fixer && fixerStatusIsStale( threat.fixer );
+		return { inProgress, error, stale };
 	}, [ threat.fixer ] );
 
 	const errorMessage = useMemo( () => {
-		if ( fixerIsStale ) {
+		if ( fixerState.stale ) {
 			return __( 'The auto-fixer is taking longer than expected.', 'jetpack' );
 		}
 
-		if ( fixerError ) {
+		if ( fixerState.error ) {
 			return __( 'An error occurred auto-fixing this threat.', 'jetpack' );
 		}
 
 		return null;
-	}, [ fixerIsStale, fixerError ] );
+	}, [ fixerState ] );
 
 	const popoverText = useMemo( () => {
 		if ( ! threat.fixable ) {
 			return null;
 		}
 
-		if ( fixerInProgress ) {
+		if ( fixerState.inProgress ) {
 			return __(
 				'An auto-fixer is in progress. This may take a moment, please check back shortly.',
 				'jetpack'
@@ -114,18 +111,18 @@ export default function ThreatFixerButton( {
 			default:
 				return __( 'An auto-fixer is available.', 'jetpack' );
 		}
-	}, [ threat, fixerInProgress ] );
+	}, [ threat, fixerState.inProgress ] );
 
 	const buttonText = useMemo( () => {
 		if ( ! threat.fixable ) {
 			return null;
 		}
 
-		if ( fixerError ) {
+		if ( fixerState.error ) {
 			return __( 'Error', 'jetpack' );
 		}
 
-		if ( fixerInProgress ) {
+		if ( fixerState.inProgress ) {
 			return __( 'Fixing…', 'jetpack' );
 		}
 
@@ -140,9 +137,7 @@ export default function ThreatFixerButton( {
 			default:
 				return __( 'Fix', 'jetpack' );
 		}
-	}, [ threat.fixable, fixerError, fixerInProgress ] );
-
-	const [ showTooltip, setShowTooltip ] = useState( false );
+	}, [ threat.fixable, fixerState ] );
 
 	const handleClick = useCallback(
 		( event: React.MouseEvent ) => {
@@ -173,10 +168,12 @@ export default function ThreatFixerButton( {
 				onClick={ errorMessage ? handleErrorClick : handleClick }
 				children={ buttonText }
 				className={ className }
-				disabled={ fixerInProgress && ! errorMessage }
-				isLoading={ fixerInProgress }
+				disabled={ fixerState.inProgress && ! errorMessage }
+				isLoading={ fixerState.inProgress }
 				isDestructive={
-					( threat.fixable && threat.fixable.fixer === 'delete' ) || fixerError || fixerIsStale
+					( threat.fixable && threat.fixable.fixer === 'delete' ) ||
+					fixerState.error ||
+					fixerState.stale
 				}
 				style={ { minWidth: '72px' } }
 			/>
