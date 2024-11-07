@@ -685,6 +685,7 @@ async function updateBoard( payload, octokit, isBugIssue, priorityLabels ) {
 		payload,
 		projectInfo,
 		projectItemId,
+		isBugIssue,
 		priorityLabels
 	);
 }
