@@ -1,4 +1,5 @@
 import { Button, Text, ThreatSeverityBadge } from '@automattic/jetpack-components';
+import { getThreatIcon, getThreatSubtitle } from '@automattic/jetpack-scan';
 import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
 import { useState } from 'react';
@@ -7,9 +8,14 @@ import useModal from '../../hooks/use-modal';
 import UserConnectionGate from '../user-connection-gate';
 import styles from './styles.module.scss';
 
-const UnignoreThreatModal = ( { id, title, label, icon, severity } ) => {
+const UnignoreThreatModal = ( { threat } ) => {
 	const { setModal } = useModal();
+
+	const icon = getThreatIcon( threat );
+
+	const [ isUnignoring, setIsUnignoring ] = useState( false );
 	const unignoreThreatMutation = useUnIgnoreThreatMutation();
+
 	const handleCancelClick = () => {
 		return event => {
 			event.preventDefault();
@@ -17,13 +23,11 @@ const UnignoreThreatModal = ( { id, title, label, icon, severity } ) => {
 		};
 	};
 
-	const [ isUnignoring, setIsUnignoring ] = useState( false );
-
 	const handleUnignoreClick = () => {
 		return async event => {
 			event.preventDefault();
 			setIsUnignoring( true );
-			await unignoreThreatMutation.mutateAsync( id );
+			await unignoreThreatMutation.mutateAsync( threat.id );
 			setModal( { type: null } );
 			setIsUnignoring( false );
 		};
@@ -40,12 +44,12 @@ const UnignoreThreatModal = ( { id, title, label, icon, severity } ) => {
 				<Icon icon={ icon } className={ styles.threat__icon } />
 				<div className={ styles.threat__summary }>
 					<Text className={ styles.threat__summary__label } mb={ 1 }>
-						{ label }
+						{ getThreatSubtitle( threat ) }
 					</Text>
-					<Text className={ styles.threat__summary__title }>{ title }</Text>
+					<Text className={ styles.threat__summary__title }>{ threat.title }</Text>
 				</div>
 				<div className={ styles.threat__severity }>
-					<ThreatSeverityBadge severity={ severity } />
+					<ThreatSeverityBadge severity={ threat.severity } />
 				</div>
 			</div>
 
