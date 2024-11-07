@@ -22,7 +22,7 @@
  */
 function build_block_manifest( $base_path = null ) {
 	if ( null === $base_path ) {
-		$base_path = __DIR__ . '/../extensions/blocks';
+		$base_path = __DIR__ . '/../_inc/blocks';
 	}
 
 	if ( ! file_exists( $base_path ) ) {

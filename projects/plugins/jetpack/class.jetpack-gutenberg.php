@@ -1349,7 +1349,7 @@ class Jetpack_Gutenberg {
 	 * @return void
 	 */
 	public static function register_block_metadata_collection() {
-		$meta_file_path = JETPACK__PLUGIN_DIR . 'extensions/blocks/blocks-manifest.php';
+		$meta_file_path = JETPACK__PLUGIN_DIR . '_inc/blocks/blocks-manifest.php';
 		if ( function_exists( 'wp_register_block_metadata_collection' ) && file_exists( $meta_file_path ) ) {
 			// @phan-suppress-next-line PhanUndeclaredFunction -- New in WP 6.7. We're checking if it exists first.
 			wp_register_block_metadata_collection(
