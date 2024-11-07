@@ -22,6 +22,7 @@ export interface AdminSiteData {
 	plan: SitePlan;
 	rest_nonce: string;
 	rest_root: string;
+	suffix?: string;
 	wp_version: string;
 	wpcom: WPCOMSiteData;
 }
