@@ -32,7 +32,7 @@ To explain in more detail what the properties are:
 * The `title`, `message` and `url` properties are required.
 * The support URL is generated using the `Redirect` class, or `getRedirectUrl` for Jetpack dashboard / settings notice URLs.
 * The `label` property is not required, but the fallback label is 'Learn more'.
-* The `show` property is optional, but setting it to false will ensure the notice will not display anywhere.
+* The `show` property is optional, but setting it to `false` will ensure the notice will not display anywhere.
 * The `hide_in_woa` property is also optional, and setting it to false will ensure the notice will not display on WoA sites.
 * If you need to add custom conditions beyond whether a site is WoA, then it would be better to modify the `show_feature_notice` function within the `Deprecate` class, then add a check in `has_notices` so that the notice is not added to the `$notices` variable.
 
