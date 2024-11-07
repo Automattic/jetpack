@@ -1,9 +1,8 @@
-import attributes from './attributes';
-import save from './save';
 import supports from './supports';
 
+export { default as attributes } from './attributes';
+export { default as save } from './save';
+
 export default {
-	attributes,
 	supports,
-	save,
 };

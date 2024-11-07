@@ -1,7 +1,8 @@
 import { LAYOUT_DEFAULT } from './constants';
-import save from './save';
 
-const attributes = {
+export { default as save } from './save';
+
+export const attributes = {
 	// Set default align
 	align: {
 		default: 'center',
@@ -78,7 +79,5 @@ const support = {
 };
 
 export default {
-	attributes,
 	support,
-	save,
 };
