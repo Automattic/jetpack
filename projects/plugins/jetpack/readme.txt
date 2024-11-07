@@ -326,7 +326,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.0 - 2024-11-05
+### 14.0 - 2024-11-07
 #### Major enhancements
 - Newsletters: Add email previews and a floating subscribe button.
 - Social: Add support for Bluesky.

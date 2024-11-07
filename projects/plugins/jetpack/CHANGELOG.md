@@ -2,7 +2,7 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 14.0 - 2024-11-05
+## 14.0 - 2024-11-07
 ### Major enhancements
 - Newsletters: Add email previews and a floating subscribe button. [#37722] [#39782]
 - Social: Add support for Bluesky. [#39659] [#39561]
@@ -86,7 +86,8 @@
 - Subscribe Block: adjust margin of the notice appearing in the block sidebar. [#39962]
 - Subscriptions: Add source attribute for stats to the floating subscribe button. [#39860]
 - Tests: Fix unit tests. [#39799]
-- Theme Tools: ensure theme-compat files are still loaded when a compatible theme is used. [#39992]
+- Theme Tools: Ensure theme-compat files are still loaded when a compatible theme is used. [#39992]
+- Theme Tools: Fix race condition when loading theme compatibility files. [#40075]
 - Update "My Plan" page to only show Google Analytics for WoA sites. [#40044]
 - Verbum Comments: Update resize logic. [#39791]
 - VideoPress: Update VideoPress notice URL on Media Library. [#39731]
