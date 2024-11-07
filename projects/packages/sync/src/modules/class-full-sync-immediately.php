@@ -414,33 +414,20 @@ class Full_Sync_Immediately extends Module {
 	 * @return array
 	 */
 	public function get_remaining_modules_to_send() {
-		$status = $this->get_status();
-
-		return array_filter(
-			Modules::get_modules(),
-			/**
-			 * Select configured and not finished modules.
-			 *
-			 * @param Module $module
-			 * @return bool
-			 */
-			function ( $module ) use ( $status ) {
-				// Skip module if not configured for this sync or module is done.
-				if ( ! isset( $status['config'][ $module->name() ] ) ) {
-					return false;
-				}
-				if ( ! $status['config'][ $module->name() ] ) {
-					return false;
-				}
-				if ( isset( $status['progress'][ $module->name() ]['finished'] ) ) {
-					if ( true === $status['progress'][ $module->name() ]['finished'] ) {
-						return false;
-					}
-				}
-
-				return true;
+		$status            = $this->get_status();
+		$remaining_modules = array();
+		foreach ( $status['config'] as $module_name => $module_config ) {
+			$module = Modules::get_module( $module_name );
+			if ( ! $module ) {
+				continue;
 			}
-		);
+			if ( isset( $status['progress'][ $module_name ]['finished'] ) &&
+				true === $status['progress'][ $module_name ]['finished'] ) {
+					continue;
+			}
+			$remaining_modules[] = $module;
+		}
+		return $remaining_modules;
 	}
 
 	/**
