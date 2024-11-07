@@ -46,6 +46,12 @@ import {
 } from './constants';
 import styles from './styles.module.scss';
 
+type ThreatIdsByStatus = {
+	fixable: ( string | number )[];
+	ignorable: ( string | number )[];
+	unignorable: ( string | number )[];
+};
+
 /**
  * ToggleGroupControl component for filtering threats by status.
  * @param {object}   props                          - Component props.
@@ -205,11 +211,7 @@ export default function ThreatsDataViews( {
 		},
 	};
 
-	const [ selectedThreatIds, setSelectedThreatIds ] = useState< {
-		fixable: ( string | number )[];
-		ignorable: ( string | number )[];
-		unignorable: ( string | number )[];
-	} >( {
+	const [ selectedThreatIds, setSelectedThreatIds ] = useState< ThreatIdsByStatus >( {
 		fixable: [],
 		ignorable: [],
 		unignorable: [],
