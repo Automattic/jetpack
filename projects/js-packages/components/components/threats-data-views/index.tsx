@@ -46,7 +46,7 @@ import {
 } from './constants';
 import styles from './styles.module.scss';
 
-type ThreatIdsByStatus = {
+type ThreatIdsByAction = {
 	fixable: ( string | number )[];
 	ignorable: ( string | number )[];
 	unignorable: ( string | number )[];
@@ -211,7 +211,7 @@ export default function ThreatsDataViews( {
 		},
 	};
 
-	const [ selectedThreatIds, setSelectedThreatIds ] = useState< ThreatIdsByStatus >( {
+	const [ selectedThreatIds, setSelectedThreatIds ] = useState< ThreatIdsByAction >( {
 		fixable: [],
 		ignorable: [],
 		unignorable: [],
