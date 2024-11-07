@@ -21,8 +21,12 @@ const sendSlackMessage = require( './send-slack-message' );
  * @param {string}              recipients - Name of the group getting the notification. Can be 'devs' (default) or 'product-ambassadors'.
  */
 async function notifyImportantIssues( octokit, payload, channel, recipients = 'devs' ) {
-	const { action, issue, label = {}, repository } = payload;
-	const { number, state } = issue;
+	const {
+		action,
+		issue: { number },
+		label = {},
+		repository,
+	} = payload;
 	const { owner, name } = repository;
 	const ownerLogin = owner.login;
 
@@ -41,7 +45,7 @@ async function notifyImportantIssues( octokit, payload, channel, recipients = 'd
 		escalatedLabel
 	);
 
-	if ( state === 'open' && ! isEscalated ) {
+	if ( ! isEscalated ) {
 		const message = `New high-priority bug! Please check the priority.`;
 		const slackMessageFormat = formatSlackMessage( payload, channel, message );
 		await sendSlackMessage( message, channel, payload, slackMessageFormat );
@@ -55,6 +59,8 @@ async function notifyImportantIssues( octokit, payload, channel, recipients = 'd
 			issue_number: number,
 			labels: [ escalatedLabel ],
 		} );
+	} else {
+		debug( `notify-important-issues: ${ recipients } have already been warned about ${ number }.` );
 	}
 }
 
