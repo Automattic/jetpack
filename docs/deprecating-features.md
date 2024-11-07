@@ -18,6 +18,20 @@ In order to show a deprecation notice on WP Admin (dashboard only), Jetpack Sett
 
 Notices show on the Jetpack Settings and Dashboard pages with the existing notice styling, as the notice array is passed to the Window object from the `Deprecate` class. If no notices are in that array, then none will show.
 
+Jetpack Settings and Dashboard example:
+
+<img width="1039" alt="Jetpack Settings and Dashboard notice" src="https://github.com/user-attachments/assets/a5012206-4384-4c12-b16b-956bc712642a">
+
+My Jetpack example:
+
+<img width="1085" alt="My Jetpack notice" src="https://github.com/user-attachments/assets/6ac1d94d-8900-410f-a909-7e9f7b36c581">
+
+
+WP Admin example:
+
+<img width="1221" alt="WP Admin notice" src="https://github.com/user-attachments/assets/eaeebdba-74a8-4b2b-941d-72568e7e7394">
+
+
 The existing notice display logic is based on cookies. If a notice is dismissed, a cookie is added. If that cookie exists when checked for, then the relevant notice won't show.
 
 Other relevant files with deprecation notice logic include the [`JetpackNotices`](/projects/plugins/jetpack/_inc/client/components/jetpack-notices/index.jsx) class and the associated [`DeprecationNotice`](/projects/plugins/jetpack/_inc/client/components/jetpack-notices/deprecation-notice.jsx) itself. It also includes a JavaScript file where notice styles are added and where the cookie is set when a notice is dismissed [here](/projects/plugins/jetpack/_inc/deprecate.js).
