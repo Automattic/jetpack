@@ -8,7 +8,11 @@ import { UP, DOWN, LEFT, RIGHT } from '@wordpress/keycodes';
 import clsx from 'clsx';
 import { uniqBy } from 'lodash';
 import { PATH_RECENT } from '../constants';
-import { authenticateMediaSource } from '../media-service';
+import {
+	authenticateMediaSource,
+	getGooglePhotosPickerSession,
+	setGooglePhotosPickerSession,
+} from '../media-service';
 import { MediaSource } from '../media-service/types';
 
 export default function withMedia( mediaSource = MediaSource.Unknown ) {
@@ -233,6 +237,19 @@ export default function withMedia( mediaSource = MediaSource.Unknown ) {
 					.catch( this.handleApiError );
 			};
 
+			createPickerSession = () => {
+				// If we have a modal element set, focus it.
+				// Otherwise focus is reset to the body instead of staying within the Modal.
+				if ( this.modalElement ) {
+					this.modalElement.focus();
+				}
+
+				apiFetch( {
+					path: '/wpcom/v2/meta/external-media/session/google_photos',
+					method: 'POST',
+				} ).then( setGooglePhotosPickerSession );
+			};
+
 			mapImageToResult = image => ( {
 				alt: image.name,
 				caption: image.caption,
@@ -323,6 +340,8 @@ export default function withMedia( mediaSource = MediaSource.Unknown ) {
 								account={ account }
 								getMedia={ this.getMedia }
 								copyMedia={ this.copyMedia }
+								pickerSession={ this.props.pickerSession }
+								createPickerSession={ this.createPickerSession }
 								insertMedia={ this.insertMedia }
 								isCopying={ isCopying }
 								isLoading={ isLoading }
@@ -346,8 +365,10 @@ export default function withMedia( mediaSource = MediaSource.Unknown ) {
 			// Templates and template parts' numerical ID is stored in `wp_id`.
 			const currentPostId =
 				typeof currentPost?.id === 'number' ? currentPost.id : currentPost?.wp_id;
+
 			return {
 				postId: currentPostId ?? 0,
+				pickerSession: getGooglePhotosPickerSession(),
 			};
 		} )( withNotices( WithMediaComponent ) );
 	} );
