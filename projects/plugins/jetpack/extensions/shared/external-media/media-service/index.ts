@@ -5,6 +5,7 @@ import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import { waitFor } from '../../wait-for';
 import { store as mediaStore } from '../store';
+import { PickerSession } from '../store/types';
 import { MediaSource } from './types';
 
 // Pexels constants
@@ -271,4 +272,12 @@ export const addPexelsToMediaInserter = () => {
  */
 export const authenticateMediaSource = ( source: MediaSource, isAuthenticated: boolean ) => {
 	dispatch( mediaStore ).setAuthenticated( source, isAuthenticated );
+};
+
+/**
+ * Set Google Photos Picker session
+ * @param { PickerSession } session
+ */
+export const setGooglePhotosPickerSession = ( session: PickerSession ) => {
+	dispatch( mediaStore ).mediaPhotosPickerSessionSet( session );
 };
