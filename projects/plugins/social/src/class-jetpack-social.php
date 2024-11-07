@@ -126,6 +126,8 @@ class Jetpack_Social {
 		add_filter( 'plugin_action_links_' . JETPACK_SOCIAL_PLUGIN_FOLDER . '/jetpack-social.php', array( $this, 'add_settings_link' ) );
 
 		add_shortcode( 'jp_shares_shortcode', array( $this, 'add_shares_shortcode' ) );
+
+		add_filter( 'jetpack_social_admin_script_data', array( $this, 'set_social_admin_script_data' ) );
 	}
 
 	/**
@@ -213,6 +215,40 @@ class Jetpack_Social {
 			$shares_info = $publicize->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) );
 		}
 		return ! is_wp_error( $shares_info ) ? $shares_info : null;
+	}
+
+	/**
+	 * Set the social admin script data.
+	 *
+	 * @param array $data The initial state data.
+	 * @return array
+	 */
+	public function set_social_admin_script_data( $data ) {
+
+		$data['plugin_info']['social'] = array(
+			'version' => $this->get_plugin_version(),
+		);
+
+		$data['settings']['socialPlugin'] = array(
+			'publicize_active' => self::is_publicize_active(),
+
+		);
+
+		if ( $this->is_connected() ) {
+
+			$note = new Automattic\Jetpack\Social\Note();
+
+			$data['settings']['socialPlugin'] = array_merge(
+				$data['settings']['socialPlugin'],
+				array(
+					'show_pricing_page'    => self::should_show_pricing_page(),
+					'social_notes_enabled' => $note->enabled(),
+					'social_notes_config'  => $note->get_config(),
+				)
+			);
+		}
+
+		return $data;
 	}
 
 	/**

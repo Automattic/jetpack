@@ -16,77 +16,79 @@ type SocialNotesToggleProps = {
 	disabled?: boolean;
 };
 
-const handleStateUpdating = ( updateFunction, updatingStateSetter, ...args ) => {
+const handleStateUpdating = async (
+	updateFunction: () => Promise< void >,
+	updatingStateSetter?: React.Dispatch< React.SetStateAction< boolean > >
+) => {
 	// Set the updating state to true
-	updatingStateSetter( true );
+	updatingStateSetter?.( true );
 	document.body.style.cursor = 'wait';
-	// Call the updateFunction with provided arguments
-	const promise = updateFunction( ...args );
+	// Call the updateFunction
+	await updateFunction();
 	// When the promise resolves (update is completed), set the updating state to false
-	promise.finally( () => {
-		updatingStateSetter( false );
-		document.body.style.cursor = 'auto';
-	} );
+	updatingStateSetter?.( false );
+	document.body.style.cursor = 'auto';
 };
 
 const SocialNotesToggle: React.FC< SocialNotesToggleProps > = ( { disabled } ) => {
-	const { isEnabled, notesConfig } = useSelect( select => {
+	const { isEnabled, notesConfig, isUpdating } = useSelect( select => {
 		const store = select( socialStore );
+		const settings = store.getSocialPluginSettings();
+
 		return {
-			isEnabled: store.isSocialNotesEnabled(),
-			notesConfig: store.getSocialNotesConfig(),
-			// Temporarily we disable forever after action to wait for the page to reload.
-			// isUpdating: store.isSocialNotesSettingsUpdating(),
+			isEnabled: settings.social_notes_enabled,
+			notesConfig: settings.social_notes_config,
+			isUpdating: store.isSavingSocialPluginSettings(),
 		};
 	}, [] );
 
 	const newNoteUrl = getAdminUrl( 'post-new.php?post_type=jetpack-social-note' );
 
-	const [ isUpdating, setIsUpdating ] = useState( false );
 	const [ isAppendLinkToggleUpdating, setIsAppendLinkToggleUpdating ] = useState( false );
 	const [ isLinkFormatUpdating, setIsLinkFormatUpdating ] = useState( false );
 
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
 
-	const { updateSocialNotesSettings: updateOptions, updateSocialNotesConfig } =
-		useDispatch( socialStore );
+	const { updateSocialPluginSettings } = useDispatch( socialStore );
 
-	const toggleStatus = useCallback( () => {
-		const newOption = {
-			social_notes_enabled: ! isEnabled,
-		};
-		const updatePromise = updateOptions( newOption );
-
-		// This is a temporary solution to refresh the page after the toggle is clicked,
-		// until we can reload the sidebar only.
-		setIsUpdating( true );
-		document.body.style.cursor = 'wait';
-		updatePromise.then( () => {
-			// If the toggle is turned on we don't need to reload the page,
-			// as they will have the CTA to create a note.
-			if ( newOption.social_notes_enabled ) {
-				setIsUpdating( false );
-				document.body.style.cursor = 'auto';
-			} else {
-				window.location.reload();
-			}
-		} );
-	}, [ isEnabled, updateOptions ] );
+	const toggleStatus = useCallback( async () => {
+		handleStateUpdating( () =>
+			updateSocialPluginSettings( {
+				social_notes_enabled: ! isEnabled,
+			} )
+		);
+	}, [ isEnabled, updateSocialPluginSettings ] );
 
 	const onToggleAppendLink = useCallback(
 		( append_link: boolean ) => {
-			handleStateUpdating( updateSocialNotesConfig, setIsAppendLinkToggleUpdating, {
-				append_link,
-			} );
+			handleStateUpdating(
+				() =>
+					updateSocialPluginSettings( {
+						social_notes_config: {
+							...notesConfig,
+							append_link,
+						},
+					} ),
+				setIsAppendLinkToggleUpdating
+			);
 		},
-		[ updateSocialNotesConfig ]
+		[ notesConfig, updateSocialPluginSettings ]
 	);
 
 	const onChangeLinkFormat = useCallback(
 		( link_format: string ) => {
-			handleStateUpdating( updateSocialNotesConfig, setIsLinkFormatUpdating, { link_format } );
+			handleStateUpdating(
+				() =>
+					updateSocialPluginSettings( {
+						social_notes_config: {
+							...notesConfig,
+							link_format: link_format as ( typeof notesConfig )[ 'link_format' ],
+						},
+					} ),
+				setIsLinkFormatUpdating
+			);
 		},
-		[ updateSocialNotesConfig ]
+		[ notesConfig, updateSocialPluginSettings ]
 	);
 
 	const appendLink = notesConfig.append_link ?? true;
@@ -99,6 +101,10 @@ const SocialNotesToggle: React.FC< SocialNotesToggleProps > = ( { disabled } ) =
 			checked={ isEnabled }
 			onChange={ toggleStatus }
 		>
+			{ ! isEnabled && (
+				// If social notes is disabled, hide the admin menu item, to avoid reloading the page
+				<style>{ `#adminmenu #menu-posts-jetpack-social-note { display: none; }` }</style>
+			) }
 			<Text className={ styles.text }>
 				{ __(
 					"Do you want to quickly share what's on your mind? Turn on Social Notes to effortlessly jot down and share quick notes without the need for titles or formatting, enabling swift and spontaneous communication with your followers.",
