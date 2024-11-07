@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Social: Migrated the last bits of social store to new script data
