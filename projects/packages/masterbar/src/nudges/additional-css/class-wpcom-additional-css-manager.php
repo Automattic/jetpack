@@ -68,6 +68,6 @@ class WPCOM_Additional_CSS_Manager {
 	private function get_plan() {
 		$plan_slug = \WPCOM_Feature_Flags::is_enabled( \WPCOM_Feature_Flags::GLOBAL_STYLES_ON_PERSONAL_PLAN ) ? 'personal-bundle' : 'value_bundle';
 
-		return Automattic\Jetpack\Plans::get_plan( $plan_slug );
+		return \Automattic\Jetpack\Plans::get_plan( $plan_slug );
 	}
 }

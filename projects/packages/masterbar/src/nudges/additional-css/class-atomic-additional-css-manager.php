@@ -36,7 +36,7 @@ class Atomic_Additional_CSS_Manager {
 	 * @param \WP_Customize_Manager $wp_customize_manager Core customize manager.
 	 */
 	public function register_nudge( \WP_Customize_Manager $wp_customize_manager ) {
-		$plan = Plans::get_plan( 'business_bundle' )->product_name_short;
+		$plan = \Automattic\Jetpack\Plans::get_plan( 'business_bundle' )->product_name_short;
 
 		$nudge_url  = $this->get_nudge_url();
 		/* translators: %s is the plan name. */
