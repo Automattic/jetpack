@@ -87,6 +87,13 @@ export const AiModalPromptInput = ( {
 		event.stopPropagation();
 	};
 
+	useEffect( () => {
+		// Update prompt text node when prop changes
+		if ( inputRef.current && inputRef.current.textContent !== prompt ) {
+			inputRef.current.textContent = prompt;
+		}
+	}, [ prompt ] );
+
 	return (
 		<div className="jetpack-ai-logo-generator__prompt-query">
 			<div
