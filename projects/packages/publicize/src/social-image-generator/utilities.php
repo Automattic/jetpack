@@ -29,7 +29,7 @@ function get_image_url( $post_id ) {
 	$url = add_query_arg(
 		array( 'query' => rawurlencode( 't=' . $token ) ),
 		Redirect::get_url( 'sigenerate', array( 'site' => null ) )
-	); 
+	);
 
 	return htmlspecialchars_decode( $url, ENT_QUOTES );
 }
