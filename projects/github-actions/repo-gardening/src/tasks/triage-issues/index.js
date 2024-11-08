@@ -1,6 +1,6 @@
 const { getInput } = require( '@actions/core' );
 const debug = require( '../../utils/debug' );
-const isBug = require( '../../utils/labels/is-bug' );
+const getIssueType = require( '../../utils/labels/get-issue-type' );
 const findPlatforms = require( '../../utils/parse-content/find-platforms' );
 const findPlugins = require( '../../utils/parse-content/find-plugins' );
 const formatSlackMessage = require( '../../utils/slack/format-slack-message' );
@@ -35,7 +35,8 @@ async function triageIssues( payload, octokit ) {
 	}
 
 	const { labels: priorityLabels, inferred } = await getIssuePriority( payload, octokit );
-	const isBugIssue = await isBug( octokit, ownerLogin, name, number, action, label );
+	const issueType = await getIssueType( octokit, ownerLogin, name, number, label );
+	const isBug = issueType === 'Bug';
 	const qualityChannel = getInput( 'slack_quality_channel' );
 
 	// If this is a new issue, add labels.
@@ -71,7 +72,7 @@ async function triageIssues( payload, octokit ) {
 		}
 
 		// Add priority label to the issue, if none already existed on the issue.
-		if ( priorityLabels.length === 1 && isBugIssue && inferred ) {
+		if ( priorityLabels.length === 1 && isBug && inferred ) {
 			const inferredPriority = priorityLabels[ 0 ];
 			debug( `triage-issues: Adding ${ inferredPriority } label to issue #${ number }` );
 
@@ -103,11 +104,11 @@ async function triageIssues( payload, octokit ) {
 	}
 
 	// Triage the issue to a Project board if necessary and possible.
-	await updateBoard( payload, octokit, isBugIssue, priorityLabels );
+	await updateBoard( payload, octokit, issueType, priorityLabels );
 
 	// Send a Slack notification to Product ambassadors if the issue is important.
 	if (
-		isBugIssue &&
+		isBug &&
 		qualityChannel &&
 		priorityLabels.length > 0 &&
 		( priorityLabels.includes( '[Pri] BLOCKER' ) || priorityLabels.includes( '[Pri] High' ) )
