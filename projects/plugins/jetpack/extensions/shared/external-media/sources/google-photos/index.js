@@ -1,4 +1,5 @@
-import { useEffect } from 'react';
+import { Spinner } from '@wordpress/components';
+import { useEffect, useState } from 'react';
 import { MediaSource } from '../../media-service/types';
 import withMedia from '../with-media';
 import GooglePhotosAuth from './google-photos-auth';
@@ -6,7 +7,14 @@ import GooglePhotosMedia from './google-photos-media';
 import GooglePhotosPickerButton from './google-photos-picker-button';
 
 function GooglePhotos( props ) {
-	const { pickerSession, createPickerSession } = props;
+	const { pickerSession, createPickerSession, getPickerStatus } = props;
+	const [ pickerFeatureEnabled, setPickerFeatureEnabled ] = useState( null );
+
+	useEffect( () => {
+		getPickerStatus().then( feature => {
+			feature && setPickerFeatureEnabled( feature.enabled );
+		} );
+	}, [ getPickerStatus ] );
 
 	useEffect( () => {
 		if ( ! pickerSession ) {
@@ -14,15 +22,23 @@ function GooglePhotos( props ) {
 		}
 	}, [ pickerSession, createPickerSession ] );
 
+	if ( pickerFeatureEnabled === null ) {
+		return (
+			<div className="jetpack-external-media__spinner-container">
+				<Spinner />
+			</div>
+		);
+	}
+
 	if ( ! props.isAuthenticated ) {
 		return <GooglePhotosAuth { ...props } />;
 	}
 
-	if ( ! props.pickerSession?.mediaItemsSet ) {
+	if ( pickerFeatureEnabled && ! props.pickerSession?.mediaItemsSet ) {
 		return <GooglePhotosPickerButton { ...props } />;
 	}
 
-	return <GooglePhotosMedia { ...props } />;
+	return <GooglePhotosMedia pickerFeatureEnabled { ...props } />;
 }
 
 export default withMedia( MediaSource.GooglePhotos )( GooglePhotos );
