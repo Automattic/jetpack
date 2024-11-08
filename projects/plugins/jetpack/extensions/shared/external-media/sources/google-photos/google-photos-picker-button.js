@@ -1,10 +1,23 @@
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, external } from '@wordpress/icons';
+import { useEffect } from 'react';
 import mediaImage from '../../../../../images/media.svg';
 
 export default function GooglePhotosPickerButton( props ) {
-	const { pickerSession } = props;
+	const { pickerSession, featchPickerSession } = props;
+	const isButtonBusy = ! pickerSession;
+
+	const openPicker = () => {
+		pickerSession?.pickerUri && window.open( pickerSession.pickerUri );
+	};
+
+	useEffect( () => {
+		const interval = setInterval( () => {
+			pickerSession.id && featchPickerSession( pickerSession.id );
+		}, 5000 );
+		return () => clearInterval( interval );
+	}, [ featchPickerSession, pickerSession?.id ] );
 
 	return (
 		<div className="jetpack-external-media__google-photos-picker">
@@ -13,7 +26,12 @@ export default function GooglePhotosPickerButton( props ) {
 			<h1>{ __( 'Google Photos', 'jetpack' ) }</h1>
 			<p>{ __( 'Select photos directly from your Google Photos library.', 'jetpack' ) }</p>
 
-			<Button variant="primary" isBusy={ ! pickerSession }>
+			<Button
+				variant="primary"
+				isBusy={ isButtonBusy }
+				disabled={ isButtonBusy }
+				onClick={ openPicker }
+			>
 				{ __( 'Open Google Photos Picker', 'jetpack' ) }
 				&nbsp;
 				<Icon icon={ external } size={ 18 } />
