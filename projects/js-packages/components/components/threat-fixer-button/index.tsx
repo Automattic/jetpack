@@ -7,7 +7,7 @@ import {
 	fixerStatusIsStale,
 } from '@automattic/jetpack-scan';
 import { ExternalLink, Tooltip } from '@wordpress/components';
-import { createInterpolateElement, useCallback, useMemo } from '@wordpress/element';
+import { createInterpolateElement, useCallback, useMemo, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import styles from './styles.module.scss';
 
@@ -30,6 +30,8 @@ export default function ThreatFixerButton( {
 	onClick: ( items: Threat[] ) => void;
 	className?: string;
 } ): JSX.Element {
+	const [ showPopover, setShowPopover ] = useState( false );
+
 	const fixerState = useMemo( () => {
 		const inProgress = threat.fixer && fixerIsInProgress( threat.fixer );
 		const error = threat.fixer && fixerIsInError( threat.fixer );
@@ -138,9 +140,13 @@ export default function ThreatFixerButton( {
 		[ onClick, threat ]
 	);
 
-	const handleDisabledClick = useCallback( ( event: React.MouseEvent ) => {
-		event.stopPropagation();
-	}, [] );
+	const handleDisabledClick = useCallback(
+		( event: React.MouseEvent ) => {
+			event.stopPropagation();
+			setShowPopover( ! showPopover );
+		},
+		[ showPopover ]
+	);
 
 	if ( ! threat.fixable ) {
 		return null;
@@ -169,6 +175,7 @@ export default function ThreatFixerButton( {
 				<IconTooltip
 					className={ styles[ 'icon-tooltip' ] }
 					hoverShow
+					forceShow={ showPopover }
 					popoverAnchorStyle="wrapper"
 					placement="bottom"
 					offset={ -5 }
