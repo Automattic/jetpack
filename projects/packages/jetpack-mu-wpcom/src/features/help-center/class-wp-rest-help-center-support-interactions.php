@@ -219,4 +219,34 @@ class WP_REST_Help_Center_Support_Interactions extends \WP_REST_Controller {
 
 		return rest_ensure_response( $response );
 	}
+
+	/**
+	 * Update support interaction status.
+	 *
+	 * @param \WP_REST_Request $request    The request sent to the API.
+	 */
+	public function update_support_interaction_status( \WP_REST_Request $request ) {
+		$support_interaction_id = isset( $request['support_interaction_id'] ) ? (int) $request['support_interaction_id'] : null;
+
+		$data = array(
+			'status' => $request['status'],
+		);
+
+		$body = Client::wpcom_json_api_request_as_user(
+			"/support-interactions/$support_interaction_id/status",
+			'2',
+			array(
+				'method' => 'PUT',
+				'body'   => $data,
+			)
+		);
+
+		if ( is_wp_error( $body ) ) {
+			return $body;
+		}
+
+		$response = json_decode( wp_remote_retrieve_body( $body ) );
+
+		return rest_ensure_response( $response );
+	}
 }
