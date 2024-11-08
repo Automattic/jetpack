@@ -180,7 +180,7 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 			array(
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_picker_status' ),
-				'permission_callback' => array( $this, 'permissions_check' ),
+				'permission_callback' => array( $this, 'permission_callback' ),
 			)
 		);
 
@@ -191,7 +191,7 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 			array(
 				'methods'             => \WP_REST_Server::CREATABLE,
 				'callback'            => array( $this, 'create_session' ),
-				'permission_callback' => array( $this, 'permissions_check' ),
+				'permission_callback' => array( $this, 'permission_callback' ),
 			)
 		);
 
@@ -201,7 +201,7 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 			array(
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_session' ),
-				'permission_callback' => array( $this, 'permissions_check' ),
+				'permission_callback' => array( $this, 'permission_callback' ),
 			)
 		);
 
@@ -212,7 +212,7 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 			array(
 				'methods'             => \WP_REST_Server::DELETABLE,
 				'callback'            => array( $this, 'delete_session' ),
-				'permission_callback' => array( $this, 'permissions_check' ),
+				'permission_callback' => array( $this, 'permission_callback' ),
 			)
 		);
 	}
