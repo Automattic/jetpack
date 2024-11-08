@@ -174,6 +174,7 @@ export default function useAiImage( {
 										image,
 										libraryId: savedImage?.id,
 										libraryUrl: savedImage?.url,
+										revised_prompt: result.data[ 0 ].revised_prompt,
 									} );
 								} )
 								.catch( () => {
