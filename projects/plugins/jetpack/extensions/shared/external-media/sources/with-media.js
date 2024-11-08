@@ -239,21 +239,21 @@ export default function withMedia( mediaSource = MediaSource.Unknown ) {
 
 			createPickerSession = () => {
 				apiFetch( {
-					path: '/wpcom/v2/meta/external-media/session/google_photos',
+					path: '/wpcom/v2/external-media/session/google_photos',
 					method: 'POST',
 				} ).then( setGooglePhotosPickerSession );
 			};
 
 			fetchPickerSession = sessionId => {
 				apiFetch( {
-					path: `/wpcom/v2/meta/external-media/session/google_photos/${ sessionId }`,
+					path: `/wpcom/v2/external-media/session/google_photos/${ sessionId }`,
 					method: 'GET',
 				} ).then( setGooglePhotosPickerSession );
 			};
 
 			deletePickerSession = sessionId => {
 				apiFetch( {
-					path: `/wpcom/v2/meta/external-media/session/google_photos/${ sessionId }`,
+					path: `/wpcom/v2/external-media/session/google_photos/${ sessionId }`,
 					method: 'DELETE',
 				} ).then( () => setGooglePhotosPickerSession( null ) );
 			};
