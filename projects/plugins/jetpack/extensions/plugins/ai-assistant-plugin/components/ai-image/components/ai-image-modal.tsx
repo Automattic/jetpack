@@ -98,7 +98,7 @@ export default function AiImageModal( {
 	}, [ onTryAgain, userPrompt, style ] );
 
 	const handleGenerate = useCallback( async () => {
-		if ( style === IMAGE_STYLE_AUTO ) {
+		if ( style === IMAGE_STYLE_AUTO && onGuessStyle ) {
 			recordTracksEvent( 'jetpack_ai_general_image_guess_style', {
 				context: 'block-editor',
 				tool: 'image',
