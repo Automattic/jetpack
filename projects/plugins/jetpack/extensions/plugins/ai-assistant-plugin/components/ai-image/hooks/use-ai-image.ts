@@ -210,7 +210,11 @@ export default function useAiImage( {
 	}, [ current, images.length ] );
 
 	const guessStyle = useCallback(
-		async function ( prompt: string ): Promise< ImageStyle | null > {
+		async function (
+			prompt: string,
+			requestType: string = '',
+			content: string = ''
+		): Promise< ImageStyle | null > {
 			if ( ! imageStyles || ! imageStyles.length ) {
 				return null;
 			}
@@ -219,8 +223,9 @@ export default function useAiImage( {
 				{
 					role: 'jetpack-ai' as RoleType,
 					context: {
-						type: 'general-image-guess-style',
+						type: requestType || 'general-image-guess-style',
 						request: prompt,
+						content,
 					},
 				},
 			];
