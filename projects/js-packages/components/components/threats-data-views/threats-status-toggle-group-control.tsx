@@ -106,14 +106,14 @@ export default function ThreatsStatusToggleGroupControl( {
 
 	const selectedValue = useMemo( () => {
 		if ( isStatusFilterSelected( [ 'current' ] ) ) {
-		    return 'active' as const;
+			return 'active' as const;
 		}
 		if ( isStatusFilterSelected( [ 'fixed', 'ignored' ] ) ) {
 			return 'historic' as const;
 		}
 		return '' as const;
 	}, [ isStatusFilterSelected ] );
-	
+
 	if ( ! ( activeThreatsCount + historicThreatsCount ) ) {
 		return null;
 	}
