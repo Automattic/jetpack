@@ -9,8 +9,8 @@
  */
 return [
     // # Issue statistics:
+    // PhanTypeMismatchReturnProbablyReal : 40+ occurrences
     // PhanTypeMismatchArgument : 35+ occurrences
-    // PhanTypeMismatchReturnProbablyReal : 35+ occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 30+ occurrences
     // PhanTypeMismatchReturn : 20+ occurrences
     // PhanUndeclaredProperty : 20+ occurrences
@@ -19,6 +19,7 @@ return [
     // PhanPluginSimplifyExpressionBool : 9 occurrences
     // PhanPossiblyUndeclaredVariable : 8 occurrences
     // PhanPluginDuplicateSwitchCaseLooseEquality : 6 occurrences
+    // PhanUndeclaredTypeReturnType : 6 occurrences
     // PhanNonClassMethodCall : 5 occurrences
     // PhanRedundantCondition : 4 occurrences
     // PhanTypeExpectedObjectPropAccess : 4 occurrences
@@ -81,6 +82,8 @@ return [
         'src/modules/class-woocommerce-hpos-orders.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
         'src/modules/class-woocommerce.php' => ['PhanTypeMismatchReturnProbablyReal'],
         'src/replicastore/class-table-checksum.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchPropertyDefault', 'PhanTypeMismatchPropertyProbablyReal'],
+        'src/sync-queue/class-queue-storage-options.php' => ['PhanUndeclaredTypeReturnType'],
+        'src/sync-queue/class-queue-storage-table.php' => ['PhanUndeclaredTypeReturnType'],
         'tests/php/test-actions.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal'],
         'tests/php/test-dedicated-sender.php' => ['PhanDeprecatedFunction', 'PhanUndeclaredProperty'],
         'tests/php/test-rest-endpoints.php' => ['PhanNoopNew', 'PhanTypeMismatchReturn'],
