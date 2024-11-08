@@ -147,8 +147,8 @@ export default function ThreatsDataViews( {
 	/**
 	 * Compute values from the provided threats data.
 	 *
-	 * @member {object[]} themes - List of unique threat themes.
-	 * @member {object[]} plugins - List of unique threat plugins.
+	 * @member {object[]} themes    - List of unique themes included in the threats data.
+	 * @member {object[]} plugins   - plugins included in the threats data.
 	 * @member {object[]} signatures - List of unique threat signatures.
 	 * @member {string[]}    dataFields - List of unique fields.
 	 */
