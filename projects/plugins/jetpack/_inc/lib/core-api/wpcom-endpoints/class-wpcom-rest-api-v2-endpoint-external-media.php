@@ -121,6 +121,10 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 					'page_handle' => array(
 						'type' => 'string',
 					),
+					'session_id'  => array(
+						'description' => __( 'Session id of a service, currently only Google Photos Picker', 'jetpack' ),
+						'type'        => 'string',
+					),
 				),
 			)
 		);
@@ -166,6 +170,48 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 			array(
 				'methods'             => \WP_REST_Server::DELETABLE,
 				'callback'            => array( $this, 'delete_connection' ),
+				'permission_callback' => array( $this, 'permission_callback' ),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
+			$this->rest_base . '/connection/(?P<service>google_photos)/picker_status',
+			array(
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_picker_status' ),
+				'permission_callback' => array( $this, 'permission_callback' ),
+			)
+		);
+
+		// Add new session routes
+		register_rest_route(
+			$this->namespace,
+			$this->rest_base . '/session/(?P<service>google_photos)',
+			array(
+				'methods'             => \WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'create_session' ),
+				'permission_callback' => array( $this, 'permission_callback' ),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
+			$this->rest_base . '/session/(?P<service>google_photos)/(?P<session_id>.*)',
+			array(
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_session' ),
+				'permission_callback' => array( $this, 'permission_callback' ),
+			)
+		);
+
+		// Add this new route in the register_routes() method
+		register_rest_route(
+			$this->namespace,
+			$this->rest_base . '/session/(?P<service>google_photos)/(?P<session_id>.*)',
+			array(
+				'methods'             => \WP_REST_Server::DELETABLE,
+				'callback'            => array( $this, 'delete_session' ),
 				'permission_callback' => array( $this, 'permission_callback' ),
 			)
 		);
@@ -282,7 +328,7 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 		$service_args = array_filter(
 			$params,
 			function ( $key ) {
-				return in_array( $key, array( 'search', 'number', 'path', 'page_handle', 'filter' ), true );
+				return in_array( $key, array( 'search', 'number', 'path', 'page_handle', 'filter', 'session_id' ), true );
 			},
 			ARRAY_FILTER_USE_KEY
 		);
@@ -414,6 +460,120 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			$internal_request = new WP_REST_Request( 'DELETE', '/' . $this->namespace . $wpcom_path );
+			$internal_request->set_query_params( $request->get_params() );
+
+			return rest_do_request( $internal_request );
+		}
+
+		$response = Client::wpcom_json_api_request_as_user(
+			$wpcom_path,
+			'2',
+			array(
+				'method' => 'DELETE',
+			)
+		);
+
+		return json_decode( wp_remote_retrieve_body( $response ), true );
+	}
+
+	/**
+	 * Gets Google Photos Picker enabled Status.
+	 *
+	 * @param \WP_REST_Request $request Full details about the request.
+	 * @return array|\WP_Error|mixed
+	 */
+	public function get_picker_status( \WP_REST_Request $request ) {
+		$service    = $request->get_param( 'service' );
+		$wpcom_path = sprintf( '/meta/external-media/connection/%s/picker_status', rawurlencode( $service ) );
+
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$internal_request = new \WP_REST_Request( 'GET', '/' . $this->namespace . $wpcom_path );
+			$internal_request->set_query_params( $request->get_params() );
+
+			return rest_do_request( $internal_request );
+		}
+
+		$response = Client::wpcom_json_api_request_as_user(
+			$wpcom_path,
+			'2',
+			array(
+				'method' => 'GET',
+			)
+		);
+
+		return json_decode( wp_remote_retrieve_body( $response ), true );
+	}
+
+	/**
+	 * Creates a new session for a service.
+	 *
+	 * @param \WP_REST_Request $request Full details about the request.
+	 * @return array|\WP_Error|mixed
+	 */
+	public function create_session( \WP_REST_Request $request ) {
+		$service    = $request->get_param( 'service' );
+		$wpcom_path = sprintf( '/meta/external-media/session/%s', rawurlencode( $service ) );
+
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$internal_request = new \WP_REST_Request( 'POST', '/' . $this->namespace . $wpcom_path );
+			$internal_request->set_query_params( $request->get_params() );
+
+			return rest_do_request( $internal_request );
+		}
+
+		$response = Client::wpcom_json_api_request_as_user(
+			$wpcom_path,
+			'2',
+			array(
+				'method' => 'POST',
+			)
+		);
+
+		return json_decode( wp_remote_retrieve_body( $response ), true );
+	}
+
+	/**
+	 * Gets a session for a service.
+	 *
+	 * @param \WP_REST_Request $request Full details about the request.
+	 * @return array|\WP_Error|mixed
+	 */
+	public function get_session( \WP_REST_Request $request ) {
+		$service    = $request->get_param( 'service' );
+		$session_id = $request->get_param( 'session_id' );
+		$wpcom_path = sprintf( '/meta/external-media/session/%s/%s', rawurlencode( $service ), rawurlencode( $session_id ) );
+
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$internal_request = new \WP_REST_Request( 'GET', '/' . $this->namespace . $wpcom_path );
+			$internal_request->set_query_params( $request->get_params() );
+
+			return rest_do_request( $internal_request );
+		}
+
+		$response = Client::wpcom_json_api_request_as_user(
+			$wpcom_path,
+			'2',
+			array(
+				'method' => 'GET',
+			)
+		);
+
+		return json_decode( wp_remote_retrieve_body( $response ), true );
+	}
+
+	/**
+	 * Deletes a session for a service.
+	 *
+	 * @param \WP_REST_Request $request Full details about the request.
+	 * @return array|\WP_Error|mixed
+	 */
+	public function delete_session( \WP_REST_Request $request ) {
+		$service    = $request->get_param( 'service' );
+		$session_id = $request->get_param( 'session_id' );
+		$wpcom_path = sprintf( '/meta/external-media/session/%s/%s', rawurlencode( $service ), rawurlencode( $session_id ) );
+
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$internal_request = new \WP_REST_Request( 'DELETE', '/' . $this->namespace . $wpcom_path );
 			$internal_request->set_query_params( $request->get_params() );
 
 			return rest_do_request( $internal_request );
