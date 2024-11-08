@@ -104,18 +104,21 @@ export default function ThreatsStatusToggleGroupControl( {
 		[ view.filters ]
 	);
 
-	try {
-		if ( ! ( activeThreatsCount + historicThreatsCount ) ) {
-			return null;
-		}
-
-		let selectedValue = '';
+	const selectedValue = useMemo( () => {
 		if ( isStatusFilterSelected( [ 'current' ] ) ) {
-			selectedValue = 'active';
-		} else if ( isStatusFilterSelected( [ 'fixed', 'ignored' ] ) ) {
-			selectedValue = 'historic';
+		    return 'active' as const;
 		}
+		if ( isStatusFilterSelected( [ 'fixed', 'ignored' ] ) ) {
+			return 'historic' as const;
+		}
+		return '' as const;
+	}, [ isStatusFilterSelected ] );
+	
+	if ( ! ( activeThreatsCount + historicThreatsCount ) ) {
+		return null;
+	}
 
+	try {
 		return (
 			<ToggleGroupControl
 				className={ styles[ 'toggle-group-control' ] }
