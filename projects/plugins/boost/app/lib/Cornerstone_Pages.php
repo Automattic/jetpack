@@ -14,7 +14,7 @@ class Cornerstone_Pages implements Has_Setup {
 	public function setup() {
 		add_filter( 'jetpack_boost_critical_css_providers', array( $this, 'remove_ccss_front_page_provider' ), 10, 2 );
 		add_filter( 'display_post_states', array( $this, 'add_display_post_states' ), 10, 2 );
-		add_action( 'init', array( $this, 'register_ds_stores' ) );
+		add_action( 'init', array( $this, 'register_ds_stores' ), 0 );
 	}
 
 	public function register_ds_stores() {
