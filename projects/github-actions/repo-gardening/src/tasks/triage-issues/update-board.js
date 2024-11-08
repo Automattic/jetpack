@@ -155,12 +155,19 @@ async function getIssueProjectItemId( octokit, projectInfo, repoName, issueId ) 
 /**
  * Add Issue to our project board.
  *
+ * @param {object} payload     - Issue event payload.
  * @param {GitHub} octokit     - Initialized Octokit REST client.
  * @param {object} projectInfo - Info about our project board.
- * @param {string} node_id     - The node_id of the Issue.
  * @return {Promise<string>} - Info about the project item id that was created.
  */
-async function addIssueToBoard( octokit, projectInfo, node_id ) {
+async function addIssueToBoard( payload, octokit, projectInfo ) {
+	const {
+		issue: { number, node_id },
+		repository: {
+			owner: { login: ownerLogin },
+			name,
+		},
+	} = payload;
 	const { projectNodeId } = projectInfo;
 
 	// Add our PR to that project board.
@@ -187,6 +194,14 @@ async function addIssueToBoard( octokit, projectInfo, node_id ) {
 	}
 
 	debug( `triage-issues > update-board: Added issue to project board.` );
+
+	// Add label to indicate that the issue was automatically triaged.
+	await octokit.rest.issues.addLabels( {
+		owner: ownerLogin,
+		repo: name,
+		issue_number: number,
+		labels: [ '[Status] Automatically triaged to project board' ],
+	} );
 
 	return projectItemId;
 }
@@ -440,7 +455,7 @@ async function assignTeam(
 ) {
 	const {
 		action,
-		issue: { number, node_id },
+		issue: { number },
 		label = {},
 		repository: { owner, name },
 	} = payload;
@@ -523,7 +538,7 @@ async function assignTeam(
 				`triage-issues > update-board: Issue #${ number } is not on our project board. Let’s add it.`
 			);
 
-			featureIssueItemId = await addIssueToBoard( octokit, featureProjectInfo, node_id );
+			featureIssueItemId = await addIssueToBoard( payload, octokit, featureProjectInfo );
 			if ( ! featureIssueItemId ) {
 				debug( `triage-issues > update-board: Failed to add issue to project board. Aborting.` );
 				return projectItemId;
@@ -545,7 +560,7 @@ async function assignTeam(
  */
 async function updateBoard( payload, octokit, isBugIssue, priorityLabels ) {
 	const { action, issue, label = {}, repository } = payload;
-	const { number, node_id } = issue;
+	const { number } = issue;
 	const { owner, name } = repository;
 	const ownerLogin = owner.login;
 
@@ -598,7 +613,7 @@ async function updateBoard( payload, octokit, isBugIssue, priorityLabels ) {
 		debug(
 			`triage-issues > update-board: Issue #${ number } is a bug. Adding it to our project board.`
 		);
-		projectItemId = await addIssueToBoard( projectOctokit, projectInfo, node_id );
+		projectItemId = await addIssueToBoard( payload, projectOctokit, projectInfo );
 		if ( ! projectItemId ) {
 			debug( `triage-issues > update-board: Failed to add issue to project board. Aborting.` );
 			return;
