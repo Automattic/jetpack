@@ -177,6 +177,13 @@ class Contact_Form_Block {
 				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_field_file' ),
 			)
 		);
+
+		Blocks::jetpack_register_block(
+			'jetpack/field-number',
+			array(
+				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_field_number' ),
+			)
+		);
 	}
 
 	/**
