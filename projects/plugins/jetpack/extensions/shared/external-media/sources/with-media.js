@@ -258,6 +258,13 @@ export default function withMedia( mediaSource = MediaSource.Unknown ) {
 				} ).then( () => setGooglePhotosPickerSession( null ) );
 			};
 
+			getPickerStatus = () => {
+				return apiFetch( {
+					path: '/wpcom/v2/external-media/connection/google_photos/picker_status',
+					method: 'GET',
+				} );
+			};
+
 			mapImageToResult = image => ( {
 				alt: image.name,
 				caption: image.caption,
@@ -363,6 +370,7 @@ export default function withMedia( mediaSource = MediaSource.Unknown ) {
 								createPickerSession={ this.createPickerSession }
 								featchPickerSession={ this.fetchPickerSession }
 								deletePickerSession={ this.deletePickerSession }
+								getPickerStatus={ this.getPickerStatus }
 							/>
 						</div>
 					</Modal>
