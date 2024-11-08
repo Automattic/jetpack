@@ -1,15 +1,15 @@
 import { getThreatType, type Threat } from '@automattic/jetpack-scan';
 import {
-	Action,
-	ActionButton,
-	DataViews,
-	Field,
-	FieldType,
-	Filter,
-	filterSortAndPaginate,
-	SortDirection,
-	SupportedLayouts,
+	type Action,
+	type ActionButton,
+	type Field,
+	type FieldType,
+	type Filter,
+	type SortDirection,
+	type SupportedLayouts,
 	type View,
+	DataViews,
+	filterSortAndPaginate,
 } from '@wordpress/dataviews';
 import { dateI18n } from '@wordpress/date';
 import { __ } from '@wordpress/i18n';
