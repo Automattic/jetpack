@@ -39,6 +39,7 @@ class WPCOM_Additional_CSS_Manager {
 		$plan_name = $this->get_plan()->product_name_short;
 
 		$nudge_url  = $this->get_nudge_url();
+		/* translators: %s is the plan name. */
 		$nudge_text = sprintf( __( 'Purchase the %s plan to<br> activate CSS customization', 'jetpack-masterbar' ), $plan_name );
 
 		$nudge = new CSS_Customizer_Nudge(
@@ -59,6 +60,11 @@ class WPCOM_Additional_CSS_Manager {
 		return '/checkout/' . $this->domain . '/' . $this->get_plan()->path_slug;
 	}
 
+	/**
+	 * Get the plan.
+	 *
+	 * @return mixed
+	 */
 	private function get_plan() {
 		$plan_slug = \WPCOM_Feature_Flags::is_enabled( \WPCOM_Feature_Flags::GLOBAL_STYLES_ON_PERSONAL_PLAN ) ? 'personal-bundle' : 'value_bundle';
 
