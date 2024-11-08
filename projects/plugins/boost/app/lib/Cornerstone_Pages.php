@@ -105,6 +105,10 @@ class Cornerstone_Pages implements Has_Setup {
 
 	public function get_pages() {
 		$pages = jetpack_boost_ds_get( 'cornerstone_pages_list' );
+		// This is in case the DS store is not initialized yet.
+		if ( empty( $pages ) ) {
+			$pages = $this->default_pages();
+		}
 
 		$permalink_structure = get_option( 'permalink_structure' );
 
