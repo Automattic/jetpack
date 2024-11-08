@@ -150,7 +150,7 @@ export default function ThreatsDataViews( {
 	 * @member {object[]} themes - List of unique threat themes.
 	 * @member {object[]} plugins - List of unique threat plugins.
 	 * @member {object[]} signatures - List of unique threat signatures.
-	 * @member {Array}    dataFields - List of unique fields.
+	 * @member {string[]}    dataFields - List of unique fields.
 	 */
 	const {
 		themes,
