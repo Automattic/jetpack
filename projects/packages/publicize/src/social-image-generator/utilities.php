@@ -26,12 +26,11 @@ function get_image_url( $post_id ) {
 		return '';
 	}
 
-	$url = add_query_arg(
-		array( 'query' => rawurlencode( 't=' . $token ) ),
-		Redirect::get_url( 'sigenerate', array( 'site' => null ) )
-	);
+	$base_url = Redirect::get_url( 'sigenerate', array( 'site' => null ) );
+	$token_param = 't=' . rawurlencode( $token );
+	$url = $base_url . '?source=sigenerate&query=' . $token_param;
 
-	return htmlspecialchars_decode( $url, ENT_QUOTES );
+	return $url;
 }
 
 /**
