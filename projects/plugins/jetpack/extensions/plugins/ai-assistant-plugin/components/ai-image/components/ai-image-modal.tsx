@@ -31,7 +31,6 @@ export default function AiImageModal( {
 	title,
 	cost,
 	open,
-	placement,
 	images,
 	currentIndex = 0,
 	onClose = null,
@@ -53,6 +52,8 @@ export default function AiImageModal( {
 	instructionsPlaceholder = null,
 	imageStyles = [],
 	onGuessStyle = null,
+	initialPrompt = '',
+	initialStyle = null,
 }: {
 	title: string;
 	cost: number;
@@ -81,10 +82,12 @@ export default function AiImageModal( {
 	instructionsPlaceholder: string;
 	imageStyles?: Array< ImageStyleObject >;
 	onGuessStyle?: ( userPrompt: string ) => Promise< ImageStyle >;
+	initialPrompt?: string;
+	initialStyle?: ImageStyle;
 } ) {
 	const { tracks } = useAnalytics();
 	const { recordEvent: recordTracksEvent } = tracks;
-	const [ userPrompt, setUserPrompt ] = useState( '' );
+	const [ userPrompt, setUserPrompt ] = useState( initialPrompt );
 	const triggeredAutoGeneration = useRef( false );
 	const [ showStyleSelector, setShowStyleSelector ] = useState( false );
 	const [ style, setStyle ] = useState< ImageStyle >( null );
@@ -136,10 +139,10 @@ export default function AiImageModal( {
 		if ( autoStart && open ) {
 			if ( ! triggeredAutoGeneration.current ) {
 				triggeredAutoGeneration.current = true;
-				autoStartAction?.( { userPrompt } );
+				autoStartAction?.( {} );
 			}
 		}
-	}, [ placement, handleGenerate, autoStart, autoStartAction, userPrompt, open ] );
+	}, [ autoStart, autoStartAction, open ] );
 
 	// initialize styles dropdown
 	useEffect( () => {
@@ -155,9 +158,11 @@ export default function AiImageModal( {
 				].filter( v => v ) // simplest way to get rid of empty values
 			);
 			setShowStyleSelector( true );
-			setStyle( IMAGE_STYLE_NONE );
+			setStyle( initialStyle || IMAGE_STYLE_NONE );
 		}
-	}, [ imageStyles ] );
+	}, [ imageStyles, initialStyle ] );
+
+	useEffect( () => setUserPrompt( initialPrompt ), [ initialPrompt ] );
 
 	return (
 		<>
