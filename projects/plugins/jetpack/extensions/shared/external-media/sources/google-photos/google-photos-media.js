@@ -33,6 +33,8 @@ function GooglePhotosMedia( props ) {
 		path,
 		setAuthenticated,
 		showAdditionalFilters = false,
+		pickerSession,
+		pickerFeatureEnabled,
 	} = props;
 
 	const imageOnly = isImageOnly( allowedTypes );
@@ -49,8 +51,12 @@ function GooglePhotosMedia( props ) {
 		number: 20,
 		path: path.ID,
 	};
-	if ( filterQuery ) {
+	if ( ! pickerFeatureEnabled && filterQuery ) {
 		params.filter = filterQuery;
+	}
+
+	if ( pickerFeatureEnabled && pickerSession ) {
+		params.session_id = pickerSession.id;
 	}
 
 	const listUrl = getApiUrl( 'list', SOURCE_GOOGLE_PHOTOS, params );
@@ -89,38 +95,44 @@ function GooglePhotosMedia( props ) {
 	return (
 		<div className="jetpack-external-media-wrapper__google">
 			<div className="jetpack-external-media-header__view">
-				<SelectControl
-					className="jetpack-external-media-header__select"
-					label={ __( 'View', 'jetpack' ) }
-					value={ path.ID !== PATH_RECENT ? PATH_ROOT : PATH_RECENT }
-					disabled={ isLoading || isCopying }
-					options={ PATH_OPTIONS }
-					onChange={ setPath }
-					__nextHasNoMarginBottom={ true }
-				/>
+				{ ! pickerFeatureEnabled && (
+					<>
+						{
+							<SelectControl
+								className="jetpack-external-media-header__select"
+								label={ __( 'View', 'jetpack' ) }
+								value={ path.ID !== PATH_RECENT ? PATH_ROOT : PATH_RECENT }
+								disabled={ isLoading || isCopying }
+								options={ PATH_OPTIONS }
+								onChange={ setPath }
+								__nextHasNoMarginBottom={ true }
+							/>
+						}
 
-				{ showAdditionalFilters && path.ID === PATH_RECENT && (
-					<GoogleFilterView
-						filters={ filters }
-						isLoading={ isLoading }
-						setFilters={ setFilters }
-						canChangeMedia={ ! imageOnly }
-					/>
+						{ showAdditionalFilters && path.ID === PATH_RECENT && (
+							<GoogleFilterView
+								filters={ filters }
+								isLoading={ isLoading }
+								setFilters={ setFilters }
+								canChangeMedia={ ! imageOnly }
+							/>
+						) }
+
+						<div className="jetpack-external-media-header__filter">
+							{ path.ID === PATH_RECENT && (
+								<GoogleFilterOption
+									filters={ filters }
+									isLoading={ isLoading }
+									setFilters={ setFilters }
+									canChangeMedia={ ! imageOnly }
+								/>
+							) }
+							{ path.ID !== PATH_RECENT && path.ID !== PATH_ROOT && (
+								<Breadcrumbs path={ path } setPath={ setPath } />
+							) }
+						</div>
+					</>
 				) }
-
-				<div className="jetpack-external-media-header__filter">
-					{ path.ID === PATH_RECENT && (
-						<GoogleFilterOption
-							filters={ filters }
-							isLoading={ isLoading }
-							setFilters={ setFilters }
-							canChangeMedia={ ! imageOnly }
-						/>
-					) }
-					{ path.ID !== PATH_RECENT && path.ID !== PATH_ROOT && (
-						<Breadcrumbs path={ path } setPath={ setPath } />
-					) }
-				</div>
 
 				{ ( ! isLoading || media.length > 0 ) && (
 					<GooglePhotosAccount account={ account } setAuthenticated={ setAuthenticated } />
