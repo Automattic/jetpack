@@ -30,6 +30,12 @@ type ImageFeatureControl = FeatureControl & {
 
 type AiImageType = 'featured-image-generation' | 'general-image-generation';
 type AiImageFeature = typeof FEATURED_IMAGE_FEATURE_NAME | typeof GENERAL_IMAGE_FEATURE_NAME;
+export type ImageResponse = {
+	image?: string;
+	libraryId?: string;
+	libraryUrl?: string;
+	revisedPrompt?: string;
+};
 
 export default function useAiImage( {
 	feature,
@@ -115,7 +121,7 @@ export default function useAiImage( {
 			notEnoughRequests: boolean;
 			style?: string;
 		} ) => {
-			return new Promise( ( resolve, reject ) => {
+			return new Promise< ImageResponse >( ( resolve, reject ) => {
 				updateImages( { generating: true, error: null }, pointer.current );
 
 				// Ensure the site has enough requests to generate the image.
@@ -174,7 +180,7 @@ export default function useAiImage( {
 										image,
 										libraryId: savedImage?.id,
 										libraryUrl: savedImage?.url,
-										revised_prompt: result.data[ 0 ].revised_prompt,
+										revisedPrompt: result.data[ 0 ].revised_prompt || '',
 									} );
 								} )
 								.catch( () => {
