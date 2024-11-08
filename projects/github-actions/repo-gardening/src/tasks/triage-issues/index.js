@@ -97,10 +97,10 @@ async function triageIssues( payload, octokit ) {
 				await sendSlackMessage( message, qualityChannel, payload, slackMessageFormat );
 			}
 		}
-	}
 
-	// Use OpenAI to automatically add labels to issues.
-	await aiLabeling( payload, octokit );
+		// Use OpenAI to automatically add labels to issues.
+		await aiLabeling( payload, octokit );
+	}
 
 	// Triage the issue to a Project board if necessary and possible.
 	await updateBoard( payload, octokit, isBugIssue, priorityLabels );
