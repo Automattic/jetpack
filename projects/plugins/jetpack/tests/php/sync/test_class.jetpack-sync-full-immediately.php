@@ -1320,6 +1320,32 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( ! empty( $start_event ) );
 	}
 
+	public function test_full_sync_sends_actions_sorted_by_config_constants_always_first() {
+		$post_id = self::factory()->post->create();
+		self::factory()->comment->create_post_comments( $post_id );
+
+		$this->full_sync->start(
+			array(
+				'terms' => true,
+				'users' => true,
+			)
+		);
+		$this->sender->do_full_sync();
+
+		$this->full_sync->continue_sending();
+		$this->sender->do_full_sync();
+
+		$events                       = $this->server_event_storage->get_all_events();
+		$expected_events_action_names = array(
+			'jetpack_full_sync_start',
+			'jetpack_full_sync_terms',
+			'jetpack_full_sync_users',
+			'jetpack_full_sync_end',
+		);
+		$actual_events_action_names   = wp_list_pluck( $events, 'action' );
+		$this->assertEquals( $expected_events_action_names, $actual_events_action_names );
+	}
+
 	public function test_full_sync_sends_actions_sorted_by_config() {
 		$post_id = self::factory()->post->create();
 		self::factory()->comment->create_post_comments( $post_id );
@@ -1341,9 +1367,9 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 		$events                       = $this->server_event_storage->get_all_events();
 		$expected_events_action_names = array(
 			'jetpack_full_sync_start',
+			'jetpack_full_sync_constants',
 			'jetpack_full_sync_posts',
 			'jetpack_full_sync_users',
-			'jetpack_full_sync_constants',
 			'jetpack_full_sync_comments',
 			'jetpack_full_sync_terms',
 			'jetpack_full_sync_end',

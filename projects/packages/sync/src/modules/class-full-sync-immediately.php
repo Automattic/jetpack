@@ -425,7 +425,12 @@ class Full_Sync_Immediately extends Module {
 				true === $status['progress'][ $module_name ]['finished'] ) {
 					continue;
 			}
-			$remaining_modules[] = $module;
+			// Ensure that 'constants', 'options', and 'callables' are sent first.
+			if ( in_array( $module_name, array( 'network_options', 'options', 'functions', 'constants' ), true ) ) {
+				array_unshift( $remaining_modules, $module );
+			} else {
+				$remaining_modules[] = $module;
+			}
 		}
 		return $remaining_modules;
 	}
