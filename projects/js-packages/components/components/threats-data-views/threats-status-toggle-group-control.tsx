@@ -104,50 +104,54 @@ export default function ThreatsStatusToggleGroupControl( {
 		[ view.filters ]
 	);
 
-	if ( ! ( activeThreatsCount + historicThreatsCount ) ) {
+	try {
+		if ( ! ( activeThreatsCount + historicThreatsCount ) ) {
+			return null;
+		}
+
+		let selectedValue = '';
+		if ( isStatusFilterSelected( [ 'current' ] ) ) {
+			selectedValue = 'active';
+		} else if ( isStatusFilterSelected( [ 'fixed', 'ignored' ] ) ) {
+			selectedValue = 'historic';
+		}
+
+		return (
+			<ToggleGroupControl
+				className={ styles[ 'toggle-group-control' ] }
+				value={ selectedValue }
+				onChange={ onStatusFilterChange }
+				__nextHasNoMarginBottom
+			>
+				<ToggleGroupControlOption
+					value="active"
+					label={
+						<span className={ styles[ 'toggle-group-control__option' ] }>
+							{ sprintf(
+								/* translators: %d: number of active threats */ __(
+									'Active threats (%d)',
+									'jetpack'
+								),
+								activeThreatsCount
+							) }
+						</span>
+					}
+				/>
+				<ToggleGroupControlOption
+					value="historic"
+					label={
+						<span className={ styles[ 'toggle-group-control__option' ] }>
+							{ sprintf(
+								/* translators: %d: number of historic threats */
+								__( 'History (%d)', 'jetpack' ),
+								historicThreatsCount
+							) }
+						</span>
+					}
+				/>
+			</ToggleGroupControl>
+		);
+	} catch ( error ) {
 		return null;
 	}
-
-	let selectedValue = '';
-	if ( isStatusFilterSelected( [ 'current' ] ) ) {
-		selectedValue = 'active';
-	} else if ( isStatusFilterSelected( [ 'fixed', 'ignored' ] ) ) {
-		selectedValue = 'historic';
-	}
-
-	return (
-		<ToggleGroupControl
-			className={ styles[ 'toggle-group-control' ] }
-			value={ selectedValue }
-			onChange={ onStatusFilterChange }
-			__nextHasNoMarginBottom
-		>
-			<ToggleGroupControlOption
-				value="active"
-				label={
-					<span className={ styles[ 'toggle-group-control__option' ] }>
-						{ sprintf(
-							/* translators: %d: number of active threats */ __(
-								'Active threats (%d)',
-								'jetpack'
-							),
-							activeThreatsCount
-						) }
-					</span>
-				}
-			/>
-			<ToggleGroupControlOption
-				value="historic"
-				label={
-					<span className={ styles[ 'toggle-group-control__option' ] }>
-						{ sprintf(
-							/* translators: %d: number of historic threats */
-							__( 'History (%d)', 'jetpack' ),
-							historicThreatsCount
-						) }
-					</span>
-				}
-			/>
-		</ToggleGroupControl>
-	);
 }
