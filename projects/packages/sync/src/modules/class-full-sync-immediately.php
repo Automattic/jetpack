@@ -416,7 +416,7 @@ class Full_Sync_Immediately extends Module {
 	public function get_remaining_modules_to_send() {
 		$status            = $this->get_status();
 		$remaining_modules = array();
-		foreach ( $status['config'] as $module_name => $module_config ) {
+		foreach ( array_keys( $status['config'] ) as $module_name ) {
 			$module = Modules::get_module( $module_name );
 			if ( ! $module ) {
 				continue;
