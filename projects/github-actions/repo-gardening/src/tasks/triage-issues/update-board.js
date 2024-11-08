@@ -200,7 +200,7 @@ async function addIssueToBoard( payload, octokit, projectInfo ) {
 		owner: ownerLogin,
 		repo: name,
 		issue_number: number,
-		labels: [ '[Status] Automatically triaged to project board' ],
+		labels: [ '[Status] Auto-allocated' ],
 	} );
 
 	return projectItemId;
