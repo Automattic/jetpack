@@ -197,6 +197,10 @@ const List: React.FC< ListProps > = ( { items, setItems, maxItems, description }
 			.map( line => line.trim() )
 			.filter( line => line.trim() !== '' );
 
+		if ( lines.length === 0 ) {
+			throw new Error( __( 'You must add at least one URL.', 'jetpack-boost' ) );
+		}
+
 		// Check if the number of items exceeds maxItems
 		if ( lines.length > maxItems ) {
 			const message = sprintf(
