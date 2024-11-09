@@ -16,12 +16,13 @@ import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
 import { useCallback, useMemo, useState } from 'react';
 import Badge from '../badge';
+import ThreatDetailsModal from '../threat-details-modal';
 import ThreatFixerButton from '../threat-fixer-button';
 import ThreatSeverityBadge from '../threat-severity-badge';
 import {
-	THREAT_ACTION_FIX,
 	THREAT_ACTION_IGNORE,
 	THREAT_ACTION_UNIGNORE,
+	THREAT_ACTION_VIEW_DETAILS,
 	THREAT_FIELD_AUTO_FIX,
 	THREAT_FIELD_DESCRIPTION,
 	THREAT_FIELD_EXTENSION,
@@ -143,6 +144,19 @@ export default function ThreatsDataViews( {
 		type: 'table',
 		...defaultLayouts.table,
 	} );
+
+	const [ openThreat, setOpenThreat ] = useState< Threat | null >( null );
+
+	const showThreatDetails = useCallback(
+		( threat: Threat ) => () => {
+			setOpenThreat( threat );
+		},
+		[]
+	);
+
+	const hideThreatDetails = useCallback( () => {
+		setOpenThreat( null );
+	}, [] );
 
 	/**
 	 * Compute values from the provided threats data.
@@ -405,6 +419,10 @@ export default function ThreatsDataViews( {
 									return null;
 								}
 
+								if ( ! isThreatEligibleForFix( item ) ) {
+									return null;
+								}
+
 								return <ThreatFixerButton threat={ item } onClick={ onFixThreats } />;
 							},
 						},
@@ -413,7 +431,7 @@ export default function ThreatsDataViews( {
 		];
 
 		return result;
-	}, [ dataFields, plugins, themes, signatures, onFixThreats ] );
+	}, [ plugins, themes, dataFields, signatures, isThreatEligibleForFix, onFixThreats ] );
 
 	/**
 	 * DataView actions - collection of operations that can be performed upon each record.
@@ -421,26 +439,15 @@ export default function ThreatsDataViews( {
 	 * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-dataviews/#actions-object
 	 */
 	const actions = useMemo( () => {
-		const result: Action< Threat >[] = [];
-
-		if ( dataFields.includes( 'fixable' ) ) {
-			result.push( {
-				id: THREAT_ACTION_FIX,
-				label: __( 'Auto-fix', 'jetpack' ),
-				isPrimary: true,
-				supportsBulk: true,
-				callback: onFixThreats,
-				isEligible( item ) {
-					if ( ! onFixThreats ) {
-						return false;
-					}
-					if ( isThreatEligibleForFix ) {
-						return isThreatEligibleForFix( item );
-					}
-					return !! item.fixable;
+		const result: Action< Threat >[] = [
+			{
+				id: THREAT_ACTION_VIEW_DETAILS,
+				label: __( 'View Details', 'jetpack' ),
+				callback: ( items: Threat[] ) => {
+					showThreatDetails( items[ 0 ] )();
 				},
-			} );
-		}
+			},
+		];
 
 		if ( dataFields.includes( 'status' ) ) {
 			result.push( {
@@ -483,11 +490,10 @@ export default function ThreatsDataViews( {
 		return result;
 	}, [
 		dataFields,
-		onFixThreats,
+		showThreatDetails,
 		onIgnoreThreats,
-		onUnignoreThreats,
-		isThreatEligibleForFix,
 		isThreatEligibleForIgnore,
+		onUnignoreThreats,
 		isThreatEligibleForUnignore,
 	] );
 
@@ -517,23 +523,28 @@ export default function ThreatsDataViews( {
 	const getItemId = useCallback( ( item: Threat ) => item.id.toString(), [] );
 
 	return (
-		<DataViews
-			actions={ actions }
-			data={ processedData }
-			defaultLayouts={ defaultLayouts }
-			fields={ fields }
-			getItemId={ getItemId }
-			onChangeSelection={ onChangeSelection }
-			onChangeView={ onChangeView }
-			paginationInfo={ paginationInfo }
-			view={ view }
-			header={
-				<ThreatsStatusToggleGroupControl
-					data={ data }
-					view={ view }
-					onChangeView={ onChangeView }
-				/>
-			}
-		/>
+		<>
+			<DataViews
+				actions={ actions }
+				data={ processedData }
+				defaultLayouts={ defaultLayouts }
+				fields={ fields }
+				getItemId={ getItemId }
+				onChangeSelection={ onChangeSelection }
+				onChangeView={ onChangeView }
+				paginationInfo={ paginationInfo }
+				view={ view }
+				header={
+					<ThreatsStatusToggleGroupControl
+						data={ data }
+						view={ view }
+						onChangeView={ onChangeView }
+					/>
+				}
+			/>
+			{ openThreat ? (
+				<ThreatDetailsModal threat={ openThreat } onRequestClose={ hideThreatDetails } />
+			) : null }
+		</>
 	);
 }
