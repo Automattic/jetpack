@@ -926,7 +926,10 @@ class Initializer {
 			);
 			return $red_bubble_slugs;
 		} else {
-			return self::alert_if_missing_connection( $red_bubble_slugs );
+			return array_merge(
+				self::alert_if_missing_connection( $red_bubble_slugs ),
+				self::alert_if_paid_plan_expiring( $red_bubble_slugs )
+			);
 		}
 	}
 
@@ -963,6 +966,40 @@ class Initializer {
 				'is_error' => false,
 			);
 			return $red_bubble_slugs;
+		}
+
+		return $red_bubble_slugs;
+	}
+
+	/**
+	 * Add an alert slug if any paid plan/products are expiring or expired.
+	 *
+	 * @param array $red_bubble_slugs - slugs that describe the reasons the red bubble is showing.
+	 * @return array
+	 */
+	public static function alert_if_paid_plan_expiring( array $red_bubble_slugs ) {
+		$product_classes = Products::get_products_classes();
+
+		foreach ( $product_classes as $product ) {
+			if ( $product::has_paid_plan_for_product() ) {
+				$purchase = $product::get_paid_plan_purchase_for_product();
+				if ( $purchase ) {
+					$redbubble_notice_data = array(
+						'product_slug'   => $purchase->product_slug,
+						'product_name'   => $purchase->product_name,
+						'expiry_date'    => $purchase->expiry_date,
+						'expiry_message' => $purchase->expiry_message,
+						'manage_url'     => $product::get_manage_paid_plan_purchase_url(),
+					);
+
+					if ( $purchase->expiry_status === Products::STATUS_EXPIRED ) {
+						$red_bubble_slugs[ "$purchase->product_slug--plan_expired" ] = $redbubble_notice_data;
+					}
+					if ( $purchase->expiry_status === Products::STATUS_EXPIRING_SOON ) {
+						$red_bubble_slugs[ "$purchase->product_slug--plan_expiring_soon" ] = $redbubble_notice_data;
+					}
+				}
+			}
 		}
 
 		return $red_bubble_slugs;

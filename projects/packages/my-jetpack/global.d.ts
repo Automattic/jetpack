@@ -347,6 +347,20 @@ interface Window {
 					plugin: string;
 				};
 			};
+			[ key: `${ string }--plan_expired` ]: {
+				product_slug: string;
+				product_name?: string;
+				expiry_date?: string;
+				expiry_message?: string;
+				manage_url?: string;
+			};
+			[ key: `${ string }--plan_expiring_soon` ]: {
+				product_slug: string;
+				product_name?: string;
+				expiry_date?: string;
+				expiry_message?: string;
+				manage_url?: string;
+			};
 		};
 		recommendedModules: {
 			modules: JetpackModule[] | null;
