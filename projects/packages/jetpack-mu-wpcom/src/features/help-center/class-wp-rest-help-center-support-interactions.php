@@ -13,9 +13,6 @@ use Automattic\Jetpack\Connection\Client;
  * Class WP_REST_Help_Center_Support_Interactions.
  */
 class WP_REST_Help_Center_Support_Interactions extends \WP_REST_Controller {
-	const STATUS_OPEN     = 'open';
-	const STATUS_RESOLVED = 'resolved';
-
 	/**
 	 * WP_REST_Help_Center_Support_Interactions constructor.
 	 */
@@ -40,8 +37,8 @@ class WP_REST_Help_Center_Support_Interactions extends \WP_REST_Controller {
 						'type'     => 'string',
 						'required' => false,
 						'enum'     => array(
-							self::STATUS_OPEN,
-							self::STATUS_RESOLVED,
+							'open',
+							'resolved',
 						),
 					),
 					'page'     => array(
@@ -131,8 +128,8 @@ class WP_REST_Help_Center_Support_Interactions extends \WP_REST_Controller {
 						'type'     => 'string',
 						'required' => true,
 						'enum'     => array(
-							self::STATUS_OPEN,
-							self::STATUS_RESOLVED,
+							'open',
+							'resolved',
 						),
 					),
 				),
