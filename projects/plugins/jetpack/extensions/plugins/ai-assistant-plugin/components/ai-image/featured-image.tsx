@@ -154,7 +154,7 @@ export default function FeaturedImage( {
 			setIsFeaturedImageModalVisible( true );
 			return processImageGeneration( {
 				userPrompt,
-				postContent,
+				postContent: postTitle + '\n\n' + postContent,
 				notEnoughRequests,
 				style,
 			} ).catch( error => {
@@ -175,6 +175,7 @@ export default function FeaturedImage( {
 			processImageGeneration,
 			postContent,
 			notEnoughRequests,
+			postTitle,
 		]
 	);
 
@@ -201,17 +202,20 @@ export default function FeaturedImage( {
 			} );
 
 			setCurrent( crrt => crrt + 1 );
-			processImageGeneration( { userPrompt: prompt, postContent, notEnoughRequests, style } ).catch(
-				error => {
-					recordEvent( 'jetpack_ai_featured_image_generation_error', {
-						placement,
-						error: error?.message,
-						model: featuredImageActiveModel,
-						site_type: siteType,
-						style,
-					} );
-				}
-			);
+			processImageGeneration( {
+				userPrompt: prompt,
+				postContent: postTitle + '\n\n' + postContent,
+				notEnoughRequests,
+				style,
+			} ).catch( error => {
+				recordEvent( 'jetpack_ai_featured_image_generation_error', {
+					placement,
+					error: error?.message,
+					model: featuredImageActiveModel,
+					site_type: siteType,
+					style,
+				} );
+			} );
 		},
 		[
 			recordEvent,
@@ -220,6 +224,7 @@ export default function FeaturedImage( {
 			siteType,
 			setCurrent,
 			processImageGeneration,
+			postTitle,
 			postContent,
 			notEnoughRequests,
 		]
@@ -235,17 +240,20 @@ export default function FeaturedImage( {
 				style,
 			} );
 
-			processImageGeneration( { userPrompt, postContent, notEnoughRequests, style } ).catch(
-				error => {
-					recordEvent( 'jetpack_ai_featured_image_generation_error', {
-						placement,
-						error: error?.message,
-						model: featuredImageActiveModel,
-						site_type: siteType,
-						style,
-					} );
-				}
-			);
+			processImageGeneration( {
+				userPrompt,
+				postContent: postTitle + '\n\n' + postContent,
+				notEnoughRequests,
+				style,
+			} ).catch( error => {
+				recordEvent( 'jetpack_ai_featured_image_generation_error', {
+					placement,
+					error: error?.message,
+					model: featuredImageActiveModel,
+					site_type: siteType,
+					style,
+				} );
+			} );
 		},
 		[
 			recordEvent,
@@ -255,6 +263,7 @@ export default function FeaturedImage( {
 			processImageGeneration,
 			postContent,
 			notEnoughRequests,
+			postTitle,
 		]
 	);
 
@@ -369,7 +378,7 @@ export default function FeaturedImage( {
 			) }
 			<AiImageModal
 				postContent={ postContent }
-				autoStart={ postContent !== '' && ! postFeaturedMedia }
+				autoStart={ ( postContent !== '' || postTitle ) && ! postFeaturedMedia }
 				autoStartAction={ handleFirstGenerate }
 				images={ images }
 				currentIndex={ current }
