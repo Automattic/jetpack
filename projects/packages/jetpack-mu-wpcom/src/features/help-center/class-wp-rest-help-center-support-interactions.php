@@ -227,7 +227,14 @@ class WP_REST_Help_Center_Support_Interactions extends \WP_REST_Controller {
 
 		$status = $request['status'];
 
-		$body = Client::wpcom_json_api_request_as_user( "/support-interactions/$support_interaction_id/status?status={$status}" );
+		$body = Client::wpcom_json_api_request_as_user(
+			"/support-interactions/$support_interaction_id/status",
+			'2',
+			array(
+				'method' => 'PUT',
+				'body'   => array( 'status' => $status ),
+			)
+		);
 
 		if ( is_wp_error( $body ) ) {
 			return $body;
