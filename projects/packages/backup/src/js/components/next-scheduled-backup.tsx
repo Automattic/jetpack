@@ -47,7 +47,7 @@ const NextScheduledBackup: FunctionComponent< Props > = () => {
 			<span className="scheduled-backup__message">
 				{ sprintf(
 					/* translators: %1$s is the formatted date (e.g., Oct 22); %2$s is a time range, such as 10:00-10:59 AM. */
-					__( 'Next full backup: %1$s, between %2$s.', 'jetpack-backup-pkg' ),
+					__( 'Next full backup: %1$s, %2$s.', 'jetpack-backup-pkg' ),
 					nextBackupDate.format( 'MMM D' ),
 					timeRange
 				) }
