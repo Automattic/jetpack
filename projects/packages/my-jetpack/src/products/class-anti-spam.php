@@ -37,6 +37,13 @@ class Anti_Spam extends Product {
 	public static $plugin_slug = 'akismet';
 
 	/**
+	 * The feature slug that identifies the paid plan
+	 *
+	 * @var string
+	 */
+	public static $feature_identifying_paid_plan = 'antispam';
+
+	/**
 	 * Whether this product requires a user connection
 	 *
 	 * @var string
@@ -103,28 +110,6 @@ class Anti_Spam extends Product {
 			_x( 'Comment and form spam protection', 'Anti-Spam Product Feature', 'jetpack-my-jetpack' ),
 			_x( 'Block spam without CAPTCHAs', 'Anti-Spam Product Feature', 'jetpack-my-jetpack' ),
 			_x( 'Advanced stats', 'Anti-Spam Product Feature', 'jetpack-my-jetpack' ),
-		);
-	}
-
-	/**
-	 * Get the product-slugs of the paid bundles/plans that this product/module is included in
-	 *
-	 * @return array
-	 */
-	public static function get_paid_bundles_that_include_product() {
-		return array(
-			'jetpack_security_t1_yearly',
-			'jetpack_security_t1_monthly',
-			'jetpack_security_t1_bi-yearly',
-			'jetpack_complete',
-			'jetpack_complete_monthly',
-			'jetpack_complete_bi-yearly',
-			'jetpack_business',
-			'jetpack_business_monthly',
-			'jetpack_premium',
-			'jetpack_premium_monthly',
-			'jetpack_personal',
-			'jetpack_personal_monthly',
 		);
 	}
 
