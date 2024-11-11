@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
+Comment: Change to an unreleased feature.
 
-Boost: fix checking of cornerstone URLs where a site has a directory in the URL
