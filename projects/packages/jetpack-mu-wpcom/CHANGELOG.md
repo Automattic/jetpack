@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.66.0] - 2024-11-11
+### Added
+- Added a feature check to the Marketing Bar that updates the text and upgrade link for Global Styles [#40068]
+- Enable test coverage. [#39961]
+- Help Center: add new rest route for support interactions [#39978]
+- Help Center: extend support interaction API [#40112]
+- The notice and modal shown on the editor now displays the plan name and upgrade URL based on the GS gated plan type' [#40095]
+
+### Changed
+- Added feature check for the Global Styles on Personal plan changes. [#39986]
+- Updated package dependencies. [#39999]
+- Updated package dependencies. [#40000]
+- Updated package dependencies. [#40060]
+
+### Fixed
+- Fix PHPUnit coverage warnings. [#39989]
+- Help Center: fixed api typo [#39996]
+- We now check if JP_CONNECTION_INITIAL_STATE is defined before accessing it when using Global Styles' [#39980]
+- wpcom-block-editor: Support getting the canvas mode from the query string after GB 19.6 [#40045]
+
 ## [5.65.0] - 2024-10-29
 ### Added
 - adding a WPCOM task [#39776]
@@ -1287,6 +1307,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Testing initial package release.
 
+[5.66.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.65.0...v5.66.0
 [5.65.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.64.0...v5.65.0
 [5.64.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.63.0...v5.64.0
 [5.63.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.62.0...v5.63.0

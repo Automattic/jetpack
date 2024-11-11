@@ -3,6 +3,7 @@ export type ConnectionStatus = 'ok' | 'broken';
 export type Connection = {
 	id: string;
 	service_name: string;
+	label?: string;
 	display_name: string;
 	external_display?: string;
 	external_id: string;
@@ -27,6 +28,7 @@ export type ConnectionData = {
 	updatingConnections?: Array< number | string >;
 	reconnectingAccount?: Connection;
 	keyringResult?: KeyringResult;
+	abortControllers?: Record< string, Array< AbortController > >;
 };
 
 export type JetpackSettings = {
@@ -102,11 +104,3 @@ export type SocialPluginSettings = {
 export type SocialSettingsFields = {
 	jetpack_social_image_generator_settings: SocialImageGeneratorConfig;
 };
-
-declare global {
-	interface Window {
-		jetpackSocialInitialState?: SocialStoreState & {
-			is_publicize_enabled: boolean;
-		};
-	}
-}

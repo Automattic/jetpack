@@ -32,6 +32,29 @@ class WP_REST_Help_Center_Support_Interactions extends \WP_REST_Controller {
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_support_interactions' ),
 				'permission_callback' => 'is_user_logged_in',
+				'args'                => array(
+					'status'   => array(
+						'type'     => 'string',
+						'required' => false,
+						'enum'     => array(
+							'open',
+							'resolved',
+						),
+					),
+					'page'     => array(
+						'type'     => 'integer',
+						'required' => false,
+						'default'  => 1,
+						'minimum'  => 1,
+					),
+					'per_page' => array(
+						'type'     => 'integer',
+						'required' => false,
+						'default'  => 10,
+						'minimum'  => 1,
+						'maximum'  => 100,
+					),
+				),
 			)
 		);
 
@@ -54,7 +77,7 @@ class WP_REST_Help_Center_Support_Interactions extends \WP_REST_Controller {
 				'permission_callback' => 'is_user_logged_in',
 				'args'                => array(
 					'event_external_id' => array(
-						'type'     => 'int',
+						'type'     => 'string',
 						'required' => true,
 					),
 					'event_source'      => array(
@@ -78,7 +101,7 @@ class WP_REST_Help_Center_Support_Interactions extends \WP_REST_Controller {
 				'permission_callback' => 'is_user_logged_in',
 				'args'                => array(
 					'event_external_id' => array(
-						'type'     => 'int',
+						'type'     => 'string',
 						'required' => true,
 					),
 					'event_source'      => array(
@@ -88,6 +111,26 @@ class WP_REST_Help_Center_Support_Interactions extends \WP_REST_Controller {
 					'event_metadata'    => array(
 						'type'     => 'string',
 						'required' => false,
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/(?P<support_interaction_id>[a-zA-Z0-9-]+)/status',
+			array(
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => array( $this, 'update_support_interaction_status' ),
+				'permission_callback' => 'is_user_logged_in',
+				'args'                => array(
+					'status' => array(
+						'type'     => 'string',
+						'required' => true,
+						'enum'     => array(
+							'open',
+							'resolved',
+						),
 					),
 				),
 			)
@@ -164,6 +207,27 @@ class WP_REST_Help_Center_Support_Interactions extends \WP_REST_Controller {
 				'body'   => $data,
 			)
 		);
+
+		if ( is_wp_error( $body ) ) {
+			return $body;
+		}
+
+		$response = json_decode( wp_remote_retrieve_body( $body ) );
+
+		return rest_ensure_response( $response );
+	}
+
+	/**
+	 * Update support interaction status.
+	 *
+	 * @param \WP_REST_Request $request    The request sent to the API.
+	 */
+	public function update_support_interaction_status( \WP_REST_Request $request ) {
+		$support_interaction_id = isset( $request['support_interaction_id'] ) ? (int) $request['support_interaction_id'] : null;
+
+		$status = $request['status'];
+
+		$body = Client::wpcom_json_api_request_as_user( "/support-interactions/$support_interaction_id/status?status={$status}" );
 
 		if ( is_wp_error( $body ) ) {
 			return $body;

@@ -778,13 +778,3 @@ export function getNewsetterDateExample( state ) {
 export function subscriptionSiteEditSupported( state ) {
 	return !! state.jetpack.initialState.subscriptionSiteEditSupported;
 }
-
-/**
- * Get the Jetpack Social Initial State
- *
- * @param {object} state - Global state tree.
- * @return {object} Jetpack Social Initial State
- */
-export function getSocialInitiaState( state ) {
-	return state.jetpack.initialState.socialInitialState ?? {};
-}

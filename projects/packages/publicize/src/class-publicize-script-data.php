@@ -114,10 +114,11 @@ class Publicize_Script_Data {
 		return array_merge(
 			$basic_data,
 			array(
-				'api_paths'          => self::get_api_paths(),
-				'supported_services' => self::get_supported_services(),
-				'shares_data'        => self::get_shares_data(),
-				'urls'               => self::get_urls(),
+				'api_paths'           => self::get_api_paths(),
+				'supported_services'  => self::get_supported_services(),
+				'shares_data'         => self::get_shares_data(),
+				'urls'                => self::get_urls(),
+				'store_initial_state' => self::get_store_initial_state(),
 			)
 		);
 	}
@@ -133,6 +134,26 @@ class Publicize_Script_Data {
 
 		return array(
 			'socialImageGenerator' => $settings->get_image_generator_settings(),
+		);
+	}
+
+	/**
+	 * Get the social store initial state.
+	 *
+	 * @return array
+	 */
+	public static function get_store_initial_state() {
+
+		$is_wpcom = ( new Host() )->is_wpcom_platform();
+
+		return array(
+			'connectionData' => array(
+				// We do not have this method on WPCOM Publicize class yet.
+				'connections' => ! $is_wpcom ? self::publicize()->get_all_connections_for_user() : array(),
+			),
+			'shareStatus'    => array(
+				// Here goes the share status data for posts with key as post ID.
+			),
 		);
 	}
 

@@ -4,7 +4,7 @@
 import './src/social-store';
 
 // Ensure that module augmentation is applied
-export type {} from './src/types';
+export type {} from './src/declarations';
 
 export { default as Connection } from './src/components/connection';
 export { default as Form } from './src/components/form';
