@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Boost: fix checking of cornerstone URLs where a site has a directory in the URL
