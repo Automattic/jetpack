@@ -10,7 +10,9 @@ const findPriority = require( '../../utils/parse-content/find-priority' );
  * @param {WebhookPayloadIssue} payload - Issue event payload.
  * @param {GitHub}              octokit - Initialized Octokit REST client.
  *
- * @return {Promise<Array>} Promise resolving to an array of Priority Labels matching this issue.
+ * @return {Promise<object>} Promise resolving to an object, with 2 keys:
+ * - labels is an array of priority Labels matching this issue,
+ * - inferred is a boolean, returns true if the priority was inferred from the issue contents.
  */
 async function getIssuePriority( payload, octokit ) {
 	const {
@@ -31,7 +33,10 @@ async function getIssuePriority( payload, octokit ) {
 				', '
 			) }`
 		);
-		return priorityLabels;
+		return {
+			labels: priorityLabels,
+			inferred: false,
+		};
 	}
 
 	// If the issue does not have Priority labels yet, let's try to infer one from the issue contents.
@@ -43,7 +48,10 @@ async function getIssuePriority( payload, octokit ) {
 		`triage-issues > issue priority: Priority inferred from the issue contents for issue #${ number } is ${ priority }`
 	);
 
-	return [ `[Pri] ${ priority }` ];
+	return {
+		labels: [ `[Pri] ${ priority }` ],
+		inferred: true,
+	};
 }
 
 module.exports = getIssuePriority;

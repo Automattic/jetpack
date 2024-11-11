@@ -34,7 +34,7 @@ async function triageIssues( payload, octokit ) {
 		return;
 	}
 
-	const priorityLabels = await getIssuePriority( payload, octokit );
+	const { labels: priorityLabels, inferred } = await getIssuePriority( payload, octokit );
 	const isBugIssue = await isBug( octokit, ownerLogin, name, number, action, label );
 	const qualityChannel = getInput( 'slack_quality_channel' );
 
@@ -71,7 +71,7 @@ async function triageIssues( payload, octokit ) {
 		}
 
 		// Add priority label to the issue, if none already existed on the issue.
-		if ( priorityLabels.length === 1 && isBugIssue ) {
+		if ( priorityLabels.length === 1 && isBugIssue && inferred ) {
 			const inferredPriority = priorityLabels[ 0 ];
 			debug( `triage-issues: Adding ${ inferredPriority } label to issue #${ number }` );
 
