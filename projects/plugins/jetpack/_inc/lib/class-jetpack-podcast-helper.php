@@ -108,14 +108,12 @@ class Jetpack_Podcast_Helper {
 			// Get a list of episodes by guid or all tracks in feed.
 			if ( count( $guids ) ) {
 				$tracks = array_map( array( $this, 'get_track_data' ), $guids );
-				if ( is_array( $tracks ) ) {
-					$tracks = array_filter(
-						$tracks,
-						function ( $track ) {
-							return ! is_wp_error( $track );
-						}
-					);
-				}
+				$tracks = array_filter(
+					$tracks,
+					function ( $track ) {
+						return ! is_wp_error( $track );
+					}
+				);
 			} else {
 				$tracks = $this->get_track_list();
 			}
