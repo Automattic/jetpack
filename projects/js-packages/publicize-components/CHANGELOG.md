@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.72.1] - 2024-11-11
+### Changed
+- Social: Clean up social store. [#40033]
+- Social: Migrated social plugins settings to new script data. [#40032] [#40081]
+- Updated package dependencies. [#39999] [#40000] [#40060]
+
 ## [0.72.0] - 2024-11-04
 ### Added
 - Enable test coverage. [#39961]
@@ -1004,6 +1010,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#24470]
 
+[0.72.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.72.0...v0.72.1
 [0.72.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.71.5...v0.72.0
 [0.71.5]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.71.4...v0.71.5
 [0.71.4]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.71.3...v0.71.4

@@ -1,3 +1,4 @@
+/* global subscriptionData */
 document.addEventListener( 'DOMContentLoaded', function () {
 	const modal = document.getElementsByClassName( 'jetpack-subscription-modal' )[ 0 ];
 
@@ -46,7 +47,7 @@ document.addEventListener( 'DOMContentLoaded', function () {
 			return;
 		}
 
-		if ( ! event.origin.includes( window.location.host ) ) {
+		if ( subscriptionData.homeUrl !== event.origin ) {
 			return;
 		}
 
