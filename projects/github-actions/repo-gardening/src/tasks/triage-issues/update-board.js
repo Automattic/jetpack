@@ -2,8 +2,6 @@ const { getInput, setFailed } = require( '@actions/core' );
 const { getOctokit } = require( '@actions/github' );
 const debug = require( '../../utils/debug' );
 const getLabels = require( '../../utils/labels/get-labels' );
-const hasTriagedLabel = require( '../../utils/labels/has-triaged-label' );
-const needsThirdPartyFix = require( '../../utils/labels/needs-third-party-fix' );
 const notifyImportantIssues = require( '../../utils/slack/notify-important-issues' );
 const { automatticAssignments } = require( './automattic-label-team-assignments' );
 
@@ -559,9 +557,10 @@ async function assignTeam(
  * @param {Array}               priorityLabels - Array of Priority Labels matching this issue.
  */
 async function updateBoard( payload, octokit, isBugIssue, priorityLabels ) {
-	const { action, issue, label = {}, repository } = payload;
-	const { number } = issue;
-	const { owner, name } = repository;
+	const {
+		issue: { number },
+		repository: { owner, name },
+	} = payload;
 	const ownerLogin = owner.login;
 
 	const projectToken = getInput( 'triage_projects_token' );
@@ -660,19 +659,14 @@ async function updateBoard( payload, octokit, isBugIssue, priorityLabels ) {
 		);
 	}
 
+	const labels = await getLabels( octokit, ownerLogin, name, number );
 	// Check if the issue has a "Triaged" label.
-	const hasTriaged = await hasTriagedLabel( octokit, ownerLogin, name, number, action, label );
-	if ( hasTriaged ) {
-		// Check if the issue depends on a third-party.
-		const needsThirdParty = await needsThirdPartyFix(
-			octokit,
-			ownerLogin,
-			name,
-			number,
-			action,
-			label
-		);
-		if ( needsThirdParty ) {
+	if ( labels.includes( 'Triaged' ) ) {
+		// Check if the issue depends on a third-party,
+		// and thus cannot be fully triaged by us.
+		// In practice, we look for 2 different labels:
+		// "[Status] Needs 3rd Party Fix" and "[Status] Needs Core Fix"
+		if ( labels.some( label => label.match( /^\[Status\] Needs (3rd Party|Core) Fix$/ ) ) ) {
 			// Let's update the status field to "Needs Core/3rd Party Fix" instead of "Triaged".
 			debug(
 				`triage-issues > update-board: Issue #${ number } needs a third-party fix. Setting the "Needs Core/3rd Party Fix" status for this project item.`

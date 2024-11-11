@@ -1,9 +1,25 @@
 const debug = require( '../debug' );
-const hasEscalatedLabel = require( '../labels/has-escalated-label' );
+const getLabels = require( '../labels/get-labels' );
 const formatSlackMessage = require( './format-slack-message' );
 const sendSlackMessage = require( './send-slack-message' );
 
 /* global GitHub, WebhookPayloadIssue */
+
+/**
+ * Check for a label showing that it was already escalated.
+ * The label name changes based on the team that was warned.
+ *
+ * @param {GitHub} octokit        - Initialized Octokit REST client.
+ * @param {string} owner          - Repository owner.
+ * @param {string} repo           - Repository name.
+ * @param {string} number         - Issue number.
+ * @param {string} escalatedLabel - Label used to escalate the issue.
+ * @return {Promise<boolean>} Promise resolving to boolean.
+ */
+async function hasEscalatedLabel( octokit, owner, repo, number, escalatedLabel ) {
+	const labels = await getLabels( octokit, owner, repo, number );
+	return labels.includes( escalatedLabel );
+}
 
 /**
  * Send a Slack Notification if the issue is important.
@@ -22,28 +38,19 @@ const sendSlackMessage = require( './send-slack-message' );
  */
 async function notifyImportantIssues( octokit, payload, channel, recipients = 'devs' ) {
 	const {
-		action,
 		issue: { number },
-		label = {},
-		repository,
+		repository: {
+			owner: { login: ownerLogin },
+			name,
+		},
 	} = payload;
-	const { owner, name } = repository;
-	const ownerLogin = owner.login;
 
 	const escalatedLabel =
 		recipients === 'devs'
 			? '[Status] Priority Review Triggered'
 			: '[Status] Escalated to Product Ambassadors';
 
-	const isEscalated = await hasEscalatedLabel(
-		octokit,
-		ownerLogin,
-		name,
-		number,
-		action,
-		label,
-		escalatedLabel
-	);
+	const isEscalated = await hasEscalatedLabel( octokit, ownerLogin, name, number, escalatedLabel );
 
 	if ( ! isEscalated ) {
 		const message = `New high-priority bug! Please check the priority.`;

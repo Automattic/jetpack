@@ -1,5 +1,5 @@
 const debug = require( '../../utils/debug' );
-const hasPriorityLabels = require( '../../utils/labels/has-priority-labels' );
+const getLabels = require( '../../utils/labels/get-labels' );
 const findPriority = require( '../../utils/parse-content/find-priority' );
 
 /* global GitHub, WebhookPayloadIssue */
@@ -13,18 +13,17 @@ const findPriority = require( '../../utils/parse-content/find-priority' );
  * @return {Promise<Array>} Promise resolving to an array of Priority Labels matching this issue.
  */
 async function getIssuePriority( payload, octokit ) {
-	const { action, issue, label = {}, repository } = payload;
-	const { number, body } = issue;
-	const { owner, name } = repository;
-	const ownerLogin = owner.login;
+	const {
+		issue: { number, body },
+		repository: {
+			owner: { login: ownerLogin },
+			name,
+		},
+	} = payload;
 
-	const priorityLabels = await hasPriorityLabels(
-		octokit,
-		ownerLogin,
-		name,
-		number,
-		action,
-		label
+	const labels = await getLabels( octokit, ownerLogin, name, number );
+	const priorityLabels = labels.filter(
+		label => label.match( /^\[Pri\].*$/ ) && label !== '[Pri] TBD'
 	);
 	if ( priorityLabels.length > 0 ) {
 		debug(
