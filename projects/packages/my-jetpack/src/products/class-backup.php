@@ -206,6 +206,25 @@ class Backup extends Hybrid_Product {
 	 * @return boolean
 	 */
 	public static function has_paid_plan_for_product() {
+		$plans_with_backup = array_merge(
+			static::get_paid_bundles_that_include_product(),
+			static::get_paid_plan_product_slugs()
+		);
+
+		$purchases_data = Wpcom_Products::get_site_current_purchases();
+		if ( is_wp_error( $purchases_data ) ) {
+			return false;
+		}
+		if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
+			foreach ( $purchases_data as $purchase ) {
+				foreach ( $plans_with_backup as $plan ) {
+					if ( strpos( $purchase->product_slug, $plan ) !== false ) {
+						return true;
+					}
+				}
+			}
+		}
+
 		$rewind_data = static::get_state_from_wpcom();
 		if ( is_wp_error( $rewind_data ) ) {
 			return false;

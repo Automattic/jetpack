@@ -326,40 +326,17 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.0 - 2024-11-07
-#### Major enhancements
-- Newsletters: Add email previews and a floating subscribe button.
-- Social: Add support for Bluesky.
-
+### 14.1-a.1 - 2024-11-11
 #### Enhancements
-- Newsletters: Allow skipping newsletter modals with the "jetpack_skip_subscription_popup" URL query param.
-- Newsletters: Update the default "reply to" setting value from not allowed to replies being posted as public comments.
-- Performance: Optimize CSS for better page load performance and improve sitemap write efficiency.
+- My Jetpack: Update the recommendations section in My Jetpack to include a slider interaction for the cards.
+- Image CDN: Use preconnect resource hints instead of dns-prefetch to improve performance.
 
 #### Improved compatibility
-- Embed Blocks: Append 'Embed' to Facebook and Instagram embed blocks' titles.
-- Filters: Update "plugin_action_links" filter parameter to avoid conflicts with other plugins.
-- General: Ensure correct display of notices when running an old version of WordPress.
-- General: Indicate compatibility with WordPress 6.7.
-- Image Block: Make the external media picker button consistent with other Image Block buttons.
-- Image CDN: URL encode image path parts for RSS feed compatibility.
-- Related Posts: Allow Related Posts on non-post CPTs where the block is already able to be used.
+- Components: Shortlink and Toolbar related components have been updated to ensure compatibility.
+- Extra Sidebar Widgets: update asset enqueuing strategy to ensure compatibility with the Elementor plugin.
 
 #### Bug fixes
-- AI Assistant: Fix false-positive spelling errors in Write Brief.
-- Carousel: Further improve accessibility by being more selective over which images to apply attributes to.
-- Contact Form: Ensure that submitted forms can only be accessed by logged in users allowed to view form submissions.
-- General: Include `wp-polyfill` as a script dependency only when needed.
-- Goodreads Block: Avoid PHP warnings caused by missing attributes when rendering.
-- Google Fonts: Fix module not fully loading in certain scenarios.
-- Map Block: Prevent overlap with other blocks placed below.
-- Newsletters: Fix "Enable featured image on your new post emails" and "Use excerpt" settings.
-- Sharing: Ensure the sharing settings can be accessed even when the user is not connected to WordPress.com.
-- Slideshow Block: Ensure the block renders correctly inside an iframe editor.
-- Social: Fix the maximum video length for Instagram Business reels.
-- Social: Prevent share status styles from causing text overflow or affecting other elements on the page.
-- Stats: Fix top post card on the Insights page.
-- Subscribe Block: Fix styling for the number of subscribers in the post editor sidebar.
+- Fixed bug with scheduled resharing when sharing another admin's posts.
 
 --------
 

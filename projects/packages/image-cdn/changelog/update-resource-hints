@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Resource Hint: use preconnect instead of dns-prefetch

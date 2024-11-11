@@ -443,7 +443,12 @@ abstract class Product {
 		if ( empty( $features['available'] ) || empty( $idendifying_feature ) ) {
 			return array();
 		}
-		$paid_bundles = $features['available']->$idendifying_feature;
+		$paid_bundles   = $features['available']->$idendifying_feature;
+		$current_bundle = Wpcom_Products::get_site_current_plan();
+
+		if ( in_array( static::$feature_identifying_paid_plan, $current_bundle['features']['active'], true ) ) {
+			$paid_bundles[] = $current_bundle['product_slug'];
+		}
 
 		return $paid_bundles;
 	}
