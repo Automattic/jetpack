@@ -21,7 +21,7 @@ if ( ! function_exists( 'publicize_init' ) ) {
 
 /**
  * @group publicize
- * @covers Jetpack_Publicize
+ * @covers Automattic\Jetpack\Publicize\Publicize
  */
 class WP_Test_Publicize extends WP_UnitTestCase {
 

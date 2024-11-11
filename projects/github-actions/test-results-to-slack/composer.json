@@ -11,6 +11,7 @@
 		"build-development": [
 			"pnpm run build"
 		],
+		"test-coverage": "pnpm run test-coverage",
 		"test-js": "pnpm run test"
 	},
 	"repositories": [

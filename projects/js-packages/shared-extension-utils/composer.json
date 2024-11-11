@@ -9,6 +9,9 @@
 		"automattic/jetpack-changelogger": "@dev"
 	},
 	"scripts": {
+		"test-coverage": [
+			"pnpm run test-coverage"
+		],
 		"test-js": [
 			"pnpm run test"
 		]

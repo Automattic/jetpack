@@ -21,11 +21,12 @@ export const items = ( state = {}, action ) => {
 			return assign( {}, state, action.initialState.settings );
 		case JETPACK_SETTINGS_FETCH_RECEIVE:
 			return assign( {}, action.settings );
-		case JETPACK_SETTING_UPDATE_SUCCESS:
+		case JETPACK_SETTING_UPDATE_SUCCESS: {
 			const key = Object.keys( action.updatedOption )[ 0 ];
 			return assign( {}, state, {
 				[ key ]: action.updatedOption[ key ],
 			} );
+		}
 		case JETPACK_SETTINGS_UPDATE_SUCCESS:
 			return assign( {}, state, action.updatedOptions );
 		default:

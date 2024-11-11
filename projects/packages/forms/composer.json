@@ -30,6 +30,10 @@
 		"phpunit": [
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
 		],
+		"test-coverage": [
+			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\"",
+			"pnpm run test-coverage"
+		],
 		"test-php": [
 			"@composer phpunit"
 		],

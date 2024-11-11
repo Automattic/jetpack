@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Jetpack AI: fix image generation modals jumpiness by fitting boththe image sizes and the placeholder/empty image

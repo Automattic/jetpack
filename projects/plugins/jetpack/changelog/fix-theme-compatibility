@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Themes: Fix race condition when loading theme compatibility files.

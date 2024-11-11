@@ -1,6 +1,6 @@
 import { Button, useBreakpointMatch } from '@automattic/jetpack-components';
 import { Panel, PanelBody } from '@wordpress/components';
-import { useReducer } from '@wordpress/element';
+import { useEffect, useReducer, useRef } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { Icon, chevronDown, chevronUp } from '@wordpress/icons';
 import { ConnectForm } from './connect-form';
@@ -8,7 +8,9 @@ import { ServiceItemDetails, ServicesItemDetailsProps } from './service-item-det
 import { ServiceStatus } from './service-status';
 import styles from './style.module.scss';
 
-export type ServicesItemProps = ServicesItemDetailsProps;
+export type ServicesItemProps = ServicesItemDetailsProps & {
+	isPanelDefaultOpen?: boolean;
+};
 
 /**
  * Service item component
@@ -17,10 +19,22 @@ export type ServicesItemProps = ServicesItemDetailsProps;
  *
  * @return {import('react').ReactNode} Service item component
  */
-export function ServiceItem( { service, serviceConnections }: ServicesItemProps ) {
+export function ServiceItem( {
+	service,
+	serviceConnections,
+	isPanelDefaultOpen,
+}: ServicesItemProps ) {
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
 
-	const [ isPanelOpen, togglePanel ] = useReducer( state => ! state, false );
+	const [ isPanelOpen, togglePanel ] = useReducer( state => ! state, isPanelDefaultOpen );
+	const panelRef = useRef< HTMLDivElement >( null );
+
+	useEffect( () => {
+		if ( isPanelDefaultOpen ) {
+			panelRef.current?.scrollIntoView( { block: 'center', behavior: 'smooth' } );
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [] );
 
 	const areCustomInputsVisible = isPanelOpen && service.needsCustomInputs;
 
@@ -94,7 +108,7 @@ export function ServiceItem( { service, serviceConnections }: ServicesItemProps 
 				</div>
 			</div>
 
-			<Panel className={ styles[ 'service-panel' ] }>
+			<Panel className={ styles[ 'service-panel' ] } ref={ panelRef }>
 				<PanelBody opened={ isPanelOpen } onToggle={ togglePanel }>
 					<ServiceItemDetails service={ service } serviceConnections={ serviceConnections } />
 					{

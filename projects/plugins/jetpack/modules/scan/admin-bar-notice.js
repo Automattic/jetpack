@@ -1,6 +1,6 @@
 ( function ( localized ) {
 	function ready( fn ) {
-		if ( document.readyState != 'loading' ) {
+		if ( document.readyState !== 'loading' ) {
 			fn();
 		} else {
 			document.addEventListener( 'DOMContentLoaded', fn );
@@ -11,7 +11,7 @@
 		var xhrRequest = new XMLHttpRequest();
 		xhrRequest.open( 'GET', localized.scan_endpoint, true );
 		xhrRequest.onload = function () {
-			if ( this.status == 200 ) {
+			if ( this.status === 200 ) {
 				// Success!
 				var body = JSON.parse( this.response );
 				if ( body && body.data ) {
@@ -45,7 +45,7 @@
 			return;
 		}
 
-		var textLabel = numberOfThreats == 1 ? localized.singular : localized.multiple;
+		var textLabel = numberOfThreats === 1 ? localized.singular : localized.multiple;
 		element.innerHTML =
 			'<a href="' + localized.scan_dashboard_url + '" class="ab-item">' + textLabel + '</a>';
 	}

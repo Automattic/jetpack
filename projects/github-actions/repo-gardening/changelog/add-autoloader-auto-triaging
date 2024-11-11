@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Triage to Project boards: automatically triage Autoloader-related issues to the Garage board.

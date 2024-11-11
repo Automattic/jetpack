@@ -1,10 +1,4 @@
 {
-	"extends": "jetpack-js-tools/tsconfig.tsc.json",
-	"include": [ "./src/**/*" ],
-	"compilerOptions": {
-		"typeRoots": [ "./node_modules/@types/", "src/types/*" ],
-		"sourceMap": false,
-		"outDir": "./build/",
-		"target": "esnext"
-	}
+	"extends": "jetpack-js-tools/tsconfig.base.json",
+	"include": [ "./src/**/*" ]
 }

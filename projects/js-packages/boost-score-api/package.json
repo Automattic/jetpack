@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-boost-score-api",
-	"version": "0.1.42",
+	"version": "0.1.45",
 	"description": "A package to get the Jetpack Boost score of a site",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/boost-score-api/#readme",
 	"bugs": {
@@ -17,16 +17,17 @@
 		"build": "pnpm run clean && webpack",
 		"clean": "rm -rf build/",
 		"watch": "pnpm run build && pnpm webpack watch",
-		"test": "jest tests"
+		"test": "jest --config=tests/jest.config.cjs",
+		"test-coverage": "pnpm run test --coverage"
 	},
 	"dependencies": {
-		"@wordpress/i18n": "5.9.0",
+		"@wordpress/i18n": "5.11.0",
 		"zod": "3.22.3"
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@typescript-eslint/parser": "6.21.0",
-		"eslint": "8.57.0",
+		"eslint": "8.57.1",
 		"jest": "29.7.0",
 		"jest-environment-jsdom": "29.7.0",
 		"typescript": "5.0.4",

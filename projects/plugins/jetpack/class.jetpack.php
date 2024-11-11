@@ -750,8 +750,7 @@ class Jetpack {
 
 		// Add 5-star
 		add_filter( 'plugin_row_meta', array( $this, 'add_5_star_review_link' ), 10, 2 );
-
-		Deprecate::instance();
+		add_action( 'init', array( Deprecate::class, 'instance' ) );
 	}
 
 	/**
@@ -867,8 +866,7 @@ class Jetpack {
 	 * @action plugins_loaded
 	 */
 	public function late_initialization() {
-		add_action( 'plugins_loaded', array( 'Jetpack', 'load_modules' ), 100 );
-
+		add_action( 'after_setup_theme', array( 'Jetpack', 'load_modules' ), -2 );
 		My_Jetpack_Initializer::init();
 
 		// Initialize Boost Speed Score

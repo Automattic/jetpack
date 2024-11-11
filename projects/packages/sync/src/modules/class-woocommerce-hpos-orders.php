@@ -118,9 +118,13 @@ class WooCommerce_HPOS_Orders extends Module {
 			add_filter( "jetpack_sync_before_enqueue_woocommerce_after_{$type}_object_save", array( $this, 'expand_order_object' ) );
 		}
 		add_action( 'woocommerce_delete_order', $callable );
+		add_action( 'woocommerce_delete_subscription', $callable );
 		add_filter( 'jetpack_sync_before_enqueue_woocommerce_delete_order', array( $this, 'on_before_enqueue_order_trash_delete' ) );
+		add_filter( 'jetpack_sync_before_enqueue_woocommerce_delete_subscription', array( $this, 'on_before_enqueue_order_trash_delete' ) );
 		add_action( 'woocommerce_trash_order', $callable );
+		add_action( 'woocommerce_trash_subscription', $callable );
 		add_filter( 'jetpack_sync_before_enqueue_woocommerce_trash_order', array( $this, 'on_before_enqueue_order_trash_delete' ) );
+		add_filter( 'jetpack_sync_before_enqueue_woocommerce_trash_subscription', array( $this, 'on_before_enqueue_order_trash_delete' ) );
 	}
 
 	/**
@@ -423,6 +427,12 @@ class WooCommerce_HPOS_Orders extends Module {
 				'wc-failed',
 				'wc-checkout-draft',
 			);
+		}
+
+		if ( function_exists( 'wcs_get_subscription_statuses' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredFunction -- Checked above. See also https://github.com/phan/phan/issues/1204.
+			$wc_subscription_statuses = array_keys( wcs_get_subscription_statuses() );
+			$wc_order_statuses        = array_merge( $wc_order_statuses, $wc_subscription_statuses );
 		}
 
 		return array_unique( $wc_order_statuses );

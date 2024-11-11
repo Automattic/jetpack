@@ -4,7 +4,6 @@
 		margin-top: 32px;
 		flex-direction: column;
 		justify-content: center;
-		align-items: center;
 		gap: 8px;
 
 		.jetpack-ai-fair-usage-notice {
@@ -15,7 +14,6 @@
 	&__actions {
 		width: 100%;
 		display: flex;
-		justify-content: center;
 	}
 
 	&__user-prompt {
