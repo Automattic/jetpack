@@ -5,6 +5,7 @@ import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button } from '@wordpress/components';
 import { useCallback, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
@@ -29,6 +30,8 @@ type SetImageCallbackProps = {
 	id: number;
 	url: string;
 };
+
+const debug = debugFactory( 'jetpack-ai:general-purpose-image' );
 
 export default function GeneralPurposeImage( {
 	placement,
@@ -68,6 +71,8 @@ export default function GeneralPurposeImage( {
 		currentPointer,
 		images,
 		pointer,
+		imageStyles,
+		guessStyle,
 	} = useAiImage( {
 		cost: generalImageCost,
 		autoStart: false,
@@ -81,22 +86,27 @@ export default function GeneralPurposeImage( {
 	}, [ onClose ] );
 
 	const handleGenerate = useCallback(
-		( { userPrompt }: { userPrompt?: string } ) => {
+		async ( { userPrompt, style }: { userPrompt?: string; style?: string } ) => {
+			debug( 'handleGenerate', userPrompt, style );
+
 			// track the generate image event
 			recordEvent( 'jetpack_ai_general_image_generation_generate_image', {
 				placement,
 				model: generalImageActiveModel,
 				site_type: siteType,
+				style,
 			} );
-
-			processImageGeneration( { userPrompt, postContent, notEnoughRequests } ).catch( error => {
-				recordEvent( 'jetpack_ai_general_image_generation_error', {
-					placement,
-					error: error?.message,
-					model: generalImageActiveModel,
-					site_type: siteType,
-				} );
-			} );
+			processImageGeneration( { userPrompt, postContent, notEnoughRequests, style } ).catch(
+				error => {
+					recordEvent( 'jetpack_ai_general_image_generation_error', {
+						placement,
+						error: error?.message,
+						model: generalImageActiveModel,
+						site_type: siteType,
+						style,
+					} );
+				}
+			);
 		},
 		[
 			recordEvent,
@@ -110,23 +120,27 @@ export default function GeneralPurposeImage( {
 	);
 
 	const handleRegenerate = useCallback(
-		( { userPrompt }: { userPrompt?: string } ) => {
+		( { userPrompt, style }: { userPrompt?: string; style?: string } ) => {
+			debug( 'handleRegenerate', userPrompt );
 			// track the regenerate image event
 			recordEvent( 'jetpack_ai_general_image_generation_generate_another_image', {
 				placement,
 				model: generalImageActiveModel,
 				site_type: siteType,
+				style,
 			} );
 
 			setCurrent( crrt => crrt + 1 );
-			processImageGeneration( { userPrompt, postContent, notEnoughRequests } ).catch( error => {
-				recordEvent( 'jetpack_ai_general_image_generation_error', {
-					placement,
-					error: error?.message,
-					model: generalImageActiveModel,
-					site_type: siteType,
-				} );
-			} );
+			processImageGeneration( { userPrompt, postContent, notEnoughRequests, style } ).catch(
+				error => {
+					recordEvent( 'jetpack_ai_general_image_generation_error', {
+						placement,
+						error: error?.message,
+						model: generalImageActiveModel,
+						site_type: siteType,
+					} );
+				}
+			);
 		},
 		[
 			recordEvent,
@@ -141,22 +155,26 @@ export default function GeneralPurposeImage( {
 	);
 
 	const handleTryAgain = useCallback(
-		( { userPrompt }: { userPrompt?: string } ) => {
+		( { userPrompt, style }: { userPrompt?: string; style?: string } ) => {
+			debug( 'handleTryAgain', userPrompt );
 			// track the try again event
 			recordEvent( 'jetpack_ai_general_image_generation_try_again', {
 				placement,
 				model: generalImageActiveModel,
 				site_type: siteType,
+				style,
 			} );
 
-			processImageGeneration( { userPrompt, postContent, notEnoughRequests } ).catch( error => {
-				recordEvent( 'jetpack_ai_general_image_generation_error', {
-					placement,
-					error: error?.message,
-					model: generalImageActiveModel,
-					site_type: siteType,
-				} );
-			} );
+			processImageGeneration( { userPrompt, postContent, notEnoughRequests, style } ).catch(
+				error => {
+					recordEvent( 'jetpack_ai_general_image_generation_error', {
+						placement,
+						error: error?.message,
+						model: generalImageActiveModel,
+						site_type: siteType,
+					} );
+				}
+			);
 		},
 		[
 			recordEvent,
@@ -255,6 +273,8 @@ export default function GeneralPurposeImage( {
 			acceptButton={ acceptButton }
 			generateButtonLabel={ pointer?.current > 0 ? generateAgainText : generateText }
 			instructionsPlaceholder={ __( "Describe the image you'd like to create.", 'jetpack' ) }
+			imageStyles={ imageStyles }
+			onGuessStyle={ guessStyle }
 		/>
 	);
 }

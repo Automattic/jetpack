@@ -213,7 +213,6 @@ class Defaults {
 		'jetpack_waf_share_data',
 		'jetpack_waf_share_debug_data',
 		'jetpack_waf_automatic_rules_last_updated_timestamp',
-		'woocommerce_analytics_first_activation',
 	);
 
 	/**
@@ -1296,16 +1295,16 @@ class Defaults {
 	 * @var array list of module names.
 	 */
 	public static $default_full_sync_config = array(
-		'comments'           => 1,
 		'constants'          => 1,
 		'functions'          => 1,
 		'options'            => 1,
-		'posts'              => 1,
-		'term_relationships' => 1,
 		'terms'              => 1,
 		'themes'             => 1,
-		'updates'            => 1,
 		'users'              => 1,
+		'posts'              => 1,
+		'comments'           => 1,
+		'updates'            => 1,
+		'term_relationships' => 1,
 	);
 
 	/**

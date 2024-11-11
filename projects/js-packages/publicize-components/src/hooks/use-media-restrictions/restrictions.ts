@@ -148,7 +148,7 @@ export const RESTRICTIONS = {
 			},
 		},
 		video: {
-			maxLength: 90,
+			maxLength: 900,
 			minLength: 3,
 			maxSize: 1000,
 			maxWidth: 1920,

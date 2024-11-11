@@ -4,10 +4,11 @@
  * `bin/teamcity-builds/jetpack-stubs/stub-defs.php` and regenerate the stubs
  * by triggering the Jetpack Staging → Update WPCOM Stubs job in TeamCity.
  *
- * Stubs automatically generated from WordPress.com commit 2ed424b4493f3450b67bb248706d6e29170e6042.
+ * Stubs automatically generated from WordPress.com commit 18f60b6a23f80b9b8951920c646527604af34854.
  */
 
 namespace {
+    \define('WPCOM_PERSONAL_BUNDLE', 1009);
     \define('WPCOM_VALUE_BUNDLE', 1003);
     \define('TRANSLATE_BLOG_ID', 101407);
     /**
@@ -101,9 +102,11 @@ namespace {
          * @param string $message
          * @param array $skip_connections
          * @param bool $check_feature
+         * @param bool $sync
+         * @param int $_user_id
          * @return array|false|WP_Error
          */
-        public function republicize_post($post_id, $message, $skip_connections, $check_feature = \false, $sync = \true)
+        public function republicize_post($post_id, $message, $skip_connections, $check_feature = \false, $sync = \true, $_user_id = \null)
         {
         }
     }
@@ -432,7 +435,7 @@ namespace {
         public function request_dalle_generation(string $prompt, string $model = 'dall-e-2', array $options = array())
         {
         }
-        public function request_chat_completion(array $backscroll = [], $max_tokens = \null, $model = \null, $completion_options = [], array $tools = [], $response_format = 'text', $tool_choice = \null)
+        public function request_chat_completion(array $backscroll = [], $max_tokens = \null, $model = \null, $completion_options = [], array $tools = [], $response_format = 'text', $tool_choice = \null, $store = \false)
         {
         }
         /**
@@ -548,7 +551,7 @@ namespace {
     {
     }
     /**
-     * @param int|null $blog_id
+     * @param int|string|null $blog_id
      * @return bool
      */
     function wpcom_is_automattic_p2_site($blog_id = \null)
@@ -716,7 +719,7 @@ namespace {
     }
     class Subscription_Mailer extends \WordPressMailer
     {
-        public function __construct(\Blog_Subscriber $subscriber, $use_wp = \true)
+        public function __construct(\Blog_Subscriber $subscriber, $use_wp = \true, $locale_type = self::USER_LOCALE)
         {
         }
         /**
@@ -1058,7 +1061,7 @@ namespace {
     function wpcom_is_child_theme()
     {
     }
-    function queue_publish_post($post_id, $post = \null)
+    function queue_publish_post($post_id, $post = \null, $old_post_status = \null)
     {
     }
     /**
@@ -1231,6 +1234,22 @@ namespace {
      */
     function has_any_blog_stickers(array $stickers, $_blog_id = \NULL, $bust_the_cache = \false)
     {
+    }
+    class WPCOM_Feature_Flags
+    {
+        const GLOBAL_STYLES_ON_PERSONAL_PLAN = 'GLOBAL_STYLES_ON_PERSONAL_PLAN';
+        public static function get_features(): array
+        {
+        }
+        public static function enable_feature(string $feature): bool
+        {
+        }
+        public static function feature_exists(string $feature): bool
+        {
+        }
+        public static function is_enabled(string $feature): bool
+        {
+        }
     }
     /**
      * @param string $new_path

@@ -96,6 +96,7 @@ function GooglePhotosMedia( props ) {
 					disabled={ isLoading || isCopying }
 					options={ PATH_OPTIONS }
 					onChange={ setPath }
+					__nextHasNoMarginBottom={ true }
 				/>
 
 				{ showAdditionalFilters && path.ID === PATH_RECENT && (

@@ -42,7 +42,7 @@ class WP_Test_VideoPress_Player extends WP_UnitTestCase {
 	 * Tests the output of html5_dynamic_next().
 	 *
 	 * @dataProvider get_html_test_data
-	 * @covers VideoPress_Player::test_output_html5_dynamic_next()
+	 * @covers VideoPress_Player
 	 *
 	 * @param array  $options The player options.
 	 * @param string $expected The expected generated content.

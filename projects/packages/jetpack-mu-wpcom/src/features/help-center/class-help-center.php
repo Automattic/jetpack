@@ -95,7 +95,7 @@ class Help_Center {
 					$wp_admin_bar->add_menu(
 						array(
 							'id'     => 'help-center',
-							'title'  => self::download_asset( 'widgets.wp.com/help-center/help-icon.svg', false ),
+							'title'  => '<span title="' . __( 'Help', 'jetpack-mu-wpcom' ) . '">' . self::download_asset( 'widgets.wp.com/help-center/help-icon.svg', false ) . '</span>',
 							'parent' => 'top-secondary',
 							'href'   => $this->get_help_center_url(),
 							'meta'   => array(
@@ -283,6 +283,10 @@ class Help_Center {
 
 		require_once __DIR__ . '/class-wp-rest-help-center-support-activity.php';
 		$controller = new WP_REST_Help_Center_Support_Activity();
+		$controller->register_rest_route();
+
+		require_once __DIR__ . '/class-wp-rest-help-center-support-interactions.php';
+		$controller = new WP_REST_Help_Center_Support_Interactions();
 		$controller->register_rest_route();
 
 		require_once __DIR__ . '/class-wp-rest-help-center-user-fields.php';

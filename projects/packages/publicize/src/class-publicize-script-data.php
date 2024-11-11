@@ -10,7 +10,9 @@ namespace Automattic\Jetpack\Publicize;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Current_Plan;
+use Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Settings;
 use Automattic\Jetpack\Publicize\Publicize_Utils as Utils;
+use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Jetpack_Options;
 
@@ -54,11 +56,19 @@ class Publicize_Script_Data {
 	 */
 	public static function set_admin_script_data( $data ) {
 
-		$data['social'] = self::get_admin_script_data();
+		$data['social'] = apply_filters( 'jetpack_social_admin_script_data', self::get_admin_script_data(), $data );
 
 		if ( empty( $data['site']['plan']['product_slug'] ) ) {
 			$data['site']['plan'] = Current_Plan::get();
 		}
+
+		// Override features for simple sites.
+		if ( ( new Host() )->is_wpcom_simple() ) {
+			$data['site']['plan']['features'] = Current_Plan::get_simple_site_specific_features();
+		}
+
+		$data['site']['wpcom']['blog_id'] = Manager::get_site_id( true );
+		$data['site']['suffix']           = ( new Status() )->get_site_suffix();
 
 		return $data;
 	}
@@ -86,6 +96,8 @@ class Publicize_Script_Data {
 			'feature_flags'        => self::get_feature_flags(),
 			'supported_services'   => array(),
 			'shares_data'          => array(),
+			'urls'                 => array(),
+			'settings'             => self::get_social_settings(),
 		);
 
 		if ( ! Utils::is_publicize_active() ) {
@@ -102,14 +114,46 @@ class Publicize_Script_Data {
 		return array_merge(
 			$basic_data,
 			array(
-				'api_paths'          => self::get_api_paths(),
-				'supported_services' => self::get_supported_services(),
-				'shares_data'        => self::get_shares_data(),
-				/**
-				 * 'store'       => self::get_store_script_data(),
-				 * 'urls'        => self::get_urls(),
-				 */
+				'api_paths'           => self::get_api_paths(),
+				'supported_services'  => self::get_supported_services(),
+				'shares_data'         => self::get_shares_data(),
+				'urls'                => self::get_urls(),
+				'store_initial_state' => self::get_store_initial_state(),
 			)
+		);
+	}
+
+	/**
+	 * Get the social settings.
+	 *
+	 * @return array
+	 */
+	public static function get_social_settings() {
+
+		$settings = ( new Settings() );
+
+		return array(
+			'socialImageGenerator' => $settings->get_image_generator_settings(),
+		);
+	}
+
+	/**
+	 * Get the social store initial state.
+	 *
+	 * @return array
+	 */
+	public static function get_store_initial_state() {
+
+		$is_wpcom = ( new Host() )->is_wpcom_platform();
+
+		return array(
+			'connectionData' => array(
+				// We do not have this method on WPCOM Publicize class yet.
+				'connections' => ! $is_wpcom ? self::publicize()->get_all_connections_for_user() : array(),
+			),
+			'shareStatus'    => array(
+				// Here goes the share status data for posts with key as post ID.
+			),
 		);
 	}
 
@@ -215,5 +259,24 @@ class Publicize_Script_Data {
 			'refreshConnections' => '/jetpack/v4/publicize/connections?test_connections=1',
 			'resharePost'        => '/jetpack/v4/publicize/{postId}',
 		);
+	}
+
+	/**
+	 * Get the URLs.
+	 *
+	 * @return array
+	 */
+	public static function get_urls() {
+
+		$urls = array(
+			'connectionsManagementPage' => self::publicize()->publicize_connections_url(
+				'jetpack-social-connections-admin-page'
+			),
+		);
+
+		// Escape the URLs.
+		array_walk( $urls, 'esc_url_raw' );
+
+		return $urls;
 	}
 }

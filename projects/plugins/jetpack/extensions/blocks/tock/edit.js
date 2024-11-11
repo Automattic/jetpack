@@ -89,6 +89,7 @@ const UrlDropdown = ( { tockUrl, setEditedUrl, setUrl, cancel } ) => {
 								b: <strong />,
 							}
 						) }
+						__nextHasNoMarginBottom={ true }
 					>
 						<div className="jetpack-tock-url-input-wrapper">
 							<TextControl
@@ -97,6 +98,7 @@ const UrlDropdown = ( { tockUrl, setEditedUrl, setUrl, cancel } ) => {
 								value={ tockUrl }
 								onKeyDownCapture={ event => handleSubmitOrCancel( event, onClose ) }
 								className="jetpack-tock-url-input"
+								__nextHasNoMarginBottom={ true }
 							/>
 							<div className="jetpack-tock-url-input-action">
 								<Button

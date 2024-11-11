@@ -26,6 +26,7 @@ export function AiChatControls( {
 						placeholder={ DEFAULT_PLACEHOLDER }
 						onChange={ newPlaceholder => setAttributes( { placeholder: newPlaceholder } ) }
 						value={ placeholder }
+						__nextHasNoMarginBottom={ true }
 					/>
 				</PanelBody>
 			</InspectorControls>
@@ -38,24 +39,28 @@ export function AiChatControls( {
 					) }
 					value={ promptOverride }
 					onChange={ setPromptOverride }
+					__nextHasNoMarginBottom={ true }
 				/>
 				<ToggleControl
 					label={ __( 'Show copy answer button.', 'jetpack' ) }
 					help={ __( 'Allow users to easily copy the answer.', 'jetpack' ) }
 					checked={ showCopy }
 					onChange={ newCopy => setAttributes( { showCopy: newCopy } ) }
+					__nextHasNoMarginBottom={ true }
 				/>
 				<ToggleControl
 					label={ __( 'Show rating button.', 'jetpack' ) }
 					help={ __( 'Allow users to rate the answer and give feedback.', 'jetpack' ) }
 					checked={ showFeedback }
 					onChange={ newFeedback => setAttributes( { showFeedback: newFeedback } ) }
+					__nextHasNoMarginBottom={ true }
 				/>
 				<ToggleControl
 					label={ __( 'Show list of sources.', 'jetpack' ) }
 					help={ __( 'Show used sources at the bottom of the answer.', 'jetpack' ) }
 					checked={ showSources }
 					onChange={ newSources => setAttributes( { showSources: newSources } ) }
+					__nextHasNoMarginBottom={ true }
 				/>
 			</InspectorAdvancedControls>
 		</>

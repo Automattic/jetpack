@@ -1,8 +1,10 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import {
 	ConnectionManagement,
-	RefreshJetpackSocialSettingsWrapper,
+	features,
+	getSocialScriptData,
 } from '@automattic/jetpack-publicize-components';
+import { siteHasFeature } from '@automattic/jetpack-script-data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import Card from 'components/card';
@@ -29,7 +31,7 @@ export const Publicize = withModuleSettingsFormHelpers(
 		componentDidUpdate() {
 			const isActive = this.props.getOptionValue( 'publicize' );
 			// Reload the page if Publicize is enabled.
-			if ( isActive && ! window.Initial_State.socialInitialState.is_publicize_enabled ) {
+			if ( isActive && ! getSocialScriptData().is_publicize_enabled ) {
 				window.location.reload();
 			}
 		}
@@ -48,7 +50,7 @@ export const Publicize = withModuleSettingsFormHelpers(
 				blogID = this.props.blogID,
 				siteAdminUrl = this.props.siteAdminUrl,
 				hasPaidFeatures = this.props.hasPaidFeatures,
-				hasSocialImageGenerator = this.props.hasSocialImageGenerator,
+				hasSocialImageGenerator = siteHasFeature( features.IMAGE_GENERATOR ),
 				isAtomicSite = this.props.isAtomicSite,
 				activeFeatures = this.props.activeFeatures,
 				useAdminUiV1 = this.props.useAdminUiV1,
@@ -149,21 +151,17 @@ export const Publicize = withModuleSettingsFormHelpers(
 									{ __( 'Automatically share your posts to social networks', 'jetpack' ) }
 								</span>
 							</ModuleToggle>
-							<RefreshJetpackSocialSettingsWrapper
-								shouldRefresh={ ! isActive && this.props.isSavingAnyOption( 'publicize' ) }
-							>
-								{ shouldShowChildElements && hasSocialImageGenerator && (
-									<SocialImageGeneratorSection />
-								) }
-								{ isActive &&
-								isLinked &&
-								useAdminUiV1 &&
-								! this.props.isSavingAnyOption( 'publicize' ) ? (
-									<FormFieldset className="jp-settings__connection-management">
-										<ConnectionManagement />
-									</FormFieldset>
-								) : null }
-							</RefreshJetpackSocialSettingsWrapper>
+							{ shouldShowChildElements && hasSocialImageGenerator && (
+								<SocialImageGeneratorSection />
+							) }
+							{ isActive &&
+							isLinked &&
+							useAdminUiV1 &&
+							! this.props.isSavingAnyOption( 'publicize' ) ? (
+								<FormFieldset className="jp-settings__connection-management">
+									<ConnectionManagement />
+								</FormFieldset>
+							) : null }
 						</SettingsGroup>
 					) }
 					{ isActive && ! useAdminUiV1 && configCard() }
