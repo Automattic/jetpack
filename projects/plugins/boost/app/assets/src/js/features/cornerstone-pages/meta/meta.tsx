@@ -285,6 +285,7 @@ const List: React.FC< ListProps > = ( {
 				disabled={ inputValue === defaultValue }
 				onClick={ loadDefaultValue }
 				className={ styles.button }
+				variant="link"
 			>
 				{ __( 'Load Default', 'jetpack-boost' ) }
 			</Button>
