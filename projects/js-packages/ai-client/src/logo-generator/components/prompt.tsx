@@ -97,6 +97,14 @@ export const AiModalPromptInput = ( {
 		}
 	}, [ prompt ] );
 
+	// fix for contenteditable divs not being able to be cleared by the user
+	// as per default browser behavior
+	const onKeyUp = () => {
+		if ( inputRef.current?.textContent === '' ) {
+			inputRef.current.innerHTML = '';
+		}
+	};
+
 	return (
 		<div className="jetpack-ai-logo-generator__prompt-query">
 			<div
@@ -110,6 +118,7 @@ export const AiModalPromptInput = ( {
 				onInput={ onPromptInput }
 				onPaste={ onPromptPaste }
 				onKeyDown={ onKeyDown }
+				onKeyUp={ onKeyUp }
 				data-placeholder={ placeholder }
 			></div>
 			<Button
