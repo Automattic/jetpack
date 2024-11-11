@@ -54,6 +54,7 @@ export default function AiImageModal( {
 	onGuessStyle = null,
 	initialPrompt = '',
 	initialStyle = null,
+	minPromptLength = null,
 }: {
 	title: string;
 	cost: number;
@@ -84,6 +85,7 @@ export default function AiImageModal( {
 	onGuessStyle?: ( userPrompt: string ) => Promise< ImageStyle >;
 	initialPrompt?: string;
 	initialStyle?: ImageStyle;
+	minPromptLength?: number;
 } ) {
 	const { tracks } = useAnalytics();
 	const { recordEvent: recordTracksEvent } = tracks;
@@ -193,6 +195,7 @@ export default function AiImageModal( {
 							generateHandler={ hasError ? handleTryAgain : handleGenerate }
 							placeholder={ instructionsPlaceholder }
 							buttonLabel={ hasError ? tryAgainLabel : generateLabel }
+							minPromptLength={ minPromptLength }
 						/>
 						{ upgradePromptVisible && (
 							<QuotaExceededMessage
