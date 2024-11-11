@@ -11,10 +11,11 @@ import {
 	hasSocialPaidFeatures,
 	store as socialStore,
 	features,
+	getSocialScriptData,
 } from '@automattic/jetpack-publicize-components';
 import { siteHasFeature } from '@automattic/jetpack-script-data';
-import { useSelect, useDispatch } from '@wordpress/data';
-import { useState, useCallback, useEffect, useRef } from '@wordpress/element';
+import { useSelect } from '@wordpress/data';
+import { useState, useCallback } from '@wordpress/element';
 import React from 'react';
 import PricingPage from '../pricing-page';
 import SocialImageGeneratorToggle from '../social-image-generator-toggle';
@@ -32,34 +33,20 @@ const Admin = () => {
 	const showConnectionCard = ! isRegistered || ! isUserConnected;
 	const [ forceDisplayPricingPage, setForceDisplayPricingPage ] = useState( false );
 
-	const refreshJetpackSocialSettings = useDispatch( socialStore ).refreshJetpackSocialSettings;
-
 	const onPricingPageDismiss = useCallback( () => setForceDisplayPricingPage( false ), [] );
 
-	const { isModuleEnabled, showPricingPage, pluginVersion, isUpdatingJetpackSettings } = useSelect(
-		select => {
-			const store = select( socialStore );
-			return {
-				isModuleEnabled: store.isModuleEnabled(),
-				showPricingPage: store.showPricingPage(),
-				pluginVersion: store.getPluginVersion(),
-				isUpdatingJetpackSettings: store.isUpdatingJetpackSettings(),
-			};
-		}
-	);
+	const { isModuleEnabled, showPricingPage, isUpdatingJetpackSettings } = useSelect( select => {
+		const store = select( socialStore );
+		const settings = store.getSocialPluginSettings();
 
-	const hasEnabledModule = useRef( isModuleEnabled );
+		return {
+			isModuleEnabled: settings.publicize_active,
+			showPricingPage: settings.show_pricing_page,
+			isUpdatingJetpackSettings: store.isSavingSocialPluginSettings(),
+		};
+	} );
 
-	useEffect( () => {
-		if (
-			isModuleEnabled &&
-			! hasEnabledModule.current &&
-			siteHasFeature( features.IMAGE_GENERATOR )
-		) {
-			hasEnabledModule.current = true;
-			refreshJetpackSocialSettings();
-		}
-	}, [ isModuleEnabled, refreshJetpackSocialSettings ] );
+	const pluginVersion = getSocialScriptData().plugin_info.social.version;
 
 	const moduleName = `Jetpack Social ${ pluginVersion }`;
 

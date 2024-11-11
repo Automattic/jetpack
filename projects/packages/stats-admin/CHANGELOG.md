@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.22.6 - 2024-11-11
+### Fixed
+- Fixed flaky tests [#40062]
+
+## 0.22.5 - 2024-11-04
+### Added
+- Enable test coverage. [#39961]
+
+### Fixed
+- API cache not refreshing when cache is bypassed. [#39955]
+
 ## 0.22.4 - 2024-10-28
 ### Changed
 - Odyssey Stats cache busting: Use option instead of transient. [#39887]

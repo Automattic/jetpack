@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.24.16] - 2024-11-04
+### Added
+- Enable test coverage. [#39961]
+
 ## [0.24.15] - 2024-10-29
 ### Changed
 - Components: Add __nextHasNoMarginBottom to BaseControl-based components, preventing deprecation notices. [#39877]
@@ -1480,6 +1484,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.24.16]: https://github.com/Automattic/jetpack-videopress/compare/v0.24.15...v0.24.16
 [0.24.15]: https://github.com/Automattic/jetpack-videopress/compare/v0.24.14...v0.24.15
 [0.24.14]: https://github.com/Automattic/jetpack-videopress/compare/v0.24.13...v0.24.14
 [0.24.13]: https://github.com/Automattic/jetpack-videopress/compare/v0.24.12...v0.24.13

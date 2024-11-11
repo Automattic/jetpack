@@ -10,12 +10,50 @@
 	font-size: var( --font-body );
 }
 
-// Setting min-width of recommendation (product) cards to 300px; see: /components/product-cards-section/style.module.scss:62
-@media screen and (min-width: 599px) and (max-width: 1290px) {
-	ul.recommendations-list {
-		grid-template-columns: repeat( auto-fill, minmax( 300px, 1fr ) );
-		> li {
-			grid-column-end: auto;
+ul.recommendations-list {
+	grid-template-columns: repeat( 5, 1fr );
+	grid-auto-flow: column;
+	overflow-x: auto;
+	scroll-snap-type: x mandatory;
+	scroll-behavior: smooth;
+
+	scrollbar-width: none;
+	-ms-overflow-style: none;
+
+	&::-webkit-scrollbar {
+	  display: none;
+	}
+
+	li {
+		min-width: 320px;
+		scroll-snap-align: start;
+		grid-column: unset;
+		grid-column-end: unset;
+	}
+
+	@media screen and (max-width: 600px) {
+		grid-template-columns: repeat( 5, 100% );
+
+		li {
+			min-width: unset;
 		}
-	}	
+	}
+
+	@media screen and (max-width: 1024px) {
+		li {
+			min-width: 450px;
+		}
+	}
+}
+
+.slider-button {
+	transition: all 0.3s ease;
+}
+
+.prev-button:not(:disabled):hover {
+	transform: translateX(-4px);
+}
+
+.next-button:not(:disabled):hover {
+	transform: translateX(4px);
 }

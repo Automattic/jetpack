@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.72.0] - 2024-11-04
+### Added
+- Enable test coverage. [#39961]
+
+### Changed
+- Change order of social connections. [#40020]
+- Social: Migrate Social Image Generator settings to new store. [#39904]
+
+### Fixed
+- Fix dataviews styles imported in share status being added globally. [#39991]
+- Social: Fix empty whitespace in Bluesky and Mastodon connection forms. [#39984]
+- Social: Fix the Instagram max video length. [#39930]
+
 ## [0.71.5] - 2024-10-29
 ### Changed
 - Components: Add __nextHasNoMarginBottom to BaseControl-based components, preventing deprecation notices. [#39877]
@@ -991,6 +1004,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#24470]
 
+[0.72.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.71.5...v0.72.0
 [0.71.5]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.71.4...v0.71.5
 [0.71.4]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.71.3...v0.71.4
 [0.71.3]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.71.2...v0.71.3

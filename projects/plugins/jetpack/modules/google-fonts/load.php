@@ -5,8 +5,12 @@
  * @package automattic/jetpack
  */
 
+/**
+ * The modules is loaded during the late_initialization action and it also hooks to the `after_setup_theme`.
+ * See projects/plugins/jetpack/class.jetpack.php.
+ */
 add_action(
-	'plugins_loaded',
+	'after_setup_theme',
 	function () {
 		if (
 			/**
@@ -28,8 +32,5 @@ add_action(
 		}
 
 		require_once __DIR__ . '/current/load-google-fonts.php';
-	},
-	// Ensure the action is loaded after the late_initialization.
-	// See projects/plugins/jetpack/class.jetpack.php.
-	999
+	}
 );

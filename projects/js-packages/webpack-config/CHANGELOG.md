@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 3.5.1 - 2024-11-11
+### Changed
+- Updated package dependencies. [#39999]
+- Updated package dependencies. [#40060]
+
 ## 3.5.0 - 2024-10-14
 ### Added
 - Babel preset: Add default for base `targets` option, replacing default `.presetEnv.targets`. [#39629]

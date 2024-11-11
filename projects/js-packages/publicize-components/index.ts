@@ -4,7 +4,7 @@
 import './src/social-store';
 
 // Ensure that module augmentation is applied
-export type {} from './src/types';
+export type {} from './src/declarations';
 
 export { default as Connection } from './src/components/connection';
 export { default as Form } from './src/components/form';
@@ -17,7 +17,6 @@ export { default as TemplatePickerButton } from './src/components/social-image-g
 export { default as PublicizePanel } from './src/components/panel';
 export { default as ReviewPrompt } from './src/components/review-prompt';
 export { default as PostPublishPanels } from './src/components/post-publish-panels';
-export { default as RefreshJetpackSocialSettingsWrapper } from './src/components/refresh-jetpack-social-settings';
 export { default as ConnectionManagement } from './src/components/connection-management';
 
 export { default as useSocialMediaConnections } from './src/hooks/use-social-media-connections';
