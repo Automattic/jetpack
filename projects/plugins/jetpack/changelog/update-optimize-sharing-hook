@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Optimize the Sharing module hook callback.
