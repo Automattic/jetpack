@@ -149,6 +149,7 @@ export default function FeaturedImage( {
 				model: featuredImageActiveModel,
 				site_type: siteType,
 				style,
+				userPrompt,
 			} );
 
 			setIsFeaturedImageModalVisible( true );
@@ -192,7 +193,7 @@ export default function FeaturedImage( {
 	}, [ currentPointer, handleGenerate, handleGuessStyle ] );
 
 	const handleRegenerate = useCallback(
-		( { prompt, style }: { prompt?: string; style?: string } ) => {
+		( { userPrompt, style }: { userPrompt?: string; style?: string } ) => {
 			// track the regenerate image event
 			recordEvent( 'jetpack_ai_featured_image_generation_generate_another_image', {
 				placement,
@@ -203,7 +204,7 @@ export default function FeaturedImage( {
 
 			setCurrent( crrt => crrt + 1 );
 			processImageGeneration( {
-				userPrompt: prompt,
+				userPrompt,
 				postContent: postTitle + '\n\n' + postContent,
 				notEnoughRequests,
 				style,
@@ -214,6 +215,7 @@ export default function FeaturedImage( {
 					model: featuredImageActiveModel,
 					site_type: siteType,
 					style,
+					userPrompt,
 				} );
 			} );
 		},
@@ -409,6 +411,7 @@ export default function FeaturedImage( {
 				onGuessStyle={ handleGuessStyle }
 				initialPrompt={ defaultPrompt }
 				initialStyle={ requestStyle }
+				minPromptLength={ 0 }
 			/>
 		</>
 	);
