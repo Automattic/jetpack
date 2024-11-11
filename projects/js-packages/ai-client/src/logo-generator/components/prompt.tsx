@@ -45,6 +45,7 @@ export const AiModalPromptInput = ( {
 	generateHandler = () => {},
 	placeholder = '',
 	buttonLabel = '',
+	minPromptLength = null,
 }: {
 	prompt: string;
 	setPrompt: Dispatch< SetStateAction< string > >;
@@ -52,9 +53,11 @@ export const AiModalPromptInput = ( {
 	generateHandler: () => void;
 	placeholder?: string;
 	buttonLabel?: string;
+	minPromptLength?: number;
 } ) => {
 	const inputRef = useRef< HTMLDivElement | null >( null );
-	const hasPrompt = prompt?.length >= MINIMUM_PROMPT_LENGTH;
+	const hasPrompt =
+		prompt?.length >= ( minPromptLength === null ? MINIMUM_PROMPT_LENGTH : minPromptLength );
 
 	const onPromptInput = ( event: React.ChangeEvent< HTMLInputElement > ) => {
 		setPrompt( event.target.textContent || '' );
