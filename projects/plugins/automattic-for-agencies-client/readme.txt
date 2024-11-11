@@ -45,29 +45,9 @@ Once connected, your site will display within Automattic for Agencies.
 
 == Changelog ==
 ### 0.3.0 - 2024-11-11
-#### Added
-- Enable test coverage.
-
 #### Changed
-- General: indicate compatibility with the upcoming version of WordPress - 6.6.
 - General: indicate compatibility with the upcoming version of WordPress - 6.7.
 - Only include `wp-polyfill` as a script dependency when needed.
-- Updated package dependencies.
-- Updated package dependencies.
-- Updated package dependencies.
-- Updated package dependencies.
-- Updated package dependencies.
-- Updated package dependencies.
-- Updated package dependencies.
-- Updated package dependencies.
-- Updated package dependencies.
-- Updated package dependencies.
-- Updated package dependencies.
-- Updated package dependencies.
-- Updated package dependencies.
-- Updated package dependencies.
-- Updated package dependencies.
-- Updated package dependencies.
 - Updated package dependencies.
 
 #### Removed
@@ -76,5 +56,5 @@ Once connected, your site will display within Automattic for Agencies.
 - General: update WordPress version requirements to WordPress 6.5.
 
 #### Fixed
-- Lossless image optimization of images in projects/plugins [subdirectories from a* through social]
+- Lossless image optimization of images
 
