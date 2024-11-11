@@ -225,9 +225,9 @@ const List: React.FC< ListProps > = ( { items, setItems, maxItems, description }
 			}
 			if (
 				url &&
-				! ( url.origin + url.pathname )
-					.replace( /\/$/, '' )
-					.startsWith( Jetpack_Boost.site.url.replace( /\/$/, '' ) )
+				! ( url.origin + url.pathname ).replace( /\/$/, '' ).startsWith(
+					Jetpack_Boost.site.url.replace( /\/$/, '' )
+				)
 			) {
 				throw new Error(
 					/* translators: %s is the URL that didn't match the site URL */
