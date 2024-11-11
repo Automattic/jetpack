@@ -353,7 +353,7 @@ class Wpcom_Products {
 	/**
 	 * Gets the site's currently active "plan" (bundle).
 	 *
-	 * @return Object|WP_Error
+	 * @return array
 	 */
 	public static function get_site_current_plan() {
 		return Current_Plan::get();
