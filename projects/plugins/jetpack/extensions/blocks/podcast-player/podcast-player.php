@@ -109,6 +109,10 @@ function render_player( $player_data, $attributes ) {
 		return render_error( __( 'No tracks available to play.', 'jetpack' ) );
 	}
 
+	if ( is_wp_error( $player_data['tracks'] ) ) {
+		return render_error( $player_data['tracks']->get_error_message() );
+	}
+
 	// Only use the amount of tracks requested.
 	$player_data['tracks'] = array_slice(
 		$player_data['tracks'],
