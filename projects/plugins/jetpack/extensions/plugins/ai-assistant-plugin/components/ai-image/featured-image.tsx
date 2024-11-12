@@ -379,7 +379,7 @@ export default function FeaturedImage( {
 				</>
 			) }
 			<AiImageModal
-				postContent={ postContent }
+				postContent={ postContent || postTitle }
 				autoStart={ ( postContent !== '' || postTitle ) && ! postFeaturedMedia }
 				autoStartAction={ handleFirstGenerate }
 				images={ images }

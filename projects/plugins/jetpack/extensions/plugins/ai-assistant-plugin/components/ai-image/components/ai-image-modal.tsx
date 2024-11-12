@@ -55,6 +55,7 @@ export default function AiImageModal( {
 	initialPrompt = '',
 	initialStyle = null,
 	minPromptLength = null,
+	postContent = null,
 }: {
 	title: string;
 	cost: number;
@@ -191,7 +192,7 @@ export default function AiImageModal( {
 						<AiModalPromptInput
 							prompt={ userPrompt }
 							setPrompt={ setUserPrompt }
-							disabled={ instructionsDisabled }
+							disabled={ instructionsDisabled || ! postContent }
 							generateHandler={ hasError ? handleTryAgain : handleGenerate }
 							placeholder={ instructionsPlaceholder }
 							buttonLabel={ hasError ? tryAgainLabel : generateLabel }
