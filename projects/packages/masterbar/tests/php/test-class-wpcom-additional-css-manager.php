@@ -45,10 +45,12 @@ class Test_WPCOM_Additional_Css_Manager extends TestCase {
 			->setMethods( array( 'get_plan' ) )
 			->getMock();
 
-		$manager->method( 'get_plan' )->willReturn( (object) array(
-			'product_name_short' => 'Premium',
-			'path_slug'          => 'premium',
-		) );
+		$manager->method( 'get_plan' )->willReturn(
+			(object) array(
+				'product_name_short' => 'Premium',
+				'path_slug'          => 'premium',
+			)
+		);
 
 		$manager->register_nudge( $this->wp_customize );
 		$this->assertEquals(
