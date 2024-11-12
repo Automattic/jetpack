@@ -153,6 +153,7 @@ Default.args = {
 			value: [ 'current' ],
 		},
 	],
+	isThreatEligibleForFix: () => true,
 	onFixThreats: () =>
 		alert( 'Threat fix action callback triggered! This is handled by the component consumer.' ), // eslint-disable-line no-alert
 	onIgnoreThreats: () =>
@@ -176,7 +177,7 @@ FixerStatuses.args = {
 			severity: 4,
 			fixer: null,
 			fixedOn: '2024-07-15T22:01:42.000Z',
-			status: 'fixed',
+			status: 'current',
 			fixable: { fixer: 'update', target: '6.4.4', extensionStatus: 'inactive' },
 			version: '6.4.3',
 			source: '',
@@ -260,6 +261,7 @@ FixerStatuses.args = {
 			},
 		},
 	],
+	isThreatEligibleForFix: () => true,
 	onFixThreats: () =>
 		alert( 'Fix threat action callback triggered! This is handled by the component consumer.' ), // eslint-disable-line no-alert
 	onIgnoreThreats: () =>

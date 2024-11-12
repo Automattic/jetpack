@@ -22,7 +22,6 @@ import ThreatSeverityBadge from '../threat-severity-badge';
 import {
 	THREAT_ACTION_IGNORE,
 	THREAT_ACTION_UNIGNORE,
-	THREAT_ACTION_VIEW_DETAILS,
 	THREAT_FIELD_AUTO_FIX,
 	THREAT_FIELD_DESCRIPTION,
 	THREAT_FIELD_EXTENSION,
@@ -77,8 +76,8 @@ export default function ThreatsDataViews( {
 	isThreatEligibleForIgnore?: ( threat: Threat ) => boolean;
 	isThreatEligibleForUnignore?: ( threat: Threat ) => boolean;
 	onFixThreats?: ( threats: Threat[] ) => void;
-	onIgnoreThreats?: ActionButton< Threat >[ 'callback' ];
-	onUnignoreThreats?: ActionButton< Threat >[ 'callback' ];
+	onIgnoreThreats?: ( threats: Threat[] ) => void;
+	onUnignoreThreats?: ( threats: Threat[] ) => void;
 } ): JSX.Element {
 	const baseView = {
 		sort: {
@@ -398,7 +397,7 @@ export default function ThreatsDataViews( {
 				? [
 						{
 							id: THREAT_FIELD_AUTO_FIX,
-							label: __( 'Auto-Fix', 'jetpack' ),
+							label: __( 'Auto-fix', 'jetpack' ),
 							enableHiding: false,
 							elements: [
 								{
@@ -422,7 +421,7 @@ export default function ThreatsDataViews( {
 									return null;
 								}
 
-								return <ThreatFixerButton threat={ item } onClick={ onFixThreats } />;
+								return <ThreatFixerButton threat={ item } onClick={ showThreatDetails( item ) } />;
 							},
 						},
 				  ]
@@ -438,23 +437,17 @@ export default function ThreatsDataViews( {
 	 * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-dataviews/#actions-object
 	 */
 	const actions = useMemo( () => {
-		const result: Action< Threat >[] = [
-			{
-				id: THREAT_ACTION_VIEW_DETAILS,
-				label: __( 'View Details', 'jetpack' ),
-				callback: ( items: Threat[] ) => {
-					showThreatDetails( items[ 0 ] )();
-				},
-			},
-		];
+		const result: Action< Threat >[] = [];
+
+		// TODO: Keep View details for free threats?
 
 		if ( dataFields.includes( 'status' ) ) {
 			result.push( {
 				id: THREAT_ACTION_IGNORE,
 				label: __( 'Ignore', 'jetpack' ),
-				isPrimary: true,
-				isDestructive: true,
-				callback: onIgnoreThreats,
+				callback: ( items: Threat[] ) => {
+					showThreatDetails( items[ 0 ] )();
+				},
 				isEligible( item ) {
 					if ( ! onIgnoreThreats ) {
 						return false;
@@ -471,9 +464,9 @@ export default function ThreatsDataViews( {
 			result.push( {
 				id: THREAT_ACTION_UNIGNORE,
 				label: __( 'Unignore', 'jetpack' ),
-				isPrimary: true,
-				isDestructive: true,
-				callback: onUnignoreThreats,
+				callback: ( items: Threat[] ) => {
+					showThreatDetails( items[ 0 ] )();
+				},
 				isEligible( item ) {
 					if ( ! onUnignoreThreats ) {
 						return false;
@@ -535,7 +528,13 @@ export default function ThreatsDataViews( {
 				view={ view }
 			/>
 			{ openThreat ? (
-				<ThreatDetailsModal threat={ openThreat } onRequestClose={ hideThreatDetails } />
+				<ThreatDetailsModal
+					threat={ openThreat }
+					onRequestClose={ hideThreatDetails }
+					handleFixThreatClick={ onFixThreats }
+					handleIgnoreThreatClick={ onIgnoreThreats }
+					handleUnignoreThreatClick={ onUnignoreThreats }
+				/>
 			) : null }
 		</>
 	);

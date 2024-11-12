@@ -1,5 +1,10 @@
 import { Button, ThreatSeverityBadge } from '@automattic/jetpack-components';
-import { type Threat } from '@automattic/jetpack-scan';
+import {
+	type Threat,
+	fixerIsInError,
+	fixerIsInProgress,
+	fixerStatusIsStale,
+} from '@automattic/jetpack-scan';
 import { Modal } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { useMemo } from 'react';
@@ -139,53 +144,83 @@ const ThreatFixDetails = ( {
 
 const ThreatActions = ( {
 	threat,
+	closeModal,
 	handleFixThreatClick,
 	handleIgnoreThreatClick,
 	handleUnignoreThreatClick,
-	isActiveFixInProgress,
-	isStaleFixInProgress,
 }: {
 	threat: Threat;
-	handleFixThreatClick?: () => void;
-	handleIgnoreThreatClick?: () => void;
-	handleUnignoreThreatClick?: () => void;
-	isActiveFixInProgress?: boolean;
-	isStaleFixInProgress?: boolean;
+	closeModal: () => void;
+	handleFixThreatClick?: ( threats: Threat[] ) => void;
+	handleIgnoreThreatClick?: ( threats: Threat[] ) => void;
+	handleUnignoreThreatClick?: ( threats: Threat[] ) => void;
 } ) => {
+	const fixerState = useMemo( () => {
+		const inProgress = threat.fixer && fixerIsInProgress( threat.fixer );
+		const error = threat.fixer && fixerIsInError( threat.fixer );
+		const stale = threat.fixer && fixerStatusIsStale( threat.fixer );
+		return { inProgress, stale };
+	}, [ threat.fixer ] );
+
 	if ( ! handleFixThreatClick && ! handleIgnoreThreatClick && ! handleUnignoreThreatClick ) {
 		return null;
 	}
 
+	const onFixClick = () => {
+		handleFixThreatClick( [ threat ] );
+		closeModal();
+	};
+
+	const onIgnoreClick = () => {
+		handleIgnoreThreatClick( [ threat ] );
+		closeModal();
+	};
+
+	const onUnignoreClick = () => {
+		handleUnignoreThreatClick( [ threat ] );
+		closeModal();
+	};
+
+	// TODO: Offer Retry fix, error state and stale fixers?
+
 	return (
-		<div className={ styles.actions }>
-			{ 'ignored' === threat.status && !! handleUnignoreThreatClick && (
-				<Button isDestructive={ true } variant="secondary" onClick={ handleUnignoreThreatClick() }>
-					{ __( 'Un-ignore', 'jetpack' ) }
+		<div className={ styles.modal }>
+			<div className={ styles[ 'modal-actions' ] }>
+				<Button variant="secondary" onClick={ closeModal }>
+					{ __( 'Close', 'jetpack' ) }
 				</Button>
-			) }
-			{ 'current' === threat.status && (
-				<>
-					{ !! handleIgnoreThreatClick && (
-						<Button
-							isDestructive={ true }
-							variant="secondary"
-							onClick={ handleIgnoreThreatClick() }
-							disabled={ isActiveFixInProgress || isStaleFixInProgress }
-						>
-							{ __( 'Ignore', 'jetpack' ) }
-						</Button>
-					) }
-					{ threat.fixable && !! handleFixThreatClick && (
-						<Button
-							isPrimary
-							disabled={ isActiveFixInProgress || isStaleFixInProgress }
-							onClick={ handleFixThreatClick() }
-						>
-							{ __( 'Auto-Fix', 'jetpack' ) }
-						</Button>
-					) }
-				</>
-			) }
+			</div>
+			<div className={ styles[ 'threat-actions' ] }>
+				{ 'ignored' === threat.status && !! handleUnignoreThreatClick && (
+					<Button isDestructive={ true } variant="secondary" onClick={ onUnignoreClick }>
+						{ __( 'Un-ignore', 'jetpack' ) }
+					</Button>
+				) }
+				{ 'current' === threat.status && (
+					<>
+						{ !! handleIgnoreThreatClick && (
+							<Button
+								isDestructive={ true }
+								variant="secondary"
+								onClick={ onIgnoreClick }
+								disabled={ fixerState.inProgress || fixerState.stale }
+							>
+								{ __( 'Ignore', 'jetpack' ) }
+							</Button>
+						) }
+						{ threat.fixable && !! handleFixThreatClick && (
+							<Button
+								isPrimary
+								disabled={ fixerState.inProgress || fixerState.stale }
+								onClick={ onFixClick }
+							>
+								{ __( 'Auto-fix', 'jetpack' ) }
+								{ /* TODO: Use ThreatFixerButton component here for more detail? */ }
+							</Button>
+						) }
+					</>
+				) }
+			</div>
 		</div>
 	);
 };
@@ -196,8 +231,6 @@ const ThreatActions = ( {
  * @param {object}   props                           - The props.
  * @param {object}   props.threat                    - The threat.
  * @param {Function} props.handleUpgradeClick        - The handleUpgradeClick function.
- * @param {boolean}  props.isActiveFixInProgress     - The isActiveFixInProgress flag.
- * @param {boolean}  props.isStaleFixInProgress      - The isStaleFixInProgress flag.
  * @param {Function} props.handleFixThreatClick      - The handleFixThreatClick function.
  * @param {Function} props.handleIgnoreThreatClick   - The handleIgnoreThreatClick function.
  * @param {Function} props.handleUnignoreThreatClick - The handleUnignoreThreatClick function.
@@ -207,8 +240,6 @@ const ThreatActions = ( {
 export default function ThreatDetailsModal( {
 	threat,
 	handleUpgradeClick,
-	isActiveFixInProgress,
-	isStaleFixInProgress,
 	handleFixThreatClick,
 	handleIgnoreThreatClick,
 	handleUnignoreThreatClick,
@@ -216,11 +247,9 @@ export default function ThreatDetailsModal( {
 }: {
 	threat: Threat;
 	handleUpgradeClick?: () => void;
-	isActiveFixInProgress?: boolean;
-	isStaleFixInProgress?: boolean;
-	handleFixThreatClick?: () => void;
-	handleIgnoreThreatClick?: () => void;
-	handleUnignoreThreatClick?: () => void;
+	handleFixThreatClick?: ( threats: Threat[] ) => void;
+	handleIgnoreThreatClick?: ( threats: Threat[] ) => void;
+	handleUnignoreThreatClick?: ( threats: Threat[] ) => void;
 	[ key: string ]: unknown;
 } ): JSX.Element {
 	const title = useMemo( () => {
@@ -236,7 +265,7 @@ export default function ThreatDetailsModal( {
 	}, [ threat ] );
 
 	return (
-		<Modal size="large" title={ __( 'Threat Details', 'jetpack' ) } { ...modalProps }>
+		<Modal size="large" __experimentalHideHeader { ...modalProps }>
 			<div className={ styles[ 'threat-details' ] }>
 				<div className={ styles.section }>
 					<div className={ styles.title }>
@@ -266,11 +295,10 @@ export default function ThreatDetailsModal( {
 
 				<ThreatActions
 					threat={ threat }
+					closeModal={ modalProps.onRequestClose as () => void }
 					handleFixThreatClick={ handleFixThreatClick }
 					handleIgnoreThreatClick={ handleIgnoreThreatClick }
 					handleUnignoreThreatClick={ handleUnignoreThreatClick }
-					isActiveFixInProgress={ isActiveFixInProgress }
-					isStaleFixInProgress={ isStaleFixInProgress }
 				/>
 			</div>
 		</Modal>
