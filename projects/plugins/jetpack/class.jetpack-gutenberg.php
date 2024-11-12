@@ -716,10 +716,10 @@ class Jetpack_Gutenberg {
 		}
 
 		$initial_state = array(
-			'available_blocks' => self::get_availability(),
-			'blocks_variation' => $blocks_variation,
-			'modules'          => $modules,
-			'jetpack'          => array(
+			'available_blocks'    => self::get_availability(),
+			'blocks_variation'    => $blocks_variation,
+			'modules'             => $modules,
+			'jetpack'             => array(
 				'is_active'                     => Jetpack::is_connection_ready(),
 				'is_current_user_connected'     => $is_current_user_connected,
 				/** This filter is documented in class.jetpack-gutenberg.php */
@@ -743,15 +743,16 @@ class Jetpack_Gutenberg {
 				 */
 				'republicize_enabled'           => apply_filters( 'jetpack_block_editor_republicize_feature', true ),
 			),
-			'siteFragment'     => $status->get_site_suffix(),
-			'adminUrl'         => esc_url( admin_url() ),
-			'tracksUserData'   => $user_data,
-			'wpcomBlogId'      => $blog_id,
-			'allowedMimeTypes' => wp_get_mime_types(),
-			'siteLocale'       => str_replace( '_', '-', get_locale() ),
-			'ai-assistant'     => $ai_assistant_state,
-			'screenBase'       => $screen_base,
-			'pluginBasePath'   => plugins_url( '', Constants::get_constant( 'JETPACK__PLUGIN_FILE' ) ),
+			'siteFragment'        => $status->get_site_suffix(),
+			'adminUrl'            => esc_url( admin_url() ),
+			'tracksUserData'      => $user_data,
+			'wpcomBlogId'         => $blog_id,
+			'allowedMimeTypes'    => wp_get_mime_types(),
+			'siteLocale'          => str_replace( '_', '-', get_locale() ),
+			'ai-assistant'        => $ai_assistant_state,
+			'screenBase'          => $screen_base,
+			'pluginBasePath'      => plugins_url( '', Constants::get_constant( 'JETPACK__PLUGIN_FILE' ) ),
+			'next40pxDefaultSize' => self::site_supports_next_default_size(),
 		);
 
 		if ( Jetpack::is_module_active( 'publicize' ) && function_exists( 'publicize_init' ) ) {
@@ -1291,6 +1292,71 @@ class Jetpack_Gutenberg {
 		}
 
 		return $block_content;
+	}
+
+	/**
+	 * Check whether the environment supports the newer default size of elements, gradually introduced starting with WP 6.4.
+	 *
+	 * @since 14.0
+	 *
+	 * @see https://make.wordpress.org/core/2023/10/16/editor-components-updates-in-wordpress-6-4/#improving-size-consistency-for-ui-components
+	 *
+	 * @to-do: Deprecate this method and the logic around it when Jetpack requires WordPress 6.7.
+	 *
+	 * @return bool
+	 */
+	public static function site_supports_next_default_size() {
+		/*
+		 * If running a local dev build of gutenberg,
+		 * let's assume it supports the newest changes included in Gutenberg.
+		 */
+		if ( defined( 'GUTENBERG_DEVELOPMENT_MODE' ) && GUTENBERG_DEVELOPMENT_MODE ) {
+			return true;
+		}
+
+		// Let's now check if the Gutenberg plugin is installed on the site.
+		if (
+			defined( 'GUTENBERG_VERSION' )
+			&& version_compare( GUTENBERG_VERSION, '19.4', '>=' )
+		) {
+			return true;
+		}
+
+		// Finally, let's check for the WordPress version.
+		global $wp_version;
+		if ( version_compare( $wp_version, '6.7', '>=' ) ) {
+			return true;
+		}
+
+		// Final fallback.
+		return false;
+	}
+
+	/**
+	 * Register block metadata collection for Jetpack blocks.
+	 * This allows for more efficient block metadata loading by avoiding
+	 * individual block.json file reads at runtime.
+	 *
+	 * Uses wp_register_block_metadata_collection() if available (WordPress 6.7+)
+	 * and if the manifest file exists. The manifest file is auto-generated
+	 * during the build process.
+	 *
+	 * Runs on plugins_loaded to ensure registration happens before individual
+	 * blocks register themselves on init.
+	 *
+	 * @static
+	 * @since $$next-version$$
+	 * @return void
+	 */
+	public static function register_block_metadata_collection() {
+		$meta_file_path = JETPACK__PLUGIN_DIR . '_inc/blocks/blocks-manifest.php';
+		if ( function_exists( 'wp_register_block_metadata_collection' ) && file_exists( $meta_file_path ) ) {
+			// @phan-suppress-next-line PhanUndeclaredFunction -- New in WP 6.7. We're checking if it exists first.
+			wp_register_block_metadata_collection(
+				JETPACK__PLUGIN_DIR . '_inc/blocks/',
+				$meta_file_path
+			);
+		}
 	}
 }
 

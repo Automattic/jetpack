@@ -28,9 +28,6 @@ export function CustomInputs( { service }: CustomInputsProps ) {
 				<label htmlFor={ `${ id }-handle` }>
 					{ _x( 'Handle', 'The handle of a social media account.', 'jetpack' ) }
 				</label>
-				<p className="description" id={ `${ id }-handle-description` }>
-					{ __( 'You can find the handle in your Mastodon profile.', 'jetpack' ) }
-				</p>
 				<input
 					id={ `${ id }-handle` }
 					required
@@ -44,6 +41,9 @@ export function CustomInputs( { service }: CustomInputsProps ) {
 					aria-describedby={ `${ id }-handle-description` }
 					placeholder={ '@mastodon@mastodon.social' }
 				/>
+				<p className="description" id={ `${ id }-handle-description` }>
+					{ __( 'You can find the handle in your Mastodon profile.', 'jetpack' ) }
+				</p>
 			</div>
 		);
 	}
@@ -55,9 +55,6 @@ export function CustomInputs( { service }: CustomInputsProps ) {
 					<label htmlFor={ `${ id }-handle` }>
 						{ _x( 'Handle', 'The handle of a social media account.', 'jetpack' ) }
 					</label>
-					<p className="description" id={ `${ id }-handle-description` }>
-						{ __( 'You can find the handle in your Bluesky profile.', 'jetpack' ) }
-					</p>
 					<input
 						id={ `${ id }-handle` }
 						required
@@ -76,20 +73,12 @@ export function CustomInputs( { service }: CustomInputsProps ) {
 						aria-describedby={ `${ id }-handle-description` }
 						placeholder={ 'username.bsky.social' }
 					/>
+					<p className="description" id={ `${ id }-handle-description` }>
+						{ __( 'You can find the handle in your Bluesky profile.', 'jetpack' ) }
+					</p>
 				</div>
 				<div className={ styles[ 'fields-item' ] }>
 					<label htmlFor={ `${ id }-password` }>{ __( 'App password', 'jetpack' ) }</label>
-					<p className="description" id={ `${ id }-password-description` }>
-						{ createInterpolateElement(
-							__(
-								'App password is needed to safely connect your account. App password is different from your account password. You can <link>generate it in Bluesky</link>.',
-								'jetpack'
-							),
-							{
-								link: <ExternalLink href="https://bsky.app/settings/app-passwords" />,
-							}
-						) }
-					</p>
 					<input
 						id={ `${ id }-password` }
 						required
@@ -103,6 +92,17 @@ export function CustomInputs( { service }: CustomInputsProps ) {
 						aria-describedby={ `${ id }-password-description` }
 						placeholder={ 'xxxx-xxxx-xxxx-xxxx' }
 					/>
+					<p className="description" id={ `${ id }-password-description` }>
+						{ createInterpolateElement(
+							__(
+								'App password is needed to safely connect your account. App password is different from your account password. You can <link>generate it in Bluesky</link>.',
+								'jetpack'
+							),
+							{
+								link: <ExternalLink href="https://bsky.app/settings/app-passwords" />,
+							}
+						) }
+					</p>
 					{ reconnectingAccount?.service_name === 'bluesky' && (
 						<Alert level="error" showIcon={ false }>
 							{ __( 'Please provide an app password to fix the connection.', 'jetpack' ) }

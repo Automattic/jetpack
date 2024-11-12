@@ -638,7 +638,8 @@ function createPackageJson( packageJson, answers ) {
 			'./action-types': './src/state/action-types',
 		};
 		packageJson.scripts = {
-			test: 'jest tests',
+			test: 'jest --config=tests/jest.config.cjs',
+			'test-coverage': 'pnpm run test --coverage',
 		};
 
 		packageJson.devDependencies.jest = findVersionFromPnpmLock( 'jest' );
@@ -759,6 +760,7 @@ async function createComposerJson( composerJson, answers ) {
 			delete composerJson[ 'require-dev' ][ 'yoast/phpunit-polyfills' ];
 			composerJson.scripts = {
 				'test-js': [ 'pnpm run test' ],
+				'test-coverage': [ 'pnpm run test-coverage' ],
 			};
 			if ( ! answers.typescript.endsWith( '-src' ) ) {
 				composerJson.scripts = {
@@ -956,7 +958,7 @@ function createReadMeTxt( answers ) {
 		`=== Jetpack ${ answers.name } ===\n` +
 		'Contributors: automattic,\n' +
 		'Tags: jetpack, stuff\n' +
-		'Requires at least: 6.5\n' +
+		'Requires at least: 6.6\n' +
 		'Requires PHP: 7.0\n' +
 		'Tested up to: 6.7\n' +
 		`Stable tag: ${ answers.version }\n` +

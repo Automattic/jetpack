@@ -139,7 +139,6 @@ done
 proceed_p "" "Proceed releasing above projects?" Y
 
 # Sending tracking event
-TRACKING_DATA="{}"
 RELEASED_PLUGINS="{}"
 for PLUGIN in "${!PROJECTS[@]}"; do
 

@@ -15,7 +15,7 @@ import { isFatalError } from '../lib/critical-css-errors';
 export default function CriticalCssMeta() {
 	const [ cssState ] = useCriticalCssState();
 	const [ hasRetried, retry ] = useRetryRegenerate();
-	const [ regenerateReason ] = useRegenerationReason();
+	const [ { data: regenerateReason } ] = useRegenerationReason();
 	const { progress } = useLocalCriticalCssGenerator();
 	const showFatalError = isFatalError( cssState );
 

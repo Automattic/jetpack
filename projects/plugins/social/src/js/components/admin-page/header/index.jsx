@@ -1,4 +1,4 @@
-import { SOCIAL_STORE_ID } from '@automattic/jetpack-publicize-components';
+import { store as socialStore } from '@automattic/jetpack-publicize-components';
 import { getMyJetpackUrl } from '@automattic/jetpack-script-data';
 import { useSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
@@ -8,10 +8,8 @@ import styles from './styles.module.scss';
 
 const AdminPageHeader = () => {
 	const { showPricingPage } = useSelect( select => {
-		const store = select( SOCIAL_STORE_ID );
-
 		return {
-			showPricingPage: store.showPricingPage(),
+			showPricingPage: select( socialStore ).getSocialPluginSettings().show_pricing_page,
 		};
 	} );
 	const activateLicenseUrl = getMyJetpackUrl( '#/add-license' );
