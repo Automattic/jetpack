@@ -1,6 +1,6 @@
 import GooglePhotosDisconnect from './google-photos-disconnect';
 
-const GooglePhotosAccount = ( { account, setAuthenticated } ) => {
+const GooglePhotosAccount = ( { account, setAuthenticated, disconnectBtnVariant } ) => {
 	const { image, name } = account || {};
 
 	return (
@@ -18,7 +18,10 @@ const GooglePhotosAccount = ( { account, setAuthenticated } ) => {
 				{ name && <div className="jetpack-external-media-header__account-name">{ name }</div> }
 			</div>
 
-			<GooglePhotosDisconnect setAuthenticated={ setAuthenticated } />
+			<GooglePhotosDisconnect
+				setAuthenticated={ setAuthenticated }
+				buttonVariant={ disconnectBtnVariant }
+			/>
 		</div>
 	);
 };
