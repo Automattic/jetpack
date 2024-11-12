@@ -3,9 +3,10 @@ import { __ } from '@wordpress/i18n';
 import { Icon, external } from '@wordpress/icons';
 import { useEffect } from 'react';
 import mediaImage from '../../../../../images/media.svg';
+import GooglePhotosAccount from './google-photos-account';
 
 export default function GooglePhotosPickerButton( props ) {
-	const { pickerSession, featchPickerSession } = props;
+	const { pickerSession, featchPickerSession, setAuthenticated, account } = props;
 	const isButtonBusy = ! pickerSession;
 
 	const openPicker = () => {
@@ -36,6 +37,11 @@ export default function GooglePhotosPickerButton( props ) {
 				&nbsp;
 				<Icon icon={ external } size={ 18 } />
 			</Button>
+			<GooglePhotosAccount
+				account={ account }
+				setAuthenticated={ setAuthenticated }
+				disconnectBtnVariant={ 'link' }
+			/>
 		</div>
 	);
 }
