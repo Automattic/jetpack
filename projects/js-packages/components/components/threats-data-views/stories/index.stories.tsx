@@ -261,7 +261,7 @@ FixerStatuses.args = {
 		},
 	],
 	onFixThreats: () =>
-		alert( 'Threat fix action callback triggered! This is handled by the component consumer.' ), // eslint-disable-line no-alert
+		alert( 'Fix threat action callback triggered! This is handled by the component consumer.' ), // eslint-disable-line no-alert
 	onIgnoreThreats: () =>
 		alert( 'Ignore threat action callback triggered! This is handled by the component consumer.' ), // eslint-disable-line no-alert
 	onUnignoreThreats: () =>

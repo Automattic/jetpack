@@ -14,17 +14,3 @@
 	border-radius: 4px;
 	text-align: left;
 }
-
-.icon-tooltip {
-	display: block;
-	width: 72px;
-
-	.retry {
-		display: block;
-		margin-left: auto;
-	}
-
-	:global( .icon-tooltip-helper ) {
-		width: 100%;
-	}
-}

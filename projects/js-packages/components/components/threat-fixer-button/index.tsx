@@ -1,14 +1,13 @@
-import { Button, IconTooltip } from '@automattic/jetpack-components';
+import { Button } from '@automattic/jetpack-components';
 import {
-	CONTACT_SUPPORT_URL,
 	type Threat,
 	fixerIsInError,
 	fixerIsInProgress,
 	fixerStatusIsStale,
 } from '@automattic/jetpack-scan';
-import { ExternalLink, Tooltip } from '@wordpress/components';
-import { createInterpolateElement, useCallback, useMemo, useState } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { Tooltip } from '@wordpress/components';
+import { useCallback, useMemo } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import styles from './styles.module.scss';
 
 /**
@@ -30,8 +29,6 @@ export default function ThreatFixerButton( {
 	onClick: ( items: Threat[] ) => void;
 	className?: string;
 } ): JSX.Element {
-	const [ showPopover, setShowPopover ] = useState( false );
-
 	const fixerState = useMemo( () => {
 		const inProgress = threat.fixer && fixerIsInProgress( threat.fixer );
 		const error = threat.fixer && fixerIsInError( threat.fixer );
@@ -140,26 +137,18 @@ export default function ThreatFixerButton( {
 		[ onClick, threat ]
 	);
 
-	const handleDisabledClick = useCallback(
-		( event: React.MouseEvent ) => {
-			event.stopPropagation();
-			setShowPopover( ! showPopover );
-		},
-		[ showPopover ]
-	);
-
 	if ( ! threat.fixable ) {
 		return null;
 	}
 
 	return (
 		<div>
-			<Tooltip className={ styles.tooltip } text={ ! errorMessage ? tooltipText : null }>
+			<Tooltip className={ styles.tooltip } text={ errorMessage ? errorMessage : tooltipText }>
 				<Button
 					size="small"
 					weight="regular"
 					variant="secondary"
-					onClick={ errorMessage || fixerState.inProgress ? handleDisabledClick : handleClick }
+					onClick={ handleClick }
 					children={ buttonText }
 					className={ className }
 					isLoading={ fixerState.inProgress }
@@ -171,39 +160,6 @@ export default function ThreatFixerButton( {
 					style={ { minWidth: '72px' } }
 				/>
 			</Tooltip>
-			{ errorMessage && (
-				<IconTooltip
-					className={ styles[ 'icon-tooltip' ] }
-					forceShow={ showPopover }
-					popoverAnchorStyle="wrapper"
-					placement="bottom"
-					offset={ -5 }
-				>
-					<>
-						{ createInterpolateElement(
-							sprintf(
-								/* translators: placeholder is an error message.  */
-								__(
-									'%s Please try again or <supportLink>contact support</supportLink>.',
-									'jetpack'
-								),
-								errorMessage
-							),
-							{
-								supportLink: (
-									<ExternalLink
-										href={ CONTACT_SUPPORT_URL }
-										className={ styles[ 'support-link' ] }
-									/>
-								),
-							}
-						) }
-						<Button className={ styles.retry } size="small" onClick={ handleClick }>
-							{ __( 'Retry fix', 'jetpack' ) }
-						</Button>
-					</>
-				</IconTooltip>
-			) }
 		</div>
 	);
 }

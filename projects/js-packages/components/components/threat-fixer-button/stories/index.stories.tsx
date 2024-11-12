@@ -92,7 +92,7 @@ ReplaceFile.args = {
 export const Loading = args => <ThreatFixerButton { ...args } />;
 Loading.args = {
 	threat: { fixable: { fixer: 'update' }, fixer: { status: 'in_progress' } },
-	onClick: () => alert( 'Update fixer callback triggered' ), // eslint-disable-line no-alert
+	onClick: () => alert( 'In progress fixer callback triggered' ), // eslint-disable-line no-alert
 };
 
 export const StaleFixer = args => <ThreatFixerButton { ...args } />;
@@ -101,11 +101,11 @@ StaleFixer.args = {
 		fixable: { fixer: 'update' },
 		fixer: { status: 'in_progress', lastUpdated: new Date( '1999-01-01' ).toISOString() },
 	},
-	onClick: () => alert( 'Update fixer callback triggered.' ), // eslint-disable-line no-alert
+	onClick: () => alert( 'Stale fixer callback triggered.' ), // eslint-disable-line no-alert
 };
 
 export const ErrorFixer = args => <ThreatFixerButton { ...args } />;
 ErrorFixer.args = {
 	threat: { fixable: { fixer: 'update' }, fixer: { error: 'error' } },
-	onClick: () => alert( 'Update fixer callback triggered.' ), // eslint-disable-line no-alert
+	onClick: () => alert( 'Error fixer callback triggered.' ), // eslint-disable-line no-alert
 };
