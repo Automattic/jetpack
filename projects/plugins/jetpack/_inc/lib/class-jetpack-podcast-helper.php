@@ -118,6 +118,10 @@ class Jetpack_Podcast_Helper {
 				$tracks = $this->get_track_list();
 			}
 
+			if ( is_wp_error( $tracks ) ) {
+				return $tracks;
+			}
+
 			if ( empty( $tracks ) ) {
 				return new WP_Error( 'no_tracks', __( 'Your Podcast couldn\'t be embedded as it doesn\'t contain any tracks. Please double check your URL.', 'jetpack' ) );
 			}

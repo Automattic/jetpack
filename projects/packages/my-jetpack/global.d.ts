@@ -99,6 +99,7 @@ interface Window {
 			showFullJetpackStatsCard: boolean;
 			videoPressStats: boolean;
 		};
+		purchaseToken: string;
 		lifecycleStats: {
 			historicallyActiveModules: JetpackModule[];
 			brokenModules: {

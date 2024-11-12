@@ -3,6 +3,7 @@ export type ConnectionStatus = 'ok' | 'broken';
 export type Connection = {
 	id: string;
 	service_name: string;
+	label?: string;
 	display_name: string;
 	external_display?: string;
 	external_id: string;
@@ -27,6 +28,7 @@ export type ConnectionData = {
 	updatingConnections?: Array< number | string >;
 	reconnectingAccount?: Connection;
 	keyringResult?: KeyringResult;
+	abortControllers?: Record< string, Array< AbortController > >;
 };
 
 export type JetpackSettings = {
@@ -64,11 +66,8 @@ export type ShareStatus = {
 	[ PostId: number ]: PostShareStatus;
 };
 
-// TODO we should have a consistent structure across all the pages - editor, dashboard, admin page etc.
 export type SocialStoreState = {
 	connectionData: ConnectionData;
-	// on Jetack Social admin page
-	jetpackSettings?: JetpackSettings;
 	shareStatus?: ShareStatus;
 };
 
@@ -87,10 +86,26 @@ export interface KeyringResult extends KeyringAdditionalUser {
 	status: ConnectionStatus;
 }
 
-declare global {
-	interface Window {
-		jetpackSocialInitialState?: SocialStoreState & {
-			is_publicize_enabled: boolean;
-		};
-	}
-}
+export type SocialImageGeneratorConfig = {
+	enabled: boolean;
+	template?: string;
+};
+
+export type UtmSettingsConfig = {
+	enabled: boolean;
+};
+
+export type SocialPluginSettings = {
+	publicize_active: boolean;
+	show_pricing_page: boolean;
+	social_notes_enabled: boolean;
+	social_notes_config: {
+		append_link: boolean;
+		link_format: 'full_url' | 'shortlink' | 'permashortcitation';
+	};
+};
+
+export type SocialSettingsFields = {
+	jetpack_social_image_generator_settings: SocialImageGeneratorConfig;
+	jetpack_social_utm_settings: UtmSettingsConfig;
+};

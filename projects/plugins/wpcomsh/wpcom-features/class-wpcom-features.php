@@ -340,6 +340,7 @@ class WPCOM_Features {
 	public const CDN                               = 'cdn';
 	public const CLASSIC_SEARCH                    = 'search';
 	public const CLOUD_CRITICAL_CSS                = 'cloud-critical-css';
+	public const CORNERSTONE_TEN_PAGES             = 'cornerstone-10-pages';
 	public const CLOUDFLARE_ANALYTICS              = 'cloudflare-analytics';
 	public const CLOUDFLARE_CDN                    = 'cloudflare-cdn';
 	public const CONCIERGE                         = 'concierge';
@@ -578,6 +579,10 @@ class WPCOM_Features {
 			self::WP_P2_PLUS_MONTHLY,
 		),
 		self::CLOUD_CRITICAL_CSS                => array(
+			self::JETPACK_BOOST_PLANS,
+			self::JETPACK_COMPLETE_PLANS,
+		),
+		self::CORNERSTONE_TEN_PAGES             => array(
 			self::JETPACK_BOOST_PLANS,
 			self::JETPACK_COMPLETE_PLANS,
 		),
