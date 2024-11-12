@@ -76,7 +76,7 @@ foreach ( array( 'previous', 'trunk' ) as $wp ) {
 		'script'  => 'test-php',
 		'php'     => $phpver,
 		'wp'      => $wp,
-		'timeout' => 15, // 2024-11-12: Successful runs seem to take ~7 minutes for the 7.4 trunk run, ~5.5-6 for 7.x and 8.0.
+		'timeout' => 15, // 2024-11-12: Successful runs seem to take ~7 minutes with PHP 8.2.
 	);
 }
 
