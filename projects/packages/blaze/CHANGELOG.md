@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.24.0] - 2024-11-11
+### Added
+- Adds /stats endpoints to the whitelist [#39995]
+
+### Changed
+- Updated package dependencies. [#39999]
+- Updated package dependencies. [#40060]
+
 ## [0.23.3] - 2024-11-04
 ### Added
 - Enable test coverage. [#39961]
@@ -474,6 +482,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#27906]
 
+[0.24.0]: https://github.com/automattic/jetpack-blaze/compare/v0.23.3...v0.24.0
 [0.23.3]: https://github.com/automattic/jetpack-blaze/compare/v0.23.2...v0.23.3
 [0.23.2]: https://github.com/automattic/jetpack-blaze/compare/v0.23.1...v0.23.2
 [0.23.1]: https://github.com/automattic/jetpack-blaze/compare/v0.23.0...v0.23.1

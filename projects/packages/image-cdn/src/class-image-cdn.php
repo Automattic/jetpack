@@ -12,7 +12,7 @@ namespace Automattic\Jetpack\Image_CDN;
  */
 final class Image_CDN {
 
-	const PACKAGE_VERSION = '0.5.3';
+	const PACKAGE_VERSION = '0.6.0';
 
 	/**
 	 * Singleton.

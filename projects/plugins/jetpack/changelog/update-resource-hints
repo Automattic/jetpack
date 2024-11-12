@@ -1,4 +1,0 @@
-Significance: minor
-Type: enhancement
-
-Use preconnect resource hints, instead of dns-prefetch, to improve performance

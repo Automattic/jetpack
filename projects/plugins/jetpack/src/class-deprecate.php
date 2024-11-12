@@ -35,6 +35,7 @@ class Deprecate {
 	 */
 	private function __construct() {
 		// Modify the notices array to include the notices you want to display.
+		// For more information, see /docs/deprecating-features.md.
 		$this->notices = array(
 			'my-admin' => array(
 				'title'       => __( "Retired feature: Jetpack's XYZ Feature", 'jetpack' ),
