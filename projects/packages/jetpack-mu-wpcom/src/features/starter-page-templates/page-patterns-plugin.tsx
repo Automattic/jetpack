@@ -43,9 +43,7 @@ export function PagePatternsPlugin( props: PagePatternsPluginProps ) {
 			isWelcomeGuideActive: (
 				select( 'core/edit-post' ) as CoreEditPostPlaceholder
 			 ).isFeatureActive( 'welcomeGuide' ) as boolean, // Gutenberg 7.2.0 or higher
-			areTipsEnabled: select( 'core/nux' )
-				? ( ( select( 'core/nux' ) as CoreNuxPlaceholder ).areTipsEnabled() as boolean )
-				: false, // Gutenberg 7.1.0 or lower
+			areTipsEnabled: ( select( 'core/nux' ) as CoreNuxPlaceholder ).areTipsEnabled() as boolean,
 			...( isPatternPicker() && {
 				title: __( 'Choose a Pattern', 'jetpack-mu-wpcom' ),
 				description: __(
