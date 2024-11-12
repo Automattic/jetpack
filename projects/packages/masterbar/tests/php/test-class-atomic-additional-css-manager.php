@@ -50,9 +50,9 @@ class Test_Atomic_Additional_CSS_Manager extends TestCase {
 	 */
 	public function test_it_generates_proper_url_and_nudge() {
 		$manager = $this->getMockBuilder( Atomic_Additional_CSS_Manager::class )
-		                ->setConstructorArgs( [ 'foo.com' ] )
-		                ->onlyMethods( [ 'get_plan_name' ] )
-		                ->getMock();
+			->setConstructorArgs( array( 'foo.com' ) )
+			->setMethods( array( 'get_plan_name' ) )
+			->getMock();
 
 		$manager->method( 'get_plan_name' )->willReturn( 'Business' );
 

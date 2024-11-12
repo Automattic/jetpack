@@ -41,14 +41,14 @@ class Test_WPCOM_Additional_Css_Manager extends TestCase {
 	 */
 	public function test_it_generates_proper_url_and_nudge() {
 		$manager = $this->getMockBuilder( WPCOM_Additional_CSS_Manager::class )
-		                ->setConstructorArgs( [ 'foo.com' ] )
-		                ->onlyMethods( [ 'get_plan' ] )
-		                ->getMock();
+			->setConstructorArgs( array( 'foo.com' ) )
+			->setMethods( array( 'get_plan' ) )
+			->getMock();
 
-		$manager->method( 'get_plan' )->willReturn( (object) [
+		$manager->method( 'get_plan' )->willReturn( (object) array(
 			'product_name_short' => 'Premium',
-			'path_slug'          => 'premium'
-		] );
+			'path_slug'          => 'premium',
+		) );
 
 		$manager->register_nudge( $this->wp_customize );
 		$this->assertEquals(
