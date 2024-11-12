@@ -40,7 +40,15 @@ class Test_WPCOM_Additional_Css_Manager extends TestCase {
 	 * Check if the manager constructs the proper url and copy message.
 	 */
 	public function test_it_generates_proper_url_and_nudge() {
-		$manager = new WPCOM_Additional_CSS_Manager( 'foo.com' );
+		$manager = $this->getMockBuilder( Atomic_Additional_CSS_Manager::class )
+		                ->setConstructorArgs( [ 'foo.com' ] )
+		                ->onlyMethods( [ 'get_plan' ] )
+		                ->getMock();
+
+		$manager->method( 'get_plan' )->willReturn( (object) [
+			'product_name_short' => 'Premium',
+			'path_slug'          => 'premium'
+		] );
 
 		$manager->register_nudge( $this->wp_customize );
 		$this->assertEquals(
