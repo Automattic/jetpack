@@ -1,6 +1,6 @@
 {
 	"name": "automattic/jetpack-mu-wpcom",
-	"description": "Enhances your site with features powered by WordPress.com",
+	"description": "Enhances your site with features powered by WordPress.com!",
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
