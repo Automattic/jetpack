@@ -54,6 +54,8 @@ class Test_Atomic_Additional_CSS_Manager extends TestCase {
 		                ->onlyMethods( [ 'get_plan_name' ] )
 		                ->getMock();
 
+		$manager->method( 'get_plan_name' )->willReturn( 'Business' );
+
 		$manager->register_nudge( $this->wp_customize );
 
 		$this->assertEquals(
