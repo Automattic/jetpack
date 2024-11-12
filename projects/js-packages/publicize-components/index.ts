@@ -18,12 +18,12 @@ export { default as PublicizePanel } from './src/components/panel';
 export { default as ReviewPrompt } from './src/components/review-prompt';
 export { default as PostPublishPanels } from './src/components/post-publish-panels';
 export { default as ConnectionManagement } from './src/components/connection-management';
+export { default as UtmToggle } from './src/components/utm-toggle';
 
 export { default as useSocialMediaConnections } from './src/hooks/use-social-media-connections';
 export { default as useSocialMediaMessage } from './src/hooks/use-social-media-message';
 export { default as usePublicizeConfig } from './src/hooks/use-publicize-config';
 export { default as useSharePost } from './src/hooks/use-share-post';
-export { default as useDismissNotice } from './src/hooks/use-dismiss-notice';
 
 export * from './src/social-store';
 export * from './src/utils';

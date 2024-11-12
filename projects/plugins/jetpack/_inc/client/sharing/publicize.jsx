@@ -18,6 +18,7 @@ import './style.scss';
 import { FormFieldset } from '../components/forms';
 import { FEATURE_JETPACK_SOCIAL } from '../lib/plans/constants';
 import SocialImageGeneratorSection from './features/social-image-generator-section';
+import UtmToggleSection from './features/utm-toggle-section';
 
 export const Publicize = withModuleSettingsFormHelpers(
 	class extends Component {
@@ -154,6 +155,7 @@ export const Publicize = withModuleSettingsFormHelpers(
 							{ shouldShowChildElements && hasSocialImageGenerator && (
 								<SocialImageGeneratorSection />
 							) }
+							{ shouldShowChildElements && <UtmToggleSection /> }
 							{ isActive &&
 							isLinked &&
 							useAdminUiV1 &&

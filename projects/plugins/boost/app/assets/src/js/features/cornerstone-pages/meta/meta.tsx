@@ -53,6 +53,7 @@ const Meta = () => {
 				items={ cornerstonePages.join( '\n' ) }
 				setItems={ updateCornerstonePages }
 				maxItems={ cornerstonePagesProperties.max_pages }
+				defaultValue={ cornerstonePagesProperties.default_pages.join( '\n' ) }
 				description={
 					<>
 						{ createInterpolateElement(
@@ -169,9 +170,16 @@ type ListProps = {
 	setItems: ( newValue: string ) => void;
 	maxItems: number;
 	description: React.ReactNode | null;
+	defaultValue?: string;
 };
 
-const List: React.FC< ListProps > = ( { items, setItems, maxItems, description } ) => {
+const List: React.FC< ListProps > = ( {
+	items,
+	setItems,
+	maxItems,
+	description,
+	defaultValue,
+} ) => {
 	const [ inputValue, setInputValue ] = useState( items );
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const [ inputInvalid, setInputInvalid ] = useState( false );
@@ -248,6 +256,10 @@ const List: React.FC< ListProps > = ( { items, setItems, maxItems, description }
 		} );
 	}
 
+	function loadDefaultValue() {
+		setInputValue( defaultValue || '' );
+	}
+
 	return (
 		<div
 			className={ clsx( styles.section, {
@@ -268,6 +280,14 @@ const List: React.FC< ListProps > = ( { items, setItems, maxItems, description }
 				className={ styles.button }
 			>
 				{ __( 'Save', 'jetpack-boost' ) }
+			</Button>
+			<Button
+				disabled={ inputValue === defaultValue }
+				onClick={ loadDefaultValue }
+				className={ styles.button }
+				variant="link"
+			>
+				{ __( 'Load Default', 'jetpack-boost' ) }
 			</Button>
 		</div>
 	);
