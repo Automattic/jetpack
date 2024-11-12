@@ -56,7 +56,7 @@ class Test_WPCOM_Additional_Css_Manager extends TestCase {
 			$this->wp_customize->controls()['jetpack_custom_css_control']->cta_url
 		);
 		$this->assertEquals(
-			'Purchase the Explorer plan to<br> activate CSS customization',
+			'Purchase the Premium plan to<br> activate CSS customization',
 			$this->wp_customize->controls()['jetpack_custom_css_control']->nudge_copy
 		);
 	}
