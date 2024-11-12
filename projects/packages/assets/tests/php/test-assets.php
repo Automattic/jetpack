@@ -344,7 +344,7 @@ class AssetsTest extends TestCase {
 		}
 		if ( isset( $extra['enqueue'] ) ) {
 			$obj = $this->getMockBuilder( \stdClass::class )
-				->onlyMethods( array( 'get_data' ) )
+				->addMethods( array( 'get_data' ) )
 				->getMock();
 			$obj->method( 'get_data' )->with( ...$extra['enqueue'][0] )->willReturn( $extra['enqueue'][1] );
 			Functions\expect( 'wp_scripts' )->andReturn( $obj );
@@ -727,7 +727,7 @@ class AssetsTest extends TestCase {
 		}
 
 		$mock = $this->getMockBuilder( \stdClass::class )
-			->onlyMethods( array( 'add', 'add_inline_script', 'add_data' ) )
+			->addMethods( array( 'add', 'add_inline_script', 'add_data' ) )
 			->getMock();
 
 		// Unfortunately PHPUnit deprecated withConsecutive with no replacement, so we have to roll our own version.

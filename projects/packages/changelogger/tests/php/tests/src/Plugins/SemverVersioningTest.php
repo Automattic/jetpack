@@ -257,7 +257,7 @@ class SemverVersioningTest extends TestCase {
 		$obj = new SemverVersioning();
 
 		$out1 = $this->getMockBuilder( BufferedOutput::class )
-			->onlyMethods( array( 'getErrorOutput' ) )
+			->addMethods( array( 'getErrorOutput' ) )
 			->getMock();
 		$out2 = new BufferedOutput();
 		$out1->method( 'getErrorOutput' )->willReturn( $out2 );
