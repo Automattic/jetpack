@@ -1,6 +1,7 @@
 import {
 	SocialImageGeneratorConfig,
 	SocialPluginSettings,
+	UtmSettingsConfig,
 	SocialStoreState,
 } from './social-store/types';
 
@@ -37,6 +38,7 @@ export interface ApiPaths {
 
 export type SocialSettings = {
 	socialImageGenerator: SocialImageGeneratorConfig;
+	utmSettings: UtmSettingsConfig;
 	socialPlugin: SocialPluginSettings;
 };
 
