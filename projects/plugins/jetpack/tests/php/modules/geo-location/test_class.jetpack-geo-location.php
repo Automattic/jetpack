@@ -391,8 +391,11 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 		);
 
 		$builder = $this->getMockBuilder( Jetpack_Geo_Location::class )
-			->onlyMethods( $existing_methods_to_mock )
-			->addMethods( $new_methods_to_mock );
+			->onlyMethods( $existing_methods_to_mock );
+		// This throws an error if passed an empty array.
+		if ( ! empty( $new_methods_to_mock ) ) {
+			$builder->addMethods( $new_methods_to_mock );
+		}
 
 		if ( $disable_constructor ) {
 			$builder->disableOriginalConstructor();
