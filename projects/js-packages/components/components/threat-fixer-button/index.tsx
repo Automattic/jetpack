@@ -174,7 +174,6 @@ export default function ThreatFixerButton( {
 			{ errorMessage && (
 				<IconTooltip
 					className={ styles[ 'icon-tooltip' ] }
-					hoverShow
 					forceShow={ showPopover }
 					popoverAnchorStyle="wrapper"
 					placement="bottom"
