@@ -387,7 +387,7 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 		);
 
 		$builder = $this->getMockBuilder( Jetpack_Geo_Location::class )
-			->setMethods( $mock_methods );
+			->onlyMethods( $mock_methods );
 
 		if ( $disable_constructor ) {
 			$builder->disableOriginalConstructor();
@@ -400,7 +400,7 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 		global $wp_query;
 
 		$wp_query = $this->getMockBuilder( WP_Query::class )
-			->setMethods( array( 'is_feed', 'is_single' ) )
+			->onlyMethods( array( 'is_feed', 'is_single' ) )
 			->getMock();
 
 		$wp_query->expects( $this->any() )
@@ -412,7 +412,7 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 		global $wp_query;
 
 		$wp_query = $this->getMockBuilder( WP_Query::class )
-			->setMethods( array( 'is_feed', 'is_single' ) )
+			->onlyMethods( array( 'is_feed', 'is_single' ) )
 			->getMock();
 
 		$wp_query->expects( $this->any() )
@@ -424,7 +424,7 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 		global $wp_query;
 
 		$wp_query = $this->getMockBuilder( WP_Query::class )
-			->setMethods( array( 'is_feed' ) )
+			->onlyMethods( array( 'is_feed' ) )
 			->getMock();
 
 		$wp_query->expects( $this->any() )
@@ -436,7 +436,7 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 		global $wp_query;
 
 		$wp_query = $this->getMockBuilder( WP_Query::class )
-			->setMethods( array( 'is_feed' ) )
+			->onlyMethods( array( 'is_feed' ) )
 			->getMock();
 
 		$wp_query->expects( $this->any() )
