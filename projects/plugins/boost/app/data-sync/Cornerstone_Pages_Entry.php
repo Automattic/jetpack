@@ -28,11 +28,6 @@ class Cornerstone_Pages_Entry implements Entry_Can_Get, Entry_Can_Set {
 	public function set( $value ) {
 		$value = $this->sanitize_value( $value );
 
-		if ( empty( $value ) || count( $value ) === 1 && $value[0] === '' ) {
-			delete_option( $this->option_key );
-			return;
-		}
-
 		$value = array_map( 'untrailingslashit', $value );
 
 		$updated = update_option( $this->option_key, $value );

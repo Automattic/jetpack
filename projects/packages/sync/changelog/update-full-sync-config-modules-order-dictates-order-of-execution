@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Sync: Modules in Full Sync are now sent in the order the config is set.

@@ -9,8 +9,8 @@
  */
 return [
     // # Issue statistics:
+    // PhanTypeMismatchReturnProbablyReal : 40+ occurrences
     // PhanTypeMismatchArgument : 35+ occurrences
-    // PhanTypeMismatchReturnProbablyReal : 35+ occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 30+ occurrences
     // PhanTypeMismatchReturn : 20+ occurrences
     // PhanUndeclaredProperty : 20+ occurrences
@@ -19,6 +19,7 @@ return [
     // PhanPluginSimplifyExpressionBool : 9 occurrences
     // PhanPossiblyUndeclaredVariable : 8 occurrences
     // PhanPluginDuplicateSwitchCaseLooseEquality : 6 occurrences
+    // PhanUndeclaredTypeReturnType : 6 occurrences
     // PhanNonClassMethodCall : 5 occurrences
     // PhanRedundantCondition : 4 occurrences
     // PhanTypeExpectedObjectPropAccess : 4 occurrences

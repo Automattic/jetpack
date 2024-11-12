@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, arsihasi, azaozz, barry, batmoo, beaulebens, bindlegirl, biskobe, bjorsch, blobaugh, brbrr, brileyhooper, cainm, cena, cfinke, cgastrell, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, daniloercoli, davoraltman, delawski, designsimply, dkmyta, dllh, drawmyface, dsmart, dun2mis, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, joen, jblz, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lhkowalski, lschuyler, macmanx, martinremy, matt, mattwiebe, matveb, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, miguelxavierpenha, mikeyarce, mkaz, nancythanki, nickmomrik, njweller, nunyvega, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, renatoagds, retrofox, richardmtl, richardmuscat, robertbpugh, roccotripaldi, ryancowles, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, thehenridev, tmoorewp, tyxla, Viper007Bond, westi, williamvianas, wpkaren, yoavf, zinigor
 Tags: Security, backup, malware, scan, performance
-Stable tag: 13.9.1
+Stable tag: 14.0
 Requires at least: 6.5
 Requires PHP: 7.0
 Tested up to: 6.7
@@ -326,45 +326,39 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.0-beta - 2024-11-04
+### 14.0 - 2024-11-07
+#### Major enhancements
+- Newsletters: Add email previews and a floating subscribe button.
+- Social: Add support for Bluesky.
+
 #### Enhancements
-- CSS: Rely esclusively on individual CSS files instead of a combined one for the features used on each page to improve page loading.
-- Newsletter: Update the default "reply to" setting value from not allowed to replies being posted as public comments.
-- Newsletters: Add an email preview option to the preview menu.
-- Newsletters: Allow skipping newsletter modals with a URL query param.
-- Scan: Update Jetpack Scan link in the WP Admin menu.
-- Sitemap: Improve sitemap write efficienty.
-- Social: Add Bluesky to social previews.
-- Social: Add support for Bluesky 🎉.
-- Subscriptions: Add a floating subscribe button.
+- Newsletters: Allow skipping newsletter modals with the "jetpack_skip_subscription_popup" URL query param.
+- Newsletters: Update the default "reply to" setting value from not allowed to replies being posted as public comments.
+- Performance: Optimize CSS for better page load performance and improve sitemap write efficiency.
 
 #### Improved compatibility
-- Embed Blocks: Append 'Embed' to the titles of Facebook and Instagram embed blocks.
-- General: Ensure notice displays without errors when running an old version of WordPress.
-- Image Block: Make the external media picker button consistent with the other buttons in the image block.
+- Embed Blocks: Append 'Embed' to Facebook and Instagram embed blocks' titles.
+- Filters: Update "plugin_action_links" filter parameter to avoid conflicts with other plugins.
+- General: Ensure correct display of notices when running an old version of WordPress.
+- General: Indicate compatibility with WordPress 6.7.
+- Image Block: Make the external media picker button consistent with other Image Block buttons.
 - Image CDN: URL encode image path parts for RSS feed compatibility.
-- Plugin action links filters: Update parameter to avoid conflicts with other plugins.
-- Post Editor: Prevent deprecation notices with WordPress 6.7.
 - Related Posts: Allow Related Posts on non-post CPTs where the block is already able to be used.
 
-#### Improved Compatibility
-- General: Indicate compatibility with WordPress 6.7.
-
 #### Bug fixes
-- Blocks: Fix rendering of the goodreads block to avoid PHP warnings caused by missing attributes.
-- Blocks: Render the slideshow block correctly inside an iframe editor.
+- AI Assistant: Fix false-positive spelling errors in Write Brief.
 - Carousel: Further improve accessibility by being more selective over which images to apply attributes to.
 - Contact Form: Ensure that submitted forms can only be accessed by logged in users allowed to view form submissions.
-- General: Only include `wp-polyfill` as a script dependency when needed.
-- Google Fonts: Fix module not loading fully in certain scenarios.
-- Map Block: Fix issue where blocks placed underneath would overlap with the map block.
-- Newsletter: Ensure `Enable featured image on your new post emails` setting displays the right value.
-- Newsletters: Fix "Use excerpt" setting.
-- Sharing: Ensure the sharing settings can be accessed even when a user is not connected to WordPress.com.
-- Social: Fix the Instagram maximum video length.
-- Social: Prevent share status styles from affecting other independent elements on the page.
-- Social: Prevent text overflow in the share status tooltip.
-- Stats: Fix top post card on the Insight page.
+- General: Include `wp-polyfill` as a script dependency only when needed.
+- Goodreads Block: Avoid PHP warnings caused by missing attributes when rendering.
+- Google Fonts: Fix module not fully loading in certain scenarios.
+- Map Block: Prevent overlap with other blocks placed below.
+- Newsletters: Fix "Enable featured image on your new post emails" and "Use excerpt" settings.
+- Sharing: Ensure the sharing settings can be accessed even when the user is not connected to WordPress.com.
+- Slideshow Block: Ensure the block renders correctly inside an iframe editor.
+- Social: Fix the maximum video length for Instagram Business reels.
+- Social: Prevent share status styles from causing text overflow or affecting other elements on the page.
+- Stats: Fix top post card on the Insights page.
 - Subscribe Block: Fix styling for the number of subscribers in the post editor sidebar.
 
 --------

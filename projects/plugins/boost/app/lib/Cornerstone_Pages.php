@@ -12,13 +12,22 @@ class Cornerstone_Pages implements Has_Setup {
 	const FREE_MAX_PAGES    = 1;
 
 	public function setup() {
+		$this->register_ds_stores();
+
 		add_filter( 'jetpack_boost_critical_css_providers', array( $this, 'remove_ccss_front_page_provider' ), 10, 2 );
 		add_filter( 'display_post_states', array( $this, 'add_display_post_states' ), 10, 2 );
-		add_action( 'init', array( $this, 'register_ds_stores' ) );
+		add_action( 'init', array( $this, 'set_default_pages' ), 0 );
 	}
 
-	public function register_ds_stores() {
-		$schema = Schema::as_array( Schema::as_string() )->fallback( $this->default_pages() );
+	public function set_default_pages() {
+		$pages = jetpack_boost_ds_get( 'cornerstone_pages_list' );
+		if ( empty( $pages ) ) {
+			jetpack_boost_ds_set( 'cornerstone_pages_list', $this->default_pages() );
+		}
+	}
+
+	private function register_ds_stores() {
+		$schema = Schema::as_array( Schema::as_string() )->fallback( array() );
 		jetpack_boost_register_option( 'cornerstone_pages_list', $schema, new Cornerstone_Pages_Entry( 'cornerstone_pages_list' ) );
 		jetpack_boost_register_readonly_option( 'cornerstone_pages_properties', array( $this, 'get_properties' ) );
 	}

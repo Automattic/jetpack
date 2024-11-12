@@ -11,6 +11,7 @@ import {
 	hasSocialPaidFeatures,
 	store as socialStore,
 	features,
+	getSocialScriptData,
 } from '@automattic/jetpack-publicize-components';
 import { siteHasFeature } from '@automattic/jetpack-script-data';
 import { useSelect } from '@wordpress/data';
@@ -34,17 +35,18 @@ const Admin = () => {
 
 	const onPricingPageDismiss = useCallback( () => setForceDisplayPricingPage( false ), [] );
 
-	const { isModuleEnabled, showPricingPage, pluginVersion, isUpdatingJetpackSettings } = useSelect(
-		select => {
-			const store = select( socialStore );
-			return {
-				isModuleEnabled: store.isModuleEnabled(),
-				showPricingPage: store.showPricingPage(),
-				pluginVersion: store.getPluginVersion(),
-				isUpdatingJetpackSettings: store.isUpdatingJetpackSettings(),
-			};
-		}
-	);
+	const { isModuleEnabled, showPricingPage, isUpdatingJetpackSettings } = useSelect( select => {
+		const store = select( socialStore );
+		const settings = store.getSocialPluginSettings();
+
+		return {
+			isModuleEnabled: settings.publicize_active,
+			showPricingPage: settings.show_pricing_page,
+			isUpdatingJetpackSettings: store.isSavingSocialPluginSettings(),
+		};
+	} );
+
+	const pluginVersion = getSocialScriptData().plugin_info.social.version;
 
 	const moduleName = `Jetpack Social ${ pluginVersion }`;
 
