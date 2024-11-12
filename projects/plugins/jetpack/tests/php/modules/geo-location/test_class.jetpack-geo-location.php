@@ -387,7 +387,7 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 		);
 
 		$builder = $this->getMockBuilder( Jetpack_Geo_Location::class )
-			->onlyMethods( $mock_methods );
+			->addMethods( $mock_methods );
 
 		if ( $disable_constructor ) {
 			$builder->disableOriginalConstructor();
