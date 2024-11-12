@@ -2,7 +2,7 @@
 Contributors: automattic
 Tags: migrate, migration, backup, restore, transfer, move, copy, wordpress.com, automattic, import, importer, hosting
 Requires at least: 6.6
-Requires PHP: 7.0
+Requires PHP: 7.2
 Tested up to: 6.7
 Stable tag: 2.0.0
 License: GPLv2 or later
