@@ -7,8 +7,9 @@ import GooglePhotosMedia from './google-photos-media';
 import GooglePhotosPickerButton from './google-photos-picker-button';
 
 function GooglePhotos( props ) {
-	const { pickerSession, createPickerSession, getPickerStatus } = props;
+	const { isAuthenticated, pickerSession, createPickerSession, getPickerStatus } = props;
 	const [ pickerFeatureEnabled, setPickerFeatureEnabled ] = useState( null );
+	const isPickerSessionAccurate = pickerSession !== null && ! ( 'code' in pickerSession );
 
 	useEffect( () => {
 		getPickerStatus().then( feature => {
@@ -17,10 +18,10 @@ function GooglePhotos( props ) {
 	}, [ getPickerStatus ] );
 
 	useEffect( () => {
-		if ( ! pickerSession ) {
+		if ( ! pickerSession || ! isPickerSessionAccurate ) {
 			createPickerSession();
 		}
-	}, [ pickerSession, createPickerSession ] );
+	}, [ pickerSession, createPickerSession, isPickerSessionAccurate ] );
 
 	if ( pickerFeatureEnabled === null ) {
 		return (
@@ -30,11 +31,11 @@ function GooglePhotos( props ) {
 		);
 	}
 
-	if ( ! props.isAuthenticated ) {
+	if ( ! isAuthenticated || ( pickerFeatureEnabled && ! isPickerSessionAccurate ) ) {
 		return <GooglePhotosAuth { ...props } />;
 	}
 
-	if ( pickerFeatureEnabled && ! props.pickerSession?.mediaItemsSet ) {
+	if ( pickerFeatureEnabled && ! pickerSession?.mediaItemsSet ) {
 		return <GooglePhotosPickerButton { ...props } />;
 	}
 
