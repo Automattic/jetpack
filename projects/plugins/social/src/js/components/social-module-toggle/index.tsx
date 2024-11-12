@@ -48,7 +48,7 @@ const SocialModuleToggle: React.FC = () => {
 		await updateSocialPluginSettings( newOption );
 
 		// If the module was enabled, we need to refresh the connection list
-		if ( newOption.publicize_active && ! window.jetpackSocialInitialState.is_publicize_enabled ) {
+		if ( newOption.publicize_active && ! getSocialScriptData().is_publicize_enabled ) {
 			window.location.reload();
 		}
 	}, [ isModuleEnabled, updateSocialPluginSettings ] );

@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Actions: Ensure Deprecations class loads after translations to prevent errors

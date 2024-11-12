@@ -42,7 +42,6 @@ const data = [
 			type: 'plugin' as const,
 		},
 		fixedIn: '3.2.4',
-		status: 'current' as const,
 	},
 ];
 

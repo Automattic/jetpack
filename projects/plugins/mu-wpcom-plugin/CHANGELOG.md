@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.6.1 - 2024-11-11
+### Changed
+- Internal updates.
+
+## 2.6.0 - 2024-11-11
+### Added
+- Enable test coverage. [#39961]
+
+### Changed
+- Admin dashboard: Disable portfolio toggle if theme supports portfolio and site is WoA [#39508]
+- Only include `wp-polyfill` as a script dependency when needed. [#39629]
+- Updated package dependencies. [#39288]
+- Updated package dependencies. [#39653]
+- Update Jetpack Scan link [#39619]
+
+### Removed
+- Connection: Removed deprecated method features_available [#39442]
+- Connection: Removed features_enabled deprecated method [#39475]
+
+### Fixed
+- Portfolios: Ensure these are enabled and working properly on themes that support portfolios [#39431]
+- Stats: Fix top post card on the Insight page [#39691]
+- wpcom-block-editor: Support getting the canvas mode from the query string after GB 19.6 [#40045]
+
 ## 2.5.11 - 2024-09-02
 ### Changed
 - Internal updates.
