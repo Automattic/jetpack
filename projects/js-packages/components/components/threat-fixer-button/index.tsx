@@ -4,6 +4,7 @@ import {
 	fixerIsInError,
 	fixerIsInProgress,
 	fixerStatusIsStale,
+	getFixerAction,
 	getFixerMessage,
 } from '@automattic/jetpack-scan';
 import { Tooltip } from '@wordpress/components';
@@ -66,18 +67,8 @@ export default function ThreatFixerButton( {
 			return __( 'Error', 'jetpack' );
 		}
 
-		switch ( threat.fixable.fixer ) {
-			case 'delete':
-				return __( 'Delete', 'jetpack' );
-			case 'update':
-				return __( 'Update', 'jetpack' );
-			case 'replace':
-			case 'rollback':
-				return __( 'Replace', 'jetpack' );
-			default:
-				return __( 'Fix', 'jetpack' );
-		}
-	}, [ threat.fixable, fixerState.error ] );
+		return getFixerAction( threat );
+	}, [ threat, fixerState.error ] );
 
 	const handleClick = useCallback(
 		( event: React.MouseEvent ) => {

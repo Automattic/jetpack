@@ -4,6 +4,7 @@ import {
 	fixerIsInError,
 	fixerIsInProgress,
 	fixerStatusIsStale,
+	getFixerAction,
 	getFixerMessage,
 } from '@automattic/jetpack-scan';
 import { Modal } from '@wordpress/components';
@@ -108,6 +109,10 @@ const ThreatActions = ( {
 		return { inProgress, error, stale };
 	}, [ threat.fixer ] );
 
+	const fixerAction = useMemo( () => {
+		return getFixerAction( threat );
+	}, [ threat ] );
+
 	const onFixClick = useCallback( () => {
 		handleFixThreatClick( [ threat ] );
 		closeModal();
@@ -160,8 +165,7 @@ const ThreatActions = ( {
 							>
 								{ fixerState.error || fixerState.stale
 									? __( 'Retry fix', 'jetpack' )
-									: __( 'Auto-fix', 'jetpack' ) }
-								{ /* TODO: Use ThreatFixerButton component here for more detail? */ }
+									: fixerAction }
 							</Button>
 						) }
 					</>

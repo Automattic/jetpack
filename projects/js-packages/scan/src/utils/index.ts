@@ -37,6 +37,20 @@ export const fixerStatusIsStale = ( fixerStatus: ThreatFixStatus ) => {
 	);
 };
 
+export const getFixerAction = ( threat: Threat ) => {
+	switch ( threat.fixable && threat.fixable.fixer ) {
+		case 'delete':
+			return __( 'Delete', 'jetpack-scan' );
+		case 'update':
+			return __( 'Update', 'jetpack-scan' );
+		case 'replace':
+		case 'rollback':
+			return __( 'Replace', 'jetpack-scan' );
+		default:
+			return __( 'Fix', 'jetpack-scan' );
+	}
+};
+
 export const getFixerMessage = ( threat: Threat ) => {
 	switch ( threat.fixable && threat.fixable.fixer ) {
 		case 'delete':
