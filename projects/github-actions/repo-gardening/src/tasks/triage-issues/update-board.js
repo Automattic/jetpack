@@ -693,19 +693,8 @@ async function updateBoard( payload, octokit, issueType, priorityLabels ) {
 		);
 
 		// So far, our project board only supports the following types: 'Bug', 'Feature Request', and 'Improvement'
-		if ( issueType.oneOf( 'Bug', 'Feature Request', 'Enhancement' ) ) {
-			// This is a bit stupid. I'm tempted to just update the column name in the board instead.
-			let standardizedIssueType = issueType;
-			// We use the 'Improvement' column name to match the 'Enhancement' type label.
-			if ( issueType === 'Enhancement' ) {
-				standardizedIssueType = 'Improvement';
-			}
-			projectItemId = await setTypeField(
-				projectOctokit,
-				projectInfo,
-				projectItemId,
-				standardizedIssueType
-			);
+		if ( issueType.oneOf( 'Bug', 'Enhancement', 'Task', 'Epic' ) ) {
+			projectItemId = await setTypeField( projectOctokit, projectInfo, projectItemId, issueType );
 		}
 	}
 
