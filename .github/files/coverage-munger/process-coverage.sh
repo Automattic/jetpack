@@ -17,27 +17,39 @@ echo '::endgroup::'
 TMP_DIR=$( mktemp -d )
 trap 'rm -rf "$TMP_DIR"' exit
 
-echo "::group::Combining PHP coverage"
-composer --working-dir="$BASE" update
-"$BASE"/vendor/bin/phpcov merge --php artifacts/php-combined.cov coverage
-perl -i -pwe 'BEGIN { $prefix = shift; $prefix=~s!/*$!/!; $re = qr/\Q$prefix\E/; $l = length( $prefix ); } s!s:(\d+):"$re! sprintf( qq(s:%d:"), $1 - $l ) !ge' "$GITHUB_WORKSPACE" artifacts/php-combined.cov
-echo '::endgroup::'
+TMP=$( find "$PWD/coverage" -name '*.cov' )
+if [[ -n "$TMP" ]]; then
+	echo "::group::Combining PHP coverage"
+	composer --working-dir="$BASE" update
+	"$BASE"/vendor/bin/phpcov merge --php artifacts/php-combined.cov coverage
+	perl -i -pwe 'BEGIN { $prefix = shift; $prefix=~s!/*$!/!; $re = qr/\Q$prefix\E/; $l = length( $prefix ); } s!s:(\d+):"$re! sprintf( qq(s:%d:"), $1 - $l ) !ge' "$GITHUB_WORKSPACE" artifacts/php-combined.cov
+	echo '::endgroup::'
 
-echo "::group::Combining JS coverage"
-pnpm --filter=jetpack-gh-config-munger exec istanbul-merge --out "$PWD"/artifacts/js-combined.json $( find "$PWD/coverage" -name '*.json' )
-perl -i -pwe 'BEGIN { $prefix = shift; $prefix=~s!/*$!/!; $re = qr/\Q$prefix\E/; } s!"$re!"!g' "$GITHUB_WORKSPACE" artifacts/js-combined.json
-echo '::endgroup::'
+	echo "::group::Creating PHP coverage summary"
+	"$BASE"/extract-php-summary-data.php artifacts/php-combined.cov > "$TMP_DIR/php-summary.tsv"
+	echo '::endgroup::'
+else
+	echo "No PHP coverage files found!"
+	touch "$TMP_DIR/php-summary.tsv"
+fi
 
-echo "::group::Creating PHP coverage summary"
-"$BASE"/extract-php-summary-data.php artifacts/php-combined.cov > "$TMP_DIR/php-summary.tsv"
-echo '::endgroup::'
+TMP=$( find "$PWD/coverage" -name '*.json' )
+if [[ -n "$TMP" ]]; then
+	echo "::group::Combining JS coverage"
+	pnpm --filter=jetpack-gh-config-munger exec istanbul-merge --out "$PWD"/artifacts/js-combined.json $TMP
+	perl -i -pwe 'BEGIN { $prefix = shift; $prefix=~s!/*$!/!; $re = qr/\Q$prefix\E/; } s!"$re!"!g' "$GITHUB_WORKSPACE" artifacts/js-combined.json
+	echo '::endgroup::'
 
-echo "::group::Creating JS coverage summary"
-mkdir "$TMP_DIR/js"
-cp artifacts/js-combined.json "$TMP_DIR/js"
-pnpm --filter=jetpack-gh-config-munger exec nyc report --no-exclude-after-remap --report-dir="$TMP_DIR" --temp-dir="$TMP_DIR/js" --reporter=json-summary
-jq -r 'to_entries[] | select( .key != "total" ) | [ .key, .value.lines.total, .value.lines.covered ] | @tsv' "$TMP_DIR/coverage-summary.json" > "$TMP_DIR/js-summary.tsv"
-echo '::endgroup::'
+	echo "::group::Creating JS coverage summary"
+	mkdir "$TMP_DIR/js"
+	cp artifacts/js-combined.json "$TMP_DIR/js"
+	pnpm --filter=jetpack-gh-config-munger exec nyc report --no-exclude-after-remap --report-dir="$TMP_DIR" --temp-dir="$TMP_DIR/js" --reporter=json-summary
+	jq -r 'to_entries[] | select( .key != "total" ) | [ .key, .value.lines.total, .value.lines.covered ] | @tsv' "$TMP_DIR/coverage-summary.json" > "$TMP_DIR/js-summary.tsv"
+	echo '::endgroup::'
+else
+	echo "No JS coverage files found!"
+	touch "$TMP_DIR/js-summary.tsv"
+fi
 
 echo "::group::Combining coverage summaries"
 sort "$TMP_DIR/php-summary.tsv" "$TMP_DIR/js-summary.tsv" > artifacts/summary.tsv

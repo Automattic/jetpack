@@ -12,11 +12,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/assets",
-                "reference": "cc1bbea8e0248905b5b684c52913f7405dc8436c"
+                "reference": "b4126de85f92bde2a4361ae17c4b670194c0f44e"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
-                "php": ">=7.0"
+                "php": ">=7.2"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
@@ -82,11 +82,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/autoloader",
-                "reference": "55bb380d5cde3e6bcb2f76cfa57c3cabeaf7abce"
+                "reference": "eb0c2612bc1e969fb8153bf19b0abd3806fdd9fd"
             },
             "require": {
                 "composer-plugin-api": "^1.1 || ^2.0",
-                "php": ">=7.0"
+                "php": ">=7.2"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
@@ -150,11 +150,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/composer-plugin",
-                "reference": "91b244a5e5393e770f1993662e18398d245326aa"
+                "reference": "3655bee8ae57593b80b36f5806b4da4483c68886"
             },
             "require": {
                 "composer-plugin-api": "^2.1.0",
-                "php": ">=7.0"
+                "php": ">=7.2"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
@@ -210,10 +210,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/constants",
-                "reference": "fc05b88879cb8625804049f864c08d685f631ec0"
+                "reference": "6ad4172fbccd16d59b70ea16fce43917122e6612"
             },
             "require": {
-                "php": ">=7.0"
+                "php": ">=7.2"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
@@ -603,10 +603,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/changelogger",
-                "reference": "0cc6743db37bf9031f4f3bc4bab4d6012d6540b7"
+                "reference": "77da13ba27b7176879cec384b092362f727f2251"
             },
             "require": {
-                "php": ">=7.0",
+                "php": ">=7.2",
                 "symfony/console": "^3.4 || ^4.4 || ^5.2 || ^6.0 || ^7.0",
                 "symfony/process": "^3.4 || ^4.4 || ^5.2 || ^6.0 || ^7.0"
             },
