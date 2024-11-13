@@ -7,3 +7,4 @@
 .gitignore        production-exclude
 changelog/**      production-exclude
 composer.lock     production-exclude
+CHANGELOG.md      production-exclude
