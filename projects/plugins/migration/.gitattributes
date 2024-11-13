@@ -5,4 +5,5 @@
 # Files to exclude from the mirror repo, but included in the monorepo.
 .gitattributes    production-exclude
 .gitignore        production-exclude
+changelog/**      production-exclude
 composer.lock     production-exclude

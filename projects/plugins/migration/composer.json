@@ -4,7 +4,9 @@
 	"type": "wordpress-plugin",
 	"abandoned": true,
 	"require": {},
-	"require-dev": {},
+	"require-dev": {
+		"automattic/jetpack-changelogger": "@dev"
+	},
 	"repositories": [
 		{
 			"type": "path",
