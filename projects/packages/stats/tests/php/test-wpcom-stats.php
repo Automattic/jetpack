@@ -31,7 +31,7 @@ class Test_WPCOM_Stats extends StatsBaseTestCase {
 		parent::set_up();
 
 		$this->wpcom_stats = $this->getMockBuilder( 'Automattic\Jetpack\Stats\WPCOM_Stats' )
-			->setMethods( array( 'fetch_remote_stats' ) )
+			->onlyMethods( array( 'fetch_remote_stats' ) )
 			->getMock();
 	}
 

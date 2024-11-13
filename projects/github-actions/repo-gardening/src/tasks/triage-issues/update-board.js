@@ -99,6 +99,14 @@ async function getProjectDetails( octokit, projectBoardLink ) {
 		projectInfo.team = teamField; // Info about our Team column (id as well as possible values).
 	}
 
+	// Extract the ID of the Type field.
+	const typeField = projectDetails[ projectInfo.ownerType ]?.projectV2.fields.nodes.find(
+		field => field.name === 'Type'
+	);
+	if ( typeField ) {
+		projectInfo.type = typeField; // Info about our Type column (id as well as possible values).
+	}
+
 	return projectInfo;
 }
 
@@ -261,6 +269,68 @@ async function setPriorityField( octokit, projectInfo, projectItemId, priorityTe
 
 	debug(
 		`triage-issues > update-board: Project item ${ newProjectItemId } was moved to "${ priorityText }" priority.`
+	);
+
+	return newProjectItemId; // New Project item ID (what we just edited). String.
+}
+
+/**
+ * Set the Type field for a project item, to match the Type label if it exists.
+ *
+ * @param {GitHub} octokit       - Initialized Octokit REST client.
+ * @param {object} projectInfo   - Info about our project board.
+ * @param {string} projectItemId - The ID of the project item.
+ * @param {string} typeText      - Type of our issue (must match an existing column in the project board).
+ * @return {Promise<string>} - The new project item id.
+ */
+async function setTypeField( octokit, projectInfo, projectItemId, typeText ) {
+	const {
+		projectNodeId, // Project board node ID.
+		type: {
+			id: typeFieldId, // ID of the type field.
+			options,
+		},
+	} = projectInfo;
+
+	// Find the ID of the Type option that matches our issue type label.
+	const typeOptionId = options.find( option => option.name === typeText )?.id;
+	if ( ! typeOptionId ) {
+		debug(
+			`triage-issues > update-board: Type ${ typeText } does not exist as a column option in the project board.`
+		);
+		return '';
+	}
+
+	const projectNewItemDetails = await octokit.graphql(
+		`mutation ( $input: UpdateProjectV2ItemFieldValueInput! ) {
+			set_type: updateProjectV2ItemFieldValue( input: $input ) {
+				projectV2Item {
+					id
+				}
+			}
+		}`,
+		{
+			input: {
+				projectId: projectNodeId,
+				itemId: projectItemId,
+				fieldId: typeFieldId,
+				value: {
+					singleSelectOptionId: typeOptionId,
+				},
+			},
+		}
+	);
+
+	const newProjectItemId = projectNewItemDetails.set_type.projectV2Item.id;
+	if ( ! newProjectItemId ) {
+		debug(
+			`triage-issues > update-board: Failed to set the "${ typeText }" type for this project item.`
+		);
+		return '';
+	}
+
+	debug(
+		`triage-issues > update-board: Project item ${ newProjectItemId } was moved to "${ typeText }" type.`
 	);
 
 	return newProjectItemId; // New Project item ID (what we just edited). String.
@@ -439,18 +509,11 @@ async function loadTeamAssignments( ownerLogin ) {
  * @param {object}  payload        - Issue event payload.
  * @param {object}  projectInfo    - Info about our project board.
  * @param {string}  projectItemId  - The ID of the project item.
- * @param {boolean} isBugIssue     - Is the issue a bug?
+ * @param {boolean} isBug          - Is the issue a bug?
  * @param {Array}   priorityLabels - Array of priority labels.
  * @return {Promise<string>} - The new project item id.
  */
-async function assignTeam(
-	octokit,
-	payload,
-	projectInfo,
-	projectItemId,
-	isBugIssue,
-	priorityLabels
-) {
+async function assignTeam( octokit, payload, projectInfo, projectItemId, isBug, priorityLabels ) {
 	const {
 		action,
 		issue: { number },
@@ -499,7 +562,7 @@ async function assignTeam(
 		slack_id &&
 		priorityLabels.length > 0 &&
 		( priorityLabels.includes( '[Pri] BLOCKER' ) || priorityLabels.includes( '[Pri] High' ) ) &&
-		isBugIssue
+		isBug
 	) {
 		debug(
 			`triage-issues > update-board: Issue #${ number } has the following priority labels: ${ priorityLabels.join(
@@ -553,19 +616,21 @@ async function assignTeam(
  *
  * @param {WebhookPayloadIssue} payload        - Issue event payload.
  * @param {GitHub}              octokit        - Initialized Octokit REST client.
- * @param {boolean}             isBugIssue     - Is the issue a bug?
+ * @param {string}              issueType      - Type of the issue, defined by a "[Type]" label on the issue.
  * @param {Array}               priorityLabels - Array of Priority Labels matching this issue.
  */
-async function updateBoard( payload, octokit, isBugIssue, priorityLabels ) {
+async function updateBoard( payload, octokit, issueType, priorityLabels ) {
 	const {
 		issue: { number },
 		repository: { owner, name },
 	} = payload;
 	const ownerLogin = owner.login;
 
+	const isBug = issueType === 'Bug';
+
 	const projectToken = getInput( 'triage_projects_token' );
 	if ( ! projectToken ) {
-		setFailed(
+		debug(
 			`triage-issues > update-board: Input triage_projects_token is required but missing. Aborting.`
 		);
 		return;
@@ -573,7 +638,7 @@ async function updateBoard( payload, octokit, isBugIssue, priorityLabels ) {
 
 	const projectBoardLink = getInput( 'project_board_url' );
 	if ( ! projectBoardLink ) {
-		setFailed(
+		debug(
 			`triage-issues > update-board: No project board link provided. Cannot triage to a board. Aborting.`
 		);
 		return;
@@ -587,62 +652,60 @@ async function updateBoard( payload, octokit, isBugIssue, priorityLabels ) {
 	// Get details about our project board, to use in our requests.
 	const projectInfo = await getProjectDetails( projectOctokit, projectBoardLink );
 	if ( Object.keys( projectInfo ).length === 0 || ! projectInfo.projectNodeId ) {
-		setFailed(
+		debug(
 			`triage-issues > update-board: we cannot fetch info about our project board. Aborting task.`
 		);
 		return;
 	}
 
-	// Check if the issue is already on the project board. If so, return its ID on the board.
+	// Check if the issue is already on the project board. If so, return its ID.
 	let projectItemId = await getIssueProjectItemId( projectOctokit, projectInfo, name, number );
-	if ( ! projectItemId ) {
-		debug(
-			`triage-issues > update-board: Issue #${ number } is not on our project board. Let's check if it is a bug. If it is, we will want to add it to our board.`
-		);
 
-		// If the issue is not a bug, stop.
-		if ( ! isBugIssue ) {
-			debug(
-				`triage-issues > update-board: Issue #${ number } is not classified as a bug. Aborting.`
-			);
-			return;
-		}
-
-		// If the issue is a bug, add it to our project board.
+	// If we have no ID, that means the issue isn't on the board yet.
+	// If it is a bug, add it to the board.
+	if ( ! projectItemId && isBug ) {
 		debug(
-			`triage-issues > update-board: Issue #${ number } is a bug. Adding it to our project board.`
+			`triage-issues > update-board: Issue #${ number } is not on our project board. Let's add it.`
 		);
 		projectItemId = await addIssueToBoard( payload, projectOctokit, projectInfo );
-		if ( ! projectItemId ) {
-			debug( `triage-issues > update-board: Failed to add issue to project board. Aborting.` );
-			return;
-		}
 
-		// Set the "Needs Triage" status for our issue on the board.
+		if ( projectItemId ) {
+			// Set the "Needs Triage" status for our issue on the board.
+			debug(
+				`triage-issues > update-board: Setting the "Needs Triage" status for this project item, issue #${ number }.`
+			);
+			projectItemId = await setStatusField(
+				projectOctokit,
+				projectInfo,
+				projectItemId,
+				'Needs Triage'
+			);
+		} else {
+			debug( `triage-issues > update-board: Failed to add issue to project board.` );
+		}
+	}
+
+	// Check if the type needs to be updated for that issue.
+	// We do need info about the type column in the board to be able to do that.
+	if ( issueType && projectInfo.type ) {
 		debug(
-			`triage-issues > update-board: Setting the "Needs Triage" status for this project item, issue #${ number }.`
+			`triage-issues > update-board: Issue #${ number } has a type label set, ${ issueType }. Let’s ensure the Type field of the project board matches that.`
 		);
-		projectItemId = await setStatusField(
-			projectOctokit,
-			projectInfo,
-			projectItemId,
-			'Needs Triage'
-		);
+
+		// So far, our project board only supports the following types: 'Bug', 'Enhancement', and 'Task'
+		if ( [ 'Bug', 'Enhancement', 'Task' ].includes( issueType ) ) {
+			projectItemId = await setTypeField( projectOctokit, projectInfo, projectItemId, issueType );
+		}
 	}
 
 	// Check if priority needs to be updated for that issue.
-	if ( priorityLabels.length > 0 ) {
+	// We do need info about the priority column in the board to be able to do that.
+	if ( priorityLabels.length > 0 && projectInfo.priority ) {
 		debug(
 			`triage-issues > update-board: Issue #${ number } has the following priority labels: ${ priorityLabels.join(
 				', '
 			) }`
 		);
-
-		// If we have no info about the Priority column, stop.
-		if ( ! projectInfo.priority ) {
-			debug( `triage-issues > update-board: No priority column found in project board. Aborting.` );
-			return;
-		}
 
 		// Remove the "[Pri]" prefix from our priority labels. We also only need one label.
 		const priorityText = priorityLabels[ 0 ].replace( /^\[Pri\]\s*/, '' );
@@ -677,14 +740,12 @@ async function updateBoard( payload, octokit, isBugIssue, priorityLabels ) {
 				projectItemId,
 				'Needs Core/3rd Party Fix'
 			);
-			return;
+		} else {
+			debug(
+				`triage-issues > update-board: Setting the "Triaged" status for this project item, issue #${ number }.`
+			);
+			await setStatusField( projectOctokit, projectInfo, projectItemId, 'Triaged' );
 		}
-
-		// Set the status field for this project item.
-		debug(
-			`triage-issues > update-board: Setting the "Triaged" status for this project item, issue #${ number }.`
-		);
-		await setStatusField( projectOctokit, projectInfo, projectItemId, 'Triaged' );
 	}
 
 	// Try to assign the issue to a specific team, if we have a mapping of teams <> labels and a matching label on the issue.
@@ -694,7 +755,7 @@ async function updateBoard( payload, octokit, isBugIssue, priorityLabels ) {
 		payload,
 		projectInfo,
 		projectItemId,
-		isBugIssue,
+		isBug,
 		priorityLabels
 	);
 }
