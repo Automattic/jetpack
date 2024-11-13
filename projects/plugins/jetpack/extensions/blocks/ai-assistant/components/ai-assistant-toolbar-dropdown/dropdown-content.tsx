@@ -3,6 +3,7 @@
  */
 import { aiAssistantIcon } from '@automattic/jetpack-ai-client';
 import { MenuItem, MenuGroup, Notice } from '@wordpress/components';
+import { select } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { post, postContent, postExcerpt, termDescription, blockTable } from '@wordpress/icons';
 import React from 'react';
@@ -160,6 +161,7 @@ if ( getFeatureAvailability( 'ai-list-to-table-transform' ) ) {
 		options: {
 			userPrompt: 'make a table from this list, do not enclose the response in a code block',
 			alwaysTransformToAIAssistant: true,
+			rootParentOnly: true,
 		},
 	} );
 }
@@ -169,6 +171,7 @@ export type AiAssistantDropdownOnChangeOptionsArgProps = {
 	language?: string;
 	userPrompt?: string;
 	alwaysTransformToAIAssistant?: boolean;
+	rootParentOnly?: boolean;
 };
 
 export type OnRequestSuggestion = (
@@ -191,11 +194,15 @@ type AiAssistantToolbarDropdownContentProps = {
  */
 export default function AiAssistantToolbarDropdownContent( {
 	blockType,
+	clientId,
 	disabled = false,
 	onAskAiAssistant,
 	onRequestSuggestion,
 }: AiAssistantToolbarDropdownContentProps ): ReactElement {
 	const blockQuickActions = quickActionsList[ blockType ] ?? [];
+
+	const { getBlockParents } = select( 'core/block-editor' );
+	const blockParents = getBlockParents( clientId );
 
 	return (
 		<>
@@ -218,23 +225,29 @@ export default function AiAssistantToolbarDropdownContent( {
 					</div>
 				</MenuItem>
 
-				{ [ ...quickActionsList.default, ...blockQuickActions ].map( quickAction => (
-					<MenuItem
-						icon={ quickAction?.icon }
-						iconPosition="left"
-						key={ `key-${ quickAction.key }` }
-						onClick={ () => {
-							onRequestSuggestion(
-								quickAction.aiSuggestion,
-								{ ...( quickAction.options ?? {} ) },
-								quickAction.name
-							);
-						} }
-						disabled={ disabled }
-					>
-						<div className="jetpack-ai-assistant__menu-item">{ quickAction.name }</div>
-					</MenuItem>
-				) ) }
+				{ [ ...quickActionsList.default, ...blockQuickActions ]
+					.filter(
+						quickAction => ! ( quickAction.options?.rootParentOnly && blockParents.length > 0 )
+					)
+					.map( quickAction => {
+						return (
+							<MenuItem
+								icon={ quickAction?.icon }
+								iconPosition="left"
+								key={ `key-${ quickAction.key }` }
+								onClick={ () => {
+									onRequestSuggestion(
+										quickAction.aiSuggestion,
+										{ ...( quickAction.options ?? {} ) },
+										quickAction.name
+									);
+								} }
+								disabled={ disabled }
+							>
+								<div className="jetpack-ai-assistant__menu-item">{ quickAction.name }</div>
+							</MenuItem>
+						);
+					} ) }
 
 				<ToneDropdownMenu
 					onChange={ tone => {
