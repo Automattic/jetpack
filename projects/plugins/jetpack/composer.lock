@@ -268,7 +268,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/backup",
-				"reference": "c3dca276344c0c19d5481aaa69d6165ff3621e94"
+				"reference": "3e1ceeca9ab6a579d33afebf5d2a18db1d56c74e"
 			},
 			"require": {
 				"automattic/jetpack-admin-ui": "@dev",
@@ -281,7 +281,7 @@
 				"automattic/jetpack-my-jetpack": "@dev",
 				"automattic/jetpack-status": "@dev",
 				"automattic/jetpack-sync": "@dev",
-				"php": ">=7.0"
+				"php": ">=7.2"
 			},
 			"require-dev": {
 				"automattic/jetpack-changelogger": "@dev",
