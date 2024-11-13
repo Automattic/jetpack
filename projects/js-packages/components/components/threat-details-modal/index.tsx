@@ -108,10 +108,6 @@ const ThreatActions = ( {
 		return { inProgress, error, stale };
 	}, [ threat.fixer ] );
 
-	if ( ! handleFixThreatClick && ! handleIgnoreThreatClick && ! handleUnignoreThreatClick ) {
-		return null;
-	}
-
 	const onFixClick = useCallback( () => {
 		handleFixThreatClick( [ threat ] );
 		closeModal();
@@ -126,6 +122,10 @@ const ThreatActions = ( {
 		handleUnignoreThreatClick( [ threat ] );
 		closeModal();
 	}, [ threat, handleUnignoreThreatClick, closeModal ] );
+
+	if ( ! handleFixThreatClick && ! handleIgnoreThreatClick && ! handleUnignoreThreatClick ) {
+		return null;
+	}
 
 	return (
 		<div className={ styles.modal }>
