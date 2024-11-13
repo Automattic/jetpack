@@ -9,17 +9,17 @@
  */
 return [
     // # Issue statistics:
-    // PhanDeprecatedFunction : 9 occurrences
-    // PhanPluginDuplicateConditionalNullCoalescing : 7 occurrences
     // PhanTypeMismatchArgument : 7 occurrences
+    // PhanPluginDuplicateConditionalNullCoalescing : 6 occurrences
     // PhanTypeMismatchArgumentNullable : 3 occurrences
-    // PhanPluginMixedKeyNoKey : 2 occurrences
+    // PhanDeprecatedFunction : 2 occurrences
     // PhanPossiblyUndeclaredVariable : 2 occurrences
     // PhanTypeMismatchReturnProbablyReal : 2 occurrences
     // PhanTypeMissingReturn : 2 occurrences
     // PhanImpossibleCondition : 1 occurrence
     // PhanParamSignatureMismatch : 1 occurrence
     // PhanPluginDuplicateExpressionAssignmentOperation : 1 occurrence
+    // PhanPluginMixedKeyNoKey : 1 occurrence
     // PhanPluginSimplifyExpressionBool : 1 occurrence
     // PhanSuspiciousMagicConstant : 1 occurrence
     // PhanTypeMismatchArgumentNullableInternal : 1 occurrence
@@ -41,10 +41,8 @@ return [
         'src/social-image-generator/class-rest-settings-controller.php' => ['PhanPluginMixedKeyNoKey'],
         'src/social-image-generator/class-settings.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'src/social-image-generator/class-setup.php' => ['PhanTypeMismatchArgumentNullable'],
-        'tests/php/jetpack-social-settings/test-jetpack-social-settings.php' => ['PhanDeprecatedFunction'],
-        'tests/php/test-connections-post-field.php' => ['PhanDeprecatedFunction', 'PhanTypeMismatchArgument'],
+        'tests/php/test-connections-post-field.php' => ['PhanTypeMismatchArgument'],
         'tests/php/test-publicize-og-optimization.php' => ['PhanDeprecatedFunction'],
-        'tests/php/test-social-image-generator/test-post-settings.php' => ['PhanDeprecatedFunction'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
     // (directory_suppressions will currently be ignored by subsequent calls to --save-baseline, but may be preserved in future Phan releases)

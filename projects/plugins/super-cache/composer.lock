@@ -12,10 +12,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/device-detection",
-                "reference": "20cbf64f9d0f79edf7d36dac7070c3ae2a1201f8"
+                "reference": "b1e167cacbab928113f768b20d9201d1783ab5b3"
             },
             "require": {
-                "php": ">=7.0"
+                "php": ">=7.2"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
@@ -67,10 +67,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/changelogger",
-                "reference": "0cc6743db37bf9031f4f3bc4bab4d6012d6540b7"
+                "reference": "77da13ba27b7176879cec384b092362f727f2251"
             },
             "require": {
-                "php": ">=7.0",
+                "php": ">=7.2",
                 "symfony/console": "^3.4 || ^4.4 || ^5.2 || ^6.0 || ^7.0",
                 "symfony/process": "^3.4 || ^4.4 || ^5.2 || ^6.0 || ^7.0"
             },

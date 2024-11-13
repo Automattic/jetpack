@@ -209,7 +209,7 @@ class Manager {
 		$deprecated,
 		$has_connected_owner,
 		$is_signed,
-		Jetpack_XMLRPC_Server $xmlrpc_server = null
+		?Jetpack_XMLRPC_Server $xmlrpc_server = null
 	) {
 		add_filter( 'xmlrpc_blog_options', array( $this, 'xmlrpc_options' ), 1000, 2 );
 		if ( $deprecated !== null ) {

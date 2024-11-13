@@ -17,7 +17,7 @@
  * Text Domain:       jetpack-boost
  * Domain Path:       /languages
  * Requires at least: 6.6
- * Requires PHP:      7.0
+ * Requires PHP:      7.2
  *
  * @package automattic/jetpack-boost
  */

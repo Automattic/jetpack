@@ -96,7 +96,7 @@ class Test_Package_Version_Tracker extends TestCase {
 	 */
 	public function test_maybe_update_package_versions( $option_value, $filter_value, $expected_value, $updated ) {
 		$tracker = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Package_Version_Tracker' )
-			->setMethods( array( 'update_package_versions_option' ) )
+			->onlyMethods( array( 'update_package_versions_option' ) )
 			->getMock();
 
 		update_option( Package_Version_Tracker::PACKAGE_VERSION_OPTION, $option_value );
@@ -265,7 +265,7 @@ class Test_Package_Version_Tracker extends TestCase {
 		set_transient( Package_Version_Tracker::RATE_LIMITER_KEY, time() );
 
 		$tracker = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Package_Version_Tracker' )
-			->setMethods( array( 'update_package_versions_option' ) )
+			->onlyMethods( array( 'update_package_versions_option' ) )
 			->getMock();
 
 		update_option( Package_Version_Tracker::PACKAGE_VERSION_OPTION, self::PACKAGE_VERSIONS );
@@ -294,7 +294,7 @@ class Test_Package_Version_Tracker extends TestCase {
 		unset( $wp_actions['init'] );
 
 		$tracker = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Package_Version_Tracker' )
-			->setMethods( array( 'update_package_versions_option' ) )
+			->onlyMethods( array( 'update_package_versions_option' ) )
 			->getMock();
 
 		update_option( Package_Version_Tracker::PACKAGE_VERSION_OPTION, self::PACKAGE_VERSIONS );
@@ -437,7 +437,7 @@ class Test_Package_Version_Tracker extends TestCase {
 	 */
 	public function test_maybe_update_package_versions_with_sync_enabled() {
 		$tracker = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Package_Version_Tracker' )
-			->setMethods( array( 'update_package_versions_via_remote_request', 'is_sync_enabled' ) )
+			->onlyMethods( array( 'update_package_versions_via_remote_request', 'is_sync_enabled' ) )
 			->getMock();
 
 		update_option( Package_Version_Tracker::PACKAGE_VERSION_OPTION, self::PACKAGE_VERSIONS );

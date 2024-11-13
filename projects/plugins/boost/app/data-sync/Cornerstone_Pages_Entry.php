@@ -28,8 +28,6 @@ class Cornerstone_Pages_Entry implements Entry_Can_Get, Entry_Can_Set {
 	public function set( $value ) {
 		$value = $this->sanitize_value( $value );
 
-		$value = array_map( 'untrailingslashit', $value );
-
 		$updated = update_option( $this->option_key, $value );
 		if ( $updated ) {
 			( new Environment_Change_Detector() )->handle_cornerstone_pages_list_update();
@@ -38,7 +36,7 @@ class Cornerstone_Pages_Entry implements Entry_Can_Get, Entry_Can_Set {
 
 	private function sanitize_value( $value ) {
 		if ( is_array( $value ) ) {
-			$value = array_values( array_unique( array_map( array( $this, 'transform_to_relative' ), $value ) ) );
+			$value = array_values( array_unique( array_map( 'untrailingslashit', array_map( array( $this, 'transform_to_relative' ), $value ) ) ) );
 		} else {
 			$value = array();
 		}
