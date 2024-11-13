@@ -36,18 +36,6 @@ export default function ThreatFixerButton( {
 		return { inProgress, error, stale };
 	}, [ threat.fixer ] );
 
-	const errorMessage = useMemo( () => {
-		if ( fixerState.stale ) {
-			return __( 'The auto-fixer is taking longer than expected.', 'jetpack' );
-		}
-
-		if ( fixerState.error ) {
-			return __( 'An error occurred auto-fixing this threat.', 'jetpack' );
-		}
-
-		return null;
-	}, [ fixerState ] );
-
 	const tooltipText = useMemo( () => {
 		if ( ! threat.fixable ) {
 			return null;
@@ -151,7 +139,7 @@ export default function ThreatFixerButton( {
 
 	return (
 		<div>
-			<Tooltip className={ styles.tooltip } text={ errorMessage ? errorMessage : tooltipText }>
+			<Tooltip className={ styles.tooltip } text={ tooltipText }>
 				<Button
 					size="small"
 					weight="regular"
