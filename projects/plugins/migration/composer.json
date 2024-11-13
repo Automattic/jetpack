@@ -3,6 +3,17 @@
 	"description": "A WordPress plugin that helps users to migrate their sites to WordPress.com. This plugin is now developed in another repository. Download it directly from the WordPress.org plugin repository.",
 	"type": "wordpress-plugin",
 	"abandoned": true,
+	"require": {},
+	"require-dev": {},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../../packages/*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
 	"extra": {
 		"autorelease": false,
 		"autotagger": {
