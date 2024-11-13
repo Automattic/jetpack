@@ -23,7 +23,7 @@ const updateBoard = require( './update-board' );
  * @param {GitHub}              octokit - Initialized Octokit REST client.
  */
 async function triageIssues( payload, octokit ) {
-	const { action, issue, label = {}, repository } = payload;
+	const { action, issue, repository } = payload;
 	const { number, body, state } = issue;
 	const { owner, name, full_name } = repository;
 	const ownerLogin = owner.login;
@@ -35,7 +35,7 @@ async function triageIssues( payload, octokit ) {
 	}
 
 	const { labels: priorityLabels, inferred } = await getIssuePriority( payload, octokit );
-	const issueType = await getIssueType( octokit, ownerLogin, name, number, label );
+	const issueType = await getIssueType( octokit, ownerLogin, name, number );
 	const isBug = issueType === 'Bug';
 	const qualityChannel = getInput( 'slack_quality_channel' );
 
