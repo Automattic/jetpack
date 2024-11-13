@@ -384,7 +384,7 @@ export default function ThreatsDataViews( {
 				? [
 						{
 							id: THREAT_FIELD_AUTO_FIX,
-							label: __( 'Auto-Fix', 'jetpack' ),
+							label: __( 'Auto-fix', 'jetpack' ),
 							enableHiding: false,
 							elements: [
 								{
@@ -425,7 +425,7 @@ export default function ThreatsDataViews( {
 		if ( dataFields.includes( 'fixable' ) ) {
 			result.push( {
 				id: THREAT_ACTION_FIX,
-				label: __( 'Auto-Fix', 'jetpack' ),
+				label: __( 'Auto-fix', 'jetpack' ),
 				isPrimary: true,
 				supportsBulk: true,
 				callback: onFixThreats,
