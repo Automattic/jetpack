@@ -121,6 +121,10 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 					'page_handle' => array(
 						'type' => 'string',
 					),
+					'session_id'  => array(
+						'description' => __( 'Session ID for services that require it.', 'jetpack' ),
+						'type'        => 'string',
+					),
 				),
 			)
 		);
@@ -207,6 +211,23 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 				'methods'             => WP_REST_Server::DELETABLE,
 				'callback'            => array( $this, 'delete_session' ),
 				'permission_callback' => array( $this, 'permission_callback' ),
+			)
+		);
+
+		// Add new proxy route for media files
+		register_rest_route(
+			$this->namespace,
+			$this->rest_base . '/proxy/(?P<service>google_photos)',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'proxy_media_request' ),
+				'permission_callback' => array( $this, 'permission_callback' ),
+				'args'                => array(
+					'url' => array(
+						'required' => true,
+						'type'     => 'string',
+					),
+				),
 			)
 		);
 	}
@@ -322,7 +343,7 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 		$service_args = array_filter(
 			$params,
 			function ( $key ) {
-				return in_array( $key, array( 'search', 'number', 'path', 'page_handle', 'filter' ), true );
+				return in_array( $key, array( 'search', 'number', 'path', 'page_handle', 'filter', 'session_id' ), true );
 			},
 			ARRAY_FILTER_USE_KEY
 		);
@@ -493,7 +514,7 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 	}
 
 	/**
-	 * Creates a new session for services that require it (e.g., Google Photos Picker)
+	 * Creates a new session for services that require it (e.g., Google Photos Picker).
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
 	 * @return array|WP_Error
@@ -566,6 +587,48 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 			'2',
 			array(
 				'method' => 'DELETE',
+			)
+		);
+
+		return json_decode( wp_remote_retrieve_body( $response ), true );
+	}
+
+	/**
+	 * Proxies media requests with proper authorization headers
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return WP_REST_Response|WP_Error Response object or WP_Error.
+	 */
+	public function proxy_media_request( $request ) {
+		$params     = $request->get_params();
+		$service    = rawurlencode( $request->get_param( 'service' ) );
+		$wpcom_path = sprintf( '/meta/external-media/proxy/%s', $service );
+
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$request = new \WP_REST_Request( 'GET', '/' . $this->namespace . $wpcom_path );
+			$request->set_query_params( $params );
+
+			return rest_do_request( $request );
+		}
+
+		// Build query string to pass to wpcom endpoint.
+		$service_args = array_filter(
+			$params,
+			function ( $key ) {
+				return in_array( $key, array( 'url', 'session_id' ), true );
+			},
+			ARRAY_FILTER_USE_KEY
+		);
+
+		if ( ! empty( $service_args ) ) {
+			$wpcom_path .= '?' . http_build_query( $service_args );
+		}
+
+		$response = Client::wpcom_json_api_request_as_user(
+			$wpcom_path,
+			'2',
+			array(
+				'method' => 'POST',
 			)
 		);
 
