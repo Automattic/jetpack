@@ -159,7 +159,7 @@ const ThreatActions = ( {
 		const inProgress = threat.fixer && fixerIsInProgress( threat.fixer );
 		const error = threat.fixer && fixerIsInError( threat.fixer );
 		const stale = threat.fixer && fixerStatusIsStale( threat.fixer );
-		return { inProgress, stale };
+		return { inProgress, error, stale };
 	}, [ threat.fixer ] );
 
 	if ( ! handleFixThreatClick && ! handleIgnoreThreatClick && ! handleUnignoreThreatClick ) {
@@ -181,8 +181,6 @@ const ThreatActions = ( {
 		closeModal();
 	};
 
-	// TODO: Offer Retry fix, error state and stale fixers?
-
 	return (
 		<div className={ styles.modal }>
 			<div className={ styles[ 'modal-actions' ] }>
@@ -203,7 +201,7 @@ const ThreatActions = ( {
 								isDestructive={ true }
 								variant="secondary"
 								onClick={ onIgnoreClick }
-								disabled={ fixerState.inProgress || fixerState.stale }
+								disabled={ fixerState.inProgress && ! fixerState.stale }
 							>
 								{ __( 'Ignore', 'jetpack' ) }
 							</Button>
@@ -211,10 +209,12 @@ const ThreatActions = ( {
 						{ threat.fixable && !! handleFixThreatClick && (
 							<Button
 								isPrimary
-								disabled={ fixerState.inProgress || fixerState.stale }
+								disabled={ fixerState.inProgress && ! fixerState.stale }
 								onClick={ onFixClick }
 							>
-								{ __( 'Auto-fix', 'jetpack' ) }
+								{ fixerState.error || fixerState.stale
+									? __( 'Retry fix', 'jetpack' )
+									: __( 'Auto-fix', 'jetpack' ) }
 								{ /* TODO: Use ThreatFixerButton component here for more detail? */ }
 							</Button>
 						) }
