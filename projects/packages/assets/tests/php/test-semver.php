@@ -44,7 +44,7 @@ class SemverTest extends TestCase {
 				array(
 					'major'      => 1,
 					'minor'      => 2,
-					'patch'      => 3,
+					'patch'      => 4,
 					'version'    => '1.2.3',
 					'prerelease' => null,
 					'buildinfo'  => null,

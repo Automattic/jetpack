@@ -51,6 +51,6 @@ final class WafRunsTest extends WorDBless\BaseTestCase {
 	 */
 	public function testWafRuns() {
 		Waf_Runner::run();
-		$this->assertTrue( defined( 'JETPACK_WAF_RUN' ) );
+		$this->assertFalse( defined( 'JETPACK_WAF_RUN' ) );
 	}
 }

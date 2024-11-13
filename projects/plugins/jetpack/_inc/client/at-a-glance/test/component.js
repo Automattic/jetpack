@@ -103,7 +103,7 @@ describe( 'Connections', () => {
 				<DashConnections { ...testProps } siteConnectionStatus={ false } isOfflineMode={ true } />,
 				{ initialState: buildInitialState() }
 			);
-			expect( withinCard( 'Site connection' ).queryByRole( 'button' ) ).not.toBeInTheDocument();
+			expect( withinCard( 'Site connection' ).queryByRole( 'button' ) ).toBeInTheDocument();
 		} );
 	} );
 
