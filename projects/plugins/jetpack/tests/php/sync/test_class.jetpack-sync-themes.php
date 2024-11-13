@@ -250,10 +250,8 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_install_edit_delete_theme_sync() {
-		echo 'WPCOMSH_PREMIUM_THEMES_PATH:';
-		print_r( scandir( WPCOMSH_PREMIUM_THEMES_PATH ) );
 		$theme_slug = 'itek';
-		$theme_name = 'Itek';
+		$theme_name = 'iTek';
 
 		delete_theme( $theme_slug ); // Ensure theme is not lingering on file system
 		$this->server_event_storage->reset();
