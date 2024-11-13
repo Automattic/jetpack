@@ -692,8 +692,8 @@ async function updateBoard( payload, octokit, issueType, priorityLabels ) {
 			`triage-issues > update-board: Issue #${ number } has a type label set, ${ issueType }. Let’s ensure the Type field of the project board matches that.`
 		);
 
-		// So far, our project board only supports the following types: 'Bug', 'Feature Request', and 'Improvement'
-		if ( issueType.oneOf( 'Bug', 'Enhancement', 'Task', 'Epic' ) ) {
+		// So far, our project board only supports the following types: 'Bug', 'Enhancement', and 'Task'
+		if ( [ 'Bug', 'Enhancement', 'Task' ].includes( issueType ) ) {
 			projectItemId = await setTypeField( projectOctokit, projectInfo, projectItemId, issueType );
 		}
 	}
