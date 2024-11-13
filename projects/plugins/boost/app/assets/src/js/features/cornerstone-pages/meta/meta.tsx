@@ -16,6 +16,7 @@ import { useRegenerationReason } from '$features/critical-css/lib/stores/suggest
 import { usePremiumFeatures } from '$lib/stores/premium-features';
 import { useNavigate } from 'react-router-dom';
 import { useRegenerateCriticalCssAction } from '$features/critical-css/lib/stores/critical-css-state';
+import { isSameSiteUrl } from '$lib/utils/is-same-site-url';
 
 const Meta = () => {
 	const [ isExpanded, setIsExpanded ] = useState( false );
@@ -224,6 +225,8 @@ const List: React.FC< ListProps > = ( {
 			throw new Error( message );
 		}
 
+		const siteUrl = new URL( Jetpack_Boost.site.url );
+
 		for ( const line of lines ) {
 			let url: URL | undefined;
 			try {
@@ -231,12 +234,7 @@ const List: React.FC< ListProps > = ( {
 			} catch ( e ) {
 				// If the URL is invalid, they have provided a relative URL, which we will allow.
 			}
-			if (
-				url &&
-				! ( url.origin + url.pathname ).replace( /\/$/, '' ).startsWith(
-					Jetpack_Boost.site.url.replace( /\/$/, '' )
-				)
-			) {
+			if ( url && ! isSameSiteUrl( url, siteUrl ) ) {
 				throw new Error(
 					/* translators: %s is the URL that didn't match the site URL */
 					sprintf( __( 'The URL seems to be a different site: %s', 'jetpack-boost' ), line )

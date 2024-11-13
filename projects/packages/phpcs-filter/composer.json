@@ -13,7 +13,7 @@
 		"testing"
 	],
 	"require": {
-		"php": ">=7.0",
+		"php": ">=7.2",
 		"automattic/ignorefile": "@dev",
 		"squizlabs/php_codesniffer": "^3.6.1"
 	},
