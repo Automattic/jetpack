@@ -12,10 +12,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/admin-ui",
-                "reference": "e7092fd4ebb17012e54e543336ef4b0eedef9bdd"
+                "reference": "c444bd8d1c2a19445a294f0c0d630ac214f8fa7c"
             },
             "require": {
-                "php": ">=7.0"
+                "php": ">=7.2"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
@@ -77,11 +77,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/autoloader",
-                "reference": "55bb380d5cde3e6bcb2f76cfa57c3cabeaf7abce"
+                "reference": "eb0c2612bc1e969fb8153bf19b0abd3806fdd9fd"
             },
             "require": {
                 "composer-plugin-api": "^1.1 || ^2.0",
-                "php": ">=7.0"
+                "php": ">=7.2"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
@@ -278,10 +278,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/changelogger",
-                "reference": "0cc6743db37bf9031f4f3bc4bab4d6012d6540b7"
+                "reference": "77da13ba27b7176879cec384b092362f727f2251"
             },
             "require": {
-                "php": ">=7.0",
+                "php": ">=7.2",
                 "symfony/console": "^3.4 || ^4.4 || ^5.2 || ^6.0 || ^7.0",
                 "symfony/process": "^3.4 || ^4.4 || ^5.2 || ^6.0 || ^7.0"
             },
@@ -1121,7 +1121,7 @@
     },
     "prefer-stable": true,
     "prefer-lowest": false,
-    "platform": {},
-    "platform-dev": {},
+    "platform": [],
+    "platform-dev": [],
     "plugin-api-version": "2.6.0"
 }

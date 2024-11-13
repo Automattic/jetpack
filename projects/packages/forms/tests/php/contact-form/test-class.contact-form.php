@@ -1218,7 +1218,7 @@ class WP_Test_Contact_Form extends BaseTestCase {
 		 * @var Contact_Form_Plugin $mock
 		 */
 		$mock = $this->getMockBuilder( Contact_Form_Plugin::class )
-			->setMethods(
+			->onlyMethods(
 				array(
 					'get_post_meta_for_csv_export',
 					'get_parsed_field_contents_of_post',
@@ -1338,7 +1338,7 @@ class WP_Test_Contact_Form extends BaseTestCase {
 		 * @var Contact_Form_Plugin $mock
 		 * */
 		$mock = $this->getMockBuilder( Contact_Form_Plugin::class )
-			->setMethods(
+			->onlyMethods(
 				array(
 					'get_post_meta_for_csv_export',
 					'get_parsed_field_contents_of_post',
@@ -1443,7 +1443,7 @@ class WP_Test_Contact_Form extends BaseTestCase {
 		 * @var Contact_Form_Plugin $mock
 		 */
 		$mock = $this->getMockBuilder( Contact_Form_Plugin::class )
-			->setMethods(
+			->onlyMethods(
 				array(
 					'get_post_meta_for_csv_export',
 					'get_parsed_field_contents_of_post',
@@ -1533,7 +1533,7 @@ class WP_Test_Contact_Form extends BaseTestCase {
 		 * @var Contact_Form_Plugin $mock
 		 * */
 		$mock = $this->getMockBuilder( Contact_Form_Plugin::class )
-			->setMethods(
+			->onlyMethods(
 				array(
 					'get_post_meta_for_csv_export',
 					'get_parsed_field_contents_of_post',
@@ -1646,7 +1646,7 @@ class WP_Test_Contact_Form extends BaseTestCase {
 		 * @var Contact_Form_Plugin $mock
 		 */
 		$mock = $this->getMockBuilder( Contact_Form_Plugin::class )
-			->setMethods(
+			->onlyMethods(
 				array(
 					'get_post_meta_for_csv_export',
 					'get_parsed_field_contents_of_post',
