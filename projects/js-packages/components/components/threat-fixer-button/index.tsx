@@ -53,6 +53,14 @@ export default function ThreatFixerButton( {
 			return null;
 		}
 
+		if ( fixerState.error ) {
+			return __( 'An error occurred auto-fixing this threat.', 'jetpack' );
+		}
+
+		if ( fixerState.stale ) {
+			return __( 'The auto-fixer is taking longer than expected.', 'jetpack' );
+		}
+
 		if ( fixerState.inProgress ) {
 			return __( 'An auto-fixer is in progress.', 'jetpack' );
 		}
@@ -105,7 +113,7 @@ export default function ThreatFixerButton( {
 			default:
 				return __( 'An auto-fixer is available.', 'jetpack' );
 		}
-	}, [ threat, fixerState.inProgress ] );
+	}, [ threat, fixerState ] );
 
 	const buttonText = useMemo( () => {
 		if ( ! threat.fixable ) {
