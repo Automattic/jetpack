@@ -105,7 +105,7 @@ To get the channel ID of the channel where you'd like to post, copy one of the m
 Certain tasks require filesystem access to the PR, which `pull_request_target` does not provide. To accommodate this, you'll need to include a step to check the PR out in a subdirectory, like
 
 ```yaml
-     - name: Checkout the PR
+     - name: Check out the PR
        if: github.event_name == 'pull_request_target'
        uses: actions/checkout@v4
        with:
