@@ -260,6 +260,13 @@ FixerStatuses.args = {
 			},
 		},
 	],
+	filters: [
+		{
+			field: 'status',
+			operator: 'isAny',
+			value: [ 'current' ],
+		},
+	],
 	onFixThreats: () =>
 		alert( 'Fix threat action callback triggered! This is handled by the component consumer.' ), // eslint-disable-line no-alert
 	onIgnoreThreats: () =>
@@ -280,7 +287,6 @@ FreeResults.args = {
 			description:
 				'Versions 3.2.3 and earlier are affected by an issue where cached queries within shortcodes could lead to object injection. This is related to the recent WordPress 4.8.3 security release.This issue can only be exploited by users who can edit content and add shortcodes, but we still recommend all users running WooCommerce 3.x upgrade to 3.2 to mitigate this issue.',
 			fixedIn: '3.2.4',
-			status: 'current',
 			source: 'https://wpscan.com/vulnerability/1d0470df-4671-47ac-8d87-a165e8f7d502',
 			extension: {
 				name: 'WooCommerce',
@@ -296,7 +302,6 @@ FreeResults.args = {
 			description:
 				'The WooCommerce WordPress plugin was affected by an Authenticated Stored XSS security vulnerability.',
 			fixedIn: '3.4.6',
-			status: 'current',
 			source: 'https://wpscan.com/vulnerability/7275a176-d579-471a-8492-df8edbdf27de',
 			extension: {
 				name: 'WooCommerce',
@@ -311,7 +316,6 @@ FreeResults.args = {
 			description:
 				'The plugin was affected by an authenticated (admin+) RCE in the settings page due to input validation failure and weak $cache_path check in the WP Super Cache Settings -> Cache Location option. Direct access to the wp-cache-config.php file is not prohibited, so this vulnerability can be exploited for a web shell injection.\r\n\r\nAnother possible attack vector: from XSS (via another plugin affected by XSS) to RCE.',
 			fixedIn: '1.7.2',
-			status: 'current',
 			source: 'https://wpscan.com/vulnerability/733d8a02-0d44-4b78-bbb2-37e447acd2f3',
 			extension: {
 				name: 'WP Super Cache',

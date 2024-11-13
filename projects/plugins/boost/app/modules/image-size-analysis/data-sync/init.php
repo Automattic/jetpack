@@ -119,6 +119,7 @@ $summary_schema = Schema::as_assoc_array(
 				'error_stuck',
 			)
 		),
+		'message'   => Schema::as_string()->nullable(),
 		'report_id' => Schema::as_number()->nullable(),
 		'groups'    => Schema::as_assoc_array(
 			array(

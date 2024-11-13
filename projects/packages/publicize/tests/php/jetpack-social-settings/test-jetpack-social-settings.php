@@ -33,7 +33,7 @@ class Jetpack_Social_Settings_Test extends BaseTestCase {
 	public function set_up() {
 		add_filter( 'jetpack_active_modules', array( $this, 'mock_publicize_being_active' ) );
 		global $publicize;
-		$publicize = $this->getMockBuilder( Publicize::class )->setMethods( array( 'has_social_image_generator_feature' ) )->getMock();
+		$publicize = $this->getMockBuilder( Publicize::class )->onlyMethods( array( 'has_social_image_generator_feature' ) )->getMock();
 		$publicize->method( 'has_social_image_generator_feature' )
 			->withAnyParameters()
 			->willReturn( true );

@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.9] - 2024-11-11
+### Added
+- Enable test coverage. [#39961]
+
+### Changed
+- Updated package dependencies. [#39999]
+
 ## [0.1.8] - 2024-10-29
 ### Changed
 - Internal updates.
@@ -51,6 +58,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Calypsoify: Load feature from the Calypsoify package. [#37375]
 - Updated package dependencies. [#37379]
 
+[0.1.9]: https://github.com/Automattic/jetpack-calypsoify/compare/v0.1.8...v0.1.9
 [0.1.8]: https://github.com/Automattic/jetpack-calypsoify/compare/v0.1.7...v0.1.8
 [0.1.7]: https://github.com/Automattic/jetpack-calypsoify/compare/v0.1.6...v0.1.7
 [0.1.6]: https://github.com/Automattic/jetpack-calypsoify/compare/v0.1.5...v0.1.6

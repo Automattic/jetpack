@@ -41,6 +41,7 @@ import {
 	THREAT_TYPES,
 } from './constants';
 import styles from './styles.module.scss';
+import ThreatsStatusToggleGroupControl from './threats-status-toggle-group-control';
 
 /**
  * DataViews component for displaying security threats.
@@ -146,10 +147,10 @@ export default function ThreatsDataViews( {
 	/**
 	 * Compute values from the provided threats data.
 	 *
-	 * @member {object[]} themes     - List of unique themes included in the threats data.
-	 * @member {object[]} plugins    - List of unique plugins included in the threats data.
+	 * @member {object[]} themes    - List of unique themes included in the threats data.
+	 * @member {object[]} plugins   - plugins included in the threats data.
 	 * @member {object[]} signatures - List of unique threat signatures.
-	 * @member {string[]} dataFields - List of unique fields.
+	 * @member {string[]}    dataFields - List of unique fields.
 	 */
 	const {
 		themes,
@@ -526,6 +527,13 @@ export default function ThreatsDataViews( {
 			onChangeView={ onChangeView }
 			paginationInfo={ paginationInfo }
 			view={ view }
+			header={
+				<ThreatsStatusToggleGroupControl
+					data={ data }
+					view={ view }
+					onChangeView={ onChangeView }
+				/>
+			}
 		/>
 	);
 }

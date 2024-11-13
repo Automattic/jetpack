@@ -129,6 +129,7 @@ class Cornerstone_Pages implements Has_Setup {
 		return array(
 			'max_pages'         => $this->get_max_pages(),
 			'max_pages_premium' => static::PREMIUM_MAX_PAGES,
+			'default_pages'     => array_map( 'home_url', $this->default_pages() ),
 		);
 	}
 

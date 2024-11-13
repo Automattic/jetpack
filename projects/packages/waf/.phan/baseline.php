@@ -9,13 +9,11 @@
  */
 return [
     // # Issue statistics:
-    // PhanDeprecatedFunction : 9 occurrences
-    // PhanTypeMismatchArgument : 9 occurrences
+    // PhanTypeMismatchArgument : 8 occurrences
     // PhanNoopNew : 6 occurrences
     // PhanTypeMismatchDefault : 5 occurrences
     // PhanTypeMismatchReturn : 5 occurrences
     // PhanTypeMismatchReturnProbablyReal : 5 occurrences
-    // PhanUndeclaredConstant : 5 occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 4 occurrences
     // PhanRedefineFunction : 4 occurrences
     // PhanTypeMismatchArgumentInternal : 4 occurrences
@@ -26,7 +24,6 @@ return [
     // PhanTypeArraySuspiciousNullable : 2 occurrences
     // PhanTypeMismatchArgumentNullable : 2 occurrences
     // PhanCoalescingNeverNull : 1 occurrence
-    // PhanImpossibleTypeComparison : 1 occurrence
     // PhanNonClassMethodCall : 1 occurrence
     // PhanPluginInvalidPregRegex : 1 occurrence
     // PhanTypeComparisonToArray : 1 occurrence
@@ -34,6 +31,7 @@ return [
     // PhanTypeInvalidDimOffset : 1 occurrence
     // PhanTypeMismatchArgumentNullableInternal : 1 occurrence
     // PhanTypeMismatchProperty : 1 occurrence
+    // PhanUndeclaredConstant : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
@@ -51,7 +49,7 @@ return [
         'tests/php/unit/functions-wordpress.php' => ['PhanRedefineFunction'],
         'tests/php/unit/test-waf-operators.php' => ['PhanTypeMismatchArgumentInternal'],
         'tests/php/unit/test-waf-runtime-targets.php' => ['PhanPluginRedundantAssignment'],
-        'tests/php/unit/test-waf-standalone-bootstrap.php' => ['PhanDeprecatedFunction', 'PhanNoopNew'],
+        'tests/php/unit/test-waf-standalone-bootstrap.php' => ['PhanNoopNew'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
     // (directory_suppressions will currently be ignored by subsequent calls to --save-baseline, but may be preserved in future Phan releases)

@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Exclude corejs `exnext.iterator.` polyfills to avoid bloating the bundle.
