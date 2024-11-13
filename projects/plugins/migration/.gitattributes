@@ -1,0 +1,8 @@
+# Files not needed to be distributed in the package.
+.gitattributes    export-ignore
+.github/          export-ignore
+
+# Files to exclude from the mirror repo, but included in the monorepo.
+.gitattributes    production-exclude
+.gitignore        production-exclude
+composer.lock     production-exclude
