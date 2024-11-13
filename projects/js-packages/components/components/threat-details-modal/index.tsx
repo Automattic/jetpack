@@ -7,7 +7,7 @@ import {
 	getFixerAction,
 	getFixerMessage,
 } from '@automattic/jetpack-scan';
-import { Modal } from '@wordpress/components';
+import { Modal, Notice } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { useMemo, useCallback } from 'react';
 import ContextualUpgradeTrigger from '../contextual-upgrade-trigger';
@@ -95,20 +95,15 @@ const ThreatActions = ( {
 	handleFixThreatClick,
 	handleIgnoreThreatClick,
 	handleUnignoreThreatClick,
+	fixerState,
 }: {
 	threat: Threat;
 	closeModal: () => void;
 	handleFixThreatClick?: ( threats: Threat[] ) => void;
 	handleIgnoreThreatClick?: ( threats: Threat[] ) => void;
 	handleUnignoreThreatClick?: ( threats: Threat[] ) => void;
+	fixerState: { inProgress: boolean; error: boolean; stale: boolean };
 } ) => {
-	const fixerState = useMemo( () => {
-		const inProgress = threat.fixer && fixerIsInProgress( threat.fixer );
-		const error = threat.fixer && fixerIsInError( threat.fixer );
-		const stale = threat.fixer && fixerStatusIsStale( threat.fixer );
-		return { inProgress, error, stale };
-	}, [ threat.fixer ] );
-
 	const fixerAction = useMemo( () => {
 		return getFixerAction( threat );
 	}, [ threat ] );
@@ -202,6 +197,13 @@ export default function ThreatDetailsModal( {
 	handleUnignoreThreatClick?: ( threats: Threat[] ) => void;
 	[ key: string ]: unknown;
 } ): JSX.Element {
+	const fixerState = useMemo( () => {
+		const inProgress = threat.fixer && fixerIsInProgress( threat.fixer );
+		const error = threat.fixer && fixerIsInError( threat.fixer );
+		const stale = threat.fixer && fixerStatusIsStale( threat.fixer );
+		return { inProgress, error, stale };
+	}, [ threat.fixer ] );
+
 	const title = useMemo( () => {
 		if ( threat.title ) {
 			return threat.title;
@@ -217,6 +219,21 @@ export default function ThreatDetailsModal( {
 	return (
 		<Modal size="large" __experimentalHideHeader { ...modalProps }>
 			<div className={ styles[ 'threat-details' ] }>
+				{ fixerState.error && (
+					<Notice isDismissible={ false } status="error">
+						<Text>{ __( 'An error occurred auto-fixing this threat.', 'jetpack' ) }</Text>
+					</Notice>
+				) }
+				{ fixerState.stale && (
+					<Notice isDismissible={ false } status="error">
+						<Text>{ __( 'The auto-fixer is taking longer than expected.', 'jetpack' ) }</Text>
+					</Notice>
+				) }
+				{ fixerState.inProgress && ! fixerState.stale && (
+					<Notice isDismissible={ false } status="success">
+						<Text>{ __( 'The auto-fixer is in progress.', 'jetpack' ) }</Text>
+					</Notice>
+				) }
 				<div className={ styles.section }>
 					<div className={ styles.title }>
 						<Text variant="title-small">{ title }</Text>
@@ -249,6 +266,7 @@ export default function ThreatDetailsModal( {
 					handleFixThreatClick={ handleFixThreatClick }
 					handleIgnoreThreatClick={ handleIgnoreThreatClick }
 					handleUnignoreThreatClick={ handleUnignoreThreatClick }
+					fixerState={ fixerState }
 				/>
 			</div>
 		</Modal>
