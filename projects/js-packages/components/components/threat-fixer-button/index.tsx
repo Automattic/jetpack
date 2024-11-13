@@ -4,6 +4,7 @@ import {
 	fixerIsInError,
 	fixerIsInProgress,
 	fixerStatusIsStale,
+	getFixerMessage,
 } from '@automattic/jetpack-scan';
 import { Tooltip } from '@wordpress/components';
 import { useCallback, useMemo } from '@wordpress/element';
@@ -50,57 +51,10 @@ export default function ThreatFixerButton( {
 		}
 
 		if ( fixerState.inProgress ) {
-			return __( 'An auto-fixer is in progress.', 'jetpack' );
+			return __( 'The auto-fixer is in progress.', 'jetpack' );
 		}
 
-		switch ( threat.fixable.fixer ) {
-			case 'delete':
-				if ( threat.filename ) {
-					if ( threat.filename.endsWith( '/' ) ) {
-						return __( 'Deletes the directory that the infected file is in.', 'jetpack' );
-					}
-
-					if ( threat.signature === 'Core.File.Modification' ) {
-						return __( 'Deletes the unexpected file in a core WordPress directory.', 'jetpack' );
-					}
-
-					return __( 'Deletes the infected file.', 'jetpack' );
-				}
-
-				if ( threat.extension?.type === 'plugin' ) {
-					return __( 'Deletes the plugin directory to fix the threat.', 'jetpack' );
-				}
-
-				if ( threat.extension?.type === 'theme' ) {
-					return __( 'Deletes the theme directory to fix the threat.', 'jetpack' );
-				}
-				break;
-			case 'update':
-				return __( 'Upgrades the plugin or theme to a newer version.', 'jetpack' );
-			case 'replace':
-			case 'rollback':
-				if ( threat.filename ) {
-					return threat.signature === 'Core.File.Modification'
-						? __(
-								'Replaces the modified core WordPress file with the original clean version from the WordPress source code.',
-								'jetpack'
-						  )
-						: __(
-								'Replaces the infected file with a previously backed up version that is clean.',
-								'jetpack'
-						  );
-				}
-
-				if ( threat.signature === 'php_hardening_WP_Config_NoSalts_001' ) {
-					return __(
-						'Replaces the default salt keys in wp-config.php with unique ones.',
-						'jetpack'
-					);
-				}
-				break;
-			default:
-				return __( 'An auto-fixer is available.', 'jetpack' );
-		}
+		return getFixerMessage( threat );
 	}, [ threat, fixerState ] );
 
 	const buttonText = useMemo( () => {

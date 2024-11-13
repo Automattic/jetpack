@@ -4,10 +4,11 @@ import {
 	fixerIsInError,
 	fixerIsInProgress,
 	fixerStatusIsStale,
+	getFixerMessage,
 } from '@automattic/jetpack-scan';
 import { Modal } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
-import { useMemo } from 'react';
+import { useMemo, useCallback } from 'react';
 import ContextualUpgradeTrigger from '../contextual-upgrade-trigger';
 import DiffViewer from '../diff-viewer';
 import MarkedLines from '../marked-lines';
@@ -64,62 +65,7 @@ const ThreatFixDetails = ( {
 		}
 
 		// The threat has an auto-fix available.
-		switch ( threat.fixable && threat.fixable.fixer ) {
-			case 'delete':
-				if ( threat.filename ) {
-					if ( threat.filename.endsWith( '/' ) ) {
-						return __( 'Deletes the directory that the infected file is in.', 'jetpack' );
-					}
-
-					if ( threat.signature === 'Core.File.Modification' ) {
-						return __( 'Deletes the unexpected file in a core WordPress directory.', 'jetpack' );
-					}
-
-					return __( 'Deletes the infected file.', 'jetpack' );
-				}
-
-				if ( threat.extension?.type === 'plugin' ) {
-					return __( 'Deletes the plugin directory to fix the threat.', 'jetpack' );
-				}
-
-				if ( threat.extension?.type === 'theme' ) {
-					return __( 'Deletes the theme directory to fix the threat.', 'jetpack' );
-				}
-				break;
-			case 'update':
-				if ( threat.fixedIn && threat.extension.name ) {
-					return sprintf(
-						/* translators: Translates to Updates to version. %1$s: Name. %2$s: Fixed version */
-						__( 'Updates %1$s to version %2$s', 'jetpack' ),
-						threat.extension.name,
-						threat.fixedIn
-					);
-				}
-				return __( 'Upgrades the plugin or theme to a newer version.', 'jetpack' );
-			case 'replace':
-			case 'rollback':
-				if ( threat.filename ) {
-					return threat.signature === 'Core.File.Modification'
-						? __(
-								'Replaces the modified core WordPress file with the original clean version from the WordPress source code.',
-								'jetpack'
-						  )
-						: __(
-								'Replaces the infected file with a previously backed up version that is clean.',
-								'jetpack'
-						  );
-				}
-
-				if ( threat.signature === 'php_hardening_WP_Config_NoSalts_001' ) {
-					return __(
-						'Replaces the default salt keys in wp-config.php with unique ones.',
-						'jetpack'
-					);
-				}
-				break;
-			default:
-				return __( 'Jetpack will auto-fix the threat.', 'jetpack' );
-		}
+		return getFixerMessage( threat );
 	}, [ threat ] );
 
 	if ( ! threat.fixable && ! threat.fixedIn ) {
@@ -166,20 +112,20 @@ const ThreatActions = ( {
 		return null;
 	}
 
-	const onFixClick = () => {
+	const onFixClick = useCallback( () => {
 		handleFixThreatClick( [ threat ] );
 		closeModal();
-	};
+	}, [ threat, handleFixThreatClick, closeModal ] );
 
-	const onIgnoreClick = () => {
+	const onIgnoreClick = useCallback( () => {
 		handleIgnoreThreatClick( [ threat ] );
 		closeModal();
-	};
+	}, [ threat, handleIgnoreThreatClick, closeModal ] );
 
-	const onUnignoreClick = () => {
+	const onUnignoreClick = useCallback( () => {
 		handleUnignoreThreatClick( [ threat ] );
 		closeModal();
-	};
+	}, [ threat, handleUnignoreThreatClick, closeModal ] );
 
 	return (
 		<div className={ styles.modal }>
