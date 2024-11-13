@@ -81,7 +81,7 @@ const ThreatFixDetails = ( {
 			{ !! handleUpgradeClick && (
 				<ContextualUpgradeTrigger
 					description={ __( 'Looking for advanced scan results and one-click fixes?', 'jetpack' ) }
-					cta={ __( 'Upgrade Jetpack Protect now', 'jetpack' ) }
+					cta={ __( 'Upgrade Jetpack now', 'jetpack' ) }
 					onClick={ handleUpgradeClick }
 				/>
 			) }
