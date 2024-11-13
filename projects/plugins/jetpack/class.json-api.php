@@ -1271,4 +1271,32 @@ class WPCOM_JSON_API {
 			return fastcgi_finish_request();
 		}
 	}
+
+	/**
+	 * Initialize the locale if different from 'en'.
+	 *
+	 * @param string $locale The locale to initialize.
+	 */
+	public function init_locale( $locale ) {
+		if ( 'en' !== $locale ) {
+			// .org mo files are named slightly different from .com, and all we have is this the locale -- try to guess them.
+			$new_locale = $locale;
+			if ( str_contains( $locale, '-' ) ) {
+				$locale_pieces = explode( '-', $locale );
+				$new_locale    = $locale_pieces[0];
+				$new_locale   .= ( ! empty( $locale_pieces[1] ) ) ? '_' . strtoupper( $locale_pieces[1] ) : '';
+			} else { // phpcs:ignore Universal.ControlStructures.DisallowLonelyIf.Found
+				// .com might pass 'fr' because thats what our language files are named as, where core seems
+				// to do fr_FR - so try that if we don't think we can load the file.
+				if ( ! file_exists( WP_LANG_DIR . '/' . $locale . '.mo' ) ) {
+					$new_locale = $locale . '_' . strtoupper( $locale );
+				}
+			}
+
+			if ( file_exists( WP_LANG_DIR . '/' . $new_locale . '.mo' ) ) {
+				unload_textdomain( 'default' );
+				load_textdomain( 'default', WP_LANG_DIR . '/' . $new_locale . '.mo' );
+			}
+		}
+	}
 }

@@ -2683,6 +2683,11 @@ abstract class WPCOM_JSON_API_Endpoint {
 		$this->api->initialize();
 		$this->api->endpoint = $this;
 
+		$locale = $request->get_param( 'language' );
+		if ( $locale ) {
+			$this->api->init_locale( $locale );
+		}
+
 		if ( $this->in_testing && ! WPCOM_JSON_API__DEBUG ) {
 			return new WP_Error( 'endpoint_not_available' );
 		}
