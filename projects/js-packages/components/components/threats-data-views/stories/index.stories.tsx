@@ -323,4 +323,6 @@ FreeResults.args = {
 			},
 		},
 	],
+	handleUpgradeClick: () =>
+		alert( 'Upgrade action callback triggered! This is handled by the component consumer.' ), // eslint-disable-line no-alert
 };

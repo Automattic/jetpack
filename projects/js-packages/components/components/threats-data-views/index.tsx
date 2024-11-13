@@ -1,7 +1,6 @@
 import { getThreatType, type Threat } from '@automattic/jetpack-scan';
 import {
 	type Action,
-	type ActionButton,
 	type Field,
 	type FieldType,
 	type Filter,
@@ -22,6 +21,7 @@ import ThreatSeverityBadge from '../threat-severity-badge';
 import {
 	THREAT_ACTION_IGNORE,
 	THREAT_ACTION_UNIGNORE,
+	THREAT_ACTION_VIEW_DETAILS,
 	THREAT_FIELD_AUTO_FIX,
 	THREAT_FIELD_DESCRIPTION,
 	THREAT_FIELD_EXTENSION,
@@ -56,6 +56,7 @@ import styles from './styles.module.scss';
  * @param {Function} props.isThreatEligibleForIgnore   - Function to determine if a threat is eligible for ignoring.
  * @param {Function} props.isThreatEligibleForUnignore - Function to determine if a threat is eligible for unignoring.
  *
+ * @param            props.handleUpgradeClick
  * @return {JSX.Element} The ThreatsDataViews component.
  */
 export default function ThreatsDataViews( {
@@ -65,6 +66,7 @@ export default function ThreatsDataViews( {
 	isThreatEligibleForFix,
 	isThreatEligibleForIgnore,
 	isThreatEligibleForUnignore,
+	handleUpgradeClick,
 	onFixThreats,
 	onIgnoreThreats,
 	onUnignoreThreats,
@@ -75,6 +77,7 @@ export default function ThreatsDataViews( {
 	isThreatEligibleForFix?: ( threat: Threat ) => boolean;
 	isThreatEligibleForIgnore?: ( threat: Threat ) => boolean;
 	isThreatEligibleForUnignore?: ( threat: Threat ) => boolean;
+	handleUpgradeClick?: () => void;
 	onFixThreats?: ( threats: Threat[] ) => void;
 	onIgnoreThreats?: ( threats: Threat[] ) => void;
 	onUnignoreThreats?: ( threats: Threat[] ) => void;
@@ -437,9 +440,15 @@ export default function ThreatsDataViews( {
 	 * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-dataviews/#actions-object
 	 */
 	const actions = useMemo( () => {
-		const result: Action< Threat >[] = [];
-
-		// TODO: Keep View details for free threats?
+		const result: Action< Threat >[] = [
+			{
+				id: THREAT_ACTION_VIEW_DETAILS,
+				label: __( 'View Details', 'jetpack' ),
+				callback: ( items: Threat[] ) => {
+					showThreatDetails( items[ 0 ] )();
+				},
+			},
+		];
 
 		if ( dataFields.includes( 'status' ) ) {
 			result.push( {
@@ -531,6 +540,7 @@ export default function ThreatsDataViews( {
 				<ThreatDetailsModal
 					threat={ openThreat }
 					onRequestClose={ hideThreatDetails }
+					handleUpgradeClick={ handleUpgradeClick }
 					handleFixThreatClick={ onFixThreats }
 					handleIgnoreThreatClick={ onIgnoreThreats }
 					handleUnignoreThreatClick={ onUnignoreThreats }
