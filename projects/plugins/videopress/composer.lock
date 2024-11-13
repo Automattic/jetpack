@@ -130,7 +130,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/assets",
-                "reference": "b4126de85f92bde2a4361ae17c4b670194c0f44e"
+                "reference": "25b53bb53d3ebcb170b2a5d52365afa9acdfb28f"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
@@ -176,8 +176,7 @@
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],
                 "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\"",
-                    "pnpm run test-coverage"
+                    "pnpm concurrently --names php,js 'php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\"' 'pnpm:test-coverage'"
                 ],
                 "test-js": [
                     "pnpm run test"
@@ -743,7 +742,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/explat",
-                "reference": "5f6f8baea24d6d4bb4e8e6bc910170c4a3a8746c"
+                "reference": "95e7660d7fee4fd4c9a7ed7db807792cc655c995"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -781,8 +780,7 @@
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],
                 "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\"",
-                    "pnpm run test-coverage"
+                    "pnpm concurrently --names php,js 'php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\"' 'pnpm:test-coverage'"
                 ],
                 "test-php": [
                     "@composer phpunit"
@@ -1067,7 +1065,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "326fe5464ac6c2b6f10eb11f116dd38349b89c2d"
+                "reference": "46dfedb2513e12cfe8ccaeb14d862ce56db13de3"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -1128,8 +1126,7 @@
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],
                 "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\"",
-                    "pnpm run test-coverage"
+                    "pnpm concurrently --names php,js 'php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\"' 'pnpm:test-coverage'"
                 ],
                 "test-php": [
                     "@composer phpunit"
@@ -1753,7 +1750,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/videopress",
-                "reference": "9228481f21d335a673383166d826ad7beb51ea14"
+                "reference": "6e7dfe65e55cf6e3a1f95854c3c929031bff3364"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -1797,8 +1794,7 @@
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],
                 "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\"",
-                    "pnpm run test-coverage"
+                    "pnpm concurrently --names php,js 'php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\"' 'pnpm:test-coverage'"
                 ],
                 "test-php": [
                     "@composer phpunit"
