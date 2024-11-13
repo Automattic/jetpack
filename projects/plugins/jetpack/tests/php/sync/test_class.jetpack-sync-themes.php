@@ -261,8 +261,6 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 		$this->install_theme( $theme_slug );
 		$this->sender->do_sync();
 
-		echo 'WPCOMSH_PREMIUM_THEMES_PATH:';
-		print_r( scandir( WPCOMSH_PREMIUM_THEMES_PATH ) );
 		$event_data = $this->server_event_storage->get_most_recent_event( 'jetpack_installed_theme' );
 
 		$this->assertEquals( $event_data->args[0], $theme_slug );
