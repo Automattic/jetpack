@@ -225,6 +225,11 @@ class Test_Status extends BaseTestCase {
 				'num_themes_threats'  => 1,
 				'num_plugins_threats' => 1,
 				'has_unchecked_items' => false,
+				'threats'             => array(
+					$this->get_sample_threat(),
+					$this->get_sample_threat(),
+					$this->get_sample_threat(),
+				),
 			)
 		);
 	}
@@ -361,8 +366,12 @@ class Test_Status extends BaseTestCase {
 		$this->mock_connection();
 
 		add_filter( 'pre_http_request', array( $this, 'return_sample_response' ) );
+		add_filter( 'all_plugins', array( $this, 'return_sample_plugins' ) );
+		add_filter( 'jetpack_sync_get_themes_callable', array( $this, 'return_sample_themes' ) );
 		$status = Protect_Status::get_total_threats();
 		remove_filter( 'pre_http_request', array( $this, 'return_sample_response' ) );
+		remove_filter( 'all_plugins', array( $this, 'return_sample_plugins' ) );
+		remove_filter( 'jetpack_sync_get_themes_callable', array( $this, 'return_sample_themes' ) );
 
 		$this->assertSame( 3, $status );
 	}

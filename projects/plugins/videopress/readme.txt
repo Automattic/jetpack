@@ -5,7 +5,7 @@ Tags: video, video-hosting, video-player, cdn, video-streaming
 Requires at least: 6.6
 Tested up to: 6.7
 Stable tag: 1.5
-Requires PHP: 7.0
+Requires PHP: 7.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 The finest video hosting for WordPress. Drag and drop videos through the WordPress editor and keep the focus on your content, not the ads.

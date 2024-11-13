@@ -1462,7 +1462,6 @@ class WP_Test_Image_CDN extends Image_CDN_Attachment_Test_Case {
 	 * The endpoint sets the context to edit, but not before the callback executes.
 
 	 * @author kraftbj
-	 * @requires PHPUnit 7.5
 	 * @group rest-api
 	 */
 	public function test_image_cdn_cdn_in_rest_response_with_created_item() {
@@ -1497,7 +1496,6 @@ class WP_Test_Image_CDN extends Image_CDN_Attachment_Test_Case {
 	 * Photonized URLs.
 	 *
 	 * @author ebinnion
-	 * @requires PHPUnit 7.5
 	 * @group rest-api
 	 */
 	public function test_image_cdn_in_rest_response_external_media() {

@@ -30,6 +30,12 @@ type ImageFeatureControl = FeatureControl & {
 
 type AiImageType = 'featured-image-generation' | 'general-image-generation';
 type AiImageFeature = typeof FEATURED_IMAGE_FEATURE_NAME | typeof GENERAL_IMAGE_FEATURE_NAME;
+export type ImageResponse = {
+	image?: string;
+	libraryId?: string;
+	libraryUrl?: string;
+	revisedPrompt?: string;
+};
 
 export default function useAiImage( {
 	feature,
@@ -115,7 +121,7 @@ export default function useAiImage( {
 			notEnoughRequests: boolean;
 			style?: string;
 		} ) => {
-			return new Promise( ( resolve, reject ) => {
+			return new Promise< ImageResponse >( ( resolve, reject ) => {
 				updateImages( { generating: true, error: null }, pointer.current );
 
 				// Ensure the site has enough requests to generate the image.
@@ -174,6 +180,7 @@ export default function useAiImage( {
 										image,
 										libraryId: savedImage?.id,
 										libraryUrl: savedImage?.url,
+										revisedPrompt: result.data[ 0 ].revised_prompt || '',
 									} );
 								} )
 								.catch( () => {
@@ -210,7 +217,11 @@ export default function useAiImage( {
 	}, [ current, images.length ] );
 
 	const guessStyle = useCallback(
-		async function ( prompt: string ): Promise< ImageStyle | null > {
+		async function (
+			prompt: string,
+			requestType: string = '',
+			content: string = ''
+		): Promise< ImageStyle | null > {
 			if ( ! imageStyles || ! imageStyles.length ) {
 				return null;
 			}
@@ -219,8 +230,9 @@ export default function useAiImage( {
 				{
 					role: 'jetpack-ai' as RoleType,
 					context: {
-						type: 'general-image-guess-style',
+						type: requestType || 'general-image-guess-style',
 						request: prompt,
+						content,
 					},
 				},
 			];

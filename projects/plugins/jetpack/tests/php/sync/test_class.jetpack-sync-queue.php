@@ -58,7 +58,7 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 		 * @var $queue Automattic\Jetpack\Sync\Queue|\PHPUnit\Framework\MockObject\MockObject
 		 */
 		$queue = $this->getMockBuilder( 'Automattic\\Jetpack\\Sync\\Queue' )
-			->setMethods( array( 'generate_option_name_timestamp' ) )
+			->onlyMethods( array( 'generate_option_name_timestamp' ) )
 			->setConstructorArgs( array( 'my_queue' ) )
 			->getMock();
 
