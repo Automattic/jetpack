@@ -1,9 +1,9 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, arsihasi, azaozz, barry, batmoo, beaulebens, bindlegirl, biskobe, bjorsch, blobaugh, brbrr, brileyhooper, cainm, cena, cfinke, cgastrell, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, daniloercoli, davoraltman, delawski, designsimply, dkmyta, dllh, drawmyface, dsmart, dun2mis, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, joen, jblz, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lhkowalski, lschuyler, macmanx, martinremy, matt, mattwiebe, matveb, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, miguelxavierpenha, mikeyarce, mkaz, nancythanki, nickmomrik, njweller, nunyvega, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, renatoagds, retrofox, richardmtl, richardmuscat, robertbpugh, roccotripaldi, ryancowles, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, thehenridev, tmoorewp, tyxla, Viper007Bond, westi, williamvianas, wpkaren, yoavf, zinigor
 Tags: Security, backup, malware, scan, performance
-Stable tag: 13.9.1
-Requires at least: 6.5
-Requires PHP: 7.0
+Stable tag: 14.0
+Requires at least: 6.6
+Requires PHP: 7.2
 Tested up to: 6.7
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -303,7 +303,7 @@ Automattic actively develops [Jetpack Boost](https://wordpress.org/plugins/jetpa
 
 = What version of PHP do I need? =
 
-Sites must be built on PHP 7.0 or greater, but Jetpack always supports the latest version of PHP.
+Sites must be built on PHP 7.2 or greater, but Jetpack always supports the latest version of PHP.
 
 = Can Jetpack help my site comply with GDPR? =
 
@@ -326,46 +326,17 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.0-beta - 2024-11-04
+### 14.1-a.1 - 2024-11-11
 #### Enhancements
-- CSS: Rely esclusively on individual CSS files instead of a combined one for the features used on each page to improve page loading.
-- Newsletter: Update the default "reply to" setting value from not allowed to replies being posted as public comments.
-- Newsletters: Add an email preview option to the preview menu.
-- Newsletters: Allow skipping newsletter modals with a URL query param.
-- Scan: Update Jetpack Scan link in the WP Admin menu.
-- Sitemap: Improve sitemap write efficienty.
-- Social: Add Bluesky to social previews.
-- Social: Add support for Bluesky 🎉.
-- Subscriptions: Add a floating subscribe button.
+- My Jetpack: Update the recommendations section in My Jetpack to include a slider interaction for the cards.
+- Image CDN: Use preconnect resource hints instead of dns-prefetch to improve performance.
 
 #### Improved compatibility
-- Embed Blocks: Append 'Embed' to the titles of Facebook and Instagram embed blocks.
-- General: Ensure notice displays without errors when running an old version of WordPress.
-- Image Block: Make the external media picker button consistent with the other buttons in the image block.
-- Image CDN: URL encode image path parts for RSS feed compatibility.
-- Plugin action links filters: Update parameter to avoid conflicts with other plugins.
-- Post Editor: Prevent deprecation notices with WordPress 6.7.
-- Related Posts: Allow Related Posts on non-post CPTs where the block is already able to be used.
-
-#### Improved Compatibility
-- General: Indicate compatibility with WordPress 6.7.
+- Components: Shortlink and Toolbar related components have been updated to ensure compatibility.
+- Extra Sidebar Widgets: update asset enqueuing strategy to ensure compatibility with the Elementor plugin.
 
 #### Bug fixes
-- Blocks: Fix rendering of the goodreads block to avoid PHP warnings caused by missing attributes.
-- Blocks: Render the slideshow block correctly inside an iframe editor.
-- Carousel: Further improve accessibility by being more selective over which images to apply attributes to.
-- Contact Form: Ensure that submitted forms can only be accessed by logged in users allowed to view form submissions.
-- General: Only include `wp-polyfill` as a script dependency when needed.
-- Google Fonts: Fix module not loading fully in certain scenarios.
-- Map Block: Fix issue where blocks placed underneath would overlap with the map block.
-- Newsletter: Ensure `Enable featured image on your new post emails` setting displays the right value.
-- Newsletters: Fix "Use excerpt" setting.
-- Sharing: Ensure the sharing settings can be accessed even when a user is not connected to WordPress.com.
-- Social: Fix the Instagram maximum video length.
-- Social: Prevent share status styles from affecting other independent elements on the page.
-- Social: Prevent text overflow in the share status tooltip.
-- Stats: Fix top post card on the Insight page.
-- Subscribe Block: Fix styling for the number of subscribers in the post editor sidebar.
+- Fixed bug with scheduled resharing when sharing another admin's posts.
 
 --------
 

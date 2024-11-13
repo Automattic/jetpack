@@ -56,6 +56,15 @@ function fixDeps( pkg ) {
 		}
 	}
 
+	// Unnecessarily explicit deps. I don't think we really even need @wordpress/babel-preset-default at all.
+	if ( pkg.name === '@wordpress/babel-preset-default' || pkg.name === '@wordpress/eslint-plugin' ) {
+		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
+			if ( dep.startsWith( '@babel/' ) && ! ver.startsWith( '^' ) && ! ver.startsWith( '>' ) ) {
+				pkg.dependencies[ dep ] = '^' + ver;
+			}
+		}
+	}
+
 	// Update localtunnel axios dep to avoid CVE
 	// https://github.com/localtunnel/localtunnel/issues/632
 	if ( pkg.name === 'localtunnel' && pkg.dependencies.axios === '0.21.4' ) {

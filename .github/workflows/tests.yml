@@ -252,7 +252,7 @@ jobs:
         env:
           CHANGED: ${{ steps.changed.outputs.projects }}
         if: matrix.script == 'test-coverage'
-        run: .github/files/process-coverage.sh
+        run: .github/files/coverage-munger/process-coverage.sh
 
       - name: Check for artifacts
         id: check-artifacts

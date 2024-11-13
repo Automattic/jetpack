@@ -1,5 +1,9 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { ConnectionManagement, features } from '@automattic/jetpack-publicize-components';
+import {
+	ConnectionManagement,
+	features,
+	getSocialScriptData,
+} from '@automattic/jetpack-publicize-components';
 import { siteHasFeature } from '@automattic/jetpack-script-data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
@@ -14,6 +18,7 @@ import './style.scss';
 import { FormFieldset } from '../components/forms';
 import { FEATURE_JETPACK_SOCIAL } from '../lib/plans/constants';
 import SocialImageGeneratorSection from './features/social-image-generator-section';
+import UtmToggleSection from './features/utm-toggle-section';
 
 export const Publicize = withModuleSettingsFormHelpers(
 	class extends Component {
@@ -27,7 +32,7 @@ export const Publicize = withModuleSettingsFormHelpers(
 		componentDidUpdate() {
 			const isActive = this.props.getOptionValue( 'publicize' );
 			// Reload the page if Publicize is enabled.
-			if ( isActive && ! window.Initial_State.socialInitialState.is_publicize_enabled ) {
+			if ( isActive && ! getSocialScriptData().is_publicize_enabled ) {
 				window.location.reload();
 			}
 		}
@@ -150,6 +155,7 @@ export const Publicize = withModuleSettingsFormHelpers(
 							{ shouldShowChildElements && hasSocialImageGenerator && (
 								<SocialImageGeneratorSection />
 							) }
+							{ shouldShowChildElements && <UtmToggleSection /> }
 							{ isActive &&
 							isLinked &&
 							useAdminUiV1 &&

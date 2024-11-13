@@ -45,6 +45,7 @@ export const AiModalPromptInput = ( {
 	generateHandler = () => {},
 	placeholder = '',
 	buttonLabel = '',
+	minPromptLength = null,
 }: {
 	prompt: string;
 	setPrompt: Dispatch< SetStateAction< string > >;
@@ -52,9 +53,11 @@ export const AiModalPromptInput = ( {
 	generateHandler: () => void;
 	placeholder?: string;
 	buttonLabel?: string;
+	minPromptLength?: number;
 } ) => {
 	const inputRef = useRef< HTMLDivElement | null >( null );
-	const hasPrompt = prompt?.length >= MINIMUM_PROMPT_LENGTH;
+	const hasPrompt =
+		prompt?.length >= ( minPromptLength === null ? MINIMUM_PROMPT_LENGTH : minPromptLength );
 
 	const onPromptInput = ( event: React.ChangeEvent< HTMLInputElement > ) => {
 		setPrompt( event.target.textContent || '' );
@@ -87,6 +90,21 @@ export const AiModalPromptInput = ( {
 		event.stopPropagation();
 	};
 
+	useEffect( () => {
+		// Update prompt text node when prop changes
+		if ( inputRef.current && inputRef.current.textContent !== prompt ) {
+			inputRef.current.textContent = prompt;
+		}
+	}, [ prompt ] );
+
+	// fix for contenteditable divs not being able to be cleared by the user
+	// as per default browser behavior
+	const onKeyUp = () => {
+		if ( inputRef.current?.textContent === '' ) {
+			inputRef.current.innerHTML = '';
+		}
+	};
+
 	return (
 		<div className="jetpack-ai-logo-generator__prompt-query">
 			<div
@@ -100,6 +118,7 @@ export const AiModalPromptInput = ( {
 				onInput={ onPromptInput }
 				onPaste={ onPromptPaste }
 				onKeyDown={ onKeyDown }
+				onKeyUp={ onKeyUp }
 				data-placeholder={ placeholder }
 			></div>
 			<Button

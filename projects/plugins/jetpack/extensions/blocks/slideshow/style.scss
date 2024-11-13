@@ -2,6 +2,7 @@
 @import '../../shared/styles/jetpack-variables.scss';
 
 .wp-block-jetpack-slideshow {
+	min-width: 0;
 	margin-bottom: $jetpack-block-margin-bottom;
 	position: relative;
 
