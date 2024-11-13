@@ -274,7 +274,7 @@ const List: React.FC< ListProps > = ( {
 				onChange={ e => validateInputValue( e.target.value ) }
 				id="jb-cornerstone-pages"
 			/>
-			{ inputInvalid && <p className={ styles.error }>{ validationError?.message }</p> }
+			{ inputInvalid && <span className={ styles.error }>{ validationError?.message }</span> }
 			{ description && <div className={ styles.description }>{ description }</div> }
 			<Button
 				disabled={ items === inputValue || inputInvalid }

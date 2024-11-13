@@ -65,20 +65,9 @@ foreach ( array( '7.2', '7.3', '7.4', '8.0', '8.1', '8.2', '8.3' ) as $php ) {
 		'script'  => 'test-php',
 		'php'     => $php,
 		'wp'      => 'latest',
-		'timeout' => 20, // 2023-08-17: Successful runs seem to take up to ~12 minutes.
+		'timeout' => 20, // 2024-11-12: Successful runs seem to take up to ~7 minutes.
 	);
 }
-
-// TODO: When WordPress 6.5 is no longer supported, this can be removed. Runs too slow on ubuntu-24.04 (ubuntu-latest).
-$matrix[] = array(
-	'name'                => 'PHP tests: PHP 7.0 WP previous',
-	'runner'              => 'ubuntu-22.04',
-	'script'              => 'test-php',
-	'php'                 => '7.0',
-	'wp'                  => 'previous',
-	'timeout'             => 20, // 2023-08-17: Successful runs seem to take up to ~12 minutes.
-	'force-package-tests' => true,
-);
 
 foreach ( array( 'previous', 'trunk' ) as $wp ) {
 	$phpver   = $versions['PHP_VERSION'];
@@ -87,7 +76,7 @@ foreach ( array( 'previous', 'trunk' ) as $wp ) {
 		'script'  => 'test-php',
 		'php'     => $phpver,
 		'wp'      => $wp,
-		'timeout' => 15, // 2021-01-18: Successful runs seem to take ~8 minutes for the 7.4 trunk run, ~5.5-6 for 7.x and 8.0.
+		'timeout' => 15, // 2024-11-12: Successful runs seem to take ~7 minutes with PHP 8.2.
 	);
 }
 
@@ -115,7 +104,7 @@ $matrix[] = array(
 $matrix[] = array(
 	'name'    => 'JS tests',
 	'script'  => 'test-js',
-	'timeout' => 15, // 2021-01-18: Successful runs seem to take ~5 minutes.
+	'timeout' => 15, // 2024-11-12: Successful runs seem to take ~5 minutes.
 );
 
 // Add Coverage tests.
@@ -123,7 +112,7 @@ $matrix[] = array(
 	'name'    => 'Code coverage',
 	'script'  => 'test-coverage',
 	'wp'      => 'latest',
-	'timeout' => 40, // 2024-10-30: Successful runs seem to take ~30 minutes. We'll need to improve that.
+	'timeout' => 40, // 2024-11-12: Successful runs seem to take ~14 minutes.
 );
 
 // END matrix definitions.
