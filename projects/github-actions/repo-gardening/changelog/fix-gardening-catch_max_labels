@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Gardening: Prevent error if more than 100 labels are added to a PR.
+
+
