@@ -37,12 +37,6 @@ class Waf_Runner {
 		if ( ! self::is_allowed_mode( JETPACK_WAF_MODE ) ) {
 			return;
 		}
-		// Don't run if in standalone mode
-		if ( function_exists( 'add_action' ) ) {
-			self::add_hooks();
-			Waf_Rules_Manager::add_hooks();
-			Waf_Rules_Manager::schedule_rules_cron();
-		}
 		if ( ! self::did_run() ) {
 			self::run();
 		}
@@ -54,8 +48,7 @@ class Waf_Runner {
 	 * @return void
 	 */
 	public static function add_hooks() {
-		// Register REST routes.
-		add_action( 'rest_api_init', array( new REST_Controller(), 'register_rest_routes' ) );
+		// do nothing
 	}
 
 	/**
@@ -314,11 +307,16 @@ class Waf_Runner {
 	 * @return void
 	 */
 	public static function activate() {
-		$version = get_option( Waf_Rules_Manager::VERSION_OPTION_NAME );
-		if ( ! $version ) {
-			add_option( Waf_Rules_Manager::VERSION_OPTION_NAME, Waf_Rules_Manager::RULES_VERSION );
+		// Ensure version and mode options exist and have non-empty values.
+		if ( ! get_option( Waf_Rules_Manager::VERSION_OPTION_NAME ) ) {
+			update_option( Waf_Rules_Manager::VERSION_OPTION_NAME, Waf_Rules_Manager::RULES_VERSION );
+		}
+		if ( ! get_option( self::MODE_OPTION_NAME ) ) {
+			update_option( self::MODE_OPTION_NAME, 'normal' );
 		}
 
+		// Ensure options exist.
+		add_option( Waf_Rules_Manager::AUTOMATIC_RULES_ENABLED_OPTION_NAME, false );
 		add_option( self::SHARE_DATA_OPTION_NAME, true );
 
 		self::initialize_filesystem();
