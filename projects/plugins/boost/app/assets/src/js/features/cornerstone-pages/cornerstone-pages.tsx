@@ -15,7 +15,7 @@ const CornerstoneTitleSummary = () => {
 	return (
 		<>
 			{ sprintf(
-				/* translators: %s is the number of pages added to the cornerstone pages list. */
+				/* translators: %s is the number of pages in the cornerstone pages list apart from the homepage. */
 				__( 'Added: %s', 'jetpack-boost' ),
 				() => {
 					const homepage = Jetpack_Boost.site.url.replace( /\/$/, '' );
@@ -24,7 +24,7 @@ const CornerstoneTitleSummary = () => {
 					if ( hasHomepage ) {
 						if ( cornerstonePages.length > 1 ) {
 							return sprintf(
-								/* translators: %d is the number of pages added to the cornerstone pages list. */
+								/* translators: %d is the number of pages in the cornerstone pages list apart from the homepage. */
 								_n(
 									'Homepage + %d page',
 									'Homepage + %d pages',
