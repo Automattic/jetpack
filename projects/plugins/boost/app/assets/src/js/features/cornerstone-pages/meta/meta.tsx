@@ -1,7 +1,5 @@
 import { Button, Notice } from '@automattic/jetpack-components';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import ChevronDown from '$svg/chevron-down';
-import ChevronUp from '$svg/chevron-up';
 import React, { useEffect, useState } from 'react';
 import clsx from 'clsx';
 import styles from './meta.module.scss';
@@ -18,7 +16,6 @@ import { useNavigate } from 'react-router-dom';
 import { useRegenerateCriticalCssAction } from '$features/critical-css/lib/stores/critical-css-state';
 
 const Meta = () => {
-	const [ isExpanded, setIsExpanded ] = useState( false );
 	const [ cornerstonePages, setCornerstonePages ] = useCornerstonePages();
 	const cornerstonePagesProperties = useCornerstonePagesProperties();
 	const [ { refetch: refetchRegenerationReason } ] = useRegenerationReason();
@@ -26,13 +23,6 @@ const Meta = () => {
 	const isPremium = premiumFeatures.includes( 'cornerstone-10-pages' );
 	const navigate = useNavigate();
 	const regenerateAction = useRegenerateCriticalCssAction();
-
-	const toggleExpanded = ( newValue: boolean ) => {
-		recordBoostEvent( 'cornerstone_pages_show_options_toggle', {
-			status: newValue ? 'open' : 'close',
-		} );
-		setIsExpanded( newValue );
-	};
 
 	const updateCornerstonePages = ( newValue: string ) => {
 		const newItems = newValue.split( '\n' ).map( line => line.trim() );
@@ -137,30 +127,7 @@ const Meta = () => {
 
 	return (
 		<div className={ styles.wrapper } data-testid="cornerstone-pages-meta">
-			<div className={ styles.head }>
-				<div className={ styles.summary }>
-					{ cornerstonePagesProperties &&
-						sprintf(
-							/* translators: %1$d is the number of cornerstone pages added, %2$d is the maximum number allowed */
-							__( '%1$d / %2$d added', 'jetpack-boost' ),
-							cornerstonePages.length,
-							cornerstonePagesProperties.max_pages
-						) }
-				</div>
-				<div className={ styles.actions }>
-					<Button
-						variant="link"
-						size="small"
-						weight="regular"
-						iconSize={ 16 }
-						icon={ isExpanded ? <ChevronUp /> : <ChevronDown /> }
-						onClick={ () => toggleExpanded( ! isExpanded ) }
-					>
-						{ __( 'Show Options', 'jetpack-boost' ) }
-					</Button>
-				</div>
-			</div>
-			{ isExpanded && <div className={ styles.body }>{ content }</div> }
+			<div className={ styles.body }>{ content }</div>
 		</div>
 	);
 };
@@ -233,9 +200,9 @@ const List: React.FC< ListProps > = ( {
 			}
 			if (
 				url &&
-				! ( url.origin + url.pathname ).replace( /\/$/, '' ).startsWith(
-					Jetpack_Boost.site.url.replace( /\/$/, '' )
-				)
+				! ( url.origin + url.pathname )
+					.replace( /\/$/, '' )
+					.startsWith( Jetpack_Boost.site.url.replace( /\/$/, '' ) )
 			) {
 				throw new Error(
 					/* translators: %s is the URL that didn't match the site URL */
