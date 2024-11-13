@@ -53,6 +53,7 @@ const Meta = () => {
 				items={ cornerstonePages.join( '\n' ) }
 				setItems={ updateCornerstonePages }
 				maxItems={ cornerstonePagesProperties.max_pages }
+				defaultValue={ cornerstonePagesProperties.default_pages.join( '\n' ) }
 				description={
 					<>
 						{ createInterpolateElement(
@@ -169,9 +170,16 @@ type ListProps = {
 	setItems: ( newValue: string ) => void;
 	maxItems: number;
 	description: React.ReactNode | null;
+	defaultValue?: string;
 };
 
-const List: React.FC< ListProps > = ( { items, setItems, maxItems, description } ) => {
+const List: React.FC< ListProps > = ( {
+	items,
+	setItems,
+	maxItems,
+	description,
+	defaultValue,
+} ) => {
 	const [ inputValue, setInputValue ] = useState( items );
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const [ inputInvalid, setInputInvalid ] = useState( false );
@@ -225,7 +233,9 @@ const List: React.FC< ListProps > = ( { items, setItems, maxItems, description }
 			}
 			if (
 				url &&
-				url.origin.replace( /\/$/, '' ) !== Jetpack_Boost.site.url.replace( /\/$/, '' )
+				! ( url.origin + url.pathname ).replace( /\/$/, '' ).startsWith(
+					Jetpack_Boost.site.url.replace( /\/$/, '' )
+				)
 			) {
 				throw new Error(
 					/* translators: %s is the URL that didn't match the site URL */
@@ -248,6 +258,10 @@ const List: React.FC< ListProps > = ( { items, setItems, maxItems, description }
 		} );
 	}
 
+	function loadDefaultValue() {
+		setInputValue( defaultValue || '' );
+	}
+
 	return (
 		<div
 			className={ clsx( styles.section, {
@@ -260,7 +274,7 @@ const List: React.FC< ListProps > = ( { items, setItems, maxItems, description }
 				onChange={ e => validateInputValue( e.target.value ) }
 				id="jb-cornerstone-pages"
 			/>
-			{ inputInvalid && <p className={ styles.error }>{ validationError?.message }</p> }
+			{ inputInvalid && <span className={ styles.error }>{ validationError?.message }</span> }
 			{ description && <div className={ styles.description }>{ description }</div> }
 			<Button
 				disabled={ items === inputValue || inputInvalid }
@@ -268,6 +282,14 @@ const List: React.FC< ListProps > = ( { items, setItems, maxItems, description }
 				className={ styles.button }
 			>
 				{ __( 'Save', 'jetpack-boost' ) }
+			</Button>
+			<Button
+				disabled={ inputValue === defaultValue }
+				onClick={ loadDefaultValue }
+				className={ styles.button }
+				variant="link"
+			>
+				{ __( 'Load Default', 'jetpack-boost' ) }
 			</Button>
 		</div>
 	);
