@@ -104,7 +104,7 @@ async function getProjectDetails( octokit, projectBoardLink ) {
 		field => field.name === 'Type'
 	);
 	if ( typeField ) {
-		projectInfo.team = typeField; // Info about our Type column (id as well as possible values).
+		projectInfo.type = typeField; // Info about our Type column (id as well as possible values).
 	}
 
 	return projectInfo;
