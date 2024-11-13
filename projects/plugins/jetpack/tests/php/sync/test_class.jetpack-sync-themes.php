@@ -250,6 +250,10 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_install_edit_delete_theme_sync() {
+		echo 'WPCOMSH_PREMIUM_THEMES_PATH:';
+		print_r( scandir( WPCOMSH_PREMIUM_THEMES_PATH ) );
+		echo 'WPCOMSH_PUB_THEMES_PATH:';
+		print_r( scandir( WPCOMSH_PUB_THEMES_PATH ) );
 		$theme_slug = 'dossier';
 		$theme_name = 'Dossier';
 
