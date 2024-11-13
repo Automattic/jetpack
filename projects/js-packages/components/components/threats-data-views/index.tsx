@@ -412,7 +412,7 @@ export default function ThreatsDataViews( {
 		];
 
 		return result;
-	}, [ plugins, themes, dataFields, signatures, onFixThreats ] );
+	}, [ dataFields, plugins, themes, signatures, onFixThreats ] );
 
 	/**
 	 * DataView actions - collection of operations that can be performed upon each record.
@@ -483,10 +483,10 @@ export default function ThreatsDataViews( {
 	}, [
 		dataFields,
 		onFixThreats,
-		isThreatEligibleForFix,
 		onIgnoreThreats,
-		isThreatEligibleForIgnore,
 		onUnignoreThreats,
+		isThreatEligibleForFix,
+		isThreatEligibleForIgnore,
 		isThreatEligibleForUnignore,
 	] );
 
