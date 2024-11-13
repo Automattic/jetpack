@@ -252,10 +252,8 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 	public function test_install_edit_delete_theme_sync() {
 		echo 'WPCOMSH_PREMIUM_THEMES_PATH:';
 		print_r( scandir( WPCOMSH_PREMIUM_THEMES_PATH ) );
-		echo 'WPCOMSH_PUB_THEMES_PATH:';
-		print_r( scandir( WPCOMSH_PUB_THEMES_PATH ) );
-		$theme_slug = 'dossier';
-		$theme_name = 'Dossier';
+		$theme_slug = 'itek';
+		$theme_name = 'Itek';
 
 		delete_theme( $theme_slug ); // Ensure theme is not lingering on file system
 		$this->server_event_storage->reset();
@@ -265,6 +263,8 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 		$this->install_theme( $theme_slug );
 		$this->sender->do_sync();
 
+		echo 'WPCOMSH_PREMIUM_THEMES_PATH:';
+		print_r( scandir( WPCOMSH_PREMIUM_THEMES_PATH ) );
 		$event_data = $this->server_event_storage->get_most_recent_event( 'jetpack_installed_theme' );
 
 		$this->assertEquals( $event_data->args[0], $theme_slug );
@@ -299,7 +299,7 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 
 		$event_data = $this->server_event_storage->get_most_recent_event( 'jetpack_deleted_theme' );
 
-		$this->assertEquals( 'dossier', $event_data->args[0] );
+		$this->assertEquals( 'itek', $event_data->args[0] );
 	}
 
 	public function test_update_themes_sync() {
