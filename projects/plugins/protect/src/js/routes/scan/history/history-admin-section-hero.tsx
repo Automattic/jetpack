@@ -1,11 +1,10 @@
-import { Status, Text } from '@automattic/jetpack-components';
+import { Text } from '@automattic/jetpack-components';
 import { dateI18n } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
 import { useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import AdminSectionHero from '../../../components/admin-section-hero';
 import ErrorAdminSectionHero from '../../../components/error-admin-section-hero';
-import ScanNavigation from '../../../components/scan-navigation';
 import useThreatsList from '../../../components/threats-list/use-threats-list';
 import useProtectData from '../../../hooks/use-protect-data';
 import styles from './styles.module.scss';
@@ -48,35 +47,34 @@ const HistoryAdminSectionHero: React.FC = () => {
 		<AdminSectionHero
 			main={
 				<>
-					<Status status="active" label={ __( 'Active', 'jetpack-protect' ) } />
+					<Text>
+						{ oldestFirstDetected ? (
+							<span className={ styles[ 'subheading-content' ] }>
+								{ sprintf(
+									/* translators: %s: Oldest first detected date */
+									__( '%s - Today', 'jetpack-protect' ),
+									dateI18n( 'F jS g:i A', oldestFirstDetected, false )
+								) }
+							</span>
+						) : (
+							__( 'Most recent results', 'jetpack-protect' )
+						) }
+					</Text>
 					<AdminSectionHero.Heading showIcon>
 						{ numAllThreats > 0
 							? sprintf(
 									/* translators: %s: Total number of threats  */
-									__( '%1$s previously active %2$s', 'jetpack-protect' ),
+									__( '%1$s previous %2$s', 'jetpack-protect' ),
 									numAllThreats,
 									numAllThreats === 1 ? 'threat' : 'threats'
 							  )
-							: __( 'No previously active threats', 'jetpack-protect' ) }
+							: __( 'No previous threats', 'jetpack-protect' ) }
 					</AdminSectionHero.Heading>
 					<AdminSectionHero.Subheading>
 						<Text>
-							{ oldestFirstDetected ? (
-								<span className={ styles[ 'subheading-content' ] }>
-									{ sprintf(
-										/* translators: %s: Oldest first detected date */
-										__( '%s - Today', 'jetpack-protect' ),
-										dateI18n( 'F jS g:i A', oldestFirstDetected, false )
-									) }
-								</span>
-							) : (
-								__( 'Most recent results', 'jetpack-protect' )
-							) }
+							{ __( 'Here you can view all of your threats till this date.', 'jetpack-protect' ) }
 						</Text>
 					</AdminSectionHero.Subheading>
-					<div className={ styles[ 'scan-navigation' ] }>
-						<ScanNavigation />
-					</div>
 				</>
 			}
 		/>
