@@ -44,6 +44,7 @@ function GooglePhotosMedia( props ) {
 			? { mediaType: 'photo', date: { range: DATE_RANGE_ANY } }
 			: { date: { range: DATE_RANGE_ANY } }
 	);
+	const [ selectionChanged, setSelectionChanged ] = useState( false );
 
 	const lastQuery = useRef( '' );
 	const lastPath = useRef( '' );
@@ -86,6 +87,7 @@ function GooglePhotosMedia( props ) {
 	);
 
 	const onChangeSelection = useCallback( () => {
+		setSelectionChanged( true );
 		pickerSession && deletePickerSession( pickerSession?.id );
 	}, [ pickerSession, deletePickerSession ] );
 
@@ -141,7 +143,12 @@ function GooglePhotosMedia( props ) {
 
 				{ pickerFeatureEnabled && (
 					<div className="jetpack-external-media-header__change-selection">
-						<Button className="" variant="primary" onClick={ onChangeSelection }>
+						<Button
+							variant="primary"
+							isBusy={ selectionChanged }
+							disabled={ selectionChanged }
+							onClick={ onChangeSelection }
+						>
 							{ __( 'Change selection', 'jetpack' ) }
 						</Button>
 					</div>
