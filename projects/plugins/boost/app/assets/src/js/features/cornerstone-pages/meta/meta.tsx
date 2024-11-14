@@ -233,6 +233,7 @@ const List: React.FC< ListProps > = ( {
 			{ ! isPremium && cornerstonePagesProperties && (
 				<div className={ styles.wrapper }>
 					<UpgradeCTA
+						eventName="cornerstone_pages_upgrade_link_clicked"
 						identifier="cornerstone-10-pages"
 						description={ sprintf(
 							/* translators: %d is the number of cornerstone pages. */
