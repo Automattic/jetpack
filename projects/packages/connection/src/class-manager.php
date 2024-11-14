@@ -1620,6 +1620,7 @@ class Manager {
 			return $cached_date;
 		}
 
+		// We don't use the 'ID' field, but need it to overcome a WP caching bug: https://core.trac.wordpress.org/ticket/62003
 		$earliest_registered_users  = get_users(
 			array(
 				'role'    => 'administrator',
