@@ -31,6 +31,7 @@ export default function GooglePhotosPickerButton( props ) {
 				variant="primary"
 				isBusy={ isButtonBusy }
 				disabled={ isButtonBusy }
+				className="jetpack-external-media__google-photos-picker-button"
 				onClick={ openPicker }
 			>
 				{ __( 'Open Google Photos Picker', 'jetpack' ) }
