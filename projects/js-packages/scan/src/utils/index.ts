@@ -37,6 +37,14 @@ export const fixerStatusIsStale = ( fixerStatus: ThreatFixStatus ): boolean => {
 	);
 };
 
+export const getFixerState = ( fixerStatus: ThreatFixStatus ) => {
+	return {
+		inProgress: fixerStatus && fixerIsInProgress( fixerStatus ),
+		error: fixerStatus && fixerIsInError( fixerStatus ),
+		stale: fixerStatus && fixerStatusIsStale( fixerStatus ),
+	};
+};
+
 export const getFixerAction = ( threat: Threat ) => {
 	switch ( threat.fixable && threat.fixable.fixer ) {
 		case 'delete':

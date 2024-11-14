@@ -1,9 +1,7 @@
 import { Button } from '@automattic/jetpack-components';
 import {
 	type Threat,
-	fixerIsInError,
-	fixerIsInProgress,
-	fixerStatusIsStale,
+	getFixerState,
 	getFixerAction,
 	getFixerMessage,
 } from '@automattic/jetpack-scan';
@@ -32,10 +30,7 @@ export default function ThreatFixerButton( {
 	className?: string;
 } ): JSX.Element {
 	const fixerState = useMemo( () => {
-		const inProgress = threat.fixer && fixerIsInProgress( threat.fixer );
-		const error = threat.fixer && fixerIsInError( threat.fixer );
-		const stale = threat.fixer && fixerStatusIsStale( threat.fixer );
-		return { inProgress, error, stale };
+		return getFixerState( threat.fixer );
 	}, [ threat.fixer ] );
 
 	const tooltipText = useMemo( () => {
