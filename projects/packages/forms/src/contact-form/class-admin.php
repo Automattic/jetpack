@@ -982,7 +982,12 @@ class Admin {
 		}
 
 		if ( isset( $_POST['fields'] ) && is_array( $_POST['fields'] ) ) {
-			$fields = sanitize_text_field( stripslashes_deep( $_POST['fields'] ) );
+			$fields = array_map(
+				function ( $field ) {
+					return sanitize_text_field( $field );
+				},
+				wp_unslash( $_POST['fields'] ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- each item sanitized by sanitize_text_field above.
+			);
 			usort( $fields, array( $this, 'grunion_sort_objects' ) );
 
 			$field_shortcodes = array();
