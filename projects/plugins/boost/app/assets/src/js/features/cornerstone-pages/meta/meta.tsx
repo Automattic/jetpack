@@ -97,6 +97,12 @@ const Meta = () => {
 
 	return (
 		<div className={ styles.wrapper } data-testid="cornerstone-pages-meta">
+			<p>
+				{ __(
+					'List the most important pages of your site. These pages will receive specially tailored optimizations, including targeted critical CSS. The Page Speed scores are based on the first cornerstone page.',
+					'jetpack-boost'
+				) }
+			</p>
 			<div className={ styles.body }>{ content }</div>
 		</div>
 	);
