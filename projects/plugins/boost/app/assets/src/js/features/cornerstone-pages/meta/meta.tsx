@@ -202,34 +202,36 @@ const List: React.FC< ListProps > = ( {
 	}
 
 	return (
-		<div
-			className={ clsx( styles.section, {
-				[ styles[ 'has-error' ] ]: inputInvalid,
-			} ) }
-		>
-			<textarea
-				value={ inputValue }
-				rows={ inputRows }
-				onChange={ e => validateInputValue( e.target.value ) }
-				id="jb-cornerstone-pages"
-			/>
-			{ inputInvalid && <span className={ styles.error }>{ validationError?.message }</span> }
-			{ description && <div className={ styles.description }>{ description }</div> }
-			<Button
-				disabled={ items === inputValue || inputInvalid }
-				onClick={ save }
-				className={ styles.button }
+		<>
+			<div
+				className={ clsx( styles.section, {
+					[ styles[ 'has-error' ] ]: inputInvalid,
+				} ) }
 			>
-				{ __( 'Save', 'jetpack-boost' ) }
-			</Button>
-			<Button
-				disabled={ inputValue === defaultValue }
-				onClick={ loadDefaultValue }
-				className={ styles.button }
-				variant="link"
-			>
-				{ __( 'Load Default', 'jetpack-boost' ) }
-			</Button>
+				<textarea
+					value={ inputValue }
+					rows={ inputRows }
+					onChange={ e => validateInputValue( e.target.value ) }
+					id="jb-cornerstone-pages"
+				/>
+				{ inputInvalid && <span className={ styles.error }>{ validationError?.message }</span> }
+				{ description && <div className={ styles.description }>{ description }</div> }
+				<Button
+					disabled={ items === inputValue || inputInvalid }
+					onClick={ save }
+					className={ styles.button }
+				>
+					{ __( 'Save', 'jetpack-boost' ) }
+				</Button>
+				<Button
+					disabled={ inputValue === defaultValue }
+					onClick={ loadDefaultValue }
+					className={ styles.button }
+					variant="link"
+				>
+					{ __( 'Load Default', 'jetpack-boost' ) }
+				</Button>
+			</div>
 			{ ! isPremium && cornerstonePagesProperties && (
 				<div className={ styles.wrapper }>
 					<UpgradeCTA
@@ -243,7 +245,7 @@ const List: React.FC< ListProps > = ( {
 					/>
 				</div>
 			) }
-		</div>
+		</>
 	);
 };
 
