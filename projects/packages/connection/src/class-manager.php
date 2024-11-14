@@ -1625,7 +1625,7 @@ class Manager {
 				'role'    => 'administrator',
 				'orderby' => 'user_registered',
 				'order'   => 'ASC',
-				'fields'  => array( 'user_registered' ),
+				'fields'  => array( 'ID', 'user_registered' ),
 				'number'  => 1,
 			)
 		);
