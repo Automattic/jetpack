@@ -1,7 +1,6 @@
 import { getThreatType, type Threat } from '@automattic/jetpack-scan';
 import {
 	type Action,
-	type ActionButton,
 	type Field,
 	type FieldType,
 	type Filter,
@@ -16,10 +15,10 @@ import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
 import { useCallback, useMemo, useState } from 'react';
 import Badge from '../badge';
+import ThreatDetailsModal from '../threat-details-modal';
 import ThreatFixerButton from '../threat-fixer-button';
 import ThreatSeverityBadge from '../threat-severity-badge';
 import {
-	THREAT_ACTION_FIX,
 	THREAT_ACTION_IGNORE,
 	THREAT_ACTION_UNIGNORE,
 	THREAT_FIELD_AUTO_FIX,
@@ -50,6 +49,7 @@ import ThreatsStatusToggleGroupControl from './threats-status-toggle-group-contr
  * @param {Array}    props.data                        - Threats data.
  * @param {Array}    props.filters                     - Initial DataView filters.
  * @param {Function} props.onChangeSelection           - Callback function run when an item is selected.
+ * @param {Function} props.handleUpgradeClick          - Callback function run when the upgrade button is clicked.
  * @param {Function} props.onFixThreats                - Threat fix action callback.
  * @param {Function} props.onIgnoreThreats             - Threat ignore action callback.
  * @param {Function} props.onUnignoreThreats           - Threat unignore action callback.
@@ -63,6 +63,7 @@ export default function ThreatsDataViews( {
 	data,
 	filters,
 	onChangeSelection,
+	handleUpgradeClick,
 	isThreatEligibleForFix,
 	isThreatEligibleForIgnore,
 	isThreatEligibleForUnignore,
@@ -73,12 +74,13 @@ export default function ThreatsDataViews( {
 	data: Threat[];
 	filters?: Filter[];
 	onChangeSelection?: ( selectedItemIds: string[] ) => void;
+	handleUpgradeClick?: () => void;
 	isThreatEligibleForFix?: ( threat: Threat ) => boolean;
 	isThreatEligibleForIgnore?: ( threat: Threat ) => boolean;
 	isThreatEligibleForUnignore?: ( threat: Threat ) => boolean;
 	onFixThreats?: ( threats: Threat[] ) => void;
-	onIgnoreThreats?: ActionButton< Threat >[ 'callback' ];
-	onUnignoreThreats?: ActionButton< Threat >[ 'callback' ];
+	onIgnoreThreats?: ( threats: Threat[] ) => void;
+	onUnignoreThreats?: ( threats: Threat[] ) => void;
 } ): JSX.Element {
 	const baseView = {
 		sort: {
@@ -143,6 +145,19 @@ export default function ThreatsDataViews( {
 		type: 'table',
 		...defaultLayouts.table,
 	} );
+
+	const [ openThreat, setOpenThreat ] = useState< Threat | null >( null );
+
+	const showThreatDetails = useCallback(
+		( threat: Threat ) => () => {
+			setOpenThreat( threat );
+		},
+		[]
+	);
+
+	const hideThreatDetails = useCallback( () => {
+		setOpenThreat( null );
+	}, [] );
 
 	/**
 	 * Compute values from the provided threats data.
@@ -405,7 +420,11 @@ export default function ThreatsDataViews( {
 									return null;
 								}
 
-								return <ThreatFixerButton threat={ item } onClick={ onFixThreats } />;
+								if ( ! isThreatEligibleForFix( item ) ) {
+									return null;
+								}
+
+								return <ThreatFixerButton threat={ item } onClick={ showThreatDetails( item ) } />;
 							},
 						},
 				  ]
@@ -413,7 +432,7 @@ export default function ThreatsDataViews( {
 		];
 
 		return result;
-	}, [ dataFields, plugins, themes, signatures, onFixThreats ] );
+	}, [ plugins, themes, dataFields, signatures, isThreatEligibleForFix, showThreatDetails ] );
 
 	/**
 	 * DataView actions - collection of operations that can be performed upon each record.
@@ -423,32 +442,13 @@ export default function ThreatsDataViews( {
 	const actions = useMemo( () => {
 		const result: Action< Threat >[] = [];
 
-		if ( dataFields.includes( 'fixable' ) ) {
-			result.push( {
-				id: THREAT_ACTION_FIX,
-				label: __( 'Auto-fix', 'jetpack' ),
-				isPrimary: true,
-				supportsBulk: true,
-				callback: onFixThreats,
-				isEligible( item ) {
-					if ( ! onFixThreats ) {
-						return false;
-					}
-					if ( isThreatEligibleForFix ) {
-						return isThreatEligibleForFix( item );
-					}
-					return !! item.fixable;
-				},
-			} );
-		}
-
 		if ( dataFields.includes( 'status' ) ) {
 			result.push( {
 				id: THREAT_ACTION_IGNORE,
 				label: __( 'Ignore', 'jetpack' ),
-				isPrimary: true,
-				isDestructive: true,
-				callback: onIgnoreThreats,
+				callback: ( items: Threat[] ) => {
+					showThreatDetails( items[ 0 ] )();
+				},
 				isEligible( item ) {
 					if ( ! onIgnoreThreats ) {
 						return false;
@@ -465,9 +465,9 @@ export default function ThreatsDataViews( {
 			result.push( {
 				id: THREAT_ACTION_UNIGNORE,
 				label: __( 'Unignore', 'jetpack' ),
-				isPrimary: true,
-				isDestructive: true,
-				callback: onUnignoreThreats,
+				callback: ( items: Threat[] ) => {
+					showThreatDetails( items[ 0 ] )();
+				},
 				isEligible( item ) {
 					if ( ! onUnignoreThreats ) {
 						return false;
@@ -483,10 +483,9 @@ export default function ThreatsDataViews( {
 		return result;
 	}, [
 		dataFields,
-		onFixThreats,
+		showThreatDetails,
 		onIgnoreThreats,
 		onUnignoreThreats,
-		isThreatEligibleForFix,
 		isThreatEligibleForIgnore,
 		isThreatEligibleForUnignore,
 	] );
@@ -517,23 +516,35 @@ export default function ThreatsDataViews( {
 	const getItemId = useCallback( ( item: Threat ) => item.id.toString(), [] );
 
 	return (
-		<DataViews
-			actions={ actions }
-			data={ processedData }
-			defaultLayouts={ defaultLayouts }
-			fields={ fields }
-			getItemId={ getItemId }
-			onChangeSelection={ onChangeSelection }
-			onChangeView={ onChangeView }
-			paginationInfo={ paginationInfo }
-			view={ view }
-			header={
-				<ThreatsStatusToggleGroupControl
-					data={ data }
-					view={ view }
-					onChangeView={ onChangeView }
+		<>
+			<DataViews
+				actions={ actions }
+				data={ processedData }
+				defaultLayouts={ defaultLayouts }
+				fields={ fields }
+				getItemId={ getItemId }
+				onChangeSelection={ onChangeSelection }
+				onChangeView={ onChangeView }
+				paginationInfo={ paginationInfo }
+				view={ view }
+				header={
+					<ThreatsStatusToggleGroupControl
+						data={ data }
+						view={ view }
+						onChangeView={ onChangeView }
+					/>
+				}
+			/>
+			{ openThreat ? (
+				<ThreatDetailsModal
+					threat={ openThreat }
+					onRequestClose={ hideThreatDetails }
+					handleUpgradeClick={ handleUpgradeClick }
+					handleFixThreatClick={ onFixThreats }
+					handleIgnoreThreatClick={ onIgnoreThreats }
+					handleUnignoreThreatClick={ onUnignoreThreats }
 				/>
-			}
-		/>
+			) : null }
+		</>
 	);
 }

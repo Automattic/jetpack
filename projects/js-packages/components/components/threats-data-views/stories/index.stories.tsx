@@ -153,6 +153,7 @@ Default.args = {
 			value: [ 'current' ],
 		},
 	],
+	isThreatEligibleForFix: () => true,
 	onFixThreats: () =>
 		alert( 'Threat fix action callback triggered! This is handled by the component consumer.' ), // eslint-disable-line no-alert
 	onIgnoreThreats: () =>
@@ -267,6 +268,7 @@ FixerStatuses.args = {
 			value: [ 'current' ],
 		},
 	],
+	isThreatEligibleForFix: () => true,
 	onFixThreats: () =>
 		alert( 'Fix threat action callback triggered! This is handled by the component consumer.' ), // eslint-disable-line no-alert
 	onIgnoreThreats: () =>
@@ -325,4 +327,6 @@ FreeResults.args = {
 			},
 		},
 	],
+	handleUpgradeClick: () =>
+		alert( 'Upgrade action callback triggered! This is handled by the component consumer.' ), // eslint-disable-line no-alert
 };
