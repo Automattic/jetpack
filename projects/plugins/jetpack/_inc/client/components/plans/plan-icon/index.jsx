@@ -194,6 +194,9 @@ const PRODUCT_ICON_MAP = {
 	[ PLAN_JETPACK_CREATOR_BI_YEARLY ]: 'plans/jetpack.svg',
 	[ PLAN_JETPACK_CREATOR_YEARLY ]: 'plans/jetpack.svg',
 	[ PLAN_JETPACK_CREATOR_MONTHLY ]: 'plans/jetpack.svg',
+	[ PLAN_JETPACK_GROWTH_BI_YEARLY ]: 'plans/jetpack.svg',
+	[ PLAN_JETPACK_GROWTH_YEARLY ]: 'plans/jetpack.svg',
+	[ PLAN_JETPACK_GROWTH_MONTHLY ]: 'plans/jetpack.svg',
 
 	// DEPRECATED: Daily and Real-time variations will soon be retired.
 	// Remove after all customers are migrated to new products.
