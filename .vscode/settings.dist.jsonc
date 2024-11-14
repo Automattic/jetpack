@@ -50,5 +50,8 @@
 	// Use this wp-prettier from this path.
 	"prettier.prettierPath": "tools/js-tools/node_modules/prettier/index.cjs",
 
-	"php.version": "7.0"
+	// Set to the target minimum PHP version for the codebase. Unrelated to the monorepo tooling.
+	"intelephense.environment.phpVersion": "7.2.24"
+
+
 }
