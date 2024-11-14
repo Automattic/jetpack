@@ -98,9 +98,22 @@ const Meta = () => {
 	return (
 		<div className={ styles.wrapper } data-testid="cornerstone-pages-meta">
 			<p>
-				{ __(
-					'List the most important pages of your site. These pages will receive specially tailored optimizations, including targeted critical CSS. The Page Speed scores are based on the first cornerstone page.',
-					'jetpack-boost'
+				{ createInterpolateElement(
+					__(
+						'List the most important pages of your site. These pages will receive specially tailored optimizations, including targeted critical CSS. The Page Speed scores are based on the first cornerstone page. <b><link>Learn More</link></b>',
+						'jetpack-boost'
+					),
+					{
+						link: (
+							// eslint-disable-next-line jsx-a11y/anchor-has-content
+							<a
+								href="https://jetpack.com/support/jetpack-boost/cornerstone-pages/ "
+								target="_blank"
+								rel="noopener noreferrer"
+							/>
+						),
+						b: <b />,
+					}
 				) }
 			</p>
 			<div className={ styles.body }>{ content }</div>
