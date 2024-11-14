@@ -120,7 +120,7 @@ export const JETPACK_MONTHLY_PLANS = [
 	PLAN_JETPACK_SECURITY_T1_MONTHLY,
 	PLAN_JETPACK_SECURITY_T2_MONTHLY,
 	PLAN_JETPACK_COMPLETE_MONTHLY,
-	PLAN_JETPACK_COMPLETE_MONTHLY,
+	PLAN_JETPACK_GROWTH_MONTHLY,
 
 	// DEPRECATED: Daily and Real-time variations will soon be retired.
 	// Remove after all customers are migrated to new products.
