@@ -292,6 +292,8 @@ class ChangelogEntry implements JsonSerializable {
 	 * Return data for serializing to JSON.
 	 *
 	 * @return array
+	 *
+	 * @todo Once we drop support for PHP <7.4, we should remove the attribute and add a `mixed` return type to match JsonSerializable.
 	 */
 	#[\ReturnTypeWillChange]
 	public function jsonSerialize() {
