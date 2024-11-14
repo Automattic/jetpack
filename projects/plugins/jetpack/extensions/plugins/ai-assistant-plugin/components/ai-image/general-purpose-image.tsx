@@ -251,6 +251,7 @@ export default function GeneralPurposeImage( {
 
 	return (
 		<AiImageModal
+			postContent={ true }
 			images={ images }
 			currentIndex={ current }
 			title={ __( 'Generate an image with AI', 'jetpack' ) }
