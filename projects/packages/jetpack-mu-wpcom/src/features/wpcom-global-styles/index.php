@@ -590,7 +590,7 @@ require_once __DIR__ . '/api/class-global-styles-status-rest-api.php';
  *
  * @return bool
  */
-function wpcom_is_previewing_global_styles( int $user_id = null ) {
+function wpcom_is_previewing_global_styles( ?int $user_id = null ) {
 	if ( null === $user_id ) {
 		$user_id = get_current_user_id();
 	}

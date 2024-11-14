@@ -12,7 +12,7 @@
 		"wordpress"
 	],
 	"require": {
-		"php": ">=7.0",
+		"php": ">=7.2",
 		"composer-plugin-api": "^1.1 || ^2.0"
 	},
 	"require-dev": {

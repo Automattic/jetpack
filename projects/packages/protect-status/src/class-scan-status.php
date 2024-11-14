@@ -2,6 +2,8 @@
 /**
  * Class to handle the Scan Status of Jetpack Protect
  *
+ * @phan-suppress PhanDeprecatedFunction -- Maintaining backwards compatibility.
+ *
  * @package automattic/jetpack-protect-status
  */
 
@@ -135,6 +137,8 @@ class Scan_Status extends Status {
 	 * Normalize API Data
 	 * Formats the payload from the Scan API into an instance of Status_Model.
 	 *
+	 * @phan-suppress PhanDeprecatedProperty -- Maintaining backwards compatibility.
+	 *
 	 * @param object $scan_data The data returned by the scan API.
 	 *
 	 * @return Status_Model
@@ -189,7 +193,7 @@ class Scan_Status extends Status {
 							);
 						}
 
-						$status->plugins[ $threat->extension->slug ]->threats[] = new Threat_Model(
+						$threat_model = new Threat_Model(
 							array(
 								'id'                  => isset( $threat->id ) ? $threat->id : null,
 								'signature'           => isset( $threat->signature ) ? $threat->signature : null,
@@ -209,6 +213,10 @@ class Scan_Status extends Status {
 								'source'              => isset( $threat->source ) ? $threat->source : null,
 							)
 						);
+
+						$status->plugins[ $threat->extension->slug ]->threats[] = $threat_model;
+						$status->threats[]                                      = $threat_model;
+
 						++$status->num_threats;
 						++$status->num_plugins_threats;
 						continue;
@@ -229,7 +237,7 @@ class Scan_Status extends Status {
 							);
 						}
 
-						$status->themes[ $threat->extension->slug ]->threats[] = new Threat_Model(
+						$threat_model = new Threat_Model(
 							array(
 								'id'                  => isset( $threat->id ) ? $threat->id : null,
 								'signature'           => isset( $threat->signature ) ? $threat->signature : null,
@@ -249,6 +257,10 @@ class Scan_Status extends Status {
 								'source'              => isset( $threat->source ) ? $threat->source : null,
 							)
 						);
+
+						$status->themes[ $threat->extension->slug ]->threats[] = $threat_model;
+						$status->threats[]                                     = $threat_model;
+
 						++$status->num_threats;
 						++$status->num_themes_threats;
 						continue;
@@ -260,7 +272,7 @@ class Scan_Status extends Status {
 						continue;
 					}
 
-					$status->core->threats[] = new Threat_Model(
+					$threat_model = new Threat_Model(
 						array(
 							'id'             => $threat->id,
 							'signature'      => $threat->signature,
@@ -270,19 +282,27 @@ class Scan_Status extends Status {
 							'severity'       => $threat->severity,
 						)
 					);
+
+					$status->core->threats[] = $threat_model;
+					$status->threats[]       = $threat_model;
+
 					++$status->num_threats;
 
 					continue;
 				}
 
 				if ( ! empty( $threat->filename ) ) {
-					$status->files[] = new Threat_Model( $threat );
+					$threat_model      = new Threat_Model( $threat );
+					$status->files[]   = $threat_model;
+					$status->threats[] = $threat_model;
 					++$status->num_threats;
 					continue;
 				}
 
 				if ( ! empty( $threat->table ) ) {
-					$status->database[] = new Threat_Model( $threat );
+					$threat_model       = new Threat_Model( $threat );
+					$status->database[] = $threat_model;
+					$status->threats[]  = $threat_model;
 					++$status->num_threats;
 					continue;
 				}
@@ -308,9 +328,13 @@ class Scan_Status extends Status {
 	/**
 	 * Merges the list of installed extensions with the list of extensions that were checked for known vulnerabilities and return a normalized list to be used in the UI
 	 *
+	 * @phan-suppress PhanDeprecatedProperty -- Maintaining backwards compatibility.
+	 * @phan-suppress PhanDeprecatedFunction -- Maintaining backwards compatibility.
+	 *
 	 * @param array  $installed The list of installed extensions, where each attribute key is the extension slug.
 	 * @param object $checked   The list of checked extensions.
 	 * @param array  $append    Additional data to append to each result in the list.
+	 *
 	 * @return array Normalized list of extensions.
 	 */
 	protected static function merge_installed_and_checked_lists( $installed, $checked, $append ) {

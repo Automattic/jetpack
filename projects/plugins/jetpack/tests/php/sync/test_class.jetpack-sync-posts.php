@@ -1422,7 +1422,7 @@ That was a cool video.';
 		$ids = array_fill( 0, 1450, 1234 );
 
 		$mocked = $this->getMockBuilder( stdClass::class )
-						->setMethods( array( 'chunked_call' ) )
+						->addMethods( array( 'chunked_call' ) )
 						->getMock();
 
 		$mocked->expects( $this->exactly( 15 ) )
@@ -1453,7 +1453,7 @@ That was a cool video.';
 		$ids = 'test_invalid_value';
 
 		$mocked = $this->getMockBuilder( stdClass::class )
-						->setMethods( array( 'chunked_call' ) )
+						->addMethods( array( 'chunked_call' ) )
 						->getMock();
 
 		$mocked->expects( $this->never() )
@@ -1484,7 +1484,7 @@ That was a cool video.';
 		$ids = array();
 
 		$mocked = $this->getMockBuilder( stdClass::class )
-						->setMethods( array( 'chunked_call' ) )
+						->addMethods( array( 'chunked_call' ) )
 						->getMock();
 
 		$mocked->expects( $this->never() )

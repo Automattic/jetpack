@@ -163,7 +163,7 @@ class Status {
 	 */
 	public static function get_total_threats() {
 		$status = static::get_status();
-		return isset( $status->num_threats ) && is_int( $status->num_threats ) ? $status->num_threats : 0;
+		return count( $status->threats );
 	}
 
 	/**
@@ -172,17 +172,14 @@ class Status {
 	 * @return array
 	 */
 	public static function get_all_threats() {
-		return array_merge(
-			self::get_wordpress_threats(),
-			self::get_themes_threats(),
-			self::get_plugins_threats(),
-			self::get_files_threats(),
-			self::get_database_threats()
-		);
+		$status = static::get_status();
+		return $status->threats;
 	}
 
 	/**
 	 * Get threats found for WordPress core
+	 *
+	 * @deprecated $$next-version$$
 	 *
 	 * @return array
 	 */
@@ -193,6 +190,8 @@ class Status {
 	/**
 	 * Get threats found for themes
 	 *
+	 * @deprecated $$next-version$$
+	 *
 	 * @return array
 	 */
 	public static function get_themes_threats() {
@@ -201,6 +200,8 @@ class Status {
 
 	/**
 	 * Get threats found for plugins
+	 *
+	 * @deprecated $$next-version$$
 	 *
 	 * @return array
 	 */
@@ -211,6 +212,8 @@ class Status {
 	/**
 	 * Get threats found for files
 	 *
+	 * @deprecated $$next-version$$
+	 *
 	 * @return array
 	 */
 	public static function get_files_threats() {
@@ -219,6 +222,8 @@ class Status {
 
 	/**
 	 * Get threats found for plugins
+	 *
+	 * @deprecated $$next-version$$
 	 *
 	 * @return array
 	 */
@@ -236,27 +241,40 @@ class Status {
 	public static function get_threats( $type ) {
 		$status = static::get_status();
 
-		if ( 'core' === $type ) {
-			return isset( $status->$type ) && ! empty( $status->$type->threats ) ? $status->$type->threats : array();
-		}
-
-		if ( 'files' === $type || 'database' === $type ) {
-			return isset( $status->$type ) && ! empty( $status->$type ) ? $status->$type : array();
-		}
-
-		$threats = array();
-		if ( isset( $status->$type ) ) {
-			foreach ( (array) $status->$type as $item ) {
-				if ( ! empty( $item->threats ) ) {
-					$threats = array_merge( $threats, $item->threats );
+		if ( in_array( $type, array( 'plugin', 'theme', 'core' ), true ) ) {
+			return array_filter(
+				$status->threats,
+				function ( $threat ) use ( $type ) {
+					return isset( $threat->extension ) && $type === $threat->extension->type;
 				}
-			}
+			);
 		}
-		return $threats;
+
+		if ( 'files' === $type ) {
+			return array_filter(
+				$status->threats,
+				function ( $threat ) {
+					return ! empty( $threat->filename );
+				}
+			);
+		}
+
+		if ( 'database' === $type ) {
+			return array_filter(
+				$status->threats,
+				function ( $threat ) {
+					return ! empty( $threat->table );
+				}
+			);
+		}
+
+		return $status->threats;
 	}
 
 	/**
 	 * Check if the WordPress version that was checked matches the current installed version.
+	 *
+	 * @phan-suppress PhanDeprecatedFunction -- Maintaining backwards compatibility.
 	 *
 	 * @param object $core_check The object returned by Protect wpcom endpoint.
 	 * @return object The object representing the current status of core checks.
@@ -285,6 +303,8 @@ class Status {
 
 	/**
 	 * Sort By Threats
+	 *
+	 * @deprecated $$next-version$$
 	 *
 	 * @param array<object> $threats Array of threats to sort.
 	 *
