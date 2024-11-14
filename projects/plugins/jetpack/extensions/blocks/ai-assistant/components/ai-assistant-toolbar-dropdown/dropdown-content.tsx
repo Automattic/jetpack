@@ -202,7 +202,9 @@ export default function AiAssistantToolbarDropdownContent( {
 }: AiAssistantToolbarDropdownContentProps ): ReactElement {
 	const blockQuickActions = quickActionsList[ blockType ] ?? [];
 
-	const { getBlockParents } = select( 'core/block-editor' );
+	const { getBlockParents } = select( 'core/block-editor' ) as unknown as {
+		getBlockParents: ( blockId: string ) => string[];
+	};
 	const blockParents = getBlockParents( clientId );
 
 	return (
