@@ -28,6 +28,8 @@ class Test_Extension_Model extends BaseTestCase {
 
 	/**
 	 * Tests for extension model's __construct() method.
+	 *
+	 * @phan-suppress PhanDeprecatedProperty -- Maintaining backwards compatibility.
 	 */
 	public function test_extension_model_construct() {
 		$test_data = array(

@@ -19,7 +19,6 @@ return [
     // PhanPluginSimplifyExpressionBool : 9 occurrences
     // PhanPossiblyUndeclaredVariable : 8 occurrences
     // PhanPluginDuplicateSwitchCaseLooseEquality : 6 occurrences
-    // PhanUndeclaredTypeReturnType : 6 occurrences
     // PhanNonClassMethodCall : 5 occurrences
     // PhanRedundantCondition : 4 occurrences
     // PhanTypeExpectedObjectPropAccess : 4 occurrences
@@ -34,7 +33,6 @@ return [
     // PhanTypeMismatchReturnNullable : 2 occurrences
     // PhanTypePossiblyInvalidDimOffset : 2 occurrences
     // PhanTypeSuspiciousStringExpression : 2 occurrences
-    // PhanDeprecatedFunction : 1 occurrence
     // PhanNoopNew : 1 occurrence
     // PhanParamTooManyCallable : 1 occurrence
     // PhanPluginUseReturnValueInternalKnown : 1 occurrence
@@ -83,7 +81,7 @@ return [
         'src/modules/class-woocommerce.php' => ['PhanTypeMismatchReturnProbablyReal'],
         'src/replicastore/class-table-checksum.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchPropertyDefault', 'PhanTypeMismatchPropertyProbablyReal'],
         'tests/php/test-actions.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal'],
-        'tests/php/test-dedicated-sender.php' => ['PhanDeprecatedFunction', 'PhanUndeclaredProperty'],
+        'tests/php/test-dedicated-sender.php' => ['PhanUndeclaredProperty'],
         'tests/php/test-rest-endpoints.php' => ['PhanNoopNew', 'PhanTypeMismatchReturn'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.

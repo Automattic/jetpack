@@ -2,6 +2,8 @@
 /**
  * Class to handle the Protect Status of Jetpack Protect
  *
+ * @phan-suppress PhanDeprecatedProperty -- Maintaining backwards compatibility.
+ *
  * @package automattic/jetpack-protect-status
  */
 
@@ -128,6 +130,8 @@ class Protect_Status extends Status {
 	/**
 	 * Normalize data from the Protect Report data source.
 	 *
+	 * @phan-suppress PhanDeprecatedProperty -- Maintaining backwards compatibility.
+	 *
 	 * @param object $report_data Data from the Protect Report.
 	 * @return Status_Model
 	 */
@@ -155,21 +159,26 @@ class Protect_Status extends Status {
 		// normalize WordPress core report data and map into Status_Model
 		$status->core = self::normalize_core_information( isset( $report_data->core ) ? $report_data->core : new \stdClass() );
 
-		// check if any installed items (themes, plugins, or core) have not been checked in the report
+		// loop through all items to merge threats and check if there are any unchecked items
 		$all_items                   = array_merge( $status->plugins, $status->themes, array( $status->core ) );
-		$unchecked_items             = array_filter(
-			$all_items,
-			function ( $item ) {
-				return ! isset( $item->checked ) || ! $item->checked;
+		$status->has_unchecked_items = false;
+		foreach ( $all_items as $item ) {
+			if ( $item->threats ) {
+				$status->threats = array_merge( $status->threats, $item->threats );
 			}
-		);
-		$status->has_unchecked_items = ! empty( $unchecked_items );
+			if ( ! isset( $item->checked ) || ! $item->checked ) {
+				$status->has_unchecked_items = true;
+			}
+		}
 
 		return $status;
 	}
 
 	/**
 	 * Merges the list of installed extensions with the list of extensions that were checked for known vulnerabilities and return a normalized list to be used in the UI
+	 *
+	 * @phan-suppress PhanDeprecatedProperty -- Maintaining backwards compatibility.
+	 * @phan-suppress PhanDeprecatedFunction -- Maintaining backwards compatibility.
 	 *
 	 * @param array  $installed The list of installed extensions, where each attribute key is the extension slug.
 	 * @param object $checked   The list of checked extensions.
@@ -178,6 +187,7 @@ class Protect_Status extends Status {
 	 */
 	protected static function merge_installed_and_checked_lists( $installed, $checked, $append ) {
 		$new_list = array();
+
 		foreach ( array_keys( $installed ) as $slug ) {
 
 			$checked = (object) $checked;
@@ -225,6 +235,8 @@ class Protect_Status extends Status {
 
 	/**
 	 * Check if the WordPress version that was checked matches the current installed version.
+	 *
+	 * @phan-suppress PhanDeprecatedFunction -- Maintaining backwards compatibility.
 	 *
 	 * @param object $core_check The object returned by Protect wpcom endpoint.
 	 * @return object The object representing the current status of core checks.

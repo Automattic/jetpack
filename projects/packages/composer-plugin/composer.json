@@ -10,7 +10,7 @@
 		"i18n"
 	],
 	"require": {
-		"php": ">=7.0",
+		"php": ">=7.2",
 		"composer-plugin-api": "^2.1.0"
 	},
 	"require-dev": {

@@ -343,9 +343,8 @@ class AssetsTest extends TestCase {
 			$this->expectExceptionMessage( $extra['exception']->getMessage() );
 		}
 		if ( isset( $extra['enqueue'] ) ) {
-			// @phan-suppress-next-line PhanDeprecatedFunction -- Keep using setMethods until we drop PHP 7.0 support.
 			$obj = $this->getMockBuilder( \stdClass::class )
-				->setMethods( array( 'get_data' ) )
+				->addMethods( array( 'get_data' ) )
 				->getMock();
 			$obj->method( 'get_data' )->with( ...$extra['enqueue'][0] )->willReturn( $extra['enqueue'][1] );
 			Functions\expect( 'wp_scripts' )->andReturn( $obj );
@@ -727,9 +726,8 @@ class AssetsTest extends TestCase {
 			$obj->andReturn( $options['filter'] );
 		}
 
-		// @phan-suppress-next-line PhanDeprecatedFunction -- Keep using setMethods until we drop PHP 7.0 support.
 		$mock = $this->getMockBuilder( \stdClass::class )
-			->setMethods( array( 'add', 'add_inline_script', 'add_data' ) )
+			->addMethods( array( 'add', 'add_inline_script', 'add_data' ) )
 			->getMock();
 
 		// Unfortunately PHPUnit deprecated withConsecutive with no replacement, so we have to roll our own version.
