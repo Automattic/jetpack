@@ -8,10 +8,6 @@
 	flex-direction: column;
 }
 
-.subheading-content {
-	font-weight: bold;
-}
-
 .list-header {
 	display: flex;
 	justify-content: flex-end;
@@ -38,8 +34,4 @@
 	.list-title {
 		display: none;
 	}
-}
-
-.scan-navigation {
-	margin-top: calc( var( --spacing-base ) * 3 ); // 24px
 }
