@@ -273,7 +273,7 @@ function jpcrm_mailpoet_fire_sync( success_callback, error_callback ) {
 }
 
 /**
- * Feturns a language label as passed from php in output_language_labels()
+ * Returns a language label as passed from php in output_language_labels()
  *
  * @param {string} key      - Key to look up language string.
  * @param {string} fallback - Fallback string.
