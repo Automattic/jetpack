@@ -349,15 +349,6 @@ export function BoostInterstitial() {
 }
 
 /**
- * CreatorInterstitial component
- *
- * @return {object} CreatorInterstitial react component.
- */
-export function CreatorInterstitial() {
-	return <ProductInterstitial slug="creator" installsPlugin={ true } />;
-}
-
-/**
  * CRMInterstitial component
  *
  * @return {object} CRMInterstitial react component.
