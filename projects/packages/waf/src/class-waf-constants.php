@@ -13,24 +13,77 @@ use Automattic\Jetpack\Status\Host;
  * Defines our constants.
  */
 class Waf_Constants {
+	const WAF_RAN_CONSTANT              = 'JETPACK_WAF_RAN';
+	const DIRECTORY_PATH_CONSTANT       = 'JETPACK_WAF_DIR';
+	const ENTRYPOINT_CONSTANT           = 'JETPACK_WAF_ENTRYPOINT';
+	const KILLSWITCH_CONSTANT           = 'DISABLE_JETPACK_WAF';
+	const MODE_CONSTANT                 = 'JETPACK_WAF_MODE';
+	const SHARE_DATA_CONSTANT           = 'JETPACK_WAF_SHARE_DATA';
+	const SHARE_DEBUG_DATA_CONSTANT     = 'JETPACK_WAF_SHARE_DEBUG_DATA';
+	const WPCONFIG_PATH_CONSTANT        = 'JETPACK_WAF_WPCONFIG';
+	const BRUTE_FORCE_API_HOST_CONSTANT = 'JETPACK_PROTECT__API_HOST';
+
+	const CONSTANTS = array(
+		self::DIRECTORY_PATH_CONSTANT,
+		self::WPCONFIG_PATH_CONSTANT,
+		self::KILLSWITCH_CONSTANT,
+		self::MODE_CONSTANT,
+		self::ENTRYPOINT_CONSTANT,
+		self::SHARE_DATA_CONSTANT,
+		self::SHARE_DEBUG_DATA_CONSTANT,
+		self::BRUTE_FORCE_API_HOST_CONSTANT,
+	);
+
 	/**
-	 * Initializes the constants required for generating the bootstrap, if they have not been initialized yet.
-	 *
-	 * @return void
+	 * Initializes all constants used by the WAF.
 	 */
-	public static function initialize_bootstrap_constants() {
-		self::define_waf_directory();
-		self::define_wpconfig_path();
-		self::define_killswitch();
-		self::define_entrypoint();
+	public function initialize_constants() {
+		foreach ( self::CONSTANTS as $constant ) {
+			$method_name = 'define_' . str_replace( '_constant', '', strtolower( $constant ) );
+			if ( method_exists( $this, $method_name ) ) {
+				$this->$method_name();
+			}
+		}
 	}
 
 	/**
-	 * Compatiblity patch for cases where an outdated Waf_Constants class has been autoloaded by
-	 * the standalone bootstrap execution at the beginning of the current request.
+	 * Print all constants used by the WAF.
 	 */
-	public static function initialize_constants() {
-		self::initialize_bootstrap_constants();
+	public function print_constants() {
+		foreach ( self::CONSTANTS as $constant ) {
+			$value = $this->get( $constant );
+			sprintf( "define( '%s', %s );\n", $constant, var_export( $value, true ) );
+		}
+	}
+
+	/**
+	 * Get the value of a constant.
+	 *
+	 * @param string $constant The name of the constant to get.
+	 *
+	 * @return mixed The value of the constant, or null if the constant is not defined.
+	 */
+	public function get( string $constant ) {
+		// Return early if the provided constant name is invalid.
+		if ( ! in_array( $constant, self::CONSTANTS, true ) ) {
+			return null;
+		}
+
+		// Initialize the constant if it has not been defined yet.
+		if ( ! defined( $constant ) ) {
+			$method_name = 'define_' . strtolower( $constant );
+			if ( method_exists( $this, $method_name ) ) {
+				$this->$method_name();
+			}
+		}
+
+		// Return early if the constant is still not defined.
+		if ( ! defined( $constant ) ) {
+			return null;
+		}
+
+		// Return the value of the constant.
+		return constant( $constant );
 	}
 
 	/**
@@ -38,9 +91,9 @@ class Waf_Constants {
 	 *
 	 * @return void
 	 */
-	public static function define_waf_directory() {
-		if ( ! defined( 'JETPACK_WAF_DIR' ) ) {
-			define( 'JETPACK_WAF_DIR', trailingslashit( WP_CONTENT_DIR ) . 'jetpack-waf' );
+	public function define_directory_path() {
+		if ( ! defined( self::DIRECTORY_PATH_CONSTANT ) ) {
+			define( self::DIRECTORY_PATH_CONSTANT, trailingslashit( WP_CONTENT_DIR ) . 'jetpack-waf' );
 		}
 	}
 
@@ -49,9 +102,9 @@ class Waf_Constants {
 	 *
 	 * @return void
 	 */
-	public static function define_wpconfig_path() {
-		if ( ! defined( 'JETPACK_WAF_WPCONFIG' ) ) {
-			define( 'JETPACK_WAF_WPCONFIG', trailingslashit( WP_CONTENT_DIR ) . '../wp-config.php' );
+	public function define_wpconfig_path() {
+		if ( ! defined( self::WPCONFIG_PATH_CONSTANT ) ) {
+			define( self::WPCONFIG_PATH_CONSTANT, trailingslashit( WP_CONTENT_DIR ) . '../wp-config.php' );
 		}
 	}
 
@@ -60,12 +113,12 @@ class Waf_Constants {
 	 *
 	 * @return void
 	 */
-	public static function define_killswitch() {
-		if ( ! defined( 'DISABLE_JETPACK_WAF' ) ) {
+	public function define_killswitch() {
+		if ( ! defined( self::KILLSWITCH_CONSTANT ) ) {
 			$is_wpcom        = defined( 'IS_WPCOM' ) && IS_WPCOM;
 			$is_atomic       = ( new Host() )->is_atomic_platform();
 			$is_atomic_on_jn = defined( 'IS_ATOMIC_JN' ) ?? IS_ATOMIC_JN;
-			define( 'DISABLE_JETPACK_WAF', $is_wpcom || ( $is_atomic && ! $is_atomic_on_jn ) );
+			define( self::KILLSWITCH_CONSTANT, $is_wpcom || ( $is_atomic && ! $is_atomic_on_jn ) );
 		}
 	}
 
@@ -74,19 +127,18 @@ class Waf_Constants {
 	 *
 	 * @return void
 	 */
-	public static function define_mode() {
-		if ( ! defined( 'JETPACK_WAF_MODE' ) ) {
-			$mode_option = get_option( Waf_Runner::MODE_OPTION_NAME );
-			define( 'JETPACK_WAF_MODE', $mode_option );
+	public function define_mode() {
+		if ( ! defined( self::MODE_CONSTANT ) ) {
+			define( self::MODE_CONSTANT, ( new Waf_Settings() )->get_mode() );
 		}
 	}
 
 	/**
 	 * Set the entrypoint definition if it has not been set.
 	 */
-	public static function define_entrypoint() {
-		if ( ! defined( 'JETPACK_WAF_ENTRYPOINT' ) ) {
-			define( 'JETPACK_WAF_ENTRYPOINT', 'rules/rules.php' );
+	public function define_entrypoint() {
+		if ( ! defined( self::ENTRYPOINT_CONSTANT ) ) {
+			define( self::ENTRYPOINT_CONSTANT, 'rules/rules.php' );
 		}
 	}
 
@@ -95,22 +147,20 @@ class Waf_Constants {
 	 *
 	 * @return void
 	 */
-	public static function define_share_data() {
-		if ( ! defined( 'JETPACK_WAF_SHARE_DATA' ) ) {
-			$share_data_option = false;
-			if ( function_exists( 'get_option' ) ) {
-				$share_data_option = get_option( Waf_Runner::SHARE_DATA_OPTION_NAME, false );
-			}
-
-			define( 'JETPACK_WAF_SHARE_DATA', $share_data_option );
+	public function define_share_data() {
+		if ( ! defined( self::SHARE_DATA_CONSTANT ) ) {
+			define( self::SHARE_DATA_CONSTANT, ( new Waf_Settings() )->get_share_data() );
 		}
-		if ( ! defined( 'JETPACK_WAF_SHARE_DEBUG_DATA' ) ) {
-			$share_debug_data_option = false;
-			if ( function_exists( 'get_option' ) ) {
-				$share_debug_data_option = get_option( Waf_Runner::SHARE_DEBUG_DATA_OPTION_NAME, false );
-			}
+	}
 
-			define( 'JETPACK_WAF_SHARE_DEBUG_DATA', $share_debug_data_option );
+	/**
+	 * Set the share debug data definition if it has not been set.
+	 *
+	 * @return void
+	 */
+	public function define_share_debug_data() {
+		if ( ! defined( self::SHARE_DEBUG_DATA_CONSTANT ) ) {
+			define( self::SHARE_DEBUG_DATA_CONSTANT, ( new Waf_Settings() )->get_share_debug_data() );
 		}
 	}
 
@@ -119,9 +169,9 @@ class Waf_Constants {
 	 *
 	 * @return void
 	 */
-	public static function define_brute_force_api_host() {
-		if ( ! defined( 'JETPACK_PROTECT__API_HOST' ) ) {
-			define( 'JETPACK_PROTECT__API_HOST', 'https://api.bruteprotect.com/' );
+	public function define_brute_force_api_host() {
+		if ( ! defined( self::BRUTE_FORCE_API_HOST_CONSTANT ) ) {
+			define( self::BRUTE_FORCE_API_HOST_CONSTANT, 'https://api.bruteprotect.com/' );
 		}
 	}
 }

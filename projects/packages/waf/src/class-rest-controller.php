@@ -90,13 +90,33 @@ class REST_Controller {
 	 * @return WP_REST_Response
 	 */
 	public static function waf() {
+		$Settings  = new Waf_Settings();
+		$Constants = new Waf_Constants();
+
 		return rest_ensure_response(
-			array_merge(
-				Waf_Runner::get_config(),
-				array(
-					'waf_supported'                => Waf_Runner::is_supported_environment(),
-					'automatic_rules_last_updated' => Waf_Stats::get_automatic_rules_last_updated(),
-				)
+			array(
+				$Settings::AUTOMATIC_RULES_ENABLED_OPTION_NAME => $Settings->get_automatic_rules_enabled(),
+				$Settings::IP_ALLOW_LIST_OPTION_NAME    => get_option( $Settings::IP_ALLOW_LIST_OPTION_NAME ),
+				$Settings::IP_ALLOW_LIST_ENABLED_OPTION_NAME => $Settings->get_ip_allow_list_enabled(),
+				$Settings::IP_BLOCK_LIST_OPTION_NAME    => get_option( $Settings::IP_BLOCK_LIST_OPTION_NAME ),
+				$Settings::IP_BLOCK_LIST_ENABLED_OPTION_NAME => $Settings->get_ip_block_list_enabled(),
+				$Settings::SHARE_DATA_OPTION_NAME       => $Settings->get_share_data(),
+				$Settings::SHARE_DEBUG_DATA_OPTION_NAME => $Settings->get_share_debug_data(),
+				'automatic_rules_available'             => (bool) Waf_Rules_Manager::automatic_rules_available(),
+				'automatic_rules_last_updated'          => Waf_Stats::get_automatic_rules_last_updated(),
+				'bootstrap_path'                        => $Constants->get( $Constants::DIRECTORY_PATH_CONSTANT ) . 'bootstrap.php',
+				'brute_force_protection'                => (bool) Brute_Force_Protection::is_enabled(),
+				'standalone_mode'                       => $Constants->get( $Constants::WAF_RAN_CONSTANT ) === 'preload',
+				'waf_supported'                         => Waf_Initializer::is_supported_environment(),
+
+				/**
+				 * Provide the deprecated IP lists options for backwards compatibility with older versions of the Jetpack and Protect plugins.
+				 * i.e. If one plugin is updated and the other is not, the latest version of this package will be used by both plugins.
+				 *
+				 * @deprecated 0.17.0
+				 */
+				// @phan-suppress-next-line PhanDeprecatedClassConstant -- Needed for backwards compatibility.
+				Waf_Rules_Manager::IP_LISTS_ENABLED_OPTION_NAME => $Settings->get_ip_allow_list_enabled() || $Settings->get_ip_block_list_enabled(),
 			)
 		);
 	}
@@ -109,9 +129,11 @@ class REST_Controller {
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public static function update_waf( $request ) {
+		$Settings = new Waf_Settings();
+
 		// Automatic Rules Enabled
-		if ( isset( $request[ Waf_Rules_Manager::AUTOMATIC_RULES_ENABLED_OPTION_NAME ] ) ) {
-			update_option( Waf_Rules_Manager::AUTOMATIC_RULES_ENABLED_OPTION_NAME, $request->get_param( Waf_Rules_Manager::AUTOMATIC_RULES_ENABLED_OPTION_NAME ) ? '1' : '' );
+		if ( isset( $request[ $Settings::AUTOMATIC_RULES_ENABLED_OPTION_NAME ] ) ) {
+			$Settings->set_automatic_rules_enabled( $request->get_param( $Settings::AUTOMATIC_RULES_ENABLED_OPTION_NAME ) ? '1' : '' );
 		}
 
 		/**
@@ -120,44 +142,44 @@ class REST_Controller {
 		 * @deprecated 0.17.0 This is a legacy option maintained here for backwards compatibility.
 		 */
 		if ( isset( $request['jetpack_waf_ip_list'] ) ) {
-			update_option( Waf_Rules_Manager::IP_BLOCK_LIST_ENABLED_OPTION_NAME, $request['jetpack_waf_ip_list'] ? '1' : '' );
-			update_option( Waf_Rules_Manager::IP_ALLOW_LIST_ENABLED_OPTION_NAME, $request['jetpack_waf_ip_list'] ? '1' : '' );
+			$Settings->set_ip_allow_list_enabled( $request['jetpack_waf_ip_list'] ? '1' : '' );
+			$Settings->set_ip_block_list_enabled( $request['jetpack_waf_ip_list'] ? '1' : '' );
 		}
 
 		// IP Block List
-		if ( isset( $request[ Waf_Rules_Manager::IP_BLOCK_LIST_OPTION_NAME ] ) ) {
-			update_option( Waf_Rules_Manager::IP_BLOCK_LIST_OPTION_NAME, $request[ Waf_Rules_Manager::IP_BLOCK_LIST_OPTION_NAME ] );
+		if ( isset( $request[ $Settings::IP_BLOCK_LIST_OPTION_NAME ] ) ) {
+			$Settings->set_ip_block_list( $request[ $Settings::IP_BLOCK_LIST_OPTION_NAME ] );
 		}
-		if ( isset( $request[ Waf_Rules_Manager::IP_BLOCK_LIST_ENABLED_OPTION_NAME ] ) ) {
-			update_option( Waf_Rules_Manager::IP_BLOCK_LIST_ENABLED_OPTION_NAME, $request[ Waf_Rules_Manager::IP_BLOCK_LIST_ENABLED_OPTION_NAME ] ? '1' : '' );
+		if ( isset( $request[ $Settings::IP_BLOCK_LIST_ENABLED_OPTION_NAME ] ) ) {
+			$Settings->set_ip_block_list_enabled( $request[ $Settings::IP_BLOCK_LIST_OPTION_NAME ] ? '1' : '' );
 		}
 
 		// IP Allow List
-		if ( isset( $request[ Waf_Rules_Manager::IP_ALLOW_LIST_OPTION_NAME ] ) ) {
-			update_option( Waf_Rules_Manager::IP_ALLOW_LIST_OPTION_NAME, $request[ Waf_Rules_Manager::IP_ALLOW_LIST_OPTION_NAME ] );
+		if ( isset( $request[ $Settings::IP_ALLOW_LIST_OPTION_NAME ] ) ) {
+			$Settings->set_ip_allow_list( $request[ $Settings::IP_ALLOW_LIST_OPTION_NAME ] );
 		}
-		if ( isset( $request[ Waf_Rules_Manager::IP_ALLOW_LIST_ENABLED_OPTION_NAME ] ) ) {
-			update_option( Waf_Rules_Manager::IP_ALLOW_LIST_ENABLED_OPTION_NAME, $request[ Waf_Rules_Manager::IP_ALLOW_LIST_ENABLED_OPTION_NAME ] ? '1' : '' );
+		if ( isset( $request[ $Settings::IP_ALLOW_LIST_ENABLED_OPTION_NAME ] ) ) {
+			$Settings->set_ip_allow_list_enabled( $request[ $Settings::IP_ALLOW_LIST_ENABLED_OPTION_NAME ] ? '1' : '' );
 		}
 
 		// Share Data
-		if ( isset( $request[ Waf_Runner::SHARE_DATA_OPTION_NAME ] ) ) {
+		if ( isset( $request[ $Settings::SHARE_DATA_OPTION_NAME ] ) ) {
 			// If a user disabled the regular share we should disable the debug share data option.
-			if ( ! $request[ Waf_Runner::SHARE_DATA_OPTION_NAME ] ) {
-				update_option( Waf_Runner::SHARE_DEBUG_DATA_OPTION_NAME, '' );
+			if ( ! $request[ $Settings::SHARE_DATA_OPTION_NAME ] ) {
+				$Settings->set_share_debug_data( '' );
 			}
 
-			update_option( Waf_Runner::SHARE_DATA_OPTION_NAME, $request[ Waf_Runner::SHARE_DATA_OPTION_NAME ] ? '1' : '' );
+			$Settings->set_share_data( $request[ $Settings::SHARE_DATA_OPTION_NAME ] ? '1' : '' );
 		}
 
 		// Share Debug Data
-		if ( isset( $request[ Waf_Runner::SHARE_DEBUG_DATA_OPTION_NAME ] ) ) {
+		if ( isset( $request[ $Settings::SHARE_DEBUG_DATA_OPTION_NAME ] ) ) {
 			// If a user toggles the debug share we should enable the regular share data option.
-			if ( $request[ Waf_Runner::SHARE_DEBUG_DATA_OPTION_NAME ] ) {
-				update_option( Waf_Runner::SHARE_DATA_OPTION_NAME, 1 );
+			if ( $request[ $Settings::SHARE_DEBUG_DATA_OPTION_NAME ] ) {
+				$Settings->set_share_data( '1' );
 			}
 
-			update_option( Waf_Runner::SHARE_DEBUG_DATA_OPTION_NAME, $request[ Waf_Runner::SHARE_DEBUG_DATA_OPTION_NAME ] ? '1' : '' );
+			$Settings->set_share_debug_data( $request[ $Settings::SHARE_DEBUG_DATA_OPTION_NAME ] ? '1' : '' );
 		}
 
 		// Brute Force Protection
@@ -182,9 +204,9 @@ class REST_Controller {
 		}
 
 		// Only attempt to update the WAF if the module is supported
-		if ( Waf_Runner::is_supported_environment() ) {
+		if ( Waf_Initializer::is_supported_environment() ) {
 			try {
-				Waf_Runner::update_waf();
+				Waf_Initializer::update_waf();
 			} catch ( Waf_Exception $e ) {
 				return $e->get_wp_error();
 			}

@@ -5,16 +5,14 @@
  * @package automattic/jetpack-waf
  */
 
-use Automattic\Jetpack\Waf\Waf_Operators;
-use Automattic\Jetpack\Waf\Waf_Request;
-use Automattic\Jetpack\Waf\Waf_Runtime;
-use Automattic\Jetpack\Waf\Waf_Transforms;
+namespace Automattic\Jetpack\Waf_Runtime;
+
+require_once __DIR__ . '/../../src/class-runtime.php';
 
 /**
  * Runtime test suite.
  */
-final class WafRuntimeTargetsTest extends PHPUnit\Framework\TestCase {
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
+final class WafRuntimeTargetsTest extends \PHPUnit\Framework\TestCase {
 
 	/**
 	 * Test key/value targets  REQUEST_HEADERS, TX, IP, REQUEST_COOKIES, ARGS, ARGS_POST, ARGS_GET, FILES
@@ -223,11 +221,11 @@ final class WafRuntimeTargetsTest extends PHPUnit\Framework\TestCase {
 				'headers' => $expected,
 			)
 		);
-		$runtime  = new Waf_Runtime( new Waf_Transforms(), new Waf_Operators(), $request );
+		$runtime  = new Runtime( new Transforms(), new Operators(), $request );
 		yield 'REQUEST_HEADERS' => array( $runtime, 'request_headers', $expected, '/-b$/' );
 
 		// TX
-		$runtime  = new Waf_Runtime( new Waf_Transforms(), new Waf_Operators() );
+		$runtime  = new Runtime( new Transforms(), new Operators() );
 		$expected = array(
 			array( 'test_a', 'val_a' ),
 			array( 'test_b', 'val_b' ),
@@ -239,7 +237,7 @@ final class WafRuntimeTargetsTest extends PHPUnit\Framework\TestCase {
 		yield 'TX' => array( $runtime, 'tx', $expected, '/_b$/' );
 
 		// IP
-		$runtime  = new Waf_Runtime( new Waf_Transforms(), new Waf_Operators() );
+		$runtime  = new Runtime( new Transforms(), new Operators() );
 		$expected = array(
 			array( 'test_a', 'val_a' ),
 			array( 'test_b', 'val_b' ),
@@ -261,7 +259,7 @@ final class WafRuntimeTargetsTest extends PHPUnit\Framework\TestCase {
 				'cookies' => $expected,
 			)
 		);
-		$runtime  = new Waf_Runtime( new Waf_Transforms(), new Waf_Operators(), $request );
+		$runtime  = new Runtime( new Transforms(), new Operators(), $request );
 		yield 'REQUEST_COOKIES' => array( $runtime, 'request_cookies', $expected, '/_b$/' );
 
 		// ARGS
@@ -275,7 +273,7 @@ final class WafRuntimeTargetsTest extends PHPUnit\Framework\TestCase {
 				),
 			)
 		);
-		$runtime  = new Waf_Runtime( new Waf_Transforms(), new Waf_Operators(), $request );
+		$runtime  = new Runtime( new Transforms(), new Operators(), $request );
 		$expected = array(
 			array( 'get_var', 'get_val' ),
 			array( 'post_var', 'post_val' ),
@@ -294,7 +292,7 @@ final class WafRuntimeTargetsTest extends PHPUnit\Framework\TestCase {
 				),
 			)
 		);
-		$runtime  = new Waf_Runtime( new Waf_Transforms(), new Waf_Operators(), $request );
+		$runtime  = new Runtime( new Transforms(), new Operators(), $request );
 		$expected = array(
 			array( 'scalar', 'scalar_val' ),
 			array( 'array[0]', 'array_val_0' ),
@@ -316,7 +314,7 @@ final class WafRuntimeTargetsTest extends PHPUnit\Framework\TestCase {
 				),
 			)
 		);
-		$runtime  = new Waf_Runtime( new Waf_Transforms(), new Waf_Operators(), $request );
+		$runtime  = new Runtime( new Transforms(), new Operators(), $request );
 		$expected = array(
 			array( 'scalar', 'scalar_val' ),
 			array( 'array[0]', 'array_val_0' ),
@@ -347,7 +345,7 @@ final class WafRuntimeTargetsTest extends PHPUnit\Framework\TestCase {
 				'files' => $mock_files,
 			)
 		);
-		$runtime    = new Waf_Runtime( new Waf_Transforms(), new Waf_Operators(), $request );
+		$runtime    = new Runtime( new Transforms(), new Operators(), $request );
 		yield 'FILES' => array( $runtime, 'files', $expected, '/^fileBB$/' );
 	}
 
@@ -356,7 +354,7 @@ final class WafRuntimeTargetsTest extends PHPUnit\Framework\TestCase {
 	 */
 	public function testNormalizeRequestMethod() {
 		$request = $this->mock_request( array( 'method' => 'DELETE' ) );
-		$runtime = new Waf_Runtime( new Waf_Transforms(), new Waf_Operators(), $request );
+		$runtime = new Runtime( new Transforms(), new Operators(), $request );
 		$values  = $runtime->normalize_targets( array( 'request_method' => array() ) );
 		$this->assertCount( 1, $values );
 		$this->assertContains(
@@ -374,7 +372,7 @@ final class WafRuntimeTargetsTest extends PHPUnit\Framework\TestCase {
 	 */
 	public function testNormalizeRequestProtocol() {
 		$request = $this->mock_request( array( 'protocol' => 'TEST' ) );
-		$runtime = new Waf_Runtime( new Waf_Transforms(), new Waf_Operators(), $request );
+		$runtime = new Runtime( new Transforms(), new Operators(), $request );
 		$values  = $runtime->normalize_targets( array( 'request_protocol' => array() ) );
 		$this->assertCount( 1, $values );
 		$this->assertContains(
@@ -392,7 +390,7 @@ final class WafRuntimeTargetsTest extends PHPUnit\Framework\TestCase {
 	 */
 	public function testNormalizeRequestUri() {
 		$request = $this->mock_request( array( 'url' => array( 'https://wordpress.com', '/index.php', '?test=test' ) ) );
-		$runtime = new Waf_Runtime( new Waf_Transforms(), new Waf_Operators(), $request );
+		$runtime = new Runtime( new Transforms(), new Operators(), $request );
 		// test request_uri
 		$values = $runtime->normalize_targets( array( 'request_uri' => array() ) );
 		$this->assertCount( 1, $values );
@@ -455,7 +453,7 @@ final class WafRuntimeTargetsTest extends PHPUnit\Framework\TestCase {
 	 */
 	public function testNormalizeRequestBody() {
 		$request = $this->mock_request( array( 'body' => 'test request body' ) );
-		$runtime = new Waf_Runtime( new Waf_Transforms(), new Waf_Operators(), $request );
+		$runtime = new Runtime( new Transforms(), new Operators(), $request );
 		$values  = $runtime->normalize_targets( array( 'request_body' => array() ) );
 		$this->assertCount( 1, $values );
 		$this->assertContains(
@@ -479,7 +477,7 @@ final class WafRuntimeTargetsTest extends PHPUnit\Framework\TestCase {
 				'protocol' => 'HTTP/1.2',
 			)
 		);
-		$runtime = new Waf_Runtime( new Waf_Transforms(), new Waf_Operators(), $request );
+		$runtime = new Runtime( new Transforms(), new Operators(), $request );
 		$values  = $runtime->normalize_targets( array( 'request_line' => array() ) );
 		$this->assertCount( 1, $values );
 		$this->assertContains(
@@ -493,10 +491,10 @@ final class WafRuntimeTargetsTest extends PHPUnit\Framework\TestCase {
 	}
 
 	/**
-	 * Returned a Waf_Request instance with mocked data.
+	 * Returned a Request instance with mocked data.
 	 *
 	 * @param array $data Key/value assoc. array of mocked data to pre-fill the request with.
-	 * @return Waf_Request
+	 * @return Request
 	 */
 	protected function mock_request( $data ) {
 		$method_names = array_map(
@@ -505,7 +503,7 @@ final class WafRuntimeTargetsTest extends PHPUnit\Framework\TestCase {
 			},
 			array_keys( $data )
 		);
-		$mock         = $this->createPartialMock( Waf_Request::class, $method_names );
+		$mock         = $this->createPartialMock( Request::class, $method_names );
 		foreach ( $data as $k => $v ) {
 			$mock->method( "get_$k" )->willReturn( $v );
 		}

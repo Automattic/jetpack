@@ -33,7 +33,7 @@ class Waf_Compatibility {
 			return 'jetpack_waf_ip_allow_list_enabled';
 		}
 
-		return Waf_Rules_Manager::IP_ALLOW_LIST_ENABLED_OPTION_NAME;
+		return Waf_Settings::IP_ALLOW_LIST_ENABLED_OPTION_NAME;
 	}
 
 	/**
@@ -53,7 +53,7 @@ class Waf_Compatibility {
 			return 'jetpack_waf_ip_block_list_enabled';
 		}
 
-		return Waf_Rules_Manager::IP_BLOCK_LIST_ENABLED_OPTION_NAME;
+		return Waf_Settings::IP_BLOCK_LIST_ENABLED_OPTION_NAME;
 	}
 
 	/**
@@ -64,10 +64,10 @@ class Waf_Compatibility {
 	 * @return void
 	 */
 	public static function add_compatibility_hooks() {
-		add_filter( 'default_option_' . Waf_Rules_Manager::AUTOMATIC_RULES_ENABLED_OPTION_NAME, __CLASS__ . '::default_option_waf_automatic_rules', 10, 3 );
+		add_filter( 'default_option_' . Waf_Settings::AUTOMATIC_RULES_ENABLED_OPTION_NAME, __CLASS__ . '::default_option_waf_automatic_rules', 10, 3 );
 		add_filter( 'default_option_' . Waf_Initializer::NEEDS_UPDATE_OPTION_NAME, __CLASS__ . '::default_option_waf_needs_update', 10, 3 );
-		add_filter( 'default_option_' . Waf_Rules_Manager::IP_ALLOW_LIST_OPTION_NAME, __CLASS__ . '::default_option_waf_ip_allow_list', 10, 3 );
-		add_filter( 'option_' . Waf_Rules_Manager::IP_ALLOW_LIST_OPTION_NAME, __CLASS__ . '::filter_option_waf_ip_allow_list', 10, 1 );
+		add_filter( 'default_option_' . Waf_Settings::IP_ALLOW_LIST_OPTION_NAME, __CLASS__ . '::default_option_waf_ip_allow_list', 10, 3 );
+		add_filter( 'option_' . Waf_Settings::IP_ALLOW_LIST_OPTION_NAME, __CLASS__ . '::filter_option_waf_ip_allow_list', 10, 1 );
 		add_filter( 'default_option_' . self::get_ip_allow_list_enabled_option_name(), __CLASS__ . '::default_option_waf_ip_allow_list_enabled', 10, 3 );
 		add_filter( 'default_option_' . self::get_ip_block_list_enabled_option_name(), __CLASS__ . '::default_option_waf_ip_block_list_enabled', 10, 3 );
 	}
@@ -78,7 +78,7 @@ class Waf_Compatibility {
 	 * Note that this method should be compatible with sites where
 	 * the request firewall is not active or not supported.
 	 *
-	 * @see Waf_Runner::is_supported_environment().
+	 * @see Waf_Initializer::is_supported_environment().
 	 *
 	 * @since 0.11.0
 	 *
@@ -118,7 +118,7 @@ class Waf_Compatibility {
 	 * @return bool The default value for automatic rules.
 	 */
 	public static function get_default_automatic_rules_option() {
-		return Waf_Runner::is_enabled();
+		return Waf_Initializer::is_enabled();
 	}
 
 	/**
@@ -297,7 +297,7 @@ class Waf_Compatibility {
 		}
 
 		// If the allow list is empty, disable the allow list.
-		if ( ! Jetpack_Options::get_raw_option( Waf_Rules_Manager::IP_ALLOW_LIST_OPTION_NAME ) ) {
+		if ( ! Jetpack_Options::get_raw_option( Waf_Settings::IP_ALLOW_LIST_OPTION_NAME ) ) {
 			return false;
 		}
 

@@ -40,7 +40,7 @@ final class WafUnsupportedEnvironmentIntegrationTest extends WorDBless\BaseTestC
 		add_filter( 'jetpack_get_available_standalone_modules', array( $this, 'add_modules_to_available_modules' ), 10, 1 );
 
 		// Initialize the firewall.
-		Waf_Initializer::init();
+		Waf_Initializer::initialize();
 	}
 
 	/**

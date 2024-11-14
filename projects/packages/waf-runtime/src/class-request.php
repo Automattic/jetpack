@@ -5,7 +5,7 @@
  * @package automattic/jetpack-waf
  */
 
-namespace Automattic\Jetpack\Waf;
+namespace Automattic\Jetpack\Waf_Runtime;
 
 require_once __DIR__ . '/functions.php';
 
@@ -16,7 +16,7 @@ PHAN;
 /**
  * Request representation.
  */
-class Waf_Request {
+class Request {
 	/**
 	 * The request URL, broken into three pieces: the host, the filename, and the query string
 	 *

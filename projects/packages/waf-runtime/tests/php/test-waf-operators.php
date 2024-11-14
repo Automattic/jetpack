@@ -2,19 +2,21 @@
 /**
  * Adapted from modsecurity tests: https://github.com/SpiderLabs/ModSecurity/tree/caadf97524a4861456be176a8cb91dcbb76b97e4/tests/op
  *
- * @package automattic/jetpack-waf
+ * @package automattic/jetpack-waf-runtime
  */
 
-use Automattic\Jetpack\Waf\Waf_Operators;
+namespace Automattic\Jetpack\Waf_Runtime;
+
+require_once __DIR__ . '/../../src/class-operators.php';
 
 /**
  * Operators test suite.
  */
-final class WafOperatorsTest extends PHPUnit\Framework\TestCase {
+final class WafOperatorsTest extends \PHPUnit\Framework\TestCase {
 	/**
-	 * Instance of Waf_Operators
+	 * Instance of Operators
 	 *
-	 * @var Waf_Operators
+	 * @var Operators
 	 */
 	private $o;
 
@@ -24,7 +26,7 @@ final class WafOperatorsTest extends PHPUnit\Framework\TestCase {
 	 * @before
 	 */
 	protected function before() {
-		$this->o = new Waf_Operators();
+		$this->o = new Operators();
 	}
 
 	/**

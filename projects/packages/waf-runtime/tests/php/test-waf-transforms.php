@@ -5,17 +5,19 @@
  * @package automattic/jetpack-waf
  */
 
-use Automattic\Jetpack\Waf\Waf_Transforms as GlobalWafTransforms;
+namespace Automattic\Jetpack\Waf_Runtime;
+
+require_once __DIR__ . '/../../src/class-transforms.php';
 
 /**
  * Transforms test suite.
  */
-final class WafTransformsTest extends PHPUnit\Framework\TestCase {
+final class WafTransformsTest extends \PHPUnit\Framework\TestCase {
 
 	/**
-	 * Instance of Waf_Transforms
+	 * Instance of Transforms
 	 *
-	 * @var GlobalWafTransforms
+	 * @var Transforms
 	 */
 	private $t;
 
@@ -25,7 +27,7 @@ final class WafTransformsTest extends PHPUnit\Framework\TestCase {
 	 * @before
 	 */
 	protected function before() {
-		$this->t = new GlobalWafTransforms();
+		$this->t = new Transforms();
 	}
 
 	/**

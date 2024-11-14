@@ -8,7 +8,7 @@
 use Automattic\Jetpack\Waf\Waf_Compatibility;
 use Automattic\Jetpack\Waf\Waf_Initializer;
 use Automattic\Jetpack\Waf\Waf_Rules_Manager;
-use Automattic\Jetpack\Waf\Waf_Runner;
+use Automattic\Jetpack\Waf\Waf_Settings;
 
 /**
  * Integration tests for the backwards-compatibility of the package.
@@ -87,7 +87,7 @@ final class WafCompatibilityIntegrationTest extends WorDBless\BaseTestCase {
 		add_filter( 'jetpack_get_available_standalone_modules', array( $this, 'add_waf_to_available_modules' ), 10, 1 );
 
 		// Initialize the firewall.
-		Waf_Initializer::init();
+		Waf_Initializer::initialize();
 	}
 
 	/**
@@ -181,13 +181,13 @@ final class WafCompatibilityIntegrationTest extends WorDBless\BaseTestCase {
 	 */
 	public function testAutomaticRulesOptionInheritsFromModuleStatus() {
 		// Enable the WAF module.
-		Waf_Runner::enable();
+		Waf_Initializer::enable();
 
 		// Manually delete the automatic rules option to simulate a site that installed the WAF before the automatic rules option was introduced.
-		delete_option( Waf_Rules_Manager::AUTOMATIC_RULES_ENABLED_OPTION_NAME );
+		delete_option( Waf_Settings::AUTOMATIC_RULES_ENABLED_OPTION_NAME );
 
 		// Check that the automatic rules option is enabled by default.
-		$this->assertTrue( Waf_Runner::is_enabled() );
+		$this->assertTrue( Waf_Initializer::is_enabled() );
 	}
 
 	/**
@@ -216,7 +216,7 @@ final class WafCompatibilityIntegrationTest extends WorDBless\BaseTestCase {
 		$filter_ip_allow_list_content = $filter_option( Waf_Rules_Manager::IP_ALLOW_LIST_OPTION_NAME, '1.2.3.4' );
 
 		// Enable the WAF module.
-		Waf_Runner::enable();
+		Waf_Initializer::enable();
 
 		// Validate default options on fresh installs.
 		$this->assertFalse( get_option( Waf_Rules_Manager::IP_ALLOW_LIST_ENABLED_OPTION_NAME ) );

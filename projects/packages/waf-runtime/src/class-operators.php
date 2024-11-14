@@ -5,12 +5,16 @@
  * @package automattic/jetpack-waf
  */
 
-namespace Automattic\Jetpack\Waf;
+namespace Automattic\Jetpack\Waf_Runtime;
+
+require_once __DIR__ . '/../vendor/wikimedia/aho-corasick/src/MultiStringMatcher.php';
+
+use AhoCorasick\MultiStringMatcher;
 
 /**
- * Waf_Operators class
+ * Operators class
  */
-class Waf_Operators {
+class Operators {
 	/**
 	 * Returns true if the test string is found at the beginning of the input.
 	 *
@@ -154,7 +158,7 @@ class Waf_Operators {
 	 * Uses a multi-string matching algorithm to search through $input for a number of given $words.
 	 *
 	 * @param string   $input Input.
-	 * @param string[] $words \AhoCorasick\MultiStringMatcher $matcher.
+	 * @param string[] $words MultiStringMatcher $matcher.
 	 * @return string[]|false Returns the words that were found in $input, or FALSE if no words were found.
 	 */
 	public function pm( $input, $words ) {
@@ -186,7 +190,7 @@ class Waf_Operators {
 	private function get_multi_string_matcher( $words ) {
 		// only create a new matcher entity if we don't have one already for this word list.
 		if ( $this->last_multi_string_matcher[0] !== $words ) {
-			$this->last_multi_string_matcher = array( $words, new \AhoCorasick\MultiStringMatcher( $words ) );
+			$this->last_multi_string_matcher = array( $words, new MultiStringMatcher( $words ) );
 		}
 
 		return $this->last_multi_string_matcher[1];

@@ -1,15 +1,20 @@
 <?php
 /**
- * Runtime for Jetpack Waf
+ * Web Application Firewall runtime package.
  *
- * @package automattic/jetpack-waf
+ * @package automattic/jetpack-waf-runtime
  */
 
-namespace Automattic\Jetpack\Waf;
+namespace Automattic\Jetpack\Waf_Runtime;
 
 use Automattic\Jetpack\IP\Utils as IP_Utils;
 
+require_once __DIR__ . '/../vendor/automattic/jetpack-ip/src/class-utils.php';
 require_once __DIR__ . '/functions.php';
+require_once __DIR__ . '/class-database-logger.php';
+require_once __DIR__ . '/class-request.php';
+require_once __DIR__ . '/class-transforms.php';
+require_once __DIR__ . '/class-operators.php';
 
 // phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This class is all about sanitizing input.
 
@@ -26,9 +31,11 @@ require_once __DIR__ . '/functions.php';
 PHAN;
 
 /**
- * Waf_Runtime class
+ * WAF Runtime class
  */
-class Waf_Runtime {
+class Runtime {
+	const PACKAGE_VERSION = '1.0.0-alpha';
+
 	/**
 	 * If used, normalize_array_targets() will just return the number of matching values, instead of the values themselves.
 	 */
@@ -99,20 +106,20 @@ class Waf_Runtime {
 	/**
 	 * Transforms.
 	 *
-	 * @var Waf_Transforms
+	 * @var Transforms
 	 */
 	private $transforms;
 	/**
 	 * Operators.
 	 *
-	 * @var Waf_Operators
+	 * @var Operators
 	 */
 	private $operators;
 
 	/**
 	 * The request
 	 *
-	 * @var Waf_Request
+	 * @var Request
 	 */
 	private $request;
 
@@ -139,15 +146,15 @@ class Waf_Runtime {
 	/**
 	 * Constructor method.
 	 *
-	 * @param Waf_Transforms $transforms Transforms.
-	 * @param Waf_Operators  $operators  Operators.
-	 * @param ?Waf_Request   $request    Information about the request.
+	 * @param Transforms $transforms Transforms.
+	 * @param Operators  $operators  Operators.
+	 * @param ?Request   $request    Information about the request.
 	 */
 	public function __construct( $transforms, $operators, $request = null ) {
 		$this->transforms = $transforms;
 		$this->operators  = $operators;
 		$this->request    = null === $request
-			? new Waf_Request()
+			? new Request()
 			: $request;
 	}
 
@@ -215,7 +222,7 @@ class Waf_Runtime {
 	/**
 	 * Return TRUE if at least one of the targets matches the rule.
 	 *
-	 * @param string[]  $transforms One of the transform methods defined in the Jetpack Waf_Transforms class.
+	 * @param string[]  $transforms One of the transform methods defined in the Transforms class.
 	 * @param TargetBag $targets Targets.
 	 * @param string    $match_operator Match operator.
 	 * @param mixed     $match_value Match value.
@@ -285,13 +292,13 @@ class Waf_Runtime {
 			$reason = $this->sanitize_output( $reason );
 		}
 
-		Waf_Blocklog_Manager::write_blocklog( $rule_id, $reason );
-		error_log( "Jetpack WAF Blocked Request\t$action\t$rule_id\t$status_code\t$reason" );
+		Database_Logger::write_blocklog( $rule_id, $reason );
+		error_log( "Jetpack WAF Blocked Request\t$action\t$rule_id\t$status_code\t$reason" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 		header( "X-JetpackWAF-Blocked: $status_code - rule $rule_id" );
 		if ( defined( 'JETPACK_WAF_MODE' ) && 'normal' === JETPACK_WAF_MODE ) {
 			$protocol = isset( $_SERVER['SERVER_PROTOCOL'] ) ? wp_unslash( $_SERVER['SERVER_PROTOCOL'] ) : 'HTTP';
 			header( $protocol . ' 403 Forbidden', true, $status_code );
-			die( "rule $rule_id - reason $reason" );
+			die( "rule $rule_id - reason $reason" ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 	}
 
@@ -303,7 +310,7 @@ class Waf_Runtime {
 	 * @return never
 	 */
 	public function redirect( $rule_id, $url ) {
-		error_log( "Jetpack WAF Redirected Request.\tRule:$rule_id\t$url" );
+		error_log( "Jetpack WAF Redirected Request.\tRule:$rule_id\t$url" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 		header( "Location: $url" );
 		exit;
 	}
@@ -615,7 +622,7 @@ class Waf_Runtime {
 					$this->normalize_array_target( $data, $only, $except, $k, $return, $count_only | self::NORMALIZE_ARRAY_MATCH_VALUES );
 					continue 2;
 				default:
-					var_dump( 'Unknown target', $k, $v );
+					var_dump( 'Unknown target', $k, $v ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_var_dump
 					exit;
 			}
 			$return[] = array(

@@ -7,7 +7,7 @@
 
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Waf\REST_Controller;
-use Automattic\Jetpack\Waf\Waf_Rules_Manager;
+use Automattic\Jetpack\Waf\Waf_Settings;
 
 /**
  * Integration tests for the REST API endpoints registered by the WAF.
@@ -138,7 +138,7 @@ final class WafRestIntegrationTest extends WorDBless\BaseTestCase {
 		$request->set_body(
 			wp_json_encode(
 				array(
-					Waf_Rules_Manager::AUTOMATIC_RULES_ENABLED_OPTION_NAME => true,
+					Waf_Settings::AUTOMATIC_RULES_ENABLED_OPTION_NAME => true,
 				)
 			)
 		);

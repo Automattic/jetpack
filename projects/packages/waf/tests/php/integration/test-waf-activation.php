@@ -7,10 +7,10 @@
 
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Waf\Waf_Constants;
+use Automattic\Jetpack\Waf\Waf_Filesystem;
 use Automattic\Jetpack\Waf\Waf_Initializer;
 use Automattic\Jetpack\Waf\Waf_Rules_Manager;
-use Automattic\Jetpack\Waf\Waf_Runner;
-use Automattic\Jetpack\Waf\Waf_Standalone_Bootstrap;
+use Automattic\Jetpack\Waf\Waf_Settings;
 
 /**
  * Integration tests for the firewall activation process.
@@ -76,8 +76,8 @@ final class WafActivationTest extends WorDBless\BaseTestCase {
 	 * Test WAF activation.
 	 */
 	public function testActivation() {
-		// Ensure the JETPACK_WAF_ENTRYPOINT is defined.
-		Waf_Constants::define_entrypoint();
+		$Constants  = new Waf_Constants();
+		$Filesystem = new Waf_Filesystem();
 
 		// Mock the WPCOM request for retrieving the automatic rules.
 		add_filter( 'pre_http_request', array( $this, 'return_sample_response' ) );
@@ -89,18 +89,18 @@ final class WafActivationTest extends WorDBless\BaseTestCase {
 		$this->assertTrue( $activated );
 
 		// Ensure default options were set.
-		$this->assertSame( true, get_option( Waf_Runner::SHARE_DATA_OPTION_NAME ) );
-		$this->assertSame( 'normal', get_option( Waf_Runner::MODE_OPTION_NAME ) );
-		$this->assertSame( false, get_option( Waf_Rules_Manager::AUTOMATIC_RULES_ENABLED_OPTION_NAME ) );
+		$this->assertSame( true, get_option( Waf_Settings::SHARE_DATA_OPTION_NAME ) );
+		$this->assertSame( 'normal', get_option( Waf_Settings::MODE_OPTION_NAME ) );
+		$this->assertSame( false, get_option( Waf_Settings::AUTOMATIC_RULES_ENABLED_OPTION_NAME ) );
 
 		// Ensure the rule files were generated.
-		$this->assertFileExists( Waf_Runner::get_waf_file_path( JETPACK_WAF_ENTRYPOINT ) );
-		$this->assertFileExists( Waf_Runner::get_waf_file_path( Waf_Rules_Manager::AUTOMATIC_RULES_FILE ) );
-		$this->assertFileExists( Waf_Runner::get_waf_file_path( Waf_Rules_Manager::IP_ALLOW_RULES_FILE ) );
-		$this->assertFileExists( Waf_Runner::get_waf_file_path( Waf_Rules_Manager::IP_BLOCK_RULES_FILE ) );
+		$this->assertFileExists( $Filesystem->get_path( $Constants->get( $Constants::ENTRYPOINT_CONSTANT ) ) );
+		$this->assertFileExists( $Filesystem->get_path( Waf_Rules_Manager::AUTOMATIC_RULES_FILE ) );
+		$this->assertFileExists( $Filesystem->get_path( Waf_Rules_Manager::IP_ALLOW_RULES_FILE ) );
+		$this->assertFileExists( $Filesystem->get_path( Waf_Rules_Manager::IP_BLOCK_RULES_FILE ) );
 
 		// Ensure the bootstrap file was generated.
-		$this->assertFileExists( ( new Waf_Standalone_Bootstrap() )->get_bootstrap_file_path() );
+		$this->assertFileExists( $Constants->get( $Constants::DIRECTORY_PATH_CONSTANT ) . 'bootstrap.php' );
 
 		// Clean up
 		remove_filter( 'pre_http_request', array( $this, 'return_sample_response' ) );
@@ -110,8 +110,7 @@ final class WafActivationTest extends WorDBless\BaseTestCase {
 	 * Test WAF deactivation.
 	 */
 	public function testDeactivation() {
-		// Ensure the JETPACK_WAF_ENTRYPOINT is defined.
-		Waf_Constants::define_entrypoint();
+		$Constants = new Waf_Constants();
 
 		$deactivated = Waf_Initializer::on_waf_deactivation();
 
@@ -119,11 +118,11 @@ final class WafActivationTest extends WorDBless\BaseTestCase {
 		$this->assertTrue( $deactivated );
 
 		// Ensure the options were deleted.
-		$this->assertSame( false, get_option( Waf_Runner::SHARE_DATA_OPTION_NAME ) );
-		$this->assertSame( false, get_option( Waf_Runner::MODE_OPTION_NAME ) );
+		$this->assertSame( false, get_option( Waf_Settings::SHARE_DATA_OPTION_NAME ) );
+		$this->assertSame( false, get_option( Waf_Settings::MODE_OPTION_NAME ) );
 
 		// Ensure the rules entrypoint file was emptied.
-		$this->assertSame( "<?php\n", file_get_contents( Waf_Runner::get_waf_file_path( JETPACK_WAF_ENTRYPOINT ) ) );
+		$this->assertSame( "<?php\n", file_get_contents( ( new Waf_Filesystem() )->get_path( $Constants::ENTRYPOINT_CONSTANT ) ) );
 	}
 
 	/**

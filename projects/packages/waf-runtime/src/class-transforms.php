@@ -5,12 +5,12 @@
  * @package automattic/jetpack-waf
  */
 
-namespace Automattic\Jetpack\Waf;
+namespace Automattic\Jetpack\Waf_Runtime;
 
 /**
- * Waf_Transforms class
+ * Transforms class
  */
-class Waf_Transforms {
+class Transforms {
 
 	/**
 	 * Decode a Base64-encoded string. This runs the decode without strict mode, to match Modsecurity's 'base64DecodeExt' transform function.
