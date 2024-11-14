@@ -168,10 +168,7 @@ const List: React.FC< ListProps > = ( {
 	};
 
 	const validateItems = ( value: string ) => {
-		const lines = value
-			.split( '\n' )
-			.map( line => line.trim() )
-			.filter( line => line.trim() !== '' );
+		const lines = value.split( '\n' ).map( line => line.trim() );
 
 		if ( lines.length === 0 ) {
 			throw new Error( __( 'You must add at least one URL.', 'jetpack-boost' ) );
