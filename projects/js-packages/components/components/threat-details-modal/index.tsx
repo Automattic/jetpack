@@ -14,7 +14,9 @@ import ContextualUpgradeTrigger from '../contextual-upgrade-trigger';
 import DiffViewer from '../diff-viewer';
 import MarkedLines from '../marked-lines';
 import Text from '../text';
+import CredentialsGate from './credentials-gate';
 import styles from './styles.module.scss';
+import UserConnectionGate from './user-connection-gate';
 
 const ThreatTechnicalDetails = ( { threat }: { threat: Threat } ) => {
 	if ( ! threat.filename && ! threat.context && ! threat.diff ) {
@@ -128,8 +130,8 @@ const ThreatActions = ( {
 	}
 
 	return (
-		<div className={ styles.modal }>
-			<div className={ styles[ 'modal-actions' ] }>
+		<div className={ styles[ 'modal-actions' ] }>
+			<div>
 				<Button variant="secondary" onClick={ closeModal }>
 					{ __( 'Close', 'jetpack' ) }
 				</Button>
@@ -216,58 +218,80 @@ export default function ThreatDetailsModal( {
 		return __( 'What is the problem?', 'jetpack' );
 	}, [ threat ] );
 
+	const isUserConnected = false;
+	const hasConnectedOwner = false;
+	const userIsConnecting = false;
+	const credentials = null;
+	const credentialsIsFetching = false;
+	const credentialsRedirectUrl = '#';
+
 	return (
 		<Modal size="large" __experimentalHideHeader { ...modalProps }>
 			<div className={ styles[ 'threat-details' ] }>
-				{ fixerState.error && (
-					<Notice isDismissible={ false } status="error">
-						<Text>{ __( 'An error occurred auto-fixing this threat.', 'jetpack' ) }</Text>
-					</Notice>
-				) }
-				{ fixerState.stale && (
-					<Notice isDismissible={ false } status="error">
-						<Text>{ __( 'The auto-fixer is taking longer than expected.', 'jetpack' ) }</Text>
-					</Notice>
-				) }
-				{ fixerState.inProgress && ! fixerState.stale && (
-					<Notice isDismissible={ false } status="success">
-						<Text>{ __( 'The auto-fixer is in progress.', 'jetpack' ) }</Text>
-					</Notice>
-				) }
-				<div className={ styles.section }>
-					<div className={ styles.title }>
-						<Text variant="title-small">{ title }</Text>
-						{ !! threat.severity && <ThreatSeverityBadge severity={ threat.severity } /> }
-					</div>
-
-					{ !! threat.description && <Text>{ threat.description }</Text> }
-
-					{ !! threat.source && (
-						<div>
-							<Button
-								variant="link"
-								isExternalLink={ true }
-								weight="regular"
-								href={ threat.source }
-							>
-								{ __( 'See more technical details of this threat', 'jetpack' ) }
-							</Button>
-						</div>
-					) }
-				</div>
-
-				<ThreatFixDetails threat={ threat } handleUpgradeClick={ handleUpgradeClick } />
-
-				<ThreatTechnicalDetails threat={ threat } />
-
-				<ThreatActions
-					threat={ threat }
+				<UserConnectionGate
 					closeModal={ modalProps.onRequestClose as () => void }
-					handleFixThreatClick={ handleFixThreatClick }
-					handleIgnoreThreatClick={ handleIgnoreThreatClick }
-					handleUnignoreThreatClick={ handleUnignoreThreatClick }
-					fixerState={ fixerState }
-				/>
+					isUserConnected={ isUserConnected }
+					hasConnectedOwner={ hasConnectedOwner }
+					userIsConnecting={ userIsConnecting }
+					handleConnectUser={ null }
+				>
+					<CredentialsGate
+						closeModal={ modalProps.onRequestClose as () => void }
+						credentials={ credentials }
+						credentialsIsFetching={ credentialsIsFetching }
+						credentialsRedirectUrl={ credentialsRedirectUrl }
+					>
+						{ fixerState.error && (
+							<Notice isDismissible={ false } status="error">
+								<Text>{ __( 'An error occurred auto-fixing this threat.', 'jetpack' ) }</Text>
+							</Notice>
+						) }
+						{ fixerState.stale && (
+							<Notice isDismissible={ false } status="error">
+								<Text>{ __( 'The auto-fixer is taking longer than expected.', 'jetpack' ) }</Text>
+							</Notice>
+						) }
+						{ fixerState.inProgress && ! fixerState.stale && (
+							<Notice isDismissible={ false } status="success">
+								<Text>{ __( 'The auto-fixer is in progress.', 'jetpack' ) }</Text>
+							</Notice>
+						) }
+						<div className={ styles.section }>
+							<div className={ styles.title }>
+								<Text variant="title-small">{ title }</Text>
+								{ !! threat.severity && <ThreatSeverityBadge severity={ threat.severity } /> }
+							</div>
+
+							{ !! threat.description && <Text>{ threat.description }</Text> }
+
+							{ !! threat.source && (
+								<div>
+									<Button
+										variant="link"
+										isExternalLink={ true }
+										weight="regular"
+										href={ threat.source }
+									>
+										{ __( 'See more technical details of this threat', 'jetpack' ) }
+									</Button>
+								</div>
+							) }
+						</div>
+
+						<ThreatFixDetails threat={ threat } handleUpgradeClick={ handleUpgradeClick } />
+
+						<ThreatTechnicalDetails threat={ threat } />
+
+						<ThreatActions
+							threat={ threat }
+							closeModal={ modalProps.onRequestClose as () => void }
+							handleFixThreatClick={ handleFixThreatClick }
+							handleIgnoreThreatClick={ handleIgnoreThreatClick }
+							handleUnignoreThreatClick={ handleUnignoreThreatClick }
+							fixerState={ fixerState }
+						/>
+					</CredentialsGate>
+				</UserConnectionGate>
 			</div>
 		</Modal>
 	);
