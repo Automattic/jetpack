@@ -59,19 +59,6 @@ const Meta = () => {
 								b: <b />,
 							}
 						) }
-						{ ! isPremium && (
-							<>
-								<br />
-								<UpgradeCTA
-									identifier="cornerstone-10-pages"
-									description={ sprintf(
-										/* translators: %d is the number of cornerstone pages. */
-										__( 'Premium users can add up to %d cornerstone pages.', 'jetpack-boost' ),
-										cornerstonePagesProperties.max_pages_premium
-									) }
-								/>
-							</>
-						) }
 					</>
 				}
 			/>
@@ -134,8 +121,10 @@ const List: React.FC< ListProps > = ( {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const [ inputInvalid, setInputInvalid ] = useState( false );
 	const [ validationError, setValidationError ] = useState< Error | null >( null );
-
+	const premiumFeatures = usePremiumFeatures();
+	const isPremium = premiumFeatures.includes( 'cornerstone-10-pages' );
 	const inputRows = Math.min( maxItems, 10 );
+	const cornerstonePagesProperties = useCornerstonePagesProperties();
 
 	const validateInputValue = ( value: string ) => {
 		setInputValue( value );
@@ -235,6 +224,18 @@ const List: React.FC< ListProps > = ( {
 			>
 				{ __( 'Load Default', 'jetpack-boost' ) }
 			</Button>
+			{ ! isPremium && cornerstonePagesProperties && (
+				<div className={ styles.wrapper }>
+					<UpgradeCTA
+						identifier="cornerstone-10-pages"
+						description={ sprintf(
+							/* translators: %d is the number of cornerstone pages. */
+							__( 'Premium users can add up to %d cornerstone pages.', 'jetpack-boost' ),
+							cornerstonePagesProperties.max_pages_premium
+						) }
+					/>
+				</div>
+			) }
 		</div>
 	);
 };
