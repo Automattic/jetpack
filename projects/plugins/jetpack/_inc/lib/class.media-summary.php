@@ -34,8 +34,7 @@ class Jetpack_Media_Summary {
 	 *
 	 * @return array|mixed|void
 	 */
-	public static function get( $post_id, $blog_id = 0, $args = array() ) {
-		// @todo: Use type hinting in the line above when at PHP 7.0+.
+	public static function get( int $post_id, int $blog_id = 0, array $args = array() ) {
 		$post_id = (int) $post_id;
 		$blog_id = (int) $blog_id;
 
