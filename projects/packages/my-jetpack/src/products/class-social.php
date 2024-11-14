@@ -156,6 +156,7 @@ class Social extends Hybrid_Product {
 			'jetpack_business',
 			'jetpack_premium',
 			'jetpack_personal',
+			'jetpack_growth',
 		);
 		// For atomic sites, do a feature check to see if the republicize feature is available
 		// This feature is available by default on all Jetpack sites
