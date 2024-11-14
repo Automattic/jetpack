@@ -854,6 +854,8 @@ export function getMonthlyPlanByYearly( plan ) {
 			return PLAN_JETPACK_SECURITY_T2_MONTHLY;
 		case PLAN_JETPACK_COMPLETE:
 			return PLAN_JETPACK_COMPLETE_MONTHLY;
+		case PLAN_JETPACK_GROWTH_YEARLY:
+			return PLAN_JETPACK_GROWTH_MONTHLY;
 
 		// DEPRECATED: Daily and Real-time variations will soon be retired.
 		// Remove after all customers are migrated to new products.
