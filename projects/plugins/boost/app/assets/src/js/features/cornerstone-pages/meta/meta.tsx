@@ -12,9 +12,9 @@ import { recordBoostEvent } from '$lib/utils/analytics';
 import getSupportLink from '$lib/utils/get-support-link';
 import { useRegenerationReason } from '$features/critical-css/lib/stores/suggest-regenerate';
 import { usePremiumFeatures } from '$lib/stores/premium-features';
-import { useNavigate } from 'react-router-dom';
 import { useRegenerateCriticalCssAction } from '$features/critical-css/lib/stores/critical-css-state';
 import { isSameSiteUrl } from '$lib/utils/is-same-site-url';
+import UpgradeCTA from '$features/upgrade-cta/upgrade-cta';
 
 const Meta = () => {
 	const [ cornerstonePages, setCornerstonePages ] = useCornerstonePages();
@@ -22,7 +22,6 @@ const Meta = () => {
 	const [ { refetch: refetchRegenerationReason } ] = useRegenerationReason();
 	const premiumFeatures = usePremiumFeatures();
 	const isPremium = premiumFeatures.includes( 'cornerstone-10-pages' );
-	const navigate = useNavigate();
 	const regenerateAction = useRegenerateCriticalCssAction();
 
 	const updateCornerstonePages = ( newValue: string ) => {
@@ -63,31 +62,14 @@ const Meta = () => {
 						{ ! isPremium && (
 							<>
 								<br />
-								<br />
-								<b>
-									{ createInterpolateElement(
-										sprintf(
-											/* translators: %d is the number of cornerstone pages. */
-											__(
-												'Premium users can add up to %d cornerstone pages. <link>Upgrade now</link>.',
-												'jetpack-boost'
-											),
-											cornerstonePagesProperties.max_pages_premium
-										),
-										{
-											link: (
-												// eslint-disable-next-line jsx-a11y/anchor-has-content
-												<a
-													href="#/upgrade"
-													onClick={ () => {
-														recordBoostEvent( 'cornerstone_pages_upgrade_link_clicked', {} );
-														navigate( '/upgrade' );
-													} }
-												/>
-											),
-										}
+								<UpgradeCTA
+									identifier="cornerstone-10-pages"
+									description={ sprintf(
+										/* translators: %d is the number of cornerstone pages. */
+										__( 'Premium users can add up to %d cornerstone pages.', 'jetpack-boost' ),
+										cornerstonePagesProperties.max_pages_premium
 									) }
-								</b>
+								/>
 							</>
 						) }
 					</>
