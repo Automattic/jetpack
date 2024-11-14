@@ -23,7 +23,7 @@ function GooglePhotos( props ) {
 		}
 	}, [ pickerSession, createPickerSession, isPickerSessionAccurate ] );
 
-	if ( pickerFeatureEnabled === null ) {
+	if ( pickerFeatureEnabled === null || ( pickerFeatureEnabled && ! isPickerSessionAccurate ) ) {
 		return (
 			<div className="jetpack-external-media__spinner-container">
 				<Spinner />
@@ -31,7 +31,7 @@ function GooglePhotos( props ) {
 		);
 	}
 
-	if ( ! isAuthenticated || ( pickerFeatureEnabled && ! isPickerSessionAccurate ) ) {
+	if ( ! isAuthenticated ) {
 		return <GooglePhotosAuth { ...props } />;
 	}
 

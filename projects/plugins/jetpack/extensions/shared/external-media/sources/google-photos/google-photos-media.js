@@ -36,6 +36,7 @@ function GooglePhotosMedia( props ) {
 		pickerSession,
 		pickerFeatureEnabled,
 		deletePickerSession,
+		createPickerSession,
 	} = props;
 
 	const imageOnly = isImageOnly( allowedTypes );
@@ -89,7 +90,8 @@ function GooglePhotosMedia( props ) {
 	const onChangeSelection = useCallback( () => {
 		setSelectionChanged( true );
 		pickerSession && deletePickerSession( pickerSession?.id );
-	}, [ pickerSession, deletePickerSession ] );
+		createPickerSession && createPickerSession();
+	}, [ pickerSession, deletePickerSession, createPickerSession ] );
 
 	// Load media when the query changes.
 	useEffect( () => {
