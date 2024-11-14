@@ -132,6 +132,7 @@ export async function handler( argv ) {
  */
 export async function runTests( argv, opts ) {
 	const basedir = process.cwd();
+	const genv = {};
 
 	if ( argv.project.length === 1 && argv.project[ 0 ] !== 'monorepo' ) {
 		if ( argv.project[ 0 ].indexOf( '/' ) < 0 ) {
@@ -170,6 +171,51 @@ export async function runTests( argv, opts ) {
 			)
 		);
 	}
+
+	if ( argv.test === 'coverage' ) {
+		try {
+			await execa(
+				'php',
+				[
+					'-r',
+					'exit( extension_loaded( "pcov" ) ? 42 : ( extension_loaded( "xdebug" ) ? 41 : 40 ) );',
+				],
+				{
+					stdio: 'ignore',
+				}
+			);
+		} catch ( e ) {
+			if ( e.exitCode === 40 ) {
+				console.error(
+					chalk.red(
+						'To generate PHP coverage, either the pcov or xdebug extensions must be installed.'
+					)
+				);
+				console.error(
+					chalk.red(
+						'You should install pcov; see the Code coverage section in docs/monorepo.md for details.'
+					)
+				);
+				const response = await enquirer.prompt( [
+					{
+						type: 'confirm',
+						name: 'ok',
+						message: 'Continue without PHP coverage?',
+						initial: true,
+					},
+				] );
+				if ( ! response.ok ) {
+					process.exit( 1 );
+				}
+			} else if ( e.exitCode === 41 ) {
+				genv.XDEBUG_MODE = 'coverage';
+			} else if ( e.exitCode !== 42 ) {
+				throw e;
+			}
+		}
+	}
+	genv.FORCE_COLOR = argv.v ? chalk.level : 0;
+	genv.GITHUB_WORKSPACE = basedir;
 
 	argv.useUncommittedComposerLock = argv.useUncommittedComposerLock !== false;
 
@@ -238,10 +284,7 @@ export async function runTests( argv, opts ) {
 				subtasks.push( {
 					title: 'Running tests',
 					task: async () => {
-						const env = {};
-
-						env.FORCE_COLOR = argv.v ? chalk.level : 0;
-						env.GITHUB_WORKSPACE = basedir;
+						const env = { ...genv };
 						env.ARTIFACTS_DIR = path.join( opts.ARTIFACTS_DIR, project );
 						await fs.mkdir( env.ARTIFACTS_DIR, { recursive: true } );
 						if ( argv.test === 'coverage' ) {
