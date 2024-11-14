@@ -984,19 +984,15 @@ class Admin {
 		if ( isset( $_POST['fields'] ) && is_array( $_POST['fields'] ) ) {
 			$fields = array_map(
 				function ( $field ) {
-					// Ensure $field is an array before processing.
 					if ( is_array( $field ) ) {
-						// Sanitize individual field properties without modifying the structure.
-						if ( isset( $field['label'] ) ) {
-							$field['label'] = sanitize_text_field( wp_unslash( $field['label'] ) );
+						$keys_to_sanitize = array( 'label', 'type', 'required' );
+
+						foreach ( $keys_to_sanitize as $key ) {
+							if ( isset( $field[ $key ] ) ) {
+								$field[ $key ] = sanitize_text_field( wp_unslash( $field[ $key ] ) );
+							}
 						}
-						if ( isset( $field['type'] ) ) {
-							$field['type'] = sanitize_text_field( wp_unslash( $field['type'] ) );
-						}
-						if ( isset( $field['required'] ) ) {
-							$field['required'] = sanitize_text_field( wp_unslash( $field['required'] ) );
-						}
-						// Ensure 'options' is sanitized if it's an array.
+
 						if ( isset( $field['options'] ) && is_array( $field['options'] ) ) {
 							$field['options'] = array_map( 'sanitize_text_field', array_map( 'wp_unslash', $field['options'] ) );
 						}
