@@ -3,4 +3,3 @@
 # @todo: Files below ignored as part of the initial RM monorepo move.
 # They can be removed here as lint errors are addressed.
 /js/
-/modules/
