@@ -251,7 +251,7 @@ jobs:
       - name: Process coverage results
         env:
           CHANGED: ${{ steps.changed.outputs.projects }}
-        if: matrix.script == 'test-coverage'
+        if: matrix.script == 'test-coverage' && always()
         run: .github/files/coverage-munger/process-coverage.sh
 
       - name: Check for artifacts

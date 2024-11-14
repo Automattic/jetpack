@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Always run both unit and integration tests for coverage, even if one fails.
+
+

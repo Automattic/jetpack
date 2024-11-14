@@ -1695,6 +1695,9 @@ importers:
       '@wordpress/browserslist-config':
         specifier: 6.11.0
         version: 6.11.0
+      concurrently:
+        specifier: 7.6.0
+        version: 7.6.0
       jest:
         specifier: 29.7.0
         version: 29.7.0
@@ -2043,6 +2046,9 @@ importers:
       '@types/qs':
         specifier: 6.9.16
         version: 6.9.16
+      concurrently:
+        specifier: 7.6.0
+        version: 7.6.0
       jest:
         specifier: 29.7.0
         version: 29.7.0(@types/node@20.17.6)
@@ -2551,6 +2557,9 @@ importers:
       '@types/react':
         specifier: 18.3.12
         version: 18.3.12
+      concurrently:
+        specifier: 7.6.0
+        version: 7.6.0
       jest:
         specifier: 29.7.0
         version: 29.7.0
@@ -2966,6 +2975,9 @@ importers:
       autoprefixer:
         specifier: 10.4.14
         version: 10.4.14(postcss@8.4.47)
+      concurrently:
+        specifier: 7.6.0
+        version: 7.6.0
       copy-webpack-plugin:
         specifier: 11.0.0
         version: 11.0.0(webpack@5.94.0(webpack-cli@4.9.1))
