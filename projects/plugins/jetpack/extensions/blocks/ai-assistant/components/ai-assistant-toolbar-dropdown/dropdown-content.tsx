@@ -185,6 +185,7 @@ type AiAssistantToolbarDropdownContentProps = {
 	disabled?: boolean;
 	onAskAiAssistant: () => void;
 	onRequestSuggestion: OnRequestSuggestion;
+	clientId: string;
 };
 
 /**
