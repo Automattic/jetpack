@@ -632,7 +632,7 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 			)
 		);
 
-		return json_decode( wp_remote_retrieve_body( $response ), true );
+		return wp_remote_retrieve_body( $response );
 	}
 
 	/**
