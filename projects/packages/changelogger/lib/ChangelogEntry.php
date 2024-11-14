@@ -268,15 +268,14 @@ class ChangelogEntry implements JsonSerializable {
 	/**
 	 * Get the changes grouped by subheading.
 	 *
-	 * @param string|null $subheading Subheading to retrieve. @deprecated since 4.2.0. Do `->getChangesBySubheading()[ $subheading ]` instead.
+	 * @param string|null $subheading Subheading to retrieve. @deprecated since 4.2.0, throws an error since $$next-version$$. Do `->getChangesBySubheading()[ $subheading ]` instead.
 	 * @return array<string,ChangeEntry[]> Change entries by subheading.
-	 *   Returns just the `ChangeEntry[]` if the deprecated `$subheading` parameter is used.
+	 * @throws \InvalidArgumentException If the deprecated `$subheading` parameter is used.
 	 */
 	public function getChangesBySubheading( $subheading = null ) {
 		if ( $subheading !== null ) {
-			// @todo Sometime for a major version bump, have this throw instead. Then remove it for a major bump after that.
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
-			trigger_error( 'Passing a value for $subheading is deprecated. Do `->getChangesBySubheading()[ $subheading ]` instead.', E_USER_DEPRECATED );
+			// @todo Remove this next major version bump.
+			throw new \InvalidArgumentException( 'Passing a value for $subheading is deprecated. Do `->getChangesBySubheading()[ $subheading ]` instead.' );
 		}
 
 		$ret = array();
