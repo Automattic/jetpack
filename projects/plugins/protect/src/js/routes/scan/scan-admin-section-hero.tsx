@@ -121,7 +121,7 @@ const ScanAdminSectionHero: React.FC = () => {
 						<>
 							<Text className={ styles[ 'subheading-text' ] }>
 								{ __(
-									'We actively review line-by-line of your sites files to identify threats and vulnerabilities.',
+									'We actively review your sites files line-by-line to identify threats and vulnerabilities.',
 									'jetpack-protect'
 								) }
 							</Text>
