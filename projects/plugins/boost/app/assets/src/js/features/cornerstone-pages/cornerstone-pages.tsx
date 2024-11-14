@@ -6,6 +6,7 @@ import styles from './cornerstone-pages.module.scss';
 import { usePremiumFeatures } from '$lib/stores/premium-features';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import { useCornerstonePages } from './lib/stores/cornerstone-pages';
+import Pill from '$features/ui/pill/pill';
 
 const CornerstoneTitleSummary = () => {
 	const [ cornerstonePages ] = useCornerstonePages();
@@ -59,6 +60,7 @@ const CornerstonePages = () => {
 							<div>
 								<h3>
 									{ __( 'Cornerstone Pages', 'jetpack-boost' ) }
+									<Pill text={ __( 'Experimental', 'jetpack-boost' ) } />
 									{ isPremium && <Upgraded /> }
 								</h3>
 							</div>
