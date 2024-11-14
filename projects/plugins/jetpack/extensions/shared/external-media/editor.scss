@@ -372,6 +372,22 @@ $grid-size: 8px;
 	}
 }
 
+.jetpack-external-media-header__change-selection {
+	display: flex;
+	flex-grow: 1;
+	flex-wrap: wrap;
+	justify-content: flex-start;
+
+	.components-button {
+		height: 40px;
+		margin: 1px 1px 9px 0;
+
+		@media only screen and ( min-width: 783px ) {
+			height: 30px;
+		}
+	}
+}
+
 .jetpack-external-media-header__filter,
 .jetpack-external-media-header__view {
 	label {

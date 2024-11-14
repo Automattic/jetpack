@@ -1,4 +1,4 @@
-import { SelectControl } from '@wordpress/components';
+import { Button, SelectControl } from '@wordpress/components';
 import { useRef, useState, useCallback, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import {
@@ -35,6 +35,7 @@ function GooglePhotosMedia( props ) {
 		showAdditionalFilters = false,
 		pickerSession,
 		pickerFeatureEnabled,
+		deletePickerSession,
 	} = props;
 
 	const imageOnly = isImageOnly( allowedTypes );
@@ -84,6 +85,10 @@ function GooglePhotosMedia( props ) {
 		[ copyMedia ]
 	);
 
+	const onChangeSelection = useCallback( () => {
+		pickerSession && deletePickerSession( pickerSession?.id );
+	}, [ pickerSession, deletePickerSession ] );
+
 	// Load media when the query changes.
 	useEffect( () => {
 		if ( lastQuery !== listUrl ) {
@@ -132,6 +137,14 @@ function GooglePhotosMedia( props ) {
 							) }
 						</div>
 					</>
+				) }
+
+				{ pickerFeatureEnabled && (
+					<div className="jetpack-external-media-header__change-selection">
+						<Button className="" variant="primary" onClick={ onChangeSelection }>
+							{ __( 'Change selection', 'jetpack' ) }
+						</Button>
+					</div>
 				) }
 
 				{ ( ! isLoading || media.length > 0 ) && (
