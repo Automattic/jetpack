@@ -149,9 +149,8 @@ class WP_Test_Jetpack_Google_Analytics extends TestCase {
 		set_current_screen( 'front' );
 
 		// Mock `Jetpack_Google_Analytics_Legacy` instance to disable the constructor class.
-		// @phan-suppress-next-line PhanDeprecatedFunction -- Conflict between PHPUnit versions, will replace with `anyMethods()` later on.
 		$instance = $this->getMockBuilder( Legacy::class )
-			->setMethods( null )
+			->onlyMethods( array() )
 			->disableOriginalConstructor()
 			->getMock();
 

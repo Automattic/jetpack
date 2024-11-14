@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.15] - 2024-11-11
+### Changed
+- Updated package dependencies. [#39999] [#40000] [#40060]
+
 ## [0.1.14] - 2024-11-04
 ### Added
 - Enable test coverage. [#39961]
@@ -72,6 +76,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ExPlat: add condition to prevent fetching the experiment assignment if there's not anon id (meaning that Tracks is likely disabled) [#38327]
 - Updated package dependencies. [#38132]
 
+[0.1.15]: https://github.com/Automattic/jetpack-explat/compare/v0.1.14...v0.1.15
 [0.1.14]: https://github.com/Automattic/jetpack-explat/compare/v0.1.13...v0.1.14
 [0.1.13]: https://github.com/Automattic/jetpack-explat/compare/v0.1.12...v0.1.13
 [0.1.12]: https://github.com/Automattic/jetpack-explat/compare/v0.1.11...v0.1.12

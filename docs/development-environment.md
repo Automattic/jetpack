@@ -384,9 +384,9 @@ We strongly recommend that you install tools to review your code in your IDE. It
 	composer phpcs:lint
 	```
 
-* ### Checking Jetpack's PHP for compatibility with different versions of PHP since 7.0
+* ### Checking Jetpack's PHP for compatibility with different versions of PHP
 
-	We have a handy `composer` script that will just run the PHP CodeSniffer `PHPCompatibilityWP` ruleset checking for code not compatible with PHP 7.0
+	We have a handy `composer` script that will just run the PHP CodeSniffer `PHPCompatibilityWP` ruleset checking for code not compatible with supported PHP versions:
 
 	```sh
 	composer phpcs:compatibility

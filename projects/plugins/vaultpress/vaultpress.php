@@ -16,7 +16,7 @@
 // don't call the file directly.
 defined( 'ABSPATH' ) || die();
 
-define( 'VAULTPRESS__MINIMUM_PHP_VERSION', '7.0' );
+define( 'VAULTPRESS__MINIMUM_PHP_VERSION', '7.2' );
 define( 'VAULTPRESS__VERSION', '3.0.0' );
 define( 'VAULTPRESS__PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 

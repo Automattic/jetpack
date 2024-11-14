@@ -1,7 +1,5 @@
 import { Dialog, ProductOffer, TermsOfService } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
-import { SOCIAL_STORE_ID } from '@automattic/jetpack-publicize-components';
-import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
 import background from './background.svg';
@@ -9,20 +7,10 @@ import illustration from './illustration.png';
 import styles from './styles.module.scss';
 
 const ConnectionScreen = () => {
-	const connectProps = useSelect( select => {
-		const store = select( SOCIAL_STORE_ID );
-		return {
-			apiRoot: store.getAPIRootUrl(),
-			apiNonce: store.getAPINonce(),
-			registrationNonce: store.getRegistrationNonce(),
-		};
-	} );
-
 	const { userIsConnecting, siteIsRegistering, handleRegisterSite, registrationError } =
 		useConnection( {
 			from: 'jetpack-social',
 			redirectUri: 'admin.php?page=jetpack-social',
-			...connectProps,
 		} );
 
 	const buttonText = __( 'Get Started', 'jetpack-social' );

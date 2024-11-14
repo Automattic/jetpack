@@ -268,11 +268,5 @@ function make_phan_config( $dir, $options = array() ) {
 		$config['minimum_target_php_version'] = $m[1];
 	}
 
-	// Disable PhanDeprecatedImplicitNullableParam if still supporting PHP 7.0
-	// @todo Remove this once we drop PHP 7.0 support everywhere.
-	if ( isset( $config['minimum_target_php_version'] ) && version_compare( $config['minimum_target_php_version'], '7.1.0', '<' ) ) {
-		$config['suppress_issue_types'][] = 'PhanDeprecatedImplicitNullableParam';
-	}
-
 	return $config;
 }
