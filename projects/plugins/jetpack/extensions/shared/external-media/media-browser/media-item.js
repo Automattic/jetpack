@@ -1,5 +1,6 @@
+import apiFetch from '@wordpress/api-fetch';
 import { Spinner } from '@wordpress/components';
-import { useRef, useEffect } from '@wordpress/element';
+import { useRef, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 
@@ -21,10 +22,37 @@ function MediaItem( props ) {
 		}
 	};
 
-	const { item, focus, isSelected, isCopying = false } = props;
+	const getProxyImageUrl = async url => {
+		const response = await apiFetch( {
+			path: `/wpcom/v2/external-media/proxy/google_photos`,
+			method: 'POST',
+			data: { url },
+			parse: false, // Disable automatic parsing
+		} );
+
+		const blob = await response.blob();
+		const imageObjectUrl = URL.createObjectURL( blob );
+
+		setImageUrl( imageObjectUrl );
+	};
+
+	const { item, focus, isSelected, isCopying = false, shouldProxyImg } = props;
 	const { thumbnails, caption, name, title, type, children = 0 } = item;
 	const { medium = null, fmt_hd = null, thumbnail = null } = thumbnails;
 	const alt = title || caption || name;
+
+	const [ imageUrl, setImageUrl ] = useState( null );
+
+	useEffect( () => {
+		const _imageUrl = medium || fmt_hd || thumbnail;
+
+		if ( shouldProxyImg && _imageUrl ) {
+			! imageUrl && getProxyImageUrl( _imageUrl );
+		} else {
+			setImageUrl( _imageUrl );
+		}
+	}, [ shouldProxyImg, imageUrl, medium, fmt_hd, thumbnail ] );
+
 	const classes = clsx( {
 		'jetpack-external-media-browser__media__item': true,
 		'jetpack-external-media-browser__media__item__selected': isSelected,
@@ -60,9 +88,7 @@ function MediaItem( props ) {
 					</div>
 				</div>
 			) }
-
-			<img src={ medium || fmt_hd || thumbnail } alt={ alt } />
-
+			{ imageUrl && <img src={ imageUrl } alt={ alt } /> }
 			{ type === 'folder' && (
 				<div className="jetpack-external-media-browser__media__info">
 					<div className="jetpack-external-media-browser__media__name">{ name }</div>

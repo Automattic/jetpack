@@ -150,6 +150,7 @@ function GooglePhotosMedia( props ) {
 				pageHandle={ pageHandle }
 				multiple={ multiple }
 				setPath={ setPath }
+				shouldProxyImg={ pickerFeatureEnabled }
 			/>
 		</div>
 	);

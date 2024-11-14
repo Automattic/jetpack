@@ -27,6 +27,7 @@ function MediaBrowser( props ) {
 		nextPage,
 		onCopy,
 		selectButtonText,
+		shouldProxyImg,
 	} = props;
 	const [ selected, setSelected ] = useState( [] );
 	const [ focused, setFocused ] = useState( -1 );
@@ -197,6 +198,7 @@ function MediaBrowser( props ) {
 						focus={ index === focused }
 						isSelected={ selected.find( toFind => toFind.ID === item.ID ) }
 						isCopying={ isCopying }
+						shouldProxyImg={ shouldProxyImg }
 					/>
 				) ) }
 
