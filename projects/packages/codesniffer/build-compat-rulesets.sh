@@ -2,6 +2,8 @@
 
 set -eo pipefail
 
+LC_ALL=C.UTF-8
+
 BASE=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 
 TMPDIR="${TMPDIR:-/tmp}"
