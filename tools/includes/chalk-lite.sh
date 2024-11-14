@@ -4,7 +4,8 @@
 function color_supported {
 	[[ -n "$NO_COLOR" ]] && return 1
 	[[ -n "$FORCE_COLOR" ]] && return 0
-	[[ -t 1 ]]
+	[[ "$GITHUB_ACTIONS" == true ]] && return 0
+	[[ -n "$TERM" && -t 1 && $(tput colors 2>/dev/null) -ge 8 ]]
 }
 
 # Print possibly-colored text to standard output.
@@ -49,13 +50,20 @@ function chalk {
 #   Something went wrong!
 #   EOM
 
+TPUT_DIM="$(tput dim 2>/dev/null)" || true
+if [[ "$TPUT_DIM" == $'\e['*m ]]; then
+	TPUT_DIM="${TPUT_DIM#$'\e['}"
+	TPUT_DIM="${TPUT_DIM%m}"
+else
+	TPUT_DIM=90
+fi
 
 function debug {
-	chalk '1;30' "$@"
+	chalk "$TPUT_DIM" "$@"
 }
 
 function success {
-	if [[ $(tput colors 2>/dev/null) -gt 8 ]]; then
+	if [[ "$GITHUB_ACTIONS" == true || $(tput colors 2>/dev/null) -gt 8 ]]; then
 		chalk '1;38;5;41' "$@"
 	else
 		chalk '1;32' "$@"
@@ -92,7 +100,7 @@ function green {
 }
 
 function jetpackGreen {
-	if [[ $(tput colors 2>/dev/null) -gt 8 ]]; then
+	if [[ "$GITHUB_ACTIONS" == true || $(tput colors 2>/dev/null) -gt 8 ]]; then
 		chalk '38;5;41' "$@"
 	else
 		chalk '32' "$@"

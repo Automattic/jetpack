@@ -1,54 +1,77 @@
-import { Button, Text, useBreakpointMatch } from '@automattic/jetpack-components';
-import { ConnectionManagement, SOCIAL_STORE_ID } from '@automattic/jetpack-publicize-components';
+import {
+	Button,
+	ContextualUpgradeTrigger,
+	Text,
+	getRedirectUrl,
+	useBreakpointMatch,
+} from '@automattic/jetpack-components';
+import {
+	ConnectionManagement,
+	store as socialStore,
+	getSocialScriptData,
+	hasSocialPaidFeatures,
+} from '@automattic/jetpack-publicize-components';
+import { getScriptData } from '@automattic/jetpack-script-data';
 import { ExternalLink } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
+import clsx from 'clsx';
 import React, { useCallback } from 'react';
 import ToggleSection from '../toggle-section';
-import { SocialStoreSelectors } from '../types/types';
 import styles from './styles.module.scss';
 
 const SocialModuleToggle: React.FC = () => {
-	const { connectionsAdminUrl, isModuleEnabled, isUpdating, useAdminUiV1 } = useSelect( select => {
-		const store = select( SOCIAL_STORE_ID ) as SocialStoreSelectors;
+	const { isModuleEnabled, isUpdating } = useSelect( select => {
+		const store = select( socialStore );
+
+		const settings = store.getSocialPluginSettings();
+
 		return {
-			isModuleEnabled: store.isModuleEnabled(),
-			isUpdating: store.isUpdatingJetpackSettings(),
-			connectionsAdminUrl: store.getConnectionsAdminUrl(),
-			useAdminUiV1: store.useAdminUiV1(),
+			isModuleEnabled: settings.publicize_active,
+			isUpdating: store.isSavingSocialPluginSettings(),
 		};
 	}, [] );
 
-	const updateOptions = useDispatch( SOCIAL_STORE_ID ).updateJetpackSettings;
+	const blogID = getScriptData().site.wpcom.blog_id;
+	const siteSuffix = getScriptData().site.suffix;
+
+	const { urls, feature_flags } = getSocialScriptData();
+
+	const useAdminUiV1 = feature_flags.useAdminUiV1;
+
+	const { updateSocialPluginSettings } = useDispatch( socialStore );
 
 	const toggleModule = useCallback( async () => {
 		const newOption = {
 			publicize_active: ! isModuleEnabled,
 		};
-		await updateOptions( newOption );
+		await updateSocialPluginSettings( newOption );
 
 		// If the module was enabled, we need to refresh the connection list
-		if ( newOption.publicize_active && ! window.jetpackSocialInitialState.is_publicize_enabled ) {
+		if ( newOption.publicize_active && ! getSocialScriptData().is_publicize_enabled ) {
 			window.location.reload();
 		}
-	}, [ isModuleEnabled, updateOptions ] );
+	}, [ isModuleEnabled, updateSocialPluginSettings ] );
 
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
 
 	const renderConnectionManagement = () => {
 		if ( useAdminUiV1 ) {
-			return ! isUpdating && isModuleEnabled ? (
-				<ConnectionManagement className={ styles[ 'connection-management' ] } />
+			return isModuleEnabled ? (
+				<ConnectionManagement
+					className={ styles[ 'connection-management' ] }
+					disabled={ isUpdating }
+				/>
 			) : null;
 		}
 
-		return connectionsAdminUrl ? (
+		return urls.connectionsManagementPage ? (
 			<Button
 				fullWidth={ isSmall }
 				className={ styles.button }
 				variant="secondary"
 				isExternalLink={ true }
-				href={ connectionsAdminUrl }
+				href={ urls.connectionsManagementPage }
 				disabled={ isUpdating || ! isModuleEnabled }
 				target="_blank"
 			>
@@ -74,6 +97,21 @@ const SocialModuleToggle: React.FC = () => {
 					{ __( 'Learn more', 'jetpack-social' ) }
 				</ExternalLink>
 			</Text>
+			{ ! hasSocialPaidFeatures() ? (
+				<ContextualUpgradeTrigger
+					className={ clsx( styles.cut, { [ styles.small ]: isSmall } ) }
+					description={ __( 'Unlock advanced sharing options', 'jetpack-social' ) }
+					cta={ __( 'Power up Jetpack Social', 'jetpack-social' ) }
+					href={ getRedirectUrl( 'jetpack-social-admin-page-upsell', {
+						site: `${ blogID ?? siteSuffix }`,
+						query: 'redirect_to=admin.php?page=jetpack-social',
+					} ) }
+					tooltipText={ __(
+						'Share custom images and videos that capture attention, use our powerful Social Image Generator to create stunning visuals, and access priority support for expert help whenever you need it.',
+						'jetpack-social'
+					) }
+				/>
+			) : null }
 			{ renderConnectionManagement() }
 		</ToggleSection>
 	);

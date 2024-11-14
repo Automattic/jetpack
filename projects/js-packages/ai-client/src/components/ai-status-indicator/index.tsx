@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { Spinner } from '@wordpress/components';
-import classNames from 'classnames';
+import clsx from 'clsx';
 /*
  * Types
  */
@@ -21,12 +21,12 @@ export type AiStatusIndicatorProps = {
  * AiStatusIndicator component.
  *
  * @param {AiStatusIndicatorProps} props - component props.
- * @returns {React.ReactElement} - rendered component.
+ * @return {React.ReactElement} - rendered component.
  */
 export default function AiStatusIndicator( { state }: AiStatusIndicatorProps ): React.ReactElement {
 	return (
 		<div
-			className={ classNames( 'jetpack-ai-status-indicator__icon-wrapper', {
+			className={ clsx( 'jetpack-ai-status-indicator__icon-wrapper', {
 				[ `is-${ state }` ]: true,
 			} ) }
 		>

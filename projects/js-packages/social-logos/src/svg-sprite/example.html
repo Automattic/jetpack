@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Social Logos</title>
+<meta name="robots" content="noindex">
+<meta charset="UTF-8">
+<link rel="stylesheet" type="text/css" href="../css/example.css" />
+</head>
+<body>
+	<div class="social-logos-example">
+		<h1>Social Logos</h1>
+
+		<div class="display-control-group">
+			<div class="display-control">
+				<h4>Small icons</h4>
+				<label class="switch">
+					<input id="size_toggle" type="checkbox" />
+					<span class="handle"></span>
+				</label>
+			</div>
+			<div class="display-control">
+				<h4>Icon names</h4>
+				<label class="switch">
+					<input id="name_toggle" type="checkbox" checked />
+					<span class="handle"></span>
+					<span class="switch-label" data-on="On" data-off="Off"></span>
+				</label>
+			</div>
+		</div>
+
+		<div class="icons">
+		</div>
+
+		<p><a href="https://github.com/Automattic/social-logos">GitHub</a></p>
+	</div>
+	{{SVG_HERE}}
+
+	<script>
+
+		const handleClick = ( e ) => {
+			const code = e.target.outerHTML;
+			window.prompt( 'Copy HTML code:', code );
+		};
+
+		const toggleSize = ( e ) => {
+			const useSmallIcons = e.target.checked;
+			icons.forEach( icon => {
+				icon.setAttribute('width', useSmallIcons ? 24 : 48);
+				icon.setAttribute('height', useSmallIcons ? 24 : 48);
+			});
+		}
+
+		const toggleNames = ( e ) => {
+			const showNames = e.target.checked;
+			icons.forEach( icon => {
+				icon.nextElementSibling.style.display = showNames ? '' : 'none';
+			})
+		}
+		const iconsDiv = document.querySelector('.icons');
+		const svgSymbols = document.querySelectorAll('svg > symbol');
+		iconsHTML = '';
+		svgSymbols.forEach( symbol => {
+			iconsHTML += `
+				<div>
+					<svg width="48" height="48" class="social-logo ${symbol.id}"><use xlink:href="#${symbol.id}" /></svg>
+					<p>${symbol.id}</p>
+				</div>`
+		});
+		iconsDiv.innerHTML = iconsHTML;
+
+
+		var icons = document.querySelectorAll( '.icons svg.social-logo' );
+		icons.forEach( icon => icon.addEventListener( 'click', handleClick ) );
+		document.getElementById('size_toggle').addEventListener( 'click', toggleSize );
+		document.getElementById('name_toggle').addEventListener( 'click', toggleNames );
+	</script>
+</body>
+</html>

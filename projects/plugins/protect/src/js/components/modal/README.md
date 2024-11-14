@@ -1,6 +1,6 @@
 # Modal
 
-The `<Modal>` is a connected component that renders a pop-up modal based on `modal` redux state.
+The `<Modal>` is a connected component that renders a pop-up modal based on `modal` context state.
 
 ## Usage
 
@@ -18,14 +18,11 @@ const MyComponent = () => (
 
 ## Opening a modal
 
-Trigger modals by dispatching a `setModal()` action with the modal type to open:
+Trigger modals by using the `setModal()` function:
 
 ```jsx
-import { useDispatch } from '@wordpress/data';
-import { STORE_ID } from './state/store';
-
 const MyComponent = () => {
-    const { setModal } = useDispatch( STORE_ID );
+    const { setModal } = useModal();
 
     const handleShowModalClick = () => {
 		return event => {

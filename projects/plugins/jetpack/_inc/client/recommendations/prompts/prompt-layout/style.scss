@@ -67,6 +67,10 @@
 	a {
 		white-space: nowrap;
 	}
+
+	.components-external-link__contents {
+		text-decoration: none;
+	}
 }
 
 .jp-recommendations-question__description-list {
@@ -190,6 +194,10 @@
 			@include breakpoint( '<480px' ) {
 				width: 100%;
 			}
+		}
+
+		.components-external-link__contents {
+			text-decoration: none;
 		}
 	}
 

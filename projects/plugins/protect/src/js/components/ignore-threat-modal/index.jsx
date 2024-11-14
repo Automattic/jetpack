@@ -1,17 +1,18 @@
-import { Button, getRedirectUrl, Text } from '@automattic/jetpack-components';
-import { useDispatch, useSelect } from '@wordpress/data';
-import { createInterpolateElement } from '@wordpress/element';
+import { Button, getRedirectUrl, Text, ThreatSeverityBadge } from '@automattic/jetpack-components';
+import { createInterpolateElement, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
-import { STORE_ID } from '../../state/store';
-import ThreatSeverityBadge from '../severity';
+import useIgnoreThreatMutation from '../../data/scan/use-ignore-threat-mutation';
+import useModal from '../../hooks/use-modal';
 import UserConnectionGate from '../user-connection-gate';
 import styles from './styles.module.scss';
 
 const IgnoreThreatModal = ( { id, title, label, icon, severity } ) => {
-	const { setModal, ignoreThreat } = useDispatch( STORE_ID );
-	const threatsUpdating = useSelect( select => select( STORE_ID ).getThreatsUpdating() );
+	const { setModal } = useModal();
+	const ignoreThreatMutation = useIgnoreThreatMutation();
 	const codeableURL = getRedirectUrl( 'jetpack-protect-codeable-referral' );
+
+	const [ isIgnoring, setIsIgnoring ] = useState( false );
 
 	const handleCancelClick = () => {
 		return event => {
@@ -23,9 +24,10 @@ const IgnoreThreatModal = ( { id, title, label, icon, severity } ) => {
 	const handleIgnoreClick = () => {
 		return async event => {
 			event.preventDefault();
-			ignoreThreat( id, () => {
-				setModal( { type: null } );
-			} );
+			setIsIgnoring( true );
+			await ignoreThreatMutation.mutateAsync( id );
+			setModal( { type: null } );
+			setIsIgnoring( false );
 		};
 	};
 
@@ -52,7 +54,7 @@ const IgnoreThreatModal = ( { id, title, label, icon, severity } ) => {
 			<Text mb={ 4 }>
 				{ createInterpolateElement(
 					__(
-						'By ignoring this threat you confirm that you have reviewed the detected code and assume the risks of keeping a potentially malicious or vulnerable file on your site. If you are unsure please request an estimate with <codeableLink>Codeable</codeableLink>.',
+						'By choosing to ignore this threat, you acknowledge that you have reviewed the detected code. You are accepting the risks of maintaining a potentially malicious or vulnerable file on your site. If you are unsure, please request an estimate with <codeableLink>Codeable</codeableLink>.',
 						'jetpack-protect'
 					),
 					{
@@ -64,11 +66,7 @@ const IgnoreThreatModal = ( { id, title, label, icon, severity } ) => {
 				<Button variant="secondary" onClick={ handleCancelClick() }>
 					{ __( 'Cancel', 'jetpack-protect' ) }
 				</Button>
-				<Button
-					isDestructive={ true }
-					isLoading={ Boolean( threatsUpdating && threatsUpdating[ id ] ) }
-					onClick={ handleIgnoreClick() }
-				>
+				<Button isDestructive={ true } isLoading={ isIgnoring } onClick={ handleIgnoreClick() }>
 					{ __( 'Ignore threat', 'jetpack-protect' ) }
 				</Button>
 			</div>

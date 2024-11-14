@@ -1,14 +1,14 @@
 import { useConnection } from '@automattic/jetpack-connection';
 import {
-	getJetpackExtensionAvailability,
-	isUpgradable,
 	getJetpackData,
-	getSiteFragment,
+	getJetpackExtensionAvailability,
+	isAtomicSite,
 	isSimpleSite,
+	isUpgradable,
 } from '@automattic/jetpack-shared-extension-utils';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { store as socialStore } from '../../social-store';
+import { getSocialScriptData } from '../../utils';
 import { usePostMeta } from '../use-post-meta';
 
 const republicizeFeatureName = 'republicize';
@@ -17,22 +17,16 @@ const republicizeFeatureName = 'republicize';
  * Hook that provides various elements of Publicize configuration,
  * whether it's enabled, and whether resharing is available.
  *
- * @returns { object } The various flags and togglePublicizeFeature,
+ * @return { object } The various flags and togglePublicizeFeature,
  * for toggling support for the current post.
  */
 export default function usePublicizeConfig() {
-	const sharesData = getJetpackData()?.social?.sharesData ?? {};
-	const blogID = getJetpackData()?.wpcomBlogId;
-	const isShareLimitEnabled = sharesData.is_share_limit_enabled;
+	const isJetpackSite = ! isAtomicSite() && ! isSimpleSite();
 	const isRePublicizeFeatureAvailable =
-		getJetpackExtensionAvailability( republicizeFeatureName )?.available || isShareLimitEnabled;
+		isJetpackSite || getJetpackExtensionAvailability( republicizeFeatureName )?.available;
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
-	const currentPostType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
 	const { isUserConnected } = useConnection();
-
-	const connectionsRootUrl =
-		getJetpackData()?.social?.publicizeConnectionsUrl ??
-		'https://wordpress.com/marketing/connections/';
+	const { urls } = getSocialScriptData();
 
 	/*
 	 * isPublicizeEnabledMeta:
@@ -85,33 +79,7 @@ export default function usePublicizeConfig() {
 	 */
 	const hidePublicizeFeature = isPostPublished && ! isRePublicizeFeatureAvailable;
 
-	/**
-	 * hasPaidPlan:
-	 * Whether the site has a paid plan. This could be either the Basic or the Advanced plan.
-	 */
-	const hasPaidPlan = !! getJetpackData()?.social?.hasPaidPlan;
-
-	/**
-	 * isEnhancedPublishingEnabled:
-	 * Whether the site has the enhanced publishing feature enabled. If true, it means that
-	 * the site has the Advanced plan.
-	 */
-	const isEnhancedPublishingEnabled = !! getJetpackData()?.social?.isEnhancedPublishingEnabled;
-
-	/**
-	 * isAutoConversionEnabled:
-	 * Whether the site has the auto conversion feature enabled.
-	 */
-	const isAutoConversionEnabled = !! getJetpackData()?.social?.isAutoConversionEnabled;
-
-	/**\
-	 * Returns true if the post type is a Jetpack Social Note.
-	 */
-	const isJetpackSocialNote = 'jetpack-social-note' === currentPostType;
-
 	const needsUserConnection = ! isUserConnected && ! isSimpleSite();
-
-	const userConnectionUrl = useSelect( select => select( socialStore ).userConnectionUrl(), [] );
 
 	return {
 		isPublicizeEnabledMeta,
@@ -121,21 +89,9 @@ export default function usePublicizeConfig() {
 		isRePublicizeFeatureAvailable,
 		isRePublicizeUpgradableViaUpsell,
 		hidePublicizeFeature,
-		isShareLimitEnabled,
 		isPostAlreadyShared,
-		numberOfSharesRemaining: sharesData.shares_remaining,
-		shouldShowAdvancedPlanNudge: sharesData.show_advanced_plan_upgrade_nudge,
-		hasPaidPlan,
-		isEnhancedPublishingEnabled,
-		isSocialImageGeneratorAvailable:
-			!! getJetpackData()?.social?.isSocialImageGeneratorAvailable && ! isJetpackSocialNote,
 		isSocialImageGeneratorEnabled: !! getJetpackData()?.social?.isSocialImageGeneratorEnabled,
-		connectionsAdminUrl: connectionsRootUrl + ( blogID ?? getSiteFragment() ),
-		adminUrl: getJetpackData()?.social?.adminUrl,
-		isAutoConversionEnabled,
-		jetpackSharingSettingsUrl: getJetpackData()?.social?.jetpackSharingSettingsUrl,
-		isJetpackSocialNote,
+		connectionsPageUrl: urls.connectionsManagementPage,
 		needsUserConnection,
-		userConnectionUrl,
 	};
 }

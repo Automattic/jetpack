@@ -12,7 +12,6 @@ return [
     // PhanParamTooMany : 7 occurrences
     // PhanTypeVoidAssignment : 4 occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 2 occurrences
-    // PhanDeprecatedFunction : 1 occurrence
     // PhanTypeMismatchReturn : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
@@ -21,7 +20,6 @@ return [
         'src/class-wpcom-stats.php' => ['PhanTypeMismatchReturn'],
         'tests/php/test-main.php' => ['PhanParamTooMany', 'PhanTypeVoidAssignment'],
         'tests/php/test-options.php' => ['PhanTypeVoidAssignment'],
-        'tests/php/test-wpcom-stats.php' => ['PhanDeprecatedFunction'],
         'tests/php/test-xmlrpc-provider.php' => ['PhanParamTooMany', 'PhanTypeVoidAssignment'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.

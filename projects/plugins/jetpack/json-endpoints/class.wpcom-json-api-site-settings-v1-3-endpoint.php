@@ -1,5 +1,6 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+
 new WPCOM_JSON_API_Site_Settings_V1_3_Endpoint(
 	array(
 		'description'      => 'Get detailed settings information about a site.',
@@ -134,58 +135,5 @@ class WPCOM_JSON_API_Site_Settings_V1_3_Endpoint extends WPCOM_JSON_API_Site_Set
 			'ec_track_purchases'   => false,
 			'ec_track_add_to_cart' => false,
 		);
-	}
-
-	/**
-	 * API Callback
-	 *
-	 * @param string $path - the path.
-	 * @param int    $blog_id - the blog ID.
-	 *
-	 * @return array|WP_Error
-	 */
-	public function callback( $path = '', $blog_id = 0 ) {
-		add_filter( 'site_settings_endpoint_get', array( $this, 'filter_site_settings_endpoint_get' ) );
-		add_filter( 'site_settings_update_wga', array( $this, 'filter_update_google_analytics' ), 10, 2 );
-		return parent::callback( $path, $blog_id );
-	}
-
-	/**
-	 * Filter the parent's response to include the fields
-	 * added to 1.3 (and their defaults)
-	 *
-	 * @param array $settings - the settings array.
-	 *
-	 * @return array
-	 */
-	public function filter_site_settings_endpoint_get( $settings ) {
-		$option_name     = $this->get_google_analytics_option_name();
-		$option          = get_option( $option_name, array() );
-		$settings['wga'] = wp_parse_args( $option, $this->get_defaults() );
-		return $settings;
-	}
-
-	/**
-	 * Filter the parent's response to consume our new fields
-	 *
-	 * @param array $wga - Array of existing Google Analytics settings.
-	 * @param array $new_values - the new values we're adding.
-	 *
-	 * @return array
-	 */
-	public function filter_update_google_analytics( $wga, $new_values ) {
-		$wga_keys = array_keys( $this->get_defaults() );
-		foreach ( $wga_keys as $wga_key ) {
-			// Skip code since the parent class has handled it
-			if ( 'code' === $wga_key ) {
-				continue;
-			}
-			// All our new keys are booleans, so let's coerce each key's value
-			// before updating the value in settings
-			if ( array_key_exists( $wga_key, $new_values ) ) {
-				$wga[ $wga_key ] = WPCOM_JSON_API::is_truthy( $new_values[ $wga_key ] );
-			}
-		}
-		return $wga;
 	}
 }

@@ -1,6 +1,6 @@
-import config from 'config';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
+import config from 'config';
 
 const reporter = [
 	[ 'list' ],

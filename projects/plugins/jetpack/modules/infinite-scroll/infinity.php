@@ -753,11 +753,12 @@ class The_Neverending_Home_Page {
 
 			$sort_field = self::get_query_sort_field( $query );
 
-			if ( 'post_date' !== $sort_field || 'DESC' !== $_REQUEST['query_args']['order'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotValidated -- no changes made to the site.
+			if ( 'post_date' !== $sort_field ||
+			! isset( $_REQUEST['query_args']['order'] ) || 'DESC' !== $_REQUEST['query_args']['order'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- no changes made to the site.
 				return $where;
 			}
 
-			$query_before = sanitize_text_field( wp_unslash( $_REQUEST['query_before'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotValidated -- no changes made to the site.
+			$query_before = isset( $_REQUEST['query_before'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['query_before'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- no changes made to the site.
 
 			if ( empty( $query_before ) ) {
 				return $where;
@@ -771,6 +772,8 @@ class The_Neverending_Home_Page {
 			 * will always return results prior to (descending sort)
 			 * or before (ascending sort) the last post date.
 			 *
+			 * @deprecated 14.0
+			 *
 			 * @module infinite-scroll
 			 *
 			 * @param string $clause SQL Date query.
@@ -778,9 +781,9 @@ class The_Neverending_Home_Page {
 			 * @param string $operator @deprecated Query operator.
 			 * @param string $last_post_date @deprecated Last Post Date timestamp.
 			 */
-			$operator       = 'ASC' === $_REQUEST['query_args']['order'] ? '>' : '<'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotValidated -- no changes to the site.
-			$last_post_date = sanitize_text_field( wp_unslash( $_REQUEST['last_post_date'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotValidated -- no changes to the site.
-			$where         .= apply_filters( 'infinite_scroll_posts_where', $clause, $query, $operator, $last_post_date );
+			$operator       = '<';
+			$last_post_date = isset( $_REQUEST['last_post_date'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['last_post_date'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- no changes to the site
+			$where         .= apply_filters_deprecated( 'infinite_scroll_posts_where', array( $clause, $query, $operator, $last_post_date ), '14.0', '' );
 		}
 
 		return $where;
@@ -1475,6 +1478,7 @@ class The_Neverending_Home_Page {
 					if ( false !== $callback && is_callable( $callback ) ) {
 						rewind_posts();
 						ob_start();
+
 						add_action( 'infinite_scroll_render', $callback );
 
 						/**
@@ -1483,6 +1487,9 @@ class The_Neverending_Home_Page {
 						 * for more details as to why it was introduced.
 						 */
 						do_action( 'infinite_scroll_render' );
+
+						// Fire wp_head to ensure that all necessary scripts are enqueued. Output isn't used, but scripts are extracted in self::action_wp_footer.
+						wp_head();
 
 						$results['html'] = ob_get_clean();
 						remove_action( 'infinite_scroll_render', $callback );
@@ -1539,6 +1546,11 @@ class The_Neverending_Home_Page {
 					the_post();
 
 					sharing_register_post_for_share_counts( get_the_ID() );
+				}
+
+				// If sharing counts are not initialized for any reason, we initialize them here.
+				if ( ! is_array( $jetpack_sharing_counts ) ) {
+					$jetpack_sharing_counts = array();
 				}
 
 				$results['postflair'] = array_flip( $jetpack_sharing_counts );

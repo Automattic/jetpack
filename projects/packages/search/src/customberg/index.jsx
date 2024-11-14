@@ -1,4 +1,4 @@
-import { render } from '@wordpress/element';
+import { createRoot } from '@wordpress/element';
 import Layout from 'components/layout';
 import 'styles.scss';
 
@@ -16,7 +16,8 @@ function collapseWpAdminSidebar() {
  */
 function initialize( id ) {
 	collapseWpAdminSidebar();
-	render( <Layout />, document.getElementById( id ) );
+	const root = createRoot( document.getElementById( id ) );
+	root.render( <Layout /> );
 }
 
 global.jetpackSearchConfigureInit = initialize;

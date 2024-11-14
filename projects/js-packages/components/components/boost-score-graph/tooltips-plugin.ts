@@ -7,7 +7,7 @@ import { Period } from '.';
  * Custom tooltips plugin for uPlot.
  *
  * @param {Period[]} periods - The periods to display in the tooltip.
- * @returns {object} The uPlot plugin object with hooks.
+ * @return {object} The uPlot plugin object with hooks.
  */
 export function tooltipsPlugin( periods ) {
 	const reactRoot = document.createElement( 'div' );
@@ -17,42 +17,34 @@ export function tooltipsPlugin( periods ) {
 	/**
 	 * Initializes the tooltips plugin.
 	 *
-	 * @param {uPlot} u - The uPlot instance.
+	 * @param {uPlot}  u     - The uPlot instance.
 	 * @param {object} _opts - Options for the uPlot instance.
 	 */
 	function init( u: uPlot, _opts: object ) {
 		container.classList.add( 'jb-score-tooltips-container' );
-
-		reactDom = ReactDOM.createRoot( reactRoot );
-		reactRoot.style.position = 'absolute';
-		reactRoot.style.bottom = -20 + 'px';
-		reactRoot.style.translate = '-50% calc( 100% - 20px )';
-		reactRoot.style.zIndex = '1000';
+		if ( ! reactDom ) {
+			reactDom = ReactDOM.createRoot( reactRoot );
+		}
+		reactRoot.classList.add( 'jb-score-tooltip-react-root' );
 
 		container.appendChild( reactRoot );
 
 		u.over.appendChild( container );
 
-		/**
-		 * Hides all tooltips.
-		 */
-		function hideTips() {
-			reactRoot.style.display = 'none';
-		}
-
-		/**
-		 * Shows all tooltips.
-		 */
-		function showTips() {
-			reactRoot.style.display = null;
-		}
-
-		container.addEventListener( 'mouseleave', () => {
-			hideTips();
+		u.over.addEventListener( 'mouseenter', () => {
+			container.classList.add( 'visible' );
 		} );
 
-		container.addEventListener( 'mouseenter', () => {
-			showTips();
+		u.over.addEventListener( 'mouseleave', () => {
+			container.classList.remove( 'visible' );
+		} );
+
+		reactRoot.addEventListener( 'mouseenter', () => {
+			reactRoot.classList.add( 'visible' );
+		} );
+
+		reactRoot.addEventListener( 'mouseleave', () => {
+			reactRoot.classList.remove( 'visible' );
 		} );
 	}
 
@@ -61,7 +53,7 @@ export function tooltipsPlugin( periods ) {
 	 * @param {uPlot} u - The uPlot instance.
 	 */
 	function setSize( u: uPlot ) {
-		container.style.height = u.over.clientHeight + 'px';
+		container.style.paddingTop = u.over.clientHeight + 'px';
 	}
 
 	/**
@@ -73,6 +65,10 @@ export function tooltipsPlugin( periods ) {
 		const { idx } = u.cursor;
 
 		const period = periods[ idx ];
+
+		if ( ! period ) {
+			return;
+		}
 
 		// Timestamp of the cursor position
 		const timestamp = u.data[ 0 ][ idx ];

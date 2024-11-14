@@ -126,9 +126,6 @@ class SearchApp extends Component {
 	}
 
 	getResultFormat = () => {
-		// Override the result format from the query string if result_format= is specified
-		const resultFormatQuery = getResultFormatQuery();
-
 		// Override the result format if group static filter is selected, always use expanded.
 		const isMultiSite =
 			this.props.staticFilters &&
@@ -138,6 +135,8 @@ class SearchApp extends Component {
 			return RESULT_FORMAT_EXPANDED;
 		}
 
+		// Override the result format from the query string if result_format= is specified
+		const resultFormatQuery = getResultFormatQuery();
 		return resultFormatQuery || this.state.overlayOptions.resultFormat;
 	};
 
@@ -229,6 +228,8 @@ class SearchApp extends Component {
 			sort: this.props.sort,
 			postsPerPage: this.props.options.postsPerPage,
 			adminQueryFilter: this.props.options.adminQueryFilter,
+			highlightFields: this.props.options.highlightFields,
+			customResults: this.props.options.customResults,
 			isInCustomizer: this.props.isInCustomizer,
 		} );
 	};

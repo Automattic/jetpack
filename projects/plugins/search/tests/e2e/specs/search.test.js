@@ -1,5 +1,6 @@
+import { prerequisitesBuilder, Plans } from 'jetpack-e2e-commons/env/index.js';
 import { test, expect } from 'jetpack-e2e-commons/fixtures/base-test.js';
-import { SearchHomepage } from '../pages/index.js';
+import { resolveSiteUrl } from 'jetpack-e2e-commons/helpers/utils-helper.js';
 import {
 	enableInstantSearch,
 	disableInstantSearch,
@@ -7,8 +8,7 @@ import {
 	searchAutoConfig,
 	clearSearchPlanInfo,
 } from '../helpers/search-helper.js';
-import { prerequisitesBuilder, Plans } from 'jetpack-e2e-commons/env/index.js';
-import { resolveSiteUrl } from 'jetpack-e2e-commons/helpers/utils-helper.js';
+import { SearchHomepage } from '../pages/index.js';
 import playwrightConfig from '../playwright.config.mjs';
 
 test.describe( 'Instant Search', () => {

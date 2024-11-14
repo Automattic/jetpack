@@ -310,7 +310,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 				"</h4>\n\n";
 
 			// Don't show the feedback details unless the nonce matches
-			if ( $feedback_id && isset( $_GET['_wpnonce'] ) && wp_verify_nonce( stripslashes( $_GET['_wpnonce'] ), "contact-form-sent-{$feedback_id}" ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+			if (
+				$feedback_id
+				&& isset( $_GET['_wpnonce'] )
+				&& wp_verify_nonce( sanitize_key( wp_unslash( $_GET['_wpnonce'] ) ), "contact-form-sent-{$feedback_id}" )
+			) {
 				$r_success_message .= self::success_message( $feedback_id, $form );
 			}
 
@@ -858,10 +862,10 @@ class Contact_Form extends Contact_Form_Shortcode {
 				$str = __( 'Message', 'jetpack-forms' );
 				break;
 			case 'checkbox-multiple':
-				$str = __( 'Choose several', 'jetpack-forms' );
+				$str = __( 'Choose several options', 'jetpack-forms' );
 				break;
 			case 'radio':
-				$str = __( 'Choose one', 'jetpack-forms' );
+				$str = __( 'Choose one option', 'jetpack-forms' );
 				break;
 			case 'select':
 				$str = __( 'Select one', 'jetpack-forms' );
@@ -1036,7 +1040,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			if ( isset( $_POST['contact-form-id'] ) && 'block-template-part-' . $block_template_part !== $_POST['contact-form-id'] ) { // phpcs:Ignore WordPress.Security.NonceVerification.Missing -- check done by caller process_form_submission()
 				return false;
 			}
-		} elseif ( isset( $_POST['contact-form-id'] ) && $post->ID !== (int) $_POST['contact-form-id'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- check done by caller process_form_submission()
+		} elseif ( isset( $_POST['contact-form-id'] ) && ( empty( $post ) || $post->ID !== (int) $_POST['contact-form-id'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- check done by caller process_form_submission()
 			return false;
 		}
 
@@ -1050,41 +1054,61 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		// For each of the "standard" fields, grab their field label and value.
 		if ( isset( $field_ids['name'] ) ) {
-			$field          = $this->fields[ $field_ids['name'] ];
-			$comment_author = Contact_Form_Plugin::strip_tags(
-				stripslashes(
-					/** This filter is already documented in core/wp-includes/comment-functions.php */
-					apply_filters( 'pre_comment_author_name', addslashes( $field->value ) )
-				)
-			);
+			$field = $this->fields[ $field_ids['name'] ];
+
+			if ( is_string( $field->value ) ) {
+				$comment_author = Contact_Form_Plugin::strip_tags(
+					stripslashes(
+						/** This filter is already documented in core/wp-includes/comment-functions.php */
+						apply_filters( 'pre_comment_author_name', addslashes( $field->value ) )
+					)
+				);
+			} elseif ( is_array( $field->value ) ) {
+				$field->value = '';
+			}
 		}
 
 		if ( isset( $field_ids['email'] ) ) {
-			$field                = $this->fields[ $field_ids['email'] ];
-			$comment_author_email = Contact_Form_Plugin::strip_tags(
-				stripslashes(
-					/** This filter is already documented in core/wp-includes/comment-functions.php */
-					apply_filters( 'pre_comment_author_email', addslashes( $field->value ) )
-				)
-			);
+			$field = $this->fields[ $field_ids['email'] ];
+
+			if ( is_string( $field->value ) ) {
+				$comment_author_email = Contact_Form_Plugin::strip_tags(
+					stripslashes(
+						/** This filter is already documented in core/wp-includes/comment-functions.php */
+						apply_filters( 'pre_comment_author_email', addslashes( $field->value ) )
+					)
+				);
+			} elseif ( is_array( $field->value ) ) {
+				$field->value = '';
+			}
 		}
 
 		if ( isset( $field_ids['url'] ) ) {
-			$field              = $this->fields[ $field_ids['url'] ];
-			$comment_author_url = Contact_Form_Plugin::strip_tags(
-				stripslashes(
-					/** This filter is already documented in core/wp-includes/comment-functions.php */
-					apply_filters( 'pre_comment_author_url', addslashes( $field->value ) )
-				)
-			);
-			if ( 'http://' === $comment_author_url ) {
-				$comment_author_url = '';
+			$field = $this->fields[ $field_ids['url'] ];
+
+			if ( is_string( $field->value ) ) {
+				$comment_author_url = Contact_Form_Plugin::strip_tags(
+					stripslashes(
+						/** This filter is already documented in core/wp-includes/comment-functions.php */
+						apply_filters( 'pre_comment_author_url', addslashes( $field->value ) )
+					)
+				);
+				if ( 'http://' === $comment_author_url ) {
+					$comment_author_url = '';
+				}
+			} elseif ( is_array( $field->value ) ) {
+				$field->value = '';
 			}
 		}
 
 		if ( isset( $field_ids['textarea'] ) ) {
-			$field           = $this->fields[ $field_ids['textarea'] ];
-			$comment_content = trim( Contact_Form_Plugin::strip_tags( $field->value ) );
+			$field = $this->fields[ $field_ids['textarea'] ];
+
+			if ( is_string( $field->value ) ) {
+				$comment_content = trim( Contact_Form_Plugin::strip_tags( $field->value ) );
+			} else {
+				$field->value = '';
+			}
 		}
 
 		if ( isset( $field_ids['subject'] ) ) {
@@ -1136,9 +1160,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		$contact_form_subject = trim( $contact_form_subject );
 
-		$comment_author_IP = Contact_Form_Plugin::get_ip_address(); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$comment_author_ip = Contact_Form_Plugin::get_ip_address();
 
-		$vars = array( 'comment_author', 'comment_author_email', 'comment_author_url', 'contact_form_subject', 'comment_author_IP' );
+		$vars = array( 'comment_author', 'comment_author_email', 'comment_author_url', 'contact_form_subject', 'comment_author_ip' );
 		foreach ( $vars as $var ) {
 			$$var = str_replace( array( "\n", "\r" ), '', (string) $$var );
 		}
@@ -1223,8 +1247,17 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$to[ $to_key ] = self::add_name_to_address( $to_value );
 		}
 
-		$blog_url        = wp_parse_url( site_url() );
-		$from_email_addr = 'wordpress@' . $blog_url['host'];
+		// Get the site domain and get rid of www.
+		$sitename        = wp_parse_url( site_url(), PHP_URL_HOST );
+		$from_email_addr = 'wordpress@';
+
+		if ( null !== $sitename ) {
+			if ( str_starts_with( $sitename, 'www.' ) ) {
+				$sitename = substr( $sitename, 4 );
+			}
+
+			$from_email_addr .= $sitename;
+		}
 
 		if ( ! empty( $comment_author_email ) ) {
 			$reply_to_addr = $comment_author_email;
@@ -1330,6 +1363,25 @@ class Contact_Form extends Contact_Form_Shortcode {
 		 */
 		add_filter( 'wp_insert_post_data', array( $plugin, 'insert_feedback_filter' ), 10, 2 );
 
+		/**
+		 * Allows site owners to not include IP addresses in the saved form response.
+		 *
+		 * The IP address is still used as part of spam filtering, if enabled, but it is removed when this filter
+		 * is set to true before saving to the database and e-mailing the form recipients.
+
+		 * @module contact-form
+		 *
+		 * @param bool $remove_ip_address Should the IP address be removed. Default false.
+		 * @param string $ip_address IP address of the form submission.
+		 *
+		 * @since 0.33.0
+		 */
+		if ( apply_filters( 'jetpack_contact_form_forget_ip_address', false, $comment_author_ip ) ) {
+			$comment_author_ip = null;
+		}
+
+		$comment_ip_text = $comment_author_ip ? "IP: {$comment_author_ip}\n" : null;
+
 		$post_id = wp_insert_post(
 			array(
 				'post_date'    => addslashes( $feedback_time ),
@@ -1338,7 +1390,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 				'post_parent'  => $post ? (int) $post->ID : 0,
 				'post_title'   => addslashes( wp_kses( $feedback_title, array() ) ),
 				// phpcs:ignore WordPress.NamingConventions.ValidVariableName.InterpolatedVariableNotSnakeCase, WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.PHP.DevelopmentFunctions.error_log_print_r
-				'post_content' => addslashes( wp_kses( "$comment_content\n<!--more-->\nAUTHOR: {$comment_author}\nAUTHOR EMAIL: {$comment_author_email}\nAUTHOR URL: {$comment_author_url}\nSUBJECT: {$subject}\nIP: {$comment_author_IP}\nJSON_DATA\n" . @wp_json_encode( $all_values, true ), array() ) ), // so that search will pick up this data
+				'post_content' => addslashes( wp_kses( "$comment_content\n<!--more-->\nAUTHOR: {$comment_author}\nAUTHOR EMAIL: {$comment_author_email}\nAUTHOR URL: {$comment_author_url}\nSUBJECT: {$subject}\n{$comment_ip_text}JSON_DATA\n" . @wp_json_encode( $all_values, true ), array() ) ), // so that search will pick up this data
 				'post_name'    => $feedback_id,
 			)
 		);
@@ -1350,7 +1402,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		if ( 'publish' === $feedback_status ) {
 			// Increase count of unread feedback.
-			$unread = get_option( 'feedback_unread_count', 0 ) + 1;
+			$unread = (int) get_option( 'feedback_unread_count', 0 ) + 1;
 			update_option( 'feedback_unread_count', $unread );
 		}
 
@@ -1399,11 +1451,15 @@ class Contact_Form extends Contact_Form_Shortcode {
 			esc_html__( 'Time: %1$s', 'jetpack-forms' ),
 			$time
 		);
-		$footer_ip = sprintf(
+		$footer_ip = null;
+		if ( $comment_author_ip ) {
+			$footer_ip = sprintf(
 			/* translators: Placeholder is the IP address of the person who submitted a form. */
-			esc_html__( 'IP Address: %1$s', 'jetpack-forms' ),
-			$comment_author_IP // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-		);
+				esc_html__( 'IP Address: %1$s', 'jetpack-forms' ),
+				$comment_author_ip
+			) . '<br />';
+		}
+
 		$footer_url = sprintf(
 			/* translators: Placeholder is the URL of the page where a form was submitted. */
 			__( 'Source URL: %1$s', 'jetpack-forms' ),
@@ -1428,7 +1484,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 					'<hr />',
 					'<span style="font-size: 12px">',
 					$footer_time . '<br />',
-					$footer_ip . '<br />',
+					$footer_ip ? $footer_ip . '<br />' : null,
 					$footer_url . '<br />',
 					$sent_by_text,
 					'</span>',

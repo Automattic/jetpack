@@ -7,7 +7,7 @@ export type StatCardProps = {
 	/**
 	 * The stat card icon.
 	 */
-	icon: JSX.Element;
+	icon: React.JSX.Element;
 
 	/**
 	 * The stat label.

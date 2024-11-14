@@ -2,11 +2,6 @@
 /*!
  * Jetpack CRM
  * https://jetpackcrm.com
- * V2.98+
- *
- * Copyright 2019+ ZeroBSCRM.com
- *
- * Date: 17/04/2019
  */
 
 // This file provides ample warning for users who may be updating to v3.0 
@@ -103,8 +98,3 @@ function jpcrm_update_checks_v5_available_notice( $data, $response ) {
 	// just put inline ^^ .upgrade-notice-dummy { display:none !important; }
 
 }
-
-
-/* ======================================================
-  / ~v4 -> v5 (Jetpack CRM)
-   ====================================================== */

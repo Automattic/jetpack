@@ -90,6 +90,8 @@
 		<exclude name="PHPCompatibility.ParameterValues.NewIDNVariantDefault.NotSet" />
 		<exclude name="PHPCompatibility.ParameterValues.NewProcOpenCmdArray.Found" />
 		<exclude name="PHPCompatibility.ParameterValues.NewStripTagsAllowableTagsArray.Found" />
+		<exclude name="PHPCompatibility.ParameterValues.RemovedProprietaryCSVEscaping.ChangedBehaviour" />
+		<exclude name="PHPCompatibility.ParameterValues.RemovedProprietaryCSVEscaping.EmptyStringNotAllowed" />
 		<exclude name="PHPCompatibility.Syntax.NewArrayUnpacking.Found" />
 	</rule>
 </ruleset>

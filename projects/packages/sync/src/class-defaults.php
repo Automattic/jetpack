@@ -78,7 +78,6 @@ class Defaults {
 		'jetpack_available_modules',
 		'jetpack_comment_form_color_scheme',
 		'jetpack_comment_likes_enabled',
-		'jetpack_connection_active_plugins',
 		'jetpack_excluded_extensions',
 		'jetpack_mailchimp',
 		'jetpack_options',
@@ -90,7 +89,7 @@ class Defaults {
 		'jetpack_relatedposts',
 		'jetpack_social_notes_config',
 		'jetpack_social_settings',
-		'jetpack_social_autoconvert_images',
+		'jetpack_social_utm_settings',
 		'jetpack_sso_match_by_email',
 		'jetpack_sso_require_two_step',
 		'jetpack_sync_non_blocking', // is non-blocking Jetpack Sync flow enabled.
@@ -186,6 +185,9 @@ class Defaults {
 		'wpcom_ai_site_prompt',
 		'wpcom_classic_early_release',
 		'wpcom_featured_image_in_email',
+		'jetpack_gravatar_in_email',
+		'jetpack_author_in_email',
+		'jetpack_post_date_in_email',
 		'wpcom_gifting_subscription',
 		'wpcom_is_fse_activated',
 		'wpcom_legacy_contact',
@@ -198,11 +200,20 @@ class Defaults {
 		'wpcom_site_setup',
 		'wpcom_subscription_emails_use_excerpt',
 		'jetpack_subscriptions_reply_to',
+		'jetpack_subscriptions_from_name',
 		'jetpack_verbum_subscription_modal',
 		'jetpack_blocks_disabled',
 		'jetpack_package_versions',
 		'jetpack_newsletters_publishing_default_frequency',
 		'jetpack_scheduled_plugins_update',
+		'jetpack_waf_automatic_rules',
+		'jetpack_waf_ip_allow_list',
+		'jetpack_waf_ip_allow_list_enabled',
+		'jetpack_waf_ip_block_list',
+		'jetpack_waf_ip_block_list_enabled',
+		'jetpack_waf_share_data',
+		'jetpack_waf_share_debug_data',
+		'jetpack_waf_automatic_rules_last_updated_timestamp',
 	);
 
 	/**
@@ -313,37 +324,39 @@ class Defaults {
 	 * @var array Default whitelist of callables.
 	 */
 	public static $default_callable_whitelist = array(
-		'get_loaded_extensions'            => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_loaded_extensions' ),
-		'get_plugins'                      => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_plugins' ),
-		'get_themes'                       => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_themes' ),
-		'get_plugins_action_links'         => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_plugins_action_links' ),
-		'has_file_system_write_access'     => array( 'Automattic\\Jetpack\\Sync\\Functions', 'file_system_write_access' ),
-		'home_url'                         => array( 'Automattic\\Jetpack\\Connection\\Urls', 'home_url' ),
-		'hosting_provider'                 => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_hosting_provider' ),
-		'is_fse_theme'                     => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_is_fse_theme' ),
-		'is_main_network'                  => array( __CLASS__, 'is_multi_network' ),
-		'is_multi_site'                    => 'is_multisite',
-		'is_version_controlled'            => array( 'Automattic\\Jetpack\\Sync\\Functions', 'is_version_controlled' ),
-		'locale'                           => 'get_locale',
-		'main_network_site'                => array( 'Automattic\\Jetpack\\Connection\\Urls', 'main_network_site_url' ),
-		'main_network_site_wpcom_id'       => array( 'Automattic\\Jetpack\\Sync\\Functions', 'main_network_site_wpcom_id' ),
-		'paused_plugins'                   => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_paused_plugins' ),
-		'paused_themes'                    => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_paused_themes' ),
-		'post_type_features'               => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_post_type_features' ),
-		'post_types'                       => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_post_types' ),
-		'rest_api_allowed_post_types'      => array( 'Automattic\\Jetpack\\Sync\\Functions', 'rest_api_allowed_post_types' ),
-		'rest_api_allowed_public_metadata' => array( 'Automattic\\Jetpack\\Sync\\Functions', 'rest_api_allowed_public_metadata' ),
-		'roles'                            => array( 'Automattic\\Jetpack\\Sync\\Functions', 'roles' ),
-		'shortcodes'                       => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_shortcodes' ),
-		'site_icon_url'                    => array( 'Automattic\\Jetpack\\Sync\\Functions', 'site_icon_url' ),
-		'site_url'                         => array( 'Automattic\\Jetpack\\Connection\\Urls', 'site_url' ),
-		'taxonomies'                       => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_taxonomies' ),
-		'theme_support'                    => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_theme_support' ),
-		'timezone'                         => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_timezone' ),
-		'wp_get_environment_type'          => 'wp_get_environment_type',
-		'wp_max_upload_size'               => 'wp_max_upload_size',
-		'wp_version'                       => array( 'Automattic\\Jetpack\\Sync\\Functions', 'wp_version' ),
-		'active_modules'                   => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_active_modules' ),
+		'get_loaded_extensions'             => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_loaded_extensions' ),
+		'get_plugins'                       => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_plugins' ),
+		'get_themes'                        => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_themes' ),
+		'get_plugins_action_links'          => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_plugins_action_links' ),
+		'has_file_system_write_access'      => array( 'Automattic\\Jetpack\\Sync\\Functions', 'file_system_write_access' ),
+		'home_url'                          => array( 'Automattic\\Jetpack\\Connection\\Urls', 'home_url' ),
+		'hosting_provider'                  => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_hosting_provider' ),
+		'is_fse_theme'                      => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_is_fse_theme' ),
+		'is_main_network'                   => array( __CLASS__, 'is_multi_network' ),
+		'is_multi_site'                     => 'is_multisite',
+		'is_version_controlled'             => array( 'Automattic\\Jetpack\\Sync\\Functions', 'is_version_controlled' ),
+		'locale'                            => 'get_locale',
+		'main_network_site'                 => array( 'Automattic\\Jetpack\\Connection\\Urls', 'main_network_site_url' ),
+		'main_network_site_wpcom_id'        => array( 'Automattic\\Jetpack\\Sync\\Functions', 'main_network_site_wpcom_id' ),
+		'paused_plugins'                    => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_paused_plugins' ),
+		'paused_themes'                     => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_paused_themes' ),
+		'post_type_features'                => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_post_type_features' ),
+		'post_types'                        => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_post_types' ),
+		'rest_api_allowed_post_types'       => array( 'Automattic\\Jetpack\\Sync\\Functions', 'rest_api_allowed_post_types' ),
+		'rest_api_allowed_public_metadata'  => array( 'Automattic\\Jetpack\\Sync\\Functions', 'rest_api_allowed_public_metadata' ),
+		'roles'                             => array( 'Automattic\\Jetpack\\Sync\\Functions', 'roles' ),
+		'shortcodes'                        => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_shortcodes' ),
+		'site_icon_url'                     => array( 'Automattic\\Jetpack\\Sync\\Functions', 'site_icon_url' ),
+		'site_url'                          => array( 'Automattic\\Jetpack\\Connection\\Urls', 'site_url' ),
+		'taxonomies'                        => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_taxonomies' ),
+		'theme_support'                     => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_theme_support' ),
+		'timezone'                          => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_timezone' ),
+		'wp_get_environment_type'           => 'wp_get_environment_type',
+		'wp_max_upload_size'                => 'wp_max_upload_size',
+		'wp_version'                        => array( 'Automattic\\Jetpack\\Sync\\Functions', 'wp_version' ),
+		'active_modules'                    => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_active_modules' ),
+		'jetpack_connection_active_plugins' => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_jetpack_connection_active_plugins' ),
+		'jetpack_sync_active_modules'       => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_jetpack_sync_active_modules' ),
 	);
 
 	/**
@@ -449,6 +462,12 @@ class Defaults {
 		'wprss_feed_item',
 		'memberships_coupon',
 		'memberships_gift',
+		'tribe-ea-record', // The Events Calendar Plugin - Store Event Aggregator record information.
+		'wphb_minify_group', // Hummingbird Plugin - Used internally to keep data about assets minification.
+		'bigcommerce_task', // BigCommerce Plugin - Store import queue.
+		'secupress_log_err404', // SecuPress Plugin - Log 404 pages
+		'iw_omnibus_price_log', // Omnibus Plugin - Log price changes.
+		'od_url_metrics', // Optimization Detective - Log URL metrics.
 	);
 
 	/**
@@ -769,6 +788,7 @@ class Defaults {
 		'videopress_guid',
 		'vimeo_poster_image',
 		'_jetpack_blogging_prompt_key',
+		'footnotes', // Core footnotes block
 	);
 
 	/**
@@ -849,6 +869,7 @@ class Defaults {
 		'editor-color-palette',
 		'editor-font-sizes',
 		'editor-gradient-presets',
+		'editor-spacing-sizes',
 		'editor-style', // deprecated.
 		'editor-styles',
 		'html5',
@@ -1276,41 +1297,58 @@ class Defaults {
 	 * @var array list of module names.
 	 */
 	public static $default_full_sync_config = array(
-		'comments'           => 1,
 		'constants'          => 1,
 		'functions'          => 1,
 		'options'            => 1,
-		'posts'              => 1,
-		'term_relationships' => 1,
 		'terms'              => 1,
 		'themes'             => 1,
-		'updates'            => 1,
 		'users'              => 1,
+		'posts'              => 1,
+		'comments'           => 1,
+		'updates'            => 1,
+		'term_relationships' => 1,
 	);
 
+	/**
+	 * Default Full Sync limits for one module.
+	 *
+	 * @var array list of limits.
+	 */
+	public static $default_full_sync_limits_per_module = array(
+		'chunk_size' => 100,
+		'max_chunks' => 10,
+	);
 	/**
 	 * Default Full Sync max objects to send on a single request.
 	 *
 	 * @var array list of module => max.
 	 */
 	public static $default_full_sync_limits = array(
-		'comments'           => array(
+		'comments'                => array(
 			'chunk_size' => 100,
 			'max_chunks' => 10,
 		),
-		'posts'              => array(
+		'posts'                   => array(
 			'chunk_size' => 100,
 			'max_chunks' => 1,
 		),
-		'term_relationships' => array(
+		'term_relationships'      => array(
 			'chunk_size' => 1000,
 			'max_chunks' => 10,
 		),
-		'terms'              => array(
+		'terms'                   => array(
 			'chunk_size' => 1000,
 			'max_chunks' => 10,
 		),
-		'users'              => array(
+		'users'                   => array(
+			'chunk_size' => 100,
+			'max_chunks' => 10,
+		),
+		'woocommerce'             => array(
+			'chunk_size' => 100,
+			'max_chunks' => 10,
+		),
+		'woocommerce_hpos_orders' => array(
 			'chunk_size' => 100,
 			'max_chunks' => 10,
 		),

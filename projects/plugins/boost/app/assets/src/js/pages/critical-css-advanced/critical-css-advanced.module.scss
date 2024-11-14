@@ -18,7 +18,7 @@
 	position: relative;
 	border: 1px solid $gray_5;
 	border-radius: 4px;
-	padding: 24px 69px 0 27px;
+	padding: 24px 69px 24px 27px;
 
 	li {
 		@include word-wrap();

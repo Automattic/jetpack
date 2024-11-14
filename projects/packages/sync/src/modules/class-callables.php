@@ -383,8 +383,8 @@ class Callables extends Module {
 		if ( ! empty( $plugins_lock ) && ( isset( $current_screeen->id ) && 'plugins' !== $current_screeen->id ) ) {
 			return;
 		}
-		$plugins = array_keys( Functions::get_plugins() );
-		foreach ( $plugins as $plugin_file ) {
+		$plugins = Functions::get_plugins();
+		foreach ( $plugins as $plugin_file => $plugin_data ) {
 			/**
 			 *  Plugins often like to unset things but things break if they are not able to.
 			 */
@@ -396,13 +396,13 @@ class Callables extends Module {
 				'edit'       => '',
 			);
 			/** This filter is documented in src/wp-admin/includes/class-wp-plugins-list-table.php */
-			$action_links = apply_filters( 'plugin_action_links', $action_links, $plugin_file, null, 'all' );
+			$action_links = apply_filters( 'plugin_action_links', $action_links, $plugin_file, $plugin_data, 'all' );
 			// Verify $action_links is still an array.
 			if ( ! is_array( $action_links ) ) {
 				$action_links = array();
 			}
 			/** This filter is documented in src/wp-admin/includes/class-wp-plugins-list-table.php */
-			$action_links = apply_filters( "plugin_action_links_{$plugin_file}", $action_links, $plugin_file, null, 'all' );
+			$action_links = apply_filters( "plugin_action_links_{$plugin_file}", $action_links, $plugin_file, $plugin_data, 'all' );
 			// Verify $action_links is still an array to resolve warnings from filters not returning an array.
 			if ( is_array( $action_links ) ) {
 				$action_links = array_filter( $action_links );

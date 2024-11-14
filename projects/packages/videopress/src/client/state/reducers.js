@@ -20,6 +20,7 @@ import {
 	REMOVE_VIDEO,
 	DELETE_VIDEO,
 	SET_VIDEO_UPLOADING,
+	SET_VIDEO_UPLOADING_ERROR,
 	SET_VIDEO_PROCESSING,
 	SET_VIDEO_UPLOADED,
 	SET_IS_FETCHING_PURCHASES,
@@ -44,12 +45,13 @@ import {
 	FLUSH_DELETED_VIDEOS,
 	UPDATE_PAGINATION_AFTER_DELETE,
 	UPDATE_VIDEO_IS_PRIVATE,
+	DISMISS_ERRORED_VIDEO,
 } from './constants';
 
 /**
  * Retunr default query values
  *
- * @returns {object}       Full query object.
+ * @return {object}       Full query object.
  */
 export function getDefaultQuery() {
 	return {
@@ -420,6 +422,42 @@ const videos = ( state, action ) => {
 							uploading: true,
 						},
 					},
+				},
+			};
+		}
+
+		case SET_VIDEO_UPLOADING_ERROR: {
+			const { id, error } = action;
+			const currentMeta = state?._meta || {};
+			const currentMetaItems = currentMeta?.items || {};
+
+			return {
+				...state,
+				_meta: {
+					...currentMeta,
+					items: {
+						...currentMetaItems,
+						[ id ]: {
+							...currentMetaItems[ id ],
+							uploading: false,
+							error,
+						},
+					},
+				},
+			};
+		}
+
+		case DISMISS_ERRORED_VIDEO: {
+			const { id } = action;
+			const currentMeta = state?._meta || {};
+			const currentMetaItems = currentMeta?.items || {};
+			delete currentMetaItems[ id ];
+
+			return {
+				...state,
+				_meta: {
+					...currentMeta,
+					items: { ...currentMetaItems },
 				},
 			};
 		}

@@ -3,7 +3,7 @@
  */
 import { Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import PropTypes from 'prop-types';
 /**
  * Internal dependencies
@@ -20,7 +20,7 @@ import styles from './style.module.scss';
  * It is useful to async actions when the user has to wait the result of a request or process.
  *
  * @param {object} props - The properties.
- * @returns {React.Component} The `ActionButton` component.
+ * @return {React.Component} The `ActionButton` component.
  */
 const ActionButton = props => {
 	const {
@@ -40,7 +40,7 @@ const ActionButton = props => {
 		<>
 			{
 				<Button
-					className={ classNames( styles.button, 'jp-action-button--button', customClass ) }
+					className={ clsx( styles.button, 'jp-action-button--button', customClass ) }
 					label={ label }
 					onClick={ onClick }
 					variant="primary"
@@ -51,7 +51,7 @@ const ActionButton = props => {
 			}
 
 			{ displayError && (
-				<p className={ classNames( styles.error, 'jp-action-button__error' ) }>{ errorMessage }</p>
+				<p className={ clsx( styles.error, 'jp-action-button__error' ) }>{ errorMessage }</p>
 			) }
 		</>
 	);

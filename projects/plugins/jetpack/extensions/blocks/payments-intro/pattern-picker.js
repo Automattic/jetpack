@@ -1,5 +1,5 @@
 import {
-	__experimentalBlockPatternSetup as BlockPatternSetup, // eslint-disable-line wpcalypso/no-unsafe-wp-apis
+	__experimentalBlockPatternSetup as BlockPatternSetup, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/block-editor';
 import { Button, Modal } from '@wordpress/components';
 import { useState } from '@wordpress/element';

@@ -12,7 +12,7 @@ export type ManualSharingProps = ManualSharingInfoProps;
  *
  * @param {ManualSharingProps} props - Component props.
  *
- * @returns {import('react').ReactNode} Manual sharing component.
+ * @return {import('react').ReactNode} Manual sharing component.
  */
 export function ManualSharing( props: ManualSharingProps ) {
 	return (

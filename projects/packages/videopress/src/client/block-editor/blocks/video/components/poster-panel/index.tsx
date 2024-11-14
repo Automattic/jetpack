@@ -22,7 +22,7 @@ import {
 } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { linkOff, image as imageIcon } from '@wordpress/icons';
-import classnames from 'classnames';
+import clsx from 'clsx';
 /**
  * Internal dependencies
  */
@@ -92,7 +92,7 @@ if ( window?.videoPressEditorState?.playerBridgeUrl ) {
  * Sidebar Control component.
  *
  * @param {VideoControlProps} props - Component props.
- * @returns {React.ReactElement}    Component template
+ * @return {React.ReactElement}    Component template
  */
 export function PosterDropdown( {
 	clientId,
@@ -207,7 +207,7 @@ export function PosterDropdown( {
  * given the iframe's ref.
  *
  * @param {React.MutableRefObject< HTMLDivElement >} iFrameRef - iframe ref
- * @returns {Window | null}	                                     Window object of the iframe
+ * @return {Window | null} Window object of the iframe
  */
 export const getIframeWindowFromRef = (
 	iFrameRef: React.MutableRefObject< HTMLDivElement >
@@ -230,7 +230,7 @@ type PosterFramePickerProps = {
  * React component to pick a frame from the VideoPress video
  *
  * @param {PosterFramePickerProps} props - Component properties
- * @returns { React.ReactElement}          React component
+ * @return { React.ReactElement}          React component
  */
 function VideoFramePicker( {
 	guid,
@@ -279,7 +279,7 @@ function VideoFramePicker( {
 		<div className="poster-panel__frame-picker">
 			<div
 				ref={ playerWrapperRef }
-				className={ classnames( 'poster-panel__frame-picker__sandbox-wrapper', {
+				className={ clsx( 'poster-panel__frame-picker__sandbox-wrapper', {
 					'is-player-ready': playerIsReady,
 					'is-generating-poster': isGeneratingPoster,
 				} ) }
@@ -326,7 +326,7 @@ type VideoHoverPreviewControlProps = {
  * React component to select the video preview options when the user hovers the video
  *
  * @param {VideoHoverPreviewControlProps} props - Component properties
- * @returns { React.ReactElement}                 React component
+ * @return { React.ReactElement}                 React component
  */
 export function VideoHoverPreviewControl( {
 	previewOnHover = false,
@@ -344,7 +344,7 @@ export function VideoHoverPreviewControl( {
 		Math.min( MAX_LOOP_DURATION, videoDuration - previewAtTime )
 	);
 
-	const maxLoopDurationSeconds = ( ( maxLoopDuration / 10 ) | 0 ) / 100;
+	const maxLoopDurationSeconds = Math.floor( maxLoopDuration / 10 ) / 100;
 
 	const startingPointHelp = createInterpolateElement(
 		sprintf(
@@ -395,6 +395,7 @@ export function VideoHoverPreviewControl( {
 				checked={ previewOnHover }
 				onChange={ onPreviewOnHoverChange }
 				disabled={ ! previewOnHover && disabled }
+				__nextHasNoMarginBottom={ true }
 			/>
 
 			{ previewOnHover && (
@@ -432,7 +433,7 @@ export function VideoHoverPreviewControl( {
  * Sidebar Control component.
  *
  * @param {VideoControlProps} props - Component props.
- * @returns {React.ReactElement}    Component template
+ * @return {React.ReactElement}    Component template
  */
 export default function PosterPanel( {
 	attributes,
@@ -551,10 +552,11 @@ export default function PosterPanel( {
 				checked={ pickPosterFromFrame && videoBelongToSite }
 				onChange={ switchPosterSource }
 				disabled={ ! videoBelongToSite }
+				__nextHasNoMarginBottom={ true }
 			/>
 
 			<div
-				className={ classnames( 'poster-panel__frame-wrapper', {
+				className={ clsx( 'poster-panel__frame-wrapper', {
 					'is-selected': pickPosterFromFrame,
 				} ) }
 			>
@@ -568,7 +570,7 @@ export default function PosterPanel( {
 			</div>
 
 			<div
-				className={ classnames( 'poster-panel__image-wrapper', {
+				className={ clsx( 'poster-panel__image-wrapper', {
 					'is-selected': ! pickPosterFromFrame,
 				} ) }
 			>

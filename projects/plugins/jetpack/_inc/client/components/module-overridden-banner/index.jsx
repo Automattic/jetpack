@@ -1,7 +1,7 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import { JetpackBanner, connect as bannerConnect } from 'components/jetpack-banner';
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -20,7 +20,7 @@ class ModuleOverridenBanner extends JetpackBanner {
 			return null;
 		}
 
-		const classes = classNames( 'module-overridden-banner', {
+		const classes = clsx( 'module-overridden-banner', {
 			'is-compact': this.props.compact,
 		} );
 

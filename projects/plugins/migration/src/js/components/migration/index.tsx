@@ -16,7 +16,7 @@ export * from './progress';
 
 export const ToS = createInterpolateElement(
 	__(
-		'By clicking "Get started", you agree to our <tosLink>Terms of Service</tosLink> and to <shareDetailsLink>share details</shareDetailsLink> with WordPress.com.',
+		'By clicking "Get started", you agree to our <tosLink>Terms of Service</tosLink> and to <shareDetailsLink>sync your site‘s data</shareDetailsLink> with us.',
 		'wpcom-migration'
 	),
 	{
@@ -41,7 +41,7 @@ interface Props {
  * Migration screen - Get start migration
  *
  * @param {object} props - Props
- * @returns {React.ReactElement} - JSX Element
+ * @return {React.ReactElement} - JSX Element
  */
 export function Migration( props: Props ) {
 	const pluginName = 'wpcom-migration';
@@ -94,7 +94,7 @@ export function Migration( props: Props ) {
 			<p>
 				{ __(
 					"You're a few steps away from upgrading your site to the speed and power of WordPress.com. " +
-						"Here's how it works: ",
+						"Here's how it works:",
 					'wpcom-migration'
 				) }
 			</p>

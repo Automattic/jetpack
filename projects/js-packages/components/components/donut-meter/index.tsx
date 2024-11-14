@@ -72,7 +72,7 @@ const getAdaptiveType = ( percentage: number ) => {
  * Generate record meter donut bar
  *
  * @param {DonutMeterProps} props - Props
- * @returns {React.ReactElement} - JSX element
+ * @return {React.ReactElement} - JSX element
  */
 const DonutMeter: React.FC< DonutMeterProps > = ( {
 	className = '',
@@ -134,7 +134,7 @@ const DonutMeter: React.FC< DonutMeterProps > = ( {
 					cy="20"
 					r="15.91549430918954"
 					fill="transparent"
-					transform-origin="center"
+					transform-origin="center" // eslint-disable-line react/no-unknown-property -- @todo Switch to transformOrigin when we use React 19.
 					strokeWidth={ thickness }
 					strokeDasharray={ `${ percentage } ${ 100 - percentage }` }
 					strokeDashoffset="-25" // this ensures the segment begins at the bottom of the donut instead of the top

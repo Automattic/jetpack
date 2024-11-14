@@ -12,8 +12,9 @@ import { isModuleFound as _isModuleFound } from 'state/search';
 
 export class CustomContentTypes extends React.Component {
 	state = {
-		testimonial: this.props.getOptionValue( 'jetpack_testimonial', 'custom-content-types' ),
-		portfolio: this.props.getOptionValue( 'jetpack_portfolio', 'custom-content-types' ),
+		testimonial:
+			this.props.getOptionValue( 'jetpack_testimonial', 'custom-content-types' ) || false,
+		portfolio: this.props.getOptionValue( 'jetpack_portfolio', 'custom-content-types' ) || false,
 	};
 
 	updateCPTs = type => {
@@ -50,12 +51,41 @@ export class CustomContentTypes extends React.Component {
 			return null;
 		}
 
+		const woa_theme_supports_jetpack_portfolio =
+			typeof jetpack_portfolio_theme_supports !== 'undefined'
+				? jetpack_portfolio_theme_supports // eslint-disable-line no-undef
+				: false;
+
 		const module = this.props.module( 'custom-content-types' );
 		const disabledByOverride =
 			'inactive' === this.props.getModuleOverride( 'custom-content-types' );
 		const disabledReason =
 			disabledByOverride &&
 			__( 'This feature has been disabled by a site administrator.', 'jetpack' );
+
+		const portfolioDisabledReason =
+			! disabledReason && woa_theme_supports_jetpack_portfolio
+				? __( 'This feature is already supported by your theme.', 'jetpack' )
+				: '';
+		const portfolioText = woa_theme_supports_jetpack_portfolio
+			? createInterpolateElement(
+					__(
+						'Use <portfolioLink>portfolios</portfolioLink> on your site to showcase your best work. If your theme doesn’t support Jetpack Portfolios, you can still use a simple shortcode to display them on your site. This feature is enabled by default in your theme settings.',
+						'jetpack'
+					),
+					{
+						portfolioLink: this.linkIfActiveCPT( 'portfolio' ),
+					}
+			  )
+			: createInterpolateElement(
+					__(
+						'Use <portfolioLink>portfolios</portfolioLink> on your site to showcase your best work. If your theme doesn’t support Jetpack Portfolios, you can still use a simple shortcode to display them on your site.',
+						'jetpack'
+					),
+					{
+						portfolioLink: this.linkIfActiveCPT( 'portfolio' ),
+					}
+			  );
 		return (
 			<SettingsCard { ...this.props } module="custom-content-types" hideButton>
 				<SettingsGroup
@@ -77,12 +107,20 @@ export class CustomContentTypes extends React.Component {
 						) }
 					</p>
 					<ToggleControl
-						checked={ this.props.getOptionValue( 'jetpack_testimonial', 'custom-content-types' ) }
+						checked={
+							this.props.getOptionValue( 'jetpack_testimonial', 'custom-content-types' )
+								? this.props.getOptionValue( 'jetpack_testimonial', 'custom-content-types' )
+								: false
+						}
 						disabled={ disabledByOverride }
 						toggling={ this.props.isSavingAnyOption( 'jetpack_testimonial' ) }
 						onChange={ this.handleTestimonialToggleChange }
 						disabledReason={ disabledReason }
-						label={ __( 'Testimonials', 'jetpack' ) }
+						label={
+							<span className="jp-form-toggle-explanation">
+								{ __( 'Testimonials', 'jetpack' ) }
+							</span>
+						}
 						help={
 							<span className="jp-form-setting-explanation jp-form-shortcode-setting-explanation">
 								{ __( 'Testimonials shortcode: [testimonials]', 'jetpack' ) }
@@ -105,24 +143,20 @@ export class CustomContentTypes extends React.Component {
 						link: getRedirectUrl( 'jetpack-support-custom-content-types' ),
 					} }
 				>
-					<p>
-						{ createInterpolateElement(
-							__(
-								'Use <portfolioLink>portfolios</portfolioLink> on your site to showcase your best work. If your theme doesn’t support Jetpack Portfolios, you can still use a simple shortcode to display them on your site.',
-								'jetpack'
-							),
-							{
-								portfolioLink: this.linkIfActiveCPT( 'portfolio' ),
-							}
-						) }
-					</p>
+					<p>{ portfolioText }</p>
 					<ToggleControl
-						checked={ this.props.getOptionValue( 'jetpack_portfolio', 'custom-content-types' ) }
-						disabled={ disabledByOverride }
+						checked={
+							this.props.getOptionValue( 'jetpack_portfolio', 'custom-content-types' )
+								? this.props.getOptionValue( 'jetpack_portfolio', 'custom-content-types' )
+								: false
+						}
+						disabled={ disabledByOverride || woa_theme_supports_jetpack_portfolio }
 						toggling={ this.props.isSavingAnyOption( 'jetpack_portfolio' ) }
 						onChange={ this.handlePortfolioToggleChange }
-						disabledReason={ disabledReason }
-						label={ __( 'Portfolios', 'jetpack' ) }
+						disabledReason={ portfolioDisabledReason }
+						label={
+							<span className="jp-form-toggle-explanation">{ __( 'Portfolios', 'jetpack' ) }</span>
+						}
 						help={
 							<span className="jp-form-setting-explanation jp-form-shortcode-setting-explanation">
 								{ __( 'Portfolios shortcode: [portfolio]', 'jetpack' ) }

@@ -8,19 +8,9 @@
  * (can be combined with --load-baseline)
  */
 return [
-    // # Issue statistics:
-    // PhanTypeMismatchArgument : 2 occurrences
-    // PhanTypeMismatchReturn : 2 occurrences
-    // PhanParamTooMany : 1 occurrence
-    // PhanTypeMismatchArgumentProbablyReal : 1 occurrence
-    // PhanTypeMismatchReturnProbablyReal : 1 occurrence
-    // PhanTypeNoAccessiblePropertiesForeach : 1 occurrence
-
+    // This baseline has no suppressions
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        'src/class-blaze.php' => ['PhanTypeMismatchArgumentProbablyReal'],
-        'src/class-dashboard-rest-controller.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypeNoAccessiblePropertiesForeach'],
-        'src/class-rest-controller.php' => ['PhanParamTooMany'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
     // (directory_suppressions will currently be ignored by subsequent calls to --save-baseline, but may be preserved in future Phan releases)

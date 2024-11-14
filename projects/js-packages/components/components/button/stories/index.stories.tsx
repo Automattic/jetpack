@@ -288,59 +288,59 @@ export const VariantsAndProps = () => {
 					md={ 2 }
 					lg={ 3 }
 				>
-					<Text size="body-extra-small">props / variants</Text>
+					<Text variant="body-extra-small">props / variants</Text>
 				</Col>
 
 				<Col sm={ 4 } md={ 2 } lg={ 3 }>
-					<Text size="body-extra-small" className={ styles.header }>
+					<Text variant="body-extra-small" className={ styles.header }>
 						Primary
 					</Text>
 				</Col>
 
 				<Col sm={ 4 } md={ 2 } lg={ 3 }>
-					<Text size="body-extra-small" className={ styles.header }>
+					<Text variant="body-extra-small" className={ styles.header }>
 						Secondary
 					</Text>
 				</Col>
 
 				<Col sm={ 4 } md={ 2 } lg={ 3 }>
-					<Text size="body-extra-small" className={ styles.header }>
+					<Text variant="body-extra-small" className={ styles.header }>
 						Link
 					</Text>
 				</Col>
 
 				<Col className={ styles[ 'row-instance' ] } sm={ 4 } md={ 2 } lg={ 3 }>
-					<Text size="body-extra-small">no props</Text>
+					<Text variant="body-extra-small">no props</Text>
 				</Col>
 				{ variants.map( variant => (
-					<Col sm={ 4 } md={ 2 } lg={ 3 }>
+					<Col key={ 'normal-' + variant } sm={ 4 } md={ 2 } lg={ 3 }>
 						<Button { ...ButtonPrimary.args } variant={ variant } />
 					</Col>
 				) ) }
 
 				<Col className={ styles[ 'row-instance' ] } sm={ 4 } md={ 2 } lg={ 3 }>
-					<Text size="body-extra-small">size: small</Text>
+					<Text variant="body-extra-small">size: small</Text>
 				</Col>
 				{ variants.map( variant => (
-					<Col sm={ 4 } md={ 2 } lg={ 3 }>
-						<Button { ...ButtonPrimary.args } variant={ variant } size="small" />
+					<Col key={ 'small-' + variant } sm={ 4 } md={ 2 } lg={ 3 }>
+						<Button { ...ButtonPrimary.args } variant={ variant } />
 					</Col>
 				) ) }
 
 				<Col className={ styles[ 'row-instance' ] } sm={ 4 } md={ 2 } lg={ 3 }>
-					<Text size="body-extra-small">weight: regular</Text>
+					<Text variant="body-extra-small">weight: regular</Text>
 				</Col>
 				{ variants.map( variant => (
-					<Col sm={ 4 } md={ 2 } lg={ 3 }>
+					<Col key={ 'regular-' + variant } sm={ 4 } md={ 2 } lg={ 3 }>
 						<Button { ...ButtonPrimary.args } variant={ variant } weight="regular" />
 					</Col>
 				) ) }
 
 				<Col className={ styles[ 'row-instance' ] } sm={ 4 } md={ 2 } lg={ 3 }>
-					<Text size="body-extra-small">icon (cloud)</Text>
+					<Text variant="body-extra-small">icon (cloud)</Text>
 				</Col>
 				{ variants.map( variant => (
-					<Col sm={ 4 } md={ 2 } lg={ 3 }>
+					<Col key={ 'icon-' + variant } sm={ 4 } md={ 2 } lg={ 3 }>
 						<Button
 							{ ...ButtonPrimary.args }
 							variant={ variant }
@@ -350,46 +350,46 @@ export const VariantsAndProps = () => {
 				) ) }
 
 				<Col className={ styles[ 'row-instance' ] } sm={ 4 } md={ 2 } lg={ 3 }>
-					<Text size="body-extra-small">disabled</Text>
+					<Text variant="body-extra-small">disabled</Text>
 				</Col>
 				{ variants.map( variant => (
-					<Col sm={ 4 } md={ 2 } lg={ 3 }>
+					<Col key={ 'disabled-' + variant } sm={ 4 } md={ 2 } lg={ 3 }>
 						<Button { ...ButtonPrimary.args } variant={ variant } disabled />
 					</Col>
 				) ) }
 
 				<Col className={ styles[ 'row-instance' ] } sm={ 4 } md={ 2 } lg={ 3 }>
-					<Text size="body-extra-small">isDestructive</Text>
+					<Text variant="body-extra-small">isDestructive</Text>
 				</Col>
 				{ variants.map( variant => (
-					<Col sm={ 4 } md={ 2 } lg={ 3 }>
+					<Col key={ 'destructive-' + variant } sm={ 4 } md={ 2 } lg={ 3 }>
 						<Button { ...ButtonPrimary.args } variant={ variant } isDestructive />
 					</Col>
 				) ) }
 
 				<Col className={ styles[ 'row-instance' ] } sm={ 4 } md={ 2 } lg={ 3 }>
-					<Text size="body-extra-small">isExternalLink</Text>
+					<Text variant="body-extra-small">isExternalLink</Text>
 				</Col>
 				{ variants.map( variant => (
-					<Col sm={ 4 } md={ 2 } lg={ 3 }>
+					<Col key={ 'external-' + variant } sm={ 4 } md={ 2 } lg={ 3 }>
 						<Button { ...ButtonPrimary.args } variant={ variant } isExternalLink />
 					</Col>
 				) ) }
 
 				<Col className={ styles[ 'row-instance' ] } sm={ 4 } md={ 2 } lg={ 3 }>
-					<Text size="body-extra-small">isLoading</Text>
+					<Text variant="body-extra-small">isLoading</Text>
 				</Col>
 				{ variants.map( variant => (
-					<Col sm={ 4 } md={ 2 } lg={ 3 }>
+					<Col key={ 'loading-' + variant } sm={ 4 } md={ 2 } lg={ 3 }>
 						<Button { ...ButtonPrimary.args } variant={ variant } isLoading />
 					</Col>
 				) ) }
 
 				<Col className={ styles[ 'row-instance' ] } sm={ 4 } md={ 2 } lg={ 3 }>
-					<Text size="body-extra-small">fullWidth</Text>
+					<Text variant="body-extra-small">fullWidth</Text>
 				</Col>
 				{ variants.map( variant => (
-					<Col sm={ 4 } md={ 2 } lg={ 3 }>
+					<Col key={ 'fullwidth-' + variant } sm={ 4 } md={ 2 } lg={ 3 }>
 						<Button { ...ButtonPrimary.args } variant={ variant } fullWidth />
 					</Col>
 				) ) }

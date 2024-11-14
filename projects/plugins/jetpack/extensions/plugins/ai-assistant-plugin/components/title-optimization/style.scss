@@ -20,4 +20,16 @@
 		align-items: center;
 		margin-top: 16px;
 	}
+
+	&__footer {
+		display: flex;
+		justify-content: flex-start;
+		margin-right: -32px;
+		margin-left: -32px;
+		margin-top: 32px;
+		margin-bottom: -32px;
+		padding: 20px 32px;
+		border-top: solid 1px #dcdcde;
+		height: 60px;
+	}
 }

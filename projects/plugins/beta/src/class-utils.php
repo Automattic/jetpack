@@ -117,7 +117,7 @@ class Utils {
 			$extra_vals = array();
 		}
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 		$results = $wpdb->get_results( $wpdb->prepare( $sql, $wpdb->esc_like( '_site_transient_jetpack_beta_' ) . '%', ...$extra_vals ) );
 		foreach ( $results as $row ) {
 			delete_site_transient( substr( $row->n, 16 ) );
@@ -133,7 +133,7 @@ class Utils {
 	 */
 	public static function has_been_used() {
 		foreach ( Plugin::get_plugin_file_map() as $dev ) {
-			if ( file_exists( WP_PLUGIN_DIR . "/$dev" ) ) {
+			if ( file_exists( WP_PLUGIN_DIR . "/$dev" ) || file_exists( WPMU_PLUGIN_DIR . "/$dev" ) ) {
 				return true;
 			}
 		}

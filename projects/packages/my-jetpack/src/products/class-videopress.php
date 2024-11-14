@@ -92,7 +92,7 @@ class Videopress extends Hybrid_Product {
 	 * @return string
 	 */
 	public static function get_description() {
-		return __( 'High quality, ad-free video', 'jetpack-my-jetpack' );
+		return __( 'Stunning-quality, ad-free video in the WordPress Editor', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -101,7 +101,7 @@ class Videopress extends Hybrid_Product {
 	 * @return string
 	 */
 	public static function get_long_description() {
-		return __( 'High-quality, ad-free video built specifically for WordPress.', 'jetpack-my-jetpack' );
+		return __( 'Stunning-quality, ad-free video in the WordPress Editor', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -174,11 +174,30 @@ class Videopress extends Hybrid_Product {
 	}
 
 	/**
-	 * Checks whether the current plan (or purchases) of the site already supports the product
+	 * Checks whether the site has a paid plan for this product
 	 *
 	 * @return boolean
 	 */
-	public static function has_required_plan() {
-		return static::does_site_have_feature( 'videopress' );
+	public static function has_paid_plan_for_product() {
+		$plans_with_videopress = array(
+			'jetpack_videopress',
+			'jetpack_complete',
+			'jetpack_business',
+			'jetpack_premium',
+		);
+		$purchases_data        = Wpcom_Products::get_site_current_purchases();
+		if ( is_wp_error( $purchases_data ) ) {
+			return false;
+		}
+		if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
+			foreach ( $purchases_data as $purchase ) {
+				foreach ( $plans_with_videopress as $plan ) {
+					if ( strpos( $purchase->product_slug, $plan ) !== false ) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
 	}
 }

@@ -4,7 +4,6 @@ namespace Automattic\Jetpack_Boost\Admin;
 
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
-
 /**
  * Handle the configuration constants.
  *
@@ -12,27 +11,41 @@ use Automattic\Jetpack\Status\Host;
  */
 class Config {
 	public function constants() {
+		/**
+		 * Filters the internal path to the distributed assets used by the plugin
+		 *
+		 * @param string $path the path to the assets
+		 *
+		 * @since   1.0.0
+		 */
 		$internal_path = apply_filters( 'jetpack_boost_asset_internal_path', 'app/assets/dist/' );
 
 		$constants = array(
-			'version'         => JETPACK_BOOST_VERSION,
-			'pluginDirUrl'    => untrailingslashit( JETPACK_BOOST_PLUGINS_DIR_URL ),
-			'assetPath'       => plugins_url( $internal_path, JETPACK_BOOST_PATH ),
-			'canResizeImages' => wp_image_editor_supports( array( 'methods' => array( 'resize' ) ) ),
-			'site'            => array(
-				'url'      => get_home_url(),
-				'domain'   => ( new Status() )->get_site_suffix(),
-				'online'   => ! ( new Status() )->is_offline_mode(),
-				'isAtomic' => ( new Host() )->is_woa_site(),
+			'version'             => JETPACK_BOOST_VERSION,
+			'pluginDirUrl'        => untrailingslashit( JETPACK_BOOST_PLUGINS_DIR_URL ),
+			'assetPath'           => plugins_url( $internal_path, JETPACK_BOOST_PATH ),
+			'canResizeImages'     => wp_image_editor_supports( array( 'methods' => array( 'resize' ) ) ),
+			'site'                => array(
+				'url'    => get_home_url(),
+				'domain' => ( new Status() )->get_site_suffix(),
+				'online' => ! ( new Status() )->is_offline_mode() && ! ( new Status() )->is_private_site(),
+				'host'   => ( new Host() )->get_known_host_guess(),
 			),
-			'api'             => array(
+			'api'                 => array(
 				'namespace' => JETPACK_BOOST_REST_NAMESPACE,
 				'prefix'    => JETPACK_BOOST_REST_PREFIX,
 			),
-			'postTypes'       => (object) $this->get_custom_post_types(),
+			'postTypes'           => (object) $this->get_custom_post_types(),
+			'developmentFeatures' => defined( 'JETPACK_BOOST_DEVELOPMENT_FEATURES' ) && JETPACK_BOOST_DEVELOPMENT_FEATURES,
 		);
 
-		// Give each module an opportunity to define extra constants.
+		/**
+		 * Filters the constants so each module can define extra ones
+		 *
+		 * @param array $constant The array of constants used by the plugin
+		 *
+		 * @since   1.0.0
+		 */
 		return apply_filters( 'jetpack_boost_js_constants', $constants );
 	}
 

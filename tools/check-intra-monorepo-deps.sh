@@ -12,7 +12,7 @@ BASE=$PWD
 # Print help and exit.
 function usage {
 	cat <<-EOH
-		usage: $0 [-a] [-n <name>] [-v] [-R] [-U|-u] [<slug> ...]
+		usage: $0 [-a] [-n <name>] [-v] [-R] [-P] [-U|-u] [<slug> ...]
 
 		Check that all composer and pnpm dependencies between monorepo projects are up to date.
 
@@ -28,6 +28,7 @@ function usage {
 		 -n: Set changelogger filename.
 		 -v: Output debug information.
 		 -R: When on a release branch, skip updating the corresponding plugins.
+		 -P: Skip updating pnpm lockfile. Automatically skipped if <slug> is passed.
 	EOH
 	exit 1
 }
@@ -39,7 +40,8 @@ DOCL_EVER=true
 AUTO_SUFFIX=false
 CL_FILENAME=
 RELEASEBRANCH=false
-while getopts ":uUvhHRan:" opt; do
+DO_PNPM_LOCK=true
+while getopts ":uUvhHRPan:" opt; do
 	case ${opt} in
 		u)
 			UPDATE=true
@@ -61,6 +63,9 @@ while getopts ":uUvhHRan:" opt; do
 			# -H is an old name, kept for back compat.
 			RELEASEBRANCH=true
 			;;
+		P)
+			DO_PNPM_LOCK=false
+			;;
 		h)
 			usage
 			;;
@@ -76,6 +81,9 @@ while getopts ":uUvhHRan:" opt; do
 done
 shift "$(($OPTIND -1))"
 
+# Make sure Jetpack CLI works. Otherwise stuff might fail oddly later when we try to do `jetpack dependencies | jq`.
+pnpm jetpack noop >&2
+
 if ! $VERBOSE; then
 	. "$BASE/tools/includes/spin.sh"
 	function debug {
@@ -83,12 +91,6 @@ if ! $VERBOSE; then
 	}
 else
 	. "$BASE/tools/includes/nospin.sh"
-	if [[ -n "$CI" ]]; then
-		function debug {
-			# Grey doesn't work well in GH's output.
-			blue "$@"
-		}
-	fi
 fi
 
 declare -A SKIPSLUGS
@@ -112,8 +114,10 @@ if $RELEASEBRANCH; then
 	fi
 fi
 
+spin
 debug "Fetching PHP package versions"
 
+init_changelogger
 function get_packages {
 	local PKGS
 	if [[ -z "$1" ]]; then
@@ -124,23 +128,15 @@ function get_packages {
 	else
 		PKGS=()
 	fi
-	if [[ "$PACKAGES" == '{}' && -n "$PACKAGE_VERSIONS_CACHE" && -s "$PACKAGE_VERSIONS_CACHE" ]]; then
-		PACKAGES="$(<"$PACKAGE_VERSIONS_CACHE")"
-	else
-		for PKG in "${PKGS[@]}"; do
-			PACKAGES=$(jq -c --argjson packages "$PACKAGES"  --arg ver "$(cd "${PKG%/composer.json}" && changelogger version current --default-first-version)" '.name as $k | $packages | .[$k] |= { rel: $ver, dep: ( "^" + $ver ) }' "$PKG")
-		done
-		if [[ -n "$PACKAGE_VERSIONS_CACHE" ]]; then
-			echo "$PACKAGES" > "$PACKAGE_VERSIONS_CACHE"
-		fi
-	fi
+	for PKG in "${PKGS[@]}"; do
+		PACKAGES=$(jq -c --argjson packages "$PACKAGES"  --arg ver "$(cd "${PKG%/composer.json}" && changelogger version current --default-first-version)" '.name as $k | $packages | .[$k] |= { rel: $ver, dep: ( "^" + $ver ) }' "$PKG")
+	done
 
 	JSPACKAGES=$(jq -nc 'reduce inputs as $in ({}; if $in.name then .[$in.name] |= [ "workspace:*" ] else . end )' "$BASE"/projects/js-packages/*/package.json)
 }
 
 get_packages
 
-DO_PNPM_LOCK=true
 SLUGS=()
 if [[ $# -le 0 ]]; then
 	# Use a temp variable so pipefail works
@@ -168,17 +164,7 @@ if $UPDATE; then
 			ARGS+=( --filename-auto-suffix )
 		fi
 
-		local CHANGES_DIR="$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' composer.json)"
-		if [[ -d "$CHANGES_DIR" && "$(ls -- "$CHANGES_DIR")" ]]; then
-			changelogger_add "${ARGS[@]}"
-		else
-			changelogger_add "${ARGS[@]}"
-			info "Updating version for $SLUG"
-			local PRERELEASE=$(alpha_tag composer.json 0)
-			local VER=$(changelogger version next --default-first-version --prerelease=$PRERELEASE) || { error "$VER"; EXIT=1; cd "$OLDDIR"; return; }
-			"$BASE/tools/project-version.sh" -v -u "$VER" "$SLUG"
-			get_packages "$SLUG"
-		fi
+		changelogger_add "${ARGS[@]}"
 		cd "$OLDDIR"
 	}
 fi
@@ -186,6 +172,8 @@ fi
 EXIT=0
 ANYJS=false
 SKIPPED=()
+declare -A PIDS
+PIDS=()
 for SLUG in "${SLUGS[@]}"; do
 	spin
 	if [[ -n "${SKIPSLUGS[$SLUG]}" ]]; then
@@ -253,15 +241,20 @@ for SLUG in "${SLUGS[@]}"; do
 		if [[ -n "$(git -c core.quotepath=off ls-files "$DIR/composer.lock")" ]]; then
 			PROJECTFOLDER="$BASE/$DIR"
 			cd "$PROJECTFOLDER"
-			debug "Updating $SLUG composer.lock"
-			OLD="$(<composer.lock)"
 
-			"$BASE/tools/composer-update-monorepo.sh" --quiet --no-audit "$PROJECTFOLDER"
-			if [[ "$OLD" != "$(<composer.lock)" ]] && $DOCL; then
-				info "Creating changelog entry for $SLUG composer.lock update"
-				do_changelogger "$SLUG" '' 'Updated composer.lock.'
-				DOCL=false
-			fi
+			# This is slow and nothing else should depend on it. Do it in a subshell.
+			{
+				debug "Updating $SLUG composer.lock (async)"
+				OLD="$(<composer.lock)"
+				"$BASE/tools/composer-update-monorepo.sh" --quiet --no-install --no-scripts --no-audit "$PROJECTFOLDER"
+				if [[ "$OLD" != "$(<composer.lock)" ]] && $DOCL; then
+					info "Creating changelog entry for $SLUG composer.lock update"
+					do_changelogger "$SLUG" '' 'Updated composer.lock.'
+				fi
+				debug "Done updating $SLUG composer.lock"
+			} &
+			PIDS[$!]=true
+
 			cd "$BASE"
 		fi
 	else
@@ -271,7 +264,7 @@ for SLUG in "${SLUGS[@]}"; do
 			if [[ -n "$CI" ]]; then
 				M="::error file=$FILE"
 				[[ -n "$LINE" ]] && M="$M,line=${LINE%%:*}"
-				echo "$M::Must depend on monorepo package $PKG version $VER%0AYou might use \`tools/check-intra-monorepo-deps.sh -u\` to fix this."
+				echo "$M::Must depend on monorepo package $PKG version $VER%0APlease run \`tools/check-intra-monorepo-deps.sh -u\`, commit, and push the generated changes to your branch to fix this."
 			else
 				M="$FILE"
 				[[ -n "$LINE" ]] && M="$M:${LINE%%:*}"
@@ -302,10 +295,19 @@ if $ANYJS; then
 	fi
 fi
 
+# Wait for any subshells above to finish.
+while [[ ${#PIDS[@]} -gt 0 ]]; do
+	spin
+	if ! wait -fn -p P "${!PIDS[@]}"; then
+		EXIT=1
+	fi
+	unset PIDS[$P]
+done
+
 spinclear
 
 if ! $UPDATE && [[ "$EXIT" != "0" ]]; then
-	jetpackGreen 'You might use `tools/check-intra-monorepo-deps.sh -u` to fix these errors.'
+	jetpackGreen 'Before you can merge your PR, please run `tools/check-intra-monorepo-deps.sh -u`, commit, and push the generated changes to your branch to fix these errors.'
 fi
 
 if $RELEASEBRANCH && [[ "${#SKIPPED[@]}" -gt 0 && "$EXIT" == "0" ]]; then

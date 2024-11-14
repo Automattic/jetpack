@@ -325,7 +325,7 @@ class Request {
 			$page_cache_status = new \Automattic\Jetpack_Boost\Lib\Status(
 				\Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Page_Cache::get_slug()
 			);
-			return ! $page_cache_status->is_enabled();
+			return ! $page_cache_status->get();
 		} else {
 			return true; // if the classes aren't available, the plugin isn't loaded.
 		}

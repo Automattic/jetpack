@@ -1,7 +1,8 @@
+import { useBlockProps } from '@wordpress/block-editor';
 import { SelectControl } from '@wordpress/components';
 import { compose } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import { useFormStyle, useFormWrapper } from '../util/form';
 import { withSharedFieldAttributes } from '../util/with-shared-field-attributes';
 import JetpackFieldControls from './jetpack-field-controls';
@@ -40,15 +41,17 @@ const JetpackDatePicker = props => {
 
 	const { blockStyle, fieldStyle } = useJetpackFieldStyles( attributes );
 	const formStyle = useFormStyle( clientId );
-
-	const classes = classnames( 'jetpack-field', {
-		'is-selected': isSelected,
-		'has-placeholder': !! placeholder,
+	const blockProps = useBlockProps( {
+		className: clsx( 'jetpack-field', {
+			'is-selected': isSelected,
+			'has-placeholder': !! placeholder,
+		} ),
+		style: blockStyle,
 	} );
 
 	return (
 		<>
-			<div className={ classes } style={ blockStyle }>
+			<div { ...blockProps }>
 				<JetpackFieldLabel
 					attributes={ attributes }
 					label={ label }
@@ -94,6 +97,7 @@ const JetpackDatePicker = props => {
 									'Select the format in which the date will be displayed.',
 									'jetpack-forms'
 								) }
+								__nextHasNoMarginBottom={ true }
 							/>
 						),
 					},

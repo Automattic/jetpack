@@ -1,6 +1,6 @@
-import { createLogger, format, transports, addColors } from 'winston';
-import config from 'config';
 import path from 'path';
+import config from 'config';
+import { createLogger, format, transports, addColors } from 'winston';
 
 const myCustomLevels = {
 	levels: {

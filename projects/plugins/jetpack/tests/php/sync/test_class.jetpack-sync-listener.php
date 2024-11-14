@@ -23,7 +23,7 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 	public function test_never_queues_if_staging() {
 		$this->markTestIncomplete( "We now check this during 'init', so testing is pretty hard" );
 		// @phan-suppress-next-line PhanPluginUnreachableCode
-		add_filter( 'jetpack_is_staging_site', '__return_true' );
+		add_filter( 'jetpack_is_in_safe_mode', '__return_true' );
 
 		$queue = $this->listener->get_sync_queue();
 		$queue->reset(); // remove any actions that already got queued

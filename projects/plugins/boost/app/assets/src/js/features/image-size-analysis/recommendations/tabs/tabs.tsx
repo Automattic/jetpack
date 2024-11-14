@@ -4,7 +4,7 @@ import type { IsaCounts } from '$features/image-size-analysis';
 import { useNavigate, Link } from 'react-router-dom';
 import { getGroupLabel, isaGroupKeys } from '$features/image-size-analysis/lib/isa-groups';
 import styles from './tabs.module.scss';
-import classNames from 'classnames';
+import clsx from 'clsx';
 
 interface TabsProps {
 	currentTab?: IsaCounts;
@@ -50,7 +50,7 @@ const Tabs: React.FC< TabsProps > = ( {
 								// eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions
 								<li
 									key={ group }
-									className={ classNames( styles.item, {
+									className={ clsx( styles.item, {
 										[ styles.active ]: details.issue_count,
 										[ styles.selected ]: activeGroupKey === group,
 									} ) }
@@ -72,7 +72,7 @@ const Tabs: React.FC< TabsProps > = ( {
 						return (
 							<div
 								key={ group }
-								className={ classNames( styles.tab, {
+								className={ clsx( styles.tab, {
 									[ styles.active ]: activeGroupKey === group,
 								} ) }
 							>
@@ -90,7 +90,7 @@ const Tabs: React.FC< TabsProps > = ( {
 											<span>{ issues }</span>
 										</Link>
 									) : (
-										<div className={ classNames( styles.link, styles.inactive ) }>
+										<div className={ clsx( styles.link, styles.inactive ) }>
 											{ label }
 											<span>{ issues }</span>
 										</div>

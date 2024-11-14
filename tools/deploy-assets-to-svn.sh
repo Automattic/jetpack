@@ -218,7 +218,7 @@ else
 		command -v "$PAGER" &>/dev/null && break
 	done
 	svn diff | "$PAGER" || true
-	proceed_p "We're ready to update!" "Do it?"
+	proceed_p "We're ready to update!" "Do it?" Y
 	info "Updating assets and readme"
 	svn commit -m "Updating assets and readme"
 	success "Done!"

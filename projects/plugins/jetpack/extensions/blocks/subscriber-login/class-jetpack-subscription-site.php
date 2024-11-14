@@ -3,7 +3,7 @@
  * Adds support for Jetpack Subscription Site feature.
  *
  * @package automattic/jetpack
- * @since $$next_version$$
+ * @since 13.3
  */
 
 namespace Automattic\Jetpack\Extensions\Subscriber_Login;
@@ -67,14 +67,12 @@ class Jetpack_Subscription_Site {
 	 * @return void
 	 */
 	protected function handle_subscriber_login_block_navigation_placement() {
-		global $wp_version;
-
 		$subscriber_login_navigation_enabled = get_option( 'jetpack_subscriptions_login_navigation_enabled', false );
 		if ( ! $subscriber_login_navigation_enabled ) {
 			return;
 		}
 
-		if ( ! wp_is_block_theme() || version_compare( $wp_version, '6.5-beta2', '<' ) ) { // TODO Fallback for classic themes and wp core < 6.5-beta2.
+		if ( ! wp_is_block_theme() ) { // TODO Fallback for classic themes.
 			return;
 		}
 

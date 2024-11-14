@@ -25,7 +25,7 @@
 		Cantarell,
 		"Helvetica Neue",
 		sans-serif;
-	--max-container-width: 1128px;	
+	--max-container-width: 1128px;
 	background-color: var(--jp-white);
 }
 
@@ -50,12 +50,12 @@
 
 #wpsc-callout ul,
 #wpsc-callout ol,
-#wpsc-callout > p:last-child {
+#wpsc-callout>p:last-child {
 	font-size: var(--font-body-small);
 }
 
-#wpsc-dashboard > .header,
-#wpsc-dashboard > .footer,
+#wpsc-dashboard>.header,
+#wpsc-dashboard>.footer,
 #wpsc-dashboard .wpsc-body-content,
 #wpsc-dashboard .wpsc-nav {
 	max-width: var(--max-container-width);
@@ -75,6 +75,7 @@
 	height: var(--icon-height);
 	border-radius: 7px;
 }
+
 .header .wpsc-name {
 	color: var(--jp-black);
 	font-family: var(--wpsc-header-font);
@@ -142,7 +143,7 @@
 
 .footer {
 	--icon-height: 16px;
-	
+
 	display: flex;
 	margin-top: 1em;
 	margin-bottom: 1em;
@@ -169,7 +170,16 @@
 	text-align: right;
 }
 
-.footer .automattic-airline	img {
+.footer .automattic-airline img {
 	width: 190px;
 	height: auto;
+}
+
+#wpsc-notice-boost-migrate {
+	margin-top: 10px;
+
+	a.button.button-primary {
+		background-color: var(--jp-black);
+		color: var(--jp-white);
+	}
 }

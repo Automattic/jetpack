@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import React, { useMemo } from 'react';
 import numberFormat from '../number-format';
 
@@ -63,7 +63,7 @@ export type RecordMeterBarProps = {
  * Generate Record Meter bar
  *
  * @param {RecordMeterBarProps} props - Props
- * @returns {React.ReactElement} - JSX element
+ * @return {React.ReactElement} - JSX element
  */
 const RecordMeterBar: React.FC< RecordMeterBarProps > = ( {
 	totalCount,
@@ -97,7 +97,7 @@ const RecordMeterBar: React.FC< RecordMeterBarProps > = ( {
 	}, [ items, sortByCount ] );
 
 	return (
-		<div className={ classNames( 'record-meter-bar', className ) }>
+		<div className={ clsx( 'record-meter-bar', className ) }>
 			<div className="record-meter-bar__items" aria-hidden="true">
 				{ itemsToRender.map( ( { count, label, backgroundColor } ) => {
 					const widthPercent = ( ( count / total ) * 100 ).toPrecision( 2 );

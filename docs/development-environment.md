@@ -164,7 +164,7 @@ If you're ready to start, you should see all green `SUCCESS` messages. If the sc
 
 Once you're all set here, you can continue developing. If you're setting up an local environment and want to start testing immediately, please ensure you build the projects you need.
 
-`jetpack build` will provide prompts to determine the project you need or you can pass it a complete command, like `jetpack build plugins/jetpack --with-deps`
+`jetpack build` will provide prompts to determine the project you need or you can pass it a complete command, like `jetpack build plugins/jetpack --deps`
 
 ### Testing Jetpack cloud features
 
@@ -384,9 +384,9 @@ We strongly recommend that you install tools to review your code in your IDE. It
 	composer phpcs:lint
 	```
 
-* ### Checking Jetpack's PHP for compatibility with different versions of PHP since 7.0
+* ### Checking Jetpack's PHP for compatibility with different versions of PHP
 
-	We have a handy `composer` script that will just run the PHP CodeSniffer `PHPCompatibilityWP` ruleset checking for code not compatible with PHP 7.0
+	We have a handy `composer` script that will just run the PHP CodeSniffer `PHPCompatibilityWP` ruleset checking for code not compatible with supported PHP versions:
 
 	```sh
 	composer phpcs:compatibility

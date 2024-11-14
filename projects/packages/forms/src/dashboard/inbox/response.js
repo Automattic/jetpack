@@ -5,7 +5,7 @@ import { Button } from '@wordpress/components';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import { map } from 'lodash';
 /**
  * Internal dependencies
@@ -16,7 +16,7 @@ import { formatFieldName, formatFieldValue, getDisplayName } from './util';
 const InboxResponse = ( { loading, response } ) => {
 	const [ emailCopied, setEmailCopied ] = useState( false );
 
-	const ref = useRef();
+	const ref = useRef( undefined );
 
 	useEffect( () => {
 		if ( ! ref.current ) {
@@ -32,15 +32,15 @@ const InboxResponse = ( { loading, response } ) => {
 		setTimeout( () => setEmailCopied( false ), 3000 );
 	}, [ response, setEmailCopied ] );
 
-	const titleClasses = classnames( 'jp-forms__inbox-response-title', {
+	if ( ! loading && ! response ) {
+		return null;
+	}
+
+	const titleClasses = clsx( 'jp-forms__inbox-response-title', {
 		'is-email': response && ! response.author_name && response.author_email,
 		'is-ip': response && ! response.author_name && ! response.author_email,
 		'is-name': response && response.author_name,
 	} );
-
-	if ( ! loading && ! response ) {
-		return null;
-	}
 
 	return (
 		<SwitchTransition

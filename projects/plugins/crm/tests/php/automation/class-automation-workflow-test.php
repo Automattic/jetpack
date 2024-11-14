@@ -22,7 +22,7 @@ require_once __DIR__ . '/tools/class-automation-faker.php';
  *
  * @since 6.2.0
  *
- * @covers Automattic\Jetpack\CRM\Automation
+ * @covers Automattic\Jetpack\CRM\Automation\Automation_Workflow
  */
 class Automation_Workflow_Test extends JPCRM_Base_Test_Case {
 

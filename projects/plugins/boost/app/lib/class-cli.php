@@ -10,6 +10,7 @@
 namespace Automattic\Jetpack_Boost\Lib;
 
 use Automattic\Jetpack_Boost\Data_Sync\Getting_Started_Entry;
+use Automattic\Jetpack_Boost\Modules\Modules_Index;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Garbage_Collection;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Page_Cache_Setup;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache_Settings;
@@ -111,7 +112,16 @@ class CLI {
 	 * @param string $status      Module status.
 	 */
 	private function set_module_status( $module_slug, $status ) {
-		( new Status( $module_slug ) )->update( $status );
+		$modules_index = new Modules_Index();
+		$module        = $modules_index->get_module_instance_by_slug( $module_slug );
+		if ( $module === false ) {
+			\WP_CLI::error(
+				/* translators: %s refers to the module slug like 'critical-css' */
+				sprintf( __( "The '%s' module slug is invalid", 'jetpack-boost' ), $module_slug )
+			);
+		}
+
+		$module->update( $status );
 
 		if ( $module_slug === 'page_cache' && $status ) {
 			$setup_result = Page_Cache_Setup::run_setup();

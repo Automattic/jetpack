@@ -22,7 +22,7 @@ class AutoupdateSelf {
 	/**
 	 * Singleton class instance.
 	 *
-	 * @var static
+	 * @var self
 	 */
 	private static $instance = null;
 
@@ -234,18 +234,22 @@ class AutoupdateSelf {
 	 * The download from GitHub will produce a directory named like "Automattic-jetpack-beta-xxxxxxx".
 	 * We need to correct that so it will overwrite the current instance of the plugin.
 	 *
-	 * @param string $source File source location. Something like "/path/to/workdir/Automattic-jetpack-beta-xxxxxxx/".
-	 * @param string $remote_source Remote file source location. Something like "/path/to/workdir/".
-	 * @return string $source
+	 * @param string|WP_Error $source File source location. Something like "/path/to/workdir/Automattic-jetpack-beta-xxxxxxx/".
+	 * @param string          $remote_source Remote file source location. Something like "/path/to/workdir/".
+	 * @return string|WP_Error $source
 	 */
 	public function upgrader_source_selection( $source, $remote_source ) {
 		global $wp_filesystem;
-		if ( strstr( $source, '/Automattic-jetpack-beta-' ) ) {
+		if ( is_string( $source ) && str_contains( $source, '/Automattic-jetpack-beta-' ) ) {
 			$corrected_source = trailingslashit( $remote_source ) . trailingslashit( $this->config['proper_folder_name'] );
 			if ( $wp_filesystem->move( $source, $corrected_source, true ) ) {
 				return $corrected_source;
 			} else {
-				return new WP_Error();
+				return new WP_Error(
+					'fs_error',
+					__( 'Failed to move update directory into place.', 'jetpack-beta' ),
+					is_wp_error( $wp_filesystem->errors ) && $wp_filesystem->errors->has_errors() ? $wp_filesystem->errors : ''
+				);
 			}
 		}
 		return $source;

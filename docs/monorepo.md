@@ -41,7 +41,7 @@ All GitHub Actions configuration for the monorepo, including CI, lives in `.gith
 
 ## Compatibility
 
-All projects should be compatible with PHP versions WordPress supports. That's currently PHP 7.0 to 8.3.
+All projects should be compatible with PHP versions WordPress supports. That's currently PHP 7.2 to 8.3.
 
 ## First Time
 
@@ -116,6 +116,8 @@ We use `composer.json` to hold metadata about projects. Much of our generic tool
 * `.repositories`: If you include a repository entry referencing monorepo packages, it must have `.options.monorepo` set to true. This allows the build tooling to recognize and remove it.
 * `.scripts.build-development`: If your project has a general build step, this must run the necessary commands. See [Building](#building) for details.
 * `.scripts.build-production`: If your project requires a production-specific build step, this must run the necessary commands. See [Building](#building) for details.
+* `.scripts.test-coverage`: If the package contains any tests, this must run the necessary commands to generate a coverage report. See [Code coverage](#code-coverage) for details.
+  * `.scripts.skip-test-coverage`: Run before `.scripts.test-coverage` in CI. If it exits with code 3, the test run will be skipped.
 * `.scripts.test-e2e`: If the package contains any E2E tests, this must run the necessary commands. See [E2E tests](#e2e-tests) for details.
 * `.scripts.test-js`: If the package contains any JavaScript tests, this must run the necessary commands. See [JavaScript tests](#javascript-tests) for details.
   * `.scripts.skip-test-js`: Run before `.scripts.test-js` in CI. If it exits with code 3, the test run will be skipped.
@@ -125,8 +127,8 @@ We use `composer.json` to hold metadata about projects. Much of our generic tool
 * `.extra.autotagger`: Set truthy to enable automatic release-version tagging in the mirror repo. See [Mirror repositories > Autotagger](#autotagger) for details.
 * `.extra.changelogger`: Configuration object for [Changelogger](#jetpack-changelogger). See [its documentation](https://github.com/Automattic/jetpack-changelogger#configuration) for details.
 * `.extra.changelogger-default-type`: Certain of our tools automatically create Changelogger change entries. This is the value to use for `--type` when doing so. Default type is `changed`.
-* `.extra.dependencies.build`: This optional array specifies the "slugs" of any within-monorepo build dependencies that can't otherwise be inferred. The "slug" consists of the two levels of directory under `projects/`, e.g. `plugins/jetpack` or `packages/lazy-images`.
-* `.extra.dependencies.test`: This optional array specifies the "slugs" of any within-monorepo testing dependencies that can't otherwise be inferred. The "slug" consists of the two levels of directory under `projects/`, e.g. `plugins/jetpack` or `packages/lazy-images`. See [Testing](#testing) for details.
+* `.extra.dependencies.build`: This optional array specifies the "slugs" of any within-monorepo build dependencies that can't otherwise be inferred. The "slug" consists of the two levels of directory under `projects/`, e.g. `plugins/jetpack` or `packages/changelogger`.
+* `.extra.dependencies.test`: This optional array specifies the "slugs" of any within-monorepo testing dependencies that can't otherwise be inferred. The "slug" consists of the two levels of directory under `projects/`, e.g. `plugins/jetpack` or `packages/changelogger`. See [Testing](#testing) for details.
 * `.extra.dependencies.test-only`: This optional array specifies the "slugs" of any within-monorepo dependencies that are only used for testing and/or static analysis and should be ignored otherwise when analyzing intra-monorepo dependencies.
 * `.extra.dev-releases`: Indicate that the plugin will have developer alpha releases. Instead of the mirror repositories showing "VER-alpha", they'll start at "VER-a.0" and you can use the `-a` flag to the release tooling to release "VER-a.1".
 * `.extra.mirror-repo`: This specifies the name of the GitHub mirror repo, i.e. the "Automattic/jetpack-_something_" in "<span>https://</span>github.com/Automattic/jetpack-_something_".
@@ -183,6 +185,8 @@ The following environment variables are available for all tests:
 
 - `ARTIFACTS_DIR`: If your tests generate any artifacts that might be useful for debugging, you may place them in the directory specified by this variable and they will be uploaded to GitHub after the test run. There's no need to be concerned about collisions with other projects' artifacts, a separate directory is used per project.
 - `MONOREPO_BASE`: Path to the monorepo. Useful if you're using things in `tools/` from plugin tests.
+- `WORDPRESS_DIR`: Path to a copy of WordPress. Other than plugin tests, though, you should probably avoid using this.
+- `WORDPRESS_DEVELOP_DIR`: Path to a checkout of wordpress-develop. Other than plugin tests, though, you should probably avoid using this.
 - `NODE_VERSION`: The version of Node in use, as specified in `.github/versions.sh`.
 - `PHP_VERSION`: The version of PHP in use. Unless otherwise specified below, it will be the same as in `.github/versions.sh`.
 - `TEST_SCRIPT`: The test script being run.
@@ -208,9 +212,26 @@ We use eslint and phpcs to lint JavaScript and PHP code. Projects should comply 
 
 We use Phan for PHP static analysis.[^1] Configuration for a project resides in the `.phan/config.php` within the project, which should generally build on top of the `.phan/config.base.php` from the monorepo root. A baseline file may also reside at `.phan/baseline.php` to allow for incremental fixing of errors.
 
-Phan in the monorepo should be run locally via [Jetpack's CLI tool](#first-time) as `jetpack phan`. Note that Phan soft-requires the [PHP ast extension](https://pecl.php.net/package/ast); while on Linux installing this is likely as easy as `sudo apt-get install php8.2-ast`, Mac users have reported having trouble.
+Phan in the monorepo should be run locally via [Jetpack's CLI tool](#first-time) as `jetpack phan`. Note that Phan soft-requires the [PHP ast extension](https://pecl.php.net/package/ast).
 
-<details><summary>Instructions for Mac users</summary>
+<details><summary>Installing the PHP ast extension on Linux</summary>
+
+On most Linux distributions, you can install the PHP ast extension using your package manager:
+
+- For Ubuntu/Debian-based systems:
+  ```
+  sudo apt-get install php8.2-ast
+  ```
+- For Arch Linux:
+  Install the AUR package "php-ast" from https://aur.archlinux.org/packages/php-ast
+
+For other Linux distributions, consult your package manager's documentation or consider compiling from source.
+
+</details>
+
+Mac users have reported having trouble installing the PHP ast extension. See the dropdown below for Mac-specific instructions.
+
+<details><summary>Installing the PHP ast extension on Mac</summary>
 
 This assumes you have PHP installed via Homebrew, e.g. you've done `brew install php@8.2`.
 
@@ -245,7 +266,7 @@ If a project contains PHP tests (typically PHPUnit), it must define `.scripts.te
 
 A MySQL database is available if needed; credentials may be found in `~/.my.cnf`. Note that the host must be specified as `127.0.0.1`, as when passed `localhost` PHP will try to connect via a Unix domain socket which is not available in the Actions environment.
 
-Tests are run with a variety of supported PHP versions from 7.0 to 8.3. If you have tests that only need to be run once, run them when `PHP_VERSION` matches that in `.github/versions.sh`.
+Tests are run with a variety of supported PHP versions from 7.2 to 8.3. If you have tests that only need to be run once, run them when `PHP_VERSION` matches that in `.github/versions.sh`.
 
 #### PHP tests for non-plugins
 
@@ -253,7 +274,7 @@ For all project types other than WordPress plugins, the necessary version of PHP
 
 We currently make use of the following packages in testing; it's encouraged to use these rather than introducing other tools that serve the same purpose.
 
-* [yoast/phpunit-polyfills](https://packagist.org/packages/yoast/phpunit-polyfills) supplies polyfills for compatibility with PHPUnit 6.5 to 9.0, to support PHP 7.0 to 8.3.
+* [yoast/phpunit-polyfills](https://packagist.org/packages/yoast/phpunit-polyfills) supplies polyfills for compatibility with PHPUnit 8.5 to 9.6, to support PHP 7.2 to 8.3.
   * Do not use `Yoast\PHPUnitPolyfills\TestCases\TestCase` or `Yoast\PHPUnitPolyfills\TestCases\XTestCase`. Just use the `@before`, `@after`, `@beforeClass`, and `@afterClass` annotations directly.
 * PHPUnit's built-in mocking is used for class mocks.
 * [brain/monkey](https://packagist.org/packages/brain/monkey) is used for mocking functions, and can also provide some functions for minimal WordPress compatibility.
@@ -264,7 +285,7 @@ We currently make use of the following packages in testing; it's encouraged to u
 
 #### PHP tests for plugins
 
-WordPress plugins generally want to run within WordPress. All monorepo plugins are copied into place in a WordPress installation and tests are run from there.
+WordPress plugins may want to run within WordPress. All monorepo plugins are copied into place in a WordPress installation. Environment variable `WORDPRESS_DIR` points to this installation, and `WORDPRESS_DEVELOP_DIR` points a directory with WordPress's `tests/phpunit/`.
 
 Tests will be run against the latest version of WordPress using the variety of supported PHP versions, and against the previous and trunk versions of WordPress using the PHP version in `.github/versions.sh`. The environment variable `WP_BRANCH` will be set to 'latest', 'previous', or 'trunk' accordingly. If you have tests that only need to be run once, run them when `WP_BRANCH` is 'latest'.
 
@@ -281,6 +302,18 @@ JavaScript tests should use `jest`, not `mocha`/`chai`/`sinon`. For React testin
 **This is not implemented yet!**
 
 If a project contains end-to-end tests, it must define `.scripts.test-e2e` in `composer.json` to run the tests. If a build step is required before running tests, the necessary commands for that should also be included.
+
+### Code coverage
+
+If a project contains PHP or JavaScript tests, it should also define `.scripts.test-coverage` in `composer.json` to run the tests in a mode that will generate code coverage output. The CI environment will run `pnpm install` and `composer install` beforehand, but if a build step is required before running tests the necessary commands for that should also be included in `.scripts.test-coverage`.
+
+Output should be written to the path specified via the `COVERAGE_DIR` environment variable. Subdirectories of that path may be used as desired.
+
+For PHP tests, you'll probably run PHPUnit as `php -dpcov.directory=. "$(command -v phpunit)" --coverage-php "$COVERAGE_DIR/php.cov"`. If you have multiple runs (e.g. unit and integration), be sure to write the `php.cov` files to separate subdirectories of `$COVERAGE_DIR`.
+
+For JS tests, you'll probably have a `test` script in package.json that runs `jest` with any needed options, and then a `test-coverage` script that does `pnpm run test --coverage`. If you have multiple runs (e.g. unit and integration), be sure each run writes to a different subdirectory of `$COVERAGE_DIR`.
+
+There's no need to be concerned about collisions with other projects' coverage files, a separate directory is used per project. The coverage files are also automatically copied to `ARTIFACTS_DIR`.
 
 ## Mirror repositories
 

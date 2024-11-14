@@ -56,7 +56,7 @@ describe( 'projectHelpers', () => {
 	} );
 	test( 'allProjects should contain prefixed packages', () => {
 		// Confirms the type/project style.
-		expect( allProjects() ).toContain( 'packages/abtest' );
+		expect( allProjects() ).toContain( 'packages/changelogger' );
 	} );
 	test( 'allProjects should contain prefixed github-actions', () => {
 		// Confirms the type/project style.
@@ -74,7 +74,7 @@ describe( 'projectHelpers', () => {
 		expect( allProjectsByType( 'plugins' ) ).toContain( 'plugins/jetpack' );
 	} );
 	test( 'allProjectsByType should include a known package', () => {
-		expect( allProjectsByType( 'packages' ) ).toContain( 'packages/abtest' );
+		expect( allProjectsByType( 'packages' ) ).toContain( 'packages/changelogger' );
 	} );
 	test( 'allProjectsByType should include a known GitHub action', () => {
 		expect( allProjectsByType( 'github-actions' ) ).toContain( 'github-actions/push-to-mirrors' );

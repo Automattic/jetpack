@@ -11,6 +11,7 @@ export class MapMarker extends Component {
 	componentWillUnmount() {
 		if ( this.marker ) {
 			this.marker.remove();
+			this.marker = null;
 		}
 	}
 	componentDidUpdate() {

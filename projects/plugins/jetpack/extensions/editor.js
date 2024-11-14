@@ -7,6 +7,7 @@ import './shared/plan-upgrade-notification';
 import './shared/stripe-connection-notification';
 import './shared/external-media';
 import './extended-blocks/core-embed';
+import './extended-blocks/core-site-logo/index.js';
 import './extended-blocks/core-social-links';
 import './extended-blocks/paid-blocks';
 import './shared/styles/slideshow-fix.scss';
@@ -59,7 +60,7 @@ apiFetch.use( ( options, next ) => {
  * isBetaExtension( 'ai-content-lens' ); // true
  * ```
  * @param {string} name - Extension name
- * @returns {boolean}     Whether the extension is a beta extension
+ * @return {boolean}     Whether the extension is a beta extension
  */
 export function isBetaExtension( name ) {
 	if ( ! extensionList ) {

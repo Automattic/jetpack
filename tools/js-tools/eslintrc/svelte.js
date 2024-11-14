@@ -1,24 +1,28 @@
 module.exports = {
-	extends: [ './preload' ],
+	extends: [ './preload', 'plugin:svelte/recommended' ],
 	parserOptions: {
 		extraFileExtensions: [ '.svelte' ],
 	},
 	overrides: [
 		{
 			files: [ '*.svelte' ],
-			processor: 'svelte3/svelte3',
 			extends: [ './typescript' ],
+			parser: 'svelte-eslint-parser',
+			parserOptions: {
+				parser: require.resolve( '@typescript-eslint/parser' ),
+			},
+			settings: {
+				'import/parsers': {
+					'@typescript-eslint/parser': [ '.js' ],
+				},
+			},
 		},
 	],
-	settings: {
-		'svelte3/typescript': () => require( 'typescript' ),
-	},
-	plugins: [ 'svelte3' ],
 	rules: {
 		// This rule is for React projects; it prevents components which are not
 		// yet mounted in the DOM from attaching to the window directly. Not
 		// relevant in a svelte project.
 		// Ref: https://github.com/WordPress/gutenberg/pull/26810
-		'@wordpress/no-global-event-listener': 0,
+		'@wordpress/no-global-event-listener': 'off',
 	},
 };

@@ -7,7 +7,7 @@ import { store as socialStore } from '../../../social-store';
 import {
 	connections as connectionsList,
 	createRegistryWithStores,
-	testPost,
+	postPublishFetchHandler,
 } from '../../../utils/test-utils';
 
 const connections = connectionsList.map( connection => ( { ...connection, enabled: true } ) );
@@ -15,9 +15,6 @@ const connections = connectionsList.map( connection => ( { ...connection, enable
 const post = {
 	jetpack_publicize_connections: [ connections[ 0 ] ],
 };
-
-const getMethod = options =>
-	options.headers?.[ 'X-HTTP-Method-Override' ] || options.method || 'GET';
 
 describe( 'useSyncPostDataToStore', () => {
 	it( 'should do nothing by default', async () => {
@@ -67,26 +64,7 @@ describe( 'useSyncPostDataToStore', () => {
 		await registry.resolveSelect( socialStore ).getConnections();
 
 		// Mock apiFetch response.
-		apiFetch.setFetchHandler( async options => {
-			const method = getMethod( options );
-			const { path, data } = options;
-
-			if ( method === 'PUT' && path.startsWith( `/wp/v2/posts/${ testPost.id }` ) ) {
-				return { ...post, ...data };
-			} else if (
-				// This URL is requested by the actions dispatched in this test.
-				// They are safe to ignore and are only listed here to avoid triggeringan error.
-				method === 'GET' &&
-				path.startsWith( '/wp/v2/types/post' )
-			) {
-				return {};
-			}
-
-			throw {
-				code: 'unknown_path',
-				message: `Unknown path: ${ method } ${ path }`,
-			};
-		} );
+		apiFetch.setFetchHandler( postPublishFetchHandler( post ) );
 
 		const prevConnections = registry.select( socialStore ).getConnections();
 
@@ -103,8 +81,16 @@ describe( 'useSyncPostDataToStore', () => {
 				status: 'publish',
 				jetpack_publicize_connections: updatedConnections,
 			} );
-			registry.dispatch( editorStore ).savePost();
 		} );
+
+		// `.savePost()` triggers two state updates before it resolves. If we await it inside a single `act()`, the updates will cancel each other out and therefore `usePostJustPublished()` won't trigger.
+		// To work around that with the current implementation of `.savePost()` we can call it without awaiting in one `act()` and then await in a second.
+		// @todo Does that mean `usePostJustPublished()` is risky in general? i.e. if the `fetch()` returns too quickly might React batch the updates?
+		let p;
+		act( () => {
+			p = registry.dispatch( editorStore ).savePost();
+		} );
+		await act( async () => p );
 
 		const freshConnections = registry.select( socialStore ).getConnections();
 

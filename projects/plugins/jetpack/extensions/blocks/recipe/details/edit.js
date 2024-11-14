@@ -1,5 +1,5 @@
 import { InnerBlocks } from '@wordpress/block-editor';
-import { TextControl, __experimentalUnitControl as UnitControl } from '@wordpress/components'; // eslint-disable-line wpcalypso/no-unsafe-wp-apis
+import { TextControl, __experimentalUnitControl as UnitControl } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import './editor.scss';
 
 const units = [
@@ -16,6 +16,7 @@ function RecipeDetailsEdit( { className, attributes, setAttributes } ) {
 					<TextControl
 						value={ prepTimeLabel }
 						onChange={ val => setAttributes( { prepTimeLabel: val } ) }
+						__nextHasNoMarginBottom={ true }
 					/>
 					<UnitControl
 						onChange={ val => setAttributes( { prepTime: val } ) }
@@ -29,6 +30,7 @@ function RecipeDetailsEdit( { className, attributes, setAttributes } ) {
 					<TextControl
 						value={ cookTimeLabel }
 						onChange={ val => setAttributes( { cookTimeLabel: val } ) }
+						__nextHasNoMarginBottom={ true }
 					/>
 					<UnitControl
 						onChange={ val => setAttributes( { cookTime: val } ) }
@@ -44,11 +46,13 @@ function RecipeDetailsEdit( { className, attributes, setAttributes } ) {
 					<TextControl
 						value={ servingsLabel }
 						onChange={ val => setAttributes( { servingsLabel: val } ) }
+						__nextHasNoMarginBottom={ true }
 					/>
 					<TextControl
 						type="number"
 						value={ servings }
 						onChange={ val => setAttributes( { servings: parseInt( val ) } ) }
+						__nextHasNoMarginBottom={ true }
 					/>
 				</div>
 				<div className="group">

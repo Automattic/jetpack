@@ -72,6 +72,10 @@ class Taxonomy_Provider extends Provider {
 			return array();
 		}
 
+		if ( ! get_queried_object() ) {
+			return array();
+		}
+
 		// For example: "taxonomy_category".
 		return array( self::$name . '_' . get_queried_object()->taxonomy );
 	}
@@ -120,10 +124,18 @@ class Taxonomy_Provider extends Provider {
 				'public'       => true,
 				'show_in_rest' => true,
 			),
-			'names'
+			'objects'
 		);
 
-		return array_filter( $taxonomies, 'is_taxonomy_viewable' );
+		$taxonomies = array_filter( $taxonomies, 'is_taxonomy_viewable' );
+
+		$provider_taxonomies = array();
+		// Generate a name => name array for backwards compatibility.
+		foreach ( $taxonomies as $taxonomy ) {
+			$provider_taxonomies[ $taxonomy->name ] = $taxonomy->name;
+		}
+
+		return $provider_taxonomies;
 	}
 
 	/**
@@ -134,6 +146,13 @@ class Taxonomy_Provider extends Provider {
 	 * @return array
 	 */
 	public static function get_terms( $taxonomy ) {
+		/**
+		 * Filters the WP_Term_Query args to get a sample of terms for a taxonomy
+		 *
+		 * @param array $args The arguments that will be used by WP_Term_Query
+		 *
+		 * @since   1.0.0
+		 */
 		$args = apply_filters(
 			'jetpack_boost_critical_css_terms_query',
 			array(

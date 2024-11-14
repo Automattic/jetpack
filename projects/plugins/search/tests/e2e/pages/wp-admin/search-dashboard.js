@@ -1,5 +1,5 @@
-import WpPage from 'jetpack-e2e-commons/pages/wp-page.js';
 import { resolveSiteUrl } from 'jetpack-e2e-commons/helpers/utils-helper.js';
+import WpPage from 'jetpack-e2e-commons/pages/wp-page.js';
 
 export default class SearchDashboard extends WpPage {
 	static SEARCH_SETTING_API_PATTERN = /^https?:\/\/.*jetpack\/v4\/search\/settings/;

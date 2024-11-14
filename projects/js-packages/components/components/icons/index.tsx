@@ -1,5 +1,5 @@
 import { Path, SVG, G, Polygon } from '@wordpress/components';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import SocialLogo from 'social-logos';
 import styles from './style.module.scss';
 import { BaseIconProps } from './types';
@@ -9,7 +9,7 @@ import type React from 'react';
  * Icon Wrapper component.
  *
  * @param {BaseIconProps} props - Component props.
- * @returns {React.ReactNode} Icon Wrapper component.
+ * @return {React.ReactNode} Icon Wrapper component.
  */
 const IconWrapper: React.FC< BaseIconProps > = ( {
 	className,
@@ -20,7 +20,7 @@ const IconWrapper: React.FC< BaseIconProps > = ( {
 	children,
 } ) => {
 	const iconProps = {
-		className: classNames( styles.iconWrapper, className ),
+		className: clsx( styles.iconWrapper, className ),
 		width: size,
 		height: size,
 		viewBox,
@@ -264,8 +264,8 @@ export type IconSlug = keyof IconsMap;
 /**
  * Return icon component by slug.
  *
- * @param {string} slug       - Icon slug.
- * @returns {React.ComponentType<BaseIconProps>}   Icon component.
+ * @param {string} slug - Icon slug.
+ * @return {React.ComponentType<BaseIconProps>}   Icon component.
  */
 export function getIconBySlug< Slug extends IconSlug >( slug: Slug ): IconsMap[ Slug ] {
 	if ( ! iconsMap[ slug ] ) {
@@ -282,7 +282,7 @@ export const SocialServiceIcon: React.FC< {
 } > = ( { serviceName, className, iconSize } ) => {
 	return (
 		<SocialLogo
-			className={ classNames( styles.socialIcon, styles[ serviceName ], className ) }
+			className={ clsx( styles.socialIcon, styles[ serviceName ], className ) }
 			icon={ serviceName }
 			size={ iconSize || 24 }
 		/>

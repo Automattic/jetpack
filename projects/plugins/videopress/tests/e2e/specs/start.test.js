@@ -1,6 +1,6 @@
 import { test } from '@playwright/test';
-import { Sidebar, DashboardPage } from 'jetpack-e2e-commons/pages/wp-admin/index.js';
 import { prerequisitesBuilder } from 'jetpack-e2e-commons/env/prerequisites.js';
+import { Sidebar, DashboardPage } from 'jetpack-e2e-commons/pages/wp-admin/index.js';
 import playwrightConfig from '../playwright.config.mjs';
 
 test.describe( 'Starter plugin!', () => {

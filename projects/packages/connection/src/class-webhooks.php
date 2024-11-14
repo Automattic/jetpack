@@ -107,7 +107,7 @@ class Webhooks {
 		}
 		do_action( 'jetpack_client_authorize_processing' );
 
-		$data              = stripslashes_deep( $_GET );
+		$data              = stripslashes_deep( $_GET ); // We need all request data under the context of an authorization request.
 		$data['auth_type'] = 'client';
 		$roles             = new Roles();
 		$role              = $roles->translate_current_user_to_role();
@@ -199,6 +199,10 @@ class Webhooks {
 			wp_safe_redirect( $redirect );
 			$this->do_exit();
 		} else {
+			if ( 'connect-after-checkout' === $from && $redirect ) {
+				wp_safe_redirect( $redirect );
+				$this->do_exit();
+			}
 			$connect_url = add_query_arg(
 				array(
 					'from'               => $from,

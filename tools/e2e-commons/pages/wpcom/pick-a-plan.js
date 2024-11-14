@@ -1,5 +1,5 @@
-import WpPage from '../wp-page.js';
 import logger from '../../logger.js';
+import WpPage from '../wp-page.js';
 
 export default class PickAPlanPage extends WpPage {
 	constructor( page ) {
@@ -11,10 +11,11 @@ export default class PickAPlanPage extends WpPage {
 
 	async select( product = 'free' ) {
 		switch ( product ) {
-			case 'free':
+			case 'free': {
 				const freePlanButton = '.jetpack-product-store__jetpack-free a';
 				await this.click( freePlanButton );
 				break;
+			}
 			default:
 				logger.error( `Selecting plan '${ product }' is not implemented! Add it yourself?` );
 		}

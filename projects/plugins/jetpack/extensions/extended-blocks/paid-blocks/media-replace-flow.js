@@ -10,7 +10,7 @@ export default createHigherOrderComponent(
 		const { name } = useBlockEditContext();
 		const usableBlocksProps = getUsableBlockProps( name );
 
-		const preUploadFile = useRef();
+		const preUploadFile = useRef( undefined );
 		if ( ! usableBlocksProps?.mediaReplaceFlow || ! isUpgradable( name ) ) {
 			return <MediaReplaceFlow { ...props } />;
 		}

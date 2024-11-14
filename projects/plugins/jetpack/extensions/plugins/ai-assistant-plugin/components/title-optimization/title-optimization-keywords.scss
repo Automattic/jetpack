@@ -1,0 +1,33 @@
+.jetpack-ai-title-optimization__keywords {
+	margin-top: 32px;
+	margin-bottom: 16px;
+
+	&__textarea {
+		display: flex;
+		justify-content: center;
+
+		// The element created by the KeyboardShortcuts component
+		div {
+			width: 100%;
+		}
+
+		textarea {
+			width: 100%;
+			outline: none;
+			border: 1px solid #ccc;
+			border-radius: 6px;
+			padding: 12px;
+			color: var( --studio-black );
+		}
+
+		textarea:disabled {
+			opacity: 0.5;
+		}
+	}
+
+	&__button {
+		display: flex;
+		justify-content: flex-end;
+		margin-top: 8px;
+	}
+}

@@ -1,5 +1,5 @@
 import { useBlockProps } from '@wordpress/block-editor';
-import classnames from 'classnames';
+import clsx from 'clsx';
 
 function BloggingPromptSave( { attributes } ) {
 	const {
@@ -16,7 +16,7 @@ function BloggingPromptSave( { attributes } ) {
 
 	const blockProps = useBlockProps.save( { className: 'jetpack-blogging-prompt' } );
 
-	const labelClassnames = classnames( [ 'jetpack-blogging-prompt__label' ], {
+	const labelClassnames = clsx( [ 'jetpack-blogging-prompt__label' ], {
 		'is-bloganuary-icon': isBloganuary,
 	} );
 

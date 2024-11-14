@@ -7,15 +7,20 @@
 		"build-production": "pnpm run clean && pnpm run build-production-js && pnpm run validate",
 		"build-production-js": "NODE_ENV=production BABEL_ENV=production pnpm run build-js",
 		"clean": "rm -rf build",
-		"test": "jest tests",
+		"test": "jest --config=tests/jest.config.cjs",
+		"test-coverage": "pnpm run test --coverage",
 		"validate": "pnpm exec validate-es build/"
+	},
+	"dependencies": {
+		"@automattic/jetpack-script-data": "workspace:*",
+		"react": "18.3.1"
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@wordpress/browserslist-config": "5.40.0",
+		"@wordpress/browserslist-config": "6.11.0",
 		"jest": "29.7.0",
 		"md5-es": "1.8.2",
-		"webpack": "5.76.0",
+		"webpack": "5.94.0",
 		"webpack-cli": "4.9.1"
 	}
 }

@@ -1,0 +1,2876 @@
+# Translation of WordPress.com - Site Helper in Italian
+# This file is distributed under the same license as the WordPress.com - Site Helper package.
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2024-10-02 12:20:35+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: GlotPress/2.4.0-alpha\n"
+"Language: it\n"
+"Project-Id-Version: WordPress.com - Site Helper\n"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-profile-settings/profile-settings-link-to-wpcom.php:48
+msgid "You can manage your profile on WordPress.com Profile settings (First / Last / Display Names, Website, and Biographical Info)"
+msgstr "Puoi gestire il tuo profilo dalle Impostazioni profilo di WordPress.com (Nome / Cognome / Nomi visualizzati, Sito web e Informazioni biografiche)"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-profile-settings/profile-settings-link-to-wpcom.php:44
+msgid "Your admin interface language is managed on WordPress.com Account settings"
+msgstr "La lingua dell'interfaccia admin è gestita dalle impostazioni dell'account di WordPress.com."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:232
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:233
+msgid "Newsletter"
+msgstr "Newsletter"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:212
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:213
+msgid "Scan"
+msgstr "Scan"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:193
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:194
+msgid "VaultPress"
+msgstr "VaultPress"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:184
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:185
+msgid "Activity Log"
+msgstr "Log attività"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:131
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:132
+msgid "Site Settings"
+msgstr "Impostazioni del sito"
+
+#. translators: Hidden accessibility text.
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-bar/wpcom-admin-bar.php:200
+msgid "Cart"
+msgstr "Carrello"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1607
+msgid " per "
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1604
+msgid " once"
+msgstr "una volta"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1578
+msgid "per %s"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1438
+msgid "Scheduled"
+msgstr "Programmate"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1437
+msgid "Draft"
+msgstr "Bozza"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1404
+msgid "Jetpack donations is disabled in favour of Newspack donations."
+msgstr ""
+
+#. translators: separates all but the last two sponsor names; needs a space at
+#. the end.
+#: vendor/automattic/jetpack-mu-wpcom/src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:993
+msgid ", "
+msgstr ", "
+
+#. translators: separates last two sponsor names; needs a space on either side.
+#: vendor/automattic/jetpack-mu-wpcom/src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:990
+msgid " and "
+msgstr " e "
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:889
+msgid "Common"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:490
+msgctxt "post author"
+msgid " and "
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:473
+msgctxt "post author"
+msgid "by"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:400
+msgid "Something went wrong. Please refresh the page and/or try again."
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:393
+msgid "Load more posts"
+msgstr "Carica più articoli"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/newspack-blocks/synced-newspack-blocks/blocks/carousel/view.php:288
+msgid "Play Slideshow"
+msgstr "Riproduci la presentazione"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/newspack-blocks/synced-newspack-blocks/blocks/carousel/view.php:287
+msgid "Pause Slideshow"
+msgstr "Metti in pausa la presentazione"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/newspack-blocks/synced-newspack-blocks/blocks/carousel/view.php:243
+msgid "Next Slide"
+msgstr "Prossima slide"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/newspack-blocks/synced-newspack-blocks/blocks/carousel/view.php:242
+msgid "Previous Slide"
+msgstr "Slide precedente"
+
+#. translators: %d: Slide number.
+#: vendor/automattic/jetpack-mu-wpcom/src/features/newspack-blocks/synced-newspack-blocks/blocks/carousel/view.php:221
+msgid "Go to slide %d"
+msgstr "Vai alla diapositiva %d"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:320
+msgid "Site migration"
+msgstr "Migrazione del sito"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:807
+msgid "Migrating the site"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:95
+msgid "Continue to write your first post"
+msgstr "Continua a scrivere il tuo primo articolo"
+
+#: performance-profiler/performance-profiler.php:90
+msgid "The performance report URL for this site."
+msgstr ""
+
+#: performance-profiler/performance-profiler.php:20
+msgid "The performance report URL for this page."
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-profile-settings/profile-settings-notices.php:28
+msgid "The Toolbar is always visible on Atomic sites while connected to the Automattic proxy."
+msgstr "La barra degli strumenti è sempre visibile su siti Atomic mentre si è connessi al proxy Automattic."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-profile-settings/profile-settings-link-to-wpcom.php:56
+msgid "Your WordPress.com password is managed on WordPress.com Security settings"
+msgstr "La tua password WordPress.com è gestita dalle impostazioni di sicurezza di WordPress.com"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-profile-settings/profile-settings-link-to-wpcom.php:52
+msgid "Your WordPress.com email is managed on WordPress.com Account settings"
+msgstr "La tua e-mail WordPress.com è gestita dalle impostazioni account di WordPress.com"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template.php:149
+msgid "Footer"
+msgstr "Footer"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template.php:147
+msgid "Header"
+msgstr "Intestazione"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:552
+msgid "Back to template part types"
+msgstr "Torna ai tipi di parte del modello"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:551
+msgid "No template part types found."
+msgstr "Nessun tipo di parte del modello trovato."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:550
+msgid "Search Template Part Types"
+msgstr "Cerca tipi di parte del modello"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:549
+msgid "Parent Template Part Type:"
+msgstr "Tipo di parte del modello principale:"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:548
+msgid "Parent Template Part Type"
+msgstr "Tipo di parte del modello principale"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:547
+msgid "New Template Part Type"
+msgstr "Nuovo tipo di parte del modello"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:546
+msgid "Add New Template Part Type"
+msgstr "Aggiungi nuovo tipo di parte del modello"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:545
+msgid "Update Template Part Type"
+msgstr "Aggiorna tipo di parte del modello"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:544
+msgid "View Template Part Type"
+msgstr "Visualizza tipo di parte del modello"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:543
+msgid "Edit Template Part Type"
+msgstr "Modifica tipo di parte del modello"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:542
+msgid "All Template Part Types"
+msgstr "Tutti i tipi di parte del modello"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:541
+msgctxt "admin menu"
+msgid "Template Part Types"
+msgstr "Tipi di parte del modello"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:540
+msgctxt "taxonomy singular name"
+msgid "Template Part Type"
+msgstr "Tipo di parte del modello"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:539
+msgctxt "taxonomy general name"
+msgid "Template Part Types"
+msgstr "Tipi di parte del modello"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:504
+msgid "Template part updated."
+msgstr "La parte del template è stata aggiornata."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:503
+msgid "Template part scheduled."
+msgstr "Parte del modello programmata."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:502
+msgid "Template part reverted to draft."
+msgstr "Parte del modello riconvertita in bozza."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:501
+msgid "Template part published privately."
+msgstr "Parte del modello pubblicata privatamente."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:500
+msgid "Template part published."
+msgstr "Parte del modello pubblicata."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:499
+msgid "Template parts list"
+msgstr "Elenco delle parti del template"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:498
+msgid "Template parts list navigation"
+msgstr "Navigazione nell'elenco delle parti di template"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:497
+msgid "Filter template parts list"
+msgstr "Filtra l'elenco delle parti di template"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:496
+msgid "No template parts found in Trash."
+msgstr "Non è stata trovata nessuna parte di template nel Cestino."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:495
+msgid "No template parts found."
+msgstr "Non è stata trovata nessuna parte di template."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:494
+msgid "Search Template Parts"
+msgstr "Cerca tra le parti di template"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:493
+msgid "All Template Parts"
+msgstr "Tutte le parti del template"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:492
+msgid "View Template Part"
+msgstr "Visualizza parte del template"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:491
+msgid "Edit Template Part"
+msgstr "Modifica parte del template"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:490
+msgid "New Template Part"
+msgstr "Nuova parte del template"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:489
+msgid "Add New Template Part"
+msgstr "Aggiungi una nuova parte del template"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:488
+msgctxt "Template"
+msgid "Add New"
+msgstr "Aggiungi nuovo"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:487
+msgctxt "add new on admin bar"
+msgid "Template Part"
+msgstr "Parte template"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:486
+msgctxt "admin menu"
+msgid "Template Parts"
+msgstr "Parti modello"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:485
+msgctxt "post type singular name"
+msgid "Template Part"
+msgstr "Parte del template"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:484
+msgctxt "post type general name"
+msgid "Template Parts"
+msgstr "Parti del template"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:447
+msgctxt "Default page title"
+msgid "Contact"
+msgstr "Contatti"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:435
+msgctxt "Default page title"
+msgid "About"
+msgstr "Informazioni"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/blocks/navigation-menu/index.php:90
+msgid "collapsed"
+msgstr "chiuso"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/blocks/navigation-menu/index.php:89
+msgid "expanded"
+msgstr "esteso"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/blocks/navigation-menu/index.php:86
+msgid "Menu"
+msgstr "Menu"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/starter-page-templates/class-wp-rest-sideload-image-controller.php:77
+msgid "Invalid parent type."
+msgstr "Tipo di genitore non valido."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/starter-page-templates/class-starter-page-templates.php:243
+msgid "Current"
+msgstr "Attuale"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/starter-page-templates/class-starter-page-templates.php:238
+msgid "Blank"
+msgstr "Vuoto"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/starter-page-templates/class-starter-page-templates.php:228
+msgid "No templates available. Skipped showing modal window with template selection."
+msgstr "Nessun template disponibile. Visualizzazione della finestra in primo piano con selezione del template saltata."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:127
+msgid "Customize content with AI"
+msgstr "Personalizza contenuti con l'IA"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-global-styles/index.php:548
+msgid "Upgrade required"
+msgstr "Aggiornamento necessario"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-global-styles/index.php:545
+msgid "Upgrade"
+msgstr "Aggiorna"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-global-styles/index.php:537
+msgid "Preview premium styles"
+msgstr "Anteprima stili premium"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-global-styles/index.php:532
+msgid "Remove premium styles"
+msgstr "Rimuovi gli stili premium"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-global-styles/index.php:522
+msgid "Upgrade now"
+msgstr "Migliora il tuo sito"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-global-styles/index.php:499
+msgid "Your site includes <a href=\"%1$s\" target=\"_blank\">premium styles</a> that are only visible to visitors after upgrading to the %2$s plan or higher."
+msgstr "Il tuo sito include <a href=\"%1$s\" target=\"_blank\">stili premium</a> che sono visibili ai visitatori solo dopo l'aggiornamento al piano %2$s o superiore."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-global-styles/api/class-global-styles-status-rest-api.php:53
+msgid "Your user is not permitted to access this resource."
+msgstr "L'utente non è autorizzato ad accedere a questa risorsa."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-blocks/a8c-posts-list/templates/posts-list.php:30
+msgid "View all posts"
+msgstr "Visualizza tutti gli articoli"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-blocks/a8c-posts-list/templates/post-item.php:31
+msgctxt "designating the post author (eg: by John Doe"
+msgid "by"
+msgstr "di"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-blocks/a8c-posts-list/templates/post-item.php:23
+msgid "Featured"
+msgstr "In evidenza"
+
+#. translators: 1: link to WP admin new post page.
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-blocks/a8c-posts-list/templates/no-posts.php:17
+msgid "Ready to publish your first post? <a href=\"%1$s\">Get started here</a>."
+msgstr "Sei pronto a pubblicare il tuo primo articolo? <a href=\"%1$s\">Mettiti al lavoro</a>."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-blocks/a8c-posts-list/templates/no-posts.php:11
+msgid "There are currently no posts to display."
+msgstr "Nessun articolo da visualizzare al momento."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-blocks/a8c-posts-list/a8c-posts-list.php:28
+msgid "Read more"
+msgstr "Continua a leggere"
+
+#. translators: %s: Name of current post
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-blocks/a8c-posts-list/a8c-posts-list.php:25
+msgid "Continue reading %s"
+msgstr "Continua a leggere %s"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-bar/wpcom-admin-bar.php:275
+msgid "My Account"
+msgstr "Il mio account"
+
+#. translators: Hidden accessibility text.
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-bar/wpcom-admin-bar.php:225
+msgid "Reader"
+msgstr "Reader"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/tags-education/tags-education.php:28
+msgid "Build your audience with tags"
+msgstr "Sviluppa il tuo pubblico con i tag"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/paragraph-block-placeholder/paragraph-block-placeholder.php:57
+msgid "Add a post title"
+msgstr "Aggiungi un titolo dell'articolo"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/paragraph-block-placeholder/paragraph-block-placeholder.php:35
+#: vendor/automattic/jetpack-mu-wpcom/src/features/paragraph-block-placeholder/paragraph-block-placeholder.php:72
+msgid "Start writing or type '/' to insert a block"
+msgstr "Inizia a scrivere o digita \"/\" per inserire un blocco"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/mailerlite/subscriber-popup.php:120
+msgid "UUID:"
+msgstr "UUID:"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/mailerlite/subscriber-popup.php:117
+msgid "Account ID <a href=\"%s\" target=\"_blank\">(instructions)</a>:"
+msgstr "ID account <a href=\"%s\" target=\"_blank\">(istruzioni)</a>:"
+
+#. translators: %1$s - URL to manage the widget, %2$s - documentation URL.
+#: vendor/automattic/jetpack-mu-wpcom/src/features/mailerlite/subscriber-popup.php:48
+msgid "You need to enter your numeric account ID and UUID for the <a href=\"%1$s\">Mailerlite Widget</a> to work correctly. <a href=\"%2$s\" target=\"_blank\">Full instructions</a>."
+msgstr "Per un corretto funzionamento del <a href=\"%1$s\">widget Mailerlite</a> devi inserire un ID account numerico e un UUID. <a href=\"%2$s\" target=\"_blank\">Istruzioni complete</a>."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/mailerlite/subscriber-popup.php:26
+msgid "Display Mailerlite subscriber popup"
+msgstr "Visualizza il popup per abbonati Mailerlite"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/mailerlite/subscriber-popup.php:23
+msgid "Mailerlite subscriber popup"
+msgstr "Popup per abbonati Mailerlite"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/jetpack-global-styles/class-global-styles-fonts-message-control.php:63
+msgid "Click here to open the Block Editor and change your fonts."
+msgstr "Fai clic qui per aprire l'Editor a blocchi e cambiare i font."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/jetpack-global-styles/class-global-styles-fonts-message-control.php:40
+msgid "Learn more about changing fonts using Global Styles."
+msgstr "Scopri di più sulla modifica dei tipi di font utilizzando Stili globali."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/jetpack-global-styles/class-global-styles-fonts-message-control.php:27
+msgid "You can change your fonts using Global Styles, which can be found in the Block Editor."
+msgstr "Puoi cambiare i tipi di font usando Stili globali, disponibile nell'Editor a blocchi."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/help-center/class-wp-rest-help-center-odie.php:178
+msgid "Whether to mark this as a test chat (a11n-only)."
+msgstr "Se contrassegnarla come chat di prova (solo a11n)."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/help-center/class-wp-rest-help-center-odie.php:144
+msgid "The feedback rating value."
+msgstr "Il valore del feedback."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/help-center/class-wp-rest-help-center-odie.php:139
+msgid "The message id for the existing message."
+msgstr "L'id del messaggio esistente."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/help-center/class-wp-rest-help-center-odie.php:91
+#: vendor/automattic/jetpack-mu-wpcom/src/features/help-center/class-wp-rest-help-center-odie.php:168
+msgid "The context to continue the chat with."
+msgstr "Il contesto con cui continuare la chat."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/help-center/class-wp-rest-help-center-odie.php:85
+#: vendor/automattic/jetpack-mu-wpcom/src/features/help-center/class-wp-rest-help-center-odie.php:173
+msgid "The message to add to the chat"
+msgstr "Il messaggio da aggiungere alla chat"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/help-center/class-wp-rest-help-center-odie.php:80
+#: vendor/automattic/jetpack-mu-wpcom/src/features/help-center/class-wp-rest-help-center-odie.php:134
+msgid "The chat id for the existing chat."
+msgstr "L'id della chat esistente."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/help-center/class-wp-rest-help-center-odie.php:75
+#: vendor/automattic/jetpack-mu-wpcom/src/features/help-center/class-wp-rest-help-center-odie.php:129
+#: vendor/automattic/jetpack-mu-wpcom/src/features/help-center/class-wp-rest-help-center-odie.php:163
+msgid "The bot id to chat with."
+msgstr "L'id del bot con cui chattare."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/help-center/class-wp-rest-help-center-odie.php:64
+msgid "If true, include the feedback rating value for each message in the response."
+msgstr "Se vero, includi nella risposta il valore del feedback per ciascun messaggio."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/help-center/class-wp-rest-help-center-odie.php:56
+msgid "The number of items per page."
+msgstr "Numero di elementi per pagina."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/help-center/class-wp-rest-help-center-odie.php:50
+msgid "The number of the page to retrieve, limited to 100"
+msgstr "Il numero della pagina da recuperare, limitato a 100"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/help-center/class-wp-rest-help-center-odie.php:45
+msgid "The chat id to get the chat for."
+msgstr "L'id per raggiungere la chat."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/help-center/class-wp-rest-help-center-odie.php:40
+msgid "The bot id to get the chat for."
+msgstr "L'id del bot per raggiungere la chat."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:210
+msgid "Comment"
+msgstr "Commento"
+
+#. translators: Name of the Plugins submenu that links to the Plugins
+#. Marketplace
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:427
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:429
+msgid "Marketplace"
+msgstr "Marketplace"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:409
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:410
+msgid "Add New Plugin"
+msgstr "Aggiungi il nuovo plugin"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-management-widget/class-wpcom-site-management-widget.php:217
+msgid "Server Settings"
+msgstr "Impostazioni del server"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-management-widget/class-wpcom-site-management-widget.php:213
+msgid "Staging Site"
+msgstr "Sito di staging"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-management-widget/class-wpcom-site-management-widget.php:209
+msgid "Logs"
+msgstr "Registri"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-management-widget/class-wpcom-site-management-widget.php:201
+msgid "Deployments"
+msgstr "Distribuzioni"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-management-widget/class-wpcom-site-management-widget.php:195
+msgid "DEV TOOLS:"
+msgstr "STRUMENTI PER GLI SVILUPPATORI:"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-management-widget/class-wpcom-site-management-widget.php:193
+msgid "Get a quick overview of your plans, storage, and domains, or easily access your development tools using the links provided below:"
+msgstr "Ottieni una rapida panoramica dei tuoi piani, dello spazio di archiviazione e dei domini, oppure accedi facilmente agli strumenti per gli sviluppatori utilizzando i link riportati di seguito:"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-management-widget/class-wpcom-site-management-widget.php:176
+msgid "Your Site management widget requires JavaScript to function properly."
+msgstr "Il widget di gestione del sito richiede JavaScript per funzionare correttamente."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-management-widget/class-wpcom-site-management-widget.php:159
+msgid "Site Management Panel"
+msgstr "Pannello di gestione del sito"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-block-editor/class-jetpack-wpcom-block-editor.php:357
+msgid "Underline"
+msgstr "Sottolinea"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-block-editor/class-jetpack-wpcom-block-editor.php:356
+msgid "Justify"
+msgstr "Giustificato"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-block-editor/class-jetpack-wpcom-block-editor.php:200
+msgid "Logging In..."
+msgstr "Accesso in corso..."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-block-editor/class-jetpack-wpcom-block-editor.php:185
+msgid "Before we continue, please log in to your Jetpack site."
+msgstr "Prima di continuare, accedi al tuo sito Jetpack."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:268
+msgid "Admin interface style changed."
+msgstr "Lo stile dell'interfaccia di amministrazione è modificato."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:231
+msgid "Click here to access your sites, domains, Reader, account settings, and more."
+msgstr "Fai clic qui per accedere ai tuoi siti, domini, lettore, impostazioni account e altro ancora."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:230
+msgid "All your sites"
+msgstr "Tutti i tuoi siti"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:224
+msgid "Access the new site management panel and all developer tools such as hosting configuration, GitHub deployments, metrics, PHP logs, and server logs."
+msgstr "Accedi al nuovo pannello di gestione del sito e a tutti gli strumenti per sviluppatori come configurazione di hosting, distribuzioni GitHub, metriche, log PHP e log del server."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:223
+msgid "Hosting overview"
+msgstr "Panoramica hosting"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:217
+msgid "The Hosting menu contains the My Home page and all items from the Upgrades menu, including Plans, Domains, Emails, Purchases, and more."
+msgstr "Il menu Hosting contiene la pagina La mia home e tutte le voci del menu Aggiornamenti, inclusi Piani, Domini, E-mail, Acquisti e altro ancora."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:216
+msgid "Upgrades is now Hosting"
+msgstr "Aggiornamenti è ora Hosting"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:174
+msgid "Got it!"
+msgstr "OK!"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:173
+msgid "Next"
+msgstr "Prossimo"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:172
+msgid "Previous"
+msgstr "Precedente"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:171
+msgid "Step {{currentStep}} of {{totalSteps}}"
+msgstr "Passaggio {{currentStep}} di {{totalSteps}}"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:73
+msgid "Leave a Reply"
+msgstr "Rispondi"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/replace-site-visibility/replace-site-visibility.php:37
+msgid "Manage your privacy settings"
+msgstr "Gestisci le tue impostazioni privacy"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:1206
+msgid "Switch"
+msgstr "Scambia"
+
+#. translators: how long ago the stylesheet was modified.
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:1187
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:1199
+msgid "(modified %s ago)"
+msgstr "(modificato %s fa)"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:1177
+msgid "Select a theme&hellip;"
+msgstr "Seleziona un theme&hellip;"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:1175
+msgid "Select another theme to view its custom CSS."
+msgstr "Seleziona un altro tema per visualizzare il suo CSS personalizzato."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:771
+msgid "Don't use the theme's original CSS."
+msgstr "Non usare il CSS originale del tema."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:761
+msgid "Media Width"
+msgstr "Larghezza dell'elemento multimediale"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:358
+msgctxt "Toolbar button to get help with custom CSS"
+msgid "Help"
+msgstr "Aiuto"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:357
+msgctxt "Toolbar button to see full CSS revision history"
+msgid "See full history"
+msgstr "Vedi tutta la cronologia"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:355
+msgid "On Mobile"
+msgstr "Dispositivi mobili"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:354
+msgid "Start Fresh"
+msgstr "Parti da zero"
+
+#. translators: the theme name and then the default width.
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:337
+msgid " The default media width for the <strong>%1$s</strong> theme is %2$d pixel."
+msgid_plural " The default media width for the <strong>%1$s</strong> theme is %2$d pixels."
+msgstr[0] " La larghezza predefinita del contenuto multimediale per il tema <strong>%1$s</strong> è di %2$d pixel."
+msgstr[1] " La larghezza predefinita del contenuto multimediale per il tema <strong>%1$s</strong> è di %2$d pixel."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:333
+msgid "Set a different media width for full size images."
+msgstr "Impostare una larghezza del supporto diversa per le immagini a dimensione intera."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:240
+msgid "Custom CSS is now managed in the Customizer."
+msgstr "Il CSS aggiuntivo ora è gestito in Personalizza."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:235
+msgid "Manage with Live Preview"
+msgstr "Gestisci con l'anteprima in tempo reale"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:229
+msgid "Custom CSS"
+msgstr "CSS personalizzato"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:130
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:246
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:804
+msgid "Preprocessor"
+msgstr "Preprocessore"
+
+#. translators: comments widget: 1: comment author, 2: comment link, 3: comment
+#. title
+#. translators: comments widget: 1: comment author link HTML, 2: comment link,
+#. 3: comment title
+#: widgets/class-wpcom-widget-recent-comments.php:342
+#: widgets/class-wpcom-widget-recent-comments.php:387
+msgctxt "widgets"
+msgid "%1$s on <a href=\"%2$s\">%3$s</a>"
+msgstr "%1$s su <a href=\"%2$s\">%3$s</a>"
+
+#. translators: %s is a link to the WordPress user profile.
+#: widgets/class-gravatar-widget.php:205
+msgid "You can modify your Gravatar from your <a href=\"%s\">profile page</a>."
+msgstr "Puoi modificare il tuo Gravatar dalla <a href=\"%s\">pagina del tuo profilo</a>."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:122
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:123
+msgid "Marketing"
+msgstr "Marketing"
+
+#: support-session.php:224 support-session.php:236
+msgid "Sorry, you are not allowed to access this page."
+msgstr "Non hai il permesso di accedere a questa pagina."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:396
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:397
+msgid "Plugins"
+msgstr "Plugin"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:31
+msgid "Use WordPress.com’s native dashboard to manage your site."
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:31
+msgid "Default style"
+msgstr "Stile predefinito"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:30
+msgid "Use WP-Admin to manage your site."
+msgstr "Usa WP-Admin per gestire il tuo sito."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:30
+msgid "Classic style"
+msgstr "Stile classico"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:28
+msgid "Admin Interface Style"
+msgstr "Stile dell'interfaccia admin"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-plugins/wpcom-plugins.php:45
+msgid "Explore plugins"
+msgstr "Esplora i plugin"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-plugins/wpcom-plugins.php:43
+msgid "Access a variety of free and paid plugins that can enhance your site's functionality and features."
+msgstr "Accedi a una varietà di plugin gratuiti e a pagamento che possono migliorare le funzionalità e le caratteristiche del tuo sito."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-plugins/wpcom-plugins.php:42
+msgid "Flex your site's features with plugins"
+msgstr "Migliora le caratteristiche del tuo sito con i plugin"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-themes/wpcom-themes.php:66
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-themes/wpcom-themes.php:67
+msgid "Theme Showcase"
+msgstr "Vetrina dei temi"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-themes/wpcom-themes.php:42
+msgid "Explore themes"
+msgstr "Esplora i temi"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-themes/wpcom-themes.php:40
+msgid "Dive deep into the world of WordPress.com themes. Discover the responsive and stunning designs waiting to bring your site to life."
+msgstr "Immergiti nel mondo dei temi di WordPress.com. Scopri i design reattivi e straordinari che ti aspettano per dare vita al tuo sito."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-themes/wpcom-themes.php:39
+msgid "Find the perfect theme for your site"
+msgstr "Trova il tema perfetto per il tuo sito."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:230
+msgid "A few catchy words to motivate your readers to comment"
+msgstr "Alcune parole per fare presa sui tuoi lettori ed incoraggiarli a lasciare un commento"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:192
+msgid "Enable blocks in comments"
+msgstr "Attiva i blocchi nei commenti"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:181
+msgid "Let visitors use a WordPress.com or Facebook account to comment"
+msgstr "Consenti ai visitatori di utilizzare un account WordPress.com o Facebook per commentare"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:170
+msgid "Adjust your Comments form with a clever greeting and color-scheme."
+msgstr "Imposta il modulo dei Commenti con un saluto e uno schema di colori accattivanti."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:149
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:262
+msgid "Color Scheme"
+msgstr "Schema dei colori"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:132
+msgid "Greeting Text"
+msgstr "Scrivi un Saluto"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:116
+msgid "Allow Blocks"
+msgstr "Consenti i blocchi"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:103
+msgid "Verbum"
+msgstr "Verbum"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:81
+msgid "Dark"
+msgstr "Scuro"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:80
+msgid "Light"
+msgstr "Chiaro"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:82
+msgid "Transparent"
+msgstr "Trasparente"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:797
+msgid "Launch your store"
+msgstr "Lancia il tuo negozio"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:787
+msgid "Add a domain"
+msgstr "Aggiungi un dominio"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:777
+msgid "Grow your business"
+msgstr "Fai crescere la tua attività"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:767
+msgid "Collect sales tax"
+msgstr "Raccogli imposta sulle vendite"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:757
+msgid "Get paid with WooPayments"
+msgstr "Ottieni pagamenti con WooPayments"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:747
+msgid "Add your products"
+msgstr "Aggiungi i tuoi prodotti"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:737
+msgid "Customize your store"
+msgstr "Personalizza il tuo negozio"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:68
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:69
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-management-widget/class-wpcom-site-management-widget.php:188
+msgid "Overview"
+msgstr "Panoramica"
+
+#. translators: post title
+#: vendor/automattic/jetpack-post-list/src/class-post-list.php:194
+msgid "Share &#8220;%s&#8221; via Jetpack Social"
+msgstr "Condividi “%s” tramite Jetpack Social"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:222
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:223
+msgid "Subscribers"
+msgstr "Iscritti"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:202
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:203
+msgid "Monetize"
+msgstr "Monetizza"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-management-widget/class-wpcom-site-management-widget.php:205
+msgid "Monitoring"
+msgstr "Monitoraggio"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:113
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:114
+msgid "Purchases"
+msgstr "Acquisti"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:104
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:105
+msgid "Emails"
+msgstr "E-mail"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:95
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:96
+msgid "Domains"
+msgstr "Domini"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:86
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:87
+msgid "Add-ons"
+msgstr "Add-on"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:77
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:78
+msgid "Plans"
+msgstr "Piani"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:48
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:49
+msgid "Hosting"
+msgstr "Hosting"
+
+#. translators: Hidden accessibility text.
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-bar/wpcom-admin-bar.php:144
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-bar/wpcom-admin-bar.php:148
+msgid "All Sites"
+msgstr "Tutti i siti"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:465
+msgid "Error: please try commenting again."
+msgstr "Errore: prova a commentare di nuovo."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:390
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:396
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:403
+msgid "Error: your Facebook login has expired."
+msgstr "Errore: il tuo login Facebook è scaduto."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:301
+msgid "Cancel reply"
+msgstr "Cancella risposta"
+
+#. translators: % is the original posters name
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:300
+msgid "Leave a reply to %s"
+msgstr "Scrivi una risposta a %s"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:283
+msgid "Leave a comment"
+msgstr "Lascia un commento"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:233
+msgid "Save my name, email, and website in this browser for the next time I comment."
+msgstr "Do il mio consenso affinché un cookie salvi i miei dati  (nome, email, sito web) per il prossimo commento."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:232
+msgid "Comment sent successfully"
+msgstr "Commento inviato correttamente"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:231
+msgid "Subscribe"
+msgstr "Abbonati"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:230
+msgid "Enter your email address"
+msgstr "Inserisci il tuo indirizzo e-mail"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:229
+msgid "Interested in getting blog post updates? Simply click the button below to stay in the loop!"
+msgstr "Ti interessa ricevere aggiornamenti sugli articoli del blog? Basta fare clic sul pulsante di seguito per essere sempre al corrente delle novità."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:228
+msgid "Never miss a beat!"
+msgstr "Non perdere mai un colpo."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:227
+msgid "Continue reading"
+msgstr "Continua a leggere"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:226
+msgid "Subscribe now to keep reading and get access to the full archive."
+msgstr "Abbonati ora per continuare a leggere e avere accesso all'archivio completo."
+
+#. translators: %s is the name of the site
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:225
+msgid "Discover more from %s"
+msgstr "Scopri di più da %s"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:223
+msgid "Loading your comment..."
+msgstr "Caricamento del commento in corso..."
+
+#. translators: Success message of a modal when user subscribes
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:222
+msgid "We'll keep you in the loop!"
+msgstr "Ti terremo al corrente delle novità."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:220
+msgid "Optional"
+msgstr "facoltativo"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:219
+msgid "Website"
+msgstr "Sito web"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:218
+msgid "Write a reply..."
+msgstr "Scrivi una risposta..."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:216
+msgid "Cancel"
+msgstr "Cancella"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:215
+msgid "Email me new comments"
+msgstr "Notifiche via e-mail per i nuovi commenti"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:214
+msgid "Email me new posts"
+msgstr "Ricevi i nuovi articoli via e-mail"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:213
+msgid "Notify me of new posts"
+msgstr "Notifiche per i nuovi articoli"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:212
+msgid "Weekly"
+msgstr "Settimanalmente"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:211
+msgid "WordPress"
+msgstr "WordPress"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:96
+msgid "Comments"
+msgstr "Commenti"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:209
+msgid "Reply"
+msgstr "Rispondi"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:208
+msgid "Daily"
+msgstr "Giornalmente"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:207
+msgid "Instantly"
+msgstr "Immediata"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:206
+msgid "(Address never made public)"
+msgstr "(L'indirizzo non verrà pubblicato)"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:204
+msgid "Log out"
+msgstr "Esci"
+
+#. translators: %s is the name of the provider (WordPress, Facebook, Twitter)
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:203
+msgid "Logged in via %s"
+msgstr "Accesso effettuato tramite %s"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:201
+msgid "Log in to leave a comment."
+msgstr "Effettua il login per lasciare un commento."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:200
+msgid "Log in to leave a reply."
+msgstr "Accedi per lasciare una risposta."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:199
+msgid "Leave a comment. (log in optional)"
+msgstr "Lascia un commento (accesso opzionale)."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:198
+msgid "Leave a reply. (log in optional)"
+msgstr "Rispondi (accesso opzionale)."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:197
+msgid "Website (optional)"
+msgstr "Sito web (facoltativo)"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:196
+msgid "Email (address never made public)"
+msgstr "E-mail (l'indirizzo non verrà pubblicato)"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:194
+msgid "Receive web and mobile notifications for posts on this site."
+msgstr "Ricevi notifiche tramite web e dispositivi mobili quando vengono pubblicati articoli su questo sito."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:193
+msgid "Log in or provide your name and email to leave a comment."
+msgstr "Accedi o fornisci il tuo nome o indirizzo e-mail per lasciare un commento."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:192
+msgid "Log in or provide your name and email to leave a reply."
+msgstr "Accedi o fornisci il tuo nome o indirizzo e-mail per rispondere."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-gutenberg-editor.php:30
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:217
+msgid "Write a comment..."
+msgstr "Scrivi un Commento..."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/import-customizations/import-customizations.php:39
+msgid "Get started"
+msgstr "Comincia ora"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/import-customizations/import-customizations.php:37
+msgid "Use WordPress.com’s guided importer to import posts and comments from Medium, Substack, Squarespace, Wix, and more."
+msgstr "Usa il programma di importazione guidata di WordPress.com per importare articoli e commenti da Medium, Substack, Squarespace, Wix e altre piattaforme."
+
+#: notices/feature-moved-to-jetpack-notices.php:21
+msgid "Visit %1$sJetpack Settings%2$s for more writing settings powered by Jetpack."
+msgstr "Visita %1$sImpostazioni Jetpack%2$s per visualizzare altre impostazioni di scrittura offerte da Jetpack."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:444
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:445
+msgid "Scheduled Updates"
+msgstr "Aggiornamenti programmati"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:725
+msgid "Verify the email address for your domains"
+msgstr "Verifica l'indirizzo e-mail per i tuoi domini"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:292
+msgid "Site setup"
+msgstr "Configura il sito"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:715
+msgid "Finish Sensei setup"
+msgstr "Completa la configurazione di Sensei"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:705
+msgid "Finish store setup"
+msgstr "Completa la configurazione del negozio"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:688
+msgid "Update your site's design"
+msgstr "Modifica il design del tuo sito"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:679
+msgid "Enable post sharing"
+msgstr "Abilita la condivisione dell'articolo"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:670
+msgid "Install the mobile app"
+msgstr "Installa l'app per dispositivi mobili"
+
+#: imports/utils/class-filerestorer.php:167
+msgid "No files are restored."
+msgstr "Nessun file ripristinato."
+
+#: imports/utils/class-filerestorer.php:97
+msgid "No files are queued."
+msgstr "Non ci sono file in coda."
+
+#: imports/playground/class-sql-postprocessor.php:383
+msgid "Missing temporary tables."
+msgstr "Tabelle temporanee mancanti."
+
+#: imports/playground/class-sql-postprocessor.php:376
+msgid "Temporary prefix is equals to current prefix."
+msgstr "Il prefisso temporaneo è uguale al prefisso attuale."
+
+#: imports/playground/class-sql-postprocessor.php:314
+msgid "Error update links."
+msgstr "Errore aggiornamento link."
+
+#: imports/playground/class-sql-postprocessor.php:304
+msgid "Error update posts."
+msgstr "Errore aggiornamento articoli."
+
+#: imports/playground/class-sql-postprocessor.php:296
+msgid "The site is not connected."
+msgstr "Il sito non è collegato."
+
+#: imports/playground/class-sql-postprocessor.php:288
+msgid "Jetpack is not installed."
+msgstr "Jetpack non è installato."
+
+#: imports/playground/class-sql-postprocessor.php:250
+msgid "Error saving whitelist options."
+msgstr "Errore nel salvataggio delle opzioni della whitelist."
+
+#: imports/playground/class-sql-postprocessor.php:174
+msgid "Missing home URL."
+msgstr "URL home mancante."
+
+#: imports/playground/class-sql-postprocessor.php:164
+msgid "Missing site URL."
+msgstr "URL sito mancante."
+
+#: imports/playground/class-sql-postprocessor.php:155
+msgid "The site URL is not valid."
+msgstr "L'URL del sito non è valido."
+
+#: imports/playground/class-sql-postprocessor.php:151
+msgid "The home URL is not valid."
+msgstr "L'URL della home non è valido."
+
+#: imports/playground/class-sql-importer.php:45
+msgid "SQL import failed"
+msgstr "Importazione SQL fallita"
+
+#: imports/playground/class-sql-importer.php:27
+msgid "SQL file not exists"
+msgstr "Il file SQL non esiste"
+
+#: imports/class-backup-import-manager.php:385
+#: imports/class-backup-import-manager.php:426
+msgid "No backup import found."
+msgstr "Non è stata trovata alcuna importazione di backup."
+
+#: imports/class-backup-import-manager.php:371
+msgid "An import is already running."
+msgstr "È già in corso un'importazione."
+
+#: imports/class-backup-import-manager.php:233
+msgid "The backup import has been cancelled."
+msgstr "L'importazione di backup è stata annullata."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:36
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:50
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:65
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:78
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:91
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:107
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:119
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:132
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:145
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:159
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:176
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:190
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:204
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:245
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:261
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:277
+msgid "Next steps for your site"
+msgstr "I prossimi passi per il tuo sito"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:660
+msgid "Add the Subscribe Block to your site"
+msgstr "Aggiungi il blocco Abbonamento al tuo sito"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:649
+msgid "Import existing subscribers"
+msgstr "Importa abbonati esistenti"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:640
+msgid "View site metrics"
+msgstr "Visualizza le metriche del sito"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:631
+msgid "Set up ssh"
+msgstr "Configura SSH"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:619
+msgid "Install a custom plugin"
+msgstr "Installa un plugin personalizzato"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:607
+msgid "Choose a theme"
+msgstr "Scegli un tema"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:595
+msgid "Set up an offer for your supporters"
+msgstr "Imposta un'offerta per i tuoi sostenitori"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:578
+msgid "Connect a Stripe account to collect payments"
+msgstr "Collega un account Stripe per ricevere i pagamenti"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:563
+msgid "Add your About page"
+msgstr "Aggiungi la tua pagina Informazioni"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:553
+msgid "Manage your paid Newsletter plan"
+msgstr "Gestisci il piano Newsletter a pagamento"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:545
+msgid "Connect your social media accounts"
+msgstr "Collega i tuoi account di social media"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:534
+msgid "Manage your subscribers"
+msgstr "Gestisci gli abbonati"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:521
+msgid "Write 3 posts"
+msgstr "Scrivi 3 articoli"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:509
+msgid "Get your first 10 subscribers"
+msgstr "Ottieni i primi 10 abbonati"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:497
+msgid "Enable subscribers modal"
+msgstr "Attiva la finestra modale per l'abbonato"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:485
+msgid "Customize welcome message"
+msgstr "Personalizza il messaggio di benvenuto"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:475
+msgid "Earn money with your newsletter"
+msgstr "Guadagna grazie alla newsletter"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:418
+msgid "Update your About page"
+msgstr "Aggiorna la tua pagina delle Informazioni"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:256
+msgid "Migrate content"
+msgstr "Migrazione di contenuti"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:180
+msgid "Verify email address"
+msgstr "Verifica dell'indirizzo e-mail"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/locked-mode.php:120
+msgid "Prevents new post and page from being created as well as existing posts and pages from being edited, and closes comments site wide."
+msgstr "Impedisce la creazione di nuovi articoli e pagine nonché la modifica di articoli e pagine esistenti e chiude i commenti in tutto il sito."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/locked-mode.php:119
+msgid "Enable Locked Mode"
+msgstr "Abilita la modalità bloccata"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/locked-mode.php:102
+msgid "Locked Mode"
+msgstr "Modalità bloccata"
+
+#. translators: link to the help page: https://wordpress.com/help
+#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/enhanced-ownership.php:102
+msgid "To take ownership of the site, we ask that the person you designate contacts us at %s with a copy of the death certificate."
+msgstr "Per assumere la proprietà del sito, chiediamo che la persona da te designata ci contatti su %s con una copia del certificato di morte."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/enhanced-ownership.php:97
+msgid "Choose someone to look after your site when you pass away."
+msgstr "Scegli qualcuno che si occupi del tuo sito quando verrai a mancare."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/enhanced-ownership.php:80
+msgid "Legacy Contact"
+msgstr "Contatto legacy"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/enhanced-ownership.php:73
+#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/locked-mode.php:95
+msgid "Enhanced Ownership"
+msgstr "Proprietà migliorata"
+
+#: notices/anyone-can-register-notice.php:79
+msgid "The <a href=\"%2$s\">\"Anyone can register\" option</a> is currently active. The current default role is %1$s. %4$s <strong>Please consider disabling this option if open registration is not needed.<strong>"
+msgstr "L'<a href=\"%2$s\">opzione \"Chiunque può registrarsi\"</a> è attualmente attiva. Il ruolo predefinito attuale è %1$s. %4$s <strong>Considera di disabilitare questa opzione se la registrazione aperta non è necessaria.<strong>"
+
+#: notices/anyone-can-register-notice.php:74
+msgid "The <a href=\"%2$s\">\"Anyone can register\" option</a> is currently active. The current default role is %1$s. %4$s <a href=\"%3$s\"><strong>Please consider disabling this option if open registration is not needed.</strong></a>."
+msgstr "L'<a href=\"%2$s\">opzione \"Chiunque può registrarsi\"</a> è attualmente attiva. Il ruolo predefinito attuale è %1$s. %4$s <a href=\"%3$s\"><strong>Considera di disabilitare questa opzione se la registrazione aperta non è necessaria.</strong></a>."
+
+#: imports/utils/class-fileextractor.php:82
+msgid "The TAR file could not be extracted."
+msgstr "Impossibile estrarre il file TAR."
+
+#: imports/utils/class-fileextractor.php:43
+msgid "File type is not supported"
+msgstr "Il tipo di file non è supportato"
+
+#: imports/utils/class-fileextractor.php:33
+msgid "Could not create folder"
+msgstr "Impossibile creare la cartella"
+
+#: imports/utils/class-fileextractor.php:29
+msgid "File not exists"
+msgstr "Il file non esiste"
+
+#: imports/class-backup-import-manager.php:326
+#: imports/class-backup-import-manager.php:345
+msgid "Could not determine importer type."
+msgstr "Impossibile determinare il tipo di importatore"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:467
+msgid "Share your site"
+msgstr "Condividi il tuo sito"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:437
+msgid "Edit a page"
+msgstr "Modifica una pagina"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1719
+msgid "Your site contains premium styles. Upgrade now to publish them and unlock tons of other features."
+msgstr "Il tuo sito contiene stili premium. Aggiorna ora per pubblicarli e sbloccare tantissime funzionalità."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:452
+msgid "Customize your domain"
+msgstr "Personalizza il tuo dominio"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:405
+msgid "Add a new page"
+msgstr "Aggiungi nuova pagina"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:395
+msgid "Drive traffic to your site"
+msgstr "Genera traffico"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:159
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:381
+msgid "Give your site a name"
+msgstr "Dai un nome al tuo sito"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:66
+msgid "Claim your free one-year domain"
+msgstr "Scegli il tuo dominio gratuito di un anno"
+
+#: frontend-notices/gifting-banner/gifting-banner.php:138
+#: frontend-notices/gifting-banner/gifting-banner.php:160
+msgctxt "verb"
+msgid "Gift"
+msgstr "Regala"
+
+#: vendor/automattic/jetpack-post-list/src/class-post-list.php:211
+msgid "Thumbnail"
+msgstr "Miniatura"
+
+#: vendor/automattic/jetpack-post-list/src/class-post-list.php:191
+msgctxt "Share the post on social networks"
+msgid "Share"
+msgstr "Condividi"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1163
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1734
+msgid "Upgrade plan"
+msgstr "Aggiorna il piano"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:207
+msgid "Create paid Newsletter"
+msgstr "Crea la newsletter a pagamento"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:229
+msgid "Set up payment method"
+msgstr "Imposta il metodo di pagamento"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:77
+msgid "Choose a domain"
+msgstr "Scegli un dominio"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:338
+msgid "Launch your blog"
+msgstr "Lancia il blog"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:33
+msgid "Edit site design"
+msgstr "Modificare il design del sito"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:372
+msgid "Set up your site"
+msgstr "Configura il tuo sito"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:346
+msgid "Name your blog"
+msgstr "Dai un nome al tuo blog"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:358
+msgid "Personalize your site"
+msgstr "Personalizza il tuo sito"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:317
+msgid "Upload your first video"
+msgstr "Carica un video"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:310
+msgid "Set up your video site"
+msgstr "Configura il tuo sito"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:172
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:271
+msgid "Launch your site"
+msgstr "Lancia il tuo sito"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:279
+msgid "Add links"
+msgstr "Aggiungi link"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:291
+msgid "Personalize Link in Bio"
+msgstr "Personalizza Link in Bio"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:46
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:56
+msgid "Select a design"
+msgstr "Seleziona un design"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:193
+msgid "Start writing"
+msgstr "Inizia a scrivere"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:94
+msgid "Write your first post"
+msgstr "Scrivi il tuo primo articolo"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:246
+msgid "Add subscribers"
+msgstr "Aggiungi abbonati"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:136
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:148
+msgid "Choose a plan"
+msgstr "Scegli un piano"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:217
+msgid "Personalize newsletter"
+msgstr "Personalizza la Newsletter"
+
+#: vendor/automattic/jetpack-config/src/class-config.php:189
+msgid "Unable to load class %1$s. Please add the package that contains it using composer and make sure you are requiring the Jetpack autoloader"
+msgstr "Impossibile caricare la classe %1$s. Aggiungi il pacchetto che lo contiene usando il composer e assicurati di richiedere l'autoloader Jetpack"
+
+#. translators: 1: wp_default_scripts. 2: Name of the domain being aliased.
+#: vendor/automattic/jetpack-assets/src/class-assets.php:586
+msgid "Textdomain aliases should be registered before the %1$s hook. This notice was triggered by the %2$s domain."
+msgstr "Gli alias Textdomain devono essere registrati prima dell'hook %1$s. Questo avviso è stato attivato dal dominio %2$s."
+
+#. translators: %s is the script handle.
+#: vendor/automattic/jetpack-assets/src/class-assets.php:407
+msgid "Script \"%s\" depends on wp-i18n but does not specify \"textdomain\""
+msgstr "Lo script \"%s\" dipende da wp-i18n ma non specifica \"textdomain\""
+
+#: vendor/automattic/custom-fonts/providers/google.php:280
+msgctxt "Add new subset (greek, cyrillic, devanagari, vietnamese)"
+msgid "no-subset"
+msgstr "latin"
+
+#: vendor/automattic/custom-fonts/providers/base.php:302
+msgctxt "font-style"
+msgid "Ultra Bold Oblique"
+msgstr "Obliquo grassetto accentuato"
+
+#: vendor/automattic/custom-fonts/providers/base.php:301
+msgctxt "font-style"
+msgid "Ultra Bold Italic"
+msgstr "Corsivo grassetto accentuato"
+
+#: vendor/automattic/custom-fonts/providers/base.php:300
+msgctxt "font-style"
+msgid "Ultra Bold"
+msgstr "Grassetto accentuato"
+
+#: vendor/automattic/custom-fonts/providers/base.php:299
+msgctxt "font-style"
+msgid "Extra Bold Oblique"
+msgstr "Obliquo grassetto accentuato"
+
+#: vendor/automattic/custom-fonts/providers/base.php:298
+msgctxt "font-style"
+msgid "Extra Bold Italic"
+msgstr "Corsivo grassetto accentuato"
+
+#: vendor/automattic/custom-fonts/providers/base.php:297
+msgctxt "font-style"
+msgid "Extra Bold"
+msgstr "Grassetto accentuato"
+
+#: vendor/automattic/custom-fonts/providers/base.php:296
+msgctxt "font-style"
+msgid "Bold Oblique"
+msgstr "Obliquo grassetto"
+
+#: vendor/automattic/custom-fonts/providers/base.php:295
+msgctxt "font-style"
+msgid "Bold Italic"
+msgstr "Corsivo grassetto"
+
+#: vendor/automattic/custom-fonts/providers/base.php:294
+msgctxt "font-style"
+msgid "Bold"
+msgstr "Grassetto"
+
+#: vendor/automattic/custom-fonts/providers/base.php:293
+msgctxt "font-style"
+msgid "Semibold Oblique"
+msgstr "Obliquo semigrassetto"
+
+#: vendor/automattic/custom-fonts/providers/base.php:292
+msgctxt "font-style"
+msgid "Semibold Italic"
+msgstr "Corsivo semigrassetto"
+
+#: vendor/automattic/custom-fonts/providers/base.php:291
+msgctxt "font-style"
+msgid "Semibold"
+msgstr "Semigrassetto"
+
+#: vendor/automattic/custom-fonts/providers/base.php:290
+msgctxt "font-style"
+msgid "Medium Oblique"
+msgstr "Obliquo medio"
+
+#: vendor/automattic/custom-fonts/providers/base.php:289
+msgctxt "font-style"
+msgid "Medium Italic"
+msgstr "Corsivo medio"
+
+#: vendor/automattic/custom-fonts/providers/base.php:288
+msgctxt "font-style"
+msgid "Medium"
+msgstr "Medio"
+
+#: vendor/automattic/custom-fonts/providers/base.php:287
+msgctxt "font-style"
+msgid "Oblique"
+msgstr "Obliquo"
+
+#: vendor/automattic/custom-fonts/providers/base.php:286
+msgctxt "font-style"
+msgid "Italic"
+msgstr "Corsivo"
+
+#: vendor/automattic/custom-fonts/providers/base.php:285
+msgctxt "font-style"
+msgid "Regular"
+msgstr "Normale"
+
+#: vendor/automattic/custom-fonts/providers/base.php:284
+msgctxt "font-style"
+msgid "Light Oblique"
+msgstr "Obliquo fine"
+
+#: vendor/automattic/custom-fonts/providers/base.php:283
+msgctxt "font-style"
+msgid "Light Italic"
+msgstr "Corsivo fine"
+
+#: vendor/automattic/custom-fonts/providers/base.php:282
+msgctxt "font-style"
+msgid "Light"
+msgstr "Fine"
+
+#: vendor/automattic/custom-fonts/providers/base.php:281
+msgctxt "font-style"
+msgid "Extra Light Oblique"
+msgstr "Obliquo finissimo"
+
+#: vendor/automattic/custom-fonts/providers/base.php:280
+msgctxt "font-style"
+msgid "Extra Light Italic"
+msgstr "Corsivo finissimo"
+
+#: vendor/automattic/custom-fonts/providers/base.php:279
+msgctxt "font-style"
+msgid "Extra Light"
+msgstr "Finissimo"
+
+#: vendor/automattic/custom-fonts/providers/base.php:278
+msgctxt "font-style"
+msgid "Thin Oblique"
+msgstr "Obliquo sottile"
+
+#: vendor/automattic/custom-fonts/providers/base.php:277
+msgctxt "font-style"
+msgid "Thin Italic"
+msgstr "Corsivo sottile"
+
+#: vendor/automattic/custom-fonts/providers/base.php:276
+msgctxt "font-style"
+msgid "Thin"
+msgstr "Sottile"
+
+#: vendor/automattic/custom-fonts/fonts-customize-control.php:41
+msgid "Huge"
+msgstr "Enorme"
+
+#: vendor/automattic/custom-fonts/fonts-customize-control.php:40
+msgid "Large"
+msgstr "Grande"
+
+#: vendor/automattic/custom-fonts/fonts-customize-control.php:39
+msgid "Normal Size"
+msgstr "Dimensioni normali"
+
+#: vendor/automattic/custom-fonts/fonts-customize-control.php:38
+msgid "Normal"
+msgstr "Normale"
+
+#: vendor/automattic/custom-fonts/fonts-customize-control.php:37
+msgid "Small"
+msgstr "Piccola"
+
+#: vendor/automattic/custom-fonts/fonts-customize-control.php:36
+msgid "Tiny"
+msgstr "Piccolo"
+
+#: vendor/automattic/custom-fonts/fonts-customize-control.php:35
+msgid "Default Theme Font"
+msgstr "Font predefinito del tema"
+
+#: vendor/automattic/custom-fonts/custom-fonts.php:147
+#: vendor/automattic/custom-fonts/custom-fonts.php:163
+#: vendor/automattic/jetpack-mu-wpcom/src/features/jetpack-global-styles/class-global-styles.php:274
+msgid "Fonts"
+msgstr "Font"
+
+#: vendor/automattic/custom-fonts/css-generator.php:63
+msgid "Headings"
+msgstr "Titoli"
+
+#: vendor/automattic/custom-fonts/css-generator.php:56
+msgid "Base Font"
+msgstr "Font di base"
+
+#: vendor/automattic/custom-fonts/css-generator.php:49
+msgid "Site Title"
+msgstr "Titolo del sito"
+
+#: vendor/automattic/custom-fonts-typekit/advanced-mode.php:56
+msgid "You added a Typekit kit ID through our legacy interface, which is no longer supported. Uncheck the checkbox below and click \"Save\" to remove your kit from this blog and use our easy new interface for choosing fonts."
+msgstr "Hai aggiunto un ID kit Typekit tramite la nostra interfaccia legacy, che non è più supportata. Deseleziona la casella di controllo sottostante e fai clic su \"Salva\" per rimuovere il kit da questo blog e usare la nostra nuova e semplice interfaccia per la scelta dei font."
+
+#: vendor/automattic/custom-fonts-typekit/advanced-mode.php:54
+msgid "Lucky you! Your theme designers chose specific fonts for you that you can’t pick otherwise. If you aren’t happy with these fonts, uncheck the checkbox below and click \"Save\" to choose other fonts."
+msgstr "Sei fortunato! I designer del tuo tema hanno scelto font specifici per te che non potrai selezionare altrimenti. Se non ti piacciono questi font, deseleziona la casella di seguito e fai clic su \"Salva\" per sceglierne altri."
+
+#: vendor/automattic/custom-fonts-typekit/advanced-mode.php:23
+msgid "Uncheck to disable"
+msgstr "Deseleziona per disabilitare"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:109
+msgid "Spotify Feed ID"
+msgstr "ID feed Spotify"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:103
+msgid "Apple Podcasts Feed ID"
+msgstr "ID feed Apple Podcast"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:97
+msgid "Title"
+msgstr "Titolo:"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:81
+msgid "Podcast RSS Feed"
+msgstr "Feed RSS podcast"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:78
+msgid "Listen on Spotify"
+msgstr "Ascolta su Spotify"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:73
+msgid "Listen on Apple Podcasts"
+msgstr "Ascolta su Apple Podcast"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:15
+msgid "Display information about your Podcast and allow visitors to follow via iTunes"
+msgstr "Mostra le informazioni sul podcast e consenti ai visitatori di seguire tramite iTunes"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:13
+msgid "Podcast"
+msgstr "Podcast"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:290
+msgid "Select iTunes category:"
+msgstr "Seleziona categoria iTunes:"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:287
+msgid "Set podcast category"
+msgstr "Imposta categoria podcast"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:189
+msgid "Set podcast image"
+msgstr "Imposta immagine podcast"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:178
+msgid "Clean"
+msgstr "Annulla"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:177
+msgid "Yes"
+msgstr "Sì"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:176
+msgid "No"
+msgstr "No"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:173
+msgid "Set podcast as explicit"
+msgstr "Imposta podcast come esplicito"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:163
+msgid "Set podcast copyright"
+msgstr "Imposta copyright podcast"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:148
+msgid "Set podcast summary"
+msgstr "Imposta sommario podcast"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:130
+msgid "Set podcast author"
+msgstr "Imposta l'autore del podcast"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:116
+msgid "Set podcast title"
+msgstr "Imposta titolo podcast"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:98
+msgid "This is the URL you submit to iTunes or podcasting service."
+msgstr "Questo è l'URL che invii a iTunes o al servizio di podcasting."
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:97
+msgid "Your podcast feed: %1$s"
+msgstr "Il tuo feed del podcast: %1$s"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:79
+msgid "Select podcast category:"
+msgstr "Seleziona categoria podcast:"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:76
+msgid "Blog category for podcasts"
+msgstr "Categoria blog per i podcast"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:47
+msgid "Podcast category 3"
+msgstr "Podcast categoria 3"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:44
+msgid "Podcast category 2"
+msgstr "Podcast categoria 2"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:41
+msgid "Podcast category 1"
+msgstr "Podcast categoria 1"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:37
+msgid "Podcast image"
+msgstr "Immagine podcast"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:34
+msgid "Mark as explicit"
+msgstr "Contrassegna come esplicito"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:31
+msgid "Podcast copyright"
+msgstr "Copyright podcast"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:28
+msgid "Podcast summary"
+msgstr "Sommario podcast"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:25
+msgid "Podcast talent name"
+msgstr "Nome talento podcast"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:22
+msgid "Podcast title"
+msgstr "Titolo podcast"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:18
+msgid "Category to set as feed"
+msgstr "Categoria da impostare come feed"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:16
+msgid "Podcasting"
+msgstr "Podcast"
+
+#. translators: %s is the Twitter account name
+#: widgets/class-jetpack-widget-twitter.php:67
+msgid "Tweets by %s"
+msgstr "Tweet da %s"
+
+#: private-site/logged-in-banner.php:168
+msgid "Next steps"
+msgstr "Passi successivi"
+
+#: notices/anyone-can-register-notice.php:112
+msgid "This may pose a security risk to your site."
+msgstr "Questa azione può causare un rischio per la sicurezza del sito."
+
+#: notices/anyone-can-register-notice.php:106
+msgid "It allows a user to post content."
+msgstr "Consente a un utente di pubblicare contenuti."
+
+#: notices/anyone-can-register-notice.php:100
+msgid "It allows a user to post/modify/delete all content."
+msgstr "Consente a un utente di pubblicare/modificare/eliminare tutti i contenuti."
+
+#: notices/anyone-can-register-notice.php:94
+msgid "It allows a user control over your orders and products."
+msgstr "Consente a un utente di avere il controllo su ordini e prodotti."
+
+#: notices/anyone-can-register-notice.php:88
+msgid "It allows a user full control over your site and its contents."
+msgstr "Consente a un utente di avere il pieno controllo sul sito e sui suoi contenuti."
+
+#: imports/utils/class-fileextractor.php:64
+msgid "The ZIP file could not be extracted."
+msgstr "Impossibile estrarre il file ZIP."
+
+#: imports/utils/class-fileextractor.php:57
+msgid "The ZIP file could not be opened."
+msgstr "Impossibile aprire il file ZIP."
+
+#: notices/media-library-private-site-cdn-notice.php:20
+msgid "The image CDN is disabled because your site is marked Private. If image thumbnails do not display in your Media Library, you can switch to Coming Soon mode.  <a href=\"%1$s\" target=_blank>Learn more</a>."
+msgstr "Il CDN delle immagini è disabilitato perché il tuo sito è contrassegnato come privato. Se le immagini Poster non vengono visualizzate nella libreria multimediale, puoi passare alla modalità Presto disponibile.  <a href=\"%1$s\" target=_blank>Scopri di più</a>."
+
+#: frontend-notices/gifting-banner/gifting-banner.php:250
+msgid "Gift the author a WordPress.com plan."
+msgstr "Regala all'autore un piano WordPress.com"
+
+#: frontend-notices/gifting-banner/gifting-banner.php:238
+msgid "Gift the author a WordPress.com plan before it expires in %d day."
+msgid_plural "Gift the author a WordPress.com plan before it expires in %d days."
+msgstr[0] "Regala all'autore un piano WordPress.com prima che scada tra %d giorno."
+msgstr[1] "Regala all'autore un piano WordPress.com prima che scada tra %d giorni."
+
+#: frontend-notices/gifting-banner/gifting-banner.php:227
+msgid "Gift the author a WordPress.com upgrade."
+msgstr "Regala all'autore un aggiornamento WordPress.com"
+
+#: frontend-notices/gifting-banner/gifting-banner.php:200
+msgid "This site's plan has expired."
+msgstr "Il piano di questo sito è scaduto."
+
+#: notices/plan-notices.php:130
+msgid "The Business plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Business plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr "Il piano Business per <strong>%3$s</strong> è scaduto il %2$s. <a href=\"%1$s\">Riattiva il tuo piano</a> per mantenere le funzionalità del piano Business come plugin e temi personalizzati, SFTP e accesso a phpMyAdmin."
+
+#: notices/plan-notices.php:109
+msgid "The Pro plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Pro plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr "Il piano Pro per <strong>%3$s</strong> scade il %2$s. <a href=\"%1$s\">Rinnova il tuo piano</a> per mantenere le funzionalità del piano Pro come plugin e temi personalizzati, SFTP e accesso a phpMyAdmin."
+
+#: notices/plan-notices.php:99
+msgid "The Business plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Business plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr "Il piano Business per <strong>%3$s</strong> scade il %2$s. <a href=\"%1$s\">Rinnova il tuo piano</a> per mantenere le funzionalità del piano Business come plugin e temi personalizzati, SFTP e accesso a phpMyAdmin."
+
+#: notices/plan-notices.php:104
+msgid "The Commerce plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Commerce plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr "Il piano eCommerce per <strong>%3$s</strong> scade il %2$s. <a href=\"%1$s\">Rinnova il tuo piano</a> per mantenere le funzionalità del piano eCommerce come plugin e temi personalizzati, SFTP e accesso a phpMyAdmin."
+
+#: storage/storage.php:33
+msgid "You have used your space quota. Please delete files before uploading."
+msgstr "Hai superato la tua quota di spazio. Elimina dei file prima di effettuare un nuovo caricamento."
+
+#: private-site/logged-in-banner.php:132
+msgid "Change theme"
+msgstr "Cambia il tema"
+
+#: private-site/logged-in-banner.php:131
+msgid "Change"
+msgstr "Modifica"
+
+#: private-site/logged-in-banner.php:118
+msgid "Edit page"
+msgstr "Modifica pagina"
+
+#: private-site/logged-in-banner.php:118
+msgid "Edit post"
+msgstr "Modifica articolo"
+
+#: private-site/logged-in-banner.php:117
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-blocks/a8c-posts-list/templates/post-item.php:36
+msgid "Edit"
+msgstr "Modifica"
+
+#: private-site/logged-in-banner.php:168
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:59
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:60
+msgid "My Home"
+msgstr "Home"
+
+#: private-site/logged-in-banner.php:91
+msgid "Launch"
+msgstr "Lancia"
+
+#: private-site/logged-in-banner.php:87
+msgid "Update"
+msgstr "Aggiorna"
+
+#: notices/plan-notices.php:125
+msgid "The Premium plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Premium plan features such as site monetization, VideoPress, and Google Analytics support."
+msgstr "Il piano Premium per <strong>%3$s</strong> è scaduto il %2$s. <a href=\"%1$s\">Riattiva il tuo piano</a> per mantenere le funzionalità del piano Premium come la monetizzazione del sito, VideoPress e il supporto di Google Analytics."
+
+#: notices/plan-notices.php:120
+msgid "The Personal plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Personal plan features such as 6 GB storage space, no WordPress.com ads, and Subscriber-only content."
+msgstr "Il piano Personal per <strong>%3$s</strong> è scaduto il %2$s. <a href=\"%1$s\">Riattiva il tuo piano</a> per mantenere le funzionalità del piano personale come 6 GB di spazio di archiviazione, nessuna pubblicità di WordPress.com e contenuti riservati agli abbonati."
+
+#: notices/plan-notices.php:94
+msgid "The Premium plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Premium plan features such as site monetization, VideoPress, and Google Analytics support."
+msgstr "Il piano Premium per <strong>%3$s</strong> scade il %2$s. <a href=\"%1$s\">Rinnova il tuo piano</a> per mantenere le funzionalità del piano Premium come la monetizzazione del sito, VideoPress e il supporto di Google Analytics."
+
+#: notices/plan-notices.php:89
+msgid "The Personal plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Personal plan features such as 6 GB storage space, no WordPress.com ads, and Subscriber-only content."
+msgstr "Il piano Personal per <strong>%3$s</strong> scade il %2$s. <a href=\"%1$s\">Rinnova il tuo piano</a> per mantenere le funzionalità del piano personale come 6 GB di spazio di archiviazione, nessuna pubblicità di WordPress.com e contenuti riservati agli abbonati."
+
+#: notices/php-version-notices.php:30
+msgid "You are currently using PHP <strong>%1$s</strong> which will no longer receive security updates as of %2$s. Please update to PHP %3$s or higher by changing your <a href=\"%4$s\">hosting configuration</a>."
+msgstr "Stai attualmente utilizzando PHP <strong>%1$s</strong> che non riceverà più aggiornamenti di sicurezza a partire dal %2$s. Esegui l'aggiornamento a PHP %3$s o versione superiore modificando la tua <a href=\"%4$s\">configurazione di hosting</a>."
+
+#: frontend-notices/gifting-banner/gifting-banner.php:206
+msgid "Enjoy this site?"
+msgstr "Ti piace questo sito?"
+
+#. translators: 1: opening anchor tag; 2: closing anchor tag.
+#: feature-plugins/full-site-editing.php:127
+msgid "Heads up! Search engines are currently discouraged from indexing your site. If you want search engines to show this site in their search results you have to launch your site. %1$sClick here%2$s to change your site's privacy settings."
+msgstr "Avviso I motori di ricerca sono attualmente scoraggiati dall'indicizzare il tuo sito. Se vuoi che i motori di ricerca mostrino questo sito nei loro risultati di ricerca, devi lanciare il tuo sito. %1$sFai clic qui%2$s per modificare le impostazioni della privacy del tuo sito."
+
+#. translators: 1: opening anchor tag; 2: closing anchor tag.
+#: feature-plugins/full-site-editing.php:124
+msgid "Heads up! Your site is currently in Coming Soon mode. If you want search engines to show this site in their search results you have to launch your site. %1$sClick here%2$s to change your site's privacy settings."
+msgstr "Avviso Il tuo sito è attualmente in modalità Prossimamente. Se vuoi che i motori di ricerca mostrino questo sito nei loro risultati di ricerca, devi lanciare il tuo sito. %1$sFai clic qui%2$s per modificare le impostazioni della privacy del tuo sito."
+
+#: feature-plugins/class-theme-homepage-switcher.php:111
+msgid "Home"
+msgstr "Home"
+
+#: feature-plugins/class-template-first-themes.php:170
+msgid "Blog"
+msgstr "Blog"
+
+#: feature-plugins/hooks.php:244
+msgid "Proxied only: You can see this because you are proxied. Do not use this if you don't know why you are here."
+msgstr "Passa a un piano aziendale e iscriviti a questo tema! Non usarlo se non sai perché sei qui."
+
+#: feature-plugins/hooks.php:233
+msgid "You do not have permission to access this page."
+msgstr "Non disponi di permessi sufficienti per accedere a questa pagina."
+
+#: feature-plugins/masterbar.php:54
+msgid "Set your color scheme on WordPress.com."
+msgstr "Imposta la tua combinazione di colori su WordPress.com."
+
+#: feature-plugins/additional-css.php:40 feature-plugins/additional-css.php:43
+msgid "Additional CSS"
+msgstr "CSS aggiuntivo"
+
+#: feature-plugins/additional-css.php:40 feature-plugins/additional-css.php:43
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:129
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:243
+msgid "CSS"
+msgstr "CSS"
+
+#. Description of the plugin
+msgid "WordPress.com provided functionality & tools pre-installed and activated on all Atomic Sites"
+msgstr "WordPress.com ha fornito funzionalità e strumenti preinstallati e attivati su tutti gli Atomic Sites"
+
+#. translators: Message about how a managed plugin is updated.
+#. translators: Message about how a managed theme is updated.
+#. translators: Information about how a managed plugin is updated, for
+#. debugging purposes.
+#. translators: Information about how a managed theme is updated, for debugging
+#. purposes.
+#: feature-plugins/managed-plugins.php:506
+#: feature-plugins/managed-plugins.php:517
+#: feature-plugins/managed-plugins.php:528
+#: feature-plugins/managed-plugins.php:539
+msgid "Updates managed by WordPress.com"
+msgstr "Aggiornamenti gestiti da WordPress.com"
+
+#: notices/plan-notices.php:135
+msgid "The Commerce plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Commerce plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr "Il piano eCommerce per <strong>%3$s</strong> è scaduto il %2$s. <a href=\"%1$s\">Riattiva il tuo piano</a> per mantenere le funzionalità del piano eCommerce come plugin e temi personalizzati, SFTP e accesso a phpMyAdmin."
+
+#: notices/plan-notices.php:140
+msgid "The Pro plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Pro plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr "Il piano Pro per <strong>%3$s</strong> è scaduto il %2$s. <a href=\"%1$s\">Rinnova il tuo piano</a> per mantenere le funzionalità del piano Pro come plugin e temi personalizzati, SFTP e accesso a phpMyAdmin."
+
+#: private-site/access-denied-preview-login-template.php:63
+msgid "This site is private. You need to log in to the preview to see it."
+msgstr "Il sito è privato. Devi accedere all'anteprima per vederlo."
+
+#: private-site/access-denied-preview-login-template.php:60
+msgid "This site is private. You need to log in as a user with permissions before previewing it."
+msgstr "Il sito è privato. Devi accedere come utente autorizzato prima di vederlo in anteprima."
+
+#: private-site/access-denied-coming-soon-template.php:54
+#: vendor/automattic/jetpack-mu-wpcom/src/features/coming-soon/fallback-coming-soon-page.php:294
+msgid "Start your website"
+msgstr "Crea il tuo sito"
+
+#: private-site/access-denied-coming-soon-template.php:50
+#: vendor/automattic/jetpack-mu-wpcom/src/features/coming-soon/fallback-coming-soon-page.php:290
+msgid "Build a website. Sell your stuff. Write a blog. And so much more."
+msgstr "Crea un sito web. Vendi i tuoi articoli. Scrivi un blog. E molto altro."
+
+#: private-site/access-denied-coming-soon-template.php:44
+#: vendor/automattic/jetpack-mu-wpcom/src/features/coming-soon/fallback-coming-soon-page.php:273
+msgid "Coming Soon"
+msgstr "Prossimamente"
+
+#: notices/storage-notices.php:116
+msgid "Disk space quota"
+msgstr "Quota dello spazio su disco"
+
+#: notices/storage-notices.php:112
+msgid "Disk space used"
+msgstr "Spazio su disco utilizzato"
+
+#: widgets/class-wpcom-category-cloud-widget.php:211
+msgid "Click for more information"
+msgstr "Fai clic per maggiori informazioni"
+
+#: widgets/class-wpcom-category-cloud-widget.php:209
+msgid "Count items in sub-categories toward parent total."
+msgstr "Includi gli elementi nelle sottocategorie nel conteggio totale della categoria madre."
+
+#: widgets/class-wpcom-category-cloud-widget.php:201
+msgid "Maximum font percentage:"
+msgstr "Percentuale massima dei font::"
+
+#: widgets/class-wpcom-category-cloud-widget.php:195
+msgid "Minimum font percentage:"
+msgstr "Percentuale minima dei font::"
+
+#: widgets/class-wpcom-category-cloud-widget.php:190
+msgid "Category IDs, separated by commas"
+msgstr "Inserisci le categorie separate da virgole."
+
+#: widgets/class-wpcom-category-cloud-widget.php:188
+msgid "Exclude:"
+msgstr "Escludi:"
+
+#: widgets/class-wpcom-category-cloud-widget.php:182
+msgid "Maximum number of categories to show:"
+msgstr "Numero massimo di categorie:"
+
+#. translators: link to support doc about categories
+#: widgets/class-wpcom-category-cloud-widget.php:141
+msgid "If you use more <a href=\"%s\">categories</a> on your site, they will appear here."
+msgstr "Se utilizzi più <a href=\"%s\">categorie</a> sul sito, compariranno qui."
+
+#: widgets/class-wpcom-category-cloud-widget.php:29
+msgid "Your most used categories in cloud format."
+msgstr "Mostra le tue categorie più usate in formato cloud."
+
+#: widgets/class-wpcom-category-cloud-widget.php:27
+#: widgets/class-wpcom-category-cloud-widget.php:65
+msgid "Category Cloud"
+msgstr "Cloud delle categorie"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/replace-site-visibility/replace-site-visibility.php:32
+msgid "Jetpack is disconnected & site is private. Reconnect Jetpack to manage site visibility settings."
+msgstr "Jetpack è disconnesso e il sito è privato. Riconnetti Jetpack per gestire le impostazioni della visibilità del sito."
+
+#: private-site/logged-in-banner.php:86
+msgid "Update visibility"
+msgstr "Aggiorna la visibilità"
+
+#: private-site/logged-in-banner.php:90
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:303
+msgid "Launch site"
+msgstr "Lancia il sito"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:167
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-sidebar-notice/wpcom-sidebar-notice.php:67
+msgid "Dismiss"
+msgstr "Annulla"
+
+#: wpcomsh.php:909
+msgid "You are currently using <strong>%1$s</strong> out of <strong>%2$s</strong> upload limit (%3$s%%)."
+msgstr "Stai utilizzando <strong>%1$s</strong> di <strong>%2$s</strong> del limite di caricamento (%3$s%%)."
+
+#: widgets/twitter.php:364
+msgid "Twitter username:"
+msgstr "Nome utente Twitter:"
+
+#: widgets/twitter.php:353
+msgid "Please switch to the 'Twitter Timeline' widget. This widget will be going away in the future and the new widget allows for more customization."
+msgstr "Passa al widget \"cronologia di Twitter\". Questo widget non sarà più disponibile in futuro e il nuovo widget offre maggiori opzioni di personalizzazione."
+
+#: widgets/twitter.php:61
+msgid "Twitter Updates"
+msgstr "Aggiornamenti Twitter"
+
+#: widgets/twitter.php:51
+msgid "Please configure your Twitter username for the <a href=\"%s\">Twitter Widget</a>."
+msgstr "Configura il nome utente Twitter per il <a href=\"%s\">Widget Twitter</a>."
+
+#: widgets/twitter.php:29
+msgid "Display your Tweets from Twitter"
+msgstr "Mostra i tweet da Twitter"
+
+#: widgets/twitter.php:26
+msgid "Twitter"
+msgstr "Twitter "
+
+#: widgets/tag-cloud-widget.php:177
+msgid "Taxonomy:"
+msgstr "Tassonomia:"
+
+#: widgets/tag-cloud-widget.php:159
+msgid "The tag cloud will not be displayed since there are no taxonomies that support the tag cloud widget."
+msgstr "Il cloud dei tag non verrà visualizzato fino a che non vi sono tassonomie che supportano il widget del cloud dei tag."
+
+#: widgets/tag-cloud-widget.php:152
+msgid "Show tag counts"
+msgstr "Mostra il numero dei tag"
+
+#: widgets/tag-cloud-widget.php:139
+msgid "Maximum number of tags displayed"
+msgstr "Numero massimo di tag mostrati"
+
+#: widgets/tag-cloud-widget.php:137
+msgid "Number of Tags:"
+msgstr "Numero di tag:"
+
+#: widgets/tag-cloud-widget.php:41
+msgid "Tags"
+msgstr "Tag"
+
+#: widgets/tag-cloud-widget.php:21
+msgid "Tag Cloud"
+msgstr "Cloud dei tag"
+
+#: widgets/tag-cloud-widget.php:18
+msgid "A cloud of your most used tags."
+msgstr "Una nuvola contenente tutti i tag più usati."
+
+#: widgets/twitter.php:412
+msgid "Text to display between Tweet and timestamp:"
+msgstr "Testo da mostrare tra tweet e orario:"
+
+#: widgets/twitter.php:406
+msgid "Display Follow Button"
+msgstr "Mostra il tasto SEGUIMI"
+
+#: widgets/twitter.php:399
+msgid "Include retweets"
+msgstr "Includi retweet"
+
+#: widgets/twitter.php:392
+msgid "Hide Tweets pushed by Publicize"
+msgstr "Nascondi i Tweet inviati da Publicize"
+
+#: widgets/twitter.php:385
+msgid "Hide replies"
+msgstr "Nascondi commenti"
+
+#: widgets/twitter.php:371
+msgid "Maximum number of Tweets to show:"
+msgstr "Numero massimo di tweet da mostrare:"
+
+#: widgets/twitter.php:289
+msgid "Error: Please make sure the Twitter account is %1$spublic%2$s."
+msgstr "Errore: assicurati che l'account Twitter sia %1$spubblico%2$s."
+
+#: widgets/twitter.php:262 widgets/twitter.php:275 widgets/twitter.php:296
+msgid "Error: Twitter did not respond. Please wait a few minutes and refresh this page."
+msgstr "Errore: Twitter non ha risposto. Aspetta qualche minuto e aggiorna la pagina."
+
+#: widgets/aboutme.php:148
+msgid "Apps"
+msgstr "App"
+
+#: widgets/instagram/instagram.php:245
+msgid "New images may take up to %d minutes to show up on your site."
+msgstr "La visualizzazione delle nuove immagini sul sito potrebbe richiedere fino a %d minuti."
+
+#: widgets/instagram/instagram.php:237
+msgid "Number of columns:"
+msgstr "Numero di colonne:"
+
+#: widgets/instagram/instagram.php:236
+msgid "Layout"
+msgstr "Impaginazione"
+
+#: widgets/instagram/instagram.php:226
+msgid "Number to display:"
+msgstr "Numero da mostrare:"
+
+#: widgets/instagram/instagram.php:225
+msgid "Images"
+msgstr "Immagini"
+
+#: widgets/instagram/instagram.php:221
+msgid "Widget Title"
+msgstr "Titolo del widget"
+
+#: widgets/instagram/instagram.php:189
+msgid "No Instagram images were found."
+msgstr "Non sono state trovate immagini Instagram."
+
+#: widgets/instagram/instagram.php:186
+msgid "There was an error retrieving images from Instagram. An attempt will be remade in a few minutes."
+msgstr "Si è verificato un errore durante il recupero delle immagini da Instagram. Verrà effettuato un nuovo tentativo tra qualche minuto."
+
+#: widgets/instagram/instagram.php:30
+msgid "Display your latest Instagram photos."
+msgstr "Mostra le tue ultime foto su Instagram."
+
+#: widgets/instagram/instagram.php:28 widgets/instagram/instagram.php:43
+msgid "Instagram"
+msgstr "Instagram"
+
+#: widgets/class-aboutme-widget.php:149
+msgid "Biography"
+msgstr "Biografia"
+
+#: widgets/class-aboutme-widget.php:142
+msgid "Headline"
+msgstr "Titolo"
+
+#: widgets/class-aboutme-widget.php:135
+msgid "Photo"
+msgstr "Foto"
+
+#: widgets/class-aboutme-widget.php:131
+msgid "Don't Display Name"
+msgstr "Non mostrare nome"
+
+#: widgets/class-aboutme-widget.php:129
+msgid "Display Small"
+msgstr "Mostra dimensione piccola"
+
+#: widgets/class-aboutme-widget.php:127
+msgid "Display Medium"
+msgstr "Mostra dimensione media"
+
+#: widgets/class-aboutme-widget.php:125
+msgid "Display Large"
+msgstr "Mostra dimensione grande"
+
+#: widgets/class-aboutme-widget.php:123
+msgid "Display X-Large"
+msgstr "Mostra dimensione molto grande"
+
+#: widgets/class-aboutme-widget.php:112
+msgid "Your about.me URL"
+msgstr "Il tuo URL about.me"
+
+#: widgets/class-aboutme-widget.php:105
+msgid "Widget title"
+msgstr "Titolo del widget"
+
+#: widgets/class-aboutme-widget.php:98
+msgid "The about.me widget will no longer be available after July 1, 2016. After this date, the widget will display a simple text link to your about.me profile. Please remove this widget."
+msgstr "Il widget about.me non è più disponibile a partire dal 1° luglio 2016. A partire da quella data, il widget presenta un semplice link di testo al tuo profilo about.me. Rimuovi questo widget."
+
+#: widgets/class-aboutme-widget.php:41
+msgid "The about.me widget is no longer available. To remove this widget, <a href=\"%s\">visit your settings</a>. This message is not shown to visitors to your site."
+msgstr "Il widget about.me non è più disponibile. Per rimuovere questo widget, <a href=\"%s\">visita le tue impostazioni</a>. Questo messaggio non viene mostrato ai visitatori del tuo sito."
+
+#: widgets/class-aboutme-widget.php:20
+msgid "About.me Widget"
+msgstr "Widget About.me"
+
+#: widgets/class-aboutme-widget.php:18
+msgid "Display your about.me profile with thumbnail"
+msgstr "Mostra l'anteprima del profilo about.me"
+
+#: safeguard/utils.php:68
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1384
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1395
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1449
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1460
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1468
+msgid "Unable to fetch the requested data."
+msgstr "Impossibile recuperare i dati richiesti."
+
+#: footer-credit/theme-optimizations.php:62
+msgid "Create a free website or blog at WordPress.com"
+msgstr "Crea un sito o un blog gratuitamente presso WordPress.com"
+
+#: footer-credit/theme-optimizations.php:57
+msgid "Create a free website at WordPress.com"
+msgstr "Crea un sito gratuitamente presso WordPress.com"
+
+#: footer-credit/footer-credit/footer-credit.php:104
+msgid "Powered by WordPress.com"
+msgstr "Creato su WordPress.com"
+
+#: footer-credit/footer-credit/footer-credit.php:103
+#: footer-credit/theme-optimizations.php:55
+#: footer-credit/theme-optimizations.php:60
+msgid "Blog at WordPress.com"
+msgstr "Blog su WordPress.com"
+
+#: footer-credit/footer-credit/footer-credit.php:102
+msgid "A WordPress.com Website"
+msgstr "Un sito web WordPress.com"
+
+#: footer-credit/footer-credit/footer-credit.php:101
+msgid "WordPress.com Logo"
+msgstr "Logo di WordPress.com"
+
+#: footer-credit/footer-credit/footer-credit.php:41
+#: footer-credit/footer-credit/footer-credit.php:208
+msgid "Create a website or blog at WordPress.com"
+msgstr "Crea un sito web o un blog su WordPress.com"
+
+#: footer-credit/footer-credit/customizer.php:103
+msgid "Footer Credit"
+msgstr "Crediti a piè di pagina"
+
+#: footer-credit/footer-credit/customizer.php:80
+msgid "Upgrade to Business"
+msgstr "Passa al piano Business"
+
+#: footer-credit/footer-credit/customizer.php:72
+msgid "Hide (Business Plan Required)"
+msgstr "Nascondi (solo con il piano Business)"
+
+#: footer-credit/footer-credit/customizer.php:70
+msgid "Hide"
+msgstr "Nascondi"
+
+#: footer-credit/footer-credit/customizer.php:59
+msgid "Default"
+msgstr "Default"
+
+#: footer-credit/footer-credit-optimizations.php:171
+msgid "Design by"
+msgstr "Progettato da"
+
+#: footer-credit/footer-credit-optimizations.php:157
+msgid "by"
+msgstr "di"
+
+#: footer-credit/footer-credit-optimizations.php:138
+msgid "Theme"
+msgstr "Tema"
+
+#: footer-credit/footer-credit-optimizations.php:119
+msgid "Proudly powered by WordPress"
+msgstr "Realizzato con tecnologia WordPress"
+
+#: customizer-fixes/customizer-fixes.php:26
+msgid "Save Settings"
+msgstr "Salva le impostazioni"
+
+#: customizer-fixes/customizer-fixes.php:25
+msgid "Are you sure you want to discard your unsaved changes?"
+msgstr "Desideri eliminare le modifiche non salvate?"
+
+#: customizer-fixes/customizer-fixes.php:24
+msgid "Saved"
+msgstr "Salvato"
+
+#: customizer-fixes/customizer-fixes.php:23
+msgid "Save Changes"
+msgstr "Salva modifiche"
+
+#: customizer-fixes/customizer-fixes.php:22
+msgid "Save"
+msgstr "Salva"
+
+#: customizer-fixes/customizer-fixes.php:21
+msgid "Activate &amp; Save"
+msgstr "Attiva e salva"
+
+#: wpcomsh.php:338
+msgid "This plugin was installed by WordPress.com and provides features offered in your plan subscription."
+msgstr "Questo plugin è stato installato da WordPress.com e fornisce funzionalità offerte nell'abbonamento al piano."
+
+#: wpcomsh.php:335
+msgid "%s is automatically managed for you."
+msgstr "%s è gestito automaticamente per te."
+
+#: widgets/top-rated.php:141
+msgid "How many items would you like to display?"
+msgstr "Elementi da visualizzare:"
+
+#: widgets/top-rated.php:137
+msgid "Filter by category"
+msgstr "Filtra per categoria"
+
+#: widgets/top-rated.php:131
+msgid "Show for comments"
+msgstr "Mostra per i commenti"
+
+#: widgets/top-rated.php:125
+msgid "Show for pages"
+msgstr "Mostra per le pagine"
+
+#: widgets/top-rated.php:119
+msgid "Show for posts"
+msgstr "Mostra per gli articoli"
+
+#: widgets/top-rated.php:11 widgets/top-rated.php:32
+msgid "Top Rated"
+msgstr "Più votati"
+
+#: widgets/top-rated.php:10
+msgid "A list of your top rated posts, pages or comments."
+msgstr "Un elenco dei tuoi articoli, pagine e commenti più votati."
+
+#: widgets/top-clicks.php:61
+msgid "Top Clicks are calculated from 48-72 hours of stats. They take a while to change."
+msgstr "I più cliccati vengono calcolati su un periodo dalle 48 alle 72 ore di rilevamento statistico, quindi i cambiamenti non sono immediati."
+
+#: widgets/top-clicks.php:53
+msgid "URLs to show:"
+msgstr "URL da mostrare:"
+
+#: widgets/top-clicks.php:47
+msgid "Display length:"
+msgstr "Mostra lunghezza"
+
+#: widgets/top-clicks.php:14
+msgid "List the most-clicked links on your blog."
+msgstr "Elenca i link più cliccati del tuo blog."
+
+#: widgets/top-clicks.php:13 widgets/top-clicks.php:22
+#: widgets/top-clicks.php:66
+msgid "Top Clicks"
+msgstr "Più cliccati"
+
+#: widgets/tlkio/tlkio.php:59
+msgid "Height (in pixel):"
+msgstr "Altezza (in pixel):"
+
+#: widgets/tlkio/tlkio.php:55
+msgid "Channel:"
+msgstr "Canale:"
+
+#: widgets/tlkio/tlkio.php:26
+msgid "tlk.io Webchat"
+msgstr "Webchat tlk.io"
+
+#: widgets/tlkio/tlkio.php:25
+msgid "Add a tlk.io webchat."
+msgstr "Aggiungi una webchat tlk.io."
+
+#: widgets/reservations.php:55
+msgid "Show:"
+msgstr "Mostra:"
+
+#: widgets/reservations.php:50
+msgid "E-mail Subject:"
+msgstr "Oggetto dell'e-mail:"
+
+#: widgets/reservations.php:44
+msgid "Recipient E-mail Address:"
+msgstr "Indirizzo e-mail del destinatario:"
+
+#: widgets/reservations.php:29
+msgid "Departure"
+msgstr "Partenze"
+
+#: widgets/reservations.php:28
+msgid "Arrival"
+msgstr "Arrivi"
+
+#: widgets/reservations.php:27
+msgid "# Children"
+msgstr "# Bambini"
+
+#: widgets/reservations.php:26
+msgid "# Adults"
+msgstr "# Adulti"
+
+#: widgets/reservations.php:25
+msgid "Message"
+msgstr "Messaggio"
+
+#: widgets/reservations.php:24
+msgid "Phone"
+msgstr "Telefono"
+
+#: widgets/reservations.php:23
+msgid "Email"
+msgstr "E-mail"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:195
+#: widgets/class-aboutme-widget.php:119
+#: widgets/class-wpcom-widget-reservations.php:39
+msgid "Name"
+msgstr "Nome"
+
+#: widgets/class-wpcom-widget-reservations.php:33
+msgid "Reservation Inquiry"
+msgstr "Domanda di prenotazione"
+
+#: widgets/class-wpcom-widget-reservations.php:27
+#: widgets/class-wpcom-widget-reservations.php:32
+msgid "Reservations"
+msgstr "Prenotazioni"
+
+#: widgets/class-wpcom-widget-recent-comments.php:477
+msgid "Show comments from:"
+msgstr "Mostra commenti da:"
+
+#: widgets/class-wpcom-widget-recent-comments.php:472
+msgid "Text background color:"
+msgstr "Colore di sfondo del testo:"
+
+#: widgets/class-wpcom-widget-recent-comments.php:466
+msgid "Avatar background color:"
+msgstr "Colore di sfondo dell'avatar:"
+
+#: widgets/class-wpcom-widget-recent-comments.php:455
+msgid "No Avatars"
+msgstr "Nessun avatar"
+
+#: widgets/class-wpcom-widget-recent-comments.php:448
+msgid "(at most 15)"
+msgstr "(Massimo: 15)"
+
+#: widgets/class-wpcom-widget-recent-comments.php:442
+msgid "Number of comments to show:"
+msgstr "Commenti da visualizzare:"
+
+#: widgets/class-wpcom-widget-recent-comments.php:362
+msgid "There are no public comments available to display."
+msgstr "Non sono disponibili commenti pubblici da mostrare."
+
+#: widgets/class-wpcom-widget-recent-comments.php:312
+msgid "Anonymous"
+msgstr "Anonimo"
+
+#: widgets/class-wpcom-widget-recent-comments.php:56
+msgid "Display your site's most recent comments"
+msgstr "Mostra i commenti più recenti sul tuo sito."
+
+#: widgets/class-wpcom-widget-recent-comments.php:53
+#: widgets/class-wpcom-widget-recent-comments.php:192
+msgid "Recent Comments"
+msgstr "Commenti recenti"
+
+#. translators: %s is a URL to the widgets settings page.
+#: widgets/class-jetpack-posts-i-like-widget.php:278
+msgid "You have not recently liked any posts. Once you do, this <a href=\"%s\">Posts I Like</a> widget will display them."
+msgstr "Di recente non ti è piaciuto nessun articolo. Dopo avere messo \"Mi piace\" su un articolo, questo widget <a href=\"%s\">Articoli che mi piacciono</a> li mostrerà."
+
+#: widgets/class-jetpack-posts-i-like-widget.php:266
+msgid "on"
+msgstr "su"
+
+#. translators: %1$s is the post title, %1$s is the blog name.
+#: widgets/class-jetpack-posts-i-like-widget.php:243
+msgctxt "1: Post Title, 2: Blog Name"
+msgid "%1$s on %2$s"
+msgstr "%1$s il %2$s"
+
+#: widgets/class-jetpack-posts-i-like-widget.php:118
+msgid "Author's likes to display:"
+msgstr "Preferiti dell'autore da mostrare:"
+
+#: widgets/class-jetpack-posts-i-like-widget.php:100
+msgid "Grid"
+msgstr "Griglia"
+
+#: widgets/class-jetpack-posts-i-like-widget.php:99
+msgid "List"
+msgstr "Elenco"
+
+#: widgets/class-jetpack-posts-i-like-widget.php:97
+msgid "Display as:"
+msgstr "Mostra come:"
+
+#: widgets/class-jetpack-posts-i-like-widget.php:92
+msgid "Number of posts to show (1 to 15):"
+msgstr "Articoli da mostrare (da 1 a 15):"
+
+#: widgets/class-jetpack-posts-i-like-widget.php:22
+msgid "A list of the posts I most recently liked"
+msgstr "Mostra un elenco degli ultimi articoli che ti sono piaciuti."
+
+#: widgets/class-jetpack-posts-i-like-widget.php:20
+#: widgets/class-jetpack-posts-i-like-widget.php:27
+msgid "Posts I Like"
+msgstr "Articoli che mi piacciono"
+
+#: widgets/class-music-player-widget.php:96
+msgid "Choose songs"
+msgstr "Scegli canzoni"
+
+#: widgets/class-music-player-widget.php:18
+#: widgets/class-music-player-widget.php:101
+msgid "Music Player"
+msgstr "Lettore audio"
+
+#: widgets/class-music-player-widget.php:16
+msgid "A multi-song music player"
+msgstr "Un lettore musicale multibrano"
+
+#: widgets/class-jetpack-i-voted-widget.php:30
+msgid "I Voted"
+msgstr "Ho votato"
+
+#: widgets/class-jetpack-i-voted-widget.php:27
+msgid "Show your readers that you voted with an \"I Voted\" sticker."
+msgstr "Mostra ai tuoi lettori di aver votato con un adesivo \"Ho votato\"."
+
+#: widgets/class-gravatar-widget.php:199
+msgid "Text displayed after Gravatar. This is optional and can be used to describe yourself or what your blog is about."
+msgstr "Testo visualizzato dopo il Gravatar. È un testo facoltativo e può contenere una descrizione di te stesso o del tuo blog."
+
+#: widgets/class-gravatar-widget.php:198
+msgid "Gravatar link. This is an optional URL that will be used when anyone clicks on your Gravatar:"
+msgstr "Il link Gravatar è un indirizzo URL facoltativo che viene usato quando qualcuno clicca sul tuo Gravatar:"
+
+#: widgets/class-gravatar-widget.php:188
+msgid "Gravatar alignment:"
+msgstr "Allineamento Gravatar:"
+
+#: widgets/class-gravatar-widget.php:177
+msgid "Size:"
+msgstr "Dimensione:"
+
+#: widgets/class-gravatar-widget.php:174
+msgid "Custom Email Address:"
+msgstr "Indirizzo e-mail personalizzato:"
+
+#: widgets/class-gravatar-widget.php:161
+msgid "Select a user or pick \"custom\" and enter a custom email address."
+msgstr "Seleziona un utente oppure scegli \"Altro\" e inserisci un indirizzo e-mail personale."
+
+#: widgets/class-gravatar-widget.php:156
+msgid "Center"
+msgstr "Al centro"
+
+#: widgets/class-gravatar-widget.php:155
+msgid "Right"
+msgstr "A destra"
+
+#: widgets/class-gravatar-widget.php:154
+msgid "Left"
+msgstr "A sinistra"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:81
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:292
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:792
+#: widgets/class-gravatar-widget.php:153
+#: widgets/class-widget-top-clicks.php:163
+msgid "None"
+msgstr "Nessuno"
+
+#: widgets/class-gravatar-widget.php:150
+msgid "Extra Large (256 pixels)"
+msgstr "Grandissima (256 pixel)"
+
+#: widgets/class-gravatar-widget.php:149
+msgid "Large (128 pixels)"
+msgstr "Grande (128 pixel)"
+
+#: widgets/class-gravatar-widget.php:148
+msgid "Medium (96 pixels)"
+msgstr "Media (96 pixel)"
+
+#: widgets/class-gravatar-widget.php:147
+msgid "Small (64 pixels)"
+msgstr "Piccola (64 pixel)"
+
+#. translators: %s is the URL to the widget settings.
+#: widgets/class-gravatar-widget.php:98
+msgid "You need to pick a user or enter an email address in your <a href=\"%s\">Gravatar Widget</a> settings."
+msgstr "Devi selezionare un utente o inserire un indirizzo e-mail nelle impostazioni <a href=\"%s\">Widget Gravatar</a>."
+
+#: widgets/class-gravatar-widget.php:20
+msgid "Gravatar"
+msgstr "Gravatar"
+
+#: widgets/class-gravatar-widget.php:17
+msgid "Insert a Gravatar image"
+msgstr "Inserisci un'immagine Gravatar."
+
+#: widgets/class-wpcom-freshly-pressed-widget.php:84
+msgid "Choose an image to display in your sidebar:"
+msgstr "Scegli un'immagine da mostrare nella barra laterale:"
+
+#: widgets/class-wpcom-freshly-pressed-widget.php:16
+msgid "Freshly Pressed"
+msgstr "Freshly Pressed"
+
+#: widgets/class-wpcom-freshly-pressed-widget.php:13
+msgid "Display a Freshly Pressed badge in your sidebar"
+msgstr "Mostra un riconoscimento Freshly Pressed nella barra laterale"
+
+#: widgets/class-widget-authors-grid.php:143
+#: widgets/class-wpcom-widget-recent-comments.php:453
+msgid "Avatar Size (px):"
+msgstr "Dimensioni avatar (px):"
+
+#: widgets/class-widget-authors-grid.php:138
+msgid "Display all authors (including those who have not written any posts)"
+msgstr "Mostra tutti gli autori (include chi non ha scritto articoli)"
+
+#: widgets/class-gravatar-widget.php:159
+#: widgets/class-jetpack-i-voted-widget.php:82
+#: widgets/class-jetpack-posts-i-like-widget.php:87
+#: widgets/class-jetpack-widget-twitter.php:139
+#: widgets/class-music-player-widget.php:87 widgets/class-pd-top-rated.php:152
+#: widgets/class-widget-authors-grid.php:132
+#: widgets/class-widget-top-clicks.php:73
+#: widgets/class-wpcom-category-cloud-widget.php:176
+#: widgets/class-wpcom-freshly-pressed-widget.php:80
+#: widgets/class-wpcom-tag-cloud-widget.php:124
+#: widgets/class-wpcom-widget-recent-comments.php:436
+#: widgets/class-wpcom-widget-reservations.php:61
+#: widgets/tlkio/class-tlkio-widget.php:76
+msgid "Title:"
+msgstr "Titolo:"
+
+#: widgets/class-widget-authors-grid.php:62
+msgid "Authors"
+msgstr "Autori"
+
+#: widgets/class-widget-authors-grid.php:17
+msgid "Show a grid of author avatar images."
+msgstr "Mostra una griglia di immagini avatar degli autori."
+
+#: widgets/class-widget-authors-grid.php:14
+msgid "Author Grid"
+msgstr "Griglia autore"
+
+#: private-site/private-site.php:616
+msgid "Private Site"
+msgstr "Sito privato"
+
+#: private-site/private-site.php:426 private-site/private-site.php:543
+#: private-site/private-site.php:775
+msgid "This site is private."
+msgstr "Il sito è privato."
+
+#: private-site/access-denied-coming-soon-template.php:53
+#: private-site/access-denied-private-site-template.php:47
+#: vendor/automattic/jetpack-mu-wpcom/src/features/coming-soon/fallback-coming-soon-page.php:293
+msgid "Log in"
+msgstr "Accedi"
+
+#: private-site/access-denied-private-site-template.php:47
+msgid "Switch user"
+msgstr "Cambia utente"
+
+#: private-site/access-denied-private-site-template.php:45
+msgid "You need to be logged in as a user who has permission to view this site."
+msgstr "Devi essere connesso come utente autorizzato a visualizzare questo sito."
+
+#: privacy/class-wp-privacy-participating-plugins.php:181
+msgid ""
+"Please note - this tool only displays privacy policy information provided by\n"
+"WordPress and participating plugins. It does not include privacy policy\n"
+"information for non-participating plugins. It is your responsibility to\n"
+"obtain privacy policy information for non-participating plugins separately."
+msgstr ""
+"Tieni presente che questo strumento mostra solo le informazioni sull'informativa sulla privacy fornite da\n"
+"WordPress e i plugin partecipanti. Non comprende informazioni sull'informativa sulla privacy\n"
+"per i plugin non partecipanti. È tua responsabilità\n"
+"ottenere separatamente informazioni sull'informativa sulla privacy per i plugin non partecipanti."
+
+#: privacy/class-wp-privacy-participating-plugins.php:126
+msgid ""
+"Please note - this tool only exports the personal data stored by WordPress and\n"
+"participating plugins. It does not export personal data stored by\n"
+"non-participating plugins. It is your responsibility to export personal data\n"
+"stored by non-participating plugins separately. The personal data exported\n"
+"includes only the following items at this time:"
+msgstr ""
+"Tieni presente che questo strumento esporta solo i dati personali archiviati da WordPress e\n"
+"dai plugin partecipanti. Non esporta dati personali archiviati da\n"
+"plugin non partecipanti. È tua responsabilità esportare separatamente dati personali\n"
+"archiviati da plugin non partecipanti. I dati personali esportati\n"
+"attualmente comprendono solo i seguenti elementi:"
+
+#: privacy/class-wp-privacy-participating-plugins.php:74
+msgid ""
+"Please note - this tool only erases the personal data stored by WordPress and\n"
+"participating plugins. It does not delete registered users, nor does it erase\n"
+"personal data stored by non-participating plugins. It is your responsibility\n"
+"to delete registered users as well as personal data stored by non-participating\n"
+"plugins. The personal data erased includes only the following items at this\n"
+"time:"
+msgstr ""
+"Tieni presente che questo strumento cancella solo i dati personali archiviati da WordPress e\n"
+"dai plugin partecipanti. Non elimina utenti registrati e non cancella\n"
+"dati personali archiviati da plugin non partecipanti. È tua responsabilità\n"
+"eliminare utenti registrati e dati personali archiviati da plugin\n"
+"non partecipanti. I dati personali cancellati attualmente comprendono solo i seguenti\n"
+"elementi:"
+
+#: logo-tool/logo-tool.php:80
+msgid "Create logo"
+msgstr "Crea un logo"
+
+#: logo-tool/logo-tool.php:68
+msgid "Add a logo to display on your site. No logo? Buy a pro one today — Click “Create logo” to start."
+msgstr "Aggiungi un logo da visualizzare sul tuo sito. Nessun logo? Acquistane uno professionale oggi stesso: fai clic su \"Crea logo\" per iniziare."
+
+#. Plugin Name of the plugin
+msgid "WP.com Site Helper"
+msgstr "Helper del sito WP.com"

@@ -1,3 +1,5 @@
+import { TextProps } from '../text/types';
+
 type MultipleButtonsProps = {
 	/**
 	 * Indicates whether there are multiple buttons present that would imply agreement if clicked.
@@ -22,9 +24,24 @@ type SingleButtonProps = {
 	agreeButtonLabel: string;
 };
 
-export type TermsOfServiceProps = {
-	/**
-	 * Represents additional CSS classes to be added to the component's root.
-	 */
-	className?: string;
-} & ( MultipleButtonsProps | SingleButtonProps );
+export type TermsOfServiceProps = Pick<
+	TextProps,
+	| 'variant'
+	| 'm'
+	| 'mt'
+	| 'mr'
+	| 'mb'
+	| 'ml'
+	| 'mx'
+	| 'my'
+	| 'p'
+	| 'pt'
+	| 'pr'
+	| 'pb'
+	| 'pl'
+	| 'px'
+	| 'py'
+	| 'className'
+	| 'component'
+> &
+	( MultipleButtonsProps | SingleButtonProps );

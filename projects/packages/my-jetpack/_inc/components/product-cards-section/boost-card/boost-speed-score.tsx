@@ -8,26 +8,27 @@ import { Popover } from '@wordpress/components';
 import { useViewportMatch } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import { arrowUp, Icon } from '@wordpress/icons';
-import { useCallback, useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
+import { PRODUCT_STATUSES } from '../../../constants';
 import useProduct from '../../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../../hooks/use-analytics';
 import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
-import { PRODUCT_STATUSES } from '../../product-card/action-button';
 import { useBoostTooltipCopy } from './use-boost-tooltip-copy';
-import type { SpeedScores } from './types';
-import type { FC, SetStateAction } from 'react';
+import type { SpeedScores, BoostSpeedScoreType } from './types';
+import type { SetStateAction } from 'react';
 
 import './style.scss';
 
-const BoostSpeedScore: FC = () => {
+const BoostSpeedScore: BoostSpeedScoreType = () => {
 	const { recordEvent } = useAnalytics();
 	const [ isLoading, setIsLoading ] = useState( false );
 	const [ speedLetterGrade, setSpeedLetterGrade ] = useState( '' );
 	const [ currentSpeedScore, setCurrentSpeedScore ] = useState< number | null >( null );
 	const [ previousSpeedScore, setPreviousSpeedScore ] = useState< number | null >( null );
 	const [ isSpeedScoreError, setIsSpeedScoreError ] = useState( false );
-	const [ isTooltipVisible, setIsTooltipVisible ] = useState( false );
+	const [ shouldShowTooltip, setShouldShowTooltip ] = useState( false );
+	const [ hasTooltipBeenViewed, setHasTooltipBeenViewed ] = useState( false );
 	const isMobileViewport: boolean = useViewportMatch( 'medium', '<' );
 
 	const { siteUrl = '', latestBoostSpeedScores } = getMyJetpackWindowInitialState();
@@ -116,13 +117,13 @@ const BoostSpeedScore: FC = () => {
 
 	const tooltipCopy = useBoostTooltipCopy( { speedLetterGrade, boostScoreIncrease } );
 
-	const handleTooltipMouseEnter = useCallback( () => {
-		setIsTooltipVisible( true );
-	}, [ setIsTooltipVisible ] );
+	const handleEnter = useCallback( () => {
+		setShouldShowTooltip( true );
+	}, [ setShouldShowTooltip ] );
 
-	const handleTooltipMouseLeave = useCallback( () => {
-		setIsTooltipVisible( false );
-	}, [ setIsTooltipVisible ] );
+	const handleOut = useCallback( () => {
+		setShouldShowTooltip( false );
+	}, [ setShouldShowTooltip ] );
 
 	useEffect( () => {
 		if ( latestBoostSpeedScores ) {
@@ -148,9 +149,27 @@ const BoostSpeedScore: FC = () => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] );
 
+	useEffect( () => {
+		if ( ! isLoading && shouldShowTooltip && ! hasTooltipBeenViewed ) {
+			recordEvent( 'jetpack_boost_card_tooltip_viewed', {
+				feature: 'jetpack-boost',
+				position: 'my-jetpack',
+			} );
+			setHasTooltipBeenViewed( true );
+		}
+	}, [ isLoading, shouldShowTooltip, recordEvent, hasTooltipBeenViewed ] );
+
 	return (
 		! isSpeedScoreError && (
-			<div className="mj-boost-speed-score">
+			<div
+				className="mj-boost-speed-score"
+				role="presentation"
+				onMouseEnter={ handleEnter }
+				onMouseLeave={ handleOut }
+				onClick={ shouldShowTooltip ? handleOut : handleEnter }
+				onFocus={ handleEnter }
+				onBlur={ handleOut }
+			>
 				{ isLoading ? (
 					<Spinner color="#23282d" size={ 16 } />
 				) : (
@@ -158,28 +177,23 @@ const BoostSpeedScore: FC = () => {
 						<div className="mj-boost-speed-score__grade">
 							<span>{ __( 'Your website’s overall speed score:', 'jetpack-my-jetpack' ) }</span>
 							<span className="mj-boost-speed-score__grade--letter">
-								<button
-									onMouseEnter={ handleTooltipMouseEnter }
-									onFocus={ handleTooltipMouseEnter }
-									onMouseLeave={ handleTooltipMouseLeave }
-									onBlur={ handleTooltipMouseLeave }
-								>
-									{ speedLetterGrade }
-									{ isTooltipVisible && (
-										<Popover
-											placement={ isMobileViewport ? 'top-end' : 'right' }
-											noArrow={ false }
-											offset={ 10 }
-										>
+								{ speedLetterGrade }
+								{ ! isLoading && shouldShowTooltip && (
+									<Popover
+										placement={ isMobileViewport ? 'top-end' : 'top-start' }
+										noArrow={ false }
+										offset={ 10 }
+									>
+										<div className={ 'boost-score-tooltip__parent' }>
 											<p className={ 'boost-score-tooltip__heading' }>
 												{ /* Add the `&nbsp;` at the end to prevent widows. */ }
 												{ __( 'Site speed performance:', 'jetpack-my-jetpack' ) }&nbsp;
 												{ speedLetterGrade }
 											</p>
 											<p className={ 'boost-score-tooltip__content' }>{ tooltipCopy }</p>
-										</Popover>
-									) }
-								</button>
+										</div>
+									</Popover>
+								) }
 							</span>
 						</div>
 						<div className="mj-boost-speed-score__bar">

@@ -1,5 +1,5 @@
-import classNames from 'classnames';
 import Clipboard from 'clipboard';
+import clsx from 'clsx';
 import Button from 'components/button';
 import { omit, noop } from 'lodash';
 import PropTypes from 'prop-types';
@@ -38,11 +38,12 @@ export default class ClipboardButton extends React.Component {
 	}
 
 	displayPrompt = () => {
+		// eslint-disable-next-line no-alert -- Fallback if clipboard doesn't work, lets the user copy it manually.
 		window.prompt( this.props.prompt, this.props.text );
 	};
 
 	render() {
-		const classes = classNames( 'dops-clipboard-button', this.props.className );
+		const classes = clsx( 'dops-clipboard-button', this.props.className );
 		return (
 			<Button
 				rna={ this.props.rna }

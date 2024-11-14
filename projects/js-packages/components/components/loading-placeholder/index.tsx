@@ -1,4 +1,4 @@
-import classNames from 'classnames';
+import clsx from 'clsx';
 import React from 'react';
 import styles from './style.module.scss';
 
@@ -14,7 +14,7 @@ const LoadingPlaceholder = ( {
 	className?: string;
 } ) => {
 	return (
-		<div className={ classNames( styles.placeholder, className ) } style={ { width, height } }>
+		<div className={ clsx( styles.placeholder, className ) } style={ { width, height } }>
 			{ children }
 		</div>
 	);

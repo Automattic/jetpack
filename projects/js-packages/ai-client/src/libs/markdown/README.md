@@ -35,7 +35,7 @@ const rules = {
 		}
  	}
 };
-const renderer = new HTMLToMarkdown( options, rules );
+const renderer = new HTMLToMarkdown( { options, rules } );
 const markdownContent = renderer.render( { content: htmlContent } );
 // ***Hello world***
 ```
@@ -52,7 +52,7 @@ Example:
 import { renderHTMLFromMarkdown } from '@automattic/jetpack-ai-client';
 
 const markdownContent = '**Hello world**';
-const htmlContent = renderHTMLFromMarkdown( { content: markdownContent, rules: 'all' } ); // 'all' is a default value
+const htmlContent = renderHTMLFromMarkdown( { content: markdownContent, rules: [ 'list' ], extension: false } ); // [ 'list' ] and false are default values
 // <p><strong>Hello world</strong></p>\n
 ```
 
@@ -71,4 +71,5 @@ const htmlContent = renderer.render( { content: markdownContent, rules } );
 // <p><strong>Hello world</strong></p>\n
 ```
 
-Currently `rules` only supports `'all'` and `['list']`. Further specific fixes can be added when necessary.
+The `rules` array supports the following values: `'list'`, `'paragraph'` and `'list-item'`. Further specific fixes can be added when necessary.
+Due to different implementations between the Jetpack AI Assistant block and its extensions, the `extension` flag is used to apply context-specific fixes.

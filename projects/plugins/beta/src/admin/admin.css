@@ -65,6 +65,13 @@ html {
 	padding: 11px 0 6px;
 }
 
+#jetpack-beta-tester__is-mu-plugin.dops-card {
+	border-left: 3px solid #f0b849;
+	padding-top: 1px;
+	padding-bottom: 1px;
+	margin-top: 20px;
+}
+
 .jetpack-beta-container {
 	margin: 0 auto;
 	text-align: left;

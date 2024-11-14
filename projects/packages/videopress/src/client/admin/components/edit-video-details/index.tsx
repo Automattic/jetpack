@@ -20,7 +20,7 @@ import {
 	arrowLeft,
 	globe as siteDefaultPrivacyIcon,
 } from '@wordpress/icons';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import { useEffect } from 'react';
 import { useHistory, Prompt } from 'react-router-dom';
 import { Link } from 'react-router-dom';
@@ -73,7 +73,7 @@ const Header = ( {
 	const history = useHistory();
 
 	return (
-		<div className={ classnames( styles[ 'header-wrapper' ], { [ styles.small ]: isSm } ) }>
+		<div className={ clsx( styles[ 'header-wrapper' ], { [ styles.small ]: isSm } ) }>
 			<button onClick={ () => history.push( '/' ) } className={ styles[ 'logo-button' ] }>
 				<JetpackVideoPressLogo />
 			</button>
@@ -223,6 +223,7 @@ const EditVideoDetails = () => {
 		selectPosterImageFromLibrary,
 		posterImageSource,
 		libraryAttachment,
+		isUpdatingPoster,
 	} = useEditDetails();
 
 	const { canPerformAction } = usePermission();
@@ -251,7 +252,7 @@ const EditVideoDetails = () => {
 		history.push( '/' );
 	}
 
-	let thumbnail: string | JSX.Element = posterImage;
+	let thumbnail: string | React.JSX.Element = posterImage;
 
 	if ( posterImageSource === 'video' && useVideoAsThumbnail ) {
 		thumbnail = <VideoPlayer src={ url } currentTime={ selectedTime } />;
@@ -312,7 +313,7 @@ const EditVideoDetails = () => {
 							<VideoThumbnail
 								thumbnail={ thumbnail }
 								loading={ isFetchingData }
-								processing={ processing }
+								processing={ processing || isUpdatingPoster }
 								deleting={ isDeleting }
 								updating={ updating }
 								duration={ duration }
@@ -330,7 +331,7 @@ const EditVideoDetails = () => {
 							/>
 							<div className={ styles[ 'side-fields' ] }>
 								{ isFetchingData ? (
-									<LoadingPlaceholder height={ 40 } className={ classnames( styles.field ) } />
+									<LoadingPlaceholder height={ 40 } className={ clsx( styles.field ) } />
 								) : (
 									<SelectControl
 										className={ styles.field }
@@ -370,13 +371,14 @@ const EditVideoDetails = () => {
 												value: VIDEO_PRIVACY_LEVEL_PRIVATE,
 											},
 										] }
+										__nextHasNoMarginBottom={ true }
 									/>
 								) }
 								{ isFetchingData ? (
-									<LoadingPlaceholder height={ 40 } className={ classnames( styles.field ) } />
+									<LoadingPlaceholder height={ 40 } className={ clsx( styles.field ) } />
 								) : (
 									<>
-										<Text className={ classnames( styles.field, styles.checkboxTitle ) }>
+										<Text className={ clsx( styles.field, styles.checkboxTitle ) }>
 											{ __( 'Share', 'jetpack-videopress-pkg' ) }
 										</Text>
 										<CheckboxControl
@@ -387,14 +389,15 @@ const EditVideoDetails = () => {
 												'jetpack-videopress-pkg'
 											) }
 											onChange={ value => setDisplayEmbed( value ? 1 : 0 ) }
+											__nextHasNoMarginBottom={ true }
 										/>
 									</>
 								) }
 								{ isFetchingData ? (
-									<LoadingPlaceholder height={ 40 } className={ classnames( styles.field ) } />
+									<LoadingPlaceholder height={ 40 } className={ clsx( styles.field ) } />
 								) : (
 									<>
-										<Text className={ classnames( styles.field, styles.checkboxTitle ) }>
+										<Text className={ clsx( styles.field, styles.checkboxTitle ) }>
 											{ __( 'Download', 'jetpack-videopress-pkg' ) }
 										</Text>
 										<CheckboxControl
@@ -405,15 +408,16 @@ const EditVideoDetails = () => {
 												'jetpack-videopress-pkg'
 											) }
 											onChange={ value => setAllowDownload( value ? 1 : 0 ) }
+											__nextHasNoMarginBottom={ true }
 										/>
 									</>
 								) }
 								{ isBusy || isFetchingData ? (
 									// RadioControl does not support disabled state
-									<LoadingPlaceholder height={ 40 } className={ classnames( styles.field ) } />
+									<LoadingPlaceholder height={ 40 } className={ clsx( styles.field ) } />
 								) : (
 									<RadioControl
-										className={ classnames( styles.field, styles.rating ) }
+										className={ clsx( styles.field, styles.rating ) }
 										label={ __( 'Rating', 'jetpack-videopress-pkg' ) }
 										selected={ rating }
 										options={ [

@@ -1,6 +1,6 @@
 import './style.scss';
 import { Icon, closeSmall, search } from '@wordpress/icons';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import TreeSelector from '../tree-selector';
 
@@ -10,7 +10,7 @@ const TreeDropdown = props => {
 	const [ isDropdownVisible, setIsDropdownVisible ] = useState( false );
 	const dropdownRef = useRef( null );
 	const inputRef = useRef( null );
-	const className = classNames(
+	const className = clsx(
 		'tree-dropdown__input-container',
 		isDropdownVisible && 'active',
 		disabled && 'disabled'
@@ -99,12 +99,12 @@ const TreeDropdown = props => {
 			</div>
 			<div className="tree-dropdown__dropdown-container">
 				<div
-					className={ classNames( 'tree-dropdown__dropdown', {
+					className={ clsx( 'tree-dropdown__dropdown', {
 						visible: isDropdownVisible,
 					} ) }
 				>
 					<div
-						className={ classNames( 'tree-dropdown-colapsable', {
+						className={ clsx( 'tree-dropdown-colapsable', {
 							hide: ! isDropdownVisible,
 						} ) }
 					>

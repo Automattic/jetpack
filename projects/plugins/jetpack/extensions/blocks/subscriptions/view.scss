@@ -1,9 +1,6 @@
-@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
-
 @function x($var-name, $fallback) {
 	@return unquote("var(#{$var-name}, #{$fallback})");
 }
-
 
 .is-style-compact {
 	.is-not-subscriber {
@@ -63,6 +60,11 @@
 			cursor: pointer;
 		}
 
+		// Prevent white-space issues on Firefox
+		.wp-block-jetpack-subscriptions__button[contenteditable="true"] {
+			white-space: pre-wrap !important;
+		}
+
 		input[type="email"]::placeholder,
 		input[type="email"]:disabled {
 			color: currentColor;
@@ -91,6 +93,8 @@
 		p#subscribe-submit,
 		p#subscribe-email {
 			margin: 0;
+			padding: 0;
+			line-height: 0;
 		}
 	}
 

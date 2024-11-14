@@ -24,14 +24,14 @@ final class ZeroBSCRM {
 	 *
 	 * @var string
 	 */
-	public $version = '6.4.2';
+	public $version = '6.4.4';
 
 	/**
 	 * WordPress version tested with.
 	 *
 	 * @var string
 	 */
-	public $wp_tested = '6.5';
+	public $wp_tested = '6.7';
 
 	/**
 	 * WordPress update API version.
@@ -3039,14 +3039,6 @@ final class ZeroBSCRM {
 		}
 
 				return false;
-	}
-
-				/**
-				 * Autoload vendor libraries
-				 */
-	public function autoload_libraries() {
-
-		require_once ZEROBSCRM_PATH . 'vendor/autoload.php';
 	}
 
 				/**

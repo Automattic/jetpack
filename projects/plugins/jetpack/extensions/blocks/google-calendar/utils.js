@@ -17,8 +17,8 @@ const ATTRIBUTE_REGEX = /\s+(\w+)=(["'])(.*?)\2/gi;
  *
  * to an embed URL.
  *
- * @param   {string} shareableUrl - The Google Calendar shareable URL
- * @returns {string|undefined} The embed URL or undefined if the conversion fails
+ * @param {string} shareableUrl - The Google Calendar shareable URL
+ * @return {string|undefined} The embed URL or undefined if the conversion fails
  */
 export function convertShareableUrl( shareableUrl ) {
 	const parsedUrl = SHAREABLE_REGEX.exec( shareableUrl );
@@ -33,8 +33,8 @@ export function convertShareableUrl( shareableUrl ) {
 /**
  * Given an <iframe> that matches IFRAME_REGEX, extract the url, width, and height.
  *
- * @param   {string} html - The HTML to extract from.
- * @returns {object|undefined} An object containing the url, width, and height.
+ * @param {string} html - The HTML to extract from.
+ * @return {object|undefined} An object containing the url, width, and height.
  */
 export function extractAttributesFromIframe( html ) {
 	const data = IFRAME_REGEX.exec( html );
@@ -72,8 +72,8 @@ export function extractAttributesFromIframe( html ) {
  * Parses user submitted embed string into an object containing a url and
  * potentially width and height data if the embed code is an iframe.
  *
- * @param   {string} embedString - Embed string to parse.
- * @returns {object} An object containing URL data.
+ * @param {string} embedString - Embed string to parse.
+ * @return {object} An object containing URL data.
  */
 export function parseEmbed( embedString ) {
 	if ( IFRAME_REGEX.test( embedString ) ) {

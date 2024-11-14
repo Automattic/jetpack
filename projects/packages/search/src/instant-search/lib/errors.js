@@ -4,7 +4,7 @@ import { __, sprintf } from '@wordpress/i18n';
  * Returns an error message based on the error code.
  *
  * @param {Error} error - Error object
- * @returns {*}	an error message
+ * @return {*} an error message
  */
 export function getErrorMessage( error ) {
 	switch ( error?.message ) {

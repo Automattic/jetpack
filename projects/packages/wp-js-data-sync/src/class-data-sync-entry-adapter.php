@@ -2,14 +2,14 @@
 
 namespace Automattic\Jetpack\WP_JS_Data_Sync;
 
+use Automattic\Jetpack\Schema\Parser;
+use Automattic\Jetpack\Schema\Schema_Error;
+use Automattic\Jetpack\Schema\Schema_Parser;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Data_Sync_Entry;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Delete;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Get;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Merge;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Set;
-use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Parser;
-use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Error;
-use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Parser;
 
 /**
  * Data Sync Entry Adapter:
@@ -42,8 +42,8 @@ final class Data_Sync_Entry_Adapter implements Data_Sync_Entry {
 	 * The constructor accepts any entry that subscribes to at least "Entry_Can_Get", but can also
 	 * subscribe to any of the other Entry_Can_* interfaces.
 	 *
-	 * @param $entry  Entry_Can_Get - The data sync entry.
-	 * @param $schema Parser - The schema for the data sync entry.
+	 * @param Entry_Can_Get $entry - The data sync entry.
+	 * @param Parser        $schema - The schema for the data sync entry.
 	 */
 	public function __construct( $entry, $schema ) {
 		$this->entry  = $entry;

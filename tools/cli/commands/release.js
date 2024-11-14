@@ -10,7 +10,7 @@ import { chalkJetpackGreen } from '../helpers/styling.js';
  * Command definition for the release subcommand.
  *
  * @param {object} yargs - The Yargs dependency.
- * @returns {object} Yargs with the build commands defined.
+ * @return {object} Yargs with the build commands defined.
  */
 export function releaseDefine( yargs ) {
 	yargs.command(
@@ -46,6 +46,12 @@ export function releaseDefine( yargs ) {
 				.option( 'add-pr-num', {
 					describe: 'Append the GH PR number to each entry',
 					type: 'boolean',
+				} )
+				.option( 'init-next-cycle', {
+					describe: 'For `version`, init the next release cycle',
+					type: 'boolean',
+					hidden: true,
+					deprecated: 'No longer functional',
 				} );
 		},
 		async argv => {
@@ -161,10 +167,16 @@ export async function scriptRouter( argv ) {
 				    jetpack release ${ argv.project } readme \n`.replace( /^\t+/gm, '' );
 			break;
 		case 'version':
+			if ( argv.initNextCycle ) {
+				console.error(
+					'The --init-next-cycle option is no longer useful, since we no longer set alpha versions in trunk.'
+				);
+				process.exit( 1 );
+			}
 			argv.version = await getReleaseVersion( argv );
 			argv = await promptForVersion( argv );
 			argv.script = 'tools/project-version.sh';
-			argv.scriptArgs = [ '-Cu', argv.version, argv.project ];
+			argv.scriptArgs = [ '-u', argv.version, argv.project ];
 			argv.next =
 				`Finished! Next, you will likely want to check the following project files to make sure versions were updated correctly:
 				 - The main php file
@@ -213,7 +225,7 @@ export async function checkBranchValid( argv ) {
  * Checks the project we're releasing.
  *
  * @param {object} argv - the arguments passed
- * @returns {object} argv
+ * @return {object} argv
  */
 export async function parseProj( argv ) {
 	// If we're passing a specific project
@@ -234,7 +246,7 @@ export async function parseProj( argv ) {
  * Get a potential version that we might need when creating a release branch or bumping versions.
  *
  * @param {object} argv - the arguments passed
- * @returns {object} argv
+ * @return {object} argv
  */
 export async function getReleaseVersion( argv ) {
 	let potentialVersion = child_process
@@ -277,9 +289,9 @@ export async function getReleaseVersion( argv ) {
 /**
  * Bumps the correct number.
  *
- * @param {Array} version - the arguments passed
+ * @param {Array}  version - the arguments passed
  * @param {string} project - the project we're working with.
- * @returns {Array} the bumped version.
+ * @return {Array} the bumped version.
  */
 export async function getVersionBump( version, project ) {
 	version = version.split( '.' );
@@ -319,7 +331,7 @@ export async function getVersionBump( version, project ) {
  * Prompts for what version we're releasing
  *
  * @param {object} argv - the arguments passed.
- * @returns {string} version
+ * @return {string} version
  */
 export async function promptForVersion( argv ) {
 	const response = await enquirer.prompt( [
@@ -338,7 +350,7 @@ export async function promptForVersion( argv ) {
  * Prompt if we're releasing a beta.
  *
  * @param {object} argv - the arguments passed
- * @returns {object} argv
+ * @return {object} argv
  */
 export async function promptDevBeta( argv ) {
 	const response = await enquirer.prompt( [
@@ -370,7 +382,7 @@ export async function promptDevBeta( argv ) {
  * Asks for what part of the release process we want to run.
  *
  * @param {object} argv - the arguments passed
- * @returns {object} argv
+ * @return {object} argv
  */
 export async function promptForScript( argv ) {
 	const response = await enquirer.prompt( [

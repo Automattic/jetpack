@@ -2,10 +2,11 @@
 /**
  * Podcast Title template.
  *
+ * @html-template Automattic\Jetpack\Extensions\Podcast_Player\render
  * @package automattic/jetpack
  */
 
-// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- This file expects $template_props set outside the file.
+// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- HTML template, let Phan handle it.
 
 namespace Automattic\Jetpack\Extensions\Podcast_Player;
 
@@ -14,7 +15,6 @@ namespace Automattic\Jetpack\Extensions\Podcast_Player;
  *
  * @var array $template_props
  */
-'@phan-var-force array $template_props';
 
 $track_title    = $template_props['attachment']['title'];
 $track_link     = empty( $template_props['attachment']['link'] ) ? $template_props['attachment']['src'] : $template_props['attachment']['link'];

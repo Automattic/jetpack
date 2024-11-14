@@ -15,13 +15,13 @@ export const sites = [
 		blog_id: '215379549',
 	},
 	{
-		url: 'https://jetpackedgephp74.wpcomstaging.com',
-		note: 'php 7.4',
+		url: 'https://jetpackedgephpold.wpcomstaging.com',
+		note: 'php old',
 		blog_id: '215379848',
 	},
 	{
-		url: 'https://jetpackedgephp82.wpcomstaging.com',
-		note: 'php 8.2',
+		url: 'https://jetpackedgephpnew.wpcomstaging.com',
+		note: 'php new',
 		blog_id: '215380000',
 	},
 	{

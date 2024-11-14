@@ -9,7 +9,7 @@ export type TGlobalNotices = ReturnType< NoticesStore[ 'getActions' ] > &
 /**
  * The global notices hook.
  *
- * @returns {TGlobalNotices} The global notices selectors and actions.
+ * @return {TGlobalNotices} The global notices selectors and actions.
  */
 export function useGlobalNotices(): TGlobalNotices {
 	const actionCreators = useDispatch( noticesStore );

@@ -1,12 +1,12 @@
 import { JetpackFooter } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import JetpackFormsLogo from '../logo';
 
 import './style.scss';
 
 const Layout = ( { children, className, title, subtitle, showFooter } ) => {
-	const classes = classnames( 'jp-forms__layout', className );
+	const classes = clsx( 'jp-forms__layout', className );
 
 	return (
 		<div className={ classes }>

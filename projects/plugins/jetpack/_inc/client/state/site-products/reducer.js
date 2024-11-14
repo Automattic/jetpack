@@ -34,8 +34,8 @@ export const reducer = combineReducers( {
 /**
  * Returns true if currently requesting site products. Otherwise false.
  *
- * @param   {object} state - Global state tree
- * @returns {boolean}        Whether site products are being requested
+ * @param {object} state - Global state tree
+ * @return {boolean}        Whether site products are being requested
  */
 export function isFetchingSiteProducts( state ) {
 	return !! state.jetpack.siteProducts.requests.isFetching;
@@ -44,8 +44,8 @@ export function isFetchingSiteProducts( state ) {
 /**
  * Returns WP.com site products that are relevant to Jetpack.
  *
- * @param   {object} state -  Global state tree
- * @returns {object} Site products
+ * @param {object} state - Global state tree
+ * @return {object} Site products
  */
 export function getSiteProducts( state ) {
 	return state.jetpack.siteProducts.items;
@@ -54,9 +54,9 @@ export function getSiteProducts( state ) {
 /**
  * Returns a Jetpack product if it exists in the state.
  *
- * @param   {object} state - Global state tree
- * @param   {string} slug  - Product slug
- * @returns {object} Product
+ * @param {object} state - Global state tree
+ * @param {string} slug  - Product slug
+ * @return {object} Product
  */
 export function getSiteProduct( state, slug ) {
 	return state.jetpack.siteProducts.items?.[ slug ];
@@ -67,9 +67,9 @@ export function getSiteProduct( state, slug ) {
  *
  * @see     pbNhbs-53E-p2
  * @todo    Fix how we calculate the price in the future.
- * @param   {object} state - Global state tree
- * @param   {string} slug  - Product slug
- * @returns {number}  Monthly cost of a product
+ * @param {object} state - Global state tree
+ * @param {string} slug  - Product slug
+ * @return {number}  Monthly cost of a product
  */
 export function getSiteProductMonthlyCost( state, slug ) {
 	const product = getSiteProduct( state, slug );
@@ -81,9 +81,9 @@ export function getSiteProductMonthlyCost( state, slug ) {
 /**
  * Returns the discount of a product price. It bases the discount on intro offers with a yearly interval
  *
- * @param   {object} state - Global state tree
- * @param   {string} slug  - Product slug
- * @returns {number} Discount of a product price or 0 if there is no discount
+ * @param {object} state - Global state tree
+ * @param {string} slug  - Product slug
+ * @return {number} Discount of a product price or 0 if there is no discount
  */
 export function getSiteProductYearlyDiscount( state, slug ) {
 	const product = getSiteProduct( state, slug );

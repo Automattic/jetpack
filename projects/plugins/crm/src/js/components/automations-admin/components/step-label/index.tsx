@@ -1,5 +1,5 @@
 import { _x } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import styles from './styles.module.scss';
 
 type StepLabelProps = {
@@ -10,7 +10,6 @@ type StepLabelProps = {
 type LabelType = 'trigger' | 'condition' | 'action';
 
 export const StepLabel: React.FC< StepLabelProps > = ( { type, className } ) => {
-	const wrapperClassNames = classNames( styles.label, styles[ `label--${ type }` ], className );
 	let label;
 
 	switch ( type ) {
@@ -30,5 +29,6 @@ export const StepLabel: React.FC< StepLabelProps > = ( { type, className } ) => 
 			return `${ type } is not implemented`;
 	}
 
+	const wrapperClassNames = clsx( styles.label, styles[ `label--${ type }` ], className );
 	return <div className={ wrapperClassNames }>{ label }</div>;
 };

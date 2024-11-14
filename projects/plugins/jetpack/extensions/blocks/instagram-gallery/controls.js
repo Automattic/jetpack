@@ -66,6 +66,7 @@ export default function InstagramGalleryInspectorControls( {
 			<PanelBody title={ __( 'Display Settings', 'jetpack' ) }>
 				{ shouldRenderSidebarNotice ? renderSidebarNotice() : null }
 				<RangeControl
+					__nextHasNoMarginBottom={ true }
 					label={ __( 'Number of Posts', 'jetpack' ) }
 					value={ count }
 					onChange={ value => setAttributes( { count: value } ) }
@@ -73,6 +74,7 @@ export default function InstagramGalleryInspectorControls( {
 					max={ MAX_IMAGE_COUNT }
 				/>
 				<RangeControl
+					__nextHasNoMarginBottom={ true }
 					label={ __( 'Number of Columns', 'jetpack' ) }
 					value={ columns }
 					onChange={ value => setAttributes( { columns: value } ) }
@@ -80,6 +82,7 @@ export default function InstagramGalleryInspectorControls( {
 					max={ 6 }
 				/>
 				<RangeControl
+					__nextHasNoMarginBottom={ true }
 					label={ __( 'Image Spacing (px)', 'jetpack' ) }
 					value={ spacing }
 					onChange={ value => setAttributes( { spacing: value } ) }
@@ -87,6 +90,7 @@ export default function InstagramGalleryInspectorControls( {
 					max={ 50 }
 				/>
 				<ToggleControl
+					__nextHasNoMarginBottom={ true }
 					label={ __( 'Stack on mobile', 'jetpack' ) }
 					checked={ isStackedOnMobile }
 					onChange={ () =>

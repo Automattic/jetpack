@@ -14,12 +14,12 @@ import PrivacyAndRatingSettings from './privacy-and-rating-settings';
 /**
  * React component that renders the main privacy and ratings panel.
  *
- * @param {object} props - Component props.
- * @param {object} props.attributes - Block attributes.
- * @param {Function} props.setAttributes - Function to set block attributes.
- * @param {boolean} props.privateEnabledForSite	- True if the site's privacy is set to Private.
- * @param {boolean} props.videoBelongToSite - Determines if the video belongs to the current site.
- * @returns {import('react').ReactElement} - Panel to contain privacy and ratings settings.
+ * @param {object}   props                       - Component props.
+ * @param {object}   props.attributes            - Block attributes.
+ * @param {Function} props.setAttributes         - Function to set block attributes.
+ * @param {boolean}  props.privateEnabledForSite - True if the site's privacy is set to Private.
+ * @param {boolean}  props.videoBelongToSite     - Determines if the video belongs to the current site.
+ * @return {import('react').ReactElement} - Panel to contain privacy and ratings settings.
  */
 export default function PrivacyAndRatingPanel( {
 	attributes,

@@ -10,7 +10,7 @@ import { BaseControl, Button, TextControl, RangeControl } from '@wordpress/compo
 import { createInterpolateElement, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
-import classNames from 'classnames';
+import clsx from 'clsx';
 /**
  * Internal dependencies
  */
@@ -40,7 +40,7 @@ export const PosterSelector = props => {
 	const { onSelectPoster, onRemovePoster } = props;
 
 	return (
-		<BaseControl className={ classNames( props.className, 'editor-video-poster-control' ) }>
+		<BaseControl className={ clsx( props.className, 'editor-video-poster-control' ) }>
 			<PosterImageWrapper { ...props } />
 			<MediaUpload
 				title={ __( 'Select Poster Image', 'jetpack' ) }
@@ -127,9 +127,13 @@ export const UploadingEditor = props => {
 						className="uploading-editor__title"
 						onChange={ onChangeTitle }
 						value={ title }
+						__nextHasNoMarginBottom={ true }
 					/>
 					<div className="uploading-editor__content">
-						<BaseControl label={ __( 'Video poster (optional)', 'jetpack' ) }>
+						<BaseControl __nextHasNoMarginBottom={ true }>
+							<BaseControl.VisualLabel>
+								{ __( 'Video poster (optional)', 'jetpack' ) }
+							</BaseControl.VisualLabel>
 							{ canDisplayThumbnailScrubber ? (
 								<>
 									<div className="uploading-editor__video-container">
@@ -164,6 +168,7 @@ export const UploadingEditor = props => {
 											showTooltip={ false }
 											withInputField={ false }
 											onChange={ onRangeChange }
+											__nextHasNoMarginBottom={ true }
 										/>
 									</span>
 									<span className="uploading-editor__scrubber-help" style={ posterSelectedStyle }>

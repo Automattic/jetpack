@@ -56,14 +56,28 @@ class Term_Relationships extends Module {
 	}
 
 	/**
-	 * The table in the database.
+	 * The table name.
 	 *
 	 * @access public
 	 *
 	 * @return string
+	 * @deprecated since 3.11.0 Use table() instead.
 	 */
 	public function table_name() {
+		_deprecated_function( __METHOD__, '3.11.0', 'Automattic\\Jetpack\\Sync\\Term_Relationships->table' );
 		return 'term_relationships';
+	}
+
+	/**
+	 * The table in the database with the prefix.
+	 *
+	 * @access public
+	 *
+	 * @return string|bool
+	 */
+	public function table() {
+		global $wpdb;
+		return $wpdb->term_relationships;
 	}
 
 	/**

@@ -107,6 +107,14 @@ info 'Extracting WordPress.com Editing Toolkit stubs'
 "$BASE/projects/packages/stub-generator/bin/jetpack-stub-generator" --output "$BASE/.phan/stubs/full-site-editing-stubs.php" "$BASE/tools/stubs/full-site-editing-stub-defs.php"
 
 echo
+info 'Downloading WooPayments'
+fetch_plugin woocommerce-payments
+
+echo
+info 'Extracting WooPayments stubs'
+"$BASE/projects/packages/stub-generator/bin/jetpack-stub-generator" --output "$BASE/.phan/stubs/woocommerce-payments-stubs.php" "$BASE/tools/stubs/woocommerce-payments-stub-defs.php"
+
+echo
 info 'Downloading WooCommerce'
 fetch_repo woocommerce/woocommerce
 

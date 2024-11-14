@@ -9,6 +9,13 @@ export const getUploadingVideos = state => {
 		.filter( item => item.uploading );
 };
 
+export const getUploadErrorVideos = state => {
+	const items = state?.videos?._meta?.items || {};
+	return Object.keys( items || {} )
+		.map( id => ( { ...items[ id ], id } ) )
+		.filter( item => !! item.error );
+};
+
 export const getVideosQuery = state => {
 	return state?.videos?.query;
 };
@@ -154,6 +161,7 @@ const selectors = {
 	isFetchingPlaybackToken,
 
 	getVideoPressSettings,
+	getUploadErrorVideos,
 };
 
 export default selectors;

@@ -9,6 +9,8 @@
 namespace Automattic\Jetpack\Extensions\Subscriptions;
 
 use Jetpack_Memberships;
+use WP_Block_Template;
+use WP_Post;
 
 /**
  * Jetpack_Subscription_Site class.
@@ -39,6 +41,7 @@ class Jetpack_Subscription_Site {
 	 */
 	public function handle_subscribe_block_placements() {
 		$this->handle_subscribe_block_post_end_placement();
+		$this->handle_subscribe_block_navigation_placement();
 	}
 
 	/**
@@ -89,32 +92,113 @@ class Jetpack_Subscription_Site {
 	}
 
 	/**
+	 * Returns true if context is recognized as a header element.
+	 *
+	 * @param WP_Block_Template|WP_Post|array $context The block template, template part, or pattern the anchor block belongs to.
+	 *
+	 * @return bool
+	 */
+	protected function is_header_context( $context ) {
+		if ( $context instanceof WP_Post && $context->post_type === 'wp_navigation' ) {
+			return true;
+		}
+
+		if ( $context instanceof WP_Block_Template && $context->area === 'header' ) {
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Returns true if context is recognized as a single post element.
+	 *
+	 * @param WP_Block_Template|WP_Post|array $context The block template, template part, or pattern the anchor block belongs to.
+	 *
+	 * @return bool
+	 */
+	protected function is_single_post_context( $context ) {
+		return $context instanceof WP_Block_Template && $context->slug === 'single';
+	}
+
+	/**
+	 * Handles Subscription block navigation placement.
+	 *
+	 * @return void
+	 */
+	protected function handle_subscribe_block_navigation_placement() {
+		$is_enabled = get_option( 'jetpack_subscriptions_subscribe_navigation_enabled', false );
+		if ( ! $is_enabled ) {
+			return;
+		}
+
+		if ( ! wp_is_block_theme() ) { // TODO Fallback for classic themes.
+			return;
+		}
+
+		add_filter(
+			'hooked_block_types',
+			function ( $hooked_blocks, $relative_position, $anchor_block, $context ) {
+				if (
+					$anchor_block === 'core/navigation' &&
+					$relative_position === 'last_child' &&
+					self::is_header_context( $context )
+				) {
+					$hooked_blocks[] = 'jetpack/subscriptions';
+				}
+
+				return $hooked_blocks;
+			},
+			10,
+			4
+		);
+
+		add_filter(
+			'hooked_block_jetpack/subscriptions',
+			function ( $hooked_block, $hooked_block_type, $relative_position, $anchor_block ) {
+				$is_navigation_anchor_block = isset( $anchor_block['blockName'] ) && $anchor_block['blockName'] === 'core/navigation';
+
+				if ( $is_navigation_anchor_block ) {
+					$class_name = ( ! empty( $hooked_block['attrs'] ) && ! empty( $hooked_block['attrs']['className'] ) )
+						? $hooked_block['attrs']['className'] . ' is-style-button'
+						: 'is-style-button';
+
+					$hooked_block['attrs']['className'] = $class_name;
+					$hooked_block['attrs']['appSource'] = 'subscribe-block-navigation';
+				}
+
+				return $hooked_block;
+			},
+			10,
+			4
+		);
+	}
+
+	/**
 	 * Handles Subscribe block placement at the end of each post.
 	 *
 	 * @return void
 	 */
 	protected function handle_subscribe_block_post_end_placement() {
-		global $wp_version;
-
 		$subscribe_post_end_enabled = get_option( 'jetpack_subscriptions_subscribe_post_end_enabled', false );
 		if ( ! $subscribe_post_end_enabled ) {
 			return;
 		}
 
-		if ( ! wp_is_block_theme() || version_compare( $wp_version, '6.5-beta2', '<' ) ) { // Fallback for classic themes and wp core < 6.5-beta2.
+		if ( ! wp_is_block_theme() ) { // Fallback for classic themes.
 			add_filter(
 				'the_content',
 				function ( $content ) {
 					// Check if we're inside the main loop in a single Post.
 					if (
-						is_singular() &&
+						is_single() &&
 						in_the_loop() &&
 						is_main_query() &&
 						$this->user_can_view_post()
 					) {
 						// translators: %s is the name of the site.
 						$discover_more_from_text = sprintf( __( 'Discover more from %s', 'jetpack' ), get_bloginfo( 'name' ) );
-						$subscribe_text          = __( 'Subscribe to get the latest posts to your email.', 'jetpack' );
+						$subscribe_text          = __( 'Subscribe to get the latest posts sent to your email.', 'jetpack' );
 
 						return $content . do_blocks(
 							<<<HTML
@@ -134,7 +218,7 @@ class Jetpack_Subscription_Site {
 
 	<!-- wp:group {"layout":{"type":"constrained","contentSize":"480px"}} -->
 	<div class="wp-block-group">
-		<!-- wp:jetpack/subscriptions /-->
+		<!-- wp:jetpack/subscriptions {"appSource":"subscribe-block-post-end"} /-->
 	</div>
 	<!-- /wp:group -->
 </div>
@@ -154,10 +238,11 @@ HTML
 
 		add_filter(
 			'hooked_block_types',
-			function ( $hooked_blocks, $relative_position, $anchor_block ) {
+			function ( $hooked_blocks, $relative_position, $anchor_block, $context ) {
 				if (
 					$anchor_block === 'core/post-content' &&
 					$relative_position === 'after' &&
+					self::is_single_post_context( $context ) &&
 					$this->user_can_view_post()
 				) {
 					$hooked_blocks[] = 'jetpack/subscriptions';
@@ -166,7 +251,7 @@ HTML
 				return $hooked_blocks;
 			},
 			10,
-			3
+			4
 		);
 
 		add_filter(
@@ -194,7 +279,7 @@ HTML
 
 					// translators: %s is the name of the site.
 					$discover_more_from_text = sprintf( __( 'Discover more from %s', 'jetpack' ), get_bloginfo( 'name' ) );
-					$subscribe_text          = __( 'Subscribe to get the latest posts to your email.', 'jetpack' );
+					$subscribe_text          = __( 'Subscribe to get the latest posts sent to your email.', 'jetpack' );
 					$inner_content_begin     = <<<HTML
 <div class="wp-block-group" style="margin-top:48px;margin-bottom:48px;padding-top:5px;padding-bottom:5px">
 	<!-- wp:separator {"style":{"spacing":{"margin":{"bottom":"36px"}}},"className":"is-style-wide"} -->
@@ -217,6 +302,8 @@ HTML;
 	<!-- /wp:group -->
 </div>
 HTML;
+
+					$hooked_block['attrs']['appSource'] = 'subscribe-block-post-end';
 
 					return array(
 						'blockName'    => 'core/group',

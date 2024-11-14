@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import classnames from 'classnames';
+import clsx from 'clsx';
 interface TableRowProps {
 	children: React.ReactNode;
 	expandedContent?: React.ReactNode;
@@ -26,7 +26,7 @@ const TableRow: React.FC< TableRowProps > = ( { children, expandedContent } ) =>
 	);
 
 	return (
-		<div className={ classnames( 'jb-table-row-container', { expanded } ) }>
+		<div className={ clsx( 'jb-table-row-container', { expanded } ) }>
 			{ /* eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events */ }
 			<div className="jb-table-row jb-recommendation-page-grid" onClick={ toggleExpand }>
 				{ children }

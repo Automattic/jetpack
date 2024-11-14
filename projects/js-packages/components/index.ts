@@ -16,6 +16,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 export { default as JetpackLogo } from './components/jetpack-logo';
 export { default as JetpackSearchLogo } from './components/jetpack-search-logo';
+export { default as JetpackProtectLogo } from './components/jetpack-protect-logo';
 export { default as JetpackVaultPressBackupLogo } from './components/jetpack-vaultpress-backup-logo';
 export { default as JetpackVideoPressLogo } from './components/jetpack-videopress-logo';
 export { default as getRedirectUrl } from './tools/jp-redirect';
@@ -43,13 +44,18 @@ export { default as CopyToClipboard } from './components/copy-to-clipboard';
 export * from './components/icons';
 export { default as SplitButton } from './components/split-button';
 export { default as ThemeProvider } from './components/theme-provider';
+export { default as ThreatFixerButton } from './components/threat-fixer-button';
+export { default as ThreatSeverityBadge } from './components/threat-severity-badge';
+export { default as ThreatsDataViews } from './components/threats-data-views';
 export { default as Text, H2, H3, Title } from './components/text';
 export { default as ToggleControl } from './components/toggle-control';
 export { default as numberFormat } from './components/number-format';
 export { default as QRCode } from './components/qr-code';
 export { default as Button } from './components/button';
+export type { ButtonProps } from './components/button/types';
 export { default as LoadingPlaceholder } from './components/loading-placeholder';
 export { default as TermsOfService } from './components/terms-of-service';
+export { default as Chip } from './components/chip';
 export {
 	default as PricingTable,
 	PricingTableColumn,
@@ -75,4 +81,7 @@ export { default as ProgressBar } from './components/progress-bar';
 export { default as UpsellBanner } from './components/upsell-banner';
 export { getUserLocale, cleanLocale } from './lib/locale';
 export { default as RadioControl } from './components/radio-control';
+export { default as StatCard } from './components/stat-card';
+export { default as DiffViewer } from './components/diff-viewer';
+export { default as MarkedLines } from './components/marked-lines';
 export * from './components/global-notices';

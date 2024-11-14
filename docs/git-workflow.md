@@ -74,6 +74,28 @@ $ git rebase jetpack/trunk
 $ git push -f origin update/my-changes
 ```
 
+### Updating an external contributor's PR
+
+If you're working directly with Jetpack trunk and need to update an external contributor's PR, the below commands will be helpful. 
+This method assumes you are using the `gh` shorthand from the [Github CLI](https://cli.github.com/):
+
+```sh
+# Use the Github CLI to checkout the PR with the PR number - for example gh pr checkout 12345.
+gh pr checkout xxxxx
+
+# Run merge-base to check where that branch differed from trunk - example git merge-base update/broken-jetpack-feature trunk.
+git merge-base forkedbranchname trunk
+
+## With the SHA returned from the above command, we can rebase from that.
+git rebase -i the-sha
+
+## Rebase the current branch onto origin/trunk.
+git rebase origin/trunk
+
+## Push the updated branch to the forked branch. Note that using --force-with-lease won't work due to an existing GitHub CLI issue, but --force will)
+git push --force
+```
+
 ### Tips for common issues when merging
 
 #### Dealing with lock files

@@ -9,13 +9,13 @@
  */
 return [
     // # Issue statistics:
-    // PhanTypeMismatchArgument : 40+ occurrences
-    // PhanTypeMismatchReturnProbablyReal : 35+ occurrences
+    // PhanTypeMismatchReturnProbablyReal : 40+ occurrences
+    // PhanTypeMismatchArgument : 35+ occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 30+ occurrences
     // PhanTypeMismatchReturn : 20+ occurrences
     // PhanUndeclaredProperty : 20+ occurrences
     // PhanParamSignatureMismatch : 15+ occurrences
-    // PhanTypeMismatchArgumentProbablyReal : 15+ occurrences
+    // PhanTypeMismatchArgumentProbablyReal : 10+ occurrences
     // PhanPluginSimplifyExpressionBool : 9 occurrences
     // PhanPossiblyUndeclaredVariable : 8 occurrences
     // PhanPluginDuplicateSwitchCaseLooseEquality : 6 occurrences
@@ -33,7 +33,6 @@ return [
     // PhanTypeMismatchReturnNullable : 2 occurrences
     // PhanTypePossiblyInvalidDimOffset : 2 occurrences
     // PhanTypeSuspiciousStringExpression : 2 occurrences
-    // PhanDeprecatedFunction : 1 occurrence
     // PhanNoopNew : 1 occurrence
     // PhanParamTooManyCallable : 1 occurrence
     // PhanPluginUseReturnValueInternalKnown : 1 occurrence
@@ -47,7 +46,7 @@ return [
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        'src/class-actions.php' => ['PhanPluginSimplifyExpressionBool', 'PhanRedundantCondition', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentProbablyReal'],
+        'src/class-actions.php' => ['PhanPluginSimplifyExpressionBool', 'PhanRedundantCondition', 'PhanTypeMismatchArgumentInternal'],
         'src/class-data-settings.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'src/class-dedicated-sender.php' => ['PhanTypeInvalidLeftOperandOfNumericOp'],
         'src/class-functions.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanRedundantCondition', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypePossiblyInvalidDimOffset'],
@@ -82,7 +81,7 @@ return [
         'src/modules/class-woocommerce.php' => ['PhanTypeMismatchReturnProbablyReal'],
         'src/replicastore/class-table-checksum.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchPropertyDefault', 'PhanTypeMismatchPropertyProbablyReal'],
         'tests/php/test-actions.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal'],
-        'tests/php/test-dedicated-sender.php' => ['PhanDeprecatedFunction', 'PhanUndeclaredProperty'],
+        'tests/php/test-dedicated-sender.php' => ['PhanUndeclaredProperty'],
         'tests/php/test-rest-endpoints.php' => ['PhanNoopNew', 'PhanTypeMismatchReturn'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.

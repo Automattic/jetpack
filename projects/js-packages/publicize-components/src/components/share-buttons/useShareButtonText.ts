@@ -5,7 +5,7 @@ import { usePostMeta } from '../../hooks/use-post-meta';
 /**
  * Prepares the text to share.
  *
- * @returns {(textWithPlaceholders: string, isUrl: boolean) => string} A function that accepts the text with placeholders and returns the text with the placeholders replaced.
+ * @return {(textWithPlaceholders: string, isUrl: boolean) => string} A function that accepts the text with placeholders and returns the text with the placeholders replaced.
  */
 export function useShareButtonText() {
 	const { shareMessage } = usePostMeta();

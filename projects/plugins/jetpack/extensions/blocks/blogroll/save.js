@@ -1,9 +1,9 @@
 import { useBlockProps, InnerBlocks } from '@wordpress/block-editor';
-import classNames from 'classnames';
+import clsx from 'clsx';
 
 export function BlogRollSave( { attributes: { show_avatar, show_description }, className } ) {
 	const blockProps = useBlockProps.save( {
-		className: classNames( className, {
+		className: clsx( className, {
 			'hide-avatar': ! show_avatar,
 			'hide-description': ! show_description,
 		} ),

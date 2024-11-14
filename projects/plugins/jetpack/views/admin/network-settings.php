@@ -2,11 +2,11 @@
 /**
  * Jetpack Network Settings view template.
  *
+ * @html-template Jetpack::load_view
  * @package automattic/jetpack
  */
 
-// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- Defined by the caller. Let Phan handle it.
-'@phan-var-force array $data'; // From Jetpack::load_view().
+// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- HTML template, let Phan handle it.
 
 use Automattic\Jetpack\IP\Utils as IP_Utils;
 

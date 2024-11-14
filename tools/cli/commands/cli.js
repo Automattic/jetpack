@@ -1,5 +1,6 @@
 import path from 'path';
 import { fileURLToPath } from 'url';
+import chalk from 'chalk';
 import { execaCommand, execaCommandSync } from 'execa';
 import Listr from 'listr';
 import UpdateRenderer from 'listr-update-renderer';
@@ -59,6 +60,11 @@ function cliLink( options ) {
 
 	linker.run().catch( err => {
 		console.error( err );
+		if ( ! options.v ) {
+			console.error(
+				chalk.yellow( 'You might try running with `-v` to get more information on the failure' )
+			);
+		}
 		process.exit( err.exitCode || 1 );
 	} );
 }
@@ -94,6 +100,11 @@ function cliUnlink( options ) {
 
 	unlinker.run().catch( err => {
 		console.error( err );
+		if ( ! options.v ) {
+			console.error(
+				chalk.yellow( 'You might try running with `-v` to get more information on the failure' )
+			);
+		}
 		process.exit( err.exitCode || 1 );
 	} );
 }
@@ -111,7 +122,7 @@ function cliAnalytics( preference ) {
  * Command definition for the cli subcommand.
  *
  * @param {object} yargs - The Yargs dependency.
- * @returns {object} Yargs with the CLI commands defined.
+ * @return {object} Yargs with the CLI commands defined.
  */
 export function cliDefine( yargs ) {
 	yargs.command( 'cli <cmd>', 'Tools for the CLI tool. Meta, eh?', yarg => {
@@ -174,10 +185,10 @@ export function cliDefine( yargs ) {
 /**
  * Returns the command, normalized for verbosity.
  *
- * @param {string} cmd - The command to normalize.
+ * @param {string}  cmd     - The command to normalize.
  * @param {boolean} verbose - If verbose is enabled or not.
- * @param {string} cwd - Current working directory.
- * @returns {object} - The execa command to run.
+ * @param {string}  cwd     - Current working directory.
+ * @return {object} - The execa command to run.
  */
 function command( cmd, verbose, cwd ) {
 	// If this is being run via the cli-link script from the monorepo root package.json, pnpm may

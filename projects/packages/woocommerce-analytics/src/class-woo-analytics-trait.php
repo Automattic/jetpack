@@ -90,8 +90,9 @@ trait Woo_Analytics_Trait {
 	protected function get_cart_checkout_shared_data() {
 		$cart = WC()->cart;
 
-		$guest_checkout = ucfirst( get_option( 'woocommerce_enable_guest_checkout', 'No' ) );
-		$create_account = ucfirst( get_option( 'woocommerce_enable_signup_and_login_from_checkout', 'No' ) );
+		$guest_checkout           = ucfirst( get_option( 'woocommerce_enable_guest_checkout', 'No' ) );
+		$create_account           = ucfirst( get_option( 'woocommerce_enable_signup_and_login_from_checkout', 'No' ) );
+		$delayed_account_creation = ucfirst( get_option( 'woocommerce_enable_delayed_account_creation', 'Yes' ) );
 
 		$coupons     = $cart->get_coupons();
 		$coupon_used = 0;
@@ -113,15 +114,16 @@ trait Woo_Analytics_Trait {
 		$enabled_payment_options = array_keys( $enabled_payment_options );
 		$cart_total              = wc_prices_include_tax() ? $cart->get_cart_contents_total() + $cart->get_cart_contents_tax() : $cart->get_cart_contents_total();
 		$shared_data             = array(
-			'products'               => $this->format_items_to_json( $cart->get_cart() ),
-			'create_account'         => $create_account,
-			'guest_checkout'         => $guest_checkout,
-			'express_checkout'       => 'null', // TODO: not solved yet.
-			'products_count'         => $cart->get_cart_contents_count(),
-			'order_value'            => $cart_total,
-			'shipping_options_count' => 'null', // TODO: not solved yet.
-			'coupon_used'            => $coupon_used,
-			'payment_options'        => $enabled_payment_options,
+			'products'                 => $this->format_items_to_json( $cart->get_cart() ),
+			'create_account'           => $create_account,
+			'guest_checkout'           => $guest_checkout,
+			'delayed_account_creation' => $delayed_account_creation,
+			'express_checkout'         => 'null', // TODO: not solved yet.
+			'products_count'           => $cart->get_cart_contents_count(),
+			'order_value'              => $cart_total,
+			'shipping_options_count'   => 'null', // TODO: not solved yet.
+			'coupon_used'              => $coupon_used,
+			'payment_options'          => $enabled_payment_options,
 		);
 
 		return $shared_data;
@@ -204,19 +206,6 @@ trait Woo_Analytics_Trait {
 			}
 		}
 
-		if ( function_exists( 'gutenberg_get_block_template' ) ) {
-			$checkout_template = gutenberg_get_block_template( 'woocommerce/woocommerce//page-checkout' );
-			$cart_template     = gutenberg_get_block_template( 'woocommerce/woocommerce//page-cart' );
-
-			if ( ! $checkout_template ) {
-				$checkout_template = gutenberg_get_block_template( 'woocommerce/woocommerce//checkout' );
-			}
-
-			if ( ! $cart_template ) {
-				$cart_template = gutenberg_get_block_template( 'woocommerce/woocommerce//cart' );
-			}
-		}
-
 		if ( ! empty( $checkout_template->content ) ) {
 			// Checkout template is in use, but we need to see if the page-content-wrapper is in use, or if the template is being used directly.
 			$this->checkout_content_source = $checkout_template->content;
@@ -265,6 +254,7 @@ trait Woo_Analytics_Trait {
 	public function get_common_properties() {
 		$site_info          = array(
 			'blog_id'                            => Jetpack_Connection::get_site_id(),
+			'store_id'                           => defined( '\\WC_Install::STORE_ID_OPTION' ) ? get_option( \WC_Install::STORE_ID_OPTION ) : false,
 			'ui'                                 => $this->get_user_id(),
 			'url'                                => home_url(),
 			'woo_version'                        => WC()->version,

@@ -1,7 +1,7 @@
 import formatCurrency, { CURRENCIES } from '@automattic/format-currency';
 import { RichText } from '@wordpress/block-editor';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import { minimumTransactionAmountForCurrency, parseAmount } from '../../shared/currencies';
 
 const Amount = ( {
@@ -21,20 +21,23 @@ const Amount = ( {
 	const richTextRef = useRef( null );
 
 	const setAmount = useCallback(
-		amount => {
-			setEditedValue( amount );
+		( amount, shouldSync ) => {
+			setEditedValue( currentAmount => {
+				// Validate the amount only when it changes.
+				if ( amount !== currentAmount ) {
+					const parsedAmount = parseAmount( amount, currency );
+					if ( parsedAmount && parsedAmount >= minimumTransactionAmountForCurrency( currency ) ) {
+						setIsInvalid( false );
+						if ( shouldSync ) {
+							onChange?.( parsedAmount );
+						}
+					} else {
+						setIsInvalid( true );
+					}
+				}
 
-			if ( ! onChange ) {
-				return;
-			}
-
-			const parsedAmount = parseAmount( amount, currency );
-			if ( parsedAmount && parsedAmount >= minimumTransactionAmountForCurrency( currency ) ) {
-				onChange( parsedAmount );
-				setIsInvalid( false );
-			} else {
-				setIsInvalid( true );
-			}
+				return amount;
+			} );
 		},
 		[ currency, onChange ]
 	);
@@ -76,16 +79,16 @@ const Amount = ( {
 			return;
 		}
 		setEditedValue( formatCurrency( value, currency, { symbol: '' } ) );
-	}, [ currency, isFocused, isInvalid, setAmount, value ] );
+	}, [ currency, isFocused, isInvalid, value ] );
 
 	useEffect( () => {
 		setAmount( formatCurrency( value, currency, { symbol: '' } ) );
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [ value ] );
+	}, [ currency, value ] );
 
 	return (
 		<div
-			className={ classnames( 'donations__amount', className, {
+			className={ clsx( 'donations__amount', className, {
 				'has-focus': isFocused,
 				'has-error': isInvalid,
 			} ) }
@@ -103,7 +106,7 @@ const Amount = ( {
 				<RichText
 					allowedFormats={ [] }
 					aria-label={ label }
-					onChange={ amount => setAmount( amount ) }
+					onChange={ amount => setAmount( amount, true ) }
 					placeholder={ formatCurrency( defaultValue, currency, { symbol: '' } ) }
 					ref={ richTextRef }
 					value={ editedValue }

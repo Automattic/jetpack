@@ -1,0 +1,9 @@
+.widget_form-author_grid-checkbox-label {
+	display: inline-block;
+	padding-left: 22px;
+}
+
+.widget_form-author_grid-checkbox-label > input[type="checkbox"] {
+	 margin-left: -22px;
+	 margin-right: 6px;
+}

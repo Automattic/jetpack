@@ -1,5 +1,5 @@
-import EditorCanvas from './editor-canvas.js';
 import logger from '../../../logger.js';
+import EditorCanvas from './editor-canvas.js';
 export default class FormBlock extends EditorCanvas {
 	constructor( blockId, page ) {
 		super( page, 'Form block' );
@@ -24,9 +24,9 @@ export default class FormBlock extends EditorCanvas {
 	/**
 	 * Checks whether block is rendered on frontend
 	 *
-	 * @param {page} page Playwright page instance
+	 * @param {page} page - Playwright page instance
 	 */
 	static async isRendered( page ) {
-		await page.waitForSelector( 'form.wp-block-jetpack-contact-form' );
+		await page.locator( 'form.wp-block-jetpack-contact-form' ).waitFor();
 	}
 }

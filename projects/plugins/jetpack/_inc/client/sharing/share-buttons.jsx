@@ -45,7 +45,7 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 			 * - Is the site in offline mode?
 			 * - Is the site using the classic admin interface?
 			 *
-			 * @returns {React.ReactNode} A card with the sharing configuration link.
+			 * @return {React.ReactNode} A card with the sharing configuration link.
 			 */
 			const configCard = () => {
 				const cardProps = {
@@ -74,7 +74,7 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 			 * If the sharing block is available,
 			 * we suggest to use it instead of the legacy module.
 			 *
-			 * @returns {React.ReactNode} A module toggle.
+			 * @return {React.ReactNode} A module toggle.
 			 */
 			const moduleToggle = () => {
 				const toggle = (
@@ -84,7 +84,9 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 						toggling={ this.props.isSavingAnyOption( 'sharedaddy' ) }
 						toggleModule={ this.props.toggleModuleNow }
 					>
-						{ __( 'Add sharing buttons to your posts and pages', 'jetpack' ) }
+						<span className="jp-form-toggle-explanation">
+							{ __( 'Add sharing buttons to your posts and pages', 'jetpack' ) }
+						</span>
 					</ModuleToggle>
 				);
 

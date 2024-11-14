@@ -6,160 +6,70 @@
  * sharing message.
  */
 
-import { Disabled, ExternalLink, PanelRow } from '@wordpress/components';
-import { useSelect } from '@wordpress/data';
-import { Fragment, useMemo } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
-import { usePublicizeConfig } from '../../..';
+import { Disabled, PanelRow } from '@wordpress/components';
+import { Fragment } from '@wordpress/element';
+import { getSocialScriptData, usePublicizeConfig } from '../../..';
 import useAttachedMedia from '../../hooks/use-attached-media';
-import useDismissNotice from '../../hooks/use-dismiss-notice';
 import useFeaturedImage from '../../hooks/use-featured-image';
-import useImageGeneratorConfig from '../../hooks/use-image-generator-config';
 import useMediaDetails from '../../hooks/use-media-details';
-import useMediaRestrictions, { NO_MEDIA_ERROR } from '../../hooks/use-media-restrictions';
-import useRefreshAutoConversionSettings from '../../hooks/use-refresh-auto-conversion-settings';
-import useRefreshConnections from '../../hooks/use-refresh-connections';
+import useMediaRestrictions from '../../hooks/use-media-restrictions';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
-import { store as socialStore } from '../../social-store';
-import { AdvancedPlanNudge } from './advanced-plan-nudge';
-import { AutoConversionNotice } from './auto-conversion-notice';
-import { BrokenConnectionsNotice } from './broken-connections-notice';
+import { ThemedConnectionsModal as ManageConnectionsModal } from '../manage-connections-modal';
+import { SocialPostModal } from '../social-post-modal/modal';
+import { ConnectionNotice } from './connection-notice';
 import { ConnectionsList } from './connections-list';
-import { EnabledConnectionsNotice } from './enabled-connections-notice';
-import { InstagramNoMediaNotice } from './instagram-no-media-notice';
-import { ShareCountInfo } from './share-count-info';
+import { EnhancedFeaturesNudge } from './enhanced-features-nudge';
 import { SharePostForm } from './share-post-form';
-import { UnsupportedConnectionsNotice } from './unsupported-connections-notice';
-import { ValidationNotice } from './validation-notice';
 
 /**
  * The Publicize form component. It contains the connection list, and the message box.
  *
- * @returns {object} - Publicize form component.
+ * @return {object} - Publicize form component.
  */
 export default function PublicizeForm() {
-	const { connections, hasConnections, hasEnabledConnections } = useSocialMediaConnections();
-	const refreshConnections = useRefreshConnections();
-	const { isEnabled: isSocialImageGeneratorEnabledForPost } = useImageGeneratorConfig();
-	const { shouldShowNotice, NOTICES } = useDismissNotice();
-	const {
-		isPublicizeEnabled,
-		isPublicizeDisabledBySitePlan,
-		connectionsAdminUrl,
-		needsUserConnection,
-		userConnectionUrl,
-	} = usePublicizeConfig();
+	const { hasConnections, hasEnabledConnections, connections } = useSocialMediaConnections();
+	const { isPublicizeEnabled, isPublicizeDisabledBySitePlan } = usePublicizeConfig();
+	const { attachedMedia } = useAttachedMedia();
+	const featuredImageId = useFeaturedImage();
 
-	const { numberOfSharesRemaining } = useSelect( select => {
-		return {
-			showShareLimits: select( socialStore ).showShareLimits(),
-			numberOfSharesRemaining: select( socialStore ).numberOfSharesRemaining(),
-		};
-	}, [] );
+	const mediaId = attachedMedia[ 0 ]?.id || featuredImageId;
+	const { validationErrors, isConvertible } = useMediaRestrictions(
+		connections,
+		useMediaDetails( mediaId )[ 0 ]
+	);
+
+	const showSharePostForm =
+		isPublicizeEnabled &&
+		( hasEnabledConnections ||
+			// We show the form if there is any attached media or validation errors to let the user
+			// fix the issues with uploading an image.
+			attachedMedia.length > 0 ||
+			( Object.keys( validationErrors ).length !== 0 && ! isConvertible ) );
 
 	const Wrapper = isPublicizeDisabledBySitePlan ? Disabled : Fragment;
 
-	const isAutoConversionEnabled = useSelect(
-		select => select( socialStore ).isAutoConversionEnabled(),
-		[]
-	);
-
-	const { attachedMedia, shouldUploadAttachedMedia } = useAttachedMedia();
-	const featuredImageId = useFeaturedImage();
-	const mediaId = attachedMedia[ 0 ]?.id || featuredImageId;
-
-	const { validationErrors, isConvertible } = useMediaRestrictions(
-		connections,
-		useMediaDetails( mediaId )[ 0 ],
-		{
-			isSocialImageGeneratorEnabledForPost,
-			shouldUploadAttachedMedia,
-		}
-	);
-	const shouldAutoConvert = isAutoConversionEnabled && isConvertible;
-
-	const invalidIds = useMemo( () => Object.keys( validationErrors ), [ validationErrors ] );
-
-	const showValidationNotice = numberOfSharesRemaining !== 0 && invalidIds.length > 0;
-
-	const { refreshAutoConversionSettings } = useRefreshAutoConversionSettings();
-
-	if (
-		shouldAutoConvert &&
-		showValidationNotice &&
-		mediaId &&
-		shouldShowNotice( NOTICES.autoConversion )
-	) {
-		refreshAutoConversionSettings();
-	}
-
-	refreshConnections();
+	const { feature_flags } = getSocialScriptData();
 
 	return (
 		<Wrapper>
+			{
+				// Render modal only once
+				feature_flags.useAdminUiV1 ? <ManageConnectionsModal /> : null
+			}
 			{ hasConnections ? (
 				<>
 					<PanelRow>
 						<ConnectionsList />
 					</PanelRow>
-					<EnabledConnectionsNotice />
-					<ShareCountInfo />
-					<BrokenConnectionsNotice />
-					<UnsupportedConnectionsNotice />
-					{ shouldAutoConvert && showValidationNotice && mediaId && <AutoConversionNotice /> }
-					{ showValidationNotice &&
-						( Object.values( validationErrors ).includes( NO_MEDIA_ERROR ) ? (
-							<InstagramNoMediaNotice />
-						) : (
-							<ValidationNotice
-								connectionsCount={ connections.length }
-								invalidConnectionIdsCount={ invalidIds.length }
-								shouldAutoConvert={ shouldAutoConvert }
-							/>
-						) ) }
+					{ feature_flags.useEditorPreview && isPublicizeEnabled ? <SocialPostModal /> : null }
+					<EnhancedFeaturesNudge />
 				</>
 			) : null }
-			<PanelRow>
-				{
-					// Use IIFE make it more readable and avoid nested ternary operators.
-					( () => {
-						if ( needsUserConnection ) {
-							return (
-								<p>
-									{ __(
-										'You must connect your WordPress.com account to be able to add social media connections.',
-										'jetpack'
-									) }
-									&nbsp;
-									<a href={ userConnectionUrl }>{ __( 'Connect now', 'jetpack' ) }</a>
-								</p>
-							);
-						}
-
-						if ( ! hasConnections ) {
-							return (
-								<p>
-									{ __(
-										'Sharing is disabled because there are no social media accounts connected.',
-										'jetpack'
-									) }
-									<br />
-									<ExternalLink href={ connectionsAdminUrl }>
-										{ __( 'Connect an account', 'jetpack' ) }
-									</ExternalLink>
-								</p>
-							);
-						}
-
-						return null;
-					} )()
-				}
-			</PanelRow>
+			<ConnectionNotice />
 
 			{ ! isPublicizeDisabledBySitePlan && (
 				<Fragment>
-					{ isPublicizeEnabled && hasEnabledConnections && <SharePostForm /> }
-					<AdvancedPlanNudge />
+					{ showSharePostForm && <SharePostForm analyticsData={ { location: 'editor' } } /> }
 				</Fragment>
 			) }
 		</Wrapper>

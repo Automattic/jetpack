@@ -14,7 +14,7 @@ const post = {
  *
  * @param {boolean} initConnections - Whether to set initial connections.
  *
- * @returns {WPDataRegistry} Registry.
+ * @return {WPDataRegistry} Registry.
  */
 function createRegistryWithStores( initConnections = true ) {
 	// Create a registry.
@@ -139,10 +139,21 @@ describe( 'Social store actions: connectionData', () => {
 	} );
 
 	describe( 'refreshConnectionTestResults', () => {
+		const refreshConnections = '/wpcom/v2/publicize/connection-test-results';
+		beforeAll( () => {
+			global.JetpackScriptData = {
+				social: {
+					api_paths: {
+						refreshConnections,
+					},
+				},
+			};
+		} );
+
 		it( 'should refresh connection test results', async () => {
 			// Mock apiFetch response.
 			apiFetch.setFetchHandler( async ( { path } ) => {
-				if ( path.startsWith( '/wpcom/v2/publicize/connection-test-results' ) ) {
+				if ( path.startsWith( refreshConnections ) ) {
 					return connections.map( connection => ( {
 						...connection,
 						can_refresh: false,

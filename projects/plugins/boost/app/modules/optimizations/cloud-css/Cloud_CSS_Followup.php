@@ -29,7 +29,7 @@ class Cloud_CSS_Followup {
 		$state = new Critical_CSS_State();
 		if ( $state->has_errors() ) {
 			$cloud_css = new Cloud_CSS();
-			$cloud_css->regenerate_cloud_css( Cloud_CSS::REGENERATE_REASON_FOLLOWUP );
+			$cloud_css->regenerate_cloud_css( Cloud_CSS::REGENERATE_REASON_FOLLOWUP, $cloud_css->get_existing_sources() );
 		}
 	}
 

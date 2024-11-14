@@ -2,9 +2,10 @@
  * External dependencies
  */
 import { ExternalLink, Button } from '@wordpress/components';
+import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, check, arrowRight } from '@wordpress/icons';
-import classNames from 'classnames';
+import clsx from 'clsx';
 /**
  * Internal dependencies
  */
@@ -45,6 +46,7 @@ export type UpgradeMessageProps = {
 	requestsRemaining: number;
 	severity?: MessageSeverityProp;
 	onUpgradeClick: OnUpgradeClick;
+	upgradeUrl?: string;
 };
 
 export type ErrorMessageProps = {
@@ -52,6 +54,7 @@ export type ErrorMessageProps = {
 	code?: SuggestionErrorCode;
 	onTryAgainClick: () => void;
 	onUpgradeClick: OnUpgradeClick;
+	upgradeUrl?: string;
 };
 
 const messageIconsMap = {
@@ -65,7 +68,7 @@ const messageIconsMap = {
  * React component to render a block message.
  *
  * @param {MessageProps} props - Component props.
- * @returns {React.ReactElement }    Banner component.
+ * @return {React.ReactElement }    Banner component.
  */
 export default function Message( {
 	severity = MESSAGE_SEVERITY_INFO,
@@ -76,7 +79,7 @@ export default function Message( {
 }: MessageProps ): React.ReactElement {
 	return (
 		<div
-			className={ classNames(
+			className={ clsx(
 				'jetpack-ai-assistant__message',
 				`jetpack-ai-assistant__message-severity-${ severity }`
 			) }
@@ -97,7 +100,7 @@ export default function Message( {
 /**
  * React component to render a guideline message.
  *
- * @returns {React.ReactElement } - Message component.
+ * @return {React.ReactElement } - Message component.
  */
 export function GuidelineMessage(): React.ReactElement {
 	return (
@@ -113,15 +116,35 @@ export function GuidelineMessage(): React.ReactElement {
 }
 
 /**
+ * React component to render a fair usage limit message.
+ *
+ * @return {React.ReactElement } - Message component.
+ */
+export function FairUsageLimitMessage(): React.ReactElement {
+	const message = __(
+		"You've reached this month's request limit, per our <link>fair usage policy</link>",
+		'jetpack-ai-client'
+	);
+	const element = createInterpolateElement( message, {
+		link: (
+			<ExternalLink href="https://jetpack.com/redirect/?source=ai-assistant-fair-usage-policy" />
+		),
+	} );
+
+	return <Message severity={ MESSAGE_SEVERITY_WARNING }>{ element }</Message>;
+}
+
+/**
  * React component to render an upgrade message for free tier users
  *
  * @param {number} requestsRemaining - Number of requests remaining.
- * @returns {React.ReactElement } - Message component.
+ * @return {React.ReactElement } - Message component.
  */
 export function UpgradeMessage( {
 	requestsRemaining,
 	severity,
 	onUpgradeClick,
+	upgradeUrl,
 }: UpgradeMessageProps ): React.ReactElement {
 	let messageSeverity = severity;
 
@@ -134,11 +157,16 @@ export function UpgradeMessage( {
 			<span>
 				{ sprintf(
 					// translators: %1$d: number of requests remaining
-					__( 'You have %1$d free requests remaining.', 'jetpack-ai-client' ),
+					__( 'You have %1$d requests remaining.', 'jetpack-ai-client' ),
 					requestsRemaining
 				) }
 			</span>
-			<Button variant="link" onClick={ onUpgradeClick }>
+			<Button
+				variant="link"
+				onClick={ onUpgradeClick }
+				href={ upgradeUrl }
+				target={ upgradeUrl ? '_blank' : null }
+			>
 				{ __( 'Upgrade now', 'jetpack-ai-client' ) }
 			</Button>
 		</Message>
@@ -149,13 +177,14 @@ export function UpgradeMessage( {
  * React component to render an error message
  *
  * @param {number} requestsRemaining - Number of requests remaining.
- * @returns {React.ReactElement } - Message component.
+ * @return {React.ReactElement } - Message component.
  */
 export function ErrorMessage( {
 	error,
 	code,
 	onTryAgainClick,
 	onUpgradeClick,
+	upgradeUrl,
 }: ErrorMessageProps ): React.ReactElement {
 	const errorMessage = error || __( 'Something went wrong', 'jetpack-ai-client' );
 
@@ -169,7 +198,12 @@ export function ErrorMessage( {
 				) }
 			</span>
 			{ code === ERROR_QUOTA_EXCEEDED ? (
-				<Button variant="link" onClick={ onUpgradeClick }>
+				<Button
+					variant="link"
+					onClick={ onUpgradeClick }
+					href={ upgradeUrl }
+					target={ upgradeUrl ? '_blank' : null }
+				>
 					{ __( 'Upgrade now', 'jetpack-ai-client' ) }
 				</Button>
 			) : (

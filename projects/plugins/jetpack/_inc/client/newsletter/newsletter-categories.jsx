@@ -1,15 +1,15 @@
-import './style.scss';
 import { ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
+import { FEATURE_NEWSLETTER_JETPACK } from 'lib/plans/constants';
 import React, { useCallback, useMemo } from 'react';
 import { connect } from 'react-redux';
 import {
 	isUnavailableInOfflineMode,
-	isUnavailableInSiteConnectionMode,
 	requiresConnection,
+	hasConnectedOwner,
 } from 'state/connection';
 import { getModule } from 'state/modules';
 import Card from '../components/card';
@@ -35,19 +35,20 @@ const mapCategoriesIds = category => {
  * NewsletterCategories settings component.
  *
  * @param {object} props - Component props.
- * @returns {React.Component} Subscription settings component.
+ * @return {React.Component} Subscription settings component.
  */
 function NewsletterCategories( props ) {
 	const {
 		updateFormStateModuleOption,
+		isSubscriptionsActive,
 		isNewsletterCategoriesEnabled,
 		newsletterCategories,
 		categories,
 		unavailableInOfflineMode,
-		unavailableInSiteConnectionMode,
 		subscriptionsModule,
 		updateFormStateOptionValue,
 		isSavingAnyOption,
+		siteHasConnectedUser,
 	} = props;
 
 	const handleEnableNewsletterCategoriesToggleChange = useCallback( () => {
@@ -81,22 +82,26 @@ function NewsletterCategories( props ) {
 		[ checkedCategoriesIds, updateFormStateOptionValue ]
 	);
 
+	const isSaving = isSavingAnyOption( [
+		NEWSLETTER_CATEGORIES_ENABLED_OPTION,
+		NEWSLETTER_CATEGORIES_OPTION,
+	] );
 	const disabled =
-		unavailableInOfflineMode ||
-		unavailableInSiteConnectionMode ||
-		isSavingAnyOption( [ NEWSLETTER_CATEGORIES_ENABLED_OPTION, NEWSLETTER_CATEGORIES_OPTION ] );
+		! siteHasConnectedUser || ! isSubscriptionsActive || unavailableInOfflineMode || isSaving;
 
 	return (
 		<SettingsCard
 			{ ...props }
 			header={ __( 'Newsletter categories', 'jetpack' ) }
+			feature={ FEATURE_NEWSLETTER_JETPACK }
 			module={ SUBSCRIPTIONS_MODULE_NAME }
-			saveDisabled={ disabled }
+			saveDisabled={ isSaving }
+			isDisabled={ disabled }
 		>
 			<SettingsGroup
 				hasChild
 				disableInOfflineMode
-				disableInSiteConnectionMode
+				disableInSiteConnectionMode={ ! siteHasConnectedUser }
 				module={ subscriptionsModule }
 				support={ {
 					text: __(
@@ -115,14 +120,18 @@ function NewsletterCategories( props ) {
 				<div className="newsletter-categories-toggle-wrapper">
 					<ToggleControl
 						disabled={ disabled }
-						checked={ isNewsletterCategoriesEnabled }
+						checked={ isNewsletterCategoriesEnabled && isSubscriptionsActive }
 						onChange={ handleEnableNewsletterCategoriesToggleChange }
-						label={ __( 'Enable newsletter categories', 'jetpack' ) }
+						label={
+							<span className="jp-form-toggle-explanation">
+								{ __( 'Enable newsletter categories', 'jetpack' ) }
+							</span>
+						}
 					/>
 				</div>
 				<div
-					className={ classNames( 'newsletter-colapsable', {
-						hide: ! isNewsletterCategoriesEnabled,
+					className={ clsx( 'newsletter-colapsable', {
+						hide: ! isNewsletterCategoriesEnabled || ! isSubscriptionsActive,
 					} ) }
 				>
 					<TreeDropdown
@@ -134,8 +143,8 @@ function NewsletterCategories( props ) {
 				</div>
 			</SettingsGroup>
 			<div
-				className={ classNames( 'newsletter-card-colapsable', {
-					hide: ! isNewsletterCategoriesEnabled,
+				className={ clsx( 'newsletter-card-colapsable', {
+					hide: ! isNewsletterCategoriesEnabled || ! isSubscriptionsActive,
 				} ) }
 			>
 				<Card
@@ -154,6 +163,7 @@ function NewsletterCategories( props ) {
 export default withModuleSettingsFormHelpers(
 	connect( ( state, ownProps ) => {
 		return {
+			isSubscriptionsActive: ownProps.getOptionValue( SUBSCRIPTIONS_MODULE_NAME ),
 			subscriptionsModule: getModule( state, SUBSCRIPTIONS_MODULE_NAME ),
 			isNewsletterCategoriesEnabled: ownProps.getOptionValue(
 				NEWSLETTER_CATEGORIES_ENABLED_OPTION
@@ -162,10 +172,7 @@ export default withModuleSettingsFormHelpers(
 			categories: ownProps.getOptionValue( 'categories' ),
 			requiresConnection: requiresConnection( state, SUBSCRIPTIONS_MODULE_NAME ),
 			unavailableInOfflineMode: isUnavailableInOfflineMode( state, SUBSCRIPTIONS_MODULE_NAME ),
-			unavailableInSiteConnectionMode: isUnavailableInSiteConnectionMode(
-				state,
-				SUBSCRIPTIONS_MODULE_NAME
-			),
+			siteHasConnectedUser: hasConnectedOwner( state ),
 		};
 	} )( NewsletterCategories )
 );

@@ -9,7 +9,7 @@ import ContextTooltip from './context-tooltip/context-tooltip';
 import RefreshIcon from '$svg/refresh';
 import PerformanceHistory from '$features/performance-history/performance-history';
 import ErrorNotice from '$features/error-notice/error-notice';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import { useEffect, useMemo, useCallback } from 'react';
 import { useDebouncedRefreshScore, useSpeedScores } from './lib/hooks';
 
@@ -20,10 +20,13 @@ import { useLocalCriticalCssGeneratorStatus } from '$features/critical-css/local
 import { queryClient } from '@automattic/jetpack-react-data-sync-client';
 import ErrorBoundary from '$features/error-boundary/error-boundary';
 import PopOut from './pop-out/pop-out';
+import { useCornerstonePages } from '$features/cornerstone-pages/lib/stores/cornerstone-pages';
 
 const SpeedScore = () => {
+	const [ cornerstonePages ] = useCornerstonePages();
 	const { site } = Jetpack_Boost;
-	const [ { status, error, scores }, loadScore ] = useSpeedScores( site.url );
+	const pageSpeedUrl = cornerstonePages[ 0 ];
+	const [ { status, error, scores }, loadScore ] = useSpeedScores( pageSpeedUrl );
 	const scoreLetter = scores ? getScoreLetter( scores.current.mobile, scores.current.desktop ) : '';
 	const showPrevScores = scores && didScoresChange( scores ) && ! scores.isStale;
 	const [ { data } ] = useModulesState();
@@ -86,7 +89,7 @@ const SpeedScore = () => {
 				<div id="jp-admin-notices" className="jetpack-boost-jitm-card" />
 				<div
 					data-testid="speed-scores"
-					className={ classNames( styles[ 'speed-scores' ], { loading: status === 'loading' } ) }
+					className={ clsx( styles[ 'speed-scores' ], { loading: status === 'loading' } ) }
 				>
 					{ site.online ? (
 						<div className={ styles.top } data-testid="speed-scores-top">

@@ -40,7 +40,7 @@ const debug = debugFactory( 'videopress:tracks:track-form' );
  * Track From component
  *
  * @param {TrackFormProps} props - Component props.
- * @returns {React.ReactElement}   Track form react component.
+ * @return {React.ReactElement}   Track form react component.
  */
 export default function TrackForm( {
 	onCancel,
@@ -48,9 +48,13 @@ export default function TrackForm( {
 	tracks,
 	errorMessage,
 }: TrackFormProps ): React.ReactElement {
+	// eslint-disable-next-line @wordpress/no-unused-vars-before-return -- @todo Start extending jetpack-js-tools/eslintrc/react in eslintrc, then we can remove this disable comment.
 	const [ isSavingTrack, setIsSavingTrack ] = useState( false );
+	// eslint-disable-next-line @wordpress/no-unused-vars-before-return -- @todo Start extending jetpack-js-tools/eslintrc/react in eslintrc, then we can remove this disable comment.
 	const [ trackExists, setTrackExists ] = useState( false );
+	// eslint-disable-next-line @wordpress/no-unused-vars-before-return -- @todo Start extending jetpack-js-tools/eslintrc/react in eslintrc, then we can remove this disable comment.
 	const [ error, setError ] = useState( '' );
+	// eslint-disable-next-line @wordpress/no-unused-vars-before-return -- @todo Start extending jetpack-js-tools/eslintrc/react in eslintrc, then we can remove this disable comment.
 	const [ replaceTrack, setReplaceTrack ] = useState( false );
 	const [ track, setTrack ] = useState< UploadTrackDataProps >( {
 		kind: DEFAULT_KIND,
@@ -89,12 +93,14 @@ export default function TrackForm( {
 		return select( blockEditorStore ).getSettings().mediaUpload;
 	}, [] );
 
+	// eslint-disable-next-line @wordpress/no-unused-vars-before-return -- @todo Start extending jetpack-js-tools/eslintrc/react in eslintrc, then we can remove this disable comment.
 	const onSaveHandler = useCallback( () => {
 		setIsSavingTrack( true );
 		setError( '' );
 		onSave( track );
 	}, [ track ] );
 
+	// eslint-disable-next-line @wordpress/no-unused-vars-before-return -- @todo Start extending jetpack-js-tools/eslintrc/react in eslintrc, then we can remove this disable comment.
 	const setSourceLanguage = useCallback(
 		( newSrcLang: string ) => {
 			updateTrack( 'srcLang', newSrcLang );
@@ -166,6 +172,7 @@ export default function TrackForm( {
 						value={ track.label }
 						help={ __( 'Title of track', 'jetpack-videopress-pkg' ) }
 						disabled={ isSavingTrack }
+						__nextHasNoMarginBottom={ true }
 					/>
 					<TextControl
 						className="video-tracks-control__track-form-language-tag"
@@ -174,6 +181,7 @@ export default function TrackForm( {
 						onChange={ setSourceLanguage }
 						help={ __( 'Language (en, fr, etc.)', 'jetpack-videopress-pkg' ) }
 						disabled={ isSavingTrack }
+						__nextHasNoMarginBottom={ true }
 					/>
 				</div>
 				<SelectControl
@@ -185,6 +193,7 @@ export default function TrackForm( {
 					}
 					onChange={ newKind => updateTrack( 'kind', newKind ) }
 					disabled={ isSavingTrack }
+					__nextHasNoMarginBottom={ true }
 				/>
 
 				{ error && (
@@ -204,6 +213,7 @@ export default function TrackForm( {
 							label={ __( 'Track exists. Replace?', 'jetpack-videopress-pkg' ) }
 							checked={ replaceTrack }
 							onChange={ setReplaceTrack }
+							__nextHasNoMarginBottom={ true }
 						/>
 					) }
 					<Button

@@ -1,13 +1,17 @@
-import { Text, Button, useBreakpointMatch } from '@automattic/jetpack-components';
-import { useDispatch } from '@wordpress/data';
-import { createInterpolateElement } from '@wordpress/element';
+import {
+	Text,
+	Button,
+	DiffViewer,
+	MarkedLines,
+	useBreakpointMatch,
+} from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
 import React, { useCallback } from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
-import { STORE_ID } from '../../state/store';
-import DiffViewer from '../diff-viewer';
-import MarkedLines from '../marked-lines';
+import useFixers from '../../hooks/use-fixers';
+import useModal from '../../hooks/use-modal';
 import PaidAccordion, { PaidAccordionItem } from '../paid-accordion';
+import Pagination from './pagination';
 import styles from './styles.module.scss';
 
 const ThreatAccordionItem = ( {
@@ -15,7 +19,9 @@ const ThreatAccordionItem = ( {
 	description,
 	diff,
 	filename,
+	firstDetected,
 	fixedIn,
+	fixedOn,
 	icon,
 	fixable,
 	id,
@@ -25,10 +31,15 @@ const ThreatAccordionItem = ( {
 	title,
 	type,
 	severity,
+	status,
+	hideAutoFixColumn = false,
 } ) => {
-	const { setModal } = useDispatch( STORE_ID );
-
+	const { setModal } = useModal();
 	const { recordEvent } = useAnalyticsTracks();
+
+	const { isThreatFixInProgress, isThreatFixStale } = useFixers();
+	const isActiveFixInProgress = isThreatFixInProgress( id );
+	const isStaleFixInProgress = isThreatFixStale( id );
 
 	const learnMoreButton = source ? (
 		<Button variant="link" isExternalLink={ true } weight="regular" href={ source }>
@@ -46,12 +57,22 @@ const ThreatAccordionItem = ( {
 		};
 	};
 
+	const handleUnignoreThreatClick = () => {
+		return event => {
+			event.preventDefault();
+			setModal( {
+				type: 'UNIGNORE_THREAT',
+				props: { id, label, title, icon, severity },
+			} );
+		};
+	};
+
 	const handleFixThreatClick = () => {
 		return event => {
 			event.preventDefault();
 			setModal( {
 				type: 'FIX_THREAT',
-				props: { id, label, title, icon, severity, fixable },
+				props: { id, fixable, label, icon, severity },
 			} );
 		};
 	};
@@ -64,17 +85,27 @@ const ThreatAccordionItem = ( {
 			icon={ icon }
 			fixable={ fixable }
 			severity={ severity }
+			firstDetected={ firstDetected }
+			fixedOn={ fixedOn }
+			status={ status }
 			onOpen={ useCallback( () => {
 				if ( ! [ 'core', 'plugin', 'theme', 'file', 'database' ].includes( type ) ) {
 					return;
 				}
 				recordEvent( `jetpack_protect_${ type }_threat_open` );
 			}, [ recordEvent, type ] ) }
+			hideAutoFixColumn={ hideAutoFixColumn }
 		>
 			{ description && (
 				<div className={ styles[ 'threat-section' ] }>
 					<Text variant="title-small" mb={ 2 }>
-						{ __( 'What is the problem?', 'jetpack-protect' ) }
+						{ status !== 'fixed'
+							? __( 'What is the problem?', 'jetpack-protect' )
+							: __(
+									'What was the problem?',
+									'jetpack-protect',
+									/** dummy arg to avoid bad minification */ 0
+							  ) }
 					</Text>
 					<Text mb={ 2 }>{ description }</Text>
 					{ learnMoreButton }
@@ -98,7 +129,7 @@ const ThreatAccordionItem = ( {
 			) }
 			{ context && <MarkedLines context={ context } /> }
 			{ diff && <DiffViewer diff={ diff } /> }
-			{ fixedIn && (
+			{ fixedIn && status !== 'fixed' && (
 				<div className={ styles[ 'threat-section' ] }>
 					<Text variant="title-small" mb={ 2 }>
 						{ __( 'How to fix it?', 'jetpack-protect' ) }
@@ -112,116 +143,109 @@ const ThreatAccordionItem = ( {
 				</div>
 			) }
 			{ ! description && <div className={ styles[ 'threat-section' ] }>{ learnMoreButton }</div> }
-			<div className={ styles[ 'threat-footer' ] }>
-				<Button isDestructive={ true } variant="secondary" onClick={ handleIgnoreThreatClick() }>
-					{ __( 'Ignore threat', 'jetpack-protect' ) }
-				</Button>
-				{ fixable && (
-					<Button onClick={ handleFixThreatClick() }>
-						{ __( 'Fix threat', 'jetpack-protect' ) }
-					</Button>
-				) }
-			</div>
+			{ [ 'ignored', 'current' ].includes( status ) && (
+				<div className={ styles[ 'threat-footer' ] }>
+					{ 'ignored' === status && (
+						<Button
+							isDestructive={ true }
+							variant="secondary"
+							onClick={ handleUnignoreThreatClick() }
+						>
+							{ __( 'Unignore threat', 'jetpack-protect' ) }
+						</Button>
+					) }
+					{ 'current' === status && (
+						<>
+							<Button
+								isDestructive={ true }
+								variant="secondary"
+								onClick={ handleIgnoreThreatClick() }
+								disabled={ isActiveFixInProgress || isStaleFixInProgress }
+							>
+								{ __( 'Ignore threat', 'jetpack-protect' ) }
+							</Button>
+							{ fixable && (
+								<Button
+									disabled={ isActiveFixInProgress || isStaleFixInProgress }
+									onClick={ handleFixThreatClick() }
+								>
+									{ __( 'Fix threat', 'jetpack-protect' ) }
+								</Button>
+							) }
+						</>
+					) }
+				</div>
+			) }
 		</PaidAccordionItem>
 	);
 };
 
-const PaidList = ( { list } ) => {
-	const { scan } = useDispatch( STORE_ID );
-
-	const handleScanClick = () => {
-		return event => {
-			event.preventDefault();
-			scan();
-		};
-	};
-
-	const manualScan = createInterpolateElement(
-		__(
-			'If you have manually fixed any of the threats listed above, <manualScanLink>you can run a manual scan now</manualScanLink> or wait for Jetpack to scan your site later today.',
-			'jetpack-protect'
-		),
-		{
-			manualScanLink: <Button variant="link" onClick={ handleScanClick() } />,
-		}
-	);
-
+const PaidList = ( { list, hideAutoFixColumn = false } ) => {
 	const [ isSmall ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
-
-	const getLabel = threat => {
-		if ( threat.name && threat.version ) {
-			// Extension threat i.e. "Woocommerce (3.0.0)"
-			return `${ threat.name } (${ threat.version })`;
-		}
-
-		if ( threat.filename ) {
-			// File threat i.e. "index.php"
-			return threat.filename.split( '/' ).pop();
-		}
-
-		if ( threat.table ) {
-			// Database threat i.e. "wp_posts"
-			return threat.table;
-		}
-	};
-
-	list = list.map( threat => ( { label: getLabel( threat ), ...threat } ) );
 
 	return (
 		<>
 			{ ! isSmall && (
-				<div className={ styles[ 'accordion-heading' ] }>
+				<div className={ styles[ 'accordion-header' ] }>
 					<span>{ __( 'Details', 'jetpack-protect' ) }</span>
 					<span>{ __( 'Severity', 'jetpack-protect' ) }</span>
-					<span>{ __( 'Auto-fix', 'jetpack-protect' ) }</span>
+					{ ! hideAutoFixColumn && <span>{ __( 'Auto-fix', 'jetpack-protect' ) }</span> }
 					<span></span>
 				</div>
 			) }
-			<PaidAccordion>
-				{ list.map(
-					( {
-						context,
-						description,
-						diff,
-						filename,
-						fixedIn,
-						icon,
-						fixable,
-						id,
-						label,
-						name,
-						severity,
-						source,
-						table,
-						title,
-						type,
-						version,
-					} ) => (
-						<ThreatAccordionItem
-							context={ context }
-							description={ description }
-							diff={ diff }
-							filename={ filename }
-							fixedIn={ fixedIn }
-							icon={ icon }
-							fixable={ fixable }
-							id={ id }
-							key={ id }
-							label={ label }
-							name={ name }
-							severity={ severity }
-							source={ source }
-							table={ table }
-							title={ title }
-							type={ type }
-							version={ version }
-						/>
-					)
+			<Pagination list={ list }>
+				{ ( { currentItems } ) => (
+					<PaidAccordion>
+						{ currentItems.map(
+							( {
+								context,
+								description,
+								diff,
+								filename,
+								firstDetected,
+								fixedIn,
+								fixedOn,
+								icon,
+								fixable,
+								id,
+								label,
+								name,
+								severity,
+								source,
+								table,
+								title,
+								type,
+								version,
+								status,
+							} ) => (
+								<ThreatAccordionItem
+									context={ context }
+									description={ description }
+									diff={ diff }
+									filename={ filename }
+									firstDetected={ firstDetected }
+									fixedIn={ fixedIn }
+									fixedOn={ fixedOn }
+									icon={ icon }
+									fixable={ fixable }
+									id={ id }
+									key={ id }
+									label={ label }
+									name={ name }
+									severity={ severity }
+									source={ source }
+									table={ table }
+									title={ title }
+									type={ type }
+									version={ version }
+									status={ status }
+									hideAutoFixColumn={ hideAutoFixColumn }
+								/>
+							)
+						) }
+					</PaidAccordion>
 				) }
-			</PaidAccordion>
-			<Text className={ styles[ 'manual-scan' ] } variant="body-small">
-				{ manualScan }
-			</Text>
+			</Pagination>
 		</>
 	);
 };

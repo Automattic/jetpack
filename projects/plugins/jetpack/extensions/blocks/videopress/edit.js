@@ -38,7 +38,7 @@ import {
 import { escapeHTML } from '@wordpress/escape-html';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import { get, indexOf } from 'lodash';
 import { VideoPressIcon } from '../../shared/icons';
 import { VideoPressBlockProvider } from './components';
@@ -175,7 +175,7 @@ const VideoPressEdit = CoreVideoEdit =>
 			if ( preview ) {
 				const sandboxClassnames = getClassNames(
 					preview.html,
-					classnames( 'wp-block-embed', 'is-type-video', 'is-provider-videopress' ),
+					clsx( 'wp-block-embed', 'is-type-video', 'is-provider-videopress' ),
 					false
 				);
 
@@ -427,7 +427,6 @@ const VideoPressEdit = CoreVideoEdit =>
 					// check for wpcom status field, if set
 					if ( status in result && 200 !== result.status ) {
 						onRevert();
-						return;
 					}
 				} )
 				.catch( () => onRevert() )
@@ -516,6 +515,7 @@ const VideoPressEdit = CoreVideoEdit =>
 								onChange={ this.toggleAttribute( 'autoplay' ) }
 								checked={ autoplay }
 								help={ this.getAutoplayHelp }
+								__nextHasNoMarginBottom={ true }
 							/>
 							<ToggleControl
 								label={ this.renderControlLabelWithTooltip(
@@ -525,11 +525,13 @@ const VideoPressEdit = CoreVideoEdit =>
 								) }
 								onChange={ this.toggleAttribute( 'loop' ) }
 								checked={ loop }
+								__nextHasNoMarginBottom={ true }
 							/>
 							<ToggleControl
 								label={ __( 'Muted', 'jetpack' ) }
 								onChange={ this.toggleAttribute( 'muted' ) }
 								checked={ muted }
+								__nextHasNoMarginBottom={ true }
 							/>
 							<ToggleControl
 								label={ this.renderControlLabelWithTooltip(
@@ -539,6 +541,7 @@ const VideoPressEdit = CoreVideoEdit =>
 								) }
 								onChange={ this.toggleAttribute( 'controls' ) }
 								checked={ controls }
+								__nextHasNoMarginBottom={ true }
 							/>
 							<ToggleControl
 								label={ this.renderControlLabelWithTooltip(
@@ -548,6 +551,7 @@ const VideoPressEdit = CoreVideoEdit =>
 								) }
 								onChange={ this.toggleAttribute( 'playsinline' ) }
 								checked={ playsinline }
+								__nextHasNoMarginBottom={ true }
 							/>
 							<SelectControl
 								label={ this.renderControlLabelWithTooltip(
@@ -566,12 +570,13 @@ const VideoPressEdit = CoreVideoEdit =>
 									{ value: 'none', label: _x( 'None', 'VideoPress preload setting', 'jetpack' ) },
 								] }
 								help={ this.getPreloadHelp() }
+								__nextHasNoMarginBottom={ true }
 							/>
 							<MediaUploadCheck>
-								<BaseControl
-									className="editor-video-poster-control"
-									label={ __( 'Poster Image', 'jetpack' ) }
-								>
+								<BaseControl className="editor-video-poster-control">
+									<BaseControl.VisualLabel>
+										{ __( 'Poster Image', 'jetpack' ) }
+									</BaseControl.VisualLabel>
 									<MediaUpload
 										title={ __( 'Select Poster Image', 'jetpack' ) }
 										onSelect={ this.onSelectPoster }
@@ -650,6 +655,7 @@ const VideoPressEdit = CoreVideoEdit =>
 									},
 								] }
 								onChange={ this.onChangeRating }
+								__nextHasNoMarginBottom={ true }
 							/>
 							<ToggleControl
 								label={ this.renderControlLabelWithTooltip(
@@ -663,6 +669,7 @@ const VideoPressEdit = CoreVideoEdit =>
 								onChange={ this.onChangeAllowDownload }
 								checked={ allowDownload }
 								disabled={ isFetchingMedia || isUpdatingAllowDownload }
+								__nextHasNoMarginBottom={ true }
 							/>
 							<SelectControl
 								label={ __( 'Video Privacy', 'jetpack' ) }
@@ -684,6 +691,7 @@ const VideoPressEdit = CoreVideoEdit =>
 									},
 								] }
 								disabled={ isFetchingMedia || isUpdatingPrivacySetting }
+								__nextHasNoMarginBottom={ true }
 							/>
 						</PanelBody>
 					</InspectorControls>
@@ -723,7 +731,7 @@ const VideoPressEdit = CoreVideoEdit =>
 			/**
 			 * Determines if api requests should be made via the `gutenberg-video-upload` script (Jetpack only).
 			 *
-			 * @returns {boolean} if the upload script should be used or not.
+			 * @return {boolean} if the upload script should be used or not.
 			 */
 			const shouldUseJetpackVideoFetch = () => {
 				return 'videoPressUploadPoster' in window;
@@ -1031,7 +1039,7 @@ export const VpBlock = props => {
 	const { align, className, videoPressClassNames, maxWidth } = attributes;
 
 	const blockProps = useBlockProps( {
-		className: classnames( 'wp-block-video', className, videoPressClassNames, {
+		className: clsx( 'wp-block-video', className, videoPressClassNames, {
 			[ `align${ align }` ]: align,
 		} ),
 	} );

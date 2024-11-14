@@ -9,7 +9,7 @@ import StorageUsageDetails from './storage-usage-details';
 import { getUsageLevel, StorageUsageLevels } from './storage-usage-levels';
 
 const BackupStorageSpace = () => {
-	const [ connectionStatus ] = useConnection();
+	const connectionStatus = useConnection();
 	const isFetchingPolicies = useSelect( select => select( STORE_ID ).isFetchingBackupPolicies() );
 	const isFetchingSize = useSelect( select => select( STORE_ID ).isFetchingBackupSize() );
 	const hasBackupSizeLoaded = useSelect( select => select( STORE_ID ).hasBackupSizeLoaded() );

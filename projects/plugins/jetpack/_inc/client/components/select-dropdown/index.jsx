@@ -1,6 +1,6 @@
 /** @ssr-ready **/
 
-import classNames from 'classnames';
+import clsx from 'clsx';
 import Count from 'components/count';
 import DropdownItem from 'components/select-dropdown/item';
 import DropdownLabel from 'components/select-dropdown/label';
@@ -182,7 +182,7 @@ class SelectDropdown extends Component {
 			} );
 		}
 
-		const dropdownClassName = classNames( dropdownClasses );
+		const dropdownClassName = clsx( dropdownClasses );
 		const selectedText = this.props.selectedText
 			? this.props.selectedText
 			: result( find( this.props.options, { value: this.state.selected } ), 'label' );
@@ -312,7 +312,7 @@ class SelectDropdown extends Component {
 		if ( ! this.state.isOpen ) {
 			return this.openDropdown();
 		}
-		document.activeElement.click();
+		this.dropdownContainerRef.current.ownerDocument.activeElement.click();
 	}
 
 	focusSibling( direction ) {

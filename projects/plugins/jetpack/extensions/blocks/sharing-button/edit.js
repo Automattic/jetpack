@@ -1,6 +1,6 @@
 import { useBlockProps } from '@wordpress/block-editor';
 import { Button } from '@wordpress/components';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import SocialIcon from 'social-logos';
 import { getNameBySite } from './utils';
 import './style.scss';
@@ -12,7 +12,7 @@ const SharingButtonEdit = ( { attributes, context } ) => {
 	const socialLinkName = getNameBySite( service );
 	const socialLinkLabel = label ?? socialLinkName;
 
-	const sharingButtonClass = classNames(
+	const sharingButtonClass = clsx(
 		'jetpack-sharing-button__button',
 		'style-' + styleType,
 		'share-' + service

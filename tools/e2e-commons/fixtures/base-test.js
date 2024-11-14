@@ -1,8 +1,8 @@
-import { allure } from 'allure-playwright';
 import { test as baseTest } from '@playwright/test';
+import { allure } from 'allure-playwright';
 import config from 'config';
-import logger from '../logger.js';
 import { execWpCommand } from '../helpers/utils-helper.js';
+import logger from '../logger.js';
 export { expect } from '@playwright/test';
 
 const test = baseTest.extend( {

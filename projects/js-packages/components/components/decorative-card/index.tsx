@@ -6,7 +6,7 @@ import './style.scss';
  * A decorative card used in the disconnection flow.
  *
  * @param {DecorativeCardProps} props - The properties.
- * @returns {React.ReactNode} - The DecorativeCard component.
+ * @return {React.ReactNode} - The DecorativeCard component.
  */
 
 const DecorativeCard: React.FC< DecorativeCardProps > = ( {

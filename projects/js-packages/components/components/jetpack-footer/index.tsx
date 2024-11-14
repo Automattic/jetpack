@@ -1,7 +1,7 @@
 import { useSelect } from '@wordpress/data';
 import { __, _x } from '@wordpress/i18n';
 import { Icon, external } from '@wordpress/icons';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import React from 'react';
 import { getRedirectUrl } from '../..';
 import { STORE_ID as CONNECTION_STORE_ID } from '../../../../js-packages/connection/state/store';
@@ -32,7 +32,7 @@ const ExternalIcon: React.FC = () => (
  * JetpackFooter component displays a tiny Jetpack logo with the product name on the left and the Automattic Airline "by line" on the right.
  *
  * @param {JetpackFooterProps} props - Component properties.
- * @returns {React.ReactNode} JetpackFooter component.
+ * @return {React.ReactNode} JetpackFooter component.
  */
 const JetpackFooter: React.FC< JetpackFooterProps > = ( {
 	moduleName = __( 'Jetpack', 'jetpack' ),
@@ -48,20 +48,17 @@ const JetpackFooter: React.FC< JetpackFooterProps > = ( {
 	const [ isMd ] = useBreakpointMatch( 'md', '<=' );
 	const [ isLg ] = useBreakpointMatch( 'lg', '>' );
 
-	const { isActive, connectedPlugins } = useSelect(
-		select => {
-			const connectionStatus = select( CONNECTION_STORE_ID ) as {
-				getConnectedPlugins: () => { slug: string }[];
-				getConnectionStatus: () => { isActive: boolean };
-			};
+	const { isActive, connectedPlugins } = useSelect( select => {
+		const connectionStatus = select( CONNECTION_STORE_ID ) as {
+			getConnectedPlugins: () => { slug: string }[];
+			getConnectionStatus: () => { isActive: boolean };
+		};
 
-			return {
-				connectedPlugins: connectionStatus?.getConnectedPlugins(),
-				...connectionStatus.getConnectionStatus(),
-			};
-		},
-		[ CONNECTION_STORE_ID ]
-	);
+		return {
+			connectedPlugins: connectionStatus?.getConnectedPlugins(),
+			...connectionStatus.getConnectionStatus(),
+		};
+	}, [] );
 	const siteAdminUrl = getSiteAdminUrl();
 	const areAdminLinksEnabled =
 		siteAdminUrl &&
@@ -111,7 +108,7 @@ const JetpackFooter: React.FC< JetpackFooterProps > = ( {
 
 	return (
 		<footer
-			className={ classnames(
+			className={ clsx(
 				'jp-dashboard-footer',
 				{
 					'is-sm': isSm,
@@ -143,7 +140,7 @@ const JetpackFooter: React.FC< JetpackFooterProps > = ( {
 								target={ item.target }
 								onClick={ item.onClick }
 								onKeyDown={ item.onKeyDown }
-								className={ classnames( 'jp-dashboard-footer__menu-item', {
+								className={ clsx( 'jp-dashboard-footer__menu-item', {
 									'is-external': isExternalLink,
 								} ) }
 								role={ item.role }

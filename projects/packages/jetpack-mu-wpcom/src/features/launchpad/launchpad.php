@@ -52,7 +52,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 			'task_ids'            => array(
 				'plan_selected',
 				'setup_free',
-				'design_selected',
+				'design_completed',
 				'domain_upsell',
 				'first_post_published',
 				'design_edited',
@@ -120,7 +120,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 			},
 			'task_ids'            => array(
 				'setup_write',
-				'design_selected',
+				'design_completed',
 				'plan_selected',
 				'first_post_published',
 				'site_launched',
@@ -256,6 +256,22 @@ function wpcom_launchpad_get_task_list_definitions() {
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
 		),
+		'readymade-template'      => array(
+			'get_title'           => function () {
+				return __( 'Next steps for your site', 'jetpack-mu-wpcom' );
+			},
+			'task_ids'            => array(
+				'verify_domain_email',
+				'design_selected',
+				'setup_general',
+				'generate_content',
+				'plan_completed',
+				'domain_upsell',
+				'design_edited',
+				'site_launched',
+			),
+			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
+		),
 		'ai-assembler'            => array(
 			'get_title'           => function () {
 				return __( 'Next steps for your site', 'jetpack-mu-wpcom' );
@@ -297,6 +313,19 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'woo_marketing',
 				'woo_add_domain',
 				'woo_launch_site',
+			),
+		),
+		'post-migration'          => array(
+			'get_title' => function () {
+				return __( 'Site migration', 'jetpack-mu-wpcom' );
+			},
+			'task_ids'  => array(
+				'migrating_site',
+				'review_site',
+				'review_plugins',
+				'connect_migration_domain',
+				'domain_dns_mapped',
+				'check_ssl_status',
 			),
 		),
 	);

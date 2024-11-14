@@ -15,12 +15,14 @@ export default function Upgrade( {
 	type,
 	placement = '',
 	currentTier,
+	upgradeUrl,
 }: {
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	onClick: ( event: any ) => void;
+	onClick?: ( event: any ) => void;
 	type: string;
 	placement?: string;
 	currentTier?: TierProp;
+	upgradeUrl: string;
 } ) {
 	const { tracks } = useAnalytics();
 
@@ -61,7 +63,7 @@ export default function Upgrade( {
 		requestLimit === 20 ? freeLimitUpgradePrompt : tierLimitUpgradePrompt,
 		{
 			strong: <strong />,
-			button: <Button variant="link" onClick={ handleClick } />,
+			button: <Button variant="link" onClick={ handleClick } href={ upgradeUrl } target="_blank" />,
 		}
 	);
 

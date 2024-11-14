@@ -2,8 +2,7 @@
  * External dependencies
  */
 import {
-	// eslint-disable-next-line wpcalypso/no-unsafe-wp-apis
-	__experimentalNumberControl,
+	__experimentalNumberControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	TextControl,
 	RangeControl,
 	BaseControl,
@@ -11,7 +10,7 @@ import {
 } from '@wordpress/components';
 import { useInstanceId } from '@wordpress/compose';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
-import classNames from 'classnames';
+import clsx from 'clsx';
 /**
  * Internal dependencies
  */
@@ -27,7 +26,7 @@ import type React from 'react';
  * Fallback implementation of useBaseControlProps.
  *
  * @param {object} props - The component props.
- * @returns {object}     - The computed control props.
+ * @return {object}     - The computed control props.
  */
 function useBaseControlPropsFallback( props: Record< string, unknown > ): {
 	baseControlProps: Record< string, unknown >;
@@ -113,10 +112,10 @@ type TimeDataProps = {
 /**
  * Return the time data based on the given value.
  *
- * @param {number} value                    - The value to be converted.
+ * @param {number}            value         - The value to be converted.
  * @param {DecimalPlacesProp} decimalPlaces - The number of decimal places to be used.
- * @param {number} max                      - The maximum value.
- * @returns {TimeDataProps}                   The time data.
+ * @param {number}            max           - The maximum value.
+ * @return {TimeDataProps}                   The time data.
  */
 function getTimeDataByValue(
 	value: number,
@@ -193,7 +192,7 @@ export const TimestampInput = ( {
 
 	return (
 		<div
-			className={ classNames( styles[ 'timestamp-input-wrapper' ], {
+			className={ clsx( styles[ 'timestamp-input-wrapper' ], {
 				[ styles[ 'is-disabled' ] ]: disabled,
 			} ) }
 		>
@@ -288,7 +287,7 @@ export const TimestampInput = ( {
  * TimestampControl component
  *
  * @param {TimestampControlProps} props - Component props.
- * @returns {React.ReactElement}          TimestampControl react component.
+ * @return {React.ReactElement}          TimestampControl react component.
  */
 export const TimestampControl = ( props: TimestampControlProps ): React.ReactElement => {
 	const {
@@ -347,7 +346,7 @@ export const TimestampControl = ( props: TimestampControlProps ): React.ReactEle
 		typeof renderTooltip === 'function' ? renderTooltip : ( time: number ) => formatTime( time );
 
 	return (
-		<BaseControl { ...baseControlProps }>
+		<BaseControl { ...baseControlProps } __nextHasNoMarginBottom={ true }>
 			<div className={ styles[ 'timestamp-control__controls-wrapper' ] }>
 				{ NumberControl && (
 					<TimestampInput
@@ -373,6 +372,7 @@ export const TimestampControl = ( props: TimestampControlProps ): React.ReactEle
 					marks={ marksEvery ? marks : undefined }
 					renderTooltipContent={ renderTooltipHandler }
 					{ ...( renderTooltip === false ? { showTooltip: false } : {} ) }
+					__nextHasNoMarginBottom={ true }
 				/>
 			</div>
 		</BaseControl>

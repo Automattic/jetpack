@@ -29,6 +29,10 @@ $tiled-gallery-max-rounded-corners: 20; // See constants.js for JS counterpart
 				}
 			}
 		}
+
+		.tiled-gallery__item img {
+			aspect-ratio: 1;
+		}
 	}
 
 	&.is-style-columns,
@@ -107,6 +111,11 @@ $tiled-gallery-max-rounded-corners: 20; // See constants.js for JS counterpart
 
 	& + & {
 		margin-top: $tiled-gallery-gutter;
+	}
+
+	&:focus-within {
+		overflow: visible;
+		box-shadow: 0 0 0 2px  var( --wp-admin-theme-color);
 	}
 
 	> img {

@@ -6,7 +6,7 @@ import { RichText } from '@wordpress/block-editor';
 import { Spinner } from '@wordpress/components';
 import { Component, createRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import { isEqual } from 'lodash';
 import ResizeObserver from 'resize-observer-polyfill';
 /**
@@ -136,14 +136,14 @@ class Slideshow extends Component {
 					ref={ this.slideshowRef }
 				>
 					<ul className="wp-block-jetpack-slideshow_swiper-wrapper swiper-wrapper">
-						{ images.map( ( { alt, caption, id, url } ) => (
+						{ images.map( ( { alt, caption, id, url }, index ) => (
 							<li
-								className={ classnames(
+								className={ clsx(
 									'wp-block-jetpack-slideshow_slide',
 									'swiper-slide',
 									isBlobURL( url ) && 'is-transient'
 								) }
-								key={ id ? id : url }
+								key={ id ? `${ id }-${ index }` : `${ url }-${ index }` }
 							>
 								<figure>
 									<img

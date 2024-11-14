@@ -50,6 +50,7 @@ class Test_REST_Controller extends TestCase {
 			)
 		);
 		wp_set_current_user( 0 );
+		$this->setup_jetpack_connections();
 
 		// Register REST routes.
 		add_action( 'rest_api_init', array( new REST_Controller(), 'register_rest_routes' ) );
@@ -98,36 +99,8 @@ class Test_REST_Controller extends TestCase {
 	public function test_get_publicize_connections_with_proper_permission() {
 		$request = new WP_REST_Request( 'GET', '/jetpack/v4/publicize/connections' );
 		wp_set_current_user( $this->admin_id );
-		add_filter( 'pre_http_request', array( $this, 'mock_success_response' ) );
 		$response = $this->dispatch_request_signed_with_blog_token( $request );
-		remove_filter( 'pre_http_request', array( $this, 'mock_success_response' ) );
-		$this->assertEquals( $response->get_data()['body'], $this->mock_success_data()['body'] );
-	}
-
-	/**
-	 * Mocks a successful response from WPCOM
-	 */
-	public function mock_success_response() {
-		return array(
-			'body'     => wp_json_encode( $this->mock_success_data() ),
-			'response' => array(
-				'code'    => 200,
-				'message' => '',
-			),
-		);
-	}
-
-	/**
-	 * Mock fixture for publicize connections.
-	 */
-	public function mock_success_data() {
-		return array(
-			'body'     => wp_json_encode( array( 'facebook' => array( 'connection_id' => 1234 ) ) ),
-			'response' => array(
-				'code'    => 200,
-				'message' => '',
-			),
-		);
+		$this->assertCount( 3, $response->data );
 	}
 
 	/**
@@ -210,5 +183,64 @@ class Test_REST_Controller extends TestCase {
 		}
 
 		return $value;
+	}
+
+	/**
+	 * Dummy function to initialize publicize connections.
+	 */
+	public function get_connections() {
+		return array(
+			// Normally connected facebook.
+			'facebook' => array(
+				'id_number' => array(
+					'connection_data' => array(
+						'user_id'       => $this->admin_id,
+						'id'            => '456',
+						'connection_id' => '4560',
+						'token_id'      => 'test-unique-id456',
+						'meta'          => array(
+							'display_name' => 'test-display-name456',
+						),
+					),
+				),
+			),
+			// Globally connected tumblr.
+			'tumblr'   => array(
+				'id_number' => array(
+					'connection_data' => array(
+						'user_id'       => 0,
+						'id'            => '123',
+						'connection_id' => '1230',
+						'token_id'      => 'test-unique-id123',
+						'meta'          => array(
+							'display_name' => 'test-display-name123',
+						),
+					),
+				),
+			),
+			// Globally connected nextdoor.
+			'nextdoor' => array(
+				'id_number' => array(
+					'connection_data' => array(
+						'user_id'       => 0,
+						'id'            => '456',
+						'connection_id' => '1236',
+						'token_id'      => 'test-unique-id1234',
+						'meta'          => array(
+							'display_name' => 'test-display-name1234',
+						),
+					),
+				),
+			),
+		);
+	}
+
+	/**
+	 * Dummy function to initialize publicize connections.
+	 */
+	public function setup_jetpack_connections() {
+		global $publicize;
+
+		$publicize->receive_updated_publicize_connections( $this->get_connections() );
 	}
 }

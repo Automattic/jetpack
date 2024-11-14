@@ -101,6 +101,13 @@ class Connection {
 	 * @return boolean
 	 */
 	public function is_connected() {
+		/**
+		 * Filter that fakes the connection to WordPress.com. Useful for testing.
+		 *
+		 * @param bool $connection Return true to fake the connection.
+		 *
+		 * @since   1.0.0
+		 */
 		if ( true === apply_filters( 'jetpack_boost_connection_bypass', false ) ) {
 			return true;
 		}
@@ -210,6 +217,13 @@ class Connection {
 	 * @return array
 	 */
 	public function get_connection_api_response() {
+		/**
+		 * Filter that fakes the connection to WordPress.com. Useful for testing.
+		 *
+		 * @param bool $connection Return true to fake the connection.
+		 *
+		 * @since   1.0.0
+		 */
 		$force_connected = apply_filters( 'jetpack_boost_connection_bypass', false );
 
 		$response = array(
@@ -260,6 +274,13 @@ class Connection {
 	}
 
 	public function ensure_connection() {
+		/**
+		 * Filter that fakes the connection to WordPress.com. Useful for testing.
+		 *
+		 * @param bool $connection Return true to fake the connection.
+		 *
+		 * @since   1.0.0
+		 */
 		if ( ! apply_filters( 'jetpack_boost_connection_bypass', false ) ) {
 			$jetpack_config = new Jetpack_Config();
 			$jetpack_config->ensure(

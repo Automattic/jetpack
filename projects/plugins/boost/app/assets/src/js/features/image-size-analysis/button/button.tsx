@@ -1,5 +1,5 @@
 import React, { ReactNode } from 'react';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import styles from './button.module.scss';
 
 interface ButtonProps {
@@ -25,7 +25,7 @@ const Button: React.FC< ButtonProps > = ( {
 		width: width || 'auto',
 	};
 
-	const buttonClassNames = classNames( 'button', styles.button, {
+	const buttonClassNames = clsx( 'button', styles.button, {
 		[ styles.small ]: small,
 		[ styles.fill ]: fill,
 	} );

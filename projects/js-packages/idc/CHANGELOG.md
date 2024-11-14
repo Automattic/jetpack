@@ -2,6 +2,87 @@
 
 ### This is a list detailing changes for the Jetpack RNA IDC package releases.
 
+## 0.11.18 - 2024-11-11
+### Changed
+- Updated package dependencies. [#39999]
+- Updated package dependencies. [#40060]
+
+## 0.11.17 - 2024-10-15
+### Changed
+- Update dependencies.
+
+## 0.11.16 - 2024-10-14
+### Changed
+- Update dependencies.
+
+## 0.11.15 - 2024-10-10
+### Changed
+- Updated package dependencies.
+
+## 0.11.14 - 2024-10-07
+### Changed
+- Updated package dependencies. [#39594]
+
+## 0.11.13 - 2024-09-25
+### Changed
+- Update dependencies.
+
+## 0.11.12 - 2024-09-10
+### Changed
+- Updated package dependencies. [#39302]
+
+## 0.11.11 - 2024-09-05
+### Changed
+- Internal updates.
+
+## 0.11.10 - 2024-09-05
+### Changed
+- Updated package dependencies. [#39176]
+
+## 0.11.9 - 2024-08-29
+### Changed
+- Internal updates.
+
+## 0.11.8 - 2024-08-21
+### Changed
+- Internal updates.
+
+## 0.11.7 - 2024-08-15
+### Changed
+- Updated package dependencies. [#38662]
+
+## 0.11.6 - 2024-08-09
+### Removed
+- Tests: Removed react-test-renderer. [#38755]
+
+## 0.11.5 - 2024-07-23
+### Fixed
+- Updated package dependencies. [#38464]
+
+## 0.11.4 - 2024-07-22
+### Changed
+- Update dependencies.
+
+## 0.11.3 - 2024-07-03
+### Changed
+- Updated package dependencies. [#38132]
+
+## 0.11.2 - 2024-06-21
+### Changed
+- Update dependencies.
+
+## 0.11.1 - 2024-06-12
+### Changed
+- Updated package dependencies. [#37796]
+
+## 0.11.0 - 2024-06-10
+### Added
+- Safe mode: Added new screen for staging sites. [#37023]
+
+## 0.10.73 - 2024-06-05
+### Changed
+- Updated package dependencies. [#37669]
+
 ## 0.10.72 - 2024-05-16
 ### Changed
 - Updated package dependencies. [#37379]

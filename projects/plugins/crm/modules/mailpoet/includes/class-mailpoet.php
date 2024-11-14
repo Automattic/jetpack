@@ -11,18 +11,6 @@ namespace Automattic\JetpackCRM;
 // block direct access
 defined( 'ZEROBSCRM_PATH' ) || exit;
 
-use MailPoet\Config\Changelog;
-use MailPoet\DI\ContainerWrapper;
-use MailPoet\Models\Segment;
-use MailPoet\Models\Subscriber;
-use MailPoet\Models\SubscriberSegment;
-use MailPoet\Entities\subscriberEntity;
-use MailPoet\Subscribers\SubscribersRepository;
-use MailPoet\Subscribers\RequiredCustomFieldValidator;
-use MailPoet\Subscribers\SubscriberCustomFieldEntity;
-use MailPoet\Subscribers\Source;
-use MailPoet\Util\Helpers;
-use MailPoet\WP\Functions as WPFunctions;
 use MailPoet\API\MP\v1\APIException;
 
 /**

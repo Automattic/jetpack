@@ -8,11 +8,12 @@ import { BoostScoreBar, getRedirectUrl } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import InfoPopover from 'components/info-popover';
 import PluginInstallSection from 'components/plugin-install-section';
 import SectionHeader from 'components/section-header';
 import analytics from 'lib/analytics';
+import { FEATURE_JETPACK_BOOST, getJetpackProductUpsellByFeature } from 'lib/plans/constants';
 import PropTypes from 'prop-types';
 import { useCallback, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
@@ -283,7 +284,7 @@ const DashBoost = ( {
 								</span>
 
 								<p
-									className={ classnames(
+									className={ clsx(
 										'dash-boost-speed-score__score-text',
 										[ 'C', 'D', 'E', 'F' ].includes( speedLetterGrade ) ? 'warning' : ''
 									) }
@@ -346,6 +347,7 @@ const DashBoost = ( {
 						}
 					) }
 					installedPrompt={ getPluginInstallSectionText() }
+					plan={ getJetpackProductUpsellByFeature( FEATURE_JETPACK_BOOST ) }
 				/>
 			</div>
 		</div>
@@ -476,7 +478,7 @@ const ConversionLossPopover = () => {
 				screenReaderText={ __( 'Learn more about how slow sites lose visitors', 'jetpack' ) }
 			>
 				<p className="boost-conversion-loss-info__source">
-					{ __( 'Source: ', 'jetpack' ) }
+					{ __( 'Source:', 'jetpack' ) }{ ' ' }
 					<ExternalLink
 						href="https://web.dev/why-speed-matters/"
 						target="_blank"

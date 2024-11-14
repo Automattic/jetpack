@@ -572,7 +572,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 		$name = __FUNCTION__;
 
 		$status = new Status();
-		if ( ! Jetpack::is_connection_ready() || $status->is_offline_mode() || $status->is_staging_site() || ! $this->pass ) {
+		if ( ! Jetpack::is_connection_ready() || $status->is_offline_mode() || $status->in_safe_mode() || ! $this->pass ) {
 			return self::skipped_test( array( 'name' => $name ) );
 		}
 
@@ -771,7 +771,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 		$name = 'test__wpcom_self_test';
 
 		$status = new Status();
-		if ( ! Jetpack::is_connection_ready() || $status->is_offline_mode() || $status->is_staging_site() || ! $this->pass ) {
+		if ( ! Jetpack::is_connection_ready() || $status->is_offline_mode() || $status->in_safe_mode() || ! $this->pass ) {
 			return self::skipped_test( array( 'name' => $name ) );
 		}
 

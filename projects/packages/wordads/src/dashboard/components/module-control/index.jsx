@@ -1,6 +1,6 @@
 import analytics from '@automattic/jetpack-analytics';
 import { __ } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import Card from 'components/card';
 import CompactFormToggle from 'components/form-toggle/compact';
 import React, { useCallback } from 'react';
@@ -16,12 +16,12 @@ const SEARCH_DESCRIPTION = __(
 /**
  * Search settings component to be used within the Performance section.
  *
- * @param {object} props - Component properties.
- * @param {Function} props.updateOptions - function to update settings.
- * @param {boolean} props.isSavingOptions - true if Saving options.
- * @param {boolean} props.isModuleEnabled - true if WordAds module is enabled.
- * @param {boolean} props.isTogglingModule - true if toggling WordAds module.
- * @returns {React.Component}	Search settings component.
+ * @param {object}   props                  - Component properties.
+ * @param {Function} props.updateOptions    - function to update settings.
+ * @param {boolean}  props.isSavingOptions  - true if Saving options.
+ * @param {boolean}  props.isModuleEnabled  - true if WordAds module is enabled.
+ * @param {boolean}  props.isTogglingModule - true if toggling WordAds module.
+ * @return {React.Component} Search settings component.
  */
 export default function WordAdsModuleControl( {
 	updateOptions,
@@ -72,7 +72,7 @@ export default function WordAdsModuleControl( {
 	return (
 		<div className="jp-form-settings-group jp-form-wordads-settings-group">
 			<Card
-				className={ classNames( {
+				className={ clsx( {
 					'jp-form-has-child': true,
 					'jp-form-settings-disable': false,
 				} ) }

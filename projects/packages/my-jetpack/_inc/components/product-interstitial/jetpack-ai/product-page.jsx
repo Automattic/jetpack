@@ -10,11 +10,11 @@ import {
 	getRedirectUrl,
 	Notice,
 } from '@automattic/jetpack-components';
-import { useConnection } from '@automattic/jetpack-connection';
 import { Button, Card, ExternalLink } from '@wordpress/components';
+import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, plus, help, check } from '@wordpress/icons';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import debugFactory from 'debug';
 import { useCallback, useState, useEffect } from 'react';
 /**
@@ -23,6 +23,7 @@ import { useCallback, useState, useEffect } from 'react';
 import useProduct from '../../../data/products/use-product';
 import useAnalytics from '../../../hooks/use-analytics';
 import { useGoBack } from '../../../hooks/use-go-back';
+import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
 import useMyJetpackNavigate from '../../../hooks/use-my-jetpack-navigate';
 import GoBackLink from '../../go-back-link';
 import styles from './style.module.scss';
@@ -31,14 +32,14 @@ const debug = debugFactory( 'my-jetpack:product-interstitial:jetpack-ai-product-
 
 /**
  * Product Page for Jetpack AI
- * @returns {object} React component for the product page
+ * @return {object} React component for the product page
  */
 export default function () {
 	const { onClickGoBack } = useGoBack( 'jetpack-ai' );
 	const { detail } = useProduct( 'jetpack-ai' );
 	const { description, aiAssistantFeature } = detail;
 	const [ showNotice, setShowNotice ] = useState( false );
-	const { isRegistered } = useConnection();
+	const { isRegistered } = useMyJetpackConnection();
 
 	const videoTitleContentGeneration = __(
 		'Generate and edit content faster with Jetpack AI Assistant',
@@ -48,8 +49,14 @@ export default function () {
 		'Create featured images with one click',
 		'jetpack-my-jetpack'
 	);
+	const videoTitleTitleOptimization = __(
+		'Optimize your titles effortlessly',
+		'jetpack-my-jetpack'
+	);
 	const videoTitleForms = __( 'Build forms using prompts', 'jetpack-my-jetpack' );
 	const videoTitleContentFeedback = __( 'Get feedback on posts', 'jetpack-my-jetpack' );
+
+	const videoTitleBreve = __( 'Make your writing easy to read', 'jetpack-my-jetpack' );
 
 	debug( aiAssistantFeature );
 	const {
@@ -58,11 +65,12 @@ export default function () {
 		nextTier,
 		usagePeriod: usage,
 		isOverLimit,
+		tierPlansEnabled,
 	} = aiAssistantFeature || {};
 
-	const hasUnlimited = currentTier?.value === 1;
 	const isFree = currentTier?.value === 0;
-	const hasPaidTier = ! isFree && ! hasUnlimited;
+	const hasUnlimited = currentTier?.value === 1;
+	const hasPaidTier = ( ! isFree && ! hasUnlimited ) || ( hasUnlimited && ! tierPlansEnabled );
 	const shouldContactUs = ! hasUnlimited && hasPaidTier && ! nextTier && currentTier;
 	const freeRequestsLeft = isFree && 20 - allTimeRequests >= 0 ? 20 - allTimeRequests : 0;
 	const showCurrentUsage = hasPaidTier && ! isFree && usage;
@@ -70,10 +78,15 @@ export default function () {
 	const contactHref = getRedirectUrl( 'jetpack-ai-tiers-more-requests-contact' );
 	const feedbackURL = getRedirectUrl( 'jetpack-ai-feedback' );
 	const videoLinkFeaturedImages = getRedirectUrl( 'jetpack-ai-product-page-featured-image-link' );
+	const videoLinkTitleOptimization = getRedirectUrl(
+		'jetpack-ai-product-page-title-optimization-link'
+	);
 	const videoLinkForms = getRedirectUrl( 'jetpack-ai-product-page-form-link' );
 	const videoLinkContentFeedback = getRedirectUrl(
 		'jetpack-ai-product-page-content-feedback-link'
 	);
+
+	const videoLinkBreve = getRedirectUrl( 'jetpack-ai-product-page-breve' );
 
 	// isRegistered works as a flag to know if the page can link to a post creation or not
 	const ctaURL = isRegistered
@@ -88,25 +101,55 @@ export default function () {
 	const showRenewalNotice = isOverLimit && hasPaidTier;
 	const showUpgradeNotice = isOverLimit && isFree;
 
-	const currentTierValue = currentTier?.value || 0;
-	const currentUsage = usage?.[ 'requests-count' ] || 0;
-	const tierRequestsLeft =
-		currentTierValue - currentUsage >= 0 ? currentTierValue - currentUsage : 0;
+	const currentTierLimit = currentTier?.limit || 0;
+	const currentUsage = usage?.requestsCount || 0;
 
+	const tierRequestsLeft =
+		currentTierLimit - currentUsage >= 0 ? currentTierLimit - currentUsage : 0;
+	const requestCardNumber = tierPlansEnabled ? tierRequestsLeft : currentUsage;
+
+	const currentUsageLabel = __( 'Requests this month', 'jetpack-my-jetpack' );
+	const currentRemainingLabel = __( 'Requests for this month', 'jetpack-my-jetpack' );
+	// You've reached this month's request limit, per our fair usage policy. Requests will reset on
 	const renewalNoticeTitle = __(
 		"You've reached your request limit for this month",
 		'jetpack-my-jetpack'
 	);
 	const upgradeNoticeTitle = __( "You've used all your free requests", 'jetpack-my-jetpack' );
 
-	const renewalNoticeBody = sprintf(
+	const renewalNoticeBodyTeaser = sprintf(
 		// translators: %d is the number of days left in the month.
 		__(
 			'Wait for %d days to reset your limit, or upgrade now to a higher tier for additional requests and keep your work moving forward.',
 			'jetpack-my-jetpack'
 		),
-		Math.floor( ( new Date( usage?.[ 'next-start' ] ) - new Date() ) / ( 1000 * 60 * 60 * 24 ) )
+		Math.floor( ( new Date( usage?.nextStart || null ) - new Date() ) / ( 1000 * 60 * 60 * 24 ) )
 	);
+
+	const renewalNoticeBodyFairUsage = createInterpolateElement(
+		sprintf(
+			// translators: %d is the number of days left in the month.
+			__(
+				'Wait for %d days to reset your limit, per our <link>fair usage</link> policy.',
+				'jetpack-my-jetpack'
+			),
+			Math.floor( ( new Date( usage?.nextStart || null ) - new Date() ) / ( 1000 * 60 * 60 * 24 ) )
+		),
+		{
+			link: (
+				<a
+					href={ getRedirectUrl( 'ai-product-page-fair-usage-policy' ) }
+					target="_blank"
+					rel="noreferrer"
+				/>
+			),
+		}
+	);
+
+	const renewalNoticeBody = ! tierPlansEnabled
+		? renewalNoticeBodyFairUsage
+		: renewalNoticeBodyTeaser;
+
 	const upgradeNoticeBody = __(
 		'Reach for More with Jetpack AI! Upgrade now for additional requests and keep your momentum going.',
 		'jetpack-my-jetpack'
@@ -157,12 +200,12 @@ export default function () {
 	return (
 		<AdminPage showHeader={ false } showBackground={ true }>
 			<Container fluid horizontalSpacing={ 3 } horizontalGap={ 2 }>
-				<Col className={ classnames( styles[ 'product-interstitial__section' ] ) }>
+				<Col className={ clsx( styles[ 'product-interstitial__section' ] ) }>
 					<div className={ styles[ 'product-interstitial__section-wrapper-wide' ] }>
 						<GoBackLink onClick={ onClickGoBack } />
 					</div>
 					<div
-						className={ classnames(
+						className={ clsx(
 							styles[ 'product-interstitial__section-wrapper-wide' ],
 							styles[ 'product-interstitial__product-header' ]
 						) }
@@ -173,7 +216,7 @@ export default function () {
 						</div>
 					</div>
 				</Col>
-				<Col className={ classnames( styles[ 'product-interstitial__section' ] ) }>
+				<Col className={ clsx( styles[ 'product-interstitial__section' ] ) }>
 					<div className={ styles[ 'product-interstitial__hero-section' ] }>
 						<div className={ styles[ 'product-interstitial__hero-content' ] }>
 							<h1 className={ styles[ 'product-interstitial__hero-heading' ] }>{ description }</h1>
@@ -209,10 +252,10 @@ export default function () {
 									<AiIcon />
 									<div>
 										<div className={ styles[ 'product-interstitial__stats-card-text' ] }>
-											{ __( 'Requests for this month', 'jetpack-my-jetpack' ) }
+											{ tierPlansEnabled ? currentRemainingLabel : currentUsageLabel }
 										</div>
 										<div className={ styles[ 'product-interstitial__stats-card-value' ] }>
-											{ tierRequestsLeft }
+											{ requestCardNumber }
 										</div>
 									</div>
 								</Card>
@@ -251,11 +294,15 @@ export default function () {
 						{ showNotice && (
 							<div className={ styles[ 'product-interstitial__ai-notice' ] }>
 								<Notice
-									actions={ [
-										<Button isPrimary onClick={ upgradeClickHandler }>
-											{ showRenewalNotice ? renewalNoticeCta : upgradeNoticeCta }
-										</Button>,
-									] }
+									actions={
+										tierPlansEnabled
+											? [
+													<Button key="upgrade" isPrimary onClick={ upgradeClickHandler }>
+														{ showRenewalNotice ? renewalNoticeCta : upgradeNoticeCta }
+													</Button>,
+											  ]
+											: {}
+									}
 									onClose={ onNoticeClose }
 									level={ showRenewalNotice ? 'warning' : 'error' }
 									title={ showRenewalNotice ? renewalNoticeTitle : upgradeNoticeTitle }
@@ -271,6 +318,40 @@ export default function () {
 							{ __( 'Discover all the Jetpack features powered by AI', 'jetpack-my-jetpack' ) }
 						</p>
 						<div className={ styles[ 'product-interstitial__usage-videos' ] }>
+							<div className={ styles[ 'product-interstitial__usage-videos-item' ] }>
+								<div className={ styles[ 'product-interstitial__usage-videos-video' ] }>
+									<iframe
+										width="280"
+										height="157"
+										src="https://videopress.com/embed/2OU6GCMs?posterUrl=https%3A%2F%2Fjetpackme.files.wordpress.com%2F2024%2F07%2Fjetpack-ai-breve-poster.png%3Fw%3D560"
+										allowFullScreen
+										allow="clipboard-write"
+										title={ videoTitleBreve }
+									></iframe>
+									<script src="https://videopress.com/videopress-iframe.js"></script>
+								</div>
+								<div className={ styles[ 'product-interstitial__usage-videos-content' ] }>
+									<div className={ styles[ 'product-interstitial__usage-videos-heading' ] }>
+										{ videoTitleBreve }
+										{ newBadge }
+									</div>
+									<div className={ styles[ 'product-interstitial__usage-videos-text' ] }>
+										{ __(
+											'Simplify your writing with AI suggestions to fix long sentences and complex words and sound more confident. As you type, check your Reading grade score to make sure it suits your audience.',
+											'jetpack-my-jetpack'
+										) }
+									</div>
+									<Button
+										className={ styles[ 'product-interstitial__usage-videos-link' ] }
+										icon={ help }
+										target="_blank"
+										href={ videoLinkBreve }
+									>
+										{ __( 'Learn more', 'jetpack-my-jetpack' ) }
+									</Button>
+								</div>
+							</div>
+
 							<div className={ styles[ 'product-interstitial__usage-videos-item' ] }>
 								<div className={ styles[ 'product-interstitial__usage-videos-video' ] }>
 									<iframe
@@ -318,7 +399,6 @@ export default function () {
 								<div className={ styles[ 'product-interstitial__usage-videos-content' ] }>
 									<div className={ styles[ 'product-interstitial__usage-videos-heading' ] }>
 										{ videoTitleFeaturedImages }
-										{ newBadge }
 									</div>
 									<div className={ styles[ 'product-interstitial__usage-videos-text' ] }>
 										{ __(
@@ -333,6 +413,39 @@ export default function () {
 										href={ videoLinkFeaturedImages }
 									>
 										{ __( 'Learn about featured images', 'jetpack-my-jetpack' ) }
+									</Button>
+								</div>
+							</div>
+
+							<div className={ styles[ 'product-interstitial__usage-videos-item' ] }>
+								<div className={ styles[ 'product-interstitial__usage-videos-video' ] }>
+									<iframe
+										width="280"
+										height="157"
+										src="https://videopress.com/embed/xjy2weWj?posterUrl=https%3A%2F%2Fjetpackme.files.wordpress.com%2F2024%2F06%2Fjetpack-ai-title-optimization.png%3Fw%3D560"
+										allowFullScreen
+										allow="clipboard-write"
+										title={ videoTitleTitleOptimization }
+									></iframe>
+									<script src="https://videopress.com/videopress-iframe.js"></script>
+								</div>
+								<div className={ styles[ 'product-interstitial__usage-videos-content' ] }>
+									<div className={ styles[ 'product-interstitial__usage-videos-heading' ] }>
+										{ videoTitleTitleOptimization }
+									</div>
+									<div className={ styles[ 'product-interstitial__usage-videos-text' ] }>
+										{ __(
+											'Use AI to generate title suggestions based on your content, each with an explanation of why it works better. Save time and create engaging, SEO-friendly titles.',
+											'jetpack-my-jetpack'
+										) }
+									</div>
+									<Button
+										className={ styles[ 'product-interstitial__usage-videos-link' ] }
+										icon={ help }
+										target="_blank"
+										href={ videoLinkTitleOptimization }
+									>
+										{ __( 'Learn about Jetpack SEO tools', 'jetpack-my-jetpack' ) }
 									</Button>
 								</div>
 							</div>

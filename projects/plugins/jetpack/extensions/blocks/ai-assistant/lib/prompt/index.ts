@@ -123,7 +123,7 @@ export type BuildPromptProps = {
  * Meant for use by the block, not the extensions.
  *
  * @param {BuildPromptProps} options - The prompt options.
- * @returns {Array< PromptItemProps >} The prompt.
+ * @return {Array< PromptItemProps >} The prompt.
  * @throws {Error} If the type is not recognized.
  */
 export function buildPromptForBlock( {

@@ -174,11 +174,12 @@ function jetpack_wpcom_add_heif_mimes_to_supported_upload_types( $mimes ) {
 	if ( ! class_exists( 'Photon_OpenCV' ) ) {
 		return $mimes;
 	}
-	// Only need to modify 'upload_mimes' on Atomic.
-	if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
-		$mimes['heif'] = 'image/heif';
-		$mimes['heic'] = 'image/heic';
-	}
+
+	$mimes['heif'] = 'image/heif';
+
+	// HEIC is supported by default, so maybe we don't need it anymore.
+	// See https://github.com/WordPress/wordpress-develop/blob/80b7747ef165dd5ed0150003a8c2f957f097609e/src/wp-includes/functions.php#L3416.
+	$mimes['heic'] = 'image/heic';
 	return $mimes;
 }
 add_filter( 'upload_mimes', 'jetpack_wpcom_add_heif_mimes_to_supported_upload_types' );

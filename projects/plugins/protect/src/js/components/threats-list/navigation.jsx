@@ -6,23 +6,22 @@ import {
 	warning as warningIcon,
 	color as themesIcon,
 	code as filesIcon,
-	grid as databaseIcon,
 } from '@wordpress/icons';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
+import usePlan from '../../hooks/use-plan';
 import useProtectData from '../../hooks/use-protect-data';
 import Navigation, { NavigationItem, NavigationGroup } from '../navigation';
 
-const ThreatsNavigation = ( { selected, onSelect } ) => {
+const ThreatsNavigation = ( { selected, onSelect, sourceType = 'scan', statusFilter = 'all' } ) => {
+	const { hasPlan } = usePlan();
 	const {
-		plugins,
-		themes,
-		numThreats,
-		numCoreThreats,
-		numFilesThreats,
-		numDatabaseThreats,
-		hasRequiredPlan,
-	} = useProtectData();
+		results: { plugins, themes },
+		counts: {
+			current: { threats: numThreats, core: numCoreThreats, files: numFilesThreats },
+		},
+	} = useProtectData( { sourceType, filter: { status: statusFilter } } );
+
 	const { recordEvent } = useAnalyticsTracks();
 	const [ isSmallOrLarge ] = useBreakpointMatch( 'lg', '<' );
 
@@ -46,9 +45,19 @@ const ThreatsNavigation = ( { selected, onSelect } ) => {
 		recordEvent( 'jetpack_protect_navigation_file_click' );
 	}, [ recordEvent ] );
 
-	const trackNavigationClickDatabase = useCallback( () => {
-		recordEvent( 'jetpack_protect_navigation_database_click' );
-	}, [ recordEvent ] );
+	const allLabel = useMemo( () => {
+		if ( statusFilter === 'fixed' ) {
+			return __( 'All fixed threats', 'jetpack-protect' );
+		}
+		if ( statusFilter === 'ignored' ) {
+			return __(
+				'All ignored threats',
+				'jetpack-protect',
+				/** dummy arg to avoid bad minification */ 0
+			);
+		}
+		return __( 'All threats', 'jetpack-protect' );
+	}, [ statusFilter ] );
 
 	return (
 		<Navigation
@@ -59,7 +68,7 @@ const ThreatsNavigation = ( { selected, onSelect } ) => {
 			<NavigationItem
 				initial
 				id="all"
-				label={ __( 'All threats', 'jetpack-protect' ) }
+				label={ allLabel }
 				icon={ warningIcon }
 				badge={ numThreats }
 				disabled={ numThreats <= 0 }
@@ -67,7 +76,7 @@ const ThreatsNavigation = ( { selected, onSelect } ) => {
 				checked={ true }
 			/>
 			<NavigationItem
-				id="wordpress"
+				id="core"
 				label={ __( 'WordPress', 'jetpack-protect' ) }
 				icon={ coreIcon }
 				badge={ numCoreThreats }
@@ -101,7 +110,7 @@ const ThreatsNavigation = ( { selected, onSelect } ) => {
 					/>
 				) ) }
 			</NavigationGroup>
-			{ hasRequiredPlan && (
+			{ hasPlan && (
 				<>
 					<NavigationItem
 						id="files"
@@ -110,15 +119,6 @@ const ThreatsNavigation = ( { selected, onSelect } ) => {
 						badge={ numFilesThreats }
 						disabled={ numFilesThreats <= 0 }
 						onClick={ trackNavigationClickFiles }
-						checked={ true }
-					/>
-					<NavigationItem
-						id="database"
-						label={ __( 'Database', 'jetpack-protect' ) }
-						icon={ databaseIcon }
-						badge={ numDatabaseThreats }
-						disabled={ numDatabaseThreats <= 0 }
-						onClick={ trackNavigationClickDatabase }
 						checked={ true }
 					/>
 				</>

@@ -986,8 +986,8 @@ class Jetpack_CLI extends WP_CLI_Command {
 						WP_CLI::error( __( 'Jetpack sync is not currently allowed for this site. The site is in offline mode.', 'jetpack' ) );
 						return;
 					}
-					if ( $status->is_staging_site() ) {
-						WP_CLI::error( __( 'Jetpack sync is not currently allowed for this site. The site is in staging mode.', 'jetpack' ) );
+					if ( $status->in_safe_mode() ) {
+						WP_CLI::error( __( 'Jetpack sync is not currently allowed for this site. The site is in safe mode.', 'jetpack' ) );
 						return;
 					}
 				}
@@ -1220,8 +1220,6 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 		$result = Client::_wp_remote_request( $url, $request );
 
-		Jetpack_Options::delete_option( 'onboarding' );
-
 		if ( is_wp_error( $result ) ) {
 			$this->partner_provision_error( $result );
 		}
@@ -1244,8 +1242,6 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 * : WordPress.com ID of user to connect as (must be whitelisted against partner key)
 	 * [--wpcom_user_email=<wpcom_user_email>]
 	 * : Override the email we send to WordPress.com for registration
-	 * [--onboarding=<onboarding>]
-	 * : Guide the user through an onboarding wizard
 	 * [--force_register=<register>]
 	 * : Whether to force a site to register
 	 * [--force_connect=<force_connect>]
@@ -1262,7 +1258,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 *     $ wp jetpack partner_provision '{ some: "json" }' premium 1
 	 *     { success: true }
 	 *
-	 * @synopsis <token_json> [--wpcom_user_id=<user_id>] [--plan=<plan_name>] [--onboarding=<onboarding>] [--force_register=<register>] [--force_connect=<force_connect>] [--home_url=<home_url>] [--site_url=<site_url>] [--wpcom_user_email=<wpcom_user_email>] [--partner_tracking_id=<partner_tracking_id>]
+	 * @synopsis <token_json> [--wpcom_user_id=<user_id>] [--plan=<plan_name>] [--force_register=<register>] [--force_connect=<force_connect>] [--home_url=<home_url>] [--site_url=<site_url>] [--wpcom_user_email=<wpcom_user_email>] [--partner_tracking_id=<partner_tracking_id>]
 	 *
 	 * @param array $args Positional args.
 	 * @param array $named_args Named args.

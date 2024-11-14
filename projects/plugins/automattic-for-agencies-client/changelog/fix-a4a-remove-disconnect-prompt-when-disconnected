@@ -1,5 +1,0 @@
-Significance: patch
-Type: changed
-Comment: Prevent disconnect dialog from displaying when site is already disconnected.
-
-

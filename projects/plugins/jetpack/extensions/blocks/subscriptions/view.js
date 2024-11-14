@@ -2,7 +2,7 @@ import './view.scss';
 import '../../shared/memberships.scss';
 
 import domReady from '@wordpress/dom-ready';
-import { showModal } from '../../shared/memberships';
+import { showModal, spinner } from '../../shared/memberships';
 
 // @ts-ignore
 function show_iframe_retrieve_subscriptions_from_email() {
@@ -33,7 +33,7 @@ function show_iframe( data ) {
 
 	const url = 'https://subscribe.wordpress.com/memberships/?' + params.toString();
 
-	showModal( url );
+	return showModal( url );
 }
 
 domReady( function () {
@@ -49,10 +49,20 @@ domReady( function () {
 	forms.forEach( form => {
 		if ( ! form.payments_attached ) {
 			form.payments_attached = true;
+
+			const button = form.querySelector( 'button[type="submit"]' );
+
+			// Injects loading animation in hidden state
+			button.insertAdjacentHTML( 'beforeend', spinner );
+
 			form.addEventListener( 'submit', function ( event ) {
 				if ( form.resubmitted ) {
 					return;
 				}
+
+				button.classList.add( 'is-loading' );
+				button.setAttribute( 'aria-busy', 'true' );
+				button.setAttribute( 'aria-live', 'polite' );
 
 				// If email is empty, we will ask for it in the modal that opens
 				// Email input can be hidden for "button only style" for example.
@@ -83,6 +93,12 @@ domReady( function () {
 						app_source,
 						post_access_level: form.dataset.post_access_level,
 						display: 'alternate',
+					} ).then( () => {
+						// Allows hiding other modals when the subscription modal/iframe shows up, e.g. hiding the subscription overlay modal
+						form.dispatchEvent( new Event( 'subscription-modal-loaded' ) );
+
+						button.classList.remove( 'is-loading' );
+						button.setAttribute( 'aria-busy', 'false' );
 					} );
 				}
 			} );

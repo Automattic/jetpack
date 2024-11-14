@@ -15,6 +15,7 @@
  */
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Status\Host;
 
 if ( ! defined( 'JETPACK_NOTES__CACHE_BUSTER' ) ) {
 	define( 'JETPACK_NOTES__CACHE_BUSTER', JETPACK__VERSION . '-' . gmdate( 'oW' ) . '-lite' );
@@ -110,7 +111,7 @@ class Jetpack_Notifications {
 		}
 		$is_rtl = is_rtl();
 
-		if ( Jetpack::is_module_active( 'masterbar' ) ) {
+		if ( ( new Host() )->is_woa_site() ) {
 			/**
 			 * Can be used to force Notifications to display in RTL style.
 			 *
@@ -173,7 +174,7 @@ class Jetpack_Notifications {
 			return;
 		}
 
-		$wpcom_locale = get_locale();
+		$user_locale = get_user_locale();
 
 		if ( ! class_exists( 'GP_Locales' ) ) {
 			if ( defined( 'JETPACK__GLOTPRESS_LOCALES_PATH' ) && file_exists( JETPACK__GLOTPRESS_LOCALES_PATH ) ) {
@@ -182,9 +183,9 @@ class Jetpack_Notifications {
 		}
 
 		if ( class_exists( 'GP_Locales' ) ) {
-			$wpcom_locale_object = GP_Locales::by_field( 'wp_locale', $wpcom_locale );
-			if ( $wpcom_locale_object instanceof GP_Locale ) {
-				$wpcom_locale = $wpcom_locale_object->slug;
+			$jetpack_locale_object = GP_Locales::by_field( 'slug', $user_locale );
+			if ( $jetpack_locale_object instanceof GP_Locale ) {
+				$user_locale = $jetpack_locale_object->slug;
 			}
 		}
 
@@ -196,7 +197,7 @@ class Jetpack_Notifications {
 				'id'     => 'notes',
 				'title'  => $title,
 				'meta'   => array(
-					'html'  => '<div id="wpnt-notes-panel2" class="intrinsic-ignore" style="display:none" lang="' . esc_attr( $wpcom_locale ) . '" dir="' . ( is_rtl() ? 'rtl' : 'ltr' ) . '"><div class="wpnt-notes-panel-header"><span class="wpnt-notes-header">' . __( 'Notifications', 'jetpack' ) . '</span><span class="wpnt-notes-panel-link"></span></div></div>' . $third_party_cookie_check_iframe,
+					'html'  => '<div id="wpnt-notes-panel2" class="intrinsic-ignore" style="display:none" lang="' . esc_attr( strtolower( substr( $user_locale, 0, 2 ) ) ) . '" dir="' . ( is_rtl() ? 'rtl' : 'ltr' ) . '"><div class="wpnt-notes-panel-header"><span class="wpnt-notes-header">' . __( 'Notifications', 'jetpack' ) . '</span><span class="wpnt-notes-panel-link"></span></div></div>' . $third_party_cookie_check_iframe,
 					'class' => 'menupop',
 				),
 				'parent' => 'top-secondary',
@@ -212,7 +213,7 @@ class Jetpack_Notifications {
 	 */
 	private static function get_notes_markup() {
 		return '<span id="wpnt-notes-unread-count" class="wpnt-loading wpn-read"></span>
-<span class="noticon noticon-bell"></span>
+<span class="noticon noticon-bell ab-icon"></span>
 <span class="screen-reader-text">' . esc_html__( 'Notifications', 'jetpack' ) . '</span>';
 	}
 
@@ -232,21 +233,6 @@ class Jetpack_Notifications {
 	var wpNotesLinkAccountsURL = '<?php echo esc_url( $link_accounts_url ); ?>';
 <?php endif; ?>
 /* ]]> */
-	window.addEventListener('message', function ( event ) {
-		// Confirm that the message is from the right origin.
-		if ('https://widgets.wp.com' !== event.origin) {
-			return;
-		}
-		// Check whether 3rd Party Cookies are blocked
-		var has3PCBlocked = 'WPCOM:3PC:blocked' === event.data;
-
-		var tagerElement = document.getElementById('wp-admin-bar-notes');
-
-		if ( has3PCBlocked && tagerElement ) {
-			// Hide the notification button/icon
-			tagerElement.style.display = 'none';
-		}
-	}, false );
 </script>
 		<?php
 	}

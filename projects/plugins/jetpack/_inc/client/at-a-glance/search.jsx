@@ -24,13 +24,13 @@ const SEARCH_DESCRIPTION = __(
 	'jetpack'
 );
 const SEARCH_CUSTOMIZE_CTA = __( 'Customize your Search experience.', 'jetpack' );
-const SEARCH_SUPPORT = __( 'Search supports many customizations. ', 'jetpack' );
+const SEARCH_SUPPORT = __( 'Search supports many customizations.', 'jetpack' );
 
 /**
  * Displays a card for Search based on the props given.
  *
  * @param {object} props - Settings to render the card
- * @returns {object}       Search card
+ * @return {object}       Search card
  */
 const renderCard = props => (
 	<DashItem
@@ -119,7 +119,7 @@ class DashSearch extends Component {
 				className: 'jp-dash-item__is-inactive',
 				status: 'no-pro-uninstalled-or-inactive',
 				pro_inactive: true,
-				overrideContent: this.props.hasConnectedOwner ? (
+				overrideContent: (
 					<JetpackBanner
 						callToAction={
 							isSearchNewPricingLaunched202208()
@@ -134,21 +134,6 @@ class DashSearch extends Component {
 						plan={ getJetpackProductUpsellByFeature( FEATURE_SEARCH_JETPACK ) }
 						icon="search"
 						trackBannerDisplay={ this.props.trackUpgradeButtonView }
-						noIcon
-					/>
-				) : (
-					<JetpackBanner
-						callToAction={ __( 'Connect', 'jetpack' ) }
-						title={ __(
-							'Connect your WordPress.com account to upgrade and get Jetpack Search, which helps your visitors instantly find the right content – right when they need it.',
-							'jetpack'
-						) }
-						disableHref="false"
-						onClick={ this.props.connectUser }
-						eventFeature="search"
-						path="dashboard"
-						plan={ getJetpackProductUpsellByFeature( FEATURE_SEARCH_JETPACK ) }
-						noIcon
 					/>
 				),
 			} );

@@ -1,0 +1,29 @@
+{
+	"translation-revision-date": "2024-06-27 11:45:59+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=2; plural=n != 1;", "lang": "nl" },
+			"Remove premium styles": [ "Verwijder premium stijlen" ],
+			"Change all of your site's fonts, colors and more. Available on the %s plan.": [
+				"Verander alle lettertypen, kleuren en meer van je site. Beschikbaar op het %s abonnement."
+			],
+			"Your site includes premium styles that are only visible to visitors after upgrading to the %s plan or higher.": [
+				"Je site bevat aangepaste stijlen die alleen zichtbaar zijn voor bezoekers na het upgraden naar het %s abonnement of hoger."
+			],
+			"Your site includes premium styles that are only visible to visitors after <a>upgrading to the %s plan or higher</a>.": [
+				"Je site bevat aangepaste stijlen die alleen zichtbaar zijn voor bezoekers na <a>upgraden naar het %s abonnement of hoger</a>."
+			],
+			"Generating preview\u2026": [ "Voorbeeld aan het genereren..." ],
+			"Preview without premium styles": [ "Voorbeeld zonder aangepaste stijlen" ],
+			"Upgrade now": [ "Upgrade nu" ],
+			"Upgrade plan": [ "Upgrade abonnement" ],
+			"Try it out": [ "Probeer het eens" ],
+			"A powerful new way to style your site": [
+				"Een krachtige nieuwe manier om je site te stylen"
+			]
+		}
+	},
+	"comment": { "reference": "wpcom-global-styles/dist/wpcom-global-styles.js" }
+}

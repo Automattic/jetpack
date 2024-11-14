@@ -24,18 +24,6 @@ import {
 } from './subscriber-view/.';
 
 /**
- * A list of blocks that should be disallowed to be transformed to Premium content block since they are mostly markup blocks.
- */
-const disallowFromTransformations = [
-	'core/nextpage',
-	'core/spacer',
-	'core/separator',
-	'core/more',
-	'core/loginout',
-	'core/post-navigation-link',
-];
-
-/**
  * Check if the given blocks are transformable to premium-content block
  *
  * This is because transforming blocks that are already premium content blocks, or have one as a descendant or ancestor
@@ -44,9 +32,19 @@ const disallowFromTransformations = [
  * We also filter the blocks that don't bring any value in transforming them to Premium Content block.
  *
  * @param {Array} blocks - The blocks that could be transformed
- * @returns {boolean} Whether the blocks should be allowed to be transformed to a premium content block
+ * @return {boolean} Whether the blocks should be allowed to be transformed to a premium content block
  */
 const blocksCanBeTransformed = blocks => {
+	if ( ! blocks ) {
+		return false;
+	}
+
+	if ( blocks.length === 1 ) {
+		if ( ! [ 'core/group', 'core/columns' ].includes( blocks[ 0 ].name ) ) {
+			return false;
+		}
+	}
+
 	// Avoid transforming any premium-content block.
 	if ( blocks.some( blockContainsPremiumBlock ) ) {
 		return false;
@@ -58,13 +56,7 @@ const blocksCanBeTransformed = blocks => {
 		return false;
 	}
 
-	// Check if the blocks selected are all in the disallowFromTransformations.
-	// If  they are, they don't have any value in allowing them to be transformed to Premium Content.
-	const isInDisallowList = blocks.every( block =>
-		disallowFromTransformations.includes( block.name )
-	);
-
-	return ! isInDisallowList;
+	return true;
 };
 
 registerJetpackBlockFromMetadata(
@@ -82,9 +74,8 @@ registerJetpackBlockFromMetadata(
 						if ( fromAttributes.some( attributes => attributes.isPremiumContentChild ) ) {
 							return false;
 						}
-						// The fromBlocks parameter doesn't exist in Gutenberg < 11.1.0, so if it isn't passed, allow the
-						// match, fallback code in the convert method will handle it.
-						return fromBlocks === undefined || blocksCanBeTransformed( fromBlocks );
+
+						return blocksCanBeTransformed( fromBlocks );
 					},
 					__experimentalConvert( blocks ) {
 						// This is checked here as well as in isMatch because the isMatch function isn't fully compatible

@@ -121,13 +121,13 @@ const recommendationsRoutes = [
 	'/recommendations/welcome-search',
 	'/recommendations/welcome-scan',
 	'/recommendations/welcome-social-basic',
-	'/recommendations/welcome-social-advanced',
+	'/recommendations/welcome-social-v1',
 	'/recommendations/welcome-social-image-generator',
 	'/recommendations/welcome-golden-token',
 	'/recommendations/backup-activated',
 	'/recommendations/scan-activated',
 	'/recommendations/unlimited-sharing-activated',
-	'/recommendations/social-advanced-activated',
+	'/recommendations/social-v1-activated',
 	'/recommendations/antispam-activated',
 	'/recommendations/videopress-activated',
 	'/recommendations/search-activated',
@@ -274,7 +274,7 @@ class Main extends React.Component {
 	 * Render the main navigation bar.
 	 *
 	 * @param {string} route - The current page route.
-	 * @returns {React.ReactElement|null} - The navigation component or `null` if not available.
+	 * @return {React.ReactElement|null} - The navigation component or `null` if not available.
 	 */
 	renderMainNav = route => {
 		if ( this.shouldShowWooConnectionScreen() ) {
@@ -485,7 +485,6 @@ class Main extends React.Component {
 					See: https://www.scottohara.me/blog/2019/01/12/lists-and-safari.html
 					*/ }
 					<ul role="list">
-						<li>{ __( 'Measure your impact with Jetpack Stats', 'jetpack' ) }</li>
 						<li>{ __( 'Speed up your site with optimized images', 'jetpack' ) }</li>
 						<li>{ __( 'Protect your site against bot attacks', 'jetpack' ) }</li>
 						<li>{ __( 'Get notifications if your site goes offline', 'jetpack' ) }</li>
@@ -599,12 +598,12 @@ class Main extends React.Component {
 			case '/recommendations/welcome-search':
 			case '/recommendations/welcome-scan':
 			case '/recommendations/welcome-social-basic':
-			case '/recommendations/welcome-social-advanced':
+			case '/recommendations/welcome-social-v1':
 			case '/recommendations/welcome-golden-token':
 			case '/recommendations/backup-activated':
 			case '/recommendations/scan-activated':
 			case '/recommendations/unlimited-sharing-activated':
-			case '/recommendations/social-advanced-activated':
+			case '/recommendations/social-v1-activated':
 			case '/recommendations/welcome-social-image-generator':
 			case '/recommendations/antispam-activated':
 			case '/recommendations/videopress-activated':
@@ -628,7 +627,7 @@ class Main extends React.Component {
 				break;
 		}
 
-		if ( this.props.isWoaSite ) {
+		if ( this.props.isWoaSite && ! this.props.showMyJetpack ) {
 			window.wpNavMenuClassChange( { dashboard: 1, settings: 1 } );
 		} else if ( ! this.props.isLinked && ! this.props.showMyJetpack ) {
 			window.wpNavMenuClassChange( { dashboard: 1, settings: 2 } );
@@ -732,7 +731,7 @@ class Main extends React.Component {
 	/**
 	 * Checks if this is the main connection screen page.
 	 *
-	 * @returns {boolean} Whether this is the main connection screen page.
+	 * @return {boolean} Whether this is the main connection screen page.
 	 */
 	isMainConnectScreen() {
 		return false === this.props.siteConnectionStatus && this.props.userCanConnectSite;
@@ -741,7 +740,7 @@ class Main extends React.Component {
 	/**
 	 * Checks if this is the user connection screen page.
 	 *
-	 * @returns {boolean} Whether this is the user connection screen page.
+	 * @return {boolean} Whether this is the user connection screen page.
 	 */
 	isUserConnectScreen() {
 		return (
@@ -753,7 +752,7 @@ class Main extends React.Component {
 	/**
 	 * Checks whether we should show the Woo Connection screen page.
 	 *
-	 * @returns {boolean} Whether we should show the Woo connection screen page.
+	 * @return {boolean} Whether we should show the Woo connection screen page.
 	 */
 	shouldShowWooConnectionScreen() {
 		return '/woo-setup' === this.props.location.pathname;
@@ -762,7 +761,7 @@ class Main extends React.Component {
 	/**
 	 * Check if the user connection has been triggered.
 	 *
-	 * @returns {boolean} Whether the user connection has been triggered.
+	 * @return {boolean} Whether the user connection has been triggered.
 	 */
 	shouldConnectUser() {
 		return this.props.isConnectingUser;
@@ -779,7 +778,7 @@ class Main extends React.Component {
 	/**
 	 * Checks if this is a licensing screen page.
 	 *
-	 * @returns {boolean} Whether this is a licensing screen page.
+	 * @return {boolean} Whether this is a licensing screen page.
 	 */
 	isLicensingScreen() {
 		return this.props.location.pathname.startsWith( '/license' );
@@ -788,7 +787,7 @@ class Main extends React.Component {
 	/**
 	 * Check if the connection flow should get triggered automatically.
 	 *
-	 * @returns {boolean} Whether to trigger the connection flow automatically.
+	 * @return {boolean} Whether to trigger the connection flow automatically.
 	 */
 	shouldAutoTriggerConnection() {
 		return (
@@ -961,14 +960,69 @@ export default connect(
 	} )( withRouter( Main ) )
 );
 
+// eslint-disable-next-line jsdoc/require-returns-check
+/**
+ * Determines the page order of My Jetpack, Activity Log, Dashboard, and Settings in the left sidebar.
+ * @return {object} Object with keys for each page and values for the order of the page in the sidebar.
+ */
+function jetpackPageOrder() {
+	const jetpackParentMenu = document.querySelector( '#toplevel_page_jetpack' );
+	const pageOrder = {};
+
+	if ( jetpackParentMenu ) {
+		const jetpackSubMenu = jetpackParentMenu.querySelector( '.wp-submenu' );
+
+		if ( jetpackSubMenu ) {
+			const subMenuItems = jetpackSubMenu.querySelectorAll( 'li:not(.wp-submenu-head) a' );
+
+			const urlPatterns = [
+				{
+					key: 'dashboard',
+					pattern: '/wp-admin/admin.php?page=jetpack#/dashboard',
+					matchType: 'end',
+				},
+				{
+					key: 'activityLog',
+					pattern: 'https://jetpack.com/redirect/?source=cloud-activity-log-wp-menu',
+					matchType: 'start',
+				},
+				{
+					key: 'settings',
+					pattern: '/wp-admin/admin.php?page=jetpack#/settings',
+					matchType: 'end',
+				},
+			];
+
+			const findIndex = ( urlPattern, matchType ) => {
+				let foundIndex = -1;
+				subMenuItems.forEach( ( item, index ) => {
+					const href = item.href;
+					if (
+						( matchType === 'end' && href.endsWith( urlPattern ) ) ||
+						( matchType === 'start' && href.startsWith( urlPattern ) )
+					) {
+						foundIndex = index + 1;
+					}
+				} );
+				return foundIndex;
+			};
+
+			urlPatterns.forEach( ( { key, pattern, matchType } ) => {
+				const index = findIndex( pattern, matchType );
+				pageOrder[ key ] = index;
+			} );
+			return pageOrder;
+		}
+	}
+}
+
 /**
  * Manages changing the visuals of the sub-nav items on the left sidebar when the React app changes routes
  *
- * @param pageOrder
  */
-window.wpNavMenuClassChange = function (
-	pageOrder = { myJetpack: 1, activityLog: 2, dashboard: 3, settings: 4 }
-) {
+window.wpNavMenuClassChange = function () {
+	const pageOrder = jetpackPageOrder();
+
 	let hash = window.location.hash;
 	let page = new URLSearchParams( window.location.search );
 

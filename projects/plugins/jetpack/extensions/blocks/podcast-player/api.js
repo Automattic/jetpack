@@ -17,7 +17,7 @@ export const fetchPodcastFeed = async ( { url, guids = [], fetchEpisodeOptions =
 			path: addQueryArgs( '/wpcom/v2/podcast-player', {
 				url,
 				guids,
-				[ 'episode-options' ]: fetchEpisodeOptions,
+				'episode-options': fetchEpisodeOptions,
 			} ),
 		} );
 	} catch ( err ) {

@@ -28,6 +28,13 @@ class Assets {
 	 * @since   1.0.0
 	 */
 	public static function get_file_url_for_environment( $min_path, $non_min_path ) {
+		/**
+		 * Filters the internal path to the distributed assets used by the plugin
+		 *
+		 * @param string $path the path to the assets
+		 *
+		 * @since   1.0.0
+		 */
 		$internal_path = apply_filters( 'jetpack_boost_asset_internal_path', 'app/assets/dist/' );
 		$url           = plugins_url( $internal_path . trim( $non_min_path, '/' ), JETPACK_BOOST_PATH );
 

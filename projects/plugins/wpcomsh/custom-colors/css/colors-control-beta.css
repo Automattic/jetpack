@@ -1,0 +1,699 @@
+/**
+* The Theme Chooser Styles
+*/
+
+
+/* =Structure
+----------------------------------------------- */
+.custom-design-feature {
+	width: 33% !important;
+}
+.customize-control-colorsTool {
+	position: relative;
+}
+.customize-control-colorsTool .customize-control-title {
+	font-size: 14px;
+	line-height: 34px;
+}
+#customize-control-colors-tool .customize-control-title {
+	margin: 5px 0 2px;
+}
+#customize-section-colors_manager_tool .customize-section-content,
+#accordion-section-colors_manager_tool .accordion-section-content {
+	padding-top: 0;
+}
+
+
+/* =Color Picker
+----------------------------------------------- */
+.color-grid {
+	display: block;
+	margin: 0;
+	padding: 0;
+}
+.color-grid.main li {
+  height: 55px;
+  width: 55px;
+  background-image: -moz-radial-gradient( center top, circle farthest-side, rgba(255, 255, 255, .35), rgba(255, 255, 255, 0) 80% );
+  background-image: -webkit-radial-gradient( center top, circle farthest-side, rgba(255, 255, 255, .35), rgba(255, 255, 255, 0) 80% );
+  background-image: radial-gradient( center top, circle farthest-side, rgba(255, 255, 255, .35), rgba(255, 255, 255, 0) 80% );
+  background-position: center center;
+  background-size: cover;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  box-shadow: inset 0 -1px 4px rgba(0,0,0,0.1);
+}
+
+.disable-background .color-grid.main li,
+.enable-background .color-grid.main li {
+  display: inline-block;
+  float: none;
+}
+
+.color-grid.main li:not(:last-child) {
+  margin-right: 7px;
+}
+.enable-background .color-grid.main li.bg {
+  position: relative;
+  background-size: 100% 100%;
+  border-radius: 2%;
+  box-shadow: inset 0 -1px 4px rgba(0,0,0,0.1);
+  height: 55px;
+  margin-bottom: 0;
+  width: 100%;
+}
+.enable-background .color-grid.main .text-placeholder {
+	background: transparent;
+	border: none;
+	-moz-box-sizing: inherit;
+	-webkit-box-sizing: inherit;
+	box-sizing: inherit;
+	display: block;
+	list-style-type: none;
+	margin: 0;
+	width: 100%;
+	box-shadow: none;
+	height: 50px;
+	text-align: left;
+}
+.color-grid.main {
+	border-bottom: 2px solid #fff;
+	background: #eee;
+	height: auto;
+	text-align: center;
+	width: 100%;
+	padding-top: 20px
+}
+
+.color-grid li {
+	background: #f1f1f1;
+	border: 5px solid rgba(0,0,0,0.1);
+	border-width: 1px 1px 5px;
+	font-size: 0px;
+	-moz-box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	box-sizing: border-box;
+	display: block;
+	float: left;
+	list-style-type: none;
+	height: 50px;
+	width: 80px;
+	margin: 0px 13px 12px;
+}
+
+.color-grid li a {
+	font-size: 0px;
+}
+.color-grid li:hover {
+	cursor: pointer;
+	background-image: none;
+}
+/*
+	This will be dynamic: get form setting (if there is one)
+	Or pull themecolors array
+*/
+.color-grid .bg {
+	height: 100%;
+}
+
+.color-grid .fg2 {
+	clear: right;
+}
+.color-grid.main .unavailable {
+	background: #353535 !important;
+	box-shadow: inset 0 5px 16px rgba(0, 0, 0, 0.4), inset 0 -1px 1px rgba(255, 255, 255, 0.2) !important;
+	opacity: 0.5;
+}
+.color-grid.main .unavailable.selected {
+	border: none;
+}
+.color-grid .unavailable:before {
+	color: #fff;
+	content: '\f406';
+	font-family: "Noticons";
+	font-size: 40px;
+	opacity: 0.4;
+	float: left;
+	position: relative;
+		left: 14px;
+		top: 20px;
+	text-shadow: 0 0 2px rgba(0,0,0,0.4);
+}
+.color-grid.main .selected {
+	border: 3px solid #fff;
+}
+.color-grid .ui-draggable-dragging:hover {
+	opacity: 1;
+}
+.enable-background .action-button-wrap + .customize-control-title {
+	  padding-top: 30px;
+}
+.action-button-wrap {
+	float: right;
+}
+a.revert {
+	font-size: 11px !important;
+	z-index: 1;
+	float: left;
+}
+a.button.left-pill {
+	border-radius: 3px 0 0 3px;
+	display: none;
+	padding-right: 8px;
+}
+a.button.left-pill:hover,
+a.button.left-pill:focus {
+	z-index: 3;
+}
+a.button.right-pill {
+	border-radius: 3px;
+	padding-left: 10px;
+	margin-left: -1px;
+}
+.color-grid .bg:not(:hover) .change-background,
+.color-grid .bg.bg-change-disable .change-background {
+	display: none;
+}
+.color-grid .bg .change-background {
+  position: absolute;
+	bottom: 12px;
+	right: 5px;
+}
+.color-grid .bg .change-background sup {
+	font-size: 9px;
+}
+.action-button-wrap.undo a.button.left-pill {
+	display: block;
+}
+.action-button-wrap.undo a.button.right-pill {
+	border-radius: 0 3px 3px 0;
+	padding-left: 8px;
+}
+
+
+/* =Colors Suggestions and Picker
+----------------------------------------------- */
+.customize-control-colorsTool a {
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+.the-picker {
+	background: #fff;
+	border: 2px solid #eee;
+	border-top-style: dashed;
+	border: none;
+	display: none;
+	padding: 50px 20px 20px;
+	position: relative;
+		left: -20px;
+	width: 260px;
+	z-index: 2;
+}
+/* override new-customizer.css */
+.color-picker .the-picker {
+	border: none;
+	margin-top: 20px;
+}
+.the-picker .color-label {
+	background: #eee;
+	border-radius: 2px;
+	color: #666;
+	display: block;
+	font-size: 15px;
+	line-height: 15px;
+	padding: 8px 18px;
+	position: relative;
+		top: -10px;
+	text-align: center;
+}
+.the-picker .color-label span {
+	background: #fff;
+	border: 1px solid #ddd;
+	border-radius: 5px;
+	color: #888;
+	display: inline-block;
+	font-family: Consolas, Monaco, monospace;
+	margin-left: 12px;
+	padding: 2px 6px;
+}
+.the-picker p {
+	clear: both;
+	color: #646464;
+	font-size: 13px;
+	margin: 10px 0 10px;
+}
+/* override new-customizer.css */
+.color-picker .the-picker p:not(.iris-launch) {
+	margin-top: 0;
+}
+.color-suggestions {
+	display: block;
+	margin: 20px 0;
+	padding: 0;
+	height: 50px;
+}
+.color-suggestions li {
+	background: #f1f1f1;
+	border: 3px solid rgba(0,0,0,0.1);
+	font-size: 0px;
+	display: block;
+	margin: 0 10px 15px;
+	float: left;
+	list-style-type: none;
+	height: 30px;
+	width: 40px;
+	display: none;
+}
+.color-suggestions li:first-child {
+	margin-left: 0;
+}
+.color-suggestions li:nth-of-type(5) {
+	margin-left: 0;
+}
+.color-suggestions li:hover {
+	cursor: pointer;
+	opacity: 1;
+}
+/* Background Choices */
+#the-bg-picker-prompt {
+	border-top: 2px dashed #eee;
+	padding: 10px 0;
+}
+#the-bg-picker-prompt .customize-control-title {
+	margin-bottom: 10px;
+}
+#the-bg-picker-prompt div {
+	-moz-box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	box-sizing: border-box;
+	float: left;
+	width: 50%;
+	text-align: center;
+}
+#the-bg-picker-prompt:after {
+	content: '.';
+	display: block;
+	height: 0;
+	clear: both;
+	visibility: hidden;
+	zoom: 1;
+}
+#the-bg-picker-prompt h4 {
+	font-weight: 400;
+}
+#the-bg-picker-prompt h4 strong {
+	font-weight: bold;
+}
+.choose-color,
+.choose-pattern {
+	border: 3px solid #fff;
+	border-radius: 50%;
+	font-size: 0px;
+	box-shadow: 0 1px 2px #aaa;
+	display: block;
+	height: 70px;
+	width: 70px;
+	margin: 0 auto;
+}
+.choose-pattern {
+	background-image: url('../images/pattern-default.png');
+	background-size: 70px 70px;
+}
+
+
+/* =Color Palettes
+----------------------------------------------- */
+.colour-lovers {
+	border-radius: 4px;
+	float: left;
+	margin: 0px 18px 18px 0;
+	height: 50px;
+	width: 72px;
+	position: relative;
+}
+.colour-lovers:nth-of-type(3) {
+	margin-right: 0;
+}
+.colour-lovers li {
+	width: 20%;
+	height: 100%;
+}
+/* Displays theme color palettes of < five colors */
+.colour-lovers.items-1 li {
+	width: 100%;
+}
+.colour-lovers.items-2 li {
+	width: 50%;
+}
+.colour-lovers.items-3 li {
+	width: 33.3333%;
+}
+.colour-lovers.items-4 li {
+	width: 25%;
+}
+.colour-lovers:hover {
+	cursor: pointer;
+}
+.colour-lovers li:hover {
+	opacity: 1;
+}
+.colour-lovers .ui-draggable-dragging {
+	border-radius: 2px;
+	width: 25px;
+	height: 25px;
+}
+.colour-lovers:active {
+	opacity: 0.5;
+}
+#colourlovers-palettes-container {
+	clear: both;
+	padding: 5px 0 20px;
+	margin-right: -30px;
+}
+#colourlovers-palettes-container h3 {
+	font-size: 14px;
+}
+.color-picker .button:hover {
+	cursor: pointer;
+}
+.color-picker .button:active {
+	padding-top: 3px;
+}
+.color-picker #colourlovers-palettes-container .previous, .color-picker #colourlovers-palettes-container .next {
+	margin-top: 10px;
+}
+/*.color-picker .previous {
+	margin-left: 10px;
+}*/
+/* Theme featured palettes */
+.colour-lovers.featured:before {
+	content: 'Featured';
+	background: #000;
+	color: #fff;
+	display: block;
+	font-size: 10px;
+	opacity: 0.7;
+	position: absolute;
+		bottom: 5px;
+		right: 0;
+		left: 0;
+	text-indent: 5px;
+	line-height: 1.5;
+	padding-bottom: 1px;
+}
+
+/* Generate from header image */
+#generate-palette {
+	display: block;
+	margin-right: 30px;
+	margin-top: 15px;
+	text-align: center;
+}
+
+
+/* =Color Patterns
+----------------------------------------------- */
+#the-pattern-picker {
+	margin: 0 -20px;
+	padding: 0 20px 10px;
+}
+#colourlovers-patterns {
+	border-bottom: none;
+	margin: 0 -18px 10px;
+	min-height: 50px;
+}
+#colourlovers-patterns li {
+	float: left;
+	border-radius: 2px;
+	height: 50px;
+	margin-bottom: 10px;
+	margin-left: 18px;
+	overflow: hidden;
+	padding: 0;
+	width: 72px;
+}
+#colourlovers-patterns img {
+	cursor: pointer;
+	width: 72px;
+}
+#colourlovers-patterns:after {
+	content: '.';
+	display: block;
+	height: 0;
+	clear: both;
+	visibility: hidden;
+	zoom: 1;
+}
+#more-patterns, #less-patterns {
+	margin-bottom: 10px;
+}
+#customize-control-background_image .pagination {
+	clear: both;
+	padding-top: 20px;
+	min-height: 30px;
+}
+#customize-control-background_image .pagination a.button {
+	display: inline;
+}
+#the-pattern-picker .customize-control-title a {
+	float: right;
+	font-size: smaller;
+}
+.customize-image-picker {
+	margin: 0px -20px 10px;
+	padding: 0 20px 20px;
+}
+
+/* Iris */
+#iris {
+	width: 33%;
+}
+#iris-container {
+	padding-bottom: 40px;
+	position: relative;
+}
+input#iris {
+	position: absolute;
+		bottom: 0;
+		left: 10px;
+}
+
+/*
+ * Free Mode
+ */
+.free-mode #colourlovers-palettes .color-grid:not(.featured) {
+	opacity: 0.2;
+}
+.free-mode #the-pattern-picker {
+	display: none;
+}
+.free-mode .buy-custom-design {
+	background: #191919;
+	padding: 40px 20px;
+	position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+	z-index: 5;
+}
+.free-mode .buy-custom-design .back-to-colors {
+	margin-left: 20px;
+}
+.free-mode .buy-custom-design .button span {
+	font-size: 12px;
+	margin-left: 10px;
+}
+.free-mode .buy-custom-design ul {
+	list-style-type: disc;
+	font-size: 12px;
+	padding-left: 20px;
+}
+.free-mode.preview-mode #accordion-section-colors_manager_tool h3:after {
+	display: none;
+}
+.free-mode .more-features {
+	font-size: 11px;
+	margin-top: 20px;
+	padding-top: 20px;
+}
+.free-mode ul + .more-features {
+	border-top: none;
+	padding-top: 0;
+}
+.free-mode .buy-custom-design ul.accordion-section-content {
+	margin: 20px 0 0 0;
+	padding: 0;
+	padding-top: 20px;
+}
+.free-mode .accordion-section-colors {
+	margin: 20px -20px 0;
+	padding-top: 40px;
+}
+
+
+/* Header text color */
+
+.customize-control-header-text-color {
+	margin: 0px -20px 10px;
+	padding: 0 20px 20px;
+}
+
+.customize-control-header-text-color .customize-control-title {
+	margin: 1em 0; /* like if it were a h3 */
+}
+
+/* Background Change View */
+
+#background-change {
+	display: none;
+	padding-top: 10px;
+	min-height: 100px;
+	font-size: 20px;
+}
+.background-rectangle {
+	position: relative;
+	background-position-y: 33%;
+	background-repeat: repeat;
+	background-size: 100% 100%;
+	border-radius: 2%;
+	box-shadow: inset 0 -1px 4px rgba(0,0,0,0.1);
+	width: 260px;
+	height: 55px;
+	margin-bottom: 8px;
+}
+.background-rectangle .done {
+	background: transparent;
+	display: block;
+	position: absolute;
+	text-align: center;
+	top: 14px;
+	width: 100%;
+}
+.button.select-image {
+	float: right;
+}
+#customize-controls .button.background-options {
+	float: left;
+	display: block;
+	text-align: center;
+	margin-bottom: -11px;
+}
+.sep {
+	clear: both;
+}
+
+#customize-controls .button.pressed,
+#customize-controls .button.pressed:hover {
+	/* FIXME add better style later */
+	background-color: #333;
+	color: #777;
+}
+
+.float-button {
+	background-color: #000;
+	border-radius: 2px;
+	color: #fff;
+	cursor: pointer;
+	display: inline-block;
+	font-size: 13px;
+	line-height: 1.5;
+	opacity: 0.7;
+	padding: 5px 8px;
+}
+.float-button:hover {
+	background-color: #222;
+	color: #eee;
+}
+
+/* Background Options View */
+
+.view.background-options {
+	display: none;
+	background-color: rgb(51, 51, 51);
+	border-radius: 2px;
+	padding: 5px 8px;
+	margin-top: 8px;
+}
+.view.background-options input {
+	float: right;
+}
+.background-options p.radios input {
+	display: none;
+}
+.background-options p.radios label {
+	margin-left: 2px;
+	color: black;
+	float: right;
+	padding: 2px 4px 2px 4px;
+	display: inline-block;
+	background: grey;
+}
+.background-options p.radios input:checked + label {
+	font-weight: bold;
+	background: white;
+}
+.background-options p.bottom {
+	text-align: center;
+	margin-bottom: 4px;
+}
+
+.noticon-tile-none,
+.noticon-tile-horizontally,
+.noticon-tile-vertically {
+	width: 16px;
+	height: 16px;
+	background-size: 8px;
+	background-repeat: no-repeat;
+	background-position: 4px 4px;
+}
+
+.noticon-tile-none {
+	background-image: url('../images/tile-none.png');
+}
+
+.noticon-tile-horizontally {
+	background-image: url('../images/tile-horizontally.png');
+}
+
+.noticon-tile-vertically {
+	background-image: url('../images/tile-vertically.png');
+}
+.background-options .iris-picker {
+	margin: auto;
+	background-color: rgb(51, 51, 51);
+	border-color: #000;
+}
+.background-options label.underlying-color:not(:hover) {
+	opacity: 0.8;
+}
+
+/* =NUX
+----------------------------------------------- */
+
+.nux #color-grid,
+.nux #colourlovers-palettes-container h3,
+.nux #more-palettes {
+	display: none !important;
+}
+/* only show theme palettes */
+.nux .color-grid:not(.featured),
+.nux .colour-lovers.featured:before {
+	display: none;
+}
+.nux #customize-control-background_color {
+	display: block !important;
+}
+
+
+
+.media-modal {
+	z-index: 1001000 !important;
+}
+
+#customize-control-colors-tool .cd-design {
+	clear: right;
+	margin-top: 50px;
+}

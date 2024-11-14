@@ -2,12 +2,11 @@
 /**
  * Handles more photo metadata.
  *
+ * @html-template Jetpack_Tiled_Gallery_Layout::partial
  * @package jetpack
  */
 
-// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- Defined by the caller. Let Phan handle it.
-'@phan-var-force Jetpack_Tiled_Gallery_Layout $this';
-'@phan-var-force array $context';
+// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- HTML template, let Phan handle it.
 
 $item     = $context['item'];
 $add_link = 'none' !== $this->link;
@@ -30,7 +29,7 @@ if ( isset( $item->size ) ) {
 		<meta itemprop="height" content="<?php echo esc_attr( $item->image->height ); ?>">
 		<img
 			class="<?php echo empty( $this->grayscale ) ? '' : 'grayscale'; ?>"
-			<?php $this->partial( 'carousel-image-args', array( 'item' => $item ) ); // @phan-suppress-current-line PhanAccessMethodPrivate -- Called in the scope of the class. ?>
+			<?php $this->partial( 'carousel-image-args', array( 'item' => $item ) ); ?>
 			src="<?php echo esc_url( $item->img_src ); ?>"
 			<?php echo $item->img_srcset ? 'srcset="' . esc_attr( $item->img_srcset ) . '"' : ''; ?>
 			width="<?php echo esc_attr( $item->image->width ); ?>"

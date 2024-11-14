@@ -3,7 +3,7 @@ import { withInstanceId, compose } from '@wordpress/compose';
 import { Component } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { ENTER, ESCAPE, UP, DOWN, LEFT, RIGHT } from '@wordpress/keycodes';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import { debounce, map } from 'lodash';
 
 function filterOptions( options = [], maxResults = 10 ) {
@@ -84,7 +84,7 @@ export class Lookup extends Component {
 			const selectedIndex =
 				filteredOptions.length === this.state.filteredOptions.length ? this.state.selectedIndex : 0;
 			this.setState( {
-				[ 'options' ]: keyedOptions,
+				options: keyedOptions,
 				filteredOptions,
 				selectedIndex,
 				isOpen: filteredOptions.length > 0,
@@ -206,7 +206,7 @@ export class Lookup extends Component {
 									role="option"
 									aria-selected={ index === selectedIndex }
 									disabled={ option.isDisabled }
-									className={ classnames( 'components-autocomplete__result', className, {
+									className={ clsx( 'components-autocomplete__result', className, {
 										'is-selected': index === selectedIndex,
 									} ) }
 									onClick={ () => this.select( option ) }

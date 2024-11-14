@@ -11,21 +11,22 @@ import Newsletter from './newsletter';
 import NewsletterCategories from './newsletter-categories';
 import PaidNewsletter from './paid-newsletter';
 import SubscriptionsSettings from './subscriptions-settings';
+import './style.scss';
 
 /**
  * Newsletter Section.
  *
  * @param {object} props - Component props.
- * @returns {React.Component} Newsletter settings component.
+ * @return {React.Component} Newsletter settings component.
  */
 function Subscriptions( props ) {
 	const { active, isModuleFound, searchTerm, siteRawUrl, blogID } = props;
 
-	const foundSubscriptions = isModuleFound( SUBSCRIPTIONS_MODULE_NAME );
-
 	if ( ! searchTerm && ! active ) {
 		return null;
 	}
+
+	const foundSubscriptions = isModuleFound( SUBSCRIPTIONS_MODULE_NAME );
 
 	if ( ! foundSubscriptions ) {
 		return null;

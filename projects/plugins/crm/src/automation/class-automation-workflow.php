@@ -494,7 +494,7 @@ class Automation_Workflow {
 	 * @throws Automation_Exception|Workflow_Exception Throws an exception if there is an issue executing the workflow.
 	 * @throws Data_Transformer_Exception Throws an exception if there is an issue transforming the data.
 	 */
-	public function execute( Trigger $trigger, Data_Type $data = null ): bool {
+	public function execute( Trigger $trigger, ?Data_Type $data = null ): bool {
 		return $this->get_engine()->execute_workflow( $this, $trigger, $data );
 	}
 

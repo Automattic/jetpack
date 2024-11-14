@@ -4,7 +4,9 @@ import { PanelBody, ToggleControl, FlexBlock, Spinner, Notice } from '@wordpress
 import { dispatch } from '@wordpress/data';
 import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
+import ConnectBanner from '../../shared/components/connect-banner';
+import useIsUserConnected from '../../shared/use-is-user-connected';
 import BlogrollAppender from './components/blogroll-appender';
 import useRecommendations from './use-recommendations';
 import { useSiteRecommendationSync } from './use-site-recommendations';
@@ -20,6 +22,8 @@ export function BlogRollEdit( { className, attributes, setAttributes, clientId }
 		ignore_user_blogs,
 		load_placeholders,
 	} = attributes;
+
+	const isUserConnected = useIsUserConnected();
 
 	const {
 		isLoading: isLoadingRecommendations,
@@ -49,11 +53,25 @@ export function BlogRollEdit( { className, attributes, setAttributes, clientId }
 	}, [ recommendations, load_placeholders, setAttributes, clientId, replaceInnerBlocks ] );
 
 	const blockProps = useBlockProps( {
-		className: classNames( className, {
+		className: clsx( className, {
 			'hide-avatar': ! show_avatar,
 			'hide-description': ! show_description,
 		} ),
 	} );
+
+	if ( ! isUserConnected ) {
+		return (
+			<>
+				<ConnectBanner
+					block="Blogroll"
+					explanation={ __(
+						'Connect your WordPress.com account to use the Blogroll block.',
+						'jetpack'
+					) }
+				/>
+			</>
+		);
+	}
 
 	const errorMessage = recommendationsErrorMessage || subscriptionsErrorMessage;
 
@@ -91,21 +109,25 @@ export function BlogRollEdit( { className, attributes, setAttributes, clientId }
 						label={ __( 'Show avatar', 'jetpack' ) }
 						checked={ !! show_avatar }
 						onChange={ () => setAttributes( { show_avatar: ! show_avatar } ) }
+						__nextHasNoMarginBottom={ true }
 					/>
 					<ToggleControl
 						label={ __( 'Show description', 'jetpack' ) }
 						checked={ !! show_description }
 						onChange={ () => setAttributes( { show_description: ! show_description } ) }
+						__nextHasNoMarginBottom={ true }
 					/>
 					<ToggleControl
 						label={ __( 'Open links in a new window', 'jetpack' ) }
 						checked={ !! open_links_new_window }
 						onChange={ () => setAttributes( { open_links_new_window: ! open_links_new_window } ) }
+						__nextHasNoMarginBottom={ true }
 					/>
 					<ToggleControl
 						label={ __( 'Hide my own sites', 'jetpack' ) }
 						checked={ !! ignore_user_blogs }
 						onChange={ () => setAttributes( { ignore_user_blogs: ! ignore_user_blogs } ) }
+						__nextHasNoMarginBottom={ true }
 					/>
 				</PanelBody>
 			</InspectorControls>

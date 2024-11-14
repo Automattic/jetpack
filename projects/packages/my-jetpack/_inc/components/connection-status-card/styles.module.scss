@@ -1,3 +1,6 @@
+$myjetpack-connection-avatar-width: 32px;
+$myjetpack-connection-avatar-overlap: 10px;
+
 .connection-status-card {
 	.status {
 		display: flex;
@@ -7,6 +10,7 @@
 
 		.avatar-wrapper {
 			position: relative;
+			width: 2 * $myjetpack-connection-avatar-width - $myjetpack-connection-avatar-overlap; // width an icon and an avatar
 		}
 
 		.cloud {
@@ -14,13 +18,13 @@
 		}
 
 		.jetpack {
-			width: 30px;
+			width: $myjetpack-connection-avatar-width;
 		}
 
 		.avatar {
-			width: 32px;
+			width: $myjetpack-connection-avatar-width;
 			position: absolute;
-			margin-left: -10px;
+			margin-left: -( $myjetpack-connection-avatar-overlap );
 			border-radius: 50%;
 		}
 
@@ -31,13 +35,22 @@
 			border-top-style: dashed;
 		}
 
-		.disconnected {
+		.error {
 			border-color: var( --jp-red );
+		}
+
+		.warning {
+			border-color: var( --jp-yellow-40 );
 		}
 	}
 
 	.info {
 		transform: rotate( 180deg );
+	}
+
+	.connect-action {
+		align-self: flex-end;
+		margin-bottom: 2px;
 	}
 
 	.list-item {
@@ -54,6 +67,17 @@
 			&.error {
 				color: var( --jp-red );
 				fill: var( --jp-red );
+			}
+
+			&.warning {
+				color: var( --jp-yellow-40 );
+				fill: var( --jp-yellow-40 );
+			}
+
+			&.success {
+				svg {
+					fill: var( --jp-green-50 );
+				}
 			}
 		}
 	}

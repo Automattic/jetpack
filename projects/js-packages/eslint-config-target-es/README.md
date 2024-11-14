@@ -14,30 +14,30 @@ npm install --save-dev eslint eslint-plugin-es-x @automattic/eslint-config-targe
 
 First, you'll probably want to set up a [browserslist] configuration.
 
-Then you can use this like any other sharable config in your `.eslintrc.*` file. Three configurations are offered.
+Then you can use this like any other sharable config in your `eslint.config.js` or `.eslintrc.*` file. Three configurations are offered.
 
-To check only for language features, such as nullish coalescing, your eslintrc might look like
+* To check only for language features, such as nullish coalescing, use the 'language' config.
+* To check only for builtins, such as Promise, WeakRef, and various features of RegExp, use the 'builtins' config.
+* To check both, use the 'all' config.
+
+For `eslint.config.js`, that might look like this:
+```js
+import eslintConfigTargetEs from '@automattic/eslint-config-target-es/flat/language';
+
+export default [
+	eslintConfigTargetEs,
+	// etc
+];
+```
+
+while for eslintrc you'd do like
 ```js
 {
-	extends: [ '@automattic/eslint-config-target-es/language' ],
+	extends: [ '@automattic/eslint-config-target-es/rc/language' ],
 }
 ```
 
-To check only for builtins, such as Promise, WeakRef, and various features of RegExp, your eslintrc might look like
-```js
-{
-	extends: [ '@automattic/eslint-config-target-es/builtins' ],
-}
-```
-
-To check both, your eslintrc might look like
-```js
-{
-	extends: [ '@automattic/eslint-config-target-es/all' ],
-}
-```
-
-For least surprise, omitting any suffix is the same as `/all`.
+For backwards compatibility, the eslintrc configs may also be accessed without the `/rc/` path component (e.g. as `@automattic/eslint-config-target-es/language`), and `@automattic/eslint-config-target-es` is equivalent to `@automattic/eslint-config-target-es/rc/all`.
 
 ### Checking built files
 
@@ -45,7 +45,7 @@ If you want to check your built files to make sure you didn't omit transpiling a
 ```js
 module.exports = {
 	root: true,
-	extends: [ '@automattic/eslint-config-target-es/language' ],
+	extends: [ '@automattic/eslint-config-target-es/rc/language' ],
 	env: {
 		// Whatever environments you need.
 	},
@@ -56,6 +56,8 @@ and then run eslint like
 eslint --no-eslintrc --no-inline-config --config validate-es.config.js --no-ignore build/
 ```
 to avoid your standard eslintrc and eslintignore and to avoid errors from any inline directives.
+
+Something similar can be done for flat config.
 
 ### Advanced usage
 

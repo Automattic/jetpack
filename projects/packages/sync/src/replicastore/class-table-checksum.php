@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Sync\Replicastore;
 
 use Automattic\Jetpack\Sync;
+use Automattic\Jetpack\Sync\Modules\WooCommerce_HPOS_Orders;
 use Exception;
 use WP_Error;
 
@@ -311,25 +312,42 @@ class Table_Checksum {
 				'table'                     => "{$wpdb->prefix}wc_orders",
 				'range_field'               => 'id',
 				'key_fields'                => array( 'id' ),
-				'checksum_text_fields'      => array( 'type', 'status', 'payment_method_title' ),
-				'filter_values'             => array(),
-				'is_table_enabled_callback' => array( $this, 'enable_woocommerce_tables' ),
+				'checksum_fields'           => array( 'date_updated_gmt', 'total_amount' ),
+				'checksum_text_fields'      => array( 'type', 'status' ),
+				'filter_values'             => array(
+					'type'   => array(
+						'operator' => 'IN',
+						'values'   => WooCommerce_HPOS_Orders::get_order_types_to_sync( true ),
+					),
+					'status' => array(
+						'operator' => 'IN',
+						'values'   => WooCommerce_HPOS_Orders::get_all_possible_order_status_keys(),
+					),
+				),
+				'is_table_enabled_callback' => 'Automattic\Jetpack\Sync\Replicastore\Table_Checksum::enable_woocommerce_hpos_tables',
 			),
 			'wc_order_addresses'         => array(
 				'table'                     => "{$wpdb->prefix}wc_order_addresses",
 				'range_field'               => 'order_id',
 				'key_fields'                => array( 'order_id', 'address_type' ),
 				'checksum_text_fields'      => array( 'address_type' ),
+				'parent_table'              => 'wc_orders',
+				'parent_join_field'         => 'id',
+				'table_join_field'          => 'order_id',
 				'filter_values'             => array(),
-				'is_table_enabled_callback' => array( $this, 'enable_woocommerce_tables' ),
+				'is_table_enabled_callback' => 'Automattic\Jetpack\Sync\Replicastore\Table_Checksum::enable_woocommerce_hpos_tables',
 			),
 			'wc_order_operational_data'  => array(
 				'table'                     => "{$wpdb->prefix}wc_order_operational_data",
 				'range_field'               => 'order_id',
 				'key_fields'                => array( 'order_id' ),
-				'checksum_text_fields'      => array( 'order_key', 'cart_hash' ),
+				'checksum_fields'           => array( 'date_paid_gmt', 'date_completed_gmt' ),
+				'checksum_text_fields'      => array( 'order_key' ),
+				'parent_table'              => 'wc_orders',
+				'parent_join_field'         => 'id',
+				'table_join_field'          => 'order_id',
 				'filter_values'             => array(),
-				'is_table_enabled_callback' => array( $this, 'enable_woocommerce_tables' ),
+				'is_table_enabled_callback' => 'Automattic\Jetpack\Sync\Replicastore\Table_Checksum::enable_woocommerce_hpos_tables',
 			),
 			'users'                      => array(
 				'table'                     => $wpdb->users,
@@ -701,7 +719,7 @@ class Table_Checksum {
 		// The reason for this is that it leads to a non-performant query that can timeout.
 		// Instead lets get the range based on posts regardless of meta.
 		$filter_values = $this->filter_values;
-		if ( 'postmeta' === $this->table ) {
+		if ( $wpdb->postmeta === $this->table ) {
 			$this->filter_values = null;
 		}
 
@@ -709,7 +727,7 @@ class Table_Checksum {
 		$filters = trim( $this->build_filter_statement( $range_from, $range_to ) );
 
 		// Reset Post meta filter.
-		if ( 'postmeta' === $this->table ) {
+		if ( $wpdb->postmeta === $this->table ) {
 			$this->filter_values = $filter_values;
 		}
 
@@ -879,6 +897,37 @@ class Table_Checksum {
 		// TODO more checks if needed. Probably query the DB to make sure the tables exist.
 
 		return true;
+	}
+
+	/**
+	 * Make sure the WooCommerce HPOS tables should be enabled for Checksum/Fix.
+	 *
+	 * @see Automattic\Jetpack\SyncActions::initialize_woocommerce
+	 *
+	 * @since 3.3.0
+	 *
+	 * @return bool
+	 */
+	public static function enable_woocommerce_hpos_tables() {
+		/**
+		 * On WordPress.com, we can't directly check if the site has support for WooCommerce HPOS tables.
+		 * Having the option to override the functionality here helps with syncing WooCommerce HPOS tables.
+		 *
+		 * @since 3.3.0
+		 *
+		 * @param bool If we should we force-enable WooCommerce HPOS tables support.
+		 */
+		$force_woocommerce_hpos_support = apply_filters( 'jetpack_table_checksum_force_enable_woocommerce_hpos', false );
+
+		// If we're forcing WooCommerce HPOS tables support, there's no need to check further.
+		// This is used on WordPress.com.
+		if ( $force_woocommerce_hpos_support ) {
+			return true;
+		}
+
+		// If the 'woocommerce_hpos_orders' module is enabled, this means that WooCommerce class exists
+		// and HPOS is enabled too.
+		return false !== Sync\Modules::get_module( 'woocommerce_hpos_orders' );
 	}
 
 	/**

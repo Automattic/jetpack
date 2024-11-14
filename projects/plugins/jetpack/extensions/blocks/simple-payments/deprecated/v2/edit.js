@@ -1,7 +1,6 @@
 import { getCurrencyDefaults } from '@automattic/format-currency';
 import { InspectorControls } from '@wordpress/block-editor';
 import {
-	BaseControl,
 	Disabled,
 	ExternalLink,
 	PanelBody,
@@ -14,7 +13,7 @@ import { compose, withInstanceId } from '@wordpress/compose';
 import { dispatch, withSelect } from '@wordpress/data';
 import { Component } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import emailValidator from 'email-validator';
 import { get, isEmpty, isEqual, pick, trimEnd } from 'lodash';
 import HelpMessage from '../../../../shared/help-message';
@@ -228,7 +227,7 @@ class SimplePaymentsEdit extends Component {
 	 * This method does not include validation UI. Currency selection should not allow for invalid
 	 * values. It is primarily to ensure that the currency is valid to save.
 	 *
-	 * @returns  {boolean} True if currency is valid
+	 * @return  {boolean} True if currency is valid
 	 */
 	validateCurrency = () => {
 		const { currency } = this.props.attributes;
@@ -240,11 +239,10 @@ class SimplePaymentsEdit extends Component {
 	 *
 	 * Stores error message in state.fieldPriceError
 	 *
-	 * @returns {boolean} True when valid, false when invalid
+	 * @return {boolean} True when valid, false when invalid
 	 */
 	validatePrice = () => {
 		const { currency, price } = this.props.attributes;
-		const { precision } = getCurrencyDefaults( currency );
 
 		if ( ! price || parseFloat( price ) === 0 ) {
 			this.setState( {
@@ -273,6 +271,7 @@ class SimplePaymentsEdit extends Component {
 			return false;
 		}
 
+		const { precision } = getCurrencyDefaults( currency );
 		if ( decimalPlaces( price ) > precision ) {
 			if ( precision === 0 ) {
 				this.setState( {
@@ -311,7 +310,7 @@ class SimplePaymentsEdit extends Component {
 	 *
 	 * Stores error message in state.fieldEmailError
 	 *
-	 * @returns {boolean} True when valid, false when invalid
+	 * @return {boolean} True when valid, false when invalid
 	 */
 	validateEmail = () => {
 		const { email } = this.props.attributes;
@@ -348,7 +347,7 @@ class SimplePaymentsEdit extends Component {
 	 *
 	 * Stores error message in state.fieldTitleError
 	 *
-	 * @returns {boolean} True when valid, false when invalid
+	 * @return {boolean} True when valid, false when invalid
 	 */
 	validateTitle = () => {
 		const { title } = this.props.attributes;
@@ -412,22 +411,19 @@ class SimplePaymentsEdit extends Component {
 	renderSettings = () => (
 		<InspectorControls>
 			<PanelBody title={ __( 'Settings', 'jetpack' ) } initialOpen={ false }>
-				<BaseControl
+				<TextControl
 					label={ __( 'Purchase link text', 'jetpack' ) }
 					help={ __(
 						'Enter the text you want to display on a purchase link used as fallback when the PayPal button cannot be used (e.g. emails, AMP, etc.)',
 						'jetpack'
 					) }
 					className="jetpack-simple-payments__purchase-link-text"
-				>
-					<TextControl
-						placeholder={ __( 'Click here to purchase', 'jetpack' ) }
-						onChange={ newPostLinkText =>
-							this.props.setAttributes( { postLinkText: newPostLinkText } )
-						}
-						value={ this.props.attributes.postLinkText }
-					/>
-				</BaseControl>
+					placeholder={ __( 'Click here to purchase', 'jetpack' ) }
+					onChange={ newPostLinkText =>
+						this.props.setAttributes( { postLinkText: newPostLinkText } )
+					}
+					value={ this.props.attributes.postLinkText }
+				/>
 			</PanelBody>
 		</InspectorControls>
 	);
@@ -500,7 +496,7 @@ class SimplePaymentsEdit extends Component {
 				<div>
 					<TextControl
 						aria-describedby={ `${ instanceId }-title-error` }
-						className={ classNames( 'simple-payments__field', 'simple-payments__field-title', {
+						className={ clsx( 'simple-payments__field', 'simple-payments__field-title', {
 							'simple-payments__field-has-error': fieldTitleError,
 						} ) }
 						label={ __( 'Item name', 'jetpack' ) }
@@ -532,7 +528,7 @@ class SimplePaymentsEdit extends Component {
 						/>
 						<TextControl
 							aria-describedby={ `${ instanceId }-price-error` }
-							className={ classNames( 'simple-payments__field', 'simple-payments__field-price', {
+							className={ clsx( 'simple-payments__field', 'simple-payments__field-price', {
 								'simple-payments__field-has-error': fieldPriceError,
 							} ) }
 							label={ __( 'Price', 'jetpack' ) }
@@ -558,7 +554,7 @@ class SimplePaymentsEdit extends Component {
 
 					<TextControl
 						aria-describedby={ `${ instanceId }-email-${ fieldEmailError ? 'error' : 'help' }` }
-						className={ classNames( 'simple-payments__field', 'simple-payments__field-email', {
+						className={ clsx( 'simple-payments__field', 'simple-payments__field-email', {
 							'simple-payments__field-has-error': fieldEmailError,
 						} ) }
 						label={ __( 'Email', 'jetpack' ) }

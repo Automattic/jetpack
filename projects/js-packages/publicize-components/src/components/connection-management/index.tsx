@@ -1,24 +1,27 @@
 import { Button } from '@automattic/jetpack-components';
-import { useSelect } from '@wordpress/data';
-import { useCallback, useEffect, useReducer, useState } from '@wordpress/element';
+import { Disabled } from '@wordpress/components';
+import { useDispatch, useSelect } from '@wordpress/data';
+import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import { store } from '../../social-store';
-import AddConnectionModal from '../add-connection-modal';
-import ConnectionIcon from '../connection-icon';
-import { SupportedService, useSupportedServices } from '../services/use-supported-services';
+import { ThemedConnectionsModal as ManageConnectionsModal } from '../manage-connections-modal';
+import { useService } from '../services/use-service';
 import { ConnectionInfo } from './connection-info';
-import { Disconnect } from './disconnect';
 import styles from './style.module.scss';
 
-const ConnectionManagement = ( { className = null } ) => {
+const ConnectionManagement = ( { className = null, disabled = false } ) => {
 	const { refresh } = useSocialMediaConnections();
 
-	const [ expandedService, setExpandedService ] = useState< SupportedService >( null );
+	const { connections, deletingConnections, updatingConnections } = useSelect( select => {
+		const { getConnections, getDeletingConnections, getUpdatingConnections } = select( store );
 
-	const connections = useSelect( select => {
-		return select( store ).getConnections();
+		return {
+			connections: getConnections(),
+			deletingConnections: getDeletingConnections(),
+			updatingConnections: getUpdatingConnections(),
+		};
 	}, [] );
 
 	connections.sort( ( a, b ) => {
@@ -28,78 +31,50 @@ const ConnectionManagement = ( { className = null } ) => {
 		return a.service_name.localeCompare( b.service_name );
 	} );
 
-	const [ isModalOpen, toggleModal ] = useReducer( state => ! state, false );
-
 	useEffect( () => {
 		refresh();
 	}, [ refresh ] );
 
-	const supportedServices = useSupportedServices();
+	const getService = useService();
 
-	const onReconnect = useCallback(
-		( serviceName: string ) => () => {
-			const service = supportedServices.find( _service => _service.ID === serviceName );
-
-			setExpandedService( service );
-			toggleModal();
-		},
-		[ supportedServices ]
-	);
-
-	const onCloseModal = useCallback( () => {
-		setExpandedService( null );
-		toggleModal();
-	}, [] );
+	const { openConnectionsModal } = useDispatch( store );
 
 	return (
-		<div className={ classNames( styles.wrapper, className ) }>
-			<h3>{ __( 'Connections', 'jetpack' ) }</h3>
+		<div
+			className={ clsx( styles.wrapper, className ) }
+			// @ts-expect-error inert propery is not yet in react types
+			inert={ disabled ? 'true' : undefined }
+		>
 			{ connections.length ? (
-				<table>
-					<thead>
-						<tr>
-							<th className={ styles[ 'column-icon' ] }></th>
-							<th className={ styles[ 'column-name' ] }></th>
-							<th></th>
-						</tr>
-					</thead>
-					<tbody>
-						{ connections.map( connection => (
-							<tr className={ styles.item } key={ connection.connection_id }>
-								<td className={ styles.icon }>
-									<ConnectionIcon
-										serviceName={ connection.service_name }
-										label={ connection.display_name }
-										profilePicture={ connection.profile_picture }
-									/>
-								</td>
-								<td className={ styles.name }>
-									<ConnectionInfo
-										connection={ connection }
-										onReconnect={ onReconnect( connection.service_name ) }
-									/>
-								</td>
-								<td>
-									<div className={ styles.actions }>
-										<Disconnect connection={ connection } />
-									</div>
-								</td>
-							</tr>
-						) ) }
-					</tbody>
-				</table>
-			) : (
-				<span>{ __( 'There are no connections added yet.', 'jetpack' ) }</span>
-			) }
-			<Button onClick={ toggleModal } size="small">
-				{ __( 'Add new connection', 'jetpack' ) }
+				<>
+					<h3>{ __( 'Connected accounts', 'jetpack' ) }</h3>
+					<ul className={ styles[ 'connection-list' ] }>
+						{ connections.map( connection => {
+							const isUpdatingOrDeleting =
+								updatingConnections.includes( connection.connection_id ) ||
+								deletingConnections.includes( connection.connection_id );
+
+							return (
+								<li className={ styles[ 'connection-list-item' ] } key={ connection.connection_id }>
+									<Disabled isDisabled={ isUpdatingOrDeleting }>
+										<ConnectionInfo
+											connection={ connection }
+											service={ getService( connection.service_name ) }
+										/>
+									</Disabled>
+								</li>
+							);
+						} ) }
+					</ul>
+				</>
+			) : null }
+			<ManageConnectionsModal />
+			<Button
+				variant={ connections.length ? 'secondary' : 'primary' }
+				onClick={ openConnectionsModal }
+			>
+				{ __( 'Connect an account', 'jetpack' ) }
 			</Button>
-			{ isModalOpen && (
-				<AddConnectionModal
-					onCloseModal={ onCloseModal }
-					defaultExpandedService={ expandedService }
-				/>
-			) }
 		</div>
 	);
 };

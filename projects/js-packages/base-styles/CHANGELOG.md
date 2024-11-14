@@ -5,6 +5,46 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.35] - 2024-11-11
+### Changed
+- Updated package dependencies. [#39999]
+
+## [0.6.34] - 2024-10-10
+### Changed
+- Updated package dependencies.
+
+## [0.6.33] - 2024-10-07
+### Changed
+- Updated package dependencies. [#39594]
+
+## [0.6.32] - 2024-09-10
+### Changed
+- Updated package dependencies. [#39302]
+
+## [0.6.31] - 2024-09-05
+### Changed
+- Updated package dependencies. [#39176]
+
+## [0.6.30] - 2024-08-23
+### Changed
+- Updated package dependencies. [#39004]
+
+## [0.6.29] - 2024-08-15
+### Changed
+- Updated package dependencies. [#38662]
+
+## [0.6.28] - 2024-07-03
+### Changed
+- Updated package dependencies. [#38132]
+
+## [0.6.27] - 2024-06-17
+### Added
+- Add color variable [#37802]
+
+## [0.6.26] - 2024-06-05
+### Changed
+- Updated package dependencies. [#37669]
+
 ## [0.6.25] - 2024-05-16
 ### Changed
 - Updated package dependencies. [#37379]
@@ -285,6 +325,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Use Node 16.7.0 in tooling. This shouldn't change the behavior of the code itself.
 
+[0.6.35]: https://github.com/Automattic/jetpack-base-styles/compare/0.6.34...0.6.35
+[0.6.34]: https://github.com/Automattic/jetpack-base-styles/compare/0.6.33...0.6.34
+[0.6.33]: https://github.com/Automattic/jetpack-base-styles/compare/0.6.32...0.6.33
+[0.6.32]: https://github.com/Automattic/jetpack-base-styles/compare/0.6.31...0.6.32
+[0.6.31]: https://github.com/Automattic/jetpack-base-styles/compare/0.6.30...0.6.31
+[0.6.30]: https://github.com/Automattic/jetpack-base-styles/compare/0.6.29...0.6.30
+[0.6.29]: https://github.com/Automattic/jetpack-base-styles/compare/0.6.28...0.6.29
+[0.6.28]: https://github.com/Automattic/jetpack-base-styles/compare/0.6.27...0.6.28
+[0.6.27]: https://github.com/Automattic/jetpack-base-styles/compare/0.6.26...0.6.27
+[0.6.26]: https://github.com/Automattic/jetpack-base-styles/compare/0.6.25...0.6.26
 [0.6.25]: https://github.com/Automattic/jetpack-base-styles/compare/0.6.24...0.6.25
 [0.6.24]: https://github.com/Automattic/jetpack-base-styles/compare/0.6.23...0.6.24
 [0.6.23]: https://github.com/Automattic/jetpack-base-styles/compare/0.6.22...0.6.23

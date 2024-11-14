@@ -1,0 +1,29 @@
+{
+	"translation-revision-date": "2024-07-03 17:54:08+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=2; plural=n != 1;", "lang": "it" },
+			"Remove premium styles": [ "Rimuovi stili premium" ],
+			"Change all of your site's fonts, colors and more. Available on the %s plan.": [
+				"Modifica tutti i caratteri del sito, i colori e molto altro. Disponibile sul piano %s."
+			],
+			"Your site includes premium styles that are only visible to visitors after upgrading to the %s plan or higher.": [
+				"Il tuo sito include stili premium che sono visibili ai visitatori solo dopo l'aggiornamento al piano %s o superiore."
+			],
+			"Your site includes premium styles that are only visible to visitors after <a>upgrading to the %s plan or higher</a>.": [
+				"Il tuo sito include stili premium che sono visibili ai visitatori solo dopo <a>l'aggiornamento al piano %s o superiore</a>."
+			],
+			"Generating preview\u2026": [ "Generazione dell'anteprima in corso\u2026" ],
+			"Preview without premium styles": [ "Anteprima senza stili premium" ],
+			"Upgrade now": [ "Aggiorna ora" ],
+			"Upgrade plan": [ "Aggiorna il piano" ],
+			"Try it out": [ "Provalo" ],
+			"A powerful new way to style your site": [
+				"Un nuovo modo potente per progettare il tuo sito"
+			]
+		}
+	},
+	"comment": { "reference": "wpcom-global-styles/dist/wpcom-global-styles.js" }
+}

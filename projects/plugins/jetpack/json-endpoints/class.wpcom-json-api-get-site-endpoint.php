@@ -84,6 +84,8 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'was_hosting_trial'           => '(bool) If the site ever used a hosting trial.',
 		'wpcom_site_setup'            => '(string) The WP.com site setup identifier.',
 		'is_deleted'                  => '(bool) If the site flagged as deleted.',
+		'is_a4a_client'               => '(bool) If the site is an A4A client site.',
+		'is_a4a_dev_site'             => '(bool) If the site is an A4A dev site.',
 	);
 
 	/**
@@ -118,6 +120,8 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'is_wpcom_atomic',
 		'is_wpcom_staging_site',
 		'is_deleted',
+		'is_a4a_client',
+		'is_a4a_dev_site',
 	);
 
 	/**
@@ -138,6 +142,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'unmapped_url',
 		'featured_images_enabled',
 		'theme_slug',
+		'theme_errors',
 		'header_image',
 		'background_color',
 		'image_default_link_type',
@@ -199,6 +204,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'videopress_storage_used',
 		'is_difm_lite_in_progress',
 		'site_intent',
+		'site_partner_bundle',
+		'site_goals',
+		'onboarding_segment',
 		'site_vertical_id',
 		'blogging_prompts_settings',
 		'launchpad_screen',
@@ -227,6 +235,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'was_migration_trial',
 		'was_hosting_trial',
 		'was_upgraded_from_trial',
+		'is_a4a_dev_site',
 	);
 
 	/**
@@ -604,6 +613,12 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			case 'is_deleted':
 				$response[ $key ] = $this->site->is_deleted();
 				break;
+			case 'is_a4a_client':
+				$response[ $key ] = $this->site->is_a4a_client();
+				break;
+			case 'is_a4a_dev_site':
+				$response[ $key ] = $this->site->is_a4a_dev_site();
+				break;
 		}
 
 		do_action( 'post_render_site_response_key', $key );
@@ -654,6 +669,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 				case 'theme_slug':
 					$options[ $key ] = $site->get_theme_slug();
+					break;
+				case 'theme_errors':
+					$options[ $key ] = $site->get_theme_errors();
 					break;
 				case 'header_image':
 					$options[ $key ] = $site->get_header_image();
@@ -860,6 +878,15 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 				case 'site_intent':
 					$options[ $key ] = $site->get_site_intent();
+					break;
+				case 'site_partner_bundle':
+					$options[ $key ] = $site->get_site_partner_bundle();
+					break;
+				case 'site_goals':
+					$options[ $key ] = $site->get_site_goals();
+					break;
+				case 'onboarding_segment':
+					$options[ $key ] = $site->get_onboarding_segment();
 					break;
 				case 'site_vertical_id':
 					$options[ $key ] = $site->get_site_vertical_id();

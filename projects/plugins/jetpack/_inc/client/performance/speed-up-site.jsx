@@ -12,7 +12,7 @@ import { connect } from 'react-redux';
 import { isOfflineMode } from 'state/connection';
 import { getModule, getModuleOverride } from 'state/modules';
 import { isModuleFound as _isModuleFound } from 'state/search';
-import { getGutenbergState, isAtomicSite } from '../state/initial-state';
+import { isAtomicSite } from '../state/initial-state';
 import { isPluginActive } from '../state/site/plugins';
 
 const SpeedUpSite = withModuleSettingsFormHelpers(
@@ -255,7 +255,11 @@ const SpeedUpSite = withModuleSettingsFormHelpers(
 										toggling={ togglingSiteAccelerator }
 										onChange={ this.handleSiteAcceleratorChange }
 										disabled={ ! canDisplaySiteAcceleratorSettings }
-										label={ __( 'Enable site accelerator', 'jetpack' ) }
+										label={
+											<span className="jp-form-toggle-explanation">
+												{ __( 'Enable site accelerator', 'jetpack' ) }
+											</span>
+										}
 									/>
 								) }
 								<FormFieldset>
@@ -311,7 +315,6 @@ export default connect( state => {
 		isModuleFound: module_name => _isModuleFound( state, module_name ),
 		isOfflineMode: isOfflineMode( state ),
 		getModuleOverride: module_name => getModuleOverride( state, module_name ),
-		gutenbergInfo: getGutenbergState( state ),
 		isAtomicSite: isAtomicSite( state ),
 		isPageOptimizeActive: isPluginActive( state, 'page-optimize/page-optimize.php' ),
 	};

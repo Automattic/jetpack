@@ -53,16 +53,3 @@ function get_woocommerce_page_ids() {
 }
 
 add_filter( 'jetpack_boost_critical_css_post_type_query', __NAMESPACE__ . '\exclude_woocommerce_pages_from_query' );
-
-function exclude_script_from_minify( $do_concat, $handle ) {
-
-	// Exclude the wc-blocks-vendors-frontend script from minification.
-	// The script has a regex that fails when being minified by JShrink/Minifier.
-	if ( 'wc-blocks-vendors-frontend' === $handle ) {
-		return false;
-	}
-
-	return $do_concat;
-}
-
-add_filter( 'js_do_concat', __NAMESPACE__ . '\exclude_script_from_minify', 10, 2 );

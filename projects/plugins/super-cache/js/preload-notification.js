@@ -108,7 +108,7 @@ jQuery( document ).ready( function () {
 
 			if ( data.previous ) {
 				const p = jQuery( '<p>' );
-				p.append( jQuery( '<b>' ).text( __( 'Last preload finished: ', 'wp-super-cache' ) ) );
+				p.append( jQuery( '<b>' ).text( __( 'Last preload finished:', 'wp-super-cache' ) + ' ' ) );
 				p.append( jQuery( '<span>' ).text( new Date( data.previous * 1000 ).toLocaleString() ) );
 				panel.append( p );
 			}

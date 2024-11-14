@@ -1,43 +1,57 @@
-import { Button, useGlobalNotices } from '@automattic/jetpack-components';
+import { Button } from '@automattic/jetpack-components';
+import { useDispatch, useSelect } from '@wordpress/data';
+import { useCallback } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
-import classNames from 'classnames';
-import { useCallback } from 'react';
-import { requestExternalAccess } from '../../utils';
+import clsx from 'clsx';
+import { store } from '../../social-store';
+import { KeyringResult } from '../../social-store/types';
 import { SupportedService } from '../services/use-supported-services';
+import { CustomInputs } from './custom-inputs';
 import styles from './style.module.scss';
+import { useRequestAccess } from './use-request-access';
 
 type ConnectFormProps = {
 	service: SupportedService;
 	isSmall?: boolean;
-	onConfirm: ( data: unknown ) => void;
 	onSubmit?: VoidFunction;
 	displayInputs?: boolean;
-	isMastodonAlreadyConnected?: ( username: string ) => boolean;
 	hasConnections?: boolean;
 	buttonLabel?: string;
 };
-
-const isValidMastodonUsername = ( username: string ) =>
-	/^@?\b([A-Z0-9_]+)@([A-Z0-9.-]+\.[A-Z]{2,})$/gi.test( username );
 
 /**
  * Connect form component
  *
  * @param {ConnectFormProps} props - Component props
  *
- * @returns {import('react').ReactNode} Connect form component
+ * @return {import('react').ReactNode} Connect form component
  */
 export function ConnectForm( {
 	service,
 	isSmall,
-	onConfirm,
 	onSubmit,
 	displayInputs,
-	isMastodonAlreadyConnected,
 	hasConnections,
 	buttonLabel,
 }: ConnectFormProps ) {
-	const { createErrorNotice } = useGlobalNotices();
+	const { setKeyringResult } = useDispatch( store );
+
+	const { isConnectionsModalOpen } = useSelect( select => select( store ), [] );
+
+	const onConfirm = useCallback(
+		( result: KeyringResult ) => {
+			// Set the keyring result only if the modal is open
+			if ( isConnectionsModalOpen() ) {
+				setKeyringResult( result );
+			}
+		},
+		[ setKeyringResult, isConnectionsModalOpen ]
+	);
+
+	const requestAccess = useRequestAccess( {
+		service,
+		onConfirm,
+	} );
 
 	const onSubmitForm = useCallback(
 		( event: React.FormEvent ) => {
@@ -48,76 +62,44 @@ export function ConnectForm( {
 			if ( onSubmit ) {
 				return onSubmit();
 			}
+
 			const formData = new FormData( event.target as HTMLFormElement );
-			const url = new URL( service.connect_URL );
 
-			switch ( service.ID ) {
-				case 'mastodon': {
-					const instance = formData.get( 'instance' ).toString().trim();
-
-					if ( ! isValidMastodonUsername( instance ) ) {
-						createErrorNotice( __( 'Invalid Mastodon username', 'jetpack' ) );
-
-						return;
-					}
-
-					if ( isMastodonAlreadyConnected?.( instance ) ) {
-						createErrorNotice( __( 'This Mastodon account is already connected', 'jetpack' ) );
-
-						return;
-					}
-
-					url.searchParams.set( 'instance', formData.get( 'instance' ) as string );
-					break;
-				}
-
-				default:
-					break;
-			}
-
-			requestExternalAccess( url.toString(), onConfirm );
+			requestAccess( formData );
 		},
-		[
-			createErrorNotice,
-			isMastodonAlreadyConnected,
-			onConfirm,
-			onSubmit,
-			service.ID,
-			service.connect_URL,
-		]
+		[ onSubmit, requestAccess ]
 	);
 
 	return (
 		<form
-			className={ classNames( styles[ 'connect-form' ], { [ styles.small ]: isSmall } ) }
+			className={ clsx( styles[ 'connect-form' ], { [ styles.small ]: isSmall } ) }
 			onSubmit={ onSubmitForm }
 		>
 			{ displayInputs ? (
-				<>
-					{ 'mastodon' === service.ID ? (
-						<input
-							required
-							type="text"
-							name="instance"
-							aria-label={ __( 'Mastodon username', 'jetpack' ) }
-							placeholder={ '@mastodon@mastodon.social' }
-						/>
-					) : null }
-				</>
+				<div className={ styles[ 'fields-wrapper' ] }>
+					<CustomInputs service={ service } />
+				</div>
 			) : null }
-			<Button
-				variant={ hasConnections ? 'secondary' : 'primary' }
-				type="submit"
-				className={ styles[ 'connect-button' ] }
-			>
-				{ ( label => {
-					if ( label ) {
-						return label;
-					}
 
-					return hasConnections ? _x( 'Connect more', '', 'jetpack' ) : __( 'Connect', 'jetpack' );
-				} )( buttonLabel ) }
-			</Button>
+			<div className={ styles[ 'fields-wrapper' ] }>
+				<div className={ styles[ 'fields-item' ] }>
+					<Button
+						variant={ hasConnections ? 'secondary' : 'primary' }
+						type="submit"
+						className={ styles[ 'connect-button' ] }
+					>
+						{ ( label => {
+							if ( label ) {
+								return label;
+							}
+
+							return hasConnections
+								? _x( 'Connect more', '', 'jetpack' )
+								: __( 'Connect', 'jetpack' );
+						} )( buttonLabel ) }
+					</Button>
+				</div>
+			</div>
 		</form>
 	);
 }

@@ -1,4 +1,4 @@
-import classNames from 'classnames';
+import clsx from 'clsx';
 import React, { MouseEventHandler } from 'react';
 import { sprintf, __ } from '@wordpress/i18n';
 import OtherGroupContext from '$features/image-size-analysis/other-group-context/other-group-context';
@@ -72,7 +72,7 @@ const MultiProgress: React.FC< MultiProgressProps > = ( { reportProgress } ) => 
 							trackEventProps={ report.group }
 						>
 							<span
-								className={ classNames( styles.bubble, {
+								className={ clsx( styles.bubble, {
 									[ styles.done ]: report.done,
 									[ styles[ 'has-issues' ] ]: report.has_issues,
 								} ) }
@@ -97,7 +97,7 @@ const MultiProgress: React.FC< MultiProgressProps > = ( { reportProgress } ) => 
 
 					{ ( report.done || report.has_issues ) && (
 						<div
-							className={ classNames( styles.status, {
+							className={ clsx( styles.status, {
 								[ styles[ 'has-issues' ] ]: report.has_issues,
 							} ) }
 						>

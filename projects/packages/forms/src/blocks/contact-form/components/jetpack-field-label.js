@@ -1,6 +1,6 @@
 import { RichText } from '@wordpress/block-editor';
 import { __ } from '@wordpress/i18n';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import { FORM_STYLE } from '../util/form';
 import { useJetpackFieldStyles } from './use-jetpack-field-styles';
 
@@ -19,7 +19,7 @@ const FieldLabel = ( {
 	const { labelStyle } = useJetpackFieldStyles( attributes );
 
 	return (
-		<div className={ classnames( className, 'jetpack-field-label' ) } style={ labelStyle }>
+		<div className={ clsx( className, 'jetpack-field-label' ) } style={ labelStyle }>
 			<RichText
 				tagName="label"
 				value={ label }
@@ -56,7 +56,7 @@ const FieldLabel = ( {
 const JetpackFieldLabel = props => {
 	const { style } = props;
 
-	const classes = classnames( {
+	const classes = clsx( {
 		'notched-label__label': style === FORM_STYLE.OUTLINED,
 		'animated-label__label': style === FORM_STYLE.ANIMATED,
 		'below-label__label': style === FORM_STYLE.BELOW,

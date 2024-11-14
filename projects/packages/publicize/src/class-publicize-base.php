@@ -12,6 +12,7 @@ namespace Automattic\Jetpack\Publicize;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Current_Plan;
+use Automattic\Jetpack\Paths;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 use WP_Error;
@@ -274,6 +275,32 @@ abstract class Publicize_Base {
 	abstract public function get_services( $filter = 'all', $_blog_id = false, $_user_id = false );
 
 	/**
+	 * Whether to use the v1 admin UI.
+	 */
+	public function use_admin_ui_v1(): bool {
+
+		// If the option is set, use it.
+		if ( get_option( 'jetpack_social_use_admin_ui_v1', false ) ) {
+			return true;
+		}
+
+		// Otherwise, check the constant and the plan feature.
+		return ( defined( 'JETPACK_SOCIAL_USE_ADMIN_UI_V1' ) && JETPACK_SOCIAL_USE_ADMIN_UI_V1 )
+			|| $this->has_connections_management_feature();
+	}
+
+	/**
+	 * Whether the site has the feature flag enabled.
+	 *
+	 * @param string $flag_name The feature flag to check. Will be prefixed with 'jetpack_social_has_' for the option.
+	 * @param string $feature_name The feature name to check for for the Current_Plan check, without the social- prefix.
+	 * @return bool
+	 */
+	public function has_feature_flag( $flag_name, $feature_name ): bool {
+		return Publicize_Script_Data::has_feature_flag( $feature_name );
+	}
+
+	/**
 	 * Does the given user have a connection to the service on the given blog?
 	 *
 	 * @param string    $service_name 'facebook', 'twitter', etc.
@@ -470,6 +497,10 @@ abstract class Publicize_Base {
 			return 'https://instagram.com/' . $cmeta['connection_data']['meta']['username'];
 		}
 
+		if ( 'threads' === $service_name && isset( $connection['external_name'] ) ) {
+			return 'https://www.threads.net/@' . $connection['external_name'];
+		}
+
 		if ( 'mastodon' === $service_name && isset( $cmeta['external_name'] ) ) {
 			return 'https://mastodon.social/@' . $cmeta['external_name'];
 		}
@@ -484,6 +515,10 @@ abstract class Publicize_Base {
 
 		if ( 'twitter' === $service_name ) {
 			return 'https://twitter.com/' . substr( $cmeta['external_display'], 1 ); // Has a leading '@'.
+		}
+
+		if ( 'bluesky' === $service_name ) {
+			return 'https://bsky.app/profile/' . $cmeta['external_id'];
 		}
 
 		if ( 'linkedin' === $service_name ) {
@@ -827,6 +862,7 @@ abstract class Publicize_Base {
 	 *     @type bool   'done'             Has this connection already been publicized to?
 	 *     @type bool   'toggleable'       Is the user allowed to change the value for the connection?
 	 *     @type bool   'global'           Is this connection a global one?
+	 *     @type string 'external_id'      External ID for the connection.
 	 * }
 	 */
 	public function get_filtered_connection_data( $selected_post_id = null ) {
@@ -854,7 +890,7 @@ abstract class Publicize_Base {
 				$connection_id   = $this->get_connection_id( $connection );
 				// Was this connection (OR, old-format service) already Publicized to?
 				$done = ! empty( $post ) && (
-					// Flags based on token_id
+					// Flags based on token_id.
 					1 === (int) get_post_meta( $post->ID, $this->POST_DONE . $unique_id, true )
 					||
 					// Old flags.
@@ -959,6 +995,8 @@ abstract class Publicize_Base {
 					'done'            => $done,
 					'toggleable'      => $toggleable,
 					'global'          => 0 == $connection_data['user_id'], // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual,WordPress.PHP.StrictComparisons.LooseComparison -- Other types can be used at times.
+					'external_id'     => $connection_meta['external_id'] ?? '',
+					'user_id'         => $connection_data['user_id'],
 				);
 			}
 		}
@@ -1140,13 +1178,17 @@ abstract class Publicize_Base {
 					'template' => ( new Jetpack_Social_Settings\Settings() )->sig_get_default_template(),
 					'enabled'  => false,
 				),
+				'version'                  => 2,
 			),
 			'show_in_rest'  => array(
 				'name'   => 'jetpack_social_options',
 				'schema' => array(
 					'type'       => 'object',
 					'properties' => array(
-						'attached_media'               => array(
+						'version'                  => array(
+							'type' => 'number',
+						),
+						'attached_media'           => array(
 							'type'  => 'array',
 							'items' => array(
 								'type'       => 'object',
@@ -1163,10 +1205,7 @@ abstract class Publicize_Base {
 								),
 							),
 						),
-						'should_upload_attached_media' => array(
-							'type' => 'boolean',
-						),
-						'image_generator_settings'     => array(
+						'image_generator_settings' => array(
 							'type'       => 'object',
 							'properties' => array(
 								'enabled'     => array(
@@ -1869,6 +1908,14 @@ abstract class Publicize_Base {
 	 * @return string
 	 */
 	public function publicize_connections_url( $source = 'calypso-marketing-connections' ) {
+		if ( $this->use_admin_ui_v1() && current_user_can( 'manage_options' ) ) {
+			$is_social_active = defined( 'JETPACK_SOCIAL_PLUGIN_DIR' );
+
+			$page = $is_social_active ? 'jetpack-social' : 'jetpack#/sharing';
+
+			return ( new Paths() )->admin_url( array( 'page' => $page ) );
+		}
+
 		$allowed_sources = array( 'jetpack-social-connections-admin-page', 'jetpack-social-connections-classic-editor', 'calypso-marketing-connections' );
 		$source          = in_array( $source, $allowed_sources, true ) ? $source : 'calypso-marketing-connections';
 		$blog_id         = Connection_Manager::get_site_id( true );
@@ -1976,6 +2023,8 @@ abstract class Publicize_Base {
 	/**
 	 * Check if the auto-conversion feature is one of the active features.
 	 *
+	 * TODO: Remove this after certain releases of Jetpack v15.
+	 *
 	 * @param string $type Whether image or video.
 	 *
 	 * @return bool
@@ -2012,16 +2061,8 @@ abstract class Publicize_Base {
 	public function get_supported_additional_connections() {
 		$additional_connections = array();
 
-		if ( $this->has_connection_feature( 'instagram' ) ) {
-			$additional_connections[] = 'instagram-business';
-		}
-
-		if ( $this->has_connection_feature( 'mastodon' ) ) {
-			$additional_connections[] = 'mastodon';
-		}
-
-		if ( $this->has_connection_feature( 'nextdoor' ) ) {
-			$additional_connections[] = 'nextdoor';
+		if ( $this->has_connection_feature( 'threads' ) ) {
+			$additional_connections[] = 'threads';
 		}
 
 		return $additional_connections;
@@ -2056,10 +2097,19 @@ abstract class Publicize_Base {
 	 */
 	public function has_paid_plan( $refresh_from_wpcom = false ) {
 		static $has_paid_plan = null;
-		if ( $has_paid_plan === null ) {
+		if ( null === $has_paid_plan ) {
 			$has_paid_plan = Current_Plan::supports( 'social-shares-1000', $refresh_from_wpcom );
 		}
 		return $has_paid_plan;
+	}
+
+	/**
+	 * Check if we have paid features enabled.
+	 *
+	 * @return bool True if we have paid features, false otherwise.
+	 */
+	public function has_paid_features() {
+		return $this->has_enhanced_publishing_feature();
 	}
 
 	/**
@@ -2075,6 +2125,17 @@ abstract class Publicize_Base {
 		}
 
 		return $dismissed_notices;
+	}
+
+	/**
+	 * Whether the current user can manage a connection.
+	 *
+	 * @param array $connection_data The connection data.
+	 *
+	 * @return bool
+	 */
+	public static function can_manage_connection( $connection_data ) {
+		return current_user_can( 'edit_others_posts' ) || get_current_user_id() === (int) $connection_data['user_id'];
 	}
 }
 

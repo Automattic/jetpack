@@ -1,0 +1,490 @@
+# Translation of Plugins - WordPress.com Editing Toolkit - Stable (latest release) in Korean
+# This file is distributed under the same license as the Plugins - WordPress.com Editing Toolkit - Stable (latest release) package.
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2024-07-04 09:54:07+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: GlotPress/4.0.1\n"
+"Language: ko_KR\n"
+"Project-Id-Version: Plugins - WordPress.com Editing Toolkit - Stable (latest release)\n"
+
+#: wpcom-global-styles/index.php:536
+msgid "Preview premium styles"
+msgstr "프리미엄 스타일 미리보기"
+
+#: wpcom-global-styles/index.php:531
+#: wpcom-global-styles/dist/wpcom-global-styles.js:2730
+#: wpcom-global-styles/notices.js:170
+msgid "Remove premium styles"
+msgstr "프리미엄 스타일 제거"
+
+#: wpcom-global-styles/index.php:521
+#: wpcom-global-styles/dist/wpcom-global-styles.js:2714
+#: wpcom-global-styles/notices.js:147
+msgid "Upgrade now"
+msgstr "지금 업그레이드"
+
+#: wpcom-global-styles/index.php:547
+msgid "Upgrade required"
+msgstr "업그레이드 필수"
+
+#: wpcom-global-styles/index.php:544
+msgid "Upgrade"
+msgstr "업그레이드"
+
+#. translators: %1$s - documentation URL, %2$s - the name of the required plan
+#: wpcom-global-styles/index.php:497
+msgid "Your site includes <a href=\"%1$s\" target=\"_blank\">premium styles</a> that are only visible to visitors after upgrading to the %2$s plan or higher."
+msgstr "%2$s 요금제 이상으로 업그레이드한 후에만 방문자에게 표시되는 <a href=\"%1$s\" target=\"_blank\">프리미엄 스타일</a>이 사이트에 포함되어 있습니다."
+
+#: newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1449
+#: newspack-blocks/dist/blog-posts-block-editor.js:5877
+#: newspack-blocks/dist/carousel-block-editor.js:5540
+#: newspack-blocks/synced-newspack-blocks/shared/js/utils.js:77
+msgid "Scheduled"
+msgstr "예약됨"
+
+#: newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1448
+#: newspack-blocks/dist/blog-posts-block-editor.js:5876
+#: newspack-blocks/dist/carousel-block-editor.js:5539
+#: newspack-blocks/synced-newspack-blocks/shared/js/utils.js:77
+msgid "Draft"
+msgstr "임시글"
+
+#: newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1415
+msgid "Jetpack donations is disabled in favour of Newspack donations."
+msgstr "Newspack 기부의 편의를 위해 젯팩 기부가 비활성화되었습니다."
+
+#: wpcom-block-editor-nux/dist/wpcom-block-editor-nux.js:8100
+#: wpcom-block-editor-nux/src/video-celebration-modal/index.jsx:80
+msgid "Feel free to keep editing your homepage, or continue and launch your site."
+msgstr "언제든지 홈페이지를 계속 편집하거나 계속해서 사이트를 시작하세요."
+
+#: wpcom-block-editor-nux/dist/wpcom-block-editor-nux.js:8109
+#: wpcom-block-editor-nux/src/video-celebration-modal/index.jsx:94
+msgid "Continue and launch"
+msgstr "계속해서 시작"
+
+#: wpcom-block-editor-nux/dist/wpcom-block-editor-nux.js:8104
+#: wpcom-block-editor-nux/src/video-celebration-modal/index.jsx:87
+msgid "Keep editing"
+msgstr "계속 편집하기"
+
+#: wpcom-block-editor-nux/dist/wpcom-block-editor-nux.js:8099
+#: wpcom-block-editor-nux/src/video-celebration-modal/index.jsx:79
+msgid "You’ve added your first video!"
+msgstr "첫 번째 비디오를 추가하셨습니다!"
+
+#: wpcom-global-styles/api/class-global-styles-status-rest-api.php:53
+msgid "Your user is not permitted to access this resource."
+msgstr "사용자에게 이 리소스에 접근하는 권한이 없습니다."
+
+#: wpcom-block-editor-nux/dist/wpcom-block-editor-nux.js:6918
+#: wpcom-block-editor-nux/src/purchase-notice/index.jsx:19
+msgid "Congrats! Premium blocks are now available to use."
+msgstr "축하합니다! 이제 프리미엄 블록을 이용하실 수 있습니다."
+
+#: wpcom-block-editor-nux/dist/wpcom-block-editor-nux.js:7049
+#: wpcom-block-editor-nux/src/seller-celebration-modal/index.jsx:119
+msgid "View your product"
+msgstr "상품 보기"
+
+#: wpcom-block-editor-nux/dist/wpcom-block-editor-nux.js:7040
+#: wpcom-block-editor-nux/src/seller-celebration-modal/index.jsx:110
+msgid "Preview your product on your site before launching and sharing with others."
+msgstr "상품을 출시하고 다른 사람과 공유하기 전에 사이트에서 미리보기"
+
+#: wpcom-block-editor-nux/dist/wpcom-block-editor-nux.js:7039
+#: wpcom-block-editor-nux/src/seller-celebration-modal/index.jsx:109
+msgid "You've added your first product!"
+msgstr "첫 번째 상품을 추가하셨습니다!"
+
+#: paragraph-block/index.php:60
+msgid "Add a post title"
+msgstr "글 제목 추가"
+
+#: paragraph-block/index.php:33 paragraph-block/index.php:79
+msgid "Start writing or type '/' to insert a block"
+msgstr "쓰기 시작 또는 '/'를 입력하여 블록 선택"
+
+#: global-styles/class-global-styles.php:272
+msgid "Fonts"
+msgstr "글꼴"
+
+#. Translators: This is a link which opens the block editor, and then opens the
+#. global styles sidebar.
+#: global-styles/class-global-styles-fonts-message-control.php:63
+msgid "Click here to open the Block Editor and change your fonts."
+msgstr "블록 편집기를 열고 글꼴을 변경하려면 여기를 클릭하세요."
+
+#. Translators: This is a link which opens:
+#. https://wordpress.com/support/custom-fonts/#changing-fonts-with-global-styles.
+#: global-styles/class-global-styles-fonts-message-control.php:40
+msgid "Learn more about changing fonts using Global Styles."
+msgstr "전체 스타일을 사용하는 글꼴 변경에 대해 자세히 알아보세요."
+
+#: global-styles/class-global-styles-fonts-message-control.php:27
+msgid "You can change your fonts using Global Styles, which can be found in the Block Editor."
+msgstr "블록 편집기에서 찾을 수 있는 전체 스타일을 사용하여 글꼴을 변경할 수 있습니다."
+
+#. translators: separates all but the last two sponsor names; needs a space at
+#. the end.
+#: newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1004
+msgid ", "
+msgstr ","
+
+#: wpcom-block-editor-nux/dist/wpcom-block-editor-nux.js:7044
+#: wpcom-block-editor-nux/src/seller-celebration-modal/index.jsx:117
+msgid "Continue editing"
+msgstr "편집 계속"
+
+#: starter-page-templates/class-starter-page-templates.php:236
+msgid "Current"
+msgstr "현재"
+
+#. Plugin Name of the plugin
+#: full-site-editing-plugin.php
+msgid "WordPress.com Editing Toolkit"
+msgstr "워드프레스닷컴 편집 툴킷"
+
+#: mailerlite/subscriber-popup.php:116
+msgid "UUID:"
+msgstr "UUID:"
+
+#. translators: link to documentation
+#: mailerlite/subscriber-popup.php:113
+msgid "Account ID <a href=\"%s\" target=\"_blank\">(instructions)</a>:"
+msgstr "계정 ID<a href=\"%s\" target=\"_blank\">(지침)</a>:"
+
+#. translators: %1$s - URL to manage the widget, %2$s - documentation URL.
+#: mailerlite/subscriber-popup.php:42
+msgid "You need to enter your numeric account ID and UUID for the <a href=\"%1$s\">Mailerlite Widget</a> to work correctly. <a href=\"%2$s\" target=\"_blank\">Full instructions</a>."
+msgstr "숫자로 된 계정 ID 및 UUID를 입력해야 <a href=\"%1$s\">Mailerlite 위젯</a>이 올바르게 작동합니다. <a href=\"%2$s\" target=\"_blank\">전체 지침</a>."
+
+#: mailerlite/subscriber-popup.php:20
+msgid "Display Mailerlite subscriber popup"
+msgstr "Mailerlite 구독자 팝업 표시"
+
+#: mailerlite/subscriber-popup.php:17
+msgid "Mailerlite subscriber popup"
+msgstr "Mailerlite 구독자 팝업"
+
+#: newspack-blocks/synced-newspack-blocks/blocks/carousel/view.php:277
+msgid "Play Slideshow"
+msgstr "슬라이드 쇼 재생"
+
+#: newspack-blocks/synced-newspack-blocks/blocks/carousel/view.php:276
+msgid "Pause Slideshow"
+msgstr "슬라이드 쇼 일시 중지"
+
+#: newspack-blocks/synced-newspack-blocks/blocks/carousel/view.php:231
+msgid "Previous Slide"
+msgstr "이전 슬라이드"
+
+#: newspack-blocks/synced-newspack-blocks/blocks/carousel/view.php:232
+msgid "Next Slide"
+msgstr "다음 슬라이드"
+
+#. translators: %d: Slide number.
+#: newspack-blocks/synced-newspack-blocks/blocks/carousel/view.php:210
+msgid "Go to slide %d"
+msgstr "%d 슬라이드로 이동"
+
+#: newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:900
+msgid "Common"
+msgstr "공통"
+
+#: starter-page-templates/class-starter-page-templates.php:231
+msgid "Blank"
+msgstr "빈 페이지"
+
+#: newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:223
+#: newspack-blocks/dist/blog-posts-block-editor.js:4516
+#: newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/edit.js:785
+msgid "Load more posts"
+msgstr "더 많은 글 로드"
+
+#. translators: separates last two sponsor names; needs a space on either side.
+#: newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1001
+msgid " and "
+msgstr " 및 "
+
+#: newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:328
+#: newspack-blocks/dist/blog-posts-block-editor.js:5849
+#: newspack-blocks/dist/blog-posts-block-editor.js:5871
+#: newspack-blocks/dist/carousel-block-editor.js:5512
+#: newspack-blocks/dist/carousel-block-editor.js:5534
+#: newspack-blocks/synced-newspack-blocks/shared/js/utils.js:30
+#: newspack-blocks/synced-newspack-blocks/shared/js/utils.js:67
+msgctxt "post author"
+msgid " and "
+msgstr " 및 "
+
+#: newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:305
+#: newspack-blocks/dist/blog-posts-block-editor.js:5842
+#: newspack-blocks/dist/carousel-block-editor.js:5505
+#: newspack-blocks/synced-newspack-blocks/shared/js/utils.js:18
+msgctxt "post author"
+msgid "by"
+msgstr "게시자:"
+
+#: newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:231
+msgid "Something went wrong. Please refresh the page and/or try again."
+msgstr "문제가 발생했습니다. 페이지를 새로 고친 후 다시 시도하세요."
+
+#: newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:228
+msgid "Loading..."
+msgstr "로드 중..."
+
+#: dotcom-fse/blocks/site-credit/index.php:155
+msgid "WordPress Icon"
+msgstr "워드프레스 아이콘"
+
+#: dotcom-fse/blocks/site-credit/index.php:150
+msgid "Proudly powered by WordPress"
+msgstr "워드프레스가 지원합니다."
+
+#: dotcom-fse/templates/class-wp-template.php:149
+#: common/dist/data-stores.js:6621
+msgid "Footer"
+msgstr "푸터"
+
+#: dotcom-fse/templates/class-wp-template.php:147
+#: common/dist/data-stores.js:6616
+msgid "Header"
+msgstr "헤더"
+
+#: dotcom-fse/blocks/navigation-menu/index.php:86
+msgid "collapsed"
+msgstr "축소됨"
+
+#: dotcom-fse/blocks/navigation-menu/index.php:85
+msgid "expanded"
+msgstr "확장됨"
+
+#: dotcom-fse/blocks/navigation-menu/index.php:82
+msgid "Menu"
+msgstr "메뉴"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:398
+msgctxt "Default page title"
+msgid "Contact"
+msgstr "연락처"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:386
+msgctxt "Default page title"
+msgid "About"
+msgstr "정보"
+
+#: starter-page-templates/class-wp-rest-sideload-image-controller.php:77
+msgid "Invalid parent type."
+msgstr "유효하지 않은 상위 유형입니다."
+
+#: starter-page-templates/class-starter-page-templates.php:221
+msgid "No templates available. Skipped showing modal window with template selection."
+msgstr "사용할 수 있는 템플릿이 없습니다. 템플릿 선택으로 모달 창 표시를 건너뛰었습니다."
+
+#: starter-page-templates/class-starter-page-templates.php:216
+msgid "No data received from the vertical API. Skipped showing modal window with template selection."
+msgstr "세로 API에서 데이터를 받지 못했습니다. 템플릿 선택으로 모달 창 표시를 건너뛰었습니다."
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:503
+msgid "Back to template part types"
+msgstr "템플릿 부품 유형으로 돌아가기"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:502
+msgid "No template part types found."
+msgstr "템플릿 부품 유형을 찾을 수 없습니다."
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:501
+msgid "Search Template Part Types"
+msgstr "템플릿 부품 유형 검색"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:500
+msgid "Parent Template Part Type:"
+msgstr "상위 템플릿 부품 유형:"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:499
+msgid "Parent Template Part Type"
+msgstr "상위 템플릿 부품 유형"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:498
+msgid "New Template Part Type"
+msgstr "새 템플릿 부품 유형"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:497
+msgid "Add New Template Part Type"
+msgstr "새 템플릿 부품 유형 추가"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:496
+msgid "Update Template Part Type"
+msgstr "템플릿 부품 유형 업데이트"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:495
+msgid "View Template Part Type"
+msgstr "템플릿 부품 유형 보기"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:494
+msgid "Edit Template Part Type"
+msgstr "템플릿 부품 유형 편집"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:493
+msgid "All Template Part Types"
+msgstr "모든 템플릿 부품 유형"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:492
+msgctxt "admin menu"
+msgid "Template Part Types"
+msgstr "템플릿 부품 유형"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:491
+msgctxt "taxonomy singular name"
+msgid "Template Part Type"
+msgstr "템플릿 부품 유형"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:490
+msgctxt "taxonomy general name"
+msgid "Template Part Types"
+msgstr "템플릿 부품 유형"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:455
+msgid "Template part updated."
+msgstr "템플릿 부품이 업데이트되었습니다."
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:454
+msgid "Template part scheduled."
+msgstr "템플릿 부품이 예약되었습니다."
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:453
+msgid "Template part reverted to draft."
+msgstr "템플릿 부품을 임시 저장된 상태로 되돌렸습니다."
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:452
+msgid "Template part published privately."
+msgstr "템플릿 부품이 비공개로 게시되었습니다."
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:451
+msgid "Template part published."
+msgstr "템플릿 부품이 게시되었습니다."
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:450
+msgid "Template parts list"
+msgstr "템플릿 부품 목록"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:449
+msgid "Template parts list navigation"
+msgstr "템플릿 부품 목록 탐색"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:448
+msgid "Filter template parts list"
+msgstr "템플릿 부품 목록 필터링"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:447
+msgid "No template parts found in Trash."
+msgstr "휴지통에 템플릿 부품이 없습니다."
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:446
+msgid "No template parts found."
+msgstr "템플릿 부품을 찾을 수 없습니다."
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:445
+msgid "Search Template Parts"
+msgstr "템플릿 부품 검색"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:444
+msgid "All Template Parts"
+msgstr "모든 템플릿 부품"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:443
+msgid "View Template Part"
+msgstr "템플릿 부품 보기"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:442
+msgid "Edit Template Part"
+msgstr "템플릿 부품 편집"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:441
+msgid "New Template Part"
+msgstr "새 템플릿 부품"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:440
+msgid "Add New Template Part"
+msgstr "새 템플릿 부품 추가"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:438
+msgctxt "add new on admin bar"
+msgid "Template Part"
+msgstr "템플릿 부품"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:437
+msgctxt "admin menu"
+msgid "Template Parts"
+msgstr "템플릿 부품"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:436
+msgctxt "post type singular name"
+msgid "Template Part"
+msgstr "템플릿 부품"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:435
+msgctxt "post type general name"
+msgid "Template Parts"
+msgstr "템플릿 부품"
+
+#: dotcom-fse/templates/class-wp-template-inserter.php:439
+msgctxt "Template"
+msgid "Add New"
+msgstr "파일 올리기"
+
+#: posts-list-block/class-posts-list-block.php:165
+msgid "Read more"
+msgstr "더 보기"
+
+#. translators: %s: Name of current post
+#: posts-list-block/class-posts-list-block.php:162
+msgid "Continue reading %s"
+msgstr "계속 %s 읽기"
+
+#: posts-list-block/templates/post-item.php:36
+msgid "Edit"
+msgstr "편집"
+
+#: posts-list-block/templates/post-item.php:31
+msgctxt "designating the post author (eg: by John Doe"
+msgid "by"
+msgstr "게시자:"
+
+#: posts-list-block/templates/post-item.php:23
+msgid "Featured"
+msgstr "추천"
+
+#: posts-list-block/templates/posts-list.php:30
+msgid "View all posts"
+msgstr "모든 글 보기"
+
+#. translators: 1: link to WP admin new post page.
+#: posts-list-block/templates/no-posts.php:17
+msgid "Ready to publish your first post? <a href=\"%1$s\">Get started here</a>."
+msgstr "첫 번째 글을 게시할 준비가 되셨나요? <a href=\"%1$s\">여기에서 시작하세요</a>."
+
+#: posts-list-block/templates/no-posts.php:11
+msgid "There are currently no posts to display."
+msgstr "현재 표시할 글이 없습니다."
+
+#. Author URI of the plugin
+#: full-site-editing-plugin.php
+msgid "https://automattic.com/wordpress-plugins/"
+msgstr "https://automattic.com/wordpress-plugins/"
+
+#. Author of the plugin
+#: full-site-editing-plugin.php
+msgid "Automattic"
+msgstr "자동"
+
+#. Description of the plugin
+#: full-site-editing-plugin.php
+msgid "Enhances your page creation workflow within the Block Editor."
+msgstr "블록 편집기 내에서 페이지 작성 워크플로우를 개선합니다."

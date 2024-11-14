@@ -7,21 +7,25 @@ import {
 	GlobalNotices,
 } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
-import { store as socialStore } from '@automattic/jetpack-publicize-components';
-import { useSelect, useDispatch } from '@wordpress/data';
-import { useState, useCallback, useEffect, useRef } from '@wordpress/element';
+import {
+	hasSocialPaidFeatures,
+	store as socialStore,
+	features,
+	getSocialScriptData,
+} from '@automattic/jetpack-publicize-components';
+import { siteHasFeature } from '@automattic/jetpack-script-data';
+import { useSelect } from '@wordpress/data';
+import { useState, useCallback } from '@wordpress/element';
 import React from 'react';
-import AdvancedUpsellNotice from '../advanced-upsell-notice';
-import AutoConversionToggle from '../auto-conversion-toggle';
 import PricingPage from '../pricing-page';
 import SocialImageGeneratorToggle from '../social-image-generator-toggle';
 import SocialModuleToggle from '../social-module-toggle';
 import SocialNotesToggle from '../social-notes-toggle';
 import SupportSection from '../support-section';
+import UtmToggle from '../utm-toggle';
 import ConnectionScreen from './../connection-screen';
 import Header from './../header';
 import InfoSection from './../info-section';
-import InstagramNotice from './../instagram-notice';
 import AdminPageHeader from './header';
 import './styles.module.scss';
 
@@ -30,53 +34,20 @@ const Admin = () => {
 	const showConnectionCard = ! isRegistered || ! isUserConnected;
 	const [ forceDisplayPricingPage, setForceDisplayPricingPage ] = useState( false );
 
-	const refreshJetpackSocialSettings = useDispatch( socialStore ).refreshJetpackSocialSettings;
-
-	const onUpgradeToggle = useCallback( () => setForceDisplayPricingPage( true ), [] );
 	const onPricingPageDismiss = useCallback( () => setForceDisplayPricingPage( false ), [] );
 
-	const {
-		isModuleEnabled,
-		showPricingPage,
-		hasPaidPlan,
-		isShareLimitEnabled,
-		pluginVersion,
-		isSocialImageGeneratorAvailable,
-		isAutoConversionAvailable,
-		shouldShowAdvancedPlanNudge,
-		isUpdatingJetpackSettings,
-	} = useSelect( select => {
+	const { isModuleEnabled, showPricingPage, isUpdatingJetpackSettings } = useSelect( select => {
 		const store = select( socialStore );
+		const settings = store.getSocialPluginSettings();
+
 		return {
-			isModuleEnabled: store.isModuleEnabled(),
-			showPricingPage: store.showPricingPage(),
-			hasPaidPlan: store.hasPaidPlan(),
-			isShareLimitEnabled: store.isShareLimitEnabled(),
-			pluginVersion: store.getPluginVersion(),
-			isSocialImageGeneratorAvailable: store.isSocialImageGeneratorAvailable(),
-			isAutoConversionAvailable: store.isAutoConversionAvailable(),
-			shouldShowAdvancedPlanNudge: store.shouldShowAdvancedPlanNudge(),
-			isUpdatingJetpackSettings: store.isUpdatingJetpackSettings(),
+			isModuleEnabled: settings.publicize_active,
+			showPricingPage: settings.show_pricing_page,
+			isUpdatingJetpackSettings: store.isSavingSocialPluginSettings(),
 		};
 	} );
 
-	const hasEnabledModule = useRef( isModuleEnabled );
-
-	useEffect( () => {
-		if (
-			isModuleEnabled &&
-			! hasEnabledModule.current &&
-			( isAutoConversionAvailable || isSocialImageGeneratorAvailable )
-		) {
-			hasEnabledModule.current = true;
-			refreshJetpackSocialSettings();
-		}
-	}, [
-		isAutoConversionAvailable,
-		isModuleEnabled,
-		isSocialImageGeneratorAvailable,
-		refreshJetpackSocialSettings,
-	] );
+	const pluginVersion = getSocialScriptData().plugin_info.social.version;
 
 	const moduleName = `Jetpack Social ${ pluginVersion }`;
 
@@ -95,7 +66,7 @@ const Admin = () => {
 	return (
 		<AdminPage moduleName={ moduleName } header={ <AdminPageHeader /> }>
 			<GlobalNotices />
-			{ ( isShareLimitEnabled && ! hasPaidPlan && showPricingPage ) || forceDisplayPricingPage ? (
+			{ ( ! hasSocialPaidFeatures() && showPricingPage ) || forceDisplayPricingPage ? (
 				<AdminSectionHero>
 					<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 						<Col>
@@ -109,14 +80,10 @@ const Admin = () => {
 						<Header />
 					</AdminSectionHero>
 					<AdminSection>
-						{ shouldShowAdvancedPlanNudge && <AdvancedUpsellNotice /> }
-						<InstagramNotice onUpgrade={ onUpgradeToggle } />
 						<SocialModuleToggle />
+						{ isModuleEnabled && <UtmToggle /> }
 						{ isModuleEnabled && <SocialNotesToggle disabled={ isUpdatingJetpackSettings } /> }
-						{ isModuleEnabled && isAutoConversionAvailable && (
-							<AutoConversionToggle disabled={ isUpdatingJetpackSettings } />
-						) }
-						{ isModuleEnabled && isSocialImageGeneratorAvailable && (
+						{ isModuleEnabled && siteHasFeature( features.IMAGE_GENERATOR ) && (
 							<SocialImageGeneratorToggle disabled={ isUpdatingJetpackSettings } />
 						) }
 					</AdminSection>

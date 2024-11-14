@@ -22,6 +22,9 @@ class Protect extends Product {
 	const UPGRADED_TIER_SLUG         = 'upgraded';
 	const UPGRADED_TIER_PRODUCT_SLUG = 'jetpack_scan';
 
+	const SCAN_FEATURE_SLUG     = 'scan';
+	const FIREWALL_FEATURE_SLUG = 'firewall';
+
 	/**
 	 * The product slug
 	 *
@@ -62,6 +65,13 @@ class Protect extends Product {
 	public static $has_free_offering = true;
 
 	/**
+	 * Protect has a standalone plugin
+	 *
+	 * @var bool
+	 */
+	public static $has_standalone_plugin = true;
+
+	/**
 	 * Get the product name
 	 *
 	 * @return string
@@ -85,7 +95,7 @@ class Protect extends Product {
 	 * @return string
 	 */
 	public static function get_description() {
-		return __( 'Powerful, automated site security', 'jetpack-my-jetpack' );
+		return __( 'Guard against malware and bad actors 24/7', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -94,7 +104,7 @@ class Protect extends Product {
 	 * @return string
 	 */
 	public static function get_long_description() {
-		return __( 'Protect your site and scan for security vulnerabilities listed in our database.', 'jetpack-my-jetpack' );
+		return __( 'Protect your site from bad actors and malware 24/7. Clean up security vulnerabilities with one click.', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -255,16 +265,42 @@ class Protect extends Product {
 	}
 
 	/**
-	 * Checks if the site has a paid plan for the product
+	 * Checks whether the current plan (or purchases) of the site already supports the product
 	 *
-	 * @return bool
+	 * @return boolean
 	 */
 	public static function has_paid_plan_for_product() {
-		$scan_data = static::get_state_from_wpcom();
-		if ( is_wp_error( $scan_data ) ) {
+		$plans_with_scan = array(
+			'jetpack_scan',
+			'jetpack_security',
+			'jetpack_complete',
+			'jetpack_premium',
+			'jetpack_business',
+		);
+
+		$purchases_data = Wpcom_Products::get_site_current_purchases();
+		if ( is_wp_error( $purchases_data ) ) {
 			return false;
 		}
-		return is_object( $scan_data ) && isset( $scan_data->state ) && 'unavailable' !== $scan_data->state;
+		if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
+			foreach ( $purchases_data as $purchase ) {
+				foreach ( $plans_with_scan as $plan ) {
+					if ( strpos( $purchase->product_slug, $plan ) !== false ) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Checks whether the product can be upgraded - i.e. this shows the /#add-protect interstitial
+	 *
+	 * @return boolean
+	 */
+	public static function is_upgradable() {
+		return ! self::has_paid_plan_for_product();
 	}
 
 	/**
@@ -277,6 +313,18 @@ class Protect extends Product {
 	}
 
 	/**
+	 * Get the URL the user is taken after purchasing the product through the checkout for each product feature
+	 *
+	 * @return ?array
+	 */
+	public static function get_post_checkout_urls_by_feature() {
+		return array(
+			self::SCAN_FEATURE_SLUG     => self::get_post_checkout_url(),
+			self::FIREWALL_FEATURE_SLUG => admin_url( 'admin.php?page=jetpack-protect#/firewall' ),
+		);
+	}
+
+	/**
 	 * Get the URL where the user manages the product
 	 *
 	 * @return ?string
@@ -286,12 +334,24 @@ class Protect extends Product {
 	}
 
 	/**
+	 * Get the URL where the user manages the product for each product feature
+	 *
+	 * @return ?array
+	 */
+	public static function get_manage_urls_by_feature() {
+		return array(
+			self::SCAN_FEATURE_SLUG     => self::get_manage_url(),
+			self::FIREWALL_FEATURE_SLUG => admin_url( 'admin.php?page=jetpack-protect#/firewall' ),
+		);
+	}
+
+	/**
 	 * Return product bundles list
 	 * that supports the product.
 	 *
 	 * @return array Products bundle list.
 	 */
 	public static function is_upgradable_by_bundle() {
-		return array( 'security' );
+		return array( 'security', 'complete' );
 	}
 }

@@ -7,13 +7,14 @@ use Automattic\Jetpack\Boost_Core\Lib\Transient;
 
 class Premium_Features {
 
-	const CLOUD_CSS           = 'cloud-critical-css';
-	const IMAGE_SIZE_ANALYSIS = 'image-size-analysis';
-	const PERFORMANCE_HISTORY = 'performance-history';
-	const IMAGE_CDN_LIAR      = 'image-cdn-liar';
-	const IMAGE_CDN_QUALITY   = 'image-cdn-quality';
-	const PRIORITY_SUPPORT    = 'support';
-	const PAGE_CACHE          = 'page-cache';
+	const CLOUD_CSS             = 'cloud-critical-css';
+	const IMAGE_SIZE_ANALYSIS   = 'image-size-analysis';
+	const PERFORMANCE_HISTORY   = 'performance-history';
+	const IMAGE_CDN_LIAR        = 'image-cdn-liar';
+	const IMAGE_CDN_QUALITY     = 'image-cdn-quality';
+	const PRIORITY_SUPPORT      = 'support';
+	const PAGE_CACHE            = 'page-cache';
+	const CORNERSTONE_TEN_PAGES = 'cornerstone-10-pages';
 
 	const TRANSIENT_KEY = 'premium_features';
 
@@ -35,6 +36,7 @@ class Premium_Features {
 			self::IMAGE_CDN_QUALITY,
 			self::PERFORMANCE_HISTORY,
 			self::PRIORITY_SUPPORT,
+			self::CORNERSTONE_TEN_PAGES,
 		);
 
 		if ( ! is_array( $available_features ) ) {
@@ -48,6 +50,13 @@ class Premium_Features {
 		$features = array();
 		// Prepare a list of features after applying jetpack_boost_has_feature_* filter for each feature.
 		foreach ( $all_features as $feature ) {
+			/**
+			 * Filter the availability of a feature
+			 *
+			 * @param bool $has_feature if the feature is available
+			 *
+			 * @since   1.0.0
+			 */
 			if ( apply_filters( "jetpack_boost_has_feature_{$feature}", in_array( $feature, $available_features, true ) ) ) {
 				$features[] = $feature;
 			}

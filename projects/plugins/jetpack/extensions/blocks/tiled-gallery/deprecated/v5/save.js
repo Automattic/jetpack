@@ -6,7 +6,6 @@ import Layout from '../../layout';
 
 export default function TiledGallerySave( { attributes } ) {
 	const { imageFilter, images } = attributes;
-	const blockProps = useBlockProps.save();
 
 	if ( ! images.length ) {
 		return null;
@@ -20,6 +19,7 @@ export default function TiledGallerySave( { attributes } ) {
 		roundedCorners,
 		columnWidths,
 	} = attributes;
+	const blockProps = useBlockProps.save();
 
 	return (
 		<div { ...blockProps }>

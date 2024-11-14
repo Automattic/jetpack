@@ -20,10 +20,6 @@ module.exports = {
 		'jest/prefer-snapshot-hint': [ 'warn', 'always' ],
 		'jest/prefer-spy-on': 'warn',
 		'jest/prefer-todo': 'error',
-		'jsdoc/check-tag-names': [
-			1, // Recommended
-			{ definedTags: [ 'jest-environment' ] },
-		],
 		'testing-library/prefer-explicit-assert': 'error',
 		'testing-library/prefer-user-event': 'warn',
 	},

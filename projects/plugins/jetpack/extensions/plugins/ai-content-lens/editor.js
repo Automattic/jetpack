@@ -1,11 +1,10 @@
 import { registerJetpackPlugin } from '@automattic/jetpack-shared-extension-utils';
 import { dispatch } from '@wordpress/data';
-import { store as editPostStore } from '@wordpress/edit-post';
 import { store as editorStore } from '@wordpress/editor';
 import { addFilter } from '@wordpress/hooks';
 import debugFactory from 'debug';
 import metadata from '../../blocks/ai-assistant/block.json';
-import { isPossibleToExtendBlock } from '../../blocks/ai-assistant/extensions/ai-assistant';
+import { canAIAssistantBeEnabled } from '../../blocks/ai-assistant/extensions/lib/can-ai-assistant-be-enabled';
 import { aiExcerptPluginName, aiExcerptPluginSettings } from '.';
 
 const debug = debugFactory( 'jetpack-ai-content-lens:registration' );
@@ -21,7 +20,7 @@ const isAiAssistantSupportExtensionEnabled =
  *
  * @param {object} settings - Block settings.
  * @param {string} name     - Block name.
- * @returns {object}          Block settings.
+ * @return {object}          Block settings.
  */
 function extendAiContentLensFeatures( settings, name ) {
 	// Bail early when the block is not the AI Assistant.
@@ -33,7 +32,7 @@ function extendAiContentLensFeatures( settings, name ) {
 	 * Bail early when the AI Assistant block is not registered.
 	 * It will handle with the site requires an upgrade.
 	 */
-	if ( ! isPossibleToExtendBlock() ) {
+	if ( ! canAIAssistantBeEnabled() ) {
 		return settings;
 	}
 
@@ -43,11 +42,7 @@ function extendAiContentLensFeatures( settings, name ) {
 
 	// check if the removeEditorPanel function exists in the editorStore.
 	// íf not, look for it in the editPostStore.
-	// @todo: remove this once Jetpack requires WordPres 6.5,
-	// where the removeEditorPanel function will be available in the editorStore.
-	const removeEditorPanel = dispatch( editorStore )?.removeEditorPanel
-		? dispatch( editorStore )?.removeEditorPanel
-		: dispatch( editPostStore )?.removeEditorPanel;
+	const removeEditorPanel = dispatch( editorStore ).removeEditorPanel;
 
 	// Remove the excerpt panel by dispatching an action.
 	removeEditorPanel( 'post-excerpt' );

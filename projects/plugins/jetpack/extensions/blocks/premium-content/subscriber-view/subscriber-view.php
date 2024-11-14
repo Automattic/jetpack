@@ -20,15 +20,11 @@ require_once dirname( __DIR__ ) . '/_inc/access-check.php';
  * registration if we need to.
  */
 function register_subscriber_view_block() {
-	// Determine required `context` key based on Gutenberg version.
-	$deprecated = function_exists( 'gutenberg_get_post_from_context' );
-	$uses       = $deprecated ? 'context' : 'uses_context';
-
 	Blocks::jetpack_register_block(
 		SUBSCRIBER_VIEW_NAME,
 		array(
 			'render_callback' => __NAMESPACE__ . '\render_subscriber_view_block',
-			$uses             => array( 'premium-content/planId', 'premium-content/planIds' ),
+			'uses_context'    => array( 'premium-content/planId', 'premium-content/planIds' ),
 		)
 	);
 }

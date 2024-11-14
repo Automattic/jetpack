@@ -8,7 +8,7 @@ import { checkAnalyticsEnabled } from '../helpers/analytics.js';
  * Async import with better error handling.
  *
  * @param {string} path - Path to import from.
- * @returns {*} - Return from `import()`.
+ * @return {*} - Return from `import()`.
  */
 async function guardedImport( path ) {
 	try {

@@ -14,7 +14,7 @@ type MarkAsSharedProps = {
  *
  * @param {MarkAsSharedProps} props - component props
  *
- * @returns {import('react').ReactNode} - React element
+ * @return {import('react').ReactNode} - React element
  */
 export function MarkAsShared( { connection }: MarkAsSharedProps ) {
 	const { updateConnectionById } = useDispatch( socialStore );
@@ -43,8 +43,9 @@ export function MarkAsShared( { connection }: MarkAsSharedProps ) {
 		<CheckboxControl
 			checked={ connection.shared ?? false }
 			onChange={ onChange }
-			disabled={ isUpdating }
+			disabled={ isUpdating || connection.status === 'broken' }
 			label={ __( 'Mark the connection as shared', 'jetpack' ) }
+			__nextHasNoMarginBottom={ true }
 		/>
 	);
 }

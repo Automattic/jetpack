@@ -38,7 +38,7 @@ class Tracking {
 	/**
 	 * Creates the Tracking object.
 	 *
-	 * @param String                                 $product_name the slug of the product that we are tracking.
+	 * @param string                                 $product_name the slug of the product that we are tracking.
 	 * @param \Automattic\Jetpack\Connection\Manager $connection   the connection manager object.
 	 */
 	public function __construct( $product_name = 'jetpack', $connection = null ) {
@@ -252,6 +252,7 @@ class Tracking {
 
 		$blog_details = array(
 			'blog_lang' => isset( $properties['blog_lang'] ) ? $properties['blog_lang'] : get_bloginfo( 'language' ),
+			'blog_id'   => \Jetpack_Options::get_option( 'id' ),
 		);
 
 		$timestamp        = ( false !== $event_timestamp_millis ) ? $event_timestamp_millis : round( microtime( true ) * 1000 );

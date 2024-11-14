@@ -5,7 +5,7 @@ import { Text, useBreakpointMatch } from '@automattic/jetpack-components';
 import { Tooltip } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, info, warning } from '@wordpress/icons';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import { useState } from 'react';
 /**
  * Internal dependencies
@@ -19,6 +19,7 @@ import { usePlan } from '../../hooks/use-plan';
 import useVideos from '../../hooks/use-videos';
 import Checkbox from '../checkbox';
 import ConnectVideoRow, { LocalVideoRow, Stats } from '../video-row';
+import VideoRowError from '../video-row/error';
 import styles from './style.module.scss';
 /**
  * Types
@@ -74,7 +75,9 @@ const VideoList = ( {
 				const isPrivate =
 					VIDEO_PRIVACY_LEVELS[ video.privacySetting ] === VIDEO_PRIVACY_LEVEL_PRIVATE;
 
-				return (
+				return video.error ? (
+					<VideoRowError key={ video?.guid ?? video?.id } id={ video?.id } title={ video?.title } />
+				) : (
 					<ConnectVideoRow
 						key={ video?.guid ?? video?.id }
 						id={ video?.id }
@@ -93,11 +96,10 @@ const VideoList = ( {
 						loading={ loading }
 						onSelect={ check =>
 							setSelected( current => {
-								const indexOf = current.indexOf( index );
-
 								if ( check ) {
 									return [ ...current, index ];
 								} else if ( ! check && indexOf > -1 ) {
+									const indexOf = current.indexOf( index );
 									return [ ...current.slice( 0, indexOf ), ...current.slice( indexOf + 1 ) ];
 								}
 
@@ -167,7 +169,7 @@ export const LocalVideoList = ( {
 							: errorMessageReadError
 					}
 				>
-					<div className={ classnames( styles[ 'title-adornment' ], styles.error ) }>
+					<div className={ clsx( styles[ 'title-adornment' ], styles.error ) }>
 						<Icon icon={ warning } />
 					</div>
 				</Tooltip>

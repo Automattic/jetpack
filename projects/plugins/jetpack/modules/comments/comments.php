@@ -394,6 +394,7 @@ HTML;
 			'color_scheme'           => get_option( 'jetpack_comment_form_color_scheme', $this->default_color_scheme ),
 			'lang'                   => get_locale(),
 			'jetpack_version'        => JETPACK__VERSION,
+			'iframe_unique_id'       => wp_unique_id(),
 		);
 
 		// Extra parameters for logged in user.
@@ -594,12 +595,30 @@ HTML;
 				document.querySelector('#comment-reply-js')?.addEventListener( 'load', watchReply );
 
 				<?php endif; ?>
+				
+				const commentIframes = document.getElementsByClassName('jetpack_remote_comment');
 
-				window.addEventListener( 'message', function ( event ) {
-					if ( event.origin !== 'https://jetpack.wordpress.com' ) {
+				window.addEventListener('message', function(event) {
+					if (event.origin !== 'https://jetpack.wordpress.com') {
 						return;
 					}
-					iframe.style.height = event.data + 'px';
+
+					if (!event?.data?.iframeUniqueId && !event?.data?.height) {
+						return;
+					}
+
+					const eventDataUniqueId = event.data.iframeUniqueId;
+
+					// Change height for the matching comment iframe
+					for (let i = 0; i < commentIframes.length; i++) {
+						const iframe = commentIframes[i];
+						const url = new URL(iframe.src);
+						const iframeUniqueIdParam = url.searchParams.get('iframe_unique_id');
+						if (iframeUniqueIdParam == event.data.iframeUniqueId) {
+							iframe.style.height = event.data.height + 'px';
+							return;
+						}
+					}
 				});
 			})();
 		</script>
@@ -620,12 +639,14 @@ HTML;
 		// Bail if missing the Jetpack token.
 		if ( ! isset( $post_array['sig'] ) || ! isset( $post_array['token_key'] ) ) {
 			unset( $_POST['hc_post_as'] );
-
 			return;
 		}
 
 		if ( empty( $post_array['jetpack_comments_nonce'] ) || ! wp_verify_nonce( $post_array['jetpack_comments_nonce'], "jetpack_comments_nonce-{$post_array['comment_post_ID']}" ) ) {
-				wp_die( esc_html__( 'Nonce verification failed.', 'jetpack' ), 400 );
+			if ( ! isset( $_GET['only_once'] ) ) {
+				self::retry_submit_comment_form_locally();
+			}
+			wp_die( esc_html__( 'Nonce verification failed.', 'jetpack' ), 400 );
 		}
 
 		if ( str_contains( $post_array['hc_avatar'], '.gravatar.com' ) ) {
@@ -653,6 +674,56 @@ HTML;
 
 			wp_die( esc_html__( 'Comments are not allowed.', 'jetpack' ), 403 );
 		}
+	}
+
+	/**
+	 * Handle Jetpack Comments POST requests: process the comment form, then client-side POST the results to the self-hosted blog
+	 *
+	 * This function exists because when we submit the form via the jetpack.wordpress.com iframe
+	 * in Chrome the request comes in to Jetpack but for some reason the request doesn't have access to cookies yet.
+	 * By submitting the form again locally with the same data the process works as expected.
+	 *
+	 * @return never
+	 */
+	public function retry_submit_comment_form_locally() {
+		// We are not doing any validation here since all the validation will be done again by pre_comment_on_post().
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
+		$comment_data = stripslashes_deep( $_POST );
+		?>
+		<!DOCTYPE html>
+		<html>
+		<head>
+		<link rel="preload" as="image" href="https://jetpack.wordpress.com/wp-admin/images/spinner.gif"> <!-- Preload the spinner image -->
+		<meta charset="utf-8">
+		<title><?php echo esc_html__( 'Submitting Comment', 'jetpack' ); ?></title>
+		<style type="text/css">
+			body {
+				display: table;
+				width: 100%;
+				height: 60%;
+				position: absolute;
+				top: 0;
+				left: 0;
+				overflow: hidden;
+				color: #333;
+			}
+		</style>
+		</head>
+		<body>
+		<img src="https://jetpack.wordpress.com/wp-admin/images/spinner.gif" >
+		<form id="jetpack-remote-comment-post-form" action="<?php echo esc_url( get_site_url() ); ?>/wp-comments-post.php?for=jetpack&only_once=true" method="POST">
+			<?php foreach ( $comment_data as $key => $val ) : ?>
+				<input type="hidden" name="<?php echo esc_attr( $key ); ?>" value="<?php echo esc_attr( $val ); ?>" />
+			<?php endforeach; ?>
+		</form>
+
+		<script type="text/javascript">
+			document.getElementById("jetpack-remote-comment-post-form").submit();
+		</script>
+		</body>
+		</html>
+		<?php
+		exit;
 	}
 
 	/** Capabilities **********************************************************/
@@ -958,11 +1029,9 @@ HTML;
 		</h3>
 		<script type="text/javascript">
 			try {
-				window.parent.location = <?php echo wp_json_encode( $url ); ?>;
-				window.parent.location.reload(true);
+				window.parent.location.href = <?php echo wp_json_encode( $url ); ?>;
 			} catch (e) {
-				window.location = <?php echo wp_json_encode( $url ); ?>;
-				window.location.reload(true);
+				window.location.href = <?php echo wp_json_encode( $url ); ?>;
 			}
 			ellipsis = document.getElementById('ellipsis');
 

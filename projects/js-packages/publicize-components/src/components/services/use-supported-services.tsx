@@ -1,46 +1,52 @@
 import { SocialServiceIcon } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
-import { useSelect } from '@wordpress/data';
-import { createInterpolateElement } from '@wordpress/element';
+import { createInterpolateElement, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import connectionsButtonFacebook from '../../assets/connections-button-facebook.png';
-import connectionsButtonLinkedin from '../../assets/connections-button-linkedin.png';
-import connectionsButtonTumblr from '../../assets/connections-button-tumblr.png';
 import connectionsFacebook from '../../assets/connections-facebook.png';
 import connectionsInstagramBusiness from '../../assets/connections-instagram-business.png';
 import connectionsLinkedin from '../../assets/connections-linkedin.png';
 import connectionsNextdoor from '../../assets/connections-nextdoor.png';
+import connectionsThreads from '../../assets/connections-threads.png';
 import connectionsTumblr from '../../assets/connections-tumblr.png';
-import { store } from '../../social-store';
-import { ConnectionService } from '../../social-store/types';
+import { ConnectionService } from '../../types';
+import { getSocialScriptData } from '../../utils/script-data';
 
-const sharingButtonLink = 'https://wordpress.com/support/sharing/';
+export type Badge = {
+	text: string;
+	style?: React.CSSProperties;
+};
 
 export interface SupportedService extends ConnectionService {
 	icon: React.ComponentType< { iconSize: number } >;
 	examples?: Array< React.ComponentType >;
 	needsCustomInputs?: boolean;
+	badges?: Array< Badge >;
 }
 
 /**
  * Get the list of supported services.
  *
- * @returns {Array< SupportedService >} The list of supported services
+ * @return {Array< SupportedService >} The list of supported services
  */
 export function useSupportedServices(): Array< SupportedService > {
-	const availableServices = useSelect( select => {
-		return select( store )
-			.getServices()
-			.reduce< Record< string, ConnectionService > >(
-				( serviceData, service ) => ( {
-					...serviceData,
-					[ service.ID ]: service,
-				} ),
-				{}
-			);
+	const availableServices = useMemo( () => {
+		const { supported_services } = getSocialScriptData();
+
+		return supported_services.reduce< Record< string, ConnectionService > >(
+			( serviceData, service ) => ( {
+				...serviceData,
+				[ service.ID ]: service,
+			} ),
+			{}
+		);
 	}, [] );
 
-	return [
+	const badgeNew: Badge = {
+		text: __( 'New', 'jetpack' ),
+		style: { background: '#e9eff5', color: '#0675C4' },
+	};
+
+	const supportedServices: Array< SupportedService > = [
 		{
 			...availableServices.facebook,
 			icon: props => <SocialServiceIcon serviceName="facebook" { ...props } />,
@@ -48,9 +54,6 @@ export function useSupportedServices(): Array< SupportedService > {
 			examples: [
 				() => (
 					<>
-						<img src={ connectionsFacebook } alt={ __( 'Add Facebook connection', 'jetpack' ) } />
-						<br />
-						<br />
 						{ createInterpolateElement(
 							__(
 								'<strong>Connect</strong> to automatically share posts on your Facebook page.',
@@ -61,28 +64,7 @@ export function useSupportedServices(): Array< SupportedService > {
 					</>
 				),
 				() => (
-					<>
-						<img
-							src={ connectionsButtonFacebook }
-							alt={ __( 'Add Facebook connection', 'jetpack' ) }
-						/>
-						<br />
-						<br />
-						{ createInterpolateElement(
-							__(
-								'Add a <link /> to your posts so readers can share your story with their friends.',
-								'jetpack'
-							),
-							{
-								strong: <strong></strong>,
-								link: (
-									<ExternalLink href={ sharingButtonLink }>
-										{ __( 'sharing button', 'jetpack' ) }
-									</ExternalLink>
-								),
-							}
-						) }
-					</>
+					<img src={ connectionsFacebook } alt={ __( 'Add Facebook connection', 'jetpack' ) } />
 				),
 			],
 		},
@@ -135,15 +117,45 @@ export function useSupportedServices(): Array< SupportedService > {
 			],
 		},
 		{
+			...availableServices.threads,
+			icon: props => <SocialServiceIcon serviceName="threads" { ...props } />,
+			description: __( 'Share posts to your Threads feed.', 'jetpack' ),
+			examples: [
+				() => (
+					<>
+						{ __(
+							'Increase your presence in social media by sharing your posts automatically to Threads.',
+							'jetpack'
+						) }
+					</>
+				),
+				() => <img src={ connectionsThreads } alt={ __( 'Add Threads connection', 'jetpack' ) } />,
+			],
+		},
+		{
+			...availableServices.bluesky,
+			needsCustomInputs: true,
+			icon: props => <SocialServiceIcon serviceName="bluesky" { ...props } />,
+			badges: [ badgeNew ],
+			description: __( 'Share with your network.', 'jetpack' ),
+			examples: [
+				() => (
+					<>
+						{ __(
+							'To share to Bluesky please enter your Bluesky handle and app password below, then click connect.',
+							'jetpack'
+						) }
+					</>
+				),
+			],
+		},
+		{
 			...availableServices.linkedin,
 			icon: props => <SocialServiceIcon serviceName="linkedin" { ...props } />,
 			description: __( 'Share with your LinkedIn community.', 'jetpack' ),
 			examples: [
 				() => (
 					<>
-						<img src={ connectionsLinkedin } alt={ __( 'Add LinkedIn connection', 'jetpack' ) } />
-						<br />
-						<br />
 						{ createInterpolateElement(
 							__(
 								'<strong>Connect</strong> to automatically share posts with your LinkedIn connections.',
@@ -154,28 +166,7 @@ export function useSupportedServices(): Array< SupportedService > {
 					</>
 				),
 				() => (
-					<>
-						<img
-							src={ connectionsButtonLinkedin }
-							alt={ __( 'Add LinkedIn connection', 'jetpack' ) }
-						/>
-						<br />
-						<br />
-						{ createInterpolateElement(
-							__(
-								'Add a <link /> to your posts so readers can share your story with their connections.',
-								'jetpack'
-							),
-							{
-								strong: <strong></strong>,
-								link: (
-									<ExternalLink href={ sharingButtonLink }>
-										{ __( 'sharing button', 'jetpack' ) }
-									</ExternalLink>
-								),
-							}
-						) }
-					</>
+					<img src={ connectionsLinkedin } alt={ __( 'Add LinkedIn connection', 'jetpack' ) } />
 				),
 			],
 		},
@@ -205,9 +196,6 @@ export function useSupportedServices(): Array< SupportedService > {
 			examples: [
 				() => (
 					<>
-						<img src={ connectionsTumblr } alt={ __( 'Add Tumblr connection', 'jetpack' ) } />
-						<br />
-						<br />
 						{ createInterpolateElement(
 							__(
 								'<strong>Connect</strong> to automatically share posts to your Tumblr blog.',
@@ -217,27 +205,7 @@ export function useSupportedServices(): Array< SupportedService > {
 						) }
 					</>
 				),
-				() => (
-					<>
-						<img src={ connectionsButtonTumblr } alt={ __( 'Add Tumblr connection', 'jetpack' ) } />
-						<br />
-						<br />
-						{ createInterpolateElement(
-							__(
-								'Add a <link /> to your posts so readers can share your story with their followers.',
-								'jetpack'
-							),
-							{
-								strong: <strong></strong>,
-								link: (
-									<ExternalLink href={ sharingButtonLink }>
-										{ __( 'sharing button', 'jetpack' ) }
-									</ExternalLink>
-								),
-							}
-						) }
-					</>
-				),
+				() => <img src={ connectionsTumblr } alt={ __( 'Add Tumblr connection', 'jetpack' ) } />,
 			],
 		},
 		{
@@ -256,7 +224,8 @@ export function useSupportedServices(): Array< SupportedService > {
 				),
 			],
 		},
-	].filter(
+	];
+	return supportedServices.filter(
 		// Return only the ones that are present in the available services.
 		service => Boolean( service.ID )
 	);

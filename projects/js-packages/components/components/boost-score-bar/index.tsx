@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import Gridicon from '../gridicon';
 import type { BoostScoreBarProps } from './types';
 import type { FunctionComponent } from 'react';
@@ -50,7 +50,7 @@ export const BoostScoreBar: FunctionComponent< BoostScoreBarProps > = ( {
 	};
 
 	return (
-		<div className={ classNames( 'jb-score-bar', `jb-score-bar--${ scoreBarType }` ) }>
+		<div className={ clsx( 'jb-score-bar', `jb-score-bar--${ scoreBarType }` ) }>
 			<div className="jb-score-bar__label">
 				{ getIcon() }
 				<div>{ scoreBarType === 'desktop' ? desktopIconLabel : mobileIconLabel }</div>
@@ -58,7 +58,7 @@ export const BoostScoreBar: FunctionComponent< BoostScoreBarProps > = ( {
 
 			<div className="jb-score-bar__bounds">
 				<div
-					className={ classNames( 'jb-score-bar__filler', getFillColor() ) }
+					className={ clsx( 'jb-score-bar__filler', getFillColor() ) }
 					style={ { width: `${ score }%` } }
 				>
 					{ isLoading ? (

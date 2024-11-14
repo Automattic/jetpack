@@ -8,6 +8,11 @@ jq -e '.' <<<"$BETAJSON" &>/dev/null
 mkdir work
 mkdir zips
 while IFS=$'\t' read -r SRC MIRROR SLUG; do
+	if [[ "$SLUG" == wpcomsh ]]; then
+		echo "Skipping $SLUG, doesn't work on self-hosted sites."
+		continue
+	fi
+
 	echo "::group::Creating $SLUG-dev.zip"
 	mv "build/$MIRROR" "work/$SLUG"
 	touch "work/$SLUG/ci-flag.txt"

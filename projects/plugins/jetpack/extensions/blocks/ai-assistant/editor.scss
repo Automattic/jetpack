@@ -14,7 +14,7 @@
 
 .wp-block-ai-generate-suggestion .components-text-control__input {
 	margin: 10px;
-	width:80%;
+	width: 80%;
 }
 
 .wp-block-ai-generate-suggestion .components-button.is-primary {
@@ -43,7 +43,6 @@
 }
 
 .jetpack-ai-assistant__content {
-
 	overflow-x: auto;
 
 	table {
@@ -108,7 +107,7 @@
 		}
 	}
 
-	table[style*="border-top-color"] {
+	table[style*='border-top-color'] {
 		> *,
 		tr:first-child {
 			border-top-color: inherit;
@@ -119,11 +118,11 @@
 			}
 		}
 
-		tr:not(:first-child) {
+		tr:not( :first-child ) {
 			border-top-color: currentColor;
 		}
 	}
-	table[style*="border-right-color"] {
+	table[style*='border-right-color'] {
 		> *,
 		tr,
 		th,
@@ -131,7 +130,7 @@
 			border-right-color: inherit;
 		}
 	}
-	table[style*="border-bottom-color"] {
+	table[style*='border-bottom-color'] {
 		> *,
 		tr:last-child {
 			border-bottom-color: inherit;
@@ -147,11 +146,11 @@
 		// have a bottom border matching the color of the table's border.
 		// This style gives the best visual appearance and most expected result
 		// until we can control individual table rows or cells via inner blocks.
-		tr:not(:last-child) {
+		tr:not( :last-child ) {
 			border-bottom-color: currentColor;
 		}
 	}
-	table[style*="border-left-color"] {
+	table[style*='border-left-color'] {
 		> *,
 		tr,
 		th,
@@ -160,7 +159,7 @@
 		}
 	}
 
-	table[style*="border-style"] {
+	table[style*='border-style'] {
 		> *,
 		tr,
 		th,
@@ -169,7 +168,7 @@
 		}
 	}
 
-	table[style*="border-width"] {
+	table[style*='border-width'] {
 		> *,
 		tr,
 		th,
@@ -208,7 +207,7 @@
 			margin-top: 8px;
 			margin-bottom: 8px;
 
-			&:hover{
+			&:hover {
 				background-color: var( --jp-gray-0 );
 			}
 		}
@@ -223,4 +222,8 @@
 	display: flex;
 	justify-content: flex-end;
 	gap: 8px;
+}
+
+.jetpack-contact-form {
+	margin-top: 16px;
 }

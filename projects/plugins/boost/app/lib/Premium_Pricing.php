@@ -2,20 +2,18 @@
 
 namespace Automattic\Jetpack_Boost\Lib;
 
+use Automattic\Jetpack\My_Jetpack\Products\Boost;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use Automattic\Jetpack\Status;
 
 class Premium_Pricing {
-	const PRODUCT_SLUG_BASE = 'jetpack_boost';
-
 	/**
 	 * Get an object containing the yearly pricing information for Jetpack Boost.
 	 *
 	 * Used by Jetpack_Boost js constants and data sync.
 	 */
 	public static function get_yearly_pricing() {
-		$yearly_pricing_slug = self::PRODUCT_SLUG_BASE . '_yearly';
-		$yearly_pricing      = Wpcom_Products::get_product_pricing( $yearly_pricing_slug );
+		$yearly_pricing = Wpcom_Products::get_product_pricing( Boost::UPGRADED_TIER_PRODUCT_SLUG );
 
 		if ( empty( $yearly_pricing ) ) {
 			// In offline mode, we don't have access to the pricing data and it's not an error.

@@ -2,10 +2,10 @@
 Contributors: automattic, xwp, adnan007, bjorsch, danwalmsley, davidlonjon, dilirity, donncha, ebinnion, exelero, jeherve, jpolakovic, karthikbhatb, kraftbj, luchad0res, pyronaur, rheinardkorf, scruffian, thingalon
 Donate link: https://automattic.com
 Tags: performance, speed, web vitals, critical css, cache
-Requires at least: 5.5
-Tested up to: 6.5
-Requires PHP: 7.0
-Stable tag: 3.2.2
+Requires at least: 6.6
+Tested up to: 6.7
+Requires PHP: 7.2
+Stable tag: 3.5.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -183,22 +183,22 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 3.3.0 - 2024-05-08
+### 3.6.0-beta - 2024-11-04
 #### Added
-- General: Add endpoint to list source providers.
-- General: Add end to end tests for modules.
-- Auto-Resize Lazy Images: Added feature to optimize lazy loading image performance
-- JS Concatenation: Added compatibility with event-tickets by The Events Calendar.
-- Speed Score: Add the speed changed popup back.
+- Cornerstone Pages: Added feature to allow selecting important pages.
 
 #### Changed
-- Cache: remove Beta tag
-- General: improved compatibility with WP 6.4.
-- Image CDN: Update UI.
+- Critical CSS: Improve logic that generates URLs for critical CSS generation.
+- Page Speed: Update speed scores to be based on first cornerstone page.
+- General: Improve compatibility with WordPress 6.7.
+- General: Update badges used to show state of features.
+
+#### Removed
+- Image Guide: Remove URL parameter based override.
 
 #### Fixed
-- CLI: Fix fatal error when using 'activate' without a module name.
-- Critical CSS: Update the way generation library is loaded.
+- Page Speed: Fix typo in Overall Score tooltip.
+- Performance History: Fixed tooltip behavior.
 
 --------
 

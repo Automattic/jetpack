@@ -72,7 +72,7 @@ class PHPAutoloaderTest extends TestCase {
 	public function test_load_class() {
 		$loader = $this->getMockBuilder( Version_Loader::class )
 			->disableOriginalConstructor()
-			->setMethods( array( 'find_class_file' ) )
+			->onlyMethods( array( 'find_class_file' ) )
 			->getMock();
 
 		global $jetpack_autoloader_loader;
@@ -92,7 +92,7 @@ class PHPAutoloaderTest extends TestCase {
 	public function test_load_class_does_nothing_without_class() {
 		$loader = $this->getMockBuilder( Version_Loader::class )
 			->disableOriginalConstructor()
-			->setMethods( array( 'find_class_file' ) )
+			->onlyMethods( array( 'find_class_file' ) )
 			->getMock();
 
 		global $jetpack_autoloader_loader;

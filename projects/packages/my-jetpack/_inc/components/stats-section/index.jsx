@@ -1,5 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import { useCallback } from 'react';
+import { PRODUCT_STATUSES } from '../../constants';
 import { QUERY_STATS_COUNTS_KEY, getStatsHighlightsEndpoint } from '../../data/constants';
 import useProduct from '../../data/products/use-product';
 import useSimpleQuery from '../../data/use-simple-query';
@@ -7,20 +8,18 @@ import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-
 import useAnalytics from '../../hooks/use-analytics';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import ProductCard from '../connected-product-card';
-import { PRODUCT_STATUSES } from '../product-card/action-button';
 import StatsCards from './cards';
 
 const StatsSection = () => {
 	const slug = 'stats';
-	const { blogID } = useMyJetpackConnection();
+	const { blogID, isSiteConnected } = useMyJetpackConnection();
 	const { detail } = useProduct( slug );
 	const { status } = detail;
 	const isAdmin = !! getMyJetpackWindowInitialState( 'userIsAdmin' );
 	const { data: statsCounts } = useSimpleQuery( {
 		name: QUERY_STATS_COUNTS_KEY,
-		query: {
-			path: getStatsHighlightsEndpoint( blogID ),
-		},
+		query: { path: getStatsHighlightsEndpoint( blogID ) },
+		options: { enabled: isSiteConnected },
 	} );
 	const counts = statsCounts?.past_seven_days || {};
 	const previousCounts = statsCounts?.between_past_eight_and_fifteen_days || {};
@@ -53,8 +52,11 @@ const StatsSection = () => {
 		[ PRODUCT_STATUSES.ACTIVE ]: {
 			label: __( 'View detailed stats', 'jetpack-my-jetpack' ),
 		},
-		[ PRODUCT_STATUSES.ERROR ]: {
+		[ PRODUCT_STATUSES.SITE_CONNECTION_ERROR ]: {
 			label: __( 'Connect Jetpack to use Stats', 'jetpack-my-jetpack' ),
+		},
+		[ PRODUCT_STATUSES.NEEDS_FIRST_SITE_CONNECTION ]: {
+			href: `#/add-${ slug }`,
 		},
 	};
 

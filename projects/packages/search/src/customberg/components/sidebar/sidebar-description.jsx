@@ -7,7 +7,7 @@ import { svg as jetpackColophonSvg } from 'instant-search/components/jetpack-col
 /**
  * Description tab for the sidebar.
  *
- * @returns {Element} component instance
+ * @return {Element} component instance
  */
 export default function SidebarDescription() {
 	return (

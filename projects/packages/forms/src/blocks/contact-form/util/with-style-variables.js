@@ -3,7 +3,7 @@ import { useRef } from '@wordpress/element';
 
 export const withStyleVariables = WrappedComponent => props => {
 	const { generateStyleVariables } = window.jetpackForms;
-	const componentRef = useRef();
+	const componentRef = useRef( undefined );
 
 	return (
 		<WrappedComponent

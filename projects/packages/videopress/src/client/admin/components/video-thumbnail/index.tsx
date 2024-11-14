@@ -12,8 +12,8 @@ import {
 import { Dropdown } from '@wordpress/components';
 import { gmdateI18n } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
-import { Icon, edit, cloud, image, media, video } from '@wordpress/icons';
-import classnames from 'classnames';
+import { Icon, edit, cloud, image, media, video, warning } from '@wordpress/icons';
+import clsx from 'clsx';
 import { forwardRef } from 'react';
 /**
  * Internal dependencies
@@ -132,9 +132,7 @@ const UploadingThumbnail = ( {
 	const infoText = uploadProgress === 1 ? completingText : uploadingText;
 
 	return (
-		<div
-			className={ classnames( styles[ 'custom-thumbnail' ], { [ styles[ 'is-row' ] ]: isRow } ) }
-		>
+		<div className={ clsx( styles[ 'custom-thumbnail' ], { [ styles[ 'is-row' ] ]: isRow } ) }>
 			<ProgressBar
 				className={ styles[ 'progress-bar' ] }
 				size="small"
@@ -155,11 +153,17 @@ const ProcessingThumbnail = ( { isRow = false }: { isRow?: boolean } ) => (
 	</div>
 );
 
+const ErrorThumbnail = ( { isRow } ) => (
+	<div className={ clsx( styles[ 'thumbnail-blank' ], styles[ 'thumbnail-error' ] ) }>
+		<Icon icon={ warning } size={ isRow ? 48 : 96 } />
+	</div>
+);
+
 /**
  * React component to display video thumbnail.
  *
  * @param {VideoThumbnailProps} props - Component props.
- * @returns {React.ReactNode} - VideoThumbnail react component.
+ * @return {React.ReactNode} - VideoThumbnail react component.
  */
 const VideoThumbnail = forwardRef< HTMLDivElement, VideoThumbnailProps >(
 	(
@@ -179,6 +183,7 @@ const VideoThumbnail = forwardRef< HTMLDivElement, VideoThumbnailProps >(
 			onUploadImage,
 			uploadProgress,
 			isRow = false,
+			hasError = false,
 		},
 		ref
 	) => {
@@ -187,6 +192,7 @@ const VideoThumbnail = forwardRef< HTMLDivElement, VideoThumbnailProps >(
 
 		// Mapping thumbnail (Ordered by priority)
 		let thumbnail = defaultThumbnail;
+
 		thumbnail = loading ? <LoadingPlaceholder /> : thumbnail;
 		thumbnail = uploading ? (
 			<UploadingThumbnail isRow={ isRow } uploadProgress={ uploadProgress } />
@@ -194,6 +200,8 @@ const VideoThumbnail = forwardRef< HTMLDivElement, VideoThumbnailProps >(
 			thumbnail
 		);
 		thumbnail = processing ? <ProcessingThumbnail isRow={ isRow } /> : thumbnail;
+
+		thumbnail = hasError ? <ErrorThumbnail isRow={ isRow } /> : thumbnail;
 
 		thumbnail =
 			typeof thumbnail === 'string' && thumbnail !== '' ? (
@@ -213,7 +221,7 @@ const VideoThumbnail = forwardRef< HTMLDivElement, VideoThumbnailProps >(
 
 		return (
 			<div
-				className={ classnames( className, styles.thumbnail, {
+				className={ clsx( className, styles.thumbnail, {
 					[ styles[ 'is-small' ] ]: isSmall,
 				} ) }
 				ref={ ref }

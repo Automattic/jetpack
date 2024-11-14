@@ -1,5 +1,5 @@
 import { useBlockProps } from '@wordpress/block-editor';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import { getActiveStyleName } from '../../shared/block-styles';
 import { LAYOUT_STYLES } from './constants';
 import { defaultColumnsNumber } from './edit';
@@ -7,7 +7,6 @@ import Layout from './layout';
 
 export default function TiledGallerySave( { attributes } ) {
 	const { imageFilter, images } = attributes;
-	const blockProps = useBlockProps.save();
 
 	if ( ! images.length ) {
 		return null;
@@ -21,9 +20,10 @@ export default function TiledGallerySave( { attributes } ) {
 		roundedCorners,
 		columnWidths,
 	} = attributes;
+	const blockProps = useBlockProps.save();
 
 	return (
-		<div { ...blockProps } className={ classNames( blockProps.className, className ) }>
+		<div { ...blockProps } className={ clsx( blockProps.className, className ) }>
 			<Layout
 				align={ align }
 				columns={ columns }

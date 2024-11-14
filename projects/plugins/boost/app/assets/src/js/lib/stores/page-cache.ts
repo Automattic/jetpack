@@ -18,6 +18,18 @@ export const PageCacheError = z
 
 export type PageCacheError = z.infer< typeof PageCacheError >;
 
+export const PageCacheSetupSuccess = z.object( {
+	success: z.literal( true ),
+	notices: z.array(
+		z.object( {
+			message: z.string(),
+			title: z.string(),
+		} )
+	),
+} );
+
+export type PageCacheSetupSuccess = z.infer< typeof PageCacheSetupSuccess >;
+
 export const PageCache = z.object( {
 	bypass_patterns: z.array( z.string() ),
 	logging: z.boolean(),
@@ -40,6 +52,7 @@ export function usePageCache() {
 export function usePageCacheSetup() {
 	const [ , pageCacheErrorMutation ] = usePageCacheError();
 	const setError = pageCacheErrorMutation.mutate;
+	const [ notices, setNotices ] = useState< PageCacheSetupSuccess[ 'notices' ] >( [] );
 
 	const pageCacheSetup = useDataSyncAction( {
 		namespace: 'jetpack_boost_ds',
@@ -48,7 +61,17 @@ export function usePageCacheSetup() {
 		schema: {
 			state: PageCache,
 			action_request: z.void(),
-			action_response: PageCacheError.or( z.literal( true ) ),
+			action_response: PageCacheError.or( PageCacheSetupSuccess ),
+		},
+		callbacks: {
+			onResult( response ) {
+				const parse = PageCacheSetupSuccess.safeParse( response );
+				if ( parse.success ) {
+					setNotices( parse.data.notices );
+				} else {
+					setNotices( [] );
+				}
+			},
 		},
 		mutationOptions: {
 			onError: error => {
@@ -66,7 +89,7 @@ export function usePageCacheSetup() {
 			},
 		},
 	} );
-	return pageCacheSetup;
+	return [ pageCacheSetup, notices ] as const;
 }
 
 /**
@@ -93,4 +116,22 @@ export function useClearPageCacheAction() {
 	} );
 
 	return [ message, action ] as const;
+}
+
+/**
+ * Hook to run an action that disables super cache.
+ */
+export function useAsyncSuperCacheAction() {
+	const action = useDataSyncAction( {
+		namespace: 'jetpack_boost_ds',
+		key: 'page_cache',
+		action_name: 'deactivate-wpsc',
+		schema: {
+			state: PageCache,
+			action_request: z.void(),
+			action_response: PageCacheError.or( z.boolean() ),
+		},
+	} );
+
+	return action;
 }

@@ -1,5 +1,5 @@
 import { isBlobURL } from '@wordpress/blob';
-import classnames from 'classnames';
+import clsx from 'clsx';
 
 export default function GalleryImageSave( props ) {
 	const { alt, imageFilter, height, id, link, linkTo, origUrl, url, width } = props;
@@ -34,7 +34,7 @@ export default function GalleryImageSave( props ) {
 
 	return (
 		<figure
-			className={ classnames( 'tiled-gallery__item', {
+			className={ clsx( 'tiled-gallery__item', {
 				[ `filter__${ imageFilter }` ]: !! imageFilter,
 			} ) }
 		>

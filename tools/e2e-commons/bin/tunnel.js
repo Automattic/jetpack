@@ -1,14 +1,16 @@
 #!/usr/bin/env node
 
-import fs from 'fs';
+/* eslint-disable no-process-exit */
+
 import childProcess from 'child_process';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
-import config from 'config';
-import { getReusableUrlFromFile } from '../helpers/utils-helper.js';
 import axios from 'axios';
+import config from 'config';
+import localtunnel from 'localtunnel';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
-import localtunnel from 'localtunnel';
+import { getReusableUrlFromFile } from '../helpers/utils-helper.js';
 
 const tunnelConfig = config.get( 'tunnel' );
 
@@ -43,11 +45,17 @@ yargs( hideBin( process.argv ) )
  * ```
  * TUNNEL_URL=https://somethingsomething.ngrok.io npm run test-e2e:start
  * ```
+ *
+ * @return {string|undefined} URL
  */
 function getTunnelOverrideURL() {
 	return process.env.TUNNEL_URL;
 }
 
+/**
+ * Save tunnel URL to file
+ * @param {string} url - URL
+ */
 function saveTunnelUrlToFile( url ) {
 	fs.writeFileSync( config.get( 'temp.tunnels' ), url );
 }
@@ -59,7 +67,7 @@ function saveTunnelUrlToFile( url ) {
  * This function forks a subprocess to do that, then exits when that subprocess indicates
  * that the tunnel actually is up so the caller can proceed with running tests or whatever.
  *
- * @param {Object} argv - Args.
+ * @param {object} argv - Args.
  * @return {Promise<void>}
  */
 async function tunnelOn( argv ) {
@@ -189,7 +197,7 @@ async function tunnelOff() {
  * If status is 200 we assume the tunnel is on, and off for any other status
  * This is definitely not bullet proof, as the tunnel can be on while the app is down, this returning a non 200 response
  *
- * @param {string} subdomain tunnel's subdomain
+ * @param {string} subdomain - tunnel's subdomain
  * @return {Promise<boolean>} tunnel on - true, off - false
  */
 async function isTunnelOn( subdomain ) {
@@ -208,7 +216,7 @@ async function isTunnelOn( subdomain ) {
 /**
  * Returns the http status code for tunnel url
  *
- * @param {string} subdomain tunnel's subdomain
+ * @param {string} subdomain - tunnel's subdomain
  * @return {Promise<number>} http status code
  */
 async function getTunnelStatus( subdomain ) {

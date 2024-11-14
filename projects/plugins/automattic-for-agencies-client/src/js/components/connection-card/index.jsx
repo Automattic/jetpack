@@ -2,7 +2,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ConnectButton } from '@automattic/jetpack-connection';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import React, { useCallback, useState } from 'react';
 import BrandedCard from '../branded-card';
 import CheckIcon from '../check-icon';
@@ -13,10 +13,10 @@ import styles from './styles.module.scss';
  * Site Connection Content
  * The main copy for the connection card.
  *
- * @param {object}   props                             - Component props
- * @param {Function} props.onShowSharingDetailsClick  - Callback to show the sharing details.
+ * @param {object}   props                           - Component props
+ * @param {Function} props.onShowSharingDetailsClick - Callback to show the sharing details.
  *
- * @returns {React.Component} The `ConnectionContent` component.
+ * @return {React.Component} The `ConnectionContent` component.
  */
 function ConnectionContent( { onShowSharingDetailsClick } ) {
 	const { apiNonce, apiRoot, registrationNonce } = window.automatticForAgenciesClientInitialState;
@@ -60,7 +60,7 @@ function ConnectionContent( { onShowSharingDetailsClick } ) {
 				<div className={ styles[ 'terms-of-service' ] }>
 					{ createInterpolateElement(
 						__(
-							'By clicking the <strong>connect this site</strong> button, you agree to our <tosLink>Terms of Service</tosLink> and to <shareDetailsLink>share details</shareDetailsLink> with WordPress.com.',
+							'By clicking <strong>connect this site</strong>, you agree to our <tosLink>Terms of Service</tosLink> and to <shareDetailsLink>sync your site‘s data</shareDetailsLink> with us.',
 							'automattic-for-agencies-client'
 						),
 						{
@@ -99,12 +99,12 @@ function ConnectionContent( { onShowSharingDetailsClick } ) {
 
 /**
  * Detail Sharing Content
- * The copy for the "share details" information linked from the TOS.
+ * The copy for the "sync your site‘s data" information linked from the TOS.
  *
- * @param {object}   props                             - Component props
- * @param {Function} props.onCloseSharingDetailsClick  - Callback to close the sharing details.
+ * @param {object}   props                            - Component props
+ * @param {Function} props.onCloseSharingDetailsClick - Callback to close the sharing details.
  *
- * @returns {React.Component} The `DetailSharingContent` component.
+ * @return {React.Component} The `DetailSharingContent` component.
  */
 function DetailSharingContent( { onCloseSharingDetailsClick } ) {
 	return (
@@ -121,7 +121,7 @@ function DetailSharingContent( { onCloseSharingDetailsClick } ) {
 			<div className={ styles.card__prose }>
 				<h2>
 					{ __(
-						'What data is shared from your site with WordPress.com',
+						'What data is synced between your site and WordPress.com',
 						'automattic-for-agencies-client'
 					) }
 				</h2>
@@ -201,7 +201,7 @@ function DetailSharingContent( { onCloseSharingDetailsClick } ) {
 /**
  * Connection Card component.
  *
- * @returns {React.Component} The `ConnectionCard` component.
+ * @return {React.Component} The `ConnectionCard` component.
  */
 export default function ConnectionCard() {
 	// Toggle the card content between the default connection content and the sharing details content linked from the TOS.
@@ -212,7 +212,7 @@ export default function ConnectionCard() {
 	return (
 		<BrandedCard>
 			<div
-				className={ classNames( styles.card, {
+				className={ clsx( styles.card, {
 					[ styles[ 'card--sharing' ] ]: showSharingDetails,
 					[ styles[ 'card--connection' ] ]: ! showSharingDetails,
 				} ) }

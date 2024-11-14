@@ -33,7 +33,7 @@
 			class:active={expanded}
 			class="button-effects advanced__button"
 			on:click={() => (expanded = !expanded)}
-			>{@html expanded ? "&uarr;" : "&darr;"} Monitor Settings</button
+			>{#if expanded}&uarr;{:else}&darr;{/if} Monitor Settings</button
 		>
 		{#if expanded}
 			<div

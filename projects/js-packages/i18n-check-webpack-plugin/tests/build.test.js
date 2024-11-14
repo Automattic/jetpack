@@ -9,7 +9,7 @@ const configFixtures = fs.readdirSync( fixturesPath ).sort();
  * Find all files in a path.
  *
  * @param {string} dir - Path.
- * @returns {string[]} Promise resolving to a list of files.
+ * @return {string[]} Promise resolving to a list of files.
  */
 function lsFiles( dir ) {
 	const ret = [];

@@ -24,17 +24,20 @@ use Automattic\Jetpack_Boost\Data_Sync\Getting_Started_Entry;
 use Automattic\Jetpack_Boost\Lib\Analytics;
 use Automattic\Jetpack_Boost\Lib\CLI;
 use Automattic\Jetpack_Boost\Lib\Connection;
+use Automattic\Jetpack_Boost\Lib\Cornerstone_Pages;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Storage;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Generator;
 use Automattic\Jetpack_Boost\Lib\Setup;
 use Automattic\Jetpack_Boost\Lib\Site_Health;
 use Automattic\Jetpack_Boost\Lib\Status;
+use Automattic\Jetpack_Boost\Lib\Super_Cache_Tracking;
 use Automattic\Jetpack_Boost\Modules\Modules_Index;
 use Automattic\Jetpack_Boost\Modules\Modules_Setup;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Page_Cache;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Page_Cache_Setup;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache_Settings;
+use Automattic\Jetpack_Boost\REST_API\Endpoints\List_Cornerstone_Pages;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\List_Site_Urls;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\List_Source_Providers;
 use Automattic\Jetpack_Boost\REST_API\REST_API;
@@ -107,6 +110,9 @@ class Jetpack_Boost {
 		$modules_setup = new Modules_Setup();
 		Setup::add( $modules_setup );
 
+		$cornerstone_pages = new Cornerstone_Pages();
+		Setup::add( $cornerstone_pages );
+
 		// Initialize the Admin experience.
 		$this->init_admin( $modules_setup );
 
@@ -129,6 +135,8 @@ class Jetpack_Boost {
 
 		// Setup Site Health panel functionality.
 		Site_Health::init();
+
+		Super_Cache_Tracking::setup();
 	}
 
 	/**
@@ -161,7 +169,7 @@ class Jetpack_Boost {
 		Analytics::record_user_event( 'activate_plugin' );
 
 		$page_cache_status = new Status( Page_Cache::get_slug() );
-		if ( $page_cache_status->is_enabled() && Boost_Cache_Settings::get_instance()->get_enabled() ) {
+		if ( $page_cache_status->get() && Boost_Cache_Settings::get_instance()->get_enabled() ) {
 			Page_Cache_Setup::run_setup();
 		}
 	}
@@ -187,6 +195,8 @@ class Jetpack_Boost {
 	public function init_admin( $modules_setup ) {
 		REST_API::register( List_Site_Urls::class );
 		REST_API::register( List_Source_Providers::class );
+		REST_API::register( List_Cornerstone_Pages::class );
+
 		$this->connection->ensure_connection();
 		( new Admin() )->init( $modules_setup );
 	}
@@ -198,6 +208,7 @@ class Jetpack_Boost {
 			array(
 				'jetpack_sync_callable_whitelist' => array(
 					'boost_modules'                => array( new Modules_Setup(), 'get_status' ),
+					'boost_sub_modules_state'      => array( new Modules_Setup(), 'get_all_sub_modules_state' ),
 					'boost_latest_scores'          => array( new Speed_Score_History( get_home_url() ), 'latest' ),
 					'boost_latest_no_boost_scores' => array( new Speed_Score_History( add_query_arg( Modules_Index::DISABLE_MODULE_QUERY_VAR, 'all', get_home_url() ) ), 'latest' ),
 					'critical_css_state'           => array( new Critical_CSS_State(), 'get' ),

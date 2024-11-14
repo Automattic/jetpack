@@ -138,7 +138,6 @@ export const SlideshowEdit = ( {
 				<Slideshow
 					align={ align }
 					autoplay={ autoplay }
-					className={ blockProps.className }
 					delay={ delay }
 					effect={ effect }
 					images={ images }

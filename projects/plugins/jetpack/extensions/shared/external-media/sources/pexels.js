@@ -37,7 +37,7 @@ function PexelsMedia( props ) {
 		[ getMedia, searchQuery ]
 	);
 
-	const previousSearchQueryValue = useRef();
+	const previousSearchQueryValue = useRef( undefined );
 	const onSearch = useCallback(
 		event => {
 			event.preventDefault();
@@ -83,6 +83,7 @@ function PexelsMedia( props ) {
 					value={ searchQuery }
 					onChange={ setSearchQuery }
 					disabled={ !! isCopying }
+					__nextHasNoMarginBottom={ true }
 				/>
 				<Button
 					variant="primary"

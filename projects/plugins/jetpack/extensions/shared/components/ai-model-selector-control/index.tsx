@@ -4,8 +4,8 @@
 import { AI_MODEL_GPT_3_5_Turbo_16K, AI_MODEL_GPT_4 } from '@automattic/jetpack-ai-client';
 import {
 	RadioControl,
-	__experimentalToggleGroupControl as ToggleGroupControl, // eslint-disable-line wpcalypso/no-unsafe-wp-apis
-	__experimentalToggleGroupControlOption as ToggleGroupControlOption, // eslint-disable-line wpcalypso/no-unsafe-wp-apis
+	__experimentalToggleGroupControl as ToggleGroupControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	__experimentalToggleGroupControlOption as ToggleGroupControlOption, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 /**
@@ -62,6 +62,7 @@ export default function AiModelSelectorControl( {
 			value={ model }
 			disabled={ disabled }
 			help={ help }
+			__nextHasNoMarginBottom={ true }
 		>
 			<ToggleGroupControlOption
 				label={ __( 'GTP-3.5 Turbo', 'jetpack' ) }

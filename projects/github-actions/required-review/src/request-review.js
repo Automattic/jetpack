@@ -11,12 +11,19 @@ async function requestReviewer( teams ) {
 	const owner = github.context.payload.repository.owner.login;
 	const repo = github.context.payload.repository.name;
 	const pr = github.context.payload.pull_request.number;
+	const author = `@${ github.context.payload.pull_request.user.login }`;
+	if ( teams.includes( author ) ) {
+		core.info( `Skipping review for author ${ author }` );
+		teams = teams.filter( team => team !== author );
+	}
 
 	const userReviews = [];
 	const teamReviews = [];
 
 	for ( const t of teams ) {
-		if ( t.startsWith( '@' ) ) {
+		if ( t.startsWith( '@' ) && t.endsWith( '[bot]' ) ) {
+			core.info( `Skipping ${ t }, appears to be a bot` );
+		} else if ( t.startsWith( '@' ) ) {
 			userReviews.push( t.slice( 1 ) );
 		} else {
 			teamReviews.push( t );

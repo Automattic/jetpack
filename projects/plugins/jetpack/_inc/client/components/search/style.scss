@@ -27,6 +27,31 @@
 		background-color: $white;
 		border-radius: inherit;
 		height: 100%;
+
+		&:focus-visible {
+			outline-offset: -2px;
+		}	
+	}
+
+	.dops-search__clear-btn {
+		min-width: 48px;
+		padding: 0.25em;
+		
+		background: none;
+		border: solid 1px currentColor;
+		border-radius: 4px;
+		color: var(--jp-gray-50);
+
+		&:focus-visible {
+			outline-offset: 2px;
+		}
+	}
+
+	.dops-search__icon-navigation,
+	.dops-search__clear-btn {
+		&:focus-visible {
+			outline: solid 2px var(--jp-green-50);
+		}
 	}
 
 	.dops-search__open-icon,
@@ -68,7 +93,9 @@
 	top: 0;
 	right: 0;
 	overflow: hidden;
-
+	gap: 0.25rem;	
+	background-color: var(--jp-white);
+		
 	.dops-search__input-fade {
 		position: relative;
 		flex: 1 1 auto;

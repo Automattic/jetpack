@@ -1,4 +1,4 @@
-/* global pluploadL10n, plupload, _wpPluploadSettings, JSON */
+/* global pluploadL10n, plupload, _wpPluploadSettings */
 
 window.wp = window.wp || {};
 
@@ -99,7 +99,7 @@ window.wp = window.wp || {};
 			! isIE &&
 			'flash' === plupload.predictRuntime( this.plupload ) &&
 			( ! this.plupload.required_features ||
-				! this.plupload.required_features.hasOwnProperty( 'send_binary_string' ) )
+				! Object.hasOwn( this.plupload.required_features, 'send_binary_string' ) )
 		) {
 			this.plupload.required_features = this.plupload.required_features || {};
 			this.plupload.required_features.send_binary_string = true;

@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+
+set -eo pipefail
+
+# Define some paths.
+src_css_file=src/css/example.css
+dest_css_dir=build/css
+dest_css_file="$dest_css_dir"/example.css
+dest_react_dir=build/react
+
+# Start in the right folder.
+root_dir="$(dirname "${BASH_SOURCE[0]}")/.."
+cd "$root_dir"
+
+# Make dir if it doesn't exist.
+mkdir -p "$dest_react_dir"
+
+# Build files using TypeScript.
+pnpm tsc
+
+# Copy example CSS.
+if [[ ! -d "$dest_css_dir" ]]; then
+	mkdir "$dest_css_dir"
+	cp "$src_css_file" "$dest_css_file"
+fi
+
+# Output.
+echo "Created React files in '$dest_react_dir'."

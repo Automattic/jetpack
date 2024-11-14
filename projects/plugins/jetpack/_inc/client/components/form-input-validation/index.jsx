@@ -1,4 +1,4 @@
-import classNames from 'classnames';
+import clsx from 'clsx';
 import Gridicon from 'components/gridicon';
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -17,7 +17,7 @@ export default class FormInputValidation extends React.Component {
 	static defaultProps = { isError: false };
 
 	render() {
-		const classes = classNames( {
+		const classes = clsx( {
 			'form-input-validation': true,
 			'is-warning': this.props.isWarning,
 			'is-error': this.props.isError,

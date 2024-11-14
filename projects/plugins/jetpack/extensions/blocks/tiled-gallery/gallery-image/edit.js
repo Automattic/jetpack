@@ -4,7 +4,7 @@ import { withSelect } from '@wordpress/data';
 import { Component, createRef, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { BACKSPACE, DELETE } from '@wordpress/keycodes';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import { close, downChevron, leftChevron, rightChevron, upChevron } from '../icons';
 
 class GalleryImageEdit extends Component {
@@ -18,7 +18,8 @@ class GalleryImageEdit extends Component {
 
 	onImageKeyDown = event => {
 		if (
-			this.img.current === document.activeElement &&
+			this.img.current &&
+			this.img.current === this.img.current.ownerDocument.activeElement &&
 			this.props.isSelected &&
 			[ BACKSPACE, DELETE ].includes( event.keyCode )
 		) {
@@ -119,7 +120,7 @@ class GalleryImageEdit extends Component {
 		// Disable reason: Each block can be selected by clicking on it and we should keep the same saved markup
 		return (
 			<figure
-				className={ classnames( 'tiled-gallery__item', {
+				className={ clsx( 'tiled-gallery__item', {
 					'is-selected': isSelected,
 					'is-transient': isTransient,
 					[ `filter__${ imageFilter }` ]: !! imageFilter,

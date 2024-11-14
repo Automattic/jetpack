@@ -10,7 +10,7 @@
 return [
     // # Issue statistics:
     // PhanPluginSimplifyExpressionBool : 85+ occurrences
-    // PhanUndeclaredGlobalVariable : 55+ occurrences
+    // PhanUndeclaredGlobalVariable : 45+ occurrences
     // PhanTypeMismatchArgumentInternal : 30+ occurrences
     // PhanTypeMismatchArgumentNullableInternal : 25+ occurrences
     // PhanPossiblyUndeclaredVariable : 20+ occurrences
@@ -25,8 +25,8 @@ return [
     // PhanUndeclaredFunction : 8 occurrences
     // PhanTypeArraySuspiciousNull : 7 occurrences
     // PhanTypeArraySuspiciousNullable : 7 occurrences
-    // PhanUndeclaredVariableDim : 7 occurrences
     // PhanSuspiciousValueComparison : 6 occurrences
+    // PhanUndeclaredVariableDim : 6 occurrences
     // PhanTypeMismatchArgumentProbablyReal : 5 occurrences
     // PhanTypeMismatchArgumentInternalProbablyReal : 4 occurrences
     // PhanTypeMismatchArgumentInternalReal : 4 occurrences
@@ -43,12 +43,12 @@ return [
     // PhanPluginUnreachableCode : 2 occurrences
     // PhanPossiblyUndeclaredGlobalVariable : 2 occurrences
     // PhanRedundantConditionInGlobalScope : 2 occurrences
-    // PhanTypeArraySuspicious : 2 occurrences
     // PhanTypeMismatchReturn : 2 occurrences
     // PhanCommentParamWithoutRealParam : 1 occurrence
     // PhanPluginDuplicateIfCondition : 1 occurrence
     // PhanRedefineFunctionInternal : 1 occurrence
     // PhanRedundantConditionInLoop : 1 occurrence
+    // PhanTypeArraySuspicious : 1 occurrence
     // PhanTypeConversionFromArray : 1 occurrence
     // PhanTypeInvalidLeftOperandOfBitwiseOp : 1 occurrence
     // PhanTypeInvalidRightOperandOfAdd : 1 occurrence
@@ -67,7 +67,6 @@ return [
         'partials/easy.php' => ['PhanPluginSimplifyExpressionBool', 'PhanTypeArraySuspiciousNull', 'PhanTypeInvalidDimOffset', 'PhanTypeMismatchArgumentInternalReal', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredConstant', 'PhanUndeclaredGlobalVariable'],
         'partials/lockdown.php' => ['PhanUndeclaredGlobalVariable'],
         'partials/preload.php' => ['PhanPluginDuplicateAdjacentStatement', 'PhanPluginSimplifyExpressionBool', 'PhanPossiblyUndeclaredGlobalVariable', 'PhanTypeMismatchDimAssignment', 'PhanUndeclaredGlobalVariable'],
-        'partials/rejected_user_agents.php' => ['PhanUndeclaredGlobalVariable'],
         'partials/tracking_parameters.php' => ['PhanUndeclaredGlobalVariable'],
         'plugins/badbehaviour.php' => ['PhanRedundantCondition'],
         'plugins/domain-mapping.php' => ['PhanRedundantCondition', 'PhanUndeclaredFunction'],
@@ -80,10 +79,9 @@ return [
         'rest/class.wp-super-cache-rest-update-settings.php' => ['PhanCommentParamWithoutRealParam', 'PhanPluginRedundantAssignment', 'PhanPluginSimplifyExpressionBool', 'PhanTypeMissingReturn'],
         'tests/e2e/tools/mu-test-helpers.php' => ['PhanTypeMismatchArgument'],
         'wp-cache-base.php' => ['PhanTypeMismatchArgumentNullableInternal'],
-        'wp-cache-config-sample.php' => ['PhanUndeclaredVariableDim'],
         'wp-cache-phase1.php' => ['PhanRedundantConditionInGlobalScope', 'PhanTypeNonVarPassByRef'],
         'wp-cache-phase2.php' => ['PhanImpossibleCondition', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginDuplicateIfCondition', 'PhanPluginRedundantAssignment', 'PhanPluginSimplifyExpressionBool', 'PhanPluginUnreachableCode', 'PhanPossiblyUndeclaredVariable', 'PhanRedefineFunctionInternal', 'PhanRedundantCondition', 'PhanSuspiciousValueComparison', 'PhanTypeArraySuspicious', 'PhanTypeArraySuspiciousNull', 'PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentInternalProbablyReal', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeNonVarPassByRef', 'PhanTypePossiblyInvalidDimOffset', 'PhanTypeSuspiciousNonTraversableForeach', 'PhanTypeSuspiciousStringExpression', 'PhanUndeclaredConstant', 'PhanUndeclaredVariableDim'],
-        'wp-cache.php' => ['PhanImpossibleCondition', 'PhanPluginDuplicateAdjacentStatement', 'PhanPluginDuplicateExpressionAssignmentOperation', 'PhanPluginNeverReturnFunction', 'PhanPluginSimplifyExpressionBool', 'PhanPossiblyUndeclaredVariable', 'PhanRedundantCondition', 'PhanRedundantConditionInLoop', 'PhanSuspiciousValueComparison', 'PhanTypeArraySuspicious', 'PhanTypeArraySuspiciousNullable', 'PhanTypeInvalidDimOffset', 'PhanTypeInvalidLeftOperandOfBitwiseOp', 'PhanTypeInvalidLeftOperandOfNumericOp', 'PhanTypeInvalidRightOperandOfAdd', 'PhanTypeInvalidRightOperandOfBitwiseOp', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentInternalProbablyReal', 'PhanTypeMismatchArgumentInternalReal', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeNonVarPassByRef', 'PhanTypePossiblyInvalidDimOffset', 'PhanTypeSuspiciousNonTraversableForeach', 'PhanTypeSuspiciousStringExpression', 'PhanUndeclaredConstant', 'PhanUndeclaredFunction', 'PhanUndeclaredVariable', 'PhanUndeclaredVariableDim'],
+        'wp-cache.php' => ['PhanImpossibleCondition', 'PhanPluginDuplicateAdjacentStatement', 'PhanPluginDuplicateExpressionAssignmentOperation', 'PhanPluginNeverReturnFunction', 'PhanPluginSimplifyExpressionBool', 'PhanPossiblyUndeclaredVariable', 'PhanRedundantCondition', 'PhanRedundantConditionInLoop', 'PhanSuspiciousValueComparison', 'PhanTypeArraySuspiciousNullable', 'PhanTypeInvalidDimOffset', 'PhanTypeInvalidLeftOperandOfBitwiseOp', 'PhanTypeInvalidLeftOperandOfNumericOp', 'PhanTypeInvalidRightOperandOfAdd', 'PhanTypeInvalidRightOperandOfBitwiseOp', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentInternalProbablyReal', 'PhanTypeMismatchArgumentInternalReal', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeNonVarPassByRef', 'PhanTypePossiblyInvalidDimOffset', 'PhanTypeSuspiciousNonTraversableForeach', 'PhanTypeSuspiciousStringExpression', 'PhanUndeclaredConstant', 'PhanUndeclaredFunction', 'PhanUndeclaredVariable', 'PhanUndeclaredVariableDim'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
     // (directory_suppressions will currently be ignored by subsequent calls to --save-baseline, but may be preserved in future Phan releases)

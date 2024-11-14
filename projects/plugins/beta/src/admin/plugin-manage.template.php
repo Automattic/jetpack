@@ -2,8 +2,12 @@
 /**
  * Jetpack Beta wp-admin manage page contents.
  *
+ * @html-template \Automattic\JetpackBeta\Admin::render
+ * @html-template-var \Automattic\JetpackBeta\Plugin $plugin Plugin being managed.
  * @package automattic/jetpack-beta
  */
+
+// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- HTML template, let Phan handle it.
 
 use Automattic\JetpackBeta\Admin;
 use Automattic\JetpackBeta\Utils;
@@ -14,21 +18,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-// @global \Automattic\JetpackBeta\Plugin $plugin Plugin being managed.
-if ( ! isset( $plugin ) ) {
-	throw new InvalidArgumentException( 'Template parameter $plugin missing' );
-}
-// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-$plugin = $plugin; // Dummy assignment to fool VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable.
-
-// -------------
-
 $manifest   = $plugin->get_manifest( true );
 $wporg_data = $plugin->get_wporg_data( true );
 
 $existing_branch = null;
-if ( file_exists( WP_PLUGIN_DIR . '/' . $plugin->plugin_file() ) ) {
-	$tmp             = get_plugin_data( WP_PLUGIN_DIR . '/' . $plugin->plugin_file(), false, false );
+if ( file_exists( $plugin->plugin_path() ) ) {
+	$tmp             = get_plugin_data( $plugin->plugin_path(), false, false );
 	$existing_branch = $plugin->source_info( 'release', $tmp['Version'] );
 	if ( ! $existing_branch || is_wp_error( $existing_branch ) ) {
 		$existing_branch = (object) array(
@@ -47,17 +42,18 @@ $active_branch = (object) array(
 	'id'     => null,
 );
 $version       = null;
-if ( is_plugin_active( $plugin->plugin_file() ) ) {
+$verslug       = '';
+if ( $plugin->is_active( 'stable' ) ) {
 	$active_branch = $existing_branch;
 	$verslug       = $plugin->plugin_slug();
 	$version       = $active_branch->pretty_version;
-} elseif ( is_plugin_active( $plugin->dev_plugin_file() ) ) {
+} elseif ( $plugin->is_active( 'dev' ) ) {
 	$active_branch = $plugin->dev_info();
 	if ( $active_branch ) {
 		$active_branch->which          = 'dev';
 		$active_branch->pretty_version = $plugin->dev_pretty_version();
 	} else {
-		$tmp           = get_plugin_data( WP_PLUGIN_DIR . '/' . $plugin->dev_plugin_file(), false, false );
+		$tmp           = get_plugin_data( $plugin->dev_plugin_path(), false, false );
 		$active_branch = (object) array(
 			'which'          => 'dev',
 			'source'         => 'unknown',
@@ -84,8 +80,22 @@ if ( is_plugin_active( $plugin->plugin_file() ) ) {
 		require __DIR__ . '/notice.template.php';
 	}
 	?>
-	<?php require __DIR__ . '/toggles.template.php'; ?>
+	<?php
+	// While the toggles apply globally rather than per-plugin, it might be confusing to show them on mu-plugins where they don't have any effect.
+	if ( ! $plugin->is_mu_plugin() ) {
+		require __DIR__ . '/toggles.template.php';
+	}
+	?>
 	<?php require __DIR__ . '/show-needed-updates.template.php'; ?>
+
+	<?php
+	if ( $plugin->is_mu_plugin() ) {
+		$url = sprintf( 'https://github.com/Automattic/jetpack-beta/blob/%s/docs/mu-plugin-info.md', rawurlencode( str_ends_with( JPBETA_VERSION, '-alpha' ) ? 'HEAD' : JPBETA_VERSION ) );
+		?>
+		<div id="jetpack-beta-tester__is-mu-plugin" class="dops-card">
+			<p><?php echo esc_html( $plugin->get_name() ); ?> will be installed as a mu-plugin. See <a href="<?php echo esc_url( $url ); ?>">the documentation</a> for details on what this entails, particularly if you're newly installing a stable version.</p>
+		</div>
+	<?php } ?>
 
 	<?php if ( null !== $version ) { ?>
 	<div class="dops-foldable-card is-expanded has-expanded-summary dops-card is-compact">
@@ -126,6 +136,19 @@ if ( is_plugin_active( $plugin->plugin_file() ) ) {
 		if ( $existing_branch && 'unknown' === $existing_branch->source ) {
 			$branch                 = clone $existing_branch;
 			$branch->pretty_version = __( 'Existing Version', 'jetpack-beta' );
+			require __DIR__ . '/branch-card.template.php';
+		}
+		if ( $plugin->is_mu_plugin() && $active_branch && $active_branch->which === 'dev' && ! $existing_branch ) {
+			// This is a bit of a cheat. Telling it to activate an "unknown" existing stable version when there is no
+			// existing stable version has the effect of deactivating the plugin. This saves us having to write a special handler
+			// for mu-plugin deactivation.
+			$branch = (object) array(
+				'which'          => 'stable',
+				'source'         => 'unknown',
+				'id'             => 'deactivate', // Arbitrary, unused.
+				'version'        => '',
+				'pretty_version' => 'Deactivate mu-plugin',
+			);
 			require __DIR__ . '/branch-card.template.php';
 		}
 		?>

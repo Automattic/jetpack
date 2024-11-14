@@ -1,4 +1,4 @@
-import classnames from 'classnames';
+import clsx from 'clsx';
 import React from 'react';
 import Col from '../layout/col';
 import Container from '../layout/container';
@@ -16,12 +16,12 @@ type DialogProps = {
 /**
  * Dialog component.
  *
- * @param {object} props                    - React component props.
- * @param {React.ReactNode} props.primary   - Primary-section content.
- * @param {React.ReactNode} props.secondary - Secondary-section content.
- * @param {boolean} props.isTwoSections     - Handle two sections layout when true.
- * @param {object} props.containerProps     - Props to pass to the container component.
- * @returns {React.ReactNode}                 Rendered dialog
+ * @param {object}          props                - React component props.
+ * @param {React.ReactNode} props.primary        - Primary-section content.
+ * @param {React.ReactNode} props.secondary      - Secondary-section content.
+ * @param {boolean}         props.isTwoSections  - Handle two sections layout when true.
+ * @param {object}          props.containerProps - Props to pass to the container component.
+ * @return {React.ReactNode}                 Rendered dialog
  */
 const Dialog: React.FC< DialogProps > = ( {
 	primary,
@@ -38,7 +38,7 @@ const Dialog: React.FC< DialogProps > = ( {
 	 */
 	const hideSecondarySection = ! isTwoSections && isSmall;
 
-	const classNames = classnames( {
+	const classNames = clsx( {
 		[ styles[ 'one-section-style' ] ]: ! isTwoSections,
 		[ styles[ 'is-viewport-small' ] ]: isSmall,
 	} );

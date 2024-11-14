@@ -15,7 +15,7 @@ import {
 } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { arrowLeft } from '@wordpress/icons';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import { find, findIndex, includes, isEqual, join, keys, map, pick } from 'lodash';
 import { useNavigate } from 'react-router-dom';
 /**
@@ -57,7 +57,7 @@ const TABS = [
 ];
 
 const Inbox = () => {
-	const stickySentinel = useRef();
+	const stickySentinel = useRef( undefined );
 	const [ responseAnimationDirection, setResponseAnimationDirection ] = useState( 1 );
 	const [ showExportModal, setShowExportModal ] = useState( false );
 	const [ isSticky, setSticky ] = useState( false );
@@ -252,7 +252,7 @@ const Inbox = () => {
 
 	const showBulkActionsMenu = !! selectedResponses.length && ! loading;
 
-	const classes = classnames( 'jp-forms__inbox', {
+	const classes = clsx( 'jp-forms__inbox', {
 		'is-response-view': !! currentResponseId,
 		'is-response-animation-reverted': responseAnimationDirection < 0,
 	} );

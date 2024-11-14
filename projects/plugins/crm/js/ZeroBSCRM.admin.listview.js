@@ -1,11 +1,6 @@
 /*!
  * Jetpack CRM
  * https://jetpackcrm.com
- * V2.2
- *
- * Copyright 2017 ZeroBSCRM.com
- *
- * Date: 11/08/2017
  */
 
 // catch nulls passed here

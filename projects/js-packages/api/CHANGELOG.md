@@ -2,6 +2,46 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [0.17.17] - 2024-11-11
+### Changed
+- Updated package dependencies. [#39999]
+
+## [0.17.16] - 2024-11-04
+### Added
+- Enable test coverage. [#39961]
+
+## [0.17.15] - 2024-10-10
+### Changed
+- Updated package dependencies.
+
+## [0.17.14] - 2024-10-07
+### Changed
+- Updated package dependencies. [#39594]
+
+## [0.17.13] - 2024-09-10
+### Changed
+- Updated package dependencies. [#39302]
+
+## [0.17.12] - 2024-09-05
+### Changed
+- Updated package dependencies. [#39176]
+
+## [0.17.11] - 2024-08-21
+### Changed
+- Internal updates.
+
+## [0.17.10] - 2024-08-15
+### Changed
+- Updated package dependencies. [#38662]
+
+## [0.17.9] - 2024-07-03
+### Changed
+- Updated package dependencies. [#38132]
+
+## [0.17.8] - 2024-06-05
+### Changed
+- Updated package dependencies. [#37669]
+
 ## [0.17.7] - 2024-05-16
 ### Changed
 - Updated package dependencies. [#37379]
@@ -330,6 +370,16 @@
 - Add the API methods left behind by the previous PR.
 - Initial release of jetpack-api package
 
+[0.17.17]: https://github.com/Automattic/jetpack-api/compare/v0.17.16...v0.17.17
+[0.17.16]: https://github.com/Automattic/jetpack-api/compare/v0.17.15...v0.17.16
+[0.17.15]: https://github.com/Automattic/jetpack-api/compare/v0.17.14...v0.17.15
+[0.17.14]: https://github.com/Automattic/jetpack-api/compare/v0.17.13...v0.17.14
+[0.17.13]: https://github.com/Automattic/jetpack-api/compare/v0.17.12...v0.17.13
+[0.17.12]: https://github.com/Automattic/jetpack-api/compare/v0.17.11...v0.17.12
+[0.17.11]: https://github.com/Automattic/jetpack-api/compare/v0.17.10...v0.17.11
+[0.17.10]: https://github.com/Automattic/jetpack-api/compare/v0.17.9...v0.17.10
+[0.17.9]: https://github.com/Automattic/jetpack-api/compare/v0.17.8...v0.17.9
+[0.17.8]: https://github.com/Automattic/jetpack-api/compare/v0.17.7...v0.17.8
 [0.17.7]: https://github.com/Automattic/jetpack-api/compare/v0.17.6...v0.17.7
 [0.17.6]: https://github.com/Automattic/jetpack-api/compare/v0.17.5...v0.17.6
 [0.17.5]: https://github.com/Automattic/jetpack-api/compare/v0.17.4...v0.17.5

@@ -20,12 +20,12 @@ import PortalSidecar from './utilities/portal-sidecar';
 /**
  * Component that loads on the plugins page and manages presenting the disconnection modal.
  *
- * @param {object} props - The props object for the component.
- * @param {string} props.apiRoot - Root URL for the API, which is required by the <DisconnectDialog/> component.
- * @param {string} props.apiNonce - Nonce value for the API, which is required by the <DisconnectDialog/> component.
- * @param {Array} props.siteBenefits - An array of benefits provided by Jetpack.
- * @param {string} props.pluginUrl - The URL of the plugin directory.
- * @returns {React.Component} - The PluginDeactivation component.
+ * @param {object} props              - The props object for the component.
+ * @param {string} props.apiRoot      - Root URL for the API, which is required by the <DisconnectDialog/> component.
+ * @param {string} props.apiNonce     - Nonce value for the API, which is required by the <DisconnectDialog/> component.
+ * @param {Array}  props.siteBenefits - An array of benefits provided by Jetpack.
+ * @param {string} props.pluginUrl    - The URL of the plugin directory.
+ * @return {React.Component} - The PluginDeactivation component.
  */
 const PluginDeactivation = props => {
 	const {

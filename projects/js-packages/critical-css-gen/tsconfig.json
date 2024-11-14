@@ -1,0 +1,14 @@
+{
+	"extends": "jetpack-js-tools/tsconfig.tsc.json",
+	"include": [ "src/browser.ts", "src/playwright.ts" ],
+	"exclude": [ "node_modules/**/*" ],
+	"compilerOptions": {
+		"outDir": "./build",
+		"target": "es2019",
+		"sourceMap": true,
+		"allowJs": false,
+		"allowSyntheticDefaultImports": true,
+		"typeRoots": [ "node_modules/@types" ],
+		"declaration": true
+	}
+}

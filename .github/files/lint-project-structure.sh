@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 set -eo pipefail
 shopt -s dotglob
@@ -8,12 +8,6 @@ BASE=$PWD
 . "$BASE/tools/includes/check-osx-bash-version.sh"
 . "$BASE/tools/includes/chalk-lite.sh"
 . "$BASE/.github/versions.sh"
-
-if [[ -n "$CI" ]]; then
-	function debug {
-		blue "$@"
-	}
-fi
 
 EXIT=0
 declare -A OKFILES
@@ -27,6 +21,11 @@ declare -A PROJECT_PREFIXES=(
 	['plugins']='Plugin'
 	['js-packages']='JS Package'
 )
+
+declare -A PKG_VENDOR_DIR_CACHE=()
+while IFS=$'\t' read -r PKG VENDOR; do
+	PKG_VENDOR_DIR_CACHE["$PKG=dev-trunk"]="$VENDOR"
+done < <( jq -r '[ .name, if .type == "jetpack-library" then "jetpack_vendor" else "vendor" end ] | @tsv' "$BASE"/projects/packages/*/composer.json )
 
 PACKAGES=$(jq -nc 'reduce inputs as $in ({}; .[ $in.name ] |= ( $in.extra["mirror-repo"] | type == "string" ) )' "$BASE"/projects/packages/*/composer.json)
 JSPACKAGES='{}'
@@ -223,6 +222,14 @@ for PROJECT in projects/*/*; do
 		fi
 	fi
 
+	# - If a project uses react, it should include the react linting rules too.
+	if [[ -e "$PROJECT/package.json" ]] && jq -e '.dependencies.react // .devDependencies.react' "$PROJECT/package.json" >/dev/null && ! git grep eslintrc/react "$PROJECT"/.eslintrc.* &>/dev/null; then
+		EXIT=1
+		TMP=$( git ls-files "$PROJECT"/.eslintrc.* | head -n 1 ) || true
+		[[ -n "$TMP" ]] && TMP=" file=$TMP"
+		echo "::error${TMP}::Project $SLUG appears to use React but does not extend jetpack-js-tools/eslintrc/react in its eslint config. Please add that."
+	fi
+
 	# - composer.json must exist.
 	if [[ ! -e "$PROJECT/composer.json" ]]; then
 		EXIT=1
@@ -407,6 +414,58 @@ for PROJECT in projects/*/*; do
 		fi
 	fi
 
+	# - Plugin non-dev composer dependencies need to be production-included.
+	if [[ "$TYPE" == "plugins" && -e "$PROJECT/composer.lock" ]]; then
+		HAS_COMPOSER_PLUGIN=false
+		if composer -d "$PROJECT" info --locked automattic/jetpack-composer-plugin &>/dev/null; then
+			HAS_COMPOSER_PLUGIN=true
+		fi
+		while IFS=$'\t' read -r PKG VER; do
+			VENDOR=vendor
+			if $HAS_COMPOSER_PLUGIN; then
+				if [[ -z "${PKG_VENDOR_DIR_CACHE["$PKG=$VER"]}" ]]; then
+					if composer -d "$PROJECT" info --locked --format=json "$PKG" | jq -e '.type == "jetpack-library"' &>/dev/null; then
+						PKG_VENDOR_DIR_CACHE["$PKG=$VER"]=jetpack_vendor
+					else
+						PKG_VENDOR_DIR_CACHE["$PKG=$VER"]=vendor
+					fi
+				fi
+				VENDOR=${PKG_VENDOR_DIR_CACHE["$PKG=$VER"]}
+			fi
+			if [[ "$(git check-attr production-include -- "$PROJECT/$VENDOR/$PKG/file")" != *": production-include: set" ]]; then
+				EXIT=1
+				echo "---"
+				echo "::error file=$PROJECT/.gitattributes::Non-dev composer dependency $PKG is not being production-included. Either make it a dev dependency, or add a line like%0A/$VENDOR/$PKG/**    production-include%0Ain \`.gitattributes\`."
+				echo "---"
+			fi
+		done < <( composer -d "$PROJECT" info --locked --no-dev --format=json | jq -r 'if type == "object" then .locked[] | [ .name, .version ] | @tsv else empty end' )
+	fi
+
+	# - `.extra.dependencies.test-only` must refer to dev dependencies.
+	if jq -e '.extra.dependencies["test-only"] // empty' "$PROJECT/composer.json" >/dev/null; then
+		while IFS=$'\t' read -r LINE DEP; do
+			if [[ ! -e "projects/$DEP/composer.json" ]]; then
+				EXIT=1
+				echo "::error file=$PROJECT/composer.json,line=${LINE}::Dependency \"$DEP\" does not exist in the monorepo."
+			elif [[ "$DEP" == packages/* ]]; then
+				N=$( jq -r .name "projects/$DEP/composer.json" )
+				if ! jq -e --arg N "$N" '.["require-dev"][$N]' "$PROJECT/composer.json" &>/dev/null; then
+					EXIT=1
+					echo "::error file=$PROJECT/composer.json,line=${LINE}::Project \"$DEP\" ($N) is not a dev dependency of $SLUG."
+				fi
+			elif [[ "$DEP" == js-packages/* ]]; then
+				N=$( jq -r .name "projects/$DEP/package.json" 2>/dev/null || true )
+				if ! jq -e --arg N "$N" '.devDependencies[$N]' "$PROJECT/package.json" &>/dev/null; then
+					EXIT=1
+					echo "::error file=$PROJECT/composer.json,line=${LINE}::Project \"$DEP\" ($N) is not a dev dependency of $SLUG."
+				fi
+			else
+				EXIT=1
+				echo "::error file=$PROJECT/composer.json,line=${LINE}::Dependency \"$DEP\" is neither a package nor a js-package."
+			fi
+		done < <( jq --stream -r 'if length == 2 and .[0][:-1] == ["extra","dependencies","test-only"] then [input_line_number,.[1]] | @tsv else empty end' "$PROJECT/composer.json" )
+	fi
+
 done
 
 # - Monorepo root composer.json must also use dev deps appropriately.
@@ -583,5 +642,17 @@ if ! pnpm semver --range "$RANGE" "$PNPM_VERSION" &>/dev/null; then
 	LINE=$(jq --stream 'if length == 1 then .[0][:-1] else .[0] end | if . == ["engines","pnpm"] then input_line_number - 1 else empty end' package.json)
 	echo "::error file=package.json,line=$LINE::Pnpm version $PNPM_VERSION in .github/versions.sh does not satisfy requirement $RANGE from package.json"
 fi
+
+# - Check for incorrect next-version tokens.
+debug "Checking for incorrect next-version tokens."
+RE='[^$]\$next[-_]version\$\|\$next[-_]version\$[^$]\|\$\$next_version\$\$'
+while IFS= read -r FILE; do
+	EXIT=1
+	while IFS=: read -r LINE COL X; do
+		X=${X/#[^$]/}
+		X=${X/%[^$]/}
+		echo "::error file=$FILE,line=$LINE,col=$COL::You probably mean \`\$\$next-version\$\$\` here rather than \`$X\`."
+	done < <( git grep -h --line-number --column -o "$RE" "$FILE" )
+done < <( git -c core.quotepath=off grep -l "$RE" )
 
 exit $EXIT

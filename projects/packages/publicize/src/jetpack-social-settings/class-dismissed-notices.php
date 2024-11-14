@@ -28,8 +28,6 @@ class Dismissed_Notices {
 					'schema' => array(
 						'type'       => 'object',
 						'properties' => array(
-							'auto-conversion-editor-notice' => array( 'type' => 'number' ),
-							'instagram'                    => array( 'type' => 'number' ),
 							'advanced-upgrade-nudge-admin' => array( 'type' => 'number' ),
 							'advanced-upgrade-nudge-editor' => array( 'type' => 'number' ),
 						),

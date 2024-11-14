@@ -49,6 +49,7 @@ export default function StoryPlayer( { id, slides, metadata, disabled, ...settin
 					if ( fullscreen ) {
 						break;
 					}
+				// fall through
 				case SPACE:
 					setPlaying( playerId, ! playing );
 					break;

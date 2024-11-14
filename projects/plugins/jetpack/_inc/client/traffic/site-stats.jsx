@@ -2,7 +2,7 @@ import { imagePath, JETPACK_STATS_OPT_OUT_SURVEY } from 'constants/urls';
 import { getRedirectUrl, ToggleControl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import Button from 'components/button';
 import Card from 'components/card';
 import FoldableCard from 'components/foldable-card';
@@ -121,7 +121,7 @@ class SiteStatsComponent extends React.Component {
 					countRoles
 				)
 			) {
-				this.state[ `count_roles_${ role }` ] = includes( countRoles, role, false );
+				this.setState( { [ `count_roles_${ role }` ]: includes( countRoles, role, false ) } );
 			}
 		} );
 	}
@@ -136,7 +136,7 @@ class SiteStatsComponent extends React.Component {
 			if (
 				! [ 'administrator', 'editor', 'author', 'subscriber', 'contributor' ].includes( role )
 			) {
-				this.state[ `roles_${ role }` ] = includes( roles, role, false );
+				this.setState( { [ `roles_${ role }` ]: includes( roles, role, false ) } );
 			}
 		} );
 	}
@@ -203,13 +203,10 @@ class SiteStatsComponent extends React.Component {
 								? __( 'Unavailable in Offline Mode', 'jetpack' )
 								: createInterpolateElement(
 										__(
-											'<Button>Activate Jetpack Stats</Button> to see page views, likes, followers, subscribers, and more! <a>Learn More</a>',
+											'Activate Jetpack Stats to see page views, likes, followers, subscribers, and more! <a>Learn More</a>',
 											'jetpack'
 										),
 										{
-											Button: (
-												<Button rna className="jp-link-button" onClick={ this.activateStats } />
-											),
 											a: (
 												<a
 													href={ getRedirectUrl( 'jetpack-support-wordpress-com-stats' ) }
@@ -246,7 +243,7 @@ class SiteStatsComponent extends React.Component {
 						'jetpack'
 					) }
 					clickableHeader={ true }
-					className={ classNames( 'jp-foldable-settings-standalone', {
+					className={ clsx( 'jp-foldable-settings-standalone', {
 						'jp-foldable-settings-disable': unavailableInOfflineMode,
 					} ) }
 				>
@@ -284,11 +281,16 @@ class SiteStatsComponent extends React.Component {
 										checked={ !! this.props.getOptionValue( 'enable_odyssey_stats' ) }
 										disabled={
 											! isStatsActive ||
+											! optedOutOfOdyssey ||
 											unavailableInOfflineMode ||
 											this.props.isSavingAnyOption( [ 'stats' ] )
 										}
 										toggling={ this.props.isSavingAnyOption( [ 'enable_odyssey_stats' ] ) }
-										onChange={ this.handleStatsOptionToggle( 'enable_odyssey_stats' ) }
+										onChange={
+											optedOutOfOdyssey
+												? this.handleStatsOptionToggle( 'enable_odyssey_stats' )
+												: null
+										}
 										label={
 											<>
 												{ /* This toggle enables Odyssey Stats. */ }

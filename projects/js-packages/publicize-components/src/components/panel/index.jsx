@@ -9,11 +9,13 @@ import { store as editorStore } from '@wordpress/editor';
 import { Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import usePublicizeConfig from '../../hooks/use-publicize-config';
+import useRefreshConnections from '../../hooks/use-refresh-connections';
 import { usePostJustPublished } from '../../hooks/use-saving-post';
 import useSelectSocialMediaConnections from '../../hooks/use-social-media-connections';
-import PublicizeConnectionVerify from '../connection-verify';
+import { getSocialScriptData } from '../../utils/script-data';
 import PublicizeForm from '../form';
 import { ManualSharing } from '../manual-sharing';
+import { ReSharingPanel } from '../resharing-panel';
 import { SharePostRow } from '../share-post';
 import styles from './styles.module.scss';
 import './global.scss';
@@ -21,6 +23,9 @@ import './global.scss';
 const PublicizePanel = ( { prePublish, children } ) => {
 	const { refresh, hasConnections, hasEnabledConnections } = useSelectSocialMediaConnections();
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
+	const { feature_flags } = getSocialScriptData();
+
+	const refreshConnections = useRefreshConnections();
 
 	const { isPublicizeEnabled, hidePublicizeFeature, togglePublicizeFeature } = usePublicizeConfig();
 
@@ -42,6 +47,8 @@ const PublicizePanel = ( { prePublish, children } ) => {
 		? {}
 		: { title: __( 'Share this post', 'jetpack' ), className: styles.panel };
 
+	refreshConnections();
+
 	return (
 		<PanelWrapper { ...wrapperProps }>
 			{ children }
@@ -61,15 +68,20 @@ const PublicizePanel = ( { prePublish, children } ) => {
 							onChange={ togglePublicizeFeature }
 							checked={ isPublicizeEnabled && hasConnections }
 							disabled={ ! hasConnections }
+							__nextHasNoMarginBottom={ true }
 						/>
 					) }
 
-					<PublicizeConnectionVerify />
 					<PublicizeForm />
 					<SharePostRow />
 				</Fragment>
 			) }
-			{ isPostPublished && <ManualSharing /> }
+			{ isPostPublished && (
+				<>
+					{ feature_flags.useShareStatus ? <ReSharingPanel /> : null }
+					<ManualSharing />
+				</>
+			) }
 		</PanelWrapper>
 	);
 };

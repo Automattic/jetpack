@@ -61,14 +61,50 @@ class WooCommerce extends Module {
 	private $order_item_table_name;
 
 	/**
-	 * The table in the database.
+	 * The table name.
+	 *
+	 * @access public
+	 *
+	 * @return string
+	 * @deprecated since 3.11.0 Use table() instead.
+	 */
+	public function table_name() {
+		_deprecated_function( __METHOD__, '3.11.0', 'Automattic\\Jetpack\\Sync\\WooCommerce->table' );
+		return $this->order_item_table_name;
+	}
+
+	/**
+	 * The table in the database with the prefix.
+	 *
+	 * @access public
+	 *
+	 * @return string|bool
+	 */
+	public function table() {
+		global $wpdb;
+		return $wpdb->prefix . 'woocommerce_order_items';
+	}
+
+	/**
+	 * The id field in the database.
 	 *
 	 * @access public
 	 *
 	 * @return string
 	 */
-	public function table_name() {
-		return $this->order_item_table_name;
+	public function id_field() {
+		return 'order_item_id';
+	}
+
+	/**
+	 * The full sync action name for this module.
+	 *
+	 * @access public
+	 *
+	 * @return string
+	 */
+	public function full_sync_action_name() {
+		return 'jetpack_full_sync_woocommerce_order_items';
 	}
 
 	/**
@@ -549,14 +585,15 @@ class WooCommerce extends Module {
 		'_date_completed',
 		'_date_paid',
 		'_payment_tokens',
-		'_billing_address_index',
-		'_shipping_address_index',
+		// '_billing_address_index', do not sync these as they contain personal data.
+		// '_shipping_address_index',
 		'_recorded_sales',
 		'_recorded_coupon_usage_counts',
 		// See https://github.com/woocommerce/woocommerce/blob/8ed6e7436ff87c2153ed30edd83c1ab8abbdd3e9/includes/data-stores/class-wc-order-data-store-cpt.php#L539 .
 		'_download_permissions_granted',
 		// See https://github.com/woocommerce/woocommerce/blob/8ed6e7436ff87c2153ed30edd83c1ab8abbdd3e9/includes/data-stores/class-wc-order-data-store-cpt.php#L594 .
 		'_order_stock_reduced',
+		'_cart_hash',
 
 		// Woocommerce order refunds.
 		// See https://github.com/woocommerce/woocommerce/blob/b8a2815ae546c836467008739e7ff5150cb08e93/includes/data-stores/class-wc-order-refund-data-store-cpt.php#L20 .

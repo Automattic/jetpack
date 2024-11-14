@@ -1,5 +1,8 @@
 module.exports = {
-	extends: [ require.resolve( 'jetpack-js-tools/eslintrc/typescript' ) ],
+	extends: [
+		require.resolve( 'jetpack-js-tools/eslintrc/react' ),
+		require.resolve( 'jetpack-js-tools/eslintrc/typescript' ),
+	],
 	rules: {
 		'jsdoc/check-alignment': 0,
 		'jsdoc/check-examples': 0,

@@ -20,8 +20,8 @@ const ProductLink = props => {
 			redirectSource: 'jetpack-license-activation-success-backup',
 		},
 		jetpack_scan: {
-			text: __( 'View scan results', 'jetpack' ),
-			redirectSource: 'jetpack-license-activation-success-scan',
+			text: __( 'View my plans', 'jetpack' ),
+			redirectSource: 'license-activation-view-my-plans',
 		},
 		jetpack_search: {
 			text: __( 'Configure search', 'jetpack' ),

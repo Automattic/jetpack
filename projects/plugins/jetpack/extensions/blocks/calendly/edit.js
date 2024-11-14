@@ -5,7 +5,7 @@ import { Button, ExternalLink, Placeholder, Spinner, withNotices } from '@wordpr
 import { select, dispatch } from '@wordpress/data';
 import { useEffect, useState } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import { isEqual } from 'lodash';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 import testEmbedUrl from '../../shared/test-embed-url';
@@ -199,7 +199,7 @@ export function CalendlyEdit( props ) {
 	return (
 		<div
 			{ ...blockProps }
-			className={ classNames( blockProps.className, {
+			className={ clsx( blockProps.className, {
 				[ `calendly-style-${ style }` ]: url && ! isEditingUrl,
 			} ) }
 		>

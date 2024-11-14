@@ -480,6 +480,12 @@ class WPCom_Markdown {
 
 		$re = '/' . $this->get_parser()->contain_span_tags_re . '/';
 		foreach ( $tags as $tag => $attributes ) {
+
+			// In case other filters have changed the value to a non-array, we skip it.
+			if ( ! is_array( $attributes ) ) {
+				continue;
+			}
+
 			if ( preg_match( $re, $tag ) ) {
 				$attributes['markdown'] = true;
 				$tags[ $tag ]           = $attributes;

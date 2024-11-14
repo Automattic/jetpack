@@ -4,6 +4,7 @@
 export { default as requestJwt } from './jwt/index.js';
 export { default as SuggestionsEventSource } from './suggestions-event-source/index.js';
 export { default as askQuestion } from './ask-question/index.js';
+export { default as askQuestionSync } from './ask-question/sync.js';
 export { default as transcribeAudio } from './audio-transcription/index.js';
 
 /*
@@ -15,6 +16,7 @@ export { default as useAudioTranscription } from './hooks/use-audio-transcriptio
 export { default as useTranscriptionPostProcessing } from './hooks/use-transcription-post-processing/index.js';
 export { default as useAudioValidation } from './hooks/use-audio-validation/index.js';
 export { default as useImageGenerator } from './hooks/use-image-generator/index.js';
+export * from './hooks/use-image-generator/constants.js';
 
 /*
  * Components: Icons
@@ -40,3 +42,8 @@ export * from './types.js';
  * Libs
  */
 export * from './libs/index.js';
+
+/*
+ * Logo Generator
+ */
+export * from './logo-generator/index.js';

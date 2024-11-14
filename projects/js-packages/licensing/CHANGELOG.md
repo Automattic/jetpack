@@ -5,6 +5,108 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.13.7 - 2024-11-11
+### Changed
+- Updated package dependencies. [#39999] [#40060]
+
+## 0.13.6 - 2024-11-04
+### Added
+- Enable test coverage. [#39961]
+
+## 0.13.5 - 2024-10-15
+### Changed
+- Update dependencies. [#37982]
+
+## 0.13.4 - 2024-10-14
+### Changed
+- Update dependencies. [#37982]
+
+## 0.13.3 - 2024-10-10
+### Changed
+- Updated package dependencies. [#39707]
+
+## 0.13.2 - 2024-10-07
+### Changed
+- Updated package dependencies. [#39594]
+
+## 0.13.1 - 2024-09-25
+### Changed
+- Update dependencies. [#37982]
+
+## 0.13.0 - 2024-09-16
+### Changed
+- Add more helpful error messages and help steps on license key activation error. [#39333]
+- Updated package dependencies. [#39332]
+
+## 0.12.30 - 2024-09-10
+### Changed
+- Updated package dependencies. [#39302]
+
+## 0.12.29 - 2024-09-09
+### Changed
+- Updated package dependencies. [#39278]
+
+## 0.12.28 - 2024-09-05
+### Changed
+- Internal updates.
+
+## 0.12.27 - 2024-09-05
+### Changed
+- Adds a conditional Protect redirect post scan license activation [#39007]
+- Updated package dependencies. [#39176]
+
+## 0.12.26 - 2024-08-26
+### Changed
+- Updated package dependencies. [#39004]
+
+## 0.12.25 - 2024-08-21
+### Changed
+- Internal updates.
+
+## 0.12.24 - 2024-08-19
+### Fixed
+- Lossless image optimization for images (should improve performance with no visible changes). [#38750]
+
+## 0.12.23 - 2024-08-15
+### Changed
+- Updated package dependencies. [#38662]
+
+## 0.12.22 - 2024-08-09
+### Removed
+- Tests: Removed react-test-renderer. [#38755]
+
+## 0.12.21 - 2024-07-29
+### Fixed
+- Updated package dependencies. [#38464]
+
+## 0.12.20 - 2024-07-22
+### Changed
+- Update dependencies. [#37982]
+
+## 0.12.19 - 2024-07-15
+### Changed
+- Social Recommendations: Added for V1 plan [#38219]
+
+## 0.12.18 - 2024-07-03
+### Changed
+- Updated package dependencies. [#38132]
+
+## 0.12.17 - 2024-06-21
+### Changed
+- Update dependencies. [#37979]
+
+## 0.12.16 - 2024-06-13
+### Changed
+- Updated package dependencies. [#37796]
+
+## 0.12.15 - 2024-06-10
+### Changed
+- Change codebase to use clsx instead of classnames. [#37708]
+
+## 0.12.14 - 2024-06-05
+### Changed
+- Updated package dependencies. [#37669]
+
 ## 0.12.13 - 2024-05-20
 ### Changed
 - Updated package dependencies. [#37379] [#37380] [#37382]

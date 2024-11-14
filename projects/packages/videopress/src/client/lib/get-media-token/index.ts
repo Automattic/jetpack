@@ -26,9 +26,9 @@ const TOKEN_LIFETIME = 1000 * 60 * 60 * 24; // 24 hours
 /**
  * Request media token data hiting the admin-ajax endpoint.
  *
- * @param {MediaTokenScopeProps} scope  - The scope of the token to request.
- * @param {GetMediaTokenArgsProps} args - function arguments.
- * @returns {MediaTokenProps}             Media token data.
+ * @param {MediaTokenScopeProps}   scope - The scope of the token to request.
+ * @param {GetMediaTokenArgsProps} args  - function arguments.
+ * @return {MediaTokenProps}             Media token data.
  */
 const requestMediaToken = function (
 	scope: MediaTokenScopeProps,
@@ -123,9 +123,9 @@ const requestMediaToken = function (
  * from the localStore in case it is still valid,
  * otherwise request it from the admin-ajax endpoint.
  *
- * @param {MediaTokenScopeProps} scope  - The scope of the token to request.
- * @param {GetMediaTokenArgsProps} args - function arguments.
- * @returns {MediaTokenProps}             Media token data.
+ * @param {MediaTokenScopeProps}   scope - The scope of the token to request.
+ * @param {GetMediaTokenArgsProps} args  - function arguments.
+ * @return {MediaTokenProps}             Media token data.
  */
 async function getMediaToken(
 	scope: MediaTokenScopeProps,

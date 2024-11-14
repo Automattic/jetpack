@@ -106,14 +106,28 @@ class Posts extends Module {
 	}
 
 	/**
-	 * The table in the database.
+	 * The table name.
 	 *
 	 * @access public
 	 *
 	 * @return string
+	 * @deprecated since 3.11.0 Use table() instead.
 	 */
 	public function table_name() {
+		_deprecated_function( __METHOD__, '3.11.0', 'Automattic\\Jetpack\\Sync\\Posts->table' );
 		return 'posts';
+	}
+
+	/**
+	 * The table in the database with the prefix.
+	 *
+	 * @access public
+	 *
+	 * @return string|bool
+	 */
+	public function table() {
+		global $wpdb;
+		return $wpdb->posts;
 	}
 
 	/**
@@ -618,12 +632,10 @@ class Posts extends Module {
 	 * The 2nd request is to update post meta, which is not supported on WP REST API.
 	 * When syncing post data, we will include if this was a meta box update.
 	 *
-	 * @todo Implement nonce verification.
-	 *
 	 * @return boolean Whether this is a Gutenberg meta box update.
 	 */
-	public function is_gutenberg_meta_box_update() {
-		// phpcs:disable WordPress.Security.NonceVerification.Missing, WordPress.Security.NonceVerification.Recommended
+	private function is_gutenberg_meta_box_update() {
+		// phpcs:disable WordPress.Security.NonceVerification.Missing, WordPress.Security.NonceVerification.Recommended -- We only check the request to determine if this is a Gutenberg meta box update, and we only use the result to set a boolean logged in the sync event. If anyone anywhere else gets the flag and does something CSRF-able with it, they should ensure that a nonce has been checked.
 		return (
 			isset( $_POST['action'], $_GET['classic-editor'], $_GET['meta_box'] ) &&
 			'editpost' === $_POST['action'] &&

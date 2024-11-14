@@ -1,6 +1,6 @@
 /** @ssr-ready **/
 
-import classNames from 'classnames';
+import clsx from 'clsx';
 import Count from 'components/count';
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -21,7 +21,7 @@ class SelectDropdownItem extends React.Component {
 	itemLinkRef = React.createRef();
 
 	render() {
-		const optionClassName = classNames( this.props.className, {
+		const optionClassName = clsx( this.props.className, {
 			'dops-select-dropdown__item': true,
 			'is-selected': this.props.selected,
 			'is-disabled': this.props.disabled,

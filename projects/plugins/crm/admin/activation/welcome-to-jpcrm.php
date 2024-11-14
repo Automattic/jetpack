@@ -1,13 +1,7 @@
 <?php
 /*
-!
  * Jetpack CRM
  * https://jetpackcrm.com
- * V2.99.12+
- *
- * Copyright 2019+ ZeroBSCRM.com
- *
- * Date: 29/10/2019
  */
 
 /*

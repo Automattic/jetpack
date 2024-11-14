@@ -12,7 +12,8 @@ import { useSelect } from '@wordpress/data';
  * Internal dependencies
  */
 import './editor.scss';
-import ConnectPrompt from './components/nudge-connect';
+import ConnectBanner from '../../shared/components/connect-banner';
+import useIsUserConnected from '../../shared/use-is-user-connected';
 import EnableJetpackSearchPrompt from './components/nudge-enable-search';
 import { DEFAULT_ASK_BUTTON_LABEL, DEFAULT_PLACEHOLDER } from './constants';
 import { AiChatControls } from './controls';
@@ -32,15 +33,18 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		},
 		[ clientId ]
 	);
+	const isUserConnected = useIsUserConnected();
+
 	return (
 		<div { ...blockProps }>
-			<ConnectPrompt />
+			{ ! isUserConnected && <ConnectBanner block="Jetpack AI Search" /> }
 			<EnableJetpackSearchPrompt />
 			<div className="jetpack-ai-chat-question-wrapper">
 				<TextControl
 					className="jetpack-ai-chat-question-input"
 					placeholder={ placeholder }
 					disabled={ true }
+					__nextHasNoMarginBottom={ true }
 				/>
 				<RichText
 					className="wp-block-button__link jetpack-ai-chat-question-button"

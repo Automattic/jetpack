@@ -41,7 +41,7 @@ describe( 'MediaSection', () => {
 		render( <MediaSection /> );
 
 		expect( screen.queryByTestId( 'notice' ) ).not.toBeInTheDocument();
-		await expect( screen.findByText( 'Media' ) ).resolves.toBeInTheDocument();
+		await expect( screen.findByText( 'Attached Media' ) ).resolves.toBeInTheDocument();
 		await expect(
 			screen.findByText( 'Learn photo and video best practices' )
 		).resolves.toBeInTheDocument();

@@ -1,3 +1,7 @@
+import {
+	getSocialScriptData,
+	hasSocialPaidFeatures,
+} from '@automattic/jetpack-publicize-components';
 import { __ } from '@wordpress/i18n';
 import QuerySite from 'components/data/query-site';
 import React, { Component } from 'react';
@@ -20,13 +24,15 @@ import {
 import { getModule } from 'state/modules';
 import { isModuleFound as _isModuleFound } from 'state/search';
 import { getSettings } from 'state/settings';
-import { siteHasFeature, getActiveFeatures, siteUsesWpAdminInterface } from 'state/site';
+import { getActiveFeatures, siteUsesWpAdminInterface } from 'state/site';
 import { Likes } from './likes';
 import { Publicize } from './publicize';
 import { ShareButtons } from './share-buttons';
 
 class Sharing extends Component {
 	render() {
+		const { useAdminUiV1 } = getSocialScriptData().feature_flags;
+
 		const commonProps = {
 			settings: this.props.settings,
 			getModule: this.props.module,
@@ -40,23 +46,20 @@ class Sharing extends Component {
 			siteAdminUrl: this.props.siteAdminUrl,
 			userCanManageModules: this.props.userCanManageModules,
 			activeFeatures: this.props.activeFeatures,
-			hasSocialBasicFeatures: this.props.hasSocialBasicFeatures,
-			hasSocialAdvancedFeatures: this.props.hasSocialAdvancedFeatures,
-			hasSocialImageGenerator: this.props.hasSocialImageGenerator,
-			hasAutoConversion: this.props.hasAutoConversion,
+			hasPaidFeatures: this.props.hasPaidFeatures,
 			isAtomicSite: this.props.isAtomicSite,
 			hasSharingBlock: this.props.hasSharingBlock,
 			isBlockTheme: this.props.isBlockTheme,
-			useAdminUiV1: this.props.useAdminUiV1,
+			useAdminUiV1,
 		};
-
-		const foundPublicize = this.props.isModuleFound( 'publicize' ),
-			foundSharing = this.props.isModuleFound( 'sharedaddy' ),
-			foundLikes = this.props.isModuleFound( 'likes' );
 
 		if ( ! this.props.searchTerm && ! this.props.active ) {
 			return null;
 		}
+
+		const foundPublicize = this.props.isModuleFound( 'publicize' ),
+			foundSharing = this.props.isModuleFound( 'sharedaddy' ),
+			foundLikes = this.props.isModuleFound( 'likes' );
 
 		if ( ! foundPublicize && ! foundSharing && ! foundLikes ) {
 			return null;
@@ -95,15 +98,11 @@ export default connect( state => {
 		siteRawUrl: getSiteRawUrl( state ),
 		blogID: getSiteId( state ),
 		siteAdminUrl: getSiteAdminUrl( state ),
-		hasSocialBasicFeatures: siteHasFeature( state, 'social-shares-1000' ),
 		activeFeatures: getActiveFeatures( state ),
-		hasSocialAdvancedFeatures: siteHasFeature( state, 'social-enhanced-publishing' ),
-		hasSocialImageGenerator: siteHasFeature( state, 'social-image-generator' ),
-		hasAutoConversion: siteHasFeature( state, 'social-image-auto-convert' ),
+		hasPaidFeatures: hasSocialPaidFeatures(),
 		userCanManageModules: userCanManageModules( state ),
 		isAtomicSite: isAtomicSite( state ),
 		hasSharingBlock: isSharingBlockAvailable( state ),
 		isBlockTheme: currentThemeIsBlockTheme( state ),
-		useAdminUiV1: state.jetpack.initialState.socialInitialState.useAdminUiV1,
 	};
 } )( Sharing );

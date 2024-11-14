@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-WooSync: Added new status mapping to avoid creating invoices and transactions from WooCommerce to Jetpack CRM

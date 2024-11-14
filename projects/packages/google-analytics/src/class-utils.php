@@ -94,4 +94,36 @@ class Utils {
 
 		return false;
 	}
+
+	/**
+	 * Determine if a string is truthy. If it's not a string, which can happen with
+	 * not well-formed data coming from Jetpack sites, we still consider it a truthy value.
+	 *
+	 * @since 0.2.0
+	 *
+	 * @param mixed $value true, 1, "1", "t", and "true" (case insensitive) are truthy, everything else isn't.
+	 * @return bool
+	 */
+	public static function is_truthy( $value ) {
+		if ( true === $value ) {
+			return true;
+		}
+
+		if ( 1 === $value ) {
+			return true;
+		}
+
+		if ( ! is_string( $value ) ) {
+			return false;
+		}
+
+		switch ( strtolower( $value ) ) {
+			case '1':
+			case 't':
+			case 'true':
+				return true;
+		}
+
+		return false;
+	}
 }

@@ -62,10 +62,19 @@ class Jetpack_Subscription_Modal_On_Comment {
 	 * @return void
 	 */
 	public function enqueue_assets() {
-		if ( $this->should_user_see_modal() ) {
-			wp_enqueue_style( 'subscription-modal-css', plugins_url( 'subscription-modal.css', __FILE__ ), array(), JETPACK__VERSION );
-			wp_enqueue_script( 'subscription-modal-js', plugins_url( 'subscription-modal.js', __FILE__ ), array( 'wp-dom-ready' ), JETPACK__VERSION, true );
+		if ( ! $this->should_user_see_modal() ) {
+			return;
 		}
+
+		wp_enqueue_style( 'subscription-modal-css', plugins_url( 'subscription-modal.css', __FILE__ ), array(), JETPACK__VERSION );
+		wp_enqueue_script( 'subscription-modal-js', plugins_url( 'subscription-modal.js', __FILE__ ), array( 'wp-dom-ready' ), JETPACK__VERSION, true );
+		wp_localize_script(
+			'subscription-modal-js',
+			'subscriptionData',
+			array(
+				'homeUrl' => wp_parse_url( home_url(), PHP_URL_HOST ),
+			)
+		);
 	}
 
 	/**

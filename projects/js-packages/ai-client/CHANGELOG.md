@@ -5,6 +5,145 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.24.2] - 2024-11-11
+### Changed
+- Updated package dependencies. [#39999] [#40000]
+
+## [0.24.1] - 2024-11-04
+### Added
+- Enable test coverage. [#39961]
+
+### Fixed
+- Jetpack AI: Fix for the "Generate with AI" for images text box triggering P2 keyboard shortcuts. [#39964]
+
+## [0.24.0] - 2024-10-29
+### Added
+- AI Client: export image generator hook constants [#39917]
+
+## [0.23.0] - 2024-10-28
+### Changed
+- AI Client: Decouple prompt input as component and export it for reusability. [#39864]
+- AI Client: Make reload handler prop optional. [#39848]
+
+### Fixed
+- AI Client: Fix initial state being mapped even when fetch fails. [#39846]
+
+## [0.22.0] - 2024-10-21
+### Changed
+- AI Client: Add types for AI assistant feature payload data branch featuresControl. [#39826]
+
+## [0.21.0] - 2024-10-14
+### Added
+- AI Client: Add image styles 'auto' and 'none' to the logo generator. Order styles so those are on top in the dropdown selector. [#39689]
+- AI Client: Add prompt processing and style guess function for logo generator [#39712]
+
+### Changed
+- AI Client: Change plans limit to use and accept new 3000 value. [#39705]
+- AI Client: Change upgrade copy edit and redirect URL. [#39671]
+- AI Client: If site details show empty or default, do not trigger a logo generation, use empty placeholders. [#39536]
+- AI Client: Remove provision of image styles via flag prop and internal definition, take it from ai-assistant-feature payload now. [#39589]
+- Updated package dependencies. [#39669] [#39707]
+
+## [0.20.1] - 2024-10-07
+### Changed
+- Updated package dependencies. [#39594]
+
+## [0.20.0] - 2024-09-30
+### Added
+- AI Client: add support for showStyleSelector on logo generator and use-image-generator [#39530]
+
+## [0.19.0] - 2024-09-23
+### Changed
+- AI Client: Don't send a default style to jetpack-ai-image endpoint, default is handled in backend and we need to not send it until we're ready for it to be a user option. [#39494]
+- Jetpack AI: Point upgrade links and buttons to checkout instead of product interstitial. [#39469]
+- Logo generator: Get selection from the prompt's document rather than the global `window`. [#39364]
+
+## [0.18.1] - 2024-09-10
+### Changed
+- Updated package dependencies. [#39302]
+
+## [0.18.0] - 2024-09-09
+### Added
+- AI Client: add placeholders for Logo Generator modal commponents [#39244]
+
+### Changed
+- AI Logo generator: add over quota notice, handle disabling tiers on checkout [#39149]
+- Updated package dependencies. [#39176]
+
+## [0.17.0] - 2024-09-02
+### Added
+- AI Client: Add FeaturesControl to ai-assistant-feature response parsing. [#39168]
+- Jetpack AI: Support fair usage messaging on the Extension AI Control component. [#39103]
+
+## [0.16.4] - 2024-08-26
+### Changed
+- Updated package dependencies. [#39004]
+
+## [0.16.3] - 2024-08-21
+### Fixed
+- Revert recent SVG image optimizations. [#38981]
+
+## [0.16.2] - 2024-08-19
+### Changed
+- Update dependencies. [#38861] [#38662] [#38665] [#38893]
+
+### Fixed
+- Lossless image optimization for images (should improve performance with no visible changes). [#38750]
+
+## [0.16.1] - 2024-08-05
+### Changed
+- AI Logo Generator: fix UI issues. [#38590]
+- Fixup versions [#38612]
+
+### Fixed
+- AI Logo Generator: fix multiple feature requests error + retry handling. [#38630]
+- AI Logo Generator: fix small UI issues. [#38676]
+- AI Logo Generator: fix upgrade URLs so they work on any site type. [#38598]
+- AI Logo Generator: update upgrade message. [#38690]
+
+## [0.16.0] - 2024-07-29
+### Added
+- AI Logo Generator: support placement property on the generator modal, for tracking purposes. [#38574]
+
+### Fixed
+- AI Logo Generator: make the initial prompt update when the site name and description are fully laoded from store. [#38491]
+- AI Logo Generator: provide the saved media ID on the save logo callback. [#38552]
+
+## [0.15.0] - 2024-07-22
+### Added
+- Jetpack AI: Add logo generator codebase to the ai-client package. [#38391]
+
+### Changed
+- Update and export askQuestionSync. [#38344]
+
+## [0.14.6] - 2024-07-15
+### Added
+- AI Client: Filter suggestions starting with llama artifacts [#38208]
+
+## [0.14.5] - 2024-07-08
+### Changed
+- Updated package dependencies. [#38132]
+
+## [0.14.4] - 2024-06-17
+### Changed
+- Updated package dependencies. [#37779]
+
+## [0.14.3] - 2024-06-10
+### Changed
+- AI Featured Image: export generic image generation request function. [#37668]
+- Change codebase to use clsx instead of classnames. [#37708]
+- Updated package dependencies. [#37669]
+
+## [0.14.2] - 2024-06-03
+### Added
+- AI Client: Add list-related fixes on MarkdownToHTML conversion. [#37564]
+- Jetpack AI: Support upgrade links on the AI Control that will open on a new tab. [#37629]
+
+## [0.14.1] - 2024-05-27
+### Changed
+- AI Client: Add paragraph tweaks to Markdown conversion libs. [#37461]
+- AI Featured Image: add type info. [#37474]
+
 ## [0.14.0] - 2024-05-20
 ### Added
 - AI Client: Expose HTML render rules type. [#37386]
@@ -323,6 +462,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies. [#31659]
 - Updated package dependencies. [#31785]
 
+[0.24.2]: https://github.com/Automattic/jetpack-ai-client/compare/v0.24.1...v0.24.2
+[0.24.1]: https://github.com/Automattic/jetpack-ai-client/compare/v0.24.0...v0.24.1
+[0.24.0]: https://github.com/Automattic/jetpack-ai-client/compare/v0.23.0...v0.24.0
+[0.23.0]: https://github.com/Automattic/jetpack-ai-client/compare/v0.22.0...v0.23.0
+[0.22.0]: https://github.com/Automattic/jetpack-ai-client/compare/v0.21.0...v0.22.0
+[0.21.0]: https://github.com/Automattic/jetpack-ai-client/compare/v0.20.1...v0.21.0
+[0.20.1]: https://github.com/Automattic/jetpack-ai-client/compare/v0.20.0...v0.20.1
+[0.20.0]: https://github.com/Automattic/jetpack-ai-client/compare/v0.19.0...v0.20.0
+[0.19.0]: https://github.com/Automattic/jetpack-ai-client/compare/v0.18.1...v0.19.0
+[0.18.1]: https://github.com/Automattic/jetpack-ai-client/compare/v0.18.0...v0.18.1
+[0.18.0]: https://github.com/Automattic/jetpack-ai-client/compare/v0.17.0...v0.18.0
+[0.17.0]: https://github.com/Automattic/jetpack-ai-client/compare/v0.16.4...v0.17.0
+[0.16.4]: https://github.com/Automattic/jetpack-ai-client/compare/v0.16.3...v0.16.4
+[0.16.3]: https://github.com/Automattic/jetpack-ai-client/compare/v0.16.2...v0.16.3
+[0.16.2]: https://github.com/Automattic/jetpack-ai-client/compare/v0.16.1...v0.16.2
+[0.16.1]: https://github.com/Automattic/jetpack-ai-client/compare/v0.16.0...v0.16.1
+[0.16.0]: https://github.com/Automattic/jetpack-ai-client/compare/v0.15.0...v0.16.0
+[0.15.0]: https://github.com/Automattic/jetpack-ai-client/compare/v0.14.6...v0.15.0
+[0.14.6]: https://github.com/Automattic/jetpack-ai-client/compare/v0.14.5...v0.14.6
+[0.14.5]: https://github.com/Automattic/jetpack-ai-client/compare/v0.14.4...v0.14.5
+[0.14.4]: https://github.com/Automattic/jetpack-ai-client/compare/v0.14.3...v0.14.4
+[0.14.3]: https://github.com/Automattic/jetpack-ai-client/compare/v0.14.2...v0.14.3
+[0.14.2]: https://github.com/Automattic/jetpack-ai-client/compare/v0.14.1...v0.14.2
+[0.14.1]: https://github.com/Automattic/jetpack-ai-client/compare/v0.14.0...v0.14.1
 [0.14.0]: https://github.com/Automattic/jetpack-ai-client/compare/v0.13.1...v0.14.0
 [0.13.1]: https://github.com/Automattic/jetpack-ai-client/compare/v0.13.0...v0.13.1
 [0.13.0]: https://github.com/Automattic/jetpack-ai-client/compare/v0.12.4...v0.13.0

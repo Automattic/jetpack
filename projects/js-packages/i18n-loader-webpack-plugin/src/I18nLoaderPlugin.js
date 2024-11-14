@@ -148,7 +148,7 @@ class I18nLoaderPlugin {
 			/**
 			 * Fetch stuff we need for the various callbacks.
 			 *
-			 * @returns {object} Stuff.
+			 * @return {object} Stuff.
 			 */
 			function getStuff() {
 				const loaderModule = compilation.moduleGraph.getModule( loaderModuleDep );

@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import JetpackFooter from '../jetpack-footer';
 import JetpackLogo from '../jetpack-logo';
 import Col from '../layout/col';
@@ -14,7 +14,7 @@ import type React from 'react';
  * All content must be passed as children wrapped in as many <AdminSection> elements as needed.
  *
  * @param {AdminPageProps} props - Component properties.
- * @returns {React.ReactNode} AdminPage component.
+ * @return {React.ReactNode} AdminPage component.
  */
 const AdminPage: React.FC< AdminPageProps > = ( {
 	children,
@@ -25,7 +25,7 @@ const AdminPage: React.FC< AdminPageProps > = ( {
 	showBackground = true,
 	header,
 } ) => {
-	const rootClassName = classNames( styles[ 'admin-page' ], {
+	const rootClassName = clsx( styles[ 'admin-page' ], {
 		[ styles.background ]: showBackground,
 	} );
 

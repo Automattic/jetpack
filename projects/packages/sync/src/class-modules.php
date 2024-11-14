@@ -113,6 +113,7 @@ class Modules {
 	 * @return array
 	 */
 	public static function initialize_modules() {
+
 		/**
 		 * Filters the list of class names of sync modules.
 		 * If you add to this list, make sure any classes implement the
@@ -123,8 +124,9 @@ class Modules {
 		 */
 		$modules = apply_filters( 'jetpack_sync_modules', self::DEFAULT_SYNC_MODULES );
 
-		$modules = array_map( array( __CLASS__, 'load_module' ), $modules );
+		$modules = array_unique( $modules );
 
+		$modules = array_map( array( __CLASS__, 'load_module' ), $modules );
 		return array_map( array( __CLASS__, 'set_module_defaults' ), $modules );
 	}
 

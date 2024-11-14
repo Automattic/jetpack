@@ -22,8 +22,8 @@ import {
  * High order component that connects to Jetpack modules'options
  * redux state selectors and action creators.
  *
- * @param  {React.Component} Component The component to be connected to the state
- * @return {[React.Component]}	The component with some props connected to the state
+ * @param {React.Component} Component The component to be connected to the state
+ * @return {[React.Component]} The component with some props connected to the state
  */
 export function connectModuleOptions( Component ) {
 	return connect(

@@ -5,8 +5,7 @@ import { PanelColorSettings } from '@wordpress/block-editor';
 import {
 	PanelRow,
 	ToggleControl,
-	// eslint-disable-next-line wpcalypso/no-unsafe-wp-apis
-	__experimentalToolsPanelItem as ToolsPanelItem,
+	__experimentalToolsPanelItem as ToolsPanelItem, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
 import { useDebounce } from '@wordpress/compose';
 import { useCallback, useState } from '@wordpress/element';
@@ -27,7 +26,7 @@ import type React from 'react';
  * Sidebar Control component.
  *
  * @param {VideoControlProps} props - Component props.
- * @returns {React.ReactElement}    Component template
+ * @return {React.ReactElement}    Component template
  */
 export default function ColorPanel( { clientId, attributes, setAttributes }: VideoControlProps ) {
 	const { useAverageColor, seekbarColor, seekbarLoadingColor, seekbarPlayedColor } = attributes;
@@ -91,6 +90,7 @@ export default function ColorPanel( { clientId, attributes, setAttributes }: Vid
 				}
 				onChange={ newUseAverageColor => setAttributes( { useAverageColor: newUseAverageColor } ) }
 				checked={ useAverageColor }
+				__nextHasNoMarginBottom={ true }
 			/>
 
 			{ ! useAverageColor && (

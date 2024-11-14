@@ -1,0 +1,2876 @@
+# Translation of WordPress.com - Site Helper in Turkish
+# This file is distributed under the same license as the WordPress.com - Site Helper package.
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2024-10-02 12:20:35+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: GlotPress/2.4.0-alpha\n"
+"Language: tr\n"
+"Project-Id-Version: WordPress.com - Site Helper\n"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-profile-settings/profile-settings-link-to-wpcom.php:48
+msgid "You can manage your profile on WordPress.com Profile settings (First / Last / Display Names, Website, and Biographical Info)"
+msgstr "WordPress.com Profil ayarlarında profilinizi yönetebilirsiniz (Ad, Soyadı, Görünen Ad, Web Sitesi ve Biyografik Bilgi)"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-profile-settings/profile-settings-link-to-wpcom.php:44
+msgid "Your admin interface language is managed on WordPress.com Account settings"
+msgstr "Yönetici arayüzü dili, WordPress.com Hesap ayarlarında yönetilir."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:232
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:233
+msgid "Newsletter"
+msgstr "Haber bülteni"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:212
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:213
+msgid "Scan"
+msgstr "Scan"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:193
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:194
+msgid "VaultPress"
+msgstr "VaultPress"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:184
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:185
+msgid "Activity Log"
+msgstr "Etkinlik Günlüğü"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:131
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:132
+msgid "Site Settings"
+msgstr "Site Ayarları"
+
+#. translators: Hidden accessibility text.
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-bar/wpcom-admin-bar.php:200
+msgid "Cart"
+msgstr "Sepet"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1607
+msgid " per "
+msgstr " başına "
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1604
+msgid " once"
+msgstr "bir defalık"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1578
+msgid "per %s"
+msgstr "%s başına"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1438
+msgid "Scheduled"
+msgstr "Zamanlandı"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1437
+msgid "Draft"
+msgstr "Taslak"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:1404
+msgid "Jetpack donations is disabled in favour of Newspack donations."
+msgstr "Jetpack bağışları, Newspack bağışları için devre dışı bırakıldı."
+
+#. translators: separates all but the last two sponsor names; needs a space at
+#. the end.
+#: vendor/automattic/jetpack-mu-wpcom/src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:993
+msgid ", "
+msgstr ", "
+
+#. translators: separates last two sponsor names; needs a space on either side.
+#: vendor/automattic/jetpack-mu-wpcom/src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:990
+msgid " and "
+msgstr "ve"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php:889
+msgid "Common"
+msgstr "Genel"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:490
+msgctxt "post author"
+msgid " and "
+msgstr " ve "
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:473
+msgctxt "post author"
+msgid "by"
+msgstr "- Yazar: "
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:400
+msgid "Something went wrong. Please refresh the page and/or try again."
+msgstr "Bir sorun oluştu. Lütfen sayfayı yenileyin ve/veya tekrar deneyin."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php:393
+msgid "Load more posts"
+msgstr "Daha fazla yazı"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/newspack-blocks/synced-newspack-blocks/blocks/carousel/view.php:288
+msgid "Play Slideshow"
+msgstr "Slayt Gösterisini Oynat"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/newspack-blocks/synced-newspack-blocks/blocks/carousel/view.php:287
+msgid "Pause Slideshow"
+msgstr "Slayt Gösterisini Duraklat"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/newspack-blocks/synced-newspack-blocks/blocks/carousel/view.php:243
+msgid "Next Slide"
+msgstr "Sonraki Slayt"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/newspack-blocks/synced-newspack-blocks/blocks/carousel/view.php:242
+msgid "Previous Slide"
+msgstr "Önceki Slayt"
+
+#. translators: %d: Slide number.
+#: vendor/automattic/jetpack-mu-wpcom/src/features/newspack-blocks/synced-newspack-blocks/blocks/carousel/view.php:221
+msgid "Go to slide %d"
+msgstr "Slayta git: %d"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:320
+msgid "Site migration"
+msgstr "Site Taşıma"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:807
+msgid "Migrating the site"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:95
+msgid "Continue to write your first post"
+msgstr "İlk gönderinizi yazmaya devam edin"
+
+#: performance-profiler/performance-profiler.php:90
+msgid "The performance report URL for this site."
+msgstr ""
+
+#: performance-profiler/performance-profiler.php:20
+msgid "The performance report URL for this page."
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-profile-settings/profile-settings-notices.php:28
+msgid "The Toolbar is always visible on Atomic sites while connected to the Automattic proxy."
+msgstr "Automattic ara sunucusuna bağlıyken Araç Çubuğu her zaman Atomic sitelerinde görünür."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-profile-settings/profile-settings-link-to-wpcom.php:56
+msgid "Your WordPress.com password is managed on WordPress.com Security settings"
+msgstr "WordPress.com şifreniz, WordPress.com Güvenlik ayalarında yönetilir"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-profile-settings/profile-settings-link-to-wpcom.php:52
+msgid "Your WordPress.com email is managed on WordPress.com Account settings"
+msgstr "WordPress.com e-postanız, WordPress.com Hesap ayarlarında yönetilir"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template.php:149
+msgid "Footer"
+msgstr "Alt bilgi"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template.php:147
+msgid "Header"
+msgstr "Üst Bilgi"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:552
+msgid "Back to template part types"
+msgstr "Şablon bölümü türlerine dön"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:551
+msgid "No template part types found."
+msgstr "Şablon bölümü türü bulunamadı."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:550
+msgid "Search Template Part Types"
+msgstr "Şablon Bölümü Türü Ara"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:549
+msgid "Parent Template Part Type:"
+msgstr "Üst Şablon Bölümü Türü:"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:548
+msgid "Parent Template Part Type"
+msgstr "Üst Şablon Bölümü Türü"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:547
+msgid "New Template Part Type"
+msgstr "Yeni Şablon Bölümü Türü"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:546
+msgid "Add New Template Part Type"
+msgstr "Yeni Şablon Bölümü Türü Ekle"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:545
+msgid "Update Template Part Type"
+msgstr "Şablon Bölümü Türünü Güncelle"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:544
+msgid "View Template Part Type"
+msgstr "Şablon Bölümü Türünü Görüntüle"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:543
+msgid "Edit Template Part Type"
+msgstr "Şablon Bölümü Türünü Düzenle"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:542
+msgid "All Template Part Types"
+msgstr "Tüm Şablon Bölümü Türleri"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:541
+msgctxt "admin menu"
+msgid "Template Part Types"
+msgstr "Şablon Bölümü Türleri"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:540
+msgctxt "taxonomy singular name"
+msgid "Template Part Type"
+msgstr "Şablon Bölümü Türü"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:539
+msgctxt "taxonomy general name"
+msgid "Template Part Types"
+msgstr "Şablon Bölümü Türleri"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:504
+msgid "Template part updated."
+msgstr "Şablon parçası güncellendi."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:503
+msgid "Template part scheduled."
+msgstr "Şablon bölümü zamanlandı."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:502
+msgid "Template part reverted to draft."
+msgstr "Şablon bölümü taslak durumuna geri çevrildi."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:501
+msgid "Template part published privately."
+msgstr "Şablon bölümü özel olarak yayımlandı."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:500
+msgid "Template part published."
+msgstr "Şablon bölümü yayımlandı."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:499
+msgid "Template parts list"
+msgstr "Şablon parçaları listesi"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:498
+msgid "Template parts list navigation"
+msgstr "Şablon parçaları listesi dolaşımı"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:497
+msgid "Filter template parts list"
+msgstr "Şablon parçaları listesini filtrele"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:496
+msgid "No template parts found in Trash."
+msgstr "Çöpte herhangi bir şablon parçası bulunamadı."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:495
+msgid "No template parts found."
+msgstr "Şablon parçası bulunamadı."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:494
+msgid "Search Template Parts"
+msgstr "Şablon parçalarını ara"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:493
+msgid "All Template Parts"
+msgstr "Tüm şablon parçaları"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:492
+msgid "View Template Part"
+msgstr "Şablon parçalarını görüntüle"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:491
+msgid "Edit Template Part"
+msgstr "Şablon parçalarını düzenle"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:490
+msgid "New Template Part"
+msgstr "Yeni şablon parçası"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:489
+msgid "Add New Template Part"
+msgstr "Yeni şablon parçası ekle"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:488
+msgctxt "Template"
+msgid "Add New"
+msgstr "Yeni ekle"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:487
+msgctxt "add new on admin bar"
+msgid "Template Part"
+msgstr "Şablon Parçası"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:486
+msgctxt "admin menu"
+msgid "Template Parts"
+msgstr "Şablon Parçaları"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:485
+msgctxt "post type singular name"
+msgid "Template Part"
+msgstr "Şablon Bölümü"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:484
+msgctxt "post type general name"
+msgid "Template Parts"
+msgstr "Şablon Bölümleri"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:447
+msgctxt "Default page title"
+msgid "Contact"
+msgstr "İletişim"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:435
+msgctxt "Default page title"
+msgid "About"
+msgstr "Hakkında"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/blocks/navigation-menu/index.php:90
+msgid "collapsed"
+msgstr "daraltılmış"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/blocks/navigation-menu/index.php:89
+msgid "expanded"
+msgstr "genişletilmiş"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/blocks/navigation-menu/index.php:86
+msgid "Menu"
+msgstr "Menu"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/starter-page-templates/class-wp-rest-sideload-image-controller.php:77
+msgid "Invalid parent type."
+msgstr "Geçersiz üst tür."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/starter-page-templates/class-starter-page-templates.php:243
+msgid "Current"
+msgstr "Mevcut"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/starter-page-templates/class-starter-page-templates.php:238
+msgid "Blank"
+msgstr "Boş"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/starter-page-templates/class-starter-page-templates.php:228
+msgid "No templates available. Skipped showing modal window with template selection."
+msgstr "Şablon yok. Şablon seçimiyle kalıcı pencere gösterimi atlandı."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:127
+msgid "Customize content with AI"
+msgstr "Yapay zeka ile içerikleri özelleştirin"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-global-styles/index.php:548
+msgid "Upgrade required"
+msgstr "Yükseltme gerekli"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-global-styles/index.php:545
+msgid "Upgrade"
+msgstr "Yükselt"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-global-styles/index.php:537
+msgid "Preview premium styles"
+msgstr "Premium stilleri önizle"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-global-styles/index.php:532
+msgid "Remove premium styles"
+msgstr "Premium stilleri kaldırın"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-global-styles/index.php:522
+msgid "Upgrade now"
+msgstr "Şimdi yükselt"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-global-styles/index.php:499
+msgid "Your site includes <a href=\"%1$s\" target=\"_blank\">premium styles</a> that are only visible to visitors after upgrading to the %2$s plan or higher."
+msgstr "Siteniz, yalnızca %2$s veya daha yüksek bir pakete yükselttikten sonra ziyaretçiler tarafından görülebilen <a href=\"%1$s\" target=\"_blank\">premium stiller</a> içeriyor."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-global-styles/api/class-global-styles-status-rest-api.php:53
+msgid "Your user is not permitted to access this resource."
+msgstr "Kullanıcınızın bu kaynağa erişim izni yok."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-blocks/a8c-posts-list/templates/posts-list.php:30
+msgid "View all posts"
+msgstr "Tüm gönderileri görüntüle"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-blocks/a8c-posts-list/templates/post-item.php:31
+msgctxt "designating the post author (eg: by John Doe"
+msgid "by"
+msgstr "yazar"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-blocks/a8c-posts-list/templates/post-item.php:23
+msgid "Featured"
+msgstr "Öne çıkan"
+
+#. translators: 1: link to WP admin new post page.
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-blocks/a8c-posts-list/templates/no-posts.php:17
+msgid "Ready to publish your first post? <a href=\"%1$s\">Get started here</a>."
+msgstr "İlk yazınızı yayınlamaya hazır mısınız? <a href=\"%1$s\">Buradan başlayın</a>."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-blocks/a8c-posts-list/templates/no-posts.php:11
+msgid "There are currently no posts to display."
+msgstr "Şu anda görüntülenecek gönderi bulunamadı."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-blocks/a8c-posts-list/a8c-posts-list.php:28
+msgid "Read more"
+msgstr "Daha fazlasını oku"
+
+#. translators: %s: Name of current post
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-blocks/a8c-posts-list/a8c-posts-list.php:25
+msgid "Continue reading %s"
+msgstr "%s yazısını okumaya devam edin"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-bar/wpcom-admin-bar.php:275
+msgid "My Account"
+msgstr "Hesabım"
+
+#. translators: Hidden accessibility text.
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-bar/wpcom-admin-bar.php:225
+msgid "Reader"
+msgstr "Okuyucu"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/tags-education/tags-education.php:28
+msgid "Build your audience with tags"
+msgstr "Etiketlerden yararlanarak kitlenizi genişletin"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/paragraph-block-placeholder/paragraph-block-placeholder.php:57
+msgid "Add a post title"
+msgstr "Yazınıza bir başlık atın"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/paragraph-block-placeholder/paragraph-block-placeholder.php:35
+#: vendor/automattic/jetpack-mu-wpcom/src/features/paragraph-block-placeholder/paragraph-block-placeholder.php:72
+msgid "Start writing or type '/' to insert a block"
+msgstr "Bir blok eklemek için yazmaya başlayın ya da '/' yazın."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/mailerlite/subscriber-popup.php:120
+msgid "UUID:"
+msgstr "UUID:"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/mailerlite/subscriber-popup.php:117
+msgid "Account ID <a href=\"%s\" target=\"_blank\">(instructions)</a>:"
+msgstr "Hesap Kimliği <a href=\"%s\" target=\"_blank\">(talimatlar)</a>:"
+
+#. translators: %1$s - URL to manage the widget, %2$s - documentation URL.
+#: vendor/automattic/jetpack-mu-wpcom/src/features/mailerlite/subscriber-popup.php:48
+msgid "You need to enter your numeric account ID and UUID for the <a href=\"%1$s\">Mailerlite Widget</a> to work correctly. <a href=\"%2$s\" target=\"_blank\">Full instructions</a>."
+msgstr "<a href=\"%1$s\">Mailerlite Pencere Öğesi</a>’nin doğru çalışması için sayısal hesap kimliğinizi ve UUID’nizi girmeniz gerekiyor. <a href=\"%2$s\" target=\"_blank\">Yönergelerin tamamı</a>."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/mailerlite/subscriber-popup.php:26
+msgid "Display Mailerlite subscriber popup"
+msgstr "Mailerlite abone açılır penceresini göster"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/mailerlite/subscriber-popup.php:23
+msgid "Mailerlite subscriber popup"
+msgstr "Mailerlite abone açılır penceresi"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/jetpack-global-styles/class-global-styles-fonts-message-control.php:63
+msgid "Click here to open the Block Editor and change your fonts."
+msgstr "Blok Düzenleyiciyi açmak ve yazı tiplerinizi değiştirmek için buraya tıklayın."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/jetpack-global-styles/class-global-styles-fonts-message-control.php:40
+msgid "Learn more about changing fonts using Global Styles."
+msgstr "Genel Stiller'i kullanarak yazı tiplerini değiştirme ile ilgili daha fazla bilgi edinin."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/jetpack-global-styles/class-global-styles-fonts-message-control.php:27
+msgid "You can change your fonts using Global Styles, which can be found in the Block Editor."
+msgstr "Blok Düzenleyici'de bulunan Genel Stiller'i kullanarak yazı tiplerinizi değiştirebilirsiniz."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/help-center/class-wp-rest-help-center-odie.php:178
+msgid "Whether to mark this as a test chat (a11n-only)."
+msgstr "Bunun test sohbet olarak işaretlenip işaretlenmeyeceği (yalnızca a11n)."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/help-center/class-wp-rest-help-center-odie.php:144
+msgid "The feedback rating value."
+msgstr "Geri bildirim derecelendirme değeri."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/help-center/class-wp-rest-help-center-odie.php:139
+msgid "The message id for the existing message."
+msgstr "Mevcut mesajın mesaj kimliği."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/help-center/class-wp-rest-help-center-odie.php:91
+#: vendor/automattic/jetpack-mu-wpcom/src/features/help-center/class-wp-rest-help-center-odie.php:168
+msgid "The context to continue the chat with."
+msgstr "Sohbete devam ederken kullanılacak bağlam."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/help-center/class-wp-rest-help-center-odie.php:85
+#: vendor/automattic/jetpack-mu-wpcom/src/features/help-center/class-wp-rest-help-center-odie.php:173
+msgid "The message to add to the chat"
+msgstr "Sohbete eklenecek mesaj"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/help-center/class-wp-rest-help-center-odie.php:80
+#: vendor/automattic/jetpack-mu-wpcom/src/features/help-center/class-wp-rest-help-center-odie.php:134
+msgid "The chat id for the existing chat."
+msgstr "Mevcut sohbetin sohbet kimliği."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/help-center/class-wp-rest-help-center-odie.php:75
+#: vendor/automattic/jetpack-mu-wpcom/src/features/help-center/class-wp-rest-help-center-odie.php:129
+#: vendor/automattic/jetpack-mu-wpcom/src/features/help-center/class-wp-rest-help-center-odie.php:163
+msgid "The bot id to chat with."
+msgstr "Sohbet edilecek robotun kimliği."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/help-center/class-wp-rest-help-center-odie.php:64
+msgid "If true, include the feedback rating value for each message in the response."
+msgstr "Doğruysa yanıttaki her mesaj için geri bildirim derecelendirme değerini ekleyin."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/help-center/class-wp-rest-help-center-odie.php:56
+msgid "The number of items per page."
+msgstr "Sayfa başına öğe sayısı."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/help-center/class-wp-rest-help-center-odie.php:50
+msgid "The number of the page to retrieve, limited to 100"
+msgstr "Alınacak sayfa sayısı, 100 ile sınırlıdır"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/help-center/class-wp-rest-help-center-odie.php:45
+msgid "The chat id to get the chat for."
+msgstr "Sohbet için alınacak sohbet kimliği."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/help-center/class-wp-rest-help-center-odie.php:40
+msgid "The bot id to get the chat for."
+msgstr "Sohbet için alınacak robot kimliği."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:210
+msgid "Comment"
+msgstr "Yorum"
+
+#. translators: Name of the Plugins submenu that links to the Plugins
+#. Marketplace
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:427
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:429
+msgid "Marketplace"
+msgstr "Pazaryeri"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:409
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:410
+msgid "Add New Plugin"
+msgstr "Yeni Eklenti Ekle"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-management-widget/class-wpcom-site-management-widget.php:217
+msgid "Server Settings"
+msgstr "Sunucu Ayarları"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-management-widget/class-wpcom-site-management-widget.php:213
+msgid "Staging Site"
+msgstr "Prova Sitesi"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-management-widget/class-wpcom-site-management-widget.php:209
+msgid "Logs"
+msgstr "Günlük"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-management-widget/class-wpcom-site-management-widget.php:201
+msgid "Deployments"
+msgstr "Dağıtımlar"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-management-widget/class-wpcom-site-management-widget.php:195
+msgid "DEV TOOLS:"
+msgstr "GELİŞTİRME ARAÇLARI:"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-management-widget/class-wpcom-site-management-widget.php:193
+msgid "Get a quick overview of your plans, storage, and domains, or easily access your development tools using the links provided below:"
+msgstr "Paketlerinizin, depolamanızın ve alan adlarınızın hızlı bir genel bakışını alın veya aşağıda sağlanan bağlantıları kullanarak geliştirme araçlarınıza kolayca erişin."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-management-widget/class-wpcom-site-management-widget.php:176
+msgid "Your Site management widget requires JavaScript to function properly."
+msgstr "Site yönetimi bileşeninin düzgün çalışması için JavaScript gerekir."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-management-widget/class-wpcom-site-management-widget.php:159
+msgid "Site Management Panel"
+msgstr "Site Yönetimi Paneli"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-block-editor/class-jetpack-wpcom-block-editor.php:357
+msgid "Underline"
+msgstr "Altı çizgili"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-block-editor/class-jetpack-wpcom-block-editor.php:356
+msgid "Justify"
+msgstr "İki yana yasla"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-block-editor/class-jetpack-wpcom-block-editor.php:200
+msgid "Logging In..."
+msgstr "Oturum açılıyor..."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-block-editor/class-jetpack-wpcom-block-editor.php:185
+msgid "Before we continue, please log in to your Jetpack site."
+msgstr "Devam etmeden önce lütfen Jetpack sitenizde oturum açın."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:268
+msgid "Admin interface style changed."
+msgstr "Yönetici arayüz stili değişti."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:231
+msgid "Click here to access your sites, domains, Reader, account settings, and more."
+msgstr "Sitelerinize, alan adlarınıza, Okuyucuya, hesap ayarlarınıza ve daha fazlasına erişmek için buraya tıklayın."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:230
+msgid "All your sites"
+msgstr "Tüm Siteleriniz"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:224
+msgid "Access the new site management panel and all developer tools such as hosting configuration, GitHub deployments, metrics, PHP logs, and server logs."
+msgstr "Yeni site yönetimi paneline ve barındırma yapılandırması, GitHub dağıtımları, analizler, PHP günlükleri ve sunucu günlükleri gibi tüm geliştirici araçlarına erişin."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:223
+msgid "Hosting overview"
+msgstr "Barındırma genel bakışı"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:217
+msgid "The Hosting menu contains the My Home page and all items from the Upgrades menu, including Plans, Domains, Emails, Purchases, and more."
+msgstr "Barındırma menüsü; Ana Sayfam sayfası ve Paketler, Alan Adları, E-postalar, Satın Almalar ve daha fazlası dahil Yükseltmeler menüsündeki tüm öğeleri içerir."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:216
+msgid "Upgrades is now Hosting"
+msgstr "Yükseltmeler yeni hali artık Barındırma"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:174
+msgid "Got it!"
+msgstr "Anladım!"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:173
+msgid "Next"
+msgstr "Sonraki"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:172
+msgid "Previous"
+msgstr "Önceki"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:171
+msgid "Step {{currentStep}} of {{totalSteps}}"
+msgstr "Adım {{currentStep}}/{{totalSteps}}"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:73
+msgid "Leave a Reply"
+msgstr "Bir Cevap Yazın"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/replace-site-visibility/replace-site-visibility.php:37
+msgid "Manage your privacy settings"
+msgstr "Gizlilik ayarlarınızı yönetin"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:1206
+msgid "Switch"
+msgstr "Değiştir"
+
+#. translators: how long ago the stylesheet was modified.
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:1187
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:1199
+msgid "(modified %s ago)"
+msgstr "(%s ago gün önce değiştirildi)"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:1177
+msgid "Select a theme&hellip;"
+msgstr "Bir tema seçin…"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:1175
+msgid "Select another theme to view its custom CSS."
+msgstr "Özel CSS düzenlemesini görüntülemek için başka bir tema seçin."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:771
+msgid "Don't use the theme's original CSS."
+msgstr "Temanın orijinal CSS'sini kullanma."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:761
+msgid "Media Width"
+msgstr "Medya Genişliği"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:358
+msgctxt "Toolbar button to get help with custom CSS"
+msgid "Help"
+msgstr "Yardım"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:357
+msgctxt "Toolbar button to see full CSS revision history"
+msgid "See full history"
+msgstr "Tüm geçmişi görün"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:355
+msgid "On Mobile"
+msgstr "Mobilde"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:354
+msgid "Start Fresh"
+msgstr "Sıfırdan Başlayın"
+
+#. translators: the theme name and then the default width.
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:337
+msgid " The default media width for the <strong>%1$s</strong> theme is %2$d pixel."
+msgid_plural " The default media width for the <strong>%1$s</strong> theme is %2$d pixels."
+msgstr[0] " <strong>%1$s</strong> teması için varsayılan ortam genişliği %2$d pikseldir."
+msgstr[1] " <strong>%1$s</strong> teması için varsayılan ortam genişliği %2$d pikseldir."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:333
+msgid "Set a different media width for full size images."
+msgstr "Tam boyutlu görüntüler için farklı bir ortam genişliği ayarlayın."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:240
+msgid "Custom CSS is now managed in the Customizer."
+msgstr "Özel CSS şimdi Özelleştiricide yönetiliyor."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:235
+msgid "Manage with Live Preview"
+msgstr "Canlı önizleme ile yönet"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:229
+msgid "Custom CSS"
+msgstr "Özel CSS"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:130
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:246
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:804
+msgid "Preprocessor"
+msgstr "Ön işlemci"
+
+#. translators: comments widget: 1: comment author, 2: comment link, 3: comment
+#. title
+#. translators: comments widget: 1: comment author link HTML, 2: comment link,
+#. 3: comment title
+#: widgets/class-wpcom-widget-recent-comments.php:342
+#: widgets/class-wpcom-widget-recent-comments.php:387
+msgctxt "widgets"
+msgid "%1$s on <a href=\"%2$s\">%3$s</a>"
+msgstr "%1$s yazarının <a href=\"%2$s\">%3$s</a> yorumu"
+
+#. translators: %s is a link to the WordPress user profile.
+#: widgets/class-gravatar-widget.php:205
+msgid "You can modify your Gravatar from your <a href=\"%s\">profile page</a>."
+msgstr "Gravatar’ınızı <a href=\"%s\">profil sayfanızdan</a> değiştirebilirsiniz."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:122
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:123
+msgid "Marketing"
+msgstr "Pazarlama"
+
+#: support-session.php:224 support-session.php:236
+msgid "Sorry, you are not allowed to access this page."
+msgstr "Üzgünüm, bu sayfaya erişmenize izin verilmiyor."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:396
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:397
+msgid "Plugins"
+msgstr "Eklentiler"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:31
+msgid "Use WordPress.com’s native dashboard to manage your site."
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:31
+msgid "Default style"
+msgstr "Varsayılan stil"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:30
+msgid "Use WP-Admin to manage your site."
+msgstr "Sitenizi WP-Admin'le yönetin."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:30
+msgid "Classic style"
+msgstr "Klasik stil"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:28
+msgid "Admin Interface Style"
+msgstr "Yönetici Arayüzü Stili"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-plugins/wpcom-plugins.php:45
+msgid "Explore plugins"
+msgstr "Eklentileri keşfedin"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-plugins/wpcom-plugins.php:43
+msgid "Access a variety of free and paid plugins that can enhance your site's functionality and features."
+msgstr "Sitenizin işlevselliğini ve özelliklerini iyileştirebilecek çeşitli ücretsiz ve ücretli eklentiye erişin."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-plugins/wpcom-plugins.php:42
+msgid "Flex your site's features with plugins"
+msgstr "Sitenizi eklentilerle esnetin"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-themes/wpcom-themes.php:66
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-themes/wpcom-themes.php:67
+msgid "Theme Showcase"
+msgstr "Tema Vitrini"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-themes/wpcom-themes.php:42
+msgid "Explore themes"
+msgstr "Temalara göz atın"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-themes/wpcom-themes.php:40
+msgid "Dive deep into the world of WordPress.com themes. Discover the responsive and stunning designs waiting to bring your site to life."
+msgstr "WordPress.com temalarının dünyasına girin. Sitenize hayat vermeye hazır hızlı ve güzel tasarımları keşfedin."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-themes/wpcom-themes.php:39
+msgid "Find the perfect theme for your site"
+msgstr "Siteniz için mükemmel temayı bulun"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:230
+msgid "A few catchy words to motivate your readers to comment"
+msgstr "Akılda kalıcı birkaç sözcükle okurlarınızı yorum yapmaya teşvik edin"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:192
+msgid "Enable blocks in comments"
+msgstr "Yorumlarda blokları etkinleştir"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:181
+msgid "Let visitors use a WordPress.com or Facebook account to comment"
+msgstr "Ziyaretçilerin yorum yapmak için WordPress.com veya Facebook hesaplarını kullanmalarına izin verin"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:170
+msgid "Adjust your Comments form with a clever greeting and color-scheme."
+msgstr "Yorumlar formunuz için şık bir karşılama ve renk düzeni ayarlayın."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:149
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:262
+msgid "Color Scheme"
+msgstr "Renk Şeması"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:132
+msgid "Greeting Text"
+msgstr "Karşılama Metni"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:116
+msgid "Allow Blocks"
+msgstr "Bloklara İzin Ver"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:103
+msgid "Verbum"
+msgstr "Verbum"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:81
+msgid "Dark"
+msgstr "Koyu"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:80
+msgid "Light"
+msgstr "Açık"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:82
+msgid "Transparent"
+msgstr "Şeffaf"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:797
+msgid "Launch your store"
+msgstr "Mağazanızı yayınlayın"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:787
+msgid "Add a domain"
+msgstr "Alan adı ekle"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:777
+msgid "Grow your business"
+msgstr "İşletmenizi büyütün"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:767
+msgid "Collect sales tax"
+msgstr "Satış vergisi alın"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:757
+msgid "Get paid with WooPayments"
+msgstr "WooPayments ile ödeme alın"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:747
+msgid "Add your products"
+msgstr "Ürünlerinizi ekleyin"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:737
+msgid "Customize your store"
+msgstr "Mağazanızı özelleştirin"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:68
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:69
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-management-widget/class-wpcom-site-management-widget.php:188
+msgid "Overview"
+msgstr "Genel görünüm"
+
+#. translators: post title
+#: vendor/automattic/jetpack-post-list/src/class-post-list.php:194
+msgid "Share &#8220;%s&#8221; via Jetpack Social"
+msgstr "“%s” öğesini Jetpack Social aracılığıyla paylaşın"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:222
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:223
+msgid "Subscribers"
+msgstr "Aboneler"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:202
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:203
+msgid "Monetize"
+msgstr "Para kazanın"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-management-widget/class-wpcom-site-management-widget.php:205
+msgid "Monitoring"
+msgstr "İzleme"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:113
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:114
+msgid "Purchases"
+msgstr "Satın Alınanlar"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:104
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:105
+msgid "Emails"
+msgstr "E-postalar"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:95
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:96
+msgid "Domains"
+msgstr "Alan Adları"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:86
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:87
+msgid "Add-ons"
+msgstr "Eklentiler"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:77
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:78
+msgid "Plans"
+msgstr "Paketler"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:48
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:49
+msgid "Hosting"
+msgstr "Barındırma"
+
+#. translators: Hidden accessibility text.
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-bar/wpcom-admin-bar.php:144
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-bar/wpcom-admin-bar.php:148
+msgid "All Sites"
+msgstr "Tüm Siteler"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:465
+msgid "Error: please try commenting again."
+msgstr "Hata: Lütfen tekrar yorun yapmayı deneyin."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:390
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:396
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:403
+msgid "Error: your Facebook login has expired."
+msgstr "Hata: Facebook girişinizin süresi doldu."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:301
+msgid "Cancel reply"
+msgstr "Cevabı iptal et"
+
+#. translators: % is the original posters name
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:300
+msgid "Leave a reply to %s"
+msgstr "%s için bir cevap yazın"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:283
+msgid "Leave a comment"
+msgstr "Yorum bırakın"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:233
+msgid "Save my name, email, and website in this browser for the next time I comment."
+msgstr "Bir dahaki sefere yorum yaptığımda kullanılmak üzere adımı, e-posta adresimi ve web site adresimi bu tarayıcıya kaydet."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:232
+msgid "Comment sent successfully"
+msgstr "Yorum başarıyla gönderildi"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:231
+msgid "Subscribe"
+msgstr "Abone Olun"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:230
+msgid "Enter your email address"
+msgstr "E-posta adresinizi girin"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:229
+msgid "Interested in getting blog post updates? Simply click the button below to stay in the loop!"
+msgstr "Blok gönderileriyle ilgili güncellemeler almak mı istiyorsunuz? Gelişmelerden haberdar olmak için aşağıdaki düğmeye tıklayın!"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:228
+msgid "Never miss a beat!"
+msgstr "Hiçbir şeyi kaçırmayın!"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:227
+msgid "Continue reading"
+msgstr "Okumaya devam edin"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:226
+msgid "Subscribe now to keep reading and get access to the full archive."
+msgstr "Okumaya devam etmek ve tüm arşive erişim kazanmak için hemen abone olun."
+
+#. translators: %s is the name of the site
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:225
+msgid "Discover more from %s"
+msgstr "%s sitesinden daha fazla şey keşfedin"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:223
+msgid "Loading your comment..."
+msgstr "Yorumunuz yükleniyor..."
+
+#. translators: Success message of a modal when user subscribes
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:222
+msgid "We'll keep you in the loop!"
+msgstr "Sizi gelişmelerden haberdar edelim!"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:220
+msgid "Optional"
+msgstr "İsteğe Bağlı"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:219
+msgid "Website"
+msgstr "Web sitesi"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:218
+msgid "Write a reply..."
+msgstr "Cevap yazın…"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:216
+msgid "Cancel"
+msgstr "Vazgeç"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:215
+msgid "Email me new comments"
+msgstr "Yeni yorumlar için e-postalar"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:214
+msgid "Email me new posts"
+msgstr "Yeni yazıları bana e-postayla gönder"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:213
+msgid "Notify me of new posts"
+msgstr "Beni yeni yazılardan haberdar et"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:212
+msgid "Weekly"
+msgstr "Haftalık"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:211
+msgid "WordPress"
+msgstr "WordPress"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:96
+msgid "Comments"
+msgstr "Yorumlar"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:209
+msgid "Reply"
+msgstr "Cevapla"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:208
+msgid "Daily"
+msgstr "Günlük"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:207
+msgid "Instantly"
+msgstr "Anında"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:206
+msgid "(Address never made public)"
+msgstr "(Adres hiçbir zaman paylaşılmayacaktır)"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:204
+msgid "Log out"
+msgstr "Çıkış"
+
+#. translators: %s is the name of the provider (WordPress, Facebook, Twitter)
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:203
+msgid "Logged in via %s"
+msgstr "%s üzerinden oturum açıldı"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:201
+msgid "Log in to leave a comment."
+msgstr "Yorum yapmak için oturum açın."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:200
+msgid "Log in to leave a reply."
+msgstr "Cevap yazmak için oturum açın."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:199
+msgid "Leave a comment. (log in optional)"
+msgstr "Bir yorum ekleyin. (oturum açma isteğe bağlı)"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:198
+msgid "Leave a reply. (log in optional)"
+msgstr "Bir yanıt bırakın. (oturum açma isteğe bağlı)"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:197
+msgid "Website (optional)"
+msgstr "Web Sitesi (isteğe bağlı)"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:196
+msgid "Email (address never made public)"
+msgstr "E-posta (adres hiçbir zaman paylaşılmayacaktır)"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:194
+msgid "Receive web and mobile notifications for posts on this site."
+msgstr "Bu sitedeki blog gönderileri için web bildirimleri ve mobil bildirimler alın."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:193
+msgid "Log in or provide your name and email to leave a comment."
+msgstr "Bir yorum eklemek için oturum açın veya adınız ve e-postanızı girin."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:192
+msgid "Log in or provide your name and email to leave a reply."
+msgstr "Bir yanıt bırakmak için oturum açın veya adınız ve e-postanızı girin."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-gutenberg-editor.php:30
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:217
+msgid "Write a comment..."
+msgstr "Yorum Yapın..."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/import-customizations/import-customizations.php:39
+msgid "Get started"
+msgstr "Başlayın"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/import-customizations/import-customizations.php:37
+msgid "Use WordPress.com’s guided importer to import posts and comments from Medium, Substack, Squarespace, Wix, and more."
+msgstr "Medium, Substack, Squarespace, Wix ve daha fazlasından gönderileri ve yorumları içe aktarmak için WordPress.com'un kılavuzlu içe aktarıcısını kullanın."
+
+#: notices/feature-moved-to-jetpack-notices.php:21
+msgid "Visit %1$sJetpack Settings%2$s for more writing settings powered by Jetpack."
+msgstr "Jetpack tarafından desteklenen daha fazla yazma ayarı için %1$sJetpack Ayarları%2$s'nı ziyaret edin."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:444
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:445
+msgid "Scheduled Updates"
+msgstr "Planlanmış Güncellemeler"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:725
+msgid "Verify the email address for your domains"
+msgstr "Alan adlarınızın e-posta adresini doğrulayın"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:292
+msgid "Site setup"
+msgstr "Site kurulumu"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:715
+msgid "Finish Sensei setup"
+msgstr "Sensei kurulumunu tamamlayın"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:705
+msgid "Finish store setup"
+msgstr "Mağaza kurulumunu tamamlayın"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:688
+msgid "Update your site's design"
+msgstr "Sitenizin tasarımını güncelleyin"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:679
+msgid "Enable post sharing"
+msgstr "Yazıları paylaşıma aç"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:670
+msgid "Install the mobile app"
+msgstr "Mobil uygulamayı yükleyin"
+
+#: imports/utils/class-filerestorer.php:167
+msgid "No files are restored."
+msgstr "Hiçbir dosya geri yüklenmedi."
+
+#: imports/utils/class-filerestorer.php:97
+msgid "No files are queued."
+msgstr "Hiçbir dosya kuyruğa alınmadı."
+
+#: imports/playground/class-sql-postprocessor.php:383
+msgid "Missing temporary tables."
+msgstr "Geçici tablolar eksik."
+
+#: imports/playground/class-sql-postprocessor.php:376
+msgid "Temporary prefix is equals to current prefix."
+msgstr "Geçici ön ek, geçerli ön eke eşit."
+
+#: imports/playground/class-sql-postprocessor.php:314
+msgid "Error update links."
+msgstr "Bağlatıları güncelleme hatası."
+
+#: imports/playground/class-sql-postprocessor.php:304
+msgid "Error update posts."
+msgstr "Gönderileri güncelleme hatası."
+
+#: imports/playground/class-sql-postprocessor.php:296
+msgid "The site is not connected."
+msgstr "Bu site bağlı değil."
+
+#: imports/playground/class-sql-postprocessor.php:288
+msgid "Jetpack is not installed."
+msgstr "Jetpack yüklenmedi."
+
+#: imports/playground/class-sql-postprocessor.php:250
+msgid "Error saving whitelist options."
+msgstr "Güvenilir adresler listesi seçenekleri kaydedilirken hata."
+
+#: imports/playground/class-sql-postprocessor.php:174
+msgid "Missing home URL."
+msgstr "Ana sayfa URL’si eksik."
+
+#: imports/playground/class-sql-postprocessor.php:164
+msgid "Missing site URL."
+msgstr "Site URL’si eksik."
+
+#: imports/playground/class-sql-postprocessor.php:155
+msgid "The site URL is not valid."
+msgstr "Site URL’si geçerli değil."
+
+#: imports/playground/class-sql-postprocessor.php:151
+msgid "The home URL is not valid."
+msgstr "Ana sayfa URL'si geçerli değil."
+
+#: imports/playground/class-sql-importer.php:45
+msgid "SQL import failed"
+msgstr "SQL içe aktarımı başarısız oldu"
+
+#: imports/playground/class-sql-importer.php:27
+msgid "SQL file not exists"
+msgstr "SQL dosyası mevcut değil"
+
+#: imports/class-backup-import-manager.php:385
+#: imports/class-backup-import-manager.php:426
+msgid "No backup import found."
+msgstr "Hiçbir yedekleme içe aktarımı bulunamadı."
+
+#: imports/class-backup-import-manager.php:371
+msgid "An import is already running."
+msgstr "Bir içe aktarım zaten çalışıyor."
+
+#: imports/class-backup-import-manager.php:233
+msgid "The backup import has been cancelled."
+msgstr "Yedekleme içe aktarımı iptal edildi."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:36
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:50
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:65
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:78
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:91
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:107
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:119
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:132
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:145
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:159
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:176
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:190
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:204
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:245
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:261
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:277
+msgid "Next steps for your site"
+msgstr "Siteniz için sıradaki adımlar"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:660
+msgid "Add the Subscribe Block to your site"
+msgstr "Sitenize Abonelik Bloku ekleyin"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:649
+msgid "Import existing subscribers"
+msgstr "Mevcut abonelerinizi içeri aktarın"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:640
+msgid "View site metrics"
+msgstr "Site ölçümlerini görüntüle"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:631
+msgid "Set up ssh"
+msgstr "SSH ayarla"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:619
+msgid "Install a custom plugin"
+msgstr "Özel bir eklenti kurun"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:607
+msgid "Choose a theme"
+msgstr "Bir tema seçin"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:595
+msgid "Set up an offer for your supporters"
+msgstr "Destekleyicileriniz için bir teklif oluşturun"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:578
+msgid "Connect a Stripe account to collect payments"
+msgstr "Ödeme almak için bir Stripe hesabı bağlayın"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:563
+msgid "Add your About page"
+msgstr "Hakkında sayfanızı ekleyin"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:553
+msgid "Manage your paid Newsletter plan"
+msgstr "Ücretli Haber Bülteni paketinizi yönetin"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:545
+msgid "Connect your social media accounts"
+msgstr "Sosyal medya hesaplarınızı bağlayın"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:534
+msgid "Manage your subscribers"
+msgstr "Abonelerinizi yönetme"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:521
+msgid "Write 3 posts"
+msgstr "3 blog gönderisi yazın"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:509
+msgid "Get your first 10 subscribers"
+msgstr "İlk 10 abonenizi elde edin"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:497
+msgid "Enable subscribers modal"
+msgstr "Aboneler kipini etkinleştirin"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:485
+msgid "Customize welcome message"
+msgstr "Karşılama mesajını özelleştirin"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:475
+msgid "Earn money with your newsletter"
+msgstr "Haber bülteninizle para kazanın"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:418
+msgid "Update your About page"
+msgstr "Hakkında sayfanızı güncelleyin"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:256
+msgid "Migrate content"
+msgstr "İçerik taşıyın"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:180
+msgid "Verify email address"
+msgstr "E-posta adresinizi doğrulayın"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/locked-mode.php:120
+msgid "Prevents new post and page from being created as well as existing posts and pages from being edited, and closes comments site wide."
+msgstr "Yeni gönderi ve sayfanın oluşturulmasını ve mevcut gönderiler ile sayfaların düzenlenmesini önleyip yorumları site çapında kapatır."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/locked-mode.php:119
+msgid "Enable Locked Mode"
+msgstr "Kilitli Modu Aç"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/locked-mode.php:102
+msgid "Locked Mode"
+msgstr "Kilitli Mod"
+
+#. translators: link to the help page: https://wordpress.com/help
+#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/enhanced-ownership.php:102
+msgid "To take ownership of the site, we ask that the person you designate contacts us at %s with a copy of the death certificate."
+msgstr "Siteyi sahiplenmek için belirlediğiniz kişinin ölüm belgesinin bir kopyasıyla şuradan bizimle iletişime geçmesini istiyoruz: %s"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/enhanced-ownership.php:97
+msgid "Choose someone to look after your site when you pass away."
+msgstr "Siz vefat ettiğinizde sitenizle ilgilenecek kişiyi belirleyin."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/enhanced-ownership.php:80
+msgid "Legacy Contact"
+msgstr "Eski İletişim Kişisi"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/enhanced-ownership.php:73
+#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/locked-mode.php:95
+msgid "Enhanced Ownership"
+msgstr "Gelişmiş Sahiplik"
+
+#: notices/anyone-can-register-notice.php:79
+msgid "The <a href=\"%2$s\">\"Anyone can register\" option</a> is currently active. The current default role is %1$s. %4$s <strong>Please consider disabling this option if open registration is not needed.<strong>"
+msgstr "<a href=\"%2$s\">\"Herkes kaydolabilir\"</a> seçeneği şu anda etkin. Şu anki varsayılan rol: %1$s. %4$s <strong>Açık kayıt gerekli değilse lütfen bu seçeneği devre dışı bırakmayı göz önünde bulundurun.<strong>"
+
+#: notices/anyone-can-register-notice.php:74
+msgid "The <a href=\"%2$s\">\"Anyone can register\" option</a> is currently active. The current default role is %1$s. %4$s <a href=\"%3$s\"><strong>Please consider disabling this option if open registration is not needed.</strong></a>."
+msgstr "<a href=\"%2$s\">\"Herkes kaydolabilir\"</a> seçeneği şu anda etkin. Şu anki varsayılan rol: %1$s. %4$s <a href=\"%3$s\"><strong>Açık kayıt gerekli değilse lütfen bu seçeneği devre dışı bırakmayı göz önünde bulundurun.</strong></a>"
+
+#: imports/utils/class-fileextractor.php:82
+msgid "The TAR file could not be extracted."
+msgstr "TAR dosyası çıkarılamadı."
+
+#: imports/utils/class-fileextractor.php:43
+msgid "File type is not supported"
+msgstr "Dosya türü desteklenmiyor"
+
+#: imports/utils/class-fileextractor.php:33
+msgid "Could not create folder"
+msgstr "Klasör oluşturulamadı"
+
+#: imports/utils/class-fileextractor.php:29
+msgid "File not exists"
+msgstr "Dosya mevcut değil"
+
+#: imports/class-backup-import-manager.php:326
+#: imports/class-backup-import-manager.php:345
+msgid "Could not determine importer type."
+msgstr "Aktarma aracı türüne karar verilemedi"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:467
+msgid "Share your site"
+msgstr "Siteni paylaş"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:437
+msgid "Edit a page"
+msgstr "Sayfa düzenleme"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1719
+msgid "Your site contains premium styles. Upgrade now to publish them and unlock tons of other features."
+msgstr "Siteniz premium stiller içeriyor. Bunları yayımlamak ve bir sürü başka özelliğin kilidini açmak için şimdi yükseltin."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:452
+msgid "Customize your domain"
+msgstr "Alan adınızı özelleştirin"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:405
+msgid "Add a new page"
+msgstr "Yeni sayfa ekle"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:395
+msgid "Drive traffic to your site"
+msgstr "Sitenize daha fazla ziyaretçi yönlendirin"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:159
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:381
+msgid "Give your site a name"
+msgstr "Sitenize bir isim verin"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:66
+msgid "Claim your free one-year domain"
+msgstr "Ücretsiz bir yıllık alan adınızı talep edin"
+
+#: frontend-notices/gifting-banner/gifting-banner.php:138
+#: frontend-notices/gifting-banner/gifting-banner.php:160
+msgctxt "verb"
+msgid "Gift"
+msgstr "Hediye Et"
+
+#: vendor/automattic/jetpack-post-list/src/class-post-list.php:211
+msgid "Thumbnail"
+msgstr "Küçük resim"
+
+#: vendor/automattic/jetpack-post-list/src/class-post-list.php:191
+msgctxt "Share the post on social networks"
+msgid "Share"
+msgstr "Paylaş"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1163
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1734
+msgid "Upgrade plan"
+msgstr "Planı yükselt"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:207
+msgid "Create paid Newsletter"
+msgstr "Ücretli Haber Bülteni oluşturun"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:229
+msgid "Set up payment method"
+msgstr "Ödeme yöntemini ayarlayın"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:77
+msgid "Choose a domain"
+msgstr "Alan adı seçin"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:338
+msgid "Launch your blog"
+msgstr "Blogunuzu açın"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:33
+msgid "Edit site design"
+msgstr "Site tasarımını düzenleyin"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:372
+msgid "Set up your site"
+msgstr "Sitenizi kurun"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:346
+msgid "Name your blog"
+msgstr "Blogunun İsmi"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:358
+msgid "Personalize your site"
+msgstr "Sitenizi kişiselleştirin"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:317
+msgid "Upload your first video"
+msgstr "İlk videonuzu yükleyin"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:310
+msgid "Set up your video site"
+msgstr "Video sitenizi kurun"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:172
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:271
+msgid "Launch your site"
+msgstr "Sitenizi yayınlayın"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:279
+msgid "Add links"
+msgstr "Bağlantı ekle"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:291
+msgid "Personalize Link in Bio"
+msgstr "Bağlantı Profildenizi Kişiselleştirin"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:46
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:56
+msgid "Select a design"
+msgstr "Bir tasarım seçin"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:193
+msgid "Start writing"
+msgstr "Yazmaya başlayın"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:94
+msgid "Write your first post"
+msgstr "İlk yazınızı yazın"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:246
+msgid "Add subscribers"
+msgstr "Abone ekleyin"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:136
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:148
+msgid "Choose a plan"
+msgstr "Bir paket seçin"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:217
+msgid "Personalize newsletter"
+msgstr "Haber Bülteninizi Kişiselleştirin"
+
+#: vendor/automattic/jetpack-config/src/class-config.php:189
+msgid "Unable to load class %1$s. Please add the package that contains it using composer and make sure you are requiring the Jetpack autoloader"
+msgstr "%1$s sınıfı yüklenemiyor. Lütfen düzenleyiciyi kullanarak içerdiği paketi ekleyin ve Jetpack otomatik yükleyiciyi gerekli hale getirdiğinizden emin olun"
+
+#. translators: 1: wp_default_scripts. 2: Name of the domain being aliased.
+#: vendor/automattic/jetpack-assets/src/class-assets.php:586
+msgid "Textdomain aliases should be registered before the %1$s hook. This notice was triggered by the %2$s domain."
+msgstr "Metin alan adı takma adları, %1$s kancasından önce kaydedilmelidir. Bu bildirim %2$s alan adı tarafından tetiklendi."
+
+#. translators: %s is the script handle.
+#: vendor/automattic/jetpack-assets/src/class-assets.php:407
+msgid "Script \"%s\" depends on wp-i18n but does not specify \"textdomain\""
+msgstr "\"%s\" komut dosyası wp-i18n'ye bağlıdır ancak \"textdomain\" belirtmez"
+
+#: vendor/automattic/custom-fonts/providers/google.php:280
+msgctxt "Add new subset (greek, cyrillic, devanagari, vietnamese)"
+msgid "no-subset"
+msgstr "latin-ext"
+
+#: vendor/automattic/custom-fonts/providers/base.php:302
+msgctxt "font-style"
+msgid "Ultra Bold Oblique"
+msgstr "Ultra Kalın Eğik"
+
+#: vendor/automattic/custom-fonts/providers/base.php:301
+msgctxt "font-style"
+msgid "Ultra Bold Italic"
+msgstr "Ultra Kalın İtalik"
+
+#: vendor/automattic/custom-fonts/providers/base.php:300
+msgctxt "font-style"
+msgid "Ultra Bold"
+msgstr "Ultra Kalın"
+
+#: vendor/automattic/custom-fonts/providers/base.php:299
+msgctxt "font-style"
+msgid "Extra Bold Oblique"
+msgstr "Ekstra Kalın Yatık"
+
+#: vendor/automattic/custom-fonts/providers/base.php:298
+msgctxt "font-style"
+msgid "Extra Bold Italic"
+msgstr "Ekstra Kalın İtalik"
+
+#: vendor/automattic/custom-fonts/providers/base.php:297
+msgctxt "font-style"
+msgid "Extra Bold"
+msgstr "Ekstra Kalın"
+
+#: vendor/automattic/custom-fonts/providers/base.php:296
+msgctxt "font-style"
+msgid "Bold Oblique"
+msgstr "Kalın Eğik"
+
+#: vendor/automattic/custom-fonts/providers/base.php:295
+msgctxt "font-style"
+msgid "Bold Italic"
+msgstr "Kalın İtalik"
+
+#: vendor/automattic/custom-fonts/providers/base.php:294
+msgctxt "font-style"
+msgid "Bold"
+msgstr "Kalın"
+
+#: vendor/automattic/custom-fonts/providers/base.php:293
+msgctxt "font-style"
+msgid "Semibold Oblique"
+msgstr "Yarıkalın Eğik"
+
+#: vendor/automattic/custom-fonts/providers/base.php:292
+msgctxt "font-style"
+msgid "Semibold Italic"
+msgstr "Ortakalın İtalik"
+
+#: vendor/automattic/custom-fonts/providers/base.php:291
+msgctxt "font-style"
+msgid "Semibold"
+msgstr "Yarıkalın"
+
+#: vendor/automattic/custom-fonts/providers/base.php:290
+msgctxt "font-style"
+msgid "Medium Oblique"
+msgstr "Orta Eğik"
+
+#: vendor/automattic/custom-fonts/providers/base.php:289
+msgctxt "font-style"
+msgid "Medium Italic"
+msgstr "Orta İtalik"
+
+#: vendor/automattic/custom-fonts/providers/base.php:288
+msgctxt "font-style"
+msgid "Medium"
+msgstr "Orta"
+
+#: vendor/automattic/custom-fonts/providers/base.php:287
+msgctxt "font-style"
+msgid "Oblique"
+msgstr "Eğik"
+
+#: vendor/automattic/custom-fonts/providers/base.php:286
+msgctxt "font-style"
+msgid "Italic"
+msgstr "İtalik"
+
+#: vendor/automattic/custom-fonts/providers/base.php:285
+msgctxt "font-style"
+msgid "Regular"
+msgstr "Normal"
+
+#: vendor/automattic/custom-fonts/providers/base.php:284
+msgctxt "font-style"
+msgid "Light Oblique"
+msgstr "İnce Eğik"
+
+#: vendor/automattic/custom-fonts/providers/base.php:283
+msgctxt "font-style"
+msgid "Light Italic"
+msgstr "İnce İtalik"
+
+#: vendor/automattic/custom-fonts/providers/base.php:282
+msgctxt "font-style"
+msgid "Light"
+msgstr "İnce"
+
+#: vendor/automattic/custom-fonts/providers/base.php:281
+msgctxt "font-style"
+msgid "Extra Light Oblique"
+msgstr "Ekstra İnce Eğik"
+
+#: vendor/automattic/custom-fonts/providers/base.php:280
+msgctxt "font-style"
+msgid "Extra Light Italic"
+msgstr "Ekstra İnce İtalik"
+
+#: vendor/automattic/custom-fonts/providers/base.php:279
+msgctxt "font-style"
+msgid "Extra Light"
+msgstr "Ekstra İnce"
+
+#: vendor/automattic/custom-fonts/providers/base.php:278
+msgctxt "font-style"
+msgid "Thin Oblique"
+msgstr "Cılız Eğik"
+
+#: vendor/automattic/custom-fonts/providers/base.php:277
+msgctxt "font-style"
+msgid "Thin Italic"
+msgstr "Cılız İtalik"
+
+#: vendor/automattic/custom-fonts/providers/base.php:276
+msgctxt "font-style"
+msgid "Thin"
+msgstr "Cılız"
+
+#: vendor/automattic/custom-fonts/fonts-customize-control.php:41
+msgid "Huge"
+msgstr "Kocaman"
+
+#: vendor/automattic/custom-fonts/fonts-customize-control.php:40
+msgid "Large"
+msgstr "Büyük"
+
+#: vendor/automattic/custom-fonts/fonts-customize-control.php:39
+msgid "Normal Size"
+msgstr "Normal Boyut"
+
+#: vendor/automattic/custom-fonts/fonts-customize-control.php:38
+msgid "Normal"
+msgstr "Normal"
+
+#: vendor/automattic/custom-fonts/fonts-customize-control.php:37
+msgid "Small"
+msgstr "Küçük"
+
+#: vendor/automattic/custom-fonts/fonts-customize-control.php:36
+msgid "Tiny"
+msgstr "Ufak"
+
+#: vendor/automattic/custom-fonts/fonts-customize-control.php:35
+msgid "Default Theme Font"
+msgstr "Varsayılan Tema Yazı Tipi"
+
+#: vendor/automattic/custom-fonts/custom-fonts.php:147
+#: vendor/automattic/custom-fonts/custom-fonts.php:163
+#: vendor/automattic/jetpack-mu-wpcom/src/features/jetpack-global-styles/class-global-styles.php:274
+msgid "Fonts"
+msgstr "Yazı Tipleri"
+
+#: vendor/automattic/custom-fonts/css-generator.php:63
+msgid "Headings"
+msgstr "Başlıklar"
+
+#: vendor/automattic/custom-fonts/css-generator.php:56
+msgid "Base Font"
+msgstr "Temel Yazı Tipi"
+
+#: vendor/automattic/custom-fonts/css-generator.php:49
+msgid "Site Title"
+msgstr "Site başlığı"
+
+#: vendor/automattic/custom-fonts-typekit/advanced-mode.php:56
+msgid "You added a Typekit kit ID through our legacy interface, which is no longer supported. Uncheck the checkbox below and click \"Save\" to remove your kit from this blog and use our easy new interface for choosing fonts."
+msgstr "Artık desteklenmeyen eski arayüzümüz aracılığıyla bir Typekit kiti kimliği eklediniz. Aşağıdaki onay kutusunun seçimini kaldırın ve kitinizi bu blogdan kaldırmak için \"Kaydet\"e tıklayıp yazı tiplerini seçmek için yeni kolay arayüzümüzü kullanın."
+
+#: vendor/automattic/custom-fonts-typekit/advanced-mode.php:54
+msgid "Lucky you! Your theme designers chose specific fonts for you that you can’t pick otherwise. If you aren’t happy with these fonts, uncheck the checkbox below and click \"Save\" to choose other fonts."
+msgstr "Çok şanslısınız! Tema tasarımcılarınız sizin için özel yazı tipleri seçti; böylece bunları seçebilirsiniz. Bu yazı tiplerinden memnun değilseniz aşağıdaki onay kutusundaki işareti kaldırın ve diğer yazı tiplerini seçmek için \"Kaydet\"e tıklayın."
+
+#: vendor/automattic/custom-fonts-typekit/advanced-mode.php:23
+msgid "Uncheck to disable"
+msgstr "Etkisizleştirmek için onayı kaldırın"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:109
+msgid "Spotify Feed ID"
+msgstr "Spotify Akışı Kimliği"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:103
+msgid "Apple Podcasts Feed ID"
+msgstr "Apple Podcasts Akışı Kimliği"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:97
+msgid "Title"
+msgstr "Başlık:"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:81
+msgid "Podcast RSS Feed"
+msgstr "Podcast RSS Akışı"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:78
+msgid "Listen on Spotify"
+msgstr "Spotify'da dinleyin"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:73
+msgid "Listen on Apple Podcasts"
+msgstr "Apple Podcasts'de dinleyin"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:15
+msgid "Display information about your Podcast and allow visitors to follow via iTunes"
+msgstr "Podcastinizle ilgili bilgiler verip ziyaretçilere iTunes üzerinden sizi takip etme seçeneği sunun"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:13
+msgid "Podcast"
+msgstr "Podcast"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:290
+msgid "Select iTunes category:"
+msgstr "iTunes kategorisi seç:"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:287
+msgid "Set podcast category"
+msgstr "Podcast kategorisini ayarlayın"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:189
+msgid "Set podcast image"
+msgstr "Podcast görselini ayarlayın"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:178
+msgid "Clean"
+msgstr "Temiz"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:177
+msgid "Yes"
+msgstr "Evet"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:176
+msgid "No"
+msgstr "Hayır"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:173
+msgid "Set podcast as explicit"
+msgstr "Podcast açık olarak ayarlayın"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:163
+msgid "Set podcast copyright"
+msgstr "Podcast telif hakkını ayarlayın"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:148
+msgid "Set podcast summary"
+msgstr "Podcast özeti"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:130
+msgid "Set podcast author"
+msgstr "Podcast yapımcısını belirle"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:116
+msgid "Set podcast title"
+msgstr "Podcast başlığını ayarlayın"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:98
+msgid "This is the URL you submit to iTunes or podcasting service."
+msgstr "Bu, iTunes veya podcast hizmetine ilettiğiniz URL'dir."
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:97
+msgid "Your podcast feed: %1$s"
+msgstr "Podcast akışınız: %1$s"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:79
+msgid "Select podcast category:"
+msgstr "Podcast kategorisi seçin:"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:76
+msgid "Blog category for podcasts"
+msgstr "Podcast için blog kategorisi"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:47
+msgid "Podcast category 3"
+msgstr "Podcast kategorisi 3"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:44
+msgid "Podcast category 2"
+msgstr "Podcast kategorisi 2"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:41
+msgid "Podcast category 1"
+msgstr "Podcast kategorisi 1"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:37
+msgid "Podcast image"
+msgstr "Podcast görseli"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:34
+msgid "Mark as explicit"
+msgstr "Açık olarak işaretle"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:31
+msgid "Podcast copyright"
+msgstr "Podcast telif hakkı"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:28
+msgid "Podcast summary"
+msgstr "Ortam akışı özeti"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:25
+msgid "Podcast talent name"
+msgstr "Podcast yetenek adı"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:22
+msgid "Podcast title"
+msgstr "Ortam akışı başlığı"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:18
+msgid "Category to set as feed"
+msgstr "Besleme olarak ayarlanacak kategori"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:16
+msgid "Podcasting"
+msgstr "Ortam Akışı"
+
+#. translators: %s is the Twitter account name
+#: widgets/class-jetpack-widget-twitter.php:67
+msgid "Tweets by %s"
+msgstr "%s tweetleri"
+
+#: private-site/logged-in-banner.php:168
+msgid "Next steps"
+msgstr "Sonraki adımlar"
+
+#: notices/anyone-can-register-notice.php:112
+msgid "This may pose a security risk to your site."
+msgstr "Bu, siteniz için bir güvenlik riski oluşturabilir."
+
+#: notices/anyone-can-register-notice.php:106
+msgid "It allows a user to post content."
+msgstr "Bir kullanıcının içerik paylaşmasına izin verir."
+
+#: notices/anyone-can-register-notice.php:100
+msgid "It allows a user to post/modify/delete all content."
+msgstr "Bir kullanıcının tüm içerikleri paylaşmasına/değiştirmesine/silmesine izin verir."
+
+#: notices/anyone-can-register-notice.php:94
+msgid "It allows a user control over your orders and products."
+msgstr "Bir kullanıcının siparişleriniz ve ürünleriniz üzerinde kontrol sahibi olmasına izin verir."
+
+#: notices/anyone-can-register-notice.php:88
+msgid "It allows a user full control over your site and its contents."
+msgstr "Bir kullanıcının siteniz ve sitenizin içeriği üzerinde tam kontrole sahip olmasına izin verir."
+
+#: imports/utils/class-fileextractor.php:64
+msgid "The ZIP file could not be extracted."
+msgstr "ZIP dosyası çıkarılamadı."
+
+#: imports/utils/class-fileextractor.php:57
+msgid "The ZIP file could not be opened."
+msgstr "ZIP dosyası açılamadı."
+
+#: notices/media-library-private-site-cdn-notice.php:20
+msgid "The image CDN is disabled because your site is marked Private. If image thumbnails do not display in your Media Library, you can switch to Coming Soon mode.  <a href=\"%1$s\" target=_blank>Learn more</a>."
+msgstr "Siteniz Özel olarak işaretlendiğinden görsel CDN devre dışı. Poster görselleri Ortam Kütüphanenizde görüntülenmiyorsa Çok Yakında moduna geçebilirsiniz.  <a href=\"%1$s\" target=_blank>Daha fazla bilgi edinin</a>."
+
+#: frontend-notices/gifting-banner/gifting-banner.php:250
+msgid "Gift the author a WordPress.com plan."
+msgstr "Yazara bir WordPress.com paketi hediye edin."
+
+#: frontend-notices/gifting-banner/gifting-banner.php:238
+msgid "Gift the author a WordPress.com plan before it expires in %d day."
+msgid_plural "Gift the author a WordPress.com plan before it expires in %d days."
+msgstr[0] "Yazara %d gün içinde süresi dolmadan önce bir WordPress.com paketi hediye edin."
+msgstr[1] "Yazara %d gün içinde süresi dolmadan önce bir WordPress.com paketi hediye edin."
+
+#: frontend-notices/gifting-banner/gifting-banner.php:227
+msgid "Gift the author a WordPress.com upgrade."
+msgstr "Yazara bir WordPress.com yükseltmesi hediye edin."
+
+#: frontend-notices/gifting-banner/gifting-banner.php:200
+msgid "This site's plan has expired."
+msgstr "Bu sitenin planının süresi dolmuş."
+
+#: notices/plan-notices.php:130
+msgid "The Business plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Business plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr "<strong>%3$s</strong> için Kurumsal paket %2$s tarihinde sona eriyor. Özel eklentiler ve temalar, SFTP ve phpMyAdmin erişimi gibi Kurumsal paket özelliklerini kullanmaya devam etmek için <a href=\"%1$s\">Paketinizi yenileyin</a>."
+
+#: notices/plan-notices.php:109
+msgid "The Pro plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Pro plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr "<strong>%3$s</strong> için Pro paket %2$s tarihinde sona eriyor. Özel eklentiler ve temalar, SFTP ve phpMyAdmin erişimi gibi Pro paket özelliklerini kullanmaya devam etmek için <a href=\"%1$s\">Paketinizi yenileyin</a>."
+
+#: notices/plan-notices.php:99
+msgid "The Business plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Business plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr "<strong>%3$s</strong> için Kurumsal paket %2$s tarihinde sona eriyor. Özel eklentiler ve temalar, SFTP ve phpMyAdmin erişimi gibi Kurumsal paket özelliklerini kullanmaya devam etmek için <a href=\"%1$s\">Paketinizi yenileyin</a>."
+
+#: notices/plan-notices.php:104
+msgid "The Commerce plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Commerce plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr "<strong>%3$s</strong> için E-Ticaret paketi %2$s tarihinde sona eriyor. Özel eklentiler ve temalar, SFTP ve phpMyAdmin erişimi gibi E-Ticaret paketi özelliklerini kullanmaya devam etmek için <a href=\"%1$s\">Paketinizi yenileyin</a>."
+
+#: storage/storage.php:33
+msgid "You have used your space quota. Please delete files before uploading."
+msgstr "Alan kotanızın tamamını kullandınız. Lütfen yükleme yapmadan önce dosya silin."
+
+#: private-site/logged-in-banner.php:132
+msgid "Change theme"
+msgstr "Temayı değiştir"
+
+#: private-site/logged-in-banner.php:131
+msgid "Change"
+msgstr "Değiştir"
+
+#: private-site/logged-in-banner.php:118
+msgid "Edit page"
+msgstr "Sayfayı düzenle"
+
+#: private-site/logged-in-banner.php:118
+msgid "Edit post"
+msgstr "Yazıyı düzenle"
+
+#: private-site/logged-in-banner.php:117
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-blocks/a8c-posts-list/templates/post-item.php:36
+msgid "Edit"
+msgstr "Düzenle"
+
+#: private-site/logged-in-banner.php:168
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:59
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-menu/wpcom-admin-menu.php:60
+msgid "My Home"
+msgstr "Evim"
+
+#: private-site/logged-in-banner.php:91
+msgid "Launch"
+msgstr "Başlat"
+
+#: private-site/logged-in-banner.php:87
+msgid "Update"
+msgstr "Güncelleme"
+
+#: notices/plan-notices.php:125
+msgid "The Premium plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Premium plan features such as site monetization, VideoPress, and Google Analytics support."
+msgstr "<strong>%3$s</strong> için Premium paket %2$s tarihinde sona erdi. Web sitesinden para kazanma, VideoPress ve Google Analytics desteği gibi Premium paket özelliklerini kullanmaya devam etmek için <a href=\"%1$s\">Paketinizi yenileyin</a>."
+
+#: notices/plan-notices.php:120
+msgid "The Personal plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Personal plan features such as 6 GB storage space, no WordPress.com ads, and Subscriber-only content."
+msgstr "<strong>%3$s</strong> için Kişisel paket %2$s tarihinde sona erdi. 6 GB saklama alanı, WordPress.com reklamlarını kaldırma ve Abonelere özel içerik gibi Kişisel paket özelliklerini kullanmaya devam etmek için <a href=\"%1$s\">Paketinizi yenileyin</a>."
+
+#: notices/plan-notices.php:94
+msgid "The Premium plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Premium plan features such as site monetization, VideoPress, and Google Analytics support."
+msgstr "<strong>%3$s</strong> için Premium paket %2$s tarihinde sona erdi. Web sitesinden para kazanma, VideoPress ve Google Analytics desteği gibi Premium paket özelliklerini kullanmaya devam etmek için <a href=\"%1$s\">Paketinizi yenileyin</a>."
+
+#: notices/plan-notices.php:89
+msgid "The Personal plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Personal plan features such as 6 GB storage space, no WordPress.com ads, and Subscriber-only content."
+msgstr "<strong>%3$s</strong> için Kişisel paket %2$s tarihinde sona eriyor. 6 GB saklama alanı, WordPress.com reklamlarını kaldırma ve Abonelere özel içerik gibi Kişisel paket özelliklerini kullanmaya devam etmek için <a href=\"%1$s\">Paketinizi yenileyin</a>."
+
+#: notices/php-version-notices.php:30
+msgid "You are currently using PHP <strong>%1$s</strong> which will no longer receive security updates as of %2$s. Please update to PHP %3$s or higher by changing your <a href=\"%4$s\">hosting configuration</a>."
+msgstr "%2$s tarihinden itibaren güvenlik güncellemeleri almayacak olan PHP <strong>%1$s</strong> kullanmaktasınız. Lütfen %3$ssunucu yapılandırmanızı<a href=\"%4$s\"> değiştirerek PHP</a> veya daha üzerine yükseltin."
+
+#: frontend-notices/gifting-banner/gifting-banner.php:206
+msgid "Enjoy this site?"
+msgstr "Bu siteyi beğendiniz mi?"
+
+#. translators: 1: opening anchor tag; 2: closing anchor tag.
+#: feature-plugins/full-site-editing.php:127
+msgid "Heads up! Search engines are currently discouraged from indexing your site. If you want search engines to show this site in their search results you have to launch your site. %1$sClick here%2$s to change your site's privacy settings."
+msgstr "Dikkat! Arama motorları şu anda sizin web sitenizi göstermiyor. Arama motorlarının arama sonuçlarında web sitenizi göstermesini istiyorsanız sitenizi başlatmalısınız. Web sitenizin gizlilik ayarlarını değiştirmek için %1$sburaya tıklayın%2$s."
+
+#. translators: 1: opening anchor tag; 2: closing anchor tag.
+#: feature-plugins/full-site-editing.php:124
+msgid "Heads up! Your site is currently in Coming Soon mode. If you want search engines to show this site in their search results you have to launch your site. %1$sClick here%2$s to change your site's privacy settings."
+msgstr "Dikkat! Web siteniz şu anda Çok Yakında modunda. Arama motorlarının arama sonuçlarında web sitenizi göstermesini istiyorsanız sitenizi başlatmalısınız. Web sitenizin gizlilik ayarlarını değiştirmek için %1$sburaya tıklayın%2$s."
+
+#: feature-plugins/class-theme-homepage-switcher.php:111
+msgid "Home"
+msgstr "Başlangıç"
+
+#: feature-plugins/class-template-first-themes.php:170
+msgid "Blog"
+msgstr "Blog"
+
+#: feature-plugins/hooks.php:244
+msgid "Proxied only: You can see this because you are proxied. Do not use this if you don't know why you are here."
+msgstr "Yalnızca proxy'li: Proxy'li olduğunuz için bunu görebilirsiniz. Neden burada olduğunuzu bilmiyorsanız bunu kullanmayın."
+
+#: feature-plugins/hooks.php:233
+msgid "You do not have permission to access this page."
+msgstr "Bu sayfaya erişmek için izniniz yok."
+
+#: feature-plugins/masterbar.php:54
+msgid "Set your color scheme on WordPress.com."
+msgstr "WordPress.com'da renk düzeninizi ayarlayın."
+
+#: feature-plugins/additional-css.php:40 feature-plugins/additional-css.php:43
+msgid "Additional CSS"
+msgstr "Ek CSS"
+
+#: feature-plugins/additional-css.php:40 feature-plugins/additional-css.php:43
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:129
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:243
+msgid "CSS"
+msgstr "CSS"
+
+#. Description of the plugin
+msgid "WordPress.com provided functionality & tools pre-installed and activated on all Atomic Sites"
+msgstr "WordPress.com, tüm Atomik Sitelerde önceden yüklenmiş ve etkinleştirilmiş işlevsellikler ve araçlar sağladı"
+
+#. translators: Message about how a managed plugin is updated.
+#. translators: Message about how a managed theme is updated.
+#. translators: Information about how a managed plugin is updated, for
+#. debugging purposes.
+#. translators: Information about how a managed theme is updated, for debugging
+#. purposes.
+#: feature-plugins/managed-plugins.php:506
+#: feature-plugins/managed-plugins.php:517
+#: feature-plugins/managed-plugins.php:528
+#: feature-plugins/managed-plugins.php:539
+msgid "Updates managed by WordPress.com"
+msgstr "WordPress.com tarafından yönetilen güncellemeler"
+
+#: notices/plan-notices.php:135
+msgid "The Commerce plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Commerce plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr "<strong>%3$s</strong> için E-Ticaret paketi %2$s tarihinde sona erdi. Özel eklentiler ve temalar, SFTP ve phpMyAdmin erişimi gibi E-Ticaret paketi özelliklerini kullanmaya devam etmek için <a href=\"%1$s\">Paketinizi yenileyin</a>."
+
+#: notices/plan-notices.php:140
+msgid "The Pro plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Pro plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr "<strong>%3$s</strong> için Pro paket %2$s tarihinde sona eriyor. Özel eklentiler ve temalar, SFTP ve phpMyAdmin erişimi gibi Pro paket özelliklerini kullanmaya devam etmek için <a href=\"%1$s\">Paketinizi yenileyin</a>."
+
+#: private-site/access-denied-preview-login-template.php:63
+msgid "This site is private. You need to log in to the preview to see it."
+msgstr "Bu, özel bir site. Görüntülemek için önizlemeye giriş yapmalısınız."
+
+#: private-site/access-denied-preview-login-template.php:60
+msgid "This site is private. You need to log in as a user with permissions before previewing it."
+msgstr "Bu, özel bir site.  Görüntüleyebilmek için izinli bir kullanıcı hesabından giriş yapmanız gerekiyor."
+
+#: private-site/access-denied-coming-soon-template.php:54
+#: vendor/automattic/jetpack-mu-wpcom/src/features/coming-soon/fallback-coming-soon-page.php:294
+msgid "Start your website"
+msgstr "Sitenizi kurmaya başlayın"
+
+#: private-site/access-denied-coming-soon-template.php:50
+#: vendor/automattic/jetpack-mu-wpcom/src/features/coming-soon/fallback-coming-soon-page.php:290
+msgid "Build a website. Sell your stuff. Write a blog. And so much more."
+msgstr "Bir site kurun. Ürünlerinizi satın. Blog yazın. Ve daha fazlası."
+
+#: private-site/access-denied-coming-soon-template.php:44
+#: vendor/automattic/jetpack-mu-wpcom/src/features/coming-soon/fallback-coming-soon-page.php:273
+msgid "Coming Soon"
+msgstr "Çok Yakında"
+
+#: notices/storage-notices.php:116
+msgid "Disk space quota"
+msgstr "Disk alanı kotası"
+
+#: notices/storage-notices.php:112
+msgid "Disk space used"
+msgstr "Kullanılan disk alanı"
+
+#: widgets/class-wpcom-category-cloud-widget.php:211
+msgid "Click for more information"
+msgstr "Daha fazla bilgi için tıklayın"
+
+#: widgets/class-wpcom-category-cloud-widget.php:209
+msgid "Count items in sub-categories toward parent total."
+msgstr "Alt kategorilerdeki ögeleri sayarak ana toplamı bulun."
+
+#: widgets/class-wpcom-category-cloud-widget.php:201
+msgid "Maximum font percentage:"
+msgstr "En büyük font yüzdeye göre:"
+
+#: widgets/class-wpcom-category-cloud-widget.php:195
+msgid "Minimum font percentage:"
+msgstr "En az yazı tipi yüzdesi:"
+
+#: widgets/class-wpcom-category-cloud-widget.php:190
+msgid "Category IDs, separated by commas"
+msgstr "Virgülle ayrılmış kategori ID kimlikleri"
+
+#: widgets/class-wpcom-category-cloud-widget.php:188
+msgid "Exclude:"
+msgstr "Ayrı tut:"
+
+#: widgets/class-wpcom-category-cloud-widget.php:182
+msgid "Maximum number of categories to show:"
+msgstr "Gösterilecek kategorilerin azami sayısı:"
+
+#. translators: link to support doc about categories
+#: widgets/class-wpcom-category-cloud-widget.php:141
+msgid "If you use more <a href=\"%s\">categories</a> on your site, they will appear here."
+msgstr "Eğer sitenizde daha çok <a href=\"%s\">kategori</a> kullanırsanız, onlar burada görünecektir."
+
+#: widgets/class-wpcom-category-cloud-widget.php:29
+msgid "Your most used categories in cloud format."
+msgstr "Bulut biçiminde en çok kullanılan kategorileriniz."
+
+#: widgets/class-wpcom-category-cloud-widget.php:27
+#: widgets/class-wpcom-category-cloud-widget.php:65
+msgid "Category Cloud"
+msgstr "Kategori Bulutu"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/replace-site-visibility/replace-site-visibility.php:32
+msgid "Jetpack is disconnected & site is private. Reconnect Jetpack to manage site visibility settings."
+msgstr "Jetpack bağlantısı kesildi ve site özel. Site görünürlük ayarlarını yönetmek için Jetpack'i yeniden bağlayın."
+
+#: private-site/logged-in-banner.php:86
+msgid "Update visibility"
+msgstr "Görünürlüğü güncelle"
+
+#: private-site/logged-in-banner.php:90
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:303
+msgid "Launch site"
+msgstr "Siteyi başlat"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:167
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-sidebar-notice/wpcom-sidebar-notice.php:67
+msgid "Dismiss"
+msgstr "Gizle"
+
+#: wpcomsh.php:909
+msgid "You are currently using <strong>%1$s</strong> out of <strong>%2$s</strong> upload limit (%3$s%%)."
+msgstr "Şu anda <strong>%2$s</strong> yükleme limitinizin <strong>%1$s</strong> kadarını kullanıyorsunuz (%%%3$s)."
+
+#: widgets/twitter.php:364
+msgid "Twitter username:"
+msgstr "Twitter kullanıcı adı:"
+
+#: widgets/twitter.php:353
+msgid "Please switch to the 'Twitter Timeline' widget. This widget will be going away in the future and the new widget allows for more customization."
+msgstr "Lütfen 'Twitter Timeline' bileşenine geçiş yapın. Bu bileşen ileride kullanım dışı olacak ve yeni bileşen daha fazla kişiselleştirmeye olanak sağlayacak."
+
+#: widgets/twitter.php:61
+msgid "Twitter Updates"
+msgstr "Twitter Güncelleştirmeleri"
+
+#: widgets/twitter.php:51
+msgid "Please configure your Twitter username for the <a href=\"%s\">Twitter Widget</a>."
+msgstr "Lütfen <a href=\"%s\">Twitter Bileşeni</a> için bir Twitter kullanıcı adı yapılandırın."
+
+#: widgets/twitter.php:29
+msgid "Display your Tweets from Twitter"
+msgstr "Twitter'dan Tweetlerinizi görüntüleyin"
+
+#: widgets/twitter.php:26
+msgid "Twitter"
+msgstr "Twitter"
+
+#: widgets/tag-cloud-widget.php:177
+msgid "Taxonomy:"
+msgstr "Etiketleme:"
+
+#: widgets/tag-cloud-widget.php:159
+msgid "The tag cloud will not be displayed since there are no taxonomies that support the tag cloud widget."
+msgstr "Etiket bulutu bileşenini destekleyen sınıf olmadığı için etiket bulutu gösterilmeyecek."
+
+#: widgets/tag-cloud-widget.php:152
+msgid "Show tag counts"
+msgstr "Etiket adetlerini göster"
+
+#: widgets/tag-cloud-widget.php:139
+msgid "Maximum number of tags displayed"
+msgstr "Maksimum etiket sayısı görüntüleniyor"
+
+#: widgets/tag-cloud-widget.php:137
+msgid "Number of Tags:"
+msgstr "Etiket Adedi:"
+
+#: widgets/tag-cloud-widget.php:41
+msgid "Tags"
+msgstr "Etiketler"
+
+#: widgets/tag-cloud-widget.php:21
+msgid "Tag Cloud"
+msgstr "Etiket Bulutu"
+
+#: widgets/tag-cloud-widget.php:18
+msgid "A cloud of your most used tags."
+msgstr "En çok kullanılan etiketlerden oluşan etiket bulutu."
+
+#: widgets/twitter.php:412
+msgid "Text to display between Tweet and timestamp:"
+msgstr "Tweet ve zaman damgası arasında görüntülenecek metin:"
+
+#: widgets/twitter.php:406
+msgid "Display Follow Button"
+msgstr "Takip Et Düğmesi Görüntüle"
+
+#: widgets/twitter.php:399
+msgid "Include retweets"
+msgstr "Retweetleri dahil et"
+
+#: widgets/twitter.php:392
+msgid "Hide Tweets pushed by Publicize"
+msgstr "Duyuru tarafından atılan Tweetleri gizle"
+
+#: widgets/twitter.php:385
+msgid "Hide replies"
+msgstr "Yanıtları gizle"
+
+#: widgets/twitter.php:371
+msgid "Maximum number of Tweets to show:"
+msgstr "Gösterilecek maksimum Tweet sayısı:"
+
+#: widgets/twitter.php:289
+msgid "Error: Please make sure the Twitter account is %1$spublic%2$s."
+msgstr "Hata: Twitter hesabının %1$herkese açık%2$s olduğundan emin olun."
+
+#: widgets/twitter.php:262 widgets/twitter.php:275 widgets/twitter.php:296
+msgid "Error: Twitter did not respond. Please wait a few minutes and refresh this page."
+msgstr "Hata: Twitter yanıt vermedi.Lütfen birkaç dakika bekleyip bu sayfayı tazeleyin."
+
+#: widgets/aboutme.php:148
+msgid "Apps"
+msgstr "Uygulamalar"
+
+#: widgets/instagram/instagram.php:245
+msgid "New images may take up to %d minutes to show up on your site."
+msgstr "Yeni resimlerinizin sitenizde görünmesi %d dakika kadar vakit alabilir."
+
+#: widgets/instagram/instagram.php:237
+msgid "Number of columns:"
+msgstr "Sütun sayısı:"
+
+#: widgets/instagram/instagram.php:236
+msgid "Layout"
+msgstr "Yerleşim"
+
+#: widgets/instagram/instagram.php:226
+msgid "Number to display:"
+msgstr "Gösterilecek sayı:"
+
+#: widgets/instagram/instagram.php:225
+msgid "Images"
+msgstr "Görseller"
+
+#: widgets/instagram/instagram.php:221
+msgid "Widget Title"
+msgstr "Bileşen Başlığı"
+
+#: widgets/instagram/instagram.php:189
+msgid "No Instagram images were found."
+msgstr "Hiç Instagram resmi bulunamadı."
+
+#: widgets/instagram/instagram.php:186
+msgid "There was an error retrieving images from Instagram. An attempt will be remade in a few minutes."
+msgstr "Instagram'dan resimleri alma işlemi sırasında bir hata meydana geldi. Birkaç dakika içinde bir deneme daha yapılacaktır."
+
+#: widgets/instagram/instagram.php:30
+msgid "Display your latest Instagram photos."
+msgstr "En yeni Instagram fotoğraflarınızı görüntüleyin."
+
+#: widgets/instagram/instagram.php:28 widgets/instagram/instagram.php:43
+msgid "Instagram"
+msgstr "Instagram"
+
+#: widgets/class-aboutme-widget.php:149
+msgid "Biography"
+msgstr "Biyografi"
+
+#: widgets/class-aboutme-widget.php:142
+msgid "Headline"
+msgstr "Başlık"
+
+#: widgets/class-aboutme-widget.php:135
+msgid "Photo"
+msgstr "Fotoğraf"
+
+#: widgets/class-aboutme-widget.php:131
+msgid "Don't Display Name"
+msgstr "İsmi Gösterme"
+
+#: widgets/class-aboutme-widget.php:129
+msgid "Display Small"
+msgstr "Küçük Görüntüle"
+
+#: widgets/class-aboutme-widget.php:127
+msgid "Display Medium"
+msgstr "Orta Ölçekli Göster"
+
+#: widgets/class-aboutme-widget.php:125
+msgid "Display Large"
+msgstr "Büyük Ölçekli Göster"
+
+#: widgets/class-aboutme-widget.php:123
+msgid "Display X-Large"
+msgstr "Çok Büyük Ölçekli Göster"
+
+#: widgets/class-aboutme-widget.php:112
+msgid "Your about.me URL"
+msgstr "about.me URL'iniz"
+
+#: widgets/class-aboutme-widget.php:105
+msgid "Widget title"
+msgstr "Bileşen başlığı"
+
+#: widgets/class-aboutme-widget.php:98
+msgid "The about.me widget will no longer be available after July 1, 2016. After this date, the widget will display a simple text link to your about.me profile. Please remove this widget."
+msgstr "about.me bileşeni 1 Temmuz 2016'dan itibaren kullanılamayacaktır. Bu tarihten sonra bu bileşen about.me profilinize bir link görüntüleyecektir. Lütfen bu bileşeni kaldırın."
+
+#: widgets/class-aboutme-widget.php:41
+msgid "The about.me widget is no longer available. To remove this widget, <a href=\"%s\">visit your settings</a>. This message is not shown to visitors to your site."
+msgstr "about.me bileşeni artık kullanılamıyor. Bu bileşeni kaldırmak için <a href=\"%s\">ayarlarınıza gidin</a>. Bu uyarı site ziyaretçilerine gösterilmemektedir."
+
+#: widgets/class-aboutme-widget.php:20
+msgid "About.me Widget"
+msgstr "About.me Bileşeni"
+
+#: widgets/class-aboutme-widget.php:18
+msgid "Display your about.me profile with thumbnail"
+msgstr "about.me profilini küçük resim ile görüntüle"
+
+#: safeguard/utils.php:68
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1384
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1395
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1449
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1460
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1468
+msgid "Unable to fetch the requested data."
+msgstr "İstenen veriler alınamıyor."
+
+#: footer-credit/theme-optimizations.php:62
+msgid "Create a free website or blog at WordPress.com"
+msgstr "WordPress.com'da ücretsiz bir web sitesi ya da blog oluşturun"
+
+#: footer-credit/theme-optimizations.php:57
+msgid "Create a free website at WordPress.com"
+msgstr "WordPress.com 'da ücretsiz bir web sitesi kurun"
+
+#: footer-credit/footer-credit/footer-credit.php:104
+msgid "Powered by WordPress.com"
+msgstr "WordPress.com tarafından desteklenmektedir"
+
+#: footer-credit/footer-credit/footer-credit.php:103
+#: footer-credit/theme-optimizations.php:55
+#: footer-credit/theme-optimizations.php:60
+msgid "Blog at WordPress.com"
+msgstr "WordPress.com'da Blog Oluşturun"
+
+#: footer-credit/footer-credit/footer-credit.php:102
+msgid "A WordPress.com Website"
+msgstr "Bir WordPress.com Sitesidir"
+
+#: footer-credit/footer-credit/footer-credit.php:101
+msgid "WordPress.com Logo"
+msgstr "WordPress.com Logosu"
+
+#: footer-credit/footer-credit/footer-credit.php:41
+#: footer-credit/footer-credit/footer-credit.php:208
+msgid "Create a website or blog at WordPress.com"
+msgstr "WordPress.com'da bir web sitesi veya blog oluşturun"
+
+#: footer-credit/footer-credit/customizer.php:103
+msgid "Footer Credit"
+msgstr "Alt Bilgi Tanıtımları"
+
+#: footer-credit/footer-credit/customizer.php:80
+msgid "Upgrade to Business"
+msgstr "İşletme düzeyine yükseltin"
+
+#: footer-credit/footer-credit/customizer.php:72
+msgid "Hide (Business Plan Required)"
+msgstr "Gizle (Business Paketi Gereklidir)"
+
+#: footer-credit/footer-credit/customizer.php:70
+msgid "Hide"
+msgstr "Gizle"
+
+#: footer-credit/footer-credit/customizer.php:59
+msgid "Default"
+msgstr "Varsayılan"
+
+#: footer-credit/footer-credit-optimizations.php:171
+msgid "Design by"
+msgstr "Tasarım:"
+
+#: footer-credit/footer-credit-optimizations.php:157
+msgid "by"
+msgstr "tarafından"
+
+#: footer-credit/footer-credit-optimizations.php:138
+msgid "Theme"
+msgstr "Tema"
+
+#: footer-credit/footer-credit-optimizations.php:119
+msgid "Proudly powered by WordPress"
+msgstr "WordPress gururla sunar"
+
+#: customizer-fixes/customizer-fixes.php:26
+msgid "Save Settings"
+msgstr "Ayarları Kaydet"
+
+#: customizer-fixes/customizer-fixes.php:25
+msgid "Are you sure you want to discard your unsaved changes?"
+msgstr "Kaydedilmemiş değişikliklerinizi iptal etmek istediğinizden emin misiniz?"
+
+#: customizer-fixes/customizer-fixes.php:24
+msgid "Saved"
+msgstr "Kaydedildi"
+
+#: customizer-fixes/customizer-fixes.php:23
+msgid "Save Changes"
+msgstr "Değişiklikleri kaydet"
+
+#: customizer-fixes/customizer-fixes.php:22
+msgid "Save"
+msgstr "Kaydet"
+
+#: customizer-fixes/customizer-fixes.php:21
+msgid "Activate &amp; Save"
+msgstr "Etkinleştirin ve Tasarruf Edin"
+
+#: wpcomsh.php:338
+msgid "This plugin was installed by WordPress.com and provides features offered in your plan subscription."
+msgstr "Bu eklenti, Wordpress.com tarafından yüklenmiştir ve paket aboneliğinizde sunulan özellikleri sunar."
+
+#: wpcomsh.php:335
+msgid "%s is automatically managed for you."
+msgstr "%s, sizin için otomatik olarak yönetilir."
+
+#: widgets/top-rated.php:141
+msgid "How many items would you like to display?"
+msgstr "Kaç öğe görünmesini istiyorsunuz?"
+
+#: widgets/top-rated.php:137
+msgid "Filter by category"
+msgstr "Kategoriye göre filtrele"
+
+#: widgets/top-rated.php:131
+msgid "Show for comments"
+msgstr "Yorumlar için göster"
+
+#: widgets/top-rated.php:125
+msgid "Show for pages"
+msgstr "Sayfalar için göster"
+
+#: widgets/top-rated.php:119
+msgid "Show for posts"
+msgstr "Gönderiler için göster"
+
+#: widgets/top-rated.php:11 widgets/top-rated.php:32
+msgid "Top Rated"
+msgstr "Zirveki Derecelendirmeler"
+
+#: widgets/top-rated.php:10
+msgid "A list of your top rated posts, pages or comments."
+msgstr "Sizin zirvedeki yazı, sayfa veya yorumlarınızın listesi."
+
+#: widgets/top-clicks.php:61
+msgid "Top Clicks are calculated from 48-72 hours of stats. They take a while to change."
+msgstr "En Fazla Tıklananlar 48 ila 72 saatlik ölçümlemelerden hesaplanmaktadır. Değişmeleri biraz zaman almaktadır."
+
+#: widgets/top-clicks.php:53
+msgid "URLs to show:"
+msgstr "Linkler gösterilir."
+
+#: widgets/top-clicks.php:47
+msgid "Display length:"
+msgstr "Gösterilme uzunluğu:"
+
+#: widgets/top-clicks.php:14
+msgid "List the most-clicked links on your blog."
+msgstr "Blogunuzdaki en çok tıklanan bağlantıları listeleyin."
+
+#: widgets/top-clicks.php:13 widgets/top-clicks.php:22
+#: widgets/top-clicks.php:66
+msgid "Top Clicks"
+msgstr "En Fazla Tıklananlar"
+
+#: widgets/tlkio/tlkio.php:59
+msgid "Height (in pixel):"
+msgstr "Yükseklik (piksel):"
+
+#: widgets/tlkio/tlkio.php:55
+msgid "Channel:"
+msgstr "Kanal:"
+
+#: widgets/tlkio/tlkio.php:26
+msgid "tlk.io Webchat"
+msgstr "tlk.io Webchat"
+
+#: widgets/tlkio/tlkio.php:25
+msgid "Add a tlk.io webchat."
+msgstr "Bir tlk.io web sohbeti ekleyin."
+
+#: widgets/reservations.php:55
+msgid "Show:"
+msgstr "Göster:"
+
+#: widgets/reservations.php:50
+msgid "E-mail Subject:"
+msgstr "E-Posta Konusu:"
+
+#: widgets/reservations.php:44
+msgid "Recipient E-mail Address:"
+msgstr "Alıcı E-posta Adresi:"
+
+#: widgets/reservations.php:29
+msgid "Departure"
+msgstr "Kalkış"
+
+#: widgets/reservations.php:28
+msgid "Arrival"
+msgstr "Varış"
+
+#: widgets/reservations.php:27
+msgid "# Children"
+msgstr "# Çocuk"
+
+#: widgets/reservations.php:26
+msgid "# Adults"
+msgstr "# Yetişkin"
+
+#: widgets/reservations.php:25
+msgid "Message"
+msgstr "Mesaj"
+
+#: widgets/reservations.php:24
+msgid "Phone"
+msgstr "Telefon"
+
+#: widgets/reservations.php:23
+msgid "Email"
+msgstr "E-posta"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:195
+#: widgets/class-aboutme-widget.php:119
+#: widgets/class-wpcom-widget-reservations.php:39
+msgid "Name"
+msgstr "İsim"
+
+#: widgets/class-wpcom-widget-reservations.php:33
+msgid "Reservation Inquiry"
+msgstr "Rezervasyon Talebi"
+
+#: widgets/class-wpcom-widget-reservations.php:27
+#: widgets/class-wpcom-widget-reservations.php:32
+msgid "Reservations"
+msgstr "Rezervasyonlar"
+
+#: widgets/class-wpcom-widget-recent-comments.php:477
+msgid "Show comments from:"
+msgstr "Şuradaki yorumları göster:"
+
+#: widgets/class-wpcom-widget-recent-comments.php:472
+msgid "Text background color:"
+msgstr "Metin arkaplan rengi:"
+
+#: widgets/class-wpcom-widget-recent-comments.php:466
+msgid "Avatar background color:"
+msgstr "Avatar arkaplan rengi:"
+
+#: widgets/class-wpcom-widget-recent-comments.php:455
+msgid "No Avatars"
+msgstr "Avatar Yok"
+
+#: widgets/class-wpcom-widget-recent-comments.php:448
+msgid "(at most 15)"
+msgstr "(en fazla 15)"
+
+#: widgets/class-wpcom-widget-recent-comments.php:442
+msgid "Number of comments to show:"
+msgstr "Gösterilecek yorum sayısı:"
+
+#: widgets/class-wpcom-widget-recent-comments.php:362
+msgid "There are no public comments available to display."
+msgstr "Gösterilebilecek herkese açık yorum yok."
+
+#: widgets/class-wpcom-widget-recent-comments.php:312
+msgid "Anonymous"
+msgstr "Anonim"
+
+#: widgets/class-wpcom-widget-recent-comments.php:56
+msgid "Display your site's most recent comments"
+msgstr "Sitenizdeki en güncel yorumları görüntüleyin"
+
+#: widgets/class-wpcom-widget-recent-comments.php:53
+#: widgets/class-wpcom-widget-recent-comments.php:192
+msgid "Recent Comments"
+msgstr "Son Yorumlar"
+
+#. translators: %s is a URL to the widgets settings page.
+#: widgets/class-jetpack-posts-i-like-widget.php:278
+msgid "You have not recently liked any posts. Once you do, this <a href=\"%s\">Posts I Like</a> widget will display them."
+msgstr "Yakın bir tarihte herhangi bir gönderi beğenmediniz. Bir gönderi beğendiğinizde, <a href=\"%s\">Beğendiğim Gönderiler</a> ile bunları görüntüleyebilirsiniz."
+
+#: widgets/class-jetpack-posts-i-like-widget.php:266
+msgid "on"
+msgstr " "
+
+#. translators: %1$s is the post title, %1$s is the blog name.
+#: widgets/class-jetpack-posts-i-like-widget.php:243
+msgctxt "1: Post Title, 2: Blog Name"
+msgid "%1$s on %2$s"
+msgstr "%2$s üzerinde %1$s"
+
+#: widgets/class-jetpack-posts-i-like-widget.php:118
+msgid "Author's likes to display:"
+msgstr "Yazarın beğendiklerini göster:"
+
+#: widgets/class-jetpack-posts-i-like-widget.php:100
+msgid "Grid"
+msgstr "Kılavuz"
+
+#: widgets/class-jetpack-posts-i-like-widget.php:99
+msgid "List"
+msgstr "Liste"
+
+#: widgets/class-jetpack-posts-i-like-widget.php:97
+msgid "Display as:"
+msgstr "Görüntüleme şekli:"
+
+#: widgets/class-jetpack-posts-i-like-widget.php:92
+msgid "Number of posts to show (1 to 15):"
+msgstr "Gösterilecek gönderi sayısı (1-15 arası):"
+
+#: widgets/class-jetpack-posts-i-like-widget.php:22
+msgid "A list of the posts I most recently liked"
+msgstr "En son beğendiğim yazıların bir listesi"
+
+#: widgets/class-jetpack-posts-i-like-widget.php:20
+#: widgets/class-jetpack-posts-i-like-widget.php:27
+msgid "Posts I Like"
+msgstr "Beğendiğim Yazılar"
+
+#: widgets/class-music-player-widget.php:96
+msgid "Choose songs"
+msgstr "Şarkıları seçin"
+
+#: widgets/class-music-player-widget.php:18
+#: widgets/class-music-player-widget.php:101
+msgid "Music Player"
+msgstr "Müzik Oynatıcı"
+
+#: widgets/class-music-player-widget.php:16
+msgid "A multi-song music player"
+msgstr "Çok şarkılı bir müzik oynatıcısı"
+
+#: widgets/class-jetpack-i-voted-widget.php:30
+msgid "I Voted"
+msgstr "Oyladım"
+
+#: widgets/class-jetpack-i-voted-widget.php:27
+msgid "Show your readers that you voted with an \"I Voted\" sticker."
+msgstr "Okuyucularınıza “Oy Verdim” etiketiyle oy verdiğinizi gösterin."
+
+#: widgets/class-gravatar-widget.php:199
+msgid "Text displayed after Gravatar. This is optional and can be used to describe yourself or what your blog is about."
+msgstr "Gravatar’dan sonra görüntülenecek metin. İsteğe bağlıdır ve sizi veya blogunuzun ne hakkında olduğunu tanımlamak için kullanılabilir."
+
+#: widgets/class-gravatar-widget.php:198
+msgid "Gravatar link. This is an optional URL that will be used when anyone clicks on your Gravatar:"
+msgstr "Gravatar bağlantısı. Bu, biri sizin Gravatar’ınıza tıkladığında kullanılacak olan isteğe bağlı bir URL’dir:"
+
+#: widgets/class-gravatar-widget.php:188
+msgid "Gravatar alignment:"
+msgstr "Gravatar hizası:"
+
+#: widgets/class-gravatar-widget.php:177
+msgid "Size:"
+msgstr "Boyut:"
+
+#: widgets/class-gravatar-widget.php:174
+msgid "Custom Email Address:"
+msgstr "Özel E-Posta Adresi"
+
+#: widgets/class-gravatar-widget.php:161
+msgid "Select a user or pick \"custom\" and enter a custom email address."
+msgstr "Bir kullanıcı seçin veya \"özel\"i seçip özel bir e-posta adresi girin."
+
+#: widgets/class-gravatar-widget.php:156
+msgid "Center"
+msgstr "Merkez"
+
+#: widgets/class-gravatar-widget.php:155
+msgid "Right"
+msgstr "Sağ"
+
+#: widgets/class-gravatar-widget.php:154
+msgid "Left"
+msgstr "Sol"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:81
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:292
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:792
+#: widgets/class-gravatar-widget.php:153
+#: widgets/class-widget-top-clicks.php:163
+msgid "None"
+msgstr "Hiçbiri"
+
+#: widgets/class-gravatar-widget.php:150
+msgid "Extra Large (256 pixels)"
+msgstr "Çok Büyük (256 piksel)"
+
+#: widgets/class-gravatar-widget.php:149
+msgid "Large (128 pixels)"
+msgstr "Büyük (128 piksel)"
+
+#: widgets/class-gravatar-widget.php:148
+msgid "Medium (96 pixels)"
+msgstr "Orta (96 piksel)"
+
+#: widgets/class-gravatar-widget.php:147
+msgid "Small (64 pixels)"
+msgstr "Küçük (64 piksel)"
+
+#. translators: %s is the URL to the widget settings.
+#: widgets/class-gravatar-widget.php:98
+msgid "You need to pick a user or enter an email address in your <a href=\"%s\">Gravatar Widget</a> settings."
+msgstr "Bir kullanıcı seçmeli veya <a href=\"%s\">Gravatar Bileşen</a> ayarlarınıza bir eposta adresi girmelisiniz."
+
+#: widgets/class-gravatar-widget.php:20
+msgid "Gravatar"
+msgstr "Gravatar"
+
+#: widgets/class-gravatar-widget.php:17
+msgid "Insert a Gravatar image"
+msgstr "Bir Gravatar resmi ekleyin"
+
+#: widgets/class-wpcom-freshly-pressed-widget.php:84
+msgid "Choose an image to display in your sidebar:"
+msgstr "Kenar çubuğunuzda görüntülenecek bir resim seçin:"
+
+#: widgets/class-wpcom-freshly-pressed-widget.php:16
+msgid "Freshly Pressed"
+msgstr "Henüz Yayımlandı"
+
+#: widgets/class-wpcom-freshly-pressed-widget.php:13
+msgid "Display a Freshly Pressed badge in your sidebar"
+msgstr "Kenar çubuğunuzda Yeni Basılmış bir rozet görüntüleyin"
+
+#: widgets/class-widget-authors-grid.php:143
+#: widgets/class-wpcom-widget-recent-comments.php:453
+msgid "Avatar Size (px):"
+msgstr "Avatar Boyutu (piksel):"
+
+#: widgets/class-widget-authors-grid.php:138
+msgid "Display all authors (including those who have not written any posts)"
+msgstr "Bütün yazarları göster (hiç yazısı olmayanlar dahil)"
+
+#: widgets/class-gravatar-widget.php:159
+#: widgets/class-jetpack-i-voted-widget.php:82
+#: widgets/class-jetpack-posts-i-like-widget.php:87
+#: widgets/class-jetpack-widget-twitter.php:139
+#: widgets/class-music-player-widget.php:87 widgets/class-pd-top-rated.php:152
+#: widgets/class-widget-authors-grid.php:132
+#: widgets/class-widget-top-clicks.php:73
+#: widgets/class-wpcom-category-cloud-widget.php:176
+#: widgets/class-wpcom-freshly-pressed-widget.php:80
+#: widgets/class-wpcom-tag-cloud-widget.php:124
+#: widgets/class-wpcom-widget-recent-comments.php:436
+#: widgets/class-wpcom-widget-reservations.php:61
+#: widgets/tlkio/class-tlkio-widget.php:76
+msgid "Title:"
+msgstr "Başlık:"
+
+#: widgets/class-widget-authors-grid.php:62
+msgid "Authors"
+msgstr "Yazarlar"
+
+#: widgets/class-widget-authors-grid.php:17
+msgid "Show a grid of author avatar images."
+msgstr "Yazar avatar görsellerini tablo biçiminde göster."
+
+#: widgets/class-widget-authors-grid.php:14
+msgid "Author Grid"
+msgstr "Yazar Tablosu"
+
+#: private-site/private-site.php:616
+msgid "Private Site"
+msgstr "Özel Site"
+
+#: private-site/private-site.php:426 private-site/private-site.php:543
+#: private-site/private-site.php:775
+msgid "This site is private."
+msgstr "Bu site özel."
+
+#: private-site/access-denied-coming-soon-template.php:53
+#: private-site/access-denied-private-site-template.php:47
+#: vendor/automattic/jetpack-mu-wpcom/src/features/coming-soon/fallback-coming-soon-page.php:293
+msgid "Log in"
+msgstr "Giriş"
+
+#: private-site/access-denied-private-site-template.php:47
+msgid "Switch user"
+msgstr "Kullanıcı değiştir"
+
+#: private-site/access-denied-private-site-template.php:45
+msgid "You need to be logged in as a user who has permission to view this site."
+msgstr "Bu siteyi görüntüleme izni olan bir kullanıcı olarak oturum açmanız gerekir."
+
+#: privacy/class-wp-privacy-participating-plugins.php:181
+msgid ""
+"Please note - this tool only displays privacy policy information provided by\n"
+"WordPress and participating plugins. It does not include privacy policy\n"
+"information for non-participating plugins. It is your responsibility to\n"
+"obtain privacy policy information for non-participating plugins separately."
+msgstr ""
+"Lütfen bu aracın yalnızca WordPress ve katılımcı eklentiler\n"
+"tarafından sağlanan gizlilik politikası bilgilerini görüntülediğini unutmayın. Katılımcı olmayan eklentiler için\n"
+"gizlilik politikası bilgileri içermez. Katılımcı olmayan eklentiler için\n"
+"gizlilik politikası bilgilerini ayrı ayrı edinmek sizin sorumluluğunuzdadır."
+
+#: privacy/class-wp-privacy-participating-plugins.php:126
+msgid ""
+"Please note - this tool only exports the personal data stored by WordPress and\n"
+"participating plugins. It does not export personal data stored by\n"
+"non-participating plugins. It is your responsibility to export personal data\n"
+"stored by non-participating plugins separately. The personal data exported\n"
+"includes only the following items at this time:"
+msgstr ""
+"Lütfen bu aracın yalnızca WordPress ve katılımcı eklentiler tarafından\n"
+"saklanan kişisel verileri dışa aktardığını unutmayın. Katılımcı olmayan eklentiler tarafından saklanan\n"
+"kişisel verileri dışa aktarmaz. Katılımcı olmayan eklentiler tarafından saklanan\n"
+"kişisel verileri ayrı ayrı dışa aktarmak sizin sorumluluğunuzdadır. Dışa aktarılan kişisel veriler şu anda yalnızca\n"
+"aşağıdaki öğeleri içermektedir:"
+
+#: privacy/class-wp-privacy-participating-plugins.php:74
+msgid ""
+"Please note - this tool only erases the personal data stored by WordPress and\n"
+"participating plugins. It does not delete registered users, nor does it erase\n"
+"personal data stored by non-participating plugins. It is your responsibility\n"
+"to delete registered users as well as personal data stored by non-participating\n"
+"plugins. The personal data erased includes only the following items at this\n"
+"time:"
+msgstr ""
+"Lütfen bu aracın yalnızca WordPress ve katılımcı eklentiler\n"
+"tarafından saklanan kişisel verileri sildiğini unutmayın. Kayıtlı kullanıcıları veya katılımcı olmayan eklentiler\n"
+"tarafından saklanan kişisel verileri silmez. Kayıtlı kullanıcıları ve katılımcı olmayan\n"
+"eklentiler tarafından saklanan kişisel verileri silmek sizin\n"
+"sorumluluğunuzdadır. Silinen kişisel veriler şu anda yalnızca aşağıdaki\n"
+"öğeleri içermektedir:"
+
+#: logo-tool/logo-tool.php:80
+msgid "Create logo"
+msgstr "Logo oluştur"
+
+#: logo-tool/logo-tool.php:68
+msgid "Add a logo to display on your site. No logo? Buy a pro one today — Click “Create logo” to start."
+msgstr "Sitenize bir logo ekleyin. Logonuz yok mu? Bugün bir pro one satın alın. Başlamak için \"Logo oluştur\"a tıklayın."
+
+#. Plugin Name of the plugin
+msgid "WP.com Site Helper"
+msgstr "WP.com Site Yardımcısı"

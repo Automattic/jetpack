@@ -209,6 +209,10 @@ class Jetpack_Comment_Likes {
 			return $content;
 		}
 
+		if ( empty( $comment->comment_approved ) ) {
+			return $content;
+		}
+
 		// In case master iframe hasn't been loaded. This could be the case when Post Likes module is disabled,
 		// or on pages on which we have comments but post likes are disabled.
 		if ( false === has_action( 'wp_footer', 'jetpack_likes_master_iframe' ) ) {

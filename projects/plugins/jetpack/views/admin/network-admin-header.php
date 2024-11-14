@@ -2,6 +2,7 @@
 /**
  * Loads view: admin/network-activated-notice.php
  *
+ * @html-template Jetpack::load_view
  * @package automattic/jetpack
  */
 

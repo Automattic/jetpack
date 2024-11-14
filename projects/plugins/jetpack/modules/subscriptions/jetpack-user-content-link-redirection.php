@@ -9,17 +9,39 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+
 /**
- * Render a page containing an iframe to track and redirect the user content link in emails.
+ * Render a page with an iframe to track and redirect user content links in emails.
+ *
+ * Hooked to the `init` action, this function renders a page with an iframe pointing to
+ * subscribe.wordpress.com to track and return the destination URL for redirection.
+ *
+ * Redirects to the site's home page if required parameters are missing.
+ * Returns a 400 error if the request's `blog_id` doesn't match the actual `blog_id`.
+ *
+ * @return never
  */
 function jetpack_user_content_link_redirection() {
-	if ( empty( $_SERVER['QUERY_STRING'] ) ) {
-		return;
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	if ( empty( $_SERVER['QUERY_STRING'] ) || empty( $_SERVER['HTTP_HOST'] ) || empty( $_GET['blog_id'] ) ) {
+		wp_safe_redirect( get_home_url() );
+		exit();
 	}
+
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	$request_blog_id = intval( sanitize_text_field( wp_unslash( $_GET['blog_id'] ) ) );
+	$actual_blog_id  = Connection_Manager::get_site_id( true );
+
+	if ( $actual_blog_id !== $request_blog_id ) {
+		wp_die( esc_html__( 'Invalid link.', 'jetpack' ), 400 );
+		exit();
+	}
+
 	$query_params = sanitize_text_field( wp_unslash( $_SERVER['QUERY_STRING'] ) );
 	$iframe_url   = "https://subscribe.wordpress.com/?$query_params";
 
-    // phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
+	// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
 	echo <<<EOF
 <!DOCTYPE html>
 <html>

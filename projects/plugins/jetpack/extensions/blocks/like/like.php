@@ -55,7 +55,7 @@ function render_block( $attr, $content, $block ) {
 	$html = '';
 
 	$uniqid  = uniqid();
-	$post_id = $block->context['postId'];
+	$post_id = $block->context['postId'] ?? null;
 	$title   = esc_html__( 'Like or Reblog', 'jetpack' );
 
 	if ( ! $post_id ) {

@@ -5,7 +5,7 @@ import path from 'path';
  * Command definition for the docs subcommand.
  *
  * @param {object} yargs - The Yargs dependency.
- * @returns {object} Yargs with the docs commands defined.
+ * @return {object} Yargs with the docs commands defined.
  */
 export function docsDefine( yargs ) {
 	yargs.command(
@@ -35,7 +35,7 @@ export function docsDefine( yargs ) {
 /**
  * Handle args for docs command.
  *
- * @param {argv}  argv - the arguments passed.
+ * @param {argv} argv - the arguments passed.
  */
 export async function docsCli( argv ) {
 	let paths;

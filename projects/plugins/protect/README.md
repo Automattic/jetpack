@@ -3,11 +3,15 @@
 Jetpack Protect plugin
 
 
-**If you are not planning on developing with Jetpack Boost, you should install Jetpack Boost from pre-built sources.** Details on that may be found [on this page](https://github.com/Automattic/jetpack-protect-production).
+**If you are not planning on developing with Jetpack Protect, you should install Jetpack Protect from pre-built sources.** Details on that may be found [on this page](https://github.com/Automattic/jetpack-protect-production).
 
 ## Developing
 
-Use the [Jetpack Debug Helper plugin](https://github.com/Automattic/jetpack/tree/trunk/projects/plugins/debug-helper) to force Protect into different statuses. The plugin will allow you to emulate different responses from the server so you can work on all the different statuses the plugin support.
+### Debug helper plugin
+
+Use the [Jetpack Debug Helper plugin](https://github.com/Automattic/jetpack/tree/trunk/projects/plugins/debug-helper) to mock different scan results and application states. The plugin will allow you to emulate different responses from the server so you can work on all the different statuses the plugin support.
+
+### Bypassing the cache
 
 If you want to force Protect to always fetch data from the server you can use the constant below:
 
@@ -15,6 +19,17 @@ If you want to force Protect to always fetch data from the server you can use th
 
 Be aware that a request to the server will be made in all admin pages! Use it only for debugging.
 
+### Component Storybooks
+
+[Storybook](https://storybook.js.org/) is available for developing UI components in isolation.
+
+Run `pnpm run storybook:dev` in `projects/js-packages/storybook` to get started.
+
+### React Query Browser Tools
+
+This project also includes [React Query Devtools](https://tanstack.com/query/latest/docs/framework/react/devtools).
+
+Whenever the application is running in development mode (i.e. via `jetpack watch`), the tools will be available in the plugin via a floating icon in the bottom right corner.
 
 ## Contribute
 

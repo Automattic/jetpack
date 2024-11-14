@@ -1,8 +1,9 @@
+import clsx from 'clsx';
 import { forwardRef, type TargetedEvent } from 'preact/compat';
 import { useEffect, useState } from 'preact/hooks';
 import { translate } from '../i18n';
 import { commentParent, commentValue } from '../state';
-import { classNames, isFastConnection } from '../utils';
+import { isFastConnection } from '../utils';
 import { EditorPlaceholder } from './editor-placeholder';
 
 type CommentInputFieldProps = {
@@ -99,7 +100,7 @@ export const CommentInputField = forwardRef(
 							id="comment"
 							name="comment"
 							ref={ ref }
-							className={ classNames( {
+							className={ clsx( {
 								'editor-enabled': isGBEditorEnabled,
 							} ) }
 							style={ {

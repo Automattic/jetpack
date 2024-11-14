@@ -19,7 +19,10 @@ export default function useSaveToMediaLibrary() {
 		[]
 	) as BlockEditorStore[ 'selectors' ];
 
-	const saveToMediaLibrary = ( url: string ): Promise< { id: string } > => {
+	const saveToMediaLibrary = (
+		url: string,
+		name: string = null
+	): Promise< { id: string; url: string } > => {
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		const settings = getSettings() as any;
 
@@ -36,8 +39,14 @@ export default function useSaveToMediaLibrary() {
 						.blob()
 						.then( ( blob: Blob ) => {
 							debug( 'Uploading blob to media library' );
+							const filesList = [];
 
-							const filesList = [ blob ];
+							if ( name ) {
+								filesList.push( new File( [ blob ], name ) );
+							} else {
+								filesList.push( blob );
+							}
+
 							settings.mediaUpload( {
 								allowedTypes: [ 'image' ],
 								filesList,
@@ -47,7 +56,7 @@ export default function useSaveToMediaLibrary() {
 									}
 
 									if ( image ) {
-										debug( 'Image uploaded to media library' );
+										debug( 'Image uploaded to media library', image );
 										resolve( image );
 									}
 

@@ -5,6 +5,76 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.2.95 - 2024-11-11
+### Changed
+- Updated package dependencies. [#39999] [#40060]
+
+## 0.2.94 - 2024-11-04
+### Added
+- Enable test coverage. [#39961]
+
+## 0.2.93 - 2024-10-21
+### Changed
+- Update dependencies. [#39781]
+
+## 0.2.92 - 2024-10-14
+### Changed
+- Updated package dependencies. [#39707]
+
+## 0.2.91 - 2024-10-07
+### Changed
+- Updated package dependencies. [#39594]
+
+## 0.2.90 - 2024-09-30
+### Changed
+- Update dependencies. [#39528]
+
+## 0.2.89 - 2024-09-16
+### Changed
+- Updated package dependencies. [#39332]
+
+## 0.2.88 - 2024-09-10
+### Changed
+- Updated package dependencies. [#39302]
+
+## 0.2.87 - 2024-09-09
+### Changed
+- Updated package dependencies. [#39176] [#39278]
+
+## 0.2.86 - 2024-08-21
+### Changed
+- Internal updates.
+
+## 0.2.85 - 2024-08-19
+### Changed
+- Update dependencies. [#38861]
+- Updated package dependencies. [#38662]
+
+## 0.2.84 - 2024-08-12
+### Removed
+- Tests: Removed react-test-renderer. [#38755]
+
+## 0.2.83 - 2024-07-22
+### Changed
+- Update dependencies. [#38402]
+
+## 0.2.82 - 2024-07-08
+### Changed
+- Updated package dependencies. [#38132]
+
+## 0.2.81 - 2024-06-24
+### Changed
+- Update dependencies. [#37979]
+
+## 0.2.80 - 2024-06-17
+### Changed
+- Updated package dependencies. [#37796]
+
+## 0.2.79 - 2024-06-10
+### Changed
+- Change codebase to use clsx instead of classnames. [#37708]
+- Updated package dependencies. [#37669]
+
 ## 0.2.78 - 2024-05-20
 ### Changed
 - Updated package dependencies. [#37379] [#37380] [#37382]

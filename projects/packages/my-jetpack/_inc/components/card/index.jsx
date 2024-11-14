@@ -1,22 +1,35 @@
 import { Text } from '@automattic/jetpack-components';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import PropTypes from 'prop-types';
-import React from 'react';
 import styles from './style.module.scss';
 
 export const CardWrapper = props => {
-	const { children, className } = props;
+	const { children, className, onMouseEnter, onMouseLeave } = props;
 
-	const containerClassName = classNames( styles.container, className );
+	const containerClassName = clsx( styles.container, className );
 
-	return <div className={ containerClassName }>{ children }</div>;
+	return (
+		<div
+			onMouseEnter={ onMouseEnter }
+			onMouseLeave={ onMouseLeave }
+			onFocus={ onMouseEnter }
+			onBlur={ onMouseLeave }
+			className={ containerClassName }
+		>
+			{ children }
+		</div>
+	);
 };
 
 const Card = props => {
-	const { title, headerRightContent, className, children } = props;
+	const { title, headerRightContent, className, children, onMouseEnter, onMouseLeave } = props;
 
 	return (
-		<CardWrapper className={ className }>
+		<CardWrapper
+			className={ className }
+			onMouseEnter={ onMouseEnter }
+			onMouseLeave={ onMouseLeave }
+		>
 			<div className={ styles.title }>
 				<div className={ styles.name }>
 					<Text variant="title-medium">{ title }</Text>
@@ -33,6 +46,8 @@ Card.propTypes = {
 	title: PropTypes.string.isRequired,
 	className: PropTypes.string,
 	headerRightContent: PropTypes.node,
+	onMouseEnter: PropTypes.func,
+	onMouseLeave: PropTypes.func,
 };
 
 export default Card;

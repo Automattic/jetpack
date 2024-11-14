@@ -5,8 +5,9 @@ import { useSelect } from '@wordpress/data';
 import { useEffect, useRef } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import './editor.scss';
+import { languageToLocale } from '../../shared/locale';
 import { usePromptTags } from './use-prompt-tags';
 
 function BloggingPromptEdit( { attributes, noticeOperations, noticeUI, setAttributes } ) {
@@ -101,9 +102,10 @@ function BloggingPromptEdit( { attributes, noticeOperations, noticeUI, setAttrib
 		apiFetch( { path } )
 			.then( prompts => {
 				const promptData = promptId ? prompts : prompts[ 0 ];
+				const locale = languageToLocale( siteLanguage );
 
 				setAttributes( {
-					answersLink: promptData.answered_link,
+					answersLink: promptData.answered_link + `?locale=${ locale }`,
 					answersLinkText: promptData.answered_link_text,
 					gravatars: promptData.answered_users_sample.map( ( { avatar } ) => ( { url: avatar } ) ),
 					promptFetched: true,
@@ -147,17 +149,19 @@ function BloggingPromptEdit( { attributes, noticeOperations, noticeUI, setAttrib
 						label={ __( 'Show prompt label', 'jetpack' ) }
 						checked={ showLabel }
 						onChange={ onShowLabelChange }
+						__nextHasNoMarginBottom={ true }
 					/>
 					<ToggleControl
 						label={ __( 'Show other responses', 'jetpack' ) }
 						checked={ showResponses }
 						onChange={ onShowResponsesChange }
+						__nextHasNoMarginBottom={ true }
 					/>
 				</PanelBody>
 			</InspectorControls>
 		</>
 	);
-	const labelClassnames = classnames( [ 'jetpack-blogging-prompt__label' ], {
+	const labelClassnames = clsx( [ 'jetpack-blogging-prompt__label' ], {
 		'is-bloganuary-icon': isBloganuary,
 	} );
 

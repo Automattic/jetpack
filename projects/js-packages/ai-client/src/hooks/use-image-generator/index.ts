@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import { __ } from '@wordpress/i18n';
 import debugFactory from 'debug';
 /**
  * Internal dependencies
@@ -12,10 +11,17 @@ import requestJwt from '../../jwt/index.js';
 const debug = debugFactory( 'ai-client:use-image-generator' );
 
 /**
+ * The type of the response from the image generation API.
+ */
+type ImageGenerationResponse = {
+	data: Array< { [ key: string ]: string } >;
+};
+
+/**
  * Cut the post content on a given lenght so the total length of the prompt is not longer than 4000 characters.
- * @param {string} content - the content to be truncated
+ * @param {string} content             - the content to be truncated
  * @param {number} currentPromptLength - the length of the prompt already in use
- * @returns {string} a truncated version of the content respecting the prompt length limit
+ * @return {string} a truncated version of the content respecting the prompt length limit
  */
 const truncateContent = ( content: string, currentPromptLength: number ): string => {
 	const maxLength = 4000;
@@ -29,8 +35,8 @@ const truncateContent = ( content: string, currentPromptLength: number ): string
 /**
  * Create the prompt string based on the provided context.
  * @param {string} postContent - the content of the post
- * @param {string} userPrompt - the user prompt for the image generation, if provided. Max length is 1000 characters, will be truncated.
- * @returns {string} the prompt string
+ * @param {string} userPrompt  - the user prompt for the image generation, if provided. Max length is 1000 characters, will be truncated.
+ * @return {string} the prompt string
  */
 const getDalleImageGenerationPrompt = ( postContent: string, userPrompt?: string ): string => {
 	/**
@@ -83,8 +89,8 @@ This is the post content:
 /**
  * Create the Stable Diffusion pre-processing prompt based on the provided context.
  * @param {string} postContent - the content of the post.
- * @param {string} userPrompt - the user prompt for the image generation, if provided. Max length is 1000 characters, will be truncated.
- * @returns {string} the prompt string to be fed to the AI Assistant model.
+ * @param {string} userPrompt  - the user prompt for the image generation, if provided. Max length is 1000 characters, will be truncated.
+ * @return {string} the prompt string to be fed to the AI Assistant model.
  */
 const getStableDiffusionPreProcessingPrompt = (
 	postContent: string,
@@ -128,9 +134,9 @@ Return just the prompt, without comments. The content is:
 /**
  * Uses the Jetpack AI query endpoint to produce a prompt for the stable diffusion model.
  * @param {string} postContent - the content of the post.
- * @param {string} userPrompt - the user prompt for the image generation, if provided. Max length is 1000 characters, will be truncated
- * @param {string} feature - the feature to be used for the image generation.
- * @returns {string} the prompt string to be used on stable diffusion image generation.
+ * @param {string} userPrompt  - the user prompt for the image generation, if provided. Max length is 1000 characters, will be truncated
+ * @param {string} feature     - the feature to be used for the image generation.
+ * @return {string} the prompt string to be used on stable diffusion image generation.
  */
 const getStableDiffusionImageGenerationPrompt = async (
 	postContent: string,
@@ -144,10 +150,48 @@ const getStableDiffusionImageGenerationPrompt = async (
 	 */
 	const data = await askQuestionSync( prompt, { feature } );
 
-	return data.choices?.[ 0 ]?.message?.content;
+	return data;
 };
 
 const useImageGenerator = () => {
+	const executeImageGeneration = async function (
+		parameters: object
+	): Promise< ImageGenerationResponse > {
+		let token = '';
+
+		try {
+			token = ( await requestJwt() ).token;
+		} catch ( error ) {
+			debug( 'Error getting token: %o', error );
+			return Promise.reject( error );
+		}
+
+		try {
+			const URL = 'https://public-api.wordpress.com/wpcom/v2/jetpack-ai-image';
+
+			const headers = {
+				Authorization: `Bearer ${ token }`,
+				'Content-Type': 'application/json',
+			};
+
+			const data = await fetch( URL, {
+				method: 'POST',
+				headers,
+				body: JSON.stringify( parameters ),
+			} ).then( response => response.json() );
+
+			if ( data?.data?.status && data?.data?.status > 200 ) {
+				debug( 'Error generating image: %o', data );
+				return Promise.reject( data );
+			}
+
+			return data as ImageGenerationResponse;
+		} catch ( error ) {
+			debug( 'Error generating image: %o', error );
+			return Promise.reject( error );
+		}
+	};
+
 	const generateImageWithStableDiffusion = async function ( {
 		feature,
 		postContent,
@@ -156,16 +200,7 @@ const useImageGenerator = () => {
 		feature: string;
 		postContent: string;
 		userPrompt?: string;
-	} ): Promise< { data: Array< { [ key: string ]: string } > } > {
-		let token = null;
-
-		try {
-			token = await requestJwt();
-		} catch ( error ) {
-			debug( 'Error getting token: %o', error );
-			return Promise.reject( error );
-		}
-
+	} ): Promise< ImageGenerationResponse > {
 		try {
 			debug( 'Generating image with Stable Diffusion' );
 
@@ -175,59 +210,14 @@ const useImageGenerator = () => {
 				feature
 			);
 
-			const data = {
+			const parameters = {
 				prompt,
-				style: 'photographic',
-				token: token.token,
-				width: 1024,
-				height: 768,
+				feature,
+				model: 'stable-diffusion',
 			};
 
-			const response = await fetch(
-				`https://public-api.wordpress.com/wpcom/v2/sites/${ token.blogId }/ai-image`,
-				{
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-					},
-					body: JSON.stringify( data ),
-				}
-			);
-
-			if ( ! response?.ok ) {
-				debug( 'Error generating image: %o', response );
-				return Promise.reject( {
-					data: {
-						status: response.status,
-					},
-					message: __( 'Error generating image. Please try again later.', 'jetpack-ai-client' ),
-				} );
-			}
-
-			const blob = await response.blob();
-
-			/**
-			 * Convert the blob to base64 to keep the same format as the Dalle API.
-			 */
-			const base64 = await new Promise( ( resolve, reject ) => {
-				const reader = new FileReader();
-				reader.onloadend = () => {
-					const base64data = reader.result as string;
-					return resolve( base64data.replace( /^data:image\/(png|jpg);base64,/, '' ) );
-				};
-				reader.onerror = reject;
-				reader.readAsDataURL( blob );
-			} );
-
-			// Return the Dalle API format
-			return {
-				data: [
-					{
-						b64_json: base64 as string,
-						revised_prompt: prompt,
-					},
-				],
-			};
+			const data: ImageGenerationResponse = await executeImageGeneration( parameters );
+			return data;
 		} catch ( error ) {
 			debug( 'Error generating image: %o', error );
 			return Promise.reject( error );
@@ -244,47 +234,21 @@ const useImageGenerator = () => {
 		postContent: string;
 		responseFormat?: 'url' | 'b64_json';
 		userPrompt?: string;
-	} ): Promise< { data: Array< { [ key: string ]: string } > } > {
-		let token = '';
-
-		try {
-			token = ( await requestJwt() ).token;
-		} catch ( error ) {
-			debug( 'Error getting token: %o', error );
-			return Promise.reject( error );
-		}
-
+	} ): Promise< ImageGenerationResponse > {
 		try {
 			debug( 'Generating image' );
 
 			const imageGenerationPrompt = getDalleImageGenerationPrompt( postContent, userPrompt );
 
-			const URL = 'https://public-api.wordpress.com/wpcom/v2/jetpack-ai-image';
-
-			const body = {
+			const parameters = {
 				prompt: imageGenerationPrompt,
 				response_format: responseFormat,
 				feature,
 				size: '1792x1024',
 			};
 
-			const headers = {
-				Authorization: `Bearer ${ token }`,
-				'Content-Type': 'application/json',
-			};
-
-			const data = await fetch( URL, {
-				method: 'POST',
-				headers,
-				body: JSON.stringify( body ),
-			} ).then( response => response.json() );
-
-			if ( data?.data?.status && data?.data?.status > 200 ) {
-				debug( 'Error generating image: %o', data );
-				return Promise.reject( data );
-			}
-
-			return data as { data: { [ key: string ]: string }[] };
+			const data: ImageGenerationResponse = await executeImageGeneration( parameters );
+			return data;
 		} catch ( error ) {
 			debug( 'Error generating image: %o', error );
 			return Promise.reject( error );
@@ -294,7 +258,9 @@ const useImageGenerator = () => {
 	return {
 		generateImage,
 		generateImageWithStableDiffusion,
+		generateImageWithParameters: executeImageGeneration,
 	};
 };
 
 export default useImageGenerator;
+export * from './constants.js';

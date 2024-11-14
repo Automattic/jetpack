@@ -5,9 +5,9 @@ import styles from './styles.module.scss';
 /**
  * Branded Card component.
  *
- * @param {object} props                  - The component props.
- * @param {React.Element} props.children  - The component children.
- * @returns {React.Component} The `ConnectionCard` component.
+ * @param {object}        props          - The component props.
+ * @param {React.Element} props.children - The component children.
+ * @return {React.Component} The `ConnectionCard` component.
  */
 export default function BrandedCard( { children } ) {
 	return (
