@@ -1,5 +1,5 @@
-.subheading-content {
-    font-weight: bold;
+.subheading-text {
+	white-space: nowrap;
 }
 
 .product-section, .info-section {
@@ -7,6 +7,6 @@
 	margin-bottom: calc( var( --spacing-base ) * 7 ); // 56px
 }
 
-.scan-navigation {
-	margin-top: calc( var( --spacing-base ) * 3 ); // 24px
+.auto-fixers {
+	margin-top: calc( var( --spacing-base ) * 4 ); // 32px
 }
