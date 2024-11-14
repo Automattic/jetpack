@@ -638,7 +638,7 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 	 * Proxies media requests with proper authorization headers
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
-	 * @return WP_REST_Response|string Response object or WP_Error.
+	 * @return WP_REST_Response|WP_Error|void Response object or WP_Error.
 	 */
 	public function proxy_media_request( $request ) {
 		$params     = $request->get_params();
@@ -673,7 +673,15 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 			)
 		);
 
-		return wp_remote_retrieve_body( $response );
+		// Set cache headers
+		header( 'Cache-Control: no-cache, no-store, must-revalidate' );
+		header( 'Pragma: no-cache' );
+		header( 'Expires: 0' );
+
+		// Output the binary file.
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Media binary data
+		echo wp_remote_retrieve_body( $response );
+		exit;
 	}
 
 	/**
