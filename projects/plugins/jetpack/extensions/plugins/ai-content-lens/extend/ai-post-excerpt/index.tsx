@@ -263,6 +263,7 @@ ${ postContent }
 					help={
 						! postContent?.length ? __( 'Add content to generate an excerpt.', 'jetpack' ) : null
 					}
+					__nextHasNoMarginBottom={ true }
 				>
 					<div className="jetpack-generated-excerpt__generate-buttons-container">
 						<Button

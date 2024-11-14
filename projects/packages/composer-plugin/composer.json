@@ -10,7 +10,7 @@
 		"i18n"
 	],
 	"require": {
-		"php": ">=7.0",
+		"php": ">=7.2",
 		"composer-plugin-api": "^2.1.0"
 	},
 	"require-dev": {
@@ -26,6 +26,9 @@
 	"scripts": {
 		"phpunit": [
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
+		],
+		"test-coverage": [
+			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\""
 		],
 		"test-php": [
 			"@composer phpunit"
@@ -51,7 +54,7 @@
 		},
 		"autotagger": true,
 		"branch-alias": {
-			"dev-trunk": "2.0.x-dev"
+			"dev-trunk": "3.0.x-dev"
 		}
 	}
 }

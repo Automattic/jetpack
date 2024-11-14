@@ -19,7 +19,9 @@ require_once __DIR__ . '/../automation/tools/class-automation-faker.php';
 /**
  * Test Event Manager system.
  *
- * @covers Automattic\Jetpack\CRM\Event_Manager
+ * @covers Automattic\Jetpack\CRM\Event_Manager\Contact_Event
+ * @covers Automattic\Jetpack\CRM\Event_Manager\Invoice_Event
+ * @covers Automattic\Jetpack\CRM\Event_Manager\Transaction_Event
  */
 class Event_Manager_Test extends JPCRM_Base_Test_Case {
 

@@ -1,12 +1,13 @@
 import { Button, Text, useBreakpointMatch } from '@automattic/jetpack-components';
-import { SocialImageGeneratorTemplatePickerModal as TemplatePickerModal } from '@automattic/jetpack-publicize-components';
-import { SOCIAL_STORE_ID } from '@automattic/jetpack-publicize-components';
-import { useSelect, useDispatch } from '@wordpress/data';
-import { useState, useCallback, useEffect } from '@wordpress/element';
+import {
+	SocialImageGeneratorTemplatePickerModal as TemplatePickerModal,
+	store as socialStore,
+} from '@automattic/jetpack-publicize-components';
+import { useDispatch, useSelect } from '@wordpress/data';
+import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
 import ToggleSection from '../toggle-section';
-import { SocialStoreSelectors } from '../types/types';
 import styles from './styles.module.scss';
 
 type SocialImageGeneratorToggleProps = {
@@ -19,31 +20,31 @@ type SocialImageGeneratorToggleProps = {
 const SocialImageGeneratorToggle: React.FC< SocialImageGeneratorToggleProps > = ( {
 	disabled,
 } ) => {
-	const [ currentTemplate, setCurrentTemplate ] = useState< string | null >( null );
 	const { isEnabled, isUpdating, defaultTemplate } = useSelect( select => {
-		const store = select( SOCIAL_STORE_ID ) as SocialStoreSelectors;
+		const config = select( socialStore ).getSocialImageGeneratorConfig();
+
 		return {
-			isEnabled: store.isSocialImageGeneratorEnabled(),
-			isUpdating: store.isUpdatingSocialImageGeneratorSettings(),
-			defaultTemplate: store.getSocialImageGeneratorDefaultTemplate(),
+			isEnabled: config.enabled,
+			defaultTemplate: config.template,
+			isUpdating: select( socialStore ).isSavingSiteSettings(),
 		};
 	}, [] );
 
-	const updateOptions = useDispatch( SOCIAL_STORE_ID ).updateSocialImageGeneratorSettings;
+	const { updateSocialImageGeneratorConfig } = useDispatch( socialStore );
 
 	const toggleStatus = useCallback( () => {
 		const newOption = {
 			enabled: ! isEnabled,
 		};
-		updateOptions( newOption );
-	}, [ isEnabled, updateOptions ] );
+		updateSocialImageGeneratorConfig( newOption );
+	}, [ isEnabled, updateSocialImageGeneratorConfig ] );
 
-	useEffect( () => {
-		if ( currentTemplate ) {
-			const newOption = { template: currentTemplate };
-			updateOptions( newOption );
-		}
-	}, [ currentTemplate, updateOptions ] );
+	const updateTemplate = useCallback(
+		( template: string ) => {
+			updateSocialImageGeneratorConfig( { template } );
+		},
+		[ updateSocialImageGeneratorConfig ]
+	);
 
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
 
@@ -76,8 +77,8 @@ const SocialImageGeneratorToggle: React.FC< SocialImageGeneratorToggleProps > = 
 				) }
 			</Text>
 			<TemplatePickerModal
-				value={ currentTemplate || defaultTemplate }
-				onSelect={ setCurrentTemplate }
+				value={ defaultTemplate }
+				onSelect={ updateTemplate }
 				render={ renderTemplatePickerModal }
 			/>
 		</ToggleSection>

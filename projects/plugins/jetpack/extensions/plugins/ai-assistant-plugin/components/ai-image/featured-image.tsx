@@ -1,11 +1,13 @@
 /**
  * External dependencies
  */
+import { ImageStyle } from '@automattic/jetpack-ai-client';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
@@ -27,6 +29,9 @@ import {
 	IMAGE_GENERATION_MODEL_DALL_E_3,
 	PLACEMENT_MEDIA_SOURCE_DROPDOWN,
 } from './types';
+import type { ImageResponse } from './hooks/use-ai-image';
+
+const debug = debugFactory( 'jetpack-ai:featured-image' );
 
 export default function FeaturedImage( {
 	busy,
@@ -44,9 +49,19 @@ export default function FeaturedImage( {
 	);
 	const siteType = useSiteType();
 	const postContent = usePostContent();
+	const { postTitle, postFeaturedMedia } = useSelect( select => {
+		return {
+			// @ts-expect-error - getEditedPostAttribute is not defined in the useSelect type
+			postTitle: select( 'core/editor' ).getEditedPostAttribute( 'title' ),
+			// @ts-expect-error - getEditedPostAttribute is not defined in the useSelect type
+			postFeaturedMedia: select( 'core/editor' ).getEditedPostAttribute( 'featured_media' ),
+		};
+	}, [] );
 	const { saveToMediaLibrary } = useSaveToMediaLibrary();
 	const { tracks } = useAnalytics();
 	const { recordEvent } = tracks;
+	const [ defaultPrompt, setDefaultPrompt ] = useState( '' );
+	const [ requestStyle, setRequestStyle ] = useState< ImageStyle >( null );
 
 	// Editor actions
 	const { enableComplementaryArea } = useDispatch( 'core/interface' );
@@ -91,6 +106,8 @@ export default function FeaturedImage( {
 		currentImage,
 		currentPointer,
 		images,
+		imageStyles,
+		guessStyle,
 	} = useAiImage( {
 		autoStart: false,
 		cost: featuredImageCost,
@@ -107,22 +124,47 @@ export default function FeaturedImage( {
 		setIsFeaturedImageModalVisible( true );
 	}, [] );
 
+	/**
+	 * Handle the guess style for the image. It is reworked here to include the post content.
+	 */
+	const handleGuessStyle = useCallback(
+		prompt => {
+			const content = postTitle + '\n\n' + postContent;
+			return guessStyle( prompt, 'featured-image-guess-style', content );
+		},
+		[ postContent, postTitle, guessStyle ]
+	);
+
 	const handleGenerate = useCallback(
-		( { userPrompt }: { userPrompt?: string } ) => {
+		( {
+			userPrompt,
+			style,
+		}: {
+			userPrompt?: string;
+			style?: string;
+		} ): Promise< void | ImageResponse > => {
 			// track the generate image event
 			recordEvent( 'jetpack_ai_featured_image_generation_generate_image', {
 				placement,
 				model: featuredImageActiveModel,
 				site_type: siteType,
+				style,
+				userPrompt,
 			} );
 
 			setIsFeaturedImageModalVisible( true );
-			processImageGeneration( { userPrompt, postContent, notEnoughRequests } ).catch( error => {
+			return processImageGeneration( {
+				userPrompt,
+				postContent: postTitle + '\n\n' + postContent,
+				notEnoughRequests,
+				style,
+			} ).catch( error => {
 				recordEvent( 'jetpack_ai_featured_image_generation_error', {
 					placement,
 					error: error?.message,
 					model: featuredImageActiveModel,
 					site_type: siteType,
+					style,
 				} );
 			} );
 		},
@@ -134,25 +176,46 @@ export default function FeaturedImage( {
 			processImageGeneration,
 			postContent,
 			notEnoughRequests,
+			postTitle,
 		]
 	);
 
+	const handleFirstGenerate = useCallback( async () => {
+		currentPointer.generating = true;
+		const guessedStyle = await handleGuessStyle( '' );
+		setRequestStyle( guessedStyle );
+
+		const response = await handleGenerate( { userPrompt: '', style: guessedStyle } );
+		if ( response ) {
+			debug( 'handleFirstGenerate', response.revisedPrompt );
+			setDefaultPrompt( response.revisedPrompt );
+		}
+	}, [ currentPointer, handleGenerate, handleGuessStyle ] );
+
 	const handleRegenerate = useCallback(
-		( { userPrompt }: { userPrompt?: string } ) => {
+		( { userPrompt, style }: { userPrompt?: string; style?: string } ) => {
 			// track the regenerate image event
 			recordEvent( 'jetpack_ai_featured_image_generation_generate_another_image', {
 				placement,
 				model: featuredImageActiveModel,
 				site_type: siteType,
+				style: style,
 			} );
 
 			setCurrent( crrt => crrt + 1 );
-			processImageGeneration( { userPrompt, postContent, notEnoughRequests } ).catch( error => {
+			processImageGeneration( {
+				userPrompt,
+				postContent: postTitle + '\n\n' + postContent,
+				notEnoughRequests,
+				style,
+			} ).catch( error => {
 				recordEvent( 'jetpack_ai_featured_image_generation_error', {
 					placement,
 					error: error?.message,
 					model: featuredImageActiveModel,
 					site_type: siteType,
+					style,
+					userPrompt,
 				} );
 			} );
 		},
@@ -161,28 +224,36 @@ export default function FeaturedImage( {
 			placement,
 			featuredImageActiveModel,
 			siteType,
+			setCurrent,
 			processImageGeneration,
+			postTitle,
 			postContent,
 			notEnoughRequests,
-			setCurrent,
 		]
 	);
 
 	const handleTryAgain = useCallback(
-		( { userPrompt }: { userPrompt?: string } ) => {
+		( { userPrompt, style }: { userPrompt?: string; style?: string } ) => {
 			// track the try again event
 			recordEvent( 'jetpack_ai_featured_image_generation_try_again', {
 				placement,
 				model: featuredImageActiveModel,
 				site_type: siteType,
+				style,
 			} );
 
-			processImageGeneration( { userPrompt, postContent, notEnoughRequests } ).catch( error => {
+			processImageGeneration( {
+				userPrompt,
+				postContent: postTitle + '\n\n' + postContent,
+				notEnoughRequests,
+				style,
+			} ).catch( error => {
 				recordEvent( 'jetpack_ai_featured_image_generation_error', {
 					placement,
 					error: error?.message,
 					model: featuredImageActiveModel,
 					site_type: siteType,
+					style,
 				} );
 			} );
 		},
@@ -194,6 +265,7 @@ export default function FeaturedImage( {
 			processImageGeneration,
 			postContent,
 			notEnoughRequests,
+			postTitle,
 		]
 	);
 
@@ -307,9 +379,9 @@ export default function FeaturedImage( {
 				</>
 			) }
 			<AiImageModal
-				postContent={ postContent }
-				autoStart={ postContent !== '' }
-				autoStartAction={ handleGenerate }
+				postContent={ postContent || postTitle }
+				autoStart={ ( postContent !== '' || postTitle ) && ! postFeaturedMedia }
+				autoStartAction={ handleFirstGenerate }
 				images={ images }
 				currentIndex={ current }
 				title={ __( 'Generate a featured image with AI', 'jetpack' ) }
@@ -335,6 +407,11 @@ export default function FeaturedImage( {
 					"Describe the image you'd like to create, or have the prompt written for you if you've added content to your post.",
 					'jetpack'
 				) }
+				imageStyles={ imageStyles }
+				onGuessStyle={ handleGuessStyle }
+				initialPrompt={ defaultPrompt }
+				initialStyle={ requestStyle }
+				minPromptLength={ 0 }
 			/>
 		</>
 	);

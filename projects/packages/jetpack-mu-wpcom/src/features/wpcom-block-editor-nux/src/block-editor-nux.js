@@ -4,8 +4,8 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { useEffect, useState } from '@wordpress/element';
 import { applyFilters } from '@wordpress/hooks';
 import { registerPlugin } from '@wordpress/plugins';
-import { __dangerousOptInToUnstableAPIsOnlyForCoreModules } from '@wordpress/private-apis';
 import { getQueryArg } from '@wordpress/url';
+import { useCanvasMode } from '../../../common/hooks';
 import {
 	HasSeenSellerCelebrationModalProvider,
 	HasSeenVideoCelebrationModalProvider,
@@ -23,22 +23,6 @@ import WpcomNux from './welcome-modal/wpcom-nux';
 import LaunchWpcomWelcomeTour from './welcome-tour/tour-launch';
 
 /**
- * Sometimes Gutenberg doesn't allow you to re-register the module and throws an error.
- * FIXME: The new version allow it by default, but we might need to ensure that all the site has the new version.
- * @see https://github.com/Automattic/wp-calypso/pull/79663
- */
-let unlock;
-try {
-	unlock = __dangerousOptInToUnstableAPIsOnlyForCoreModules(
-		'I acknowledge private features are not for use in themes or plugins and doing so will break in the next version of WordPress.',
-		'@wordpress/edit-site'
-	).unlock;
-} catch ( error ) {
-	// eslint-disable-next-line no-console
-	console.error( 'Error: Unable to get the unlock api. Reason: %s', error );
-}
-
-/**
  * The WelcomeTour component
  */
 function WelcomeTour() {
@@ -46,31 +30,23 @@ function WelcomeTour() {
 		getQueryArg( window.location.href, 'showDraftPostModal' )
 	);
 
-	const {
-		show,
-		isLoaded,
-		variant,
-		isManuallyOpened,
-		isNewPageLayoutModalOpen,
-		siteEditorCanvasMode,
-	} = useSelect( select => {
-		const welcomeGuideStoreSelect = select( 'automattic/wpcom-welcome-guide' );
-		const starterPageLayoutsStoreSelect = select( 'automattic/starter-page-layouts' );
-		let canvasMode;
-		if ( unlock && select( 'core/edit-site' ) ) {
-			canvasMode =
-				select( 'core/edit-site' ) && unlock( select( 'core/edit-site' ) ).getCanvasMode();
-		}
+	const { show, isLoaded, variant, isManuallyOpened, isNewPageLayoutModalOpen } = useSelect(
+		select => {
+			const welcomeGuideStoreSelect = select( 'automattic/wpcom-welcome-guide' );
+			const starterPageLayoutsStoreSelect = select( 'automattic/starter-page-layouts' );
 
-		return {
-			show: welcomeGuideStoreSelect.isWelcomeGuideShown(),
-			isLoaded: welcomeGuideStoreSelect.isWelcomeGuideStatusLoaded(),
-			variant: welcomeGuideStoreSelect.getWelcomeGuideVariant(),
-			isManuallyOpened: welcomeGuideStoreSelect.isWelcomeGuideManuallyOpened(),
-			isNewPageLayoutModalOpen: starterPageLayoutsStoreSelect?.isOpen(), // Handle the case where SPT is not initalized.
-			siteEditorCanvasMode: canvasMode,
-		};
-	}, [] );
+			return {
+				show: welcomeGuideStoreSelect.isWelcomeGuideShown(),
+				isLoaded: welcomeGuideStoreSelect.isWelcomeGuideStatusLoaded(),
+				variant: welcomeGuideStoreSelect.getWelcomeGuideVariant(),
+				isManuallyOpened: welcomeGuideStoreSelect.isWelcomeGuideManuallyOpened(),
+				isNewPageLayoutModalOpen: starterPageLayoutsStoreSelect?.isOpen(), // Handle the case where SPT is not initalized.
+			};
+		},
+		[]
+	);
+
+	const siteEditorCanvasMode = useCanvasMode();
 
 	const setOpenState = useDispatch( 'automattic/starter-page-layouts' )?.setOpenState;
 

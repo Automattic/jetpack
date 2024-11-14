@@ -103,6 +103,9 @@ import {
 	PLAN_JETPACK_CREATOR_BI_YEARLY,
 	PLAN_JETPACK_CREATOR_YEARLY,
 	PLAN_JETPACK_CREATOR_MONTHLY,
+	PLAN_JETPACK_GROWTH_BI_YEARLY,
+	PLAN_JETPACK_GROWTH_YEARLY,
+	PLAN_JETPACK_GROWTH_MONTHLY,
 	FEATURE_JETPACK_CRM,
 } from 'lib/plans/constants';
 import PropTypes from 'prop-types';
@@ -191,6 +194,9 @@ const PRODUCT_ICON_MAP = {
 	[ PLAN_JETPACK_CREATOR_BI_YEARLY ]: 'plans/jetpack.svg',
 	[ PLAN_JETPACK_CREATOR_YEARLY ]: 'plans/jetpack.svg',
 	[ PLAN_JETPACK_CREATOR_MONTHLY ]: 'plans/jetpack.svg',
+	[ PLAN_JETPACK_GROWTH_BI_YEARLY ]: 'plans/jetpack.svg',
+	[ PLAN_JETPACK_GROWTH_YEARLY ]: 'plans/jetpack.svg',
+	[ PLAN_JETPACK_GROWTH_MONTHLY ]: 'plans/jetpack.svg',
 
 	// DEPRECATED: Daily and Real-time variations will soon be retired.
 	// Remove after all customers are migrated to new products.
@@ -222,11 +228,13 @@ const DEFAULT_SIZE = 32;
 export default class PlanIcon extends Component {
 	render() {
 		const { className, alt, plan } = this.props;
+		const fallback = imagePath + 'plans/jetpack.svg';
+		const imageSrc = PRODUCT_ICON_MAP[ plan ] ? imagePath + PRODUCT_ICON_MAP[ plan ] : fallback;
 
 		return (
 			<img
 				className={ className }
-				src={ imagePath + PRODUCT_ICON_MAP[ plan ] }
+				src={ imageSrc }
 				width={ DEFAULT_SIZE }
 				height={ DEFAULT_SIZE }
 				alt={ alt || '' }
@@ -310,6 +318,9 @@ PlanIcon.propTypes = {
 		PLAN_JETPACK_CREATOR_BI_YEARLY,
 		PLAN_JETPACK_CREATOR_YEARLY,
 		PLAN_JETPACK_CREATOR_MONTHLY,
+		PLAN_JETPACK_GROWTH_BI_YEARLY,
+		PLAN_JETPACK_GROWTH_YEARLY,
+		PLAN_JETPACK_GROWTH_MONTHLY,
 
 		// DEPRECATED: Daily and Real-time variations will soon be retired.
 		// Remove after all customers are migrated to new products.

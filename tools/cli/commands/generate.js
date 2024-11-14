@@ -638,7 +638,8 @@ function createPackageJson( packageJson, answers ) {
 			'./action-types': './src/state/action-types',
 		};
 		packageJson.scripts = {
-			test: 'jest tests',
+			test: 'jest --config=tests/jest.config.cjs',
+			'test-coverage': 'pnpm run test --coverage',
 		};
 
 		packageJson.devDependencies.jest = findVersionFromPnpmLock( 'jest' );
@@ -735,7 +736,7 @@ async function createComposerJson( composerJson, answers ) {
 	switch ( answers.type ) {
 		case 'package':
 			composerJson.require = composerJson.require || {};
-			composerJson.require.php = '>=7.0';
+			composerJson.require.php = '>=7.2';
 			composerJson.extra = composerJson.extra || {};
 			composerJson.extra[ 'branch-alias' ] = composerJson.extra[ 'branch-alias' ] || {};
 			composerJson.extra[ 'branch-alias' ][ 'dev-trunk' ] = '0.1.x-dev';
@@ -759,6 +760,7 @@ async function createComposerJson( composerJson, answers ) {
 			delete composerJson[ 'require-dev' ][ 'yoast/phpunit-polyfills' ];
 			composerJson.scripts = {
 				'test-js': [ 'pnpm run test' ],
+				'test-coverage': [ 'pnpm run test-coverage' ],
 			};
 			if ( ! answers.typescript.endsWith( '-src' ) ) {
 				composerJson.scripts = {
@@ -956,8 +958,8 @@ function createReadMeTxt( answers ) {
 		`=== Jetpack ${ answers.name } ===\n` +
 		'Contributors: automattic,\n' +
 		'Tags: jetpack, stuff\n' +
-		'Requires at least: 6.5\n' +
-		'Requires PHP: 7.0\n' +
+		'Requires at least: 6.6\n' +
+		'Requires PHP: 7.2\n' +
 		'Tested up to: 6.7\n' +
 		`Stable tag: ${ answers.version }\n` +
 		'License: GPLv2 or later\n' +

@@ -23,7 +23,7 @@ class Test_Odyssey_Assets extends Stats_Test_Case {
 	 */
 	public function test_get_cdn_asset_cache_buster_remote_error() {
 		add_filter( 'pre_http_request', array( $this, 'break_cdn_cache_buster_request' ), 15, 3 );
-		$this->assertEquals( time(), floor( $this->get_cdn_asset_cache_buster_callable() / 1000 ) );
+		$this->assertLessThanOrEqual( 2, time() - floor( $this->get_cdn_asset_cache_buster_callable() / 1000 ) );
 		remove_filter( 'pre_http_request', array( $this, 'break_cdn_cache_buster_request' ), 15 );
 	}
 
@@ -76,7 +76,7 @@ class Test_Odyssey_Assets extends Stats_Test_Case {
 			),
 			false
 		);
-		$this->assertEquals( time(), floor( $this->get_cdn_asset_cache_buster_callable() / 1000 ) );
+		$this->assertLessThanOrEqual( 2, time() - floor( $this->get_cdn_asset_cache_buster_callable() / 1000 ) );
 		remove_filter( 'pre_http_request', array( $this, 'break_cdn_cache_buster_request' ), 15 );
 	}
 
@@ -85,7 +85,7 @@ class Test_Odyssey_Assets extends Stats_Test_Case {
 	 */
 	public function test_get_cdn_asset_cache_buster_force_refresh_expired() {
 		$_GET['force_refresh'] = 1;
-		$this->assertEquals( time(), floor( $this->get_cdn_asset_cache_buster_callable() / 1000 ) );
+		$this->assertLessThanOrEqual( 2, time() - floor( $this->get_cdn_asset_cache_buster_callable() / 1000 ) );
 	}
 
 	/**

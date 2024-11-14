@@ -242,14 +242,14 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 			);
 			if ( is_wp_error( $response ) ) {
 				if ( $response->get_error_code() === 'missing_token' ) {
-					return new WP_Error( 'missing_token', __( 'Please connect your user account to WordPress.com', 'jetpack' ), 404 );
+					return new WP_Error( 'missing_token', __( 'Please connect your user account to WordPress.com', 'jetpack' ), array( 'status' => 404 ) );
 				}
-				return new WP_Error( 'wpcom_connection_error', __( 'Could not connect to WordPress.com', 'jetpack' ), 404 );
+				return new WP_Error( 'wpcom_connection_error', __( 'Could not connect to WordPress.com', 'jetpack' ), array( 'status' => 404 ) );
 			}
 			$data = isset( $response['body'] ) ? json_decode( $response['body'], true ) : null;
 			// If endpoint returned error, we have to detect it.
 			if ( 200 !== $response['response']['code'] && $data['code'] ) {
-				return new WP_Error( $data['code'], $data['message'] ? $data['message'] : '', 401 );
+				return new WP_Error( $data['code'], $data['message'] ? $data['message'] : '', array( 'status' => 401 ) );
 			}
 			return $data;
 		}
@@ -433,13 +433,13 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 			$response = Client::wpcom_json_api_request_as_user( $path, 'v2' );
 			if ( is_wp_error( $response ) ) {
 				if ( $response->get_error_code() === 'missing_token' ) {
-					return new WP_Error( 'missing_token', __( 'Please connect your user account to WordPress.com', 'jetpack' ), 404 );
+					return new WP_Error( 'missing_token', __( 'Please connect your user account to WordPress.com', 'jetpack' ), array( 'status' => 404 ) );
 				}
-				return new WP_Error( 'wpcom_connection_error', __( 'Could not connect to WordPress.com', 'jetpack' ), 404 );
+				return new WP_Error( 'wpcom_connection_error', __( 'Could not connect to WordPress.com', 'jetpack' ), array( 'status' => 404 ) );
 			}
 			$data = isset( $response['body'] ) ? json_decode( $response['body'], true ) : null;
 			if ( 200 !== $response['response']['code'] && $data['code'] && $data['message'] ) {
-				return new WP_Error( $data['code'], $data['message'], 401 );
+				return new WP_Error( $data['code'], $data['message'], array( 'status' => 401 ) );
 			}
 			return $data;
 		}
@@ -468,16 +468,16 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 		);
 		if ( is_wp_error( $response ) ) {
 			if ( $response->get_error_code() === 'missing_token' ) {
-				return new WP_Error( 'missing_token', __( 'Please connect your user account to WordPress.com', 'jetpack' ), 404 );
+				return new WP_Error( 'missing_token', __( 'Please connect your user account to WordPress.com', 'jetpack' ), array( 'status' => 404 ) );
 			}
-			return new WP_Error( 'wpcom_connection_error', __( 'Could not connect to WordPress.com', 'jetpack' ), 404 );
+			return new WP_Error( 'wpcom_connection_error', __( 'Could not connect to WordPress.com', 'jetpack' ), array( 'status' => 404 ) );
 		}
 
 		// decode response
 		$data = isset( $response['body'] ) ? json_decode( $response['body'], true ) : null;
 		// If endpoint returned error, we have to detect it.
 		if ( 200 !== $response['response']['code'] && $data['code'] && $data['message'] ) {
-			return new WP_Error( $data['code'], $data['message'], 401 );
+			return new WP_Error( $data['code'], $data['message'], array( 'status' => 401 ) );
 		}
 
 		// return response

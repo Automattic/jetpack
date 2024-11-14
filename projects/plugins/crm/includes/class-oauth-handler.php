@@ -1092,13 +1092,7 @@ class Oauth_Handler {
 		// retrieve config
 		$provider_config = $this->get_provider_config( $provider_key );
 
-   		if ( is_array( $provider_config ) && !empty( $provider_config['token'] ) ){
-
-			global $zbs;
-
-			// Let's make sure we've loaded the Google API library:
-			// https://developers.google.com/gmail/api/quickstart/php
-			$zbs->autoload_libraries();
+		if ( is_array( $provider_config ) && ! empty( $provider_config['token'] ) ) {
 
 			//modified from: https://developers.google.com/people/quickstart/php  since we will always be getting 'offline' access so does not need to re-ask user
 			$client = new \Google_Client();

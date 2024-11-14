@@ -10,15 +10,19 @@ import { useConnection } from '@automattic/jetpack-connection';
 import {
 	hasSocialPaidFeatures,
 	store as socialStore,
+	features,
+	getSocialScriptData,
 } from '@automattic/jetpack-publicize-components';
-import { useSelect, useDispatch } from '@wordpress/data';
-import { useState, useCallback, useEffect, useRef } from '@wordpress/element';
+import { siteHasFeature } from '@automattic/jetpack-script-data';
+import { useSelect } from '@wordpress/data';
+import { useState, useCallback } from '@wordpress/element';
 import React from 'react';
 import PricingPage from '../pricing-page';
 import SocialImageGeneratorToggle from '../social-image-generator-toggle';
 import SocialModuleToggle from '../social-module-toggle';
 import SocialNotesToggle from '../social-notes-toggle';
 import SupportSection from '../support-section';
+import UtmToggle from '../utm-toggle';
 import ConnectionScreen from './../connection-screen';
 import Header from './../header';
 import InfoSection from './../info-section';
@@ -30,35 +34,20 @@ const Admin = () => {
 	const showConnectionCard = ! isRegistered || ! isUserConnected;
 	const [ forceDisplayPricingPage, setForceDisplayPricingPage ] = useState( false );
 
-	const refreshJetpackSocialSettings = useDispatch( socialStore ).refreshJetpackSocialSettings;
-
 	const onPricingPageDismiss = useCallback( () => setForceDisplayPricingPage( false ), [] );
 
-	const {
-		isModuleEnabled,
-		showPricingPage,
-		pluginVersion,
-		isSocialImageGeneratorAvailable,
-		isUpdatingJetpackSettings,
-	} = useSelect( select => {
+	const { isModuleEnabled, showPricingPage, isUpdatingJetpackSettings } = useSelect( select => {
 		const store = select( socialStore );
+		const settings = store.getSocialPluginSettings();
+
 		return {
-			isModuleEnabled: store.isModuleEnabled(),
-			showPricingPage: store.showPricingPage(),
-			pluginVersion: store.getPluginVersion(),
-			isSocialImageGeneratorAvailable: store.isSocialImageGeneratorAvailable(),
-			isUpdatingJetpackSettings: store.isUpdatingJetpackSettings(),
+			isModuleEnabled: settings.publicize_active,
+			showPricingPage: settings.show_pricing_page,
+			isUpdatingJetpackSettings: store.isSavingSocialPluginSettings(),
 		};
 	} );
 
-	const hasEnabledModule = useRef( isModuleEnabled );
-
-	useEffect( () => {
-		if ( isModuleEnabled && ! hasEnabledModule.current && isSocialImageGeneratorAvailable ) {
-			hasEnabledModule.current = true;
-			refreshJetpackSocialSettings();
-		}
-	}, [ isModuleEnabled, isSocialImageGeneratorAvailable, refreshJetpackSocialSettings ] );
+	const pluginVersion = getSocialScriptData().plugin_info.social.version;
 
 	const moduleName = `Jetpack Social ${ pluginVersion }`;
 
@@ -92,8 +81,9 @@ const Admin = () => {
 					</AdminSectionHero>
 					<AdminSection>
 						<SocialModuleToggle />
+						{ isModuleEnabled && <UtmToggle /> }
 						{ isModuleEnabled && <SocialNotesToggle disabled={ isUpdatingJetpackSettings } /> }
-						{ isModuleEnabled && isSocialImageGeneratorAvailable && (
+						{ isModuleEnabled && siteHasFeature( features.IMAGE_GENERATOR ) && (
 							<SocialImageGeneratorToggle disabled={ isUpdatingJetpackSettings } />
 						) }
 					</AdminSection>

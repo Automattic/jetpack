@@ -89,6 +89,7 @@ class Defaults {
 		'jetpack_relatedposts',
 		'jetpack_social_notes_config',
 		'jetpack_social_settings',
+		'jetpack_social_utm_settings',
 		'jetpack_sso_match_by_email',
 		'jetpack_sso_require_two_step',
 		'jetpack_sync_non_blocking', // is non-blocking Jetpack Sync flow enabled.
@@ -466,6 +467,7 @@ class Defaults {
 		'bigcommerce_task', // BigCommerce Plugin - Store import queue.
 		'secupress_log_err404', // SecuPress Plugin - Log 404 pages
 		'iw_omnibus_price_log', // Omnibus Plugin - Log price changes.
+		'od_url_metrics', // Optimization Detective - Log URL metrics.
 	);
 
 	/**
@@ -1295,16 +1297,16 @@ class Defaults {
 	 * @var array list of module names.
 	 */
 	public static $default_full_sync_config = array(
-		'comments'           => 1,
 		'constants'          => 1,
 		'functions'          => 1,
 		'options'            => 1,
-		'posts'              => 1,
-		'term_relationships' => 1,
 		'terms'              => 1,
 		'themes'             => 1,
-		'updates'            => 1,
 		'users'              => 1,
+		'posts'              => 1,
+		'comments'           => 1,
+		'updates'            => 1,
+		'term_relationships' => 1,
 	);
 
 	/**

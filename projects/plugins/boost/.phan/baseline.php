@@ -12,11 +12,11 @@ return [
     // PhanTypeArraySuspiciousNullable : 15+ occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 10+ occurrences
     // PhanTypeMismatchArgumentNullableInternal : 10+ occurrences
-    // PhanTypeMismatchReturnProbablyReal : 10+ occurrences
     // PhanTypeArraySuspicious : 9 occurrences
     // PhanTypeMismatchArgument : 8 occurrences
     // PhanParamTooMany : 6 occurrences
     // PhanPossiblyUndeclaredVariable : 6 occurrences
+    // PhanTypeMismatchReturnProbablyReal : 6 occurrences
     // PhanUndeclaredConstant : 5 occurrences
     // PhanUndeclaredFunction : 4 occurrences
     // PhanPluginUseReturnValueInternalKnown : 3 occurrences
@@ -49,12 +49,7 @@ return [
         'app/data-sync/Performance_History_Entry.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeArraySuspicious'],
         'app/lib/class-cli.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgument'],
         'app/lib/critical-css/Critical_CSS_State.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeArraySuspiciousNullable'],
-        'app/lib/critical-css/source-providers/providers/Archive_Provider.php' => ['PhanTypeMismatchReturnProbablyReal'],
-        'app/lib/critical-css/source-providers/providers/Post_ID_Provider.php' => ['PhanTypeMismatchReturnProbablyReal'],
         'app/lib/critical-css/source-providers/providers/Provider.php' => ['PhanTypeMismatchArgumentInternal'],
-        'app/lib/critical-css/source-providers/providers/Singular_Post_Provider.php' => ['PhanTypeMismatchReturnProbablyReal'],
-        'app/lib/critical-css/source-providers/providers/Taxonomy_Provider.php' => ['PhanTypeMismatchReturnProbablyReal'],
-        'app/lib/critical-css/source-providers/providers/WP_Core_Provider.php' => ['PhanTypeMismatchReturnProbablyReal'],
         'app/lib/minify/Concatenate_CSS.php' => ['PhanPluginUseReturnValueInternalKnown', 'PhanTypeMismatchArgument'],
         'app/lib/minify/Concatenate_JS.php' => ['PhanPluginUseReturnValueInternalKnown', 'PhanPossiblyUndeclaredVariable', 'PhanTypeInvalidUnaryOperandIncOrDec', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypePossiblyInvalidDimOffset'],
         'app/lib/minify/Dependency_Path_Mapping.php' => ['PhanUndeclaredConstant'],
