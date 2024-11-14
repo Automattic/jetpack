@@ -984,9 +984,26 @@ class Admin {
 		if ( isset( $_POST['fields'] ) && is_array( $_POST['fields'] ) ) {
 			$fields = array_map(
 				function ( $field ) {
-					return sanitize_text_field( $field );
+					// Ensure $field is an array before processing.
+					if ( is_array( $field ) ) {
+						// Sanitize individual field properties without modifying the structure.
+						if ( isset( $field['label'] ) ) {
+							$field['label'] = sanitize_text_field( wp_unslash( $field['label'] ) );
+						}
+						if ( isset( $field['type'] ) ) {
+							$field['type'] = sanitize_text_field( wp_unslash( $field['type'] ) );
+						}
+						if ( isset( $field['required'] ) ) {
+							$field['required'] = sanitize_text_field( wp_unslash( $field['required'] ) );
+						}
+						// Ensure 'options' is sanitized if it's an array.
+						if ( isset( $field['options'] ) && is_array( $field['options'] ) ) {
+							$field['options'] = array_map( 'sanitize_text_field', array_map( 'wp_unslash', $field['options'] ) );
+						}
+					}
+					return $field;
 				},
-				wp_unslash( $_POST['fields'] ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- each item sanitized by sanitize_text_field above.
+				$_POST['fields'] // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- each item sanitized above.
 			);
 			usort( $fields, array( $this, 'grunion_sort_objects' ) );
 
