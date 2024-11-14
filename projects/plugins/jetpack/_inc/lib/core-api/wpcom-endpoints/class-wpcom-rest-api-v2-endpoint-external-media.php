@@ -673,15 +673,43 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 			)
 		);
 
-		// Set cache headers
-		header( 'Cache-Control: no-cache, no-store, must-revalidate' );
-		header( 'Pragma: no-cache' );
-		header( 'Expires: 0' );
+		switch ( wp_remote_retrieve_response_code( $response ) ) {
+			case 200:
+				// Set cache headers
+				header( 'Cache-Control: no-cache, no-store, must-revalidate' );
+				header( 'Pragma: no-cache' );
+				header( 'Expires: 0' );
 
-		// Output the binary file.
-		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Media binary data
-		echo wp_remote_retrieve_body( $response );
-		exit;
+				// Output the binary file.
+				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Media binary data
+				echo wp_remote_retrieve_body( $response );
+				exit;
+
+			case 401:
+				$response = new WP_Error(
+					'authorization_required',
+					__( 'You are not connected to that service.', 'jetpack' ),
+					array( 'status' => 403 )
+				);
+				break;
+
+			case 403:
+				$error    = json_decode( wp_remote_retrieve_body( $response ) );
+				$response = new WP_Error( $error->code, $error->message, $error->data );
+				break;
+
+			default:
+				if ( is_wp_error( $response ) ) {
+					$response->add_data( array( 'status' => 400 ) );
+					break;
+				}
+
+				$response = new WP_Error(
+					'rest_request_error',
+					__( 'An unknown error has occurred. Please try again later.', 'jetpack' ),
+					array( 'status' => wp_remote_retrieve_response_code( $response ) )
+				);
+		}
 	}
 
 	/**
