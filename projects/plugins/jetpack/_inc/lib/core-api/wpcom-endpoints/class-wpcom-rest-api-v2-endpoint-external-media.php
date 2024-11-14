@@ -85,6 +85,13 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 	private $tmp_name;
 
 	/**
+	 * Current session.
+	 *
+	 * @var string
+	 */
+	private $current_session;
+
+	/**
 	 * Constructor.
 	 */
 	public function __construct() {
@@ -137,7 +144,7 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 				'callback'            => array( $this, 'copy_external_media' ),
 				'permission_callback' => array( $this, 'create_item_permissions_check' ),
 				'args'                => array(
-					'media'   => array(
+					'media'      => array(
 						'description'       => __( 'Media data to copy.', 'jetpack' ),
 						'items'             => $this->media_schema,
 						'required'          => true,
@@ -145,10 +152,14 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 						'sanitize_callback' => array( $this, 'sanitize_media' ),
 						'validate_callback' => array( $this, 'validate_media' ),
 					),
-					'post_id' => array(
+					'post_id'    => array(
 						'description' => __( 'The post ID to attach the upload to.', 'jetpack' ),
 						'type'        => 'number',
 						'minimum'     => 0,
+					),
+					'session_id' => array(
+						'description' => __( 'Session ID for services that require it.', 'jetpack' ),
+						'type'        => 'string',
 					),
 				),
 			)
@@ -387,6 +398,24 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 	}
 
 	/**
+	 * Adds authorization headers to Google Photos requests.
+	 *
+	 * @param array  $args HTTP request arguments.
+	 * @param string $url  URL of the request.
+	 *
+	 * @return array
+	 */
+	public function add_auth_headers( $args, $url ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		if ( ! isset( $args['headers'] ) ) {
+			$args['headers'] = array();
+		}
+
+		$args['headers']['Authorization'] = 'Bearer ' . $this->current_session;
+
+		return $args;
+	}
+
+	/**
 	 * Saves an external media item to the media library.
 	 *
 	 * @param \WP_REST_Request $request Full details about the request.
@@ -397,7 +426,14 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 		require_once ABSPATH . 'wp-admin/includes/media.php';
 		require_once ABSPATH . 'wp-admin/includes/image.php';
 
-		$post_id = $request->get_param( 'post_id' );
+		$callback   = array( $this, 'add_auth_headers' );
+		$post_id    = $request->get_param( 'post_id' );
+		$session_id = $request->get_param( 'session_id' );
+
+		if ( $session_id ) {
+			$this->current_session = $session_id;
+			add_filter( 'http_request_args', array( $this, 'add_auth_headers' ), 10, 2 );
+		}
 
 		$responses = array();
 		foreach ( $request->get_param( 'media' ) as $item ) {
@@ -418,6 +454,11 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 
 			// Add attachment data or WP_Error.
 			$responses[] = $this->get_attachment_data( $id, $item );
+		}
+
+		if ( $session_id ) {
+			remove_filter( 'http_request_args', $callback );
+			$this->current_session = null;
 		}
 
 		return $responses;
