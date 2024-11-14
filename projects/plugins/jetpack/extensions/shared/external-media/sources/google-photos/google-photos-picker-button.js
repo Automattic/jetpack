@@ -41,6 +41,7 @@ export default function GooglePhotosPickerButton( props ) {
 				account={ account }
 				setAuthenticated={ setAuthenticated }
 				disconnectBtnVariant={ 'link' }
+				showAccountInfo={ false }
 			/>
 		</div>
 	);
