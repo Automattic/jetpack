@@ -21,19 +21,19 @@ export const fixerTimestampIsStale = ( lastUpdatedTimestamp: string ) => {
 	return now.getTime() - lastUpdated.getTime() >= FIXER_IS_STALE_THRESHOLD;
 };
 
-export const fixerIsInError = ( fixerStatus: ThreatFixStatus ) => {
-	return 'error' in fixerStatus && fixerStatus.error;
+export const fixerIsInError = ( fixerStatus: ThreatFixStatus ): boolean => {
+	return !! ( 'error' in fixerStatus && fixerStatus.error );
 };
 
-export const fixerIsInProgress = ( fixerStatus: ThreatFixStatus ) => {
-	return 'status' in fixerStatus && fixerStatus.status === 'in_progress';
+export const fixerIsInProgress = ( fixerStatus: ThreatFixStatus ): boolean => {
+	return !! ( 'status' in fixerStatus && fixerStatus.status === 'in_progress' );
 };
 
-export const fixerStatusIsStale = ( fixerStatus: ThreatFixStatus ) => {
+export const fixerStatusIsStale = ( fixerStatus: ThreatFixStatus ): boolean => {
 	return (
 		fixerIsInProgress( fixerStatus ) &&
 		'lastUpdated' in fixerStatus &&
-		fixerTimestampIsStale( fixerStatus.lastUpdated )
+		!! fixerTimestampIsStale( fixerStatus.lastUpdated )
 	);
 };
 
