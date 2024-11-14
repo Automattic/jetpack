@@ -339,9 +339,8 @@ class WordpressVersioningTest extends TestCase {
 	public function testNextVersion( $version, array $changes, array $extra, $expect, $expectPoint = null ) {
 		$obj = new WordpressVersioning();
 
-		// @phan-suppress-next-line PhanDeprecatedFunction -- Hopefully we drop PHP <7.2 before having to deal with this, as the designated replacement isn't until PHPUnit 8.
 		$out1 = $this->getMockBuilder( BufferedOutput::class )
-			->setMethods( array( 'getErrorOutput' ) )
+			->addMethods( array( 'getErrorOutput' ) )
 			->getMock();
 		$out2 = new BufferedOutput();
 		$out1->method( 'getErrorOutput' )->willReturn( $out2 );

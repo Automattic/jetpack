@@ -40,7 +40,18 @@ class Test_WPCOM_Additional_Css_Manager extends TestCase {
 	 * Check if the manager constructs the proper url and copy message.
 	 */
 	public function test_it_generates_proper_url_and_nudge() {
-		$manager = new WPCOM_Additional_CSS_Manager( 'foo.com' );
+		// @phan-suppress-next-line PhanDeprecatedFunction -- Keep using setMethods until we drop PHP 7.0 support.
+		$manager = $this->getMockBuilder( WPCOM_Additional_CSS_Manager::class )
+			->setConstructorArgs( array( 'foo.com' ) )
+			->setMethods( array( 'get_plan' ) )
+			->getMock();
+
+		$manager->method( 'get_plan' )->willReturn(
+			(object) array(
+				'product_name_short' => 'Premium',
+				'path_slug'          => 'premium',
+			)
+		);
 
 		$manager->register_nudge( $this->wp_customize );
 		$this->assertEquals(
@@ -48,7 +59,7 @@ class Test_WPCOM_Additional_Css_Manager extends TestCase {
 			$this->wp_customize->controls()['jetpack_custom_css_control']->cta_url
 		);
 		$this->assertEquals(
-			'Purchase the Explorer plan to<br> activate CSS customization',
+			'Purchase the Premium plan to<br> activate CSS customization',
 			$this->wp_customize->controls()['jetpack_custom_css_control']->nudge_copy
 		);
 	}

@@ -2,11 +2,10 @@ import { useDataSync } from '@automattic/jetpack-react-data-sync-client';
 import { ToggleControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { z } from 'zod';
-import indexStyles from '../../../pages/index/index.module.scss';
 import styles from './image-cdn-liar.module.scss';
-import clsx from 'clsx';
 import ModuleSubsection from '$features/ui/module-subsection/module-subsection';
 import { recordBoostEvent } from '$lib/utils/analytics';
+import Pill from '$features/ui/pill/pill';
 
 type ImageCdnLiarProps = {
 	isPremium: boolean;
@@ -35,7 +34,7 @@ export default function ImageCdnLiar( { isPremium }: ImageCdnLiarProps ) {
 				<div className={ styles.title }>
 					<h4>
 						{ __( 'Auto-Resize Lazy Images', 'jetpack-boost' ) }
-						<span className={ clsx( indexStyles.beta, styles.beta ) }>Beta</span>
+						<Pill text="Beta" />
 					</h4>
 					<ToggleControl
 						className={ styles[ 'toggle-control' ] }
