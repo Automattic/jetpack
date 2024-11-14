@@ -198,7 +198,7 @@ const List: React.FC< ListProps > = ( {
 	}
 
 	function loadDefaultValue() {
-		setInputValue( defaultValue || '' );
+		validateInputValue( defaultValue || '' );
 	}
 
 	return (
