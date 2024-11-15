@@ -19,6 +19,68 @@ const Base = args => {
 	);
 };
 
+export const UserConnectionNeeded = Base.bind( {} );
+UserConnectionNeeded.args = {
+	threat: {
+		id: 185869885,
+		signature: 'EICAR_AV_Test',
+		title: 'Malicious code found in file: index.php',
+		description:
+			"This is the standard EICAR antivirus test code, and not a real infection. If your site contains this code when you don't expect it to, contact Jetpack support for some help.",
+		firstDetected: '2024-10-07T20:45:06.000Z',
+		fixedIn: null,
+		severity: 8,
+		fixable: { fixer: 'rollback', target: 'January 26, 2024, 6:49 am', extensionStatus: '' },
+		fixer: { status: 'not_started' },
+		status: 'current',
+		filename: '/var/www/html/wp-content/index.php',
+		context: {
+			'1': 'echo <<<HTML',
+			'2': 'X5O!P%@AP[4\\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*',
+			'3': 'HTML;',
+			marks: {},
+		},
+	},
+	isUserConnected: false,
+	hasConnectedOwner: false,
+	handleConnectUser: () => {},
+	handleFixThreatClick: () => {},
+	handleIgnoreThreatClick: () => {},
+	handleUnignoreThreatClick: () => {},
+};
+
+export const CredentialsNeeded = Base.bind( {} );
+CredentialsNeeded.args = {
+	threat: {
+		id: 185869885,
+		signature: 'EICAR_AV_Test',
+		title: 'Malicious code found in file: index.php',
+		description:
+			"This is the standard EICAR antivirus test code, and not a real infection. If your site contains this code when you don't expect it to, contact Jetpack support for some help.",
+		firstDetected: '2024-10-07T20:45:06.000Z',
+		fixedIn: null,
+		severity: 8,
+		fixable: { fixer: 'rollback', target: 'January 26, 2024, 6:49 am', extensionStatus: '' },
+		fixer: { status: 'not_started' },
+		status: 'current',
+		filename: '/var/www/html/wp-content/index.php',
+		context: {
+			'1': 'echo <<<HTML',
+			'2': 'X5O!P%@AP[4\\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*',
+			'3': 'HTML;',
+			marks: {},
+		},
+	},
+	isUserConnected: true,
+	hasConnectedOwner: true,
+	credentials: false,
+	credentialsIsFetching: false,
+	credentialsRedirectUrl: '',
+	handleFixThreatClick: () => {},
+	handleIgnoreThreatClick: () => {},
+	handleUnignoreThreatClick: () => {},
+};
+
 export const ThreatResult = Base.bind( {} );
 ThreatResult.args = {
 	threat: {
@@ -41,6 +103,9 @@ ThreatResult.args = {
 			marks: {},
 		},
 	},
+	isUserConnected: true,
+	hasConnectedOwner: true,
+	credentials: true,
 	handleFixThreatClick: () => {},
 	handleIgnoreThreatClick: () => {},
 	handleUnignoreThreatClick: () => {},
@@ -63,5 +128,8 @@ VulnerableExtension.args = {
 			type: 'plugin',
 		},
 	},
+	isUserConnected: true,
+	hasConnectedOwner: true,
+	credentials: true,
 	handleUpgradeClick: () => {},
 };
