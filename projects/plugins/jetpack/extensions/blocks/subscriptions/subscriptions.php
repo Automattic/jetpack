@@ -10,8 +10,8 @@ namespace Automattic\Jetpack\Extensions\Subscriptions;
 use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Abstract_Token_Subscription_Service;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Jetpack_Token_Subscription_Service;
+use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status\Host;
-use Jetpack;
 use Jetpack_Gutenberg;
 use Jetpack_Memberships;
 use Jetpack_Subscriptions_Widget;
@@ -43,6 +43,17 @@ function register_block() {
 		return;
 	}
 
+	$is_module_active = ( new Modules() )->is_active( 'subscriptions' );
+
+	/*
+	 * The block is available even when the module is not active,
+	 * so we can display a nudge to activate the module instead of the block.
+	 * However, since non-admins cannot activate modules, we do not display the empty block for them.
+	 */
+	if ( ! $is_module_active && ! current_user_can( 'jetpack_activate_modules' ) ) {
+		return;
+	}
+
 	require_once JETPACK__PLUGIN_DIR . '/modules/memberships/class-jetpack-memberships.php';
 	if ( \Jetpack_Memberships::should_enable_monetize_blocks_in_editor() ) {
 
@@ -65,7 +76,7 @@ function register_block() {
 	 * If the Subscriptions module is not active,
 	 * do not make any further changes on the site.
 	 */
-	if ( ! Jetpack::is_module_active( 'subscriptions' ) ) {
+	if ( ! $is_module_active ) {
 		return;
 	}
 
@@ -635,7 +646,7 @@ function get_color_from_slug( $slug ) {
  */
 function render_block( $attributes ) {
 	// If the Subscriptions module is not active, don't render the block.
-	if ( ! Jetpack::is_module_active( 'subscriptions' ) ) {
+	if ( ! ( new Modules() )->is_active( 'subscriptions' ) ) {
 		return '';
 	}
 
