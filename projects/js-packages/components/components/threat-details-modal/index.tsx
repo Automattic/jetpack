@@ -2,11 +2,12 @@ import { Button, ThreatSeverityBadge } from '@automattic/jetpack-components';
 import { type Threat, getFixerState } from '@automattic/jetpack-scan';
 import { Modal, Notice } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import Text from '../text';
 import CredentialsGate from './credentials-gate';
 import styles from './styles.module.scss';
 import ThreatActions from './threat-actions';
+import ThreatDetailsGate from './threat-details-gate';
 import ThreatFixDetails from './threat-fix-details';
 import ThreatTechnicalDetails from './threat-technical-details';
 import UserConnectionGate from './user-connection-gate';
@@ -59,6 +60,8 @@ export default function ThreatDetailsModal( {
 	handleUnignoreThreatClick?: ( threats: Threat[] ) => void;
 	[ key: string ]: unknown;
 } ): JSX.Element {
+	const [ showThreatDetails, setShowThreatDetails ] = useState( true );
+
 	const fixerState = useMemo( () => {
 		return getFixerState( threat.fixer );
 	}, [ threat.fixer ] );
@@ -78,70 +81,89 @@ export default function ThreatDetailsModal( {
 	return (
 		<Modal size="large" __experimentalHideHeader { ...modalProps }>
 			<div className={ styles[ 'threat-details' ] }>
-				<UserConnectionGate
+				<ThreatDetailsGate
+					title={ title }
+					threat={ threat }
+					fixerState={ fixerState }
+					handleUpgradeClick={ handleUpgradeClick }
+					handleFixThreatClick={ handleFixThreatClick }
+					handleIgnoreThreatClick={ handleIgnoreThreatClick }
+					handleUnignoreThreatClick={ handleUnignoreThreatClick }
 					closeModal={ modalProps.onRequestClose as () => void }
-					isUserConnected={ isUserConnected }
-					hasConnectedOwner={ hasConnectedOwner }
-					userIsConnecting={ userIsConnecting }
-					handleConnectUser={ handleConnectUser }
+					showThreatDetails={ showThreatDetails }
+					setShowThreatDetails={ setShowThreatDetails }
 				>
-					<CredentialsGate
+					<UserConnectionGate
 						closeModal={ modalProps.onRequestClose as () => void }
-						credentials={ credentials }
-						credentialsIsFetching={ credentialsIsFetching }
-						credentialsRedirectUrl={ credentialsRedirectUrl }
+						isUserConnected={ isUserConnected }
+						hasConnectedOwner={ hasConnectedOwner }
+						userIsConnecting={ userIsConnecting }
+						handleConnectUser={ handleConnectUser }
+						showThreatDetails={ showThreatDetails }
+						setShowThreatDetails={ setShowThreatDetails }
 					>
-						{ fixerState.error && (
-							<Notice isDismissible={ false } status="error">
-								<Text>{ __( 'An error occurred auto-fixing this threat.', 'jetpack' ) }</Text>
-							</Notice>
-						) }
-						{ fixerState.stale && (
-							<Notice isDismissible={ false } status="error">
-								<Text>{ __( 'The auto-fixer is taking longer than expected.', 'jetpack' ) }</Text>
-							</Notice>
-						) }
-						{ fixerState.inProgress && ! fixerState.stale && (
-							<Notice isDismissible={ false } status="success">
-								<Text>{ __( 'The auto-fixer is in progress.', 'jetpack' ) }</Text>
-							</Notice>
-						) }
-						<div className={ styles.section }>
-							<div className={ styles.title }>
-								<Text variant="title-small">{ title }</Text>
-								{ !! threat.severity && <ThreatSeverityBadge severity={ threat.severity } /> }
+						<CredentialsGate
+							closeModal={ modalProps.onRequestClose as () => void }
+							credentials={ credentials }
+							credentialsIsFetching={ credentialsIsFetching }
+							credentialsRedirectUrl={ credentialsRedirectUrl }
+							showThreatDetails={ showThreatDetails }
+							setShowThreatDetails={ setShowThreatDetails }
+						>
+							{ fixerState.error && (
+								<Notice isDismissible={ false } status="error">
+									<Text>{ __( 'An error occurred auto-fixing this threat.', 'jetpack' ) }</Text>
+								</Notice>
+							) }
+							{ fixerState.stale && (
+								<Notice isDismissible={ false } status="error">
+									<Text>{ __( 'The auto-fixer is taking longer than expected.', 'jetpack' ) }</Text>
+								</Notice>
+							) }
+							{ fixerState.inProgress && ! fixerState.stale && (
+								<Notice isDismissible={ false } status="success">
+									<Text>{ __( 'The auto-fixer is in progress.', 'jetpack' ) }</Text>
+								</Notice>
+							) }
+							<div className={ styles.section }>
+								<div className={ styles.title }>
+									<Text variant="title-small">{ title }</Text>
+									{ !! threat.severity && <ThreatSeverityBadge severity={ threat.severity } /> }
+								</div>
+
+								{ !! threat.description && <Text>{ threat.description }</Text> }
+
+								{ !! threat.source && (
+									<div>
+										<Button
+											variant="link"
+											isExternalLink={ true }
+											weight="regular"
+											href={ threat.source }
+										>
+											{ __( 'See more technical details of this threat', 'jetpack' ) }
+										</Button>
+									</div>
+								) }
 							</div>
 
-							{ !! threat.description && <Text>{ threat.description }</Text> }
+							<ThreatFixDetails threat={ threat } handleUpgradeClick={ handleUpgradeClick } />
 
-							{ !! threat.source && (
-								<div>
-									<Button
-										variant="link"
-										isExternalLink={ true }
-										weight="regular"
-										href={ threat.source }
-									>
-										{ __( 'See more technical details of this threat', 'jetpack' ) }
-									</Button>
-								</div>
-							) }
-						</div>
+							<ThreatTechnicalDetails threat={ threat } />
 
-						<ThreatFixDetails threat={ threat } handleUpgradeClick={ handleUpgradeClick } />
-
-						<ThreatTechnicalDetails threat={ threat } />
-
-						<ThreatActions
-							threat={ threat }
-							closeModal={ modalProps.onRequestClose as () => void }
-							handleFixThreatClick={ handleFixThreatClick }
-							handleIgnoreThreatClick={ handleIgnoreThreatClick }
-							handleUnignoreThreatClick={ handleUnignoreThreatClick }
-							fixerState={ fixerState }
-						/>
-					</CredentialsGate>
-				</UserConnectionGate>
+							<ThreatActions
+								threat={ threat }
+								closeModal={ modalProps.onRequestClose as () => void }
+								handleFixThreatClick={ handleFixThreatClick }
+								handleIgnoreThreatClick={ handleIgnoreThreatClick }
+								handleUnignoreThreatClick={ handleUnignoreThreatClick }
+								showThreatDetails={ showThreatDetails }
+								setShowThreatDetails={ setShowThreatDetails }
+								fixerState={ fixerState }
+							/>
+						</CredentialsGate>
+					</UserConnectionGate>
+				</ThreatDetailsGate>
 			</div>
 		</Modal>
 	);
