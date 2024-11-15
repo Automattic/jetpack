@@ -1,16 +1,20 @@
 import { type Threat, getFixerState } from '@automattic/jetpack-scan';
 import { Modal } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { useMemo, useState } from 'react';
-import CredentialsGate from './credentials-gate';
+import { useMemo, useState, createContext, useCallback } from 'react';
 import styles from './styles.module.scss';
-import ThreatActions from './threat-actions';
 import ThreatDetailsGate from './threat-details-gate';
-import ThreatFixDetails from './threat-fix-details';
-import ThreatNotice from './threat-notice';
-import ThreatSummary from './threat-summary';
-import ThreatTechnicalDetails from './threat-technical-details';
-import UserConnectionGate from './user-connection-gate';
+import ThreatFixerModal from './threat-fixer-modal';
+interface ThreatDetailsModalContextType {
+	closeModal: () => void;
+	showThreatDetails: boolean;
+	onShowThreatDetailsClick: () => void;
+	onContinueClick: () => void;
+}
+
+export const ThreatDetailsModalContext = createContext< ThreatDetailsModalContextType | null >(
+	null
+);
 
 /**
  * ThreatDetailsModal component
@@ -81,52 +85,44 @@ export default function ThreatDetailsModal( {
 	return (
 		<Modal size="large" __experimentalHideHeader { ...modalProps }>
 			<div className={ styles[ 'threat-details' ] }>
-				<ThreatDetailsGate
-					title={ title }
-					threat={ threat }
-					fixerState={ fixerState }
-					handleUpgradeClick={ handleUpgradeClick }
-					handleFixThreatClick={ handleFixThreatClick }
-					handleIgnoreThreatClick={ handleIgnoreThreatClick }
-					handleUnignoreThreatClick={ handleUnignoreThreatClick }
-					closeModal={ modalProps.onRequestClose as () => void }
-					showThreatDetails={ showThreatDetails }
-					setShowThreatDetails={ setShowThreatDetails }
+				<ThreatDetailsModalContext.Provider
+					value={ {
+						showThreatDetails,
+						closeModal: modalProps.onRequestClose as () => void,
+						onShowThreatDetailsClick: useCallback(
+							() => setShowThreatDetails( true ),
+							[ setShowThreatDetails ]
+						),
+						onContinueClick: useCallback(
+							() => setShowThreatDetails( false ),
+							[ setShowThreatDetails ]
+						),
+					} }
 				>
-					<UserConnectionGate
-						closeModal={ modalProps.onRequestClose as () => void }
-						isUserConnected={ isUserConnected }
-						hasConnectedOwner={ hasConnectedOwner }
-						userIsConnecting={ userIsConnecting }
-						handleConnectUser={ handleConnectUser }
-						showThreatDetails={ showThreatDetails }
-						setShowThreatDetails={ setShowThreatDetails }
+					<ThreatDetailsGate
+						title={ title }
+						threat={ threat }
+						fixerState={ fixerState }
+						handleUpgradeClick={ handleUpgradeClick }
 					>
-						<CredentialsGate
-							closeModal={ modalProps.onRequestClose as () => void }
+						<ThreatFixerModal
+							title={ title }
+							threat={ threat }
+							isUserConnected={ isUserConnected }
+							hasConnectedOwner={ hasConnectedOwner }
+							userIsConnecting={ userIsConnecting }
+							handleConnectUser={ handleConnectUser }
 							credentials={ credentials }
 							credentialsIsFetching={ credentialsIsFetching }
 							credentialsRedirectUrl={ credentialsRedirectUrl }
-							showThreatDetails={ showThreatDetails }
-							setShowThreatDetails={ setShowThreatDetails }
-						>
-							<ThreatNotice fixerState={ fixerState } />
-							<ThreatSummary threat={ threat } title={ title } />
-							<ThreatFixDetails threat={ threat } handleUpgradeClick={ handleUpgradeClick } />
-							<ThreatTechnicalDetails threat={ threat } />
-							<ThreatActions
-								threat={ threat }
-								closeModal={ modalProps.onRequestClose as () => void }
-								handleFixThreatClick={ handleFixThreatClick }
-								handleIgnoreThreatClick={ handleIgnoreThreatClick }
-								handleUnignoreThreatClick={ handleUnignoreThreatClick }
-								showThreatDetails={ showThreatDetails }
-								setShowThreatDetails={ setShowThreatDetails }
-								fixerState={ fixerState }
-							/>
-						</CredentialsGate>
-					</UserConnectionGate>
-				</ThreatDetailsGate>
+							fixerState={ fixerState }
+							handleUpgradeClick={ handleUpgradeClick }
+							handleFixThreatClick={ handleFixThreatClick }
+							handleIgnoreThreatClick={ handleIgnoreThreatClick }
+							handleUnignoreThreatClick={ handleUnignoreThreatClick }
+						/>
+					</ThreatDetailsGate>
+				</ThreatDetailsModalContext.Provider>
 			</div>
 		</Modal>
 	);

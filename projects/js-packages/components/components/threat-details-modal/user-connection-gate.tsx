@@ -1,47 +1,37 @@
 import { Text, Button } from '@automattic/jetpack-components';
 import { Notice } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import React, { ReactNode, Dispatch, SetStateAction, useCallback } from 'react';
+import React, { ReactNode, useContext } from 'react';
 import styles from './styles.module.scss';
+import { ThreatDetailsModalContext } from '.';
 
 /**
  * UserConnectionGate component
  *
- * @param {object}                            props                      - The component props.
- * @param {Function}                          props.closeModal           - Function to close the modal.
- * @param {boolean}                           props.isUserConnected      - Whether the current user is connected.
- * @param {boolean}                           props.hasConnectedOwner    - Whether the site has a connected owner.
- * @param {boolean}                           props.userIsConnecting     - Whether the user connection process is in progress.
- * @param {Function}                          props.handleConnectUser    - Function to handle the user connection process.
- * @param {boolean}                           [props.showThreatDetails]  - Whether to show the threat details.
- * @param {Dispatch<SetStateAction<boolean>>} props.setShowThreatDetails - Function to toggle threat details visibility.
- * @param {ReactNode}                         props.children             - The child components to render if the user is connected.
+ * @param {object}    props                   - The component props.
+ * @param {boolean}   props.isUserConnected   - Whether the current user is connected.
+ * @param {boolean}   props.hasConnectedOwner - Whether the site has a connected owner.
+ * @param {boolean}   props.userIsConnecting  - Whether the user connection process is in progress.
+ * @param {Function}  props.handleConnectUser - Function to handle the user connection process.
+ * @param {ReactNode} props.children          - The child components to render if the user is connected.
  *
  * @return {JSX.Element} The rendered UserConnectionGate component.
  */
 const UserConnectionGate = ( {
-	closeModal,
 	isUserConnected,
 	hasConnectedOwner,
 	userIsConnecting,
 	handleConnectUser,
-	showThreatDetails,
-	setShowThreatDetails,
 	children,
 }: {
-	closeModal: () => void;
 	isUserConnected: boolean;
 	hasConnectedOwner: boolean;
 	userIsConnecting: boolean;
 	handleConnectUser: () => void;
-	showThreatDetails?: boolean;
-	setShowThreatDetails: Dispatch< SetStateAction< boolean > >;
 	children: ReactNode;
 } ) => {
-	const onShowThreatDetailsClick = useCallback(
-		() => setShowThreatDetails( true ),
-		[ setShowThreatDetails ]
-	);
+	const { closeModal, showThreatDetails, onShowThreatDetailsClick } =
+		useContext( ThreatDetailsModalContext );
 
 	if ( ! isUserConnected || ! hasConnectedOwner ) {
 		return (
