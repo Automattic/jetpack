@@ -5,8 +5,8 @@ import {
 	PLAN_JETPACK_VIDEOPRESS,
 	PLAN_JETPACK_ANTI_SPAM,
 	PLAN_JETPACK_BACKUP_T1_YEARLY,
-	PLAN_JETPACK_CREATOR_YEARLY,
 	getPlanClass,
+	PLAN_JETPACK_GROWTH_YEARLY,
 } from 'lib/plans/constants';
 import { assign, difference, get, isArray, isEmpty, mergeWith, union } from 'lodash';
 import {
@@ -65,7 +65,7 @@ import {
 	getSitePurchases,
 	hasActiveProductPurchase,
 	hasActiveSecurityPurchase,
-	hasActiveCreatorPurchase,
+	hasActiveGrowthPurchase,
 	siteHasFeature,
 	isFetchingSiteData,
 	hasActiveAntiSpamPurchase,
@@ -575,8 +575,8 @@ export const getProductSlugForStep = ( state, step ) => {
 			}
 			break;
 		case 'newsletter':
-			if ( ! hasActiveCreatorPurchase( state ) ) {
-				return PLAN_JETPACK_CREATOR_YEARLY;
+			if ( ! hasActiveGrowthPurchase( state ) ) {
+				return PLAN_JETPACK_GROWTH_YEARLY;
 			}
 			break;
 		case 'anti-spam':
