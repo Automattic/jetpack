@@ -281,6 +281,7 @@ export const Prompt = ( { initialPrompt = '' }: PromptProps ) => {
 				setPrompt={ setPrompt }
 				generateHandler={ onGenerate }
 				disabled={ isBusy || requireUpgrade }
+				actionDisabled={ isBusy || requireUpgrade || ! hasPrompt }
 				placeholder={ __(
 					'Describe your site or simply ask for a logo specifying some details about it',
 					'jetpack-ai-client'
