@@ -20,7 +20,7 @@ import UserConnectionGate from './user-connection-gate';
  * @param {boolean}  props.hasConnectedOwner         - Whether the user has a connected owner.
  * @param {boolean}  props.userIsConnecting          - Whether the user is connecting.
  * @param {Function} props.handleConnectUser         - The handleConnectUser function.
- * @param {boolean}  props.credentials               - Whether the user has credentials.
+ * @param {object}   props.credentials               - The credentials.
  * @param {boolean}  props.credentialsIsFetching     - Whether the credentials are fetching.
  * @param {string}   props.credentialsRedirectUrl    - The credentials redirect URL.
  * @param {Function} props.handleUpgradeClick        - The handleUpgradeClick function.
@@ -50,7 +50,7 @@ export default function ThreatDetailsModal( {
 	hasConnectedOwner: boolean;
 	userIsConnecting: boolean;
 	handleConnectUser: () => void;
-	credentials: boolean;
+	credentials: false | Record< string, unknown >[];
 	credentialsIsFetching: boolean;
 	credentialsRedirectUrl: string;
 	handleUpgradeClick?: () => void;

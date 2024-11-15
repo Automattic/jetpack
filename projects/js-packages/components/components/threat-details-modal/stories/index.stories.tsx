@@ -105,7 +105,7 @@ ThreatResult.args = {
 	},
 	isUserConnected: true,
 	hasConnectedOwner: true,
-	credentials: true,
+	credentials: [ { type: 'managed', role: 'main', still_valid: true } ],
 	handleFixThreatClick: () => {},
 	handleIgnoreThreatClick: () => {},
 	handleUnignoreThreatClick: () => {},
@@ -130,6 +130,6 @@ VulnerableExtension.args = {
 	},
 	isUserConnected: true,
 	hasConnectedOwner: true,
-	credentials: true,
+	credentials: [ { type: 'managed', role: 'main', still_valid: true } ],
 	handleUpgradeClick: () => {},
 };

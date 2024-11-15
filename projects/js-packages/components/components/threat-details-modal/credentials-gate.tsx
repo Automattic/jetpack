@@ -12,7 +12,7 @@ const CredentialsGate = ( {
 	children,
 }: {
 	closeModal: () => void;
-	credentials: boolean;
+	credentials: false | Record< string, unknown >[];
 	credentialsIsFetching: boolean;
 	credentialsRedirectUrl: string;
 	children: ReactNode;
