@@ -19,7 +19,7 @@ const ThreatFixDetails = ( {
 	handleUpgradeClick,
 }: {
 	threat: Threat;
-	handleUpgradeClick: () => void;
+	handleUpgradeClick?: () => void;
 } ): JSX.Element => {
 	const title = useMemo( () => {
 		if ( threat.status === 'fixed' ) {

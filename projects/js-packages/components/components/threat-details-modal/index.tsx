@@ -108,6 +108,7 @@ export default function ThreatDetailsModal( {
 						<ThreatFixerModal
 							title={ title }
 							threat={ threat }
+							fixerState={ fixerState }
 							isUserConnected={ isUserConnected }
 							hasConnectedOwner={ hasConnectedOwner }
 							userIsConnecting={ userIsConnecting }
@@ -115,8 +116,6 @@ export default function ThreatDetailsModal( {
 							credentials={ credentials }
 							credentialsIsFetching={ credentialsIsFetching }
 							credentialsRedirectUrl={ credentialsRedirectUrl }
-							fixerState={ fixerState }
-							handleUpgradeClick={ handleUpgradeClick }
 							handleFixThreatClick={ handleFixThreatClick }
 							handleIgnoreThreatClick={ handleIgnoreThreatClick }
 							handleUnignoreThreatClick={ handleUnignoreThreatClick }

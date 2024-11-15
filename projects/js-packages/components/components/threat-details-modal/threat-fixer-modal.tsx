@@ -10,6 +10,7 @@ import UserConnectionGate from './user-connection-gate';
 const ThreatFixerModal = ( {
 	title,
 	threat,
+	fixerState,
 	isUserConnected,
 	hasConnectedOwner,
 	userIsConnecting,
@@ -17,14 +18,13 @@ const ThreatFixerModal = ( {
 	credentials,
 	credentialsIsFetching,
 	credentialsRedirectUrl,
-	fixerState,
-	handleUpgradeClick,
 	handleFixThreatClick,
 	handleIgnoreThreatClick,
 	handleUnignoreThreatClick,
 }: {
 	title: string;
 	threat: Threat;
+	fixerState: { inProgress: boolean; error: boolean; stale: boolean };
 	isUserConnected: boolean;
 	hasConnectedOwner: boolean;
 	userIsConnecting: boolean;
@@ -32,8 +32,6 @@ const ThreatFixerModal = ( {
 	credentials: false | Record< string, unknown >[];
 	credentialsIsFetching: boolean;
 	credentialsRedirectUrl: string;
-	fixerState: { inProgress: boolean; error: boolean; stale: boolean };
-	handleUpgradeClick: () => void;
 	handleFixThreatClick?: ( threats: Threat[] ) => void;
 	handleIgnoreThreatClick?: ( threats: Threat[] ) => void;
 	handleUnignoreThreatClick?: ( threats: Threat[] ) => void;
@@ -52,7 +50,7 @@ const ThreatFixerModal = ( {
 			>
 				<ThreatNotice fixerState={ fixerState } />
 				<ThreatSummary threat={ threat } title={ title } />
-				<ThreatFixDetails threat={ threat } handleUpgradeClick={ handleUpgradeClick } />
+				<ThreatFixDetails threat={ threat } />
 				<ThreatTechnicalDetails threat={ threat } />
 				<ThreatActions
 					threat={ threat }
