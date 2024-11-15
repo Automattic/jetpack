@@ -988,7 +988,7 @@ if ( ! class_exists( 'Jetpack_Custom_CSS_Enhancements' ) ) {
 			list( $width, $height ) = $dims;
 
 			// @phan-suppress-next-line PhanUndeclaredClassInCallable
-			if ( class_exists( 'Jetpack' ) && is_callable( 'Jetpack::get_content_width' ) && 'large' === $size && 'edit' === $context ) {
+			if ( class_exists( 'Jetpack' ) && 'large' === $size && 'edit' === $context ) {
 				// @phan-suppress-next-line PhanUndeclaredClassMethod
 				$width = Jetpack::get_content_width();
 			}
@@ -1030,7 +1030,7 @@ if ( ! class_exists( 'Jetpack_Custom_CSS_Enhancements' ) ) {
 			}
 
 			// @phan-suppress-next-line PhanUndeclaredClassInCallable
-			if ( class_exists( 'Jetpack' ) && is_callable( 'Jetpack::get_content_width' ) ) {
+			if ( class_exists( 'Jetpack' ) ) {
 				// @phan-suppress-next-line PhanUndeclaredClassMethod
 				$GLOBALS['content_width'] = Jetpack::get_content_width();
 			}
@@ -1079,7 +1079,7 @@ if ( ! class_exists( 'Jetpack_Custom_CSS_Enhancements' ) ) {
 		 */
 		public static function custom_css_loaded() {
 			// @phan-suppress-next-line PhanUndeclaredClassInCallable
-			if ( class_exists( 'Jetpack' ) && is_callable( 'Jetpack::enable_module_configurable' ) ) {
+			if ( class_exists( 'Jetpack' ) ) {
 				// @phan-suppress-next-line PhanUndeclaredClassMethod
 				Jetpack::enable_module_configurable( __FILE__ );
 			}
