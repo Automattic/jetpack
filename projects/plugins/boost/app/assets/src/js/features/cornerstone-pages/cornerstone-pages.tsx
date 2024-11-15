@@ -8,6 +8,41 @@ import { recordBoostEvent } from '$lib/utils/analytics';
 import { useCornerstonePages } from './lib/stores/cornerstone-pages';
 import Pill from '$features/ui/pill/pill';
 
+const CornerstonePages = () => {
+	const premiumFeatures = usePremiumFeatures();
+	const isPremium = premiumFeatures.includes( 'cornerstone-10-pages' );
+
+	return (
+		<div className={ styles[ 'cornerstone-pages' ] }>
+			<Panel className={ styles.panel }>
+				<PanelBody
+					title={
+						<div>
+							<h3>
+								{ __( 'Cornerstone Pages', 'jetpack-boost' ) }
+								<Pill text={ __( 'Experimental', 'jetpack-boost' ) } />
+								{ isPremium && <Upgraded /> }
+							</h3>
+							<CornerstoneTitleSummary />
+						</div>
+					}
+					initialOpen={ false }
+					onToggle={ ( value: boolean ) => {
+						recordBoostEvent( 'cornerstone_pages_panel_toggle', {
+							status: value ? 'open' : 'close',
+						} );
+					} }
+					className={ styles.body }
+				>
+					<PanelRow>
+						<Meta />
+					</PanelRow>
+				</PanelBody>
+			</Panel>
+		</div>
+	);
+};
+
 const CornerstoneTitleSummary = () => {
 	const [ cornerstonePages ] = useCornerstonePages();
 	if ( ! cornerstonePages.length ) {
@@ -41,40 +76,6 @@ const CornerstoneTitleSummary = () => {
 				cornerstonePages.length
 			);
 		}
-	);
-};
-const CornerstonePages = () => {
-	const premiumFeatures = usePremiumFeatures();
-	const isPremium = premiumFeatures.includes( 'cornerstone-10-pages' );
-
-	return (
-		<div className={ styles[ 'cornerstone-pages' ] }>
-			<Panel className={ styles.panel }>
-				<PanelBody
-					title={
-						<div>
-							<h3>
-								{ __( 'Cornerstone Pages', 'jetpack-boost' ) }
-								<Pill text={ __( 'Experimental', 'jetpack-boost' ) } />
-								{ isPremium && <Upgraded /> }
-							</h3>
-							<CornerstoneTitleSummary />
-						</div>
-					}
-					initialOpen={ false }
-					onToggle={ ( value: boolean ) => {
-						recordBoostEvent( 'cornerstone_pages_panel_toggle', {
-							status: value ? 'open' : 'close',
-						} );
-					} }
-					className={ styles.body }
-				>
-					<PanelRow>
-						<Meta />
-					</PanelRow>
-				</PanelBody>
-			</Panel>
-		</div>
 	);
 };
 
