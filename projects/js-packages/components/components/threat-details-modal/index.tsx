@@ -1,26 +1,32 @@
-import { Button, ThreatSeverityBadge } from '@automattic/jetpack-components';
 import { type Threat, getFixerState } from '@automattic/jetpack-scan';
-import { Modal, Notice } from '@wordpress/components';
+import { Modal } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { useMemo } from 'react';
-import Text from '../text';
-import CredentialsGate from './credentials-gate';
+import { useMemo, useState, createContext, useCallback } from 'react';
 import styles from './styles.module.scss';
-import ThreatActions from './threat-actions';
-import ThreatFixDetails from './threat-fix-details';
-import ThreatTechnicalDetails from './threat-technical-details';
-import UserConnectionGate from './user-connection-gate';
+import ThreatDetailsGate from './threat-details-gate';
+import ThreatFixConfirmation from './threat-fix-confirmation';
+interface ThreatDetailsModalContextType {
+	closeModal: () => void;
+	showThreatDetails: boolean;
+	onShowThreatDetailsClick: () => void;
+	onContinueClick: () => void;
+}
+
+export const ThreatDetailsModalContext = createContext< ThreatDetailsModalContextType | null >(
+	null
+);
 
 /**
  * ThreatDetailsModal component
  *
  * @param {object}   props                           - The props.
  * @param {object}   props.threat                    - The threat.
+ * @param {boolean}  props.showDetails               - Whether to show the details.
  * @param {boolean}  props.isUserConnected           - Whether the user is connected.
  * @param {boolean}  props.hasConnectedOwner         - Whether the user has a connected owner.
  * @param {boolean}  props.userIsConnecting          - Whether the user is connecting.
  * @param {Function} props.handleConnectUser         - The handleConnectUser function.
- * @param {boolean}  props.credentials               - Whether the user has credentials.
+ * @param {object}   props.credentials               - The credentials.
  * @param {boolean}  props.credentialsIsFetching     - Whether the credentials are fetching.
  * @param {string}   props.credentialsRedirectUrl    - The credentials redirect URL.
  * @param {Function} props.handleUpgradeClick        - The handleUpgradeClick function.
@@ -32,6 +38,7 @@ import UserConnectionGate from './user-connection-gate';
  */
 export default function ThreatDetailsModal( {
 	threat,
+	showDetails = true,
 	isUserConnected,
 	hasConnectedOwner,
 	userIsConnecting,
@@ -46,11 +53,12 @@ export default function ThreatDetailsModal( {
 	...modalProps
 }: {
 	threat: Threat;
+	showDetails?: boolean;
 	isUserConnected: boolean;
 	hasConnectedOwner: boolean;
 	userIsConnecting: boolean;
 	handleConnectUser: () => void;
-	credentials: boolean;
+	credentials: false | Record< string, unknown >[];
 	credentialsIsFetching: boolean;
 	credentialsRedirectUrl: string;
 	handleUpgradeClick?: () => void;
@@ -59,6 +67,8 @@ export default function ThreatDetailsModal( {
 	handleUnignoreThreatClick?: ( threats: Threat[] ) => void;
 	[ key: string ]: unknown;
 } ): JSX.Element {
+	const [ showThreatDetails, setShowThreatDetails ] = useState( showDetails );
+
 	const fixerState = useMemo( () => {
 		return getFixerState( threat.fixer );
 	}, [ threat.fixer ] );
@@ -78,70 +88,43 @@ export default function ThreatDetailsModal( {
 	return (
 		<Modal size="large" __experimentalHideHeader { ...modalProps }>
 			<div className={ styles[ 'threat-details' ] }>
-				<UserConnectionGate
-					closeModal={ modalProps.onRequestClose as () => void }
-					isUserConnected={ isUserConnected }
-					hasConnectedOwner={ hasConnectedOwner }
-					userIsConnecting={ userIsConnecting }
-					handleConnectUser={ handleConnectUser }
+				<ThreatDetailsModalContext.Provider
+					value={ {
+						showThreatDetails,
+						closeModal: modalProps.onRequestClose as () => void,
+						onShowThreatDetailsClick: useCallback(
+							() => setShowThreatDetails( true ),
+							[ setShowThreatDetails ]
+						),
+						onContinueClick: useCallback(
+							() => setShowThreatDetails( false ),
+							[ setShowThreatDetails ]
+						),
+					} }
 				>
-					<CredentialsGate
-						closeModal={ modalProps.onRequestClose as () => void }
-						credentials={ credentials }
-						credentialsIsFetching={ credentialsIsFetching }
-						credentialsRedirectUrl={ credentialsRedirectUrl }
+					<ThreatDetailsGate
+						title={ title }
+						threat={ threat }
+						fixerState={ fixerState }
+						handleUpgradeClick={ handleUpgradeClick }
 					>
-						{ fixerState.error && (
-							<Notice isDismissible={ false } status="error">
-								<Text>{ __( 'An error occurred auto-fixing this threat.', 'jetpack' ) }</Text>
-							</Notice>
-						) }
-						{ fixerState.stale && (
-							<Notice isDismissible={ false } status="error">
-								<Text>{ __( 'The auto-fixer is taking longer than expected.', 'jetpack' ) }</Text>
-							</Notice>
-						) }
-						{ fixerState.inProgress && ! fixerState.stale && (
-							<Notice isDismissible={ false } status="success">
-								<Text>{ __( 'The auto-fixer is in progress.', 'jetpack' ) }</Text>
-							</Notice>
-						) }
-						<div className={ styles.section }>
-							<div className={ styles.title }>
-								<Text variant="title-small">{ title }</Text>
-								{ !! threat.severity && <ThreatSeverityBadge severity={ threat.severity } /> }
-							</div>
-
-							{ !! threat.description && <Text>{ threat.description }</Text> }
-
-							{ !! threat.source && (
-								<div>
-									<Button
-										variant="link"
-										isExternalLink={ true }
-										weight="regular"
-										href={ threat.source }
-									>
-										{ __( 'See more technical details of this threat', 'jetpack' ) }
-									</Button>
-								</div>
-							) }
-						</div>
-
-						<ThreatFixDetails threat={ threat } handleUpgradeClick={ handleUpgradeClick } />
-
-						<ThreatTechnicalDetails threat={ threat } />
-
-						<ThreatActions
+						<ThreatFixConfirmation
+							title={ title }
 							threat={ threat }
-							closeModal={ modalProps.onRequestClose as () => void }
+							fixerState={ fixerState }
+							isUserConnected={ isUserConnected }
+							hasConnectedOwner={ hasConnectedOwner }
+							userIsConnecting={ userIsConnecting }
+							handleConnectUser={ handleConnectUser }
+							credentials={ credentials }
+							credentialsIsFetching={ credentialsIsFetching }
+							credentialsRedirectUrl={ credentialsRedirectUrl }
 							handleFixThreatClick={ handleFixThreatClick }
 							handleIgnoreThreatClick={ handleIgnoreThreatClick }
 							handleUnignoreThreatClick={ handleUnignoreThreatClick }
-							fixerState={ fixerState }
 						/>
-					</CredentialsGate>
-				</UserConnectionGate>
+					</ThreatDetailsGate>
+				</ThreatDetailsModalContext.Provider>
 			</div>
 		</Modal>
 	);

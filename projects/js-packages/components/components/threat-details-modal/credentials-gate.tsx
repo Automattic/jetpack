@@ -1,22 +1,36 @@
 import { Text, Button } from '@automattic/jetpack-components';
 import { Notice } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useContext } from 'react';
 import styles from './styles.module.scss';
+import { ThreatDetailsModalContext } from '.';
 
+/**
+ * CredentialsGate component
+ *
+ * @param {object}                            props                        - The component props.
+ * @param {false | Record<string, unknown>[]} props.credentials            - The server credentials, or `false` if not set.
+ * @param {boolean}                           props.credentialsIsFetching  - Whether the credentials are being fetched.
+ * @param {string}                            props.credentialsRedirectUrl - The URL to redirect the user to set credentials.
+ * @param {ReactNode}                         props.children               - The child components to render if credentials are set.
+ *
+ * @return {JSX.Element} The rendered CredentialsGate component.
+ */
 const CredentialsGate = ( {
-	closeModal,
 	credentials,
 	credentialsIsFetching,
 	credentialsRedirectUrl,
 	children,
 }: {
-	closeModal: () => void;
-	credentials: boolean;
+	credentials: false | Record< string, unknown >[];
 	credentialsIsFetching: boolean;
 	credentialsRedirectUrl: string;
+
 	children: ReactNode;
 } ) => {
+	const { closeModal, showThreatDetails, onShowThreatDetailsClick } =
+		useContext( ThreatDetailsModalContext );
+
 	if ( ! credentials || credentials.length === 0 ) {
 		return (
 			<>
@@ -49,9 +63,16 @@ const CredentialsGate = ( {
 				</Text>
 
 				<div className={ styles[ 'modal-actions' ] }>
-					<Button variant="secondary" onClick={ closeModal }>
-						{ __( 'Not now', 'jetpack' ) }
-					</Button>
+					<div className={ styles[ 'threat-actions' ] }>
+						{ ! showThreatDetails && (
+							<Button onClick={ onShowThreatDetailsClick }>
+								{ __( 'Threat details', 'jetpack' ) }
+							</Button>
+						) }
+						<Button variant="secondary" onClick={ closeModal }>
+							{ __( 'Close', 'jetpack' ) }
+						</Button>
+					</div>
 					<Button
 						isExternalLink={ true }
 						weight="regular"
