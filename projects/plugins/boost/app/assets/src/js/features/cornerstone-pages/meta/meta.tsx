@@ -38,6 +38,8 @@ const Meta = () => {
 
 	let content = null;
 
+	const listInputRows = isPremium ? 10 : 5;
+
 	if ( cornerstonePagesProperties !== undefined ) {
 		content = (
 			<List
@@ -45,6 +47,7 @@ const Meta = () => {
 				setItems={ updateCornerstonePages }
 				maxItems={ cornerstonePagesProperties.max_pages }
 				defaultValue={ cornerstonePagesProperties.default_pages.join( '\n' ) }
+				inputRows={ listInputRows }
 				description={
 					<>
 						{ createInterpolateElement(
@@ -124,6 +127,7 @@ type ListProps = {
 	maxItems: number;
 	description: React.ReactNode | null;
 	defaultValue?: string;
+	inputRows?: number;
 };
 
 const List: React.FC< ListProps > = ( {
@@ -132,6 +136,7 @@ const List: React.FC< ListProps > = ( {
 	maxItems,
 	description,
 	defaultValue,
+	inputRows = 10,
 } ) => {
 	const [ inputValue, setInputValue ] = useState( items );
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -139,7 +144,6 @@ const List: React.FC< ListProps > = ( {
 	const [ validationError, setValidationError ] = useState< Error | null >( null );
 	const premiumFeatures = usePremiumFeatures();
 	const isPremium = premiumFeatures.includes( 'cornerstone-10-pages' );
-	const inputRows = Math.min( maxItems, 10 );
 	const cornerstonePagesProperties = useCornerstonePagesProperties();
 
 	const validateInputValue = ( value: string ) => {
