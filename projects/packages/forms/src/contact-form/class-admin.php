@@ -981,13 +981,14 @@ class Admin {
 			}
 		}
 
+		$field_shortcodes = array();
+
 		if ( isset( $_POST['fields'] ) && is_array( $_POST['fields'] ) ) {
 			$fields = array_map(
 				function ( $field ) {
 					if ( is_array( $field ) ) {
-						$keys_to_sanitize = array( 'label', 'type', 'required' );
 
-						foreach ( $keys_to_sanitize as $key ) {
+						foreach ( array( 'label', 'type', 'required' ) as $key ) {
 							if ( isset( $field[ $key ] ) ) {
 								$field[ $key ] = sanitize_text_field( wp_unslash( $field[ $key ] ) );
 							}
@@ -1002,8 +1003,6 @@ class Admin {
 				$_POST['fields'] // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- each item sanitized above.
 			);
 			usort( $fields, array( $this, 'grunion_sort_objects' ) );
-
-			$field_shortcodes = array();
 
 			foreach ( $fields as $field ) {
 				$field_attributes = array();
