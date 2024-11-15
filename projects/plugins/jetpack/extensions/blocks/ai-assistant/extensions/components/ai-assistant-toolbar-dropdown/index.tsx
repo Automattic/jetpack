@@ -53,7 +53,7 @@ function AiAssistantExtensionToolbarDropdownContent( {
 		} ) => {
 			const selectedBlockIds = getSelectedBlockClientIds();
 			const [ clientId ] = selectedBlockIds;
-			const alwaysTransform = request.options.alwaysTransformToAIAssistant || false;
+			const alwaysTransform = request?.options?.alwaysTransformToAIAssistant || false;
 
 			if (
 				( selectedBlockIds.length < 2 ||

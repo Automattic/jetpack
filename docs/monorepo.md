@@ -315,6 +315,53 @@ For JS tests, you'll probably have a `test` script in package.json that runs `je
 
 There's no need to be concerned about collisions with other projects' coverage files, a separate directory is used per project. The coverage files are also automatically copied to `ARTIFACTS_DIR`.
 
+If you want to generate coverage locally, e.g. with `jetpack test coverage`, note that generating PHP coverage requires the [pcov](https://pecl.php.net/package/pcov) or [xdebug](https://pecl.php.net/package/xdebug) extensions. We use `pcov` for the CI runs; results from `xdebug` may be slightly different.
+
+<details><summary>Installing the PHP pcov extension on Linux</summary>
+
+On most Linux distributions, you can install the PHP pcov extension using your package manager:
+
+- For Ubuntu/Debian-based systems:
+  ```
+  sudo apt-get install php8.2-pcov
+  ```
+- For Arch Linux:
+  Install the AUR package "php-pcov" from https://aur.archlinux.org/packages/php-pcov
+
+For other Linux distributions, consult your package manager's documentation or consider compiling from source.
+
+</details>
+
+Mac users have reported having trouble installing the PHP pcov extension. See the dropdown below for Mac-specific instructions.
+
+<details><summary>Installing the PHP pcov extension on Mac</summary>
+
+This assumes you have PHP installed via Homebrew, e.g. you've done `brew install php@8.2`.
+
+1. First, check whether pcov is already installed by running `php --ri pcov`. If it prints something like this, you should already be good:
+   ```
+   pcov
+
+   PCOV support => Enabled
+   PCOV version => 1.0.11
+   pcov.directory => /some/path/
+   pcov.exclude => none
+   pcov.initial.memory => 65336 bytes
+   pcov.initial.files => 64
+   ```
+2. You may need to `brew install pkg-config zlib` to install some necessary dependencies.
+3. Update the list of available extensions: `pecl channel-update pecl.php.net`
+4. Build the extension: `pecl install pcov`
+   - If the build process fails due to mkdir errors with the pecl directory, you might try `mkdir -p /opt/homebrew/lib/php/pecl` and running the install again.
+5. You may also need to tell PHP where to find the newly-installed extension.
+   1. Run `pecl config-get ext_dir` to find where pecl installs extensions.
+   2. Run `php -r 'echo ini_get( "extension_dir" ) . "\n";'` to find where PHP currently expects extensions to live.
+   3. If those are the same, great! If not, you have two options:
+      * If PHP's current directory is empty, you could find your `php.ini` file (`php --ini`) and change `extension_dir` to pecl's location.
+      * Or else, pecl probably added `extension=pcov.so` to an ini file somewhere. You could change the `pcov.so` value to be the full path inside pecl's directory.
+
+</details>
+
 ## Mirror repositories
 
 Most projects in the monorepo should have a mirror repository holding a built version of the project, ready for deployment. Follow these steps to create the mirror repo and configure the monorepo tooling to push to it.

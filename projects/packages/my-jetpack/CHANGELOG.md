@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.0.0] - 2024-11-14
+### Removed
+- General: Update minimum PHP version to 7.2. [#40147]
+
 ## [4.37.0] - 2024-11-11
 ### Added
 - My Jetpack: update the recommendations section in My Jetpack to include a slider interaction for the cards. [#39850]
@@ -1807,6 +1811,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[5.0.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.37.0...5.0.0
 [4.37.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.36.0...4.37.0
 [4.36.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.35.16...4.36.0
 [4.35.16]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.35.15...4.35.16

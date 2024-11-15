@@ -15,7 +15,7 @@ use Automattic\Jetpack\Protect_Models\Status_Model;
  */
 class Status {
 
-	const PACKAGE_VERSION = '0.2.2';
+	const PACKAGE_VERSION = '0.3.0';
 	/**
 	 * Name of the option where status is stored
 	 *
@@ -179,7 +179,7 @@ class Status {
 	/**
 	 * Get threats found for WordPress core
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 0.3.0
 	 *
 	 * @return array
 	 */
@@ -190,7 +190,7 @@ class Status {
 	/**
 	 * Get threats found for themes
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 0.3.0
 	 *
 	 * @return array
 	 */
@@ -201,7 +201,7 @@ class Status {
 	/**
 	 * Get threats found for plugins
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 0.3.0
 	 *
 	 * @return array
 	 */
@@ -212,7 +212,7 @@ class Status {
 	/**
 	 * Get threats found for files
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 0.3.0
 	 *
 	 * @return array
 	 */
@@ -223,7 +223,7 @@ class Status {
 	/**
 	 * Get threats found for plugins
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 0.3.0
 	 *
 	 * @return array
 	 */
@@ -304,7 +304,7 @@ class Status {
 	/**
 	 * Sort By Threats
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 0.3.0
 	 *
 	 * @param array<object> $threats Array of threats to sort.
 	 *

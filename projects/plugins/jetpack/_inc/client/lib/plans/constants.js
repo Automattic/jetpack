@@ -90,6 +90,9 @@ export const PLAN_JETPACK_GOLDEN_TOKEN_LIFETIME = 'jetpack_golden_token_lifetime
 export const PLAN_JETPACK_CREATOR_MONTHLY = 'jetpack_creator_monthly';
 export const PLAN_JETPACK_CREATOR_YEARLY = 'jetpack_creator_yearly';
 export const PLAN_JETPACK_CREATOR_BI_YEARLY = 'jetpack_creator_bi_yearly';
+export const PLAN_JETPACK_GROWTH_MONTHLY = 'jetpack_growth_monthly';
+export const PLAN_JETPACK_GROWTH_YEARLY = 'jetpack_growth_yearly';
+export const PLAN_JETPACK_GROWTH_BI_YEARLY = 'jetpack_growth_bi_yearly';
 // DEPRECATED: Daily and Real-time variations will soon be retired.
 // Remove after all customers are migrated to new products.
 export const PLAN_JETPACK_BACKUP_DAILY = 'jetpack_backup_daily';
@@ -117,6 +120,7 @@ export const JETPACK_MONTHLY_PLANS = [
 	PLAN_JETPACK_SECURITY_T1_MONTHLY,
 	PLAN_JETPACK_SECURITY_T2_MONTHLY,
 	PLAN_JETPACK_COMPLETE_MONTHLY,
+	PLAN_JETPACK_GROWTH_MONTHLY,
 
 	// DEPRECATED: Daily and Real-time variations will soon be retired.
 	// Remove after all customers are migrated to new products.
@@ -333,6 +337,12 @@ export const JETPACK_CREATOR_PRODUCTS = [
 	PLAN_JETPACK_CREATOR_MONTHLY,
 	PLAN_JETPACK_CREATOR_YEARLY,
 	PLAN_JETPACK_CREATOR_BI_YEARLY,
+];
+
+export const JETPACK_GROWTH_PRODUCTS = [
+	PLAN_JETPACK_GROWTH_MONTHLY,
+	PLAN_JETPACK_GROWTH_YEARLY,
+	PLAN_JETPACK_GROWTH_BI_YEARLY,
 ];
 
 export const PLAN_MONTHLY_PERIOD = 31;
@@ -580,6 +590,16 @@ export function isJetpackCreator( product ) {
 }
 
 /**
+ * Determines if a product is Jetpack Growth.
+ *
+ * @param {string} product - The product id.
+ * @return {boolean} True if the product is Jetpack Growth, false otherwise.
+ */
+export function isJetpackGrowth( product ) {
+	return JETPACK_GROWTH_PRODUCTS.includes( product );
+}
+
+/**
  * Checks if a product slug is a Jetpack product.
  *
  * @param {string} product - The product id.
@@ -757,6 +777,10 @@ export function getPlanClass( plan ) {
 		case PLAN_JETPACK_CREATOR_YEARLY:
 		case PLAN_JETPACK_CREATOR_MONTHLY:
 			return 'is-jetpack-creator-plan';
+		case PLAN_JETPACK_GROWTH_BI_YEARLY:
+		case PLAN_JETPACK_GROWTH_YEARLY:
+		case PLAN_JETPACK_GROWTH_MONTHLY:
+			return 'is-jetpack-growth-plan';
 
 		// DEPRECATED: Daily and Real-time variations will soon be retired.
 		// Remove after all customers are migrated to new products.
@@ -830,6 +854,8 @@ export function getMonthlyPlanByYearly( plan ) {
 			return PLAN_JETPACK_SECURITY_T2_MONTHLY;
 		case PLAN_JETPACK_COMPLETE:
 			return PLAN_JETPACK_COMPLETE_MONTHLY;
+		case PLAN_JETPACK_GROWTH_YEARLY:
+			return PLAN_JETPACK_GROWTH_MONTHLY;
 
 		// DEPRECATED: Daily and Real-time variations will soon be retired.
 		// Remove after all customers are migrated to new products.
