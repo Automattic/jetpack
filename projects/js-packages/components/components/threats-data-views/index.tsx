@@ -56,6 +56,13 @@ import ThreatsStatusToggleGroupControl from './threats-status-toggle-group-contr
  * @param {Function} props.isThreatEligibleForFix      - Function to determine if a threat is eligible for fixing.
  * @param {Function} props.isThreatEligibleForIgnore   - Function to determine if a threat is eligible for ignoring.
  * @param {Function} props.isThreatEligibleForUnignore - Function to determine if a threat is eligible for unignoring.
+ * @param {boolean}  props.isUserConnected             - Whether the user is connected.
+ * @param {boolean}  props.hasConnectedOwner           - Whether the site has a connected owner.
+ * @param {boolean}  props.userIsConnecting            - Whether the user is connecting.
+ * @param {Function} props.handleConnectUser           - Function to handle the user connection process.
+ * @param {object[]} props.credentials                 - The credentials.
+ * @param {boolean}  props.credentialsIsFetching       - Whether the credentials are fetching.
+ * @param {string}   props.credentialsRedirectUrl      - The credentials redirect URL.
  *
  * @return {JSX.Element} The ThreatsDataViews component.
  */
@@ -64,23 +71,37 @@ export default function ThreatsDataViews( {
 	filters,
 	onChangeSelection,
 	handleUpgradeClick,
-	isThreatEligibleForFix,
-	isThreatEligibleForIgnore,
-	isThreatEligibleForUnignore,
 	onFixThreats,
 	onIgnoreThreats,
 	onUnignoreThreats,
+	isThreatEligibleForFix,
+	isThreatEligibleForIgnore,
+	isThreatEligibleForUnignore,
+	isUserConnected,
+	hasConnectedOwner,
+	userIsConnecting,
+	handleConnectUser,
+	credentials,
+	credentialsIsFetching,
+	credentialsRedirectUrl,
 }: {
 	data: Threat[];
 	filters?: Filter[];
 	onChangeSelection?: ( selectedItemIds: string[] ) => void;
 	handleUpgradeClick?: () => void;
-	isThreatEligibleForFix?: ( threat: Threat ) => boolean;
-	isThreatEligibleForIgnore?: ( threat: Threat ) => boolean;
-	isThreatEligibleForUnignore?: ( threat: Threat ) => boolean;
 	onFixThreats?: ( threats: Threat[] ) => void;
 	onIgnoreThreats?: ( threats: Threat[] ) => void;
 	onUnignoreThreats?: ( threats: Threat[] ) => void;
+	isThreatEligibleForFix?: ( threat: Threat ) => boolean;
+	isThreatEligibleForIgnore?: ( threat: Threat ) => boolean;
+	isThreatEligibleForUnignore?: ( threat: Threat ) => boolean;
+	isUserConnected: boolean;
+	hasConnectedOwner: boolean;
+	userIsConnecting: boolean;
+	handleConnectUser: () => void;
+	credentials: false | Record< string, unknown >[];
+	credentialsIsFetching: boolean;
+	credentialsRedirectUrl: string;
 } ): JSX.Element {
 	const baseView = {
 		sort: {
@@ -538,11 +559,19 @@ export default function ThreatsDataViews( {
 			{ openThreat ? (
 				<ThreatDetailsModal
 					threat={ openThreat }
-					onRequestClose={ hideThreatDetails }
+					showDetails={ true }
+					isUserConnected={ isUserConnected }
+					hasConnectedOwner={ hasConnectedOwner }
+					userIsConnecting={ userIsConnecting }
+					handleConnectUser={ handleConnectUser }
+					credentials={ credentials }
+					credentialsIsFetching={ credentialsIsFetching }
+					credentialsRedirectUrl={ credentialsRedirectUrl }
 					handleUpgradeClick={ handleUpgradeClick }
 					handleFixThreatClick={ onFixThreats }
 					handleIgnoreThreatClick={ onIgnoreThreats }
 					handleUnignoreThreatClick={ onUnignoreThreats }
+					onRequestClose={ hideThreatDetails }
 				/>
 			) : null }
 		</>
