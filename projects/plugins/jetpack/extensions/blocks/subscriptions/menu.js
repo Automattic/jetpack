@@ -43,12 +43,12 @@ const NewsletterMenu = ( { openPreviewModal } ) => {
 			icon={ <SendIcon /> }
 		>
 			<PanelBody>
-				{ ! isPublished && <NewsletterEmailDocumentSettings /> }
-				<SubscribersAffirmation accessLevel={ accessLevel } prePublish={ ! isPublished } />
 				{ isSendEmailEnabled && ! isPublished && (
 					<>
 						{ ! shouldPromptForConnection ? (
 							<>
+								{ ! isPublished && <NewsletterEmailDocumentSettings /> }
+								<SubscribersAffirmation accessLevel={ accessLevel } prePublish={ ! isPublished } />
 								<p>
 									{ __(
 										'Ensure your email looks perfect. Use the buttons below to view a preview or send a test email.',
