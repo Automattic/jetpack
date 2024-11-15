@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Open Graph: Always render the Open Graph tags if no other plugins have

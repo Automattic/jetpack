@@ -13,7 +13,7 @@
 
 use Automattic\Jetpack\Status\Host;
 
-add_action( 'wp_head', 'jetpack_og_tags' );
+add_action( 'wp_head', 'jetpack_og_tags', PHP_INT_MAX );
 add_action( 'web_stories_story_head', 'jetpack_og_tags' );
 
 // Add a Fediverse Open Graph Tag when an author has connected their Mastodon account.

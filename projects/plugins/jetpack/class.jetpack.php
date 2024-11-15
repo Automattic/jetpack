@@ -399,6 +399,13 @@ class Jetpack {
 	public $a8c_mc_stats_instance;
 
 	/**
+	 * Holds the constant of the captured output rendered in wp_head
+	 *
+	 * @var string
+	 */
+	private $captured_output;
+
+	/**
 	 * Constant for login redirect key.
 	 *
 	 * @var string
@@ -672,7 +679,9 @@ class Jetpack {
 		 * These actions run checks to load additional files.
 		 * They check for external files or plugins, so they need to run as late as possible.
 		 */
-		add_action( 'wp_head', array( $this, 'check_open_graph' ), 1 );
+		add_action( 'wp_head', array( $this, 'start_head_capture' ), 0 );
+		add_action( 'wp_head', array( $this, 'check_open_graph' ), 9999 );
+		// TODO: Check if the OG tag detection breaks web stories.
 		add_action( 'web_stories_story_head', array( $this, 'check_open_graph' ), 1 );
 		add_action( 'plugins_loaded', array( $this, 'check_twitter_tags' ), 999 );
 		add_action( 'plugins_loaded', array( $this, 'check_rest_api_compat' ), 1000 );
@@ -1841,6 +1850,25 @@ class Jetpack {
 	}
 
 	/**
+	 * Starts output bufferring to capture the output during wp_head
+	 */
+	public function start_head_capture() {
+		ob_start( array( $this, 'capture_head' ) );
+	}
+
+	/**
+	 * Callback that is used to capture the output during wp_head.
+	 *
+	 * @param string $output The text that is has been captured in the output buffer.
+	 * @return string The possibly modified in string. In this case it is passed through untouched.
+	 */
+	public function capture_head( $output ) {
+		$this->captured_output .= $output;
+
+		return $output;
+	}
+
+	/**
 	 * Check if Jetpack's Open Graph tags should be used.
 	 * If certain plugins are active, Jetpack's og tags are suppressed.
 	 *
@@ -1849,19 +1877,33 @@ class Jetpack {
 	 * @return void
 	 */
 	public function check_open_graph() {
-		if ( in_array( 'publicize', self::get_active_modules(), true ) || in_array( 'sharedaddy', self::get_active_modules(), true ) ) {
-			include_once JETPACK__PLUGIN_DIR . 'enhanced-open-graph.php';
-			add_filter( 'jetpack_enable_open_graph', '__return_true', 0 );
-		}
+		include_once JETPACK__PLUGIN_DIR . 'enhanced-open-graph.php';
+		add_filter( 'jetpack_enable_open_graph', '__return_true', 0 );
 
+		// Check for known conflicting plugins.
 		$active_plugins = self::get_active_plugins();
-
 		if ( ! empty( $active_plugins ) ) {
 			foreach ( $this->open_graph_conflicting_plugins as $plugin ) {
 				if ( in_array( $plugin, $active_plugins, true ) ) {
 					add_filter( 'jetpack_enable_open_graph', '__return_false', 99 );
 					break;
 				}
+			}
+		}
+
+		// Check if something has already rendered the OG tags.
+		$status = ob_get_status();
+		// Only end the output buffer if it's ours.
+		if ( ( $status['name'] ?? '' ) === get_class( $this ) . '::capture_head' ) {
+			ob_end_flush();
+		}
+		$processor = new WP_HTML_Tag_Processor( $this->captured_output );
+		while ( $processor->next_tag( 'meta' ) ) {
+			if ( ! empty( $processor->get_attribute( 'content' ) ) &&
+				str_starts_with( strtolower( $processor->get_attribute( 'property' ) ?? '' ), 'og:' ) ) {
+				// We've found an OG tag, so another plugin has included it.
+				add_filter( 'jetpack_enable_open_graph', '__return_false', 99 );
+				break;
 			}
 		}
 
