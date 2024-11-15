@@ -6,7 +6,12 @@ import clsx from 'clsx';
 
 function MediaItem( props ) {
 	const onClick = event => {
-		const { item, index } = props;
+		const { item, index, imageOnly } = props;
+
+		// Skip non-image items if imageOnly flag is set.
+		if ( item.type !== 'image' && imageOnly ) {
+			return;
+		}
 
 		if ( props.onClick ) {
 			props.onClick( event, { item, index } );
