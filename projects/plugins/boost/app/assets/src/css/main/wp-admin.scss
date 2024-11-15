@@ -102,6 +102,16 @@ p {
 			color: $primary-black;
 		}
 	}
+
+	.components-panel__body-title .components-button:hover:not(:disabled,[aria-disabled=true]),
+	.components-panel__body-title .components-button[aria-expanded=true] {
+		color: inherit;
+	}
+
+	.components-panel__body-toggle.components-button:focus {
+		border-radius: inherit;
+		box-shadow: none;
+	}
 }
 
 // Reset WP-Admin styles for boost dashboard
