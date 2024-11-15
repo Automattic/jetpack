@@ -143,7 +143,7 @@ function GooglePhotosMedia( props ) {
 					</>
 				) }
 
-				{ pickerFeatureEnabled && (
+				{ pickerFeatureEnabled && ! isLoading && (
 					<div className="jetpack-external-media-header__change-selection">
 						<Button
 							variant="primary"
