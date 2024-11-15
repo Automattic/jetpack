@@ -816,7 +816,6 @@ export const getProductCardData = ( state, productSlug ) => {
 				} ),
 				productCardCtaText: __( 'Get Jetpack Growth', 'jetpack' ),
 				productCardList: products.growth ? products.growth.features : [],
-				productCardIcon: '/recommendations/creator-icon.svg',
 			};
 		case PLAN_JETPACK_ANTI_SPAM:
 			return {
