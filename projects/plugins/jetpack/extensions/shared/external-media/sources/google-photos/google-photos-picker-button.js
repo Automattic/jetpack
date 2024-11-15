@@ -16,7 +16,7 @@ export default function GooglePhotosPickerButton( props ) {
 	useEffect( () => {
 		const interval = setInterval( () => {
 			pickerSession.id && featchPickerSession( pickerSession.id );
-		}, 5000 );
+		}, 3000 );
 		return () => clearInterval( interval );
 	}, [ featchPickerSession, pickerSession?.id ] );
 
