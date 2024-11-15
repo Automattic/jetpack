@@ -110,7 +110,14 @@ const Meta = () => {
 					{
 						link: (
 							// eslint-disable-next-line jsx-a11y/anchor-has-content
-							<a href={ cornerstonePagesSupportLink } target="_blank" rel="noopener noreferrer" />
+							<a
+								href={ cornerstonePagesSupportLink }
+								target="_blank"
+								rel="noopener noreferrer"
+								onClick={ () => {
+									recordBoostEvent( 'clicked_cornerstone_pages_learn_more', {} );
+								} }
+							/>
 						),
 						b: <b />,
 					}
