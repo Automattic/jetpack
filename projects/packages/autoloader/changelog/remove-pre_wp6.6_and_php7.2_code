@@ -1,5 +1,4 @@
-Significance: patch
+Significance: major
 Type: removed
-Comment: Additional cleanup of old PHP + WP version support.
 
-
+Remove support for WordPress 6.5 and earlier.
