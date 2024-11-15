@@ -283,9 +283,7 @@ class ChangelogEntry implements JsonSerializable {
 			$ret[ $entry->getSubheading() ][] = $entry;
 		}
 
-		return null === $subheading
-			? $ret
-			: ( $ret[ $subheading ] ?? array() );
+		return $ret;
 	}
 
 	/**
