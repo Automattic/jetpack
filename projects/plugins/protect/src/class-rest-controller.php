@@ -10,8 +10,10 @@
 namespace Automattic\Jetpack\Protect;
 
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
+use Automattic\Jetpack\IP\Utils as IP_Utils;
 use Automattic\Jetpack\Protect_Status\REST_Controller as Protect_Status_REST_Controller;
 use Automattic\Jetpack\Waf\Waf_Runner;
+use Automattic\Jetpack\Waf\Waf_Stats;
 use Jetpack_Protect;
 use WP_Error;
 use WP_REST_Request;
@@ -239,7 +241,7 @@ class REST_Controller {
 		$threat_ignored = Threats::ignore_threat( $request['threat_id'] );
 
 		if ( ! $threat_ignored ) {
-			return new WP_REST_Response( 'An error occured while attempting to ignore the threat.', 500 );
+			return new WP_REST_Response( 'An error occurred while attempting to ignore the threat.', 500 );
 		}
 
 		return new WP_REST_Response( 'Threat ignored.' );
@@ -260,7 +262,7 @@ class REST_Controller {
 		$threat_ignored = Threats::unignore_threat( $request['threat_id'] );
 
 		if ( ! $threat_ignored ) {
-			return new WP_REST_Response( 'An error occured while attempting to unignore the threat.', 500 );
+			return new WP_REST_Response( 'An error occurred while attempting to unignore the threat.', 500 );
 		}
 
 		return new WP_REST_Response( 'Threat unignored.' );
@@ -281,7 +283,7 @@ class REST_Controller {
 		$threats_fixed = Threats::fix_threats( $request['threat_ids'] );
 
 		if ( ! $threats_fixed ) {
-			return new WP_REST_Response( 'An error occured while attempting to fix the threat.', 500 );
+			return new WP_REST_Response( 'An error occurred while attempting to fix the threat.', 500 );
 		}
 
 		return new WP_REST_Response( $threats_fixed );
@@ -302,7 +304,7 @@ class REST_Controller {
 		$threats_fixed = Threats::fix_threats_status( $request['threat_ids'] );
 
 		if ( ! $threats_fixed ) {
-			return new WP_REST_Response( 'An error occured while attempting to get the fixer status of the threats.', 500 );
+			return new WP_REST_Response( 'An error occurred while attempting to get the fixer status of the threats.', 500 );
 		}
 
 		return new WP_REST_Response( $threats_fixed );
@@ -317,7 +319,7 @@ class REST_Controller {
 		$credential_array = Credentials::get_credential_array();
 
 		if ( ! isset( $credential_array ) ) {
-			return new WP_REST_Response( 'An error occured while attempting to fetch the credentials array', 500 );
+			return new WP_REST_Response( 'An error occurred while attempting to fetch the credentials array', 500 );
 		}
 
 		return new WP_REST_Response( $credential_array );
@@ -332,7 +334,7 @@ class REST_Controller {
 		$scan_enqueued = Threats::scan();
 
 		if ( ! $scan_enqueued ) {
-			return new WP_REST_Response( 'An error occured while attempting to enqueue the scan.', 500 );
+			return new WP_REST_Response( 'An error occurred while attempting to enqueue the scan.', 500 );
 		}
 
 		return new WP_REST_Response( 'Scan enqueued.' );
@@ -349,7 +351,7 @@ class REST_Controller {
 			if ( ! $disabled ) {
 				return new WP_Error(
 					'waf_disable_failed',
-					__( 'An error occured disabling the firewall.', 'jetpack-protect' ),
+					__( 'An error occurred disabling the firewall.', 'jetpack-protect' ),
 					array( 'status' => 500 )
 				);
 			}
@@ -361,7 +363,7 @@ class REST_Controller {
 		if ( ! $enabled ) {
 			return new WP_Error(
 				'waf_enable_failed',
-				__( 'An error occured enabling the firewall.', 'jetpack-protect' ),
+				__( 'An error occurred enabling the firewall.', 'jetpack-protect' ),
 				array( 'status' => 500 )
 			);
 		}
@@ -380,10 +382,15 @@ class REST_Controller {
 
 		return new WP_REST_Response(
 			array(
-				'is_seen'    => Jetpack_Protect::get_waf_seen_status(),
-				'is_enabled' => Waf_Runner::is_enabled(),
-				'config'     => Waf_Runner::get_config(),
-				'stats'      => Jetpack_Protect::get_waf_stats(),
+				'wafSupported'        => Waf_Runner::is_supported_environment(),
+				'currentIp'           => IP_Utils::get_ip(),
+				'isSeen'              => Jetpack_Protect::get_waf_seen_status(),
+				'upgradeIsSeen'       => Jetpack_Protect::get_waf_upgrade_seen_status(),
+				'displayUpgradeBadge' => Jetpack_Protect::get_waf_upgrade_badge_display_status(),
+				'isEnabled'           => Waf_Runner::is_enabled(),
+				'config'              => Waf_Runner::get_config(),
+				'stats'               => Jetpack_Protect::get_waf_stats(),
+				'globalStats'         => Waf_Stats::get_global_stats(),
 			)
 		);
 	}
@@ -449,7 +456,7 @@ class REST_Controller {
 		$completed = Onboarding::complete_steps( $request['step_ids'] );
 
 		if ( ! $completed ) {
-			return new WP_REST_Response( 'An error occured completing the onboarding step(s).', 500 );
+			return new WP_REST_Response( 'An error occurred completing the onboarding step(s).', 500 );
 		}
 
 		return new WP_REST_Response( 'Onboarding step(s) completed.' );

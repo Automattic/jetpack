@@ -17,7 +17,7 @@ import { count } from '@wordpress/wordcount';
 /**
  * Internal dependencies
  */
-import UpgradePrompt from '../../../../blocks/ai-assistant/components/upgrade-prompt';
+import QuotaExceededMessage from '../../../../blocks/ai-assistant/components/quota-exceeded-message';
 import useAiFeature from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
 import { isBetaExtension } from '../../../../editor';
 import { AiExcerptControl } from '../../components/ai-excerpt-control';
@@ -108,22 +108,19 @@ function AiPostExcerpt() {
 	}, [ stopSuggestion, reset ] );
 
 	// Pick raw post content
-	const postContent = useSelect(
-		select => {
-			const content = ( select( editorStore ) as typeof EditorSelectors ).getEditedPostContent();
-			if ( ! content ) {
-				return '';
-			}
+	const postContent = useSelect( select => {
+		const content = ( select( editorStore ) as typeof EditorSelectors ).getEditedPostContent();
+		if ( ! content ) {
+			return '';
+		}
 
-			const document = new window.DOMParser().parseFromString( content, 'text/html' );
+		const document = new window.DOMParser().parseFromString( content, 'text/html' );
 
-			const documentRawText = document.body.textContent || document.body.innerText || '';
+		const documentRawText = document.body.textContent || document.body.innerText || '';
 
-			// Keep only one break line (\n) between blocks.
-			return documentRawText.replace( /\n{2,}/g, '\n' ).trim();
-		},
-		[ postId ]
-	);
+		// Keep only one break line (\n) between blocks.
+		return documentRawText.replace( /\n{2,}/g, '\n' ).trim();
+	}, [] );
 
 	// Show custom prompt number of words
 	const currentExcerpt = suggestion || excerpt;
@@ -145,7 +142,7 @@ function AiPostExcerpt() {
 	/**
 	 * Request AI for a new excerpt.
 	 *
-	 * @returns {void}
+	 * @return {void}
 	 */
 	function requestExcerpt(): void {
 		// Enable Generate button
@@ -236,7 +233,7 @@ ${ postContent }
 					</Notice>
 				) }
 
-				{ isOverLimit && <UpgradePrompt placement="excerpt-panel" /> }
+				{ isOverLimit && <QuotaExceededMessage placement="excerpt-panel" /> }
 
 				<AiExcerptControl
 					words={ excerptWordsNumber }
@@ -266,6 +263,7 @@ ${ postContent }
 					help={
 						! postContent?.length ? __( 'Add content to generate an excerpt.', 'jetpack' ) : null
 					}
+					__nextHasNoMarginBottom={ true }
 				>
 					<div className="jetpack-generated-excerpt__generate-buttons-container">
 						<Button
@@ -298,14 +296,26 @@ ${ postContent }
 	);
 }
 
-export const PluginDocumentSettingPanelAiExcerpt = () => (
-	<PostTypeSupportCheck supportKeys="excerpt">
-		<PluginDocumentSettingPanel
-			className={ isBetaExtension( 'ai-content-lens' ) ? 'is-beta-extension inset-shadow' : '' }
-			name="ai-content-lens-plugin"
-			title={ __( 'Excerpt', 'jetpack' ) }
-		>
-			<AiPostExcerpt />
-		</PluginDocumentSettingPanel>
-	</PostTypeSupportCheck>
-);
+export const PluginDocumentSettingPanelAiExcerpt = () => {
+	const isExcerptUsedAsDescription = useSelect( select => {
+		const { getCurrentPostType } = select( editorStore ) as typeof EditorSelectors;
+		const postType = getCurrentPostType();
+		const isTemplateOrTemplatePart = postType === 'wp_template' || postType === 'wp_template_part';
+		const isPattern = postType === 'wp_block';
+		return isTemplateOrTemplatePart || isPattern;
+	}, [] );
+	if ( isExcerptUsedAsDescription ) {
+		return null;
+	}
+	return (
+		<PostTypeSupportCheck supportKeys="excerpt">
+			<PluginDocumentSettingPanel
+				className={ isBetaExtension( 'ai-content-lens' ) ? 'is-beta-extension inset-shadow' : '' }
+				name="ai-content-lens-plugin"
+				title={ __( 'Excerpt', 'jetpack' ) }
+			>
+				<AiPostExcerpt />
+			</PluginDocumentSettingPanel>
+		</PostTypeSupportCheck>
+	);
+};

@@ -99,6 +99,7 @@ interface Window {
 			showFullJetpackStatsCard: boolean;
 			videoPressStats: boolean;
 		};
+		purchaseToken: string;
 		lifecycleStats: {
 			historicallyActiveModules: JetpackModule[];
 			brokenModules: {
@@ -243,8 +244,9 @@ interface Window {
 			};
 		};
 		videopress: {
-			featuredStats: {
+			featuredStats?: {
 				label: string;
+				period: 'day' | 'year';
 				data: {
 					views: {
 						current: number;
@@ -349,6 +351,7 @@ interface Window {
 		recommendedModules: {
 			modules: JetpackModule[] | null;
 			dismissed: boolean;
+			isFirstRun: boolean;
 		};
 		themes: {
 			[ key: string ]: {

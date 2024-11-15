@@ -87,11 +87,6 @@ while [[ $# -gt 0 ]]; do
 	shift "$SHIFT"
 done
 
-# If we're releasing Jetpack, we're also releasing mu-wpcom-plugin.
-if [[ -v PROJECTS["jetpack"] && ! -v PROJECTS["mu-wpcom-plugin"] ]]; then
-	PROJECTS["mu-wpcom-plugin"]=''
-fi
-
 # Check that the projects are valid.
 for PLUGIN in "${!PROJECTS[@]}"; do
 	# Get the project slug.
@@ -144,7 +139,6 @@ done
 proceed_p "" "Proceed releasing above projects?" Y
 
 # Sending tracking event
-TRACKING_DATA="{}"
 RELEASED_PLUGINS="{}"
 for PLUGIN in "${!PROJECTS[@]}"; do
 
@@ -208,10 +202,37 @@ if [[ -n "$(git status --porcelain)" ]]; then
 	die "Working directory not clean, make sure you're working from a clean checkout and try again."
 fi
 
+yellow "Installing root packages."
+pnpm jetpack install --root
+
 yellow "Checking out prerelease branch."
+# Is there an upstream prerelease branch already?
+R=$( git ls-remote --heads origin prerelease )
+if [[ -n "$R" ]]; then
+	error "There's an existing prerelease branch on GitHub!"
+	R=${R%%[ $'\t']*}
+	TMP=$( gh pr list --head=prerelease --state=open --json number,author,url,createdAt,title --jq '.[] | "\( .url ) - \( .createdAt | fromdateiso8601 | strftime( "%F %H:%IZ" ) ) - \( .title ) [\( .author.name )]"' )
+	if [[ -n "$TMP" ]]; then
+		echo "Someone probably needs to merge the following PR:"
+		echo "$TMP"
+		exit 1
+	fi
+	git fetch -q origin trunk "$R" || die "Something unexpected went wrong fetching the commit from GitHub"
+	if git diff --quiet origin/trunk..."$R"; then
+		echo "There don't seem to be any changes between that and trunk, if whoever created it has abandoned the release it should be safe to delete the branch."
+		exit 1
+	fi
+	if ! git diff --quiet origin/trunk..."$R" '*/CHANGELOG.md'; then
+		echo "Looks like someone is in the middle of a release! Wait for them merge the changes back into trunk."
+		exit 1
+	fi
+	echo "Looks like someone may be in the middle of a release! Wait for them merge the changes back into trunk, or to abandon the release."
+	exit 1
+fi
+
 # Check out and push pre-release branch
 if git rev-parse --verify prerelease &>/dev/null; then
-	proceed_p "Existing prerelease branch found." "Delete it?" Y
+	proceed_p "Existing local prerelease branch found." "Delete it?" Y
 	git branch -D prerelease
 fi
 
@@ -341,15 +362,6 @@ yellow "Release branches created!"
 
 yellow "Creating a PR to merge the prerelease branch into trunk."
 git checkout prerelease
-
-# If we're releasing the Jetpack plugin, ask if we want to start a new cycle.
-if [[ -v PROJECTS["plugins/jetpack"] ]]; then
-  if proceed_p "Do you want to start a new cycle for Jetpack?" "" Y; then
-    pnpm jetpack release plugins/jetpack version -a --init-next-cycle
-    git add --all
-    git commit -am "Init new cycle"
-  fi
-fi
 
 # Handle any package changes merged into trunk while we were working.
 git fetch

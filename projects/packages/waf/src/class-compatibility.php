@@ -17,6 +17,46 @@ use Jetpack_Options;
 class Waf_Compatibility {
 
 	/**
+	 * Returns the name for the IP allow list enabled/disabled option.
+	 *
+	 * @since 0.22.0
+	 *
+	 * @return string
+	 */
+	private static function get_ip_allow_list_enabled_option_name() {
+		/**
+		 * Patch: bootstrap script generated prior to 0.17.0 may have autoloaded Waf_Rules_Manager class during standalone mode execution.
+		 *
+		 * @see peb6dq-2HL-p2
+		 */
+		if ( ! defined( 'Waf_Rules_Manager::IP_ALLOW_LIST_ENABLED_OPTION_NAME' ) ) {
+			return 'jetpack_waf_ip_allow_list_enabled';
+		}
+
+		return Waf_Rules_Manager::IP_ALLOW_LIST_ENABLED_OPTION_NAME;
+	}
+
+	/**
+	 * Returns the name for the IP block list enabled/disabled option.
+	 *
+	 * @since 0.22.0
+	 *
+	 * @return string
+	 */
+	private static function get_ip_block_list_enabled_option_name() {
+		/**
+		 * Patch: bootstrap script generated prior to 0.17.0 may have autoloaded Waf_Rules_Manager class during standalone mode execution.
+		 *
+		 * @see peb6dq-2HL-p2
+		 */
+		if ( ! defined( 'Waf_Rules_Manager::IP_BLOCK_LIST_ENABLED_OPTION_NAME' ) ) {
+			return 'jetpack_waf_ip_block_list_enabled';
+		}
+
+		return Waf_Rules_Manager::IP_BLOCK_LIST_ENABLED_OPTION_NAME;
+	}
+
+	/**
 	 * Add compatibilty hooks
 	 *
 	 * @since 0.8.0
@@ -28,8 +68,8 @@ class Waf_Compatibility {
 		add_filter( 'default_option_' . Waf_Initializer::NEEDS_UPDATE_OPTION_NAME, __CLASS__ . '::default_option_waf_needs_update', 10, 3 );
 		add_filter( 'default_option_' . Waf_Rules_Manager::IP_ALLOW_LIST_OPTION_NAME, __CLASS__ . '::default_option_waf_ip_allow_list', 10, 3 );
 		add_filter( 'option_' . Waf_Rules_Manager::IP_ALLOW_LIST_OPTION_NAME, __CLASS__ . '::filter_option_waf_ip_allow_list', 10, 1 );
-		add_filter( 'default_option_' . Waf_Rules_Manager::IP_ALLOW_LIST_ENABLED_OPTION_NAME, __CLASS__ . '::default_option_waf_ip_allow_list_enabled', 10, 3 );
-		add_filter( 'default_option_' . Waf_Rules_Manager::IP_BLOCK_LIST_ENABLED_OPTION_NAME, __CLASS__ . '::default_option_waf_ip_block_list_enabled', 10, 3 );
+		add_filter( 'default_option_' . self::get_ip_allow_list_enabled_option_name(), __CLASS__ . '::default_option_waf_ip_allow_list_enabled', 10, 3 );
+		add_filter( 'default_option_' . self::get_ip_block_list_enabled_option_name(), __CLASS__ . '::default_option_waf_ip_block_list_enabled', 10, 3 );
 	}
 
 	/**

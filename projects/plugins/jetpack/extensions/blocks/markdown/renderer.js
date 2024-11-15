@@ -12,6 +12,7 @@ const markdownConverter = new MarkdownIt( {
 } ).use( footnote_plugin );
 const handleLinkClick = event => {
 	if ( event.target.nodeName === 'A' ) {
+		// eslint-disable-next-line no-alert -- Needs a blocking dialog.
 		const hasConfirmed = window.confirm(
 			__( 'Are you sure you wish to leave this page?', 'jetpack' )
 		);

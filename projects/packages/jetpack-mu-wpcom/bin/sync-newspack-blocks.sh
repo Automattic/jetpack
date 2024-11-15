@@ -57,8 +57,8 @@ ENTRY=./src/features/newspack-blocks/index.php
 if [[ ( "$MODE" != "path" ) && ( "$MODE" != "npm" ) ]];
 then
 	# return early if the version is the same
-	if [ -f $TARGET/package.json ]; then
-		CURRENT_VERSION=v`jq -r .version $TARGET/package.json`
+	if [ -f $TARGET/version.txt ]; then
+		CURRENT_VERSION=$(< $TARGET/version.txt )
 
 		if [[ "$CURRENT_VERSION" == "$NAME" ]]; then
 			echo "The current version $CURRENT_VERSION of the newspack-blocks is synced."
@@ -128,7 +128,8 @@ mkdir -p $TARGET/shared
 mkdir -p $TARGET/types
 
 # copy files and directories
-cp $CODE/package.json $TARGET/
+NEW_VERSION=v`jq -r .version $CODE/package.json`
+echo "$NEW_VERSION" > $TARGET/version.txt
 cp $CODE/includes/class-newspack-blocks-api.php $TARGET/
 cp $CODE/includes/class-newspack-blocks.php $TARGET/
 cp -R $CODE/src/blocks/homepage-articles $TARGET/blocks/

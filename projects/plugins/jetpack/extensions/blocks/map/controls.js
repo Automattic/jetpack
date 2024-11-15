@@ -126,6 +126,7 @@ export default ( {
 			/>
 			<PanelBody title={ __( 'Map Settings', 'jetpack' ) }>
 				<BaseControl
+					__nextHasNoMarginBottom={ true }
 					label={ __( 'Height in pixels', 'jetpack' ) }
 					id={ `block-jetpack-map-height-input-${ instanceId }` }
 				>
@@ -137,7 +138,7 @@ export default ( {
 							setAttributes( { mapHeight: event.target.value } );
 							// If this input isn't focussed, the onBlur handler won't be triggered
 							// to commit the map size, so we need to check for that.
-							if ( event.target !== document.activeElement ) {
+							if ( event.target !== event.target.ownerDocument.activeElement ) {
 								if ( mapRef.current ) {
 									setTimeout( mapRef.current.sizeMap, 0 );
 								}
@@ -150,6 +151,7 @@ export default ( {
 					/>
 				</BaseControl>
 				<RangeControl
+					__nextHasNoMarginBottom={ true }
 					label={ __( 'Zoom level', 'jetpack' ) }
 					help={
 						attributes.points.length > 1 &&
@@ -171,6 +173,7 @@ export default ( {
 				/>
 				{ mapProvider === 'mapbox' ? (
 					<ToggleControl
+						__nextHasNoMarginBottom={ true }
 						label={ __( 'Show street names', 'jetpack' ) }
 						checked={ attributes.mapDetails }
 						onChange={ value => setAttributes( { mapDetails: value } ) }
@@ -178,6 +181,7 @@ export default ( {
 				) : null }
 
 				<ToggleControl
+					__nextHasNoMarginBottom={ true }
 					label={ __( 'Scroll to zoom', 'jetpack' ) }
 					help={ __( 'Allow the map to capture scrolling, and zoom in or out.', 'jetpack' ) }
 					checked={ attributes.scrollToZoom }
@@ -186,6 +190,7 @@ export default ( {
 
 				{ mapProvider === 'mapbox' ? (
 					<ToggleControl
+						__nextHasNoMarginBottom={ true }
 						label={ __( 'Show Fullscreen Button', 'jetpack' ) }
 						help={ __( 'Allow your visitors to display the map in fullscreen.', 'jetpack' ) }
 						checked={ attributes.showFullscreenButton }
@@ -206,6 +211,7 @@ export default ( {
 			{ mapProvider === 'mapbox' ? (
 				<PanelBody title={ __( 'Mapbox Access Token', 'jetpack' ) } initialOpen={ false }>
 					<TextControl
+						__nextHasNoMarginBottom={ true }
 						help={
 							'wpcom' === apiKeySource && (
 								<>

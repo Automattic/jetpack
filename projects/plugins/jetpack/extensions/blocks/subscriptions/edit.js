@@ -19,7 +19,7 @@ import { isEqual } from 'lodash';
 import { getActiveStyleName } from '../../shared/block-styles';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 import { isNewsletterFeatureEnabled } from '../../shared/memberships/edit';
-import GetAddPaidPlanButton from '../../shared/memberships/utils';
+import GetAddPaidPlanButton, { paidPlanButtonText } from '../../shared/memberships/utils';
 import './view.scss';
 import { store as membershipProductsStore } from '../../store/membership-products';
 import metadata from './block.json';
@@ -39,6 +39,7 @@ import SubscriptionSkeletonLoader from './subscription-skeleton-loader';
 
 const { getComputedStyle } = window;
 const isGradientAvailable = !! useGradient;
+const useGradientIfAvailable = isGradientAvailable ? useGradient : () => ( {} );
 const name = metadata.name.replace( 'jetpack/', '' );
 
 const applyFallbackStyles = withFallbackStyles( ( node, ownProps ) => {
@@ -125,18 +126,14 @@ export function SubscriptionEdit( props ) {
 		};
 	} );
 
-	const emailFieldGradient = isGradientAvailable
-		? useGradient( {
-				gradientAttribute: 'emailFieldGradient',
-				customGradientAttribute: 'customEmailFieldGradient',
-		  } )
-		: {};
-	const buttonGradient = isGradientAvailable
-		? useGradient( {
-				gradientAttribute: 'buttonGradient',
-				customGradientAttribute: 'customButtonGradient',
-		  } )
-		: {};
+	const emailFieldGradient = useGradientIfAvailable( {
+		gradientAttribute: 'emailFieldGradient',
+		customGradientAttribute: 'customEmailFieldGradient',
+	} );
+	const buttonGradient = useGradientIfAvailable( {
+		gradientAttribute: 'buttonGradient',
+		customGradientAttribute: 'customButtonGradient',
+	} );
 
 	const sharedClasses = {
 		'no-border-radius': borderRadius === 0,
@@ -240,6 +237,8 @@ export function SubscriptionEdit( props ) {
 
 	let content;
 
+	const paidPlanLabel = paidPlanButtonText( hasTierPlans );
+
 	if ( isLoadingModules ) {
 		content = <SubscriptionSkeletonLoader />;
 	} else if ( ! isModuleActive ) {
@@ -284,7 +283,7 @@ export function SubscriptionEdit( props ) {
 				</InspectorControls>
 				{ isNewsletterFeatureEnabled() && (
 					<BlockControls>
-						<Toolbar>
+						<Toolbar label={ paidPlanLabel }>
 							<GetAddPaidPlanButton context={ 'toolbar' } hasTierPlans={ hasTierPlans } />
 						</Toolbar>
 					</BlockControls>
@@ -296,6 +295,7 @@ export function SubscriptionEdit( props ) {
 							<div className="wp-block-jetpack-subscriptions__form-elements">
 								{ activeStyleName !== 'button' && (
 									<TextControl
+										__nextHasNoMarginBottom={ true }
 										placeholder={ subscribePlaceholder }
 										disabled={ true }
 										className={ clsx(

@@ -103,6 +103,10 @@
 	fill: var( --jp-green-40 );
 }
 
+.icon-info {
+	fill: var( --jp-red );
+}
+
 .status-badge {
 	border-radius: 32px;
 	flex-shrink: 0;
@@ -129,6 +133,16 @@
 
 .is-fixed {
 	color: #008a20;
+}
+
+.support-link {
+	color: inherit;
+
+	&:focus,
+	&:hover {
+		color: inherit;
+		box-shadow: none;
+	}
 }
 
 @media ( max-width: 599px ) {

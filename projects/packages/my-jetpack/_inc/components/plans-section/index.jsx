@@ -19,7 +19,7 @@ import styles from './style.module.scss';
  *
  * @param {object} props          - Component props.
  * @param {object} props.purchase - Purchase object.
- * @returns {object} PlanSection react component.
+ * @return {object} PlanSection react component.
  */
 function PlanSection( { purchase = {} } ) {
 	const { product_name } = purchase;
@@ -34,12 +34,12 @@ function PlanSection( { purchase = {} } ) {
 /**
  * Plan expiry component.
  *
- * @param {object} purchase - WPCOM purchase object.
- * @param {string} purchase.product_name - A product name.
+ * @param {object} purchase                 - WPCOM purchase object.
+ * @param {string} purchase.product_name    - A product name.
  * @param {string} purchase.subscribed_date - A subscribed date.
- * @param {string} purchase.expiry_message - An expiry message.
- * @param {string} purchase.partner_slug - A partner that issued the purchase.
- * @returns {object} - A plan expiry component.
+ * @param {string} purchase.expiry_message  - An expiry message.
+ * @param {string} purchase.partner_slug    - A partner that issued the purchase.
+ * @return {object} - A plan expiry component.
  */
 function PlanExpiry( purchase ) {
 	const { expiry_message, product_name, subscribed_date } = purchase;
@@ -67,7 +67,7 @@ function PlanExpiry( purchase ) {
  *
  * @param {object} props                   - Component props.
  * @param {number} props.numberOfPurchases - Count of purchases in purchases array.
- * @returns {object} PlanSectionHeader react component.
+ * @return {object} PlanSectionHeader react component.
  */
 function PlanSectionHeader( { numberOfPurchases = 0 } ) {
 	return (
@@ -85,28 +85,28 @@ function PlanSectionHeader( { numberOfPurchases = 0 } ) {
  *
  * @param {object} props                   - Component props.
  * @param {number} props.numberOfPurchases - Count of purchases in purchases array.
- * @returns {object} PlanSectionFooter react component.
+ * @return {object} PlanSectionFooter react component.
  */
 function PlanSectionFooter( { numberOfPurchases } ) {
 	const { recordEvent } = useAnalytics();
 	const { isUserConnected } = useMyJetpackConnection();
 
-	let planLinkDescription = __( 'Purchase a plan', 'jetpack-my-jetpack' );
-	if ( numberOfPurchases >= 1 ) {
-		planLinkDescription = _n(
-			'Manage your plan',
-			'Manage your plans',
-			numberOfPurchases,
-			'jetpack-my-jetpack'
-		);
-	}
+	const planManageDescription = _n(
+		'Manage your plan',
+		'Manage your plans',
+		numberOfPurchases,
+		'jetpack-my-jetpack'
+	);
 
-	const purchaseClickHandler = useCallback( () => {
-		const event = numberOfPurchases
-			? 'jetpack_myjetpack_plans_manage_click'
-			: 'jetpack_myjetpack_plans_purchase_click';
-		recordEvent( event );
-	}, [ numberOfPurchases, recordEvent ] );
+	const planPurchaseDescription = __( 'Purchase a plan', 'jetpack-my-jetpack' );
+
+	const planManageClickHandler = useCallback( () => {
+		recordEvent( 'jetpack_myjetpack_plans_manage_click' );
+	}, [ recordEvent ] );
+
+	const planPurchaseClickHandler = useCallback( () => {
+		recordEvent( 'jetpack_myjetpack_plans_purchase_click' );
+	}, [ recordEvent ] );
 
 	const navigateToConnectionPage = useMyJetpackNavigate( MyJetpackRoutes.Connection );
 	const activateLicenseClickHandler = useCallback( () => {
@@ -128,15 +128,28 @@ function PlanSectionFooter( { numberOfPurchases } ) {
 
 	return (
 		<ul>
+			{ numberOfPurchases > 0 && (
+				<li className={ styles[ 'actions-list-item' ] }>
+					<Button
+						onClick={ planManageClickHandler }
+						href={ getManageYourPlanUrl() }
+						weight="regular"
+						variant="link"
+						isExternalLink={ true }
+					>
+						{ planManageDescription }
+					</Button>
+				</li>
+			) }
 			<li className={ styles[ 'actions-list-item' ] }>
 				<Button
-					onClick={ purchaseClickHandler }
-					href={ numberOfPurchases ? getManageYourPlanUrl() : getPurchasePlanUrl() }
+					onClick={ planPurchaseClickHandler }
+					href={ getPurchasePlanUrl() }
 					weight="regular"
 					variant="link"
 					isExternalLink={ true }
 				>
-					{ planLinkDescription }
+					{ planPurchaseDescription }
 				</Button>
 			</li>
 			{ loadAddLicenseScreen && (
@@ -160,10 +173,12 @@ function PlanSectionFooter( { numberOfPurchases } ) {
 /**
  * Plan section component.
  *
- * @returns {object} PlansSection React component.
+ * @return {object} PlansSection React component.
  */
 export default function PlansSection() {
 	const userIsAdmin = !! getMyJetpackWindowInitialState( 'userIsAdmin' );
+	const { isSiteConnected } = useMyJetpackConnection();
+
 	const {
 		data: purchases,
 		isLoading,
@@ -171,6 +186,7 @@ export default function PlansSection() {
 	} = useSimpleQuery( {
 		name: QUERY_PURCHASES_KEY,
 		query: { path: REST_API_SITE_PURCHASES_ENDPOINT },
+		options: { enabled: isSiteConnected },
 	} );
 
 	const isDataLoaded = purchases && ! isLoading && ! isError;

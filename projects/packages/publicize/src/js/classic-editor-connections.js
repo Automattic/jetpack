@@ -1,10 +1,19 @@
+import jetpackAnalytics from '@automattic/jetpack-analytics';
 import apiFetch from '@wordpress/api-fetch';
 import { _n, __ } from '@wordpress/i18n';
 import jQuery from 'jquery';
 
-const { ajaxUrl, connectionsUrl, isEnhancedPublishingEnabled, resharePath, isReshareSupported } =
-	window.jetpackSocialClassicEditorOptions;
+const {
+	ajaxUrl,
+	connectionsUrl,
+	isEnhancedPublishingEnabled,
+	resharePath,
+	isReshareSupported,
+	siteType,
+} = window.jetpackSocialClassicEditorOptions;
 const CONNECTIONS_NEED_MEDIA = [ 'instagram-business' ];
+
+const { recordEvent } = jetpackAnalytics.tracks;
 
 const validateFeaturedMedia = ( $, connectionsNeedValidation ) => {
 	const featuredImage = window.wp.media.featuredImage.get();
@@ -218,6 +227,11 @@ jQuery( function ( $ ) {
 		const message = $( 'textarea[name="wpas_title"]' ).val();
 
 		shareNowButton.prop( 'disabled', true ).text( __( 'Sharing…', 'jetpack-publicize-pkg' ) );
+
+		recordEvent( 'jetpack_social_reshare_clicked', {
+			location: 'classic-editor',
+			environment: siteType,
+		} );
 
 		apiFetch( {
 			path,

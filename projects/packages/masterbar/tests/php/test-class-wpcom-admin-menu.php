@@ -17,7 +17,7 @@ require_once __DIR__ . '/data/admin-menu.php';
 /**
  * Class Test_WPcom_Admin_Menu.
  *
- * @covers Automattic\Jetpack\Dashboard_Customizations\WPcom_Admin_Menu
+ * @covers Automattic\Jetpack\Masterbar\WPcom_Admin_Menu
  */
 class Test_WPcom_Admin_Menu extends TestCase {
 
@@ -85,10 +85,9 @@ class Test_WPcom_Admin_Menu extends TestCase {
 
 		wp_set_current_user( static::$user_id );
 
-		// @phan-suppress-next-line PhanDeprecatedFunction -- Needed for PHP 7.0 and 7.1 CI tests. We can replace with onlyMethods once WP 6.7 comes out.
 		$admin_menu = $this->getMockBuilder( WPcom_Admin_Menu::class )
 							->disableOriginalConstructor()
-							->setMethods( array( 'should_link_to_wp_admin' ) )
+							->onlyMethods( array( 'should_link_to_wp_admin' ) )
 							->getMock();
 		$admin_menu->method( 'should_link_to_wp_admin' )->willReturn( false );
 
@@ -254,7 +253,7 @@ class Test_WPcom_Admin_Menu extends TestCase {
 
 		static::$admin_menu->add_options_menu();
 
-		$this->assertSame( 'https://wordpress.com/hosting-config/' . static::$domain, $submenu['options-general.php'][10][2] );
+		$this->assertSame( 'https://wordpress.com/hosting-features/' . static::$domain, $submenu['options-general.php'][10][2] );
 	}
 
 	/**

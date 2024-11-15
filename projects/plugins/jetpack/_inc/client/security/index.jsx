@@ -27,7 +27,7 @@ export class Security extends Component {
 	/**
 	 * Check if Akismet plugin is being searched and matched.
 	 *
-	 * @returns {boolean} False if the plugin is inactive or if the search doesn't match it. True otherwise.
+	 * @return {boolean} False if the plugin is inactive or if the search doesn't match it. True otherwise.
 	 */
 	isAkismetFound = () => {
 		if ( ! this.props.isPluginActive( 'akismet/akismet.php' ) ) {
@@ -66,22 +66,24 @@ export class Security extends Component {
 			hasConnectedOwner: this.props.hasConnectedOwner,
 		};
 
-		const foundWaf = this.props.isModuleFound( 'waf' ),
-			foundProtect = this.props.isModuleFound( 'protect' ),
-			foundSso = this.props.isModuleFound( 'sso' ),
-			foundAkismet = this.isAkismetFound(),
-			rewindActive = 'active' === get( this.props.rewindStatus, [ 'state' ], false ),
-			foundBackups = this.props.isModuleFound( 'vaultpress' ) || rewindActive,
-			foundMonitor = this.props.isModuleFound( 'monitor' ),
-			isSearchTerm = this.props.searchTerm;
+		const isSearchTerm = this.props.searchTerm;
 
 		if ( ! isSearchTerm && ! this.props.active ) {
 			return null;
 		}
 
+		const foundProtect = this.props.isModuleFound( 'protect' ),
+			foundSso = this.props.isModuleFound( 'sso' ),
+			foundAkismet = this.isAkismetFound(),
+			rewindActive = 'active' === get( this.props.rewindStatus, [ 'state' ], false ),
+			foundBackups = this.props.isModuleFound( 'vaultpress' ) || rewindActive,
+			foundMonitor = this.props.isModuleFound( 'monitor' );
+
 		if ( ! foundSso && ! foundProtect && ! foundAkismet && ! foundBackups && ! foundMonitor ) {
 			return null;
 		}
+
+		const foundWaf = this.props.isModuleFound( 'waf' );
 
 		const backupsContent = this.props.backupsOnly ? (
 			<JetpackBackup { ...commonProps } vaultPressData={ this.props.vaultPressData } />

@@ -31,8 +31,8 @@ export function resetTrackingCookies( forceEnableAnalytics = false ) {
 /**
  * Associates the current site with events fired in the future.
  *
- * @param {number|string} siteId - Current site identifier.
- * @param {boolean} forceEnableAnalytics - Forcibly enable analytics, ignoring the isAnalyticsEnabled flag.
+ * @param {number|string} siteId               - Current site identifier.
+ * @param {boolean}       forceEnableAnalytics - Forcibly enable analytics, ignoring the isAnalyticsEnabled flag.
  */
 export function identifySite( siteId, forceEnableAnalytics = false ) {
 	if ( forceEnableAnalytics || isAnalyticsEnabled ) {
@@ -43,8 +43,8 @@ export function identifySite( siteId, forceEnableAnalytics = false ) {
 /**
  * Fires a general event to Tracks.
  *
- * @param {string} eventName - Name of the event.
- * @param {object} properties - Event properties.
+ * @param {string}  eventName            - Name of the event.
+ * @param {object}  properties           - Event properties.
  * @param {boolean} forceEnableAnalytics - Forcibly enable analytics, ignoring the isAnalyticsEnabled flag.
  */
 export function recordEvent( eventName, properties, forceEnableAnalytics = false ) {
@@ -55,7 +55,7 @@ export function recordEvent( eventName, properties, forceEnableAnalytics = false
 /**
  * Fires a TrainTracks render event to Tracks.
  *
- * @param {object} properties - Event properties.
+ * @param {object}  properties           - Event properties.
  * @param {boolean} forceEnableAnalytics - Forcibly enable analytics, ignoring the isAnalyticsEnabled flag.
  */
 export function recordTrainTracksRender( properties, forceEnableAnalytics = false ) {
@@ -65,7 +65,7 @@ export function recordTrainTracksRender( properties, forceEnableAnalytics = fals
 /**
  * Fires a TrainTracks interaction event to Tracks.
  *
- * @param {object} properties - Event properties.
+ * @param {object}  properties           - Event properties.
  * @param {boolean} forceEnableAnalytics - Forcibly enable analytics, ignoring the isAnalyticsEnabled flag.
  */
 export function recordTrainTracksInteract( properties, forceEnableAnalytics = false ) {
@@ -75,7 +75,7 @@ export function recordTrainTracksInteract( properties, forceEnableAnalytics = fa
 /**
  * Fires a static filter selection event to Tracks.
  *
- * @param {object} properties - Event properties to send to Tracks.
+ * @param {object}  properties           - Event properties to send to Tracks.
  * @param {boolean} forceEnableAnalytics - Forcibly enable analytics, ignoring the isAnalyticsEnabled flag.
  */
 export function recordStaticFilterSelect( properties, forceEnableAnalytics = false ) {

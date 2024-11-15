@@ -4,13 +4,14 @@ import { __ } from '@wordpress/i18n';
 export default function JetpackFieldWidth( { setAttributes, width } ) {
 	return (
 		<BaseControl
-			label={ __( 'Field Width', 'jetpack-forms' ) }
 			help={ __(
 				'Adjust the width of the field to include multiple fields on a single line.',
 				'jetpack-forms'
 			) }
 			className="jetpack-field-label__width"
+			__nextHasNoMarginBottom={ true }
 		>
+			<BaseControl.VisualLabel>{ __( 'Field Width', 'jetpack-forms' ) }</BaseControl.VisualLabel>
 			<ButtonGroup aria-label={ __( 'Field Width', 'jetpack-forms' ) }>
 				{ [ 25, 50, 75, 100 ].map( widthValue => {
 					return (

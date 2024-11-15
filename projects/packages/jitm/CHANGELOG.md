@@ -5,6 +5,62 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.0.0] - 2024-11-14
+### Removed
+- General: Update minimum PHP version to 7.2. [#40147]
+
+## [3.1.29] - 2024-11-11
+### Changed
+- Updated package dependencies. [#39999]
+
+## [3.1.28] - 2024-11-04
+### Added
+- Enable test coverage. [#39961]
+
+## [3.1.27] - 2024-10-29
+### Changed
+- Internal updates.
+
+## [3.1.26] - 2024-10-14
+### Changed
+- Only include `wp-polyfill` as a script dependency when needed. [#39629]
+
+## [3.1.25] - 2024-10-10
+### Changed
+- Updated package dependencies. [#39707]
+
+## [3.1.24] - 2024-10-07
+### Changed
+- Updated package dependencies. [#39594]
+
+## [3.1.23] - 2024-09-23
+### Changed
+- Update dependencies.
+
+## [3.1.22] - 2024-09-10
+### Changed
+- Updated package dependencies. [#39302]
+
+## [3.1.21] - 2024-09-05
+### Changed
+- Update dependencies.
+
+## [3.1.20] - 2024-09-05
+### Changed
+- Updated package dependencies. [#39176]
+
+## [3.1.19] - 2024-08-29
+### Changed
+- Updated package dependencies. [#39111]
+
+## [3.1.18] - 2024-08-23
+### Changed
+- Updated package dependencies. [#39004]
+
+## [3.1.17] - 2024-08-19
+### Fixed
+- Lossless image optimization for images (should improve performance with no visible changes). [#38750]
+
 ## [3.1.16] - 2024-08-15
 ### Changed
 - Updated package dependencies. [#38662]
@@ -743,6 +799,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Update Jetpack to use new JITM package
 
+[4.0.0]: https://github.com/Automattic/jetpack-jitm/compare/v3.1.29...v4.0.0
+[3.1.29]: https://github.com/Automattic/jetpack-jitm/compare/v3.1.28...v3.1.29
+[3.1.28]: https://github.com/Automattic/jetpack-jitm/compare/v3.1.27...v3.1.28
+[3.1.27]: https://github.com/Automattic/jetpack-jitm/compare/v3.1.26...v3.1.27
+[3.1.26]: https://github.com/Automattic/jetpack-jitm/compare/v3.1.25...v3.1.26
+[3.1.25]: https://github.com/Automattic/jetpack-jitm/compare/v3.1.24...v3.1.25
+[3.1.24]: https://github.com/Automattic/jetpack-jitm/compare/v3.1.23...v3.1.24
+[3.1.23]: https://github.com/Automattic/jetpack-jitm/compare/v3.1.22...v3.1.23
+[3.1.22]: https://github.com/Automattic/jetpack-jitm/compare/v3.1.21...v3.1.22
+[3.1.21]: https://github.com/Automattic/jetpack-jitm/compare/v3.1.20...v3.1.21
+[3.1.20]: https://github.com/Automattic/jetpack-jitm/compare/v3.1.19...v3.1.20
+[3.1.19]: https://github.com/Automattic/jetpack-jitm/compare/v3.1.18...v3.1.19
+[3.1.18]: https://github.com/Automattic/jetpack-jitm/compare/v3.1.17...v3.1.18
+[3.1.17]: https://github.com/Automattic/jetpack-jitm/compare/v3.1.16...v3.1.17
 [3.1.16]: https://github.com/Automattic/jetpack-jitm/compare/v3.1.15...v3.1.16
 [3.1.15]: https://github.com/Automattic/jetpack-jitm/compare/v3.1.14...v3.1.15
 [3.1.14]: https://github.com/Automattic/jetpack-jitm/compare/v3.1.13...v3.1.14

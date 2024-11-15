@@ -80,7 +80,7 @@ function LaunchWpcomWelcomeTour() {
 /**
  * Display the welcome tour.
  *
- * @param props - The props of the component.
+ * @param props            - The props of the component.
  * @param props.siteIntent - The intent of the site.
  */
 function WelcomeTour( { siteIntent } ) {

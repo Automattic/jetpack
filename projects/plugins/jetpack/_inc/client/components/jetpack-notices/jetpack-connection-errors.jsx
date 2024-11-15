@@ -56,7 +56,7 @@ export default class JetpackConnectionErrors extends React.Component {
 			error.action,
 			error.message,
 			error.code,
-			error.hasOwnProperty( 'data' ) ? error.data : {},
+			Object.hasOwn( error, 'data' ) ? error.data : {},
 			supportURl
 		);
 
@@ -67,10 +67,10 @@ export default class JetpackConnectionErrors extends React.Component {
 
 	render() {
 		const errorsToDisplay = {};
-		const errors = this.props.errors.filter( error => error.hasOwnProperty( 'action' ) );
+		const errors = this.props.errors.filter( error => Object.hasOwn( error, 'action' ) );
 
 		for ( const error of errors ) {
-			if ( ! errorsToDisplay.hasOwnProperty( error.action ) ) {
+			if ( ! Object.hasOwn( errorsToDisplay, error.action ) ) {
 				errorsToDisplay[ error.action ] = error;
 			}
 		}

@@ -111,6 +111,7 @@ const UseOnSiteButton: React.FC< { onApplyLogo: ( mediaId: number ) => void } > 
 			className="jetpack-ai-logo-generator-modal-presenter__action"
 			onClick={ handleClick }
 			disabled={ isSavingLogoToLibrary || ! selectedLogo?.mediaId }
+			variant="secondary"
 		>
 			<Icon icon={ <LogoIcon /> } />
 			<span className="action-text">{ __( 'Use on block', 'jetpack-ai-client' ) }</span>
@@ -124,6 +125,28 @@ const LogoLoading: React.FC = () => {
 			<ImageLoader className="jetpack-ai-logo-generator-modal-presenter__logo" />
 			<span className="jetpack-ai-logo-generator-modal-presenter__loading-text">
 				{ __( 'Generating new logo…', 'jetpack-ai-client' ) }
+			</span>
+		</>
+	);
+};
+
+const LogoFetching: React.FC = () => {
+	return (
+		<>
+			<ImageLoader className="jetpack-ai-logo-generator-modal-presenter__logo" />
+			<span className="jetpack-ai-logo-generator-modal-presenter__loading-text">
+				{ __( 'Fetching previous logos…', 'jetpack-ai-client' ) }
+			</span>
+		</>
+	);
+};
+
+const LogoEmpty: React.FC = () => {
+	return (
+		<>
+			<div style={ { width: 0, height: '229px' } }></div>
+			<span className="jetpack-ai-logo-generator-modal-presenter__loading-text">
+				{ __( 'Once you generate a logo, it will show up here', 'jetpack-ai-client' ) }
 			</span>
 		</>
 	);
@@ -177,16 +200,18 @@ export const LogoPresenter: React.FC< LogoPresenterProps > = ( {
 	logoAccepted = false,
 	siteId,
 } ) => {
+	// eslint-disable-next-line @wordpress/no-unused-vars-before-return -- @todo Start extending jetpack-js-tools/eslintrc/react in eslintrc, then we can remove this disable comment.
 	const { isRequestingImage } = useLogoGenerator();
 	const { saveToLibraryError, logoUpdateError } = useRequestErrors();
 
-	if ( ! logo ) {
-		return null;
-	}
-
 	let logoContent: React.ReactNode;
 
-	if ( loading || isRequestingImage ) {
+	if ( ! logo && ! isRequestingImage ) {
+		logoContent = <LogoEmpty />;
+	} else if ( ! logo ) {
+		debug( 'No logo provided, history still loading or logo being generated' );
+		logoContent = <LogoFetching />;
+	} else if ( loading || isRequestingImage ) {
 		logoContent = <LogoLoading />;
 	} else if ( logoAccepted ) {
 		logoContent = <LogoUpdated logo={ logo } />;

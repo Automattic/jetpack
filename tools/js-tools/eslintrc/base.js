@@ -6,11 +6,6 @@
 // 	root: true,
 // 	extends: [ require.resolve( 'jetpack-js-tools/eslintrc/base' ) ],
 // 	ignorePatterns: loadIgnorePatterns( __dirname ),
-// 	parserOptions: {
-// 		babelOptions: {
-// 			configFile: require.resolve( './babel.config.js' ),
-// 		},
-// 	},
 // };
 // ```
 
@@ -52,7 +47,6 @@ module.exports = {
 		ecmaFeatures: {
 			jsx: true,
 		},
-		requireConfigFile: false,
 	},
 	settings: {
 		'import/resolver': {
@@ -76,11 +70,6 @@ module.exports = {
 				'object.<>': 'Object<>',
 				'Object.<>': 'Object<>',
 				'object<>': 'Object<>',
-			},
-			// Temporarily override plugin:@wordpress/esnext so we can clean up the jsdocs in a separate PR.
-			tagNamePreference: {
-				returns: 'returns',
-				yields: 'yields',
 			},
 		},
 	},
@@ -124,7 +113,20 @@ module.exports = {
 			},
 		],
 
-		'jsdoc/check-indentation': 'warn',
+		'jsdoc/check-indentation': [
+			'warn',
+			{
+				excludeTags: [
+					'example',
+					// Tags aligned by jsdoc/check-line-alignment from @wordpress/eslint-plugin.
+					'param',
+					'arg',
+					'argument',
+					'property',
+					'prop',
+				],
+			},
+		],
 		'jsdoc/check-syntax': 'warn',
 		'jsdoc/check-tag-names': [ 'error', { definedTags: [ 'jest-environment' ] } ],
 		'jsdoc/check-values': 'warn',
@@ -138,14 +140,6 @@ module.exports = {
 
 		'jsx-a11y/anchor-has-content': 'off',
 		'jsx-a11y/anchor-is-valid': 'off',
-		'jsx-a11y/label-has-for': [
-			'error',
-			{
-				required: {
-					some: [ 'nesting', 'id' ],
-				},
-			},
-		],
 		// Redundant roles are sometimes necessary for screen reader support. For instance, VoiceOver
 		// on Safari requires `role=list` to announce the list if the style is overwritten.
 		'jsx-a11y/no-redundant-roles': 'off',
@@ -202,23 +196,9 @@ module.exports = {
 		],
 		strict: [ 'error', 'never' ],
 
-		// Temporarily override plugin:@wordpress/* so we can clean up failing stuff in separate PRs.
-		'array-callback-return': 'off',
-		eqeqeq: [ 'error', 'allow-null' ],
-		'jsdoc/check-line-alignment': 'off',
-		'jsx-a11y/label-has-associated-control': [ 'error', { assert: 'either' } ],
-		'no-alert': 'off',
-		'no-bitwise': 'off',
-		'no-fallthrough': 'off',
-		'no-prototype-builtins': 'off',
-		'no-undef-init': 'off',
-		'no-unused-expressions': 'off',
-		'no-useless-computed-key': 'off',
-		'no-useless-return': 'off',
+		// We may want to keep these overrides. To decide later.
+		eqeqeq: [ 'error', 'always', { null: 'ignore' } ],
+		'no-unused-expressions': [ 'error', { allowShortCircuit: true, allowTernary: true } ],
 		'object-shorthand': 'off',
-		'@wordpress/no-base-control-with-label-without-id': 'off',
-		'@wordpress/no-global-active-element': 'off',
-		'@wordpress/no-global-get-selection': 'off',
-		'@wordpress/no-unused-vars-before-return': 'off',
 	},
 };

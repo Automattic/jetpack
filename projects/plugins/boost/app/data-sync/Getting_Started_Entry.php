@@ -20,6 +20,11 @@ class Getting_Started_Entry implements Entry_Can_Get, Entry_Can_Set {
 			return false;
 		}
 
+		// No need to show the page if the site is private.
+		if ( ( new Status() )->is_private_site() ) {
+			return false;
+		}
+
 		// If there is no connection, the page must be shown to give them a chance to connect by choosing a plan.
 		if ( ! ( new Connection() )->is_connected() ) {
 			return true;

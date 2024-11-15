@@ -5,6 +5,44 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 3.1.1 - 2024-10-17
+### Changed
+- Firewall: Fix backwards compatibility for sites running standalone mode with outdated packages autoloaded.
+
+## 3.1.0 - 2024-10-15
+### Added
+- Firewall: Adds stat cards showing recent block counts [#35739]
+- Auto-Fixers: Adds handling for long-running fixers [#39301]
+
+### Changed
+- Firewall: added help text for IP list formatting rules [#39448]
+- Updated package dependencies. [#39707]
+
+### Removed
+- Security Scanning: disabled database threat category [#39467]
+
+### Fixed
+- Minor fixes and improvements.
+
+## 3.0.2 - 2024-09-06
+### Changed
+- Internal updates.
+
+## 3.0.1 - 2024-09-06
+### Added
+- Threats List: Add pagination. [#39058]
+
+### Changed
+- Admin menu: change order of Jetpack sub-menu items. [#39095]
+- Updated package dependencies. [#39176]
+
+### Fixed
+- Security Scanning: Adds a background to the scan progress bar. [#38847]
+- General: Delete relevant Protect options on deactivation. [#38815]
+- Auto Fixers: Disable the unignore threats button when a fixer is in progress. [#38898]
+- Security Scanning: Fix the threat fixed on date in the history view. [#39164]
+- General: Improves the manual scan link button loading state. [#38897]
+
 ## 3.0.0-beta - 2024-08-09
 ### Added
 - Firewall: add dedicated WAF allow and block list toggles [#38265]

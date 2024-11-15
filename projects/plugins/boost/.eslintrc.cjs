@@ -5,14 +5,12 @@ module.exports = {
 	root: true,
 	extends: [
 		require.resolve( 'jetpack-js-tools/eslintrc/base' ),
+		// @todo: Uncomment this:
+		// require.resolve( 'jetpack-js-tools/eslintrc/react' ),
 		require.resolve( 'jetpack-js-tools/eslintrc/wp-eslint-plugin/recommended' ),
 	],
 	ignorePatterns: [ '**/stories/*.stories.tsx', ...loadIgnorePatterns( __dirname ) ],
 	parserOptions: {
-		babelOptions: {
-			configFile: require.resolve( './babel.config.js' ),
-		},
-		sourceType: 'module',
 		tsconfigRootDir: __dirname,
 		project: [ './tsconfig.json', './tsconfig.eslint.json' ],
 	},

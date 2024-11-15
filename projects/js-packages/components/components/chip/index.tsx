@@ -10,10 +10,10 @@ type ChipProps = {
 /**
  * Chip component
  *
- * @param {object} props         - The component properties.
- * @param {string} props.type    - The type new or info
- * @param {string} props.text    - Chip text
- * @returns {React.ReactElement} The `Chip` component.
+ * @param {object} props      - The component properties.
+ * @param {string} props.type - The type new or info
+ * @param {string} props.text - Chip text
+ * @return {React.ReactElement} The `Chip` component.
  */
 const Chip: React.FC< ChipProps > = ( { type = 'info', text } ) => {
 	const classes = clsx( styles.chip, styles[ `is-${ type }` ] );

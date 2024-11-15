@@ -17,7 +17,7 @@ type ConnectionInfoProps = ConnectionStatusProps;
  *
  * @param {ConnectionInfoProps} props - component props
  *
- * @returns {import('react').ReactNode} - React element
+ * @return {import('react').ReactNode} - React element
  */
 export function ConnectionInfo( { connection, service }: ConnectionInfoProps ) {
 	const [ isPanelOpen, togglePanel ] = useReducer( state => ! state, false );

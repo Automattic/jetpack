@@ -8,7 +8,7 @@ import connectionsLinkedin from '../../assets/connections-linkedin.png';
 import connectionsNextdoor from '../../assets/connections-nextdoor.png';
 import connectionsThreads from '../../assets/connections-threads.png';
 import connectionsTumblr from '../../assets/connections-tumblr.png';
-import { ConnectionService } from '../../types/types';
+import { ConnectionService } from '../../types';
 import { getSocialScriptData } from '../../utils/script-data';
 
 export type Badge = {
@@ -26,7 +26,7 @@ export interface SupportedService extends ConnectionService {
 /**
  * Get the list of supported services.
  *
- * @returns {Array< SupportedService >} The list of supported services
+ * @return {Array< SupportedService >} The list of supported services
  */
 export function useSupportedServices(): Array< SupportedService > {
 	const availableServices = useMemo( () => {
@@ -120,7 +120,6 @@ export function useSupportedServices(): Array< SupportedService > {
 			...availableServices.threads,
 			icon: props => <SocialServiceIcon serviceName="threads" { ...props } />,
 			description: __( 'Share posts to your Threads feed.', 'jetpack' ),
-			badges: [ badgeNew ],
 			examples: [
 				() => (
 					<>
@@ -131,6 +130,23 @@ export function useSupportedServices(): Array< SupportedService > {
 					</>
 				),
 				() => <img src={ connectionsThreads } alt={ __( 'Add Threads connection', 'jetpack' ) } />,
+			],
+		},
+		{
+			...availableServices.bluesky,
+			needsCustomInputs: true,
+			icon: props => <SocialServiceIcon serviceName="bluesky" { ...props } />,
+			badges: [ badgeNew ],
+			description: __( 'Share with your network.', 'jetpack' ),
+			examples: [
+				() => (
+					<>
+						{ __(
+							'To share to Bluesky please enter your Bluesky handle and app password below, then click connect.',
+							'jetpack'
+						) }
+					</>
+				),
 			],
 		},
 		{

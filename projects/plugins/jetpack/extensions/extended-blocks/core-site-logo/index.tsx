@@ -26,13 +26,14 @@ type CoreSelect = {
 		url: string;
 		title: string;
 		description: string;
+		site_logo: number;
 	};
 };
 
 /**
  * Hook to set the site logo on the local state, affecting the logo block.
  *
- * @returns {object} An object with the setLogo function.
+ * @return {object} An object with the setLogo function.
  */
 const useSetLogo = () => {
 	const editEntityRecord = useDispatch( 'core' ).editEntityRecord;
@@ -80,6 +81,7 @@ const useSiteDetails = () => {
 		domain: window?.Jetpack_Editor_Initial_State?.siteFragment,
 		name: siteSettings?.title,
 		description: siteSettings?.description,
+		siteLogo: siteSettings?.site_logo || 0,
 	};
 };
 
@@ -100,10 +102,10 @@ const siteLogoEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			setIsLogoGeneratorModalVisible( false );
 		}, [] );
 
-		const reloadModal = useCallback( () => {
-			closeModal();
-			showModal();
-		}, [ closeModal, showModal ] );
+		// const reloadModal = useCallback( () => {
+		// 	closeModal();
+		// 	showModal();
+		// }, [ closeModal, showModal ] );
 
 		const applyLogoHandler = useCallback(
 			( mediaId: number ) => {
@@ -127,13 +129,14 @@ const siteLogoEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			<>
 				<BlockEdit { ...props } />
 				<BlockControls group="block">
-					<AiToolbarButton clickHandler={ showModal } />
+					<AiToolbarButton showButtonText={ ! siteDetails?.siteLogo } clickHandler={ showModal } />
 				</BlockControls>
 				<GeneratorModal
 					isOpen={ isLogoGeneratorModalVisible }
 					onClose={ closeModal }
 					onApplyLogo={ applyLogoHandler }
-					onReload={ reloadModal }
+					// reload is not working right and can end up showing a non functional modal
+					// onReload={ reloadModal }
 					context={ PLACEMENT_CONTEXT }
 					placement={ TOOL_PLACEMENT }
 					siteDetails={ siteDetails }
@@ -146,7 +149,7 @@ const siteLogoEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 /**
  * Function to check if the feature is available depending on the site ID.
  *
- * @returns {boolean} True if the feature is available.
+ * @return {boolean} True if the feature is available.
  */
 function isFeatureAvailable() {
 	return getFeatureAvailability( SITE_LOGO_BLOCK_AI_EXTENSION );
@@ -156,7 +159,7 @@ function isFeatureAvailable() {
  * Function to check if the block can be extended.
  *
  * @param {string} name - The block name.
- * @returns {boolean} True if the block can be extended.
+ * @return {boolean} True if the block can be extended.
  */
 function canExtendBlock( name: string ): boolean {
 	if ( name !== 'core/site-logo' ) {
@@ -196,8 +199,8 @@ function canExtendBlock( name: string ): boolean {
  * Will create a HOC to use as the edit implementation.
  *
  * @param {object} settings - The block settings.
- * @param {string} name - The block name.
- * @returns {object} The new block settings.
+ * @param {string} name     - The block name.
+ * @return {object} The new block settings.
  */
 function jetpackSiteLogoWithAiSupport( settings, name: string ) {
 	if ( ! canExtendBlock( name ) ) {

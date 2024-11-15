@@ -4,7 +4,7 @@ import { useCallback } from 'react';
 /**
  * Fetches relevant entity record states for use in the configurator.
  *
- * @returns {object} relevant entity record values.
+ * @return {object} relevant entity record values.
  */
 export default function useEntityRecordState() {
 	const { saveEntityRecord, undo, redo } = useDispatch( 'core' );

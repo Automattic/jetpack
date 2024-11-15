@@ -7,15 +7,18 @@ import { store as editorStore } from '@wordpress/editor';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { arrowDown, Icon, people, check } from '@wordpress/icons';
+import ConnectBanner from '../../shared/components/connect-banner';
 import PlansSetupDialog from '../../shared/components/plans-setup-dialog';
 import { accessOptions } from '../../shared/memberships/constants';
 import { useAccessLevel } from '../../shared/memberships/edit';
 import { NewsletterAccessRadioButtons, useSetAccess } from '../../shared/memberships/settings';
+import useIsUserConnected from '../../shared/use-is-user-connected';
 
 function PaywallEdit() {
 	const blockProps = useBlockProps();
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
 	const accessLevel = useAccessLevel( postType );
+	const isUserConnected = useIsUserConnected();
 
 	const { stripeConnectUrl, hasTierPlans } = useSelect( select => {
 		const { getNewsletterTierProducts, getConnectUrl } = select( 'jetpack/membership-products' );
@@ -41,6 +44,20 @@ function PaywallEdit() {
 			return;
 		}
 		setAccess( value );
+	}
+
+	if ( ! isUserConnected ) {
+		return (
+			<div { ...blockProps }>
+				<ConnectBanner
+					block="Paywall"
+					explanation={ __(
+						'Connect your WordPress.com account to enable a paywall for your site.',
+						'jetpack'
+					) }
+				/>
+			</div>
+		);
 	}
 
 	const getText = key => {

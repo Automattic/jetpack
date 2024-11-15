@@ -24,6 +24,20 @@ use function Automattic\Jetpack\Device_Detection\wp_unslash;
 class Device_Detection {
 
 	/**
+	 * Memoization cache for get_info() results.
+	 *
+	 * @var array
+	 */
+	private static $get_info_memo = array();
+
+	/**
+	 * Maximum size of the memoization cache.
+	 *
+	 * @var int
+	 */
+	private static $max_memo_size = 100;
+
+	/**
 	 * Returns information about the current device accessing the page.
 	 *
 	 * @param string $ua (Optional) User-Agent string.
@@ -41,6 +55,16 @@ class Device_Detection {
 	 * );
 	 */
 	public static function get_info( $ua = '' ) {
+		// Return memoized result if available.
+		// phpcs:disable WordPress.Security.ValidatedSanitizedInput
+		$memo_key = ! empty( $ua ) ? $ua : ( $_SERVER['HTTP_USER_AGENT'] ?? '' );
+		// Note: UA string used raw for compatibility reasons.
+		// No sanitization is needed as the value is never output or persisted, and is only used for memoization.
+		// phpcs:enable WordPress.Security.ValidatedSanitizedInput
+		if ( isset( self::$get_info_memo[ $memo_key ] ) ) {
+			return self::$get_info_memo[ $memo_key ];
+		}
+
 		$ua_info = new User_Agent_Info( $ua );
 
 		$info = array(
@@ -68,6 +92,13 @@ class Device_Detection {
 			 */
 			$info = apply_filters( 'jetpack_device_detection_get_info', $info, $ua, $ua_info );
 		}
+
+		// Memoize the result.
+		self::$get_info_memo[ $memo_key ] = $info;
+		if ( count( self::$get_info_memo ) > self::$max_memo_size ) {
+			array_shift( self::$get_info_memo );
+		}
+
 		return $info;
 	}
 

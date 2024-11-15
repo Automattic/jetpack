@@ -26,16 +26,16 @@ import clsx from 'clsx';
  */
 import UsagePanel from '../../plugins/ai-assistant-plugin/components/usage-panel';
 import { USAGE_PANEL_PLACEMENT_BLOCK_SETTINGS_SIDEBAR } from '../../plugins/ai-assistant-plugin/components/usage-panel/types';
-import { PLAN_TYPE_FREE, usePlanType } from '../../shared/use-plan-type';
-import ConnectPrompt from './components/connect-prompt';
+import ConnectBanner from '../../shared/components/connect-banner';
+import { PLAN_TYPE_FREE, PLAN_TYPE_UNLIMITED, usePlanType } from '../../shared/use-plan-type';
 import FeedbackControl from './components/feedback-control';
+import QuotaExceededMessage, { FairUsageNotice } from './components/quota-exceeded-message';
 import ToolbarControls from './components/toolbar-controls';
-import UpgradePrompt from './components/upgrade-prompt';
-import { getStoreBlockId } from './extensions/ai-assistant/with-ai-assistant';
 import useAIAssistant from './hooks/use-ai-assistant';
 import useAICheckout from './hooks/use-ai-checkout';
 import useAiFeature from './hooks/use-ai-feature';
 import useAiProductPage from './hooks/use-ai-product-page';
+import { getStoreBlockId } from './hooks/use-transform-to-assistant';
 import { isUserConnected } from './lib/connection';
 import './editor.scss';
 
@@ -61,6 +61,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 		requestsLimit,
 		currentTier,
 		loading: loadingAiFeature,
+		tierPlansEnabled,
 	} = useAiFeature();
 	const requestsRemaining = Math.max( requestsLimit - requestsCount, 0 );
 
@@ -198,7 +199,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 	const acceptLabel = isGeneratingTitle ? acceptTitleLabel : acceptContentLabel;
 
 	const moveCaretToEnd = element => {
-		const selection = window.getSelection();
+		const selection = element.ownerDocument.getSelection();
 		selection.selectAllChildren( element );
 		selection.collapseToEnd();
 		element.focus();
@@ -207,7 +208,6 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 	const handleGetSuggestion = ( ...args ) => {
 		getSuggestionFromOpenAI( ...args );
 		focusOnBlock();
-		return;
 	};
 
 	const handleChange = value => {
@@ -304,8 +304,8 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 
 	const banner = (
 		<>
-			{ isOverLimit && isSelected && <UpgradePrompt placement="ai-assistant-block" /> }
-			{ ! connected && <ConnectPrompt /> }
+			{ isOverLimit && isSelected && <QuotaExceededMessage placement="ai-assistant-block" /> }
+			{ ! connected && <ConnectBanner block="AI Assistant" /> }
 		</>
 	);
 
@@ -322,6 +322,9 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 			) }
 		</>
 	);
+
+	const fairUsageNotice =
+		isOverLimit && planType === PLAN_TYPE_UNLIMITED ? <FairUsageNotice variant="muted" /> : null;
 
 	const trackUpgradeClick = useCallback(
 		event => {
@@ -354,6 +357,12 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 					</div>
 				) }
 				<InspectorControls>
+					{ fairUsageNotice && (
+						<div className="block-editor-block-card" style={ { paddingTop: 0 } }>
+							<span className="block-editor-block-icon"></span>
+							{ fairUsageNotice }
+						</div>
+					) }
 					{ /* Mock BlockCard component styles to keep alignment */ }
 					<div className="block-editor-block-card" style={ { paddingTop: 0 } }>
 						<span className="block-editor-block-icon"></span>
@@ -361,11 +370,14 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 							{ __( 'Discover all features', 'jetpack' ) }
 						</ExternalLink>
 					</div>
-					<PanelBody initialOpen={ true }>
-						<PanelRow>
-							<UsagePanel placement={ USAGE_PANEL_PLACEMENT_BLOCK_SETTINGS_SIDEBAR } />
-						</PanelRow>
-					</PanelBody>
+					{ ( planType === PLAN_TYPE_FREE ||
+						( tierPlansEnabled && planType !== PLAN_TYPE_UNLIMITED ) ) && (
+						<PanelBody initialOpen={ true }>
+							<PanelRow>
+								<UsagePanel placement={ USAGE_PANEL_PLACEMENT_BLOCK_SETTINGS_SIDEBAR } />
+							</PanelRow>
+						</PanelBody>
+					) }
 					<PanelBody initialOpen={ true }>
 						<PanelRow>
 							<FeedbackControl />

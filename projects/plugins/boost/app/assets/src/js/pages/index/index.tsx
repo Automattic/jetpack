@@ -11,11 +11,12 @@ import MinifyMeta from '$features/minify-meta/minify-meta';
 import { QualitySettings, ImageCdnLiar } from '$features/image-cdn';
 import styles from './index.module.scss';
 import { RecommendationsMeta } from '$features/image-size-analysis';
-import SuperCacheInfo from '$features/super-cache-info/super-cache-info';
+import CornerstonePages from '$features/cornerstone-pages/cornerstone-pages';
 import { useRegenerateCriticalCssAction } from '$features/critical-css/lib/stores/critical-css-state';
 import PremiumTooltip from '$features/premium-tooltip/premium-tooltip';
 import Upgraded from '$features/ui/upgraded/upgraded';
 import PageCacheModule from '$features/page-cache/page-cache';
+import Pill from '$features/ui/pill/pill';
 
 const Index = () => {
 	const criticalCssLink = getRedirectUrl( 'jetpack-boost-critical-css' );
@@ -23,7 +24,6 @@ const Index = () => {
 
 	const [ isaState ] = useSingleModuleState( 'image_size_analysis' );
 	const [ imageCdn ] = useSingleModuleState( 'image_cdn' );
-	const [ pageCache ] = useSingleModuleState( 'page_cache' );
 
 	const regenerateCssAction = useRegenerateCriticalCssAction();
 	const requestRegenerateCriticalCss = () => {
@@ -38,6 +38,7 @@ const Index = () => {
 
 	return (
 		<div className="jb-container--narrow">
+			<CornerstonePages />
 			<Module
 				slug="critical_css"
 				title={ __( 'Optimize Critical CSS Loading (manual)', 'jetpack-boost' ) }
@@ -270,7 +271,7 @@ const Index = () => {
 					title={
 						<>
 							{ __( 'Image Size Analysis', 'jetpack-boost' ) }
-							<span className={ styles.beta }>Beta</span>
+							<Pill text={ __( 'Beta', 'jetpack-boost' ) } />
 						</>
 					}
 					description={
@@ -285,8 +286,6 @@ const Index = () => {
 					{ isaState?.active && <RecommendationsMeta isCdnActive={ !! imageCdn?.active } /> }
 				</Module>
 			</div>
-
-			{ ! pageCache?.active && <SuperCacheInfo /> }
 		</div>
 	);
 };

@@ -38,7 +38,7 @@ class SetCookieSniff extends AbstractFunctionParameterSniff {
 	 * @link http://php.net/setcookie
 	 *
 	 * @since 2.6.0
-	 * @since $$next-version$$ Value is irrelevant, check is hard-coded because we only ever use this with PHP's setcookie.
+	 * @since 4.0.0 Value is irrelevant, check is hard-coded because we only ever use this with PHP's setcookie.
 	 *
 	 * @var array <string function_name> => true
 	 */

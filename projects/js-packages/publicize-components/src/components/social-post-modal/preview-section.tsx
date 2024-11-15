@@ -14,7 +14,7 @@ import styles from './styles.module.scss';
 /**
  * Preview section of the social post modal.
  *
- * @returns {import('react').ReactNode} - Preview section of the social post modal.
+ * @return {import('react').ReactNode} - Preview section of the social post modal.
  */
 export function PreviewSection() {
 	const { recordEvent } = useAnalytics();
@@ -59,7 +59,7 @@ export function PreviewSection() {
 					} )
 			);
 		},
-		[ getService, shouldBeDisabled ]
+		[ canBeTurnedOn, getService, shouldBeDisabled ]
 	);
 
 	const { toggleConnectionById } = useDispatch( socialStore );
@@ -98,6 +98,7 @@ export function PreviewSection() {
 										}
 										checked={ isEnabled }
 										onChange={ toggleConnection( tab.connection_id, tab ) }
+										__nextHasNoMarginBottom={ true }
 									/>
 								) : null
 							}

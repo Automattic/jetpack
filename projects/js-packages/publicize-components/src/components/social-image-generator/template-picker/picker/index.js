@@ -12,9 +12,9 @@ import TEMPLATES_DATA from './templates.js';
  * with the onTemplateSelected callback.
  *
  * @param {{value: string|null, onTemplateSelected: Function}} props - The component props:
- * Value is the name of the currently selected template, onTemplateSelected is a function that
- * will be called when a template is selected. Receives the name of the selected template as an argument.
- * @returns {ReactNode} - The component's rendered output.
+ *                                                                   Value is the name of the currently selected template, onTemplateSelected is a function that
+ *                                                                   will be called when a template is selected. Receives the name of the selected template as an argument.
+ * @return {ReactNode} - The component's rendered output.
  */
 const TemplatePicker = ( { value = null, onTemplateSelected = null } ) => {
 	const onTemplateClicked = useCallback(

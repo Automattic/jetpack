@@ -2,7 +2,7 @@
  * https://github.com/Automattic/Color.js
  * Copyright (c) 2015 Matt Wiebe; Licensed GPLv2 */
 ( function ( global, undef ) {
-	var Color = function ( color, type ) {
+	const Color = function ( color, type ) {
 		if ( ! ( this instanceof Color ) ) {
 			return new Color( color, type );
 		}
@@ -21,21 +21,22 @@
 		// for setting hsl or hsv space - needed for .h() & .s() functions to function properly
 		_hSpace: 'hsl',
 		_init: function ( color ) {
-			var func = 'noop';
+			let func = 'noop';
 			switch ( typeof color ) {
 				case 'object':
 					// alpha?
 					if ( color.a !== undef ) {
 						this.a( color.a );
 					}
-					func =
-						color.r !== undef
-							? 'fromRgb'
-							: color.l !== undef
-							? 'fromHsl'
-							: color.v !== undef
-							? 'fromHsv'
-							: func;
+
+					if ( color.a !== undef ) {
+						func = 'fromRgb';
+					} else if ( color.l !== undef ) {
+						func = 'fromHsl';
+					} else if ( color.v !== undef ) {
+						func = 'fromHsv';
+					}
+
 					return this[ func ]( color );
 				case 'string':
 					return this.fromCSS( color );
@@ -51,9 +52,9 @@
 		},
 
 		clone: function () {
-			var newColor = new Color( this.toInt() ),
+			const newColor = new Color( this.toInt() ),
 				copy = [ '_alpha', '_hSpace', '_hsl', '_hsv', 'error' ];
-			for ( var i = copy.length - 1; i >= 0; i-- ) {
+			for ( let i = copy.length - 1; i >= 0; i-- ) {
 				newColor[ copy[ i ] ] = this[ copy[ i ] ];
 			}
 			return newColor;
@@ -69,8 +70,8 @@
 		},
 
 		fromCSS: function ( color ) {
-			var list,
-				leadingRE = /^(rgb|hs(l|v))a?\(/;
+			let list;
+			const leadingRE = /^(rgb|hs(l|v))a?\(/;
 			this.error = false;
 
 			// whitespace and semicolon trim
@@ -95,7 +96,7 @@
 					}
 				}
 
-				for ( var i = list.length - 1; i >= 0; i-- ) {
+				for ( let i = list.length - 1; i >= 0; i-- ) {
 					list[ i ] = parseInt( list[ i ], 10 );
 					if ( isNaN( list[ i ] ) ) {
 						return this._error();
@@ -114,17 +115,15 @@
 						s: list[ 1 ],
 						v: list[ 2 ],
 					} );
-				} else {
-					return this.fromHsl( {
-						h: list[ 0 ],
-						s: list[ 1 ],
-						l: list[ 2 ],
-					} );
 				}
-			} else {
-				// must be hex amirite?
-				return this.fromHex( color );
+				return this.fromHsl( {
+					h: list[ 0 ],
+					s: list[ 1 ],
+					l: list[ 2 ],
+				} );
 			}
+			// must be hex amirite?
+			return this.fromHex( color );
 		},
 
 		fromRgb: function ( rgb, preserve ) {
@@ -133,6 +132,7 @@
 			}
 
 			this.error = false;
+			// eslint-disable-next-line no-bitwise -- Bitwise operations are at home in this context.
 			return this.fromInt( parseInt( ( rgb.r << 16 ) + ( rgb.g << 8 ) + rgb.b, 10 ), preserve );
 		},
 
@@ -148,7 +148,7 @@
 		},
 
 		fromHsl: function ( hsl ) {
-			var r, g, b, q, p, h, s, l;
+			let r, g, b, q, p;
 
 			if ( typeof hsl !== 'object' || hsl.h === undef || hsl.s === undef || hsl.l === undef ) {
 				return this._error();
@@ -156,9 +156,9 @@
 
 			this._hsl = hsl; // store it
 			this._hSpace = 'hsl'; // implicit
-			h = hsl.h / 360;
-			s = hsl.s / 100;
-			l = hsl.l / 100;
+			const h = hsl.h / 360;
+			const s = hsl.s / 100;
+			const l = hsl.l / 100;
 			if ( s === 0 ) {
 				r = g = b = l; // achromatic
 			} else {
@@ -179,7 +179,8 @@
 		},
 
 		fromHsv: function ( hsv ) {
-			var h, s, v, r, g, b, i, f, p, q, t;
+			let r, g, b;
+
 			if ( typeof hsv !== 'object' || hsv.h === undef || hsv.s === undef || hsv.v === undef ) {
 				return this._error();
 			}
@@ -187,14 +188,14 @@
 			this._hsv = hsv; // store it
 			this._hSpace = 'hsv'; // implicit
 
-			h = hsv.h / 360;
-			s = hsv.s / 100;
-			v = hsv.v / 100;
-			i = Math.floor( h * 6 );
-			f = h * 6 - i;
-			p = v * ( 1 - s );
-			q = v * ( 1 - f * s );
-			t = v * ( 1 - ( 1 - f ) * s );
+			const h = hsv.h / 360;
+			const s = hsv.s / 100;
+			const v = hsv.v / 100;
+			const i = Math.floor( h * 6 );
+			const f = h * 6 - i;
+			const p = v * ( 1 - s );
+			const q = v * ( 1 - f * s );
+			const t = v * ( 1 - ( 1 - f ) * s );
 
 			switch ( i % 6 ) {
 				case 0:
@@ -281,13 +282,14 @@
 		},
 
 		toString: function () {
-			var hex = parseInt( this._color, 10 ).toString( 16 );
 			if ( this.error ) {
 				return '';
 			}
+
+			let hex = parseInt( this._color, 10 ).toString( 16 );
 			// maybe left pad it
 			if ( hex.length < 6 ) {
-				for ( var i = 6 - hex.length - 1; i >= 0; i-- ) {
+				for ( let i = 6 - hex.length - 1; i >= 0; i-- ) {
 					hex = '0' + hex;
 				}
 			}
@@ -295,55 +297,59 @@
 		},
 
 		toCSS: function ( type, alpha ) {
+			let rgb = {},
+				hsl = {};
+
 			type = type || 'hex';
 			alpha = parseFloat( alpha || this._alpha );
 			switch ( type ) {
 				case 'rgb':
 				case 'rgba':
-					var rgb = this.toRgb();
+					rgb = this.toRgb();
 					if ( alpha < 1 ) {
 						return 'rgba( ' + rgb.r + ', ' + rgb.g + ', ' + rgb.b + ', ' + alpha + ' )';
-					} else {
-						return 'rgb( ' + rgb.r + ', ' + rgb.g + ', ' + rgb.b + ' )';
 					}
-					break;
+					return 'rgb( ' + rgb.r + ', ' + rgb.g + ', ' + rgb.b + ' )';
+
+				// break omitted, unreachable.
 				case 'hsl':
 				case 'hsla':
-					var hsl = this.toHsl();
+					hsl = this.toHsl();
 					if ( alpha < 1 ) {
 						return 'hsla( ' + hsl.h + ', ' + hsl.s + '%, ' + hsl.l + '%, ' + alpha + ' )';
-					} else {
-						return 'hsl( ' + hsl.h + ', ' + hsl.s + '%, ' + hsl.l + '% )';
 					}
-					break;
+					return 'hsl( ' + hsl.h + ', ' + hsl.s + '%, ' + hsl.l + '% )';
+
+				// break omitted, unreachable.
 				default:
 					return this.toString();
 			}
 		},
 
 		toRgb: function () {
+			/* eslint-disable no-bitwise -- Bitwise calculations are at home in this context. */
 			return {
 				r: 255 & ( this._color >> 16 ),
 				g: 255 & ( this._color >> 8 ),
 				b: 255 & this._color,
 			};
+			/* eslint-enable no-bitwise */
 		},
 
 		toHsl: function () {
-			var rgb = this.toRgb();
-			var r = rgb.r / 255,
+			const rgb = this.toRgb();
+			const r = rgb.r / 255,
 				g = rgb.g / 255,
 				b = rgb.b / 255;
-			var max = Math.max( r, g, b ),
+			const max = Math.max( r, g, b ),
 				min = Math.min( r, g, b );
-			var h,
-				s,
-				l = ( max + min ) / 2;
+			let h, s;
+			const l = ( max + min ) / 2;
 
 			if ( max === min ) {
 				h = s = 0; // achromatic
 			} else {
-				var d = max - min;
+				const d = max - min;
 				s = l > 0.5 ? d / ( 2 - max - min ) : d / ( max + min );
 				switch ( max ) {
 					case r:
@@ -377,16 +383,15 @@
 		},
 
 		toHsv: function () {
-			var rgb = this.toRgb();
-			var r = rgb.r / 255,
+			const rgb = this.toRgb();
+			const r = rgb.r / 255,
 				g = rgb.g / 255,
 				b = rgb.b / 255;
-			var max = Math.max( r, g, b ),
+			const max = Math.max( r, g, b ),
 				min = Math.min( r, g, b );
-			var h,
-				s,
-				v = max;
-			var d = max - min;
+			let h, s;
+			const v = max;
+			const d = max - min;
 			s = max === 0 ? 0 : d / max;
 
 			if ( max === min ) {
@@ -429,8 +434,8 @@
 
 		toIEOctoHex: function () {
 			// AARRBBGG
-			var hex = this.toString();
-			var AA = parseInt( 255 * this._alpha, 10 ).toString( 16 );
+			const hex = this.toString();
+			let AA = parseInt( 255 * this._alpha, 10 ).toString( 16 );
 			if ( AA.length === 1 ) {
 				AA = '0' + AA;
 			}
@@ -439,13 +444,13 @@
 
 		// http://www.w3.org/TR/2008/REC-WCAG20-20081211/#relativeluminancedef
 		toLuminosity: function () {
-			var rgb = this.toRgb();
-			var lum = {};
-			for ( var i in rgb ) {
-				if ( ! rgb.hasOwnProperty( i ) ) {
+			const rgb = this.toRgb();
+			const lum = {};
+			for ( const i in rgb ) {
+				if ( ! Object.hasOwn( rgb, i ) ) {
 					continue;
 				}
-				var chan = rgb[ i ] / 255;
+				const chan = rgb[ i ] / 255;
 				lum[ i ] = chan <= 0.03928 ? chan / 12.92 : Math.pow( ( chan + 0.055 ) / 1.055, 2.4 );
 			}
 
@@ -457,19 +462,18 @@
 			if ( ! ( color instanceof Color ) ) {
 				throw 'getDistanceLuminosityFrom requires a Color object';
 			}
-			var lum1 = this.toLuminosity();
-			var lum2 = color.toLuminosity();
+			const lum1 = this.toLuminosity();
+			const lum2 = color.toLuminosity();
 			if ( lum1 > lum2 ) {
 				return ( lum1 + 0.05 ) / ( lum2 + 0.05 );
-			} else {
-				return ( lum2 + 0.05 ) / ( lum1 + 0.05 );
 			}
+			return ( lum2 + 0.05 ) / ( lum1 + 0.05 );
 		},
 
 		getMaxContrastColor: function () {
-			var withBlack = this.getDistanceLuminosityFrom( new Color( '#000' ) );
-			var withWhite = this.getDistanceLuminosityFrom( new Color( '#fff' ) );
-			var hex = withBlack >= withWhite ? '#000' : '#fff';
+			const withBlack = this.getDistanceLuminosityFrom( new Color( '#000' ) );
+			const withWhite = this.getDistanceLuminosityFrom( new Color( '#fff' ) );
+			const hex = withBlack >= withWhite ? '#000' : '#fff';
 			return new Color( hex );
 		},
 
@@ -479,19 +483,16 @@
 			}
 
 			// you shouldn't use less than 5, but you might want to.
-			var targetContrast = minContrast === undef ? 5 : minContrast,
-				contrast = bgColor.getDistanceLuminosityFrom( this ),
-				maxContrastColor,
-				maxContrast,
-				incr;
+			const targetContrast = minContrast === undef ? 5 : minContrast;
+			let contrast = bgColor.getDistanceLuminosityFrom( this );
 
 			// if we have sufficient contrast already, cool
 			if ( contrast >= targetContrast ) {
 				return this;
 			}
 
-			maxContrastColor = bgColor.getMaxContrastColor();
-			maxContrast = maxContrastColor.getDistanceLuminosityFrom( bgColor );
+			const maxContrastColor = bgColor.getMaxContrastColor();
+			const maxContrast = maxContrastColor.getDistanceLuminosityFrom( bgColor );
 
 			// if current max contrast is less than the target contrast, we had wishful thinking.
 			// still, go max
@@ -499,7 +500,7 @@
 				return maxContrastColor;
 			}
 
-			incr = 0 === maxContrastColor.toInt() ? -1 : 1;
+			const incr = 0 === maxContrastColor.toInt() ? -1 : 1;
 			while ( contrast < targetContrast ) {
 				this.l( incr, true ); // 2nd arg turns this into an incrementer
 				contrast = this.getDistanceLuminosityFrom( bgColor );
@@ -517,7 +518,7 @@
 				return this._alpha;
 			}
 
-			var a = parseFloat( val );
+			const a = parseFloat( val );
 
 			if ( isNaN( a ) ) {
 				return this._error();
@@ -559,32 +560,32 @@
 
 		getSplitComplement: function ( step ) {
 			step = step || 1;
-			var incr = 180 + step * 30;
+			const incr = 180 + step * 30;
 			return this.h( incr, true );
 		},
 
 		getAnalog: function ( step ) {
 			step = step || 1;
-			var incr = step * 30;
+			const incr = step * 30;
 			return this.h( incr, true );
 		},
 
 		getTetrad: function ( step ) {
 			step = step || 1;
-			var incr = step * 60;
+			const incr = step * 60;
 			return this.h( incr, true );
 		},
 
 		getTriad: function ( step ) {
 			step = step || 1;
-			var incr = step * 120;
+			const incr = step * 120;
 			return this.h( incr, true );
 		},
 
 		_partial: function ( key ) {
-			var prop = shortProps[ key ];
+			const prop = shortProps[ key ];
 			return function ( val, incr ) {
-				var color = this._spaceFunc( 'to', prop.space );
+				const color = this._spaceFunc( 'to', prop.space );
 
 				// GETTER
 				if ( val === undef ) {
@@ -601,8 +602,11 @@
 					val = val % prop.mod;
 				}
 				if ( prop.range ) {
-					val =
-						val < prop.range[ 0 ] ? prop.range[ 0 ] : val > prop.range[ 1 ] ? prop.range[ 1 ] : val;
+					if ( val < prop.range[ 0 ] ) {
+						val = prop.range[ 0 ];
+					} else if ( val > prop.range[ 1 ] ) {
+						val = prop.range[ 1 ];
+					}
 				}
 
 				// NEW VALUE
@@ -613,13 +617,13 @@
 		},
 
 		_spaceFunc: function ( dir, s, val ) {
-			var space = s || this._hSpace,
+			const space = s || this._hSpace,
 				funcName = dir + space.charAt( 0 ).toUpperCase() + space.substr( 1 );
 			return this[ funcName ]( val );
 		},
 	};
 
-	var shortProps = {
+	const shortProps = {
 		h: {
 			mod: 360,
 		},
@@ -648,8 +652,8 @@
 		},
 	};
 
-	for ( var key in shortProps ) {
-		if ( shortProps.hasOwnProperty( key ) ) {
+	for ( const key in shortProps ) {
+		if ( Object.hasOwn( shortProps, key ) ) {
 			Color.fn[ key ] = Color.fn._partial( key );
 		}
 	}

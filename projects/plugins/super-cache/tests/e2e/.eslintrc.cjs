@@ -9,7 +9,6 @@ module.exports = {
 	],
 	ignorePatterns: loadIgnorePatterns( __dirname ),
 	parserOptions: {
-		sourceType: 'module',
 		tsconfigRootDir: __dirname,
 		project: [ './tsconfig.json' ],
 	},

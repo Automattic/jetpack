@@ -1,14 +1,14 @@
 @import "@automattic/color-studio/dist/color-variables";
 
 .jetpack-newsletter-test-email-modal__email-sent {
-  color: $studio-jetpack-green-30;
-  svg {
-    fill: $studio-jetpack-green-30;
-  }
+	color: $studio-jetpack-green-30;
+		svg {
+			fill: $studio-jetpack-green-30;
+		}
 }
 
 .jetpack-newsletter-preview-modal {
-  h1 {
-    flex-shrink: 0;
-  }
+	h1 {
+		flex-shrink: 0;
+	}
 }

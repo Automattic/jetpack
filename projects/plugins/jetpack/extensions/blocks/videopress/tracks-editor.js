@@ -52,7 +52,7 @@ const captionIcon = (
 /**
  * Determines if api requests should be made via the `gutenberg-video-upload` script (Jetpack only).
  *
- * @returns {boolean} if the upload script should be used or not.
+ * @return {boolean} if the upload script should be used or not.
  */
 const shouldUseJetpackVideoFetch = () => {
 	return 'videoPressUploadTrack' in window;
@@ -63,8 +63,8 @@ const shouldUseJetpackVideoFetch = () => {
  * Uses different methods depending on Jetpack or WPCOM.
  *
  * @param {object} track - the track file
- * @param {string} guid - the video guid
- * @returns {Promise} the api request promise
+ * @param {string} guid  - the video guid
+ * @return {Promise} the api request promise
  */
 export const uploadTrackForGuid = ( track, guid ) => {
 	if ( shouldUseJetpackVideoFetch() ) {
@@ -99,8 +99,8 @@ export const uploadTrackForGuid = ( track, guid ) => {
  * -Uses different methods depending on Jetpack or WPCOM.
  *
  * @param {object} track - the track file
- * @param {string} guid - the video guid
- * @returns {Promise} the api request promise.
+ * @param {string} guid  - the video guid
+ * @return {Promise} the api request promise.
  */
 const deleteTrackForGuid = ( track, guid ) => {
 	if ( shouldUseJetpackVideoFetch() ) {
@@ -301,6 +301,7 @@ function SingleTrackEditor( { track, guid, onChange, onClose, onCancel, trackExi
 						value={ label }
 						help={ __( 'Title of track', 'jetpack' ) }
 						disabled={ isSavingTrack }
+						__nextHasNoMarginBottom={ true }
 					/>
 					<TextControl
 						onChange={ newSrcLang =>
@@ -313,6 +314,7 @@ function SingleTrackEditor( { track, guid, onChange, onClose, onCancel, trackExi
 						value={ srcLang }
 						help={ __( 'Language tag (en, fr, etc.)', 'jetpack' ) }
 						disabled={ isSavingTrack }
+						__nextHasNoMarginBottom={ true }
 					/>
 				</div>
 				<SelectControl
@@ -330,6 +332,7 @@ function SingleTrackEditor( { track, guid, onChange, onClose, onCancel, trackExi
 						} );
 					} }
 					disabled={ isSavingTrack }
+					__nextHasNoMarginBottom={ true }
 				/>
 				<div className="videopress-block-tracks-editor__single-track-editor-buttons-container">
 					{ isSavingTrack ? (

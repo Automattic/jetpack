@@ -4,6 +4,7 @@ import { useSingleModuleState } from './lib/stores';
 import styles from './module.module.scss';
 import ErrorBoundary from '$features/error-boundary/error-boundary';
 import { __ } from '@wordpress/i18n';
+import { isWoaHosting } from '$lib/utils/hosting';
 
 type ModuleProps = {
 	title: React.ReactNode;
@@ -37,6 +38,9 @@ const Module = ( {
 	} );
 	const isModuleActive = status?.active ?? false;
 	const isModuleAvailable = status?.available ?? false;
+	// Page Cache is not available for WoA sites, but since WoA sites
+	// have their own caching, we want to show that Page Cache is active.
+	const isFakeActive = ! isModuleAvailable && isWoaHosting() && slug === 'page_cache';
 
 	const handleToggle = () => {
 		if ( onBeforeToggle ) {
@@ -64,7 +68,7 @@ const Module = ( {
 					<ToggleControl
 						className={ `jb-feature-toggle-${ slug }` }
 						size="small"
-						checked={ isModuleActive }
+						checked={ isModuleActive || isFakeActive }
 						disabled={ ! isModuleAvailable }
 						onChange={ handleToggle }
 					/>

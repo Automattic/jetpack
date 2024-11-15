@@ -6,11 +6,11 @@ import ButtonGroup from '../../../components/button-group';
 /**
  * Status Filters component.
  *
- * @param {object} props - Component props.
- * @param {number} props.numFixed - Number of fixed threats.
+ * @param {object} props            - Component props.
+ * @param {number} props.numFixed   - Number of fixed threats.
  * @param {number} props.numIgnored - Number of ignored threats.
  *
- * @returns {React.ReactNode} StatusFilters component.
+ * @return {React.ReactNode} StatusFilters component.
  */
 export default function StatusFilters( { numFixed, numIgnored } ) {
 	const navigate = useNavigate();

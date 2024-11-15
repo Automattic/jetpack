@@ -13,7 +13,7 @@ import styles from './style.module.scss';
 /**
  * Component that renders the Welcome banner on My Jetpack.
  *
- * @returns {object} The WelcomeBanner component.
+ * @return {object} The WelcomeBanner component.
  */
 const WelcomeBanner = () => {
 	const { recordEvent } = useAnalytics();

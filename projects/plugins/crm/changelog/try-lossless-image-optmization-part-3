@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Lossless image optimization for images (should improve performance with no visible changes).

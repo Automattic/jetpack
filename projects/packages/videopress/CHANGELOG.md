@@ -5,6 +5,99 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.24.17] - 2024-11-11
+### Changed
+- Updated package dependencies. [#39999] [#40000] [#40060]
+
+## [0.24.16] - 2024-11-04
+### Added
+- Enable test coverage. [#39961]
+
+## [0.24.15] - 2024-10-29
+### Changed
+- Components: Add __nextHasNoMarginBottom to BaseControl-based components, preventing deprecation notices. [#39877]
+
+## [0.24.14] - 2024-10-28
+### Changed
+- Admin: Changed initialization load order for menu items to prevent translation error. [#39841]
+- Updated package dependencies. [#39910]
+
+## [0.24.13] - 2024-10-21
+### Changed
+- Update dependencies. [#39781]
+
+## [0.24.12] - 2024-10-14
+### Added
+- Add tracks to connection banner. [#39732]
+
+### Changed
+- Only include `wp-polyfill` as a script dependency when needed. [#39629]
+- Updated package dependencies. [#39669] [#39707]
+
+### Fixed
+- Fix bug where connection banner was showing in P2s and other atomic/simple sites [#39667]
+
+## [0.24.11] - 2024-10-07
+### Changed
+- Update connection nudge for VideoPress connection banner in blocks. [#39628]
+- Updated package dependencies. [#39594]
+
+### Fixed
+- VideoPress: fix thumbnail update bug that showed the old thumbnail for a couple seconds on the details page. [#39631]
+
+## [0.24.10] - 2024-09-30
+### Changed
+- Update dependencies. [#39528]
+
+## [0.24.9] - 2024-09-23
+### Changed
+- Update dependencies. [#38595]
+
+## [0.24.8] - 2024-09-16
+### Changed
+- Updated package dependencies. [#39332]
+
+## [0.24.7] - 2024-09-10
+### Changed
+- Updated package dependencies. [#39302]
+
+## [0.24.6] - 2024-09-09
+### Changed
+- Updated package dependencies. [#39278]
+
+## [0.24.5] - 2024-09-05
+### Changed
+- Updated package dependencies. [#39176]
+
+### Fixed
+- Fix translation issue with VideoPress data [#39242]
+
+## [0.24.4] - 2024-09-02
+### Changed
+- Admin menu: change order of Jetpack sub-menu items [#39095]
+- Updated package dependencies. [#39111]
+
+## [0.24.3] - 2024-08-26
+### Added
+- Add context switching to videopress card from yearly views to monthly views [#38979]
+
+### Changed
+- Updated package dependencies. [#39004]
+
+## [0.24.2] - 2024-08-21
+### Changed
+- Internal updates.
+
+## [0.24.1] - 2024-08-19
+### Added
+- Add value to active card state on VideoPress My Jetpack card. [#38812]
+
+### Changed
+- Updated package dependencies. [#38893]
+
+### Fixed
+- Lossless image optimization for images (should improve performance with no visible changes). [#38750]
+
 ## [0.24.0] - 2024-08-15
 ### Changed
 - Updated package dependencies. [#38665]
@@ -1395,6 +1488,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.24.17]: https://github.com/Automattic/jetpack-videopress/compare/v0.24.16...v0.24.17
+[0.24.16]: https://github.com/Automattic/jetpack-videopress/compare/v0.24.15...v0.24.16
+[0.24.15]: https://github.com/Automattic/jetpack-videopress/compare/v0.24.14...v0.24.15
+[0.24.14]: https://github.com/Automattic/jetpack-videopress/compare/v0.24.13...v0.24.14
+[0.24.13]: https://github.com/Automattic/jetpack-videopress/compare/v0.24.12...v0.24.13
+[0.24.12]: https://github.com/Automattic/jetpack-videopress/compare/v0.24.11...v0.24.12
+[0.24.11]: https://github.com/Automattic/jetpack-videopress/compare/v0.24.10...v0.24.11
+[0.24.10]: https://github.com/Automattic/jetpack-videopress/compare/v0.24.9...v0.24.10
+[0.24.9]: https://github.com/Automattic/jetpack-videopress/compare/v0.24.8...v0.24.9
+[0.24.8]: https://github.com/Automattic/jetpack-videopress/compare/v0.24.7...v0.24.8
+[0.24.7]: https://github.com/Automattic/jetpack-videopress/compare/v0.24.6...v0.24.7
+[0.24.6]: https://github.com/Automattic/jetpack-videopress/compare/v0.24.5...v0.24.6
+[0.24.5]: https://github.com/Automattic/jetpack-videopress/compare/v0.24.4...v0.24.5
+[0.24.4]: https://github.com/Automattic/jetpack-videopress/compare/v0.24.3...v0.24.4
+[0.24.3]: https://github.com/Automattic/jetpack-videopress/compare/v0.24.2...v0.24.3
+[0.24.2]: https://github.com/Automattic/jetpack-videopress/compare/v0.24.1...v0.24.2
+[0.24.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.24.0...v0.24.1
 [0.24.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.23.31...v0.24.0
 [0.23.31]: https://github.com/Automattic/jetpack-videopress/compare/v0.23.30...v0.23.31
 [0.23.30]: https://github.com/Automattic/jetpack-videopress/compare/v0.23.29...v0.23.30

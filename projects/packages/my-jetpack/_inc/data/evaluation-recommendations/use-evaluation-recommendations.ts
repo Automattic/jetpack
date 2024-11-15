@@ -14,10 +14,15 @@ import { getMyJetpackWindowInitialState } from '../utils/get-my-jetpack-window-s
 import isJetpackUserNew from '../utils/is-jetpack-user-new';
 import useWelcomeBanner from '../welcome-banner/use-welcome-banner';
 
+const NUMBER_OF_RECOMMENDATIONS_TO_SHOW = 5;
+
 type SubmitRecommendationsResult = Record< string, number >;
 
 const getInitialRecommendedModules = (): JetpackModule[] | null => {
 	return getMyJetpackWindowInitialState( 'recommendedModules' ).modules;
+};
+const getInitialIsFirstRun = (): boolean => {
+	return getMyJetpackWindowInitialState( 'recommendedModules' ).isFirstRun;
 };
 
 const useEvaluationRecommendations = () => {
@@ -27,11 +32,22 @@ const useEvaluationRecommendations = () => {
 		'recommendedModules',
 		getInitialRecommendedModules()
 	);
+	const [ isFirstRun, setIsFirstRun ] = useValueStore( 'isFirstRun', getInitialIsFirstRun() );
 
 	const unownedRecommendedModules = useMemo( () => {
-		const { ownedProducts = [] } = getMyJetpackWindowInitialState( 'lifecycleStats' );
-		// We filter out owned modules, and return top 3 recommendations
-		return recommendedModules?.filter( module => ! ownedProducts.includes( module ) ).slice( 0, 3 );
+		// TODO: Maybe remove this ternary condition
+		// This check is for local development & testing purposes because the monorepo local dev
+		// environment unrealistically returns ALL the products/plugins as owned products, resulting
+		// in zero(0) unownedRecommendedModules.
+		const ownedProducts = (
+			process?.env?.NODE_ENV === 'development'
+				? [ 'anti-spam', 'creator', 'extras', 'stats', 'jetpack-ai' ]
+				: getMyJetpackWindowInitialState( 'lifecycleStats' )?.ownedProducts || []
+		) as JetpackModule[];
+		// We filter out owned modules, and return the top recommendations
+		return recommendedModules
+			?.filter( module => ! ownedProducts.includes( module ) )
+			.slice( 0, NUMBER_OF_RECOMMENDATIONS_TO_SHOW );
 	}, [ recommendedModules ] );
 
 	const isEligibleForRecommendations = useMemo( () => {
@@ -109,18 +125,20 @@ const useEvaluationRecommendations = () => {
 			{
 				onSuccess: () => {
 					setIsSectionVisible( false );
+					setIsFirstRun( false );
 					recordEvent( 'jetpack_myjetpack_evaluation_recommendations_dismiss_click' );
 				},
 			}
 		);
-	}, [ handleRemoveEvaluationResult, recordEvent, setIsSectionVisible ] );
+	}, [ handleRemoveEvaluationResult, recordEvent, setIsFirstRun, setIsSectionVisible ] );
 
 	const redoEvaluation = useCallback( () => {
 		// It just happens locally - on reload we're back to recommendations view
 		setIsSectionVisible( false );
+		setIsFirstRun( false );
 		showWelcomeBanner();
 		recordEvent( 'jetpack_myjetpack_evaluation_recommendations_redo_click' );
-	}, [ recordEvent, setIsSectionVisible, showWelcomeBanner ] );
+	}, [ recordEvent, setIsFirstRun, setIsSectionVisible, showWelcomeBanner ] );
 
 	return {
 		submitEvaluation,
@@ -129,6 +147,7 @@ const useEvaluationRecommendations = () => {
 		redoEvaluation,
 		recommendedModules: unownedRecommendedModules,
 		isSectionVisible,
+		isFirstRun,
 	};
 };
 

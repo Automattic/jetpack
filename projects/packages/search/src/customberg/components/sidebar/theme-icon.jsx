@@ -1,9 +1,9 @@
 /**
  * Theme icon for use in SidebarOptions tab.
  *
- * @param {object} props - component properties.
+ * @param {object} props       - component properties.
  * @param {string} props.theme - 'dark' or 'light'.
- * @returns {Element} component instance
+ * @return {Element} component instance
  */
 export default function ThemeIcon( { theme } ) {
 	const fill = theme === 'dark' ? '#000' : '#fff';

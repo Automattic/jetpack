@@ -7,6 +7,7 @@ import clsx from 'clsx';
 /**
  * Internal dependencies
  */
+import loader from '../assets/images/loader.gif';
 import { EVENT_NAVIGATE } from '../constants.js';
 import useLogoGenerator from '../hooks/use-logo-generator.js';
 import './history-carousel.scss';
@@ -18,7 +19,8 @@ import type React from 'react';
 export const HistoryCarousel: React.FC = () => {
 	const { tracks } = useAnalytics();
 	const { recordEvent: recordTracksEvent } = tracks;
-	const { logos, selectedLogo, setSelectedLogoIndex, context } = useLogoGenerator();
+	const { logos, selectedLogo, setSelectedLogoIndex, context, isLoadingHistory } =
+		useLogoGenerator();
 
 	const handleClick = ( index: number ) => {
 		recordTracksEvent( EVENT_NAVIGATE, {
@@ -41,6 +43,12 @@ export const HistoryCarousel: React.FC = () => {
 
 	return (
 		<div className="jetpack-ai-logo-generator__carousel">
+			{ ! logos.length && isLoadingHistory && (
+				<Button disabled className={ clsx( 'jetpack-ai-logo-generator__carousel-logo' ) }>
+					<img height="48" width="48" src={ loader } alt={ 'loading' } />
+				</Button>
+			) }
+			{ ! logos.length && ! isLoadingHistory && <div>&nbsp;</div> }
 			{ logos.map( ( logo, index ) => (
 				<Button
 					key={ logo.url }

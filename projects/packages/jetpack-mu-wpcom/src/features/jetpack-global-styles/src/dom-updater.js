@@ -4,7 +4,7 @@ import { isEmpty, isEqual } from 'lodash';
 
 /**
  * DOM updater
- * @param {string[]} options - A list of option names to keep track of.
+ * @param {string[]} options        - A list of option names to keep track of.
  * @param {Function} getOptionValue - A function that given an option name as a string, returns the current option value.
  */
 export default ( options, getOptionValue ) => {

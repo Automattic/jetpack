@@ -288,7 +288,8 @@ function jpcrm_export_process_file_export() {
 					$columnHeaders[] = __( 'Owner Username', 'zero-bs-crm' );
 				}
 				}
-				fputcsv( $output, $columnHeaders );
+				// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase -- Just ignore until someone fixes all of these, otherwise we wind up having to rewrite half the function.
+				fputcsv( $output, $columnHeaders, ',', '"', '' );
 
 				// actual export lines
 
@@ -318,6 +319,11 @@ function jpcrm_export_process_file_export() {
 							// per obj
 							$objRow = array();
 						foreach ( $fields as $fK ) {
+
+							// Checking and fixing name clashes between custom fields and linked objects
+							// (e.g. custom field with slug `company` and the company linked object)
+							// See: https://github.com/Automattic/zero-bs-crm/issues/3477
+							$objDALLayer->fix_name_clash_if_needed( $fK ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 							$v = ''; // default (means always right col count)
 							if ( isset( $obj[ $fK ] ) ) {
@@ -421,7 +427,8 @@ function jpcrm_export_process_file_export() {
 						} // / foreach field in each obj row
 
 							// output row
-							fputcsv( $output, $objRow );
+							// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase -- Just ignore until someone fixes all of these, otherwise we wind up having to rewrite half the function.
+							fputcsv( $output, $objRow, ',', '"', '' );
 
 					} // / foreach obj
 				}

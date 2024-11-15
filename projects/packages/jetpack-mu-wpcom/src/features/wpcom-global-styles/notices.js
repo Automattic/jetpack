@@ -121,6 +121,9 @@ function GlobalStylesEditNotice() {
 
 	const { createWarningNotice, removeNotice } = useDispatch( 'core/notices' );
 	const { editEntityRecord } = useDispatch( 'core' );
+	const helpCenterDispatch = useDispatch( 'automattic/help-center' );
+	const setShowHelpCenter = helpCenterDispatch?.setShowHelpCenter;
+	const setShowSupportDoc = helpCenterDispatch?.setShowSupportDoc;
 
 	const upgradePlan = useCallback( () => {
 		window.open( wpcomGlobalStyles.upgradeUrl, '_blank' ).focus();
@@ -145,10 +148,19 @@ function GlobalStylesEditNotice() {
 		trackEvent( 'calypso_global_styles_gating_notice_reset_click', isSiteEditor );
 	}, [ editEntityRecord, globalStylesId, isSiteEditor ] );
 
-	const openResetGlobalStylesSupport = useCallback( () => {
-		window.open( wpcomGlobalStyles.resetGlobalStylesSupportUrl, '_blank' ).focus();
-		trackEvent( 'calypso_global_styles_gating_notice_reset_support_click', isSiteEditor );
-	}, [ isSiteEditor ] );
+	const openLearnMoreAboutStylesDialog = useCallback( () => {
+		if ( setShowHelpCenter && setShowSupportDoc ) {
+			setShowHelpCenter( true );
+			setShowSupportDoc(
+				wpcomGlobalStyles.learnMoreAboutStylesUrl,
+				wpcomGlobalStyles.learnMoreAboutStylesPostId
+			);
+		} else {
+			window.open( wpcomGlobalStyles.learnMoreAboutStylesUrl, '_blank' ).focus();
+		}
+
+		trackEvent( 'calypso_global_styles_gating_learn_more_click', isSiteEditor );
+	}, [ isSiteEditor, setShowHelpCenter, setShowSupportDoc ] );
 
 	const showNotice = useCallback( () => {
 		const actions = [
@@ -175,14 +187,20 @@ function GlobalStylesEditNotice() {
 			} );
 		}
 
+		if ( isSiteEditor ) {
+			actions.push( {
+				label: __( 'Remove premium styles', 'jetpack-mu-wpcom' ),
+				onClick: resetGlobalStyles,
+				variant: 'secondary',
+				noDefaultClasses: true,
+			} );
+		}
+
 		actions.push( {
-			label: __( 'Remove premium styles', 'jetpack-mu-wpcom' ),
-			onClick: isSiteEditor ? resetGlobalStyles : openResetGlobalStylesSupport,
-			variant: isSiteEditor ? 'secondary' : 'link',
+			label: __( 'Learn more', 'jetpack-mu-wpcom' ),
+			onClick: openLearnMoreAboutStylesDialog,
+			variant: 'link',
 			noDefaultClasses: true,
-			className: isSiteEditor
-				? ''
-				: 'wpcom-global-styles-action-has-icon wpcom-global-styles-action-is-external wpcom-global-styles-action-is-support',
 		} );
 
 		const planName = wpcomGlobalStyles.planName;
@@ -207,7 +225,7 @@ function GlobalStylesEditNotice() {
 		createWarningNotice,
 		isPostEditor,
 		isSiteEditor,
-		openResetGlobalStylesSupport,
+		openLearnMoreAboutStylesDialog,
 		previewPost,
 		resetGlobalStyles,
 		upgradePlan,

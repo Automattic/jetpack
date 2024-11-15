@@ -117,7 +117,8 @@ function choosePrimary( prefered, room ) {
 
 		// less chopped of than other sides
 		if ( space > best ) {
-			( best = space ), ( bestPos = prefered );
+			best = space;
+			bestPos = prefered;
 		}
 	}
 
@@ -161,7 +162,8 @@ function chooseSecondary( primary, prefered, el, target, w, h ) {
 
 		// shows more of the tip than the other positions
 		if ( area > best ) {
-			( best = area ), ( bestPos = pos );
+			best = area;
+			bestPos = pos;
 		}
 	}
 
@@ -291,7 +293,7 @@ function offset( pos, el, target ) {
  * TextRectangle instead of getting another version.
  *
  * @param {TextRectangle} box - result from a `getBoundingClientRect()` call
- * @param {Document} doc - Document instance to use
+ * @param {Document}      doc - Document instance to use
  * @return {Object} an object with `top` and `left` Number properties
  * @api private
  */

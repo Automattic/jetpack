@@ -12,6 +12,7 @@ use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
+use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Dismissed_Notices;
 use Automattic\Jetpack\Status;
@@ -432,18 +433,23 @@ class Jetpack_Gutenberg {
 			return false;
 		}
 
-		if ( get_option( 'jetpack_blocks_disabled', false ) ) {
-			return false;
+		$return = true;
+
+		if ( ! ( new Modules() )->is_active( 'blocks' ) ) {
+			$return = false;
 		}
 
 		/**
-		 * Filter to disable Gutenberg blocks
+		 * Filter to enable Gutenberg blocks.
+		 *
+		 * Defaults to true if (connected or in offline mode) and the Blocks module is active.
 		 *
 		 * @since 6.5.0
+		 * @since 13.9 Filter is able to activate or deactivate Gutenberg blocks.
 		 *
 		 * @param bool true Whether to load Gutenberg blocks
 		 */
-		return (bool) apply_filters( 'jetpack_gutenberg', true );
+		return (bool) apply_filters( 'jetpack_gutenberg', $return );
 	}
 
 	/**
@@ -556,7 +562,6 @@ class Jetpack_Gutenberg {
 		// Enqueue script.
 		$script_relative_path  = self::get_blocks_directory() . $type . '/view.js';
 		$script_deps_path      = JETPACK__PLUGIN_DIR . self::get_blocks_directory() . $type . '/view.asset.php';
-		$script_dependencies[] = 'wp-polyfill';
 		$script_dependencies[] = 'jetpack-blocks-assets-base-url';
 		if ( file_exists( $script_deps_path ) ) {
 			$asset_manifest      = include $script_deps_path;
@@ -668,6 +673,10 @@ class Jetpack_Gutenberg {
 		// wp-edit-post but wp-edit-post's styles break the Widget Editor and
 		// Site Editor) until a real fix gets unblocked.
 		// @todo Remove this once #20357 is properly fixed.
+		$wp_styles_fix = wp_styles()->query( 'jetpack-blocks-editor', 'registered' );
+		if ( empty( $wp_styles_fix ) ) {
+			wp_die( 'Your installation of Jetpack is incomplete. Please run "jetpack build plugins/jetpack" in your dev env.' );
+		}
 		wp_styles()->query( 'jetpack-blocks-editor', 'registered' )->deps = array();
 
 		Assets::enqueue_script( 'jetpack-blocks-editor' );
@@ -707,10 +716,10 @@ class Jetpack_Gutenberg {
 		}
 
 		$initial_state = array(
-			'available_blocks' => self::get_availability(),
-			'blocks_variation' => $blocks_variation,
-			'modules'          => $modules,
-			'jetpack'          => array(
+			'available_blocks'    => self::get_availability(),
+			'blocks_variation'    => $blocks_variation,
+			'modules'             => $modules,
+			'jetpack'             => array(
 				'is_active'                     => Jetpack::is_connection_ready(),
 				'is_current_user_connected'     => $is_current_user_connected,
 				/** This filter is documented in class.jetpack-gutenberg.php */
@@ -734,15 +743,16 @@ class Jetpack_Gutenberg {
 				 */
 				'republicize_enabled'           => apply_filters( 'jetpack_block_editor_republicize_feature', true ),
 			),
-			'siteFragment'     => $status->get_site_suffix(),
-			'adminUrl'         => esc_url( admin_url() ),
-			'tracksUserData'   => $user_data,
-			'wpcomBlogId'      => $blog_id,
-			'allowedMimeTypes' => wp_get_mime_types(),
-			'siteLocale'       => str_replace( '_', '-', get_locale() ),
-			'ai-assistant'     => $ai_assistant_state,
-			'screenBase'       => $screen_base,
-			'pluginBasePath'   => plugins_url( '', Constants::get_constant( 'JETPACK__PLUGIN_FILE' ) ),
+			'siteFragment'        => $status->get_site_suffix(),
+			'adminUrl'            => esc_url( admin_url() ),
+			'tracksUserData'      => $user_data,
+			'wpcomBlogId'         => $blog_id,
+			'allowedMimeTypes'    => wp_get_mime_types(),
+			'siteLocale'          => str_replace( '_', '-', get_locale() ),
+			'ai-assistant'        => $ai_assistant_state,
+			'screenBase'          => $screen_base,
+			'pluginBasePath'      => plugins_url( '', Constants::get_constant( 'JETPACK__PLUGIN_FILE' ) ),
+			'next40pxDefaultSize' => self::site_supports_next_default_size(),
 		);
 
 		if ( Jetpack::is_module_active( 'publicize' ) && function_exists( 'publicize_init' ) ) {
@@ -759,7 +769,6 @@ class Jetpack_Gutenberg {
 				'isSocialImageGeneratorEnabled'   => $social_initial_state['socialImageGeneratorSettings']['enabled'],
 				'dismissedNotices'                => Dismissed_Notices::get_dismissed_notices(),
 				'supportedAdditionalConnections'  => $publicize->get_supported_additional_connections(),
-				'autoConversionSettings'          => $social_initial_state['autoConversionSettings'],
 				'jetpackSharingSettingsUrl'       => esc_url_raw( admin_url( 'admin.php?page=jetpack#/sharing' ) ),
 				'userConnectionUrl'               => esc_url_raw( admin_url( 'admin.php?page=my-jetpack#/connection' ) ),
 				'useAdminUiV1'                    => $social_initial_state['useAdminUiV1'],
@@ -1269,6 +1278,71 @@ class Jetpack_Gutenberg {
 		}
 
 		return $block_content;
+	}
+
+	/**
+	 * Check whether the environment supports the newer default size of elements, gradually introduced starting with WP 6.4.
+	 *
+	 * @since 14.0
+	 *
+	 * @see https://make.wordpress.org/core/2023/10/16/editor-components-updates-in-wordpress-6-4/#improving-size-consistency-for-ui-components
+	 *
+	 * @to-do: Deprecate this method and the logic around it when Jetpack requires WordPress 6.7.
+	 *
+	 * @return bool
+	 */
+	public static function site_supports_next_default_size() {
+		/*
+		 * If running a local dev build of gutenberg,
+		 * let's assume it supports the newest changes included in Gutenberg.
+		 */
+		if ( defined( 'GUTENBERG_DEVELOPMENT_MODE' ) && GUTENBERG_DEVELOPMENT_MODE ) {
+			return true;
+		}
+
+		// Let's now check if the Gutenberg plugin is installed on the site.
+		if (
+			defined( 'GUTENBERG_VERSION' )
+			&& version_compare( GUTENBERG_VERSION, '19.4', '>=' )
+		) {
+			return true;
+		}
+
+		// Finally, let's check for the WordPress version.
+		global $wp_version;
+		if ( version_compare( $wp_version, '6.7', '>=' ) ) {
+			return true;
+		}
+
+		// Final fallback.
+		return false;
+	}
+
+	/**
+	 * Register block metadata collection for Jetpack blocks.
+	 * This allows for more efficient block metadata loading by avoiding
+	 * individual block.json file reads at runtime.
+	 *
+	 * Uses wp_register_block_metadata_collection() if available (WordPress 6.7+)
+	 * and if the manifest file exists. The manifest file is auto-generated
+	 * during the build process.
+	 *
+	 * Runs on plugins_loaded to ensure registration happens before individual
+	 * blocks register themselves on init.
+	 *
+	 * @static
+	 * @since $$next-version$$
+	 * @return void
+	 */
+	public static function register_block_metadata_collection() {
+		$meta_file_path = JETPACK__PLUGIN_DIR . '_inc/blocks/blocks-manifest.php';
+		if ( function_exists( 'wp_register_block_metadata_collection' ) && file_exists( $meta_file_path ) ) {
+			// @phan-suppress-next-line PhanUndeclaredFunction -- New in WP 6.7. We're checking if it exists first.
+			wp_register_block_metadata_collection(
+				JETPACK__PLUGIN_DIR . '_inc/blocks/',
+				$meta_file_path
+			);
+		}
 	}
 }
 

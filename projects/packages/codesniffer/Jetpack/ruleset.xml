@@ -17,7 +17,6 @@
 	<rule ref="MediaWiki.PHPUnit.AssertionOrder" />
 	<rule ref="MediaWiki.PHPUnit.MockBoilerplate" />
 	<rule ref="MediaWiki.PHPUnit.SpecificAssertions" />
-	<rule ref="MediaWiki.Usage.DoubleNotOperator" />
 	<rule ref="MediaWiki.Usage.InArrayUsage" />
 	<rule ref="MediaWiki.Usage.MagicConstantClosure" />
 	<rule ref="MediaWiki.Usage.NestedFunctions" />
@@ -26,9 +25,6 @@
 	<rule ref="MediaWiki.WhiteSpace.EmptyLinesBetweenUse" />
 	<rule ref="MediaWiki.WhiteSpace.MultipleEmptyLines" />
 	<rule ref="MediaWiki.Usage.IsNull" />
-	<!-- Maybe in the future
-	<rule ref="MediaWiki.Usage.NullableType" /> // syntax it enforces requires PHP 7.1+
-	-->
 
 	<!-- We use this in preference to Generic.PHP.ForbiddenFunctions as this will autofix. -->
 	<rule ref="MediaWiki.Usage.ForbiddenFunctions">
@@ -120,6 +116,11 @@
 	<!-- Not useful until we can use PHP 8's named parameters. We're currently stuck on 7.0! -->
 	<rule ref="Universal.NamingConventions.NoReservedKeywordParameterNames">
 		<exclude name="Universal.NamingConventions.NoReservedKeywordParameterNames" />
+	</rule>
+
+	<!-- Needs discussion before we enable this. It doesn't auto-fix, and boolean operator precedence should be pretty basic knowledge. -->
+	<rule ref="Generic.CodeAnalysis.RequireExplicitBooleanOperatorPrecedence">
+		<exclude name="Generic.CodeAnalysis.RequireExplicitBooleanOperatorPrecedence.MissingParentheses" />
 	</rule>
 
 </ruleset>

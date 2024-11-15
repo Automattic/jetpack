@@ -5,6 +5,10 @@
  * @package automattic/jetpack
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 use Automattic\Jetpack\Forms\Jetpack_Forms;
 
 /**

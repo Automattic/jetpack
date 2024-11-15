@@ -9,7 +9,7 @@ import './style.scss';
  * More support from the original ReactSlider component: https://zillow.github.io/react-slider/
  *
  * @param {NumberSliderProps} props - Props
- * @returns {React.ReactElement} - JSX element
+ * @return {React.ReactElement} - JSX element
  */
 const NumberSlider: React.FC< NumberSliderProps > = ( {
 	className,

@@ -69,7 +69,7 @@ class AutocompleteTokenField extends Component {
 	 * Get a list of labels for input values.
 	 *
 	 * @param {Array} values - Array of values (ids, etc.).
-	 * @returns {Array} array of valid labels corresponding to the values.
+	 * @return {Array} array of valid labels corresponding to the values.
 	 */
 	getLabelsForValues( values ) {
 		const { validValues } = this.state;
@@ -84,7 +84,7 @@ class AutocompleteTokenField extends Component {
 	 * Get a list of values for input labels.
 	 *
 	 * @param {Array} labels - Array of labels from the tokens.
-	 * @returns {Array} Array of valid values corresponding to the labels.
+	 * @return {Array} Array of valid values corresponding to the labels.
 	 */
 	getValuesForLabels( labels ) {
 		const { validValues } = this.state;
@@ -159,7 +159,7 @@ class AutocompleteTokenField extends Component {
 	/**
 	 * To populate the tokens, we need to convert the values into a human-readable label.
 	 *
-	 * @returns {Array} An array of token label strings.
+	 * @return {Array} An array of token label strings.
 	 */
 	getTokens() {
 		const { tokens } = this.props;

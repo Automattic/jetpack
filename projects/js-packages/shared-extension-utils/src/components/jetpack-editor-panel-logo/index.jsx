@@ -6,7 +6,7 @@ import './style.scss';
 /**
  * The Jetpack logo used for block editor panels
  *
- * @returns {React.Component} Jetpack logo component
+ * @return {React.Component} Jetpack logo component
  */
 const JetpackEditorPanelLogo = () => (
 	<JetpackLogo

@@ -424,6 +424,18 @@ abstract class SAL_Site {
 	abstract public function is_a4a_client();
 
 	/**
+	 * Indicates that a site is an A4A dev site.
+	 *
+	 * @return bool
+	 */
+	public function is_a4a_dev_site() {
+		if ( function_exists( 'has_blog_sticker' ) ) {
+			return has_blog_sticker( 'a4a-is-dev-site' );
+		}
+		return false;
+	}
+
+	/**
 	 * Return the user interactions with a site. Not used in Jetpack.
 	 *
 	 * @param string $role The capability to check.
@@ -746,8 +758,8 @@ abstract class SAL_Site {
 		if ( ! $post || is_wp_error( $post ) ) {
 			return false;
 		}
-
-		if ( 'inherit' === $post->post_status ) {
+		// If the post is of status inherit, check if the parent exists ( different to 0 ) to check for the parent status object.
+		if ( 'inherit' === $post->post_status && 0 !== (int) $post->post_parent ) {
 			$parent_post     = get_post( $post->post_parent );
 			$post_status_obj = get_post_status_object( $parent_post->post_status );
 		} else {
@@ -1506,6 +1518,15 @@ abstract class SAL_Site {
 	 */
 	public function get_site_intent() {
 		return get_option( 'site_intent', '' );
+	}
+
+	/**
+	 * Get the option of site partner bundle which value is coming from the Partner Flow
+	 *
+	 * @return string
+	 */
+	public function get_site_partner_bundle() {
+		return get_option( 'site_partner_bundle', '' );
 	}
 
 	/**

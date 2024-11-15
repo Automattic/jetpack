@@ -5,6 +5,50 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] - 2024-11-11
+### Changed
+- Resource Hint: use preconnect instead of dns-prefetch [#39883]
+
+## [0.5.3] - 2024-11-04
+### Added
+- Enable test coverage. [#39961]
+
+### Fixed
+- Fix PHPUnit coverage warnings. [#39989]
+
+## [0.5.2] - 2024-10-29
+### Changed
+- Internal updates. [#39303]
+
+## [0.5.1] - 2024-10-10
+### Fixed
+- Avoid deprecation notice when an image URL does not have an expected format. [#39685]
+- URL encode path parts of an image [#39560]
+
+## [0.5.0] - 2024-10-07
+### Added
+- Add a public method to check if a URL is CDN url. [#39635]
+
+## [0.4.9] - 2024-09-09
+### Changed
+- Update dependencies. [#39260]
+
+## [0.4.8] - 2024-09-03
+### Fixed
+- Avoid a fatal error if an `<img>` tag has width or height that's not an integer or percentage.
+
+## [0.4.7] - 2024-08-29
+### Changed
+- Rely on WordPress HTML API to parse HTML instead of Regex [#32700]
+
+## [0.4.6] - 2024-08-26
+### Changed
+- Updated package dependencies. [#39004]
+
+## [0.4.5] - 2024-08-19
+### Fixed
+- Lossless image optimization for images (should improve performance with no visible changes). [#38750]
+
 ## [0.4.4] - 2024-08-05
 ### Changed
 - Do not serve media from Amazon CDN from Jetpack's CDN. [#38682]
@@ -106,6 +150,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Add image CDN package. [#29561]
 
+[0.6.0]: https://github.com/Automattic/jetpack-image-cdn/compare/v0.5.3...v0.6.0
+[0.5.3]: https://github.com/Automattic/jetpack-image-cdn/compare/v0.5.2...v0.5.3
+[0.5.2]: https://github.com/Automattic/jetpack-image-cdn/compare/v0.5.1...v0.5.2
+[0.5.1]: https://github.com/Automattic/jetpack-image-cdn/compare/v0.5.0...v0.5.1
+[0.5.0]: https://github.com/Automattic/jetpack-image-cdn/compare/v0.4.9...v0.5.0
+[0.4.9]: https://github.com/Automattic/jetpack-image-cdn/compare/v0.4.8...v0.4.9
+[0.4.8]: https://github.com/Automattic/jetpack-image-cdn/compare/v0.4.7...v0.4.8
+[0.4.7]: https://github.com/Automattic/jetpack-image-cdn/compare/v0.4.6...v0.4.7
+[0.4.6]: https://github.com/Automattic/jetpack-image-cdn/compare/v0.4.5...v0.4.6
+[0.4.5]: https://github.com/Automattic/jetpack-image-cdn/compare/v0.4.4...v0.4.5
 [0.4.4]: https://github.com/Automattic/jetpack-image-cdn/compare/v0.4.3...v0.4.4
 [0.4.3]: https://github.com/Automattic/jetpack-image-cdn/compare/v0.4.2...v0.4.3
 [0.4.2]: https://github.com/Automattic/jetpack-image-cdn/compare/v0.4.1...v0.4.2

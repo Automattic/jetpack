@@ -9,11 +9,13 @@
 
 namespace Automattic\Jetpack;
 
+define( 'WPCOM_ADMIN_BAR_UNIFICATION', true );
+
 /**
  * Jetpack_Mu_Wpcom main class.
  */
 class Jetpack_Mu_Wpcom {
-	const PACKAGE_VERSION = '5.57.0-alpha';
+	const PACKAGE_VERSION = '5.66.0';
 	const PKG_DIR         = __DIR__ . '/../';
 	const BASE_DIR        = __DIR__ . '/';
 	const BASE_FILE       = __FILE__;
@@ -109,8 +111,6 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-block-editor/class-jetpack-wpcom-block-editor.php';
 		require_once __DIR__ . '/features/wpcom-block-editor/functions.editor-type.php';
 		require_once __DIR__ . '/features/wpcom-logout/wpcom-logout.php';
-		require_once __DIR__ . '/features/wpcom-profile-settings/profile-settings-link-to-wpcom.php';
-		require_once __DIR__ . '/features/wpcom-profile-settings/profile-settings-notices.php';
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-theme-fixes.php';
 
 		// Initializers, if needed.
@@ -143,9 +143,12 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-admin-interface/wpcom-admin-interface.php';
 		require_once __DIR__ . '/features/wpcom-admin-menu/wpcom-admin-menu.php';
 		require_once __DIR__ . '/features/wpcom-command-palette/wpcom-command-palette.php';
+		require_once __DIR__ . '/features/wpcom-dashboard-widgets/wpcom-dashboard-widgets.php';
+		require_once __DIR__ . '/features/wpcom-locale/sync-locale-from-calypso-to-atomic.php';
 		require_once __DIR__ . '/features/wpcom-plugins/wpcom-plugins.php';
+		require_once __DIR__ . '/features/wpcom-profile-settings/profile-settings-link-to-wpcom.php';
+		require_once __DIR__ . '/features/wpcom-profile-settings/profile-settings-notices.php';
 		require_once __DIR__ . '/features/wpcom-sidebar-notice/wpcom-sidebar-notice.php';
-		require_once __DIR__ . '/features/wpcom-site-management-widget/class-wpcom-site-management-widget.php';
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-themes.php';
 
 		// Only load the Calypsoify and Masterbar features on WoA sites.

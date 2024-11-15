@@ -49,8 +49,8 @@ const blockHasVisibilitySettings = name => {
  * Used to store visibility rules.
  *
  * @param {object} settings - Block settings.
- * @param {string} name - Block name.
- * @returns {object} Modified settings.
+ * @param {string} name     - Block name.
+ * @return {object} Modified settings.
  */
 function addVisibilityAttribute( settings, name ) {
 	if ( blockHasVisibilitySettings( name ) && typeof settings.attributes !== 'undefined' ) {
@@ -387,6 +387,7 @@ const visibilityAdvancedControls = createHigherOrderComponent(
 							label={ __( 'Match all rules', 'jetpack' ) }
 							checked={ conditions.match_all === '1' }
 							onChange={ toggleMatchAll }
+							__nextHasNoMarginBottom={ true }
 						/>
 					) }
 					<Button variant="secondary" onClick={ addNewRule }>

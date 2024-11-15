@@ -2,10 +2,10 @@
 Contributors: automattic, retrofox, oskosk, thehenridev, renatoagds, lhkowalski, nunyvega, leogermani, cgastrell
 Tags: video, video-hosting, video-player, cdn, video-streaming
 
-Requires at least: 6.5
-Tested up to: 6.6
+Requires at least: 6.6
+Tested up to: 6.7
 Stable tag: 1.5
-Requires PHP: 7.0
+Requires PHP: 7.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 The finest video hosting for WordPress. Drag and drop videos through the WordPress editor and keep the focus on your content, not the ads.
@@ -84,14 +84,7 @@ The file size limit is 5 GB. However, on slower networks, there is a chance the 
 4. Edit your video details, cover image, and privacy from your VideoPress library.
 
 == Changelog ==
-### 1.9 - 2024-08-15
+### 2.1 - 2024-09-06
 #### Changed
-- General: indicate compatibility with the upcoming version of WordPress - 6.6.
-- Updated package dependencies.
-
-#### Removed
-- General: update WordPress version requirements to WordPress 6.5.
-
-#### Fixed
-- Updated package dependencies.
+- Internal updates.
 

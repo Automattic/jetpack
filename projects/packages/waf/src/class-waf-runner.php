@@ -31,6 +31,7 @@ class Waf_Runner {
 			return;
 		}
 		Waf_Constants::define_mode();
+		Waf_Constants::define_entrypoint();
 		Waf_Constants::define_share_data();
 
 		if ( ! self::is_allowed_mode( JETPACK_WAF_MODE ) ) {
@@ -256,7 +257,7 @@ class Waf_Runner {
 			$waf = new Waf_Runtime( new Waf_Transforms(), new Waf_Operators() );
 
 			// execute waf rules.
-			$rules_file_path = self::get_waf_file_path( Waf_Rules_Manager::RULES_ENTRYPOINT_FILE );
+			$rules_file_path = self::get_waf_file_path( JETPACK_WAF_ENTRYPOINT );
 			if ( file_exists( $rules_file_path ) ) {
 				// phpcs:ignore
 				include $rules_file_path;
@@ -326,7 +327,7 @@ class Waf_Runner {
 		Waf_Rules_Manager::generate_ip_rules();
 		Waf_Rules_Manager::generate_rules();
 
-		self::create_blocklog_table();
+		Waf_Blocklog_Manager::create_blocklog_table();
 	}
 
 	/**
@@ -354,30 +355,6 @@ class Waf_Runner {
 	}
 
 	/**
-	 * Create the log table when plugin is activated.
-	 *
-	 * @return void
-	 */
-	public static function create_blocklog_table() {
-		global $wpdb;
-
-		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
-
-		$sql = "
-		CREATE TABLE {$wpdb->prefix}jetpack_waf_blocklog (
-			log_id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-			timestamp datetime NOT NULL,
-			rule_id BIGINT NOT NULL,
-			reason longtext NOT NULL,
-			PRIMARY KEY (log_id),
-			KEY timestamp (timestamp)
-		)
-		";
-
-		dbDelta( $sql );
-	}
-
-	/**
 	 * Deactivates the WAF by deleting the relevant options and emptying rules file.
 	 *
 	 * @throws File_System_Exception If file writing fails.
@@ -390,14 +367,15 @@ class Waf_Runner {
 
 		global $wp_filesystem;
 		self::initialize_filesystem();
+		Waf_Constants::define_entrypoint();
 
 		// If the rules file doesn't exist, there's nothing else to do.
-		if ( ! $wp_filesystem->exists( self::get_waf_file_path( Waf_Rules_Manager::RULES_ENTRYPOINT_FILE ) ) ) {
+		if ( ! $wp_filesystem->exists( self::get_waf_file_path( JETPACK_WAF_ENTRYPOINT ) ) ) {
 			return;
 		}
 
 		// Empty the rules entrypoint file.
-		if ( ! $wp_filesystem->put_contents( self::get_waf_file_path( Waf_Rules_Manager::RULES_ENTRYPOINT_FILE ), "<?php\n" ) ) {
+		if ( ! $wp_filesystem->put_contents( self::get_waf_file_path( JETPACK_WAF_ENTRYPOINT ), "<?php\n" ) ) {
 			throw new File_System_Exception( 'Failed to empty rules.php file.' );
 		}
 	}

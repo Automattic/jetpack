@@ -1,12 +1,17 @@
-import { Text, Button, useBreakpointMatch } from '@automattic/jetpack-components';
-import { useSelect, useDispatch } from '@wordpress/data';
+import {
+	Text,
+	Button,
+	DiffViewer,
+	MarkedLines,
+	useBreakpointMatch,
+} from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
 import React, { useCallback } from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
-import { STORE_ID } from '../../state/store';
-import DiffViewer from '../diff-viewer';
-import MarkedLines from '../marked-lines';
+import useFixers from '../../hooks/use-fixers';
+import useModal from '../../hooks/use-modal';
 import PaidAccordion, { PaidAccordionItem } from '../paid-accordion';
+import Pagination from './pagination';
 import styles from './styles.module.scss';
 
 const ThreatAccordionItem = ( {
@@ -27,12 +32,14 @@ const ThreatAccordionItem = ( {
 	type,
 	severity,
 	status,
+	hideAutoFixColumn = false,
 } ) => {
-	const threatsAreFixing = useSelect( select => select( STORE_ID ).getThreatsAreFixing() );
-	const { setModal } = useDispatch( STORE_ID );
+	const { setModal } = useModal();
 	const { recordEvent } = useAnalyticsTracks();
 
-	const fixerInProgress = threatsAreFixing.indexOf( id ) >= 0;
+	const { isThreatFixInProgress, isThreatFixStale } = useFixers();
+	const isActiveFixInProgress = isThreatFixInProgress( id );
+	const isStaleFixInProgress = isThreatFixStale( id );
 
 	const learnMoreButton = source ? (
 		<Button variant="link" isExternalLink={ true } weight="regular" href={ source }>
@@ -87,6 +94,7 @@ const ThreatAccordionItem = ( {
 				}
 				recordEvent( `jetpack_protect_${ type }_threat_open` );
 			}, [ recordEvent, type ] ) }
+			hideAutoFixColumn={ hideAutoFixColumn }
 		>
 			{ description && (
 				<div className={ styles[ 'threat-section' ] }>
@@ -135,99 +143,109 @@ const ThreatAccordionItem = ( {
 				</div>
 			) }
 			{ ! description && <div className={ styles[ 'threat-section' ] }>{ learnMoreButton }</div> }
-			<div className={ styles[ 'threat-footer' ] }>
-				{ 'ignored' === status && (
-					<Button
-						isDestructive={ true }
-						variant="secondary"
-						onClick={ handleUnignoreThreatClick() }
-					>
-						{ __( 'Unignore threat', 'jetpack-protect' ) }
-					</Button>
-				) }
-				{ 'current' === status && (
-					<>
+			{ [ 'ignored', 'current' ].includes( status ) && (
+				<div className={ styles[ 'threat-footer' ] }>
+					{ 'ignored' === status && (
 						<Button
 							isDestructive={ true }
 							variant="secondary"
-							onClick={ handleIgnoreThreatClick() }
-							disabled={ fixerInProgress }
+							onClick={ handleUnignoreThreatClick() }
 						>
-							{ __( 'Ignore threat', 'jetpack-protect' ) }
+							{ __( 'Unignore threat', 'jetpack-protect' ) }
 						</Button>
-						{ fixable && (
-							<Button disabled={ fixerInProgress } onClick={ handleFixThreatClick() }>
-								{ __( 'Fix threat', 'jetpack-protect' ) }
+					) }
+					{ 'current' === status && (
+						<>
+							<Button
+								isDestructive={ true }
+								variant="secondary"
+								onClick={ handleIgnoreThreatClick() }
+								disabled={ isActiveFixInProgress || isStaleFixInProgress }
+							>
+								{ __( 'Ignore threat', 'jetpack-protect' ) }
 							</Button>
-						) }
-					</>
-				) }
-			</div>
+							{ fixable && (
+								<Button
+									disabled={ isActiveFixInProgress || isStaleFixInProgress }
+									onClick={ handleFixThreatClick() }
+								>
+									{ __( 'Fix threat', 'jetpack-protect' ) }
+								</Button>
+							) }
+						</>
+					) }
+				</div>
+			) }
 		</PaidAccordionItem>
 	);
 };
 
-const PaidList = ( { list } ) => {
+const PaidList = ( { list, hideAutoFixColumn = false } ) => {
 	const [ isSmall ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
 
 	return (
 		<>
 			{ ! isSmall && (
-				<div className={ styles[ 'accordion-heading' ] }>
+				<div className={ styles[ 'accordion-header' ] }>
 					<span>{ __( 'Details', 'jetpack-protect' ) }</span>
 					<span>{ __( 'Severity', 'jetpack-protect' ) }</span>
-					<span>{ __( 'Auto-fix', 'jetpack-protect' ) }</span>
+					{ ! hideAutoFixColumn && <span>{ __( 'Auto-fix', 'jetpack-protect' ) }</span> }
 					<span></span>
 				</div>
 			) }
-			<PaidAccordion>
-				{ list.map(
-					( {
-						context,
-						description,
-						diff,
-						filename,
-						firstDetected,
-						fixedIn,
-						fixedOn,
-						icon,
-						fixable,
-						id,
-						label,
-						name,
-						severity,
-						source,
-						table,
-						title,
-						type,
-						version,
-						status,
-					} ) => (
-						<ThreatAccordionItem
-							context={ context }
-							description={ description }
-							diff={ diff }
-							filename={ filename }
-							firstDetected={ firstDetected }
-							fixedIn={ fixedIn }
-							fixedOn={ fixedOn }
-							icon={ icon }
-							fixable={ fixable }
-							id={ id }
-							key={ id }
-							label={ label }
-							name={ name }
-							severity={ severity }
-							source={ source }
-							table={ table }
-							title={ title }
-							type={ type }
-							version={ version }
-							status={ status }
-						/>
-					)
+			<Pagination list={ list }>
+				{ ( { currentItems } ) => (
+					<PaidAccordion>
+						{ currentItems.map(
+							( {
+								context,
+								description,
+								diff,
+								filename,
+								firstDetected,
+								fixedIn,
+								fixedOn,
+								icon,
+								fixable,
+								id,
+								label,
+								name,
+								severity,
+								source,
+								table,
+								title,
+								type,
+								version,
+								status,
+							} ) => (
+								<ThreatAccordionItem
+									context={ context }
+									description={ description }
+									diff={ diff }
+									filename={ filename }
+									firstDetected={ firstDetected }
+									fixedIn={ fixedIn }
+									fixedOn={ fixedOn }
+									icon={ icon }
+									fixable={ fixable }
+									id={ id }
+									key={ id }
+									label={ label }
+									name={ name }
+									severity={ severity }
+									source={ source }
+									table={ table }
+									title={ title }
+									type={ type }
+									version={ version }
+									status={ status }
+									hideAutoFixColumn={ hideAutoFixColumn }
+								/>
+							)
+						) }
+					</PaidAccordion>
 				) }
-			</PaidAccordion>
+			</Pagination>
 		</>
 	);
 };

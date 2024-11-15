@@ -10,7 +10,7 @@ import styles from './styles.module.scss';
 /**
  * The Social Post Modal component.
  *
- * @returns {import('react').ReactNode} - Social Post Modal component.
+ * @return {import('react').ReactNode} - Social Post Modal component.
  */
 export function SocialPostModal() {
 	const [ isModalOpen, toggleModal ] = useReducer( state => ! state, false );

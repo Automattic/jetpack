@@ -1,19 +1,85 @@
 import { Container, Col, Text } from '@automattic/jetpack-components';
-import { DropdownMenu } from '@wordpress/components';
-import { Flex } from '@wordpress/components';
-import { FlexItem } from '@wordpress/components';
+import { Icon, Flex, FlexItem, DropdownMenu, Button } from '@wordpress/components';
 import { __, _n } from '@wordpress/i18n';
 import { moreHorizontalMobile } from '@wordpress/icons';
-import { useEffect } from 'react';
+import { chevronLeft, chevronRight } from '@wordpress/icons';
+import clsx from 'clsx';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import useEvaluationRecommendations from '../../data/evaluation-recommendations/use-evaluation-recommendations';
 import useAnalytics from '../../hooks/use-analytics';
 import { JetpackModuleToProductCard } from '../product-cards-section/all';
 import styles from './style.module.scss';
+import type { FC, RefObject } from 'react';
 
-const EvaluationRecommendations: React.FC = () => {
+const EvaluationRecommendations: FC = () => {
+	const containerRef = useRef( null );
 	const { recordEvent } = useAnalytics();
 	const { recommendedModules, redoEvaluation, removeEvaluationResult } =
 		useEvaluationRecommendations();
+	const [ isAtStart, setIsAtStart ] = useState( true );
+	const [ isAtEnd, setIsAtEnd ] = useState( false );
+
+	const checkScrollPosition = useCallback( () => {
+		if ( containerRef.current ) {
+			const { scrollLeft, scrollWidth, clientWidth } = containerRef.current;
+			setIsAtStart( scrollLeft === 0 );
+			setIsAtEnd( scrollLeft + clientWidth >= scrollWidth );
+		}
+	}, [ containerRef ] );
+
+	const handleSlide = (
+		cardContainerRef: RefObject< HTMLUListElement >,
+		direction: number,
+		gap: number = 24
+	) => {
+		if ( cardContainerRef.current ) {
+			const cardWidth = cardContainerRef.current.querySelector( 'li' ).clientWidth;
+
+			cardContainerRef.current.scrollBy( {
+				left: direction * ( cardWidth + gap ),
+				behavior: 'smooth',
+			} );
+		}
+	};
+
+	const handleNextSlide = useCallback( () => {
+		handleSlide( containerRef, 1 );
+
+		recordEvent( 'jetpack_myjetpack_recommendations_slide_arrow_click', {
+			direction: 'next',
+		} );
+	}, [ recordEvent, containerRef ] );
+
+	const handlePrevSlide = useCallback( () => {
+		handleSlide( containerRef, -1 );
+		recordEvent( 'jetpack_myjetpack_recommendations_slide_arrow_click', {
+			direction: 'previous',
+		} );
+	}, [ recordEvent, containerRef ] );
+
+	// We're defining each of these translations in separate variables here, otherwise optimizations in
+	// the build step end up breaking the translations and causing error.
+	const recommendationsHeadline = _n(
+		'Our recommendation for you',
+		'Our recommendations for you',
+		recommendedModules.length,
+		'jetpack-my-jetpack'
+	);
+	const menuRedoTitle = __( 'Redo', 'jetpack-my-jetpack' );
+	const menuDismissTitle = __( 'Dismiss', 'jetpack-my-jetpack' );
+
+	useEffect( () => {
+		const container = containerRef.current;
+
+		if ( container ) {
+			container.addEventListener( 'scroll', checkScrollPosition );
+			checkScrollPosition();
+
+			return () => {
+				container.removeEventListener( 'scroll', checkScrollPosition );
+			};
+		}
+	}, [ checkScrollPosition ] );
 
 	useEffect( () => {
 		recordEvent( 'jetpack_myjetpack_evaluation_recommendations_view', {
@@ -27,12 +93,7 @@ const EvaluationRecommendations: React.FC = () => {
 				<Flex>
 					<FlexItem>
 						<Text variant="headline-small" className={ styles.title }>
-							{ _n(
-								'Our recommendation for you',
-								'Our recommendations for you',
-								recommendedModules.length,
-								'jetpack-my-jetpack'
-							) }
+							{ recommendationsHeadline }
 						</Text>
 						<Text>
 							{ __(
@@ -49,11 +110,11 @@ const EvaluationRecommendations: React.FC = () => {
 							label={ __( 'Recommendations menu', 'jetpack-my-jetpack' ) }
 							controls={ [
 								{
-									title: __( 'Redo', 'jetpack-my-jetpack' ),
+									title: menuRedoTitle,
 									onClick: redoEvaluation,
 								},
 								{
-									title: __( 'Dismiss', 'jetpack-my-jetpack' ),
+									title: menuDismissTitle,
 									onClick: removeEvaluationResult,
 								},
 							] }
@@ -63,6 +124,7 @@ const EvaluationRecommendations: React.FC = () => {
 			</Col>
 			<Col>
 				<Container
+					ref={ containerRef }
 					tagName="ul"
 					className={ styles[ 'recommendations-list' ] }
 					horizontalGap={ 4 }
@@ -80,6 +142,30 @@ const EvaluationRecommendations: React.FC = () => {
 						);
 					} ) }
 				</Container>
+				<Flex align="center" justify="center">
+					<FlexItem>
+						<Button
+							className={ clsx( styles[ 'slider-button' ], styles[ 'prev-button' ] ) }
+							onClick={ handlePrevSlide }
+							disabled={ isAtStart }
+							aria-disabled={ isAtStart }
+							aria-label={ __( 'Previous', 'jetpack-my-jetpack' ) }
+						>
+							<Icon icon={ chevronLeft } />
+						</Button>
+					</FlexItem>
+					<FlexItem>
+						<Button
+							className={ clsx( styles[ 'slider-button' ], styles[ 'next-button' ] ) }
+							onClick={ handleNextSlide }
+							disabled={ isAtEnd }
+							aria-disabled={ isAtEnd }
+							aria-label={ __( 'Next', 'jetpack-my-jetpack' ) }
+						>
+							<Icon icon={ chevronRight } />
+						</Button>
+					</FlexItem>
+				</Flex>
 			</Col>
 		</Container>
 	);

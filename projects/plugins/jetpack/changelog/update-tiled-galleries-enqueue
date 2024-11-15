@@ -1,4 +1,0 @@
-Significance: patch
-Type: enhancement
-
-Tiled Galleries: defer loading of the Tiled Gallery script for improved performance.

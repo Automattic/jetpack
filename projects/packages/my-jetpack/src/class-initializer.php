@@ -42,7 +42,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '4.32.3-alpha';
+	const PACKAGE_VERSION = '5.0.0';
 
 	/**
 	 * HTML container ID for the IDC screen on My Jetpack page.
@@ -64,6 +64,7 @@ class Initializer {
 	const UPDATE_HISTORICALLY_ACTIVE_JETPACK_MODULES_KEY = 'update-historically-active-jetpack-modules';
 	const MISSING_CONNECTION_NOTIFICATION_KEY            = 'missing-connection';
 	const VIDEOPRESS_STATS_KEY                           = 'my-jetpack-videopress-stats';
+	const VIDEOPRESS_PERIOD_KEY                          = 'my-jetpack-videopress-period';
 
 	/**
 	 * Holds info/data about the site (from the /sites/%d endpoint)
@@ -98,16 +99,8 @@ class Initializer {
 		// Add custom WP REST API endoints.
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_endpoints' ) );
 
-		$page_suffix = Admin_Menu::add_menu(
-			__( 'My Jetpack', 'jetpack-my-jetpack' ),
-			__( 'My Jetpack', 'jetpack-my-jetpack' ),
-			'edit_posts',
-			'my-jetpack',
-			array( __CLASS__, 'admin_page' ),
-			-1
-		);
+		add_action( 'admin_menu', array( __CLASS__, 'add_my_jetpack_menu_item' ) );
 
-		add_action( 'load-' . $page_suffix, array( __CLASS__, 'admin_init' ) );
 		add_action( 'admin_init', array( __CLASS__, 'setup_historically_active_jetpack_modules_sync' ) );
 		// This is later than the admin-ui package, which runs on 1000
 		add_action( 'admin_init', array( __CLASS__, 'maybe_show_red_bubble' ), 1001 );
@@ -166,6 +159,23 @@ class Initializer {
 	}
 
 	/**
+	 * Add My Jetpack menu item to the admin menu.
+	 *
+	 * @return void
+	 */
+	public static function add_my_jetpack_menu_item() {
+		$page_suffix = Admin_Menu::add_menu(
+			__( 'My Jetpack', 'jetpack-my-jetpack' ),
+			__( 'My Jetpack', 'jetpack-my-jetpack' ),
+			'edit_posts',
+			'my-jetpack',
+			array( __CLASS__, 'admin_page' ),
+			-1
+		);
+		add_action( 'load-' . $page_suffix, array( __CLASS__, 'admin_init' ) );
+	}
+
+	/**
 	 * Callback for the load my jetpack page hook.
 	 *
 	 * @return void
@@ -191,12 +201,20 @@ class Initializer {
 
 		return $tracking->should_enable_tracking( new Terms_Of_Service(), $status );
 	}
+
 	/**
 	 * Enqueue admin page assets.
 	 *
 	 * @return void
 	 */
 	public static function enqueue_scripts() {
+		/**
+		 * Fires after the My Jetpack page is initialized.
+		 * Allows for enqueuing additional scripts only on the My Jetpack page.
+		 *
+		 * @since 4.35.7
+		 */
+		do_action( 'myjetpack_enqueue_scripts' );
 		Assets::register_script(
 			'my_jetpack_main_app',
 			'../build/index.js',
@@ -218,6 +236,11 @@ class Initializer {
 		$latest_score['previousScores'] = $previous_score['scores'] ?? array();
 		$scan_data                      = Protect_Status::get_status();
 		self::update_historically_active_jetpack_modules();
+
+		$waf_config = array();
+		if ( class_exists( 'Automattic\Jetpack\Waf\Waf_Runner' ) ) {
+			$waf_config = Waf_Runner::get_config();
+		}
 
 		wp_localize_script(
 			'my_jetpack_main_app',
@@ -258,8 +281,9 @@ class Initializer {
 				),
 				'redBubbleAlerts'        => self::get_red_bubble_alerts(),
 				'recommendedModules'     => array(
-					'modules'   => self::get_recommended_modules(),
-					'dismissed' => \Jetpack_Options::get_option( 'dismissed_recommendations', false ),
+					'modules'    => self::get_recommended_modules(),
+					'isFirstRun' => \Jetpack_Options::get_option( 'recommendations_first_run', true ),
+					'dismissed'  => \Jetpack_Options::get_option( 'dismissed_recommendations', false ),
 				),
 				'isStatsModuleActive'    => $modules->is_active( 'stats' ),
 				'isUserFromKnownHost'    => self::is_user_from_known_host(),
@@ -273,7 +297,7 @@ class Initializer {
 				'protect'                => array(
 					'scanData'  => $scan_data,
 					'wafConfig' => array_merge(
-						Waf_Runner::get_config(),
+						$waf_config,
 						array( 'blocked_logins' => (int) get_site_option( 'jetpack_protect_blocked_attempts', 0 ) )
 					),
 				),
@@ -315,9 +339,34 @@ class Initializer {
 
 		$featured_stats = get_transient( self::VIDEOPRESS_STATS_KEY );
 
-		if ( ! $featured_stats ) {
-			$videopress_stats = new VideoPress_Stats();
-			$featured_stats   = $videopress_stats->get_featured_stats( 60 );
+		if ( $featured_stats ) {
+			return array(
+				'featuredStats' => $featured_stats,
+				'videoCount'    => $video_count,
+			);
+		}
+
+		$stats_period     = get_transient( self::VIDEOPRESS_PERIOD_KEY );
+		$videopress_stats = new VideoPress_Stats();
+
+		// If the stats period exists, retrieve that information without checking the view count.
+		// If it does not, check the view count of monthly stats and determine if we want to show yearly or monthly stats.
+		if ( $stats_period ) {
+			if ( $stats_period === 'day' ) {
+				$featured_stats = $videopress_stats->get_featured_stats( 60, 'day' );
+			} else {
+				$featured_stats = $videopress_stats->get_featured_stats( 2, 'year' );
+			}
+		} else {
+			$featured_stats = $videopress_stats->get_featured_stats( 60, 'day' );
+
+			if (
+				! is_wp_error( $featured_stats ) &&
+				$featured_stats &&
+				( $featured_stats['data']['views']['current'] < 500 || $featured_stats['data']['views']['previous'] < 500 )
+			) {
+				$featured_stats = $videopress_stats->get_featured_stats( 2, 'year' );
+			}
 		}
 
 		if ( is_wp_error( $featured_stats ) || ! $featured_stats ) {
@@ -326,7 +375,8 @@ class Initializer {
 			);
 		}
 
-		set_transient( self::VIDEOPRESS_STATS_KEY, $featured_stats, HOUR_IN_SECONDS );
+		set_transient( self::VIDEOPRESS_PERIOD_KEY, $featured_stats['period'], WEEK_IN_SECONDS );
+		set_transient( self::VIDEOPRESS_STATS_KEY, $featured_stats, DAY_IN_SECONDS );
 
 		return array(
 			'featuredStats' => $featured_stats,
@@ -768,7 +818,7 @@ class Initializer {
 			self::get_red_bubble_alerts(),
 			function ( $alert ) {
 				// We don't want to show silent alerts
-				return ! $alert['is_silent'];
+				return empty( $alert['is_silent'] );
 			}
 		);
 
@@ -891,14 +941,7 @@ class Initializer {
 		$broken_modules = self::check_for_broken_modules();
 		$connection     = new Connection_Manager();
 
-		if ( ! empty( $broken_modules['needs_user_connection'] ) ) {
-			$red_bubble_slugs[ self::MISSING_CONNECTION_NOTIFICATION_KEY ] = array(
-				'type'     => 'user',
-				'is_error' => true,
-			);
-			return $red_bubble_slugs;
-		}
-
+		// Checking for site connection issues first.
 		if ( ! empty( $broken_modules['needs_site_connection'] ) ) {
 			$red_bubble_slugs[ self::MISSING_CONNECTION_NOTIFICATION_KEY ] = array(
 				'type'     => 'site',
@@ -907,10 +950,10 @@ class Initializer {
 			return $red_bubble_slugs;
 		}
 
-		if ( ! $connection->is_user_connected() && ! $connection->has_connected_owner() ) {
+		if ( ! empty( $broken_modules['needs_user_connection'] ) ) {
 			$red_bubble_slugs[ self::MISSING_CONNECTION_NOTIFICATION_KEY ] = array(
 				'type'     => 'user',
-				'is_error' => false,
+				'is_error' => true,
 			);
 			return $red_bubble_slugs;
 		}

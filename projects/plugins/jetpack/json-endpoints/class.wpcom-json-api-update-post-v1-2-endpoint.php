@@ -955,7 +955,7 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 	protected function should_load_theme_functions( $post_id = null ) {
 		if ( empty( $post_id ) ) {
 			$input = $this->input( true );
-			$type  = $input['type'];
+			$type  = $input['type'] ?? null;
 		} else {
 			$type = get_post_type( $post_id );
 		}
@@ -1001,6 +1001,9 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 					),
 					'title'       => $fb_point['name'],
 				);
+			}
+			if ( ! function_exists( 'map_block_from_geo_points' ) ) {
+				require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/map/map.php';
 			}
 			$map_block = map_block_from_geo_points( $geo_points );
 

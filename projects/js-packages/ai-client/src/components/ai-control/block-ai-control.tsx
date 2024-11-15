@@ -53,9 +53,9 @@ const debug = debugFactory( 'jetpack-ai-client:block-ai-control' );
 /**
  * BlockAIControl component. Used by the AI Assistant block, adding logic and components to the base AIControl component.
  *
- * @param {BlockAIControlProps} props  - Component props
- * @param {React.MutableRefObject} ref - Ref to the component
- * @returns {ReactElement}             Rendered component
+ * @param {BlockAIControlProps}    props - Component props
+ * @param {React.MutableRefObject} ref   - Ref to the component
+ * @return {ReactElement}             Rendered component
  */
 export function BlockAIControl(
 	{

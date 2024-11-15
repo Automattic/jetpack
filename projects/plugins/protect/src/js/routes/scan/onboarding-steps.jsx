@@ -1,11 +1,10 @@
 import { Button, Text, getRedirectUrl } from '@automattic/jetpack-components';
-import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
-import { createInterpolateElement } from '@wordpress/element';
+import { createInterpolateElement, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { JETPACK_SCAN_SLUG } from '../../constants';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
+import usePlan from '../../hooks/use-plan';
 
-const { adminUrl, siteSuffix } = window.jetpackProtectInitialState;
+const { siteSuffix } = window.jetpackProtectInitialState;
 
 const scanResultsTitle = __( 'Your scan results', 'jetpack-protect' );
 const scanResultsDescription = (
@@ -17,12 +16,12 @@ const scanResultsDescription = (
 	</Text>
 );
 const UpgradeButton = props => {
-	const { run } = useProductCheckoutWorkflow( {
-		productSlug: JETPACK_SCAN_SLUG,
-		redirectUrl: adminUrl,
-	} );
-	const { recordEventHandler } = useAnalyticsTracks();
-	const getScan = recordEventHandler( 'jetpack_protect_onboarding_get_scan_link_click', run );
+	const { upgradePlan } = usePlan();
+	const { recordEvent } = useAnalyticsTracks();
+	const getScan = useCallback( () => {
+		recordEvent( 'jetpack_protect_onboarding_get_scan_link_click' );
+		upgradePlan();
+	}, [ recordEvent, upgradePlan ] );
 
 	return <Button variant="link" weight="regular" onClick={ getScan } { ...props } />;
 };

@@ -9,7 +9,7 @@ import QuerySitePlugins from 'components/data/query-site-plugins';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import analytics from 'lib/analytics';
 import { chunk, get } from 'lodash';
-import React, { Component } from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
 import { isOfflineMode, hasConnectedOwner, getConnectionStatus } from 'state/connection';
 import {
@@ -54,9 +54,9 @@ class AtAGlance extends Component {
 	/**
 	 * Determines whether a card should be added based on the feature and module availability.
 	 *
-	 * @param {string} feature - The feature to check.
+	 * @param {string}  feature                         - The feature to check.
 	 * @param {boolean} [checkModuleAvailability=false] - Whether to check module availability.
-	 * @returns {boolean} - Whether the card should be added.
+	 * @return {boolean} - Whether the card should be added.
 	 */
 	shouldAddCard = ( feature, checkModuleAvailability = false ) => {
 		const isActive = 'inactive' !== this.props.getModuleOverride( feature );

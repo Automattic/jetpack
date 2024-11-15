@@ -1,10 +1,10 @@
 import { Text, Button, ContextualUpgradeTrigger } from '@automattic/jetpack-components';
-import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { __, sprintf } from '@wordpress/i18n';
 import React, { useCallback } from 'react';
-import { JETPACK_SCAN_SLUG } from '../../constants';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
+import usePlan from '../../hooks/use-plan';
 import FreeAccordion, { FreeAccordionItem } from '../free-accordion';
+import Pagination from './pagination';
 import styles from './styles.module.scss';
 
 const ThreatAccordionItem = ( {
@@ -18,15 +18,13 @@ const ThreatAccordionItem = ( {
 	title,
 	type,
 } ) => {
-	const { adminUrl } = window.jetpackProtectInitialState || {};
-	const { run } = useProductCheckoutWorkflow( {
-		productSlug: JETPACK_SCAN_SLUG,
-		redirectUrl: adminUrl,
-		useBlogIdSuffix: true,
-	} );
+	const { recordEvent } = useAnalyticsTracks();
+	const { upgradePlan } = usePlan();
 
-	const { recordEventHandler } = useAnalyticsTracks();
-	const getScan = recordEventHandler( 'jetpack_protect_threat_list_get_scan_link_click', run );
+	const getScan = useCallback( () => {
+		recordEvent( 'jetpack_protect_threat_list_get_scan_link_click' );
+		upgradePlan();
+	}, [ recordEvent, upgradePlan ] );
 
 	const learnMoreButton = source ? (
 		<Button variant="link" isExternalLink={ true } weight="regular" href={ source }>
@@ -44,8 +42,8 @@ const ThreatAccordionItem = ( {
 				if ( ! [ 'core', 'plugin', 'theme' ].includes( type ) ) {
 					return;
 				}
-				recordEventHandler( `jetpack_protect_${ type }_threat_open` );
-			}, [ recordEventHandler, type ] ) }
+				recordEvent( `jetpack_protect_${ type }_threat_open` );
+			}, [ recordEvent, type ] ) }
 		>
 			{ description && (
 				<div className={ styles[ 'threat-section' ] }>
@@ -85,38 +83,42 @@ const ThreatAccordionItem = ( {
 
 const FreeList = ( { list } ) => {
 	return (
-		<FreeAccordion>
-			{ list.map(
-				( {
-					description,
-					fixedIn,
-					icon,
-					id,
-					label,
-					name,
-					source,
-					table,
-					title,
-					type,
-					version,
-				} ) => (
-					<ThreatAccordionItem
-						description={ description }
-						fixedIn={ fixedIn }
-						icon={ icon }
-						id={ id }
-						label={ label }
-						key={ id }
-						name={ name }
-						source={ source }
-						table={ table }
-						title={ title }
-						type={ type }
-						version={ version }
-					/>
-				)
+		<Pagination list={ list }>
+			{ ( { currentItems } ) => (
+				<FreeAccordion>
+					{ currentItems.map(
+						( {
+							description,
+							fixedIn,
+							icon,
+							id,
+							label,
+							name,
+							source,
+							table,
+							title,
+							type,
+							version,
+						} ) => (
+							<ThreatAccordionItem
+								description={ description }
+								fixedIn={ fixedIn }
+								icon={ icon }
+								id={ id }
+								label={ label }
+								key={ id }
+								name={ name }
+								source={ source }
+								table={ table }
+								title={ title }
+								type={ type }
+								version={ version }
+							/>
+						)
+					) }
+				</FreeAccordion>
 			) }
-		</FreeAccordion>
+		</Pagination>
 	);
 };
 

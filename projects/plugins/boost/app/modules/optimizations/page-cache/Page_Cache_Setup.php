@@ -150,6 +150,15 @@ class Page_Cache_Setup {
 	}
 
 	/**
+	 * Get the path to the advanced-cache.php file.
+	 *
+	 * @return string The full path to the advanced-cache.php file.
+	 */
+	public static function get_advanced_cache_path() {
+		return WP_CONTENT_DIR . '/advanced-cache.php';
+	}
+
+	/**
 	 * Creates the advanced-cache.php file.
 	 *
 	 * Returns true if the files were setup correctly, or WP_Error if there was a problem.
@@ -157,7 +166,7 @@ class Page_Cache_Setup {
 	 * @return bool|\WP_Error
 	 */
 	private static function create_advanced_cache() {
-		$advanced_cache_filename = WP_CONTENT_DIR . '/advanced-cache.php';
+		$advanced_cache_filename = self::get_advanced_cache_path();
 
 		if ( file_exists( $advanced_cache_filename ) ) {
 			$content = file_get_contents( $advanced_cache_filename ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
@@ -253,8 +262,8 @@ define( \'WP_CACHE\', true ); // ' . Page_Cache::ADVANCED_CACHE_SIGNATURE,
 			$content
 		);
 
-		$result = Filesystem_Utils::write_to_file( $config_file, $content );
-		if ( $result instanceof Boost_Cache_Error ) {
+		$result = self::write_to_file_direct( $config_file, $content );
+		if ( $result === false ) {
 			return new \WP_Error( 'wp-config-not-writable' );
 		}
 		self::clear_opcache( $config_file );
@@ -262,6 +271,21 @@ define( \'WP_CACHE\', true ); // ' . Page_Cache::ADVANCED_CACHE_SIGNATURE,
 		Logger::debug( 'WP_CACHE constant added to wp-config.php' );
 
 		return true;
+	}
+
+	/**
+	 * Checks if page cache can be run or not.
+	 *
+	 * @return bool True if the advanced-cache.php file doesn't exist or belongs to Boost, false otherwise.
+	 */
+	public static function can_run_cache() {
+		$advanced_cache_path = self::get_advanced_cache_path();
+		if ( ! file_exists( $advanced_cache_path ) ) {
+			return true;
+		}
+
+		$content = file_get_contents( $advanced_cache_path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+		return strpos( $content, Page_Cache::ADVANCED_CACHE_SIGNATURE ) !== false;
 	}
 
 	/**
@@ -300,7 +324,7 @@ define( \'WP_CACHE\', true ); // ' . Page_Cache::ADVANCED_CACHE_SIGNATURE,
 	 * Deletes the file advanced-cache.php if it exists.
 	 */
 	public static function delete_advanced_cache() {
-		$advanced_cache_filename = WP_CONTENT_DIR . '/advanced-cache.php';
+		$advanced_cache_filename = self::get_advanced_cache_path();
 
 		if ( ! file_exists( $advanced_cache_filename ) ) {
 			return false;
@@ -398,5 +422,22 @@ define( \'WP_CACHE\', true ); // ' . Page_Cache::ADVANCED_CACHE_SIGNATURE,
 		if ( function_exists( 'opcache_invalidate' ) ) {
 			opcache_invalidate( $file, true );
 		}
+	}
+
+	private static function write_to_file_direct( $file, $content ) {
+		$filesystem = self::get_wp_filesystem();
+		$chmod      = $filesystem->getchmod( $file );
+		if ( $chmod === false ) {
+			$chmod = 0644; // Default to a common permission for files
+		} else {
+			$chmod = intval( '0' . $chmod, 8 ); // Ensure leading zero
+		}
+		return $filesystem->put_contents( $file, $content, $chmod );
+	}
+
+	private static function get_wp_filesystem() {
+		require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-base.php';
+		require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-direct.php';
+		return new \WP_Filesystem_Direct( null );
 	}
 }

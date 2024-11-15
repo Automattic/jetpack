@@ -5,6 +5,95 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.33.8] - 2024-11-11
+### Changed
+- Updated package dependencies. [#39999] [#40060]
+
+## [0.33.7] - 2024-11-04
+### Added
+- Enable test coverage. [#39961]
+
+### Fixed
+- Fix PHPUnit coverage warnings. [#39989]
+
+## [0.33.6] - 2024-10-29
+### Changed
+- Components: Add __nextHasNoMarginBottom to BaseControl-based components, preventing deprecation notices. [#39877]
+
+## [0.33.5] - 2024-10-28
+### Changed
+- Updated package dependencies. [#39910]
+
+## [0.33.4] - 2024-10-21
+### Changed
+- Update dependencies. [#39781]
+
+## [0.33.3] - 2024-10-14
+### Changed
+- Only include `wp-polyfill` as a script dependency when needed. [#39629]
+- Updated package dependencies. [#39707]
+
+### Fixed
+- Improve security of the form endpoint. [#39759]
+
+## [0.33.2] - 2024-10-07
+### Changed
+- Updated package dependencies. [#39594]
+
+## [0.33.1] - 2024-09-30
+### Changed
+- Internal updates.
+
+## [0.33.0] - 2024-09-23
+### Added
+- New filter to allow for excluding the contact form submission IP from being saved or e-mailed. [#39395]
+
+### Changed
+- Options: Get selection from the element's document instead of the global `window`. [#39364]
+- Refactor Choice fields [#39141]
+
+## [0.32.16] - 2024-09-16
+### Changed
+- Email submissions: on sites using www., ensure that the sending email address does not use the www. prefix. [#39370]
+
+### Fixed
+- Use en-dash in numeric range in i18n message to conform to guidelines. [#39305]
+
+## [0.32.15] - 2024-09-10
+### Changed
+- Updated package dependencies. [#39302]
+
+## [0.32.14] - 2024-09-09
+### Changed
+- Updated package dependencies. [#39176] [#39278]
+
+### Fixed
+- Contact Forms: added checks for unexpected contents of textarea elements. [#39271]
+
+## [0.32.13] - 2024-09-04
+### Changed
+- Check for private and password-protected posts when handling the contact form submissions. [#39238]
+
+## [0.32.12] - 2024-09-02
+### Changed
+- Forms: update child blocks to Block API v3 [#38916]
+- Updated package dependencies. [#39111]
+
+## [0.32.11] - 2024-08-26
+### Changed
+- Updated package dependencies. [#39004]
+
+## [0.32.10] - 2024-08-21
+### Changed
+- Internal updates.
+
+## [0.32.9] - 2024-08-19
+### Changed
+- Updated package dependencies. [#38662]
+
+### Fixed
+- Lossless image optimization for images (should improve performance with no visible changes). [#38750]
+
 ## [0.32.8] - 2024-08-12
 ### Added
 - React 19 compatibility: Making sure useRef includes an argument. [#38765]
@@ -623,6 +712,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[0.33.8]: https://github.com/automattic/jetpack-forms/compare/v0.33.7...v0.33.8
+[0.33.7]: https://github.com/automattic/jetpack-forms/compare/v0.33.6...v0.33.7
+[0.33.6]: https://github.com/automattic/jetpack-forms/compare/v0.33.5...v0.33.6
+[0.33.5]: https://github.com/automattic/jetpack-forms/compare/v0.33.4...v0.33.5
+[0.33.4]: https://github.com/automattic/jetpack-forms/compare/v0.33.3...v0.33.4
+[0.33.3]: https://github.com/automattic/jetpack-forms/compare/v0.33.2...v0.33.3
+[0.33.2]: https://github.com/automattic/jetpack-forms/compare/v0.33.1...v0.33.2
+[0.33.1]: https://github.com/automattic/jetpack-forms/compare/v0.33.0...v0.33.1
+[0.33.0]: https://github.com/automattic/jetpack-forms/compare/v0.32.16...v0.33.0
+[0.32.16]: https://github.com/automattic/jetpack-forms/compare/v0.32.15...v0.32.16
+[0.32.15]: https://github.com/automattic/jetpack-forms/compare/v0.32.14...v0.32.15
+[0.32.14]: https://github.com/automattic/jetpack-forms/compare/v0.32.13...v0.32.14
+[0.32.13]: https://github.com/automattic/jetpack-forms/compare/v0.32.12...v0.32.13
+[0.32.12]: https://github.com/automattic/jetpack-forms/compare/v0.32.11...v0.32.12
+[0.32.11]: https://github.com/automattic/jetpack-forms/compare/v0.32.10...v0.32.11
+[0.32.10]: https://github.com/automattic/jetpack-forms/compare/v0.32.9...v0.32.10
+[0.32.9]: https://github.com/automattic/jetpack-forms/compare/v0.32.8...v0.32.9
 [0.32.8]: https://github.com/automattic/jetpack-forms/compare/v0.32.7...v0.32.8
 [0.32.7]: https://github.com/automattic/jetpack-forms/compare/v0.32.6...v0.32.7
 [0.32.6]: https://github.com/automattic/jetpack-forms/compare/v0.32.5...v0.32.6

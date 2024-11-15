@@ -35,17 +35,17 @@ if ( ! class_exists( 'Social_Links' ) ) {
 	/**
 	 * Social_Links main class.
 	 *
-	 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+	 * @deprecated 13.8 Moved to Classic Theme Helper package.
 	 */
 	class Social_Links {
 
 		/**
 		 * Constructor.
 		 *
-		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+		 * @deprecated 13.8 Moved to Classic Theme Helper package.
 		 */
 		public function __construct() {
-			_deprecated_function( __METHOD__, '$$next-version$$', 'Automattic\\Jetpack\\Classic_Theme_Helper\\Social_Links->__construct' );
+			_deprecated_function( __METHOD__, '13.8', 'Automattic\\Jetpack\\Classic_Theme_Helper\\Social_Links->__construct' );
 			// @phan-suppress-next-line PhanNoopNew
 			new \Automattic\Jetpack\Classic_Theme_Helper\Social_Links();
 		}
@@ -53,10 +53,10 @@ if ( ! class_exists( 'Social_Links' ) ) {
 		/**
 		 * Init the admin setup.
 		 *
-		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+		 * @deprecated 13.8 Moved to Classic Theme Helper package.
 		 */
 		public function admin_setup() {
-			_deprecated_function( __METHOD__, '$$next-version$$', 'Automattic\\Jetpack\\Classic_Theme_Helper\\Social_Links->admin_setup' );
+			_deprecated_function( __METHOD__, '13.8', 'Automattic\\Jetpack\\Classic_Theme_Helper\\Social_Links->admin_setup' );
 			$social_links_instance = new \Automattic\Jetpack\Classic_Theme_Helper\Social_Links();
 			$social_links_instance->admin_setup();
 		}
@@ -65,11 +65,11 @@ if ( ! class_exists( 'Social_Links' ) ) {
 		 * Compares the currently saved links with the connected services and removes
 		 * links from services that are no longer connected.
 		 *
-		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+		 * @deprecated 13.8 Moved to Classic Theme Helper package.
 		 * @return void
 		 */
 		public function check_links() {
-			_deprecated_function( __METHOD__, '$$next-version$$', 'Automattic\\Jetpack\\Classic_Theme_Helper\\Social_Links->check_links' );
+			_deprecated_function( __METHOD__, '13.8', 'Automattic\\Jetpack\\Classic_Theme_Helper\\Social_Links->check_links' );
 			$social_links_instance = new \Automattic\Jetpack\Classic_Theme_Helper\Social_Links();
 			$social_links_instance->check_links();
 		}
@@ -77,11 +77,11 @@ if ( ! class_exists( 'Social_Links' ) ) {
 		/**
 		 * Add social link dropdown to the Customizer.
 		 *
-		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+		 * @deprecated 13.8 Moved to Classic Theme Helper package.
 		 * @param WP_Customize_Manager $wp_customize Theme Customizer object.
 		 */
 		public function customize_register( $wp_customize ) {
-			_deprecated_function( __METHOD__, '$$next-version$$', 'Automattic\\Jetpack\\Classic_Theme_Helper\\Social_Links->customize_register' );
+			_deprecated_function( __METHOD__, '13.8', 'Automattic\\Jetpack\\Classic_Theme_Helper\\Social_Links->customize_register' );
 			$social_links_instance = new \Automattic\Jetpack\Classic_Theme_Helper\Social_Links();
 			$social_links_instance->customize_register( $wp_customize );
 		}
@@ -89,23 +89,23 @@ if ( ! class_exists( 'Social_Links' ) ) {
 		/**
 		 * Sanitizes social links.
 		 *
-		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+		 * @deprecated 13.8 Moved to Classic Theme Helper package.
 		 * @param array $option The incoming values to be sanitized.
 		 * @return array
 		 */
 		public function sanitize_link( $option ) {
-			_deprecated_function( __METHOD__, '$$next-version$$', 'Automattic\\Jetpack\\Classic_Theme_Helper\\Social_Links->sanitize_link' );
+			_deprecated_function( __METHOD__, '13.8', 'Automattic\\Jetpack\\Classic_Theme_Helper\\Social_Links->sanitize_link' );
 			return ( new \Automattic\Jetpack\Classic_Theme_Helper\Social_Links() )->sanitize_link( $option );
 		}
 
 		/**
 		 * Returns whether there are any social links set.
 		 *
-		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+		 * @deprecated 13.8 Moved to Classic Theme Helper package.
 		 * @return bool
 		 */
 		public function has_social_links() {
-			_deprecated_function( __METHOD__, '$$next-version$$', 'Automattic\\Jetpack\\Classic_Theme_Helper\\Social_Links->has_social_links' );
+			_deprecated_function( __METHOD__, '13.8', 'Automattic\\Jetpack\\Classic_Theme_Helper\\Social_Links->has_social_links' );
 			return ( new \Automattic\Jetpack\Classic_Theme_Helper\Social_Links() )->has_social_links();     }
 
 		/**
@@ -114,19 +114,19 @@ if ( ! class_exists( 'Social_Links' ) ) {
 		 * @return array
 		 */
 		public function get_social_links() {
-			_deprecated_function( __METHOD__, '$$next-version$$', 'Automattic\\Jetpack\\Classic_Theme_Helper\\Social_Links->get_social_links' );
+			_deprecated_function( __METHOD__, '13.8', 'Automattic\\Jetpack\\Classic_Theme_Helper\\Social_Links->get_social_links' );
 			return ( new \Automattic\Jetpack\Classic_Theme_Helper\Social_Links() )->get_social_links();
 		}
 
 		/**
 		 * Short-circuits get_option and get_theme_mod calls.
 		 *
-		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+		 * @deprecated 13.8 Moved to Classic Theme Helper package.
 		 * @param string $link The incoming value to be replaced.
 		 * @return string $link The social link that we've got.
 		 */
 		public function get_social_link_filter( $link ) {
-			_deprecated_function( __METHOD__, '$$next-version$$', 'Automattic\\Jetpack\\Classic_Theme_Helper\\Social_Links->get_social_link_filter' );
+			_deprecated_function( __METHOD__, '13.8', 'Automattic\\Jetpack\\Classic_Theme_Helper\\Social_Links->get_social_link_filter' );
 			return ( new \Automattic\Jetpack\Classic_Theme_Helper\Social_Links() )->get_social_link_filter( $link );
 		}
 	}

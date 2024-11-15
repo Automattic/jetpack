@@ -34,14 +34,8 @@ class Admin_UI {
 	 * @return void
 	 */
 	public static function init() {
-		$page_suffix = Admin_Menu::add_menu(
-			__( 'Jetpack VideoPress', 'jetpack-videopress-pkg' ),
-			_x( 'VideoPress', 'The Jetpack VideoPress product name, without the Jetpack prefix', 'jetpack-videopress-pkg' ),
-			'manage_options',
-			self::ADMIN_PAGE_SLUG,
-			array( __CLASS__, 'plugin_settings_page' )
-		);
-		add_action( 'load-' . $page_suffix, array( __CLASS__, 'admin_init' ) );
+
+		add_action( 'admin_menu', array( __CLASS__, 'enable_menu' ) );
 
 		add_action( 'admin_footer-upload.php', array( __CLASS__, 'attachment_details_two_column_template' ) );
 		add_action( 'admin_footer-post.php', array( __CLASS__, 'attachment_details_template' ), 20 );
@@ -49,6 +43,23 @@ class Admin_UI {
 		add_filter( 'get_edit_post_link', array( __CLASS__, 'edit_video_link' ), 10, 3 );
 
 		add_action( 'admin_init', array( __CLASS__, 'remove_jetpack_hooks' ) );
+	}
+
+	/**
+	 * Enable the menu, separately to init due to translations needing to run early for the page suffix.
+	 *
+	 * @return void
+	 */
+	public static function enable_menu() {
+		$page_suffix = Admin_Menu::add_menu(
+			__( 'Jetpack VideoPress', 'jetpack-videopress-pkg' ),
+			_x( 'VideoPress', 'The Jetpack VideoPress product name, without the Jetpack prefix', 'jetpack-videopress-pkg' ),
+			'manage_options',
+			self::ADMIN_PAGE_SLUG,
+			array( __CLASS__, 'plugin_settings_page' ),
+			3
+		);
+		add_action( 'load-' . $page_suffix, array( __CLASS__, 'admin_init' ) );
 	}
 
 	/**

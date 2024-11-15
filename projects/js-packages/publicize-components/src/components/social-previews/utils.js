@@ -2,7 +2,7 @@
  * Gets the URL of the media. Tries loading a smaller size (1024px width) if available and falls back to the full size.
  *
  * @param {object} media - Media object
- * @returns {?string} URL address
+ * @return {?string} URL address
  */
 export function getMediaSourceUrl( media ) {
 	if ( ! media ) {
@@ -17,7 +17,7 @@ export function getMediaSourceUrl( media ) {
  * Gets the URL of an image from the post body
  *
  * @param {string} editedPostContent - The post content coming from core/editor
- * @returns {?string} URL address
+ * @return {?string} URL address
  */
 export function getPostImageUrl( editedPostContent ) {
 	const parser = new DOMParser();

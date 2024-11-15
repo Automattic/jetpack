@@ -259,10 +259,7 @@ export const postsBlockSelector = (
 		isUIDisabled: isUIDisabled(),
 		error: getError( { clientId } ),
 		topBlocksClientIdsInOrder: blocks.map( block => block.clientId ),
-		latestPosts: isEditorBlock
-			? getPosts( { clientId } )
-			: // For block preview, display static content.
-			  getPreviewPosts( attributes ),
+		latestPosts: isEditorBlock ? getPosts( { clientId } ) : getPreviewPosts( attributes ), // For block preview, display static content.
 	};
 
 	return props;
@@ -280,6 +277,7 @@ export const postsBlockDispatch = (
 ) => {
 	return {
 		// Only editor blocks can trigger reflows.
+		// @ts-ignore It's a string.
 		triggerReflow: isEditorBlock ? dispatch( STORE_NAMESPACE ).reflow : () => undefined,
 	};
 };

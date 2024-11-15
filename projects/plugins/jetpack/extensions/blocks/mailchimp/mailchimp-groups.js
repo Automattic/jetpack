@@ -28,6 +28,7 @@ class MailchimpGroups extends Component {
 					( interest_categories || [] ).map( interest_category =>
 						interest_category.interests.map( interest => (
 							<CheckboxControl
+								__nextHasNoMarginBottom={ true }
 								label={ interest.name }
 								value={ interest.id }
 								checked={ interests.includes( interest.id ) }

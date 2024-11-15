@@ -23,7 +23,7 @@ export type GetSelectedBlocksProps = {
 /**
  * Returns all selected blocks.
  *
- * @returns {GetSelectedBlocksProps} The text content.
+ * @return {GetSelectedBlocksProps} The text content.
  */
 
 export default function useSelectedBlocks(): GetSelectedBlocksProps {

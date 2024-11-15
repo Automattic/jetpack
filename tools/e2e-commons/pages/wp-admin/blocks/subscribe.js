@@ -34,7 +34,7 @@ export default class SubscribeBlock extends EditorCanvas {
 	 * Checks whether block is rendered on frontend
 	 *
 	 * @param {object} frontendPage - PageActions page instance
-	 * @returns {boolean} Always true
+	 * @return {boolean} Always true
 	 */
 	async isRenderedInFrontend( frontendPage ) {
 		await frontendPage.waitForElementToBeVisible(

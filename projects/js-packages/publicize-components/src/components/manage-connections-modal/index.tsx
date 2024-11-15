@@ -24,14 +24,15 @@ export const ManageConnectionsModal = () => {
 		};
 	}, [] );
 
-	const { setKeyringResult, closeConnectionsModal } = useDispatch( store );
+	const { setKeyringResult, closeConnectionsModal, setReconnectingAccount } = useDispatch( store );
 
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
 
 	const closeModal = useCallback( () => {
 		setKeyringResult( null );
+		setReconnectingAccount( undefined );
 		closeConnectionsModal();
-	}, [ closeConnectionsModal, setKeyringResult ] );
+	}, [ closeConnectionsModal, setKeyringResult, setReconnectingAccount ] );
 
 	const hasKeyringResult = Boolean( keyringResult?.ID );
 
@@ -92,7 +93,7 @@ export const ManageConnectionsModal = () => {
  *
  * This component can be used to avoid dealing with modal state management.
  *
- * @returns {import('react').ReactNode} - React element
+ * @return {import('react').ReactNode} - React element
  */
 export function ThemedConnectionsModal() {
 	const shouldModalBeOpen = useSelect( select => {

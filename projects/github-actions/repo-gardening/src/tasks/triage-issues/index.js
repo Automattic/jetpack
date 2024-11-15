@@ -1,13 +1,14 @@
-const { getInput, setFailed } = require( '@actions/core' );
+const { getInput } = require( '@actions/core' );
 const debug = require( '../../utils/debug' );
-const hasPriorityLabels = require( '../../utils/labels/has-priority-labels' );
-const isBug = require( '../../utils/labels/is-bug' );
+const getIssueType = require( '../../utils/labels/get-issue-type' );
 const findPlatforms = require( '../../utils/parse-content/find-platforms' );
 const findPlugins = require( '../../utils/parse-content/find-plugins' );
-const findPriority = require( '../../utils/parse-content/find-priority' );
 const formatSlackMessage = require( '../../utils/slack/format-slack-message' );
 const notifyImportantIssues = require( '../../utils/slack/notify-important-issues' );
 const sendSlackMessage = require( '../../utils/slack/send-slack-message' );
+const aiLabeling = require( './ai-labeling' );
+const getIssuePriority = require( './get-issue-priority' );
+const updateBoard = require( './update-board' );
 
 /* global GitHub, WebhookPayloadIssue */
 
@@ -22,43 +23,23 @@ const sendSlackMessage = require( '../../utils/slack/send-slack-message' );
  * @param {GitHub}              octokit - Initialized Octokit REST client.
  */
 async function triageIssues( payload, octokit ) {
-	const { action, issue, label = {}, repository } = payload;
-	const { number, body } = issue;
+	const { action, issue, repository } = payload;
+	const { number, body, state } = issue;
 	const { owner, name, full_name } = repository;
 	const ownerLogin = owner.login;
 
-	const channel = getInput( 'slack_quality_channel' );
-	if ( ! channel ) {
-		setFailed( 'triage-issues: Input slack_quality_channel is required but missing. Aborting.' );
+	// Do not run this task if the issue is not open.
+	if ( 'open' !== state ) {
+		debug( `triage-issues: Issue #${ number } is not open. No need to triage it.` );
 		return;
 	}
 
-	// Find Priority.
-	const priorityLabels = await hasPriorityLabels(
-		octokit,
-		ownerLogin,
-		name,
-		number,
-		action,
-		label
-	);
-	if ( priorityLabels.length > 0 ) {
-		debug(
-			`triage-issues: Issue #${ number } has the following priority labels: ${ priorityLabels.join(
-				', '
-			) }`
-		);
-	} else {
-		debug( `triage-issues: Issue #${ number } has no existing priority labels.` );
-	}
+	const { labels: priorityLabels, inferred } = await getIssuePriority( payload, octokit );
+	const issueType = await getIssueType( octokit, ownerLogin, name, number );
+	const isBug = issueType === 'Bug';
+	const qualityChannel = getInput( 'slack_quality_channel' );
 
-	debug( `triage-issues: Finding priority for issue #${ number } based off the issue contents.` );
-	const priority = findPriority( body );
-	debug( `triage-issues: Priority for issue #${ number } is ${ priority }` );
-
-	const isBugIssue = await isBug( octokit, ownerLogin, name, number, action, label );
-
-	// If this is a new issue, try to add labels.
+	// If this is a new issue, add labels.
 	if ( action === 'opened' || action === 'reopened' ) {
 		// Find impacted plugins, and add labels.
 		const impactedPlugins = findPlugins( body );
@@ -90,33 +71,49 @@ async function triageIssues( payload, octokit ) {
 			} );
 		}
 
-		// Add priority label to all bugs, if none already exists on the issue.
-		if ( priorityLabels.length === 0 && isBugIssue ) {
-			debug( `triage-issues: Adding [Pri] ${ priority } label to issue #${ number }` );
+		// Add priority label to the issue, if none already existed on the issue.
+		if ( priorityLabels.length === 1 && isBug && inferred ) {
+			const inferredPriority = priorityLabels[ 0 ];
+			debug( `triage-issues: Adding ${ inferredPriority } label to issue #${ number }` );
 
 			await octokit.rest.issues.addLabels( {
 				owner: ownerLogin,
 				repo: name,
 				issue_number: number,
-				labels: [ `[Pri] ${ priority }` ],
+				labels: [ inferredPriority ],
 			} );
 
 			// If we're adding a TBD priority, if we're in the Calypso repo,
 			// send a Slack notification.
-			if ( priority === 'TBD' && full_name === 'Automattic/wp-calypso' ) {
+			if (
+				inferredPriority === '[Pri] TBD' &&
+				full_name === 'Automattic/wp-calypso' &&
+				qualityChannel
+			) {
 				debug(
 					`triage-issues: #${ number } doesn't have a Priority set. Sending in Slack message to the triage team.`
 				);
 				const message = 'New bug missing priority. Please do a priority assessment.';
-				const slackMessageFormat = formatSlackMessage( payload, channel, message );
-				await sendSlackMessage( message, channel, payload, slackMessageFormat );
+				const slackMessageFormat = formatSlackMessage( payload, qualityChannel, message );
+				await sendSlackMessage( message, qualityChannel, payload, slackMessageFormat );
 			}
 		}
+
+		// Use OpenAI to automatically add labels to issues.
+		await aiLabeling( payload, octokit );
 	}
 
-	// Send a Slack notification if the issue is important.
-	if ( isBugIssue ) {
-		await notifyImportantIssues( octokit, payload, channel );
+	// Triage the issue to a Project board if necessary and possible.
+	await updateBoard( payload, octokit, issueType, priorityLabels );
+
+	// Send a Slack notification to Product ambassadors if the issue is important.
+	if (
+		isBug &&
+		qualityChannel &&
+		priorityLabels.length > 0 &&
+		( priorityLabels.includes( '[Pri] BLOCKER' ) || priorityLabels.includes( '[Pri] High' ) )
+	) {
+		await notifyImportantIssues( octokit, payload, qualityChannel, 'product-ambassadors' );
 	}
 }
 module.exports = triageIssues;

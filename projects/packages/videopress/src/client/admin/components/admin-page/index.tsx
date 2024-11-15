@@ -108,8 +108,6 @@ const useDashboardVideos = () => {
 			setVideosQuery( {
 				search: searchFromSearchParam,
 			} );
-
-			return;
 		}
 	}, [ totalOfPages, page, pageFromSearchParam, search, searchFromSearchParam, tempPage.current ] );
 
@@ -331,6 +329,7 @@ const UpgradeTrigger = ( { hasUsedVideo = false }: { hasUsedVideo: boolean } ) =
 	const { adminUri, siteSuffix } = window.jetpackVideoPressInitialState;
 
 	const { product, hasVideoPressPurchase, isFetchingPurchases } = usePlan();
+	// eslint-disable-next-line @wordpress/no-unused-vars-before-return -- @todo Start extending jetpack-js-tools/eslintrc/react in eslintrc, then we can remove this disable comment.
 	const { run } = useProductCheckoutWorkflow( {
 		siteSuffix,
 		productSlug: product.productSlug,
@@ -339,7 +338,13 @@ const UpgradeTrigger = ( { hasUsedVideo = false }: { hasUsedVideo: boolean } ) =
 		useBlogIdSuffix: true,
 	} );
 
+	// eslint-disable-next-line @wordpress/no-unused-vars-before-return -- @todo Start extending jetpack-js-tools/eslintrc/react in eslintrc, then we can remove this disable comment.
 	const { recordEventHandler } = useAnalyticsTracks( {} );
+
+	if ( hasVideoPressPurchase || isFetchingPurchases ) {
+		return null;
+	}
+
 	const onButtonClickHandler = recordEventHandler(
 		'jetpack_videopress_upgrade_trigger_link_click',
 		run
@@ -353,10 +358,6 @@ const UpgradeTrigger = ( { hasUsedVideo = false }: { hasUsedVideo: boolean } ) =
 		'Upgrade now to unlock unlimited videos, 1TB of storage, and more!',
 		'jetpack-videopress-pkg'
 	);
-
-	if ( hasVideoPressPurchase || isFetchingPurchases ) {
-		return null;
-	}
 
 	return (
 		<ContextualUpgradeTrigger

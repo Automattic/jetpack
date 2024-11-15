@@ -68,7 +68,6 @@
 
 .sender-name-example {
 	font-size: var(--font-body-small);
-	color: var(--jp-gray-20);
 	margin-top: 8px;
 }
 
@@ -123,9 +122,11 @@
 	position: relative;
 	margin-right: -48px;
 }
+
 .jp-form-settings-group .email-settings__gravatar .jp-support-info {
 	top: 3px;
 }
+
 .email-settings__gravatar-image {
 	width: 60px;
 	height: 60px;
@@ -139,4 +140,8 @@
 
 #jp-settings-subscriptions .dops-textarea {
 	field-sizing: content;
+}
+
+.newsletter-group .reply-to {
+	margin-top: 16px;
 }

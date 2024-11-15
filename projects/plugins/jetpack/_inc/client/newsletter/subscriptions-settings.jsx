@@ -6,9 +6,15 @@ import { FormLegend, FormFieldset } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
+import { FEATURE_NEWSLETTER_JETPACK } from 'lib/plans/constants';
 import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
-import { isCurrentUserLinked, isUnavailableInOfflineMode, isOfflineMode } from 'state/connection';
+import {
+	isCurrentUserLinked,
+	isUnavailableInOfflineMode,
+	isOfflineMode,
+	hasConnectedOwner,
+} from 'state/connection';
 import {
 	currentThemeIsBlockTheme,
 	currentThemeStylesheet,
@@ -22,7 +28,7 @@ import { SUBSCRIPTIONS_MODULE_NAME } from './constants';
  * Subscription settings component.
  *
  * @param {object} props - Component props.
- * @returns {React.Component} Subscription settings component.
+ * @return {React.Component} Subscription settings component.
  */
 function SubscriptionsSettings( props ) {
 	const {
@@ -32,6 +38,7 @@ function SubscriptionsSettings( props ) {
 		isStcEnabled,
 		isSmEnabled,
 		isSubscribeOverlayEnabled,
+		isSubscribeFloatingEnabled,
 		isSubscribePostEndEnabled,
 		isLoginNavigationEnabled,
 		isSubscribeNavigationEnabled,
@@ -42,6 +49,7 @@ function SubscriptionsSettings( props ) {
 		isBlockTheme,
 		siteAdminUrl,
 		themeStylesheet,
+		siteHasConnectedUser,
 	} = props;
 
 	const subscribeModalEditorUrl =
@@ -62,10 +70,20 @@ function SubscriptionsSettings( props ) {
 			  } )
 			: null;
 
+	const subscribeFloatingEditorUrl =
+		siteAdminUrl && themeStylesheet
+			? addQueryArgs( `${ siteAdminUrl }site-editor.php`, {
+					postType: 'wp_template_part',
+					postId: `${ themeStylesheet }//jetpack-subscribe-floating-button`,
+					canvas: 'edit',
+			  } )
+			: null;
+
 	const singlePostTemplateEditorUrl = siteAdminUrl
 		? addQueryArgs( `${ siteAdminUrl }site-editor.php`, {
 				postType: 'wp_template',
 				postId: `${ themeStylesheet }//single`,
+				canvas: 'edit',
 		  } )
 		: null;
 
@@ -73,6 +91,7 @@ function SubscriptionsSettings( props ) {
 		? addQueryArgs( `${ siteAdminUrl }site-editor.php`, {
 				postType: 'wp_template',
 				postId: `${ themeStylesheet }//index`,
+				canvas: 'edit',
 		  } )
 		: null;
 
@@ -90,6 +109,13 @@ function SubscriptionsSettings( props ) {
 
 	const handleSubscribeOverlayToggleChange = useCallback( () => {
 		updateFormStateModuleOption( SUBSCRIPTIONS_MODULE_NAME, 'jetpack_subscribe_overlay_enabled' );
+	}, [ updateFormStateModuleOption ] );
+
+	const handleSubscribeFloatingToggleChange = useCallback( () => {
+		updateFormStateModuleOption(
+			SUBSCRIPTIONS_MODULE_NAME,
+			'jetpack_subscribe_floating_button_enabled'
+		);
 	}, [ updateFormStateModuleOption ] );
 
 	const handleSubscribePostEndToggleChange = useCallback( () => {
@@ -113,16 +139,22 @@ function SubscriptionsSettings( props ) {
 		);
 	}, [ updateFormStateModuleOption ] );
 
-	const isDisabled = ! isSubscriptionsActive || unavailableInOfflineMode;
+	const isDisabled = ! isSubscriptionsActive || unavailableInOfflineMode || ! siteHasConnectedUser;
 
 	return (
 		<SettingsCard
 			{ ...props }
 			hideButton
+			feature={ FEATURE_NEWSLETTER_JETPACK }
 			module={ SUBSCRIPTIONS_MODULE_NAME }
 			header={ __( 'Subscriptions', 'jetpack' ) }
+			isDisabled={ ! siteHasConnectedUser }
 		>
-			<SettingsGroup disableInOfflineMode disableInSiteConnectionMode module={ subscriptions }>
+			<SettingsGroup
+				disableInOfflineMode
+				disableInSiteConnectionMode={ ! siteHasConnectedUser }
+				module={ subscriptions }
+			>
 				<p>
 					{ __(
 						'Automatically add subscription forms to your site and turn visitors into subscribers.',
@@ -182,6 +214,25 @@ function SubscriptionsSettings( props ) {
 									<>
 										{ '. ' }
 										<ExternalLink href={ subscribeOverlayEditorUrl }>
+											{ __( 'Preview and edit', 'jetpack' ) }
+										</ExternalLink>
+									</>
+								) }
+							</span>
+						}
+					/>
+					<ToggleControl
+						checked={ isSubscriptionsActive && isSubscribeFloatingEnabled }
+						disabled={ isDisabled }
+						toggling={ isSavingAnyOption( [ 'jetpack_subscribe_floating_button_enabled' ] ) }
+						onChange={ handleSubscribeFloatingToggleChange }
+						label={
+							<span className="jp-form-toggle-explanation">
+								{ __( "Floating subscribe button on site's bottom corner", 'jetpack' ) }
+								{ isBlockTheme && subscribeFloatingEditorUrl && (
+									<>
+										{ '. ' }
+										<ExternalLink href={ subscribeFloatingEditorUrl }>
 											{ __( 'Preview and edit', 'jetpack' ) }
 										</ExternalLink>
 									</>
@@ -280,6 +331,9 @@ export default withModuleSettingsFormHelpers(
 			isStcEnabled: ownProps.getOptionValue( 'stc_enabled' ),
 			isSmEnabled: ownProps.getOptionValue( 'sm_enabled' ),
 			isSubscribeOverlayEnabled: ownProps.getOptionValue( 'jetpack_subscribe_overlay_enabled' ),
+			isSubscribeFloatingEnabled: ownProps.getOptionValue(
+				'jetpack_subscribe_floating_button_enabled'
+			),
 			isSubscribePostEndEnabled: ownProps.getOptionValue(
 				'jetpack_subscriptions_subscribe_post_end_enabled'
 			),
@@ -293,6 +347,7 @@ export default withModuleSettingsFormHelpers(
 			isBlockTheme: currentThemeIsBlockTheme( state ),
 			siteAdminUrl: getSiteAdminUrl( state ),
 			themeStylesheet: currentThemeStylesheet( state ),
+			siteHasConnectedUser: hasConnectedOwner( state ),
 		};
 	} )( SubscriptionsSettings )
 );

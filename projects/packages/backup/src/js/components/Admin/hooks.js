@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from '@wordpress/element';
 import useConnection from '../../hooks/useConnection';
 
 export const useIsFullyConnected = () => {
-	const [ connectionStatus ] = useConnection();
+	const connectionStatus = useConnection();
 
 	return useMemo( () => {
 		const connectionLoaded = 0 < Object.keys( connectionStatus ).length;
@@ -13,7 +13,7 @@ export const useIsFullyConnected = () => {
 
 export const useIsSecondaryAdminNotConnected = () => {
 	const isFullyConnected = useIsFullyConnected();
-	const [ connectionStatus ] = useConnection();
+	const connectionStatus = useConnection();
 
 	return useMemo( () => {
 		return isFullyConnected && ! connectionStatus.isUserConnected;

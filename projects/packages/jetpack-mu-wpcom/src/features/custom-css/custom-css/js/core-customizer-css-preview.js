@@ -12,7 +12,7 @@
 		/**
 		 * Refresh custom_css partial, using selective refresh if pre-processor and direct DOM manipulation if otherwise.
 		 *
-		 * @returns {jQuery.promise} Promise
+		 * @return {jQuery.promise} Promise
 		 */
 		refresh: function () {
 			const partial = this,
@@ -20,7 +20,7 @@
 
 			// Sass or Less require Partial -- so ajax call to get it from PHP.
 			// We can explicitly override for specific providers by testing if `'sass' === preprocessor`
-			if ( jpCustomizerCssPreview.preprocessors.hasOwnProperty( preprocessor ) ) {
+			if ( Object.hasOwn( jpCustomizerCssPreview.preprocessors, preprocessor ) ) {
 				return api.selectiveRefresh.Partial.prototype.refresh.call( partial );
 			}
 

@@ -4,6 +4,8 @@ export type JetpackSettingsContentProps = {
 	placement: typeof PLACEMENT_JETPACK_SIDEBAR | typeof PLACEMENT_DOCUMENT_SETTINGS;
 	requireUpgrade: boolean;
 	upgradeType: string;
+	showUsagePanel: boolean;
+	showFairUsageNotice: boolean;
 };
 
 export type CoreSelect = {

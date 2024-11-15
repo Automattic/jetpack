@@ -3,9 +3,9 @@ import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import PluginDashItem from 'components/plugin-dash-item';
+import { FEATURE_JETPACK_CRM } from 'lib/plans/constants';
 import PropTypes from 'prop-types';
-import React, { Component } from 'react';
-import peopleSvgUrl from './people.svg';
+import { Component } from 'react';
 
 const CRM_PLUGIN_DASH = 'admin.php?page=zerobscrm-dash';
 const CRM_PLUGIN_FILES = [ 'zero-bs-crm/ZeroBSCRM.php' ];
@@ -19,8 +19,6 @@ class DashCRM extends Component {
 	render() {
 		return (
 			<PluginDashItem
-				iconAlt={ __( 'Plugin icon', 'jetpack' ) }
-				iconSrc={ peopleSvgUrl }
 				pluginName={ _x(
 					'CRM',
 					'The Jetpack CRM product name, without the Jetpack prefix',
@@ -39,6 +37,7 @@ class DashCRM extends Component {
 						br: <br />,
 					}
 				) }
+				plan={ FEATURE_JETPACK_CRM }
 			/>
 		);
 	}

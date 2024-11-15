@@ -3,7 +3,7 @@ import { select, subscribe } from '@wordpress/data';
 /**
  * Indicates if the block editor has been initialized.
  *
- * @returns {Promise} Promise that resolves when the editor has been initialized.
+ * @return {Promise} Promise that resolves when the editor has been initialized.
  */
 export const waitForEditor = async () =>
 	new Promise( resolve => {

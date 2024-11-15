@@ -4,10 +4,10 @@ const { debug, error } = require( './debug' );
 /**
  * Sends a Slack message.
  *
- * @param {object} client - Slack client
- * @param {boolean} update - if it should update a message. For true, it will update an existing message based on `ts`, false will send a new message.
- * @param {object} options - options
- * @returns {Promise<*>} the response from the Slack API. In case when multiple messages are sent due to the blocks length the last message response is returned.
+ * @param {object}  client  - Slack client
+ * @param {boolean} update  - if it should update a message. For true, it will update an existing message based on `ts`, false will send a new message.
+ * @param {object}  options - options
+ * @return {Promise<*>} the response from the Slack API. In case when multiple messages are sent due to the blocks length the last message response is returned.
  */
 async function postOrUpdateMessage( client, update, options ) {
 	const { text, blocks = [], channel, username, icon_emoji, ts, thread_ts } = options;
@@ -62,9 +62,9 @@ async function postOrUpdateMessage( client, update, options ) {
 /**
  * Split an array of blocks into chunks of a given size
  *
- * @param {[object]} blocks - the array to be split
- * @param {number} chunkSize - the maximum size of each chunk
- * @returns {[object]} the array of chunks
+ * @param {[object]} blocks    - the array to be split
+ * @param {number}   chunkSize - the maximum size of each chunk
+ * @return {[object]} the array of chunks
  */
 function getBlocksChunksBySize( blocks, chunkSize ) {
 	const chunks = [];
@@ -81,8 +81,8 @@ function getBlocksChunksBySize( blocks, chunkSize ) {
  * the result will be [ [ {type: 'context'}, {type: 'context'} ], [ {type: 'file'} ], [ {type: 'context'} ] ]
  *
  * @param {[object]} blocks - the array to be split
- * @param {string} type - the type property to use as delimiter
- * @returns {[object]} the array of chunks
+ * @param {string}   type   - the type property to use as delimiter
+ * @return {[object]} the array of chunks
  */
 function getBlocksChunksByType( blocks, type ) {
 	const chunks = [];
@@ -108,10 +108,10 @@ function getBlocksChunksByType( blocks, type ) {
 /**
  * Split an array of blocks into chunks based on a given type property as delimiter and a max size
  *
- * @param {[object]} blocks - the array to be split
- * @param {number} maxSize - the maximum size of each chunk
- * @param {string} typeDelimiter - the type property to use as delimiter
- * @returns {[object]} the array of chunks
+ * @param {[object]} blocks        - the array to be split
+ * @param {number}   maxSize       - the maximum size of each chunk
+ * @param {string}   typeDelimiter - the type property to use as delimiter
+ * @return {[object]} the array of chunks
  */
 function getBlocksChunks( blocks, maxSize, typeDelimiter ) {
 	const chunksByType = getBlocksChunksByType( blocks, typeDelimiter );
@@ -129,10 +129,10 @@ function getBlocksChunks( blocks, maxSize, typeDelimiter ) {
 /**
  * Finds and returns a Slack message that contains a given string in its text (not in blocks!)
  *
- * @param {object} client - the Slack client
- * @param {string} channelId - the channel id
+ * @param {object} client     - the Slack client
+ * @param {string} channelId  - the channel id
  * @param {string} identifier - the string to search for in the messages text
- * @returns {Promise<*|null>} the message Object
+ * @return {Promise<*|null>} the message Object
  */
 async function getMessage( client, channelId, identifier ) {
 	debug( `Looking for ${ identifier }` );

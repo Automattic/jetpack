@@ -29,7 +29,7 @@ const CHARACTERS_PER_LINE = 31;
  * React component that renders a Video details control
  *
  * @param {DetailsPanelProps} props - Component properties.
- * @returns {React.ReactElement}      Details panel component.
+ * @return {React.ReactElement}      Details panel component.
  */
 export default function DetailsPanel( {
 	filename,
@@ -79,6 +79,7 @@ export default function DetailsPanel( {
 				}
 				onChange={ value => setAttributes( { title: value } ) }
 				disabled={ isRequestingVideoData || !! updateError || ! videoBelongToSite }
+				__nextHasNoMarginBottom={ true }
 			/>
 
 			<TextareaControl
@@ -89,6 +90,7 @@ export default function DetailsPanel( {
 				rows={ descriptionControlRows }
 				disabled={ isRequestingVideoData || !! updateError || ! videoBelongToSite }
 				help={ descriptionHelp }
+				__nextHasNoMarginBottom={ true }
 			/>
 
 			{ ! hasUploadedChapters && hasIncompleteChapters && (

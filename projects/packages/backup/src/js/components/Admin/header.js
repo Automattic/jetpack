@@ -30,7 +30,7 @@ const Header = () => {
 };
 
 const useShowActivateLicenseLink = () => {
-	const [ connectionStatus ] = useConnection();
+	const connectionStatus = useConnection();
 	const isFullyConnected = useIsFullyConnected();
 	const { capabilitiesLoaded, hasBackupPlan } = useCapabilities();
 

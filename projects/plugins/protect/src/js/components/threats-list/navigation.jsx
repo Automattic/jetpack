@@ -6,25 +6,20 @@ import {
 	warning as warningIcon,
 	color as themesIcon,
 	code as filesIcon,
-	grid as databaseIcon,
 } from '@wordpress/icons';
 import { useCallback, useMemo } from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
+import usePlan from '../../hooks/use-plan';
 import useProtectData from '../../hooks/use-protect-data';
 import Navigation, { NavigationItem, NavigationGroup } from '../navigation';
 
 const ThreatsNavigation = ( { selected, onSelect, sourceType = 'scan', statusFilter = 'all' } ) => {
+	const { hasPlan } = usePlan();
 	const {
 		results: { plugins, themes },
 		counts: {
-			current: {
-				threats: numThreats,
-				core: numCoreThreats,
-				files: numFilesThreats,
-				database: numDatabaseThreats,
-			},
+			current: { threats: numThreats, core: numCoreThreats, files: numFilesThreats },
 		},
-		hasRequiredPlan,
 	} = useProtectData( { sourceType, filter: { status: statusFilter } } );
 
 	const { recordEvent } = useAnalyticsTracks();
@@ -48,10 +43,6 @@ const ThreatsNavigation = ( { selected, onSelect, sourceType = 'scan', statusFil
 
 	const trackNavigationClickFiles = useCallback( () => {
 		recordEvent( 'jetpack_protect_navigation_file_click' );
-	}, [ recordEvent ] );
-
-	const trackNavigationClickDatabase = useCallback( () => {
-		recordEvent( 'jetpack_protect_navigation_database_click' );
 	}, [ recordEvent ] );
 
 	const allLabel = useMemo( () => {
@@ -119,7 +110,7 @@ const ThreatsNavigation = ( { selected, onSelect, sourceType = 'scan', statusFil
 					/>
 				) ) }
 			</NavigationGroup>
-			{ hasRequiredPlan && (
+			{ hasPlan && (
 				<>
 					<NavigationItem
 						id="files"
@@ -128,15 +119,6 @@ const ThreatsNavigation = ( { selected, onSelect, sourceType = 'scan', statusFil
 						badge={ numFilesThreats }
 						disabled={ numFilesThreats <= 0 }
 						onClick={ trackNavigationClickFiles }
-						checked={ true }
-					/>
-					<NavigationItem
-						id="database"
-						label={ __( 'Database', 'jetpack-protect' ) }
-						icon={ databaseIcon }
-						badge={ numDatabaseThreats }
-						disabled={ numDatabaseThreats <= 0 }
-						onClick={ trackNavigationClickDatabase }
 						checked={ true }
 					/>
 				</>

@@ -1,19 +1,13 @@
-export type SharesData = {
-	is_share_limit_enabled: boolean;
-	to_be_publicized_count: number;
-	share_limit: number;
-	publicized_count: number;
-	shared_posts_count: number;
-};
-
 export type ConnectionStatus = 'ok' | 'broken';
 
 export type Connection = {
 	id: string;
 	service_name: string;
+	label?: string;
 	display_name: string;
 	external_display?: string;
 	external_id: string;
+	external_name?: string;
 	username: string;
 	enabled: boolean;
 	done: boolean;
@@ -32,24 +26,49 @@ export type ConnectionData = {
 	connections: Connection[];
 	deletingConnections?: Array< number | string >;
 	updatingConnections?: Array< number | string >;
-	reconnectingAccount?: string;
+	reconnectingAccount?: Connection;
 	keyringResult?: KeyringResult;
+	abortControllers?: Record< string, Array< AbortController > >;
 };
 
 export type JetpackSettings = {
 	showNudge?: boolean;
 };
 
-// TODO we should have a consistent structure across all the pages - editor, dashboard, admin page etc.
+export type ShareStatusItem = Pick< Connection, 'profile_link' | 'profile_picture' > & {
+	connection_id: number;
+	status: 'success' | 'failure';
+	message: string;
+	timestamp: number;
+	service: string;
+	external_name: string;
+	external_id: string;
+};
+
+export type PostShareStatus = {
+	shares: Array< ShareStatusItem >;
+	done?: boolean;
+	/**
+	 * Whether an API request is in flight.
+	 */
+	loading?: boolean;
+
+	/**
+	 * Whether the polling is in progress, which includes
+	 * - the API request wait time
+	 * - the polling interval/delay
+	 */
+	polling?: boolean;
+};
+
+export type ShareStatus = {
+	isModalOpen?: boolean;
+	[ PostId: number ]: PostShareStatus;
+};
+
 export type SocialStoreState = {
 	connectionData: ConnectionData;
-	sharesData: SharesData;
-	// on post editor
-	hasPaidPlan?: boolean;
-	// on Jetack Social admin page
-	jetpackSettings?: JetpackSettings;
-	useAdminUiV1?: boolean;
-	featureFlags?: Record< string, boolean >;
+	shareStatus?: ShareStatus;
 };
 
 export interface KeyringAdditionalUser {
@@ -67,10 +86,26 @@ export interface KeyringResult extends KeyringAdditionalUser {
 	status: ConnectionStatus;
 }
 
-declare global {
-	interface Window {
-		jetpackSocialInitialState?: SocialStoreState & {
-			is_publicize_enabled: boolean;
-		};
-	}
-}
+export type SocialImageGeneratorConfig = {
+	enabled: boolean;
+	template?: string;
+};
+
+export type UtmSettingsConfig = {
+	enabled: boolean;
+};
+
+export type SocialPluginSettings = {
+	publicize_active: boolean;
+	show_pricing_page: boolean;
+	social_notes_enabled: boolean;
+	social_notes_config: {
+		append_link: boolean;
+		link_format: 'full_url' | 'shortlink' | 'permashortcitation';
+	};
+};
+
+export type SocialSettingsFields = {
+	jetpack_social_image_generator_settings: SocialImageGeneratorConfig;
+	jetpack_social_utm_settings: UtmSettingsConfig;
+};

@@ -6,6 +6,7 @@ import { NOTICE_PRIORITY_HIGH } from '../../context/constants';
 import { NoticeContext } from '../../context/notices/noticeContext';
 import { NOTICE_SITE_CONNECTED } from '../../context/notices/noticeTemplates';
 import { useAllProducts } from '../../data/products/use-product';
+import useProductsByOwnership from '../../data/products/use-products-by-ownership';
 import getProductSlugsThatRequireUserConnection from '../../data/utils/get-product-slugs-that-require-user-connection';
 import useAnalytics from '../use-analytics';
 import useMyJetpackConnection from '../use-my-jetpack-connection';
@@ -24,6 +25,8 @@ const useSiteConnectionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 	const navToConnection = useMyJetpackNavigate( MyJetpackRoutes.Connection );
 	const redBubbleSlug = 'missing-connection';
 	const connectionError = redBubbleAlerts[ redBubbleSlug ];
+
+	const { refetch: refetchOwnershipData } = useProductsByOwnership();
 
 	useEffect( () => {
 		if ( ! connectionError ) {
@@ -45,6 +48,8 @@ const useSiteConnectionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 				setNotice( NOTICE_SITE_CONNECTED, resetNotice );
 				delete redBubbleAlerts[ redBubbleSlug ];
 				window.myJetpackInitialState.redBubbleAlerts = redBubbleAlerts;
+
+				refetchOwnershipData();
 			} );
 		};
 
@@ -125,6 +130,7 @@ const useSiteConnectionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 		setNotice,
 		siteIsRegistering,
 		connectionError,
+		refetchOwnershipData,
 	] );
 };
 

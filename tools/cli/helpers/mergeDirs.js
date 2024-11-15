@@ -6,7 +6,7 @@ import path from 'path';
  *
  * Originally from https://github.com/binocarlos/merge-dirs/blob/master/src/index.js
  *
- * @param {string} src - Source dir.
+ * @param {string} src  - Source dir.
  * @param {string} dest - Dest dir.
  * @param {string} name - Name of new project.
  */
@@ -51,7 +51,7 @@ export default function mergeDirs( src, dest, name ) {
  *
  * Originally from https://github.com/binocarlos/merge-dirs/blob/master/src/index.js
  *
- * @param {string} file - Destination file path
+ * @param {string} file     - Destination file path
  * @param {string} location - Current location.
  */
 export function copyFile( file, location ) {

@@ -48,6 +48,7 @@ class Test_Package_Version_Tracker extends TestCase {
 	public function set_up() {
 		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
 		Sync_Settings::update_settings( array( 'disable' => true ) );
+		$this->reset_connection_status();
 	}
 
 	/**
@@ -66,6 +67,20 @@ class Test_Package_Version_Tracker extends TestCase {
 
 		delete_transient( Package_Version_Tracker::CACHED_FAILED_REQUEST_KEY );
 		delete_transient( Package_Version_Tracker::RATE_LIMITER_KEY );
+		$this->reset_connection_status();
+	}
+
+	/**
+	 * Reset the connection status.
+	 * Needed because the connection status is memoized and not reset between tests.
+	 * WorDBless does not fire the options update hooks that would reset the connection status.
+	 */
+	public function reset_connection_status() {
+		static $manager = null;
+		if ( ! $manager ) {
+			$manager = new \Automattic\Jetpack\Connection\Manager();
+		}
+		$manager->reset_connection_status();
 	}
 
 	/**
@@ -81,7 +96,7 @@ class Test_Package_Version_Tracker extends TestCase {
 	 */
 	public function test_maybe_update_package_versions( $option_value, $filter_value, $expected_value, $updated ) {
 		$tracker = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Package_Version_Tracker' )
-			->setMethods( array( 'update_package_versions_option' ) )
+			->onlyMethods( array( 'update_package_versions_option' ) )
 			->getMock();
 
 		update_option( Package_Version_Tracker::PACKAGE_VERSION_OPTION, $option_value );
@@ -250,7 +265,7 @@ class Test_Package_Version_Tracker extends TestCase {
 		set_transient( Package_Version_Tracker::RATE_LIMITER_KEY, time() );
 
 		$tracker = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Package_Version_Tracker' )
-			->setMethods( array( 'update_package_versions_option' ) )
+			->onlyMethods( array( 'update_package_versions_option' ) )
 			->getMock();
 
 		update_option( Package_Version_Tracker::PACKAGE_VERSION_OPTION, self::PACKAGE_VERSIONS );
@@ -279,7 +294,7 @@ class Test_Package_Version_Tracker extends TestCase {
 		unset( $wp_actions['init'] );
 
 		$tracker = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Package_Version_Tracker' )
-			->setMethods( array( 'update_package_versions_option' ) )
+			->onlyMethods( array( 'update_package_versions_option' ) )
 			->getMock();
 
 		update_option( Package_Version_Tracker::PACKAGE_VERSION_OPTION, self::PACKAGE_VERSIONS );
@@ -305,6 +320,7 @@ class Test_Package_Version_Tracker extends TestCase {
 	public function test_maybe_update_package_versions_with_sync_disabled_remote_request_success() {
 		\Jetpack_Options::update_option( 'blog_token', 'asdasd.123123' );
 		\Jetpack_Options::update_option( 'id', 1234 );
+		$this->reset_connection_status();
 
 		add_filter( 'pre_http_request', array( $this, 'intercept_http_request_success' ) );
 
@@ -360,6 +376,7 @@ class Test_Package_Version_Tracker extends TestCase {
 	public function test_maybe_update_package_versions_with_sync_disabled_remote_request_failure() {
 		\Jetpack_Options::update_option( 'blog_token', 'asdasd.123123' );
 		\Jetpack_Options::update_option( 'id', 1234 );
+		$this->reset_connection_status();
 
 		add_filter( 'pre_http_request', array( $this, 'intercept_http_request_failure' ) );
 
@@ -393,6 +410,7 @@ class Test_Package_Version_Tracker extends TestCase {
 
 		\Jetpack_Options::update_option( 'blog_token', 'asdasd.123123' );
 		\Jetpack_Options::update_option( 'id', 1234 );
+		$this->reset_connection_status();
 
 		add_filter( 'pre_http_request', array( $this, 'intercept_http_request_failure' ) );
 
@@ -419,7 +437,7 @@ class Test_Package_Version_Tracker extends TestCase {
 	 */
 	public function test_maybe_update_package_versions_with_sync_enabled() {
 		$tracker = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Package_Version_Tracker' )
-			->setMethods( array( 'update_package_versions_via_remote_request', 'is_sync_enabled' ) )
+			->onlyMethods( array( 'update_package_versions_via_remote_request', 'is_sync_enabled' ) )
 			->getMock();
 
 		update_option( Package_Version_Tracker::PACKAGE_VERSION_OPTION, self::PACKAGE_VERSIONS );

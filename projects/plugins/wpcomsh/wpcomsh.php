@@ -2,14 +2,14 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 5.4.1-alpha
+ * Version: 5.10.0
  * Author: Automattic
  * Author URI: http://automattic.com/
  *
  * @package wpcomsh
  */
 
-define( 'WPCOMSH_VERSION', '5.4.1-alpha' );
+define( 'WPCOMSH_VERSION', '5.10.0' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -21,6 +21,7 @@ if ( ! class_exists( 'Atomic_Persistent_Data' ) ) {
 
 require_once __DIR__ . '/constants.php';
 require_once __DIR__ . '/wpcom-features/functions-wpcom-features.php';
+require_once __DIR__ . '/wpcom-marketplace/software/class-marketplace-software-manager.php';
 require_once __DIR__ . '/functions.php';
 require_once __DIR__ . '/i18n.php';
 require_once __DIR__ . '/lib/require-lib.php';
@@ -132,6 +133,9 @@ require_once __DIR__ . '/notices/media-library-private-site-cdn-notice.php';
 require_once __DIR__ . '/notices/anyone-can-register-notice.php';
 require_once __DIR__ . '/notices/feature-moved-to-jetpack-notices.php';
 
+// Performance Profiler
+require_once __DIR__ . '/performance-profiler/performance-profiler.php';
+
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
 	require_once __DIR__ . '/class-wpcomsh-cli-commands.php';
 	require_once __DIR__ . '/woa.php';
@@ -217,9 +221,40 @@ function wpcomsh_jetpack_sso_auth_cookie_expiration( $seconds ) {
 add_filter( 'jetpack_sso_auth_cookie_expiration', 'wpcomsh_jetpack_sso_auth_cookie_expiration' );
 
 /**
- * If a user is logged in to WordPress.com, log him in automatically to wp-login
+ * Determine if users should be enforced to log in with their WP.com account.
+ *
+ * Sites without local users:
+ * - WP.com login, always.
+ *
+ * Sites with local users:
+ * - If user comes from Calypso: WP.com login
+ * - Otherwise: Jetpack SSO login, so they can decide whether to use a WP.com account or a local account.
  */
-add_filter( 'jetpack_sso_bypass_login_forward_wpcom', '__return_true' );
+function wpcomsh_bypass_jetpack_sso_login() {
+	$calypso_domains = array(
+		'https://wordpress.com/',
+		'https://horizon.wordpress.com/',
+		'https://wpcalypso.wordpress.com/',
+		'http://calypso.localhost:3000/',
+		'http://127.0.0.1:41050/', // Desktop App.
+	);
+	if ( in_array( wp_get_referer(), $calypso_domains, true ) ) {
+		return true;
+	}
+
+	if ( class_exists( '\Automattic\Jetpack\Connection\Manager' ) ) {
+		$connection_manager = new \Automattic\Jetpack\Connection\Manager( 'jetpack' );
+		$users              = get_users( array( 'fields' => array( 'ID' ) ) );
+		foreach ( $users as $user ) {
+			if ( ! $connection_manager->is_user_connected( $user->ID ) ) {
+				return false;
+			}
+		}
+	}
+
+	return true;
+}
+add_filter( 'jetpack_sso_bypass_login_forward_wpcom', 'wpcomsh_bypass_jetpack_sso_login' );
 
 /**
  * Overwrite the default value of SSO "Match by Email" setting.
@@ -352,7 +387,7 @@ function wpcomsh_make_content_clickable( $content ) {
 	// don't look in <a></a>, <pre></pre>, <script></script> and <style></style>
 	// use <div class="skip-make-clickable"> in support docs where linkifying
 	// breaks shortcodes, etc.
-	$_split  = preg_split( '/(<[^<>]+>)/i', $content, -1, PREG_SPLIT_DELIM_CAPTURE );
+	$_split  = preg_split( '/(<[^>]+>)/i', $content, -1, PREG_SPLIT_DELIM_CAPTURE );
 	$end     = '';
 	$out     = '';
 	$combine = '';
@@ -638,13 +673,3 @@ if (
 	0 === strncmp( $_SERVER['REQUEST_URI'], '/wp-admin/widgets.php?', strlen( '/wp-admin/widgets.php?' ) ) ) { //phpcs:ignore WordPress.Security.ValidatedSanitizedInput
 	add_action( 'plugins_loaded', 'wpcomsh_avoid_proxied_v2_banner' );
 }
-
-// Temporary feature flag for the new Reading Settings page.
-add_filter( 'calypso_use_modernized_reading_settings', '__return_true' );
-
-/**
- * Temporary feature flags for the new Newsletter and podcasting Settings pages,
- * its removal should be preceded by a removal of the filter's usage in Jetpack: https://github.com/Automattic/jetpack/pull/32146
- */
-add_filter( 'calypso_use_newsletter_settings', '__return_true' );
-add_filter( 'calypso_use_podcasting_settings', '__return_true' );

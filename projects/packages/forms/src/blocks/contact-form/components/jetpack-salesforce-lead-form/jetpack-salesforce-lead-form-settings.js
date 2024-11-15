@@ -129,7 +129,7 @@ export default ( { salesforceData, setAttributes, instanceId } ) => {
 	return (
 		<Fragment>
 			<PanelBody title={ __( 'Salesforce', 'jetpack-forms' ) } initialOpen={ true }>
-				<BaseControl>
+				<BaseControl __nextHasNoMarginBottom={ true }>
 					<TextControl
 						label={ __( 'Organization ID', 'jetpack-forms' ) }
 						value={ salesforceData.organizationId || '' }
@@ -137,11 +137,12 @@ export default ( { salesforceData, setAttributes, instanceId } ) => {
 						onBlur={ onBlurOrgIdField }
 						onChange={ setOrganizationId }
 						help={ __( 'Enter the Salesforce organization ID to send Leads to.', 'jetpack-forms' ) }
+						__nextHasNoMarginBottom={ true }
 					/>
 					{ organizationIdError && (
 						<HelpMessage isError id={ `contact-form-${ instanceId }-email-error` }>
 							{ __(
-								'Invalid Organization ID. Should be a 15 - 18 characters long alphanumeric string.',
+								'Invalid Organization ID. Should be a 15 – 18 characters long alphanumeric string.',
 								'jetpack-forms'
 							) }
 						</HelpMessage>

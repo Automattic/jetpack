@@ -2,6 +2,7 @@ import {
 	getColorClassName,
 	__experimentalGetGradientClass as getGradientClass, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	RichText,
+	useBlockProps,
 } from '@wordpress/block-editor';
 import clsx from 'clsx';
 import { IS_GRADIENT_AVAILABLE } from './constants';
@@ -27,13 +28,21 @@ export default function ButtonSave( { attributes, blockName, uniqueId } ) {
 		return null;
 	}
 
+	const blockProps = useBlockProps.save();
+
 	const backgroundClass = getColorClassName( 'background-color', backgroundColor );
 	const gradientClass = IS_GRADIENT_AVAILABLE ? getGradientClass( gradient ) : undefined;
 	const textClass = getColorClassName( 'color', textColor );
 
-	const blockClasses = clsx( 'wp-block-button', 'jetpack-submit-button', className, {
-		[ `wp-block-jetpack-${ blockName }` ]: blockName,
-	} );
+	const blockClasses = clsx(
+		'wp-block-button',
+		'jetpack-submit-button',
+		className,
+		blockProps?.className,
+		{
+			[ `wp-block-jetpack-${ blockName }` ]: blockName,
+		}
+	);
 
 	const buttonClasses = clsx( 'wp-block-button__link', {
 		'has-text-color': textColor || customTextColor,
@@ -58,7 +67,7 @@ export default function ButtonSave( { attributes, blockName, uniqueId } ) {
 	};
 
 	return (
-		<div className={ blockClasses }>
+		<div { ...blockProps } className={ blockClasses }>
 			<RichText.Content
 				className={ buttonClasses }
 				data-id-attr={ uniqueId || 'placeholder' }

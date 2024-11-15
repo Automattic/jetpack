@@ -58,6 +58,9 @@ Disallow: /
 User-agent: GPTBot
 Disallow: /
 
+User-agent: meta-externalagent
+Disallow: /
+
 User-agent: omgili
 Disallow: /
 

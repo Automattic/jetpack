@@ -6,9 +6,9 @@ import { applyFilters } from '@wordpress/hooks';
 /**
  * React hook that returns the site logo data.
  *
- * @param {object} params - Hook parameters.
+ * @param {object}  params                 - Hook parameters.
  * @param {boolean} params.generateDataUrl - Whether to convert the data URL to a blob. Default: false.
- * @returns {object} Site Logo object data.
+ * @return {object} Site Logo object data.
  */
 export default function useSiteLogo( { generateDataUrl = false } = {} ) {
 	const [ dataUrl, setDataUrl ] = useState();

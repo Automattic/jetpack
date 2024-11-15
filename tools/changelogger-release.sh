@@ -161,7 +161,6 @@ if $ANY; then
 fi
 
 # Release the projects, in build order so we can force a release of something if one of its deps got updated.
-declare -A RELEASED
 for SLUG in "${TO_RELEASE[@]}"; do
 	cd "$BASE/projects/$SLUG"
 
@@ -172,7 +171,6 @@ for SLUG in "${TO_RELEASE[@]}"; do
 	fi
 
 	info "Processing $SLUG..."
-	RELEASED[$SLUG]=1
 
 	# Avoid "There are no changes with content for this write. Proceed?" prompts and empty changelog entries.
 	ANY=false
@@ -224,6 +222,7 @@ for SLUG in "${TO_RELEASE[@]}"; do
 	if [[ -z "$OLDVER" ]] || is_major_bump "$OLDVER" "$VER"; then
 		debug "  Version bump ${OLDVER:-none} -> $VER looks like a major bump, adding a change entry to dependents without one"
 		for S in $( jq -r --arg slug "$SLUG" '.[$slug] // empty | .[]' <<<"$DEPTS" ); do
+			[[ "$S" == monorepo ]] && continue
 			cd "$BASE/projects/$S"
 			CHANGES_DIR=$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' composer.json)
 			if [[ ! -d "$CHANGES_DIR" || -z "$(ls -- "$CHANGES_DIR")" ]]; then
@@ -251,25 +250,25 @@ done
 
 cd "$BASE"
 info "Updating dependencies..."
-SLUGS=()
-# Use a temp variable so pipefail works
-TMP="$(pnpm jetpack dependencies build-order --pretty)"
-mapfile -t SLUGS <<<"$TMP"
+debug "  tools/check-intra-monorepo-deps.sh $VERBOSE $RELEASEBRANCH -U -P"
+"$BASE"/tools/check-intra-monorepo-deps.sh $VERBOSE $RELEASEBRANCH -U -P
+info "Adding changelog entries for unreleased projects..."
+for DS in $( git -c core.quotepath=off diff --name-only projects | sed -E -e 's!^projects/([^/]+/[^/]+)/.*$!\1!' | sort -u ); do
+	cd "$BASE/projects/$DS"
 
-TMPDIR="${TMPDIR:-/tmp}"
-TEMP=$(mktemp "${TMPDIR%/}/changelogger-release-XXXXXXXX")
-
-for DEPENDENCY_SLUG in "${SLUGS[@]}"; do
-	if [[ -n "${RELEASED[$DEPENDENCY_SLUG]}" ]]; then
-		debug "  tools/check-intra-monorepo-deps.sh $VERBOSE $RELEASEBRANCH -U $DEPENDENCY_SLUG"
-		PACKAGE_VERSIONS_CACHE="$TEMP" tools/check-intra-monorepo-deps.sh $VERBOSE $RELEASEBRANCH -U "$DEPENDENCY_SLUG"
+	if ! git diff --quiet ./CHANGELOG.md; then
+		debug "  $DS is being released, no change entry needed"
+	elif ! git diff --quiet -- "./$( jq -r '.extra.changelogger["changes-dir"] // "changelog"' composer.json )/"; then
+		debug "  $DS already has an uncommitted change entry file, skipping"
+	elif ! git diff --quiet -- . ":!./composer.lock"; then
+		debug "  $DS has non-lockfile changes"
+		changelogger_add 'Updated package dependencies.'
 	else
-		debug "  tools/check-intra-monorepo-deps.sh $VERBOSE $RELEASEBRANCH -u $DEPENDENCY_SLUG"
-		PACKAGE_VERSIONS_CACHE="$TEMP" tools/check-intra-monorepo-deps.sh $VERBOSE $RELEASEBRANCH -u "$DEPENDENCY_SLUG"
+		debug "  $DS has lockfile changes only"
+		changelogger_add '' 'Updated composer.lock.'
 	fi
 done
-
-rm "$TEMP"
+cd "$BASE"
 
 debug "  Updating pnpm.lock..."
 pnpm install --silent

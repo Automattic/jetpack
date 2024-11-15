@@ -6,6 +6,11 @@
 		display: flex;
 		justify-content: center;
 
+		// The element created by the KeyboardShortcuts component
+		div {
+			width: 100%;
+		}
+
 		textarea {
 			width: 100%;
 			outline: none;

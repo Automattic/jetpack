@@ -4,7 +4,7 @@
 import { ThemeProvider } from '@automattic/jetpack-components';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createRoot } from '@wordpress/element';
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { HashRouter, Navigate, Routes, Route, useLocation } from 'react-router-dom';
 /**
  * Internal dependencies
@@ -38,7 +38,7 @@ import './style.module.scss';
 /**
  * Component to scroll window to top on route change.
  *
- * @returns {null} Null.
+ * @return {null} Null.
  */
 function ScrollToTop() {
 	const location = useLocation();

@@ -1,9 +1,9 @@
 === Jetpack Search ===
 Contributors: automattic, annamcphee, bluefuton, kangzj, jsnmoon, robfelty, gibrown, trakos, dognose24, a8ck3n
 Tags: search, filter, woocommerce search, ajax search, product search, free cloud-based search
-Requires at least: 6.5
-Requires PHP: 7.0
-Tested up to: 6.6
+Requires at least: 6.6
+Requires PHP: 7.2
+Tested up to: 6.7
 Stable tag: 1.4.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -122,15 +122,9 @@ If you are using the Jetpack Search free option, and you have more than 5000 rec
 5. Manage all of your Jetpack products, including Search, in a single place.
 
 == Changelog ==
-### 2.1.0 - 2024-05-23
-#### Added
-- Trigger a red bubble notification when bad plugin install is detected.
-
+### 3.0.1 - 2024-09-06
 #### Changed
-- Update WordPRess tested version to 6.5.
-- Update minimum WordPress version requirement to WordPress 6.4.
-- Only show installation errors on the plugins page.
-- Show My Jetpack link on the plugins page even if the plugin is not installed.
+- Internal updates.
 
 == Testimonials ==
 

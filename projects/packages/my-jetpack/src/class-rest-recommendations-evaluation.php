@@ -141,6 +141,7 @@ class REST_Recommendations_Evaluation {
 		\Jetpack_Options::update_option( 'dismissed_recommendations', true );
 
 		if ( isset( $show_welcome_banner ) && $show_welcome_banner === 'true' ) {
+			\Jetpack_Options::update_option( 'recommendations_first_run', false );
 			\Jetpack_Options::delete_option( 'dismissed_welcome_banner' );
 		}
 

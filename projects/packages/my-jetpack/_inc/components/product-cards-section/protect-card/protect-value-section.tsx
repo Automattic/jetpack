@@ -1,6 +1,5 @@
 import useProduct from '../../../data/products/use-product';
 import { InfoTooltip } from '../../info-tooltip';
-import baseStyles from '../style.module.scss';
 import { AutoFirewallStatus } from './auto-firewall-status';
 import { LoginsBlockedStatus } from './logins-blocked-status';
 import { ScanAndThreatStatus } from './scan-threats-status';
@@ -42,16 +41,10 @@ const ProtectValueSection = () => {
 					<ScanAndThreatStatus />
 				</div>
 				<div className="value-section__auto-firewall">
-					<div className={ baseStyles.valueSectionHeading }>Auto-Firewall</div>
-					<div className="value-section__data">
-						<AutoFirewallStatus />
-					</div>
+					<AutoFirewallStatus />
 				</div>
 				<div className="value-section__logins-blocked">
-					<div className={ baseStyles.valueSectionHeading }>Logins Blocked</div>
-					<div className="value-section__data">
-						<LoginsBlockedStatus />
-					</div>
+					<LoginsBlockedStatus />
 				</div>
 			</div>
 		</>

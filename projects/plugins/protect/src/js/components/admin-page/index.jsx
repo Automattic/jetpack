@@ -1,65 +1,63 @@
-import { AdminPage as JetpackAdminPage, Container } from '@automattic/jetpack-components';
-import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
-import apiFetch from '@wordpress/api-fetch';
-import { useDispatch, useSelect } from '@wordpress/data';
-import { __ } from '@wordpress/i18n';
-import { addQueryArgs, getQueryArg } from '@wordpress/url';
-import React, { useEffect } from 'react';
-import { JETPACK_SCAN_SLUG } from '../../constants';
+import {
+	AdminPage as JetpackAdminPage,
+	Container,
+	JetpackProtectLogo,
+} from '@automattic/jetpack-components';
+import { useConnection } from '@automattic/jetpack-connection';
+import { __, sprintf } from '@wordpress/i18n';
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import useNotices from '../../hooks/use-notices';
+import useProtectData from '../../hooks/use-protect-data';
 import useWafData from '../../hooks/use-waf-data';
-import { STORE_ID } from '../../state/store';
-import InterstitialPage from '../interstitial-page';
-import Logo from '../logo';
 import Notice from '../notice';
 import Tabs, { Tab } from '../tabs';
 import styles from './styles.module.scss';
-import useRegistrationWatcher from './use-registration-watcher';
 
 const AdminPage = ( { children } ) => {
-	useRegistrationWatcher();
-
+	const { notice } = useNotices();
+	const { isRegistered } = useConnection();
 	const { isSeen: wafSeen } = useWafData();
-	const notice = useSelect( select => select( STORE_ID ).getNotice() );
-	const { refreshPlan, startScanOptimistically, refreshStatus, refreshScanHistory } =
-		useDispatch( STORE_ID );
-	const { adminUrl } = window.jetpackProtectInitialState || {};
-	const { run, isRegistered, hasCheckoutStarted } = useProductCheckoutWorkflow( {
-		productSlug: JETPACK_SCAN_SLUG,
-		redirectUrl: addQueryArgs( adminUrl, { checkPlan: true } ),
-		siteProductAvailabilityHandler: async () =>
-			apiFetch( {
-				path: 'jetpack-protect/v1/check-plan',
-				method: 'GET',
-			} ).then( hasRequiredPlan => hasRequiredPlan ),
-		useBlogIdSuffix: true,
-	} );
+	const navigate = useNavigate();
+	const {
+		counts: {
+			current: { threats: numThreats },
+		},
+	} = useProtectData();
 
+	// Redirect to the setup page if the site is not registered.
 	useEffect( () => {
-		if ( getQueryArg( window.location.search, 'checkPlan' ) ) {
-			startScanOptimistically();
-			setTimeout( () => {
-				refreshPlan();
-				refreshStatus( true );
-				refreshScanHistory();
-			}, 5000 );
+		if ( ! isRegistered ) {
+			navigate( '/setup' );
 		}
-	}, [ refreshPlan, refreshStatus, refreshScanHistory, startScanOptimistically ] );
+	}, [ isRegistered, navigate ] );
 
-	/*
-	 * Show interstital page when
-	 * - Site is not registered
-	 * - Checkout workflow has started
-	 */
-	if ( ! isRegistered || hasCheckoutStarted ) {
-		return <InterstitialPage onScanAdd={ run } />;
+	if ( ! isRegistered ) {
+		return null;
 	}
 
 	return (
-		<JetpackAdminPage moduleName={ __( 'Jetpack Protect', 'jetpack-protect' ) } header={ <Logo /> }>
-			{ notice.message && <Notice floating={ true } dismissable={ true } { ...notice } /> }
+		<JetpackAdminPage
+			moduleName={ __( 'Jetpack Protect', 'jetpack-protect' ) }
+			header={ <JetpackProtectLogo /> }
+		>
+			{ notice && <Notice floating={ true } dismissable={ true } { ...notice } /> }
 			<Container horizontalSpacing={ 0 }>
 				<Tabs className={ styles.navigation }>
-					<Tab link="/scan" label={ __( 'Scan', 'jetpack-protect' ) } />
+					<Tab
+						link="/scan"
+						label={
+							<span className={ styles.tab }>
+								{ numThreats > 0
+									? sprintf(
+											// translators: %d is the number of threats found.
+											__( 'Scan (%d)', 'jetpack-protect' ),
+											numThreats
+									  )
+									: __( 'Scan', 'jetpack-protect' ) }
+							</span>
+						}
+					/>
 					<Tab
 						link="/firewall"
 						label={

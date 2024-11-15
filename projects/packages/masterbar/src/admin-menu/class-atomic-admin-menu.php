@@ -136,11 +136,6 @@ class Atomic_Admin_Menu extends Admin_Menu {
 			// The 'Subscribers' menu exists in the Jetpack menu for Classic wp-admin interface, so only add it for non-wp-admin interfaces.
 			// // @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 			add_submenu_page( 'users.php', esc_attr__( 'Subscribers', 'jetpack-masterbar' ), __( 'Subscribers', 'jetpack-masterbar' ), 'list_users', 'https://wordpress.com/subscribers/' . $this->domain, null );
-
-			// When the interface is not set to wp-admin, we replace the Profile submenu.
-			remove_submenu_page( 'users.php', 'profile.php' );
-			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-			add_submenu_page( 'users.php', esc_attr__( 'My Profile', 'jetpack-masterbar' ), __( 'My Profile', 'jetpack-masterbar' ), 'read', 'https://wordpress.com/me/', null );
 		}
 
 		// Users who can't 'list_users' will see "Profile" menu & "Profile > Account Settings" as submenu.
@@ -333,14 +328,18 @@ class Atomic_Admin_Menu extends Admin_Menu {
 			parent::add_jetpack_menu();
 		}
 
+		$scan_position = $this->get_submenu_item_count( 'jetpack' ) - 1;
+
 		global $submenu;
-		$backup_submenu_label = __( 'Backup', 'jetpack-masterbar' );
-		$submenu_labels       = array_column( $submenu['jetpack'], 3 );
-		$backup_position      = array_search( $backup_submenu_label, $submenu_labels, true );
-		$scan_position        = $backup_position !== false ? $backup_position + 1 : $this->get_submenu_item_count( 'jetpack' ) - 1;
+		if ( isset( $submenu['jetpack'] ) ) {
+			$backup_submenu_label = __( 'Backup', 'jetpack-masterbar' );
+			$submenu_labels       = array_column( $submenu['jetpack'], 3 );
+			$backup_position      = array_search( $backup_submenu_label, $submenu_labels, true );
+			$scan_position        = $backup_position !== false ? $backup_position + 1 : $this->get_submenu_item_count( 'jetpack' ) - 1;
+		}
 
 		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-		add_submenu_page( 'jetpack', esc_attr__( 'Scan', 'jetpack-masterbar' ), __( 'Scan', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/scan/history/' . $this->domain, null, $scan_position );
+		add_submenu_page( 'jetpack', esc_attr__( 'Scan', 'jetpack-masterbar' ), __( 'Scan', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/scan/' . $this->domain, null, $scan_position );
 
 		/**
 		 * Prevent duplicate menu items that link to Jetpack Backup.
@@ -428,8 +427,16 @@ class Atomic_Admin_Menu extends Admin_Menu {
 			);
 		}
 
-		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-		add_submenu_page( 'options-general.php', esc_attr__( 'Hosting Configuration', 'jetpack-masterbar' ), __( 'Hosting Configuration', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/hosting-config/' . $this->domain, null, 11 );
+		$has_feature_atomic = function_exists( 'wpcom_site_has_feature' ) && wpcom_site_has_feature( \WPCOM_Features::ATOMIC );
+		add_submenu_page(
+			'options-general.php',
+			$has_feature_atomic ? esc_attr__( 'Server Settings', 'jetpack-masterbar' ) : esc_attr__( 'Hosting Features', 'jetpack-masterbar' ),
+			$has_feature_atomic ? __( 'Server Settings', 'jetpack-masterbar' ) : __( 'Hosting Features', 'jetpack-masterbar' ),
+			'manage_options',
+			$has_feature_atomic ? 'https://wordpress.com/hosting-config/' . $this->domain : 'https://wordpress.com/hosting-features/' . $this->domain,
+			null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
+			11
+		);
 
 		// Page Optimize is active by default on all Atomic sites and registers a Settings > Performance submenu which
 		// would conflict with our own Settings > Performance that links to Calypso, so we hide it it since the Calypso

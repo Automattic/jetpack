@@ -50,9 +50,9 @@ domReady( function () {
 	 * Countdown element passed in as the dom node to search
 	 * within, supporting multiple events per page
 	 *
-	 * @param ts - The timestamp of the countdown
+	 * @param ts   - The timestamp of the countdown
 	 * @param elem - The element of the countdown container
-	 * @param id - The ID of the countdown
+	 * @param id   - The ID of the countdown
 	 */
 	function updateCountdown( ts, elem, id ) {
 		const now = Date.now();

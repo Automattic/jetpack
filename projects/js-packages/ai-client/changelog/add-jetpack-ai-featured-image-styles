@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+AI Client: add effect on AiModalInputPrompt to update/set prompt on prop update

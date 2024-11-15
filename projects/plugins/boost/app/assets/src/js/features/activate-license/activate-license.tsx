@@ -1,10 +1,10 @@
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import styles from './activate-license.module.scss';
+import { isWoaHosting } from '$lib/utils/hosting';
 
 const ActivateLicense = () => {
-	const { site } = Jetpack_Boost;
-	if ( site.isAtomic ) {
+	if ( isWoaHosting() ) {
 		return null;
 	}
 

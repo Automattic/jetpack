@@ -1,4 +1,4 @@
-import { useBreakpointMatch } from '@automattic/jetpack-components';
+import { getRedirectUrl, useBreakpointMatch } from '@automattic/jetpack-components';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
 import {
@@ -13,12 +13,13 @@ import {
 	__experimentalToggleGroupControlOption as ToggleGroupControlOption, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalToggleGroupControlOptionIcon as ToggleGroupControlOptionIcon, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	Spinner,
+	ExternalLink,
 } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { useState, useCallback, useEffect } from '@wordpress/element';
+import { useState, useCallback, useEffect, createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { desktop, mobile, tablet, check, people, currencyDollar } from '@wordpress/icons';
+import { desktop, mobile, tablet, check, people, currencyDollar, warning } from '@wordpress/icons';
 import './email-preview.scss';
 import { accessOptions } from '../../shared/memberships/constants';
 import { useAccessLevel } from '../../shared/memberships/edit';
@@ -33,7 +34,7 @@ export function NewsletterTestEmailModal( { isOpen, onClose } ) {
 	const { tracks } = useAnalytics();
 
 	const sendTestEmail = async () => {
-		tracks.recordEvent( 'jetpack_send_email_preview', { post_id: postId } );
+		tracks.recordEvent( 'jetpack_newsletter_test_email_send', { post_id: postId } );
 		setIsEmailSending( true );
 		await __unstableSaveForPreview();
 
@@ -115,6 +116,12 @@ const previewDevices = [
 const PreviewDeviceSelector = ( { selectedDevice, setSelectedDevice } ) => {
 	const [ isMedium ] = useBreakpointMatch( 'md' );
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
+	const { tracks } = useAnalytics();
+
+	const handleDeviceChange = device => {
+		tracks.recordEvent( 'jetpack_newsletter_preview_device_change', { device } );
+		setSelectedDevice( device );
+	};
 
 	if ( isSmall ) {
 		return null;
@@ -126,7 +133,7 @@ const PreviewDeviceSelector = ( { selectedDevice, setSelectedDevice } ) => {
 	return (
 		<ToggleGroupControl
 			__nextHasNoMarginBottom
-			onChange={ setSelectedDevice }
+			onChange={ handleDeviceChange }
 			value={ selectedDevice }
 			isBlock
 		>
@@ -146,8 +153,13 @@ const PreviewAccessSelector = ( { selectedAccess, setSelectedAccess } ) => {
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
 	const accessLevel = useAccessLevel( postType );
+	const { tracks } = useAnalytics();
 
-	const isPaidOptionDisabled = ! accessLevel || accessLevel !== accessOptions.paid_subscribers.key;
+	const isPaidAccess = accessLevel === accessOptions.paid_subscribers.key;
+
+	if ( ! isPaidAccess ) {
+		return null;
+	}
 
 	const accessOptionsList = [
 		{ label: accessOptions.subscribers.label, value: accessOptions.subscribers.key, icon: people },
@@ -155,19 +167,13 @@ const PreviewAccessSelector = ( { selectedAccess, setSelectedAccess } ) => {
 			label: accessOptions.paid_subscribers.label,
 			value: accessOptions.paid_subscribers.key,
 			icon: currencyDollar,
-			disabled: isPaidOptionDisabled,
 		},
 	];
 
 	const handleChange = value => {
-		if ( ! isPaidOptionDisabled ) {
-			setSelectedAccess( value );
-		}
+		tracks.recordEvent( 'jetpack_newsletter_preview_access_change', { access: value } );
+		setSelectedAccess( value );
 	};
-
-	if ( isSmall && isPaidOptionDisabled ) {
-		return null;
-	}
 
 	return (
 		<ToggleGroupControl
@@ -190,7 +196,6 @@ const PreviewAccessSelector = ( { selectedAccess, setSelectedAccess } ) => {
 						key={ access.value }
 						value={ access.value }
 						label={ access.label }
-						disabled={ access.disabled }
 					/>
 				)
 			) }
@@ -222,9 +227,12 @@ const PreviewControls = ( {
 
 export function NewsletterPreviewModal( { isOpen, onClose, postId } ) {
 	const [ isLoading, setIsLoading ] = useState( true );
+	const [ isError, setError ] = useState( false );
+	const [ refetchedOnError, setRefetchedOnError ] = useState( false );
 	const [ previewCache, setPreviewCache ] = useState( {} );
 	const [ selectedAccess, setSelectedAccess ] = useState( accessOptions.subscribers.key );
 	const [ selectedDevice, setSelectedDevice ] = useState( 'desktop' );
+	const { tracks } = useAnalytics();
 
 	const fetchPreview = useCallback(
 		async accessLevel => {
@@ -233,6 +241,7 @@ export function NewsletterPreviewModal( { isOpen, onClose, postId } ) {
 			}
 
 			setIsLoading( true );
+			setError( false );
 
 			try {
 				const response = await apiFetch( {
@@ -248,28 +257,35 @@ export function NewsletterPreviewModal( { isOpen, onClose, postId } ) {
 				} else {
 					throw new Error( 'Invalid response format' );
 				}
-			} catch ( error ) {
-				setPreviewCache( prevCache => ( {
-					...prevCache,
-					[ accessLevel ]: `<html><body>${ __(
-						'Error loading preview',
-						'jetpack'
-					) }</body></html>`,
-				} ) );
+			} catch {
+				tracks.recordEvent( 'jetpack_newsletter_preview_modal_error' );
+				setError( true );
 			} finally {
 				setIsLoading( false );
 			}
 		},
-		[ postId ]
+		[ postId, tracks ]
 	);
 
 	useEffect( () => {
-		if ( isOpen && ! previewCache.hasOwnProperty( selectedAccess ) ) {
+		if ( isOpen && ! Object.hasOwn( previewCache, selectedAccess ) ) {
 			fetchPreview( selectedAccess );
 		} else if ( isOpen ) {
 			setIsLoading( false );
 		}
 	}, [ isOpen, selectedAccess, fetchPreview, previewCache ] );
+
+	useEffect( () => {
+		if ( isOpen ) {
+			tracks.recordEvent( 'jetpack_newsletter_preview_modal_open', { post_id: postId } );
+		}
+	}, [ isOpen, postId, tracks ] );
+
+	const handleClose = () => {
+		tracks.recordEvent( 'jetpack_newsletter_preview_modal_close', { post_id: postId } );
+		onClose();
+		setPreviewCache( {} );
+	};
 
 	const deviceWidth = previewDevices.find( device => device.name === selectedDevice ).width;
 
@@ -278,10 +294,7 @@ export function NewsletterPreviewModal( { isOpen, onClose, postId } ) {
 			<Modal
 				isFullScreen={ true }
 				title={ __( 'Preview email', 'jetpack' ) }
-				onRequestClose={ () => {
-					onClose();
-					setPreviewCache( {} );
-				} }
+				onRequestClose={ handleClose }
 				headerActions={
 					<PreviewControls
 						selectedAccess={ selectedAccess }
@@ -298,14 +311,46 @@ export function NewsletterPreviewModal( { isOpen, onClose, postId } ) {
 						justifyContent: 'center',
 						alignItems: 'center',
 						height: 'calc(100vh - 190px)',
-						backgroundColor: '#ddd',
+						backgroundColor: isError ? '#fff' : '#ddd',
 						paddingTop: selectedDevice !== 'desktop' ? '36px' : '0',
 						transition: 'padding 0.3s ease-in-out',
 					} }
 				>
-					{ isLoading ? (
-						<Spinner />
-					) : (
+					{ isLoading && <Spinner /> }
+					{ isError && (
+						<VStack
+							alignment="center"
+							aria-live="polite"
+							role="alert"
+							style={ { textAlign: 'center' } }
+						>
+							<Icon icon={ warning } />
+							<h3>{ __( 'Oops, something went wrong showing the preview…', 'jetpack' ) }</h3>
+							<Button
+								onClick={ () => {
+									setRefetchedOnError( true );
+									fetchPreview( selectedAccess );
+								} }
+								variant="primary"
+							>
+								{ __( 'Try again', 'jetpack' ) }
+							</Button>
+							{ refetchedOnError && (
+								<p>
+									{ createInterpolateElement(
+										__(
+											'If the issue persists, please <supportLink>contact support</supportLink>.',
+											'jetpack'
+										),
+										{
+											supportLink: <ExternalLink href={ getRedirectUrl( 'jetpack-support' ) } />,
+										}
+									) }
+								</p>
+							) }
+						</VStack>
+					) }
+					{ ! isLoading && ! isError && (
 						<iframe
 							srcDoc={ previewCache?.[ selectedAccess ] }
 							style={ {

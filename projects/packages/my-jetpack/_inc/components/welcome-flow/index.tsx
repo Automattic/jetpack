@@ -20,10 +20,20 @@ export type WelcomeFlowExperiment = {
 	variation: 'control' | 'treatment';
 };
 
-const WelcomeFlow: FC< PropsWithChildren > = ( { children } ) => {
+interface Props extends PropsWithChildren {
+	welcomeFlowExperiment: WelcomeFlowExperiment;
+	setWelcomeFlowExperiment: React.Dispatch< React.SetStateAction< WelcomeFlowExperiment > >;
+}
+
+const WelcomeFlow: FC< Props > = ( {
+	welcomeFlowExperiment,
+	setWelcomeFlowExperiment,
+	children,
+} ) => {
 	const { recordEvent } = useAnalytics();
 	const { dismissWelcomeBanner } = useWelcomeBanner();
-	const { submitEvaluation, saveEvaluationResult } = useEvaluationRecommendations();
+	const { recommendedModules, submitEvaluation, saveEvaluationResult } =
+		useEvaluationRecommendations();
 	const {
 		siteIsRegistered,
 		siteIsRegistering,
@@ -35,24 +45,28 @@ const WelcomeFlow: FC< PropsWithChildren > = ( { children } ) => {
 	} );
 	const [ isProcessingEvaluation, setIsProcessingEvaluation ] = useState( false );
 	const [ prevStep, setPrevStep ] = useState( '' );
-	const [ welcomeFlowExperiment, setWelcomeFlowExperiment ] = useState< WelcomeFlowExperiment >( {
-		isLoading: false,
-		variation: 'control',
-	} );
 
 	const currentStep = useMemo( () => {
 		if ( ! siteIsRegistered || welcomeFlowExperiment.isLoading ) {
 			return 'connection';
 		} else if ( ! isProcessingEvaluation ) {
-			if ( ! isJetpackUserNew() || welcomeFlowExperiment.variation !== 'treatment' ) {
-				// If the user is not new, we don't show the evaluation step
+			if ( ! recommendedModules && ! isJetpackUserNew() ) {
+				// If user is not new but doesn't have recommendations, we skip evaluation
+				// If user has recommendations, it means they redo the evaluation
 				return null;
 			}
+
+			// Otherwise, it means user is either new or just repeats the recommendation
 			return 'evaluation';
 		}
 
 		return 'evaluation-processing';
-	}, [ isProcessingEvaluation, siteIsRegistered, welcomeFlowExperiment ] );
+	}, [
+		isProcessingEvaluation,
+		recommendedModules,
+		siteIsRegistered,
+		welcomeFlowExperiment.isLoading,
+	] );
 
 	useEffect( () => {
 		if ( prevStep !== currentStep ) {

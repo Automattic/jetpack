@@ -1,16 +1,17 @@
 import { Button } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
-import { useDispatch, useSelect } from '@wordpress/data';
+import { useDispatch } from '@wordpress/data';
 import { createInterpolateElement, Fragment } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import usePublicizeConfig from '../../hooks/use-publicize-config';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import { store } from '../../social-store';
 import { Connection } from '../../social-store/types';
+import { checkConnectionCode } from '../../utils/connections';
+import { getSocialScriptData } from '../../utils/script-data';
 import Notice from '../notice';
 import { useServiceLabel } from '../services/use-service-label';
 import styles from './styles.module.scss';
-import { checkConnectionCode } from './utils';
 
 export const BrokenConnectionsNotice: React.FC = () => {
 	const { connections } = useSocialMediaConnections();
@@ -25,9 +26,10 @@ export const BrokenConnectionsNotice: React.FC = () => {
 		);
 	} );
 
-	const { connectionsAdminUrl } = usePublicizeConfig();
+	const { connectionsPageUrl } = usePublicizeConfig();
 
-	const useAdminUiV1 = useSelect( select => select( store ).useAdminUiV1(), [] );
+	const { useAdminUiV1 } = getSocialScriptData().feature_flags;
+
 	const { openConnectionsModal } = useDispatch( store );
 
 	const fixLink = useAdminUiV1 ? (
@@ -37,7 +39,7 @@ export const BrokenConnectionsNotice: React.FC = () => {
 			className={ styles[ 'broken-connection-btn' ] }
 		/>
 	) : (
-		<ExternalLink href={ connectionsAdminUrl } />
+		<ExternalLink href={ connectionsPageUrl } />
 	);
 
 	const getServiceLabel = useServiceLabel();

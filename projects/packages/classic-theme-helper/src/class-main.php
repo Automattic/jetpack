@@ -14,7 +14,7 @@ use WP_Error;
  */
 class Main {
 
-	const PACKAGE_VERSION = '0.5.0-alpha';
+	const PACKAGE_VERSION = '0.6.7';
 
 	/**
 	 * Modules to include.
@@ -22,9 +22,12 @@ class Main {
 	 * @var array
 	 */
 	public $modules = array(
+		'custom-content-types.php',
 		'responsive-videos.php',
+		'site-breadcrumbs.php',
 		'social-menu.php',
 		'jetpack-color.php',
+		'content-options.php',
 	);
 
 	/** Holds the singleton instance of the Loader

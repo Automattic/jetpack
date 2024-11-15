@@ -1,16 +1,15 @@
-import { Button, Text } from '@automattic/jetpack-components';
-import { useDispatch, useSelect } from '@wordpress/data';
+import { Button, Text, ThreatSeverityBadge } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
-import { STORE_ID } from '../../state/store';
-import ThreatSeverityBadge from '../severity';
+import { useState } from 'react';
+import useUnIgnoreThreatMutation from '../../data/scan/use-unignore-threat-mutation';
+import useModal from '../../hooks/use-modal';
 import UserConnectionGate from '../user-connection-gate';
 import styles from './styles.module.scss';
 
 const UnignoreThreatModal = ( { id, title, label, icon, severity } ) => {
-	const { setModal, unignoreThreat } = useDispatch( STORE_ID );
-	const threatsUpdating = useSelect( select => select( STORE_ID ).getThreatsUpdating() );
-
+	const { setModal } = useModal();
+	const unignoreThreatMutation = useUnIgnoreThreatMutation();
 	const handleCancelClick = () => {
 		return event => {
 			event.preventDefault();
@@ -18,12 +17,15 @@ const UnignoreThreatModal = ( { id, title, label, icon, severity } ) => {
 		};
 	};
 
+	const [ isUnignoring, setIsUnignoring ] = useState( false );
+
 	const handleUnignoreClick = () => {
 		return async event => {
 			event.preventDefault();
-			unignoreThreat( id, () => {
-				setModal( { type: null } );
-			} );
+			setIsUnignoring( true );
+			await unignoreThreatMutation.mutateAsync( id );
+			setModal( { type: null } );
+			setIsUnignoring( false );
 		};
 	};
 
@@ -51,11 +53,7 @@ const UnignoreThreatModal = ( { id, title, label, icon, severity } ) => {
 				<Button variant="secondary" onClick={ handleCancelClick() }>
 					{ __( 'Cancel', 'jetpack-protect' ) }
 				</Button>
-				<Button
-					isDestructive={ true }
-					isLoading={ Boolean( threatsUpdating && threatsUpdating[ id ] ) }
-					onClick={ handleUnignoreClick() }
-				>
+				<Button isDestructive={ true } isLoading={ isUnignoring } onClick={ handleUnignoreClick() }>
 					{ __( 'Unignore threat', 'jetpack-protect' ) }
 				</Button>
 			</div>

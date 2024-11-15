@@ -5,6 +5,53 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 3.5.2 - 2024-11-14
+### Changed
+- Update dependencies.
+
+## 3.5.1 - 2024-11-11
+### Changed
+- Updated package dependencies. [#39999]
+- Updated package dependencies. [#40060]
+
+## 3.5.0 - 2024-10-14
+### Added
+- Babel preset: Add default for base `targets` option, replacing default `.presetEnv.targets`. [#39629]
+- Babel preset: Add `autoWpPolyfill` option. [#39629]
+
+### Fixed
+- Babel preset: Fix `pluginPreserveI18n` option. [#39629]
+- Update documentation for `DependencyExtractionPlugin` after #38877 and #38430. [#39629]
+
+## 3.4.4 - 2024-10-10
+### Changed
+- Updated package dependencies.
+
+## 3.4.3 - 2024-10-07
+### Changed
+- Updated package dependencies. [#39594]
+
+## 3.4.2 - 2024-09-26
+### Changed
+- Updated package dependencies. [#39534]
+
+## 3.4.1 - 2024-09-10
+### Changed
+- Updated package dependencies. [#39302]
+
+## 3.4.0 - 2024-09-05
+### Changed
+- Updated connection js to load its bundle via connection package [#38877]
+- Updated package dependencies. [#39176]
+
+## 3.3.3 - 2024-08-29
+### Changed
+- Updated package dependencies. [#39111]
+
+## 3.3.2 - 2024-08-21
+### Changed
+- Internal updates.
+
 ## 3.3.1 - 2024-08-15
 ### Changed
 - Updated package dependencies. [#38662]

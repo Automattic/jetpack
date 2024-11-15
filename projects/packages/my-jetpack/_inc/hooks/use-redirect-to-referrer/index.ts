@@ -1,7 +1,7 @@
 /**
  * React custom hook to get the request referrer URL when `redirect_to_referrer` parameter is present.
  *
- * @returns {string | null} referrer URL or null if not flagged.
+ * @return {string | null} referrer URL or null if not flagged.
  */
 export function useRedirectToReferrer() {
 	// Get the current URL query string.

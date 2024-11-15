@@ -202,7 +202,11 @@ function sharing_process_requests() {
 		}
 	}
 }
-add_action( 'template_redirect', __NAMESPACE__ . '\sharing_process_requests', 9 );
+
+// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only checking for the data being present.
+if ( isset( $_GET['share'] ) ) {
+	add_action( 'template_redirect', __NAMESPACE__ . '\sharing_process_requests', 9 );
+}
 
 /**
  * Automatically add the Sharing Buttons block to the end of the Single Posts template.
@@ -266,12 +270,6 @@ function add_block_to_single_posts_template( $hooked_block_types, $relative_posi
 		|| empty( $context->slug )
 		|| ! preg_match( '/^(page|single)/', $context->slug )
 	) {
-		return $hooked_block_types;
-	}
-
-	$content = $context->content ?? '';
-	// Check if the block is already in the template. If so, abort.
-	if ( false !== strpos( $content, 'wp:' . PARENT_BLOCK_NAME ) ) {
 		return $hooked_block_types;
 	}
 

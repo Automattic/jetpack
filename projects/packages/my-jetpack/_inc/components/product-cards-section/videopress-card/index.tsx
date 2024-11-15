@@ -18,12 +18,12 @@ import './style.scss';
 
 const slug = PRODUCT_SLUGS.VIDEOPRESS;
 
-const VideopressCard: ProductCardComponent = ( { admin } ) => {
+const VideopressCard: ProductCardComponent = props => {
 	const { detail } = useProduct( slug );
 	const { status } = detail || {};
 	const { videopress: data } = getMyJetpackWindowInitialState();
 	const { activeAndNoVideos } = useTooltipCopy();
-	const videoCount = data?.videoCount || 0;
+	const { videoCount = 0, featuredStats } = data || {};
 
 	const isPluginActive =
 		status === PRODUCT_STATUSES.ACTIVE || status === PRODUCT_STATUSES.CAN_UPGRADE;
@@ -32,6 +32,11 @@ const VideopressCard: ProductCardComponent = ( { admin } ) => {
 		isPluginActive,
 		videoCount,
 	} );
+
+	const customLoadTracks = {
+		stats_period: featuredStats?.period,
+		video_count: videoCount,
+	};
 
 	const Description = useCallback( () => {
 		return (
@@ -64,7 +69,13 @@ const VideopressCard: ProductCardComponent = ( { admin } ) => {
 	] );
 
 	return (
-		<ProductCard slug={ slug } showMenu admin={ admin } Description={ Description }>
+		<ProductCard
+			{ ...props }
+			slug={ slug }
+			showMenu
+			Description={ Description }
+			customLoadTracks={ customLoadTracks }
+		>
 			<VideoPressValueSection isPluginActive={ isPluginActive } data={ data } />
 		</ProductCard>
 	);

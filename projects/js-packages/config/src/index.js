@@ -12,7 +12,7 @@ try {
 }
 
 const jetpackConfigHas = key => {
-	return jetpackConfig.hasOwnProperty( key );
+	return Object.hasOwn( jetpackConfig, key );
 };
 
 const jetpackConfigGet = key => {

@@ -9,10 +9,10 @@ import isJetpackDraftMode from './jetpack-draft.js';
 /**
  * Exec a command and collect the lines.
  *
- * @param {string} cmd - Command.
- * @param {string[]} args - Arguments.
- * @param {object} options - Options.
- * @returns {string[]} Lines of output.
+ * @param {string}   cmd     - Command.
+ * @param {string[]} args    - Arguments.
+ * @param {object}   options - Options.
+ * @return {string[]} Lines of output.
  */
 async function spawnAndReadStdout( cmd, args, options = {} ) {
 	const lines = [];

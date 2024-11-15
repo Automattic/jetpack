@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/eslint-changed",
-	"version": "2.0.9-alpha",
+	"version": "2.0.9",
 	"description": "Run eslint on files, but only report warnings and errors from lines that were changed.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/eslint-changed/#readme",
 	"type": "module",
@@ -18,7 +18,8 @@
 		"eslint-changed": "bin/eslint-changed.js"
 	},
 	"scripts": {
-		"test": "NODE_OPTIONS=--experimental-vm-modules jest --config=tests/jest.config.cjs"
+		"test": "NODE_OPTIONS=--experimental-vm-modules jest --config=tests/jest.config.cjs",
+		"test-coverage": "pnpm run test --coverage"
 	},
 	"dependencies": {
 		"chalk": "5.0.1",

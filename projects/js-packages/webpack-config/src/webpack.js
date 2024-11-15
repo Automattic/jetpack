@@ -110,6 +110,10 @@ const defaultRequestMap = {
 		external: 'JetpackScriptDataModule',
 		handle: 'jetpack-script-data',
 	},
+	'@automattic/jetpack-connection': {
+		external: 'JetpackConnection',
+		handle: 'jetpack-connection',
+	},
 };
 
 const DependencyExtractionPlugin = ( { requestMap, ...options } = {} ) => {

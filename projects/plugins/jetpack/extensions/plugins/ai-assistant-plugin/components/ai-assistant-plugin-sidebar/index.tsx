@@ -14,14 +14,16 @@ import React from 'react';
 /**
  * Internal dependencies
  */
+import { FairUsageNotice } from '../../../../blocks/ai-assistant/components/quota-exceeded-message';
 import useAICheckout from '../../../../blocks/ai-assistant/hooks/use-ai-checkout';
 import useAiFeature from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
 import useAiProductPage from '../../../../blocks/ai-assistant/hooks/use-ai-product-page';
 import { getFeatureAvailability } from '../../../../blocks/ai-assistant/lib/utils/get-feature-availability';
 import JetpackPluginSidebar from '../../../../shared/jetpack-plugin-sidebar';
+import { PLAN_TYPE_FREE, PLAN_TYPE_UNLIMITED, usePlanType } from '../../../../shared/use-plan-type';
 import { FeaturedImage } from '../ai-image';
 import { Breve, registerBreveHighlights, Highlight } from '../breve';
-import useBreveAvailability from '../breve/hooks/use-breve-availability';
+import { getBreveAvailability, canWriteBriefBeEnabled } from '../breve/utils/get-availability';
 import Feedback from '../feedback';
 import TitleOptimization from '../title-optimization';
 import UsagePanel from '../usage-panel';
@@ -63,10 +65,12 @@ const JetpackAndSettingsContent = ( {
 	placement,
 	requireUpgrade,
 	upgradeType,
+	showUsagePanel,
+	showFairUsageNotice,
 }: JetpackSettingsContentProps ) => {
 	const { checkoutUrl } = useAICheckout();
 	const { productPageUrl } = useAiProductPage();
-	const isBreveAvailable = useBreveAvailability();
+	const isBreveAvailable = getBreveAvailability();
 
 	const currentTitleOptimizationSectionLabel = __( 'Optimize Publishing', 'jetpack' );
 	const SEOTitleOptimizationSectionLabel = __( 'Optimize Title', 'jetpack' );
@@ -76,30 +80,46 @@ const JetpackAndSettingsContent = ( {
 
 	return (
 		<>
-			{ isBreveAvailable && (
+			{ showFairUsageNotice && (
+				<PanelRow className="jetpack-ai-sidebar__feature-section">
+					<BaseControl __nextHasNoMarginBottom={ true }>
+						<FairUsageNotice variant="muted" />
+					</BaseControl>
+				</PanelRow>
+			) }
+
+			{ canWriteBriefBeEnabled() && isBreveAvailable && (
 				<PanelRow>
-					<BaseControl label={ __( 'Write Brief with AI (BETA)', 'jetpack' ) }>
+					<BaseControl __nextHasNoMarginBottom={ true }>
+						<BaseControl.VisualLabel>
+							{ __( 'Write Brief with AI (BETA)', 'jetpack' ) }
+						</BaseControl.VisualLabel>
 						<Breve />
 					</BaseControl>
 				</PanelRow>
 			) }
 
 			<PanelRow className="jetpack-ai-sidebar__feature-section">
-				<BaseControl label={ __( 'AI Feedback', 'jetpack' ) }>
+				<BaseControl __nextHasNoMarginBottom={ true }>
+					<BaseControl.VisualLabel>{ __( 'AI Feedback', 'jetpack' ) }</BaseControl.VisualLabel>
 					<Feedback placement={ placement } busy={ false } disabled={ requireUpgrade } />
 				</BaseControl>
 			</PanelRow>
 
 			{ isAITitleOptimizationAvailable && (
 				<PanelRow className="jetpack-ai-sidebar__feature-section">
-					<BaseControl label={ titleOptimizationSectionLabel }>
+					<BaseControl __nextHasNoMarginBottom={ true }>
+						<BaseControl.VisualLabel>{ titleOptimizationSectionLabel }</BaseControl.VisualLabel>
 						<TitleOptimization placement={ placement } busy={ false } disabled={ requireUpgrade } />
 					</BaseControl>
 				</PanelRow>
 			) }
 			{ isAIFeaturedImageAvailable && (
 				<PanelRow className="jetpack-ai-sidebar__feature-section">
-					<BaseControl label={ __( 'AI Featured Image', 'jetpack' ) }>
+					<BaseControl __nextHasNoMarginBottom={ true }>
+						<BaseControl.VisualLabel>
+							{ __( 'AI Featured Image', 'jetpack' ) }
+						</BaseControl.VisualLabel>
 						<FeaturedImage busy={ false } disabled={ requireUpgrade } placement={ placement } />
 					</BaseControl>
 				</PanelRow>
@@ -109,7 +129,7 @@ const JetpackAndSettingsContent = ( {
 					<Upgrade placement={ placement } type={ upgradeType } upgradeUrl={ checkoutUrl } />
 				</PanelRow>
 			) }
-			{ isUsagePanelAvailable && (
+			{ isUsagePanelAvailable && showUsagePanel && (
 				<PanelRow className="jetpack-ai-sidebar__feature-section">
 					<UsagePanel placement={ placement } />
 				</PanelRow>
@@ -126,15 +146,21 @@ const JetpackAndSettingsContent = ( {
 					{ __( 'Learn more about Jetpack AI', 'jetpack' ) }
 				</ExternalLink>
 			</PanelRow>
+
+			<PanelRow>
+				<ExternalLink href="https://automattic.com/ai-guidelines">
+					{ __( 'AI Guidelines', 'jetpack' ) }
+				</ExternalLink>
+			</PanelRow>
 		</>
 	);
 };
 
 export default function AiAssistantPluginSidebar() {
-	const { requireUpgrade, upgradeType, currentTier } = useAiFeature();
+	const { requireUpgrade, upgradeType, currentTier, tierPlansEnabled, isOverLimit } =
+		useAiFeature();
 	const { checkoutUrl } = useAICheckout();
 	const { tracks } = useAnalytics();
-	const isBreveAvailable = useBreveAvailability();
 
 	const isViewable = useSelect( select => {
 		const postTypeName = ( select( editorStore ) as typeof EditorSelectors ).getCurrentPostType();
@@ -145,6 +171,8 @@ export default function AiAssistantPluginSidebar() {
 
 		return postTypeObject?.viewable;
 	}, [] );
+
+	const planType = usePlanType( currentTier );
 
 	// If the post type is not viewable, do not render my plugin.
 	if ( ! isViewable ) {
@@ -157,6 +185,11 @@ export default function AiAssistantPluginSidebar() {
 		debug( placement );
 		tracks.recordEvent( 'jetpack_ai_panel_open', { placement } );
 	};
+
+	const showUsagePanel =
+		planType === PLAN_TYPE_FREE || ( tierPlansEnabled && planType !== PLAN_TYPE_UNLIMITED );
+	const showFairUsageNotice = planType === PLAN_TYPE_UNLIMITED && isOverLimit;
+	const isBreveAvailable = getBreveAvailability();
 
 	return (
 		<>
@@ -174,6 +207,8 @@ export default function AiAssistantPluginSidebar() {
 						placement={ PLACEMENT_JETPACK_SIDEBAR }
 						requireUpgrade={ requireUpgrade }
 						upgradeType={ upgradeType }
+						showUsagePanel={ showUsagePanel }
+						showFairUsageNotice={ showFairUsageNotice }
 					/>
 				</PanelBody>
 			</JetpackPluginSidebar>
@@ -187,6 +222,8 @@ export default function AiAssistantPluginSidebar() {
 					placement={ PLACEMENT_DOCUMENT_SETTINGS }
 					requireUpgrade={ requireUpgrade }
 					upgradeType={ upgradeType }
+					showUsagePanel={ showUsagePanel }
+					showFairUsageNotice={ showFairUsageNotice }
 				/>
 			</PluginDocumentSettingPanel>
 
@@ -208,7 +245,7 @@ export default function AiAssistantPluginSidebar() {
 						busy={ false }
 						disabled={ requireUpgrade }
 					/>
-					{ requireUpgrade && (
+					{ requireUpgrade && tierPlansEnabled && (
 						<Upgrade
 							placement={ PLACEMENT_PRE_PUBLISH }
 							type={ upgradeType }

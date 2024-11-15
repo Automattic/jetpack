@@ -29,9 +29,9 @@ export const error = ( state = window.Initial_State.licensing.error, action ) =>
 /**
  * "user" licenses counts reducer.
  *
- * @param {number} state - Global state tree
+ * @param {number} state  - Global state tree
  * @param {object} action - The action
- * @returns {object} - The counts of user licenses
+ * @return {object} - The counts of user licenses
  */
 export const userCounts = ( state = window.Initial_State.licensing.userCounts ?? {}, action ) => {
 	switch ( action.type ) {
@@ -46,9 +46,9 @@ export const userCounts = ( state = window.Initial_State.licensing.userCounts ??
 /**
  * "user"-licenses activation notice dismissal info.
  *
- * @param {number} state - Global state tree
+ * @param {number} state  - Global state tree
  * @param {object} action - The action
- * @returns {object} - The 'last_detached_count' and 'last_dismissed_time'
+ * @return {object} - The 'last_detached_count' and 'last_dismissed_time'
  */
 export const activationNoticeDismiss = (
 	state = window.Initial_State.licensing.activationNoticeDismiss ?? {
@@ -69,9 +69,9 @@ export const activationNoticeDismiss = (
 /**
  * "user"-licenses.
  *
- * @param {number} state - Global state tree
+ * @param {number} state  - Global state tree
  * @param {object} action - The action
- * @returns {object} - The 'items' and 'loading' state
+ * @return {object} - The 'items' and 'loading' state
  */
 export const licenses = (
 	state = window.Initial_State.licensing.licenses ?? {
@@ -116,7 +116,7 @@ export const reducer = combineReducers( {
  * Get the latest licensing error, if any.
  *
  * @param {Object} state - Global state tree.
- * @returns {string} - Error message or an empty string.
+ * @return {string} - Error message or an empty string.
  */
 export function getLicensingError( state ) {
 	return get( state.jetpack.licensing, [ 'error' ], '' );
@@ -126,7 +126,7 @@ export function getLicensingError( state ) {
  * Determines if the user has detached "user" licenses available for product activation.
  *
  * @param {object} state - Global state tree.
- * @returns {boolean} - True if the user has detached user licenses, false otherwise.
+ * @return {boolean} - True if the user has detached user licenses, false otherwise.
  */
 export function hasDetachedUserLicenses( state ) {
 	return !! get( state.jetpack.licensing.userCounts, [ 'detached' ], 0 );
@@ -136,7 +136,7 @@ export function hasDetachedUserLicenses( state ) {
  * Get the licenses
  *
  * @param {object} state - Global state tree.
- * @returns {Array} - An array containing all the detached licenses
+ * @return {Array} - An array containing all the detached licenses
  */
 export function getDetachedLicenses( state ) {
 	const allLicenses = get( state.jetpack.licensing.licenses, [ 'items' ], {} );
@@ -147,7 +147,7 @@ export function getDetachedLicenses( state ) {
  * Get the license loading info
  *
  * @param {object} state - Global state tree.
- * @returns {boolean} - A boolean value of loading state of licenses
+ * @return {boolean} - A boolean value of loading state of licenses
  */
 export function getDetachedLicensesLoadingInfo( state ) {
 	return get( state.jetpack.licensing.licenses, [ 'loading' ], false );
@@ -157,7 +157,7 @@ export function getDetachedLicensesLoadingInfo( state ) {
  * Get the user's number of detached licenses.
  *
  * @param {object} state - Global state tree.
- * @returns {number} - Number of detached licenses.
+ * @return {number} - Number of detached licenses.
  */
 export function getDetachedLicensesCount( state ) {
 	return get( state.jetpack.licensing.userCounts, [ 'detached' ], 0 );
@@ -167,7 +167,7 @@ export function getDetachedLicensesCount( state ) {
  * Get the license activation notice dismiss info.
  *
  * @param {object} state - Global state tree.
- * @returns {object} - An object containing last_detached_count and last_dismissed_time.
+ * @return {object} - An object containing last_detached_count and last_dismissed_time.
  */
 export function getActivationNoticeDismissInfo( state ) {
 	return get( state.jetpack.licensing, [ 'activationNoticeDismiss' ], {} );

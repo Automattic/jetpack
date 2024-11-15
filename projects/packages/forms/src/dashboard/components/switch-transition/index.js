@@ -9,12 +9,12 @@ import { CSSTransition, TransitionGroup } from 'react-transition-group';
  * the old and the current version of the component, which adds some complexity.
  * This component aims to encapsulate that and provide a straight forward interface for switch transtions.
  *
- * @param  {object} props - Props passed down to the wrapper div.
- * @param  {string} props.activeViewKey - Identifier for the currently active view.
- * @param  {Array} props.children - Children.
- * @param  {number} props.duration - Duration of the transition.
- * @param  {object} ref - Reference to the currently active wrapper element.
- * @returns {Element} React element.
+ * @param {object} props               - Props passed down to the wrapper div.
+ * @param {string} props.activeViewKey - Identifier for the currently active view.
+ * @param {Array}  props.children      - Children.
+ * @param {number} props.duration      - Duration of the transition.
+ * @param {object} ref                 - Reference to the currently active wrapper element.
+ * @return {Element} React element.
  */
 const SwitchTransition = ( { activeViewKey, children, duration, ...props }, ref ) => {
 	const [ viewKey, setViewKey ] = useState( activeViewKey );

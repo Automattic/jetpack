@@ -4,12 +4,15 @@
  * We could generally do the same with pnpm.overrides in packages.json, but this allows for comments.
  *
  * @param {object} pkg - Dependency package.json contents.
- * @returns {object} Modified pkg.
+ * @return {object} Modified pkg.
  */
 function fixDeps( pkg ) {
 	// Deps tend to get outdated due to a slow release cycle.
 	// So change `^` to `>=` and hope any breaking changes will not really break.
-	if ( pkg.name === '@automattic/social-previews' ) {
+	if (
+		pkg.name === '@automattic/social-previews' ||
+		pkg.name === '@automattic/page-pattern-modal'
+	) {
 		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
 			if ( dep.startsWith( '@wordpress/' ) && ver.startsWith( '^' ) ) {
 				pkg.dependencies[ dep ] = '>=' + ver.substring( 1 );
@@ -19,9 +22,8 @@ function fixDeps( pkg ) {
 
 	// Missing dep or peer dep on react.
 	// https://github.com/WordPress/gutenberg/issues/55171
-	// https://github.com/WordPress/gutenberg/issues/62250
 	if (
-		( pkg.name === '@wordpress/icons' || pkg.name === '@wordpress/primitives' ) &&
+		pkg.name === '@wordpress/icons' &&
 		! pkg.dependencies?.react &&
 		! pkg.peerDependencies?.react
 	) {
@@ -50,6 +52,15 @@ function fixDeps( pkg ) {
 			) {
 				delete pkg.dependencies[ dep ];
 				pkg.peerDependencies[ dep ] = ver.replace( /^\^?/, '>=' );
+			}
+		}
+	}
+
+	// Unnecessarily explicit deps. I don't think we really even need @wordpress/babel-preset-default at all.
+	if ( pkg.name === '@wordpress/babel-preset-default' || pkg.name === '@wordpress/eslint-plugin' ) {
+		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
+			if ( dep.startsWith( '@babel/' ) && ! ver.startsWith( '^' ) && ! ver.startsWith( '>' ) ) {
+				pkg.dependencies[ dep ] = '^' + ver;
 			}
 		}
 	}
@@ -100,6 +111,12 @@ function fixDeps( pkg ) {
 		delete pkg.peerDependenciesMeta?.ajv;
 	}
 
+	// Gutenberg is intending to get rid of this. For now, let's just not upgrade it.
+	// https://github.com/WordPress/gutenberg/issues/60975
+	if ( pkg.name === '@wordpress/components' && pkg.dependencies?.[ 'framer-motion' ] ) {
+		pkg.dependencies[ 'framer-motion' ] += ' <11.5.0';
+	}
+
 	// Types packages have outdated deps. Reset all their `@wordpress/*` deps to star-version,
 	// which pnpm should 🤞 dedupe to match whatever is in use elsewhere in the monorepo.
 	// https://github.com/Automattic/jetpack/pull/35904#discussion_r1508681777
@@ -120,7 +137,7 @@ function fixDeps( pkg ) {
  * This can't be done with pnpm.overrides.
  *
  * @param {object} pkg - Dependency package.json contents.
- * @returns {object} Modified pkg.
+ * @return {object} Modified pkg.
  */
 function fixPeerDeps( pkg ) {
 	// Indirect deps that still depend on React <18.
@@ -165,9 +182,9 @@ function fixPeerDeps( pkg ) {
  * Pnpm package hook.
  *
  * @see https://pnpm.io/pnpmfile#hooksreadpackagepkg-context-pkg--promisepkg
- * @param {object} pkg - Dependency package.json contents.
+ * @param {object} pkg     - Dependency package.json contents.
  * @param {object} context - Pnpm object of some sort.
- * @returns {object} Modified pkg.
+ * @return {object} Modified pkg.
  */
 function readPackage( pkg, context ) {
 	if ( pkg.name ) {
@@ -182,7 +199,7 @@ function readPackage( pkg, context ) {
  *
  * @see https://pnpm.io/pnpmfile#hooksafterallresolvedlockfile-context-lockfile--promiselockfile
  * @param {object} lockfile - Lockfile data.
- * @returns {object} Modified lockfile.
+ * @return {object} Modified lockfile.
  */
 function afterAllResolved( lockfile ) {
 	// If there's only one "importer", it's probably pnpx rather than the monorepo. Don't interfere.

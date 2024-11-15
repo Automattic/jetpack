@@ -1,6 +1,14 @@
 declare global {
 	interface Window {
 		wpcomProfileSettingsLinkToWpcom: {
+			language: {
+				link: string;
+				text: string;
+			};
+			synced: {
+				link: string;
+				text: string;
+			};
 			email: {
 				link: string;
 				text: string;
@@ -9,7 +17,7 @@ declare global {
 				link: string;
 				text: string;
 			};
-			isWpcomSimple: boolean;
+			isWpcomAtomicClassic: boolean;
 		};
 	}
 }

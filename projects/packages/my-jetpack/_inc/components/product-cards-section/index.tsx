@@ -2,6 +2,7 @@ import { Container, Col, Text, AdminSectionHero } from '@automattic/jetpack-comp
 import { __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
 import { PRODUCT_SLUGS } from '../../data/constants';
+import useProductsByOwnership from '../../data/products/use-products-by-ownership';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import StatsSection from '../stats-section';
 import AiCard from './ai-card';
@@ -93,8 +94,9 @@ interface ProductCardsSectionProps {
 }
 
 const ProductCardsSection: FC< ProductCardsSectionProps > = ( { noticeMessage } ) => {
-	const { ownedProducts = [], unownedProducts = [] } =
-		getMyJetpackWindowInitialState( 'lifecycleStats' );
+	const {
+		data: { ownedProducts, unownedProducts },
+	} = useProductsByOwnership();
 
 	const unownedSectionTitle = useMemo( () => {
 		return ownedProducts.length > 0

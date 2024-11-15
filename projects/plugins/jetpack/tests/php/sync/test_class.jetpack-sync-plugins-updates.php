@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Sync\Modules;
 
 require_once __DIR__ . '/test_class.jetpack-sync-plugins.php';
 require_once __DIR__ . '/class.silent-upgrader-skin.php';
@@ -50,18 +51,28 @@ class WP_Test_Jetpack_Sync_Plugins_Updates extends WP_Test_Jetpack_Sync_Base {
 
 	public function test_updating_a_plugin_is_synced() {
 		$this->update_the_plugin( new Silent_Upgrader_Skin() );
+		$plugins_module = Modules::get_module( 'plugins' );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Plugins $plugins_module';
+		$plugins_module->sync_plugins_updated();
+		$has_action = has_action( 'shutdown', array( $plugins_module, 'sync_plugins_updated' ) );
 		$this->sender->do_sync();
 		$updated_plugin = $this->server_event_storage->get_most_recent_event( 'jetpack_plugins_updated' );
 
 		$this->assertEquals( 'the/the.php', $updated_plugin->args[0][0]['slug'] );
+		$this->assertTrue( (bool) $has_action );
 		$this->server_event_storage->reset();
 	}
 
 	public function test_updating_plugin_in_bulk_is_synced() {
 		$this->update_bulk_plugins( new Silent_Upgrader_Skin() );
+		$plugins_module = Modules::get_module( 'plugins' );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Plugins $plugins_module';
+		$plugins_module->sync_plugins_updated();
+		$has_action = has_action( 'shutdown', array( $plugins_module, 'sync_plugins_updated' ) );
 		$this->sender->do_sync();
 		$updated_plugin = $this->server_event_storage->get_most_recent_event( 'jetpack_plugins_updated' );
 		$this->assertEquals( 'the/the.php', $updated_plugin->args[0][0]['slug'] );
+		$this->assertTrue( (bool) $has_action );
 		$this->server_event_storage->reset();
 	}
 
@@ -121,9 +132,14 @@ class WP_Test_Jetpack_Sync_Plugins_Updates extends WP_Test_Jetpack_Sync_Base {
 	public function test_updating_with_autoupdate_constant_results_in_proper_state() {
 		Constants::set_constant( 'JETPACK_PLUGIN_AUTOUPDATE', true );
 		$this->update_bulk_plugins( new Silent_Upgrader_Skin() );
+		$plugins_module = Modules::get_module( 'plugins' );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Plugins $plugins_module';
+		$plugins_module->sync_plugins_updated();
+		$has_action = has_action( 'shutdown', array( $plugins_module, 'sync_plugins_updated' ) );
 		$this->sender->do_sync();
 		$updated_plugin = $this->server_event_storage->get_most_recent_event( 'jetpack_plugins_updated' );
 		$this->assertTrue( $updated_plugin->args[1]['is_autoupdate'] );
+		$this->assertTrue( (bool) $has_action );
 		$this->server_event_storage->reset();
 	}
 

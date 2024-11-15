@@ -35,7 +35,7 @@ class Regenerate {
 			// If this is a cloud CSS request, we need to trigger the generation
 			// of the CSS and return the URL to the CSS file.
 			$cloud_css = new Cloud_CSS();
-			$cloud_css->regenerate_cloud_css( Cloud_CSS::REGENERATE_REASON_USER_REQUEST );
+			$cloud_css->regenerate_cloud_css( Cloud_CSS::REGENERATE_REASON_USER_REQUEST, $cloud_css->get_all_providers() );
 			Cloud_CSS_Followup::schedule();
 		}
 
@@ -45,7 +45,7 @@ class Regenerate {
 
 		// Dismiss admin notices
 		Regenerate_Admin_Notice::dismiss();
-		jetpack_boost_ds_delete( 'critical_css_suggest_regenerate', null );
+		jetpack_boost_ds_delete( 'critical_css_suggest_regenerate' );
 
 		return $data;
 	}

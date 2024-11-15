@@ -33,7 +33,7 @@ const Ellipsis = () => (
  * Pagination component
  *
  * @param {PaginationProps} props - Component props.
- * @returns {React.ReactNode} - Pagination react component.
+ * @return {React.ReactNode} - Pagination react component.
  */
 const Pagination: React.FC< PaginationProps > = ( {
 	className,

@@ -12,7 +12,7 @@ import SecondaryButton from './secondary-button';
 import Status from './status';
 import styles from './style.module.scss';
 import type { AdditionalAction, SecondaryAction } from './types';
-import type { InstallCallback } from '../../data/products/use-install-standalone-plugin';
+import type { MutateCallback } from '../../data/use-simple-mutation';
 import type { FC, MouseEventHandler, ReactNode } from 'react';
 
 export type ProductCardProps = {
@@ -31,11 +31,12 @@ export type ProductCardProps = {
 	upgradeInInterstitial?: boolean;
 	primaryActionOverride?: Record< string, AdditionalAction >;
 	secondaryAction?: SecondaryAction;
-	onInstallStandalone?: InstallCallback;
+	onInstallStandalone?: MutateCallback;
 	onActivateStandalone?: () => void;
 	status: ProductStatus;
 	onMouseEnter?: MouseEventHandler< HTMLButtonElement >;
 	onMouseLeave?: MouseEventHandler< HTMLButtonElement >;
+	customLoadTracks?: Record< Lowercase< string >, unknown >;
 };
 
 // ProductCard component
@@ -63,6 +64,7 @@ const ProductCard: FC< ProductCardProps > = props => {
 		onMouseEnter,
 		onMouseLeave,
 		recommendation,
+		customLoadTracks,
 	} = props;
 
 	const { ownedProducts } = getMyJetpackWindowInitialState( 'lifecycleStats' );
@@ -137,7 +139,7 @@ const ProductCard: FC< ProductCardProps > = props => {
 		recordEvent( 'jetpack_myjetpack_product_card_install_standalone_plugin_click', {
 			product: slug,
 		} );
-		onInstallStandalone( {} );
+		onInstallStandalone();
 	}, [ slug, onInstallStandalone, recordEvent ] );
 
 	/**
@@ -147,8 +149,9 @@ const ProductCard: FC< ProductCardProps > = props => {
 		recordEvent( 'jetpack_myjetpack_product_card_load', {
 			product: slug,
 			status: status,
+			...customLoadTracks,
 		} );
-	}, [ recordEvent, slug, status ] );
+	}, [ recordEvent, slug, status, customLoadTracks ] );
 
 	return (
 		<Card

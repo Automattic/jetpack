@@ -7,6 +7,7 @@ import { useCallback } from 'react';
 /**
  * Internal dependencies
  */
+import askQuestionSync from '../../ask-question/sync.js';
 import useImageGenerator from '../../hooks/use-image-generator/index.js';
 import useSaveToMediaLibrary from '../../hooks/use-save-to-media-library/index.js';
 import requestJwt from '../../jwt/index.js';
@@ -17,7 +18,9 @@ import useRequestErrors from './use-request-errors.js';
 /**
  * Types
  */
-import type { Logo, Selectors, SaveLogo } from '../store/types.js';
+import type { ImageStyle, ImageStyleObject } from '../../hooks/use-image-generator/constants.js';
+import type { RoleType } from '../../types.js';
+import type { Logo, Selectors, SaveLogo, LogoGeneratorFeatureControl } from '../store/types.js';
 
 const debug = debugFactory( 'jetpack-ai-calypso:use-logo-generator' );
 
@@ -31,6 +34,7 @@ const useLogoGenerator = () => {
 		increaseAiAssistantRequestsCount,
 		addLogoToHistory,
 		setContext,
+		setIsLoadingHistory,
 	} = useDispatch( STORE_NAME );
 
 	const {
@@ -46,6 +50,8 @@ const useLogoGenerator = () => {
 		getAiAssistantFeature,
 		requireUpgrade,
 		context,
+		tierPlansEnabled,
+		isLoadingHistory,
 	} = useSelect( select => {
 		const selectors: Selectors = select( STORE_NAME );
 
@@ -62,6 +68,8 @@ const useLogoGenerator = () => {
 			getAiAssistantFeature: selectors.getAiAssistantFeature,
 			requireUpgrade: selectors.getRequireUpgrade(),
 			context: selectors.getContext(),
+			tierPlansEnabled: selectors.getTierPlansEnabled(),
+			isLoadingHistory: selectors.getIsLoadingHistory(),
 		};
 	}, [] );
 
@@ -81,6 +89,10 @@ const useLogoGenerator = () => {
 
 	const aiAssistantFeatureData = getAiAssistantFeature( siteId );
 	const logoGenerationCost = aiAssistantFeatureData?.costs?.[ 'jetpack-ai-logo-generator' ]?.logo;
+	const logoGeneratorControl = aiAssistantFeatureData?.featuresControl?.[
+		'logo-generator'
+	] as LogoGeneratorFeatureControl;
+	const imageStyles: Array< ImageStyleObject > = logoGeneratorControl?.styles || [];
 
 	const generateFirstPrompt = useCallback(
 		async function (): Promise< string > {
@@ -186,23 +198,70 @@ For example: user's prompt: A logo for an ice cream shop. Returned prompt: A log
 		}
 	};
 
-	const generateImage = useCallback( async function ( {
-		prompt,
-	}: {
-		prompt: string;
-	} ): Promise< { data: Array< { url: string } > } > {
-		setLogoFetchError( null );
-
-		try {
-			const tokenData = await requestJwt();
-
-			if ( ! tokenData || ! tokenData.token ) {
-				throw new Error( 'No token provided' );
+	const guessStyle = useCallback(
+		async function ( prompt: string ): Promise< ImageStyle | null > {
+			setLogoFetchError( null );
+			if ( ! imageStyles || ! imageStyles.length ) {
+				return null;
 			}
 
-			debug( 'Generating image with prompt', prompt );
+			const messages = [
+				{
+					role: 'jetpack-ai' as RoleType,
+					context: {
+						type: 'ai-assistant-guess-logo-style',
+						request: prompt,
+						name,
+						description,
+					},
+				},
+			];
 
-			const imageGenerationPrompt = `I NEED to test how the tool works with extremely simple prompts. DO NOT add any detail, just use it AS-IS:
+			try {
+				const style = await askQuestionSync( messages, { feature: 'jetpack-ai-logo-generator' } );
+
+				if ( ! style ) {
+					return null;
+				}
+				const styleObject = imageStyles.find( ( { value } ) => value === style );
+
+				if ( ! styleObject ) {
+					return null;
+				}
+
+				return styleObject.value;
+			} catch ( error ) {
+				debug( 'Error guessing style', error );
+				Promise.reject( error );
+			}
+		},
+		[ imageStyles, name, description ]
+	);
+
+	const generateImage = useCallback(
+		async function ( {
+			prompt,
+			style = null,
+		}: {
+			prompt: string;
+			style?: ImageStyle | null;
+		} ): Promise< { data: Array< { url: string } > } > {
+			setLogoFetchError( null );
+
+			try {
+				const tokenData = await requestJwt();
+
+				if ( ! tokenData || ! tokenData.token ) {
+					throw new Error( 'No token provided' );
+				}
+
+				if ( style === 'auto' ) {
+					throw new Error( 'Auto style is not supported' );
+				}
+
+				debug( 'Generating image with prompt', prompt );
+
+				const imageGenerationPrompt = `I NEED to test how the tool works with extremely simple prompts. DO NOT add any detail, just use it AS-IS:
 Create a single text-free iconic vector logo that symbolically represents the user request, using abstract or symbolic imagery.
 The design should be modern, with either a vivid color scheme full of gradients or a color scheme that's monochromatic. Use any of those styles based on the user request mood.
 Ensure the logo is set against a clean solid background.
@@ -212,20 +271,38 @@ The image should contain a single icon, without variations, color palettes or di
 
 User request:${ prompt }`;
 
-			const body = {
-				prompt: imageGenerationPrompt,
-				feature: 'jetpack-ai-logo-generator',
-				response_format: 'b64_json',
-			};
+				const body = {
+					prompt: imageGenerationPrompt,
+					// if style is set prompt is reworked at backend with messages
+					messages: style
+						? [
+								{
+									role: 'jetpack-ai',
+									context: {
+										type: 'ai-assistant-generate-logo',
+										request: prompt,
+										name,
+										description,
+										style,
+									},
+								},
+						  ]
+						: [],
+					feature: 'jetpack-ai-logo-generator',
+					response_format: 'b64_json',
+					style: style || '', // backend expects an empty string if no style is provided
+				};
 
-			const data = await generateImageWithParameters( body );
+				const data = await generateImageWithParameters( body );
 
-			return data as { data: { url: string }[] };
-		} catch ( error ) {
-			setLogoFetchError( error );
-			throw error;
-		}
-	}, [] );
+				return data as { data: { url: string }[] };
+			} catch ( error ) {
+				setLogoFetchError( error );
+				throw error;
+			}
+		},
+		[ name, description ]
+	);
 
 	const saveLogo = useCallback< SaveLogo >(
 		async logo => {
@@ -304,7 +381,13 @@ User request:${ prompt }`;
 	);
 
 	const generateLogo = useCallback(
-		async function ( { prompt }: { prompt: string } ): Promise< void > {
+		async function ( {
+			prompt,
+			style,
+		}: {
+			prompt: string;
+			style?: ImageStyle | null;
+		} ): Promise< void > {
 			debug( 'Generating logo for site' );
 
 			setIsRequestingImage( true );
@@ -319,7 +402,7 @@ User request:${ prompt }`;
 				let image;
 
 				try {
-					image = await generateImage( { prompt } );
+					image = await generateImage( { prompt, style } );
 
 					if ( ! image || ! image.data.length ) {
 						throw new Error( 'No image returned' );
@@ -383,6 +466,11 @@ User request:${ prompt }`;
 		getAiAssistantFeature,
 		requireUpgrade,
 		context,
+		tierPlansEnabled,
+		isLoadingHistory,
+		setIsLoadingHistory,
+		imageStyles,
+		guessStyle,
 	};
 };
 

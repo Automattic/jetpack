@@ -106,7 +106,7 @@ function render() {
  * Get translated route name according to route path
  *
  * @param {string} path - route path
- * @returns {string} translated route name
+ * @return {string} translated route name
  */
 export function getRouteName( path ) {
 	switch ( path ) {

@@ -252,147 +252,145 @@ class QueryControls extends Component {
 			return tax ? tax.terms : [];
 		};
 
-		return (
-			<>
-				{ enableSpecific && (
-					<ToggleControl
-						checked={ specificMode }
-						onChange={ onSpecificModeChange }
-						label={ __( 'Choose Specific Posts', 'jetpack-mu-wpcom' ) }
-					/>
-				) }
-				{ specificMode ? (
-					<AutocompleteTokenField
-						tokens={ specificPosts || [] }
-						onChange={ onSpecificPostsChange }
-						fetchSuggestions={ this.fetchPostSuggestions }
-						fetchSavedInfo={ this.fetchSavedPosts }
-						label={ __( 'Posts', 'jetpack-mu-wpcom' ) }
-						help={ __(
-							'Begin typing post title, click autocomplete result to select.',
-							'jetpack-mu-wpcom'
-						) }
-					/>
-				) : (
-					<>
-						<BasicQueryControls { ...this.props } />
-						{ onAuthorsChange && (
-							<AutocompleteTokenField
-								tokens={ authors || [] }
-								onChange={ onAuthorsChange }
-								fetchSuggestions={ this.fetchAuthorSuggestions }
-								fetchSavedInfo={ this.fetchSavedAuthors }
-								label={ __( 'Authors', 'jetpack-mu-wpcom' ) }
-							/>
-						) }
-						{ onCategoriesChange && (
-							<AutocompleteTokenField
-								tokens={ categories || [] }
-								onChange={ onCategoriesChange }
-								fetchSuggestions={ this.fetchCategorySuggestions }
-								fetchSavedInfo={ this.fetchSavedCategories }
-								label={ __( 'Categories', 'jetpack-mu-wpcom' ) }
-							/>
-						) }
-						{ onIncludeSubcategoriesChange && (
-							<ToggleControl
-								checked={ includeSubcategories }
-								onChange={ onIncludeSubcategoriesChange }
-								label={ __( 'Include subcategories ', 'jetpack-mu-wpcom' ) }
-							/>
-						) }
-						{ onTagsChange && (
-							<AutocompleteTokenField
-								tokens={ tags || [] }
-								onChange={ onTagsChange }
-								fetchSuggestions={ this.fetchTagSuggestions }
-								fetchSavedInfo={ this.fetchSavedTags }
-								label={ __( 'Tags', 'jetpack-mu-wpcom' ) }
-							/>
-						) }
-						{ onCustomTaxonomiesChange &&
-							registeredCustomTaxonomies.map( tax => (
-								<AutocompleteTokenField
-									key={ `${ customTaxonomies[ tax.slug ] }-selector` }
-									tokens={ getTermsOfCustomTaxonomy( customTaxonomies, tax.slug ) }
-									onChange={ value => {
-										customTaxonomiesPrepareChange(
-											customTaxonomies,
-											onCustomTaxonomiesChange,
-											tax.slug,
-											value
-										);
-									} }
-									fetchSuggestions={ search =>
-										this.fetchCustomTaxonomiesSuggestions( tax.slug, search )
-									}
-									fetchSavedInfo={ termIds => this.fetchSavedCustomTaxonomies( tax.slug, termIds ) }
-									label={ tax.label }
-								/>
-							) ) }
-						{ onTagExclusionsChange && (
-							<p>
-								<Button
-									isLink
-									onClick={ () => this.setState( { showAdvancedFilters: ! showAdvancedFilters } ) }
-								>
-									{ showAdvancedFilters
-										? __( 'Hide Advanced Filters', 'jetpack-mu-wpcom' )
-										: __( 'Show Advanced Filters', 'jetpack-mu-wpcom', 0 ) }
-								</Button>
-							</p>
-						) }
-						{ showAdvancedFilters && (
-							<>
-								{ onTagExclusionsChange && (
-									<AutocompleteTokenField
-										tokens={ tagExclusions || [] }
-										onChange={ onTagExclusionsChange }
-										fetchSuggestions={ this.fetchTagSuggestions }
-										fetchSavedInfo={ this.fetchSavedTags }
-										label={ __( 'Excluded Tags', 'jetpack-mu-wpcom' ) }
-									/>
-								) }
-								{ onCategoryExclusionsChange && (
-									<AutocompleteTokenField
-										tokens={ categoryExclusions || [] }
-										onChange={ onCategoryExclusionsChange }
-										fetchSuggestions={ this.fetchCategorySuggestions }
-										fetchSavedInfo={ this.fetchSavedCategories }
-										label={ __( 'Excluded Categories', 'jetpack-mu-wpcom' ) }
-									/>
-								) }
-								{ registeredCustomTaxonomies &&
-									onCustomTaxonomyExclusionsChange &&
-									registeredCustomTaxonomies.map( ( { label, slug } ) => (
-										<AutocompleteTokenField
-											fetchSavedInfo={ termIds => this.fetchSavedCustomTaxonomies( slug, termIds ) }
-											fetchSuggestions={ search =>
-												this.fetchCustomTaxonomiesSuggestions( slug, search )
-											}
-											key={ `${ slug }-exclusions-selector` }
-											label={ sprintf(
-												// translators: %s is the custom taxonomy label.
-												__( 'Excluded %s', 'jetpack-mu-wpcom' ),
-												label
-											) }
-											onChange={ value =>
-												customTaxonomiesPrepareChange(
-													customTaxonomyExclusions,
-													onCustomTaxonomyExclusionsChange,
-													slug,
-													value
-												)
-											}
-											tokens={ getTermsOfCustomTaxonomy( customTaxonomyExclusions, slug ) }
-										/>
-									) ) }
-							</>
-						) }
-					</>
-				) }
-			</>
-		);
+		return (<>
+            { enableSpecific && (
+                <ToggleControl
+                    checked={ specificMode }
+                    onChange={ onSpecificModeChange }
+                    label={ __( 'Choose Specific Posts', 'jetpack-mu-wpcom' ) }
+                />
+            ) }
+            { specificMode ? (
+                <AutocompleteTokenField
+                    tokens={ specificPosts || [] }
+                    onChange={ onSpecificPostsChange }
+                    fetchSuggestions={ this.fetchPostSuggestions }
+                    fetchSavedInfo={ this.fetchSavedPosts }
+                    label={ __( 'Posts', 'jetpack-mu-wpcom' ) }
+                    help={ __(
+                        'Begin typing post title, click autocomplete result to select.',
+                        'jetpack-mu-wpcom'
+                    ) }
+                />
+            ) : (
+                <>
+                    <BasicQueryControls { ...this.props } />
+                    { onAuthorsChange && (
+                        <AutocompleteTokenField
+                            tokens={ authors || [] }
+                            onChange={ onAuthorsChange }
+                            fetchSuggestions={ this.fetchAuthorSuggestions }
+                            fetchSavedInfo={ this.fetchSavedAuthors }
+                            label={ __( 'Authors', 'jetpack-mu-wpcom' ) }
+                        />
+                    ) }
+                    { onCategoriesChange && (
+                        <AutocompleteTokenField
+                            tokens={ categories || [] }
+                            onChange={ onCategoriesChange }
+                            fetchSuggestions={ this.fetchCategorySuggestions }
+                            fetchSavedInfo={ this.fetchSavedCategories }
+                            label={ __( 'Categories', 'jetpack-mu-wpcom' ) }
+                        />
+                    ) }
+                    { onIncludeSubcategoriesChange && (
+                        <ToggleControl
+                            checked={ includeSubcategories }
+                            onChange={ onIncludeSubcategoriesChange }
+                            label={ __( 'Include subcategories ', 'jetpack-mu-wpcom' ) }
+                        />
+                    ) }
+                    { onTagsChange && (
+                        <AutocompleteTokenField
+                            tokens={ tags || [] }
+                            onChange={ onTagsChange }
+                            fetchSuggestions={ this.fetchTagSuggestions }
+                            fetchSavedInfo={ this.fetchSavedTags }
+                            label={ __( 'Tags', 'jetpack-mu-wpcom' ) }
+                        />
+                    ) }
+                    { onCustomTaxonomiesChange &&
+                        registeredCustomTaxonomies.map( tax => (
+                            <AutocompleteTokenField
+                                key={ `${ customTaxonomies[ tax.slug ] }-selector` }
+                                tokens={ getTermsOfCustomTaxonomy( customTaxonomies, tax.slug ) }
+                                onChange={ value => {
+                                    customTaxonomiesPrepareChange(
+                                        customTaxonomies,
+                                        onCustomTaxonomiesChange,
+                                        tax.slug,
+                                        value
+                                    );
+                                } }
+                                fetchSuggestions={ search =>
+                                    this.fetchCustomTaxonomiesSuggestions( tax.slug, search )
+                                }
+                                fetchSavedInfo={ termIds => this.fetchSavedCustomTaxonomies( tax.slug, termIds ) }
+                                label={ tax.label }
+                            />
+                        ) ) }
+                    { onTagExclusionsChange && (
+                        <p>
+                            <Button
+                                isLink
+                                onClick={ () => this.setState( { showAdvancedFilters: ! showAdvancedFilters } ) }
+                            >
+                                { showAdvancedFilters
+                                    ? __( 'Hide Advanced Filters', 'jetpack-mu-wpcom' )
+                                    : __('Show Advanced Filters', 'jetpack-mu-wpcom', 0) }
+                            </Button>
+                        </p>
+                    ) }
+                    { showAdvancedFilters && (
+                        <>
+                            { onTagExclusionsChange && (
+                                <AutocompleteTokenField
+                                    tokens={ tagExclusions || [] }
+                                    onChange={ onTagExclusionsChange }
+                                    fetchSuggestions={ this.fetchTagSuggestions }
+                                    fetchSavedInfo={ this.fetchSavedTags }
+                                    label={ __( 'Excluded Tags', 'jetpack-mu-wpcom' ) }
+                                />
+                            ) }
+                            { onCategoryExclusionsChange && (
+                                <AutocompleteTokenField
+                                    tokens={ categoryExclusions || [] }
+                                    onChange={ onCategoryExclusionsChange }
+                                    fetchSuggestions={ this.fetchCategorySuggestions }
+                                    fetchSavedInfo={ this.fetchSavedCategories }
+                                    label={ __( 'Excluded Categories', 'jetpack-mu-wpcom' ) }
+                                />
+                            ) }
+                            { registeredCustomTaxonomies &&
+                                onCustomTaxonomyExclusionsChange &&
+                                registeredCustomTaxonomies.map( ( { label, slug } ) => (
+                                    <AutocompleteTokenField
+                                        fetchSavedInfo={ termIds => this.fetchSavedCustomTaxonomies( slug, termIds ) }
+                                        fetchSuggestions={ search =>
+                                            this.fetchCustomTaxonomiesSuggestions( slug, search )
+                                        }
+                                        key={ `${ slug }-exclusions-selector` }
+                                        label={ sprintf(
+                                            // translators: %s is the custom taxonomy label.
+                                            __( 'Excluded %s', 'jetpack-mu-wpcom' ),
+                                            label
+                                        ) }
+                                        onChange={ value =>
+                                            customTaxonomiesPrepareChange(
+                                                customTaxonomyExclusions,
+                                                onCustomTaxonomyExclusionsChange,
+                                                slug,
+                                                value
+                                            )
+                                        }
+                                        tokens={ getTermsOfCustomTaxonomy( customTaxonomyExclusions, slug ) }
+                                    />
+                                ) ) }
+                        </>
+                    ) }
+                </>
+            ) }
+        </>);
 	};
 }
 

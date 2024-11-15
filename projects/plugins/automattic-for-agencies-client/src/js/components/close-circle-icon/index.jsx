@@ -4,9 +4,9 @@ import React from 'react';
 /**
  * Close circle icon component
  *
- * @param {object} props        - Component props
- * @param {string} props.color  - Color code for the icon
- * @returns {React.ReactElement} Component template
+ * @param {object} props       - Component props
+ * @param {string} props.color - Color code for the icon
+ * @return {React.ReactElement} Component template
  */
 export default function CloseCircleIcon( { color = '#D63638' } ) {
 	return (

@@ -66,7 +66,7 @@
 		// These aren't a monorepo, but we may as well do them all together anyway.
 		{
 			groupName: 'GitHub API packages',
-			matchPackagePatterns: [ '^@actions/', '^@octokit/' ],
+			matchPackageNames: [ '@actions/**', '@octokit/**' ],
 		},
 		{
 			groupName: 'GitHub actions upload/download artifact',
@@ -76,12 +76,12 @@
 		{
 			groupName: 'Codeception packages',
 			matchDatasources: [ 'packagist' ],
-			matchPackagePrefixes: [ 'codeception/' ],
+			matchPackageNames: [ 'codeception/**' ],
 		},
 		{
 			groupName: 'Docker actions',
 			matchDepTypes: [ 'action' ],
-			matchPackagePrefixes: [ 'docker/' ],
+			matchPackageNames: [ 'docker/**' ],
 		},
 
 		// 🤷

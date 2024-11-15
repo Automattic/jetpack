@@ -16,7 +16,6 @@ use Automattic\Jetpack\Publicize\Social_Image_Generator\Templates;
  * This class is used to get and update Jetpack_Social_Settings.
  * Currently supported features:
  *      - Social Image Generator
- *      - Auto Conversion
  */
 class Settings {
 	/**
@@ -24,9 +23,7 @@ class Settings {
 	 *
 	 * @var string
 	 */
-	const OPTION_PREFIX = 'jetpack_social_';
-	// cSpell:ignore AUTOCONVERT
-	const AUTOCONVERT_IMAGES       = 'autoconvert_images';
+	const OPTION_PREFIX            = 'jetpack_social_';
 	const IMAGE_GENERATOR_SETTINGS = 'image_generator_settings';
 
 	const DEFAULT_IMAGE_GENERATOR_SETTINGS = array(
@@ -34,8 +31,10 @@ class Settings {
 		'template' => Templates::DEFAULT_TEMPLATE,
 	);
 
-	const DEFAULT_AUTOCONVERT_IMAGES_SETTINGS = array(
-		'enabled' => true,
+	const UTM_SETTINGS = 'utm_settings';
+
+	const DEFAULT_UTM_SETTINGS = array(
+		'enabled' => false,
 	);
 
 	/**
@@ -52,35 +51,33 @@ class Settings {
 			'feature_name'  => 'editor-preview',
 			'variable_name' => 'useEditorPreview',
 		),
+		array(
+			'flag_name'     => 'share_status',
+			'feature_name'  => 'share-status',
+			'variable_name' => 'useShareStatus',
+		),
 	);
 
 	/**
 	 * Migrate old options to the new settings. Previously SIG settings were stored in the
-	 * jetpack_social_image_generator_settings option. Now they are stored in the jetpack_social_settings
-	 * together with the auto conversion settings.
+	 * jetpack_social_image_generator_settings option. Now they are stored in the jetpack_social_settings.
 	 *
 	 * TODO: Work out if this is possible on plugin upgrade
 	 *
 	 * @return void
 	 */
 	private function migrate_old_option() {
-		// Migrating from the old option.
-		$old_auto_conversion_settings = get_option( 'jetpack_social_settings' );
-		if ( ! empty( $old_auto_conversion_settings ) ) {
-			update_option( self::OPTION_PREFIX . self::AUTOCONVERT_IMAGES, array( 'enabled' => ! empty( $old_auto_conversion_settings['image'] ) ) );
+		// Delete the old options if they exist.
+		if ( get_option( 'jetpack_social_settings' ) ) {
 			delete_option( 'jetpack_social_settings' );
 		}
-		// Checking if the new option is valid.
-		$auto_conversion_settings = get_option( self::OPTION_PREFIX . self::AUTOCONVERT_IMAGES );
-		// If the option is not set, we don't need to delete it.
-		// If it is set, but it is not an array or it does not have the enabled key, we delete it.
-		if ( false !== $auto_conversion_settings && ( ! is_array( $auto_conversion_settings ) || ! isset( $auto_conversion_settings['enabled'] ) ) ) {
-			delete_option( self::OPTION_PREFIX . self::AUTOCONVERT_IMAGES );
+		if ( get_option( 'jetpack_social_autoconvert_images' ) ) {
+			delete_option( 'jetpack_social_autoconvert_images' );
 		}
 
 		$sig_settings = get_option( 'jetpack_social_image_generator_settings' );
 		// If the option is not set, we don't need to migrate.
-		if ( $sig_settings === false ) {
+		if ( false === $sig_settings ) {
 			return;
 		}
 
@@ -112,26 +109,6 @@ class Settings {
 	 * @return void
 	 */
 	public function register_settings() {
-		register_setting(
-			'jetpack_social',
-			self::OPTION_PREFIX . self::AUTOCONVERT_IMAGES,
-			array(
-				'default'      => array(
-					'enabled' => true,
-				),
-				'type'         => 'object',
-				'show_in_rest' => array(
-					'schema' => array(
-						'type'       => 'object',
-						'properties' => array(
-							'enabled' => array(
-								'type' => 'boolean',
-							),
-						),
-					),
-				),
-			)
-		);
 
 		register_setting(
 			'jetpack_social',
@@ -158,7 +135,44 @@ class Settings {
 			)
 		);
 
+		register_setting(
+			'jetpack_social',
+			self::OPTION_PREFIX . self::UTM_SETTINGS,
+			array(
+				'type'         => 'boolean',
+				'default'      => false,
+				'show_in_rest' => array(
+					'schema' => array(
+						'type'       => 'object',
+						'properties' => array(
+							'enabled' => array(
+								'type' => 'boolean',
+							),
+						),
+					),
+				),
+			)
+		);
+
 		add_filter( 'rest_pre_update_setting', array( $this, 'update_settings' ), 10, 3 );
+	}
+
+	/**
+	 * Get the image generator settings.
+	 *
+	 * @return array
+	 */
+	public function get_image_generator_settings() {
+		return get_option( self::OPTION_PREFIX . self::IMAGE_GENERATOR_SETTINGS, self::DEFAULT_IMAGE_GENERATOR_SETTINGS );
+	}
+
+	/**
+	 * Get if the UTM params is enabled.
+	 *
+	 * @return array
+	 */
+	public function get_utm_settings() {
+		return get_option( self::OPTION_PREFIX . self::UTM_SETTINGS, self::DEFAULT_UTM_SETTINGS );
 	}
 
 	/**
@@ -172,18 +186,15 @@ class Settings {
 		$this->migrate_old_option();
 
 		$settings = array(
-			'autoConversionSettings'       => get_option( self::OPTION_PREFIX . self::AUTOCONVERT_IMAGES, self::DEFAULT_AUTOCONVERT_IMAGES_SETTINGS ),
-			'socialImageGeneratorSettings' => get_option( self::OPTION_PREFIX . self::IMAGE_GENERATOR_SETTINGS, self::DEFAULT_IMAGE_GENERATOR_SETTINGS ),
+			'socialImageGeneratorSettings' => $this->get_image_generator_settings(),
 		);
 
 		// The feature cannot be enabled without Publicize.
 		if ( ! ( new Modules() )->is_active( 'publicize' ) ) {
-			$settings['autoConversionSettings']['enabled']       = false;
 			$settings['socialImageGeneratorSettings']['enabled'] = false;
 		}
 
 		if ( $with_available ) {
-			$settings['autoConversionSettings']['available']       = $this->is_auto_conversion_available();
 			$settings['socialImageGeneratorSettings']['available'] = $this->is_sig_available();
 		}
 
@@ -241,32 +252,22 @@ class Settings {
 	 * @return bool
 	 */
 	public function update_settings( $updated, $name, $value ) {
-		if ( self::OPTION_PREFIX . self::AUTOCONVERT_IMAGES === $name ) {
-			return $this->update_auto_conversion_setting( $value );
-		}
 
 		if ( self::OPTION_PREFIX . self::IMAGE_GENERATOR_SETTINGS === $name ) {
 			return $this->update_social_image_generator_settings( $value );
 		}
-		return $updated;
-	}
 
-	/**
-	 * Update the auto conversion settings.
-	 *
-	 * @param array $new_setting The new settings.
-	 *
-	 * @return bool
-	 */
-	public function update_auto_conversion_setting( $new_setting ) {
-		$this->migrate_old_option();
-		$auto_conversion_settings = get_option( self::OPTION_PREFIX . self::AUTOCONVERT_IMAGES );
+		if ( self::OPTION_PREFIX . self::UTM_SETTINGS === $name ) {
+			$current_utm_settings = $this->get_utm_settings();
 
-		if ( empty( $auto_conversion_settings ) || ! is_array( $auto_conversion_settings ) ) {
-			$auto_conversion_settings = self::DEFAULT_AUTOCONVERT_IMAGES_SETTINGS;
+			if ( empty( $current_utm_settings ) || ! is_array( $current_utm_settings ) ) {
+				$current_utm_settings = self::DEFAULT_UTM_SETTINGS;
+			}
+
+			return update_option( self::OPTION_PREFIX . self::UTM_SETTINGS, array_replace_recursive( $current_utm_settings, $value ) );
 		}
 
-		return update_option( self::OPTION_PREFIX . self::AUTOCONVERT_IMAGES, array_replace_recursive( $auto_conversion_settings, $new_setting ) );
+		return $updated;
 	}
 
 	/**
@@ -300,23 +301,6 @@ class Settings {
 		}
 
 		return $publicize->has_social_image_generator_feature();
-	}
-
-	/**
-	 * Check if the auto conversion feature is available.
-	 *
-	 * @param string $type Whether video or image.
-
-	 * @return bool True if available, false otherwise.
-	 */
-	public function is_auto_conversion_available( $type = 'image' ) {
-		global $publicize;
-
-		if ( ! $publicize ) {
-			return false;
-		}
-
-		return $publicize->has_social_auto_conversion_feature( $type );
 	}
 
 	/**

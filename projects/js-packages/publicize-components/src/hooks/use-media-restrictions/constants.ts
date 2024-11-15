@@ -10,7 +10,7 @@ export const DIMENSION_ERROR = 'DIMENSION_ERROR';
 /**
  * Returns the error labels.
  *
- * @returns {Record<string, string>} The error labels.
+ * @return {Record<string, string>} The error labels.
  */
 export function getErrorLabels() {
 	return {
@@ -26,7 +26,7 @@ export function getErrorLabels() {
  *
  * @param {string} errorType - The error type.
  *
- * @returns {string} The error label.
+ * @return {string} The error label.
  */
 export function getErrorLabel( errorType: string ) {
 	return getErrorLabels()[ errorType ] || __( 'Invalid media', 'jetpack' );

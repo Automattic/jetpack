@@ -60,16 +60,7 @@ for DIR in $(git -c core.quotepath=off diff --name-only HEAD | sed -nE 's!^(proj
 	echo "Adding change file for $SLUG"
 	cd "$DIR"
 
-	CHANGES_DIR="$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' composer.json)"
-	if [[ -d "$CHANGES_DIR" && "$(ls -- "$CHANGES_DIR")" ]]; then
-		changelogger_add 'Updated package dependencies.' '' --filename="${CHANGEFILE}" --filename-auto-suffix
-	else
-		changelogger_add 'Updated package dependencies.' '' --filename="${CHANGEFILE}" --filename-auto-suffix
-		echo "Updating version for $SLUG"
-		PRERELEASE=$(alpha_tag composer.json 0)
-		VER=$(changelogger version next --default-first-version --prerelease="$PRERELEASE") || { echo "$VER"; exit 1; }
-		"$BASE/tools/project-version.sh" -u "$VER" "$SLUG"
-	fi
+	changelogger_add 'Updated package dependencies.' '' --filename="${CHANGEFILE}" --filename-auto-suffix
 	cd "$BASE"
 done
 

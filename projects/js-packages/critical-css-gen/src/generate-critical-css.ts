@@ -18,7 +18,7 @@ const noop = () => {
  * @param {BrowserInterface} browserInterface - interface to access pages
  * @param {string[]}         urls             - list of URLs to scan for CSS files
  * @param {number}           maxPages         - number of pages to process at most
- * @returns {Array} - Two member array; CSSFileSet, and an object containing errors that occurred at each URL.
+ * @return {Array} - Two member array; CSSFileSet, and an object containing errors that occurred at each URL.
  */
 async function collateCssFiles(
 	browserInterface: BrowserInterface,
@@ -80,7 +80,7 @@ async function collateCssFiles(
  * @param {number}           param.maxPages         - Maximum number of pages to process
  * @param {Function}         param.updateProgress   - Update progress callback function
  *
- * @returns {Set<string>} - List of above the fold selectors.
+ * @return {Set<string>} - List of above the fold selectors.
  */
 async function getAboveFoldSelectors( {
 	browserInterface,
@@ -142,15 +142,15 @@ async function getAboveFoldSelectors( {
 /**
  * Generates critical CSS for the given URLs and viewports.
  *
- * @param {object} root0 - The options object
+ * @param {object}           root0                  - The options object
  * @param {BrowserInterface} root0.browserInterface - Interface to interact with the browser
- * @param {Function} root0.progressCallback - Optional callback function to report progress
- * @param {string[]} root0.urls - Array of URLs to generate critical CSS for
- * @param {Viewport[]} root0.viewports - Array of viewport sizes to consider
- * @param {FilterSpec} root0.filters - Optional filters to apply to the CSS
- * @param {number} root0.successRatio - Ratio of successful URLs required (default: 1)
- * @param {number} root0.maxPages - Maximum number of pages to process (default: 10)
- * @returns {Promise<[string, Error[]]>} A promise that resolves to an array containing the critical CSS string and an array of errors.
+ * @param {Function}         root0.progressCallback - Optional callback function to report progress
+ * @param {string[]}         root0.urls             - Array of URLs to generate critical CSS for
+ * @param {Viewport[]}       root0.viewports        - Array of viewport sizes to consider
+ * @param {FilterSpec}       root0.filters          - Optional filters to apply to the CSS
+ * @param {number}           root0.successRatio     - Ratio of successful URLs required (default: 1)
+ * @param {number}           root0.maxPages         - Maximum number of pages to process (default: 10)
+ * @return {Promise<[string, Error[]]>} A promise that resolves to an array containing the critical CSS string and an array of errors.
  */
 export async function generateCriticalCSS( {
 	browserInterface,

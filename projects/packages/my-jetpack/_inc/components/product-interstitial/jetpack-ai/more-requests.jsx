@@ -25,9 +25,9 @@ import styles from './style.module.scss';
 /**
  * JetpackAIInterstitialMoreRequests component
  *
- * @param {object} props                 - Component props.
+ * @param {object}   props               - Component props.
  * @param {Function} props.onClickGoBack - onClick handler for the "Back" button.
- * @returns {object}                       JetpackAIInterstitialMoreRequests react component.
+ * @return {object}                       JetpackAIInterstitialMoreRequests react component.
  */
 export function JetpackAIInterstitialMoreRequests( { onClickGoBack = () => {} } ) {
 	const title = __( 'Do you need more requests for Jetpack AI Assistant?', 'jetpack-my-jetpack' );

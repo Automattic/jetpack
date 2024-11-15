@@ -32,6 +32,16 @@
 			fill: $jetpack-green;
 		}
 	}
+
+	:global(.jb-score-bar__no_boost_score_tooltip) {
+		top: -68px;
+		font-size: 16px;
+	}
+
+	:global(.jb-score-bar__no_boost_score_tooltip::after) {
+		font-size: 0.7em;
+		left: 50%;
+	}
 }
 
 :global(.jb-dashboard) .speed-scores h2 {

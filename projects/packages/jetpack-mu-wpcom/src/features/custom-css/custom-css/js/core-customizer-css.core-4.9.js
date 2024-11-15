@@ -1,8 +1,8 @@
 ( function ( $, customize ) {
 	/**
 	 * Helper function to qet a control by ID
-	 * @param  {string} controlId -  Control ID
-	 * @returns {object}           jQuery object of the container
+	 * @param {string} controlId - Control ID
+	 * @return {object}           jQuery object of the container
 	 */
 	function _getControl( controlId ) {
 		const control = customize.control.value( controlId );

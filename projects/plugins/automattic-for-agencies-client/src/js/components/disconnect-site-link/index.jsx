@@ -10,7 +10,7 @@ import styles from './styles.module.scss';
  *
  * @param {object}   props              - Component props.
  * @param {Function} props.onDisconnect - Callback to run when the site is disconnected.
- * @returns {React.Component} The `DisconnectSiteLink` component.
+ * @return {React.Component} The `DisconnectSiteLink` component.
  */
 export default function DisconnectSiteLink( { onDisconnect } ) {
 	const { apiNonce, apiRoot } = window.automatticForAgenciesClientInitialState;

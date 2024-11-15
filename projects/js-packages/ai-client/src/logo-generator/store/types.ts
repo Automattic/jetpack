@@ -1,3 +1,4 @@
+import type { ImageStyleObject } from '../../hooks/use-image-generator/constants.js';
 import type { SiteDetails } from '../types.js';
 
 /**
@@ -13,7 +14,7 @@ export type UpgradeTypeProp = 'vip' | 'default';
 
 export type TierUnlimitedProps = {
 	slug: 'ai-assistant-tier-unlimited';
-	limit: 999999999;
+	limit: 999999999 | 3000;
 	value: 1;
 	readableLimit: string;
 };
@@ -88,6 +89,18 @@ export type TierValueProp =
 	| Tier750Props[ 'value' ]
 	| Tier1000Props[ 'value' ];
 
+export type LogoGeneratorFeatureControl = FeatureControl & {
+	styles: Array< ImageStyleObject > | [];
+};
+
+export type FeatureControl = {
+	enabled: boolean;
+};
+
+export type FeaturesControl = {
+	[ key: string ]: FeatureControl | LogoGeneratorFeatureControl;
+};
+
 export type AiFeatureProps = {
 	hasFeature: boolean;
 	isOverLimit: boolean;
@@ -110,6 +123,7 @@ export type AiFeatureProps = {
 			logo: number;
 		};
 	};
+	featuresControl?: FeaturesControl;
 };
 
 // Type used in the `wordpress-com/plans` store.
@@ -143,6 +157,7 @@ export type LogoGeneratorStateProp = {
 		saveToLibraryError?: RequestError;
 		logoUpdateError?: RequestError;
 		context: string;
+		isLoadingHistory: boolean;
 	};
 	siteDetails?: SiteDetails | Record< string, never >;
 	features: {
@@ -172,6 +187,8 @@ export type Selectors = {
 	getSaveToLibraryError(): RequestError;
 	getLogoUpdateError(): RequestError;
 	getContext(): string;
+	getTierPlansEnabled(): boolean;
+	getIsLoadingHistory(): boolean;
 };
 
 /*
@@ -202,6 +219,8 @@ export type AiAssistantFeatureEndpointResponseProps = {
 			logo: number;
 		};
 	};
+	'features-control'?: FeaturesControl;
+	data?: string; // when WP responds with a 200 status code but it's the error wrap
 };
 
 export type SaveLogo = ( logo: Logo ) => Promise< { mediaId: number; mediaURL: string } >;

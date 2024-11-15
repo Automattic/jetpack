@@ -20,36 +20,42 @@ const renderGoodreadsDisplaySettings = ( { attributes, setAttributes } ) => {
 	return (
 		<PanelBody PanelBody title={ __( 'Display Settings', 'jetpack' ) } initialOpen>
 			<ToggleControl
+				__nextHasNoMarginBottom={ true }
 				label={ __( 'Show cover', 'jetpack' ) }
 				checked={ showCover }
 				onChange={ () => setAttributes( { showCover: ! showCover } ) }
 			/>
 
 			<ToggleControl
+				__nextHasNoMarginBottom={ true }
 				label={ __( 'Show author', 'jetpack' ) }
 				checked={ showAuthor }
 				onChange={ () => setAttributes( { showAuthor: ! showAuthor } ) }
 			/>
 
 			<ToggleControl
+				__nextHasNoMarginBottom={ true }
 				label={ __( 'Show title', 'jetpack' ) }
 				checked={ showTitle }
 				onChange={ () => setAttributes( { showTitle: ! showTitle } ) }
 			/>
 
 			<ToggleControl
+				__nextHasNoMarginBottom={ true }
 				label={ __( 'Show rating', 'jetpack' ) }
 				checked={ showRating }
 				onChange={ () => setAttributes( { showRating: ! showRating } ) }
 			/>
 
 			<ToggleControl
+				__nextHasNoMarginBottom={ true }
 				label={ __( 'Show review', 'jetpack' ) }
 				checked={ showReview }
 				onChange={ () => setAttributes( { showReview: ! showReview } ) }
 			/>
 
 			<ToggleControl
+				__nextHasNoMarginBottom={ true }
 				label={ __( 'Show tags', 'jetpack' ) }
 				checked={ showTags }
 				onChange={ () => setAttributes( { showTags: ! showTags } ) }
@@ -65,6 +71,7 @@ export function GoodreadsInspectorControls( { attributes, setAttributes } ) {
 		<>
 			<PanelBody PanelBody title={ __( 'Block Settings', 'jetpack' ) } initialOpen>
 				<SelectControl
+					__nextHasNoMarginBottom={ true }
 					label={ __( 'Shelf', 'jetpack' ) }
 					value={ shelfOption }
 					onChange={ value => setAttributes( { shelfOption: value } ) }
@@ -72,12 +79,14 @@ export function GoodreadsInspectorControls( { attributes, setAttributes } ) {
 				/>
 
 				<TextControl
+					__nextHasNoMarginBottom={ true }
 					label={ __( 'Title', 'jetpack' ) }
 					value={ customTitle || GOODREADS_DEFAULT_TITLE }
 					onChange={ value => setAttributes( { customTitle: value } ) }
 				/>
 
 				<SelectControl
+					__nextHasNoMarginBottom={ true }
 					label={ __( 'Sort by', 'jetpack' ) }
 					value={ sortOption }
 					onChange={ value => setAttributes( { sortOption: value } ) }
@@ -85,6 +94,7 @@ export function GoodreadsInspectorControls( { attributes, setAttributes } ) {
 				/>
 
 				<SelectControl
+					__nextHasNoMarginBottom={ true }
 					label={ __( 'Order', 'jetpack' ) }
 					value={ orderOption }
 					onChange={ value => setAttributes( { orderOption: value } ) }
@@ -92,6 +102,7 @@ export function GoodreadsInspectorControls( { attributes, setAttributes } ) {
 				/>
 
 				<TextControl
+					__nextHasNoMarginBottom={ true }
 					label={ __( 'Number of books', 'jetpack' ) }
 					type="number"
 					inputMode="numeric"

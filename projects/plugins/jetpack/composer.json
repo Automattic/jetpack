@@ -57,7 +57,7 @@
 		"automattic/jetpack-changelogger": "@dev",
 		"automattic/patchwork-redefine-exit": "@dev",
 		"johnkary/phpunit-speedtrap": "^4.0.0 || ^2.0.0",
-		"yoast/phpunit-polyfills": "1.1.0"
+		"yoast/phpunit-polyfills": "^1.1.1"
 	},
 	"scripts": {
 		"build-production": [
@@ -68,6 +68,10 @@
 		],
 		"phpunit": [
 			"tests/action-phpunit.sh"
+		],
+		"test-coverage": [
+			"@php tools/build-module-headings-translations.php",
+			"tests/action-test-coverage.sh"
 		],
 		"test-js": [
 			"pnpm concurrently 'pnpm:compile-ts' 'pnpm:test-adminpage' 'pnpm:test-extensions'"
@@ -102,7 +106,7 @@
 		"platform": {
 			"ext-intl": "0.0.0"
 		},
-		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ13_8_a_2",
+		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ14_1_a_1",
 		"allow-plugins": {
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true

@@ -9,52 +9,6 @@
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 
 /**
- * Force-enable the Masterbar module
- * If you use a version of Jetpack that supports it,
- * and if it is not already enabled.
- */
-function wpcomsh_activate_masterbar_module() {
-	if ( ! defined( 'JETPACK__VERSION' ) || get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
-		return;
-	}
-
-	if ( ! Jetpack::is_module_active( 'masterbar' ) ) {
-		Jetpack::activate_module( 'masterbar', false, false );
-	}
-}
-add_action( 'init', 'wpcomsh_activate_masterbar_module', 0, 0 );
-
-/**
- * Disable the Masterbar for nav redesign.
- *
- * @param array $modules Array of Jetpack modules.
- * @return array
- */
-function atomic_masterbar_filter_jetpack_modules( $modules ) {
-	if ( isset( $modules['masterbar'] ) && get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
-		unset( $modules['masterbar'] );
-	}
-
-	return $modules;
-}
-add_filter( 'jetpack_get_available_modules', 'atomic_masterbar_filter_jetpack_modules' );
-
-/**
- * Remove Masterbar from the old Module list.
- * Available at wp-admin/admin.php?page=jetpack_modules
- *
- * @param array $items Array of Jetpack modules.
- * @return array
- */
-function wpcomsh_rm_masterbar_module_list( $items ) {
-	if ( isset( $items['masterbar'] ) ) {
-		unset( $items['masterbar'] );
-	}
-	return $items;
-}
-add_filter( 'jetpack_modules_list_table_items', 'wpcomsh_rm_masterbar_module_list' );
-
-/**
  * Check if the current request is an API request to the `wpcom/v2/admin-menu` endpoint.
  *
  * @return bool
@@ -102,39 +56,6 @@ function wpcomsh_admin_color_scheme_picker_disabled() {
 }
 
 /**
- * Hides the "Admin Color Scheme" entry on /wp-admin/profile.php,
- * and adds an action that prints a calypso page link.
- * This applies only to WPCOM connected users.
- **/
-function wpcomsh_hide_color_schemes() {
-	// Do nothing if the admin interface is wp-admin.
-	if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
-		return false;
-	}
-
-	// Do nothing if we can't tell whether the User is connected.
-	if ( ! class_exists( 'Automattic\Jetpack\Connection\Manager' ) ) {
-		return false;
-	}
-	$connection_manager        = new Connection_Manager( 'jetpack' );
-	$user_id_from_query_string = $_GET['user_id'] ?? false; // phpcs:ignore WordPress.Security
-
-	if ( ! $connection_manager->is_user_connected( $user_id_from_query_string ) ) {
-		// If this is a local user, show the default UX.
-		return;
-	}
-
-	remove_action( 'admin_color_scheme_picker', 'admin_color_scheme_picker' );
-
-	if ( ! $user_id_from_query_string ) {
-		// Show Calypso page link only to a user editing their profile.
-		add_action( 'admin_color_scheme_picker', 'wpcomsh_admin_color_scheme_picker_disabled' );
-	}
-}
-add_action( 'load-profile.php', 'wpcomsh_hide_color_schemes' );
-add_action( 'load-user-edit.php', 'wpcomsh_hide_color_schemes' );
-
-/**
  * Gets data from the `wpcom.getUser` XMLRPC response and set it as user options. This is hooked
  * into the `setted_transient` action that is triggered everytime the XMLRPC response is read.
  *
@@ -150,10 +71,6 @@ function wpcomsh_set_connected_user_data_as_user_options( $transient, $value ) {
 
 	if ( ! $value || ! is_array( $value ) ) {
 		return;
-	}
-
-	if ( isset( $value['color_scheme'] ) && get_option( 'wpcom_admin_interface' ) !== 'wp-admin' ) {
-		update_user_option( get_current_user_id(), 'admin_color', $value['color_scheme'] );
 	}
 
 	if ( isset( $value['site_count'] ) ) {
@@ -333,10 +250,6 @@ add_filter( 'pre_option_wpcom_admin_interface', 'wpcomsh_get_wpcom_admin_interfa
  *    from wp-admin going forward.
  */
 function wpcomsh_unsync_color_schemes_on_save() {
-	if ( get_option( 'wpcom_admin_interface' ) !== 'wp-admin' ) {
-		return;
-	}
-
 	// Returns Calypso color scheme (if still exists),
 	// or wp-admin color scheme otherwise.
 	$maybe_synced_color_scheme = get_user_option( 'admin_color' );

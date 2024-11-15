@@ -5,6 +5,175 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.66.0] - 2024-11-11
+### Added
+- Added a feature check to the Marketing Bar that updates the text and upgrade link for Global Styles [#40068]
+- Enable test coverage. [#39961]
+- Help Center: add new rest route for support interactions [#39978]
+- Help Center: extend support interaction API [#40112]
+- The notice and modal shown on the editor now displays the plan name and upgrade URL based on the GS gated plan type' [#40095]
+
+### Changed
+- Added feature check for the Global Styles on Personal plan changes. [#39986]
+- Updated package dependencies. [#39999]
+- Updated package dependencies. [#40000]
+- Updated package dependencies. [#40060]
+
+### Fixed
+- Fix PHPUnit coverage warnings. [#39989]
+- Help Center: fixed api typo [#39996]
+- We now check if JP_CONNECTION_INITIAL_STATE is defined before accessing it when using Global Styles' [#39980]
+- wpcom-block-editor: Support getting the canvas mode from the query string after GB 19.6 [#40045]
+
+## [5.65.0] - 2024-10-29
+### Added
+- adding a WPCOM task [#39776]
+- Add new task for domain connection to post-migration checklist. [#39680]
+- Add new task for domain mapping in migration Launchpad [#39764]
+- Adds JSON translation files [#39519]
+- Adds the placeholder task list for the Migration flow [#39593]
+- Add the Plugin Review task for the Post-migration launchpad experience [#39711]
+- Add the Review site task [#39641]
+- Admin bar: Add help icon tooltip [#39845]
+- Admin bar: Add reader icon tooltip [#39803]
+- Global Styles: add a Help Link to premium styles limitation message [#39226]
+
+### Changed
+- Admin bar: replace 'Edit Profile' and 'My Account' with 'My Profile' [#39600]
+- Blog Privacy: Do not add custom rules to wpcom's robots.txt if blog_public=0 [#39468]
+- Help Center: use Zendesk staging when proxied [#39566]
+- jetpack-mu-wpcom: remove unneeded filter [#39552]
+- Launchpad: Added isset to avoid Warnings when finding about page id [#39529]
+- Make the Migrating the site task complete by default [#39769]
+- Only include `wp-polyfill` as a script dependency when needed. [#39629]
+- Sharing modal: Repurposed to only display recommended tags. [#39499]
+- Site Management Panel: fix site name encoding display [#39756]
+- Site Management Panel: Migrate to react [#39742]
+- Updated copies used in the plugins banner for wpcom sites plugin-install.php page. [#39725]
+- Updated package dependencies. [#39594]
+- Updated package dependencies. [#39640]
+- Updated package dependencies. [#39707]
+- Update Jetpack Scan link [#39619]
+- Update Verbum Comments resize logic [#39791]
+- wpcom_add_shopping_cart: Use Store_Shopping_Cart::is_cart_empty() when deciding to render icon for incrased performance [#39563]
+
+### Deprecated
+- Site Management Widget: Clean up unused files [#39743]
+
+### Removed
+- Removed import of the class-wp-rest-wpcom-block-editor-sharing-modal-controller.php controller [#39488]
+
+### Fixed
+- Admin bar: ensure the Atomic debug bar is the leftmost menu [#39493]
+- Prevent welcome tour keyboard navigation from hijacking left right keys on the editor [#39683]
+- profile.php: Make wpcom links more concise [#39636]
+- Superadmin bar: always point to wp-admin even on Default admin interface style [#39501]
+- Verbum Comments: fix gravatar width in nested comments [#39757]
+
+## [5.64.0] - 2024-09-23
+### Deprecated
+- Removed launchpad-save-modal. [#39429]
+
+## [5.63.0] - 2024-09-18
+### Added
+- Added a shopping cart icon to the masterbar. This icon will be displayed when the user has items in the cart and liks to the checkout page. [#39298]
+- Add new wpcom-migration-key endpoint. [#39377]
+
+### Changed
+- Admin menu: Replace Jetpack cloud links with WordPress.com links [#39393]
+- Changing name of the hosting menu's "Settings" item to "Site Settings". [#39411]
+- Get active element from target's document rather than the global `document`. [#39364]
+- Remove the extra padding around the admin bar Reader item to match Calypso. [#39357]
+- Removing some steps from the Block Editor Welcome Tour, since it currently has too many [#39325]
+
+### Fixed
+- Admin bar: align colors with Calypso's [#39314]
+- Admin bar: fix paddings around wpcom and reader logos [#39312]
+- Changinging wpcom_admin_interface via API no longer redirects [#39416]
+- Help Center: Fix the icon color when previewing color scheme [#39371]
+- Launchpad first_post_published task reuses existing draft if there is one [#39259]
+- Prevent undefined `get_current_screen` function errors resulting from invoking the function in contexts where it is undefined. [#39228]
+- Use React properties rather than pass-throughs (e.g. `className` rather than `class`). [#39414]
+
+## [5.62.0] - 2024-09-10
+### Changed
+- Admin bar: always use user language even on frontend screens [#39255]
+- Admin bar: update 'My Account' link to /me [#39290]
+- Enable Users -> Profile (profile.php) on all sites [#39181]
+- Launchpad: Require a design is selected before marking the step as complete in both the Write and Free flows [#39189]
+- Updated package dependencies. [#39176]
+- Updated package dependencies. [#39302]
+
+### Fixed
+- Use the correct endpoint route for adding suggested tags on new posts. [#39175]
+
+## [5.61.0] - 2024-09-02
+### Changed
+- MU WPCOM: Disable the Open Graph Tags according to the privacy of the site [#39012]
+- Point "Edit Profile" to profile.php when Site-Level Profile is enabled [#39091]
+
+## [5.60.0] - 2024-08-30
+### Added
+- Add Meta crawler. [#39159]
+
+### Changed
+- Newspack blocks: Updated from 3.5 to 4.0.1 [#39033]
+- Updated package dependencies. [#39111]
+
+### Fixed
+- Always rewrite profile.php to /me on Default sites [#39113]
+
+## [5.59.0] - 2024-08-26
+### Added
+- Auto open Upload Theme dialog if query parameter is present [#39045]
+- Fixup project versions. [#38931]
+
+### Changed
+- MU WPCOM: Fix Post Publish Modal checkbox alignment [#38990]
+
+### Fixed
+- Bump package version [#39056]
+- MU WPCOM: Fix the coming soon isn't configured correctly if the settings changes from Coming Soon -> Private -> Coming Soon [#39010]
+
+## [5.58.0] - 2024-08-23
+### Added
+- Sync Calypso locale to Atomic Classic [#39009]
+
+### Changed
+- Jetpack-mu-wpcom admin bar: move the Reader menu item to the secondary admin bar group. [#38976]
+- Replace language selector with a link to WPCOM [#39013]
+- Updated package dependencies. [#39004]
+
+### Fixed
+- Admin bar: fix icon colors on site frontend [#39014]
+- Ensure theme update icon is hidden correctly [#38957]
+- Inconsistent Color Scheme when previewing on Simple Default [#39048]
+
+## [5.57.1] - 2024-08-21
+### Changed
+- Site Level User Profile: expose all relevant fields on profile.php [#38949]
+
+### Fixed
+- Help Center: show disconnected version on frontend [#38941]
+- Revert recent SVG image optimizations. [#38981]
+
+## [5.57.0] - 2024-08-19
+### Added
+- Social Links: Requiring feature from Classic Theme Helper package instead of Jetpack module. [#38730]
+
+### Changed
+- Gutenberg: Include links to support docs for recent blocks. [#38794]
+- Keep the synced-newspack-blocks folder instead of pulling on every install. [#38873]
+- Replace the link of the additional CSS. [#38951]
+- Re-tangle first/last/display name, website, and bio fields in profile.php. [#38854]
+- Temporarily point to wpcalypso.wordpress.com for testing purposes. [#38903]
+- Updated package dependencies. [#38662]
+- Whem Atomic users log out of wp-admin they are also logged out of WPCOM. [#38850]
+
+### Fixed
+- Help Center: Don't load english translations. [#38912]
+- Lossless image optimization for images (should improve performance with no visible changes). [#38750]
+
 ## [5.56.0] - 2024-08-13
 ### Changed
 - WPCOM Block Description Links: add links for embed variations [#38834]
@@ -1138,6 +1307,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Testing initial package release.
 
+[5.66.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.65.0...v5.66.0
+[5.65.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.64.0...v5.65.0
+[5.64.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.63.0...v5.64.0
+[5.63.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.62.0...v5.63.0
+[5.62.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.61.0...v5.62.0
+[5.61.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.60.0...v5.61.0
+[5.60.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.59.0...v5.60.0
+[5.59.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.58.0...v5.59.0
+[5.58.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.57.1...v5.58.0
+[5.57.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.57.0...v5.57.1
+[5.57.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.56.0...v5.57.0
 [5.56.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.55.0...v5.56.0
 [5.55.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.54.3...v5.55.0
 [5.54.3]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.54.2...v5.54.3

@@ -87,13 +87,13 @@ function wpcom_public_coming_soon_replace_yoast_seo_notice() {
 	 */
 	$should_replace_yoast_notice = $are_search_engines_discouraged || $is_wpcom_public_coming_soon_enabled;
 
-	if ( $should_replace_yoast_notice && ! $wpseo_options['ignore_search_engines_discouraged_notice'] ) {
+	if ( $should_replace_yoast_notice && empty( $wpseo_options['ignore_search_engines_discouraged_notice'] ) ) {
 		// Hide the Yoast SEO notice if it's not hidden and the site is set to Coming Soon mode.
 		$wpseo_options['ignore_search_engines_discouraged_notice'] = true;
 		update_option( 'wpseo', $wpseo_options );
 	}
 
-	if ( ! $should_replace_yoast_notice && $wpseo_options['ignore_search_engines_discouraged_notice'] ) {
+	if ( ! $should_replace_yoast_notice && ! empty( $wpseo_options['ignore_search_engines_discouraged_notice'] ) ) {
 		// Restore the default setting if Coming Soon mode is disabled.
 		$wpseo_options['ignore_search_engines_discouraged_notice'] = false;
 		update_option( 'wpseo', $wpseo_options );
@@ -110,7 +110,7 @@ function wpcom_public_coming_soon_replace_yoast_seo_notice() {
 	// Only show the notice on certain admin pages and Yoast SEO admin pages.
 	if (
 		$should_replace_yoast_notice
-		&& $wpseo_options['ignore_search_engines_discouraged_notice'] == true // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+		&& ! empty( $wpseo_options['ignore_search_engines_discouraged_notice'] )
 		&& ( $on_wpseo_admin_page || in_array( $pagenow, $notice_pages, true ) )
 	) {
 		// Get site slug & settings url.

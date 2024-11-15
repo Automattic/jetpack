@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Sync\Modules;
 
+use Automattic\Jetpack\Sync\Defaults;
 use Automattic\Jetpack\Sync\Functions;
 use Automattic\Jetpack\Sync\Listener;
 use Automattic\Jetpack\Sync\Replicastore;
@@ -49,14 +50,38 @@ abstract class Module {
 	}
 
 	/**
-	 * The table in the database.
+	 * The table name.
+	 *
+	 * @access public
+	 *
+	 * @return string|bool
+	 * @deprecated since 3.11.0 Use table() instead.
+	 */
+	public function table_name() {
+		_deprecated_function( __METHOD__, '3.11.0', 'Automattic\\Jetpack\\Sync\\Module->table' );
+		return false;
+	}
+
+	/**
+	 * The table in the database with the prefix.
 	 *
 	 * @access public
 	 *
 	 * @return string|bool
 	 */
-	public function table_name() {
+	public function table() {
 		return false;
+	}
+
+	/**
+	 * The full sync action name for this module.
+	 *
+	 * @access public
+	 *
+	 * @return string
+	 */
+	public function full_sync_action_name() {
+		return 'jetpack_full_sync_' . $this->name();
 	}
 
 	// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
@@ -298,7 +323,7 @@ abstract class Module {
 		return $wpdb->get_col(
 			"
 			SELECT {$this->id_field()}
-			FROM {$wpdb->{$this->table_name()}}
+			FROM {$this->table()}
 			WHERE {$this->get_where_sql( $config )}
 			AND {$this->id_field()} < {$status['last_sent']}
 			ORDER BY {$this->id_field()}
@@ -321,7 +346,7 @@ abstract class Module {
 		return $wpdb->get_var(
 			"
 			SELECT {$this->id_field()}
-			FROM {$wpdb->{$this->table_name()}}
+			FROM {$this->table()}
 			WHERE {$this->get_where_sql( $config )}
 			ORDER BY {$this->id_field()}
 			LIMIT 1
@@ -357,7 +382,12 @@ abstract class Module {
 			$status['last_sent'] = $this->get_initial_last_sent();
 		}
 
-		$limits = Settings::get_setting( 'full_sync_limits' )[ $this->name() ];
+		$limits = Settings::get_setting( 'full_sync_limits' )[ $this->name() ] ??
+			Defaults::get_default_setting( 'full_sync_limits' )[ $this->name() ] ??
+			array(
+				'max_chunks' => 10,
+				'chunk_size' => 100,
+			);
 
 		$chunks_sent = 0;
 
@@ -375,7 +405,7 @@ abstract class Module {
 				$status['finished'] = true;
 				return $status;
 			}
-			$result = $this->send_action( 'jetpack_full_sync_' . $this->name(), array( $objects, $status['last_sent'] ) );
+			$result = $this->send_action( $this->full_sync_action_name(), array( $objects, $status['last_sent'] ) );
 			if ( is_wp_error( $result ) || $wpdb->last_error ) {
 				$status['error'] = true;
 				return $status;
@@ -571,14 +601,13 @@ abstract class Module {
 	 * @return array|bool An array of min and max ids for each batch. FALSE if no table can be found.
 	 */
 	public function get_min_max_object_ids_for_batches( $batch_size, $where_sql = false ) {
-		global $wpdb;
 
-		if ( ! $this->table_name() ) {
+		if ( ! $this->table() ) {
 			return false;
 		}
 
 		$results      = array();
-		$table        = $wpdb->{$this->table_name()};
+		$table        = $this->table();
 		$current_max  = 0;
 		$current_min  = 1;
 		$id_field     = $this->id_field();
@@ -628,7 +657,7 @@ abstract class Module {
 	 */
 	public function total( $config ) {
 		global $wpdb;
-		$table = $wpdb->{$this->table_name()};
+		$table = $this->table();
 		$where = $this->get_where_sql( $config );
 
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching

@@ -18,7 +18,7 @@ export const describe = 'Run Phan on a monorepo project';
 /**
  * Load list of monorepo pseudo-projects.
  *
- * @returns {object} Map of key to dir.
+ * @return {object} Map of key to dir.
  */
 async function monorepoPseudoProjects() {
 	const contents = await fs.readFile(
@@ -32,7 +32,7 @@ async function monorepoPseudoProjects() {
  * Options definition for the phan subcommand.
  *
  * @param {object} yargs - The Yargs dependency.
- * @returns {object} Yargs with the phan commands defined.
+ * @return {object} Yargs with the phan commands defined.
  */
 export async function builder( yargs ) {
 	return yargs
@@ -66,7 +66,7 @@ export async function builder( yargs ) {
 		} )
 		.option( 'concurrency', {
 			type: 'number',
-			description: 'Maximum number of phan tasks to run at once. Ignored with `--verbose`.',
+			description: 'Maximum number of phan tasks to run at once.',
 			default: os.cpus().length,
 			coerce: coerceConcurrency,
 		} )
@@ -496,6 +496,7 @@ export async function handler( argv ) {
 	} );
 	await listr.run().catch( err => {
 		for ( const e of err.errors ?? [ err ] ) {
+			// eslint-disable-next-line no-bitwise
 			process.exitCode |= e.isSuccessfulError ? 1 : 2;
 		}
 	} );
@@ -667,6 +668,7 @@ export async function handler( argv ) {
 		reportStream.end();
 		console.log( `Report written to ${ argv.reportFile }` );
 	}
+	// eslint-disable-next-line no-bitwise
 	if ( ( process.exitCode & 2 ) !== 0 ) {
 		console.error(
 			chalk.red(

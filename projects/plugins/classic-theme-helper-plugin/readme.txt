@@ -1,9 +1,9 @@
 === Jetpack Classic Theme Helper Plugin ===
 Contributors: automattic,
 Tags: jetpack, stuff
-Requires at least: 6.5
-Requires PHP: 7.0
-Tested up to: 6.6
+Requires at least: 6.6
+Requires PHP: 7.2
+Tested up to: 6.7
 Stable tag: 0.1.0-alpha
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html

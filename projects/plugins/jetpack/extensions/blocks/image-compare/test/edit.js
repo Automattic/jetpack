@@ -5,7 +5,7 @@ import ImageCompareEdit from '../edit';
  * Render image compare.
  *
  * @param {object} props - Props.
- * @returns {HTMLElement} Element.
+ * @return {HTMLElement} Element.
  */
 function renderImageCompare( props ) {
 	const { container } = render( <ImageCompareEdit { ...props } /> );

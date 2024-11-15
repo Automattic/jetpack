@@ -29,6 +29,7 @@ class WpcomshTest extends WP_UnitTestCase {
 		$div_skip                       = '<div class="skip-make-clickable test">https://wp.com</div>';
 		$custom_element                 = '<custom-element>https://wp.com</custom-element>';
 		$custom_element_starts_with_pre = '<presto-player>https://wp.com</presto-player>';
+		$link_inside_tag_inside_attr    = "\n" . '<li data-test="<a href=\&quot;https://wp.com\&quot;&gt;Link</a&gt;"></li>';
 
 		$original_content = '' .
 		$script .
@@ -40,7 +41,8 @@ class WpcomshTest extends WP_UnitTestCase {
 		$textarea .
 		$div_skip .
 		$custom_element .
-		$custom_element_starts_with_pre;
+		$custom_element_starts_with_pre .
+		$link_inside_tag_inside_attr;
 
 		$expected_output = '' .
 		'<script>https://wp.com</script>' .
@@ -52,7 +54,8 @@ class WpcomshTest extends WP_UnitTestCase {
 		'<textarea>https://wp.com</textarea>' .
 		'<div class="skip-make-clickable test">https://wp.com</div>' .
 		'<custom-element><a href="https://wp.com" rel="nofollow">https://wp.com</a></custom-element>' . // Made clickable
-		'<presto-player><a href="https://wp.com" rel="nofollow">https://wp.com</a></presto-player>'; // Made clickable even if it starts with `<pre`
+		'<presto-player><a href="https://wp.com" rel="nofollow">https://wp.com</a></presto-player>' . // Made clickable even if it starts with `<pre`
+		"\n" . '<li data-test="<a href=\&quot;https://wp.com\&quot;&gt;Link</a&gt;"></li>'; // Don't make clickable if it's inside a tag inside an attribute.
 
 		$this->assertEquals( $expected_output, wpcomsh_make_content_clickable( $original_content ) );
 	}

@@ -1,13 +1,13 @@
 import { Gridicon } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
-import React from 'react';
+import React, { useId } from 'react';
 import TextRowPlaceHolder from './placeholder';
 import './mocked-instant-search.scss';
 
 /**
  * Generate mocked instant search dialog
  *
- * @returns {React.Component}	Mocked Search instant dialog component.
+ * @return {React.Component} Mocked Search instant dialog component.
  */
 export default function MockedInstantSearch() {
 	return (
@@ -62,14 +62,18 @@ export default function MockedInstantSearch() {
 	);
 }
 
-const MockedFilterOption = () => (
-	<div className="jp-mocked-instant-search__search-filter">
-		<label>
-			<input type="checkbox" disabled="disabled" />{ ' ' }
-			<TextRowPlaceHolder style={ { width: '30%' } } />
-		</label>
-	</div>
-);
+const MockedFilterOption = () => {
+	const id = useId();
+
+	return (
+		<div className="jp-mocked-instant-search__search-filter">
+			<label htmlFor={ id }>
+				<input id={ id } type="checkbox" disabled="disabled" />{ ' ' }
+				<TextRowPlaceHolder style={ { width: '30%' } } />
+			</label>
+		</div>
+	);
+};
 
 const MockedSearchResult = () => (
 	<div className="jp-mocked-instant-search__search-result">

@@ -1,13 +1,11 @@
 import { JETPACK_CONTACT_BETA_SUPPORT } from 'constants/urls';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import ConnectionBanner from 'components/connection-banner';
 import NoticesList from 'components/global-notices';
 import SimpleNotice from 'components/notice';
 import NoticeAction from 'components/notice/notice-action.jsx';
-import cookie from 'cookie';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
@@ -30,14 +28,10 @@ import {
 	userCanConnectSite,
 	userIsSubscriber,
 	getConnectionErrors,
-	getSiteAdminUrl,
-	isWoASite,
 } from 'state/initial-state';
 import { getLicensingError, clearLicensingError } from 'state/licensing';
-import { getModule } from 'state/modules';
 import { getSiteDataErrors } from 'state/site';
-import { isPluginActive } from 'state/site/plugins';
-import { StartFreshDeprecationWarning } from '../../writing/custom-css';
+import DeprecationNotice from './deprecation-notice';
 import DismissableNotices from './dismissable';
 import JetpackConnectionErrors from './jetpack-connection-errors';
 import PlanConflictWarning from './plan-conflict-warning';
@@ -182,43 +176,16 @@ UserUnlinked.propTypes = {
 class JetpackNotices extends React.Component {
 	static displayName = 'JetpackNotices';
 
-	constructor( props ) {
-		super( props );
-
-		const cookieParsed = cookie.parse( document.cookie );
-		this.state = {
-			isGoogleAnalyticsNoticeDismissed:
-				cookieParsed &&
-				cookieParsed.hasOwnProperty(
-					'jetpack_deprecate_dismissed[jetpack-ga-admin-removal-notice]'
-				) &&
-				'1' === cookieParsed[ 'jetpack_deprecate_dismissed[jetpack-ga-admin-removal-notice]' ],
-		};
-
-		this.dismissGoogleAnalyticsNotice = this.dismissGoogleAnalyticsNotice.bind( this );
-	}
-
-	dismissGoogleAnalyticsNotice() {
-		document.cookie = cookie.serialize(
-			'jetpack_deprecate_dismissed[jetpack-ga-admin-removal-notice]',
-			'1',
-			{
-				path: '/',
-				maxAge: 365 * 24 * 60 * 60,
-				SameSite: 'None',
-			}
-		);
-		this.setState( { isGoogleAnalyticsNoticeDismissed: true } );
-	}
+	dismissNotice = noticeKey => {
+		document.cookie = `jetpack_deprecate_dismissed[${ noticeKey }]=1; expires=Fri, 31 Dec 9999 23:59:59 GMT; path=/; Secure; SameSite=None`;
+	};
 
 	render() {
 		const siteDataErrors = this.props.siteDataErrors.filter( error =>
-			error.hasOwnProperty( 'action' )
+			Object.hasOwn( error, 'action' )
 		);
 
 		const isUserConnectScreen = this.props.location.pathname.startsWith( '/connect-user' );
-		const showGoogleAnalyticsNotice =
-			this.props.showGoogleAnalyticsNotice && ! this.state.isGoogleAnalyticsNoticeDismissed;
 
 		return (
 			<div aria-live="polite">
@@ -272,26 +239,20 @@ class JetpackNotices extends React.Component {
 						onDismissClick={ this.props.clearLicensingError }
 					/>
 				) }
-				{ this.props.startFreshEnabled && (
-					<SimpleNotice status="is-warning" showDismiss={ false }>
-						<StartFreshDeprecationWarning siteAdminUrl={ this.props.siteAdminUrl } />
-					</SimpleNotice>
-				) }
-				{ showGoogleAnalyticsNotice && (
-					<SimpleNotice
-						status="is-warning"
-						dismissText={ __( 'Dismiss', 'jetpack' ) }
-						onDismissClick={ this.dismissGoogleAnalyticsNotice }
-					>
-						<div>{ __( "Jetpack's Google Analytics has been removed.", 'jetpack' ) }</div>
-						<ExternalLink href={ getRedirectUrl( 'jetpack-support-google-analytics' ) }>
-							{ __(
-								'To keep tracking visits and more information on this change, please refer to this document',
-								'jetpack'
-							) }
-						</ExternalLink>
-					</SimpleNotice>
-				) }
+
+				{ window.noticeInfo &&
+					Object.entries( window.noticeInfo ).map( ( [ noticeKey, { title, message, link } ] ) => (
+						<DeprecationNotice
+							key={ noticeKey }
+							noticeKey={ noticeKey }
+							// eslint-disable-next-line react/jsx-no-bind
+							dismissNotice={ () => this.dismissNotice( noticeKey ) }
+							title={ title }
+							message={ message }
+							link={ getRedirectUrl( link.url ) }
+							linkText={ link.label }
+						/>
+					) ) }
 			</div>
 		);
 	}
@@ -316,20 +277,6 @@ export default connect(
 			isReconnectingSite: isReconnectingSite( state ),
 			licensingError: getLicensingError( state ),
 			hasConnectedOwner: hasConnectedOwner( state ),
-			siteAdminUrl: getSiteAdminUrl( state ),
-			startFreshEnabled: !! getModule( state, 'custom-css' )?.options?.replace,
-			showGoogleAnalyticsNotice:
-				window.Initial_State?.isGoogleAnalyticsActive &&
-				! isWoASite( state ) &&
-				isPluginActive(
-					// Making sure the plugins are loaded with no flickering caused by "isFetchingPluginsData".
-					state,
-					'jetpack/jetpack.php'
-				) &&
-				! isPluginActive(
-					state,
-					'jetpack-legacy-google-analytics/jetpack-legacy-google-analytics.php'
-				),
 		};
 	},
 	dispatch => {

@@ -580,7 +580,7 @@ class Sender {
 	 * @access private
 	 */
 	private function fastcgi_finish_request() {
-		if ( function_exists( 'fastcgi_finish_request' ) && version_compare( phpversion(), '7.0.16', '>=' ) ) {
+		if ( function_exists( 'fastcgi_finish_request' ) ) {
 			fastcgi_finish_request();
 		}
 	}

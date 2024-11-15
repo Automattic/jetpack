@@ -7,14 +7,13 @@ import { useCallback } from 'react';
 /*
  * Internal dependencies
  */
-import { ALL_EXTENDED_BLOCKS } from '../../extensions/ai-assistant';
-import { getStoreBlockId } from '../../extensions/ai-assistant/with-ai-assistant';
 import { getBlocksContent } from '../../lib/utils/block-content';
-import { transformToAIAssistantBlock } from '../../transforms';
+import { TRANSFORMABLE_BLOCKS, transformToAIAssistantBlock } from '../../transforms';
 /*
  * Types
  */
 import type { AiAssistantDropdownOnChangeOptionsArgProps } from '../../components/ai-assistant-toolbar-dropdown/dropdown-content';
+import type { ExtendedBlockProp } from '../../extensions/constants';
 import type { PromptTypeProp } from '../../lib/prompt';
 import type { Block } from '@automattic/jetpack-ai-client';
 
@@ -30,6 +29,10 @@ type CoreBlockEditorSelect = {
 	getBlocksByClientId: ( clientIds: string[] ) => Block[];
 	getBlockParents: ( clientId: string ) => string[];
 };
+
+export function getStoreBlockId( clientId ) {
+	return `ai-assistant-block-${ clientId }`;
+}
 
 const useTransformToAssistant = () => {
 	const { replaceBlock, removeBlocks } = useDispatch(
@@ -53,8 +56,7 @@ const useTransformToAssistant = () => {
 				return false;
 			}
 
-			// The block must be an extended block
-			if ( ! ALL_EXTENDED_BLOCKS.includes( blockName ) ) {
+			if ( ! TRANSFORMABLE_BLOCKS.includes( blockName ) ) {
 				return false;
 			}
 
@@ -97,7 +99,7 @@ const useTransformToAssistant = () => {
 			};
 
 			const newAIAssistantBlock = transformToAIAssistantBlock(
-				firstBlock.name as string,
+				firstBlock.name as ExtendedBlockProp,
 				extendedBlockAttributes
 			);
 

@@ -1,4 +1,4 @@
-## Jetpack 13.7
+## Jetpack 14.0
 
 ### Before you start:
 
@@ -10,88 +10,89 @@
   - Or add the following to something like a code snippet plugin: `add_filter( 'jetpack_blocks_variation', function () { return 'beta'; } );`
 	- To test Breve further in the document please enable the feature with the following snippet: `add_filter( 'breve_enabled', '__return_true' );`
 
-### Jetpack Blocks
+### AI Logo Generator
 
-Several blocks have been migrated to Jetpack's code.
+On top of the already available AI Logo generator, we've now added a styles dropdown to allow more control for the user without depending entirely on the provided prompt.
 
-#### The Timeline block
+The logo generator is not available for free users, test with a plan or subscription. Also, it's currenlty available for a12s only (and will soon be open to public).
 
-- Open the editor and insert the Timeline block.
-- Add any timeline entry.
-- Enable the Alternate items setting of the block.
-- Toggle the left/right alignment setting of the block.
-- Configure the background color of the block.
-- Make sure everything works as expected.
-- Make sure the block looks good on your frontend page.
+- Load the editor and add a Logo block.
+- On the network tab you should see a request to `ai-assistant-feature`
+  - If using an a11n account (or focing the filter to `true`), the response should include `featuresControl['logo-generator'].styles` as a collection of style objects.
+  - If NOT using an a11n account, the `styles` property should be an empty array.
+```
+{
+  ...
+  featuresControl: {
+    'logo-generator': {
+      enabled: true,
+      styles: [ COLLECTION OF SYLES HERE ]
+    }
+  }
+}
+```
+- Use the block's AI toolbar button to open the Logo generator modal, you should see a style dropdown on the top-right corner
+- Feel free to play with the styles to achieve different results
+- Confirm that using style "Auto" will try to guess the style based on the prompt (AI query request) and set the style prior to sending the image generation request
+- If possible, try different combinations of plans and cases:
+  - use `add_filter( 'jetpack_ai_tier_licensed_quantity', function() { return 0 | 100 | 1; } );` on your `0-sandbox.php` file filter to mock free/tier100/unlimited plans
+	- sandbox the API, but then don't connect to sandbox to mock a disconnected situation
 
-#### The Event Countdown block
+### AI Image Generator
 
-- Go to the editor and insert an Event Countdown block.
-- Fill in both title and date.
-- Preview your changes on frontend.
-- Make sure everything works and looks as expected.
-- Make sure the celebration shows when countdown finishes.
+The styles added to the logo generator are now also available on general image creation.
+It is currently only available for a12s as well, so test in a site where you are logged in with your A8c account.
 
-### Jetpack Dashboard
+The testing steps are the same as the logo generator steps above, except that now you should add an Image block instead and click on the "Generate with AI" button.
 
-Jetpack is currently getting ready to switch to React 19 with the next WordPress release, and some work is already merged into the code. Keeping this in mind note any problems that appear in the Jetpack Dashboard. The changes could affect things like popovers, setting toggles, tab switching, etc. 
+### Floating subscribe button
 
-#### The Jetpack AI card
+- Go to Jetpack -> Settings -> Newsletter.
+- Enable the “floating subscribe button”. Enable newsletter features first if these toggles are disabled.
+- On the frontend of the site, you should now see a floating subscribe button at the bottom/right corner.
+- If you’re using a block theme, next to the toggle, you see “preview and edit.” Clicking this should bring you to the site editor, where you can modify the button’s appearance.
 
-The Jetpack AI card has been added to the Dashboard. To test it:
+### Email Preview dropdown
 
-- Go to the Jetpack dashboard.
-- See the new card is shown at the bottom of the list. It should be in inactive state showing the "Upgrade" button.
-- Click the "Upgrade" button, you should land in the interstitial for Jetpack AI.
-- Proceed with a purchase. Once finished, go to Jetpack dashboard again.
-- See that the card is now active and reads "All features" button.
-- Click the "All features" button, you should land in My Jetpack's AI product page.
+- You can preview blog posts as an email from post editor’s “Preview” dropdown when using latest Gutenberg or current RC release of core WordPress.
 
-### AI Assistant
+### Newsletter default settings
 
-#### The AI Logo Generator
+- On a new Jetpack site, go to Jetpack -> Settings -> Newsletter, then:
+	- **Featured image**: “Whether to include the featured image in the email or not” setting default to disabled, can you can change it here. The emails have feature image set when enabled, when disabled no featured images in emails.
+	- **Excerpts**: From WordPress settings, set excerpt for RSS feeds enabled. In the newsletter settings, “For each new post email, include…” still defaults to “full text” and not to “excerpt”. New blog emails are sent in full, not as excerpt, while RSS feeds are shown with excerpts.
+	- **Replies**: default is set to “comments”, not to “no replies” or “reply to author”.
 
-The AI Logo Generator feature has received a lot of improvements in this release. Test its functionality in different scenarios, here's an example:
+### Don’t show subscription modals when a URL param is present
 
-- Make sure your testing site has a paid tier for Jetpack AI.
-- Go to the block editor and add a Site Logo block.
-- Look for the AI extension icon on the block toolbar and click on it.
-- Confirm the logo generator modal opens.
-- If that is the first time you open it, wait for the first logo to be generated.
-- If not, confirm you see your history of logos and can generate another one.
-- When you have a logo you like, click the "Use on block" button.
-- Confirm the logo generator modal will show the confirmation screen with the newly generated logo, don't close it yet.
-- Confirm the "Learn more about Jetpack AI" link in the confirmation screen leads you to the Jetpack AI product page on Jetpack.com.
-- Confirm the modal can be closed after clicking the link (or the close button, or the X button at the top).
-- Confirm the logo block is updated with the new logo.
-- Save the post so the new logo is set on the site. There should be a confirmation step on the sidebar, asking you to allow updating the logo.
-- Confirm you can click on the AI extension button again and choose a new logo, that will replace the previous one correctly.
-- Bonus points for testing it in the site editor.
+- Enable subscription modals on posts (“popup”) and frontend (“overlay”) in the newsletter settings.
+- Try loading a post or the frontpage, the modal should pop up. Do not dismiss it!
+- Add `?jetpack_skip_subscription_popup` to the URL and load the page again.
+- The modal should not show anymore.
+- Remove `?jetpack_skip_subscription_popup` from the URL. The modal/popup should remain hidden on subsequent reloads.
 
-#### Breve
+### Story block
 
-The Breve proofreader feature has also received various improvements. Here's a simple testing scenario:
+- Create a “Story” block in a post/page.
+- Upload a couple of images.
+- Check the front-end: clicking on the block should “run the story” by switching pictures, not simply reload the page.
 
-- Make sure Breve is enabled, and beta blocks are available, as specified in the "Before you start" section.
-- Go to your editor, add text, you can ask the AI Assistant to generate it for you.
-- See Breve highlights, hover over them and make sure you can ask for a suggestion.
-- When you click the Suggest button, the animation should happen, and you should get your suggestion.
-- Try formatting your text using bold, italic, various font colors, etc.
-- Highlights should work on these words too.
+### WordPress 6.7 Compatibility
 
-#### Sidebar
-
-There are now action links for the AI Assistant block. To test:
-
-- Open the editor and insert an AI Assistant block.
-- On the block card (header of the block inspector) you should see a link "Discover all features".
-- Clicking the link should autosave any changes and land you on My Jetpack's product page for AI.
-- If My Jetpack is not available (Testing on Atomic) the link should show as external link and open Jetpack.com/ai on a new page.
-- Open Jetpack sidebar and uncollapse the AI Assistant section.
-- At the bottom of the section, you should see a link "Learn more about Jetpack AI".
-- Link should behave as the above one (link to AI page on My Jetpack or open new tab to Jetpack.com/ai otherwise).
+- Install the WordPress Beta Tester plugin.
+- Go to Tools > Beta Testing, and set the plugin to use Beta/RC Only (as we’re now in the RC stage of the 6.7 release – nightly will give you 6.8).
+- Go to Dashboard > Updates, and update to the most recent Beta/RC version of WordPress.
+- Test the following:
+	- Ensure that Jetpack (and standalone) features work as expected. Note and report any errors/warnings in error logs and console logs.
+	- Add different blocks and test inspector controls.
+	- Change the site language (from Settings > General), update the language (from `/wp-admin/update-core.php`), and test Jetpack features. Check for errors in the site’s error log.
 
 ### And More!
+
+Other particularly noteworthy changes in 14.0 include:
+
+- Support for Bluesky in Jetpack Social.
+- Related Posts block can now be used on non-post CPTs.
 
 You can see a [full list of changes in this release here](https://github.com/Automattic/jetpack-production/blob/trunk/CHANGELOG.md). Please feel free to test any and all functionality mentioned!
 
