@@ -13,38 +13,34 @@ const CornerstoneTitleSummary = () => {
 	if ( ! cornerstonePages.length ) {
 		return null;
 	}
-	return (
-		<>
-			{ sprintf(
-				/* translators: %s is the number of pages in the cornerstone pages list apart from the homepage. */
-				__( 'Added: %s', 'jetpack-boost' ),
-				() => {
-					const homepage = Jetpack_Boost.site.url.replace( /\/$/, '' );
-					const hasHomepage = cornerstonePages.includes( homepage );
+	return sprintf(
+		/* translators: %s is the number of pages in the cornerstone pages list apart from the homepage. */
+		__( 'Added: %s', 'jetpack-boost' ),
+		() => {
+			const homepage = Jetpack_Boost.site.url.replace( /\/$/, '' );
+			const hasHomepage = cornerstonePages.includes( homepage );
 
-					if ( hasHomepage ) {
-						if ( cornerstonePages.length > 1 ) {
-							return sprintf(
-								/* translators: %d is the number of pages in the cornerstone pages list apart from the homepage. */
-								_n(
-									'Homepage + %d page',
-									'Homepage + %d pages',
-									cornerstonePages.length - 1,
-									'jetpack-boost'
-								),
-								cornerstonePages.length - 1
-							);
-						}
-						return __( 'Homepage', 'jetpack-boost' );
-					}
+			if ( hasHomepage ) {
+				if ( cornerstonePages.length > 1 ) {
 					return sprintf(
-						/* translators: %d is the number of pages added to the cornerstone pages list. */
-						_n( '%d page', '%d pages', cornerstonePages.length, 'jetpack-boost' ),
-						cornerstonePages.length
+						/* translators: %d is the number of pages in the cornerstone pages list apart from the homepage. */
+						_n(
+							'Homepage + %d page',
+							'Homepage + %d pages',
+							cornerstonePages.length - 1,
+							'jetpack-boost'
+						),
+						cornerstonePages.length - 1
 					);
 				}
-			) }
-		</>
+				return __( 'Homepage', 'jetpack-boost' );
+			}
+			return sprintf(
+				/* translators: %d is the number of pages added to the cornerstone pages list. */
+				_n( '%d page', '%d pages', cornerstonePages.length, 'jetpack-boost' ),
+				cornerstonePages.length
+			);
+		}
 	);
 };
 const CornerstonePages = () => {
@@ -53,20 +49,16 @@ const CornerstonePages = () => {
 
 	return (
 		<div className={ styles[ 'cornerstone-pages' ] }>
-			<Panel className={ styles[ 'components-panel' ] }>
+			<Panel className={ styles.panel }>
 				<PanelBody
 					title={
 						<div>
-							<div>
-								<h3>
-									{ __( 'Cornerstone Pages', 'jetpack-boost' ) }
-									<Pill text={ __( 'Experimental', 'jetpack-boost' ) } />
-									{ isPremium && <Upgraded /> }
-								</h3>
-							</div>
-							<div>
-								<CornerstoneTitleSummary />
-							</div>
+							<h3>
+								{ __( 'Cornerstone Pages', 'jetpack-boost' ) }
+								<Pill text={ __( 'Experimental', 'jetpack-boost' ) } />
+								{ isPremium && <Upgraded /> }
+							</h3>
+							<CornerstoneTitleSummary />
 						</div>
 					}
 					initialOpen={ false }
@@ -75,7 +67,7 @@ const CornerstonePages = () => {
 							status: value ? 'open' : 'close',
 						} );
 					} }
-					className={ styles[ 'cornerstone-pages-body' ] }
+					className={ styles.body }
 				>
 					<PanelRow>
 						<Meta />

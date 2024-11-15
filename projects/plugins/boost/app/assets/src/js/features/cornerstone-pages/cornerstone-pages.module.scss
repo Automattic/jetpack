@@ -2,7 +2,7 @@
 	margin-top: 3em;
 	margin-bottom: 3em;
 
-	:global(.components-panel) {
+	.panel {
 		border-radius: 8px;
 	}
 
@@ -11,7 +11,7 @@
 		font-weight: 400;
 	}
 
-	&-body {
+	.body {
 		border-color: transparent;
 	}
 }
