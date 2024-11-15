@@ -1,5 +1,4 @@
-Significance: patch
+Significance: major
 Type: removed
-Comment: Additional cleanup of old PHP + WP version support.
 
-
+Remove JSX runtime polyfill, now that we've dropped support for WordPress < 6.6.
