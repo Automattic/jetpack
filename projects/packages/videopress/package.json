@@ -42,6 +42,7 @@
 		"@types/react-dom": "18.3.1",
 		"@wordpress/browserslist-config": "6.11.0",
 		"autoprefixer": "10.4.14",
+		"concurrently": "7.6.0",
 		"copy-webpack-plugin": "11.0.0",
 		"jest": "29.7.0",
 		"jest-environment-jsdom": "29.7.0",

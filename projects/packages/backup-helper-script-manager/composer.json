@@ -50,7 +50,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-backup-helper-script-manager/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "0.2.x-dev"
+			"dev-trunk": "0.3.x-dev"
 		}
 	},
 	"config": {
