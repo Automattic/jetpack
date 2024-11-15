@@ -128,9 +128,9 @@ export default function FeaturedImage( {
 	 * Handle the guess style for the image. It is reworked here to include the post content.
 	 */
 	const handleGuessStyle = useCallback(
-		prompt => {
+		userPrompt => {
 			const content = postTitle + '\n\n' + postContent;
-			return guessStyle( prompt, 'featured-image-guess-style', content );
+			return guessStyle( userPrompt, 'featured-image-guess-style', content );
 		},
 		[ postContent, postTitle, guessStyle ]
 	);
