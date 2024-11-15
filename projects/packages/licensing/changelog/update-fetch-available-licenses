@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Exclude revoked licenses from results when filtering unattached licenses in `Licensing::get_user_licenses()`. Only unattached and valid licenses are now returned.
