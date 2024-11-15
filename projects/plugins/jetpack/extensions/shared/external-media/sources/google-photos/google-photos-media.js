@@ -170,6 +170,7 @@ function GooglePhotosMedia( props ) {
 				className="jetpack-external-media-browser__google"
 				key={ listUrl }
 				media={ media }
+				imageOnly={ imageOnly }
 				isCopying={ isCopying }
 				isLoading={ isLoading }
 				nextPage={ getNextPage }

@@ -20,6 +20,7 @@ function MediaBrowser( props ) {
 		media,
 		isCopying,
 		isLoading,
+		imageOnly,
 		pageHandle,
 		className,
 		multiple,
@@ -191,6 +192,7 @@ function MediaBrowser( props ) {
 				{ media.map( ( item, index ) => (
 					<MediaItem
 						item={ item }
+						imageOnly={ imageOnly }
 						index={ index }
 						key={ item.ID }
 						onClick={ handleMediaItemClick }
