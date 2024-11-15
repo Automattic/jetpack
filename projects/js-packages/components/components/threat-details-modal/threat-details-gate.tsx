@@ -1,12 +1,9 @@
-import { Text, Button } from '@automattic/jetpack-components';
 import { type Threat } from '@automattic/jetpack-scan';
-import { Notice } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
 import React, { ReactNode, Dispatch, SetStateAction } from 'react';
-import ThreatSeverityBadge from '../threat-severity-badge';
-import styles from './styles.module.scss';
 import ThreatActions from './threat-actions';
 import ThreatFixDetails from './threat-fix-details';
+import ThreatNotice from './threat-notice';
+import ThreatSummary from './threat-summary';
 import ThreatTechnicalDetails from './threat-technical-details';
 
 /**
@@ -58,47 +55,10 @@ const ThreatDetailsGate = ( {
 	if ( showThreatDetails ) {
 		return (
 			<>
-				{ fixerState?.error && (
-					<Notice isDismissible={ false } status="error">
-						<Text>{ __( 'An error occurred auto-fixing this threat.', 'jetpack' ) }</Text>
-					</Notice>
-				) }
-				{ fixerState?.stale && (
-					<Notice isDismissible={ false } status="error">
-						<Text>{ __( 'The auto-fixer is taking longer than expected.', 'jetpack' ) }</Text>
-					</Notice>
-				) }
-				{ fixerState?.inProgress && ! fixerState?.stale && (
-					<Notice isDismissible={ false } status="success">
-						<Text>{ __( 'The auto-fixer is in progress.', 'jetpack' ) }</Text>
-					</Notice>
-				) }
-				<div className={ styles.section }>
-					<div className={ styles.title }>
-						<Text variant="title-small">{ title }</Text>
-						{ !! threat.severity && <ThreatSeverityBadge severity={ threat.severity } /> }
-					</div>
-
-					{ !! threat.description && <Text>{ threat.description }</Text> }
-
-					{ !! threat.source && (
-						<div>
-							<Button
-								variant="link"
-								isExternalLink={ true }
-								weight="regular"
-								href={ threat.source }
-							>
-								{ __( 'See more technical details of this threat', 'jetpack' ) }
-							</Button>
-						</div>
-					) }
-				</div>
-
+				<ThreatNotice fixerState={ fixerState } />
+				<ThreatSummary threat={ threat } title={ title } />
 				<ThreatFixDetails threat={ threat } handleUpgradeClick={ handleUpgradeClick } />
-
 				<ThreatTechnicalDetails threat={ threat } />
-
 				<ThreatActions
 					threat={ threat }
 					closeModal={ closeModal }
