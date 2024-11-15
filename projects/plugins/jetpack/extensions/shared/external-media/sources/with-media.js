@@ -180,7 +180,7 @@ export default function withMedia( mediaSource = MediaSource.Unknown ) {
 					.catch( this.handleApiError );
 			};
 
-			copyMedia = ( items, apiUrl, source ) => {
+			copyMedia = ( items, apiUrl, source, shouldProxy = false ) => {
 				this.setState( { isCopying: items } );
 				this.props.noticeOperations.removeAllNotices();
 
@@ -202,6 +202,7 @@ export default function withMedia( mediaSource = MediaSource.Unknown ) {
 						} ) ),
 						service: source, // WPCOM.
 						post_id: this.props.postId,
+						should_proxy: shouldProxy,
 					},
 				} )
 					.then( result => {

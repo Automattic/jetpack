@@ -82,9 +82,14 @@ function GooglePhotosMedia( props ) {
 
 	const onCopy = useCallback(
 		items => {
-			copyMedia( items, getApiUrl( 'copy', SOURCE_GOOGLE_PHOTOS ), SOURCE_GOOGLE_PHOTOS );
+			copyMedia(
+				items,
+				getApiUrl( 'copy', SOURCE_GOOGLE_PHOTOS ),
+				SOURCE_GOOGLE_PHOTOS,
+				pickerFeatureEnabled
+			);
 		},
-		[ copyMedia ]
+		[ copyMedia, pickerFeatureEnabled ]
 	);
 
 	const onChangeSelection = useCallback( () => {
