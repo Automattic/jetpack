@@ -1,5 +1,5 @@
-import { Spinner } from '@wordpress/components';
 import { useEffect, useState } from 'react';
+import MediaLoadingPlaceholder from '../../media-browser/placeholder';
 import { MediaSource } from '../../media-service/types';
 import withMedia from '../with-media';
 import GooglePhotosAuth from './google-photos-auth';
@@ -18,17 +18,13 @@ function GooglePhotos( props ) {
 	}, [ getPickerStatus ] );
 
 	useEffect( () => {
-		if ( ! pickerSession || ! isPickerSessionAccurate ) {
+		if ( pickerFeatureEnabled && isAuthenticated && ! isPickerSessionAccurate ) {
 			createPickerSession();
 		}
-	}, [ pickerSession, createPickerSession, isPickerSessionAccurate ] );
+	}, [ pickerFeatureEnabled, isPickerSessionAccurate, isAuthenticated, createPickerSession ] );
 
-	if ( pickerFeatureEnabled === null || ( pickerFeatureEnabled && ! isPickerSessionAccurate ) ) {
-		return (
-			<div className="jetpack-external-media__spinner-container">
-				<Spinner />
-			</div>
-		);
+	if ( pickerFeatureEnabled === null ) {
+		return <MediaLoadingPlaceholder />;
 	}
 
 	if ( ! isAuthenticated ) {
