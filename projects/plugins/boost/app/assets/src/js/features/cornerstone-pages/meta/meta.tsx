@@ -1,4 +1,4 @@
-import { Button, Notice } from '@automattic/jetpack-components';
+import { Button, getRedirectUrl, Notice } from '@automattic/jetpack-components';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import React, { useEffect, useState } from 'react';
 import clsx from 'clsx';
@@ -17,6 +17,7 @@ import { isSameSiteUrl } from '$lib/utils/is-same-site-url';
 import UpgradeCTA from '$features/upgrade-cta/upgrade-cta';
 
 const Meta = () => {
+	const cornerstonePagesSupportLink = getRedirectUrl( 'jetpack-boost-cornerstone-pages' );
 	const [ cornerstonePages, setCornerstonePages ] = useCornerstonePages();
 	const cornerstonePagesProperties = useCornerstonePagesProperties();
 	const [ { refetch: refetchRegenerationReason } ] = useRegenerationReason();
@@ -106,11 +107,7 @@ const Meta = () => {
 					{
 						link: (
 							// eslint-disable-next-line jsx-a11y/anchor-has-content
-							<a
-								href="https://jetpack.com/support/jetpack-boost/cornerstone-pages/ "
-								target="_blank"
-								rel="noopener noreferrer"
-							/>
+							<a href={ cornerstonePagesSupportLink } target="_blank" rel="noopener noreferrer" />
 						),
 						b: <b />,
 					}
