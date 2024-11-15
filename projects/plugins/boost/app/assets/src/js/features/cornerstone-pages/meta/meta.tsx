@@ -242,7 +242,7 @@ const List: React.FC< ListProps > = ( {
 					className={ styles.button }
 					variant="link"
 				>
-					{ __( 'Load Default', 'jetpack-boost' ) }
+					{ __( 'Load default pages', 'jetpack-boost' ) }
 				</Button>
 			</div>
 			{ ! isPremium && cornerstonePagesProperties && (
