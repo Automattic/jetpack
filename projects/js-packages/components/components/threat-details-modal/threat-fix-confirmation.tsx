@@ -7,7 +7,7 @@ import ThreatSummary from './threat-summary';
 import ThreatTechnicalDetails from './threat-technical-details';
 import UserConnectionGate from './user-connection-gate';
 
-const ThreatFixerModal = ( {
+const ThreatFixConfirmation = ( {
 	title,
 	threat,
 	fixerState,
@@ -54,14 +54,14 @@ const ThreatFixerModal = ( {
 				<ThreatTechnicalDetails threat={ threat } />
 				<ThreatActions
 					threat={ threat }
+					fixerState={ fixerState }
 					handleFixThreatClick={ handleFixThreatClick }
 					handleIgnoreThreatClick={ handleIgnoreThreatClick }
 					handleUnignoreThreatClick={ handleUnignoreThreatClick }
-					fixerState={ fixerState }
 				/>
 			</CredentialsGate>
 		</UserConnectionGate>
 	);
 };
 
-export default ThreatFixerModal;
+export default ThreatFixConfirmation;

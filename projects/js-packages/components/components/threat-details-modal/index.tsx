@@ -4,7 +4,7 @@ import { __ } from '@wordpress/i18n';
 import { useMemo, useState, createContext, useCallback } from 'react';
 import styles from './styles.module.scss';
 import ThreatDetailsGate from './threat-details-gate';
-import ThreatFixerModal from './threat-fixer-modal';
+import ThreatFixConfirmation from './threat-fix-confirmation';
 interface ThreatDetailsModalContextType {
 	closeModal: () => void;
 	showThreatDetails: boolean;
@@ -105,7 +105,7 @@ export default function ThreatDetailsModal( {
 						fixerState={ fixerState }
 						handleUpgradeClick={ handleUpgradeClick }
 					>
-						<ThreatFixerModal
+						<ThreatFixConfirmation
 							title={ title }
 							threat={ threat }
 							fixerState={ fixerState }

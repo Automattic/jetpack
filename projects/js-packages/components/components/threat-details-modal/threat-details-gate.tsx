@@ -1,6 +1,6 @@
 import { type Threat } from '@automattic/jetpack-scan';
 import React, { ReactNode, useContext } from 'react';
-import ThreatDetailsActions from './threat-details-actions';
+import ThreatActions from './threat-actions';
 import ThreatFixDetails from './threat-fix-details';
 import ThreatNotice from './threat-notice';
 import ThreatSummary from './threat-summary';
@@ -44,7 +44,7 @@ const ThreatDetailsGate = ( {
 				<ThreatSummary threat={ threat } title={ title } />
 				<ThreatFixDetails threat={ threat } handleUpgradeClick={ handleUpgradeClick } />
 				<ThreatTechnicalDetails threat={ threat } />
-				<ThreatDetailsActions threat={ threat } fixerState={ fixerState } />
+				<ThreatActions threat={ threat } fixerState={ fixerState } />
 			</>
 		);
 	}
