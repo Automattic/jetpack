@@ -1,3 +1,7 @@
+## [3.1.12] - 2024-11-14
+### Changed
+- Update dependencies.
+
 ## [3.1.11] - 2024-11-11
 ### Added
 - Added post-build tests. [#38224]
@@ -168,6 +172,7 @@
 
 - Build: Refactored (aligned build system with Gridicons).
 
+[3.1.12]: https://github.com/Automattic/social-logos/compare/v3.1.11...v3.1.12
 [3.1.11]: https://github.com/Automattic/social-logos/compare/v3.1.10...v3.1.11
 [3.1.10]: https://github.com/Automattic/social-logos/compare/v3.1.9...v3.1.10
 [3.1.9]: https://github.com/Automattic/social-logos/compare/v3.1.8...v3.1.9

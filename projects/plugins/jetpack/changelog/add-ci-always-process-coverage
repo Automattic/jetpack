@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Always run all coverage, don't kill if one fails.
+
+

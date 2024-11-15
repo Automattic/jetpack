@@ -48,7 +48,7 @@
 			"link-template": "https://github.com/automattic/jetpack-ip/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "0.3.x-dev"
+			"dev-trunk": "0.4.x-dev"
 		},
 		"textdomain": "jetpack-ip",
 		"version-constants": {

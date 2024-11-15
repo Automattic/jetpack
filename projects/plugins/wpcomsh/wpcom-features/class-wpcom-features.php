@@ -87,6 +87,9 @@ class WPCOM_Features {
 	private const JETPACK_SECURITY_DAILY_MONTHLY              = 'jetpack_security_daily_monthly'; // 2011
 	private const JETPACK_SECURITY_REALTIME                   = 'jetpack_security_realtime'; // 2012
 	private const JETPACK_SECURITY_REALTIME_MONTHLY           = 'jetpack_security_realtime_monthly'; // 2013
+	private const JETPACK_GROWTH_BI_YEARLY                    = 'jetpack_growth_bi_yearly'; // 2023
+	private const JETPACK_GROWTH_YEARLY                       = 'jetpack_growth_yearly'; // 2022
+	private const JETPACK_GROWTH_MONTHLY                      = 'jetpack_growth_monthly'; // 2021
 	private const JETPACK_COMPLETE_BI_YEARLY                  = 'jetpack_complete_bi_yearly'; // 2035
 	private const JETPACK_COMPLETE                            = 'jetpack_complete'; // 2014
 	private const JETPACK_COMPLETE_MONTHLY                    = 'jetpack_complete_monthly'; // 2015
@@ -196,6 +199,7 @@ class WPCOM_Features {
 	// WPCOM "Level 2": Groups of level 1s.
 	private const WPCOM_BLOGGER_PLANS           = array( self::BLOGGER_BUNDLE, self::BLOGGER_BUNDLE_2Y );
 	private const WPCOM_PERSONAL_PLANS          = array( self::PERSONAL_BUNDLE, self::PERSONAL_BUNDLE_MONTHLY, self::PERSONAL_BUNDLE_2Y, self::PERSONAL_BUNDLE_3Y );
+	private const JETPACK_GROWTH_PLANS          = array( self::JETPACK_GROWTH_BI_YEARLY, self::JETPACK_GROWTH_YEARLY, self::JETPACK_GROWTH_MONTHLY );
 	private const WPCOM_STARTER_PLANS           = array( self::STARTER_PLAN );
 	private const WPCOM_PREMIUM_PLANS           = array( self::BUNDLE_PRO, self::VALUE_BUNDLE, self::VALUE_BUNDLE_MONTHLY, self::VALUE_BUNDLE_2Y, self::VALUE_BUNDLE_3Y );
 	private const WPCOM_PRO_PLANS               = array( self::PRO_PLAN, self::PRO_PLAN_MONTHLY, self::PRO_PLAN_2Y );
@@ -1024,6 +1028,7 @@ class WPCOM_Features {
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
 			self::JETPACK_PREMIUM_AND_HIGHER,
 			self::JETPACK_CREATOR_PLANS,
+			self::JETPACK_GROWTH_PLANS,
 		),
 		self::SITE_PREVIEW_LINKS                => array(
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
@@ -1049,6 +1054,7 @@ class WPCOM_Features {
 			self::BUNDLE_ENTERPRISE,
 			self::JETPACK_SOCIAL_V1_PLANS,
 			self::JETPACK_SOCIAL_PLANS,
+			self::JETPACK_GROWTH_PLANS,
 		),
 		self::SOCIAL_IMAGE_GENERATOR            => array(
 			array(
@@ -1059,6 +1065,7 @@ class WPCOM_Features {
 				self::BUNDLE_ENTERPRISE,
 				self::JETPACK_SOCIAL_V1_PLANS,
 				self::JETPACK_SOCIAL_PLANS,
+				self::JETPACK_GROWTH_PLANS,
 			),
 		),
 		self::SOCIAL_MASTODON_CONNECTION        => array(
@@ -1145,6 +1152,7 @@ class WPCOM_Features {
 		),
 		self::STATS_FREE                        => array(
 			self::JETPACK_STATS_PLANS,
+			self::JETPACK_GROWTH_PLANS,
 		),
 		self::STATS_PAID                        => array(
 			array(
@@ -1159,6 +1167,7 @@ class WPCOM_Features {
 			self::JETPACK_STATS_BI_YEARLY,
 			self::JETPACK_STATS_YEARLY,
 			self::JETPACK_COMPLETE_PLANS,
+			self::JETPACK_GROWTH_PLANS,
 		),
 		self::STUDIO_SYNC                       => array(
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
@@ -1173,6 +1182,7 @@ class WPCOM_Features {
 			self::JETPACK_SOCIAL_ADVANCED_PLANS,
 			self::JETPACK_SOCIAL_V1_PLANS,
 			self::JETPACK_CREATOR_PLANS,
+			self::JETPACK_GROWTH_PLANS,
 			self::EXCLUDE_PLANS => array(
 				self::WPCOM_MIGRATION_TRIAL_PLANS,
 				self::WPCOM_HOSTING_TRIAL_PLANS,
@@ -1383,6 +1393,7 @@ class WPCOM_Features {
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
 			self::JETPACK_PREMIUM_AND_HIGHER,
 			self::JETPACK_CREATOR_PLANS,
+			self::JETPACK_GROWTH_PLANS,
 		),
 
 		/*

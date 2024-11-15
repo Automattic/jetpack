@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-General: ensure the notice displayed when running an old version of WordPress can always be displayed without errors.
