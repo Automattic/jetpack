@@ -13,7 +13,7 @@ const CornerstonePages = () => {
 	const isPremium = premiumFeatures.includes( 'cornerstone-10-pages' );
 
 	return (
-		<div className={ styles[ 'cornerstone-pages' ] }>
+		<div className={ styles.wrapper }>
 			<Panel className={ styles.panel }>
 				<PanelBody
 					title={
