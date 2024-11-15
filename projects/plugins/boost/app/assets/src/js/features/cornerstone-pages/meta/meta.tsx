@@ -126,7 +126,7 @@ type ListProps = {
 	setItems: ( newValue: string ) => void;
 	maxItems: number;
 	description: React.ReactNode | null;
-	defaultValue?: string;
+	defaultValue: string;
 	inputRows?: number;
 };
 
@@ -135,7 +135,7 @@ const List: React.FC< ListProps > = ( {
 	setItems,
 	maxItems,
 	description,
-	defaultValue,
+	defaultValue = '',
 	inputRows = 10,
 } ) => {
 	const [ inputValue, setInputValue ] = useState( items );
@@ -212,7 +212,8 @@ const List: React.FC< ListProps > = ( {
 	}
 
 	function loadDefaultValue() {
-		validateInputValue( defaultValue || '' );
+		validateInputValue( defaultValue );
+		recordBoostEvent( 'cornerstone_pages_load_default', {} );
 	}
 
 	return (
