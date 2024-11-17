@@ -1012,9 +1012,11 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 									'a' => array(
 										'href' => array(),
 									),
-									'ul' => array(
-										'li' => array(),
-									),
+									'ul' => array(),
+									'li' => array(),
+									'p' => array(),
+									'strong' => array(),
+									'ol' => array(),
 									'em' => array(),
 								)
 							);
