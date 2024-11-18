@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Dashboard: Fix toggle component to prevent console warnings.
