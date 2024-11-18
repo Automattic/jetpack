@@ -13,7 +13,7 @@ const MetaComponent = ( { buttonText, placeholder, datasyncKey }: Props ) => {
 
 	useEffect( () => {
 		setInputValue( values.join( ', ' ) );
-	}, [ values ] );
+	}, [ values, isExpanded ] );
 
 	function save() {
 		updateValues( inputValue );
