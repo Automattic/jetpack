@@ -1,3 +1,4 @@
+import { Button } from '@automattic/jetpack-components';
 import { getThreatType, type Threat } from '@automattic/jetpack-scan';
 import {
 	type Action,
@@ -168,16 +169,20 @@ export default function ThreatsDataViews( {
 	} );
 
 	const [ openThreat, setOpenThreat ] = useState< Threat | null >( null );
+	const [ skipThreatDetails, setSkipThreatDetails ] = useState< boolean >( false );
 
 	const showThreatDetails = useCallback(
-		( threat: Threat ) => () => {
-			setOpenThreat( threat );
-		},
+		( threat: Threat, skipDetails = false ) =>
+			() => {
+				setOpenThreat( threat );
+				setSkipThreatDetails( skipDetails );
+			},
 		[]
 	);
 
 	const hideThreatDetails = useCallback( () => {
 		setOpenThreat( null );
+		setSkipThreatDetails( false );
 	}, [] );
 
 	/**
@@ -262,7 +267,15 @@ export default function ThreatsDataViews( {
 				enableGlobalSearch: true,
 				enableHiding: false,
 				render: ( { item }: { item: Threat } ) => (
-					<div className={ styles.threat__title }>{ item.title }</div>
+					<Button
+						className={ styles.threat__title }
+						variant="link"
+						size="small"
+						weight="regular"
+						onClick={ showThreatDetails( item ) }
+					>
+						{ item.title }
+					</Button>
 				),
 			},
 			{
@@ -445,7 +458,9 @@ export default function ThreatsDataViews( {
 									return null;
 								}
 
-								return <ThreatFixerButton threat={ item } onClick={ showThreatDetails( item ) } />;
+								return (
+									<ThreatFixerButton threat={ item } onClick={ showThreatDetails( item, true ) } />
+								);
 							},
 						},
 				  ]
@@ -468,7 +483,7 @@ export default function ThreatsDataViews( {
 				id: THREAT_ACTION_IGNORE,
 				label: __( 'Ignore', 'jetpack' ),
 				callback: ( items: Threat[] ) => {
-					showThreatDetails( items[ 0 ] )();
+					showThreatDetails( items[ 0 ], true )();
 				},
 				isEligible( item ) {
 					if ( ! onIgnoreThreats ) {
@@ -487,7 +502,7 @@ export default function ThreatsDataViews( {
 				id: THREAT_ACTION_UNIGNORE,
 				label: __( 'Unignore', 'jetpack' ),
 				callback: ( items: Threat[] ) => {
-					showThreatDetails( items[ 0 ] )();
+					showThreatDetails( items[ 0 ], true )();
 				},
 				isEligible( item ) {
 					if ( ! onUnignoreThreats ) {
@@ -559,7 +574,7 @@ export default function ThreatsDataViews( {
 			{ openThreat ? (
 				<ThreatDetailsModal
 					threat={ openThreat }
-					skipThreatDetails={ false }
+					skipThreatDetails={ skipThreatDetails }
 					isUserConnected={ isUserConnected }
 					hasConnectedOwner={ hasConnectedOwner }
 					userIsConnecting={ userIsConnecting }
