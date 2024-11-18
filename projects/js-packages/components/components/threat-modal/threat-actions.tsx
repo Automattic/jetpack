@@ -52,10 +52,6 @@ const ThreatActions = ( {
 		closeModal();
 	}, [ threat, handleUnignoreThreatClick, closeModal ] );
 
-	if ( ! handleFixThreatClick && ! handleIgnoreThreatClick && ! handleUnignoreThreatClick ) {
-		return null;
-	}
-
 	return (
 		<div className={ styles[ 'modal-actions' ] }>
 			<div>
