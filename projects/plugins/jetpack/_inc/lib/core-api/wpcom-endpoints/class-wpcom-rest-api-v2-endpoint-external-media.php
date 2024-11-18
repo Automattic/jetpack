@@ -400,7 +400,6 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 	 * @return array|\WP_Error|mixed
 	 **/
 	public function copy_external_media( \WP_REST_Request $request ) {
-		global $wp_filesystem;
 		require_once ABSPATH . 'wp-admin/includes/file.php';
 		require_once ABSPATH . 'wp-admin/includes/media.php';
 		require_once ABSPATH . 'wp-admin/includes/image.php';
@@ -410,6 +409,7 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 		$service      = rawurlencode( $request->get_param( 'service' ) );
 
 		$responses = array();
+
 		foreach ( $request->get_param( 'media' ) as $item ) {
 			// Download file to temp dir.
 			if ( $should_proxy ) {
@@ -428,8 +428,8 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 					$responses[] = $response;
 					continue;
 				}
-
-				$written = $wp_filesystem->put_contents( $download_url, wp_remote_retrieve_body( $response ) );
+				$wp_filesystem = $this->get_wp_filesystem();
+				$written       = $wp_filesystem->put_contents( $download_url, wp_remote_retrieve_body( $response ) );
 
 				if ( false === $written ) {
 					$responses[] = new WP_Error(
@@ -817,6 +817,22 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 		}
 
 		return $response;
+	}
+
+	/**
+	 * Get the wp filesystem.
+	 *
+	 * @return \WP_Filesystem_Base|null
+	 */
+	private function get_wp_filesystem() {
+		global $wp_filesystem;
+
+		if ( ! isset( $wp_filesystem ) ) {
+			require_once ABSPATH . '/wp-admin/includes/file.php';
+			WP_Filesystem();
+		}
+
+		return $wp_filesystem;
 	}
 }
 
