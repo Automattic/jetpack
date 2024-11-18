@@ -2,8 +2,8 @@ import { Text, Button } from '@automattic/jetpack-components';
 import { Notice } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import React, { ReactNode, useContext } from 'react';
-import { ThreatModalContext } from '../threats-data-views';
 import styles from './styles.module.scss';
+import { ThreatModalContext } from '.';
 /**
  * CredentialsGate component
  *
@@ -65,7 +65,7 @@ const CredentialsGate = ( {
 					<div className={ styles[ 'threat-actions' ] }>
 						{ ! showThreatDetails && (
 							<Button onClick={ onShowThreatDetailsClick }>
-								{ __( 'Threat details', 'jetpack' ) }
+								{ __( 'Threat Details', 'jetpack' ) }
 							</Button>
 						) }
 						<Button variant="secondary" onClick={ closeModal }>

@@ -2,8 +2,8 @@ import { Button } from '@automattic/jetpack-components';
 import { Threat, getFixerAction } from '@automattic/jetpack-scan';
 import { __ } from '@wordpress/i18n';
 import React, { useCallback, useMemo, useContext } from 'react';
-import { ThreatModalContext } from '../threats-data-views';
 import styles from './styles.module.scss';
+import { ThreatModalContext } from '.';
 
 /**
  * ThreatActions component
@@ -33,7 +33,7 @@ const ThreatActions = ( {
 	handleIgnoreThreatClick?: ( threats: Threat[] ) => void;
 	handleUnignoreThreatClick?: ( threats: Threat[] ) => void;
 } ): JSX.Element => {
-	const { closeModal, showThreatDetails, onShowThreatDetailsClick, onContinueClick } =
+	const { closeModal, showThreatDetails, onShowThreatDetailsClick, onHideThreatDetailsClick } =
 		useContext( ThreatModalContext );
 
 	const fixerAction = useMemo( () => getFixerAction( threat ), [ threat ] );
@@ -58,7 +58,7 @@ const ThreatActions = ( {
 			<div className={ styles[ 'threat-actions' ] }>
 				{ ! showThreatDetails && (
 					<Button onClick={ onShowThreatDetailsClick }>
-						{ __( 'Threat details', 'jetpack' ) }
+						{ __( 'Threat Details', 'jetpack' ) }
 					</Button>
 				) }
 				<Button variant="secondary" onClick={ closeModal }>
@@ -70,7 +70,7 @@ const ThreatActions = ( {
 					<Button
 						isDestructive={ true }
 						variant="secondary"
-						onClick={ handleUnignoreThreatClick ? onUnignoreClick : onContinueClick }
+						onClick={ handleUnignoreThreatClick ? onUnignoreClick : onHideThreatDetailsClick }
 					>
 						{ __( 'Un-ignore', 'jetpack' ) }
 					</Button>
@@ -80,7 +80,7 @@ const ThreatActions = ( {
 						<Button
 							isDestructive={ true }
 							variant="secondary"
-							onClick={ handleIgnoreThreatClick ? onIgnoreClick : onContinueClick }
+							onClick={ handleIgnoreThreatClick ? onIgnoreClick : onHideThreatDetailsClick }
 							disabled={ fixerState.inProgress && ! fixerState.stale }
 						>
 							{ __( 'Ignore', 'jetpack' ) }
@@ -89,7 +89,7 @@ const ThreatActions = ( {
 							<Button
 								isPrimary
 								disabled={ fixerState.inProgress && ! fixerState.stale }
-								onClick={ handleFixThreatClick ? onFixClick : onContinueClick }
+								onClick={ handleFixThreatClick ? onFixClick : onHideThreatDetailsClick }
 							>
 								{ fixerState.error || fixerState.stale
 									? __( 'Retry fix', 'jetpack' )

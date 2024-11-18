@@ -42,7 +42,7 @@ const SiteTypeQuestionComponent = props => {
 		}
 	}, [ stateStepSlug, updatingStep, updateRecommendationsStep, addViewedRecommendation ] );
 
-	const onContinueClick = useCallback( () => {
+	const onHideThreatDetailsClick = useCallback( () => {
 		saveRecommendationsData();
 		analytics.tracks.recordEvent( 'jetpack_recommendations_site_type_answered', answers );
 	}, [ answers, saveRecommendationsData ] );
@@ -75,7 +75,7 @@ const SiteTypeQuestionComponent = props => {
 					) }
 				/>
 			</div>
-			<Button primary rna href={ nextRoute } onClick={ onContinueClick }>
+			<Button primary rna href={ nextRoute } onClick={ onHideThreatDetailsClick }>
 				{ __( 'Continue', 'jetpack' ) }
 			</Button>
 			<div className="jp-recommendations-site-type-question__continue-description">

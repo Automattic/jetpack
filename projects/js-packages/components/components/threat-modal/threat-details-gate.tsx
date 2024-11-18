@@ -1,11 +1,11 @@
 import { type Threat } from '@automattic/jetpack-scan';
 import React, { ReactNode, useContext } from 'react';
-import { ThreatModalContext } from '../threats-data-views';
 import ThreatActions from './threat-actions';
 import ThreatFixDetails from './threat-fix-details';
 import ThreatNotice from './threat-notice';
 import ThreatSummary from './threat-summary';
 import ThreatTechnicalDetails from './threat-technical-details';
+import { ThreatModalContext } from '.';
 
 /**
  * ThreatDetailsGate component

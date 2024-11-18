@@ -35,7 +35,7 @@ const ContextualizedConnection = props => {
 		setHasSeenWCConnectionModal();
 	}, [ setHasSeenWCConnectionModal ] );
 
-	const onContinueClick = useCallback( () => {
+	const onHideThreatDetailsClick = useCallback( () => {
 		analytics.tracks.recordJetpackClick( 'contextualized_connection_continue_button' );
 	}, [] );
 
@@ -54,7 +54,7 @@ const ContextualizedConnection = props => {
 						className="jp-contextualized-connection__button"
 						label={ __( 'Continue to Jetpack', 'jetpack' ) }
 						href={ redirectTo }
-						onClick={ onContinueClick }
+						onClick={ onHideThreatDetailsClick }
 					>
 						{ __( 'Continue to Jetpack', 'jetpack' ) }
 					</Button>

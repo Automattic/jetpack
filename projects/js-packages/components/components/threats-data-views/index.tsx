@@ -14,10 +14,10 @@ import {
 import { dateI18n } from '@wordpress/date';
 import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
-import { useCallback, useMemo, useState, createContext } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import Badge from '../badge';
-import ThreatDetailsModal from '../threat-details-modal';
 import ThreatFixerButton from '../threat-fixer-button';
+import ThreatModal from '../threat-modal';
 import ThreatSeverityBadge from '../threat-severity-badge';
 import {
 	THREAT_ACTION_IGNORE,
@@ -42,15 +42,6 @@ import {
 } from './constants';
 import styles from './styles.module.scss';
 import ThreatsStatusToggleGroupControl from './threats-status-toggle-group-control';
-
-interface ThreatModalContextType {
-	closeModal: () => void;
-	showThreatDetails: boolean;
-	onShowThreatDetailsClick: () => void;
-	onHideThreatDetailsClick: () => void;
-}
-
-export const ThreatModalContext = createContext< ThreatModalContextType | null >( null );
 
 /**
  * DataViews component for displaying security threats.
@@ -591,31 +582,24 @@ export default function ThreatsDataViews( {
 				}
 			/>
 			{ openThreat ? (
-				<ThreatModalContext.Provider
-					value={ {
-						showThreatDetails,
-						closeModal: hideThreatModal,
-						onShowThreatDetailsClick: onShowThreatDetails,
-						onHideThreatDetailsClick: onHideThreatDetails,
-					} }
-				>
-					<ThreatDetailsModal
-						threat={ openThreat }
-						showThreatDetails={ showThreatDetails }
-						isUserConnected={ isUserConnected }
-						hasConnectedOwner={ hasConnectedOwner }
-						userIsConnecting={ userIsConnecting }
-						handleConnectUser={ handleConnectUser }
-						credentials={ credentials }
-						credentialsIsFetching={ credentialsIsFetching }
-						credentialsRedirectUrl={ credentialsRedirectUrl }
-						handleUpgradeClick={ handleUpgradeClick }
-						handleFixThreatClick={ onFixThreats }
-						handleIgnoreThreatClick={ onIgnoreThreats }
-						handleUnignoreThreatClick={ onUnignoreThreats }
-						onRequestClose={ hideThreatModal }
-					/>
-				</ThreatModalContext.Provider>
+				<ThreatModal
+					threat={ openThreat }
+					isUserConnected={ isUserConnected }
+					hasConnectedOwner={ hasConnectedOwner }
+					userIsConnecting={ userIsConnecting }
+					handleConnectUser={ handleConnectUser }
+					credentials={ credentials }
+					credentialsIsFetching={ credentialsIsFetching }
+					credentialsRedirectUrl={ credentialsRedirectUrl }
+					handleUpgradeClick={ handleUpgradeClick }
+					handleFixThreatClick={ onFixThreats }
+					handleIgnoreThreatClick={ onIgnoreThreats }
+					handleUnignoreThreatClick={ onUnignoreThreats }
+					onRequestClose={ hideThreatModal }
+					showThreatDetails={ showThreatDetails }
+					onShowThreatDetailsClick={ onShowThreatDetails }
+					onHideThreatDetailsClick={ onHideThreatDetails }
+				/>
 			) : null }
 		</>
 	);

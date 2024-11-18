@@ -1,20 +1,33 @@
 import { useCallback, useState } from 'react';
 import Button from '../../button/index.js';
-import ThreatDetailsModal from '../index.js';
+import ThreatModal from '../index.js';
 
 export default {
-	title: 'JS Packages/Components/Threat Details Modal',
-	component: ThreatDetailsModal,
+	title: 'JS Packages/Components/Threat Modal',
+	component: ThreatModal,
 };
 
 const Base = args => {
 	const [ isOpen, setIsOpen ] = useState( false );
 	const onClick = useCallback( () => setIsOpen( true ), [] );
 	const onRequestClose = useCallback( () => setIsOpen( false ), [] );
+
+	const [ showThreatDetails, setShowThreatDetails ] = useState( true );
+	const onShowThreatDetails = useCallback( () => setShowThreatDetails( true ), [] );
+	const onHideThreatDetails = useCallback( () => setShowThreatDetails( false ), [] );
+
 	return (
 		<div>
-			<Button onClick={ onClick }>Open Threat Details Modal</Button>
-			{ isOpen ? <ThreatDetailsModal { ...args } onRequestClose={ onRequestClose } /> : null }
+			<Button onClick={ onClick }>Open Threat Modal</Button>
+			{ isOpen ? (
+				<ThreatModal
+					{ ...args }
+					onRequestClose={ onRequestClose }
+					showThreatDetails={ showThreatDetails }
+					onShowThreatDetailsClick={ onShowThreatDetails }
+					onHideThreatDetailsClick={ onHideThreatDetails }
+				/>
+			) : null }
 		</div>
 	);
 };
