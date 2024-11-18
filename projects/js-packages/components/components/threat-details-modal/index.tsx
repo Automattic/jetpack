@@ -10,7 +10,7 @@ import ThreatFixDetails from './threat-fix-details';
 import ThreatTechnicalDetails from './threat-technical-details';
 
 /**
- * ThreatDetailsModal component
+ * ThreatModal component
  *
  * @param {object}   props                           - The props.
  * @param {object}   props.threat                    - The threat.
@@ -19,9 +19,9 @@ import ThreatTechnicalDetails from './threat-technical-details';
  * @param {Function} props.handleIgnoreThreatClick   - The handleIgnoreThreatClick function.
  * @param {Function} props.handleUnignoreThreatClick - The handleUnignoreThreatClick function.
  *
- * @return {JSX.Element} The threat details modal.
+ * @return {JSX.Element} The threat modal.
  */
-export default function ThreatDetailsModal( {
+export default function ThreatModal( {
 	threat,
 	handleUpgradeClick,
 	handleFixThreatClick,

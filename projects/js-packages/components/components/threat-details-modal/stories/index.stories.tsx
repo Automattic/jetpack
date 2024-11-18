@@ -1,10 +1,10 @@
 import { useCallback, useState } from 'react';
 import Button from '../../button/index.js';
-import ThreatDetailsModal from '../index.js';
+import ThreatModal from '../index.js';
 
 export default {
-	title: 'JS Packages/Components/Threat Details Modal',
-	component: ThreatDetailsModal,
+	title: 'JS Packages/Components/Threat Modal',
+	component: ThreatModal,
 };
 
 const Base = args => {
@@ -14,7 +14,7 @@ const Base = args => {
 	return (
 		<div>
 			<Button onClick={ onClick }>Open Threat Details Modal</Button>
-			{ isOpen ? <ThreatDetailsModal { ...args } onRequestClose={ onRequestClose } /> : null }
+			{ isOpen ? <ThreatModal { ...args } onRequestClose={ onRequestClose } /> : null }
 		</div>
 	);
 };
