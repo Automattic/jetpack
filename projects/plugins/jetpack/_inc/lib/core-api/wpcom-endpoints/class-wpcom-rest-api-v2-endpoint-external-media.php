@@ -400,6 +400,7 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 	 * @return array|\WP_Error|mixed
 	 **/
 	public function copy_external_media( \WP_REST_Request $request ) {
+		global $wp_filesystem;
 		require_once ABSPATH . 'wp-admin/includes/file.php';
 		require_once ABSPATH . 'wp-admin/includes/media.php';
 		require_once ABSPATH . 'wp-admin/includes/image.php';
@@ -428,7 +429,7 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 					continue;
 				}
 
-				$written = file_put_contents( $download_url, wp_remote_retrieve_body( $response ) );
+				$written = $wp_filesystem->put_contents( $download_url, wp_remote_retrieve_body( $response ) );
 
 				if ( false === $written ) {
 					$responses[] = new WP_Error(
