@@ -199,6 +199,14 @@ export function ConfirmationForm( { keyringResult, onComplete, isAdmin }: Confir
 							'jetpack'
 						) }
 					</p>
+					{ keyringResult && keyringResult.show_linkedin_warning && (
+						<p className={ styles[ 'header-text' ] }>
+							{ __(
+								`If you want to connect LinkedIn company pages and do not see them, please try again after 5 minutes.`,
+								'jetpack'
+							) }
+						</p>
+					) }
 					<form className={ styles.form } onSubmit={ onConfirm } id="connection-confirmation-form">
 						{
 							//
