@@ -24,6 +24,7 @@ class Gridicon extends Component< GridiconProps > {
 			'gridicons-calendar',
 			'gridicons-cart',
 			'gridicons-folder',
+			'gridicons-help-outline',
 			'gridicons-info',
 			'gridicons-info-outline',
 			'gridicons-posts',
@@ -66,6 +67,8 @@ class Gridicon extends Component< GridiconProps > {
 				return __( 'Toggle search filters.', 'jetpack' );
 			case 'gridicons-folder':
 				return __( 'Category', 'jetpack' );
+			case 'gridicons-help-outline':
+				return __( 'Help', 'jetpack' );
 			case 'gridicons-info':
 			case 'gridicons-info-outline':
 				return __( 'Information.', 'jetpack' );
@@ -179,6 +182,12 @@ class Gridicon extends Component< GridiconProps > {
 				return (
 					<g>
 						<path d="M18 19H6c-1.1 0-2-.9-2-2V7c0-1.1.9-2 2-2h3c1.1 0 2 .9 2 2h7c1.1 0 2 .9 2 2v8c0 1.1-.9 2-2 2z" />
+					</g>
+				);
+			case 'gridicons-help-outline':
+				return (
+					<g>
+						<path d="M12 4c4.41 0 8 3.59 8 8s-3.59 8-8 8-8-3.59-8-8 3.59-8 8-8m0-2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm1 13h-2v2h2v-2zm-1.962-2v-.528c0-.4.082-.74.246-1.017.163-.276.454-.546.87-.808.333-.21.572-.397.717-.565.146-.168.22-.36.22-.577 0-.172-.078-.308-.234-.41-.156-.1-.358-.15-.608-.15-.62 0-1.34.22-2.168.658l-.854-1.67c1.02-.58 2.084-.872 3.194-.872.913 0 1.63.202 2.15.603.52.4.78.948.78 1.64 0 .495-.116.924-.347 1.287-.23.362-.6.705-1.11 1.03-.43.278-.7.48-.807.61-.108.13-.163.282-.163.458V13h-1.885z" />
 					</g>
 				);
 			case 'gridicons-image':
