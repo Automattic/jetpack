@@ -28,17 +28,29 @@ function MediaItem( props ) {
 	};
 
 	const getProxyImageUrl = async url => {
-		const response = await apiFetch( {
-			path: `/wpcom/v2/external-media/proxy/google_photos`,
-			method: 'POST',
-			data: { url },
-			parse: false, // Disable automatic parsing
-		} );
+		try {
+			const response = await apiFetch( {
+				path: `/wpcom/v2/external-media/proxy/google_photos`,
+				method: 'POST',
+				data: { url },
+				parse: false, // Disable automatic parsing
+				responseType: 'blob',
+			} );
+			let blob;
 
-		const blob = await response.blob();
-		const imageObjectUrl = URL.createObjectURL( blob );
+			if ( response instanceof Blob ) {
+				blob = response;
+			} else {
+				blob = await response.blob();
+			}
 
-		setImageUrl( imageObjectUrl );
+			const imageObjectUrl = URL.createObjectURL( blob );
+
+			setImageUrl( imageObjectUrl );
+		} catch ( error ) {
+			// eslint-disable-next-line no-console
+			console.error( 'Error fetching proxy image:', error );
+		}
 	};
 
 	const { item, focus, isSelected, isCopying = false, shouldProxyImg } = props;
