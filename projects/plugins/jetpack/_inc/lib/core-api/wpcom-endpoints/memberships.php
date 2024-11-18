@@ -14,11 +14,15 @@ use Automattic\Jetpack\Connection\Client;
  */
 class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 
+	use WPCOM_REST_API_Proxy_Request_Trait;
+
 	/**
 	 * WPCOM_REST_API_V2_Endpoint_Memberships constructor.
 	 */
 	public function __construct() {
-		$this->namespace                       = 'wpcom/v2';
+		$this->base_api_path                   = 'wpcom';
+		$this->version                         = 'v2';
+		$this->namespace                       = $this->base_api_path . '/' . $this->version;
 		$this->rest_base                       = 'memberships';
 		$this->wpcom_is_wpcom_only_endpoint    = true;
 		$this->wpcom_is_site_specific_endpoint = true;
@@ -265,7 +269,6 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 	 * @return WP_Error|array ['products']
 	 */
 	public function list_products( WP_REST_Request $request ) {
-		$query       = null;
 		$is_editable = isset( $request['is_editable'] ) ? (bool) $request['is_editable'] : null;
 		$type        = isset( $request['type'] ) ? $request['type'] : null;
 
@@ -278,17 +281,8 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 				return array( 'error' => $e->getMessage() );
 			}
 		} else {
-			$query_parts = array();
-			if ( $type !== null ) {
-				$query_parts[] = 'type=' . $type;
-			}
-			if ( $is_editable !== null ) {
-				$query_parts[] = 'is_editable=' . $is_editable;
-			}
-			if ( ! empty( $query_parts ) ) {
-				$query = '?' . implode( '&', $query_parts );
-			}
-			return $this->proxy_request_to_wpcom( "products$query", 'GET' );
+
+			return $this->proxy_request_to_wpcom_as_user( $request, 'products' );
 		}
 	}
 
@@ -310,7 +304,8 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 				return array( 'error' => $e->getMessage() );
 			}
 		} else {
-			return $this->proxy_request_to_wpcom( 'product', 'POST', $payload );
+
+			return $this->proxy_request_to_wpcom_as_user( $request, 'product' );
 		}
 	}
 
@@ -333,7 +328,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 				return array( 'error' => $e->getMessage() );
 			}
 		} else {
-			return $this->proxy_request_to_wpcom( "product/$product_id", 'POST', $payload );
+			return $this->proxy_request_to_wpcom_as_user( $request, "product/$product_id" );
 		}
 	}
 
@@ -356,11 +351,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 				return array( 'error' => $e->getMessage() );
 			}
 		} else {
-			return $this->proxy_request_to_wpcom(
-				"product/$product_id",
-				'DELETE',
-				array( 'cancel_subscriptions' => $cancel_subscriptions )
-			);
+			return $this->proxy_request_to_wpcom_as_user( $request, "product/$product_id" );
 		}
 	}
 
@@ -422,66 +413,17 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 				$payload['is_editable'] = (int) $is_editable;
 			}
 
-			$blog_id = Jetpack_Options::get_option( 'id' );
-			$path    = "/sites/$blog_id/{$this->rest_base}/status";
-			if ( $product_type ) {
-				$path = add_query_arg(
-					$payload,
-					$path
-				);
-			}
-			$response = Client::wpcom_json_api_request_as_user( $path, 'v2' );
+			$response = $this->proxy_request_to_wpcom_as_user( $request, 'status' );
+
 			if ( is_wp_error( $response ) ) {
 				if ( $response->get_error_code() === 'missing_token' ) {
 					return new WP_Error( 'missing_token', __( 'Please connect your user account to WordPress.com', 'jetpack' ), array( 'status' => 404 ) );
 				}
 				return new WP_Error( 'wpcom_connection_error', __( 'Could not connect to WordPress.com', 'jetpack' ), array( 'status' => 404 ) );
 			}
-			$data = isset( $response['body'] ) ? json_decode( $response['body'], true ) : null;
-			if ( 200 !== $response['response']['code'] && $data['code'] && $data['message'] ) {
-				return new WP_Error( $data['code'], $data['message'], array( 'status' => 401 ) );
-			}
-			return $data;
+
+			return $response;
 		}
-	}
-
-	/**
-	 * Proxy a request to WPCOM, look for errors and return a response or a WP_Error.
-	 *
-	 * @param string     $uri Whatever would go at the end of the url after /sites/$blog_id/$this->rest_base/. This is usually `product`, `products`, or `product/$product_id`.
-	 * @param string     $method The HTTP method being used.
-	 * @param array|null $payload An optional payload to be sent with the request.
-	 * @return string    The response from WPCOM
-	 */
-	private function proxy_request_to_wpcom( $uri, $method, $payload = null ) {
-		// get blog id
-		$blog_id = Jetpack_Options::get_option( 'id' );
-
-		// proxy request to wpcom
-		$response = Client::wpcom_json_api_request_as_user(
-			"/sites/$blog_id/{$this->rest_base}/$uri",
-			'v2',
-			array(
-				'method' => strtoupper( $method ),
-			),
-			$payload
-		);
-		if ( is_wp_error( $response ) ) {
-			if ( $response->get_error_code() === 'missing_token' ) {
-				return new WP_Error( 'missing_token', __( 'Please connect your user account to WordPress.com', 'jetpack' ), array( 'status' => 404 ) );
-			}
-			return new WP_Error( 'wpcom_connection_error', __( 'Could not connect to WordPress.com', 'jetpack' ), array( 'status' => 404 ) );
-		}
-
-		// decode response
-		$data = isset( $response['body'] ) ? json_decode( $response['body'], true ) : null;
-		// If endpoint returned error, we have to detect it.
-		if ( 200 !== $response['response']['code'] && $data['code'] && $data['message'] ) {
-			return new WP_Error( $data['code'], $data['message'], array( 'status' => 401 ) );
-		}
-
-		// return response
-		return $data;
 	}
 
 	/**

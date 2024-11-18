@@ -8,21 +8,24 @@
  */
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Status\Visitor;
 
 trait WPCOM_REST_API_Proxy_Request_Trait {
 
 	/**
-	 * Proxy request to wpcom servers for the site and user.
+	 * Proxy request to wpcom servers on behalf of a user or using the Site-level Connection (blog token).
 	 *
 	 * @param WP_Rest_Request $request Request to proxy.
 	 * @param string          $path Path to append to the rest base.
+	 * @param string          $context Whether the request should be proxied on behalf of the current user or using the Site-lecl Connection, aka 'blog' token. Can be Either 'user' or 'blog'. Defaults to 'user'.
+	 * @param bool            $allow_fallback_to_blog If the $context is 'user', whether we should fallback to using the Site-level Connection in case the current user is not connecter.
 	 *
 	 * @return mixed|WP_Error           Response from wpcom servers or an error.
 	 */
-	public function proxy_request_to_wpcom_as_user( $request, $path = '' ) {
+	public function proxy_request_to_wpcom( $request, $path = '', $context = 'user', $allow_fallback_to_blog = false ) {
 		$blog_id      = \Jetpack_Options::get_option( 'id' );
-		$path         = '/sites/' . rawurldecode( $blog_id ) . rawurldecode( $this->rest_base ) . ( $path ? '/' . rawurldecode( $path ) : '' );
+		$path         = '/sites/' . rawurldecode( $blog_id ) . '/' . rawurldecode( ltrim( $this->rest_base, '/' ) ) . ( $path ? '/' . rawurldecode( ltrim( $path, '/' ) ) : '' );
 		$query_params = $request->get_query_params();
 
 		/*
@@ -47,7 +50,26 @@ trait WPCOM_REST_API_Proxy_Request_Trait {
 		// If no body is present, passing it as $request->get_body() will cause an error.
 		$body = $request->get_body() ? $request->get_body() : null;
 
-		$response = Client::wpcom_json_api_request_as_user( $api_url, $this->version, $request_options, $body, $this->base_api_path );
+		if ( 'user' === $context ) {
+			if ( ! ( new Manager() )->is_user_connected() ) {
+				if ( false === $allow_fallback_to_blog ) {
+					return new WP_Error(
+						'rest_unauthorized',
+						__( 'Please connect your user account to WordPress.com', 'jetpack' ),
+						array( 'status' => rest_authorization_required_code() )
+					);
+				}
+
+				$context = 'blog';
+			} else {
+				$response = Client::wpcom_json_api_request_as_user( $api_url, $this->version, $request_options, $body, $this->base_api_path );
+			}
+		}
+
+		if ( 'blog' === $context ) {
+			$response = Client::wpcom_json_api_request_as_blog( $api_url, $this->version, $request_options, $body, $this->base_api_path );
+
+		}
 
 		if ( is_wp_error( $response ) ) {
 			return $response;
@@ -64,5 +86,29 @@ trait WPCOM_REST_API_Proxy_Request_Trait {
 		}
 
 		return $response_body;
+	}
+
+	/**
+	 * Proxy request to wpcom servers on behalf of a user.
+	 *
+	 * @param WP_Rest_Request $request Request to proxy.
+	 * @param string          $path Path to append to the rest base.
+	 *
+	 * @return mixed|WP_Error           Response from wpcom servers or an error.
+	 */
+	public function proxy_request_to_wpcom_as_user( $request, $path = '' ) {
+		return $this->proxy_request_to_wpcom( $request, $path, 'user' );
+	}
+
+	/**
+	 * Proxy request to wpcom servers using the Site-level Connection (blog token).
+	 *
+	 * @param WP_Rest_Request $request Request to proxy.
+	 * @param string          $path Path to append to the rest base.
+	 *
+	 * @return mixed|WP_Error           Response from wpcom servers or an error.
+	 */
+	public function proxy_request_to_wpcom_as_blog( $request, $path = '' ) {
+		return $this->proxy_request_to_wpcom( $request, $path, 'blog' );
 	}
 }
