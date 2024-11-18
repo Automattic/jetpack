@@ -67,7 +67,7 @@ export default function ThreatDetailsModal( {
 	handleUnignoreThreatClick?: ( threats: Threat[] ) => void;
 	[ key: string ]: unknown;
 } ): JSX.Element {
-	const [ showThreatDetails, setShowThreatDetails ] = useState( skipThreatDetails );
+	const [ showThreatDetails, setShowThreatDetails ] = useState( ! skipThreatDetails );
 
 	const fixerState = useMemo( () => {
 		return getFixerState( threat.fixer );
