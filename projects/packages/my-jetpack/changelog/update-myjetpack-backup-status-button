@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixing a bug in detecting purchase status for Backup.
