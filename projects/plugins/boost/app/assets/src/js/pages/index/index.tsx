@@ -156,7 +156,7 @@ const Index = () => {
 			>
 				<MinifyMeta
 					datasyncKey="minify_js_excludes"
-					inputLabel={ __( 'Exclude JS Strings:', 'jetpack-boost' ) }
+					inputLabel={ __( 'Exceptions:', 'jetpack-boost' ) }
 					buttonText={ __( 'Exclude JS Strings', 'jetpack-boost' ) }
 					placeholder={ __( 'Comma separated list of JS scripts to exclude', 'jetpack-boost' ) }
 				/>
@@ -175,7 +175,7 @@ const Index = () => {
 			>
 				<MinifyMeta
 					datasyncKey="minify_css_excludes"
-					inputLabel={ __( 'Exclude CSS Strings:', 'jetpack-boost' ) }
+					inputLabel={ __( 'Exceptions:', 'jetpack-boost' ) }
 					buttonText={ __( 'Exclude CSS Strings', 'jetpack-boost' ) }
 					placeholder={ __(
 						'Comma separated list of CSS stylesheets to exclude',
