@@ -7,6 +7,7 @@ import {
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useMemo } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
+import Notice from '../../../components/notice';
 import { store as socialStore } from '../../../social-store';
 import { KeyringResult } from '../../../social-store/types';
 import { useSupportedServices } from '../../services/use-supported-services';
@@ -199,13 +200,15 @@ export function ConfirmationForm( { keyringResult, onComplete, isAdmin }: Confir
 							'jetpack'
 						) }
 					</p>
-					{ keyringResult && keyringResult.show_linkedin_warning && (
-						<p className={ styles[ 'header-text' ] }>
-							{ __(
-								`If you want to connect LinkedIn company pages and do not see them, please try again after 5 minutes.`,
-								'jetpack'
-							) }
-						</p>
+					{ keyringResult?.show_linkedin_warning && (
+						<Notice type={ 'warning' }>
+							<p>
+								{ __(
+									'If you want to connect LinkedIn company pages and do not see them, please try again after 5 minutes.',
+									'jetpack'
+								) }
+							</p>
+						</Notice>
 					) }
 					<form className={ styles.form } onSubmit={ onConfirm } id="connection-confirmation-form">
 						{
