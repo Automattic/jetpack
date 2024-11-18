@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix a fatal error occurring due to a function receiving an unexpected input type.

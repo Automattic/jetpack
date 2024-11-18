@@ -23,7 +23,7 @@ class WP_Test_Jetpack_Podcast_Helper extends WP_UnitTestCase {
 	public function test_get_track_data_feed_error() {
 		$podcast_helper = $this->getMockBuilder( 'Jetpack_Podcast_Helper' )
 			->disableOriginalConstructor()
-			->setMethods( array( 'load_feed', 'setup_tracks_callback' ) )
+			->onlyMethods( array( 'load_feed', 'setup_tracks_callback' ) )
 			->getMock();
 
 		$podcast_helper->expects( $this->once() )
@@ -44,12 +44,12 @@ class WP_Test_Jetpack_Podcast_Helper extends WP_UnitTestCase {
 	public function test_get_track_data_find_episode() {
 		$podcast_helper = $this->getMockBuilder( 'Jetpack_Podcast_Helper' )
 			->disableOriginalConstructor()
-			->setMethods( array( 'load_feed', 'setup_tracks_callback' ) )
+			->onlyMethods( array( 'load_feed', 'setup_tracks_callback' ) )
 			->getMock();
 
 		$track = $this->getMockBuilder( 'SimplePie_Item' )
 			->disableOriginalConstructor()
-			->setMethods( array( 'get_id' ) )
+			->onlyMethods( array( 'get_id' ) )
 			->getMock();
 
 		$track->expects( $this->exactly( 2 ) )
@@ -58,7 +58,7 @@ class WP_Test_Jetpack_Podcast_Helper extends WP_UnitTestCase {
 
 		$rss = $this->getMockBuilder( 'SimplePie' )
 			->disableOriginalConstructor()
-			->setMethods( array( 'get_items' ) )
+			->onlyMethods( array( 'get_items' ) )
 			->getMock();
 
 		$rss->expects( $this->exactly( 2 ) )

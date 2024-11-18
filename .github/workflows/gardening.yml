@@ -51,7 +51,7 @@ jobs:
         with:
           # Split issues and issue_comment triggers from the rest. Otherwise a lot of issue work can result in pushes to trunk timing out.
           events: ${{ ( github.event_name == 'issues' || github.event_name == 'issue_comment' ) && 'issues issue_comment' || '' }}
-          ignore-events: ${{ ( github.event_name == 'issues' || github.event_name == 'issue_comment' ) && '' || 'issues issue_comment' }}
+          ignore-events: ${{ ( github.event_name != 'issues' && github.event_name != 'issue_comment' ) && 'issues issue_comment' || '' }}
 
       - name: "Run the action (assign, manage milestones, for issues and PRs)"
         uses: ./projects/github-actions/repo-gardening

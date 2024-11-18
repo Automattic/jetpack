@@ -16,6 +16,7 @@ import { useRegenerationReason } from '$features/critical-css/lib/stores/suggest
 import { usePremiumFeatures } from '$lib/stores/premium-features';
 import { useNavigate } from 'react-router-dom';
 import { useRegenerateCriticalCssAction } from '$features/critical-css/lib/stores/critical-css-state';
+import { isSameSiteUrl } from '$lib/utils/is-same-site-url';
 
 const Meta = () => {
 	const [ isExpanded, setIsExpanded ] = useState( false );
@@ -39,7 +40,9 @@ const Meta = () => {
 
 		setCornerstonePages( newItems, () => {
 			refetchRegenerationReason();
-			regenerateAction.mutate();
+			if ( isPremium ) {
+				regenerateAction.mutate();
+			}
 		} );
 	};
 
@@ -51,6 +54,7 @@ const Meta = () => {
 				items={ cornerstonePages.join( '\n' ) }
 				setItems={ updateCornerstonePages }
 				maxItems={ cornerstonePagesProperties.max_pages }
+				defaultValue={ cornerstonePagesProperties.default_pages.join( '\n' ) }
 				description={
 					<>
 						{ createInterpolateElement(
@@ -167,9 +171,16 @@ type ListProps = {
 	setItems: ( newValue: string ) => void;
 	maxItems: number;
 	description: React.ReactNode | null;
+	defaultValue?: string;
 };
 
-const List: React.FC< ListProps > = ( { items, setItems, maxItems, description } ) => {
+const List: React.FC< ListProps > = ( {
+	items,
+	setItems,
+	maxItems,
+	description,
+	defaultValue,
+} ) => {
 	const [ inputValue, setInputValue ] = useState( items );
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const [ inputInvalid, setInputInvalid ] = useState( false );
@@ -195,6 +206,10 @@ const List: React.FC< ListProps > = ( { items, setItems, maxItems, description }
 			.map( line => line.trim() )
 			.filter( line => line.trim() !== '' );
 
+		if ( lines.length === 0 ) {
+			throw new Error( __( 'You must add at least one URL.', 'jetpack-boost' ) );
+		}
+
 		// Check if the number of items exceeds maxItems
 		if ( lines.length > maxItems ) {
 			const message = sprintf(
@@ -210,6 +225,8 @@ const List: React.FC< ListProps > = ( { items, setItems, maxItems, description }
 			throw new Error( message );
 		}
 
+		const siteUrl = new URL( Jetpack_Boost.site.url );
+
 		for ( const line of lines ) {
 			let url: URL | undefined;
 			try {
@@ -217,10 +234,7 @@ const List: React.FC< ListProps > = ( { items, setItems, maxItems, description }
 			} catch ( e ) {
 				// If the URL is invalid, they have provided a relative URL, which we will allow.
 			}
-			if (
-				url &&
-				url.origin.replace( /\/$/, '' ) !== Jetpack_Boost.site.url.replace( /\/$/, '' )
-			) {
+			if ( url && ! isSameSiteUrl( url, siteUrl ) ) {
 				throw new Error(
 					/* translators: %s is the URL that didn't match the site URL */
 					sprintf( __( 'The URL seems to be a different site: %s', 'jetpack-boost' ), line )
@@ -242,6 +256,10 @@ const List: React.FC< ListProps > = ( { items, setItems, maxItems, description }
 		} );
 	}
 
+	function loadDefaultValue() {
+		setInputValue( defaultValue || '' );
+	}
+
 	return (
 		<div
 			className={ clsx( styles.section, {
@@ -254,7 +272,7 @@ const List: React.FC< ListProps > = ( { items, setItems, maxItems, description }
 				onChange={ e => validateInputValue( e.target.value ) }
 				id="jb-cornerstone-pages"
 			/>
-			{ inputInvalid && <p className={ styles.error }>{ validationError?.message }</p> }
+			{ inputInvalid && <span className={ styles.error }>{ validationError?.message }</span> }
 			{ description && <div className={ styles.description }>{ description }</div> }
 			<Button
 				disabled={ items === inputValue || inputInvalid }
@@ -262,6 +280,14 @@ const List: React.FC< ListProps > = ( { items, setItems, maxItems, description }
 				className={ styles.button }
 			>
 				{ __( 'Save', 'jetpack-boost' ) }
+			</Button>
+			<Button
+				disabled={ inputValue === defaultValue }
+				onClick={ loadDefaultValue }
+				className={ styles.button }
+				variant="link"
+			>
+				{ __( 'Load Default', 'jetpack-boost' ) }
 			</Button>
 		</div>
 	);

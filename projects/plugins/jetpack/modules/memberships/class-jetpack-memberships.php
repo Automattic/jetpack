@@ -631,7 +631,7 @@ class Jetpack_Memberships {
 	 * @param int|null $user_id The user_id to unset in the cache, otherwise the entire static cache is cleared.
 	 * @return void
 	 */
-	public static function clear_cache( int $user_id = null ) {
+	public static function clear_cache( ?int $user_id = null ) {
 		if ( empty( $user_id ) ) {
 			self::$user_is_paid_subscriber_cache = array();
 			self::$user_can_view_post_cache      = array();

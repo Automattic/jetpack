@@ -81,8 +81,16 @@ describe( 'useSyncPostDataToStore', () => {
 				status: 'publish',
 				jetpack_publicize_connections: updatedConnections,
 			} );
-			registry.dispatch( editorStore ).savePost();
 		} );
+
+		// `.savePost()` triggers two state updates before it resolves. If we await it inside a single `act()`, the updates will cancel each other out and therefore `usePostJustPublished()` won't trigger.
+		// To work around that with the current implementation of `.savePost()` we can call it without awaiting in one `act()` and then await in a second.
+		// @todo Does that mean `usePostJustPublished()` is risky in general? i.e. if the `fetch()` returns too quickly might React batch the updates?
+		let p;
+		act( () => {
+			p = registry.dispatch( editorStore ).savePost();
+		} );
+		await act( async () => p );
 
 		const freshConnections = registry.select( socialStore ).getConnections();
 

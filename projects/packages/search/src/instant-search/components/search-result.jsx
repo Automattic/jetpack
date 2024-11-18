@@ -18,6 +18,17 @@ class SearchResult extends Component {
 	}
 
 	getCommonTrainTracksProps() {
+		let uiAlgo = 'jetpack-instant-search-ui/v1';
+		if ( this.props.resultFormat === RESULT_FORMAT_PRODUCT ) {
+			uiAlgo = uiAlgo + '-product';
+		} else if ( this.props.resultFormat === RESULT_FORMAT_EXPANDED ) {
+			uiAlgo = uiAlgo + '-expanded';
+		} else {
+			uiAlgo = uiAlgo + '-minimal';
+		}
+		if ( this.props.result.custom ) {
+			uiAlgo = uiAlgo + '-custom';
+		}
 		return {
 			fetch_algo: this.props.railcar.fetch_algo,
 			fetch_position: this.props.railcar.fetch_position,
@@ -26,8 +37,7 @@ class SearchResult extends Component {
 			rec_blog_id: this.props.railcar.rec_blog_id,
 			rec_post_id: this.props.railcar.rec_post_id,
 			session_id: this.props.railcar.session_id,
-			// TODO: Add a way to differentiate between different result formats
-			ui_algo: 'jetpack-instant-search-ui/v1',
+			ui_algo: uiAlgo,
 			ui_position: this.props.index,
 		};
 	}

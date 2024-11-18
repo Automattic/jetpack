@@ -43,3 +43,4 @@ if ( is_admin() ) {
 	add_action( 'enqueue_block_editor_assets', array( 'Jetpack_Gutenberg', 'enqueue_block_editor_assets' ) );
 }
 add_filter( 'render_block', array( 'Jetpack_Gutenberg', 'display_deprecated_block_message' ), 10, 2 );
+add_action( 'plugins_loaded', array( 'Jetpack_Gutenberg', 'register_block_metadata_collection' ) );

@@ -139,7 +139,6 @@ done
 proceed_p "" "Proceed releasing above projects?" Y
 
 # Sending tracking event
-TRACKING_DATA="{}"
 RELEASED_PLUGINS="{}"
 for PLUGIN in "${!PROJECTS[@]}"; do
 
@@ -202,6 +201,9 @@ fi
 if [[ -n "$(git status --porcelain)" ]]; then
 	die "Working directory not clean, make sure you're working from a clean checkout and try again."
 fi
+
+yellow "Installing root packages."
+pnpm jetpack install --root
 
 yellow "Checking out prerelease branch."
 # Is there an upstream prerelease branch already?

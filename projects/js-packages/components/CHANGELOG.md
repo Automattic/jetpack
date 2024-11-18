@@ -2,6 +2,32 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [0.60.0] - 2024-11-14
+### Added
+- Adds tooltips for each ThreatFixerButton state [#40111]
+
+### Fixed
+- Fixes the loading placeholder that didn't disappear when the price loads. [#40157]
+
+## [0.59.0] - 2024-11-11
+### Added
+- Add ThreatsDataViews component [#39754]
+- Components: add ref for container component [#39850]
+- IconTooltip: add support for showing tooltip on hover. [#39916]
+
+### Changed
+- Add ToggleGroupControl to ThreatsDataViews for easily toggling between Active and Historical threats [#39901]
+- Updated package dependencies. [#39999]
+- Updated package dependencies. [#40000]
+- Updated package dependencies. [#40060]
+
+## [0.58.1] - 2024-11-04
+### Added
+- Enable test coverage. [#39961]
+
+### Fixed
+- Fix tooltip behavior. [#39879]
+
 ## [0.58.0] - 2024-10-15
 ### Added
 - Add DiffViewer component [#39672]
@@ -1195,6 +1221,9 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[0.60.0]: https://github.com/Automattic/jetpack-components/compare/0.59.0...0.60.0
+[0.59.0]: https://github.com/Automattic/jetpack-components/compare/0.58.1...0.59.0
+[0.58.1]: https://github.com/Automattic/jetpack-components/compare/0.58.0...0.58.1
 [0.58.0]: https://github.com/Automattic/jetpack-components/compare/0.57.0...0.58.0
 [0.57.0]: https://github.com/Automattic/jetpack-components/compare/0.56.3...0.57.0
 [0.56.3]: https://github.com/Automattic/jetpack-components/compare/0.56.2...0.56.3

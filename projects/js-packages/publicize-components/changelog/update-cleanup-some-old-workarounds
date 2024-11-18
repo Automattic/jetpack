@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Add missing ids to radio buttons in the confirmation form.

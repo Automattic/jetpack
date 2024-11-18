@@ -1319,7 +1319,7 @@ class Jetpack_Gutenberg {
 	/**
 	 * Check whether the environment supports the newer default size of elements, gradually introduced starting with WP 6.4.
 	 *
-	 * @since $$next-version$$
+	 * @since 14.0
 	 *
 	 * @see https://make.wordpress.org/core/2023/10/16/editor-components-updates-in-wordpress-6-4/#improving-size-consistency-for-ui-components
 	 *
@@ -1352,6 +1352,33 @@ class Jetpack_Gutenberg {
 
 		// Final fallback.
 		return false;
+	}
+
+	/**
+	 * Register block metadata collection for Jetpack blocks.
+	 * This allows for more efficient block metadata loading by avoiding
+	 * individual block.json file reads at runtime.
+	 *
+	 * Uses wp_register_block_metadata_collection() if available (WordPress 6.7+)
+	 * and if the manifest file exists. The manifest file is auto-generated
+	 * during the build process.
+	 *
+	 * Runs on plugins_loaded to ensure registration happens before individual
+	 * blocks register themselves on init.
+	 *
+	 * @static
+	 * @since $$next-version$$
+	 * @return void
+	 */
+	public static function register_block_metadata_collection() {
+		$meta_file_path = JETPACK__PLUGIN_DIR . '_inc/blocks/blocks-manifest.php';
+		if ( function_exists( 'wp_register_block_metadata_collection' ) && file_exists( $meta_file_path ) ) {
+			// @phan-suppress-next-line PhanUndeclaredFunction -- New in WP 6.7. We're checking if it exists first.
+			wp_register_block_metadata_collection(
+				JETPACK__PLUGIN_DIR . '_inc/blocks/',
+				$meta_file_path
+			);
+		}
 	}
 }
 

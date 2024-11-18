@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Forms: Fix an error occurring due to a function receiving an unexpected input type.
