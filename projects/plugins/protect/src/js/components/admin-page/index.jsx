@@ -55,7 +55,7 @@ const AdminPage = ( { children } ) => {
 					<JetpackProtectLogo />
 					{ hasPlan && viewingScanPage && (
 						<div className={ styles.header__scan_buttons }>
-							<Button variant="secondary" weight={ 'regular' } href={ goToCloudUrl }>
+							<Button variant="link" isExternalLink weight={ 'regular' } href={ goToCloudUrl }>
 								{ __( 'Go to Cloud', 'jetpack-protect' ) }
 							</Button>
 							<ScanButton />
