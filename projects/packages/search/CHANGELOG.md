@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.47.0] - 2024-11-18
+### Removed
+- General: Update minimum PHP version to 7.2. [#40147]
+
 ## [0.46.0] - 2024-11-11
 ### Added
 - Search: Add ability to customize results [#36378]
@@ -39,10 +43,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.45.7] - 2024-10-07
 ### Changed
-- Updated package dependencies. [#39592]
-- Updated package dependencies. [#39594]
-- Updated package dependencies. [#39595]
-- Updated package dependencies. [#39639]
+- Updated package dependencies. [#39592] [#39594] [#39595] [#39639]
 
 ## [0.45.6] - 2024-09-30
 ### Changed
@@ -209,8 +210,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.43.0] - 2024-02-05
 ### Changed
-- Updated package dependencies. [#35384]
-- Updated package dependencies. [#35385]
+- Updated package dependencies. [#35384] [#35385]
 - Use blog ID instead of site slug in checkout links. [#35000]
 
 ## [0.42.1] - 2024-01-29
@@ -304,8 +304,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.38.6] - 2023-09-04
 ### Changed
-- Updated package dependencies. [#32803]
-- Updated package dependencies. [#32804]
+- Updated package dependencies. [#32803] [#32804]
 
 ## [0.38.5] - 2023-08-28
 ### Changed
@@ -321,8 +320,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.38.2] - 2023-07-25
 ### Changed
-- Updated package dependencies. [#31923]
-- Updated package dependencies. [#32040]
+- Updated package dependencies. [#31923] [#32040]
 - Update props passed to JetpackFooter [#31627]
 
 ## [0.38.1] - 2023-07-17
@@ -712,9 +710,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Instant search: updates overlay focus elements for design consistency [#25260]
-- Updated package dependencies. [#25144]
-- Updated package dependencies. [#25147]
-- Updated package dependencies. [#25158]
+- Updated package dependencies. [#25144] [#25147] [#25158]
 
 ### Fixed
 - Instant Search: Fix keyboard handling of sort options. [#25163]
@@ -827,12 +823,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Search: refactored Settings to expose the settings array for sync [#24167]
-- Updated package dependencies. [#24189]
-- Updated package dependencies. [#24204]
-- Updated package dependencies. [#24302]
-- Updated package dependencies [#24276]
-- Updated package dependencies [#24296]
-- Updated package dependencies [#24301]
+- Updated package dependencies. [#24189] [#24204] [#24302] [#24276] [#24296] [#24301]
 
 ### Fixed
 - Search: Fix left padding for upsell page [#24285]
@@ -1092,6 +1083,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
 
+[0.47.0]: https://github.com/Automattic/jetpack-search/compare/v0.46.0...v0.47.0
 [0.46.0]: https://github.com/Automattic/jetpack-search/compare/v0.45.12...v0.46.0
 [0.45.12]: https://github.com/Automattic/jetpack-search/compare/v0.45.11...v0.45.12
 [0.45.11]: https://github.com/Automattic/jetpack-search/compare/v0.45.10...v0.45.11

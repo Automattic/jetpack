@@ -36,7 +36,7 @@ class Extension_Model {
 	/**
 	 * A collection of threats related to this version of the extension.
 	 *
-	 * @deprecated $$next-version$$ This property is deprecated. Use Threat_Model::$extension instead.
+	 * @deprecated 0.4.0 This property is deprecated. Use Threat_Model::$extension instead.
 	 *
 	 * @var array<Threat_Model>
 	 */
@@ -83,7 +83,7 @@ class Extension_Model {
 	/**
 	 * Set Threats
 	 *
-	 * @deprecated $$next-version$$ This method is deprecated. Use Threat_Model::$extension instead.
+	 * @deprecated 0.4.0 This method is deprecated. Use Threat_Model::$extension instead.
 	 *
 	 * @param array<Threat_Model|array|object> $threats An array of threat data to add to the extension.
 	 */

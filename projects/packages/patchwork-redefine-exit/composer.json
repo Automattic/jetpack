@@ -48,7 +48,7 @@
 	"extra": {
 		"autotagger": true,
 		"branch-alias": {
-			"dev-trunk": "1.0.x-dev"
+			"dev-trunk": "2.0.x-dev"
 		},
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/patchwork-redefine-exit/compare/v${old}...v${new}"
