@@ -221,7 +221,6 @@ class REST_Connector {
 					'registration_nonce' => array(
 						'description' => __( 'The registration nonce', 'jetpack-connection' ),
 						'type'        => 'string',
-						'required'    => true,
 					),
 					'redirect_uri'       => array(
 						'description' => __( 'URI of the admin page where the user should be redirected after connection flow', 'jetpack-connection' ),
@@ -791,7 +790,10 @@ class REST_Connector {
 	 * @return \WP_REST_Response|WP_Error
 	 */
 	public function connection_register( $request ) {
-		if ( ! wp_verify_nonce( $request->get_param( 'registration_nonce' ), 'jetpack-registration-nonce' ) ) {
+		$is_app = did_action( 'application_password_did_authenticate' );
+
+		// We don't need the nonce if application password was provided.
+		if ( ! $is_app && ! wp_verify_nonce( $request->get_param( 'registration_nonce' ), 'jetpack-registration-nonce' ) ) {
 			return new WP_Error( 'invalid_nonce', __( 'Unable to verify your request.', 'jetpack-connection' ), array( 'status' => 403 ) );
 		}
 
