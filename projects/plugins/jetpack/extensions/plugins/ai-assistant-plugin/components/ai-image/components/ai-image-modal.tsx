@@ -74,7 +74,7 @@ export default function AiImageModal( {
 	isUnlimited: boolean;
 	upgradeDescription: string;
 	hasError: boolean;
-	postContent?: string;
+	postContent?: string | boolean | null;
 	handlePreviousImage: () => void;
 	handleNextImage: () => void;
 	acceptButton: React.JSX.Element;

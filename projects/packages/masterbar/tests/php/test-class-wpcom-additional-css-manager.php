@@ -40,10 +40,9 @@ class Test_WPCOM_Additional_Css_Manager extends TestCase {
 	 * Check if the manager constructs the proper url and copy message.
 	 */
 	public function test_it_generates_proper_url_and_nudge() {
-		// @phan-suppress-next-line PhanDeprecatedFunction -- Keep using setMethods until we drop PHP 7.0 support.
 		$manager = $this->getMockBuilder( WPCOM_Additional_CSS_Manager::class )
 			->setConstructorArgs( array( 'foo.com' ) )
-			->setMethods( array( 'get_plan' ) )
+			->onlyMethods( array( 'get_plan' ) )
 			->getMock();
 
 		$manager->method( 'get_plan' )->willReturn(

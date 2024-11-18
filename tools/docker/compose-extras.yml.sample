@@ -4,7 +4,6 @@
 #
 ########
 
-version: '3.3'
 #services:
 #  wordpress:
 #    ## Note WordPress and its plugins and themes should be defined in docker/compose-volumes.yml, not here!

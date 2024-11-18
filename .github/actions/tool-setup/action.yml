@@ -21,11 +21,6 @@ runs:
         # Read tool versions
         . .github/versions.sh
 
-        if [[ "${INPUT_PHP:-$PHP_VERSION}" == 7.[01] ]]; then
-          printf "Downgrading composer for PHP %s\n\n" "${INPUT_PHP:-$PHP_VERSION}"
-          COMPOSER_VERSION=2.2.24
-        fi
-
         printf "\n\e[1mSelected tool versions\e[0m\n"
         echo " PHP: ${INPUT_PHP:-$PHP_VERSION}"
         echo "php-version=${INPUT_PHP:-$PHP_VERSION}" >> "$GITHUB_OUTPUT"
