@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.2.96 - 2024-11-18
+### Changed
+- Update dependencies. [#40194]
+
 ## 0.2.95 - 2024-11-11
 ### Changed
 - Updated package dependencies. [#39999] [#40060]
@@ -176,8 +180,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 0.2.54 - 2023-09-04
 ### Changed
-- Updated package dependencies. [#32803]
-- Updated package dependencies. [#32804]
+- Updated package dependencies. [#32803] [#32804]
 
 ## 0.2.53 - 2023-08-09
 ### Changed

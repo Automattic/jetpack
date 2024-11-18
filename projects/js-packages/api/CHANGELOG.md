@@ -92,8 +92,7 @@
 
 ## [0.16.7] - 2023-12-03
 ### Changed
-- Updated package dependencies. [#34411]
-- Updated package dependencies. [#34427]
+- Updated package dependencies. [#34411] [#34427]
 
 ## [0.16.6] - 2023-11-20
 

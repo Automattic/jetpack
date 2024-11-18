@@ -817,7 +817,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/image-cdn",
-                "reference": "f3bdf2f4a067c2bd1ce9003cd7b0985b2b16e6b0"
+                "reference": "679072fe9bb7af143d368c171e0517767d448552"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -840,7 +840,7 @@
                 },
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.6.x-dev"
+                    "dev-trunk": "0.7.x-dev"
                 },
                 "textdomain": "jetpack-image-cdn",
                 "version-constants": {
