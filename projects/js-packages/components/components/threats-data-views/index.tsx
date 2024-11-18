@@ -559,7 +559,7 @@ export default function ThreatsDataViews( {
 			{ openThreat ? (
 				<ThreatDetailsModal
 					threat={ openThreat }
-					showDetails={ true }
+					skipThreatDetails={ false }
 					isUserConnected={ isUserConnected }
 					hasConnectedOwner={ hasConnectedOwner }
 					userIsConnecting={ userIsConnecting }

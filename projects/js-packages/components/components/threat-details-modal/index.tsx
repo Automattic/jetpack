@@ -21,7 +21,7 @@ export const ThreatDetailsModalContext = createContext< ThreatDetailsModalContex
  *
  * @param {object}   props                           - The props.
  * @param {object}   props.threat                    - The threat.
- * @param {boolean}  props.showDetails               - Whether to show the details.
+ * @param {boolean}  props.skipThreatDetails         - Whether to show the details.
  * @param {boolean}  props.isUserConnected           - Whether the user is connected.
  * @param {boolean}  props.hasConnectedOwner         - Whether the user has a connected owner.
  * @param {boolean}  props.userIsConnecting          - Whether the user is connecting.
@@ -38,7 +38,7 @@ export const ThreatDetailsModalContext = createContext< ThreatDetailsModalContex
  */
 export default function ThreatDetailsModal( {
 	threat,
-	showDetails = true,
+	skipThreatDetails = false,
 	isUserConnected,
 	hasConnectedOwner,
 	userIsConnecting,
@@ -53,7 +53,7 @@ export default function ThreatDetailsModal( {
 	...modalProps
 }: {
 	threat: Threat;
-	showDetails?: boolean;
+	skipThreatDetails?: boolean;
 	isUserConnected: boolean;
 	hasConnectedOwner: boolean;
 	userIsConnecting: boolean;
@@ -67,7 +67,7 @@ export default function ThreatDetailsModal( {
 	handleUnignoreThreatClick?: ( threats: Threat[] ) => void;
 	[ key: string ]: unknown;
 } ): JSX.Element {
-	const [ showThreatDetails, setShowThreatDetails ] = useState( showDetails );
+	const [ showThreatDetails, setShowThreatDetails ] = useState( skipThreatDetails );
 
 	const fixerState = useMemo( () => {
 		return getFixerState( threat.fixer );
