@@ -32,7 +32,7 @@ import styles from './style.module.scss';
  */
 function Price( { value, currency, isOld } ) {
 	if ( ! value || ! currency ) {
-		return <></>;
+		return null;
 	}
 
 	const priceObject = getCurrencyObject( value, currency );
@@ -184,28 +184,26 @@ const ProductDetailCard = ( {
 		} );
 
 	// Suppported products icons.
-	const icons = isBundle ? (
-		supportedProducts
-			.join( '_plus_' )
-			.split( '_' )
-			.map( ( iconSlug, i ) => {
-				if ( iconSlug === 'plus' ) {
-					return (
-						<Icon
-							className={ styles[ 'plus-icon' ] }
-							key={ `icon-plugs${ i }` }
-							icon={ plus }
-							size={ 14 }
-						/>
-					);
-				}
+	const icons = isBundle
+		? supportedProducts
+				.join( '_plus_' )
+				.split( '_' )
+				.map( ( iconSlug, i ) => {
+					if ( iconSlug === 'plus' ) {
+						return (
+							<Icon
+								className={ styles[ 'plus-icon' ] }
+								key={ `icon-plugs${ i }` }
+								icon={ plus }
+								size={ 14 }
+							/>
+						);
+					}
 
-				const SupportedProductIcon = getIconBySlug( iconSlug );
-				return <SupportedProductIcon key={ iconSlug } size={ 24 } />;
-			} )
-	) : (
-		<></>
-	);
+					const SupportedProductIcon = getIconBySlug( iconSlug );
+					return <SupportedProductIcon key={ iconSlug } size={ 24 } />;
+				} )
+		: null;
 
 	let priceDescription;
 	if ( introductoryOffer?.intervalUnit === 'month' && introductoryOffer?.intervalCount === 1 ) {
@@ -246,7 +244,7 @@ const ProductDetailCard = ( {
 	function ProductIcon( { slug: iconSlug } ) {
 		const ProIcon = getIconBySlug( iconSlug );
 		if ( ! ProIcon ) {
-			return <></>;
+			return null;
 		}
 
 		return (
