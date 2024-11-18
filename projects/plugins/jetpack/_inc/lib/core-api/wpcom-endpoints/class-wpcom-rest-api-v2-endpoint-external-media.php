@@ -657,7 +657,7 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 		$wpcom_path = sprintf( '/meta/external-media/proxy/%s', $service );
 
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			$request = new \WP_REST_Request( 'GET', '/' . $this->namespace . $wpcom_path );
+			$request = new \WP_REST_Request( 'POST', '/' . $this->namespace . $wpcom_path );
 			$request->set_query_params( $params );
 
 			$response = rest_do_request( $request );
