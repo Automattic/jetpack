@@ -5,7 +5,6 @@ import {
 	RichText,
 	withColors,
 	withFontSizes,
-	useBlockProps,
 	__experimentalUseGradient as useGradient, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/block-editor';
 import { TextControl, Toolbar, withFallbackStyles } from '@wordpress/components';
@@ -70,8 +69,6 @@ export function SubscriptionEdit( props ) {
 		fontSize,
 		hasTierPlans,
 	} = props;
-
-	const blockProps = useBlockProps();
 
 	const validatedAttributes = getValidatedAttributes( metadata.attributes, attributes );
 	if ( ! isEqual( validatedAttributes, attributes ) ) {
@@ -213,12 +210,6 @@ export function SubscriptionEdit( props ) {
 		setBorderColor( buttonBackgroundColor.color );
 	}, [ buttonBackgroundColor, previousButtonBackgroundColor, borderColor, setBorderColor ] );
 
-	const paidPlanLabel = paidPlanButtonText( hasTierPlans );
-
-	if ( isLoadingModules ) {
-		return <SubscriptionSkeletonLoader />;
-	}
-
 	return (
 		<>
 			<InspectorControls>
@@ -251,7 +242,7 @@ export function SubscriptionEdit( props ) {
 				/>
 			</InspectorControls>
 			<BlockControls>
-				<Toolbar label={ paidPlanLabel }>
+				<Toolbar label={ paidPlanButtonText( hasTierPlans ) }>
 					<GetAddPaidPlanButton context={ 'toolbar' } hasTierPlans={ hasTierPlans } />
 				</Toolbar>
 			</BlockControls>
