@@ -21,7 +21,7 @@ class History_Model {
 	/**
 	 * Threats.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.4.0
 	 *
 	 * @var array<Threat_Model>
 	 */
@@ -51,7 +51,7 @@ class History_Model {
 	/**
 	 * The number of threats.
 	 *
-	 * @deprecated $$next-version$$ This property is deprecated. Count History_Model::$threats instead.
+	 * @deprecated 0.4.0 This property is deprecated. Count History_Model::$threats instead.
 	 *
 	 * @var int
 	 */
@@ -60,7 +60,7 @@ class History_Model {
 	/**
 	 * The number of core threats.
 	 *
-	 * @deprecated $$next-version$$ This property is deprecated. Filter and count History_Model::$threats instead.
+	 * @deprecated 0.4.0 This property is deprecated. Filter and count History_Model::$threats instead.
 	 *
 	 * @var int
 	 */
@@ -69,7 +69,7 @@ class History_Model {
 	/**
 	 * The number of plugin threats.
 	 *
-	 * @deprecated $$next-version$$ This property is deprecated. Filter and count History_Model::$threats instead.
+	 * @deprecated 0.4.0 This property is deprecated. Filter and count History_Model::$threats instead.
 	 *
 	 * @var int
 	 */
@@ -78,7 +78,7 @@ class History_Model {
 	/**
 	 * The number of theme threats.
 	 *
-	 * @deprecated $$next-version$$ This property is deprecated. Filter and count History_Model::$threats instead.
+	 * @deprecated 0.4.0 This property is deprecated. Filter and count History_Model::$threats instead.
 	 *
 	 * @var int
 	 */
@@ -87,7 +87,7 @@ class History_Model {
 	/**
 	 * WordPress core.
 	 *
-	 * @deprecated $$next-version$$ This property is deprecated. Use History_Model::$threats instead.
+	 * @deprecated 0.4.0 This property is deprecated. Use History_Model::$threats instead.
 	 *
 	 * @var array<Extension_Model>
 	 */
@@ -96,7 +96,7 @@ class History_Model {
 	/**
 	 * Status themes.
 	 *
-	 * @deprecated $$next-version$$ This property is deprecated. Filter and use History_Model::$threats instead.
+	 * @deprecated 0.4.0 This property is deprecated. Filter and use History_Model::$threats instead.
 	 *
 	 * @var array<Extension_Model>
 	 */
@@ -105,7 +105,7 @@ class History_Model {
 	/**
 	 * Status plugins.
 	 *
-	 * @deprecated $$next-version$$ This property is deprecated. Filter and use History_Model::$threats instead.
+	 * @deprecated 0.4.0 This property is deprecated. Filter and use History_Model::$threats instead.
 	 *
 	 * @var array<Extension_Model>
 	 */
@@ -114,7 +114,7 @@ class History_Model {
 	/**
 	 * File threats.
 	 *
-	 * @deprecated $$next-version$$ This property is deprecated. Filter and use History_Model::$threats instead.
+	 * @deprecated 0.4.0 This property is deprecated. Filter and use History_Model::$threats instead.
 	 *
 	 * @var array<Extension_Model>
 	 */
@@ -123,7 +123,7 @@ class History_Model {
 	/**
 	 * Database threats.
 	 *
-	 * @deprecated $$next-version$$ This property is deprecated. Filter and use History_Model::$threats instead.
+	 * @deprecated 0.4.0 This property is deprecated. Filter and use History_Model::$threats instead.
 	 *
 	 * @var array<Extension_Model>
 	 */

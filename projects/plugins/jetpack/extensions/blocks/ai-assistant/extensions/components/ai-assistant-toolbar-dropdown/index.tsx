@@ -91,9 +91,12 @@ function AiAssistantExtensionToolbarDropdownContent( {
 		handleToolbarButtonClick();
 	};
 
+	const [ clientId ] = getSelectedBlockClientIds();
+
 	return (
 		<AiAssistantToolbarDropdownContent
 			blockType={ blockType }
+			clientId={ clientId }
 			onRequestSuggestion={ handleRequestSuggestion }
 			onAskAiAssistant={ handleAskAiAssistant }
 			disabled={ false }
