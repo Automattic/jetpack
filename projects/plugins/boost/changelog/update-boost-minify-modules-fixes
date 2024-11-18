@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Boost: update minification modules so they are consistent with the rest of the UI
