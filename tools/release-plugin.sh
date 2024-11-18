@@ -202,6 +202,9 @@ if [[ -n "$(git status --porcelain)" ]]; then
 	die "Working directory not clean, make sure you're working from a clean checkout and try again."
 fi
 
+yellow "Installing root packages."
+pnpm jetpack install --root
+
 yellow "Checking out prerelease branch."
 # Is there an upstream prerelease branch already?
 R=$( git ls-remote --heads origin prerelease )

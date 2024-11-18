@@ -20,4 +20,4 @@ TESTS[client]="pnpm run test-client --coverage"
 TESTS[gui]="pnpm run test-gui --coverage"
 TESTS[extensions]="pnpm run test-extensions --coverage"
 
-pnpm exec concurrently --max-processes '100%' --names "$( IFS=,; echo "${!TESTS[*]}" )" "${TESTS[@]}"
+pnpm exec concurrently --max-processes '50%' --names "$( IFS=,; echo "${!TESTS[*]}" )" "${TESTS[@]}"
