@@ -52,13 +52,12 @@ const ThreatActions = ( {
 		closeModal();
 	}, [ threat, handleUnignoreThreatClick, closeModal ] );
 
+	if ( ! handleFixThreatClick && ! handleIgnoreThreatClick && ! handleUnignoreThreatClick ) {
+		return null;
+	}
+
 	return (
 		<div className={ styles[ 'modal-actions' ] }>
-			<div>
-				<Button variant="secondary" onClick={ closeModal }>
-					{ __( 'Close', 'jetpack' ) }
-				</Button>
-			</div>
 			<div className={ styles[ 'threat-actions' ] }>
 				{ threat.status === 'ignored' && handleUnignoreThreatClick && (
 					<Button isDestructive={ true } variant="secondary" onClick={ onUnignoreClick }>

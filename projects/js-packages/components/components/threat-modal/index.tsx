@@ -34,26 +34,22 @@ export default function ThreatModal( {
 	handleFixThreatClick?: ( threats: Threat[] ) => void;
 	handleIgnoreThreatClick?: ( threats: Threat[] ) => void;
 	handleUnignoreThreatClick?: ( threats: Threat[] ) => void;
-	[ key: string ]: unknown;
-} ): JSX.Element {
+} & React.ComponentProps< typeof Modal > ): JSX.Element {
 	const fixerState = useMemo( () => {
 		return getFixerState( threat.fixer );
 	}, [ threat.fixer ] );
 
-	const title = useMemo( () => {
-		if ( threat.title ) {
-			return threat.title;
-		}
-
-		if ( threat.status === 'fixed' ) {
-			return __( 'What was the problem?', 'jetpack' );
-		}
-
-		return __( 'What is the problem?', 'jetpack' );
-	}, [ threat ] );
-
 	return (
-		<Modal size="large" __experimentalHideHeader { ...modalProps }>
+		<Modal
+			size="large"
+			title={
+				<div className={ styles.title }>
+					<Text variant="title-small">{ threat.title }</Text>
+					{ !! threat.severity && <ThreatSeverityBadge severity={ threat.severity } /> }
+				</div>
+			}
+			{ ...modalProps }
+		>
 			<div className={ styles[ 'threat-details' ] }>
 				{ fixerState.error && (
 					<Notice isDismissible={ false } status="error">
@@ -71,11 +67,6 @@ export default function ThreatModal( {
 					</Notice>
 				) }
 				<div className={ styles.section }>
-					<div className={ styles.title }>
-						<Text variant="title-small">{ title }</Text>
-						{ !! threat.severity && <ThreatSeverityBadge severity={ threat.severity } /> }
-					</div>
-
 					{ !! threat.description && <Text>{ threat.description }</Text> }
 
 					{ !! threat.source && (
@@ -98,7 +89,7 @@ export default function ThreatModal( {
 
 				<ThreatActions
 					threat={ threat }
-					closeModal={ modalProps.onRequestClose as () => void }
+					closeModal={ modalProps.onRequestClose }
 					handleFixThreatClick={ handleFixThreatClick }
 					handleIgnoreThreatClick={ handleIgnoreThreatClick }
 					handleUnignoreThreatClick={ handleUnignoreThreatClick }

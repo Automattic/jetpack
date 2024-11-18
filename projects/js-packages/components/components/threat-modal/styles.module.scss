@@ -24,7 +24,7 @@
 
 .modal-actions {
 	display: flex;
-	justify-content: space-between;
+	justify-content: flex-end;
 	padding-top: calc( var( --spacing-base ) * 3 ); // 24px
 	border-top: 1px solid var( --jp-gray-0 );
 
