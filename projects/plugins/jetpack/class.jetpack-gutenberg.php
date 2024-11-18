@@ -171,6 +171,7 @@ class Jetpack_Gutenberg {
 	 * @param string $slug Slug of the extension.
 	 */
 	public static function set_extension_available( $slug ) {
+		$slug                        = self::remove_extension_prefix( $slug );
 		self::$availability[ $slug ] = true;
 	}
 
@@ -206,7 +207,7 @@ class Jetpack_Gutenberg {
 			// Add a descriptive suffix to disable behavior but provide informative reason.
 			$reason .= '__nudge_disabled';
 		}
-
+		$slug                        = self::remove_extension_prefix( $slug );
 		self::$availability[ $slug ] = array(
 			'reason'  => $reason,
 			'details' => $details,
