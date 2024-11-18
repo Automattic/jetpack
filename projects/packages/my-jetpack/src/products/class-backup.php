@@ -207,6 +207,15 @@ class Backup extends Hybrid_Product {
 	}
 
 	/**
+	 * Check if the site has backup feature
+	 */
+	public static function has_paid_feature() {
+		$has_feature = static::does_site_have_active_feature( 'backups' );
+
+		return $has_feature;
+	}
+
+	/**
 	 * Return product bundles list
 	 * that supports the product.
 	 *

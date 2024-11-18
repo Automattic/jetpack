@@ -172,6 +172,7 @@ abstract class Product {
 			'has_any_plan_for_product'        => static::has_any_plan_for_product(),
 			'has_free_plan_for_product'       => static::has_free_plan_for_product(),
 			'has_paid_plan_for_product'       => static::has_paid_plan_for_product(),
+			'has_paid_feature'                => static::has_paid_feature(),
 			'has_free_offering'               => static::$has_free_offering,
 			'manage_url'                      => static::get_manage_url(),
 			'purchase_url'                    => static::get_purchase_url(),
@@ -209,6 +210,52 @@ abstract class Product {
 		$features       = $feature_return->active;
 
 		return $features;
+	}
+
+	/**
+	 * Get the site's active features
+	 *
+	 * @return array|WP_Error
+	 */
+	public static function get_site_active_features() {
+		static $features = null;
+
+		if ( $features !== null ) {
+			return $features;
+		}
+
+		$site_id  = Jetpack_Options::get_option( 'id' );
+		$response = Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d/features', $site_id ), '1.1' );
+
+		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			$features = new WP_Error( 'site_features_fetch_failed' );
+			return $features;
+		}
+
+		$body           = wp_remote_retrieve_body( $response );
+		$feature_return = json_decode( $body );
+		$features       = $feature_return->active;
+
+		return $features;
+	}
+
+	/**
+	 * Check to see if the site has an active feature
+	 *
+	 * @param string $feature - the feature to check for.
+	 * @return bool
+	 */
+	public static function does_site_have_active_feature( $feature ) {
+		if ( ! $feature ) {
+			return false;
+		}
+
+		$features = self::get_site_active_features();
+		if ( is_wp_error( $features ) ) {
+			return false;
+		}
+
+		return in_array( $feature, $features, true );
 	}
 
 	/**
@@ -408,6 +455,15 @@ abstract class Product {
 	}
 
 	/**
+	 * Checks whether the product has a paid feature
+	 *
+	 * @return boolean
+	 */
+	public static function has_paid_feature() {
+		return false;
+	}
+
+	/**
 	 * Checks whether the product supports trial or not
 	 *
 	 * Returns true if it supports. Return false otherwise.
@@ -491,7 +547,7 @@ abstract class Product {
 	public static function get_status() {
 		if ( ! static::is_plugin_installed() ) {
 			$status = Products::STATUS_PLUGIN_ABSENT;
-			if ( static::has_paid_plan_for_product() ) {
+			if ( static::has_paid_feature() || static::has_paid_plan_for_product() ) {
 				$status = Products::STATUS_PLUGIN_ABSENT_WITH_PLAN;
 			}
 		} elseif ( static::is_active() ) {
@@ -516,7 +572,7 @@ abstract class Product {
 			// Getting a plan set up should help resolve any connection issues
 			// However if the standalone plugin for this product is active, then we will defer to showing errors that prevent the module from being active
 			// This is because if a standalone plugin is installed, we expect the product to not show as "inactive" on My Jetpack
-			if ( static::$requires_plan || ( ! static::has_any_plan_for_product() && static::$has_standalone_plugin && ! self::is_plugin_active() ) ) {
+			if ( static::$requires_plan || ( ! static::has_paid_feature() && static::$has_standalone_plugin && ! self::is_plugin_active() ) ) {
 				$status = static::is_owned() && static::$has_free_offering && ! static::$requires_plan ? Products::STATUS_NEEDS_ACTIVATION : Products::STATUS_NEEDS_PLAN;
 			} elseif ( static::$requires_site_connection && ! ( new Connection_Manager() )->is_connected() ) {
 				// Site has never been connected before and product is not owned
@@ -528,7 +584,7 @@ abstract class Product {
 			} elseif ( static::$requires_user_connection && ! ( new Connection_Manager() )->has_connected_owner() ) {
 				$status = Products::STATUS_USER_CONNECTION_ERROR;
 			}
-		} elseif ( ! static::has_any_plan_for_product() ) {
+		} elseif ( ! static::has_paid_feature() && ! static::has_any_plan_for_product() ) {
 			$status = static::is_owned() && static::$has_free_offering && ! static::$requires_plan ? Products::STATUS_NEEDS_ACTIVATION : Products::STATUS_NEEDS_PLAN;
 		} else {
 			$status = Products::STATUS_INACTIVE;
