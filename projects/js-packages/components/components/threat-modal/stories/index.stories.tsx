@@ -13,7 +13,7 @@ const Base = args => {
 	const onRequestClose = useCallback( () => setIsOpen( false ), [] );
 	return (
 		<div>
-			<Button onClick={ onClick }>Open Threat Details Modal</Button>
+			<Button onClick={ onClick }>Open Threat Modal</Button>
 			{ isOpen ? <ThreatModal { ...args } onRequestClose={ onRequestClose } /> : null }
 		</div>
 	);
