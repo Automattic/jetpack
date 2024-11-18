@@ -660,32 +660,47 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 			$request = new \WP_REST_Request( 'GET', '/' . $this->namespace . $wpcom_path );
 			$request->set_query_params( $params );
 
-			return rest_do_request( $request );
+			$response = rest_do_request( $request );
+
+			$status_code = $response->get_status();
+			$headers     = $response->get_headers();
+			$body        = $response->get_data();
+
+			if ( $status_code !== 200 ) {
+				return $response;
+			}
+		} else {
+				// Build query string to pass to wpcom endpoint.
+			$service_args = array_filter(
+				$params,
+				function ( $key ) {
+					return in_array( $key, array( 'url' ), true );
+				},
+				ARRAY_FILTER_USE_KEY
+			);
+
+			if ( ! empty( $service_args ) ) {
+				$wpcom_path .= '?' . http_build_query( $service_args );
+			}
+
+			$response = Client::wpcom_json_api_request_as_user(
+				$wpcom_path,
+				'2',
+				array(
+					'method' => 'POST',
+				)
+			);
+
+			$status_code = wp_remote_retrieve_response_code( $response );
+			$headers     = wp_remote_retrieve_headers( $response );
+			$body        = wp_remote_retrieve_body( $response );
+
+			// For non-200 responses, parse and return JSON error
+			if ( $status_code !== 200 ) {
+				$error_data = json_decode( $body, true );
+				return new \WP_REST_Response( $error_data, $status_code );
+			}
 		}
-
-		// Build query string to pass to wpcom endpoint.
-		$service_args = array_filter(
-			$params,
-			function ( $key ) {
-				return in_array( $key, array( 'url' ), true );
-			},
-			ARRAY_FILTER_USE_KEY
-		);
-
-		if ( ! empty( $service_args ) ) {
-			$wpcom_path .= '?' . http_build_query( $service_args );
-		}
-
-		$response = Client::wpcom_json_api_request_as_user(
-			$wpcom_path,
-			'2',
-			array(
-				'method' => 'POST',
-			)
-		);
-
-		$headers = wp_remote_retrieve_headers( $response );
-		$body    = wp_remote_retrieve_body( $response );
 
 		// Return binary content directly
 		$valid_headers = array(
