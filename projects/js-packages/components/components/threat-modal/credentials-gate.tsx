@@ -5,25 +5,22 @@ import React, { ReactNode } from 'react';
 import styles from './styles.module.scss';
 
 const CredentialsGate = ( {
-	closeModal,
-	credentials,
+	siteCredentialsNeeded,
 	credentialsIsFetching,
 	credentialsRedirectUrl,
 	children,
 }: {
-	closeModal: () => void;
-	credentials: false | Record< string, unknown >[];
+	siteCredentialsNeeded: boolean;
 	credentialsIsFetching: boolean;
 	credentialsRedirectUrl: string;
 	children: ReactNode;
 } ) => {
-	if ( ! credentials || credentials.length === 0 ) {
+	if ( siteCredentialsNeeded ) {
 		return (
 			<>
-				<Text variant="title-small">{ __( 'Site credentials needed', 'jetpack' ) }</Text>
-
 				<Notice
 					status="warning"
+					isDismissible={ false }
 					children={
 						<Text>
 							{ __(
@@ -49,9 +46,6 @@ const CredentialsGate = ( {
 				</Text>
 
 				<div className={ styles[ 'modal-actions' ] }>
-					<Button variant="secondary" onClick={ closeModal }>
-						{ __( 'Not now', 'jetpack' ) }
-					</Button>
 					<Button
 						isExternalLink={ true }
 						weight="regular"

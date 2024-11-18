@@ -57,37 +57,45 @@ export default function ThreatModal( {
 	handleFixThreatClick?: ( threats: Threat[] ) => void;
 	handleIgnoreThreatClick?: ( threats: Threat[] ) => void;
 	handleUnignoreThreatClick?: ( threats: Threat[] ) => void;
-	[ key: string ]: unknown;
-} ): JSX.Element {
+} & React.ComponentProps< typeof Modal > ): JSX.Element {
+	const userConnectionNeeded = ! isUserConnected || ! hasConnectedOwner;
+	const siteCredentialsNeeded = ! credentials || credentials.length === 0;
+
 	const fixerState = useMemo( () => {
 		return getFixerState( threat.fixer );
 	}, [ threat.fixer ] );
 
-	const title = useMemo( () => {
-		if ( threat.title ) {
-			return threat.title;
+	const getModalTitle = useMemo( () => {
+		if ( userConnectionNeeded ) {
+			return <Text variant="title-small">{ __( 'User connection needed', 'jetpack' ) }</Text>;
 		}
 
-		if ( threat.status === 'fixed' ) {
-			return __( 'What was the problem?', 'jetpack' );
+		if ( siteCredentialsNeeded ) {
+			return <Text variant="title-small">{ __( 'Site credentials needed', 'jetpack' ) }</Text>;
 		}
 
-		return __( 'What is the problem?', 'jetpack' );
-	}, [ threat ] );
+		return (
+			<>
+				<Text variant="title-small">{ threat.title }</Text>
+				{ !! threat.severity && <ThreatSeverityBadge severity={ threat.severity } /> }
+			</>
+		);
+	}, [ userConnectionNeeded, siteCredentialsNeeded, threat.title, threat.severity ] );
 
 	return (
-		<Modal size="large" __experimentalHideHeader { ...modalProps }>
+		<Modal
+			size="large"
+			title={ <div className={ styles.title }>{ getModalTitle }</div> }
+			{ ...modalProps }
+		>
 			<div className={ styles[ 'threat-details' ] }>
 				<UserConnectionGate
-					closeModal={ modalProps.onRequestClose as () => void }
-					isUserConnected={ isUserConnected }
-					hasConnectedOwner={ hasConnectedOwner }
+					userConnectionNeeded={ userConnectionNeeded }
 					userIsConnecting={ userIsConnecting }
 					handleConnectUser={ handleConnectUser }
 				>
 					<CredentialsGate
-						closeModal={ modalProps.onRequestClose as () => void }
-						credentials={ credentials }
+						siteCredentialsNeeded={ siteCredentialsNeeded }
 						credentialsIsFetching={ credentialsIsFetching }
 						credentialsRedirectUrl={ credentialsRedirectUrl }
 					>
@@ -107,11 +115,6 @@ export default function ThreatModal( {
 							</Notice>
 						) }
 						<div className={ styles.section }>
-							<div className={ styles.title }>
-								<Text variant="title-small">{ title }</Text>
-								{ !! threat.severity && <ThreatSeverityBadge severity={ threat.severity } /> }
-							</div>
-
 							{ !! threat.description && <Text>{ threat.description }</Text> }
 
 							{ !! threat.source && (
@@ -134,7 +137,7 @@ export default function ThreatModal( {
 
 						<ThreatActions
 							threat={ threat }
-							closeModal={ modalProps.onRequestClose as () => void }
+							closeModal={ modalProps.onRequestClose }
 							handleFixThreatClick={ handleFixThreatClick }
 							handleIgnoreThreatClick={ handleIgnoreThreatClick }
 							handleUnignoreThreatClick={ handleUnignoreThreatClick }

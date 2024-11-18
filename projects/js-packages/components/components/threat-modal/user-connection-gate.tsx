@@ -5,25 +5,19 @@ import React, { ReactNode } from 'react';
 import styles from './styles.module.scss';
 
 const UserConnectionGate = ( {
-	closeModal,
-	isUserConnected,
-	hasConnectedOwner,
+	userConnectionNeeded,
 	userIsConnecting,
 	handleConnectUser,
 	children,
 }: {
-	closeModal: () => void;
-	isUserConnected: boolean;
-	hasConnectedOwner: boolean;
+	userConnectionNeeded: boolean;
 	userIsConnecting: boolean;
 	handleConnectUser: () => void;
 	children: ReactNode;
 } ) => {
-	if ( ! isUserConnected || ! hasConnectedOwner ) {
+	if ( userConnectionNeeded ) {
 		return (
 			<>
-				<Text variant="title-small">{ __( 'User connection needed', 'jetpack' ) }</Text>
-
 				<Notice
 					status="warning"
 					isDismissible={ false }
@@ -52,9 +46,6 @@ const UserConnectionGate = ( {
 				</Text>
 
 				<div className={ styles[ 'modal-actions' ] }>
-					<Button variant="secondary" onClick={ closeModal }>
-						{ __( 'Not now', 'jetpack' ) }
-					</Button>
 					<Button
 						isExternalLink={ true }
 						weight="regular"
