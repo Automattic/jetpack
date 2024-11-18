@@ -2,8 +2,8 @@ import { Button } from '@automattic/jetpack-components';
 import { Threat, getFixerAction } from '@automattic/jetpack-scan';
 import { __ } from '@wordpress/i18n';
 import React, { useCallback, useMemo, useContext } from 'react';
+import { ThreatModalContext } from '../threats-data-views';
 import styles from './styles.module.scss';
-import { ThreatDetailsModalContext } from '.';
 
 /**
  * ThreatActions component
@@ -34,7 +34,7 @@ const ThreatActions = ( {
 	handleUnignoreThreatClick?: ( threats: Threat[] ) => void;
 } ): JSX.Element => {
 	const { closeModal, showThreatDetails, onShowThreatDetailsClick, onContinueClick } =
-		useContext( ThreatDetailsModalContext );
+		useContext( ThreatModalContext );
 
 	const fixerAction = useMemo( () => getFixerAction( threat ), [ threat ] );
 

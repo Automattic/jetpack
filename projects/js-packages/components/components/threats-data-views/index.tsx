@@ -14,7 +14,7 @@ import {
 import { dateI18n } from '@wordpress/date';
 import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState, createContext } from 'react';
 import Badge from '../badge';
 import ThreatDetailsModal from '../threat-details-modal';
 import ThreatFixerButton from '../threat-fixer-button';
@@ -42,6 +42,15 @@ import {
 } from './constants';
 import styles from './styles.module.scss';
 import ThreatsStatusToggleGroupControl from './threats-status-toggle-group-control';
+
+interface ThreatModalContextType {
+	closeModal: () => void;
+	showThreatDetails: boolean;
+	onShowThreatDetailsClick: () => void;
+	onHideThreatDetailsClick: () => void;
+}
+
+export const ThreatModalContext = createContext< ThreatModalContextType | null >( null );
 
 /**
  * DataViews component for displaying security threats.
@@ -169,21 +178,31 @@ export default function ThreatsDataViews( {
 	} );
 
 	const [ openThreat, setOpenThreat ] = useState< Threat | null >( null );
-	const [ skipThreatDetails, setSkipThreatDetails ] = useState< boolean >( false );
+	const [ showThreatDetails, setShowThreatDetails ] = useState< boolean >( true );
 
-	const showThreatDetails = useCallback(
-		( threat: Threat, skipDetails = false ) =>
+	const showThreatModal = useCallback(
+		( threat: Threat, showDetails = true ) =>
 			() => {
 				setOpenThreat( threat );
-				setSkipThreatDetails( skipDetails );
+				setShowThreatDetails( showDetails );
 			},
 		[]
 	);
 
-	const hideThreatDetails = useCallback( () => {
+	const hideThreatModal = useCallback( () => {
 		setOpenThreat( null );
-		setSkipThreatDetails( false );
+		setShowThreatDetails( true );
 	}, [] );
+
+	const onShowThreatDetails = useCallback(
+		() => setShowThreatDetails( true ),
+		[ setShowThreatDetails ]
+	);
+
+	const onHideThreatDetails = useCallback(
+		() => setShowThreatDetails( false ),
+		[ setShowThreatDetails ]
+	);
 
 	/**
 	 * Compute values from the provided threats data.
@@ -272,7 +291,7 @@ export default function ThreatsDataViews( {
 						variant="link"
 						size="small"
 						weight="regular"
-						onClick={ showThreatDetails( item ) }
+						onClick={ showThreatModal( item ) }
 					>
 						{ item.title }
 					</Button>
@@ -459,7 +478,7 @@ export default function ThreatsDataViews( {
 								}
 
 								return (
-									<ThreatFixerButton threat={ item } onClick={ showThreatDetails( item, true ) } />
+									<ThreatFixerButton threat={ item } onClick={ showThreatModal( item, false ) } />
 								);
 							},
 						},
@@ -468,7 +487,7 @@ export default function ThreatsDataViews( {
 		];
 
 		return result;
-	}, [ plugins, themes, dataFields, signatures, isThreatEligibleForFix, showThreatDetails ] );
+	}, [ plugins, themes, dataFields, signatures, isThreatEligibleForFix, showThreatModal ] );
 
 	/**
 	 * DataView actions - collection of operations that can be performed upon each record.
@@ -483,7 +502,7 @@ export default function ThreatsDataViews( {
 				id: THREAT_ACTION_IGNORE,
 				label: __( 'Ignore', 'jetpack' ),
 				callback: ( items: Threat[] ) => {
-					showThreatDetails( items[ 0 ], true )();
+					showThreatModal( items[ 0 ], false )();
 				},
 				isEligible( item ) {
 					if ( ! onIgnoreThreats ) {
@@ -502,7 +521,7 @@ export default function ThreatsDataViews( {
 				id: THREAT_ACTION_UNIGNORE,
 				label: __( 'Unignore', 'jetpack' ),
 				callback: ( items: Threat[] ) => {
-					showThreatDetails( items[ 0 ], true )();
+					showThreatModal( items[ 0 ], false )();
 				},
 				isEligible( item ) {
 					if ( ! onUnignoreThreats ) {
@@ -519,7 +538,7 @@ export default function ThreatsDataViews( {
 		return result;
 	}, [
 		dataFields,
-		showThreatDetails,
+		showThreatModal,
 		onIgnoreThreats,
 		onUnignoreThreats,
 		isThreatEligibleForIgnore,
@@ -572,22 +591,31 @@ export default function ThreatsDataViews( {
 				}
 			/>
 			{ openThreat ? (
-				<ThreatDetailsModal
-					threat={ openThreat }
-					skipThreatDetails={ skipThreatDetails }
-					isUserConnected={ isUserConnected }
-					hasConnectedOwner={ hasConnectedOwner }
-					userIsConnecting={ userIsConnecting }
-					handleConnectUser={ handleConnectUser }
-					credentials={ credentials }
-					credentialsIsFetching={ credentialsIsFetching }
-					credentialsRedirectUrl={ credentialsRedirectUrl }
-					handleUpgradeClick={ handleUpgradeClick }
-					handleFixThreatClick={ onFixThreats }
-					handleIgnoreThreatClick={ onIgnoreThreats }
-					handleUnignoreThreatClick={ onUnignoreThreats }
-					onRequestClose={ hideThreatDetails }
-				/>
+				<ThreatModalContext.Provider
+					value={ {
+						showThreatDetails,
+						closeModal: hideThreatModal,
+						onShowThreatDetailsClick: onShowThreatDetails,
+						onHideThreatDetailsClick: onHideThreatDetails,
+					} }
+				>
+					<ThreatDetailsModal
+						threat={ openThreat }
+						showThreatDetails={ showThreatDetails }
+						isUserConnected={ isUserConnected }
+						hasConnectedOwner={ hasConnectedOwner }
+						userIsConnecting={ userIsConnecting }
+						handleConnectUser={ handleConnectUser }
+						credentials={ credentials }
+						credentialsIsFetching={ credentialsIsFetching }
+						credentialsRedirectUrl={ credentialsRedirectUrl }
+						handleUpgradeClick={ handleUpgradeClick }
+						handleFixThreatClick={ onFixThreats }
+						handleIgnoreThreatClick={ onIgnoreThreats }
+						handleUnignoreThreatClick={ onUnignoreThreats }
+						onRequestClose={ hideThreatModal }
+					/>
+				</ThreatModalContext.Provider>
 			) : null }
 		</>
 	);

@@ -2,8 +2,8 @@ import { Text, Button } from '@automattic/jetpack-components';
 import { Notice } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import React, { ReactNode, useContext } from 'react';
+import { ThreatModalContext } from '../threats-data-views';
 import styles from './styles.module.scss';
-import { ThreatDetailsModalContext } from '.';
 
 /**
  * UserConnectionGate component
@@ -31,7 +31,7 @@ const UserConnectionGate = ( {
 	children: ReactNode;
 } ) => {
 	const { closeModal, showThreatDetails, onShowThreatDetailsClick } =
-		useContext( ThreatDetailsModalContext );
+		useContext( ThreatModalContext );
 
 	if ( ! isUserConnected || ! hasConnectedOwner ) {
 		return (

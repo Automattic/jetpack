@@ -3,12 +3,12 @@ import CredentialsGate from './credentials-gate';
 import ThreatActions from './threat-actions';
 import ThreatFixDetails from './threat-fix-details';
 import ThreatNotice from './threat-notice';
-// import ThreatSummary from './threat-summary';
-// import ThreatTechnicalDetails from './threat-technical-details';
+import ThreatSummary from './threat-summary';
+import ThreatTechnicalDetails from './threat-technical-details';
 import UserConnectionGate from './user-connection-gate';
 
 const ThreatFixConfirmation = ( {
-	// title,
+	title,
 	threat,
 	fixerState,
 	isUserConnected,
@@ -50,9 +50,9 @@ const ThreatFixConfirmation = ( {
 			>
 				{ /* TODO: Determine what we want to display here */ }
 				<ThreatNotice fixerState={ fixerState } />
-				{ /* <ThreatSummary threat={ threat } title={ title } /> */ }
+				<ThreatSummary threat={ threat } title={ title } />
 				<ThreatFixDetails threat={ threat } />
-				{ /* <ThreatTechnicalDetails threat={ threat } /> */ }
+				<ThreatTechnicalDetails threat={ threat } />
 				<ThreatActions
 					threat={ threat }
 					fixerState={ fixerState }
