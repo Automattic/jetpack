@@ -314,4 +314,14 @@ class Stats extends Module_Product {
 	public static function get_manage_url() {
 		return admin_url( 'admin.php?page=stats' );
 	}
+
+	/**
+	 * Return product bundles list
+	 * that supports the product.
+	 *
+	 * @return boolean|array Products bundle list.
+	 */
+	public static function is_upgradable_by_bundle() {
+		return array( 'growth' );
+	}
 }

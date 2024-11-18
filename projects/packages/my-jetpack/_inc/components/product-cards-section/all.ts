@@ -28,4 +28,5 @@ export const JetpackModuleToProductCard: {
 	scan: null,
 	security: null,
 	creator: null,
+	growth: null,
 };
