@@ -121,6 +121,10 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 					'page_handle' => array(
 						'type' => 'string',
 					),
+					'session_id'  => array(
+						'description' => __( 'Session id of a service, currently only Google Photos Picker', 'jetpack' ),
+						'type'        => 'string',
+					),
 				),
 			)
 		);
@@ -133,7 +137,7 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 				'callback'            => array( $this, 'copy_external_media' ),
 				'permission_callback' => array( $this, 'create_item_permissions_check' ),
 				'args'                => array(
-					'media'   => array(
+					'media'        => array(
 						'description'       => __( 'Media data to copy.', 'jetpack' ),
 						'items'             => $this->media_schema,
 						'required'          => true,
@@ -141,10 +145,15 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 						'sanitize_callback' => array( $this, 'sanitize_media' ),
 						'validate_callback' => array( $this, 'validate_media' ),
 					),
-					'post_id' => array(
+					'post_id'      => array(
 						'description' => __( 'The post ID to attach the upload to.', 'jetpack' ),
 						'type'        => 'number',
 						'minimum'     => 0,
+					),
+					'should_proxy' => array(
+						'description' => __( 'Whether to proxy the media request.', 'jetpack' ),
+						'type'        => 'boolean',
+						'default'     => false,
 					),
 				),
 			)
@@ -342,7 +351,7 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 		$service_args = array_filter(
 			$params,
 			function ( $key ) {
-				return in_array( $key, array( 'search', 'number', 'path', 'page_handle', 'filter' ), true );
+				return in_array( $key, array( 'search', 'number', 'path', 'page_handle', 'filter', 'session_id' ), true );
 			},
 			ARRAY_FILTER_USE_KEY
 		);
@@ -390,13 +399,15 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 	 *
 	 * @param \WP_REST_Request $request Full details about the request.
 	 * @return array|\WP_Error|mixed
-	 */
+	 **/
 	public function copy_external_media( \WP_REST_Request $request ) {
 		require_once ABSPATH . 'wp-admin/includes/file.php';
 		require_once ABSPATH . 'wp-admin/includes/media.php';
 		require_once ABSPATH . 'wp-admin/includes/image.php';
 
-		$post_id = $request->get_param( 'post_id' );
+		$post_id      = $request->get_param( 'post_id' );
+		$should_proxy = $request->get_param( 'should_proxy' );
+		$service      = rawurlencode( $request->get_param( 'service' ) );
 
 		$responses = array();
 
