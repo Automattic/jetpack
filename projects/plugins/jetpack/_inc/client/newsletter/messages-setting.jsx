@@ -45,7 +45,6 @@ const MessagesSetting = props => {
 			module={ SUBSCRIPTIONS_MODULE_NAME }
 			saveDisabled={ isSaving }
 			isDisabled={ disabled }
-			id="welcome-email"
 		>
 			<SettingsGroup
 				hasChild
@@ -60,7 +59,7 @@ const MessagesSetting = props => {
 					) }
 				</p>
 				<Textarea
-					labelledBy="welcome-email"
+					ariaLabel={ __( 'Welcome email message', 'jetpack' ) }
 					disabled={ disabled }
 					name={ SUBSCRIPTION_OPTIONS }
 					value={ welcomeMessage }
