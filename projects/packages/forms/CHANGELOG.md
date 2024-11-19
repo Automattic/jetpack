@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.34.0] - 2024-11-18
+### Removed
+- General: Update minimum PHP version to 7.2. [#40147]
+
+### Fixed
+- Fix a fatal error occurring due to a function receiving an unexpected input type. [#40183]
+
 ## [0.33.8] - 2024-11-11
 ### Changed
 - Updated package dependencies. [#39999] [#40060]
@@ -395,8 +402,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add Jetpack AI Form section to new Forms landing page [#32726]
 
 ### Changed
-- Updated package dependencies. [#32803]
-- Updated package dependencies. [#32804]
+- Updated package dependencies. [#32803] [#32804]
 
 ### Fixed
 - Fix block icons for display on wp.org [#32754]
@@ -577,8 +583,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Forms: Include bulk actions menu [#29766]
 - Forms: Update Dashboard inbox columns responsiveness and sticky items style [#29914]
 - Updated form responses endpoint to embed available filter data. [#29805]
-- Updated package dependencies. [#29854]
-- Updated package dependencies. [#29857]
+- Updated package dependencies. [#29854] [#29857]
 
 ### Fixed
 - Made feedback bulk actions more explicit and easier to work with. [#29884]
@@ -712,6 +717,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[0.34.0]: https://github.com/automattic/jetpack-forms/compare/v0.33.8...v0.34.0
 [0.33.8]: https://github.com/automattic/jetpack-forms/compare/v0.33.7...v0.33.8
 [0.33.7]: https://github.com/automattic/jetpack-forms/compare/v0.33.6...v0.33.7
 [0.33.6]: https://github.com/automattic/jetpack-forms/compare/v0.33.5...v0.33.6

@@ -1,8 +1,13 @@
-import { Button, Text, ActionPopover } from '@automattic/jetpack-components';
-import { CONTACT_SUPPORT_URL, type Threat, fixerStatusIsStale } from '@automattic/jetpack-scan';
-import { ExternalLink } from '@wordpress/components';
-import { createInterpolateElement, useCallback, useMemo, useState } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { Button } from '@automattic/jetpack-components';
+import {
+	type Threat,
+	fixerIsInError,
+	fixerIsInProgress,
+	fixerStatusIsStale,
+} from '@automattic/jetpack-scan';
+import { Tooltip } from '@wordpress/components';
+import { useCallback, useMemo } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import styles from './styles.module.scss';
 
 /**
@@ -24,56 +29,109 @@ export default function ThreatFixerButton( {
 	onClick: ( items: Threat[] ) => void;
 	className?: string;
 } ): JSX.Element {
-	const [ isPopoverVisible, setIsPopoverVisible ] = useState( false );
+	const fixerState = useMemo( () => {
+		const inProgress = threat.fixer && fixerIsInProgress( threat.fixer );
+		const error = threat.fixer && fixerIsInError( threat.fixer );
+		const stale = threat.fixer && fixerStatusIsStale( threat.fixer );
+		return { inProgress, error, stale };
+	}, [ threat.fixer ] );
 
-	const [ anchor, setAnchor ] = useState( null );
-
-	const children = useMemo( () => {
+	const tooltipText = useMemo( () => {
 		if ( ! threat.fixable ) {
 			return null;
 		}
-		if ( threat.fixer && 'error' in threat.fixer && threat.fixer.error ) {
-			return __( 'Error', 'jetpack' );
-		}
-		if ( threat.fixer && 'status' in threat.fixer && threat.fixer.status === 'in_progress' ) {
-			return __( 'Fixing…', 'jetpack' );
-		}
-		if ( threat.fixable.fixer === 'delete' ) {
-			return __( 'Delete', 'jetpack' );
-		}
-		if ( threat.fixable.fixer === 'update' ) {
-			return __( 'Update', 'jetpack' );
-		}
-		return __( 'Fix', 'jetpack' );
-	}, [ threat.fixable, threat.fixer ] );
 
-	const errorMessage = useMemo( () => {
-		if ( threat.fixer && fixerStatusIsStale( threat.fixer ) ) {
-			return __( 'The fixer is taking longer than expected.', 'jetpack' );
-		}
-
-		if ( threat.fixer && 'error' in threat.fixer && threat.fixer.error ) {
+		if ( fixerState.error ) {
 			return __( 'An error occurred auto-fixing this threat.', 'jetpack' );
 		}
 
-		return null;
-	}, [ threat.fixer ] );
+		if ( fixerState.stale ) {
+			return __( 'The auto-fixer is taking longer than expected.', 'jetpack' );
+		}
+
+		if ( fixerState.inProgress ) {
+			return __( 'An auto-fixer is in progress.', 'jetpack' );
+		}
+
+		switch ( threat.fixable.fixer ) {
+			case 'delete':
+				if ( threat.filename ) {
+					if ( threat.filename.endsWith( '/' ) ) {
+						return __( 'Deletes the directory that the infected file is in.', 'jetpack' );
+					}
+
+					if ( threat.signature === 'Core.File.Modification' ) {
+						return __( 'Deletes the unexpected file in a core WordPress directory.', 'jetpack' );
+					}
+
+					return __( 'Deletes the infected file.', 'jetpack' );
+				}
+
+				if ( threat.extension?.type === 'plugin' ) {
+					return __( 'Deletes the plugin directory to fix the threat.', 'jetpack' );
+				}
+
+				if ( threat.extension?.type === 'theme' ) {
+					return __( 'Deletes the theme directory to fix the threat.', 'jetpack' );
+				}
+				break;
+			case 'update':
+				return __( 'Upgrades the plugin or theme to a newer version.', 'jetpack' );
+			case 'replace':
+			case 'rollback':
+				if ( threat.filename ) {
+					return threat.signature === 'Core.File.Modification'
+						? __(
+								'Replaces the modified core WordPress file with the original clean version from the WordPress source code.',
+								'jetpack'
+						  )
+						: __(
+								'Replaces the infected file with a previously backed up version that is clean.',
+								'jetpack'
+						  );
+				}
+
+				if ( threat.signature === 'php_hardening_WP_Config_NoSalts_001' ) {
+					return __(
+						'Replaces the default salt keys in wp-config.php with unique ones.',
+						'jetpack'
+					);
+				}
+				break;
+			default:
+				return __( 'An auto-fixer is available.', 'jetpack' );
+		}
+	}, [ threat, fixerState ] );
+
+	const buttonText = useMemo( () => {
+		if ( ! threat.fixable ) {
+			return null;
+		}
+
+		if ( fixerState.error ) {
+			return __( 'Error', 'jetpack' );
+		}
+
+		switch ( threat.fixable.fixer ) {
+			case 'delete':
+				return __( 'Delete', 'jetpack' );
+			case 'update':
+				return __( 'Update', 'jetpack' );
+			case 'replace':
+			case 'rollback':
+				return __( 'Replace', 'jetpack' );
+			default:
+				return __( 'Fix', 'jetpack' );
+		}
+	}, [ threat.fixable, fixerState.error ] );
 
 	const handleClick = useCallback(
 		( event: React.MouseEvent ) => {
 			event.stopPropagation();
-			if ( errorMessage && ! isPopoverVisible ) {
-				setIsPopoverVisible( true );
-				return;
-			}
 			onClick( [ threat ] );
 		},
-		[ onClick, errorMessage, isPopoverVisible, threat ]
+		[ onClick, threat ]
 	);
-
-	const closePopover = useCallback( () => {
-		setIsPopoverVisible( false );
-	}, [] );
 
 	if ( ! threat.fixable ) {
 		return null;
@@ -81,62 +139,23 @@ export default function ThreatFixerButton( {
 
 	return (
 		<div>
-			<Button
-				size="small"
-				weight="regular"
-				variant="secondary"
-				onClick={ handleClick }
-				children={ children }
-				className={ className }
-				disabled={
-					threat.fixer &&
-					'status' in threat.fixer &&
-					threat.fixer.status === 'in_progress' &&
-					! errorMessage
-				}
-				isLoading={
-					threat.fixer && 'status' in threat.fixer && threat.fixer.status === 'in_progress'
-				}
-				isDestructive={
-					( threat.fixable && threat.fixable.fixer === 'delete' ) ||
-					( threat.fixer && 'error' in threat.fixer && threat.fixer.error ) ||
-					( threat.fixer && fixerStatusIsStale( threat.fixer ) )
-				}
-				style={ { minWidth: '72px' } }
-				ref={ setAnchor }
-			/>
-			{ isPopoverVisible && (
-				<ActionPopover
-					anchor={ anchor }
-					buttonContent={ __( 'Retry Fix', 'jetpack' ) }
-					hideCloseButton={ true }
-					noArrow={ false }
+			<Tooltip className={ styles.tooltip } text={ tooltipText }>
+				<Button
+					size="small"
+					weight="regular"
+					variant="secondary"
 					onClick={ handleClick }
-					onClose={ closePopover }
-					title={ __( 'Auto-fix error', 'jetpack' ) }
-				>
-					<Text>
-						{ createInterpolateElement(
-							sprintf(
-								/* translators: placeholder is an error message.  */
-								__(
-									'%s Please try again or <supportLink>contact support</supportLink>.',
-									'jetpack'
-								),
-								errorMessage
-							),
-							{
-								supportLink: (
-									<ExternalLink
-										href={ CONTACT_SUPPORT_URL }
-										className={ styles[ 'support-link' ] }
-									/>
-								),
-							}
-						) }
-					</Text>
-				</ActionPopover>
-			) }
+					children={ buttonText }
+					className={ className }
+					isLoading={ fixerState.inProgress }
+					isDestructive={
+						( threat.fixable && threat.fixable.fixer === 'delete' ) ||
+						fixerState.error ||
+						fixerState.stale
+					}
+					style={ { minWidth: '72px' } }
+				/>
+			</Tooltip>
 		</div>
 	);
 }

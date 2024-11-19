@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.23.0 - 2024-11-18
+### Removed
+- General: Update minimum PHP version to 7.2. [#40147]
+
 ## 0.22.6 - 2024-11-11
 ### Fixed
 - Fixed flaky tests [#40062]

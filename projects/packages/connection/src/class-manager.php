@@ -1620,12 +1620,17 @@ class Manager {
 			return $cached_date;
 		}
 
+		/**
+		 * We don't use the 'ID' field, but need it to overcome a WP caching bug: https://core.trac.wordpress.org/ticket/62003
+		 *
+		 * @todo Remote the 'ID' field from users fetching when the issue is fixed and Jetpack-supported WP versions move beyond it.
+		 */
 		$earliest_registered_users  = get_users(
 			array(
 				'role'    => 'administrator',
 				'orderby' => 'user_registered',
 				'order'   => 'ASC',
-				'fields'  => array( 'user_registered' ),
+				'fields'  => array( 'ID', 'user_registered' ),
 				'number'  => 1,
 			)
 		);

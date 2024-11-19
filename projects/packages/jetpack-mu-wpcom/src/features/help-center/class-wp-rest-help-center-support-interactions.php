@@ -143,8 +143,13 @@ class WP_REST_Help_Center_Support_Interactions extends \WP_REST_Controller {
 	 * @param \WP_REST_Request $request    The request sent to the API.
 	 */
 	public function get_support_interactions( \WP_REST_Request $request ) {
-		$support_interaction_id = isset( $request['support_interaction_id'] ) ? (int) $request['support_interaction_id'] : null;
-		$body                   = Client::wpcom_json_api_request_as_user( "/support-interactions/$support_interaction_id" );
+		if ( isset( $request['support_interaction_id'] ) ) {
+			$url = "/support-interactions/{$request['support_interaction_id']}";
+		} else {
+			$url = '/support-interactions/?' . http_build_query( stripslashes_deep( $request->get_params() ) );
+		}
+
+		$body = Client::wpcom_json_api_request_as_user( $url );
 
 		if ( is_wp_error( $body ) ) {
 			return $body;

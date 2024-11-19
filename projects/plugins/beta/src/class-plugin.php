@@ -21,10 +21,9 @@ class Plugin {
 	/**
 	 * Regex for the loader added to a mu-plugin loader.
 	 *
-	 * @todo When we drop support for PHP <7.1.0, make this a private const.
 	 * @var string
 	 */
-	private static $mu_loader_regex = '#^<\?php\s+/\* Load Jetpack Beta dev version: \*/\s+return require\s*(?:\(\s*)?__DIR__\s*.\s*(?:\x27[^\x27]*\x27|"[^"]*")(?:\s*\))?\s*;#';
+	private const MU_LOADER_REGEX = '#^<\?php\s+/\* Load Jetpack Beta dev version: \*/\s+return require\s*(?:\(\s*)?__DIR__\s*.\s*(?:\x27[^\x27]*\x27|"[^"]*")(?:\s*\))?\s*;#';
 
 	/**
 	 * Class instances.
@@ -483,7 +482,7 @@ class Plugin {
 		// If the loader snippet is present, dev is active. If not, assume stable is active (or there wouldn't be a loader).
 		// That assumption ignores things like how the usual wpcomsh-loader.php checks for IS_ATOMIC, but there's not much we can do about that and it's unlikely to matter anyway.
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Not a remote URL.
-		return ( (bool) preg_match( self::$mu_loader_regex, (string) file_get_contents( $file ) ) ) === ( $which === 'dev' );
+		return ( (bool) preg_match( self::MU_LOADER_REGEX, (string) file_get_contents( $file ) ) ) === ( $which === 'dev' );
 	}
 
 	/**
@@ -592,7 +591,7 @@ class Plugin {
 		}
 
 		// Strip our loader snippet, then re-add it if necessary.
-		$new_contents = preg_replace( self::$mu_loader_regex, '<?php', $contents );
+		$new_contents = preg_replace( self::MU_LOADER_REGEX, '<?php', $contents );
 		if ( $which === 'dev' && file_exists( $this->dev_plugin_path() ) ) {
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_var_export -- Used for escaping, not output.
 			$new_contents = '<?php /* Load Jetpack Beta dev version: */ return require __DIR__ . ' . var_export( "/{$this->dev_plugin_file()}", true ) . ';' . substr( $new_contents, 5 );
