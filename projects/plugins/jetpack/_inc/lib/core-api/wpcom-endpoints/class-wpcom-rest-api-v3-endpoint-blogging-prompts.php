@@ -5,6 +5,7 @@
  * @package automattic/jetpack
  */
 
+// Ensure WPCOM_REST_API_Proxy_Request_Trait is present.
 require_once __DIR__ . '/trait-wpcom-rest-api-proxy-request-trait.php';
 
 /**
