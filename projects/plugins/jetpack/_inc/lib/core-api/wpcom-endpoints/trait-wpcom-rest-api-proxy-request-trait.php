@@ -50,14 +50,16 @@ trait WPCOM_REST_API_Proxy_Request_Trait {
 		// If no body is present, passing it as $request->get_body() will cause an error.
 		$body = $request->get_body() ? $request->get_body() : null;
 
+		$response = new WP_Error(
+			'rest_unauthorized',
+			__( 'Please connect your user account to WordPress.com', 'jetpack' ),
+			array( 'status' => rest_authorization_required_code() )
+		);
+
 		if ( 'user' === $context ) {
 			if ( ! ( new Manager() )->is_user_connected() ) {
 				if ( false === $allow_fallback_to_blog ) {
-					return new WP_Error(
-						'rest_unauthorized',
-						__( 'Please connect your user account to WordPress.com', 'jetpack' ),
-						array( 'status' => rest_authorization_required_code() )
-					);
+					return $response;
 				}
 
 				$context = 'blog';

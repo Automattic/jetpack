@@ -46,6 +46,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Memberships extends WP_Test_Jetpack_RES
 
 		// We need to manually load the class under the context of tests since it won't get loaded
 		// on 'plugins_loaded' because it needs a Jetpack Connection.
+		// @phan-suppress-next-line PhanNoopNew
 		new WPCOM_REST_API_V2_Endpoint_Memberships();
 	}
 
@@ -367,7 +368,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Memberships extends WP_Test_Jetpack_RES
 	 * Tests DELETE 'memberships/product/[product_id]' endpoint with insufficient permissions.
 	 */
 	public function test_delete_product_with_insufficient_permissions() {
-		wp_set_current_user( $this->factory->user->create( array( 'role' => 'author' ) ) );
+		wp_set_current_user( static::$author_id );
 
 		$request  = new WP_REST_Request( Requests::DELETE, '/wpcom/v2/memberships/product/1' );
 		$response = $this->server->dispatch( $request );
