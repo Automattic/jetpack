@@ -16,10 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.3.0] - 2024-02-07
 ### Changed
 - Update doc example to use `actions/upload-artifact@v4`. [#34997]
-- Updated package dependencies. [#33650]
-- Updated package dependencies. [#34193]
-- Updated package dependencies. [#34427]
-- Updated package dependencies. [#35385]
+- Updated package dependencies. [#33650] [#34193] [#34427] [#35385]
 - Use the node20 runner instead of the deprecated node16 runner. [#35262]
 
 ## [0.2.1] - 2023-04-07

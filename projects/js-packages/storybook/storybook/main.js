@@ -37,8 +37,6 @@ const sbconfig = {
 		'storybook-addon-mock',
 		'@storybook/addon-webpack5-compiler-babel',
 	],
-	// Workaround:
-	// https://github.com/storybookjs/storybook/issues/12270
 	webpackFinal: async config => {
 		// Remove source maps in production builds.
 		if ( process.env.NODE_ENV === 'production' ) {
@@ -63,6 +61,7 @@ const sbconfig = {
 		// Find the DefinePlugin
 		const plugin = config.plugins.find( p => p.definitions?.[ 'process.env' ] );
 		// Add custom env variables
+		// https://github.com/storybookjs/storybook/issues/12270
 		Object.keys( customEnvVariables ).forEach( key => {
 			plugin.definitions[ 'process.env' ][ key ] = JSON.stringify( customEnvVariables[ key ] );
 		} );
@@ -127,7 +126,7 @@ const sbconfig = {
 	},
 	framework: {
 		// Workaround https://github.com/storybookjs/storybook/issues/21710
-		// from https://storybook.js.org/docs/react/faq#how-do-i-fix-module-resolution-while-using-pnpm-plug-n-play
+		// from https://storybook.js.org/docs/faq#how-do-i-fix-module-resolution-in-special-environments
 		name: path.dirname( require.resolve( '@storybook/react-webpack5/package.json' ) ),
 		options: {},
 	},
