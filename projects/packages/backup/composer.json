@@ -78,7 +78,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-backup/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "3.4.x-dev"
+			"dev-trunk": "4.0.x-dev"
 		}
 	},
 	"config": {

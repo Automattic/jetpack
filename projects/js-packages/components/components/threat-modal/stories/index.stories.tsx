@@ -62,29 +62,6 @@ ThreatResult.args = {
 	handleUnignoreThreatClick: () => {},
 };
 
-export const VulnerableExtension = Base.bind( {} );
-VulnerableExtension.args = {
-	threat: {
-		id: 184847701,
-		signature: 'Vulnerable.WP.Extension',
-		title: 'Vulnerable Plugin: WP Super Cache (version 1.6.3)',
-		description:
-			'The plugin WP Super Cache (version 1.6.3) has a known vulnerability. The WP Super Cache plugin before version 1.7.2 is vulnerable to an authenticated RCE in the settings page.',
-		fixedIn: '1.12.4',
-		source: 'https://wpscan.com/vulnerability/733d8a02-0d44-4b78-bbb2-37e447acd2f3',
-		extension: {
-			name: 'WP Super Cache',
-			slug: 'wp-super-cache',
-			version: '1.6.3',
-			type: 'plugin',
-		},
-	},
-	isUserConnected: true,
-	hasConnectedOwner: true,
-	credentials: [ { type: 'managed', role: 'main', still_valid: true } ],
-	handleUpgradeClick: () => {},
-};
-
 export const UserConnectionNeeded = Base.bind( {} );
 UserConnectionNeeded.args = {
 	threat: {
@@ -145,4 +122,27 @@ CredentialsNeeded.args = {
 	handleFixThreatClick: () => {},
 	handleIgnoreThreatClick: () => {},
 	handleUnignoreThreatClick: () => {},
+};
+
+export const VulnerableExtension = Base.bind( {} );
+VulnerableExtension.args = {
+	threat: {
+		id: 184847701,
+		signature: 'Vulnerable.WP.Extension',
+		title: 'Vulnerable Plugin: WP Super Cache (version 1.6.3)',
+		description:
+			'The plugin WP Super Cache (version 1.6.3) has a known vulnerability. The WP Super Cache plugin before version 1.7.2 is vulnerable to an authenticated RCE in the settings page.',
+		fixedIn: '1.12.4',
+		source: 'https://wpscan.com/vulnerability/733d8a02-0d44-4b78-bbb2-37e447acd2f3',
+		extension: {
+			name: 'WP Super Cache',
+			slug: 'wp-super-cache',
+			version: '1.6.3',
+			type: 'plugin',
+		},
+	},
+	isUserConnected: true,
+	hasConnectedOwner: true,
+	credentials: [ { type: 'managed', role: 'main', still_valid: true } ],
+	handleUpgradeClick: () => {},
 };

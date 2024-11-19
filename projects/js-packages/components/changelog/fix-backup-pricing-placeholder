@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fixes the loading placeholder that didn't disappear when the price loads.
