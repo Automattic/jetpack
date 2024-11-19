@@ -1354,7 +1354,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/post-list",
-				"reference": "f9d9022acc1514ecd4da86a414a2f1eb20c6876c"
+				"reference": "5342429a12c629993d0aff87d172ef41ba41390c"
 			},
 			"require": {
 				"automattic/jetpack-assets": "@dev",
@@ -1380,7 +1380,7 @@
 					"link-template": "https://github.com/automattic/jetpack-post-list/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "0.6.x-dev"
+					"dev-trunk": "0.7.x-dev"
 				}
 			},
 			"autoload": {
@@ -1564,7 +1564,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/publicize",
-				"reference": "a71d3dd1bb89f0ab784d71f2b06c404beacadc54"
+				"reference": "eb9c6707498896cba6ef98f4f4f1d981161f772e"
 			},
 			"require": {
 				"automattic/jetpack-assets": "@dev",
@@ -1593,7 +1593,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-publicize/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "0.55.x-dev"
+					"dev-trunk": "0.56.x-dev"
 				}
 			},
 			"autoload": {
@@ -5024,20 +5024,20 @@
 		"automattic/jetpack-admin-ui": 20,
 		"automattic/jetpack-assets": 20,
 		"automattic/jetpack-autoloader": 20,
+		"automattic/jetpack-changelogger": 20,
 		"automattic/jetpack-composer-plugin": 20,
 		"automattic/jetpack-config": 20,
-		"automattic/jetpack-publicize": 20,
 		"automattic/jetpack-connection": 20,
 		"automattic/jetpack-my-jetpack": 20,
-		"automattic/jetpack-sync": 20,
-		"automattic/jetpack-status": 20,
 		"automattic/jetpack-plans": 20,
 		"automattic/jetpack-post-list": 20,
-		"automattic/jetpack-changelogger": 20
+		"automattic/jetpack-publicize": 20,
+		"automattic/jetpack-status": 20,
+		"automattic/jetpack-sync": 20
 	},
 	"prefer-stable": true,
 	"prefer-lowest": false,
-	"platform": [],
-	"platform-dev": [],
+	"platform": {},
+	"platform-dev": {},
 	"plugin-api-version": "2.6.0"
 }

@@ -61,23 +61,4 @@ module.exports = [
 			} ),
 		],
 	},
-	{
-		entry: {
-			'react-jsx-runtime': {
-				import: 'react/jsx-runtime',
-			},
-		},
-		output: {
-			...jetpackWebpackConfig.output,
-			path: path.resolve( './build' ),
-			filename: 'react-jsx-runtime.js',
-			library: {
-				name: 'ReactJSXRuntime',
-				type: 'window',
-			},
-		},
-		externals: {
-			react: 'React',
-		},
-	},
 ];
