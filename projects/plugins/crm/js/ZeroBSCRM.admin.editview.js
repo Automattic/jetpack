@@ -300,7 +300,7 @@ function jpcrm_tasks_setCompany( obj ) {
  * @param {any} o - some var
  */
 function jpcrm_tasks_changeContact( o ) {
-	if ( typeof o === 'undefined' || o === '' ) {
+	if ( typeof o === 'undefined' || ! o ) {
 		jQuery( '#zbse_customer' ).val( '' );
 
 		setTimeout( function () {
@@ -315,7 +315,7 @@ function jpcrm_tasks_changeContact( o ) {
  * @param {any} o - some var
  */
 function jpcrm_tasks_changeCompany( o ) {
-	if ( typeof o === 'undefined' || o === '' ) {
+	if ( typeof o === 'undefined' || ! o ) {
 		jQuery( '#zbse_company' ).val( '' );
 
 		setTimeout( function () {

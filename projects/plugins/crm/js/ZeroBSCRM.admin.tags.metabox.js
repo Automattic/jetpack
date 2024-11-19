@@ -150,7 +150,7 @@ function zbsJS_bindTagsInit() {
 function zbsJS_addTagAction( newTag ) {
 	// debug console.log('adding tag',[newTag,window.zbsCRMJS_currentTags,jQuery.inArray(newTag,window.zbsCRMJS_currentTags)]);
 
-	if ( newTag !== '' && jQuery.inArray( newTag, window.zbsCRMJS_currentTags ) === -1 ) {
+	if ( newTag && jQuery.inArray( newTag, window.zbsCRMJS_currentTags ) === -1 ) {
 		// not already loaded, add
 		zbsJS_drawTag( newTag, -1 );
 		window.zbsCRMJS_currentTags.push( newTag );
@@ -180,7 +180,7 @@ function zbsJS_bindTagManagerInit() {
 
 			// debug console.log('adding tag',[newTag,window.zbsCRMJS_currentTags,jQuery.inArray(newTag,window.zbsCRMJS_currentTags)]);
 
-			if ( newTag !== '' && jQuery.inArray( newTag, window.zbsCRMJS_currentTags ) === -1 ) {
+			if ( newTag && jQuery.inArray( newTag, window.zbsCRMJS_currentTags ) === -1 ) {
 				// not already loaded, add
 				zbsJS_addEmptyTag(
 					newTag,
@@ -229,7 +229,7 @@ function zbsJS_bindTagManagerInit() {
 						// failed
 					}
 				);
-			} else if ( newTag === '' ) {
+			} else if ( ! newTag ) {
 				// empty
 				jQuery( '#zbsTagEmpty' ).show().css( 'margin-bottom', '1em' );
 				setTimeout( function () {

@@ -160,7 +160,7 @@ function zeroBSCRMJS_viewContactInit() {
 				switch ( actionType ) {
 					case 'url': {
 						const u = jQuery( this ).attr( 'data-url' );
-						if ( typeof u !== 'undefined' && u !== '' ) {
+						if ( typeof u !== 'undefined' && u ) {
 							window.location = u;
 						}
 

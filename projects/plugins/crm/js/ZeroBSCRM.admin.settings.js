@@ -93,7 +93,7 @@ function zbscrmJS_customFields_buildLineV3( key, ele ) {
 	switch ( dal ) {
 		case 3: {
 			let placeholder = ele[ 2 ];
-			if ( ele[ 0 ] === 'select' && ele[ 2 ] === '' && typeof ele[ 3 ] === 'object' ) {
+			if ( ele[ 0 ] === 'select' && ! ele[ 2 ] && typeof ele[ 3 ] === 'object' ) {
 				// this implodes the cf select array, because since DAL2 we store as array, not CSV
 				placeholder = ele[ 3 ].join();
 			}
@@ -212,7 +212,7 @@ function zbscrmJS_customFields_buildLine( area, typestr, namestr, placeholder = 
 	}
 
 	// from 2.99.9.10 don't allow the CHANGING of custom field types after initial set
-	if ( namestr === '' && placeholder === '' && slug === '' ) {
+	if ( ! namestr && ! placeholder && ! slug ) {
 		// new addition
 		html += zbscrmJS_customFields_buildSelect( area, typestr );
 	} else {

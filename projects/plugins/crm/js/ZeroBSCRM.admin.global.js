@@ -514,7 +514,7 @@ function jpcrm_js_bind_datepicker( options, callback ) {
 		jQuery(
 			'.jpcrm-date.jpcrm-empty-start, .jpcrm-date.jpcrm-custom-field, .zbs-date.zbs-empty-start, .zbs-date.zbs-custom-field'
 		).on( 'apply.daterangepicker', function ( event, picker ) {
-			if ( picker.element.val() === '' ) {
+			if ( ! picker.element.val() ) {
 				picker.callback( picker.startDate );
 			}
 		} );
@@ -1650,7 +1650,7 @@ function zeroBSCRMJS_formatCurrency( c ) {
 	}
 
 	// got locale?
-	if ( localeStr !== '' ) {
+	if ( localeStr ) {
 		// answer low down here: https://stackoverflow.com/questions/149055/how-can-i-format-numbers-as-dollars-currency-string-in-javascript
 		// https://stackoverflow.com/questions/149055/how-can-i-format-numbers-as-dollars-currency-string-in-javascript/16233919#16233919
 

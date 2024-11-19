@@ -55,7 +55,7 @@ jQuery( function () {
 	// on change of this, say good bad
 	jQuery( '#zbsQuoteBuilderEmailTo' ).on( 'keyup', function () {
 		const email = jQuery( '#zbsQuoteBuilderEmailTo' ).val();
-		if ( typeof email === 'undefined' || email === '' || ! zbscrm_JS_validateEmail( email ) ) {
+		if ( typeof email === 'undefined' || ! email || ! zbscrm_JS_validateEmail( email ) ) {
 			// email issue
 			jQuery( '#zbsQuoteBuilderEmailTo' ).css( 'border', '2px solid orange' );
 			jQuery( '#zbsQuoteBuilderEmailToErr' ).show();
@@ -183,13 +183,13 @@ function zbscrm_getTemplatedQuote( cb, errcb ) {
 							zbscrm_appendTextToEditor( e.html );
 						}, 500 );
 						//if blank, auto-fill with template values
-						if ( jQuery( '#title' ).length > 0 && jQuery( '#title' ).val() === '' ) {
+						if ( jQuery( '#title' ).length > 0 && ! jQuery( '#title' ).val() ) {
 							jQuery( '#title' ).val( e.template_title );
 						}
-						if ( jQuery( '#value' ).length > 0 && jQuery( '#value' ).val() === '' ) {
+						if ( jQuery( '#value' ).length > 0 && ! jQuery( '#value' ).val() ) {
 							jQuery( '#value' ).val( e.template_value );
 						}
-						if ( jQuery( '#notes' ).length > 0 && jQuery( '#notes' ).val() === '' ) {
+						if ( jQuery( '#notes' ).length > 0 && ! jQuery( '#notes' ).val() ) {
 							jQuery( '#notes' ).val( e.template_notes );
 						}
 						if ( typeof cb === 'function' ) {
@@ -247,7 +247,7 @@ function jpcrm_quotes_send_email_modal() {
 	// verify email
 	if (
 		typeof recipientEmail !== 'undefined' &&
-		recipientEmail !== '' &&
+		recipientEmail &&
 		zbscrm_JS_validateEmail( recipientEmail )
 	) {
 		// build options html

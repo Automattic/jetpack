@@ -874,7 +874,7 @@ function zeroBSCRMJS_segment_previewAudience() {
 						// for each preview line
 						jQuery.each( previewList.list, function ( ind, ele ) {
 							let fn = ele.fullname;
-							if ( fn === '' ) {
+							if ( ! fn ) {
 								fn = zeroBSCRMJS_segmentLang( 'noName' );
 							}
 							let em = ele.email;
