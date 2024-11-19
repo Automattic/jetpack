@@ -6,6 +6,8 @@
  * @since      7.3.0
  */
 
+require_once __DIR__ . '/trait-wpcom-rest-api-proxy-request-trait.php';
+
 /**
  * Class WPCOM_REST_API_V2_Endpoint_Memberships
  * This introduces V2 endpoints.

@@ -5,10 +5,13 @@
  * @package automattic/jetpack
  */
 
+require_once __DIR__ . '/trait-wpcom-rest-api-proxy-request-trait.php';
+
 /**
  * REST API endpoint wpcom/v3/sites/%s/blogging-prompts.
  */
 class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_REST_Posts_Controller {
+
 	use WPCOM_REST_API_Proxy_Request_Trait;
 
 	const TEMPLATE_BLOG_ID = 205876834;
