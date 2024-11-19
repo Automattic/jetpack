@@ -32,8 +32,6 @@ if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
 	// long term probs in core or classify?
 function zeroBS_contact_actions( $cID = -1, $cObj = false ) {
 
-	global $zbs;
-
 	$actions_array = array();
 
 	if ( ! empty( $cID ) ) {
@@ -162,18 +160,12 @@ function zeroBS_contact_actions( $cID = -1, $cObj = false ) {
 
 				);
 
-				// DAL3 + add delete (requires new pages etc. simpler to split to 3+)
-				if ( $zbs->isDAL3() ) {
-
-					// delete
-					$actions_array['delete'] = array(
-
-						'url'   => jpcrm_esc_link( 'delete', $cID, 'zerobs_customer' ), // zeroBSCRM_getEditLink($cID),
-						'label' => __( 'Delete Contact', 'zero-bs-crm' ),
-						'ico'   => 'red trash icon',
-
-					);
-				}
+				// delete
+				$actions_array['delete'] = array(
+					'url'   => jpcrm_esc_link( 'delete', $cID, 'zerobs_customer' ), // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+					'label' => __( 'Delete Contact', 'zero-bs-crm' ),
+					'ico'   => 'red trash icon',
+				);
 	}
 
 	// apply filters

@@ -714,20 +714,14 @@ function zeroBSCRM_is_invoice_edit_page() {
 }
 
 function zeroBSCRM_is_invoicetags_page() {
-
-	// v3.0+ only
 	global $zbs;
-	if ( $zbs->isDAL3() ) {
-		return zeroBS_hasGETParamsWithValues(
-			array( 'admin.php' ),
-			array(
-				'page'    => $zbs->slugs['tagmanager'],
-				'tagtype' => 'invoice',
-			)
-		);
-	}
-
-	return false;
+	return zeroBS_hasGETParamsWithValues(
+		array( 'admin.php' ),
+		array(
+			'page'    => $zbs->slugs['tagmanager'],
+			'tagtype' => 'invoice',
+		)
+	);
 }
 
 	// ========= / INVOICES =================================================
@@ -783,20 +777,14 @@ function zeroBSCRM_is_quo_edit_page() {
 }
 
 function zeroBSCRM_is_quotetags_page() {
-
-	// v3.0+ only
 	global $zbs;
-	if ( $zbs->isDAL3() ) {
-		return zeroBS_hasGETParamsWithValues(
-			array( 'admin.php' ),
-			array(
-				'page'    => $zbs->slugs['tagmanager'],
-				'tagtype' => 'quote',
-			)
-		);
-	}
-
-	return false;
+	return zeroBS_hasGETParamsWithValues(
+		array( 'admin.php' ),
+		array(
+			'page'    => $zbs->slugs['tagmanager'],
+			'tagtype' => 'quote',
+		)
+	);
 }
 
 	// ========= / QUOTES =================================================
@@ -894,20 +882,14 @@ function zeroBSCRM_is_task_list_page() {
 }
 
 function zeroBSCRM_is_tasktags_page() {
-
-	// v3.0+ only
 	global $zbs;
-	if ( $zbs->isDAL3() ) {
-		return zeroBS_hasGETParamsWithValues(
-			array( 'admin.php' ),
-			array(
-				'page'    => $zbs->slugs['tagmanager'],
-				'tagtype' => 'event',
-			)
-		);
-	}
-
-	return false;
+	return zeroBS_hasGETParamsWithValues(
+		array( 'admin.php' ),
+		array(
+			'page'    => $zbs->slugs['tagmanager'],
+			'tagtype' => 'event',
+		)
+	);
 }
 
 	// ========= / TASKS =================================================
@@ -965,20 +947,14 @@ function zeroBSCRM_is_form_list_page() {
 }
 
 function zeroBSCRM_is_formtags_page() {
-
-	// v3.0+ only
 	global $zbs;
-	if ( $zbs->isDAL3() ) {
-		return zeroBS_hasGETParamsWithValues(
-			array( 'admin.php' ),
-			array(
-				'page'    => $zbs->slugs['tagmanager'],
-				'tagtype' => 'form',
-			)
-		);
-	}
-
-	return false;
+	return zeroBS_hasGETParamsWithValues(
+		array( 'admin.php' ),
+		array(
+			'page'    => $zbs->slugs['tagmanager'],
+			'tagtype' => 'form',
+		)
+	);
 }
 
 	// ========= / FORMS =================================================

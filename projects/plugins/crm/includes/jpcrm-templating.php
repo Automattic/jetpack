@@ -381,24 +381,22 @@ function zeroBSCRM_replace_customer_placeholders($html = '', $cID = -1, $contact
 		if (is_array($contactObj) && isset($contactObj['id']))
 			$contact = $contactObj;
 		else {
-			if ($zbs->isDAL3())
-				// v3.0
-				$contact = $zbs->DAL->contacts->getContact($cID,array(
-		            'withCustomFields'  => true,
-		            // need any of these?
-		            'withQuotes'        => false,
-		            'withInvoices'      => false,
-		            'withTransactions'  => false,
-		            'withLogs'          => false,
-		            'withLastLog'       => false,
-		            'withTags'          => false,
-		            'withCompanies'     => false,
-		            'withOwner'         => false,
-		            'withValues'        => false,
-            ));
-			else
-				// pre v3.0
-				$contact = zeroBS_getCustomerMeta($cID);
+			$contact = $zbs->DAL->contacts->getContact( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+				$cID, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				array(
+					'withCustomFields' => true,
+					// need any of these?
+					'withQuotes'       => false,
+					'withInvoices'     => false,
+					'withTransactions' => false,
+					'withLogs'         => false,
+					'withLastLog'      => false,
+					'withTags'         => false,
+					'withCompanies'    => false,
+					'withOwner'        => false,
+					'withValues'       => false,
+				)
+			);
 		}
 
 		// replace all placeholders :)

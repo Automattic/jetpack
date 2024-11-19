@@ -3540,12 +3540,13 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
                 $qs = zeroBS_getQuotesForCustomer($id,false,1000000,0,false,false);
                 foreach ($qs as $q){
 
-                    // delete post
-                    if ($zbs->isDAL3()){
-                        $res = $zbs->DAL->quotes->deleteQuote(array('id'=>$q['id'],'saveOrphans'=>false));
-                    } else 
-                        // DAL2 < - not forced?
-                        $res = wp_delete_post($q['id'],false);
+									// delete post
+									$zbs->DAL->quotes->deleteQuote( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+										array(
+											'id'          => $q['id'],
+											'saveOrphans' => false,
+										)
+									);
 
                 } unset($qs);
 
@@ -3554,12 +3555,13 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
                 $is = zeroBS_getInvoicesForCustomer($id,false,1000000,0,false);
                 foreach ($is as $i){
 
-                    // delete post
-                    if ($zbs->isDAL3()){
-                        $res = $zbs->DAL->invoices->deleteInvoice(array('id'=>$i['id'],'saveOrphans'=>false));
-                    } else 
-                        // DAL2 <  not forced?
-                        $res = wp_delete_post($i['id'],false);
+									// delete post
+									$zbs->DAL->invoices->deleteInvoice( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+										array(
+											'id'          => $i['id'],
+											'saveOrphans' => false,
+										)
+									);
 
                 } unset($qs);
 
@@ -3568,12 +3570,13 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
                 $trans = zeroBS_getTransactionsForCustomer($id,false,1000000,0,false);
                 foreach ($trans as $tran){
 
-                    // delete post
-                    if ($zbs->isDAL3()){
-                        $res = $zbs->DAL->transactions->deleteTransaction(array('id'=>$tran['id'],'saveOrphans'=>false));
-                    } else 
-                        // DAL2 <  - not forced?
-                        $res = wp_delete_post($tran['id'],false);
+									// delete post
+									$zbs->DAL->transactions->deleteTransaction( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+										array(
+											'id'          => $tran['id'],
+											'saveOrphans' => false,
+										)
+									);
 
                 } unset($trans);
 
@@ -3581,13 +3584,13 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
                 $events = zeroBS_getEventsByCustomerID($id,false,1000000,0,false);
                 foreach ($events as $event){
 
-                    // delete post
-                    if ($zbs->isDAL3()){
-                        $res = $zbs->DAL->events->deleteEvent(array('id'=>$event['id'],'saveOrphans'=>false));
-                    } else {
-                        // DAL2 <  - not forced?
-                        // this wasn't ever written.
-                    }
+									// delete post
+									$zbs->DAL->events->deleteEvent( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+										array(
+											'id'          => $event['id'],
+											'saveOrphans' => false,
+										)
+									);
 
                 } unset($events);
 

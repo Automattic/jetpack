@@ -17,63 +17,54 @@ function jpcrm_render_system_v3migration_log() {
 
 	global $zbs;
 
-	if ( $zbs->isDAL3() ) {
+	// check for any migration 'errors' + also expose here.
+	$errors = get_option( 'zbs_db_migration_300_errstack', array() );
 
-		// check for any migration 'errors' + also expose here.
-		$errors = get_option( 'zbs_db_migration_300_errstack', array() );
+	$body_str = '<h2>' . __( 'Migration Completion Report', 'zero-bs-crm' ) . '</h2>';
 
-		$bodyStr = '<h2>' . __( 'Migration Completion Report', 'zero-bs-crm' ) . '</h2>';
+	if ( is_array( $errors ) && count( $errors ) > 0 ) {
 
-		if ( is_array( $errors ) && count( $errors ) > 0 ) {
+		// this is a clone of what gets sent to them by email, but reusing the html gen here
 
-			// this is a clone of what gets sent to them by email, but reusing the html gen here
+		// build report
+		$body_str  = '<h2>' . __( 'Migration Completion Report', 'zero-bs-crm' ) . '</h2>';
+		$body_str .= '<p style="font-size:1.3em">' . __( 'Unfortunately there were some migration errors, which are shown below. The error messages should explain any conflicts found when merging, (this has also been emailed to you for your records).', 'zero-bs-crm' ) . ' ' . __( 'Please visit the migration support page', 'zero-bs-crm' ) . ' <a href="' . $zbs->urls['db3migrate'] . '" target="_blank">' . __( 'here', 'zero-bs-crm' ) . '</a> ' . __( 'if you require any further information.', 'zero-bs-crm' ) . '</p>';
+		$body_str .= '<div style="position: relative;background: #FFFFFF;box-shadow: 0px 1px 2px 0 rgba(34,36,38,0.15);margin: 1rem 0em;padding: 1em 1em;border-radius: 0.28571429rem;border: 1px solid rgba(34,36,38,0.15);margin-right:1em !important"><h3>' . __( 'Non-critical Errors:', 'zero-bs-crm' ) . '</h3>';
 
-			// build report
-			$bodyStr  = '<h2>' . __( 'Migration Completion Report', 'zero-bs-crm' ) . '</h2>';
-			$bodyStr .= '<p style="font-size:1.3em">' . __( 'Unfortunately there were some migration errors, which are shown below. The error messages should explain any conflicts found when merging, (this has also been emailed to you for your records).', 'zero-bs-crm' ) . ' ' . __( 'Please visit the migration support page', 'zero-bs-crm' ) . ' <a href="' . $zbs->urls['db3migrate'] . '" target="_blank">' . __( 'here', 'zero-bs-crm' ) . '</a> ' . __( 'if you require any further information.', 'zero-bs-crm' ) . '</p>';
-			$bodyStr .= '<div style="position: relative;background: #FFFFFF;box-shadow: 0px 1px 2px 0 rgba(34,36,38,0.15);margin: 1rem 0em;padding: 1em 1em;border-radius: 0.28571429rem;border: 1px solid rgba(34,36,38,0.15);margin-right:1em !important"><h3>' . __( 'Non-critical Errors:', 'zero-bs-crm' ) . '</h3>';
+		// expose Timeouts
+		$timeout_issues = zeroBSCRM_getSetting( 'migration300_timeout_issues' );
+		if ( isset( $timeout_issues ) && $timeout_issues == 1 ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+			echo zeroBSCRM_UI2_messageHTML( 'warning', __( 'Timeout', 'zero-bs-crm' ), __( 'While this migration ran it hit one or more timeouts. This indicates that your server may be unperformant at scale with Jetpack CRM', 'zero-bs-crm' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		}
 
-			// expose Timeouts
-			$timeoutIssues = zeroBSCRM_getSetting( 'migration300_timeout_issues' );
-			if ( isset( $timeoutIssues ) && $timeoutIssues == 1 ) {
-				echo zeroBSCRM_UI2_messageHTML( 'warning', __( 'Timeout', 'zero-bs-crm' ), __( 'While this migration ran it hit one or more timeouts. This indicates that your server may be unperformant at scale with Jetpack CRM', 'zero-bs-crm' ) );
-			}
+			// list errors
+		foreach ( $errors as $error ) {
 
-				// list errors
-			foreach ( $errors as $error ) {
-
-				$bodyStr     .= '<div class="ui vertical segment">';
-				$bodyStr     .= '<div class="ui grid">';
-					$bodyStr .= '<div class="two wide column right aligned"><span class="ui orange horizontal label">[' . $error[0] . ']</span></div>';
-					$bodyStr .= '<div class="fourteen wide column"><p style="font-size: 1.1em;">' . $error[1] . '</p></div>';
-				$bodyStr     .= '</div>';
-				$bodyStr     .= '</div>';
-
-			}
-
-			$bodyStr .= '</div>';
-
-		} else {
-
-			$bodyStr .= zeroBSCRM_UI2_messageHTML( 'info', __( 'V3.0 Migration Completed Successfully', 'zero-bs-crm' ), __( 'There were no errors when migrating your CRM install to v3.0', 'zero-bs-crm' ), '', 'zbs-succcessfulyv3' );
+			$body_str     .= '<div class="ui vertical segment">';
+			$body_str     .= '<div class="ui grid">';
+				$body_str .= '<div class="two wide column right aligned"><span class="ui orange horizontal label">[' . $error[0] . ']</span></div>';
+				$body_str .= '<div class="fourteen wide column"><p style="font-size: 1.1em;">' . $error[1] . '</p></div>';
+			$body_str     .= '</div>';
+			$body_str     .= '</div>';
 
 		}
 
-		echo $bodyStr;
-
-		?><p style="text-align:center;margin:2em">
-			<?php if ( zeroBSCRM_isZBSAdminOrAdmin() ) { ?>
-			<a href="<?php echo esc_url( zeroBSCRM_getAdminURL( $zbs->slugs['systemstatus'] ) . '&tab=status&cacheCheck=1' ); ?>" class="ui button teal"><?php esc_html_e( 'View Migration Cache', 'zero-bs-crm' ); ?></a><?php } ?>
-			<a href="<?php echo esc_url( zeroBSCRM_getAdminURL( $zbs->slugs['systemstatus'] ) . '&tab=status' ); ?>" class="ui button blue"><?php esc_html_e( 'Back to System Status', 'zero-bs-crm' ); ?></a>
-		</p>
-		<?php
+		$body_str .= '</div>';
 
 	} else {
 
-		// Not migrated yet? What?
-		echo '<p>' . esc_html__( 'You have not yet migrated to v3.0', 'zero-bs-crm' ) . '</p>';
+		$body_str .= zeroBSCRM_UI2_messageHTML( 'info', __( 'V3.0 Migration Completed Successfully', 'zero-bs-crm' ), __( 'There were no errors when migrating your CRM install to v3.0', 'zero-bs-crm' ), '', 'zbs-succcessfulyv3' );
 
 	}
+
+	echo $body_str; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+
+	?><p style="text-align:center;margin:2em">
+		<?php if ( zeroBSCRM_isZBSAdminOrAdmin() ) { ?>
+		<a href="<?php echo esc_url( zeroBSCRM_getAdminURL( $zbs->slugs['systemstatus'] ) . '&tab=status&cacheCheck=1' ); ?>" class="ui button teal"><?php esc_html_e( 'View Migration Cache', 'zero-bs-crm' ); ?></a><?php } ?>
+		<a href="<?php echo esc_url( zeroBSCRM_getAdminURL( $zbs->slugs['systemstatus'] ) . '&tab=status' ); ?>" class="ui button blue"><?php esc_html_e( 'Back to System Status', 'zero-bs-crm' ); ?></a>
+	</p>
+	<?php
 }
 
 /**
@@ -601,7 +592,7 @@ function zeroBSCRM_render_systemstatus_page() {
 						} else {
 
 							?>
-						<tr><td colspan="2"><div style="">
+						<tr><td colspan="2"><div>
 							<?php
 
 												$message = __( 'No Extensions Detected', 'zero-bs-crm' );
@@ -669,7 +660,7 @@ function zeroBSCRM_render_systemstatus_page() {
 						} else {
 
 							?>
-						<tr><td colspan="2"><div style="">
+						<tr><td colspan="2"><div>
 							<?php
 
 												$message = __( 'No External Sources Registered. Please contact support!', 'zero-bs-crm' );
@@ -746,7 +737,7 @@ function zeroBSCRM_render_systemstatus_page() {
 						} else {
 
 							?>
-							<tr><td colspan="2"><div style="">
+							<tr><td colspan="2"><div>
 													<?php
 
 													$message = __( 'No External Sources Registered. Please contact support!', 'zero-bs-crm' );
@@ -845,27 +836,12 @@ function zeroBSCRM_render_systemstatus_page() {
 				} // / admin
 				?>
 
-				<div class="ui segment">
+			<div class="ui segment">
 				<h3><?php esc_html_e( 'Administrator Tools', 'zero-bs-crm' ); ?></h3>
 				<a href="<?php echo esc_url( wp_nonce_url( '?page=' . $zbs->slugs['systemstatus'] . '&tab=status&resetuserroles=1', 'resetuserroleszerobscrm' ) ); ?>" class="ui button blue"><?php esc_html_e( 'Re-build User Roles', 'zero-bs-crm' ); ?></a>
-					<?php
-					if ( $zbs->isDAL3() ) {
-						?>
-						<a href="<?php echo esc_url( zeroBSCRM_getAdminURL( $zbs->slugs['systemstatus'] ) . '&tab=status&v3migrationlog=1' ); ?>" class="ui button blue"><?php esc_html_e( 'v3 Migration Logs', 'zero-bs-crm' ); ?></a><?php } ?>
-				</div>
+				<a href="<?php echo esc_url( zeroBSCRM_getAdminURL( $zbs->slugs['systemstatus'] ) . '&tab=status&v3migrationlog=1' ); ?>" class="ui button blue"><?php esc_html_e( 'v3 Migration Logs', 'zero-bs-crm' ); ?></a>
+			</div>
 
-
-				<script type="text/javascript">
-
-				jQuery(function(){
-
-
-
-				});
-
-
-				</script>
-			  
 		</div>
 		<?php
 

@@ -295,8 +295,6 @@ class zbsDAL {
         $this->contacts = new zbsDAL_contacts;
         $this->segments = new zbsDAL_segments;
 
-        global $zbs;
-        if ($zbs->isDAL3()){
             $this->companies = new zbsDAL_companies;
             $this->quotes = new zbsDAL_quotes;
             $this->invoices = new zbsDAL_invoices;
@@ -309,7 +307,6 @@ class zbsDAL {
             $this->quotetemplates = new zbsDAL_quotetemplates;
             // Not yet implemented:
             // $this->addresses = new zbsDAL_addresses;
-        }
         
         // any post-settings-loaded actions
         add_action( 'after_zerobscrm_settings_preinit', [ $this, 'postSettingsInit' ] );

@@ -926,7 +926,6 @@ function zeroBS_getCustomers(
 
 		// legacy from dal1
 		$actualPage = $page;
-		if (!$zbs->isDAL2()) $actualPage = $page-1;  // only DAL1 needed this
 		if ($actualPage < 0) $actualPage = 0;
 
 		// make ARGS
@@ -1287,7 +1286,7 @@ function zeroBSCRM_mergeCustomers($dominantID=-1,$slaveID=-1){
    				$changes = array();
    				$conflictingChanges = array();
 
-   				$fieldPrefix = ''; if (!$zbs->isDAL2()) $fieldPrefix = 'zbsc_';
+				$fieldPrefix = ''; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
    				// copy details from slave fields -> master fields 
    					// where detail not present?
@@ -2649,135 +2648,6 @@ function zeroBS_buildContactMeta($arraySource=array(),$startingArray=array(),$fi
 
 	// moved to generic, just return that :)
 	return zeroBS_buildObjArr($arraySource,$startingArray,$fieldPrefix,$outputPrefix,$removeEmpties,ZBS_TYPE_CONTACT,$autoGenAutonumbers);
-	
-	/*
-	#} def
-	$zbsCustomerMeta = array();
-
-	#} if passed...
-	if (isset($startingArray) && is_array($startingArray)) $zbsCustomerMeta = $startingArray;
-
-	#} go
-        global $zbsCustomerFields,$zbs;
-
-        $i=0;
-
-        foreach ($zbsCustomerFields as $fK => $fV){
-        	$i++;
-
-            if (!isset($zbsCustomerMeta[$outputPrefix.$fK])) $zbsCustomerMeta[$outputPrefix.$fK] = '';
-
-            if (isset($arraySource[$fieldPrefix.$fK])) {
-
-                switch ($fV[0]){
-
-
-                    case 'tel':
-
-                        // validate tel?
-                        $zbsCustomerMeta[$outputPrefix.$fK] = sanitize_text_field($arraySource[$fieldPrefix.$fK]);
-                        preg_replace("/[^0-9 ]/", '', $zbsCustomerMeta[$outputPrefix.$fK]);
-                        break;
-
-                    case 'price':
-                    case 'numberfloat':
-
-                        $zbsCustomerMeta[$outputPrefix.$fK] = sanitize_text_field($arraySource[$fieldPrefix.$fK]);
-                        $zbsCustomerMeta[$outputPrefix.$fK] = preg_replace('@[^0-9\.]+@i', '-', $zbsCustomerMeta[$outputPrefix.$fK]);
-                        $zbsCustomerMeta[$outputPrefix.$fK] = floatval($zbsCustomerMeta[$outputPrefix.$fK]);
-                        break;
-
-                    case 'numberint':
-
-                        $zbsCustomerMeta[$outputPrefix.$fK] = sanitize_text_field($arraySource[$fieldPrefix.$fK]);
-                        $zbsCustomerMeta[$outputPrefix.$fK] = preg_replace('@[^0-9]+@i', '-', $zbsCustomerMeta[$outputPrefix.$fK]);
-                        $zbsCustomerMeta[$outputPrefix.$fK] = floatval($zbsCustomerMeta[$outputPrefix.$fK]);
-                        break;
-
-
-                    case 'textarea':
-
-                        $zbsCustomerMeta[$outputPrefix.$fK] = zeroBSCRM_textProcess($arraySource[$fieldPrefix.$fK]);
-
-                        break;
-
-                    case 'date':
-
-                        $zbsCustomerMeta[$outputPrefix.$fK] = sanitize_text_field($arraySource[$fieldPrefix.$fK]);
-
-                        break;
-
-
-                    default:
-
-                        $zbsCustomerMeta[$outputPrefix.$fK] = sanitize_text_field($arraySource[$fieldPrefix.$fK]);
-
-                        break;
-
-
-                }
-
-
-            }
-
-
-        }
-
-        // if DAL2, second addresses get passed differently? ¯\_(ツ)_/¯
-        if ($zbs->isDAL2()){
-
-        	$replaceMap = array(
-					'secaddr1' => 'secaddr_addr1',
-					'secaddr2' => 'secaddr_addr2',
-					'seccity' => 'secaddr_city',
-					'seccounty' => 'secaddr_county',
-					'seccountry' => 'secaddr_country',
-					'secpostcode' => 'secaddr_postcode'
-					);
-
-        	foreach ($replaceMap as $d2key => $d1key)
-	        if (isset($zbsCustomerMeta[$outputPrefix.$d1key])){
-	        	$zbsCustomerMeta[$outputPrefix.$d2key] = $zbsCustomerMeta[$outputPrefix.$d1key];
-	        	unset($zbsCustomerMeta[$outputPrefix.$d1key]);
-	        }
-
-		}
-
-        // can also pass some extras :) /social
-        $extras = array('tw','fb','li');
-        foreach ($extras as $fK){
-
-            if (!isset($zbsCustomerMeta[$outputPrefix.$fK])) $zbsCustomerMeta[$outputPrefix.$fK] = '';
-
-            if (isset($arraySource[$fieldPrefix.$fK])) {
-
-                $zbsCustomerMeta[$outputPrefix.$fK] = sanitize_text_field($arraySource[$fieldPrefix.$fK]);
-
-            }
-
-        }
-
-        // $removeEmpties
-        if ($removeEmpties){
-
-        	$ret = array();
-        	foreach ($zbsCustomerMeta as $k => $v){
-				
-				$intV = (int)$v;
-
-				if (!is_array($v) && !empty($v) && $v != '' && $v !== 0 && $v !== -1 && $intV !== -1){
-					$ret[$k] = $v;
-				}
-
-        	}
-
-        	$zbsCustomerMeta = $ret;
-
-        }
-
-    return $zbsCustomerMeta;
-
-   */
 }
 
 /* ======================================================
@@ -2885,12 +2755,6 @@ function zeroBS___________DAL30Helpers(){return;}
 
 			// retrieve global var name
 			$globFieldVarName = $zbs->DAL->objFieldVarName($objType);
-	    
-			// should be $zbsCustomerFields etc.
-			// from 3.0 this is kind of redundant, esp when dealing with events, which have none, so we skip if this case
-			if (
-				!$zbs->isDAL3() && (empty($globFieldVarName) || $globFieldVarName == false || !isset($GLOBALS[ $globFieldVarName ]))
-				) return $retArray;
 
 			// nope. (for events in DAL3)
 			// ... potentially can turn this off for all non DAL3? may be redundant inside next {}
@@ -2942,16 +2806,16 @@ function zeroBS___________DAL30Helpers(){return;}
 		                        $retArray[$outputPrefix.$fK] = intval($retArray[$outputPrefix.$fK]);
 		                        break;
 
-						case 'textarea':
+					case 'textarea':
 							// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 							$retArray[ $outputPrefix . $fK ] = sanitize_textarea_field( $arraySource[ $fieldPrefix . $fK ] );
-							break;
+						break;
 
-						case 'date':
+					case 'date':
 							$safe_text = sanitize_text_field( $arraySource[ $fieldPrefix . $fK ] ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 							$retArray[ $outputPrefix . $fK ] = jpcrm_date_str_to_uts( $safe_text, '!Y-m-d', true ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-							break;
+						break;
 
 		                    case 'datetime':
 
@@ -3082,7 +2946,7 @@ function zeroBS___________DAL30Helpers(){return;}
 		            			if (isset($fV[2])) {
 		            			    $formatExample = $fV[2];
                                 }
-						if ( ! empty( $formatExample ) && str_contains( $formatExample, '#' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+					if ( ! empty( $formatExample ) && str_contains( $formatExample, '#' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 		            				// has a rule at least
 		            				$formatParts = explode('#', $formatExample);
@@ -3101,9 +2965,7 @@ function zeroBS___________DAL30Helpers(){return;}
 
 		            				// if legit, add
 		                			if ($no > 0 && $no !== false) $retArray[$outputPrefix.$fK] = $autono;
-
-
-						}
+					}
 		            	}
 
 			        } // / if autonumber
@@ -3112,10 +2974,6 @@ function zeroBS___________DAL30Helpers(){return;}
 		        } // / foreach field
 
 		    } // / if global-based-fill-out
-
-	        // if DAL2, second addresses get passed differently? ¯\_(ツ)_/¯
-	        // ... guess there's no harm in this, if not set wont enact...
-	        if ($zbs->isDAL2()){
 
 	        	$replaceMap = array(
 						'secaddr1' => 'secaddr_addr1',
@@ -3131,44 +2989,6 @@ function zeroBS___________DAL30Helpers(){return;}
 		        	$retArray[$outputPrefix.$d2key] = $retArray[$outputPrefix.$d1key];
 		        	unset($retArray[$outputPrefix.$d1key]);
 		        }
-
-			}
-
-	        // if DAL3, we had a number of translations, where old fields were being passed differently ¯\_(ツ)_/¯
-	        // ... these shouldn't be passed v3.0 onwards (fixed in metaboxes etc.) but this catches them if passed by accident/somewhere?
-	        // ... guess there's no harm in this, if not set wont enact...
-	        /* WH removed 30/04/2019 - seems redundant now.
-	        if ($zbs->isDAL3()){
-
-	        	// #DAL2ToDAL3FIELDCONVERSION
-	        	$replaceMap = array(
-
-	        		// QUOTES
-
-	        			ZBS_TYPE_QUOTE => array(
-
-	        				// dal2 => dal3
-	        				'name' => 'title',
-	        				'val' => 'value',
-
-	        			)
-
-				);
-
-	        	// only use this obj type replace map
-	        	$objReplaceMap = array(); if (isset($replaceMap[$objType])) $objReplaceMap = $replaceMap[$objType];
-
-	        	// any replaces?
-        		foreach ($objReplaceMap as $d2key => $d3key){
-			        if (isset($retArray[$outputPrefix.$d2key])){
-			        	$retArray[$outputPrefix.$d3key] = $retArray[$outputPrefix.$d2key];
-			        	unset($retArray[$outputPrefix.$d2key]);
-			        }
-
-			    }
-				
-
-			} */
 
 	        // can also pass some extras :) /social
 	        // for co + contact
@@ -3403,9 +3223,7 @@ function zeroBS___________DAL30Helpers(){return;}
 
 		global $zbs;			
 
-			// legacy from dal1
 			$actualPage = $page;
-			if ($zbs->isDAL1()) $actualPage = $page-1;  // only DAL1 needed this
 			if ($actualPage < 0) $actualPage = 0;
 
 			// make ARGS
@@ -4111,9 +3929,7 @@ function zeroBS_getCompanyIDWithName( $company_name = '' ) {
 				// $withFullDetails = irrelevant with new DB2 (always returns)
 				global $zbs;			
 
-					// legacy from dal1
 					$actualPage = $page;
-					if ($zbs->isDAL1()) $actualPage = $page-1;  // only DAL1 needed this
 					if ($actualPage < 0) $actualPage = 0;
 
 					// make ARGS
@@ -4160,9 +3976,7 @@ function zeroBS_getCompanyIDWithName( $company_name = '' ) {
 			// $withFullDetails = irrelevant with new DB2 (always returns)
 			global $zbs;			
 
-				// legacy from dal1
 				$actualPage = $page;
-				if ($zbs->isDAL1()) $actualPage = $page-1;  // only DAL1 needed this
 				if ($actualPage < 0) $actualPage = 0;
 
 				// make ARGS
@@ -4205,9 +4019,7 @@ function zeroBS_getCompanyIDWithName( $company_name = '' ) {
 
 			global $zbs;			
 
-				// legacy from dal1
 				$actualPage = $page;
-				if ($zbs->isDAL1()) $actualPage = $page-1;  // only DAL1 needed this
 				if ($actualPage < 0) $actualPage = 0;
 
 				// make ARGS
@@ -4246,9 +4058,7 @@ function zeroBS_getCompanyIDWithName( $company_name = '' ) {
 
 			global $zbs;			
 
-				// legacy from dal1
 				$actualPage = $page;
-				if ($zbs->isDAL1()) $actualPage = $page-1;  // only DAL1 needed this
 				if ($actualPage < 0) $actualPage = 0;
 
 				// make ARGS
@@ -4429,9 +4239,7 @@ function zeroBS_getCompanyIDWithName( $company_name = '' ) {
 			// $withFullDetails = irrelevant with new DB2 (always returns)
 			global $zbs;			
 
-				// legacy from dal1
 				$actualPage = $page;
-				if ($zbs->isDAL1()) $actualPage = $page-1;  // only DAL1 needed this
 				if ($actualPage < 0) $actualPage = 0;
 
 				// make ARGS
@@ -4478,9 +4286,7 @@ function zeroBS_getCompanyIDWithName( $company_name = '' ) {
 			// $withFullDetails = irrelevant with new DB2 (always returns)
 			global $zbs;			
 
-				// legacy from dal1
 				$actualPage = $page;
-				if ($zbs->isDAL1()) $actualPage = $page-1;  // only DAL1 needed this
 				if ($actualPage < 0) $actualPage = 0;
 
 				// make ARGS
@@ -4566,9 +4372,7 @@ function zeroBS_getCompanyIDWithName( $company_name = '' ) {
 			// $withFullDetails = irrelevant with new DB2 (always returns)
 			global $zbs;			
 
-				// legacy from dal1
 				$actualPage = $page;
-				if ($zbs->isDAL1()) $actualPage = $page-1;  // only DAL1 needed this
 				if ($actualPage < 0) $actualPage = 0;
 
 				// make ARGS
@@ -4609,9 +4413,7 @@ function zeroBS_getCompanyIDWithName( $company_name = '' ) {
 			// $withFullDetails = irrelevant with new DB2 (always returns)
 			global $zbs;			
 
-				// legacy from dal1
 				$actualPage = $page;
-				if ($zbs->isDAL1()) $actualPage = $page-1;  // only DAL1 needed this
 				if ($actualPage < 0) $actualPage = 0;
 
 				// make ARGS
@@ -5397,9 +5199,7 @@ function jpcrm_deleted_invoice_counts( $all_invoices = null ) {
 			// $withFullDetails = irrelevant with new DB2 (always returns)
 			global $zbs;			
 
-				// legacy from dal1
 				$actualPage = $page;
-				if ($zbs->isDAL1()) $actualPage = $page-1;  // only DAL1 needed this
 				if ($actualPage < 0) $actualPage = 0;
 
 				// make ARGS
@@ -5450,9 +5250,7 @@ function jpcrm_deleted_invoice_counts( $all_invoices = null ) {
 			// $withFullDetails = irrelevant with new DB2 (always returns)
 			global $zbs;			
 
-				// legacy from dal1
 				$actualPage = $page;
-				if ($zbs->isDAL1()) $actualPage = $page-1;  // only DAL1 needed this
 				if ($actualPage < 0) $actualPage = 0;
 
 				// make ARGS
@@ -5495,9 +5293,7 @@ function jpcrm_deleted_invoice_counts( $all_invoices = null ) {
 			// $withFullDetails = irrelevant with new DB2 (always returns)
 			global $zbs;			
 
-				// legacy from dal1
 				$actualPage = $page;
-				if ($zbs->isDAL1()) $actualPage = $page-1;  // only DAL1 needed this
 				if ($actualPage < 0) $actualPage = 0;
 
 				// make ARGS
@@ -5537,9 +5333,7 @@ function jpcrm_deleted_invoice_counts( $all_invoices = null ) {
 			// $withFullDetails = irrelevant with new DB2 (always returns)
 			global $zbs;			
 
-				// legacy from dal1
 				$actualPage = $page;
-				if ($zbs->isDAL1()) $actualPage = $page-1;  // only DAL1 needed this
 				if ($actualPage < 0) $actualPage = 0;
 
 				// make ARGS
@@ -6002,9 +5796,7 @@ function jpcrm_deleted_invoice_counts( $all_invoices = null ) {
 
 			global $zbs;
 
-				// legacy from dal1
 				$actualPage = $page;
-				if (!$zbs->isDAL2()) $actualPage = $page-1;  // only DAL1 needed this
 				if ($actualPage < 0) $actualPage = 0;
 
 				// make ARGS
@@ -6161,9 +5953,7 @@ function jpcrm_deleted_invoice_counts( $all_invoices = null ) {
 			// $withFullDetails = irrelevant with new DB2 (always returns)
 			global $zbs;			
 
-				// legacy from dal1
 				$actualPage = $page;
-				if ($zbs->isDAL1()) $actualPage = $page-1;  // only DAL1 needed this
 				if ($actualPage < 0) $actualPage = 0;
 
 				// make ARGS
@@ -6208,9 +5998,7 @@ function jpcrm_deleted_invoice_counts( $all_invoices = null ) {
 			// $withFullDetails = irrelevant with new DB2 (always returns)
 			global $zbs;			
 
-				// legacy from dal1
 				$actualPage = $page;
-				if ($zbs->isDAL1()) $actualPage = $page-1;  // only DAL1 needed this
 				if ($actualPage < 0) $actualPage = 0;
 
 				// make ARGS
