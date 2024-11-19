@@ -22,41 +22,39 @@
    ====================================================== */
 
 global $wpdb, $ZBSCRM_t;
-  
-  // Table names
-  $ZBSCRM_t['contacts']               = $wpdb->prefix . "zbs_contacts";
-  $ZBSCRM_t['customfields']           = $wpdb->prefix . "zbs_customfields";
-  $ZBSCRM_t['meta']                   = $wpdb->prefix . "zbs_meta";
-  $ZBSCRM_t['tags']                   = $wpdb->prefix . "zbs_tags";
-  $ZBSCRM_t['taglinks']               = $wpdb->prefix . "zbs_tags_links";
-  $ZBSCRM_t['settings']               = $wpdb->prefix . "zbs_settings";
-  $ZBSCRM_t['segments']               = $wpdb->prefix . "zbs_segments";
-  $ZBSCRM_t['segmentsconditions']     = $wpdb->prefix . "zbs_segments_conditions";
-  $ZBSCRM_t['adminlog']               = $wpdb->prefix . "zbs_admlog";
-  $ZBSCRM_t['temphash']               = $wpdb->prefix . "zbs_temphash";
-  $ZBSCRM_t['objlinks']               = $wpdb->prefix . "zbs_object_links";
-  $ZBSCRM_t['aka']                    = $wpdb->prefix . "zbs_aka";
-  $ZBSCRM_t['externalsources']        = $wpdb->prefix . "zbs_externalsources";
-  $ZBSCRM_t['tracking']               = $wpdb->prefix . "zbs_tracking";
-  $ZBSCRM_t['logs']                   = $wpdb->prefix . "zbs_logs";
-  $ZBSCRM_t['system_mail_templates']  = $wpdb->prefix . "zbs_sys_email";
-  $ZBSCRM_t['system_mail_hist']       = $wpdb->prefix . "zbs_sys_email_hist"; 
-  $ZBSCRM_t['cronmanagerlogs']        = $wpdb->prefix . "zbs_sys_cronmanagerlogs"; 
-  $ZBSCRM_t['dbmigrationbkmeta']      = $wpdb->prefix . "zbs_dbmigration_meta";
-  $ZBSCRM_t['dbmigrationbkposts']     = $wpdb->prefix . "zbs_dbmigration_posts";
-  $ZBSCRM_t['companies']              = $wpdb->prefix . "zbs_companies";
-  $ZBSCRM_t['quotes']                 = $wpdb->prefix . "zbs_quotes";
-  $ZBSCRM_t['quotetemplates']         = $wpdb->prefix . "zbs_quotes_templates";
-  $ZBSCRM_t['invoices']               = $wpdb->prefix . "zbs_invoices";
-  $ZBSCRM_t['transactions']           = $wpdb->prefix . "zbs_transactions";
-  $ZBSCRM_t['lineitems']              = $wpdb->prefix . "zbs_lineitems";
-  $ZBSCRM_t['forms']                  = $wpdb->prefix . "zbs_forms";
-  $ZBSCRM_t['events']                 = $wpdb->prefix . "zbs_events";
-  $ZBSCRM_t['eventreminders']         = $wpdb->prefix . "zbs_event_reminders";
-  $ZBSCRM_t['tax']                    = $wpdb->prefix . "zbs_tax_table";
-  $ZBSCRM_t['security_log']           = $wpdb->prefix . "zbs_security_log";
-  $ZBSCRM_t['automation-workflows']  = $wpdb->prefix . 'zbs_workflows'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, Universal.WhiteSpace.PrecisionAlignment.Found
-
+// Table names
+// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+$ZBSCRM_t['contacts']              = $wpdb->prefix . 'zbs_contacts';
+$ZBSCRM_t['customfields']          = $wpdb->prefix . 'zbs_customfields';
+$ZBSCRM_t['meta']                  = $wpdb->prefix . 'zbs_meta';
+$ZBSCRM_t['tags']                  = $wpdb->prefix . 'zbs_tags';
+$ZBSCRM_t['taglinks']              = $wpdb->prefix . 'zbs_tags_links';
+$ZBSCRM_t['settings']              = $wpdb->prefix . 'zbs_settings';
+$ZBSCRM_t['segments']              = $wpdb->prefix . 'zbs_segments';
+$ZBSCRM_t['segmentsconditions']    = $wpdb->prefix . 'zbs_segments_conditions';
+$ZBSCRM_t['adminlog']              = $wpdb->prefix . 'zbs_admlog';
+$ZBSCRM_t['temphash']              = $wpdb->prefix . 'zbs_temphash';
+$ZBSCRM_t['objlinks']              = $wpdb->prefix . 'zbs_object_links';
+$ZBSCRM_t['aka']                   = $wpdb->prefix . 'zbs_aka';
+$ZBSCRM_t['externalsources']       = $wpdb->prefix . 'zbs_externalsources';
+$ZBSCRM_t['tracking']              = $wpdb->prefix . 'zbs_tracking';
+$ZBSCRM_t['logs']                  = $wpdb->prefix . 'zbs_logs';
+$ZBSCRM_t['system_mail_templates'] = $wpdb->prefix . 'zbs_sys_email';
+$ZBSCRM_t['system_mail_hist']      = $wpdb->prefix . 'zbs_sys_email_hist';
+$ZBSCRM_t['cronmanagerlogs']       = $wpdb->prefix . 'zbs_sys_cronmanagerlogs';
+$ZBSCRM_t['companies']             = $wpdb->prefix . 'zbs_companies';
+$ZBSCRM_t['quotes']                = $wpdb->prefix . 'zbs_quotes';
+$ZBSCRM_t['quotetemplates']        = $wpdb->prefix . 'zbs_quotes_templates';
+$ZBSCRM_t['invoices']              = $wpdb->prefix . 'zbs_invoices';
+$ZBSCRM_t['transactions']          = $wpdb->prefix . 'zbs_transactions';
+$ZBSCRM_t['lineitems']             = $wpdb->prefix . 'zbs_lineitems';
+$ZBSCRM_t['forms']                 = $wpdb->prefix . 'zbs_forms';
+$ZBSCRM_t['events']                = $wpdb->prefix . 'zbs_events';
+$ZBSCRM_t['eventreminders']        = $wpdb->prefix . 'zbs_event_reminders';
+$ZBSCRM_t['tax']                   = $wpdb->prefix . 'zbs_tax_table';
+$ZBSCRM_t['security_log']          = $wpdb->prefix . 'zbs_security_log';
+$ZBSCRM_t['automation-workflows']  = $wpdb->prefix . 'zbs_workflows';
+// phpcs:enable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 /**
  * Core-fired Database structure check
@@ -396,62 +394,6 @@ function zeroBSCRM_createTables(){
   DEFAULT CHARACTER SET = ".$characterSet."
   COLLATE = ".$collation.";";
   zeroBSCRM_db_runDelta($sql); 
-
-
-  // Migration BACKUP Post Meta Table
-  // Note 2 additional columns in each (wpID,zbsID) store related ID's
-  $sql = "CREATE TABLE IF NOT EXISTS ". $ZBSCRM_t['dbmigrationbkmeta'] ."(
-  `meta_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `wpID` bigint(20) unsigned NOT NULL,
-  `zbsID` bigint(20) unsigned NOT NULL,
-  `post_id` bigint(20) unsigned NOT NULL DEFAULT '0',
-  `meta_key` varchar(255) COLLATE utf8_general_ci DEFAULT NULL,
-  `meta_value` longtext COLLATE utf8_general_ci,
-  PRIMARY KEY (`meta_id`),
-  KEY `post_id` (`post_id`),
-  KEY `meta_key` (`meta_key`))
-  ".$storageEngineLine."
-  DEFAULT CHARSET=utf8
-  COLLATE=utf8_general_ci;";
-  zeroBSCRM_db_runDelta($sql); 
-
-  // Migration Backup Posts Tables
-  $sql = "CREATE TABLE IF NOT EXISTS ". $ZBSCRM_t['dbmigrationbkposts'] ."(
-  `ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `wpID` bigint(20) unsigned NOT NULL,
-  `zbsID` bigint(20) unsigned NOT NULL,
-  `post_author` bigint(20) unsigned NOT NULL DEFAULT '0',
-  `post_date` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `post_date_gmt` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `post_content` longtext COLLATE utf8_general_ci NOT NULL,
-  `post_title` text COLLATE utf8_general_ci NOT NULL,
-  `post_excerpt` text COLLATE utf8_general_ci NOT NULL,
-  `post_status` varchar(20) COLLATE utf8_general_ci NOT NULL DEFAULT 'publish',
-  `comment_status` varchar(20) COLLATE utf8_general_ci NOT NULL DEFAULT 'open',
-  `ping_status` varchar(20) COLLATE utf8_general_ci NOT NULL DEFAULT 'open',
-  `post_password` varchar(255) COLLATE utf8_general_ci NOT NULL DEFAULT '',
-  `post_name` varchar(200) COLLATE utf8_general_ci NOT NULL DEFAULT '',
-  `to_ping` text COLLATE utf8_general_ci NOT NULL,
-  `pinged` text COLLATE utf8_general_ci NOT NULL,
-  `post_modified` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `post_modified_gmt` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `post_content_filtered` longtext COLLATE utf8_general_ci NOT NULL,
-  `post_parent` bigint(20) unsigned NOT NULL DEFAULT '0',
-  `guid` varchar(255) COLLATE utf8_general_ci NOT NULL DEFAULT '',
-  `menu_order` int(11) NOT NULL DEFAULT '0',
-  `post_type` varchar(20) COLLATE utf8_general_ci NOT NULL DEFAULT 'post',
-  `post_mime_type` varchar(100) COLLATE utf8_general_ci NOT NULL DEFAULT '',
-  `comment_count` bigint(20) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`ID`),
-  KEY `post_name` (`post_name`),
-  KEY `type_status_date` (`post_type`,`post_status`,`post_date`,`ID`),
-  KEY `post_parent` (`post_parent`),
-  KEY `post_author` (`post_author`)) 
-  ".$storageEngineLine."
-  DEFAULT CHARSET=utf8 
-  COLLATE=utf8_general_ci;";
-  zeroBSCRM_db_runDelta($sql); 
-
 
   // System Email Templates
   $sql = "CREATE TABLE IF NOT EXISTS ". $ZBSCRM_t['system_mail_templates'] ."(

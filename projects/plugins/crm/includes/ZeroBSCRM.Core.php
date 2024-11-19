@@ -984,11 +984,6 @@ final class ZeroBSCRM {
 		// assets
 		$this->urls['crm-logo'] = plugins_url( 'i/jpcrm-logo-stacked-black.png', ZBS_ROOTFILE );
 
-		// temp/updates
-		$this->urls['db3migrate']         = 'https://kb.jetpackcrm.com/knowledge-base/upgrading-database-v3-0-migration/';
-		$this->urls['migrationhelpemail'] = 'hello@jetpackcrm.com';
-		$this->urls['db3migrateexts']     = 'https://kb.jetpackcrm.com/knowledge-base/upgrading-database-v3-0-migration/#extension-compatibility';
-
 		// kb
 		$this->urls['kbdevmode']                = 'https://kb.jetpackcrm.com/knowledge-base/developer-mode/';
 		$this->urls['kbquoteplaceholders']      = 'https://kb.jetpackcrm.com/knowledge-base/placeholders-in-emails-quote-templates-invoices-etc/#quote-template-placeholders';

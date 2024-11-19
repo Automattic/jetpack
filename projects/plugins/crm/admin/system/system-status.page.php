@@ -10,203 +10,9 @@ jpcrm_render_system_title( __( 'System Status', 'zero-bs-crm' ) );
 
 zeroBSCRM_render_systemstatus_page();
 
-/**
- * Render v3 migration logs section
- */
-function jpcrm_render_system_v3migration_log() {
-
-	global $zbs;
-
-	// check for any migration 'errors' + also expose here.
-	$errors = get_option( 'zbs_db_migration_300_errstack', array() );
-
-	$body_str = '<h2>' . __( 'Migration Completion Report', 'zero-bs-crm' ) . '</h2>';
-
-	if ( is_array( $errors ) && count( $errors ) > 0 ) {
-
-		// this is a clone of what gets sent to them by email, but reusing the html gen here
-
-		// build report
-		$body_str  = '<h2>' . __( 'Migration Completion Report', 'zero-bs-crm' ) . '</h2>';
-		$body_str .= '<p style="font-size:1.3em">' . __( 'Unfortunately there were some migration errors, which are shown below. The error messages should explain any conflicts found when merging, (this has also been emailed to you for your records).', 'zero-bs-crm' ) . ' ' . __( 'Please visit the migration support page', 'zero-bs-crm' ) . ' <a href="' . $zbs->urls['db3migrate'] . '" target="_blank">' . __( 'here', 'zero-bs-crm' ) . '</a> ' . __( 'if you require any further information.', 'zero-bs-crm' ) . '</p>';
-		$body_str .= '<div style="position: relative;background: #FFFFFF;box-shadow: 0px 1px 2px 0 rgba(34,36,38,0.15);margin: 1rem 0em;padding: 1em 1em;border-radius: 0.28571429rem;border: 1px solid rgba(34,36,38,0.15);margin-right:1em !important"><h3>' . __( 'Non-critical Errors:', 'zero-bs-crm' ) . '</h3>';
-
-		// expose Timeouts
-		$timeout_issues = zeroBSCRM_getSetting( 'migration300_timeout_issues' );
-		if ( isset( $timeout_issues ) && $timeout_issues == 1 ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
-			echo zeroBSCRM_UI2_messageHTML( 'warning', __( 'Timeout', 'zero-bs-crm' ), __( 'While this migration ran it hit one or more timeouts. This indicates that your server may be unperformant at scale with Jetpack CRM', 'zero-bs-crm' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		}
-
-			// list errors
-		foreach ( $errors as $error ) {
-
-			$body_str     .= '<div class="ui vertical segment">';
-			$body_str     .= '<div class="ui grid">';
-				$body_str .= '<div class="two wide column right aligned"><span class="ui orange horizontal label">[' . $error[0] . ']</span></div>';
-				$body_str .= '<div class="fourteen wide column"><p style="font-size: 1.1em;">' . $error[1] . '</p></div>';
-			$body_str     .= '</div>';
-			$body_str     .= '</div>';
-
-		}
-
-		$body_str .= '</div>';
-
-	} else {
-
-		$body_str .= zeroBSCRM_UI2_messageHTML( 'info', __( 'V3.0 Migration Completed Successfully', 'zero-bs-crm' ), __( 'There were no errors when migrating your CRM install to v3.0', 'zero-bs-crm' ), '', 'zbs-succcessfulyv3' );
-
-	}
-
-	echo $body_str; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-
-	?><p style="text-align:center;margin:2em">
-		<?php if ( zeroBSCRM_isZBSAdminOrAdmin() ) { ?>
-		<a href="<?php echo esc_url( zeroBSCRM_getAdminURL( $zbs->slugs['systemstatus'] ) . '&tab=status&cacheCheck=1' ); ?>" class="ui button teal"><?php esc_html_e( 'View Migration Cache', 'zero-bs-crm' ); ?></a><?php } ?>
-		<a href="<?php echo esc_url( zeroBSCRM_getAdminURL( $zbs->slugs['systemstatus'] ) . '&tab=status' ); ?>" class="ui button blue"><?php esc_html_e( 'Back to System Status', 'zero-bs-crm' ); ?></a>
-	</p>
-	<?php
-}
-
-/**
- * Render v3 cachecheck section
- */
-function jpcrm_render_system_cachecheck() {
-
-	global $zbs, $wpdb, $ZBSCRM_t;
-
-		$zbsCPTs = array(
-			'zerobs_customer'     => _x( 'Contact', 'Contact Info (not the verb)', 'zero-bs-crm' ),
-			'zerobs_company'      => _x( jpcrm_label_company(), 'A ' . jpcrm_label_company() . ', e.g. incorporated organisation', 'zero-bs-crm' ),
-			'zerobs_invoice'      => _x( 'Invoice', 'Invoice object (not the verb)', 'zero-bs-crm' ),
-			'zerobs_quote'        => _x( 'Quote', 'Quote object (not the verb) (proposal)', 'zero-bs-crm' ),
-			'zerobs_quo_template' => _x( 'Quote Template', 'Quote template object (not the verb)', 'zero-bs-crm' ),
-			'zerobs_transaction'  => _x( 'Transaction', 'Transaction object (not the verb)', 'zero-bs-crm' ),
-			'zerobs_form'         => _x( 'Form', 'Website Form object (not shape)', 'zero-bs-crm' ),
-		);
-
-		echo '<div style="margin:1em;">';
-		echo '<h2>' . esc_html__( 'Migration Cache', 'zero-bs-crm' ) . '</h2>';
-
-		if ( isset( $_GET['clearCache'] ) ) {
-
-			// dump cache
-
-			if ( ! isset( $_GET['imsure'] ) ) {
-
-				// sure you want to clear cache?
-				$message  = '<p>' . __( 'Are you sure you want to delete the migration object cache?', 'zero-bs-crm' ) . '</p>';
-				$message .= '<p>' . __( 'Clearing this cache will remove all backups the CRM has kept of previous data', 'zero-bs-crm' ) . '</p>';
-				$message .= '<p>' . __( '(This will free up database space and will not affect your current CRM data, but please note this cannot be undone)', 'zero-bs-crm' ) . '</p>';
-				$message .= '<p>';
-				$message .= '<a href="' . wp_nonce_url( '?page=' . $zbs->slugs['systemstatus'] . '&tab=status&cacheCheck=1&clearCache=1&imsure=1', 'pleaseremovemigrationcache' ) . '" class="ui button orange">' . __( 'Clear Migration Cache', 'zero-bs-crm' ) . '</a>';
-				$message .= '<a href="' . zeroBSCRM_getAdminURL( $zbs->slugs['systemstatus'] ) . '&tab=status" class="ui button blue">' . __( 'Back to System Status', 'zero-bs-crm' ) . '</a>';
-				$message .= '</p>';
-
-				echo zeroBSCRM_UI2_messageHTML( 'warning', __( 'Clear Migration Object Cache?', 'zero-bs-crm' ), $message, 'warning', 'clearObjCache' );
-
-			} else {
-
-				// if sure, clear cache
-				if ( wp_verify_nonce( $_GET['_wpnonce'], 'pleaseremovemigrationcache' ) ) {
-
-					// is admin, passed 'I'm Sure' nonce check... clear the cache
-					$objCount     = $zbs->DAL->truncate( 'dbmigrationbkposts' );
-					$objMetaCount = $zbs->DAL->truncate( 'dbmigrationbkmeta' );
-
-					// and store a log as audit trail
-					$log = get_option( 'zbs_dbmig_cacheclear' );
-					if ( ! is_array( $log ) ) {
-						$log = array();
-					}
-					$log[] = time();
-					update_option( 'zbs_dbmig_cacheclear', $log, false );
-
-					// cleared
-					$message  = '<p>' . __( 'You have cleared the migration object cache', 'zero-bs-crm' ) . '</p>';
-					$message .= '<p>' . zeroBSCRM_prettifyLongInts( $objCount ) . ' x ' . __( 'Object', 'zero-bs-crm' ) . ' & ' . zeroBSCRM_prettifyLongInts( $objMetaCount ) . ' x ' . __( 'Meta', 'zero-bs-crm' ) . '</p>';
-					$message .= '<p>';
-					$message .= '<a href="' . zeroBSCRM_getAdminURL( $zbs->slugs['systemstatus'] ) . '&tab=status" class="ui button blue">' . __( 'Back to System Status', 'zero-bs-crm' ) . '</a>';
-					$message .= '</p>';
-
-					echo zeroBSCRM_UI2_messageHTML( 'info', __( 'Cleared Migration Object Cache', 'zero-bs-crm' ), $message, 'warning', 'clearObjCache' );
-
-				} else {
-
-					// nonce not verified, spoof attempt
-					exit();
-
-				}
-			}
-		} else {
-
-			// show cache
-
-			?>
-			<table class="table table-bordered table-striped wtab">
-			 
-				<thead>
-				  
-						<tr>
-							<th colspan="2" class="wmid"><?php esc_html_e( 'Pre-Migration Object Cache', 'zero-bs-crm' ); ?>:</th>
-						</tr>
-
-					</thead>
-					
-					<tbody>
-					<?php
-
-					foreach ( $zbsCPTs as $cpt => $label ) {
-
-							$count = (int) $wpdb->get_var( $wpdb->prepare( 'SELECT COUNT(ID) FROM ' . $ZBSCRM_t['dbmigrationbkposts'] . ' WHERE post_type = %s', $cpt ) );
-
-						?>
-				<tr>
-					<td class="wfieldname">
-						<label for="cpt_<?php esc_attr_e( $cpt ); ?>">
-						<?php esc_html( sprintf( _x( '%s Objects:', 'table field label', 'zero-bs-crm' ), $label ) ); ?>
-						</label>
-					</td>
-					<td><?php echo esc_html( zeroBSCRM_prettifyLongInts( $count ) ); ?></td>
-					</tr>
-							<?php
-
-					}
-
-					?>
-			</tbody></table><p style="text-align:center;margin:2em">
-				<?php if ( zeroBSCRM_isZBSAdminOrAdmin() ) { ?>
-				<a href="<?php echo esc_url( wp_nonce_url( '?page=' . $zbs->slugs['systemstatus'] . '&tab=status&cacheCheck=1&clearCache=1', 'clearmigrationcache' ) ); ?>" class="ui button orange"><?php esc_html_e( 'Clear Migration Cache', 'zero-bs-crm' ); ?></a><?php } ?>
-				<a href="<?php echo esc_url( zeroBSCRM_getAdminURL( $zbs->slugs['systemstatus'] ) . '&tab=status' ); ?>" class="ui button blue"><?php esc_html_e( 'Back to System Status', 'zero-bs-crm' ); ?></a>
-			</p>
-			<?php
-
-		}
-
-		echo '</div>';
-}
-
 function zeroBSCRM_render_systemstatus_page() {
 
 	global $wpdb, $zbs;  // } Req
-
-	$normalSystemStatusPage = true;
-
-	// catch v3 migration notes
-	if ( isset( $_GET['v3migrationlog'] ) ) {
-
-		$normalSystemStatusPage = false;
-		jpcrm_render_system_v3migration_log();
-
-	} elseif ( isset( $_GET['cacheCheck'] ) && zeroBSCRM_isZBSAdminOrAdmin() ) {
-
-		$normalSystemStatusPage = false;
-		jpcrm_render_system_cachecheck();
-
-	}
-
-	if ( $normalSystemStatusPage ) {
-
-		$settings = $zbs->settings->getAll();
 
 		// catch tools:
 		if ( current_user_can( 'admin_zerobs_manage_options' ) && isset( $_GET['resetuserroles'] ) && wp_verify_nonce( $_GET['_wpnonce'], 'resetuserroleszerobscrm' ) ) {
@@ -219,7 +25,7 @@ function zeroBSCRM_render_systemstatus_page() {
 
 			// flag
 			$userRolesRebuilt = true;
-		}
+	}
 
 		// check for, and prep any general sys status errs:
 		$generalErrors = array();
@@ -232,7 +38,7 @@ function zeroBSCRM_render_systemstatus_page() {
 			// add ability to 'reset migration block'
 			$generalErrors['migrationblock'] .= '<br /><a href="' . wp_nonce_url( '?page=' . $zbs->slugs['systemstatus'] . '&tab=status&resetmigrationblock=1', 'resetmigrationblock' ) . '">' . __( 'Retry the Migration', 'zero-bs-crm' ) . '</a>';
 
-		}
+	}
 
 		// hard-check database tables & report
 
@@ -244,8 +50,8 @@ function zeroBSCRM_render_systemstatus_page() {
 			$tablesExist = $wpdb->get_results( "SHOW TABLES LIKE '" . $tableName . "'" );
 			if ( count( $tablesExist ) < 1 ) {
 				$missingTables[] = $tableName;
-			}
 		}
+	}
 
 		// missing tables?
 		if ( count( $missingTables ) > 0 ) {
@@ -253,7 +59,7 @@ function zeroBSCRM_render_systemstatus_page() {
 			$generalErrors['missingtables']  = __( 'Jetpack CRM has failed creating the tables it needs to operate. Please contact support.', 'zero-bs-crm' ) . ' (#306)';
 			$generalErrors['missingtables'] .= '<br />' . __( 'The following tables could not be created:', 'zero-bs-crm' ) . ' (' . implode( ', ', $missingTables ) . ')';
 
-		}
+	}
 
 		// Got any persisitent SQL errors on db table creation?
 		$creationErrors = get_option( 'zbs_db_creation_errors' );
@@ -266,11 +72,10 @@ function zeroBSCRM_render_systemstatus_page() {
 
 								$generalErrors['creationsql'] .= '<br />&nbsp;&nbsp;' . $err;
 
-				}
 			}
 		}
-
-		?>
+	}
+	?>
 	
 		<p><?php esc_html_e( 'This page allows easy access for the various system status variables related to your WordPress install and Jetpack CRM.', 'zero-bs-crm' ); ?></p>
 
@@ -548,16 +353,6 @@ function zeroBSCRM_render_systemstatus_page() {
 
 						<?php } ?>
 
-						<?php
-
-						// expose migration Timeouts
-						$timeoutIssues = zeroBSCRM_getSetting( 'migration300_timeout_issues' );
-						if ( isset( $timeoutIssues ) && $timeoutIssues == 1 ) {
-							echo '<tr><td colspan="2" style="text-align:center"><strong>' . esc_html__( 'Timeouts', 'zero-bs-crm' ) . '</strong>: ' . esc_html__( 'One or more migrations experienced timeouts while running. This may indicate that your server is not performing very well.', 'zero-bs-crm' ) . '</td></tr>';
-						}
-
-						?>
-	  
 						</tbody>
 
 					</table>
@@ -839,11 +634,8 @@ function zeroBSCRM_render_systemstatus_page() {
 			<div class="ui segment">
 				<h3><?php esc_html_e( 'Administrator Tools', 'zero-bs-crm' ); ?></h3>
 				<a href="<?php echo esc_url( wp_nonce_url( '?page=' . $zbs->slugs['systemstatus'] . '&tab=status&resetuserroles=1', 'resetuserroleszerobscrm' ) ); ?>" class="ui button blue"><?php esc_html_e( 'Re-build User Roles', 'zero-bs-crm' ); ?></a>
-				<a href="<?php echo esc_url( zeroBSCRM_getAdminURL( $zbs->slugs['systemstatus'] ) . '&tab=status&v3migrationlog=1' ); ?>" class="ui button blue"><?php esc_html_e( 'v3 Migration Logs', 'zero-bs-crm' ); ?></a>
 			</div>
 
 		</div>
 		<?php
-
-	} // / if normal page load
 }
