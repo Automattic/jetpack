@@ -3,7 +3,7 @@ import { Threat, getFixerAction } from '@automattic/jetpack-scan';
 import { __ } from '@wordpress/i18n';
 import React, { useCallback, useMemo, useContext } from 'react';
 import styles from './styles.module.scss';
-import { ThreatDetailsModalContext } from '.';
+import { ThreatModalContext } from '.';
 
 /**
  * ThreatActions component
@@ -34,7 +34,7 @@ const ThreatActions = ( {
 	handleUnignoreThreatClick?: ( threats: Threat[] ) => void;
 } ): JSX.Element => {
 	const { closeModal, showThreatDetails, onShowThreatDetailsClick, onContinueClick } =
-		useContext( ThreatDetailsModalContext );
+		useContext( ThreatModalContext );
 
 	const fixerAction = useMemo( () => getFixerAction( threat ), [ threat ] );
 
@@ -55,16 +55,11 @@ const ThreatActions = ( {
 
 	return (
 		<div className={ styles[ 'modal-actions' ] }>
-			<div className={ styles[ 'threat-actions' ] }>
-				{ ! showThreatDetails && (
-					<Button onClick={ onShowThreatDetailsClick }>
-						{ __( 'Threat Details', 'jetpack' ) }
-					</Button>
-				) }
-				<Button variant="secondary" onClick={ closeModal }>
-					{ __( 'Close', 'jetpack' ) }
+			{ ! showThreatDetails && (
+				<Button variant="secondary" onClick={ onShowThreatDetailsClick }>
+					{ __( 'Threat Details', 'jetpack' ) }
 				</Button>
-			</div>
+			) }
 			<div className={ styles[ 'threat-actions' ] }>
 				{ threat.status === 'ignored' && (
 					<Button

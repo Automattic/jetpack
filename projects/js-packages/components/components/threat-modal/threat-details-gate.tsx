@@ -5,13 +5,12 @@ import ThreatFixDetails from './threat-fix-details';
 import ThreatNotice from './threat-notice';
 import ThreatSummary from './threat-summary';
 import ThreatTechnicalDetails from './threat-technical-details';
-import { ThreatDetailsModalContext } from '.';
+import { ThreatModalContext } from '.';
 
 /**
  * ThreatDetailsGate component
  *
  * @param {object}    props                       - The component props.
- * @param {string}    props.title                 - The title of the threat details.
  * @param {Threat}    props.threat                - The threat object containing details.
  * @param {object}    props.fixerState            - The state of the fixer (inProgress, error, stale).
  * @param {boolean}   props.fixerState.inProgress - Whether the fixer is in progress.
@@ -23,25 +22,23 @@ import { ThreatDetailsModalContext } from '.';
  * @return {JSX.Element} The rendered ThreatDetailsGate component.
  */
 const ThreatDetailsGate = ( {
-	title,
 	threat,
 	fixerState,
 	handleUpgradeClick,
 	children,
 }: {
-	title: string;
 	threat: Threat;
 	fixerState: { inProgress: boolean; error: boolean; stale: boolean };
 	handleUpgradeClick: () => void;
 	children: ReactNode;
 } ) => {
-	const { showThreatDetails } = useContext( ThreatDetailsModalContext );
+	const { showThreatDetails } = useContext( ThreatModalContext );
 
 	if ( showThreatDetails ) {
 		return (
 			<>
 				<ThreatNotice fixerState={ fixerState } />
-				<ThreatSummary threat={ threat } title={ title } />
+				<ThreatSummary threat={ threat } />
 				<ThreatFixDetails threat={ threat } handleUpgradeClick={ handleUpgradeClick } />
 				<ThreatTechnicalDetails threat={ threat } />
 				<ThreatActions threat={ threat } fixerState={ fixerState } />

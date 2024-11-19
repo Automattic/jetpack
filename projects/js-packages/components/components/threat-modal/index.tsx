@@ -2,19 +2,19 @@ import { type Threat, getFixerState } from '@automattic/jetpack-scan';
 import { Modal } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { useMemo, useState, createContext, useCallback } from 'react';
+import Text from '../text';
+import ThreatSeverityBadge from '../threat-severity-badge';
 import styles from './styles.module.scss';
 import ThreatDetailsGate from './threat-details-gate';
 import ThreatFixConfirmation from './threat-fix-confirmation';
-interface ThreatDetailsModalContextType {
+interface ThreatModalContextType {
 	closeModal: () => void;
 	showThreatDetails: boolean;
 	onShowThreatDetailsClick: () => void;
 	onContinueClick: () => void;
 }
 
-export const ThreatDetailsModalContext = createContext< ThreatDetailsModalContextType | null >(
-	null
-);
+export const ThreatModalContext = createContext< ThreatModalContextType | null >( null );
 
 /**
  * ThreatModal component
@@ -67,28 +67,46 @@ export default function ThreatModal( {
 	handleUnignoreThreatClick?: ( threats: Threat[] ) => void;
 	[ key: string ]: unknown;
 } ): JSX.Element {
+	const userConnectionNeeded = ! isUserConnected || ! hasConnectedOwner;
+	const siteCredentialsNeeded = ! credentials || credentials.length === 0;
+
 	const [ showThreatDetails, setShowThreatDetails ] = useState( showDetails );
 
 	const fixerState = useMemo( () => {
 		return getFixerState( threat.fixer );
 	}, [ threat.fixer ] );
 
-	const title = useMemo( () => {
-		if ( threat.title ) {
-			return threat.title;
+	const getModalTitle = useMemo( () => {
+		if ( userConnectionNeeded && ! showThreatDetails ) {
+			return <Text variant="title-small">{ __( 'User connection needed', 'jetpack' ) }</Text>;
 		}
 
-		if ( threat.status === 'fixed' ) {
-			return __( 'What was the problem?', 'jetpack' );
+		if ( siteCredentialsNeeded && ! showThreatDetails ) {
+			return <Text variant="title-small">{ __( 'Site credentials needed', 'jetpack' ) }</Text>;
 		}
 
-		return __( 'What is the problem?', 'jetpack' );
-	}, [ threat ] );
+		return (
+			<>
+				<Text variant="title-small">{ threat.title }</Text>
+				{ !! threat.severity && <ThreatSeverityBadge severity={ threat.severity } /> }
+			</>
+		);
+	}, [
+		userConnectionNeeded,
+		siteCredentialsNeeded,
+		showThreatDetails,
+		threat.title,
+		threat.severity,
+	] );
 
 	return (
-		<Modal size="large" __experimentalHideHeader { ...modalProps }>
+		<Modal
+			title={ <div className={ styles.title }>{ getModalTitle }</div> }
+			size="large"
+			{ ...modalProps }
+		>
 			<div className={ styles[ 'threat-details' ] }>
-				<ThreatDetailsModalContext.Provider
+				<ThreatModalContext.Provider
 					value={ {
 						showThreatDetails,
 						closeModal: modalProps.onRequestClose as () => void,
@@ -103,20 +121,17 @@ export default function ThreatModal( {
 					} }
 				>
 					<ThreatDetailsGate
-						title={ title }
 						threat={ threat }
 						fixerState={ fixerState }
 						handleUpgradeClick={ handleUpgradeClick }
 					>
 						<ThreatFixConfirmation
-							title={ title }
 							threat={ threat }
 							fixerState={ fixerState }
-							isUserConnected={ isUserConnected }
-							hasConnectedOwner={ hasConnectedOwner }
+							userConnectionNeeded={ userConnectionNeeded }
 							userIsConnecting={ userIsConnecting }
 							handleConnectUser={ handleConnectUser }
-							credentials={ credentials }
+							siteCredentialsNeeded={ siteCredentialsNeeded }
 							credentialsIsFetching={ credentialsIsFetching }
 							credentialsRedirectUrl={ credentialsRedirectUrl }
 							handleFixThreatClick={ handleFixThreatClick }
@@ -124,7 +139,7 @@ export default function ThreatModal( {
 							handleUnignoreThreatClick={ handleUnignoreThreatClick }
 						/>
 					</ThreatDetailsGate>
-				</ThreatDetailsModalContext.Provider>
+				</ThreatModalContext.Provider>
 			</div>
 		</Modal>
 	);

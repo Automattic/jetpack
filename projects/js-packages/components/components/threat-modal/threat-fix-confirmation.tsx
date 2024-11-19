@@ -8,28 +8,24 @@ import ThreatTechnicalDetails from './threat-technical-details';
 import UserConnectionGate from './user-connection-gate';
 
 const ThreatFixConfirmation = ( {
-	title,
 	threat,
 	fixerState,
-	isUserConnected,
-	hasConnectedOwner,
+	userConnectionNeeded,
 	userIsConnecting,
 	handleConnectUser,
-	credentials,
+	siteCredentialsNeeded,
 	credentialsIsFetching,
 	credentialsRedirectUrl,
 	handleFixThreatClick,
 	handleIgnoreThreatClick,
 	handleUnignoreThreatClick,
 }: {
-	title: string;
 	threat: Threat;
 	fixerState: { inProgress: boolean; error: boolean; stale: boolean };
-	isUserConnected: boolean;
-	hasConnectedOwner: boolean;
+	userConnectionNeeded: boolean;
 	userIsConnecting: boolean;
 	handleConnectUser: () => void;
-	credentials: false | Record< string, unknown >[];
+	siteCredentialsNeeded: boolean;
 	credentialsIsFetching: boolean;
 	credentialsRedirectUrl: string;
 	handleFixThreatClick?: ( threats: Threat[] ) => void;
@@ -38,28 +34,29 @@ const ThreatFixConfirmation = ( {
 } ) => {
 	return (
 		<UserConnectionGate
-			isUserConnected={ isUserConnected }
-			hasConnectedOwner={ hasConnectedOwner }
+			userConnectionNeeded={ userConnectionNeeded }
 			userIsConnecting={ userIsConnecting }
 			handleConnectUser={ handleConnectUser }
 		>
 			<CredentialsGate
-				credentials={ credentials }
+				siteCredentialsNeeded={ siteCredentialsNeeded }
 				credentialsIsFetching={ credentialsIsFetching }
 				credentialsRedirectUrl={ credentialsRedirectUrl }
 			>
-				{ /* TODO: Determine what we want to display here */ }
-				<ThreatNotice fixerState={ fixerState } />
-				<ThreatSummary threat={ threat } title={ title } />
-				<ThreatFixDetails threat={ threat } />
-				<ThreatTechnicalDetails threat={ threat } />
-				<ThreatActions
-					threat={ threat }
-					fixerState={ fixerState }
-					handleFixThreatClick={ handleFixThreatClick }
-					handleIgnoreThreatClick={ handleIgnoreThreatClick }
-					handleUnignoreThreatClick={ handleUnignoreThreatClick }
-				/>
+				<>
+					{ /* TODO: Determine what we want to display here */ }
+					<ThreatNotice fixerState={ fixerState } />
+					<ThreatSummary threat={ threat } />
+					<ThreatFixDetails threat={ threat } />
+					<ThreatTechnicalDetails threat={ threat } />
+					<ThreatActions
+						threat={ threat }
+						fixerState={ fixerState }
+						handleFixThreatClick={ handleFixThreatClick }
+						handleIgnoreThreatClick={ handleIgnoreThreatClick }
+						handleUnignoreThreatClick={ handleUnignoreThreatClick }
+					/>
+				</>
 			</CredentialsGate>
 		</UserConnectionGate>
 	);
