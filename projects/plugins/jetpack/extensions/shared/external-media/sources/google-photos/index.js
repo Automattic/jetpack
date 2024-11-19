@@ -35,7 +35,7 @@ function GooglePhotos( props ) {
 		return <GooglePhotosPickerButton { ...props } />;
 	}
 
-	return <GooglePhotosMedia pickerFeatureEnabled { ...props } />;
+	return <GooglePhotosMedia pickerFeatureEnabled={ pickerFeatureEnabled } { ...props } />;
 }
 
 export default withMedia( MediaSource.GooglePhotos )( GooglePhotos );
