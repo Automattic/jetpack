@@ -19,6 +19,8 @@
 	},
 	"devDependencies": {
 		"jest": "29.7.0",
+		"jest-environment-jsdom": "29.7.0",
+		"jest-extended": "4.0.2",
 		"typescript": "5.0.4"
 	},
 	"exports": {
