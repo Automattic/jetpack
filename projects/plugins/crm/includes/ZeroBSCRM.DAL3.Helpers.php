@@ -4682,7 +4682,7 @@ function zeroBSCRM_invoicing_getInvoiceData( $invID = -1 ) {
 		}
 
 		// update to get from tax table UI. Below is dummy data for UI work (UI tax table TO DO)
-		$data['tax_linesObj'] = zeroBSCRM_getTaxTableArr();
+		$data['tax_linesObj'] = zeroBSCRM_taxRates_getTaxTableArr();
 
 		return $data;
 
@@ -6188,11 +6188,6 @@ function zeroBSCRM_taxRates_getTaxValue( $subtotal = 0.0, $taxRateIDCSV = '' ) {
         return array();
 
    }
-
-    // old alias
-   	function zeroBSCRM_getTaxTableArr(){
-   		return zeroBSCRM_taxRates_getTaxTableArr();
-   	}
 
    	// retrieve tax table as array
 	function zeroBSCRM_taxRates_getTaxTableArr($indexByID=false){

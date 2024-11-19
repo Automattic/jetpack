@@ -5783,8 +5783,10 @@ function zeroBSCRM_AJAX_getInvoice() {
 		// WH Notes: Agreed, for now just rolling this in, to discuss, (perhaps v3.1?)
 
 		// build default
+		$data = array();
+
 		$data['invoiceObj']   = zeroBSCRM_get_invoice_defaults( -1 );
-		$data['tax_linesObj'] = zeroBSCRM_getTaxTableArr();
+		$data['tax_linesObj'] = zeroBSCRM_taxRates_getTaxTableArr();
 
 		// pass back in json
 		zeroBSCRM_sendJSONSuccess( $data );
