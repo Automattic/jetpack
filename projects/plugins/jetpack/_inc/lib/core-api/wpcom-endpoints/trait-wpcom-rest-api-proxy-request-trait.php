@@ -69,8 +69,11 @@ trait WPCOM_REST_API_Proxy_Request_Trait {
 		}
 
 		if ( 'blog' === $context ) {
-			$response = Client::wpcom_json_api_request_as_blog( $api_url, $this->version, $request_options, $body, $this->base_api_path );
+			if ( ! ( new Manager() )->is_connected() ) {
+				return $response;
+			}
 
+			$response = Client::wpcom_json_api_request_as_blog( $api_url, $this->version, $request_options, $body, $this->base_api_path );
 		}
 
 		if ( is_wp_error( $response ) ) {

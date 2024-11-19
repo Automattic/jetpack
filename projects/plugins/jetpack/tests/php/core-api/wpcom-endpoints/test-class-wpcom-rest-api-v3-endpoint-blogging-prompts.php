@@ -142,6 +142,50 @@ class WP_Test_WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_Test_Jetpac
 		$this->assertSame( array(), $response->get_data() );
 	}
 
+	/**
+	 * Tests GET 'blogging-prompts' endpoint with no connected admin.
+	 */
+	public function test_get_blogging_prompts_with_non_connected_admin() {
+		add_filter( 'pre_http_request', array( $this, 'mock_wpcom_api_response_blogging_prompts_remote_success' ), 10, 3 );
+
+		wp_set_current_user( $this->factory()->user->create( array( 'role' => 'administrator' ) ) );
+
+		$request = new WP_REST_Request( Requests::GET, '/wpcom/v3/blogging-prompts' );
+		$request->set_query_params(
+			array(
+				'after'      => '2024-02-28',
+				'before'     => '2024-03-28',
+				'force_year' => '2024',
+			)
+		);
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame( array(), $response->get_data() );
+	}
+
+	/**
+	 * Tests GET 'blogging-prompts' endpoint with no connected admin and no site connection.
+	 */
+	public function test_get_blogging_prompts_with_non_connected_admin_no_site_connection() {
+		remove_filter( 'pre_option_jetpack_private_options', array( $this, 'mock_jetpack_private_options' ) );
+
+		wp_set_current_user( $this->factory()->user->create( array( 'role' => 'administrator' ) ) );
+
+		$request = new WP_REST_Request( Requests::GET, '/wpcom/v3/blogging-prompts' );
+		$request->set_query_params(
+			array(
+				'after'      => '2024-02-28',
+				'before'     => '2024-03-28',
+				'force_year' => '2024',
+			)
+		);
+		$response = $this->server->dispatch( $request );
+
+		$this->assertErrorResponse( 'rest_unauthorized', $response, 403 );
+		$this->assertSame( 'Please connect your user account to WordPress.com', $response->get_data()['message'] );
+	}
+
 		/**
 		 * Tests GET 'blogging-prompts/[id]' endpoint without authorization.
 		 */
@@ -188,6 +232,7 @@ class WP_Test_WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_Test_Jetpac
 			'user_tokens' => array(
 				static::$user_id => 'pretend_this_is_valid.secret.' . static::$user_id,
 			),
+			'blog_token'  => 'blog.token',
 		);
 	}
 

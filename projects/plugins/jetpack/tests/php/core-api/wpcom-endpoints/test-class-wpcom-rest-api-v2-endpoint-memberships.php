@@ -99,6 +99,19 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Memberships extends WP_Test_Jetpack_RES
 	}
 
 	/**
+	 * Tests GET 'memberships/products' endpoint with no connected admin.
+	 */
+	public function test_list_products_with_non_connected_admin() {
+		wp_set_current_user( $this->factory()->user->create( array( 'role' => 'administrator' ) ) );
+
+		$request  = new WP_REST_Request( Requests::GET, '/wpcom/v2/memberships/products' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertErrorResponse( 'rest_unauthorized', $response, 403 );
+		$this->assertSame( 'Please connect your user account to WordPress.com', $response->get_data()['message'] );
+	}
+
+	/**
 	 * Tests GET 'memberships/products' endpoint with error response from WPCOM.
 	 */
 	public function test_list_products_with_remote_error() {
