@@ -1,4 +1,4 @@
-import { Threat, getFixerMessage } from '@automattic/jetpack-scan';
+import { Threat, getFixerDescription } from '@automattic/jetpack-scan';
 import { __, sprintf } from '@wordpress/i18n';
 import React, { useMemo } from 'react';
 import ContextualUpgradeTrigger from '../contextual-upgrade-trigger';
@@ -43,7 +43,7 @@ const ThreatFixDetails = ( {
 			);
 		}
 		// The threat has an auto-fix available.
-		return getFixerMessage( threat );
+		return getFixerDescription( threat );
 	}, [ threat ] );
 
 	if ( ! threat.fixable && ! threat.fixedIn ) {

@@ -1,5 +1,5 @@
 import { Button } from '@automattic/jetpack-components';
-import { Threat, getFixerAction } from '@automattic/jetpack-scan';
+import { Threat, getDetailedFixerAction } from '@automattic/jetpack-scan';
 import { __ } from '@wordpress/i18n';
 import React, { useCallback, useMemo, useContext } from 'react';
 import styles from './styles.module.scss';
@@ -36,7 +36,7 @@ const ThreatActions = ( {
 	const { closeModal, showThreatDetails, onShowThreatDetailsClick, onHideThreatDetailsClick } =
 		useContext( ThreatModalContext );
 
-	const fixerAction = useMemo( () => getFixerAction( threat ), [ threat ] );
+	const detailedFixerAction = useMemo( () => getDetailedFixerAction( threat ), [ threat ] );
 
 	const onFixClick = useCallback( () => {
 		handleFixThreatClick?.( [ threat ] );
@@ -92,7 +92,7 @@ const ThreatActions = ( {
 							>
 								{ fixerState.error || fixerState.stale
 									? __( 'Retry fix', 'jetpack' )
-									: fixerAction }
+									: detailedFixerAction }
 							</Button>
 						) }
 					</>

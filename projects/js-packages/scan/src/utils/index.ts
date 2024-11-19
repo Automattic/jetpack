@@ -55,11 +55,50 @@ export const getFixerAction = ( threat: Threat ) => {
 		case 'rollback':
 			return __( 'Replace', 'jetpack-scan' );
 		default:
-			return __( 'Fix', 'jetpack-scan' );
+			return __( 'Auto-fix', 'jetpack-scan' );
 	}
 };
 
-export const getFixerMessage = ( threat: Threat ) => {
+export const getDetailedFixerAction = ( threat: Threat ) => {
+	switch ( threat.fixable && threat.fixable.fixer ) {
+		case 'delete':
+			if ( threat.filename ) {
+				return __( 'Delete file', 'jetpack-scan' );
+			}
+
+			if ( threat.extension?.type === 'plugin' ) {
+				return __( 'Delete plugin from site', 'jetpack-scan' );
+			}
+
+			if ( threat.extension?.type === 'theme' ) {
+				return __( 'Delete theme from site', 'jetpack-scan' );
+			}
+			break;
+		case 'update':
+			if ( threat.extension?.type === 'plugin' ) {
+				return __( 'Update plugin to newer version', 'jetpack-scan' );
+			}
+			if ( threat.extension?.type === 'theme' ) {
+				return __( 'Update theme to newer version', 'jetpack-scan' );
+			}
+			return __( 'Update', 'jetpack-scan' );
+			break;
+		case 'replace':
+		case 'rollback':
+			if ( threat.filename ) {
+				return __( 'Replace from backup', 'jetpack-scan' );
+			}
+
+			if ( threat.signature === 'php_hardening_WP_Config_NoSalts_001' ) {
+				return __( 'Replace default salts', 'jetpack-scan' );
+			}
+			break;
+		default:
+			return __( 'Auto-fix', 'jetpack-scan' );
+	}
+};
+
+export const getFixerDescription = ( threat: Threat ) => {
 	switch ( threat.fixable && threat.fixable.fixer ) {
 		case 'delete':
 			if ( threat.filename ) {
