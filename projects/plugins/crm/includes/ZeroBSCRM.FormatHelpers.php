@@ -244,9 +244,11 @@ function zeroBSCRM_html_contactTimeline($contactID=-1,$logs=false,$contactObj=fa
 									   'Note'
 									   );
 
-			// convert to type stored in db
-			$x = array();
-			foreach ($logTypesToPrioritise as $lt) $x[] = zeroBSCRM_logTypeStrToDB($lt);
+		// convert to type stored in db
+		$x = array();
+		foreach ( $logTypesToPrioritise as $lt ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			$x[] = $zbs->DAL->logs->logTypeIn( $lt ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		}
 			$logTypesToPrioritise = $x; unset($x);
 
 			// for now, abbreviated, just cycle through + pick any in prioritised group... could do this staggered by type/time later
@@ -665,9 +667,11 @@ function zeroBSCRM_html_companyTimeline($companyID=-1,$logs=false,$companyObj=fa
 									   );
 
 
-			// convert to type stored in db
-			$x = array();
-			foreach ($logTypesToPrioritise as $lt) $x[] = zeroBSCRM_logTypeStrToDB($lt);
+		// convert to type stored in db
+		$x = array();
+		foreach ( $logTypesToPrioritise as $lt ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			$x[] = $zbs->DAL->logs->logTypeIn( $lt ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		}
 			$logTypesToPrioritise = $x; unset($x);
 
 

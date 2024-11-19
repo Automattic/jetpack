@@ -2253,12 +2253,6 @@ function zeroBSCRM_getObjCreationLog($objID=-1,$objType=ZBS_TYPE_CONTACT){
 
 		}
 }
-function zeroBSCRM_logTypeStrToDB($str=''){
-
-	global $zbs;
-	return $zbs->DAL->logs->logTypeIn($str);
-
-}
 
 function zeroBSCRM_getMostRecentContactLog($objID=false,$withFullDetails=false,$restrictToTypes=false){
 
