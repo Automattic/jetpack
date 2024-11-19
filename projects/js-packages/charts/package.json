@@ -1,5 +1,5 @@
 {
-	"name": "@automattic/jetpack-charts",
+	"name": "@automattic/charts",
 	"version": "0.1.0-alpha",
 	"description": "Display charts within Automattic products.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/charts/#readme",
