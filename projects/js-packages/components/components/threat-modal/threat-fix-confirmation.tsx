@@ -47,6 +47,7 @@ const ThreatFixConfirmation = ( {
 					<ThreatNotice fixerState={ fixerState } />
 					<ThreatSummary threat={ threat } />
 					<ThreatFixDetails threat={ threat } />
+					{ /* TODO: Add confirmation message for ignoring/unignoring threats */ }
 					<ThreatActions
 						threat={ threat }
 						fixerState={ fixerState }

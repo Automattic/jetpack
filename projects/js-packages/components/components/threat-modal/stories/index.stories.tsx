@@ -12,9 +12,16 @@ const Base = args => {
 	const onClick = useCallback( () => setIsOpen( true ), [] );
 	const onRequestClose = useCallback( () => setIsOpen( false ), [] );
 
+	const [ actionToConfirm, setActionToConfirm ] = useState( null );
 	const [ showThreatDetails, setShowThreatDetails ] = useState( true );
-	const onShowThreatDetails = useCallback( () => setShowThreatDetails( true ), [] );
-	const onHideThreatDetails = useCallback( () => setShowThreatDetails( false ), [] );
+	const onShowThreatDetails = useCallback( () => {
+		setShowThreatDetails( true );
+		setActionToConfirm( null );
+	}, [] );
+	const onHideThreatDetails = useCallback( ( action: string ) => {
+		setShowThreatDetails( false );
+		setActionToConfirm( action );
+	}, [] );
 
 	return (
 		<div>
@@ -23,6 +30,7 @@ const Base = args => {
 				<ThreatModal
 					{ ...args }
 					onRequestClose={ onRequestClose }
+					actionToConfirm={ actionToConfirm }
 					showThreatDetails={ showThreatDetails }
 					onShowThreatDetailsClick={ onShowThreatDetails }
 					onHideThreatDetailsClick={ onHideThreatDetails }

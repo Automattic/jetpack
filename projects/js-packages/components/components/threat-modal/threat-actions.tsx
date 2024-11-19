@@ -1,7 +1,7 @@
 import { Button } from '@automattic/jetpack-components';
-import { Threat, getDetailedFixerAction } from '@automattic/jetpack-scan';
+import { Threat } from '@automattic/jetpack-scan';
 import { __ } from '@wordpress/i18n';
-import React, { useCallback, useMemo, useContext } from 'react';
+import React, { useCallback, useContext } from 'react';
 import styles from './styles.module.scss';
 import { ThreatModalContext } from '.';
 
@@ -33,10 +33,8 @@ const ThreatActions = ( {
 	handleIgnoreThreatClick?: ( threats: Threat[] ) => void;
 	handleUnignoreThreatClick?: ( threats: Threat[] ) => void;
 } ): JSX.Element => {
-	const { closeModal, showThreatDetails, onShowThreatDetailsClick, onHideThreatDetailsClick } =
+	const { closeModal, actionToConfirm, onShowThreatDetailsClick } =
 		useContext( ThreatModalContext );
-
-	const detailedFixerAction = useMemo( () => getDetailedFixerAction( threat ), [ threat ] );
 
 	const onFixClick = useCallback( () => {
 		handleFixThreatClick?.( [ threat ] );
@@ -59,40 +57,36 @@ const ThreatActions = ( {
 
 	return (
 		<div className={ styles[ 'modal-actions' ] }>
-			{ ! showThreatDetails && (
-				<Button variant="secondary" onClick={ onShowThreatDetailsClick }>
-					{ __( 'Threat Details', 'jetpack' ) }
-				</Button>
-			) }
+			<Button variant="secondary" onClick={ onShowThreatDetailsClick }>
+				{ __( 'Threat details', 'jetpack' ) }
+			</Button>
 			<div className={ styles[ 'threat-actions' ] }>
-				{ threat.status === 'ignored' && (
-					<Button
-						isDestructive={ true }
-						variant="secondary"
-						onClick={ showThreatDetails ? onHideThreatDetailsClick : onUnignoreClick }
-					>
-						{ __( 'Un-ignore', 'jetpack' ) }
+				{ threat.status === 'ignored' && actionToConfirm === 'un-ignore' && (
+					<Button isDestructive={ true } variant="secondary" onClick={ onUnignoreClick }>
+						{ __( 'Un-ignore threat', 'jetpack' ) }
 					</Button>
 				) }
 				{ threat.status === 'current' && (
 					<>
-						<Button
-							isDestructive={ true }
-							variant="secondary"
-							onClick={ showThreatDetails ? onHideThreatDetailsClick : onIgnoreClick }
-							disabled={ fixerState.inProgress && ! fixerState.stale }
-						>
-							{ __( 'Ignore', 'jetpack' ) }
-						</Button>
-						{ threat.fixable && (
+						{ actionToConfirm === 'ignore' && (
+							<Button
+								isDestructive={ true }
+								variant="secondary"
+								onClick={ onIgnoreClick }
+								disabled={ fixerState.inProgress && ! fixerState.stale }
+							>
+								{ __( 'Ignore threat', 'jetpack' ) }
+							</Button>
+						) }
+						{ threat.fixable && actionToConfirm === 'fix' && (
 							<Button
 								isPrimary
 								disabled={ fixerState.inProgress && ! fixerState.stale }
-								onClick={ showThreatDetails ? onHideThreatDetailsClick : onFixClick }
+								onClick={ onFixClick }
 							>
 								{ fixerState.error || fixerState.stale
-									? __( 'Retry fix', 'jetpack' )
-									: detailedFixerAction }
+									? __( 'Retry fixer', 'jetpack' )
+									: __( 'Run fixer', 'jetpack' ) }
 							</Button>
 						) }
 					</>

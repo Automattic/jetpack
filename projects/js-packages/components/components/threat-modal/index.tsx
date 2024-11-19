@@ -9,9 +9,10 @@ import ThreatDetailsGate from './threat-details-gate';
 import ThreatFixConfirmation from './threat-fix-confirmation';
 interface ThreatModalContextType {
 	closeModal: () => void;
+	actionToConfirm: string | null;
 	showThreatDetails: boolean;
 	onShowThreatDetailsClick: () => void;
-	onHideThreatDetailsClick: () => void;
+	onHideThreatDetailsClick: ( action: string ) => void;
 }
 
 export const ThreatModalContext = createContext< ThreatModalContextType | null >( null );
@@ -32,6 +33,7 @@ export const ThreatModalContext = createContext< ThreatModalContextType | null >
  * @param {Function} props.handleFixThreatClick      - The handleFixThreatClick function.
  * @param {Function} props.handleIgnoreThreatClick   - The handleIgnoreThreatClick function.
  * @param {Function} props.handleUnignoreThreatClick - The handleUnignoreThreatClick function.
+ * @param {string}   props.actionToConfirm           - The action to confirm.
  * @param {boolean}  props.showThreatDetails         - Whether to show the threat details.
  * @param {Function} props.onShowThreatDetailsClick  - The onShowThreatDetailsClick function.
  * @param {Function} props.onHideThreatDetailsClick  - The onHideThreatDetailsClick function.
@@ -50,6 +52,7 @@ export default function ThreatModal( {
 	handleFixThreatClick,
 	handleIgnoreThreatClick,
 	handleUnignoreThreatClick,
+	actionToConfirm,
 	showThreatDetails,
 	onShowThreatDetailsClick,
 	onHideThreatDetailsClick,
@@ -67,9 +70,10 @@ export default function ThreatModal( {
 	handleFixThreatClick?: ( threats: Threat[] ) => void;
 	handleIgnoreThreatClick?: ( threats: Threat[] ) => void;
 	handleUnignoreThreatClick?: ( threats: Threat[] ) => void;
+	actionToConfirm: string | null;
 	showThreatDetails: boolean;
 	onShowThreatDetailsClick: () => void;
-	onHideThreatDetailsClick: () => void;
+	onHideThreatDetailsClick: ( action: string ) => void;
 } & React.ComponentProps< typeof Modal > ): JSX.Element {
 	const userConnectionNeeded = ! isUserConnected || ! hasConnectedOwner;
 	const siteCredentialsNeeded = ! credentials || credentials.length === 0;
@@ -110,6 +114,7 @@ export default function ThreatModal( {
 			<div className={ styles[ 'threat-details' ] }>
 				<ThreatModalContext.Provider
 					value={ {
+						actionToConfirm,
 						showThreatDetails,
 						closeModal: modalProps.onRequestClose,
 						onShowThreatDetailsClick,

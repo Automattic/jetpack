@@ -42,6 +42,7 @@ const ThreatFixDetails = ( {
 				threat.fixedIn
 			);
 		}
+
 		// The threat has an auto-fix available.
 		return getFixerDescription( threat );
 	}, [ threat ] );

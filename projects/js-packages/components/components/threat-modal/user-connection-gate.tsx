@@ -65,7 +65,7 @@ const UserConnectionGate = ( {
 			<div className={ styles[ 'modal-actions' ] }>
 				{ ! showThreatDetails && (
 					<Button variant="secondary" onClick={ onShowThreatDetailsClick }>
-						{ __( 'Threat Details', 'jetpack' ) }
+						{ __( 'Threat details', 'jetpack' ) }
 					</Button>
 				) }
 				<Button
