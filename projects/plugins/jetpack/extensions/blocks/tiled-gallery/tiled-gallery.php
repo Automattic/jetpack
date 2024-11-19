@@ -150,6 +150,9 @@ class Tiled_Gallery {
 			}
 		}
 
+		// Apply non-interactive markup last to clean up interactivity attributes.
+		$content = self::non_interactive_markup( $attr, $content );
+
 		/**
 		 * Filter the output of the Tiled Galleries content.
 		 *
@@ -160,6 +163,25 @@ class Tiled_Gallery {
 		 * @param string $content Tiled Gallery block content.
 		 */
 		return apply_filters( 'jetpack_tiled_galleries_block_content', $content );
+	}
+
+	/**
+	 * Removes tabindex and role markup for images that should not be interactive.
+	 *
+	 * @param array  $attr Attributes key/value array.
+	 * @param string $content String containing the block content.
+	 */
+	private static function non_interactive_markup( $attr, $content ) {
+		$link_to = isset( $attr['linkTo'] ) ? $attr['linkTo'] : 'none';
+		if ( $link_to === 'none' && ! Jetpack::is_module_active( 'carousel' ) ) {
+			// Remove tabIndex and role="button" by replacing the content
+			$content = preg_replace(
+				'/\s*(role="button"|tabindex="0")/',
+				'',
+				$content
+			);
+		}
+		return $content;
 	}
 
 	/**
