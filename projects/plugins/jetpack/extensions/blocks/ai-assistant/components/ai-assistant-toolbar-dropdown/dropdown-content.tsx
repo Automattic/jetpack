@@ -3,6 +3,7 @@
  */
 import { aiAssistantIcon } from '@automattic/jetpack-ai-client';
 import { MenuItem, MenuGroup, Notice } from '@wordpress/components';
+import { select } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { post, postContent, postExcerpt, termDescription, blockTable } from '@wordpress/icons';
 import React from 'react';
@@ -20,6 +21,7 @@ import {
 	PROMPT_TYPE_SUMMARIZE,
 	PROMPT_TYPE_CHANGE_LANGUAGE,
 	PROMPT_TYPE_USER_PROMPT,
+	PROMPT_TYPE_TRANSFORM_LIST_TO_TABLE,
 } from '../../lib/prompt';
 import { capitalize } from '../../lib/utils/capitalize';
 import { I18nMenuDropdown, TRANSLATE_LABEL } from '../i18n-dropdown-control';
@@ -155,11 +157,11 @@ if ( getFeatureAvailability( 'ai-list-to-table-transform' ) ) {
 	quickActionsList[ 'core/list' ].push( {
 		name: __( 'Turn list into a table', 'jetpack' ),
 		key: 'turn-into-table',
-		aiSuggestion: PROMPT_TYPE_USER_PROMPT,
+		aiSuggestion: PROMPT_TYPE_TRANSFORM_LIST_TO_TABLE,
 		icon: blockTable,
 		options: {
-			userPrompt: 'make a table from this list, do not enclose the response in a code block',
 			alwaysTransformToAIAssistant: true,
+			rootParentOnly: true,
 		},
 	} );
 }
@@ -169,6 +171,7 @@ export type AiAssistantDropdownOnChangeOptionsArgProps = {
 	language?: string;
 	userPrompt?: string;
 	alwaysTransformToAIAssistant?: boolean;
+	rootParentOnly?: boolean;
 };
 
 export type OnRequestSuggestion = (
@@ -182,6 +185,7 @@ type AiAssistantToolbarDropdownContentProps = {
 	disabled?: boolean;
 	onAskAiAssistant: () => void;
 	onRequestSuggestion: OnRequestSuggestion;
+	clientId: string;
 };
 
 /**
@@ -191,11 +195,17 @@ type AiAssistantToolbarDropdownContentProps = {
  */
 export default function AiAssistantToolbarDropdownContent( {
 	blockType,
+	clientId,
 	disabled = false,
 	onAskAiAssistant,
 	onRequestSuggestion,
 }: AiAssistantToolbarDropdownContentProps ): ReactElement {
 	const blockQuickActions = quickActionsList[ blockType ] ?? [];
+
+	const { getBlockParents } = select( 'core/block-editor' ) as unknown as {
+		getBlockParents: ( blockId: string ) => string[];
+	};
+	const blockParents = getBlockParents( clientId );
 
 	return (
 		<>
@@ -218,23 +228,29 @@ export default function AiAssistantToolbarDropdownContent( {
 					</div>
 				</MenuItem>
 
-				{ [ ...quickActionsList.default, ...blockQuickActions ].map( quickAction => (
-					<MenuItem
-						icon={ quickAction?.icon }
-						iconPosition="left"
-						key={ `key-${ quickAction.key }` }
-						onClick={ () => {
-							onRequestSuggestion(
-								quickAction.aiSuggestion,
-								{ ...( quickAction.options ?? {} ) },
-								quickAction.name
-							);
-						} }
-						disabled={ disabled }
-					>
-						<div className="jetpack-ai-assistant__menu-item">{ quickAction.name }</div>
-					</MenuItem>
-				) ) }
+				{ [ ...quickActionsList.default, ...blockQuickActions ]
+					.filter(
+						quickAction => ! ( quickAction.options?.rootParentOnly && blockParents.length > 0 )
+					)
+					.map( quickAction => {
+						return (
+							<MenuItem
+								icon={ quickAction?.icon }
+								iconPosition="left"
+								key={ `key-${ quickAction.key }` }
+								onClick={ () => {
+									onRequestSuggestion(
+										quickAction.aiSuggestion,
+										{ ...( quickAction.options ?? {} ) },
+										quickAction.name
+									);
+								} }
+								disabled={ disabled }
+							>
+								<div className="jetpack-ai-assistant__menu-item">{ quickAction.name }</div>
+							</MenuItem>
+						);
+					} ) }
 
 				<ToneDropdownMenu
 					onChange={ tone => {

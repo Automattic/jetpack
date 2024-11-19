@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+AI Client: split disabled prop to allow disabling input and action button separately

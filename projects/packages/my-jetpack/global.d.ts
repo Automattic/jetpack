@@ -39,7 +39,8 @@ type JetpackModule =
 	| 'security'
 	| 'protect'
 	| 'videopress'
-	| 'stats';
+	| 'stats'
+	| 'growth';
 
 type ThreatItem = {
 	// Protect API properties (free plan)
