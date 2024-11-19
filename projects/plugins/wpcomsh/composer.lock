@@ -28,16 +28,16 @@
         },
         {
             "name": "automattic/custom-fonts",
-            "version": "v3.0.5",
+            "version": "v3.0.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/custom-fonts.git",
-                "reference": "e9236c34a6ecbee3bb9d2bebe698f086dd339258"
+                "reference": "63d0a9251a252b74ab0862ac00f4d4d4c1d6b320"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/custom-fonts/zipball/e9236c34a6ecbee3bb9d2bebe698f086dd339258",
-                "reference": "e9236c34a6ecbee3bb9d2bebe698f086dd339258",
+                "url": "https://api.github.com/repos/Automattic/custom-fonts/zipball/63d0a9251a252b74ab0862ac00f4d4d4c1d6b320",
+                "reference": "63d0a9251a252b74ab0862ac00f4d4d4c1d6b320",
                 "shasum": ""
             },
             "require-dev": {
@@ -49,7 +49,7 @@
                 "GPL-2.0-or-later"
             ],
             "description": "A provider-agnostic WordPress plugin for changing theme fonts.",
-            "time": "2024-06-26T18:47:13+00:00"
+            "time": "2024-11-19T20:05:23+00:00"
         },
         {
             "name": "automattic/custom-fonts-typekit",
