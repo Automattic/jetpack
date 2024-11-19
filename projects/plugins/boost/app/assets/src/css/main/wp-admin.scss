@@ -51,7 +51,7 @@ p {
 		outline: 1px solid transparent;
 	}
 
-	.components-button.is-link:not([disabled]) {
+	.components-button.is-link:not(:disabled) {
 		color: var( --wp-admin-theme-link-color );
 	}
 
