@@ -15,8 +15,7 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"scripts": {
-		"build": "pnpm run clean && pnpm run compile-ts",
-		"clean": "rm -rf build/",
+		"build": "pnpm run compile-ts",
 		"compile-ts": "tsc --pretty",
 		"test": "jest",
 		"test-coverage": "pnpm run test --coverage"
@@ -44,12 +43,12 @@
 	"exports": {
 		".": {
 			"jetpack:src": "./src/index.ts",
-			"types": "./build/index.d.ts",
-			"default": "./build/index.js"
+			"types": "./src/types/index.ts",
+			"default": "./src/index.ts"
 		}
 	},
-	"main": "./build/index.js",
-	"types": "./build/index.d.ts",
+	"main": "./src/index.ts",
+	"types": "./src/types/index.ts",
 	"dependencies": {
 		"@automattic/jetpack-api": "workspace:*",
 		"@automattic/jetpack-base-styles": "workspace:*",
