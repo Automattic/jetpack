@@ -27,10 +27,18 @@ const Meta = () => {
 	const [ clearedCacheMessage, runClearPageCacheAction ] = useClearPageCacheAction();
 
 	const clearPageCache = () => {
+		recordBoostEvent( 'page_cache_clear_clicked', {} );
 		runClearPageCacheAction.mutate();
 	};
 
 	const totalBypassPatterns = bypassPatterns?.length || 0;
+
+	const toggleExpanded = ( newValue: boolean ) => {
+		recordBoostEvent( 'page_cache_show_options_toggle', {
+			status: newValue ? 'open' : 'close',
+		} );
+		setIsExpanded( newValue );
+	};
 
 	const getSummary = () => {
 		if ( runClearPageCacheAction.isPending ) {
@@ -110,7 +118,7 @@ const Meta = () => {
 							weight="regular"
 							iconSize={ 16 }
 							icon={ isExpanded ? <ChevronUp /> : <ChevronDown /> }
-							onClick={ () => setIsExpanded( ! isExpanded ) }
+							onClick={ () => toggleExpanded( ! isExpanded ) }
 						>
 							{ __( 'Show Options', 'jetpack-boost' ) }
 						</Button>
@@ -198,6 +206,7 @@ const BypassPatterns = ( {
 	}, [ showErrorNotice ] );
 
 	function save() {
+		recordBoostEvent( 'page_cache_exceptions_save_clicked', {} );
 		setPatterns( inputValue );
 	}
 
@@ -269,6 +278,7 @@ const BypassPatternsExample = ( { children }: BypassPatternsExampleProps ) => {
 				href="#"
 				className={ styles[ 'example-button' ] }
 				onClick={ e => {
+					recordBoostEvent( 'page_cache_see_example_clicked', {} );
 					e.preventDefault();
 					setShow( ! show );
 				} }
