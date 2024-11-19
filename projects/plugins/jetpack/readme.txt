@@ -58,7 +58,7 @@ Get blazing fast site speed with Jetpack. Jetpack’s free CDN (content delivery
 = POWERFUL TOOLS FOR GROWTH =
 Create and customize your WordPress site, optimize it for visitors and revenue, and enjoy watching your stats tick up. Build it, share it, and watch it grow.
 
-* Auto publish blog posts and products to social media by simply using our tools to connect to Facebook, Tumblr, Mastodon, and LinkedIn.
+* Auto publish blog posts and products to social media by simply using our tools to connect to Facebook, Bluesky, Threads, Tumblr, Mastodon, LinkedIn, and Nextdoor.
 * Easily share Instagram posts on your pages and blog posts.
 * Collect a payment or donation, sell a product, service, or membership with simple integrations with PayPal and Stripe.
 * Grow traffic with SEO tools for Google, Bing, Facebook, and WordPress.com. XML sitemap created automatically.
@@ -114,7 +114,7 @@ Jetpack is updated monthly to ensure seamless integration with top WordPress plu
 * Built for WooCommerce: Jetpack and WooCommerce are both made by Automattic. Backup, Scan, Anti-spam, integrate perfectly for Woo / eComm stores.
 * Jetpack is fully compatible with v2.0 of the official AMP plugin for WordPress.
 * Better understand your customers and marketing with Google Analytics (GA) integration.
-* Social media platforms: Instagram, Facebook, Tumblr, LinkedIn.
+* Social media platforms: Instagram, Facebook, Tumblr, LinkedIn, Threads, Bluesky, Nextdoor.
 * Simple Blocks to customize your site: Pinterest, Whatsapp, Podcast player, GIFs, maps, tiled gallery, slideshow.
 * Payment processors: easily collect payments or donations and sell products through Stripe and PayPal.
 * Site speed and performance plugins: Works great with WP Super Cache by Automattic and Cloudflare.

@@ -1,0 +1,31 @@
+{
+	"name": "@automattic/charts",
+	"version": "0.1.0-alpha",
+	"description": "Display charts within Automattic products.",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/charts/#readme",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/labels/[JS Package] Charts"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/js-packages/charts"
+	},
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"scripts": {
+		"test": "jest --config=tests/jest.config.cjs",
+		"test-coverage": "pnpm run test --coverage"
+	},
+	"devDependencies": {
+		"jest": "29.7.0",
+		"jest-environment-jsdom": "29.7.0",
+		"jest-extended": "4.0.2",
+		"typescript": "5.0.4"
+	},
+	"exports": {
+		".": "./src/index.ts",
+		"./state": "./src/state",
+		"./action-types": "./src/state/action-types"
+	}
+}

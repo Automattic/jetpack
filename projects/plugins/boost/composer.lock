@@ -5335,6 +5335,7 @@
         "automattic/jetpack-autoloader": 20,
         "automattic/jetpack-boost-core": 20,
         "automattic/jetpack-boost-speed-score": 20,
+        "automattic/jetpack-changelogger": 20,
         "automattic/jetpack-composer-plugin": 20,
         "automattic/jetpack-config": 20,
         "automattic/jetpack-connection": 20,
@@ -5345,15 +5346,14 @@
         "automattic/jetpack-schema": 20,
         "automattic/jetpack-status": 20,
         "automattic/jetpack-sync": 20,
-        "automattic/jetpack-wp-js-data-sync": 20,
-        "automattic/jetpack-changelogger": 20
+        "automattic/jetpack-wp-js-data-sync": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
         "ext-json": "*"
     },
-    "platform-dev": [],
+    "platform-dev": {},
     "platform-overrides": {
         "ext-intl": "0.0.0"
     },

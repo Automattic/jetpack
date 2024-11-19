@@ -21,6 +21,7 @@ import {
 	PROMPT_TYPE_SUMMARIZE,
 	PROMPT_TYPE_CHANGE_LANGUAGE,
 	PROMPT_TYPE_USER_PROMPT,
+	PROMPT_TYPE_TRANSFORM_LIST_TO_TABLE,
 } from '../../lib/prompt';
 import { capitalize } from '../../lib/utils/capitalize';
 import { I18nMenuDropdown, TRANSLATE_LABEL } from '../i18n-dropdown-control';
@@ -156,10 +157,9 @@ if ( getFeatureAvailability( 'ai-list-to-table-transform' ) ) {
 	quickActionsList[ 'core/list' ].push( {
 		name: __( 'Turn list into a table', 'jetpack' ),
 		key: 'turn-into-table',
-		aiSuggestion: PROMPT_TYPE_USER_PROMPT,
+		aiSuggestion: PROMPT_TYPE_TRANSFORM_LIST_TO_TABLE,
 		icon: blockTable,
 		options: {
-			userPrompt: 'make a table from this list, do not enclose the response in a code block',
 			alwaysTransformToAIAssistant: true,
 			rootParentOnly: true,
 		},
