@@ -276,13 +276,7 @@ function wpsupercache_activate() {
 register_activation_hook( __FILE__, 'wpsupercache_activate' );
 
 function wpsupercache_site_admin() {
-	global $wp_version;
-
-	if ( version_compare( $wp_version, '4.8', '>=' ) ) {
-		return current_user_can( 'setup_network' );
-	}
-
-	return is_super_admin();
+	return current_user_can( 'setup_network' );
 }
 
 function wp_cache_add_pages() {
@@ -2011,7 +2005,7 @@ function wp_cache_remove_index() {
 }
 
 function wp_cache_index_notice() {
-	global $wp_version, $cache_path;
+	global $cache_path;
 
 	if ( false == wpsupercache_site_admin() )
 		return false;
@@ -2036,16 +2030,10 @@ function wp_cache_index_notice() {
 		echo "<p><strong>";
 		_e( 'If you just installed WP Super Cache for the first time, you can dismiss this message. Otherwise, you should probably refresh the login cookies of all logged in WordPress users here by clicking the logout link below.', 'wp-super-cache' );
 		echo "</strong></p>";
-		if ( -1 == version_compare( $wp_version, '4.0' ) ) {
-			echo '<p>' . __( 'Your site is using a very old version of WordPress. When you update to the latest version everyone will be logged out and cookie information updated.', 'wp-super-cache' ) . '</p>';
-		} else {
-			echo '<p>' . __( 'The logout link will log out all WordPress users on this site except you. Your authentication cookie will be updated, but you will not be logged out.', 'wp-super-cache' ) . '</p>';
-		}
-		echo "<a id='wpsc-dismiss' href='#'>" . __( 'Dismiss', 'wp-super-cache' ) . "</a>";
-		if ( 1 == version_compare( $wp_version, '4.0' ) ) {
-			echo "	| <a href='" . wp_nonce_url( admin_url( '?action=wpsclogout' ), 'wpsc_logout' ) . "'>" . __( 'Logout', 'wp-super-cache' ) . "</a>";
-		}
-		echo "</div>";
+		echo '<p>' . esc_html__( 'The logout link will log out all WordPress users on this site except you. Your authentication cookie will be updated, but you will not be logged out.', 'wp-super-cache' ) . '</p>';
+		echo '<a id="wpsc-dismiss" href="#">' . esc_html__( 'Dismiss', 'wp-super-cache' ) . '</a>';
+		echo '	| <a href="' . esc_url( wp_nonce_url( admin_url( '?action=wpsclogout' ), 'wpsc_logout' ) ) . '">' . esc_html__( 'Logout', 'wp-super-cache' ) . '</a>';
+		echo '</div>';
 ?>
 		<script  type='text/javascript'>
 		<!--

@@ -27,7 +27,9 @@ document.addEventListener( 'DOMContentLoaded', function () {
 			// eslint-disable-next-line no-empty
 		} catch ( e ) {}
 
-		window.location = destinationUrl.toString();
+		// Add cache-busting parameter
+		destinationUrl.searchParams.set( '_ctn', Date.now() );
+		window.location.href = destinationUrl.toString();
 	}
 
 	function JetpackSubscriptionModalOnCommentMessageListener( event ) {

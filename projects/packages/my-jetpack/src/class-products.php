@@ -134,6 +134,7 @@ class Products {
 			'videopress' => Products\Videopress::class,
 			'stats'      => Products\Stats::class,
 			'ai'         => Products\Jetpack_Ai::class,
+			'growth'     => Products\Growth::class,
 		);
 
 		/**

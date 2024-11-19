@@ -4,6 +4,7 @@ import * as connectionDataSelectors from './connection-data';
 import * as shareStatusSelectors from './share-status';
 import * as sigSelectors from './social-image-generator';
 import * as socialPluginSelectors from './social-plugin-settings';
+import * as utmSelectors from './utm-settings';
 
 /**
  * Returns whether the site settings are being saved.
@@ -19,6 +20,7 @@ const selectors = {
 	...shareStatusSelectors,
 	isSavingSiteSettings,
 	...sigSelectors,
+	...utmSelectors,
 	...socialPluginSelectors,
 };
 

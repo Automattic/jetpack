@@ -223,7 +223,7 @@ class Verbum_Comments {
 					'We\'ll keep you in the loop!'       => __( 'We\'ll keep you in the loop!', 'jetpack-mu-wpcom' ),
 					'Loading your comment...'            => __( 'Loading your comment...', 'jetpack-mu-wpcom' ),
 					/* translators: %s is the name of the site */
-					'Discover more from'                 => sprintf( __( 'Discover more from %s', 'jetpack-mu-wpcom' ), get_bloginfo( 'name' ) ),
+					'Discover more from'                 => sprintf( __( 'Discover more from %s', 'jetpack-mu-wpcom' ), html_entity_decode( get_bloginfo( 'name' ), ENT_QUOTES ) ),
 					'Subscribe now to keep reading and get access to the full archive.' => __( 'Subscribe now to keep reading and get access to the full archive.', 'jetpack-mu-wpcom' ),
 					'Continue reading'                   => __( 'Continue reading', 'jetpack-mu-wpcom' ),
 					'Never miss a beat!'                 => __( 'Never miss a beat!', 'jetpack-mu-wpcom' ),
@@ -585,7 +585,9 @@ HTML;
 	 */
 	public function should_show_subscription_modal() {
 		$modal_enabled = boolval( get_blog_option( $this->blog_id, 'jetpack_verbum_subscription_modal', true ) );
-		return ! is_user_member_of_blog( '', $this->blog_id ) && $modal_enabled;
+
+		$is_jetpack_site = 522232 === get_current_blog_id(); // Disable if verbum is served via 'jetpack.wordpress.com'
+		return ! $is_jetpack_site && ! is_user_member_of_blog( '', $this->blog_id ) && $modal_enabled;
 	}
 
 	/**

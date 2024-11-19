@@ -31,7 +31,6 @@ export default function AiImageModal( {
 	title,
 	cost,
 	open,
-	placement,
 	images,
 	currentIndex = 0,
 	onClose = null,
@@ -53,6 +52,11 @@ export default function AiImageModal( {
 	instructionsPlaceholder = null,
 	imageStyles = [],
 	onGuessStyle = null,
+	prompt = '',
+	setPrompt = () => {},
+	initialStyle = null,
+	inputDisabled = false,
+	actionDisabled = false,
 }: {
 	title: string;
 	cost: number;
@@ -71,7 +75,7 @@ export default function AiImageModal( {
 	isUnlimited: boolean;
 	upgradeDescription: string;
 	hasError: boolean;
-	postContent?: string;
+	postContent?: string | boolean | null;
 	handlePreviousImage: () => void;
 	handleNextImage: () => void;
 	acceptButton: React.JSX.Element;
@@ -81,33 +85,37 @@ export default function AiImageModal( {
 	instructionsPlaceholder: string;
 	imageStyles?: Array< ImageStyleObject >;
 	onGuessStyle?: ( userPrompt: string ) => Promise< ImageStyle >;
+	prompt?: string;
+	setPrompt?: ( userPrompt: string ) => void;
+	initialStyle?: ImageStyle;
+	inputDisabled?: boolean;
+	actionDisabled?: boolean;
 } ) {
 	const { tracks } = useAnalytics();
 	const { recordEvent: recordTracksEvent } = tracks;
-	const [ userPrompt, setUserPrompt ] = useState( '' );
 	const triggeredAutoGeneration = useRef( false );
 	const [ showStyleSelector, setShowStyleSelector ] = useState( false );
 	const [ style, setStyle ] = useState< ImageStyle >( null );
 	const [ styles, setStyles ] = useState< Array< ImageStyleObject > >( imageStyles || [] );
 
 	const handleTryAgain = useCallback( () => {
-		onTryAgain?.( { userPrompt, style } );
-	}, [ onTryAgain, userPrompt, style ] );
+		onTryAgain?.( { userPrompt: prompt, style } );
+	}, [ onTryAgain, prompt, style ] );
 
 	const handleGenerate = useCallback( async () => {
-		if ( style === IMAGE_STYLE_AUTO ) {
+		if ( style === IMAGE_STYLE_AUTO && onGuessStyle ) {
 			recordTracksEvent( 'jetpack_ai_general_image_guess_style', {
 				context: 'block-editor',
 				tool: 'image',
 			} );
-			const guessedStyle = ( await onGuessStyle( userPrompt ) ) || IMAGE_STYLE_NONE;
+			const guessedStyle = ( await onGuessStyle( prompt ) ) || IMAGE_STYLE_NONE;
 			setStyle( guessedStyle );
 			debug( 'guessed style', guessedStyle );
-			onGenerate?.( { userPrompt, style: guessedStyle } );
+			onGenerate?.( { userPrompt: prompt, style: guessedStyle } );
 		} else {
-			onGenerate?.( { userPrompt, style } );
+			onGenerate?.( { userPrompt: prompt, style } );
 		}
-	}, [ onGenerate, userPrompt, style, onGuessStyle, recordTracksEvent ] );
+	}, [ onGenerate, prompt, style, onGuessStyle, recordTracksEvent ] );
 
 	const updateStyle = useCallback(
 		( imageStyle: ImageStyle ) => {
@@ -122,7 +130,6 @@ export default function AiImageModal( {
 	);
 
 	// Controllers
-	const instructionsDisabled = notEnoughRequests || generating || requireUpgrade;
 	const upgradePromptVisible = ( requireUpgrade || notEnoughRequests ) && ! generating;
 	const counterVisible = Boolean( ! isUnlimited && cost && currentLimit );
 
@@ -136,10 +143,10 @@ export default function AiImageModal( {
 		if ( autoStart && open ) {
 			if ( ! triggeredAutoGeneration.current ) {
 				triggeredAutoGeneration.current = true;
-				autoStartAction?.( { userPrompt } );
+				autoStartAction?.( {} );
 			}
 		}
-	}, [ placement, handleGenerate, autoStart, autoStartAction, userPrompt, open ] );
+	}, [ autoStart, autoStartAction, open ] );
 
 	// initialize styles dropdown
 	useEffect( () => {
@@ -155,9 +162,9 @@ export default function AiImageModal( {
 				].filter( v => v ) // simplest way to get rid of empty values
 			);
 			setShowStyleSelector( true );
-			setStyle( IMAGE_STYLE_NONE );
+			setStyle( initialStyle || IMAGE_STYLE_NONE );
 		}
-	}, [ imageStyles ] );
+	}, [ imageStyles, initialStyle ] );
 
 	return (
 		<>
@@ -182,9 +189,10 @@ export default function AiImageModal( {
 							</div>
 						) }
 						<AiModalPromptInput
-							prompt={ userPrompt }
-							setPrompt={ setUserPrompt }
-							disabled={ instructionsDisabled }
+							prompt={ prompt }
+							setPrompt={ setPrompt }
+							disabled={ inputDisabled }
+							actionDisabled={ actionDisabled }
 							generateHandler={ hasError ? handleTryAgain : handleGenerate }
 							placeholder={ instructionsPlaceholder }
 							buttonLabel={ hasError ? tryAgainLabel : generateLabel }

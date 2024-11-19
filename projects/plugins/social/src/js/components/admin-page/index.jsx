@@ -22,6 +22,7 @@ import SocialImageGeneratorToggle from '../social-image-generator-toggle';
 import SocialModuleToggle from '../social-module-toggle';
 import SocialNotesToggle from '../social-notes-toggle';
 import SupportSection from '../support-section';
+import UtmToggle from '../utm-toggle';
 import ConnectionScreen from './../connection-screen';
 import Header from './../header';
 import InfoSection from './../info-section';
@@ -80,6 +81,7 @@ const Admin = () => {
 					</AdminSectionHero>
 					<AdminSection>
 						<SocialModuleToggle />
+						{ isModuleEnabled && <UtmToggle /> }
 						{ isModuleEnabled && <SocialNotesToggle disabled={ isUpdatingJetpackSettings } /> }
 						{ isModuleEnabled && siteHasFeature( features.IMAGE_GENERATOR ) && (
 							<SocialImageGeneratorToggle disabled={ isUpdatingJetpackSettings } />

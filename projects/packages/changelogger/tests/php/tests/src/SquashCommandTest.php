@@ -612,9 +612,8 @@ class SquashCommandTest extends CommandTestCase {
 	 * Test execute handling of writeChangelog failing.
 	 */
 	public function testExecute_writeChangelog_fail() {
-		// @phan-suppress-next-line PhanDeprecatedFunction -- Hopefully we drop PHP <7.2 before having to deal with this, as the designated replacement isn't until PHPUnit 8.
 		$command = $this->getMockBuilder( SquashCommand::class )
-			->setMethods( array( 'writeChangelog', 'deleteChanges' ) )
+			->onlyMethods( array( 'writeChangelog', 'deleteChanges' ) )
 			->getMock();
 		$command->setApplication( $this->getCommand( 'squash' )->getApplication() );
 		$command->method( 'writeChangelog' )->willReturn( SquashCommand::FATAL_EXIT );

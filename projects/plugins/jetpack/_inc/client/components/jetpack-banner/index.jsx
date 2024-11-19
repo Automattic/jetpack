@@ -25,6 +25,7 @@ export class JetpackBanner extends Banner {
 		title: PropTypes.node.isRequired,
 		noIcon: PropTypes.bool,
 		rna: PropTypes.bool,
+		isPromotion: PropTypes.bool,
 	};
 
 	static defaultProps = {
@@ -33,6 +34,7 @@ export class JetpackBanner extends Banner {
 		plan: '',
 		rna: false,
 		noIcon: false,
+		isPromotion: true,
 	};
 
 	componentDidMount() {
@@ -43,11 +45,13 @@ export class JetpackBanner extends Banner {
 
 	render() {
 		// Hide promotion banners from non-admins, since they can't upgrade the site.
-		if ( this.props.hidePromotionBanner ) {
+		if ( this.props.isPromotion && this.props.hidePromotionBanner ) {
 			return null;
 		}
 
-		return this.props.arePromotionsActive ? <Banner { ...this.props } /> : null;
+		return ! this.props.isPromotion || this.props.arePromotionsActive ? (
+			<Banner { ...this.props } />
+		) : null;
 	}
 }
 

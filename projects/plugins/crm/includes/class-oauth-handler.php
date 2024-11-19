@@ -3,7 +3,7 @@
  * Jetpack CRM
  * https://jetpackcrm.com
  *
- * OAuth connection handler. Requires PHP 7.3+
+ * OAuth connection handler.
  *
  */
 namespace Automattic\JetpackCRM;
@@ -18,7 +18,7 @@ defined( 'ZEROBSCRM_PATH' ) || exit;
 class Oauth_Handler {
 
 	/* 
-	* Enabled (we disable oauth here if less than PHP <7.3 (req version))
+	* Enabled.
 	*/
 	private $enabled = true;
 
@@ -60,24 +60,11 @@ class Oauth_Handler {
 	 * Init
 	 */
 	public function __construct() {
+		// Add our action to the stack
+		add_filter( 'jpcrm_listener_actions', array( $this, 'add_listener_action' ), 1 );
 
-		global $zbs;
-
-		// require PHP 7.3
-		if ( $zbs->has_min_php_version( '7.3' ) ) {
-
-			// Add our action to the stack
-			add_filter( 'jpcrm_listener_actions', array( $this, 'add_listener_action' ), 1 );
-
-			// set action for endpoint listener to fire, so we can catch oauth requests (if any)
-			add_action( 'jpcrm_listener_oauth', array( $this, 'catch_oauth_request'), 10 );
-
-		} else {
-
-			$this->enabled = false;
-
-		}
-
+		// set action for endpoint listener to fire, so we can catch oauth requests (if any)
+		add_action( 'jpcrm_listener_oauth', array( $this, 'catch_oauth_request' ), 10 );
 	}
 
 

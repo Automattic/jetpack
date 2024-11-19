@@ -31,7 +31,7 @@ final class ZeroBSCRM {
 	 *
 	 * @var string
 	 */
-	public $wp_tested = '6.5';
+	public $wp_tested = '6.7';
 
 	/**
 	 * WordPress update API version.
