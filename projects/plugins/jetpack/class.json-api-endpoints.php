@@ -2695,10 +2695,18 @@ abstract class WPCOM_JSON_API_Endpoint {
 		/** This action is documented in class.json-api.php */
 		do_action( 'wpcom_json_api_output', $this->stat );
 
-		$response = call_user_func_array(
+		$callback_response = call_user_func_array(
 			array( $this, 'callback' ),
 			array_values( array( $this->path, $blog_id ) + $request->get_url_params() )
 		);
+
+		if ( ! $callback_response && ! is_array( $callback_response ) ) {
+			$response = $this->api->output( 500, '', 'text/plain' );
+		} elseif ( is_wp_error( $callback_response ) ) {
+			$response = $this->api->output_error( $callback_response );
+		} else {
+			$this->api->output( $$this->api->output_status_code, $callback_response, 'application/json' );
+		}
 
 		$token_data = ( new Manager() )->verify_xml_rpc_signature();
 

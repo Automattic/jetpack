@@ -646,9 +646,10 @@ class WPCOM_JSON_API {
 	 * @param mixed  $response Response data.
 	 * @param string $content_type Content type of the response.
 	 * @param array  $extra Additional HTTP headers.
-	 * @return string Content type (assuming it didn't exit).
+	 * @param bool   $return_response Return data instead of outputting it directly.
+	 * @return string Content type (assuming it didn't exit), or the response if $return_response set to true.
 	 */
-	public function output( $status_code, $response = null, $content_type = 'application/json', $extra = array() ) {
+	public function output( $status_code, $response = null, $content_type = 'application/json', $extra = array(), $return_response = false ) {
 		$status_code = (int) $status_code;
 
 		// In case output() was called before the callback returned.
@@ -716,6 +717,12 @@ class WPCOM_JSON_API {
 			$content_type = 'application/json';
 		}
 
+		$encoded_response = $this->json_encode( $response );
+
+		if ( $return_response ) {
+			return $encoded_response;
+		}
+
 		status_header( (int) $status_code );
 		header( "Content-Type: $content_type" );
 		if ( isset( $this->query['callback'] ) && is_string( $this->query['callback'] ) ) {
@@ -731,7 +738,7 @@ class WPCOM_JSON_API {
 			echo "/**/$callback("; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- This is JSONP output, not HTML.
 
 		}
-		echo $this->json_encode( $response ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- This is JSON or JSONP output, not HTML.
+		echo $encoded_response; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- This is JSON or JSONP output, not HTML.
 		if ( $callback ) {
 			echo ');';
 		}
