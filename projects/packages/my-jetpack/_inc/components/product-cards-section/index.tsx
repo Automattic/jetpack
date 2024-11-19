@@ -26,7 +26,7 @@ type DisplayItemType = Record<
 	// We don't have a card for Security or Extras, and scan is displayed as protect.
 	// 'jetpack-ai' is the official slug for the AI module, so we also exclude 'ai'.
 	// The backend still supports the 'ai' slug, so it is part of the JetpackModule type.
-	Exclude< JetpackModule, 'extras' | 'scan' | 'security' | 'ai' | 'creator' >,
+	Exclude< JetpackModule, 'extras' | 'scan' | 'security' | 'ai' | 'creator' | 'growth' >,
 	FC< { admin: boolean } >
 >;
 
@@ -104,7 +104,12 @@ const ProductCardsSection: FC< ProductCardsSectionProps > = ( { noticeMessage } 
 
 	const filterProducts = ( products: JetpackModule[] ) => {
 		return products.filter( product => {
-			if ( product === 'scan' || product === 'security' || product === 'extras' ) {
+			if (
+				product === 'scan' ||
+				product === 'security' ||
+				product === 'growth' ||
+				product === 'extras'
+			) {
 				return false;
 			}
 			return true;
