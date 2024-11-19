@@ -4882,26 +4882,26 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
-        "automattic/jetpack-assets": 20,
         "automattic/jetpack-admin-ui": 20,
+        "automattic/jetpack-assets": 20,
         "automattic/jetpack-autoloader": 20,
+        "automattic/jetpack-changelogger": 20,
         "automattic/jetpack-composer-plugin": 20,
         "automattic/jetpack-config": 20,
         "automattic/jetpack-my-jetpack": 20,
+        "automattic/jetpack-plans": 20,
         "automattic/jetpack-plugins-installer": 20,
+        "automattic/jetpack-protect-status": 20,
+        "automattic/jetpack-status": 20,
         "automattic/jetpack-sync": 20,
         "automattic/jetpack-transport-helper": 20,
-        "automattic/jetpack-plans": 20,
-        "automattic/jetpack-waf": 20,
-        "automattic/jetpack-status": 20,
-        "automattic/jetpack-protect-status": 20,
-        "automattic/jetpack-changelogger": 20
+        "automattic/jetpack-waf": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
         "ext-json": "*"
     },
-    "platform-dev": [],
+    "platform-dev": {},
     "plugin-api-version": "2.6.0"
 }
