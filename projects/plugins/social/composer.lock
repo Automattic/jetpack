@@ -5024,20 +5024,20 @@
 		"automattic/jetpack-admin-ui": 20,
 		"automattic/jetpack-assets": 20,
 		"automattic/jetpack-autoloader": 20,
+		"automattic/jetpack-changelogger": 20,
 		"automattic/jetpack-composer-plugin": 20,
 		"automattic/jetpack-config": 20,
-		"automattic/jetpack-publicize": 20,
 		"automattic/jetpack-connection": 20,
 		"automattic/jetpack-my-jetpack": 20,
-		"automattic/jetpack-sync": 20,
-		"automattic/jetpack-status": 20,
 		"automattic/jetpack-plans": 20,
 		"automattic/jetpack-post-list": 20,
-		"automattic/jetpack-changelogger": 20
+		"automattic/jetpack-publicize": 20,
+		"automattic/jetpack-status": 20,
+		"automattic/jetpack-sync": 20
 	},
 	"prefer-stable": true,
 	"prefer-lowest": false,
-	"platform": [],
-	"platform-dev": [],
+	"platform": {},
+	"platform-dev": {},
 	"plugin-api-version": "2.6.0"
 }

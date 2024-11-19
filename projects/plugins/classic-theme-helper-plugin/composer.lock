@@ -3705,15 +3705,15 @@
     "stability-flags": {
         "automattic/jetpack-assets": 20,
         "automattic/jetpack-autoloader": 20,
+        "automattic/jetpack-changelogger": 20,
         "automattic/jetpack-classic-theme-helper": 20,
         "automattic/jetpack-composer-plugin": 20,
         "automattic/jetpack-config": 20,
-        "automattic/jetpack-plugins-installer": 20,
-        "automattic/jetpack-changelogger": 20
+        "automattic/jetpack-plugins-installer": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,
-    "platform": [],
-    "platform-dev": [],
+    "platform": {},
+    "platform-dev": {},
     "plugin-api-version": "2.6.0"
 }
