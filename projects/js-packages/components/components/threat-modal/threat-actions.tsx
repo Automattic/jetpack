@@ -33,7 +33,7 @@ const ThreatActions = ( {
 	handleIgnoreThreatClick?: ( threats: Threat[] ) => void;
 	handleUnignoreThreatClick?: ( threats: Threat[] ) => void;
 } ): JSX.Element => {
-	const { closeModal, showThreatDetails, onShowThreatDetailsClick, onContinueClick } =
+	const { closeModal, showThreatDetails, onShowThreatDetailsClick, onHideThreatDetailsClick } =
 		useContext( ThreatModalContext );
 
 	const fixerAction = useMemo( () => getFixerAction( threat ), [ threat ] );
@@ -53,6 +53,10 @@ const ThreatActions = ( {
 		closeModal();
 	}, [ threat, handleUnignoreThreatClick, closeModal ] );
 
+	if ( ! threat.status ) {
+		return null;
+	}
+
 	return (
 		<div className={ styles[ 'modal-actions' ] }>
 			{ ! showThreatDetails && (
@@ -65,7 +69,7 @@ const ThreatActions = ( {
 					<Button
 						isDestructive={ true }
 						variant="secondary"
-						onClick={ handleUnignoreThreatClick ? onUnignoreClick : onContinueClick }
+						onClick={ showThreatDetails ? onHideThreatDetailsClick : onUnignoreClick }
 					>
 						{ __( 'Un-ignore', 'jetpack' ) }
 					</Button>
@@ -75,7 +79,7 @@ const ThreatActions = ( {
 						<Button
 							isDestructive={ true }
 							variant="secondary"
-							onClick={ handleIgnoreThreatClick ? onIgnoreClick : onContinueClick }
+							onClick={ showThreatDetails ? onHideThreatDetailsClick : onIgnoreClick }
 							disabled={ fixerState.inProgress && ! fixerState.stale }
 						>
 							{ __( 'Ignore', 'jetpack' ) }
@@ -84,7 +88,7 @@ const ThreatActions = ( {
 							<Button
 								isPrimary
 								disabled={ fixerState.inProgress && ! fixerState.stale }
-								onClick={ handleFixThreatClick ? onFixClick : onContinueClick }
+								onClick={ showThreatDetails ? onHideThreatDetailsClick : onFixClick }
 							>
 								{ fixerState.error || fixerState.stale
 									? __( 'Retry fix', 'jetpack' )

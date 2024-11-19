@@ -37,6 +37,7 @@ const CredentialsGate = ( {
 		<>
 			<Notice
 				status="warning"
+				isDismissible={ false }
 				children={
 					<Text>
 						{ __(

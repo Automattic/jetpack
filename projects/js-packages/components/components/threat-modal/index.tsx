@@ -1,7 +1,7 @@
 import { type Threat, getFixerState } from '@automattic/jetpack-scan';
 import { Modal } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { useMemo, useState, createContext, useCallback } from 'react';
+import { useMemo, createContext } from 'react';
 import Text from '../text';
 import ThreatSeverityBadge from '../threat-severity-badge';
 import styles from './styles.module.scss';
@@ -11,7 +11,7 @@ interface ThreatModalContextType {
 	closeModal: () => void;
 	showThreatDetails: boolean;
 	onShowThreatDetailsClick: () => void;
-	onContinueClick: () => void;
+	onHideThreatDetailsClick: () => void;
 }
 
 export const ThreatModalContext = createContext< ThreatModalContextType | null >( null );
@@ -21,7 +21,6 @@ export const ThreatModalContext = createContext< ThreatModalContextType | null >
  *
  * @param {object}   props                           - The props.
  * @param {object}   props.threat                    - The threat.
- * @param {boolean}  props.showDetails               - Whether to show the details.
  * @param {boolean}  props.isUserConnected           - Whether the user is connected.
  * @param {boolean}  props.hasConnectedOwner         - Whether the user has a connected owner.
  * @param {boolean}  props.userIsConnecting          - Whether the user is connecting.
@@ -33,12 +32,13 @@ export const ThreatModalContext = createContext< ThreatModalContextType | null >
  * @param {Function} props.handleFixThreatClick      - The handleFixThreatClick function.
  * @param {Function} props.handleIgnoreThreatClick   - The handleIgnoreThreatClick function.
  * @param {Function} props.handleUnignoreThreatClick - The handleUnignoreThreatClick function.
- *
+ * @param {boolean}  props.showThreatDetails         - Whether to show the threat details.
+ * @param {Function} props.onShowThreatDetailsClick  - The onShowThreatDetailsClick function.
+ * @param {Function} props.onHideThreatDetailsClick  - The onHideThreatDetailsClick function.
  * @return {JSX.Element} The threat modal.
  */
 export default function ThreatModal( {
 	threat,
-	showDetails = true,
 	isUserConnected,
 	hasConnectedOwner,
 	userIsConnecting,
@@ -50,10 +50,12 @@ export default function ThreatModal( {
 	handleFixThreatClick,
 	handleIgnoreThreatClick,
 	handleUnignoreThreatClick,
+	showThreatDetails,
+	onShowThreatDetailsClick,
+	onHideThreatDetailsClick,
 	...modalProps
 }: {
 	threat: Threat;
-	showDetails?: boolean;
 	isUserConnected: boolean;
 	hasConnectedOwner: boolean;
 	userIsConnecting: boolean;
@@ -65,12 +67,12 @@ export default function ThreatModal( {
 	handleFixThreatClick?: ( threats: Threat[] ) => void;
 	handleIgnoreThreatClick?: ( threats: Threat[] ) => void;
 	handleUnignoreThreatClick?: ( threats: Threat[] ) => void;
-	[ key: string ]: unknown;
-} ): JSX.Element {
+	showThreatDetails: boolean;
+	onShowThreatDetailsClick: () => void;
+	onHideThreatDetailsClick: () => void;
+} & React.ComponentProps< typeof Modal > ): JSX.Element {
 	const userConnectionNeeded = ! isUserConnected || ! hasConnectedOwner;
 	const siteCredentialsNeeded = ! credentials || credentials.length === 0;
-
-	const [ showThreatDetails, setShowThreatDetails ] = useState( showDetails );
 
 	const fixerState = useMemo( () => {
 		return getFixerState( threat.fixer );
@@ -109,15 +111,9 @@ export default function ThreatModal( {
 				<ThreatModalContext.Provider
 					value={ {
 						showThreatDetails,
-						closeModal: modalProps.onRequestClose as () => void,
-						onShowThreatDetailsClick: useCallback(
-							() => setShowThreatDetails( true ),
-							[ setShowThreatDetails ]
-						),
-						onContinueClick: useCallback(
-							() => setShowThreatDetails( false ),
-							[ setShowThreatDetails ]
-						),
+						closeModal: modalProps.onRequestClose,
+						onShowThreatDetailsClick,
+						onHideThreatDetailsClick,
 					} }
 				>
 					<ThreatDetailsGate
