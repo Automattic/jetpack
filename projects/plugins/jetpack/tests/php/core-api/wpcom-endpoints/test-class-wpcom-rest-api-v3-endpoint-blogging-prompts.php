@@ -22,7 +22,7 @@ class WP_Test_WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_Test_Jetpac
 	private static $user_id = 0;
 
 	/**
-	 * Mock author user ID.
+	 * Mock subscriber user ID.
 	 *
 	 * @var int
 	 */
