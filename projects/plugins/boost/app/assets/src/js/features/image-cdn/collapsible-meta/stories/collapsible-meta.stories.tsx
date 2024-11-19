@@ -10,6 +10,7 @@ const meta: Meta< typeof CollapsibleMeta > = {
 		summary: { control: 'text' },
 		editText: { control: 'text' },
 		closeEditText: { control: 'text' },
+		tracksEventName: { control: 'text' },
 	},
 	decorators: [
 		Story => (
@@ -25,6 +26,7 @@ const defaultValues = {
 	summary: 'Something to show in the summary',
 	editText: 'Edit',
 	closeEditText: 'Close',
+	tracksEventName: 'tracks_event_name',
 };
 
 export default meta;

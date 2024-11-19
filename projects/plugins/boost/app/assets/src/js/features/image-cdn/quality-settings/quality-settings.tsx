@@ -54,6 +54,7 @@ const QualitySettings = ( { isPremium }: QualitySettingsProps ) => {
 					closeEditText={ __( 'Hide', 'jetpack-boost' ) }
 					header={ <Header /> }
 					summary={ <Summary imageCdnQuality={ imageCdnQuality } /> }
+					tracksEventName="image_cdn_adjust_quality_clicked"
 				>
 					<div className={ styles.body }>
 						<h5>Adjust image quality per format</h5>
