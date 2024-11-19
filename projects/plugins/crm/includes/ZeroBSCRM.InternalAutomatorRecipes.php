@@ -784,11 +784,7 @@ function zeroBSCRM_IA_NewLogCatchContactsDB2( $obj = array() ) {
 			if (isset($zbsNoteAgainstPostID) && !empty($zbsNoteAgainstPostID)){
 
 			global $zbs;
-			if ( isset( $zbs->DAL->segments ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 					$zbs->DAL->segments->compileSegmentsAffectedByContact($zbsNoteAgainstPostID,$contactWasInSegments);
-			} else {
-					$zbs->DAL->compileSegmentsAffectedByContact($zbsNoteAgainstPostID,$contactWasInSegments);
-			}
 		}
 	}
 }
@@ -807,11 +803,7 @@ function zeroBSCRM_IA_NewLogCatchContactsDB2( $obj = array() ) {
 
 	// if quote passed:
 	if ( is_array( $obj ) && isset( $obj['data'] ) ) {
-
-		if ( isset( $zbs->DAL->segments ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-			$zbs->DAL->segments->compileSegmentsAffectedByQuote( $obj['data'] ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-		}
-
+		$zbs->DAL->segments->compileSegmentsAffectedByQuote( $obj['data'] ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 	}
 }
 
@@ -829,11 +821,7 @@ function zeroBSCRM_IA_NewLogCatchContactsDB2( $obj = array() ) {
 
 	// if quote passed:
 	if ( is_array( $obj ) && isset( $obj['data'] ) ) {
-
-		if ( isset( $zbs->DAL->segments ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-				$zbs->DAL->segments->compileSegmentsAffectedByInvoice( $obj['data'] ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-		}
-
+		$zbs->DAL->segments->compileSegmentsAffectedByInvoice( $obj['data'] ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 	}
 }
 
@@ -851,11 +839,7 @@ function zeroBSCRM_IA_NewLogCatchContactsDB2( $obj = array() ) {
 
 	// if quote passed:
 	if ( is_array( $obj ) && isset( $obj['data'] ) ) {
-
-		if ( isset( $zbs->DAL->segments ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-				$zbs->DAL->segments->compileSegmentsAffectedByTransaction( $obj['data'] ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-		}
-
+		$zbs->DAL->segments->compileSegmentsAffectedByTransaction( $obj['data'] ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 	}
 }
 
