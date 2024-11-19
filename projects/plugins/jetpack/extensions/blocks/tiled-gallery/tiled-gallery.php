@@ -13,6 +13,7 @@ namespace Automattic\Jetpack\Extensions;
 use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
 use Jetpack;
 use Jetpack_Gutenberg;
 
@@ -172,8 +173,14 @@ class Tiled_Gallery {
 	 * @param string $content String containing the block content.
 	 */
 	private static function non_interactive_markup( $attr, $content ) {
-		$link_to = isset( $attr['linkTo'] ) ? $attr['linkTo'] : 'none';
-		if ( $link_to === 'none' && ! Jetpack::is_module_active( 'carousel' ) ) {
+		$link_to = $attr['linkTo'] ?? 'none';
+
+		$host             = new Host();
+		$is_module_active = $host->is_wpcom_simple()
+		? get_option( 'carousel_enable_it' )
+		: Jetpack::is_module_active( 'carousel' );
+
+		if ( $link_to === 'none' && ! $is_module_active ) {
 			// Remove tabIndex and role="button" by replacing the content
 			$content = preg_replace(
 				'/\s*(role="button"|tabindex="0")/',
