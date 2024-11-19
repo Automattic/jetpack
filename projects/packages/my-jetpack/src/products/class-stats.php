@@ -194,7 +194,10 @@ class Stats extends Module_Product {
 		if ( ! is_wp_error( $purchases_data ) && is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
 			foreach ( $purchases_data as $purchase ) {
 				// Jetpack complete includes Stats commercial & cannot be upgraded
-				if ( str_starts_with( $purchase->product_slug, 'jetpack_complete' ) ) {
+				if (
+					str_starts_with( $purchase->product_slug, 'jetpack_complete' ) ||
+					str_starts_with( $purchase->product_slug, 'jetpack_growth' )
+				) {
 					return false;
 				} elseif (
 					// Stats commercial purchased with highest tier cannot be upgraded.
@@ -229,7 +232,11 @@ class Stats extends Module_Product {
 		if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
 			foreach ( $purchases_data as $purchase ) {
 				// Stats is available as standalone product and as part of the Complete plan.
-				if ( strpos( $purchase->product_slug, 'jetpack_stats' ) !== false || str_starts_with( $purchase->product_slug, 'jetpack_complete' ) ) {
+				if (
+					strpos( $purchase->product_slug, 'jetpack_stats' ) !== false ||
+					str_starts_with( $purchase->product_slug, 'jetpack_complete' ) ||
+					str_starts_with( $purchase->product_slug, 'jetpack_growth' )
+				) {
 					return true;
 				}
 			}

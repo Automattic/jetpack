@@ -2,7 +2,6 @@ import AiCard from './ai-card';
 import AntiSpamCard from './anti-spam-card';
 import BackupCard from './backup-card';
 import BoostCard from './boost-card';
-import CreatorCard from './creator-card';
 import CrmCard from './crm-card';
 import ProtectCard from './protect-card';
 import SearchCard from './search-card';
@@ -21,7 +20,6 @@ export const JetpackModuleToProductCard: {
 	videopress: VideopressCard,
 	stats: StatsCard,
 	crm: CrmCard,
-	creator: CreatorCard,
 	social: SocialCard,
 	ai: AiCard,
 	'jetpack-ai': AiCard,
@@ -29,4 +27,5 @@ export const JetpackModuleToProductCard: {
 	extras: null,
 	scan: null,
 	security: null,
+	creator: null,
 };
