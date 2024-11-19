@@ -5,6 +5,7 @@
  */
 
 import { Button, Modal, TabPanel } from '@wordpress/components';
+import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
 import { close } from '@wordpress/icons';
 import { useAvailableSerivces } from './use-available-services';
@@ -14,6 +15,9 @@ import './modal.scss';
 const SocialPreviewsModal = function SocialPreviewsModal( { onClose, initialTabName } ) {
 	const availableServices = useAvailableSerivces();
 	const { image, media, title, description, url, excerpt } = usePostData();
+
+	const decodedTitle = decodeEntities( title );
+	const decodedDescription = decodeEntities( description );
 
 	return (
 		<Modal
@@ -37,8 +41,8 @@ const SocialPreviewsModal = function SocialPreviewsModal( { onClose, initialTabN
 						<tab.preview
 							// pass only the props that are common to all previews
 							excerpt={ excerpt }
-							title={ title }
-							description={ description }
+							title={ decodedTitle }
+							description={ decodedDescription }
 							url={ url }
 							image={ image }
 							media={ media }
