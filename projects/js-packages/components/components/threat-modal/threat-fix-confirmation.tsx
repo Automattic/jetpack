@@ -4,7 +4,6 @@ import ThreatActions from './threat-actions';
 import ThreatFixDetails from './threat-fix-details';
 import ThreatNotice from './threat-notice';
 import ThreatSummary from './threat-summary';
-import ThreatTechnicalDetails from './threat-technical-details';
 import UserConnectionGate from './user-connection-gate';
 
 const ThreatFixConfirmation = ( {
@@ -48,7 +47,6 @@ const ThreatFixConfirmation = ( {
 					<ThreatNotice fixerState={ fixerState } />
 					<ThreatSummary threat={ threat } />
 					<ThreatFixDetails threat={ threat } />
-					<ThreatTechnicalDetails threat={ threat } />
 					<ThreatActions
 						threat={ threat }
 						fixerState={ fixerState }
