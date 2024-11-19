@@ -736,15 +736,7 @@ function zeroBS_setCustomerExtraMetaVal($cID=-1,$extraMetaKey=false,$extraMetaVa
 	return false;
 
 }
-function zeroBS_getCustomerSocialAccounts($cID=-1){
 
-	global $zbs;
-
-	//if (!empty($cID)) return get_post_meta($cID, 'zbs_customer_socials', true);
-	if (!empty($cID)) return $zbs->DAL->contacts->getContactSocials($cID);
-
-	return false;
-}
 function zeroBS_updateCustomerSocialAccounts($cID=-1,$accArray=array()){
 
 	if (!empty($cID) && is_array($accArray)){ //return update_post_meta($cID, 'zbs_customer_socials', $accArray);
@@ -2498,57 +2490,6 @@ function zeroBSCRM_DAL2_set_object_terms($cID=-1,$tags=array(),$taxonomy='zerobs
 
 }
 
-// allows us to lazily 'hotswap' wp_set_object_terms in extensions (e.g. pre DAL2 it'll just fire wp_set_object_terms)
-// ... here it does DAL2 equiv
-// WH Note: if using old WP method (wp_remove_object_terms) can pass tags or tagIDS - DB2 currently only accepts tagIDs - to add in
-// ... to get around this I've temp added $usingTagIDS=true flag
-// still used in csv-importer-pro as of 9 May 1923
-function zeroBSCRM_DAL2_remove_object_terms($cID=-1,$tags=array(),$taxonomy='zerobscrm_customertag',$usingTagIDS=true){
-
-	zeroBSCRM_DEPRECATEDMSG( 'zeroBSCRM_DAL2_remove_object_terms has been replaced by DAL3 tagging. Please do not use.' );
-	
-	global $zbs;
-
-	// if we have tooo....
-	$possibleObjTypeID = $zbs->DAL->cptTaxonomyToObjID($taxonomy);
-
-	if ($possibleObjTypeID > 0){
-
-		$fieldName = 'tagIDs'; if (!$usingTagIDS) $fieldName = 'tags';
-
-		return $zbs->DAL->addUpdateObjectTags(array(
-														'objid' 		=> $cID,
-														'objtype' 		=> $possibleObjTypeID,
-														$fieldName		=> $tags,
-														'mode' 			=> 'remove'
-												));
-
-	}
-	return false;
-	/*
-	// we only switch out for customer tags, rest just go old way
-	if ($taxonomy == 'zerobscrm_customertag'){
-
-		global $zbs;
-
-		$fieldName = 'tagIDs'; if (!$usingTagIDS) $fieldName = 'tags';
-
-		return $zbs->DAL->addUpdateObjectTags(array(
-														'objid' 		=> $cID,
-														'objtype' 		=> ZBS_TYPE_CONTACT,
-														$fieldName		=> $tags,
-														'mode' 			=> 'remove'
-												));
-
-	} else {
-
-		//https://codex.wordpress.org/Function_Reference/wp_remove_object_terms
-		return wp_remove_object_terms($cID,$tags,$taxonomy);
-		
-	} */
-
-}
-
 #} This takes an array source (can be $_POST) and builds out a meta field array for it..
 #} This lets us use the same fields array for Metaboxes.php and any custom integrations
 #} e.g. $zbsCustomerMeta = zeroBS_buildContactMeta($_POST);
@@ -2584,7 +2525,6 @@ function zeroBS_buildContactMeta($arraySource=array(),$startingArray=array(),$fi
 /* ======================================================
   	GENERIC helpers
    ====================================================== */
-   function zeroBS___________GenericHelpers(){return;}
 
    	#} This is a fill-in until we deprecate addUpdateTransaction etc. (3.5 or so)
     #} it'll take a DAL1 obj (e.g. transaction with 'orderid') and produce a v3 translated field variant (e.g. orderid => ref (via 'dal1key' attr on obj model))
@@ -7143,20 +7083,6 @@ function zeroBSCRM_getCompanyStatuses() {
 }
 
 		/// ======= / Statuses wrappers - bit antiquated  now... 
-
-	// use this, or direct call
-	function zeroBSCRM_invoice_getContactAssigned($invID=-1){
-
-		global $zbs;
-		return $zbs->DAL->invoices->getInvoiceContactID($invID);
-	}
-
-	// use this, or direct call
-	function zeroBSCRM_quote_getContactAssigned($quoteID=-1){
-
-		global $zbs;
-		return $zbs->DAL->quotes->getQuoteContactID($quoteID);
-	}
 
 	// DELETES ALL rows from any table, based on ID
 	// no limits! be careful.

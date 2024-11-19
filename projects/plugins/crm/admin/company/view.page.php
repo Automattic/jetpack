@@ -199,16 +199,6 @@ function jpcrm_render_company_view_page( $id = -1 ) {
 					$tels['sectel'] = $company['sectel'];
 				}
 
-				/*
-				// socials
-				global $zbsSocialAccountTypes;
-				$zbsSocials = zeroBS_getCustomerSocialAccounts($id);
-					// empty empties.. hmmm
-					$zbsSocialsProper = array(); if (is_array($zbsSocials) && count($zbsSocials) > 0) foreach ($zbsSocials as $zbsSocialKey => $zbsSocialAcc) if (!empty($zbsSocialAcc)) $zbsSocialsProper[$zbsSocialKey] = $zbsSocialAcc;
-					$zbsSocials = $zbsSocialsProper; unset($zbsSocialsProper);
-
-				*/
-
 				// retrieve any additional tabs peeps have prepared
 				$companyVitalTabs = apply_filters( 'jetpack-crm-company-vital-tabs', array(), $id );
 
