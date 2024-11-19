@@ -791,18 +791,6 @@ function zeroBSCRM_is_quotetags_page() {
 
 	// ========= QUOTE TEMPLATES ==========================================
 
-	// backward compat
-function zeroBSCRM_is_quotem_new_page() {
-
-	zeroBSCRM_DEPRECATEDMSG( 'zeroBSCRM_is_quotem_new_page was deprecated in v4.10, please use zeroBSCRM_is_quotetemplate_new_page()' );
-	return zeroBSCRM_is_quotetemplate_new_page();
-}
-function zeroBSCRM_is_quotem_edit_page() {
-
-	zeroBSCRM_DEPRECATEDMSG( 'zeroBSCRM_is_quotem_edit_page was deprecated in v4.10, please use zeroBSCRM_is_quotetemplate_edit_page()' );
-	return zeroBSCRM_is_quotetemplate_edit_page();
-}
-
 function zeroBSCRM_is_quotetemplate_new_page() {
 
 	// <v3.0

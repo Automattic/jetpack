@@ -636,8 +636,6 @@ function zeroBSCRM_createClientPortalUser( $cID=-1, $email='', $passwordLength=1
 #} Should later replace all get_post_meta's with this
 function zeroBS_getCustomerMeta($cID=-1){
 
-	// zeroBSCRM_DEPRECATEDMSG('Use of function: zeroBS_getCustomerMeta');
-
 	global $zbs;
 
 	//if (!empty($cID)) return get_post_meta($cID, 'zbs_customer_meta', true);

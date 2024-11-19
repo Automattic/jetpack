@@ -327,36 +327,6 @@ function jpcrm_template_missing_notification( $template_file = '' ) {
 
 }
 
-
-
-
-/*
-* Function to return html file related to PDF
-* we've done away with the need for this via the jpcrm_templating_placeholders class.
-*/
-function zeroBSCRM_retrievePDFTemplate($template='default'){
-
-	zeroBSCRM_DEPRECATEDMSG('zeroBSCRM_retrievePDFTemplate was deprecated in v4.5.0, please use the jpcrm_templating_placeholders class');
-
-	return '';
-
-}
-
-
-/*
-* Function to return html file of a quote template
-* we've done away with the need for this via the jpcrm_templating_placeholders class.
-*/
-function zeroBSCRM_retrieveQuoteTemplate($template='default'){
-
-	zeroBSCRM_DEPRECATEDMSG('zeroBSCRM_retrieveQuoteTemplate was deprecated in v4.5.0, please use the jpcrm_templating_placeholders class');
-
-	return '';
-
-}
-
-
-
 /* WH Notes:
 
 	There was all this note-age from old vers:
