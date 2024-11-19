@@ -103,6 +103,7 @@ p {
 		}
 	}
 
+	// Override WP styles for panel header.
 	.components-panel__body-title .components-button:hover:not(:disabled,[aria-disabled=true]),
 	.components-panel__body-title .components-button[aria-expanded=true] {
 		color: inherit;
