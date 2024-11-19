@@ -1854,7 +1854,7 @@ function zeroBS_addUpdateCustomer(
 			}
 
 			#} Build using centralised func below, passing any existing meta (updates not overwrites)
-			$zbsCustomerMeta = zeroBS_buildCustomerMeta($cFields,$existingMeta,$metaBuilderPrefix,'',true);
+			$zbsCustomerMeta = zeroBS_buildContactMeta( $cFields, $existingMeta, $metaBuilderPrefix, '', true ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 		$we_have_tags = false; // set to false.. duh..
 
@@ -2598,24 +2598,12 @@ function zeroBSCRM_DAL2_remove_object_terms($cID=-1,$tags=array(),$taxonomy='zer
 	} */
 
 }
- 
-
-
-// for now, wrapper for past! - moved this to zeroBS_buildContactMeta
-function zeroBS_buildCustomerMeta($arraySource=array(),$startingArray=array(),$fieldPrefix='zbsc_',$outputPrefix='',$removeEmpties=false,$autoGenAutonumbers=false){
-
-	// This is no longer req, as we can use the generic from 3.0 :)
-	//return zeroBS_buildContactMeta($arraySource,$startingArray,$fieldPrefix,$outputPrefix,$removeEmpties);
-	return zeroBS_buildObjArr($arraySource,$startingArray,$fieldPrefix,$outputPrefix,$removeEmpties,ZBS_TYPE_CONTACT,$autoGenAutonumbers);
-
-}
-
 
 #} This takes an array source (can be $_POST) and builds out a meta field array for it..
 #} This lets us use the same fields array for Metaboxes.php and any custom integrations
-#} e.g. $zbsCustomerMeta = zeroBS_buildCustomerMeta($_POST);
-#} e.g. $zbsCustomerMeta = zeroBS_buildCustomerMeta($importedMetaFields);
-#} e.g. $zbsCustomerMeta = zeroBS_buildCustomerMeta(array('zbsc_fname'=>'Woody'));
+#} e.g. $zbsCustomerMeta = zeroBS_buildContactMeta($_POST);
+#} e.g. $zbsCustomerMeta = zeroBS_buildContactMeta($importedMetaFields);
+#} e.g. $zbsCustomerMeta = zeroBS_buildContactMeta(array('zbsc_fname'=>'Woody'));
 #} 27/09/16: Can now also pass starting array, which lets you "override" fields present in $arraySource, without loosing originals not passed
 #} 12/04/18: Added prefix so as to be able to pass normal array e.g. fname (by passing empty fieldPrefix)
 #} 3.0: this was moved to generic zeroBS_buildObjArr :)
