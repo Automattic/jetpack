@@ -99,50 +99,52 @@ export default function ThreatModal( {
 						credentialsIsFetching={ credentialsIsFetching }
 						credentialsRedirectUrl={ credentialsRedirectUrl }
 					>
-						{ fixerState.error && (
-							<Notice isDismissible={ false } status="error">
-								<Text>{ __( 'An error occurred auto-fixing this threat.', 'jetpack' ) }</Text>
-							</Notice>
-						) }
-						{ fixerState.stale && (
-							<Notice isDismissible={ false } status="error">
-								<Text>{ __( 'The auto-fixer is taking longer than expected.', 'jetpack' ) }</Text>
-							</Notice>
-						) }
-						{ fixerState.inProgress && ! fixerState.stale && (
-							<Notice isDismissible={ false } status="success">
-								<Text>{ __( 'The auto-fixer is in progress.', 'jetpack' ) }</Text>
-							</Notice>
-						) }
-						<div className={ styles.section }>
-							{ !! threat.description && <Text>{ threat.description }</Text> }
-
-							{ !! threat.source && (
-								<div>
-									<Button
-										variant="link"
-										isExternalLink={ true }
-										weight="regular"
-										href={ threat.source }
-									>
-										{ __( 'See more technical details of this threat', 'jetpack' ) }
-									</Button>
-								</div>
+						<>
+							{ fixerState.error && (
+								<Notice isDismissible={ false } status="error">
+									<Text>{ __( 'An error occurred auto-fixing this threat.', 'jetpack' ) }</Text>
+								</Notice>
 							) }
-						</div>
+							{ fixerState.stale && (
+								<Notice isDismissible={ false } status="error">
+									<Text>{ __( 'The auto-fixer is taking longer than expected.', 'jetpack' ) }</Text>
+								</Notice>
+							) }
+							{ fixerState.inProgress && ! fixerState.stale && (
+								<Notice isDismissible={ false } status="success">
+									<Text>{ __( 'The auto-fixer is in progress.', 'jetpack' ) }</Text>
+								</Notice>
+							) }
+							<div className={ styles.section }>
+								{ !! threat.description && <Text>{ threat.description }</Text> }
 
-						<ThreatFixDetails threat={ threat } handleUpgradeClick={ handleUpgradeClick } />
+								{ !! threat.source && (
+									<div>
+										<Button
+											variant="link"
+											isExternalLink={ true }
+											weight="regular"
+											href={ threat.source }
+										>
+											{ __( 'See more technical details of this threat', 'jetpack' ) }
+										</Button>
+									</div>
+								) }
+							</div>
 
-						<ThreatTechnicalDetails threat={ threat } />
+							<ThreatFixDetails threat={ threat } handleUpgradeClick={ handleUpgradeClick } />
 
-						<ThreatActions
-							threat={ threat }
-							closeModal={ modalProps.onRequestClose }
-							handleFixThreatClick={ handleFixThreatClick }
-							handleIgnoreThreatClick={ handleIgnoreThreatClick }
-							handleUnignoreThreatClick={ handleUnignoreThreatClick }
-							fixerState={ fixerState }
-						/>
+							<ThreatTechnicalDetails threat={ threat } />
+
+							<ThreatActions
+								threat={ threat }
+								closeModal={ modalProps.onRequestClose }
+								handleFixThreatClick={ handleFixThreatClick }
+								handleIgnoreThreatClick={ handleIgnoreThreatClick }
+								handleUnignoreThreatClick={ handleUnignoreThreatClick }
+								fixerState={ fixerState }
+							/>
+						</>
 					</CredentialsGate>
 				</UserConnectionGate>
 			</div>
