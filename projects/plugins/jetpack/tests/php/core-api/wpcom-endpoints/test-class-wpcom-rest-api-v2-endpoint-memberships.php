@@ -43,6 +43,10 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Memberships extends WP_Test_Jetpack_RES
 	public static function wpSetUpBeforeClass( $factory ) {
 		static::$user_id   = $factory->user->create( array( 'role' => 'administrator' ) );
 		static::$author_id = $factory->user->create( array( 'role' => 'author' ) );
+
+		// We need to manually load the class under the context of tests since it won't get loaded
+		// on 'plugins_loaded' because it needs a Jetpack Connection.
+		new WPCOM_REST_API_V2_Endpoint_Memberships();
 	}
 
 	/**
@@ -54,8 +58,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Memberships extends WP_Test_Jetpack_RES
 		add_filter( 'pre_option_jetpack_private_options', array( $this, 'mock_jetpack_private_options' ) );
 		add_filter( 'pre_option_jetpack_options', array( $this, 'mock_jetpack_options' ) );
 
-		wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_Memberships' );
-
+		// `rest_api_init` action needs to be triggered after manually loading the endpoint.
 		parent::set_up();
 	}
 
