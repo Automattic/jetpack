@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed configuration issues in the package.json file.
