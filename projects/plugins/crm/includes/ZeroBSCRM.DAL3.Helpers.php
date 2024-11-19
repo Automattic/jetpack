@@ -120,19 +120,11 @@ function zeroBS_customerMobile($contactID='',$contactArr=false){
 
 }
 
-
-function zeroBS_customerAvatar($contactID='',$contactArr=false){
-	
-	global $zbs; return $zbs->DAL->contacts->getContactAvatar($contactID);
-
-}
-
 function zeroBS_customerAvatarHTML($contactID='',$contactArr=false,$size=100,$extraClasses=''){
 	
 	global $zbs; return $zbs->DAL->contacts->getContactAvatarHTML($contactID,$size,$extraClasses);
 
 }
-
 
 function zeroBS_customerCountByStatus($status=''){
 	
@@ -3128,14 +3120,14 @@ function zeroBS___________DAL30Helpers(){return;}
                 // provides a simplified ver of customer obj (4 data transit efficiency/exposure)
                 $email = ''; 
                 if (isset($contact['email']) && !empty($contact['email'])) $email = $contact['email'];
-                $return = array(
+								global $zbs;
+								$return = array(
+									'id'       => $contact['id'],
+									'avatar'   => $zbs->DAL->contacts->getContactAvatar( $contact['id'] ), // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+									'fullname' => zeroBS_customerName( '', $contact, false, false ),
+									'email'    => $email,
+								);
 
-                    'id'        => $contact['id'],
-                    'avatar'    => zeroBS_customerAvatar($contact['id']),
-                    'fullname'  => zeroBS_customerName('',$contact,false,false),
-                    'email'     => $email
-
-                );
                 if ($requireOwner) $return['owner'] = zeroBS_getOwner($contact['id'],true,'zerobs_customer');
 
         }
@@ -3692,7 +3684,6 @@ function zeroBS_getCompanyIDWithName( $company_name = '' ) {
 
                 	// company only has name, id, email currently
                     'id'        => $company['id'],
-                    //'avatar'    => zeroBS_customerAvatar($company['id']),
                     'fullname'  => $company['name'],
                     'email'     => $email
 

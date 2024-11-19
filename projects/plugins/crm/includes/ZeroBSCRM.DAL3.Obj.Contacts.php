@@ -5051,7 +5051,7 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 
             $resArr = $contact;
 
-            $resArr['avatar'] = zeroBS_customerAvatar($resArr['id']);
+				$resArr['avatar'] = $zbs->DAL->contacts->getContactAvatar( $resArr['id'] ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
             
             // use created original $resArr['created'] = zeroBSCRM_date_i18n(-1, $resArr['createduts']);
 
