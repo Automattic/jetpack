@@ -126,13 +126,6 @@ function zeroBS_customerAvatarHTML($contactID='',$contactArr=false,$size=100,$ex
 
 }
 
-function zeroBS_customerCountByStatus($status=''){
-	
-	global $zbs; return $zbs->DAL->contacts->getContactCount(array(
-			'withStatus' => $status,
-			'ignoreowner'		=> zeroBSCRM_DAL2_ignoreOwnership(ZBS_TYPE_CONTACT)));
-
-}
 function zeroBS_customerCount(){
 
 	global $zbs; return $zbs->DAL->contacts->getContactCount(array('ignoreowner' => zeroBSCRM_DAL2_ignoreOwnership(ZBS_TYPE_CONTACT)));
@@ -178,25 +171,6 @@ function zbsCRM_addUpdateCustomerCompany($customerID=-1,$companyID=-1){
 	return false;
 
 }
-
-function zeroBS_getCustomerCount($companyID=false){
-
-	global $zbs;
-
-	if (!empty($companyID)){
-
-		return $zbs->DAL->contacts->getContactCount(array('inCompany' => $companyID,'ignoreowner'=>true));
-
-	} else {
-
-		return $zbs->DAL->contacts->getContactCount(array('ignoreowner'=>true));
-
-	}
-
-	return 0;
-}
-
-
 
 #} Retrieves wp id for a customer
 function zeroBS_getCustomerWPID($cID=-1){
@@ -4007,14 +3981,6 @@ function zeroBS_getCompanyIDWithName( $company_name = '' ) {
   	Invoice helpers
    ====================================================== */
 
-   	// returns count, inc status optionally
-	function zeroBS_invCount($status=false){
-		
-		global $zbs; return $zbs->DAL->invoices->getInvoiceCount(array(
-			'withStatus'=> $status,
-			'ignoreowner' => zeroBSCRM_DAL2_ignoreOwnership(ZBS_TYPE_INVOICE)));
-	}
-
     // Get next available sequential invoice ID
 	function zeroBSCRM_getNextInvoiceID(){
 
@@ -4161,15 +4127,6 @@ function zeroBS_getCompanyIDWithName( $company_name = '' ) {
 	function zeroBS_getInvoice($invoiceID=-1){
 
 		if ($invoiceID > 0){
-			
-			/*
-			return array(
-				'id'=>(int)$wpPostID,
-				'meta'=>get_post_meta($wpPostID, 'zbs_customer_invoice_meta', true),
-				'customerid'=>get_post_meta($wpPostID, 'zbs_customer_invoice_customer', true),
-				'zbsid'=>get_post_meta($wpPostID, 'zbsid', true)
-				);
-			*/
 
 			global $zbs;
 
@@ -4179,22 +4136,6 @@ function zeroBS_getCompanyIDWithName( $company_name = '' ) {
 		
 		return false; 
 	}
-
-	// wh quick shim - checks if (Contact) has any invoices efficiently
-	function zeroBS_contactHasInvoice($contactID=-1){
-		
-		if ($contactID > 0){
-
-			global $zbs;
-
-			return $zbs->DAL->contacts->contactHasInvoice($contactID);
-
-		}
-		
-		return false;
-
-	}
-	
 
 	// just do direct call in future, plz
 	function zeroBS_getInvoicesForCustomer(

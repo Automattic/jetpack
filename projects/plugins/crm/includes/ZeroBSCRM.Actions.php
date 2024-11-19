@@ -90,7 +90,8 @@ function zeroBS_contact_actions( $cID = -1, $cObj = false ) {
 							// got pdf?
 							$gotPDF = zeroBSCRM_getSetting( 'feat_pdfinv' );
 
-					if ( $gotPDF == '1' && zeroBS_contactHasInvoice( $cID ) ) {
+					global $zbs;
+					if ( $gotPDF == '1' && $zbs->DAL->contacts->contactHasInvoice( $cID ) ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual,WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
 						$sendTo = '';
 						if ( isset( $cObj ) && is_array( $cObj ) && isset( $cObj['email'] ) ) {

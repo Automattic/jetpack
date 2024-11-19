@@ -4820,13 +4820,14 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 
 
 
-    /**
-     * Returns a count of contacts (owned)
-     * Replaces zeroBS_customerCount AND zeroBS_getCustomerCount AND zeroBS_customerCountByStatus
-     *
-     *
-     * @return int count
-     */
+		/**
+		 * Returns a count of contacts (owned)
+		 * Replaces zeroBS_customerCount
+		 *
+		 * @param object $args - DAL args.
+		 *
+		 * @return int count
+		 */
     public function getContactCount($args=array()){
 
         #} ============ LOAD ARGS =============
