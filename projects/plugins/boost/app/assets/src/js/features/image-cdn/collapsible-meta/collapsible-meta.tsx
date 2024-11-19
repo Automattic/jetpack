@@ -3,6 +3,7 @@ import { Button } from '@automattic/jetpack-components';
 import React, { useState } from 'react';
 import CloseIcon from '$svg/close';
 import PencilIcon from '$svg/pencil';
+import { recordBoostEvent } from '$lib/utils/analytics';
 
 type CollapsibleMetaProps = {
 	children: React.ReactNode;
@@ -10,6 +11,7 @@ type CollapsibleMetaProps = {
 	summary: React.ReactNode;
 	editText: string;
 	closeEditText: string;
+	tracksEventName: string;
 };
 
 const CollapsibleMeta = ( {
@@ -18,6 +20,7 @@ const CollapsibleMeta = ( {
 	summary,
 	editText,
 	closeEditText,
+	tracksEventName,
 }: CollapsibleMetaProps ) => {
 	const [ isEditing, setIsEditing ] = useState( false );
 	return (
@@ -37,6 +40,9 @@ const CollapsibleMeta = ( {
 					}
 					className={ styles[ 'edit-button' ] }
 					onClick={ () => {
+						recordBoostEvent( tracksEventName, {
+							status: isEditing ? 'open' : 'close',
+						} );
 						setIsEditing( ! isEditing );
 					} }
 				>
