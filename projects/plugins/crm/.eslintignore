@@ -1,0 +1,4 @@
+# Not loaded by default eslint, but we use tools/js-tools/load-eslint-ignore.js in .eslintrc to pull it in.
+
+# Ignore third-party libraries
+/js/lib
