@@ -2630,14 +2630,6 @@ function zeroBS_buildContactMeta($arraySource=array(),$startingArray=array(),$fi
 // ==================== DAL 3.0 FUNCS ===============================================================================================
 // ====================================================================================================================================
 // ====================================================================================================================================
-function zeroBS___________DAL30Helpers(){return;}
-
-
-
-
-
-
-
 
 /* ======================================================
   	GENERIC helpers
@@ -3125,7 +3117,6 @@ function zeroBS___________DAL30Helpers(){return;}
 /* ======================================================
   	Company helpers
    ====================================================== */
-   function zeroBS___________CompanyHelpers(){return;}
 
 	#} Get the COUNT of companies.
 	function zeroBS_companyCount($status=false){
@@ -3577,19 +3568,6 @@ function zeroBS_getCompanyIDWithName( $company_name = '' ) {
 
 	}
 
-	// get owner of co - use proper DAL ver plz, not this forwards.
-	function zeroBS_getCompanyOwner($companyID=-1){
-
-		if ($companyID !== -1){
-
-			global $zbs;
-			return $zbs->DAL->companies->getCompanyOwner($companyID);
-
-		} 
-
-		return false;
-	}
-
 	// sets tags, in future just use direct DAL func plz
 	function zeroBSCRM_setCompanyTags($coID=-1,$tags=array(),$tagIDs=array(),$mode='replace'){
 
@@ -3684,7 +3662,6 @@ function zeroBS_getCompanyIDWithName( $company_name = '' ) {
 /* ======================================================
   	Quote helpers
    ====================================================== */
-   function zeroBS___________QuoteHelpers(){return;}
 
    	// returns count, inc status optionally
 	function zeroBS_quoCount($status=false){
@@ -4126,8 +4103,6 @@ function zeroBS_getCompanyIDWithName( $company_name = '' ) {
 /* ======================================================
   	Invoice helpers
    ====================================================== */
-   function zeroBS___________InvoiceHelpers(){return;}
-
 
    	// returns count, inc status optionally
 	function zeroBS_invCount($status=false){
