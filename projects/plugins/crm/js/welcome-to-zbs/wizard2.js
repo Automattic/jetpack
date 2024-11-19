@@ -143,9 +143,9 @@ function zbs_crm_name_change() {
 	const crm_name = jQuery( '#zbs_crm_name' ).val();
 
 	if ( crm_name != '' ) {
-		jQuery( '#crm-name' ).html( crm_name );
+		jQuery( '#crm-name' ).text( crm_name );
 	} else {
-		jQuery( '#crm-name' ).html( 'Jetpack CRM' );
+		jQuery( '#crm-name' ).text( 'Jetpack CRM' );
 	}
 }
 function zbs_crm_js_updatePage2() {
