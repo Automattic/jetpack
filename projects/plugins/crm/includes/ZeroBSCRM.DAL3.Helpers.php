@@ -114,17 +114,6 @@ function zeroBS_customerEmail($contactID='',$contactArr=false){
 
 }
 
-/**
- * Retrieves all emails againast a contact
- *
- * @var int contactID
- */
-function zeroBS_customerEmails($contactID=''){
-	
-	global $zbs; return $zbs->DAL->contacts->getContactEmails($contactID);
-
-}
-
 function zeroBS_customerMobile($contactID='',$contactArr=false){
 	
 	global $zbs; return $zbs->DAL->contacts->getContactMobile($contactID);
