@@ -377,15 +377,15 @@ class UtilsTest extends TestCase {
 		);
 		Utils::runCommand( array( 'git', 'init', '-b', 'main', '.' ), ...$args );
 		Utils::runCommand( array( 'git', 'add', 'in-git.txt' ), ...$args );
-		Utils::runCommand( array( 'git', 'commit', '-m', 'Commit (#123)' ), ...$args );
+		Utils::runCommand( array( 'git', 'commit', '--no-gpg-sign', '-m', 'Commit (#123)' ), ...$args );
 
 		// Let's create another branch, add a commit and merge to trunk.
 		Utils::runCommand( array( 'git', 'checkout', '-b', 'temp' ), ...$args );
 		file_put_contents( 'in-git2.txt', '' );
 		Utils::runCommand( array( 'git', 'add', 'in-git2.txt' ), ...$args );
-		Utils::runCommand( array( 'git', 'commit', '-m', 'Dummy commit message.' ), ...$args );
+		Utils::runCommand( array( 'git', 'commit', '--no-gpg-sign', '-m', 'Dummy commit message.' ), ...$args );
 		Utils::runCommand( array( 'git', 'checkout', 'main' ), ...$args );
-		Utils::runCommand( array( 'git', 'merge', 'temp', '--no-ff', '-m', 'Merge pull request #124 from temp.' ), ...$args );
+		Utils::runCommand( array( 'git', 'merge', 'temp', '--no-gpg-sign', '--no-ff', '-m', 'Merge pull request #124 from temp.' ), ...$args );
 
 		$this->assertSame(
 			array(
