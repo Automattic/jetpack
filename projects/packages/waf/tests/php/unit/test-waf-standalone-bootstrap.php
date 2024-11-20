@@ -51,7 +51,7 @@ final class WafStandaloneBootstrapTest extends PHPUnit\Framework\TestCase {
 		define( 'WP_CONTENT_DIR', '/pseudo/dir' );
 
 		$mock_builder = $this->getMockBuilder( Waf_Standalone_Bootstrap::class );
-		$mock_builder->setMethods( array( 'initialize_filesystem' ) );
+		$mock_builder->onlyMethods( array( 'initialize_filesystem' ) );
 
 		$sut = $mock_builder->getMock();
 		$this->expectExceptionMessage( 'Can not work without the file system being initialized.' );
@@ -68,7 +68,7 @@ final class WafStandaloneBootstrapTest extends PHPUnit\Framework\TestCase {
 		define( 'WP_CONTENT_DIR', '/awesome/dir' );
 
 		$filesystem_mock_builder = $this->getMockBuilder( stdClass::class );
-		$filesystem_mock_builder->setMethods( array( 'is_dir', 'put_contents' ) );
+		$filesystem_mock_builder->addMethods( array( 'is_dir', 'put_contents' ) );
 
 		$filesystem_mock = $filesystem_mock_builder->getMock();
 
@@ -98,7 +98,7 @@ final class WafStandaloneBootstrapTest extends PHPUnit\Framework\TestCase {
 		$wp_filesystem = $filesystem_mock;
 
 		$mock_builder = $this->getMockBuilder( Waf_Standalone_Bootstrap::class );
-		$mock_builder->setMethods( array( 'initialize_filesystem' ) );
+		$mock_builder->onlyMethods( array( 'initialize_filesystem' ) );
 
 		$sut = $mock_builder->getMock();
 
@@ -119,7 +119,7 @@ final class WafStandaloneBootstrapTest extends PHPUnit\Framework\TestCase {
 		define( 'WP_CONTENT_DIR', '/awesome/dir' );
 
 		$filesystem_mock_builder = $this->getMockBuilder( stdClass::class );
-		$filesystem_mock_builder->setMethods( array( 'is_dir', 'put_contents' ) );
+		$filesystem_mock_builder->addMethods( array( 'is_dir', 'put_contents' ) );
 
 		$filesystem_mock = $filesystem_mock_builder->getMock();
 		$filesystem_mock->expects( $this->once() )
@@ -136,7 +136,7 @@ final class WafStandaloneBootstrapTest extends PHPUnit\Framework\TestCase {
 		$wp_filesystem = $filesystem_mock;
 
 		$mock_builder = $this->getMockBuilder( Waf_Standalone_Bootstrap::class );
-		$mock_builder->setMethods( array( 'initialize_filesystem' ) );
+		$mock_builder->onlyMethods( array( 'initialize_filesystem' ) );
 
 		$sut = $mock_builder->getMock();
 
@@ -154,7 +154,7 @@ final class WafStandaloneBootstrapTest extends PHPUnit\Framework\TestCase {
 		define( 'WP_CONTENT_DIR', '/awesome/dir' );
 
 		$filesystem_mock_builder = $this->getMockBuilder( stdClass::class );
-		$filesystem_mock_builder->setMethods( array( 'is_dir', 'mkdir', 'put_contents' ) );
+		$filesystem_mock_builder->addMethods( array( 'is_dir', 'mkdir', 'put_contents' ) );
 
 		$filesystem_mock = $filesystem_mock_builder->getMock();
 
@@ -175,7 +175,7 @@ final class WafStandaloneBootstrapTest extends PHPUnit\Framework\TestCase {
 		$wp_filesystem = $filesystem_mock;
 
 		$mock_builder = $this->getMockBuilder( Waf_Standalone_Bootstrap::class );
-		$mock_builder->setMethods( array( 'initialize_filesystem' ) );
+		$mock_builder->onlyMethods( array( 'initialize_filesystem' ) );
 
 		$sut = $mock_builder->getMock();
 		$sut->expects( $this->once() )->method( 'initialize_filesystem' );
@@ -193,7 +193,7 @@ final class WafStandaloneBootstrapTest extends PHPUnit\Framework\TestCase {
 		define( 'WP_CONTENT_DIR', '/awesome/dir' );
 
 		$filesystem_mock_builder = $this->getMockBuilder( stdClass::class );
-		$filesystem_mock_builder->setMethods( array( 'is_dir', 'mkdir' ) );
+		$filesystem_mock_builder->addMethods( array( 'is_dir', 'mkdir' ) );
 
 		$filesystem_mock = $filesystem_mock_builder->getMock();
 
@@ -210,7 +210,7 @@ final class WafStandaloneBootstrapTest extends PHPUnit\Framework\TestCase {
 		$wp_filesystem = $filesystem_mock;
 
 		$mock_builder = $this->getMockBuilder( Waf_Standalone_Bootstrap::class );
-		$mock_builder->setMethods( array( 'initialize_filesystem' ) );
+		$mock_builder->onlyMethods( array( 'initialize_filesystem' ) );
 
 		$sut = $mock_builder->getMock();
 		$sut->expects( $this->once() )->method( 'initialize_filesystem' );

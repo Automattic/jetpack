@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.66.0] - 2024-11-11
+### Added
+- Added a feature check to the Marketing Bar that updates the text and upgrade link for Global Styles [#40068]
+- Enable test coverage. [#39961]
+- Help Center: add new rest route for support interactions [#39978]
+- Help Center: extend support interaction API [#40112]
+- The notice and modal shown on the editor now displays the plan name and upgrade URL based on the GS gated plan type' [#40095]
+
+### Changed
+- Added feature check for the Global Styles on Personal plan changes. [#39986]
+- Updated package dependencies. [#39999] [#40000] [#40060]
+
+### Fixed
+- Fix PHPUnit coverage warnings. [#39989]
+- Help Center: fixed api typo [#39996]
+- We now check if JP_CONNECTION_INITIAL_STATE is defined before accessing it when using Global Styles' [#39980]
+- wpcom-block-editor: Support getting the canvas mode from the query string after GB 19.6 [#40045]
+
 ## [5.65.0] - 2024-10-29
 ### Added
 - adding a WPCOM task [#39776]
@@ -30,9 +48,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Site Management Panel: fix site name encoding display [#39756]
 - Site Management Panel: Migrate to react [#39742]
 - Updated copies used in the plugins banner for wpcom sites plugin-install.php page. [#39725]
-- Updated package dependencies. [#39594]
-- Updated package dependencies. [#39640]
-- Updated package dependencies. [#39707]
+- Updated package dependencies. [#39594] [#39640] [#39707]
 - Update Jetpack Scan link [#39619]
 - Update Verbum Comments resize logic [#39791]
 - wpcom_add_shopping_cart: Use Store_Shopping_Cart::is_cart_empty() when deciding to render icon for incrased performance [#39563]
@@ -81,8 +97,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Admin bar: update 'My Account' link to /me [#39290]
 - Enable Users -> Profile (profile.php) on all sites [#39181]
 - Launchpad: Require a design is selected before marking the step as complete in both the Write and Free flows [#39189]
-- Updated package dependencies. [#39176]
-- Updated package dependencies. [#39302]
+- Updated package dependencies. [#39176] [#39302]
 
 ### Fixed
 - Use the correct endpoint route for adding suggested tags on new posts. [#39175]
@@ -343,8 +358,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - As we've launched untangling & nav redesign, the wpcom_is_nav_redesign_enabled() function name is not relevant anymore and can be confusing for future developers, so we replace it with the equivalent get_option call. [#38197]
 - Classic Theme Helper - initialize Featured Content from the mu-wpcom package [#37969]
 - Load ETK features with a higher priority to avoid the ETK plugin taking precedence. [#38230]
-- Updated package dependencies. [#38132]
-- Updated package dependencies. [#38235]
+- Updated package dependencies. [#38132] [#38235]
 - Update Verbum Comments accessibility. [#38116]
 
 ### Removed
@@ -1287,6 +1301,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Testing initial package release.
 
+[5.66.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.65.0...v5.66.0
 [5.65.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.64.0...v5.65.0
 [5.64.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.63.0...v5.64.0
 [5.63.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.62.0...v5.63.0

@@ -25,6 +25,7 @@ import PostsIcon from './icons/posts.svg';
 import ThemesIcon from './icons/themes.svg';
 import UploadsIcon from './icons/uploads.svg';
 import WarningIcon from './icons/warning.svg';
+import NextScheduledBackup from './next-scheduled-backup';
 
 /* eslint react/react-in-jsx-scope: 0 */
 export const Backups = () => {
@@ -157,7 +158,8 @@ const CompleteBackup = ( { latestTime, stats } ) => {
 							/>
 							<h2>{ __( 'Latest Backup', 'jetpack-backup-pkg' ) }</h2>
 						</div>
-						<h1>{ formatDateString( latestTime ) }</h1>
+						<div className="backup__latest-time">{ formatDateString( latestTime ) }</div>
+						<NextScheduledBackup />
 					</>
 				) }
 

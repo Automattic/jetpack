@@ -60,7 +60,7 @@ function jpcrm_render_dashboard_page() {
 	foreach ( array_reverse( $funnel_statuses ) as $contact_status ) {
 
 		// number of contacts in a given status
-		$count = zeroBS_customerCountByStatus( $contact_status );
+		$count = $zbs->DAL->contacts->getContactCount( array( 'withStatus' => $contact_status ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
 		// number of contacts in this status plus later statuses
 		$backfill_count += $count;

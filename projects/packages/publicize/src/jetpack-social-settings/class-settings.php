@@ -31,6 +31,12 @@ class Settings {
 		'template' => Templates::DEFAULT_TEMPLATE,
 	);
 
+	const UTM_SETTINGS = 'utm_settings';
+
+	const DEFAULT_UTM_SETTINGS = array(
+		'enabled' => false,
+	);
+
 	/**
 	 * Feature flags. Each item has 3 keys because of the naming conventions:
 	 * - flag_name: The name of the feature flag for the option check.
@@ -129,6 +135,25 @@ class Settings {
 			)
 		);
 
+		register_setting(
+			'jetpack_social',
+			self::OPTION_PREFIX . self::UTM_SETTINGS,
+			array(
+				'type'         => 'boolean',
+				'default'      => false,
+				'show_in_rest' => array(
+					'schema' => array(
+						'type'       => 'object',
+						'properties' => array(
+							'enabled' => array(
+								'type' => 'boolean',
+							),
+						),
+					),
+				),
+			)
+		);
+
 		add_filter( 'rest_pre_update_setting', array( $this, 'update_settings' ), 10, 3 );
 	}
 
@@ -139,6 +164,15 @@ class Settings {
 	 */
 	public function get_image_generator_settings() {
 		return get_option( self::OPTION_PREFIX . self::IMAGE_GENERATOR_SETTINGS, self::DEFAULT_IMAGE_GENERATOR_SETTINGS );
+	}
+
+	/**
+	 * Get if the UTM params is enabled.
+	 *
+	 * @return array
+	 */
+	public function get_utm_settings() {
+		return get_option( self::OPTION_PREFIX . self::UTM_SETTINGS, self::DEFAULT_UTM_SETTINGS );
 	}
 
 	/**
@@ -222,6 +256,17 @@ class Settings {
 		if ( self::OPTION_PREFIX . self::IMAGE_GENERATOR_SETTINGS === $name ) {
 			return $this->update_social_image_generator_settings( $value );
 		}
+
+		if ( self::OPTION_PREFIX . self::UTM_SETTINGS === $name ) {
+			$current_utm_settings = $this->get_utm_settings();
+
+			if ( empty( $current_utm_settings ) || ! is_array( $current_utm_settings ) ) {
+				$current_utm_settings = self::DEFAULT_UTM_SETTINGS;
+			}
+
+			return update_option( self::OPTION_PREFIX . self::UTM_SETTINGS, array_replace_recursive( $current_utm_settings, $value ) );
+		}
+
 		return $updated;
 	}
 

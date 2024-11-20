@@ -523,7 +523,7 @@ async function changelogArgs( argv ) {
 	argv = await validateProject( argv );
 	argv.success = `Command '${ argv.cmd || argv._[ 1 ] }' for ${
 		argv.project
-	} completed succesfully!`;
+	} completed successfully!`;
 	argv.error = `Command '${ argv.cmd || argv._[ 1 ] }' for ${ argv.project } has failed! See error`;
 	argv.args = [ argv.cmd || argv._[ 1 ], ...process.argv.slice( 4 ) ];
 	const removeArg = [
