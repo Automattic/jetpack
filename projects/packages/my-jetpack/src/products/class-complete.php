@@ -1,6 +1,6 @@
 <?php
 /**
- * Security product
+ * Complete plan
  *
  * @package my-jetpack
  */
@@ -12,23 +12,23 @@ use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use WP_Error;
 
 /**
- * Class responsible for handling the Security product
+ * Class responsible for handling the Complete plan
  */
-class Security extends Module_Product {
+class Complete extends Module_Product {
 
 	/**
 	 * The product slug
 	 *
 	 * @var string
 	 */
-	public static $slug = 'security';
+	public static $slug = 'complete';
 
 	/**
 	 * The Jetpack module name
 	 *
 	 * @var string
 	 */
-	public static $module_name = 'security';
+	public static $module_name = 'complete';
 
 	/**
 	 * Get the product name
@@ -36,7 +36,7 @@ class Security extends Module_Product {
 	 * @return string
 	 */
 	public static function get_name() {
-		return 'Security Bundle';
+		return 'Complete Bundle';
 	}
 
 	/**
@@ -45,7 +45,7 @@ class Security extends Module_Product {
 	 * @return string
 	 */
 	public static function get_title() {
-		return 'Jetpack Security';
+		return 'Jetpack Complete';
 	}
 
 	/**
@@ -54,29 +54,34 @@ class Security extends Module_Product {
 	 * @return string
 	 */
 	public static function get_description() {
-		return __( 'Comprehensive site security, including VaultPress Backup, Scan, and Akismet Anti-spam.', 'jetpack-my-jetpack' );
+		return __( 'The ultimate tool kit for best-in-class websites.', 'jetpack-my-jetpack' );
 	}
 
 	/**
-	 * Get the internationalized product long description
+	 * Get the internationalized product description
 	 *
 	 * @return string
 	 */
 	public static function get_long_description() {
-		return __( 'Comprehensive site security, including VaultPress Backup, Scan, and Akismet Anti-spam.', 'jetpack-my-jetpack' );
+		return __( 'Get the full Jetpack suite with real-time security tools, improved site performance, and tools to grow your business.', 'jetpack-my-jetpack' );
 	}
 
 	/**
 	 * Get the internationalized features list
 	 *
-	 * @return array Security features list
+	 * @return array Complete features list
 	 */
 	public static function get_features() {
 		return array(
-			_x( 'Real-time cloud backups with 10GB storage', 'Security Product Feature', 'jetpack-my-jetpack' ),
-			_x( 'Automated real-time malware scan', 'Security Product Feature', 'jetpack-my-jetpack' ),
-			_x( 'One-click fixes for most threats', 'Security Product Feature', 'jetpack-my-jetpack' ),
-			_x( 'Comment & form spam protection', 'Security Product Feature', 'jetpack-my-jetpack' ),
+			'VaultPress Backup',
+			'Scan',
+			'Akismet Anti-spam',
+			'VideoPress',
+			'Boost',
+			'Social',
+			'Search',
+			_x( 'Stats (100K site views, upgradeable)', 'Complete Product Feature', 'jetpack-my-jetpack' ),
+			'CRM Entrepreneur',
 		);
 	}
 
@@ -99,10 +104,10 @@ class Security extends Module_Product {
 	/**
 	 * Get the WPCOM product slug used to make the purchase
 	 *
-	 * @return ?string
+	 * @return string
 	 */
 	public static function get_wpcom_product_slug() {
-		return 'jetpack_security_t1_yearly';
+		return 'jetpack_complete';
 	}
 
 	/**
@@ -119,19 +124,28 @@ class Security extends Module_Product {
 	/**
 	 * Activates the product by installing and activating its plugin
 	 *
-	 * @param bool|WP_Error $current_result Is the result of the top level activation actions. You probably won't do anything if it is an WP_Error.
-	 * @return boolean|\WP_Error
+	 * @param WP_Error|bool $current_result Is the result of the top level activation actions. You probably won't do anything if it is an WP_Error.
+	 * @return bool|\WP_Error
 	 */
 	public static function do_product_specific_activation( $current_result ) {
-
 		$product_activation = parent::do_product_specific_activation( $current_result );
 
+		// A bundle is not a module. There's nothing in the plugin to be activated, so it's ok to fail to activate the module.
 		if ( is_wp_error( $product_activation ) && 'module_activation_failed' === $product_activation->get_error_code() ) {
-			// A bundle is not a module. There's nothing in the plugin to be activated, so it's ok to fail to activate the module.
-			$product_activation = true;
+			return $product_activation;
 		}
 
 		// At this point, Jetpack plugin is installed. Let's activate each individual product.
+		$activation = Social::activate();
+		if ( is_wp_error( $activation ) ) {
+			return $activation;
+		}
+
+		$activation = Stats::activate();
+		if ( is_wp_error( $activation ) ) {
+			return $activation;
+		}
+
 		$activation = Anti_Spam::activate();
 		if ( is_wp_error( $activation ) ) {
 			return $activation;
@@ -143,6 +157,26 @@ class Security extends Module_Product {
 		}
 
 		$activation = Scan::activate();
+		if ( is_wp_error( $activation ) ) {
+			return $activation;
+		}
+
+		$activation = Boost::activate();
+		if ( is_wp_error( $activation ) ) {
+			return $activation;
+		}
+
+		$activation = CRM::activate();
+		if ( is_wp_error( $activation ) ) {
+			return $activation;
+		}
+
+		$activation = Search::activate();
+		if ( is_wp_error( $activation ) ) {
+			return $activation;
+		}
+
+		$activation = VideoPress::activate();
 		if ( is_wp_error( $activation ) ) {
 			return $activation;
 		}
@@ -173,10 +207,7 @@ class Security extends Module_Product {
 		}
 		if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
 			foreach ( $purchases_data as $purchase ) {
-				if (
-					str_starts_with( $purchase->product_slug, 'jetpack_security' ) ||
-					str_starts_with( $purchase->product_slug, 'jetpack_complete' )
-				) {
+				if ( str_starts_with( $purchase->product_slug, 'jetpack_complete' ) ) {
 					return true;
 				}
 			}
@@ -199,7 +230,17 @@ class Security extends Module_Product {
 	 * @return array Product slugs
 	 */
 	public static function get_supported_products() {
-		return array( 'backup', 'scan', 'anti-spam' );
+		return array(
+			'anti-spam',
+			'backup',
+			'boost',
+			'crm',
+			'scan',
+			'search',
+			'social',
+			'stats',
+			'videopress',
+		);
 	}
 
 	/**

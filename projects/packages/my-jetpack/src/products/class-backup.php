@@ -213,7 +213,7 @@ class Backup extends Hybrid_Product {
 	 * @return boolean|array Products bundle list.
 	 */
 	public static function is_upgradable_by_bundle() {
-		return array( 'security' );
+		return array( 'security', 'complete' );
 	}
 
 	/**

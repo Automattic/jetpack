@@ -36,7 +36,7 @@ class Growth extends Module_Product {
 	 * @return string
 	 */
 	public static function get_name() {
-		return 'Growth';
+		return 'Growth Bundle';
 	}
 
 	/**
