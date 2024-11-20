@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Board triage: do not attempt to modify board columns when the issue is not on a board.
