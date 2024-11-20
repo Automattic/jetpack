@@ -1,7 +1,7 @@
 import { Button } from '@automattic/jetpack-components';
-import { Threat } from '@automattic/jetpack-scan';
+import { type Threat, getDetailedFixerAction } from '@automattic/jetpack-scan';
 import { __ } from '@wordpress/i18n';
-import React, { useCallback, useContext } from 'react';
+import React, { useCallback, useContext, useMemo } from 'react';
 import styles from './styles.module.scss';
 import { ThreatModalContext } from '.';
 
@@ -10,6 +10,7 @@ import { ThreatModalContext } from '.';
  *
  * @param {object}   props                             - The component props.
  * @param {object}   props.threat                      - The threat object containing action details.
+ * @param {boolean}  props.disabled                    - Whether the actions are disabled.
  * @param {object}   props.fixerState                  - The state of the fixer (inProgress, error, stale).
  * @param {boolean}  props.fixerState.inProgress       - Whether the fixer is in progress.
  * @param {boolean}  props.fixerState.error            - Whether the fixer encountered an error.
@@ -22,19 +23,22 @@ import { ThreatModalContext } from '.';
  */
 const ThreatActions = ( {
 	threat,
+	disabled,
 	fixerState,
 	handleFixThreatClick,
 	handleIgnoreThreatClick,
 	handleUnignoreThreatClick,
 }: {
 	threat: Threat;
+	disabled?: boolean;
 	fixerState: { inProgress: boolean; error: boolean; stale: boolean };
 	handleFixThreatClick?: ( threats: Threat[] ) => void;
 	handleIgnoreThreatClick?: ( threats: Threat[] ) => void;
 	handleUnignoreThreatClick?: ( threats: Threat[] ) => void;
 } ): JSX.Element => {
-	const { closeModal, actionToConfirm, onShowThreatDetailsClick } =
-		useContext( ThreatModalContext );
+	const { closeModal } = useContext( ThreatModalContext );
+
+	const detailedFixerAction = useMemo( () => getDetailedFixerAction( threat ), [ threat ] );
 
 	const onFixClick = useCallback( () => {
 		handleFixThreatClick?.( [ threat ] );
@@ -57,41 +61,39 @@ const ThreatActions = ( {
 
 	return (
 		<div className={ styles[ 'modal-actions' ] }>
-			<Button variant="secondary" onClick={ onShowThreatDetailsClick }>
-				{ __( 'Threat details', 'jetpack' ) }
-			</Button>
-			<div className={ styles[ 'threat-actions' ] }>
-				{ threat.status === 'ignored' && actionToConfirm === 'un-ignore' && (
-					<Button isDestructive={ true } variant="secondary" onClick={ onUnignoreClick }>
-						{ __( 'Un-ignore threat', 'jetpack' ) }
+			{ threat.status === 'ignored' && (
+				<Button
+					disabled={ disabled }
+					isDestructive={ true }
+					variant="secondary"
+					onClick={ onUnignoreClick }
+				>
+					{ __( 'Un-ignore threat', 'jetpack' ) }
+				</Button>
+			) }
+			{ threat.status === 'current' && (
+				<>
+					<Button
+						isDestructive={ true }
+						variant="secondary"
+						onClick={ onIgnoreClick }
+						disabled={ disabled || ( fixerState.inProgress && ! fixerState.stale ) }
+					>
+						{ __( 'Ignore threat', 'jetpack' ) }
 					</Button>
-				) }
-				{ threat.status === 'current' && (
-					<>
-						{ actionToConfirm === 'ignore' && (
-							<Button
-								isDestructive={ true }
-								variant="secondary"
-								onClick={ onIgnoreClick }
-								disabled={ fixerState.inProgress && ! fixerState.stale }
-							>
-								{ __( 'Ignore threat', 'jetpack' ) }
-							</Button>
-						) }
-						{ threat.fixable && actionToConfirm === 'fix' && (
-							<Button
-								isPrimary
-								disabled={ fixerState.inProgress && ! fixerState.stale }
-								onClick={ onFixClick }
-							>
-								{ fixerState.error || fixerState.stale
-									? __( 'Retry fixer', 'jetpack' )
-									: __( 'Run fixer', 'jetpack' ) }
-							</Button>
-						) }
-					</>
-				) }
-			</div>
+					{ threat.fixable && (
+						<Button
+							isPrimary
+							disabled={ disabled || ( fixerState.inProgress && ! fixerState.stale ) }
+							onClick={ onFixClick }
+						>
+							{ fixerState.error || fixerState.stale
+								? __( 'Retry fixer', 'jetpack' )
+								: detailedFixerAction }
+						</Button>
+					) }
+				</>
+			) }
 		</div>
 	);
 };

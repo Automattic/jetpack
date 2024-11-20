@@ -1,18 +1,14 @@
 import { type Threat, getFixerState } from '@automattic/jetpack-scan';
 import { Modal } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
 import { useMemo, createContext } from 'react';
 import Text from '../text';
 import ThreatSeverityBadge from '../threat-severity-badge';
 import styles from './styles.module.scss';
-import ThreatDetailsGate from './threat-details-gate';
 import ThreatFixConfirmation from './threat-fix-confirmation';
 interface ThreatModalContextType {
 	closeModal: () => void;
 	actionToConfirm: string | null;
-	showThreatDetails: boolean;
-	onShowThreatDetailsClick: () => void;
-	onHideThreatDetailsClick: ( action: string ) => void;
+	setActionToConfirm: ( action: string ) => void;
 }
 
 export const ThreatModalContext = createContext< ThreatModalContextType | null >( null );
@@ -34,9 +30,8 @@ export const ThreatModalContext = createContext< ThreatModalContextType | null >
  * @param {Function} props.handleIgnoreThreatClick   - The handleIgnoreThreatClick function.
  * @param {Function} props.handleUnignoreThreatClick - The handleUnignoreThreatClick function.
  * @param {string}   props.actionToConfirm           - The action to confirm.
- * @param {boolean}  props.showThreatDetails         - Whether to show the threat details.
- * @param {Function} props.onShowThreatDetailsClick  - The onShowThreatDetailsClick function.
- * @param {Function} props.onHideThreatDetailsClick  - The onHideThreatDetailsClick function.
+ * @param {Function} props.setActionToConfirm        - The setActionToConfirm function.
+ *
  * @return {JSX.Element} The threat modal.
  */
 export default function ThreatModal( {
@@ -53,9 +48,7 @@ export default function ThreatModal( {
 	handleIgnoreThreatClick,
 	handleUnignoreThreatClick,
 	actionToConfirm,
-	showThreatDetails,
-	onShowThreatDetailsClick,
-	onHideThreatDetailsClick,
+	setActionToConfirm,
 	...modalProps
 }: {
 	threat: Threat;
@@ -71,9 +64,7 @@ export default function ThreatModal( {
 	handleIgnoreThreatClick?: ( threats: Threat[] ) => void;
 	handleUnignoreThreatClick?: ( threats: Threat[] ) => void;
 	actionToConfirm: string | null;
-	showThreatDetails: boolean;
-	onShowThreatDetailsClick: () => void;
-	onHideThreatDetailsClick: ( action: string ) => void;
+	setActionToConfirm: ( action: string ) => void;
 } & React.ComponentProps< typeof Modal > ): JSX.Element {
 	const userConnectionNeeded = ! isUserConnected || ! hasConnectedOwner;
 	const siteCredentialsNeeded = ! credentials || credentials.length === 0;
@@ -82,64 +73,39 @@ export default function ThreatModal( {
 		return getFixerState( threat.fixer );
 	}, [ threat.fixer ] );
 
-	const getModalTitle = useMemo( () => {
-		if ( userConnectionNeeded && ! showThreatDetails ) {
-			return <Text variant="title-small">{ __( 'User connection needed', 'jetpack' ) }</Text>;
-		}
-
-		if ( siteCredentialsNeeded && ! showThreatDetails ) {
-			return <Text variant="title-small">{ __( 'Site credentials needed', 'jetpack' ) }</Text>;
-		}
-
-		return (
-			<>
-				<Text variant="title-small">{ threat.title }</Text>
-				{ !! threat.severity && <ThreatSeverityBadge severity={ threat.severity } /> }
-			</>
-		);
-	}, [
-		userConnectionNeeded,
-		siteCredentialsNeeded,
-		showThreatDetails,
-		threat.title,
-		threat.severity,
-	] );
-
 	return (
 		<Modal
-			title={ <div className={ styles.title }>{ getModalTitle }</div> }
+			title={
+				<div className={ styles.title }>
+					<Text variant="title-small">{ threat.title }</Text>
+					{ !! threat.severity && <ThreatSeverityBadge severity={ threat.severity } /> }
+				</div>
+			}
 			size="large"
 			{ ...modalProps }
 		>
 			<div className={ styles[ 'threat-details' ] }>
 				<ThreatModalContext.Provider
 					value={ {
-						actionToConfirm,
-						showThreatDetails,
 						closeModal: modalProps.onRequestClose,
-						onShowThreatDetailsClick,
-						onHideThreatDetailsClick,
+						actionToConfirm,
+						setActionToConfirm,
 					} }
 				>
-					<ThreatDetailsGate
+					<ThreatFixConfirmation
 						threat={ threat }
 						fixerState={ fixerState }
 						handleUpgradeClick={ handleUpgradeClick }
-					>
-						<ThreatFixConfirmation
-							threat={ threat }
-							fixerState={ fixerState }
-							userConnectionNeeded={ userConnectionNeeded }
-							userIsConnecting={ userIsConnecting }
-							handleConnectUser={ handleConnectUser }
-							siteCredentialsNeeded={ siteCredentialsNeeded }
-							credentialsIsFetching={ credentialsIsFetching }
-							credentialsRedirectUrl={ credentialsRedirectUrl }
-							handleFixThreatClick={ handleFixThreatClick }
-							handleIgnoreThreatClick={ handleIgnoreThreatClick }
-							handleUnignoreThreatClick={ handleUnignoreThreatClick }
-						/>
-					</ThreatDetailsGate>
+						userConnectionNeeded={ userConnectionNeeded }
+						userIsConnecting={ userIsConnecting }
+						handleConnectUser={ handleConnectUser }
+						siteCredentialsNeeded={ siteCredentialsNeeded }
+						credentialsIsFetching={ credentialsIsFetching }
+						credentialsRedirectUrl={ credentialsRedirectUrl }
+						handleFixThreatClick={ handleFixThreatClick }
+						handleIgnoreThreatClick={ handleIgnoreThreatClick }
+						handleUnignoreThreatClick={ handleUnignoreThreatClick }
+					/>
 				</ThreatModalContext.Provider>
 			</div>
 		</Modal>
