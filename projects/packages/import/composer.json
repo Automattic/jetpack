@@ -4,7 +4,7 @@
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"php": ">=7.0",
+		"php": ">=7.2",
 		"automattic/jetpack-connection": "@dev",
 		"automattic/jetpack-sync": "@dev"
 	},
@@ -59,7 +59,7 @@
 		},
 		"autotagger": true,
 		"branch-alias": {
-			"dev-trunk": "0.8.x-dev"
+			"dev-trunk": "0.9.x-dev"
 		},
 		"textdomain": "jetpack-import",
 		"version-constants": {

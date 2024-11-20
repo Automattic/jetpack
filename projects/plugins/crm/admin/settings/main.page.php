@@ -231,11 +231,6 @@ if ( isset( $tab_page_map[ $current_tab ] ) && isset( $tab_page_map[ $current_ta
 
 // check if settings updated
 $setting_updated = isset( $_GET['updated'] ) && 'true' == esc_attr( $_GET['updated'] );
-
-// V3 Migration Interaction
-$v3InProgress  = get_option( 'zbs_db_migration_300_inprog', false );
-$migration_msg = __( 'There is currently a CRM Migration in progress, until that migration has finished you will not be able to change any settings, as these may intefere with a safe migration. These will be back up shortly.', 'zero-bs-crm' );
-
 ?>
 
 <?php if ( $setting_updated ) : ?>
@@ -243,17 +238,6 @@ $migration_msg = __( 'There is currently a CRM Migration in progress, until that
 <?php endif ?>
 
 <div class="ui grid zbs-page-wrap" style="margin-top:0em">
-
-	<?php
-	// show blocker if mid-migration
-	if ( $v3InProgress ) :
-		?>
-
-		<div id="zbs-migration-blocker"></div><div id="zbs-migration-settings-notice">
-			<?php echo zeroBSCRM_UI2_messageHTML( 'warning', __( 'Migration in Progress', 'zero-bs-crm' ), $migration_msg, 'hourglass half', 'zbs-migration-settings-msg' ); ?>
-		</div>
-
-	<?php endif ?>
 
 	<div class="four wide column">
 		<?php jpcrm_render_settings_menu( $current_tab ); ?>

@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.0.0] - 2024-11-14
+### Removed
+- General: Update minimum PHP version to 7.2. [#40147]
+
 ## [4.2.8] - 2024-11-04
 ### Added
 - Enable test coverage. [#39961]
@@ -252,6 +256,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ### Added
 - Initial version.
 
+[5.0.0]: https://github.com/Automattic/jetpack-changelogger/compare/4.2.8...5.0.0
 [4.2.8]: https://github.com/Automattic/jetpack-changelogger/compare/4.2.7...4.2.8
 [4.2.7]: https://github.com/Automattic/jetpack-changelogger/compare/4.2.6...4.2.7
 [4.2.6]: https://github.com/Automattic/jetpack-changelogger/compare/4.2.5...4.2.6

@@ -142,6 +142,7 @@
 
 .firewall-subheading {
     display: flex;
+    align-items: center;
 }
 
 .stat-card-wrapper {
@@ -213,6 +214,21 @@
 .standalone-mode-section, .share-data-section {
 	margin-top: calc( var( --spacing-base ) * 7 ); // 56px
     margin-bottom: calc( var( --spacing-base ) * 7 ); // 56px
+}
+
+.icon-tooltip {
+    max-height: 20px;
+    margin-left: calc( var( --spacing-base ) / 2 ); // 4px
+
+    &__icon {
+        color: var( --jp-gray-20 );
+    }
+
+    &__content {
+        color: var( --jp-gray-70 );
+        font-weight: 400;
+        line-height: 24px;
+    }
 }
 
 @media ( max-width: 599px ) {

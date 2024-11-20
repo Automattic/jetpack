@@ -98,12 +98,15 @@ class ChangelogEntryTest extends TestCase {
 
 		$this->assertSame( array(), $entry->getChanges() );
 		$this->assertSame( array(), $entry->getChangesBySubheading() );
-		error_clear_last();
-		$this->assertSame( array(), @$entry->getChangesBySubheading( 'B' ) );
-		$err = error_get_last();
-		$this->assertNotNull( $err );
-		$this->assertSame( E_USER_DEPRECATED, $err['type'] );
-		$this->assertSame( 'Passing a value for $subheading is deprecated. Do `->getChangesBySubheading()[ $subheading ]` instead.', $err['message'] );
+
+		try {
+			$entry->getChangesBySubheading( 'B' );
+		} catch ( \InvalidArgumentException $e ) {
+			$this->assertSame(
+				'Passing a value for $subheading is deprecated. Do `->getChangesBySubheading()[ $subheading ]` instead.',
+				$e->getMessage()
+			);
+		}
 
 		$this->assertSame( $entry, $entry->setChanges( $changes ) );
 		$this->assertSame( $changes, $entry->getChanges() );
@@ -115,13 +118,6 @@ class ChangelogEntryTest extends TestCase {
 			),
 			$entry->getChangesBySubheading()
 		);
-
-		error_clear_last();
-		$this->assertSame( array( $changes[1], $changes[2] ), @$entry->getChangesBySubheading( 'B' ) );
-		$err = error_get_last();
-		$this->assertNotNull( $err );
-		$this->assertSame( E_USER_DEPRECATED, $err['type'] );
-		$this->assertSame( 'Passing a value for $subheading is deprecated. Do `->getChangesBySubheading()[ $subheading ]` instead.', $err['message'] );
 
 		$c1 = new ChangeEntry(
 			array(
@@ -154,13 +150,6 @@ class ChangelogEntryTest extends TestCase {
 			),
 			$entry->getChangesBySubheading()
 		);
-
-		error_clear_last();
-		$this->assertSame( array( $c2, $changes[1], $c1, $changes[2] ), @$entry->getChangesBySubheading( 'B' ) );
-		$err = error_get_last();
-		$this->assertNotNull( $err );
-		$this->assertSame( E_USER_DEPRECATED, $err['type'] );
-		$this->assertSame( 'Passing a value for $subheading is deprecated. Do `->getChangesBySubheading()[ $subheading ]` instead.', $err['message'] );
 
 		$entry = new ChangelogEntry( '1.0' );
 		$this->assertSame( $entry, $entry->appendChange( $c1 )->appendChange( $c2 )->appendChange( $c3 ) );

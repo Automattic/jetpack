@@ -1,5 +1,3 @@
-version: '3.3'
-
 volumes:
   ## Kludge for not having the ./docker directory bound recursively
   dockerdirectory:

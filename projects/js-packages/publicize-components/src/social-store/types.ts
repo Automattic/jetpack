@@ -91,6 +91,10 @@ export type SocialImageGeneratorConfig = {
 	template?: string;
 };
 
+export type UtmSettingsConfig = {
+	enabled: boolean;
+};
+
 export type SocialPluginSettings = {
 	publicize_active: boolean;
 	show_pricing_page: boolean;
@@ -103,4 +107,5 @@ export type SocialPluginSettings = {
 
 export type SocialSettingsFields = {
 	jetpack_social_image_generator_settings: SocialImageGeneratorConfig;
+	jetpack_social_utm_settings: UtmSettingsConfig;
 };

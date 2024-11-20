@@ -41,7 +41,7 @@ class Publicize_OG_Optimization_Test extends BaseTestCase {
 	 * @return Publicize The mocked publicize class
 	 */
 	private function mock_publicize_functions( $functions, $mocks ) {
-		$publicize = $this->getMockBuilder( Publicize::class )->setMethods( $functions )->getMock();
+		$publicize = $this->getMockBuilder( Publicize::class )->onlyMethods( $functions )->getMock();
 
 		// We set the return value for each mock in $mocks
 		foreach ( $functions as $index => $function ) {
@@ -156,7 +156,7 @@ class Publicize_OG_Optimization_Test extends BaseTestCase {
 	 * we won't proceed to reduce the file size.
 	 */
 	public function test_jetpack_social_open_graph_filter_compression_enough() {
-		$publicize = $this->getMockBuilder( Publicize::class )->setMethods(
+		$publicize = $this->getMockBuilder( Publicize::class )->onlyMethods(
 			array(
 				'get_social_opengraph_image',
 				'get_remote_filesize',
@@ -201,7 +201,7 @@ class Publicize_OG_Optimization_Test extends BaseTestCase {
 	 * we will proceed to reduce the file size.
 	 */
 	public function test_jetpack_social_open_graph_filter_full_flow() {
-		$publicize = $this->getMockBuilder( Publicize::class )->setMethods(
+		$publicize = $this->getMockBuilder( Publicize::class )->onlyMethods(
 			array(
 				'get_social_opengraph_image',
 				'get_remote_filesize',

@@ -30,6 +30,12 @@ type ImageFeatureControl = FeatureControl & {
 
 type AiImageType = 'featured-image-generation' | 'general-image-generation';
 type AiImageFeature = typeof FEATURED_IMAGE_FEATURE_NAME | typeof GENERAL_IMAGE_FEATURE_NAME;
+export type ImageResponse = {
+	image?: string;
+	libraryId?: string;
+	libraryUrl?: string;
+	revisedPrompt?: string;
+};
 
 export default function useAiImage( {
 	feature,
@@ -43,7 +49,7 @@ export default function useAiImage( {
 	autoStart?: boolean;
 } ) {
 	const { generateImageWithParameters } = useImageGenerator();
-	const { increaseRequestsCount } = useAiFeature();
+	const { increaseRequestsCount, featuresControl } = useAiFeature();
 	const { saveToMediaLibrary } = useSaveToMediaLibrary();
 	const { createNotice } = useDispatch( 'core/notices' );
 
@@ -52,8 +58,9 @@ export default function useAiImage( {
 	const [ current, setCurrent ] = useState( 0 );
 	const [ images, setImages ] = useState< CarrouselImages >( [ { generating: autoStart } ] );
 
-	const { featuresControl } = useAiFeature();
-	const imageFeatureControl = featuresControl?.image as ImageFeatureControl;
+	// map feature-to-control prop, if this goes over 2 options, make a hook for it
+	const featureControl = feature === FEATURED_IMAGE_FEATURE_NAME ? 'featured-image' : 'image';
+	const imageFeatureControl = featuresControl?.[ featureControl ] as ImageFeatureControl;
 	const imageStyles: Array< ImageStyleObject > = imageFeatureControl?.styles;
 
 	/* Merge the image data with the new data. */
@@ -115,7 +122,7 @@ export default function useAiImage( {
 			notEnoughRequests: boolean;
 			style?: string;
 		} ) => {
-			return new Promise( ( resolve, reject ) => {
+			return new Promise< ImageResponse >( ( resolve, reject ) => {
 				updateImages( { generating: true, error: null }, pointer.current );
 
 				// Ensure the site has enough requests to generate the image.
@@ -174,6 +181,7 @@ export default function useAiImage( {
 										image,
 										libraryId: savedImage?.id,
 										libraryUrl: savedImage?.url,
+										revisedPrompt: result.data[ 0 ].revised_prompt || '',
 									} );
 								} )
 								.catch( () => {
@@ -210,7 +218,11 @@ export default function useAiImage( {
 	}, [ current, images.length ] );
 
 	const guessStyle = useCallback(
-		async function ( prompt: string ): Promise< ImageStyle | null > {
+		async function (
+			prompt: string,
+			requestType: string = '',
+			content: string = ''
+		): Promise< ImageStyle | null > {
 			if ( ! imageStyles || ! imageStyles.length ) {
 				return null;
 			}
@@ -219,8 +231,9 @@ export default function useAiImage( {
 				{
 					role: 'jetpack-ai' as RoleType,
 					context: {
-						type: 'general-image-guess-style',
+						type: requestType || 'general-image-guess-style',
 						request: prompt,
+						content,
 					},
 				},
 			];

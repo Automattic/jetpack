@@ -42,6 +42,7 @@ export const AiModalPromptInput = ( {
 	prompt = '',
 	setPrompt = () => {},
 	disabled = false,
+	actionDisabled = false,
 	generateHandler = () => {},
 	placeholder = '',
 	buttonLabel = '',
@@ -49,12 +50,12 @@ export const AiModalPromptInput = ( {
 	prompt: string;
 	setPrompt: Dispatch< SetStateAction< string > >;
 	disabled: boolean;
+	actionDisabled: boolean;
 	generateHandler: () => void;
 	placeholder?: string;
 	buttonLabel?: string;
 } ) => {
 	const inputRef = useRef< HTMLDivElement | null >( null );
-	const hasPrompt = prompt?.length >= MINIMUM_PROMPT_LENGTH;
 
 	const onPromptInput = ( event: React.ChangeEvent< HTMLInputElement > ) => {
 		setPrompt( event.target.textContent || '' );
@@ -87,6 +88,21 @@ export const AiModalPromptInput = ( {
 		event.stopPropagation();
 	};
 
+	useEffect( () => {
+		// Update prompt text node when prop changes
+		if ( inputRef.current && inputRef.current.textContent !== prompt ) {
+			inputRef.current.textContent = prompt;
+		}
+	}, [ prompt ] );
+
+	// fix for contenteditable divs not being able to be cleared by the user
+	// as per default browser behavior
+	const onKeyUp = () => {
+		if ( inputRef.current?.textContent === '' ) {
+			inputRef.current.innerHTML = '';
+		}
+	};
+
 	return (
 		<div className="jetpack-ai-logo-generator__prompt-query">
 			<div
@@ -100,13 +116,14 @@ export const AiModalPromptInput = ( {
 				onInput={ onPromptInput }
 				onPaste={ onPromptPaste }
 				onKeyDown={ onKeyDown }
+				onKeyUp={ onKeyUp }
 				data-placeholder={ placeholder }
 			></div>
 			<Button
 				variant="primary"
 				className="jetpack-ai-logo-generator__prompt-submit"
 				onClick={ generateHandler }
-				disabled={ disabled || ! hasPrompt }
+				disabled={ actionDisabled }
 			>
 				{ buttonLabel || __( 'Generate', 'jetpack-ai-client' ) }
 			</Button>
@@ -264,6 +281,7 @@ export const Prompt = ( { initialPrompt = '' }: PromptProps ) => {
 				setPrompt={ setPrompt }
 				generateHandler={ onGenerate }
 				disabled={ isBusy || requireUpgrade }
+				actionDisabled={ isBusy || requireUpgrade || ! hasPrompt }
 				placeholder={ __(
 					'Describe your site or simply ask for a logo specifying some details about it',
 					'jetpack-ai-client'
