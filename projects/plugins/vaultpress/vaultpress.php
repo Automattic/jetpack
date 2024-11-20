@@ -16,7 +16,7 @@
 // don't call the file directly.
 defined( 'ABSPATH' ) || die();
 
-define( 'VAULTPRESS__MINIMUM_PHP_VERSION', '7.0' );
+define( 'VAULTPRESS__MINIMUM_PHP_VERSION', '7.2' );
 define( 'VAULTPRESS__VERSION', '3.0.0' );
 define( 'VAULTPRESS__PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 
@@ -390,12 +390,6 @@ class VaultPress {
 
 	// display a security threat notice if one exists
 	function toolbar( $wp_admin_bar ) {
-		global $wp_version;
-
-		// these new toolbar functions were introduced in 3.3
-		// http://codex.wordpress.org/Function_Reference/add_node
-		if ( version_compare( $wp_version, '3.3', '<') )
-			return;
 
 		if ( !current_user_can( 'manage_options' ) )
 			return;

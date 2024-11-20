@@ -312,7 +312,7 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Je
 			$mockbuilder = $this->getMockBuilder( 'Automattic\Jetpack\Publicize\Publicize' );
 		}
 
-		$this->publicize = $mockbuilder->setMethods( array( 'test_connection' ) )->getMock();
+		$this->publicize = $mockbuilder->onlyMethods( array( 'test_connection' ) )->getMock();
 		$this->publicize->method( 'test_connection' )
 			->withAnyParameters()
 			->willReturn( true );

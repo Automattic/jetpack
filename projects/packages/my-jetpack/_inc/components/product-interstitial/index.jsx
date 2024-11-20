@@ -32,8 +32,6 @@ import boostImage from './boost.png';
 import crmImage from './crm.png';
 import extrasImage from './extras.png';
 import searchImage from './search.png';
-import socialImage from './social.png';
-import statsImage from './stats.png';
 import styles from './style.module.scss';
 import videoPressImage from './videopress.png';
 
@@ -349,15 +347,6 @@ export function BoostInterstitial() {
 }
 
 /**
- * CreatorInterstitial component
- *
- * @return {object} CreatorInterstitial react component.
- */
-export function CreatorInterstitial() {
-	return <ProductInterstitial slug="creator" installsPlugin={ true } />;
-}
-
-/**
  * CRMInterstitial component
  *
  * @return {object} CRMInterstitial react component.
@@ -417,17 +406,7 @@ export function ScanInterstitial() {
  * @return {object} SocialInterstitial react component.
  */
 export function SocialInterstitial() {
-	return (
-		<ProductInterstitial slug="social" installsPlugin={ true }>
-			<img
-				src={ socialImage }
-				alt={ __(
-					'Image displaying logos of social media platforms supported by Jetpack Social.',
-					'jetpack-my-jetpack'
-				) }
-			/>
-		</ProductInterstitial>
-	);
+	return <ProductInterstitial slug="social" installsPlugin={ true } bundle="growth" />;
 }
 
 /**
@@ -471,15 +450,8 @@ export function StatsInterstitial() {
 			directCheckout={ true }
 			installsPlugin={ true }
 			ctaButtonLabel={ __( 'Get Stats', 'jetpack-my-jetpack' ) }
-		>
-			<img
-				src={ statsImage }
-				alt={ __(
-					'Illustration showing the Stats feature, highlighting important statistics for your site.',
-					'jetpack-my-jetpack'
-				) }
-			/>
-		</ProductInterstitial>
+			bundle="growth"
+		/>
 	);
 }
 

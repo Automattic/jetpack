@@ -144,7 +144,6 @@
 	"projects/plugins/crm/includes/ZeroBSCRM.MetaBoxes3.ExternalSources.php",
 	"projects/plugins/crm/includes/ZeroBSCRM.MetaBoxes3.Forms.php",
 	"projects/plugins/crm/includes/ZeroBSCRM.MetaBoxes3.Invoices.php",
-	"projects/plugins/crm/includes/ZeroBSCRM.MetaBoxes3.Locked.php",
 	"projects/plugins/crm/includes/ZeroBSCRM.MetaBoxes3.Logs.php",
 	"projects/plugins/crm/includes/ZeroBSCRM.MetaBoxes3.Ownership.php",
 	"projects/plugins/crm/includes/ZeroBSCRM.MetaBoxes3.QuoteTemplates.php",

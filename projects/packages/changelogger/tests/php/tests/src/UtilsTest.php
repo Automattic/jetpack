@@ -65,7 +65,7 @@ class UtilsTest extends TestCase {
 	 * Data provider for testRunCommand.
 	 */
 	public function provideRunCommand() {
-		$tmp = sys_get_temp_dir();
+		$tmp = realpath( sys_get_temp_dir() );
 
 		return array(
 			'true'                      => array(

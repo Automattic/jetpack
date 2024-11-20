@@ -99,9 +99,8 @@ Example response format:
  *
  * When an issue is first opened, parse its contents, send them to OpenAI,
  * and add labels if any matching labels can be found.
- * During testing, we'll run it for any issues, not just opened,
- * but only on issues with the "[Experiment] Automated labeling" label.
- * In that situation, we'll add a label to note that the issue was processed.
+ * During testing, we'll only run it for issues that are not labeled as "[Type] Task".
+ * When we auto-label, we'll add a label to note that the issue was processed.
  *
  * @param {WebhookPayloadIssue} payload - Issue event payload.
  * @param {GitHub}              octokit - Initialized Octokit REST client.
@@ -121,8 +120,8 @@ async function aiLabeling( payload, octokit ) {
 	}
 
 	if (
-		issueLabels.includes( '[Experiment] Automated labeling' ) &&
-		! issueLabels.includes( '[Experiment] AI labels added' )
+		! issueLabels.includes( '[Experiment] AI labels added' ) &&
+		! issueLabels.includes( '[Type] Task' )
 	) {
 		debug(
 			`triage-issues > auto-label: Fetching labels suggested by OpenAI for issue #${ number }`

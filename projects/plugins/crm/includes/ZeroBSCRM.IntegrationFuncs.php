@@ -227,8 +227,6 @@ function zeroBS_integrations_addOrUpdateCustomer($externalSource='',$externalID=
 
 	#} leave this true and it'll run as normal.
 	$usualUpdate = true;
-	
-	global $zbs;
 
 	$potentialCustomerIDfromEmail = false;
 
@@ -336,12 +334,6 @@ function zeroBS_integrations_addOrUpdateCustomer($externalSource='',$externalID=
 			#} Brutal add/update
 			#} MS - 3rd Jan 2019 - this (eventually) just calls the usual _addUpdateCustomer function
 			$customerID = zeroBS_addUpdateCustomer($potentialCustomerID,$customerFields,$externalSource,$externalID, $customerDate, $fallbackLogToPass, $extraMeta, $automatorPassthrough, -1, $fieldPrefix);
-
-
-			#} Update any title
-			if (!$zbs->isDAL2() && $customerID !== false) zbsCustomer_updateCustomerNameInPostTitle($customerID,false);
-
-
 			return $customerID;
 
 
@@ -951,8 +943,6 @@ function zeroBS_integrations_getAllCategories($incEmpty=false){
 
 	global $zbs;
 
-	if ($zbs->isDAL2()){
-
 		return array('zerobscrm_customertag' => $zbs->DAL->getTagsForObjType(array(
 
                 'objtypeid'=>ZBS_TYPE_CONTACT,
@@ -964,32 +954,6 @@ function zeroBS_integrations_getAllCategories($incEmpty=false){
                 'sortOrder'   => 'ASC'
 
                 )));
-
-	} else {
-
-		// DAL1
-
-		if (!$incEmpty){
-
-			$cats = array(
-				#'zerobscrm_worktag' => get_categories(array('taxonomy'=>'zerobscrm_worktag','orderby' => 'name','order'=> 'ASC'))#,
-				#Other Tags? 
-				'zerobscrm_customertag' => get_categories(array('taxonomy'=>'zerobscrm_customertag','orderby' => 'name','order'=> 'ASC'))
-			);
-
-		} else {
-
-			$cats = array(
-				#'zerobscrm_worktag' => get_categories(array('taxonomy'=>'zerobscrm_worktag','orderby' => 'name','order'=> 'ASC'))#,
-				#Other Tags? 
-				'zerobscrm_customertag' => get_terms(array('taxonomy'=>'zerobscrm_customertag','orderby' => 'name','order'=> 'ASC','hide_empty' => false))
-			);
-
-		}
-
-	}
-
-	return $cats;
 
 }
 
@@ -1055,8 +1019,7 @@ function zeroBS_integrations_getCustomFields($objTypeID=-1){
 
 		global $zbs;
 
-		if ($zbs->isDAL2())
-			return $zbs->DAL->getActiveCustomFields(array('objtypeid'=>$objTypeID));
+		return $zbs->DAL->getActiveCustomFields( array( 'objtypeid' => $objTypeID ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase,WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 	}
 

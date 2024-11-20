@@ -144,9 +144,12 @@ function AiAssistantBlockToolbarDropdownContent( {
 		tracks.recordEvent( 'jetpack_ai_assistant_prompt_show', { block_type: blockType } );
 	};
 
+	const [ clientId ] = getSelectedBlockClientIds();
+
 	return (
 		<AiAssistantToolbarDropdownContent
 			blockType={ blockType }
+			clientId={ clientId }
 			onRequestSuggestion={ requestSuggestion }
 			onAskAiAssistant={ replaceWithAiAssistantBlock }
 			disabled={ noContent }

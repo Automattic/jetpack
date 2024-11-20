@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Stast: removed cache for purchases and usage endpoints
