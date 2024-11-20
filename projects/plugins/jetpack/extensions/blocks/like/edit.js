@@ -11,10 +11,17 @@ import './editor.scss';
 function LikeEdit( { attributes, setAttributes } ) {
 	const blockProps = useBlockProps();
 	const showReblogButton = attributes?.showReblogButton || false;
+	const showAvatars = attributes?.showAvatars || true;
 
 	const handleReblogSetting = newValue => {
 		setAttributes( {
 			showReblogButton: newValue,
+		} );
+	};
+
+	const handleShowAvatarsSetting = newValue => {
+		setAttributes( {
+			showAvatars: newValue,
 		} );
 	};
 
@@ -34,8 +41,8 @@ function LikeEdit( { attributes, setAttributes } ) {
 						</ExternalLink>
 					</div>
 				) }
-				{ isSimpleSite() && (
-					<PanelBody title={ __( 'Settings', 'jetpack' ) }>
+				<PanelBody title={ __( 'Settings', 'jetpack' ) }>
+					{ isSimpleSite() && (
 						<ToggleControl
 							label={ __( 'Show reblog button', 'jetpack' ) }
 							checked={ showReblogButton }
@@ -44,8 +51,16 @@ function LikeEdit( { attributes, setAttributes } ) {
 							} }
 							__nextHasNoMarginBottom={ true }
 						/>
-					</PanelBody>
-				) }
+					) }
+					<ToggleControl
+						label={ __( 'Show avatars', 'jetpack' ) }
+						checked={ showAvatars }
+						onChange={ newValue => {
+							handleShowAvatarsSetting( newValue );
+						} }
+						__nextHasNoMarginBottom={ true }
+					/>
+				</PanelBody>
 			</InspectorControls>
 			<div className="wpl-likebox wpl-new-layout">
 				{ isSimpleSite() && showReblogButton && (
@@ -65,21 +80,23 @@ function LikeEdit( { attributes, setAttributes } ) {
 						<span>{ __( 'Like', 'jetpack' ) }</span>
 					</a>
 				</div>
-				<ul className="wpl-avatars">
-					{ avatars.map( ( avatar, i ) => (
-						<li key={ `liker-${ i }` } className="wp-liker-me">
-							<a className="wpl-liker" href="#" rel="nofollow" onClick={ preventDefault }>
-								<img
-									src={ avatar }
-									className="avatar avatar-30"
-									width={ 30 }
-									height={ 30 }
-									alt=""
-								/>
-							</a>
-						</li>
-					) ) }
-				</ul>
+				{ showAvatars && (
+					<ul className="wpl-avatars">
+						{ avatars.map( ( avatar, i ) => (
+							<li key={ `liker-${ i }` } className="wp-liker-me">
+								<a className="wpl-liker" href="#" rel="nofollow" onClick={ preventDefault }>
+									<img
+										src={ avatar }
+										className="avatar avatar-30"
+										width={ 30 }
+										height={ 30 }
+										alt=""
+									/>
+								</a>
+							</li>
+						) ) }
+					</ul>
+				) }
 				<div className="wpl-count">
 					<span className="wpl-count-text">
 						<a href="#" onClick={ preventDefault }>
