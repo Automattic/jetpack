@@ -20,6 +20,9 @@
 		'**/test/**',
 		'**/tests/!(e2e)/**',
 		'**/__fixtures__/**',
+		// Old unused wpcomsh stuff that we're only keeping temporarily until we figure out how to properly replace it.
+		'**/projects/plugins/wpcomsh/.circleci/**',
+		'**/projects/plugins/wpcomsh/.github/**',
 	],
 
 	packageRules: [
