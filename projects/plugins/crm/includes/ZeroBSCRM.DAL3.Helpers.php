@@ -3840,29 +3840,20 @@ function zeroBS_getCompanyIDWithName( $company_name = '' ) {
 				return $zbs->DAL->quotes->getQuotes($args);
 	}
 
-	// Please use direct dal calls in future work.
-	function zeroBS_getQuoteTemplate($quoteTemplateID=-1){
+// Please use direct dal calls in future work.
+// phpcs:ignore Squiz.Commenting.FunctionComment.WrongStyle
+function zeroBS_getQuoteTemplate( $quoteTemplateID = -1 ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,Squiz.Commenting.FunctionComment.Missing
 
-		if ($quoteTemplateID > 0){
-			
-			/*
-			return array(
-			'id'=>$tID,
-			'meta'=>get_post_meta($tID, 'zbs_quotemplate_meta', true),
-			'zbsdefault'=>get_post_meta($tID, 'zbsdefault', true),
-			'content'=> get_post_field('post_content', $tID) #http://wordpress.stackexchange.com/questions/9667/get-wordpress-post-content-by-post-id
-			);
-			*/
+	if ( $quoteTemplateID > 0 ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
-			global $zbs;
+		global $zbs;
 
-			return $zbs->DAL->quotetemplates->getQuotetemplate($quoteTemplateID);
+		return $zbs->DAL->quotetemplates->getQuotetemplate( $quoteTemplateID ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase,WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
-		}
-		
-		return false; 
+	}
 
-	} 
+	return false;
+}
 
 	// Please use direct dal calls in future work.
 	function zeroBS_getQuoteTemplates($withFullDetails=false,$perPage=10,$page=0,$searchPhrase=''){
