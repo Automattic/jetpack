@@ -96,7 +96,7 @@ function render_block( $attr, $content, $block ) {
 		$bloginfo           = get_blog_details( (int) $blog_id );
 		$domain             = $bloginfo->domain;
 		$reblog_param       = $show_reblog_button ? '&amp;reblog=1' : '';
-		$show_avatars_param = $show_avatars ? '&amp;__TODO__=1' : '';
+		$show_avatars_param = $show_avatars ? '&amp;slim=1' : '';
 		$src                = sprintf( '//widgets.wp.com/likes/index.html?ver=%1$s#blog_id=%2$d&amp;post_id=%3$d&amp;origin=%4$s&amp;obj_id=%2$d-%3$d-%5$s%6$s&amp;block=1%7$s%8$s', rawurlencode( JETPACK__VERSION ), $blog_id, $post_id, $domain, $uniqid, $new_layout, $reblog_param, $show_avatars_param );
 
 		// provide the mapped domain when needed
@@ -109,7 +109,7 @@ function render_block( $attr, $content, $block ) {
 		$url                = home_url();
 		$url_parts          = wp_parse_url( $url );
 		$domain             = $url_parts['host'];
-		$show_avatars_param = $show_avatars ? '&amp;__TODO__=1' : '';
+		$show_avatars_param = $show_avatars ? '&amp;slim=1' : '';
 		$src                = sprintf( 'https://widgets.wp.com/likes/?ver=%1$s#blog_id=%2$d&amp;post_id=%3$d&amp;origin=%4$s&amp;obj_id=%2$d-%3$d-%5$s%6$s&amp;block=1%7$s', rawurlencode( JETPACK__VERSION ), $blog_id, $post_id, $domain, $uniqid, $new_layout, $show_avatars_param );
 	}
 
