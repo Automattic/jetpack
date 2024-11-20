@@ -1186,13 +1186,13 @@ class REST_Controller {
 				Jetpack_Options::get_option( 'id' ),
 				$this->filter_and_build_query_string(
 					$req->get_query_params()
-				),
-				'v1.1',
-				array( 'timeout' => 10 ),
-				null,
-				'rest',
-				false
-			)
+				)
+			),
+			'v1.1',
+			array( 'timeout' => 10 ),
+			null,
+			'rest',
+			false
 		);
 	}
 
