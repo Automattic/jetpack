@@ -119,6 +119,14 @@ async function aiLabeling( payload, octokit ) {
 		return;
 	}
 
+	// If the issue already has [Feature] or [Feature Group] labels, bail.
+	if ( issueLabels.some( label => label.startsWith( '[Feature' ) ) ) {
+		debug(
+			`triage-issues > auto-label: Issue #${ number } already has [Feature] or [Feature Group] labels. Skipping.`
+		);
+		return;
+	}
+
 	if (
 		! issueLabels.includes( '[Experiment] AI labels added' ) &&
 		! issueLabels.includes( '[Type] Task' )
