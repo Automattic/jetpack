@@ -682,7 +682,8 @@ class Jetpack {
 		add_action( 'wp_head', array( $this, 'start_head_capture' ), 0 );
 		add_action( 'wp_head', array( $this, 'check_open_graph' ), 9999 );
 		// TODO: Check if the OG tag detection breaks web stories.
-		add_action( 'web_stories_story_head', array( $this, 'check_open_graph' ), 1 );
+		add_action( 'web_stories_story_head', array( $this, 'start_head_capture' ), 0 );
+		add_action( 'web_stories_story_head', array( $this, 'check_open_graph' ), 9999 );
 		add_action( 'plugins_loaded', array( $this, 'check_twitter_tags' ), 999 );
 		add_action( 'plugins_loaded', array( $this, 'check_rest_api_compat' ), 1000 );
 
