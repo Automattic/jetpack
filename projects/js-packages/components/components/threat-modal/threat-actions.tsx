@@ -3,6 +3,7 @@ import { type Threat, getDetailedFixerAction } from '@automattic/jetpack-scan';
 import { __ } from '@wordpress/i18n';
 import React, { useCallback, useContext, useMemo } from 'react';
 import styles from './styles.module.scss';
+import ThreatNotice from './threat-notice';
 import { ThreatModalContext } from '.';
 
 /**
@@ -61,6 +62,7 @@ const ThreatActions = ( {
 
 	return (
 		<div className={ styles[ 'modal-actions' ] }>
+			<ThreatNotice fixerState={ fixerState } />
 			{ threat.status === 'ignored' && (
 				<Button
 					disabled={ disabled }

@@ -3,7 +3,6 @@ import { __ } from '@wordpress/i18n';
 import ConnectionWarning from './connection-warning';
 import ThreatActions from './threat-actions';
 import ThreatFixDetails from './threat-fix-details';
-import ThreatNotice from './threat-notice';
 import ThreatSummary from './threat-summary';
 import ThreatTechnicalDetails from './threat-technical-details';
 
@@ -36,7 +35,6 @@ const ThreatFixConfirmation = ( {
 } ) => {
 	return (
 		<>
-			<ThreatNotice fixerState={ fixerState } />
 			<ThreatSummary threat={ threat } />
 			<ThreatTechnicalDetails threat={ threat } />
 			<ThreatFixDetails threat={ threat } handleUpgradeClick={ handleUpgradeClick } />
