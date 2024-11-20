@@ -775,7 +775,9 @@
 
                         // v3.0+ we use hash urls, so check exists
                         $dal3HashCheck = true; 
-                        if ($zbs->isDAL3() && (!isset($quote['hash']) || empty($quote['hash']))) $dal3HashCheck = false;
+					if ( ( ! isset( $quote['hash'] ) || empty( $quote['hash'] ) ) ) {
+						$dal3HashCheck = false; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+					}
 
                         if (isset($contactEmail) && !empty($contactEmail) && zeroBSCRM_validateEmail($contactEmail) && (!$useHash || ($useHash && $dal3HashCheck))){
 

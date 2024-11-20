@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.0.1] - 2024-11-18
+### Changed
+- Update dependencies. [#39855]
+
 ## [4.0.0] - 2024-11-14
 ### Added
 - Backup: added next daily backup schedule time on admin page [#39914]
@@ -266,8 +270,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.17.4] - 2023-09-04
 ### Changed
-- Updated package dependencies. [#32803]
-- Updated package dependencies. [#32804]
+- Updated package dependencies. [#32803] [#32804]
 
 ## [1.17.3] - 2023-08-28
 ### Added
@@ -737,6 +740,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add API endpoints and Jetpack Backup package for managing Help…
 
+[4.0.1]: https://github.com/Automattic/jetpack-backup/compare/v4.0.0...v4.0.1
 [4.0.0]: https://github.com/Automattic/jetpack-backup/compare/v3.4.17...v4.0.0
 [3.4.17]: https://github.com/Automattic/jetpack-backup/compare/v3.4.16...v3.4.17
 [3.4.16]: https://github.com/Automattic/jetpack-backup/compare/v3.4.15...v3.4.16

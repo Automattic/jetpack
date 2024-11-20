@@ -2,6 +2,35 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 14.1-a.3 - 2024-11-18
+### Major Enhancements
+- General: Update minimum PHP version to 7.2. [#40147]
+- General: Update minimum WordPress version to 6.6. [#40146]
+
+### Enhancements
+- Social: Added a new toggle for Social UTM tracking. [#39998]
+- Use wp_register_block_metadata_collection() on WordPress 6.7+ to improve block registration performance by reducing filesystem operations. (See https://core.trac.wordpress.org/changeset/59132) [#40064]
+
+### Improved compatibility
+- Dashboard: Fix toggle component to prevent console warnings. [#40164]
+
+### Bug fixes
+- Comments: Fix reload after posting. [#40140]
+- Forms: Fix an error occurring due to a function receiving an unexpected input type. [#40183]
+- Subscriptions: Fix template preview and edit links for three toggle settings. [#40142]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- AI Assistant: Adding "transform list into table" functionality back to AI Assistant. [#40148]
+- AI Assistant: Add styles support for featured image AI modal. [#40113]
+- AI Assistant: Hotfix for input disabled bug (https://github.com/Automattic/wp-calypso/issues/96430). [#40198]
+- AI Assistant: Make sure we validate that the new option exists. [#40186]
+- AI Assistant: Only display "turn list into table" menu item for top-level lists. [#40177]
+- Backup: Add "next daily backup" schedule time on admin page. [#39914]
+- Dashboard: Fix bug with connection cards in "promotions disabled" mode. [#40179]
+- Plans: Add Jetpack Growth constants to prevent error on My Plan section. [#40176]
+- Podcast Player Block: Fix "Uncaught TypeError" error. [#40121]
+- Social: Added UTM option to sync. [#40144]
+
 ## 14.1-a.1 - 2024-11-11
 ### Enhancements
 - My Jetpack: Update the recommendations section in My Jetpack to include a slider interaction for the cards. [#39850]
@@ -224,9 +253,7 @@
 - Title Optimization: Handle enter/return key to trigger a generation when they are pressed. [#39399]
 - Title Optimization: improve button behaviors when handling errors. [#39554]
 - Title Optimization: Properly handle errors and show the correct UI for each. [#39340]
-- Updated package dependencies. [#39176] [#39278] [#39288]
-- Updated package dependencies. [#39302]
-- Updated package dependencies. [#39332]
+- Updated package dependencies. [#39176] [#39278] [#39288] [#39302] [#39332]
 - Updated to not check for onboarding option from the frontend. [#39246]
 - WP.com: Ensure portfolios are enabled and working properly on themes that support portfolios. [#39431]
 - Write Brief: Turn spelling mistakes and long sentences on by default when the tool is enabled. [#39495]
@@ -597,8 +624,7 @@
 - Stats: Point post stats icon to wp-admin. [#38013]
 - Subscribe overlay: Use home URL in skip link. [#37711]
 - Top Posts & Pages Block: Require that one content type is always set to display. [#36305]
-- Updated package dependencies. [#37669] [#37706]
-- Updated package dependencies. [#37767] [#37776] [#37795] [#37796]
+- Updated package dependencies. [#37669] [#37706] [#37767] [#37776] [#37795] [#37796]
 - Updated recommendation links for Social. [#37693]
 - Updated recommendations section links for Social. [#37678]
 - Use correct const to check for inline extensions availability. [#37758]
@@ -709,8 +735,7 @@
 - Subscriptions: Subscription overlay fixes. [#37503]
 - Tiled Gallery: Fix view rendering issues. [#37213]
 - Tiled Gallery: Force image aspect ratio for square and circle styles. [#37627]
-- Updated package dependencies. [#36964]
-- Updated package dependencies. [#37348] [#37379] [#37380] [#37382]
+- Updated package dependencies. [#36964] [#37348] [#37379] [#37380] [#37382]
 - Updated phan baseline files. [#37151]
 - Update invite user error response logging. [#37144]
 - Update sizes and spacings on Title Optimization. [#37333]
@@ -983,9 +1008,7 @@
 - Untangle: explicitly use Core admin bar color in Calypso color schemes [#36341]
 - Untangling: return untangled admin menu from wpcom/v2/admin-menu endpoint for early classic view. [#36601]
 - Update code references in docs and comments. [#36234]
-- Updated package dependencies. [#36309, #36325]
-- Updated package dependencies. [#36401]
-- Updated package dependencies. [#36585]
+- Updated package dependencies. [#36309] [#36325] [#36401] [#36585]
 - Update lockfiles. [#36195]
 - Update notification icon in top bar [#36297]
 - Use correct links in Settings -> Traffic -> GA when admin interface is wp-admin [#36493]
@@ -1421,8 +1444,7 @@
 - Fix failing E2E tests [#34796]
 - In editor view, the Like block now shows or hides the reblog button according to sidebar config [#34831]
 - Social: Removed obsolete code for Tweetstorms [#34330]
-- Updated package dependencies. [#34815]
-- Updated package dependencies. [#34816]
+- Updated package dependencies. [#34815] [#34816]
 
 ## 13.0-a.11 - 2024-01-02
 ### Bug fixes
@@ -2507,8 +2529,7 @@
 - Fix typo [#31977]
 - Sites API: add was_migration_trial flag to data returned for site details. [#31907]
 - Transferred 'get_calypso_env()' method from Jetpack class to the Status package. [#31906]
-- Updated package dependencies. [#31923]
-- Updated package dependencies. [#32040]
+- Updated package dependencies. [#31923] [#32040]
 - Update props passed to JetpackFooter [#31627]
 - Whitelist jetpack_memberships_site_subscriber post meta to allow for syncing to WordPress.com [#31956]
 - Widget Visibility: add new filter to allow third-parties to add Widget Visibility support to their own blocks. [#31928]
@@ -2591,8 +2612,7 @@
 - Add wpcom_site_setup property to /sites/{siteId} endpoint [#31664]
 - Dashboard: update wording for Custom CSS section when using a Block theme. [#31634]
 - Sync wpcom_site_setup site option [#31662]
-- Updated package dependencies. [#31659]
-- Updated package dependencies. [#31661]
+- Updated package dependencies. [#31659] [#31661]
 - WordPress.com Toolbar: only add Blaze Dashboard link once. [#31617]
 
 ## [12.3] - 2023-07-05
