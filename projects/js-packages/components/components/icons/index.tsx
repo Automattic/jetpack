@@ -234,6 +234,18 @@ export const AiIcon: React.FC< BaseIconProps > = ( {
 	);
 };
 
+export const StatsIcon: React.FC< BaseIconProps > = ( { opacity = 1, size, color } ) => {
+	return (
+		<IconWrapper size={ size } opacity={ opacity } color={ color }>
+			<Path
+				fillRule="evenodd"
+				clipRule="evenodd"
+				d="M11.25 5H12.75V20H11.25V5ZM6 10H7.5V20H6V10ZM18 14H16.5V20H18V14Z"
+			/>
+		</IconWrapper>
+	);
+};
+
 const jetpackIcons = {
 	'anti-spam': AntiSpamIcon,
 	backup: BackupIcon,
@@ -249,6 +261,7 @@ const jetpackIcons = {
 	jetpack: JetpackIcon,
 	share: ShareIcon,
 	ai: AiIcon,
+	stats: StatsIcon,
 };
 
 const iconsMap = {

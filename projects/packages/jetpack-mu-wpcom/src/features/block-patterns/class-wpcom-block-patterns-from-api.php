@@ -28,7 +28,7 @@ class Wpcom_Block_Patterns_From_Api {
 	 *
 	 * @param Wpcom_Block_Patterns_Utils|null $utils       A class dependency containing utils methods.
 	 */
-	public function __construct( Wpcom_Block_Patterns_Utils $utils = null ) {
+	public function __construct( ?Wpcom_Block_Patterns_Utils $utils = null ) {
 		$this->utils = empty( $utils ) ? new Wpcom_Block_Patterns_Utils() : $utils;
 	}
 

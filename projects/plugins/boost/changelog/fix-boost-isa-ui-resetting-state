@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Image Size Analysis: Fix UI not properly reflecting current state after interaction.

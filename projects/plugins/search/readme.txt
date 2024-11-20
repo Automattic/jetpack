@@ -1,8 +1,8 @@
 === Jetpack Search ===
 Contributors: automattic, annamcphee, bluefuton, kangzj, jsnmoon, robfelty, gibrown, trakos, dognose24, a8ck3n
 Tags: search, filter, woocommerce search, ajax search, product search, free cloud-based search
-Requires at least: 6.5
-Requires PHP: 7.0
+Requires at least: 6.6
+Requires PHP: 7.2
 Tested up to: 6.7
 Stable tag: 1.4.0
 License: GPLv2 or later

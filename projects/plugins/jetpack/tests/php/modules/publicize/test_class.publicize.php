@@ -131,7 +131,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 
 	private function setup_publicize_mock() {
 		global $publicize;
-		$this->publicize = $this->getMockBuilder( Publicize::class )->setMethods( array( 'test_connection' ) )->getMock();
+		$this->publicize = $this->getMockBuilder( Publicize::class )->onlyMethods( array( 'test_connection' ) )->getMock();
 
 		$this->publicize->method( 'test_connection' )
 			->withAnyParameters()
