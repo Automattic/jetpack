@@ -2,7 +2,8 @@
 
 set -eo pipefail
 
-LC_ALL=C.UTF-8
+# Ensure consistent sorting.
+export LC_ALL=C.UTF-8
 
 BASE=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 
@@ -11,7 +12,7 @@ DIR="$(mktemp -d "${TMPDIR%/}/codesniffer-build-compat-rulesets.XXXXXXXX")"
 trap 'rm -rf "$DIR"' EXIT
 cd "$DIR"
 
-PHP_VERSIONS=( 7.2 7.3 7.4 8.0 8.1 8.2 8.3 )
+PHP_VERSIONS=( 7.2 7.3 7.4 8.0 8.1 8.2 8.3 8.4 )
 
 function info {
 	printf '\n\e[1m%s\e[0m\n' "$*"

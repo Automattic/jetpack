@@ -17,7 +17,6 @@ import {
 	BackupInterstitial,
 	BoostInterstitial,
 	CRMInterstitial,
-	CreatorInterstitial,
 	ExtrasInterstitial,
 	JetpackAiInterstitial,
 	ProtectInterstitial,
@@ -70,7 +69,6 @@ const MyJetpack = () => {
 								<Route path={ MyJetpackRoutes.AddBackup } element={ <BackupInterstitial /> } />
 								<Route path={ MyJetpackRoutes.AddBoost } element={ <BoostInterstitial /> } />
 								<Route path={ MyJetpackRoutes.AddCRM } element={ <CRMInterstitial /> } />
-								<Route path={ MyJetpackRoutes.AddCreator } element={ <CreatorInterstitial /> } />
 								<Route
 									path={ MyJetpackRoutes.AddJetpackAI }
 									element={ <JetpackAiInterstitial /> }
