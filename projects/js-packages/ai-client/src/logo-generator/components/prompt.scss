@@ -64,6 +64,10 @@
 			color: var(--studio-gray-50, #646970);
 		}
 
+		&:not([contentEditable="false"]) {
+			cursor: text;
+		}
+
 		&[data-placeholder]:empty::before {
 			content: attr(data-placeholder);
 			color: var(--studio-gray-50, #646970);
