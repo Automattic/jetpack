@@ -260,8 +260,7 @@ function jpcrm_render_dashboard_page() {
 							$log_wp_user = get_userdata( $log['owner'] );
 							// If the WP user still exists, grab their email and generate a gravatar URL.
 							if ( $log_wp_user ) {
-								$log_email  = $log_wp_user->user_email;
-								$log_avatar = zeroBSCRM_getGravatarURLfromEmail( $log_email, 28 );
+								$log_avatar = zeroBSCRM_getGravatarURLfromEmail( $log_wp_user->user_email, 28 );
 							}
 							$unixts = gmdate( 'U', strtotime( $log['created'] ) );
 							$diff   = human_time_diff( $unixts, current_time( 'timestamp' ) ); // phpcs:ignore WordPress.DateTime.CurrentTimeTimestamp.Requested
