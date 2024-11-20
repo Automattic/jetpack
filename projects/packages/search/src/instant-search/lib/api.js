@@ -263,6 +263,7 @@ function generateApiQueryString( {
 	isInCustomizer = false,
 	additionalBlogIds = [],
 	highlightFields = [ 'title', 'content', 'comments' ],
+	customResults = [],
 } ) {
 	if ( query === null ) {
 		query = '';
@@ -332,6 +333,28 @@ function generateApiQueryString( {
 		params.fields = fields.concat( [ 'author', 'blog_name', 'blog_icon_url', 'blog_id' ] );
 		params.additional_blog_ids = additionalBlogIds;
 	}
+
+	// Support customized search results by promoting certain documents to the top for specific queries
+	// By default we do exact matches, but also allow for regex, if the pattern
+	// starts with "regex:". For regex, we anchor the pattern to the start and
+	// end of the query. If the user really wants to match anywhere within the
+	// query, they can use for example ".*hello.*"
+	//
+	customResults.every( rule => {
+		let pattern = rule.pattern;
+		const postIds = rule.ids;
+		if ( pattern.startsWith( 'regex:' ) ) {
+			pattern = '^' + pattern.replace( 'regex:', '' ) + '$';
+			if ( query.match( pattern ) ) {
+				params.custom_results = postIds;
+				return false;
+			}
+		} else if ( query === pattern ) {
+			params.custom_results = postIds;
+			return false;
+		}
+		return true;
+	} );
 
 	if ( staticFilters && Object.keys( staticFilters ).length > 0 ) {
 		params = {

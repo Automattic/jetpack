@@ -1,0 +1,4 @@
+Significance: minor
+Type: deprecated
+
+Using getChangesBySubheading() with a param now throws an exception.

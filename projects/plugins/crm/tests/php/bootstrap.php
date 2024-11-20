@@ -63,7 +63,7 @@ EOF
 // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 echo "Using test root $test_root\n";
 
-if ( ! is_readable( $_plugin_root . '/vendor/autoload.php' ) ) {
+if ( ! is_readable( $_plugin_root . '/vendor/autoload_packages.php' ) ) {
 	echo 'The plugin is not ready for testing.' . PHP_EOL;
 	echo PHP_EOL;
 	echo 'Composer dependencies must be installed.' . PHP_EOL;

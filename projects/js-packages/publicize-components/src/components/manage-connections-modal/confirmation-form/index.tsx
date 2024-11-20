@@ -220,10 +220,15 @@ export function ConfirmationForm( { keyringResult, onComplete, isAdmin }: Confir
 									: index === 0;
 
 								return (
-									// eslint-disable-next-line jsx-a11y/label-has-associated-control -- https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/issues/869
-									<label key={ option.value } className={ styles[ 'account-label' ] } aria-required>
+									<label
+										key={ option.value }
+										htmlFor={ `external_user_ID__${ option.value }` }
+										className={ styles[ 'account-label' ] }
+										aria-required
+									>
 										<input
 											type="radio"
+											id={ `external_user_ID__${ option.value }` }
 											name="external_user_ID"
 											value={ option.value }
 											defaultChecked={ defaultChecked }
