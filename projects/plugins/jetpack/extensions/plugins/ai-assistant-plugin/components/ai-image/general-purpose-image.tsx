@@ -48,6 +48,7 @@ export default function GeneralPurposeImage( {
 	const { saveToMediaLibrary } = useSaveToMediaLibrary();
 	const { tracks } = useAnalytics();
 	const { recordEvent } = tracks;
+	const [ prompt, setPrompt ] = useState( '' );
 
 	// Get feature data
 	const { requireUpgrade, requestsCount, requestsLimit, currentTier, costs } = useAiFeature();
@@ -79,6 +80,10 @@ export default function GeneralPurposeImage( {
 		type: 'general-image-generation',
 		feature: GENERAL_IMAGE_FEATURE_NAME,
 	} );
+
+	const hasPrompt = prompt.length >= 3;
+	const disableInput = notEnoughRequests || currentPointer?.generating || requireUpgrade;
+	const disableAction = disableInput || ! hasPrompt;
 
 	const handleModalClose = useCallback( () => {
 		setIsFeaturedImageModalVisible( false );
@@ -276,6 +281,10 @@ export default function GeneralPurposeImage( {
 			instructionsPlaceholder={ __( "Describe the image you'd like to create.", 'jetpack' ) }
 			imageStyles={ imageStyles }
 			onGuessStyle={ guessStyle }
+			prompt={ prompt }
+			setPrompt={ setPrompt }
+			inputDisabled={ disableInput }
+			actionDisabled={ disableAction }
 		/>
 	);
 }

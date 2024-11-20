@@ -10,8 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Enable test coverage. [#39961]
 
 ### Changed
-- Updated package dependencies. [#39898]
-- Updated package dependencies. [#39910]
+- Updated package dependencies. [#39898] [#39910]
 
 ## [0.5.12] - 2024-09-25
 ### Security
@@ -34,8 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.5.9] - 2024-06-21
 ### Changed
-- Updated package dependencies. [#37796]
-- Updated package dependencies. [#37830]
+- Updated package dependencies. [#37796] [#37830]
 
 ## [0.5.8] - 2024-03-29
 ### Changed
@@ -59,9 +57,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.5.4] - 2023-10-26
 ### Changed
-- Updated package dependencies. [#32957]
-- Updated package dependencies. [#33567]
-- Updated package dependencies. [#33569]
+- Updated package dependencies. [#32957] [#33567] [#33569]
 
 ## [0.5.3] - 2023-09-13
 ### Changed

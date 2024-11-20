@@ -84,10 +84,10 @@ export const EmailForm = ( { shouldShowEmailForm }: EmailFormProps ) => {
 			{ shouldShowEmailForm && (
 				<div className="verbum-form__wrapper">
 					<div className="verbum-form__content">
-						{ /* eslint-disable-next-line jsx-a11y/label-has-associated-control -- https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/issues/869 */ }
-						<label className="verbum__label">
+						<label htmlFor="verbum-email-form-email" className="verbum__label">
 							<Email />
 							<input
+								id="verbum-email-form-email"
 								className={ clsx( 'verbum-form__email', {
 									'invalid-form-data': isValidEmail.value === false && isEmailTouched.value,
 								} ) }
@@ -108,10 +108,10 @@ export const EmailForm = ( { shouldShowEmailForm }: EmailFormProps ) => {
 							/>
 						</label>
 
-						{ /* eslint-disable-next-line jsx-a11y/label-has-associated-control -- https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/issues/869 */ }
-						<label className="verbum__label">
+						<label htmlFor="verbum-email-form-name" className="verbum__label">
 							<Name />
 							<input
+								id="verbum-email-form-name"
 								className={ clsx( 'verbum-form__name', {
 									'invalid-form-data': isValidAuthor.value === false && isNameTouched.value,
 								} ) }
@@ -130,10 +130,10 @@ export const EmailForm = ( { shouldShowEmailForm }: EmailFormProps ) => {
 							/>
 						</label>
 
-						{ /* eslint-disable-next-line jsx-a11y/label-has-associated-control -- https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/issues/869 */ }
-						<label className="verbum__label">
+						<label htmlFor="verbum-email-form-website" className="verbum__label">
 							<Website />
 							<input
+								id="verbum-email-form-website"
 								className="verbum-form__website"
 								type="text"
 								spellCheck={ false }

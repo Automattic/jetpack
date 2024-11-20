@@ -4,7 +4,6 @@ defined( 'ABSPATH' ) or die();
 
 class VaultPress_Hotfixes {
 	function __construct() {
-		global $wp_version;
 
 		add_filter( 'option_new_admin_email', array( $this, 'r18346_sanitize_admin_email' ) );
 
@@ -15,18 +14,6 @@ class VaultPress_Hotfixes {
 
 		// Protect WooCommerce from object injection via PayPal IPN notifications. Affects 2.0.20 -> 2.3.10
 		add_action( 'init', array( $this , 'protect_woocommerce_paypal_object_injection' ), 1 );
-
-		if ( version_compare( $wp_version, '4.7.1', '<=' ) ) {
-			// Protect WordPress 4.4 - 4.7.1 against WP REST type abuse
-			if ( version_compare( $wp_version, '4.4', '>=' ) ) {
-				add_filter( 'rest_pre_dispatch', array( $this, 'protect_rest_type_juggling' ), 10, 3 );
-			}
-
-			//	Protect WordPress 4.0 - 4.7.1 against faulty youtube embeds
-			if ( version_compare( $wp_version, '4.0', '>=' ) ) {
-				$this->protect_youtube_embeds();
-			}
-		}
 	}
 
 	function protect_rest_type_juggling( $replace, $server, $request ) {
