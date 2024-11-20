@@ -168,7 +168,7 @@ class zeroBS__Metabox_LogsV2 extends zeroBS__Metabox {
             // needs conversion to set this v3+
             // // obj type (1 => zerobs_customer)
             // we load from DAL defaults, if objTypeID passed (overriding anything passed, if empty/false)
-            if (isset($this->objtypeid)){ //$zbs->isDAL3() && 
+		if ( isset( $this->objtypeid ) ) {
 
                 $objTypeID = (int)$this->objtypeid;
                 if ($objTypeID > 0){
