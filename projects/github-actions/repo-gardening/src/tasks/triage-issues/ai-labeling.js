@@ -104,7 +104,7 @@ Example response format:
  */
 function cleanIssueContent( content ) {
 	// Remove links in the format [link text](url), but keep the link text.
-	content = content.replace( /\[(.*?)\]\(https?:\/\/\S+\)/g, '$1' );
+	content = content.replace( /\[(.*?)\](?:\([^)]+\))?/g, '$1' );
 
 	// Remove links in the format <a href="url">link text</a>, but keep the link text.
 	content = content.replace( /<a href="https?:\/\/\S+">(.*?)<\/a>/g, '$1' );
