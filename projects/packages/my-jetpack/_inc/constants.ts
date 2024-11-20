@@ -11,7 +11,6 @@ export const MyJetpackRoutes = {
 	AddBackup: '/add-backup',
 	AddBoost: '/add-boost',
 	AddCRM: '/add-crm',
-	AddCreator: '/add-creator',
 	AddJetpackAI: '/add-jetpack-ai',
 	AddExtras: '/add-extras',
 	AddProtect: '/add-protect/:feature?',
