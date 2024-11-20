@@ -1360,10 +1360,12 @@ function zeroBSCRM_mergeCustomers($dominantID=-1,$slaveID=-1){
    					}
 
 
-   				// assign social profiles from slave -> master
-   				// GET THESE BEFORE updating!
-   				$masterSocial = zeroBS_getCustomerSocialAccounts($dominantID);
-   				$slaveSocial = zeroBS_getCustomerSocialAccounts($slaveID);
+					// assign social profiles from slave -> master
+					// GET THESE BEFORE updating!
+					$masterSocial = $zbs->DAL->contacts->getContactSocials( $dominantID ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase,WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+
+					$slaveSocial = $zbs->DAL->contacts->getContactSocials( $slaveID ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase,WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+
 
 	            // UPDATE MASTER META:
 	            zeroBS_addUpdateCustomer($dominantID,$masterNewMeta,'','','',false,false,false,-1,$fieldPrefix);
