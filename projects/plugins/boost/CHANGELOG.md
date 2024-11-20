@@ -10,19 +10,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Cornerstone Pages: Added setting to allow selecting important pages. [#39863]
 
 ### Changed
-- Critical CSS: Improve logic that generates URLs for critical CSS generation. [#39862]
-- General: Improve compatibility with WordPress 6.7. [#39877] [#39786]
-- General: Update badges used to show state of features. [#40031]
-- Page Speed: Update speed scores to be based on first cornerstone page. [#39863]
+- Critical CSS: Improved logic that generates URLs for critical CSS generation. [#39862]
+- General: Improved compatibility with WordPress 6.7. [#39877] [#39786]
+- General: Updated badges used to show state of features. [#40031]
+- Page Speed: Updated speed scores to be based on first cornerstone page. [#39863]
 
 ### Removed
-- Image Guide: Remove URL parameter based override. [#39874]
+- Image Guide: Removed URL parameter based override. [#39874]
 
 ### Fixed
-- Image Size Analysis: Fix UI not properly reflecting current state after interaction.
-- Page Speed: Fix typo in Overall Score tooltip. [#39974]
+- Image Size Analysis: Fixed UI not properly reflecting current state after interaction.
+- Page Speed: Fixed typo in Overall Score tooltip. [#39974]
 - Performance History: Fixed tooltip behavior. [#39879]
-- UI: Fix Boost's menu counter sometimes displaying incorrectly.
+- UI: Fixed Boost's menu counter sometimes displaying incorrectly.
 
 ## [3.5.2] - 2024-10-15
 ### Changed

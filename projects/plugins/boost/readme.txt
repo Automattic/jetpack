@@ -188,19 +188,19 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 - Cornerstone Pages: Added setting to allow selecting important pages.
 
 #### Changed
-- Critical CSS: Improve logic that generates URLs for critical CSS generation.
-- General: Improve compatibility with WordPress 6.7.
-- General: Update badges used to show state of features.
-- Page Speed: Update speed scores to be based on first cornerstone page.
+- Critical CSS: Improved logic that generates URLs for critical CSS generation.
+- General: Improved compatibility with WordPress 6.7.
+- General: Updated badges used to show state of features.
+- Page Speed: Updated speed scores to be based on first cornerstone page.
 
 #### Removed
-- Image Guide: Remove URL parameter based override.
+- Image Guide: Removed URL parameter based override.
 
 #### Fixed
-- Image Size Analysis: Fix UI not properly reflecting current state after interaction.
-- Page Speed: Fix typo in Overall Score tooltip.
+- Image Size Analysis: Fixed UI not properly reflecting current state after interaction.
+- Page Speed: Fixed typo in Overall Score tooltip.
 - Performance History: Fixed tooltip behavior.
-- UI: Fix Boost's menu counter sometimes displaying incorrectly.
+- UI: Fixed Boost's menu counter sometimes displaying incorrectly.
 
 --------
 
