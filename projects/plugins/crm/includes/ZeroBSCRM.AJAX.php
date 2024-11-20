@@ -1459,7 +1459,7 @@ function zbs_lead_form_capture() {
 					if ( $autoLogCCreation <= 0 && $cID > 0 ) {
 
 						// add form log manually
-						$logID = $zbs->DAL->addUpdateLog(
+						$zbs->DAL->logs->addUpdateLog( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 							array(
 
 								// fields (directly)
@@ -1562,7 +1562,7 @@ function zbs_lead_form_capture() {
 						global $zbs;
 
 						// add form log manually
-						$logID = $zbs->DAL->addUpdateLog(
+						$zbs->DAL->logs->addUpdateLog( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 							array(
 
 								// fields (directly)

@@ -2174,7 +2174,8 @@ function zeroBSCRM_getObjCreationLog($objID=-1,$objType=ZBS_TYPE_CONTACT){
 		if (!empty($objID) && $objID !== -1 && $objID !== false){
 
 			global $zbs;
-			return $zbs->DAL->getLogsForObj(array(
+			return $zbs->DAL->logs->getLogsForObj( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+				array(
 
 					'objtype' => $objType,
 					'objid' => $objID,
@@ -2189,7 +2190,8 @@ function zeroBSCRM_getObjCreationLog($objID=-1,$objType=ZBS_TYPE_CONTACT){
 					'perPage'		=> 1,
 					'ignoreowner'		=> zeroBSCRM_DAL2_ignoreOwnership(ZBS_TYPE_CONTACT)
 
-				));
+				)
+			);
 
 		}
 }

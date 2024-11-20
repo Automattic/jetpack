@@ -346,7 +346,7 @@
 						}
 					}
 				} else {
-					$owner = (int) $zbs->DAL->getContactOwner( $contact_id ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+					$owner = (int) $zbs->DAL->contacts->getContactOwner( $contact_id ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 				}
 			}
 

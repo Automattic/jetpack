@@ -2308,7 +2308,6 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
      *
      * @return int line ID
      */
-     // Previously DAL->addUpdateContact
     public function addUpdateContact($args=array()){
 
         global $ZBSCRM_t,$wpdb,$zbs;
