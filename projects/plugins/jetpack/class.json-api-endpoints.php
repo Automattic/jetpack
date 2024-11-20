@@ -2701,11 +2701,12 @@ abstract class WPCOM_JSON_API_Endpoint {
 		);
 
 		if ( ! $callback_response && ! is_array( $callback_response ) ) {
-			$response = $this->api->output( 500, '', 'text/plain' );
+			$response = $this->api->output( 500, '', 'text/plain', array(), false );
 		} elseif ( is_wp_error( $callback_response ) ) {
-			$response = $this->api->output_error( $callback_response );
+			$error = WPCOM_JSON_API::serializable_error( $callback_response );
+			return new WP_Error( $error['errors']['error'], $error['errors']['message'], array( 'status' => $error['status_code'] ) );
 		} else {
-			$this->api->output( $$this->api->output_status_code, $callback_response, 'application/json' );
+			$response = $this->api->output( $this->api->output_status_code, $callback_response, 'application/json', array(), true );
 		}
 
 		$token_data = ( new Manager() )->verify_xml_rpc_signature();
@@ -2722,9 +2723,8 @@ abstract class WPCOM_JSON_API_Endpoint {
 			return new WP_Error( 'response_signature_error' );
 		}
 
-		$response = wp_json_encode( $response );
-		$nonce    = wp_generate_password( 10, false );
-		$hmac     = hash_hmac( 'sha1', $nonce . $response, $token->secret );
+		$nonce = wp_generate_password( 10, false );
+		$hmac  = hash_hmac( 'sha1', $nonce . $response, $token->secret );
 
 		return array(
 			$response,

@@ -659,7 +659,10 @@ class WPCOM_JSON_API {
 			}
 			return $content_type;
 		}
-		$this->did_output = true;
+
+		if ( ! $return_response ) {
+			$this->did_output = true;
+		}
 
 		// 400s and 404s are allowed for all origins
 		if ( 404 === $status_code || 400 === $status_code ) {
