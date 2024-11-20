@@ -124,6 +124,20 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 					'methods'             => WP_REST_Server::CREATABLE,
 					'callback'            => array( $this, 'create_products' ),
 					'permission_callback' => array( $this, 'can_modify_products_permission_check' ),
+					'args'                => array(
+						'currency'    => array(
+							'type'     => 'string',
+							'required' => true,
+						),
+						'type'        => array(
+							'type'     => 'string',
+							'required' => true,
+						),
+						'is_editable' => array(
+							'type'     => 'boolean',
+							'required' => false,
+						),
+					),
 				),
 				array(
 					'methods'             => WP_REST_Server::READABLE,
@@ -225,7 +239,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 			}
 			return $result;
 		} else {
-			return $this->proxy_request_to_wpcom_as_user( $request, 'product' );
+			return $this->proxy_request_to_wpcom_as_user( $request, 'products' );
 		}
 
 		return $request;
@@ -274,7 +288,6 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 				return array( 'error' => $e->getMessage() );
 			}
 		} else {
-
 			return $this->proxy_request_to_wpcom_as_user( $request, 'product' );
 		}
 	}

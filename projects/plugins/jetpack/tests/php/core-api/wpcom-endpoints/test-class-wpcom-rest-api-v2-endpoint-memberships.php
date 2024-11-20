@@ -137,6 +137,72 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Memberships extends WP_Test_Jetpack_RES
 	}
 
 	/**
+	 * Tests POST 'memberships/products' endpoint without authorization.
+	 */
+	public function test_create_products_no_auth() {
+		wp_set_current_user( 0 );
+
+		$request = new WP_REST_Request( Requests::POST, '/wpcom/v2/memberships/products' );
+		$request->set_header( 'content_type', 'application/json' );
+		$body = array(
+			'type'     => 'donation',
+			'currency' => 'USD',
+		);
+		$request->set_body( wp_json_encode( $body ) );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertErrorResponse( 'rest_forbidden', $response, 401 );
+	}
+
+	/**
+	 * Tests POST 'memberships/products' endpoint with insufficient permissions.
+	 */
+	public function test_create_products_with_insufficient_permissions() {
+		wp_set_current_user( static::$author_id );
+
+		$request = new WP_REST_Request( Requests::POST, '/wpcom/v2/memberships/products' );
+		$request->set_header( 'content_type', 'application/json' );
+		$body = array(
+			'type'     => 'donation',
+			'currency' => 'USD',
+		);
+		$request->set_body( wp_json_encode( $body ) );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertErrorResponse( 'rest_forbidden', $response, 403 );
+	}
+
+	/**
+	 * Tests POST 'memberships/products' endpoint with with invalid args.
+	 */
+	public function test_create_products_with_invalid_args() {
+		$request = new WP_REST_Request( Requests::POST, '/wpcom/v2/memberships/products' );
+
+		$response = $this->server->dispatch( $request );
+
+		$this->assertErrorResponse( 'rest_missing_callback_param', $response, 400 );
+		$this->assertSame( 'Missing parameter(s): currency, type', $response->get_data()['message'] );
+	}
+
+	/**
+	 * Tests POST 'memberships/products' endpoint with error response from WPCOM.
+	 */
+	public function test_create_products_with_remote_error() {
+		add_filter( 'pre_http_request', array( $this, 'mock_wpcom_api_response_create_products_remote_error' ), 10, 3 );
+
+		$request = new WP_REST_Request( Requests::POST, '/wpcom/v2/memberships/products' );
+		$request->set_header( 'content_type', 'application/json' );
+		$body = array(
+			'type'     => 'donation',
+			'currency' => 'USD',
+		);
+		$request->set_body( wp_json_encode( $body ) );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertErrorResponse( 'dummy_error', $response, 500 );
+	}
+
+	/**
 	 * Tests GET 'memberships/status' endpoint without authorization.
 	 */
 	public function test_get_status_no_auth() {
@@ -481,6 +547,32 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Memberships extends WP_Test_Jetpack_RES
 	public function mock_wpcom_api_response_list_products_remote_error( $response, $args, $url ) {
 		$this->assertEquals( Requests::GET, $args['method'] );
 		$this->assertStringStartsWith( 'https://public-api.wordpress.com/wpcom/v2/sites/' . static::$blog_id . '/memberships/products', $url );
+
+		return array(
+			'headers'     => array(
+				'Allow' => 'GET',
+			),
+			'body'        => '{"code":"dummy_error","message":"Oops","data":{"status":500}}',
+			'status_code' => 500,
+			'response'    => array(
+				'code' => 500,
+			),
+		);
+	}
+
+	/**
+	 * Validate the Jetpack API request for creating products and mock the response.
+	 *
+	 * @param bool   $response Whether to preempt an HTTP request's return value. Default false.
+	 * @param array  $args     HTTP request arguments.
+	 * @param string $url      The request URL.
+	 * @return array
+	 */
+	public function mock_wpcom_api_response_create_products_remote_error( $response, $args, $url ) {
+		$this->assertEquals( Requests::POST, $args['method'] );
+		$this->assertStringStartsWith( 'https://public-api.wordpress.com/wpcom/v2/sites/' . static::$blog_id . '/memberships/products', $url );
+
+		$this->assertSame( '{"type":"donation","currency":"USD"}', $args['body'] );
 
 		return array(
 			'headers'     => array(
