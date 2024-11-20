@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { type Props, useMetaQuery } from '$lib/stores/minify';
+import { recordBoostEvent } from '$lib/utils/analytics';
 import styles from './minify-meta.module.scss';
 import { Button } from '@automattic/jetpack-components';
 import ChevronDown from '$svg/chevron-down';
@@ -16,9 +17,19 @@ const MetaComponent = ( { buttonText, placeholder, datasyncKey }: Props ) => {
 	}, [ values, isExpanded ] );
 
 	function save() {
+		const type = datasyncKey === 'minify_js_excludes' ? 'js' : 'css';
+		recordBoostEvent( 'concatenate_' + type + '_exceptions_save_clicked', {} );
 		updateValues( inputValue );
 		setIsExpanded( false );
 	}
+
+	const toggleExpanded = ( newValue: boolean ) => {
+		const type = datasyncKey === 'minify_js_excludes' ? 'js' : 'css';
+		recordBoostEvent( 'concatenate_' + type + '_show_options_toggle', {
+			status: newValue ? 'open' : 'close',
+		} );
+		setIsExpanded( newValue );
+	};
 
 	const htmlId = `jb-minify-meta-${ datasyncKey }`;
 
@@ -42,7 +53,7 @@ const MetaComponent = ( { buttonText, placeholder, datasyncKey }: Props ) => {
 					size="small"
 					weight="regular"
 					className={ styles[ 'edit-button' ] }
-					onClick={ () => setIsExpanded( ! isExpanded ) }
+					onClick={ () => toggleExpanded( ! isExpanded ) }
 					icon={ isExpanded ? <ChevronUp /> : <ChevronDown /> }
 				>
 					{ isExpanded ? __( 'Hide', 'jetpack-boost' ) : buttonText }
