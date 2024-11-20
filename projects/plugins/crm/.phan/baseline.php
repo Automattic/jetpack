@@ -45,12 +45,12 @@ return [
     // PhanPluginSimplifyExpressionBool : 35+ occurrences
     // PhanTypeMismatchForeach : 35+ occurrences
     // PhanTypeSuspiciousStringExpression : 30+ occurrences
-    // PhanUndeclaredTypeReturnType : 30+ occurrences
     // PhanUnreferencedUseNormal : 30+ occurrences
     // PhanCommentParamWithoutRealParam : 25+ occurrences
     // PhanParamSignatureMismatch : 25+ occurrences
     // PhanRedundantConditionInGlobalScope : 25+ occurrences
     // PhanUndeclaredClassProperty : 25+ occurrences
+    // PhanUndeclaredTypeReturnType : 25+ occurrences
     // PhanUndeclaredVariableDim : 25+ occurrences
     // PhanParamSignaturePHPDocMismatchReturnType : 20+ occurrences
     // PhanPossiblyUndeclaredGlobalVariable : 20+ occurrences
@@ -74,7 +74,6 @@ return [
     // PhanUnextractableAnnotationSuffix : 10+ occurrences
     // PhanAccessMethodPrivate : 9 occurrences
     // PhanTypeSuspiciousEcho : 8 occurrences
-    // PhanUndeclaredTypeThrowsType : 7 occurrences
     // PhanAbstractStaticMethodCallInStatic : 6 occurrences
     // PhanTypeInvalidDimOffset : 6 occurrences
     // PhanTypeInvalidLeftOperandOfNumericOp : 6 occurrences
@@ -89,12 +88,12 @@ return [
     // PhanTypeMissingReturn : 4 occurrences
     // PhanTypeVoidAssignment : 4 occurrences
     // PhanUndeclaredFunctionInCallable : 4 occurrences
+    // PhanUndeclaredTrait : 4 occurrences
     // PhanCommentVarInsteadOfParam : 3 occurrences
     // PhanMisspelledAnnotation : 3 occurrences
     // PhanParamSignaturePHPDocMismatchTooFewParameters : 3 occurrences
     // PhanTypeExpectedObjectPropAccessButGotNull : 3 occurrences
     // PhanTypeMismatchDimAssignment : 3 occurrences
-    // PhanUndeclaredTrait : 3 occurrences
     // PhanParamTooFew : 2 occurrences
     // PhanParamTooManyInternal : 2 occurrences
     // PhanPluginDuplicateExpressionAssignment : 2 occurrences
@@ -325,7 +324,7 @@ return [
         'src/rest-api/v4/class-rest-automation-workflows-controller.php' => ['PhanParamSignatureMismatch', 'PhanPluginMixedKeyNoKey'],
         'src/rest-api/v4/class-rest-base-controller.php' => ['PhanTypeMismatchDeclaredReturnNullable'],
         'src/rest-api/v4/class-rest-contacts-controller.php' => ['PhanPluginMixedKeyNoKey', 'PhanTypeComparisonFromArray', 'PhanUndeclaredProperty'],
-        'tests/codeception/_support/AcceptanceTester.php' => ['PhanParamSignatureMismatch', 'PhanParamSignaturePHPDocMismatchReturnType', 'PhanParamSignaturePHPDocMismatchTooFewParameters'],
+        'tests/codeception/_support/AcceptanceTester.php' => ['PhanParamSignatureMismatch', 'PhanParamSignaturePHPDocMismatchReturnType', 'PhanParamSignaturePHPDocMismatchTooFewParameters', 'PhanUndeclaredTrait'],
         'tests/codeception/_support/FunctionalTester.php' => ['PhanParamSignatureMismatch', 'PhanParamSignaturePHPDocMismatchReturnType', 'PhanParamSignaturePHPDocMismatchTooFewParameters', 'PhanUndeclaredTrait'],
         'tests/codeception/_support/Helper/JPCRM_Acceptance.php' => ['PhanUndeclaredProperty'],
         'tests/codeception/_support/Helper/RunProcess.php' => ['PhanTypeMismatchArgumentNullableInternal', 'PhanUndeclaredClassCatch'],
@@ -333,7 +332,6 @@ return [
         'tests/codeception/_support/Module/WPWebDriver.php' => ['PhanIncompatibleRealPropertyType', 'PhanUndeclaredFunction', 'PhanUndeclaredMethod', 'PhanUndeclaredTrait'],
         'tests/codeception/_support/Module/WordPress.php' => ['PhanIncompatibleRealPropertyType', 'PhanParamSignatureMismatch', 'PhanTypeMismatchDeclaredParamNullable', 'PhanUndeclaredClassInstanceof', 'PhanUndeclaredClassMethod', 'PhanUndeclaredFunction', 'PhanUndeclaredMethod', 'PhanUndeclaredTypeParameter', 'PhanUndeclaredTypeProperty', 'PhanUndeclaredTypeReturnType'],
         'tests/codeception/_support/UnitTester.php' => ['PhanParamSignatureMismatch', 'PhanParamSignaturePHPDocMismatchReturnType', 'PhanParamSignaturePHPDocMismatchTooFewParameters', 'PhanUndeclaredTrait'],
-        'tests/codeception/_support/_generated/AcceptanceTesterActions.php' => ['PhanUndeclaredTypeParameter', 'PhanUndeclaredTypeReturnType', 'PhanUndeclaredTypeThrowsType'],
         'tests/php/automation/class-automation-engine-test.php' => ['PhanPluginDuplicateAdjacentStatement', 'PhanRedundantCondition'],
         'tests/php/automation/class-automation-workflow-test.php' => ['PhanParamTooMany', 'PhanUnreferencedUseNormal'],
         'tests/php/automation/companies/class-company-trigger-test.php' => ['PhanUnreferencedUseNormal'],
