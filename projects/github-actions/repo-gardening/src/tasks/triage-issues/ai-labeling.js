@@ -103,14 +103,14 @@ Example response format:
  * @return {string} Cleaned up issue content.
  */
 function cleanIssueContent( content ) {
-	// Remove links in the format [link text](url)
-	content = content.replace( /\[.*?\]\(.*?\)/g, '' );
+	// Remove links in the format [link text](url), but keep the link text.
+	content = content.replace( /\[(.*?)\]\(https?:\/\/\S+\)/g, '$1' );
 
-	// Remove links in the format https://url
-	content = content.replace( /https?:\/\/\S+/g, '' );
+	// Remove links in the format <a href="url">link text</a>, but keep the link text.
+	content = content.replace( /<a href="https?:\/\/\S+">(.*?)<\/a>/g, '$1' );
 
-	// Remove links in the format <a href="url">link text</a>
-	content = content.replace( /<a.*?>(.*?)<\/a>/g, '$1' );
+	// Remove links in the format https://url, and replace with info that OpenAI can understand.
+	content = content.replace( /https?:\/\/\S+/g, 'this link with more information' );
 
 	return content;
 }
@@ -147,7 +147,7 @@ async function aiLabeling( payload, octokit ) {
 		const issueContents = cleanIssueContent( body );
 
 		// Only process issues that have enough content to analyze (more than 100 characters).
-		if ( issueContents.length < 100 ) {
+		if ( issueContents.length < 150 ) {
 			debug(
 				`triage-issues > auto-label: Issue #${ number } doesn't have enough content. Skipping OpenAI analysis.`
 			);
