@@ -42,7 +42,7 @@ class StripDocsNodeVisitorTest extends TestCase {
 		$output = new BufferedOutput( $verbosity );
 
 		$config          = new ParserConfig(
-			usedAttributes: array(
+			array(
 				'lines'   => true,
 				'indexes' => true,
 			)

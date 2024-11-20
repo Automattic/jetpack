@@ -70,7 +70,7 @@ class StripDocsNodeVisitor extends NodeVisitorAbstract {
 	public function __construct( OutputInterface $output ) {
 		$this->output    = $output;
 		$config          = new ParserConfig(
-			usedAttributes: array(
+			array(
 				'lines'   => true,
 				'indexes' => true,
 			)
