@@ -286,6 +286,7 @@ export default function ProductInterstitial( {
 										highlightLastFeature={ highlightLastFeature }
 										isFetching={ isActivating }
 										isFetchingSuccess={ isSuccess }
+										isUpsell={ true }
 									/>
 								) : (
 									children
