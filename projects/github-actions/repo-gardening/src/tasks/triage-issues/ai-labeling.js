@@ -95,6 +95,27 @@ Example response format:
 }
 
 /**
+ * Clean up the issue content for OpenAI processing.
+ * Remove links from the issue content.
+ *
+ * @param {string} content - Issue body content.
+ *
+ * @return {string} Cleaned up issue content.
+ */
+function cleanIssueContent( content ) {
+	// Remove links in the format [link text](url)
+	content = content.replace( /\[.*?\]\(.*?\)/g, '' );
+
+	// Remove links in the format https://url
+	content = content.replace( /https?:\/\/\S+/g, '' );
+
+	// Remove links in the format <a href="url">link text</a>
+	content = content.replace( /<a.*?>(.*?)<\/a>/g, '$1' );
+
+	return content;
+}
+
+/**
  * Automatically add labels to issues.
  *
  * When an issue is first opened, parse its contents, send them to OpenAI,
@@ -123,6 +144,16 @@ async function aiLabeling( payload, octokit ) {
 		! issueLabels.includes( '[Experiment] AI labels added' ) &&
 		! issueLabels.includes( '[Type] Task' )
 	) {
+		const issueContents = cleanIssueContent( body );
+
+		// Only process issues that have enough content to analyze (more than 100 characters).
+		if ( issueContents.length < 100 ) {
+			debug(
+				`triage-issues > auto-label: Issue #${ number } doesn't have enough content. Skipping OpenAI analysis.`
+			);
+			return;
+		}
+
 		debug(
 			`triage-issues > auto-label: Fetching labels suggested by OpenAI for issue #${ number }`
 		);
@@ -131,7 +162,7 @@ async function aiLabeling( payload, octokit ) {
 			ownerLogin,
 			name,
 			title,
-			body
+			issueContents
 		);
 
 		if ( labels.length === 0 ) {
