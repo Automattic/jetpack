@@ -89,7 +89,7 @@ function jpcrm_render_system_assistant_page() {
 				'desc_incomplete' => __( 'Add your first invoice to see how the CRM invoicing system works.', 'zero-bs-crm' ),
 				'desc_complete'   => __( "Great, you're using Invoices.", 'zero-bs-crm' ),
 				'button_url'      => $zbs->urls['kbinvoicebuilder'],
-				'state'           => zeroBS_invCount() > 0,
+				'state'           => $zbs->DAL->invoices->getInvoiceCount() > 0, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
 			);
 

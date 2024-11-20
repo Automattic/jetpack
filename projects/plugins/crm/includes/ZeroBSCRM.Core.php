@@ -868,13 +868,6 @@ final class ZeroBSCRM {
 		return $this->database_server_info;
 	}
 
-	// } Use this for shorthand checking old DAL
-	public function isDAL1() {
-
-		// is DAL = 1.0
-		return ( version_compare( $this->dal_version, '2.53' ) < 0 );
-	}
-
 	// } Use this for shorthand checking new DAL additions
 	// this says "is At least DAL2"
 	public function isDAL2() {
@@ -990,11 +983,6 @@ final class ZeroBSCRM {
 
 		// assets
 		$this->urls['crm-logo'] = plugins_url( 'i/jpcrm-logo-stacked-black.png', ZBS_ROOTFILE );
-
-		// temp/updates
-		$this->urls['db3migrate']         = 'https://kb.jetpackcrm.com/knowledge-base/upgrading-database-v3-0-migration/';
-		$this->urls['migrationhelpemail'] = 'hello@jetpackcrm.com';
-		$this->urls['db3migrateexts']     = 'https://kb.jetpackcrm.com/knowledge-base/upgrading-database-v3-0-migration/#extension-compatibility';
 
 		// kb
 		$this->urls['kbdevmode']                = 'https://kb.jetpackcrm.com/knowledge-base/developer-mode/';
@@ -1839,58 +1827,54 @@ final class ZeroBSCRM {
 			// } Using ownership
 			if ( ! $this->settings->get( 'usercangiveownership' ) ) {
 
-				// DAL3/pre switch
-				if ( $this->isDAL3() ) {
+				// } is one of our dal3 edit pages
+				if ( zeroBSCRM_is_zbs_edit_page() ) {
 
-						// } is one of our dal3 edit pages
-					if ( zeroBSCRM_is_zbs_edit_page() ) {
+					// in this specific case we pre-call globalise_vars
+					// ... which later gets recalled if on an admin page (but it's safe to do so here too)
+					// this moves any _GET into $zbsPage
+					$this->globalise_vars();
 
-						// in this specific case we pre-call globalise_vars
-						// ... which later gets recalled if on an admin page (but it's safe to do so here too)
-						// this moves any _GET into $zbsPage
-						$this->globalise_vars();
+					// this allows us to use these:
+					$obj_id       = $this->zbsvar( 'zbsid' ); // -1 or 123 ID
+					$obj_type_str = $this->zbsvar( 'zbstype' ); // -1 or 'contact'
 
-						// this allows us to use these:
-						$objID      = $this->zbsvar( 'zbsid' ); // -1 or 123 ID
-						$objTypeStr = $this->zbsvar( 'zbstype' ); // -1 or 'contact'
+					// if objtypestr is -1, assume contact (default)
+					if ( $obj_type_str === -1 ) {
+						$obj_type_id = ZBS_TYPE_CONTACT;
+					} else {
+						$obj_type_id = $this->DAL->objTypeID( $obj_type_str ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+					}
 
-						// if objtypestr is -1, assume contact (default)
-						if ( $objTypeStr == -1 ) {
-							$objType = ZBS_TYPE_CONTACT;
-						} else {
-							$objType = $this->DAL->objTypeID( $objTypeStr );
-						}
+					// if is edit page + has obj id, (e.g. is not "new")
+					// then check ownership
+					if ( isset( $obj_id ) && $obj_id > 0 && $obj_type_id > 0 ) {
 
-						// if is edit page + has obj id, (e.g. is not "new")
-						// then check ownership
-						if ( isset( $objID ) && $objID > 0 && $objType > 0 ) {
+						$is_ownership_valid = $this->DAL->checkObjectOwner( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+							array(
 
-							$ownershipValid = $this->DAL->checkObjectOwner(
-								array(
+								'objID'              => $obj_id,
+								'objTypeID'          => $obj_type_id,
+								'potentialOwnerID'   => get_current_user_id(),
+								'allowNoOwnerAccess' => true, // ?
 
-									'objID'              => $objID,
-									'objTypeID'          => $objType,
-									'potentialOwnerID'   => get_current_user_id(),
-									'allowNoOwnerAccess' => true, // ?
+							)
+						);
 
-								)
-							);
+						// } If user ! has rights, redir
+						if ( ! $is_ownership_valid ) {
 
-							// } If user ! has rights, redir
-							if ( ! $ownershipValid ) {
+							// Redirect to our "no rights" page
+							// OLD WAY header("Location: edit.php?post_type=".$postType."&page=".$this->slugs['zbs-noaccess']."&id=".$postID);
+							header( 'Location: admin.php?page=' . $this->slugs['zbs-noaccess'] . '&zbsid=' . $obj_id . '&zbstype=' . $obj_type_str );
+							exit();
 
-								// } Redirect to our "no rights" page
-								// OLD WAY header("Location: edit.php?post_type=".$postType."&page=".$this->slugs['zbs-noaccess']."&id=".$postID);
-								header( 'Location: admin.php?page=' . $this->slugs['zbs-noaccess'] . '&zbsid=' . $objID . '&zbstype=' . $objTypeStr );
-								exit();
+						} // / no rights.
 
-							} // / no rights.
+					} // / obj ID
 
-						} // / obj ID
+				} // / is edit page
 
-					} // / is edit page
-
-				}
 			} // / is setting usercangiveownership
 
 		} // / !is admin
