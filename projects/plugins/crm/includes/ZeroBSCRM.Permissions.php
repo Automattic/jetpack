@@ -943,42 +943,44 @@ function zeroBSCRM_permsCustomers() {
  */
 function jpcrm_can_wp_user_view_object( $wp_user, $obj_id, $obj_type_id ) {
 
-  // unsupported object type
-  if ( !in_array( $obj_type_id, array( ZBS_TYPE_QUOTE, ZBS_TYPE_INVOICE ) ) ) {
-    return false;
-  }
+	// unsupported object type
+	if ( ! in_array( $obj_type_id, array( ZBS_TYPE_QUOTE, ZBS_TYPE_INVOICE ), true ) ) {
+		return false;
+	}
 
-  // retrieve object
-  switch ($obj_type_id) {
-    case ZBS_TYPE_QUOTE:
-      $is_quote_admin = $wp_user->has_cap( 'admin_zerobs_quotes' );
-      $obj_data = zeroBS_getQuote( $obj_id );
-      // draft quote
-      if ( is_array($obj_data) && $obj_data['template'] == -1 && !$is_quote_admin ) {
-        return false;
-      }
-      $assigned_contact_id = zeroBSCRM_quote_getContactAssigned( $obj_id );
-      break;
-    case ZBS_TYPE_INVOICE:
-      $is_invoice_admin = $wp_user->has_cap( 'admin_zerobs_invoices' );
-      $obj_data = zeroBS_getInvoice( $obj_id );
-      // draft invoice
+	global $zbs;
+
+	// retrieve object
+	switch ( $obj_type_id ) {
+		case ZBS_TYPE_QUOTE:
+			$is_quote_admin = $wp_user->has_cap( 'admin_zerobs_quotes' );
+			$obj_data       = zeroBS_getQuote( $obj_id );
+			// draft quote
+			if ( is_array( $obj_data ) && $obj_data['template'] == -1 && ! $is_quote_admin ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+				return false;
+			}
+			$assigned_contact_id = $zbs->DAL->quotes->getQuoteContactID( $obj_id ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			break;
+		case ZBS_TYPE_INVOICE:
+			$is_invoice_admin = $wp_user->has_cap( 'admin_zerobs_invoices' );
+			$obj_data         = zeroBS_getInvoice( $obj_id );
+			// draft invoice
 			if ( is_array( $obj_data ) && $obj_data['status'] === 'Draft' && ! $is_invoice_admin ) {
 				return false;
 			}
-      $assigned_contact_id = zeroBSCRM_invoice_getContactAssigned( $obj_id );
-      break;
-  }
+			$assigned_contact_id = $zbs->DAL->invoices->getInvoiceContactID( $obj_id ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			break;
+	}
 
-  // no such object!
-  if ( !$obj_data ) {
-    return false;
-  }
+	// no such object!
+	if ( ! $obj_data ) {
+		return false;
+	}
 
-  // not logged in
-  if ( !$wp_user ) {
-    return false;
-  }
+	// not logged in
+	if ( ! $wp_user ) {
+		return false;
+	}
 
   // grant access if user has full permissions to view object type
   if (

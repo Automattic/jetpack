@@ -101,12 +101,22 @@ class IntegrationTest extends TestCase {
 		$printer = new CapturingJSONPrinter();
 		Phan::setPrinter( $printer );
 
-		Phan::analyzeFileList(
-			$this->codeBase,
-			static function () use ( $cli ) {
-				return $cli->getFileList();
+		$old = error_reporting();
+		try {
+			if ( $usePolyfill ) {
+				// microsoft/tolerant-php-parser raises PHP 8.4 deprecation warnings.
+				// @todo If it gets updated at some point, hopefully this can be removed.
+				error_reporting( $old & ~E_DEPRECATED );
 			}
-		);
+			Phan::analyzeFileList(
+				$this->codeBase,
+				static function () use ( $cli ) {
+					return $cli->getFileList();
+				}
+			);
+		} finally {
+			error_reporting( $old );
+		}
 
 		$expectFile = $this->chooseFile( "$dir/expect.json", $usePolyfill, $analyzeTwice );
 		$expect     = json_decode( file_get_contents( $expectFile ), true );
