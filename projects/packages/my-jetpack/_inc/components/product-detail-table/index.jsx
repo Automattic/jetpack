@@ -68,10 +68,10 @@ const ProductDetailTableColumn = ( {
 		callToAction: customCallToAction,
 		currencyCode,
 		fullPrice,
+		introductoryOffer,
 		isFree,
 		wpcomProductSlug,
 		quantity = null,
-		introductoryOffer,
 	} = tiersPricingForUi[ tier ];
 
 	useEffect( () => {
