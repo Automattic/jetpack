@@ -3856,7 +3856,7 @@ function zeroBS_getQuoteTemplate( $quoteTemplateID = -1 ) { // phpcs:ignore Word
 }
 
 	// Please use direct dal calls in future work.
-	function zeroBS_getQuoteTemplates($withFullDetails=false,$perPage=10,$page=0,$searchPhrase=''){
+function zeroBS_getQuoteTemplates( $withFullDetails = false, $perPage = 10, $page = 0, $searchPhrase = '' ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,Squiz.Commenting.FunctionComment.WrongStyle
 
 				global $zbs;
 				return $zbs->DAL->quotetemplates->getQuotetemplates(array(
