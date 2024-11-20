@@ -5,14 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.0.1] - 2024-11-18
+### Fixed
+- Work around a WP user caching bug (https://core.trac.wordpress.org/ticket/62003). [#40188]
+
 ## [6.0.0] - 2024-11-14
 ### Removed
 - General: Update minimum PHP version to 7.2. [#40147]
 
 ## [5.1.7] - 2024-11-11
 ### Changed
-- Updated package dependencies. [#39999]
-- Updated package dependencies. [#40060]
+- Updated package dependencies. [#39999] [#40060]
 
 ## [5.1.6] - 2024-11-04
 ### Added
@@ -1247,6 +1250,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[6.0.1]: https://github.com/Automattic/jetpack-connection/compare/v6.0.0...v6.0.1
 [6.0.0]: https://github.com/Automattic/jetpack-connection/compare/v5.1.7...v6.0.0
 [5.1.7]: https://github.com/Automattic/jetpack-connection/compare/v5.1.6...v5.1.7
 [5.1.6]: https://github.com/Automattic/jetpack-connection/compare/v5.1.5...v5.1.6

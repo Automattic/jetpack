@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.0.1] - 2024-11-18
+### Changed
+- Update dependencies. [#38910]
+
 ## [5.0.0] - 2024-11-14
 ### Removed
 - General: Update minimum PHP version to 7.2. [#40147]
@@ -47,8 +51,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [4.35.12] - 2024-10-10
 ### Changed
 - Update Boost's pricing table to include latest feature list. [#39130]
-- Updated package dependencies. [#39669]
-- Updated package dependencies. [#39707]
+- Updated package dependencies. [#39669] [#39707]
 
 ### Fixed
 - Fixed My Jetpack recommendations VideoPress product card not showing Purchase and Learn more buttons. [#39612]
@@ -811,8 +814,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [3.4.3] - 2023-09-04
 ### Changed
-- Updated package dependencies. [#32803]
-- Updated package dependencies. [#32804]
+- Updated package dependencies. [#32803] [#32804]
 
 ## [3.4.2] - 2023-08-23
 ### Changed
@@ -868,8 +870,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - My Jetpack: changed Stats features wording [#32046]
-- Updated package dependencies. [#31999]
-- Updated package dependencies. [#32040]
+- Updated package dependencies. [#31999] [#32040]
 
 ### Fixed
 - Make Jetpack logo in footer smaller [#31627]
@@ -1811,6 +1812,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[5.0.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.0.0...5.0.1
 [5.0.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.37.0...5.0.0
 [4.37.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.36.0...4.37.0
 [4.36.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.35.16...4.36.0

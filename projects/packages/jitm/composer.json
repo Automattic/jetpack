@@ -14,7 +14,7 @@
 		"automattic/jetpack-status": "@dev"
 	},
 	"require-dev": {
-		"brain/monkey": "2.6.1",
+		"brain/monkey": "^2.6.2",
 		"yoast/phpunit-polyfills": "^1.1.1",
 		"automattic/jetpack-changelogger": "@dev"
 	},
