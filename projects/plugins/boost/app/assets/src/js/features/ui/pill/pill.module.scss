@@ -1,9 +1,10 @@
 .pill {
 	background: var( --jp-green-5 );
 	color: var( --jp-green-60 );
-	padding: 0.2em 0.4em;
+	padding: 0.1em 0.4em;
 	border-radius: 3px;
 	font-size: 0.8rem;
+	line-height: 1.5;
 	margin-left: 10px;
 	transform: translateY( -4px );
 	display: inline-block;

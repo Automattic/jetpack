@@ -585,7 +585,9 @@ HTML;
 	 */
 	public function should_show_subscription_modal() {
 		$modal_enabled = boolval( get_blog_option( $this->blog_id, 'jetpack_verbum_subscription_modal', true ) );
-		return ! is_user_member_of_blog( '', $this->blog_id ) && $modal_enabled;
+
+		$is_jetpack_site = 522232 === get_current_blog_id(); // Disable if verbum is served via 'jetpack.wordpress.com'
+		return ! $is_jetpack_site && ! is_user_member_of_blog( '', $this->blog_id ) && $modal_enabled;
 	}
 
 	/**

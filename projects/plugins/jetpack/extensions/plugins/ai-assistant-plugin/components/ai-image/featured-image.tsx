@@ -60,8 +60,8 @@ export default function FeaturedImage( {
 	const { saveToMediaLibrary } = useSaveToMediaLibrary();
 	const { tracks } = useAnalytics();
 	const { recordEvent } = tracks;
-	const [ defaultPrompt, setDefaultPrompt ] = useState( '' );
 	const [ requestStyle, setRequestStyle ] = useState< ImageStyle >( null );
+	const [ prompt, setPrompt ] = useState( '' );
 
 	// Editor actions
 	const { enableComplementaryArea } = useDispatch( 'core/interface' );
@@ -128,9 +128,9 @@ export default function FeaturedImage( {
 	 * Handle the guess style for the image. It is reworked here to include the post content.
 	 */
 	const handleGuessStyle = useCallback(
-		prompt => {
+		userPrompt => {
 			const content = postTitle + '\n\n' + postContent;
-			return guessStyle( prompt, 'featured-image-guess-style', content );
+			return guessStyle( userPrompt, 'featured-image-guess-style', content );
 		},
 		[ postContent, postTitle, guessStyle ]
 	);
@@ -188,7 +188,7 @@ export default function FeaturedImage( {
 		const response = await handleGenerate( { userPrompt: '', style: guessedStyle } );
 		if ( response ) {
 			debug( 'handleFirstGenerate', response.revisedPrompt );
-			setDefaultPrompt( response.revisedPrompt );
+			setPrompt( response.revisedPrompt );
 		}
 	}, [ currentPointer, handleGenerate, handleGuessStyle ] );
 
@@ -341,6 +341,11 @@ export default function FeaturedImage( {
 	const generateAgainText = __( 'Generate another image', 'jetpack' );
 	const generateText = __( 'Generate', 'jetpack' );
 
+	const hasContent = postContent || postTitle;
+	const hasPrompt = hasContent ? prompt.length >= 0 : prompt.length >= 3;
+	const disableInput = notEnoughRequests || currentPointer?.generating || requireUpgrade;
+	const disableAction = disableInput || ( ! hasContent && ! hasPrompt );
+
 	const upgradeDescription = notEnoughRequests
 		? sprintf(
 				// Translators: %d is the cost of generating a featured image.
@@ -379,8 +384,8 @@ export default function FeaturedImage( {
 				</>
 			) }
 			<AiImageModal
-				postContent={ postContent || postTitle }
-				autoStart={ ( postContent !== '' || postTitle ) && ! postFeaturedMedia }
+				postContent={ hasContent }
+				autoStart={ hasContent && ! postFeaturedMedia }
 				autoStartAction={ handleFirstGenerate }
 				images={ images }
 				currentIndex={ current }
@@ -409,9 +414,11 @@ export default function FeaturedImage( {
 				) }
 				imageStyles={ imageStyles }
 				onGuessStyle={ handleGuessStyle }
-				initialPrompt={ defaultPrompt }
+				prompt={ prompt }
+				setPrompt={ setPrompt }
 				initialStyle={ requestStyle }
-				minPromptLength={ 0 }
+				inputDisabled={ disableInput }
+				actionDisabled={ disableAction }
 			/>
 		</>
 	);
