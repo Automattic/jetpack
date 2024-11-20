@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.25.0] - 2024-11-18
+### Removed
+- General: Update minimum PHP version to 7.2. [#40147]
+
 ## [0.24.17] - 2024-11-11
 ### Changed
 - Updated package dependencies. [#39999] [#40000] [#40060]
@@ -401,8 +405,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.15.2] - 2023-09-04
 ### Changed
-- Updated package dependencies. [#32803]
-- Updated package dependencies. [#32804]
+- Updated package dependencies. [#32803] [#32804]
 
 ## [0.15.1] - 2023-08-23
 ### Changed
@@ -432,9 +435,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.14.11] - 2023-07-25
 ### Changed
-- Updated package dependencies. [#31923]
-- Updated package dependencies. [#31999]
-- Updated package dependencies. [#32040]
+- Updated package dependencies. [#31923] [#31999] [#32040]
 
 ### Fixed
 - Fix some minor issues in Jetpack plugin codebase [#31684]
@@ -449,8 +450,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.14.8] - 2023-07-05
 ### Changed
-- Updated package dependencies. [#31659]
-- Updated package dependencies. [#31661]
+- Updated package dependencies. [#31659] [#31661]
 - Update storybook mdx to use `@storybook/blocks` directly rather than `@storybook/addon-docs`. [#31607]
 
 ## [0.14.7] - 2023-06-23
@@ -696,8 +696,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Consolidate VideoPreview type [#29447]
 - General: update deprecated core prop [#29463]
 - Replace placeholder with loading placeholder component from js-packages [#29271]
-- Updated package dependencies. [#29471]
-- Updated package dependencies. [#29480]
+- Updated package dependencies. [#29471] [#29480]
 - VideoPress: delay Done button activation to mitigate the chance of a race condition when saving the post too fast. [#29493]
 - VideoPress: get rid of script const / component prop [#29466]
 - VideoPress: Update comment on deprecated prop to mark it for later change [#29541]
@@ -808,8 +807,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - VideoPress: set isPravate attribute based also on private_enabled_for_site [#28769]
 
 ### Changed
-- Updated package dependencies. [#28682]
-- Updated package dependencies. [#28700]
+- Updated package dependencies. [#28682] [#28700]
 - VideoPress: do not depend on window.wp.media in getMediaToken() lib [#28660]
 - VideoPress: enqueue extensions when registrant plugin is active [#28717]
 - VideoPress: improve requesting video data [#28663]
@@ -900,11 +898,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - VideoPress: Support replace the video by setting an URL from the replace control [#28221]
 
 ### Changed
-- Updated package dependencies. [#28127]
-- Updated package dependencies. [#28128]
-- Updated package dependencies. [#28129]
-- Updated package dependencies. [#28268]
-- Updated package dependencies. [#28278]
+- Updated package dependencies. [#28127] [#28128] [#28129] [#28268] [#28278]
 - VideoPress: set video URL in the Replace control based on the privacy [#28239]
 - VideoPress: Support edit privacy on edit details page [#28240]
 - VideoPress: TS enhancements in use Video data hooks [#28143]
@@ -1042,9 +1036,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - VideoPress: Updated the list of plans that have VideoPress included. [#27536]
 
 ### Changed
-- Updated package dependencies. [#26069]
-- Updated package dependencies. [#26736]
-- Updated package dependencies. [#27043]
+- Updated package dependencies. [#26069] [#26736] [#27043]
 - VideoPress: exposed the site purchases list on the client initial state, dropping the need of a request to the My Jetpack purchases endpoint. [#27533]
 - VideoPress: Remove extra resize circle on block [#27498]
 - VideoPress: show pricing based on sale coupons [#27535]
@@ -1415,8 +1407,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - VideoPress plugin hijacks video attachment edit page [#25732]
 
 ### Changed
-- Updated package dependencies. [#25694]
-- Updated package dependencies. [#25814]
+- Updated package dependencies. [#25694] [#25814]
 - VideoPress: Fix dropdown menu position of the VideoDetailsCard component [#25860]
 - VideoPress Pkg: apply changes according on the `videopress/video` name convention for the video block [#25844]
 
@@ -1452,8 +1443,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Migrating VideoPress code from the plugin to the package [#25412]
 - Moving videopress dependencies to the package [#25398]
-- Updated package dependencies. [#25347]
-- Updated package dependencies. [#25412]
+- Updated package dependencies. [#25347] [#25412]
 
 ### Fixed
 - Fixed missing import for recent VideoPress namespace changes [#25638]
@@ -1488,6 +1478,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.25.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.24.17...v0.25.0
 [0.24.17]: https://github.com/Automattic/jetpack-videopress/compare/v0.24.16...v0.24.17
 [0.24.16]: https://github.com/Automattic/jetpack-videopress/compare/v0.24.15...v0.24.16
 [0.24.15]: https://github.com/Automattic/jetpack-videopress/compare/v0.24.14...v0.24.15

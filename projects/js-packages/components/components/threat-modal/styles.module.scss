@@ -1,0 +1,35 @@
+.threat-details {
+	display: flex;
+	flex-direction: column;
+	gap: calc( var( --spacing-base ) * 3 ); // 24px
+}
+
+.section {
+	display: flex;
+	flex-direction: column;
+	gap: calc( var( --spacing-base ) * 2 ); // 16px
+}
+
+.title {
+	display: flex;
+	align-items: center;
+	gap: calc( var( --spacing-base ) * 1.5 ); // 12px
+}
+
+.filename {
+	background-color: var( --jp-gray-0 );
+	padding: calc( var( --spacing-base ) * 3 ); // 24px
+	overflow-x: auto;
+}
+
+.modal-actions {
+	display: flex;
+	justify-content: flex-end;
+	padding-top: calc( var( --spacing-base ) * 3 ); // 24px
+	border-top: 1px solid var( --jp-gray-0 );
+
+	.threat-actions {
+		display: flex;
+		gap: calc( var( --spacing-base ) * 2 ); // 16px;
+	}
+}

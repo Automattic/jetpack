@@ -8,7 +8,7 @@ import { withModuleSettingsFormHelpers } from 'components/module-settings/with-m
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
-import cookie from 'cookie';
+import * as cookie from 'cookie';
 import { useState, Component } from 'react';
 import ReactDOM from 'react-dom';
 import { FEATURE_SSO } from '../lib/plans/constants';

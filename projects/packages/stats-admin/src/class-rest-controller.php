@@ -710,7 +710,8 @@ class REST_Controller {
 			'v2',
 			array( 'timeout' => 5 ),
 			null,
-			'wpcom'
+			'wpcom',
+			false
 		);
 	}
 
@@ -1186,7 +1187,12 @@ class REST_Controller {
 				$this->filter_and_build_query_string(
 					$req->get_query_params()
 				)
-			)
+			),
+			'v1.1',
+			array( 'timeout' => 10 ),
+			null,
+			'rest',
+			false
 		);
 	}
 

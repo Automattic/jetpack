@@ -24,7 +24,7 @@ class Jetpack_Media_Summary {
 	/**
 	 * Get media summary for a post.
 	 *
-	 * @param int   $post_id Post ID.
+	 * @param ?int  $post_id Post ID.
 	 * @param int   $blog_id Blog ID, if applicable.
 	 * @param array $args {
 	 *      Optional. An array of arguments.
@@ -34,8 +34,7 @@ class Jetpack_Media_Summary {
 	 *
 	 * @return array|mixed|void
 	 */
-	public static function get( $post_id, $blog_id = 0, $args = array() ) {
-		// @todo: Use type hinting in the line above when at PHP 7.0+.
+	public static function get( ?int $post_id, int $blog_id = 0, array $args = array() ) {
 		$post_id = (int) $post_id;
 		$blog_id = (int) $blog_id;
 

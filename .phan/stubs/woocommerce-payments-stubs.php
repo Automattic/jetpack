@@ -1,6 +1,6 @@
 <?php
 /**
- * Stubs automatically generated from WooPayments 8.4.0
+ * Stubs automatically generated from WooPayments 8.5.0
  * using the definition file `tools/stubs/woocommerce-payments-stub-defs.php` in the Jetpack monorepo.
  *
  * Do not edit this directly! Run tools/stubs/update-stubs.sh to regenerate it.
@@ -9,10 +9,10 @@
 /**
  * Class handling any account connection functionality
  */
-class WC_Payments_Account
+class WC_Payments_Account implements \WCPay\MultiCurrency\Interfaces\MultiCurrencyAccountInterface
 {
     /**
-     * Wipes the account data option, forcing to re-fetch the account status from WP.com.
+     * Wipes the account data option, forcing to re-fetch the account data from WP.com.
      */
     public function clear_cache()
     {
