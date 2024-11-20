@@ -1,34 +1,83 @@
-import { Notice } from '@wordpress/components';
+import { Text, Button } from '@automattic/jetpack-components';
+import { Notice, Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import Text from '../text';
+import { Icon, warning } from '@wordpress/icons';
+import styles from './styles.module.scss';
 
-const ThreatNotices = ( {
-	fixerState,
+/**
+ * ThreatNotice component
+ *
+ * @param {object}   props                        - The component props.
+ * @param {string}   props.status                 - The status of the notice.
+ * @param {string}   props.title                  - The title of the notice.
+ * @param {string}   props.content                - The content of the notice.
+ * @param {Function} props.handleConnectUser      - Function to handle the user connection process.
+ * @param {boolean}  props.userIsConnecting       - Whether the user connection process is in progress.
+ * @param {boolean}  props.credentialsIsFetching  - Whether the credentials are being fetched.
+ * @param {string}   props.credentialsRedirectUrl - The URL to redirect the user to set credentials.
+ *
+ * @return {JSX.Element} The rendered ThreatNotice component.
+ */
+const ThreatNotice = ( {
+	status = 'warning',
+	title,
+	content,
+	handleConnectUser,
+	userIsConnecting,
+	credentialsRedirectUrl,
+	credentialsIsFetching,
 }: {
-	fixerState: { inProgress: boolean; error: boolean; stale: boolean };
-} ) => {
-	if ( fixerState.error ) {
-		return (
-			<Notice isDismissible={ false } status="error">
-				<Text>{ __( 'An error occurred auto-fixing this threat.', 'jetpack' ) }</Text>
-			</Notice>
-		);
-	}
-	if ( fixerState.stale ) {
-		return (
-			<Notice isDismissible={ false } status="error">
-				<Text>{ __( 'The auto-fixer is taking longer than expected.', 'jetpack' ) }</Text>
-			</Notice>
-		);
-	}
-	if ( fixerState.inProgress && ! fixerState.stale ) {
-		return (
-			<Notice isDismissible={ false } status="success">
-				<Text>{ __( 'The auto-fixer is in progress.', 'jetpack' ) }</Text>
-			</Notice>
-		);
-	}
-	return null;
+	status?: 'warning' | 'error' | 'success' | undefined;
+	title: string;
+	content: string;
+	handleConnectUser?: () => void;
+	userIsConnecting?: boolean;
+	credentialsRedirectUrl?: string;
+	credentialsIsFetching?: boolean;
+} ): JSX.Element => {
+	return (
+		<Notice
+			status={ status }
+			isDismissible={ false }
+			children={
+				<div className={ styles.notice }>
+					<div className={ styles.notice__title }>
+						{ status === 'success' ? (
+							<Spinner className={ styles.spinner } />
+						) : (
+							<Icon icon={ warning } size={ 30 } />
+						) }
+						<Text variant="title-small" mb={ 2 }>
+							{ title }
+						</Text>
+					</div>
+					<Text mb={ 2 }>{ content }</Text>
+					<div className={ styles.notice__actions }>
+						{ handleConnectUser && (
+							<Button
+								isExternalLink={ true }
+								weight="regular"
+								isLoading={ userIsConnecting }
+								onClick={ handleConnectUser }
+							>
+								{ __( 'Connect your user account', 'jetpack' ) }
+							</Button>
+						) }
+						{ credentialsRedirectUrl && (
+							<Button
+								isExternalLink={ true }
+								weight="regular"
+								href={ credentialsRedirectUrl }
+								isLoading={ credentialsIsFetching }
+							>
+								{ __( 'Enter server credentials', 'jetpack' ) }
+							</Button>
+						) }
+					</div>
+				</div>
+			}
+		/>
+	);
 };
 
-export default ThreatNotices;
+export default ThreatNotice;

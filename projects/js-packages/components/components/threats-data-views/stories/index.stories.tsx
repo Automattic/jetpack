@@ -1,4 +1,5 @@
 import ThreatsDataViews from '..';
+import { data } from './data';
 
 export default {
 	title: 'JS Packages/Components/Threats Data Views',
@@ -143,132 +144,7 @@ FixerStatuses.args = {
 
 export const Default = args => <ThreatsDataViews { ...args } />;
 Default.args = {
-	data: [
-		{
-			id: 185869885,
-			signature: 'EICAR_AV_Test',
-			title: 'Malicious code found in file: index.php',
-			description:
-				"This is the standard EICAR antivirus test code, and not a real infection. If your site contains this code when you don't expect it to, contact Jetpack support for some help.",
-			firstDetected: '2024-10-07T20:45:06.000Z',
-			fixedIn: null,
-			severity: 8,
-			fixable: { fixer: 'delete' },
-			fixer: { status: 'not_started' },
-			status: 'current',
-			filename: '/var/www/html/wp-content/index.php',
-			context: {
-				'1': 'echo <<<HTML',
-				'2': 'X5O!P%@AP[4\\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*',
-				'3': 'HTML;',
-				marks: {},
-			},
-		},
-		{
-			id: 185869883,
-			signature: 'Suspicious.Files',
-			title: 'Malicious code found in file: fuzzy.php',
-			description:
-				'Our security scanners detected that this file is identical to a previously identified malicious file',
-			firstDetected: '2024-10-07T20:45:06.000Z',
-			fixedIn: null,
-			severity: 4,
-			fixable: false,
-			status: 'ignored',
-			filename: '/var/www/html/wp-content/fuzzy.php',
-			context: '',
-		},
-		{
-			id: 185868972,
-			signature: 'EICAR_AV_Test_Suspicious',
-			title: 'Malicious code found in file: jptt_eicar.php',
-			description:
-				"This is the standard EICAR antivirus test code, and not a real infection. If your site contains this code when you don't expect it to, contact Jetpack support for some help.",
-			firstDetected: '2024-10-07T20:40:15.000Z',
-			fixedIn: null,
-			severity: 1,
-			fixable: false,
-			status: 'current',
-			filename: '/var/www/html/wp-content/uploads/jptt_eicar.php',
-			context: {
-				'6': 'echo <<<HTML',
-				'7': 'X5O!P%@AP[4\\PZX54(P^)7CC)7}$EICAR-SUSPICIOUS-ANTIVIRUS-TEST-FILE!$H+H*',
-				'8': 'HTML;',
-				'9': 'echo <<<HTML',
-				'10': 'X5O!P%@AP[4\\PZX54(P^)7CC)7}$EICAR-SUSPICIOUS-ANTIVIRUS-TEST-FILE!$H+H*',
-				'11': 'HTML;',
-				marks: {},
-			},
-		},
-		{
-			id: 184847701,
-			signature: 'Vulnerable.WP.Extension',
-			title: 'Vulnerable Plugin: WP Super Cache (version 1.6.3)',
-			description:
-				'The plugin WP Super Cache (version 1.6.3) has a known vulnerability. The WP Super Cache plugin before version 1.7.2 is vulnerable to an authenticated RCE in the settings page.',
-			firstDetected: '2024-10-02T17:34:59.000Z',
-			fixedIn: '1.12.4',
-			severity: 3,
-			fixable: { fixer: 'update', target: '1.12.4', extensionStatus: 'inactive' },
-			fixer: { status: 'in_progress', lastUpdated: new Date().toISOString() },
-			status: 'current',
-			filename: null,
-			context: null,
-			source: 'https://wpscan.com/vulnerability/733d8a02-0d44-4b78-bbb2-37e447acd2f3',
-			extension: {
-				name: 'WP Super Cache',
-				slug: 'wp-super-cache',
-				version: '1.6.3',
-				type: 'plugin',
-			},
-		},
-		{
-			id: 185868945,
-			signature: 'Core.File.Modification',
-			title: 'Compromised WordPress core file: index.php',
-			description:
-				'Core WordPress files are not normally changed. If you did not make these changes you should review the code.',
-			firstDetected: '2024-10-07T20:40:05.000Z',
-			severity: 4,
-			status: 'current',
-			fixable: {
-				fixer: 'replace',
-				file: '/var/www/html/wp-admin/index.php',
-				extensionStatus: '',
-			},
-			filename: '/var/www/html/wp-admin/index.php',
-			diff: "--- /tmp/wordpress/6.6.2/wordpress/wp-admin/index.php\t2024-10-07 20:40:04.887546480 +0000\n+++ /var/www/html/wp-admin/index.php\t2024-10-07 20:39:58.775512965 +0000\n@@ -210,3 +210,4 @@\n wp_print_community_events_templates();\n \n require_once ABSPATH . 'wp-admin/admin-footer.php';\n+if ( true === false ) exit();\n\\ No newline at end of file\n",
-		},
-		{
-			id: 13216959,
-			signature: 'Vulnerable.WP.Core',
-			title: 'Vulnerable WordPress Version (6.4.3)',
-			description: 'The installed version of WordPress (6.4.3) has a known vulnerability. ',
-			firstDetected: '2024-07-15T21:56:50.000Z',
-			severity: 4,
-			fixedOn: '2024-07-15T22:01:42.000Z',
-			status: 'fixed',
-			fixable: false,
-			version: '6.4.3',
-			source: '',
-		},
-		{
-			id: '7275a176-d579-471a-8492-df8edbdf27de',
-			title: 'WooCommerce <= 3.4.5 - Authenticated Stored XSS',
-			description:
-				'The WooCommerce WordPress plugin was affected by an Authenticated Stored XSS security vulnerability.',
-			firstDetected: '2024-07-15T21:56:50.000Z',
-			fixedIn: '3.4.6',
-			status: 'current',
-			source: 'https://wpscan.com/vulnerability/7275a176-d579-471a-8492-df8edbdf27de',
-			extension: {
-				name: 'WooCommerce',
-				slug: 'woocommerce',
-				version: '3.4.5',
-				type: 'plugin',
-			},
-		},
-	],
+	data: data,
 	filters: [
 		{
 			field: 'status',
@@ -293,134 +169,34 @@ Default.args = {
 		),
 };
 
-export const UserConnectedRequired = args => <ThreatsDataViews { ...args } />;
-UserConnectedRequired.args = {
-	data: [
+export const AdditionalConnectionsNeeded = args => <ThreatsDataViews { ...args } />;
+AdditionalConnectionsNeeded.args = {
+	data: data,
+	filters: [
 		{
-			id: 185869885,
-			signature: 'EICAR_AV_Test',
-			title: 'Malicious code found in file: index.php',
-			description:
-				"This is the standard EICAR antivirus test code, and not a real infection. If your site contains this code when you don't expect it to, contact Jetpack support for some help.",
-			firstDetected: '2024-10-07T20:45:06.000Z',
-			fixedIn: null,
-			severity: 8,
-			fixable: { fixer: 'delete' },
-			fixer: { status: 'not_started' },
-			status: 'current',
-			filename: '/var/www/html/wp-content/index.php',
-			context: {
-				'1': 'echo <<<HTML',
-				'2': 'X5O!P%@AP[4\\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*',
-				'3': 'HTML;',
-				marks: {},
-			},
-		},
-		{
-			id: 185869883,
-			signature: 'Suspicious.Files',
-			title: 'Malicious code found in file: fuzzy.php',
-			description:
-				'Our security scanners detected that this file is identical to a previously identified malicious file',
-			firstDetected: '2024-10-07T20:45:06.000Z',
-			fixedIn: null,
-			severity: 4,
-			fixable: false,
-			status: 'ignored',
-			filename: '/var/www/html/wp-content/fuzzy.php',
-			context: '',
-		},
-		{
-			id: 185868972,
-			signature: 'EICAR_AV_Test_Suspicious',
-			title: 'Malicious code found in file: jptt_eicar.php',
-			description:
-				"This is the standard EICAR antivirus test code, and not a real infection. If your site contains this code when you don't expect it to, contact Jetpack support for some help.",
-			firstDetected: '2024-10-07T20:40:15.000Z',
-			fixedIn: null,
-			severity: 1,
-			fixable: false,
-			status: 'current',
-			filename: '/var/www/html/wp-content/uploads/jptt_eicar.php',
-			context: {
-				'6': 'echo <<<HTML',
-				'7': 'X5O!P%@AP[4\\PZX54(P^)7CC)7}$EICAR-SUSPICIOUS-ANTIVIRUS-TEST-FILE!$H+H*',
-				'8': 'HTML;',
-				'9': 'echo <<<HTML',
-				'10': 'X5O!P%@AP[4\\PZX54(P^)7CC)7}$EICAR-SUSPICIOUS-ANTIVIRUS-TEST-FILE!$H+H*',
-				'11': 'HTML;',
-				marks: {},
-			},
-		},
-		{
-			id: 184847701,
-			signature: 'Vulnerable.WP.Extension',
-			title: 'Vulnerable Plugin: WP Super Cache (version 1.6.3)',
-			description:
-				'The plugin WP Super Cache (version 1.6.3) has a known vulnerability. The WP Super Cache plugin before version 1.7.2 is vulnerable to an authenticated RCE in the settings page.',
-			firstDetected: '2024-10-02T17:34:59.000Z',
-			fixedIn: '1.12.4',
-			severity: 3,
-			fixable: { fixer: 'update', target: '1.12.4', extensionStatus: 'inactive' },
-			fixer: { status: 'in_progress', lastUpdated: new Date().toISOString() },
-			status: 'current',
-			filename: null,
-			context: null,
-			source: 'https://wpscan.com/vulnerability/733d8a02-0d44-4b78-bbb2-37e447acd2f3',
-			extension: {
-				name: 'WP Super Cache',
-				slug: 'wp-super-cache',
-				version: '1.6.3',
-				type: 'plugin',
-			},
-		},
-		{
-			id: 185868945,
-			signature: 'Core.File.Modification',
-			title: 'Compromised WordPress core file: index.php',
-			description:
-				'Core WordPress files are not normally changed. If you did not make these changes you should review the code.',
-			firstDetected: '2024-10-07T20:40:05.000Z',
-			severity: 4,
-			status: 'current',
-			fixable: {
-				fixer: 'replace',
-				file: '/var/www/html/wp-admin/index.php',
-				extensionStatus: '',
-			},
-			filename: '/var/www/html/wp-admin/index.php',
-			diff: "--- /tmp/wordpress/6.6.2/wordpress/wp-admin/index.php\t2024-10-07 20:40:04.887546480 +0000\n+++ /var/www/html/wp-admin/index.php\t2024-10-07 20:39:58.775512965 +0000\n@@ -210,3 +210,4 @@\n wp_print_community_events_templates();\n \n require_once ABSPATH . 'wp-admin/admin-footer.php';\n+if ( true === false ) exit();\n\\ No newline at end of file\n",
-		},
-		{
-			id: 13216959,
-			signature: 'Vulnerable.WP.Core',
-			title: 'Vulnerable WordPress Version (6.4.3)',
-			description: 'The installed version of WordPress (6.4.3) has a known vulnerability. ',
-			firstDetected: '2024-07-15T21:56:50.000Z',
-			severity: 4,
-			fixedOn: '2024-07-15T22:01:42.000Z',
-			status: 'fixed',
-			fixable: false,
-			version: '6.4.3',
-			source: '',
-		},
-		{
-			id: '7275a176-d579-471a-8492-df8edbdf27de',
-			title: 'WooCommerce <= 3.4.5 - Authenticated Stored XSS',
-			description:
-				'The WooCommerce WordPress plugin was affected by an Authenticated Stored XSS security vulnerability.',
-			firstDetected: '2024-07-15T21:56:50.000Z',
-			fixedIn: '3.4.6',
-			status: 'current',
-			source: 'https://wpscan.com/vulnerability/7275a176-d579-471a-8492-df8edbdf27de',
-			extension: {
-				name: 'WooCommerce',
-				slug: 'woocommerce',
-				version: '3.4.5',
-				type: 'plugin',
-			},
+			field: 'status',
+			operator: 'isAny',
+			value: [ 'current' ],
 		},
 	],
+	isUserConnected: false,
+	handleConnectUser: () =>
+		alert( 'Connect user action callback triggered! This is handled by the component consumer.' ), // eslint-disable-line no-alert
+	isThreatEligibleForFix: () => true,
+	onFixThreats: () =>
+		alert( 'Threat fix action callback triggered! This is handled by the component consumer.' ), // eslint-disable-line no-alert
+	onIgnoreThreats: () =>
+		alert( 'Ignore threat action callback triggered! This is handled by the component consumer.' ), // eslint-disable-line no-alert
+	onUnignoreThreats: () =>
+		// eslint-disable-next-line no-alert
+		alert(
+			'Unignore threat action callback triggered! This is handled by the component consumer.'
+		),
+};
+
+export const UserConnectionNeeded = args => <ThreatsDataViews { ...args } />;
+UserConnectionNeeded.args = {
+	data: data,
 	filters: [
 		{
 			field: 'status',
@@ -445,142 +221,13 @@ UserConnectedRequired.args = {
 
 export const CredentialsRequired = args => <ThreatsDataViews { ...args } />;
 CredentialsRequired.args = {
-	data: [
-		{
-			id: 185869885,
-			signature: 'EICAR_AV_Test',
-			title: 'Malicious code found in file: index.php',
-			description:
-				"This is the standard EICAR antivirus test code, and not a real infection. If your site contains this code when you don't expect it to, contact Jetpack support for some help.",
-			firstDetected: '2024-10-07T20:45:06.000Z',
-			fixedIn: null,
-			severity: 8,
-			fixable: { fixer: 'delete' },
-			fixer: { status: 'not_started' },
-			status: 'current',
-			filename: '/var/www/html/wp-content/index.php',
-			context: {
-				'1': 'echo <<<HTML',
-				'2': 'X5O!P%@AP[4\\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*',
-				'3': 'HTML;',
-				marks: {},
-			},
-		},
-		{
-			id: 185869883,
-			signature: 'Suspicious.Files',
-			title: 'Malicious code found in file: fuzzy.php',
-			description:
-				'Our security scanners detected that this file is identical to a previously identified malicious file',
-			firstDetected: '2024-10-07T20:45:06.000Z',
-			fixedIn: null,
-			severity: 4,
-			fixable: false,
-			status: 'ignored',
-			filename: '/var/www/html/wp-content/fuzzy.php',
-			context: '',
-		},
-		{
-			id: 185868972,
-			signature: 'EICAR_AV_Test_Suspicious',
-			title: 'Malicious code found in file: jptt_eicar.php',
-			description:
-				"This is the standard EICAR antivirus test code, and not a real infection. If your site contains this code when you don't expect it to, contact Jetpack support for some help.",
-			firstDetected: '2024-10-07T20:40:15.000Z',
-			fixedIn: null,
-			severity: 1,
-			fixable: false,
-			status: 'current',
-			filename: '/var/www/html/wp-content/uploads/jptt_eicar.php',
-			context: {
-				'6': 'echo <<<HTML',
-				'7': 'X5O!P%@AP[4\\PZX54(P^)7CC)7}$EICAR-SUSPICIOUS-ANTIVIRUS-TEST-FILE!$H+H*',
-				'8': 'HTML;',
-				'9': 'echo <<<HTML',
-				'10': 'X5O!P%@AP[4\\PZX54(P^)7CC)7}$EICAR-SUSPICIOUS-ANTIVIRUS-TEST-FILE!$H+H*',
-				'11': 'HTML;',
-				marks: {},
-			},
-		},
-		{
-			id: 184847701,
-			signature: 'Vulnerable.WP.Extension',
-			title: 'Vulnerable Plugin: WP Super Cache (version 1.6.3)',
-			description:
-				'The plugin WP Super Cache (version 1.6.3) has a known vulnerability. The WP Super Cache plugin before version 1.7.2 is vulnerable to an authenticated RCE in the settings page.',
-			firstDetected: '2024-10-02T17:34:59.000Z',
-			fixedIn: '1.12.4',
-			severity: 3,
-			fixable: { fixer: 'update', target: '1.12.4', extensionStatus: 'inactive' },
-			fixer: { status: 'in_progress', lastUpdated: new Date().toISOString() },
-			status: 'current',
-			filename: null,
-			context: null,
-			source: 'https://wpscan.com/vulnerability/733d8a02-0d44-4b78-bbb2-37e447acd2f3',
-			extension: {
-				name: 'WP Super Cache',
-				slug: 'wp-super-cache',
-				version: '1.6.3',
-				type: 'plugin',
-			},
-		},
-		{
-			id: 185868945,
-			signature: 'Core.File.Modification',
-			title: 'Compromised WordPress core file: index.php',
-			description:
-				'Core WordPress files are not normally changed. If you did not make these changes you should review the code.',
-			firstDetected: '2024-10-07T20:40:05.000Z',
-			severity: 4,
-			status: 'current',
-			fixable: {
-				fixer: 'replace',
-				file: '/var/www/html/wp-admin/index.php',
-				extensionStatus: '',
-			},
-			filename: '/var/www/html/wp-admin/index.php',
-			diff: "--- /tmp/wordpress/6.6.2/wordpress/wp-admin/index.php\t2024-10-07 20:40:04.887546480 +0000\n+++ /var/www/html/wp-admin/index.php\t2024-10-07 20:39:58.775512965 +0000\n@@ -210,3 +210,4 @@\n wp_print_community_events_templates();\n \n require_once ABSPATH . 'wp-admin/admin-footer.php';\n+if ( true === false ) exit();\n\\ No newline at end of file\n",
-		},
-		{
-			id: 13216959,
-			signature: 'Vulnerable.WP.Core',
-			title: 'Vulnerable WordPress Version (6.4.3)',
-			description: 'The installed version of WordPress (6.4.3) has a known vulnerability. ',
-			firstDetected: '2024-07-15T21:56:50.000Z',
-			severity: 4,
-			fixedOn: '2024-07-15T22:01:42.000Z',
-			status: 'fixed',
-			fixable: false,
-			version: '6.4.3',
-			source: '',
-		},
-		{
-			id: '7275a176-d579-471a-8492-df8edbdf27de',
-			title: 'WooCommerce <= 3.4.5 - Authenticated Stored XSS',
-			description:
-				'The WooCommerce WordPress plugin was affected by an Authenticated Stored XSS security vulnerability.',
-			firstDetected: '2024-07-15T21:56:50.000Z',
-			fixedIn: '3.4.6',
-			status: 'current',
-			source: 'https://wpscan.com/vulnerability/7275a176-d579-471a-8492-df8edbdf27de',
-			extension: {
-				name: 'WooCommerce',
-				slug: 'woocommerce',
-				version: '3.4.5',
-				type: 'plugin',
-			},
-		},
-	],
-	filters: [
-		{
-			field: 'status',
-			operator: 'isAny',
-			value: [ 'current' ],
-		},
-	],
+	data: data,
 	isUserConnected: true,
 	hasConnectedOwner: true,
+	handleConnectUser: () =>
+		alert( 'Connect user action callback triggered! This is handled by the component consumer.' ), // eslint-disable-line no-alert
 	credentials: false,
+	credentialsRedirectUrl: '#',
 	isThreatEligibleForFix: () => true,
 	onFixThreats: () =>
 		alert( 'Threat fix action callback triggered! This is handled by the component consumer.' ), // eslint-disable-line no-alert

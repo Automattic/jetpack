@@ -2,8 +2,8 @@ import { Button } from '@automattic/jetpack-components';
 import { type Threat, getDetailedFixerAction } from '@automattic/jetpack-scan';
 import { __ } from '@wordpress/i18n';
 import React, { useCallback, useContext, useMemo } from 'react';
+import FixerNotice from './fixer-notice';
 import styles from './styles.module.scss';
-import ThreatNotice from './threat-notice';
 import { ThreatModalContext } from '.';
 
 /**
@@ -61,41 +61,43 @@ const ThreatActions = ( {
 	}
 
 	return (
-		<div className={ styles[ 'modal-actions' ] }>
-			<ThreatNotice fixerState={ fixerState } />
-			{ threat.status === 'ignored' && (
-				<Button
-					disabled={ disabled }
-					isDestructive={ true }
-					variant="secondary"
-					onClick={ onUnignoreClick }
-				>
-					{ __( 'Un-ignore threat', 'jetpack' ) }
-				</Button>
-			) }
-			{ threat.status === 'current' && (
-				<>
+		<div className={ styles[ 'modal-footer' ] }>
+			<FixerNotice fixerState={ fixerState } />
+			<div className={ styles[ 'threat-actions' ] }>
+				{ threat.status === 'ignored' && (
 					<Button
+						disabled={ disabled }
 						isDestructive={ true }
 						variant="secondary"
-						onClick={ onIgnoreClick }
-						disabled={ disabled || ( fixerState.inProgress && ! fixerState.stale ) }
+						onClick={ onUnignoreClick }
 					>
-						{ __( 'Ignore threat', 'jetpack' ) }
+						{ __( 'Un-ignore threat', 'jetpack' ) }
 					</Button>
-					{ threat.fixable && (
+				) }
+				{ threat.status === 'current' && (
+					<>
 						<Button
-							isPrimary
+							isDestructive={ true }
+							variant="secondary"
+							onClick={ onIgnoreClick }
 							disabled={ disabled || ( fixerState.inProgress && ! fixerState.stale ) }
-							onClick={ onFixClick }
 						>
-							{ fixerState.error || fixerState.stale
-								? __( 'Retry fixer', 'jetpack' )
-								: detailedFixerAction }
+							{ __( 'Ignore threat', 'jetpack' ) }
 						</Button>
-					) }
-				</>
-			) }
+						{ threat.fixable && (
+							<Button
+								isPrimary
+								disabled={ disabled || ( fixerState.inProgress && ! fixerState.stale ) }
+								onClick={ onFixClick }
+							>
+								{ fixerState.error || fixerState.stale
+									? __( 'Retry fixer', 'jetpack' )
+									: detailedFixerAction }
+							</Button>
+						) }
+					</>
+				) }
+			</div>
 		</div>
 	);
 };
