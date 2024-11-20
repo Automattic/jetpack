@@ -73,10 +73,6 @@ class WPCOM_REST_API_V2_Endpoint_Site_Migration_WPCOM_Migration_Key extends WP_R
 			return false;
 		}
 
-		if ( 'read' === get_option( $this->key_is_read_option_name, false ) ) {
-			return false;
-		}
-
 		return true;
 	}
 
