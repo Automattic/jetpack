@@ -4,7 +4,7 @@
 		"Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
 		"This file is @generated automatically"
 	],
-	"content-hash": "123885af37389b4c687c46a31399b7d6",
+	"content-hash": "7b6c53f88fcb9c7098d80137fd6d13c1",
 	"packages": [
 		{
 			"name": "automattic/jetpack-a8c-mc-stats",
@@ -3443,10 +3443,10 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/patchwork-redefine-exit",
-				"reference": "108aa5fc130f7b384231cc8ba658a9137ff188ea"
+				"reference": "a889461491a0e50272ec460ffb3fd6fa2fefde3a"
 			},
 			"require": {
-				"antecedent/patchwork": "^2.1",
+				"antecedent/patchwork": "^2.2",
 				"php": ">=7.2"
 			},
 			"require-dev": {
@@ -5294,16 +5294,16 @@
 		},
 		{
 			"name": "symfony/console",
-			"version": "v7.1.7",
+			"version": "v7.1.8",
 			"source": {
 				"type": "git",
 				"url": "https://github.com/symfony/console.git",
-				"reference": "3284aafcac338b6e86fd955ee4d794cbe434151a"
+				"reference": "ff04e5b5ba043d2badfb308197b9e6b42883fcd5"
 			},
 			"dist": {
 				"type": "zip",
-				"url": "https://api.github.com/repos/symfony/console/zipball/3284aafcac338b6e86fd955ee4d794cbe434151a",
-				"reference": "3284aafcac338b6e86fd955ee4d794cbe434151a",
+				"url": "https://api.github.com/repos/symfony/console/zipball/ff04e5b5ba043d2badfb308197b9e6b42883fcd5",
+				"reference": "ff04e5b5ba043d2badfb308197b9e6b42883fcd5",
 				"shasum": ""
 			},
 			"require": {
@@ -5367,7 +5367,7 @@
 				"terminal"
 			],
 			"support": {
-				"source": "https://github.com/symfony/console/tree/v7.1.7"
+				"source": "https://github.com/symfony/console/tree/v7.1.8"
 			},
 			"funding": [
 				{
@@ -5383,7 +5383,7 @@
 					"type": "tidelift"
 				}
 			],
-			"time": "2024-11-05T15:34:55+00:00"
+			"time": "2024-11-06T14:23:19+00:00"
 		},
 		{
 			"name": "symfony/deprecation-contracts",
@@ -5772,16 +5772,16 @@
 		},
 		{
 			"name": "symfony/process",
-			"version": "v7.1.7",
+			"version": "v7.1.8",
 			"source": {
 				"type": "git",
 				"url": "https://github.com/symfony/process.git",
-				"reference": "9b8a40b7289767aa7117e957573c2a535efe6585"
+				"reference": "42783370fda6e538771f7c7a36e9fa2ee3a84892"
 			},
 			"dist": {
 				"type": "zip",
-				"url": "https://api.github.com/repos/symfony/process/zipball/9b8a40b7289767aa7117e957573c2a535efe6585",
-				"reference": "9b8a40b7289767aa7117e957573c2a535efe6585",
+				"url": "https://api.github.com/repos/symfony/process/zipball/42783370fda6e538771f7c7a36e9fa2ee3a84892",
+				"reference": "42783370fda6e538771f7c7a36e9fa2ee3a84892",
 				"shasum": ""
 			},
 			"require": {
@@ -5813,7 +5813,7 @@
 			"description": "Executes commands in sub-processes",
 			"homepage": "https://symfony.com",
 			"support": {
-				"source": "https://github.com/symfony/process/tree/v7.1.7"
+				"source": "https://github.com/symfony/process/tree/v7.1.8"
 			},
 			"funding": [
 				{
@@ -5829,7 +5829,7 @@
 					"type": "tidelift"
 				}
 			],
-			"time": "2024-11-06T09:25:12+00:00"
+			"time": "2024-11-06T14:23:19+00:00"
 		},
 		{
 			"name": "symfony/service-contracts",
@@ -5916,16 +5916,16 @@
 		},
 		{
 			"name": "symfony/string",
-			"version": "v7.1.6",
+			"version": "v7.1.8",
 			"source": {
 				"type": "git",
 				"url": "https://github.com/symfony/string.git",
-				"reference": "61b72d66bf96c360a727ae6232df5ac83c71f626"
+				"reference": "591ebd41565f356fcd8b090fe64dbb5878f50281"
 			},
 			"dist": {
 				"type": "zip",
-				"url": "https://api.github.com/repos/symfony/string/zipball/61b72d66bf96c360a727ae6232df5ac83c71f626",
-				"reference": "61b72d66bf96c360a727ae6232df5ac83c71f626",
+				"url": "https://api.github.com/repos/symfony/string/zipball/591ebd41565f356fcd8b090fe64dbb5878f50281",
+				"reference": "591ebd41565f356fcd8b090fe64dbb5878f50281",
 				"shasum": ""
 			},
 			"require": {
@@ -5983,7 +5983,7 @@
 				"utf8"
 			],
 			"support": {
-				"source": "https://github.com/symfony/string/tree/v7.1.6"
+				"source": "https://github.com/symfony/string/tree/v7.1.8"
 			},
 			"funding": [
 				{
@@ -5999,7 +5999,7 @@
 					"type": "tidelift"
 				}
 			],
-			"time": "2024-09-25T14:20:29+00:00"
+			"time": "2024-11-13T13:31:21+00:00"
 		},
 		{
 			"name": "theseer/tokenizer",
