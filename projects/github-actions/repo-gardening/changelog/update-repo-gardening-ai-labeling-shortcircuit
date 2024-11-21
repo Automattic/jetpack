@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+AI Labeling: do not attempt to add feature labels to an issue where they were already provided
