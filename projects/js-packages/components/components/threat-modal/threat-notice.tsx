@@ -51,7 +51,7 @@ const ThreatNotice = ( {
 							{ title }
 						</Text>
 					</div>
-					<Text mb={ 2 }>{ content }</Text>
+					<Text>{ content }</Text>
 					<div className={ styles.notice__actions }>
 						{ handleConnectUser && (
 							<Button
