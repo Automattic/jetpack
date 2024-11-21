@@ -31,11 +31,13 @@ const ProductSpotlightComponent = props => {
 			<div className="jp-recommendations-discount-card__container">
 				<div className="jp-recommendations-discount-card__card">
 					<div className="jp-recommendations-discount-card__card-header">
-						<img
-							className="jp-recommendations-discount-card__header-icon"
-							src={ imagePath + productCardIcon }
-							alt=""
-						/>
+						{ productCardIcon && (
+							<img
+								className="jp-recommendations-discount-card__header-icon"
+								src={ imagePath + productCardIcon }
+								alt=""
+							/>
+						) }
 					</div>
 					<div className="jp-recommendations-discount-card__card-body">
 						<h3 className="jp-recommendations-discount-card__heading">{ productCardTitle }</h3>

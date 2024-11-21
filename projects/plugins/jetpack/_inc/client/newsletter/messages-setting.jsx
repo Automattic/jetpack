@@ -1,5 +1,4 @@
 import { __ } from '@wordpress/i18n';
-import { FormLabel } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
@@ -41,7 +40,7 @@ const MessagesSetting = props => {
 	return (
 		<SettingsCard
 			{ ...props }
-			header={ __( 'Messages', 'jetpack' ) }
+			header={ __( 'Welcome email message', 'jetpack' ) }
 			feature={ FEATURE_NEWSLETTER_JETPACK }
 			module={ SUBSCRIPTIONS_MODULE_NAME }
 			saveDisabled={ isSaving }
@@ -55,21 +54,17 @@ const MessagesSetting = props => {
 			>
 				<p className="jp-settings-card__email-settings">
 					{ __(
-						'These settings change the emails sent from your site to your readers.',
+						'Sent to your email subscribers when they subscribe to your newsletter.',
 						'jetpack'
 					) }
 				</p>
-				<FormLabel>
-					<span className="jp-form-label-wide email-settings__title">
-						{ __( 'Welcome email message', 'jetpack' ) }
-					</span>
-					<Textarea
-						disabled={ disabled }
-						name={ SUBSCRIPTION_OPTIONS }
-						value={ welcomeMessage }
-						onChange={ changeWelcomeMessageState }
-					/>
-				</FormLabel>
+				<Textarea
+					ariaLabel={ __( 'Welcome email message', 'jetpack' ) }
+					disabled={ disabled }
+					name={ SUBSCRIPTION_OPTIONS }
+					value={ welcomeMessage }
+					onChange={ changeWelcomeMessageState }
+				/>
 				<p className="jp-form-setting-explanation">
 					{ __(
 						'You can use plain text or HTML tags in this textarea for formatting.',

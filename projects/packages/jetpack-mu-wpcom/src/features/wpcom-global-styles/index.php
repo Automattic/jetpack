@@ -174,13 +174,22 @@ function wpcom_global_styles_enqueue_block_editor_assets() {
 	if ( class_exists( 'WPCom_Languages' ) ) {
 		$learn_more_about_styles_post_id = WPCom_Languages::localize_url( $learn_more_about_styles_post_id );
 	}
+
+	// @TODO Remove this once the global styles are available for all users on the Personal Plan.
+	$upgrade_url = "$calypso_domain/plans/$site_slug?plan=value_bundle&feature=style-customization";
+	$plan_name   = Plans::get_plan( 'value_bundle' )->product_name_short;
+	if ( class_exists( 'WPCOM_Feature_Flags' ) && WPCOM_Feature_Flags::is_enabled( WPCOM_Feature_Flags::GLOBAL_STYLES_ON_PERSONAL_PLAN ) ) {
+		$plan_name   = Plans::get_plan( 'personal-bundle' )->product_name_short;
+		$upgrade_url = "$calypso_domain/plans/$site_slug?plan=personal-bundle&feature=style-customization";
+	}
+
 	wp_localize_script(
 		'wpcom-global-styles-editor',
 		'wpcomGlobalStyles',
 		array(
-			'upgradeUrl'                 => "$calypso_domain/plans/$site_slug?plan=value_bundle&feature=style-customization",
+			'upgradeUrl'                 => $upgrade_url,
 			'wpcomBlogId'                => wpcom_global_styles_get_wpcom_current_blog_id(),
-			'planName'                   => Plans::get_plan( 'value_bundle' )->product_name_short,
+			'planName'                   => $plan_name,
 			'modalImage'                 => plugins_url( 'image.svg', __FILE__ ),
 			'learnMoreAboutStylesUrl'    => $learn_more_about_styles_support_url,
 			'learnMoreAboutStylesPostId' => $learn_more_about_styles_post_id,
@@ -451,7 +460,13 @@ function wpcom_display_global_styles_launch_bar( $bar_controls ) {
 		$site_slug = wp_parse_url( $home_url, PHP_URL_HOST );
 	}
 
-	$upgrade_url = "https://wordpress.com/plans/$site_slug?plan=value_bundle&feature=style-customization";
+	// @TODO Remove this once the global styles are available for all users on the Personal Plan.
+	$gs_upgrade_plan = WPCOM_VALUE_BUNDLE;
+	$upgrade_url     = "https://wordpress.com/plans/$site_slug?plan=value_bundle&feature=style-customization";
+	if ( class_exists( 'WPCOM_Feature_Flags' ) && WPCOM_Feature_Flags::is_enabled( WPCOM_Feature_Flags::GLOBAL_STYLES_ON_PERSONAL_PLAN ) ) {
+		$gs_upgrade_plan = WPCOM_PERSONAL_BUNDLE;
+		$upgrade_url     = "https://wordpress.com/plans/$site_slug?plan=personal-bundle&feature=style-customization";
+	}
 
 	if ( wpcom_is_previewing_global_styles() ) {
 		$preview_location = add_query_arg( 'hide-global-styles', '' );
@@ -500,7 +515,7 @@ function wpcom_display_global_styles_launch_bar( $bar_controls ) {
 							'jetpack-mu-wpcom'
 						),
 						$support_url,
-						get_store_product( WPCOM_VALUE_BUNDLE )->product_name
+						get_store_product( $gs_upgrade_plan )->product_name
 					);
 					printf(
 						wp_kses(
@@ -575,7 +590,7 @@ require_once __DIR__ . '/api/class-global-styles-status-rest-api.php';
  *
  * @return bool
  */
-function wpcom_is_previewing_global_styles( int $user_id = null ) {
+function wpcom_is_previewing_global_styles( ?int $user_id = null ) {
 	if ( null === $user_id ) {
 		$user_id = get_current_user_id();
 	}
@@ -634,6 +649,16 @@ function wpcom_site_has_global_styles_feature( $blog_id = 0 ) {
 			$user = 'a8c'; // A non-empty string avoids storing the current user as author of the sticker change.
 			remove_blog_sticker( 'wpcom-global-styles-personal-plan', $note, $user, $blog_id );
 			return false;
+		}
+	}
+
+	// If the GLOBAL_STYLES_ON_PERSONAL_PLAN feature is enabled, we need to check if the site has a Personal plan and add the sticker.
+	if ( class_exists( 'WPCOM_Feature_Flags' ) && WPCOM_Feature_Flags::is_enabled( 'GLOBAL_STYLES_ON_PERSONAL_PLAN' ) ) {
+		if ( wpcom_site_has_personal_plan( $blog_id ) ) {
+			$note = 'Automated sticker. See paYJgx-5w2-p2';
+			$user = 'a8c'; // A non-empty string avoids storing the current user as author of the sticker change.
+			add_blog_sticker( 'wpcom-global-styles-personal-plan', $note, $user, $blog_id );
+			return true;
 		}
 	}
 

@@ -301,11 +301,8 @@ function zeroBSCRM_admin_top_menu( $branding = 'zero-bs-crm', $page = 'dash' ) {
 
 					<a class="item" href="<?php echo esc_url( zeroBSCRM_getAdminURL( $zbs->slugs['managecontacts'] ) ); ?>"><i class="icon list"></i> <?php esc_html_e( 'View all', 'zero-bs-crm' ); ?></a>
 
-					<?php if ( zeroBSCRM_permsCustomers() ) { // CONTACT TAGS ?>
+					<?php if ( zeroBSCRM_permsCustomers() ) { // CONTACT TAGS AND SEGMENTS ?>
 					<a class="item" href="<?php echo jpcrm_esc_link( 'tags', -1, 'zerobs_customer', false, 'contact' ); ?>"><i class="icon tags"></i> <?php esc_html_e( 'Tags', 'zero-bs-crm' ); ?></a>
-					<?php } ?>
-
-					<?php if ( zeroBSCRM_permsCustomers() && $zbs->isDAL2() ) { // CONTACT SEGMENTS ?>
 					<a class="item" href="<?php echo jpcrm_esc_link( $zbs->slugs['segments'], -1, 'zerobs_customer', false, 'contact' ); ?>"><i class="chart pie icon"></i> <?php esc_html_e( 'Segments', 'zero-bs-crm' ); ?></a>
 					<?php } ?>
 
@@ -390,16 +387,9 @@ function zeroBSCRM_admin_top_menu( $branding = 'zero-bs-crm', $page = 'dash' ) {
 						?>
 					<a class="item" href="<?php echo esc_url( zeroBSCRM_getAdminURL( $zbs->slugs['managequotes'] ) ); ?>"><i class="icon list"></i> <?php esc_html_e( 'View all', 'zero-bs-crm' ); ?></a>
 					
-					<?php if ( zeroBSCRM_permsQuotes() && $zbs->isDAL3() ) { // TAGS ?>
+					<?php if ( zeroBSCRM_permsQuotes() ) { // TAGS ?>
 					<a class="item" href="<?php echo jpcrm_esc_link( 'tags', -1, ZBS_TYPE_QUOTE, false, 'quote' ); ?>"><i class="icon tags"></i> <?php esc_html_e( 'Tags', 'zero-bs-crm' ); ?></a>
-					<?php } ?>
-
-						<?php if ( zeroBSCRM_permsQuotes() ) { ?>
 					<a class="item" href="<?php echo esc_url( zeroBSCRM_getAdminURL( $zbs->slugs['quote-templates'] ) ); ?>"><i class="icon file text"></i> <?php esc_html_e( 'Templates', 'zero-bs-crm' ); ?></a>
-					<?php } ?>
-
-
-						<?php if ( zeroBSCRM_permsQuotes() ) { ?>
 					<a class="item" href="<?php echo esc_url( zeroBSCRM_getAdminURL( $zbs->slugs['export-tools'] ) ); ?>&zbstype=quote"><i class="icon cloud download"></i> <?php esc_html_e( 'Export', 'zero-bs-crm' ); ?></a>
 					<?php } ?>
 
@@ -437,11 +427,8 @@ function zeroBSCRM_admin_top_menu( $branding = 'zero-bs-crm', $page = 'dash' ) {
 					?>
 					<a class="item" href="<?php echo esc_url( zeroBSCRM_getAdminURL( $zbs->slugs['manageinvoices'] ) ); ?>"><i class="icon list"></i> <?php esc_html_e( 'View all', 'zero-bs-crm' ); ?></a>
 
-					<?php if ( zeroBSCRM_permsInvoices() && $zbs->isDAL3() ) { // TAGS ?>
+					<?php if ( zeroBSCRM_permsInvoices() ) { // TAGS ?>
 					<a class="item" href="<?php echo jpcrm_esc_link( 'tags', -1, ZBS_TYPE_INVOICE, false, 'invoice' ); ?>"><i class="icon tags"></i> <?php esc_html_e( 'Tags', 'zero-bs-crm' ); ?></a>
-					<?php } ?>
-					
-					<?php if ( zeroBSCRM_permsInvoices() ) { ?>
 					<a class="item" href="<?php echo esc_url( zeroBSCRM_getAdminURL( $zbs->slugs['export-tools'] ) ); ?>&zbstype=invoice"><i class="icon cloud download"></i> <?php esc_html_e( 'Export', 'zero-bs-crm' ); ?></a>
 					<?php } ?>
 

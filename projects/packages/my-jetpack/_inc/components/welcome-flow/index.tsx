@@ -47,7 +47,7 @@ const WelcomeFlow: FC< Props > = ( {
 	const [ prevStep, setPrevStep ] = useState( '' );
 
 	const currentStep = useMemo( () => {
-		if ( ! siteIsRegistered ) {
+		if ( ! siteIsRegistered || welcomeFlowExperiment.isLoading ) {
 			return 'connection';
 		} else if ( ! isProcessingEvaluation ) {
 			if ( ! recommendedModules && ! isJetpackUserNew() ) {
@@ -61,7 +61,12 @@ const WelcomeFlow: FC< Props > = ( {
 		}
 
 		return 'evaluation-processing';
-	}, [ isProcessingEvaluation, recommendedModules, siteIsRegistered ] );
+	}, [
+		isProcessingEvaluation,
+		recommendedModules,
+		siteIsRegistered,
+		welcomeFlowExperiment.isLoading,
+	] );
 
 	useEffect( () => {
 		if ( prevStep !== currentStep ) {

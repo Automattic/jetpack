@@ -51,4 +51,6 @@ export const PRODUCT_SLUGS = {
 	PROTECT: 'protect',
 	VIDEOPRESS: 'videopress',
 	STATS: 'stats',
+	GROWTH: 'growth',
+	COMPLETE: 'complete',
 } satisfies Record< string, JetpackModule >;

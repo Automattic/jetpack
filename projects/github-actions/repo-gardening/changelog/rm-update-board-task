@@ -1,0 +1,4 @@
+Significance: major
+Type: changed
+
+Board Triage: remove updateBoard task. It will now be part of the existing triageIssues task.

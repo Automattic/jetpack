@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-shared-extension-utils",
-	"version": "0.15.14",
+	"version": "0.15.17",
 	"description": "Utility functions used by the block editor extensions",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/shared-extension-utils/#readme",
 	"bugs": {
@@ -15,30 +15,30 @@
 	"author": "Automattic",
 	"scripts": {
 		"test": "jest",
-		"test-coverage": "pnpm run test --coverage --coverageDirectory=\"$COVERAGE_DIR/js\" --coverageReporters=clover"
+		"test-coverage": "pnpm run test --coverage"
 	},
 	"dependencies": {
 		"@automattic/jetpack-analytics": "workspace:*",
 		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/jetpack-connection": "workspace:*",
-		"@wordpress/api-fetch": "7.9.0",
-		"@wordpress/compose": "7.9.0",
-		"@wordpress/data": "10.9.0",
-		"@wordpress/element": "6.9.0",
-		"@wordpress/i18n": "5.9.0",
-		"@wordpress/plugins": "7.9.0",
-		"@wordpress/url": "4.9.0",
+		"@wordpress/api-fetch": "7.12.0",
+		"@wordpress/compose": "7.12.0",
+		"@wordpress/data": "10.12.0",
+		"@wordpress/element": "6.12.0",
+		"@wordpress/i18n": "5.12.0",
+		"@wordpress/plugins": "7.12.0",
+		"@wordpress/url": "4.12.0",
 		"lodash": "4.17.21"
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@babel/core": "7.24.7",
-		"@babel/plugin-transform-react-jsx": "7.24.7",
-		"@babel/preset-react": "7.24.7",
+		"@babel/core": "7.26.0",
+		"@babel/plugin-transform-react-jsx": "7.25.9",
+		"@babel/preset-react": "7.25.9",
 		"@testing-library/dom": "10.4.0",
 		"@testing-library/react": "16.0.1",
 		"@testing-library/user-event": "14.5.2",
-		"@wordpress/babel-plugin-import-jsx-pragma": "5.9.0",
+		"@wordpress/babel-plugin-import-jsx-pragma": "5.12.0",
 		"babel-jest": "29.3.1",
 		"jest": "29.7.0",
 		"jest-environment-jsdom": "29.7.0",

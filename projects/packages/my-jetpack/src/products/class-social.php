@@ -156,6 +156,7 @@ class Social extends Hybrid_Product {
 			'jetpack_business',
 			'jetpack_premium',
 			'jetpack_personal',
+			'jetpack_growth',
 		);
 		// For atomic sites, do a feature check to see if the republicize feature is available
 		// This feature is available by default on all Jetpack sites
@@ -195,5 +196,15 @@ class Social extends Hybrid_Product {
 		}
 
 		return admin_url( 'admin.php?page=jetpack#/settings?term=publicize' );
+	}
+
+	/**
+	 * Return product bundles list
+	 * that supports the product.
+	 *
+	 * @return boolean|array Products bundle list.
+	 */
+	public static function is_upgradable_by_bundle() {
+		return array( 'growth', 'complete' );
 	}
 }

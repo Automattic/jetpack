@@ -36,7 +36,7 @@ class Security extends Module_Product {
 	 * @return string
 	 */
 	public static function get_name() {
-		return 'Security';
+		return 'Security Bundle';
 	}
 
 	/**
@@ -69,7 +69,7 @@ class Security extends Module_Product {
 	/**
 	 * Get the internationalized features list
 	 *
-	 * @return array Boost features list
+	 * @return array Security features list
 	 */
 	public static function get_features() {
 		return array(
@@ -81,17 +81,18 @@ class Security extends Module_Product {
 	}
 
 	/**
-	 * Get the product princing details
+	 * Get the product pricing details
 	 *
 	 * @return array Pricing details
 	 */
 	public static function get_pricing_for_ui() {
+		$product_slug = static::get_wpcom_product_slug();
 		return array_merge(
 			array(
 				'available'          => true,
-				'wpcom_product_slug' => static::get_wpcom_product_slug(),
+				'wpcom_product_slug' => $product_slug,
 			),
-			Wpcom_Products::get_product_pricing( static::get_wpcom_product_slug() )
+			Wpcom_Products::get_product_pricing( $product_slug )
 		);
 	}
 
@@ -195,7 +196,7 @@ class Security extends Module_Product {
 	/**
 	 * Return all the products it contains.
 	 *
-	 * @return Array Product slugs
+	 * @return array Product slugs
 	 */
 	public static function get_supported_products() {
 		return array( 'backup', 'scan', 'anti-spam' );

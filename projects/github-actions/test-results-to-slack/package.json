@@ -28,6 +28,6 @@
 	"scripts": {
 		"build": "ncc build src/index.js -o dist --source-map --license licenses.txt",
 		"test": "jest --config=tests/jest.config.js --verbose --runInBand",
-		"test-coverage": "pnpm run test --coverage --coverageDirectory=\"$COVERAGE_DIR/js\" --coverageReporters=clover"
+		"test-coverage": "pnpm run test --coverage"
 	}
 }

@@ -1,5 +1,5 @@
 import { getScriptData, siteHasFeature } from '@automattic/jetpack-script-data';
-import { SocialScriptData } from '../types/types';
+import { SocialScriptData } from '../types';
 
 /**
  * Get the social script data from the window object.

@@ -14,8 +14,8 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"scripts": {
-		"test": "jest tests",
-		"test-coverage": "pnpm run test --coverage --collectCoverageFrom='src/**/*.js' --coverageDirectory=\"$COVERAGE_DIR/js\" --coverageReporters=clover"
+		"test": "jest --config=tests/jest.config.cjs",
+		"test-coverage": "pnpm run test --coverage"
 	},
 	"dependencies": {
 		"@mdn/browser-compat-data": "5.5.49",
@@ -24,7 +24,7 @@
 		"semver": "^7.3.5"
 	},
 	"devDependencies": {
-		"@wordpress/browserslist-config": "6.9.0",
+		"@wordpress/browserslist-config": "6.12.0",
 		"eslint": "8.57.1",
 		"eslint-plugin-es-x": "7.8.0",
 		"globals": "15.4.0",

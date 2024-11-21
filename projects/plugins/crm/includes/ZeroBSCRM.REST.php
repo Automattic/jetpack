@@ -150,40 +150,12 @@ function zeroBSCRM_rest_getContacts(WP_REST_Request $request){
     /* WH temp rewrite. This shouldn't really be autocaching 100k contacts... but for now, at least get via LEAN SQL, 
     if DAL3+ */
 
-    if ($zbs->isDAL3()){
-
-      // DAL3:
-
       // Contacts
       
         $retA = $zbs->DAL->contacts->getContacts(array(
           'simplified' => true,
           'searchPhrase' => $searchQuery
           ));
-
-        // quickly cycle through + add obj_type + name/email ... inefficient
-        /* not req here 
-        if (is_array($retA) && count($retA) > 0)
-          for ($i = 0; $i < count($retA); $i++){
-
-              $retA[$i]['name_email'] = $retA[$i]['email'].' '.$retA[$i]['name'];
-              $retA[$i]['obj_type'] = 1;
-
-          }
-        else
-          $retA = array();
-        */
-
-    } else {
-
-      // pre DAL3 
-      $ret = zeroBS_getCustomers(true,100000,0,false,false,$searchQuery,false,false,false);
-      $retA = array();
-      foreach ($ret as $r){
-          if (isset($r['name']) && $r['name'] !== 'Auto Draft') $retA[] = $r;
-      }
-
-    }
 
     return $retA;
 }
@@ -206,10 +178,6 @@ function zeroBSCRM_rest_getConCom(WP_REST_Request $request){
 
     /* WH temp rewrite. This shouldn't really be autocaching 100k contacts... but for now, at least get via LEAN SQL, 
     if DAL3+ */
-
-    if ($zbs->isDAL3()){
-
-      // DAL3:
 
       // Contacts
 
@@ -258,42 +226,6 @@ function zeroBSCRM_rest_getConCom(WP_REST_Request $request){
 
         $retA = array_merge($retA,$retB);
         unset($retB);
-
-    } else {
-
-      // pre DAL3
-
-      #} FYI - we have a limit here of 100k contacts (even though we say no limits in the sales material)
-      $ret = zeroBS_getCustomers(true,100000,0,false,false,$searchQuery,false,false,false);
-
-      //first get 100k contacts ans put them into an array
-      if (is_array($ret)) foreach ($ret as $r){
-          if (isset($r['name']) && $r['name'] !== 'Auto Draft'){
-              $t['name'] = $r['name'];
-              $t['email'] = $r['email'];
-              $t['name_email'] = $r['email'] . " " . $r['name'];
-              $t['id'] = $r['id'];
-              $t['obj_type'] = 1;
-              $retA[] = $t;
-          } 
-      }
-
-      $b2bMode = zeroBSCRM_getSetting('companylevelcustomers');
-      if ( $b2bMode == 1 ){
-          $ret = zeroBS_getCompaniesForTypeahead($searchQuery); // limitless simplified query (for now)
-          if (is_array($ret)) foreach ($ret as $r){
-              if (isset($r['name']) && $r['name'] !== 'Auto Draft'){
-                  $r['name_email'] = $r['email'] . " " . $r['name'];
-                  $r['obj_type'] = 2;
-                  $retA[] = $r;
-              }
-          }
-      }
-      // incase its huge, take outa memory
-      unset($ret);
-
-    } // / <DAL3
-
 
     return $retA;
 }

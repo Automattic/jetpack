@@ -1,12 +1,12 @@
 <?php
 /**
  * A utility for transforming a raw code coverage
- * report into a clover.xml file for consumption.
+ * report for consumption.
  *
  * @package automattic/jetpack-autoloader
  */
 
-use SebastianBergmann\CodeCoverage\Report\Clover;
+use SebastianBergmann\CodeCoverage\Report\PHP as PhpReporter;
 use SebastianBergmann\CodeCoverage\Version;
 
 // phpcs:disabled WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -16,7 +16,7 @@ define( 'ROOT_DIR', dirname( __DIR__, 3 ) );
 require_once ROOT_DIR . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php';
 
 /**
- * Returns the path to the clover.xml output file.
+ * Returns the path to the php.cov output file.
  *
  * @return string The path to the output file.
  */
@@ -25,7 +25,7 @@ function get_output_file() {
 	global $argv;
 
 	if ( $argc < 2 ) {
-		echo "Usage: test-coverage [clover.xml file]\n";
+		echo "Usage: test-coverage [php.cov file]\n";
 		exit( -1 );
 	}
 
@@ -211,12 +211,12 @@ function process_coverage_9( $report ) {
 }
 
 /**
- * Processes the code coverage report and outputs a clover.xml file.
+ * Processes the code coverage report and outputs a file with fixed paths.
  */
 function process_coverage() {
 	echo "Aggregating compiled coverage into unified code coverage report\n";
 
-	// We're going to transform the code coverage object into a Clover XML report.
+	// We're going to transform the code coverage object.
 	$output_file = get_output_file();
 
 	// Since there is no backwards compatibility guarantee in place for the code coverage
@@ -237,9 +237,9 @@ function process_coverage() {
 	$report = call_user_func( $function, $report );
 
 	// Generate the XML file for the report.
-	$clover = new Clover();
-	$clover->process( $report, $output_file );
-	echo "Generated code coverage report in Clover format\n";
+	$reporter = new PhpReporter();
+	$reporter->process( $report, $output_file );
+	echo "Generated code coverage report\n";
 }
 
 // Process the coverage report into the new output.
