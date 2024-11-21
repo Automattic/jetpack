@@ -201,7 +201,7 @@ const DashBoost = ( {
 
 		return createInterpolateElement(
 			__(
-				'<a>Re-generate your Critical CSS after you make changes on your site</a><Info/>',
+				'<a><u>Regenerate your Critical CSS</u> after making changes to your site</a><Info/>',
 				'jetpack'
 			),
 			{
@@ -517,7 +517,7 @@ const CriticalCssInfoPopover = () => {
 				screenReaderText={ __( 'Learn more about how critical CSS works', 'jetpack' ) }
 			>
 				<h3 className="boost-critical-css-info__title">
-					{ __( 'Regenerate Critical CSS', 'jetpack' ) }
+					{ __( 'Get automated Critical CSS', 'jetpack' ) }
 				</h3>
 				<p>
 					{ createInterpolateElement(
