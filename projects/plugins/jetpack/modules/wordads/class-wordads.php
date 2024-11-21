@@ -381,8 +381,16 @@ class WordAds {
 		</script>
 		<?php
 
+		$section_id = $this->params->blog_id . 5;
+
+		// Get below post tag.
+		$tag_belowpost = $this->get_fallback_ad_snippet( $section_id, 'square', 'belowpost', '', '{{unique_id}}' );
+
+		// Remove linebreaks and sanitize.
+		$tag_belowpost = esc_js( str_replace( array( "\n", "\t", "\r" ), '', $tag_belowpost ) );
+
 		// Get an inline tag with a macro as id handled on JS side to use as a fallback.
-		$tag_inline = $this->get_fallback_ad_snippet( $this->params->blog_id . 5, 'square', 'inline', '', '{{unique_id}}' );
+		$tag_inline = $this->get_fallback_ad_snippet( $section_id, 'square', 'inline', '', '{{unique_id}}' );
 
 		// Remove linebreaks and sanitize.
 		$tag_inline = esc_js( str_replace( array( "\n", "\t", "\r" ), '', $tag_inline ) );
@@ -393,6 +401,7 @@ class WordAds {
 					var sas_fallback = sas_fallback || [];
 					sas_fallback.push(
 						{ tag: "$tag_inline", type: 'inline' }
+						{ tag: "$tag_belowpost", type: 'belowpost' }
 					);
 				</script>
 HTML;

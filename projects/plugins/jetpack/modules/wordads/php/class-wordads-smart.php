@@ -182,7 +182,10 @@ class WordAds_Smart {
 				'enabled' => $this->is_inline_enabled,
 			),
 			'bottom_sticky' => array(
-				'enabled' => true,
+				'enabled' => true, // TODO: this will not be true by default
+			),
+			'belowpost'     => array(
+				'enabled' => true, // TODO: this will not be true by default
 			),
 		);
 
