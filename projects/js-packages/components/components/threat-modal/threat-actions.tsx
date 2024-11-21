@@ -56,7 +56,7 @@ const ThreatActions = ( {
 		closeModal();
 	}, [ threat, handleUnignoreThreatClick, closeModal ] );
 
-	if ( ! threat.status ) {
+	if ( ! threat.status || threat.status === 'fixed' ) {
 		return null;
 	}
 
