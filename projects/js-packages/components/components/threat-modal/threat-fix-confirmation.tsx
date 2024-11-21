@@ -1,10 +1,13 @@
 import { type Threat } from '@automattic/jetpack-scan';
 import { __ } from '@wordpress/i18n';
+import { useContext } from 'react';
 import ThreatActions from './threat-actions';
 import ThreatFixDetails from './threat-fix-details';
+import ThreatIgnoreDetails from './threat-ignore-details';
 import ThreatNotice from './threat-notice';
 import ThreatSummary from './threat-summary';
 import ThreatTechnicalDetails from './threat-technical-details';
+import { ThreatModalContext } from '.';
 
 const ThreatFixConfirmation = ( {
 	threat,
@@ -33,11 +36,14 @@ const ThreatFixConfirmation = ( {
 	handleIgnoreThreatClick?: ( threats: Threat[] ) => void;
 	handleUnignoreThreatClick?: ( threats: Threat[] ) => void;
 } ) => {
+	const { actionToConfirm } = useContext( ThreatModalContext );
+
 	return (
 		<>
 			<ThreatSummary threat={ threat } />
 			<ThreatTechnicalDetails threat={ threat } />
 			<ThreatFixDetails threat={ threat } handleUpgradeClick={ handleUpgradeClick } />
+			{ actionToConfirm === 'all' && <ThreatIgnoreDetails /> }
 			{ siteCredentialsNeeded && userConnectionNeeded && (
 				<ThreatNotice
 					title={ 'Additional connections needed' }
