@@ -51,10 +51,11 @@ const ThreatNotice = ( {
 							{ title }
 						</Text>
 					</div>
-					<Text mb={ 2 }>{ content }</Text>
+					<Text>{ content }</Text>
 					<div className={ styles.notice__actions }>
 						{ handleConnectUser && (
 							<Button
+								className={ styles.notice__action }
 								isExternalLink={ true }
 								weight="regular"
 								isLoading={ userIsConnecting }
@@ -65,6 +66,7 @@ const ThreatNotice = ( {
 						) }
 						{ credentialsRedirectUrl && (
 							<Button
+								className={ styles.notice__action }
 								isExternalLink={ true }
 								weight="regular"
 								href={ credentialsRedirectUrl }

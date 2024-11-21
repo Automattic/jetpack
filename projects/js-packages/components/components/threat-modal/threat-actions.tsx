@@ -2,7 +2,7 @@ import { Button } from '@automattic/jetpack-components';
 import { type Threat, getDetailedFixerAction } from '@automattic/jetpack-scan';
 import { __ } from '@wordpress/i18n';
 import React, { useCallback, useContext, useMemo } from 'react';
-import FixerNotice from './fixer-notice';
+import FixerStateNotice from './fixer-state-notice';
 import styles from './styles.module.scss';
 import { ThreatModalContext } from '.';
 
@@ -62,7 +62,7 @@ const ThreatActions = ( {
 
 	return (
 		<div className={ styles[ 'modal-footer' ] }>
-			<FixerNotice fixerState={ fixerState } />
+			<FixerStateNotice fixerState={ fixerState } />
 			<div className={ styles[ 'threat-actions' ] }>
 				{ threat.status === 'ignored' && (
 					<Button

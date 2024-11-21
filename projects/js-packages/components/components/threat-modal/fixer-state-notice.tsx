@@ -3,7 +3,7 @@ import styles from './styles.module.scss';
 import ThreatNotice from './threat-notice';
 
 /**
- * FixerNotice component
+ * FixerStateNotice component
  *
  * @param {object}  props                       - The component props.
  * @param {object}  props.fixerState            - The state of the fixer (inProgress, error, stale).
@@ -13,7 +13,7 @@ import ThreatNotice from './threat-notice';
  *
  * @return {JSX.Element | null} The rendered fixer notice or null if no notice is available.
  */
-const FixerNotice = ( {
+const FixerStateNotice = ( {
 	fixerState,
 }: {
 	fixerState: { inProgress: boolean; error: boolean; stale: boolean };
@@ -26,7 +26,7 @@ const FixerNotice = ( {
 		status = 'error';
 		title = __( 'An error occurred auto-fixing this threat', 'jetpack' );
 		content = __(
-			'Jetpack encountered a filesystem error when attempting to auto-fix this threat. Please try again later or contact support.',
+			'Jetpack encountered a filesystem error while attempting to auto-fix this threat. Please try again later or contact support.',
 			'jetpack'
 		);
 	} else if ( fixerState.stale ) {
@@ -49,4 +49,4 @@ const FixerNotice = ( {
 	) : null;
 };
 
-export default FixerNotice;
+export default FixerStateNotice;
