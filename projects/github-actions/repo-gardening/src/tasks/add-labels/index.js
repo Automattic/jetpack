@@ -173,6 +173,14 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft, isRevert )
 			keywords.add( '[Feature] Calypsoify' );
 		}
 
+		// Social Previews are now developed in a separate package.
+		const socialPreviews = file.match(
+			/^projects\/js-packages\/publicize-components\/src\/components\/social-previews\//
+		);
+		if ( socialPreviews !== null ) {
+			keywords.add( '[Extension] Social Previews' );
+		}
+
 		// Docker.
 		const docker = file.match( /^(projects\/plugins\/boost\/docker|tools\/docker)\// );
 		if ( docker !== null ) {
