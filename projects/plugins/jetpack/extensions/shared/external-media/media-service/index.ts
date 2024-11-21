@@ -1,7 +1,6 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import apiFetch from '@wordpress/api-fetch';
 import { dispatch, select } from '@wordpress/data';
-import { store as editorStore } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import { waitFor } from '../../wait-for';
@@ -197,7 +196,8 @@ const isMediaSourceConnected = async ( source: MediaSource ) =>
  * @return {boolean} True if the inserter is opened false otherwise.
  */
 const isInserterOpened = (): boolean => {
-	const selectIsInserterOpened = select( editorStore )?.isInserterOpened;
+	/* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+	const selectIsInserterOpened = ( select( 'core/editor' ) as any )?.isInserterOpened;
 
 	const editorIsInserterOpened = selectIsInserterOpened?.();
 
