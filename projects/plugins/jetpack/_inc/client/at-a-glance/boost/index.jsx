@@ -206,6 +206,7 @@ const DashBoost = ( {
 			),
 			{
 				a: <a href={ siteAdminUrl + BOOST_PLUGIN_DASH } />,
+				u: <u />,
 				Info: <CriticalCssInfoPopover />,
 			}
 		);
