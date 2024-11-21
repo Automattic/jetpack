@@ -68,6 +68,7 @@ class Complete extends Module_Product {
 
 	/**
 	 * Get the internationalized features list
+	 * Most of these are not translated as they are product names
 	 *
 	 * @return array Complete features list
 	 */
@@ -81,7 +82,7 @@ class Complete extends Module_Product {
 			'Social',
 			'Search',
 			_x( 'Stats (100K site views, upgradeable)', 'Complete Product Feature', 'jetpack-my-jetpack' ),
-			'CRM Entrepreneur',
+			_x( 'CRM Entrepreneur', 'Complete Product Feature', 'jetpack-my-jetpack' ),
 		);
 	}
 
