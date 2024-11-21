@@ -305,14 +305,18 @@ export const PluginDocumentSettingPanelAiExcerpt = () => {
 		return null;
 	}
 	return (
-		<PostTypeSupportCheck supportKeys="excerpt">
-			<PluginDocumentSettingPanel
-				className={ isBetaExtension( 'ai-content-lens' ) ? 'is-beta-extension inset-shadow' : '' }
-				name="ai-content-lens-plugin"
-				title={ __( 'Excerpt', 'jetpack' ) }
-			>
-				<AiPostExcerpt />
-			</PluginDocumentSettingPanel>
-		</PostTypeSupportCheck>
+		<PostTypeSupportCheck
+			supportKeys="excerpt"
+			// @ts-expect-error Types for PostTypeSupportCheck children are not correct. It's `Element` instead of `ReactElement`.
+			children={
+				<PluginDocumentSettingPanel
+					className={ isBetaExtension( 'ai-content-lens' ) ? 'is-beta-extension inset-shadow' : '' }
+					name="ai-content-lens-plugin"
+					title={ __( 'Excerpt', 'jetpack' ) }
+				>
+					<AiPostExcerpt />
+				</PluginDocumentSettingPanel>
+			}
+		/>
 	);
 };
