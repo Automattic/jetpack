@@ -11,20 +11,10 @@ const Base = args => {
 	const [ isOpen, setIsOpen ] = useState( false );
 	const onClick = useCallback( () => setIsOpen( true ), [] );
 	const onRequestClose = useCallback( () => setIsOpen( false ), [] );
-
-	const [ actionToConfirm, setActionToConfirm ] = useState( 'all' );
-
 	return (
 		<div>
 			<Button onClick={ onClick }>Open Threat Modal</Button>
-			{ isOpen ? (
-				<ThreatModal
-					{ ...args }
-					onRequestClose={ onRequestClose }
-					actionToConfirm={ actionToConfirm }
-					setActionToConfirm={ setActionToConfirm }
-				/>
-			) : null }
+			{ isOpen ? <ThreatModal { ...args } onRequestClose={ onRequestClose } /> : null }
 		</div>
 	);
 };

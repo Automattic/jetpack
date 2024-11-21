@@ -7,8 +7,6 @@ import styles from './styles.module.scss';
 import ThreatFixConfirmation from './threat-fix-confirmation';
 interface ThreatModalContextType {
 	closeModal: () => void;
-	actionToConfirm: string | null;
-	setActionToConfirm: ( action: string ) => void;
 }
 
 export const ThreatModalContext = createContext< ThreatModalContextType | null >( null );
@@ -29,8 +27,6 @@ export const ThreatModalContext = createContext< ThreatModalContextType | null >
  * @param {Function} props.handleFixThreatClick      - The handleFixThreatClick function.
  * @param {Function} props.handleIgnoreThreatClick   - The handleIgnoreThreatClick function.
  * @param {Function} props.handleUnignoreThreatClick - The handleUnignoreThreatClick function.
- * @param {string}   props.actionToConfirm           - The action to confirm.
- * @param {Function} props.setActionToConfirm        - The setActionToConfirm function.
  *
  * @return {JSX.Element} The threat modal.
  */
@@ -47,8 +43,6 @@ export default function ThreatModal( {
 	handleFixThreatClick,
 	handleIgnoreThreatClick,
 	handleUnignoreThreatClick,
-	actionToConfirm,
-	setActionToConfirm,
 	...modalProps
 }: {
 	threat: Threat;
@@ -63,8 +57,6 @@ export default function ThreatModal( {
 	handleFixThreatClick?: ( threats: Threat[] ) => void;
 	handleIgnoreThreatClick?: ( threats: Threat[] ) => void;
 	handleUnignoreThreatClick?: ( threats: Threat[] ) => void;
-	actionToConfirm: string | null;
-	setActionToConfirm: ( action: string ) => void;
 } & React.ComponentProps< typeof Modal > ): JSX.Element {
 	const userConnectionNeeded = ! isUserConnected || ! hasConnectedOwner;
 	const siteCredentialsNeeded = ! credentials || credentials.length === 0;
@@ -88,8 +80,6 @@ export default function ThreatModal( {
 				<ThreatModalContext.Provider
 					value={ {
 						closeModal: modalProps.onRequestClose,
-						actionToConfirm,
-						setActionToConfirm,
 					} }
 				>
 					<ThreatFixConfirmation
