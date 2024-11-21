@@ -2440,85 +2440,39 @@ function jpcrm_html_modules() {
 // } post-deletion page
 function zeroBSCRM_html_norights() {
 
-	global $wpdb, $zbs;  // } Req
+	global $zbs;
 
-	// } Discern type of norights:
-	$noaccessType = '?'; // Customer
-	$noaccessstr  = '?'; // Mary Jones ID 123
-	$noaccessID   = -1;
-	$isRestore    = false;
-	$backToPage   = 'edit.php?post_type=zerobs_customer&page=manage-customers';
+	$back_to_page = 'edit.php?post_type=zerobs_customer&page=manage-customers';
 
-	// } Discern type + set back to page
-	$noAccessType = '';
+	$obj_type_str = $zbs->zbsvar( 'zbstype' ); // -1 or 'contact'
 
-	// DAL3 switch
-	if ( $zbs->isDAL3() ) {
-
-		// DAL 3
-		$objID      = $zbs->zbsvar( 'zbsid' ); // -1 or 123 ID
-		$objTypeStr = $zbs->zbsvar( 'zbstype' ); // -1 or 'contact'
-
-		// if objtypestr is -1, assume contact (default)
-		if ( $objTypeStr == -1 ) {
-			$objType = ZBS_TYPE_CONTACT;
-		} else {
-			$objType = $zbs->DAL->objTypeID( $objTypeStr );
-		}
-
-		// if got type, link to list view
-		// else give dash link
-		$slugToSend      = '';
-		$noAccessTypeStr = '';
-
-		// back to page
-		if ( $objType > 0 ) {
-			$slugToSend = $zbs->DAL->listViewSlugFromObjID( $objType );
-		}
-		if ( empty( $slugToSend ) ) {
-			$slugToSend = $zbs->slugs['dash'];
-		}
-		$backToPage = 'admin.php?page=' . $slugToSend;
-
-		// obj type str
-		if ( $objType > 0 ) {
-			$noAccessTypeStr = $zbs->DAL->typeStr( $objType );
-		}
-		if ( empty( $noAccessTypeStr ) ) {
-			$noAccessTypeStr = __( 'Object', 'zero-bs-crm' );
-		}
+	// if objtypestr is -1, assume contact (default)
+	if ( $obj_type_str === -1 ) {
+		$obj_type_id = ZBS_TYPE_CONTACT;
 	} else {
+		$obj_type_id = $zbs->DAL->objTypeID( $obj_type_str ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+	}
 
-		// PRE DAL3:
+	// if got type, link to list view
+	// else give dash link
+	$slug_to_send       = '';
+	$no_access_type_str = '';
 
-		if ( isset( $_GET['post_type'] ) && ! empty( $_GET['post_type'] ) ) {
-			$noAccessType = $_GET['post_type'];
-		} elseif ( isset( $_GET['id'] ) ) {
-			$noAccessType = get_post_type( $_GET['id'] );
-		}
+	// back to page
+	if ( $obj_type_id > 0 ) {
+		$slug_to_send = $zbs->DAL->listViewSlugFromObjID( $obj_type_id ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+	}
+	if ( empty( $slug_to_send ) ) {
+		$slug_to_send = $zbs->slugs['dash'];
+	}
+	$back_to_page = 'admin.php?page=' . $slug_to_send;
 
-		switch ( $noAccessType ) {
-
-			case 'zerobs_customer':
-				$backToPage      = 'edit.php?post_type=zerobs_customer&page=manage-customers';
-				$noAccessTypeStr = __( 'Contact', 'zero-bs-crm' );
-
-				break;
-
-			case 'zerobs_company':
-				$backToPage      = 'edit.php?post_type=zerobs_company&page=manage-companies';
-				$noAccessTypeStr = __( jpcrm_label_company(), 'zero-bs-crm' );
-
-				break;
-
-			default:
-				// Dash
-				$backToPage      = 'admin.php?page=' . $zbs->slugs['dash'];
-				$noAccessTypeStr = __( 'Resource', 'zero-bs-crm' );
-
-				break;
-
-		}
+	// obj type str
+	if ( $obj_type_id > 0 ) {
+		$no_access_type_str = $zbs->DAL->typeStr( $obj_type_id ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+	}
+	if ( empty( $no_access_type_str ) ) {
+		$no_access_type_str = __( 'Object', 'zero-bs-crm' );
 	}
 
 	?>
@@ -2527,14 +2481,19 @@ function zeroBSCRM_html_norights() {
 		<div id="zbsNoAccessIco"><i class="fa fa-archive" aria-hidden="true"></i></div>
 		<div class="zbsNoAccessMsg">
 			<h2><?php esc_html_e( 'Access Restricted', 'zero-bs-crm' ); ?></h2>
-			<p><?php esc_html_e( 'You do not have access to this ' . $noAccessTypeStr . '.', 'zero-bs-crm' ); ?></p>
+			<p>
+				<?php
+				// translators: Object type (e.g. contact, company)
+				echo esc_html( sprintf( __( 'You do not have access to this %s.', 'zero-bs-crm' ), $no_access_type_str ) );
+				?>
+			</p>
 		</div>
 		<div class="zbsNoAccessAction">
-			<button type="button" class="ui button primary" onclick="javascript:window.location='<?php echo esc_url( $backToPage ); ?>'"><?php esc_html_e( 'Back', 'zero-bs-crm' ); ?></button>
+			<button type="button" class="ui button primary" onclick="javascript:window.location='<?php echo esc_url( $back_to_page ); ?>'"><?php esc_html_e( 'Back', 'zero-bs-crm' ); ?></button>
 
 		</div>
 		</div>
-	</div>        
+	</div>
 	<?php
 }
 
