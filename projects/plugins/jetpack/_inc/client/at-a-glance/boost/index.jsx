@@ -205,7 +205,12 @@ const DashBoost = ( {
 				'jetpack'
 			),
 			{
-				a: <a href={ siteAdminUrl + BOOST_PLUGIN_DASH } />,
+				a: (
+					<a
+						href={ siteAdminUrl + BOOST_PLUGIN_DASH }
+						className="dash-boost-critical-css-info__text"
+					/>
+				),
 				u: <u />,
 				Info: <CriticalCssInfoPopover />,
 			}
