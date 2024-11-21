@@ -39,7 +39,7 @@ function jetpack_likes_master_iframe() {
 	 *
 	 * @module likes
 	 *
-	 * @since X.X.X
+	 * @since $$next-version$$
 	 *
 	 * @param string URL to https://widgets.wp.com/ with various arguments appended to the get string and fragment.
 	 */
