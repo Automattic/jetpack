@@ -18,6 +18,7 @@ const SocialPreviewsModal = function SocialPreviewsModal( { onClose, initialTabN
 
 	const decodedTitle = decodeEntities( title );
 	const decodedDescription = decodeEntities( description );
+	const decodedExcerpt = decodeEntities( excerpt );
 
 	return (
 		<Modal
@@ -40,7 +41,7 @@ const SocialPreviewsModal = function SocialPreviewsModal( { onClose, initialTabN
 					<div>
 						<tab.preview
 							// pass only the props that are common to all previews
-							excerpt={ excerpt }
+							excerpt={ decodedExcerpt }
 							title={ decodedTitle }
 							description={ decodedDescription }
 							url={ url }
