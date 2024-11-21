@@ -18,6 +18,11 @@ const MetaComponent = ( { buttonText, placeholder, datasyncKey }: Props ) => {
 
 	function save() {
 		const type = datasyncKey === 'minify_js_excludes' ? 'js' : 'css';
+		/*
+		 * Possible Events:
+		 * concatenate_js_exceptions_save_clicked
+		 * concatenate_css_exceptions_save_clicked
+		 */
 		recordBoostEvent( 'concatenate_' + type + '_exceptions_save_clicked', {} );
 		updateValues( inputValue );
 		setIsExpanded( false );
@@ -25,7 +30,12 @@ const MetaComponent = ( { buttonText, placeholder, datasyncKey }: Props ) => {
 
 	const toggleExpanded = ( newValue: boolean ) => {
 		const type = datasyncKey === 'minify_js_excludes' ? 'js' : 'css';
-		recordBoostEvent( 'concatenate_' + type + '_show_options_toggle', {
+		/*
+		 * Possible Events:
+		 * concatenate_js_panel_toggle
+		 * concatenate_css_panel_toggle
+		 */
+		recordBoostEvent( 'concatenate_' + type + '_panel_toggle', {
 			status: newValue ? 'open' : 'close',
 		} );
 		setIsExpanded( newValue );
