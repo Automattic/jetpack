@@ -382,7 +382,7 @@ class WordAds {
 		<?php
 
 		// Get an inline tag with a macro as id handled on JS side to use as a fallback.
-		$tag_inline = $this->get_dynamic_ad_snippet( $this->params->blog_id . 5, 'square', 'inline', '', '{{unique_id}}' );
+		$tag_inline = $this->get_fallback_ad_snippet( $this->params->blog_id . 5, 'square', 'inline', '', '{{unique_id}}' );
 
 		// Remove linebreaks and sanitize.
 		$tag_inline = esc_js( str_replace( array( "\n", "\t", "\r" ), '', $tag_inline ) );
@@ -703,6 +703,7 @@ HTML;
 			$form_factor = 'leaderboard';
 		}
 
+		// TODO: Still investigating required change. Potentially update with respect with what get_ad_div on WPCOM for gutenberg
 		return $this->get_dynamic_ad_snippet( $section_id, $form_factor, $location );
 	}
 
@@ -720,6 +721,33 @@ HTML;
 	 * @since 8.7
 	 */
 	public function get_dynamic_ad_snippet( $section_id, $form_factor = 'square', $location = '', $relocate = '', $id = null ) {
+
+		// Allow overriding and printing of the tag parsed by the WATL.
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended
+		$is_location_enabled = ( isset( $_GET[ $location ] ) && 'true' === $_GET[ $location ] );
+
+		if ( ( 'top' === $location || 'belowpost' === $location || 'sidebar' === $location ) && $is_location_enabled ) {
+			// TODO: Confirm if it's best here or there is a way to get it via the adflow config endpoint
+			return "<div class=\"wordads-tag\" data-slot-type=\"$location\" style=\"display: none;\"></div>";
+		}
+
+		return $this->get_fallback_ad_snippet( $section_id, $form_factor, $location, $relocate, $id );
+	}
+
+	/**
+	 * Returns the fallback dynamic snippet to be inserted into the ad unit
+	 *
+	 * @param int           $section_id section_id.
+	 * @param string        $form_factor form_factor.
+	 * @param string        $location location.
+	 * @param string        $relocate location to be moved after the fact for themes without required hook.
+	 * @param string | null $id A unique string ID or placeholder.
+	 *
+	 * @return string
+	 *
+	 * @since 8.7
+	 */
+	public function get_fallback_ad_snippet( $section_id, $form_factor = 'square', $location = '', $relocate = '', $id = null ) {
 		$div_id = 'atatags-' . $section_id . '-' . ( $id ?? uniqid() );
 		$div_id = esc_attr( $div_id );
 
