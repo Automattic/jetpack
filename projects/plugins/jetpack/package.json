@@ -136,7 +136,6 @@
 		"@types/jest": "29.5.12",
 		"@types/react": "18.3.12",
 		"@types/wordpress__block-editor": "11.5.15",
-		"@types/wordpress__editor": "13.6.8",
 		"@wordpress/api-fetch": "7.11.0",
 		"@wordpress/babel-plugin-import-jsx-pragma": "5.11.0",
 		"@wordpress/blob": "4.11.0",
