@@ -51,7 +51,6 @@ const QualitySettings = ( { isPremium }: QualitySettingsProps ) => {
 			<ModuleSubsection>
 				<CollapsibleMeta
 					editText={ __( 'Adjust Quality', 'jetpack-boost' ) }
-					closeEditText={ __( 'Hide', 'jetpack-boost' ) }
 					header={ <Header /> }
 					summary={ <Summary imageCdnQuality={ imageCdnQuality } /> }
 				>

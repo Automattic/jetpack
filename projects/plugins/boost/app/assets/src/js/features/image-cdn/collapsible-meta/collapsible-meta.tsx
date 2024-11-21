@@ -9,16 +9,9 @@ type CollapsibleMetaProps = {
 	header: React.ReactNode;
 	summary: React.ReactNode;
 	editText: string;
-	closeEditText: string;
 };
 
-const CollapsibleMeta = ( {
-	children,
-	header,
-	summary,
-	editText,
-	closeEditText,
-}: CollapsibleMetaProps ) => {
+const CollapsibleMeta = ( { children, header, summary, editText }: CollapsibleMetaProps ) => {
 	const [ isEditing, setIsEditing ] = useState( false );
 	return (
 		<div className={ styles[ 'collapsible-meta' ] }>
@@ -40,7 +33,7 @@ const CollapsibleMeta = ( {
 						setIsEditing( ! isEditing );
 					} }
 				>
-					{ isEditing ? closeEditText : editText }
+					{ editText }
 				</Button>
 			</header>
 

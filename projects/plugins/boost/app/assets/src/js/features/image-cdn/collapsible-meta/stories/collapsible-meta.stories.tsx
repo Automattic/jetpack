@@ -9,7 +9,6 @@ const meta: Meta< typeof CollapsibleMeta > = {
 		header: { control: 'text' },
 		summary: { control: 'text' },
 		editText: { control: 'text' },
-		closeEditText: { control: 'text' },
 	},
 	decorators: [
 		Story => (
@@ -24,7 +23,6 @@ const defaultValues = {
 	header: 'Something to show in the header',
 	summary: 'Something to show in the summary',
 	editText: 'Edit',
-	closeEditText: 'Close',
 };
 
 export default meta;
