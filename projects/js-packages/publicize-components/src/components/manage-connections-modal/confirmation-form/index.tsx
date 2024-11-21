@@ -209,7 +209,6 @@ export function ConfirmationForm( { keyringResult, onComplete, isAdmin }: Confir
 									'We cannot retrieve which company pages you have access to. This is a known issue with the LinkedIn API. If you would like to connect a company page, please retry after 5 minutes. For more information, click',
 									'jetpack'
 								) }
-								&nbsp;
 								<ExternalLink
 									key="linkedin-api-documentaion"
 									href={ getRedirectUrl( 'jetpack-linkedin-permissions-warning' ) }
