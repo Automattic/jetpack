@@ -1,8 +1,8 @@
 import { type Threat } from '@automattic/jetpack-scan';
 import { __ } from '@wordpress/i18n';
-import ConnectionWarning from './connection-warning';
 import ThreatActions from './threat-actions';
 import ThreatFixDetails from './threat-fix-details';
+import ThreatNotice from './threat-notice';
 import ThreatSummary from './threat-summary';
 import ThreatTechnicalDetails from './threat-technical-details';
 
@@ -39,7 +39,7 @@ const ThreatFixConfirmation = ( {
 			<ThreatTechnicalDetails threat={ threat } />
 			<ThreatFixDetails threat={ threat } handleUpgradeClick={ handleUpgradeClick } />
 			{ siteCredentialsNeeded && userConnectionNeeded && (
-				<ConnectionWarning
+				<ThreatNotice
 					title={ 'Additional connections needed' }
 					content={ __(
 						'A user connection and server credentials provide Jetpack the access necessary to ignore and auto-fix threats on your site.',
@@ -52,7 +52,7 @@ const ThreatFixConfirmation = ( {
 				/>
 			) }
 			{ ! siteCredentialsNeeded && userConnectionNeeded && (
-				<ConnectionWarning
+				<ThreatNotice
 					title={ __( 'User connection needed', 'jetpack' ) }
 					content={ __(
 						'A user connection provides Jetpack the access necessary to ignore and auto-fix threats on your site.',
@@ -63,7 +63,7 @@ const ThreatFixConfirmation = ( {
 				/>
 			) }
 			{ siteCredentialsNeeded && ! userConnectionNeeded && (
-				<ConnectionWarning
+				<ThreatNotice
 					title={ __( 'Site credentials needed', 'jetpack' ) }
 					content={ __(
 						'Your server credentials allow Jetpack to access the server that’s powering your website. This information is securely saved and only used to ignore and auto-fix threats detected on your site.',
