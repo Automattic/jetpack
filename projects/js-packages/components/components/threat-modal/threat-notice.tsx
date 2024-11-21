@@ -1,4 +1,5 @@
 import { Text, Button } from '@automattic/jetpack-components';
+import { type Threat } from '@automattic/jetpack-scan';
 import { Notice, Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, warning } from '@wordpress/icons';
@@ -8,6 +9,7 @@ import styles from './styles.module.scss';
  * ThreatNotice component
  *
  * @param {object}   props                        - The component props.
+ * @param {object}   props.threat                 - The threat object containing notice details.
  * @param {string}   props.status                 - The status of the notice.
  * @param {string}   props.title                  - The title of the notice.
  * @param {string}   props.content                - The content of the notice.
@@ -19,6 +21,7 @@ import styles from './styles.module.scss';
  * @return {JSX.Element} The rendered ThreatNotice component.
  */
 const ThreatNotice = ( {
+	threat,
 	status = 'warning',
 	title,
 	content,
@@ -27,6 +30,7 @@ const ThreatNotice = ( {
 	credentialsRedirectUrl,
 	credentialsIsFetching,
 }: {
+	threat: Threat;
 	status?: 'warning' | 'error' | 'success' | undefined;
 	title: string;
 	content: string;
@@ -35,6 +39,10 @@ const ThreatNotice = ( {
 	credentialsRedirectUrl?: string;
 	credentialsIsFetching?: boolean;
 } ): JSX.Element => {
+	if ( ! threat?.status || threat.status === 'fixed' ) {
+		return null;
+	}
+
 	return (
 		<Notice
 			status={ status }

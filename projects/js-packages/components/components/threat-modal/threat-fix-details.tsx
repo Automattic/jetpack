@@ -1,26 +1,18 @@
 import { Threat, getFixerDescription } from '@automattic/jetpack-scan';
 import { __, sprintf } from '@wordpress/i18n';
 import React, { useMemo } from 'react';
-import ContextualUpgradeTrigger from '../contextual-upgrade-trigger';
 import Text from '../text';
 import styles from './styles.module.scss';
 
 /**
  * ThreatFixDetails component
  *
- * @param {object}   props                    - The component props.
- * @param {object}   props.threat             - The threat object containing fix details.
- * @param {Function} props.handleUpgradeClick - Function to handle upgrade click events.
+ * @param {object} props        - The component props.
+ * @param {object} props.threat - The threat object containing fix details.
  *
  * @return {JSX.Element | null} The rendered fix details or null if no fixable details are available.
  */
-const ThreatFixDetails = ( {
-	threat,
-	handleUpgradeClick,
-}: {
-	threat: Threat;
-	handleUpgradeClick?: () => void;
-} ): JSX.Element => {
+const ThreatFixDetails = ( { threat }: { threat: Threat } ): JSX.Element => {
 	const title = useMemo( () => {
 		if ( threat.status === 'fixed' ) {
 			return __( 'How did Jetpack fix it?', 'jetpack' );
@@ -55,13 +47,6 @@ const ThreatFixDetails = ( {
 		<div className={ styles.section }>
 			<Text variant="title-small">{ title }</Text>
 			<Text>{ fix }</Text>
-			{ handleUpgradeClick && (
-				<ContextualUpgradeTrigger
-					description={ __( 'Looking for advanced scan results and one-click fixes?', 'jetpack' ) }
-					cta={ __( 'Upgrade Jetpack now', 'jetpack' ) }
-					onClick={ handleUpgradeClick }
-				/>
-			) }
 		</div>
 	);
 };

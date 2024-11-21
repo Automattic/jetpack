@@ -1,3 +1,4 @@
+import { type Threat } from '@automattic/jetpack-scan';
 import { __ } from '@wordpress/i18n';
 import styles from './styles.module.scss';
 import ThreatNotice from './threat-notice';
@@ -6,6 +7,7 @@ import ThreatNotice from './threat-notice';
  * FixerStateNotice component
  *
  * @param {object}  props                       - The component props.
+ * @param {object}  props.threat                - The threat object containing notice details.
  * @param {object}  props.fixerState            - The state of the fixer (inProgress, error, stale).
  * @param {boolean} props.fixerState.inProgress - Whether the fixer is in progress.
  * @param {boolean} props.fixerState.error      - Whether the fixer encountered an error.
@@ -14,8 +16,10 @@ import ThreatNotice from './threat-notice';
  * @return {JSX.Element | null} The rendered fixer notice or null if no notice is available.
  */
 const FixerStateNotice = ( {
+	threat,
 	fixerState,
 }: {
+	threat: Threat;
 	fixerState: { inProgress: boolean; error: boolean; stale: boolean };
 } ) => {
 	let status: 'error' | 'success' | undefined;
@@ -44,7 +48,7 @@ const FixerStateNotice = ( {
 
 	return title ? (
 		<div className={ styles[ 'fixer-notice' ] }>
-			<ThreatNotice status={ status } title={ title } content={ content } />
+			<ThreatNotice threat={ threat } status={ status } title={ title } content={ content } />
 		</div>
 	) : null;
 };

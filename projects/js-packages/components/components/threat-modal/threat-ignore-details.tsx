@@ -1,9 +1,14 @@
 import { Text, Button, getRedirectUrl } from '@automattic/jetpack-components';
+import { type Threat } from '@automattic/jetpack-scan';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import styles from './styles.module.scss';
 
-const ThreatIgnoreDetails = () => {
+const ThreatIgnoreDetails = ( { threat }: { threat: Threat } ) => {
+	if ( ! threat?.status || [ 'ignored', 'fixed' ].includes( threat.status ) ) {
+		return null;
+	}
+
 	const codeableURL = getRedirectUrl( 'jetpack-protect-codeable-referral' );
 
 	return (

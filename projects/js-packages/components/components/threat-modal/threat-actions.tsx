@@ -56,13 +56,13 @@ const ThreatActions = ( {
 		closeModal();
 	}, [ threat, handleUnignoreThreatClick, closeModal ] );
 
-	if ( ! threat.status ) {
+	if ( ! threat?.status || threat.status === 'fixed' ) {
 		return null;
 	}
 
 	return (
 		<div className={ styles[ 'modal-footer' ] }>
-			<FixerStateNotice fixerState={ fixerState } />
+			<FixerStateNotice threat={ threat } fixerState={ fixerState } />
 			<div className={ styles[ 'threat-actions' ] }>
 				{ threat.status === 'ignored' && (
 					<Button
