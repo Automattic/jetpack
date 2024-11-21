@@ -144,7 +144,7 @@
 		"@wordpress/components": "28.11.0",
 		"@wordpress/core-data": "7.11.0",
 		"@wordpress/dom-ready": "4.11.0",
-		"@wordpress/editor": "14.11.0",
+		"@wordpress/editor": "14.12.0",
 		"@wordpress/escape-html": "3.11.0",
 		"@wordpress/keycodes": "4.11.0",
 		"@wordpress/notices": "5.11.0",
