@@ -53,6 +53,7 @@ class AddCommandTest extends CommandTestCase {
 			array(
 				'mustRun' => true,
 				'env'     => array(
+					'GIT_CONFIG_GLOBAL'   => '/dev/null',
 					'GIT_AUTHOR_NAME'     => 'Dummy',
 					'GIT_AUTHOR_EMAIL'    => 'dummy@example.com',
 					'GIT_COMMITTER_NAME'  => 'Dummy',
@@ -62,7 +63,7 @@ class AddCommandTest extends CommandTestCase {
 		);
 		Utils::runCommand( array( 'git', 'init', '.' ), ...$args );
 		Utils::runCommand( array( 'git', 'checkout', '-b', 'trunk' ), ...$args );
-		Utils::runCommand( array( 'git', 'commit', '--allow-empty', '--no-gpg-sign', '-m', 'Empty' ), ...$args );
+		Utils::runCommand( array( 'git', 'commit', '--allow-empty', '-m', 'Empty' ), ...$args );
 		$this->assertMatchesRegularExpression( '/^\d{4}-\d{2}-\d{2}-\d{2}-\d{2}-\d{2}-\d{6}$/', $w->getDefaultFilename( $output ) );
 
 		// Try a named branch.
