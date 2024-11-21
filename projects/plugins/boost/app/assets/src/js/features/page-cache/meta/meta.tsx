@@ -34,7 +34,7 @@ const Meta = () => {
 	const totalBypassPatterns = bypassPatterns?.length || 0;
 
 	const toggleExpanded = ( newValue: boolean ) => {
-		recordBoostEvent( 'page_cache_show_options_toggle', {
+		recordBoostEvent( 'page_cache_panel_toggle', {
 			status: newValue ? 'open' : 'close',
 		} );
 		setIsExpanded( newValue );
