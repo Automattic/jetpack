@@ -206,7 +206,7 @@ export function ConfirmationForm( { keyringResult, onComplete, isAdmin }: Confir
 						<Notice type={ 'warning' }>
 							<p>
 								{ __(
-									"We can't retrieve which company pages you have access to. This is a known issue with the LinkedIn API. If you would like to connect a company page, please retry after 5 minutes. For more information, click",
+									'We cannot retrieve which company pages you have access to. This is a known issue with the LinkedIn API. If you would like to connect a company page, please retry after 5 minutes. For more information, click',
 									'jetpack'
 								) }
 								<ExternalLink
