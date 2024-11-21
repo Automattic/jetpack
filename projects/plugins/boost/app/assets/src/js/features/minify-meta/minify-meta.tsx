@@ -66,7 +66,7 @@ const MetaComponent = ( { buttonText, placeholder, datasyncKey }: Props ) => {
 					onClick={ () => toggleExpanded( ! isExpanded ) }
 					icon={ isExpanded ? <ChevronUp /> : <ChevronDown /> }
 				>
-					{ isExpanded ? __( 'Hide', 'jetpack-boost' ) : buttonText }
+					{ buttonText }
 				</Button>
 			</div>
 			{ isExpanded && (
