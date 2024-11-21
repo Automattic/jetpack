@@ -1,9 +1,11 @@
 import { Button, useGlobalNotices } from '@automattic/jetpack-components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import {
 	BaseControl,
 	FlexBlock,
 	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
+import { ExternalLink } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useMemo } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
@@ -204,9 +206,15 @@ export function ConfirmationForm( { keyringResult, onComplete, isAdmin }: Confir
 						<Notice type={ 'warning' }>
 							<p>
 								{ __(
-									'If you want to connect LinkedIn company pages and do not see them, please try again after 5 minutes.',
+									"We can't retrieve which company pages you have access to. This is a known issue with the LinkedIn API. If you would like to connect a company page, please retry after 5 minutes. For more information, click",
 									'jetpack'
 								) }
+								<ExternalLink
+									key="linkedin-api-documentaion"
+									href={ getRedirectUrl( 'jetpack-linkedin-permissions-warning' ) }
+								>
+									{ __( 'here for more details.', 'jetpack' ) }
+								</ExternalLink>
 							</p>
 						</Notice>
 					) }
