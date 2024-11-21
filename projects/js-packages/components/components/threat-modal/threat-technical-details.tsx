@@ -1,7 +1,7 @@
-import { Text, Button } from '@automattic/jetpack-components';
+import { Text } from '@automattic/jetpack-components';
 import { Threat } from '@automattic/jetpack-scan';
 import { __ } from '@wordpress/i18n';
-import { chevronDown, chevronUp } from '@wordpress/icons';
+import { chevronDown, chevronUp, Icon } from '@wordpress/icons';
 import { useState, useCallback } from 'react';
 import DiffViewer from '../diff-viewer';
 import MarkedLines from '../marked-lines';
@@ -29,25 +29,35 @@ const ThreatTechnicalDetails = ( { threat }: { threat: Threat } ): JSX.Element =
 	return (
 		<div className={ styles.section }>
 			<div className={ styles.section__title }>
-				<Text variant="title-small">{ __( 'The technical details', 'jetpack' ) }</Text>
-				<Button
-					variant="icon"
+				<button
 					className={ styles.section__toggle }
-					icon={ open ? chevronUp : chevronDown }
 					aria-expanded={ open }
+					aria-controls={ `threat-details-${ threat.id }` }
 					onClick={ toggleOpen }
-				/>
+				>
+					<span>
+						{ open
+							? __( 'Hide the technical details', 'jetpack' )
+							: __( 'Show the technical details', 'jetpack' ) }
+					</span>
+					<Icon icon={ open ? chevronUp : chevronDown } size={ 24 } />
+				</button>
 			</div>
-			<div className={ open ? styles.section__open : styles.section__closed }>
-				{ threat.filename && (
-					<>
-						<Text>{ __( 'Threat found in file:', 'jetpack' ) }</Text>
-						<pre className={ styles.filename }>{ threat.filename }</pre>
-					</>
-				) }
-				{ threat.context && <MarkedLines context={ threat.context } /> }
-				{ threat.diff && <DiffViewer diff={ threat.diff } /> }
-			</div>
+			{ open && (
+				<div
+					className={ open ? styles.section__open : styles.section__closed }
+					id={ `threat-details-${ threat.id }` }
+				>
+					{ threat.filename && (
+						<>
+							<Text>{ __( 'Threat found in file:', 'jetpack' ) }</Text>
+							<pre className={ styles.filename }>{ threat.filename }</pre>
+						</>
+					) }
+					{ threat.context && <MarkedLines context={ threat.context } /> }
+					{ threat.diff && <DiffViewer diff={ threat.diff } /> }
+				</div>
+			) }
 		</div>
 	);
 };
