@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+AI Assistant: Fix bug with error message when user is not over requests limit

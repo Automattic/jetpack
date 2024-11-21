@@ -1,3 +1,4 @@
+/* global subscriptionData */
 document.addEventListener( 'DOMContentLoaded', function () {
 	const modal = document.getElementsByClassName( 'jetpack-subscription-modal' )[ 0 ];
 
@@ -26,7 +27,9 @@ document.addEventListener( 'DOMContentLoaded', function () {
 			// eslint-disable-next-line no-empty
 		} catch ( e ) {}
 
-		window.location = destinationUrl.toString();
+		// Add cache-busting parameter
+		destinationUrl.searchParams.set( '_ctn', Date.now() );
+		window.location.href = destinationUrl.toString();
 	}
 
 	function JetpackSubscriptionModalOnCommentMessageListener( event ) {
@@ -46,7 +49,7 @@ document.addEventListener( 'DOMContentLoaded', function () {
 			return;
 		}
 
-		if ( ! event.origin.includes( window.location.host ) ) {
+		if ( subscriptionData.homeUrl !== event.origin ) {
 			return;
 		}
 

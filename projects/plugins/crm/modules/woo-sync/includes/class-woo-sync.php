@@ -453,16 +453,6 @@ class Woo_Sync {
 
 	}
 
-
-	/**
-	 * Include WooCommerce REST API (well, in fact, autoload /vendor)
-	 */
-	public function include_woocommerce_rest_api(){
-
-		require_once ZEROBSCRM_PATH .  'vendor/autoload.php';
-
-	}
-
 	/**
 	 * Adds items to listview filter using `jpcrm_listview_filters` hook.
 	 *
@@ -2121,9 +2111,6 @@ class Woo_Sync {
 
 		// got creds?
 		if ( !empty( $key ) && !empty( $secret ) && !empty( $domain ) ){
-
-			// include the rest API files
-			$this->include_woocommerce_rest_api();
 
 			return new Client(
 				$domain, 

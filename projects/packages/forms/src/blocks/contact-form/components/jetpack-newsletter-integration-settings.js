@@ -4,7 +4,7 @@ import CreativeMailPlugin from './jetpack-newsletter-integration-settings-creati
 
 const NewsletterIntegrationSettings = () => {
 	return (
-		<BaseControl>
+		<BaseControl __nextHasNoMarginBottom={ true }>
 			<ConsentBlockSettings />
 			<CreativeMailPlugin />
 		</BaseControl>

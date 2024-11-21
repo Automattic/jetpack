@@ -1,6 +1,6 @@
 <?php
 /**
- * Test_WPORG_Additional_Css_Manager class.
+ * Test_Atomic_Additional_CSS_Manager class.
  *
  * @package automattic/jetpack-masterbar
  */
@@ -16,7 +16,7 @@ require_once ABSPATH . WPINC . '/class-wp-customize-control.php';
 require_once ABSPATH . WPINC . '/class-wp-customize-section.php';
 
 /**
- * @covers Test_WPORG_Additional_Css_Manager
+ * @covers Automattic\Jetpack\Masterbar\Atomic_Additional_CSS_Manager
  */
 class Test_Atomic_Additional_CSS_Manager extends TestCase {
 	/**
@@ -49,7 +49,12 @@ class Test_Atomic_Additional_CSS_Manager extends TestCase {
 	 * Check if the nudge contains the proper url and message copy.
 	 */
 	public function test_it_generates_proper_url_and_nudge() {
-		$manager = new Atomic_Additional_CSS_Manager( 'foo.com' );
+		$manager = $this->getMockBuilder( Atomic_Additional_CSS_Manager::class )
+			->setConstructorArgs( array( 'foo.com' ) )
+			->onlyMethods( array( 'get_plan_name' ) )
+			->getMock();
+
+		$manager->method( 'get_plan_name' )->willReturn( 'Business' );
 
 		$manager->register_nudge( $this->wp_customize );
 
@@ -59,7 +64,7 @@ class Test_Atomic_Additional_CSS_Manager extends TestCase {
 		);
 
 		$this->assertEquals(
-			'Purchase the Creator plan to<br> activate CSS customization',
+			'Purchase the Business plan to<br> activate CSS customization',
 			$this->wp_customize->controls()['custom_css_control']->nudge_copy
 		);
 	}

@@ -12,7 +12,7 @@
 		"wordpress"
 	],
 	"require": {
-		"php": ">=7.0",
+		"php": ">=7.2",
 		"composer-plugin-api": "^1.1 || ^2.0"
 	},
 	"require-dev": {
@@ -31,6 +31,10 @@
 	"scripts": {
 		"phpunit": [
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
+		],
+		"test-coverage": [
+			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"./tests/php/tmp/coverage-report.php\"",
+			"php ./tests/php/bin/test-coverage.php \"$COVERAGE_DIR/php.cov\""
 		],
 		"test-php": [
 			"@composer phpunit"
@@ -58,7 +62,7 @@
 			"::VERSION": "src/AutoloadGenerator.php"
 		},
 		"branch-alias": {
-			"dev-trunk": "3.1.x-dev"
+			"dev-trunk": "4.0.x-dev"
 		}
 	}
 }

@@ -42,6 +42,7 @@ function LikeEdit( { attributes, setAttributes } ) {
 							onChange={ newValue => {
 								handleReblogSetting( newValue );
 							} }
+							__nextHasNoMarginBottom={ true }
 						/>
 					</PanelBody>
 				) }

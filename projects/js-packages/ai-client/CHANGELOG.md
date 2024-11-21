@@ -5,6 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.24.3] - 2024-11-18
+### Changed
+- AI Client: add effect on AiModalInputPrompt to update/set prompt on prop update [#40113]
+
+## [0.24.2] - 2024-11-11
+### Changed
+- Updated package dependencies. [#39999] [#40000]
+
+## [0.24.1] - 2024-11-04
+### Added
+- Enable test coverage. [#39961]
+
+### Fixed
+- Jetpack AI: Fix for the "Generate with AI" for images text box triggering P2 keyboard shortcuts. [#39964]
+
+## [0.24.0] - 2024-10-29
+### Added
+- AI Client: export image generator hook constants [#39917]
+
+## [0.23.0] - 2024-10-28
+### Changed
+- AI Client: Decouple prompt input as component and export it for reusability. [#39864]
+- AI Client: Make reload handler prop optional. [#39848]
+
+### Fixed
+- AI Client: Fix initial state being mapped even when fetch fails. [#39846]
+
 ## [0.22.0] - 2024-10-21
 ### Changed
 - AI Client: Add types for AI assistant feature payload data branch featuresControl. [#39826]
@@ -205,8 +232,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - AI Client: change loading and error state handling on media recording hook. [#36001]
 - AI Client: publish audio information on the validation success callback of the audio validation hook. [#36094]
-- Updated package dependencies. [#36095]
-- Updated package dependencies. [#36143]
+- Updated package dependencies. [#36095] [#36143]
 
 ### Fixed
 - AI Client: fixed transcription request from P2 editor [#36081]
@@ -435,10 +461,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - AI Client: stop using smart document visibility handling on the fetchEventSource library, so it does not restart the completion when changing tabs. [#32004]
-- Updated package dependencies. [#31468]
-- Updated package dependencies. [#31659]
-- Updated package dependencies. [#31785]
+- Updated package dependencies. [#31468] [#31659] [#31785]
 
+[0.24.3]: https://github.com/Automattic/jetpack-ai-client/compare/v0.24.2...v0.24.3
+[0.24.2]: https://github.com/Automattic/jetpack-ai-client/compare/v0.24.1...v0.24.2
+[0.24.1]: https://github.com/Automattic/jetpack-ai-client/compare/v0.24.0...v0.24.1
+[0.24.0]: https://github.com/Automattic/jetpack-ai-client/compare/v0.23.0...v0.24.0
+[0.23.0]: https://github.com/Automattic/jetpack-ai-client/compare/v0.22.0...v0.23.0
 [0.22.0]: https://github.com/Automattic/jetpack-ai-client/compare/v0.21.0...v0.22.0
 [0.21.0]: https://github.com/Automattic/jetpack-ai-client/compare/v0.20.1...v0.21.0
 [0.20.1]: https://github.com/Automattic/jetpack-ai-client/compare/v0.20.0...v0.20.1

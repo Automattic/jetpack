@@ -34,6 +34,12 @@ class Site_Urls {
 				'modified' => get_post_modified_time( 'Y-m-d H:i:s', false, $front_page ),
 				'group'    => 'core_front_page',
 			);
+		} else {
+			$urls['core_front_page'] = array(
+				'url'      => home_url( '/' ),
+				'modified' => current_time( 'Y-m-d H:i:s' ),
+				'group'    => 'core_front_page',
+			);
 		}
 
 		$posts_page = get_option( 'page_for_posts' );
@@ -42,14 +48,6 @@ class Site_Urls {
 				'url'      => get_permalink( $posts_page ),
 				'modified' => get_post_modified_time( 'Y-m-d H:i:s', false, $posts_page ),
 				'group'    => 'other',
-			);
-		}
-
-		if ( empty( $front_page ) && empty( $posts_page ) ) {
-			$urls['core_posts_page'] = array(
-				'url'      => home_url( '/' ),
-				'modified' => current_time( 'Y-m-d H:i:s' ),
-				'group'    => 'core_front_page',
 			);
 		}
 

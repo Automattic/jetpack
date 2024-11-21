@@ -1,14 +1,15 @@
-import { Col, Button, Text, TermsOfService } from '@automattic/jetpack-components';
+import { Col, Button, Text, TermsOfService, getRedirectUrl } from '@automattic/jetpack-components';
 import { initializeExPlat, loadExperimentAssignment } from '@automattic/jetpack-explat';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useContext } from 'react';
 import { NoticeContext } from '../../context/notices/noticeContext';
 import { NOTICE_SITE_CONNECTED } from '../../context/notices/noticeTemplates';
 import useProductsByOwnership from '../../data/products/use-products-by-ownership';
+import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../hooks/use-analytics';
 import sideloadTracks from '../../utils/side-load-tracks';
 import styles from './style.module.scss';
-import type { WelcomeFlowExperiment } from '.';
+import { WelcomeFlowExperiment } from '.';
 import type { Dispatch, SetStateAction } from 'react';
 
 type ConnectionStepProps = {
@@ -22,8 +23,8 @@ type ConnectionStepProps = {
  *
  * @param {object}   props                               - ConnectioStepProps
  * @param {Function} props.onActivateSite                - Alias for handleRegisterSite
- * @param {Function} props.onUpdateWelcomeFlowExperiment - Updating the welcomeFlowExperiment state
  * @param {boolean}  props.isActivating                  - Alias for siteIsRegistering
+ * @param {Function} props.onUpdateWelcomeFlowExperiment - Function to update the welcomeFlowExperiment state
  * @return {object} The ConnectionStep component.
  */
 const ConnectionStep = ( {
@@ -33,6 +34,14 @@ const ConnectionStep = ( {
 }: ConnectionStepProps ) => {
 	const { recordEvent } = useAnalytics();
 	const { setNotice, resetNotice } = useContext( NoticeContext );
+
+	const { siteSuffix, adminUrl } = getMyJetpackWindowInitialState();
+	const connectAfterCheckoutUrl = `?connect_after_checkout=true&admin_url=${ encodeURIComponent(
+		adminUrl
+	) }&from_site_slug=${ siteSuffix }&source=my-jetpack`;
+	const redirectUri = `&redirect_to=${ encodeURIComponent( window.location.href ) }`;
+	const query = `${ connectAfterCheckoutUrl }${ redirectUri }&unlinked=1`;
+	const jetpackPlansPath = getRedirectUrl( 'jetpack-my-jetpack-site-only-plans', { query } );
 
 	const activationButtonLabel = __( 'Activate Jetpack in one click', 'jetpack-my-jetpack' );
 	const { refetch: refetchOwnershipData } = useProductsByOwnership();
@@ -50,13 +59,17 @@ const ConnectionStep = ( {
 			initializeExPlat();
 
 			const { variationName } = await loadExperimentAssignment(
-				'jetpack_my_jetpack_welcome_flow_display_default_recommendations_upfront_202410'
+				'jetpack_my_jetpack_recommendations_pricing_page_202411'
 			);
 
 			onUpdateWelcomeFlowExperiment( state => ( {
 				...state,
 				variation: ( variationName ?? 'control' ) as WelcomeFlowExperiment[ 'variation' ], // casting to 'control' or 'treatment'
 			} ) );
+
+			if ( variationName === 'treatment' ) {
+				window.location.href = jetpackPlansPath;
+			}
 		} finally {
 			resetNotice();
 			setNotice( NOTICE_SITE_CONNECTED, resetNotice );
@@ -65,6 +78,7 @@ const ConnectionStep = ( {
 			onUpdateWelcomeFlowExperiment( state => ( { ...state, isLoading: false } ) );
 		}
 	}, [
+		jetpackPlansPath,
 		onActivateSite,
 		onUpdateWelcomeFlowExperiment,
 		recordEvent,

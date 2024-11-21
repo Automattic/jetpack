@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-AI Client: decouple prompt input as component and export it for reusability

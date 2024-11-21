@@ -38,7 +38,6 @@ import './style.scss';
  * Types
  */
 import type { CoreSelect, JetpackSettingsContentProps } from './types';
-import type * as EditorSelectors from '@wordpress/editor/store/selectors';
 
 const debug = debugFactory( 'jetpack-ai-assistant-plugin:sidebar' );
 /**
@@ -82,7 +81,7 @@ const JetpackAndSettingsContent = ( {
 		<>
 			{ showFairUsageNotice && (
 				<PanelRow className="jetpack-ai-sidebar__feature-section">
-					<BaseControl>
+					<BaseControl __nextHasNoMarginBottom={ true }>
 						<FairUsageNotice variant="muted" />
 					</BaseControl>
 				</PanelRow>
@@ -90,7 +89,7 @@ const JetpackAndSettingsContent = ( {
 
 			{ canWriteBriefBeEnabled() && isBreveAvailable && (
 				<PanelRow>
-					<BaseControl>
+					<BaseControl __nextHasNoMarginBottom={ true }>
 						<BaseControl.VisualLabel>
 							{ __( 'Write Brief with AI (BETA)', 'jetpack' ) }
 						</BaseControl.VisualLabel>
@@ -100,7 +99,7 @@ const JetpackAndSettingsContent = ( {
 			) }
 
 			<PanelRow className="jetpack-ai-sidebar__feature-section">
-				<BaseControl>
+				<BaseControl __nextHasNoMarginBottom={ true }>
 					<BaseControl.VisualLabel>{ __( 'AI Feedback', 'jetpack' ) }</BaseControl.VisualLabel>
 					<Feedback placement={ placement } busy={ false } disabled={ requireUpgrade } />
 				</BaseControl>
@@ -108,7 +107,7 @@ const JetpackAndSettingsContent = ( {
 
 			{ isAITitleOptimizationAvailable && (
 				<PanelRow className="jetpack-ai-sidebar__feature-section">
-					<BaseControl>
+					<BaseControl __nextHasNoMarginBottom={ true }>
 						<BaseControl.VisualLabel>{ titleOptimizationSectionLabel }</BaseControl.VisualLabel>
 						<TitleOptimization placement={ placement } busy={ false } disabled={ requireUpgrade } />
 					</BaseControl>
@@ -116,7 +115,7 @@ const JetpackAndSettingsContent = ( {
 			) }
 			{ isAIFeaturedImageAvailable && (
 				<PanelRow className="jetpack-ai-sidebar__feature-section">
-					<BaseControl>
+					<BaseControl __nextHasNoMarginBottom={ true }>
 						<BaseControl.VisualLabel>
 							{ __( 'AI Featured Image', 'jetpack' ) }
 						</BaseControl.VisualLabel>
@@ -163,7 +162,7 @@ export default function AiAssistantPluginSidebar() {
 	const { tracks } = useAnalytics();
 
 	const isViewable = useSelect( select => {
-		const postTypeName = ( select( editorStore ) as typeof EditorSelectors ).getCurrentPostType();
+		const postTypeName = select( editorStore ).getCurrentPostType();
 		// The coreStore select type lacks the getPostType method, so we need to cast it to the correct type
 		const postTypeObject = ( select( coreStore ) as unknown as CoreSelect ).getPostType(
 			postTypeName

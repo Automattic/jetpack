@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+AI Client: fix prompt cursor to text when editable

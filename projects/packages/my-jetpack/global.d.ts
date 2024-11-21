@@ -39,7 +39,8 @@ type JetpackModule =
 	| 'security'
 	| 'protect'
 	| 'videopress'
-	| 'stats';
+	| 'stats'
+	| 'growth';
 
 type ThreatItem = {
 	// Protect API properties (free plan)
@@ -99,6 +100,7 @@ interface Window {
 			showFullJetpackStatsCard: boolean;
 			videoPressStats: boolean;
 		};
+		purchaseToken: string;
 		lifecycleStats: {
 			historicallyActiveModules: JetpackModule[];
 			brokenModules: {

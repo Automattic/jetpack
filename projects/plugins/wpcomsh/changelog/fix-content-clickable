@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix function that add links to URLs in the page when having HTML attributes with "<" in the value

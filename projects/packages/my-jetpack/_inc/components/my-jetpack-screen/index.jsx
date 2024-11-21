@@ -84,7 +84,7 @@ export default function MyJetpackScreen() {
 	} );
 	useNotificationWatcher();
 	const { redBubbleAlerts } = getMyJetpackWindowInitialState();
-	const { jetpackManage = {}, adminUrl } = getMyJetpackWindowInitialState();
+	const { isAtomic = false, jetpackManage = {}, adminUrl } = getMyJetpackWindowInitialState();
 
 	const { isWelcomeBannerVisible } = useWelcomeBanner();
 	const { isSectionVisible } = useEvaluationRecommendations();
@@ -172,11 +172,7 @@ export default function MyJetpackScreen() {
 					</Container>
 				)
 			) }
-			{ ! isWelcomeBannerVisible && isSectionVisible && (
-				<EvaluationRecommendations
-					welcomeFlowExperimentVariation={ welcomeFlowExperiment.variation }
-				/>
-			) }
+			{ ! isWelcomeBannerVisible && isSectionVisible && <EvaluationRecommendations /> }
 
 			<ProductCardsSection />
 
@@ -194,7 +190,7 @@ export default function MyJetpackScreen() {
 						<PlansSection />
 					</Col>
 					<Col sm={ 4 } md={ 4 } lg={ 6 }>
-						<ConnectionsSection />
+						{ ! isAtomic && <ConnectionsSection /> }
 					</Col>
 				</Container>
 			</AdminSection>

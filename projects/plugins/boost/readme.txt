@@ -2,9 +2,9 @@
 Contributors: automattic, xwp, adnan007, bjorsch, danwalmsley, davidlonjon, dilirity, donncha, ebinnion, exelero, jeherve, jpolakovic, karthikbhatb, kraftbj, luchad0res, pyronaur, rheinardkorf, scruffian, thingalon
 Donate link: https://automattic.com
 Tags: performance, speed, web vitals, critical css, cache
-Requires at least: 6.5
+Requires at least: 6.6
 Tested up to: 6.7
-Requires PHP: 7.0
+Requires PHP: 7.2
 Stable tag: 3.5.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -183,15 +183,24 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 3.5.2 - 2024-10-15
+### 3.6.0-beta2 - 2024-11-20
+#### Added
+- Cornerstone Pages: Added setting to allow selecting important pages.
+
 #### Changed
-- Deferred JS: Exclude all scripts produced by a shortcode.
-- General: Sync Boost's Getting Started page with My Jetpack's version.
-- General: Update minimum required WordPress version to 6.5 in main plugin file. Previous release only changed plugin readme.
+- Critical CSS: Improved logic that generates URLs for critical CSS generation.
+- General: Improved compatibility with WordPress 6.7.
+- General: Updated badges used to show state of features.
+- Page Speed: Updated speed scores to be based on first cornerstone page.
+
+#### Removed
+- Image Guide: Removed URL parameter based override.
 
 #### Fixed
-- Image CDN: URL encode image path parts for RSS feed compatibility
-- Image Guide: Improve check for Jetpack Image CDN URLs
+- Image Size Analysis: Fixed UI not properly reflecting current state after interaction.
+- Page Speed: Fixed typo in Overall Score tooltip.
+- Performance History: Fixed tooltip behavior.
+- UI: Fixed Boost's menu counter sometimes displaying incorrectly.
 
 --------
 
