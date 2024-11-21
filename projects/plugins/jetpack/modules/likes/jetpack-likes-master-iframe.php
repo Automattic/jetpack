@@ -43,7 +43,7 @@ function jetpack_likes_master_iframe() {
 	 *
 	 * @param string URL to https://widgets.wp.com/ with various arguments appended to the get string and fragment.
 	 */
-	$src = apply_filters( 'wpl_iframe_src', $src );
+	$src = apply_filters( 'jetpack_likes_iframe_src', $src );
 
 	if ( $new_layout ) {
 		// The span content is replaced by queuehandler when showOtherGravatars is called.
