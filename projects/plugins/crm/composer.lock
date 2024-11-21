@@ -12,7 +12,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/assets",
-                "reference": "63138ef0df4e49622c104b8fee4000f72bd5354d"
+                "reference": "150864e98715bbe0f68332225843adb5920e166d"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
@@ -20,7 +20,7 @@
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
-                "brain/monkey": "2.6.1",
+                "brain/monkey": "^2.6.2",
                 "wikimedia/testing-access-wrapper": "^1.0 || ^2.0 || ^3.0",
                 "yoast/phpunit-polyfills": "^1.1.1"
             },
@@ -209,14 +209,14 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/constants",
-                "reference": "903469d423a09a79c41b7f1d0904ebab6365b22c"
+                "reference": "e715b43a76eeb5847166871e7e0d192469ddeb32"
             },
             "require": {
                 "php": ">=7.2"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
-                "brain/monkey": "2.6.1",
+                "brain/monkey": "^2.6.2",
                 "yoast/phpunit-polyfills": "^1.1.1"
             },
             "suggest": {
