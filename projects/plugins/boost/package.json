@@ -1,6 +1,6 @@
 {
 	"name": "jetpack-boost",
-	"version": "3.6.0-beta",
+	"version": "3.6.0-beta2",
 	"description": "Boost your WordPress site's performance, from the creators of Jetpack",
 	"directories": {
 		"test": "tests"

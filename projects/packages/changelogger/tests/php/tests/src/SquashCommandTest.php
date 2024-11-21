@@ -222,7 +222,7 @@ class SquashCommandTest extends CommandTestCase {
 				array(),
 				array(),
 				SquashCommand::FATAL_EXIT,
-				array( '{^Regex match failed: Delimiter must not be alphanumeric(?: or backslash|, backslash, or NUL)$}' ),
+				array( '{^Regex match failed: Delimiter must not be alphanumeric(?: or backslash|, backslash, or NUL(?: byte)?)$}' ),
 			),
 			'Squash by regex, regex matches nothing'      => array(
 				array(

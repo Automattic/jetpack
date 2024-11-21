@@ -32,7 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Boost: Fix [Boost Feature] labels [#35947]
 - Check description task: Handle empty PR body. [#36446]
 - Repo Gardening: fix workflow for adding [OSS Citizen] label. [#37252]
-- WPCOM Commit Reminder rask: Fix detection of existing reminder comment. [#39042]
+- WPCOM Commit Reminder task: Fix detection of existing reminder comment. [#39042]
 
 ## [5.0.0] - 2024-02-07
 ### Added
