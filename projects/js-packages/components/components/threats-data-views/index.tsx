@@ -169,31 +169,20 @@ export default function ThreatsDataViews( {
 	} );
 
 	const [ openThreat, setOpenThreat ] = useState< Threat | null >( null );
-	const [ showThreatDetails, setShowThreatDetails ] = useState< boolean >( true );
+	const [ actionToConfirm, setActionToConfirm ] = useState< string >( 'all' );
 
 	const showThreatModal = useCallback(
-		( threat: Threat, showDetails = true ) =>
-			() => {
-				setOpenThreat( threat );
-				setShowThreatDetails( showDetails );
-			},
+		( threat: Threat, action: string ) => () => {
+			setOpenThreat( threat );
+			setActionToConfirm( action );
+		},
 		[]
 	);
 
 	const hideThreatModal = useCallback( () => {
 		setOpenThreat( null );
-		setShowThreatDetails( true );
+		setActionToConfirm( 'all' );
 	}, [] );
-
-	const onShowThreatDetails = useCallback(
-		() => setShowThreatDetails( true ),
-		[ setShowThreatDetails ]
-	);
-
-	const onHideThreatDetails = useCallback(
-		() => setShowThreatDetails( false ),
-		[ setShowThreatDetails ]
-	);
 
 	/**
 	 * Compute values from the provided threats data.
@@ -282,7 +271,7 @@ export default function ThreatsDataViews( {
 						variant="link"
 						size="small"
 						weight="regular"
-						onClick={ showThreatModal( item ) }
+						onClick={ showThreatModal( item, 'all' ) }
 					>
 						{ item.title }
 					</Button>
@@ -469,7 +458,7 @@ export default function ThreatsDataViews( {
 								}
 
 								return (
-									<ThreatFixerButton threat={ item } onClick={ showThreatModal( item, false ) } />
+									<ThreatFixerButton threat={ item } onClick={ showThreatModal( item, 'fix' ) } />
 								);
 							},
 						},
@@ -493,7 +482,7 @@ export default function ThreatsDataViews( {
 				id: THREAT_ACTION_IGNORE,
 				label: __( 'Ignore', 'jetpack' ),
 				callback: ( items: Threat[] ) => {
-					showThreatModal( items[ 0 ], false )();
+					showThreatModal( items[ 0 ], 'ignore' )();
 				},
 				isEligible( item ) {
 					if ( ! onIgnoreThreats ) {
@@ -512,7 +501,7 @@ export default function ThreatsDataViews( {
 				id: THREAT_ACTION_UNIGNORE,
 				label: __( 'Unignore', 'jetpack' ),
 				callback: ( items: Threat[] ) => {
-					showThreatModal( items[ 0 ], false )();
+					showThreatModal( items[ 0 ], 'unignore' )();
 				},
 				isEligible( item ) {
 					if ( ! onUnignoreThreats ) {
@@ -596,9 +585,7 @@ export default function ThreatsDataViews( {
 					handleIgnoreThreatClick={ onIgnoreThreats }
 					handleUnignoreThreatClick={ onUnignoreThreats }
 					onRequestClose={ hideThreatModal }
-					showThreatDetails={ showThreatDetails }
-					onShowThreatDetailsClick={ onShowThreatDetails }
-					onHideThreatDetailsClick={ onHideThreatDetails }
+					actionToConfirm={ actionToConfirm }
 				/>
 			) : null }
 		</>

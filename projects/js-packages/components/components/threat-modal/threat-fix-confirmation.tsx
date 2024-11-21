@@ -42,8 +42,11 @@ const ThreatFixConfirmation = ( {
 		<>
 			<ThreatSummary threat={ threat } />
 			<ThreatTechnicalDetails threat={ threat } />
-			<ThreatFixDetails threat={ threat } handleUpgradeClick={ handleUpgradeClick } />
-			{ actionToConfirm === 'all' && <ThreatIgnoreDetails /> }
+			{ [ 'all', 'fix' ].includes( actionToConfirm ) && (
+				<ThreatFixDetails threat={ threat } handleUpgradeClick={ handleUpgradeClick } />
+			) }
+			{ /* TODO: Necessary to show ignore confirmation in all view? */ }
+			{ [ 'all', 'ignore' ].includes( actionToConfirm ) && <ThreatIgnoreDetails /> }
 			{ siteCredentialsNeeded && userConnectionNeeded && (
 				<ThreatNotice
 					title={ 'Additional connections needed' }
