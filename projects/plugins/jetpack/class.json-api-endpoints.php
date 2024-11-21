@@ -2701,6 +2701,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 		);
 
 		if ( ! $callback_response && ! is_array( $callback_response ) ) {
+			// Dealing with empty non-array response. Phan is wrong about it being an "impossible condition".
 			$response = $this->api->output( 500, '', 'text/plain', array(), false );
 		} elseif ( is_wp_error( $callback_response ) ) {
 			$error = WPCOM_JSON_API::serializable_error( $callback_response );
