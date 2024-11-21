@@ -5,22 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [3.6.0-beta] - 2024-11-04
+## [3.6.0-beta2] - 2024-11-20
 ### Added
-- Cornerstone Pages: Added feature to allow selecting important pages. [#39863]
+- Cornerstone Pages: Added setting to allow selecting important pages. [#39863]
 
 ### Changed
-- Critical CSS: Improve logic that generates URLs for critical CSS generation. [#39862]
-- Page Speed: Update speed scores to be based on first cornerstone page. [#39863]
-- General: Improve compatibility with WordPress 6.7. [#39877] [#39786]
-- General: Update badges used to show state of features. [#40031]
+- Critical CSS: Improved logic that generates URLs for critical CSS generation. [#39862]
+- General: Improved compatibility with WordPress 6.7. [#39877] [#39786]
+- General: Updated badges used to show state of features. [#40031]
+- Page Speed: Updated speed scores to be based on first cornerstone page. [#39863]
 
 ### Removed
-- Image Guide: Remove URL parameter based override. [#39874]
+- Image Guide: Removed URL parameter based override. [#39874]
 
 ### Fixed
-- Page Speed: Fix typo in Overall Score tooltip. [#39974]
+- Image Size Analysis: Fixed UI not properly reflecting current state after interaction.
+- Page Speed: Fixed typo in Overall Score tooltip. [#39974]
 - Performance History: Fixed tooltip behavior. [#39879]
+- UI: Fixed Boost's menu counter sometimes displaying incorrectly.
 
 ## [3.5.2] - 2024-10-15
 ### Changed
@@ -541,7 +543,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - First public alpha release
 
-[3.6.0-beta]: https://github.com/Automattic/jetpack-boost-production/compare/3.5.2...3.6.0-beta
+[3.6.0-beta2]: https://github.com/Automattic/jetpack-boost-production/compare/3.5.2...3.6.0-beta
 [3.5.2]: https://github.com/Automattic/jetpack-boost-production/compare/3.5.1...3.5.2
 [3.5.1]: https://github.com/Automattic/jetpack-boost-production/compare/3.5.0...3.5.1
 [3.5.0]: https://github.com/Automattic/jetpack-boost-production/compare/3.4.9...3.5.0

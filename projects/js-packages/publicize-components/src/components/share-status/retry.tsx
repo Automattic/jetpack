@@ -27,7 +27,6 @@ export type RetryProps = {
  */
 export function Retry( { shareItem }: RetryProps ) {
 	const { recordEvent } = useAnalytics();
-	// @ts-expect-error -- `@wordpress/editor` is badly typed, causes issue in CI
 	const postId = useSelect( select => select( editorStore ).getCurrentPostId(), [] );
 	const connections = useSelect( select => select( socialStore ).getConnections(), [] );
 

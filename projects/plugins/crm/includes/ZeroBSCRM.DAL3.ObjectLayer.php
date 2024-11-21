@@ -862,9 +862,7 @@ class zbsDAL_ObjectLayer {
         // req.
         global $zbs;
 
-        $checksFailed = array();
-
-        if ($zbs->isDAL3() && $this->objectType > 0 && is_array($dataArr) && isset($this->objectDBPrefix)){
+		if ( $this->objectType > 0 && is_array( $dataArr ) && isset( $this->objectDBPrefix ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase,WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
             // new return
             $retArr = $dataArr;
@@ -889,8 +887,6 @@ class zbsDAL_ObjectLayer {
                         $label = $fieldKey; if (isset($this->objectModel[$fieldKey]['label'])) $label = $this->objectModel[$fieldKey]['label'];
                         $msg = __('The value for the field:','zero-bs-crm').' "'.$label.'" '.__('was too long and has been abbreviated','zero-bs-crm');
                         $zbs->DAL->addError(305,$this->objectType,$msg,$fieldKey);
-                    
-
 
                     }
 
@@ -928,7 +924,7 @@ class zbsDAL_ObjectLayer {
 
         $checksFailed = array();
 
-        if ($zbs->isDAL3() && $this->objectType > 0 && is_array($objArr)){
+		if ( $this->objectType > 0 && is_array( $objArr ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase,WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
             // DAL3+ we now have proper object models, so can check for 'force_unique' flags against field
 
@@ -1037,7 +1033,7 @@ class zbsDAL_ObjectLayer {
 
         $checksFailed = array();
 
-        if ($zbs->isDAL3() && $this->objectType > 0 && is_array($objArr)){
+		if ( $this->objectType > 0 && is_array( $objArr ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase,WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
             // DAL3+ we now have proper object models, so can check for 'force_unique' flags against field
 

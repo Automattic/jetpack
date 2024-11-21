@@ -588,29 +588,7 @@ function zeroBSCRM_AJAX_deleteLog() {
 		global $zbs;
 
 		// } Brutal
-		if ( $zbs->isDAL2() ) {
-			$res = $zbs->DAL->logs->deleteLog( array( 'id' => $zbsNoteID ) );
-		} else {
-
-			// DAL 1
-			$res = wp_delete_post( $zbsNoteID, false ); // } Don't force delete (leaves a kind of audit trail for now...?)
-
-			if ( isset( $res ) && isset( $res->ID ) ) {
-
-				$res = 1;
-
-				// } Internal Automator
-				zeroBSCRM_FireInternalAutomator(
-					'log.delete',
-					array(
-						'id' => $zbsNoteID,
-					)
-				);
-
-			} else {
-				$res = -1;
-			}
-		}
+		$res = $zbs->DAL->logs->deleteLog( array( 'id' => $zbsNoteID ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase,WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 	}
 
 	echo json_encode( array( 'processed' => $res ) );
@@ -1124,8 +1102,9 @@ function ZeroBSCRM_accept_quote() {
 		$uinfo = wp_get_current_user();
 
 		// validate that this has been posted by the contact associated with the quote
+		global $zbs;
 		if ( ! $uinfo->ID
-			|| zeroBS_getCustomerIDWithEmail( $uinfo->user_email ) !== zeroBSCRM_quote_getContactAssigned( $quoteID ) // phpcs:ignore
+			|| zeroBS_getCustomerIDWithEmail( $uinfo->user_email ) !== $zbs->DAL->quotes->getQuoteContactID( $quoteID ) // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase,WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 		) {
 			zeroBSCRM_sendJSONError( array( 'access' => 1 ), 403 );
 		}
@@ -1480,7 +1459,7 @@ function zbs_lead_form_capture() {
 					if ( $autoLogCCreation <= 0 && $cID > 0 ) {
 
 						// add form log manually
-						$logID = $zbs->DAL->addUpdateLog(
+						$zbs->DAL->logs->addUpdateLog( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 							array(
 
 								// fields (directly)
@@ -1583,7 +1562,7 @@ function zbs_lead_form_capture() {
 						global $zbs;
 
 						// add form log manually
-						$logID = $zbs->DAL->addUpdateLog(
+						$zbs->DAL->logs->addUpdateLog( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 							array(
 
 								// fields (directly)
@@ -3841,13 +3820,13 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 
 						// add tag(s) to customers
 						case 'addtag':
-							zeroBSCRM_bulkAction_enact_addTags( $legitIDs, ZBS_TYPE_CONTACT, 'zerobscrm_customertag' );
+							zeroBSCRM_bulkAction_enact_addTags( $legitIDs, ZBS_TYPE_CONTACT ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 							break;
 
 						// remove tag(S) from customers
 						case 'removetag':
-							zeroBSCRM_bulkAction_enact_removeTags( $legitIDs, ZBS_TYPE_CONTACT, 'zerobscrm_customertag' );
+							zeroBSCRM_bulkAction_enact_removeTags( $legitIDs, ZBS_TYPE_CONTACT ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 							break;
 
@@ -3943,13 +3922,13 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 
 							// add tag(s) to company(s)
 							case 'addtag':
-								zeroBSCRM_bulkAction_enact_addTags( $legitIDs, ZBS_TYPE_COMPANY, 'zerobscrm_companytag' );
+								zeroBSCRM_bulkAction_enact_addTags( $legitIDs, ZBS_TYPE_COMPANY ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 								break;
 
 							// remove tag(S) from company(s)
 							case 'removetag':
-								zeroBSCRM_bulkAction_enact_removeTags( $legitIDs, ZBS_TYPE_COMPANY, 'zerobscrm_companytag' );
+								zeroBSCRM_bulkAction_enact_removeTags( $legitIDs, ZBS_TYPE_COMPANY ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 								break;
 
@@ -4057,13 +4036,13 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 
 							// add tag(s) to quote(s)
 							case 'addtag':
-								zeroBSCRM_bulkAction_enact_addTags( $legitIDs, ZBS_TYPE_QUOTE, 'zerobscrm_quotetag' );
+								zeroBSCRM_bulkAction_enact_addTags( $legitIDs, ZBS_TYPE_QUOTE ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 								break;
 
 							// remove tag(S) from quote(s)
 							case 'removetag':
-								zeroBSCRM_bulkAction_enact_removeTags( $legitIDs, ZBS_TYPE_QUOTE, 'zerobscrm_quotetag' );
+								zeroBSCRM_bulkAction_enact_removeTags( $legitIDs, ZBS_TYPE_QUOTE ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 								break;
 
@@ -4154,13 +4133,13 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 
 							// add tag(s) to invoice(s)
 							case 'addtag':
-								zeroBSCRM_bulkAction_enact_addTags( $legitIDs, ZBS_TYPE_INVOICE, 'zerobscrm_invoicetag' );
+								zeroBSCRM_bulkAction_enact_addTags( $legitIDs, ZBS_TYPE_INVOICE ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 								break;
 
 							// remove tag(S) from invoice(s)
 							case 'removetag':
-								zeroBSCRM_bulkAction_enact_removeTags( $legitIDs, ZBS_TYPE_INVOICE, 'zerobscrm_invoicetag' );
+								zeroBSCRM_bulkAction_enact_removeTags( $legitIDs, ZBS_TYPE_INVOICE ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 								break;
 
@@ -4224,13 +4203,13 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 
 							// add tag(s) to transaction(s)
 							case 'addtag':
-								zeroBSCRM_bulkAction_enact_addTags( $legitIDs, ZBS_TYPE_TRANSACTION, 'zerobscrm_transactiontag' );
+								zeroBSCRM_bulkAction_enact_addTags( $legitIDs, ZBS_TYPE_TRANSACTION ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 								break;
 
 							// remove tag(S) from transaction(s)
 							case 'removetag':
-								zeroBSCRM_bulkAction_enact_removeTags( $legitIDs, ZBS_TYPE_TRANSACTION, 'zerobscrm_transactiontag' );
+								zeroBSCRM_bulkAction_enact_removeTags( $legitIDs, ZBS_TYPE_TRANSACTION ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 								break;
 
@@ -4456,13 +4435,13 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 
 								// add tag(s) to transaction(s)
 							case 'addtag':
-								zeroBSCRM_bulkAction_enact_addTags( $legitIDs, ZBS_TYPE_TASK, 'zerobscrm_transactiontag' );
+								zeroBSCRM_bulkAction_enact_addTags( $legitIDs, ZBS_TYPE_TASK ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 								break;
 
 								// remove tag(S) from transaction(s)
 							case 'removetag':
-								zeroBSCRM_bulkAction_enact_removeTags( $legitIDs, ZBS_TYPE_TASK, 'zerobscrm_transactiontag' );
+								zeroBSCRM_bulkAction_enact_removeTags( $legitIDs, ZBS_TYPE_TASK ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 								break;
 
@@ -4544,13 +4523,12 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 	/**
 	 * Adds tags to any object (for bulk action AJAX requests called in zeroBSCRM_AJAX_enactListViewBulkAction())
 	 *
-	 * @param array objIDs          Array of object id (int)s
-	 * @param int objTypeInt        ZBS_TYPE (if DAL3) or -1 (if <DAL3)
-	 * @param string objTaxonomy    wp taxonomy (if <DAL3) or '' (if DAL3)
+	 * @param int[] $obj_ids     Array of object ids.
+	 * @param int   $obj_type_id Object type ID.
 	 *
 	 * @return json success/error
 	 */
-function zeroBSCRM_bulkAction_enact_addTags( $objIDs = array(), $objTypeInt = -1, $objTaxonomy = '' ) {
+function zeroBSCRM_bulkAction_enact_addTags( $obj_ids = array(), $obj_type_id = -1 ) {
 
 		global $zbs;
 
@@ -4576,14 +4554,14 @@ function zeroBSCRM_bulkAction_enact_addTags( $objIDs = array(), $objTypeInt = -1
 
 			// cycle through + add tag
 			$tagged = 0;
-		foreach ( $objIDs as $id ) {
+		foreach ( $obj_ids as $id ) {
 
 			// pass as array of term ID's :)
 
 			$zbs->DAL->addUpdateObjectTags(
 				array(
 					'objid'   => $id,
-					'objtype' => $objTypeInt,
+					'objtype' => $obj_type_id,
 					'tagIDs'  => $tagIDs,
 					'mode'    => 'append',
 				)
@@ -4614,13 +4592,12 @@ function zeroBSCRM_bulkAction_enact_addTags( $objIDs = array(), $objTypeInt = -1
 	/**
 	 * Remove tags from any object (for bulk action AJAX requests called in zeroBSCRM_AJAX_enactListViewBulkAction())
 	 *
-	 * @param array objIDs          Array of object id (int)s
-	 * @param int objTypeInt        ZBS_TYPE (if DAL3) or -1 (if <DAL3)
-	 * @param string objTaxonomy    wp taxonomy (if <DAL3) or '' (if DAL3)
+	 * @param int[] $obj_ids     Array of object ids.
+	 * @param int   $obj_type_id Object type ID.
 	 *
 	 * @return json success/error
 	 */
-function zeroBSCRM_bulkAction_enact_removeTags( $objIDs = array(), $objTypeInt = -1, $objTaxonomy = '' ) {
+function zeroBSCRM_bulkAction_enact_removeTags( $obj_ids = array(), $obj_type_id = -1 ) {
 
 		global $zbs;
 
@@ -4646,14 +4623,14 @@ function zeroBSCRM_bulkAction_enact_removeTags( $objIDs = array(), $objTypeInt =
 
 			// cycle through + remove tags
 			$untagged = 0;
-		foreach ( $objIDs as $id ) {
+		foreach ( $obj_ids as $id ) {
 
 			// pass as array of term ID's :)
 			// https://codex.wordpress.org/Function_Reference/wp_remove_object_terms
 			$zbs->DAL->addUpdateObjectTags(
 				array(
 					'objid'   => $id,
-					'objtype' => $objTypeInt,
+					'objtype' => $obj_type_id,
 					'tagIDs'  => $tagIDs,
 					'mode'    => 'remove',
 				)
@@ -5176,11 +5153,6 @@ function zeroBSCRM_AJAX_listViewInlineEdit_save() {
 	check_ajax_referer( 'zbscrmjs-ajax-nonce', 'sec' );  // nonce to bounce out if not from right page
 
 	global $zbs;
-
-	// } DAL2 check
-	if ( ! $zbs->isDAL2() ) {
-		zeroBSCRM_sendJSONError( array( 'no-action-or-rights' => 1 ) );
-	}
 
 	// } Retrieve deets
 	$listtype = sanitize_text_field( $_POST['listtype'] );
@@ -5811,8 +5783,10 @@ function zeroBSCRM_AJAX_getInvoice() {
 		// WH Notes: Agreed, for now just rolling this in, to discuss, (perhaps v3.1?)
 
 		// build default
+		$data = array();
+
 		$data['invoiceObj']   = zeroBSCRM_get_invoice_defaults( -1 );
-		$data['tax_linesObj'] = zeroBSCRM_getTaxTableArr();
+		$data['tax_linesObj'] = zeroBSCRM_taxRates_getTaxTableArr();
 
 		// pass back in json
 		zeroBSCRM_sendJSONSuccess( $data );
