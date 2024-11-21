@@ -4784,7 +4784,7 @@ importers:
         version: 6.21.0(eslint@8.57.1)(typescript@5.0.4)
       '@wordpress/eslint-plugin':
         specifier: 21.5.0
-        version: 21.5.0(2sijnum7shja2r6nyaomqydmda)
+        version: 21.5.0(rs6lbyu4tolvlbcrxa6ur4zioi)
       '@wordpress/jest-console':
         specifier: 8.12.0
         version: 8.12.0(jest@29.7.0)
@@ -4819,14 +4819,14 @@ importers:
         specifier: 27.9.0
         version: 27.9.0(@typescript-eslint/eslint-plugin@6.21.0(@typescript-eslint/parser@6.21.0(eslint@8.57.1)(typescript@5.0.4))(eslint@8.57.1)(typescript@5.0.4))(eslint@8.57.1)(jest@29.7.0)(typescript@5.0.4)
       eslint-plugin-jest-dom:
-        specifier: 5.4.0
-        version: 5.4.0(eslint@8.57.1)
+        specifier: 5.5.0
+        version: 5.5.0(eslint@8.57.1)
       eslint-plugin-jsdoc:
         specifier: 48.11.0
         version: 48.11.0(eslint@8.57.1)
       eslint-plugin-jsx-a11y:
-        specifier: 6.10.1
-        version: 6.10.1(eslint@8.57.1)
+        specifier: 6.10.2
+        version: 6.10.2(eslint@8.57.1)
       eslint-plugin-lodash:
         specifier: 7.4.0
         version: 7.4.0(eslint@8.57.1)
@@ -4846,8 +4846,8 @@ importers:
         specifier: 2.46.0
         version: 2.46.0(eslint@8.57.1)(svelte@4.2.19)
       eslint-plugin-testing-library:
-        specifier: 6.4.0
-        version: 6.4.0(eslint@8.57.1)(typescript@5.0.4)
+        specifier: 6.5.0
+        version: 6.5.0(eslint@8.57.1)(typescript@5.0.4)
       glob:
         specifier: 10.4.1
         version: 10.4.1
@@ -9489,8 +9489,8 @@ packages:
       '@typescript-eslint/parser':
         optional: true
 
-  eslint-plugin-jest-dom@5.4.0:
-    resolution: {integrity: sha512-yBqvFsnpS5Sybjoq61cJiUsenRkC9K32hYQBFS9doBR7nbQZZ5FyO+X7MlmfM1C48Ejx/qTuOCgukDUNyzKZ7A==}
+  eslint-plugin-jest-dom@5.5.0:
+    resolution: {integrity: sha512-CRlXfchTr7EgC3tDI7MGHY6QjdJU5Vv2RPaeeGtkXUHnKZf04kgzMPIJUXt4qKCvYWVVIEo9ut9Oq1vgXAykEA==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0, npm: '>=6', yarn: '>=1'}
     peerDependencies:
       '@testing-library/dom': ^8.0.0 || ^9.0.0 || ^10.0.0
@@ -9518,8 +9518,8 @@ packages:
     peerDependencies:
       eslint: ^7.0.0 || ^8.0.0 || ^9.0.0
 
-  eslint-plugin-jsx-a11y@6.10.1:
-    resolution: {integrity: sha512-zHByM9WTUMnfsDTafGXRiqxp6lFtNoSOWBY6FonVRn3A+BUwN1L/tdBXT40BcBJi0cZjOGTXZ0eD/rTG9fEJ0g==}
+  eslint-plugin-jsx-a11y@6.10.2:
+    resolution: {integrity: sha512-scB3nz4WmG75pV8+3eRUQOHZlNSUhFNq37xnpgRkCCELU3XMvXAxLk1eqWWyE22Ki4Q01Fnsw9BA3cJHDPgn2Q==}
     engines: {node: '>=4.0'}
     peerDependencies:
       eslint: ^3 || ^4 || ^5 || ^6 || ^7 || ^8 || ^9
@@ -9575,8 +9575,8 @@ packages:
       svelte:
         optional: true
 
-  eslint-plugin-testing-library@6.4.0:
-    resolution: {integrity: sha512-yeWF+YgCgvNyPNI9UKnG0FjeE2sk93N/3lsKqcmR8dSfeXJwFT5irnWo7NjLf152HkRzfoFjh3LsBUrhvFz4eA==}
+  eslint-plugin-testing-library@6.5.0:
+    resolution: {integrity: sha512-Ls5TUfLm5/snocMAOlofSOJxNN0aKqwTlco7CrNtMjkTdQlkpSMaeTCDHCuXfzrI97xcx2rSCNeKeJjtpkNC1w==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0, npm: '>=6'}
     peerDependencies:
       eslint: ^7.5.0 || ^8.0.0 || ^9.0.0
@@ -18848,7 +18848,7 @@ snapshots:
     dependencies:
       '@babel/runtime': 7.25.7
 
-  '@wordpress/eslint-plugin@21.5.0(2sijnum7shja2r6nyaomqydmda)':
+  '@wordpress/eslint-plugin@21.5.0(rs6lbyu4tolvlbcrxa6ur4zioi)':
     dependencies:
       '@babel/core': 7.26.0
       '@babel/eslint-parser': 7.25.9(@babel/core@7.26.0)(eslint@8.57.1)
@@ -18862,7 +18862,7 @@ snapshots:
       eslint-plugin-import: 2.31.0(@typescript-eslint/parser@6.21.0(eslint@8.57.1)(typescript@5.0.4))(eslint@8.57.1)
       eslint-plugin-jest: 27.9.0(@typescript-eslint/eslint-plugin@6.21.0(@typescript-eslint/parser@6.21.0(eslint@8.57.1)(typescript@5.0.4))(eslint@8.57.1)(typescript@5.0.4))(eslint@8.57.1)(jest@29.7.0)(typescript@5.0.4)
       eslint-plugin-jsdoc: 48.11.0(eslint@8.57.1)
-      eslint-plugin-jsx-a11y: 6.10.1(eslint@8.57.1)
+      eslint-plugin-jsx-a11y: 6.10.2(eslint@8.57.1)
       eslint-plugin-playwright: 0.22.2(eslint-plugin-jest@27.9.0(@typescript-eslint/eslint-plugin@6.21.0(@typescript-eslint/parser@6.21.0(eslint@8.57.1)(typescript@5.0.4))(eslint@8.57.1)(typescript@5.0.4))(eslint@8.57.1)(jest@29.7.0)(typescript@5.0.4))(eslint@8.57.1)
       eslint-plugin-prettier: 5.2.1(eslint-config-prettier@9.1.0(eslint@8.57.1))(eslint@8.57.1)(wp-prettier@3.0.3)
       eslint-plugin-react: 7.37.2(eslint@8.57.1)
@@ -21319,7 +21319,7 @@ snapshots:
       - eslint-import-resolver-webpack
       - supports-color
 
-  eslint-plugin-jest-dom@5.4.0(eslint@8.57.1):
+  eslint-plugin-jest-dom@5.5.0(eslint@8.57.1):
     dependencies:
       '@babel/runtime': 7.26.0
       eslint: 8.57.1
@@ -21353,7 +21353,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-plugin-jsx-a11y@6.10.1(eslint@8.57.1):
+  eslint-plugin-jsx-a11y@6.10.2(eslint@8.57.1):
     dependencies:
       aria-query: 5.3.2
       array-includes: 3.1.8
@@ -21363,7 +21363,6 @@ snapshots:
       axobject-query: 4.1.0
       damerau-levenshtein: 1.0.8
       emoji-regex: 9.2.2
-      es-iterator-helpers: 1.2.0
       eslint: 8.57.1
       hasown: 2.0.2
       jsx-ast-utils: 3.3.5
@@ -21439,7 +21438,7 @@ snapshots:
     transitivePeerDependencies:
       - ts-node
 
-  eslint-plugin-testing-library@6.4.0(eslint@8.57.1)(typescript@5.0.4):
+  eslint-plugin-testing-library@6.5.0(eslint@8.57.1)(typescript@5.0.4):
     dependencies:
       '@typescript-eslint/utils': 5.62.0(eslint@8.57.1)(typescript@5.0.4)
       eslint: 8.57.1
