@@ -53,6 +53,7 @@ const QualitySettings = ( { isPremium }: QualitySettingsProps ) => {
 					editText={ __( 'Adjust Quality', 'jetpack-boost' ) }
 					header={ <Header /> }
 					summary={ <Summary imageCdnQuality={ imageCdnQuality } /> }
+					useChevron={ false }
 				>
 					<div className={ styles.body }>
 						<h5>Adjust image quality per format</h5>
