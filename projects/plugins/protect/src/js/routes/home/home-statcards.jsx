@@ -12,7 +12,6 @@ import styles from './styles.module.scss';
 
 const HomeStatCards = () => {
 	const { hasPlan } = usePlan();
-
 	const [ isSmall ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
 
 	const {
@@ -22,12 +21,6 @@ const HomeStatCards = () => {
 		lastChecked,
 	} = useProtectData();
 
-	let lastCheckedLocalTimestamp = null;
-	if ( lastChecked ) {
-		// Convert the lastChecked UTC date to a local timestamp
-		lastCheckedLocalTimestamp = new Date( lastChecked + ' UTC' ).getTime();
-	}
-
 	const {
 		config: { bruteForceProtection: isBruteForceModuleEnabled },
 		isEnabled: isWafModuleEnabled,
@@ -36,8 +29,34 @@ const HomeStatCards = () => {
 	} = useWafData();
 
 	const { allTime: allTimeBlockCount } = stats ? stats.blockedRequests : { allTime: 0 };
-
 	const { blockedLogins: blockedLoginsCount } = stats;
+
+	let lastCheckedLocalTimestamp = null;
+	if ( lastChecked ) {
+		// Convert the lastChecked UTC date to a local timestamp
+		lastCheckedLocalTimestamp = new Date( lastChecked + ' UTC' ).getTime();
+	}
+
+	const lastCheckedMessage = useMemo( () => {
+		const entityLabel = hasPlan
+			? _n( 'threat', 'threats', numThreats, 'jetpack-protect' )
+			: _n( 'vulnerability', 'vulnerabilities', numThreats, 'jetpack-protect' );
+
+		if ( numThreats > 0 ) {
+			return sprintf(
+				// translators: %1$s: date/time, %2$d: number, %3$s: entity label
+				__( 'Last checked on %1$s: We found %2$d %3$s.', 'jetpack-protect' ),
+				dateI18n( 'F jS g:i A', lastCheckedLocalTimestamp ),
+				numThreats,
+				entityLabel
+			);
+		}
+		return sprintf(
+			// translators: %s: date/time
+			__( 'Last checked on %s: Your site is secure.', 'jetpack-protect' ),
+			dateI18n( 'F jS g:i A', lastCheckedLocalTimestamp )
+		);
+	}, [ numThreats, lastCheckedLocalTimestamp, hasPlan ] );
 
 	const defaultArgs = useMemo(
 		() => ( {
@@ -119,27 +138,6 @@ const HomeStatCards = () => {
 		} ),
 		[ defaultArgs, isBruteForceModuleEnabled, blockedLoginsCount ]
 	);
-
-	const lastCheckedMessage = useMemo( () => {
-		const entityLabel = hasPlan
-			? _n( 'threat', 'threats', numThreats, 'jetpack-protect' )
-			: _n( 'vulnerability', 'vulnerabilities', numThreats, 'jetpack-protect' );
-
-		if ( numThreats > 0 ) {
-			return sprintf(
-				// translators: %1$s: date/time, %2$d: number, %3$s: entity label
-				__( 'Last checked on %1$s: We found %2$d %3$s.', 'jetpack-protect' ),
-				dateI18n( 'F jS g:i A', lastCheckedLocalTimestamp ),
-				numThreats,
-				entityLabel
-			);
-		}
-		return sprintf(
-			// translators: %s: date/time
-			__( 'Last checked on %s: Your site is secure.', 'jetpack-protect' ),
-			dateI18n( 'F jS g:i A', lastCheckedLocalTimestamp )
-		);
-	}, [ numThreats, lastCheckedLocalTimestamp, hasPlan ] );
 
 	return (
 		<div className={ styles[ 'stat-cards-wrapper' ] }>
