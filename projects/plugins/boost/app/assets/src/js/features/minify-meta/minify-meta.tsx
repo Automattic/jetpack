@@ -25,12 +25,6 @@ const MetaComponent = ( { buttonText, placeholder, datasyncKey }: Props ) => {
 		 */
 		recordBoostEvent( 'concatenate_' + concatenateType + '_exceptions_save_clicked', {} );
 
-		/*
-		 * Saving closes the panel too, so we record that event.
-		 */
-		recordBoostEvent( togglePanelTracksEvent, {
-			status: 'close',
-		} );
 		updateValues( inputValue );
 		setIsExpanded( false );
 	}

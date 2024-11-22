@@ -1,6 +1,6 @@
 import styles from './collapsible-meta.module.scss';
 import { Button } from '@automattic/jetpack-components';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import CloseIcon from '$svg/close';
 import PencilIcon from '$svg/pencil';
 import ChevronDown from '$svg/chevron-down';
@@ -34,15 +34,13 @@ const CollapsibleMeta = ( {
 	const isExpanded = isExpandedExternal !== undefined ? isExpandedExternal : isExpandedInternal;
 	const setIsExpanded = setIsExpandedExternal || setIsExpandedInternal;
 
-	const togglePanel = () => {
-		setIsExpanded( ! isExpanded );
-
+	useEffect( () => {
 		if ( tracksEvent !== '' ) {
 			recordBoostEvent( tracksEvent, {
-				status: ! isExpanded ? 'open' : 'close',
+				status: isExpanded ? 'open' : 'close',
 			} );
 		}
-	};
+	}, [ isExpanded, tracksEvent ] );
 
 	const getIcon = () => {
 		if ( useChevron ) {
@@ -65,7 +63,9 @@ const CollapsibleMeta = ( {
 					weight="regular"
 					icon={ getIcon() }
 					className={ styles[ 'edit-button' ] }
-					onClick={ togglePanel }
+					onClick={ () => {
+						setIsExpanded( ! isExpanded );
+					} }
 				>
 					{ editText }
 				</Button>
