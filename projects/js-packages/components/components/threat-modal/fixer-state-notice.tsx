@@ -1,4 +1,5 @@
 import { __ } from '@wordpress/i18n';
+import { useMemo } from 'react';
 import styles from './styles.module.scss';
 import ThreatNotice from './threat-notice';
 
@@ -18,29 +19,39 @@ const FixerStateNotice = ( {
 }: {
 	fixerState: { inProgress: boolean; error: boolean; stale: boolean };
 } ) => {
-	let status: 'error' | 'success' | undefined;
-	let title: string | undefined;
-	let content: string | undefined;
+	const { status, title, content } = useMemo( () => {
+		if ( fixerState.error ) {
+			return {
+				status: 'error' as const,
+				title: __( 'An error occurred auto-fixing this threat', 'jetpack' ),
+				content: __(
+					'Jetpack encountered a filesystem error while attempting to auto-fix this threat. Please try again later or contact support.',
+					'jetpack'
+				),
+			};
+		}
 
-	if ( fixerState.error ) {
-		status = 'error';
-		title = __( 'An error occurred auto-fixing this threat', 'jetpack' );
-		content = __(
-			'Jetpack encountered a filesystem error while attempting to auto-fix this threat. Please try again later or contact support.',
-			'jetpack'
-		);
-	} else if ( fixerState.stale ) {
-		status = 'error';
-		title = __( 'The auto-fixer is taking longer than expected', 'jetpack' );
-		content = __(
-			'Jetpack has been attempting to auto-fix this threat for too long, and something may have gone wrong. Please try again later or contact support.',
-			'jetpack'
-		);
-	} else if ( fixerState.inProgress ) {
-		status = 'success';
-		title = __( 'An auto-fixer is in progress', 'jetpack' );
-		content = __( 'Please wait while Jetpack auto-fixes the threat.', 'jetpack' );
-	}
+		if ( fixerState.stale ) {
+			return {
+				status: 'error' as const,
+				title: __( 'The auto-fixer is taking longer than expected', 'jetpack' ),
+				content: __(
+					'Jetpack has been attempting to auto-fix this threat for too long, and something may have gone wrong. Please try again later or contact support.',
+					'jetpack'
+				),
+			};
+		}
+
+		if ( fixerState.inProgress ) {
+			return {
+				status: 'success' as const,
+				title: __( 'An auto-fixer is in progress', 'jetpack' ),
+				content: __( 'Please wait while Jetpack auto-fixes the threat.', 'jetpack' ),
+			};
+		}
+
+		return {};
+	}, [ fixerState ] );
 
 	return title ? (
 		<div className={ styles[ 'fixer-notice' ] }>
