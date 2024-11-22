@@ -1,21 +1,20 @@
 import { Text, Button } from '@automattic/jetpack-components';
-import { Threat } from '@automattic/jetpack-scan';
 import { __ } from '@wordpress/i18n';
 import { chevronDown, chevronUp, Icon } from '@wordpress/icons';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useContext } from 'react';
 import DiffViewer from '../diff-viewer';
 import MarkedLines from '../marked-lines';
 import styles from './styles.module.scss';
+import { ThreatModalContext } from '.';
 
 /**
  * ThreatTechnicalDetails component
  *
- * @param {object} props        - The component props.
- * @param {object} props.threat - The threat object containing technical details.
- *
  * @return {JSX.Element | null} The rendered technical details or null if no details are available.
  */
-const ThreatTechnicalDetails = ( { threat }: { threat: Threat } ): JSX.Element => {
+const ThreatTechnicalDetails = (): JSX.Element => {
+	const { threat } = useContext( ThreatModalContext );
+
 	const [ open, setOpen ] = useState( false );
 
 	const toggleOpen = useCallback( () => {

@@ -7,6 +7,17 @@ import styles from './styles.module.scss';
 import ThreatFixConfirmation from './threat-fix-confirmation';
 interface ThreatModalContextType {
 	closeModal: () => void;
+	threat: Threat;
+	handleUpgradeClick?: () => void;
+	userConnectionNeeded: boolean;
+	handleConnectUser: () => void;
+	userIsConnecting: boolean;
+	siteCredentialsNeeded: boolean;
+	credentialsIsFetching: boolean;
+	credentialsRedirectUrl: string;
+	handleFixThreatClick?: ( threats: Threat[] ) => void;
+	handleIgnoreThreatClick?: ( threats: Threat[] ) => void;
+	handleUnignoreThreatClick?: ( threats: Threat[] ) => void;
 }
 
 export const ThreatModalContext = createContext< ThreatModalContextType | null >( null );
@@ -76,21 +87,20 @@ export default function ThreatModal( {
 				<ThreatModalContext.Provider
 					value={ {
 						closeModal: modalProps.onRequestClose,
+						threat,
+						handleUpgradeClick,
+						userConnectionNeeded,
+						handleConnectUser,
+						userIsConnecting,
+						siteCredentialsNeeded,
+						credentialsIsFetching,
+						credentialsRedirectUrl,
+						handleFixThreatClick,
+						handleIgnoreThreatClick,
+						handleUnignoreThreatClick,
 					} }
 				>
-					<ThreatFixConfirmation
-						threat={ threat }
-						handleUpgradeClick={ handleUpgradeClick }
-						userConnectionNeeded={ userConnectionNeeded }
-						userIsConnecting={ userIsConnecting }
-						handleConnectUser={ handleConnectUser }
-						siteCredentialsNeeded={ siteCredentialsNeeded }
-						credentialsIsFetching={ credentialsIsFetching }
-						credentialsRedirectUrl={ credentialsRedirectUrl }
-						handleFixThreatClick={ handleFixThreatClick }
-						handleIgnoreThreatClick={ handleIgnoreThreatClick }
-						handleUnignoreThreatClick={ handleUnignoreThreatClick }
-					/>
+					<ThreatFixConfirmation />
 				</ThreatModalContext.Provider>
 			</div>
 		</Modal>

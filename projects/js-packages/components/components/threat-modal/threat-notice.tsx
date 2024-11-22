@@ -2,19 +2,17 @@ import { Text, Button } from '@automattic/jetpack-components';
 import { Notice, Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, warning } from '@wordpress/icons';
+import { useContext } from 'react';
 import styles from './styles.module.scss';
+import { ThreatModalContext } from '.';
 
 /**
  * ThreatNotice component
  *
- * @param {object}   props                        - The component props.
- * @param {string}   props.status                 - The status of the notice.
- * @param {string}   props.title                  - The title of the notice.
- * @param {string}   props.content                - The content of the notice.
- * @param {Function} props.handleConnectUser      - Function to handle the user connection process.
- * @param {boolean}  props.userIsConnecting       - Whether the user connection process is in progress.
- * @param {boolean}  props.credentialsIsFetching  - Whether the credentials are being fetched.
- * @param {string}   props.credentialsRedirectUrl - The URL to redirect the user to set credentials.
+ * @param {object} props         - The component props.
+ * @param {string} props.status  - The status of the notice.
+ * @param {string} props.title   - The title of the notice.
+ * @param {string} props.content - The content of the notice.
  *
  * @return {JSX.Element} The rendered ThreatNotice component.
  */
@@ -22,19 +20,20 @@ const ThreatNotice = ( {
 	status = 'warning',
 	title,
 	content,
-	handleConnectUser,
-	userIsConnecting,
-	credentialsRedirectUrl,
-	credentialsIsFetching,
 }: {
 	status?: 'warning' | 'error' | 'success' | undefined;
 	title: string;
 	content: string;
-	handleConnectUser?: () => void;
-	userIsConnecting?: boolean;
-	credentialsRedirectUrl?: string;
-	credentialsIsFetching?: boolean;
 } ): JSX.Element => {
+	const {
+		userConnectionNeeded,
+		userIsConnecting,
+		handleConnectUser,
+		siteCredentialsNeeded,
+		credentialsRedirectUrl,
+		credentialsIsFetching,
+	} = useContext( ThreatModalContext );
+
 	return (
 		<Notice
 			status={ status }
@@ -53,7 +52,7 @@ const ThreatNotice = ( {
 					</div>
 					<Text>{ content }</Text>
 					<div className={ styles.notice__actions }>
-						{ handleConnectUser && (
+						{ userConnectionNeeded && (
 							<Button
 								className={ styles.notice__action }
 								isExternalLink={ true }
@@ -64,7 +63,7 @@ const ThreatNotice = ( {
 								{ __( 'Connect your user account', 'jetpack' ) }
 							</Button>
 						) }
-						{ credentialsRedirectUrl && (
+						{ siteCredentialsNeeded && (
 							<Button
 								className={ styles.notice__action }
 								isExternalLink={ true }
