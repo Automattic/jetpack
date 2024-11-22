@@ -272,7 +272,8 @@ class Protect extends Product {
 	}
 
 	/**
-	 * Get the product-slugs of the paid plans for this product (not including bundles)
+	 * Get the product-slugs of the paid plans for this product.
+	 * (Do not include bundle plans, unless it's a bundle plan itself).
 	 *
 	 * @return array
 	 */
@@ -282,36 +283,6 @@ class Protect extends Product {
 			'jetpack_scan_monthly',
 			'jetpack_scan_bi_yearly',
 		);
-	}
-
-	/**
-	 * Checks whether the current plan (or purchases) of the site already supports the product
-	 *
-	 * @return boolean
-	 */
-	public static function has_paid_plan_for_product() {
-		$plans_with_scan = array(
-			'jetpack_scan',
-			'jetpack_security',
-			'jetpack_complete',
-			'jetpack_premium',
-			'jetpack_business',
-		);
-
-		$purchases_data = Wpcom_Products::get_site_current_purchases();
-		if ( is_wp_error( $purchases_data ) ) {
-			return false;
-		}
-		if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
-			foreach ( $purchases_data as $purchase ) {
-				foreach ( $plans_with_scan as $plan ) {
-					if ( strpos( $purchase->product_slug, $plan ) !== false ) {
-						return true;
-					}
-				}
-			}
-		}
-		return false;
 	}
 
 	/**

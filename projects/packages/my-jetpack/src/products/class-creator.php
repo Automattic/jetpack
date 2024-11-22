@@ -319,27 +319,6 @@ class Creator extends Product {
 	}
 
 	/**
-	 * Checks whether the current plan (or purchases) of the site already supports the product
-	 *
-	 * @return boolean
-	 */
-	public static function has_paid_plan_for_product() {
-		$purchases_data = Wpcom_Products::get_site_current_purchases();
-		if ( is_wp_error( $purchases_data ) ) {
-			return false;
-		}
-		if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
-			foreach ( $purchases_data as $purchase ) {
-				// Creator is available as standalone bundle and as part of the Complete plan.
-				if ( strpos( $purchase->product_slug, 'jetpack_creator' ) !== false || str_starts_with( $purchase->product_slug, 'jetpack_complete' ) ) {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-
-	/**
 	 * Get the product-slugs of the paid bundles/plans that this product/module is included in
 	 *
 	 * @return array
@@ -353,7 +332,8 @@ class Creator extends Product {
 	}
 
 	/**
-	 * Get the product-slugs of the paid plans for this product (not including bundles)
+	 * Get the product-slugs of the paid plans for this product.
+	 * (Do not include bundle plans, unless it's a bundle plan itself).
 	 *
 	 * @return array
 	 */

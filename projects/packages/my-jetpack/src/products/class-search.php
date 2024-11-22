@@ -85,7 +85,7 @@ class Search extends Hybrid_Product {
 	 *
 	 * @var string
 	 */
-	public static $feature_identifying_paid_plan = 'instant-search';
+	public static $feature_identifying_paid_plan = 'search';
 
 	/**
 	 * Get the product name
@@ -329,29 +329,6 @@ class Search extends Hybrid_Product {
 			'jetpack_search_monthly',
 			'jetpack_search_bi_yearly',
 		);
-	}
-
-	/**
-	 * Checks if the site purchases contain a paid search plan
-	 *
-	 * @return bool
-	 */
-	public static function has_paid_plan_for_product() {
-		$purchases_data = Wpcom_Products::get_site_current_purchases();
-		if ( is_wp_error( $purchases_data ) ) {
-			return false;
-		}
-		if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
-			foreach ( $purchases_data as $purchase ) {
-				// Search is available as standalone product and as part of the Complete plan.
-				if (
-					( str_contains( $purchase->product_slug, 'jetpack_search' ) && ! str_contains( $purchase->product_slug, 'jetpack_search_free' ) ) ||
-					str_starts_with( $purchase->product_slug, 'jetpack_complete' ) ) {
-					return true;
-				}
-			}
-		}
-		return false;
 	}
 
 	/**

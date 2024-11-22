@@ -227,31 +227,6 @@ class Stats extends Module_Product {
 	}
 
 	/**
-	 * Checks if the site has a paid plan that supports this product
-	 *
-	 * @return boolean
-	 */
-	public static function has_paid_plan_for_product() {
-		$purchases_data = Wpcom_Products::get_site_current_purchases();
-		if ( is_wp_error( $purchases_data ) ) {
-			return false;
-		}
-		if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
-			foreach ( $purchases_data as $purchase ) {
-				// Stats is available as standalone product and as part of the Complete plan.
-				if (
-					strpos( $purchase->product_slug, 'jetpack_stats' ) !== false ||
-					str_starts_with( $purchase->product_slug, 'jetpack_complete' ) ||
-					str_starts_with( $purchase->product_slug, 'jetpack_growth' )
-				) {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-
-	/**
 	 * Get the product-slugs of the paid plans for this product (not including bundles)
 	 *
 	 * @return array

@@ -181,6 +181,8 @@ class Crm extends Product {
 	public static function get_paid_bundles_that_include_product() {
 		return array(
 			'jetpack_complete',
+			'jetpack_complete_monthly',
+			'jetpack_complete_bi_yearly',
 		);
 	}
 

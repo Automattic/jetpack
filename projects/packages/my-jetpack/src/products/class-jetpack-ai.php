@@ -36,6 +36,13 @@ class Jetpack_Ai extends Product {
 	public static $has_free_offering = true;
 
 	/**
+	 * The feature slug that identifies the paid plan
+	 *
+	 * @var string
+	 */
+	public static $feature_identifying_paid_plan = 'ai-assistant';
+
+	/**
 	 * Get the Product info for the API
 	 *
 	 * @throws \Exception If required attribute is not declared in the child class.
@@ -445,7 +452,8 @@ class Jetpack_Ai extends Product {
 	}
 
 	/**
-	 * Get the product-slugs of the paid plans for this product (not including bundles)
+	 * Get the product-slugs of the paid plans for this product.
+	 * (Do not include bundle plans, unless it's a bundle plan itself).
 	 *
 	 * @return array
 	 */
@@ -455,26 +463,6 @@ class Jetpack_Ai extends Product {
 			'jetpack_ai_monthly',
 			'jetpack_ai_bi_yearly',
 		);
-	}
-
-	/**
-	 * Checks whether the site has a paid plan for this product
-	 *
-	 * @return boolean
-	 */
-	public static function has_paid_plan_for_product() {
-		$purchases_data = Wpcom_Products::get_site_current_purchases();
-		if ( is_wp_error( $purchases_data ) ) {
-			return false;
-		}
-		if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
-			foreach ( $purchases_data as $purchase ) {
-				if ( str_contains( $purchase->product_slug, 'jetpack_ai' ) ) {
-					return true;
-				}
-			}
-		}
-		return false;
 	}
 
 	/**
