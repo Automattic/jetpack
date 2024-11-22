@@ -183,7 +183,7 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 3.6.0-beta2 - 2024-11-20
+### 3.6.0 - 2024-11-22
 #### Added
 - Cornerstone Pages: Added setting to allow selecting important pages.
 
