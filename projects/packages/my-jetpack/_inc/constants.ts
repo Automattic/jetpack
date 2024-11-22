@@ -10,16 +10,20 @@ export const MyJetpackRoutes = {
 	AddAntiSpam: '/add-anti-spam', // Old route for Anti Spam
 	AddBackup: '/add-backup',
 	AddBoost: '/add-boost',
+	AddComplete: '/add-complete',
 	AddCRM: '/add-crm',
 	AddJetpackAI: '/add-jetpack-ai',
 	AddExtras: '/add-extras',
+	AddGrowth: '/add-growth',
 	AddProtect: '/add-protect/:feature?',
 	AddScan: '/add-scan',
 	AddSocial: '/add-social',
 	AddSearch: '/add-search',
+	AddSecurity: '/add-security',
 	AddVideoPress: '/add-videopress',
 	AddStats: '/add-stats',
 	AddLicense: '/add-license',
+	JetpackAi: '/jetpack-ai',
 	RedeemToken: '/redeem-token',
 } as const;
 

@@ -202,7 +202,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/classic-theme-helper",
-                "reference": "9e2bc32f32e57572a4807dee16ad5d0b3b2e730b"
+                "reference": "313ac02e74dbf44eec1ddbf485af492b66d96a9a"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -210,7 +210,7 @@
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
-                "automattic/wordbless": "dev-master",
+                "automattic/wordbless": "^0.4.2",
                 "yoast/phpunit-polyfills": "^1.1.1"
             },
             "suggest": {
