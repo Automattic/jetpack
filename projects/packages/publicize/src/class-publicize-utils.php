@@ -21,7 +21,7 @@ class Publicize_Utils {
 	public static function is_social_settings_page() {
 		$screen = get_current_screen();
 
-		return ! empty( $screen ) && 'jetpack_page_jetpack-social' !== $screen->base;
+		return ! empty( $screen ) && 'jetpack_page_jetpack-social' === $screen->base;
 	}
 
 	/**
@@ -30,7 +30,7 @@ class Publicize_Utils {
 	public static function is_jetpack_settings_page() {
 		$screen = get_current_screen();
 
-		return ! empty( $screen ) && 'toplevel_page_jetpack' !== $screen->base;
+		return ! empty( $screen ) && 'toplevel_page_jetpack' === $screen->base;
 	}
 
 	/**
