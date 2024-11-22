@@ -151,7 +151,7 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft, isRevert )
 
 		// The Publicize feature now lives in a package, a Jetpack module, and a js package.
 		const publicize = file.match(
-			/^projects\/(packages\/publicize)|(js-packages\/publicize-components)\//
+			/^projects\/(packages\/publicize|js-packages\/publicize-components)\//
 		);
 		if ( publicize !== null ) {
 			keywords.add( '[Feature] Publicize' );
