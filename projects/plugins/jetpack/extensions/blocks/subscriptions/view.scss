@@ -63,6 +63,7 @@
 		// Prevent white-space issues on Firefox
 		.wp-block-jetpack-subscriptions__button[contenteditable="true"] {
 			white-space: pre-wrap !important;
+			width: auto !important;
 		}
 
 		input[type="email"]::placeholder,
