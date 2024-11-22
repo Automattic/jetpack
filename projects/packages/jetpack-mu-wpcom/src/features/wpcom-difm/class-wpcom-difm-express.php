@@ -145,7 +145,7 @@ class WPCOM_DIFM_Express {
 
 		$result = json_decode( wp_remote_retrieve_body( $response ) );
 
-		$is_website_content_submitted = isset( $result->is_website_content_submitted ) ? $result->is_website_content_submitted : null;
+		$is_website_content_submitted = $result->is_website_content_submitted ?? false;
 
 		if ( $is_website_content_submitted ) : ?>
 			<div class="notice" style="text-align:center; padding:20px; border:0; background:none; box-shadow: none;">
