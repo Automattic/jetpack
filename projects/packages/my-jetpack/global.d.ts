@@ -39,7 +39,9 @@ type JetpackModule =
 	| 'security'
 	| 'protect'
 	| 'videopress'
-	| 'stats';
+	| 'stats'
+	| 'growth'
+	| 'complete';
 
 type ThreatItem = {
 	// Protect API properties (free plan)
@@ -172,6 +174,11 @@ interface Window {
 							should_prorate_when_offer_ends: boolean;
 							transition_after_renewal_count: number;
 							usage_limit?: number;
+							reason?: {
+								errors: {
+									introductoryOfferRemovedSubscriptionFound: string[];
+								};
+							};
 						};
 						tiers?: {
 							[ key: string ]: {
@@ -186,6 +193,11 @@ interface Window {
 									shouldProrateWhenOfferEnds: boolean;
 									transitionAfterRenewalCount: number;
 									usageLimit?: number;
+									reason?: {
+										errors: {
+											introductoryOfferRemovedSubscriptionFound: string[];
+										};
+									};
 								};
 								isIntroductoryOffer: boolean;
 								productTerm: string;

@@ -95,6 +95,27 @@ Example response format:
 }
 
 /**
+ * Clean up the issue content for OpenAI processing.
+ * Remove links from the issue content.
+ *
+ * @param {string} content - Issue body content.
+ *
+ * @return {string} Cleaned up issue content.
+ */
+function cleanIssueContent( content ) {
+	// Remove links in the format [link text](url), but keep the link text.
+	content = content.replace( /\[(.*?)\](?:\([^)]+\))?/g, '$1' );
+
+	// Remove links in the format <a href="url">link text</a>, but keep the link text.
+	content = content.replace( /<a href="https?:\/\/\S+">(.*?)<\/a>/g, '$1' );
+
+	// Remove links in the format https://url, and replace with info that OpenAI can understand.
+	content = content.replace( /https?:\/\/\S+/g, 'this link with more information' );
+
+	return content;
+}
+
+/**
  * Automatically add labels to issues.
  *
  * When an issue is first opened, parse its contents, send them to OpenAI,
@@ -119,10 +140,28 @@ async function aiLabeling( payload, octokit ) {
 		return;
 	}
 
+	// If the issue already has [Feature] or [Feature Group] labels, bail.
+	if ( issueLabels.some( label => label.startsWith( '[Feature' ) ) ) {
+		debug(
+			`triage-issues > auto-label: Issue #${ number } already has [Feature] or [Feature Group] labels. Skipping.`
+		);
+		return;
+	}
+
 	if (
 		! issueLabels.includes( '[Experiment] AI labels added' ) &&
 		! issueLabels.includes( '[Type] Task' )
 	) {
+		const issueContents = cleanIssueContent( body );
+
+		// Only process issues that have enough content to analyze (more than 100 characters).
+		if ( issueContents.length < 150 ) {
+			debug(
+				`triage-issues > auto-label: Issue #${ number } doesn't have enough content. Skipping OpenAI analysis.`
+			);
+			return;
+		}
+
 		debug(
 			`triage-issues > auto-label: Fetching labels suggested by OpenAI for issue #${ number }`
 		);
@@ -131,7 +170,7 @@ async function aiLabeling( payload, octokit ) {
 			ownerLogin,
 			name,
 			title,
-			body
+			issueContents
 		);
 
 		if ( labels.length === 0 ) {

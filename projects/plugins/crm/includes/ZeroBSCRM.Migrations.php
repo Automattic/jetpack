@@ -43,12 +43,13 @@ global $zeroBSCRM_migrations; $zeroBSCRM_migrations = array(
 	'gh3465_increase_city_field_size',  // from gh issue 3465, increases the city field size to 200
 	);
 
-global $zeroBSCRM_migrations_requirements; $zeroBSCRM_migrations_requirements = array(
-		'288' => array('isDAL2','postsettings'),
-		'53'     => array('isDAL3','postsettings'),
-		'5402'   => array('isDAL3','postsettings'),
-		'55a'    => array( 'wp_loaded' ),
-	);
+global $zeroBSCRM_migrations_requirements; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+$zeroBSCRM_migrations_requirements = array( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	'288'  => array( 'postsettings' ),
+	'53'   => array( 'postsettings' ),
+	'5402' => array( 'postsettings' ),
+	'55a'  => array( 'wp_loaded' ),
+);
 
 
 // mark's a migration complete
@@ -218,19 +219,6 @@ function zeroBSCRM_migrations_run( $settingsArr = false, $run_at = 'init' ){
 		}
 
 	}
-
-}
-
-// Migration dependency check for DAL2
-function zeroBSCRM_migrations_checks_isDAL2(){
-
-	global $zbs; return $zbs->isDAL2();
-
-}
-// Migration dependency check for DAL3
-function zeroBSCRM_migrations_checks_isDAL3(){
-
-	global $zbs; return $zbs->isDAL3();
 
 }
 

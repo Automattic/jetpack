@@ -59,7 +59,7 @@ $default_matrix_vars = array(
 $matrix = array();
 
 // Add PHP tests.
-foreach ( array( '7.2', '7.3', '7.4', '8.0', '8.1', '8.2', '8.3' ) as $php ) {
+foreach ( array( '7.2', '7.3', '7.4', '8.0', '8.1', '8.2', '8.3', '8.4' ) as $php ) {
 	$matrix[] = array(
 		'name'    => "PHP tests: PHP $php WP latest",
 		'script'  => 'test-php',

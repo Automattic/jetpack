@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Block Support Links: Removed support links for the group block and varients, to avoid an issue with the group placeholder displaying the block descriptions incorrectly.

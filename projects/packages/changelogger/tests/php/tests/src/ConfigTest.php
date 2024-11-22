@@ -18,7 +18,6 @@ use Wikimedia\TestingAccessWrapper;
  * @covers \Automattic\Jetpack\Changelogger\Config
  */
 class ConfigTest extends TestCase {
-	use \Yoast\PHPUnitPolyfills\Polyfills\ExpectException;
 
 	/**
 	 * Set up.

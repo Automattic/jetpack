@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.73.0] - 2024-11-18
+### Added
+- Added toggle for UTM settings. [#39998]
+
+### Changed
+- Removed some unused code for Social. [#40122]
+
 ## [0.72.1] - 2024-11-11
 ### Changed
 - Social: Clean up social store. [#40033]
@@ -280,8 +287,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.54.3] - 2024-06-13
 ### Changed
-- Updated package dependencies. [#37795]
-- Updated package dependencies. [#37796]
+- Updated package dependencies. [#37795] [#37796]
 
 ### Fixed
 - Social: Fixed WSOD on connections UI when an old Twitter connection exists. [#37836]
@@ -382,8 +388,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Extracted the connection toggle state logic. [#36776]
 - Only show custom media picker for normal posts. [#36640]
-- Updated package dependencies. [#36760]
-- Updated package dependencies. [#36761]
+- Updated package dependencies. [#36760] [#36761]
 - Update to the most recent version of Color Studio, 2.6.0. [#36751]
 
 ### Fixed
@@ -589,8 +594,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.38.0] - 2023-09-19
 ### Changed
 - Move auto-conversion notice near the Instagram one [#33106]
-- Updated package dependencies. [#33001]
-- Updated package dependencies. [#33043]
+- Updated package dependencies. [#33001] [#33043]
 
 ### Fixed
 - Fixed video previews for Social Previews [#33132]
@@ -607,8 +611,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.36.0] - 2023-09-04
 ### Changed
 - Changed logic that disables the connections based on the auto-conversion feature [#32671]
-- Updated package dependencies. [#32803]
-- Updated package dependencies. [#32804]
+- Updated package dependencies. [#32803] [#32804]
 
 ### Fixed
 - Fixed an issue with the logic of getting the enchanced publishing feature [#32707]
@@ -675,8 +678,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.28.0] - 2023-07-05
 ### Changed
 - Refactored the media validation so that it is done on a per connection basis [#31565]
-- Updated package dependencies. [#31659]
-- Updated package dependencies. [#31661]
+- Updated package dependencies. [#31659] [#31661]
 
 ## [0.27.0] - 2023-06-26
 ### Changed
@@ -1010,6 +1012,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#24470]
 
+[0.73.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.72.1...v0.73.0
 [0.72.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.72.0...v0.72.1
 [0.72.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.71.5...v0.72.0
 [0.71.5]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.71.4...v0.71.5

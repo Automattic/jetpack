@@ -52,10 +52,11 @@ export default function AiImageModal( {
 	instructionsPlaceholder = null,
 	imageStyles = [],
 	onGuessStyle = null,
-	initialPrompt = '',
+	prompt = '',
+	setPrompt = () => {},
 	initialStyle = null,
-	minPromptLength = null,
-	postContent = null,
+	inputDisabled = false,
+	actionDisabled = false,
 }: {
 	title: string;
 	cost: number;
@@ -84,21 +85,22 @@ export default function AiImageModal( {
 	instructionsPlaceholder: string;
 	imageStyles?: Array< ImageStyleObject >;
 	onGuessStyle?: ( userPrompt: string ) => Promise< ImageStyle >;
-	initialPrompt?: string;
+	prompt?: string;
+	setPrompt?: ( userPrompt: string ) => void;
 	initialStyle?: ImageStyle;
-	minPromptLength?: number;
+	inputDisabled?: boolean;
+	actionDisabled?: boolean;
 } ) {
 	const { tracks } = useAnalytics();
 	const { recordEvent: recordTracksEvent } = tracks;
-	const [ userPrompt, setUserPrompt ] = useState( initialPrompt );
 	const triggeredAutoGeneration = useRef( false );
 	const [ showStyleSelector, setShowStyleSelector ] = useState( false );
 	const [ style, setStyle ] = useState< ImageStyle >( null );
 	const [ styles, setStyles ] = useState< Array< ImageStyleObject > >( imageStyles || [] );
 
 	const handleTryAgain = useCallback( () => {
-		onTryAgain?.( { userPrompt, style } );
-	}, [ onTryAgain, userPrompt, style ] );
+		onTryAgain?.( { userPrompt: prompt, style } );
+	}, [ onTryAgain, prompt, style ] );
 
 	const handleGenerate = useCallback( async () => {
 		if ( style === IMAGE_STYLE_AUTO && onGuessStyle ) {
@@ -106,14 +108,14 @@ export default function AiImageModal( {
 				context: 'block-editor',
 				tool: 'image',
 			} );
-			const guessedStyle = ( await onGuessStyle( userPrompt ) ) || IMAGE_STYLE_NONE;
+			const guessedStyle = ( await onGuessStyle( prompt ) ) || IMAGE_STYLE_NONE;
 			setStyle( guessedStyle );
 			debug( 'guessed style', guessedStyle );
-			onGenerate?.( { userPrompt, style: guessedStyle } );
+			onGenerate?.( { userPrompt: prompt, style: guessedStyle } );
 		} else {
-			onGenerate?.( { userPrompt, style } );
+			onGenerate?.( { userPrompt: prompt, style } );
 		}
-	}, [ onGenerate, userPrompt, style, onGuessStyle, recordTracksEvent ] );
+	}, [ onGenerate, prompt, style, onGuessStyle, recordTracksEvent ] );
 
 	const updateStyle = useCallback(
 		( imageStyle: ImageStyle ) => {
@@ -128,7 +130,6 @@ export default function AiImageModal( {
 	);
 
 	// Controllers
-	const instructionsDisabled = notEnoughRequests || generating || requireUpgrade;
 	const upgradePromptVisible = ( requireUpgrade || notEnoughRequests ) && ! generating;
 	const counterVisible = Boolean( ! isUnlimited && cost && currentLimit );
 
@@ -165,8 +166,6 @@ export default function AiImageModal( {
 		}
 	}, [ imageStyles, initialStyle ] );
 
-	useEffect( () => setUserPrompt( initialPrompt ), [ initialPrompt ] );
-
 	return (
 		<>
 			{ open && (
@@ -190,13 +189,13 @@ export default function AiImageModal( {
 							</div>
 						) }
 						<AiModalPromptInput
-							prompt={ userPrompt }
-							setPrompt={ setUserPrompt }
-							disabled={ instructionsDisabled || ! postContent }
+							prompt={ prompt }
+							setPrompt={ setPrompt }
+							disabled={ inputDisabled }
+							actionDisabled={ actionDisabled }
 							generateHandler={ hasError ? handleTryAgain : handleGenerate }
 							placeholder={ instructionsPlaceholder }
 							buttonLabel={ hasError ? tryAgainLabel : generateLabel }
-							minPromptLength={ minPromptLength }
 						/>
 						{ upgradePromptVisible && (
 							<QuotaExceededMessage

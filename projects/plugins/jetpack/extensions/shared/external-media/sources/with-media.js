@@ -8,7 +8,11 @@ import { UP, DOWN, LEFT, RIGHT } from '@wordpress/keycodes';
 import clsx from 'clsx';
 import { uniqBy } from 'lodash';
 import { PATH_RECENT } from '../constants';
-import { authenticateMediaSource } from '../media-service';
+import {
+	authenticateMediaSource,
+	getGooglePhotosPickerSession,
+	setGooglePhotosPickerSession,
+} from '../media-service';
 import { MediaSource } from '../media-service/types';
 
 export default function withMedia( mediaSource = MediaSource.Unknown ) {
@@ -176,7 +180,7 @@ export default function withMedia( mediaSource = MediaSource.Unknown ) {
 					.catch( this.handleApiError );
 			};
 
-			copyMedia = ( items, apiUrl, source ) => {
+			copyMedia = ( items, apiUrl, source, shouldProxy = false ) => {
 				this.setState( { isCopying: items } );
 				this.props.noticeOperations.removeAllNotices();
 
@@ -198,6 +202,7 @@ export default function withMedia( mediaSource = MediaSource.Unknown ) {
 						} ) ),
 						service: source, // WPCOM.
 						post_id: this.props.postId,
+						should_proxy: shouldProxy,
 					},
 				} )
 					.then( result => {
@@ -231,6 +236,42 @@ export default function withMedia( mediaSource = MediaSource.Unknown ) {
 						this.props.onSelect( addToGallery ? value.concat( result ) : media );
 					} )
 					.catch( this.handleApiError );
+			};
+
+			createPickerSession = () => {
+				apiFetch( {
+					path: '/wpcom/v2/external-media/session/google_photos',
+					method: 'POST',
+				} )
+					.then( response => {
+						if ( 'code' in response ) {
+							throw response;
+						}
+						return response;
+					} )
+					.then( setGooglePhotosPickerSession )
+					.catch( this.handleApiError );
+			};
+
+			fetchPickerSession = sessionId => {
+				apiFetch( {
+					path: `/wpcom/v2/external-media/session/google_photos/${ sessionId }`,
+					method: 'GET',
+				} ).then( setGooglePhotosPickerSession );
+			};
+
+			deletePickerSession = sessionId => {
+				apiFetch( {
+					path: `/wpcom/v2/external-media/session/google_photos/${ sessionId }`,
+					method: 'DELETE',
+				} ).then( () => setGooglePhotosPickerSession( null ) );
+			};
+
+			getPickerStatus = () => {
+				return apiFetch( {
+					path: '/wpcom/v2/external-media/connection/google_photos/picker_status',
+					method: 'GET',
+				} );
 			};
 
 			mapImageToResult = image => ( {
@@ -334,6 +375,11 @@ export default function withMedia( mediaSource = MediaSource.Unknown ) {
 								multiple={ multiple }
 								path={ path }
 								onChangePath={ this.onChangePath }
+								pickerSession={ this.props.pickerSession }
+								createPickerSession={ this.createPickerSession }
+								featchPickerSession={ this.fetchPickerSession }
+								deletePickerSession={ this.deletePickerSession }
+								getPickerStatus={ this.getPickerStatus }
 							/>
 						</div>
 					</Modal>
@@ -346,8 +392,10 @@ export default function withMedia( mediaSource = MediaSource.Unknown ) {
 			// Templates and template parts' numerical ID is stored in `wp_id`.
 			const currentPostId =
 				typeof currentPost?.id === 'number' ? currentPost.id : currentPost?.wp_id;
+
 			return {
 				postId: currentPostId ?? 0,
+				pickerSession: getGooglePhotosPickerSession(),
 			};
 		} )( withNotices( WithMediaComponent ) );
 	} );

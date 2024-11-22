@@ -28,7 +28,6 @@ class UtilsTest extends TestCase {
 	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
 	use \Yoast\PHPUnitPolyfills\Polyfills\AssertObjectProperty;
 	use \Yoast\PHPUnitPolyfills\Polyfills\AssertionRenames;
-	use \Yoast\PHPUnitPolyfills\Polyfills\ExpectException;
 
 	/**
 	 * Test runCommand.
@@ -64,7 +63,7 @@ class UtilsTest extends TestCase {
 	/**
 	 * Data provider for testRunCommand.
 	 */
-	public function provideRunCommand() {
+	public static function provideRunCommand() {
 		$tmp = realpath( sys_get_temp_dir() );
 
 		return array(
@@ -178,7 +177,7 @@ class UtilsTest extends TestCase {
 	/**
 	 * Data provider for testLoadChangeFile.
 	 */
-	public function provideLoadChangeFile() {
+	public static function provideLoadChangeFile() {
 		$ex = function ( $msg, $line ) {
 			$ret           = new LoadChangeFileException( $msg );
 			$ret->fileLine = $line;
@@ -367,6 +366,7 @@ class UtilsTest extends TestCase {
 			array(
 				'mustRun' => true,
 				'env'     => array(
+					'GIT_CONFIG_GLOBAL'   => '/dev/null',
 					'GIT_AUTHOR_NAME'     => 'Dummy',
 					'GIT_AUTHOR_EMAIL'    => 'dummy@example.com',
 					'GIT_AUTHOR_DATE'     => '2021-01-01T11:11:11Z',
