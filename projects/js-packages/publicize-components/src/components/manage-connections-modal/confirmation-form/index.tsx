@@ -206,7 +206,7 @@ export function ConfirmationForm( { keyringResult, onComplete, isAdmin }: Confir
 						<Notice type={ 'warning' }>
 							<p>
 								{ __(
-									'We cannot retrieve which company pages you have access to. This is a known issue with the LinkedIn API. If you would like to connect a company page, please retry after 5 minutes. For more information, click',
+									'We could not retrieve which company pages you have access to. This is a known issue with the LinkedIn API. If you would like to connect a company page, please retry after 5 minutes.',
 									'jetpack'
 								) }
 								&nbsp;
@@ -214,7 +214,7 @@ export function ConfirmationForm( { keyringResult, onComplete, isAdmin }: Confir
 									key="linkedin-api-documentaion"
 									href={ getRedirectUrl( 'jetpack-linkedin-permissions-warning' ) }
 								>
-									{ __( 'here', 'jetpack' ) }
+									{ __( 'Learn more', 'jetpack' ) }
 								</ExternalLink>
 							</p>
 						</Notice>
