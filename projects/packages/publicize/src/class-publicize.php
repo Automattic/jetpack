@@ -788,8 +788,6 @@ class Publicize extends Publicize_Base {
 					return $b['timestamp'] - $a['timestamp'];
 				}
 			);
-
-			$shares = array_values( $shares );
 		}
 
 		return array(
