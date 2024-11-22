@@ -207,6 +207,7 @@ UserConnectionNeeded.args = {
 	isUserConnected: false,
 	handleConnectUser: () =>
 		alert( 'Connect user action callback triggered! This is handled by the component consumer.' ), // eslint-disable-line no-alert
+	credentials: [ { type: 'managed', role: 'main', still_valid: true } ],
 	isThreatEligibleForFix: () => true,
 	onFixThreats: () =>
 		alert( 'Threat fix action callback triggered! This is handled by the component consumer.' ), // eslint-disable-line no-alert

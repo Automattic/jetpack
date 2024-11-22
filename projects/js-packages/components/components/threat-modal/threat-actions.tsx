@@ -1,7 +1,7 @@
 import { Button } from '@automattic/jetpack-components';
-import { type Threat, getDetailedFixerAction } from '@automattic/jetpack-scan';
+import { getFixerState, getDetailedFixerAction } from '@automattic/jetpack-scan';
 import { __ } from '@wordpress/i18n';
-import React, { useCallback, useContext, useMemo } from 'react';
+import { useCallback, useContext, useMemo } from 'react';
 import FixerStateNotice from './fixer-state-notice';
 import styles from './styles.module.scss';
 import { ThreatModalContext } from '.';
@@ -9,35 +9,24 @@ import { ThreatModalContext } from '.';
 /**
  * ThreatActions component
  *
- * @param {object}   props                             - The component props.
- * @param {object}   props.threat                      - The threat object containing action details.
- * @param {boolean}  props.disabled                    - Whether the actions are disabled.
- * @param {object}   props.fixerState                  - The state of the fixer (inProgress, error, stale).
- * @param {boolean}  props.fixerState.inProgress       - Whether the fixer is in progress.
- * @param {boolean}  props.fixerState.error            - Whether the fixer encountered an error.
- * @param {boolean}  props.fixerState.stale            - Whether the fixer is stale.
- * @param {Function} [props.handleFixThreatClick]      - Function to handle fixing the threat.
- * @param {Function} [props.handleIgnoreThreatClick]   - Function to handle ignoring the threat.
- * @param {Function} [props.handleUnignoreThreatClick] - Function to handle unignoring the threat.
- *
  * @return {JSX.Element | null} The rendered action buttons or null if no actions are available.
  */
-const ThreatActions = ( {
-	threat,
-	disabled,
-	fixerState,
-	handleFixThreatClick,
-	handleIgnoreThreatClick,
-	handleUnignoreThreatClick,
-}: {
-	threat: Threat;
-	disabled?: boolean;
-	fixerState: { inProgress: boolean; error: boolean; stale: boolean };
-	handleFixThreatClick?: ( threats: Threat[] ) => void;
-	handleIgnoreThreatClick?: ( threats: Threat[] ) => void;
-	handleUnignoreThreatClick?: ( threats: Threat[] ) => void;
-} ): JSX.Element => {
-	const { closeModal, actionToConfirm } = useContext( ThreatModalContext );
+const ThreatActions = (): JSX.Element => {
+	const {
+		closeModal,
+		threat,
+		actionToConfirm,
+		handleFixThreatClick,
+		handleIgnoreThreatClick,
+		handleUnignoreThreatClick,
+		userConnectionNeeded,
+		siteCredentialsNeeded,
+	} = useContext( ThreatModalContext );
+	const disabled = userConnectionNeeded || siteCredentialsNeeded;
+
+	const fixerState = useMemo( () => {
+		return getFixerState( threat.fixer );
+	}, [ threat.fixer ] );
 
 	const detailedFixerAction = useMemo( () => getDetailedFixerAction( threat ), [ threat ] );
 
@@ -62,7 +51,7 @@ const ThreatActions = ( {
 
 	return (
 		<div className={ styles[ 'modal-footer' ] }>
-			<FixerStateNotice threat={ threat } fixerState={ fixerState } />
+			<FixerStateNotice fixerState={ fixerState } />
 			<div className={ styles[ 'threat-actions' ] }>
 				{ threat.status === 'ignored' && (
 					<Button

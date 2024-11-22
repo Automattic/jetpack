@@ -1,44 +1,43 @@
 import { Text, Button } from '@automattic/jetpack-components';
-import { type Threat } from '@automattic/jetpack-scan';
 import { Notice, Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, warning } from '@wordpress/icons';
+import { useContext } from 'react';
 import styles from './styles.module.scss';
+import { ThreatModalContext } from '.';
 
 /**
  * ThreatNotice component
  *
- * @param {object}   props                        - The component props.
- * @param {object}   props.threat                 - The threat object containing notice details.
- * @param {string}   props.status                 - The status of the notice.
- * @param {string}   props.title                  - The title of the notice.
- * @param {string}   props.content                - The content of the notice.
- * @param {Function} props.handleConnectUser      - Function to handle the user connection process.
- * @param {boolean}  props.userIsConnecting       - Whether the user connection process is in progress.
- * @param {boolean}  props.credentialsIsFetching  - Whether the credentials are being fetched.
- * @param {string}   props.credentialsRedirectUrl - The URL to redirect the user to set credentials.
+ * @param {object}  props             - The component props.
+ * @param {string}  props.status      - The status of the notice.
+ * @param {string}  props.title       - The title of the notice.
+ * @param {string}  props.content     - The content of the notice.
+ * @param {boolean} props.showActions - Whether to show the actions or not.
  *
  * @return {JSX.Element} The rendered ThreatNotice component.
  */
 const ThreatNotice = ( {
-	threat,
 	status = 'warning',
 	title,
 	content,
-	handleConnectUser,
-	userIsConnecting,
-	credentialsRedirectUrl,
-	credentialsIsFetching,
+	showActions = true,
 }: {
-	threat: Threat;
 	status?: 'warning' | 'error' | 'success' | undefined;
 	title: string;
 	content: string;
-	handleConnectUser?: () => void;
-	userIsConnecting?: boolean;
-	credentialsRedirectUrl?: string;
-	credentialsIsFetching?: boolean;
+	showActions?: boolean;
 } ): JSX.Element => {
+	const {
+		threat,
+		userConnectionNeeded,
+		userIsConnecting,
+		handleConnectUser,
+		siteCredentialsNeeded,
+		credentialsRedirectUrl,
+		credentialsIsFetching,
+	} = useContext( ThreatModalContext );
+
 	if ( ! threat?.status || threat.status === 'fixed' ) {
 		return null;
 	}
@@ -60,30 +59,32 @@ const ThreatNotice = ( {
 						</Text>
 					</div>
 					<Text>{ content }</Text>
-					<div className={ styles.notice__actions }>
-						{ handleConnectUser && (
-							<Button
-								className={ styles.notice__action }
-								isExternalLink={ true }
-								weight="regular"
-								isLoading={ userIsConnecting }
-								onClick={ handleConnectUser }
-							>
-								{ __( 'Connect your user account', 'jetpack' ) }
-							</Button>
-						) }
-						{ credentialsRedirectUrl && (
-							<Button
-								className={ styles.notice__action }
-								isExternalLink={ true }
-								weight="regular"
-								href={ credentialsRedirectUrl }
-								isLoading={ credentialsIsFetching }
-							>
-								{ __( 'Enter server credentials', 'jetpack' ) }
-							</Button>
-						) }
-					</div>
+					{ showActions && (
+						<div className={ styles.notice__actions }>
+							{ userConnectionNeeded && (
+								<Button
+									className={ styles.notice__action }
+									isExternalLink={ true }
+									weight="regular"
+									isLoading={ userIsConnecting }
+									onClick={ handleConnectUser }
+								>
+									{ __( 'Connect your user account', 'jetpack' ) }
+								</Button>
+							) }
+							{ siteCredentialsNeeded && (
+								<Button
+									className={ styles.notice__action }
+									isExternalLink={ true }
+									weight="regular"
+									href={ credentialsRedirectUrl }
+									isLoading={ credentialsIsFetching }
+								>
+									{ __( 'Enter server credentials', 'jetpack' ) }
+								</Button>
+							) }
+						</div>
+					) }
 				</div>
 			}
 		/>

@@ -1,10 +1,13 @@
 import { Text, Button, getRedirectUrl } from '@automattic/jetpack-components';
-import { type Threat } from '@automattic/jetpack-scan';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { useContext } from 'react';
 import styles from './styles.module.scss';
+import { ThreatModalContext } from '.';
 
-const ThreatIgnoreDetails = ( { threat }: { threat: Threat } ) => {
+const ThreatIgnoreDetails = () => {
+	const { threat } = useContext( ThreatModalContext );
+
 	if ( ! threat?.status || [ 'ignored', 'fixed' ].includes( threat.status ) ) {
 		return null;
 	}
