@@ -33,20 +33,31 @@
 		flex-direction: column;
 		align-items: center;
 		width: 100%;
+
+		.help {
+			font-size: 14px;
+			line-height: 1.5;
+			color: var( --gray-60 );
+			font-weight: 400;
+		}
 	}
 
 	.manage-excludes label {
 		display: block;
 		text-align: left;
 		margin-bottom: 16px;
-		font-weight: bold;
+		font-weight: 600;
 		width: 100%;
+		font-size: 16px;
+		line-height: 1;
 	}
 
 	.manage-excludes span {
+		display: block;
 		text-align: left;
 		width: 100%;
 		margin-bottom: 16px;
+		line-height: 1.5;
 	}
 
 	.manage-excludes input[type="text"] {
@@ -91,16 +102,9 @@
 		fill: $jetpack-green;
 	}
 
-	.help {
-		font-size: 12px;
-		line-height: 1.5;
-		color: var( --gray-60 );
-		font-weight: 400;
-	}
-
 	.sub-header {
-		font-size: 14px;
-		line-height: 1.5;
+		font-size: 16px;
+		line-height: 1;
 		color: var( --gray-60 );
 		font-weight: 400;
 		padding-bottom: 2px;
