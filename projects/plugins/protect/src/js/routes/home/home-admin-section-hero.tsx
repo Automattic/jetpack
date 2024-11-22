@@ -1,12 +1,14 @@
 import { Text, Button } from '@automattic/jetpack-components';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AdminSectionHero from '../../components/admin-section-hero';
+import usePlan from '../../hooks/use-plan';
 import HomeStatCards from './home-statcards';
 import styles from './styles.module.scss';
 
 const HomeAdminSectionHero: React.FC = () => {
+	const { hasPlan } = usePlan();
 	const navigate = useNavigate();
 	const handleScanReportClick = useCallback( () => {
 		navigate( '/scan' );
@@ -22,9 +24,15 @@ const HomeAdminSectionHero: React.FC = () => {
 					<AdminSectionHero.Subheading>
 						<>
 							<Text className={ styles[ 'subheading-text' ] }>
-								{ __(
-									'We stay ahead of security threats to keep your site protected.',
-									'jetpack-protect'
+								{ sprintf(
+									// translators: %s is replaced with "threats" or "vulnerabilities" depending on the user's plan.
+									__(
+										'We stay ahead of security %s to keep your site protected.',
+										'jetpack-protect'
+									),
+									hasPlan
+										? __( 'threats', 'jetpack-protect' )
+										: __( 'vulnerabilities', 'jetpack-protect' )
 								) }
 							</Text>
 							<Button

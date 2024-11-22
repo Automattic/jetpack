@@ -1,7 +1,7 @@
 import { useBreakpointMatch, StatCard } from '@automattic/jetpack-components';
 import { Tooltip } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { useMemo } from 'react';
 import Alert from '../../components/alert-icon';
 import ProtectCheck from '../../components/protect-check-icon';
@@ -60,12 +60,18 @@ const HomeStatCards = () => {
 			),
 			label: (
 				<span className={ styles[ 'stat-card-label' ] }>
-					{ __( 'Threats found', 'jetpack-protect' ) }
+					{ sprintf(
+						// translators: %s: "Threats" or "Vulnerabilities"
+						__( '%s found', 'jetpack-protect' ),
+						hasPlan
+							? __( 'Threats', 'jetpack-protect' )
+							: __( 'Vulnerabilities', 'jetpack-protect' )
+					) }
 				</span>
 			),
 			value: numThreats,
 		} ),
-		[ defaultArgs, numThreats ]
+		[ defaultArgs, hasPlan, numThreats ]
 	);
 
 	const wafArgs = useMemo(
@@ -115,29 +121,21 @@ const HomeStatCards = () => {
 	);
 
 	const lastCheckedMessage = useMemo( () => {
-		const getEntity = () => {
-			if ( numThreats === 1 ) {
-				return hasPlan
-					? __( 'threat', 'jetpack-protect' )
-					: __( 'vulnerability', 'jetpack-protect' );
-			}
-			return hasPlan
-				? __( 'threats', 'jetpack-protect' )
-				: __( 'vulnerabilities', 'jetpack-protect' );
-		};
+		const entityLabel = hasPlan
+			? _n( 'threat', 'threats', numThreats, 'jetpack-protect' )
+			: _n( 'vulnerability', 'vulnerabilities', numThreats, 'jetpack-protect' );
 
 		if ( numThreats > 0 ) {
 			return sprintf(
-				// translators: %1$s: date and time of the last scan, %2$d: number of threats/vulnerabilities, %3$s: "threat(s)" or "vulnerabilities"
+				// translators: %1$s: date/time, %2$d: number, %3$s: entity label
 				__( 'Last checked on %1$s: We found %2$d %3$s.', 'jetpack-protect' ),
 				dateI18n( 'F jS g:i A', lastCheckedLocalTimestamp ),
 				numThreats,
-				getEntity()
+				entityLabel
 			);
 		}
-
 		return sprintf(
-			// translators: %s: date and time of the last scan
+			// translators: %s: date/time
 			__( 'Last checked on %s: Your site is secure.', 'jetpack-protect' ),
 			dateI18n( 'F jS g:i A', lastCheckedLocalTimestamp )
 		);
