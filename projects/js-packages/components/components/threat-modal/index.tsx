@@ -1,6 +1,6 @@
-import { type Threat, getFixerState } from '@automattic/jetpack-scan';
+import { type Threat } from '@automattic/jetpack-scan';
 import { Modal } from '@wordpress/components';
-import { useMemo, createContext } from 'react';
+import { createContext } from 'react';
 import Text from '../text';
 import ThreatSeverityBadge from '../threat-severity-badge';
 import styles from './styles.module.scss';
@@ -61,10 +61,6 @@ export default function ThreatModal( {
 	const userConnectionNeeded = ! isUserConnected || ! hasConnectedOwner;
 	const siteCredentialsNeeded = ! credentials || credentials.length === 0;
 
-	const fixerState = useMemo( () => {
-		return getFixerState( threat.fixer );
-	}, [ threat.fixer ] );
-
 	return (
 		<Modal
 			title={
@@ -84,7 +80,6 @@ export default function ThreatModal( {
 				>
 					<ThreatFixConfirmation
 						threat={ threat }
-						fixerState={ fixerState }
 						handleUpgradeClick={ handleUpgradeClick }
 						userConnectionNeeded={ userConnectionNeeded }
 						userIsConnecting={ userIsConnecting }

@@ -1,5 +1,6 @@
-import { type Threat } from '@automattic/jetpack-scan';
+import { type Threat, getFixerState } from '@automattic/jetpack-scan';
 import { __ } from '@wordpress/i18n';
+import { useMemo } from 'react';
 import ThreatActions from './threat-actions';
 import ThreatFixDetails from './threat-fix-details';
 import ThreatNotice from './threat-notice';
@@ -8,7 +9,6 @@ import ThreatTechnicalDetails from './threat-technical-details';
 
 const ThreatFixConfirmation = ( {
 	threat,
-	fixerState,
 	handleUpgradeClick,
 	userConnectionNeeded,
 	userIsConnecting,
@@ -21,7 +21,6 @@ const ThreatFixConfirmation = ( {
 	handleUnignoreThreatClick,
 }: {
 	threat: Threat;
-	fixerState: { inProgress: boolean; error: boolean; stale: boolean };
 	handleUpgradeClick: () => void;
 	userConnectionNeeded: boolean;
 	userIsConnecting: boolean;
@@ -33,6 +32,10 @@ const ThreatFixConfirmation = ( {
 	handleIgnoreThreatClick?: ( threats: Threat[] ) => void;
 	handleUnignoreThreatClick?: ( threats: Threat[] ) => void;
 } ) => {
+	const fixerState = useMemo( () => {
+		return getFixerState( threat.fixer );
+	}, [ threat.fixer ] );
+
 	return (
 		<>
 			<ThreatSummary threat={ threat } />
