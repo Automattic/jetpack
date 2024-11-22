@@ -3,7 +3,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { type Props, useMetaQuery } from '$lib/stores/minify';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import styles from './minify-meta.module.scss';
-import CollapsibleMeta from '../image-cdn/collapsible-meta/collapsible-meta';
+import CollapsibleMeta from '$features/ui/collapsible-meta/collapsible-meta';
 
 const MetaComponent = ( { buttonText, placeholder, datasyncKey }: Props ) => {
 	const [ values, updateValues ] = useMetaQuery( datasyncKey );

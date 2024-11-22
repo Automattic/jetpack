@@ -1,4 +1,4 @@
-import CollapsibleMeta from '../collapsible-meta/collapsible-meta';
+import CollapsibleMeta from '$features/ui/collapsible-meta/collapsible-meta';
 import { __, sprintf } from '@wordpress/i18n';
 import styles from './quality-settings.module.scss';
 import { IconTooltip } from '@automattic/jetpack-components';
