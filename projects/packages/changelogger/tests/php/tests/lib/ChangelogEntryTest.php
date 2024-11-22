@@ -21,7 +21,6 @@ use PHPUnit\Framework\TestCase;
  * @covers \Automattic\Jetpack\Changelog\ChangelogEntry
  */
 class ChangelogEntryTest extends TestCase {
-	use \Yoast\PHPUnitPolyfills\Polyfills\ExpectException;
 
 	/**
 	 * Test general getters.
@@ -239,7 +238,7 @@ class ChangelogEntryTest extends TestCase {
 	/**
 	 * Data provider for testJson.
 	 */
-	public function provideJson() {
+	public static function provideJson() {
 		return array(
 			'Basic serialization'               => array(
 				'{"__class__":"Automattic\\\\Jetpack\\\\Changelog\\\\ChangelogEntry","version":"1.0","link":null,"timestamp":"2021-02-18T00:00:00+0000","prologue":"","epilogue":"","changes":[]}',

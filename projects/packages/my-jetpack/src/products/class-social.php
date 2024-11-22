@@ -205,6 +205,6 @@ class Social extends Hybrid_Product {
 	 * @return boolean|array Products bundle list.
 	 */
 	public static function is_upgradable_by_bundle() {
-		return array( 'growth' );
+		return array( 'growth', 'complete' );
 	}
 }

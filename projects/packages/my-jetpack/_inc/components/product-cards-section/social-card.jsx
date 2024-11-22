@@ -7,7 +7,7 @@ const SocialCard = props => {
 };
 
 SocialCard.propTypes = {
-	admin: PropTypes.bool.isRequired,
+	admin: PropTypes.bool,
 };
 
 export default SocialCard;
