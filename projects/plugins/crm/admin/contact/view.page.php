@@ -84,7 +84,7 @@ function jpcrm_render_contact_view_page( $id = -1 ) {
 
 		// socials
 		global $zbsSocialAccountTypes;
-		$contact_socials = zeroBS_getCustomerSocialAccounts( $id );
+		$contact_socials = $zbs->DAL->contacts->getContactSocials( $id ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 		// empty empties.. hmmm
 		$contact_socials_array = array();
 		if ( is_array( $contact_socials ) && count( $contact_socials ) > 0 ) {

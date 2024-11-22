@@ -1,7 +1,7 @@
 <?php
 /**
  * This file contains PHPUnit tests for the Activitypub compatibility functions.
- * To run the package unit tests, run jetpack test packages/image-cdn
+ * To run the package unit tests, run jetpack test php packages/image-cdn
  *
  * @package automattic/jetpack-image-cdn
  */

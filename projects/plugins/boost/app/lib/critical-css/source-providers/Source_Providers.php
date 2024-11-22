@@ -120,13 +120,18 @@ class Source_Providers {
 	 * @return array
 	 */
 	public function get_provider_sources( $context_posts = array() ) {
-		$sources = array();
+		$sources                        = array();
+		$flat_core_and_cornerstone_urls = array();
 
 		$wp_core_provider_urls = WP_Core_Provider::get_critical_source_urls( $context_posts );
-		$flat_wp_core_urls     = array();
 		foreach ( $wp_core_provider_urls as $urls ) {
-			$flat_wp_core_urls = array_merge( $flat_wp_core_urls, $urls );
+			$flat_core_and_cornerstone_urls = array_merge( $flat_core_and_cornerstone_urls, $urls );
 		}
+		$cornerstone_provider_urls = Cornerstone_Provider::get_critical_source_urls( $context_posts );
+		foreach ( $cornerstone_provider_urls as $urls ) {
+			$flat_core_and_cornerstone_urls = array_merge( $flat_core_and_cornerstone_urls, $urls );
+		}
+		$flat_core_and_cornerstone_urls = array_values( array_unique( $flat_core_and_cornerstone_urls ) );
 
 		foreach ( $this->get_providers() as $provider ) {
 			$provider_name = $provider::get_provider_name();
@@ -138,10 +143,10 @@ class Source_Providers {
 					continue;
 				}
 
-				// This removes the home and blog pages from the list of pages,
+				// This removes core and cornerstone URLs from the list of URLs,
 				// so they don't belong to two separate groups.
 				if ( ! in_array( $provider, array( WP_Core_Provider::class, Cornerstone_Provider::class ), true ) ) {
-					$urls = array_values( array_diff( $urls, $flat_wp_core_urls ) );
+					$urls = array_values( array_diff( $urls, $flat_core_and_cornerstone_urls ) );
 				}
 
 				if ( empty( $urls ) ) {

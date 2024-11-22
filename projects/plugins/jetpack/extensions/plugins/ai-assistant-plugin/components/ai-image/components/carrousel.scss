@@ -123,7 +123,7 @@
 		}
 
 		&-image {
-			width: 100%;
+			width: 78%;
 			height: auto;
 		}
 
@@ -135,6 +135,8 @@
 			left: 8px;
 			transform: translateX( 100% );
 			transition: transform 0.5s;
+			flex-direction: column;
+			align-items: center;
 
 			&.is-prev {
 				transform: translateX( -100% );

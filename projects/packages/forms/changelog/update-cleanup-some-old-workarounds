@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Remove workaround for fixed WPCS bug.
+
+

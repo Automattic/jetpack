@@ -53,10 +53,12 @@ function AiAssistantExtensionToolbarDropdownContent( {
 		} ) => {
 			const selectedBlockIds = getSelectedBlockClientIds();
 			const [ clientId ] = selectedBlockIds;
+			const alwaysTransform = request?.options?.alwaysTransformToAIAssistant || false;
 
 			if (
-				selectedBlockIds.length < 2 ||
-				! canTransformToAIAssistant( { clientId, blockName: blockType } )
+				( selectedBlockIds.length < 2 ||
+					! canTransformToAIAssistant( { clientId, blockName: blockType } ) ) &&
+				! alwaysTransform
 			) {
 				// If there is only one selected block or the block cannot be transformed, proceed to open the extension input.
 				if ( request ) {
@@ -89,9 +91,12 @@ function AiAssistantExtensionToolbarDropdownContent( {
 		handleToolbarButtonClick();
 	};
 
+	const [ clientId ] = getSelectedBlockClientIds();
+
 	return (
 		<AiAssistantToolbarDropdownContent
 			blockType={ blockType }
+			clientId={ clientId }
 			onRequestSuggestion={ handleRequestSuggestion }
 			onAskAiAssistant={ handleAskAiAssistant }
 			disabled={ false }

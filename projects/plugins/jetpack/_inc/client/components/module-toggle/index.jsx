@@ -96,7 +96,7 @@ class ModuleToggleComponent extends Component {
 	render() {
 		return (
 			<ToggleControl
-				checked={ this.props.activated || this.props.isModuleActivated }
+				checked={ this.props.activated }
 				toggling={ this.props.toggling }
 				className={ this.props.className }
 				disabled={ this.props.disabled || this.isDisabledByOverride() }

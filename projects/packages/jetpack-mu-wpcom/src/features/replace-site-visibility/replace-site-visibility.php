@@ -11,8 +11,8 @@
  * @return bool
  */
 function is_jetpack_connected() {
-	// @phan-suppress-next-line PhanUndeclaredClassMethod, PhanUndeclaredClassInCallable
-	return class_exists( 'Jetpack' ) && is_callable( 'Jetpack::is_connection_ready' ) && Jetpack::is_connection_ready();
+	// @phan-suppress-next-line PhanUndeclaredClassMethod
+	return class_exists( 'Jetpack' ) && Jetpack::is_connection_ready();
 }
 
 /**

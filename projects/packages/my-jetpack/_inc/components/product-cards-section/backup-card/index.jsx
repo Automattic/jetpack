@@ -261,7 +261,7 @@ const NoBackupsValueSection = props => {
 };
 
 BackupCard.propTypes = {
-	admin: PropTypes.bool.isRequired,
+	admin: PropTypes.bool,
 };
 
 NoBackupsValueSection.propTypes = {

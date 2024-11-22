@@ -1,4 +1,5 @@
 import {
+	IconTooltip,
 	Spinner,
 	Text,
 	ThreatSeverityBadge,
@@ -8,12 +9,11 @@ import { ExternalLink } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
 import { createInterpolateElement } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
-import { Icon, check, chevronDown, chevronUp, info } from '@wordpress/icons';
+import { Icon, check, chevronDown, chevronUp } from '@wordpress/icons';
 import clsx from 'clsx';
 import React, { useState, useCallback, useContext, useMemo } from 'react';
 import { PAID_PLUGIN_SUPPORT_URL } from '../../constants';
 import useFixers from '../../hooks/use-fixers';
-import IconTooltip from '../icon-tooltip';
 import styles from './styles.module.scss';
 
 // Extract context provider for clarity and reusability
@@ -70,24 +70,29 @@ const renderFixerStatus = ( isActiveFixInProgress, isStaleFixInProgress ) => {
 	if ( isStaleFixInProgress ) {
 		return (
 			<IconTooltip
-				icon={ info }
-				iconClassName={ styles[ 'icon-info' ] }
-				iconSize={ 24 }
-				text={ createInterpolateElement(
-					__(
-						'The fixer is taking longer than expected. Please try again or <supportLink>contact support</supportLink>.',
-						'jetpack-protect'
-					),
-					{
-						supportLink: (
-							<ExternalLink
-								className={ styles[ 'support-link' ] }
-								href={ PAID_PLUGIN_SUPPORT_URL }
-							/>
+				className={ styles[ 'icon-tooltip' ] }
+				iconClassName={ styles[ 'icon-tooltip__icon' ] }
+				iconSize={ 20 }
+				placement={ 'top' }
+				hoverShow={ true }
+			>
+				<Text className={ styles[ 'icon-tooltip__content' ] }>
+					{ createInterpolateElement(
+						__(
+							'The fixer is taking longer than expected. Please try again or <supportLink>contact support</supportLink>.',
+							'jetpack-protect'
 						),
-					}
-				) }
-			/>
+						{
+							supportLink: (
+								<ExternalLink
+									className={ styles[ 'support-link' ] }
+									href={ PAID_PLUGIN_SUPPORT_URL }
+								/>
+							),
+						}
+					) }
+				</Text>
+			</IconTooltip>
 		);
 	}
 

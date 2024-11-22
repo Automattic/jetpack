@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Decode entities in post titles and descriptions for social previews.
