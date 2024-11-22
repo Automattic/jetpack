@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Sync: Fixed bug in checksum histogram when max_range is PHP_INT_MAX
