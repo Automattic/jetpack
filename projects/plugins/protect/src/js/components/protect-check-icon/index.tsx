@@ -3,28 +3,28 @@ import { type JSX } from 'react';
 /**
  * Protect Shield and Checkmark SVG Icon
  *
- * @param {object} props               - Component props.
- * @param {string} [props.width="80"]  - The width of the SVG Icon.
- * @param {string} [props.height="96"] - The height of the SVG Icon.
- * @param {string} [props.status=null] - The status of the icon.
+ * @param {object} props                   - Component props.
+ * @param {string} [props.className]       - The class name to add to the SVG Icon.
+ * @param {string} [props.width="80"]      - The width of the SVG Icon.
+ * @param {string} [props.height="96"]     - The height of the SVG Icon.
+ * @param {string} [props.color="#069E08"] - The color of the SVG Icon.
  *
  * @return {JSX.Element} Protect Shield and Checkmark SVG Icon
  */
 export default function ProtectCheck( {
+	className,
 	width = '80',
 	height = '96',
-	status = null,
+	color = '#069E08',
+}: {
+	className?: string;
+	width?: string;
+	height?: string;
+	color?: string;
 } ): JSX.Element {
-	let fill = '#069E08';
-
-	if ( status === 'warning' ) {
-		fill = '#F0B849';
-	} else if ( status === 'disabled' ) {
-		fill = '#A7AAAD';
-	}
-
 	return (
 		<svg
+			className={ className }
 			width={ width }
 			height={ height }
 			viewBox="0 0 80 96"
@@ -35,7 +35,7 @@ export default function ProtectCheck( {
 				fillRule="evenodd"
 				clipRule="evenodd"
 				d="M40 0.00634766L80 17.7891V44.2985C80 66.8965 65.1605 88.2927 44.2352 95.0425C41.4856 95.9295 38.5144 95.9295 35.7648 95.0425C14.8395 88.2927 0 66.8965 0 44.2985V17.7891L40 0.00634766Z"
-				fill={ fill }
+				fill={ color }
 			/>
 			<path
 				fillRule="evenodd"

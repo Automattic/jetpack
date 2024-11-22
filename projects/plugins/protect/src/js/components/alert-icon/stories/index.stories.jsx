@@ -1,10 +1,10 @@
 /* eslint-disable react/react-in-jsx-scope */
 import React from 'react';
-import AlertIcon from '../index.jsx';
+import Alert from '../index.jsx';
 
 export default {
 	title: 'Plugins/Protect/Alert Icon',
-	component: AlertIcon,
+	component: Alert,
 	argTypes: {
 		color: {
 			control: {
@@ -14,5 +14,5 @@ export default {
 	},
 };
 
-const FooterTemplate = args => <AlertIcon { ...args } />;
+const FooterTemplate = args => <Alert { ...args } />;
 export const Default = FooterTemplate.bind( {} );

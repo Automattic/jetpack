@@ -1,6 +1,7 @@
 import { useBreakpointMatch, StatCard } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
+import Alert from '../../components/alert-icon';
 import ProtectCheck from '../../components/protect-check-icon';
 import useProtectData from '../../hooks/use-protect-data';
 import useWafData from '../../hooks/use-waf-data';
@@ -41,7 +42,7 @@ const HomeStatCards = () => {
 					<ProtectCheck
 						width={ '16' }
 						height={ '19.14' }
-						status={ numThreats ? 'warning' : null }
+						color={ numThreats ? '#F0B849' : '#069E08' }
 					/>
 				</span>
 			),
@@ -61,11 +62,11 @@ const HomeStatCards = () => {
 			className: isWafModuleEnabled ? styles.active : styles.disabled,
 			icon: (
 				<span className={ styles[ 'stat-card-icon' ] }>
-					<ProtectCheck
-						width={ '16' }
-						height={ '19.14' }
-						status={ ! isWafModuleEnabled ? 'disabled' : null }
-					/>
+					{ isWafModuleEnabled ? (
+						<ProtectCheck width={ '16' } height={ '19.14' } />
+					) : (
+						<Alert width={ '16' } height={ '19.14' } color={ '#A7AAAD' } />
+					) }
 				</span>
 			),
 			label: (
@@ -84,11 +85,13 @@ const HomeStatCards = () => {
 			className: isBruteForceModuleEnabled ? styles.active : styles.disabled,
 			icon: (
 				<span className={ styles[ 'stat-card-icon' ] }>
-					<ProtectCheck
-						width={ '16' }
-						height={ '19.14' }
-						status={ ! isBruteForceModuleEnabled ? 'disabled' : null }
-					/>
+					<span className={ styles[ 'stat-card-icon' ] }>
+						{ isBruteForceModuleEnabled ? (
+							<ProtectCheck width={ '16' } height={ '19.14' } />
+						) : (
+							<Alert width={ '16' } height={ '19.14' } color={ '#A7AAAD' } />
+						) }
+					</span>
 				</span>
 			),
 			label: (
