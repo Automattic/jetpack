@@ -20,7 +20,7 @@
 		"yoast/phpunit-polyfills": "^1.1.1",
 		"automattic/jetpack-changelogger": "@dev",
 		"automattic/patchwork-redefine-exit": "@dev",
-		"automattic/wordbless": "dev-master"
+		"automattic/wordbless": "^0.4.2"
 	},
 	"autoload": {
 		"classmap": [

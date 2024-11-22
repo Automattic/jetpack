@@ -65,7 +65,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/admin-ui",
-                "reference": "086703a641cc91a499c0208954756acaaf9f34cf"
+                "reference": "addc5bfbcc23f704c0a426fb480c1f402131e952"
             },
             "require": {
                 "php": ">=7.2"
@@ -73,7 +73,7 @@
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
                 "automattic/jetpack-logo": "@dev",
-                "automattic/wordbless": "dev-master",
+                "automattic/wordbless": "^0.4.2",
                 "yoast/phpunit-polyfills": "^1.1.1"
             },
             "suggest": {
@@ -399,7 +399,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "39940d00321ffb2730bdef3408636788340c0443"
+                "reference": "98861ba304afa0fb038a0a38bc0d599aa11ebb5a"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -415,7 +415,7 @@
                 "automattic/jetpack-changelogger": "@dev",
                 "automattic/jetpack-licensing": "@dev",
                 "automattic/jetpack-sync": "@dev",
-                "automattic/wordbless": "@dev",
+                "automattic/wordbless": "^0.4.2",
                 "brain/monkey": "^2.6.2",
                 "yoast/phpunit-polyfills": "^1.1.1"
             },
@@ -603,14 +603,14 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/password-checker",
-                "reference": "8a40be9991f13e2eef9f14984e2d6e6e207c96f8"
+                "reference": "7ba6a723317eeb42a1ff22a8dbd95587bab0f5a8"
             },
             "require": {
                 "php": ">=7.2"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
-                "automattic/wordbless": "@dev",
+                "automattic/wordbless": "^0.4.2",
                 "yoast/phpunit-polyfills": "^1.1.1"
             },
             "suggest": {
@@ -905,7 +905,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "9d13af509bc0ebe0c65baa393d4033471be0e0ae"
+                "reference": "c01241d47a4961a862bc7bfe26fff8d16cf7cbcf"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -920,7 +920,7 @@
                 "automattic/jetpack-changelogger": "@dev",
                 "automattic/jetpack-search": "@dev",
                 "automattic/jetpack-waf": "@dev",
-                "automattic/wordbless": "@dev",
+                "automattic/wordbless": "^0.4.2",
                 "yoast/phpunit-polyfills": "^1.1.1"
             },
             "suggest": {

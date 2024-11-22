@@ -174,7 +174,7 @@ class Crm extends Product {
 	}
 
 	/**
-	 * Get the product-slugs of the paid bundles/plans that this product/module is included in
+	 * Get the product-slugs of the paid bundles/plans that this product/module is included in.
 	 *
 	 * @return array
 	 */
@@ -182,5 +182,15 @@ class Crm extends Product {
 		return array(
 			'jetpack_complete',
 		);
+	}
+
+	/**
+	 * Return product bundles list
+	 * that supports the product.
+	 *
+	 * @return boolean|array Products bundle list.
+	 */
+	public static function is_upgradable_by_bundle() {
+		return array( 'complete' );
 	}
 }

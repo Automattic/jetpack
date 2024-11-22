@@ -12,7 +12,6 @@ import jetpackManageIcon from './jetpack-manage.svg';
  * @return {object} The JetpackManageBanner component.
  */
 const JetpackManageBanner = props => {
-	// eslint-disable-next-line no-unused-vars
 	const { isAgencyAccount = false } = props;
 	const { recordEvent } = useAnalytics();
 
@@ -36,6 +35,10 @@ const JetpackManageBanner = props => {
 	const handleAgencyInterestClick = useCallback( () => {
 		trackClick( 'jp-agencies-register-interest' );
 	}, [ trackClick ] );
+
+	if ( isAgencyAccount ) {
+		return null;
+	}
 
 	return (
 		<UpsellBanner

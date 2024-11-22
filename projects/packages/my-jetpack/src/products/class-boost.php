@@ -411,4 +411,14 @@ class Boost extends Product {
 			'jetpack_boost_bi_yearly',
 		);
 	}
+
+	/**
+	 * Return product bundles list
+	 * that supports the product.
+	 *
+	 * @return boolean|array Products bundle list.
+	 */
+	public static function is_upgradable_by_bundle() {
+		return array( 'complete' );
+	}
 }

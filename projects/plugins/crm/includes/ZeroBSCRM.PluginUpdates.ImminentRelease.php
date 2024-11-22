@@ -69,24 +69,11 @@ function jpcrm_update_checks_v5_available_notice( $data, $response ) {
 
 	// see #734-gh
 
-	// do we have a pre DAL3 install?
-	if ( !$zbs->isDAL3() ) {
-
-		// upgrade warning - will not be able to use with pre DAL3 db state
-		$secondary_message = __( 'Please do not update to this major version until you have migrated your database!', 'zero-bs-crm' );
-		##WLREMOVE
-		$button_html = '<a href="' . $zbs->urls['v5announce'] . '" target="_blank">' . __( 'v5 Announcement', 'zero-bs-crm' ) . '</a>';
-		$button_html .= '&nbsp;|&nbsp;<a href="' . $zbs->urls['db3migrate'] . '" target="_blank">' . __( 'Read about migrating your database', 'zero-bs-crm' ) . '</a>';
-		##/WLREMOVE
-
-	} else {
-
-		// simpler upgrade notice
-		$secondary_message = __( 'This major release brings WooCommerce syncing directly into CRM core!', 'zero-bs-crm' );
-		##WLREMOVE
-		$button_html = '<a href="' . $zbs->urls['v5announce'] . '" target="_blank">' . __( 'Read about version 5.0', 'zero-bs-crm' ) . '</a>';
-		##/WLREMOVE
-	}
+	// simpler upgrade notice
+	$secondary_message = __( 'This major release brings WooCommerce syncing directly into CRM core!', 'zero-bs-crm' );
+	##WLREMOVE
+	$button_html = '<a href="' . $zbs->urls['v5announce'] . '" target="_blank">' . __( 'Read about version 5.0', 'zero-bs-crm' ) . '</a>';
+	##/WLREMOVE
 
 	// build inline message
 	$msg = '</p><div style="background-color:#D0E6B8;padding:0.5em 1em;margin: 1em"><strong>' . $upgrade_title . '</strong> - ' . $secondary_message . '<br>';

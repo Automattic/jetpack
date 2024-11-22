@@ -3,7 +3,7 @@
 	labels: [ '[Type] Janitorial', '[Status] Needs Review' ],
 	prHourlyLimit: 1,
 	timezone: 'UTC',
-	schedule: [ 'before 3am on the first day of the month' ],
+	schedule: [ '* 0-2 1 * *' ],
 	updateNotScheduled: false,
 	semanticCommits: 'disabled',
 	osvVulnerabilityAlerts: true,
@@ -20,6 +20,9 @@
 		'**/test/**',
 		'**/tests/!(e2e)/**',
 		'**/__fixtures__/**',
+		// Old unused wpcomsh stuff that we're only keeping temporarily until we figure out how to properly replace it.
+		'**/projects/plugins/wpcomsh/.circleci/**',
+		'**/projects/plugins/wpcomsh/.github/**',
 	],
 
 	packageRules: [
@@ -145,7 +148,7 @@
 
 	lockFileMaintenance: {
 		enabled: true,
-		schedule: [ 'before 3:00 am on Monday on the 7th through 13th day of the month' ],
+		schedule: [ '* 0-2 7-13 * 1' ],
 	},
 	dependencyDashboardTitle: 'Renovate Dependency Updates',
 	dependencyDashboardLabels: [ 'Primary Issue', '[Type] Janitorial' ],

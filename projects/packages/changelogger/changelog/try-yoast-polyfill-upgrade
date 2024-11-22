@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Upgraded dependency yoast/phpunit-polyfill to allow for upgrades.
+
+
