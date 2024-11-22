@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Adds difm_lite_site_options to the default_options_whitelist
