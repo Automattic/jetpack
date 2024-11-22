@@ -1,4 +1,4 @@
-import { Text } from '@automattic/jetpack-components';
+import { Text, Button } from '@automattic/jetpack-components';
 import { Threat } from '@automattic/jetpack-scan';
 import { __ } from '@wordpress/i18n';
 import { chevronDown, chevronUp, Icon } from '@wordpress/icons';
@@ -29,19 +29,22 @@ const ThreatTechnicalDetails = ( { threat }: { threat: Threat } ): JSX.Element =
 	return (
 		<div className={ styles.section }>
 			<div className={ styles.section__title }>
-				<button
+				<Button
+					variant="link"
 					className={ styles.section__toggle }
 					aria-expanded={ open }
 					aria-controls={ `threat-details-${ threat.id }` }
 					onClick={ toggleOpen }
 				>
-					<span>
-						{ open
-							? __( 'Hide the technical details', 'jetpack' )
-							: __( 'Show the technical details', 'jetpack' ) }
-					</span>
-					<Icon icon={ open ? chevronUp : chevronDown } size={ 24 } />
-				</button>
+					<div className={ styles.section__content }>
+						<Text variant="title-small" mb={ 0 }>
+							{ open
+								? __( 'Hide the technical details', 'jetpack' )
+								: __( 'Show the technical details', 'jetpack' ) }
+						</Text>
+						<Icon icon={ open ? chevronUp : chevronDown } size={ 24 } />
+					</div>
+				</Button>
 			</div>
 			{ open && (
 				<div
