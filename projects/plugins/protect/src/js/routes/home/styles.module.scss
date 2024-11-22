@@ -11,7 +11,7 @@
 	margin-top: calc( var( --spacing-base ) * 4 ); // 32px
 }
 
-.stat-card-wrapper {
+.stat-cards-wrapper {
     display: flex;
     margin-left: auto;
 
@@ -48,8 +48,15 @@
     white-space: nowrap;
 }
 
+.stat-card-tooltip {
+	margin-top: 8px;
+	max-width: 240px;
+	border-radius: 4px;
+	text-align: left;
+}
+
 @media ( max-width: 1115px ) {
-    .stat-card-wrapper {
+    .stat-cards-wrapper {
         margin-top: calc( var( --spacing-base ) * 3 ); // 24px
         flex-wrap: wrap;
 
@@ -57,7 +64,7 @@
 }
 
 @media ( max-width: 599px ) {
-    .stat-card-wrapper {
+    .stat-cards-wrapper {
         margin-top: calc( var( --spacing-base ) * 3 ); // 24px
         flex-wrap: wrap;
 
