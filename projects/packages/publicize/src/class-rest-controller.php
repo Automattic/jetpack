@@ -126,6 +126,11 @@ class REST_Controller {
 							return array_map( 'absint', $param );
 						},
 					),
+					'async'               => array(
+						'description' => __( 'Whether to share the post asynchronously.', 'jetpack-publicize-pkg' ),
+						'type'        => 'boolean',
+						'default'     => false,
+					),
 				),
 			)
 		);
