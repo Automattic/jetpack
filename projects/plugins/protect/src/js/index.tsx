@@ -11,6 +11,7 @@ import { NoticeProvider } from './hooks/use-notices';
 import { OnboardingRenderedContextProvider } from './hooks/use-onboarding';
 import { CheckoutProvider } from './hooks/use-plan';
 import FirewallRoute from './routes/firewall';
+import HomeRoute from './routes/home';
 import ScanRoute from './routes/scan';
 import ScanHistoryRoute from './routes/scan/history';
 import SetupRoute from './routes/setup';
@@ -57,6 +58,7 @@ function render() {
 									<ScrollToTop />
 									<Routes>
 										<Route path="/setup" element={ <SetupRoute /> } />
+										<Route path="/" element={ <HomeRoute /> } />
 										<Route path="/scan" element={ <ScanRoute /> } />
 										<Route
 											path="/scan/history"
@@ -75,7 +77,7 @@ function render() {
 											}
 										/>
 										<Route path="/firewall" element={ <FirewallRoute /> } />
-										<Route path="*" element={ <Navigate to="/scan" replace /> } />
+										<Route path="*" element={ <Navigate to="/" replace /> } />
 									</Routes>
 								</HashRouter>
 								<Modal />

@@ -459,6 +459,7 @@ class Jetpack_Protect {
 		return array(
 			'blockedRequests'           => Plan::has_required_plan() ? Waf_Stats::get_blocked_requests() : false,
 			'automaticRulesLastUpdated' => Waf_Stats::get_automatic_rules_last_updated(),
+			'blockedLogins'             => (int) get_option( 'jetpack_protect_blocked_attempts', 0 ),
 		);
 	}
 }
