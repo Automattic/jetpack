@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Publicize: fix page-detection util methods to stop unnecessary API calls to wp.com
