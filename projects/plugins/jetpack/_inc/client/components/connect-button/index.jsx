@@ -151,6 +151,7 @@ export class ConnectButton extends React.Component {
 					eventFeature="connect-account"
 					path="dashboard"
 					eventProps={ { type: 'connect' } }
+					isPromotion={ false }
 				/>
 			);
 		}
@@ -194,6 +195,7 @@ export class ConnectButton extends React.Component {
 					eventFeature="manage-site-connection"
 					path="dashboard"
 					eventProps={ { type: 'manage' } }
+					isPromotion={ false }
 				/>
 			);
 		}

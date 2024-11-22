@@ -9,7 +9,7 @@
 // order to ensure that the specific version of this file always get loaded. Otherwise, Jetpack autoloader might decide
 // to load an older/newer version of the class (if, for example, both the standalone and bundled versions of the plugin
 // are installed, or in some other cases).
-namespace Automattic\Jetpack\Backup\V0004;
+namespace Automattic\Jetpack\Backup\V0005;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -17,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
-use Automattic\Jetpack\Backup\V0004\Initial_State as Backup_Initial_State;
+use Automattic\Jetpack\Backup\V0005\Initial_State as Backup_Initial_State;
 use Automattic\Jetpack\Config;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
@@ -337,6 +337,17 @@ class Jetpack_Backup {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => __CLASS__ . '::get_site_backup_size',
+				'permission_callback' => __CLASS__ . '::backups_permissions_callback',
+			)
+		);
+
+		// Get backup schedule time
+		register_rest_route(
+			'jetpack/v4',
+			'/site/backup/schedule',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::get_site_backup_schedule_time',
 				'permission_callback' => __CLASS__ . '::backups_permissions_callback',
 			)
 		);
@@ -772,6 +783,31 @@ class Jetpack_Backup {
 			array(
 				'method' => 'POST',
 			),
+			null,
+			'wpcom'
+		);
+
+		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			return null;
+		}
+
+		return rest_ensure_response(
+			json_decode( $response['body'], true )
+		);
+	}
+
+	/**
+	 * Get site backup schedule time
+	 *
+	 * @return string|WP_Error A JSON object with the backup schedule time if the request was successful, or a WP_Error otherwise.
+	 */
+	public static function get_site_backup_schedule_time() {
+		$blog_id = Jetpack_Options::get_option( 'id' );
+
+		$response = Client::wpcom_json_api_request_as_user(
+			'/sites/' . $blog_id . '/rewind/scheduled',
+			'v2',
+			array(),
 			null,
 			'wpcom'
 		);

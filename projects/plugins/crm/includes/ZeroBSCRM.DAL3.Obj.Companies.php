@@ -1661,10 +1661,6 @@ class zbsDAL_companies extends zbsDAL_ObjectLayer {
                         }
 
                         if ($withInvoices){
-                            
-                            #} only gets first 100?
-                            #} CURRENTLY inc meta..? (isn't huge... but isn't efficient)
-                            //$resArr['invoices']         = zeroBS_getInvoicesForCompany($resDataLine->ID,true,100);
                             //DAL3 ver, more perf, gets all
                             $resArr['invoices'] = $zbs->DAL->invoices->getInvoices(array(
 
@@ -3268,7 +3264,7 @@ class zbsDAL_companies extends zbsDAL_ObjectLayer {
 
             //$resArr['id'] = $company['id'];
             //$resArr['name'] = $company['coname'];
-            $resArr['avatar'] = false; //zeroBS_customerAvatar($resArr['id']);
+			$resArr['avatar'] = false; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
             #} Format the date in the list view..
             //$formatted_date = zeroBSCRM_date_i18n(-1, strtotime($obj['created']));

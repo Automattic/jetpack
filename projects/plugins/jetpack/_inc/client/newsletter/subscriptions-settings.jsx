@@ -83,6 +83,7 @@ function SubscriptionsSettings( props ) {
 		? addQueryArgs( `${ siteAdminUrl }site-editor.php`, {
 				postType: 'wp_template',
 				postId: `${ themeStylesheet }//single`,
+				canvas: 'edit',
 		  } )
 		: null;
 
@@ -90,6 +91,7 @@ function SubscriptionsSettings( props ) {
 		? addQueryArgs( `${ siteAdminUrl }site-editor.php`, {
 				postType: 'wp_template',
 				postId: `${ themeStylesheet }//index`,
+				canvas: 'edit',
 		  } )
 		: null;
 

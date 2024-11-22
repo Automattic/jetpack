@@ -86,7 +86,7 @@ class Test_Connections_Post_Field extends TestCase {
 	 */
 	public function set_up() {
 		global $publicize;
-		$this->publicize = $this->getMockBuilder( Publicize::class )->setMethods( array( 'refresh_connections', 'test_connection' ) )->getMock();
+		$this->publicize = $this->getMockBuilder( Publicize::class )->onlyMethods( array( 'refresh_connections', 'test_connection' ) )->getMock();
 
 		$this->publicize->method( 'refresh_connections' )
 			->withAnyParameters()

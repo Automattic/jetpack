@@ -8,7 +8,7 @@ import {
 	PLAN_JETPACK_VIDEOPRESS,
 	PLAN_JETPACK_ANTI_SPAM,
 	PLAN_JETPACK_BACKUP_T1_YEARLY,
-	PLAN_JETPACK_CREATOR_YEARLY,
+	PLAN_JETPACK_GROWTH_YEARLY,
 } from 'lib/plans/constants';
 import {
 	getSiteAdminUrl,
@@ -806,17 +806,16 @@ export const getProductCardData = ( state, productSlug ) => {
 				productCardList: products.security ? products.security.features : [],
 				productCardIcon: '/recommendations/cloud-icon.svg',
 			};
-		// Creator Plan
-		case PLAN_JETPACK_CREATOR_YEARLY:
+		// Growth Plan
+		case PLAN_JETPACK_GROWTH_YEARLY:
 			return {
-				productCardTitle: __( 'Grow and monetize your audience', 'jetpack' ),
+				productCardTitle: __( 'Grow and track your audience effortlessly', 'jetpack' ),
 				productCardCtaLink: getRedirectUrl( 'jetpack-recommendations-product-checkout', {
 					site: siteRawUrl,
 					path: productSlug,
 				} ),
-				productCardCtaText: __( 'Get Jetpack Creator', 'jetpack' ),
-				productCardList: products.creator ? products.creator.features : [],
-				productCardIcon: '/recommendations/creator-icon.svg',
+				productCardCtaText: __( 'Get Jetpack Growth', 'jetpack' ),
+				productCardList: products.growth ? products.growth.features : [],
 			};
 		case PLAN_JETPACK_ANTI_SPAM:
 			return {

@@ -10,15 +10,23 @@ import useAnalytics from '../../hooks/use-analytics';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 
 const parsePricingData = ( pricingForUi: ProductCamelCase[ 'pricingForUi' ] ) => {
-	const { tiers, wpcomFreeProductSlug } = pricingForUi;
+	const { tiers, wpcomFreeProductSlug, introductoryOffer } = pricingForUi;
 
 	if ( pricingForUi.tiers ) {
-		const { discountPrice, fullPrice, currencyCode, wpcomProductSlug, quantity } = tiers.upgraded;
+		const {
+			discountPrice,
+			fullPrice,
+			currencyCode,
+			wpcomProductSlug,
+			quantity,
+			introductoryOffer: tierIntroOffer,
+		} = tiers.upgraded;
 		const hasDiscount = discountPrice && discountPrice !== fullPrice;
+		const eligibleForIntroDiscount = ! tierIntroOffer?.reason;
 		return {
 			wpcomFreeProductSlug,
 			wpcomProductSlug: ! quantity ? wpcomProductSlug : `${ wpcomProductSlug }:-q-${ quantity }`,
-			discountPrice: hasDiscount ? discountPrice / 12 : null,
+			discountPrice: hasDiscount && eligibleForIntroDiscount ? discountPrice / 12 : null,
 			fullPrice: fullPrice / 12,
 			currencyCode,
 		};
@@ -34,7 +42,9 @@ const parsePricingData = ( pricingForUi: ProductCamelCase[ 'pricingForUi' ] ) =>
 	return {
 		wpcomFreeProductSlug,
 		wpcomProductSlug,
-		discountPrice: isIntroductoryOffer ? discountPricePerMonth : null,
+		discountPrice:
+			// Only display discount if site is elgible
+			isIntroductoryOffer && ! introductoryOffer?.reason ? discountPricePerMonth : null,
 		fullPrice: fullPricePerMonth,
 		currencyCode,
 	};

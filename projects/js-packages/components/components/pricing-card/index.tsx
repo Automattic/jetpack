@@ -55,7 +55,8 @@ const PricingCard: React.FC< PricingCardProps > = ( {
 			) }
 			<h1 className="jp-components__pricing-card__title">{ props.title }</h1>
 			<div className="jp-components__pricing-card__pricing">
-				{ props.priceBefore !== props.priceAfter && props.priceAfter > 0 ? (
+				{ props.priceAfter === 0 && <LoadingPlaceholder width="100%" height={ 48 } /> }
+				{ props.priceBefore !== props.priceAfter && props.priceAfter > 0 && (
 					<div className="jp-components__pricing-card__price-before">
 						<span className="jp-components__pricing-card__currency">
 							{ currencyObjectBefore.symbol }
@@ -71,8 +72,6 @@ const PricingCard: React.FC< PricingCardProps > = ( {
 						) }
 						<div className="jp-components__pricing-card__price-strikethrough"></div>
 					</div>
-				) : (
-					<LoadingPlaceholder width="100%" height={ 48 } />
 				) }
 				{ props.priceAfter > 0 && (
 					<>

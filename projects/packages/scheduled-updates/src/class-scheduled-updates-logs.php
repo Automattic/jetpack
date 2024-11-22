@@ -143,7 +143,7 @@ class Scheduled_Updates_Logs {
 	 *
 	 * @param string|null $schedule_id Optional. The ID of the schedule. If not provided, all logs will be cleared.
 	 */
-	public static function clear( string $schedule_id = null ) {
+	public static function clear( ?string $schedule_id = null ) {
 		$logs = get_option( self::OPTION_NAME, array() );
 
 		if ( null === $schedule_id ) {

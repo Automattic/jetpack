@@ -392,12 +392,42 @@ abstract class Product {
 	}
 
 	/**
-	 * Checks whether the site has a paid plan for the product
-	 * This ignores free products, it only checks if there is a purchase that supports the product
+	 * Checks whether the site has a paid plan for the product.
+	 *
+	 * This function relies on the product's `$feature_identifying_paid_plan` and `get_paid_plan_product_slugs()` function.
+	 * If the product does not define a `$feature_identifying_paid_plan`, be sure the product includes functions for both
+	 * `get_paid_plan_product_slugs()` and `get_paid_bundles_that_include_product()` which return all the product slugs and
+	 * bundle slugs that include the product, respectively.
 	 *
 	 * @return boolean
 	 */
 	public static function has_paid_plan_for_product() {
+		// First check site features (if there's a feature that identifies the paid plan)
+		if ( static::$feature_identifying_paid_plan ) {
+			if ( static::does_site_have_feature( static::$feature_identifying_paid_plan ) ) {
+				return true;
+			}
+		}
+		// Otherwise check site purchases
+		$plans_with_product = array_merge(
+			static::get_paid_bundles_that_include_product(),
+			static::get_paid_plan_product_slugs()
+		);
+
+		$purchases_data = Wpcom_Products::get_site_current_purchases();
+		if ( is_wp_error( $purchases_data ) ) {
+			return false;
+		}
+		if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
+			foreach ( $purchases_data as $purchase ) {
+				foreach ( $plans_with_product as $plan ) {
+					if ( strpos( $purchase->product_slug, $plan ) !== false ) {
+						return true;
+					}
+				}
+			}
+		}
+
 		return false;
 	}
 
@@ -421,7 +451,8 @@ abstract class Product {
 	}
 
 	/**
-	 * Get the product-slugs of the paid plans for this product (not including bundles).
+	 * Get the product-slugs of the paid plans for this product.
+	 * (Do not include bundle plans, unless it's a bundle plan itself).
 	 *
 	 * @return array
 	 */
@@ -430,20 +461,28 @@ abstract class Product {
 	}
 
 	/**
-	 * Get the product-slugs of the paid bundles/plans that this product/module is included in
+	 * Get the product-slugs of the paid bundles/plans that this product/module is included in.
+	 *
+	 * This function relies on the product's `$feature_identifying_paid_plan`
+	 * If the product does not define a `$feature_identifying_paid_plan`, be sure to include this
+	 * function in the product's class and have it return all the paid bundle slugs that include
+	 * the product.
 	 *
 	 * @return array
 	 */
 	public static function get_paid_bundles_that_include_product() {
+		if ( static::is_bundle_product() ) {
+			return array();
+		}
 		$features = static::get_site_features_from_wpcom();
 		if ( is_wp_error( $features ) ) {
 			return array();
 		}
 		$idendifying_feature = static::$feature_identifying_paid_plan;
-		if ( empty( $features['available'] ) || empty( $idendifying_feature ) ) {
+		if ( empty( $features['available'] ) ) {
 			return array();
 		}
-		$paid_bundles   = $features['available']->$idendifying_feature;
+		$paid_bundles   = $features['available']->$idendifying_feature ?? array();
 		$current_bundle = Wpcom_Products::get_site_current_plan();
 
 		if ( in_array( static::$feature_identifying_paid_plan, $current_bundle['features']['active'], true ) ) {

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+AI Labeling: clean up issue contents before we send them to OpenAI for analysis.

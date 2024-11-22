@@ -73,7 +73,7 @@ class Videopress extends Hybrid_Product {
 	 *
 	 * @var string
 	 */
-	public static $feature_identifying_paid_plan = 'videopress-1tb-storage';
+	public static $feature_identifying_paid_plan = 'videopress';
 
 	/**
 	 * Get the product name
@@ -181,34 +181,6 @@ class Videopress extends Hybrid_Product {
 	}
 
 	/**
-	 * Checks whether the site has a paid plan for this product
-	 *
-	 * @return boolean
-	 */
-	public static function has_paid_plan_for_product() {
-		$plans_with_videopress = array(
-			'jetpack_videopress',
-			'jetpack_complete',
-			'jetpack_business',
-			'jetpack_premium',
-		);
-		$purchases_data        = Wpcom_Products::get_site_current_purchases();
-		if ( is_wp_error( $purchases_data ) ) {
-			return false;
-		}
-		if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
-			foreach ( $purchases_data as $purchase ) {
-				foreach ( $plans_with_videopress as $plan ) {
-					if ( strpos( $purchase->product_slug, $plan ) !== false ) {
-						return true;
-					}
-				}
-			}
-		}
-		return false;
-	}
-
-	/**
 	 * Get the product-slugs of the paid plans for this product (not including bundles)
 	 *
 	 * @return array
@@ -219,5 +191,15 @@ class Videopress extends Hybrid_Product {
 			'jetpack_videopress_monthly',
 			'jetpack_videopress_bi_yearly',
 		);
+	}
+
+	/**
+	 * Return product bundles list
+	 * that supports the product.
+	 *
+	 * @return boolean|array Products bundle list.
+	 */
+	public static function is_upgradable_by_bundle() {
+		return array( 'complete' );
 	}
 }

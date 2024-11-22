@@ -2,6 +2,17 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [0.61.0] - 2024-11-18
+### Added
+- Gridicon Component: Add support for help-outline icon. [#39867]
+
+## [0.60.0] - 2024-11-14
+### Added
+- Adds tooltips for each ThreatFixerButton state [#40111]
+
+### Fixed
+- Fixes the loading placeholder that didn't disappear when the price loads. [#40157]
+
 ## [0.59.0] - 2024-11-11
 ### Added
 - Add ThreatsDataViews component [#39754]
@@ -10,9 +21,7 @@
 
 ### Changed
 - Add ToggleGroupControl to ThreatsDataViews for easily toggling between Active and Historical threats [#39901]
-- Updated package dependencies. [#39999]
-- Updated package dependencies. [#40000]
-- Updated package dependencies. [#40060]
+- Updated package dependencies. [#39999] [#40000] [#40060]
 
 ## [0.58.1] - 2024-11-04
 ### Added
@@ -182,9 +191,7 @@
 - Social | Wired up confirmation UI with connect button [#37295]
 
 ### Changed
-- Updated package dependencies. [#37379]
-- Updated package dependencies. [#37380]
-- Updated package dependencies. [#37382]
+- Updated package dependencies. [#37379] [#37380] [#37382]
 
 ## [0.53.2] - 2024-05-13
 ### Added
@@ -409,8 +416,7 @@
 
 ## [0.42.1] - 2023-09-04
 ### Changed
-- Updated package dependencies. [#32803]
-- Updated package dependencies. [#32804]
+- Updated package dependencies. [#32803] [#32804]
 
 ## [0.42.0] - 2023-09-01
 ### Added
@@ -460,8 +466,7 @@
 ## [0.40.1] - 2023-07-05
 ### Changed
 - Adjust component pricing slider border and box-shadow styling. [#31593]
-- Updated package dependencies. [#31659]
-- Updated package dependencies. [#31661]
+- Updated package dependencies. [#31659] [#31661]
 - Update storybook mdx to use `@storybook/blocks` directly rather than `@storybook/addon-docs`. [#31607]
 
 ### Fixed
@@ -739,8 +744,7 @@
 - Fix ProductPrice layout for long prices [#26595]
 - IconTooltip: Use click instead of mouseover for summoning [#26457]
 - Refactor props for structure consistency with JetpackLogo component. [#26510]
-- Updated package dependencies. [#26568]
-- Updated package dependencies. [#26583]
+- Updated package dependencies. [#26568] [#26583]
 
 ### Fixed
 - Components: fix the positio of TOS component of the PricingTable cmp [#26509]
@@ -1214,6 +1218,8 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[0.61.0]: https://github.com/Automattic/jetpack-components/compare/0.60.0...0.61.0
+[0.60.0]: https://github.com/Automattic/jetpack-components/compare/0.59.0...0.60.0
 [0.59.0]: https://github.com/Automattic/jetpack-components/compare/0.58.1...0.59.0
 [0.58.1]: https://github.com/Automattic/jetpack-components/compare/0.58.0...0.58.1
 [0.58.0]: https://github.com/Automattic/jetpack-components/compare/0.57.0...0.58.0
