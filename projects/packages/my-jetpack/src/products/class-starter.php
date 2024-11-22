@@ -155,6 +155,26 @@ class Starter extends Module_Product {
 	}
 
 	/**
+	 * Checks whether the current plan (or purchases) of the site already supports the product
+	 *
+	 * @return boolean
+	 */
+	public static function has_required_plan() {
+		$purchases_data = Wpcom_Products::get_site_current_purchases();
+		if ( is_wp_error( $purchases_data ) ) {
+			return false;
+		}
+		if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
+			foreach ( $purchases_data as $purchase ) {
+				if ( str_starts_with( $purchase->product_slug, 'jetpack_starter' ) ) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	/**
 	 * Get the product-slugs of the paid plans for this product.
 	 * (Do not include bundle plans, unless it's a bundle plan itself).
 	 *
