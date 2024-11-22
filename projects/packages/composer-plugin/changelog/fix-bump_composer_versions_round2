@@ -1,4 +1,4 @@
-Significance: patch
-Type: changed
+Significance: major
+Type: removed
 
-Updated dependencies.
+Drop support for Composer <2.2.
