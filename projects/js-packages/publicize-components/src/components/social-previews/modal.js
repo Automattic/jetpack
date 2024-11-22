@@ -16,10 +16,6 @@ const SocialPreviewsModal = function SocialPreviewsModal( { onClose, initialTabN
 	const availableServices = useAvailableSerivces();
 	const { image, media, title, description, url, excerpt } = usePostData();
 
-	const decodedTitle = decodeEntities( title );
-	const decodedDescription = decodeEntities( description );
-	const decodedExcerpt = decodeEntities( excerpt );
-
 	return (
 		<Modal
 			onRequestClose={ onClose }
@@ -41,9 +37,9 @@ const SocialPreviewsModal = function SocialPreviewsModal( { onClose, initialTabN
 					<div>
 						<tab.preview
 							// pass only the props that are common to all previews
-							excerpt={ decodedExcerpt }
-							title={ decodedTitle }
-							description={ decodedDescription }
+							excerpt={ decodeEntities( excerpt ) }
+							title={ decodeEntities( title ) }
+							description={ decodeEntities( description ) }
 							url={ url }
 							image={ image }
 							media={ media }
