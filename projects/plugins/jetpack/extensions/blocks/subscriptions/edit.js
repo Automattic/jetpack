@@ -5,6 +5,7 @@ import {
 	RichText,
 	withColors,
 	withFontSizes,
+	useBlockProps,
 	__experimentalUseGradient as useGradient, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/block-editor';
 import { TextControl, Toolbar, withFallbackStyles } from '@wordpress/components';
@@ -70,6 +71,7 @@ export function SubscriptionEdit( props ) {
 		hasTierPlans,
 	} = props;
 
+	const blockProps = useBlockProps();
 	const validatedAttributes = getValidatedAttributes( metadata.attributes, attributes );
 	if ( ! isEqual( validatedAttributes, attributes ) ) {
 		setAttributes( validatedAttributes );
@@ -211,7 +213,16 @@ export function SubscriptionEdit( props ) {
 	}, [ buttonBackgroundColor, previousButtonBackgroundColor, borderColor, setBorderColor ] );
 
 	return (
-		<>
+		<div
+			{ ...blockProps }
+			className={ clsx(
+				blockProps.className,
+				'wp-block-jetpack-subscriptions__container',
+				'wp-block-jetpack-subscriptions__supports-newline',
+				buttonOnNewLine ? 'wp-block-jetpack-subscriptions__use-newline' : undefined,
+				showSubscribersTotal ? 'wp-block-jetpack-subscriptions__show-subs' : undefined
+			) }
+		>
 			<InspectorControls>
 				<SubscriptionControls
 					buttonBackgroundColor={ buttonBackgroundColor }
@@ -281,7 +292,7 @@ export function SubscriptionEdit( props ) {
 					<div className="wp-block-jetpack-subscriptions__subscount">{ subscriberCountString }</div>
 				) }
 			</div>
-		</>
+		</div>
 	);
 }
 
