@@ -83,6 +83,8 @@ class Cornerstone_Provider extends Provider {
 			$url = substr( $url, strlen( $home_url ) );
 		}
 
+		$url = untrailingslashit( $url );
+
 		$hash = hash( 'md5', $url );
 
 		return substr( $hash, 0, 8 );
