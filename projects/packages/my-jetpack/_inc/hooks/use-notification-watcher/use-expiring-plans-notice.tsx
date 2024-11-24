@@ -75,14 +75,15 @@ const useExpiringPlansNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 			return;
 		}
 
+		const resumePlanText = __( 'Resume my plan', 'jetpack-my-jetpack' );
+		const renewPlanText = __( 'Renew my plan', 'jetpack-my-jetpack' );
+
 		const noticeOptions: NoticeOptions = {
 			id: isExpiredAlert ? 'plan-expired-notice' : 'plan-expiring-soon-notice',
 			level: isExpiredAlert ? 'error' : 'warning',
 			actions: [
 				{
-					label: isExpiredAlert
-						? __( 'Resume my plan', 'jetpack-my-jetpack' )
-						: __( 'Renew my plan', 'jetpack-my-jetpack' ),
+					label: isExpiredAlert ? resumePlanText : renewPlanText,
 					onClick: onPrimaryCtaClick,
 					noDefaultClasses: true,
 				},
