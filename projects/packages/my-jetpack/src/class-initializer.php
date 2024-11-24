@@ -981,6 +981,7 @@ class Initializer {
 	public static function alert_if_paid_plan_expiring( array $red_bubble_slugs ) {
 		$product_classes = Products::get_products_classes();
 
+		$products_included_in_expiring_plan = array();
 		foreach ( $product_classes as $product ) {
 			if ( $product::has_paid_plan_for_product() ) {
 				$purchase = $product::get_paid_plan_purchase_for_product();
@@ -995,12 +996,21 @@ class Initializer {
 
 					if ( $purchase->expiry_status === Products::STATUS_EXPIRED ) {
 						$red_bubble_slugs[ "$purchase->product_slug--plan_expired" ] = $redbubble_notice_data;
+						if ( ! $product::is_bundle_product() ) {
+							$products_included_in_expiring_plan[ "$purchase->product_slug--plan_expired" ][] = $product::get_name();
+						}
 					}
 					if ( $purchase->expiry_status === Products::STATUS_EXPIRING_SOON ) {
 						$red_bubble_slugs[ "$purchase->product_slug--plan_expiring_soon" ] = $redbubble_notice_data;
+						if ( ! $product::is_bundle_product() ) {
+							$products_included_in_expiring_plan[ "$purchase->product_slug--plan_expiring_soon" ][] = $product::get_name();
+						}
 					}
 				}
 			}
+		}
+		foreach ( $products_included_in_expiring_plan as $expiring_plan => $products ) {
+			$red_bubble_slugs[ $expiring_plan ]['products_effected'] = $products;
 		}
 
 		return $red_bubble_slugs;

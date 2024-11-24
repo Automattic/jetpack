@@ -2,8 +2,7 @@ import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-
 import useBadInstallNotice from './use-bad-install-notice';
 import useConnectionErrorsNotice from './use-connection-errors-notice';
 import useDeprecateFeatureNotice from './use-deprecate-feature-notice';
-import useExpiredPlansNotice from './use-expired-plans-notice';
-import useExpiringSoonPlansNotice from './use-expiring-soon-plans-notice';
+import useExpiringPlansNotice from './use-expiring-plans-notice';
 import useSiteConnectionNotice from './use-site-connection-notice';
 
 const useNotificationWatcher = () => {
@@ -13,8 +12,7 @@ const useNotificationWatcher = () => {
 	useSiteConnectionNotice( redBubbleAlerts );
 	useConnectionErrorsNotice();
 	useDeprecateFeatureNotice( redBubbleAlerts );
-	useExpiredPlansNotice( redBubbleAlerts );
-	useExpiringSoonPlansNotice( redBubbleAlerts );
+	useExpiringPlansNotice( redBubbleAlerts );
 };
 
 export default useNotificationWatcher;
