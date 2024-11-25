@@ -5,7 +5,7 @@ Tags: performance, speed, web vitals, critical css, cache
 Requires at least: 6.6
 Tested up to: 6.7
 Requires PHP: 7.2
-Stable tag: 3.5.2
+Stable tag: 3.6.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -183,7 +183,7 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 3.6.0-beta2 - 2024-11-20
+### 3.6.0 - 2024-11-22
 #### Added
 - Cornerstone Pages: Added setting to allow selecting important pages.
 

@@ -147,14 +147,20 @@ class Publicize_Script_Data {
 
 		$is_wpcom = ( new Host() )->is_wpcom_platform();
 
+		$post = get_post();
+
+		$share_status = array();
+
+		if ( Utils::should_block_editor_have_social() && $post ) {
+			$share_status[ $post->ID ] = self::publicize()->get_post_share_status( $post->ID );
+		}
+
 		return array(
 			'connectionData' => array(
 				// We do not have this method on WPCOM Publicize class yet.
 				'connections' => ! $is_wpcom ? self::publicize()->get_all_connections_for_user() : array(),
 			),
-			'shareStatus'    => array(
-				// Here goes the share status data for posts with key as post ID.
-			),
+			'shareStatus'    => $share_status,
 		);
 	}
 
