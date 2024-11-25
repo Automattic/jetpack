@@ -53,6 +53,7 @@ class AddCommandTest extends CommandTestCase {
 			array(
 				'mustRun' => true,
 				'env'     => array(
+					'GIT_CONFIG_GLOBAL'   => '/dev/null',
 					'GIT_AUTHOR_NAME'     => 'Dummy',
 					'GIT_AUTHOR_EMAIL'    => 'dummy@example.com',
 					'GIT_COMMITTER_NAME'  => 'Dummy',
@@ -163,7 +164,7 @@ class AddCommandTest extends CommandTestCase {
 	/**
 	 * Data provider for testExecute.
 	 */
-	public function provideExecute() {
+	public static function provideExecute() {
 		$composerWithTypes   = array(
 			'extra' => array(
 				'changelogger' => array(

@@ -2,6 +2,34 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 14.1-a.5 - 2024-11-25
+### Major Enhancements
+- Social: Added permissions warning for LinkedIn connections. [#40220]
+
+### Enhancements
+- Google Photos Picker: Adding Google Photos Picker flow backend API endpoints support. [#40242]
+- Google Photos Picker: Update Google Photos external media to support Google Photos Picker API. [#40087]
+- Social: Post share status in the editor is now immediately available on page load. [#40301]
+
+### Bug fixes
+- AI Assistant: Fix bug with error message when user is not over requests limit. [#40235]
+- Forms: Prevent duplicate Salesforce entry submissions. [#40126]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Dashboard: Replace Creator recommendation with Growth. [#40212]
+- Docs: Update lists of social networks supported by Publicize, to include all the newer networks. [#40248]
+- Jetpack AI: Enable transform list to table functionality for all. [#40287]
+- Jetpack AI: Image generator modals now properly enable prompt input separately from action button. [#40210]
+- Jetpack AI: Increase response cache TTL, add error response caching and increase request timeout. [#40171]
+- Jetpack AI: Moving transform list to table prompt to backend. [#40237]
+- Jetpack AI: Use the right feature control to pick the styles from. [#40265]
+- General: Added to-test changes for Jetpack 14.1. [#40331]
+- General: Fixed TS errors following @wordpress/editor update. [#40291]
+- Newsletter: Update form labels for welcome message in Settings. [#40254]
+- Updated dependencies. [#40286]
+- Updated package dependencies. [#40232] [#40288]
+- Update feature for stats in growth to 10K instead of 100K. [#40312]
+
 ## 14.1-a.3 - 2024-11-18
 ### Major Enhancements
 - General: Update minimum PHP version to 7.2. [#40147]

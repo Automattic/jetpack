@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.1] - 2024-11-25
+### Changed
+- Updated dependencies. [#40286]
+- Updated package dependencies. [#40288]
+
 ## [0.7.0] - 2024-11-18
 ### Removed
 - General: Update minimum PHP version to 7.2. [#40147]
@@ -150,6 +155,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Add wordpress folder on gitignore. [#37177]
 
+[0.7.1]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.7.0...v0.7.1
 [0.7.0]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.6.7...v0.7.0
 [0.6.7]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.6.6...v0.6.7
 [0.6.6]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.6.5...v0.6.6

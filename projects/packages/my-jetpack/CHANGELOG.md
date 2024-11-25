@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.0.2] - 2024-11-25
+### Added
+- Add bundles to recommendations and add interstitials for them [#40281]
+- Add growth upsell to Stats and Social interstitials [#40236]
+
+### Changed
+- Notices: do not display the Jetpack Manage banners for accounts enrolled into our agency program. [#40251]
+- Remove creator card and update paid plan checks to account for growth [#40192]
+- Updated dependencies. [#40286]
+- Updated feature for stats in growth to 10K instead of 100K [#40312]
+- Updated package dependencies. [#40288]
+
 ## [5.0.1] - 2024-11-18
 ### Changed
 - Update dependencies. [#38910]
@@ -1812,6 +1824,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[5.0.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.0.1...5.0.2
 [5.0.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.0.0...5.0.1
 [5.0.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.37.0...5.0.0
 [4.37.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.36.0...4.37.0
