@@ -9,7 +9,6 @@ namespace Automattic\Jetpack\Publicize;
 
 use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Modules;
-use Automattic\Jetpack\Status\Host;
 
 /**
  * Publicize_Utils class.
@@ -50,13 +49,7 @@ class Publicize_Utils {
 			return false;
 		}
 
-		$needs_jetpack_connection = ! ( new Host() )->is_wpcom_platform();
-
-		if ( $needs_jetpack_connection && ! self::is_connected() ) {
-			return false;
-		}
-
-		if ( ! self::is_publicize_active() ) {
+		if ( ! self::is_connected() || ! self::is_publicize_active() ) {
 			return false;
 		}
 
