@@ -5,6 +5,7 @@
 	max-width: fit-content;
 	display: flex;
 	align-items: center;
+	padding-left: calc( var( --spacing-base ) / 4 ); // 2px
 
 	.threat__title__link {
 		text-decoration: none;
