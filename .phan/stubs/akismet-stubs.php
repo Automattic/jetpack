@@ -1,11 +1,16 @@
 <?php
 /**
- * Stubs automatically generated from Akismet 5.3.3
+ * Stubs automatically generated from Akismet 5.3.5
  * using the definition file `tools/stubs/akismet-stub-defs.php` in the Jetpack monorepo.
  *
  * Do not edit this directly! Run tools/stubs/update-stubs.sh to regenerate it.
  */
 
+// We plan to gradually remove all of the disabled lint rules below.
+// phpcs:disable WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+// phpcs:disable WordPress.Security.NonceVerification.Missing
+// phpcs:disable Squiz.PHP.DisallowMultipleAssignments.FoundInControlStructure
 class Akismet
 {
     public static function get_api_key()
@@ -43,6 +48,12 @@ class Akismet
     {
     }
 }
+// We plan to gradually remove all of the disabled lint rules below.
+// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotValidated
+// phpcs:disable WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+// phpcs:disable Squiz.PHP.DisallowMultipleAssignments.FoundInControlStructure
+// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
 class Akismet_Admin
 {
     public static function admin_menu()

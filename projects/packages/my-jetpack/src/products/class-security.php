@@ -36,7 +36,7 @@ class Security extends Module_Product {
 	 * @return string
 	 */
 	public static function get_name() {
-		return 'Security';
+		return 'Security Bundle';
 	}
 
 	/**

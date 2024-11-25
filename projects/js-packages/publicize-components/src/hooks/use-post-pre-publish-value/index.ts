@@ -13,11 +13,7 @@ import { useEffect, useRef, useState } from '@wordpress/element';
  * @return {V} The preserved value.
  */
 export function usePostPrePublishValue< V >( value: V ) {
-	const isPublishing = useSelect(
-		// @ts-expect-error -- `@wordpress/editor` is a nightmare to work with TypeScript
-		select => select( editorStore ).isPublishingPost(),
-		[]
-	);
+	const isPublishing = useSelect( select => select( editorStore ).isPublishingPost(), [] );
 
 	const [ currentValue, setCurrentValue ] = useState( value );
 

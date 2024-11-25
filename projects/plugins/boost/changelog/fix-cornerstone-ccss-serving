@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Fixed cornerstone specific critical CSS not serving in some cases
+
+

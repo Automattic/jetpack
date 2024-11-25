@@ -14,7 +14,7 @@
 	"require-dev": {
 		"yoast/phpunit-polyfills": "^1.1.1",
 		"automattic/jetpack-changelogger": "@dev",
-		"automattic/wordbless": "@dev",
+		"automattic/wordbless": "^0.4.2",
 		"brain/monkey": "^2.6.2"
 	},
 	"suggest": {
