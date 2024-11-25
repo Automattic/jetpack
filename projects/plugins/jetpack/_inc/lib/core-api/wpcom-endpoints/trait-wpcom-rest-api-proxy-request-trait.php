@@ -27,6 +27,7 @@ trait WPCOM_REST_API_Proxy_Request_Trait {
 		$blog_id      = \Jetpack_Options::get_option( 'id' );
 		$path         = '/sites/' . rawurldecode( $blog_id ) . '/' . rawurldecode( ltrim( $this->rest_base, '/' ) ) . ( $path ? '/' . rawurldecode( ltrim( $path, '/' ) ) : '' );
 		$query_params = $request->get_query_params();
+		$manager      = new Manager();
 
 		/*
 		 * A rest_route parameter can be added when using plain permalinks.
@@ -57,7 +58,7 @@ trait WPCOM_REST_API_Proxy_Request_Trait {
 		);
 
 		if ( 'user' === $context ) {
-			if ( ! ( new Manager() )->is_user_connected() ) {
+			if ( ! $manager->is_user_connected() ) {
 				if ( false === $allow_fallback_to_blog ) {
 					return $response;
 				}
@@ -69,7 +70,7 @@ trait WPCOM_REST_API_Proxy_Request_Trait {
 		}
 
 		if ( 'blog' === $context ) {
-			if ( ! ( new Manager() )->is_connected() ) {
+			if ( ! $manager->is_connected() ) {
 				return $response;
 			}
 
