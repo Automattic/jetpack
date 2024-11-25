@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Jetpack AI: increase response cache TTL, add error response caching and increase request timeout
