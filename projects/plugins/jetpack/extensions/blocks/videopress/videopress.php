@@ -10,6 +10,7 @@
 namespace Automattic\Jetpack\Extensions\VideoPress;
 
 use Automattic\Jetpack\Blocks;
+use Automattic\Jetpack\Modules;
 use Jetpack_Gutenberg;
 
 const FEATURE_NAME   = 'videopress-block';
@@ -22,6 +23,15 @@ const BLOCK_NAME     = 'jetpack/' . FEATURE_NAME;
  * registration if we need to.
  */
 function register_block() {
+	/*
+	 * The block is available even when the module is not active,
+	 * so we can display a nudge to activate the module instead of the block.
+	 * However, since non-admins cannot activate modules, we do not display the empty block for them.
+	 */
+	if ( ! ( new Modules() )->is_active( 'videopress' ) && ! current_user_can( 'jetpack_activate_modules' ) ) {
+		return;
+	}
+
 	Blocks::jetpack_register_block(
 		BLOCK_NAME,
 		array( 'render_callback' => __NAMESPACE__ . '\load_assets' )
@@ -38,6 +48,11 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  * @return string
  */
 function load_assets( $attrs, $content ) {
+	// Do not render the block if the module is not active.
+	if ( ! ( new Modules() )->is_active( 'videopress' ) ) {
+		return '';
+	}
+
 	Jetpack_Gutenberg::load_assets_as_required( FEATURE_FOLDER );
 	return $content;
 }
