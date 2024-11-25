@@ -1,0 +1,4 @@
+Significance: major
+Type: major
+
+Use fields as stored on entry (post type feedback). Breaks normalization. Allows named fields. Honors field order as in editor/frontend.
