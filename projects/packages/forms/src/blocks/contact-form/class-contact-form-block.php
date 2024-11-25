@@ -11,7 +11,7 @@ use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin;
-use Jetpack;
+use Automattic\Jetpack\Modules;
 
 /**
  * Contact Form block render callback.
@@ -24,6 +24,15 @@ class Contact_Form_Block {
 	 * and enable plugin in one click
 	 */
 	public static function register_block() {
+		/*
+		 * The block is available even when the module is not active,
+		 * so we can display a nudge to activate the module instead of the block.
+		 * However, since non-admins cannot activate modules, we do not display the empty block for them.
+		 */
+		if ( ! ( new Modules() )->is_active( 'contact-form' ) && ! current_user_can( 'jetpack_activate_modules' ) ) {
+			return;
+		}
+
 		Blocks::jetpack_register_block(
 			'jetpack/contact-form',
 			array(
@@ -134,7 +143,7 @@ class Contact_Form_Block {
 	 */
 	public static function gutenblock_render_form( $atts, $content ) {
 		// We should not render block is module is disabled
-		if ( ! Jetpack::is_module_active( 'contact-form' ) ) {
+		if ( ! ( new Modules() )->is_active( 'contact-form' ) ) {
 			return '';
 		}
 		// Render fallback in other contexts than frontend (i.e. feed, emails, API, etc.), unless the form is being submitted.
