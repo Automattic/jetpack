@@ -179,6 +179,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		// $this->body and $this->fields have been setup.  We no longer need the contact-field shortcode.
 		Contact_Form_Plugin::$using_contact_form_field = false;
+
+		// this filter is only to be used on submit, so the values can be extracted and saved on the feedback
+		add_filter( 'jetpack_contact_form_hidden_fields', array( $this, 'hidden_fields_filter' ) );
 	}
 
 	/**
@@ -1351,6 +1354,12 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$extra_values[ $ev_key ] = Contact_Form_Plugin::strip_tags( $ev_value );
 		}
 
+		/**
+		 * HIDDEN FIELDS
+		 * Use jetpack_contact_form_hidden_fields filter
+		 */
+		$all_values = apply_filters( 'jetpack_contact_form_hidden_fields', $all_values );
+
 		/*
 		 * We need to make sure that the post author is always zero for contact
 		 * form submissions.  This prevents export/import from trying to create
@@ -1802,5 +1811,59 @@ class Contact_Form extends Contact_Form_Shortcode {
 			return '';
 		}
 		return $align_to_class_map[ $attributes['align'] ];
+	}
+
+	/**
+	 * Extract hidden fields from contact-form blocks
+	 */
+	public function hidden_fields_filter( $fields ) {
+		$content = get_the_content();
+		if ( ! has_block( 'jetpack/contact-form', $content ) ) {
+			return $fields;
+		}
+
+		$form_blocks = $this->get_jetpack_form_blocks_with_hidden_fields( parse_blocks( $content ) );
+
+		// If there's more than one form block on the page we can't tell
+		// which one is being submitted, abort.
+		// TODO: solve it or inform the user about this limitation!
+		if ( count( $form_blocks ) !== 1 ) {
+			return $fields;
+		}
+
+		$hidden_fields = array();
+
+		foreach ( $form_blocks[0]['attrs']['hiddenFields'] as $hidden_field ) {
+			if ( empty( $hidden_field['name'] ) ) {
+				continue;
+			}
+
+			// we could even be more strict here, like a preg_replace for non [a-zA-Z0-9]_- characters on field names
+			$hidden_fields[ Contact_Form_Plugin::strip_tags( $hidden_field['name'] ) ] = Contact_Form_Plugin::strip_tags( $hidden_field['value'] );
+		}
+
+		// Original/non-hidden fields have priority, shouldn't overwrite with hidden fields.
+		return $fields + $hidden_fields;
+	}
+
+	/**
+	 * Filter a blocks array in search of jetpack/contact-form blocks.
+	 */
+	public function get_jetpack_form_blocks_with_hidden_fields( $block_array ) {
+		$form_blocks = array();
+
+		foreach ( $block_array as $block ) {
+			if (
+				$block['blockName'] === 'jetpack/contact-form' &&
+				isset( $block['attrs']['hiddenFields'] ) &&
+				! empty( $block['attrs']['hiddenFields'] )
+			) {
+				$form_blocks[] = $block;
+			} elseif ( isset( $block['innerBlocks'] ) ) {
+				$form_blocks = array_merge( $form_blocks, $this->get_jetpack_form_blocks_with_hidden_fields( $block['innerBlocks'] ) );
+			}
+		}
+
+		return $form_blocks;
 	}
 }

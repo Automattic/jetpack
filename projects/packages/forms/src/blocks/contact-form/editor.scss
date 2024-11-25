@@ -458,7 +458,7 @@
 			margin: 0 5px 0 0;
 		}
 	}
-	
+
 	.jetpack-field-option.field-option-checkbox,
 	.jetpack-field-option.field-option-radio,
 	.wp-block-jetpack-field-option-checkbox,
@@ -969,4 +969,10 @@
 
 .block-editor-block-inspector .components-base-control .components-base-control:last-child {
 	margin-bottom: 0;
+}
+
+.jetpack-contact-form__hidden-fields-panel {
+	& .components-base-control {
+		margin-bottom: 0;
+	}
 }
