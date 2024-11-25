@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Bump minimum PHP version from implicitly-7.2.0 to 7.2.5.

@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Sync Checksums: Refactor checksum logic to allow 'jetpack_sync_checksum_allowed_tables' filter to work with audits
+
+

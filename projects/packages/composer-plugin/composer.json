@@ -11,10 +11,10 @@
 	],
 	"require": {
 		"php": ">=7.2",
-		"composer-plugin-api": "^2.1.0"
+		"composer-plugin-api": "^2.2"
 	},
 	"require-dev": {
-		"composer/composer": "^2.2 || ^2.4",
+		"composer/composer": "^2.2",
 		"yoast/phpunit-polyfills": "^1.1.1",
 		"automattic/jetpack-changelogger": "@dev"
 	},

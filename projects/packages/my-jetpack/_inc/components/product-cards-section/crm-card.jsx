@@ -7,7 +7,7 @@ const CrmCard = props => {
 };
 
 CrmCard.propTypes = {
-	admin: PropTypes.bool.isRequired,
+	admin: PropTypes.bool,
 };
 
 export default CrmCard;

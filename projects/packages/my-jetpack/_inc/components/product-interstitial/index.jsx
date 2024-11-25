@@ -29,9 +29,12 @@ import GoBackLink from '../go-back-link';
 import ProductDetailCard from '../product-detail-card';
 import ProductDetailTable from '../product-detail-table';
 import boostImage from './boost.png';
+import completeImage from './complete.png';
 import crmImage from './crm.png';
 import extrasImage from './extras.png';
 import searchImage from './search.png';
+import securityImage from './security.png';
+import statsImage from './stats.png';
 import styles from './style.module.scss';
 import videoPressImage from './videopress.png';
 
@@ -283,6 +286,7 @@ export default function ProductInterstitial( {
 										highlightLastFeature={ highlightLastFeature }
 										isFetching={ isActivating }
 										isFetchingSuccess={ isSuccess }
+										isUpsell={ true }
 									/>
 								) : (
 									children
@@ -464,6 +468,45 @@ export function VideoPressInterstitial() {
 	return (
 		<ProductInterstitial slug="videopress" installsPlugin={ true }>
 			<img src={ videoPressImage } alt="VideoPress" />
+		</ProductInterstitial>
+	);
+}
+
+/**
+ * SecurityInterstitial component
+ *
+ * @return {object} SecurityInterstitial react component.
+ */
+export function SecurityInterstitial() {
+	return (
+		<ProductInterstitial slug="security" installsPlugin={ true }>
+			<img src={ securityImage } alt="Security" />
+		</ProductInterstitial>
+	);
+}
+
+/**
+ * GrowthInterstitial component
+ *
+ * @return {object} GrowthInterstitial react component.
+ */
+export function GrowthInterstitial() {
+	return (
+		<ProductInterstitial slug="growth" installsPlugin={ true }>
+			<img src={ statsImage } alt="Growth" />
+		</ProductInterstitial>
+	);
+}
+
+/**
+ * CompleteInterstitial component
+ *
+ * @return {object} CompleteInterstitial react component.
+ */
+export function CompleteInterstitial() {
+	return (
+		<ProductInterstitial slug="complete" installsPlugin={ true }>
+			<img src={ completeImage } alt="Complete" />
 		</ProductInterstitial>
 	);
 }
