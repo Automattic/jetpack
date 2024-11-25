@@ -7,7 +7,7 @@
 
 namespace Automattic\Jetpack\VideoPress;
 
-use Jetpack;
+use Automattic\Jetpack\Modules;
 
 /**
  * The class that provides information about VideoPress Status
@@ -38,7 +38,19 @@ class Status {
 	 * @return boolean
 	 */
 	public static function is_jetpack_plugin_and_videopress_module_active() {
-		return class_exists( 'Jetpack' ) && Jetpack::is_module_active( 'videopress' );
+		return class_exists( 'Jetpack' ) && ( new Modules() )->is_active( 'videopress' );
+	}
+
+	/**
+	 * Checks whether the Jetpack plugin is active
+	 * but the VideoPress module is not active.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return boolean
+	 */
+	public static function is_jetpack_plugin_without_videopress_module_active() {
+		return class_exists( 'Jetpack' ) && ! ( new Modules() )->is_active( 'videopress' );
 	}
 
 	/**
