@@ -35,7 +35,7 @@ const ThreatTechnicalDetails = (): JSX.Element => {
 					aria-controls={ `threat-details-${ threat.id }` }
 					onClick={ toggleOpen }
 				>
-					<div className={ styles.section__toggle_content }>
+					<div className={ styles.section__toggle__content }>
 						<Text variant="title-small" mb={ 0 }>
 							{ open
 								? __( 'Hide the technical details', 'jetpack' )
