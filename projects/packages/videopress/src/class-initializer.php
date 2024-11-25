@@ -349,7 +349,6 @@ class Initializer {
 			&& ! Status::is_standalone_plugin_active()
 			&& ! current_user_can( 'jetpack_activate_modules' )
 		) {
-			l( 'we are here' );
 			return;
 		}
 
