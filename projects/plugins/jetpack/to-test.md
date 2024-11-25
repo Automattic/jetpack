@@ -34,7 +34,7 @@ Note: The images on the interstitials may be updated in the future, they've not 
 
 #### Bundle recommendations (including Growth) 
  
-On a new testing site, connect your account via the welcome banner in My Jetpack. Fill out the survey with the options with Grow my audience and Create quality content. You should see the Growth bundle as the first recommendation.
+On a new testing site, connect your account via the welcome banner in My Jetpack. Fill out the survey with the options "Grow my audience" and "Create quality content". You should see the Growth bundle as the first recommendation.
 
 - Ensure the Purchase and Learn More CTAs work correctly.
 - If you'd like, you can also play around with the survey to test the Complete and Security bundles too.
