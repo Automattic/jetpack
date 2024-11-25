@@ -3,8 +3,7 @@ import { useContext, useEffect, useCallback } from 'react';
 import { NOTICE_PRIORITY_MEDIUM } from '../../context/constants';
 import { NoticeContext } from '../../context/notices/noticeContext';
 import useAnalytics from '../use-analytics';
-import { useGetExpiredNoticeContent } from './use-get-expired-notice-content';
-import { useGetExpiringSoonNoticeContent } from './use-get-expiring-soon-notice-content';
+import { useGetExpiringNoticeContent } from './use-get-expiring-notice-content';
 import type { NoticeOptions } from '../../context/notices/types';
 
 type RedBubbleAlerts = Window[ 'myJetpackInitialState' ][ 'redBubbleAlerts' ];
@@ -26,49 +25,47 @@ const useExpiringPlansNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 	// i.e.- Display 'expired' alert if there is one, otherwise display 'expiring soon' alert.
 	const alertToDisplay = expiredAlerts.length ? expiredAlerts[ 0 ] : expiringSoonAlerts[ 0 ];
 	const isExpiredAlert = alertToDisplay.endsWith( '--plan_expired' );
-
-	const { product_slug, product_name, expiry_date, manage_url, products_effected } =
-		redBubbleAlerts[ alertToDisplay ] || {};
+	const expiredAlertType = isExpiredAlert ? 'expired' : 'expiring-soon';
 
 	const {
-		noticeTitle: expiredTitle,
-		noticeMessage: expiredMessage,
-		learnMoreUrl: expiredLearnMoreUrl,
-	} = useGetExpiredNoticeContent( { product_slug, product_name, expiry_date, products_effected } );
-	const {
-		noticeTitle: expiringTitle,
-		noticeMessage: expiringMessage,
-		learnMoreUrl: expiringLearnMoreUrl,
-	} = useGetExpiringSoonNoticeContent( {
-		product_slug,
-		product_name,
-		expiry_date,
-		products_effected,
+		product_slug: productSlug,
+		product_name: productName,
+		expiry_date: expiryDate,
+		manage_url: manageUrl,
+		products_effected: productsEffected,
+	} = redBubbleAlerts[ alertToDisplay ] || {};
+
+	const { noticeTitle, noticeMessage, learnMoreUrl } = useGetExpiringNoticeContent( {
+		productSlug,
+		expiredAlertType,
+		productName,
+		expiryDate,
+		productsEffected,
 	} );
 
 	const onPrimaryCtaClick = useCallback( () => {
-		window.open( manage_url );
+		window.open( manageUrl );
 		recordEvent(
 			isExpiredAlert
 				? 'jetpack_my_jetpack_plan_expired_notice_primary_cta_click'
 				: 'jetpack_my_jetpack_plan_expiring_soon_notice_primary_cta_click',
 			{
-				product_slug,
+				product_slug: productSlug,
 			}
 		);
-	}, [ isExpiredAlert, manage_url, product_slug, recordEvent ] );
+	}, [ isExpiredAlert, manageUrl, productSlug, recordEvent ] );
 
 	const onSecondaryCtaClick = useCallback( () => {
-		window.open( isExpiredAlert ? expiredLearnMoreUrl : expiringLearnMoreUrl );
+		window.open( learnMoreUrl );
 		recordEvent(
 			isExpiredAlert
 				? 'jetpack_my_jetpack_plan_expired_notice_secondary_cta_click'
 				: 'jetpack_my_jetpack_plan_expiring_soon_notice_secondary_cta_click',
 			{
-				product_slug,
+				product_slug: productSlug,
 			}
 		);
-	}, [ expiredLearnMoreUrl, expiringLearnMoreUrl, isExpiredAlert, product_slug, recordEvent ] );
+	}, [ learnMoreUrl, isExpiredAlert, productSlug, recordEvent ] );
 
 	useEffect( () => {
 		if ( ! alertToDisplay ) {
@@ -97,8 +94,8 @@ const useExpiringPlansNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 		};
 
 		setNotice( {
-			title: isExpiredAlert ? expiredTitle : expiringTitle,
-			message: isExpiredAlert ? expiredMessage : expiringMessage,
+			title: noticeTitle,
+			message: noticeMessage,
 			options: noticeOptions,
 		} );
 	}, [
@@ -108,10 +105,8 @@ const useExpiringPlansNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 		alertToDisplay,
 		onPrimaryCtaClick,
 		onSecondaryCtaClick,
-		expiredTitle,
-		expiringTitle,
-		expiredMessage,
-		expiringMessage,
+		noticeTitle,
+		noticeMessage,
 		isExpiredAlert,
 	] );
 };

@@ -982,7 +982,12 @@ class Initializer {
 		$product_classes = Products::get_products_classes();
 
 		$products_included_in_expiring_plan = array();
-		foreach ( $product_classes as $product ) {
+		foreach ( $product_classes as $key => $product ) {
+			// Skip these- we don't show them in My Jetpack.
+			if ( 'scan' === $key || 'extras' === $key ) {
+				continue;
+			}
+
 			if ( $product::has_paid_plan_for_product() ) {
 				$purchase = $product::get_paid_plan_purchase_for_product();
 				if ( $purchase ) {
@@ -1009,6 +1014,7 @@ class Initializer {
 				}
 			}
 		}
+
 		foreach ( $products_included_in_expiring_plan as $expiring_plan => $products ) {
 			$red_bubble_slugs[ $expiring_plan ]['products_effected'] = $products;
 		}
