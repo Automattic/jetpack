@@ -1750,7 +1750,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/videopress",
-                "reference": "f3f2453671e1f9f6befd93a8204556d1f0eb5dff"
+                "reference": "0e77d9aeb297a774bb9f4bbdc7555ae9b7f7a49c"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -1758,6 +1758,7 @@
                 "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-my-jetpack": "@dev",
                 "automattic/jetpack-plans": "@dev",
+                "automattic/jetpack-status": "@dev",
                 "php": ">=7.2"
             },
             "require-dev": {
