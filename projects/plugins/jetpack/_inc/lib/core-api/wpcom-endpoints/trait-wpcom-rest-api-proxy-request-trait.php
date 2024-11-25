@@ -18,7 +18,7 @@ trait WPCOM_REST_API_Proxy_Request_Trait {
 	 *
 	 * @param WP_Rest_Request $request Request to proxy.
 	 * @param string          $path Path to append to the rest base.
-	 * @param string          $context Whether the request should be proxied on behalf of the current user or using the Site-lecl Connection, aka 'blog' token. Can be Either 'user' or 'blog'. Defaults to 'user'.
+	 * @param string          $context Whether the request should be proxied on behalf of the current user or using the Site-level Connection, aka 'blog' token. Can be Either 'user' or 'blog'. Defaults to 'user'.
 	 * @param bool            $allow_fallback_to_blog If the $context is 'user', whether we should fallback to using the Site-level Connection in case the current user is not connected.
 	 *
 	 * @return mixed|WP_Error           Response from wpcom servers or an error.
