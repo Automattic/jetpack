@@ -266,15 +266,17 @@ export default function ThreatsDataViews( {
 				enableGlobalSearch: true,
 				enableHiding: false,
 				render: ( { item }: { item: Threat } ) => (
-					<Button
-						className={ styles.threat__title }
-						variant="link"
-						size="small"
-						weight="regular"
-						onClick={ showThreatModal( item, 'all' ) }
-					>
-						{ item.title }
-					</Button>
+					<div className={ styles.threat__title }>
+						<Button
+							className={ styles.threat__title__link }
+							variant="link"
+							size="small"
+							weight="regular"
+							onClick={ showThreatModal( item, 'all' ) }
+						>
+							{ item.title }
+						</Button>
+					</div>
 				),
 			},
 			{
