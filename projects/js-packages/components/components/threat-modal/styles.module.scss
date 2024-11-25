@@ -13,15 +13,11 @@
 .section .section__toggle {
 	text-decoration: none;
 
-	&:focus {
-		box-shadow: none;
-	}
-
 	&:hover {
 		text-decoration: underline;
 	}
 
-	&_content {
+	&__content {
 		display: flex;
 		gap: calc( var( --spacing-base ) / 2 ); // 4px
 		align-items: center;
