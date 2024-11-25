@@ -70,10 +70,7 @@ const ProductCard: FC< ProductCardProps > = props => {
 	const { ownedProducts } = getMyJetpackWindowInitialState( 'lifecycleStats' );
 	const isOwned = ownedProducts?.includes( slug );
 
-	const isError =
-		status === PRODUCT_STATUSES.SITE_CONNECTION_ERROR ||
-		status === PRODUCT_STATUSES.USER_CONNECTION_ERROR ||
-		status === PRODUCT_STATUSES.EXPIRED;
+	const isError = status === PRODUCT_STATUSES.EXPIRED;
 	const isWarning = status === PRODUCT_STATUSES.EXPIRING_SOON;
 	const isAbsent =
 		status === PRODUCT_STATUSES.ABSENT || status === PRODUCT_STATUSES.ABSENT_WITH_PLAN;

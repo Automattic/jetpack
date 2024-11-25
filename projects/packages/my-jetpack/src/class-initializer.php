@@ -979,6 +979,10 @@ class Initializer {
 	 * @return array
 	 */
 	public static function alert_if_paid_plan_expiring( array $red_bubble_slugs ) {
+		$connection = new Connection_Manager();
+		if ( ! $connection->is_connected() ) {
+			return $red_bubble_slugs;
+		}
 		$product_classes = Products::get_products_classes();
 
 		$products_included_in_expiring_plan = array();
@@ -1006,7 +1010,8 @@ class Initializer {
 						}
 					}
 					if ( $purchase->expiry_status === Products::STATUS_EXPIRING_SOON ) {
-						$red_bubble_slugs[ "$purchase->product_slug--plan_expiring_soon" ] = $redbubble_notice_data;
+						$red_bubble_slugs[ "$purchase->product_slug--plan_expiring_soon" ]               = $redbubble_notice_data;
+						$red_bubble_slugs[ "$purchase->product_slug--plan_expiring_soon" ]['manage_url'] = $product::get_manage_paid_plan_purchase_url( true );
 						if ( ! $product::is_bundle_product() ) {
 							$products_included_in_expiring_plan[ "$purchase->product_slug--plan_expiring_soon" ][] = $product::get_name();
 						}

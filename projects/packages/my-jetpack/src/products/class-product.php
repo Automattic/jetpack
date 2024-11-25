@@ -560,13 +560,17 @@ abstract class Product {
 	/**
 	 * Gets the url to manage the paid plan's purchased subscription (For renewing, canceling).
 	 *
-	 * @return string|null
+	 * @param bool $is_renewal - whether to return the purchase management page or the checkout renewal url.
+	 * @return string|null The url to the purchase management page or the checkout renewal page.
 	 */
-	public static function get_manage_paid_plan_purchase_url() {
+	public static function get_manage_paid_plan_purchase_url( $is_renewal = false ) {
 		$purchase    = static::get_paid_plan_purchase_for_product();
 		$site_suffix = ( new Status() )->get_site_suffix();
 
 		if ( $purchase && $site_suffix ) {
+			if ( $is_renewal ) {
+				return 'https://wordpress.com/checkout/' . $purchase->product_slug . '/renew/' . $purchase->ID . '/' . $site_suffix;
+			}
 			return 'https://wordpress.com/me/purchases/' . $site_suffix . '/' . $purchase->ID;
 		}
 

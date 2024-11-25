@@ -16,15 +16,17 @@ const useExpiringPlansNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 		key => key.endsWith( '--plan_expiring_soon' ) || key.endsWith( '--plan_expired' )
 	) as Array< `${ string }--plan_expiring_soon` | `${ string }--plan_expired` >;
 
-	const expiredAlerts = planExpiredAlerts.filter( alert => alert.endsWith( '--plan_expired' ) );
-	const expiringSoonAlerts = planExpiredAlerts.filter( alert =>
-		alert.endsWith( '--plan_expiring_soon' )
-	);
+	const expiredAlerts =
+		planExpiredAlerts.length &&
+		planExpiredAlerts.filter( alert => alert.endsWith( '--plan_expired' ) );
+	const expiringSoonAlerts =
+		planExpiredAlerts.length &&
+		planExpiredAlerts.filter( alert => alert.endsWith( '--plan_expiring_soon' ) );
 
 	// Already expired alerts take precidence over expiring alerts.
 	// i.e.- Display 'expired' alert if there is one, otherwise display 'expiring soon' alert.
 	const alertToDisplay = expiredAlerts.length ? expiredAlerts[ 0 ] : expiringSoonAlerts[ 0 ];
-	const isExpiredAlert = alertToDisplay.endsWith( '--plan_expired' );
+	const isExpiredAlert = alertToDisplay && alertToDisplay.endsWith( '--plan_expired' );
 	const expiredAlertType = isExpiredAlert ? 'expired' : 'expiring-soon';
 
 	const {
@@ -35,16 +37,17 @@ const useExpiringPlansNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 		products_effected: productsEffected,
 	} = redBubbleAlerts[ alertToDisplay ] || {};
 
-	const { noticeTitle, noticeMessage, learnMoreUrl } = useGetExpiringNoticeContent( {
-		productSlug,
-		expiredAlertType,
-		productName,
-		expiryDate,
-		productsEffected,
-	} );
+	const { noticeTitle, noticeMessage, learnMoreUrl } =
+		useGetExpiringNoticeContent( {
+			productSlug,
+			expiredAlertType,
+			productName,
+			expiryDate,
+			productsEffected,
+		} ) || {};
 
 	const onPrimaryCtaClick = useCallback( () => {
-		window.open( manageUrl );
+		window.location.href = manageUrl;
 		recordEvent(
 			isExpiredAlert
 				? 'jetpack_my_jetpack_plan_expired_notice_primary_cta_click'
