@@ -320,8 +320,8 @@
 
 .contact-form .contact-form__select-wrapper::after {
 	position: absolute;
-	inset-inline-end: calc(var(--jetpack--contact-form--input-padding) + 4px);
-	top: calc(var(--jetpack--contact-form--input-padding) + var(--jetpack--contact-form--line-height) / 2);  
+	inset-inline-end: calc(var(--jetpack--contact-form--input-padding-left) + 4px);
+	top: calc(var(--jetpack--contact-form--input-padding-top) + var(--jetpack--contact-form--line-height) / 2);  
 
   content: "";
   display: block;
