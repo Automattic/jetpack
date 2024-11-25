@@ -9,11 +9,11 @@ import { ThreatModalContext } from '.';
 /**
  * ThreatNotice component
  *
- * @param {object}  props             - The component props.
- * @param {string}  props.status      - The status of the notice.
- * @param {string}  props.title       - The title of the notice.
- * @param {string}  props.content     - The content of the notice.
- * @param {boolean} props.showActions - Whether to show the actions or not.
+ * @param {object}             props             - The component props.
+ * @param {string}             props.status      - The status of the notice.
+ * @param {string}             props.title       - The title of the notice.
+ * @param {string|JSX.Element} props.content     - The content of the notice.
+ * @param {boolean}            props.showActions - Whether to show the actions or not.
  *
  * @return {JSX.Element} The rendered ThreatNotice component.
  */
@@ -25,7 +25,7 @@ const ThreatNotice = ( {
 }: {
 	status?: 'warning' | 'error' | 'success' | undefined;
 	title: string;
-	content: string;
+	content: string | JSX.Element;
 	showActions?: boolean;
 } ): JSX.Element => {
 	const {

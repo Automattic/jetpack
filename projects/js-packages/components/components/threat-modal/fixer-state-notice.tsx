@@ -1,3 +1,6 @@
+import { Button } from '@automattic/jetpack-components';
+import { CONTACT_SUPPORT_URL } from '@automattic/jetpack-scan';
+import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
 import styles from './styles.module.scss';
@@ -19,14 +22,28 @@ const FixerStateNotice = ( {
 }: {
 	fixerState: { inProgress: boolean; error: boolean; stale: boolean };
 } ) => {
+	const getInterpolatedContent = (): JSX.Element => {
+		return createInterpolateElement(
+			__( 'Please try again or <supportLink>contact support</supportLink>.', 'jetpack' ),
+			{
+				supportLink: <Button variant="link" isExternalLink={ true } href={ CONTACT_SUPPORT_URL } />,
+			}
+		);
+	};
+
 	const { status, title, content } = useMemo( () => {
 		if ( fixerState.error ) {
 			return {
 				status: 'error' as const,
 				title: __( 'An error occurred auto-fixing this threat', 'jetpack' ),
-				content: __(
-					'Jetpack encountered a filesystem error while attempting to auto-fix this threat. Please try again later or contact support.',
-					'jetpack'
+				content: (
+					<>
+						{ __(
+							'Jetpack encountered a filesystem error while attempting to auto-fix this threat.',
+							'jetpack'
+						) }{ ' ' }
+						{ getInterpolatedContent() }
+					</>
 				),
 			};
 		}
@@ -35,9 +52,14 @@ const FixerStateNotice = ( {
 			return {
 				status: 'error' as const,
 				title: __( 'The auto-fixer is taking longer than expected', 'jetpack' ),
-				content: __(
-					'Jetpack has been attempting to auto-fix this threat for too long, and something may have gone wrong. Please try again later or contact support.',
-					'jetpack'
+				content: (
+					<>
+						{ __(
+							'Jetpack has been attempting to auto-fix this threat for too long, and something may have gone wrong.',
+							'jetpack'
+						) }{ ' ' }
+						{ getInterpolatedContent() }
+					</>
 				),
 			};
 		}
