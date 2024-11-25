@@ -57,6 +57,20 @@ class Jetpack_SEO {
 		Jetpack_SEO_Posts::register_post_meta();
 		// Exclude posts with 'jetpack_seo_noindex' set true from the Jetpack sitemap.
 		add_filter( 'jetpack_sitemap_skip_post', array( 'Jetpack_SEO_Posts', 'exclude_noindex_posts_from_jetpack_sitemap' ), 10, 2 );
+		add_action( 'rest_api_init', array( $this, 'add_custom_field_post_type_meta' ) );
+	}
+
+	/**
+	 * Add custom field meta to post types that don't have it.
+	 */
+	public function add_custom_field_post_type_meta() {
+		$post_types = get_post_types( array( 'public' => true ) );
+		foreach ( $post_types as $post_type ) {
+			// Adds meta support for those post types that don't already have it.
+			if ( ! post_type_supports( $post_type, 'custom-fields' ) ) {
+				add_post_type_support( $post_type, 'custom-fields' );
+			}
+		}
 	}
 
 	/**
