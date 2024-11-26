@@ -6,6 +6,7 @@ import { ReactNode, useState } from 'react';
 import { Button } from '@wordpress/components';
 import { useDismissibleAlertState } from '$features/performance-history/lib/hooks';
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { recordBoostEvent } from '$lib/utils/analytics';
 
 type Props = {
 	scoreChange: number | false; // Speed score shift to show, or false if none.
@@ -76,6 +77,8 @@ function PopOut( { scoreChange }: Props ) {
 	const [ isClosed, setClose ] = useState( false );
 
 	const hideAlert = () => setClose( true );
+
+	hasScoreChanged && recordBoostEvent( 'speed_score_alert_shown', {} );
 
 	const animationStyles = useSpring( {
 		from: {
