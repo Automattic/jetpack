@@ -152,7 +152,7 @@ class Publicize_Script_Data {
 		$share_status = array();
 
 		// get_post_share_status is not available on WPCOM yet.
-		if ( Utils::should_block_editor_have_social() && $post && is_callable( array( self::publicize(), 'get_post_share_status' ) ) ) {
+		if ( Utils::should_block_editor_have_social() && $post && ! $is_wpcom ) {
 			$share_status[ $post->ID ] = self::publicize()->get_post_share_status( $post->ID );
 		}
 
