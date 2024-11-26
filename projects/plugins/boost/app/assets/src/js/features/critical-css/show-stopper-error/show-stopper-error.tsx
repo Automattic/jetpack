@@ -203,6 +203,9 @@ const OtherErrors = ( { cssState, retry, showRetry, supportLink }: ShowStopperEr
 							href={ supportLink }
 							target="_blank"
 							rel="noreferrer"
+							onClick={ () => {
+								recordBoostEvent( 'critical_css_contact_support', {} );
+							} }
 						>
 							{ __( 'Contact Support', 'jetpack-boost' ) }
 						</a>
