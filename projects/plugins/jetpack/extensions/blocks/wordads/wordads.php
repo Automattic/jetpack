@@ -148,15 +148,26 @@ class WordAds {
 		$smart_format = self::$gutenberg_ad_snippet_x_smart_format[ $key ] ?? null;
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended
 		$is_watl_enabled = $smart_format && ( isset( $_GET[ $smart_format ] ) && 'true' === $_GET[ $smart_format ] );
-
-		$ad_div = $wordads->get_ad_div( 'inline', $snippet, array( $align ) );
+		$ad_div          = $wordads->get_ad_div( 'inline', $snippet, array( $align ) );
 		// Render IPW div if WATL is not enabled.
 		if ( ! $is_watl_enabled ) {
 			return $ad_div;
 		}
 
-		// TODO: Add sas_fallback to the ad_div.
-		return $wordads->get_watl_ad_html_tag( $smart_format );
+		// Remove linebreaks and sanitize.
+		$snippet = esc_js( str_replace( array( "\n", "\t", "\r" ), '', $ad_div ) );
+
+		// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
+		$fallback_snippet = <<<HTML
+			<script>
+				var sas_fallback = sas_fallback || [];
+				sas_fallback.push(
+					{ tag: "$snippet", type: '$smart_format' }
+				);
+			</script>
+HTML;
+
+		return $fallback_snippet . $wordads->get_watl_ad_html_tag( $smart_format );
 	}
 }
 
