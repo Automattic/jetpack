@@ -326,22 +326,18 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.1-a.3 - 2024-11-18
+### 14.1-a.5 - 2024-11-25
 #### Major Enhancements
-- General: Update minimum PHP version to 7.2.
-- General: Update minimum WordPress version to 6.6.
+- Social: Added permissions warning for LinkedIn connections.
 
 #### Enhancements
-- Social: Added a new toggle for Social UTM tracking.
-- Use wp_register_block_metadata_collection() on WordPress 6.7+ to improve block registration performance by reducing filesystem operations. (See https://core.trac.wordpress.org/changeset/59132)
-
-#### Improved compatibility
-- Dashboard: Fix toggle component to prevent console warnings.
+- Google Photos Picker: Adding Google Photos Picker flow backend API endpoints support.
+- Google Photos Picker: Update Google Photos external media to support Google Photos Picker API.
+- Social: Post share status in the editor is now immediately available on page load.
 
 #### Bug fixes
-- Comments: Fix reload after posting.
-- Forms: Fix an error occurring due to a function receiving an unexpected input type.
-- Subscriptions: Fix template preview and edit links for three toggle settings.
+- AI Assistant: Fix bug with error message when user is not over requests limit.
+- Forms: Prevent duplicate Salesforce entry submissions.
 
 --------
 

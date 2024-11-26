@@ -2,6 +2,14 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [0.62.0] - 2024-11-25
+### Added
+- Add Stats icon [#40236]
+- Adds ThreatModal component and stories [#40197]
+
+### Changed
+- Updated package dependencies. [#40288]
+
 ## [0.61.0] - 2024-11-18
 ### Added
 - Gridicon Component: Add support for help-outline icon. [#39867]
@@ -1218,6 +1226,7 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[0.62.0]: https://github.com/Automattic/jetpack-components/compare/0.61.0...0.62.0
 [0.61.0]: https://github.com/Automattic/jetpack-components/compare/0.60.0...0.61.0
 [0.60.0]: https://github.com/Automattic/jetpack-components/compare/0.59.0...0.60.0
 [0.59.0]: https://github.com/Automattic/jetpack-components/compare/0.58.1...0.59.0

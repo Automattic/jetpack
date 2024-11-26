@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.0.1] - 2024-11-25
+### Changed
+- Updated package dependencies. [#40258] [#40288]
+
 ## [4.0.0] - 2024-11-14
 ### Removed
 - General: Update minimum PHP version to 7.2. [#40147]
@@ -799,6 +803,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Update Jetpack to use new JITM package
 
+[4.0.1]: https://github.com/Automattic/jetpack-jitm/compare/v4.0.0...v4.0.1
 [4.0.0]: https://github.com/Automattic/jetpack-jitm/compare/v3.1.29...v4.0.0
 [3.1.29]: https://github.com/Automattic/jetpack-jitm/compare/v3.1.28...v3.1.29
 [3.1.28]: https://github.com/Automattic/jetpack-jitm/compare/v3.1.27...v3.1.28

@@ -137,16 +137,24 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft, isRevert )
 			}
 		}
 
-		// The SSO feature nows lives in both a package and a Jetpack module.
+		// The SSO feature now lives in both a package and a Jetpack module.
 		const sso = file.match( /^projects\/packages\/connection\/src\/sso\// );
 		if ( sso !== null ) {
 			keywords.add( '[Feature] SSO' );
 		}
 
-		// The Google Analytics feature nows lives in both a package and a Jetpack module.
+		// The Google Analytics feature now lives in both a package and a Jetpack module.
 		const googleAnalytics = file.match( /^projects\/packages\/google-analytics\// );
 		if ( googleAnalytics !== null ) {
 			keywords.add( '[Feature] Google Analytics' );
+		}
+
+		// The Publicize feature now lives in a package, a Jetpack module, and a js package.
+		const publicize = file.match(
+			/^projects\/(packages\/publicize|js-packages\/publicize-components)\//
+		);
+		if ( publicize !== null ) {
+			keywords.add( '[Feature] Publicize' );
 		}
 
 		// Theme Tools have now been extracted to their own package.

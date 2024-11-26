@@ -3,7 +3,7 @@ import {
 	type Threat,
 	getFixerState,
 	getFixerAction,
-	getFixerMessage,
+	getFixerDescription,
 } from '@automattic/jetpack-scan';
 import { Tooltip } from '@wordpress/components';
 import { useCallback, useMemo } from '@wordpress/element';
@@ -50,7 +50,7 @@ export default function ThreatFixerButton( {
 			return __( 'An auto-fixer is in progress.', 'jetpack' );
 		}
 
-		return getFixerMessage( threat );
+		return getFixerDescription( threat );
 	}, [ threat, fixerState ] );
 
 	const buttonText = useMemo( () => {
