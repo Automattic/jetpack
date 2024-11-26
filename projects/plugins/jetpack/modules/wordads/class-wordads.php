@@ -395,6 +395,12 @@ class WordAds {
 		// Remove linebreaks and sanitize.
 		$tag_inline = esc_js( str_replace( array( "\n", "\t", "\r" ), '', $tag_inline ) );
 
+		// Get top tag.
+		$tag_top = $this->get_fallback_ad_snippet( $section_id, 'leaderboard', 'top', '', '{{unique_id}}' );
+
+		// Remove linebreaks and sanitize.
+		$tag_top = esc_js( str_replace( array( "\n", "\t", "\r" ), '', $tag_top ) );
+
 		// phpcs:disable WordPress.Security.EscapeOutput.HeredocOutputNotEscaped
 		echo <<<HTML
 				<script>
@@ -402,6 +408,7 @@ class WordAds {
 					sas_fallback.push(
 						{ tag: "$tag_inline", type: 'inline' }
 						{ tag: "$tag_belowpost", type: 'belowpost' }
+						{ tag: "$tag_top", type: 'top' }
 					);
 				</script>
 HTML;
@@ -735,7 +742,7 @@ HTML;
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended
 		$is_location_enabled = ( isset( $_GET[ $location ] ) && 'true' === $_GET[ $location ] );
 
-		if ( ( 'belowpost' === $location ) && $is_location_enabled ) {
+		if ( ( 'top' === $location || 'belowpost' === $location ) && $is_location_enabled ) {
 			// TODO: Confirm if it's best here or there is a way to get it via the adflow config endpoint
 			return self::get_watl_ad_html_tag( $location );
 		}
