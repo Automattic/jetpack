@@ -326,18 +326,12 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.1-a.5 - 2024-11-25
-#### Major Enhancements
-- Social: Added permissions warning for LinkedIn connections.
-
+### 14.1-a.7 - 2024-11-26
 #### Enhancements
-- Google Photos Picker: Adding Google Photos Picker flow backend API endpoints support.
-- Google Photos Picker: Update Google Photos external media to support Google Photos Picker API.
-- Social: Post share status in the editor is now immediately available on page load.
+- Subscriptions: stops loading editor functionality (i.e. the block and panels) when subscriptions module is disabled.
 
 #### Bug fixes
-- AI Assistant: Fix bug with error message when user is not over requests limit.
-- Forms: Prevent duplicate Salesforce entry submissions.
+- Social: Fixed undefined index error on specific WordPress.com environments.
 
 --------
 
