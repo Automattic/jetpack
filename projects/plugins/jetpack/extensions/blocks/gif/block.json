@@ -31,12 +31,6 @@
 			"type": "string",
 			"default": "56.2%"
 		},
-		"attributionUrl": {
-			"type": "string"
-		},
-		"attributionName": {
-			"type": "string"
-		},
 		"giphyUrl": {
 			"type": "string"
 		}
@@ -44,8 +38,8 @@
 	"example": {
 		"attributes": {
 			"align": "center",
-			"gifUrl": "https://64.media.tumblr.com/3131b9d2a05485e7ae7838a8b1314ab2/2d72fb0f707ea67a-5f/s500x750/d45e10288e4ff6a775c879978f52c87d3318ff8d.gif",
-			"paddingTop": "100%",
+			"gifUrl": "https://embed.tumblr.com/embed/post/t:KpdfAcVva-KWUaOTfmb1TA/611381776620896256/%2F987de7c196e8886f81af6ef3e4c82a5d%2F46f34930ddcf37dd-d5%2Fs500x750%2Ff64956be8daec568313e4c21aa5dc3c4eb8bc0e2.gif/gif",
+			"paddingTop": "56%",
 			"searchText": "WordPress"
 		}
 	}

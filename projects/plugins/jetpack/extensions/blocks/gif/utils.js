@@ -17,12 +17,13 @@ export const getUrl = ( searchText = '' ) => {
 export const getPaddingTop = media => `${ Math.floor( ( media.height / media.width ) * 100 ) }%`;
 
 export const getSelectedGifAttributes = item => {
-	const media = item.media[ 0 ];
-	const attribution = item.attribution || {};
+	const media = item.media.reduce( ( largest, current ) => {
+		const currentSize = current.height * current.width;
+		const largestSize = largest.height * largest.width;
+		return currentSize > largestSize ? current : largest;
+	}, item.media[ 0 ] );
 	return {
-		gifUrl: media.url,
+		gifUrl: item.embed_url,
 		paddingTop: getPaddingTop( media ),
-		attributionUrl: attribution.url,
-		attributionName: attribution.blog?.name,
 	};
 };

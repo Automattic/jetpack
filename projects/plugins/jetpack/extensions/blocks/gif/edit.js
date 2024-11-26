@@ -13,16 +13,7 @@ import { getSelectedGifAttributes, getUrl } from './utils';
 const icon = getBlockIconComponent( metadata );
 
 function GifEdit( { attributes, setAttributes, isSelected } ) {
-	const {
-		align,
-		caption,
-		gifUrl,
-		giphyUrl,
-		searchText,
-		paddingTop,
-		attributionUrl,
-		attributionName,
-	} = attributes;
+	const { align, caption, gifUrl, giphyUrl, searchText, paddingTop } = attributes;
 	const [ captionFocus, setCaptionFocus ] = useState( false );
 	const searchFormInputRef = createRef();
 	const { isFetching, tumblrData, fetchTumblrData } = useFetchTumblrData();
@@ -111,19 +102,8 @@ function GifEdit( { attributes, setAttributes, isSelected } ) {
 							role="button"
 							tabIndex="0"
 						/>
-						{ giphyUrl && ! gifUrl ? (
-							<iframe src={ giphyUrl } title={ searchText } />
-						) : (
-							<img src={ gifUrl } alt={ searchText } />
-						) }
+						<iframe src={ gifUrl || giphyUrl } title={ searchText } />
 					</div>
-					{ attributionUrl && gifUrl && ! giphyUrl && (
-						<figcaption className="wp-block-jetpack-gif-attribution">
-							<a href={ attributionUrl } target="_blank" rel="noopener noreferrer">
-								{ `GIF by ${ attributionName } on Tumblr` }
-							</a>
-						</figcaption>
-					) }
 					{ ( ! RichText.isEmpty( caption ) || isSelected ) && ( !! gifUrl || !! giphyUrl ) && (
 						<RichText
 							className="wp-block-jetpack-gif-caption gallery-caption"
