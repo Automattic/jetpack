@@ -61,12 +61,39 @@ class Jetpack_SEO {
 	}
 
 	/**
-	 * Add custom field meta to post types that don't have it.
+	 * Add custom field meta to all public post types that don't already have it.
 	 */
 	public function add_custom_field_post_type_meta() {
-		$post_types = get_post_types( array( 'public' => true ) );
-		foreach ( $post_types as $post_type ) {
-			// Adds meta support for those post types that don't already have it.
+		/**
+		 * Filter the list of post types for which custom fields support is added.
+		 *
+		 * This filter allows modification of the post types that will be processed
+		 * to add support for custom fields if they do not already support it.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param array $post_types An array of post type names.
+		 */
+		$post_types = apply_filters(
+			'jetpack_seo_custom_field_post_types',
+			get_post_types(
+				array(
+					'public'   => true,
+					'show_ui'  => true,
+					'_builtin' => false,
+				)
+			)
+		);
+
+		// Filter out post types that already support 'custom-fields'.
+		$unsupported_post_types = array_filter(
+			$post_types,
+			function ( $post_type ) {
+				return ! post_type_supports( $post_type, 'custom-fields' );
+			}
+		);
+
+		foreach ( $unsupported_post_types as $post_type ) {
 			if ( ! post_type_supports( $post_type, 'custom-fields' ) ) {
 				add_post_type_support( $post_type, 'custom-fields' );
 			}
