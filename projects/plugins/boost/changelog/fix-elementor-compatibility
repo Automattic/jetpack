@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Compatibility: Fixed situations where minify could break due to too many files being enqueued in the elementor editor.
