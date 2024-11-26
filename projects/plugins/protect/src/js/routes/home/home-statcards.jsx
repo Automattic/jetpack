@@ -1,4 +1,4 @@
-import { useBreakpointMatch, StatCard } from '@automattic/jetpack-components';
+import { Text, useBreakpointMatch, StatCard } from '@automattic/jetpack-components';
 import { Tooltip } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
 import { __, _n, sprintf } from '@wordpress/i18n';
@@ -11,6 +11,9 @@ import useWafData from '../../hooks/use-waf-data';
 import styles from './styles.module.scss';
 
 const HomeStatCards = () => {
+	const defaultHeight = '19.14';
+	const defaultWidth = '16';
+
 	const { hasPlan } = usePlan();
 	const [ isSmall ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
 
@@ -19,6 +22,7 @@ const HomeStatCards = () => {
 			current: { threats: numThreats },
 		},
 		lastChecked,
+		error: scanError,
 	} = useProtectData();
 
 	const {
@@ -38,6 +42,13 @@ const HomeStatCards = () => {
 	}
 
 	const lastCheckedMessage = useMemo( () => {
+		if ( scanError ) {
+			return __(
+				'A scan error occurred. View your scan report for more detail.',
+				'jetpack-protect'
+			);
+		}
+
 		const entityLabel = hasPlan
 			? _n( 'threat', 'threats', numThreats, 'jetpack-protect' )
 			: _n( 'vulnerability', 'vulnerabilities', numThreats, 'jetpack-protect' );
@@ -56,7 +67,14 @@ const HomeStatCards = () => {
 			__( 'Last checked on %s: Your site is secure.', 'jetpack-protect' ),
 			dateI18n( 'F jS g:i A', lastCheckedLocalTimestamp )
 		);
-	}, [ numThreats, lastCheckedLocalTimestamp, hasPlan ] );
+	}, [ scanError, numThreats, lastCheckedLocalTimestamp, hasPlan ] );
+
+	const renderIcon = isFeatureEnabled => {
+		if ( isFeatureEnabled ) {
+			return <ProtectCheck width={ defaultWidth } height={ defaultHeight } />;
+		}
+		return <Alert width={ defaultWidth } height={ defaultHeight } color="#A7AAAD" />;
+	};
 
 	const defaultArgs = useMemo(
 		() => ( {
@@ -68,13 +86,21 @@ const HomeStatCards = () => {
 	const scanArgs = useMemo(
 		() => ( {
 			...defaultArgs,
+			className: scanError ? styles.error : styles.active,
 			icon: (
 				<span className={ styles[ 'stat-card-icon' ] }>
-					<ProtectCheck
-						width={ '16' }
-						height={ '19.14' }
-						color={ numThreats ? '#F0B849' : '#069E08' }
-					/>
+					{ scanError ? (
+						<Alert width={ defaultWidth } height={ defaultHeight } />
+					) : (
+						<ProtectCheck
+							width={ defaultWidth }
+							height={ defaultHeight }
+							color={ numThreats ? '#F0B849' : '#069E08' }
+						/>
+					) }
+					<Text className={ styles[ 'stat-card-icon-label' ] } variant="label">
+						{ __( 'Scanning', 'jetpack-protect' ) }
+					</Text>
 				</span>
 			),
 			label: (
@@ -89,8 +115,9 @@ const HomeStatCards = () => {
 				</span>
 			),
 			value: numThreats,
+			errorMessage: scanError ? __( 'Scan error', 'jetpack-protect' ) : null,
 		} ),
-		[ defaultArgs, hasPlan, numThreats ]
+		[ defaultArgs, scanError, hasPlan, numThreats ]
 	);
 
 	const wafArgs = useMemo(
@@ -99,11 +126,10 @@ const HomeStatCards = () => {
 			className: isWafModuleEnabled ? styles.active : styles.disabled,
 			icon: (
 				<span className={ styles[ 'stat-card-icon' ] }>
-					{ isWafModuleEnabled ? (
-						<ProtectCheck width={ '16' } height={ '19.14' } />
-					) : (
-						<Alert width={ '16' } height={ '19.14' } color={ '#A7AAAD' } />
-					) }
+					{ renderIcon( isWafModuleEnabled ) }{ ' ' }
+					<Text className={ styles[ 'stat-card-icon-label' ] } variant="label">
+						{ __( 'Firewall', 'jetpack-protect' ) }
+					</Text>
 				</span>
 			),
 			label: (
@@ -122,11 +148,10 @@ const HomeStatCards = () => {
 			className: isBruteForceModuleEnabled ? styles.active : styles.disabled,
 			icon: (
 				<span className={ styles[ 'stat-card-icon' ] }>
-					{ isBruteForceModuleEnabled ? (
-						<ProtectCheck width={ '16' } height={ '19.14' } />
-					) : (
-						<Alert width={ '16' } height={ '19.14' } color={ '#A7AAAD' } />
-					) }
+					{ renderIcon( isBruteForceModuleEnabled ) }
+					<Text className={ styles[ 'stat-card-icon-label' ] } variant="label">
+						{ __( 'Login protection', 'jetpack-protect' ) }
+					</Text>
 				</span>
 			),
 			label: (
@@ -151,7 +176,7 @@ const HomeStatCards = () => {
 					className={ styles[ 'stat-card-tooltip' ] }
 					text={
 						isWafModuleEnabled
-							? __( 'Untrusted traffic requests blocked all-time.', 'jetpack-protect' )
+							? __( 'Untrusted traffic requests blocked all time.', 'jetpack-protect' )
 							: __( "Firewall is off. Untrusted traffic can't be blocked", 'jetpack-protect' )
 					}
 				>
@@ -164,7 +189,7 @@ const HomeStatCards = () => {
 				className={ styles[ 'stat-card-tooltip' ] }
 				text={
 					isBruteForceModuleEnabled
-						? __( 'Login attempts blocked all-time.', 'jetpack-protect' )
+						? __( 'Total login attempts blocked all time.', 'jetpack-protect' )
 						: __(
 								"Brute force protect is off. Log in attempts can't be blocked.",
 								'jetpack-protect'

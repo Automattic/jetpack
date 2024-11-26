@@ -19,6 +19,10 @@
         margin-right: calc( var( --spacing-base ) * 3 ); // 24px
     }
 
+    .error {
+        border: 2px solid var( --jp-red-50 );
+    }
+
     .disabled {
         opacity: 0.5;
     }
@@ -28,8 +32,8 @@
     width: 100%;
     margin-bottom: calc( var( --spacing-base ) * 3 ); // 24px
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    gap: 8px;
 
 	.active {
 		fill: var( --jp-green-40 );
@@ -42,10 +46,11 @@
 	.disabled {
 		fill: var( --jp-gray-40 );
 	}
-}
 
-.stat-card-label {
-    white-space: nowrap;
+    &-label {
+        color: var( --jp-black );
+        white-space: nowrap;
+    }
 }
 
 .stat-card-tooltip {

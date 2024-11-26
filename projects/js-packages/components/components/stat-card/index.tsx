@@ -18,7 +18,14 @@ import type React from 'react';
  * @param {StatCardProps} props - Component props.
  * @return {React.ReactNode} - StatCard react component.
  */
-const StatCard = ( { className, icon, label, value, variant = 'square' }: StatCardProps ) => {
+const StatCard = ( {
+	className,
+	icon,
+	label,
+	value,
+	variant = 'square',
+	errorMessage,
+}: StatCardProps ) => {
 	const formattedValue = numberFormat( value );
 	const compactValue = numberFormat( value, {
 		notation: 'compact',
@@ -29,18 +36,19 @@ const StatCard = ( { className, icon, label, value, variant = 'square' }: StatCa
 		<div className={ clsx( className, styles.wrapper, styles[ variant ] ) }>
 			<div className={ clsx( styles.icon ) }>{ icon }</div>
 			<div className={ clsx( styles.info ) }>
-				<Text className={ styles.label }>{ label }</Text>
-				{ variant === 'square' ? (
-					<Tooltip text={ formattedValue } placement="top">
-						<Text variant="headline-small" className={ clsx( styles.value ) }>
-							{ compactValue }
+				<Text className={ styles.label }>{ errorMessage ? errorMessage : label }</Text>
+				{ ! errorMessage &&
+					( variant === 'square' ? (
+						<Tooltip text={ formattedValue } placement="top">
+							<Text variant="headline-small" className={ clsx( styles.value ) }>
+								{ compactValue }
+							</Text>
+						</Tooltip>
+					) : (
+						<Text variant="title-medium-semi-bold" className={ clsx( styles.value ) }>
+							{ formattedValue }
 						</Text>
-					</Tooltip>
-				) : (
-					<Text variant="title-medium-semi-bold" className={ clsx( styles.value ) }>
-						{ formattedValue }
-					</Text>
-				) }
+					) ) }
 			</div>
 		</div>
 	);

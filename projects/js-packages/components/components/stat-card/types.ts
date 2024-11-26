@@ -25,4 +25,9 @@ export type StatCardProps = {
 	 * @default 'square'
 	 */
 	variant?: 'square' | 'horizontal';
+
+	/**
+	 * The error message to be displayed.
+	 */
+	errorMessage?: string;
 };
