@@ -158,6 +158,7 @@ interface Window {
 					post_activation_url: string;
 					post_checkout_url?: string;
 					manage_paid_plan_purchase_url?: string;
+					renew_paid_plan_purchase_url?: string;
 					pricing_for_ui?: {
 						available: boolean;
 						wpcom_product_slug: string;
