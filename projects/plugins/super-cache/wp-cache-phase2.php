@@ -301,6 +301,16 @@ function wp_cache_serve_cache_file() {
 				}
 				header( 'Last-Modified: ' . $local_mod_time );
 			}
+
+			/*
+			 * On the rare occasion that the cache file is empty, maybe due to a race condition
+			 * between the file check and the file_get_contents call, we'll just regenerate the cache.
+			 */
+			if ( false === $cachefiledata ) {
+				wp_cache_debug( 'The cached file could not be read. Must generate a new one.' );
+				return false;
+			}
+
 			echo $cachefiledata;
 			exit();
 		} else {
