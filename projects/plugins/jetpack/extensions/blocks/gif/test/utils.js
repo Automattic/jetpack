@@ -9,6 +9,7 @@ describe( 'Gif Block utils', () => {
 	const TUMBLR_ITEM = {
 		media: [ { url: 'fuzz', height: 10, width: 10 } ],
 		attribution: { blog: { name: 'Tumblr Blog' }, url: 'https://tumblr.com' },
+		embed_url: 'https://embed.tumblr.com/embed/post/1234567890/12345/123123/gif',
 	};
 
 	describe( 'getUrl', () => {
@@ -36,10 +37,8 @@ describe( 'Gif Block utils', () => {
 	describe( 'getSelectedGifAttributes', () => {
 		test( 'returns expected object', () => {
 			expect( getSelectedGifAttributes( TUMBLR_ITEM ) ).toStrictEqual( {
-				gifUrl: TUMBLR_ITEM.media[ 0 ].url,
+				gifUrl: TUMBLR_ITEM.embed_url,
 				paddingTop: getPaddingTop( TUMBLR_ITEM.media[ 0 ] ),
-				attributionUrl: TUMBLR_ITEM.attribution.url,
-				attributionName: TUMBLR_ITEM.attribution.blog.name,
 			} );
 		} );
 	} );

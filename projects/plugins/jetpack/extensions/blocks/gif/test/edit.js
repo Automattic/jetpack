@@ -25,11 +25,13 @@ const TUMBLR_DATA = [
 		media_key: '9',
 		media: [ { url: 'pony', poster: { url: 'chips' }, height: 10, width: 10 } ],
 		attribution: { blog: { name: 'Tumblr Blog' }, url: 'https://tumblr.com' },
+		embed_url: 'https://embed.tumblr.com/embed/post/1234567890/12345/123123/gif',
 	},
 	{
 		media_key: '99',
 		media: [ { url: 'horsey', poster: { url: 'fish' }, height: 12, width: 12 } ],
 		attribution: { blog: { name: 'Another Blog' }, url: 'https://tumblr.com' },
+		embed_url: 'https://embed.tumblr.com/embed/post/1234567890/12345/123123/gif',
 	},
 ];
 
@@ -70,7 +72,7 @@ describe( 'GifEdit', () => {
 		expect( container.querySelector( 'figure' ) ).not.toBeInTheDocument();
 	} );
 
-	test( 'calls API and returns tumblr images', async () => {
+	test( 'calls API and returns tumblr embed', async () => {
 		useFetchTumblrData.mockImplementationOnce( () => {
 			return {
 				fetchTumblrData,
@@ -101,10 +103,8 @@ describe( 'GifEdit', () => {
 			await getUrl( newProps.attributes.searchText )
 		);
 		expect( setAttributes.mock.calls[ 0 ][ 0 ] ).toStrictEqual( {
-			gifUrl: TUMBLR_DATA[ 0 ].media[ 0 ].url,
+			gifUrl: TUMBLR_DATA[ 0 ].embed_url,
 			paddingTop: getPaddingTop( TUMBLR_DATA[ 0 ].media[ 0 ] ),
-			attributionUrl: TUMBLR_DATA[ 0 ].attribution.url,
-			attributionName: TUMBLR_DATA[ 0 ].attribution.blog.name,
 		} );
 
 		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
@@ -112,7 +112,7 @@ describe( 'GifEdit', () => {
 		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
 		expect( container.querySelector( 'figcaption' ) ).toBeInTheDocument();
 		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
-		expect( container.querySelector( '.wp-block-jetpack-gif-wrapper img' ) ).toBeInTheDocument();
+		expect( container.querySelector( '.wp-block-jetpack-gif-wrapper iframe' ) ).toBeInTheDocument();
 		expect(
 			// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
 			container.querySelectorAll( '.wp-block-jetpack-gif_thumbnail-container' )
