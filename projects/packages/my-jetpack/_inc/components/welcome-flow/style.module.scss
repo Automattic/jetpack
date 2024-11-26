@@ -131,16 +131,47 @@ $sans-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen-San
 	margin-bottom: 24px;
 
 	svg {
-		width: 48px;
-		height: 48px;
+		width: 88px;
+		height: 88px;
 		color: var( --jp-green-40 );
 
-		circle {
-			stroke: var( --jp-green-5 );
+		.circle-outline, .circle-fill, .triangles-outline, .triangles-fill {
+			opacity: 0;
 		}
+		.circle-outline {
+			stroke-dasharray: 276;
+			stroke-dashoffset: 276;
+			animation: drawCircle 2s ease-out forwards;
+		}
+		.triangles-outline {
+			animation: fadeIn 0.5s ease-in-out 1.5s forwards;
+		}
+	}
 
-		circle, path {
-			stroke-width: 4px;
+	&.connection-ready {
+		svg {
+			.circle-fill {
+				animation: fadeIn 0.85s ease-out 0s forwards;
+			}
+			.triangles-fill {
+				animation: fadeIn 0.85s ease-out 0s forwards;
+			}
 		}
 	}
 }
+
+@keyframes drawCircle {
+	0% {
+	  opacity: 1;
+	  stroke-dashoffset: 276;
+	}
+	100% {
+	  opacity: 1;
+	  stroke-dashoffset: 0;
+	}
+  }
+  @keyframes fadeIn {
+	to {
+	  opacity: 1;
+	}
+  }
