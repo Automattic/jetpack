@@ -24,11 +24,6 @@ final class File_Paths extends Cacheable {
 		$this->paths        = $paths;
 		$this->mtime        = $mtime;
 		$this->cache_buster = $cache_buster;
-
-		$cache_id = $this->cache_id_from_content();
-		$this->set_cache_id( $cache_id );
-
-		return $this;
 	}
 
 	public function jsonSerialize(): array {
@@ -48,7 +43,7 @@ final class File_Paths extends Cacheable {
 		return $instance->set( $data['paths'], $data['mtime'], $data['cache_buster'] );
 	}
 
-	private function cache_id_from_content() {
+	protected function generate_cache_id() {
 		$hash = md5( implode( ',', $this->paths ) . '_' . $this->mtime . '_' . $this->cache_buster );
 
 		// Keep cache id small as option keys have a character limit.
