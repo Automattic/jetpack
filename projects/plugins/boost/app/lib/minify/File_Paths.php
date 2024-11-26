@@ -21,7 +21,6 @@ final class File_Paths extends Cacheable {
 	protected const DEFAULT_EXPIRY = YEAR_IN_SECONDS;
 
 	public function set( $paths, $mtime, $cache_buster ) {
-
 		$this->paths        = $paths;
 		$this->mtime        = $mtime;
 		$this->cache_buster = $cache_buster;
