@@ -198,6 +198,13 @@ function jetpack_boost_page_optimize_bail() {
 		return true;
 	}
 
+	// Bail in elementor preview
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	if ( isset( $_GET['elementor-preview'] ) ) {
+		$should_bail = true;
+		return true;
+	}
+
 	return $should_bail;
 }
 
