@@ -187,6 +187,9 @@ class WordAds_Smart {
 			'belowpost'                    => array(
 				'enabled' => true, // TODO: this will not be true by default
 			),
+			'sidebar_sticky_right'         => array(
+				'enabled' => true, // TODO: this will not be true by default
+			),
 			'gutenberg_rectangle'          => array(
 				'enabled' => true, // TODO: this will not be true by default
 			),
