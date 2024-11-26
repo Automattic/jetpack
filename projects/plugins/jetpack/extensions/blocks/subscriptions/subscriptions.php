@@ -43,20 +43,16 @@ function register_block() {
 		return;
 	}
 
-	$is_module_active = ( new Modules() )->is_active( 'subscriptions' );
-
 	/*
-	 * The block is available even when the module is not active,
-	 * so we can display a nudge to activate the module instead of the block.
-	 * However, since non-admins cannot activate modules, we do not display the empty block for them.
+	 * Do not proceed if the newsletter feature (Subscriptions module) is not enabled
 	 */
-	if ( ! $is_module_active && ! current_user_can( 'jetpack_activate_modules' ) ) {
+	if ( ! ( new Modules() )->is_active( 'subscriptions' ) ) {
 		return;
 	}
 
 	require_once JETPACK__PLUGIN_DIR . '/modules/memberships/class-jetpack-memberships.php';
-	if ( \Jetpack_Memberships::should_enable_monetize_blocks_in_editor() ) {
 
+	if ( \Jetpack_Memberships::should_enable_monetize_blocks_in_editor() ) {
 		Blocks::jetpack_register_block(
 			__DIR__,
 			array(
@@ -70,22 +66,6 @@ function register_block() {
 				),
 			)
 		);
-	}
-
-	/*
-	 * If the Subscriptions module is not active,
-	 * do not make any further changes on the site.
-	 */
-	if ( ! $is_module_active ) {
-		return;
-	}
-
-	/**
-	 * Do not proceed if the newsletter feature is not enabled
-	 * or if the 'Jetpack_Memberships' class does not exists.
-	 */
-	if ( ! class_exists( '\Jetpack_Memberships' ) ) {
-		return;
 	}
 
 	register_post_meta(

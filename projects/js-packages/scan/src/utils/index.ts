@@ -55,60 +55,99 @@ export const getFixerAction = ( threat: Threat ) => {
 		case 'rollback':
 			return __( 'Replace', 'jetpack-scan' );
 		default:
-			return __( 'Fix', 'jetpack-scan' );
+			return __( 'Auto-fix', 'jetpack-scan' );
 	}
 };
 
-export const getFixerMessage = ( threat: Threat ) => {
+export const getDetailedFixerAction = ( threat: Threat ) => {
+	switch ( threat.fixable && threat.fixable.fixer ) {
+		case 'delete':
+			if ( threat.filename ) {
+				return __( 'Delete file', 'jetpack-scan' );
+			}
+
+			if ( threat.extension?.type === 'plugin' ) {
+				return __( 'Delete plugin from site', 'jetpack-scan' );
+			}
+
+			if ( threat.extension?.type === 'theme' ) {
+				return __( 'Delete theme from site', 'jetpack-scan' );
+			}
+			break;
+		case 'update':
+			if ( threat.extension?.type === 'plugin' ) {
+				return __( 'Update plugin to newer version', 'jetpack-scan' );
+			}
+			if ( threat.extension?.type === 'theme' ) {
+				return __( 'Update theme to newer version', 'jetpack-scan' );
+			}
+			return __( 'Update', 'jetpack-scan' );
+			break;
+		case 'replace':
+		case 'rollback':
+			if ( threat.filename ) {
+				return __( 'Replace from backup', 'jetpack-scan' );
+			}
+
+			if ( threat.signature === 'php_hardening_WP_Config_NoSalts_001' ) {
+				return __( 'Replace default salts', 'jetpack-scan' );
+			}
+			break;
+		default:
+			return __( 'Auto-fix', 'jetpack-scan' );
+	}
+};
+
+export const getFixerDescription = ( threat: Threat ) => {
 	switch ( threat.fixable && threat.fixable.fixer ) {
 		case 'delete':
 			if ( threat.filename ) {
 				if ( threat.filename.endsWith( '/' ) ) {
-					return __( 'Deletes the directory that the infected file is in.', 'jetpack-scan' );
+					return __( 'Delete the directory that the infected file is in.', 'jetpack-scan' );
 				}
 
 				if ( threat.signature === 'Core.File.Modification' ) {
-					return __( 'Deletes the unexpected file in a core WordPress directory.', 'jetpack-scan' );
+					return __( 'Delete the unexpected file in a core WordPress directory.', 'jetpack-scan' );
 				}
 
-				return __( 'Deletes the infected file.', 'jetpack-scan' );
+				return __( 'Delete the infected file.', 'jetpack-scan' );
 			}
 
 			if ( threat.extension?.type === 'plugin' ) {
-				return __( 'Deletes the plugin directory to fix the threat.', 'jetpack-scan' );
+				return __( 'Delete the plugin directory to fix the threat.', 'jetpack-scan' );
 			}
 
 			if ( threat.extension?.type === 'theme' ) {
-				return __( 'Deletes the theme directory to fix the threat.', 'jetpack-scan' );
+				return __( 'Delete the theme directory to fix the threat.', 'jetpack-scan' );
 			}
 			break;
 		case 'update':
 			if ( threat.fixedIn && threat.extension.name ) {
 				return sprintf(
 					/* translators: Translates to Updates to version. %1$s: Name. %2$s: Fixed version */
-					__( 'Updates %1$s to version %2$s', 'jetpack-scan' ),
+					__( 'Update %1$s to version %2$s', 'jetpack-scan' ),
 					threat.extension.name,
 					threat.fixedIn
 				);
 			}
-			return __( 'Upgrades the plugin or theme to a newer version.', 'jetpack-scan' );
+			return __( 'Upgrade the plugin or theme to a newer version.', 'jetpack-scan' );
 		case 'replace':
 		case 'rollback':
 			if ( threat.filename ) {
 				return threat.signature === 'Core.File.Modification'
 					? __(
-							'Replaces the modified core WordPress file with the original clean version from the WordPress source code.',
+							'Replace the modified core WordPress file with the original clean version from the WordPress source code.',
 							'jetpack-scan'
 					  )
 					: __(
-							'Replaces the infected file with a previously backed up version that is clean.',
+							'Replace the infected file with a previously backed up version that is clean.',
 							'jetpack-scan'
 					  );
 			}
 
 			if ( threat.signature === 'php_hardening_WP_Config_NoSalts_001' ) {
 				return __(
-					'Replaces the default salt keys in wp-config.php with unique ones.',
+					'Replace the default salt keys in wp-config.php with unique ones.',
 					'jetpack-scan'
 				);
 			}

@@ -130,7 +130,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/assets",
-                "reference": "150864e98715bbe0f68332225843adb5920e166d"
+                "reference": "bf838ffc731b0bdc56072a21b50b92aed9a2251d"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
@@ -154,7 +154,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-assets/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "3.0.x-dev"
+                    "dev-trunk": "4.0.x-dev"
                 }
             },
             "autoload": {
@@ -199,7 +199,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/autoloader",
-                "reference": "0848d6671485a224e671134595146cc125c3f3f8"
+                "reference": "f7e1805706259c207e22548a1de3f94cc5e14e71"
             },
             "require": {
                 "composer-plugin-api": "^2.2",
@@ -222,7 +222,7 @@
                     "::VERSION": "src/AutoloadGenerator.php"
                 },
                 "branch-alias": {
-                    "dev-trunk": "4.0.x-dev"
+                    "dev-trunk": "5.0.x-dev"
                 }
             },
             "autoload": {
@@ -411,7 +411,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/composer-plugin",
-                "reference": "68763584fdb703bb7af6676fb1f124287228c950"
+                "reference": "8bc70ad510c3f54b6fa962b2be1ad442422f50b5"
             },
             "require": {
                 "composer-plugin-api": "^2.2",
@@ -432,7 +432,7 @@
                 },
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "3.0.x-dev"
+                    "dev-trunk": "4.0.x-dev"
                 }
             },
             "autoload": {
@@ -543,7 +543,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "98861ba304afa0fb038a0a38bc0d599aa11ebb5a"
+                "reference": "d89849a42309ee6f9f34a57a6d7b653f91b583a7"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -578,7 +578,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "6.0.x-dev"
+                    "dev-trunk": "6.1.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -1800,7 +1800,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/changelogger",
-                "reference": "27d8c931c8ceebae9dceb6d87733f9a9dd37fcc2"
+                "reference": "60af893cdd71ba76d13b5b93427d3c042745e7bb"
             },
             "require": {
                 "php": ">=7.2.5",
@@ -1818,7 +1818,7 @@
             "extra": {
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "5.0.x-dev"
+                    "dev-trunk": "5.1.x-dev"
                 },
                 "mirror-repo": "Automattic/jetpack-changelogger",
                 "version-constants": {
