@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Walk around an issue where custom code removes `ver` param
