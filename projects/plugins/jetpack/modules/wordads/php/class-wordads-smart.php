@@ -178,13 +178,16 @@ class WordAds_Smart {
 				'title'            => __( 'Advertisement', 'jetpack' ),
 				'privacy_settings' => __( 'Privacy Settings', 'jetpack' ),
 			),
+			'top'                          => array(
+				'enabled' => true, // TODO: this will not be true by default
+			),
 			'inline'                       => array(
 				'enabled' => $this->is_inline_enabled,
 			),
-			'bottom_sticky'                => array(
+			'belowpost'                    => array(
 				'enabled' => true, // TODO: this will not be true by default
 			),
-			'belowpost'                    => array(
+			'bottom_sticky'                => array(
 				'enabled' => true, // TODO: this will not be true by default
 			),
 			'sidebar_sticky_right'         => array(
