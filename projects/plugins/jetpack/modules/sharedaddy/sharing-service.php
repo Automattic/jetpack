@@ -1241,6 +1241,10 @@ function sharing_display( $text = '', $echo = false ) {
 	 */
 	$sharing_markup = apply_filters( 'jetpack_sharing_display_markup', $sharing_content, $enabled );
 
+	if ( ! is_string( $sharing_markup ) || ! is_string( $text ) ) {
+		return $text;
+	}
+	l( $text, $sharing_markup );
 	if ( $echo ) {
 		echo $text . $sharing_markup; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	} else {
