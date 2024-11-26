@@ -1,5 +1,4 @@
 function a8c_adflow_callback( data ) {
-	console.log( 'watl call, a8c_adflow_callback', data );
 	if ( data && data.scripts && Array.isArray( data.scripts ) ) {
 		if ( data.config ) {
 			let configurationScript = document.createElement( 'script' );
