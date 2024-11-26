@@ -735,9 +735,9 @@ HTML;
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended
 		$is_location_enabled = ( isset( $_GET[ $location ] ) && 'true' === $_GET[ $location ] );
 
-		if ( ( 'top' === $location || 'belowpost' === $location || 'sidebar' === $location ) && $is_location_enabled ) {
+		if ( ( 'belowpost' === $location ) && $is_location_enabled ) {
 			// TODO: Confirm if it's best here or there is a way to get it via the adflow config endpoint
-			return "<div class=\"wordads-tag\" data-slot-type=\"$location\" style=\"display: none;\"></div>";
+			return self::get_watl_ad_html_tag( $location );
 		}
 
 		return $this->get_fallback_ad_snippet( $section_id, $form_factor, $location, $relocate, $id );
@@ -903,6 +903,19 @@ HTML;
 			marginwidth="0">
 		</iframe>
 HTML;
+	}
+
+	/**
+	 * Returns the html ad tag used by WordAds Tag Library
+	 *
+	 * @param  string $slot_type e.g belowpost, gutenberg_rectangle.
+	 *
+	 * @return string
+	 *
+	 * @since 8.7
+	 */
+	public static function get_watl_ad_html_tag( string $slot_type ): string {
+		return "<div class=\"wordads-tag\" data-slot-type=\"$slot_type\" style=\"display: none;\"></div>";
 	}
 
 	/**

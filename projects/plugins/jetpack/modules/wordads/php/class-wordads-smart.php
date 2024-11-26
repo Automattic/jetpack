@@ -170,21 +170,33 @@ class WordAds_Smart {
 		global $post;
 
 		$config = array(
-			'blog_id'       => $this->get_blog_id(),
-			'post_id'       => ( $post instanceof WP_Post ) && is_singular( 'post' ) ? $post->ID : null,
-			'theme'         => $this->theme,
-			'target'        => $this->target_keywords(),
-			'_'             => array(
+			'blog_id'                      => $this->get_blog_id(),
+			'post_id'                      => ( $post instanceof WP_Post ) && is_singular( 'post' ) ? $post->ID : null,
+			'theme'                        => $this->theme,
+			'target'                       => $this->target_keywords(),
+			'_'                            => array(
 				'title'            => __( 'Advertisement', 'jetpack' ),
 				'privacy_settings' => __( 'Privacy Settings', 'jetpack' ),
 			),
-			'inline'        => array(
+			'inline'                       => array(
 				'enabled' => $this->is_inline_enabled,
 			),
-			'bottom_sticky' => array(
+			'bottom_sticky'                => array(
 				'enabled' => true, // TODO: this will not be true by default
 			),
-			'belowpost'     => array(
+			'belowpost'                    => array(
+				'enabled' => true, // TODO: this will not be true by default
+			),
+			'gutenberg_rectangle'          => array(
+				'enabled' => true, // TODO: this will not be true by default
+			),
+			'gutenberg_leaderboard'        => array(
+				'enabled' => true, // TODO: this will not be true by default
+			),
+			'gutenberg_mobile_leaderboard' => array(
+				'enabled' => true, // TODO: this will not be true by default
+			),
+			'gutenberg_skyscraper'         => array(
 				'enabled' => true, // TODO: this will not be true by default
 			),
 		);
