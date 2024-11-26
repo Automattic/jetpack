@@ -47,7 +47,7 @@ const ActionButton: FC< ActionButtonProps > = ( {
 	const [ isDropdownOpen, setIsDropdownOpen ] = useState( false );
 	const [ currentAction, setCurrentAction ] = useState< ComponentProps< typeof Button > >( {} );
 	const { detail } = useProduct( slug );
-	const { manageUrl, purchaseUrl, managePaidPlanPurchaseUrl } = detail;
+	const { manageUrl, purchaseUrl, managePaidPlanPurchaseUrl, renewPaidPlanPurchaseUrl } = detail;
 	const isManageDisabled = ! manageUrl;
 	const dropdownRef = useRef( null );
 	const chevronRef = useRef( null );
@@ -191,7 +191,7 @@ const ActionButton: FC< ActionButtonProps > = ( {
 			case PRODUCT_STATUSES.EXPIRING_SOON:
 				return {
 					...buttonState,
-					href: managePaidPlanPurchaseUrl,
+					href: renewPaidPlanPurchaseUrl,
 					variant: 'primary',
 					label: __( 'Renew my plan', 'jetpack-my-jetpack' ),
 					...( primaryActionOverride &&
@@ -228,6 +228,7 @@ const ActionButton: FC< ActionButtonProps > = ( {
 		primaryActionOverride,
 		isOwned,
 		managePaidPlanPurchaseUrl,
+		renewPaidPlanPurchaseUrl,
 	] );
 
 	const allActions = useMemo(
