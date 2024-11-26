@@ -73,7 +73,7 @@ class ValidateCommandTest extends CommandTestCase {
 	/**
 	 * Data provider for testExecute.
 	 */
-	public function provideExecute() {
+	public static function provideExecute() {
 		$composerWithTypes   = array(
 			'extra' => array(
 				'changelogger' => array(

@@ -25,6 +25,9 @@ import {
 	SearchInterstitial,
 	VideoPressInterstitial,
 	StatsInterstitial,
+	SecurityInterstitial,
+	GrowthInterstitial,
+	CompleteInterstitial,
 } from './components/product-interstitial';
 import JetpackAiProductPage from './components/product-interstitial/jetpack-ai/product-page';
 import RedeemTokenScreen from './components/redeem-token-screen';
@@ -87,8 +90,11 @@ const MyJetpack = () => {
 									<Route path={ MyJetpackRoutes.AddLicense } element={ <AddLicenseScreen /> } />
 								) }
 								<Route path={ MyJetpackRoutes.RedeemToken } element={ <RedeemTokenScreen /> } />
-								<Route path="/redeem-token" element={ <RedeemTokenScreen /> } />
-								<Route path="/jetpack-ai" element={ <JetpackAiProductPage /> } />
+								<Route path={ MyJetpackRoutes.RedeemToken } element={ <RedeemTokenScreen /> } />
+								<Route path={ MyJetpackRoutes.JetpackAi } element={ <JetpackAiProductPage /> } />
+								<Route path={ MyJetpackRoutes.AddSecurity } element={ <SecurityInterstitial /> } />
+								<Route path={ MyJetpackRoutes.AddGrowth } element={ <GrowthInterstitial /> } />
+								<Route path={ MyJetpackRoutes.AddComplete } element={ <CompleteInterstitial /> } />
 							</Routes>
 						</HashRouter>
 					</QueryClientProvider>
