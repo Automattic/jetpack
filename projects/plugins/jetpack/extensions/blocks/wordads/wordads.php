@@ -21,6 +21,18 @@ use Jetpack_Gutenberg;
  */
 class WordAds {
 	/**
+	 * Mapping array of gutenberg ad snippet with the WordAds_Smart formats.
+	 *
+	 * @var array
+	 */
+	public static $gutenberg_ad_snippet_x_smart_format = array(
+		'gutenberg_300x250' => 'gutenberg_rectangle',
+		'gutenberg_728x90'  => 'gutenberg_leaderboard',
+		'gutenberg_320x50'  => 'gutenberg_mobile_leaderboard',
+		'gutenberg_160x600' => 'gutenberg_skyscraper',
+	);
+
+	/**
 	 * Check if site is on WP.com Simple.
 	 *
 	 * @return bool
@@ -127,10 +139,24 @@ class WordAds {
 			$format = $attr['format'];
 		}
 
-		$height  = $ad_tag_ids[ $format ]['height'];
-		$width   = $ad_tag_ids[ $format ]['width'];
-		$snippet = $wordads->get_ad_snippet( $section_id, $height, $width, 'gutenberg', $wordads->get_solo_unit_css() );
-		return $wordads->get_ad_div( 'inline', $snippet, array( $align ) );
+		$height             = $ad_tag_ids[ $format ]['height'];
+		$width              = $ad_tag_ids[ $format ]['width'];
+		$gutenberg_location = 'gutenberg';
+		$snippet            = $wordads->get_ad_snippet( $section_id, $height, $width, $gutenberg_location, $wordads->get_solo_unit_css() );
+
+		$key          = "{$gutenberg_location}_{$width}x{$height}";
+		$smart_format = self::$gutenberg_ad_snippet_x_smart_format[ $key ] ?? null;
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended
+		$is_watl_enabled = $smart_format && ( isset( $_GET[ $smart_format ] ) && 'true' === $_GET[ $smart_format ] );
+
+		$ad_div = $wordads->get_ad_div( 'inline', $snippet, array( $align ) );
+		// Render IPW div if WATL is not enabled.
+		if ( ! $is_watl_enabled ) {
+			return $ad_div;
+		}
+
+		// TODO: Add sas_fallback to the ad_div.
+		return $wordads->get_watl_ad_html_tag( $smart_format );
 	}
 }
 
