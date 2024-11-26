@@ -23,7 +23,10 @@ import { mapInternalPromptTypeToBackendPromptType } from '../lib/prompt/backend-
 import AiAssistantInput from './components/ai-assistant-input';
 import AiAssistantExtensionToolbarDropdown from './components/ai-assistant-toolbar-dropdown';
 import { getBlockHandler, InlineExtensionsContext } from './get-block-handler';
-import { isPossibleToExtendBlock } from './lib/is-possible-to-extend-block';
+import {
+	isPossibleToExtendBlock,
+	useIsPossibleToExtendBlock,
+} from './lib/is-possible-to-extend-block';
 /*
  * Types
  */
@@ -89,6 +92,9 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		const lastRequest = useRef< RequestOptions | null >( null );
 		// Ref to the requesting state to use it in the hideOnBlockFocus effect.
 		const requestingStateRef = useRef< RequestingStateProp | null >( null );
+
+		const canExtendBlock = useIsPossibleToExtendBlock( blockName );
+
 		// Data and functions from the editor.
 		const { undo } = useDispatch( 'core/editor' ) as CoreEditorDispatch;
 		const { postId } = useSelect( select => {
@@ -498,7 +504,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			<>
 				<BlockEdit { ...props } />
 
-				{ showAiControl && (
+				{ showAiControl && canExtendBlock && (
 					<AiAssistantInput
 						customPlaceholder={ customPlaceholder ? customPlaceholder : null }
 						className={ className }
