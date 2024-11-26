@@ -1244,7 +1244,7 @@ function sharing_display( $text = '', $echo = false ) {
 	if ( ! is_string( $sharing_markup ) || ! is_string( $text ) ) {
 		return $text;
 	}
-	l( $text, $sharing_markup );
+
 	if ( $echo ) {
 		echo $text . $sharing_markup; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	} else {
