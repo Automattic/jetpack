@@ -66,6 +66,13 @@ abstract class Product {
 	);
 
 	/**
+	 * The duration of time after the plan expiration date that we stop showing the plan status as "expired".
+	 *
+	 * @var string
+	 */
+	const EXPIRATION_CUTOFF_TIME = '+2 months';
+
+	/**
 	 * Whether this product requires a site connection
 	 *
 	 * @var string
@@ -190,6 +197,7 @@ abstract class Product {
 			'post_checkout_url'               => static::get_post_checkout_url(),
 			'post_checkout_urls_by_feature'   => static::get_post_checkout_urls_by_feature(),
 			'manage_paid_plan_purchase_url'   => static::get_manage_paid_plan_purchase_url(),
+			'renew_paid_plan_purchase_url'    => static::get_renew_paid_plan_purchase_url(),
 		);
 	}
 
@@ -522,6 +530,20 @@ abstract class Product {
 	}
 
 	/**
+	 * Gets the paid plan's expiry date.
+	 *
+	 * @return string
+	 */
+	public static function get_paid_plan_expiration_date() {
+		$purchase = static::get_paid_plan_purchase_for_product();
+		if ( ! $purchase ) {
+			return 'paid-plan-does-not-exist';
+		}
+
+		return $purchase->expiry_date;
+	}
+
+	/**
 	 * Gets the paid plan's expiry status.
 	 *
 	 * @return string
@@ -538,12 +560,17 @@ abstract class Product {
 	/**
 	 * Checks if the paid plan is expired or not.
 	 *
+	 * @param bool $not_expired_after_cutoff - whether to not return the plan as expired if the plan has been expired for some duration of time.
 	 * @return bool
 	 */
-	public static function is_paid_plan_expired() {
+	public static function is_paid_plan_expired( $not_expired_after_cutoff = false ) {
 		$expiry_status = static::get_paid_plan_expiration_status();
+		$expiry_date   = static::get_paid_plan_expiration_date();
+		$expiry_cutoff = strtotime( $expiry_date . ' ' . self::EXPIRATION_CUTOFF_TIME );
 
-		return $expiry_status === Products::STATUS_EXPIRED;
+		return $not_expired_after_cutoff
+			? $expiry_status === Products::STATUS_EXPIRED && strtotime( 'now' ) < $expiry_cutoff
+			: $expiry_status === Products::STATUS_EXPIRED;
 	}
 
 	/**
@@ -558,20 +585,32 @@ abstract class Product {
 	}
 
 	/**
-	 * Gets the url to manage the paid plan's purchased subscription (For renewing, canceling).
+	 * Gets the url to manage the paid plan's purchased subscription (for plan renewal, canceling, removal, etc).
 	 *
-	 * @param bool $is_renewal - whether to return the purchase management page or the checkout renewal url.
-	 * @return string|null The url to the purchase management page or the checkout renewal page.
+	 * @return string|null The url to the purchase management page.
 	 */
-	public static function get_manage_paid_plan_purchase_url( $is_renewal = false ) {
+	public static function get_manage_paid_plan_purchase_url() {
 		$purchase    = static::get_paid_plan_purchase_for_product();
 		$site_suffix = ( new Status() )->get_site_suffix();
 
 		if ( $purchase && $site_suffix ) {
-			if ( $is_renewal ) {
-				return 'https://wordpress.com/checkout/' . $purchase->product_slug . '/renew/' . $purchase->ID . '/' . $site_suffix;
-			}
 			return 'https://wordpress.com/me/purchases/' . $site_suffix . '/' . $purchase->ID;
+		}
+
+		return null;
+	}
+
+	/**
+	 * Gets the url to renew the paid plan's purchased subscription.
+	 *
+	 * @return string|null The url to the checkout renewal page.
+	 */
+	public static function get_renew_paid_plan_purchase_url() {
+		$purchase    = static::get_paid_plan_purchase_for_product();
+		$site_suffix = ( new Status() )->get_site_suffix();
+
+		if ( $purchase && $site_suffix ) {
+			return 'https://wordpress.com/checkout/' . $purchase->product_slug . '/renew/' . $purchase->ID . '/' . $site_suffix;
 		}
 
 		return null;
