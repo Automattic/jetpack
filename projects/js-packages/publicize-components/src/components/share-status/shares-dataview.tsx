@@ -1,3 +1,4 @@
+import { DataViews } from '@wordpress/dataviews';
 import { getDate, humanTimeDiff } from '@wordpress/date';
 import { __ } from '@wordpress/i18n';
 import { PostShareStatus, ShareStatusItem } from '../../social-store/types';
@@ -9,6 +10,8 @@ import styles from './styles.module.scss';
 const getItemId = ( item: ShareStatusItem ) => {
 	return `${ item.external_id || item.connection_id }:${ item.timestamp }`;
 };
+
+const noop = () => {};
 
 type SharesDataViewProps = {
 	postShareStatus: PostShareStatus;
@@ -24,57 +27,67 @@ type SharesDataViewProps = {
 export function SharesDataView( { postShareStatus }: SharesDataViewProps ) {
 	return (
 		<div className={ styles[ 'dataview-wrapper' ] }>
-			<div className="dataviews-wrapper">
-				<table className="dataviews-view-table">
-					<thead>
-						<tr className="dataviews-view-table__row">
-							<th>{ __( 'Connection', 'jetpack-publicize-components' ) }</th>
-							<th>{ __( 'Time', 'jetpack-publicize-components' ) }</th>
-							<th>{ __( 'Status', 'jetpack-publicize-components' ) }</th>
-							<th>{ __( 'Actions', 'jetpack-publicize-components' ) }</th>
-						</tr>
-					</thead>
-					<tbody>
-						{ postShareStatus.shares.map( item => (
-							<tr key={ getItemId( item ) } className="dataviews-view-table__row">
-								<td>
-									<div className="dataviews-view-table__cell-content-wrapper">
-										<div className={ styles[ 'connection-name' ] }>
-											<ConnectionIcon
-												serviceName={ item.service }
-												label={ item.external_name }
-												profilePicture={ item.profile_picture }
-											/>
-											<div className={ styles[ 'share-item-name-wrapper' ] }>
-												<div className={ styles[ 'share-item-name' ] }>{ item.external_name }</div>
-											</div>
-										</div>
-									</div>
-								</td>
-								<td>
-									<div className="dataviews-view-table__cell-content-wrapper">
-										{ humanTimeDiff(
-											// @ts-expect-error - humanTimeDiff is incorrectly typed, first argument can be a timestamp
-											item.timestamp * 1000,
-											getDate( null )
-										) }
-									</div>
-								</td>
-								<td>
-									<div className="dataviews-view-table__cell-content-wrapper">
-										<ShareStatusLabel status={ item.status } message={ item.message } />
-									</div>
-								</td>
-								<td>
-									<div className="dataviews-view-table__cell-content-wrapper">
-										<ShareStatusAction shareItem={ item } />
-									</div>
-								</td>
-							</tr>
-						) ) }
-					</tbody>
-				</table>
-			</div>
+			<DataViews
+				isLoading={ postShareStatus.loading }
+				getItemId={ getItemId }
+				fields={ [
+					{
+						id: 'connection',
+						label: __( 'Connection', 'jetpack' ),
+						render: ( { item } ) => (
+							<div className={ styles[ 'connection-name' ] }>
+								<ConnectionIcon
+									serviceName={ item.service }
+									label={ item.external_name }
+									profilePicture={ item.profile_picture }
+								/>
+								<div className={ styles[ 'share-item-name-wrapper' ] }>
+									<div className={ styles[ 'share-item-name' ] }>{ item.external_name }</div>
+								</div>
+							</div>
+						),
+						enableSorting: false,
+						enableHiding: false,
+					},
+					{
+						id: 'timestamp',
+						label: __( 'Time', 'jetpack' ),
+						render: ( { item } ) => {
+							return humanTimeDiff(
+								// @ts-expect-error - humanTimeDiff is incorrectly typed, first argument can be a timestamp
+								item.timestamp * 1000,
+								getDate( null )
+							);
+						},
+						enableSorting: false,
+						enableHiding: false,
+					},
+					{
+						id: 'status',
+						label: __( 'Status', 'jetpack' ),
+						render: ( { item } ) => (
+							<ShareStatusLabel status={ item.status } message={ item.message } />
+						),
+						enableSorting: false,
+						enableHiding: false,
+					},
+					{
+						id: 'actions',
+						label: __( 'Actions', 'jetpack' ),
+						render: ( { item } ) => <ShareStatusAction shareItem={ item } />,
+						enableSorting: false,
+						enableHiding: false,
+					},
+				] }
+				data={ postShareStatus.shares }
+				view={ { type: 'table' } }
+				defaultLayouts={ { table: {} } }
+				onChangeView={ noop }
+				paginationInfo={ {
+					totalItems: postShareStatus.shares.length,
+					totalPages: 1,
+				} }
+			/>
 		</div>
 	);
 }
