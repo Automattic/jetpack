@@ -1,7 +1,7 @@
 name: Build Docker
 on:
   push:
-    branches: [ 'trunk' ]
+    branches: ['trunk']
     paths:
       - 'tools/docker/Dockerfile'
       - 'tools/docker/bin/run.sh'
@@ -22,11 +22,11 @@ concurrency:
 jobs:
   build:
     name: Build and publish Jetpack Dev Environment
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       packages: write
       contents: read
-    timeout-minutes: 60  # 2021-10-26: Build for arm64 is S-L-O-W. Sigh.
+    timeout-minutes: 60 # 2021-10-26: Build for arm64 is S-L-O-W. Sigh.
 
     steps:
       - uses: actions/checkout@v4

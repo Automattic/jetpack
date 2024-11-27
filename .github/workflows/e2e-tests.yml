@@ -5,7 +5,7 @@ on:
     paths-ignore:
       - '**.md'
   repository_dispatch:
-    types: [ 'e2e tests**' ]
+    types: ['e2e tests**']
 
 concurrency:
   group: e2e-tests-${{ github.event_name }}-${{ github.ref }}-${{ github.event.action }}
@@ -13,9 +13,9 @@ concurrency:
 
 jobs:
   create-test-matrix:
-    name: "Determine tests matrix"
-    runs-on: ubuntu-latest
-    timeout-minutes: 5  # 2023-09-15: The pnpm install may take a few minutes on cache miss.
+    name: 'Determine tests matrix'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5 # 2023-09-15: The pnpm install may take a few minutes on cache miss.
     # Only run tests in the main repository
     if: github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name
     outputs:
@@ -62,7 +62,7 @@ jobs:
           echo "build-matrix=$BUILD_MATRIX" >> "$GITHUB_OUTPUT"
 
   build-projects:
-    name: "E2E: Build ${{ matrix.buildGroup }}"
+    name: 'E2E: Build ${{ matrix.buildGroup }}'
     runs-on: ubuntu-latest
     needs: create-test-matrix
     timeout-minutes: 30
@@ -98,7 +98,7 @@ jobs:
         id: build-step
         if: steps.jetpack-build-cache.outputs.cache-hit != 'true'
         env:
-          COMPOSER_ROOT_VERSION: "dev-trunk"
+          COMPOSER_ROOT_VERSION: 'dev-trunk'
           BUILD_DIR: ./build-output
           PROJECT_PATH: ${{ matrix.path }}
         run: |
@@ -133,9 +133,9 @@ jobs:
           key: ${{ steps.jetpack-build-cache.outputs.cache-primary-key }}
 
   e2e-tests:
-    name: "${{ matrix.project }} e2e tests"
+    name: '${{ matrix.project }} e2e tests'
     runs-on: ubuntu-latest
-    needs: [ create-test-matrix, build-projects ]
+    needs: [create-test-matrix, build-projects]
     # The "always() && ! cancelled() && ! failure()" bit is needed to still run if the build was skipped.
     if: >
       always() && ! cancelled() && ! failure() &&
@@ -185,7 +185,7 @@ jobs:
 
       - name: Prepare build
         env:
-          COMPOSER_ROOT_VERSION: "dev-trunk"
+          COMPOSER_ROOT_VERSION: 'dev-trunk'
           BUILD_DIR: ./build-output
           PROJECT_PATH: ${{ matrix.path }}
           SUITE: ${{ matrix.suite }}
@@ -303,7 +303,7 @@ jobs:
           include-hidden-files: true
 
   test-report:
-    name: "Test report"
+    name: 'Test report'
     runs-on: ubuntu-latest
     if: ${{ success() || failure() }}
     needs: [e2e-tests]
@@ -340,7 +340,7 @@ jobs:
           client-payload: ${{ steps.report-context.outputs.client_payload }}
 
   slack-notification:
-    name: "Slack notification"
+    name: 'Slack notification'
     runs-on: ubuntu-latest
     if: ${{ success() || failure() }}
     needs: [e2e-tests]
@@ -376,16 +376,14 @@ jobs:
           VERSION: ${{ github.event.client_payload.ref_name }}
         run: echo "NOTIFICATION_SUITE=rc-${VERSION}" >> $GITHUB_ENV
 
-      - name: "Send notification"
+      - name: 'Send notification'
         uses: ./projects/github-actions/test-results-to-slack
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           slack_token: ${{ secrets.SLACK_TOKEN }}
           slack_channel: ${{ secrets.SLACK_E2E_CHANNEL }}
-          slack_icon_emoji: ":jetpack:"
+          slack_icon_emoji: ':jetpack:'
           suite_name: ${{ env.NOTIFICATION_SUITE }}
           playwright_report_path: test-output/**/summary.json
           playwright_output_dir: test-output/**/results
           rules_configuration_path: .github/files/e2e-tests/notification-rules.json
-
-

@@ -3,19 +3,19 @@ name: Tests
 on:
   pull_request:
   push:
-    branches: [ 'trunk', '*/branch-*' ]
+    branches: ['trunk', '*/branch-*']
 concurrency:
   group: tests-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: true
 
 env:
-  COMPOSER_ROOT_VERSION: "dev-trunk"
+  COMPOSER_ROOT_VERSION: 'dev-trunk'
 
 jobs:
   create-matrix:
-    name: "Determine tests matrix"
-    runs-on: ubuntu-latest
-    timeout-minutes: 1  # 2021-02-03: Should only take a second.
+    name: 'Determine tests matrix'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 1 # 2021-02-03: Should only take a second.
     outputs:
       matrix: ${{ steps.create-matrix.outputs.matrix }}
     steps:
@@ -330,7 +330,7 @@ jobs:
   plugin-deps:
     name: Check plugin monorepo dep versions
     runs-on: ubuntu-latest
-    timeout-minutes: 2  # 2022-09-08: Should only take a few seconds.
+    timeout-minutes: 2 # 2022-09-08: Should only take a few seconds.
     steps:
       - uses: actions/checkout@v4
       - name: Setup tools
@@ -369,7 +369,7 @@ jobs:
   phan:
     name: Static analysis
     runs-on: ubuntu-latest
-    timeout-minutes: 20  # 2024-05-02: Up to about 8 minutes now that we're running against the old WP stubs too.
+    timeout-minutes: 20 # 2024-05-02: Up to about 8 minutes now that we're running against the old WP stubs too.
     steps:
       - uses: actions/checkout@v4
       - name: Setup tools
