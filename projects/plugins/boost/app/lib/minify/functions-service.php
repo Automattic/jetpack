@@ -142,13 +142,7 @@ function jetpack_boost_page_optimize_build_output() {
 
 	$args = substr( $args, strpos( $args, '?' ) + 1 );
 
-	$paths = File_Paths::get( $args );
-	if ( $paths ) {
-		$args = $paths->get_paths();
-	} elseif ( false === $args ) {
-		// Invalid data, abort!
-		jetpack_boost_page_optimize_status_exit( 400 );
-	}
+	$args = jetpack_boost_page_optimize_get_file_paths( $args );
 
 	// args contain something like array( '/foo/bar.css', '/foo1/bar/baz.css' )
 	if ( 0 === count( $args ) || count( $args ) > $concat_max_files ) {
@@ -286,6 +280,39 @@ function jetpack_boost_page_optimize_build_output() {
 		'headers' => $headers,
 		'content' => $pre_output . $output,
 	);
+}
+
+function jetpack_boost_page_optimize_get_file_paths( $args ) {
+	$paths = File_Paths::get( $args );
+	if ( $paths ) {
+		$args = $paths->get_paths();
+	} else {
+		// Kept for backward compatibility in case cached page is still referring to old formal asset URLs. Remove after $$next-version$$.
+
+		// It's a base64 encoded list of file path.
+		// e.g.: /_jb_static/??-eJzTT8vP109KLNJLLi7W0QdyDEE8IK4CiVjn2hpZGluYmKcDABRMDPM=
+		if ( '-' === $args[0] ) {
+
+			// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged,WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
+			$args = @gzuncompress( base64_decode( substr( $args, 1 ) ) );
+		}
+
+		// It's an unencoded comma separated list of file paths.
+		// /foo/bar.css,/foo1/bar/baz.css?m=293847g
+		$version_string_pos = strpos( $args, '?' );
+		if ( false !== $version_string_pos ) {
+			$args = substr( $args, 0, $version_string_pos );
+		}
+		// /foo/bar.css,/foo1/bar/baz.css
+		$args = explode( ',', $args );
+	}
+
+	if ( false === $args ) {
+		// Invalid data, abort!
+		jetpack_boost_page_optimize_status_exit( 400 );
+	}
+
+	return $args;
 }
 
 function jetpack_boost_page_optimize_status_exit( $status ) {
