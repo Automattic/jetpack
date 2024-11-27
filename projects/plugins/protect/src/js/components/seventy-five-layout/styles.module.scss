@@ -7,7 +7,17 @@
 		grid-column: 1 / span 6;
 	}
 
+	.spacer {
+		grid-column: 7 / span 1;
+	}
+
 	.secondary {
 		grid-column: 8 / span 5;
 	}
 }
+
+// @media ( max-width: 1600px ) {
+// 	.secondary {
+// 		margin-top: calc( var( --spacing-base ) * 3 ); // 24px
+// 	}
+// }

@@ -13,7 +13,6 @@
 
 .stat-cards-wrapper {
     display: flex;
-    margin-left: auto;
 
     > *:not( last-child ) {
         margin-right: calc( var( --spacing-base ) * 3 ); // 24px
@@ -54,28 +53,4 @@
 	max-width: 240px;
 	border-radius: 4px;
 	text-align: left;
-}
-
-@media ( max-width: 1115px ) {
-    .stat-cards-wrapper {
-        margin-top: calc( var( --spacing-base ) * 3 ); // 24px
-        flex-wrap: wrap;
-
-    }
-}
-
-@media ( max-width: 599px ) {
-    .stat-cards-wrapper {
-        margin-top: calc( var( --spacing-base ) * 3 ); // 24px
-        flex-wrap: wrap;
-
-        > *:not( last-child ) {
-            margin-right: 0;
-            margin-bottom: var( --spacing-base ); // 8px
-        }
-    }
-
-    .stat-card-icon {
-        margin-bottom: 0;
-    }
 }

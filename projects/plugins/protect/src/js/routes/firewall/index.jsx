@@ -5,6 +5,7 @@ import {
 	Text,
 	ContextualUpgradeTrigger,
 	useBreakpointMatch,
+	ToggleControl,
 	Notice as JetpackNotice,
 } from '@automattic/jetpack-components';
 import { Popover } from '@wordpress/components';
@@ -14,7 +15,6 @@ import { Icon, closeSmall } from '@wordpress/icons';
 import moment from 'moment';
 import { useCallback, useEffect, useState, useMemo } from 'react';
 import AdminPage from '../../components/admin-page';
-import FormToggle from '../../components/form-toggle';
 import Textarea from '../../components/textarea';
 import { FREE_PLUGIN_SUPPORT_URL, PAID_PLUGIN_SUPPORT_URL } from '../../constants';
 import useWafSeenMutation from '../../data/waf/use-waf-seen-mutation';
@@ -283,7 +283,7 @@ const FirewallPage = () => {
 				}` }
 			>
 				<div className={ styles[ 'toggle-section__control' ] }>
-					<FormToggle
+					<ToggleControl
 						checked={ canToggleAutomaticRules ? jetpackWafAutomaticRules : false }
 						onChange={ withFormState( handleAutomaticRulesChange ) }
 						disabled={ ! canEditFirewallSettings || ! canToggleAutomaticRules || isUpdating }
@@ -416,7 +416,7 @@ const FirewallPage = () => {
 	const bruteForceProtectionSettings = (
 		<div className={ styles[ 'toggle-section' ] }>
 			<div className={ styles[ 'toggle-section__control' ] }>
-				<FormToggle
+				<ToggleControl
 					id="brute_force_protection"
 					checked={ isBruteForceModuleEnabled }
 					onChange={ withFormState( toggleBruteForceProtection ) }
@@ -444,7 +444,7 @@ const FirewallPage = () => {
 			}` }
 		>
 			<div className={ styles[ 'toggle-section__control' ] }>
-				<FormToggle
+				<ToggleControl
 					id="jetpack_waf_ip_block_list_enabled"
 					checked={ ipBlockListEnabled }
 					onChange={ withFormState( toggleIpBlockList ) }
@@ -500,7 +500,7 @@ const FirewallPage = () => {
 		<>
 			<div className={ styles[ 'toggle-section' ] }>
 				<div className={ styles[ 'toggle-section__control' ] }>
-					<FormToggle
+					<ToggleControl
 						id="jetpack_waf_ip_allow_list_enabled"
 						checked={ jetpackWafIpAllowListEnabled }
 						onChange={ toggleIpAllowList }

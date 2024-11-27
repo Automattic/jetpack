@@ -1,6 +1,6 @@
 /* eslint-disable react/react-in-jsx-scope */
 import React from 'react';
-import Alert from '../index.jsx';
+import Alert from '../index.tsx';
 
 export default {
 	title: 'Plugins/Protect/Alert Icon',
