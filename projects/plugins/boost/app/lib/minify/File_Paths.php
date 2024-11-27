@@ -40,7 +40,8 @@ final class File_Paths extends Cacheable {
 
 	public static function jsonUnserialize( $data ) {
 		$instance = new self();
-		return $instance->set( $data['paths'], $data['mtime'], $data['cache_buster'] );
+		$instance->set( $data['paths'], $data['mtime'], $data['cache_buster'] );
+		return $instance;
 	}
 
 	protected function generate_cache_id() {
