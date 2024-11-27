@@ -19,10 +19,6 @@
         margin-right: calc( var( --spacing-base ) * 3 ); // 24px
     }
 
-    .error {
-        border: 2px solid var( --jp-red-50 );
-    }
-
     .disabled {
         opacity: 0.5;
     }
@@ -52,10 +48,6 @@
         white-space: nowrap;
     }
 }
-
-// .stat-card-label {
-//     white-space: nowrap;
-// }
 
 .stat-card-tooltip {
 	margin-top: 8px;

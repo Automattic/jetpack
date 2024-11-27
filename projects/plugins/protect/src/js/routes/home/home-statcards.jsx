@@ -86,7 +86,6 @@ const HomeStatCards = () => {
 	const scanArgs = useMemo(
 		() => ( {
 			...defaultArgs,
-			className: scanError ? styles.error : styles.active,
 			icon: (
 				<span className={ styles[ 'stat-card-icon' ] }>
 					{ scanError ? (
