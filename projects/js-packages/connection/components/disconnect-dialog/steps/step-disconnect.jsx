@@ -25,6 +25,7 @@ const StepDisconnect = props => {
 		context,
 		trackModalClick,
 	} = props;
+	console.log( disconnectError );
 
 	const trackLearnClick = useCallback(
 		() => trackModalClick( 'jetpack_disconnect_dialog_click_learn_about' ),
@@ -188,7 +189,7 @@ StepDisconnect.propTypes = {
 	/** Callback function that is triggered by clicking the "Disconnect" button. */
 	onDisconnect: PropTypes.func,
 	/** An error that occurred during a request to disconnect. */
-	disconnectError: PropTypes.bool,
+	disconnectError: PropTypes.oneOfType( [ PropTypes.string, PropTypes.bool ] ),
 	/** A component to be rendered as part of this step */
 	disconnectStepComponent: PropTypes.element,
 	/** Plugins that are using the Jetpack connection. */
