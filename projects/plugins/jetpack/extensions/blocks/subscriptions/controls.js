@@ -1,6 +1,5 @@
 import { numberFormat } from '@automattic/jetpack-components';
-import { usePublicizeConfig } from '@automattic/jetpack-publicize-components';
-import { isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
+import { isSimpleSite, useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
 import {
 	ContrastChecker,
 	PanelColorSettings,
@@ -56,7 +55,7 @@ export default function SubscriptionControls( {
 	subscribePlaceholder = DEFAULT_SUBSCRIBE_PLACEHOLDER,
 	successMessage = DEFAULT_SUCCESS_MESSAGE,
 } ) {
-	const { isPublicizeEnabled } = usePublicizeConfig();
+	const { isModuleActive: isPublicizeEnabled } = useModuleStatus( 'publicize' );
 
 	return (
 		<>
