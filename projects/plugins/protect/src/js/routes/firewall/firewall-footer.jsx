@@ -1,5 +1,4 @@
 import { Title, Text, Button, ToggleControl } from '@automattic/jetpack-components';
-import { CheckboxControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { useState, useEffect, useCallback } from 'react';
 import AdminSectionHero from '../../components/admin-section-hero';
