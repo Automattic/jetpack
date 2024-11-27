@@ -117,24 +117,6 @@ const FirewallPage = () => {
 	);
 
 	/**
-	 * Returns an event listener that syncs the target input's value with form state, before calling a callback.
-	 *
-	 * @param {*} callback - The function to call with the input's value.
-	 * @return {Function} - Event listener
-	 */
-	const withFormState = callback => {
-		return event => {
-			const { id, value, ariaChecked } = event.target;
-			const inputValue = ariaChecked ? ariaChecked !== 'true' : value;
-			setFormState( prevState => ( {
-				...prevState,
-				[ id ]: inputValue,
-			} ) );
-			return callback( inputValue );
-		};
-	};
-
-	/**
 	 * Handle Automatic Rules Change
 	 *
 	 * Toggles the WAF's automatic rules option.
@@ -285,7 +267,7 @@ const FirewallPage = () => {
 				<div className={ styles[ 'toggle-section__control' ] }>
 					<ToggleControl
 						checked={ canToggleAutomaticRules ? jetpackWafAutomaticRules : false }
-						onChange={ withFormState( handleAutomaticRulesChange ) }
+						onChange={ handleAutomaticRulesChange }
 						disabled={ ! canEditFirewallSettings || ! canToggleAutomaticRules || isUpdating }
 					/>
 					{ hasPlan && upgradeIsSeen === false && (
@@ -417,9 +399,8 @@ const FirewallPage = () => {
 		<div className={ styles[ 'toggle-section' ] }>
 			<div className={ styles[ 'toggle-section__control' ] }>
 				<ToggleControl
-					id="brute_force_protection"
 					checked={ isBruteForceModuleEnabled }
-					onChange={ withFormState( toggleBruteForceProtection ) }
+					onChange={ toggleBruteForceProtection }
 					disabled={ isUpdating }
 				/>
 			</div>
@@ -445,9 +426,8 @@ const FirewallPage = () => {
 		>
 			<div className={ styles[ 'toggle-section__control' ] }>
 				<ToggleControl
-					id="jetpack_waf_ip_block_list_enabled"
 					checked={ ipBlockListEnabled }
-					onChange={ withFormState( toggleIpBlockList ) }
+					onChange={ toggleIpBlockList }
 					disabled={ ! canEditFirewallSettings }
 				/>
 			</div>
@@ -464,7 +444,6 @@ const FirewallPage = () => {
 				{ ( ipBlockListEnabled || ipBlockListHasContent ) && (
 					<div className={ styles[ 'manual-rules-section' ] }>
 						<Textarea
-							id="jetpack_waf_ip_block_list"
 							placeholder={ __( 'Example:', 'jetpack-protect' ) + '\n12.12.12.1\n12.12.12.2' }
 							rows={ 3 }
 							value={ formState.jetpack_waf_ip_block_list }
@@ -501,7 +480,6 @@ const FirewallPage = () => {
 			<div className={ styles[ 'toggle-section' ] }>
 				<div className={ styles[ 'toggle-section__control' ] }>
 					<ToggleControl
-						id="jetpack_waf_ip_allow_list_enabled"
 						checked={ jetpackWafIpAllowListEnabled }
 						onChange={ toggleIpAllowList }
 						disabled={ isUpdating }

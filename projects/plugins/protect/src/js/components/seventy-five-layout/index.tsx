@@ -43,7 +43,7 @@ const SeventyFiveLayout: React.FC< SeventyFiveLayoutProps > = ( {
 	fluid,
 } ) => {
 	// Ensure the correct typing for useBreakpointMatch
-	const [ isSmall, isLarge ] = useBreakpointMatch( [ 'sm', 'lg' ] );
+	const [ isSmall ] = useBreakpointMatch( [ 'sm', 'lg' ] );
 
 	/*
 	 * By convention, secondary section is not shown when:
@@ -59,7 +59,6 @@ const SeventyFiveLayout: React.FC< SeventyFiveLayoutProps > = ( {
 					<Col className={ mainClassName } sm={ 12 } md={ 4 } lg={ 6 }>
 						{ main }
 					</Col>
-					{ isLarge && <Col lg={ 1 } /> }
 					<Col className={ secondaryClassName } sm={ 12 } md={ 4 } lg={ 5 }>
 						{ secondary }
 					</Col>
