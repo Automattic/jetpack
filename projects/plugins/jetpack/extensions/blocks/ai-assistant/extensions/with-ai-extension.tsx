@@ -69,7 +69,7 @@ type CoreEditorSelect = { getCurrentPostId: () => number };
 
 // HOC to populate the block's edit component with the AI Assistant control inpuit and toolbar button.
 const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
-	return props => {
+	function ExtendedBlock( props ) {
 		// Block props. isSelectionEnabled is used to determine if the block is in the editor or in the preview.
 		const { clientId, isSelected, name: blockName, isSelectionEnabled } = props;
 		// Ref to the control wrapper, its height and its ResizeObserver, for positioning adjustments.
@@ -91,7 +91,6 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		// Ref to the requesting state to use it in the hideOnBlockFocus effect.
 		const requestingStateRef = useRef< RequestingStateProp | null >( null );
 
-		const isRequiredModulePresent = useBlockModuleStatus( blockName );
 		// Data and functions from the editor.
 		const { undo } = useDispatch( 'core/editor' ) as CoreEditorDispatch;
 		const { postId } = useSelect( select => {
@@ -501,7 +500,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			<>
 				<BlockEdit { ...props } />
 
-				{ showAiControl && isRequiredModulePresent && (
+				{ showAiControl && (
 					<AiAssistantInput
 						customPlaceholder={ customPlaceholder ? customPlaceholder : null }
 						className={ className }
@@ -521,14 +520,12 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 				) }
 
 				<BlockControls { ...blockControlsProps }>
-					{ isRequiredModulePresent && (
-						<AiAssistantExtensionToolbarDropdown
-							blockType={ blockName }
-							onAskAiAssistant={ handleAskAiAssistant }
-							onRequestSuggestion={ handleRequestSuggestion }
-							behavior={ behavior }
-						/>
-					) }
+					<AiAssistantExtensionToolbarDropdown
+						blockType={ blockName }
+						onAskAiAssistant={ handleAskAiAssistant }
+						onRequestSuggestion={ handleRequestSuggestion }
+						behavior={ behavior }
+					/>
 				</BlockControls>
 			</>
 		);
@@ -546,6 +543,17 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 				{ aiInlineExtensionContent }
 			</InlineExtensionsContext.Provider>
 		);
+	}
+
+	return props => {
+		const isRequiredModulePresent = useBlockModuleStatus( props.name );
+
+		// If the required module is not enabled, return the original block edit component early.
+		if ( ! isRequiredModulePresent ) {
+			return <BlockEdit { ...props } />;
+		}
+
+		return <ExtendedBlock { ...props } />;
 	};
 }, 'blockEditWithAiComponents' );
 
