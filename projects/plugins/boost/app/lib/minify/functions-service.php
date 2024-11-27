@@ -287,7 +287,8 @@ function jetpack_boost_page_optimize_get_file_paths( $args ) {
 	if ( $paths ) {
 		$args = $paths->get_paths();
 	} else {
-		// Kept for backward compatibility in case cached page is still referring to old formal asset URLs. Remove after $$next-version$$.
+		// Kept for backward compatibility in case cached page is still referring to old formal asset URLs.
+		// @deprecated since $$next-version$$
 
 		// It's a base64 encoded list of file path.
 		// e.g.: /_jb_static/??-eJzTT8vP109KLNJLLi7W0QdyDEE8IK4CiVjn2hpZGluYmKcDABRMDPM=
