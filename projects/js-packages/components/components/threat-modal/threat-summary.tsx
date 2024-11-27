@@ -19,7 +19,7 @@ const ThreatSummary = (): JSX.Element => {
 			{ !! threat.source && (
 				<div>
 					<Button variant="link" isExternalLink={ true } weight="regular" href={ threat.source }>
-						{ __( 'See more technical details of this threat', 'jetpack' ) }
+						{ __( 'See more technical details of this threat', 'jetpack-components' ) }
 					</Button>
 				</div>
 			) }

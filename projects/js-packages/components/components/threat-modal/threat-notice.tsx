@@ -60,7 +60,7 @@ const ThreatNotice = ( {
 								isLoading={ userIsConnecting }
 								onClick={ handleConnectUser }
 							>
-								{ __( 'Connect your user account', 'jetpack' ) }
+								{ __( 'Connect your user account', 'jetpack-components' ) }
 							</Button>
 						) }
 						{ siteCredentialsNeeded && (
@@ -71,7 +71,7 @@ const ThreatNotice = ( {
 								href={ credentialsRedirectUrl }
 								isLoading={ credentialsIsFetching }
 							>
-								{ __( 'Enter server credentials', 'jetpack' ) }
+								{ __( 'Enter server credentials', 'jetpack-components' ) }
 							</Button>
 						) }
 					</div>

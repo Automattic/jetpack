@@ -29,7 +29,7 @@ const showPriceDecimals = ( currencyObject: CurrencyObject ): boolean => {
  */
 const PricingCard: React.FC< PricingCardProps > = ( {
 	currencyCode = 'USD',
-	priceDetails = __( '/month, paid yearly', 'jetpack' ),
+	priceDetails = __( '/month, paid yearly', 'jetpack-components' ),
 	...props
 } ) => {
 	const currencyObjectBefore = getCurrencyObject( props.priceBefore, currencyCode );
@@ -44,7 +44,7 @@ const PricingCard: React.FC< PricingCardProps > = ( {
 							src={ props.icon }
 							alt={ sprintf(
 								/* translators: placeholder is a product name */
-								__( 'Icon for the product %s', 'jetpack' ),
+								__( 'Icon for the product %s', 'jetpack-components' ),
 								props.title
 							) }
 						/>

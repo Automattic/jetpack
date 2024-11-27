@@ -21,7 +21,7 @@ export const UnsupportedConnectionsNotice: React.FC = () => {
 				{ createInterpolateElement(
 					__(
 						'Twitter is not supported anymore. <moreInfo>Learn more here</moreInfo>.',
-						'jetpack'
+						'jetpack-publicize-components'
 					),
 					{
 						moreInfo: <ExternalLink href={ connectionsPageUrl } />,

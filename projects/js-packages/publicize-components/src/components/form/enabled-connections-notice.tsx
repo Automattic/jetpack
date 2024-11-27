@@ -28,7 +28,7 @@ export function EnabledConnectionsNotice() {
 						'This post will be shared to %d connection.',
 						'This post will be shared to %d connections.',
 						validConnections.length,
-						'jetpack'
+						'jetpack-publicize-components'
 					),
 					validConnections.length
 				) }

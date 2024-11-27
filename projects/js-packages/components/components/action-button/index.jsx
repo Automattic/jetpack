@@ -30,7 +30,7 @@ const ActionButton = props => {
 		loadingText,
 		isDisabled,
 		displayError = false,
-		errorMessage = __( 'An error occurred. Please try again.', 'jetpack' ),
+		errorMessage = __( 'An error occurred. Please try again.', 'jetpack-components' ),
 		customClass,
 	} = props;
 

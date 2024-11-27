@@ -59,7 +59,7 @@ const ThreatActions = (): JSX.Element => {
 						variant="secondary"
 						onClick={ onUnignoreClick }
 					>
-						{ __( 'Un-ignore threat', 'jetpack' ) }
+						{ __( 'Un-ignore threat', 'jetpack-components' ) }
 					</Button>
 				) }
 				{ threat.status === 'current' && (
@@ -70,7 +70,7 @@ const ThreatActions = (): JSX.Element => {
 							onClick={ onIgnoreClick }
 							disabled={ disabled || ( fixerState.inProgress && ! fixerState.stale ) }
 						>
-							{ __( 'Ignore threat', 'jetpack' ) }
+							{ __( 'Ignore threat', 'jetpack-components' ) }
 						</Button>
 						{ threat.fixable && (
 							<Button
@@ -79,7 +79,7 @@ const ThreatActions = (): JSX.Element => {
 								onClick={ onFixClick }
 							>
 								{ fixerState.error || fixerState.stale
-									? __( 'Retry fixer', 'jetpack' )
+									? __( 'Retry fixer', 'jetpack-components' )
 									: detailedFixerAction }
 							</Button>
 						) }
