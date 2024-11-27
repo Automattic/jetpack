@@ -16,6 +16,7 @@ const HomeAdminSectionHero: React.FC = () => {
 
 	return (
 		<AdminSectionHero
+			mainClassName={ styles[ 'home-header-main' ] }
 			main={
 				<>
 					<AdminSectionHero.Heading>
@@ -47,6 +48,7 @@ const HomeAdminSectionHero: React.FC = () => {
 					</AdminSectionHero.Subheading>
 				</>
 			}
+			secondaryClassName={ styles[ 'home-header-secondary' ] }
 			secondary={ <HomeStatCards /> }
 		/>
 	);

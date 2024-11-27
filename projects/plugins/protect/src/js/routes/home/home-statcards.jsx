@@ -97,9 +97,11 @@ const HomeStatCards = () => {
 							color={ numThreats ? '#F0B849' : '#069E08' }
 						/>
 					) }
-					<Text className={ styles[ 'stat-card-icon-label' ] } variant="body-extra-small">
-						{ __( 'Scan', 'jetpack-protect' ) }
-					</Text>
+					{ ! isSmall && (
+						<Text className={ styles[ 'stat-card-icon-label' ] } variant="body-extra-small">
+							{ __( 'Scan', 'jetpack-protect' ) }
+						</Text>
+					) }
 				</span>
 			),
 			label: (
@@ -118,7 +120,7 @@ const HomeStatCards = () => {
 			value: numThreats,
 			errorMessage: scanError,
 		} ),
-		[ defaultArgs, scanError, hasPlan, numThreats ]
+		[ defaultArgs, scanError, hasPlan, isSmall, numThreats ]
 	);
 
 	const wafArgs = useMemo(
@@ -128,9 +130,11 @@ const HomeStatCards = () => {
 			icon: (
 				<span className={ styles[ 'stat-card-icon' ] }>
 					{ renderIcon( isWafModuleEnabled ) }{ ' ' }
-					<Text className={ styles[ 'stat-card-icon-label' ] } variant="body-extra-small">
-						{ __( 'Firewall', 'jetpack-protect' ) }
-					</Text>
+					{ ! isSmall && (
+						<Text className={ styles[ 'stat-card-icon-label' ] } variant="body-extra-small">
+							{ __( 'Firewall', 'jetpack-protect' ) }
+						</Text>
+					) }
 				</span>
 			),
 			label: (
@@ -140,7 +144,7 @@ const HomeStatCards = () => {
 			),
 			value: allTimeBlockCount,
 		} ),
-		[ defaultArgs, isWafModuleEnabled, allTimeBlockCount ]
+		[ defaultArgs, isWafModuleEnabled, isSmall, allTimeBlockCount ]
 	);
 
 	const bruteForceArgs = useMemo(
@@ -150,9 +154,11 @@ const HomeStatCards = () => {
 			icon: (
 				<span className={ styles[ 'stat-card-icon' ] }>
 					{ renderIcon( isBruteForceModuleEnabled ) }
-					<Text className={ styles[ 'stat-card-icon-label' ] } variant="body-extra-small">
-						{ __( 'Brute force', 'jetpack-protect' ) }
-					</Text>
+					{ ! isSmall && (
+						<Text className={ styles[ 'stat-card-icon-label' ] } variant="body-extra-small">
+							{ __( 'Brute force', 'jetpack-protect' ) }
+						</Text>
+					) }
 				</span>
 			),
 			label: (
@@ -162,7 +168,7 @@ const HomeStatCards = () => {
 			),
 			value: blockedLoginsCount,
 		} ),
-		[ defaultArgs, isBruteForceModuleEnabled, blockedLoginsCount ]
+		[ defaultArgs, isBruteForceModuleEnabled, isSmall, blockedLoginsCount ]
 	);
 
 	return (

@@ -1,6 +1,5 @@
 import { Container, Col, useBreakpointMatch } from '@automattic/jetpack-components';
 import React from 'react';
-import styles from './styles.module.scss';
 
 // Define the props interface for the SeventyFiveLayout component
 interface SeventyFiveLayoutProps {
@@ -57,9 +56,11 @@ const SeventyFiveLayout: React.FC< SeventyFiveLayoutProps > = ( {
 		<Container horizontalSpacing={ spacing } horizontalGap={ gap } fluid={ fluid }>
 			{ ! hideSecondarySection && (
 				<>
-					<Col className={ `${ styles.main } ${ styles[ mainClassName ] }` }>{ main }</Col>
-					{ isLarge && <Col className={ styles.spacer } /> }
-					<Col className={ `${ styles.secondary } ${ styles[ secondaryClassName ] }` }>
+					<Col className={ mainClassName } sm={ 12 } md={ 4 } lg={ 6 }>
+						{ main }
+					</Col>
+					{ isLarge && <Col lg={ 1 } /> }
+					<Col className={ secondaryClassName } sm={ 12 } md={ 4 } lg={ 5 }>
 						{ secondary }
 					</Col>
 				</>
