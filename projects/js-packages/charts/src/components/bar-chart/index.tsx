@@ -64,7 +64,7 @@ export function BarChart( {
 							y={ y }
 							width={ barWidth }
 							height={ barHeight }
-							fill="#0675C4" // Jetpack blue
+							fill="#0675C4"
 						/>
 					);
 				} ) }
