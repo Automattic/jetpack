@@ -9,6 +9,8 @@ namespace Automattic\Jetpack\Boost_Speed_Score;
 
 use Automattic\Jetpack\Boost_Core\Lib\Boost_API;
 use Automattic\Jetpack\Boost_Core\Lib\Cacheable;
+use Automattic\Jetpack\Boost_Core\Lib\Storage\KV_Storage;
+use Automattic\Jetpack\Boost_Core\Lib\Storage\Transient_Storage;
 use Automattic\Jetpack\Boost_Core\Lib\Url;
 
 /**
@@ -92,6 +94,15 @@ class Speed_Score_Request extends Cacheable {
 	}
 
 	/**
+	 * Get the storage driver.
+	 *
+	 * @return KV_Storage
+	 */
+	protected static function get_storage(): KV_Storage {
+		return new Transient_Storage( 'jetpack_boost_speed_scores_' );
+	}
+
+	/**
 	 * Generate the cache ID from the URL.
 	 *
 	 * @param string $url The URL to get the Speed Scores for.
@@ -113,9 +124,10 @@ class Speed_Score_Request extends Cacheable {
 
 	/**
 	 * Convert this object to a plain array for JSON serialization.
+	 *
+	 * @return array
 	 */
-	#[\ReturnTypeWillChange]
-	public function jsonSerialize() {
+	public function jsonSerialize(): array {
 		return array(
 			'id'             => $this->get_cache_id(),
 			'url'            => $this->url,
@@ -154,15 +166,6 @@ class Speed_Score_Request extends Cacheable {
 		}
 
 		return $object;
-	}
-
-	/**
-	 * Return the cache prefix.
-	 *
-	 * @return string
-	 */
-	protected static function cache_prefix() {
-		return 'jetpack_boost_speed_scores_';
 	}
 
 	/**

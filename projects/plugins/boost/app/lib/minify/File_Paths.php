@@ -3,6 +3,8 @@
 namespace Automattic\Jetpack_Boost\Lib\Minify;
 
 use Automattic\Jetpack\Boost_Core\Lib\Cacheable;
+use Automattic\Jetpack\Boost_Core\Lib\Storage\Filesystem_Storage;
+use Automattic\Jetpack\Boost_Core\Lib\Storage\KV_Storage;
 
 /**
  * Store the hash of the path string so that the concatenated file can be constructed
@@ -38,9 +40,20 @@ final class File_Paths extends Cacheable {
 		return $this->paths;
 	}
 
+	/**
+	 * Get the storage driver.
+	 *
+	 * @return KV_Storage
+	 */
+	protected static function get_storage(): KV_Storage {
+		return new Filesystem_Storage( 'minify-file-paths' );
+	}
+
 	public static function jsonUnserialize( $data ) {
 		$instance = new self();
-		return $instance->set( $data['paths'], $data['mtime'], $data['cache_buster'] );
+		$instance->set( $data['paths'], $data['mtime'], $data['cache_buster'] );
+
+		return $instance;
 	}
 
 	protected function generate_cache_id() {
@@ -48,9 +61,5 @@ final class File_Paths extends Cacheable {
 
 		// Keep cache id small as option keys have a character limit.
 		return substr( $hash, 0, 10 );
-	}
-
-	protected static function cache_prefix() {
-		return 'concat_paths_';
 	}
 }

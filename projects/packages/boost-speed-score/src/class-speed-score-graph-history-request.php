@@ -9,6 +9,8 @@ namespace Automattic\Jetpack\Boost_Speed_Score;
 
 use Automattic\Jetpack\Boost_Core\Lib\Boost_API;
 use Automattic\Jetpack\Boost_Core\Lib\Cacheable;
+use Automattic\Jetpack\Boost_Core\Lib\Storage\KV_Storage;
+use Automattic\Jetpack\Boost_Core\Lib\Storage\Transient_Storage;
 
 /**
  * Class Speed_Score_Graph_History_Request
@@ -68,11 +70,21 @@ class Speed_Score_Graph_History_Request extends Cacheable {
 		$this->retry_count = 0;
 	}
 
-		/**
-	 * Convert this object to a plain array for JSON serialization.
+	/**
+	 * Get the storage driver.
+	 *
+	 * @return KV_Storage
 	 */
-	#[\ReturnTypeWillChange]
-	public function jsonSerialize() {
+	protected static function get_storage(): KV_Storage {
+		return new Transient_Storage( 'jetpack_boost_speed_scores_graph_history_' );
+	}
+
+	/**
+	 * Convert this object to a plain array for JSON serialization.
+	 *
+	 * @return array
+	 */
+	public function jsonSerialize(): array {
 		return array(
 			'start'       => $this->start,
 			'end'         => $this->end,
@@ -100,15 +112,6 @@ class Speed_Score_Graph_History_Request extends Cacheable {
 		}
 
 		return $object;
-	}
-
-	/**
-	 * Return the cache prefix.
-	 *
-	 * @return string
-	 */
-	protected static function cache_prefix() {
-		return 'jetpack_boost_speed_scores_graph_history_';
 	}
 
 	/**

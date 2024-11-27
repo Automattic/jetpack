@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Boost_Core\Lib;
 
+use Automattic\Jetpack\Boost_Core\Lib\Storage\KV_Storage;
+
 /**
  * Class Cacheable.
  */
@@ -41,14 +43,21 @@ abstract class Cacheable implements \JsonSerializable {
 			$this->cache_id = $this->generate_cache_id();
 		}
 
-		Transient::set(
-			static::cache_prefix() . $this->cache_id,
+		static::get_storage()->set(
+			$this->cache_id,
 			$this->jsonSerialize(),
 			$expiry
 		);
 
 		return $this->cache_id;
 	}
+
+	/**
+	 * Get the storage driver.
+	 *
+	 * @return KV_Storage
+	 */
+	abstract protected static function get_storage(): KV_Storage;
 
 	/**
 	 * Default implementation for generating cache key. Generates a random ASCII string.
@@ -74,7 +83,9 @@ abstract class Cacheable implements \JsonSerializable {
 	 * @return null|mixed
 	 */
 	public static function get( $id ) {
-		$data = Transient::get( static::cache_prefix() . $id, false );
+		$storage = static::get_storage();
+		$data    = $storage->get( $id );
+
 		if ( ! $data ) {
 			return null;
 		}
@@ -111,14 +122,14 @@ abstract class Cacheable implements \JsonSerializable {
 	 * Delete the cache entry.
 	 */
 	public function delete() {
-		$this->cache_id && static::delete_by_cache_id( $this->cache_id );
+		$this->cache_id && self::get_storage()->delete( $this->cache_id );
 	}
 
 	/**
 	 * Delete all currently cached entries.
 	 */
-	public static function clear_cache() {
-		Transient::delete_by_prefix( static::cache_prefix() );
+	public function clear_cache() {
+		self::get_storage()->clear();
 	}
 
 	/**
@@ -126,14 +137,7 @@ abstract class Cacheable implements \JsonSerializable {
 	 *
 	 * @param string $cache_id The cache ID.
 	 */
-	public static function delete_by_cache_id( $cache_id ) {
-		Transient::delete( static::cache_prefix() . $cache_id );
+	public function delete_by_cache_id( $cache_id ) {
+		self::get_storage()->delete( $cache_id );
 	}
-
-	/**
-	 * Returns the cache prefix
-	 *
-	 * @throws \Exception Throw an exception to remind to implement the method in child classes.
-	 */
-	abstract protected static function cache_prefix();
 }

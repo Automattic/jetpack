@@ -9,6 +9,8 @@ namespace Automattic\Jetpack\Boost_Core\Lib;
 
 /**
  * Class Transient
+ *
+ * @deprecated since $$next-version$$ Use Transient_Storage instead.
  */
 class Transient {
 
