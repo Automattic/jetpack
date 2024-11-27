@@ -219,7 +219,7 @@
     }
 }
 
-@media ( min-width: 599px ) {
+@media ( max-width: 599px ) {
     .stat-cards-wrapper {
         flex-direction: column;
         gap: var( --spacing-base ); // 8px
