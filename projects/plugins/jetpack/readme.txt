@@ -326,22 +326,12 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.1-a.3 - 2024-11-18
-#### Major Enhancements
-- General: Update minimum PHP version to 7.2.
-- General: Update minimum WordPress version to 6.6.
-
+### 14.1-a.7 - 2024-11-26
 #### Enhancements
-- Social: Added a new toggle for Social UTM tracking.
-- Use wp_register_block_metadata_collection() on WordPress 6.7+ to improve block registration performance by reducing filesystem operations. (See https://core.trac.wordpress.org/changeset/59132)
-
-#### Improved compatibility
-- Dashboard: Fix toggle component to prevent console warnings.
+- Subscriptions: stops loading editor functionality (i.e. the block and panels) when subscriptions module is disabled.
 
 #### Bug fixes
-- Comments: Fix reload after posting.
-- Forms: Fix an error occurring due to a function receiving an unexpected input type.
-- Subscriptions: Fix template preview and edit links for three toggle settings.
+- Social: Fixed undefined index error on specific WordPress.com environments.
 
 --------
 

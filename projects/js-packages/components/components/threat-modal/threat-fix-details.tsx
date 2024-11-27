@@ -1,26 +1,19 @@
-import { Threat, getFixerMessage } from '@automattic/jetpack-scan';
+import { getFixerDescription } from '@automattic/jetpack-scan';
 import { __, sprintf } from '@wordpress/i18n';
-import React, { useMemo } from 'react';
+import React, { useMemo, useContext } from 'react';
 import ContextualUpgradeTrigger from '../contextual-upgrade-trigger';
 import Text from '../text';
 import styles from './styles.module.scss';
+import { ThreatModalContext } from '.';
 
 /**
  * ThreatFixDetails component
  *
- * @param {object}   props                    - The component props.
- * @param {object}   props.threat             - The threat object containing fix details.
- * @param {Function} props.handleUpgradeClick - Function to handle upgrade click events.
- *
  * @return {JSX.Element | null} The rendered fix details or null if no fixable details are available.
  */
-const ThreatFixDetails = ( {
-	threat,
-	handleUpgradeClick,
-}: {
-	threat: Threat;
-	handleUpgradeClick: () => void;
-} ): JSX.Element => {
+const ThreatFixDetails = (): JSX.Element => {
+	const { threat, handleUpgradeClick } = useContext( ThreatModalContext );
+
 	const title = useMemo( () => {
 		if ( threat.status === 'fixed' ) {
 			return __( 'How did Jetpack fix it?', 'jetpack' );
@@ -42,8 +35,9 @@ const ThreatFixDetails = ( {
 				threat.fixedIn
 			);
 		}
+
 		// The threat has an auto-fix available.
-		return getFixerMessage( threat );
+		return getFixerDescription( threat );
 	}, [ threat ] );
 
 	if ( ! threat.fixable && ! threat.fixedIn ) {

@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
 use Automattic\Jetpack\My_Jetpack\Hybrid_Product;
+use Automattic\Jetpack\My_Jetpack\Products;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use Automattic\Jetpack\Status\Host;
 
@@ -149,6 +150,22 @@ class Social extends Hybrid_Product {
 	 */
 	public static function get_wpcom_product_slug() {
 		return 'jetpack_social_v1_yearly';
+	}
+
+	/**
+	 * Gets the 'status' of the Social product
+	 *
+	 * @return string
+	 */
+	public static function get_status() {
+		$status = parent::get_status();
+		if ( Products::STATUS_NEEDS_PLAN === $status ) {
+			// If the status says that the site needs a plan,
+			// My Jetpack shows "Learn more" CTA,
+			// We want to instead show the "Activate" CTA.
+			$status = Products::STATUS_NEEDS_ACTIVATION;
+		}
+		return $status;
 	}
 
 	/**
