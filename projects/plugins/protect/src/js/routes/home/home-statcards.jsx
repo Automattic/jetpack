@@ -118,7 +118,7 @@ const HomeStatCards = () => {
 				</span>
 			),
 			value: numThreats,
-			errorMessage: scanError,
+			error: scanError ? true : false,
 		} ),
 		[ defaultArgs, scanError, hasPlan, isSmall, numThreats ]
 	);

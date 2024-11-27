@@ -27,7 +27,7 @@ export type StatCardProps = {
 	variant?: 'square' | 'horizontal';
 
 	/**
-	 * The error message to be displayed.
+	 * Whether the stat card represents an error.
 	 */
-	errorMessage?: string;
+	error?: boolean;
 };

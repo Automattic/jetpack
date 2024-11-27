@@ -24,7 +24,7 @@ const StatCard = ( {
 	label,
 	value,
 	variant = 'square',
-	errorMessage,
+	error,
 }: StatCardProps ) => {
 	const formattedValue = numberFormat( value );
 	const compactValue = numberFormat( value, {
@@ -40,12 +40,12 @@ const StatCard = ( {
 				{ variant === 'square' ? (
 					<Tooltip text={ formattedValue } placement="top">
 						<Text variant="headline-small" className={ clsx( styles.value ) }>
-							{ errorMessage ? '-' : compactValue }
+							{ error ? '-' : compactValue }
 						</Text>
 					</Tooltip>
 				) : (
 					<Text variant="title-medium-semi-bold" className={ clsx( styles.value ) }>
-						{ errorMessage ? '-' : formattedValue }
+						{ error ? '-' : formattedValue }
 					</Text>
 				) }
 			</div>
