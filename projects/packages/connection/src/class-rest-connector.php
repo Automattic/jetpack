@@ -549,7 +549,7 @@ class REST_Connector {
 	 * @return bool|WP_Error True if user is able to disconnect the site or the request is signed with a blog token (aka a direct request from WPCOM).
 	 */
 	public static function disconnect_site_permission_check() {
-		if ( current_user_can( 'jetpack_disconnect' ) ) {
+		if ( current_user_can( 'jetpack_disconnect' ) || current_user_can( 'jetpack_connect_user' ) ) {
 			return true;
 		}
 
@@ -917,6 +917,11 @@ class REST_Connector {
 	 */
 	public static function disconnect_site() {
 		$connection = new Manager();
+
+		if ( ! current_user_can( 'jetpack_disconnect' ) ) {
+			$connection->disconnect_user();
+			return rest_ensure_response( array( 'code' => 'success' ) );
+		}
 
 		if ( $connection->is_connected() ) {
 			$connection->disconnect_site();
