@@ -45,10 +45,13 @@ const LoadingStep = ( { type }: LoadingStepProps ) => {
 			'Getting things ready in the background — almost there!',
 			'jetpack-my-jetpack'
 		);
-		/* translators: %s: is an emoji 🎉 */
-		const connectionReadyTitle = __( 'Jetpack is connected %s', 'jetpack-my-jetpack' );
+		const connectionReadyTitle = sprintf(
+			/* translators: %s: is an emoji */
+			__( 'Jetpack is connected %s', 'jetpack-my-jetpack' ),
+			'🎉'
+		);
 		const connectionReadyDescription = __(
-			'Youre connected and ready to fly!',
+			'You’re connected and ready to fly!',
 			'jetpack-my-jetpack'
 		);
 
@@ -62,7 +65,7 @@ const LoadingStep = ( { type }: LoadingStepProps ) => {
 					<JetpackLogo />
 				</div>
 				<Text variant="title-medium" mb={ 1 }>
-					{ type === 'connecting' ? connectingTitle : sprintf( connectionReadyTitle, '🎉' ) }
+					{ type === 'connecting' ? connectingTitle : connectionReadyTitle }
 				</Text>
 				<Text variant="body-small">
 					{ type === 'connecting' ? connectingDescription : connectionReadyDescription }
@@ -82,7 +85,7 @@ const LoadingStep = ( { type }: LoadingStepProps ) => {
 				</Text>
 				<Text variant="body-small">
 					{ __(
-						'We‘re crunching the numbers to find the Jetpack tools that are the best match for your site.',
+						'We’re crunching the numbers to find the Jetpack tools that are the best match for your site.',
 						'jetpack-my-jetpack'
 					) }
 				</Text>
