@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
 use Automattic\Jetpack\My_Jetpack\Hybrid_Product;
+use Automattic\Jetpack\My_Jetpack\Products;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use Automattic\Jetpack\Status\Host;
 
@@ -145,6 +146,22 @@ class Social extends Hybrid_Product {
 	}
 
 	/**
+	 * Gets the 'status' of the Social product
+	 *
+	 * @return string
+	 */
+	public static function get_status() {
+		$status = parent::get_status();
+		if ( Products::STATUS_NEEDS_PLAN === $status ) {
+			// If the status says that the site needs a plan,
+			// My Jetpack shows "Learn more" CTA,
+			// We want to instead show the "Activate" CTA.
+			$status = Products::STATUS_NEEDS_ACTIVATION;
+		}
+		return $status;
+	}
+
+	/**
 	 * Checks whether the current plan (or purchases) of the site already supports the product
 	 *
 	 * @return boolean
@@ -159,7 +176,7 @@ class Social extends Hybrid_Product {
 			'jetpack_growth',
 		);
 		// For atomic sites, do a feature check to see if the republicize feature is available
-		// This feature is available by default on all Jetpack sites
+		// This feature is available by default on all Jetpack sites.
 		if ( ( new Host() )->is_woa_site() ) {
 			return static::does_site_have_feature( 'republicize' );
 		}
