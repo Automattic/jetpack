@@ -38,7 +38,10 @@ const HomeStatCards = () => {
 	let lastCheckedLocalTimestamp = null;
 	if ( lastChecked ) {
 		// Convert the lastChecked UTC date to a local timestamp
-		lastCheckedLocalTimestamp = new Date( lastChecked + ' UTC' ).getTime();
+		lastCheckedLocalTimestamp = dateI18n(
+			'F jS g:i A',
+			new Date( lastChecked + ' UTC' ).getTime()
+		);
 	}
 
 	const lastCheckedMessage = useMemo( () => {
@@ -57,7 +60,7 @@ const HomeStatCards = () => {
 			return sprintf(
 				// translators: %1$s: date/time, %2$d: number, %3$s: entity label
 				__( 'Last checked on %1$s: We found %2$d %3$s.', 'jetpack-protect' ),
-				dateI18n( 'F jS g:i A', lastCheckedLocalTimestamp ),
+				lastCheckedLocalTimestamp,
 				numThreats,
 				entityLabel
 			);
@@ -65,7 +68,7 @@ const HomeStatCards = () => {
 		return sprintf(
 			// translators: %s: date/time
 			__( 'Last checked on %s: Your site is secure.', 'jetpack-protect' ),
-			dateI18n( 'F jS g:i A', lastCheckedLocalTimestamp )
+			lastCheckedLocalTimestamp
 		);
 	}, [ scanError, numThreats, lastCheckedLocalTimestamp, hasPlan ] );
 
