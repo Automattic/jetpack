@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.0.0] - 2024-11-25
+### Changed
+- Updated package dependencies. [#40258] [#40288]
+
+### Removed
+- Remove JSX runtime polyfill, now that we've dropped support for WordPress < 6.6. [#40200]
+
 ## [3.0.0] - 2024-11-14
 ### Removed
 - General: Update minimum PHP version to 7.2. [#40147]
@@ -529,6 +536,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Statically access asset tools
 
+[4.0.0]: https://github.com/Automattic/jetpack-assets/compare/v3.0.0...v4.0.0
 [3.0.0]: https://github.com/Automattic/jetpack-assets/compare/v2.3.14...v3.0.0
 [2.3.14]: https://github.com/Automattic/jetpack-assets/compare/v2.3.13...v2.3.14
 [2.3.13]: https://github.com/Automattic/jetpack-assets/compare/v2.3.12...v2.3.13

@@ -152,6 +152,22 @@ class Social extends Hybrid_Product {
 	}
 
 	/**
+	 * Gets the 'status' of the Social product
+	 *
+	 * @return string
+	 */
+	public static function get_status() {
+		$status = parent::get_status();
+		if ( Products::STATUS_NEEDS_PLAN === $status ) {
+			// If the status says that the site needs a plan,
+			// My Jetpack shows "Learn more" CTA,
+			// We want to instead show the "Activate" CTA.
+			$status = Products::STATUS_NEEDS_ACTIVATION;
+		}
+		return $status;
+	}
+
+	/**
 	 * Get the product-slugs of the paid plans for this product (not including bundles)
 	 *
 	 * @return array

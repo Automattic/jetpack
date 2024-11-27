@@ -19,6 +19,7 @@ import React from 'react';
  */
 import useAiFeature from '../hooks/use-ai-feature';
 import useAutoScroll from '../hooks/use-auto-scroll';
+import useBlockModuleStatus from '../hooks/use-block-module-status';
 import { mapInternalPromptTypeToBackendPromptType } from '../lib/prompt/backend-prompt';
 import AiAssistantInput from './components/ai-assistant-input';
 import AiAssistantExtensionToolbarDropdown from './components/ai-assistant-toolbar-dropdown';
@@ -68,7 +69,7 @@ type CoreEditorSelect = { getCurrentPostId: () => number };
 
 // HOC to populate the block's edit component with the AI Assistant control inpuit and toolbar button.
 const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
-	return props => {
+	function ExtendedBlock( props ) {
 		// Block props. isSelectionEnabled is used to determine if the block is in the editor or in the preview.
 		const { clientId, isSelected, name: blockName, isSelectionEnabled } = props;
 		// Ref to the control wrapper, its height and its ResizeObserver, for positioning adjustments.
@@ -89,6 +90,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		const lastRequest = useRef< RequestOptions | null >( null );
 		// Ref to the requesting state to use it in the hideOnBlockFocus effect.
 		const requestingStateRef = useRef< RequestingStateProp | null >( null );
+
 		// Data and functions from the editor.
 		const { undo } = useDispatch( 'core/editor' ) as CoreEditorDispatch;
 		const { postId } = useSelect( select => {
@@ -541,6 +543,17 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 				{ aiInlineExtensionContent }
 			</InlineExtensionsContext.Provider>
 		);
+	}
+
+	return props => {
+		const isRequiredModulePresent = useBlockModuleStatus( props.name );
+
+		// If the required module is not enabled, return the original block edit component early.
+		if ( ! isRequiredModulePresent ) {
+			return <BlockEdit { ...props } />;
+		}
+
+		return <ExtendedBlock { ...props } />;
 	};
 }, 'blockEditWithAiComponents' );
 

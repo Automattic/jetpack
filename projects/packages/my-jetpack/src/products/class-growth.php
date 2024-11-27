@@ -74,7 +74,7 @@ class Growth extends Module_Product {
 	public static function get_features() {
 		return array(
 			_x( 'Jetpack Social', 'Growth Product Feature', 'jetpack-my-jetpack' ),
-			_x( 'Jetpack Stats (100K site views, upgradeable)', 'Growth Product Feature', 'jetpack-my-jetpack' ),
+			_x( 'Jetpack Stats (10K site views, upgradeable)', 'Growth Product Feature', 'jetpack-my-jetpack' ),
 			_x( 'Unlimited subscriber imports', 'Growth Product Feature', 'jetpack-my-jetpack' ),
 			_x( 'Earn more from your content', 'Growth Product Feature', 'jetpack-my-jetpack' ),
 			_x( 'Accept payments with PayPal', 'Growth Product Feature', 'jetpack-my-jetpack' ),
