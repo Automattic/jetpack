@@ -36,19 +36,18 @@ const StatCard = ( {
 		<div className={ clsx( className, styles.wrapper, styles[ variant ] ) }>
 			<div className={ clsx( styles.icon ) }>{ icon }</div>
 			<div className={ clsx( styles.info ) }>
-				<Text className={ styles.label }>{ errorMessage ? errorMessage : label }</Text>
-				{ ! errorMessage &&
-					( variant === 'square' ? (
-						<Tooltip text={ formattedValue } placement="top">
-							<Text variant="headline-small" className={ clsx( styles.value ) }>
-								{ compactValue }
-							</Text>
-						</Tooltip>
-					) : (
-						<Text variant="title-medium-semi-bold" className={ clsx( styles.value ) }>
-							{ formattedValue }
+				<Text className={ styles.label }>{ label }</Text>
+				{ variant === 'square' ? (
+					<Tooltip text={ formattedValue } placement="top">
+						<Text variant="headline-small" className={ clsx( styles.value ) }>
+							{ errorMessage ? '-' : compactValue }
 						</Text>
-					) ) }
+					</Tooltip>
+				) : (
+					<Text variant="title-medium-semi-bold" className={ clsx( styles.value ) }>
+						{ errorMessage ? '-' : formattedValue }
+					</Text>
+				) }
 			</div>
 		</div>
 	);

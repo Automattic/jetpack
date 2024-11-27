@@ -44,7 +44,7 @@ const HomeStatCards = () => {
 	const lastCheckedMessage = useMemo( () => {
 		if ( scanError ) {
 			return __(
-				'A scan error occurred. View your scan report for more detail.',
+				'Please check your connection or try scanning again in a few minutes.',
 				'jetpack-protect'
 			);
 		}
@@ -98,24 +98,26 @@ const HomeStatCards = () => {
 							color={ numThreats ? '#F0B849' : '#069E08' }
 						/>
 					) }
-					<Text className={ styles[ 'stat-card-icon-label' ] } variant="label">
-						{ __( 'Scanning', 'jetpack-protect' ) }
+					<Text className={ styles[ 'stat-card-icon-label' ] } variant="body-extra-small">
+						{ __( 'Scan', 'jetpack-protect' ) }
 					</Text>
 				</span>
 			),
 			label: (
 				<span className={ styles[ 'stat-card-label' ] }>
-					{ sprintf(
-						// translators: %s: "Threats" or "Vulnerabilities"
-						__( '%s found', 'jetpack-protect' ),
-						hasPlan
-							? __( 'Threats', 'jetpack-protect' )
-							: __( 'Vulnerabilities', 'jetpack-protect' )
-					) }
+					{ scanError
+						? __( 'Unable to scan', 'jetpack-protect' )
+						: sprintf(
+								// translators: %s: "Threats" or "Vulnerabilities"
+								__( '%s found', 'jetpack-protect' ),
+								hasPlan
+									? __( 'Threats', 'jetpack-protect' )
+									: __( 'Vulnerabilities', 'jetpack-protect' )
+						  ) }
 				</span>
 			),
 			value: numThreats,
-			errorMessage: scanError ? __( 'Scan error', 'jetpack-protect' ) : null,
+			errorMessage: scanError,
 		} ),
 		[ defaultArgs, scanError, hasPlan, numThreats ]
 	);
@@ -127,7 +129,7 @@ const HomeStatCards = () => {
 			icon: (
 				<span className={ styles[ 'stat-card-icon' ] }>
 					{ renderIcon( isWafModuleEnabled ) }{ ' ' }
-					<Text className={ styles[ 'stat-card-icon-label' ] } variant="label">
+					<Text className={ styles[ 'stat-card-icon-label' ] } variant="body-extra-small">
 						{ __( 'Firewall', 'jetpack-protect' ) }
 					</Text>
 				</span>
@@ -149,8 +151,8 @@ const HomeStatCards = () => {
 			icon: (
 				<span className={ styles[ 'stat-card-icon' ] }>
 					{ renderIcon( isBruteForceModuleEnabled ) }
-					<Text className={ styles[ 'stat-card-icon-label' ] } variant="label">
-						{ __( 'Login protection', 'jetpack-protect' ) }
+					<Text className={ styles[ 'stat-card-icon-label' ] } variant="body-extra-small">
+						{ __( 'Brute force', 'jetpack-protect' ) }
 					</Text>
 				</span>
 			),
