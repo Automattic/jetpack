@@ -1,9 +1,10 @@
 import { Text, useBreakpointMatch, StatCard } from '@automattic/jetpack-components';
-import { Tooltip } from '@wordpress/components';
+import { Spinner, Tooltip } from '@wordpress/components';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { useMemo } from 'react';
 import Alert from '../../components/alert-icon';
 import ProtectCheck from '../../components/protect-check-icon';
+import useScanStatusQuery, { isScanInProgress } from '../../data/scan/use-scan-status-query';
 import usePlan from '../../hooks/use-plan';
 import useProtectData from '../../hooks/use-protect-data';
 import useWafData from '../../hooks/use-waf-data';
@@ -31,6 +32,9 @@ const HomeStatCards = () => {
 		stats,
 	} = useWafData();
 
+	const { data: status } = useScanStatusQuery();
+	const scanning = isScanInProgress( status );
+
 	const { allTime: allTimeBlockCount } = stats ? stats.blockedRequests : { allTime: 0 };
 	const { blockedLogins: blockedLoginsCount } = stats;
 
@@ -40,6 +44,10 @@ const HomeStatCards = () => {
 				'Please check your connection or try scanning again in a few minutes.',
 				'jetpack-protect'
 			);
+		}
+
+		if ( scanning ) {
+			return __( 'A scan is in progress…', 'jetpack-protect' );
 		}
 
 		const entityLabel = hasPlan
@@ -70,7 +78,7 @@ const HomeStatCards = () => {
 			numThreats,
 			entityLabel
 		);
-	}, [ scanError, numThreats, lastCheckedLocalTimestamp, hasPlan ] );
+	}, [ scanError, scanning, numThreats, lastCheckedLocalTimestamp, hasPlan ] );
 
 	const renderIcon = isFeatureEnabled => {
 		if ( isFeatureEnabled ) {
@@ -86,20 +94,49 @@ const HomeStatCards = () => {
 		[ isSmall ]
 	);
 
+	const scanIcon = useMemo( () => {
+		if ( scanning ) {
+			return <Spinner />;
+		}
+
+		if ( scanError ) {
+			return <Alert width={ defaultWidth } height={ defaultHeight } />;
+		}
+
+		return (
+			<ProtectCheck
+				width={ defaultWidth }
+				height={ defaultHeight }
+				color={ numThreats ? '#F0B849' : '#069E08' }
+			/>
+		);
+	}, [ scanning, scanError, defaultWidth, defaultHeight, numThreats ] );
+
+	const scanLabel = useMemo( () => {
+		if ( scanError ) {
+			return __( 'Unable to scan', 'jetpack-protect' );
+		}
+
+		if ( scanning ) {
+			return __( 'Scanning…', 'jetpack-protect' );
+		}
+
+		const label = hasPlan
+			? __( 'Threats', 'jetpack-protect' )
+			: __( 'Vulnerabilities', 'jetpack-protect' );
+		return sprintf(
+			// translators: %s: "Threats" or "Vulnerabilities"
+			__( '%s found', 'jetpack-protect' ),
+			label
+		);
+	}, [ scanning, scanError, hasPlan ] );
+
 	const scanArgs = useMemo(
 		() => ( {
 			...defaultArgs,
 			icon: (
 				<span className={ styles[ 'stat-card-icon' ] }>
-					{ scanError ? (
-						<Alert width={ defaultWidth } height={ defaultHeight } />
-					) : (
-						<ProtectCheck
-							width={ defaultWidth }
-							height={ defaultHeight }
-							color={ numThreats ? '#F0B849' : '#069E08' }
-						/>
-					) }
+					{ scanIcon }
 					{ ! isSmall && (
 						<Text className={ styles[ 'stat-card-icon-label' ] } variant="body-extra-small">
 							{ __( 'Scan', 'jetpack-protect' ) }
@@ -107,23 +144,11 @@ const HomeStatCards = () => {
 					) }
 				</span>
 			),
-			label: (
-				<span className={ styles[ 'stat-card-label' ] }>
-					{ scanError
-						? __( 'Unable to scan', 'jetpack-protect' )
-						: sprintf(
-								// translators: %s: "Threats" or "Vulnerabilities"
-								__( '%s found', 'jetpack-protect' ),
-								hasPlan
-									? __( 'Threats', 'jetpack-protect' )
-									: __( 'Vulnerabilities', 'jetpack-protect' )
-						  ) }
-				</span>
-			),
+			label: <span className={ styles[ 'stat-card-label' ] }>{ scanLabel }</span>,
 			value: numThreats,
-			error: scanError ? true : false,
+			error: scanError || scanning ? true : false,
 		} ),
-		[ defaultArgs, scanError, hasPlan, isSmall, numThreats ]
+		[ defaultArgs, scanIcon, scanLabel, scanning, scanError, isSmall, numThreats ]
 	);
 
 	const wafArgs = useMemo(

@@ -27,6 +27,10 @@
     align-items: center;
     gap: 8px;
 
+    svg {
+        margin: 0;
+    }
+
 	.active {
 		fill: var( --jp-green-40 );
 	}
