@@ -316,7 +316,7 @@ const DisconnectDialog = props => {
 					isDisconnecting={ isDisconnecting }
 					closeModal={ onClose }
 					onDisconnect={ handleDisconnect }
-					disconnectError={ disconnectError }
+					disconnectError={ disconnectError.toString() }
 					context={ context } // Where is the modal showing? ( most important for when it loads on the plugins page )
 					disconnectingPlugin={ disconnectingPlugin } // Which plugin is initiating the disconnect.
 					trackModalClick={ trackModalClick }
