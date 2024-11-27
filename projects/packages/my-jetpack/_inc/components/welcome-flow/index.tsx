@@ -52,7 +52,7 @@ const WelcomeFlow: FC< Props > = ( {
 		if ( prevStep === 'site-connecting' && ! siteIsRegistering && siteIsRegistered ) {
 			setIsConnectionReady( true );
 
-			const timer = setTimeout( () => setIsConnectionReady( false ), 5000 );
+			const timer = setTimeout( () => setIsConnectionReady( false ), 3000 );
 
 			return () => clearTimeout( timer );
 		}
