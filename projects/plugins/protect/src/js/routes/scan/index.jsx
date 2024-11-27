@@ -8,7 +8,6 @@ import usePlan from '../../hooks/use-plan';
 import useProtectData from '../../hooks/use-protect-data';
 import onboardingSteps from './onboarding-steps';
 import ScanAdminSectionHero from './scan-admin-section-hero';
-import ScanFooter from './scan-footer';
 
 /**
  * Scan Page
@@ -58,7 +57,6 @@ const ScanPage = () => {
 						</Container>
 					</AdminSection>
 				) }
-				<ScanFooter />
 			</AdminPage>
 		</OnboardingContext.Provider>
 	);

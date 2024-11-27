@@ -1,6 +1,5 @@
 import { Text, useBreakpointMatch, StatCard } from '@automattic/jetpack-components';
 import { Tooltip } from '@wordpress/components';
-import { dateI18n } from '@wordpress/date';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { useMemo } from 'react';
 import Alert from '../../components/alert-icon';
@@ -21,7 +20,7 @@ const HomeStatCards = () => {
 		counts: {
 			current: { threats: numThreats },
 		},
-		lastChecked,
+		lastCheckedLocalTimestamp,
 		error: scanError,
 	} = useProtectData();
 
@@ -35,15 +34,6 @@ const HomeStatCards = () => {
 	const { allTime: allTimeBlockCount } = stats ? stats.blockedRequests : { allTime: 0 };
 	const { blockedLogins: blockedLoginsCount } = stats;
 
-	let lastCheckedLocalTimestamp = null;
-	if ( lastChecked ) {
-		// Convert the lastChecked UTC date to a local timestamp
-		lastCheckedLocalTimestamp = dateI18n(
-			'F jS g:i A',
-			new Date( lastChecked + ' UTC' ).getTime()
-		);
-	}
-
 	const lastCheckedMessage = useMemo( () => {
 		if ( scanError ) {
 			return __(
@@ -56,19 +46,29 @@ const HomeStatCards = () => {
 			? _n( 'threat', 'threats', numThreats, 'jetpack-protect' )
 			: _n( 'vulnerability', 'vulnerabilities', numThreats, 'jetpack-protect' );
 
-		if ( numThreats > 0 ) {
+		if ( lastCheckedLocalTimestamp ) {
+			if ( numThreats > 0 ) {
+				return sprintf(
+					// translators: %1$s: date/time, %2$d: number, %3$s: entity label
+					__( 'Last checked on %1$s: We found %2$d %3$s.', 'jetpack-protect' ),
+					lastCheckedLocalTimestamp,
+					numThreats,
+					entityLabel
+				);
+			}
 			return sprintf(
-				// translators: %1$s: date/time, %2$d: number, %3$s: entity label
-				__( 'Last checked on %1$s: We found %2$d %3$s.', 'jetpack-protect' ),
-				lastCheckedLocalTimestamp,
-				numThreats,
-				entityLabel
+				// translators: %s: date/time
+				__( 'Last checked on %s: Your site is secure.', 'jetpack-protect' ),
+				lastCheckedLocalTimestamp
 			);
 		}
+
 		return sprintf(
-			// translators: %s: date/time
-			__( 'Last checked on %s: Your site is secure.', 'jetpack-protect' ),
-			lastCheckedLocalTimestamp
+			// translators: %1$s: date/time, %2$d: number, %3$s: entity label
+			__( 'Last scan we found %2$d %3$s.', 'jetpack-protect' ),
+			lastCheckedLocalTimestamp,
+			numThreats,
+			entityLabel
 		);
 	}, [ scanError, numThreats, lastCheckedLocalTimestamp, hasPlan ] );
 

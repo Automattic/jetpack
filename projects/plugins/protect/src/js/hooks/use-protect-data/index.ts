@@ -1,3 +1,4 @@
+import { dateI18n } from '@wordpress/date';
 import { __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
 import useHistoryQuery from '../../data/scan/use-history-query';
@@ -163,11 +164,20 @@ export default function useProtectData(
 		return result;
 	}, [ scanHistory, sourceType, status, filter ] );
 
+	const lastCheckedLocalTimestamp = useMemo( () => {
+		if ( lastChecked ) {
+			// Convert the lastChecked UTC date to a local timestamp
+			return dateI18n( 'F jS g:i A', new Date( lastChecked + ' UTC' ) );
+		}
+		return null;
+	}, [ lastChecked ] );
+
 	return {
 		results,
 		counts,
 		error,
 		lastChecked,
+		lastCheckedLocalTimestamp,
 		hasUncheckedItems,
 		jetpackScan,
 	};

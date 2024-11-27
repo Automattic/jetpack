@@ -1,5 +1,4 @@
 import { Text, Button, useBreakpointMatch } from '@automattic/jetpack-components';
-import { dateI18n } from '@wordpress/date';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { useState } from 'react';
 import { useMemo } from 'react';
@@ -20,7 +19,7 @@ const ScanAdminSectionHero: React.FC = () => {
 		counts: {
 			current: { threats: numThreats },
 		},
-		lastChecked,
+		lastCheckedLocalTimestamp,
 	} = useProtectData();
 	const { hasPlan } = usePlan();
 	const [ isSm ] = useBreakpointMatch( 'sm' );
@@ -44,12 +43,6 @@ const ScanAdminSectionHero: React.FC = () => {
 	}, [ list, isThreatFixInProgress, isThreatFixStale ] );
 
 	const scanning = isScanInProgress( status );
-
-	let lastCheckedLocalTimestamp = null;
-	if ( lastChecked ) {
-		// Convert the lastChecked UTC date to a local timestamp
-		lastCheckedLocalTimestamp = new Date( lastChecked + ' UTC' ).getTime();
-	}
 
 	const handleShowAutoFixersClick = threatList => {
 		return event => {
@@ -84,7 +77,7 @@ const ScanAdminSectionHero: React.FC = () => {
 							? sprintf(
 									// translators: %s: date and time of the last scan
 									__( '%s results', 'jetpack-protect' ),
-									dateI18n( 'F jS g:i A', lastCheckedLocalTimestamp, false )
+									lastCheckedLocalTimestamp
 							  )
 							: __( 'Most recent results', 'jetpack-protect' ) }
 					</Text>

@@ -10,7 +10,6 @@ import useThreatsList from '../../../components/threats-list/use-threats-list';
 import useAnalyticsTracks from '../../../hooks/use-analytics-tracks';
 import usePlan from '../../../hooks/use-plan';
 import useProtectData from '../../../hooks/use-protect-data';
-import ScanFooter from '../scan-footer';
 import HistoryAdminSectionHero from './history-admin-section-hero';
 import StatusFilters from './status-filters';
 import styles from './styles.module.scss';
@@ -293,7 +292,6 @@ const ScanHistoryRoute = () => {
 					</Container>
 				</AdminSection>
 			) }
-			<ScanFooter />
 		</AdminPage>
 	);
 };

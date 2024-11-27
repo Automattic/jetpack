@@ -22,7 +22,6 @@ import useWafUpgradeSeenMutation from '../../data/waf/use-waf-upgrade-seen-mutat
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import usePlan from '../../hooks/use-plan';
 import useWafData from '../../hooks/use-waf-data';
-import ScanFooter from '../scan/scan-footer';
 import FirewallAdminSectionHero from './firewall-admin-section-hero';
 import FirewallFooter from './firewall-footer';
 import styles from './styles.module.scss';
@@ -575,7 +574,7 @@ const FirewallPage = () => {
 					</div>
 				</Col>
 			</Container>
-			{ wafSupported ? <FirewallFooter /> : <ScanFooter /> }
+			{ wafSupported && <FirewallFooter /> }
 		</AdminPage>
 	);
 };

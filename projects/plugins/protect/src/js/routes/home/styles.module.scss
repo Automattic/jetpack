@@ -9,6 +9,7 @@
 
 .stat-cards-wrapper {
     display: flex;
+    justify-content: flex-start;
 
     > *:not( last-child ) {
         margin-right: calc( var( --spacing-base ) * 3 ); // 24px

@@ -147,6 +147,7 @@
 
 .stat-cards-wrapper {
     display: flex;
+    justify-content: flex-end;
 
     >:first-child {
         margin-right: calc( var( --spacing-base ) * 3 ); // 24px
@@ -206,6 +207,7 @@
 @media ( max-width: 1200px ) {
     .stat-cards-wrapper {
         margin-top: calc( var( --spacing-base ) * 4 ); // 32px
+        justify-content: flex-start;
     }
     
     .home-header-main {
@@ -217,7 +219,7 @@
     }
 }
 
-@media ( max-width: 599px ) {
+@media ( min-width: 599px ) {
     .stat-cards-wrapper {
         flex-direction: column;
         gap: var( --spacing-base ); // 8px
@@ -225,5 +227,9 @@
 
     .stat-card-icon {
         margin-bottom: 0;
+    }
+
+    .footer-main {
+        margin-right: calc( var( --spacing-base ) * 4 ); // 32px
     }
 }
