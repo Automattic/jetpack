@@ -521,12 +521,14 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 				) }
 
 				<BlockControls { ...blockControlsProps }>
-					<AiAssistantExtensionToolbarDropdown
-						blockType={ blockName }
-						onAskAiAssistant={ handleAskAiAssistant }
-						onRequestSuggestion={ handleRequestSuggestion }
-						behavior={ behavior }
-					/>
+					{ isRequiredModulePresent && (
+						<AiAssistantExtensionToolbarDropdown
+							blockType={ blockName }
+							onAskAiAssistant={ handleAskAiAssistant }
+							onRequestSuggestion={ handleRequestSuggestion }
+							behavior={ behavior }
+						/>
+					) }
 				</BlockControls>
 			</>
 		);
