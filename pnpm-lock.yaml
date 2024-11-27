@@ -1206,15 +1206,6 @@ importers:
         specifier: ^18.2.0
         version: 18.3.1(react@18.3.1)
     devDependencies:
-      '@automattic/jetpack-webpack-config':
-        specifier: workspace:*
-        version: link:../webpack-config
-      '@babel/core':
-        specifier: 7.26.0
-        version: 7.26.0
-      '@babel/plugin-transform-react-jsx':
-        specifier: 7.25.9
-        version: 7.25.9(@babel/core@7.26.0)
       '@jest/globals':
         specifier: 29.7.0
         version: 29.7.0
@@ -1239,12 +1230,6 @@ importers:
       '@types/react':
         specifier: 18.3.12
         version: 18.3.12
-      '@wordpress/babel-plugin-import-jsx-pragma':
-        specifier: 5.12.0
-        version: 5.12.0(@babel/core@7.26.0)
-      babel-jest:
-        specifier: 29.7.0
-        version: 29.7.0(@babel/core@7.26.0)
       jest:
         specifier: ^29.7.0
         version: 29.7.0
@@ -4884,6 +4869,9 @@ importers:
       svelte-eslint-parser:
         specifier: 0.39.2
         version: 0.39.2(svelte@4.2.19)
+      ts-jest-resolver:
+        specifier: 2.0.1
+        version: 2.0.1
       typescript:
         specifier: 5.0.4
         version: 5.0.4
@@ -13491,6 +13479,9 @@ packages:
   ts-dedent@2.2.0:
     resolution: {integrity: sha512-q5W7tVM71e2xjHZTlgfTDoPF/SmqKG5hddq9SzR49CH2hayqRKJtQ4mtRlSxKaJlR/+9rEM+mnBHf7I2/BQcpQ==}
     engines: {node: '>=6.10'}
+
+  ts-jest-resolver@2.0.1:
+    resolution: {integrity: sha512-FolE73BqVZCs8/RbLKxC67iaAtKpBWx7PeLKFW2zJQlOf9j851I7JRxSDenri2NFvVH3QP7v3S8q1AmL24Zb9Q==}
 
   ts-jest@29.2.5:
     resolution: {integrity: sha512-KD8zB2aAZrcKIdGk4OwpJggeLcH1FgrICqDSROWqlnJXGCXK4Mn6FcdK2B6670Xr73lHMG1kHw8R87A0ecZ+vA==}
@@ -26070,6 +26061,10 @@ snapshots:
       typescript: 5.0.4
 
   ts-dedent@2.2.0: {}
+
+  ts-jest-resolver@2.0.1:
+    dependencies:
+      jest-resolve: 29.7.0
 
   ts-jest@29.2.5(jest@29.7.0)(typescript@5.0.4):
     dependencies:
