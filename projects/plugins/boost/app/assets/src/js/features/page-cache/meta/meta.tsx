@@ -1,8 +1,6 @@
 import { Button, IconTooltip, Notice, getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import ChevronDown from '$svg/chevron-down';
-import ChevronUp from '$svg/chevron-up';
 import Lightning from '$svg/lightning';
 import styles from './meta.module.scss';
 import { useEffect, useState } from 'react';
@@ -14,6 +12,7 @@ import { useDataSyncSubset } from '@automattic/jetpack-react-data-sync-client';
 import ErrorBoundary from '$features/error-boundary/error-boundary';
 import ErrorNotice from '$features/error-notice/error-notice';
 import { recordBoostEvent } from '$lib/utils/analytics';
+import CollapsibleMeta from '$features/ui/collapsible-meta/collapsible-meta';
 
 const Meta = () => {
 	const [ isExpanded, setIsExpanded ] = useState( false );
@@ -87,64 +86,71 @@ const Meta = () => {
 		successMessage: clearedCacheMessage || __( 'Cache cleared.', 'jetpack-boost' ),
 	} );
 
+	const Header = () => (
+		<div className={ styles.head }>
+			<div className={ styles[ 'section-title' ] }>
+				<h4>{ __( 'Exceptions', 'jetpack-boost' ) }</h4>
+			</div>
+
+			<div className={ styles.actions }>
+				<Button
+					variant="link"
+					size="small"
+					weight="regular"
+					iconSize={ 16 }
+					icon={ <Lightning /> }
+					onClick={ clearPageCache }
+					disabled={ runClearPageCacheAction.isPending }
+				>
+					{ __( 'Clear Cache', 'jetpack-boost' ) }
+				</Button>
+			</div>
+		</div>
+	);
+
+	const content = (
+		<div className={ styles.body }>
+			<>
+				<BypassPatterns
+					patterns={ bypassPatterns.join( '\n' ) }
+					setPatterns={ updatePatterns }
+					showErrorNotice={ mutateBypassPatterns.isError }
+				/>
+				<div className={ styles.section }>
+					<div className={ styles.title }>{ __( 'Logging', 'jetpack-boost' ) }</div>
+					<label htmlFor="cache-logging" className={ styles[ 'logging-toggle' ] }>
+						<input
+							type="checkbox"
+							id="cache-logging"
+							checked={ logging }
+							onChange={ toggleLogging }
+						/>{ ' ' }
+						{ __( 'Activate logging to track all your cache events.', 'jetpack-boost' ) }
+					</label>
+					{ logging && (
+						<Link className={ styles[ 'see-logs-link' ] } to="/cache-debug-log">
+							{ __( 'See Logs', 'jetpack-boost' ) }
+						</Link>
+					) }
+					<div className={ styles.clearfix } />
+				</div>
+			</>
+		</div>
+	);
+
 	return (
 		pageCache && (
 			<div className={ styles.wrapper } data-testid="page-cache-meta">
-				<div className={ styles.head }>
-					<div className={ styles.summary }>{ getSummary() }</div>
-					<div className={ styles.actions }>
-						<Button
-							variant="link"
-							size="small"
-							weight="regular"
-							iconSize={ 16 }
-							icon={ <Lightning /> }
-							onClick={ clearPageCache }
-							disabled={ runClearPageCacheAction.isPending }
-						>
-							{ __( 'Clear Cache', 'jetpack-boost' ) }
-						</Button>{ ' ' }
-						<Button
-							variant="link"
-							size="small"
-							weight="regular"
-							iconSize={ 16 }
-							icon={ isExpanded ? <ChevronUp /> : <ChevronDown /> }
-							onClick={ () => setIsExpanded( ! isExpanded ) }
-						>
-							{ __( 'Show Options', 'jetpack-boost' ) }
-						</Button>
-					</div>
-				</div>
-				{ isExpanded && (
-					<div className={ styles.body }>
-						<>
-							<BypassPatterns
-								patterns={ bypassPatterns.join( '\n' ) }
-								setPatterns={ updatePatterns }
-								showErrorNotice={ mutateBypassPatterns.isError }
-							/>
-							<div className={ styles.section }>
-								<div className={ styles.title }>{ __( 'Logging', 'jetpack-boost' ) }</div>
-								<label htmlFor="cache-logging" className={ styles[ 'logging-toggle' ] }>
-									<input
-										type="checkbox"
-										id="cache-logging"
-										checked={ logging }
-										onChange={ toggleLogging }
-									/>{ ' ' }
-									{ __( 'Activate logging to track all your cache events.', 'jetpack-boost' ) }
-								</label>
-								{ logging && (
-									<Link className={ styles[ 'see-logs-link' ] } to="/cache-debug-log">
-										{ __( 'See Logs', 'jetpack-boost' ) }
-									</Link>
-								) }
-								<div className={ styles.clearfix } />
-							</div>
-						</>
-					</div>
-				) }
+				<CollapsibleMeta
+					isExpandedExternal={ isExpanded }
+					setIsExpandedExternal={ setIsExpanded }
+					header={ <Header /> }
+					summary={ getSummary() }
+					editText={ __( 'Show Options', 'jetpack-boost' ) }
+					tracksEvent={ 'page_cache_exceptions_panel_toggle' }
+				>
+					{ content }
+				</CollapsibleMeta>
 			</div>
 		)
 	);
@@ -207,7 +213,6 @@ const BypassPatterns = ( {
 				[ styles[ 'has-error' ] ]: inputInvalid,
 			} ) }
 		>
-			<div className={ styles.title }>{ __( 'Exceptions', 'jetpack-boost' ) }</div>
 			<label htmlFor="jb-cache-exceptions">
 				{ __( 'URLs of pages and posts that will never be cached:', 'jetpack-boost' ) }
 			</label>

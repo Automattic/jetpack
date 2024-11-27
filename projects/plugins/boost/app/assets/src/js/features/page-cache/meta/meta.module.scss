@@ -10,6 +10,15 @@
 		display: flex;
 		flex-direction: row;
 		align-items: flex-start;
+		justify-content: space-between;
+		width: 80%;
+
+
+		.section-title {
+			font-weight: 600;
+			font-size: 16px;
+			line-height: 1.5;
+		}
 
 		:global(svg) {
 			fill: var(--jetpack-green-40);
@@ -19,6 +28,11 @@
 			flex-grow: 1;
 			margin-right: 5px;
 			color: var(--gray-40);
+		}
+
+		.actions {
+			display: flex;
+			padding-right: 10px;
 		}
 	}
 
