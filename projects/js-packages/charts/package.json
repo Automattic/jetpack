@@ -37,7 +37,8 @@
 	"exports": {
 		".": "./src/index.ts",
 		"./state": "./src/state",
-		"./action-types": "./src/state/action-types"
+		"./action-types": "./src/state/action-types",
+		"./bar": "./src/components/bar-chart/index.ts"
 	},
 	"peerDependencies": {
 		"react": "^18.0.0",
