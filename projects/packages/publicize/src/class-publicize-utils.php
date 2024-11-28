@@ -37,9 +37,11 @@ class Publicize_Utils {
 	/**
 	 * Whether the block editor should have the social features.
 	 *
+	 * @param bool $should_publicize_be_active Whether the Publicize module should be active.
+	 *
 	 * @return bool
 	 */
-	public static function should_block_editor_have_social() {
+	public static function should_block_editor_have_social( $should_publicize_be_active = true ) {
 		if ( ! is_admin() ) {
 			return false;
 		}
@@ -53,6 +55,10 @@ class Publicize_Utils {
 		$needs_jetpack_connection = ! ( new Host() )->is_wpcom_platform();
 
 		if ( $needs_jetpack_connection && ! self::is_connected() ) {
+			return false;
+		}
+
+		if ( $should_publicize_be_active && ! self::is_publicize_active() ) {
 			return false;
 		}
 
