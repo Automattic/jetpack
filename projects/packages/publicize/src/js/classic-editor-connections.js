@@ -243,7 +243,7 @@ jQuery( function ( $ ) {
 			},
 		} )
 			.then( () => {
-				showNotice( __( 'Your post will be shared soon.', 'jetpack-publicize-pkg' ), 'success' );
+				showNotice( __( 'Request submitted successfully.', 'jetpack-publicize-pkg' ), 'success' );
 			} )
 			.catch( () => {
 				showNotice( __( 'An error occurred while sharing your post.', 'jetpack-publicize-pkg' ) );
