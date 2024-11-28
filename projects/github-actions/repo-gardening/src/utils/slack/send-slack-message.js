@@ -101,7 +101,6 @@ async function sendSlackMessage( message, channel, payload, customMessageFormat 
 
 		const reportingChannel =
 			owner === 'automattic' ? 'D1KN8VCCA' : getInput( 'slack_quality_channel' );
-
 		if ( ! reportingChannel ) {
 			return false;
 		}
