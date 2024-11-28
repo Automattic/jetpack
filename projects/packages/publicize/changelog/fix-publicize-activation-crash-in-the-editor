@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Social | Fixed publicize crashing when activated in the editor

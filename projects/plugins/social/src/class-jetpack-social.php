@@ -18,6 +18,7 @@ use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Dismissed_Notices;
+use Automattic\Jetpack\Publicize\Publicize_Utils;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
@@ -224,6 +225,10 @@ class Jetpack_Social {
 	 * @return array
 	 */
 	public function set_social_admin_script_data( $data ) {
+		// We need this data only on the social settings page.
+		if ( ! Publicize_Utils::is_social_settings_page() ) {
+			return $data;
+		}
 
 		$data['plugin_info']['social'] = array(
 			'version' => $this->get_plugin_version(),
