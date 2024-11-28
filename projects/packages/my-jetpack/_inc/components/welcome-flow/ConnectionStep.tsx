@@ -3,7 +3,7 @@ import { initializeExPlat, loadExperimentAssignment } from '@automattic/jetpack-
 import { __ } from '@wordpress/i18n';
 import { useCallback, useContext } from 'react';
 import { NoticeContext } from '../../context/notices/noticeContext';
-import { NOTICE_SITE_CONNECTED } from '../../context/notices/noticeTemplates';
+import { NOTICE_SITE_CONNECTION_ERROR } from '../../context/notices/noticeTemplates';
 import useProductsByOwnership from '../../data/products/use-products-by-ownership';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../hooks/use-analytics';
@@ -49,11 +49,12 @@ const ConnectionStep = ( {
 	const onConnectSiteClick = useCallback( async () => {
 		recordEvent( 'jetpack_myjetpack_welcome_banner_connect_site_click' );
 		onUpdateWelcomeFlowExperiment( state => ( { ...state, isLoading: true } ) );
-		await onActivateSite();
-
-		recordEvent( 'jetpack_myjetpack_welcome_banner_connect_site_success' );
 
 		try {
+			await onActivateSite();
+
+			recordEvent( 'jetpack_myjetpack_welcome_banner_connect_site_success' );
+
 			await sideloadTracks();
 
 			initializeExPlat();
@@ -70,9 +71,9 @@ const ConnectionStep = ( {
 			if ( variationName === 'treatment' ) {
 				window.location.href = jetpackPlansPath;
 			}
+		} catch ( error ) {
+			setNotice( NOTICE_SITE_CONNECTION_ERROR, resetNotice );
 		} finally {
-			resetNotice();
-			setNotice( NOTICE_SITE_CONNECTED, resetNotice );
 			refetchOwnershipData();
 
 			onUpdateWelcomeFlowExperiment( state => ( { ...state, isLoading: false } ) );

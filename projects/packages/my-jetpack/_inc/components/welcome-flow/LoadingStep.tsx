@@ -11,13 +11,13 @@ const JetpackLogo = () => (
 			className={ styles[ 'circle-outline' ] }
 			d="M44 86C67.196 86 86 67.196 86 44C86 20.804 67.196 2 44 2C20.804 2 2 20.804 2 44C2 67.196 20.804 86 44 86Z"
 			stroke="#003010"
-			stroke-width="1"
+			strokeWidth="1"
 		/>
 		<Path
 			className={ styles[ 'triangles-outline' ] }
 			d="M41.7319 8.73633V51.3088H19.8159L41.7319 8.73633ZM46.1835 79.2694V36.6129H68.1835L46.1835 79.2694Z"
 			stroke="#003010"
-			stroke-width="1"
+			strokeWidth="1"
 		/>
 		<Path
 			className={ styles[ 'circle-fill' ] }
