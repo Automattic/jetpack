@@ -327,7 +327,7 @@ export function NewsletterEmailDocumentSettings() {
 						disabled={ isPostPublished || ! canEdit }
 						onChange={ toggleSendEmail }
 						isBlock
-						label={ __( 'Send as email to email subscribers?', 'jetpack' ) }
+						label={ __( 'Send as email to subscribers?', 'jetpack' ) }
 						hideLabelFromVision={ true }
 						className="jetpack-subscribe-email-document-setting"
 						__nextHasNoMarginBottom={ true }
