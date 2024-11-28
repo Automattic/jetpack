@@ -194,7 +194,19 @@ class WordAds_Smart {
 					array( $this, 'insert_inline_marker' ),
 					10
 				);
+
+				add_filter( 'wordads_iponweb_inline_ad_disable', '__return_true', 10 );
 			}
+		}
+
+		if ( $this->formats['bottom_sticky']['enabled'] ) {
+			// Disable IPW slot.
+			add_filter( 'wordads_iponweb_bottom_sticky_ad_disable', '__return_true', 10 );
+		}
+
+		if ( $this->formats['sidebar_sticky_right']['enabled'] ) {
+			// Disable IPW slot.
+			add_filter( 'wordads_iponweb_sidebar_sticky_right_ad_disable', '__return_true', 10 );
 		}
 	}
 

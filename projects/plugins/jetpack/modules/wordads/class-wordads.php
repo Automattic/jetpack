@@ -371,9 +371,42 @@ class WordAds {
 		$site_id      = $this->params->blog_id;
 		$consent      = (int) isset( $_COOKIE['personalized-ads-consent'] );
 		$is_logged_in = is_user_logged_in() ? '1' : '0';
+
+		$disabled_slot_formats = array();
+		$disabled_slot_formats = apply_filters( 'wordads_disabled_slot_formats', $disabled_slot_formats );
+
+		if ( apply_filters( 'wordads_iponweb_inline_ad_disable', false ) || ! $this->params->options['inline_enabled'] ) {
+			$disabled_slot_formats[] = 'IAD';
+		}
+
+		if ( apply_filters( 'wordads_iponweb_bottom_sticky_ad_disable', false ) ) {
+			$disabled_slot_formats[] = 'MTS';
+		}
+
+		if ( apply_filters( 'wordads_iponweb_sidebar_sticky_right_ad_disable', false ) ) {
+			$disabled_slot_formats[] = 'DPR';
+		}
+
 		?>
 		<script<?php echo esc_attr( $data_tags ); ?> type="text/javascript">
-			var __ATA_PP = { pt: <?php echo esc_js( $pagetype ); ?>, ht: <?php echo esc_js( $hosting_type ); ?>, tn: '<?php echo esc_js( get_stylesheet() ); ?>', uloggedin: <?php echo esc_js( $is_logged_in ); ?>, amp: false, siteid: <?php echo esc_js( $site_id ); ?>, consent: <?php echo esc_js( $consent ); ?>, ad: { label: { text: '<?php echo esc_js( __( 'Advertisements', 'jetpack' ) ); ?>' }, reportAd: { text: '<?php echo esc_js( __( 'Report this ad', 'jetpack' ) ); ?>' }, privacySettings: { text: '<?php echo esc_js( __( 'Privacy', 'jetpack' ) ); ?>', onClick: function() { window.__tcfapi && window.__tcfapi('showUi'); } } } };
+			var __ATA_PP = {
+				pt: <?php echo esc_js( $pagetype ); ?>,
+				ht: <?php echo esc_js( $hosting_type ); ?>,
+				tn: '<?php echo esc_js( get_stylesheet() ); ?>',
+				uloggedin: <?php echo esc_js( $is_logged_in ); ?>,
+				amp: false,
+				siteid: <?php echo esc_js( $site_id ); ?>,
+				consent: <?php echo esc_js( $consent ); ?>,
+				ad: {
+					label: { text: '<?php echo esc_js( __( 'Advertisements', 'jetpack' ) ); ?>' },
+					reportAd: { text: '<?php echo esc_js( __( 'Report this ad', 'jetpack' ) ); ?>' },
+					privacySettings: {
+						text: '<?php echo esc_js( __( 'Privacy', 'jetpack' ) ); ?>',
+						onClick: function() { window.__tcfapi && window.__tcfapi('showUi'); }
+					}
+				},
+				disabled_slot_formats: <?php echo wp_json_encode( $disabled_slot_formats ); ?>,
+			};
 			var __ATA = __ATA || {};
 			__ATA.cmd = __ATA.cmd || [];
 			__ATA.criteo = __ATA.criteo || {};
