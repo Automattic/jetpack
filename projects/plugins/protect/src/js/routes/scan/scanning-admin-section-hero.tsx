@@ -20,6 +20,7 @@ const ScanningAdminSectionHero: React.FC = () => {
 
 	return (
 		<AdminSectionHero
+			mainClassName={ styles[ 'scanning-header-main' ] }
 			main={
 				<>
 					<AdminSectionHero.Heading>

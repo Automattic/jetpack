@@ -118,7 +118,7 @@ const HomeStatCards = () => {
 		}
 
 		if ( scanning ) {
-			return __( 'Scanning…', 'jetpack-protect' );
+			return __( 'Please wait…', 'jetpack-protect' );
 		}
 
 		const label = hasPlan
@@ -139,7 +139,7 @@ const HomeStatCards = () => {
 					{ scanIcon }
 					{ ! isSmall && (
 						<Text className={ styles[ 'stat-card-icon-label' ] } variant="body-extra-small">
-							{ __( 'Scan', 'jetpack-protect' ) }
+							{ scanning ? __( 'Scanning', 'jetpack-protect' ) : __( 'Scan', 'jetpack-protect' ) }
 						</Text>
 					) }
 				</span>

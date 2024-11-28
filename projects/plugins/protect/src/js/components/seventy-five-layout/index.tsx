@@ -59,6 +59,7 @@ const SeventyFiveLayout: React.FC< SeventyFiveLayoutProps > = ( {
 					<Col className={ mainClassName } sm={ 12 } md={ 4 } lg={ 6 }>
 						{ main }
 					</Col>
+					<Col lg={ 1 } />
 					<Col className={ secondaryClassName } sm={ 12 } md={ 4 } lg={ 5 }>
 						{ secondary }
 					</Col>
