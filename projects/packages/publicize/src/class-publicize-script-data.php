@@ -91,7 +91,7 @@ class Publicize_Script_Data {
 		}
 
 		$basic_data = array(
-			'api_paths'            => array(),
+			'api_paths'            => self::get_api_paths(),
 			'is_publicize_enabled' => Utils::is_publicize_active(),
 			'feature_flags'        => self::get_feature_flags(),
 			'supported_services'   => array(),
@@ -114,7 +114,6 @@ class Publicize_Script_Data {
 		return array_merge(
 			$basic_data,
 			array(
-				'api_paths'           => self::get_api_paths(),
 				'supported_services'  => self::get_supported_services(),
 				'shares_data'         => self::get_shares_data(),
 				'urls'                => self::get_urls(),
