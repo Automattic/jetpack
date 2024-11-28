@@ -26,6 +26,13 @@
 		padding: 16px;
 		border-radius: 4px;
 		background-color: var(--gray-0);
+
+		.title {
+			margin-bottom: 16px;
+			font-size: 16px;
+			line-height: 1;
+			font-weight: 600;
+		}
 	}
 
 	.manage-excludes {
