@@ -297,7 +297,6 @@ function stats_reports_load() {
 		add_action( 'admin_print_footer_scripts', 'stats_js_remove_stnojs_cookie' );
 	} elseif ( ! isset( $_GET['noheader'] ) && empty( $_GET['nojs'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		// Normal page load.  Load page content via JS.
-		add_action( 'admin_print_footer_scripts', 'stats_js_load_page_via_ajax' );
 		add_action( 'admin_print_footer_scripts', 'stats_script_dismiss_nudge_handler' );
 	}
 }
@@ -349,14 +348,6 @@ function stats_reports_css() {
 	margin: 0 auto;
 	overflow: hidden;
 }
-
-#stats-loading-wrap p {
-	text-align: center;
-	font-size: 2em;
-	margin-bottom: 3em;
-	height: 64px;
-	line-height: 64px;
-}
 </style>
 	<?php
 }
@@ -373,31 +364,6 @@ function stats_js_remove_stnojs_cookie() {
 <script type="text/javascript">
 /* <![CDATA[ */
 document.cookie = 'stnojs=0; expires=Wed, 9 Mar 2011 16:55:50 UTC; path=<?php echo esc_js( $parsed['path'] ); ?>';
-/* ]]> */
-</script>
-	<?php
-}
-
-/**
- * Normal page load.  Load page content via JS.
- *
- * @access public
- * @return void
- */
-function stats_js_load_page_via_ajax() {
-	?>
-<script type="text/javascript">
-/* <![CDATA[ */
-if ( -1 == document.location.href.indexOf( 'noheader' ) ) {
-	jQuery( function( $ ) {
-		const loadStatsUrl = new URL( document.location.href );
-		loadStatsUrl.searchParams.append( 'noheader', 1 );
-		$.get( loadStatsUrl.toString(), function( responseText ) {
-			$( '#stats-loading-wrap' ).replaceWith( responseText );
-			$( '#jp-stats-wrap' )[0].dispatchEvent( new Event( 'stats-loaded' ) );
-		} );
-	} );
-}
 /* ]]> */
 </script>
 	<?php
@@ -432,10 +398,7 @@ function stats_reports_page( $main_chart_only = false ) {
 	$stats_bg_url          = plugins_url( 'images/odyssey-upgrade/background.png', JETPACK__PLUGIN_FILE );
 	$stats_bg_gradient_url = plugins_url( 'images/odyssey-upgrade/gradient.png', JETPACK__PLUGIN_FILE );
 
-	if ( ! $main_chart_only && ! isset( $_GET['noheader'] ) && empty( $_GET['nojs'] ) && empty( $_COOKIE['stnojs'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$nojs_url = add_query_arg( 'nojs', '1' );
-		$http     = is_ssl() ? 'https' : 'http';
-		// Loading message. No JS fallback message.
+	if ( ! $main_chart_only && ! isset( $_GET['noheader'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		?>
 
 	<style>
@@ -543,17 +506,6 @@ function stats_reports_page( $main_chart_only = false ) {
 				<?php
 				endif;
 
-			/**
-			 * Sets external resource URL.
-			 *
-			 * @module stats
-			 *
-			 * @since 1.4.0
-			 * @todo Clean up various uses of this filter. It's seemingly filtering different types of images in different places.
-			 *
-			 * @param string $args URL of external resource.
-			 */
-			$static_url = apply_filters( 'jetpack_static_url', "{$http}://en.wordpress.com/i/loading/loading-64.gif" );
 			?>
 			</h2>
 		</div>
@@ -561,7 +513,7 @@ function stats_reports_page( $main_chart_only = false ) {
 			<div class="stats-odyssey-notice stats-odyssey-notice--content__highlighted">
 				<div class="stats-odyssey-notice--content">
 					<h2 class="stats-odyssey-notice--content-header"><?php esc_html_e( 'Deprecated Jetpack Stats Experience', 'jetpack' ); ?></h2>
-					<p class="stats-odyssey-notice--content-text"><?php esc_html_e( 'The old Jetpack Stats has been deprecated and will be removed soon. Please click the button to enable the new experience.', 'jetpack' ); ?></p>
+					<p class="stats-odyssey-notice--content-text"><?php esc_html_e( 'The old Jetpack Stats has been deprecated. Please click the button to enable the new experience.', 'jetpack' ); ?></p>
 					<div class="stats-odyssey-notice--action-bar">
 						<button class="dops-button stats-odyssey-notice--primary-button">
 							<a class="is-primary-link" href="<?php echo esc_url( $redirect_url ); ?>"><?php esc_html_e( 'Switch to new Stats', 'jetpack' ); ?></a>
@@ -572,11 +524,7 @@ function stats_reports_page( $main_chart_only = false ) {
 				<div class="stats-odyssey-notice--image-container"></div>
 			</div>
 		</div>
-		<div id="stats-loading-wrap" class="wrap">
-		<p class="hide-if-no-js"><img width="32" height="32" alt="<?php esc_attr_e( 'Loading&hellip;', 'jetpack' ); ?>" src="<?php echo esc_url( $static_url ); ?>" /></p>
-		<p class="hide-if-js"><?php esc_html_e( 'Jetpack Stats work better with JavaScript enabled.', 'jetpack' ); ?><br />
-		<a href="<?php echo esc_url( $nojs_url ); ?>"><?php esc_html_e( 'View Jetpack Stats without JavaScript', 'jetpack' ); ?></a>.</p>
-		</div>
+		<p></p>
 	</div>
 		<?php
 		return;
