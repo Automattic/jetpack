@@ -123,10 +123,8 @@ class WordAds_Smart {
 		// TODO: refactor to remove the need to do this
 		$this->is_inline_enabled = $this->formats['inline']['enabled'];
 
-		if ( $this->is_inline_enabled ) {
-			// Insert ads.
-			$this->insert_ads();
-		}
+		// Insert ads.
+		$this->insert_ads();
 	}
 
 	/**
