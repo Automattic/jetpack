@@ -47,6 +47,8 @@ const ConnectionStep = ( {
 	const { refetch: refetchOwnershipData } = useProductsByOwnership();
 
 	const onConnectSiteClick = useCallback( async () => {
+		resetNotice();
+
 		recordEvent( 'jetpack_myjetpack_welcome_banner_connect_site_click' );
 		onUpdateWelcomeFlowExperiment( state => ( { ...state, isLoading: true } ) );
 
