@@ -1,38 +1,50 @@
 import styles from './collapsible-meta.module.scss';
 import { Button } from '@automattic/jetpack-components';
 import React, { useState, useEffect } from 'react';
-import CloseIcon from '$svg/close';
-import PencilIcon from '$svg/pencil';
 import ChevronDown from '$svg/chevron-down';
 import ChevronUp from '$svg/chevron-up';
 import { recordBoostEvent } from '$lib/utils/analytics';
 
 type CollapsibleMetaProps = {
 	children: React.ReactNode;
-	header: React.ReactNode;
-	summary: React.ReactNode;
-	editText: string;
+	header?: React.ReactNode;
+	summary?: React.ReactNode;
+	toggleText: string;
+	headerText?: string;
 	useChevron?: boolean;
-	isExpandedExternal?: boolean;
-	setIsExpandedExternal?: ( value: boolean ) => void;
 	tracksEvent?: string;
+	extraButtons?: React.ReactNode;
+	onToggleHandler?: ( isExpanded: boolean ) => void;
 };
 
+/*
+ * This component is used to create a collapsible meta section.
+ * This is used by the modules on the settings page to create a more consistent UI.
+ * The toggleText and tracksEvent props are used by every module.
+ * headerText is used by Page Cache and Minify modules.
+ * The Quality Settings module uses the header prop to render a custom header.
+ * The extraButtons prop is used to render a custom set of buttons, for example, the "Clear Cache" button.
+ * The onToggleHandler prop is a callback function that is called when the collapsible meta is toggled. Used by Minify module to reset the input value.
+ */
 const CollapsibleMeta = ( {
 	children,
 	header,
 	summary,
-	editText,
-	isExpandedExternal,
-	setIsExpandedExternal,
-	useChevron = true,
+	toggleText,
 	tracksEvent = '',
+	extraButtons,
+	headerText,
+	onToggleHandler,
 }: CollapsibleMetaProps ) => {
-	const [ isExpandedInternal, setIsExpandedInternal ] = useState( false );
+	const [ isExpanded, setIsExpanded ] = useState( false );
 
-	// Use external state if provided, otherwise use internal state
-	const isExpanded = isExpandedExternal !== undefined ? isExpandedExternal : isExpandedInternal;
-	const setIsExpanded = setIsExpandedExternal || setIsExpandedInternal;
+	/*
+	 * A callback function that is called when the collapsible meta is toggled.
+	 * The callback function is passed as a prop to the component and is called with the new state.
+	 */
+	useEffect( () => {
+		onToggleHandler?.( isExpanded );
+	}, [ isExpanded, onToggleHandler ] );
 
 	useEffect( () => {
 		if ( tracksEvent !== '' ) {
@@ -42,36 +54,39 @@ const CollapsibleMeta = ( {
 		}
 	}, [ isExpanded, tracksEvent ] );
 
-	const getIcon = () => {
-		if ( useChevron ) {
-			return isExpanded ? <ChevronUp /> : <ChevronDown />;
-		}
-		return isExpanded ? (
-			<CloseIcon className={ styles[ 'edit-icon' ] } />
-		) : (
-			<PencilIcon className={ styles[ 'edit-icon' ] } />
-		);
-	};
-
-	return (
-		<div className={ styles[ 'collapsible-meta' ] }>
-			<header className={ styles.header }>
-				{ header }
+	/*
+	 * The header of the collapsible meta section.
+	 * It displays the header, extra buttons and the toggle button.
+	 */
+	const sectionHeader = (
+		<div className={ styles.header }>
+			{ header ? header : <div className={ styles.summary }>{ headerText }</div> }
+			<div className={ styles.actions }>
+				{ extraButtons }{ ' ' }
 				<Button
 					variant="link"
 					size="small"
 					weight="regular"
-					icon={ getIcon() }
+					icon={ isExpanded ? <ChevronUp /> : <ChevronDown /> }
 					className={ styles[ 'edit-button' ] }
 					onClick={ () => {
 						setIsExpanded( ! isExpanded );
 					} }
 				>
-					{ editText }
+					{ toggleText }
 				</Button>
-			</header>
+			</div>
+		</div>
+	);
 
-			{ isExpanded ? children : <div className={ styles.summary }>{ summary }</div> }
+	/*
+	 * The content of the collapsible meta section.
+	 * It displays the (toggle, extra) buttons, main content of the expanded section or the summary.
+	 */
+	return (
+		<div className={ styles[ 'collapsible-meta' ] }>
+			{ sectionHeader }
+			{ isExpanded ? children : summary && <div className={ styles.summary }>{ summary }</div> }
 		</div>
 	);
 };
