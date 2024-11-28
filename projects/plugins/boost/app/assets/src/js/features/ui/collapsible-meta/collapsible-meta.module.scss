@@ -20,6 +20,10 @@
 		color: $jetpack_green_50;
 	}
 
+	:global(svg) {
+		fill: var(--jetpack-green-40);
+	}
+
 	.summary {
 		color: var(--gray-50);
 		font-size: 14px;
