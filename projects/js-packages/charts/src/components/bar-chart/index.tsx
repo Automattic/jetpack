@@ -74,10 +74,8 @@ export function BarChart( {
 					scale={ xScale }
 					top={ yMax }
 					tickLabelProps={ () => ( {
-						transform: 'rotate(-45)',
-						textAnchor: 'end',
-						dy: '0.5em',
-						dx: '-0.5em',
+						textAnchor: 'middle',
+						dy: '0.75em',
 					} ) }
 				/>
 			</Group>
