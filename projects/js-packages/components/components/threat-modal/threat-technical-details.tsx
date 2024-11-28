@@ -1,7 +1,7 @@
-import { Text, Button } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import { chevronDown, chevronUp, Icon } from '@wordpress/icons';
 import { useState, useCallback, useContext } from 'react';
+import { Text, Button } from '@automattic/jetpack-components';
 import DiffViewer from '../diff-viewer';
 import MarkedLines from '../marked-lines';
 import styles from './styles.module.scss';

@@ -6,8 +6,8 @@ import {
 	TextControl,
 } from '@wordpress/components';
 import { dispatch } from '@wordpress/data';
-import { store } from 'crm/state/store';
 import { useCallback } from 'react';
+import { store } from 'crm/state/store';
 import styles from './styles.module.scss';
 import type { AttributeDefinition, AttributeValue } from 'crm/state/automations-admin/types';
 

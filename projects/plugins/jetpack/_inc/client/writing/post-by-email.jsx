@@ -1,5 +1,7 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __, _x } from '@wordpress/i18n';
+import React from 'react';
+import { connect } from 'react-redux';
 import Button from 'components/button';
 import ClipboardButtonInput from 'components/clipboard-button-input';
 import { FormFieldset, FormLegend, FormLabel } from 'components/forms';
@@ -8,8 +10,6 @@ import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import analytics from 'lib/analytics';
-import React from 'react';
-import { connect } from 'react-redux';
 import { getModule } from 'state/modules';
 import { isModuleFound as _isModuleFound } from 'state/search';
 import { FEATURE_POST_BY_EMAIL } from '../lib/plans/constants';

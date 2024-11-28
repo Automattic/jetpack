@@ -30,7 +30,7 @@
 		"enquirer": "2.4.1",
 		"eslint": "8.57.1",
 		"eslint-config-prettier": "9.1.0",
-		"eslint-import-resolver-exports": "1.0.0-beta.5",
+		"eslint-import-resolver-typescript": "3.6.3",
 		"eslint-plugin-es-x": "7.8.0",
 		"eslint-plugin-import": "2.31.0",
 		"eslint-plugin-jest": "27.9.0",

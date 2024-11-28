@@ -1,4 +1,3 @@
-import { Button } from '@automattic/jetpack-components';
 import {
 	type Threat,
 	getFixerState,
@@ -8,6 +7,7 @@ import {
 import { Tooltip } from '@wordpress/components';
 import { useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Button } from '@automattic/jetpack-components';
 import styles from './styles.module.scss';
 
 /**

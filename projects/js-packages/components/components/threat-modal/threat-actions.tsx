@@ -1,7 +1,7 @@
-import { Button } from '@automattic/jetpack-components';
 import { getFixerState, getDetailedFixerAction } from '@automattic/jetpack-scan';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useContext, useMemo } from 'react';
+import { Button } from '@automattic/jetpack-components';
 import FixerStateNotice from './fixer-state-notice';
 import styles from './styles.module.scss';
 import { ThreatModalContext } from '.';
