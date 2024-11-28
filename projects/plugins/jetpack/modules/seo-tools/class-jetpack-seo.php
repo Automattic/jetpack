@@ -85,15 +85,7 @@ class Jetpack_SEO {
 			)
 		);
 
-		// Filter out post types that already support 'custom-fields'.
-		$unsupported_post_types = array_filter(
-			$post_types,
-			function ( $post_type ) {
-				return ! post_type_supports( $post_type, 'custom-fields' );
-			}
-		);
-
-		foreach ( $unsupported_post_types as $post_type ) {
+		foreach ( $post_types as $post_type ) {
 			if ( ! post_type_supports( $post_type, 'custom-fields' ) ) {
 				add_post_type_support( $post_type, 'custom-fields' );
 			}

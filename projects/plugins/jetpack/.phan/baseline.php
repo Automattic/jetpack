@@ -348,7 +348,7 @@ return [
         'modules/scan/class-admin-sidebar-link.php' => ['PhanTypeMismatchArgumentProbablyReal'],
         'modules/search.php' => ['PhanTypeMismatchArgument'],
         'modules/seo-tools.php' => ['PhanNoopNew'],
-        'modules/seo-tools/class-jetpack-seo.php' => ['PhanCommentParamWithoutRealParam', 'PhanPluginDuplicateConditionalNullCoalescing'],
+        'modules/seo-tools/class-jetpack-seo.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'modules/sharedaddy/recaptcha.php' => ['PhanPluginDuplicateExpressionAssignmentOperation'],
         'modules/sharedaddy/sharing-service.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeArraySuspicious', 'PhanTypeMismatchArgument', 'PhanTypeMismatchProperty', 'PhanTypeMismatchPropertyDefault', 'PhanTypeMismatchPropertyProbablyReal', 'PhanTypePossiblyInvalidDimOffset', 'PhanUndeclaredFunction'],
         'modules/sharedaddy/sharing-sources.php' => ['PhanParamSignatureMismatch', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchProperty', 'PhanTypeSuspiciousNonTraversableForeach'],
