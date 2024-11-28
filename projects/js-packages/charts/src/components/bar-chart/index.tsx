@@ -2,7 +2,6 @@ import { AxisLeft, AxisBottom } from '@visx/axis';
 import { Group } from '@visx/group';
 import { scaleBand, scaleLinear } from '@visx/scale';
 import { Bar } from '@visx/shape';
-import React from 'react';
 
 export interface DataPoint {
 	label: string;
