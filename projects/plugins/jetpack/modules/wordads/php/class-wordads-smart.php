@@ -52,6 +52,41 @@ class WordAds_Smart {
 	private $is_inline_enabled;
 
 	/**
+	 * Supported formats.
+	 *
+	 * @var array
+	 */
+	private $formats = array(
+		'top'                          => array(
+			'enabled' => false,
+		),
+		'inline'                       => array(
+			'enabled' => false,
+		),
+		'belowpost'                    => array(
+			'enabled' => false,
+		),
+		'bottom_sticky'                => array(
+			'enabled' => false,
+		),
+		'sidebar_sticky_right'         => array(
+			'enabled' => false,
+		),
+		'gutenberg_rectangle'          => array(
+			'enabled' => false,
+		),
+		'gutenberg_leaderboard'        => array(
+			'enabled' => false,
+		),
+		'gutenberg_mobile_leaderboard' => array(
+			'enabled' => false,
+		),
+		'gutenberg_skyscraper'         => array(
+			'enabled' => false,
+		),
+	);
+
+	/**
 	 * Private constructor.
 	 */
 	private function __construct() {
@@ -83,11 +118,11 @@ class WordAds_Smart {
 		$this->theme             = get_stylesheet();
 		$this->is_inline_enabled = is_singular( 'post' ) && $params->options['wordads_inline_enabled'];
 
-		// Allow override.
-		// phpcs:disable WordPress.Security.NonceVerification.Recommended
-		if ( isset( $_GET['inline'] ) && 'true' === $_GET['inline'] ) {
-			$this->is_inline_enabled = true;
-		}
+		// Allow enabled format override by query string.
+		$this->override_formats_from_query_string();
+		// TODO: refactor to remove the need to do this
+		$this->is_inline_enabled = $this->formats['inline']['enabled'];
+
 		if ( $this->is_inline_enabled ) {
 			// Insert ads.
 			$this->insert_ads();
@@ -170,42 +205,15 @@ class WordAds_Smart {
 		global $post;
 
 		$config = array(
-			'blog_id'                      => $this->get_blog_id(),
-			'post_id'                      => ( $post instanceof WP_Post ) && is_singular( 'post' ) ? $post->ID : null,
-			'theme'                        => $this->theme,
-			'target'                       => $this->target_keywords(),
-			'_'                            => array(
+			'blog_id' => $this->get_blog_id(),
+			'post_id' => ( $post instanceof WP_Post ) && is_singular( 'post' ) ? $post->ID : null,
+			'theme'   => $this->theme,
+			'target'  => $this->target_keywords(),
+			'_'       => array(
 				'title'            => __( 'Advertisement', 'jetpack' ),
 				'privacy_settings' => __( 'Privacy Settings', 'jetpack' ),
 			),
-			'top'                          => array(
-				'enabled' => true, // TODO: this will not be true by default
-			),
-			'inline'                       => array(
-				'enabled' => $this->is_inline_enabled,
-			),
-			'belowpost'                    => array(
-				'enabled' => true, // TODO: this will not be true by default
-			),
-			'bottom_sticky'                => array(
-				'enabled' => true, // TODO: this will not be true by default
-			),
-			'sidebar_sticky_right'         => array(
-				'enabled' => true, // TODO: this will not be true by default
-			),
-			'gutenberg_rectangle'          => array(
-				'enabled' => true, // TODO: this will not be true by default
-			),
-			'gutenberg_leaderboard'        => array(
-				'enabled' => true, // TODO: this will not be true by default
-			),
-			'gutenberg_mobile_leaderboard' => array(
-				'enabled' => true, // TODO: this will not be true by default
-			),
-			'gutenberg_skyscraper'         => array(
-				'enabled' => true, // TODO: this will not be true by default
-			),
-		);
+		) + $this->formats;
 
 		// Do conversion.
 		$js_config = WordAds_Array_Utils::array_to_js_object( $config );
@@ -224,6 +232,20 @@ class WordAds_Smart {
 			'https://public-api.wordpress.com/wpcom/v2/sites/%1$d/adflow/conf/?_jsonp=a8c_adflow_callback',
 			$this->get_blog_id()
 		);
+	}
+
+	/**
+	 * Allow format enabled override from query string, eg. ?inline=true.
+	 *
+	 * @return void
+	 */
+	private function override_formats_from_query_string(): void {
+		foreach ( $this->formats as $format_type => $_ ) {
+			// phpcs:disable WordPress.Security.NonceVerification.Recommended
+			if ( isset( $_GET[ $format_type ] ) && 'true' === $_GET[ $format_type ] ) {
+				$this->formats[ $format_type ]['enabled'] = true;
+			}
+		}
 	}
 
 	/**
