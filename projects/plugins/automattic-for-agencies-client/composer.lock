@@ -664,7 +664,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/plugin-deactivation",
-                "reference": "e5fbc3a91a021f30f0ca29998c9b103de21211b9"
+                "reference": "7afbecf14876b11d4477f39b1741f92456c48247"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -685,7 +685,7 @@
                 },
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.2.x-dev"
+                    "dev-trunk": "0.3.x-dev"
                 },
                 "textdomain": "jetpack-plugin-deactivation",
                 "version-constants": {

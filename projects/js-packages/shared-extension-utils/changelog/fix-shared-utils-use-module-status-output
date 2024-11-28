@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Shared Extension Utils: fix wrong output type on use-module-status hook

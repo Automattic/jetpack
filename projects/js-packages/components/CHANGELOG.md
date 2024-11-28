@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [0.63.0] - 2024-11-26
+### Changed
+- Updates ThreatModal flow [#40214]
+
 ## [0.62.0] - 2024-11-25
 ### Added
 - Add Stats icon [#40236]
@@ -1226,6 +1230,7 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[0.63.0]: https://github.com/Automattic/jetpack-components/compare/0.62.0...0.63.0
 [0.62.0]: https://github.com/Automattic/jetpack-components/compare/0.61.0...0.62.0
 [0.61.0]: https://github.com/Automattic/jetpack-components/compare/0.60.0...0.61.0
 [0.60.0]: https://github.com/Automattic/jetpack-components/compare/0.59.0...0.60.0
