@@ -152,7 +152,12 @@ async function triageIssues( payload, octokit ) {
 		const issueLabels = await aiLabeling( payload, octokit );
 
 		// At this point, if we still miss a [Type] label, a [Feature] label, or a [Pri] label, ask the author to add it.
-		if ( ! issueLabels.some( label => /^\[(Type|Feature|Pri)\]/.test( label ) ) ) {
+		const requiredLabelTypes = [ '[Type]', '[Feature', '[Pri]' ];
+		const missingLabelTypes = requiredLabelTypes.filter(
+			requiredLabelType => ! issueLabels.some( label => label.startsWith( requiredLabelType ) )
+		);
+
+		if ( missingLabelTypes.length > 0 ) {
 			await addCommentAskLabels( octokit, ownerLogin, authorLogin, name, number );
 		}
 	}
