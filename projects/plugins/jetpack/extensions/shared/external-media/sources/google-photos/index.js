@@ -1,3 +1,4 @@
+import moment from 'moment';
 import { useEffect, useState } from 'react';
 import MediaLoadingPlaceholder from '../../media-browser/placeholder';
 import { MediaSource } from '../../media-service/types';
@@ -18,10 +19,23 @@ function GooglePhotos( props ) {
 	}, [ getPickerStatus ] );
 
 	useEffect( () => {
-		if ( pickerFeatureEnabled && isAuthenticated && ! isPickerSessionAccurate ) {
+		const isSessionExpired =
+			pickerSession?.expireTime && moment( pickerSession.expireTime ).isBefore( new Date() );
+
+		if (
+			pickerFeatureEnabled &&
+			isAuthenticated &&
+			( ! isPickerSessionAccurate || isSessionExpired )
+		) {
 			createPickerSession();
 		}
-	}, [ pickerFeatureEnabled, isPickerSessionAccurate, isAuthenticated, createPickerSession ] );
+	}, [
+		pickerFeatureEnabled,
+		isPickerSessionAccurate,
+		isAuthenticated,
+		createPickerSession,
+		pickerSession,
+	] );
 
 	if ( pickerFeatureEnabled === null ) {
 		return <MediaLoadingPlaceholder />;

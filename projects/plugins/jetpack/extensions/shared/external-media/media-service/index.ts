@@ -4,6 +4,7 @@ import { dispatch, select } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import { waitFor } from '../../wait-for';
+import { GOOGLE_PHOTOS_PICKER_SESSION } from '../constants';
 import { store as mediaStore } from '../store';
 import { PickerSession } from '../store/types';
 import { MediaSource } from './types';
@@ -84,6 +85,19 @@ type WpcomMediaResponse = {
 	found: number;
 	media: WpcomMediaItem[];
 };
+
+/**
+ * wpCookies global variable.
+ */
+declare global {
+	interface Window {
+		wpCookies: {
+			set: ( name: string, value: string, expires: number, path: string ) => void;
+			get: ( name: string ) => string | null;
+		};
+	}
+}
+const wpCookies = window.wpCookies;
 
 /**
  * Get media URL for a given MediaSource.
@@ -279,6 +293,7 @@ export const authenticateMediaSource = ( source: MediaSource, isAuthenticated: b
  * @param {PickerSession} session
  */
 export const setGooglePhotosPickerSession = ( session: PickerSession ) => {
+	wpCookies.set( GOOGLE_PHOTOS_PICKER_SESSION, JSON.stringify( session ), 0, '/' );
 	dispatch( mediaStore ).mediaPhotosPickerSessionSet( session );
 };
 
@@ -286,4 +301,9 @@ export const setGooglePhotosPickerSession = ( session: PickerSession ) => {
  * Get Google Photos Picker session
  * @return {PickerSession} Media URL.
  */
-export const getGooglePhotosPickerSession = () => select( mediaStore ).mediaPhotosPickerSession();
+export const getGooglePhotosPickerSession = () => {
+	let session = wpCookies.get( GOOGLE_PHOTOS_PICKER_SESSION );
+	session = JSON.parse( session );
+
+	return session || select( mediaStore ).mediaPhotosPickerSession();
+};
