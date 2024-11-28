@@ -8,14 +8,17 @@ import CollapsibleMeta from '$features/ui/collapsible-meta/collapsible-meta';
 const MetaComponent = ( { buttonText, placeholder, datasyncKey }: Props ) => {
 	const [ values, updateValues ] = useMetaQuery( datasyncKey );
 	const [ inputValue, setInputValue ] = useState( () => values.join( ', ' ) );
-	const [ isExpanded, setIsExpanded ] = useState( false );
 
 	const concatenateType = datasyncKey === 'minify_js_excludes' ? 'js' : 'css';
 	const togglePanelTracksEvent = 'concatenate_' + concatenateType + '_panel_toggle'; // possible events: concatenate_js_panel_toggle, concatenate_css_panel_toggle
 
 	useEffect( () => {
 		setInputValue( values.join( ', ' ) );
-	}, [ values, isExpanded ] );
+	}, [ values ] );
+
+	const onToggleHandler = ( isExpanded: boolean ) => {
+		! isExpanded && setInputValue( values.join( ', ' ) );
+	};
 
 	function save() {
 		/*
@@ -26,30 +29,20 @@ const MetaComponent = ( { buttonText, placeholder, datasyncKey }: Props ) => {
 		recordBoostEvent( 'concatenate_' + concatenateType + '_exceptions_save_clicked', {} );
 
 		updateValues( inputValue );
-		setIsExpanded( false );
 	}
 
 	const htmlId = `jb-minify-meta-${ datasyncKey }`;
 
-	const summary = values.length > 0 && (
-		<div className="successes">
-			{ sprintf(
-				/* Translators: %s refers to the list of excluded items. */
-				__( 'Except: %s', 'jetpack-boost' ),
-				values.join( ', ' )
-			) }
-		</div>
-	);
-
-	const Header = () => (
-		<div className={ styles[ 'section-title' ] }>
-			<h4>{ __( 'Exceptions', 'jetpack-boost' ) }</h4>
-		</div>
-	);
+	const summary =
+		values.length > 0
+			? /* Translators: %s refers to the list of excluded items. */
+			  sprintf( __( 'Except: %s', 'jetpack-boost' ), values.join( ', ' ) )
+			: '';
 
 	const content = (
-		<div className={ styles.wrapper } data-testid={ `meta-${ datasyncKey }` }>
+		<div className={ styles.body } data-testid={ `meta-${ datasyncKey }` }>
 			<div className={ styles.section }>
+				<div className={ styles.title }>{ __( 'Exceptions', 'jetpack-boost' ) }</div>
 				<div className={ styles[ 'manage-excludes' ] }>
 					<span className={ styles[ 'sub-header' ] }>
 						{ sprintf(
@@ -79,16 +72,16 @@ const MetaComponent = ( { buttonText, placeholder, datasyncKey }: Props ) => {
 	);
 
 	return (
-		<CollapsibleMeta
-			isExpandedExternal={ isExpanded }
-			setIsExpandedExternal={ setIsExpanded }
-			header={ <Header /> }
-			summary={ summary }
-			editText={ buttonText }
-			tracksEvent={ togglePanelTracksEvent }
-		>
-			{ content }
-		</CollapsibleMeta>
+		<div className={ styles.wrapper }>
+			<CollapsibleMeta
+				headerText={ summary }
+				toggleText={ buttonText }
+				tracksEvent={ togglePanelTracksEvent }
+				onToggleHandler={ onToggleHandler }
+			>
+				{ content }
+			</CollapsibleMeta>
+		</div>
 	);
 };
 
