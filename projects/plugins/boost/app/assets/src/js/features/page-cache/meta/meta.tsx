@@ -15,7 +15,6 @@ import { recordBoostEvent } from '$lib/utils/analytics';
 import CollapsibleMeta from '$features/ui/collapsible-meta/collapsible-meta';
 
 const Meta = () => {
-	const [ isExpanded, setIsExpanded ] = useState( false );
 	const pageCache = usePageCache();
 
 	const [ logging, mutateLogging ] = useDataSyncSubset( pageCache, 'logging' );
@@ -41,21 +40,17 @@ const Meta = () => {
 		}
 
 		return (
-			<>
-				{ totalBypassPatterns > 0 ? (
-					<>
-						{ sprintf(
-							/* translators: %d is the number of cache bypass patterns. */
-							_n( '%d exception.', '%d exceptions.', totalBypassPatterns, 'jetpack-boost' ),
-							totalBypassPatterns
-						) }
-					</>
-				) : (
-					__( 'No exceptions.', 'jetpack-boost' )
-				) }{ ' ' }
-				{ logging && __( 'Logging activated.', 'jetpack-boost' ) }
-				{ ! logging && __( 'No logging.', 'jetpack-boost' ) }
-			</>
+			( totalBypassPatterns > 0
+				? sprintf(
+						/* translators: %d is the number of cache bypass patterns. */
+						_n( '%d exception.', '%d exceptions.', totalBypassPatterns, 'jetpack-boost' ),
+						totalBypassPatterns
+				  )
+				: __( 'No exceptions.', 'jetpack-boost' ) ) +
+			' ' +
+			( logging
+				? __( 'Logging activated.', 'jetpack-boost' )
+				: __( 'No logging.', 'jetpack-boost' ) )
 		);
 	};
 
@@ -86,26 +81,18 @@ const Meta = () => {
 		successMessage: clearedCacheMessage || __( 'Cache cleared.', 'jetpack-boost' ),
 	} );
 
-	const Header = () => (
-		<div className={ styles.head }>
-			<div className={ styles[ 'section-title' ] }>
-				<h4>{ __( 'Exceptions', 'jetpack-boost' ) }</h4>
-			</div>
-
-			<div className={ styles.actions }>
-				<Button
-					variant="link"
-					size="small"
-					weight="regular"
-					iconSize={ 16 }
-					icon={ <Lightning /> }
-					onClick={ clearPageCache }
-					disabled={ runClearPageCacheAction.isPending }
-				>
-					{ __( 'Clear Cache', 'jetpack-boost' ) }
-				</Button>
-			</div>
-		</div>
+	const extraButtons = (
+		<Button
+			variant="link"
+			size="small"
+			weight="regular"
+			iconSize={ 16 }
+			icon={ <Lightning /> }
+			onClick={ clearPageCache }
+			disabled={ runClearPageCacheAction.isPending }
+		>
+			{ __( 'Clear Cache', 'jetpack-boost' ) }
+		</Button>
 	);
 
 	const content = (
@@ -142,11 +129,9 @@ const Meta = () => {
 		pageCache && (
 			<div className={ styles.wrapper } data-testid="page-cache-meta">
 				<CollapsibleMeta
-					isExpandedExternal={ isExpanded }
-					setIsExpandedExternal={ setIsExpanded }
-					header={ <Header /> }
-					summary={ getSummary() }
-					editText={ __( 'Show Options', 'jetpack-boost' ) }
+					headerText={ getSummary() }
+					extraButtons={ extraButtons }
+					toggleText={ __( 'Show Options', 'jetpack-boost' ) }
 					tracksEvent={ 'page_cache_exceptions_panel_toggle' }
 				>
 					{ content }
@@ -213,6 +198,7 @@ const BypassPatterns = ( {
 				[ styles[ 'has-error' ] ]: inputInvalid,
 			} ) }
 		>
+			<div className={ styles.title }>{ __( 'Exceptions', 'jetpack-boost' ) }</div>
 			<label htmlFor="jb-cache-exceptions">
 				{ __( 'URLs of pages and posts that will never be cached:', 'jetpack-boost' ) }
 			</label>
