@@ -123,8 +123,12 @@ class WordAds_Smart {
 		// TODO: refactor to remove the need to do this
 		$this->is_inline_enabled = $this->formats['inline']['enabled'];
 
-		// Insert ads.
-		$this->insert_ads();
+		// TODO: Is this necessary? if we want to always run Smart insert ads logic after IPW migrations
+		$has_any_format_enabled = in_array( true, array_column( $this->formats, 'enabled' ), true );
+		if ( $has_any_format_enabled ) {
+			// Insert ads.
+			$this->insert_ads();
+		}
 	}
 
 	/**
