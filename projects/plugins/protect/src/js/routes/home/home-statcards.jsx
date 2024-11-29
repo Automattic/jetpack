@@ -32,11 +32,11 @@ const HomeStatCards = () => {
 		stats,
 	} = useWafData();
 
-	const { data: status } = useScanStatusQuery();
-	const scanning = isScanInProgress( status );
-
 	const { allTime: allTimeBlockCount } = stats ? stats.blockedRequests : { allTime: 0 };
 	const { blockedLogins: blockedLoginsCount } = stats;
+
+	const { data: status } = useScanStatusQuery();
+	const scanning = isScanInProgress( status );
 
 	const lastCheckedMessage = useMemo( () => {
 		if ( scanError ) {
@@ -47,7 +47,7 @@ const HomeStatCards = () => {
 		}
 
 		if ( scanning ) {
-			return __( 'Your scan results will be ready soon.', 'jetpack-protect' );
+			return __( 'Your results will be ready soon.', 'jetpack-protect' );
 		}
 
 		const entityLabel = hasPlan
