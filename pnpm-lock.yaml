@@ -286,6 +286,19 @@ importers:
         version: 4.9.1(webpack@5.94.0)
 
   projects/js-packages/charts:
+    dependencies:
+      '@visx/axis':
+        specifier: ^3.8.0
+        version: 3.12.0(react@18.3.1)
+      '@visx/group':
+        specifier: ^3.8.0
+        version: 3.12.0(react@18.3.1)
+      '@visx/scale':
+        specifier: ^3.8.0
+        version: 3.12.0
+      '@visx/shape':
+        specifier: ^3.8.0
+        version: 3.12.0(react@18.3.1)
     devDependencies:
       '@storybook/blocks':
         specifier: 8.3.5
@@ -299,18 +312,6 @@ importers:
       '@types/react-dom':
         specifier: 18.3.1
         version: 18.3.1
-      '@visx/axis':
-        specifier: ^3.8.0
-        version: 3.12.0(react@18.3.1)
-      '@visx/group':
-        specifier: ^3.8.0
-        version: 3.12.0(react@18.3.1)
-      '@visx/scale':
-        specifier: ^3.8.0
-        version: 3.12.0
-      '@visx/shape':
-        specifier: ^3.8.0
-        version: 3.12.0(react@18.3.1)
       jest:
         specifier: 29.7.0
         version: 29.7.0
