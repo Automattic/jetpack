@@ -1,8 +1,7 @@
 /**
  * External
  */
-import { parse, serialize } from '@wordpress/blocks';
-import { createBlock } from '@wordpress/blocks';
+import { parse, serialize, createBlock } from '@wordpress/blocks';
 import { dispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 /**

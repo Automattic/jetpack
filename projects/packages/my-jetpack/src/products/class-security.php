@@ -162,6 +162,22 @@ class Security extends Module_Product {
 	}
 
 	/**
+	 * Get the product-slugs of the paid plans for this product.
+	 * (Do not include bundle plans, unless it's a bundle plan itself).
+	 *
+	 * @return array
+	 */
+	public static function get_paid_plan_product_slugs() {
+		return array(
+			'jetpack_security_t1_yearly',
+			'jetpack_security_t1_monthly',
+			'jetpack_security_t1_bi_yearly',
+			'jetpack_security_t2_yearly',
+			'jetpack_security_t2_monthly',
+		);
+	}
+
+	/**
 	 * Checks whether the current plan (or purchases) of the site already supports the product
 	 *
 	 * @return boolean

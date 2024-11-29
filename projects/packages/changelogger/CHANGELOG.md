@@ -3,6 +3,13 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.1.0] - 2024-11-25
+### Changed
+- Bump minimum PHP version from implicitly-7.2.0 to 7.2.5. [#40297]
+
+### Deprecated
+- Using getChangesBySubheading() with a param now throws an exception. [#40200]
+
 ## [5.0.0] - 2024-11-14
 ### Removed
 - General: Update minimum PHP version to 7.2. [#40147]
@@ -256,6 +263,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ### Added
 - Initial version.
 
+[5.1.0]: https://github.com/Automattic/jetpack-changelogger/compare/5.0.0...5.1.0
 [5.0.0]: https://github.com/Automattic/jetpack-changelogger/compare/4.2.8...5.0.0
 [4.2.8]: https://github.com/Automattic/jetpack-changelogger/compare/4.2.7...4.2.8
 [4.2.7]: https://github.com/Automattic/jetpack-changelogger/compare/4.2.6...4.2.7

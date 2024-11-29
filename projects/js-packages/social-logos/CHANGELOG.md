@@ -1,3 +1,7 @@
+## [3.1.13] - 2024-11-25
+### Changed
+- Update example with ids for jsx-a11y/label-has-associated-control. [#40199]
+
 ## [3.1.12] - 2024-11-14
 ### Changed
 - Update dependencies.
@@ -172,6 +176,7 @@
 
 - Build: Refactored (aligned build system with Gridicons).
 
+[3.1.13]: https://github.com/Automattic/social-logos/compare/v3.1.12...v3.1.13
 [3.1.12]: https://github.com/Automattic/social-logos/compare/v3.1.11...v3.1.12
 [3.1.11]: https://github.com/Automattic/social-logos/compare/v3.1.10...v3.1.11
 [3.1.10]: https://github.com/Automattic/social-logos/compare/v3.1.9...v3.1.10
