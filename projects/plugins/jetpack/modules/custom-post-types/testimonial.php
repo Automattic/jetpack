@@ -15,9 +15,6 @@ if ( ! class_exists( 'Jetpack_Testimonial' ) ) {
 	 * Add a Testimonial CPT, and display it with a shortcode
 	 */
 	class Jetpack_Testimonial {
-		const CUSTOM_POST_TYPE       = 'jetpack-testimonial';
-		const OPTION_NAME            = 'jetpack_testimonial';
-		const OPTION_READING_SETTING = 'jetpack_testimonial_posts_per_page';
 
 		/**
 		 * Store an instance of the new class
@@ -30,8 +27,6 @@ if ( ! class_exists( 'Jetpack_Testimonial' ) ) {
 		 * Initialize class.
 		 *
 		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
-		 *
-		 * @return self
 		 */
 		public static function init() {
 			_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
