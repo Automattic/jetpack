@@ -1,7 +1,7 @@
 import { Text, useBreakpointMatch, StatCard } from '@automattic/jetpack-components';
 import { Spinner, Tooltip } from '@wordpress/components';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { useMemo } from 'react';
+import { useMemo, useCallback } from 'react';
 import Alert from '../../components/alert-icon';
 import ProtectCheck from '../../components/protect-check-icon';
 import useScanStatusQuery, { isScanInProgress } from '../../data/scan/use-scan-status-query';
@@ -11,11 +11,10 @@ import useWafData from '../../hooks/use-waf-data';
 import styles from './styles.module.scss';
 
 const HomeStatCards = () => {
-	const defaultHeight = '19.14';
-	const defaultWidth = '16';
-
 	const { hasPlan } = usePlan();
 	const [ isSmall ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
+
+	const variant = isSmall ? 'horizontal' : 'square';
 
 	const {
 		counts: {
@@ -37,6 +36,18 @@ const HomeStatCards = () => {
 
 	const { data: status } = useScanStatusQuery();
 	const scanning = isScanInProgress( status );
+
+	const defaultDimensions = useMemo( () => ( { height: '19.14', width: '16' } ), [] );
+
+	const renderIcon = useCallback(
+		isFeatureEnabled => {
+			if ( isFeatureEnabled ) {
+				return <ProtectCheck { ...defaultDimensions } />;
+			}
+			return <Alert { ...defaultDimensions } color="#A7AAAD" />;
+		},
+		[ defaultDimensions ]
+	);
 
 	const lastCheckedMessage = useMemo( () => {
 		if ( scanError ) {
@@ -80,37 +91,17 @@ const HomeStatCards = () => {
 		);
 	}, [ scanError, scanning, numThreats, lastCheckedLocalTimestamp, hasPlan ] );
 
-	const renderIcon = isFeatureEnabled => {
-		if ( isFeatureEnabled ) {
-			return <ProtectCheck width={ defaultWidth } height={ defaultHeight } />;
-		}
-		return <Alert width={ defaultWidth } height={ defaultHeight } color="#A7AAAD" />;
-	};
-
-	const defaultArgs = useMemo(
-		() => ( {
-			variant: isSmall ? 'horizontal' : 'square',
-		} ),
-		[ isSmall ]
-	);
-
 	const scanIcon = useMemo( () => {
 		if ( scanning ) {
 			return <Spinner />;
 		}
 
 		if ( scanError ) {
-			return <Alert width={ defaultWidth } height={ defaultHeight } />;
+			return <Alert { ...defaultDimensions } />;
 		}
 
-		return (
-			<ProtectCheck
-				width={ defaultWidth }
-				height={ defaultHeight }
-				color={ numThreats ? '#F0B849' : '#069E08' }
-			/>
-		);
-	}, [ scanning, scanError, defaultWidth, defaultHeight, numThreats ] );
+		return <ProtectCheck { ...defaultDimensions } color={ numThreats ? '#F0B849' : '#069E08' } />;
+	}, [ scanning, scanError, defaultDimensions, numThreats ] );
 
 	const scanLabel = useMemo( () => {
 		if ( scanError ) {
@@ -133,7 +124,7 @@ const HomeStatCards = () => {
 
 	const scanArgs = useMemo(
 		() => ( {
-			...defaultArgs,
+			variant: variant,
 			icon: (
 				<span className={ styles[ 'stat-card-icon' ] }>
 					{ scanIcon }
@@ -148,12 +139,12 @@ const HomeStatCards = () => {
 			value: numThreats,
 			error: scanError || scanning ? true : false,
 		} ),
-		[ defaultArgs, scanIcon, scanLabel, scanning, scanError, isSmall, numThreats ]
+		[ variant, scanIcon, scanLabel, scanning, scanError, isSmall, numThreats ]
 	);
 
 	const wafArgs = useMemo(
 		() => ( {
-			...defaultArgs,
+			variant: variant,
 			className: isWafModuleEnabled ? styles.active : styles.disabled,
 			icon: (
 				<span className={ styles[ 'stat-card-icon' ] }>
@@ -172,12 +163,12 @@ const HomeStatCards = () => {
 			),
 			value: allTimeBlockCount,
 		} ),
-		[ defaultArgs, isWafModuleEnabled, isSmall, allTimeBlockCount ]
+		[ variant, renderIcon, isWafModuleEnabled, isSmall, allTimeBlockCount ]
 	);
 
 	const bruteForceArgs = useMemo(
 		() => ( {
-			...defaultArgs,
+			variant: variant,
 			className: isBruteForceModuleEnabled ? styles.active : styles.disabled,
 			icon: (
 				<span className={ styles[ 'stat-card-icon' ] }>
@@ -196,7 +187,7 @@ const HomeStatCards = () => {
 			),
 			value: blockedLoginsCount,
 		} ),
-		[ defaultArgs, isBruteForceModuleEnabled, isSmall, blockedLoginsCount ]
+		[ variant, renderIcon, isBruteForceModuleEnabled, isSmall, blockedLoginsCount ]
 	);
 
 	return (
