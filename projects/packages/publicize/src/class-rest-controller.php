@@ -126,6 +126,11 @@ class REST_Controller {
 							return array_map( 'absint', $param );
 						},
 					),
+					'async'               => array(
+						'description' => __( 'Whether to share the post asynchronously.', 'jetpack-publicize-pkg' ),
+						'type'        => 'boolean',
+						'default'     => false,
+					),
 				),
 			)
 		);
@@ -692,40 +697,10 @@ class REST_Controller {
 	 * @param WP_REST_Request $request The request object.
 	 */
 	public function get_post_share_status( WP_REST_Request $request ) {
+		global $publicize;
+
 		$post_id = $request->get_param( 'post_id' );
 
-		$shares = get_post_meta( $post_id, self::SOCIAL_SHARES_POST_META_KEY, true );
-
-		// If the data is not an array, it means that sharing is not done yet.
-		$done = is_array( $shares );
-
-		if ( $done ) {
-			// The site could have multiple admins, editors and authors connected. Load shares information that only the current user has access to.
-			global $publicize;
-			$connection_ids = array_map(
-				function ( $connection ) {
-					if ( isset( $connection['connection_id'] ) ) {
-						return (int) $connection['connection_id'];
-					}
-					return 0;
-				},
-				$publicize->get_all_connections_for_user()
-			);
-			$shares         = array_values(
-				array_filter(
-					$shares,
-					function ( $share ) use ( $connection_ids ) {
-						return in_array( (int) $share['connection_id'], $connection_ids, true );
-					}
-				)
-			);
-		}
-
-		return rest_ensure_response(
-			array(
-				'shares' => $done ? $shares : array(),
-				'done'   => $done,
-			)
-		);
+		return rest_ensure_response( $publicize->get_post_share_status( $post_id ) );
 	}
 }

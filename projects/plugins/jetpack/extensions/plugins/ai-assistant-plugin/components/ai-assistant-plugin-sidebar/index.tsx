@@ -38,7 +38,6 @@ import './style.scss';
  * Types
  */
 import type { CoreSelect, JetpackSettingsContentProps } from './types';
-import type * as EditorSelectors from '@wordpress/editor/store/selectors';
 
 const debug = debugFactory( 'jetpack-ai-assistant-plugin:sidebar' );
 /**
@@ -163,7 +162,7 @@ export default function AiAssistantPluginSidebar() {
 	const { tracks } = useAnalytics();
 
 	const isViewable = useSelect( select => {
-		const postTypeName = ( select( editorStore ) as typeof EditorSelectors ).getCurrentPostType();
+		const postTypeName = select( editorStore ).getCurrentPostType();
 		// The coreStore select type lacks the getPostType method, so we need to cast it to the correct type
 		const postTypeObject = ( select( coreStore ) as unknown as CoreSelect ).getPostType(
 			postTypeName

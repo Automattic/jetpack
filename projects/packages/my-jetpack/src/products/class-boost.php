@@ -66,6 +66,13 @@ class Boost extends Product {
 	public static $has_free_offering = true;
 
 	/**
+	 * The feature slug that identifies the paid plan
+	 *
+	 * @var string
+	 */
+	public static $feature_identifying_paid_plan = 'cloud-critical-css';
+
+	/**
 	 * Get the product name
 	 *
 	 * @return string
@@ -342,27 +349,6 @@ class Boost extends Product {
 	}
 
 	/**
-	 * Checks whether the current plan (or purchases) of the site already supports the product
-	 *
-	 * @return boolean
-	 */
-	public static function has_paid_plan_for_product() {
-		$purchases_data = Wpcom_Products::get_site_current_purchases();
-		if ( is_wp_error( $purchases_data ) ) {
-			return false;
-		}
-		if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
-			foreach ( $purchases_data as $purchase ) {
-				// Boost is available as standalone bundle and as part of the Complete plan.
-				if ( strpos( $purchase->product_slug, 'jetpack_boost' ) !== false || str_starts_with( $purchase->product_slug, 'jetpack_complete' ) ) {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-
-	/**
 	 * Get the URL where the user manages the product
 	 *
 	 * @return ?string
@@ -390,5 +376,29 @@ class Boost extends Product {
 		update_option( 'jb_get_started', false );
 
 		return $product_activation;
+	}
+
+	/**
+	 * Get the product-slugs of the paid plans for this product.
+	 * (Do not include bundle plans, unless it's a bundle plan itself).
+	 *
+	 * @return array
+	 */
+	public static function get_paid_plan_product_slugs() {
+		return array(
+			'jetpack_boost_yearly',
+			'jetpack_boost_monthly',
+			'jetpack_boost_bi_yearly',
+		);
+	}
+
+	/**
+	 * Return product bundles list
+	 * that supports the product.
+	 *
+	 * @return boolean|array Products bundle list.
+	 */
+	public static function is_upgradable_by_bundle() {
+		return array( 'complete' );
 	}
 }

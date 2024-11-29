@@ -1,2 +1,2 @@
-export * from './fixers';
-export * from './threats';
+export * from './fixers.js';
+export * from './threats.js';

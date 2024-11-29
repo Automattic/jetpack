@@ -37,7 +37,7 @@ function jetpackcrm_dash_refresh() {
 
 	$summary[] = array(
 		'label'             => __( 'Contacts', 'zero-bs-crm' ),
-		'range_total'       => zeroBSCRM_prettifyLongInts( $zbs->DAL->getContacts( $range_params ) ), // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		'range_total'       => zeroBSCRM_prettifyLongInts( $zbs->DAL->contacts->getContacts( $range_params ) ), // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 		'alltime_total_str' => sprintf( __( '%s total', 'zero-bs-crm' ), zeroBSCRM_prettifyLongInts( $zbs->DAL->contacts->getFullCount() ) ), // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase,WordPress.WP.I18n.MissingTranslatorsComment
 		'link'              => jpcrm_esc_link( $zbs->slugs['managecontacts'] ),
 	);
