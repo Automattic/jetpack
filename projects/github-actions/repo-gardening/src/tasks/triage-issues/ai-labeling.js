@@ -125,6 +125,8 @@ function cleanIssueContent( content ) {
  *
  * @param {WebhookPayloadIssue} payload - Issue event payload.
  * @param {GitHub}              octokit - Initialized Octokit REST client.
+ *
+ * @return {Promise<Array>} Promise resolving to an array of all the labels on the issue after the task is over.
  */
 async function aiLabeling( payload, octokit ) {
 	const { issue, repository } = payload;
@@ -137,7 +139,7 @@ async function aiLabeling( payload, octokit ) {
 
 	if ( ! apiKey ) {
 		debug( `triage-issues > auto-label: No OpenAI key is provided. Bail.` );
-		return;
+		return issueLabels;
 	}
 
 	// If the issue already has [Feature] or [Feature Group] labels, bail.
@@ -145,7 +147,7 @@ async function aiLabeling( payload, octokit ) {
 		debug(
 			`triage-issues > auto-label: Issue #${ number } already has [Feature] or [Feature Group] labels. Skipping.`
 		);
-		return;
+		return issueLabels;
 	}
 
 	if (
@@ -159,7 +161,7 @@ async function aiLabeling( payload, octokit ) {
 			debug(
 				`triage-issues > auto-label: Issue #${ number } doesn't have enough content. Skipping OpenAI analysis.`
 			);
-			return;
+			return issueLabels;
 		}
 
 		debug(
@@ -209,7 +211,12 @@ ${ Object.entries( explanations )
 				issue_number: number,
 				labels: [ '[Experiment] AI labels added' ],
 			} );
+
+			// Add the labels we've added to our existing array of labels.
+			issueLabels.push( ...labels, '[Experiment] AI labels added' );
 		}
 	}
+
+	return issueLabels;
 }
 module.exports = aiLabeling;
