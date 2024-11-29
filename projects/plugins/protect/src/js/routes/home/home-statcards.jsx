@@ -10,10 +10,28 @@ import useProtectData from '../../hooks/use-protect-data';
 import useWafData from '../../hooks/use-waf-data';
 import styles from './styles.module.scss';
 
+const IconWithLabel = ( { label, isSmall, icon } ) => (
+	<span className={ styles[ 'stat-card-icon' ] }>
+		{ icon }
+		{ ! isSmall && (
+			<Text className={ styles[ 'stat-card-icon-label' ] } variant="body-extra-small">
+				{ label }
+			</Text>
+		) }
+	</span>
+);
+
+const HomeStatCard = ( { text, args } ) => (
+	<Tooltip className={ styles[ 'stat-card-tooltip' ] } text={ text }>
+		<div className={ styles[ 'stat-card-wrapper' ] }>
+			<StatCard { ...args } />
+		</div>
+	</Tooltip>
+);
+
 const HomeStatCards = () => {
 	const { hasPlan } = usePlan();
 	const [ isSmall ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
-
 	const variant = isSmall ? 'horizontal' : 'square';
 
 	const {
@@ -31,8 +49,10 @@ const HomeStatCards = () => {
 		stats,
 	} = useWafData();
 
-	const { allTime: allTimeBlockCount } = stats ? stats.blockedRequests : { allTime: 0 };
-	const { blockedLogins: blockedLoginsCount } = stats;
+	const {
+		blockedRequests: { allTime: allTimeBlockedRequestsCount = 0 } = {},
+		blockedLogins: allTimeBlockedLoginsCount = 0,
+	} = stats || {};
 
 	const { data: scanStatus } = useScanStatusQuery();
 	const scanning = isScanInProgress( scanStatus );
@@ -40,12 +60,12 @@ const HomeStatCards = () => {
 	const defaultDimensions = useMemo( () => ( { height: '19.14', width: '16' } ), [] );
 
 	const renderIcon = useCallback(
-		isFeatureEnabled => {
-			if ( isFeatureEnabled ) {
-				return <ProtectCheck { ...defaultDimensions } />;
-			}
-			return <Alert { ...defaultDimensions } color="#A7AAAD" />;
-		},
+		isFeatureEnabled =>
+			isFeatureEnabled ? (
+				<ProtectCheck { ...defaultDimensions } />
+			) : (
+				<Alert { ...defaultDimensions } color="#A7AAAD" />
+			),
 		[ defaultDimensions ]
 	);
 
@@ -91,56 +111,48 @@ const HomeStatCards = () => {
 		);
 	}, [ scanError, scanning, numThreats, lastCheckedLocalTimestamp, hasPlan ] );
 
-	const scanIcon = useMemo( () => {
+	const scanArgs = useMemo( () => {
+		let scanIcon;
 		if ( scanning ) {
-			return <Spinner />;
+			scanIcon = <Spinner />;
+		} else if ( scanError ) {
+			scanIcon = <Alert { ...defaultDimensions } />;
+		} else {
+			scanIcon = (
+				<ProtectCheck { ...defaultDimensions } color={ numThreats ? '#F0B849' : '#069E08' } />
+			);
 		}
 
+		let scanLabel;
 		if ( scanError ) {
-			return <Alert { ...defaultDimensions } />;
+			scanLabel = __( 'Unable to scan', 'jetpack-protect' );
+		} else if ( scanning ) {
+			scanLabel = __( 'Please wait…', 'jetpack-protect' );
+		} else {
+			const label = hasPlan
+				? __( 'Threats', 'jetpack-protect' )
+				: __( 'Vulnerabilities', 'jetpack-protect' );
+			scanLabel = sprintf(
+				// translators: %s: "Threats" or "Vulnerabilities"
+				__( '%s found', 'jetpack-protect' ),
+				label
+			);
 		}
 
-		return <ProtectCheck { ...defaultDimensions } color={ numThreats ? '#F0B849' : '#069E08' } />;
-	}, [ scanning, scanError, defaultDimensions, numThreats ] );
-
-	const scanLabel = useMemo( () => {
-		if ( scanError ) {
-			return __( 'Unable to scan', 'jetpack-protect' );
-		}
-
-		if ( scanning ) {
-			return __( 'Please wait…', 'jetpack-protect' );
-		}
-
-		const label = hasPlan
-			? __( 'Threats', 'jetpack-protect' )
-			: __( 'Vulnerabilities', 'jetpack-protect' );
-		return sprintf(
-			// translators: %s: "Threats" or "Vulnerabilities"
-			__( '%s found', 'jetpack-protect' ),
-			label
-		);
-	}, [ scanning, scanError, hasPlan ] );
-
-	const scanArgs = useMemo(
-		() => ( {
-			variant: variant,
+		return {
+			variant,
 			icon: (
-				<span className={ styles[ 'stat-card-icon' ] }>
-					{ scanIcon }
-					{ ! isSmall && (
-						<Text className={ styles[ 'stat-card-icon-label' ] } variant="body-extra-small">
-							{ scanning ? __( 'Scanning', 'jetpack-protect' ) : __( 'Scan', 'jetpack-protect' ) }
-						</Text>
-					) }
-				</span>
+				<IconWithLabel
+					icon={ scanIcon }
+					label={ __( 'Scan', 'jetpack-protect' ) }
+					isSmall={ isSmall }
+				/>
 			),
 			label: <span className={ styles[ 'stat-card-label' ] }>{ scanLabel }</span>,
 			value: numThreats,
 			hideValue: !! ( scanError || scanning ),
-		} ),
-		[ variant, scanIcon, scanLabel, scanning, scanError, isSmall, numThreats ]
-	);
+		};
+	}, [ variant, scanning, defaultDimensions, scanError, numThreats, hasPlan, isSmall ] );
 
 	const wafArgs = useMemo(
 		() => ( {
@@ -161,10 +173,10 @@ const HomeStatCards = () => {
 					{ __( 'Blocked requests', 'jetpack-protect' ) }
 				</span>
 			),
-			value: allTimeBlockCount,
+			value: allTimeBlockedRequestsCount,
 			hideValue: ! isWafModuleEnabled,
 		} ),
-		[ variant, renderIcon, isWafModuleEnabled, isSmall, allTimeBlockCount ]
+		[ variant, renderIcon, isWafModuleEnabled, isSmall, allTimeBlockedRequestsCount ]
 	);
 
 	const bruteForceArgs = useMemo(
@@ -186,35 +198,26 @@ const HomeStatCards = () => {
 					{ __( 'Blocked logins', 'jetpack-protect' ) }
 				</span>
 			),
-			value: blockedLoginsCount,
+			value: allTimeBlockedLoginsCount,
 			hideValue: ! isBruteForceModuleEnabled,
 		} ),
-		[ variant, renderIcon, isBruteForceModuleEnabled, isSmall, blockedLoginsCount ]
+		[ variant, renderIcon, isBruteForceModuleEnabled, isSmall, allTimeBlockedLoginsCount ]
 	);
 
 	return (
 		<div className={ styles[ 'stat-cards-wrapper' ] }>
-			<Tooltip className={ styles[ 'stat-card-tooltip' ] } text={ lastCheckedMessage }>
-				<div className={ styles[ 'stat-card-wrapper' ] }>
-					<StatCard { ...scanArgs } />
-				</div>
-			</Tooltip>
+			<HomeStatCard text={ lastCheckedMessage } args={ scanArgs } />
 			{ wafSupported && (
-				<Tooltip
-					className={ styles[ 'stat-card-tooltip' ] }
+				<HomeStatCard
 					text={
 						isWafModuleEnabled
 							? __( 'Untrusted traffic requests blocked all time.', 'jetpack-protect' )
 							: __( "Firewall is off. Untrusted traffic can't be blocked", 'jetpack-protect' )
 					}
-				>
-					<div className={ styles[ 'stat-card-wrapper' ] }>
-						<StatCard { ...wafArgs } />
-					</div>
-				</Tooltip>
+					args={ wafArgs }
+				/>
 			) }
-			<Tooltip
-				className={ styles[ 'stat-card-tooltip' ] }
+			<HomeStatCard
 				text={
 					isBruteForceModuleEnabled
 						? __( 'Total login attempts blocked all time.', 'jetpack-protect' )
@@ -223,11 +226,8 @@ const HomeStatCards = () => {
 								'jetpack-protect'
 						  )
 				}
-			>
-				<div className={ styles[ 'stat-card-wrapper' ] }>
-					<StatCard { ...bruteForceArgs } />
-				</div>
-			</Tooltip>
+				args={ bruteForceArgs }
+			/>
 		</div>
 	);
 };
