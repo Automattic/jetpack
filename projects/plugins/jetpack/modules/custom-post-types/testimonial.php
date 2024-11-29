@@ -917,11 +917,4 @@ if ( ! class_exists( 'Jetpack_Testimonial' ) ) {
 			}
 		}
 	}
-
-	add_action( 'init', array( 'Jetpack_Testimonial', 'init' ) );
-
-	// Check on plugin activation if theme supports CPT
-	register_activation_hook( __FILE__, array( 'Jetpack_Testimonial', 'activation_post_type_support' ) );
-	add_action( 'jetpack_activate_module_custom-content-types', array( 'Jetpack_Testimonial', 'activation_post_type_support' ) );
-
 }
