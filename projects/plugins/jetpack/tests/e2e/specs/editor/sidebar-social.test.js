@@ -39,32 +39,10 @@ test.describe( 'Editor sidebar: Social', () => {
 		logger.action( 'Expand "Share this post" panel' );
 		await socialPanel.click();
 
-		const activateSocialButton = settingsSidebar.getByRole( 'button', {
+		const activateSocialLink = settingsSidebar.getByRole( 'link', {
 			name: 'Activate Jetpack Social',
 		} );
 
-		logger.action( 'Activate Jetpack Social' );
-		await Promise.all( [
-			activateSocialButton.click(),
-			page.waitForRequest( request => {
-				// We need to consider both pretty and ugly permalink structures
-				const route = 'jetpack/v4/module/publicize/active';
-
-				return (
-					request.url().includes( route ) ||
-					new URL( request.url() ).searchParams.get( 'rest_route' ).includes( route )
-				);
-			} ),
-		] );
-
-		logger.action( 'Verify that the social panel is still there' );
-		await expect( socialPanel ).toBeVisible();
-
-		const element = blockEditor.getEditorSettingsSidebar().getByLabel( 'Share when publishing' );
-
-		await element.waitFor();
-
-		// Should be unchecked by default because there are no connections
-		await expect( element ).not.toBeChecked();
+		await expect( activateSocialLink ).toBeVisible();
 	} );
 } );
