@@ -1,4 +1,3 @@
-import React from 'react';
 import { BarChart } from '../index';
 import type { Meta } from '@storybook/react';
 
