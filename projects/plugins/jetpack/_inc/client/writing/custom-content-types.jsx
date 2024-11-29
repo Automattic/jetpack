@@ -51,11 +51,6 @@ export class CustomContentTypes extends React.Component {
 			return null;
 		}
 
-		const woa_theme_supports_jetpack_portfolio =
-			typeof jetpack_portfolio_theme_supports !== 'undefined'
-				? jetpack_portfolio_theme_supports // eslint-disable-line no-undef
-				: false;
-
 		const module = this.props.module( 'custom-content-types' );
 		const disabledByOverride =
 			'inactive' === this.props.getModuleOverride( 'custom-content-types' );
@@ -63,6 +58,10 @@ export class CustomContentTypes extends React.Component {
 			disabledByOverride &&
 			__( 'This feature has been disabled by a site administrator.', 'jetpack' );
 
+		const woa_theme_supports_jetpack_portfolio =
+			typeof jetpack_portfolio_theme_supports !== 'undefined'
+				? jetpack_portfolio_theme_supports // eslint-disable-line no-undef
+				: false;
 		const portfolioDisabledReason =
 			! disabledReason && woa_theme_supports_jetpack_portfolio
 				? __( 'This feature is already supported by your theme.', 'jetpack' )
@@ -86,6 +85,35 @@ export class CustomContentTypes extends React.Component {
 						portfolioLink: this.linkIfActiveCPT( 'portfolio' ),
 					}
 			  );
+
+		const woa_theme_supports_jetpack_testimonial =
+			typeof jetpack_testimonial_theme_supports !== 'undefined'
+				? jetpack_testimonial_theme_supports // eslint-disable-line no-undef
+				: false;
+		const testimonialDisabledReason =
+			! disabledReason && woa_theme_supports_jetpack_testimonial
+				? __( 'This feature is already supported by your theme.', 'jetpack' )
+				: '';
+		const testimonialText = woa_theme_supports_jetpack_testimonial
+			? createInterpolateElement(
+					__(
+						'Use <testimonialLink>testimonials</testimonialLink> on your site to showcase your best work. If your theme doesn’t support Jetpack Testimonials, you can still use a simple shortcode to display them on your site. This feature is enabled by default in your theme settings.',
+						'jetpack'
+					),
+					{
+						testimonialLink: this.linkIfActiveCPT( 'testimonial' ),
+					}
+			  )
+			: createInterpolateElement(
+					__(
+						'Use <testimonialLink>testimonials</testimonialLink> on your site to showcase your best work. If your theme doesn’t support Jetpack Testimonials, you can still use a simple shortcode to display them on your site.',
+						'jetpack'
+					),
+					{
+						testimonialLink: this.linkIfActiveCPT( 'testimonial' ),
+					}
+			  );
+
 		return (
 			<SettingsCard { ...this.props } module="custom-content-types" hideButton>
 				<SettingsGroup
@@ -95,27 +123,17 @@ export class CustomContentTypes extends React.Component {
 						link: getRedirectUrl( 'jetpack-support-custom-content-types' ),
 					} }
 				>
-					<p>
-						{ createInterpolateElement(
-							__(
-								'Add <testimonialLink>testimonials</testimonialLink> to your website to attract new customers. If your theme doesn’t support Jetpack Testimonials, you can still use a simple shortcode to display them on your site.',
-								'jetpack'
-							),
-							{
-								testimonialLink: this.linkIfActiveCPT( 'testimonial' ),
-							}
-						) }
-					</p>
+					<p> { testimonialText } </p>
 					<ToggleControl
 						checked={
 							this.props.getOptionValue( 'jetpack_testimonial', 'custom-content-types' )
 								? this.props.getOptionValue( 'jetpack_testimonial', 'custom-content-types' )
 								: false
 						}
-						disabled={ disabledByOverride }
+						disabled={ disabledByOverride || woa_theme_supports_jetpack_testimonial }
 						toggling={ this.props.isSavingAnyOption( 'jetpack_testimonial' ) }
 						onChange={ this.handleTestimonialToggleChange }
-						disabledReason={ disabledReason }
+						disabledReason={ testimonialDisabledReason }
 						label={
 							<span className="jp-form-toggle-explanation">
 								{ __( 'Testimonials', 'jetpack' ) }

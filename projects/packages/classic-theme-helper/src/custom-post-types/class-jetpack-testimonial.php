@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Classic_Theme_Helper;
 
 use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\Status\Host;
 use Jetpack_Options;
 use WP_Customize_Image_Control;
 use WP_Customize_Manager;
@@ -60,6 +61,19 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Testimonial' ) ) {
 			add_filter( 'rest_api_allowed_post_types', array( $this, 'allow_cpt_rest_api_type' ) );
 
 			$this->maybe_register_cpt();
+
+			// Add a variable with the theme support status for the Jetpack Settings Testimonial toggle UI.
+			if ( current_theme_supports( self::CUSTOM_POST_TYPE ) ) {
+				wp_register_script( 'jetpack-testimonial-theme-supports', '', array(), '0.1.0', true );
+				wp_enqueue_script( 'jetpack-testimonial-theme-supports' );
+				$supports_testimonial = ( new Host() )->is_woa_site() ? 'true' : 'false';
+			} else {
+				$supports_testimonial = 'false';
+			}
+			wp_add_inline_script(
+				'jetpack-testimonial-theme-supports',
+				'const jetpack_testimonial_theme_supports = ' . $supports_testimonial
+			);
 		}
 
 		/**
