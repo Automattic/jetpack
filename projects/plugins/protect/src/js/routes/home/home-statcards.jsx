@@ -131,7 +131,7 @@ const HomeStatCards = () => {
 		} else {
 			const label = hasPlan
 				? __( 'Threats', 'jetpack-protect' )
-				: __( 'Vulnerabilities', 'jetpack-protect' );
+				: __( 'Vulnerabilities', 'jetpack-protect', /* dummy arg to avoid bad minification */ 0 );
 			scanLabel = sprintf(
 				// translators: %s: "Threats" or "Vulnerabilities"
 				__( '%s found', 'jetpack-protect' ),
@@ -212,7 +212,11 @@ const HomeStatCards = () => {
 					text={
 						isWafModuleEnabled
 							? __( 'Untrusted traffic requests blocked all time.', 'jetpack-protect' )
-							: __( "Firewall is off. Untrusted traffic can't be blocked", 'jetpack-protect' )
+							: __(
+									"Firewall is off. Untrusted traffic can't be blocked",
+									'jetpack-protect',
+									/* dummy arg to avoid bad minification */ 0
+							  )
 					}
 					args={ wafArgs }
 				/>
@@ -223,7 +227,8 @@ const HomeStatCards = () => {
 						? __( 'Total login attempts blocked all time.', 'jetpack-protect' )
 						: __(
 								"Brute force protection is off. Log in attempts can't be blocked.",
-								'jetpack-protect'
+								'jetpack-protect',
+								/* dummy arg to avoid bad minification */ 0
 						  )
 				}
 				args={ bruteForceArgs }
