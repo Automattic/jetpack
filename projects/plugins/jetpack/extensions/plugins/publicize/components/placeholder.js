@@ -44,7 +44,7 @@ export const PublicizePlaceholder = () => {
 				rel="noopener noreferrer"
 				href={ getJetpackAdminPageUrl( '#/settings?term=publicize' ) }
 			>
-				{ __( 'Activating Jetpack Social', 'jetpack' ) }
+				{ __( 'Activate Jetpack Social', 'jetpack' ) }
 			</Button>
 			<div className="components-placeholder__learn-more">
 				<ExternalLink href={ getRedirectUrl( 'jetpack-support-publicize' ) }>
