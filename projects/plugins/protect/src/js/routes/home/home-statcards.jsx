@@ -47,7 +47,7 @@ const HomeStatCards = () => {
 		}
 
 		if ( scanning ) {
-			return __( 'A scan is in progress…', 'jetpack-protect' );
+			return __( 'Your scan results will be ready soon.', 'jetpack-protect' );
 		}
 
 		const entityLabel = hasPlan
