@@ -254,7 +254,7 @@ export default function withMedia( mediaSource = MediaSource.Unknown ) {
 			};
 
 			fetchPickerSession = sessionId => {
-				apiFetch( {
+				return apiFetch( {
 					path: `/wpcom/v2/external-media/session/google_photos/${ sessionId }`,
 					method: 'GET',
 				} ).then( setGooglePhotosPickerSession );

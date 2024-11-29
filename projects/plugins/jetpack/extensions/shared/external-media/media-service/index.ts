@@ -97,6 +97,7 @@ declare global {
 		};
 	}
 }
+
 const wpCookies = window.wpCookies;
 
 /**
@@ -293,7 +294,7 @@ export const authenticateMediaSource = ( source: MediaSource, isAuthenticated: b
  * @param {PickerSession} session
  */
 export const setGooglePhotosPickerSession = ( session: PickerSession ) => {
-	wpCookies.set( GOOGLE_PHOTOS_PICKER_SESSION, JSON.stringify( session ), 0, '/' );
+	setGooglePhotosPickeCachedSessionId( session?.id || null );
 	dispatch( mediaStore ).mediaPhotosPickerSessionSet( session );
 };
 
@@ -302,8 +303,21 @@ export const setGooglePhotosPickerSession = ( session: PickerSession ) => {
  * @return {PickerSession} Media URL.
  */
 export const getGooglePhotosPickerSession = () => {
-	let session = wpCookies.get( GOOGLE_PHOTOS_PICKER_SESSION );
-	session = JSON.parse( session );
+	return select( mediaStore ).mediaPhotosPickerSession();
+};
 
-	return session || select( mediaStore ).mediaPhotosPickerSession();
+/**
+ * Set Google Photos Picker session id to cookies
+ * @param {string|null} sessionId - Session id
+ */
+export const setGooglePhotosPickeCachedSessionId = ( sessionId: string | null ) => {
+	wpCookies.set( GOOGLE_PHOTOS_PICKER_SESSION, sessionId, 0, '/' );
+};
+
+/**
+ * Get Google Photos Picker session id from cookies
+ * @return {string | null} Google Photos Picker session id
+ */
+export const getGooglePhotosPickerCachedSessionId = () => {
+	return wpCookies.get( GOOGLE_PHOTOS_PICKER_SESSION );
 };
