@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\Classic_Theme_Helper;
 
 use Automattic\Jetpack\Modules;
-use Automattic\Jetpack\Status\Host;
 use Jetpack_Options;
 use WP_Customize_Image_Control;
 use WP_Customize_Manager;
@@ -49,7 +48,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Testimonial' ) ) {
 		public function __construct() {
 
 			// Add an option to enable the CPT. Set the priority to 11 to ensure "Portfolio Projects" appears above "Testimonials" in the UI.
-			add_action( 'admin_init', array( $this, 'settings_api_init' ) );
+			add_action( 'admin_init', array( $this, 'settings_api_init' ), 11 );
 
 			// Make sure the post types are loaded for imports
 			add_action( 'import_start', array( $this, 'register_post_types' ) );
@@ -60,12 +59,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Testimonial' ) ) {
 			// Add to REST API post type allowed list.
 			add_filter( 'rest_api_allowed_post_types', array( $this, 'allow_cpt_rest_api_type' ) );
 
-			// If testimonial cpt is enabled (on self hosted sites), hook into init to register the CPT, otherwise run maybe_register_cpt immediately to deregister.
-			if ( get_option( self::OPTION_NAME, '0' ) || ( new Host() )->is_wpcom_platform() ) {
-				$this->maybe_register_cpt();
-			} else {
-				add_action( 'init', array( $this, 'maybe_register_cpt' ) );
-			}
+			$this->maybe_register_cpt();
 		}
 
 		/**
