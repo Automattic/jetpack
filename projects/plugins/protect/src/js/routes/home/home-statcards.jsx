@@ -222,7 +222,7 @@ const HomeStatCards = () => {
 					isBruteForceModuleEnabled
 						? __( 'Total login attempts blocked all time.', 'jetpack-protect' )
 						: __(
-								"Brute force protect is off. Log in attempts can't be blocked.",
+								"Brute force protection is off. Log in attempts can't be blocked.",
 								'jetpack-protect'
 						  )
 				}
