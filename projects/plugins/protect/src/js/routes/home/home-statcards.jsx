@@ -34,8 +34,8 @@ const HomeStatCards = () => {
 	const { allTime: allTimeBlockCount } = stats ? stats.blockedRequests : { allTime: 0 };
 	const { blockedLogins: blockedLoginsCount } = stats;
 
-	const { data: status } = useScanStatusQuery();
-	const scanning = isScanInProgress( status );
+	const { data: scanStatus } = useScanStatusQuery();
+	const scanning = isScanInProgress( scanStatus );
 
 	const defaultDimensions = useMemo( () => ( { height: '19.14', width: '16' } ), [] );
 
@@ -137,7 +137,7 @@ const HomeStatCards = () => {
 			),
 			label: <span className={ styles[ 'stat-card-label' ] }>{ scanLabel }</span>,
 			value: numThreats,
-			error: scanError || scanning ? true : false,
+			hideValue: !! ( scanError || scanning ),
 		} ),
 		[ variant, scanIcon, scanLabel, scanning, scanError, isSmall, numThreats ]
 	);
@@ -162,6 +162,7 @@ const HomeStatCards = () => {
 				</span>
 			),
 			value: allTimeBlockCount,
+			hideValue: ! isWafModuleEnabled,
 		} ),
 		[ variant, renderIcon, isWafModuleEnabled, isSmall, allTimeBlockCount ]
 	);
@@ -186,6 +187,7 @@ const HomeStatCards = () => {
 				</span>
 			),
 			value: blockedLoginsCount,
+			hideValue: ! isBruteForceModuleEnabled,
 		} ),
 		[ variant, renderIcon, isBruteForceModuleEnabled, isSmall, blockedLoginsCount ]
 	);

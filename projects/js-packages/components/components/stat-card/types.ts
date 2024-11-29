@@ -27,7 +27,7 @@ export type StatCardProps = {
 	variant?: 'square' | 'horizontal';
 
 	/**
-	 * Whether the stat card represents an error.
+	 * Whether to hide the value.
 	 */
-	error?: boolean;
+	hideValue?: boolean;
 };
