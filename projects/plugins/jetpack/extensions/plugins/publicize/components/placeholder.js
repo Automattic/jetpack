@@ -40,15 +40,13 @@ export const PublicizePlaceholder = () => {
 			<Button
 				onClick={ enablePublicizeModule }
 				variant="link"
-				target="_blank"
-				rel="noopener noreferrer"
 				href={ getJetpackAdminPageUrl( '#/settings?term=publicize' ) }
 			>
 				{ __( 'Activate Jetpack Social', 'jetpack' ) }
 			</Button>
 			<div className="components-placeholder__learn-more">
 				<ExternalLink href={ getRedirectUrl( 'jetpack-support-publicize' ) }>
-					{ __( 'Learn more about Jetpack Social.', 'jetpack' ) }
+					{ __( 'Learn more', 'jetpack' ) }
 				</ExternalLink>
 			</div>
 		</PanelBody>
