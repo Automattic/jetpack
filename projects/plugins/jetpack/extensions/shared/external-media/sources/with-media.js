@@ -377,7 +377,7 @@ export default function withMedia( mediaSource = MediaSource.Unknown ) {
 								onChangePath={ this.onChangePath }
 								pickerSession={ this.props.pickerSession }
 								createPickerSession={ this.createPickerSession }
-								featchPickerSession={ this.fetchPickerSession }
+								fetchPickerSession={ this.fetchPickerSession }
 								deletePickerSession={ this.deletePickerSession }
 								getPickerStatus={ this.getPickerStatus }
 							/>

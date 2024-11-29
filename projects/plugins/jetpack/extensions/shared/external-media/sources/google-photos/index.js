@@ -13,7 +13,7 @@ function GooglePhotos( props ) {
 		isAuthenticated,
 		pickerSession,
 		createPickerSession,
-		featchPickerSession,
+		fetchPickerSession,
 		getPickerStatus,
 	} = props;
 	const [ cachedSessionId ] = useState( getGooglePhotosPickerCachedSessionId() );
@@ -28,8 +28,8 @@ function GooglePhotos( props ) {
 			feature && setPickerFeatureEnabled( feature.enabled );
 		} );
 		cachedSessionId &&
-			featchPickerSession( cachedSessionId ).then( () => setIsCashedSessionChecked( true ) );
-	}, [ getPickerStatus, featchPickerSession, cachedSessionId ] );
+			fetchPickerSession( cachedSessionId ).then( () => setIsCashedSessionChecked( true ) );
+	}, [ getPickerStatus, fetchPickerSession, cachedSessionId ] );
 
 	useEffect( () => {
 		if (
