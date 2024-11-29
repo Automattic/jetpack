@@ -9,21 +9,32 @@ export interface DataPoint {
 }
 
 interface BarChartProps {
+	/**
+	 * Array of data points to display
+	 */
 	data: DataPoint[];
+
+	/**
+	 * Width of the chart in pixels
+	 */
 	width: number;
+
+	/**
+	 * Height of the chart in pixels
+	 */
 	height: number;
+
+	/**
+	 * Chart margins
+	 */
 	margin?: { top: number; right: number; bottom: number; left: number };
 }
 
 /**
  * Renders a bar chart using the provided data.
  *
- * @param {object}      root0          - Component props
- * @param {DataPoint[]} root0.data     - Array of data points to display
- * @param {number}      root0.width    - Width of the chart in pixels
- * @param {number}      root0.height   - Height of the chart in pixels
- * @param {object}      [root0.margin] - Chart margins
- * @return {JSX.Element}              - The rendered bar chart component
+ * @param {BarChartProps} props - Component props
+ * @return {JSX.Element} The rendered bar chart component
  */
 export function BarChart( {
 	data,
