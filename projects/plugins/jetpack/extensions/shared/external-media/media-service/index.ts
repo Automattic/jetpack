@@ -307,11 +307,11 @@ export const getGooglePhotosPickerSession = () => {
 };
 
 /**
- * Set Google Photos Picker session id to cookies
+ * Set Google Photos Picker session id to cookies for 7 days
  * @param {string|null} sessionId - Session id
  */
 export const setGooglePhotosPickeCachedSessionId = ( sessionId: string | null ) => {
-	wpCookies.set( GOOGLE_PHOTOS_PICKER_SESSION, sessionId, 0, '/' );
+	wpCookies.set( GOOGLE_PHOTOS_PICKER_SESSION, sessionId, 604800, '/' );
 };
 
 /**
