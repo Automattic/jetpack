@@ -12,7 +12,9 @@ Default.args = {
 	main: (
 		<>
 			<Status status={ 'active' } label={ 'Active' } />
-			<AdminSectionHero.Heading showIcon>{ 'No threats found' }</AdminSectionHero.Heading>
+			<AdminSectionHero.Heading showIcon variant="success">
+				{ 'No threats found' }
+			</AdminSectionHero.Heading>
 			<AdminSectionHero.Subheading>
 				<Text>{ 'Most recent results' }</Text>
 			</AdminSectionHero.Subheading>
