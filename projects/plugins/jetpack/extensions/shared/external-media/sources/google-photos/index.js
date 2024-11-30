@@ -27,6 +27,8 @@ function GooglePhotos( props ) {
 		getPickerStatus().then( feature => {
 			feature && setPickerFeatureEnabled( feature.enabled );
 		} );
+
+		cachedSessionId === null && setIsCachedSessionChecked( true );
 		cachedSessionId &&
 			fetchPickerSession( cachedSessionId ).then( () => setIsCachedSessionChecked( true ) );
 	}, [ getPickerStatus, fetchPickerSession, cachedSessionId ] );
