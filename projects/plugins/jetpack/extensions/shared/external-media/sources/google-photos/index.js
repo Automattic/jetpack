@@ -17,7 +17,7 @@ function GooglePhotos( props ) {
 		getPickerStatus,
 	} = props;
 	const [ cachedSessionId ] = useState( getGooglePhotosPickerCachedSessionId() );
-	const [ isCashedSessionChecked, setIsCashedSessionChecked ] = useState( false );
+	const [ isCachedSessionChecked, setIsCachedSessionChecked ] = useState( false );
 	const [ pickerFeatureEnabled, setPickerFeatureEnabled ] = useState( null );
 	const isPickerSessionAccurate = pickerSession !== null && ! ( 'code' in pickerSession );
 	const isSessionExpired =
@@ -28,13 +28,13 @@ function GooglePhotos( props ) {
 			feature && setPickerFeatureEnabled( feature.enabled );
 		} );
 		cachedSessionId &&
-			fetchPickerSession( cachedSessionId ).then( () => setIsCashedSessionChecked( true ) );
+			fetchPickerSession( cachedSessionId ).then( () => setIsCachedSessionChecked( true ) );
 	}, [ getPickerStatus, fetchPickerSession, cachedSessionId ] );
 
 	useEffect( () => {
 		if (
 			pickerFeatureEnabled &&
-			isCashedSessionChecked &&
+			isCachedSessionChecked &&
 			isAuthenticated &&
 			( ! isPickerSessionAccurate || isSessionExpired )
 		) {
@@ -42,7 +42,7 @@ function GooglePhotos( props ) {
 		}
 	}, [
 		pickerFeatureEnabled,
-		isCashedSessionChecked,
+		isCachedSessionChecked,
 		isPickerSessionAccurate,
 		isAuthenticated,
 		isSessionExpired,
@@ -50,7 +50,7 @@ function GooglePhotos( props ) {
 		pickerSession,
 	] );
 
-	if ( pickerFeatureEnabled === null || ! isCashedSessionChecked ) {
+	if ( pickerFeatureEnabled === null || ! isCachedSessionChecked ) {
 		return <MediaLoadingPlaceholder />;
 	}
 
