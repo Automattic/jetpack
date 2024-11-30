@@ -120,39 +120,36 @@ export default function ThreatsStatusToggleGroupControl( {
 
 	try {
 		return (
-			<ToggleGroupControl
-				className={ styles[ 'toggle-group-control' ] }
-				value={ selectedValue }
-				onChange={ onStatusFilterChange }
-				__nextHasNoMarginBottom
-			>
-				<ToggleGroupControlOption
-					value="active"
-					label={
-						<span className={ styles[ 'toggle-group-control__option' ] }>
-							{ sprintf(
+			<div>
+				<div className={ styles[ 'toggle-group-control' ] }>
+					<ToggleGroupControl
+						value={ selectedValue }
+						onChange={ onStatusFilterChange }
+						isBlock
+						hideLabelFromVision
+						__nextHasNoMarginBottom
+					>
+						<ToggleGroupControlOption
+							value="active"
+							label={ sprintf(
 								/* translators: %d: number of active threats */ __(
 									'Active threats (%d)',
 									'jetpack'
 								),
 								activeThreatsCount
 							) }
-						</span>
-					}
-				/>
-				<ToggleGroupControlOption
-					value="historic"
-					label={
-						<span className={ styles[ 'toggle-group-control__option' ] }>
-							{ sprintf(
+						/>
+						<ToggleGroupControlOption
+							value="historic"
+							label={ sprintf(
 								/* translators: %d: number of historic threats */
 								__( 'History (%d)', 'jetpack' ),
 								historicThreatsCount
 							) }
-						</span>
-					}
-				/>
-			</ToggleGroupControl>
+						/>
+					</ToggleGroupControl>
+				</div>
+			</div>
 		);
 	} catch ( error ) {
 		return null;
