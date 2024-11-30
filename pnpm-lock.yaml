@@ -4143,6 +4143,9 @@ importers:
       '@automattic/jetpack-connection':
         specifier: workspace:*
         version: link:../../js-packages/connection
+      '@automattic/jetpack-scan':
+        specifier: workspace:*
+        version: link:../../js-packages/scan
       '@tanstack/react-query':
         specifier: 5.20.5
         version: 5.20.5(react@18.3.1)
