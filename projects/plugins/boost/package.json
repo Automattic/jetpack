@@ -9,7 +9,7 @@
 		"@automattic/format-currency": "1.0.1",
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@automattic/jetpack-react-data-sync-client": "workspace:*",
-		"@react-spring/core": "9.7.3",
+		"@react-spring/core": "9.7.5",
 		"@react-spring/web": "9.7.3",
 		"@types/react": "18.3.12",
 		"@types/react-router-dom": "5.3.3",

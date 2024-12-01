@@ -3344,8 +3344,8 @@ importers:
         specifier: workspace:*
         version: link:../../js-packages/react-data-sync-client
       '@react-spring/core':
-        specifier: 9.7.3
-        version: 9.7.3(react@18.3.1)
+        specifier: 9.7.5
+        version: 9.7.5(react@18.3.1)
       '@react-spring/web':
         specifier: 9.7.3
         version: 9.7.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -6482,8 +6482,8 @@ packages:
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0
 
-  '@react-spring/core@9.7.3':
-    resolution: {integrity: sha512-IqFdPVf3ZOC1Cx7+M0cXf4odNLxDC+n7IN3MDcVCTIOSBfqEcBebSv+vlY5AhM0zw05PDbjKrNmBpzv/AqpjnQ==}
+  '@react-spring/core@9.7.5':
+    resolution: {integrity: sha512-rmEqcxRcu7dWh7MnCcMXLvrf6/SDlSokLaLTxiPlAYi11nN3B5oiCUAblO72o+9z/87j2uzxa2Inm8UbLjXA+w==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0
 
@@ -16216,7 +16216,7 @@ snapshots:
       '@react-spring/types': 9.7.5
       react: 18.3.1
 
-  '@react-spring/core@9.7.3(react@18.3.1)':
+  '@react-spring/core@9.7.5(react@18.3.1)':
     dependencies:
       '@react-spring/animated': 9.7.5(react@18.3.1)
       '@react-spring/shared': 9.7.5(react@18.3.1)
@@ -16236,7 +16236,7 @@ snapshots:
   '@react-spring/web@9.7.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@react-spring/animated': 9.7.5(react@18.3.1)
-      '@react-spring/core': 9.7.3(react@18.3.1)
+      '@react-spring/core': 9.7.5(react@18.3.1)
       '@react-spring/shared': 9.7.5(react@18.3.1)
       '@react-spring/types': 9.7.5
       react: 18.3.1
@@ -16457,7 +16457,7 @@ snapshots:
 
   '@slack/logger@4.0.0':
     dependencies:
-      '@types/node': 22.9.0
+      '@types/node': 20.17.6
 
   '@slack/types@2.14.0': {}
 
@@ -16465,7 +16465,7 @@ snapshots:
     dependencies:
       '@slack/logger': 4.0.0
       '@slack/types': 2.14.0
-      '@types/node': 22.9.0
+      '@types/node': 20.17.6
       '@types/retry': 0.12.0
       axios: 1.7.4
       eventemitter3: 5.0.1
