@@ -92,7 +92,7 @@ type WpcomMediaResponse = {
 declare global {
 	interface Window {
 		wpCookies: {
-			set: ( name: string, value: string, expires: number, path: string ) => void;
+			set: ( name: string, value: string, expires: number, path: string, domain?: string ) => void;
 			get: ( name: string ) => string | null;
 		};
 	}
@@ -307,11 +307,17 @@ export const getGooglePhotosPickerSession = () => {
 };
 
 /**
- * Set Google Photos Picker session id to cookies for 7 days
+ * Set Google Photos Picker session id to cookies
  * @param {string|null} sessionId - Session id
  */
 export const setGooglePhotosPickeCachedSessionId = ( sessionId: string | null ) => {
-	wpCookies.set( GOOGLE_PHOTOS_PICKER_SESSION, sessionId, 604800, '/' );
+	wpCookies.set(
+		GOOGLE_PHOTOS_PICKER_SESSION,
+		sessionId,
+		604800, // 7 days
+		'/',
+		`.${ window.location.hostname }`
+	);
 };
 
 /**
