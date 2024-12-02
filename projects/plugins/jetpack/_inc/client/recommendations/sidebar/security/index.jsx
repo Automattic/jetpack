@@ -1,11 +1,11 @@
-import { imagePath } from 'constants/urls';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import Button from 'components/button';
-import Gridicon from 'components/gridicon';
-import analytics from 'lib/analytics';
 import React, { useCallback, useEffect } from 'react';
 import { connect } from 'react-redux';
+import Button from 'components/button';
+import Gridicon from 'components/gridicon';
+import { imagePath } from 'constants/urls';
+import analytics from 'lib/analytics';
 import { getSiteRawUrl } from 'state/initial-state';
 import { SidebarCard } from '../sidebar-card';
 

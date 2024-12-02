@@ -1,9 +1,9 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 import clsx from 'clsx';
-import Gridicon from 'components/gridicon';
-import Tooltip from 'components/tooltip';
 import PropTypes from 'prop-types';
 import React from 'react';
+import Gridicon from 'components/gridicon';
+import Tooltip from 'components/tooltip';
 
 export default class ModuleChartBar extends React.Component {
 	static displayName = 'ModuleChartBar';

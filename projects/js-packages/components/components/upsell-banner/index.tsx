@@ -1,7 +1,7 @@
-import { Button } from '@automattic/jetpack-components';
 import { Card, CardBody } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import React from 'react';
+import { Button } from '@automattic/jetpack-components';
 import { UpsellBannerProps } from './types';
 
 import './style.scss';

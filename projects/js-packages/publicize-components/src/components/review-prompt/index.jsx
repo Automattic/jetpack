@@ -29,21 +29,22 @@ const ReviewPrompt = ( { href, onClose } ) => {
 		<ThemeProvider>
 			<div className={ styles.prompt }>
 				<h2 className={ styles.header }>
-					{
+					{ sprintf(
 						/* translators: %s is the celebration emoji */
-						sprintf( __( 'Presto! %s', 'jetpack' ), String.fromCodePoint( 0x1f389 ) )
-					}
+						__( 'Presto! %s', 'jetpack-publicize-components' ),
+						String.fromCodePoint( 0x1f389 )
+					) }
 				</h2>
 				<p>
 					{ __(
 						'Just like that, Jetpack Social has shared your post to your connected social accounts.',
-						'jetpack'
+						'jetpack-publicize-components'
 					) }
 				</p>
 				<p>
 					{ __(
 						'Please leave a review to let others know how easy getting your posts on social media can be!',
-						'jetpack'
+						'jetpack-publicize-components'
 					) }
 				</p>
 				<div className={ styles.buttons }>
@@ -53,10 +54,10 @@ const ReviewPrompt = ( { href, onClose } ) => {
 						href={ href }
 						className={ styles.button }
 					>
-						{ __( 'Leave a Review', 'jetpack' ) }
+						{ __( 'Leave a Review', 'jetpack-publicize-components' ) }
 					</Button>
 					<Button onClick={ handleDismiss } variant="link" className={ styles.button }>
-						{ __( 'Dismiss', 'jetpack' ) }
+						{ __( 'Dismiss', 'jetpack-publicize-components' ) }
 					</Button>
 				</div>
 			</div>
