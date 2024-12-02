@@ -1,10 +1,10 @@
 import { __ } from '@wordpress/i18n';
+import { useCallback } from 'react';
+import { connect } from 'react-redux';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import { FEATURE_NEWSLETTER_JETPACK } from 'lib/plans/constants';
-import { useCallback } from 'react';
-import { connect } from 'react-redux';
 import { isUnavailableInOfflineMode, hasConnectedOwner } from 'state/connection';
 import { getModule } from 'state/modules';
 import Textarea from '../components/textarea';

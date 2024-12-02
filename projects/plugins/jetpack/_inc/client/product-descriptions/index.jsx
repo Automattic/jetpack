@@ -1,11 +1,11 @@
-import QueryIntroOffers from 'components/data/query-intro-offers';
-import QuerySiteProducts from 'components/data/query-site-products';
-import { JetpackLoadingIcon } from 'components/jetpack-loading-icon';
 import { isEmpty } from 'lodash';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
 import { Route, Switch } from 'react-router-dom';
+import QueryIntroOffers from 'components/data/query-intro-offers';
+import QuerySiteProducts from 'components/data/query-site-products';
+import { JetpackLoadingIcon } from 'components/jetpack-loading-icon';
 import { getProductsForPurchase } from 'state/initial-state';
 import { isFetchingIntroOffers } from 'state/intro-offers';
 import { isFetchingProducts as isFetchingProductsSelector } from 'state/products';

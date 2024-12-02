@@ -1,10 +1,10 @@
 import { getRedirectUrl, ToggleControl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import analytics from 'lib/analytics';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import analytics from 'lib/analytics';
 import { getModuleOverride } from 'state/modules';
 
 class ModuleToggleComponent extends Component {

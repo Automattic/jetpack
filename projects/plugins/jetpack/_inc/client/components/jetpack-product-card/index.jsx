@@ -2,11 +2,11 @@ import { ProductPrice, TermsOfService } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
+import PropTypes from 'prop-types';
+import React, { useCallback, useEffect } from 'react';
 import Button from 'components/button';
 import Gridicon from 'components/gridicon';
 import analytics from 'lib/analytics';
-import PropTypes from 'prop-types';
-import React, { useCallback, useEffect } from 'react';
 
 import './style.scss';
 

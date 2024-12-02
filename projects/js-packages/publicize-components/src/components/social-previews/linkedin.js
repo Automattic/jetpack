@@ -25,7 +25,7 @@ export function LinkedIn( props ) {
 
 	return (
 		<LinkedInPreviews
-			jobTitle={ __( 'Job Title (Company Name)', 'jetpack' ) }
+			jobTitle={ __( 'Job Title (Company Name)', 'jetpack-publicize-components' ) }
 			image={ image }
 			name={ name }
 			profileImage={ profileImage }

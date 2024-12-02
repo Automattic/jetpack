@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.1.0] - 2024-12-02
+### Added
+- Add animation during site connection. [#40343]
+- Add "loading" animation to recommendations step. [#40405]
+
+### Changed
+- Fix usage of random() in animation to prevent build step from generating a different CSS file every time. [#40413]
+
+### Removed
+- Remove experiment code. [#40406]
+
+### Fixed
+- Fix My Jetpack recommendation card styling on mobile [#40370]
+
 ## [5.0.4] - 2024-11-28
 ### Added
 - Added "Expired" & "Expires soon" statuses to My Jetpack product cards. [#39816]
@@ -1838,6 +1852,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[5.1.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.0.4...5.1.0
 [5.0.4]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.0.3...5.0.4
 [5.0.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.0.2...5.0.3
 [5.0.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.0.1...5.0.2

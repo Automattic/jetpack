@@ -10,6 +10,8 @@ import {
 import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { useCallback, useState } from 'react';
+import { connect } from 'react-redux';
 import Button from 'components/button';
 import { FormLegend } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
@@ -19,8 +21,6 @@ import SupportInfo from 'components/support-info';
 import TextInput from 'components/text-input';
 import analytics from 'lib/analytics';
 import { FEATURE_NEWSLETTER_JETPACK } from 'lib/plans/constants';
-import { useCallback, useState } from 'react';
-import { connect } from 'react-redux';
 import { isUnavailableInOfflineMode, hasConnectedOwner } from 'state/connection';
 import {
 	getSiteTitle,

@@ -2,11 +2,11 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import React from 'react';
+import { connect } from 'react-redux';
 import SimpleNotice from 'components/notice';
 import NoticeAction from 'components/notice/notice-action.jsx';
 import UpgradeNoticeContent from 'components/upgrade-notice-content';
-import React from 'react';
-import { connect } from 'react-redux';
 import { getCurrentVersion, getSiteAdminUrl, isAtomicPlatform } from 'state/initial-state';
 import {
 	getJetpackStateNoticesErrorCode,

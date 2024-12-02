@@ -26,7 +26,7 @@ const SocialPreviewsModal = function SocialPreviewsModal( { onClose, initialTabN
 				className="jetpack-social-previews__modal--close-btn"
 				onClick={ onClose }
 				icon={ close }
-				label={ __( 'Close', 'jetpack' ) }
+				label={ __( 'Close', 'jetpack-publicize-components' ) }
 			/>
 			<TabPanel
 				className="jetpack-social-previews__modal-previews"

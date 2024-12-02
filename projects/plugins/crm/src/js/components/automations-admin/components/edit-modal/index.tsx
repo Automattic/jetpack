@@ -1,9 +1,9 @@
 import { Button } from '@automattic/jetpack-components';
 import { Modal } from '@wordpress/components';
 import { sprintf, __ } from '@wordpress/i18n';
+import { useCallback } from 'react';
 import { StepLabel } from 'crm/components/automations-admin/components/step-label';
 import { useMutateAutomationWorkflows } from 'crm/data/hooks/mutations';
-import { useCallback } from 'react';
 import { StepConfig } from '../step-config';
 import { TriggerInfo } from '../trigger-info';
 import styles from './styles.module.scss';

@@ -1,0 +1,4 @@
+Significance: major
+Type: changed
+
+Changed text domain from 'jetpack' to 'jetpack-connection-js'.

@@ -93,8 +93,8 @@ export function PreviewSection() {
 									<ToggleControl
 										label={
 											isEnabled
-												? _x( 'Connection enabled', '', 'jetpack' )
-												: __( 'Connection disabled', 'jetpack' )
+												? _x( 'Connection enabled', '', 'jetpack-publicize-components' )
+												: __( 'Connection disabled', 'jetpack-publicize-components' )
 										}
 										checked={ isEnabled }
 										onChange={ toggleConnection( tab.connection_id, tab ) }
