@@ -121,10 +121,10 @@ const HomeStatCards = () => {
 			scanIcon = <Spinner />;
 		} else if ( scanError ) {
 			scanIcon = <ShieldAlertIcon { ...defaultDimensions } />;
+		} else if ( numThreats ) {
+			scanIcon = <ShieldAlertIcon { ...defaultDimensions } color={ '#F0B849' } />;
 		} else {
-			scanIcon = (
-				<ShieldCheckIcon { ...defaultDimensions } color={ numThreats ? '#F0B849' : '#069E08' } />
-			);
+			scanIcon = <ShieldCheckIcon { ...defaultDimensions } color={ '#069E08' } />;
 		}
 
 		let scanLabel;
