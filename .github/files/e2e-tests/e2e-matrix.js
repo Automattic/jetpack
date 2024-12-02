@@ -27,6 +27,14 @@ const projects = [
 		buildGroup: 'jetpack-core',
 	},
 	{
+		project: 'Jetpack post editor',
+		path: 'projects/plugins/jetpack/tests/e2e',
+		testArgs: [ 'specs/editor', '--retries=1' ],
+		targets: [ 'plugins/jetpack', 'packages/publicize' ],
+		suite: '',
+		buildGroup: 'jetpack-core',
+	},
+	{
 		project: 'Jetpack sync',
 		path: 'projects/plugins/jetpack/tests/e2e',
 		testArgs: [ 'specs/sync', '--retries=1' ],

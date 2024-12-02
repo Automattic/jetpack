@@ -1,9 +1,6 @@
-import {
-	AdminSectionHero as JetpackAdminSectionHero,
-	H3,
-	getIconBySlug,
-} from '@automattic/jetpack-components';
+import { AdminSectionHero as JetpackAdminSectionHero, H3 } from '@automattic/jetpack-components';
 import SeventyFiveLayout from '../seventy-five-layout';
+import ShieldIcon from '../shield-icon';
 import AdminSectionHeroNotices from './admin-section-hero-notices';
 import styles from './styles.module.scss';
 
@@ -17,7 +14,7 @@ interface AdminSectionHeroProps {
 }
 
 interface AdminSectionHeroComponent extends React.FC< AdminSectionHeroProps > {
-	Heading: React.FC< { children: React.ReactNode; showIcon?: boolean } >;
+	Heading: React.FC< { children: React.ReactNode; showIcon?: boolean; variant?: string } >;
 	Subheading: React.FC< { children: React.ReactNode } >;
 }
 
@@ -48,17 +45,23 @@ const AdminSectionHero: AdminSectionHeroComponent = ( {
 
 AdminSectionHero.Heading = ( {
 	children,
+	variant = 'default',
 	showIcon = false,
 }: {
 	children: React.ReactNode;
+	variant?: 'default' | 'success' | 'error';
 	showIcon?: boolean;
 } ) => {
-	const Icon = getIconBySlug( 'protect' );
-
 	return (
 		<H3 className={ styles.heading } mt={ 2 } mb={ 2 }>
 			{ children }
-			{ showIcon && <Icon className={ styles[ 'heading-icon' ] } size={ 32 } /> }
+			{ showIcon && (
+				<ShieldIcon
+					variant={ `${ variant }-outline` }
+					fill="#1d2327"
+					className={ styles[ 'heading-icon' ] }
+				/>
+			) }
 		</H3>
 	);
 };

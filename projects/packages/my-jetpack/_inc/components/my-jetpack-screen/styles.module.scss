@@ -7,7 +7,7 @@
 		position: relative;
 		margin: 0;
 		font-size: 16px;
-		line-height: 22px;
+		line-height: 24px;
 		background-color: var( --jp-white );
 
 		// notice content
@@ -28,6 +28,7 @@
 			color: var( --jp-black );
 			font-size: 16px;
 			font-weight: 600;
+			padding: var(--spacing-base) calc(var(--spacing-base)* 3) !important;
 		}
 
 		// X close button
@@ -85,6 +86,7 @@
 	}
 }
 
+
 .message {
     margin-right: var( --spacing-base ); // 8px
 	flex-grow: 1;
@@ -104,6 +106,17 @@
 
 		&.nofill {
 			fill: none;
+		}
+	}
+
+	& :global(.products-list) {
+		margin: 10px 0;
+		& :global(.product-badge) {
+			display: inline-block;
+			padding: 2px 8px;
+			margin: 4px 8px 4px 0;
+			border-radius: 6px;
+			background-color: #f1f1f1
 		}
 	}
 }

@@ -152,6 +152,7 @@ export default ( {
 				</BaseControl>
 				<RangeControl
 					__nextHasNoMarginBottom={ true }
+					__next40pxDefaultSize
 					label={ __( 'Zoom level', 'jetpack' ) }
 					help={
 						attributes.points.length > 1 &&
@@ -212,6 +213,7 @@ export default ( {
 				<PanelBody title={ __( 'Mapbox Access Token', 'jetpack' ) } initialOpen={ false }>
 					<TextControl
 						__nextHasNoMarginBottom={ true }
+						__next40pxDefaultSize
 						help={
 							'wpcom' === apiKeySource && (
 								<>

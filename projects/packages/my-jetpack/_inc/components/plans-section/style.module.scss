@@ -4,13 +4,24 @@
 	}
 }
 
-.expire-date {
+.plan-container {
 	margin-bottom: calc( var(--spacing-base ) * 3 );
+}
+
+.expire-date {
 	display: flex;
 
 	&--with-icon {
 		margin-right: 8px;
 	}
+}
+
+.is-expired {
+	color: var(--jp-red-60);
+}
+
+.is-expiring-soon {
+	color: var(--jp-yellow-40);
 }
 
 .actions-list-item {

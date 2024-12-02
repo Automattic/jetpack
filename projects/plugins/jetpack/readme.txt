@@ -326,12 +326,42 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.1-a.7 - 2024-11-26
+### 14.1-beta - 2024-12-02
+#### Major Enhancements
+- General: Update minimum PHP version to 7.2.
+- General: Update minimum WordPress version to 6.6.
+- Social: Added permissions warning for LinkedIn connections.
+
 #### Enhancements
+- Google Photos Picker: Adding Google Photos Picker flow backend API endpoints support.
+- Google Photos Picker: Update Google Photos external media to support Google Photos Picker API.
+- Image CDN: Use preconnect resource hints instead of dns-prefetch to improve performance.
+- Likes Block: Allow hiding avatars.
+- My Jetpack: Update the recommendations section in My Jetpack to include a slider interaction for the cards.
+- Social: Added a new toggle for Social UTM tracking.
+- Social: Change My Jetpack CTA from "Learn more" to "Activate".
+- Social: Post share status in the editor is now immediately available on page load.
 - Subscriptions: stops loading editor functionality (i.e. the block and panels) when subscriptions module is disabled.
+- Use wp_register_block_metadata_collection() on WordPress 6.7+ to improve block registration performance by reducing filesystem operations. (See https://core.trac.wordpress.org/changeset/59132)
+
+#### Improved compatibility
+- Components: Shortlink and Toolbar related components have been updated to ensure compatibility.
+- Dashboard: Fix toggle component to prevent console warnings.
+- Extra Sidebar Widgets: update asset enqueuing strategy to ensure compatibility with the Elementor plugin.
+- Social: Change "Activate" button in the editor to link.
+- Tiled Gallery: Increase accessibility by ensuring images are not classified as interactive when they shouldn't be.
 
 #### Bug fixes
+- AI Assistant: Fix bug with error message when user is not over requests limit.
+- Comments: Fix reload after posting.
+- Fixed bug with scheduled resharing when sharing another admin's posts.
+- Forms: Fix an error occurring due to a function receiving an unexpected input type.
+- Forms: Prevent duplicate Salesforce entry submissions.
+- Licensing: Resolves an issue where revoked licenses were incorrectly treated as unattached.
 - Social: Fixed undefined index error on specific WordPress.com environments.
+- Social: Made resharing async in classic editor to fix timeout issues.
+- Subscribe block: Fix block error when editing.
+- Subscriptions: Fix template preview and edit links for three toggle settings.
 
 --------
 

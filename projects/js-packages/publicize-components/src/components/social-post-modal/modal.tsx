@@ -28,7 +28,7 @@ export function SocialPostModal() {
 			{ isModalOpen && (
 				<Modal
 					onRequestClose={ toggleModal }
-					title={ __( 'Social Previews', 'jetpack' ) }
+					title={ __( 'Social Previews', 'jetpack-publicize-components' ) }
 					className={ styles.modal }
 					__experimentalHideHeader
 				>
@@ -40,12 +40,12 @@ export function SocialPostModal() {
 						className={ styles[ 'close-button' ] }
 						onClick={ toggleModal }
 						icon={ close }
-						label={ __( 'Close', 'jetpack' ) }
+						label={ __( 'Close', 'jetpack-publicize-components' ) }
 					/>
 				</Modal>
 			) }
 			<Button variant="secondary" onClick={ handleOpenModal }>
-				{ __( 'Preview social posts', 'jetpack' ) }
+				{ __( 'Preview social posts', 'jetpack-publicize-components' ) }
 			</Button>
 		</PanelRow>
 	);

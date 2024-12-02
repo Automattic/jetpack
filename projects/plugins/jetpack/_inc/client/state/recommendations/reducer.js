@@ -1,3 +1,5 @@
+import { assign, difference, get, isArray, isEmpty, mergeWith, union } from 'lodash';
+import { combineReducers } from 'redux';
 import {
 	isJetpackPlanWithAntiSpam,
 	isJetpackPlanWithBackup,
@@ -8,7 +10,6 @@ import {
 	getPlanClass,
 	PLAN_JETPACK_GROWTH_YEARLY,
 } from 'lib/plans/constants';
-import { assign, difference, get, isArray, isEmpty, mergeWith, union } from 'lodash';
 import {
 	ONBOARDING_JETPACK_BACKUP,
 	ONBOARDING_JETPACK_COMPLETE,
@@ -25,7 +26,6 @@ import {
 	ONBOARDING_JETPACK_SOCIAL_V1,
 	ONBOARDING_JETPACK_SOCIAL_BASIC,
 } from 'recommendations/constants';
-import { combineReducers } from 'redux';
 import {
 	JETPACK_RECOMMENDATIONS_DATA_ADD_SELECTED_RECOMMENDATION,
 	JETPACK_RECOMMENDATIONS_DATA_ADD_SKIPPED_RECOMMENDATION,

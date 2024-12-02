@@ -9,6 +9,8 @@
 // };
 // ```
 
+const { defaultConditionNames } = require( 'eslint-import-resolver-typescript' );
+
 /**
  * @type {import("eslint").Linter.Config}
  */
@@ -50,16 +52,13 @@ module.exports = {
 	},
 	settings: {
 		'import/resolver': {
-			// Check package.json exports. See https://github.com/import-js/eslint-plugin-import/issues/1810.
-			[ require.resolve( 'eslint-import-resolver-exports' ) ]: {
-				extensions: [ '.js', '.jsx', '.ts', '.tsx' ],
-				conditions: process.env.npm_config_jetpack_webpack_config_resolve_conditions
-					? process.env.npm_config_jetpack_webpack_config_resolve_conditions.split( ',' )
-					: [],
-			},
-			// Check normal node file resolution.
-			node: {
-				extensions: [ '.js', '.jsx', '.ts', '.tsx' ],
+			typescript: {
+				project: 'projects/*/*/tsconfig.json',
+				conditionNames: process.env.npm_config_jetpack_webpack_config_resolve_conditions
+					? process.env.npm_config_jetpack_webpack_config_resolve_conditions
+							.split( ',' )
+							.concat( defaultConditionNames )
+					: defaultConditionNames,
 			},
 		},
 		jsdoc: {
@@ -104,6 +103,7 @@ module.exports = {
 		'computed-property-spacing': [ 'error', 'always' ],
 		curly: 'error',
 		'func-call-spacing': 'error',
+
 		'import/order': [
 			'error',
 			{
