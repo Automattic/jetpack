@@ -144,8 +144,8 @@ export default function ScanReport( { data, onChangeSelection } ): JSX.Element {
 				},
 			},
 			{
-				id: FIELD_EXTENSION,
-				label: __( 'Extension', 'jetpack' ),
+				id: FIELD_NAME,
+				label: __( 'Name', 'jetpack' ),
 				enableGlobalSearch: true,
 				enableHiding: false,
 				getValue( { item } ) {

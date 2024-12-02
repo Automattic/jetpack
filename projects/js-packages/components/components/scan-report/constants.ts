@@ -30,7 +30,7 @@ export const ICONS = {
 
 export const FIELD_ICON = 'icon';
 export const FIELD_TYPE = 'type';
-export const FIELD_EXTENSION = 'extension';
+export const FIELD_NAME = 'name';
 export const FIELD_STATUS = 'status';
 export const FIELD_UPDATE = 'update';
 export const FIELD_VERSION = 'version';
