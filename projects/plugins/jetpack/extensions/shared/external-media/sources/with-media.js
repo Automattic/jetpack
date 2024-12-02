@@ -263,11 +263,11 @@ export default function withMedia( mediaSource = MediaSource.Unknown ) {
 				} ).then( setGooglePhotosPickerSession );
 			};
 
-			deletePickerSession = sessionId => {
+			deletePickerSession = ( sessionId, updateState = true ) => {
 				return apiFetch( {
 					path: `/wpcom/v2/external-media/session/google_photos/${ sessionId }`,
 					method: 'DELETE',
-				} ).then( () => setGooglePhotosPickerSession( null ) );
+				} ).then( () => updateState && setGooglePhotosPickerSession( null ) );
 			};
 
 			getPickerStatus = () => {
