@@ -17,7 +17,7 @@ export const TYPES = [
 	{ value: 'core', label: __( 'WordPress', 'jetpack' ) },
 	{ value: 'plugins', label: __( 'Plugins', 'jetpack' ) },
 	{ value: 'themes', label: __( 'Themes', 'jetpack' ) },
-	{ value: 'file', label: __( 'File', 'jetpack' ) },
+	{ value: 'files', label: __( 'Files', 'jetpack' ) },
 ];
 
 export const ICONS = {

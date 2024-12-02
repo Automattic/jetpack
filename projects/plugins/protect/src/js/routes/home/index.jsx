@@ -12,10 +12,27 @@ import HomeAdminSectionHero from './home-admin-section-hero';
  */
 const HomePage = () => {
 	const {
-		results: { core, plugins, themes },
+		results: { core, plugins, themes, files },
 	} = useProtectData();
 
-	const data = [ ...core, ...plugins, ...themes ].map( ( item, index ) => {
+	const fileThreats =
+		files.length > 0
+			? files.map( threat => ( {
+					checked: true,
+					name: threat.filename,
+					threats: [ threat ],
+					type: 'files',
+			  } ) )
+			: [
+					{
+						checked: true,
+						name: '',
+						threats: [],
+						type: 'files',
+					},
+			  ];
+
+	const data = [ ...core, ...plugins, ...themes, ...fileThreats ].map( ( item, index ) => {
 		return { ...item, id: index + 1 };
 	} );
 
