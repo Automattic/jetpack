@@ -85,12 +85,12 @@ export default function ScanReport( { data, onChangeSelection } ): JSX.Element {
 		const result = [
 			{
 				id: FIELD_STATUS,
-				label: __( 'Status', 'jetpack' ),
+				label: __( 'Status', 'jetpack-components' ),
 				render( { item } ) {
 					if ( item.checked ) {
 						if ( item.threats.length > 0 ) {
 							return (
-								<Tooltip className={ styles.tooltip } text={ __( 'Threat detected.', 'jetpack' ) }>
+								<Tooltip className={ styles.tooltip } text={ __( 'Threat detected.', 'jetpack-components' ) }>
 									<div className={ styles.icon }>
 										<ShieldAlertIcon color={ '#F0B849' } { ...defaultIconDimension } />
 									</div>
@@ -100,7 +100,7 @@ export default function ScanReport( { data, onChangeSelection } ): JSX.Element {
 						return (
 							<Tooltip
 								className={ styles.tooltip }
-								text={ __( 'No known threats found that affect this version.', 'jetpack' ) }
+								text={ __( 'No known threats found that affect this version.', 'jetpack-components' ) }
 							>
 								<div className={ styles.icon }>
 									<ShieldCheckIcon color={ '#069E08' } { ...defaultIconDimension } />
@@ -125,7 +125,7 @@ export default function ScanReport( { data, onChangeSelection } ): JSX.Element {
 			},
 			{
 				id: FIELD_TYPE,
-				label: __( 'Type', 'jetpack' ),
+				label: __( 'Type', 'jetpack-components' ),
 				elements: TYPES,
 				render( { item } ) {
 					return item.type ? item.type.charAt( 0 ).toUpperCase() + item.type.slice( 1 ) : '';
@@ -133,7 +133,7 @@ export default function ScanReport( { data, onChangeSelection } ): JSX.Element {
 			},
 			{
 				id: FIELD_NAME,
-				label: __( 'Name', 'jetpack' ),
+				label: __( 'Name', 'jetpack-components' ),
 				enableGlobalSearch: true,
 				render( { item } ) {
 					return item.name ? item.name : '';
@@ -141,7 +141,7 @@ export default function ScanReport( { data, onChangeSelection } ): JSX.Element {
 			},
 			{
 				id: FIELD_VERSION,
-				label: __( 'Version', 'jetpack' ),
+				label: __( 'Version', 'jetpack-components' ),
 				enableGlobalSearch: true,
 				render( { item } ) {
 					return item.version ? item.version : '';
@@ -149,7 +149,7 @@ export default function ScanReport( { data, onChangeSelection } ): JSX.Element {
 			},
 			{
 				id: FIELD_ICON,
-				label: __( 'Icon', 'jetpack' ),
+				label: __( 'Icon', 'jetpack-components' ),
 				render( { item } ) {
 					return (
 						<div className={ styles.threat__media }>

@@ -8,10 +8,10 @@ import {
 } from '@wordpress/icons';
 
 export const TYPES = [
-	{ value: 'core', label: __( 'WordPress', 'jetpack' ) },
-	{ value: 'plugins', label: __( 'Plugins', 'jetpack' ) },
-	{ value: 'themes', label: __( 'Themes', 'jetpack' ) },
-	{ value: 'files', label: __( 'Files', 'jetpack' ) },
+	{ value: 'core', label: __( 'WordPress', 'jetpack-components' ) },
+	{ value: 'plugins', label: __( 'Plugins', 'jetpack-components' ) },
+	{ value: 'themes', label: __( 'Themes', 'jetpack-components' ) },
+	{ value: 'files', label: __( 'Files', 'jetpack-components' ) },
 ];
 
 export const ICONS = {
