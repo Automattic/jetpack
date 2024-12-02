@@ -79,8 +79,11 @@ function PlanExpiry( purchase ) {
 			);
 		}
 
-		// translators: %1$s is the formatted date to display, i.e.- November 24th, 2024
-		return sprintf( __( 'Expires on %1$s', 'jetpack-my-jetpack' ), displayDate );
+		return sprintf(
+			// translators: %1$s is the formatted date to display, i.e.- November 24th, 2024
+			__( 'Expires on %1$s', 'jetpack-my-jetpack' ),
+			displayDate
+		);
 	}, [ expiry_date, isExpiringPurchase, isExpiringSoon ] );
 
 	const expiryAction = useCallback( () => {
