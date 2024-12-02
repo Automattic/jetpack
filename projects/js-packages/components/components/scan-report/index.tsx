@@ -90,7 +90,10 @@ export default function ScanReport( { data, onChangeSelection } ): JSX.Element {
 					if ( item.checked ) {
 						if ( item.threats.length > 0 ) {
 							return (
-								<Tooltip className={ styles.tooltip } text={ __( 'Threat detected.', 'jetpack-components' ) }>
+								<Tooltip
+									className={ styles.tooltip }
+									text={ __( 'Threat detected.', 'jetpack-components' ) }
+								>
 									<div className={ styles.icon }>
 										<ShieldAlertIcon color={ '#F0B849' } { ...defaultIconDimension } />
 									</div>
@@ -100,7 +103,10 @@ export default function ScanReport( { data, onChangeSelection } ): JSX.Element {
 						return (
 							<Tooltip
 								className={ styles.tooltip }
-								text={ __( 'No known threats found that affect this version.', 'jetpack-components' ) }
+								text={ __(
+									'No known threats found that affect this version.',
+									'jetpack-components'
+								) }
 							>
 								<div className={ styles.icon }>
 									<ShieldCheckIcon color={ '#069E08' } { ...defaultIconDimension } />
@@ -113,7 +119,7 @@ export default function ScanReport( { data, onChangeSelection } ): JSX.Element {
 							className={ styles.tooltip }
 							text={ __(
 								'This item was added to your site after the most recent scan. We will check for threats during the next scheduled one.',
-								'jetpack'
+								'jetpack-components'
 							) }
 						>
 							<div className={ styles.icon }>
