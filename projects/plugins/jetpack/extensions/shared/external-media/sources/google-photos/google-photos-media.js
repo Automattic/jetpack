@@ -94,8 +94,11 @@ function GooglePhotosMedia( props ) {
 
 	const onChangeSelection = useCallback( () => {
 		setSelectionChanged( true );
-		pickerSession && deletePickerSession( pickerSession?.id );
-		createPickerSession && createPickerSession();
+		createPickerSession &&
+			createPickerSession().then( newSession => {
+				pickerSession && deletePickerSession( pickerSession?.id );
+				newSession?.pickerUri && window.open( newSession.pickerUri );
+			} );
 	}, [ pickerSession, deletePickerSession, createPickerSession ] );
 
 	// Load media when the query changes.

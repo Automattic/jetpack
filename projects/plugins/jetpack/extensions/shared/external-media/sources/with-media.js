@@ -239,7 +239,7 @@ export default function withMedia( mediaSource = MediaSource.Unknown ) {
 			};
 
 			createPickerSession = () => {
-				apiFetch( {
+				return apiFetch( {
 					path: '/wpcom/v2/external-media/session/google_photos',
 					method: 'POST',
 				} )
@@ -249,7 +249,10 @@ export default function withMedia( mediaSource = MediaSource.Unknown ) {
 						}
 						return response;
 					} )
-					.then( setGooglePhotosPickerSession )
+					.then( session => {
+						setGooglePhotosPickerSession( session );
+						return session;
+					} )
 					.catch( this.handleApiError );
 			};
 
