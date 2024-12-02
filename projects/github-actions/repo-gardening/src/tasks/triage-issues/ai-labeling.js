@@ -192,10 +192,16 @@ async function aiLabeling( payload, octokit ) {
 			} );
 
 			// During testing, post a comment on the issue with the explanations.
-			const explanationComment = `**OpenAI suggested the following labels for this issue:**
+			let explanationComment = `**OpenAI suggested the following labels for this issue:**
 ${ Object.entries( explanations )
 	.map( ( [ labelName, explanation ] ) => `- ${ labelName }: ${ explanation }` )
 	.join( '\n' ) }`;
+
+			if ( ownerLogin === 'automattic' ) {
+				explanationComment += `
+
+If you have feedback about the labels suggested, please let us know in #repo-gardening!`;
+			}
 
 			await octokit.rest.issues.createComment( {
 				owner: ownerLogin,
