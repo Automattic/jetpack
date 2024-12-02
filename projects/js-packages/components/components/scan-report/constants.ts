@@ -24,7 +24,7 @@ export const ICONS = {
 	plugins: pluginIcon,
 	themes: themeIcon,
 	core: coreIcon,
-	file: fileIcon,
+	files: fileIcon,
 	default: shieldIcon,
 };
 
