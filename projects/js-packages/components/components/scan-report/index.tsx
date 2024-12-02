@@ -9,6 +9,8 @@ import {
 import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
 import { useCallback, useMemo, useState } from 'react';
+import ShieldAlertIcon from '../shield-alert';
+import ShieldCheckIcon from '../shield-check';
 import {
 	THREAT_FIELD_EXTENSION,
 	THREAT_FIELD_VERSION,
@@ -18,8 +20,6 @@ import {
 	THREAT_TYPES,
 	THREAT_ICONS,
 } from './constants';
-import ShieldAlertIcon from './shield-alert';
-import ShieldCheckIcon from './shield-check';
 import styles from './styles.module.scss';
 
 /**
