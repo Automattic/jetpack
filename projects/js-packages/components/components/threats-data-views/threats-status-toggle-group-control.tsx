@@ -125,6 +125,7 @@ export default function ThreatsStatusToggleGroupControl( {
 				value={ selectedValue }
 				onChange={ onStatusFilterChange }
 				__nextHasNoMarginBottom
+				__next40pxDefaultSize
 			>
 				<ToggleGroupControlOption
 					value="active"
