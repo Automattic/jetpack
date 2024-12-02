@@ -1,6 +1,6 @@
 import { jest } from '@jest/globals';
-import analytics from 'lib/analytics';
 import * as React from 'react';
+import analytics from 'lib/analytics';
 import { render, screen } from 'test/test-utils';
 import { buildInitialState, sitePurchases } from '../../prompts/product-suggestions/test/fixtures';
 import { ProductPurchased } from '../index';

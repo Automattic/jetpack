@@ -92,8 +92,8 @@ export function Reconnect( { connection, service, variant = 'link' }: ReconnectP
 			variant={ variant }
 		>
 			{ isDisconnecting
-				? __( 'Disconnecting…', 'jetpack' )
-				: _x( 'Reconnect', 'Reconnect a social media account', 'jetpack' ) }
+				? __( 'Disconnecting…', 'jetpack-publicize-components' )
+				: _x( 'Reconnect', 'Reconnect a social media account', 'jetpack-publicize-components' ) }
 		</Button>
 	);
 }

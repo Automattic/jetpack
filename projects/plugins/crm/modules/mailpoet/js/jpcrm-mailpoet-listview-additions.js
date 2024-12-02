@@ -4,12 +4,17 @@
  * MailPoet List view JS
  */
 
+/* global zeroBSCRMJS_listView_editURL, zeroBSCRMJS_listViewLang */
+
 /**
- * @param dataLine
+ * Builds a segment export button.
+ *
+ * @param {object} dataLine - Data object.
+ * @return {string} - String of export button HTML.
  */
 function jpcrm_list_view_segment_action_export_button( dataLine ) {
-	var url = zeroBSCRMJS_listView_editURL( dataLine.id );
-	var label = zeroBSCRMJS_listViewLang( 'mailpoet_export', 'MailPoet Export' );
+	const url = zeroBSCRMJS_listView_editURL( dataLine.id );
+	const label = zeroBSCRMJS_listViewLang( 'mailpoet_export', 'MailPoet Export' );
 
 	return `
         <a href="${ url }&mailpoet_export=1" class="ui basic tiny button">
@@ -19,5 +24,5 @@ function jpcrm_list_view_segment_action_export_button( dataLine ) {
 }
 
 if ( typeof module !== 'undefined' ) {
-    module.exports = { jpcrm_list_view_segment_action_export_button };
+	module.exports = { jpcrm_list_view_segment_action_export_button };
 }

@@ -20,7 +20,7 @@ const renderError = supportURL => {
 	return (
 		<ErrorMessage>
 			{ createInterpolateElement(
-				__( 'Could not create the connection. Retry or find out more <a>here</a>.', 'jetpack' ),
+				__( 'Could not create the connection. Retry or find out more <a>here</a>.', 'jetpack-idc' ),
 				{
 					a: (
 						<a
@@ -66,7 +66,7 @@ const CardFresh = props => {
 	const isActionInProgress = useSelect( select => select( STORE_ID ).getIsActionInProgress(), [] );
 
 	const buttonLabel =
-		customContent.startFreshButtonLabel || __( 'Create a fresh connection', 'jetpack' );
+		customContent.startFreshButtonLabel || __( 'Create a fresh connection', 'jetpack-idc' );
 
 	return (
 		<div
@@ -79,7 +79,7 @@ const CardFresh = props => {
 				<h4>
 					{ customContent.startFreshCardTitle
 						? createInterpolateElement( customContent.startFreshCardTitle, { em: <em /> } )
-						: __( 'Treat each site as independent sites', 'jetpack' ) }
+						: __( 'Treat each site as independent sites', 'jetpack-idc' ) }
 				</h4>
 
 				<p>
@@ -90,7 +90,7 @@ const CardFresh = props => {
 										/* translators: %1$s: The current site domain name. %2$s: The original site domain name. */
 										__(
 											'<hostname>%1$s</hostname> settings, stats, and subscribers will start fresh. <hostname>%2$s</hostname> will keep its data as is.',
-											'jetpack'
+											'jetpack-idc'
 										),
 										currentHostName,
 										wpcomHostName
@@ -110,7 +110,7 @@ const CardFresh = props => {
 												'<list><item>development sites</item><item>sites that need access to all Jetpack features</item></list>' +
 												'<p><strong>Please note</strong> that creating a fresh connection for <hostname>%1$s</hostname> would require restoring the connection on <hostname>%2$s</hostname> if that site is cloned back to production. ' +
 												'<safeModeLink>Learn more</safeModeLink>.</p>',
-											'jetpack'
+											'jetpack-idc'
 										),
 										currentHostName,
 										wpcomHostName

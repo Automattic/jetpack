@@ -20,8 +20,8 @@ export const BoostScoreBar: FunctionComponent< BoostScoreBarProps > = ( {
 	}
 
 	const prevScoreOffset = ( prevScore / score ) * 100;
-	const desktopIconLabel = __( 'Desktop score', 'jetpack' );
-	const mobileIconLabel = __( 'Mobile score', 'jetpack' );
+	const desktopIconLabel = __( 'Desktop score', 'jetpack-components' );
+	const mobileIconLabel = __( 'Mobile score', 'jetpack-components' );
 
 	const getIcon = () => {
 		if ( scoreBarType === 'desktop' ) {

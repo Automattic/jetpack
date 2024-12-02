@@ -5,22 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.56.3] - 2024-12-02
+### Changed
+- Made resharing async in classic editor to fix timeout issues. [#40302]
+
 ## [0.56.2] - 2024-11-26
 ### Fixed
-- Social | Fixed undefined index error on atomic sites [#40337]
+- Fixed undefined index error on Atomic sites. [#40337]
 
 ## [0.56.1] - 2024-11-25
 ### Added
-- Social | Added initial post share status to the initial state [#40301]
+- Added initial post share status to the initial state. [#40301]
 
 ### Changed
-- Updated dependencies. [#40286]
-- Updated package dependencies. [#40288]
+- Updated package dependencies. [#40286] [#40288]
 
 ### Fixed
-- Fixed initial state error in the editor for simple sites [#40319]
-- Publicize: fix page-detection util methods to stop unnecessary API calls to wp.com [#40311]
-- Social | Publicize - Fixed call to undefined method on WPCOM [#40328]
+- Fixed initial state error in the editor for Simple sites. [#40319]
+- Fix page-detection util methods to stop unnecessary API calls to WordPress.com. [#40311]
+- Fixed call to undefined method on WordPress.com. [#40328]
 
 ## [0.56.0] - 2024-11-18
 ### Added
@@ -776,6 +779,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.56.3]: https://github.com/Automattic/jetpack-publicize/compare/v0.56.2...v0.56.3
 [0.56.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.56.1...v0.56.2
 [0.56.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.56.0...v0.56.1
 [0.56.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.55.2...v0.56.0
