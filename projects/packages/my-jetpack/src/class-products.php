@@ -126,6 +126,8 @@ class Products {
 			'creator'    => Products\Creator::class,
 			'extras'     => Products\Extras::class,
 			'jetpack-ai' => Products\Jetpack_Ai::class,
+			// TODO: Remove this duplicate class ('ai')? See: https://github.com/Automattic/jetpack/pull/35910#pullrequestreview-2456462227
+			'ai'         => Products\Jetpack_Ai::class,
 			'scan'       => Products\Scan::class,
 			'search'     => Products\Search::class,
 			'social'     => Products\Social::class,

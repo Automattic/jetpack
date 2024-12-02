@@ -988,7 +988,9 @@ class Initializer {
 		$products_included_in_expiring_plan = array();
 		foreach ( $product_classes as $key => $product ) {
 			// Skip these- we don't show them in My Jetpack.
-			if ( 'scan' === $key || 'extras' === $key ) {
+			// ('ai' is a duplicate class of 'jetpack-ai', and therefore not needed).
+			// See `get_product_classes() in projects/packages/my-jetpack/src/class-products.php for more info.
+			if ( 'scan' === $key || 'extras' === $key || 'ai' === $key ) {
 				continue;
 			}
 
