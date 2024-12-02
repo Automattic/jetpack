@@ -14,7 +14,7 @@ export default {
 			</div>
 		),
 	],
-} as Meta< typeof BarChart >;
+} satisfies Meta< typeof BarChart >;
 
 const Template = args => <BarChart { ...args } />;
 
