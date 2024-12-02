@@ -136,7 +136,8 @@ $sans-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen-San
 		width: 88px;
 		height: 88px;
 		color: var( --jp-green-40 );
-		transform: scale(1.3) translateY(-20px);
+		margin-top: -20px;
+		transform: scale(1.3);
 
 		.circle-outline, .circle-fill, .triangles-outline, .triangles-fill {
 			opacity: 0;
@@ -155,7 +156,7 @@ $sans-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen-San
 
 	&.connection-ready {
 		.logo {
-			transform: scale(1.4);
+			transform: scale(1.4) translateY(-20px);
 			animation: popIn 1s ease-out 0s forwards;
 
 			.circle-fill, .triangles-fill {
