@@ -12,13 +12,14 @@ import { useCallback, useMemo, useState } from 'react';
 import ShieldAlertIcon from '../shield-alert';
 import ShieldCheckIcon from '../shield-check';
 import {
-	THREAT_FIELD_EXTENSION,
-	THREAT_FIELD_VERSION,
-	THREAT_FIELD_ICON,
-	THREAT_FIELD_SAFETY,
-	THREAT_FIELD_TYPE,
-	THREAT_TYPES,
-	THREAT_ICONS,
+	FIELD_EXTENSION,
+	FIELD_VERSION,
+	FIELD_ICON,
+	FIELD_STATUS,
+	FIELD_TYPE,
+	STATUS_TYPES,
+	TYPES,
+	ICONS,
 } from './constants';
 import styles from './styles.module.scss';
 
@@ -27,17 +28,16 @@ import styles from './styles.module.scss';
  *
  * @param {object}   props                   - Component props.
  * @param {Array}    props.data              - Threats data.
- * @param {Array}    props.filters           - Initial DataView filters.
  * @param {Function} props.onChangeSelection - Callback function run when an item is selected.
  *
  * @return {JSX.Element} The ScanReport component.
  */
-export default function ScanReport( { data, filters, onChangeSelection } ): JSX.Element {
+export default function ScanReport( { data, onChangeSelection } ): JSX.Element {
 	const baseView = {
 		search: '',
-		filters: filters || [],
+		filters: [],
 		page: 1,
-		perPage: 20,
+		perPage: 5,
 	};
 
 	/**
@@ -50,22 +50,17 @@ export default function ScanReport( { data, filters, onChangeSelection } ): JSX.
 	const defaultLayouts: SupportedLayouts = {
 		table: {
 			...baseView,
-			fields: [
-				THREAT_FIELD_SAFETY,
-				THREAT_FIELD_TYPE,
-				THREAT_FIELD_EXTENSION,
-				THREAT_FIELD_VERSION,
-			],
+			fields: [ FIELD_STATUS, FIELD_TYPE, FIELD_EXTENSION, FIELD_VERSION ],
 			layout: {
-				primaryField: THREAT_FIELD_SAFETY,
+				primaryField: FIELD_STATUS,
 			},
 		},
 		list: {
 			...baseView,
-			fields: [ THREAT_FIELD_SAFETY, THREAT_FIELD_EXTENSION, THREAT_FIELD_VERSION ],
+			fields: [ FIELD_STATUS, FIELD_VERSION ],
 			layout: {
-				primaryField: THREAT_FIELD_TYPE,
-				mediaField: THREAT_FIELD_ICON,
+				primaryField: FIELD_EXTENSION,
+				mediaField: FIELD_ICON,
 			},
 		},
 	};
@@ -90,8 +85,18 @@ export default function ScanReport( { data, filters, onChangeSelection } ): JSX.
 
 		const result = [
 			{
-				id: THREAT_FIELD_SAFETY,
-				label: __( 'Safety', 'jetpack' ),
+				id: FIELD_STATUS,
+				label: __( 'Status', 'jetpack' ),
+				elements: STATUS_TYPES,
+				getValue( { item } ) {
+					if ( item.checked ) {
+						if ( item.threats.length > 0 ) {
+							return 'threat';
+						}
+						return 'checked';
+					}
+					return 'unchecked';
+				},
 				render( { item } ) {
 					if ( item.checked ) {
 						if ( item.threats.length > 0 ) {
@@ -130,36 +135,43 @@ export default function ScanReport( { data, filters, onChangeSelection } ): JSX.
 				},
 			},
 			{
-				id: THREAT_FIELD_TYPE,
+				id: FIELD_TYPE,
 				label: __( 'Type', 'jetpack' ),
-				elements: THREAT_TYPES,
+				elements: TYPES,
+				enableHiding: false,
 				render( { item } ) {
 					return item.type ? item.type.charAt( 0 ).toUpperCase() + item.type.slice( 1 ) : '';
 				},
 			},
 			{
-				id: THREAT_FIELD_EXTENSION,
+				id: FIELD_EXTENSION,
 				label: __( 'Extension', 'jetpack' ),
 				enableGlobalSearch: true,
+				enableHiding: false,
+				getValue( { item } ) {
+					return item.name ? item.name : '';
+				},
 				render( { item } ) {
 					return item.name ? item.name : '';
 				},
 			},
 			{
-				id: THREAT_FIELD_VERSION,
+				id: FIELD_VERSION,
 				label: __( 'Version', 'jetpack' ),
 				enableGlobalSearch: true,
+				enableHiding: false,
 				render( { item } ) {
 					return item.version ? item.version : '';
 				},
 			},
 			{
-				id: THREAT_FIELD_ICON,
+				id: FIELD_ICON,
 				label: __( 'Icon', 'jetpack' ),
+				enableHiding: false,
 				render( { item } ) {
 					return (
 						<div className={ styles.threat__media }>
-							<Icon icon={ THREAT_ICONS[ item.type ] } />
+							<Icon icon={ ICONS[ item.type ] } />
 						</div>
 					);
 				},
