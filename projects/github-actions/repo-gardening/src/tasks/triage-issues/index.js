@@ -45,7 +45,7 @@ async function addCommentAskLabels( octokit, ownerLogin, authorLogin, repo, issu
 		return;
 	}
 
-	const commentBody = `It looks like you didn't add any labels to this issue. Could you please add a \`[Type]\`, a \`[Feature]\`, and a \`[Pri]\` label? Those labels will help us categorize and monitor activity in this repository.
+	const commentBody = `This issue could use some more labels, to help prioritize and categorize our work. Could you please add at least a \`[Type]\`, a \`[Feature]\`, and a \`[Pri]\` label?
 `;
 
 	await octokit.rest.issues.createComment( {

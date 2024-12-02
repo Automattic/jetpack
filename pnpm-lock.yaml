@@ -1039,8 +1039,8 @@ importers:
         specifier: 8.12.0
         version: 8.12.0(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/editor':
-        specifier: 14.12.0
-        version: 14.12.0(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 14.13.0
+        version: 14.13.0(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/element':
         specifier: 6.12.0
         version: 6.12.0
@@ -2879,8 +2879,8 @@ importers:
         specifier: 4.12.0
         version: 4.12.0
       '@wordpress/editor':
-        specifier: 14.12.0
-        version: 14.12.0(@types/react-dom@18.3.1)(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 14.13.0
+        version: 14.13.0(@types/react-dom@18.3.1)(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/element':
         specifier: 6.12.0
         version: 6.12.0
@@ -4055,8 +4055,8 @@ importers:
         specifier: 4.12.0
         version: 4.12.0
       '@wordpress/editor':
-        specifier: 14.12.0
-        version: 14.12.0(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 14.13.0
+        version: 14.13.0(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/escape-html':
         specifier: 3.12.0
         version: 3.12.0
@@ -7763,8 +7763,8 @@ packages:
       react: ^18.0.0
       react-dom: ^18.0.0
 
-  '@wordpress/editor@14.12.0':
-    resolution: {integrity: sha512-HZ6iJn7hQ+o2YgjSR0nq6DUm4EcrGuZSu9IW2pT9XGe5oq5qCzen1jSBd5Mh6jk/HWwK8kuz6sKGLlTwuexyHA==}
+  '@wordpress/editor@14.13.0':
+    resolution: {integrity: sha512-cZl9UTv4lPPFFStcsaDA/J8GNDGWq6rqZQAUiwppVSkn8+Fz5+EYDECPiZ4dWa11JJmXR6gvHHsH0681fPlZaQ==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
     peerDependencies:
       react: ^18.0.0
@@ -18596,7 +18596,7 @@ snapshots:
       '@wordpress/data': 10.12.0(react@18.3.1)
       '@wordpress/deprecated': 4.11.0
       '@wordpress/dom': 4.11.0
-      '@wordpress/editor': 14.12.0(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/editor': 14.13.0(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/element': 6.12.0
       '@wordpress/hooks': 4.12.0
       '@wordpress/html-entities': 4.12.0
@@ -18640,7 +18640,7 @@ snapshots:
       '@wordpress/data': 10.12.0(react@18.3.1)
       '@wordpress/deprecated': 4.11.0
       '@wordpress/dom': 4.11.0
-      '@wordpress/editor': 14.12.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/editor': 14.13.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/element': 6.12.0
       '@wordpress/hooks': 4.12.0
       '@wordpress/html-entities': 4.12.0
@@ -18668,7 +18668,7 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  '@wordpress/editor@14.12.0(@types/react-dom@18.3.1)(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@wordpress/editor@14.13.0(@types/react-dom@18.3.1)(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@babel/runtime': 7.25.7
       '@wordpress/a11y': 4.11.0
@@ -18727,7 +18727,7 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  '@wordpress/editor@14.12.0(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@wordpress/editor@14.13.0(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@babel/runtime': 7.25.7
       '@wordpress/a11y': 4.11.0
@@ -18786,7 +18786,7 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  '@wordpress/editor@14.12.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@wordpress/editor@14.13.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@babel/runtime': 7.25.7
       '@wordpress/a11y': 4.11.0
