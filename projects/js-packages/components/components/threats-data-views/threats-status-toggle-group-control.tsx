@@ -125,6 +125,7 @@ export default function ThreatsStatusToggleGroupControl( {
 				value={ selectedValue }
 				onChange={ onStatusFilterChange }
 				__nextHasNoMarginBottom
+				__next40pxDefaultSize
 			>
 				<ToggleGroupControlOption
 					value="active"
@@ -133,7 +134,7 @@ export default function ThreatsStatusToggleGroupControl( {
 							{ sprintf(
 								/* translators: %d: number of active threats */ __(
 									'Active threats (%d)',
-									'jetpack'
+									'jetpack-components'
 								),
 								activeThreatsCount
 							) }
@@ -146,7 +147,7 @@ export default function ThreatsStatusToggleGroupControl( {
 						<span className={ styles[ 'toggle-group-control__option' ] }>
 							{ sprintf(
 								/* translators: %d: number of historic threats */
-								__( 'History (%d)', 'jetpack' ),
+								__( 'History (%d)', 'jetpack-components' ),
 								historicThreatsCount
 							) }
 						</span>

@@ -11,6 +11,7 @@ export function RelatedPostsInspectorControls( { attributes, setAttributes } ) {
 			<PanelBody title={ __( 'Layout settings', 'jetpack' ) }>
 				<RangeControl
 					__nextHasNoMarginBottom={ true }
+					__next40pxDefaultSize
 					label={ __( 'Number of posts', 'jetpack' ) }
 					value={ postsToShow }
 					onChange={ value =>

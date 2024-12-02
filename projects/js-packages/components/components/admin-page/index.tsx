@@ -18,7 +18,7 @@ import type React from 'react';
  */
 const AdminPage: React.FC< AdminPageProps > = ( {
 	children,
-	moduleName = __( 'Jetpack', 'jetpack' ),
+	moduleName = __( 'Jetpack', 'jetpack-components' ),
 	moduleNameHref,
 	showHeader = true,
 	showFooter = true,

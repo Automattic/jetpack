@@ -21,7 +21,7 @@ export default function PostPublishManualSharing() {
 	return (
 		<PluginPostPublishPanel
 			initialOpen
-			title={ __( 'Manual sharing', 'jetpack' ) }
+			title={ __( 'Manual sharing', 'jetpack-publicize-components' ) }
 			id="publicize-manual-sharing"
 			icon={ <JetpackEditorPanelLogo /> }
 		>

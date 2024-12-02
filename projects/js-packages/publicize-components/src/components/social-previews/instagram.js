@@ -38,19 +38,19 @@ export function Instagram( props ) {
 						key="learn-more"
 						href={ getRedirectUrl( 'jetpack-social-share-to-instagram' ) }
 					>
-						{ __( 'Learn more', 'jetpack' ) }
+						{ __( 'Learn more', 'jetpack-publicize-components' ) }
 					</ExternalLink>,
 				] }
 			>
 				{ siteHasFeature( features.ENHANCED_PUBLISHING )
 					? __(
 							'To share to Instagram, add an image/video, or enable Social Image Generator.',
-							'jetpack'
+							'jetpack-publicize-components'
 					  )
 					: _x(
 							'You need a featured image to share to Instagram.',
 							'The message shown in the Instagram social preview',
-							'jetpack'
+							'jetpack-publicize-components'
 					  ) }
 			</Notice>
 		);

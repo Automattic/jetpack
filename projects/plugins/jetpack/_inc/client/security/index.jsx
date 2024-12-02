@@ -1,9 +1,9 @@
 import { __ } from '@wordpress/i18n';
-import QueryAkismetKeyCheck from 'components/data/query-akismet-key-check';
-import QuerySite from 'components/data/query-site';
 import { get } from 'lodash';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import QueryAkismetKeyCheck from 'components/data/query-akismet-key-check';
+import QuerySite from 'components/data/query-site';
 import { getVaultPressData } from 'state/at-a-glance';
 import { isOfflineMode, isUnavailableInOfflineMode, hasConnectedOwner } from 'state/connection';
 import { getSiteId } from 'state/initial-state';
