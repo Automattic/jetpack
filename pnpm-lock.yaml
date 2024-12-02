@@ -2243,7 +2243,7 @@ importers:
         version: 2.11.8
       '@preact/signals':
         specifier: ^1.2.2
-        version: 1.3.0(preact@10.22.1)
+        version: 1.3.1(preact@10.22.1)
       '@sentry/browser':
         specifier: 8.33.0
         version: 8.33.0
@@ -6304,8 +6304,8 @@ packages:
   '@preact/signals-core@1.8.0':
     resolution: {integrity: sha512-OBvUsRZqNmjzCZXWLxkZfhcgT+Fk8DDcT/8vD6a1xhDemodyy87UJRJfASMuSD8FaAIeGgGm85ydXhm7lr4fyA==}
 
-  '@preact/signals@1.3.0':
-    resolution: {integrity: sha512-EOMeg42SlLS72dhoq6Vjq08havnLseWmPQ8A0YsgIAqMgWgx7V1a39+Pxo6i7SY5NwJtH4849JogFq3M67AzWg==}
+  '@preact/signals@1.3.1':
+    resolution: {integrity: sha512-nNvSF2O7RDzxp1Rm7SkA5QhN1a2kN8pGE8J5o6UjgDof0F0Vlg6d6HUUVxxqZ1uJrN9xnH2DpL6rpII3Es0SsQ==}
     peerDependencies:
       preact: 10.x
 
@@ -15858,12 +15858,12 @@ snapshots:
 
   '@preact/signals-core@1.8.0': {}
 
-  '@preact/signals@1.3.0(preact@10.22.1)':
+  '@preact/signals@1.3.1(preact@10.22.1)':
     dependencies:
       '@preact/signals-core': 1.8.0
       preact: 10.22.1
 
-  '@preact/signals@1.3.0(preact@10.24.3)':
+  '@preact/signals@1.3.1(preact@10.24.3)':
     dependencies:
       '@preact/signals-core': 1.8.0
       preact: 10.24.3
@@ -18969,7 +18969,7 @@ snapshots:
 
   '@wordpress/interactivity@6.11.0':
     dependencies:
-      '@preact/signals': 1.3.0(preact@10.24.3)
+      '@preact/signals': 1.3.1(preact@10.24.3)
       preact: 10.24.3
 
   '@wordpress/interface@8.0.0(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
