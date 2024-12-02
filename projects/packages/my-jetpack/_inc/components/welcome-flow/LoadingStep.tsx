@@ -2,7 +2,7 @@ import { Col, Text } from '@automattic/jetpack-components';
 import { SVG, Path } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
-import ProductsIcons from './products-icons';
+import ProductsIcons from './ProductsIcons';
 import styles from './style.module.scss';
 
 const JetpackLogo = () => (
