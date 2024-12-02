@@ -43,11 +43,32 @@ Default.args = {
 			id: 3,
 			name: 'Twenty Fifteen',
 			slug: 'twentyfifteen',
-			version: '14.1-a.7',
-			threats: [ 'threat' ],
+			version: '1.1',
+			threats: [
+				{
+					id: 198352527,
+					signature: 'Vulnerable.WP.Extension',
+					description: 'Vulnerable WordPress extension',
+					severity: 3,
+				},
+			],
 			checked: true,
 			type: 'themes',
 		},
+		{
+			id: 4,
+			name: '/var/www/html/wp-content/uploads/jptt_eicar.php',
+			version: 'EICAR_AV_Test_Suspicious',
+			threats: [
+				{
+					id: 198352406,
+					signature: 'EICAR_AV_Test_Suspicious',
+					title: 'Malicious code found in file: jptt_eicar.php',
+					severity: 1,
+				},
+			],
+			checked: true,
+			type: 'files',
+		},
 	],
-	filters: [],
 };
