@@ -20,7 +20,6 @@ export default {
 
 export const Default = args => <ScanReport { ...args } />;
 Default.args = {
-	// TODO: Need to pass all core, plugins, themes, files, and database as a flat array
 	data: [
 		{
 			id: 1,
@@ -52,36 +51,3 @@ Default.args = {
 	],
 	filters: [],
 };
-
-// data: {
-// 	core: {
-// 		name: 'WordPress',
-// 		slug: null,
-// 		version: '6.7.1',
-// 		threats: [],
-// 		checked: true,
-// 		type: 'core',
-// 	},
-// 	plugins: [
-// 		{
-// 			name: 'Jetpack',
-// 			slug: 'jetpack/jetpack.php',
-// 			version: '14.1-a.7',
-// 			threats: [],
-// 			checked: false,
-// 			type: 'plugins',
-// 		},
-// 	],
-// 	themes: [
-// 		{
-// 			name: 'Twenty Fifteen',
-// 			slug: 'twentyfifteen',
-// 			version: '14.1-a.7',
-// 			threats: [],
-// 			checked: true,
-// 			type: 'themes',
-// 		},
-// 	],
-// 	files: [],
-// 	database: [],
-// }
