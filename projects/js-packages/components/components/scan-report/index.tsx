@@ -7,13 +7,13 @@ import {
 	filterSortAndPaginate,
 } from '@wordpress/dataviews';
 import { __ } from '@wordpress/i18n';
-import { Icon, check } from '@wordpress/icons';
+import { Icon } from '@wordpress/icons';
 import { useCallback, useMemo, useState } from 'react';
 import {
 	THREAT_FIELD_EXTENSION,
+	THREAT_FIELD_VERSION,
 	THREAT_FIELD_ICON,
 	THREAT_FIELD_SAFETY,
-	THREAT_FIELD_UPDATE,
 	THREAT_FIELD_TYPE,
 	THREAT_TYPES,
 	THREAT_ICONS,
@@ -33,7 +33,6 @@ import styles from './styles.module.scss';
  * @return {JSX.Element} The ScanReport component.
  */
 export default function ScanReport( { data, filters, onChangeSelection } ): JSX.Element {
-	// TODO: Add types
 	const baseView = {
 		search: '',
 		filters: filters || [],
@@ -55,7 +54,7 @@ export default function ScanReport( { data, filters, onChangeSelection } ): JSX.
 				THREAT_FIELD_SAFETY,
 				THREAT_FIELD_TYPE,
 				THREAT_FIELD_EXTENSION,
-				THREAT_FIELD_UPDATE,
+				THREAT_FIELD_VERSION,
 			],
 			layout: {
 				primaryField: THREAT_FIELD_SAFETY,
@@ -63,9 +62,9 @@ export default function ScanReport( { data, filters, onChangeSelection } ): JSX.
 		},
 		list: {
 			...baseView,
-			fields: [ THREAT_FIELD_SAFETY, THREAT_FIELD_TYPE, THREAT_FIELD_UPDATE ],
+			fields: [ THREAT_FIELD_SAFETY, THREAT_FIELD_EXTENSION, THREAT_FIELD_VERSION ],
 			layout: {
-				primaryField: THREAT_FIELD_EXTENSION,
+				primaryField: THREAT_FIELD_TYPE,
 				mediaField: THREAT_FIELD_ICON,
 			},
 		},
@@ -144,15 +143,14 @@ export default function ScanReport( { data, filters, onChangeSelection } ): JSX.
 				enableGlobalSearch: true,
 				render( { item } ) {
 					return item.name ? item.name : '';
-					// TODO: Account for file and db?
 				},
 			},
 			{
-				id: THREAT_FIELD_UPDATE,
-				label: __( 'Update Available', 'jetpack' ),
-				render() {
-					return <Icon className={ styles.check } icon={ check } />;
-					// TODO: Is this possible to determine?
+				id: THREAT_FIELD_VERSION,
+				label: __( 'Version', 'jetpack' ),
+				enableGlobalSearch: true,
+				render( { item } ) {
+					return item.version ? item.version : '';
 				},
 			},
 			{
@@ -195,7 +193,6 @@ export default function ScanReport( { data, filters, onChangeSelection } ): JSX.
 	 * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-dataviews/#getitemid-function
 	 */
 	const getItemId = useCallback( ( item: Threat ) => item.id.toString(), [] );
-	// TODO: Do we need this? dataset doesn't come with an id for each
 
 	return (
 		<DataViews
