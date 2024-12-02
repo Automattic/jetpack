@@ -1,18 +1,14 @@
-import { getThreatType, type Threat } from '@automattic/jetpack-scan';
+import { type Threat } from '@automattic/jetpack-scan';
+import { Tooltip } from '@wordpress/components';
 import {
-	type Field,
-	type FieldType,
-	type Filter,
-	type SortDirection,
 	type SupportedLayouts,
 	type View,
 	DataViews,
 	filterSortAndPaginate,
 } from '@wordpress/dataviews';
 import { __ } from '@wordpress/i18n';
-import { Icon, check } from '@wordpress/icons';
+import { Icon, shield, check } from '@wordpress/icons';
 import { useCallback, useMemo, useState } from 'react';
-import ThreatSeverityBadge from '../threat-severity-badge';
 import {
 	THREAT_FIELD_EXTENSION,
 	THREAT_FIELD_ICON,
@@ -37,10 +33,6 @@ import styles from './styles.module.scss';
 export default function ScanReport( { data, filters, onChangeSelection } ): JSX.Element {
 	// TODO: Add types
 	const baseView = {
-		sort: {
-			field: 'type',
-			direction: 'desc' as SortDirection,
-		},
 		search: '',
 		filters: filters || [],
 		page: 1,
@@ -97,41 +89,49 @@ export default function ScanReport( { data, filters, onChangeSelection } ): JSX.
 			{
 				id: THREAT_FIELD_SAFETY,
 				label: __( 'Safety', 'jetpack' ),
-				// getValue?
 				render( { item } ) {
-					if ( item.threats.length === 0 ) {
-						return <Icon icon={ check } size={ 20 } />;
-						// TODO: Icons for checked/clean, unchecked, or threats
+					if ( item.checked ) {
+						if ( item.threats.length > 0 ) {
+							return (
+								<Tooltip className={ styles.tooltip } text={ __( 'Threat detected.', 'jetpack' ) }>
+									<Icon className={ styles.shield__threat } icon={ shield } />
+								</Tooltip>
+							);
+						}
+						return (
+							<Tooltip
+								className={ styles.tooltip }
+								text={ __( 'No known threats found that affect this version.', 'jetpack' ) }
+							>
+								<Icon className={ styles.shield__checked } icon={ shield } />
+							</Tooltip>
+						);
 					}
+					return (
+						<Tooltip
+							className={ styles.tooltip }
+							text={ __(
+								'This item was added to your site after the most recent scan. We will check for threats during the next scheduled one.',
+								'jetpack'
+							) }
+						>
+							<Icon className={ styles.shield__unchecked } icon={ shield } />
+						</Tooltip>
+					);
 				},
 			},
 			{
 				id: THREAT_FIELD_TYPE,
 				label: __( 'Type', 'jetpack' ),
 				elements: THREAT_TYPES,
-				// getValue?
 				render( { item } ) {
-					// TODO: We could just captilize the first letter of type, or have a utility function to do this
-					switch ( item.type ) {
-						case 'core':
-							return 'Core';
-						case 'plugins':
-							return 'Plugins';
-						case 'themes':
-							return 'Themes';
-						case 'file':
-							return 'File';
-						default:
-							return '';
-					}
+					return item.type ? item.type.charAt( 0 ).toUpperCase() + item.type.slice( 1 ) : '';
 				},
 			},
 			{
 				id: THREAT_FIELD_EXTENSION,
 				label: __( 'Extension', 'jetpack' ),
-				// enableGlobalSearch: true,
-				// enableHiding: true,
-				// getValue?
+				enableGlobalSearch: true,
 				render( { item } ) {
 					return item.name ? item.name : '';
 					// TODO: Account for file and db?
@@ -140,22 +140,18 @@ export default function ScanReport( { data, filters, onChangeSelection } ): JSX.
 			{
 				id: THREAT_FIELD_UPDATE,
 				label: __( 'Update Available', 'jetpack' ),
-				// getValue?
 				render() {
-					return <Icon icon={ check } size={ 20 } />;
+					return <Icon className={ styles.check } icon={ check } />;
 					// TODO: Is this possible to determine?
 				},
 			},
 			{
 				id: THREAT_FIELD_ICON,
 				label: __( 'Icon', 'jetpack' ),
-				enableHiding: false,
-				// getValue?
-				render() {
+				render( { item } ) {
 					return (
 						<div className={ styles.threat__media }>
-							<Icon icon={ check } size={ 20 } />
-							{ /* TODO: Use utility function to get icon based on type, might need ot modify props */ }
+							<Icon icon={ THREAT_ICONS[ item.type ] } />
 						</div>
 					);
 				},
