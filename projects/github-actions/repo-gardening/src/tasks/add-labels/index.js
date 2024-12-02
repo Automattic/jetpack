@@ -218,6 +218,14 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft, isRevert )
 			}
 		}
 
+		// External Media extension.
+		const externalMedia = file.match(
+			/^projects\/plugins\/jetpack\/extensions\/shared\/external-media\//
+		);
+		if ( externalMedia !== null ) {
+			keywords.add( '[Extension] External Media' );
+		}
+
 		// React Dashboard and Boost Admin.
 		const reactAdmin = file.match(
 			/^(projects\/plugins\/(crm|boost\/app)\/admin|projects\/plugins\/jetpack\/_inc\/client)\//
