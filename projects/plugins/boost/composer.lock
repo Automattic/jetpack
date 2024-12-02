@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "20787799a4b61b6e0adde269d9766e76",
+    "content-hash": "1b42ed0c5667c68397cf85aa7ff6c3a9",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -1364,7 +1364,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/plugin-deactivation",
-                "reference": "e5fbc3a91a021f30f0ca29998c9b103de21211b9"
+                "reference": "7afbecf14876b11d4477f39b1741f92456c48247"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -1385,7 +1385,7 @@
                 },
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.2.x-dev"
+                    "dev-trunk": "0.3.x-dev"
                 },
                 "textdomain": "jetpack-plugin-deactivation",
                 "version-constants": {
@@ -1742,7 +1742,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/schema",
-                "reference": "49eadc9d6e304921facada515f1165c1131a0bf6"
+                "reference": "15591aa9150c9ca7e937a54ae0456ed5df427a4b"
             },
             "require": {
                 "php": ">=7.2"
@@ -1759,7 +1759,7 @@
             "extra": {
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.1.x-dev"
+                    "dev-trunk": "0.2.x-dev"
                 },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-schema/compare/v${old}...v${new}"
@@ -1954,7 +1954,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/wp-js-data-sync",
-                "reference": "64d7033777738ec3c1df9002b5921646d52b4ba6"
+                "reference": "2c87b5a5487cd9e4370b8f4fce0c3d3cb61b787f"
             },
             "require": {
                 "automattic/jetpack-schema": "@dev",
@@ -1976,7 +1976,7 @@
                 },
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.5.x-dev"
+                    "dev-trunk": "0.6.x-dev"
                 },
                 "textdomain": "jetpack-wp-js-data-sync",
                 "version-constants": {

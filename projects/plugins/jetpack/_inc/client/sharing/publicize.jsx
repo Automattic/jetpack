@@ -20,6 +20,9 @@ import { FEATURE_JETPACK_SOCIAL } from '../lib/plans/constants';
 import SocialImageGeneratorSection from './features/social-image-generator-section';
 import UtmToggleSection from './features/utm-toggle-section';
 
+/**
+ * Publicize module settings.
+ */
 export const Publicize = withModuleSettingsFormHelpers(
 	class extends Component {
 		trackClickConfigure() {

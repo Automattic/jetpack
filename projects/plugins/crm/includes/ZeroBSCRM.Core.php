@@ -924,10 +924,6 @@ final class ZeroBSCRM {
 		$this->urls['usagetrackinginfo'] = 'https://jetpackcrm.com/usage-tracking/';
 		$this->urls['support-forum']     = 'https://wordpress.org/support/plugin/zero-bs-crm';
 
-		##WLREMOVE
-		$this->urls['betafeedbackemail'] = 'hello@jetpackcrm.com'; // SPECIFICALLY ONLY USED FOR FEEDBACK ON BETA RELEASES, DO NOT USE ELSEWHERE
-		##/WLREMOVE
-
 		$this->urls['docs']              = 'https://kb.jetpackcrm.com/';
 		$this->urls['productsdatatools'] = 'https://jetpackcrm.com/data-tools/';
 		$this->urls['extimgrepo']        = 'https://jetpackcrm.com/_plugin_dependent_assets/_i/';

@@ -3,8 +3,10 @@
 Jetpack CRM: Emails jQuery
 
 */
+
+/* global ajaxurl, swal, jpcrm, zbsEmailSingleLang, tinymce */
 jQuery( function ( $ ) {
-	$( '.inbox-nav .item' ).on( 'click', function ( e ) {
+	$( '.inbox-nav .item' ).on( 'click', function () {
 		$( '.inbox-nav .item' ).removeClass( 'active' );
 		$( '.zbs-email-list-item ' ).removeClass( 'active' );
 		$( '#zbs-email-body' ).hide();
@@ -15,9 +17,9 @@ jQuery( function ( $ ) {
 		$( this ).addClass( 'active' );
 	} );
 
-	$( '.zbs-email-actions .star' ).on( 'click', function ( e ) {
+	$( '.zbs-email-actions .star' ).on( 'click', function () {
 		if ( $( this ).hasClass( 'outline' ) ) {
-			var data = {
+			const data = {
 				action: 'zbs_email_star_thread',
 				emid: window.zbs_star_id,
 				sec: window.zbs_root.zbsnonce,
@@ -30,17 +32,17 @@ jQuery( function ( $ ) {
 				data: data,
 				dataType: 'json',
 				timeout: 20000,
-				success: function ( response ) {
+				success: function () {
 					$( '.zbs-list-fav-' + window.zbs_star_id ).show();
 				},
-				error: function ( response ) {},
+				error: function () {},
 			} );
 
 			$( this ).addClass( 'yellow' ).removeClass( 'outline' );
 
 			$( '.starred-email-list .zbs-email-list-' + window.zbs_star_id ).show();
 		} else {
-			var data = {
+			const data = {
 				action: 'zbs_email_unstar_thread',
 				emid: window.zbs_star_id,
 				sec: window.zbs_root.zbsnonce,
@@ -53,10 +55,10 @@ jQuery( function ( $ ) {
 				data: data,
 				dataType: 'json',
 				timeout: 20000,
-				success: function ( response ) {
+				success: function () {
 					$( '.zbs-list-fav-' + window.zbs_star_id ).hide();
 				},
-				error: function ( response ) {},
+				error: function () {},
 			} );
 
 			$( this ).removeClass( 'yellow' ).addClass( 'outline' );
@@ -78,11 +80,10 @@ jQuery( function ( $ ) {
 		$( '.zbs-drafts-link' ).addClass( 'active blue' );
 	} );
 
-	$( '.zbs-email-actions .trash' ).on( 'click', function ( e ) {
+	$( '.zbs-email-actions .trash' ).on( 'click', function () {
 		swal( {
 			title: 'Are you sure?',
-			text:
-				'This will delete the email thread and remove it from your database. You can not undo this',
+			text: 'This will delete the email thread and remove it from your database. You can not undo this',
 			type: 'warning',
 			showCancelButton: true,
 			confirmButtonColor: '#3085d6',
@@ -92,9 +93,9 @@ jQuery( function ( $ ) {
 			.then( function ( result ) {
 				if ( result.value ) {
 					// ajax remove
-					var emailid = window.zbs_star_id;
+					const emailid = window.zbs_star_id;
 
-					var data = {
+					const data = {
 						action: 'zbs_delete_email_thread',
 						// don't need, is unique id 'objtype': <?php echo $this->typeInt; ?>,
 						emid: emailid,
@@ -108,7 +109,7 @@ jQuery( function ( $ ) {
 						data: data,
 						dataType: 'json',
 						timeout: 20000,
-						success: function ( response ) {
+						success: function () {
 							swal( 'Email thread deleted!', 'Your email thread has been removed.', 'success' );
 
 							// remove it from the list
@@ -119,7 +120,7 @@ jQuery( function ( $ ) {
 							$( '.zbs-ajax-loading' ).show();
 							$( '.zbs-email-list-' + emailid ).remove();
 						},
-						error: function ( response ) {
+						error: function () {
 							swal(
 								'Email Thread Not Deleted!',
 								'Your email thread was not removed, please try again.',
@@ -131,7 +132,7 @@ jQuery( function ( $ ) {
 			} );
 	} );
 
-	$( '.zbs-email-list-item' ).on( 'click', function ( e ) {
+	$( '.zbs-email-list-item' ).on( 'click', function () {
 		$( '.zbs-email-thread' ).html( '' );
 
 		window.zbs_star_id = $( this ).data( 'emid' );
@@ -149,6 +150,7 @@ jQuery( function ( $ ) {
 		$( '.click-email-to-load, .reply-sent' ).hide();
 		$( this ).addClass( 'active' );
 
+		// eslint-disable-next-line eqeqeq
 		if ( window.zbs_fav == 1 ) {
 			$( '.zbs-email-actions .star' ).addClass( 'yellow' ).removeClass( 'outline' );
 		} else {
@@ -165,11 +167,9 @@ jQuery( function ( $ ) {
 		// remove any fail msg
 		jQuery( '#zbs-couldnotload' ).remove();
 
-		the_content = $( 'the_content', this ).html();
-
 		$( '.spinner-gif' ).show();
 		// postbag!
-		var data = {
+		const data = {
 			action: 'zbs_email_customer_panel',
 			cid: $( this ).data( 'cid' ),
 			emid: $( this ).data( 'emid' ),
@@ -194,11 +194,12 @@ jQuery( function ( $ ) {
 
 				$( '.the-tasks' ).html( '' );
 
-				var completed_tasks = 0;
-				var progress_tasks = 0;
-				var total_tasks = 0;
+				let completed_tasks = 0;
+				let progress_tasks = 0;
+				let total_tasks = 0;
 				$.each( response.tasks, function ( k, v ) {
 					total_tasks++;
+					// eslint-disable-next-line eqeqeq
 					if ( v.complete == 1 ) {
 						$( '.the-tasks' ).append(
 							'<li class="complete"><i class="ui icon check green circle"></i>' + v.title + '</li>'
@@ -210,7 +211,7 @@ jQuery( function ( $ ) {
 					}
 				} );
 
-				if ( total_tasks == 0 ) {
+				if ( total_tasks === 0 ) {
 					$( '.the-tasks' ).html( "<div class='no-tasks'>No Tasks for this contact</div>" );
 				}
 
@@ -266,6 +267,7 @@ jQuery( function ( $ ) {
                 */
 				} );
 
+				// eslint-disable-next-line eqeqeq
 				if ( response.email.zbsmail_opened == 1 ) {
 					$( '.zbs-email-read-date' ).show();
 				} else {
@@ -288,9 +290,8 @@ jQuery( function ( $ ) {
 
 				$( '#zbs-email-send-message-thread' ).show();
 			},
-			error: function ( response ) {
+			error: function () {
 				$( '.mark-complete-task button' ).removeClass( 'disabled' );
-				completeBlocker = true;
 
 				// WH: there was no error catching here, added (plz do in future)
 				$( '.spinner-gif' ).hide();
@@ -302,7 +303,7 @@ jQuery( function ( $ ) {
 		} );
 	} );
 
-	$( '.zbs-sent-link' ).on( 'click', function ( e ) {
+	$( '.zbs-sent-link' ).on( 'click', function () {
 		$( '.app-content' ).hide();
 		$( '.click-email-to-load' ).show();
 		$( '.spinner-gif' ).hide();
@@ -310,7 +311,7 @@ jQuery( function ( $ ) {
 		$( '.sent-email-list, .zbs-email-content' ).fadeIn( 1000 );
 	} );
 
-	$( '.zbs-starred-link' ).on( 'click', function ( e ) {
+	$( '.zbs-starred-link' ).on( 'click', function () {
 		$( '.app-content' ).hide();
 		$( '.click-email-to-load' ).show();
 		$( '.spinner-gif' ).hide();
@@ -319,13 +320,13 @@ jQuery( function ( $ ) {
 	} );
 
 	//sending the threaded email
-	$( '.zbs-send-email-thread-button' ).on( 'click', function ( e ) {
-		the_thread_id = window.zbs_star_id;
-		the_thread_message = tinymce.get( 'zbs_send_email_thread' ).getContent();
-		the_customer_id = window.zbs_cid;
-		the_thread_subject = $( '.em-sub-0' ).html();
+	$( '.zbs-send-email-thread-button' ).on( 'click', function () {
+		const the_thread_id = window.zbs_star_id;
+		const the_thread_message = tinymce.get( 'zbs_send_email_thread' ).getContent();
+		const the_customer_id = window.zbs_cid;
+		const the_thread_subject = $( '.em-sub-0' ).html();
 
-		var data = {
+		const data = {
 			action: 'zbs_email_send_thread_ui',
 			emid: the_thread_id,
 			cid: the_customer_id,
@@ -341,7 +342,7 @@ jQuery( function ( $ ) {
 			data: data,
 			dataType: 'json',
 			timeout: 20000,
-			success: function ( response ) {
+			success: function () {
 				tinymce.get( 'zbs_send_email_thread' ).setContent( '' );
 				$( '#zbs-email-body, #zbs-email-send-message-thread' ).hide();
 				$( '.zbs-ajax-loading' ).show();
@@ -350,13 +351,14 @@ jQuery( function ( $ ) {
 				);
 				$( '.reply-sent' ).append( '<h3>Email Sent</h3>' );
 			},
-			error: function ( response ) {},
+			error: function () {},
 		} );
 	} );
 } );
 
 /**
- * @param obj
+ * Set contact email.
+ * @param {object} obj - Contact object.
  */
 function zbscrmjs_customer_setCustomerEmail( obj ) {
 	if ( typeof obj.id !== 'undefined' ) {
@@ -364,10 +366,10 @@ function zbscrmjs_customer_setCustomerEmail( obj ) {
 		// remove "hidden" class from error div if contact with no email is selected
 		document
 			.getElementById( 'email_contact_selector' )
-			.classList.toggle( 'hidden', obj.email != '' );
+			.classList.toggle( 'hidden', obj.email !== '' );
 	}
 }
 
 if ( typeof module !== 'undefined' ) {
-    module.exports = { zbscrmjs_customer_setCustomerEmail };
+	module.exports = { zbscrmjs_customer_setCustomerEmail };
 }
