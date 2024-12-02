@@ -102,6 +102,16 @@ function useCriticalCssAction<
 				const message = result.error || __( 'Critical CSS action failed', 'jetpack-boost' );
 				return criticalCssErrorState( message );
 			},
+			optimisticUpdate: ( requestData, state ) => {
+				if ( action === 'request-regenerate' ) {
+					return {
+						...state,
+						status: 'not_generated',
+					};
+				}
+
+				return state;
+			},
 		},
 	} );
 }

@@ -19,7 +19,7 @@ export default function CriticalCssMeta() {
 	const { progress } = useLocalCriticalCssGenerator();
 	const showFatalError = isFatalError( cssState );
 
-	if ( cssState.status === 'pending' ) {
+	if ( cssState.status === 'pending' || cssState.status === 'not_generated' ) {
 		return (
 			<div className="jb-critical-css-progress">
 				<div className={ styles[ 'progress-label' ] }>
