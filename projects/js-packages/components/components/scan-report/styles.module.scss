@@ -19,22 +19,3 @@
 	border-radius: 4px;
 	text-align: left;
 }
-
-.shield {
-
-	&__threat {
-		fill: #F0B849;
-	}
-
-	&__checked {
-		fill: var( --jp-green-40 );
-	}
-
-	&__unchecked {
-		fill: var( --jp-gray-40 );
-	}
-}
-
-.check {
-	fill: var( --jp-green-40 );
-}
