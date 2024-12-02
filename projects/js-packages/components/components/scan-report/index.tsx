@@ -12,7 +12,7 @@ import { useCallback, useMemo, useState } from 'react';
 import ShieldAlertIcon from '../shield-alert';
 import ShieldCheckIcon from '../shield-check';
 import {
-	THREAT_FIELD_EXTENSION,
+	THREAT_FIELD_NAME,
 	THREAT_FIELD_VERSION,
 	THREAT_FIELD_ICON,
 	THREAT_FIELD_SAFETY,
@@ -50,19 +50,14 @@ export default function ScanReport( { data, filters, onChangeSelection } ): JSX.
 	const defaultLayouts: SupportedLayouts = {
 		table: {
 			...baseView,
-			fields: [
-				THREAT_FIELD_SAFETY,
-				THREAT_FIELD_TYPE,
-				THREAT_FIELD_EXTENSION,
-				THREAT_FIELD_VERSION,
-			],
+			fields: [ THREAT_FIELD_SAFETY, THREAT_FIELD_TYPE, THREAT_FIELD_NAME, THREAT_FIELD_VERSION ],
 			layout: {
 				primaryField: THREAT_FIELD_SAFETY,
 			},
 		},
 		list: {
 			...baseView,
-			fields: [ THREAT_FIELD_SAFETY, THREAT_FIELD_EXTENSION, THREAT_FIELD_VERSION ],
+			fields: [ THREAT_FIELD_SAFETY, THREAT_FIELD_NAME, THREAT_FIELD_VERSION ],
 			layout: {
 				primaryField: THREAT_FIELD_TYPE,
 				mediaField: THREAT_FIELD_ICON,
@@ -138,8 +133,8 @@ export default function ScanReport( { data, filters, onChangeSelection } ): JSX.
 				},
 			},
 			{
-				id: THREAT_FIELD_EXTENSION,
-				label: __( 'Extension', 'jetpack' ),
+				id: THREAT_FIELD_NAME,
+				label: __( 'Name', 'jetpack' ),
 				enableGlobalSearch: true,
 				render( { item } ) {
 					return item.name ? item.name : '';

@@ -23,7 +23,7 @@ export const THREAT_ICONS = {
 
 export const THREAT_FIELD_ICON = 'icon';
 export const THREAT_FIELD_TYPE = 'type';
-export const THREAT_FIELD_EXTENSION = 'extension';
+export const THREAT_FIELD_NAME = 'name';
 export const THREAT_FIELD_SAFETY = 'safety';
 export const THREAT_FIELD_UPDATE = 'update';
 export const THREAT_FIELD_VERSION = 'version';
