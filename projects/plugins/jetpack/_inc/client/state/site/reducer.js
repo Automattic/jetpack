@@ -6,6 +6,7 @@ import {
 	isJetpackProduct,
 	isJetpackSearch,
 	isJetpackCreator,
+	isJetpackGrowth,
 	isJetpackSecurityBundle,
 	isJetpackAntiSpam,
 	isSecurityComparableJetpackLegacyPlan,
@@ -472,6 +473,18 @@ export function getActiveCreatorPurchase( state ) {
 }
 
 /**
+ * Searches active products for Growth product
+ *
+ * @param {object} state - Global state tree
+ * @return {object}       An active Growth product if one was found, undefined otherwise.
+ */
+export function getActiveGrowthPurchase( state ) {
+	return find( getActiveProductPurchases( state ), product =>
+		isJetpackGrowth( product.product_slug )
+	);
+}
+
+/**
  * Determines if the site has an active Creator product purchase
  *
  * @param {object} state - Global state tree
@@ -480,6 +493,19 @@ export function getActiveCreatorPurchase( state ) {
 export function hasActiveCreatorPurchase( state ) {
 	return (
 		!! getActiveCreatorPurchase( state ) ||
+		'is-complete-plan' === getPlanClass( getSitePlan( state ).product_slug )
+	);
+}
+
+/**
+ * Determines if the site has an active Growth product purchase
+ *
+ * @param {object} state - Global state tree
+ * @return {boolean}      True if the site has an active Growth product purchase, false otherwise.
+ */
+export function hasActiveGrowthPurchase( state ) {
+	return (
+		!! getActiveGrowthPurchase( state ) ||
 		'is-complete-plan' === getPlanClass( getSitePlan( state ).product_slug )
 	);
 }

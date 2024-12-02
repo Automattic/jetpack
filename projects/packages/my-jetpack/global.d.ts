@@ -40,7 +40,8 @@ type JetpackModule =
 	| 'protect'
 	| 'videopress'
 	| 'stats'
-	| 'growth';
+	| 'growth'
+	| 'complete';
 
 type ThreatItem = {
 	// Protect API properties (free plan)
@@ -156,6 +157,8 @@ interface Window {
 					plugin_slug: string;
 					post_activation_url: string;
 					post_checkout_url?: string;
+					manage_paid_plan_purchase_url?: string;
+					renew_paid_plan_purchase_url?: string;
 					pricing_for_ui?: {
 						available: boolean;
 						wpcom_product_slug: string;
@@ -173,6 +176,11 @@ interface Window {
 							should_prorate_when_offer_ends: boolean;
 							transition_after_renewal_count: number;
 							usage_limit?: number;
+							reason?: {
+								errors: {
+									introductoryOfferRemovedSubscriptionFound: string[];
+								};
+							};
 						};
 						tiers?: {
 							[ key: string ]: {
@@ -187,6 +195,11 @@ interface Window {
 									shouldProrateWhenOfferEnds: boolean;
 									transitionAfterRenewalCount: number;
 									usageLimit?: number;
+									reason?: {
+										errors: {
+											introductoryOfferRemovedSubscriptionFound: string[];
+										};
+									};
 								};
 								isIntroductoryOffer: boolean;
 								productTerm: string;

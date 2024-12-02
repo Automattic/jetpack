@@ -7,10 +7,11 @@
  *
  * Date: 13/09/16
  */
+/* global tinymce */
 
 ( function () {
 	// brutally hardtyped, later move from
-	var formStyles = [
+	const formStyles = [
 		{ text: 'Naked', value: 'naked' },
 		{ text: 'Content Grab', value: 'cgrab' },
 		{ text: 'Simple', value: 'simple' },
@@ -24,19 +25,18 @@
 
 	// needs to be set in PHP, this just builds it into a usable form for tinymce
 	if ( typeof window.zbsCRMFormList === 'undefined' ) {
-		var zbsCRMFormList = [ { text: 'No Forms Available', value: -1 } ];
+		window.zbsCRMFormList = [ { text: 'No Forms Available', value: -1 } ];
 	} else {
 		// process it into a usable form
-		var formedFormList = [];
+		const formedFormList = [];
 		jQuery.each( window.zbsCRMFormList, function ( ind, ele ) {
 			// make title
-			if ( ele.title != '' ) {
-				var eleTitle = ele.title;
-			} else {
-				var eleTitle = 'Form #' + ele.id;
+			let eleTitle = 'Form #' + ele.id;
+			if ( ele.title ) {
+				eleTitle = ele.title;
 			}
 
-			var formObj = {
+			const formObj = {
 				text: eleTitle,
 				value: ele.id,
 			};
@@ -54,8 +54,8 @@
 		window.zbsCRMFormList = [ { text: 'No Forms Available', value: -1 } ];
 	}
 
-	tinymce.PluginManager.add( 'zbsCRMForms', function ( editor, url ) {
-		var thisTitle = 'CRM Forms';
+	tinymce.PluginManager.add( 'zbsCRMForms', function ( editor ) {
+		let thisTitle = 'CRM Forms';
 
 		if ( ! window.zbs_root ) {
 			// if no CRM env is detected, don't make a button
@@ -65,7 +65,7 @@
 			thisTitle = window.zbs_root.crmname + ' Forms';
 		}
 
-		var thisIco = window.zbs_root.root + 'i/WYSIWYG_icon.png';
+		let thisIco = window.zbs_root.root + 'i/WYSIWYG_icon.png';
 		if ( typeof window.zbs_root.crmlogo !== 'undefined' ) {
 			thisIco = window.zbs_root.root + window.zbs_root.crmlogo;
 		}
@@ -97,6 +97,7 @@
 						},
 					],
 					onsubmit: function ( e ) {
+						// eslint-disable-next-line eqeqeq
 						if ( e.data.zbscrmformid != -1 ) {
 							tinymce.activeEditor.execCommand(
 								'mceInsertContent',

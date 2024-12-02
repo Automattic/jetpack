@@ -17,6 +17,6 @@ use Automattic\Jetpack\Changelog\KeepAChangelogParser;
  * @covers \Automattic\Jetpack\Changelog\KeepAChangelogParser
  */
 class KeepAChangelogParserTest extends ParserTestCase {
-	protected $className = KeepAChangelogParser::class;
-	protected $fixtures  = __DIR__ . '/fixtures/KeepAChangelogParserTest.*.md';
+	protected $className       = KeepAChangelogParser::class;
+	protected static $fixtures = __DIR__ . '/fixtures/KeepAChangelogParserTest.*.md';
 }

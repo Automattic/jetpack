@@ -7,7 +7,7 @@
  *
  * Date: 29/04/18
  */
-var startedDrag = false;
+/* global zbsJS_updateScreenOptions */
 jQuery( function () {
 	zerobscrmJS_bindMetaboxManager();
 
@@ -16,7 +16,7 @@ jQuery( function () {
 } );
 
 /**
- *
+ * Bind Metabox Manager.
  */
 function zerobscrmJS_bindMetaboxManager() {
 	// minimise/show
@@ -38,17 +38,10 @@ function zerobscrmJS_bindMetaboxManager() {
 		} );
 
 	// show hide based on screen options panel onChange
-	//jQuery('.zbs-metabox-checkbox input').onChange(function(){
-	//jQuery('.zbs-metabox-checkbox').checkbox('onChange', function() {
-	jQuery( '.zbs-metabox-checkbox' ).checkbox( 'setting', 'onChange', function ( r ) {
+	jQuery( '.zbs-metabox-checkbox' ).checkbox( 'setting', 'onChange', function () {
 		// get id
-		var id = jQuery( this ).attr( 'id' );
-		var mbID = id.substr( 7 );
-		var checked = jQuery( '#' + id + ':checked' ).length; //$(this).find('input').is(':checked');//jQuery(this).checkbox('is checked');
-		//var disabled = jQuery('#' + id).attr('disabled');
-		//console.log(id,[mbID,checked,disabled]);
-
-		//if (typeof disabled !== typeof undefined && disabled !== false) {
+		const id = jQuery( this ).attr( 'id' );
+		const mbID = id.substr( 7 );
 
 		if ( jQuery( '#' + id + ':checked' ).length > 0 ) {
 			// checked, show
@@ -57,8 +50,6 @@ function zerobscrmJS_bindMetaboxManager() {
 			// unchecked, hide
 			jQuery( '#' + mbID ).addClass( 'hide-if-js zbs-hidden' );
 		}
-
-		//}
 
 		// save screen options
 		setTimeout( function () {
@@ -73,8 +64,6 @@ function zerobscrmJS_bindMetaboxManager() {
 			cancel: '.zbs-metabox-minimise',
 			//items: ':not(.zbs-static)',
 			start: function () {
-				console.log( 'start' );
-
 				// identify
 				jQuery( '#zbs-metabox-manager' ).removeClass( 'blue' ).addClass( 'teal' );
 
@@ -86,8 +75,6 @@ function zerobscrmJS_bindMetaboxManager() {
 				//jQuery( ".zbs-metabox-sortables" ).disableSelection();
 			},
 			stop: function () {
-				console.log( 'stop' );
-
 				// identify
 				jQuery( '#zbs-metabox-manager' ).addClass( 'blue' ).removeClass( 'teal' );
 
@@ -108,7 +95,7 @@ function zerobscrmJS_bindMetaboxManager() {
 }
 
 /**
- *
+ * Initialize tabbed Metaboxes.
  */
 function zeroBSCRMJS_initialiseTabbedMetaboxes() {
 	jQuery( '.zbs-metabox-tabgroup .item' ).tab();
@@ -116,9 +103,9 @@ function zeroBSCRMJS_initialiseTabbedMetaboxes() {
 
 // this probs needs thinking how to centralise into Global.js + more common sense for out-of-metabox places use
 // NOTE: 16/8/18 wh centralised + used for tablecolumn saver in company view
-var zbsjsScreenOptsBlock = false;
+window.zbsjsScreenOptsBlock = false;
 /**
- *
+ * Save screen options.
  */
 function zeroBSCRMJS_saveScreenOptionsMetaboxes() {
 	if ( ! window.zbsjsScreenOptsBlock ) {
@@ -130,13 +117,13 @@ function zeroBSCRMJS_saveScreenOptionsMetaboxes() {
 
 		// save
 		zbsJS_updateScreenOptions(
-			function ( r ) {
+			function () {
 				// No debug for now console.log('Saved!',r);
 
 				// blocker
 				window.zbsjsScreenOptsBlock = false;
 			},
-			function ( r ) {
+			function () {
 				// No debug for now console.error('Failed to save!',r);
 
 				// blocker
@@ -148,11 +135,13 @@ function zeroBSCRMJS_saveScreenOptionsMetaboxes() {
 
 // this builds metabox screenoptions from actual screen state :)
 /**
+ * Build Metabox screen options.
  *
+ * @return {object} Screen options.
  */
 function zeroBSCRMJS_buildScreenOptionsMetaboxes() {
 	// empty defaults
-	var newScreenOptions = {
+	const newScreenOptions = {
 		mb_normal: {},
 		mb_side: {},
 		mb_hidden: [],
@@ -162,14 +151,14 @@ function zeroBSCRMJS_buildScreenOptionsMetaboxes() {
 
 	// ====== METABOXES:
 
-	var tabIdx = 1;
+	let tabIdx = 1;
 
-	var mbAreas = [ 'normal', 'side' ];
+	const mbAreas = [ 'normal', 'side' ];
 
 	// for each area
 	jQuery.each( mbAreas, function ( mbAreaIndx, mbArea ) {
 		//console.log('adding ' + mbArea + ' mb');
-		var obj = {};
+		const obj = {};
 
 		// 'normal' metaboxes
 		jQuery( '#zbs-' + mbArea + '-sortables .zbs-metabox' ).each( function ( ind, ele ) {
@@ -187,13 +176,13 @@ function zeroBSCRMJS_buildScreenOptionsMetaboxes() {
 		// 'normal' - tabbed metaboxes
 		jQuery( '#zbs-' + mbArea + '-sortables .zbs-metabox-tabgroup' ).each( function ( ind, ele ) {
 			// get tabgroup id
-			var tabgroupID = jQuery( ele ).attr( 'data-tabid' );
-			if ( typeof tabgroupID === 'undefined' || tabgroupID == '' ) {
+			let tabgroupID = jQuery( ele ).attr( 'data-tabid' );
+			if ( typeof tabgroupID === 'undefined' || tabgroupID === '' ) {
 				tabgroupID = 'tabs_' + tabIdx;
 			}
 
 			// build
-			var tabList = [];
+			const tabList = [];
 			jQuery( '.item', jQuery( ele ) ).each( function ( subInd, subEle ) {
 				// add to list (their data-tab which will be the metabox id :))
 				tabList.push( jQuery( subEle ).attr( 'data-tab' ) );
@@ -235,10 +224,10 @@ function zeroBSCRMJS_buildScreenOptionsMetaboxes() {
 
 // temp example func
 /**
- *
+ * Save Metaboxes.
  */
 function saveMetaBoxes() {
-	var newScreenOptions = {}; //window.zbsScreenOptions;
+	const newScreenOptions = {}; //window.zbsScreenOptions;
 
 	// get metabox order
 
@@ -262,12 +251,12 @@ function saveMetaBoxes() {
 	if ( typeof newScreenOptions.mb_normal === 'undefined' ) {
 		newScreenOptions.mb_normal = [];
 	}
-	var tabbedList = [];
+	const tabbedList = [];
 	jQuery( '#zbs-normal-sortables .zbs-metabox' ).each( function ( ind, ele ) {
 		// add to list
 		tabbedList.push( jQuery( ele ).attr( 'id' ) );
 	} );
-	var obj = {};
+	const obj = {};
 	obj.tabs_1 = tabbedList.join( ',' );
 	newScreenOptions.mb_normal.push( obj );
 
@@ -277,9 +266,9 @@ function saveMetaBoxes() {
 	}
 	jQuery( '#zbs-side-sortables .zbs-metabox' ).each( function ( ind, ele ) {
 		// add to list
-		var obj = {};
-		obj[ jQuery( ele ).attr( 'id' ) ] = 'self';
-		newScreenOptions.mb_side.push( obj );
+		const newobj = {};
+		newobj[ jQuery( ele ).attr( 'id' ) ] = 'self';
+		newScreenOptions.mb_side.push( newobj );
 	} );
 
 	// hidden metaboxes
@@ -312,18 +301,17 @@ function saveMetaBoxes() {
 
 	// save
 	zbsJS_updateScreenOptions(
-		function ( r ) {
-			console.log( 'Saved!', r );
-		},
-		function ( r ) {
-			console.error( 'Failed to save!', r );
-		}
+		function () {},
+		function () {}
 	);
 }
 
 if ( typeof module !== 'undefined' ) {
-    module.exports = { startedDrag, zbsjsScreenOptsBlock, zerobscrmJS_bindMetaboxManager,
+	module.exports = {
+		zerobscrmJS_bindMetaboxManager,
 		zeroBSCRMJS_initialiseTabbedMetaboxes,
-		zeroBSCRMJS_saveScreenOptionsMetaboxes, zeroBSCRMJS_buildScreenOptionsMetaboxes,
-		saveMetaBoxes };
+		zeroBSCRMJS_saveScreenOptionsMetaboxes,
+		zeroBSCRMJS_buildScreenOptionsMetaboxes,
+		saveMetaBoxes,
+	};
 }
