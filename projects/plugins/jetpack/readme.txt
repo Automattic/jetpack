@@ -326,12 +326,19 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.1-a.7 - 2024-11-26
+### 14.1-beta - 2024-12-02
 #### Enhancements
-- Subscriptions: stops loading editor functionality (i.e. the block and panels) when subscriptions module is disabled.
+- Likes Block: Allow hiding avatars.
+- Social: Change My Jetpack CTA from "Learn more" to "Activate".
+
+#### Improved compatibility
+- Social: Change "Activate" button in the editor to link.
+- Tiled Gallery: Increase accessibility by ensuring images are not classified as interactive when they shouldn't be.
 
 #### Bug fixes
-- Social: Fixed undefined index error on specific WordPress.com environments.
+- Licensing: Resolves an issue where revoked licenses were incorrectly treated as unattached.
+- Social: Made resharing async in classic editor to fix timeout issues.
+- Subscribe block: Fix block error when editing.
 
 --------
 
