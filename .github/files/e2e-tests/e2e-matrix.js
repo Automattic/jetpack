@@ -27,6 +27,14 @@ const projects = [
 		buildGroup: 'jetpack-core',
 	},
 	{
+		project: 'Jetpack post editor',
+		path: 'projects/plugins/jetpack/tests/e2e',
+		testArgs: [ 'specs/editor', '--retries=1' ],
+		targets: [ 'plugins/jetpack', 'packages/publicize' ],
+		suite: '',
+		buildGroup: 'jetpack-core',
+	},
+	{
 		project: 'Jetpack sync',
 		path: 'projects/plugins/jetpack/tests/e2e',
 		testArgs: [ 'specs/sync', '--retries=1' ],
@@ -67,7 +75,7 @@ const projects = [
 		buildGroup: 'jetpack-boost',
 	},
 	{
-		project: 'Jetpack Boost - Concatenate JS/CSS',
+		project: 'Jetpack Boost - Concatenate JS and CSS',
 		path: 'projects/plugins/boost/tests/e2e',
 		testArgs: [ 'specs/concatenate', '--retries=1' ],
 		targets: [ 'plugins/boost' ],

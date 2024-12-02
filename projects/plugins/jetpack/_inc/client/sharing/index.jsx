@@ -24,7 +24,7 @@ import {
 import { getModule } from 'state/modules';
 import { isModuleFound as _isModuleFound } from 'state/search';
 import { getSettings } from 'state/settings';
-import { siteHasFeature, getActiveFeatures, siteUsesWpAdminInterface } from 'state/site';
+import { getActiveFeatures, siteUsesWpAdminInterface } from 'state/site';
 import { Likes } from './likes';
 import { Publicize } from './publicize';
 import { ShareButtons } from './share-buttons';
@@ -47,7 +47,6 @@ class Sharing extends Component {
 			userCanManageModules: this.props.userCanManageModules,
 			activeFeatures: this.props.activeFeatures,
 			hasPaidFeatures: this.props.hasPaidFeatures,
-			hasSocialImageGenerator: this.props.hasSocialImageGenerator,
 			isAtomicSite: this.props.isAtomicSite,
 			hasSharingBlock: this.props.hasSharingBlock,
 			isBlockTheme: this.props.isBlockTheme,
@@ -101,7 +100,6 @@ export default connect( state => {
 		siteAdminUrl: getSiteAdminUrl( state ),
 		activeFeatures: getActiveFeatures( state ),
 		hasPaidFeatures: hasSocialPaidFeatures(),
-		hasSocialImageGenerator: siteHasFeature( state, 'social-image-generator' ),
 		userCanManageModules: userCanManageModules( state ),
 		isAtomicSite: isAtomicSite( state ),
 		hasSharingBlock: isSharingBlockAvailable( state ),

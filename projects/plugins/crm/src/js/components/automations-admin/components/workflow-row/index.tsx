@@ -37,12 +37,12 @@ export const WorkflowRow: React.FC< WorkflowRowProps > = props => {
 				onSuccess: () => refetchWorkflows(),
 			}
 		);
-	}, [ workflow, workflow.active, mutateWorkflows, refetchWorkflows ] );
+	}, [ workflow, mutateWorkflows, refetchWorkflows ] );
 
 	const navigate = useNavigate();
 	const onEditClick = useCallback( () => {
 		navigate( `/automations/${ workflow.id }`, { replace: true } );
-	}, [] );
+	}, [ navigate, workflow.id ] );
 
 	const date = new Date( workflow.created_at * 1000 );
 	const added = date.toLocaleDateString();

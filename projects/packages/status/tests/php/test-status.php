@@ -313,7 +313,7 @@ class Test_Status extends TestCase {
 
 		$wpdb = $this->getMockBuilder( \stdClass::class ) // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 					->setMockClassName( 'wpdb' )
-					->setMethods( array( 'get_var' ) )
+					->addMethods( array( 'get_var' ) )
 					->getMock();
 		$wpdb->method( 'get_var' )
 			->willReturn( $return_value );

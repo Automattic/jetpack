@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.0.2] - 2024-11-28
+### Fixed
+- Sync: Fixed bug in checksum histogram when max_range is PHP_INT_MAX [#40309]
+
+## [4.0.1] - 2024-11-25
+### Changed
+- Updated dependencies. [#40286]
+
+## [4.0.0] - 2024-11-14
+### Added
+- Added UTM option to sync [#40144]
+
+### Changed
+- Jetpack Sync: Add 'od_url_metrics' in blacklisted post types [#40158]
+
+### Removed
+- General: Update minimum PHP version to 7.2. [#40147]
+
+## [3.15.0] - 2024-11-11
+### Changed
+- Sync: Modules in Full Sync are now sent in the order the config is set. [#40100]
+
+### Fixed
+- Jetpack Sync: Add missing handlers for removing or trashing shop_subscription orders [#40047]
+
+## [3.14.4] - 2024-11-04
+### Added
+- Enable test coverage. [#39961]
+
 ## [3.14.3] - 2024-10-25
 ### Fixed
 - Hooks: Hook init_sync_cron_jobs into init to ensure translation loading within the function is not triggered too early. [#39841]
@@ -1322,6 +1351,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Move sync to a classmapped package
 
+[4.0.2]: https://github.com/Automattic/jetpack-sync/compare/v4.0.1...v4.0.2
+[4.0.1]: https://github.com/Automattic/jetpack-sync/compare/v4.0.0...v4.0.1
+[4.0.0]: https://github.com/Automattic/jetpack-sync/compare/v3.15.0...v4.0.0
+[3.15.0]: https://github.com/Automattic/jetpack-sync/compare/v3.14.4...v3.15.0
+[3.14.4]: https://github.com/Automattic/jetpack-sync/compare/v3.14.3...v3.14.4
 [3.14.3]: https://github.com/Automattic/jetpack-sync/compare/v3.14.2...v3.14.3
 [3.14.2]: https://github.com/Automattic/jetpack-sync/compare/v3.14.1...v3.14.2
 [3.14.1]: https://github.com/Automattic/jetpack-sync/compare/v3.14.0...v3.14.1

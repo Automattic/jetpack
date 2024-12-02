@@ -20,7 +20,7 @@ p {
 
 	// Jetpack component uses this variable
 	--font-body-extra-small: 14px;
-	
+
 	--spacing-base: 8px;
 
 	font-size: 16px;
@@ -51,7 +51,7 @@ p {
 		outline: 1px solid transparent;
 	}
 
-	.components-button.is-link {
+	.components-button.is-link:not(:disabled) {
 		color: var( --wp-admin-theme-link-color );
 	}
 
@@ -101,6 +101,17 @@ p {
 			border-color: $primary-black;
 			color: $primary-black;
 		}
+	}
+
+	// Override WP styles for panel header.
+	.components-panel__body-title .components-button:hover:not(:disabled,[aria-disabled=true]),
+	.components-panel__body-title .components-button[aria-expanded=true] {
+		color: inherit;
+	}
+
+	.components-panel__body-toggle.components-button:focus {
+		border-radius: inherit;
+		box-shadow: none;
 	}
 }
 

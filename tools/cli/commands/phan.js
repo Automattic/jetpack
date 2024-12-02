@@ -66,7 +66,7 @@ export async function builder( yargs ) {
 		} )
 		.option( 'concurrency', {
 			type: 'number',
-			description: 'Maximum number of phan tasks to run at once. Ignored with `--verbose`.',
+			description: 'Maximum number of phan tasks to run at once.',
 			default: os.cpus().length,
 			coerce: coerceConcurrency,
 		} )

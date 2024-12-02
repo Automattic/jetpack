@@ -110,7 +110,7 @@ class WP_Test_Jetpack_XMLRPC_Server extends WP_UnitTestCase {
 	public function test_remote_connect_hook() {
 
 		$xml = $this->getMockBuilder( 'Jetpack_IXR_Client' )
-			->setMethods(
+			->onlyMethods(
 				array(
 					'query',
 					'isError',

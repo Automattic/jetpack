@@ -1,12 +1,15 @@
 import { Button, useGlobalNotices } from '@automattic/jetpack-components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import {
 	BaseControl,
 	FlexBlock,
 	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
+import { ExternalLink } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useMemo } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
+import Notice from '../../../components/notice';
 import { store as socialStore } from '../../../social-store';
 import { KeyringResult } from '../../../social-store/types';
 import { useSupportedServices } from '../../services/use-supported-services';
@@ -199,6 +202,23 @@ export function ConfirmationForm( { keyringResult, onComplete, isAdmin }: Confir
 							'jetpack'
 						) }
 					</p>
+					{ keyringResult?.show_linkedin_warning && (
+						<Notice type={ 'warning' }>
+							<p>
+								{ __(
+									'We could not retrieve which company pages you have access to. This is a known issue with the LinkedIn API. If you would like to connect a company page, please retry after 5 minutes.',
+									'jetpack'
+								) }
+								&nbsp;
+								<ExternalLink
+									key="linkedin-api-documentaion"
+									href={ getRedirectUrl( 'jetpack-linkedin-permissions-warning' ) }
+								>
+									{ __( 'Learn more', 'jetpack' ) }
+								</ExternalLink>
+							</p>
+						</Notice>
+					) }
 					<form className={ styles.form } onSubmit={ onConfirm } id="connection-confirmation-form">
 						{
 							//
@@ -220,10 +240,15 @@ export function ConfirmationForm( { keyringResult, onComplete, isAdmin }: Confir
 									: index === 0;
 
 								return (
-									// eslint-disable-next-line jsx-a11y/label-has-associated-control -- https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/issues/869
-									<label key={ option.value } className={ styles[ 'account-label' ] } aria-required>
+									<label
+										key={ option.value }
+										htmlFor={ `external_user_ID__${ option.value }` }
+										className={ styles[ 'account-label' ] }
+										aria-required
+									>
 										<input
 											type="radio"
+											id={ `external_user_ID__${ option.value }` }
 											name="external_user_ID"
 											value={ option.value }
 											defaultChecked={ defaultChecked }

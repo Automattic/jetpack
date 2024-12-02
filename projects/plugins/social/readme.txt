@@ -1,8 +1,8 @@
 === Jetpack Social  ===
 Contributors: automattic, pabline, siddarthan, gmjuhasz, manzoorwanijk
 Tags: social media automation, social media scheduling, auto share, social sharing, social media marketing
-Requires at least: 6.5
-Requires PHP: 7.0
+Requires at least: 6.6
+Requires PHP: 7.2
 Tested up to: 6.7
 Stable tag: 4.5.1
 License: GPLv2 or later
@@ -73,6 +73,8 @@ You can connect to any of the following networks:
 * Instagram Business
 * Nextdoor
 * Mastodon
+* Threads
+* Bluesky
 
 After you add a new connection, you have the option to mark the connection as shared, meaning it can also be used by any other users on your site who have the ability to publish posts.
 
@@ -80,7 +82,7 @@ To make the connection available to all users, check the box labeled "Mark the c
 
 = To which social media platforms can I post using Jetpack Social? =
 
-You can post to Facebook, Instagram Business, Tumblr, Mastodon, Linkedin and Nextdoor. We are working hard to increase our social share integrations.
+You can post to Facebook, Bluesky, Threads, Instagram Business, Tumblr, Mastodon, Linkedin, and Nextdoor. We are working hard to increase our social share integrations.
 
 = How do I share a post on social media using Jetpack Social? =
 

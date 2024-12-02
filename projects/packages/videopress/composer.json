@@ -4,7 +4,7 @@
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"php": ">=7.0",
+		"php": ">=7.2",
 		"automattic/jetpack-admin-ui": "@dev",
 		"automattic/jetpack-assets": "@dev",
 		"automattic/jetpack-connection": "@dev",
@@ -14,8 +14,8 @@
 	"require-dev": {
 		"yoast/phpunit-polyfills": "^1.1.1",
 		"automattic/jetpack-changelogger": "@dev",
-		"automattic/wordbless": "@dev",
-		"brain/monkey": "2.6.1"
+		"automattic/wordbless": "^0.4.2",
+		"brain/monkey": "^2.6.2"
 	},
 	"suggest": {
 		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
@@ -29,6 +29,7 @@
 		"phpunit": [
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
 		],
+		"test-coverage": "pnpm concurrently --names php,js 'php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\"' 'pnpm:test-coverage'",
 		"test-php": [
 			"@composer phpunit"
 		],
@@ -66,7 +67,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-videopress/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "0.24.x-dev"
+			"dev-trunk": "0.25.x-dev"
 		},
 		"version-constants": {
 			"::PACKAGE_VERSION": "src/class-package-version.php"

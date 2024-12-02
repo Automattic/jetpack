@@ -751,4 +751,48 @@ class Publicize extends Publicize_Base {
 
 		return $flags;
 	}
+
+	/**
+	 * Gets the share status for a post.
+	 *
+	 * @param int $post_id The post ID.
+	 */
+	public function get_post_share_status( $post_id ) {
+		$shares = get_post_meta( $post_id, REST_Controller::SOCIAL_SHARES_POST_META_KEY, true );
+
+		// If the data is not an array, it means that sharing is not done yet.
+		$done = is_array( $shares );
+
+		if ( $done ) {
+			// The site could have multiple admins, editors and authors connected. Load shares information that only the current user has access to.
+			$connection_ids = array_map(
+				function ( $connection ) {
+					if ( isset( $connection['connection_id'] ) ) {
+						return (int) $connection['connection_id'];
+					}
+					return 0;
+				},
+				$this->get_all_connections_for_user()
+			);
+
+			$shares = array_filter(
+				$shares,
+				function ( $share ) use ( $connection_ids ) {
+					return in_array( (int) $share['connection_id'], $connection_ids, true );
+				}
+			);
+
+			usort(
+				$shares,
+				function ( $a, $b ) {
+					return $b['timestamp'] - $a['timestamp'];
+				}
+			);
+		}
+
+		return array(
+			'shares' => $done ? $shares : array(),
+			'done'   => $done,
+		);
+	}
 }

@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Tiled Gallery: Increase accessibility by ensuring images are not classified as interactive when they shouldn't be.

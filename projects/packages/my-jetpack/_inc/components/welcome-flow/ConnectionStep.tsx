@@ -1,72 +1,64 @@
-import { Col, Button, Text, TermsOfService } from '@automattic/jetpack-components';
-import { initializeExPlat, loadExperimentAssignment } from '@automattic/jetpack-explat';
+import { Col, Button, Text, TermsOfService, getRedirectUrl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useContext } from 'react';
 import { NoticeContext } from '../../context/notices/noticeContext';
-import { NOTICE_SITE_CONNECTED } from '../../context/notices/noticeTemplates';
+import { NOTICE_SITE_CONNECTION_ERROR } from '../../context/notices/noticeTemplates';
 import useProductsByOwnership from '../../data/products/use-products-by-ownership';
+import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../hooks/use-analytics';
-import sideloadTracks from '../../utils/side-load-tracks';
 import styles from './style.module.scss';
-import type { WelcomeFlowExperiment } from '.';
+import { WelcomeFlowExperiment } from '.';
 import type { Dispatch, SetStateAction } from 'react';
 
 type ConnectionStepProps = {
 	onActivateSite: ( e?: Event ) => Promise< void >;
-	onUpdateWelcomeFlowExperiment: Dispatch< SetStateAction< WelcomeFlowExperiment > >;
+	onUpdateWelcomeFlowExperiment?: Dispatch< SetStateAction< WelcomeFlowExperiment > >;
 	isActivating: boolean;
 };
 
 /**
  * Component that renders the Welcome banner on My Jetpack.
  *
- * @param {object}   props                               - ConnectioStepProps
- * @param {Function} props.onActivateSite                - Alias for handleRegisterSite
- * @param {Function} props.onUpdateWelcomeFlowExperiment - Updating the welcomeFlowExperiment state
- * @param {boolean}  props.isActivating                  - Alias for siteIsRegistering
+ * @param {object}   props                - ConnectioStepProps
+ * @param {Function} props.onActivateSite - Alias for handleRegisterSite
+ * @param {boolean}  props.isActivating   - Alias for siteIsRegistering
  * @return {object} The ConnectionStep component.
  */
-const ConnectionStep = ( {
-	onActivateSite,
-	onUpdateWelcomeFlowExperiment,
-	isActivating,
-}: ConnectionStepProps ) => {
+const ConnectionStep = ( { onActivateSite, isActivating }: ConnectionStepProps ) => {
 	const { recordEvent } = useAnalytics();
 	const { setNotice, resetNotice } = useContext( NoticeContext );
+
+	const { siteSuffix, adminUrl } = getMyJetpackWindowInitialState();
+	const connectAfterCheckoutUrl = `?connect_after_checkout=true&admin_url=${ encodeURIComponent(
+		adminUrl
+	) }&from_site_slug=${ siteSuffix }&source=my-jetpack`;
+	const redirectUri = `&redirect_to=${ encodeURIComponent( window.location.href ) }`;
+	const query = `${ connectAfterCheckoutUrl }${ redirectUri }&unlinked=1`;
+	const jetpackPlansPath = getRedirectUrl( 'jetpack-my-jetpack-site-only-plans', { query } );
 
 	const activationButtonLabel = __( 'Activate Jetpack in one click', 'jetpack-my-jetpack' );
 	const { refetch: refetchOwnershipData } = useProductsByOwnership();
 
 	const onConnectSiteClick = useCallback( async () => {
-		recordEvent( 'jetpack_myjetpack_welcome_banner_connect_site_click' );
-		onUpdateWelcomeFlowExperiment( state => ( { ...state, isLoading: true } ) );
-		await onActivateSite();
+		resetNotice();
 
-		recordEvent( 'jetpack_myjetpack_welcome_banner_connect_site_success' );
+		recordEvent( 'jetpack_myjetpack_welcome_banner_connect_site_click' );
 
 		try {
-			await sideloadTracks();
+			await onActivateSite();
 
-			initializeExPlat();
+			recordEvent( 'jetpack_myjetpack_welcome_banner_connect_site_success' );
 
-			const { variationName } = await loadExperimentAssignment(
-				'jetpack_my_jetpack_welcome_flow_display_default_recommendations_upfront_202410'
-			);
-
-			onUpdateWelcomeFlowExperiment( state => ( {
-				...state,
-				variation: ( variationName ?? 'control' ) as WelcomeFlowExperiment[ 'variation' ], // casting to 'control' or 'treatment'
-			} ) );
+			// Redirect user to the plans page after connection
+			window.location.href = jetpackPlansPath;
+		} catch ( error ) {
+			setNotice( NOTICE_SITE_CONNECTION_ERROR, resetNotice );
 		} finally {
-			resetNotice();
-			setNotice( NOTICE_SITE_CONNECTED, resetNotice );
 			refetchOwnershipData();
-
-			onUpdateWelcomeFlowExperiment( state => ( { ...state, isLoading: false } ) );
 		}
 	}, [
+		jetpackPlansPath,
 		onActivateSite,
-		onUpdateWelcomeFlowExperiment,
 		recordEvent,
 		refetchOwnershipData,
 		resetNotice,

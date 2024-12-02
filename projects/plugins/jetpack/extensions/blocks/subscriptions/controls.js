@@ -1,6 +1,5 @@
 import { numberFormat } from '@automattic/jetpack-components';
-import { usePublicizeConfig } from '@automattic/jetpack-publicize-components';
-import { isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
+import { isSimpleSite, useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
 import {
 	ContrastChecker,
 	PanelColorSettings,
@@ -27,7 +26,6 @@ import {
 	DEFAULT_SPACING_VALUE,
 	DEFAULT_FONTSIZE_VALUE,
 	DEFAULT_SUBSCRIBE_PLACEHOLDER,
-	DEFAULT_SUBMIT_BUTTON_LABEL,
 	DEFAULT_SUCCESS_MESSAGE,
 } from './constants';
 
@@ -55,10 +53,9 @@ export default function SubscriptionControls( {
 	textColor,
 	buttonWidth,
 	subscribePlaceholder = DEFAULT_SUBSCRIBE_PLACEHOLDER,
-	submitButtonText = DEFAULT_SUBMIT_BUTTON_LABEL,
 	successMessage = DEFAULT_SUCCESS_MESSAGE,
 } ) {
-	const { isPublicizeEnabled } = usePublicizeConfig();
+	const { isModuleActive: isPublicizeEnabled } = useModuleStatus( 'publicize' );
 
 	return (
 		<>
@@ -290,13 +287,6 @@ export default function SubscriptionControls( {
 					label={ __( 'Input placeholder text', 'jetpack' ) }
 					help={ __( 'Edit the placeholder text of the email address input.', 'jetpack' ) }
 					onChange={ placeholder => setAttributes( { subscribePlaceholder: placeholder } ) }
-				/>
-				<TextareaControl
-					__nextHasNoMarginBottom={ true }
-					value={ submitButtonText }
-					label={ __( 'Submit button label', 'jetpack' ) }
-					help={ __( 'Edit the label of the button a user clicks to subscribe.', 'jetpack' ) }
-					onChange={ text => setAttributes( { submitButtonText: text } ) }
 				/>
 				{ ! isSimpleSite() && (
 					<TextareaControl

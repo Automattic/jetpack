@@ -628,6 +628,7 @@ class Jetpack {
 		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-gutenberg.php';
 		add_action( 'plugins_loaded', array( 'Jetpack_Gutenberg', 'load_independent_blocks' ) );
 		add_action( 'plugins_loaded', array( 'Jetpack_Gutenberg', 'load_block_editor_extensions' ), 9 );
+		add_action( 'plugins_loaded', array( 'Jetpack_Gutenberg', 'register_block_metadata_collection' ) );
 		/**
 		 * We've switched from enqueue_block_editor_assets to enqueue_block_assets in WP-Admin because the assets with the former are loaded on the main site-editor.php.
 		 *
@@ -750,8 +751,7 @@ class Jetpack {
 
 		// Add 5-star
 		add_filter( 'plugin_row_meta', array( $this, 'add_5_star_review_link' ), 10, 2 );
-
-		Deprecate::instance();
+		add_action( 'init', array( Deprecate::class, 'instance' ) );
 	}
 
 	/**
@@ -867,7 +867,7 @@ class Jetpack {
 	 * @action plugins_loaded
 	 */
 	public function late_initialization() {
-		add_action( 'after_setup_theme', array( 'Jetpack', 'load_modules' ), 1 );
+		add_action( 'after_setup_theme', array( 'Jetpack', 'load_modules' ), -2 );
 		My_Jetpack_Initializer::init();
 
 		// Initialize Boost Speed Score
@@ -5925,6 +5925,23 @@ endif;
 				_x( 'Earn more from your content', 'Creator Product Feature', 'jetpack' ),
 				_x( 'Accept payments with PayPal', 'Creator Product Feature', 'jetpack' ),
 				_x( 'Increase earnings with WordAds', 'Creator Product Feature', 'jetpack' ),
+			),
+		);
+
+		$products['growth'] = array(
+			'title'             => __( 'Jetpack Growth', 'jetpack' ),
+			'slug'              => 'jetpack_growth_yearly',
+			'description'       => __( 'Essential tools to help you grow your audience, track visitor engagement, and turn leads into loyal customers and advocates.', 'jetpack' ),
+			'show_promotion'    => true,
+			'discount_percent'  => 50,
+			'included_in_plans' => array( 'complete' ),
+			'features'          => array(
+				_x( 'Jetpack Social', 'Growth Product Feature', 'jetpack' ),
+				_x( 'Jetpack Stats (10K site views, upgradeable)', 'Growth Product Feature', 'jetpack' ),
+				_x( 'Unlimited subscriber imports', 'Growth Product Feature', 'jetpack' ),
+				_x( 'Earn more from your content', 'Growth Product Feature', 'jetpack' ),
+				_x( 'Accept payments with PayPal', 'Growth Product Feature', 'jetpack' ),
+				_x( 'Increase earnings with WordAds', 'Growth Product Feature', 'jetpack' ),
 			),
 		);
 

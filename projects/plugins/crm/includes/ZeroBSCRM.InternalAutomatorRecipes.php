@@ -363,11 +363,6 @@
 
 		if ($autoLogThis > 0){
 
-			global $zbs;
-
-			// v3+
-			if ($zbs->isDAL3()){
-
 				// 3.0+
 				#} Retrieve necessary info:
 				$noteAgainstIDs = array('contacts'=>array(),'companies'=>array()); 
@@ -403,36 +398,6 @@
 
 				}
 
-
-			} else {
-
-				// legacy, <3.0
-
-				#} Retrieve necessary info:
-				$zbsNoteAgainstPostID = -1; if (is_array($obj) && isset($obj['againstid']) && $obj['againstid'] > 0) $zbsNoteAgainstPostID = (int)$obj['againstid'];
-				#TRANSITIONTOMETANO		
-				#$quoteID = ''; if (is_array($obj) && isset($obj['id']) && !empty($obj['id'])) $quoteID = $obj['id'];
-				$quoteID = ''; if (is_array($obj) && isset($obj['zbsid'])) $quoteID = $obj['zbsid'];
-				$quoteName = ''; if (is_array($obj) && isset($obj['id']) && isset($obj['quoteMeta']) && is_array($obj['quoteMeta']) && isset($obj['quoteMeta']['name'])) $quoteName = $obj['quoteMeta']['name'];
-				$quoteValue = ''; if (is_array($obj) && isset($obj['id']) && isset($obj['quoteMeta']) && is_array($obj['quoteMeta']) && isset($obj['quoteMeta']['val'])) $quoteValue = zeroBSCRM_prettifyLongInts($obj['quoteMeta']['val']);
-				$noteShortDesc = ''; 
-				if (!empty($quoteID)) $noteShortDesc .= ' #'.$quoteID;
-				if (!empty($quoteName)) $noteShortDesc .= ' '.$quoteName;
-				if (!empty($quoteValue)) $noteShortDesc .= ' ('.zeroBSCRM_getCurrencyStr().' '.$quoteValue.')';
-
-				if (isset($zbsNoteAgainstPostID) && !empty($zbsNoteAgainstPostID)){
-
-					#} Add log
-					$newLogID = zeroBS_addUpdateLog($zbsNoteAgainstPostID,-1,-1,array(
-						'type' => 'Quote Created',
-						'shortdesc' => $noteShortDesc,
-						'longdesc' => ''
-					),'zerobs_customer');
-
-				}
-
-			}
-
 		}
 
 
@@ -448,9 +413,6 @@
 		if ($autoLogThis > 0){
 
 			global $zbs;
-
-			// v3+
-			if ($zbs->isDAL3()){
 
 				// retrieve quote
 				$quoteID = ''; if (is_array($obj) && isset($obj['id'])) $quoteID = $obj['id'];
@@ -483,9 +445,6 @@
 
 				}
 
-
-			}
-
 		}
 
 
@@ -500,12 +459,6 @@
 
 		if ($autoLogThis > 0){
 
-			global $zbs;
-
-			// v3+
-			if ($zbs->isDAL3()){
-
-				// 3.0+
 				#} Retrieve necessary info:
 				$noteAgainstIDs = array('contacts'=>array(),'companies'=>array()); 
 				if (is_array($obj) && isset($obj['againstids']) && is_array($obj['againstids'])){
@@ -540,34 +493,6 @@
 
 				}
 
-
-			} else {
-
-				// legacy, <3.0
-
-				#} Retrieve necessary info:
-				$zbsNoteAgainstPostID = -1; if (is_array($obj) && isset($obj['againstid']) && $obj['againstid'] > 0) $zbsNoteAgainstPostID = (int)$obj['againstid'];
-				#TRANSITIONTOMETANO		
-				#$invoiceNo = ''; if (is_array($obj) && isset($obj['id']) && isset($obj['invoiceMeta']) && is_array($obj['invoiceMeta']) && isset($obj['invoiceMeta']['no'])) $invoiceNo = $obj['invoiceMeta']['no'];
-				$invoiceNo = ''; if (is_array($obj) && isset($obj['zbsid'])) $invoiceNo = $obj['zbsid'];
-				$invoiceValue = ''; if (is_array($obj) && isset($obj['id']) && isset($obj['invoiceMeta']) && is_array($obj['invoiceMeta']) && isset($obj['invoiceMeta']['val'])) $invoiceValue = zeroBSCRM_prettifyLongInts($obj['invoiceMeta']['val']);
-				$noteShortDesc = ''; 
-				if (!empty($invoiceNo)) $noteShortDesc .= ' #'.$invoiceNo;
-				if (!empty($invoiceValue)) $noteShortDesc .= ' ('.zeroBSCRM_getCurrencyStr().' '.$invoiceValue.')';
-
-				if (isset($zbsNoteAgainstPostID) && !empty($zbsNoteAgainstPostID)){
-
-					#} Add log
-					$newLogID = zeroBS_addUpdateLog($zbsNoteAgainstPostID,-1,-1,array(
-						'type' => 'Invoice Created',
-						'shortdesc' => $noteShortDesc,
-						'longdesc' => ''
-					),'zerobs_customer');
-
-				}
-
-			} // / <3.0
-
 		}
 
 	}
@@ -582,15 +507,6 @@
 
 		if ($autoLogThis > 0){
 
-			global $zbs;
-
-			// NOTE the lack of "automatorpassthrough" support v3.0+, this was left out to keep v3.0 MVP/lean
-			// ... not sure where used any longer. If relevant, reintegrate from the v2 switched ver below
-
-			// v3+
-			if ($zbs->isDAL3()){
-
-				// 3.0+
 				#} Retrieve necessary info:
 				$noteAgainstIDs = array('contacts'=>array(),'companies'=>array()); 
 				if (is_array($obj) && isset($obj['againstids']) && is_array($obj['againstids'])){
@@ -625,52 +541,6 @@
 
 				}
 
-
-			} else {
-
-				// legacy, <3.0
-
-				#} if has id
-				$zbsNoteAgainstPostID = -1; if (is_array($obj) && isset($obj['againstid']) && $obj['againstid'] > 0) $zbsNoteAgainstPostID = (int)$obj['againstid'];
-
-				if (isset($zbsNoteAgainstPostID) && !empty($zbsNoteAgainstPostID)){
-
-					#} First check if an override is passed...
-					if (isset($obj['automatorpassthrough']) && is_array($obj['automatorpassthrough']) && isset($obj['automatorpassthrough']['note_override']) && is_array($obj['automatorpassthrough']['note_override']) && isset($obj['automatorpassthrough']['note_override']['type'])){
-
-						#} An overriding note has been passed, just use that
-
-							#} Add log
-							$newLogID = zeroBS_addUpdateLog($zbsNoteAgainstPostID,-1,-1,$obj['automatorpassthrough']['note_override'],'zerobs_transaction');
-
-					} else {
-
-						#} No override, use default processing...
-
-						#} Retrieve necessary info:
-						$transID = ''; if (is_array($obj) && isset($obj['id']) && isset($obj['transactionMeta']) && is_array($obj['transactionMeta']) && isset($obj['transactionMeta']['orderid'])) $transID = $obj['transactionMeta']['orderid'];
-						$transValue = ''; if (is_array($obj) && isset($obj['id']) && isset($obj['transactionMeta']) && is_array($obj['transactionMeta']) && isset($obj['transactionMeta']['total'])) $transValue = zeroBSCRM_prettifyLongInts($obj['transactionMeta']['total']);
-						$noteShortDesc = ''; 
-						if (!empty($transID)) $noteShortDesc .= ' #'.$transID;
-						if (!empty($transValue)) $noteShortDesc .= ' ('.zeroBSCRM_getCurrencyStr().' '.$transValue.')';
-
-
-
-							#} Add log
-							$newLogID = zeroBS_addUpdateLog($zbsNoteAgainstPostID,-1,-1,array(
-								'type' => 'Transaction Created',
-								'shortdesc' => $noteShortDesc,
-								'longdesc' => ''
-							),'zerobs_customer');
-						
-
-					}
-
-				} 
-
-			}
-
-
 		} // / if autolog
 
 
@@ -691,16 +561,6 @@
 
 		if ($autoLogThis > 0 && isset($zbsNoteAgainstPostID) && !empty($zbsNoteAgainstPostID)){
 
-
-			global $zbs;
-
-			// NOTE the lack of "automatorpassthrough" support v3.0+, this was left out to keep v3.0 MVP/lean
-			// ... not sure where used any longer. If relevant, reintegrate from the v2 switched ver below
-
-			// v3+
-			if ($zbs->isDAL3()){
-
-				// 3.0+
 				#} Retrieve necessary info:
 				$noteAgainstIDs = array('contacts'=>array(),'companies'=>array()); 
 				if (is_array($obj) && isset($obj['againstids']) && is_array($obj['againstids'])){
@@ -741,73 +601,6 @@
 					),'zerobs_customer');
 
 				}
-
-
-			} else {
-
-				#} First check if an override is passed...
-				if (isset($obj['automatorpassthrough']) && is_array($obj['automatorpassthrough']) && isset($obj['automatorpassthrough']['note_override']) && is_array($obj['automatorpassthrough']['note_override']) && isset($obj['automatorpassthrough']['note_override']['type'])){
-
-					#} An overriding note has been passed, just use that
-
-						#} Add log
-						$newLogID = zeroBS_addUpdateLog($zbsNoteAgainstPostID,-1,-1,$obj['automatorpassthrough']['note_override'],'zerobs_event');
-
-				} else {
-
-					#} No override, use default processing...
-
-					#} Retrieve necessary info:
-					$task_id = ''; if (is_array($obj) && isset($obj['id'])) $task_id = $obj['id'];
-					$task_name =''; if (!empty($task_id)) $task_name = get_the_title( $task_id );
-
-					#} got meta?
-					$task_date_str = ''; if (is_array($obj) && isset($obj['id']) && isset($obj['eventMeta']) && is_array($obj['eventMeta']) && isset($obj['eventMeta']['from'])){
-
-						// takenfromMike's + tweaked for readability
-	                    if($obj['eventMeta'] == ''){
-	                        $start_d = date('l M jS G:i',time());
-	                        $end_d =  date('l M jS G:i',time());
-	                    }else{
-	                         $d = new DateTime($obj['eventMeta']['from']);
-	                         $start_d = $d->format('l M jS G:i');
-
-	                         $d = new DateTime($obj['eventMeta']['to']);
-	                         $end_d = $d->format('l M jS G:i');
-	                    }
-
-	                    if (!empty($start_d)) $task_date_str = $start_d;
-	                    if ($end_d != $start_d) $task_date_str .= ' '.__('to',"zero-bs-crm").' '.$end_d;
-
-	                }
-
-					$noteShortDesc = '';
-					$note_long_description = '';
-					if (!empty($task_name)) {
-						$noteShortDesc = $task_name;
-						$note_long_description = $task_name;
-					}
-					if (!empty($task_date_str)) {
-						if (!empty($note_long_description)) $note_long_description .= '<br />';
-						$note_long_description .= $task_date_str;
-					}
-					if (!empty($task_id)) {
-						if (!empty($noteShortDesc)) $noteShortDesc .= ' ';
-						$noteShortDesc .= '(#'.$task_id.')';
-					}
-
-
-					#} Add log
-					$newLogID = zeroBS_addUpdateLog($zbsNoteAgainstPostID,-1,-1,array(
-						'type'      => 'Task Created',
-						'shortdesc' => $noteShortDesc,
-						'longdesc' => $note_long_description
-					),'zerobs_customer');
-				
-
-				}
-
-			} // / <3.0
 
 		}
 
@@ -990,20 +783,11 @@ function zeroBSCRM_IA_NewLogCatchContactsDB2( $obj = array() ) {
 
 			if (isset($zbsNoteAgainstPostID) && !empty($zbsNoteAgainstPostID)){
 
-				global $zbs;
-				// v2 v3 switch
-				if ($zbs->isDAL3() && isset($zbs->DAL->segments))
+			global $zbs;
 					$zbs->DAL->segments->compileSegmentsAffectedByContact($zbsNoteAgainstPostID,$contactWasInSegments);
-				elseif ($zbs->isDAL2() && method_exists($zbs->DAL,'compileSegmentsAffectedByContact'))
-					$zbs->DAL->compileSegmentsAffectedByContact($zbsNoteAgainstPostID,$contactWasInSegments);
-
-
-			}
-
 		}
-
-
 	}
+}
 
 	/*
 	* Recompiles any segments affected by quote change
@@ -1015,19 +799,13 @@ function zeroBSCRM_IA_NewLogCatchContactsDB2( $obj = array() ) {
 	*/
 	function zeroBSCRM_IA_quoteSegmentCompiler( $obj=array() ){
 
-		global $zbs;
+	global $zbs;
 
-		// if quote passed:
-		if ( is_array( $obj ) && isset( $obj['data'] ) ){
-	
-			// requires DAL v3			
-			if ($zbs->isDAL3() && isset($zbs->DAL->segments)){
-				$zbs->DAL->segments->compileSegmentsAffectedByQuote( $obj['data'] );
-			}
-
-		}
-
+	// if quote passed:
+	if ( is_array( $obj ) && isset( $obj['data'] ) ) {
+		$zbs->DAL->segments->compileSegmentsAffectedByQuote( $obj['data'] ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 	}
+}
 
 	/*
 	* Recompiles any segments affected by invoice change
@@ -1039,19 +817,13 @@ function zeroBSCRM_IA_NewLogCatchContactsDB2( $obj = array() ) {
 	*/
 	function zeroBSCRM_IA_invoiceSegmentCompiler( $obj=array() ){
 
-		global $zbs;
+	global $zbs;
 
-		// if quote passed:
-		if ( is_array( $obj ) && isset( $obj['data'] ) ){
-	
-			// requires DAL v3			
-			if ($zbs->isDAL3() && isset($zbs->DAL->segments)){
-				$zbs->DAL->segments->compileSegmentsAffectedByInvoice( $obj['data'] );
-			}
-
-		}
-
+	// if quote passed:
+	if ( is_array( $obj ) && isset( $obj['data'] ) ) {
+		$zbs->DAL->segments->compileSegmentsAffectedByInvoice( $obj['data'] ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 	}
+}
 
 	/*
 	* Recompiles any segments affected by transaction change
@@ -1063,19 +835,13 @@ function zeroBSCRM_IA_NewLogCatchContactsDB2( $obj = array() ) {
 	*/
 	function zeroBSCRM_IA_transactionSegmentCompiler( $obj=array() ){
 
-		global $zbs;
+	global $zbs;
 
-		// if quote passed:
-		if ( is_array( $obj ) && isset( $obj['data'] ) ){
-	
-			// requires DAL v3			
-			if ($zbs->isDAL3() && isset($zbs->DAL->segments)){
-				$zbs->DAL->segments->compileSegmentsAffectedByTransaction( $obj['data'] );
-			}
-
-		}
-
+	// if quote passed:
+	if ( is_array( $obj ) && isset( $obj['data'] ) ) {
+		$zbs->DAL->segments->compileSegmentsAffectedByTransaction( $obj['data'] ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 	}
+}
 
 	#} when customer status changes, portal access can be revoked/added based on status (if setting)
 	function zeroBSCRM_IA_CustomerStatusChangePortalAndLog($obj=array()){

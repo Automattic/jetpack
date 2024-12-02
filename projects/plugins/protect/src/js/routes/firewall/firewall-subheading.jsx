@@ -1,8 +1,6 @@
-import { Text } from '@automattic/jetpack-components';
+import { Text, IconTooltip } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import { help } from '@wordpress/icons';
 import { useMemo } from 'react';
-import IconTooltip from '../../components/icon-tooltip';
 import usePlan from '../../hooks/use-plan';
 import useWafData from '../../hooks/use-waf-data';
 import FirewallUpgradePrompt from './firewall-upgrade-prompt';
@@ -74,7 +72,18 @@ const FirewallSubheading = () => {
 
 	const renderTooltip = () => {
 		if ( ! hasPlan && ( wafRules.automaticRules || wafRules.manualRules || wafRules.allRules ) ) {
-			return <IconTooltip icon={ help } text={ tooltipText } />;
+			return (
+				<IconTooltip
+					className={ styles[ 'icon-tooltip' ] }
+					iconCode={ 'help-outline' }
+					iconSize={ 20 }
+					iconClassName={ styles[ 'icon-tooltip__icon' ] }
+					placement={ 'top' }
+					hoverShow={ true }
+				>
+					<Text>{ tooltipText }</Text>
+				</IconTooltip>
+			);
 		}
 		return null;
 	};

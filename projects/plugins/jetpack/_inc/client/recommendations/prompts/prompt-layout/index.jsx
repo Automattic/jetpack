@@ -80,7 +80,7 @@ const PromptLayoutComponent = props => {
 
 PromptLayoutComponent.propTypes = {
 	answer: PropTypes.element.isRequired,
-	description: PropTypes.oneOfType( [ PropTypes.string, PropTypes.element ] ).isRequired,
+	description: PropTypes.oneOfType( [ PropTypes.string, PropTypes.element ] ),
 	illustration: PropTypes.string,
 	illustrationClassName: PropTypes.string,
 	progressBar: PropTypes.element,

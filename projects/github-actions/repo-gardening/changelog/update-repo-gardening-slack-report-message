@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Slack messaging: when a Slack message cannot be sent to a specific channel, send a message to warn about the issue.

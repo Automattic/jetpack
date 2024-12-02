@@ -387,7 +387,7 @@ function wpcomsh_make_content_clickable( $content ) {
 	// don't look in <a></a>, <pre></pre>, <script></script> and <style></style>
 	// use <div class="skip-make-clickable"> in support docs where linkifying
 	// breaks shortcodes, etc.
-	$_split  = preg_split( '/(<[^<>]+>)/i', $content, -1, PREG_SPLIT_DELIM_CAPTURE );
+	$_split  = preg_split( '/(<[^>]+>)/i', $content, -1, PREG_SPLIT_DELIM_CAPTURE );
 	$end     = '';
 	$out     = '';
 	$combine = '';

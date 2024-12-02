@@ -66,6 +66,13 @@ class Backup extends Hybrid_Product {
 	public static $requires_plan = true;
 
 	/**
+	 * The feature slug that identifies the paid plan
+	 *
+	 * @var string
+	 */
+	public static $feature_identifying_paid_plan = 'backups';
+
+	/**
 	 * Get the product name
 	 *
 	 * @return string
@@ -194,26 +201,13 @@ class Backup extends Hybrid_Product {
 	}
 
 	/**
-	 * Checks whether the current plan (or purchases) of the site already supports the product
-	 *
-	 * @return boolean
-	 */
-	public static function has_paid_plan_for_product() {
-		$rewind_data = static::get_state_from_wpcom();
-		if ( is_wp_error( $rewind_data ) ) {
-			return false;
-		}
-		return is_object( $rewind_data ) && isset( $rewind_data->state ) && 'unavailable' !== $rewind_data->state;
-	}
-
-	/**
 	 * Return product bundles list
 	 * that supports the product.
 	 *
 	 * @return boolean|array Products bundle list.
 	 */
 	public static function is_upgradable_by_bundle() {
-		return array( 'security' );
+		return array( 'security', 'complete' );
 	}
 
 	/**
@@ -238,5 +232,27 @@ class Backup extends Hybrid_Product {
 		} elseif ( static::is_jetpack_plugin_active() ) {
 			return Redirect::get_url( 'my-jetpack-manage-backup' );
 		}
+	}
+
+	/**
+	 * Get the product-slugs of the paid plans for this product.
+	 * (Do not include bundle plans, unless it's a bundle plan itself).
+	 *
+	 * @return array
+	 */
+	public static function get_paid_plan_product_slugs() {
+		return array(
+			'jetpack_backup_daily',
+			'jetpack_backup_daily_monthly',
+			'jetpack_backup_realtime',
+			'jetpack_backup_realtime_monthly',
+			'jetpack_backup_t1_yearly',
+			'jetpack_backup_t1_monthly',
+			'jetpack_backup_t1_bi_yearly',
+			'jetpack_backup_t2_yearly',
+			'jetpack_backup_t2_monthly',
+			'jetpack_backup_t0_yearly',
+			'jetpack_backup_t0_monthly',
+		);
 	}
 }

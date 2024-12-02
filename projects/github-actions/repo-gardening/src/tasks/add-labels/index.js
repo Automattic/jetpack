@@ -137,16 +137,24 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft, isRevert )
 			}
 		}
 
-		// The SSO feature nows lives in both a package and a Jetpack module.
+		// The SSO feature now lives in both a package and a Jetpack module.
 		const sso = file.match( /^projects\/packages\/connection\/src\/sso\// );
 		if ( sso !== null ) {
 			keywords.add( '[Feature] SSO' );
 		}
 
-		// The Google Analytics feature nows lives in both a package and a Jetpack module.
+		// The Google Analytics feature now lives in both a package and a Jetpack module.
 		const googleAnalytics = file.match( /^projects\/packages\/google-analytics\// );
 		if ( googleAnalytics !== null ) {
 			keywords.add( '[Feature] Google Analytics' );
+		}
+
+		// The Publicize feature now lives in a package, a Jetpack module, and a js package.
+		const publicize = file.match(
+			/^projects\/(packages\/publicize|js-packages\/publicize-components)\//
+		);
+		if ( publicize !== null ) {
+			keywords.add( '[Feature] Publicize' );
 		}
 
 		// Theme Tools have now been extracted to their own package.
@@ -173,6 +181,14 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft, isRevert )
 			keywords.add( '[Feature] Calypsoify' );
 		}
 
+		// Social Previews are now developed in a separate package.
+		const socialPreviews = file.match(
+			/^projects\/js-packages\/publicize-components\/src\/components\/social-previews\//
+		);
+		if ( socialPreviews !== null ) {
+			keywords.add( '[Extension] Social Previews' );
+		}
+
 		// Docker.
 		const docker = file.match( /^(projects\/plugins\/boost\/docker|tools\/docker)\// );
 		if ( docker !== null ) {
@@ -184,8 +200,8 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft, isRevert )
 			keywords.add( '[Tools] Development CLI' );
 		}
 
-		const docs = file.match( /^docs\/|\.md$/ ) && ! file.match( /\/CHANGELOG\.md$/ );
-		if ( docs !== null ) {
+		const docs = file.match( /^docs\/|\.md$/ ) && ! file.match( /CHANGELOG\.md$/i );
+		if ( docs ) {
 			keywords.add( 'Docs' );
 		}
 
@@ -200,6 +216,14 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft, isRevert )
 					`[${ 'plugins' === blockType ? 'Extension' : 'Block' }] ${ cleanName( blockName ) }`
 				);
 			}
+		}
+
+		// External Media extension.
+		const externalMedia = file.match(
+			/^projects\/plugins\/jetpack\/extensions\/shared\/external-media\//
+		);
+		if ( externalMedia !== null ) {
+			keywords.add( '[Extension] External Media' );
 		}
 
 		// React Dashboard and Boost Admin.

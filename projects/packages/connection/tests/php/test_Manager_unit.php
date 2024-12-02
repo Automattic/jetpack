@@ -57,11 +57,11 @@ class ManagerTest extends TestCase {
 	 */
 	public function set_up() {
 		$this->manager = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Manager' )
-			->setMethods( array( 'get_tokens', 'get_connection_owner_id', 'unlink_user_from_wpcom', 'update_connection_owner_wpcom', 'disconnect_site_wpcom' ) )
+			->onlyMethods( array( 'get_tokens', 'get_connection_owner_id', 'unlink_user_from_wpcom', 'update_connection_owner_wpcom', 'disconnect_site_wpcom' ) )
 			->getMock();
 
 		$this->tokens = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Tokens' )
-			->setMethods( array( 'get_access_token', 'disconnect_user' ) )
+			->onlyMethods( array( 'get_access_token', 'disconnect_user' ) )
 			->getMock();
 
 		$this->manager->method( 'get_tokens' )->willReturn( $this->tokens );

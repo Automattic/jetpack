@@ -37,7 +37,7 @@ class WP_Test_Jetpack_Client_Server extends WP_UnitTestCase {
 		wp_set_current_user( $author_id );
 
 		$client_server = $this->getMockBuilder( 'Jetpack_Client_Server' ) // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-			->setMethods( array( 'do_exit' ) )
+			->addMethods( array( 'do_exit' ) )
 			->getMock();
 
 		$result = Jetpack::connection()->authorize();
@@ -59,7 +59,7 @@ class WP_Test_Jetpack_Client_Server extends WP_UnitTestCase {
 		wp_set_current_user( $author_id );
 
 		$client_server = $this->getMockBuilder( 'Jetpack_Client_Server' ) // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-			->setMethods( array( 'do_exit' ) )
+			->addMethods( array( 'do_exit' ) )
 			->getMock();
 
 		$result = Jetpack::connection()->authorize();
@@ -80,7 +80,7 @@ class WP_Test_Jetpack_Client_Server extends WP_UnitTestCase {
 		wp_set_current_user( $author_id );
 
 		$client_server = $this->getMockBuilder( 'Jetpack_Client_Server' ) // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-			->setMethods( array( 'do_exit' ) )
+			->addMethods( array( 'do_exit' ) )
 			->getMock();
 
 		$result = Jetpack::connection()->authorize( array( 'error' => 'test_error' ) );
