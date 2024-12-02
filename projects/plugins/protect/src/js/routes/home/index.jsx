@@ -2,6 +2,7 @@ import { AdminSection, Container, Col, ScanReport } from '@automattic/jetpack-co
 import AdminPage from '../../components/admin-page';
 import useProtectData from '../../hooks/use-protect-data';
 import HomeAdminSectionHero from './home-admin-section-hero';
+import { version } from 'react';
 
 /**
  * Home Page
@@ -22,6 +23,7 @@ const HomePage = () => {
 					name: threat.filename,
 					threats: [ threat ],
 					type: 'files',
+					version: threat.signature,
 			  } ) )
 			: [
 					{
