@@ -1,12 +1,12 @@
 import { Col, Text } from '@automattic/jetpack-components';
 import { SVG, Path } from '@wordpress/components';
-import { Spinner } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
+import ProductsIcons from './products-icons';
 import styles from './style.module.scss';
 
 const JetpackLogo = () => (
-	<SVG className="logo" viewBox="0 0 88 88" fill="none" xmlns="http://www.w3.org/2000/svg">
+	<SVG className={ styles.logo } viewBox="0 0 88 88" fill="none" xmlns="http://www.w3.org/2000/svg">
 		<Path
 			className={ styles[ 'circle-outline' ] }
 			d="M44 86C67.196 86 86 67.196 86 44C86 20.804 67.196 2 44 2C20.804 2 2 20.804 2 44C2 67.196 20.804 86 44 86Z"
@@ -36,10 +36,11 @@ const JetpackLogo = () => (
 
 interface LoadingStepProps {
 	type: string;
+	isReady?: boolean;
 }
 
-const LoadingStep = ( { type }: LoadingStepProps ) => {
-	if ( type === 'connecting' || type === 'connection-ready' ) {
+const LoadingStep = ( { type, isReady }: LoadingStepProps ) => {
+	if ( type === 'connecting' ) {
 		const connectingTitle = __( 'Connecting Jetpack', 'jetpack-my-jetpack' );
 		const connectingDescription = __(
 			'Getting things ready in the background — almost there!',
@@ -58,16 +59,16 @@ const LoadingStep = ( { type }: LoadingStepProps ) => {
 		return (
 			<Col className={ styles[ 'loading-banner' ] }>
 				<div
-					className={ clsx( styles[ 'banner-loader' ], {
-						[ styles[ 'connection-ready' ] ]: type === 'connection-ready',
+					className={ clsx( styles[ 'loader-container' ], {
+						[ styles[ 'connection-ready' ] ]: isReady,
 					} ) }
 				>
 					<JetpackLogo />
 				</div>
-				<Text variant="title-medium" mb={ 1 }>
+				<Text variant="headline-small" mb={ 1 }>
 					{ type === 'connecting' ? connectingTitle : connectionReadyTitle }
 				</Text>
-				<Text variant="body-small">
+				<Text variant="body">
 					{ type === 'connecting' ? connectingDescription : connectionReadyDescription }
 				</Text>
 			</Col>
@@ -77,15 +78,16 @@ const LoadingStep = ( { type }: LoadingStepProps ) => {
 	if ( type === 'recommendations' ) {
 		return (
 			<Col className={ styles[ 'loading-banner' ] }>
-				<div className={ styles[ 'banner-loader' ] }>
-					<Spinner />
+				<div className={ clsx( styles[ 'loader-container' ], styles.recommendations ) }>
+					<ProductsIcons />
+					<JetpackLogo />
 				</div>
-				<Text variant="title-medium" mb={ 1 }>
-					{ __( 'Finding the best Jetpack tools', 'jetpack-my-jetpack' ) }
+				<Text variant="headline-small" mb={ 1 }>
+					{ __( 'Crafting your unique journey', 'jetpack-my-jetpack' ) }
 				</Text>
-				<Text variant="body-small">
+				<Text variant="body">
 					{ __(
-						'We’re crunching the numbers to find the Jetpack tools that are the best match for your site.',
+						'Hang tight while we personalize recommendations to suit your style.',
 						'jetpack-my-jetpack'
 					) }
 				</Text>

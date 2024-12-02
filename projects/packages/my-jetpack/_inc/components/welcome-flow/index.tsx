@@ -56,7 +56,13 @@ const WelcomeFlow: FC< Props > = ( {
 
 			return () => clearTimeout( timer );
 		}
-	}, [ prevStep, siteIsRegistered, siteIsRegistering ] );
+	}, [
+		isProcessingEvaluation,
+		prevStep,
+		recommendedModules,
+		siteIsRegistered,
+		siteIsRegistering,
+	] );
 
 	const currentStep = useMemo( () => {
 		if (
@@ -169,7 +175,7 @@ const WelcomeFlow: FC< Props > = ( {
 						) }
 						{ 'evaluation-processing' === currentStep && <LoadingStep type="recommendations" /> }
 						{ 'site-connecting' === currentStep && (
-							<LoadingStep type={ siteIsRegistering ? 'connecting' : 'connection-ready' } />
+							<LoadingStep type={ 'connecting' } isReady={ isSiteConnected } />
 						) }
 					</Container>
 				</CardWrapper>
