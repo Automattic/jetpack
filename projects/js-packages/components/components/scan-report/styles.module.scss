@@ -13,3 +13,29 @@
 		fill: var( --jp-black );
 	}
 }
+
+.tooltip {
+	margin-top: var( --spacing-base )	;
+	max-width: 240px;
+	border-radius: 4px;
+	text-align: left;
+}
+
+.shield {
+
+	&__threat {
+		fill: #F0B849;
+	}
+
+	&__checked {
+		fill: var( --jp-green-40 );
+	}
+
+	&__unchecked {
+		fill: var( --jp-gray-40 );
+	}
+}
+
+.check {
+	fill: var( --jp-green-40 );
+}

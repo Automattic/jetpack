@@ -45,7 +45,7 @@ Default.args = {
 			name: 'Twenty Fifteen',
 			slug: 'twentyfifteen',
 			version: '14.1-a.7',
-			threats: [],
+			threats: [ 'threat' ],
 			checked: true,
 			type: 'themes',
 		},
