@@ -12,7 +12,7 @@ import { useCallback, useMemo, useState } from 'react';
 import ShieldAlertIcon from '../shield-alert';
 import ShieldCheckIcon from '../shield-check';
 import {
-	FIELD_EXTENSION,
+	FIELD_NAME,
 	FIELD_VERSION,
 	FIELD_ICON,
 	FIELD_STATUS,
@@ -50,7 +50,7 @@ export default function ScanReport( { data, onChangeSelection } ): JSX.Element {
 	const defaultLayouts: SupportedLayouts = {
 		table: {
 			...baseView,
-			fields: [ FIELD_STATUS, FIELD_TYPE, FIELD_EXTENSION, FIELD_VERSION ],
+			fields: [ FIELD_STATUS, FIELD_TYPE, FIELD_NAME, FIELD_VERSION ],
 			layout: {
 				primaryField: FIELD_STATUS,
 			},
@@ -59,7 +59,7 @@ export default function ScanReport( { data, onChangeSelection } ): JSX.Element {
 			...baseView,
 			fields: [ FIELD_STATUS, FIELD_VERSION ],
 			layout: {
-				primaryField: FIELD_EXTENSION,
+				primaryField: FIELD_NAME,
 				mediaField: FIELD_ICON,
 			},
 		},
