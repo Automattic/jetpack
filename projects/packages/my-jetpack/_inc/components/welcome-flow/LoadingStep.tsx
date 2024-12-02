@@ -66,10 +66,10 @@ const LoadingStep = ( { type, isReady }: LoadingStepProps ) => {
 					<JetpackLogo />
 				</div>
 				<Text variant="headline-small" mb={ 1 }>
-					{ type === 'connecting' ? connectingTitle : connectionReadyTitle }
+					{ ! isReady ? connectingTitle : connectionReadyTitle }
 				</Text>
 				<Text variant="body">
-					{ type === 'connecting' ? connectingDescription : connectionReadyDescription }
+					{ ! isReady ? connectingDescription : connectionReadyDescription }
 				</Text>
 			</Col>
 		);
