@@ -7,7 +7,7 @@ import {
 	filterSortAndPaginate,
 } from '@wordpress/dataviews';
 import { __ } from '@wordpress/i18n';
-import { Icon, shield, check } from '@wordpress/icons';
+import { Icon, check } from '@wordpress/icons';
 import { useCallback, useMemo, useState } from 'react';
 import {
 	THREAT_FIELD_EXTENSION,
@@ -18,6 +18,8 @@ import {
 	THREAT_TYPES,
 	THREAT_ICONS,
 } from './constants';
+import ShieldAlertIcon from './shield-alert';
+import ShieldCheckIcon from './shield-check';
 import styles from './styles.module.scss';
 
 /**
@@ -85,6 +87,8 @@ export default function ScanReport( { data, filters, onChangeSelection } ): JSX.
 	 * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-dataviews/#fields-object
 	 */
 	const fields = useMemo( () => {
+		const defaultIconDimension = { width: '16', height: '19.14' };
+
 		const result = [
 			{
 				id: THREAT_FIELD_SAFETY,
@@ -94,7 +98,9 @@ export default function ScanReport( { data, filters, onChangeSelection } ): JSX.
 						if ( item.threats.length > 0 ) {
 							return (
 								<Tooltip className={ styles.tooltip } text={ __( 'Threat detected.', 'jetpack' ) }>
-									<Icon className={ styles.shield__threat } icon={ shield } />
+									<div className={ styles.icon }>
+										<ShieldAlertIcon color={ '#F0B849' } { ...defaultIconDimension } />
+									</div>
 								</Tooltip>
 							);
 						}
@@ -103,7 +109,9 @@ export default function ScanReport( { data, filters, onChangeSelection } ): JSX.
 								className={ styles.tooltip }
 								text={ __( 'No known threats found that affect this version.', 'jetpack' ) }
 							>
-								<Icon className={ styles.shield__checked } icon={ shield } />
+								<div className={ styles.icon }>
+									<ShieldCheckIcon color={ '#069E08' } { ...defaultIconDimension } />
+								</div>
 							</Tooltip>
 						);
 					}
@@ -115,7 +123,9 @@ export default function ScanReport( { data, filters, onChangeSelection } ): JSX.
 								'jetpack'
 							) }
 						>
-							<Icon className={ styles.shield__unchecked } icon={ shield } />
+							<div className={ styles.icon }>
+								<ShieldCheckIcon color={ '#A7AAAD' } { ...defaultIconDimension } />
+							</div>
 						</Tooltip>
 					);
 				},
