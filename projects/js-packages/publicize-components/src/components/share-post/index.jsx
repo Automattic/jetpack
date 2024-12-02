@@ -41,7 +41,7 @@ function showErrorNotice(
  */
 function showSuccessNotice() {
 	const { createSuccessNotice } = dispatch( noticesStore );
-	createSuccessNotice( __( 'Your post will be shared soon.', 'jetpack-publicize-components' ), {
+	createSuccessNotice( __( 'Request submitted successfully.', 'jetpack-publicize-components' ), {
 		id: 'publicize-post-share-message',
 		type: 'snackbar',
 	} );

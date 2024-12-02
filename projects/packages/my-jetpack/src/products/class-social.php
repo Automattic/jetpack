@@ -64,6 +64,13 @@ class Social extends Hybrid_Product {
 	public static $has_free_offering = true;
 
 	/**
+	 * The feature slug that identifies the paid plan
+	 *
+	 * @var string
+	 */
+	public static $feature_identifying_paid_plan = 'social-enhanced-publishing';
+
+	/**
 	 * Get the product name
 	 *
 	 * @return string
@@ -162,39 +169,41 @@ class Social extends Hybrid_Product {
 	}
 
 	/**
+	 * Get the product-slugs of the paid plans for this product (not including bundles)
+	 *
+	 * @return array
+	 */
+	public static function get_paid_plan_product_slugs() {
+		return array(
+			'jetpack_social_v1_yearly',
+			'jetpack_social_v1_monthly',
+			'jetpack_social_v1_bi_yearly',
+			'jetpack_social_basic_yearly',
+			'jetpack_social_monthly',
+			'jetpack_social_basic_monthly',
+			'jetpack_social_basic_bi_yearly',
+			'jetpack_social_advanced_yearly',
+			'jetpack_social_advanced_monthly',
+			'jetpack_social_advanced_bi_yearly',
+		);
+	}
+
+	/**
 	 * Checks whether the current plan (or purchases) of the site already supports the product
 	 *
 	 * @return boolean
 	 */
 	public static function has_paid_plan_for_product() {
-		$plans_with_social = array(
-			'jetpack_social',
-			'jetpack_complete',
-			'jetpack_business',
-			'jetpack_premium',
-			'jetpack_personal',
-			'jetpack_growth',
-		);
+		if ( parent::has_paid_plan_for_product() ) {
+			return true;
+		}
+
 		// For atomic sites, do a feature check to see if the republicize feature is available
-		// This feature is available by default on all Jetpack sites.
-		if ( ( new Host() )->is_woa_site() ) {
-			return static::does_site_have_feature( 'republicize' );
+		// This feature is available by default on all Jetpack sites
+		if ( ( new Host() )->is_woa_site() && static::does_site_have_feature( 'republicize' ) ) {
+			return true;
 		}
 
-		$purchases_data = Wpcom_Products::get_site_current_purchases();
-		if ( is_wp_error( $purchases_data ) ) {
-			return false;
-		}
-
-		if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
-			foreach ( $purchases_data as $purchase ) {
-				foreach ( $plans_with_social as $plan ) {
-					if ( strpos( $purchase->product_slug, $plan ) !== false ) {
-						return true;
-					}
-				}
-			}
-		}
 		return false;
 	}
 

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+My Jetpack: fix usage of random() in animation to prevent build step from generating a different CSS file every time.
