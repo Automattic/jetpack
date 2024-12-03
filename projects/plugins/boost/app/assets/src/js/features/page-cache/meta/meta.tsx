@@ -41,9 +41,9 @@ const Meta = () => {
 
 		let loggingMessage;
 		if ( logging ) {
-			loggingMessage = __( 'Logging activated.', 'jetpack-boost' );
+			loggingMessage = __( 'Logging activated!', 'jetpack-boost' );
 		} else {
-			loggingMessage = __( 'No logging.', 'jetpack-boost' );
+			loggingMessage = __( 'No logging!', 'jetpack-boost' );
 		}
 
 		return (
