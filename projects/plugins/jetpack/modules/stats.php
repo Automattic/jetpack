@@ -27,6 +27,7 @@ use Automattic\Jetpack\Stats\XMLRPC_Provider as Stats_XMLRPC;
 use Automattic\Jetpack\Stats_Admin\Dashboard as Stats_Dashboard;
 use Automattic\Jetpack\Stats_Admin\Main as Stats_Main;
 use Automattic\Jetpack\Status\Host;
+use Automattic\Jetpack\Tracking;
 
 if ( defined( 'STATS_DASHBOARD_SERVER' ) ) {
 	return;
@@ -382,18 +383,22 @@ function jetpack_admin_ui_stats_report_page_wrapper() {
  * Stats Report Page.
  *
  * @access public
+ * @param bool $main_chart_only (default: false) Main Chart Only.
  */
-function stats_reports_page() {
+function stats_reports_page( $main_chart_only = false ) {
 	if ( isset( $_GET['dashboard'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		stats_dashboard_widget_content();
 		exit; // @phan-suppress-current-line PhanPluginUnreachableCode -- Safer to include it even though stats_dashboard_widget_content() never returns.
 	}
 
+	$blog_id               = Stats_Options::get_option( 'blog_id' );
 	$learn_url             = Redirect::get_url( 'jetpack-stats-learn-more' );
 	$redirect_url          = admin_url( 'admin.php?page=stats&enable_new_stats=1' );
 	$stats_bg_url          = plugins_url( 'images/odyssey-upgrade/background.png', JETPACK__PLUGIN_FILE );
 	$stats_bg_gradient_url = plugins_url( 'images/odyssey-upgrade/gradient.png', JETPACK__PLUGIN_FILE );
-	?>
+
+	if ( ! $main_chart_only && ! isset( $_GET['noheader'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		?>
 
 	<style>
 		.stats-odyssey-notice {
@@ -520,7 +525,106 @@ function stats_reports_page() {
 		</div>
 		<p></p>
 	</div>
-	<?php
+		<?php
+		return;
+	}
+
+	$day = isset( $_GET['day'] ) && preg_match( '/^\d{4}-\d{2}-\d{2}$/', $_GET['day'] ) ? $_GET['day'] : false; // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput
+	$q   = array(
+		'noheader' => 'true',
+		'proxy'    => '',
+		'page'     => 'stats',
+		'day'      => $day,
+		'blog'     => $blog_id,
+		'charset'  => get_option( 'blog_charset' ),
+		'color'    => get_user_option( 'admin_color' ),
+		'ssl'      => is_ssl(),
+		'j'        => sprintf( '%s:%s', JETPACK__API_VERSION, JETPACK__VERSION ),
+	);
+	if ( get_locale() !== 'en_US' ) {
+		$q['jp_lang'] = get_locale();
+	}
+	// Only show the main chart, without extra header data, or metaboxes.
+	$q['main_chart_only'] = $main_chart_only;
+	$args                 = array(
+		'view'                => array( 'referrers', 'postviews', 'searchterms', 'clicks', 'post', 'table' ),
+		'numdays'             => 'int',
+		'day'                 => 'date',
+		'unit'                => array( '1', '7', '31', 'human' ),
+		'humanize'            => array( 'true' ),
+		'num'                 => 'int',
+		'summarize'           => null,
+		'post'                => 'int',
+		'width'               => 'int',
+		'height'              => 'int',
+		'data'                => 'data',
+		'blog_subscribers'    => 'int',
+		'comment_subscribers' => null,
+		'type'                => array( 'wpcom', 'email', 'pending' ),
+		'pagenum'             => 'int',
+		'masterbar'           => null,
+	);
+	foreach ( $args as $var => $vals ) {
+		if ( ! isset( $_REQUEST[ $var ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			continue;
+		}
+		$val = wp_unslash( $_REQUEST[ $var ] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		if ( is_array( $vals ) ) {
+			if ( in_array( $val, $vals, true ) ) {
+				$q[ $var ] = $val;
+			}
+		} elseif ( 'int' === $vals ) {
+			$q[ $var ] = (int) $val;
+		} elseif ( 'date' === $vals ) {
+			if ( preg_match( '/^\d{4}-\d{2}-\d{2}$/', $val ) ) {
+				$q[ $var ] = $val;
+			}
+		} elseif ( null === $vals ) {
+			$q[ $var ] = '';
+		} elseif ( 'data' === $vals ) {
+			if ( str_starts_with( $val, 'index.php' ) ) {
+				$q[ $var ] = $val;
+			}
+		}
+	}
+
+	if ( isset( $_GET['chart'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( preg_match( '/^[a-z0-9-]+$/', $_GET['chart'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput
+			$chart = sanitize_title( $_GET['chart'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput
+			$url   = 'https://' . STATS_DASHBOARD_SERVER . "/wp-includes/charts/{$chart}.php";
+		}
+	} else {
+		$url = 'https://' . STATS_DASHBOARD_SERVER . '/wp-admin/index.php';
+	}
+
+	$url     = add_query_arg( $q, $url );
+	$method  = 'GET';
+	$timeout = 90;
+	$user_id = 0; // Means use the blog token.
+
+	$get      = Client::remote_request( compact( 'url', 'method', 'timeout', 'user_id' ) );
+	$get_code = wp_remote_retrieve_response_code( $get );
+	if ( is_wp_error( $get ) || ( 2 !== (int) ( $get_code / 100 ) && 304 !== $get_code ) || empty( $get['body'] ) ) {
+		stats_print_wp_remote_error( $get, $url );
+	} elseif ( ! empty( $get['headers']['content-type'] ) ) {
+		$type = $get['headers']['content-type'];
+		if ( str_starts_with( $type, 'image' ) ) {
+			$img = $get['body'];
+			header( 'Content-Type: ' . $type );
+			header( 'Content-Length: ' . strlen( $img ) );
+			echo $img; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			die();
+		}
+	}
+
+	if ( isset( $_GET['page'] ) && 'stats' === $_GET['page'] && ! isset( $_GET['chart'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$tracking = new Tracking();
+		$tracking->record_user_event( 'wpa_page_view', array( 'path' => 'old_stats' ) );
+	}
+
+	if ( isset( $_GET['noheader'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		die;
+	}
 }
 
 /**
