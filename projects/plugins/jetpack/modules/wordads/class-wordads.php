@@ -371,9 +371,43 @@ class WordAds {
 		$site_id      = $this->params->blog_id;
 		$consent      = (int) isset( $_COOKIE['personalized-ads-consent'] );
 		$is_logged_in = is_user_logged_in() ? '1' : '0';
+
+		$disabled_slot_formats = apply_filters( 'wordads_disabled_slot_formats', array() );
+
+		if ( apply_filters( 'wordads_iponweb_bottom_sticky_ad_disable', false ) ) {
+			$disabled_slot_formats[] = 'MTS';
+		}
+
+		if ( apply_filters( 'wordads_iponweb_sidebar_sticky_right_ad_disable', false ) ) {
+			$disabled_slot_formats[] = 'DPR';
+		}
+
+		$config    = array(
+			'pt'                    => $pagetype,
+			'ht'                    => $hosting_type,
+			'tn'                    => get_stylesheet(),
+			'uloggedin'             => $is_logged_in,
+			'amp'                   => false,
+			'siteid'                => $site_id,
+			'consent'               => $consent,
+			'ad'                    => array(
+				'label'           => array(
+					'text' => __( 'Advertisements', 'jetpack' ),
+				),
+				'reportAd'        => array(
+					'text' => __( 'Report this ad', 'jetpack' ),
+				),
+				'privacySettings' => array(
+					'text'    => __( 'Privacy', 'jetpack' ),
+					'onClick' => 'js:function() { window.__tcfapi && window.__tcfapi(\'showUi\'); }',
+				),
+			),
+			'disabled_slot_formats' => $disabled_slot_formats,
+		);
+		$js_config = WordAds_Array_Utils::array_to_js_object( $config );
 		?>
 		<script<?php echo esc_attr( $data_tags ); ?> type="text/javascript">
-			var __ATA_PP = { pt: <?php echo esc_js( $pagetype ); ?>, ht: <?php echo esc_js( $hosting_type ); ?>, tn: '<?php echo esc_js( get_stylesheet() ); ?>', uloggedin: <?php echo esc_js( $is_logged_in ); ?>, amp: false, siteid: <?php echo esc_js( $site_id ); ?>, consent: <?php echo esc_js( $consent ); ?>, ad: { label: { text: '<?php echo esc_js( __( 'Advertisements', 'jetpack' ) ); ?>' }, reportAd: { text: '<?php echo esc_js( __( 'Report this ad', 'jetpack' ) ); ?>' }, privacySettings: { text: '<?php echo esc_js( __( 'Privacy', 'jetpack' ) ); ?>', onClick: function() { window.__tcfapi && window.__tcfapi('showUi'); } } } };
+			var __ATA_PP = <?php echo $js_config; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>;
 			var __ATA = __ATA || {};
 			__ATA.cmd = __ATA.cmd || [];
 			__ATA.criteo = __ATA.criteo || {};
@@ -403,11 +437,11 @@ class WordAds {
 
 		// phpcs:disable WordPress.Security.EscapeOutput.HeredocOutputNotEscaped
 		echo <<<HTML
-				<script>
+				<script type="text/javascript">
 					var sas_fallback = sas_fallback || [];
 					sas_fallback.push(
-						{ tag: "$tag_inline", type: 'inline' }
-						{ tag: "$tag_belowpost", type: 'belowpost' }
+						{ tag: "$tag_inline", type: 'inline' },
+						{ tag: "$tag_belowpost", type: 'belowpost' },
 						{ tag: "$tag_top", type: 'top' }
 					);
 				</script>
