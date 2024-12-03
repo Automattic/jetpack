@@ -74,7 +74,7 @@ export default function BlockMessage( props: BlockMessageProps ): React.ReactEle
 					'jetpack'
 				),
 				{
-					link: <ExternalLink href="https://automattic.com/ai-guidelines" />,
+					link: <ExternalLink href="https://jetpack.com/redirect/?source=ai-guidelines" />,
 				}
 			);
 			break;

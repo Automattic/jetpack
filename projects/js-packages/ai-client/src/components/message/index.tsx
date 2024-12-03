@@ -104,7 +104,7 @@ export default function Message( {
  */
 function LearnMoreLink(): React.ReactElement {
 	return (
-		<ExternalLink href="https://automattic.com/ai-guidelines">
+		<ExternalLink href="https://jetpack.com/redirect/?source=ai-guidelines">
 			{ __( 'Learn more', 'jetpack-ai-client' ) }
 		</ExternalLink>
 	);
