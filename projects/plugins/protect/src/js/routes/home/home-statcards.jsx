@@ -148,7 +148,10 @@ const HomeStatCards = () => {
 			icon: (
 				<IconWithLabel
 					icon={ scanIcon }
-					label={ scanning ? __( 'Scanning', 'jetpack-protect' ) : __( 'Scan', 'jetpack-protect' ) }
+					label={
+						( scanning ? __( 'Scanning', 'jetpack-protect' ) : __( 'Scan', 'jetpack-protect' ),
+						/* dummy arg to avoid bad minification */ 0 )
+					}
 					isSmall={ isSmall }
 				/>
 			),
