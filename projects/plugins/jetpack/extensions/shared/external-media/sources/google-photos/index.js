@@ -51,9 +51,15 @@ function GooglePhotos( props ) {
 		} );
 
 		cachedSessionId === null && setIsCachedSessionChecked( true );
-		cachedSessionId &&
-			fetchPickerSession( cachedSessionId ).then( () => setIsCachedSessionChecked( true ) );
-	}, [ getPickerStatus, fetchPickerSession, cachedSessionId ] );
+		fetchPickerSession( cachedSessionId )
+			.then( () => {
+				setIsCachedSessionChecked( true );
+			} )
+			.catch( error => {
+				setIsCachedSessionChecked( true );
+				catchAuthErrors( error );
+			} );
+	}, [ getPickerStatus, fetchPickerSession, cachedSessionId, catchAuthErrors ] );
 
 	useEffect( () => {
 		if (
