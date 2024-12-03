@@ -584,7 +584,6 @@ class WPCOM_JSON_API {
 		do_action( 'wpcom_json_api_output', $endpoint->stat );
 
 		$response = $this->process_request( $endpoint, $path_pieces );
-		$response = null;
 
 		if ( ! $response && ! is_array( $response ) ) {
 			return $this->output( 500, '', 'text/plain' );
