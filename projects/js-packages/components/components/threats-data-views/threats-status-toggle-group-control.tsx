@@ -128,6 +128,7 @@ export default function ThreatsStatusToggleGroupControl( {
 						isBlock
 						hideLabelFromVision
 						__nextHasNoMarginBottom
+						__next40pxDefaultSize
 					>
 						<ToggleGroupControlOption
 							value="active"
