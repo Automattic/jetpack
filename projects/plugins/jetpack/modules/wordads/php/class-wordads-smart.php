@@ -55,6 +55,9 @@ class WordAds_Smart {
 		'bottom_sticky'                => array(
 			'enabled' => false,
 		),
+		'sidebar'                      => array(
+			'enabled' => false,
+		),
 		'sidebar_sticky_right'         => array(
 			'enabled' => false,
 		),
