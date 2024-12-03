@@ -22,9 +22,9 @@ import {
 	PricingTableItemProps,
 } from './types';
 
-const INCLUDED_TEXT = __( 'Included', 'jetpack' );
-const NOT_INCLUDED_TEXT = __( 'Not included', 'jetpack' );
-const COMING_SOON_TEXT = __( 'Coming soon', 'jetpack' );
+const INCLUDED_TEXT = __( 'Included', 'jetpack-components' );
+const NOT_INCLUDED_TEXT = __( 'Not included', 'jetpack-components' );
+const COMING_SOON_TEXT = __( 'Coming soon', 'jetpack-components' );
 
 const PricingTableContext = createContext( undefined );
 
@@ -33,7 +33,7 @@ const getItemLabels = ( isComingSoon, isIncluded, featureNameLabel ) => {
 		return {
 			lg: COMING_SOON_TEXT,
 			// translators: Name of the current feature
-			default: sprintf( __( '%s coming soon', 'jetpack' ), featureNameLabel ),
+			default: sprintf( __( '%s coming soon', 'jetpack-components' ), featureNameLabel ),
 		};
 	}
 
@@ -43,7 +43,7 @@ const getItemLabels = ( isComingSoon, isIncluded, featureNameLabel ) => {
 			? featureNameLabel
 			: sprintf(
 					/* translators: Name of the current feature */
-					__( '%s not included', 'jetpack' ),
+					__( '%s not included', 'jetpack-components' ),
 					featureNameLabel
 			  ),
 	};
@@ -186,7 +186,7 @@ const PricingTable: React.FC< PricingTableProps > = ( {
 						<Text variant="body-small">
 							{ __(
 								'Reduced pricing is a limited offer for the first year and renews at regular price.',
-								'jetpack'
+								'jetpack-components'
 							) }
 						</Text>
 					) }

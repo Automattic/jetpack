@@ -1,6 +1,5 @@
 module.exports = {
-	// @todo: Uncomment this:
-	// extends: [ require.resolve( 'jetpack-js-tools/eslintrc/react' ) ],
+	extends: [ require.resolve( 'jetpack-js-tools/eslintrc/react' ) ],
 	rules: {
 		// Enforce the use of the zero-bs-crm textdomain.
 		'@wordpress/i18n-text-domain': [

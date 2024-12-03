@@ -39,4 +39,6 @@ export const PRODUCT_STATUSES = {
 	NEEDS_FIRST_SITE_CONNECTION: 'needs_first_site_connection',
 	USER_CONNECTION_ERROR: 'user_connection_error',
 	CAN_UPGRADE: 'can_upgrade',
+	EXPIRING_SOON: 'expiring',
+	EXPIRED: 'expired',
 };

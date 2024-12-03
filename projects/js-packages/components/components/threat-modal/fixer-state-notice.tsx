@@ -1,8 +1,8 @@
-import { Button } from '@automattic/jetpack-components';
 import { CONTACT_SUPPORT_URL } from '@automattic/jetpack-scan';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
+import { Button } from '@automattic/jetpack-components';
 import styles from './styles.module.scss';
 import ThreatNotice from './threat-notice';
 
@@ -24,7 +24,7 @@ const FixerStateNotice = ( {
 } ) => {
 	const getInterpolatedContent = (): JSX.Element => {
 		return createInterpolateElement(
-			__( 'Please try again or <supportLink>contact support</supportLink>.', 'jetpack' ),
+			__( 'Please try again or <supportLink>contact support</supportLink>.', 'jetpack-components' ),
 			{
 				supportLink: <Button variant="link" isExternalLink={ true } href={ CONTACT_SUPPORT_URL } />,
 			}
@@ -35,12 +35,12 @@ const FixerStateNotice = ( {
 		if ( fixerState.error ) {
 			return {
 				status: 'error' as const,
-				title: __( 'An error occurred auto-fixing this threat', 'jetpack' ),
+				title: __( 'An error occurred auto-fixing this threat', 'jetpack-components' ),
 				content: (
 					<>
 						{ __(
 							'Jetpack encountered a filesystem error while attempting to auto-fix this threat.',
-							'jetpack'
+							'jetpack-components'
 						) }{ ' ' }
 						{ getInterpolatedContent() }
 					</>
@@ -51,12 +51,12 @@ const FixerStateNotice = ( {
 		if ( fixerState.stale ) {
 			return {
 				status: 'error' as const,
-				title: __( 'The auto-fixer is taking longer than expected', 'jetpack' ),
+				title: __( 'The auto-fixer is taking longer than expected', 'jetpack-components' ),
 				content: (
 					<>
 						{ __(
 							'Jetpack has been attempting to auto-fix this threat for too long, and something may have gone wrong.',
-							'jetpack'
+							'jetpack-components'
 						) }{ ' ' }
 						{ getInterpolatedContent() }
 					</>
@@ -67,8 +67,8 @@ const FixerStateNotice = ( {
 		if ( fixerState.inProgress ) {
 			return {
 				status: 'success' as const,
-				title: __( 'An auto-fixer is in progress', 'jetpack' ),
-				content: __( 'Please wait while Jetpack auto-fixes the threat.', 'jetpack' ),
+				title: __( 'An auto-fixer is in progress', 'jetpack-components' ),
+				content: __( 'Please wait while Jetpack auto-fixes the threat.', 'jetpack-components' ),
 			};
 		}
 

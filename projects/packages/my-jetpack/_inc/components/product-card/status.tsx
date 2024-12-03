@@ -19,6 +19,10 @@ const getStatusLabel: StatusStateFunction = ( status, isOwned ) => {
 		case PRODUCT_STATUSES.ACTIVE:
 		case PRODUCT_STATUSES.CAN_UPGRADE:
 			return __( 'Active', 'jetpack-my-jetpack' );
+		case PRODUCT_STATUSES.EXPIRING_SOON:
+			return __( 'Expires soon', 'jetpack-my-jetpack' );
+		case PRODUCT_STATUSES.EXPIRED:
+			return __( 'Expired plan', 'jetpack-my-jetpack' );
 		case PRODUCT_STATUSES.INACTIVE:
 		case PRODUCT_STATUSES.MODULE_DISABLED:
 		case PRODUCT_STATUSES.NEEDS_ACTIVATION:
@@ -49,6 +53,7 @@ const getStatusClassName: StatusStateFunction = ( status, isOwned ) => {
 		case PRODUCT_STATUSES.ABSENT_WITH_PLAN:
 		case PRODUCT_STATUSES.SITE_CONNECTION_ERROR:
 		case PRODUCT_STATUSES.USER_CONNECTION_ERROR:
+		case PRODUCT_STATUSES.EXPIRING_SOON:
 			return styles.warning;
 		case PRODUCT_STATUSES.INACTIVE:
 		case PRODUCT_STATUSES.NEEDS_FIRST_SITE_CONNECTION:
@@ -56,6 +61,8 @@ const getStatusClassName: StatusStateFunction = ( status, isOwned ) => {
 			return styles.inactive;
 		case PRODUCT_STATUSES.NEEDS_PLAN:
 			return isOwned ? styles.warning : styles.inactive;
+		case PRODUCT_STATUSES.EXPIRED:
+			return styles.error;
 		default:
 			return styles.inactive;
 	}

@@ -1,10 +1,9 @@
+import { type ExtensionStatus, type Threat, type ThreatStatus } from '@automattic/jetpack-scan';
 import { __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
 import useHistoryQuery from '../../data/scan/use-history-query';
 import useScanStatusQuery from '../../data/scan/use-scan-status-query';
 import useProductDataQuery from '../../data/use-product-data-query';
-import { ExtensionStatus } from '../../types/scans';
-import { Threat, ThreatStatus } from '../../types/threats';
 
 type ThreatFilterKey = 'all' | 'core' | 'files' | 'database' | string;
 

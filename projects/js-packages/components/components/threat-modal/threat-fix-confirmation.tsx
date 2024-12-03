@@ -29,32 +29,35 @@ const ThreatFixConfirmation = () => {
 					title={ 'Additional connections needed' }
 					content={ __(
 						'A user connection and server credentials provide Jetpack the access necessary to ignore and auto-fix threats on your site.',
-						'jetpack'
+						'jetpack-components'
 					) }
 				/>
 			) }
 			{ ! siteCredentialsNeeded && userConnectionNeeded && (
 				<ThreatNotice
-					title={ __( 'User connection needed', 'jetpack' ) }
+					title={ __( 'User connection needed', 'jetpack-components' ) }
 					content={ __(
 						'A user connection provides Jetpack the access necessary to ignore and auto-fix threats on your site.',
-						'jetpack'
+						'jetpack-components'
 					) }
 				/>
 			) }
 			{ siteCredentialsNeeded && ! userConnectionNeeded && (
 				<ThreatNotice
-					title={ __( 'Site credentials needed', 'jetpack' ) }
+					title={ __( 'Site credentials needed', 'jetpack-components' ) }
 					content={ __(
 						'Your server credentials allow Jetpack to access the server that’s powering your website. This information is securely saved and only used to ignore and auto-fix threats detected on your site.',
-						'jetpack'
+						'jetpack-components'
 					) }
 				/>
 			) }
 			{ handleUpgradeClick && (
 				<ContextualUpgradeTrigger
-					description={ __( 'Looking for advanced scan results and one-click fixes?', 'jetpack' ) }
-					cta={ __( 'Upgrade Jetpack now', 'jetpack' ) }
+					description={ __(
+						'Looking for advanced scan results and one-click fixes?',
+						'jetpack-components'
+					) }
+					cta={ __( 'Upgrade Jetpack now', 'jetpack-components' ) }
 					onClick={ handleUpgradeClick }
 				/>
 			) }

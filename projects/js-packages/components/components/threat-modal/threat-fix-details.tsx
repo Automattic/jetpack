@@ -15,12 +15,12 @@ const ThreatFixDetails = (): JSX.Element => {
 
 	const title = useMemo( () => {
 		if ( threat.status === 'fixed' ) {
-			return __( 'How did Jetpack fix it?', 'jetpack' );
+			return __( 'How did Jetpack fix it?', 'jetpack-components' );
 		}
 		if ( threat.status === 'current' && threat.fixable ) {
-			return __( 'How can Jetpack auto-fix this threat?', 'jetpack' );
+			return __( 'How can Jetpack auto-fix this threat?', 'jetpack-components' );
 		}
-		return __( 'How to fix it?', 'jetpack' );
+		return __( 'How to fix it?', 'jetpack-components' );
 	}, [ threat ] );
 
 	const fix = useMemo( () => {
@@ -29,7 +29,7 @@ const ThreatFixDetails = (): JSX.Element => {
 		if ( ! threat.fixable && threat.fixedIn ) {
 			return sprintf(
 				/* translators: Translates to Updates to version. %1$s: Name. %2$s: Fixed version */
-				__( 'Update %1$s to version %2$s.', 'jetpack' ),
+				__( 'Update %1$s to version %2$s.', 'jetpack-components' ),
 				threat.extension.name,
 				threat.fixedIn
 			);

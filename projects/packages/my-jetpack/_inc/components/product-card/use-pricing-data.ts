@@ -11,7 +11,6 @@ import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 
 const parsePricingData = ( pricingForUi: ProductCamelCase[ 'pricingForUi' ] ) => {
 	const { tiers, wpcomFreeProductSlug, introductoryOffer } = pricingForUi;
-
 	if ( pricingForUi.tiers ) {
 		const {
 			discountPrice,
@@ -33,18 +32,21 @@ const parsePricingData = ( pricingForUi: ProductCamelCase[ 'pricingForUi' ] ) =>
 	}
 
 	const {
+		discountPrice,
 		discountPricePerMonth,
+		fullPrice,
 		fullPricePerMonth,
 		currencyCode,
-		isIntroductoryOffer,
 		wpcomProductSlug,
 	} = pricingForUi;
+	const hasDiscount = discountPrice && discountPrice !== fullPrice;
+	const eligibleForIntroDiscount = ! introductoryOffer?.reason;
 	return {
 		wpcomFreeProductSlug,
 		wpcomProductSlug,
 		discountPrice:
 			// Only display discount if site is elgible
-			isIntroductoryOffer && ! introductoryOffer?.reason ? discountPricePerMonth : null,
+			hasDiscount && eligibleForIntroDiscount ? discountPricePerMonth : null,
 		fullPrice: fullPricePerMonth,
 		currencyCode,
 	};

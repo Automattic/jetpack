@@ -1335,7 +1335,10 @@ class Replicastore implements Replicastore_Interface {
 			} else {
 				$histogram[ "{$ids_range[ 'min_range' ]}-{$ids_range[ 'max_range' ]}" ] = $batch_checksum;
 			}
-
+			// If ids_range['max_range'] is PHP_INT_MAX, we've reached the end of the table. Edge case causing the loop to never end.
+			if ( PHP_INT_MAX === (int) $ids_range['max_range'] ) {
+				break;
+			}
 			$previous_max_id = $ids_range['max_range'] + 1;
 			// If we've reached the max_range lets bail out.
 			if ( $previous_max_id > $range_edges['max_range'] ) {

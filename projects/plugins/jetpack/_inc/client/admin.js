@@ -1,11 +1,11 @@
 import * as WPElement from '@wordpress/element';
 import { _x } from '@wordpress/i18n';
-import accessibleFocus from 'lib/accessible-focus';
 import { assign } from 'lodash';
-import Main from 'main';
 import React from 'react';
 import { Provider } from 'react-redux';
 import { HashRouter, Route, Switch } from 'react-router-dom';
+import accessibleFocus from 'lib/accessible-focus';
+import Main from 'main';
 import * as actionTypes from 'state/action-types';
 import store from 'state/redux-store';
 

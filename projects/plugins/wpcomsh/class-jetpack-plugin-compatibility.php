@@ -28,7 +28,6 @@ class Jetpack_Plugin_Compatibility {
 		'cf7-pipedrive-integration/class-cf7-pipedrive.php' => '"cf7-pipedrive-integration" has been deactivated, it interferes with site operation and is not supported on WordPress.com.',
 		'database-browser/database-browser.php'            => '"database-browser" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 		'duplicator/duplicator.php'                        => '"duplicator" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
-		'duplicator-pro/duplicator-pro.php'                => '"duplicator-pro" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 		'extended-wp-reset/extended-wp-reset.php'          => '"extended-wp-reset" has been deactivated, it interferes with site operation and is not supported on WordPress.com.',
 		'file-manager-advanced/file_manager_advanced.php'  => '"file-manager-advanced" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 		'file-manager/file-manager.php'                    => '"file-manager" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',

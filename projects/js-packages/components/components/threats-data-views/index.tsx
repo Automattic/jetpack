@@ -1,4 +1,3 @@
-import { Button } from '@automattic/jetpack-components';
 import { getThreatType, type Threat } from '@automattic/jetpack-scan';
 import {
 	type Action,
@@ -15,6 +14,7 @@ import { dateI18n } from '@wordpress/date';
 import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
 import { useCallback, useMemo, useState } from 'react';
+import { Button } from '@automattic/jetpack-components';
 import Badge from '../badge';
 import ThreatFixerButton from '../threat-fixer-button';
 import ThreatModal from '../threat-modal';
@@ -136,7 +136,7 @@ export default function ThreatsDataViews( {
 				combinedFields: [
 					{
 						id: THREAT_FIELD_THREAT,
-						label: __( 'Threat', 'jetpack' ),
+						label: __( 'Threat', 'jetpack-components' ),
 						children: [ THREAT_FIELD_TITLE, THREAT_FIELD_DESCRIPTION ],
 						direction: 'vertical',
 					},
@@ -262,7 +262,7 @@ export default function ThreatsDataViews( {
 		const result: Field< Threat >[] = [
 			{
 				id: THREAT_FIELD_TITLE,
-				label: __( 'Title', 'jetpack' ),
+				label: __( 'Title', 'jetpack-components' ),
 				enableGlobalSearch: true,
 				enableHiding: false,
 				render: ( { item }: { item: Threat } ) => (
@@ -281,7 +281,7 @@ export default function ThreatsDataViews( {
 			},
 			{
 				id: THREAT_FIELD_DESCRIPTION,
-				label: __( 'Description', 'jetpack' ),
+				label: __( 'Description', 'jetpack-components' ),
 				enableGlobalSearch: true,
 				enableHiding: false,
 				render: ( { item }: { item: Threat } ) => (
@@ -290,7 +290,7 @@ export default function ThreatsDataViews( {
 			},
 			{
 				id: THREAT_FIELD_ICON,
-				label: __( 'Icon', 'jetpack' ),
+				label: __( 'Icon', 'jetpack-components' ),
 				enableHiding: false,
 				getValue( { item }: { item: Threat } ) {
 					return getThreatType( item );
@@ -305,7 +305,7 @@ export default function ThreatsDataViews( {
 			},
 			{
 				id: THREAT_FIELD_STATUS,
-				label: __( 'Status', 'jetpack' ),
+				label: __( 'Status', 'jetpack-components' ),
 				elements: THREAT_STATUSES,
 				getValue( { item }: { item: Threat } ) {
 					if ( ! item.status ) {
@@ -322,12 +322,12 @@ export default function ThreatsDataViews( {
 							return <Badge variant={ status?.variant }>{ status.label }</Badge>;
 						}
 					}
-					return <Badge variant="warning">{ __( 'Active', 'jetpack' ) }</Badge>;
+					return <Badge variant="warning">{ __( 'Active', 'jetpack-components' ) }</Badge>;
 				},
 			},
 			{
 				id: THREAT_FIELD_TYPE,
-				label: __( 'Type', 'jetpack' ),
+				label: __( 'Type', 'jetpack-components' ),
 				elements: THREAT_TYPES,
 				getValue( { item }: { item: Threat } ) {
 					return getThreatType( item ) ?? '';
@@ -335,7 +335,7 @@ export default function ThreatsDataViews( {
 			},
 			{
 				id: THREAT_FIELD_EXTENSION,
-				label: __( 'Extension', 'jetpack' ),
+				label: __( 'Extension', 'jetpack-components' ),
 				enableGlobalSearch: true,
 				enableHiding: true,
 				getValue( { item }: { item: Threat } ) {
@@ -347,7 +347,7 @@ export default function ThreatsDataViews( {
 			},
 			{
 				id: THREAT_FIELD_PLUGIN,
-				label: __( 'Plugin', 'jetpack' ),
+				label: __( 'Plugin', 'jetpack-components' ),
 				enableGlobalSearch: true,
 				enableHiding: false,
 				elements: plugins,
@@ -357,7 +357,7 @@ export default function ThreatsDataViews( {
 			},
 			{
 				id: THREAT_FIELD_THEME,
-				label: __( 'Theme', 'jetpack' ),
+				label: __( 'Theme', 'jetpack-components' ),
 				enableGlobalSearch: true,
 				enableHiding: false,
 				elements: themes,
@@ -369,7 +369,7 @@ export default function ThreatsDataViews( {
 				? [
 						{
 							id: THREAT_FIELD_SEVERITY,
-							label: __( 'Severity', 'jetpack' ),
+							label: __( 'Severity', 'jetpack-components' ),
 							type: 'integer' as FieldType,
 							getValue( { item }: { item: Threat } ) {
 								return item.severity ?? 0;
@@ -384,7 +384,7 @@ export default function ThreatsDataViews( {
 				? [
 						{
 							id: THREAT_FIELD_SIGNATURE,
-							label: __( 'Signature', 'jetpack' ),
+							label: __( 'Signature', 'jetpack-components' ),
 							elements: signatures,
 							enableGlobalSearch: true,
 							getValue( { item }: { item: Threat } ) {
@@ -397,7 +397,7 @@ export default function ThreatsDataViews( {
 				? [
 						{
 							id: THREAT_FIELD_FIRST_DETECTED,
-							label: __( 'First Detected', 'jetpack' ),
+							label: __( 'First Detected', 'jetpack-components' ),
 							type: 'datetime' as FieldType,
 							getValue( { item }: { item: Threat } ) {
 								return item.firstDetected ? new Date( item.firstDetected ) : null;
@@ -416,7 +416,7 @@ export default function ThreatsDataViews( {
 				? [
 						{
 							id: THREAT_FIELD_FIXED_ON,
-							label: __( 'Fixed On', 'jetpack' ),
+							label: __( 'Fixed On', 'jetpack-components' ),
 							type: 'datetime' as FieldType,
 							getValue( { item }: { item: Threat } ) {
 								return item.fixedOn ? new Date( item.fixedOn ) : null;
@@ -435,16 +435,16 @@ export default function ThreatsDataViews( {
 				? [
 						{
 							id: THREAT_FIELD_AUTO_FIX,
-							label: __( 'Auto-fix', 'jetpack' ),
+							label: __( 'Auto-fix', 'jetpack-components' ),
 							enableHiding: false,
 							elements: [
 								{
 									value: 'yes',
-									label: __( 'Yes', 'jetpack' ),
+									label: __( 'Yes', 'jetpack-components' ),
 								},
 								{
 									value: 'no',
-									label: __( 'No', 'jetpack' ),
+									label: __( 'No', 'jetpack-components' ),
 								},
 							],
 							getValue( { item }: { item: Threat } ) {
@@ -482,7 +482,7 @@ export default function ThreatsDataViews( {
 		if ( dataFields.includes( 'status' ) ) {
 			result.push( {
 				id: THREAT_ACTION_IGNORE,
-				label: __( 'Ignore', 'jetpack' ),
+				label: __( 'Ignore', 'jetpack-components' ),
 				callback: ( items: Threat[] ) => {
 					showThreatModal( items[ 0 ], 'ignore' )();
 				},
@@ -501,7 +501,7 @@ export default function ThreatsDataViews( {
 		if ( dataFields.includes( 'status' ) ) {
 			result.push( {
 				id: THREAT_ACTION_UNIGNORE,
-				label: __( 'Unignore', 'jetpack' ),
+				label: __( 'Unignore', 'jetpack-components' ),
 				callback: ( items: Threat[] ) => {
 					showThreatModal( items[ 0 ], 'unignore' )();
 				},

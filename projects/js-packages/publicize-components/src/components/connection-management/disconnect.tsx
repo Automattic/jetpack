@@ -60,13 +60,16 @@ export function Disconnect( {
 				isOpen={ isConfirmOpen }
 				onConfirm={ onClickDisconnect }
 				onCancel={ toggleConfirm }
-				cancelButtonText={ __( 'Cancel', 'jetpack' ) }
-				confirmButtonText={ __( 'Yes', 'jetpack' ) }
+				cancelButtonText={ __( 'Cancel', 'jetpack-publicize-components' ) }
+				confirmButtonText={ __( 'Yes', 'jetpack-publicize-components' ) }
 			>
 				{ createInterpolateElement(
 					sprintf(
 						// translators: %s: The name of the connection the user is disconnecting.
-						__( 'Are you sure you want to disconnect <strong>%s</strong>?', 'jetpack' ),
+						__(
+							'Are you sure you want to disconnect <strong>%s</strong>?',
+							'jetpack-publicize-components'
+						),
 						connection.display_name
 					),
 					{ strong: <strong></strong> }
@@ -81,8 +84,12 @@ export function Disconnect( {
 				className={ buttonClassName }
 			>
 				{ isDisconnecting
-					? __( 'Disconnecting…', 'jetpack' )
-					: _x( 'Disconnect', 'Disconnect a social media account', 'jetpack' ) }
+					? __( 'Disconnecting…', 'jetpack-publicize-components' )
+					: _x(
+							'Disconnect',
+							'Disconnect a social media account',
+							'jetpack-publicize-components'
+					  ) }
 			</Button>
 		</>
 	);

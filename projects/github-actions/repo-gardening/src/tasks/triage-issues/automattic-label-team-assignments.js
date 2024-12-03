@@ -50,6 +50,18 @@ export const automatticAssignments = {
 		slack_id: 'C048CUFRGFQ',
 		board_id: 'https://github.com/orgs/Automattic/projects/1106/',
 	},
+	ActivityPub: {
+		team: 'Fediverse',
+		labels: [
+			'[Feature] Federated comments',
+			'[Block] Federated reply',
+			'[Block] Follow Me',
+			'[Block] Followers',
+			'[Block] Post settings',
+			'[Block] Remote Reply',
+		],
+		board_id: 'https://github.com/orgs/Automattic/projects/1208/',
+	},
 	// Jetpack Division.
 	'AI Tools': {
 		team: 'Agora',
@@ -86,7 +98,12 @@ export const automatticAssignments = {
 	},
 	Boost: {
 		team: 'Heart of Gold',
-		labels: [ '[Plugin] Boost' ],
+		labels: [
+			'[Plugin] Boost',
+			'[Boost Feature] Lazy Images',
+			'[Boost Feature] Image Guide',
+			'[Boost Feature] Image Size Analysis',
+		],
 		slack_id: 'C016BBAFHHS',
 		board_id: 'https://github.com/orgs/Automattic/projects/548',
 	},
@@ -125,6 +142,12 @@ export const automatticAssignments = {
 		labels: [ '[Block] Subscriptions', '[Block] Paywall' ],
 		slack_id: 'C02NQ4HMJKV',
 		board_id: 'https://github.com/orgs/Automattic/projects/657',
+	},
+	Photon: {
+		team: 'Heart of Gold',
+		labels: [ '[Feature] Photon', '[Boost Feature] Image CDN', '[Package] Image CDN' ],
+		slack_id: 'C016BBAFHHS',
+		board_id: 'https://github.com/orgs/Automattic/projects/548',
 	},
 	Protect: {
 		team: 'Scan',
