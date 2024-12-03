@@ -7,12 +7,12 @@ import {
 	IMAGE_STYLE_AUTO,
 	ImageStyleObject,
 	ImageStyle,
+	AiModalFooter,
 } from '@automattic/jetpack-ai-client';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { Button, SelectControl } from '@wordpress/components';
+import { SelectControl } from '@wordpress/components';
 import { useCallback, useRef, useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Icon, arrowDownRight, info } from '@wordpress/icons';
 import debugFactory from 'debug';
 /**
  * Internal dependencies
@@ -226,30 +226,7 @@ export default function AiImageModal( {
 						</div>
 					</div>
 					<div className="ai-image-modal__footer">
-						<div className="ai-image-modal__footer-disclaimer">
-							<Icon icon={ info } />
-							<span>
-								{ __( 'Generated images could be inaccurate, biased or include text.', 'jetpack' ) }
-							</span>
-							<Button
-								variant="link"
-								className="ai-image-modal__guidelines-button"
-								href="https://jetpack.com/redirect/?source=ai-guidelines"
-								target="_blank"
-							>
-								<span>{ __( 'Guidelines', 'jetpack' ) }</span>
-								<Icon icon={ arrowDownRight } className="arrow-icon" />
-							</Button>
-						</div>
-						<Button
-							variant="link"
-							className="ai-image-modal__feedback-button"
-							href="https://jetpack.com/redirect/?source=jetpack-ai-feedback"
-							target="_blank"
-						>
-							<span>{ __( 'Give feedback', 'jetpack' ) }</span>
-							<Icon icon={ arrowDownRight } className="arrow-icon" />
-						</Button>
+						<AiModalFooter />
 					</div>
 				</AiAssistantModal>
 			) }
