@@ -21,7 +21,7 @@ const HomePage = () => {
 		...themes,
 		{ checked: true, threats: files, type: 'files' },
 	].map( ( item, index ) => {
-		return { ...item, id: index + 1 };
+		return { id: index + 1, ...item };
 	} );
 
 	return (
