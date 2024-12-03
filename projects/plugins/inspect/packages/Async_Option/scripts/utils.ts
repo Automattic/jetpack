@@ -27,7 +27,7 @@ export function maybeStringify< T >( value: JSONSchema | string ): string | T {
 
 	try {
 		return JSON.stringify( value, null, 2 );
-	} catch ( _e ) {
+	} catch {
 		return value as unknown as T;
 	}
 }

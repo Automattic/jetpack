@@ -155,7 +155,7 @@ export default function ThreatsStatusToggleGroupControl( {
 				/>
 			</ToggleGroupControl>
 		);
-	} catch ( error ) {
+	} catch {
 		return null;
 	}
 }

@@ -20,15 +20,14 @@ export const ASSISTANT_STATE_READY_TO_GENERATE = 'ready-to-generate';
 export const ASSISTANT_STATE_GENERATING = 'generating-content';
 export const ASSISTANT_STATE_CONTENT_GENERATED = 'content-generated';
 
-const blockStateTypes = [
-	ASSISTANT_STATE_INIT,
-	ASSISTANT_STATE_READY_TO_GENERATE,
-	ASSISTANT_STATE_GENERATING,
-	ASSISTANT_STATE_CONTENT_GENERATED,
-] as const;
+type blockStateTypes =
+	| typeof ASSISTANT_STATE_INIT
+	| typeof ASSISTANT_STATE_READY_TO_GENERATE
+	| typeof ASSISTANT_STATE_GENERATING
+	| typeof ASSISTANT_STATE_CONTENT_GENERATED;
 
 export type BlockMessageProps = MessageProps & {
-	state: ( typeof blockStateTypes )[ number ];
+	state: blockStateTypes;
 };
 
 /**
