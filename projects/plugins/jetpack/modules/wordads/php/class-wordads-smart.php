@@ -164,6 +164,9 @@ class WordAds_Smart {
 			return;
 		}
 
+		// Add the resource hints.
+		add_filter( 'wp_resource_hints', array( $this, 'resource_hints' ), 10, 2 );
+
 		// Enqueue JS assets.
 		$this->enqueue_assets();
 
@@ -209,6 +212,22 @@ class WordAds_Smart {
 
 		// Output script.
 		wp_print_inline_script_tag( "var wa_smart = $js_config; wa_smart.cmd = [];" );
+	}
+
+	/**
+	 * Add the Smart resource hints.
+	 *
+	 * @param array  $hints Domains for hinting.
+	 * @param string $relation_type Resource type.
+	 *
+	 * @return array Domains for hinting.
+	 */
+	public function resource_hints( $hints, $relation_type ) {
+		if ( 'dns-prefetch' === $relation_type ) {
+			$hints[] = '//af.pubmine.com';
+		}
+
+		return $hints;
 	}
 
 	/**
