@@ -436,11 +436,11 @@ class WordAds {
 
 		// phpcs:disable WordPress.Security.EscapeOutput.HeredocOutputNotEscaped
 		echo <<<HTML
-				<script>
+				<script type="text/javascript">
 					var sas_fallback = sas_fallback || [];
 					sas_fallback.push(
-						{ tag: "$tag_inline", type: 'inline' }
-						{ tag: "$tag_belowpost", type: 'belowpost' }
+						{ tag: "$tag_inline", type: 'inline' },
+						{ tag: "$tag_belowpost", type: 'belowpost' },
 						{ tag: "$tag_top", type: 'top' }
 					);
 				</script>
