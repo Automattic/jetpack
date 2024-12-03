@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Add `NODE_OPTIONS=--experimental-vm-modules` to test run, apparently the `require()` in `.prettierrc.js` somehow requires that now. 🤷
+
+
