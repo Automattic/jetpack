@@ -1,4 +1,4 @@
-import { H3, Text } from '@automattic/jetpack-components';
+import { H3, Text, ShieldCheckIcon } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { sprintf, __, _n } from '@wordpress/i18n';
 import { useMemo, useState } from 'react';
@@ -6,7 +6,6 @@ import useScanStatusQuery, { isScanInProgress } from '../../data/scan/use-scan-s
 import usePlan from '../../hooks/use-plan';
 import useProtectData from '../../hooks/use-protect-data';
 import OnboardingPopover from '../onboarding-popover';
-import ProtectCheck from '../protect-check-icon';
 import ScanButton from '../scan-button';
 import styles from './styles.module.scss';
 
@@ -84,7 +83,7 @@ const EmptyList = () => {
 
 	return (
 		<div className={ styles.empty }>
-			<ProtectCheck />
+			<ShieldCheckIcon />
 			<H3 weight="bold" mt={ 8 }>
 				{ __( "Don't worry about a thing", 'jetpack-protect' ) }
 			</H3>

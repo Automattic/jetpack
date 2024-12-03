@@ -1,9 +1,16 @@
-import { AdminSection, Container, Col, H3, Text, Title } from '@automattic/jetpack-components';
+import {
+	AdminSection,
+	Container,
+	Col,
+	H3,
+	Text,
+	Title,
+	ShieldCheckIcon,
+} from '@automattic/jetpack-components';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import { Navigate, useParams } from 'react-router-dom';
 import AdminPage from '../../../components/admin-page';
-import ProtectCheck from '../../../components/protect-check-icon';
 import ThreatsNavigation from '../../../components/threats-list/navigation';
 import PaidList from '../../../components/threats-list/paid-list';
 import useThreatsList from '../../../components/threats-list/use-threats-list';
@@ -272,7 +279,7 @@ const ScanHistoryRoute = () => {
 												</div>
 											</div>
 											<div className={ styles.empty }>
-												<ProtectCheck />
+												<ShieldCheckIcon />
 												<H3 weight="bold" mt={ 8 }>
 													{ __( "Don't worry about a thing", 'jetpack-protect' ) }
 												</H3>

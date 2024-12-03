@@ -1,7 +1,7 @@
 import { type JSX } from 'react';
 
 /**
- * Protect Shield and Checkmark SVG Icon
+ * Shield and Checkmark SVG Icon
  *
  * @param {object} props                   - Component props.
  * @param {string} [props.className]       - The class name to add to the SVG Icon.
@@ -9,9 +9,9 @@ import { type JSX } from 'react';
  * @param {string} [props.height="96"]     - The height of the SVG Icon.
  * @param {string} [props.color="#069E08"] - The color of the SVG Icon.
  *
- * @return {JSX.Element} Protect Shield and Checkmark SVG Icon
+ * @return {JSX.Element} Shield and Checkmark SVG Icon
  */
-export default function ProtectCheck( {
+export default function ShieldCheckIcon( {
 	className,
 	width = '80',
 	height = '96',

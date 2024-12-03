@@ -1,9 +1,13 @@
-import { Text, useBreakpointMatch, StatCard } from '@automattic/jetpack-components';
+import {
+	Text,
+	useBreakpointMatch,
+	StatCard,
+	ShieldCheckIcon,
+	ShieldAlertIcon,
+} from '@automattic/jetpack-components';
 import { Spinner, Tooltip } from '@wordpress/components';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { useMemo, useCallback } from 'react';
-import Alert from '../../components/alert-icon';
-import ProtectCheck from '../../components/protect-check-icon';
 import useScanStatusQuery, { isScanInProgress } from '../../data/scan/use-scan-status-query';
 import usePlan from '../../hooks/use-plan';
 import useProtectData from '../../hooks/use-protect-data';
@@ -62,9 +66,9 @@ const HomeStatCards = () => {
 	const renderIcon = useCallback(
 		isFeatureEnabled =>
 			isFeatureEnabled ? (
-				<ProtectCheck { ...defaultDimensions } />
+				<ShieldCheckIcon { ...defaultDimensions } />
 			) : (
-				<Alert { ...defaultDimensions } color="#A7AAAD" />
+				<ShieldAlertIcon { ...defaultDimensions } color="#A7AAAD" />
 			),
 		[ defaultDimensions ]
 	);
@@ -116,11 +120,11 @@ const HomeStatCards = () => {
 		if ( scanning ) {
 			scanIcon = <Spinner />;
 		} else if ( scanError ) {
-			scanIcon = <Alert { ...defaultDimensions } />;
+			scanIcon = <ShieldAlertIcon { ...defaultDimensions } />;
+		} else if ( numThreats ) {
+			scanIcon = <ShieldAlertIcon { ...defaultDimensions } color={ '#F0B849' } />;
 		} else {
-			scanIcon = (
-				<ProtectCheck { ...defaultDimensions } color={ numThreats ? '#F0B849' : '#069E08' } />
-			);
+			scanIcon = <ShieldCheckIcon { ...defaultDimensions } color={ '#069E08' } />;
 		}
 
 		let scanLabel;

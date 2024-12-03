@@ -1,17 +1,17 @@
-import React from 'react';
+import { type JSX } from 'react';
 
 /**
- * Alert icon
+ * Shield and Alert SVG Icon
  *
- * @param {object} props           - Props.
- * @param {string} props.className - Optional component class name.
- * @param {string} props.width     - Optional icon width. Defaults to '127'.
- * @param {string} props.height    - Optional icon height. Defaults to '136'.
- * @param {string} props.color     - Optional icon color. Defaults to '#D63638'.
+ * @param {object} props                   - Component props.
+ * @param {string} [props.className]       - The class name to add to the SVG Icon.
+ * @param {string} [props.width="40"]      - The width of the SVG Icon.
+ * @param {string} [props.height="48"]     - The height of the SVG Icon.
+ * @param {string} [props.color="#D63638"] - The color of the SVG Icon.
  *
- * @return {JSX.Element}      The Alert Icon component.
+ * @return {JSX.Element} Shield and Alert SVG Icon
  */
-export default function Alert( {
+export default function ShieldAlertIcon( {
 	className,
 	width = '40',
 	height = '48',
