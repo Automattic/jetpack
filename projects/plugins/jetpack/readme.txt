@@ -326,7 +326,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.1-beta - 2024-12-02
+### 14.1 - 2024-12-03
 #### Major Enhancements
 - General: Update minimum PHP version to 7.2.
 - General: Update minimum WordPress version to 6.6.
