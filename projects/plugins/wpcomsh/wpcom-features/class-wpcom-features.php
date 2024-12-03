@@ -434,6 +434,7 @@ class WPCOM_Features {
 	public const STAGING_SITES                     = 'staging-sites';
 	public const STATS_FREE                        = 'stats-free';
 	public const STATS_PAID                        = 'stats-paid';
+	public const STATS_COMMERCIAL                  = 'stats-commercial';
 	public const STUDIO_SYNC                       = 'studio-sync';
 	public const SUBSCRIBER_UNLIMITED_IMPORTS      = 'subscriber-unlimited-imports';
 	public const SUBSCRIPTION_GIFTING              = 'subscription-gifting';
@@ -1149,21 +1150,24 @@ class WPCOM_Features {
 		self::STATS_FREE                        => array(
 			self::JETPACK_STATS_PLANS,
 			self::JETPACK_GROWTH_PLANS,
-		),
-		self::STATS_PAID                        => array(
 			array(
 				'before' => '2024-01-09',
-				self::WPCOM_PERSONAL_PLANS,
 				self::WPCOM_ALL_SITES,
 			),
+		),
+		self::STATS_PAID                        => array(
+			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
 			self::WP_P2_PLUS_MONTHLY,
-			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
 			self::JETPACK_STATS_PWYW,
 			self::JETPACK_STATS_MONTHLY,
 			self::JETPACK_STATS_BI_YEARLY,
 			self::JETPACK_STATS_YEARLY,
 			self::JETPACK_COMPLETE_PLANS,
+			self::JETPACK_BUSINESS_PLANS,
 			self::JETPACK_GROWTH_PLANS,
+		),
+		self::STATS_COMMERCIAL                  => array(
+			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
 		),
 		self::STUDIO_SYNC                       => array(
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
