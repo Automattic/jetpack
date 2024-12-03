@@ -1,0 +1,20 @@
+.ai-image-modal__footer-disclaimer {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	color: var( --jp-gray-50 );
+	fill: var( --jp-gray-50 );
+
+	.components-button.is-link {
+		color: var( --jp-gray-50 );
+	}
+}
+
+.arrow-icon {
+	transform: rotate( -90deg ); // Fun fact: There is no arrowUpRight icon
+	margin-left: 4px;
+}
+
+.ai-image-modal__feedback-button.components-button.is-link {
+	text-decoration: none;
+}
