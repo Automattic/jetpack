@@ -28,6 +28,20 @@ async function hasStatusLabels( octokit, owner, repo, number ) {
 }
 
 /**
+ * Check for Type labels on a PR.
+ *
+ * @param {GitHub} octokit - Initialized Octokit REST client.
+ * @param {string} owner   - Repository owner.
+ * @param {string} repo    - Repository name.
+ * @param {string} number  - PR number.
+ * @return {Promise<boolean>} Promise resolving to boolean.
+ */
+async function hasTypeLabels( octokit, owner, repo, number ) {
+	const labels = await getLabels( octokit, owner, repo, number );
+	return !! labels.find( label => label.match( /^\[Type\]/ ) );
+}
+
+/**
  * Check for a "Need Review" label on a PR.
  *
  * @param {GitHub} octokit - Initialized Octokit REST client.
@@ -256,6 +270,7 @@ async function getStatusChecks( payload, octokit ) {
 
 	const hasLongDescription = body?.length > 200;
 	const isLabeled = await hasStatusLabels( octokit, ownerLogin, repo, number );
+	const hasType = await hasTypeLabels( octokit, ownerLogin, repo, number );
 	const hasTesting = !! body?.includes( 'Testing instructions' );
 	const hasPrivacy = !! body?.includes( 'data or activity we track or use' );
 	const projectsWithoutChangelog = await getChangelogEntries( octokit, ownerLogin, repo, number );
@@ -269,6 +284,7 @@ async function getStatusChecks( payload, octokit ) {
 		projectsWithoutChangelog,
 		hasChangelogEntries: projectsWithoutChangelog.length === 0,
 		isFromContributor,
+		hasType,
 	};
 }
 
@@ -288,10 +304,20 @@ function renderStatusChecks( statusChecks ) {
 	// Use labels please!
 	// Only check this for PRs created by a12s. External contributors cannot add labels.
 	if ( statusChecks.isFromContributor ) {
-		debug( `check-description: this PR is correctly labeled: ${ statusChecks.isLabeled }` );
+		debug( `check-description: this PR has a Status label: ${ statusChecks.isLabeled }` );
 		checks += statusEntry(
 			! statusChecks.isLabeled,
 			'Add a "[Status]" label (In Progress, Needs Team Review, ...).'
+		);
+	}
+
+	// Add a [Type] label please.
+	// Only check this for PRs created by a12s. External contributors cannot add labels.
+	if ( statusChecks.isFromContributor ) {
+		debug( `check-description: this PR has a Type label: ${ statusChecks.hasType }` );
+		checks += statusEntry(
+			! statusChecks.hasType,
+			'Add a "[Type]" label (Bug, Enhancement, Janitorial, Task).'
 		);
 	}
 
