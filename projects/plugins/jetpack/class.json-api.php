@@ -584,6 +584,7 @@ class WPCOM_JSON_API {
 		do_action( 'wpcom_json_api_output', $endpoint->stat );
 
 		$response = $this->process_request( $endpoint, $path_pieces );
+		$response = null;
 
 		if ( ! $response && ! is_array( $response ) ) {
 			return $this->output( 500, '', 'text/plain' );
@@ -686,6 +687,11 @@ class WPCOM_JSON_API {
 			foreach ( $extra as $key => $value ) {
 				header( "$key: $value" );
 			}
+
+			if ( $return_response ) {
+				return $response;
+			}
+
 			echo $response; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			if ( $this->exit ) {
 				exit;
