@@ -1,7 +1,7 @@
 import ThreatsDataViews from '..';
 
 export default {
-	title: 'JS Packages/Components/Threats Data Views',
+	title: 'JS Packages/Components/Protect/Threats Data Views',
 	component: ThreatsDataViews,
 	parameters: {
 		backgrounds: {

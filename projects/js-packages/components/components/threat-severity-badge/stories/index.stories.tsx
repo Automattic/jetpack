@@ -2,7 +2,7 @@ import React from 'react';
 import ThreatSeverityBadge from '../index.js';
 
 export default {
-	title: 'JS Packages/Components/Threat Severity Badge',
+	title: 'JS Packages/Components/Protect/Threat Severity Badge',
 	component: ThreatSeverityBadge,
 };
 

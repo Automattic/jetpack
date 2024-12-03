@@ -3,7 +3,7 @@ import Button from '../../button/index.js';
 import ThreatModal from '../index.js';
 
 export default {
-	title: 'JS Packages/Components/Threat Modal',
+	title: 'JS Packages/Components/Protect/Threat Modal',
 	component: ThreatModal,
 };
 
