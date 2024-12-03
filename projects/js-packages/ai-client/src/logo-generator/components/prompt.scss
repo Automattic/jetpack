@@ -5,6 +5,20 @@
 	flex-direction: column;
 	gap: 8px;
 	font-size: var(--font-body-small);
+
+	.components-button {
+		&:focus:not(:disabled):not(.is-primary) {
+			box-shadow: 0 0 0 2px var(--color-link, #3858e9);
+		}
+
+		&.is-link {
+			text-decoration: none;
+
+			&:not(:disabled) {
+				color: var(--color-link, #3858e9);
+			}
+		}
+	}
 }
 
 .jetpack-ai-logo-generator__prompt-header {
