@@ -57,8 +57,6 @@ Default.args = {
 		},
 		{
 			id: 4,
-			name: '/var/www/html/wp-content/uploads/jptt_eicar.php',
-			version: 'EICAR_AV_Test_Suspicious',
 			threats: [
 				{
 					id: 198352406,

@@ -16,25 +16,12 @@ const HomePage = () => {
 		results: { core, plugins, themes, files },
 	} = useProtectData();
 
-	const fileThreats =
-		files.length > 0
-			? files.map( threat => ( {
-					checked: true,
-					name: threat.filename,
-					threats: [ threat ],
-					type: 'files',
-					version: threat.signature,
-			  } ) )
-			: [
-					{
-						checked: true,
-						name: '',
-						threats: [],
-						type: 'files',
-					},
-			  ];
-
-	const data = [ ...core, ...plugins, ...themes, ...fileThreats ].map( ( item, index ) => {
+	const data = [
+		...core,
+		...plugins,
+		...themes,
+		{ checked: true, threats: files, type: 'files' },
+	].map( ( item, index ) => {
 		return { ...item, id: index + 1 };
 	} );
 
