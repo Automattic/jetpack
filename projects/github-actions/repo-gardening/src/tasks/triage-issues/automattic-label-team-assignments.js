@@ -50,6 +50,18 @@ export const automatticAssignments = {
 		slack_id: 'C048CUFRGFQ',
 		board_id: 'https://github.com/orgs/Automattic/projects/1106/',
 	},
+	ActivityPub: {
+		team: 'Fediverse',
+		labels: [
+			'[Feature] Federated comments',
+			'[Block] Federated reply',
+			'[Block] Follow Me',
+			'[Block] Followers',
+			'[Block] Post settings',
+			'[Block] Remote Reply',
+		],
+		board_id: 'https://github.com/orgs/Automattic/projects/1208/',
+	},
 	// Jetpack Division.
 	'AI Tools': {
 		team: 'Agora',
