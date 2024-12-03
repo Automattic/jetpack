@@ -41,18 +41,23 @@ export default function MessageBoxControl( {
 	return (
 		<TextareaControl
 			value={ message }
-			label={ __( 'Message', 'jetpack' ) }
+			label={ __( 'Message', 'jetpack-publicize-components' ) }
 			onChange={ handleChange }
 			disabled={ disabled }
 			maxLength={ maxLength }
 			placeholder={ __(
 				'Write a custom message for your social audience here. This message will override your social post content.',
-				'jetpack'
+				'jetpack-publicize-components'
 			) }
 			rows={ 4 }
 			help={ sprintf(
 				/* translators: placeholder is a number. */
-				_n( '%d character remaining', '%d characters remaining', charactersRemaining, 'jetpack' ),
+				_n(
+					'%d character remaining',
+					'%d characters remaining',
+					charactersRemaining,
+					'jetpack-publicize-components'
+				),
 				charactersRemaining
 			) }
 			__nextHasNoMarginBottom={ true }

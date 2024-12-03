@@ -68,7 +68,7 @@ export function ShareButtons( { buttonStyle = 'icon', buttonVariant }: ShareButt
 
 				const text = sprintf(
 					/* translators: %s is the name of a social network, e.g. Twitter. */
-					__( 'Share on %s', 'jetpack' ),
+					__( 'Share on %s', 'jetpack-publicize-components' ),
 					label
 				);
 
@@ -111,7 +111,7 @@ export function ShareButtons( { buttonStyle = 'icon', buttonVariant }: ShareButt
 				>
 					{ 'icon' === buttonStyle ? null : (
 						<Text className={ styles.label } component="span">
-							{ __( 'Copy to clipboard', 'jetpack' ) }
+							{ __( 'Copy to clipboard', 'jetpack-publicize-components' ) }
 						</Text>
 					) }
 				</CopyToClipboard>

@@ -1,4 +1,5 @@
 import { useConnection } from '@automattic/jetpack-connection';
+import { type ScanStatus } from '@automattic/jetpack-scan';
 import { useQuery, UseQueryResult, useQueryClient } from '@tanstack/react-query';
 import camelize from 'camelize';
 import API from '../../api';
@@ -7,7 +8,6 @@ import {
 	SCAN_STATUS_IDLE,
 	SCAN_STATUS_UNAVAILABLE,
 } from '../../constants';
-import { ScanStatus } from '../../types/scans';
 import { QUERY_SCAN_STATUS_KEY } from './../../constants';
 
 export const isRequestedScanNotStarted = ( status: ScanStatus ) => {

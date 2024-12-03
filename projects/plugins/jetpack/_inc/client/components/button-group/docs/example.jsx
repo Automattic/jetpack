@@ -1,10 +1,10 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 
+import React from 'react';
 import Button from 'components/button';
 import ButtonGroup from 'components/button-group';
 import Card from 'components/card';
 import Gridicon from 'components/gridicon';
-import React from 'react';
 
 class Buttons extends React.PureComponent {
 	static displayName = 'ButtonGroup';

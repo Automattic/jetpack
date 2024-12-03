@@ -125,7 +125,7 @@ export function PostPreview( { connection }: PostPreviewProps ) {
 			return (
 				<LinkedInPostPreview
 					{ ...commonProps }
-					jobTitle={ __( 'Job Title (Company Name)', 'jetpack' ) }
+					jobTitle={ __( 'Job Title (Company Name)', 'jetpack-publicize-components' ) }
 					name={ user.displayName }
 					profileImage={ user.profileImage }
 					description={ message || title || description }

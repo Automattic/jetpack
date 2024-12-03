@@ -42,7 +42,7 @@ export function useSupportedServices(): Array< SupportedService > {
 	}, [] );
 
 	const badgeNew: Badge = {
-		text: __( 'New', 'jetpack' ),
+		text: __( 'New', 'jetpack-publicize-components' ),
 		style: { background: '#e9eff5', color: '#0675C4' },
 	};
 
@@ -50,43 +50,56 @@ export function useSupportedServices(): Array< SupportedService > {
 		{
 			...availableServices.facebook,
 			icon: props => <SocialServiceIcon serviceName="facebook" { ...props } />,
-			description: __( 'Share to your pages', 'jetpack' ),
+			description: __( 'Share to your pages', 'jetpack-publicize-components' ),
 			examples: [
 				() => (
 					<>
 						{ createInterpolateElement(
 							__(
 								'<strong>Connect</strong> to automatically share posts on your Facebook page.',
-								'jetpack'
+								'jetpack-publicize-components'
 							),
 							{ strong: <strong></strong> }
 						) }
 					</>
 				),
 				() => (
-					<img src={ connectionsFacebook } alt={ __( 'Add Facebook connection', 'jetpack' ) } />
+					<img
+						src={ connectionsFacebook }
+						alt={ __( 'Add Facebook connection', 'jetpack-publicize-components' ) }
+					/>
 				),
 			],
 		},
 		{
 			...availableServices[ 'instagram-business' ],
 			icon: props => <SocialServiceIcon serviceName="instagram" { ...props } />,
-			description: __( 'Share to your Instagram Business account.', 'jetpack' ),
+			description: __(
+				'Share to your Instagram Business account.',
+				'jetpack-publicize-components'
+			),
 			examples: [
 				() => (
 					<>
 						{ __(
 							'Drive engagement and save time by automatically sharing images to Instagram when you publish blog posts.',
-							'jetpack'
+							'jetpack-publicize-components'
 						) }
 						<div className="instagram-business__requirements">
-							<h4>{ __( 'Requirements for connecting Instagram:', 'jetpack' ) }</h4>
+							<h4>
+								{ __( 'Requirements for connecting Instagram:', 'jetpack-publicize-components' ) }
+							</h4>
 							<ol>
-								<li>{ __( 'You must have an Instagram Business account.', 'jetpack' ) }</li>
+								<li>
+									{ __(
+										'You must have an Instagram Business account.',
+										'jetpack-publicize-components'
+									) }
+								</li>
 								<li>
 									{ __(
 										'Your Instagram Business account must be linked to a Facebook page.',
-										'jetpack'
+										'jetpack-publicize-components'
 									) }
 								</li>
 							</ol>
@@ -94,7 +107,7 @@ export function useSupportedServices(): Array< SupportedService > {
 						{ createInterpolateElement(
 							__(
 								"<i>When you click “connect” you'll be asked to <strong>log into Facebook</strong>. If your Instagram Business account isn't listed, ensure it's linked to a Facebook page.</i>",
-								'jetpack'
+								'jetpack-publicize-components'
 							),
 							{ strong: <strong></strong>, i: <em></em> }
 						) }
@@ -104,14 +117,17 @@ export function useSupportedServices(): Array< SupportedService > {
 							className="instagram-business__help-link"
 							href="https://jetpack.com/redirect/?source=jetpack-social-instagram-business-help"
 						>
-							{ __( 'Learn how to convert & link your Instagram account.', 'jetpack' ) }
+							{ __(
+								'Learn how to convert & link your Instagram account.',
+								'jetpack-publicize-components'
+							) }
 						</ExternalLink>
 					</>
 				),
 				() => (
 					<img
 						src={ connectionsInstagramBusiness }
-						alt={ __( 'Add Instagram photo', 'jetpack' ) }
+						alt={ __( 'Add Instagram photo', 'jetpack-publicize-components' ) }
 					/>
 				),
 			],
@@ -119,17 +135,22 @@ export function useSupportedServices(): Array< SupportedService > {
 		{
 			...availableServices.threads,
 			icon: props => <SocialServiceIcon serviceName="threads" { ...props } />,
-			description: __( 'Share posts to your Threads feed.', 'jetpack' ),
+			description: __( 'Share posts to your Threads feed.', 'jetpack-publicize-components' ),
 			examples: [
 				() => (
 					<>
 						{ __(
 							'Increase your presence in social media by sharing your posts automatically to Threads.',
-							'jetpack'
+							'jetpack-publicize-components'
 						) }
 					</>
 				),
-				() => <img src={ connectionsThreads } alt={ __( 'Add Threads connection', 'jetpack' ) } />,
+				() => (
+					<img
+						src={ connectionsThreads }
+						alt={ __( 'Add Threads connection', 'jetpack-publicize-components' ) }
+					/>
+				),
 			],
 		},
 		{
@@ -137,13 +158,13 @@ export function useSupportedServices(): Array< SupportedService > {
 			needsCustomInputs: true,
 			icon: props => <SocialServiceIcon serviceName="bluesky" { ...props } />,
 			badges: [ badgeNew ],
-			description: __( 'Share with your network.', 'jetpack' ),
+			description: __( 'Share with your network.', 'jetpack-publicize-components' ),
 			examples: [
 				() => (
 					<>
 						{ __(
 							'To share to Bluesky please enter your Bluesky handle and app password below, then click connect.',
-							'jetpack'
+							'jetpack-publicize-components'
 						) }
 					</>
 				),
@@ -152,73 +173,86 @@ export function useSupportedServices(): Array< SupportedService > {
 		{
 			...availableServices.linkedin,
 			icon: props => <SocialServiceIcon serviceName="linkedin" { ...props } />,
-			description: __( 'Share with your LinkedIn community.', 'jetpack' ),
+			description: __( 'Share with your LinkedIn community.', 'jetpack-publicize-components' ),
 			examples: [
 				() => (
 					<>
 						{ createInterpolateElement(
 							__(
 								'<strong>Connect</strong> to automatically share posts with your LinkedIn connections.',
-								'jetpack'
+								'jetpack-publicize-components'
 							),
 							{ strong: <strong></strong> }
 						) }
 					</>
 				),
 				() => (
-					<img src={ connectionsLinkedin } alt={ __( 'Add LinkedIn connection', 'jetpack' ) } />
+					<img
+						src={ connectionsLinkedin }
+						alt={ __( 'Add LinkedIn connection', 'jetpack-publicize-components' ) }
+					/>
 				),
 			],
 		},
 		{
 			...availableServices.nextdoor,
 			icon: props => <SocialServiceIcon serviceName="nextdoor" { ...props } />,
-			description: __( 'Share on communities', 'jetpack' ),
+			description: __( 'Share on communities', 'jetpack-publicize-components' ),
 			examples: [
 				() => (
 					<>
 						{ createInterpolateElement(
 							__(
 								'<strong>Connect</strong> with friends, neighbors, and local businesses by automatically sharing your posts to Nextdoor.',
-								'jetpack'
+								'jetpack-publicize-components'
 							),
 							{ strong: <strong></strong> }
 						) }
 					</>
 				),
-				() => <img src={ connectionsNextdoor } alt={ __( 'Add Instagram photo', 'jetpack' ) } />,
+				() => (
+					<img
+						src={ connectionsNextdoor }
+						alt={ __( 'Add Instagram photo', 'jetpack-publicize-components' ) }
+					/>
+				),
 			],
 		},
 		{
 			...availableServices.tumblr,
 			icon: props => <SocialServiceIcon serviceName="tumblr-alt" { ...props } />,
-			description: __( 'Share to your Tumblr blog.', 'jetpack' ),
+			description: __( 'Share to your Tumblr blog.', 'jetpack-publicize-components' ),
 			examples: [
 				() => (
 					<>
 						{ createInterpolateElement(
 							__(
 								'<strong>Connect</strong> to automatically share posts to your Tumblr blog.',
-								'jetpack'
+								'jetpack-publicize-components'
 							),
 							{ strong: <strong></strong> }
 						) }
 					</>
 				),
-				() => <img src={ connectionsTumblr } alt={ __( 'Add Tumblr connection', 'jetpack' ) } />,
+				() => (
+					<img
+						src={ connectionsTumblr }
+						alt={ __( 'Add Tumblr connection', 'jetpack-publicize-components' ) }
+					/>
+				),
 			],
 		},
 		{
 			...availableServices.mastodon,
 			needsCustomInputs: true,
 			icon: props => <SocialServiceIcon serviceName="mastodon" { ...props } />,
-			description: __( 'Share with your network.', 'jetpack' ),
+			description: __( 'Share with your network.', 'jetpack-publicize-components' ),
 			examples: [
 				() => (
 					<>
 						{ __(
 							'To share to Mastodon please enter your Mastodon username below, then click connect.',
-							'jetpack'
+							'jetpack-publicize-components'
 						) }
 					</>
 				),

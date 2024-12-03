@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\Protect_Status;
 
-use Automattic\Jetpack\Protect_Models\Extension_Model;
 use Automattic\Jetpack\Protect_Models\Status_Model;
 
 /**
@@ -269,36 +268,6 @@ class Status {
 		}
 
 		return $status->threats;
-	}
-
-	/**
-	 * Check if the WordPress version that was checked matches the current installed version.
-	 *
-	 * @phan-suppress PhanDeprecatedFunction -- Maintaining backwards compatibility.
-	 *
-	 * @param object $core_check The object returned by Protect wpcom endpoint.
-	 * @return object The object representing the current status of core checks.
-	 */
-	protected static function normalize_core_information( $core_check ) {
-		global $wp_version;
-
-		$core = new Extension_Model(
-			array(
-				'type'    => 'core',
-				'name'    => 'WordPress',
-				'version' => $wp_version,
-				'checked' => false,
-			)
-		);
-
-		if ( isset( $core_check->version ) && $core_check->version === $wp_version ) {
-			if ( is_array( $core_check->vulnerabilities ) ) {
-				$core->checked = true;
-				$core->set_threats( $core_check->vulnerabilities );
-			}
-		}
-
-		return $core;
 	}
 
 	/**

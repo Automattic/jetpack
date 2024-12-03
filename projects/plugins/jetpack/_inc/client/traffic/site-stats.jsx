@@ -1,8 +1,10 @@
-import { imagePath, JETPACK_STATS_OPT_OUT_SURVEY } from 'constants/urls';
 import { getRedirectUrl, ToggleControl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import clsx from 'clsx';
+import { filter, includes } from 'lodash';
+import React from 'react';
+import { connect } from 'react-redux';
 import Button from 'components/button';
 import Card from 'components/card';
 import FoldableCard from 'components/foldable-card';
@@ -13,10 +15,8 @@ import SimpleNotice from 'components/notice';
 import NoticeAction from 'components/notice/notice-action';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
+import { imagePath, JETPACK_STATS_OPT_OUT_SURVEY } from 'constants/urls';
 import analytics from 'lib/analytics';
-import { filter, includes } from 'lodash';
-import React from 'react';
-import { connect } from 'react-redux';
 import { isWoASite } from 'state/initial-state';
 
 class SiteStatsComponent extends React.Component {

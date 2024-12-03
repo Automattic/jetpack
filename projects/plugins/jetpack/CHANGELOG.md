@@ -2,6 +2,28 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 14.1-beta - 2024-12-02
+### Enhancements
+- Likes Block: Allow hiding avatars. [#40282]
+- Social: Change My Jetpack CTA from "Learn more" to "Activate". [#40359]
+
+### Improved compatibility
+- Social: Change "Activate" button in the editor to link. [#40390]
+- Tiled Gallery: Increase accessibility by ensuring images are not classified as interactive when they shouldn't be. [#40241]
+
+### Bug fixes
+- Licensing: Resolves an issue where revoked licenses were incorrectly treated as unattached. [#40215]
+- Social: Made resharing async in classic editor to fix timeout issues. [#40302]
+- Subscribe block: Fix block error when editing. [#40355]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Bundles: Add growth icon to recommendation upsell. [#40347]
+- Classic Theme Helper: Add Testimonial custom post type content. [#40295]
+- Jetpack AI: Check module availability for mapped blocks. [#40336]
+- Likes Block: Add a filter to the iframe url to enable future expansion and modularity. [#40276]
+- Update @wordpress/editor to the latest version/ [#40373]
+- Write Brief: Add alternative apostrophe char to spelling mistakes regex. [#40395]
+
 ## 14.1-a.7 - 2024-11-26
 ### Enhancements
 - Subscriptions: stops loading editor functionality (i.e. the block and panels) when subscriptions module is disabled. [#39802]

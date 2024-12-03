@@ -134,7 +134,7 @@ export default function ThreatsStatusToggleGroupControl( {
 							label={ sprintf(
 								/* translators: %d: number of active threats */ __(
 									'Active threats (%d)',
-									'jetpack'
+									'jetpack-components'
 								),
 								activeThreatsCount
 							) }
@@ -143,7 +143,7 @@ export default function ThreatsStatusToggleGroupControl( {
 							value="historic"
 							label={ sprintf(
 								/* translators: %d: number of historic threats */
-								__( 'History (%d)', 'jetpack' ),
+								__( 'History (%d)', 'jetpack-components' ),
 								historicThreatsCount
 							) }
 						/>
