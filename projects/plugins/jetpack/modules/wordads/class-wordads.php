@@ -372,8 +372,7 @@ class WordAds {
 		$consent      = (int) isset( $_COOKIE['personalized-ads-consent'] );
 		$is_logged_in = is_user_logged_in() ? '1' : '0';
 
-		$disabled_slot_formats = array();
-		$disabled_slot_formats = apply_filters( 'wordads_disabled_slot_formats', $disabled_slot_formats );
+		$disabled_slot_formats = apply_filters( 'wordads_disabled_slot_formats', array() );
 
 		if ( apply_filters( 'wordads_iponweb_bottom_sticky_ad_disable', false ) ) {
 			$disabled_slot_formats[] = 'MTS';
