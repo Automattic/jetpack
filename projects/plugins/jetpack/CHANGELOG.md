@@ -3,18 +3,12 @@
 ### This is a list detailing changes for all Jetpack releases.
 
 ## 14.1 - 2024-12-03
-### Major Enhancements
-- General: Update minimum PHP version to 7.2. [#40147]
-- General: Update minimum WordPress version to 6.6. [#40146]
-- Social: Added permissions warning for LinkedIn connections. [#40220]
-
 ### Enhancements
-- Google Photos Picker: Adding Google Photos Picker flow backend API endpoints support. [#40242]
-- Google Photos Picker: Update Google Photos external media to support Google Photos Picker API. [#40087]
 - Image CDN: Use preconnect resource hints instead of dns-prefetch to improve performance. [#39883]
 - Likes Block: Allow hiding avatars. [#40282]
 - My Jetpack: Update the recommendations section in My Jetpack to include a slider interaction for the cards. [#39850]
 - Social: Added a new toggle for Social UTM tracking. [#39998]
+- Social: Add permissions warning for LinkedIn connections. [#40220]
 - Social: Change My Jetpack CTA from "Learn more" to "Activate". [#40359]
 - Social: Post share status in the editor is now immediately available on page load. [#40301]
 - Subscriptions: stops loading editor functionality (i.e. the block and panels) when subscriptions module is disabled. [#39802]
@@ -24,6 +18,8 @@
 - Components: Shortlink and Toolbar related components have been updated to ensure compatibility. [#39960]
 - Dashboard: Fix toggle component to prevent console warnings. [#40164]
 - Extra Sidebar Widgets: update asset enqueuing strategy to ensure compatibility with the Elementor plugin. [#39820]
+- General: Update minimum PHP version to 7.2. [#40147]
+- General: Update minimum WordPress version to 6.6. [#40146]
 - Social: Change "Activate" button in the editor to link. [#40390]
 - Tiled Gallery: Increase accessibility by ensuring images are not classified as interactive when they shouldn't be. [#40241]
 
@@ -58,6 +54,8 @@
 - Docs: Update lists of social networks supported by Publicize, to include all the newer networks. [#40248]
 - General: Added to-test changes for Jetpack 14.1. [#40331]
 - General: Fixed TS errors following @wordpress/editor update. [#40291]
+- Google Photos Picker: Add Google Photos Picker flow backend API endpoints support. [#40242]
+- Google Photos Picker: Update Google Photos external media to support Google Photos Picker API. [#40087]
 - Jetpack AI: Check module availability for mapped blocks. [#40336]
 - Jetpack AI: Enable transform list to table functionality for all. [#40287]
 - Jetpack AI: Image generator modals now properly enable prompt input separately from action button. [#40210]
