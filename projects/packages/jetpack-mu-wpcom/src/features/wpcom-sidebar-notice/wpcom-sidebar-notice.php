@@ -36,50 +36,14 @@ function wpcom_enqueue_sidebar_notice_assets() {
 		Jetpack_Mu_Wpcom::PACKAGE_VERSION
 	);
 
-	$notice = wpcom_get_sidebar_notice();
-	if ( $notice ) {
-		$link = $notice['link'];
-		if ( str_starts_with( $link, '/' ) ) {
-			$link = 'https://wordpress.com' . $link;
-		}
-
-		$user_id    = null;
-		$user_login = null;
-
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			global $current_user;
-			$user_id    = $current_user->ID;
-			$user_login = $current_user->user_login;
-		} else {
-			$connection_manager = new Connection_Manager();
-			$wpcom_user_data    = $connection_manager->get_connected_user_data();
-			if ( $wpcom_user_data ) {
-				$user_id    = $wpcom_user_data['ID'];
-				$user_login = $wpcom_user_data['login'];
-			}
-		}
-
-		$data = array(
-			'url'          => esc_url( $link ),
-			'text'         => wp_kses( $notice['content'], array() ),
-			'action'       => wp_kses( $notice['cta'], array() ),
-			'dismissible'  => $notice['dismissible'],
-			'dismissLabel' => esc_html__( 'Dismiss', 'jetpack-mu-wpcom' ),
-			'id'           => $notice['id'],
-			'featureClass' => $notice['feature_class'],
-			'dismissNonce' => wp_create_nonce( 'wpcom_dismiss_sidebar_notice' ),
-			'tracks'       => $notice['tracks'],
-			'user'         => array(
-				'ID'       => $user_id,
-				'username' => $user_login,
-			),
-		);
-
-		wp_add_inline_script(
-			'wpcom-sidebar-notice',
-			'window.wpcomSidebarNotice = ' . wp_json_encode( $data ) . ';'
-		);
-	}
+	wp_localize_script(
+		'wpcom-sidebar-notice',
+		'wpcomSidebarNoticeConfig',
+		array(
+			'ajaxUrl' => admin_url( 'admin-ajax.php' ),
+			'nonce'   => wp_create_nonce( 'fetch_sidebar_notice' ),
+		)
+	);
 }
 add_action( 'admin_enqueue_scripts', 'wpcom_enqueue_sidebar_notice_assets' );
 
@@ -123,6 +87,59 @@ function wpcom_get_sidebar_notice() {
 		'tracks'        => $message->tracks ?? null,
 	);
 }
+
+/**
+ * Fetch sidebar notice data asynchronously via AJAX.
+ */
+function wpcom_fetch_sidebar_notice_data() {
+	check_ajax_referer( 'fetch_sidebar_notice', 'nonce' );
+
+	$notice = wpcom_get_sidebar_notice();
+	if ( ! $notice ) {
+		status_header( 204 );
+		wp_die();
+	}
+
+	$link = ! empty( $notice['link'] ) ? $notice['link'] : '';
+	if ( str_starts_with( $link, '/' ) ) {
+		$link = 'https://wordpress.com' . $link;
+	}
+
+	$user_id    = null;
+	$user_login = null;
+
+	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+		global $current_user;
+		$user_id    = $current_user->ID;
+		$user_login = $current_user->user_login;
+	} else {
+		$connection_manager = new Connection_Manager();
+		$wpcom_user_data    = $connection_manager->get_connected_user_data();
+		if ( $wpcom_user_data ) {
+			$user_id    = $wpcom_user_data['ID'];
+			$user_login = $wpcom_user_data['login'];
+		}
+	}
+
+	$data = array(
+		'url'          => esc_url( $link ),
+		'text'         => wp_kses( $notice['content'], array() ),
+		'action'       => wp_kses( $notice['cta'], array() ),
+		'dismissible'  => $notice['dismissible'],
+		'dismissLabel' => esc_html__( 'Dismiss', 'jetpack-mu-wpcom' ),
+		'id'           => $notice['id'],
+		'featureClass' => $notice['feature_class'],
+		'dismissNonce' => wp_create_nonce( 'wpcom_dismiss_sidebar_notice' ),
+		'tracks'       => $notice['tracks'],
+		'user'         => array(
+			'ID'       => $user_id,
+			'username' => $user_login,
+		),
+	);
+
+	wp_send_json_success( $data );
+}
+add_action( 'wp_ajax_fetch_sidebar_notice', 'wpcom_fetch_sidebar_notice_data' );
 
 /**
  * Handle AJAX requests to dismiss a sidebar notice.
