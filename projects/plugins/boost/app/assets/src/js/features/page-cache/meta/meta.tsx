@@ -36,7 +36,14 @@ const Meta = () => {
 		}
 
 		if ( totalBypassPatterns === 0 && ! logging ) {
-			return __( 'No exceptions or logging.', 'jetpack-boost' );
+			return __( 'No exceptions.', 'jetpack-boost' ) + ' ' + __( 'No logging.', 'jetpack-boost' );
+		}
+
+		let loggingMessage;
+		if ( logging ) {
+			loggingMessage = __( 'Logging activated.', 'jetpack-boost' );
+		} else {
+			loggingMessage = __( 'No logging.', 'jetpack-boost' );
 		}
 
 		return (
@@ -48,9 +55,7 @@ const Meta = () => {
 				  )
 				: __( 'No exceptions.', 'jetpack-boost' ) ) +
 			' ' +
-			( logging
-				? __( 'Logging activated.', 'jetpack-boost' )
-				: __( 'No logging.', 'jetpack-boost' ) )
+			loggingMessage
 		);
 	};
 
