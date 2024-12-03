@@ -18,11 +18,13 @@ if ( get_option( 'wpcom_admin_interface' ) !== 'wp-admin' ) {
  * Enqueue assets needed by the WordPress.com sidebar notice.
  */
 function wpcom_enqueue_sidebar_notice_assets() {
+	$asset_file = include Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-sidebar-notice/wpcom-sidebar-notice.asset.php';
+
 	wp_enqueue_script(
 		'wpcom-sidebar-notice',
 		plugins_url( 'build/wpcom-sidebar-notice/wpcom-sidebar-notice.js', Jetpack_Mu_Wpcom::BASE_FILE ),
-		array(),
-		Jetpack_Mu_Wpcom::PACKAGE_VERSION,
+		$asset_file['dependencies'] ?? array(),
+		$asset_file['version'] ?? filemtime( Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-sidebar-notice/wpcom-sidebar-notice.js' ),
 		array(
 			'strategy'  => 'defer',
 			'in_footer' => true,
@@ -33,7 +35,7 @@ function wpcom_enqueue_sidebar_notice_assets() {
 		'wpcom-sidebar-notice',
 		plugins_url( 'build/wpcom-sidebar-notice/wpcom-sidebar-notice.css', Jetpack_Mu_Wpcom::BASE_FILE ),
 		array(),
-		Jetpack_Mu_Wpcom::PACKAGE_VERSION
+		$asset_file['version'] ?? filemtime( Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-sidebar-notice/wpcom-sidebar-notice.css' )
 	);
 
 	wp_localize_script(
