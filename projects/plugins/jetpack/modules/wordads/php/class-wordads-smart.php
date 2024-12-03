@@ -296,7 +296,7 @@ class WordAds_Smart {
 	 * @return void
 	 */
 	private function enable_formats(): void {
-		$this->formats['top']['enabled']                  = $this->params->options['wordads_inline_enabled'];
+		$this->formats['top']['enabled']                  = $this->params->options['enable_header_ad'];
 		$this->formats['inline']['enabled']               = is_singular( 'post' ) && $this->params->options['wordads_inline_enabled'];
 		$this->formats['belowpost']['enabled']            = $this->params->options['wordads_second_belowpost'];
 		$this->formats['bottom_sticky']['enabled']        = $this->params->options['wordads_bottom_sticky_enabled'];
