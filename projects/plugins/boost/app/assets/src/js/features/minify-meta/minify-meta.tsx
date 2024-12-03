@@ -57,6 +57,11 @@ const MetaComponent = ( { buttonText, placeholder, datasyncKey }: Props ) => {
 						placeholder={ placeholder }
 						id={ htmlId }
 						onChange={ e => setInputValue( e.target.value ) }
+						onKeyDown={ e => {
+							if ( e.key === 'Enter' ) {
+								save();
+							}
+						} }
 					/>
 					<span className={ styles.help }>
 						{ __( 'Use a comma (,) to separate the strings.', 'jetpack-boost' ) }
