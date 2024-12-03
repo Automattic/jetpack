@@ -243,25 +243,6 @@ class WordAds_Smart {
 	}
 
 	/**
-	 * Allow format enabled override from query string, eg. ?inline=true.
-	 *
-	 * @return void
-	 */
-	private function override_formats_from_query_string(): void {
-		// phpcs:disable WordPress.Security.NonceVerification.Recommended
-		if ( ! isset( $_GET['wordads-logging'] ) ) {
-			return;
-		}
-
-		foreach ( $this->formats as $format_type => $_ ) {
-			// phpcs:disable WordPress.Security.NonceVerification.Recommended
-			if ( isset( $_GET[ $format_type ] ) && 'true' === $_GET[ $format_type ] ) {
-				$this->formats[ $format_type ]['enabled'] = true;
-			}
-		}
-	}
-
-	/**
 	 * Places marker at the end of the content so inline can identify the post content container.
 	 *
 	 * @param string|null $content The post content.
@@ -310,15 +291,6 @@ class WordAds_Smart {
 	}
 
 	/**
-	 * Check if has any format enabled.
-	 *
-	 * @return bool True if enabled, false otherwise.
-	 */
-	private function has_any_format_enabled(): bool {
-		return in_array( true, array_column( $this->formats, 'enabled' ), true );
-	}
-
-	/**
 	 * Enable formats by post types and the display options.
 	 *
 	 * @return void
@@ -330,5 +302,33 @@ class WordAds_Smart {
 		$this->formats['bottom_sticky']['enabled']        = $this->params->options['wordads_bottom_sticky_enabled'];
 		$this->formats['sidebar']['enabled']              = $this->params->options['wordads_sidebar_enabled'];
 		$this->formats['sidebar_sticky_right']['enabled'] = $this->params->options['wordads_sidebar_sticky_right_enabled'];
+	}
+
+	/**
+	 * Allow format enabled override from query string, eg. ?inline=true.
+	 *
+	 * @return void
+	 */
+	private function override_formats_from_query_string(): void {
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended
+		if ( ! isset( $_GET['wordads-logging'] ) ) {
+			return;
+		}
+
+		foreach ( $this->formats as $format_type => $_ ) {
+			// phpcs:disable WordPress.Security.NonceVerification.Recommended
+			if ( isset( $_GET[ $format_type ] ) && 'true' === $_GET[ $format_type ] ) {
+				$this->formats[ $format_type ]['enabled'] = true;
+			}
+		}
+	}
+
+	/**
+	 * Check if has any format enabled.
+	 *
+	 * @return bool True if enabled, false otherwise.
+	 */
+	private function has_any_format_enabled(): bool {
+		return in_array( true, array_column( $this->formats, 'enabled' ), true );
 	}
 }
