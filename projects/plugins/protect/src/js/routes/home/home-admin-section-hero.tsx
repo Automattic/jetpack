@@ -33,7 +33,11 @@ const HomeAdminSectionHero: React.FC = () => {
 									),
 									hasPlan
 										? __( 'threats', 'jetpack-protect' )
-										: __( 'vulnerabilities', 'jetpack-protect' )
+										: __(
+												'vulnerabilities',
+												'jetpack-protect',
+												/* dummy arg to avoid bad minification */ 0
+										  )
 								) }
 							</Text>
 							<Button
