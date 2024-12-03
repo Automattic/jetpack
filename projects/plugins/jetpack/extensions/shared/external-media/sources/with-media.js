@@ -252,8 +252,7 @@ export default function withMedia( mediaSource = MediaSource.Unknown ) {
 					.then( session => {
 						setGooglePhotosPickerSession( session );
 						return session;
-					} )
-					.catch( this.handleApiError );
+					} );
 			};
 
 			fetchPickerSession = sessionId => {

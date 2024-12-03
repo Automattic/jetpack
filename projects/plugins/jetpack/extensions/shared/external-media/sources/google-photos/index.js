@@ -32,9 +32,9 @@ function GooglePhotos( props ) {
 				setAuthenticated( false );
 			}
 
-			// Invalid JSON error means the user is not authenticated
-			// transition between old and new auth flow
-			if ( error.code === 'invalid_json' ) {
+			// If the picker session endpoint returns a 404
+			// the user needs to upgrade their auth
+			if ( error.code === 'rest_not_found' ) {
 				setAuthUpgradeRequired( true );
 			}
 		},
