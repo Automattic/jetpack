@@ -1,45 +1,45 @@
 <script lang="ts">
-	import { createEventDispatcher } from "svelte";
-	import { API } from "../../Options";
-	import Form from "../Form.svelte";
-	import StatusIcon from "./StatusIcon.svelte";
-	import type { LogEntry } from "../../utils/ZodSchema";
+	import { createEventDispatcher } from 'svelte';
+	import { API } from '../../Options';
+	import Form from '../Form.svelte';
+	import StatusIcon from './StatusIcon.svelte';
+	import type { LogEntry } from '../../utils/ZodSchema';
 
 	const dispatch = createEventDispatcher();
 
 	export let item: LogEntry;
-	export let icon: "in" | "out" | "bug";
+	export let icon: 'in' | 'out' | 'bug';
 	export let isOpen = false;
 
 	const { date, url } = item;
 
 	function toggleOpen() {
-		isOpen = !isOpen;
+		isOpen = ! isOpen;
 	}
 
 	async function retryRequest() {
-		if (!item.observer_outgoing) {
+		if ( ! item.observer_outgoing ) {
 			return;
 		}
 		const data = item.observer_outgoing;
-		await API.sendRequest({
+		await API.sendRequest( {
 			url: item.url,
 			method: data.args.method,
 			body: data.args.body,
 			headers: data.args.headers,
-			transport: "wp",
-		});
-		dispatch("retry", item);
+			transport: 'wp',
+		} );
+		dispatch( 'retry', item );
 	}
 
 	let edit = false;
 	const responseCode = item.observer_outgoing?.response.response.code;
-	let bubbleColor = "gray";
-	if (responseCode) {
-		bubbleColor = responseCode ? "green" : "red";
+	let bubbleColor = 'gray';
+	if ( responseCode ) {
+		bubbleColor = responseCode ? 'green' : 'red';
 	}
-	if (item.wp_error) {
-		bubbleColor = "red";
+	if ( item.wp_error ) {
+		bubbleColor = 'red';
 	}
 </script>
 
@@ -71,18 +71,16 @@
 		{#if item.observer_outgoing}
 			<button class="ji-button--altii" on:click={retryRequest}>Retry</button>
 
-			<button class="ji-button--altii" on:click={() => (edit = !edit)}
-				>Edit</button
-			>
+			<button class="ji-button--altii" on:click={() => ( edit = ! edit )}>Edit</button>
 		{/if}
 		<button class="ji-button--alt" on:click|preventDefault={toggleOpen}>
-			{isOpen ? "Hide" : "View"}
+			{isOpen ? 'Hide' : 'View'}
 		</button>
 	</div>
 </div>
 
 {#if edit}
-	<Form logEntry={item} on:submit={() => (edit = false)} on:submit />
+	<Form logEntry={item} on:submit={() => ( edit = false )} on:submit />
 {/if}
 
 <style lang="scss">
@@ -102,16 +100,22 @@
 		height: 5px;
 		border-radius: 3px;
 		margin-right: 10px;
-		transform: translateY(-2.5px);
-		background-color: var(--gray_30);
-		box-shadow: 0 0 0px 1px hsl(121 1% 60%), 0 0 3px 3px hsl(121 1% 95%);
+		transform: translateY( -2.5px );
+		background-color: var( --gray_30 );
+		box-shadow:
+			0 0 0px 1px hsl( 121 1% 60% ),
+			0 0 3px 3px hsl( 121 1% 95% );
 		&.red {
-			background-color: hsl(28deg 94% 70%);
-			box-shadow: 0 0 1px 1px hsl(28deg 94% 55%), 0 0 3px 3px hsl(28deg 98% 94%);
+			background-color: hsl( 28deg 94% 70% );
+			box-shadow:
+				0 0 1px 1px hsl( 28deg 94% 55% ),
+				0 0 3px 3px hsl( 28deg 98% 94% );
 		}
 		&.green {
-			background-color: hsl(121 93% 36%);
-			box-shadow: 0 0 0px 1px hsl(121 77% 31%), 0 0 3px 3px hsl(121 70% 80%);
+			background-color: hsl( 121 93% 36% );
+			box-shadow:
+				0 0 0px 1px hsl( 121 77% 31% ),
+				0 0 3px 3px hsl( 121 70% 80% );
 		}
 	}
 	.actions {
@@ -139,7 +143,7 @@
 		-webkit-font-smoothing: antialiased;
 		word-wrap: break-word;
 		word-break: break-all;
-		color: var(--gray_80);
+		color: var( --gray_80 );
 		display: flex;
 		align-items: baseline;
 	}

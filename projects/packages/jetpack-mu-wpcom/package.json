@@ -19,7 +19,6 @@
 		"build-js": "pnpm clean && webpack",
 		"build-production": "echo 'Not implemented.'",
 		"build-production-js": "NODE_ENV=production BABEL_ENV=production pnpm build-js",
-		"lint": "eslint --ext .js,.jsx,.cjs,.mjs,.ts,.tsx .",
 		"clean": "rm -rf src/build/",
 		"watch": "pnpm run build-production-js && pnpm webpack watch",
 		"e2e-tests": "playwright test --config src/features/verbum-comments/playwright.config.ts",

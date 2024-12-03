@@ -269,12 +269,6 @@ importers:
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
         version: link:../webpack-config
-      '@typescript-eslint/parser':
-        specifier: 6.21.0
-        version: 6.21.0(eslint@8.57.1)(typescript@5.0.4)
-      eslint:
-        specifier: 8.57.1
-        version: 8.57.1
       jest:
         specifier: 29.7.0
         version: 29.7.0
@@ -593,9 +587,6 @@ importers:
       playwright-core:
         specifier: ^1.45.1
         version: 1.48.2
-      prettier:
-        specifier: npm:wp-prettier@3.0.3
-        version: wp-prettier@3.0.3
       process:
         specifier: 0.11.10
         version: 0.11.10
@@ -799,12 +790,6 @@ importers:
       '@rollup/plugin-typescript':
         specifier: 12.1.0
         version: 12.1.0(rollup@3.29.5)(tslib@2.5.0)(typescript@5.0.4)
-      '@typescript-eslint/parser':
-        specifier: 6.21.0
-        version: 6.21.0(eslint@8.57.1)(typescript@5.0.4)
-      eslint:
-        specifier: 8.57.1
-        version: 8.57.1
       jest:
         specifier: 29.7.0
         version: 29.7.0
@@ -1526,12 +1511,6 @@ importers:
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
         version: link:../webpack-config
-      '@typescript-eslint/parser':
-        specifier: 6.21.0
-        version: 6.21.0(eslint@8.57.1)(typescript@5.0.4)
-      eslint:
-        specifier: 8.57.1
-        version: 8.57.1
       jest:
         specifier: 29.7.0
         version: 29.7.0
@@ -2805,9 +2784,6 @@ importers:
       postcss-loader:
         specifier: 6.2.0
         version: 6.2.0(postcss@8.4.47)(webpack@5.94.0(webpack-cli@4.9.1))
-      prettier:
-        specifier: npm:wp-prettier@3.0.3
-        version: wp-prettier@3.0.3
       sass:
         specifier: 1.64.1
         version: 1.64.1
@@ -3147,9 +3123,6 @@ importers:
       jest-environment-jsdom:
         specifier: 29.7.0
         version: 29.7.0
-      prettier:
-        specifier: npm:wp-prettier@3.0.3
-        version: wp-prettier@3.0.3
       sass:
         specifier: 1.64.1
         version: 1.64.1
@@ -3370,9 +3343,6 @@ importers:
       history:
         specifier: 5.3.0
         version: 5.3.0
-      prettier:
-        specifier: npm:wp-prettier@3.0.3
-        version: wp-prettier@3.0.3
       react-router-dom:
         specifier: 6.21.0
         version: 6.21.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -4858,8 +4828,8 @@ importers:
         specifier: npm:wp-prettier@3.0.3
         version: wp-prettier@3.0.3
       prettier-plugin-svelte:
-        specifier: 3.0.3
-        version: 3.0.3(svelte@4.2.19)(wp-prettier@3.0.3)
+        specifier: 3.3.2
+        version: 3.3.2(svelte@4.2.19)(wp-prettier@3.0.3)
       semver:
         specifier: 7.5.2
         version: 7.5.2
@@ -12154,11 +12124,11 @@ packages:
     resolution: {integrity: sha512-GbK2cP9nraSSUF9N2XwUwqfzlAFlMNYYl+ShE/V+H8a9uNl/oUqB1w2EL54Jh0OlyRSd8RfWYJ3coVS4TROP2w==}
     engines: {node: '>=6.0.0'}
 
-  prettier-plugin-svelte@3.0.3:
-    resolution: {integrity: sha512-dLhieh4obJEK1hnZ6koxF+tMUrZbV5YGvRpf2+OADyanjya5j0z1Llo8iGwiHmFWZVG/hLEw/AJD5chXd9r3XA==}
+  prettier-plugin-svelte@3.3.2:
+    resolution: {integrity: sha512-kRPjH8wSj2iu+dO+XaUv4vD8qr5mdDmlak3IT/7AOgGIMRG86z/EHOLauFcClKEnOUf4A4nOA7sre5KrJD4Raw==}
     peerDependencies:
       prettier: ^3.0.0
-      svelte: ^3.2.0 || ^4.0.0-next.0
+      svelte: ^3.2.0 || ^4.0.0-next.0 || ^5.0.0-next.0
 
   prettier@2.8.8:
     resolution: {integrity: sha512-tdN8qQGvNjw4CHbY+XXk0JgCXn9QiF21a55rBe5LJAU+kDyC4WQn4+awm2Xfk2lQMk5fKup9XgzTZtGkjBdP9Q==}
@@ -24549,7 +24519,7 @@ snapshots:
     dependencies:
       fast-diff: 1.3.0
 
-  prettier-plugin-svelte@3.0.3(svelte@4.2.19)(wp-prettier@3.0.3):
+  prettier-plugin-svelte@3.3.2(svelte@4.2.19)(wp-prettier@3.0.3):
     dependencies:
       prettier: wp-prettier@3.0.3
       svelte: 4.2.19
