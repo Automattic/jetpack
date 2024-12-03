@@ -375,10 +375,6 @@ class WordAds {
 		$disabled_slot_formats = array();
 		$disabled_slot_formats = apply_filters( 'wordads_disabled_slot_formats', $disabled_slot_formats );
 
-		if ( apply_filters( 'wordads_iponweb_inline_ad_disable', false ) || ! $this->params->options['inline_enabled'] ) {
-			$disabled_slot_formats[] = 'IAD';
-		}
-
 		if ( apply_filters( 'wordads_iponweb_bottom_sticky_ad_disable', false ) ) {
 			$disabled_slot_formats[] = 'MTS';
 		}

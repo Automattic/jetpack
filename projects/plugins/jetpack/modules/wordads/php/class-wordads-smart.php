@@ -194,8 +194,6 @@ class WordAds_Smart {
 					array( $this, 'insert_inline_marker' ),
 					10
 				);
-
-				add_filter( 'wordads_iponweb_inline_ad_disable', '__return_true', 10 );
 			}
 		}
 
