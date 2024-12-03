@@ -435,12 +435,6 @@ class WordAds {
 		// Remove linebreaks and sanitize.
 		$tag_top = esc_js( str_replace( array( "\n", "\t", "\r" ), '', $tag_top ) );
 
-		// Get sidebar tag.
-		$tag_sidebar = $this->get_fallback_ad_snippet( $section_id, 'skyscraper', 'sidebar', '', '{{unique_id}}' );
-
-		// Remove linebreaks and sanitize.
-		$tag_sidebar = esc_js( str_replace( array( "\n", "\t", "\r" ), '', $tag_sidebar ) );
-
 		// phpcs:disable WordPress.Security.EscapeOutput.HeredocOutputNotEscaped
 		echo <<<HTML
 				<script type="text/javascript">
@@ -448,7 +442,6 @@ class WordAds {
 					sas_fallback.push(
 						{ tag: "$tag_inline", type: 'inline' },
 						{ tag: "$tag_belowpost", type: 'belowpost' },
-						{ tag: "$tag_sidebar", type: 'sidebar' },
 						{ tag: "$tag_top", type: 'top' }
 					);
 				</script>

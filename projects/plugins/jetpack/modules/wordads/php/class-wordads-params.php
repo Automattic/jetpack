@@ -94,7 +94,6 @@ class WordAds_Params {
 			'wordads_second_belowpost'             => true,
 			'wordads_inline_enabled'               => true,
 			'wordads_bottom_sticky_enabled'        => false,
-			'wordads_sidebar_enabled'              => false,
 			'wordads_sidebar_sticky_right_enabled' => false,
 			'wordads_display_front_page'           => true,
 			'wordads_display_post'                 => true,

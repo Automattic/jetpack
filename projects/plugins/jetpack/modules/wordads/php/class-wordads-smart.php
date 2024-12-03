@@ -55,9 +55,6 @@ class WordAds_Smart {
 		'bottom_sticky'                => array(
 			'enabled' => false,
 		),
-		'sidebar'                      => array(
-			'enabled' => false,
-		),
 		'sidebar_sticky_right'         => array(
 			'enabled' => false,
 		),
@@ -298,9 +295,8 @@ class WordAds_Smart {
 	private function enable_formats(): void {
 		$this->formats['top']['enabled']                  = $this->params->options['enable_header_ad'];
 		$this->formats['inline']['enabled']               = is_singular( 'post' ) && $this->params->options['wordads_inline_enabled'];
-		$this->formats['belowpost']['enabled']            = $this->params->options['wordads_second_belowpost'];
+		$this->formats['belowpost']['enabled']            = $this->params->should_show();
 		$this->formats['bottom_sticky']['enabled']        = $this->params->options['wordads_bottom_sticky_enabled'];
-		$this->formats['sidebar']['enabled']              = $this->params->options['wordads_sidebar_enabled'];
 		$this->formats['sidebar_sticky_right']['enabled'] = $this->params->options['wordads_sidebar_sticky_right_enabled'];
 	}
 
