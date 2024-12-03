@@ -21,8 +21,8 @@ const sendOpenAiRequest = require( '../../utils/openai/send-request' );
 async function fetchOpenAiLabelsSuggestions( octokit, owner, repo, title, body ) {
 	const suggestions = { labels: [], explanations: {} };
 
-	// Get all the Feature and Feature Group labels in the repo.
-	const pattern = /^(\[Feature\]|\[Feature Group\])/;
+	// Get all the Feature, Feature Group labels, and Plugin feature labels in the repo.
+	const pattern = /^\[[^\]]*Feature/;
 	const repoLabels = await getAvailableLabels( octokit, owner, repo, pattern );
 
 	// If no labels are found, bail.
