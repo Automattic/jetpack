@@ -387,26 +387,32 @@ class WordAds {
 			$disabled_slot_formats[] = 'DPR';
 		}
 
+		$config    = array(
+			'pt'                    => $pagetype,
+			'ht'                    => $hosting_type,
+			'tn'                    => get_stylesheet(),
+			'uloggedin'             => $is_logged_in,
+			'amp'                   => false,
+			'siteid'                => $site_id,
+			'consent'               => $consent,
+			'ad'                    => array(
+				'label'           => array(
+					'text' => __( 'Advertisements', 'jetpack' ),
+				),
+				'reportAd'        => array(
+					'text' => __( 'Report this ad', 'jetpack' ),
+				),
+				'privacySettings' => array(
+					'text'    => __( 'Privacy', 'jetpack' ),
+					'onClick' => 'js:function() { window.__tcfapi && window.__tcfapi(\'showUi\'); }',
+				),
+			),
+			'disabled_slot_formats' => $disabled_slot_formats,
+		);
+		$js_config = WordAds_Array_Utils::array_to_js_object( $config );
 		?>
 		<script<?php echo esc_attr( $data_tags ); ?> type="text/javascript">
-			var __ATA_PP = {
-				pt: <?php echo esc_js( $pagetype ); ?>,
-				ht: <?php echo esc_js( $hosting_type ); ?>,
-				tn: '<?php echo esc_js( get_stylesheet() ); ?>',
-				uloggedin: <?php echo esc_js( $is_logged_in ); ?>,
-				amp: false,
-				siteid: <?php echo esc_js( $site_id ); ?>,
-				consent: <?php echo esc_js( $consent ); ?>,
-				ad: {
-					label: { text: '<?php echo esc_js( __( 'Advertisements', 'jetpack' ) ); ?>' },
-					reportAd: { text: '<?php echo esc_js( __( 'Report this ad', 'jetpack' ) ); ?>' },
-					privacySettings: {
-						text: '<?php echo esc_js( __( 'Privacy', 'jetpack' ) ); ?>',
-						onClick: function() { window.__tcfapi && window.__tcfapi('showUi'); }
-					}
-				},
-				disabled_slot_formats: <?php echo wp_json_encode( $disabled_slot_formats ); ?>,
-			};
+			var __ATA_PP = <?php echo $js_config; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>;
 			var __ATA = __ATA || {};
 			__ATA.cmd = __ATA.cmd || [];
 			__ATA.criteo = __ATA.criteo || {};
