@@ -94,7 +94,7 @@ function wpcom_get_sidebar_notice() {
  * Fetch sidebar notice data asynchronously via AJAX.
  */
 function wpcom_fetch_sidebar_notice_data() {
-	check_ajax_referer( 'fetch_sidebar_notice', 'nonce' );
+	check_ajax_referer( 'wpcom_fetch_sidebar_notice', 'nonce' );
 
 	$notice = wpcom_get_sidebar_notice();
 	if ( ! $notice ) {
@@ -141,7 +141,7 @@ function wpcom_fetch_sidebar_notice_data() {
 
 	wp_send_json_success( $data );
 }
-add_action( 'wp_ajax_fetch_sidebar_notice', 'wpcom_fetch_sidebar_notice_data' );
+add_action( 'wp_ajax_wpcom_fetch_sidebar_notice', 'wpcom_fetch_sidebar_notice_data' );
 
 /**
  * Handle AJAX requests to dismiss a sidebar notice.

@@ -83,7 +83,7 @@ const wpcomShowSidebarNotice = sidebarNoticeData => {
 const fetchSidebarNotice = async () => {
 	try {
 		const response = await fetch(
-			`${ wpcomSidebarNoticeConfig.ajaxUrl }?action=fetch_sidebar_notice&nonce=${ wpcomSidebarNoticeConfig.nonce }`
+			`${ wpcomSidebarNoticeConfig.ajaxUrl }?action=wpcom_fetch_sidebar_notice&nonce=${ wpcomSidebarNoticeConfig.nonce }`
 		);
 
 		if ( ! response.status === 200 ) {
