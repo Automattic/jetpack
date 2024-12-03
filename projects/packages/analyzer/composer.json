@@ -9,7 +9,7 @@
 	],
 	"require": {
 		"php": ">=7.2",
-		"nikic/php-parser": "4.13.2"
+		"nikic/php-parser": "^4.19"
 	},
 	"require-dev": {
 		"php": "^7.4 || ^8.0",

@@ -2,6 +2,63 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 14.1-beta - 2024-12-02
+### Enhancements
+- Likes Block: Allow hiding avatars. [#40282]
+- Social: Change My Jetpack CTA from "Learn more" to "Activate". [#40359]
+
+### Improved compatibility
+- Social: Change "Activate" button in the editor to link. [#40390]
+- Tiled Gallery: Increase accessibility by ensuring images are not classified as interactive when they shouldn't be. [#40241]
+
+### Bug fixes
+- Licensing: Resolves an issue where revoked licenses were incorrectly treated as unattached. [#40215]
+- Social: Made resharing async in classic editor to fix timeout issues. [#40302]
+- Subscribe block: Fix block error when editing. [#40355]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Bundles: Add growth icon to recommendation upsell. [#40347]
+- Classic Theme Helper: Add Testimonial custom post type content. [#40295]
+- Jetpack AI: Check module availability for mapped blocks. [#40336]
+- Likes Block: Add a filter to the iframe url to enable future expansion and modularity. [#40276]
+- Update @wordpress/editor to the latest version/ [#40373]
+- Write Brief: Add alternative apostrophe char to spelling mistakes regex. [#40395]
+
+## 14.1-a.7 - 2024-11-26
+### Enhancements
+- Subscriptions: stops loading editor functionality (i.e. the block and panels) when subscriptions module is disabled. [#39802]
+
+### Bug fixes
+- Social: Fixed undefined index error on specific WordPress.com environments. [#40337]
+
+## 14.1-a.5 - 2024-11-25
+### Major Enhancements
+- Social: Added permissions warning for LinkedIn connections. [#40220]
+
+### Enhancements
+- Google Photos Picker: Adding Google Photos Picker flow backend API endpoints support. [#40242]
+- Google Photos Picker: Update Google Photos external media to support Google Photos Picker API. [#40087]
+- Social: Post share status in the editor is now immediately available on page load. [#40301]
+
+### Bug fixes
+- AI Assistant: Fix bug with error message when user is not over requests limit. [#40235]
+- Forms: Prevent duplicate Salesforce entry submissions. [#40126]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Dashboard: Replace Creator recommendation with Growth. [#40212]
+- Docs: Update lists of social networks supported by Publicize, to include all the newer networks. [#40248]
+- Jetpack AI: Enable transform list to table functionality for all. [#40287]
+- Jetpack AI: Image generator modals now properly enable prompt input separately from action button. [#40210]
+- Jetpack AI: Increase response cache TTL, add error response caching and increase request timeout. [#40171]
+- Jetpack AI: Moving transform list to table prompt to backend. [#40237]
+- Jetpack AI: Use the right feature control to pick the styles from. [#40265]
+- General: Added to-test changes for Jetpack 14.1. [#40331]
+- General: Fixed TS errors following @wordpress/editor update. [#40291]
+- Newsletter: Update form labels for welcome message in Settings. [#40254]
+- Updated dependencies. [#40286]
+- Updated package dependencies. [#40232] [#40288]
+- Update feature for stats in growth to 10K instead of 100K. [#40312]
+
 ## 14.1-a.3 - 2024-11-18
 ### Major Enhancements
 - General: Update minimum PHP version to 7.2. [#40147]

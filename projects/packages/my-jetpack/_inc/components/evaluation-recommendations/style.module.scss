@@ -11,7 +11,7 @@
 }
 
 ul.recommendations-list {
-	grid-template-columns: repeat( 5, 1fr );
+	grid-template-columns: repeat( 5, 100% );
 	grid-auto-flow: column;
 	overflow-x: auto;
 	scroll-snap-type: x mandatory;
@@ -25,23 +25,24 @@ ul.recommendations-list {
 	}
 
 	li {
-		min-width: 320px;
+		width: 100%;
+		max-width: 100%;
 		scroll-snap-align: start;
 		grid-column: unset;
 		grid-column-end: unset;
 	}
 
-	@media screen and (max-width: 600px) {
-		grid-template-columns: repeat( 5, 100% );
+	@media screen and (min-width: 601px) {
+		grid-template-columns: repeat( 5, 1fr );
 
 		li {
-			min-width: unset;
+			width: 420px;
 		}
 	}
 
-	@media screen and (max-width: 1024px) {
+	@media screen and (min-width: 1025px) {
 		li {
-			min-width: 450px;
+			width: 320px;
 		}
 	}
 }

@@ -18,23 +18,26 @@ const DisconnectSurvey = props => {
 	const options = [
 		{
 			id: 'troubleshooting',
-			answerText: __( "Troubleshooting - I'll be reconnecting afterwards.", 'jetpack' ),
+			answerText: __(
+				"Troubleshooting - I'll be reconnecting afterwards.",
+				'jetpack-connection-js'
+			),
 		},
 		{
 			id: 'not-working',
-			answerText: __( "I can't get it to work.", 'jetpack' ),
+			answerText: __( "I can't get it to work.", 'jetpack-connection-js' ),
 		},
 		{
 			id: 'slowed-down-site',
-			answerText: __( 'It slowed down my site.', 'jetpack' ),
+			answerText: __( 'It slowed down my site.', 'jetpack-connection-js' ),
 		},
 		{
 			id: 'buggy',
-			answerText: __( "It's buggy.", 'jetpack' ),
+			answerText: __( "It's buggy.", 'jetpack-connection-js' ),
 		},
 		{
 			id: 'what-does-it-do',
-			answerText: __( "I don't know what it does.", 'jetpack' ),
+			answerText: __( "I don't know what it does.", 'jetpack-connection-js' ),
 		},
 	];
 
@@ -136,9 +139,9 @@ const DisconnectSurvey = props => {
 				className={ 'card jp-connect__disconnect-survey-card ' + selectedClass( customOption.id ) }
 			>
 				<p className="jp-connect__disconnect-survey-card__answer">
-					{ __( 'Other:', 'jetpack' ) }{ ' ' }
+					{ __( 'Other:', 'jetpack-connection-js' ) }{ ' ' }
 					<input
-						placeholder={ __( 'share your experience', 'jetpack' ) }
+						placeholder={ __( 'share your experience', 'jetpack-connection-js' ) }
 						className="jp-connect__disconnect-survey-card__input"
 						type="text"
 						value={ customResponse }
@@ -164,8 +167,12 @@ const DisconnectSurvey = props => {
 					className="jp-connection__disconnect-dialog__btn-back-to-wp"
 				>
 					{ isSubmittingFeedback
-						? __( 'Submitting…', 'jetpack' )
-						: __( 'Submit Feedback', 'jetpack', /* dummy arg to avoid bad minification */ 0 ) }
+						? __( 'Submitting…', 'jetpack-connection-js' )
+						: __(
+								'Submit Feedback',
+								'jetpack-connection-js',
+								/* dummy arg to avoid bad minification */ 0
+						  ) }
 				</Button>
 			</p>
 		</React.Fragment>

@@ -37,6 +37,13 @@ class Anti_Spam extends Product {
 	public static $plugin_slug = 'akismet';
 
 	/**
+	 * The feature slug that identifies the paid plan
+	 *
+	 * @var string
+	 */
+	public static $feature_identifying_paid_plan = 'antispam';
+
+	/**
 	 * Whether this product requires a user connection
 	 *
 	 * @var string
@@ -107,41 +114,37 @@ class Anti_Spam extends Product {
 	}
 
 	/**
-	 * Determine if the site has an Akismet plan by checking for an API key
-	 * Note that some Akismet Plans are free - we're just checking for an API key and don't have the perspective of the plan attached to it here
+	 * Get the product-slugs of the paid plans for this product.
+	 * (Do not include bundle plans, unless it's a bundle plan itself).
+	 *
+	 * @return array
+	 */
+	public static function get_paid_plan_product_slugs() {
+		return array(
+			'jetpack_anti_spam',
+			'jetpack_anti_spam_monthly',
+			'jetpack_anti_spam_bi_yearly',
+		);
+	}
+
+	/**
+	 * Determine if the site has an Akismet plan.
 	 *
 	 * @return bool - whether an API key was found
 	 */
 	public static function has_paid_plan_for_product() {
-		$products_with_anti_spam = array(
-			'jetpack_anti_spam',
-			'jetpack_complete',
-			'jetpack_security',
-			'jetpack_personal',
-			'jetpack_premium',
-			'jetpack_business',
-		);
-		// Check if the site has an API key for Akismet
+		if ( parent::has_paid_plan_for_product() ) {
+			return true;
+		}
+		// As a fallback, we're checking if the site has an API key for Akismet.
+		// Note that some Akismet Plans are free - we're just checking for an API key and don't have the perspective of the plan attached to it here
 		$akismet_api_key = apply_filters( 'akismet_get_api_key', defined( 'WPCOM_API_KEY' ) ? constant( 'WPCOM_API_KEY' ) : get_option( 'wordpress_api_key' ) );
-		$fallback        = ! empty( $akismet_api_key );
+		if ( ! empty( $akismet_api_key ) ) {
+			return true;
 
-		// Check for existing plans
-		$purchases_data = Wpcom_Products::get_site_current_purchases();
-		if ( is_wp_error( $purchases_data ) ) {
-			return $fallback;
 		}
 
-		if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
-			foreach ( $purchases_data as $purchase ) {
-				foreach ( $products_with_anti_spam as $product ) {
-					if ( strpos( $purchase->product_slug, $product ) !== false ) {
-						return true;
-					}
-				}
-			}
-		}
-
-		return $fallback;
+		return false;
 	}
 
 	/**
@@ -175,7 +178,7 @@ class Anti_Spam extends Product {
 	 * @return boolean|array Products bundle list.
 	 */
 	public static function is_upgradable_by_bundle() {
-		return array( 'security' );
+		return array( 'security', 'complete' );
 	}
 
 	/**

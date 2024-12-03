@@ -1183,82 +1183,25 @@ class Replicastore implements Replicastore_Interface {
 	 * @return array Checksums.
 	 */
 	public function checksum_all( $perform_text_conversion = false ) {
-		$post_checksum               = $this->checksum_histogram( 'posts', null, null, null, null, true, '', false, false, $perform_text_conversion );
-		$comments_checksum           = $this->checksum_histogram( 'comments', null, null, null, null, true, '', false, false, $perform_text_conversion );
-		$post_meta_checksum          = $this->checksum_histogram( 'postmeta', null, null, null, null, true, '', false, false, $perform_text_conversion );
-		$comment_meta_checksum       = $this->checksum_histogram( 'commentmeta', null, null, null, null, true, '', false, false, $perform_text_conversion );
-		$terms_checksum              = $this->checksum_histogram( 'terms', null, null, null, null, true, '', false, false, $perform_text_conversion );
-		$term_relationships_checksum = $this->checksum_histogram( 'term_relationships', null, null, null, null, true, '', false, false, $perform_text_conversion );
-		$term_taxonomy_checksum      = $this->checksum_histogram( 'term_taxonomy', null, null, null, null, true, '', false, false, $perform_text_conversion );
+		$all_checksum_tables = Table_Checksum::get_allowed_tables();
 
-		$result = array(
-			'posts'              => $this->summarize_checksum_histogram( $post_checksum ),
-			'comments'           => $this->summarize_checksum_histogram( $comments_checksum ),
-			'post_meta'          => $this->summarize_checksum_histogram( $post_meta_checksum ),
-			'comment_meta'       => $this->summarize_checksum_histogram( $comment_meta_checksum ),
-			'terms'              => $this->summarize_checksum_histogram( $terms_checksum ),
-			'term_relationships' => $this->summarize_checksum_histogram( $term_relationships_checksum ),
-			'term_taxonomy'      => $this->summarize_checksum_histogram( $term_taxonomy_checksum ),
-		);
+		unset( $all_checksum_tables['users'] ); // Handled separately - TODO.
+		unset( $all_checksum_tables['usermeta'] ); // Handled separately - TODO.
+		unset( $all_checksum_tables['termmeta'] ); // Handled separately - TODO.
+		unset( $all_checksum_tables['links'] ); // Not supported yet.  Consider removing from default config.
+		unset( $all_checksum_tables['options'] );  // Not supported yet. Consider removing from default config.
 
-		/**
-		 * WooCommerce tables
-		 */
+		$all_checksum_tables = array_unique( array_keys( $all_checksum_tables ) );
 
-		/**
-		 * On WordPress.com, we can't directly check if the site has support for WooCommerce.
-		 * Having the option to override the functionality here helps with syncing WooCommerce tables.
-		 *
-		 * @since 10.1
-		 *
-		 * @param bool If we should we force-enable WooCommerce tables support.
-		 */
-		$force_woocommerce_support = apply_filters( 'jetpack_table_checksum_force_enable_woocommerce', false );
+		$result = array();
 
-		if ( $force_woocommerce_support || class_exists( 'WooCommerce' ) ) {
-			/**
-			 * Guard in Try/Catch as it's possible for the WooCommerce class to exist, but
-			 * the tables to not. If we don't do this, the response will be just the exception, without
-			 * returning any valid data. This will prevent us from ever performing a checksum/fix
-			 * for sites like this.
-			 * It's better to just skip the tables in the response, instead of completely failing.
-			 */
-
+		foreach ( $all_checksum_tables as $table ) {
+			$result_key = in_array( $table, array( 'postmeta', 'commentmeta' ), true ) ? str_replace( 'meta', '_meta', $table ) : $table;
 			try {
-				$woocommerce_order_items_checksum  = $this->checksum_histogram( 'woocommerce_order_items' );
-				$result['woocommerce_order_items'] = $this->summarize_checksum_histogram( $woocommerce_order_items_checksum );
+				$checksum              = $this->checksum_histogram( $table, null, null, null, null, true, '', false, false, $perform_text_conversion );
+				$result[ $result_key ] = $this->summarize_checksum_histogram( $checksum );
 			} catch ( Exception $ex ) {
-				$result['woocommerce_order_items'] = null;
-			}
-
-			try {
-				$woocommerce_order_itemmeta_checksum  = $this->checksum_histogram( 'woocommerce_order_itemmeta' );
-				$result['woocommerce_order_itemmeta'] = $this->summarize_checksum_histogram( $woocommerce_order_itemmeta_checksum );
-			} catch ( Exception $ex ) {
-				$result['woocommerce_order_itemmeta'] = null;
-			}
-
-			if ( Table_Checksum::enable_woocommerce_hpos_tables() ) {
-				try {
-					$woocommerce_hpos_orders_checksum = $this->checksum_histogram( 'wc_orders' );
-					$result['wc_orders']              = $this->summarize_checksum_histogram( $woocommerce_hpos_orders_checksum );
-				} catch ( Exception $ex ) {
-					$result['wc_orders'] = null;
-				}
-
-				try {
-					$woocommerce_hpos_order_addresses_checksum = $this->checksum_histogram( 'wc_order_addresses' );
-					$result['wc_order_addresses']              = $this->summarize_checksum_histogram( $woocommerce_hpos_order_addresses_checksum );
-				} catch ( Exception $ex ) {
-					$result['wc_order_addresses'] = null;
-				}
-
-				try {
-					$woocommerce_hpos_order_operational_data_checksum = $this->checksum_histogram( 'wc_order_operational_data' );
-					$result['wc_order_operational_data']              = $this->summarize_checksum_histogram( $woocommerce_hpos_order_operational_data_checksum );
-				} catch ( Exception $ex ) {
-					$result['wc_order_operational_data'] = null;
-				}
+				$result[ $result_key ] = null;
 			}
 		}
 
@@ -1392,7 +1335,10 @@ class Replicastore implements Replicastore_Interface {
 			} else {
 				$histogram[ "{$ids_range[ 'min_range' ]}-{$ids_range[ 'max_range' ]}" ] = $batch_checksum;
 			}
-
+			// If ids_range['max_range'] is PHP_INT_MAX, we've reached the end of the table. Edge case causing the loop to never end.
+			if ( PHP_INT_MAX === (int) $ids_range['max_range'] ) {
+				break;
+			}
 			$previous_max_id = $ids_range['max_range'] + 1;
 			// If we've reached the max_range lets bail out.
 			if ( $previous_max_id > $range_edges['max_range'] ) {

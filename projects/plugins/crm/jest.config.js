@@ -7,5 +7,5 @@ module.exports = {
 	moduleNameMapper: {
 		...baseConfig.moduleNameMapper,
 		'^crm/(.*)': '<rootDir>/src/js/$1',
-	}
+	},
 };

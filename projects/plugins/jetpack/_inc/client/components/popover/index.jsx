@@ -1,11 +1,11 @@
 import { createRef } from '@wordpress/element';
 import clsx from 'clsx';
 import uid from 'component-uid';
-import RootChild from 'components/root-child';
 import debugFactory from 'debug';
 import { assign } from 'lodash';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
+import RootChild from 'components/root-child';
 import {
 	bindWindowListeners,
 	unbindWindowListeners,
