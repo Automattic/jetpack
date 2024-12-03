@@ -263,12 +263,12 @@ async function getStatusChecks( payload, octokit ) {
 	return {
 		hasLongDescription,
 		hasStatusLabels,
+		hasTypeLabels,
 		hasTesting,
 		hasPrivacy,
 		projectsWithoutChangelog,
 		hasChangelogEntries: projectsWithoutChangelog.length === 0,
 		isFromContributor,
-		hasTypeLabels,
 	};
 }
 
