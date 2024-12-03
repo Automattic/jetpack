@@ -125,14 +125,14 @@ function wpcom_fetch_sidebar_notice_data() {
 
 	$data = array(
 		'url'          => esc_url( $link ),
-		'text'         => wp_kses( $notice['content'], array() ),
-		'action'       => wp_kses( $notice['cta'], array() ),
-		'dismissible'  => $notice['dismissible'],
+		'text'         => wp_kses( $notice['content'] ?? '', array() ),
+		'action'       => wp_kses( $notice['cta'] ?? '', array() ),
+		'dismissible'  => $notice['dismissible'] ?? false,
 		'dismissLabel' => esc_html__( 'Dismiss', 'jetpack-mu-wpcom' ),
-		'id'           => $notice['id'],
-		'featureClass' => $notice['feature_class'],
+		'id'           => $notice['id'] ?? '',
+		'featureClass' => $notice['feature_class'] ?? '',
 		'dismissNonce' => wp_create_nonce( 'wpcom_dismiss_sidebar_notice' ),
-		'tracks'       => $notice['tracks'],
+		'tracks'       => $notice['tracks'] ?? null,
 		'user'         => array(
 			'ID'       => $user_id,
 			'username' => $user_login,
