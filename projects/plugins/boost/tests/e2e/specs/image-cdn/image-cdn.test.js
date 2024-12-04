@@ -1,7 +1,7 @@
 import { test, expect } from 'jetpack-e2e-commons/fixtures/base-test.js';
+import playwrightConfig from 'jetpack-e2e-commons/playwright.config.mjs';
 import { boostPrerequisitesBuilder } from '../../lib/env/prerequisites.js';
 import { JetpackBoostPage, FirstPostPage } from '../../lib/pages/index.js';
-import playwrightConfig from 'jetpack-e2e-commons/playwright.config.mjs';
 
 test.describe( 'Image CDN', () => {
 	let page;
