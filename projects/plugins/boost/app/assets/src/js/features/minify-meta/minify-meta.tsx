@@ -42,7 +42,7 @@ const MetaComponent = ( { buttonText, placeholder, datasyncKey }: Props ) => {
 			: '';
 
 	const content = (
-		<div className={ styles.body } data-testid={ `meta-${ datasyncKey }` }>
+		<div className={ styles.body }>
 			<div className={ styles.section }>
 				<div className={ styles.title }>{ __( 'Exceptions', 'jetpack-boost' ) }</div>
 				<div className={ styles[ 'manage-excludes' ] }>
@@ -81,6 +81,7 @@ const MetaComponent = ( { buttonText, placeholder, datasyncKey }: Props ) => {
 	return (
 		<div className={ styles.wrapper }>
 			<CollapsibleMeta
+				dataTestId={ `meta-${ datasyncKey }` }
 				headerText={ summary }
 				toggleText={ buttonText }
 				tracksEvent={ togglePanelTracksEvent }
