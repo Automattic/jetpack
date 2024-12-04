@@ -107,7 +107,7 @@ done
 for SLUG in "${!PROJECTS[@]}"; do
 	if [[ -z "${PROJECTS[$SLUG]}" ]]; then
 		cd "$BASE/projects/$SLUG"
-		PROJECTS["$SLUG"]=$(changelogger version next)
+		PROJECTS["$SLUG"]=$(changelogger version next) || die "Cannot determine version number for $SLUG. Please supply one on the command line."
 	fi
 done
 cd "$BASE"
