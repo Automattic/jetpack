@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 import MediaLoadingPlaceholder from '../../media-browser/placeholder';
 import { getGooglePhotosPickerCachedSessionId } from '../../media-service';
 import { MediaSource } from '../../media-service/types';
@@ -18,70 +18,80 @@ function GooglePhotos( props ) {
 		getPickerStatus,
 		setAuthenticated,
 	} = props;
+
 	const [ cachedSessionId ] = useState( getGooglePhotosPickerCachedSessionId() );
-	const [ isCachedSessionChecked, setIsCachedSessionChecked ] = useState( false );
 	const [ pickerFeatureEnabled, setPickerFeatureEnabled ] = useState( null );
-	const [ authUpgradeRequired, setAuthUpgradeRequired ] = useState( false );
+	const [ isCachedSessionChecked, setIsCachedSessionChecked ] = useState( false );
+	const [ isAuthUpgradeRequired, setIsAuthUpgradeRequired ] = useState( false );
+
+	const isLoadingState = pickerFeatureEnabled === null;
 	const isPickerSessionAccurate = pickerSession !== null && ! ( 'code' in pickerSession );
 	const isSessionExpired =
 		pickerSession?.expireTime && moment( pickerSession.expireTime ).isBefore( new Date() );
 
-	const catchAuthErrors = useCallback(
-		error => {
-			if ( error.code === 'authorization_required' ) {
-				setAuthenticated( false );
-			}
-
-			// If the picker session endpoint returns a 404
-			// the user needs to upgrade their auth
-			if ( error.code === 'rest_not_found' ) {
-				setAuthUpgradeRequired( true );
-			}
-		},
-		[ setAuthenticated, setAuthUpgradeRequired ]
-	);
-
+	// Check if the picker feature is enabled and the connection status
 	useEffect( () => {
-		! isAuthenticated && setAuthUpgradeRequired( false );
-	}, [ isAuthenticated ] );
+		getPickerStatus().then( picker => {
+			setPickerFeatureEnabled( picker.enabled );
 
-	useEffect( () => {
-		getPickerStatus().then( feature => {
-			feature && setPickerFeatureEnabled( feature.enabled );
+			switch ( picker.connection_status ) {
+				case 'ok':
+					setAuthenticated( true );
+					setIsAuthUpgradeRequired( false );
+					break;
+
+				case 'invalid':
+					setAuthenticated( true );
+					setIsAuthUpgradeRequired( true );
+					break;
+
+				case 'not_connected':
+					setAuthenticated( false );
+					setIsAuthUpgradeRequired( false );
+					break;
+			}
 		} );
+	}, [ isAuthenticated, getPickerStatus, setAuthenticated ] );
 
-		cachedSessionId === null && setIsCachedSessionChecked( true );
-		fetchPickerSession( cachedSessionId )
-			.then( () => {
-				setIsCachedSessionChecked( true );
-			} )
-			.catch( error => {
-				setIsCachedSessionChecked( true );
-				catchAuthErrors( error );
-			} );
-	}, [ getPickerStatus, fetchPickerSession, cachedSessionId, catchAuthErrors ] );
+	// Check if the user has a cached session
+	useEffect( () => {
+		if ( pickerFeatureEnabled && isAuthenticated && ! isAuthUpgradeRequired ) {
+			Promise.resolve( cachedSessionId )
+				.then( id => ( id ? fetchPickerSession( id ) : id ) )
+				.finally( () => setIsCachedSessionChecked( true ) );
+		}
+	}, [
+		isAuthenticated,
+		pickerFeatureEnabled,
+		isAuthUpgradeRequired,
+		cachedSessionId,
+		fetchPickerSession,
+	] );
 
+	// Create a new picker session if the cached session is not accurate
+	// or if the session has expired
 	useEffect( () => {
 		if (
 			pickerFeatureEnabled &&
 			isCachedSessionChecked &&
 			isAuthenticated &&
+			! isAuthUpgradeRequired &&
 			( ! isPickerSessionAccurate || isSessionExpired )
 		) {
-			createPickerSession().catch( catchAuthErrors );
+			createPickerSession();
 		}
 	}, [
 		pickerFeatureEnabled,
+		isAuthUpgradeRequired,
 		isCachedSessionChecked,
 		isPickerSessionAccurate,
 		isAuthenticated,
 		isSessionExpired,
 		createPickerSession,
 		pickerSession,
-		catchAuthErrors,
 	] );
 
-	if ( pickerFeatureEnabled === null || ! isCachedSessionChecked ) {
+	if ( isLoadingState ) {
 		return <MediaLoadingPlaceholder />;
 	}
 
@@ -89,7 +99,7 @@ function GooglePhotos( props ) {
 		return <GooglePhotosAuth { ...props } />;
 	}
 
-	if ( authUpgradeRequired ) {
+	if ( isAuthUpgradeRequired ) {
 		return <GooglePhotosAuthUpgrade { ...props } />;
 	}
 
