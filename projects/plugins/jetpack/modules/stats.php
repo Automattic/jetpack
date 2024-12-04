@@ -1578,11 +1578,11 @@ function stats_get_csv( $table, $args = null ) {
 		'limit'     => 3,
 		'post_id'   => false,
 		'summarize' => '',
+		'blog_id'   => Jetpack_Options::get_option( 'id' ),
 	);
 
-	$args            = wp_parse_args( $args, $defaults );
-	$args['table']   = $table;
-	$args['blog_id'] = Jetpack_Options::get_option( 'id' );
+	$args          = wp_parse_args( $args, $defaults );
+	$args['table'] = $table;
 
 	$stats_csv_url = add_query_arg( $args, 'https://stats.wordpress.com/csv.php' );
 
