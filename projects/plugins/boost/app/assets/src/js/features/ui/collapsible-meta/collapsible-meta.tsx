@@ -11,7 +11,6 @@ type CollapsibleMetaProps = {
 	summary?: React.ReactNode;
 	toggleText: string;
 	headerText?: string;
-	useChevron?: boolean;
 	tracksEvent?: string;
 	extraButtons?: React.ReactNode;
 	onToggleHandler?: ( isExpanded: boolean ) => void;
