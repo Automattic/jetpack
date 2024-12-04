@@ -64,7 +64,7 @@ const MetaComponent = ( { buttonText, placeholder, datasyncKey }: Props ) => {
 						id={ htmlId }
 						onChange={ e => setInputValue( e.target.value ) }
 						onKeyDown={ e => {
-							if ( e.key === 'Enter' ) {
+							if ( e.key === 'Enter' || e.key === 'NumpadEnter' ) {
 								save();
 							}
 						} }
