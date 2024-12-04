@@ -90,7 +90,7 @@ class WordAds_Sidebar_Widget extends WP_Widget {
 		);
 
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended
-		$smart_format    = $sizes_x_smart_format[ "{$width}x{$height}" ] ?? null;
+		$smart_format    = $sizes_x_smart_format[ "{$width}x{$height}" ] ?? '';
 		$is_watl_enabled = $smart_format && isset( $_GET['wordads-logging'] ) && isset( $_GET[ $smart_format ] ) && 'true' === $_GET[ $smart_format ];
 
 		if ( $is_watl_enabled ) {
