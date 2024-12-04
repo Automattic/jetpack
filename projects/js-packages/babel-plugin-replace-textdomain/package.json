@@ -14,7 +14,7 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"scripts": {
-		"test": "jest --config=tests/jest.config.cjs",
+		"test": "NODE_OPTIONS=--experimental-vm-modules jest --config=tests/jest.config.cjs",
 		"test-coverage": "pnpm run test --coverage"
 	},
 	"dependencies": {

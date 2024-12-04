@@ -102,6 +102,16 @@ module.exports = {
 		'comma-spacing': 'error',
 		'computed-property-spacing': [ 'error', 'always' ],
 		curly: 'error',
+
+		eqeqeq: [
+			'error',
+			'always',
+			{
+				// `== null` is a convenient shorthand for exactly `=== null || === undefined`.
+				null: 'ignore',
+			},
+		],
+
 		'func-call-spacing': 'error',
 
 		'import/order': [
@@ -169,6 +179,7 @@ module.exports = {
 		'no-spaced-func': 'error',
 		'no-trailing-spaces': 'error',
 		'object-curly-spacing': [ 'error', 'always' ],
+		'object-shorthand': 'off',
 		'operator-linebreak': [
 			'error',
 			'after',
@@ -196,9 +207,15 @@ module.exports = {
 		],
 		strict: [ 'error', 'never' ],
 
-		// We may want to keep these overrides. To decide later.
-		eqeqeq: [ 'error', 'always', { null: 'ignore' } ],
-		'no-unused-expressions': [ 'error', { allowShortCircuit: true, allowTernary: true } ],
-		'object-shorthand': 'off',
+		// @typescript-eslint/no-unused-expressions works better. Use it always.
+		'no-unused-expressions': 'off',
+		'@typescript-eslint/no-unused-expressions': [
+			'error',
+			{
+				// `cond && func()` and `cond ? func1() : func2()` are too useful to forbid.
+				allowShortCircuit: true,
+				allowTernary: true,
+			},
+		],
 	},
 };

@@ -121,19 +121,16 @@ test.describe( 'Cache module', () => {
 			const cacheHeaderName = 'X-Jetpack-Boost-Cache'.toLowerCase();
 
 			// First visit should always be a miss.
-			if ( totalVisits === 1 ) {
-				expect(
-					Object.hasOwn( responseHeaders, cacheHeaderName ) &&
-						responseHeaders[ cacheHeaderName ] === 'miss',
-					'Page Cache header should be set to miss on first visit.'
-				).toBeTruthy();
-			} else {
-				expect(
-					Object.hasOwn( responseHeaders, cacheHeaderName ) &&
-						responseHeaders[ cacheHeaderName ] === 'hit',
-					'Page Cache header should be set to hit on second visit.'
-				).toBeTruthy();
-			}
+			const expectValue = totalVisits === 1 ? 'miss' : 'hit';
+			const expectMessage =
+				totalVisits === 1
+					? 'Page Cache header should be set to miss on first visit.'
+					: 'Page Cache header should be set to hit on second visit.';
+			expect(
+				Object.hasOwn( responseHeaders, cacheHeaderName ) &&
+					responseHeaders[ cacheHeaderName ] === expectValue,
+				expectMessage
+			).toBeTruthy();
 		} );
 
 		await PostFrontendPage.visit( newPage );

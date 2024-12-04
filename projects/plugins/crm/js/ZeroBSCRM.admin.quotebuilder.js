@@ -157,7 +157,7 @@ function zbscrm_getTemplatedQuote( cb, errcb ) {
 					dataType: 'json',
 				} );
 
-				// eslint-disable-next-line no-unused-expressions
+				// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 				quoteTemplateAJAX.done( function ( e ) {
 					// eslint-disable-next-line eqeqeq
 					if ( e.error == 1 || e.processed == -1 ) {

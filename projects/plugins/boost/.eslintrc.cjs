@@ -46,7 +46,6 @@ module.exports = {
 		'import/no-unresolved': 0,
 		'import/order': 0,
 		'no-nested-ternary': 0,
-		'prettier/prettier': 0,
 		camelcase: 0,
 
 		// Boost should just use our standard eslint rulesets, that already does this.

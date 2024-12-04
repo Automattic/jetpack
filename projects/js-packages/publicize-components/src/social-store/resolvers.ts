@@ -52,7 +52,7 @@ export function getPostShareStatus( _postId ) {
 			result = normalizeShareStatus( result );
 
 			dispatch( receivePostShareStaus( result, postId ) );
-		} catch ( error ) {
+		} catch {
 			dispatch( fetchPostShareStatus( postId, false ) );
 		}
 	};

@@ -20,14 +20,12 @@ export const MESSAGE_SEVERITY_ERROR = 'error';
 export const MESSAGE_SEVERITY_SUCCESS = 'success';
 export const MESSAGE_SEVERITY_INFO = 'info';
 
-const messageSeverityTypes = [
-	MESSAGE_SEVERITY_WARNING,
-	MESSAGE_SEVERITY_ERROR,
-	MESSAGE_SEVERITY_SUCCESS,
-	MESSAGE_SEVERITY_INFO,
-] as const;
-
-export type MessageSeverityProp = ( typeof messageSeverityTypes )[ number ] | null;
+export type MessageSeverityProp =
+	| typeof MESSAGE_SEVERITY_WARNING
+	| typeof MESSAGE_SEVERITY_ERROR
+	| typeof MESSAGE_SEVERITY_SUCCESS
+	| typeof MESSAGE_SEVERITY_INFO
+	| null;
 
 export type MessageProps = {
 	icon?: React.ReactNode;
