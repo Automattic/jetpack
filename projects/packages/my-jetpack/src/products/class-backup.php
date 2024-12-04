@@ -11,7 +11,6 @@ use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\My_Jetpack\Hybrid_Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use Automattic\Jetpack\Redirect;
-use Jetpack_Options;
 use WP_Error;
 
 /**
@@ -179,16 +178,22 @@ class Backup extends Hybrid_Product {
 	 *
 	 * @return Object|WP_Error
 	 */
-	private static function get_state_from_wpcom() {
+	public static function get_state_from_wpcom() {
 		static $status = null;
 
 		if ( $status !== null ) {
 			return $status;
 		}
 
-		$site_id = Jetpack_Options::get_option( 'id' );
+		$site_id = \Jetpack_Options::get_option( 'id' );
 
-		$response = Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d/rewind', $site_id ) . '?force=wpcom', '2', array( 'timeout' => 2 ), null, 'wpcom' );
+		$response = Client::wpcom_json_api_request_as_blog(
+			sprintf( '/sites/%d/rewind', $site_id ) . '?force=wpcom',
+			'2',
+			array( 'timeout' => 2 ),
+			null,
+			'wpcom'
+		);
 
 		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
 			$status = new WP_Error( 'rewind_state_fetch_failed' );
@@ -198,6 +203,37 @@ class Backup extends Hybrid_Product {
 		$body   = wp_remote_retrieve_body( $response );
 		$status = json_decode( $body );
 		return $status;
+	}
+
+	/**
+	 * Hits the wpcom api to retrieve the last 10 backup records.
+	 *
+	 * @return Object|WP_Error
+	 */
+	public static function get_latest_backups() {
+		static $backups = null;
+
+		if ( $backups !== null ) {
+			return $backups;
+		}
+
+		$site_id  = \Jetpack_Options::get_option( 'id' );
+		$response = Client::wpcom_json_api_request_as_blog(
+			sprintf( '/sites/%d/rewind/backups', $site_id ) . '?force=wpcom',
+			'2',
+			array( 'timeout' => 2 ),
+			null,
+			'wpcom'
+		);
+
+		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			$backups = new WP_Error( 'rewind_backups_fetch_failed' );
+			return $backups;
+		}
+
+		$body    = wp_remote_retrieve_body( $response );
+		$backups = json_decode( $body );
+		return $backups;
 	}
 
 	/**

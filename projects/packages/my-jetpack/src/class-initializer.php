@@ -929,6 +929,7 @@ class Initializer {
 		} else {
 			return array_merge(
 				self::alert_if_missing_connection( $red_bubble_slugs ),
+				self::alert_if_last_backup_failed( $red_bubble_slugs ),
 				self::alert_if_paid_plan_expiring( $red_bubble_slugs )
 			);
 		}
@@ -1024,6 +1025,47 @@ class Initializer {
 
 		foreach ( $products_included_in_expiring_plan as $expiring_plan => $products ) {
 			$red_bubble_slugs[ $expiring_plan ]['products_effected'] = $products;
+		}
+
+		return $red_bubble_slugs;
+	}
+
+	/**
+	 * Add an alert slug if Backups are failing or having an issue.
+	 *
+	 * @param array $red_bubble_slugs - slugs that describe the reasons the red bubble is showing.
+	 * @return array
+	 */
+	public static function alert_if_last_backup_failed( array $red_bubble_slugs ) {
+		$backup = Products::get_product_class( 'backup' );
+		if ( ! $backup::has_paid_plan_for_product() ) {
+			return $red_bubble_slugs;
+		}
+
+		$latest_backups = $backup::get_latest_backups();
+		if ( is_wp_error( $latest_backups ) ) {
+			return $red_bubble_slugs;
+		}
+		error_log( print_r( $latest_backups, true ) );
+
+		$last_backup = null;
+		foreach ( $latest_backups as $backup ) {
+			if ( $backup->is_backup ) {
+				$last_backup = $backup;
+				break;
+			}
+		}
+
+		if ( ! $last_backup || ! isset( $last_backup->status ) ) {
+			return $red_bubble_slugs;
+		}
+		error_log( print_r( $last_backup, true ) );
+		if ( $last_backup->status === 'not-accessible' || $last_backup->status === 'error' || $last_backup->status === 'credential-error' ) {
+			$red_bubble_slugs['last-backup-failed'] = array(
+				'id'             => $last_backup->id,
+				'status'         => $last_backup->status,
+				'backup_started' => $last_backup->started,
+			);
 		}
 
 		return $red_bubble_slugs;
