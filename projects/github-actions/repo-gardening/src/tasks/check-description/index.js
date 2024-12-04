@@ -497,6 +497,8 @@ async function inferType( payload, octokit, changelogEntries ) {
 		},
 		pull_request: { number },
 	} = payload;
+
+	// Extract the type of the PR from the changelog entries.
 	let type = '';
 	for ( const entry of changelogEntries ) {
 		if ( entry.changeType ) {
@@ -504,7 +506,6 @@ async function inferType( payload, octokit, changelogEntries ) {
 			break;
 		}
 	}
-
 	if ( ! type ) {
 		return false;
 	}
@@ -521,7 +522,6 @@ async function inferType( payload, octokit, changelogEntries ) {
 
 	// Does the PR's type match one of the types we have in our mapping?
 	const prType = Object.keys( typeMapping ).find( key => typeMapping[ key ].includes( type ) );
-
 	if ( ! prType ) {
 		return false;
 	}
