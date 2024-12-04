@@ -1,6 +1,6 @@
 import styles from './collapsible-meta.module.scss';
 import { Button } from '@automattic/jetpack-components';
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import ChevronDown from '$svg/chevron-down';
 import ChevronUp from '$svg/chevron-up';
 import { recordBoostEvent } from '$lib/utils/analytics';
@@ -31,21 +31,16 @@ const CollapsibleMeta = ( {
 }: CollapsibleMetaProps ) => {
 	const [ isExpanded, setIsExpanded ] = useState( false );
 
-	/*
-	 * A callback function that is called when the collapsible meta is toggled.
-	 * The callback function is passed as a prop to the component and is called with the new state.
-	 */
-	useEffect( () => {
-		onToggleHandler?.( isExpanded );
-	}, [ isExpanded, onToggleHandler ] );
-
-	useEffect( () => {
+	const onToggle = () => {
+		const newIsExpanded = ! isExpanded;
+		setIsExpanded( newIsExpanded );
+		onToggleHandler?.( newIsExpanded );
 		if ( tracksEvent !== '' ) {
 			recordBoostEvent( tracksEvent, {
-				status: isExpanded ? 'open' : 'close',
+				status: newIsExpanded ? 'open' : 'close',
 			} );
 		}
-	}, [ isExpanded, tracksEvent ] );
+	};
 
 	/*
 	 * The header of the collapsible meta section.
@@ -62,9 +57,7 @@ const CollapsibleMeta = ( {
 					weight="regular"
 					icon={ isExpanded ? <ChevronUp /> : <ChevronDown /> }
 					className={ styles[ 'edit-button' ] }
-					onClick={ () => {
-						setIsExpanded( ! isExpanded );
-					} }
+					onClick={ onToggle }
 				>
 					{ toggleText }
 				</Button>
