@@ -189,17 +189,6 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 			)
 		);
 
-		// Get connections route
-		register_rest_route(
-			$this->namespace,
-			'/me/connections',
-			array(
-				'methods'             => \WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'get_connections' ),
-				'permission_callback' => array( $this, 'permission_callback' ),
-			)
-		);
-
 		// Add new session route, currently for Google Photos Picker only
 		register_rest_route(
 			$this->namespace,
@@ -537,33 +526,6 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 			'2',
 			array(
 				'method' => 'DELETE',
-			)
-		);
-
-		return json_decode( wp_remote_retrieve_body( $response ), true );
-	}
-
-	/**
-	 * Gets connections for the current user.
-	 *
-	 * @param \WP_REST_Request $request Full details about the request.
-	 * @return array|\WP_Error|mixed
-	 */
-	public function get_connections( \WP_REST_Request $request ) {
-		$wpcom_path = '/me/connections';
-
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			$internal_request = new \WP_REST_Request( 'GET', '/' . $this->namespace . $wpcom_path );
-			$internal_request->set_query_params( $request->get_params() );
-
-			return rest_do_request( $internal_request );
-		}
-
-		$response = Client::wpcom_json_api_request_as_user(
-			$wpcom_path,
-			'2',
-			array(
-				'method' => 'GET',
 			)
 		);
 
