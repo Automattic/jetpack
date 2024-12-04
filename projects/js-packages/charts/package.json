@@ -30,10 +30,7 @@
 		"jest-extended": "4.0.2",
 		"typescript": "5.0.4",
 		"@types/react": "18.3.12",
-		"@types/react-dom": "18.3.1",
-		"@storybook/react": "8.3.5",
-		"@storybook/blocks": "8.3.5",
-		"storybook": "8.3.5"
+		"@types/react-dom": "18.3.1"
 	},
 	"peerDependencies": {
 		"react": "^17.0.0 || ^18.0.0",
