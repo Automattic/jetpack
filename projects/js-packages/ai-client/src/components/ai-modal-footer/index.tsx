@@ -4,7 +4,7 @@
 import { Button } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Icon, arrowDownRight, info } from '@wordpress/icons';
+import { Icon, info } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
@@ -54,8 +54,7 @@ export default function AiModalFooter( {
 					target="_blank"
 					onClick={ handleGuidelinesClick }
 				>
-					<span>{ __( 'Guidelines', 'jetpack-ai-client' ) }</span>
-					<Icon icon={ arrowDownRight } className="arrow-icon" />
+					<span>{ __( 'Guidelines', 'jetpack-ai-client' ) } ↗</span>
 				</Button>
 			</div>
 			<Button
@@ -65,8 +64,7 @@ export default function AiModalFooter( {
 				target="_blank"
 				onClick={ handleFeedbackClick }
 			>
-				<span>{ __( 'Give feedback', 'jetpack-ai-client' ) }</span>
-				<Icon icon={ arrowDownRight } className="arrow-icon" />
+				<span>{ __( 'Give feedback', 'jetpack-ai-client' ) } ↗</span>
 			</Button>
 		</>
 	);
