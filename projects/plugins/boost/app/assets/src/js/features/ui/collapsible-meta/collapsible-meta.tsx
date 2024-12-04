@@ -18,13 +18,7 @@ type CollapsibleMetaProps = {
 };
 
 /*
- * This component is used to create a collapsible meta section.
- * This is used by the modules on the settings page to create a more consistent UI.
- * The toggleText and tracksEvent props are used by every module.
- * headerText is used by Page Cache and Minify modules.
- * The Quality Settings module uses the header prop to render a custom header.
- * The extraButtons prop is used to render a custom set of buttons, for example, the "Clear Cache" button.
- * The onToggleHandler prop is a callback function that is called when the collapsible meta is toggled. Used by Minify module to reset the input value.
+ * This component is used to create a collapsible meta section for modules on the settings page.
  */
 const CollapsibleMeta = ( {
 	children,
