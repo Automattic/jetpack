@@ -85,12 +85,12 @@ function GooglePhotos( props ) {
 		return <MediaLoadingPlaceholder />;
 	}
 
-	if ( authUpgradeRequired ) {
-		return <GooglePhotosAuthUpgrade { ...props } />;
-	}
-
 	if ( ! isAuthenticated ) {
 		return <GooglePhotosAuth { ...props } />;
+	}
+
+	if ( authUpgradeRequired ) {
+		return <GooglePhotosAuthUpgrade { ...props } />;
 	}
 
 	if ( pickerFeatureEnabled && ! pickerSession?.mediaItemsSet ) {
