@@ -1351,7 +1351,7 @@ class Jetpack_Gutenberg {
 	 * @param string $version       The version of WordPress where the message was added.
 	 * @return bool Whether to trigger the error.
 	 */
-	public static function bypass_block_metadata_doing_it_wrong( $trigger, $function, $message, $version ) {
+	public static function bypass_block_metadata_doing_it_wrong( $trigger, $function, $message, $version ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		if ( $function === 'WP_Block_Metadata_Registry::register_collection' ) {
 			return false;
 		}
