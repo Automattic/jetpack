@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+PR triage: attempt to automatically add Type labels to newly opened PRs, based on changelog files committed with the PR
