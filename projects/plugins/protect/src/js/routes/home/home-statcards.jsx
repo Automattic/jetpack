@@ -108,7 +108,7 @@ const HomeStatCards = () => {
 		} else {
 			scanIcon = (
 				<ShieldIcon
-					variant={ numThreats ? 'error' : 'success' }
+					variant={ numThreats ? 'warning' : 'success' }
 					height={ iconHeight }
 					color={ numThreats ? '#F0B849' : '#069E08' }
 				/>
@@ -157,7 +157,7 @@ const HomeStatCards = () => {
 			icon: (
 				<span className={ styles[ 'stat-card-icon' ] }>
 					<ShieldIcon
-						variant="success"
+						variant={ ! isWafModuleEnabled ? 'error' : 'success' }
 						height={ iconHeight }
 						fill={ ! isWafModuleEnabled ? '#A7AAAD' : null }
 					/>
@@ -186,7 +186,7 @@ const HomeStatCards = () => {
 			icon: (
 				<span className={ styles[ 'stat-card-icon' ] }>
 					<ShieldIcon
-						variant="success"
+						variant={ ! isBruteForceModuleEnabled ? 'error' : 'success' }
 						height={ iconHeight }
 						fill={ ! isBruteForceModuleEnabled ? '#A7AAAD' : null }
 					/>
