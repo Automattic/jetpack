@@ -104,31 +104,29 @@ const Meta = () => {
 
 	const content = (
 		<div className={ styles.body }>
-			<>
-				<BypassPatterns
-					patterns={ bypassPatterns.join( '\n' ) }
-					setPatterns={ updatePatterns }
-					showErrorNotice={ mutateBypassPatterns.isError }
-				/>
-				<div className={ styles.section }>
-					<div className={ styles.title }>{ __( 'Logging', 'jetpack-boost' ) }</div>
-					<label htmlFor="cache-logging" className={ styles[ 'logging-toggle' ] }>
-						<input
-							type="checkbox"
-							id="cache-logging"
-							checked={ logging }
-							onChange={ toggleLogging }
-						/>{ ' ' }
-						{ __( 'Activate logging to track all your cache events.', 'jetpack-boost' ) }
-					</label>
-					{ logging && (
-						<Link className={ styles[ 'see-logs-link' ] } to="/cache-debug-log">
-							{ __( 'See Logs', 'jetpack-boost' ) }
-						</Link>
-					) }
-					<div className={ styles.clearfix } />
-				</div>
-			</>
+			<BypassPatterns
+				patterns={ bypassPatterns.join( '\n' ) }
+				setPatterns={ updatePatterns }
+				showErrorNotice={ mutateBypassPatterns.isError }
+			/>
+			<div className={ styles.section }>
+				<div className={ styles.title }>{ __( 'Logging', 'jetpack-boost' ) }</div>
+				<label htmlFor="cache-logging" className={ styles[ 'logging-toggle' ] }>
+					<input
+						type="checkbox"
+						id="cache-logging"
+						checked={ logging }
+						onChange={ toggleLogging }
+					/>{ ' ' }
+					{ __( 'Activate logging to track all your cache events.', 'jetpack-boost' ) }
+				</label>
+				{ logging && (
+					<Link className={ styles[ 'see-logs-link' ] } to="/cache-debug-log">
+						{ __( 'See Logs', 'jetpack-boost' ) }
+					</Link>
+				) }
+				<div className={ styles.clearfix } />
+			</div>
 		</div>
 	);
 
