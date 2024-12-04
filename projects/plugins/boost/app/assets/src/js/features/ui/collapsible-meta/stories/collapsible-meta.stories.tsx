@@ -3,12 +3,16 @@ import CollapsibleMeta from '../collapsible-meta';
 import React from 'react';
 
 const meta: Meta< typeof CollapsibleMeta > = {
-	title: 'Plugins/Boost/Image CDN/CollapsibleMeta',
+	title: 'Plugins/Boost/UI/CollapsibleMeta',
 	component: CollapsibleMeta,
 	argTypes: {
+		onToggleHandler: { control: false },
+		tracksEvent: { control: 'text' },
+		extraButtons: { control: false },
+		headerText: { control: 'text' },
+		toggleText: { control: 'text' },
 		header: { control: 'text' },
 		summary: { control: 'text' },
-		editText: { control: 'text' },
 	},
 	decorators: [
 		Story => (
@@ -22,7 +26,11 @@ const meta: Meta< typeof CollapsibleMeta > = {
 const defaultValues = {
 	header: 'Something to show in the header',
 	summary: 'Something to show in the summary',
-	editText: 'Edit',
+	toggleText: 'Edit',
+	extraButtons: <button>Extra Button</button>,
+	headerText: 'Header Text',
+	tracksEvent: 'storybook_tracks_event',
+	onToggleHandler: () => {},
 };
 
 export default meta;
