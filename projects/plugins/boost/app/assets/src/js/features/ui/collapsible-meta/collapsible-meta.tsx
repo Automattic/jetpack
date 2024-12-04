@@ -21,12 +21,12 @@ type CollapsibleMetaProps = {
  */
 const CollapsibleMeta = ( {
 	children,
-	header,
-	summary,
-	toggleText,
+	header = null,
+	summary = null,
+	toggleText = '',
 	tracksEvent = '',
-	extraButtons,
-	headerText,
+	extraButtons = null,
+	headerText = '',
 	onToggleHandler,
 }: CollapsibleMetaProps ) => {
 	const [ isExpanded, setIsExpanded ] = useState( false );
@@ -50,7 +50,7 @@ const CollapsibleMeta = ( {
 		<div className={ styles.header }>
 			{ header ? header : <div className={ styles.summary }>{ headerText }</div> }
 			<div className={ styles.actions }>
-				{ extraButtons }{ ' ' }
+				{ extraButtons && extraButtons }{ ' ' }
 				<Button
 					variant="link"
 					size="small"
