@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Misc: Add WordPress filter to allow cornerstone pages list to be updated via PHP.
