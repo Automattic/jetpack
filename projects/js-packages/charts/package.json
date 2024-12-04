@@ -36,8 +36,8 @@
 		"storybook": "8.3.5"
 	},
 	"peerDependencies": {
-		"react": "^18.0.0",
-		"react-dom": "^18.0.0"
+		"react": "^17.0.0 || ^18.0.0",
+		"react-dom": "^17.0.0 || ^18.0.0"
 	},
 	"exports": {
 		".": "./src/index.ts",

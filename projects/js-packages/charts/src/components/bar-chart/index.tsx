@@ -8,27 +8,14 @@ export interface DataPoint {
 	value: number;
 }
 
-interface BarChartProps {
-	/**
-	 * Array of data points to display
-	 */
+type BarChartProps = {
 	data: DataPoint[];
-
-	/**
-	 * Width of the chart in pixels
-	 */
 	width: number;
-
-	/**
-	 * Height of the chart in pixels
-	 */
 	height: number;
-
-	/**
-	 * Chart margins
-	 */
-	margin?: { top: number; right: number; bottom: number; left: number };
-}
+	margin?: {
+		[ K in 'top' | 'right' | 'bottom' | 'left' ]?: number;
+	};
+};
 
 /**
  * Renders a bar chart using the provided data.
@@ -36,15 +23,12 @@ interface BarChartProps {
  * @param {BarChartProps} props - Component props
  * @return {JSX.Element} The rendered bar chart component
  */
-export function BarChart( {
-	data,
-	width,
-	height,
-	margin = { top: 20, right: 20, bottom: 40, left: 40 },
-}: BarChartProps ) {
+export function BarChart( { data, width, height, margin }: BarChartProps ) {
+	const margins = { top: 20, right: 20, bottom: 40, left: 40, ...margin };
+
 	// Calculate bounds
-	const xMax = width - margin.left - margin.right;
-	const yMax = height - margin.top - margin.bottom;
+	const xMax = width - margins.left - margins.right;
+	const yMax = height - margins.top - margins.bottom;
 
 	// Scales
 	const xScale = scaleBand< string >( {
@@ -60,7 +44,7 @@ export function BarChart( {
 
 	return (
 		<svg width={ width } height={ height }>
-			<Group left={ margin.left } top={ margin.top }>
+			<Group left={ margins.left } top={ margins.top }>
 				{ data.map( d => {
 					const barWidth = xScale.bandwidth();
 					const barHeight = yMax - ( yScale( d.value ) ?? 0 );
