@@ -50,12 +50,10 @@ AdminSectionHero.Heading = ( {
 	children,
 	variant = 'default',
 	showIcon = false,
-	outline,
 }: {
 	children: React.ReactNode;
 	variant?: 'default' | 'success' | 'error';
 	showIcon?: boolean;
-	outline?: boolean;
 } ) => {
 	return (
 		<H3 className={ styles.heading } mt={ 2 } mb={ 2 }>
@@ -64,7 +62,7 @@ AdminSectionHero.Heading = ( {
 				<ShieldIcon
 					height={ 38 }
 					variant={ variant }
-					outline={ outline }
+					outline
 					fill="default"
 					className={ styles[ 'heading-icon' ] }
 				/>

@@ -279,7 +279,7 @@ const ScanHistoryRoute = () => {
 												</div>
 											</div>
 											<div className={ styles.empty }>
-												<ShieldIcon />
+												<ShieldIcon variant="sucess" height={ 96 } />
 												<H3 weight="bold" mt={ 8 }>
 													{ __( "Don't worry about a thing", 'jetpack-protect' ) }
 												</H3>

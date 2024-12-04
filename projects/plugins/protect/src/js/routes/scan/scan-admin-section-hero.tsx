@@ -58,7 +58,7 @@ const ScanAdminSectionHero: React.FC = () => {
 		return <ScanningAdminSectionHero />;
 	}
 
-	if ( status.error ) {
+	if ( ! status.error ) {
 		return (
 			<ErrorAdminSectionHero
 				baseErrorMessage={ __( 'We are having problems scanning your site.', 'jetpack-protect' ) }
@@ -88,7 +88,7 @@ const ScanAdminSectionHero: React.FC = () => {
 							anchor={ dailyScansPopoverAnchor }
 						/>
 					) }
-					<AdminSectionHero.Heading showIcon>
+					<AdminSectionHero.Heading showIcon variant={ numThreats > 0 ? 'error' : 'success' }>
 						{ numThreats > 0
 							? sprintf(
 									/* translators: %s: Total number of threats/vulnerabilities */

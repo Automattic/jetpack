@@ -83,7 +83,7 @@ const EmptyList = () => {
 
 	return (
 		<div className={ styles.empty }>
-			<ShieldIcon variant="success" />
+			<ShieldIcon variant="success" height={ 96 } />
 			<H3 weight="bold" mt={ 8 }>
 				{ __( "Don't worry about a thing", 'jetpack-protect' ) }
 			</H3>

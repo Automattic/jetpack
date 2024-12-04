@@ -24,8 +24,8 @@ const ErrorAdminSectionHero: React.FC< ErrorAdminSectionHeroProps > = ( {
 				<>
 					<AdminSectionHero.Heading>
 						<div className={ styles.heading }>
-							<ShieldIcon variant="error" />
 							{ __( 'An error occurred', 'jetpack-protect' ) }
+							<ShieldIcon className={ styles.warning } variant="error" height={ 38 } outline />
 						</div>
 					</AdminSectionHero.Heading>
 					<AdminSectionHero.Subheading>
