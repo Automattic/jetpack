@@ -42,6 +42,18 @@ export function BarChart( { data, width, height, margin }: BarChartProps ) {
 		domain: [ 0, Math.max( ...data.map( d => d.value ) ) ],
 	} );
 
+	/**
+	 * Returns the props for tick labels on the x-axis.
+	 *
+	 * @return {object} The tick label props
+	 */
+	function getTickLabelProps() {
+		return {
+			textAnchor: 'middle' as const,
+			dy: '0.75em',
+		};
+	}
+
 	return (
 		<svg width={ width } height={ height }>
 			<Group left={ margins.left } top={ margins.top }>
@@ -64,14 +76,7 @@ export function BarChart( { data, width, height, margin }: BarChartProps ) {
 				} ) }
 
 				<AxisLeft scale={ yScale } />
-				<AxisBottom
-					scale={ xScale }
-					top={ yMax }
-					tickLabelProps={ () => ( {
-						textAnchor: 'middle',
-						dy: '0.75em',
-					} ) }
-				/>
+				<AxisBottom scale={ xScale } top={ yMax } tickLabelProps={ getTickLabelProps() } />
 			</Group>
 		</svg>
 	);
