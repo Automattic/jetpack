@@ -225,7 +225,9 @@ async function getChangelogEntries( octokit, owner, repo, number ) {
 		// It can be found on the second line of the file, after a Type: prefix.
 		let changeType = '';
 		if ( changelogFilePath ) {
-			const changelogContent = fs.readFileSync( `${ baseDir }/${ changelogFilePath }` );
+			const changelogContent = fs
+				.readFileSync( `${ baseDir }/${ changelogFilePath }`, 'utf8' )
+				.toString();
 			const typeMatch = changelogContent.match( /^Type: (.*)$/m );
 			if ( typeMatch ) {
 				changeType = typeMatch[ 1 ];
