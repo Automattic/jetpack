@@ -82,6 +82,23 @@ class WordAds_Sidebar_Widget extends WP_Widget {
 			WORDADS_API_TEST_ID :
 			$wordads->params->blog_id . $unit_id;
 
+		// Use the Gutenberg existing formats to render the legacy sidebar instead of creating new ones.
+		$sizes_x_smart_format = array(
+			'300x250' => 'gutenberg_rectangle',
+			'728x90'  => 'gutenberg_leaderboard',
+			'160x600' => 'gutenberg_skyscraper',
+		);
+
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended
+		$smart_format    = $sizes_x_smart_format[ "{$width}x{$height}" ] ?? null;
+		$is_watl_enabled = $smart_format && isset( $_GET['wordads-logging'] ) && isset( $_GET[ $smart_format ] ) && 'true' === $_GET[ $smart_format ];
+
+		if ( $is_watl_enabled ) {
+			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			echo $wordads::get_watl_ad_html_tag( $smart_format );
+			return;
+		}
+
 		$snippet = '';
 		if ( $wordads->option( 'wordads_house', true ) ) {
 			$unit = 'mrec';
