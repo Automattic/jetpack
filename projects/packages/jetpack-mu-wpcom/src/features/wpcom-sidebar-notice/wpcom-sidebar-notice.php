@@ -43,7 +43,7 @@ function wpcom_enqueue_sidebar_notice_assets() {
 		'wpcomSidebarNoticeConfig',
 		array(
 			'ajaxUrl' => admin_url( 'admin-ajax.php' ),
-			'nonce'   => wp_create_nonce( 'fetch_sidebar_notice' ),
+			'nonce'   => wp_create_nonce( 'wpcom_fetch_sidebar_notice' ),
 		)
 	);
 }
