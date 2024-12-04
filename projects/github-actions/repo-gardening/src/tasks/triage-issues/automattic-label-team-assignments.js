@@ -153,7 +153,7 @@ export const automatticAssignments = {
 		team: 'Scan',
 		labels: [ '[Plugin] Protect', '[Feature] Protect', '[Package] WAF' ],
 		slack_id: 'C029WFNV69M',
-		board_id: 767,
+		board_id: 'https://github.com/orgs/Automattic/projects/767',
 	},
 	'React Dashboard': {
 		team: 'Vulcan',
