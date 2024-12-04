@@ -17,7 +17,9 @@ const MetaComponent = ( { buttonText, placeholder, datasyncKey }: Props ) => {
 	}, [ values ] );
 
 	const onToggleHandler = ( isExpanded: boolean ) => {
-		! isExpanded && setInputValue( values.join( ', ' ) );
+		if ( ! isExpanded ) {
+			setInputValue( values.join( ', ' ) );
+		}
 	};
 
 	function save() {
