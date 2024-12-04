@@ -118,7 +118,7 @@ export function useDataSync<
 		initialData: () => {
 			try {
 				return datasync.getInitialValue();
-			} catch ( e ) {
+			} catch {
 				return undefined;
 			}
 		},
@@ -313,7 +313,7 @@ export function useDataSyncAction<
 					queryClient.setQueryData( queryKey, data );
 				}
 				return data;
-			} catch ( e ) {
+			} catch {
 				return queryClient.getQueryData( queryKey );
 			}
 		},

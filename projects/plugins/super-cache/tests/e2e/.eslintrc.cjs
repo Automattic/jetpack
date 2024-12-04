@@ -14,7 +14,6 @@ module.exports = {
 	},
 	rules: {
 		'comma-dangle': 0,
-		'prettier/prettier': 0,
 		'@typescript-eslint/no-unused-vars': 0,
 		'import/no-unresolved': 0,
 	},

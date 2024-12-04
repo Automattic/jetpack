@@ -6,7 +6,7 @@ import mediaImage from '../../../../../images/media.svg';
 import GooglePhotosAccount from './google-photos-account';
 
 export default function GooglePhotosPickerButton( props ) {
-	const { pickerSession, featchPickerSession, setAuthenticated, account } = props;
+	const { pickerSession, fetchPickerSession, setAuthenticated, account } = props;
 	const isButtonBusy = ! pickerSession;
 
 	const openPicker = () => {
@@ -15,10 +15,10 @@ export default function GooglePhotosPickerButton( props ) {
 
 	useEffect( () => {
 		const interval = setInterval( () => {
-			pickerSession.id && featchPickerSession( pickerSession.id );
+			pickerSession.id && fetchPickerSession( pickerSession.id );
 		}, 3000 );
 		return () => clearInterval( interval );
-	}, [ featchPickerSession, pickerSession?.id ] );
+	}, [ fetchPickerSession, pickerSession?.id ] );
 
 	return (
 		<div className="jetpack-external-media__google-photos-picker">

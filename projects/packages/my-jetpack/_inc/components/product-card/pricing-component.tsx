@@ -6,7 +6,6 @@ import usePricingData from './use-pricing-data';
 
 const PriceComponent = ( { slug }: { slug: string } ) => {
 	const { discountPrice, fullPrice, currencyCode } = usePricingData( slug );
-
 	return (
 		<div className={ styles.priceContainer }>
 			{ discountPrice && (

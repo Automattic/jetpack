@@ -9,10 +9,12 @@
  * Date: 15th August 2018
  */
 
-jQuery( function ( $ ) {
+/* global Chart, ajaxurl, zbsJS_admcolours, zeroBSCRMJS_globViewLang, moment, jpcrm_js_bind_daterangepicker */
+
+jQuery( function () {
 	window.dash_security = jQuery( '#zbs_dash_count_security' ).val();
 
-	var ctx = document.getElementById( 'growth-chart' );
+	const ctx = document.getElementById( 'growth-chart' );
 	// if no growth chart exists, then there's no data to process so we won't try to create a chart
 	// this whole JS file needs rework, but this is a quick fix for now
 	if ( ctx ) {
@@ -49,46 +51,46 @@ jQuery( function ( $ ) {
 			},
 		} );
 
-		jQuery( '.day-or-month .button' ).on( 'click', function ( e ) {
+		jQuery( '.day-or-month .button' ).on( 'click', function () {
 			jQuery( '.day-or-month .button' ).removeClass( 'selected' );
 			jQuery( this ).addClass( 'selected' );
 
-			range = jQuery( this ).attr( 'data-range' );
+			const range = jQuery( this ).attr( 'data-range' );
 
-			if ( range == 'yearly' ) {
+			if ( range === 'yearly' ) {
 				jetpackcrm_draw_contact_chart( window.yearly );
 			}
-			if ( range == 'monthly' ) {
+			if ( range === 'monthly' ) {
 				jetpackcrm_draw_contact_chart( window.monthly );
 			}
-			if ( range == 'weekly' ) {
+			if ( range === 'weekly' ) {
 				jetpackcrm_draw_contact_chart( window.weekly );
 			}
-			if ( range == 'daily' ) {
+			if ( range === 'daily' ) {
 				jetpackcrm_draw_contact_chart( window.daily );
 			}
 		} );
 	}
 
-	jQuery( '#jpcrm_dash_page_options' ).on( 'click', function ( e ) {
-		document.querySelector('.dashboard-custom-choices').classList.toggle('hidden');
+	jQuery( '#jpcrm_dash_page_options' ).on( 'click', function () {
+		document.querySelector( '.dashboard-custom-choices' ).classList.toggle( 'hidden' );
 	} );
 
-	jQuery( '.dashboard-custom-choices input' ).on( 'click', function ( e ) {
-		var zbs_dash_setting_id = jQuery( this ).attr( 'id' );
+	jQuery( '.dashboard-custom-choices input' ).on( 'click', function () {
+		const zbs_dash_setting_id = jQuery( this ).attr( 'id' );
 		jQuery( '#' + zbs_dash_setting_id + '_display' ).toggle();
 
-		var is_checked = 0;
+		let is_checked = 0;
 		if ( jQuery( '#' + zbs_dash_setting_id ).is( ':checked' ) ) {
 			is_checked = 1;
 		}
-		var the_setting = zbs_dash_setting_id;
-		var security = jQuery( '#zbs_dash_setting_security' ).val();
 
-		var data = {
+		const security = jQuery( '#zbs_dash_setting_security' ).val();
+
+		const data = {
 			action: 'zbs_dash_setting',
 			is_checked: is_checked,
-			the_setting: the_setting,
+			the_setting: zbs_dash_setting_id,
 			security: security,
 		};
 
@@ -98,35 +100,36 @@ jQuery( function ( $ ) {
 			data: data,
 			dataType: 'json',
 			timeout: 20000,
-			success: function ( response ) {},
-			error: function ( response ) {},
+			success: function () {},
+			error: function () {},
 		} );
 	} );
 
 	jQuery( function () {
 		/**
-		 * @param start
-		 * @param end
+		 * Callback when changing date range.
+		 * @param {object} start - Start moment.js object.
+		 * @param {object} end   - End moment.js object.
 		 */
 		function cb( start, end ) {
-			zbsStrokeColor = zbsJS_admcolours.colors[ 0 ];
+			const zbsStrokeColor = zbsJS_admcolours.colors[ 0 ];
 			jQuery( '#reportrange span' ).html(
 				start.format( 'MMM D Y' ) + ' - ' + end.format( 'MMM D Y' )
 			);
 
-			var zbs_start_date = start.format( 'Y-MM-DD' );
-			var zbs_end_date = end.format( 'Y-MM-DD' );
+			const zbs_start_date = start.format( 'Y-MM-DD' );
+			const zbs_end_date = end.format( 'Y-MM-DD' );
 
 			jQuery( '.loading' ).css( 'color', zbsStrokeColor ).show();
 
-			var t = {
+			const t = {
 				action: 'jetpackcrm_dash_refresh',
 				start_date: zbs_start_date,
 				end_date: zbs_end_date,
 				security: window.dash_security,
 			};
 
-			o = jQuery.ajax( {
+			const o = jQuery.ajax( {
 				url: ajaxurl,
 				type: 'POST',
 				data: t,
@@ -139,17 +142,17 @@ jQuery( function ( $ ) {
 				window.weekly = res.chart.weekly;
 				window.daily = res.chart.daily;
 
-				summary_html = '';
-				for ( var i = 0; i < res.summary.length; i++ ) {
-					item = res.summary[ i ];
+				let summary_html = '';
+				for ( let i = 0; i < res.summary.length; i++ ) {
+					const item = res.summary[ i ];
 					summary_html += `
 						<jpcrm-dashcount-card>
-							<h3>${item.label}</h3>
+							<h3>${ item.label }</h3>
 							<div>
-								<span class="range_total">+${item.range_total}</span>
-								<span class="alltime_total">${item.alltime_total_str}</span>
+								<span class="range_total">+${ item.range_total }</span>
+								<span class="alltime_total">${ item.alltime_total_str }</span>
 							</div>
-							<a href="${item.link}">${zeroBSCRMJS_globViewLang( 'viewall' )}</a>
+							<a href="${ item.link }">${ zeroBSCRMJS_globViewLang( 'viewall' ) }</a>
 						</jpcrm-dashcount-card>
 						`;
 				}
@@ -158,7 +161,7 @@ jQuery( function ( $ ) {
 					jetpackcrm_draw_contact_chart( res.chart.monthly );
 				}
 			} );
-			o.fail( function ( res ) {} );
+			o.fail( function () {} );
 		}
 
 		// init callback
@@ -191,7 +194,8 @@ jQuery( function ( $ ) {
 } );
 
 /**
- * @param data
+ * Draw the contact chart.
+ * @param {object} data - Data for contact chart.
  */
 function jetpackcrm_draw_contact_chart( data ) {
 	window.contactChart.data.labels = data.labels;
@@ -200,5 +204,5 @@ function jetpackcrm_draw_contact_chart( data ) {
 }
 
 if ( typeof module !== 'undefined' ) {
-    module.exports = {  jetpackcrm_draw_contact_chart  };
+	module.exports = { jetpackcrm_draw_contact_chart };
 }

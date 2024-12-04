@@ -239,10 +239,11 @@ jQuery( function ( $ ) {
 			data: {
 				message,
 				skipped_connections,
+				async: true,
 			},
 		} )
 			.then( () => {
-				showNotice( __( 'Your post has been shared!', 'jetpack-publicize-pkg' ), 'success' );
+				showNotice( __( 'Request submitted successfully.', 'jetpack-publicize-pkg' ), 'success' );
 			} )
 			.catch( () => {
 				showNotice( __( 'An error occurred while sharing your post.', 'jetpack-publicize-pkg' ) );

@@ -1,4 +1,0 @@
-Significance: major
-Type: removed
-
-Remove JSX runtime polyfill, now that we've dropped support for WordPress < 6.6.

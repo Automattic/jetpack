@@ -193,7 +193,7 @@ const List: React.FC< ListProps > = ( {
 			let url: URL | undefined;
 			try {
 				url = new URL( line );
-			} catch ( e ) {
+			} catch {
 				// If the URL is invalid, they have provided a relative URL, which we will allow.
 			}
 			if ( url && ! isSameSiteUrl( url, siteUrl ) ) {

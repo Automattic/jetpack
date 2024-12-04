@@ -144,14 +144,14 @@ const usableBlockWithFreePlan = [
 		mediaPlaceholder: true,
 		mediaReplaceFlow: true,
 		fileType: 'video',
-		description: __( 'Upgrade your plan to use video covers', 'jetpack' ),
+		description: __( 'Upgrade your plan to use video covers', 'jetpack-shared-extension-utils' ),
 	},
 	{
 		name: 'core/audio',
 		mediaPlaceholder: true,
 		mediaReplaceFlow: true,
 		fileType: 'audio',
-		description: __( 'Upgrade your plan to upload audio', 'jetpack' ),
+		description: __( 'Upgrade your plan to upload audio', 'jetpack-shared-extension-utils' ),
 	},
 ];
 

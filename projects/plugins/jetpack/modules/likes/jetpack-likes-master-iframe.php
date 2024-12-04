@@ -34,6 +34,17 @@ function jetpack_likes_master_iframe() {
 		$new_layout
 	);
 
+	/**
+	 * Filters the Likes iframe src, if any parameters need to be overridden or tracked.
+	 *
+	 * @module likes
+	 *
+	 * @since 14.1
+	 *
+	 * @param string URL to https://widgets.wp.com/ with various arguments appended to the get string and fragment.
+	 */
+	$src = apply_filters( 'jetpack_likes_iframe_src', $src );
+
 	if ( $new_layout ) {
 		// The span content is replaced by queuehandler when showOtherGravatars is called.
 		$likers_text = wp_kses( '<span>%d</span>', array( 'span' => array() ) );

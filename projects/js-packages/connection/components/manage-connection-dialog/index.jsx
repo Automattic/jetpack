@@ -23,7 +23,7 @@ import './style.scss';
  */
 const ManageConnectionDialog = props => {
 	const {
-		title = __( 'Manage your Jetpack connection', 'jetpack' ),
+		title = __( 'Manage your Jetpack connection', 'jetpack-connection-js' ),
 		apiRoot,
 		apiNonce,
 		connectedPlugins,
@@ -79,11 +79,11 @@ const ManageConnectionDialog = props => {
 							<Text className="jp-connection__manage-dialog__large-text">
 								{ __(
 									'At least one user must be connected for your Jetpack products to work properly.',
-									'jetpack'
+									'jetpack-connection-js'
 								) }
 							</Text>
 							<ManageConnectionActionCard
-								title={ __( 'Transfer ownership to another admin', 'jetpack' ) }
+								title={ __( 'Transfer ownership to another admin', 'jetpack-connection-js' ) }
 								link={ getRedirectUrl( 'calypso-settings-manage-connection', {
 									site: window?.myJetpackInitialState?.siteSuffix,
 								} ) }
@@ -91,7 +91,7 @@ const ManageConnectionDialog = props => {
 								action="transfer"
 							/>
 							<ManageConnectionActionCard
-								title={ __( 'Disconnect Jetpack', 'jetpack' ) }
+								title={ __( 'Disconnect Jetpack', 'jetpack-connection-js' ) }
 								onClick={ openDisconnectDialog }
 								key="disconnect"
 								action="disconnect"
@@ -145,7 +145,7 @@ const HelpFooter = ( { onClose } ) => {
 					{ createInterpolateElement(
 						__(
 							'<strong>Need help?</strong> Learn more about the <connectionInfoLink>Jetpack connection</connectionInfoLink> or <supportLink>contact Jetpack support</supportLink>',
-							'jetpack'
+							'jetpack-connection-js'
 						),
 						{
 							strong: <strong></strong>,
@@ -176,7 +176,7 @@ const HelpFooter = ( { onClose } ) => {
 					onClick={ onClose }
 					className="jp-connection__manage-dialog__btn-dismiss"
 				>
-					{ __( 'Cancel', 'jetpack' ) }
+					{ __( 'Cancel', 'jetpack-connection-js' ) }
 				</Button>
 			</div>
 		</div>

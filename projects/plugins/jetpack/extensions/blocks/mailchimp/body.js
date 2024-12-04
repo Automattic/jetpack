@@ -46,6 +46,7 @@ const Body = ( { attributes, setAttributes, audition } ) => {
 		>
 			<TextControl
 				__nextHasNoMarginBottom={ true }
+				__next40pxDefaultSize
 				aria-label={ emailPlaceholder }
 				className={ `${ BLOCK_CLASS }_text-input` }
 				disabled

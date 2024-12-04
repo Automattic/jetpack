@@ -4,6 +4,7 @@ import { dispatch, select } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import { waitFor } from '../../wait-for';
+import { GOOGLE_PHOTOS_PICKER_SESSION } from '../constants';
 import { store as mediaStore } from '../store';
 import { PickerSession } from '../store/types';
 import { MediaSource } from './types';
@@ -84,6 +85,20 @@ type WpcomMediaResponse = {
 	found: number;
 	media: WpcomMediaItem[];
 };
+
+/**
+ * wpCookies global variable.
+ */
+declare global {
+	interface Window {
+		wpCookies: {
+			set: ( name: string, value: string, expires: number, path: string, domain?: string ) => void;
+			get: ( name: string ) => string | null;
+		};
+	}
+}
+
+const wpCookies = window.wpCookies;
 
 /**
  * Get media URL for a given MediaSource.
@@ -279,6 +294,7 @@ export const authenticateMediaSource = ( source: MediaSource, isAuthenticated: b
  * @param {PickerSession} session
  */
 export const setGooglePhotosPickerSession = ( session: PickerSession ) => {
+	setGooglePhotosPickeCachedSessionId( session?.id || null );
 	dispatch( mediaStore ).mediaPhotosPickerSessionSet( session );
 };
 
@@ -286,4 +302,28 @@ export const setGooglePhotosPickerSession = ( session: PickerSession ) => {
  * Get Google Photos Picker session
  * @return {PickerSession} Media URL.
  */
-export const getGooglePhotosPickerSession = () => select( mediaStore ).mediaPhotosPickerSession();
+export const getGooglePhotosPickerSession = () => {
+	return select( mediaStore ).mediaPhotosPickerSession();
+};
+
+/**
+ * Set Google Photos Picker session id to cookies
+ * @param {string|null} sessionId - Session id
+ */
+export const setGooglePhotosPickeCachedSessionId = ( sessionId: string | null ) => {
+	wpCookies.set(
+		GOOGLE_PHOTOS_PICKER_SESSION,
+		sessionId,
+		604800, // 7 days
+		'/',
+		`.${ window.location.hostname }`
+	);
+};
+
+/**
+ * Get Google Photos Picker session id from cookies
+ * @return {string | null} Google Photos Picker session id
+ */
+export const getGooglePhotosPickerCachedSessionId = () => {
+	return wpCookies.get( GOOGLE_PHOTOS_PICKER_SESSION );
+};

@@ -287,7 +287,7 @@ class Licensing {
 	/**
 	 * Load current user's licenses.
 	 *
-	 * @param bool $unattached_only Only return unattached licenses.
+	 * @param bool $unattached_only Only return unattached and not revoked licenses.
 	 *
 	 * @return array
 	 */
@@ -304,7 +304,7 @@ class Licensing {
 			$items = array_filter(
 				$items,
 				static function ( $item ) {
-					return $item->attached_at === null;
+					return $item->attached_at === null && $item->revoked_at === null;
 				}
 			);
 		}

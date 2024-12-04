@@ -147,7 +147,7 @@ const JetpackAndSettingsContent = ( {
 			</PanelRow>
 
 			<PanelRow>
-				<ExternalLink href="https://automattic.com/ai-guidelines">
+				<ExternalLink href="https://jetpack.com/redirect/?source=ai-guidelines">
 					{ __( 'AI Guidelines', 'jetpack' ) }
 				</ExternalLink>
 			</PanelRow>
@@ -156,9 +156,7 @@ const JetpackAndSettingsContent = ( {
 };
 
 export default function AiAssistantPluginSidebar() {
-	const { requireUpgrade, upgradeType, currentTier, tierPlansEnabled, isOverLimit } =
-		useAiFeature();
-	const { checkoutUrl } = useAICheckout();
+	const { requireUpgrade, upgradeType, currentTier, isOverLimit } = useAiFeature();
 	const { tracks } = useAnalytics();
 
 	const isViewable = useSelect( select => {
@@ -185,8 +183,7 @@ export default function AiAssistantPluginSidebar() {
 		tracks.recordEvent( 'jetpack_ai_panel_open', { placement } );
 	};
 
-	const showUsagePanel =
-		planType === PLAN_TYPE_FREE || ( tierPlansEnabled && planType !== PLAN_TYPE_UNLIMITED );
+	const showUsagePanel = planType === PLAN_TYPE_FREE;
 	const showFairUsageNotice = planType === PLAN_TYPE_UNLIMITED && isOverLimit;
 	const isBreveAvailable = getBreveAvailability();
 
@@ -244,14 +241,6 @@ export default function AiAssistantPluginSidebar() {
 						busy={ false }
 						disabled={ requireUpgrade }
 					/>
-					{ requireUpgrade && tierPlansEnabled && (
-						<Upgrade
-							placement={ PLACEMENT_PRE_PUBLISH }
-							type={ upgradeType }
-							currentTier={ currentTier }
-							upgradeUrl={ checkoutUrl }
-						/>
-					) }
 				</>
 			</PluginPrePublishPanel>
 		</>
