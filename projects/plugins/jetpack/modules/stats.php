@@ -588,13 +588,12 @@ function stats_reports_page( $main_chart_only = false ) {
 		}
 	}
 
+	$url = 'https://' . STATS_DASHBOARD_SERVER . '/wp-admin/index.php';
 	if ( isset( $_GET['chart'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( preg_match( '/^[a-z0-9-]+$/', $_GET['chart'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput
 			$chart = sanitize_title( $_GET['chart'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput
 			$url   = 'https://' . STATS_DASHBOARD_SERVER . "/wp-includes/charts/{$chart}.php";
 		}
-	} else {
-		$url = 'https://' . STATS_DASHBOARD_SERVER . '/wp-admin/index.php';
 	}
 
 	$url     = add_query_arg( $q, $url );
