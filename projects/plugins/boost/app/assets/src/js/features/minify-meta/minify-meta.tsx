@@ -41,18 +41,22 @@ const MetaComponent = ( { buttonText, placeholder, datasyncKey }: Props ) => {
 			  sprintf( __( 'Except: %s', 'jetpack-boost' ), values.join( ', ' ) )
 			: '';
 
+	// Be explicit about this because the optimizer breaks the linter otherwise.
+	let subHeaderText = '';
+	if ( datasyncKey === 'minify_js_excludes' ) {
+		subHeaderText = __( 'Exclude JS Strings:', 'jetpack-boost' );
+	}
+
+	if ( datasyncKey === 'minify_css_excludes' ) {
+		subHeaderText = __( 'Exclude CSS Strings:', 'jetpack-boost' );
+	}
+
 	const content = (
 		<div className={ styles.body }>
 			<div className={ styles.section }>
 				<div className={ styles.title }>{ __( 'Exceptions', 'jetpack-boost' ) }</div>
 				<div className={ styles[ 'manage-excludes' ] }>
-					<span className={ styles[ 'sub-header' ] }>
-						{ sprintf(
-							/* Translators: %s refers to the type of script. */
-							__( 'Exclude the following %s scripts:', 'jetpack-boost' ),
-							datasyncKey === 'minify_js_excludes' ? 'JS' : 'CSS'
-						) }
-					</span>
+					<span className={ styles[ 'sub-header' ] }>{ subHeaderText }</span>
 					<input
 						type="text"
 						value={ inputValue }
