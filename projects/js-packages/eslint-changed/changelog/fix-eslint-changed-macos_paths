@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Tests: Use fs.realpath() for macOS compatibility.
