@@ -1,6 +1,9 @@
-import { AdminSectionHero as JetpackAdminSectionHero, H3 } from '@automattic/jetpack-components';
+import {
+	AdminSectionHero as JetpackAdminSectionHero,
+	H3,
+	ShieldIcon,
+} from '@automattic/jetpack-components';
 import SeventyFiveLayout from '../seventy-five-layout';
-import ShieldIcon from '../shield-icon';
 import AdminSectionHeroNotices from './admin-section-hero-notices';
 import styles from './styles.module.scss';
 
@@ -47,18 +50,22 @@ AdminSectionHero.Heading = ( {
 	children,
 	variant = 'default',
 	showIcon = false,
+	outline,
 }: {
 	children: React.ReactNode;
 	variant?: 'default' | 'success' | 'error';
 	showIcon?: boolean;
+	outline?: boolean;
 } ) => {
 	return (
 		<H3 className={ styles.heading } mt={ 2 } mb={ 2 }>
 			{ children }
 			{ showIcon && (
 				<ShieldIcon
-					variant={ `${ variant }-outline` }
-					fill="#1d2327"
+					height={ 38 }
+					variant={ variant }
+					outline={ outline }
+					fill="default"
 					className={ styles[ 'heading-icon' ] }
 				/>
 			) }

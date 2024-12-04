@@ -5,7 +5,7 @@ import {
 	H3,
 	Text,
 	Title,
-	ShieldCheckIcon,
+	ShieldIcon,
 } from '@automattic/jetpack-components';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { useCallback } from 'react';
@@ -279,7 +279,7 @@ const ScanHistoryRoute = () => {
 												</div>
 											</div>
 											<div className={ styles.empty }>
-												<ShieldCheckIcon />
+												<ShieldIcon />
 												<H3 weight="bold" mt={ 8 }>
 													{ __( "Don't worry about a thing", 'jetpack-protect' ) }
 												</H3>

@@ -1,4 +1,4 @@
-import { Text, ShieldAlertIcon } from '@automattic/jetpack-components';
+import { Text, ShieldIcon } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import AdminSectionHero from '../admin-section-hero';
 import ScanNavigation from '../scan-navigation';
@@ -24,7 +24,7 @@ const ErrorAdminSectionHero: React.FC< ErrorAdminSectionHeroProps > = ( {
 				<>
 					<AdminSectionHero.Heading>
 						<div className={ styles.heading }>
-							<ShieldAlertIcon className={ styles.warning } />
+							<ShieldIcon variant="error" />
 							{ __( 'An error occurred', 'jetpack-protect' ) }
 						</div>
 					</AdminSectionHero.Heading>

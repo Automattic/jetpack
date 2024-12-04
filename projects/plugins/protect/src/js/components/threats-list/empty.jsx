@@ -1,4 +1,4 @@
-import { H3, Text, ShieldCheckIcon } from '@automattic/jetpack-components';
+import { H3, Text, ShieldIcon } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { sprintf, __, _n } from '@wordpress/i18n';
 import { useMemo, useState } from 'react';
@@ -83,7 +83,7 @@ const EmptyList = () => {
 
 	return (
 		<div className={ styles.empty }>
-			<ShieldCheckIcon />
+			<ShieldIcon variant="success" />
 			<H3 weight="bold" mt={ 8 }>
 				{ __( "Don't worry about a thing", 'jetpack-protect' ) }
 			</H3>
