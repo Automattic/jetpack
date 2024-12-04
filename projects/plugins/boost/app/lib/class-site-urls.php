@@ -14,7 +14,7 @@ class Site_Urls {
 			)
 		);
 
-		return array_slice(
+		$urls = array_slice(
 			array_merge(
 				$core_urls,
 				$post_urls
@@ -22,6 +22,8 @@ class Site_Urls {
 			0,
 			$limit
 		);
+
+		return apply_filters( 'jetpack_boost_site_urls', $urls, $limit );
 	}
 
 	private static function get_wp_core_urls() {
