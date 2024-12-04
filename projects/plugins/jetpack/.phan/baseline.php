@@ -402,7 +402,7 @@ return [
         'modules/sitemaps/sitemap-librarian.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchReturnProbablyReal'],
         'modules/sitemaps/sitemap-logger.php' => ['PhanTypeMismatchProperty'],
         'modules/sitemaps/sitemaps.php' => ['PhanNoopNew', 'PhanTypeMismatchArgument'],
-        'modules/stats.php' => ['PhanDeprecatedFunction', 'PhanPossiblyUndeclaredVariable', 'PhanRedundantCondition', 'PhanSuspiciousMagicConstant', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnNullable', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypeMissingReturn'],
+        'modules/stats.php' => ['PhanDeprecatedFunction', 'PhanRedundantCondition', 'PhanSuspiciousMagicConstant', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnNullable', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypeMissingReturn'],
         'modules/subscriptions.php' => ['PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchDefault', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypeSuspiciousNonTraversableForeach'],
         'modules/subscriptions/subscribe-modal/class-jetpack-subscribe-modal.php' => ['PhanTypeMismatchReturnNullable'],
         'modules/subscriptions/views.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeMissingReturn', 'PhanTypePossiblyInvalidDimOffset'],
