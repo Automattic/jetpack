@@ -9,8 +9,7 @@ import {
 import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
 import { useCallback, useMemo, useState } from 'react';
-import ShieldAlertIcon from '../shield-alert';
-import ShieldCheckIcon from '../shield-check';
+import ShieldIcon from '../shield-icon';
 import {
 	FIELD_NAME,
 	FIELD_VERSION,
@@ -80,7 +79,7 @@ export default function ScanReport( { data, onChangeSelection } ): JSX.Element {
 	 * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-dataviews/#fields-object
 	 */
 	const fields = useMemo( () => {
-		const defaultIconDimension = { width: '16', height: '19.14' };
+		const iconHeight = 20;
 
 		const result = [
 			{
@@ -95,7 +94,7 @@ export default function ScanReport( { data, onChangeSelection } ): JSX.Element {
 									text={ __( 'Threat detected.', 'jetpack-components' ) }
 								>
 									<div className={ styles.icon }>
-										<ShieldAlertIcon color={ '#F0B849' } { ...defaultIconDimension } />
+										<ShieldIcon variant="warning" height={ iconHeight } />
 									</div>
 								</Tooltip>
 							);
@@ -109,7 +108,7 @@ export default function ScanReport( { data, onChangeSelection } ): JSX.Element {
 								) }
 							>
 								<div className={ styles.icon }>
-									<ShieldCheckIcon color={ '#069E08' } { ...defaultIconDimension } />
+									<ShieldIcon variant="success" height={ iconHeight } />
 								</div>
 							</Tooltip>
 						);
@@ -123,7 +122,7 @@ export default function ScanReport( { data, onChangeSelection } ): JSX.Element {
 							) }
 						>
 							<div className={ styles.icon }>
-								<ShieldCheckIcon color={ '#A7AAAD' } { ...defaultIconDimension } />
+								<ShieldIcon variant="success" fill="#A7AAAD" height={ iconHeight } />
 							</div>
 						</Tooltip>
 					);
