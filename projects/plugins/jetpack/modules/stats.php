@@ -55,6 +55,7 @@ function stats_load() {
 
 	// Only run the callback for those who can see the stats.
 	if ( is_user_logged_in() && current_user_can( 'view_stats' ) ) {
+		add_action( 'admin_head', 'stats_admin_bar_head', 100 );
 		add_action( 'wp_head', 'stats_admin_bar_head', 100 );
 	}
 
