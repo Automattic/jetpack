@@ -70,7 +70,8 @@ describe( 'bin/eslint-changed.js', () => {
 			await fs.rm( tmpdir, { force: true, recursive: true } );
 			tmpdir = null;
 		}
-		tmpdir = await fs.mkdtemp( path.join( os.tmpdir(), 'eslint-changed-test-' ) );
+		const parentTmpdir = await fs.realpath( os.tmpdir() );
+		tmpdir = await fs.mkdtemp( path.join( parentTmpdir, 'eslint-changed-test-' ) );
 	}
 
 	// Clean up after each test.
