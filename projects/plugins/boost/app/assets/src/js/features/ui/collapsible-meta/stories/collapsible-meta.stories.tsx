@@ -3,7 +3,7 @@ import CollapsibleMeta from '../collapsible-meta';
 import React from 'react';
 
 const meta: Meta< typeof CollapsibleMeta > = {
-	title: 'Plugins/Boost/UI/CollapsibleMeta',
+	title: 'Plugins/Boost/Features/UI/CollapsibleMeta',
 	component: CollapsibleMeta,
 	argTypes: {
 		onToggleHandler: { control: false },
