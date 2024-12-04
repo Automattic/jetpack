@@ -142,12 +142,12 @@ export default class JetpackBoostPage extends WpPage {
 
 	async isConcatenateJsMetaVisible() {
 		const selector = '[data-testid="meta-minify_js_excludes"]';
-		return this.page.isVisible( selector );
+		return this.waitForElementToBeVisible( selector, 3 * 60 * 1000 );
 	}
 
 	async isConcatenateCssMetaVisible() {
 		const selector = '[data-testid="meta-minify_css_excludes"]';
-		return this.page.isVisible( selector );
+		return this.waitForElementToBeVisible( selector, 3 * 60 * 1000 );
 	}
 
 	async isImageCdnUpgradeSectionVisible() {
