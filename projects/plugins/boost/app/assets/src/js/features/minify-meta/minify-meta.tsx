@@ -81,7 +81,6 @@ const MetaComponent = ( { buttonText, placeholder, datasyncKey }: Props ) => {
 	return (
 		<div className={ styles.wrapper } data-testid={ `meta-${ datasyncKey }` }>
 			<CollapsibleMeta
-				dataTestId={ `meta-${ datasyncKey }` }
 				headerText={ summary }
 				toggleText={ buttonText }
 				tracksEvent={ togglePanelTracksEvent }
