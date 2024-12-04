@@ -250,6 +250,7 @@ async function getChangelogEntries( octokit, owner, repo, number ) {
  * - Missing "Testing instructions"
  * - Missing Changelog entry
  * - Privacy section
+ * - Also includes information about the changelog entries.
  *
  * Note: All the checks should be truthy to resolve as success check.
  *
