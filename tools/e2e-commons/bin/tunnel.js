@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-/* eslint-disable no-process-exit */
+/* eslint-disable n/no-process-exit */
 
 import childProcess from 'child_process';
 import fs from 'fs';

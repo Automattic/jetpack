@@ -4788,6 +4788,9 @@ importers:
       eslint-plugin-lodash:
         specifier: 7.4.0
         version: 7.4.0(eslint@8.57.1)
+      eslint-plugin-n:
+        specifier: 17.14.0
+        version: 17.14.0(eslint@8.57.1)
       eslint-plugin-playwright:
         specifier: 2.1.0
         version: 2.1.0(eslint@8.57.1)
@@ -9481,6 +9484,12 @@ packages:
     peerDependencies:
       eslint: '>=2'
 
+  eslint-plugin-n@17.14.0:
+    resolution: {integrity: sha512-maxPLMEA0rPmRpoOlxEclKng4UpDe+N5BJS4t24I3UKnN109Qcivnfs37KMy84G0af3bxjog5lKctP5ObsvcTA==}
+    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+    peerDependencies:
+      eslint: '>=8.23.0'
+
   eslint-plugin-playwright@2.1.0:
     resolution: {integrity: sha512-wMbHOehofSB1cBdzz2CLaCYaKNLeTQ0YnOW+7AHa281TJqlpEJUBgTHbRUYOUxiXphfWwOyTPvgr6vvEmArbSA==}
     engines: {node: '>=16.6.0'}
@@ -10013,6 +10022,10 @@ packages:
   globals@13.24.0:
     resolution: {integrity: sha512-AhO5QUcj8llrbG09iWhPU2B204J1xnPeL8kQmVorSsy+Sjj1sk8gIyh6cUocGmH4L0UuhAJy+hJMRA4mgA4mFQ==}
     engines: {node: '>=8'}
+
+  globals@15.13.0:
+    resolution: {integrity: sha512-49TewVEz0UxZjr1WYYsWpPrhyC/B/pA8Bq0fUmet2n+eR7yn0IvNzNaoBwnK6mdkzcN+se7Ez9zUgULTz2QH4g==}
+    engines: {node: '>=18'}
 
   globals@15.4.0:
     resolution: {integrity: sha512-unnwvMZpv0eDUyjNyh9DH/yxUaRYrEjW/qK4QcdrHg3oO11igUQrCSgODHEqxlKg8v2CD2Sd7UkqqEBoz5U7TQ==}
@@ -21215,6 +21228,18 @@ snapshots:
       eslint: 8.57.1
       lodash: 4.17.21
 
+  eslint-plugin-n@17.14.0(eslint@8.57.1):
+    dependencies:
+      '@eslint-community/eslint-utils': 4.4.1(eslint@8.57.1)
+      enhanced-resolve: 5.17.1
+      eslint: 8.57.1
+      eslint-plugin-es-x: 7.8.0(eslint@8.57.1)
+      get-tsconfig: 4.8.1
+      globals: 15.13.0
+      ignore: 5.3.2
+      minimatch: 9.0.5
+      semver: 7.6.3
+
   eslint-plugin-playwright@2.1.0(eslint@8.57.1):
     dependencies:
       eslint: 8.57.1
@@ -21875,6 +21900,8 @@ snapshots:
   globals@13.24.0:
     dependencies:
       type-fest: 0.20.2
+
+  globals@15.13.0: {}
 
   globals@15.4.0: {}
 

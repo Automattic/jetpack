@@ -87,7 +87,7 @@ module.exports = {
 			extends: [ require.resolve( 'jetpack-js-tools/eslintrc/jest' ) ],
 		},
 	],
-	plugins: [ 'import', 'prettier', 'jsx-a11y', 'lodash', 'jsdoc' ],
+	plugins: [ 'import', 'prettier', 'jsx-a11y', 'lodash', 'jsdoc', 'n' ],
 	rules: {
 		// Dummy domain, projects should override this in their own .eslintrc.js.
 		'@wordpress/i18n-text-domain': [
@@ -99,9 +99,6 @@ module.exports = {
 
 		// REST API objects include underscores
 		camelcase: 'off',
-		'comma-spacing': 'error',
-		'computed-property-spacing': [ 'error', 'always' ],
-		curly: 'error',
 
 		eqeqeq: [
 			'error',
@@ -111,8 +108,6 @@ module.exports = {
 				null: 'ignore',
 			},
 		],
-
-		'func-call-spacing': 'error',
 
 		'import/order': [
 			'error',
@@ -154,57 +149,19 @@ module.exports = {
 		// on Safari requires `role=list` to announce the list if the style is overwritten.
 		'jsx-a11y/no-redundant-roles': 'off',
 
-		'jsx-quotes': [ 'error', 'prefer-double' ],
-		'key-spacing': 'error',
-		'keyword-spacing': 'error',
 		'lodash/import-scope': [ 'error', 'member' ],
+
+		'n/no-deprecated-api': 'error',
+		'n/no-exports-assign': 'error',
+		'n/no-process-exit': 'error',
+		'n/process-exit-as-throw': 'error',
+		'n/no-restricted-import': [ 'error', restrictedPaths ],
+		'n/no-restricted-require': [ 'error', restrictedPaths ],
+
 		'new-cap': [ 'error', { capIsNew: false, newIsCap: true } ],
-		'no-extra-semi': 'error',
-		'no-multi-spaces': 'error',
-		'no-multiple-empty-lines': [ 'error', { max: 1 } ],
 		'no-new': 'error',
-		'no-process-exit': 'error',
-		'no-restricted-imports': [
-			'error',
-			{
-				paths: restrictedPaths,
-			},
-		],
-		'no-restricted-modules': [
-			'error',
-			{
-				paths: restrictedPaths,
-			},
-		],
-		'no-spaced-func': 'error',
-		'no-trailing-spaces': 'error',
-		'object-curly-spacing': [ 'error', 'always' ],
 		'object-shorthand': 'off',
-		'operator-linebreak': [
-			'error',
-			'after',
-			{
-				overrides: {
-					'?': 'before',
-					':': 'before',
-				},
-			},
-		],
-		'padded-blocks': [ 'error', 'never' ],
 		'prefer-const': [ 'error', { destructuring: 'any' } ],
-		semi: 'error',
-		'semi-spacing': 'error',
-		'space-before-blocks': [ 'error', 'always' ],
-		'space-in-parens': [ 'error', 'always' ],
-		'space-infix-ops': [ 'error', { int32Hint: false } ],
-		'space-unary-ops': [
-			'error',
-			{
-				overrides: {
-					'!': true,
-				},
-			},
-		],
 		strict: [ 'error', 'never' ],
 
 		// @typescript-eslint/no-unused-expressions works better. Use it always.
