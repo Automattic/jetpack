@@ -3,21 +3,21 @@ import { wpcomTrackEvent } from '../../common/tracks';
 
 import './wpcom-sidebar-notice.scss';
 
-const wpcomSidebarNoticeRecordEvent = ( event, sidebarNoticeData ) => {
+const wpcomSidebarNoticeRecordEvent = ( event, wpcomSidebarNoticeData ) => {
 	if ( ! event ) {
 		return;
 	}
 	wpcomTrackEvent(
 		event.name,
 		event.props,
-		sidebarNoticeData.user.ID,
-		sidebarNoticeData.user.username
+		wpcomSidebarNoticeData.user.ID,
+		wpcomSidebarNoticeData.user.username
 	);
 };
 
-const wpcomShowSidebarNotice = sidebarNoticeData => {
+const wpcomShowSidebarNotice = wpcomSidebarNoticeData => {
 	const adminMenu = document.querySelector( '#adminmenu' );
-	if ( ! adminMenu || ! sidebarNoticeData ) {
+	if ( ! adminMenu || ! wpcomSidebarNoticeData ) {
 		return;
 	}
 
@@ -28,21 +28,23 @@ const wpcomShowSidebarNotice = sidebarNoticeData => {
 			<li
 				id="toplevel_page_site-notices"
 				class="wp-not-current-submenu menu-top menu-icon-generic toplevel_page_site-notices"
-				data-id="${ sidebarNoticeData.id }"
-				data-feature-class="${ sidebarNoticeData.featureClass }"
+				data-id="${ wpcomSidebarNoticeData.id }"
+				data-feature-class="${ wpcomSidebarNoticeData.featureClass }"
 			>
 				<a href="${
-					sidebarNoticeData.url
+					wpcomSidebarNoticeData.url
 				}" class="wp-not-current-submenu menu-top menu-icon-generic toplevel_page_site-notices">
 					<div class="wp-menu-name">
 						<div class="upsell_banner">
 							<div class="upsell_banner__icon dashicons" aria-hidden="true"></div>
-							<div class="upsell_banner__text">${ sidebarNoticeData.text }</div>
-							<button type="button" class="upsell_banner__action button">${ sidebarNoticeData.action }</button>
+							<div class="upsell_banner__text">${ wpcomSidebarNoticeData.text }</div>
+							<button type="button" class="upsell_banner__action button">${
+								wpcomSidebarNoticeData.action
+							}</button>
 							${
-								sidebarNoticeData.dismissible
+								wpcomSidebarNoticeData.dismissible
 									? '<button type="button" class="upsell_banner__dismiss button button-link">' +
-									  sidebarNoticeData.dismissLabel +
+									  wpcomSidebarNoticeData.dismissLabel +
 									  '</button>'
 									: ''
 							}
@@ -54,7 +56,7 @@ const wpcomShowSidebarNotice = sidebarNoticeData => {
 	);
 
 	// Record impression event in Tracks.
-	wpcomSidebarNoticeRecordEvent( sidebarNoticeData.tracks?.display );
+	wpcomSidebarNoticeRecordEvent( wpcomSidebarNoticeData.tracks?.display );
 
 	const sidebarNotice = adminMenu.firstElementChild;
 	sidebarNotice.addEventListener( 'click', event => {
@@ -67,20 +69,20 @@ const wpcomShowSidebarNotice = sidebarNoticeData => {
 			wp.ajax.post( 'wpcom_dismiss_sidebar_notice', {
 				id: sidebarNotice.dataset.id,
 				feature_class: sidebarNotice.dataset.featureClass,
-				_ajax_nonce: sidebarNoticeData.dismissNonce,
+				_ajax_nonce: wpcomSidebarNoticeData.dismissNonce,
 			} );
 			sidebarNotice.remove();
 
 			// Record dismiss event in Tracks.
-			wpcomSidebarNoticeRecordEvent( sidebarNoticeData.tracks?.dismiss );
+			wpcomSidebarNoticeRecordEvent( wpcomSidebarNoticeData.tracks?.dismiss );
 		} else {
 			// Record click event in Tracks.
-			wpcomSidebarNoticeRecordEvent( sidebarNoticeData.tracks?.click );
+			wpcomSidebarNoticeRecordEvent( wpcomSidebarNoticeData.tracks?.click );
 		}
 	} );
 };
 
-const fetchSidebarNotice = async () => {
+const wpcomFetchSidebarNotice = async () => {
 	try {
 		const response = await fetch(
 			`${ wpcomSidebarNoticeConfig.ajaxUrl }?action=wpcom_fetch_sidebar_notice&nonce=${ wpcomSidebarNoticeConfig.nonce }`
@@ -100,4 +102,4 @@ const fetchSidebarNotice = async () => {
 	}
 };
 
-document.addEventListener( 'DOMContentLoaded', fetchSidebarNotice );
+document.addEventListener( 'DOMContentLoaded', wpcomFetchSidebarNotice );
