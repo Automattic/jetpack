@@ -22,7 +22,7 @@ class Cornerstone_Pages_Entry implements Entry_Can_Get, Entry_Can_Set {
 			$this->set( $urls );
 		}
 
-		return array_map( array( $this, 'transform_to_absolute' ), $urls );
+		return apply_filters( 'jetpack_boost_cornerstone_pages_list', array_map( array( $this, 'transform_to_absolute' ), $urls ) );
 	}
 
 	public function set( $value ) {
