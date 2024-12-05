@@ -4,6 +4,13 @@ export type ThreatStatus = 'fixed' | 'ignored' | 'current';
 
 export type ThreatFixType = 'replace' | 'delete' | 'update' | string;
 
+export type Extension = {
+	slug?: string;
+	name: string;
+	version: string;
+	type: 'plugin' | 'theme' | 'core';
+};
+
 export type Threat = {
 	/** The threat's unique ID. */
 	id: string | number;
@@ -57,10 +64,5 @@ export type Threat = {
 	diff?: string;
 
 	/** The affected extension. */
-	extension?: {
-		slug: string;
-		name: string;
-		version: string;
-		type: 'plugin' | 'theme' | 'core';
-	};
+	extension?: Extension;
 };
