@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Remove bulk action support from the ThreatsDataViews component
