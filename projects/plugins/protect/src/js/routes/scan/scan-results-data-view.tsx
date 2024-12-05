@@ -1,7 +1,9 @@
 import { ThreatsDataViews, getRedirectUrl } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
 import { Threat } from '@automattic/jetpack-scan';
-import { useCallback } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
+import { useCallback, useEffect, useState } from 'react';
+import { QUERY_CREDENTIALS_KEY } from '../../constants';
 import useHistoryQuery from '../../data/scan/use-history-query';
 import useIgnoreThreatMutation from '../../data/scan/use-ignore-threat-mutation';
 import useScanStatusQuery from '../../data/scan/use-scan-status-query';
@@ -25,6 +27,8 @@ export default function ScanResultsDataView( {
 	filters: React.ComponentProps< typeof ThreatsDataViews >[ 'filters' ];
 } ) {
 	const { siteSuffix, blogID } = window.jetpackProtectInitialState;
+	const queryClient = useQueryClient();
+
 	const { data: scanStatus } = useScanStatusQuery();
 	const { data: history } = useHistoryQuery();
 	const { recordEvent } = useAnalyticsTracks();
@@ -42,6 +46,10 @@ export default function ScanResultsDataView( {
 			skipPricingPage: true,
 		}
 	);
+
+	const [ isModalOpen, setIsModalOpen ] = useState( false );
+	const onModalOpen = useCallback( () => setIsModalOpen( true ), [] );
+	const onModalClose = useCallback( () => setIsModalOpen( false ), [] );
 
 	const getScan = useCallback( () => {
 		recordEvent( 'jetpack_protect_threat_modal_get_scan_link_click' );
@@ -69,6 +77,22 @@ export default function ScanResultsDataView( {
 		[ unignoreThreatMutation ]
 	);
 
+	/**
+	 * Poll credentials as long as the modal is open.
+	 */
+	useEffect( () => {
+		if ( ! isModalOpen ) {
+			return;
+		}
+		const interval = setInterval( () => {
+			if ( ! credentials || credentials.length === 0 ) {
+				queryClient.invalidateQueries( { queryKey: [ QUERY_CREDENTIALS_KEY ] } );
+			}
+		}, 5_000 );
+
+		return () => clearInterval( interval );
+	}, [ isModalOpen, queryClient, credentials ] );
+
 	return (
 		<ThreatsDataViews
 			data={ [ ...scanStatus.threats, ...( history ? history.threats : [] ) ] }
@@ -86,6 +110,8 @@ export default function ScanResultsDataView( {
 			credentialsRedirectUrl={ getRedirectUrl( 'jetpack-settings-security-credentials', {
 				site: String( blogID ?? siteSuffix ),
 			} ) }
+			onModalOpen={ onModalOpen }
+			onModalClose={ onModalClose }
 		/>
 	);
 }

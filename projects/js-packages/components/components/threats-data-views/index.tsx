@@ -64,7 +64,8 @@ import ThreatsStatusToggleGroupControl from './threats-status-toggle-group-contr
  * @param {object[]} props.credentials                 - The credentials.
  * @param {boolean}  props.credentialsIsFetching       - Whether the credentials are fetching.
  * @param {string}   props.credentialsRedirectUrl      - The credentials redirect URL.
- *
+ * @param {Function} props.onModalOpen                 - Callback function on modal open.
+ * @param {Function} props.onModalClose                - Callback function on modal close.
  * @return {JSX.Element} The ThreatsDataViews component.
  */
 export default function ThreatsDataViews( {
@@ -85,6 +86,8 @@ export default function ThreatsDataViews( {
 	credentials,
 	credentialsIsFetching,
 	credentialsRedirectUrl,
+	onModalOpen,
+	onModalClose,
 }: {
 	data: Threat[];
 	filters?: Filter[];
@@ -103,6 +106,8 @@ export default function ThreatsDataViews( {
 	credentials: false | Record< string, unknown >[];
 	credentialsIsFetching: boolean;
 	credentialsRedirectUrl: string;
+	onModalOpen: () => void;
+	onModalClose: () => void;
 } ): JSX.Element {
 	const baseView = {
 		sort: {
@@ -173,16 +178,18 @@ export default function ThreatsDataViews( {
 
 	const showThreatModal = useCallback(
 		( threat: Threat, action: string ) => () => {
+			onModalOpen?.();
 			setOpenThreat( threat );
 			setActionToConfirm( action );
 		},
-		[]
+		[ onModalOpen ]
 	);
 
 	const hideThreatModal = useCallback( () => {
+		onModalClose?.();
 		setOpenThreat( null );
 		setActionToConfirm( 'all' );
-	}, [] );
+	}, [ onModalClose ] );
 
 	/**
 	 * Compute values from the provided threats data.
