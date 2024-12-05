@@ -12,3 +12,9 @@
 		margin-right: calc( var( --spacing-base ) * -3 ); // -24px
 	}
 }
+
+.scanning-header-main {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+}
