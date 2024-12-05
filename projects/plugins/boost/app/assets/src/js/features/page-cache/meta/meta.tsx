@@ -55,8 +55,7 @@ const Meta = () => {
 						_n( '%d exception.', '%d exceptions.', totalBypassPatterns, 'jetpack-boost' ),
 						totalBypassPatterns
 				  )
-				: __( 'No exceptions.', 'jetpack-boost' )
-			) +
+				: __( 'No exceptions.', 'jetpack-boost' ) ) +
 			' ' +
 			loggingMessage
 		);
