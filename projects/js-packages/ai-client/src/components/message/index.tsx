@@ -66,7 +66,7 @@ const messageIconsMap = {
  * React component to render a block message.
  *
  * @param {MessageProps} props - Component props.
- * @return {React.ReactElement }    Banner component.
+ * @return {React.ReactElement}    Banner component.
  */
 export default function Message( {
 	severity = MESSAGE_SEVERITY_INFO,
@@ -96,9 +96,22 @@ export default function Message( {
 }
 
 /**
+ * React component to render a learn more link.
+ *
+ * @return {React.ReactElement} - Learn more link component.
+ */
+function LearnMoreLink(): React.ReactElement {
+	return (
+		<ExternalLink href="https://jetpack.com/redirect/?source=ai-guidelines">
+			{ __( 'Learn more', 'jetpack-ai-client' ) }
+		</ExternalLink>
+	);
+}
+
+/**
  * React component to render a guideline message.
  *
- * @return {React.ReactElement } - Message component.
+ * @return {React.ReactElement} - Message component.
  */
 export function GuidelineMessage(): React.ReactElement {
 	return (
@@ -106,9 +119,7 @@ export function GuidelineMessage(): React.ReactElement {
 			<span>
 				{ __( 'AI-generated content could be inaccurate or biased.', 'jetpack-ai-client' ) }
 			</span>
-			<ExternalLink href="https://automattic.com/ai-guidelines">
-				{ __( 'Learn more', 'jetpack-ai-client' ) }
-			</ExternalLink>
+			<LearnMoreLink />
 		</Message>
 	);
 }
@@ -116,7 +127,7 @@ export function GuidelineMessage(): React.ReactElement {
 /**
  * React component to render a fair usage limit message.
  *
- * @return {React.ReactElement } - Message component.
+ * @return {React.ReactElement} - Message component.
  */
 export function FairUsageLimitMessage(): React.ReactElement {
 	const message = __(
@@ -136,7 +147,7 @@ export function FairUsageLimitMessage(): React.ReactElement {
  * React component to render an upgrade message for free tier users
  *
  * @param {number} requestsRemaining - Number of requests remaining.
- * @return {React.ReactElement } - Message component.
+ * @return {React.ReactElement} - Message component.
  */
 export function UpgradeMessage( {
 	requestsRemaining,
@@ -175,7 +186,7 @@ export function UpgradeMessage( {
  * React component to render an error message
  *
  * @param {number} requestsRemaining - Number of requests remaining.
- * @return {React.ReactElement } - Message component.
+ * @return {React.ReactElement} - Message component.
  */
 export function ErrorMessage( {
 	error,
