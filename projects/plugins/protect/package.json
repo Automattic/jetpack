@@ -49,6 +49,7 @@
 		"react-router-dom": "6.2.2"
 	},
 	"devDependencies": {
+		"@automattic/babel-plugin-replace-textdomain": "workspace:*",
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@babel/core": "7.26.0",
 		"@babel/preset-env": "7.26.0",
