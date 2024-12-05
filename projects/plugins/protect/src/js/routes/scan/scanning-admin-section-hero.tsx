@@ -19,6 +19,7 @@ const ScanningAdminSectionHero = ( { size = 'normal' }: { size?: 'normal' | 'lar
 		: totalVulnerabilities.toLocaleString();
 
 	return (
+<<<<<<< HEAD
 		<AdminSectionHero>
 			<AdminSectionHero.Main
 				className={ clsx( styles[ 'hero-main' ], {
@@ -55,6 +56,46 @@ const ScanningAdminSectionHero = ( { size = 'normal' }: { size?: 'normal' | 'lar
 				<InProgressAnimation />
 			</AdminSectionHero.Aside>
 		</AdminSectionHero>
+=======
+		<AdminSectionHero
+			main={
+				<>
+					<AdminSectionHero.Heading>
+						{ __( 'Your results will be ready soon', 'jetpack-protect' ) }
+					</AdminSectionHero.Heading>
+					<AdminSectionHero.Subheading>
+						<>
+							{ hasPlan && (
+								<ProgressBar
+									className={ styles.progress }
+									value={ status?.currentProgress }
+									total={ 100 }
+								/>
+							) }
+							<Text>
+								{ hasPlan
+									? __(
+											"Jetpack is actively scanning your site's files line-by-line to identify threats and vulnerabilities. This could take a minute or two.",
+											'jetpack-protect'
+									  )
+									: sprintf(
+											// translators: placeholder is the number of total vulnerabilities i.e. "22,000".
+											__(
+												'We are scanning for security threats from our more than %s listed vulnerabilities, powered by WPScan. This could take a minute or two.',
+												'jetpack-protect'
+											),
+											totalVulnerabilitiesFormatted
+									  ) }
+							</Text>
+						</>
+					</AdminSectionHero.Subheading>
+				</>
+			}
+			secondary={ <InProgressAnimation /> }
+			preserveSecondaryOnMobile={ false }
+			spacing={ 4 }
+		/>
+>>>>>>> 3d878c74bf (Protect: Integrate ThreatsDataViews Component (#40076))
 	);
 };
 

@@ -2,8 +2,13 @@ import { Text, Button, useBreakpointMatch } from '@automattic/jetpack-components
 import { Tooltip } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
 import { __, _n, sprintf } from '@wordpress/i18n';
+<<<<<<< HEAD
 import clsx from 'clsx';
 import { useCallback, useState, useMemo } from 'react';
+=======
+import { useCallback, useState } from 'react';
+import { useMemo } from 'react';
+>>>>>>> 3d878c74bf (Protect: Integrate ThreatsDataViews Component (#40076))
 import AdminSectionHero from '../../components/admin-section-hero';
 import ErrorAdminSectionHero from '../../components/error-admin-section-hero';
 import OnboardingPopover from '../../components/onboarding-popover';
@@ -16,7 +21,11 @@ import useWafData from '../../hooks/use-waf-data';
 import ScanningAdminSectionHero from './scanning-admin-section-hero';
 import styles from './styles.module.scss';
 
+<<<<<<< HEAD
 const ScanAdminSectionHero: React.FC = ( { size = 'normal' }: { size?: 'normal' | 'large' } ) => {
+=======
+const ScanAdminSectionHero: React.FC = () => {
+>>>>>>> 3d878c74bf (Protect: Integrate ThreatsDataViews Component (#40076))
 	const { recordEvent } = useAnalyticsTracks();
 	const { hasPlan, upgradePlan } = usePlan();
 	const { setModal } = useModal();
@@ -57,6 +66,7 @@ const ScanAdminSectionHero: React.FC = ( { size = 'normal' }: { size?: 'normal' 
 	if ( status.lastChecked ) {
 		// Convert the lastChecked UTC date to a local timestamp
 		lastCheckedLocalTimestamp = new Date( status.lastChecked + ' UTC' ).getTime();
+<<<<<<< HEAD
 	}
 
 	let heading = __( "Don't worry about a thing", 'jetpack-protect' );
@@ -79,6 +89,8 @@ const ScanAdminSectionHero: React.FC = ( { size = 'normal' }: { size?: 'normal' 
 				numThreats
 			);
 		}
+=======
+>>>>>>> 3d878c74bf (Protect: Integrate ThreatsDataViews Component (#40076))
 	}
 
 	const handleShowAutoFixersClick = threatList => {
@@ -136,6 +148,7 @@ const ScanAdminSectionHero: React.FC = ( { size = 'normal' }: { size?: 'normal' 
 							'jetpack-protect'
 						) }
 					</Text>
+<<<<<<< HEAD
 				) : (
 					<>
 						<Text mb={ 4 }>
@@ -146,6 +159,78 @@ const ScanAdminSectionHero: React.FC = ( { size = 'normal' }: { size?: 'normal' 
 									'jetpack-protect'
 								),
 								totalVulnerabilitiesFormatted
+=======
+					<OnboardingPopover
+						id={ hasPlan ? 'paid-daily-and-manual-scans' : 'free-daily-scans' }
+						position={ isSm ? 'bottom' : 'middle right' }
+						anchor={ dailyScansPopoverAnchor }
+					/>
+					<AdminSectionHero.Heading showIcon variant={ numThreats > 0 ? 'error' : 'success' }>
+						{ numThreats > 0
+							? sprintf(
+									/* translators: %s: Total number of threats/vulnerabilities */
+									__( '%1$s active %2$s', 'jetpack-protect' ),
+									numThreats,
+									hasPlan
+										? _n( 'threat', 'threats', numThreats, 'jetpack-protect' )
+										: _n( 'vulnerability', 'vulnerabilities', numThreats, 'jetpack-protect' )
+							  )
+							: __( "Don't worry about a thing", 'jetpack-protect' ) }
+					</AdminSectionHero.Heading>
+					<AdminSectionHero.Subheading>
+						<>
+							{ hasPlan ? (
+								<Text>
+									{ __(
+										"We actively review your site's files line-by-line to identify threats and vulnerabilities.",
+										'jetpack-protect'
+									) }
+								</Text>
+							) : (
+								<>
+									<Text mb={ 4 }>
+										{ sprintf(
+											// translators: placeholder is the number of total vulnerabilities i.e. "22,000".
+											__(
+												'Every day we check your plugins, themes, and WordPress version against our %s listed vulnerabilities powered by WPScan, an Automattic brand.',
+												'jetpack-protect'
+											),
+											totalVulnerabilitiesFormatted
+										) }
+									</Text>
+									<Tooltip
+										text={ __(
+											'Upgrade Jetpack Protect to get access to advanced malware scanning with one-click fixes for most threats.',
+											'jetpack-protect'
+										) }
+									>
+										<Button onClick={ getScan }>
+											{ __( 'Upgrade to unlock malware scanning', 'jetpack-protect' ) }
+										</Button>
+									</Tooltip>
+								</>
+							) }
+							{ fixableList.length > 0 && (
+								<>
+									<div ref={ setShowAutoFixersPopoverAnchor }>
+										<Button
+											className={ styles[ 'auto-fixers' ] }
+											onClick={ handleShowAutoFixersClick( fixableList ) }
+										>
+											{ sprintf(
+												/* translators: Translates to Show auto fixers $s: Number of fixable threats. */
+												__( 'Show auto fixers (%s)', 'jetpack-protect' ),
+												fixableList.length
+											) }
+										</Button>
+									</div>
+									<OnboardingPopover
+										id="paid-fix-all-threats"
+										position={ isSm ? 'bottom right' : 'middle left' }
+										anchor={ showAutoFixersPopoverAnchor }
+									/>
+								</>
+>>>>>>> 3d878c74bf (Protect: Integrate ThreatsDataViews Component (#40076))
 							) }
 						</Text>
 						<Tooltip
