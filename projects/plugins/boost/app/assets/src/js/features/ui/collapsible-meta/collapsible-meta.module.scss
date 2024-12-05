@@ -20,8 +20,10 @@
 		color: $jetpack_green_50;
 	}
 
-	:global(svg) {
-		fill: var(--jetpack-green-40);
+	.edit-button {
+		svg {
+			fill: var(--jetpack-green-40);
+		}
 	}
 
 	.summary {
