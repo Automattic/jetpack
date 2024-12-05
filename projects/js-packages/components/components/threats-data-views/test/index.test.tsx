@@ -62,6 +62,8 @@ const mockProps = {
 	credentials: [],
 	credentialsIsFetching: false,
 	credentialsRedirectUrl: '/redirect-url',
+	onModalOpen: () => {},
+	onModalClose: () => {},
 };
 
 describe( 'ThreatsDataViews', () => {
