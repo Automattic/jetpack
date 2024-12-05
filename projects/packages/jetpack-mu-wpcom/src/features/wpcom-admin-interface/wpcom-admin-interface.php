@@ -288,7 +288,7 @@ function wpcom_is_duplicate_views_experiment_enabled() {
 	$experiment_name     = "{$experiment_platform}_duplicate_views_placeholder";
 
 	static $is_enabled = null;
-	if ( $is_enabled ) {
+	if ( $is_enabled !== null ) {
 		return $is_enabled;
 	}
 
