@@ -288,9 +288,9 @@ function wpcom_is_duplicate_views_experiment_enabled() {
 	$experiment_name     = "{$experiment_platform}_duplicate_views_placeholder";
 
 	if ( ( new Host() )->is_wpcom_simple() ) {
-		return \ExPlat\assign_current_user( $experiment_name );
+		return 'treatment' === \ExPlat\assign_current_user( $experiment_name );
 	}
-	
+
 	$option_name = 'duplicate_views_experiment_assignment';
 	$variation   = get_user_option( $option_name, get_current_user_id() );
 
@@ -313,7 +313,7 @@ function wpcom_is_duplicate_views_experiment_enabled() {
 		array( 'experiment_name' => $experiment_name ),
 		"/experiments/0.1.0/assignments/{$experiment_platform}"
 	);
-	
+
 	$response          = Client::wpcom_json_api_request_as_user( $request_path, 'v2' );
 	$has_request_error = false;
 
