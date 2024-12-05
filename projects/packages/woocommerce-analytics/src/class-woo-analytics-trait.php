@@ -253,17 +253,24 @@ trait Woo_Analytics_Trait {
 	 */
 	public function get_common_properties() {
 		$site_info          = array(
+			'session_id'                         => sanitize_text_field( wp_unslash( $_COOKIE['woocommerceanalytics_session_id'] ?? $this->session_id ) ),
 			'blog_id'                            => Jetpack_Connection::get_site_id(),
 			'store_id'                           => defined( '\\WC_Install::STORE_ID_OPTION' ) ? get_option( \WC_Install::STORE_ID_OPTION ) : false,
 			'ui'                                 => $this->get_user_id(),
 			'url'                                => home_url(),
 			'woo_version'                        => WC()->version,
+			'wp_version'                         => get_bloginfo( 'version' ),
 			'store_admin'                        => in_array( array( 'administrator', 'shop_manager' ), wp_get_current_user()->roles, true ) ? 1 : 0,
 			'device'                             => wp_is_mobile() ? 'mobile' : 'desktop',
 			'template_used'                      => $this->cart_checkout_templates_in_use ? '1' : '0',
 			'additional_blocks_on_cart_page'     => $this->additional_blocks_on_cart_page,
 			'additional_blocks_on_checkout_page' => $this->additional_blocks_on_checkout_page,
 			'store_currency'                     => get_woocommerce_currency(),
+			'timezone'                           => wp_timezone_string(),
+			'is_guest'                           => $this->get_user_id() === null,
+			'total'                              => $this->get_cart_total(),
+			'total_discount'                     => $this->get_total_discounts(),
+			'items_count'                        => $this->get_cart_items_count(),
 		);
 		$cart_checkout_info = $this->get_cart_checkout_info();
 		return array_merge( $site_info, $cart_checkout_info );
@@ -562,5 +569,35 @@ trait Woo_Analytics_Trait {
 		);
 
 		return ( '0' !== $result ) ? 1 : 0;
+	}
+
+	/**
+	 * Get the cart totals
+	 *
+	 * @return float
+	 */
+	public function get_cart_total() {
+		$cart = WC()->cart;
+		return wc_prices_include_tax() ? $cart->get_cart_contents_total() + $cart->get_cart_contents_tax() : $cart->get_cart_contents_total();
+	}
+
+	/**
+	 * Get the cart discount total
+	 *
+	 * @return float
+	 */
+	public function get_total_discounts() {
+		$cart = WC()->cart;
+		return $cart->get_discount_total();
+	}
+
+	/**
+	 * Get number of items in the cart
+	 *
+	 * @return int
+	 */
+	public function get_cart_items_count() {
+		$cart = WC()->cart;
+		return $cart->get_cart_contents_count();
 	}
 }
