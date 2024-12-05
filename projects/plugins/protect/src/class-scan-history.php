@@ -207,43 +207,19 @@ class Scan_History {
 	 * Normalize API Data
 	 * Formats the payload from the Scan API into an instance of History_Model.
 	 *
-	 * @phan-suppress PhanDeprecatedProperty -- Maintaining backwards compatibility.
-	 *
 	 * @param object $scan_data The data returned by the scan API.
 	 * @return History_Model
 	 */
 	private static function normalize_api_data( $scan_data ) {
-		$history                      = new History_Model();
-		$history->num_threats         = 0;
-		$history->num_core_threats    = 0;
-		$history->num_plugins_threats = 0;
-		$history->num_themes_threats  = 0;
-
+		$history               = new History_Model();
 		$history->last_checked = $scan_data->last_checked;
 
 		if ( empty( $scan_data->threats ) || ! is_array( $scan_data->threats ) ) {
 			return $history;
 		}
 
-		foreach ( $scan_data->threats as $threat ) {
-			if ( isset( $threat->extension->type ) ) {
-				if ( 'plugin' === $threat->extension->type ) {
-					self::handle_extension_threats( $threat, $history, 'plugin' );
-					continue;
-				}
-
-				if ( 'theme' === $threat->extension->type ) {
-					self::handle_extension_threats( $threat, $history, 'theme' );
-					continue;
-				}
-			}
-
-			if ( 'Vulnerable.WP.Core' === $threat->signature ) {
-				self::handle_core_threats( $threat, $history );
-				continue;
-			}
-
-			self::handle_additional_threats( $threat, $history );
+		foreach ( $scan_data->threats as $source_threat ) {
+			$history->threats[] = new Threat_Model( $source_threat );
 		}
 
 		return $history;

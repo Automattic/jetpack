@@ -5,10 +5,21 @@
 .header {
     display: flex;
     justify-content: space-between;
+    flex-direction: column;
+    gap: calc( var( --spacing-base ) * 3 ); // 24px
+    align-items: center;
+
+    @media ( min-width: 600px ) {
+        flex-direction: row;
+    }
 
     &__scan_buttons {
         display: flex;
         gap: calc( var( --spacing-base ) * 3 ); // 24px
+
+        @media ( min-width: 600px ) {
+            flex-direction: row;
+        }
     }
 }
 

@@ -1,6 +1,7 @@
-import { type FixersStatus, type ScanStatus, type WafStatus } from '@automattic/jetpack-scan';
+import { type FixersStatus, type ScanStatus } from '@automattic/jetpack-scan';
 import apiFetch from '@wordpress/api-fetch';
 import camelize from 'camelize';
+import { WafStatus } from './types/waf';
 import type { ProductData } from './types/products';
 
 const API = {

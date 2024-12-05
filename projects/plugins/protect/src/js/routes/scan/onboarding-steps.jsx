@@ -6,15 +6,6 @@ import usePlan from '../../hooks/use-plan';
 
 const { siteSuffix } = window.jetpackProtectInitialState;
 
-const scanResultsTitle = __( 'Your scan results', 'jetpack-protect' );
-const scanResultsDescription = (
-	<Text>
-		{ __(
-			'Navigate through the results of the scan on your WordPress installation, plugins, themes, and other files',
-			'jetpack-protect'
-		) }
-	</Text>
-);
 const UpgradeButton = props => {
 	const { upgradePlan } = usePlan();
 	const { recordEvent } = useAnalyticsTracks();
@@ -27,11 +18,6 @@ const UpgradeButton = props => {
 };
 
 export default [
-	{
-		id: 'free-scan-results',
-		title: scanResultsTitle,
-		description: scanResultsDescription,
-	},
 	{
 		id: 'free-daily-scans',
 		title: __( 'Daily automated scans', 'jetpack-protect' ),
@@ -50,9 +36,40 @@ export default [
 		),
 	},
 	{
+		id: 'paid-daily-and-manual-scans',
+		title: __( 'Daily & manual scanning', 'jetpack-protect' ),
+		description: (
+			<Text>
+				{ __(
+					'We run daily automated scans but you can also run on-demand scans if you want to check the latest status.',
+					'jetpack-protect'
+				) }
+			</Text>
+		),
+	},
+	{
+		id: 'free-scan-results',
+		title: __( 'Your scan results', 'jetpack-protect' ),
+		description: (
+			<Text>
+				{ __(
+					'Navigate through the results of the scan on your WordPress installation, plugins, and themes.',
+					'jetpack-protect'
+				) }
+			</Text>
+		),
+	},
+	{
 		id: 'paid-scan-results',
-		title: scanResultsTitle,
-		description: scanResultsDescription,
+		title: __( 'Your scan results', 'jetpack-protect' ),
+		description: (
+			<Text>
+				{ __(
+					'Navigate through the results of the scan on your WordPress installation, plugins, themes, and other files.',
+					'jetpack-protect'
+				) }
+			</Text>
+		),
 	},
 	{
 		id: 'paid-fix-all-threats',
@@ -92,18 +109,6 @@ export default [
 			<Text>
 				{ __(
 					'Learn how critical these threats are for the security of your site by glancing at the severity labels.',
-					'jetpack-protect'
-				) }
-			</Text>
-		),
-	},
-	{
-		id: 'paid-daily-and-manual-scans',
-		title: __( 'Daily & manual scanning', 'jetpack-protect' ),
-		description: (
-			<Text>
-				{ __(
-					'We run daily automated scans but you can also run on-demand scans if you want to check the latest status.',
 					'jetpack-protect'
 				) }
 			</Text>

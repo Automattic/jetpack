@@ -3,7 +3,6 @@ import { __, sprintf } from '@wordpress/i18n';
 import AdminSectionHero from '../../components/admin-section-hero';
 import InProgressAnimation from '../../components/in-progress-animation';
 import ProgressBar from '../../components/progress-bar';
-import ScanNavigation from '../../components/scan-navigation';
 import useScanStatusQuery from '../../data/scan/use-scan-status-query';
 import usePlan from '../../hooks/use-plan';
 import useWafData from '../../hooks/use-waf-data';
@@ -35,20 +34,22 @@ const ScanningAdminSectionHero: React.FC = () => {
 								/>
 							) }
 							<Text>
-								{ sprintf(
-									// translators: placeholder is the number of total vulnerabilities i.e. "22,000".
-									__(
-										'We are scanning for security threats from our more than %s listed vulnerabilities, powered by WPScan. This could take a minute or two.',
-										'jetpack-protect'
-									),
-									totalVulnerabilitiesFormatted
-								) }
+								{ hasPlan
+									? __(
+											"Jetpack is actively scanning your site's files line-by-line to identify threats and vulnerabilities. This could take a minute or two.",
+											'jetpack-protect'
+									  )
+									: sprintf(
+											// translators: placeholder is the number of total vulnerabilities i.e. "22,000".
+											__(
+												'We are scanning for security threats from our more than %s listed vulnerabilities, powered by WPScan. This could take a minute or two.',
+												'jetpack-protect'
+											),
+											totalVulnerabilitiesFormatted
+									  ) }
 							</Text>
 						</>
 					</AdminSectionHero.Subheading>
-					<div className={ styles[ 'scan-navigation' ] }>
-						<ScanNavigation />
-					</div>
 				</>
 			}
 			secondary={ <InProgressAnimation /> }

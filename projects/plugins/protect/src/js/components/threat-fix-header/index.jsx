@@ -1,6 +1,7 @@
 import { Text, ThreatSeverityBadge } from '@automattic/jetpack-components';
+import { getThreatIcon, getThreatSubtitle } from '@automattic/jetpack-scan';
+import { Icon } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
-import { Icon } from '@wordpress/icons';
 import React, { useState, useCallback } from 'react';
 import styles from './styles.module.scss';
 
@@ -65,10 +66,10 @@ export default function ThreatFixHeader( { threat, fixAllDialog, onCheckFix } ) 
 	return (
 		<>
 			<div className={ styles.threat }>
-				<Icon icon={ threat.icon } className={ styles.threat__icon } />
+				<Icon icon={ getThreatIcon( threat ) } className={ styles.threat__icon } />
 				<div className={ styles.threat__summary }>
 					<Text className={ styles.threat__summary__label } mb={ 1 }>
-						{ threat.label }
+						{ getThreatSubtitle( threat ) }
 					</Text>
 					<Text className={ styles.threat__summary__title }>
 						{ getFixerMessage( threat.fixable ) }

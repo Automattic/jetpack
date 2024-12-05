@@ -11,9 +11,9 @@ import { __ } from '@wordpress/i18n';
 import React, { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useConnectSiteMutation from '../../data/use-connection-mutation';
+import useProductDataQuery from '../../data/use-product-data-query';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import usePlan from '../../hooks/use-plan';
-import useProtectData from '../../hooks/use-protect-data';
 
 /**
  * Product Detail component.
@@ -30,7 +30,7 @@ const ConnectedPricingTable = () => {
 	} );
 
 	// Access paid protect product data
-	const { jetpackScan } = useProtectData();
+	const { data: jetpackScan } = useProductDataQuery();
 	const { pricingForUi } = jetpackScan;
 	const { introductoryOffer, currencyCode: currency = 'USD' } = pricingForUi;
 
