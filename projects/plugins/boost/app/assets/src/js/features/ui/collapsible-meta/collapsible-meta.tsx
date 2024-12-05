@@ -27,7 +27,7 @@ const CollapsibleMeta = ( {
 	tracksEvent = '',
 	extraButtons = null,
 	headerText = '',
-	onToggleHandler,
+	onToggleHandler = () => {},
 }: CollapsibleMetaProps ) => {
 	const [ isExpanded, setIsExpanded ] = useState( false );
 
