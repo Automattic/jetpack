@@ -76,7 +76,16 @@ const Description = ( { errorSet }: { errorSet: ErrorSet } ) => {
 				b: <b />,
 			} ) }{ ' ' }
 			{ displayUrls.map( ( { href, label }, index ) => (
-				<a href={ href } target="_blank" rel="noreferrer" key={ index }>
+				// eslint-disable-next-line jsx-a11y/anchor-has-content
+				<a
+					onClick={ () => {
+						recordBoostEvent( 'critical_css_error_link_clicked', {} );
+					} }
+					href={ href }
+					target="_blank"
+					rel="noreferrer"
+					key={ index }
+				>
 					{ label }
 				</a>
 			) ) }
