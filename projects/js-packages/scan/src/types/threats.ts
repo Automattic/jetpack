@@ -4,6 +4,23 @@ export type ThreatStatus = 'fixed' | 'ignored' | 'current';
 
 export type ThreatFixType = 'replace' | 'delete' | 'update' | string;
 
+export type ScanReportExtension = {
+	id: number;
+	checked: boolean;
+	slug?: string;
+	name?: string;
+	version?: string;
+	threats: Threat[];
+	type: 'plugins' | 'themes' | 'core' | 'files';
+};
+
+export type Extension = {
+	slug: string;
+	name: string;
+	version: string;
+	type: 'plugins' | 'themes' | 'core';
+};
+
 export type Threat = {
 	/** The threat's unique ID. */
 	id: string | number;
@@ -57,10 +74,5 @@ export type Threat = {
 	diff?: string;
 
 	/** The affected extension. */
-	extension?: {
-		slug: string;
-		name: string;
-		version: string;
-		type: 'plugins' | 'themes' | 'core';
-	};
+	extension?: Extension;
 };
