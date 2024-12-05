@@ -1,4 +1,3 @@
-import { type Threat } from '@automattic/jetpack-scan';
 import { Tooltip } from '@wordpress/components';
 import {
 	type SupportedLayouts,
@@ -25,7 +24,7 @@ import styles from './styles.module.scss';
  * DataViews component for displaying a scan report.
  *
  * @param {object}   props                   - Component props.
- * @param {Array}    props.data              - Threats data.
+ * @param {Array}    props.data              - Scan report data.
  * @param {Function} props.onChangeSelection - Callback function run when an item is selected.
  *
  * @return {JSX.Element} The ScanReport component.
@@ -35,7 +34,7 @@ export default function ScanReport( { data, onChangeSelection } ): JSX.Element {
 		search: '',
 		filters: [],
 		page: 1,
-		perPage: 5,
+		perPage: 20,
 	};
 
 	/**
@@ -86,43 +85,26 @@ export default function ScanReport( { data, onChangeSelection } ): JSX.Element {
 				id: FIELD_STATUS,
 				label: __( 'Status', 'jetpack-components' ),
 				render( { item } ) {
+					let variant: 'info' | 'warning' | 'success' = 'info'; // Explicit typing
+					let text = __(
+						'This item was added to your site after the most recent scan. We will check for threats during the next scheduled one.',
+						'jetpack-components'
+					);
+
 					if ( item.checked ) {
 						if ( item.threats.length > 0 ) {
-							return (
-								<Tooltip
-									className={ styles.tooltip }
-									text={ __( 'Threat detected.', 'jetpack-components' ) }
-								>
-									<div className={ styles.icon }>
-										<ShieldIcon variant="warning" height={ iconHeight } />
-									</div>
-								</Tooltip>
-							);
+							variant = 'warning';
+							text = __( 'Threat detected.', 'jetpack-components' );
+						} else {
+							variant = 'success';
+							text = __( 'No known threats found that affect this version.', 'jetpack-components' );
 						}
-						return (
-							<Tooltip
-								className={ styles.tooltip }
-								text={ __(
-									'No known threats found that affect this version.',
-									'jetpack-components'
-								) }
-							>
-								<div className={ styles.icon }>
-									<ShieldIcon variant="success" height={ iconHeight } />
-								</div>
-							</Tooltip>
-						);
 					}
+
 					return (
-						<Tooltip
-							className={ styles.tooltip }
-							text={ __(
-								'This item was added to your site after the most recent scan. We will check for threats during the next scheduled one.',
-								'jetpack-components'
-							) }
-						>
+						<Tooltip className={ styles.tooltip } text={ text }>
 							<div className={ styles.icon }>
-								<ShieldIcon variant="info" height={ iconHeight } />
+								<ShieldIcon variant={ variant } height={ iconHeight } />
 							</div>
 						</Tooltip>
 					);
@@ -132,15 +114,12 @@ export default function ScanReport( { data, onChangeSelection } ): JSX.Element {
 				id: FIELD_TYPE,
 				label: __( 'Type', 'jetpack-components' ),
 				elements: TYPES,
-				render( { item } ) {
-					return item.type ? item.type.charAt( 0 ).toUpperCase() + item.type.slice( 1 ) : '';
-				},
 			},
 			{
 				id: FIELD_NAME,
 				label: __( 'Name', 'jetpack-components' ),
 				enableGlobalSearch: true,
-				render( { item } ) {
+				getValue( { item } ) {
 					return item.name ? item.name : '';
 				},
 			},
@@ -148,13 +127,16 @@ export default function ScanReport( { data, onChangeSelection } ): JSX.Element {
 				id: FIELD_VERSION,
 				label: __( 'Version', 'jetpack-components' ),
 				enableGlobalSearch: true,
-				render( { item } ) {
+				getValue( { item } ) {
 					return item.version ? item.version : '';
 				},
 			},
 			{
 				id: FIELD_ICON,
 				label: __( 'Icon', 'jetpack-components' ),
+				getValue( { item } ) {
+					return ICONS[ item.type ] || '';
+				},
 				render( { item } ) {
 					return (
 						<div className={ styles.threat__media }>
@@ -191,7 +173,7 @@ export default function ScanReport( { data, onChangeSelection } ): JSX.Element {
 	 *
 	 * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-dataviews/#getitemid-function
 	 */
-	const getItemId = useCallback( ( item: Threat ) => item.id.toString(), [] );
+	const getItemId = useCallback( item => item.id.toString(), [] );
 
 	return (
 		<DataViews

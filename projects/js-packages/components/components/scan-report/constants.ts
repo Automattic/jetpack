@@ -9,8 +9,8 @@ import {
 
 export const TYPES = [
 	{ value: 'core', label: __( 'WordPress', 'jetpack-components' ) },
-	{ value: 'plugins', label: __( 'Plugins', 'jetpack-components' ) },
-	{ value: 'themes', label: __( 'Themes', 'jetpack-components' ) },
+	{ value: 'plugins', label: __( 'Plugin', 'jetpack-components' ) },
+	{ value: 'themes', label: __( 'Theme', 'jetpack-components' ) },
 	{ value: 'files', label: __( 'Files', 'jetpack-components' ) },
 ];
 
