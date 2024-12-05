@@ -428,7 +428,6 @@ export default function ThreatsDataViews( {
 				id: THREAT_ACTION_FIX,
 				label: __( 'Auto-fix', 'jetpack-components' ),
 				isPrimary: true,
-				supportsBulk: true,
 				callback: onFixThreats,
 				isEligible( item ) {
 					if ( ! onFixThreats ) {
