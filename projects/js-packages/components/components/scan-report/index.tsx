@@ -131,24 +131,30 @@ export default function ScanReport( { data, onChangeSelection } ): JSX.Element {
 					return item.version ? item.version : '';
 				},
 			},
-			{
-				id: FIELD_ICON,
-				label: __( 'Icon', 'jetpack-components' ),
-				getValue( { item } ) {
-					return ICONS[ item.type ] || '';
-				},
-				render( { item } ) {
-					return (
-						<div className={ styles.threat__media }>
-							<Icon icon={ ICONS[ item.type ] } />
-						</div>
-					);
-				},
-			},
+			...( view.type === 'list'
+				? [
+						{
+							id: FIELD_ICON,
+							label: __( 'Icon', 'jetpack-components' ),
+							enableSorting: false,
+							enableHiding: false,
+							getValue( { item } ) {
+								return ICONS[ item.type ] || '';
+							},
+							render( { item } ) {
+								return (
+									<div className={ styles.threat__media }>
+										<Icon icon={ ICONS[ item.type ] } />
+									</div>
+								);
+							},
+						},
+				  ]
+				: [] ),
 		];
 
 		return result;
-	}, [] );
+	}, [ view ] );
 
 	/**
 	 * Apply the view settings (i.e. filters, sorting, pagination) to the dataset.
