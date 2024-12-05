@@ -11,13 +11,13 @@ export default {
 			control: {
 				type: 'select',
 			},
-			options: [ 'default', 'success', 'warning', 'error' ],
+			options: [ 'default', 'info', 'success', 'warning', 'error' ],
 		},
 		icon: {
 			control: {
 				type: 'select',
 			},
-			options: [ 'success', 'error' ],
+			options: [ 'success', 'error', 'info' ],
 		},
 		fill: {
 			control: 'color',
@@ -39,12 +39,14 @@ export const Variants = () => {
 		<div style={ { display: 'flex', flexDirection: 'column', gap: '8px' } }>
 			<div style={ { display: 'flex', gap: '8px' } }>
 				<ShieldIcon variant="default" />
+				<ShieldIcon variant="info" />
 				<ShieldIcon variant="success" />
 				<ShieldIcon variant="warning" />
 				<ShieldIcon variant="error" />
 			</div>
 			<div style={ { display: 'flex', gap: '8px' } }>
 				<ShieldIcon variant="default" outline />
+				<ShieldIcon variant="info" outline />
 				<ShieldIcon variant="success" outline />
 				<ShieldIcon variant="warning" outline />
 				<ShieldIcon variant="error" outline />

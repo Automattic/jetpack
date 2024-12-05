@@ -156,11 +156,7 @@ const HomeStatCards = () => {
 			className: isWafModuleEnabled ? styles.active : styles.disabled,
 			icon: (
 				<span className={ styles[ 'stat-card-icon' ] }>
-					<ShieldIcon
-						variant={ ! isWafModuleEnabled ? 'error' : 'success' }
-						height={ iconHeight }
-						fill={ ! isWafModuleEnabled ? '#A7AAAD' : null }
-					/>
+					<ShieldIcon variant={ ! isWafModuleEnabled ? 'info' : 'success' } height={ iconHeight } />
 					{ ! isSmall && (
 						<Text className={ styles[ 'stat-card-icon-label' ] } variant="body-extra-small">
 							{ __( 'Firewall', 'jetpack-protect' ) }
@@ -186,9 +182,8 @@ const HomeStatCards = () => {
 			icon: (
 				<span className={ styles[ 'stat-card-icon' ] }>
 					<ShieldIcon
-						variant={ ! isBruteForceModuleEnabled ? 'error' : 'success' }
+						variant={ ! isBruteForceModuleEnabled ? 'info' : 'success' }
 						height={ iconHeight }
-						fill={ ! isBruteForceModuleEnabled ? '#A7AAAD' : null }
 					/>
 					{ ! isSmall && (
 						<Text className={ styles[ 'stat-card-icon-label' ] } variant="body-extra-small">
