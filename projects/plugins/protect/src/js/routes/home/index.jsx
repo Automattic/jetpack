@@ -12,7 +12,7 @@ import HomeAdminSectionHero from './home-admin-section-hero';
  */
 const HomePage = () => {
 	const { data: status } = useScanStatusQuery( { usePolling: true } );
-	const { core, plugins, themes, files = [] } = status;
+	const { core, plugins, themes, files } = status;
 
 	const data = [
 		core,
