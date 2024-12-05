@@ -31,9 +31,6 @@ module.exports = {
 			},
 		],
 
-		// Apparently, we like dangling commas
-		'comma-dangle': 0,
-
 		'jsdoc/no-undefined-types': [
 			1,
 			{
@@ -45,7 +42,6 @@ module.exports = {
 		'react-hooks/rules-of-hooks': 0,
 
 		'no-nested-ternary': 0,
-		'prettier/prettier': 0,
 		camelcase: 0,
 	},
 };

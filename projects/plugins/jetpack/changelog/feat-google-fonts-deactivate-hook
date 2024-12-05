@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Google Fonts: Clean up the google fonts data if either google fonts module is disabled or Jetpack is disabled

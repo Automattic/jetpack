@@ -147,7 +147,7 @@ const JetpackAndSettingsContent = ( {
 			</PanelRow>
 
 			<PanelRow>
-				<ExternalLink href="https://automattic.com/ai-guidelines">
+				<ExternalLink href="https://jetpack.com/redirect/?source=ai-guidelines">
 					{ __( 'AI Guidelines', 'jetpack' ) }
 				</ExternalLink>
 			</PanelRow>

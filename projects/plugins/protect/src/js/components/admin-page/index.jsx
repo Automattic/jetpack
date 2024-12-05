@@ -1,16 +1,20 @@
 import {
 	AdminPage as JetpackAdminPage,
+	Button,
 	Container,
+	getRedirectUrl,
 	JetpackProtectLogo,
 } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
 import { __, sprintf } from '@wordpress/i18n';
 import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
+import useScanStatusQuery from '../../data/scan/use-scan-status-query';
 import useNotices from '../../hooks/use-notices';
-import useProtectData from '../../hooks/use-protect-data';
+import usePlan from '../../hooks/use-plan';
 import useWafData from '../../hooks/use-waf-data';
 import Notice from '../notice';
+import ScanButton from '../scan-button';
 import Tabs, { Tab } from '../tabs';
 import styles from './styles.module.scss';
 
@@ -19,11 +23,9 @@ const AdminPage = ( { children } ) => {
 	const { isRegistered } = useConnection();
 	const { isSeen: wafSeen } = useWafData();
 	const navigate = useNavigate();
-	const {
-		counts: {
-			current: { threats: numThreats },
-		},
-	} = useProtectData();
+	const { data: status } = useScanStatusQuery();
+	const location = useLocation();
+	const { hasPlan } = usePlan();
 
 	// Redirect to the setup page if the site is not registered.
 	useEffect( () => {
@@ -36,10 +38,27 @@ const AdminPage = ( { children } ) => {
 		return null;
 	}
 
+	const viewingScanPage = location.pathname.includes( '/scan' );
+
+	const { siteSuffix, blogID } = window.jetpackProtectInitialState || {};
+	const goToCloudUrl = getRedirectUrl( 'jetpack-scan-dash', { site: blogID ?? siteSuffix } );
+
 	return (
 		<JetpackAdminPage
 			moduleName={ __( 'Jetpack Protect', 'jetpack-protect' ) }
-			header={ <JetpackProtectLogo /> }
+			header={
+				<div className={ styles.header }>
+					<JetpackProtectLogo />
+					{ hasPlan && viewingScanPage && (
+						<div className={ styles.header__scan_buttons }>
+							<Button variant="link" isExternalLink weight={ 'regular' } href={ goToCloudUrl }>
+								{ __( 'Go to Cloud', 'jetpack-protect' ) }
+							</Button>
+							<ScanButton />
+						</div>
+					) }
+				</div>
+			}
 		>
 			{ notice && <Notice floating={ true } dismissable={ true } { ...notice } /> }
 			<Container horizontalSpacing={ 0 }>
@@ -48,11 +67,11 @@ const AdminPage = ( { children } ) => {
 						link="/scan"
 						label={
 							<span className={ styles.tab }>
-								{ numThreats > 0
+								{ status.threats.length > 0
 									? sprintf(
 											// translators: %d is the number of threats found.
 											__( 'Scan (%d)', 'jetpack-protect' ),
-											numThreats
+											status.threats.length
 									  )
 									: __( 'Scan', 'jetpack-protect' ) }
 							</span>

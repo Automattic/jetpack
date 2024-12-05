@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Board Triage: automatically add the issue type to our project board when a Type label can be found in the issue.
