@@ -4,6 +4,16 @@ export type ThreatStatus = 'fixed' | 'ignored' | 'current';
 
 export type ThreatFixType = 'replace' | 'delete' | 'update' | string;
 
+export type ScanReportExtension = {
+	id: number;
+	checked: boolean;
+	slug?: string;
+	name?: string;
+	version?: string;
+	threats: Threat[];
+	type: 'plugin' | 'theme' | 'core' | 'files';
+};
+
 export type Extension = {
 	slug?: string;
 	name: string;

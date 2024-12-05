@@ -1,7 +1,9 @@
+import { type ScanReportExtension } from '@automattic/jetpack-scan';
 import { Tooltip } from '@wordpress/components';
 import {
 	type SupportedLayouts,
 	type View,
+	type Field,
 	DataViews,
 	filterSortAndPaginate,
 } from '@wordpress/dataviews';
@@ -79,13 +81,12 @@ export default function ScanReport( { data, onChangeSelection } ): JSX.Element {
 	 */
 	const fields = useMemo( () => {
 		const iconHeight = 20;
-
-		const result = [
+		const result: Field< ScanReportExtension >[] = [
 			{
 				id: FIELD_STATUS,
 				label: __( 'Status', 'jetpack-components' ),
-				render( { item } ) {
-					let variant: 'info' | 'warning' | 'success' = 'info'; // Explicit typing
+				render( { item }: { item: ScanReportExtension } ) {
+					let variant: 'info' | 'warning' | 'success' = 'info';
 					let text = __(
 						'This item was added to your site after the most recent scan. We will check for threats during the next scheduled one.',
 						'jetpack-components'
@@ -119,7 +120,7 @@ export default function ScanReport( { data, onChangeSelection } ): JSX.Element {
 				id: FIELD_NAME,
 				label: __( 'Name', 'jetpack-components' ),
 				enableGlobalSearch: true,
-				getValue( { item } ) {
+				getValue( { item }: { item: ScanReportExtension } ) {
 					return item.name ? item.name : '';
 				},
 			},
@@ -127,7 +128,7 @@ export default function ScanReport( { data, onChangeSelection } ): JSX.Element {
 				id: FIELD_VERSION,
 				label: __( 'Version', 'jetpack-components' ),
 				enableGlobalSearch: true,
-				getValue( { item } ) {
+				getValue( { item }: { item: ScanReportExtension } ) {
 					return item.version ? item.version : '';
 				},
 			},
@@ -138,10 +139,10 @@ export default function ScanReport( { data, onChangeSelection } ): JSX.Element {
 							label: __( 'Icon', 'jetpack-components' ),
 							enableSorting: false,
 							enableHiding: false,
-							getValue( { item } ) {
+							getValue( { item }: { item: ScanReportExtension } ) {
 								return ICONS[ item.type ] || '';
 							},
-							render( { item } ) {
+							render( { item }: { item: ScanReportExtension } ) {
 								return (
 									<div className={ styles.threat__media }>
 										<Icon icon={ ICONS[ item.type ] } />
@@ -179,7 +180,7 @@ export default function ScanReport( { data, onChangeSelection } ): JSX.Element {
 	 *
 	 * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-dataviews/#getitemid-function
 	 */
-	const getItemId = useCallback( item => item.id.toString(), [] );
+	const getItemId = useCallback( ( item: ScanReportExtension ) => item.id.toString(), [] );
 
 	return (
 		<DataViews
