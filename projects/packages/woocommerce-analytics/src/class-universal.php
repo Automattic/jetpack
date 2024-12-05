@@ -20,6 +20,9 @@ class Universal {
 	 */
 	use Woo_Analytics_Trait;
 
+	/** @var string The Session ID */
+    public $session_id;
+
 	/**
 	 * Constructor.
 	 */
@@ -30,6 +33,9 @@ class Universal {
 
 		// add to carts from non-product pages or lists -- search, store etc.
 		add_action( 'wp_head', array( $this, 'loop_session_events' ), 2 );
+
+        // Initialize session
+		add_action( 'send_headers', array( $this, 'initialize_woocommerceanalytics_session' ) );
 
 		// Capture cart events.
 		add_action( 'woocommerce_add_to_cart', array( $this, 'capture_add_to_cart' ), 10, 6 );
@@ -55,6 +61,18 @@ class Universal {
 
 		add_action( 'woocommerce_created_customer', array( $this, 'capture_post_checkout_created_customer' ), 10, 2 );
 	}
+
+    /**
+     * Set a UUID for the current session if is not yet loaded and record the session started event
+     */
+    public function initialize_woocommerceanalytics_session() {
+        if ( ! isset( $_COOKIE[ 'woocommerceanalytics_session_id' ] ) ) {
+            $session_id = wp_generate_uuid4();
+            $this->session_id = $session_id;
+            setcookie( 'woocommerceanalytics_session_id', $session_id, 0, COOKIEPATH, COOKIE_DOMAIN, is_ssl(), false );
+            $this->record_event( 'woocommerceanalytics_session_started' );
+        }
+    }
 
 	/**
 	 * On product lists or other non-product pages, add an event listener to "Add to Cart" button click
