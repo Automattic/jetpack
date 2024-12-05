@@ -6,11 +6,7 @@ module.exports = {
 	// Exclude usage in tests and stories.
 	globs: [ '**/!(test|stories)/!(*stories).@(js|ts)?(x)' ],
 	// Exclude any vendor or docs directories
-	exclude: [
-		'docs',
-		'node_modules',
-		'tools',
-	],
+	exclude: [ 'docs', 'node_modules', 'tools' ],
 	// Consider only imports of `@wordpress/components`
 	importedFrom: '@wordpress/components',
 	// Full usage report
