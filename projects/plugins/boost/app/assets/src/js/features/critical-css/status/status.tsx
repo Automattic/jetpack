@@ -44,6 +44,10 @@ const Status: React.FC< StatusTypes > = ( {
 		regenerateAction.mutate();
 	};
 
+	const handleAdvancedClick = () => {
+		recordBoostEvent( 'critical_css_advanced_link_clicked', {} );
+	};
+
 	// If there has been a fatal error, show it.
 	if ( showFatalError ) {
 		return (
@@ -97,7 +101,7 @@ const Status: React.FC< StatusTypes > = ( {
 									providersWithErrors.length
 								),
 								{
-									advanced: <Link to="/critical-css-advanced" />,
+									advanced: <Link to="/critical-css-advanced" onClick={ handleAdvancedClick } />,
 								}
 							) }
 						</>
