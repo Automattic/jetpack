@@ -1,6 +1,6 @@
 import { AdminSection, Container, Col, ScanReport } from '@automattic/jetpack-components';
 import AdminPage from '../../components/admin-page';
-import useProtectData from '../../hooks/use-protect-data';
+import useScanStatusQuery from '../../data/scan/use-scan-status-query';
 import HomeAdminSectionHero from './home-admin-section-hero';
 
 /**
@@ -11,12 +11,11 @@ import HomeAdminSectionHero from './home-admin-section-hero';
  * @return {Component} The root component for the scan page.
  */
 const HomePage = () => {
-	const {
-		results: { core, plugins, themes, files },
-	} = useProtectData();
+	const { data: status } = useScanStatusQuery( { usePolling: true } );
+	const { core, plugins, themes, files = [] } = status;
 
 	const data = [
-		...core,
+		core,
 		...plugins,
 		...themes,
 		{ checked: true, threats: files, type: 'files' },
