@@ -22,7 +22,6 @@ const ThreatFixConfirmation = () => {
 			<ThreatSummary />
 			<ThreatTechnicalDetails />
 			{ [ 'all', 'fix' ].includes( actionToConfirm ) && <ThreatFixDetails /> }
-			{ /* TODO: Necessary to show ignore confirmation in all view? */ }
 			{ [ 'all', 'ignore' ].includes( actionToConfirm ) && <ThreatIgnoreDetails /> }
 			{ siteCredentialsNeeded && userConnectionNeeded && (
 				<ThreatNotice

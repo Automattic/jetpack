@@ -6,6 +6,10 @@
 	}
 }
 
+:root {
+	--spacing-base: 8px; /* Base spacing unit */
+}
+
 .threat__title {
 	max-width: fit-content;
 

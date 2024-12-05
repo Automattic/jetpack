@@ -455,7 +455,7 @@ export default function ThreatsDataViews( {
 									return null;
 								}
 
-								if ( ! isThreatEligibleForFix( item ) ) {
+								if ( isThreatEligibleForFix && ! isThreatEligibleForFix( item ) ) {
 									return null;
 								}
 
