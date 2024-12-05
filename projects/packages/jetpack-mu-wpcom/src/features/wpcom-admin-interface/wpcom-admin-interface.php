@@ -278,45 +278,65 @@ function wpcom_show_admin_interface_notice() {
 add_action( 'admin_notices', 'wpcom_show_admin_interface_notice' );
 
 /**
- * Fetches the current assignment to the duplicate views experiment.
+ * Check if the duplicate views experiment is enabled.
  *
- * @return string
+ * @return boolean
  */
-function wpcom_fetch_duplicate_views_assignment() {
+function wpcom_is_duplicate_views_experiment_enabled() {
 	// TODO: We don't know yet the experiment name.
 	$experiment_platform = 'calypso';
 	$experiment_name     = "{$experiment_platform}_duplicate_views_placeholder";
 
 	if ( ( new Host() )->is_wpcom_simple() ) {
 		return \ExPlat\assign_current_user( $experiment_name );
+	}
+	
+	$option_name = 'duplicate_views_experiment_assignment';
+	$variation   = get_user_option( $option_name, get_current_user_id() );
+
+	if ( false !== $variation ) {
+		return 'treatment' === $variation;
+	}
+
+	// If there isn't a WP.com connection, we should disable the experiment.
+	if ( ! ( new Jetpack_Connection() )->is_user_connected() ) {
+		return false;
+	}
+
+	static $has_request_error = false;
+
+	if ( $has_request_error ) {
+		return false;
+	}
+
+	$request_path = add_query_arg(
+		array( 'experiment_name' => $experiment_name ),
+		"/experiments/0.1.0/assignments/{$experiment_platform}"
+	);
+	
+	$response          = Client::wpcom_json_api_request_as_user( $request_path, 'v2' );
+	$has_request_error = false;
+
+	if ( is_wp_error( $response ) ) {
+		$has_request_error = true;
+		return false;
+	}
+
+	$response_code = wp_remote_retrieve_response_code( $response );
+
+	if ( 200 !== $response_code ) {
+		$has_request_error = true;
+		return false;
+	}
+
+	$data = json_decode( wp_remote_retrieve_body( $response ), true );
+
+	if ( isset( $data['variations'] ) && isset( $data['variations'][ $experiment_name ] ) ) {
+		$variation = $data['variations'][ $experiment_name ];
+		update_user_option( get_current_user_id(), $option_name, $variation, true );
+
+		return 'treatment' === $variation;
 	} else {
-		// If there isn't a WP.com connection, we should keep users in WP Admin.
-		if ( ! ( new Jetpack_Connection() )->is_user_connected() ) {
-			return 'treatment';
-		}
-
-		$request_path = add_query_arg(
-			array( 'experiment_name' => $experiment_name ),
-			"/experiments/0.1.0/assignments/{$experiment_platform}"
-		);
-		$response     = Client::wpcom_json_api_request_as_user( $request_path, 'v2' );
-
-		if ( is_wp_error( $response ) ) {
-			return 'treatment';
-		}
-
-		$response_code = wp_remote_retrieve_response_code( $response );
-
-		if ( 200 !== $response_code ) {
-			return 'treatment';
-		}
-
-		$data = json_decode( wp_remote_retrieve_body( $response ), true );
-
-		if ( isset( $data['variations'] ) && isset( $data['variations'][ $experiment_name ] ) ) {
-			return $data['variations'][ $experiment_name ];
-		} else {
-			return 'treatment';
-		}
+		return false;
 	}
 }
