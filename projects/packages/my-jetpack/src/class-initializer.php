@@ -1042,30 +1042,9 @@ class Initializer {
 			return $red_bubble_slugs;
 		}
 
-		$latest_backups = $backup::get_latest_backups();
-		if ( is_wp_error( $latest_backups ) ) {
-			return $red_bubble_slugs;
-		}
-		error_log( print_r( $latest_backups, true ) );
-
-		$last_backup = null;
-		foreach ( $latest_backups as $backup ) {
-			if ( $backup->is_backup ) {
-				$last_backup = $backup;
-				break;
-			}
-		}
-
-		if ( ! $last_backup || ! isset( $last_backup->status ) ) {
-			return $red_bubble_slugs;
-		}
-		error_log( print_r( $last_backup, true ) );
-		if ( $last_backup->status === 'not-accessible' || $last_backup->status === 'error' || $last_backup->status === 'credential-error' ) {
-			$red_bubble_slugs['last-backup-failed'] = array(
-				'id'             => $last_backup->id,
-				'status'         => $last_backup->status,
-				'backup_started' => $last_backup->started,
-			);
+		$backup_failed_status = $backup::does_module_need_attention();
+		if ( $backup_failed_status ) {
+			$red_bubble_slugs['backup_failure'] = $backup_failed_status;
 		}
 
 		return $red_bubble_slugs;

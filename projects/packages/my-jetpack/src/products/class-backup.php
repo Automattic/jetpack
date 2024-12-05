@@ -1,6 +1,6 @@
 <?php
 /**
- * Boost product
+ * Backup product
  *
  * @package my-jetpack
  */
@@ -234,6 +234,63 @@ class Backup extends Hybrid_Product {
 		$body    = wp_remote_retrieve_body( $response );
 		$backups = json_decode( $body );
 		return $backups;
+	}
+
+	/**
+	 * Determines whether the module/plugin/product needs the users attention.
+	 * Typically due to some sort of error where user troubleshooting is needed.
+	 *
+	 * @return boolean
+	 */
+	public static function does_module_need_attention() {
+		return array(
+			'status'       => 'not-accessible',
+			'last_updated' => '2024-12-05T04:15:22.756+00:00',
+		);
+		$backup_failed_status = false;
+		// First check the status of Rewind for failure.
+		$rewind_state = self::get_state_from_wpcom();
+		if ( ! is_wp_error( $rewind_state ) ) {
+			$backup_failure_reasons = array(
+				'unknown_error',
+				'no_site_found',
+				'missing_plan',
+				'no_connected_jetpack',
+				'no_connected_jetpack_with_credentials',
+				'multisite_not_supported',
+				'host_not_supported',
+				'vp_active_on_site',
+			);
+			if ( $rewind_state->state === 'unavailable' && ! empty( $rewind_state->reason ) && in_array( $rewind_state->reason, $backup_failure_reasons, true ) ) {
+				$backup_failed_status = array(
+					'status'       => $rewind_state->reason,
+					'last_updated' => $rewind_state->last_updated,
+				);
+			}
+		}
+		// Next check for a failed last backup.
+		$latest_backups = self::get_latest_backups();
+		if ( ! is_wp_error( $latest_backups ) ) {
+			// Get the last/latest backup record.
+			$last_backup = null;
+			foreach ( $latest_backups as $backup ) {
+				if ( $backup->is_backup ) {
+					$last_backup = $backup;
+					break;
+				}
+			}
+
+			if ( $last_backup && isset( $last_backup->status ) ) {
+				if ( $last_backup->status === 'not-accessible' || $last_backup->status === 'error' || $last_backup->status === 'credential-error' ) {
+					$backup_failed_status = array(
+						'status'       => $last_backup->status,
+						'last_updated' => $last_backup->last_updated,
+					);
+				}
+			}
+		}
+
+		return $backup_failed_status;
 	}
 
 	/**
