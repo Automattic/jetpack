@@ -1,6 +1,9 @@
-import { AdminSectionHero as JetpackAdminSectionHero, H3 } from '@automattic/jetpack-components';
+import {
+	AdminSectionHero as JetpackAdminSectionHero,
+	H3,
+	ShieldIcon,
+} from '@automattic/jetpack-components';
 import SeventyFiveLayout from '../seventy-five-layout';
-import ShieldIcon from '../shield-icon';
 import AdminSectionHeroNotices from './admin-section-hero-notices';
 import styles from './styles.module.scss';
 
@@ -12,7 +15,12 @@ interface AdminSectionHeroProps {
 }
 
 interface AdminSectionHeroComponent extends React.FC< AdminSectionHeroProps > {
-	Heading: React.FC< { children: React.ReactNode; showIcon?: boolean; variant?: string } >;
+	Heading: React.FC< {
+		children: React.ReactNode;
+		showIcon?: boolean;
+		variant?: 'default' | 'success' | 'error';
+		outline?: boolean;
+	} >;
 	Subheading: React.FC< { children: React.ReactNode } >;
 }
 
@@ -53,8 +61,10 @@ AdminSectionHero.Heading = ( {
 			{ children }
 			{ showIcon && (
 				<ShieldIcon
-					variant={ `${ variant }-outline` }
-					fill="#1d2327"
+					height={ 38 }
+					variant={ variant }
+					outline
+					fill="default"
 					className={ styles[ 'heading-icon' ] }
 				/>
 			) }

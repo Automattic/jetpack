@@ -60,7 +60,7 @@ const HistoryAdminSectionHero: React.FC = () => {
 							__( 'Most recent results', 'jetpack-protect' )
 						) }
 					</Text>
-					<AdminSectionHero.Heading showIcon>
+					<AdminSectionHero.Heading showIcon variant="success">
 						{ numAllThreats > 0
 							? sprintf(
 									/* translators: %s: Total number of threats  */
