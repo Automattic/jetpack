@@ -128,7 +128,7 @@ const WelcomeFlow: FC< Props > = ( {
 				await saveEvaluationResult( recommendations );
 
 				dismissWelcomeBanner();
-			} catch ( error ) {
+			} catch {
 				setIsProcessingEvaluation( false );
 			}
 		},

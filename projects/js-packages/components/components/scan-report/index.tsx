@@ -1,16 +1,16 @@
-import { type Threat } from '@automattic/jetpack-scan';
+import { type ScanReportExtension } from '@automattic/jetpack-scan';
 import { Tooltip } from '@wordpress/components';
 import {
 	type SupportedLayouts,
 	type View,
+	type Field,
 	DataViews,
 	filterSortAndPaginate,
 } from '@wordpress/dataviews';
 import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
 import { useCallback, useMemo, useState } from 'react';
-import ShieldAlertIcon from '../shield-alert';
-import ShieldCheckIcon from '../shield-check';
+import ShieldIcon from '../shield-icon';
 import {
 	FIELD_NAME,
 	FIELD_VERSION,
@@ -27,7 +27,7 @@ import styles from './styles.module.scss';
  * DataViews component for displaying a scan report.
  *
  * @param {object}   props                   - Component props.
- * @param {Array}    props.data              - Threats data.
+ * @param {Array}    props.data              - Scan report data.
  * @param {Function} props.onChangeSelection - Callback function run when an item is selected.
  *
  * @return {JSX.Element} The ScanReport component.
@@ -37,7 +37,7 @@ export default function ScanReport( { data, onChangeSelection } ): JSX.Element {
 		search: '',
 		filters: [],
 		page: 1,
-		perPage: 5,
+		perPage: 20,
 	};
 
 	/**
@@ -81,13 +81,12 @@ export default function ScanReport( { data, onChangeSelection } ): JSX.Element {
 	 * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-dataviews/#fields-object
 	 */
 	const fields = useMemo( () => {
-		const defaultIconDimension = { width: '16', height: '19.14' };
-
-		const result = [
+		const iconHeight = 20;
+		const result: Field< ScanReportExtension >[] = [
 			{
 				id: FIELD_STATUS,
-				label: __( 'Status', 'jetpack-components' ),
 				elements: STATUS_TYPES,
+				label: __( 'Status', 'jetpack-components' ),
 				getValue( { item } ) {
 					if ( item.checked ) {
 						if ( item.threats.length > 0 ) {
@@ -97,44 +96,27 @@ export default function ScanReport( { data, onChangeSelection } ): JSX.Element {
 					}
 					return 'unchecked';
 				},
-				render( { item } ) {
+				render( { item }: { item: ScanReportExtension } ) {
+					let variant: 'info' | 'warning' | 'success' = 'info';
+					let text = __(
+						'This item was added to your site after the most recent scan. We will check for threats during the next scheduled one.',
+						'jetpack-components'
+					);
+
 					if ( item.checked ) {
 						if ( item.threats.length > 0 ) {
-							return (
-								<Tooltip
-									className={ styles.tooltip }
-									text={ __( 'Threat detected.', 'jetpack-components' ) }
-								>
-									<div className={ styles.icon }>
-										<ShieldAlertIcon color={ '#F0B849' } { ...defaultIconDimension } />
-									</div>
-								</Tooltip>
-							);
+							variant = 'warning';
+							text = __( 'Threat detected.', 'jetpack-components' );
+						} else {
+							variant = 'success';
+							text = __( 'No known threats found that affect this version.', 'jetpack-components' );
 						}
-						return (
-							<Tooltip
-								className={ styles.tooltip }
-								text={ __(
-									'No known threats found that affect this version.',
-									'jetpack-components'
-								) }
-							>
-								<div className={ styles.icon }>
-									<ShieldCheckIcon color={ '#069E08' } { ...defaultIconDimension } />
-								</div>
-							</Tooltip>
-						);
 					}
+
 					return (
-						<Tooltip
-							className={ styles.tooltip }
-							text={ __(
-								'This item was added to your site after the most recent scan. We will check for threats during the next scheduled one.',
-								'jetpack-components'
-							) }
-						>
+						<Tooltip className={ styles.tooltip } text={ text }>
 							<div className={ styles.icon }>
-								<ShieldCheckIcon color={ '#A7AAAD' } { ...defaultIconDimension } />
+								<ShieldIcon variant={ variant } height={ iconHeight } />
 							</div>
 						</Tooltip>
 					);
@@ -144,20 +126,12 @@ export default function ScanReport( { data, onChangeSelection } ): JSX.Element {
 				id: FIELD_TYPE,
 				label: __( 'Type', 'jetpack-components' ),
 				elements: TYPES,
-				enableHiding: false,
-				render( { item } ) {
-					return item.type ? item.type.charAt( 0 ).toUpperCase() + item.type.slice( 1 ) : '';
-				},
 			},
 			{
 				id: FIELD_NAME,
 				label: __( 'Name', 'jetpack-components' ),
 				enableGlobalSearch: true,
-				enableHiding: false,
-				getValue( { item } ) {
-					return item.name ? item.name : '';
-				},
-				render( { item } ) {
+				getValue( { item }: { item: ScanReportExtension } ) {
 					return item.name ? item.name : '';
 				},
 			},
@@ -165,27 +139,34 @@ export default function ScanReport( { data, onChangeSelection } ): JSX.Element {
 				id: FIELD_VERSION,
 				label: __( 'Version', 'jetpack-components' ),
 				enableGlobalSearch: true,
-				enableHiding: false,
-				render( { item } ) {
+				getValue( { item }: { item: ScanReportExtension } ) {
 					return item.version ? item.version : '';
 				},
 			},
-			{
-				id: FIELD_ICON,
-				label: __( 'Icon', 'jetpack-components' ),
-				enableHiding: false,
-				render( { item } ) {
-					return (
-						<div className={ styles.threat__media }>
-							<Icon icon={ ICONS[ item.type ] } />
-						</div>
-					);
-				},
-			},
+			...( view.type === 'list'
+				? [
+						{
+							id: FIELD_ICON,
+							label: __( 'Icon', 'jetpack-components' ),
+							enableSorting: false,
+							enableHiding: false,
+							getValue( { item }: { item: ScanReportExtension } ) {
+								return ICONS[ item.type ] || '';
+							},
+							render( { item }: { item: ScanReportExtension } ) {
+								return (
+									<div className={ styles.threat__media }>
+										<Icon icon={ ICONS[ item.type ] } />
+									</div>
+								);
+							},
+						},
+				  ]
+				: [] ),
 		];
 
 		return result;
-	}, [] );
+	}, [ view ] );
 
 	/**
 	 * Apply the view settings (i.e. filters, sorting, pagination) to the dataset.
@@ -210,7 +191,7 @@ export default function ScanReport( { data, onChangeSelection } ): JSX.Element {
 	 *
 	 * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-dataviews/#getitemid-function
 	 */
-	const getItemId = useCallback( ( item: Threat ) => item.id.toString(), [] );
+	const getItemId = useCallback( ( item: ScanReportExtension ) => item.id.toString(), [] );
 
 	return (
 		<DataViews

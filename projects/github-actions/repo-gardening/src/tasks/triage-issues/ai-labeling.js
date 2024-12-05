@@ -21,8 +21,8 @@ const sendOpenAiRequest = require( '../../utils/openai/send-request' );
 async function fetchOpenAiLabelsSuggestions( octokit, owner, repo, title, body ) {
 	const suggestions = { labels: [], explanations: {} };
 
-	// Get all the Feature and Feature Group labels in the repo.
-	const pattern = /^(\[Feature\]|\[Feature Group\])/;
+	// Get all the Feature, Feature Group labels, and Plugin feature labels in the repo.
+	const pattern = /^\[[^\]]*Feature/;
 	const repoLabels = await getAvailableLabels( octokit, owner, repo, pattern );
 
 	// If no labels are found, bail.
@@ -62,9 +62,10 @@ ${ repoLabels
 Analyze the issue and suggest relevant labels. Rules:
 - Use only existing labels provided.
 - Include 1 '[Feature Group]' label.
-- Include 1 to 3 '[Feature]' labels.
+- Include 1 to 3 '[Feature]' labels, or '["Plugin" Feature]' labels (where "Plugin" matches a plugin name) if more relevant.
 - Briefly explain each label choice in 1 sentence.
 - Format your response as a JSON object, with each suggested label as a key, and your explanation of the label choice as the value.
+- If the issue contents specify that a specific plugin is impacted, you must only suggest Feature labels related to that plugin.
 
 Example response format:
 {

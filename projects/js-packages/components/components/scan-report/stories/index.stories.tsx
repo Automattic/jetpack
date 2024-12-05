@@ -69,5 +69,4 @@ Default.args = {
 			type: 'files',
 		},
 	],
-	filters: [],
 };

@@ -17,6 +17,36 @@ export const getThreatType = ( threat: Threat ) => {
 	return null;
 };
 
+export const getThreatIcon = ( threat: Threat ) => {
+	switch ( getThreatType( threat ) ) {
+		case 'core':
+			return 'wordpress-alt';
+		case 'plugin':
+			return 'plugins';
+		case 'theme':
+			return 'appearance';
+		case 'file':
+			return 'media-code';
+		default:
+			return 'shield-alt';
+	}
+};
+
+export const getThreatSubtitle = ( threat: Threat ) => {
+	switch ( getThreatType( threat ) ) {
+		case 'core':
+			return __( 'Vulnerable WordPress Version', 'jetpack-scan' );
+		case 'plugin':
+			return __( 'Vulnerable Plugin', 'jetpack-scan' );
+		case 'theme':
+			return __( 'Vulnerable Theme', 'jetpack-scan' );
+		case 'file':
+			return __( 'File Threat', 'jetpack-scan' );
+		default:
+			return __( 'Threat', 'jetpack-scan' );
+	}
+};
+
 export const fixerTimestampIsStale = ( lastUpdatedTimestamp: string ) => {
 	const now = new Date();
 	const lastUpdated = new Date( lastUpdatedTimestamp );
@@ -124,7 +154,7 @@ export const getFixerDescription = ( threat: Threat ) => {
 			}
 			break;
 		case 'update':
-			if ( threat.fixedIn && threat.extension.name ) {
+			if ( threat.fixedIn && threat.extension?.name ) {
 				return sprintf(
 					/* translators: Translates to Updates to version. %1$s: Name. %2$s: Fixed version */
 					__( 'Update %1$s to version %2$s', 'jetpack-scan' ),

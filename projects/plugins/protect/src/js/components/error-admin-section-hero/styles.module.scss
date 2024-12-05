@@ -4,7 +4,7 @@
 }
 
 .warning {
-    margin-right: var( --spacing-base ); // 8px
+    margin-left: calc( var( --spacing-base ) * 1.5 ); // 12px
 }
 
 .scan-navigation {

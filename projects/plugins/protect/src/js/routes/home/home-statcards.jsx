@@ -1,16 +1,10 @@
-import {
-	Text,
-	useBreakpointMatch,
-	StatCard,
-	ShieldCheckIcon,
-	ShieldAlertIcon,
-} from '@automattic/jetpack-components';
+import { Text, useBreakpointMatch, StatCard, ShieldIcon } from '@automattic/jetpack-components';
 import { Spinner, Tooltip } from '@wordpress/components';
+import { dateI18n } from '@wordpress/date';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { useMemo, useCallback } from 'react';
+import { useMemo } from 'react';
 import useScanStatusQuery, { isScanInProgress } from '../../data/scan/use-scan-status-query';
 import usePlan from '../../hooks/use-plan';
-import useProtectData from '../../hooks/use-protect-data';
 import useWafData from '../../hooks/use-waf-data';
 import styles from './styles.module.scss';
 
@@ -38,13 +32,20 @@ const HomeStatCards = () => {
 	const [ isSmall ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
 	const variant = isSmall ? 'horizontal' : 'square';
 
-	const {
-		counts: {
-			current: { threats: numThreats },
-		},
-		lastCheckedLocalTimestamp,
-		error: scanError,
-	} = useProtectData();
+	const { data: status } = useScanStatusQuery();
+	const scanning = isScanInProgress( status );
+	const numThreats = status.threats.length;
+	const scanError = status.error;
+
+	let lastCheckedLocalTimestamp = null;
+	if ( status.lastChecked ) {
+		// Convert the lastChecked UTC date to a local timestamp
+		lastCheckedLocalTimestamp = dateI18n(
+			'F jS g:i A',
+			new Date( status.lastChecked + ' UTC' ).getTime(),
+			false
+		);
+	}
 
 	const {
 		config: { bruteForceProtection: isBruteForceModuleEnabled },
@@ -58,20 +59,7 @@ const HomeStatCards = () => {
 		blockedLogins: allTimeBlockedLoginsCount = 0,
 	} = stats || {};
 
-	const { data: scanStatus } = useScanStatusQuery();
-	const scanning = isScanInProgress( scanStatus );
-
-	const defaultDimensions = useMemo( () => ( { height: '19.14', width: '16' } ), [] );
-
-	const renderIcon = useCallback(
-		isFeatureEnabled =>
-			isFeatureEnabled ? (
-				<ShieldCheckIcon { ...defaultDimensions } />
-			) : (
-				<ShieldAlertIcon { ...defaultDimensions } color="#A7AAAD" />
-			),
-		[ defaultDimensions ]
-	);
+	const iconHeight = useMemo( () => 20, [] );
 
 	const lastCheckedMessage = useMemo( () => {
 		if ( scanError ) {
@@ -120,11 +108,15 @@ const HomeStatCards = () => {
 		if ( scanning ) {
 			scanIcon = <Spinner />;
 		} else if ( scanError ) {
-			scanIcon = <ShieldAlertIcon { ...defaultDimensions } />;
-		} else if ( numThreats ) {
-			scanIcon = <ShieldAlertIcon { ...defaultDimensions } color={ '#F0B849' } />;
+			scanIcon = <ShieldIcon variant="error" height={ iconHeight } />;
 		} else {
-			scanIcon = <ShieldCheckIcon { ...defaultDimensions } color={ '#069E08' } />;
+			scanIcon = (
+				<ShieldIcon
+					variant={ numThreats ? 'warning' : 'success' }
+					height={ iconHeight }
+					color={ numThreats ? '#F0B849' : '#069E08' }
+				/>
+			);
 		}
 
 		let scanLabel;
@@ -160,7 +152,7 @@ const HomeStatCards = () => {
 			value: numThreats,
 			hideValue: !! ( scanError || scanning ),
 		};
-	}, [ variant, scanning, defaultDimensions, scanError, numThreats, hasPlan, isSmall ] );
+	}, [ variant, scanning, iconHeight, scanError, numThreats, hasPlan, isSmall ] );
 
 	const wafArgs = useMemo(
 		() => ( {
@@ -168,7 +160,7 @@ const HomeStatCards = () => {
 			className: isWafModuleEnabled ? styles.active : styles.disabled,
 			icon: (
 				<span className={ styles[ 'stat-card-icon' ] }>
-					{ renderIcon( isWafModuleEnabled ) }{ ' ' }
+					<ShieldIcon variant={ ! isWafModuleEnabled ? 'info' : 'success' } height={ iconHeight } />
 					{ ! isSmall && (
 						<Text className={ styles[ 'stat-card-icon-label' ] } variant="body-extra-small">
 							{ __( 'Firewall', 'jetpack-protect' ) }
@@ -184,7 +176,7 @@ const HomeStatCards = () => {
 			value: allTimeBlockedRequestsCount,
 			hideValue: ! isWafModuleEnabled,
 		} ),
-		[ variant, renderIcon, isWafModuleEnabled, isSmall, allTimeBlockedRequestsCount ]
+		[ variant, isWafModuleEnabled, iconHeight, isSmall, allTimeBlockedRequestsCount ]
 	);
 
 	const bruteForceArgs = useMemo(
@@ -193,7 +185,10 @@ const HomeStatCards = () => {
 			className: isBruteForceModuleEnabled ? styles.active : styles.disabled,
 			icon: (
 				<span className={ styles[ 'stat-card-icon' ] }>
-					{ renderIcon( isBruteForceModuleEnabled ) }
+					<ShieldIcon
+						variant={ ! isBruteForceModuleEnabled ? 'info' : 'success' }
+						height={ iconHeight }
+					/>
 					{ ! isSmall && (
 						<Text className={ styles[ 'stat-card-icon-label' ] } variant="body-extra-small">
 							{ __( 'Brute force', 'jetpack-protect' ) }
@@ -209,7 +204,7 @@ const HomeStatCards = () => {
 			value: allTimeBlockedLoginsCount,
 			hideValue: ! isBruteForceModuleEnabled,
 		} ),
-		[ variant, renderIcon, isBruteForceModuleEnabled, isSmall, allTimeBlockedLoginsCount ]
+		[ variant, isBruteForceModuleEnabled, iconHeight, isSmall, allTimeBlockedLoginsCount ]
 	);
 
 	return (

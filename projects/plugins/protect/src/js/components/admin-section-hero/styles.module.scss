@@ -1,5 +1,5 @@
 .heading-icon {
-    margin-left: var( --spacing-base ); // 8px
+    margin-left: calc( var( --spacing-base ) * 1.5 ); // 12px
     margin-bottom: calc( var( --spacing-base ) / 2 * -1 ); // -4px
 }
 

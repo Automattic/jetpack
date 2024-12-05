@@ -22,20 +22,14 @@ const IMPROVE_SUGGESTION_MAKE_SHORTER = 'makeShorter' as const;
 export const IMPROVE_KEY_SUMMARIZE = 'summarize' as const;
 const IMPROVE_SUGGESTION_SUMMARIZE = 'summarize' as const;
 
-const IMPROVE_KEY_LIST = [
-	IMPROVE_KEY_SUMMARIZE,
-	IMPROVE_KEY_MAKE_LONGER,
-	IMPROVE_KEY_MAKE_SHORTER,
-] as const;
-
-const IMPROVE_SUGGESTION_LIST = [
-	IMPROVE_SUGGESTION_SUMMARIZE,
-	IMPROVE_SUGGESTION_MAKE_LONGER,
-	IMPROVE_SUGGESTION_MAKE_SHORTER,
-] as const;
-
-type ImproveKeyProp = ( typeof IMPROVE_KEY_LIST )[ number ];
-type ImproveSuggestionProp = ( typeof IMPROVE_SUGGESTION_LIST )[ number ];
+type ImproveKeyProp =
+	| typeof IMPROVE_KEY_SUMMARIZE
+	| typeof IMPROVE_KEY_MAKE_LONGER
+	| typeof IMPROVE_KEY_MAKE_SHORTER;
+type ImproveSuggestionProp =
+	| typeof IMPROVE_SUGGESTION_SUMMARIZE
+	| typeof IMPROVE_SUGGESTION_MAKE_LONGER
+	| typeof IMPROVE_SUGGESTION_MAKE_SHORTER;
 
 const quickActionsList = [
 	{

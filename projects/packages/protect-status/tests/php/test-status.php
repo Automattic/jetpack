@@ -1,7 +1,7 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
 /**
- * The Protect Status class.
+ * Tests for the Protect_Status class.
  *
  * @package automattic/jetpack-protect-status
  */
@@ -13,12 +13,11 @@ use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Protect_Models\Extension_Model;
 use Automattic\Jetpack\Protect_Models\Status_Model;
 use Automattic\Jetpack\Protect_Models\Threat_Model;
-use Automattic\Jetpack\Redirect;
 use Jetpack_Options;
 use WorDBless\BaseTestCase;
 
 /**
- * The Protect Status class.
+ * Tests for the Protect_Status class.
  */
 class Test_Status extends BaseTestCase {
 
@@ -27,104 +26,43 @@ class Test_Status extends BaseTestCase {
 	 */
 	protected function set_up() {
 		Protect_Status::$status = null;
+
+		$this->mock_data();
 	}
 
 	/**
-	 * Get a sample checked theme result
-	 *
-	 * @param string $id The unique theme ID.
-	 * @param bool   $with_threats Whether the sample should include a vulnerability.
-	 * @return object
+	 * Tear down after each test
 	 */
-	public function get_sample_theme( $id, $with_threats = true ) {
-		$item = (object) array(
-			'version' => '1.0.2',
-			'name'    => 'Sample Theme',
-			'checked' => true,
-			'type'    => 'themes',
-			'threats' => array(),
-			'slug'    => "theme-$id",
-		);
-		if ( $with_threats ) {
-			$item->threats[] = $this->get_sample_threat();
-		}
-		return $item;
+	protected function tear_down() {
+		$this->teardown_mock_data();
 	}
 
 	/**
-	 * Get a sample checked plugin result
-	 *
-	 * @param string $id The unique plugin ID.
-	 * @param bool   $with_threats Whether the sample should include a vulnerability.
-	 * @return object
+	 * Mock site connection
 	 */
-	public function get_sample_plugin( $id, $with_threats = true ) {
-		$item = (object) array(
-			'version' => '1.0.2',
-			'name'    => 'Sample Plugin',
-			'checked' => true,
-			'type'    => 'plugins',
-			'threats' => array(),
-			'slug'    => "plugin-$id",
-		);
-		if ( $with_threats ) {
-			$item->threats[] = $this->get_sample_threat();
-		}
-		return $item;
+	public function mock_connection() {
+		( new Tokens() )->update_blog_token( 'test.test' );
+		Jetpack_Options::update_option( 'id', 123 );
+		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+		// to do - mock a scan plan
 	}
 
 	/**
-	 * Get a sample checked core result
-	 *
-	 * @param bool $with_threats Whether the sample should include a vulnerability.
-	 * @return object
+	 * Mock data for tests
 	 */
-	public function get_sample_core( $with_threats = true ) {
-		global $wp_version;
-
-		$item = (object) array(
-			'version' => $wp_version,
-			'threats' => array(),
-			'checked' => true,
-			'name'    => 'WordPress',
-			'type'    => 'core',
-		);
-		if ( $with_threats ) {
-			$item->threats[] = $this->get_sample_threat();
-		}
-
-		return $item;
+	public function mock_data() {
+		add_filter( 'pre_http_request', array( $this, 'return_sample_response' ) );
+		add_filter( 'all_plugins', array( $this, 'return_sample_plugins' ) );
+		add_filter( 'jetpack_sync_get_themes_callable', array( $this, 'return_sample_themes' ) );
 	}
 
 	/**
-	 * Get a sample vulnerabilty
-	 *
-	 * @return object
+	 * Tear down mock data
 	 */
-	public function get_sample_vul() {
-		return (object) array(
-			'id'       => 'asdasdasd-123123-asdasd',
-			'title'    => 'Sample Vul',
-			'fixed_in' => '2.0.0',
-		);
-	}
-
-	/**
-	 * Get a sample threat
-	 *
-	 * @return object
-	 */
-	public function get_sample_threat() {
-		$id = 'asdasdasd-123123-asdasd';
-
-		return new Threat_Model(
-			array(
-				'id'       => $id,
-				'title'    => 'Sample Vul',
-				'fixed_in' => '2.0.0',
-				'source'   => Redirect::get_url( 'jetpack-protect-vul-info', array( 'path' => $id ) ),
-			)
-		);
+	public function teardown_mock_data() {
+		remove_filter( 'pre_http_request', array( $this, 'return_sample_response' ) );
+		remove_filter( 'all_plugins', array( $this, 'return_sample_plugins' ) );
+		remove_filter( 'jetpack_sync_get_themes_callable', array( $this, 'return_sample_themes' ) );
 	}
 
 	/**
@@ -154,7 +92,7 @@ class Test_Status extends BaseTestCase {
 	 *
 	 * @return object
 	 */
-	public function get_sample_response() {
+	public function get_sample_api_response() {
 		global $wp_version;
 
 		return (object) array(
@@ -169,7 +107,11 @@ class Test_Status extends BaseTestCase {
 					'version'         => '1.0.2',
 					'checked'         => true,
 					'vulnerabilities' => array(
-						$this->get_sample_vul(),
+						(object) array(
+							'id'       => 'test-vuln-1',
+							'title'    => 'Test Vuln 1',
+							'fixed_in' => '2.0.0',
+						),
 					),
 				),
 			),
@@ -180,7 +122,11 @@ class Test_Status extends BaseTestCase {
 					'version'         => '1.0.2',
 					'checked'         => true,
 					'vulnerabilities' => array(
-						$this->get_sample_vul(),
+						(object) array(
+							'id'       => 'test-vuln-2',
+							'title'    => 'Test Vuln 2',
+							'fixed_in' => '2.0.0',
+						),
 					),
 				),
 				'plugin-2' => (object) array(
@@ -195,7 +141,11 @@ class Test_Status extends BaseTestCase {
 				'version'         => $wp_version,
 				'checked'         => true,
 				'vulnerabilities' => array(
-					$this->get_sample_vul(),
+					(object) array(
+						'id'       => 'test-vuln-3',
+						'title'    => 'Test Vuln 3',
+						'fixed_in' => '2.0.0',
+					),
 				),
 				'name'            => 'WordPress',
 			),
@@ -208,27 +158,139 @@ class Test_Status extends BaseTestCase {
 	 * @return object
 	 */
 	public function get_sample_status() {
+		global $wp_version;
+
 		return new Status_Model(
 			array(
 				'data_source'         => 'protect_report',
-				'plugins'             => array(
-					new Extension_Model( $this->get_sample_plugin( '1' ) ),
-					new Extension_Model( $this->get_sample_plugin( '2', false ) ),
-				),
-				'themes'              => array(
-					new Extension_Model( $this->get_sample_theme( '1' ) ),
-				),
-				'core'                => new Extension_Model( $this->get_sample_core() ),
-				'wordpress'           => $this->get_sample_core(),
 				'last_checked'        => '2003-03-03 03:03:03',
 				'num_threats'         => 3,
 				'num_themes_threats'  => 1,
 				'num_plugins_threats' => 1,
 				'has_unchecked_items' => false,
+				'plugins'             => array(
+					new Extension_Model(
+						array(
+							'version' => '1.0.2',
+							'name'    => 'Sample Plugin',
+							'checked' => true,
+							'type'    => 'plugins',
+							'threats' => array(),
+							'slug'    => 'plugin-2',
+						)
+					),
+					new Extension_Model(
+						array(
+							'version' => '1.0.2',
+							'name'    => 'Sample Plugin',
+							'checked' => true,
+							'type'    => 'plugins',
+							'threats' => array(
+								new Threat_Model(
+									array(
+										'id'       => 'test-vuln-2',
+										'title'    => 'Test Vuln 2',
+										'fixed_in' => '2.0.0',
+										'source'   => 'https://jetpack.com/redirect/?source=jetpack-protect-vul-info&site=example.org&path=test-vuln-2',
+									)
+								),
+							),
+							'slug'    => 'plugin-1',
+						)
+					),
+				),
+				'themes'              => array(
+					new Extension_Model(
+						array(
+							'version' => '1.0.2',
+							'name'    => 'Sample Theme',
+							'checked' => true,
+							'type'    => 'themes',
+							'threats' => array(
+								new Threat_Model(
+									array(
+										'id'       => 'test-vuln-1',
+										'title'    => 'Test Vuln 1',
+										'fixed_in' => '2.0.0',
+										'source'   => 'https://jetpack.com/redirect/?source=jetpack-protect-vul-info&site=example.org&path=test-vuln-1',
+									)
+								),
+							),
+							'slug'    => 'theme-1',
+						)
+					),
+				),
+				'core'                => new Extension_Model(
+					array(
+						'version' => $wp_version,
+						'threats' => array(
+							new Threat_Model(
+								array(
+									'id'       => 'test-vuln-3',
+									'title'    => 'Test Vuln 3',
+									'fixed_in' => '2.0.0',
+									'source'   => 'https://jetpack.com/redirect/?source=jetpack-protect-vul-info&site=example.org&path=test-vuln-3',
+								)
+							),
+						),
+						'checked' => true,
+						'name'    => 'WordPress',
+						'slug'    => 'wordpress',
+						'type'    => 'core',
+					)
+				),
 				'threats'             => array(
-					$this->get_sample_threat(),
-					$this->get_sample_threat(),
-					$this->get_sample_threat(),
+					new Threat_Model(
+						array(
+							'id'        => 'test-vuln-1',
+							'title'     => 'Test Vuln 1',
+							'fixed_in'  => '2.0.0',
+							'source'    => 'https://jetpack.com/redirect/?source=jetpack-protect-vul-info&site=example.org&path=test-vuln-1',
+							'extension' => new Extension_Model(
+								array(
+									'version' => '1.0.2',
+									'name'    => 'Sample Theme',
+									'checked' => true,
+									'type'    => 'themes',
+									'slug'    => 'theme-1',
+								)
+							),
+						)
+					),
+					new Threat_Model(
+						array(
+							'id'        => 'test-vuln-2',
+							'title'     => 'Test Vuln 2',
+							'fixed_in'  => '2.0.0',
+							'source'    => 'https://jetpack.com/redirect/?source=jetpack-protect-vul-info&site=example.org&path=test-vuln-2',
+							'extension' => new Extension_Model(
+								array(
+									'version' => '1.0.2',
+									'name'    => 'Sample Plugin',
+									'checked' => true,
+									'type'    => 'plugins',
+									'slug'    => 'plugin-1',
+								)
+							),
+						)
+					),
+					new Threat_Model(
+						array(
+							'id'        => 'test-vuln-3',
+							'title'     => 'Test Vuln 3',
+							'fixed_in'  => '2.0.0',
+							'source'    => 'https://jetpack.com/redirect/?source=jetpack-protect-vul-info&site=example.org&path=test-vuln-3',
+							'extension' => new Extension_Model(
+								array(
+									'version' => $wp_version,
+									'name'    => 'WordPress',
+									'checked' => true,
+									'type'    => 'core',
+									'slug'    => 'wordpress',
+								)
+							),
+						)
+					),
 				),
 			)
 		);
@@ -241,7 +303,7 @@ class Test_Status extends BaseTestCase {
 	 */
 	public function return_sample_response() {
 		return array(
-			'body'     => wp_json_encode( $this->get_sample_response() ),
+			'body'     => wp_json_encode( $this->get_sample_api_response() ),
 			'response' => array(
 				'code'    => 200,
 				'message' => '',
@@ -312,26 +374,10 @@ class Test_Status extends BaseTestCase {
 	}
 
 	/**
-	 * Mock site connection
-	 */
-	public function mock_connection() {
-		( new Tokens() )->update_blog_token( 'test.test' );
-		Jetpack_Options::update_option( 'id', 123 );
-		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
-		// to do - mock a scan plan
-	}
-
-	/**
 	 * Test while site is not connected
 	 */
 	public function test_get_status_not_connected() {
-		add_filter( 'pre_http_request', array( $this, 'return_sample_response' ) );
-		add_filter( 'all_plugins', array( $this, 'return_sample_plugins' ) );
-		add_filter( 'jetpack_sync_get_themes_callable', array( $this, 'return_sample_themes' ) );
 		$status = Protect_Status::get_status();
-		remove_filter( 'pre_http_request', array( $this, 'return_sample_response' ) );
-		remove_filter( 'all_plugins', array( $this, 'return_sample_plugins' ) );
-		remove_filter( 'jetpack_sync_get_themes_callable', array( $this, 'return_sample_themes' ) );
 
 		$this->assertSame( 'site_not_connected', $status->error_code );
 
@@ -345,18 +391,12 @@ class Test_Status extends BaseTestCase {
 	public function test_get_status() {
 		$this->mock_connection();
 
-		add_filter( 'pre_http_request', array( $this, 'return_sample_response' ) );
-		add_filter( 'all_plugins', array( $this, 'return_sample_plugins' ) );
-		add_filter( 'jetpack_sync_get_themes_callable', array( $this, 'return_sample_themes' ) );
 		$status = Protect_Status::get_status();
-		remove_filter( 'pre_http_request', array( $this, 'return_sample_response' ) );
-		remove_filter( 'all_plugins', array( $this, 'return_sample_plugins' ) );
-		remove_filter( 'jetpack_sync_get_themes_callable', array( $this, 'return_sample_themes' ) );
 
 		$this->assertEquals( $this->get_sample_status(), $status );
 
 		// Make sure this was cached
-		$this->assertEquals( $this->get_sample_response(), Protect_Status::get_from_options() );
+		$this->assertEquals( $this->get_sample_api_response(), Protect_Status::get_from_options() );
 	}
 
 	/**
@@ -365,13 +405,7 @@ class Test_Status extends BaseTestCase {
 	public function test_get_total_threats() {
 		$this->mock_connection();
 
-		add_filter( 'pre_http_request', array( $this, 'return_sample_response' ) );
-		add_filter( 'all_plugins', array( $this, 'return_sample_plugins' ) );
-		add_filter( 'jetpack_sync_get_themes_callable', array( $this, 'return_sample_themes' ) );
 		$status = Protect_Status::get_total_threats();
-		remove_filter( 'pre_http_request', array( $this, 'return_sample_response' ) );
-		remove_filter( 'all_plugins', array( $this, 'return_sample_plugins' ) );
-		remove_filter( 'jetpack_sync_get_themes_callable', array( $this, 'return_sample_themes' ) );
 
 		$this->assertSame( 3, $status );
 	}
@@ -382,21 +416,9 @@ class Test_Status extends BaseTestCase {
 	public function test_get_all_threats() {
 		$this->mock_connection();
 
-		$expected = array(
-			$this->get_sample_threat(),
-			$this->get_sample_threat(),
-			$this->get_sample_threat(),
-		);
+		$status_threats = Protect_Status::get_all_threats();
 
-		add_filter( 'pre_http_request', array( $this, 'return_sample_response' ) );
-		add_filter( 'all_plugins', array( $this, 'return_sample_plugins' ) );
-		add_filter( 'jetpack_sync_get_themes_callable', array( $this, 'return_sample_themes' ) );
-		$status = Protect_Status::get_all_threats();
-		remove_filter( 'pre_http_request', array( $this, 'return_sample_response' ) );
-		remove_filter( 'all_plugins', array( $this, 'return_sample_plugins' ) );
-		remove_filter( 'jetpack_sync_get_themes_callable', array( $this, 'return_sample_themes' ) );
-
-		$this->assertEquals( $expected, $status );
+		$this->assertEquals( $this->get_sample_status()->threats, $status_threats );
 	}
 
 	/**
@@ -441,7 +463,7 @@ class Test_Status extends BaseTestCase {
 			),
 			'full'    => array(
 				'full',
-				$this->get_sample_response(),
+				$this->get_sample_api_response(),
 			),
 		);
 	}
