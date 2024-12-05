@@ -16,6 +16,7 @@
 		"cli-link": "jetpack cli link",
 		"cli-setup": "pnpm install && jetpack cli link",
 		"cli-unlink": "jetpack cli unlink",
+		"component-usage-stats": "node ./node_modules/react-scanner/bin/react-scanner -c ./react-scanner.config.js",
 		"lint": "pnpm run lint-file .",
 		"lint-changed": "eslint-changed --ext .js,.jsx,.cjs,.mjs,.ts,.tsx,.svelte --git",
 		"lint-file": "eslint --ext .js,.jsx,.cjs,.mjs,.ts,.tsx,.svelte",
@@ -31,7 +32,8 @@
 		"eslint": "8.57.1",
 		"husky": "8.0.3",
 		"jetpack-cli": "workspace:*",
-		"jetpack-js-tools": "workspace:*"
+		"jetpack-js-tools": "workspace:*",
+		"react-scanner": "1.2.0"
 	},
 	"engines": {
 		"node": "^22.9.0",
