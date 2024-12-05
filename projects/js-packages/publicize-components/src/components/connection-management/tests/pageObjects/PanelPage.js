@@ -1,4 +1,4 @@
-import { getByRole, queryByRole, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 export class Panel {
@@ -11,19 +11,21 @@ export class Panel {
 	}
 
 	get disconnectButton() {
-		return queryByRole( this.container, 'button', { name: 'Disconnect' } );
+		return screen.queryByRole( this.container, 'button', { name: 'Disconnect' } );
 	}
 
 	get closeButton() {
-		return getByRole( this.container, 'button', { name: 'Close panel' } );
+		return screen.getByRole( this.container, 'button', { name: 'Close panel' } );
 	}
 
 	get openButton() {
-		return getByRole( this.container, 'button', { name: 'Open panel' } );
+		return screen.getByRole( this.container, 'button', { name: 'Open panel' } );
 	}
 
 	get markAsSharedToggle() {
-		return queryByRole( this.container, 'checkbox', { name: 'Mark the connection as shared' } );
+		return screen.queryByRole( this.container, 'checkbox', {
+			name: 'Mark the connection as shared',
+		} );
 	}
 
 	isOpen() {

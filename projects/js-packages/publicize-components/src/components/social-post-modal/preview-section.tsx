@@ -1,6 +1,5 @@
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { TabPanel } from '@wordpress/components';
-import { ToggleControl } from '@wordpress/components';
+import { TabPanel, ToggleControl } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __, _x } from '@wordpress/i18n';
 import { useCallback } from 'react';
