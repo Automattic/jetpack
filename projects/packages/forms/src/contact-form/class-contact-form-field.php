@@ -590,7 +590,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			'title'              => $custom_validation_message,
 			'oninvalid'          => 'setCustomValidity("' . $custom_validation_message . '")',
 			'oninput'            => 'setCustomValidity("")',
-			'pattern'            => '(([:\/a-zA-Z0-9_\-]+)?(\.[a-zA-Z0-9_\-\/]+)+)',
+			'pattern'            => '(?:(?:[Hh][Tt][Tt][Pp][Ss]?|[Ff][Tt][Pp]):\/\/)?(?:\S+(?::\S*)?@|\d{1,3}(?:\.\d{1,3}){3}|(?:(?:[a-zA-Z\d\u00a1-\uffff]+-?)*[a-zA-Z\d\u00a1-\uffff]+)(?:\.(?:[a-zA-Z\d\u00a1-\uffff]+-?)*[a-zA-Z\d\u00a1-\uffff]+)*(?:\.[a-zA-Z\u00a1-\uffff]{2,6}))(?::\d+)?(?:[^\s]*)?',
 			'data-type-override' => 'url',
 		);
 
