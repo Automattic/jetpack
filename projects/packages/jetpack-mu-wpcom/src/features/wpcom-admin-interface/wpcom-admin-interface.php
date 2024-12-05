@@ -287,46 +287,45 @@ function wpcom_is_duplicate_views_experiment_enabled() {
 	$experiment_platform = 'calypso';
 	$experiment_name     = "{$experiment_platform}_duplicate_views_placeholder";
 
+	static $is_enabled = null;
+	if ( $is_enabled ) {
+		return $is_enabled;
+	}
+
 	if ( ( new Host() )->is_wpcom_simple() ) {
-		return 'treatment' === \ExPlat\assign_current_user( $experiment_name );
+		$is_enabled = 'treatment' === \ExPlat\assign_current_user( $experiment_name );
+		return $is_enabled;
 	}
 
 	$option_name = 'duplicate_views_experiment_assignment';
 	$variation   = get_user_option( $option_name, get_current_user_id() );
 
 	if ( false !== $variation ) {
-		return 'treatment' === $variation;
+		$is_enabled = 'treatment' === $variation;
+		return $is_enabled;
 	}
 
-	// If there isn't a WP.com connection, we should disable the experiment.
 	if ( ! ( new Jetpack_Connection() )->is_user_connected() ) {
-		return false;
-	}
-
-	static $has_request_error = false;
-
-	if ( $has_request_error ) {
-		return false;
+		$is_enabled = false;
+		return $is_enabled;
 	}
 
 	$request_path = add_query_arg(
 		array( 'experiment_name' => $experiment_name ),
 		"/experiments/0.1.0/assignments/{$experiment_platform}"
 	);
-
-	$response          = Client::wpcom_json_api_request_as_user( $request_path, 'v2' );
-	$has_request_error = false;
+	$response     = Client::wpcom_json_api_request_as_user( $request_path, 'v2' );
 
 	if ( is_wp_error( $response ) ) {
-		$has_request_error = true;
-		return false;
+		$is_enabled = false;
+		return $is_enabled;
 	}
 
 	$response_code = wp_remote_retrieve_response_code( $response );
 
 	if ( 200 !== $response_code ) {
-		$has_request_error = true;
-		return false;
+		$is_enabled = false;
+		return $is_enabled;
 	}
 
 	$data = json_decode( wp_remote_retrieve_body( $response ), true );
@@ -335,8 +334,10 @@ function wpcom_is_duplicate_views_experiment_enabled() {
 		$variation = $data['variations'][ $experiment_name ];
 		update_user_option( get_current_user_id(), $option_name, $variation, true );
 
-		return 'treatment' === $variation;
+		$is_enabled = 'treatment' === $variation;
+		return $is_enabled;
 	} else {
-		return false;
+		$is_enabled = false;
+		return $is_enabled;
 	}
 }
