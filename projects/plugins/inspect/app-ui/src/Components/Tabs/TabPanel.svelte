@@ -9,5 +9,5 @@
 </script>
 
 {#if $selectedPanel === panel}
-	<slot />
+	<slot></slot>
 {/if}

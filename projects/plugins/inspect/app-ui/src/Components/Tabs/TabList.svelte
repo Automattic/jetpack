@@ -1,5 +1,5 @@
 <div class="tab-list">
-	<slot />
+	<slot></slot>
 </div>
 
 <style>
