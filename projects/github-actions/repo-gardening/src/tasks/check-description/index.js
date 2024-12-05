@@ -518,7 +518,7 @@ async function inferType( payload, octokit, changelogEntries ) {
 	const typeMapping = {
 		Bug: [ 'security', 'fixed', 'bugfix' ],
 		Task: [ 'added', 'major' ],
-		Enhancement: [ 'changed', 'enhancement' ],
+		Enhancement: [ 'enhancement' ],
 		Janitorial: [ 'deprecated', 'removed', 'compat' ],
 	};
 
