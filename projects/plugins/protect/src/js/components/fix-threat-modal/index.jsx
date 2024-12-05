@@ -7,7 +7,7 @@ import ThreatFixHeader from '../threat-fix-header';
 import UserConnectionGate from '../user-connection-gate';
 import styles from './styles.module.scss';
 
-const FixThreatModal = ( { id, fixable, label, icon, severity } ) => {
+const FixThreatModal = ( { threat } ) => {
 	const { setModal } = useModal();
 	const { fixThreats, isLoading: isFixersLoading } = useFixers();
 
@@ -21,7 +21,7 @@ const FixThreatModal = ( { id, fixable, label, icon, severity } ) => {
 	const handleFixClick = () => {
 		return async event => {
 			event.preventDefault();
-			await fixThreats( [ id ] );
+			await fixThreats( [ threat.id ] );
 			setModal( { type: null } );
 		};
 	};
@@ -37,10 +37,7 @@ const FixThreatModal = ( { id, fixable, label, icon, severity } ) => {
 				</Text>
 
 				<div className={ styles.list }>
-					<ThreatFixHeader
-						threat={ { id, fixable, label, icon, severity } }
-						fixAllDialog={ false }
-					/>
+					<ThreatFixHeader threat={ threat } fixAllDialog={ false } />
 				</div>
 
 				<div className={ styles.footer }>
