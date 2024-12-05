@@ -105,10 +105,10 @@ const HomeStatCards = () => {
 
 	const scanArgs = useMemo( () => {
 		let scanIcon;
-		if ( scanning ) {
-			scanIcon = <Spinner />;
-		} else if ( scanError ) {
+		if ( scanError ) {
 			scanIcon = <ShieldIcon variant="error" height={ iconHeight } />;
+		} else if ( scanning ) {
+			scanIcon = <Spinner />;
 		} else {
 			scanIcon = (
 				<ShieldIcon
@@ -121,7 +121,7 @@ const HomeStatCards = () => {
 
 		let scanLabel;
 		if ( scanError ) {
-			scanLabel = __( 'Unable to scan', 'jetpack-protect' );
+			scanLabel = __( 'An error occurred', 'jetpack-protect' );
 		} else if ( scanning ) {
 			scanLabel = __( 'Please wait…', 'jetpack-protect' );
 		} else {
@@ -130,7 +130,7 @@ const HomeStatCards = () => {
 				: __( 'Vulnerabilities', 'jetpack-protect', /* dummy arg to avoid bad minification */ 0 );
 			scanLabel = sprintf(
 				// translators: %s: "Threats" or "Vulnerabilities"
-				__( '%s found', 'jetpack-protect' ),
+				__( '%s identified', 'jetpack-protect' ),
 				label
 			);
 		}
@@ -198,7 +198,7 @@ const HomeStatCards = () => {
 			),
 			label: (
 				<span className={ styles[ 'stat-card-label' ] }>
-					{ __( 'Blocked logins', 'jetpack-protect' ) }
+					{ __( 'Blocked login attempts', 'jetpack-protect' ) }
 				</span>
 			),
 			value: allTimeBlockedLoginsCount,
