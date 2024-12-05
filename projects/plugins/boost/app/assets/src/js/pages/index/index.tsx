@@ -157,8 +157,15 @@ const Index = () => {
 								'jetpack-boost'
 							),
 							{
-								// eslint-disable-next-line jsx-a11y/anchor-has-content
-								link: <a href={ deferJsLink } target="_blank" rel="noopener noreferrer" />,
+								link: (
+									// eslint-disable-next-line jsx-a11y/anchor-has-content
+									<a
+										onClick={ () => recordBoostEvent( 'defer_js_link_clicked', {} ) }
+										href={ deferJsLink }
+										target="_blank"
+										rel="noopener noreferrer"
+									/>
+								),
 							}
 						) }
 					</p>
