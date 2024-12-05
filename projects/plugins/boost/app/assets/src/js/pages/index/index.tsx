@@ -17,6 +17,7 @@ import PremiumTooltip from '$features/premium-tooltip/premium-tooltip';
 import Upgraded from '$features/ui/upgraded/upgraded';
 import PageCacheModule from '$features/page-cache/page-cache';
 import Pill from '$features/ui/pill/pill';
+import { recordBoostEvent } from '$lib/utils/analytics';
 
 const Index = () => {
 	const criticalCssLink = getRedirectUrl( 'jetpack-boost-critical-css' );
@@ -36,6 +37,11 @@ const Index = () => {
 	const hasPremiumCdnFeatures =
 		premiumFeatures.includes( 'image-cdn-liar' ) && premiumFeatures.includes( 'image-cdn-quality' );
 
+	const openCriticalCssLink = () => {
+		recordBoostEvent( 'critical_css_link_clicked', {} );
+		window.open( criticalCssLink, '_blank' );
+	};
+
 	return (
 		<div className="jb-container--narrow">
 			<CornerstonePages />
@@ -52,8 +58,16 @@ const Index = () => {
 									'jetpack-boost'
 								),
 								{
-									// eslint-disable-next-line jsx-a11y/anchor-has-content
-									link: <a href={ criticalCssLink } target="_blank" rel="noopener noreferrer" />,
+									link: (
+										// eslint-disable-next-line jsx-a11y/anchor-has-content
+										<a
+											href={ criticalCssLink }
+											target="_blank"
+											onClick={ openCriticalCssLink }
+											style={ { cursor: 'pointer' } }
+											rel="noopener noreferrer"
+										/>
+									),
 								}
 							) }
 						</p>
@@ -102,8 +116,16 @@ const Index = () => {
 									'jetpack-boost'
 								),
 								{
-									// eslint-disable-next-line jsx-a11y/anchor-has-content
-									link: <a href={ criticalCssLink } target="_blank" rel="noopener noreferrer" />,
+									link: (
+										// eslint-disable-next-line jsx-a11y/anchor-has-content
+										<a
+											href={ criticalCssLink }
+											target="_blank"
+											onClick={ openCriticalCssLink }
+											style={ { cursor: 'pointer' } }
+											rel="noopener noreferrer"
+										/>
+									),
 								}
 							) }
 						</p>
