@@ -39,7 +39,11 @@ const ThreatTechnicalDetails = (): JSX.Element => {
 						<Text variant="title-small" mb={ 0 }>
 							{ open
 								? __( 'Hide the technical details', 'jetpack-components' )
-								: __( 'Show the technical details', 'jetpack-components' ) }
+								: __(
+										'Show the technical details',
+										'jetpack-components',
+										/* dummy arg to avoid bad minification */ 0
+								  ) }
 						</Text>
 						<Icon icon={ open ? chevronUp : chevronDown } size={ 24 } />
 					</div>
