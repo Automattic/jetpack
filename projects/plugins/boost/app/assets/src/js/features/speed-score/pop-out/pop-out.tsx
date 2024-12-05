@@ -78,7 +78,9 @@ function PopOut( { scoreChange }: Props ) {
 
 	const hideAlert = () => setClose( true );
 
-	hasScoreChanged && recordBoostEvent( 'speed_score_alert_shown', {} );
+	if ( hasScoreChanged ) {
+		recordBoostEvent( 'speed_score_alert_shown', {} );
+	}
 
 	const animationStyles = useSpring( {
 		from: {
