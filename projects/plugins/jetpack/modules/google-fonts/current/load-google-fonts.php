@@ -229,7 +229,7 @@ function jetpack_unregister_google_fonts() {
 
 	if ( ! empty( $user_config_raw_data['settings']['typography']['fontFamilies']['theme'] ) ) {
 		$user_config_raw_data['settings']['typography']['fontFamilies']['theme'] = jetpack_google_fonts_filter_out_deprecated_font_data(
-			$user_config_raw_data['settings']['typography']['fontFamilies']['theme']
+			$user_config_raw_data['settings']['typography']['fontFamilies']['theme'] // @phan-suppress-current-line PhanTypeInvalidDimOffset, PhanTypeMismatchArgument
 		);
 	}
 
