@@ -7,21 +7,21 @@ import {
 	IMAGE_STYLE_AUTO,
 	ImageStyleObject,
 	ImageStyle,
+	AiModalFooter,
 } from '@automattic/jetpack-ai-client';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { Button, SelectControl } from '@wordpress/components';
+import { SelectControl } from '@wordpress/components';
 import { useCallback, useRef, useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Icon, external } from '@wordpress/icons';
 import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
-import './ai-image-modal.scss';
 import QuotaExceededMessage from '../../../../../blocks/ai-assistant/components/quota-exceeded-message';
 import AiAssistantModal from '../../modal';
 import Carrousel, { CarrouselImages } from './carrousel';
 import UsageCounter from './usage-counter';
+import './ai-image-modal.scss';
 
 const FEATURED_IMAGE_UPGRADE_PROMPT_PLACEMENT = 'ai-image-generator';
 
@@ -226,15 +226,7 @@ export default function AiImageModal( {
 						</div>
 					</div>
 					<div className="ai-image-modal__footer">
-						<Button
-							variant="link"
-							className="ai-image-modal__feedback-button"
-							href="https://jetpack.com/redirect/?source=jetpack-ai-feedback"
-							target="_blank"
-						>
-							<span>{ __( 'Provide feedback', 'jetpack' ) }</span>
-							<Icon icon={ external } className="icon" />
-						</Button>
+						<AiModalFooter />
 					</div>
 				</AiAssistantModal>
 			) }

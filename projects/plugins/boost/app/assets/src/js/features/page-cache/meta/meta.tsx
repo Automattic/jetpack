@@ -182,7 +182,7 @@ const BypassPatterns = ( {
 		// check if it's a valid regex
 		try {
 			lines.forEach( line => new RegExp( line ) );
-		} catch ( e ) {
+		} catch {
 			return false;
 		}
 

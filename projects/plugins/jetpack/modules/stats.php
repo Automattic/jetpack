@@ -26,7 +26,6 @@ use Automattic\Jetpack\Stats\WPCOM_Stats;
 use Automattic\Jetpack\Stats\XMLRPC_Provider as Stats_XMLRPC;
 use Automattic\Jetpack\Stats_Admin\Dashboard as Stats_Dashboard;
 use Automattic\Jetpack\Stats_Admin\Main as Stats_Main;
-use Automattic\Jetpack\Stats_Admin\Notices as Stats_Notices;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Tracking;
 
@@ -297,7 +296,6 @@ function stats_reports_load() {
 		add_action( 'admin_print_footer_scripts', 'stats_js_remove_stnojs_cookie' );
 	} elseif ( ! isset( $_GET['noheader'] ) && empty( $_GET['nojs'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		// Normal page load.  Load page content via JS.
-		add_action( 'admin_print_footer_scripts', 'stats_js_load_page_via_ajax' );
 		add_action( 'admin_print_footer_scripts', 'stats_script_dismiss_nudge_handler' );
 	}
 }
@@ -349,14 +347,6 @@ function stats_reports_css() {
 	margin: 0 auto;
 	overflow: hidden;
 }
-
-#stats-loading-wrap p {
-	text-align: center;
-	font-size: 2em;
-	margin-bottom: 3em;
-	height: 64px;
-	line-height: 64px;
-}
 </style>
 	<?php
 }
@@ -373,31 +363,6 @@ function stats_js_remove_stnojs_cookie() {
 <script type="text/javascript">
 /* <![CDATA[ */
 document.cookie = 'stnojs=0; expires=Wed, 9 Mar 2011 16:55:50 UTC; path=<?php echo esc_js( $parsed['path'] ); ?>';
-/* ]]> */
-</script>
-	<?php
-}
-
-/**
- * Normal page load.  Load page content via JS.
- *
- * @access public
- * @return void
- */
-function stats_js_load_page_via_ajax() {
-	?>
-<script type="text/javascript">
-/* <![CDATA[ */
-if ( -1 == document.location.href.indexOf( 'noheader' ) ) {
-	jQuery( function( $ ) {
-		const loadStatsUrl = new URL( document.location.href );
-		loadStatsUrl.searchParams.append( 'noheader', 1 );
-		$.get( loadStatsUrl.toString(), function( responseText ) {
-			$( '#stats-loading-wrap' ).replaceWith( responseText );
-			$( '#jp-stats-wrap' )[0].dispatchEvent( new Event( 'stats-loaded' ) );
-		} );
-	} );
-}
 /* ]]> */
 </script>
 	<?php
@@ -432,10 +397,7 @@ function stats_reports_page( $main_chart_only = false ) {
 	$stats_bg_url          = plugins_url( 'images/odyssey-upgrade/background.png', JETPACK__PLUGIN_FILE );
 	$stats_bg_gradient_url = plugins_url( 'images/odyssey-upgrade/gradient.png', JETPACK__PLUGIN_FILE );
 
-	if ( ! $main_chart_only && ! isset( $_GET['noheader'] ) && empty( $_GET['nojs'] ) && empty( $_COOKIE['stnojs'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$nojs_url = add_query_arg( 'nojs', '1' );
-		$http     = is_ssl() ? 'https' : 'http';
-		// Loading message. No JS fallback message.
+	if ( ! $main_chart_only && ! isset( $_GET['noheader'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		?>
 
 	<style>
@@ -543,17 +505,6 @@ function stats_reports_page( $main_chart_only = false ) {
 				<?php
 				endif;
 
-			/**
-			 * Sets external resource URL.
-			 *
-			 * @module stats
-			 *
-			 * @since 1.4.0
-			 * @todo Clean up various uses of this filter. It's seemingly filtering different types of images in different places.
-			 *
-			 * @param string $args URL of external resource.
-			 */
-			$static_url = apply_filters( 'jetpack_static_url', "{$http}://en.wordpress.com/i/loading/loading-64.gif" );
 			?>
 			</h2>
 		</div>
@@ -561,7 +512,7 @@ function stats_reports_page( $main_chart_only = false ) {
 			<div class="stats-odyssey-notice stats-odyssey-notice--content__highlighted">
 				<div class="stats-odyssey-notice--content">
 					<h2 class="stats-odyssey-notice--content-header"><?php esc_html_e( 'Deprecated Jetpack Stats Experience', 'jetpack' ); ?></h2>
-					<p class="stats-odyssey-notice--content-text"><?php esc_html_e( 'The old Jetpack Stats has been deprecated and will be removed soon. Please click the button to enable the new experience.', 'jetpack' ); ?></p>
+					<p class="stats-odyssey-notice--content-text"><?php esc_html_e( 'The old Jetpack Stats has been deprecated. Please click the button to enable the new experience.', 'jetpack' ); ?></p>
 					<div class="stats-odyssey-notice--action-bar">
 						<button class="dops-button stats-odyssey-notice--primary-button">
 							<a class="is-primary-link" href="<?php echo esc_url( $redirect_url ); ?>"><?php esc_html_e( 'Switch to new Stats', 'jetpack' ); ?></a>
@@ -572,11 +523,7 @@ function stats_reports_page( $main_chart_only = false ) {
 				<div class="stats-odyssey-notice--image-container"></div>
 			</div>
 		</div>
-		<div id="stats-loading-wrap" class="wrap">
-		<p class="hide-if-no-js"><img width="32" height="32" alt="<?php esc_attr_e( 'Loading&hellip;', 'jetpack' ); ?>" src="<?php echo esc_url( $static_url ); ?>" /></p>
-		<p class="hide-if-js"><?php esc_html_e( 'Jetpack Stats work better with JavaScript enabled.', 'jetpack' ); ?><br />
-		<a href="<?php echo esc_url( $nojs_url ); ?>"><?php esc_html_e( 'View Jetpack Stats without JavaScript', 'jetpack' ); ?></a>.</p>
-		</div>
+		<p></p>
 	</div>
 		<?php
 		return;
@@ -641,13 +588,12 @@ function stats_reports_page( $main_chart_only = false ) {
 		}
 	}
 
+	$url = 'https://' . STATS_DASHBOARD_SERVER . '/wp-admin/index.php';
 	if ( isset( $_GET['chart'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( preg_match( '/^[a-z0-9-]+$/', $_GET['chart'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput
 			$chart = sanitize_title( $_GET['chart'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput
 			$url   = 'https://' . STATS_DASHBOARD_SERVER . "/wp-includes/charts/{$chart}.php";
 		}
-	} else {
-		$url = 'https://' . STATS_DASHBOARD_SERVER . '/wp-admin/index.php';
 	}
 
 	$url     = add_query_arg( $q, $url );
@@ -659,30 +605,15 @@ function stats_reports_page( $main_chart_only = false ) {
 	$get_code = wp_remote_retrieve_response_code( $get );
 	if ( is_wp_error( $get ) || ( 2 !== (int) ( $get_code / 100 ) && 304 !== $get_code ) || empty( $get['body'] ) ) {
 		stats_print_wp_remote_error( $get, $url );
-	} else {
-		if ( ! empty( $get['headers']['content-type'] ) ) {
-			$type = $get['headers']['content-type'];
-			if ( str_starts_with( $type, 'image' ) ) {
-				$img = $get['body'];
-				header( 'Content-Type: ' . $type );
-				header( 'Content-Length: ' . strlen( $img ) );
-				echo $img; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-				die();
-			}
+	} elseif ( ! empty( $get['headers']['content-type'] ) ) {
+		$type = $get['headers']['content-type'];
+		if ( str_starts_with( $type, 'image' ) ) {
+			$img = $get['body'];
+			header( 'Content-Type: ' . $type );
+			header( 'Content-Length: ' . strlen( $img ) );
+			echo $img; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			die();
 		}
-		$body = stats_convert_post_titles( $get['body'] );
-		$body = stats_convert_chart_urls( $body );
-		$body = stats_convert_image_urls( $body );
-		$body = stats_convert_admin_urls( $body );
-
-		// The response can contain either the content to display OR
-		// the scripts for the chart UI. The following calls inspect the
-		// response, insert the Odyssey nudge as needed, and make sure
-		// everything is output correctly.
-		stats_print_header_section( $body );
-		stats_print_odyssey_nudge( $body );
-		stats_print_content_section( $body );
-		stats_print_chart_scripts( $body );
 	}
 
 	if ( isset( $_GET['page'] ) && 'stats' === $_GET['page'] && ! isset( $_GET['chart'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -693,239 +624,6 @@ function stats_reports_page( $main_chart_only = false ) {
 	if ( isset( $_GET['noheader'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		die;
 	}
-}
-
-/**
- * Legacy Stats: Print Header Section
- *
- * @access public
- * @param mixed $html HTML.
- * @return void
- */
-function stats_print_header_section( $html ) {
-	$header = stats_parse_header_section( $html );
-	if ( $header !== '' ) {
-		echo $header; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-	}
-}
-
-/**
- * Legacy Stats: Print Content Section
- *
- * @access public
- * @param mixed $html HTML.
- * @return void
- */
-function stats_print_content_section( $html ) {
-	$content = stats_parse_content_section( $html );
-	if ( $content !== '' ) {
-		echo $content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-	}
-}
-
-/**
- * Legacy Stats: Print Chart Scripts
- *
- * @access public
- * @param mixed $html HTML.
- * @return void
- */
-function stats_print_chart_scripts( $html ) {
-	if ( is_chart_scripts( $html ) ) {
-		echo $html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-	}
-}
-
-/**
- * Legacy Stats: Test for presence of chart scripts
- *
- * @access public
- * @param mixed $html Input HTML that may or may not include the chart scripts.
- * @return bool
- */
-function is_chart_scripts( $html ) {
-	$pos = strpos( $html, STATS_CONTENT_MARKER );
-	return $pos === false;
-}
-
-/**
- * Legacy Stats: Parse Header Section
- *
- * Returns the section of the content up to and including the date header.
- *
- * @access public
- * @param mixed $html HTML.
- * @return string
- */
-function stats_parse_header_section( $html ) {
-	$head = strstr( $html, STATS_CONTENT_MARKER, true );
-	// Enforce a string result instead of string|false.
-	if ( $head === false ) {
-		return '';
-	}
-	return $head;
-}
-
-/**
- * Legacy Stats: Print Content Section
- *
- * Returns the section of the content excluding the date header.
- *
- * @access public
- * @param mixed $html HTML.
- * @return string
- */
-function stats_parse_content_section( $html ) {
-	$body = strstr( $html, STATS_BODY_MARKER );
-	// Enforce a string result instead of string|false.
-	if ( $body === false ) {
-		return '';
-	}
-	return $body;
-}
-
-/**
- * Legacy Stats: Determine if we need to show the Odyssey upgrade nudge.
- *
- * @access public
- * @return boolean
- */
-function stats_should_show_odyssey_nudge() {
-	$stats_notices = ( new Stats_Notices() )->get_notices_to_show();
-	return isset( $stats_notices[ Stats_Notices::OPT_IN_NEW_STATS_NOTICE_ID ] )
-		&& $stats_notices[ Stats_Notices::OPT_IN_NEW_STATS_NOTICE_ID ];
-}
-
-/**
- * Legacy Stats: Print the Odyssey upgrade nudge.
- *
- * @access public
- * @param mixed $html HTML.
- * @return void
- */
-function stats_print_odyssey_nudge( $html ) {
-	if ( ! stats_should_show_odyssey_nudge() ) {
-		return;
-	}
-	$pos = strpos( $html, STATS_CONTENT_MARKER );
-	if ( $pos === false ) {
-		return;
-	}
-	$learn_url    = Redirect::get_url( 'jetpack-stats-learn-more' );
-	$redirect_url = admin_url( 'admin.php?page=stats&enable_new_stats=1' );
-	?>
-	<style>
-		.stats-odyssey-notice {
-			display: flex;
-			font-size: var( --font-body );
-
-			border: 1px solid var( --jp-gray-5 );
-			border-left-color: var( --jp-black );
-			border-left-width: 6px;
-			border-radius: 4px;
-
-			margin-top: 24px;
-			background: white;
-			position: relative;
-		}
-		.stats-odyssey-notice--content {
-			padding: 24px 0 24px 30px;
-			font-size: 2em;
-			width: 100%;
-		}
-		.stats-odyssey-notice--content-header {
-			font-size: 24px;
-			line-height: 32px;
-			margin: 0;
-			margin-bottom: 8px;
-		}
-		.stats-odyssey-notice--content-text {
-			font-size: 16px;
-			margin: 0;
-		}
-		.stats-odyssey-notice--image-container {
-			background-image: url("/wp-content/plugins/jetpack/images/odyssey-upgrade/background.png"), url("/wp-content/plugins/jetpack/images/odyssey-upgrade/gradient.png");
-			background-size: cover;
-			padding-right: 28px;
-			width: 100%;
-		}
-		.stats-odyssey-notice--close-button {
-			position: absolute;
-			top: 1rem;
-			right: 1rem;
-			background-color: transparent;
-			border: none;
-			cursor: pointer;
-		}
-		.stats-odyssey-notice--action-bar {
-			display: flex;
-			align-items: center;
-			margin-top: 24px;
-		}
-		.stats-odyssey-notice--primary-button {
-			margin-right: 18px;
-			padding-left: 20px;
-			padding-right: 20px;
-			font-size: 16px;
-			border-color: black;
-			background-color: black;
-		}
-		.stats-odyssey-notice--primary-button:hover {
-			border-color: #3c434a;
-			background-color: #3c434a;
-		}
-		.is-primary-link {
-			color: white;
-			text-decoration: none;
-		}
-		.is-primary-link:active {
-			color: white;
-		}
-		.is-primary-link:focus {
-			color: white;
-			box-shadow: none;
-			outline: none;
-		}
-		.is-primary-link:hover {
-			color: white;
-		}
-		.is-secondary-link {
-			color: black;
-			font-size: var( --font-body );
-		}
-		.is-secondary-link:hover {
-			color: black;
-		}
-		.is-hidden {
-			display: none;
-		}
-	</style>
-	<div id="stats-odyssey-nudge-main" class="stats-odyssey-notice">
-		<div class="stats-odyssey-notice--content">
-			<h2 class="stats-odyssey-notice--content-header"><?php esc_html_e( 'Explore the new Jetpack Stats', 'jetpack' ); ?></h2>
-			<p class="stats-odyssey-notice--content-text"><?php esc_html_e( "We've added new stats and insights in a more modern and mobile friendly experience to help you grow your site.", 'jetpack' ); ?></p>
-			<div class="stats-odyssey-notice--action-bar">
-				<button class="dops-button stats-odyssey-notice--primary-button">
-					<a class="is-primary-link" href="<?php echo esc_url( $redirect_url ); ?>"><?php esc_html_e( 'Switch to new Stats', 'jetpack' ); ?></a>
-				</button>
-				<a class="is-secondary-link" href="<?php echo esc_url( $learn_url ); ?>" rel="noopener noreferrer" target="_blank"><?php esc_html_e( 'Learn about Stats', 'jetpack' ); ?> <svg xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle;" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false"><path d="M18.2 17c0 .7-.6 1.2-1.2 1.2H7c-.7 0-1.2-.6-1.2-1.2V7c0-.7.6-1.2 1.2-1.2h3.2V4.2H7C5.5 4.2 4.2 5.5 4.2 7v10c0 1.5 1.2 2.8 2.8 2.8h10c1.5 0 2.8-1.2 2.8-2.8v-3.6h-1.5V17zM14.9 3v1.5h3.7l-6.4 6.4 1.1 1.1 6.4-6.4v3.7h1.5V3h-6.3z"></path></svg></a>
-			</div>
-		</div>
-		<div class="stats-odyssey-notice--image-container"></div>
-		<button class="stats-odyssey-notice--close-button" onclick="stats_odyssey_dismiss_nudge()"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path d="M13 11.8l6.1-6.3-1-1-6.1 6.2-6.1-6.2-1 1 6.1 6.3-6.5 6.7 1 1 6.5-6.6 6.5 6.6 1-1z"></path></svg></button>
-	</div>
-	<?php
-}
-
-/**
- * Stats Convert Admin Urls.
- *
- * @access public
- * @param mixed $html HTML.
- * @return string
- */
-function stats_convert_admin_urls( $html ) {
-	return str_replace( 'index.php?page=stats', 'admin.php?page=stats', $html );
 }
 
 /**

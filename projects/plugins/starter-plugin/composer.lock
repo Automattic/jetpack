@@ -1424,7 +1424,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/protect-status",
-                "reference": "d9138b7f2cdf0651db3a8d34afb3c87cde2848ce"
+                "reference": "6e5d6458cd65d2d40d110295b5957a1b86b29938"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1446,7 +1446,7 @@
             "extra": {
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.3.x-dev"
+                    "dev-trunk": "0.4.x-dev"
                 },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-protect-status/compare/v${old}...v${new}"

@@ -14,7 +14,7 @@ use WP_Error;
  */
 class Main {
 
-	const PACKAGE_VERSION = '0.7.2';
+	const PACKAGE_VERSION = '0.7.3';
 
 	/**
 	 * Modules to include.

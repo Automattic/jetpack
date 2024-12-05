@@ -51,7 +51,7 @@ const ConnectionStep = ( { onActivateSite, isActivating }: ConnectionStepProps )
 
 			// Redirect user to the plans page after connection
 			window.location.href = jetpackPlansPath;
-		} catch ( error ) {
+		} catch {
 			setNotice( NOTICE_SITE_CONNECTION_ERROR, resetNotice );
 		} finally {
 			refetchOwnershipData();

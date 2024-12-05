@@ -88,7 +88,6 @@
 		"postcss": "8.4.47",
 		"postcss-custom-properties": "12.1.7",
 		"postcss-loader": "6.2.0",
-		"prettier": "npm:wp-prettier@3.0.3",
 		"sass": "1.64.1",
 		"sass-loader": "12.4.0",
 		"size-limit": "11.1.6",

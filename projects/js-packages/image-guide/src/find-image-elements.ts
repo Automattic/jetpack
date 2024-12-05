@@ -18,7 +18,7 @@ export function findMeasurableElements( nodes: Element[] ): HTMLElement[] | HTML
 				if ( isSvgUrl( el.src ) ) {
 					return false;
 				}
-			} catch ( e ) {
+			} catch {
 				return false;
 			}
 			return true;
@@ -142,7 +142,7 @@ function imageLikeURL( value: string ): boolean {
 	try {
 		const url = new URL( value );
 		return url.protocol === 'http:' || url.protocol === 'https:';
-	} catch ( e ) {
+	} catch {
 		return false;
 	}
 }
