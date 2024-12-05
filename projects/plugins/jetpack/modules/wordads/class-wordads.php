@@ -774,7 +774,7 @@ HTML;
 
 		// Allow overriding and printing of the tag parsed by the WATL.
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended
-		$is_location_enabled = ( isset( $_GET[ $location ] ) && 'true' === $_GET[ $location ] );
+		$is_location_enabled = isset( $_GET['wordads-logging'] ) && isset( $_GET[ $location ] ) && 'true' === $_GET[ $location ];
 
 		if ( ( 'top' === $location || 'belowpost' === $location ) && $is_location_enabled ) {
 			// TODO: Confirm if it's best here or there is a way to get it via the adflow config endpoint

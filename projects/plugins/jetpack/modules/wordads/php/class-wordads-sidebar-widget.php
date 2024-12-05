@@ -74,7 +74,6 @@ class WordAds_Sidebar_Widget extends WP_Widget {
 		}
 
 		++self::$num_widgets;
-		$about      = __( 'Advertisements', 'jetpack' );
 		$width      = WordAds::$ad_tag_ids[ $instance['unit'] ]['width'];
 		$height     = WordAds::$ad_tag_ids[ $instance['unit'] ]['height'];
 		$unit_id    = 1 === self::$num_widgets ? 3 : self::$num_widgets + 3; // 2nd belowpost is '4'
@@ -84,22 +83,55 @@ class WordAds_Sidebar_Widget extends WP_Widget {
 
 		// Use the Gutenberg existing formats to render the legacy sidebar instead of creating new ones.
 		$sizes_x_smart_format = array(
-			'300x250' => 'gutenberg_rectangle',
-			'728x90'  => 'gutenberg_leaderboard',
-			'160x600' => 'gutenberg_skyscraper',
+			'300x250' => 'sidebar_widget_mediumrectangle',
+			'728x90'  => 'sidebar_widget_leaderboard',
+			'160x600' => 'sidebar_widget_wideskyscraper',
 		);
 
+		$smart_format = $sizes_x_smart_format[ "{$width}x{$height}" ];
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended
-		$smart_format    = $sizes_x_smart_format[ "{$width}x{$height}" ] ?? '';
 		$is_watl_enabled = $smart_format && isset( $_GET['wordads-logging'] ) && isset( $_GET[ $smart_format ] ) && 'true' === $_GET[ $smart_format ];
 
-		if ( $is_watl_enabled ) {
+		// Get the widget snippet.
+		$widget_snippet = $this->get_widget_snippet( $instance, $section_id, $height, $width );
+
+		// Render the IPW or house ad if WATL is disabled.
+		if ( ! $is_watl_enabled ) {
 			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-			echo $wordads::get_watl_ad_html_tag( $smart_format );
+			echo $widget_snippet;
 			return;
 		}
 
-		$snippet = '';
+		// Remove linebreaks and sanitize.
+		$tag = esc_js( str_replace( array( "\n", "\t", "\r" ), '', $widget_snippet ) );
+
+		// Add the fallback to be processed by WATL.
+		$fallback_snippet = <<<HTML
+		<script type="text/javascript">
+			var sas_fallback = sas_fallback || [];
+			sas_fallback.push(
+				{ tag: "$tag", type: '$smart_format' }
+			);
+		</script>
+HTML;
+
+			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			echo $fallback_snippet . $wordads::get_watl_ad_html_tag( $smart_format );
+	}
+
+	/**
+	 * The widget snippet.
+	 *
+	 * @param array  $instance The widget instance.
+	 * @param string $section_id The section id.
+	 * @param int    $height The ad height.
+	 * @param int    $width The ad width.
+	 *
+	 * @return string
+	 */
+	private function get_widget_snippet( $instance, $section_id, $height, $width ) {
+		global $wordads;
+
 		if ( $wordads->option( 'wordads_house', true ) ) {
 			$unit = 'mrec';
 			if ( 'leaderboard' === $instance['unit'] && ! $this->params->mobile_device ) {
@@ -110,21 +142,22 @@ class WordAds_Sidebar_Widget extends WP_Widget {
 
 			$snippet = $wordads->get_house_ad( $unit );
 		} else {
-			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-			echo $wordads->get_ad_snippet( $section_id, $height, $width, 'widget' );
-			return;
+			return $wordads->get_ad_snippet( $section_id, $height, $width, 'widget' );
 		}
 
-		?>
+		$about = __( 'Advertisements', 'jetpack' );
+		$unit  = esc_attr( $instance['unit'] );
+
+		return <<<HTML
 		<div class="wpcnt">
 			<div class="wpa">
-				<span class="wpa-about"><?php echo esc_html( $about ); ?></span>
-				<div class="u <?php echo esc_attr( $instance['unit'] ); ?>">
-					<?php echo $snippet; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+				<span class="wpa-about">$about</span>
+				<div class="u $unit">
+					$snippet
 				</div>
 			</div>
 		</div>
-		<?php
+HTML;
 	}
 
 	/**
