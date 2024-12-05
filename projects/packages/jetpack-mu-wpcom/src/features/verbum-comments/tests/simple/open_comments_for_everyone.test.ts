@@ -12,7 +12,7 @@ test( 'Simple: open_comments_for_everyone - Anonymous', async ( { page } ) => {
 			.frameLocator( '#cmp-app-container iframe' )
 			.getByRole( 'button', { name: 'I Agree!' } )
 			.click();
-	} catch ( e ) {
+	} catch {
 		// It's ok if it wasn't there to be dismissed.
 	}
 

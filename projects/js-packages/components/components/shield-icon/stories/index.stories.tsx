@@ -17,7 +17,7 @@ export default {
 			control: {
 				type: 'select',
 			},
-			options: [ 'success', 'error', 'info' ],
+			options: [ 'info', 'success', 'error' ],
 		},
 		fill: {
 			control: 'color',

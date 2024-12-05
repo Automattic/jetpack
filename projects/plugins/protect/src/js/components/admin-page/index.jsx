@@ -9,9 +9,9 @@ import { useConnection } from '@automattic/jetpack-connection';
 import { __, sprintf } from '@wordpress/i18n';
 import { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import useScanStatusQuery from '../../data/scan/use-scan-status-query';
 import useNotices from '../../hooks/use-notices';
 import usePlan from '../../hooks/use-plan';
-import useProtectData from '../../hooks/use-protect-data';
 import useWafData from '../../hooks/use-waf-data';
 import Notice from '../notice';
 import ScanButton from '../scan-button';
@@ -23,11 +23,7 @@ const AdminPage = ( { children } ) => {
 	const { isRegistered } = useConnection();
 	const { isSeen: wafSeen } = useWafData();
 	const navigate = useNavigate();
-	const {
-		counts: {
-			current: { threats: numThreats },
-		},
-	} = useProtectData();
+	const { data: status } = useScanStatusQuery();
 	const location = useLocation();
 	const { hasPlan } = usePlan();
 
@@ -72,11 +68,11 @@ const AdminPage = ( { children } ) => {
 						link="/scan"
 						label={
 							<span className={ styles.tab }>
-								{ numThreats > 0
+								{ status.threats.length > 0
 									? sprintf(
 											// translators: %d is the number of threats found.
 											__( 'Scan (%d)', 'jetpack-protect' ),
-											numThreats
+											status.threats.length
 									  )
 									: __( 'Scan', 'jetpack-protect' ) }
 							</span>

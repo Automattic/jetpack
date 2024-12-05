@@ -104,7 +104,7 @@ export const AiModalPromptInput = ( {
 	};
 
 	return (
-		<div className="jetpack-ai-logo-generator__prompt-query">
+		<div className="jetpack-ai-image-generator__prompt-query">
 			<div
 				role="textbox"
 				tabIndex={ 0 }
@@ -121,7 +121,7 @@ export const AiModalPromptInput = ( {
 			></div>
 			<Button
 				variant="primary"
-				className="jetpack-ai-logo-generator__prompt-submit"
+				className="jetpack-ai-image-generator__prompt-submit"
 				onClick={ generateHandler }
 				disabled={ actionDisabled }
 			>

@@ -1,7 +1,6 @@
 import { Text, ShieldIcon } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import AdminSectionHero from '../admin-section-hero';
-import ScanNavigation from '../scan-navigation';
 import styles from './styles.module.scss';
 
 interface ErrorAdminSectionHeroProps {
@@ -31,9 +30,6 @@ const ErrorAdminSectionHero: React.FC< ErrorAdminSectionHeroProps > = ( {
 					<AdminSectionHero.Subheading>
 						<Text>{ displayErrorMessage }</Text>
 					</AdminSectionHero.Subheading>
-					<div className={ styles[ 'scan-navigation' ] }>
-						<ScanNavigation />
-					</div>
 				</>
 			}
 			preserveSecondaryOnMobile={ false }

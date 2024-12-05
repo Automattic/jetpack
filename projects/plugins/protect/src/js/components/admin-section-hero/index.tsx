@@ -17,7 +17,12 @@ interface AdminSectionHeroProps {
 }
 
 interface AdminSectionHeroComponent extends React.FC< AdminSectionHeroProps > {
-	Heading: React.FC< { children: React.ReactNode; showIcon?: boolean; variant?: string } >;
+	Heading: React.FC< {
+		children: React.ReactNode;
+		showIcon?: boolean;
+		variant?: 'default' | 'success' | 'error';
+		outline?: boolean;
+	} >;
 	Subheading: React.FC< { children: React.ReactNode } >;
 }
 

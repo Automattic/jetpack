@@ -1,10 +1,10 @@
 import { Text, useBreakpointMatch, StatCard, ShieldIcon } from '@automattic/jetpack-components';
 import { Spinner, Tooltip } from '@wordpress/components';
+import { dateI18n } from '@wordpress/date';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { useMemo } from 'react';
 import useScanStatusQuery, { isScanInProgress } from '../../data/scan/use-scan-status-query';
 import usePlan from '../../hooks/use-plan';
-import useProtectData from '../../hooks/use-protect-data';
 import useWafData from '../../hooks/use-waf-data';
 import styles from './styles.module.scss';
 
@@ -32,13 +32,20 @@ const HomeStatCards = () => {
 	const [ isSmall ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
 	const variant = isSmall ? 'horizontal' : 'square';
 
-	const {
-		counts: {
-			current: { threats: numThreats },
-		},
-		lastCheckedLocalTimestamp,
-		error: scanError,
-	} = useProtectData();
+	const { data: status } = useScanStatusQuery();
+	const scanning = isScanInProgress( status );
+	const numThreats = status.threats.length;
+	const scanError = status.error;
+
+	let lastCheckedLocalTimestamp = null;
+	if ( status.lastChecked ) {
+		// Convert the lastChecked UTC date to a local timestamp
+		lastCheckedLocalTimestamp = dateI18n(
+			'F jS g:i A',
+			new Date( status.lastChecked + ' UTC' ).getTime(),
+			false
+		);
+	}
 
 	const {
 		config: { bruteForceProtection: isBruteForceModuleEnabled },
@@ -51,9 +58,6 @@ const HomeStatCards = () => {
 		blockedRequests: { allTime: allTimeBlockedRequestsCount = 0 } = {},
 		blockedLogins: allTimeBlockedLoginsCount = 0,
 	} = stats || {};
-
-	const { data: scanStatus } = useScanStatusQuery();
-	const scanning = isScanInProgress( scanStatus );
 
 	const iconHeight = useMemo( () => 20, [] );
 
