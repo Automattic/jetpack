@@ -95,7 +95,7 @@ const ScanAdminSectionHero: React.FC = () => {
 							anchor={ dailyScansPopoverAnchor }
 						/>
 					) }
-					<AdminSectionHero.Heading showIcon>
+					<AdminSectionHero.Heading showIcon variant={ numThreats > 0 ? 'error' : 'success' }>
 						{ numThreats > 0
 							? sprintf(
 									/* translators: %s: Total number of threats/vulnerabilities */

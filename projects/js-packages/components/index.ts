@@ -47,6 +47,7 @@ export { default as ThemeProvider } from './components/theme-provider/index.js';
 export { default as ThreatFixerButton } from './components/threat-fixer-button/index.js';
 export { default as ThreatSeverityBadge } from './components/threat-severity-badge/index.js';
 export { default as ThreatsDataViews } from './components/threats-data-views/index.js';
+export { default as ShieldIcon } from './components/shield-icon/index.js';
 export { default as Text, H2, H3, Title } from './components/text/index.js';
 export { default as ToggleControl } from './components/toggle-control/index.js';
 export { default as NumberControl } from './components/number-control/index.js';
