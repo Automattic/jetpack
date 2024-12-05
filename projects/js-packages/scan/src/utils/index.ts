@@ -98,23 +98,19 @@ export const getDetailedFixerAction = ( threat: Threat ) => {
 				return __( 'Delete file', 'jetpack-scan' );
 			}
 
-			if ( threat.extension?.type === 'plugins' ) {
-				// TODO: Update this when it changes
+			if ( threat.extension?.type === 'plugin' ) {
 				return __( 'Delete plugin from site', 'jetpack-scan' );
 			}
 
-			if ( threat.extension?.type === 'themes' ) {
-				// TODO: Update this when it changes
+			if ( threat.extension?.type === 'theme' ) {
 				return __( 'Delete theme from site', 'jetpack-scan' );
 			}
 			break;
 		case 'update':
-			if ( threat.extension?.type === 'plugins' ) {
-				// TODO: Update this when it changes
+			if ( threat.extension?.type === 'plugin' ) {
 				return __( 'Update plugin to newer version', 'jetpack-scan' );
 			}
-			if ( threat.extension?.type === 'themes' ) {
-				// TODO: Update this when it changes
+			if ( threat.extension?.type === 'theme' ) {
 				return __( 'Update theme to newer version', 'jetpack-scan' );
 			}
 			return __( 'Update', 'jetpack-scan' );
@@ -149,13 +145,11 @@ export const getFixerDescription = ( threat: Threat ) => {
 				return __( 'Delete the infected file.', 'jetpack-scan' );
 			}
 
-			if ( threat.extension?.type === 'plugins' ) {
-				// TODO: Update this when it changes
+			if ( threat.extension?.type === 'plugin' ) {
 				return __( 'Delete the plugin directory to fix the threat.', 'jetpack-scan' );
 			}
 
-			if ( threat.extension?.type === 'themes' ) {
-				// TODO: Update this when it changes
+			if ( threat.extension?.type === 'theme' ) {
 				return __( 'Delete the theme directory to fix the threat.', 'jetpack-scan' );
 			}
 			break;
