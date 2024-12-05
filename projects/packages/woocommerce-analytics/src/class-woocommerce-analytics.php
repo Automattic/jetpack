@@ -83,7 +83,7 @@ class Woocommerce_Analytics {
 		}
 
 		// Tracking only Site pages.
-		if ( is_admin() ) {
+        if ( is_admin() || wp_doing_ajax() || is_login() ) {
 			return false;
 		}
 
