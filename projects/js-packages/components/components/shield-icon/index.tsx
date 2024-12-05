@@ -1,10 +1,11 @@
 import React from 'react';
 
 const COLORS = {
-	error: '#D63638',
-	warning: '#F0B849',
-	success: '#069E08',
 	default: '#1d2327',
+	info: '#A7AAAD',
+	success: '#069E08',
+	warning: '#F0B849',
+	error: '#D63638',
 };
 
 /**
@@ -32,11 +33,11 @@ export default function ShieldIcon( {
 }: {
 	className?: string;
 	contrast?: string;
-	fill?: 'default' | 'success' | 'warning' | 'error' | string;
+	fill?: 'default' | 'info' | 'success' | 'warning' | 'error' | string;
 	height?: number;
 	icon?: 'success' | 'error';
 	outline?: boolean;
-	variant: 'default' | 'success' | 'warning' | 'error';
+	variant: 'default' | 'info' | 'success' | 'warning' | 'error';
 } ): JSX.Element {
 	const shieldFill = COLORS[ fill ] || fill || COLORS[ variant ];
 	const iconFill = outline ? shieldFill : contrast;
@@ -60,6 +61,13 @@ export default function ShieldIcon( {
 				}
 				fill={ shieldFill }
 			/>
+			{ 'info' === iconVariant && (
+				<path
+					d="M41.7474 54.1614L43.0546 30H32L33.3071 54.1614H41.7474ZM41.4113 66.7283C42.3076 65.8681 42.7931 64.6713 42.7931 63.1378C42.7931 61.5669 42.345 60.3701 41.4487 59.5098C40.5523 58.6496 39.2452 58.2008 37.4899 58.2008C35.7346 58.2008 34.4275 58.6496 33.4939 59.5098C32.5602 60.3701 32.112 61.5669 32.112 63.1378C32.112 64.6713 32.5975 65.8681 33.5312 66.7283C34.5022 67.5886 35.8093 68 37.4899 68C39.1705 68 40.4776 67.5886 41.4113 66.7283Z"
+					fill={ iconFill }
+					transform="scale(1, -1) translate(0, -93)"
+				/>
+			) }
 			{ 'success' === iconVariant && (
 				<path
 					fillRule="evenodd"

@@ -122,7 +122,7 @@ export default function ScanReport( { data, onChangeSelection } ): JSX.Element {
 							) }
 						>
 							<div className={ styles.icon }>
-								<ShieldIcon variant="success" fill="#A7AAAD" height={ iconHeight } />
+								<ShieldIcon variant="info" height={ iconHeight } />
 							</div>
 						</Tooltip>
 					);
