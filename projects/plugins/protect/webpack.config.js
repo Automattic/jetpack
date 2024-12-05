@@ -33,6 +33,24 @@ module.exports = [
 					includeNodeModules: [ '@automattic/jetpack-' ],
 				} ),
 
+				/**
+				 * Transpile @wordpress/dataviews in node_modules too.
+				 *
+				 * @see https://github.com/Automattic/jetpack/issues/39907
+				 */
+				jetpackWebpackConfig.TranspileRule( {
+					includeNodeModules: [ '@wordpress/dataviews/' ],
+					babelOpts: {
+						configFile: false,
+						plugins: [
+							[
+								require.resolve( '@automattic/babel-plugin-replace-textdomain' ),
+								{ textdomain: 'jetpack-protect' },
+							],
+						],
+					},
+				} ),
+
 				// Handle CSS.
 				jetpackWebpackConfig.CssRule( {
 					extensions: [ 'css', 'sass', 'scss' ],
