@@ -79,6 +79,7 @@ class Defaults {
 		'jetpack_comment_form_color_scheme',
 		'jetpack_comment_likes_enabled',
 		'jetpack_excluded_extensions',
+		'jetpack_holiday_snow_enabled',
 		'jetpack_mailchimp',
 		'jetpack_options',
 		'jetpack_portfolio',
