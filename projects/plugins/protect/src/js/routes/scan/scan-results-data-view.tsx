@@ -31,11 +31,14 @@ export default function ScanResultsDataView( {
 
 	const { data: scanStatus } = useScanStatusQuery();
 	const { data: history } = useHistoryQuery();
+
 	const { recordEvent } = useAnalyticsTracks();
 	const { hasPlan, upgradePlan } = usePlan();
+
 	const { fixThreats } = useFixers();
 	const ignoreThreatMutation = useIgnoreThreatMutation();
 	const unignoreThreatMutation = useUnIgnoreThreatMutation();
+
 	const { data: credentials, isLoading: credentialsIsFetching } = useCredentialsQuery();
 	const { isUserConnected, hasConnectedOwner, userIsConnecting, handleConnectUser } = useConnection(
 		{
