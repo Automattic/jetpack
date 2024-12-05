@@ -339,6 +339,11 @@ class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_REST_Posts_Controll
 	 * @return bool True if the post is in "Bloganuary".
 	 */
 	protected function is_in_bloganuary( $post_date_gmt ) {
+		// Disable for January 2025 (see https://wp.me/p5uIfZ-gxX).
+		$enable_bloganuary = false;
+		if ( ! $enable_bloganuary ) {
+			return false;
+		}
 		$post_month = gmdate( 'm', strtotime( $post_date_gmt ) );
 		return $post_month === '01';
 	}
