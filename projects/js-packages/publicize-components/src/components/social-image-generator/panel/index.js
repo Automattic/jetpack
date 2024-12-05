@@ -14,7 +14,9 @@ import SocialImageGeneratorSettingsModal from './modal';
 
 const SocialImageGeneratorPanel = ( { prePublish = false } ) => {
 	const PanelWrapper = prePublish ? Fragment : PanelBody;
-	const wrapperProps = prePublish ? {} : { title: __( 'Social Image Generator', 'jetpack' ) };
+	const wrapperProps = prePublish
+		? {}
+		: { title: __( 'Social Image Generator', 'jetpack-publicize-components' ) };
 	const { isEnabled, setIsEnabled } = useImageGeneratorConfig();
 
 	const [ isModalOpened, setIsModalOpened ] = useState( false );
@@ -31,7 +33,7 @@ const SocialImageGeneratorPanel = ( { prePublish = false } ) => {
 			createErrorNotice( error.message );
 		},
 		onSuccess: () => {
-			createSuccessNotice( __( 'Image saved to media library.', 'jetpack' ) );
+			createSuccessNotice( __( 'Image saved to media library.', 'jetpack-publicize-components' ) );
 		},
 	} );
 
@@ -47,8 +49,12 @@ const SocialImageGeneratorPanel = ( { prePublish = false } ) => {
 		<PanelWrapper { ...wrapperProps }>
 			{ isModalOpened && <SocialImageGeneratorSettingsModal onClose={ closeModal } /> }
 			<ToggleControl
-				label={ __( 'Enable Social Image', 'jetpack' ) }
-				help={ ! isEnabled ? __( 'Social Image is disabled for this post.', 'jetpack' ) : '' }
+				label={ __( 'Enable Social Image', 'jetpack-publicize-components' ) }
+				help={
+					! isEnabled
+						? __( 'Social Image is disabled for this post.', 'jetpack-publicize-components' )
+						: ''
+				}
 				checked={ isEnabled }
 				onChange={ setIsEnabled }
 				__nextHasNoMarginBottom={ true }
@@ -62,19 +68,29 @@ const SocialImageGeneratorPanel = ( { prePublish = false } ) => {
 						<Button
 							variant="secondary"
 							onClick={ openModal }
-							label={ __( 'Open the Social Image Generator settings', 'jetpack' ) }
+							label={ __(
+								'Open the Social Image Generator settings',
+								'jetpack-publicize-components'
+							) }
 						>
-							{ __( 'Settings', 'jetpack' ) }
+							{ __( 'Settings', 'jetpack-publicize-components' ) }
 						</Button>
 						<Button
 							variant="secondary"
 							onClick={ onClickSaveToLibrary }
-							label={ __( 'Save the generated image to your media library.', 'jetpack' ) }
+							label={ __(
+								'Save the generated image to your media library.',
+								'jetpack-publicize-components'
+							) }
 							disabled={ ! generatedImageToken || isSaving }
 						>
 							{ isSaving
-								? _x( 'Saving…', 'Saving the file to media library', 'jetpack' )
-								: __( 'Save to media library', 'jetpack' ) }
+								? _x(
+										'Saving…',
+										'Saving the file to media library',
+										'jetpack-publicize-components'
+								  )
+								: __( 'Save to media library', 'jetpack-publicize-components' ) }
 						</Button>
 					</HStack>
 				</>

@@ -1,14 +1,14 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import React from 'react';
+import { connect } from 'react-redux';
 import Card from 'components/card';
 import QuerySite from 'components/data/query-site';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import analytics from 'lib/analytics';
 import { FEATURE_SIMPLE_PAYMENTS_JETPACK } from 'lib/plans/constants';
-import React from 'react';
-import { connect } from 'react-redux';
 import {
 	hasConnectedOwner as hasConnectedOwnerSelector,
 	isOfflineMode,

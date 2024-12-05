@@ -9,6 +9,8 @@
 // };
 // ```
 
+const { defaultConditionNames } = require( 'eslint-import-resolver-typescript' );
+
 /**
  * @type {import("eslint").Linter.Config}
  */
@@ -50,16 +52,13 @@ module.exports = {
 	},
 	settings: {
 		'import/resolver': {
-			// Check package.json exports. See https://github.com/import-js/eslint-plugin-import/issues/1810.
-			[ require.resolve( 'eslint-import-resolver-exports' ) ]: {
-				extensions: [ '.js', '.jsx', '.ts', '.tsx' ],
-				conditions: process.env.npm_config_jetpack_webpack_config_resolve_conditions
-					? process.env.npm_config_jetpack_webpack_config_resolve_conditions.split( ',' )
-					: [],
-			},
-			// Check normal node file resolution.
-			node: {
-				extensions: [ '.js', '.jsx', '.ts', '.tsx' ],
+			typescript: {
+				project: 'projects/*/*/tsconfig.json',
+				conditionNames: process.env.npm_config_jetpack_webpack_config_resolve_conditions
+					? process.env.npm_config_jetpack_webpack_config_resolve_conditions
+							.split( ',' )
+							.concat( defaultConditionNames )
+					: defaultConditionNames,
 			},
 		},
 		jsdoc: {
@@ -103,7 +102,18 @@ module.exports = {
 		'comma-spacing': 'error',
 		'computed-property-spacing': [ 'error', 'always' ],
 		curly: 'error',
+
+		eqeqeq: [
+			'error',
+			'always',
+			{
+				// `== null` is a convenient shorthand for exactly `=== null || === undefined`.
+				null: 'ignore',
+			},
+		],
+
 		'func-call-spacing': 'error',
+
 		'import/order': [
 			'error',
 			{
@@ -169,6 +179,7 @@ module.exports = {
 		'no-spaced-func': 'error',
 		'no-trailing-spaces': 'error',
 		'object-curly-spacing': [ 'error', 'always' ],
+		'object-shorthand': 'off',
 		'operator-linebreak': [
 			'error',
 			'after',
@@ -196,9 +207,15 @@ module.exports = {
 		],
 		strict: [ 'error', 'never' ],
 
-		// We may want to keep these overrides. To decide later.
-		eqeqeq: [ 'error', 'always', { null: 'ignore' } ],
-		'no-unused-expressions': [ 'error', { allowShortCircuit: true, allowTernary: true } ],
-		'object-shorthand': 'off',
+		// @typescript-eslint/no-unused-expressions works better. Use it always.
+		'no-unused-expressions': 'off',
+		'@typescript-eslint/no-unused-expressions': [
+			'error',
+			{
+				// `cond && func()` and `cond ? func1() : func2()` are too useful to forbid.
+				allowShortCircuit: true,
+				allowTernary: true,
+			},
+		],
 	},
 };

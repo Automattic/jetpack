@@ -94,8 +94,8 @@ export function ConnectForm( {
 							}
 
 							return hasConnections
-								? _x( 'Connect more', '', 'jetpack' )
-								: __( 'Connect', 'jetpack' );
+								? _x( 'Connect more', '', 'jetpack-publicize-components' )
+								: __( 'Connect', 'jetpack-publicize-components' );
 						} )( buttonLabel ) }
 					</Button>
 				</div>

@@ -103,7 +103,7 @@ const InPlaceConnection = props => {
 		<div className="dops-card fade-in jp-iframe-wrap" ref={ iframeWrapRef }>
 			<h1>{ title }</h1>
 			{ isLoading ? (
-				<p>{ __( 'Loading…', 'jetpack' ) }</p>
+				<p>{ __( 'Loading…', 'jetpack-connection-js' ) }</p>
 			) : (
 				<iframe
 					title={ title }

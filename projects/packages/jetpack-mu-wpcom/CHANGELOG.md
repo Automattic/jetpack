@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.0.0] - 2024-12-04
+### Changed
+- Updated dependencies. [#40286]
+- Updated package dependencies. [#40288] [#40363]
+
+### Removed
+- General: Update minimum PHP version to 7.2. [#40147]
+
+### Fixed
+- Add missing ids in Verbum EmailForm. [#40199]
+- Block Support Links: Removed support links for the group block and varients, to avoid an issue with the group placeholder displaying the block descriptions incorrectly. [#40275]
+- Coming Soon: update color of the banner to WordPress blue [#39966]
+- Explicitly set `htmlFor` in recommended tags modal FormLabel. [#40199]
+- Subscribe modal: fix an edge case reported by a user, where the site title shows character codes. [#40130]
+
 ## [5.66.0] - 2024-11-11
 ### Added
 - Added a feature check to the Marketing Bar that updates the text and upgrade link for Global Styles [#40068]
@@ -1301,6 +1316,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Testing initial package release.
 
+[6.0.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.66.0...v6.0.0
 [5.66.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.65.0...v5.66.0
 [5.65.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.64.0...v5.65.0
 [5.64.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.63.0...v5.64.0

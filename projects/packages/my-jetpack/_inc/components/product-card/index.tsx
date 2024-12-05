@@ -70,9 +70,8 @@ const ProductCard: FC< ProductCardProps > = props => {
 	const { ownedProducts } = getMyJetpackWindowInitialState( 'lifecycleStats' );
 	const isOwned = ownedProducts?.includes( slug );
 
-	const isError =
-		status === PRODUCT_STATUSES.SITE_CONNECTION_ERROR ||
-		status === PRODUCT_STATUSES.USER_CONNECTION_ERROR;
+	const isError = status === PRODUCT_STATUSES.EXPIRED;
+	const isWarning = status === PRODUCT_STATUSES.EXPIRING_SOON;
 	const isAbsent =
 		status === PRODUCT_STATUSES.ABSENT || status === PRODUCT_STATUSES.ABSENT_WITH_PLAN;
 	const isPurchaseRequired = status === PRODUCT_STATUSES.NEEDS_PLAN;
@@ -82,6 +81,7 @@ const ProductCard: FC< ProductCardProps > = props => {
 		[ styles[ 'is-purchase-required' ] ]: isPurchaseRequired,
 		[ styles[ 'is-link' ] ]: isAbsent,
 		[ styles[ 'has-error' ] ]: isError,
+		[ styles[ 'has-warning' ] ]: isWarning,
 	} );
 
 	const { recordEvent } = useAnalytics();

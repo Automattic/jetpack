@@ -1,16 +1,16 @@
 import { __, _x } from '@wordpress/i18n';
-import QuerySitePlugins from 'components/data/query-site-plugins';
-import Search from 'components/search';
-import SectionNav from 'components/section-nav';
-import NavItem from 'components/section-nav/item';
-import NavTabs from 'components/section-nav/tabs';
 import debugFactory from 'debug';
-import analytics from 'lib/analytics';
 import { noop } from 'lodash';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
+import QuerySitePlugins from 'components/data/query-site-plugins';
+import Search from 'components/search';
+import SectionNav from 'components/section-nav';
+import NavItem from 'components/section-nav/item';
+import NavTabs from 'components/section-nav/tabs';
+import analytics from 'lib/analytics';
 import { isSiteConnected, isCurrentUserLinked } from 'state/connection';
 import {
 	userCanManageModules as _userCanManageModules,

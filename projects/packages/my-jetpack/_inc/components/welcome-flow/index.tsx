@@ -10,8 +10,8 @@ import useAnalytics from '../../hooks/use-analytics';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import { CardWrapper } from '../card';
 import ConnectionStep from './ConnectionStep';
-import EvaluationProcessingStep from './EvaluationProcessingStep';
 import EvaluationStep, { EvaluationAreas } from './EvaluationStep';
+import LoadingStep from './LoadingStep';
 import styles from './style.module.scss';
 import type { FC, PropsWithChildren } from 'react';
 
@@ -46,8 +46,32 @@ const WelcomeFlow: FC< Props > = ( {
 	const [ isProcessingEvaluation, setIsProcessingEvaluation ] = useState( false );
 	const [ prevStep, setPrevStep ] = useState( '' );
 
+	const [ isConnectionReady, setIsConnectionReady ] = useState( null );
+
+	useEffect( () => {
+		if ( prevStep === 'site-connecting' && ! siteIsRegistering && siteIsRegistered ) {
+			setIsConnectionReady( true );
+
+			const timer = setTimeout( () => setIsConnectionReady( false ), 3000 );
+
+			return () => clearTimeout( timer );
+		}
+	}, [
+		isProcessingEvaluation,
+		prevStep,
+		recommendedModules,
+		siteIsRegistered,
+		siteIsRegistering,
+	] );
+
 	const currentStep = useMemo( () => {
-		if ( ! siteIsRegistered || welcomeFlowExperiment.isLoading ) {
+		if (
+			siteIsRegistering ||
+			isConnectionReady ||
+			( siteIsRegistered && prevStep === 'site-connecting' && isConnectionReady === null )
+		) {
+			return 'site-connecting';
+		} else if ( ! siteIsRegistered || welcomeFlowExperiment.isLoading ) {
 			return 'connection';
 		} else if ( ! isProcessingEvaluation ) {
 			if ( ! recommendedModules && ! isJetpackUserNew() ) {
@@ -62,10 +86,13 @@ const WelcomeFlow: FC< Props > = ( {
 
 		return 'evaluation-processing';
 	}, [
+		siteIsRegistered,
+		isConnectionReady,
+		siteIsRegistering,
+		prevStep,
+		welcomeFlowExperiment.isLoading,
 		isProcessingEvaluation,
 		recommendedModules,
-		siteIsRegistered,
-		welcomeFlowExperiment.isLoading,
 	] );
 
 	useEffect( () => {
@@ -101,7 +128,7 @@ const WelcomeFlow: FC< Props > = ( {
 				await saveEvaluationResult( recommendations );
 
 				dismissWelcomeBanner();
-			} catch ( error ) {
+			} catch {
 				setIsProcessingEvaluation( false );
 			}
 		},
@@ -146,7 +173,10 @@ const WelcomeFlow: FC< Props > = ( {
 								onSubmitEvaluation={ handleEvaluation }
 							/>
 						) }
-						{ 'evaluation-processing' === currentStep && <EvaluationProcessingStep /> }
+						{ 'evaluation-processing' === currentStep && <LoadingStep type="recommendations" /> }
+						{ 'site-connecting' === currentStep && (
+							<LoadingStep type={ 'connecting' } isReady={ isSiteConnected } />
+						) }
 					</Container>
 				</CardWrapper>
 				<Button

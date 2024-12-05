@@ -1,16 +1,16 @@
 <script lang="ts">
-	import { createEventDispatcher } from "svelte";
-	import { cubicOut } from "svelte/easing";
-	import { slide } from "svelte/transition";
-	import Toggle from "../../Components/Toggle.svelte";
-	import { API, options } from "../../Options";
-	import ActivateMonitor from "./ActivateMonitor.svelte";
+	import { createEventDispatcher } from 'svelte';
+	import { cubicOut } from 'svelte/easing';
+	import { slide } from 'svelte/transition';
+	import Toggle from '../../Components/Toggle.svelte';
+	import { API, options } from '../../Options';
+	import ActivateMonitor from './ActivateMonitor.svelte';
 
 	const dispatch = createEventDispatcher();
 
 	async function clear() {
-		if (await API.DELETE("clear") === "OK") {
-			dispatch("clear");
+		if ( ( await API.DELETE( 'clear' ) ) === 'OK' ) {
+			dispatch( 'clear' );
 		}
 	}
 
@@ -25,31 +25,29 @@
 	<div class="advanced">
 		<div class="toggle-monitor">
 			<label for="monitor">
-				<Toggle id="monitor" checked={$isMonitoring} on:click={() => $isMonitoring = !$isMonitoring} />
+				<Toggle
+					id="monitor"
+					checked={$isMonitoring}
+					on:click={() => ( $isMonitoring = ! $isMonitoring )}
+				/>
 				<strong>Monitor Requests</strong>
 			</label>
 		</div>
 		<button
 			class:active={expanded}
 			class="button-effects advanced__button"
-			on:click={() => (expanded = !expanded)}
+			on:click={() => ( expanded = ! expanded )}
 			>{#if expanded}&uarr;{:else}&darr;{/if} Monitor Settings</button
 		>
 		{#if expanded}
-			<div
-				class="advanced__expanded"
-				transition:slide={{ easing: cubicOut, duration: 300 }}
-			>
+			<div class="advanced__expanded" transition:slide={{ easing: cubicOut, duration: 300 }}>
 				<div class="info">
 					<h4>Filter monitored requests</h4>
 					<p>
-						By default, incoming and outgoing requests are monitored by default.
-						Use the settings below to control which requests are monitored.
+						By default, incoming and outgoing requests are monitored by default. Use the settings
+						below to control which requests are monitored.
 					</p>
-					<p>
-						Requests can be filterd by URL. Partial queries and wildcards are
-						supported.
-					</p>
+					<p>Requests can be filterd by URL. Partial queries and wildcards are supported.</p>
 				</div>
 
 				<ActivateMonitor
@@ -67,9 +65,7 @@
 		{/if}
 	</div>
 
-	<button id="clear" class="ji-button" on:click|preventDefault={clear}>
-		Clear All
-	</button>
+	<button id="clear" class="ji-button" on:click|preventDefault={clear}> Clear All </button>
 </div>
 
 <style lang="scss">
@@ -103,23 +99,24 @@
 		flex-direction: column;
 		gap: 10px;
 		padding: 20px 30px;
-		background-color: var(--primary-white);
+		background-color: var( --primary-white );
 		border-radius: 10px;
-		width: min(540px, 85vw);
+		width: min( 540px, 85vw );
 		position: absolute;
-		top: calc(100% + 10px);
+		top: calc( 100% + 10px );
 		left: -10px;
 		z-index: 100;
 		--shadow-color: 0deg 0% 56%;
-		box-shadow: 0px 0.2px 0.2px hsl(var(--shadow-color) / 0.29),
-			0px 0.9px 1.1px -0.6px hsl(var(--shadow-color) / 0.36),
-			0px 2.1px 2.6px -1.1px hsl(var(--shadow-color) / 0.43),
-			0px 4.8px 6px -1.7px hsl(var(--shadow-color) / 0.5);
+		box-shadow:
+			0px 0.2px 0.2px hsl( var( --shadow-color ) / 0.29 ),
+			0px 0.9px 1.1px -0.6px hsl( var( --shadow-color ) / 0.36 ),
+			0px 2.1px 2.6px -1.1px hsl( var( --shadow-color ) / 0.43 ),
+			0px 4.8px 6px -1.7px hsl( var( --shadow-color ) / 0.5 );
 	}
 
 	.advanced__button {
 		display: block;
-		background-color: var(--primary-white);
+		background-color: var( --primary-white );
 		position: relative;
 		padding: 4px 10px;
 		border-radius: 20px;
@@ -128,7 +125,7 @@
 		border: 0;
 		transition: all 0.2s ease-in-out;
 		&.active {
-			background-color: var(--alt_white);
+			background-color: var( --alt_white );
 		}
 	}
 

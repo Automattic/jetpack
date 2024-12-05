@@ -16,7 +16,7 @@ const tunnelConfig = config.get( 'tunnel' );
 
 fs.mkdirSync( config.get( 'dirs.temp' ), { recursive: true } );
 
-// eslint-disable-next-line no-unused-expressions
+// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 yargs( hideBin( process.argv ) )
 	.usage( 'Usage: $0 <cmd>' )
 	.demandCommand( 1, 1 )

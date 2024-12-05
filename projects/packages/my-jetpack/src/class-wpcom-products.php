@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Status\Visitor;
 use Jetpack_Options;
 use WP_Error;
@@ -347,6 +348,15 @@ class Wpcom_Products {
 		set_transient( self::MY_JETPACK_PURCHASES_TRANSIENT_KEY, $purchases, 5 );
 
 		return $purchases;
+	}
+
+	/**
+	 * Gets the site's currently active "plan" (bundle).
+	 *
+	 * @return array
+	 */
+	public static function get_site_current_plan() {
+		return Current_Plan::get();
 	}
 
 	/**

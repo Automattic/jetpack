@@ -25,6 +25,7 @@ export const PATH_OPTIONS = [
 		label: __( 'Albums', 'jetpack' ),
 	},
 ];
+export const GOOGLE_PHOTOS_PICKER_SESSION = 'google_photos_picker_session';
 export const GOOGLE_PHOTOS_CATEGORIES = [
 	{
 		value: '',

@@ -138,7 +138,9 @@ export function ConfirmationForm( { keyringResult, onComplete, isAdmin }: Confir
 			const external_user_ID = formData.get( 'external_user_ID' );
 
 			if ( ! external_user_ID ) {
-				createErrorNotice( __( 'Please select an account to connect.', 'jetpack' ) );
+				createErrorNotice(
+					__( 'Please select an account to connect.', 'jetpack-publicize-components' )
+				);
 				return;
 			}
 
@@ -189,9 +191,9 @@ export function ConfirmationForm( { keyringResult, onComplete, isAdmin }: Confir
 							? _x(
 									'No more accounts/pages found.',
 									'Message shown when there are no connections found to connect',
-									'jetpack'
+									'jetpack-publicize-components'
 							  )
-							: __( 'No accounts/pages found.', 'jetpack' )
+							: __( 'No accounts/pages found.', 'jetpack-publicize-components' )
 					}
 				</p>
 			) : (
@@ -199,7 +201,7 @@ export function ConfirmationForm( { keyringResult, onComplete, isAdmin }: Confir
 					<p className={ styles[ 'header-text' ] }>
 						{ __(
 							`Select the account you'd like to connect. All your new blog posts will be automatically shared to this account. You'll be able to change this option in the editor sidebar when you're writing a post.`,
-							'jetpack'
+							'jetpack-publicize-components'
 						) }
 					</p>
 					{ keyringResult?.show_linkedin_warning && (
@@ -207,14 +209,14 @@ export function ConfirmationForm( { keyringResult, onComplete, isAdmin }: Confir
 							<p>
 								{ __(
 									'We could not retrieve which company pages you have access to. This is a known issue with the LinkedIn API. If you would like to connect a company page, please retry after 5 minutes.',
-									'jetpack'
+									'jetpack-publicize-components'
 								) }
 								&nbsp;
 								<ExternalLink
 									key="linkedin-api-documentaion"
 									href={ getRedirectUrl( 'jetpack-linkedin-permissions-warning' ) }
 								>
-									{ __( 'Learn more', 'jetpack' ) }
+									{ __( 'Learn more', 'jetpack-publicize-components' ) }
 								</ExternalLink>
 							</p>
 						</Notice>
@@ -270,15 +272,15 @@ export function ConfirmationForm( { keyringResult, onComplete, isAdmin }: Confir
 								id="mark-connection-as-shared"
 								help={ `${ __(
 									'If enabled, the connection will be available to all administrators, editors, and authors.',
-									'jetpack'
-								) } ${ __( 'You can change this later.', 'jetpack' ) }` }
+									'jetpack-publicize-components'
+								) } ${ __( 'You can change this later.', 'jetpack-publicize-components' ) }` }
 							>
 								<HStack justify="flex-start" spacing={ 3 }>
 									<span>
 										<input type="checkbox" id="mark-connection-as-shared" name="shared" value="1" />
 									</span>
 									<FlexBlock as="label" htmlFor="mark-connection-as-shared">
-										{ __( 'Mark the connection as shared', 'jetpack' ) }
+										{ __( 'Mark the connection as shared', 'jetpack-publicize-components' ) }
 									</FlexBlock>
 								</HStack>
 							</BaseControl>
@@ -291,7 +293,7 @@ export function ConfirmationForm( { keyringResult, onComplete, isAdmin }: Confir
 
 			{ accounts.connected.length ? (
 				<section>
-					<h3>{ __( 'Already connected', 'jetpack' ) }</h3>
+					<h3>{ __( 'Already connected', 'jetpack-publicize-components' ) }</h3>
 					<ul>
 						{ accounts.connected.map( ( connection, i ) => (
 							<li key={ connection.label + i }>
@@ -307,11 +309,11 @@ export function ConfirmationForm( { keyringResult, onComplete, isAdmin }: Confir
 
 			<div className={ styles[ 'submit-wrap' ] }>
 				<Button variant="secondary" onClick={ onComplete }>
-					{ __( 'Cancel', 'jetpack' ) }
+					{ __( 'Cancel', 'jetpack-publicize-components' ) }
 				</Button>
 				{ accounts.not_connected.length ? (
 					<Button form="connection-confirmation-form" type="submit">
-						{ __( 'Confirm', 'jetpack' ) }
+						{ __( 'Confirm', 'jetpack-publicize-components' ) }
 					</Button>
 				) : null }
 			</div>
