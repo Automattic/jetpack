@@ -519,7 +519,7 @@ async function inferType( payload, octokit, changelogEntries ) {
 		Bug: [ 'security', 'fixed', 'bugfix' ],
 		Task: [ 'added', 'major' ],
 		Enhancement: [ 'changed', 'enhancement' ],
-		Janitorial: [ 'deprecated', 'removed', 'compat', 'other' ],
+		Janitorial: [ 'deprecated', 'removed', 'compat' ],
 	};
 
 	// Does the PR's type match one of the types we have in our mapping?
