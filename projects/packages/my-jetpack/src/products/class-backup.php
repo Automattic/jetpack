@@ -240,7 +240,7 @@ class Backup extends Hybrid_Product {
 	 * Determines whether the module/plugin/product needs the users attention.
 	 * Typically due to some sort of error where user troubleshooting is needed.
 	 *
-	 * @return boolean
+	 * @return boolean|array
 	 */
 	public static function does_module_need_attention() {
 		$backup_failed_status = false;
