@@ -117,10 +117,10 @@ function wpcom_admin_interface_pre_update_option( $new_value, $old_value ) {
 add_filter( 'pre_update_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_update_option', 10, 2 );
 
 /**
- * Get the current screen section. 
- * 
+ * Get the current screen section.
+ *
  * Temporary function copied from Base_Admin_Menu.
- * 
+ *
  * return string
  */
 function wpcom_admin_get_current_screen() {
@@ -142,15 +142,19 @@ function wpcom_admin_get_current_screen() {
 
 /**
  * Override the wpcom_admin_interface option with experiment variation.
+ *
+ * @param mixed $default_value The value to return instead of the option value.
+ *
+ * @return string Filtered wpcom_admin_interface option.
  */
 function wpcom_admin_interface_pre_get_option( $default_value ) {
 	$enabled_screens = array(
 		'edit.php',
 	);
-	
+
 	$current_screen = wpcom_admin_get_current_screen();
 
-	if ( in_array( $current_screen, $enabled_screens ) && wpcom_is_duplicate_views_experiment_enabled() ) {
+	if ( in_array( $current_screen, $enabled_screens, true ) && wpcom_is_duplicate_views_experiment_enabled() ) {
 		return 'wp-admin';
 	}
 
@@ -159,17 +163,19 @@ function wpcom_admin_interface_pre_get_option( $default_value ) {
 
 /**
  * Change the Admin menu links to WP-Admin for specific sections.
- * 
- * return array
+ *
+ * @param array $value Preferred views.
+ *
+ * @return array Filtered preferred views.
  */
 function wpcom_admin_get_user_option_jetpack( $value ) {
-    if ( ! wpcom_is_duplicate_views_experiment_enabled() ) {
-        return $value;
-    }
+	if ( ! wpcom_is_duplicate_views_experiment_enabled() ) {
+		return $value;
+	}
 
-    $value['edit.php'] = Automattic\Jetpack\Masterbar\Base_Admin_Menu::CLASSIC_VIEW;
+	$value['edit.php'] = Automattic\Jetpack\Masterbar\Base_Admin_Menu::CLASSIC_VIEW;
 
-    return $value;
+	return $value;
 }
 
 add_filter( 'get_user_option_jetpack_admin_menu_preferred_views', 'wpcom_admin_get_user_option_jetpack' );

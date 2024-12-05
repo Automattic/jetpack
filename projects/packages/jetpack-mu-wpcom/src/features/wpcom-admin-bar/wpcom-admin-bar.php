@@ -263,7 +263,7 @@ add_action( 'admin_bar_menu', 'wpcom_replace_edit_profile_menu_to_me', 9999 );
  * @return string Name of the admin bar class.
  */
 function wpcom_custom_wpcom_admin_bar_class( $wp_admin_bar_class ) {
-	if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
+	if ( ! wpcom_is_using_default_admin_menu() ) {
 		return $wp_admin_bar_class;
 	}
 
