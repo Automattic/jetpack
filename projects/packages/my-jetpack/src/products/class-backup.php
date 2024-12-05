@@ -178,7 +178,7 @@ class Backup extends Hybrid_Product {
 	 *
 	 * @return Object|WP_Error
 	 */
-	public static function get_state_from_wpcom() {
+	private static function get_state_from_wpcom() {
 		static $status = null;
 
 		if ( $status !== null ) {
@@ -243,10 +243,6 @@ class Backup extends Hybrid_Product {
 	 * @return boolean
 	 */
 	public static function does_module_need_attention() {
-		return array(
-			'status'       => 'not-accessible',
-			'last_updated' => '2024-12-05T04:15:22.756+00:00',
-		);
 		$backup_failed_status = false;
 		// First check the status of Rewind for failure.
 		$rewind_state = self::get_state_from_wpcom();
