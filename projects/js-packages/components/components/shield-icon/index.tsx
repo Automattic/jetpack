@@ -35,7 +35,7 @@ export default function ShieldIcon( {
 	contrast?: string;
 	fill?: 'default' | 'info' | 'success' | 'warning' | 'error' | string;
 	height?: number;
-	icon?: 'success' | 'error';
+	icon?: 'success' | 'info' | 'error';
 	outline?: boolean;
 	variant: 'default' | 'info' | 'success' | 'warning' | 'error';
 } ): JSX.Element {
