@@ -90,7 +90,7 @@ class WordAds_Sidebar_Widget extends WP_Widget {
 
 		$smart_format = $sizes_x_smart_format[ "{$width}x{$height}" ];
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended
-		$is_watl_enabled = $smart_format && isset( $_GET['wordads-logging'] ) && isset( $_GET[ $smart_format ] ) && 'true' === $_GET[ $smart_format ];
+		$is_watl_enabled = isset( $_GET['wordads-logging'] ) && isset( $_GET[ $smart_format ] ) && 'true' === $_GET[ $smart_format ];
 
 		// Get the widget snippet.
 		$widget_snippet = $this->get_widget_snippet( $instance, $section_id, $height, $width );
