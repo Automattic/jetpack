@@ -280,7 +280,18 @@ export default function ThreatsDataViews( {
 				label: __( 'Type', 'jetpack-components' ),
 				elements: THREAT_TYPES,
 				getValue( { item }: { item: Threat } ) {
-					return getThreatType( item ) ?? '';
+					switch ( getThreatType( item ) ) {
+						case 'core':
+							return __( 'WordPress', 'jetpack-components' );
+						case 'plugins':
+							return __( 'Plugin', 'jetpack-components' );
+						case 'themes':
+							return __( 'Theme', 'jetpack-components' );
+						case 'file':
+							return __( 'File', 'jetpack-components' );
+						default:
+							return __( 'Unknown', 'jetpack-components' );
+					}
 				},
 			},
 			{
