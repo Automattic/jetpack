@@ -1,4 +1,4 @@
-import { BarChart } from '../index';
+import BarChart from '../index';
 import type { Meta } from '@storybook/react';
 
 export default {
