@@ -411,7 +411,7 @@ trait Woo_Analytics_Trait {
 			$userid = get_current_user_id();
 			return $blogid . ':' . $userid;
 		}
-		return 'null';
+		return null;
 	}
 
 	/**
