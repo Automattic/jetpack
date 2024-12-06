@@ -342,7 +342,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/calypsoify",
-                "reference": "9bcebb94a35dbf0cf9072394a7ecd849b1a6e938"
+                "reference": "75e59d29748de582e26f9db3fa7e92ed30c1f0bc"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -360,7 +360,7 @@
             "extra": {
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.1.x-dev"
+                    "dev-trunk": "0.2.x-dev"
                 },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-calypsoify/compare/v${old}...v${new}"
@@ -714,7 +714,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/google-analytics",
-                "reference": "7c1166704c885b5dcb3a1266dfdae3c0bb4fad70"
+                "reference": "ec6b8998a5efeced88e2efc2ede0c67f1a2ed282"
             },
             "require": {
                 "automattic/jetpack-status": "@dev",
@@ -732,7 +732,7 @@
             "extra": {
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.2.x-dev"
+                    "dev-trunk": "0.3.x-dev"
                 },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-google-analytics/compare/v${old}...v${new}"
@@ -1054,7 +1054,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jetpack-mu-wpcom",
-                "reference": "3cca664b3c3febb0b897d5df45e1f301fdd6df3f"
+                "reference": "63f823f3817e4c126abd96fc971ad6c39c8f1f01"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -1088,7 +1088,7 @@
                 },
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "5.66.x-dev"
+                    "dev-trunk": "6.0.x-dev"
                 },
                 "textdomain": "jetpack-mu-wpcom",
                 "version-constants": {
@@ -1657,7 +1657,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/scheduled-updates",
-                "reference": "e497581136745408a6b8638b999157159dad634b"
+                "reference": "8a94e906b845eadcce4767c0d66d29a9a1b1d64f"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1684,7 +1684,7 @@
                 },
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.13.x-dev"
+                    "dev-trunk": "0.14.x-dev"
                 },
                 "textdomain": "jetpack-scheduled-updates",
                 "version-constants": {

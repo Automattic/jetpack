@@ -38,7 +38,7 @@ async function addCommentAskLabels( octokit, ownerLogin, authorLogin, repo, issu
 			org: ownerLogin,
 			username: authorLogin,
 		} );
-	} catch ( error ) {
+	} catch {
 		debug(
 			`triage-issues > auto-label: Author ${ authorLogin } is not an org member. Skipping comment.`
 		);

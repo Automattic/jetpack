@@ -75,7 +75,8 @@
 
 	&__footer {
 		display: flex;
-		justify-content: flex-start;
+		justify-content: space-between;
+		align-items: center;
 		margin-right: -32px;
 		margin-left: -32px;
 		margin-top: 32px;
@@ -83,20 +84,5 @@
 		padding: 8px 32px;
 		border-top: solid 1px #dcdcde;
 		height: 60px;
-
-		&__feedback-button {
-			display: inline-block;
-
-			a {
-				text-decoration: none;
-			}
-		}
-
-		.icon {
-			width: 20px;
-			height: 20px;
-			color: var( --studio-gray-20 );
-			margin-left: 4px;
-		}
 	}
 }

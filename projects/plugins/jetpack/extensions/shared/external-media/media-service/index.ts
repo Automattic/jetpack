@@ -316,7 +316,7 @@ export const setGooglePhotosPickeCachedSessionId = ( sessionId: string | null ) 
 		sessionId,
 		604800, // 7 days
 		'/',
-		`.${ window.location.hostname }`
+		`.${ window.location.hostname.split( '.' ).slice( -2 ).join( '.' ) }`
 	);
 };
 

@@ -1,73 +1,97 @@
 import { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { type Props, useMetaQuery } from '$lib/stores/minify';
+import { recordBoostEvent } from '$lib/utils/analytics';
 import styles from './minify-meta.module.scss';
-import { Button } from '@automattic/jetpack-components';
-import Pencil from '$svg/pencil';
+import CollapsibleMeta from '$features/ui/collapsible-meta/collapsible-meta';
 
-const MetaComponent = ( { inputLabel, buttonText, placeholder, datasyncKey }: Props ) => {
+const MetaComponent = ( { buttonText, placeholder, datasyncKey }: Props ) => {
 	const [ values, updateValues ] = useMetaQuery( datasyncKey );
 	const [ inputValue, setInputValue ] = useState( () => values.join( ', ' ) );
-	const [ isEditing, setIsEditing ] = useState( false );
+
+	const concatenateType = datasyncKey === 'minify_js_excludes' ? 'js' : 'css';
+	const togglePanelTracksEvent = 'concatenate_' + concatenateType + '_panel_toggle'; // possible events: concatenate_js_panel_toggle, concatenate_css_panel_toggle
 
 	useEffect( () => {
 		setInputValue( values.join( ', ' ) );
 	}, [ values ] );
 
+	const onToggleHandler = ( isExpanded: boolean ) => {
+		if ( ! isExpanded ) {
+			setInputValue( values.join( ', ' ) );
+		}
+	};
+
 	function save() {
+		/*
+		 * Possible Events:
+		 * concatenate_js_exceptions_save_clicked
+		 * concatenate_css_exceptions_save_clicked
+		 */
+		recordBoostEvent( 'concatenate_' + concatenateType + '_exceptions_save_clicked', {} );
+
 		updateValues( inputValue );
-		setIsEditing( false );
 	}
 
 	const htmlId = `jb-minify-meta-${ datasyncKey }`;
 
-	return (
-		<div className={ styles[ 'minify-meta' ] } data-testid={ `meta-${ datasyncKey }` }>
-			{ isEditing ? (
+	const summary =
+		values.length > 0
+			? /* Translators: %s refers to the list of excluded items. */
+			  sprintf( __( 'Except: %s', 'jetpack-boost' ), values.join( ', ' ) )
+			: '';
+
+	// Be explicit about this because the optimizer breaks the linter otherwise.
+	let subHeaderText = '';
+	if ( datasyncKey === 'minify_js_excludes' ) {
+		subHeaderText = __( 'Exclude JS Strings:', 'jetpack-boost' );
+	}
+
+	if ( datasyncKey === 'minify_css_excludes' ) {
+		subHeaderText = __( 'Exclude CSS Strings:', 'jetpack-boost' );
+	}
+
+	const content = (
+		<div className={ styles.body }>
+			<div className={ styles.section }>
+				<div className={ styles.title }>{ __( 'Exceptions', 'jetpack-boost' ) }</div>
 				<div className={ styles[ 'manage-excludes' ] }>
-					<label htmlFor={ htmlId }>{ inputLabel }</label>
+					<span className={ styles[ 'sub-header' ] }>{ subHeaderText }</span>
 					<input
 						type="text"
 						value={ inputValue }
 						placeholder={ placeholder }
 						id={ htmlId }
 						onChange={ e => setInputValue( e.target.value ) }
+						onKeyDown={ e => {
+							if ( e.key === 'Enter' || e.key === 'NumpadEnter' ) {
+								save();
+							}
+						} }
 					/>
+					<span className={ styles.help }>
+						{ __( 'Use a comma (,) to separate the strings.', 'jetpack-boost' ) }
+					</span>
 					<div className={ styles[ 'buttons-container' ] }>
 						<button disabled={ values.join( ', ' ) === inputValue } onClick={ save }>
 							{ __( 'Save', 'jetpack-boost' ) }
 						</button>
-						<button onClick={ () => setIsEditing( false ) }>
-							{ __( 'Cancel', 'jetpack-boost' ) }
-						</button>
 					</div>
 				</div>
-			) : (
-				<>
-					<div className={ styles.summary }>
-						{ values.length > 0 && (
-							<div className="successes">
-								{ sprintf(
-									/* Translators: %s refers to the list of excluded items. */
-									__( 'Except: %s', 'jetpack-boost' ),
-									values.join( ', ' )
-								) }
-							</div>
-						) }
-					</div>
+			</div>
+		</div>
+	);
 
-					<Button
-						variant="link"
-						size="small"
-						weight="regular"
-						className={ styles[ 'edit-button' ] }
-						onClick={ () => setIsEditing( true ) }
-						icon={ <Pencil /> }
-					>
-						{ buttonText }
-					</Button>
-				</>
-			) }
+	return (
+		<div className={ styles.wrapper } data-testid={ `meta-${ datasyncKey }` }>
+			<CollapsibleMeta
+				headerText={ summary }
+				toggleText={ buttonText }
+				tracksEvent={ togglePanelTracksEvent }
+				onToggleHandler={ onToggleHandler }
+			>
+				{ content }
+			</CollapsibleMeta>
 		</div>
 	);
 };

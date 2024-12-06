@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Stats: allow fetching stats for specific sites when programatically fetching stats using Jetpack's tools.

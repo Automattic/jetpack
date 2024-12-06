@@ -168,12 +168,12 @@ export default function ThreatsDataViews( {
 				// Extensions (Themes and Plugins)
 				if ( threat.extension ) {
 					switch ( threat.extension.type ) {
-						case 'theme':
+						case 'themes':
 							if ( ! acc.themes.find( ( { value } ) => value === threat.extension.slug ) ) {
 								acc.themes.push( { value: threat.extension.slug, label: threat.extension.name } );
 							}
 							break;
-						case 'plugin':
+						case 'plugins':
 							if ( ! acc.plugins.find( ( { value } ) => value === threat.extension.slug ) ) {
 								acc.plugins.push( { value: threat.extension.slug, label: threat.extension.name } );
 							}
