@@ -97,12 +97,18 @@ export default function ScanReport( { data, onChangeSelection } ): JSX.Element {
 					return 'unchecked';
 				},
 				render( { item }: { item: ScanReportExtension } ) {
-					const hasStatus = item.threats.some( threat => threat.status !== null );
 					let variant: 'info' | 'warning' | 'success' = 'info';
 					let text = __(
 						'This item was added to your site after the most recent scan. We will check for threats during the next scheduled one.',
 						'jetpack-components'
 					);
+					let capitalizedType = __( 'Vulnerability', 'jetpack-components' );
+					let pluralType = __( 'vulnerabilities', 'jetpack-components' );
+
+					if ( item.threats.some( threat => threat.status !== null ) ) {
+						capitalizedType = __( 'Threat', 'jetpack-components' );
+						pluralType = __( 'threats', 'jetpack-components' );
+					}
 
 					if ( item.checked ) {
 						if ( item.threats.length > 0 ) {
@@ -110,18 +116,14 @@ export default function ScanReport( { data, onChangeSelection } ): JSX.Element {
 							text = sprintf(
 								// translators: %s: Threat or Vulnerability
 								__( '%s detected.', 'jetpack-components' ),
-								hasStatus
-									? __( 'Threat', 'jetpack-components' )
-									: __( 'Vulnerability', 'jetpack-components' )
+								capitalizedType
 							);
 						} else {
 							variant = 'success';
 							text = sprintf(
 								// translators: %s: threats or vulnerabilities
 								__( 'No known %s found that affect this version.', 'jetpack-components' ),
-								hasStatus
-									? __( 'threats', 'jetpack-components' )
-									: __( 'vulnerabilities', 'jetpack-components' )
+								pluralType
 							);
 						}
 					}
