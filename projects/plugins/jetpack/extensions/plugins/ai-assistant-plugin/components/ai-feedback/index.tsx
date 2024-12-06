@@ -1,4 +1,4 @@
-import { Button } from '@wordpress/components';
+import { Button, Tooltip } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { thumbsUp, thumbsDown } from '@wordpress/icons';
 import clsx from 'clsx';
@@ -31,26 +31,30 @@ export default function AiFeedbackThumbs( { disabled = false, iconSize = 24, rat
 
 	return getFeatureAvailability( 'ai-response-feedback' ) ? (
 		<div className="ai-assistant-feedback__selection">
-			<Button
-				aria-label={ __( 'Good Response', 'jetpack' ) }
-				disabled={ disabled }
-				icon={ thumbsUp }
-				onClick={ () => rateAI( true ) }
-				iconSize={ iconSize }
-				showTooltip={ false }
-				className={ clsx( { 'ai-assistant-feedback__thumb-selected': checkThumb( 'thumbs-up' ) } ) }
-			/>
-			<Button
-				aria-label={ __( 'Bad Response', 'jetpack' ) }
-				disabled={ disabled }
-				icon={ thumbsDown }
-				onClick={ () => rateAI( false ) }
-				iconSize={ iconSize }
-				showTooltip={ false }
-				className={ clsx( {
-					'ai-assistant-feedback__thumb-selected': checkThumb( 'thumbs-down' ),
-				} ) }
-			/>
+			<Tooltip text={ __( 'I like this', 'jetpack' ) }>
+				<Button
+					disabled={ disabled }
+					icon={ thumbsUp }
+					onClick={ () => rateAI( true ) }
+					iconSize={ iconSize }
+					showTooltip={ false }
+					className={ clsx( {
+						'ai-assistant-feedback__thumb-selected': checkThumb( 'thumbs-up' ),
+					} ) }
+				/>
+			</Tooltip>
+			<Tooltip text={ __( "I don't find this useful", 'jetpack' ) }>
+				<Button
+					disabled={ disabled }
+					icon={ thumbsDown }
+					onClick={ () => rateAI( false ) }
+					iconSize={ iconSize }
+					showTooltip={ false }
+					className={ clsx( {
+						'ai-assistant-feedback__thumb-selected': checkThumb( 'thumbs-down' ),
+					} ) }
+				/>
+			</Tooltip>
 		</div>
 	) : (
 		<></>
