@@ -73,7 +73,11 @@
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-masterbar/compare/v${old}...v${new}"
 		},
+	  "dependencies": {
 		"mirror-repo": "Automattic/jetpack-masterbar",
+		"test-only": [
+			"packages/jetpack-mu-wpcom"
+		],
 		"textdomain": "jetpack-masterbar",
 		"version-constants": {
 			"::PACKAGE_VERSION": "src/class-main.php"
