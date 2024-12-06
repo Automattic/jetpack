@@ -28,9 +28,10 @@ const HomeStatCard = ( { text, args } ) => (
 );
 
 const HomeStatCards = () => {
+	const ICON_HEIGHT = 20;
+
 	const { hasPlan } = usePlan();
 	const [ isSmall ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
-	const variant = isSmall ? 'horizontal' : 'square';
 
 	const { data: status } = useScanStatusQuery();
 	const scanning = isScanInProgress( status );
@@ -59,18 +60,18 @@ const HomeStatCards = () => {
 		blockedLogins: allTimeBlockedLoginsCount = 0,
 	} = stats || {};
 
-	const iconHeight = useMemo( () => 20, [] );
+	const variant = useMemo( () => ( isSmall ? 'horizontal' : 'square' ), [ isSmall ] );
 
 	const lastCheckedMessage = useMemo( () => {
+		if ( scanning ) {
+			return __( 'Your results will be ready soon.', 'jetpack-protect' );
+		}
+
 		if ( scanError ) {
 			return __(
 				'Please check your connection or try scanning again in a few minutes.',
 				'jetpack-protect'
 			);
-		}
-
-		if ( scanning ) {
-			return __( 'Your results will be ready soon.', 'jetpack-protect' );
 		}
 
 		const entityLabel = hasPlan
@@ -105,25 +106,25 @@ const HomeStatCards = () => {
 
 	const scanArgs = useMemo( () => {
 		let scanIcon;
-		if ( scanError ) {
-			scanIcon = <ShieldIcon variant="error" height={ iconHeight } />;
-		} else if ( scanning ) {
+		if ( scanning ) {
 			scanIcon = <Spinner />;
+		} else if ( scanError ) {
+			scanIcon = <ShieldIcon variant="error" height={ ICON_HEIGHT } />;
 		} else {
 			scanIcon = (
 				<ShieldIcon
 					variant={ numThreats ? 'warning' : 'success' }
-					height={ iconHeight }
+					height={ ICON_HEIGHT }
 					color={ numThreats ? '#F0B849' : '#069E08' }
 				/>
 			);
 		}
 
 		let scanLabel;
-		if ( scanError ) {
-			scanLabel = __( 'An error occurred', 'jetpack-protect' );
-		} else if ( scanning ) {
+		if ( scanning ) {
 			scanLabel = __( 'One moment, please…', 'jetpack-protect' );
+		} else if ( scanError ) {
+			scanLabel = __( 'An error occurred', 'jetpack-protect' );
 		} else {
 			const label = hasPlan
 				? __( 'Threats', 'jetpack-protect' )
@@ -152,7 +153,7 @@ const HomeStatCards = () => {
 			value: numThreats,
 			hideValue: !! ( scanError || scanning ),
 		};
-	}, [ variant, scanning, iconHeight, scanError, numThreats, hasPlan, isSmall ] );
+	}, [ variant, scanning, ICON_HEIGHT, scanError, numThreats, hasPlan, isSmall ] );
 
 	const wafArgs = useMemo(
 		() => ( {
@@ -160,7 +161,10 @@ const HomeStatCards = () => {
 			className: isWafModuleEnabled ? styles.active : styles.disabled,
 			icon: (
 				<span className={ styles[ 'stat-card-icon' ] }>
-					<ShieldIcon variant={ ! isWafModuleEnabled ? 'info' : 'success' } height={ iconHeight } />
+					<ShieldIcon
+						variant={ ! isWafModuleEnabled ? 'info' : 'success' }
+						height={ ICON_HEIGHT }
+					/>
 					{ ! isSmall && (
 						<Text className={ styles[ 'stat-card-icon-label' ] } variant="body-extra-small">
 							{ __( 'Firewall', 'jetpack-protect' ) }
@@ -176,7 +180,7 @@ const HomeStatCards = () => {
 			value: allTimeBlockedRequestsCount,
 			hideValue: ! isWafModuleEnabled,
 		} ),
-		[ variant, isWafModuleEnabled, iconHeight, isSmall, allTimeBlockedRequestsCount ]
+		[ variant, isWafModuleEnabled, ICON_HEIGHT, isSmall, allTimeBlockedRequestsCount ]
 	);
 
 	const bruteForceArgs = useMemo(
@@ -187,7 +191,7 @@ const HomeStatCards = () => {
 				<span className={ styles[ 'stat-card-icon' ] }>
 					<ShieldIcon
 						variant={ ! isBruteForceModuleEnabled ? 'info' : 'success' }
-						height={ iconHeight }
+						height={ ICON_HEIGHT }
 					/>
 					{ ! isSmall && (
 						<Text className={ styles[ 'stat-card-icon-label' ] } variant="body-extra-small">
@@ -204,7 +208,7 @@ const HomeStatCards = () => {
 			value: allTimeBlockedLoginsCount,
 			hideValue: ! isBruteForceModuleEnabled,
 		} ),
-		[ variant, isBruteForceModuleEnabled, iconHeight, isSmall, allTimeBlockedLoginsCount ]
+		[ variant, isBruteForceModuleEnabled, ICON_HEIGHT, isSmall, allTimeBlockedLoginsCount ]
 	);
 
 	return (
