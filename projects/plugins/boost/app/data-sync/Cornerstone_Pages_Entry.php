@@ -22,6 +22,13 @@ class Cornerstone_Pages_Entry implements Entry_Can_Get, Entry_Can_Set {
 			$this->set( $urls );
 		}
 
+		/**
+		 * Filters the list of cornerstone pages.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param array $urls An array of absolute URLs.
+		 */
 		return apply_filters( 'jetpack_boost_cornerstone_pages_list', array_map( array( $this, 'transform_to_absolute' ), $urls ) );
 	}
 
