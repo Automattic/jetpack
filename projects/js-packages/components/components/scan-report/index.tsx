@@ -4,6 +4,7 @@ import {
 	type SupportedLayouts,
 	type View,
 	type Field,
+	type SortDirection,
 	DataViews,
 	filterSortAndPaginate,
 } from '@wordpress/dataviews';
@@ -34,6 +35,10 @@ import styles from './styles.module.scss';
  */
 export default function ScanReport( { data, onChangeSelection } ): JSX.Element {
 	const baseView = {
+		sort: {
+			field: 'status',
+			direction: 'desc' as SortDirection,
+		},
 		search: '',
 		filters: [],
 		page: 1,
