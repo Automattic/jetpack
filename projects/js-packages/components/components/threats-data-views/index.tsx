@@ -5,7 +5,6 @@ import {
 	type Field,
 	type FieldType,
 	type Filter,
-	type SortDirection,
 	type SupportedLayouts,
 	type View,
 	DataViews,
@@ -80,10 +79,6 @@ export default function ThreatsDataViews( {
 	onUnignoreThreats?: ActionButton< Threat >[ 'callback' ];
 } ): JSX.Element {
 	const baseView = {
-		sort: {
-			field: 'severity',
-			direction: 'desc' as SortDirection,
-		},
 		search: '',
 		filters: filters || [],
 		page: 1,
@@ -500,10 +495,13 @@ export default function ThreatsDataViews( {
 				return statusComparison;
 			}
 
-			// If statuses are the same, return 0 (maintain existing order)
-			return 0;
+			// If statuses are the same, compare by severity (higher severity comes first)
+			const severityA = a.severity ?? -1; // Default to -1 for missing severity (lowest priority)
+			const severityB = b.severity ?? -1;
+
+			return severityB - severityA; // Sort by severity in descending order
 		} );
-	}, [ processedData ] );
+	}, [ processedData ] ); // TODO: Improve upon this
 
 	/**
 	 * Callback function to update the view state.
