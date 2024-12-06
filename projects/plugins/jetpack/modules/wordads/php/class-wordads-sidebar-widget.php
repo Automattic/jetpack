@@ -20,6 +20,17 @@ class WordAds_Sidebar_Widget extends WP_Widget {
 	private static $allowed_tags = array( 'mrec', 'wideskyscraper', 'leaderboard' );
 
 	/**
+	 * Mapping array of widget sizes with the WordAds_Smart formats.
+	 *
+	 * @var string[]
+	 */
+	private static $sizes_x_smart_format = array(
+		'300x250' => 'sidebar_widget_mediumrectangle',
+		'728x90'  => 'sidebar_widget_leaderboard',
+		'160x600' => 'sidebar_widget_wideskyscraper',
+	);
+
+	/**
 	 * Number of widgets.
 	 *
 	 * @var int
@@ -81,14 +92,7 @@ class WordAds_Sidebar_Widget extends WP_Widget {
 			WORDADS_API_TEST_ID :
 			$wordads->params->blog_id . $unit_id;
 
-		// Use the Gutenberg existing formats to render the legacy sidebar instead of creating new ones.
-		$sizes_x_smart_format = array(
-			'300x250' => 'sidebar_widget_mediumrectangle',
-			'728x90'  => 'sidebar_widget_leaderboard',
-			'160x600' => 'sidebar_widget_wideskyscraper',
-		);
-
-		$smart_format = $sizes_x_smart_format[ "{$width}x{$height}" ];
+		$smart_format = self::$sizes_x_smart_format[ "{$width}x{$height}" ];
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended
 		$is_watl_enabled = isset( $_GET['wordads-logging'] ) && isset( $_GET[ $smart_format ] ) && 'true' === $_GET[ $smart_format ];
 
