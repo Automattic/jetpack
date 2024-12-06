@@ -7,7 +7,7 @@ import {
 	DataViews,
 	filterSortAndPaginate,
 } from '@wordpress/dataviews';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
 import { useCallback, useMemo, useState } from 'react';
 import ShieldIcon from '../shield-icon';
@@ -97,6 +97,7 @@ export default function ScanReport( { data, onChangeSelection } ): JSX.Element {
 					return 'unchecked';
 				},
 				render( { item }: { item: ScanReportExtension } ) {
+					const hasStatus = item.threats.some( threat => threat.status !== null );
 					let variant: 'info' | 'warning' | 'success' = 'info';
 					let text = __(
 						'This item was added to your site after the most recent scan. We will check for threats during the next scheduled one.',
@@ -106,10 +107,22 @@ export default function ScanReport( { data, onChangeSelection } ): JSX.Element {
 					if ( item.checked ) {
 						if ( item.threats.length > 0 ) {
 							variant = 'warning';
-							text = __( 'Threat detected.', 'jetpack-components' );
+							text = sprintf(
+								// translators: %s: Threat or Vulnerability
+								__( '%s detected.', 'jetpack-components' ),
+								hasStatus
+									? __( 'Threat', 'jetpack-components' )
+									: __( 'Vulnerability', 'jetpack-components' )
+							);
 						} else {
 							variant = 'success';
-							text = __( 'No known threats found that affect this version.', 'jetpack-components' );
+							text = sprintf(
+								// translators: %s: threats or vulnerabilities
+								__( 'No known %s found that affect this version.', 'jetpack-components' ),
+								hasStatus
+									? __( 'threats', 'jetpack-components' )
+									: __( 'vulnerabilities', 'jetpack-components' )
+							);
 						}
 					}
 
