@@ -22,6 +22,7 @@ export const Default = Template.bind( {} );
 Default.args = {
 	width: 500,
 	height: 300,
+	showTooltips: false,
 	data: [
 		{ label: 'Jan', value: 12 },
 		{ label: 'Feb', value: 18 },
@@ -30,4 +31,10 @@ Default.args = {
 		{ label: 'May', value: 45 },
 		{ label: 'Jun', value: 52 },
 	],
+};
+
+export const WithTooltips = Template.bind( {} );
+WithTooltips.args = {
+	...Default.args,
+	showTooltips: true,
 };

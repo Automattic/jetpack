@@ -13,28 +13,21 @@ type BarChartProps = {
 	margin?: {
 		[ K in 'top' | 'right' | 'bottom' | 'left' ]?: number;
 	};
+	showTooltips?: boolean;
 };
 
 /**
- * Renders a bar chart component with tooltips on hover.
+ * Renders a bar chart using the provided data.
  *
- * @param {object}      root0             - Props object
- * @param {DataPoint[]} root0.data        - Array of data points to display in the chart
- * @param {number}      root0.width       - Width of the chart in pixels
- * @param {number}      root0.height      - Height of the chart in pixels
- * @param {object}      root0.margin      - Chart margins
- * @param {Function}    root0.showTooltip - Show tooltip callback
- * @param {Function}    root0.hideTooltip - Hide tooltip callback
- * @param {DataPoint}   root0.tooltipData - Current tooltip data
- * @param {number}      root0.tooltipLeft - Tooltip x position
- * @param {number}      root0.tooltipTop  - Tooltip y position
- * @return {JSX.Element}                  - The rendered bar chart
+ * @param {BarChartProps} props - Component props
+ * @return {JSX.Element} The rendered bar chart component
  */
 function BarChart( {
 	data,
 	width,
 	height,
 	margin,
+	showTooltips = false,
 	showTooltip,
 	hideTooltip,
 	tooltipData,
@@ -82,15 +75,15 @@ function BarChart( {
 							width={ xScale.bandwidth() }
 							height={ yMax - ( yScale( d.value ) ?? 0 ) }
 							fill="#0675C4"
-							onMouseMove={ handleMouseMoveFor( d ) }
-							onMouseLeave={ hideTooltip }
+							onMouseMove={ showTooltips ? handleMouseMoveFor( d ) : undefined }
+							onMouseLeave={ showTooltips ? hideTooltip : undefined }
 						/>
 					) ) }
 					<AxisLeft scale={ yScale } />
 					<AxisBottom scale={ xScale } top={ yMax } />
 				</Group>
 			</svg>
-			{ tooltipData && (
+			{ showTooltips && tooltipData && (
 				<TooltipWithBounds top={ tooltipTop } left={ tooltipLeft }>
 					{ tooltipData.label }: { tooltipData.value }
 				</TooltipWithBounds>
