@@ -1,7 +1,8 @@
 import { TooltipWithBounds, useTooltip } from '@visx/tooltip';
+import type { TooltipProps } from './types';
 
-const Tooltip = ( { data }: { data: any } ) => {
-	const { tooltipData, tooltipLeft, tooltipTop, showTooltip, hideTooltip } = useTooltip();
+export const Tooltip = ( { data }: TooltipProps ) => {
+	const { tooltipData, tooltipLeft, tooltipTop } = useTooltip();
 
 	return (
 		tooltipData && (
@@ -11,5 +12,3 @@ const Tooltip = ( { data }: { data: any } ) => {
 		)
 	);
 };
-
-export default Tooltip;
