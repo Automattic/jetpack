@@ -2,6 +2,7 @@ import AiCard from './ai-card';
 import AntiSpamCard from './anti-spam-card';
 import BackupCard from './backup-card';
 import BoostCard from './boost-card';
+import BruteForceCard from './brute-force-card';
 import CompleteCard from './complete-card';
 import CrmCard from './crm-card';
 import GrowthCard from './growth-card';
@@ -29,6 +30,8 @@ export const JetpackModuleToProductCard: {
 	security: SecurityCard,
 	growth: GrowthCard,
 	complete: CompleteCard,
+	// Features:
+	'feature_brute-force': BruteForceCard,
 	// Not existing:
 	extras: null,
 	scan: null,

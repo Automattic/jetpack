@@ -40,6 +40,7 @@ export const PRODUCT_SLUGS = {
 	ANTI_SPAM: 'anti-spam',
 	BACKUP: 'backup',
 	BOOST: 'boost',
+	BRUTE_FORCE: 'brute-force',
 	CRM: 'crm',
 	CREATOR: 'creator',
 	EXTRAS: 'extras',

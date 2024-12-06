@@ -31,6 +31,7 @@ type JetpackModule =
 	| 'anti-spam'
 	| 'backup'
 	| 'boost'
+	| 'feature_brute-force'
 	| 'crm'
 	| 'creator'
 	| 'extras'
