@@ -7,17 +7,8 @@ import { getFeatureAvailability } from '../../../../blocks/ai-assistant/lib/util
 
 import './style.scss';
 
-export default function AiFeedbackThumbs( { shouldBeDisabled = false, iconSize = 24, ratedItem } ) {
+export default function AiFeedbackThumbs( { disabled = false, iconSize = 24, ratedItem } ) {
 	const [ itemsRated, setItemsRated ] = useState( {} );
-
-	const isDisabled = () => {
-		if ( shouldBeDisabled ) {
-			return true;
-		}
-
-		//return itemsRated[ ratedItem ] || false;
-		return false;
-	};
 
 	const rateAI = ( isThumbsUp: boolean ) => {
 		const aiRating = isThumbsUp ? 'thumbs-up' : 'thumbs-down';
@@ -42,7 +33,7 @@ export default function AiFeedbackThumbs( { shouldBeDisabled = false, iconSize =
 		<div className="ai-assistant-feedback__selection">
 			<Button
 				aria-label={ __( 'Good Response', 'jetpack' ) }
-				disabled={ isDisabled() }
+				disabled={ disabled }
 				icon={ thumbsUp }
 				onClick={ () => rateAI( true ) }
 				iconSize={ iconSize }
@@ -51,7 +42,7 @@ export default function AiFeedbackThumbs( { shouldBeDisabled = false, iconSize =
 			/>
 			<Button
 				aria-label={ __( 'Bad Response', 'jetpack' ) }
-				disabled={ isDisabled() }
+				disabled={ disabled }
 				icon={ thumbsDown }
 				onClick={ () => rateAI( false ) }
 				iconSize={ iconSize }

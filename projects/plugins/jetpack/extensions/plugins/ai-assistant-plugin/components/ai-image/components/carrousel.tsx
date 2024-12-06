@@ -168,7 +168,7 @@ export default function Carrousel( {
 					</div>
 
 					<AiFeedbackThumbs
-						shouldBeDisabled={ aiFeedbackDisabled( images[ current ] ) }
+						disabled={ aiFeedbackDisabled( images[ current ] ) }
 						ratedItem={ images[ current ].libraryUrl || '' }
 						iconSize={ 20 }
 					/>
