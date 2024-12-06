@@ -1,7 +1,13 @@
-import { TooltipWithBounds, useTooltip } from '@visx/tooltip';
+import { TooltipWithBounds, useTooltip, withTooltip } from '@visx/tooltip';
 import type { TooltipProps } from './types';
 
-export const Tooltip = ( { data }: TooltipProps ) => {
+/**
+ * Renders tooltip content with positioning based on hover state.
+ *
+ * @param {TooltipProps} props - Component props
+ * @return {JSX.Element|null} Rendered tooltip or null
+ */
+const TooltipContent = ( { data }: TooltipProps ) => {
 	const { tooltipData, tooltipLeft, tooltipTop } = useTooltip();
 
 	return (
@@ -12,3 +18,5 @@ export const Tooltip = ( { data }: TooltipProps ) => {
 		)
 	);
 };
+
+export const Tooltip = withTooltip( TooltipContent );
