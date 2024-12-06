@@ -1,16 +1,24 @@
 import { useEffect, useState } from 'react';
+import { Button } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
 import { type Props, useMetaQuery } from '$lib/stores/minify';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import styles from './minify-meta.module.scss';
 import CollapsibleMeta from '$features/ui/collapsible-meta/collapsible-meta';
+import { useMinifyDefaults } from './lib/stores';
 
 const MetaComponent = ( { buttonText, placeholder, datasyncKey }: Props ) => {
 	const [ values, updateValues ] = useMetaQuery( datasyncKey );
 	const [ inputValue, setInputValue ] = useState( () => values.join( ', ' ) );
+	const minifyDefaults = useMinifyDefaults();
 
 	const concatenateType = datasyncKey === 'minify_js_excludes' ? 'js' : 'css';
 	const togglePanelTracksEvent = 'concatenate_' + concatenateType + '_panel_toggle'; // possible events: concatenate_js_panel_toggle, concatenate_css_panel_toggle
+
+	let defaultValue = '';
+	if ( minifyDefaults !== undefined ) {
+		defaultValue = minifyDefaults[ concatenateType ].join( ', ' );
+	}
 
 	useEffect( () => {
 		setInputValue( values.join( ', ' ) );
@@ -55,12 +63,24 @@ const MetaComponent = ( { buttonText, placeholder, datasyncKey }: Props ) => {
 		subHeaderText = __( 'Exclude CSS Strings:', 'jetpack-boost' );
 	}
 
+	function loadDefaultValue() {
+		setInputValue( defaultValue );
+		/*
+		 * Possible Events:
+		 * minify_js_exceptions_load_default
+		 * minify_css_exceptions_load_default
+		 */
+		recordBoostEvent( 'minify_' + concatenateType + '_exceptions_load_default', {} );
+	}
+
 	const content = (
 		<div className={ styles.body }>
 			<div className={ styles.section }>
 				<div className={ styles.title }>{ __( 'Exceptions', 'jetpack-boost' ) }</div>
 				<div className={ styles[ 'manage-excludes' ] }>
-					<span className={ styles[ 'sub-header' ] }>{ subHeaderText }</span>
+					<label className={ styles[ 'sub-header' ] } htmlFor={ htmlId }>
+						{ subHeaderText }
+					</label>
 					<input
 						type="text"
 						value={ inputValue }
@@ -73,14 +93,24 @@ const MetaComponent = ( { buttonText, placeholder, datasyncKey }: Props ) => {
 							}
 						} }
 					/>
-					<span className={ styles.help }>
+					<div className={ styles.description }>
 						{ __( 'Use a comma (,) to separate the strings.', 'jetpack-boost' ) }
-					</span>
-					<div className={ styles[ 'buttons-container' ] }>
-						<button disabled={ values.join( ', ' ) === inputValue } onClick={ save }>
-							{ __( 'Save', 'jetpack-boost' ) }
-						</button>
 					</div>
+					<Button
+						disabled={ values.join( ', ' ) === inputValue }
+						className={ styles.button }
+						onClick={ save }
+					>
+						{ __( 'Save', 'jetpack-boost' ) }
+					</Button>
+					<Button
+						disabled={ inputValue === defaultValue }
+						onClick={ loadDefaultValue }
+						className={ styles.button }
+						variant="link"
+					>
+						{ __( 'Load default strings', 'jetpack-boost' ) }
+					</Button>
 				</div>
 			</div>
 		</div>
