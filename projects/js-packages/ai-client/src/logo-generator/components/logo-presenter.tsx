@@ -200,7 +200,6 @@ export const LogoPresenter: React.FC< LogoPresenterProps > = ( {
 	logoAccepted = false,
 	siteId,
 } ) => {
-	// eslint-disable-next-line @wordpress/no-unused-vars-before-return -- @todo Start extending jetpack-js-tools/eslintrc/react in eslintrc, then we can remove this disable comment.
 	const { isRequestingImage } = useLogoGenerator();
 	const { saveToLibraryError, logoUpdateError } = useRequestErrors();
 

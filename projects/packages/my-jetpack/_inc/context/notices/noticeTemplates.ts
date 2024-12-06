@@ -14,3 +14,14 @@ export const NOTICE_SITE_CONNECTED: Notice = {
 		hideCloseButton: false,
 	},
 };
+
+export const NOTICE_SITE_CONNECTION_ERROR: Notice = {
+	message: __( 'Site connection failed. Please try again.', 'jetpack-my-jetpack' ),
+	options: {
+		id: 'site-connection-error-notice',
+		level: 'error',
+		actions: [],
+		priority: NOTICE_PRIORITY_HIGH,
+		hideCloseButton: false,
+	},
+};

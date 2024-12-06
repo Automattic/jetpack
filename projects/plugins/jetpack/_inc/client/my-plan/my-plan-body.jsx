@@ -1,15 +1,15 @@
-import { imagePath } from 'constants/urls';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import Button from 'components/button';
-import QuerySitePlugins from 'components/data/query-site-plugins';
-import analytics from 'lib/analytics';
-import { getPlanClass } from 'lib/plans/constants';
 import { get, includes } from 'lodash';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
+import Button from 'components/button';
+import QuerySitePlugins from 'components/data/query-site-plugins';
+import { imagePath } from 'constants/urls';
+import analytics from 'lib/analytics';
+import { getPlanClass } from 'lib/plans/constants';
 import { showBackups, isWoASite } from 'state/initial-state';
 import {
 	isModuleActivated as _isModuleActivated,
@@ -310,6 +310,7 @@ class MyPlanBody extends React.Component {
 			case 'is-personal-plan':
 			case 'is-premium-plan':
 			case 'is-jetpack-starter-plan':
+			case 'is-jetpack-growth-plan':
 			case 'is-security-t1-plan':
 			case 'is-security-t2-plan':
 			case 'is-business-plan':

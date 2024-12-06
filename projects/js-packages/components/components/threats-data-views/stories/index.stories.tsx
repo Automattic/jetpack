@@ -30,7 +30,7 @@ Default.args = {
 			firstDetected: '2024-10-07T20:45:06.000Z',
 			fixedIn: null,
 			severity: 8,
-			fixable: { fixer: 'rollback', target: 'January 26, 2024, 6:49 am', extensionStatus: '' },
+			fixable: { fixer: 'delete' },
 			fixer: { status: 'not_started' },
 			status: 'current',
 			filename: '/var/www/html/wp-content/index.php',
@@ -96,7 +96,7 @@ Default.args = {
 				name: 'WP Super Cache',
 				slug: 'wp-super-cache',
 				version: '1.6.3',
-				type: 'plugin',
+				type: 'plugins',
 			},
 		},
 		{
@@ -142,7 +142,7 @@ Default.args = {
 				name: 'WooCommerce',
 				slug: 'woocommerce',
 				version: '3.4.5',
-				type: 'plugin',
+				type: 'plugins',
 			},
 		},
 	],
@@ -197,7 +197,7 @@ FixerStatuses.args = {
 				name: 'Example Plugin',
 				slug: 'example-plugin',
 				version: '1.2.3',
-				type: 'plugin',
+				type: 'plugins',
 			},
 		},
 		{
@@ -216,7 +216,7 @@ FixerStatuses.args = {
 				name: 'Example Theme',
 				slug: 'example-theme',
 				version: '2.2.2',
-				type: 'theme',
+				type: 'themes',
 			},
 		},
 		{
@@ -235,7 +235,7 @@ FixerStatuses.args = {
 				name: 'Example Theme II',
 				slug: 'example-theme-2',
 				version: '3.3.3',
-				type: 'theme',
+				type: 'themes',
 			},
 		},
 		{
@@ -268,7 +268,7 @@ FixerStatuses.args = {
 		},
 	],
 	onFixThreats: () =>
-		alert( 'Threat fix action callback triggered! This is handled by the component consumer.' ), // eslint-disable-line no-alert
+		alert( 'Fix threat action callback triggered! This is handled by the component consumer.' ), // eslint-disable-line no-alert
 	onIgnoreThreats: () =>
 		alert( 'Ignore threat action callback triggered! This is handled by the component consumer.' ), // eslint-disable-line no-alert
 	onUnignoreThreats: () =>
@@ -292,7 +292,7 @@ FreeResults.args = {
 				name: 'WooCommerce',
 				slug: 'woocommerce',
 				version: '3.2.3',
-				type: 'plugin',
+				type: 'plugins',
 			},
 		},
 		{
@@ -307,7 +307,7 @@ FreeResults.args = {
 				name: 'WooCommerce',
 				slug: 'woocommerce',
 				version: '3.4.5',
-				type: 'plugin',
+				type: 'plugins',
 			},
 		},
 		{
@@ -321,7 +321,7 @@ FreeResults.args = {
 				name: 'WP Super Cache',
 				slug: 'wp-super-cache',
 				version: '1.6.3',
-				type: 'plugin',
+				type: 'plugins',
 			},
 		},
 	],

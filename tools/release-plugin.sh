@@ -107,7 +107,7 @@ done
 for SLUG in "${!PROJECTS[@]}"; do
 	if [[ -z "${PROJECTS[$SLUG]}" ]]; then
 		cd "$BASE/projects/$SLUG"
-		PROJECTS["$SLUG"]=$(changelogger version next)
+		PROJECTS["$SLUG"]=$(changelogger version next) || die "Cannot determine version number for $SLUG. Please supply one on the command line."
 	fi
 done
 cd "$BASE"
@@ -201,6 +201,9 @@ fi
 if [[ -n "$(git status --porcelain)" ]]; then
 	die "Working directory not clean, make sure you're working from a clean checkout and try again."
 fi
+
+yellow "Installing root packages."
+pnpm jetpack install --root
 
 yellow "Checking out prerelease branch."
 # Is there an upstream prerelease branch already?

@@ -47,10 +47,10 @@ export const CopyToClipboard: React.FC< CopyToClipboardProps > = ( {
 		icon = hasCopied ? <CheckmarkIcon /> : <ClipboardIcon />;
 	}
 
-	const defaultLabel = __( 'Copy to clipboard', 'jetpack' );
+	const defaultLabel = __( 'Copy to clipboard', 'jetpack-components' );
 
 	if ( 'icon' !== buttonStyle ) {
-		label = hasCopied ? __( 'Copied!', 'jetpack' ) : defaultLabel;
+		label = hasCopied ? __( 'Copied!', 'jetpack-components' ) : defaultLabel;
 	}
 
 	return (

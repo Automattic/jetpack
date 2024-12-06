@@ -11,7 +11,6 @@ Here is the current list of tasks handled by this action:
 - Check Description (`checkDescription`): Checks the contents of a PR description, and ensure it matches our recommendations.
 - Add Labels (`addLabels`): Adds labels to PRs that touch specific features.
 - Clean Labels (`cleanLabels`): Removes Status labels once a PR or issue has been closed or merged.
-- WordPress.com Commit Reminder (`wpcomCommitReminder`): Posts a comment on merged PRs to remind Automatticians to commit the matching WordPress.com change.
 - Notify Design (`notifyDesign`): Sends a Slack Notification to the Design team to request feedback, based on labels applied to a PR.
 - Notify Editorial (`notifyEditorial`): Sends a Slack Notification to the Editorial team to request feedback, based on labels applied to a PR.
 - Flag OSS (`flagOss`): flags entries by external contributors, adds an "OSS Citizen" label to the PR, and sends a Slack message.

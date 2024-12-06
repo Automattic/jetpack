@@ -1,8 +1,6 @@
 const webpack = require( 'webpack' );
 const path = require( 'path' );
-// eslint-disable-next-line import/no-extraneous-dependencies
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
-// eslint-disable-next-line import/no-extraneous-dependencies
 const CopyPlugin = require( 'copy-webpack-plugin' );
 
 const imageGuideCopyPatterns = [

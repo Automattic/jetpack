@@ -4,6 +4,6 @@ module.exports = {
 	},
 	rules: {
 		'no-console': 'off',
-		'no-process-exit': 'off',
+		'n/no-process-exit': 'off',
 	},
 };

@@ -1,8 +1,6 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 
-/* eslint-disable no-console */
-
 console.log( '::group::Composer 304 short-circuiting proxy log' );
 
 const file = path.join( process.env.HOME, 'proxy.log' );

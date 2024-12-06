@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Update tests for compatibility with eslint 9, improve messaging on json failure, and avoid problems with global git config.
+
+

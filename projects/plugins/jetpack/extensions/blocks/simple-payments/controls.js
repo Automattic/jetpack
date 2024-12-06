@@ -6,6 +6,7 @@ export function PanelControls( { setAttributes, postLinkText } ) {
 		<PanelBody title={ __( 'Settings', 'jetpack' ) } initialOpen={ false }>
 			<TextControl
 				__nextHasNoMarginBottom={ true }
+				__next40pxDefaultSize
 				label={ __( 'Purchase link text', 'jetpack' ) }
 				help={ __(
 					'Enter the text you want to display on a purchase link used as fallback when the PayPal button cannot be used (e.g. emails, AMP, etc.)',

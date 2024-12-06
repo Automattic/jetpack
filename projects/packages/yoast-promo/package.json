@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-yoast-promo",
-	"version": "0.2.0",
+	"version": "0.3.0",
 	"description": "Components used to promote Yoast as part of our collaboration",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/yoast-promo/#readme",
 	"bugs": {
@@ -24,12 +24,12 @@
 	"dependencies": {
 		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/jetpack-shared-extension-utils": "workspace:*",
-		"@wordpress/components": "28.11.0",
-		"@wordpress/data": "10.11.0",
-		"@wordpress/edit-post": "8.11.0",
-		"@wordpress/element": "6.11.0",
-		"@wordpress/i18n": "5.11.0",
-		"@wordpress/plugins": "7.11.0",
+		"@wordpress/components": "28.13.0",
+		"@wordpress/data": "10.13.0",
+		"@wordpress/edit-post": "8.13.0",
+		"@wordpress/element": "6.13.0",
+		"@wordpress/i18n": "5.13.0",
+		"@wordpress/plugins": "7.13.0",
 		"gridicons": "3.4.1",
 		"react": "18.3.1",
 		"react-dom": "18.3.1"
@@ -39,7 +39,7 @@
 		"@babel/core": "7.26.0",
 		"@babel/preset-env": "7.26.0",
 		"@babel/runtime": "7.26.0",
-		"@wordpress/browserslist-config": "6.11.0",
+		"@wordpress/browserslist-config": "6.13.0",
 		"sass": "1.64.1",
 		"sass-loader": "12.4.0",
 		"webpack": "5.94.0",

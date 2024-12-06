@@ -79,7 +79,6 @@ function GoldenTokenModal( {
 							onClick={ maybeReanimate }
 							role="presentation"
 						>
-							{ /* eslint-disable-next-line jsx-a11y/media-has-caption */ }
 							<video
 								ref={ videoRef }
 								src="https://videos.files.wordpress.com/oSlNIBQO/jetpack-golden-token.mp4"
@@ -93,24 +92,24 @@ function GoldenTokenModal( {
 									<p className={ styles[ 'hi-user' ] }>
 										{ sprintf(
 											/* Translators: %s is the user's display name. */
-											__( 'Hey, %s', 'jetpack' ),
+											__( 'Hey, %s', 'jetpack-licensing' ),
 											displayName
 										) }
 									</p>
 								) }
 								<h2 className={ styles.headline }>
-									{ __( 'You have been gifted a Jetpack Golden Token.', 'jetpack' ) }
+									{ __( 'You have been gifted a Jetpack Golden Token.', 'jetpack-licensing' ) }
 								</h2>
 								<p>
 									{ tokenRedeemed &&
 										__(
 											'This unlocked a lifetime of Jetpack powers for your website. Your exclusive Jetpack Experience is already active.',
-											'jetpack'
+											'jetpack-licensing'
 										) }
 									{ ! tokenRedeemed &&
 										__(
 											'This unlocks a lifetime of Jetpack powers for your website. Your exclusive Jetpack Experience awaits.',
-											'jetpack'
+											'jetpack-licensing'
 										) }
 								</p>
 							</div>
@@ -120,20 +119,20 @@ function GoldenTokenModal( {
 								onClick={ redeemClickHandler }
 								className={ styles.button }
 							>
-								{ tokenRedeemed && __( 'Awesome!', 'jetpack' ) }
-								{ ! tokenRedeemed && __( 'Redeem your token', 'jetpack' ) }
+								{ tokenRedeemed && __( 'Awesome!', 'jetpack-licensing' ) }
+								{ ! tokenRedeemed && __( 'Redeem your token', 'jetpack-licensing' ) }
 							</Button>
 						</div>
 
 						<div className={ `${ styles[ 'powers-wrap' ] } ${ styles[ 'content-wrap' ] }` }>
 							<div className={ styles[ 'content-wrap-text' ] }>
 								<h2 className={ styles.headline }>
-									{ __( 'Super powers are ready!', 'jetpack' ) }
+									{ __( 'Super powers are ready!', 'jetpack-licensing' ) }
 								</h2>
 								<p className={ styles.paragraph }>
 									{ __(
 										'Your Jetpack Golden Token provides a lifetime license for this website and includes the following products:',
-										'jetpack'
+										'jetpack-licensing'
 									) }
 								</p>
 							</div>
@@ -142,22 +141,22 @@ function GoldenTokenModal( {
 								<div>
 									<VaultPressBackupIcon />
 
-									<h3>{ __( 'VaultPress Backup', 'jetpack' ) }</h3>
+									<h3>{ __( 'VaultPress Backup', 'jetpack-licensing' ) }</h3>
 									<p>
 										{ __(
 											'Save every change and get back online quickly with one‑click restores.',
-											'jetpack'
+											'jetpack-licensing'
 										) }
 									</p>
 								</div>
 								<div>
 									<ScanIcon />
 
-									<h3>{ _x( 'Scan', 'Plugin name (noun).', 'jetpack' ) }</h3>
+									<h3>{ _x( 'Scan', 'Plugin name (noun).', 'jetpack-licensing' ) }</h3>
 									<p>
 										{ __(
 											'Automated scanning and one‑click fixes to keep your site ahead of security threats.',
-											'jetpack'
+											'jetpack-licensing'
 										) }
 									</p>
 								</div>
@@ -170,7 +169,7 @@ function GoldenTokenModal( {
 								href={ window?.myJetpackInitialState?.myJetpackUrl }
 								className={ styles.button }
 							>
-								{ __( 'Explore your new powers', 'jetpack' ) }
+								{ __( 'Explore your new powers', 'jetpack-licensing' ) }
 							</Button>
 						</div>
 					</Col>

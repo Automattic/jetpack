@@ -1,7 +1,7 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import { Banner } from 'components/banner';
 import { connect } from 'react-redux';
+import { Banner } from 'components/banner';
 import { getSiteRawUrl } from 'state/initial-state/reducer';
 import { isPluginActive } from 'state/site/plugins';
 import yoastJetpackLogosSvg from './yoast-jetpack-logos.svg';

@@ -1,13 +1,13 @@
 import { GlobalNotices, ThemeProvider } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
+import React from 'react';
+import { connect } from 'react-redux';
+import { withRouter } from 'react-router-dom';
 import Discussion from 'discussion';
 import Earn from 'earn';
 import Subscriptions from 'newsletter';
 import Performance from 'performance';
 import Privacy from 'privacy';
-import React from 'react';
-import { connect } from 'react-redux';
-import { withRouter } from 'react-router-dom';
 import SearchableModules from 'searchable-modules';
 import Security from 'security';
 import Sharing from 'sharing';

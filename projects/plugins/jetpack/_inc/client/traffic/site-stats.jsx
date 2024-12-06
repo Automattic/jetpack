@@ -1,22 +1,20 @@
-import { imagePath, JETPACK_STATS_OPT_OUT_SURVEY } from 'constants/urls';
 import { getRedirectUrl, ToggleControl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import clsx from 'clsx';
+import { filter, includes } from 'lodash';
+import React from 'react';
+import { connect } from 'react-redux';
 import Button from 'components/button';
 import Card from 'components/card';
 import FoldableCard from 'components/foldable-card';
 import { FormFieldset, FormLegend } from 'components/forms';
 import ModuleOverriddenBanner from 'components/module-overridden-banner';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
-import SimpleNotice from 'components/notice';
-import NoticeAction from 'components/notice/notice-action';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
+import { imagePath } from 'constants/urls';
 import analytics from 'lib/analytics';
-import { filter, includes } from 'lodash';
-import React from 'react';
-import { connect } from 'react-redux';
 import { isWoASite } from 'state/initial-state';
 
 class SiteStatsComponent extends React.Component {
@@ -172,11 +170,6 @@ class SiteStatsComponent extends React.Component {
 		const unavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'stats' );
 		const siteRoles = this.props.getSiteRoles();
 
-		const optedOutOfOdyssey =
-			isStatsActive &&
-			! unavailableInOfflineMode &&
-			! this.props.getOptionValue( 'enable_odyssey_stats' );
-
 		if ( 'inactive' === this.props.getModuleOverride( 'stats' ) ) {
 			return <ModuleOverriddenBanner moduleName={ stats.name } />;
 		}
@@ -258,50 +251,6 @@ class SiteStatsComponent extends React.Component {
 							link: getRedirectUrl( 'jetpack-support-wordpress-com-stats' ),
 						} }
 					>
-						{ ! this.props.isWoASite && (
-							<>
-								{ optedOutOfOdyssey && (
-									<SimpleNotice
-										className="jp-stats-odyssey-disabled-notice"
-										showDismiss={ false }
-										status="is-error"
-										text={ __(
-											'Not into the new stats? Tell us why so we can make stats better for you.',
-											'jetpack'
-										) }
-									>
-										<NoticeAction href={ JETPACK_STATS_OPT_OUT_SURVEY } external={ true }>
-											{ __( 'Take a Quick Survey', 'jetpack' ) }
-										</NoticeAction>
-									</SimpleNotice>
-								) }
-								{ /* Hide Odyssey Stats toggle on WoA sites, which should use Calypso Stats instead. */ }
-								<FormFieldset className="jp-stats-odyssey-toggle">
-									<ToggleControl
-										checked={ !! this.props.getOptionValue( 'enable_odyssey_stats' ) }
-										disabled={
-											! isStatsActive ||
-											! optedOutOfOdyssey ||
-											unavailableInOfflineMode ||
-											this.props.isSavingAnyOption( [ 'stats' ] )
-										}
-										toggling={ this.props.isSavingAnyOption( [ 'enable_odyssey_stats' ] ) }
-										onChange={
-											optedOutOfOdyssey
-												? this.handleStatsOptionToggle( 'enable_odyssey_stats' )
-												: null
-										}
-										label={
-											<>
-												{ /* This toggle enables Odyssey Stats. */ }
-												{ __( 'Enable a new Jetpack Stats experience', 'jetpack' ) }
-												<span className="jp-stats-odyssey-badge">{ __( 'New', 'jetpack' ) }</span>
-											</>
-										}
-									/>
-								</FormFieldset>
-							</>
-						) }
 						<FormFieldset className="jp-stats-form-fieldset">
 							<ToggleControl
 								checked={ !! this.props.getOptionValue( 'admin_bar' ) }
