@@ -96,7 +96,6 @@ class Checkout_Flow {
 		}
 
 		$delayed_account_creation = ucfirst( get_option( 'woocommerce_enable_delayed_account_creation', 'Yes' ) );
-
 		$this->record_event(
 			'woocommerceanalytics_order_confirmation_view',
 			array(
@@ -113,7 +112,8 @@ class Checkout_Flow {
 				'order_note'                            => $order->get_customer_note(),
 				'shipping_option'                       => $order->get_shipping_method(),
 				'from_checkout'                         => $checkout_page_used,
-				'checkout_page_contains_checkout_block' => $checkout_page_contains_checkout_block,
+                'total_discount'                        => $order->get_discount_total(),
+                'checkout_page_contains_checkout_block' => $checkout_page_contains_checkout_block,
 				'checkout_page_contains_checkout_shortcode' => $checkout_page_contains_checkout_shortcode,
 			)
 		);

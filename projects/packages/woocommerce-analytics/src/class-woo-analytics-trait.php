@@ -8,6 +8,7 @@
 namespace Automattic\Woocommerce_Analytics;
 
 use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
+use Automattic\WooCommerce\Admin\Overrides\Order;
 use WC_Order_Item;
 use WC_Order_Item_Product;
 use WC_Payment_Gateway;
@@ -121,6 +122,7 @@ trait Woo_Analytics_Trait {
 			'express_checkout'         => 'null', // TODO: not solved yet.
 			'products_count'           => $cart->get_cart_contents_count(),
 			'order_value'              => $cart_total,
+            'total_discount'           => $cart->get_discount_total(),
 			'shipping_options_count'   => 'null', // TODO: not solved yet.
 			'coupon_used'              => $coupon_used,
 			'payment_options'          => $enabled_payment_options,
@@ -248,7 +250,6 @@ trait Woo_Analytics_Trait {
 
 	/**
 	 * Default event properties which should be included with all events.
-	 *
 	 * @return array Array of standard event props.
 	 */
 	public function get_common_properties() {
@@ -268,9 +269,9 @@ trait Woo_Analytics_Trait {
 			'store_currency'                     => get_woocommerce_currency(),
 			'timezone'                           => wp_timezone_string(),
 			'is_guest'                           => $this->get_user_id() === null,
-			'total'                              => $this->get_cart_total(),
+			'order_value'                        => $this->get_cart_total(),
 			'total_discount'                     => $this->get_total_discounts(),
-			'items_count'                        => $this->get_cart_items_count(),
+			'products_count'                     => $this->get_cart_items_count(),
 		);
 		$cart_checkout_info = $this->get_cart_checkout_info();
 		return array_merge( $site_info, $cart_checkout_info );
@@ -299,6 +300,7 @@ trait Woo_Analytics_Trait {
 	 *
 	 * @param string  $event_name The name of the event to record.
 	 * @param array   $properties Optional array of (key => value) event properties.
+	 * @param integer $product_id The id of the product relating to the event.
 	 * @param integer $product_id The id of the product relating to the event.
 	 *
 	 * @return string|void
