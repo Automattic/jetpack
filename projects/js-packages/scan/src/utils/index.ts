@@ -21,9 +21,9 @@ export const getThreatIcon = ( threat: Threat ) => {
 	switch ( getThreatType( threat ) ) {
 		case 'core':
 			return 'wordpress-alt';
-		case 'plugin':
+		case 'plugins':
 			return 'plugins';
-		case 'theme':
+		case 'themes':
 			return 'appearance';
 		case 'file':
 			return 'media-code';
@@ -36,9 +36,9 @@ export const getThreatSubtitle = ( threat: Threat ) => {
 	switch ( getThreatType( threat ) ) {
 		case 'core':
 			return __( 'Vulnerable WordPress Version', 'jetpack-scan' );
-		case 'plugin':
+		case 'plugins':
 			return __( 'Vulnerable Plugin', 'jetpack-scan' );
-		case 'theme':
+		case 'themes':
 			return __( 'Vulnerable Theme', 'jetpack-scan' );
 		case 'file':
 			return __( 'File Threat', 'jetpack-scan' );
