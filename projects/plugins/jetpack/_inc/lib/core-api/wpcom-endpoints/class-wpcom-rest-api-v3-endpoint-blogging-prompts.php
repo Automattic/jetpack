@@ -338,7 +338,8 @@ class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_REST_Posts_Controll
 	 * @param string $post_date_gmt Unused - Post date in GMT.
 	 * @return bool Always returns false as Bloganuary is disabled.
 	 */
-	protected function is_in_bloganuary( $post_date_gmt ) {
+	protected function is_in_bloganuary( $post_date_gmt ) { //phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+
 		/*
 		Disable for January 2025 and beyond (see https://wp.me/p5uIfZ-gxX).
 			Previously, this method would check if the post was published in January:
