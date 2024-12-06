@@ -39,35 +39,45 @@ class WordAds_Smart {
 
 	/**
 	 * Supported formats.
+	 * sidebar_widget formats represents the legacy Jetpack sidebar widget.
 	 *
 	 * @var array
 	 */
 	private $formats = array(
-		'top'                          => array(
+		'top'                            => array(
 			'enabled' => false,
 		),
-		'inline'                       => array(
+		'inline'                         => array(
 			'enabled' => false,
 		),
-		'belowpost'                    => array(
+		'belowpost'                      => array(
 			'enabled' => false,
 		),
-		'bottom_sticky'                => array(
+		'bottom_sticky'                  => array(
 			'enabled' => false,
 		),
-		'sidebar_sticky_right'         => array(
+		'sidebar_sticky_right'           => array(
 			'enabled' => false,
 		),
-		'gutenberg_rectangle'          => array(
+		'gutenberg_rectangle'            => array(
 			'enabled' => false,
 		),
-		'gutenberg_leaderboard'        => array(
+		'gutenberg_leaderboard'          => array(
 			'enabled' => false,
 		),
-		'gutenberg_mobile_leaderboard' => array(
+		'gutenberg_mobile_leaderboard'   => array(
 			'enabled' => false,
 		),
-		'gutenberg_skyscraper'         => array(
+		'gutenberg_skyscraper'           => array(
+			'enabled' => false,
+		),
+		'sidebar_widget_mediumrectangle' => array(
+			'enabled' => false,
+		),
+		'sidebar_widget_leaderboard'     => array(
+			'enabled' => false,
+		),
+		'sidebar_widget_wideskyscraper'  => array(
 			'enabled' => false,
 		),
 	);

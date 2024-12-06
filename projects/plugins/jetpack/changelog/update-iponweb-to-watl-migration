@@ -2,3 +2,4 @@ Significance: patch
 Type: other
 
 Migration from IPONWEB to WATL
+* Render legacy sidebar widget with the WATL
