@@ -337,6 +337,7 @@ async function addLabels( payload, octokit ) {
 	const isRevert = title.toLowerCase().includes( 'revert' );
 
 	const labels = await getLabelsToAdd( octokit, owner.login, name, number, isDraft, isRevert );
+	debug('asdf');
 
 	if ( ! labels.length ) {
 		debug( 'add-labels: Could not find labels to add to that PR. Aborting' );
