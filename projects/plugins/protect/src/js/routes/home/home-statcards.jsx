@@ -105,10 +105,10 @@ const HomeStatCards = () => {
 
 	const scanArgs = useMemo( () => {
 		let scanIcon;
-		if ( scanning ) {
-			scanIcon = <Spinner />;
-		} else if ( scanError ) {
+		if ( scanError ) {
 			scanIcon = <ShieldIcon variant="error" height={ iconHeight } />;
+		} else if ( scanning ) {
+			scanIcon = <Spinner />;
 		} else {
 			scanIcon = (
 				<ShieldIcon
