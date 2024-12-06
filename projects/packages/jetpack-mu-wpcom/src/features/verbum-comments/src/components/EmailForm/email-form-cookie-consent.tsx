@@ -21,7 +21,7 @@ export const EmailFormCookieConsent = () => {
 		<div className="verbum-mail-form-cookie-consent">
 			<ToggleControl
 				disabled={ false }
-				id="verbum-mail-form-cookie-consent-toggle"
+				id="wp-comment-cookies-consent"
 				checked={ shouldStoreEmailData.value }
 				label={ label }
 				onChange={ handleChange }
