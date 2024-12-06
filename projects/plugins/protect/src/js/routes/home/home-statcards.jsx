@@ -74,18 +74,31 @@ const HomeStatCards = () => {
 			);
 		}
 
-		const entityLabel = hasPlan
-			? _n( 'threat', 'threats', numThreats, 'jetpack-protect' )
-			: _n( 'vulnerability', 'vulnerabilities', numThreats, 'jetpack-protect' );
-
 		if ( lastCheckedLocalTimestamp ) {
 			if ( numThreats > 0 ) {
+				if ( hasPlan ) {
+					return sprintf(
+						// translators: %1$s: date/time, %2$d: number
+						_n(
+							'Last checked on %1$s: We found %2$d threat.',
+							'Last checked on %1$s: We found %2$d threats.',
+							numThreats,
+							'jetpack-protect'
+						),
+						lastCheckedLocalTimestamp,
+						numThreats
+					);
+				}
 				return sprintf(
-					// translators: %1$s: date/time, %2$d: number, %3$s: entity label
-					__( 'Last checked on %1$s: We found %2$d %3$s.', 'jetpack-protect' ),
+					// translators: %1$s: date/time, %2$d: number
+					_n(
+						'Last checked on %1$s: We found %2$d vulnerability.',
+						'Last checked on %1$s: We found %2$d vulnerabilities.',
+						numThreats,
+						'jetpack-protect'
+					),
 					lastCheckedLocalTimestamp,
-					numThreats,
-					entityLabel
+					numThreats
 				);
 			}
 			return sprintf(
@@ -94,13 +107,27 @@ const HomeStatCards = () => {
 				lastCheckedLocalTimestamp
 			);
 		}
-
+		if ( hasPlan ) {
+			return sprintf(
+				// translators: %d: number
+				_n(
+					'Last scan we found %d threat.',
+					'Last scan we found %d threats.',
+					numThreats,
+					'jetpack-protect'
+				),
+				numThreats
+			);
+		}
 		return sprintf(
-			// translators: %1$s: date/time, %2$d: number, %3$s: entity label
-			__( 'Last scan we found %2$d %3$s.', 'jetpack-protect' ),
-			lastCheckedLocalTimestamp,
-			numThreats,
-			entityLabel
+			// translators: %d: number
+			_n(
+				'Last scan we found %2$d vulnerability.',
+				'Last scan we found %2$d vulnerabilities.',
+				numThreats,
+				'jetpack-protect'
+			),
+			numThreats
 		);
 	}, [ scanError, scanning, numThreats, lastCheckedLocalTimestamp, hasPlan ] );
 
@@ -125,14 +152,14 @@ const HomeStatCards = () => {
 			scanLabel = __( 'One moment, please…', 'jetpack-protect' );
 		} else if ( scanError ) {
 			scanLabel = __( 'An error occurred', 'jetpack-protect' );
+		} else if ( hasPlan ) {
+			scanLabel = _n( 'Threat identified', 'Threats identified', numThreats, 'jetpack-protect' );
 		} else {
-			const label = hasPlan
-				? __( 'Threats', 'jetpack-protect' )
-				: __( 'Vulnerabilities', 'jetpack-protect', /* dummy arg to avoid bad minification */ 0 );
-			scanLabel = sprintf(
-				// translators: %s: "Threats" or "Vulnerabilities"
-				__( '%s identified', 'jetpack-protect' ),
-				label
+			scanLabel = _n(
+				'Vulnerability identified',
+				'Vulnerabilities identified',
+				numThreats,
+				'jetpack-protect'
 			);
 		}
 
