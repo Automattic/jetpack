@@ -123,7 +123,7 @@ const HomeStatCards = () => {
 		if ( scanError ) {
 			scanLabel = __( 'An error occurred', 'jetpack-protect' );
 		} else if ( scanning ) {
-			scanLabel = __( 'Please wait…', 'jetpack-protect' );
+			scanLabel = __( 'One moment, please…', 'jetpack-protect' );
 		} else {
 			const label = hasPlan
 				? __( 'Threats', 'jetpack-protect' )
