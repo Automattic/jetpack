@@ -1,4 +1,4 @@
 Significance: patch
 Type: added
 
-Misc: Add WordPress filter to allow cornerstone pages list to be updated via PHP.
+General: Add WordPress filters to allow Cornerstone Pages list and Image Size Analyzer source data to be updated.
