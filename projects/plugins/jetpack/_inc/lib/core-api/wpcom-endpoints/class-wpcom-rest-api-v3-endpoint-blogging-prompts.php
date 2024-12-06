@@ -335,14 +335,15 @@ class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_REST_Posts_Controll
 	/**
 	 * Return true if the post is in "Bloganuary"
 	 *
-	 * @return bool True if the post is in "Bloganuary".
+	 * @param string $post_date_gmt Unused - Post date in GMT.
+	 * @return bool Always returns false as Bloganuary is disabled.
 	 */
-	protected function is_in_bloganuary() {
+	protected function is_in_bloganuary( $post_date_gmt ) {
 		/*
 		Disable for January 2025 and beyond (see https://wp.me/p5uIfZ-gxX).
 			Previously, this method would check if the post was published in January:
-			- Extract month from post_date_gmt
-			- Return true if month was '01'
+			- Extract month from post_date_gmt -- $post_month = gmdate( 'm', strtotime( $post_date_gmt ) );
+			- Return true if month was '01' -- return $post_month === '01';
 		*/
 		return false;
 	}
