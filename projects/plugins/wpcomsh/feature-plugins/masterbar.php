@@ -93,7 +93,7 @@ add_action( 'setted_transient', 'wpcomsh_set_connected_user_data_as_user_options
  */
 function wpcomsh_activate_nav_unification() {
 	// Disable when in the redesigned nav.
-	if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
+	if ( ! wpcom_is_using_default_admin_menu() ) {
 		return false;
 	}
 
