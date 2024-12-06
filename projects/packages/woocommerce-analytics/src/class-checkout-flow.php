@@ -146,7 +146,6 @@ class Checkout_Flow {
 		$is_checkout = $checkout_page_id && is_page( $checkout_page_id )
 		|| wc_post_content_has_shortcode( 'woocommerce_checkout' )
 		|| has_block( 'woocommerce/checkout', $post )
-		|| has_block( 'woocommerce/classic-shortcode', $post )
 		|| apply_filters( 'woocommerce_is_checkout', false )
 		|| Constants::is_defined( 'WOOCOMMERCE_CHECKOUT' );
 
