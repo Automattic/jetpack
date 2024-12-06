@@ -49,18 +49,19 @@ function cleanName( name ) {
 }
 
 /**
- * Build a list of labels to add to the issue, based off our file list.
+ * Build a list of labels to add to the pull request, based off our file list.
  *
- * @param {GitHub}  octokit  - Initialized Octokit REST client.
- * @param {string}  owner    - Repository owner.
- * @param {string}  repo     - Repository name.
- * @param {string}  number   - PR number.
- * @param {boolean} isDraft  - Whether the pull request is a draft.
- * @param {boolean} isRevert - Whether the pull request is a revert.
+ * @param {GitHub}   octokit   - Initialized Octokit REST client.
+ * @param {string}   owner     - Repository owner.
+ * @param {string}   repo      - Repository name.
+ * @param {string}   number    - PR number.
+ * @param {boolean}  isDraft   - Whether the pull request is a draft.
+ * @param {boolean}  isRevert  - Whether the pull request is a revert.
+ * @param {string[]} curLabels - Current labels on the pull request.
  * @return {Promise<Array>} Promise resolving to an array of keywords we'll search for.
  */
-async function getLabelsToAdd( octokit, owner, repo, number, isDraft, isRevert ) {
-	const keywords = new Set();
+async function getLabelsToAdd( octokit, owner, repo, number, isDraft, isRevert, curLabels ) {
+	const keywords = new Set( curLabels );
 
 	// Get next valid milestone.
 	const files = await getFiles( octokit, owner, repo, number );
@@ -320,7 +321,7 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft, isRevert )
 }
 
 /**
- * Assigns any issues that are being worked to the author of the matching PR.
+ * Adds appropriate labels to the specified PR.
  *
  * @param {WebhookPayloadPullRequest} payload - Pull request event payload.
  * @param {GitHub}                    octokit - Initialized Octokit REST client.
@@ -336,26 +337,45 @@ async function addLabels( payload, octokit ) {
 	// If the PR title includes the word "revert", mark it as such.
 	const isRevert = title.toLowerCase().includes( 'revert' );
 
-	const labels = await getLabelsToAdd( octokit, owner.login, name, number, isDraft, isRevert );
+	const currentLabels = payload.pull_request.labels.map( l => l.name );
+	let labelsToAdd = await getLabelsToAdd(
+		octokit,
+		owner.login,
+		name,
+		number,
+		isDraft,
+		isRevert,
+		currentLabels
+	);
 
-	if ( ! labels.length ) {
-		debug( 'add-labels: Could not find labels to add to that PR. Aborting.' );
+	// Nothing new was added, so abort.
+	if ( labelsToAdd.length === currentLabels.length ) {
+		debug( 'add-labels: No new labels to add to that PR. Aborting.' );
 		return;
 	}
 
-	// Limit to 90 labels to allow for additional labels elsewhere.
-	if ( labels.length > 90 ) {
-		debug( 'add-labels: GitHub only allows 100 labels on a PR, so limiting to the first 90.' );
-		labels.splice( 90 );
+	// GitHub allows 100 labels on a PR. Limit to less than that to allow for additional labels elsewhere.
+	const maxLabels = 90;
+	const bigLabel = 'All the things (>' + maxLabels + ' labels)';
+	if ( labelsToAdd.length > maxLabels ) {
+		debug(
+			'add-labels: GitHub only allows 100 labels on a PR, so limiting to the first ' +
+				maxLabels +
+				'.'
+		);
+		labelsToAdd.splice( maxLabels );
+		labelsToAdd.push( bigLabel );
+	} else if ( labelsToAdd.includes( bigLabel ) ) {
+		labelsToAdd = labelsToAdd.filter( label => label !== bigLabel );
 	}
 
-	debug( `add-labels: Adding labels ${ labels } to PR #${ number }` );
+	debug( `add-labels: Adding labels ${ labelsToAdd } to PR #${ number }` );
 
-	await octokit.rest.issues.addLabels( {
+	await octokit.rest.issues.setLabels( {
 		owner: owner.login,
 		repo: name,
 		issue_number: number,
-		labels,
+		labels: labelsToAdd,
 	} );
 }
 
