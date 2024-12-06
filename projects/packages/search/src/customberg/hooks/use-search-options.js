@@ -2,7 +2,7 @@ import { useEntityProp } from '@wordpress/core-data';
 import { PRODUCT_SORT_OPTIONS, RELEVANCE_SORT_KEY } from 'instant-search/lib/constants';
 import { useMemo } from 'react';
 
-const VALID_POST_TYPES = global.JetpackInstantSearchOptions.postTypes;
+const VALID_POST_TYPES = window.JetpackInstantSearchOptions.postTypes;
 
 /**
  * Fetches values and setters for various search configuration values.
