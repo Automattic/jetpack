@@ -15,7 +15,6 @@ export default function BlockThemePreviewsModal() {
 
 	const isInSiteEditor = useSelect( select => !! select( 'core/edit-site' ), [] );
 	const isModalVisible = useSelect(
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		select => select( 'automattic/wpcom-block-theme-previews' ).isModalVisible(),
 		[]
 	);

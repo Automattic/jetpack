@@ -3,8 +3,8 @@
  */
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { isBlobURL, getBlobByURL } from '@wordpress/blob';
-import { store as blockEditorStore } from '@wordpress/block-editor';
 import {
+	store as blockEditorStore,
 	BlockIcon,
 	useBlockProps,
 	InspectorControls,
@@ -24,10 +24,10 @@ import debugFactory from 'debug';
  */
 import {
 	isStandaloneActive,
+	isUserConnected,
 	isVideoPressActive,
 	isVideoPressModuleActive,
 } from '../../../lib/connection';
-import { isUserConnected } from '../../../lib/connection';
 import { buildVideoPressURL, getVideoPressUrl } from '../../../lib/url';
 import { usePreview } from '../../hooks/use-preview';
 import { useSyncMedia } from '../../hooks/use-sync-media';
