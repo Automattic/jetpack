@@ -59,8 +59,7 @@ window.jetpackModules.models = ( function ( window, $, _, Backbone ) {
 			// Sort unavailable modules to the end if the user is running in local mode.
 			groups = _.groupBy( items, 'available' );
 			if ( _.has( groups, 'false' ) ) {
-				// eslint-disable-next-line dot-notation -- Rule is confused.
-				items = [].concat( groups[ true ], groups[ false ] );
+				items = [].concat( groups.true, groups.false );
 			}
 
 			// Now shove it back in.
