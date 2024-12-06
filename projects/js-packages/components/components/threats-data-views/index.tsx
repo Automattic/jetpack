@@ -112,6 +112,7 @@ export default function ThreatsDataViews( {
 				THREAT_FIELD_TYPE,
 				THREAT_FIELD_EXTENSION,
 				THREAT_FIELD_SIGNATURE,
+				THREAT_FIELD_STATUS,
 			],
 			titleField: THREAT_FIELD_TITLE,
 			mediaField: THREAT_FIELD_ICON,
@@ -239,28 +240,6 @@ export default function ThreatsDataViews( {
 				},
 			},
 			{
-				id: THREAT_FIELD_STATUS,
-				label: __( 'Status', 'jetpack-components' ),
-				elements: THREAT_STATUSES,
-				getValue( { item }: { item: Threat } ) {
-					if ( ! item.status ) {
-						return 'current';
-					}
-					return (
-						THREAT_STATUSES.find( ( { value } ) => value === item.status )?.value ?? item.status
-					);
-				},
-				render( { item }: { item: Threat } ) {
-					if ( item.status ) {
-						const status = THREAT_STATUSES.find( ( { value } ) => value === item.status );
-						if ( status ) {
-							return <Badge variant={ status?.variant }>{ status.label }</Badge>;
-						}
-					}
-					return <Badge variant="warning">{ __( 'Active', 'jetpack-components' ) }</Badge>;
-				},
-			},
-			{
 				id: THREAT_FIELD_TYPE,
 				label: __( 'Type', 'jetpack-components' ),
 				elements: THREAT_TYPES,
@@ -300,6 +279,33 @@ export default function ThreatsDataViews( {
 					return item.extension ? item.extension.slug : '';
 				},
 			},
+			...( dataFields.includes( 'status' )
+				? [
+						{
+							id: THREAT_FIELD_STATUS,
+							label: __( 'Status', 'jetpack-components' ),
+							elements: THREAT_STATUSES,
+							getValue( { item }: { item: Threat } ) {
+								if ( ! item.status ) {
+									return 'current';
+								}
+								return (
+									THREAT_STATUSES.find( ( { value } ) => value === item.status )?.value ??
+									item.status
+								);
+							},
+							render( { item }: { item: Threat } ) {
+								if ( item.status ) {
+									const status = THREAT_STATUSES.find( ( { value } ) => value === item.status );
+									if ( status ) {
+										return <Badge variant={ status?.variant }>{ status.label }</Badge>;
+									}
+								}
+								return <Badge variant="warning">{ __( 'Active', 'jetpack-components' ) }</Badge>;
+							},
+						},
+				  ]
+				: [] ),
 			...( dataFields.includes( 'severity' )
 				? [
 						{
@@ -484,6 +490,21 @@ export default function ThreatsDataViews( {
 		return filterSortAndPaginate( data, view, fields );
 	}, [ data, view, fields ] );
 
+	const sortedData = useMemo( () => {
+		const statusOrder = [ 'current', 'fixed', 'ignored' ];
+
+		return [ ...processedData ].sort( ( a, b ) => {
+			// Compare by status first
+			const statusComparison = statusOrder.indexOf( a.status ) - statusOrder.indexOf( b.status );
+			if ( statusComparison !== 0 ) {
+				return statusComparison;
+			}
+
+			// If statuses are the same, return 0 (maintain existing order)
+			return 0;
+		} );
+	}, [ processedData ] );
+
 	/**
 	 * Callback function to update the view state.
 	 *
@@ -503,7 +524,7 @@ export default function ThreatsDataViews( {
 	return (
 		<DataViews
 			actions={ actions }
-			data={ processedData }
+			data={ sortedData }
 			defaultLayouts={ defaultLayouts }
 			fields={ fields }
 			getItemId={ getItemId }
