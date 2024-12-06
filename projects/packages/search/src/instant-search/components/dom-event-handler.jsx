@@ -192,7 +192,7 @@ export default class DomEventHandler extends Component {
 	};
 
 	fixBodyOpacity = () => {
-		if ( '1' !== document.body.style.opacity ) {
+		if ( '0' === document.body.style.opacity ) {
 			// This ensures the body is visible when the search dialog opens if
 			// the theme changes body opacity dynamically
 			document.body.style.opacity = '1';
