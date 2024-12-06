@@ -123,7 +123,6 @@ class Slideshow extends Component {
 		const { autoplay, delay, effect, images } = this.props;
 		// Note: React omits the data attribute if the value is null, but NOT if it is false.
 		// This is the reason for the unusual logic related to autoplay below.
-
 		return (
 			<div
 				data-autoplay={ autoplay || null }
