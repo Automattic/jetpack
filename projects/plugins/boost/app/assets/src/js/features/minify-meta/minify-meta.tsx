@@ -35,11 +35,15 @@ const MetaComponent = ( { buttonText, placeholder, datasyncKey }: Props ) => {
 
 	const htmlId = `jb-minify-meta-${ datasyncKey }`;
 
-	const summary =
-		values.length > 0
-			? /* Translators: %s refers to the list of excluded items. */
-			  sprintf( __( 'Except: %s', 'jetpack-boost' ), values.join( ', ' ) )
-			: '';
+	let summary;
+	if ( values.length > 0 ) {
+		/* Translators: %s refers to the list of excluded items. */
+		summary = sprintf( __( 'Except: %s', 'jetpack-boost' ), values.join( ', ' ) );
+	}
+
+	if ( values.length === 0 ) {
+		summary = __( 'No exceptions.', 'jetpack-boost' );
+	}
 
 	// Be explicit about this because the optimizer breaks the linter otherwise.
 	let subHeaderText = '';
