@@ -123,9 +123,19 @@ class Checkout_Flow {
 	 * Track the cart page view
 	 */
 	public function capture_cart_view() {
-		if ( ! is_cart() ) {
-			return;
-		}
+        global $post;
+        $cart_page_id = wc_get_page_id( 'cart' );
+
+        $is_cart = $cart_page_id && is_page( $cart_page_id )
+            || wc_post_content_has_shortcode( 'woocommerce_cart' )
+            || has_block( 'woocommerce/cart', $post )
+            || apply_filters( 'woocommerce_is_cart', false )
+            || Constants::is_defined( 'WOOCOMMERCE_CART' )
+            || is_cart();
+
+        if ( ! $is_cart ) {
+            return;
+        }
 
 		$this->record_event(
 			'woocommerceanalytics_cart_view',
