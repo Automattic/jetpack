@@ -22,7 +22,7 @@ const StandaloneMode = () => {
 	return (
 		<div>
 			<Title>{ __( 'Standalone mode', 'jetpack-protect' ) }</Title>
-			<Text>
+			<Text className={ styles[ 'standalone-mode-content' ] }>
 				{ __(
 					'Learn how you can execute the firewall before WordPress initializes. This mode offers the most protection.',
 					'jetpack-protect'
@@ -78,7 +78,7 @@ const ShareDebugData = () => {
 					disabled={ isUpdating }
 					size="small"
 				/>
-				<Text>
+				<Text className={ styles[ 'share-data-content' ] }>
 					{ __(
 						'Allow Jetpack to collect detailed data from blocked requests to enhance firewall protection and accuracy.',
 						'jetpack-protect'
@@ -124,7 +124,7 @@ const ShareData = () => {
 					disabled={ isUpdating }
 					size="small"
 				/>
-				<Text>
+				<Text className={ styles[ 'share-data-content' ] }>
 					{ __(
 						'Allow Jetpack to collect basic data from blocked requests to improve firewall protection and accuracy.',
 						'jetpack-protect'

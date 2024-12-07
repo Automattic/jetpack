@@ -3,7 +3,7 @@ import {
 	H3,
 	ShieldIcon,
 } from '@automattic/jetpack-components';
-import FlexLayout from '../seventy-five-layout';
+import FlexLayout from '../flex-layout';
 import AdminSectionHeroNotices from './admin-section-hero-notices';
 import styles from './styles.module.scss';
 

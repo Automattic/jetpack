@@ -45,8 +45,8 @@ const FlexLayout: React.FC< SeventyFiveLayoutProps > = ( {
 				<Col>{ main }</Col>
 			) : (
 				<>
-					<Col className={ `${ styles.col } ${ mainClassName }` }>{ main }</Col>
-					<Col className={ `${ styles.col } ${ secondaryClassName }` }>{ secondary }</Col>
+					<Col className={ mainClassName }>{ main }</Col>
+					<Col className={ secondaryClassName }>{ secondary }</Col>
 				</>
 			) }
 		</div>

@@ -1,0 +1,9 @@
+.container {
+    display: flex;
+    justify-content: space-between;
+    max-width: 1128px;
+    flex-wrap: wrap;
+    margin: 0 auto;
+    gap: calc( var( --spacing-base ) * 4 ); // 32px
+    padding: calc( var( --spacing-base ) * 7 ) calc( var( --spacing-base ) * 3 ); // 56px 24px
+}

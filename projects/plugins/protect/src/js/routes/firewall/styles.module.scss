@@ -204,6 +204,14 @@
         margin-top: calc( var( --spacing-base ) / 2 ); // 4px
         margin-right: var( --spacing-base ); // 8px
     }
+
+    .share-data-content {
+        max-width: 500px;
+    }
+}
+
+.standalone-mode-content {
+    max-width: 500px;
 }
 
 
