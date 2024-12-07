@@ -21,9 +21,9 @@ export const getThreatIcon = ( threat: Threat ) => {
 	switch ( getThreatType( threat ) ) {
 		case 'core':
 			return 'wordpress-alt';
-		case 'plugins':
+		case 'plugin':
 			return 'plugins';
-		case 'themes':
+		case 'theme':
 			return 'appearance';
 		case 'file':
 			return 'media-code';
@@ -36,9 +36,9 @@ export const getThreatSubtitle = ( threat: Threat ) => {
 	switch ( getThreatType( threat ) ) {
 		case 'core':
 			return __( 'Vulnerable WordPress Version', 'jetpack-scan' );
-		case 'plugins':
+		case 'plugin':
 			return __( 'Vulnerable Plugin', 'jetpack-scan' );
-		case 'themes':
+		case 'theme':
 			return __( 'Vulnerable Theme', 'jetpack-scan' );
 		case 'file':
 			return __( 'File Threat', 'jetpack-scan' );
@@ -98,22 +98,23 @@ export const getDetailedFixerAction = ( threat: Threat ) => {
 				return __( 'Delete file', 'jetpack-scan' );
 			}
 
-			if ( threat.extension?.type === 'plugins' ) {
+			if ( threat.extension?.type === 'plugin' ) {
 				return __( 'Delete plugin from site', 'jetpack-scan' );
 			}
 
-			if ( threat.extension?.type === 'themes' ) {
+			if ( threat.extension?.type === 'theme' ) {
 				return __( 'Delete theme from site', 'jetpack-scan' );
 			}
 			break;
 		case 'update':
-			if ( threat.extension?.type === 'plugins' ) {
+			if ( threat.extension?.type === 'plugin' ) {
 				return __( 'Update plugin to newer version', 'jetpack-scan' );
 			}
-			if ( threat.extension?.type === 'themes' ) {
+			if ( threat.extension?.type === 'theme' ) {
 				return __( 'Update theme to newer version', 'jetpack-scan' );
 			}
 			return __( 'Update', 'jetpack-scan' );
+			break;
 		case 'replace':
 		case 'rollback':
 			if ( threat.filename ) {
@@ -144,11 +145,11 @@ export const getFixerDescription = ( threat: Threat ) => {
 				return __( 'Delete the infected file.', 'jetpack-scan' );
 			}
 
-			if ( threat.extension?.type === 'plugins' ) {
+			if ( threat.extension?.type === 'plugin' ) {
 				return __( 'Delete the plugin directory to fix the threat.', 'jetpack-scan' );
 			}
 
-			if ( threat.extension?.type === 'themes' ) {
+			if ( threat.extension?.type === 'theme' ) {
 				return __( 'Delete the theme directory to fix the threat.', 'jetpack-scan' );
 			}
 			break;

@@ -48,7 +48,7 @@ const ConnectedPricingTable = () => {
 	const getProtectFree = useCallback( async () => {
 		recordEvent( 'jetpack_protect_connected_product_activated' );
 		await connectSiteMutation.mutateAsync();
-		navigate( '/scan' );
+		navigate( '/' );
 	}, [ connectSiteMutation, recordEvent, navigate ] );
 
 	const args = {

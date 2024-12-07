@@ -167,29 +167,29 @@
     white-space: nowrap;
 }
 
-.footer-checkbox {
-    display: flex;
-    align-items: center;
+// .footer-checkbox {
+//     display: flex;
+//     align-items: center;
 
-    & input[type=checkbox]:checked {
-        background: var( --jp-green-40 );
-        border-color: var( --jp-green-40 );
-    }
+//     & input[type=checkbox]:checked {
+//         background: var( --jp-green-40 );
+//         border-color: var( --jp-green-40 );
+//     }
 
-    & input[type=checkbox]:indeterminate {
-        background: var( --jp-green-40 );
-        border-color: var( --jp-green-40 );
-    }
+//     & input[type=checkbox]:indeterminate {
+//         background: var( --jp-green-40 );
+//         border-color: var( --jp-green-40 );
+//     }
 
-    & input[type=checkbox]:focus {
-        box-shadow: 0 0 0 2px #fff, 0 0 0 4px var( --jp-green-40 );
-    } 
-}
+//     & input[type=checkbox]:focus {
+//         box-shadow: 0 0 0 2px #fff, 0 0 0 4px var( --jp-green-40 );
+//     } 
+// }
 
-.standalone-mode-section, .share-data-section {
-	margin-top: calc( var( --spacing-base ) * 7 ); // 56px
-    margin-bottom: calc( var( --spacing-base ) * 7 ); // 56px
-}
+// .standalone-mode-section, .share-data-section {
+// 	margin-top: calc( var( --spacing-base ) * 7 ); // 56px
+//     margin-bottom: calc( var( --spacing-base ) * 7 ); // 56px
+// }
 
 .icon-tooltip {
     max-height: 20px;
@@ -221,8 +221,53 @@
     .stat-card-icon {
         margin-bottom: 0;
     }
+}
 
-    .share-data-section {
-        margin-top: 0;
+// .footer-main {
+//     margin-bottom: calc( var( --spacing-base ) * 7 ); // 56px
+// }
+
+.footer-secondary {
+    display: flex;
+    gap: calc( var( --spacing-base ) * 7 ); // 56px
+    flex-direction: column;
+}
+
+.share-data-section {
+    display: flex;
+
+    .share-data-toggle {
+        margin-top: calc( var( --spacing-base ) / 2 ); // 4px
+        margin-right: var( --spacing-base ); // 8px
+    }
+}
+
+@media ( max-width: 1200px ) {
+    .stat-cards-wrapper {
+        margin-top: calc( var( --spacing-base ) * 4 ); // 32px
+        justify-content: flex-start;
+    }
+    
+    .home-header-main {
+        grid-column: 1 / -1;
+    }
+
+    .home-header-secondary {
+        grid-column: 1 / -1;
+    }
+}
+
+@media ( max-width: 599px ) {
+    .stat-cards-wrapper {
+        flex-direction: column;
+        gap: var( --spacing-base ); // 8px
+    }
+
+    .stat-card-icon {
+        margin-bottom: 0;
+    }
+
+    .footer-main {
+        margin-right: calc( var( --spacing-base ) * 4 ); // 32px
     }
 }
