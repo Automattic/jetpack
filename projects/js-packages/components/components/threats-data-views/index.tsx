@@ -168,12 +168,12 @@ export default function ThreatsDataViews( {
 				// Extensions (Themes and Plugins)
 				if ( threat.extension ) {
 					switch ( threat.extension.type ) {
-						case 'themes':
+						case 'theme':
 							if ( ! acc.themes.find( ( { value } ) => value === threat.extension.slug ) ) {
 								acc.themes.push( { value: threat.extension.slug, label: threat.extension.name } );
 							}
 							break;
-						case 'plugins':
+						case 'plugin':
 							if ( ! acc.plugins.find( ( { value } ) => value === threat.extension.slug ) ) {
 								acc.plugins.push( { value: threat.extension.slug, label: threat.extension.name } );
 							}
@@ -280,18 +280,7 @@ export default function ThreatsDataViews( {
 				label: __( 'Type', 'jetpack-components' ),
 				elements: THREAT_TYPES,
 				getValue( { item }: { item: Threat } ) {
-					switch ( getThreatType( item ) ) {
-						case 'core':
-							return __( 'WordPress', 'jetpack-components' );
-						case 'plugins':
-							return __( 'Plugin', 'jetpack-components' );
-						case 'themes':
-							return __( 'Theme', 'jetpack-components' );
-						case 'file':
-							return __( 'File', 'jetpack-components' );
-						default:
-							return __( 'Unknown', 'jetpack-components' );
-					}
+					return getThreatType( item ) ?? '';
 				},
 			},
 			{
@@ -439,6 +428,7 @@ export default function ThreatsDataViews( {
 				id: THREAT_ACTION_FIX,
 				label: __( 'Auto-fix', 'jetpack-components' ),
 				isPrimary: true,
+				supportsBulk: true,
 				callback: onFixThreats,
 				isEligible( item ) {
 					if ( ! onFixThreats ) {

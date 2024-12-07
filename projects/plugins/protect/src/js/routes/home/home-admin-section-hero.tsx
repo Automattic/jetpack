@@ -1,0 +1,61 @@
+import { Text, Button } from '@automattic/jetpack-components';
+import { __, sprintf } from '@wordpress/i18n';
+import { useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
+import AdminSectionHero from '../../components/admin-section-hero';
+import usePlan from '../../hooks/use-plan';
+import HomeStatCards from './home-statcards';
+import styles from './styles.module.scss';
+
+const HomeAdminSectionHero: React.FC = () => {
+	const { hasPlan } = usePlan();
+	const navigate = useNavigate();
+	const handleScanReportClick = useCallback( () => {
+		navigate( '/scan' );
+	}, [ navigate ] );
+
+	return (
+		<AdminSectionHero
+			mainClassName={ styles[ 'home-header-main' ] }
+			main={
+				<>
+					<AdminSectionHero.Heading>
+						{ __( 'Your site is safe with us', 'jetpack-protect' ) }
+					</AdminSectionHero.Heading>
+					<AdminSectionHero.Subheading>
+						<>
+							<Text className={ styles[ 'subheading-text' ] }>
+								{ sprintf(
+									// translators: %s is replaced with "threats" or "vulnerabilities" depending on the user's plan.
+									__(
+										'We stay ahead of security %s to keep your site protected.',
+										'jetpack-protect'
+									),
+									hasPlan
+										? __( 'threats', 'jetpack-protect' )
+										: __(
+												'vulnerabilities',
+												'jetpack-protect',
+												/* dummy arg to avoid bad minification */ 0
+										  )
+								) }
+							</Text>
+							<Button
+								className={ styles[ 'scan-report' ] }
+								variant="primary"
+								weight="regular"
+								onClick={ handleScanReportClick }
+							>
+								{ __( 'View scan report', 'jetpack-protect' ) }
+							</Button>
+						</>
+					</AdminSectionHero.Subheading>
+				</>
+			}
+			secondaryClassName={ styles[ 'home-header-secondary' ] }
+			secondary={ <HomeStatCards /> }
+		/>
+	);
+};
+
+export default HomeAdminSectionHero;

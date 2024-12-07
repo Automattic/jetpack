@@ -1,17 +1,3 @@
-.header-main {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: flex-start;
-}
-
-.header-secondary {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: flex-end;
-}
-
 .heading-icon {
     margin-left: calc( var( --spacing-base ) * 1.5 ); // 12px
     margin-bottom: calc( var( --spacing-base ) / 2 * -1 ); // -4px

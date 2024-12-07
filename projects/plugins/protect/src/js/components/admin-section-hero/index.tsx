@@ -9,7 +9,9 @@ import styles from './styles.module.scss';
 
 interface AdminSectionHeroProps {
 	main: React.ReactNode;
+	mainClassName?: string;
 	secondary?: React.ReactNode;
+	secondaryClassName?: string;
 	preserveSecondaryOnMobile?: boolean;
 	spacing?: number;
 }
@@ -26,7 +28,9 @@ interface AdminSectionHeroComponent extends React.FC< AdminSectionHeroProps > {
 
 const AdminSectionHero: AdminSectionHeroComponent = ( {
 	main,
+	mainClassName,
 	secondary,
+	secondaryClassName,
 	preserveSecondaryOnMobile = true,
 	spacing = 7,
 } ) => {
@@ -37,9 +41,9 @@ const AdminSectionHero: AdminSectionHeroComponent = ( {
 				spacing={ spacing }
 				gap={ 0 }
 				main={ main }
-				mainClassName={ styles[ 'header-main' ] }
+				mainClassName={ mainClassName }
 				secondary={ secondary }
-				secondaryClassName={ styles[ 'header-secondary' ] }
+				secondaryClassName={ secondaryClassName }
 				preserveSecondaryOnMobile={ preserveSecondaryOnMobile }
 				fluid={ false }
 			/>
