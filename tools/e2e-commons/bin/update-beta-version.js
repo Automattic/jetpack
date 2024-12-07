@@ -1,8 +1,6 @@
 import { fileURLToPath } from 'url';
 import fetch from 'node-fetch';
 
-/* eslint-disable n/no-process-exit */
-
 // Below call should be BEFORE requiring config, so library wil pick it up.
 process.env.NODE_CONFIG_DIR = fileURLToPath( new URL( '../config', import.meta.url ) );
 const { resolveSiteUrl, getSiteCredentials } = await import( '../helpers/utils-helper.js' );

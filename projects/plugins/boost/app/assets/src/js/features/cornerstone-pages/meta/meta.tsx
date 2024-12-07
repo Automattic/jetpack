@@ -146,7 +146,6 @@ const List: React.FC< ListProps > = ( {
 	inputRows = 10,
 } ) => {
 	const [ inputValue, setInputValue ] = useState( items );
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const [ inputInvalid, setInputInvalid ] = useState( false );
 	const [ validationError, setValidationError ] = useState< Error | null >( null );
 	const premiumFeatures = usePremiumFeatures();

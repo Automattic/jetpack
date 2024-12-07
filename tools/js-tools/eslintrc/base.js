@@ -34,7 +34,6 @@ module.exports = {
 		'plugin:@wordpress/custom',
 		'plugin:@wordpress/esnext',
 		'plugin:@wordpress/i18n',
-		'plugin:jsx-a11y/recommended',
 		'plugin:prettier/recommended',
 	],
 	env: {
