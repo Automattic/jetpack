@@ -86,7 +86,7 @@ const FirewallAdminSectionHero = () => {
 
 	return (
 		<AdminSectionHero
-			mainClassName={ styles[ 'home-header-main' ] }
+			mainClassName={ styles[ 'firewall-header-main' ] }
 			main={
 				<>
 					<Status status={ 'on' === status ? 'active' : 'inactive' } label={ statusLabel } />
@@ -94,7 +94,7 @@ const FirewallAdminSectionHero = () => {
 					<AdminSectionHero.Subheading>{ subheading }</AdminSectionHero.Subheading>
 				</>
 			}
-			secondaryClassName={ styles[ 'home-header-main' ] }
+			secondaryClassName={ styles[ 'firewall-header-secondary' ] }
 			secondary={ wafSupported && <FirewallStatCards /> }
 		/>
 	);

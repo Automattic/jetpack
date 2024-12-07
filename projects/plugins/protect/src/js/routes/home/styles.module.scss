@@ -11,7 +11,7 @@
     display: flex;
     justify-content: flex-start;
 
-    > *:not( last-child ) {
+    > *:not( :last-child ) {
         margin-right: calc( var( --spacing-base ) * 3 ); // 24px
     }
 
@@ -54,20 +54,6 @@
 	max-width: 240px;
 	border-radius: 4px;
 	text-align: left;
-}
-
-@media ( max-width: 1600px ) {
-    .stat-cards-wrapper {
-        margin-top: calc( var( --spacing-base ) * 4 ); // 32px
-    }
-    
-    .home-header-main {
-        grid-column: 1 / -1;
-    }
-
-    .home-header-secondary {
-        grid-column: 1 / -1;
-    }
 }
 
 @media ( max-width: 599px ) {

@@ -20,7 +20,7 @@ const StandaloneMode = () => {
 	};
 
 	return (
-		<div className={ styles[ 'standalone-mode-section' ] }>
+		<div>
 			<Title>{ __( 'Standalone mode', 'jetpack-protect' ) }</Title>
 			<Text>
 				{ __(
@@ -140,7 +140,6 @@ const FirewallFooter = () => {
 
 	return (
 		<AdminSectionHero
-			spacing={ 7 }
 			main={
 				<div className={ styles[ 'footer-main' ] }>
 					<StandaloneMode />

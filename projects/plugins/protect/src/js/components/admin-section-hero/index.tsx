@@ -3,7 +3,7 @@ import {
 	H3,
 	ShieldIcon,
 } from '@automattic/jetpack-components';
-import SeventyFiveLayout from '../seventy-five-layout';
+import FlexLayout from '../seventy-five-layout';
 import AdminSectionHeroNotices from './admin-section-hero-notices';
 import styles from './styles.module.scss';
 
@@ -13,7 +13,6 @@ interface AdminSectionHeroProps {
 	secondary?: React.ReactNode;
 	secondaryClassName?: string;
 	preserveSecondaryOnMobile?: boolean;
-	spacing?: number;
 }
 
 interface AdminSectionHeroComponent extends React.FC< AdminSectionHeroProps > {
@@ -32,20 +31,16 @@ const AdminSectionHero: AdminSectionHeroComponent = ( {
 	secondary,
 	secondaryClassName,
 	preserveSecondaryOnMobile = true,
-	spacing = 7,
 } ) => {
 	return (
 		<JetpackAdminSectionHero>
 			<AdminSectionHeroNotices />
-			<SeventyFiveLayout
-				spacing={ spacing }
-				gap={ 0 }
+			<FlexLayout
 				main={ main }
 				mainClassName={ mainClassName }
 				secondary={ secondary }
 				secondaryClassName={ secondaryClassName }
 				preserveSecondaryOnMobile={ preserveSecondaryOnMobile }
-				fluid={ false }
 			/>
 		</JetpackAdminSectionHero>
 	);
