@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-My Jetpack: Add rebbubble alert if backups failing.
+My Jetpack: Add 'Needs attention' status to Backup product card when Backups are failing.
