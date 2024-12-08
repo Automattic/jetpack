@@ -1835,7 +1835,11 @@ function zeroBSCRMJS_listView_generic_nameavatar( dataLine ) {
 	let emailStr = '';
 	if ( typeof dataLine.email !== 'undefined' && dataLine.email != '' ) {
 		emailStr =
-			'<a href="' + jpcrm.esc_attr( emailURL ) + '">' + jpcrm.esc_html( dataLine.email ) + '</a>';
+			'<a class="email" href="' +
+			jpcrm.esc_attr( emailURL ) +
+			'">' +
+			jpcrm.esc_html( dataLine.email ) +
+			'</a>';
 	}
 	let imgStr = '';
 	if ( typeof dataLine.avatar !== 'undefined' && dataLine.avatar != '' ) {
@@ -1853,7 +1857,7 @@ function zeroBSCRMJS_listView_generic_nameavatar( dataLine ) {
 		<td class="jpcrm_name_and_avatar">
 			${ imgStr }
 			<div class="content">
-				<a href="${ jpcrm.esc_attr( editURL ) }">${ jpcrm.esc_html( nameStr ) }</a>
+				<a class="name" href="${ jpcrm.esc_attr( editURL ) }">${ jpcrm.esc_html( nameStr ) }</a><br />
 				${ emailStr }
 			</div>
 		</td>`;
@@ -1915,7 +1919,7 @@ function zeroBSCRMJS_listView_generic_customer( dataLine ) {
 			<td class="jpcrm_name_and_avatar">
 				${ imgStr }
 				<div class="content">
-					<a href="${ jpcrm.esc_attr( editURL ) }">${ jpcrm.esc_html( nameStr ) }</a>
+					<a class="name" href="${ jpcrm.esc_attr( editURL ) }">${ jpcrm.esc_html( nameStr ) }</a><br />
 					${ jpcrm.esc_html( emailStr ) }
 				</div>
 			</td>`;
@@ -1937,7 +1941,7 @@ function zeroBSCRMJS_listView_generic_customer( dataLine ) {
 			<td class="jpcrm_name_and_avatar">
 			<i class="building icon"></i>
 				<div class="content">
-					<a href="${ jpcrm.esc_attr( editURL ) }">${ jpcrm.esc_html( nameStr ) }</a>
+					<a class="name" href="${ jpcrm.esc_attr( editURL ) }">${ jpcrm.esc_html( nameStr ) }</a><br />
 				</div>
 			</td>`;
 	} else {
@@ -2557,7 +2561,11 @@ function zeroBSCRMJS_listView_customer_nameavatar( dataLine ) {
 	let emailStr = '';
 	if ( typeof dataLine.email !== 'undefined' && dataLine.email != '' ) {
 		emailStr =
-			'<a href="' + jpcrm.esc_attr( emailURL ) + '">' + jpcrm.esc_html( dataLine.email ) + '</a>';
+			'<a class="email" href="' +
+			jpcrm.esc_attr( emailURL ) +
+			'">' +
+			jpcrm.esc_html( dataLine.email ) +
+			'</a>';
 	}
 	let imgStr = '';
 	if ( typeof dataLine.avatar !== 'undefined' && dataLine.avatar != '' ) {
@@ -2575,7 +2583,7 @@ function zeroBSCRMJS_listView_customer_nameavatar( dataLine ) {
 		<td class="jpcrm_name_and_avatar">
 			${ imgStr }
 			<div class="content">
-				<a href="${ jpcrm.esc_attr( editURL ) }">${ jpcrm.esc_html( nameStr ) }</a>
+				<a class="name" href="${ jpcrm.esc_attr( editURL ) }">${ jpcrm.esc_html( nameStr ) }</a><br />
 				${ emailStr }
 			</div>
 		</td>`;
@@ -3045,7 +3053,11 @@ function zeroBSCRMJS_listView_company_nameavatar( dataLine ) {
 	let emailStr = '';
 	if ( typeof dataLine.email !== 'undefined' && dataLine.email != '' ) {
 		emailStr =
-			'<a href="' + jpcrm.esc_attr( emailURL ) + '">' + jpcrm.esc_html( dataLine.email ) + '</a>';
+			'<a class="email" href="' +
+			jpcrm.esc_attr( emailURL ) +
+			'">' +
+			jpcrm.esc_html( dataLine.email ) +
+			'</a>';
 	}
 	let imgStr = '';
 	if ( typeof dataLine.avatar !== 'undefined' && dataLine.avatar != '' ) {
@@ -3065,8 +3077,8 @@ function zeroBSCRMJS_listView_company_nameavatar( dataLine ) {
 	const td = `
 		<td class="jpcrm_name_and_avatar">
 			${ imgStr }
-			<div class="content">
-				<a href="${ jpcrm.esc_attr( editURL ) }">${ jpcrm.esc_html( nameStr ) }</a>
+			<div class="content">	
+				<a class="name" href="${ jpcrm.esc_attr( editURL ) }">${ jpcrm.esc_html( nameStr ) }</a><br />
 				${ emailStr }
 			</div>
 		</td>`;

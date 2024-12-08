@@ -198,34 +198,6 @@ function zeroBSCRM_render_invoiceslist_page() { // phpcs:ignore WordPress.Naming
 	global $zbs;
 
 	$upsell_box_html = '';
-	$bundle          = false;
-	if ( $zbs->hasEntrepreneurBundleMin() ) {
-		$bundle = true;
-	}
-
-	if ( ! zeroBSCRM_isExtensionInstalled( 'invpro' ) ) {
-		if ( ! $bundle ) {
-			$upsell_box_html = '<!-- Inv PRO box --><div class="">';
-
-			$up_title  = esc_html__( 'Supercharged Invoicing', 'zero-bs-crm' );
-			$up_desc   = esc_html__( 'Get more out of invoicing, like accepting online payments!', 'zero-bs-crm' );
-			$up_button = esc_html__( 'Get Invoicing Pro', 'zero-bs-crm' );
-			$up_target = $zbs->urls['invpro'];
-
-			$upsell_box_html .= zeroBSCRM_UI2_squareFeedbackUpsell( $up_title, $up_desc, $up_button, $up_target );
-			$upsell_box_html .= '</div><!-- / Inv PRO box -->';
-		} else {
-			$upsell_box_html = '<!-- Inv PRO box --><div class="">';
-
-			$up_title  = esc_html__( 'Supercharged Invoicing', 'zero-bs-crm' );
-			$up_desc   = esc_html__( 'You have Invoicing Pro available because you are using a bundle. Please download and install from your account:', 'zero-bs-crm' );
-			$up_button = esc_html__( 'Your Account', 'zero-bs-crm' );
-			$up_target = $zbs->urls['account'];
-
-			$upsell_box_html .= zeroBSCRM_UI2_squareFeedbackUpsell( $up_title, $up_desc, $up_button, $up_target );
-			$upsell_box_html .= '</div><!-- / Inv PRO box -->';
-		}
-	}
 
 	$list = new zeroBSCRM_list(
 		array(
