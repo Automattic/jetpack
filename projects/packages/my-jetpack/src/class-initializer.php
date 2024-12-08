@@ -1038,12 +1038,11 @@ class Initializer {
 	 */
 	public static function alert_if_last_backup_failed( array $red_bubble_slugs ) {
 		// Make sure we're dealing with the backup product only
-		$backup = Products::get_product_class( 'backup' );
-		if ( ! $backup::has_paid_plan_for_product() ) {
+		if ( ! Products\Backup::has_paid_plan_for_product() ) {
 			return $red_bubble_slugs;
 		}
 
-		$backup_failed_status = $backup::does_module_need_attention();
+		$backup_failed_status = Products\Backup::does_module_need_attention();
 		if ( $backup_failed_status ) {
 			$red_bubble_slugs['backup_failure'] = $backup_failed_status;
 		}
