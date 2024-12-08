@@ -3,13 +3,21 @@ import clsx from 'clsx';
 import Text from '../text';
 import styles from './style.module.scss';
 
-interface StatusProps {
-	status?: 'active' | 'error' | 'inactive' | 'action' | 'initializing';
-	label?: string;
-	className?: string;
-}
+type StatusProps = Omit<
+	React.ComponentProps< typeof Text > & {
+		status?: 'active' | 'error' | 'inactive' | 'action' | 'initializing';
+		label?: string;
+		className?: string;
+	},
+	'children'
+>;
 
-const Status = ( { className, label, status = 'inactive' }: StatusProps ): React.JSX.Element => {
+const Status = ( {
+	className,
+	label,
+	status = 'inactive',
+	...props
+}: StatusProps ): React.JSX.Element => {
 	const defaultLabels: Record< string, string > = {
 		active: __( 'Active', 'jetpack-components' ),
 		error: __( 'Error', 'jetpack-components' ),
@@ -28,6 +36,7 @@ const Status = ( { className, label, status = 'inactive' }: StatusProps ): React
 				},
 				className
 			) }
+			{ ...props }
 		>
 			<span className={ styles.status__indicator } />
 			<span className={ styles.status__label }>

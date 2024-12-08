@@ -29,7 +29,7 @@ const FirewallAdminSectionHero = () => {
 		if ( status === 'on' ) {
 			return standaloneMode
 				? __( 'Standalone mode', 'jetpack-protect' )
-				: __( 'Active', 'jetpack-protect', 0 );
+				: __( 'Active', 'jetpack-protect', /** dummy arg to avoid bad minification */ 0 );
 		}
 
 		return __( 'Inactive', 'jetpack-protect' );

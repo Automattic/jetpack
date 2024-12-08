@@ -167,29 +167,10 @@
     white-space: nowrap;
 }
 
-// .footer-checkbox {
-//     display: flex;
-//     align-items: center;
-
-//     & input[type=checkbox]:checked {
-//         background: var( --jp-green-40 );
-//         border-color: var( --jp-green-40 );
-//     }
-
-//     & input[type=checkbox]:indeterminate {
-//         background: var( --jp-green-40 );
-//         border-color: var( --jp-green-40 );
-//     }
-
-//     & input[type=checkbox]:focus {
-//         box-shadow: 0 0 0 2px #fff, 0 0 0 4px var( --jp-green-40 );
-//     } 
-// }
-
-// .standalone-mode-section, .share-data-section {
-// 	margin-top: calc( var( --spacing-base ) * 7 ); // 56px
-//     margin-bottom: calc( var( --spacing-base ) * 7 ); // 56px
-// }
+.standalone-mode-section, .share-data-section {
+	margin-top: calc( var( --spacing-base ) * 7 ); // 56px
+    margin-bottom: calc( var( --spacing-base ) * 7 ); // 56px
+}
 
 .icon-tooltip {
     max-height: 20px;
@@ -223,10 +204,6 @@
     }
 }
 
-// .footer-main {
-//     margin-bottom: calc( var( --spacing-base ) * 7 ); // 56px
-// }
-
 .footer-secondary {
     display: flex;
     gap: calc( var( --spacing-base ) * 7 ); // 56px
@@ -244,16 +221,7 @@
 
 @media ( max-width: 1200px ) {
     .stat-cards-wrapper {
-        margin-top: calc( var( --spacing-base ) * 4 ); // 32px
         justify-content: flex-start;
-    }
-    
-    .home-header-main {
-        grid-column: 1 / -1;
-    }
-
-    .home-header-secondary {
-        grid-column: 1 / -1;
     }
 }
 
