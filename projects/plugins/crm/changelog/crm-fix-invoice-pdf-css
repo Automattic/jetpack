@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixing bugs in the default PDF template and other fixes. Created a new template to maintain backwards compatibility
