@@ -1,4 +1,5 @@
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
+import useBackupNeedsAttentionNotice from './use-backup-needs-attention-notice';
 import useBadInstallNotice from './use-bad-install-notice';
 import useConnectionErrorsNotice from './use-connection-errors-notice';
 import useDeprecateFeatureNotice from './use-deprecate-feature-notice';
@@ -12,6 +13,7 @@ const useNotificationWatcher = () => {
 	useSiteConnectionNotice( redBubbleAlerts );
 	useConnectionErrorsNotice();
 	useDeprecateFeatureNotice( redBubbleAlerts );
+	useBackupNeedsAttentionNotice( redBubbleAlerts );
 	useExpiringPlansNotice( redBubbleAlerts );
 };
 

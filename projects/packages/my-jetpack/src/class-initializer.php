@@ -929,6 +929,7 @@ class Initializer {
 		} else {
 			return array_merge(
 				self::alert_if_missing_connection( $red_bubble_slugs ),
+				self::alert_if_last_backup_failed( $red_bubble_slugs ),
 				self::alert_if_paid_plan_expiring( $red_bubble_slugs )
 			);
 		}
@@ -1024,6 +1025,27 @@ class Initializer {
 
 		foreach ( $products_included_in_expiring_plan as $expiring_plan => $products ) {
 			$red_bubble_slugs[ $expiring_plan ]['products_effected'] = $products;
+		}
+
+		return $red_bubble_slugs;
+	}
+
+	/**
+	 * Add an alert slug if Backups are failing or having an issue.
+	 *
+	 * @param array $red_bubble_slugs - slugs that describe the reasons the red bubble is showing.
+	 * @return array
+	 */
+	public static function alert_if_last_backup_failed( array $red_bubble_slugs ) {
+		// Make sure we're dealing with the backup product only
+		$backup = Products::get_product_class( 'backup' );
+		if ( ! $backup::has_paid_plan_for_product() ) {
+			return $red_bubble_slugs;
+		}
+
+		$backup_failed_status = $backup::does_module_need_attention();
+		if ( $backup_failed_status ) {
+			$red_bubble_slugs['backup_failure'] = $backup_failed_status;
 		}
 
 		return $red_bubble_slugs;

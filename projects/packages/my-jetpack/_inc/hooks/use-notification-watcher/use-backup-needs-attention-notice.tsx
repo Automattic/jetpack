@@ -1,0 +1,99 @@
+import { Col, getRedirectUrl, Text } from '@automattic/jetpack-components';
+import { gmdateI18n } from '@wordpress/date';
+import { __, sprintf } from '@wordpress/i18n';
+import { useContext, useEffect, useCallback } from 'react';
+import { NOTICE_PRIORITY_HIGH } from '../../context/constants';
+import { NoticeContext } from '../../context/notices/noticeContext';
+import useAnalytics from '../use-analytics';
+import type { NoticeOptions } from '../../context/notices/types';
+
+type RedBubbleAlerts = Window[ 'myJetpackInitialState' ][ 'redBubbleAlerts' ];
+
+const useBackupNeedsAttentionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
+	const { recordEvent } = useAnalytics();
+	const { setNotice } = useContext( NoticeContext );
+
+	const { status, last_updated: lastUpdated } = redBubbleAlerts?.backup_failure || {};
+	const backupStatusLastUpdatedDate = gmdateI18n( 'M j, Y', lastUpdated );
+
+	const troubleshootBackupsUrl = getRedirectUrl( 'jetpack-support-troubleshooting-backup' );
+	const contactSupportUrl = getRedirectUrl( 'jetpack-support' );
+
+	const noticeTitle = __( 'Oops! We couldn’t back up your site', 'jetpack-my-jetpack' );
+
+	const onPrimaryCtaClick = useCallback( () => {
+		window.open( troubleshootBackupsUrl );
+		recordEvent( 'jetpack_my_jetpack_backup_needs_attention_notice_primary_cta_click', {
+			backup_status: status,
+		} );
+	}, [ recordEvent, status, troubleshootBackupsUrl ] );
+
+	const onSecondaryCtaClick = useCallback( () => {
+		window.open( contactSupportUrl );
+		recordEvent( 'jetpack_my_jetpack_backup_needs_attention_notice_secondary_cta_click', {
+			backup_status: status,
+		} );
+	}, [ recordEvent, status, contactSupportUrl ] );
+
+	useEffect( () => {
+		if ( ! redBubbleAlerts?.backup_failure ) {
+			return;
+		}
+
+		const noticeMessage = (
+			<Col>
+				<Text mb={ 1 }>
+					{ sprintf(
+						// Translators: %1$s is the date the last backup took place, i.e.- "Dec 7, 2024"
+						__( 'The last backup attempted on %1$s was unsuccessful.', 'jetpack-my-jetpack' ),
+						backupStatusLastUpdatedDate
+					) }
+					<br />
+					{ __(
+						'This might be due to a block from your host or other server issues.',
+						'jetpack-my-jetpack'
+					) }
+					<br />
+					{ __(
+						'Check out our troubleshooting guide or contact your hosting provider to resolve the issue.',
+						'jetpack-my-jetpack'
+					) }
+				</Text>
+			</Col>
+		);
+
+		const noticeOptions: NoticeOptions = {
+			id: 'backup-needs-attention-notice',
+			level: 'error',
+			actions: [
+				{
+					label: __( 'Read troubleshooting guide', 'jetpack-my-jetpack' ),
+					onClick: onPrimaryCtaClick,
+					noDefaultClasses: true,
+				},
+				{
+					label: __( 'Contact support', 'jetpack-my-jetpack' ),
+					onClick: onSecondaryCtaClick,
+					isExternalLink: true,
+				},
+			],
+			priority: NOTICE_PRIORITY_HIGH,
+		};
+
+		setNotice( {
+			title: noticeTitle,
+			message: noticeMessage,
+			options: noticeOptions,
+		} );
+	}, [
+		redBubbleAlerts,
+		setNotice,
+		recordEvent,
+		onPrimaryCtaClick,
+		onSecondaryCtaClick,
+		noticeTitle,
+		backupStatusLastUpdatedDate,
+	] );
+};
+
+export default useBackupNeedsAttentionNotice;

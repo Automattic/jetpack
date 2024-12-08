@@ -22,7 +22,10 @@ type ProductStatus =
 	| 'needs_activation'
 	| 'needs_first_site_connection'
 	| 'user_connection_error'
-	| 'can_upgrade';
+	| 'can_upgrade'
+	| 'needs_attention'
+	| 'expired'
+	| 'expiring';
 
 type JetpackModule =
 	| 'anti-spam'
@@ -360,6 +363,10 @@ interface Window {
 				data: {
 					plugin: string;
 				};
+			};
+			backup_failure?: {
+				status: string;
+				last_updated: string;
 			};
 			[ key: `${ string }--plan_expired` ]: {
 				product_slug: string;
