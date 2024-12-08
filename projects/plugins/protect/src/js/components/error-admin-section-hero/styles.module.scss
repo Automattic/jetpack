@@ -4,11 +4,7 @@
 }
 
 .warning {
-    width: 54px;
-    height: 54px;
-    fill: var( --jp-red );
-    margin-left: -8px;
-    margin-right: var( --spacing-base ); // 8px
+    margin-left: calc( var( --spacing-base ) * 1.5 ); // 12px
 }
 
 .scan-navigation {

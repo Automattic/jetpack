@@ -84,16 +84,18 @@ const FirewallAdminSectionHero = () => {
 	}, [ status ] );
 
 	return (
-		<AdminSectionHero
-			main={
-				<>
-					<Status status={ 'on' === status ? 'active' : 'inactive' } label={ statusLabel } />
-					<AdminSectionHero.Heading>{ heading }</AdminSectionHero.Heading>
-					<AdminSectionHero.Subheading>{ subheading }</AdminSectionHero.Subheading>
-				</>
-			}
-			secondary={ wafSupported && <FirewallStatCards /> }
-		/>
+		<AdminSectionHero>
+			<AdminSectionHero.Main>
+				<Status status={ 'on' === status ? 'active' : 'inactive' } label={ statusLabel } mb={ 2 } />
+				<AdminSectionHero.Heading>{ heading }</AdminSectionHero.Heading>
+				<Text>{ subheading }</Text>
+			</AdminSectionHero.Main>
+			{ wafSupported && (
+				<AdminSectionHero.Aside>
+					<FirewallStatCards />
+				</AdminSectionHero.Aside>
+			) }
+		</AdminSectionHero>
 	);
 };
 
