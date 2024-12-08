@@ -19,7 +19,8 @@
 		"build-production-concurrently": "pnpm run clean && concurrently 'NODE_ENV=production BABEL_ENV=production pnpm run build-client' && pnpm run validate",
 		"clean": "rm -rf build/",
 		"validate": "pnpm exec validate-es build/",
-		"watch": "pnpm run build && webpack watch"
+		"watch": "pnpm run build && webpack watch",
+		"serve": "pnpm run build && webpack serve"
 	},
 	"browserslist": [
 		"extends @wordpress/browserslist-config"
@@ -54,13 +55,17 @@
 		"@babel/core": "7.26.0",
 		"@babel/preset-env": "7.26.0",
 		"@babel/runtime": "7.26.0",
+		"@pmmmwh/react-refresh-webpack-plugin": "0.5.15",
 		"@types/react": "18.3.12",
 		"@wordpress/browserslist-config": "6.13.0",
+		"babel-loader": "9.1.2",
 		"concurrently": "7.6.0",
+		"react-refresh": "0.16.0",
 		"sass": "1.64.1",
 		"sass-loader": "12.4.0",
 		"typescript": "5.0.4",
 		"webpack": "5.94.0",
-		"webpack-cli": "4.9.1"
+		"webpack-cli": "4.10.0",
+		"webpack-dev-server": "4.8.0"
 	}
 }
