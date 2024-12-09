@@ -114,7 +114,6 @@ export const getDetailedFixerAction = ( threat: Threat ) => {
 				return __( 'Update theme to newer version', 'jetpack-scan' );
 			}
 			return __( 'Update', 'jetpack-scan' );
-			break;
 		case 'replace':
 		case 'rollback':
 			if ( threat.filename ) {
