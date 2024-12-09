@@ -9,6 +9,7 @@ namespace Automattic\Woocommerce_Analytics;
 
 use Automattic\Jetpack\Constants;
 use WC_Product;
+use WP_Post;
 
 /**
  * Class that handles all page view events for the checkout flow (from product view to order confirmation view)
