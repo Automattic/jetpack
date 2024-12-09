@@ -14,7 +14,6 @@ type HasSeenVideoCelebrationModalContextType = {
 
 const HasSeenVCModalContext = React.createContext< HasSeenVideoCelebrationModalContextType >( {
 	hasSeenVideoCelebrationModal: false,
-	// eslint-disable-next-line @typescript-eslint/no-empty-function
 	updateHasSeenVideoCelebrationModal: () => {},
 } );
 
