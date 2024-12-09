@@ -1,27 +1,35 @@
-import { TooltipWithBounds, useTooltip, withTooltip } from '@visx/tooltip';
 import type { TooltipProps } from './types';
 
-/**
- * Renders tooltip content with positioning based on hover state.
- *
- * @param {TooltipProps} props - Component props
- * @return {JSX.Element|null} Rendered tooltip or null
- */
-const TooltipContent = ( {
-	data,
-	top = 0,
-	left = 0,
-}: TooltipProps & { top?: number; left?: number } ) => {
-	// Try to get context values, but fall back to props if not available
-	const tooltip = useTooltip();
-	const tooltipTop = tooltip.tooltipTop ?? top;
-	const tooltipLeft = tooltip.tooltipLeft ?? left;
-
-	return (
-		<TooltipWithBounds top={ tooltipTop } left={ tooltipLeft }>
-			{ data.label }: { data.value }
-		</TooltipWithBounds>
-	);
+const tooltipStyles = {
+	padding: '0.5rem',
+	backgroundColor: 'rgba(0,0,0,0.85)',
+	color: 'white',
+	borderRadius: '4px',
+	fontSize: '14px',
+	boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
 };
 
-export const Tooltip = withTooltip( TooltipContent );
+export const Tooltip = ( {
+	data,
+	top,
+	left,
+	style = {},
+}: TooltipProps & {
+	top: number;
+	left: number;
+	style?: React.CSSProperties;
+} ) => {
+	return (
+		<div
+			style={ {
+				position: 'absolute',
+				top,
+				left,
+				...tooltipStyles,
+				...style,
+			} }
+		>
+			{ data.label }: { data.value }
+		</div>
+	);
+};

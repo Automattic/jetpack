@@ -1,10 +1,12 @@
 import { AxisLeft, AxisBottom } from '@visx/axis';
+import { localPoint } from '@visx/event';
 import { Group } from '@visx/group';
 import { scaleBand, scaleLinear } from '@visx/scale';
 import { Bar } from '@visx/shape';
-import { withTooltip, TooltipWithBounds } from '@visx/tooltip';
+import { useTooltip } from '@visx/tooltip';
+import React from 'react';
+import { Tooltip } from '../tooltip';
 import type { DataPoint } from '../shared/types';
-import type { WithTooltipProvidedProps } from '@visx/tooltip/lib/enhancers/withTooltip';
 
 type BarChartProps = {
 	data: DataPoint[];
@@ -22,18 +24,10 @@ type BarChartProps = {
  * @param {BarChartProps} props - Component props
  * @return {JSX.Element} The rendered bar chart component
  */
-function BarChart( {
-	data,
-	width,
-	height,
-	margin,
-	showTooltips = false,
-	showTooltip,
-	hideTooltip,
-	tooltipData,
-	tooltipLeft = 0,
-	tooltipTop = 0,
-}: BarChartProps & WithTooltipProvidedProps< DataPoint > ) {
+function BarChart( { data, width, height, margin, showTooltips = false }: BarChartProps ) {
+	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
+		useTooltip< DataPoint >();
+
 	const margins = { top: 20, right: 20, bottom: 40, left: 40, ...margin };
 	const xMax = width - margins.left - margins.right;
 	const yMax = height - margins.top - margins.bottom;
@@ -49,22 +43,34 @@ function BarChart( {
 		domain: [ 0, Math.max( ...data.map( d => d.value ) ) ],
 	} );
 
-	const handleMouseMove = ( event: React.MouseEvent< SVGRectElement >, datum: DataPoint ) => {
-		const { clientX, clientY } = event;
-		showTooltip( {
-			tooltipData: datum,
-			tooltipLeft: clientX,
-			tooltipTop: clientY,
-		} );
-	};
+	const handleMouseMove = React.useCallback(
+		( event: React.MouseEvent< SVGRectElement >, datum: DataPoint ) => {
+			const coords = localPoint( event );
+			if ( ! coords ) return;
 
-	const handleMouseMoveFor =
-		( datum: DataPoint ) => ( event: React.MouseEvent< SVGRectElement > ) => {
-			handleMouseMove( event, datum );
-		};
+			showTooltip( {
+				tooltipData: datum,
+				tooltipLeft: coords.x,
+				tooltipTop: coords.y - 10,
+			} );
+		},
+		[ showTooltip ]
+	);
+
+	const handleMouseLeave = React.useCallback( () => {
+		hideTooltip();
+	}, [ hideTooltip ] );
+
+	const getMouseMoveHandler = React.useCallback(
+		( d: DataPoint ) => {
+			if ( ! showTooltips ) return undefined;
+			return ( event: React.MouseEvent< SVGRectElement > ) => handleMouseMove( event, d );
+		},
+		[ showTooltips, handleMouseMove ]
+	);
 
 	return (
-		<>
+		<div style={ { position: 'relative' } }>
 			<svg width={ width } height={ height }>
 				<Group left={ margins.left } top={ margins.top }>
 					{ data.map( d => (
@@ -75,21 +81,26 @@ function BarChart( {
 							width={ xScale.bandwidth() }
 							height={ yMax - ( yScale( d.value ) ?? 0 ) }
 							fill="#0675C4"
-							onMouseMove={ showTooltips ? handleMouseMoveFor( d ) : undefined }
-							onMouseLeave={ showTooltips ? hideTooltip : undefined }
+							onMouseMove={ getMouseMoveHandler( d ) }
+							onMouseLeave={ showTooltips ? handleMouseLeave : undefined }
 						/>
 					) ) }
 					<AxisLeft scale={ yScale } />
 					<AxisBottom scale={ xScale } top={ yMax } />
 				</Group>
 			</svg>
-			{ showTooltips && tooltipData && (
-				<TooltipWithBounds top={ tooltipTop } left={ tooltipLeft }>
-					{ tooltipData.label }: { tooltipData.value }
-				</TooltipWithBounds>
+			{ tooltipOpen && tooltipData && (
+				<Tooltip
+					data={ tooltipData }
+					top={ tooltipTop }
+					left={ tooltipLeft }
+					style={ {
+						transform: 'translate(-50%, -100%)',
+					} }
+				/>
 			) }
-		</>
+		</div>
 	);
 }
 
-export default withTooltip< BarChartProps, DataPoint >( BarChart );
+export default BarChart;
