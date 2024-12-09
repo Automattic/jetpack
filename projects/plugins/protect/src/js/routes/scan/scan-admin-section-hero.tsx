@@ -1,7 +1,7 @@
 import { Text, Button, useBreakpointMatch } from '@automattic/jetpack-components';
 import { Tooltip } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
-import { __, _n, sprintf } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { useCallback, useState } from 'react';
 import { useMemo } from 'react';
 import AdminSectionHero from '../../components/admin-section-hero';
@@ -59,6 +59,23 @@ const ScanAdminSectionHero: React.FC = () => {
 		lastCheckedLocalTimestamp = new Date( status.lastChecked + ' UTC' ).getTime();
 	}
 
+	let heading = __( "Don't worry about a thing", 'jetpack-protect' );
+	if ( numThreats > 0 ) {
+		if ( hasPlan ) {
+			heading = sprintf(
+				/* translators: %s: Total number of threats */
+				__( '%1$s active threats', 'jetpack-protect' ),
+				numThreats
+			);
+		} else {
+			heading = sprintf(
+				/* translators: %s: Total number of vulnerabilities */
+				__( '%1$s active vulnerabilities', 'jetpack-protect' ),
+				numThreats
+			);
+		}
+	}
+
 	const handleShowAutoFixersClick = threatList => {
 		return event => {
 			event.preventDefault();
@@ -101,16 +118,7 @@ const ScanAdminSectionHero: React.FC = () => {
 					anchor={ dailyScansPopoverAnchor }
 				/>
 				<AdminSectionHero.Heading icon={ numThreats > 0 ? 'error' : 'success' }>
-					{ numThreats > 0
-						? sprintf(
-								/* translators: %s: Total number of threats/vulnerabilities */
-								__( '%1$s active %2$s', 'jetpack-protect' ),
-								numThreats,
-								hasPlan
-									? _n( 'threat', 'threats', numThreats, 'jetpack-protect' )
-									: _n( 'vulnerability', 'vulnerabilities', numThreats, 'jetpack-protect' )
-						  )
-						: __( "Don't worry about a thing", 'jetpack-protect' ) }
+					{ heading }
 				</AdminSectionHero.Heading>
 				{ hasPlan ? (
 					<Text>
