@@ -1,4 +1,4 @@
-import { Chip, getRedirectUrl } from '@automattic/jetpack-components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __, _x } from '@wordpress/i18n';
 import React from 'react';
 import { connect } from 'react-redux';
@@ -47,6 +47,7 @@ export class Composing extends React.Component {
 			foundMarkdown = this.props.isModuleFound( 'markdown' ),
 			foundShortcodes = this.props.isModuleFound( 'shortcodes' ),
 			foundBlocks = this.props.isModuleFound( 'blocks' ),
+			foundAi = this.props.isModuleFound( 'ai' ),
 			foundMyJetpack = this.props.isMyJetpackReachable;
 
 		if (
@@ -54,7 +55,8 @@ export class Composing extends React.Component {
 			! foundLatex &&
 			! foundMarkdown &&
 			! foundShortcodes &&
-			! foundBlocks
+			! foundBlocks &&
+			! foundAi
 		) {
 			return null;
 		}
@@ -64,6 +66,7 @@ export class Composing extends React.Component {
 			copyPost = this.props.module( 'copy-post' ),
 			shortcodes = this.props.module( 'shortcodes' ),
 			blocks = this.props.module( 'blocks' ),
+			ai = this.props.module( 'ai' ),
 			copyPostSettings = (
 				<SettingsGroup
 					module={ copyPost }
@@ -204,13 +207,31 @@ export class Composing extends React.Component {
 					</CompactCard>
 				</>
 			),
+			aiSettings = (
+				<SettingsGroup
+					module={ ai }
+					support={ {
+						text: __( 'Enable the AI Assistant to help you write and edit content.', 'jetpack' ),
+						link: ai.learn_more_button,
+					} }
+				>
+					<FormFieldset>
+						<ModuleToggle
+							slug="ai"
+							activated={ !! this.props.getOptionValue( 'ai' ) }
+							toggling={ this.props.isSavingAnyOption( [ 'ai' ] ) }
+							toggleModule={ this.props.toggleModuleNow }
+						>
+							<span className="jp-form-toggle-explanation">{ ai.description }</span>
+						</ModuleToggle>
+					</FormFieldset>
+				</SettingsGroup>
+			),
 			aiAssistantLink = (
 				<CompactCard className="jp-settings-card__configure-link">
 					<a href={ `${ this.props.siteAdminUrl }admin.php?page=my-jetpack#/jetpack-ai` }>
 						{ __( 'Learn more about all Jetpack AI features', 'jetpack' ) }
 					</a>
-					{ /* TODO: remove this Chip once it's not longer "new" */ }
-					<Chip type="new" text={ __( 'New', 'jetpack' ) } />
 				</CompactCard>
 			);
 
@@ -226,6 +247,7 @@ export class Composing extends React.Component {
 				{ foundLatex && latexSettings }
 				{ foundShortcodes && shortcodeSettings }
 				{ foundBlocks && blocksSettings }
+				{ foundAi && aiSettings }
 				{ foundMyJetpack &&
 					! this.props.getOptionValue( 'jetpack_blocks_disabled' ) &&
 					aiAssistantLink }

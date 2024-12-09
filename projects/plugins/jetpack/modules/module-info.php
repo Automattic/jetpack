@@ -859,3 +859,19 @@ function jetpack_more_info_blaze() {
 	esc_html_e( 'Grow your audience by promoting your content across Tumblr and WordPress.com.', 'jetpack' );
 }
 add_action( 'jetpack_module_more_info_blaze', 'jetpack_more_info_blaze' );
+
+/**
+ * AI support link.
+ */
+function jetpack_ai_more_link() {
+	echo esc_url( Redirect::get_url( 'jetpack-support-ai' ) );
+}
+add_action( 'jetpack_learn_more_button_ai', 'jetpack_ai_more_link' );
+
+/**
+ * AI description.
+ */
+function jetpack_more_info_ai() {
+	esc_html_e( 'Add Jetpack AI to your site and post editors.', 'jetpack' );
+}
+add_action( 'jetpack_module_more_info_ai', 'jetpack_more_info_ai' );
