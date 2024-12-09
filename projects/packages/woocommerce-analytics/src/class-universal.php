@@ -409,22 +409,32 @@ class Universal {
 			$this->get_common_properties()
 		);
 
+
 		wc_enqueue_js(
 			"
-			jQuery( 'button[name=update_cart]' ).on( 'click', function() {
-				var cartItems = jQuery( '.cart_item' );
-				cartItems.each( function( item ) {
-					var qty = jQuery( this ).find( 'input.qty' );
-					if ( qty && qty.val() === '0' ) {
-						var productID = jQuery( this ).find( '.product-remove a' ).data( 'product_id' );
+			function trigger_cart_remove() {
+			    let cartItems = document.querySelectorAll( '.cart_item' );
+				[...cartItems].forEach( function( item ) {
+					let qtyInput = item.querySelector('input.qty');
+					if ( qtyInput && qtyInput.value === '0' ) {
+					    let productRemoveLink = item.querySelector('.product-remove a');
+						let productID = productRemoveLink ? productRemoveLink.dataset.product_id : null;
 						_wca.push( {
 							'_en': 'woocommerceanalytics_remove_from_cart',
 							'pi': productID, " .
-							$common_props . '
+                            $common_props . "
 						} );
 					}
 				} );
-			} );'
+			}
+
+	        document.querySelector( 'button[name=update_cart]' ).addEventListener( 'click', trigger_cart_remove );
+
+			// This duplicated listener is needed because when the cart is updated it replaces all the DOM and then the initial listener stops working.
+			document.body.onupdated_wc_div = function () {
+		        document.querySelector( 'button[name=update_cart]' ).addEventListener( 'click', trigger_cart_remove );
+	        };
+			"
 		);
 	}
 
