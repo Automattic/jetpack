@@ -21,8 +21,6 @@ module.exports = {
 		],
 		'react/jsx-no-bind': 0,
 		'react/react-in-jsx-scope': 0,
-		'space-unary-ops': 0,
-		'space-before-function-paren': 0,
 
 		// eslint 6.x migration
 		'react-hooks/rules-of-hooks': 1,

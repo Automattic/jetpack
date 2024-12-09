@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Jetpack SEO: Ensures we now support adding an SEO title and description for custom post types.

@@ -1,13 +1,10 @@
 <script lang="ts">
-	export let icon: "in" | "out" | "bug";
+	export let icon: 'in' | 'out' | 'bug';
 </script>
 
 <div class="icon {icon}">
-	{#if icon === "out"}
-		<svg
-			xmlns="http://www.w3.org/2000/svg"
-			class="ionicon"
-			viewBox="0 0 512 512"
+	{#if icon === 'out'}
+		<svg xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512"
 			><title>Outbound</title><path
 				d="M320 367.79h76c55 0 100-29.21 100-83.6s-53-81.47-96-83.6c-8.89-85.06-71-136.8-144-136.8-69 0-113.44 45.79-128 91.2-60 5.7-112 43.88-112 106.4s54 106.4 120 106.4h56"
 				fill="none"
@@ -26,11 +23,8 @@
 		>
 	{/if}
 
-	{#if icon === "in"}
-		<svg
-			xmlns="http://www.w3.org/2000/svg"
-			class="ionicon"
-			viewBox="0 0 512 512"
+	{#if icon === 'in'}
+		<svg xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512"
 			><title>Inbound</title><path
 				d="M320 336h76c55 0 100-21.21 100-75.6s-53-73.47-96-75.6C391.11 99.74 329 48 256 48c-69 0-113.44 45.79-128 91.2-60 5.7-112 35.88-112 98.4S70 336 136 336h56M192 400.1l64 63.9 64-63.9M256 224v224.03"
 				fill="none"
@@ -42,11 +36,8 @@
 		>
 	{/if}
 
-	{#if icon === "bug"}
-		<svg
-			xmlns="http://www.w3.org/2000/svg"
-			class="ionicon"
-			viewBox="0 0 512 512"
+	{#if icon === 'bug'}
+		<svg xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512"
 			><title>Error</title><path
 				d="M448 256c0-106-86-192-192-192S64 150 64 256s86 192 192 192 192-86 192-192z"
 				fill="none"
@@ -69,8 +60,8 @@
 	svg {
 		width: 25px;
 		height: 25px;
-		color: var(--gray_5);
-		fill: var(--gray_5);
+		color: var( --gray_5 );
+		fill: var( --gray_5 );
 	}
 	.icon {
 		display: flex;

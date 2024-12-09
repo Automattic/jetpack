@@ -1,5 +1,3 @@
-/* eslint-disable no-console */
-
 /**
  * Checks if we're in draft mode and sets the draft mode flag
  */

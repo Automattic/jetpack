@@ -13,13 +13,13 @@
 	@use 'sass:math';
 	$width: 50px;
 	$height: 25px;
-	$border-radius: math.div($width, 2);
+	$border-radius: math.div( $width, 2 );
 
 	$switch_width: 15px;
 	$switch_height: $switch_width;
-	$switch_border-radius: math.div($switch_width, 2);
+	$switch_border-radius: math.div( $switch_width, 2 );
 	$switch_margin: 5px;
-	$switch_movement: $width - $switch_width - $switch_margin * 2 - math.div($switch_margin, 2);
+	$switch_movement: $width - $switch_width - $switch_margin * 2 - math.div( $switch_margin, 2 );
 
 	.switch {
 		position: relative;
@@ -40,17 +40,17 @@
 		height: 100%;
 		cursor: pointer;
 		background: transparent;
-		border: 2px solid var(--jetpack_green_100);
+		border: 2px solid var( --jetpack_green_100 );
 		border-radius: $border-radius;
 		transition: background-color 0.1s ease;
 	}
 
 	.switch .track:before {
 		position: absolute;
-		content: "";
+		content: '';
 		width: $switch_width;
 		height: $switch_height;
-		background: var(--jetpack_green_100);
+		background: var( --jetpack_green_100 );
 		border-radius: 50%;
 		left: $switch_margin;
 		right: auto;
@@ -58,17 +58,19 @@
 		bottom: 0;
 		margin-top: auto;
 		margin-bottom: auto;
-		transition: transform 0.3s ease, background-color 0.1s ease;
+		transition:
+			transform 0.3s ease,
+			background-color 0.1s ease;
 	}
 
 	.switch input:checked {
 		+ .track {
-			background: var(--jetpack-green);
-			border-color: var(--jetpack-green);
+			background: var( --jetpack-green );
+			border-color: var( --jetpack-green );
 
 			&:before {
-				transform: translateX($switch_movement);
-				background-color: var(--jetpack_green_0);
+				transform: translateX( $switch_movement );
+				background-color: var( --jetpack_green_0 );
 			}
 		}
 	}

@@ -1,7 +1,9 @@
 import { Text, H3, Title, Button } from '@automattic/jetpack-components';
-import { __, _n } from '@wordpress/i18n';
+import { dateI18n } from '@wordpress/date';
+import { __, _n, sprintf } from '@wordpress/i18n';
+import clsx from 'clsx';
 import { useCallback } from 'react';
-import { MyJetpackRoutes } from '../../constants';
+import { MyJetpackRoutes, PRODUCT_STATUSES } from '../../constants';
 import { QUERY_PURCHASES_KEY, REST_API_SITE_PURCHASES_ENDPOINT } from '../../data/constants';
 import useSimpleQuery from '../../data/use-simple-query';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
@@ -24,10 +26,10 @@ import styles from './style.module.scss';
 function PlanSection( { purchase = {} } ) {
 	const { product_name } = purchase;
 	return (
-		<>
+		<div className={ styles[ 'plan-container' ] }>
 			<Title>{ product_name }</Title>
 			<PlanExpiry { ...purchase } />
-		</>
+		</div>
 	);
 }
 
@@ -42,7 +44,67 @@ function PlanSection( { purchase = {} } ) {
  * @return {object} - A plan expiry component.
  */
 function PlanExpiry( purchase ) {
-	const { expiry_message, product_name, subscribed_date } = purchase;
+	const { ID, expiry_date, expiry_status, product_name, product_slug, subscribed_date, domain } =
+		purchase;
+
+	const managePurchaseUrl = `https://wordpress.com/me/purchases/${ domain }/${ ID }`;
+	const renewUrl = `https://wordpress.com/checkout/${ product_slug }/renew/${ ID }/${ domain }`;
+
+	const isExpired = PRODUCT_STATUSES.EXPIRED === expiry_status;
+	const isExpiringSoon = PRODUCT_STATUSES.EXPIRING_SOON === expiry_status;
+	const isExpiringPurchase = isExpired || isExpiringSoon;
+
+	const expiryMessageClassName = clsx( {
+		[ styles[ 'is-expired' ] ]: isExpired,
+		[ styles[ 'is-expiring-soon' ] ]: isExpiringSoon,
+	} );
+
+	const expiryMessage = useCallback( () => {
+		const displayDate = dateI18n( 'F jS, Y', expiry_date );
+		if ( isExpiringPurchase ) {
+			// Expiring soon
+			if ( isExpiringSoon ) {
+				return sprintf(
+					// translators: %1$s is the formatted date to display, i.e.- November 24th, 2024
+					__( 'Expiring soon on %1$s', 'jetpack-my-jetpack' ),
+					displayDate
+				);
+			}
+
+			// Expired
+			return sprintf(
+				// translators: %1$s is the formatted date to display, i.e.- November 24th, 2024
+				__( 'Expired on %1$s', 'jetpack-my-jetpack' ),
+				displayDate
+			);
+		}
+
+		return sprintf(
+			// translators: %1$s is the formatted date to display, i.e.- November 24th, 2024
+			__( 'Expires on %1$s', 'jetpack-my-jetpack' ),
+			displayDate
+		);
+	}, [ expiry_date, isExpiringPurchase, isExpiringSoon ] );
+
+	const expiryAction = useCallback( () => {
+		if ( ! isExpiringPurchase ) {
+			return null;
+		}
+
+		if ( isExpiringSoon ) {
+			return (
+				<Button href={ renewUrl } isExternalLink={ true } variant="link" weight="regular">
+					{ __( 'Renew subscription', 'jetpack-my-jetpack' ) }
+				</Button>
+			);
+		}
+
+		return (
+			<Button href={ managePurchaseUrl } isExternalLink={ true } variant="link" weight="regular">
+				{ __( 'Resume subscription', 'jetpack-my-jetpack' ) }
+			</Button>
+		);
+	}, [ isExpiringPurchase, isExpiringSoon, managePurchaseUrl, renewUrl ] );
 
 	if ( isLifetimePurchase( purchase ) ) {
 		return (
@@ -56,9 +118,12 @@ function PlanExpiry( purchase ) {
 	}
 
 	return (
-		<Text variant="body" className={ styles[ 'expire-date' ] }>
-			{ expiry_message }
-		</Text>
+		<>
+			<Text variant="body" className={ clsx( styles[ 'expire-date' ], expiryMessageClassName ) }>
+				{ expiryMessage() }
+			</Text>
+			{ isExpiringPurchase && <Text>{ expiryAction() }</Text> }
+		</>
 	);
 }
 

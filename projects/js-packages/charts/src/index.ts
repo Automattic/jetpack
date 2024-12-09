@@ -1,2 +1,2 @@
-// Put your code in this `src/` folder!
-// Feel free to delete or rename this file.
+export { BarChart } from './components/bar-chart';
+export type { DataPoint } from './components/bar-chart';

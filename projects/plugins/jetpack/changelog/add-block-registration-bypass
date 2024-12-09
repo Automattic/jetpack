@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+register_block_metadata_collection: Silence path validation notices

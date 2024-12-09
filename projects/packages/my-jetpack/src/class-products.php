@@ -126,6 +126,8 @@ class Products {
 			'creator'    => Products\Creator::class,
 			'extras'     => Products\Extras::class,
 			'jetpack-ai' => Products\Jetpack_Ai::class,
+			// TODO: Remove this duplicate class ('ai')? See: https://github.com/Automattic/jetpack/pull/35910#pullrequestreview-2456462227
+			'ai'         => Products\Jetpack_Ai::class,
 			'scan'       => Products\Scan::class,
 			'search'     => Products\Search::class,
 			'social'     => Products\Social::class,
@@ -133,7 +135,6 @@ class Products {
 			'protect'    => Products\Protect::class,
 			'videopress' => Products\Videopress::class,
 			'stats'      => Products\Stats::class,
-			'ai'         => Products\Jetpack_Ai::class,
 			'growth'     => Products\Growth::class,
 			'complete'   => Products\Complete::class,
 		);
@@ -357,7 +358,7 @@ class Products {
 			'protect',
 			'crm',
 			'search',
-			'ai',
+			'jetpack-ai',
 		);
 
 		// Add plugin action links for the core Jetpack plugin.

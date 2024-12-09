@@ -20,7 +20,7 @@ export function ManualSharing( props: ManualSharingProps ) {
 			<div className={ styles.wrapper }>
 				<Flex align="start" justify="start">
 					<Text variant="body-extra-small" className={ styles.title }>
-						{ __( 'Manual sharing', 'jetpack' ) }
+						{ __( 'Manual sharing', 'jetpack-publicize-components' ) }
 					</Text>
 					<IconTooltip inline={ false } shift iconSize={ 16 } placement="top-end">
 						<ManualSharingInfo { ...props } />
