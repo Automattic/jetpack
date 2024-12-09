@@ -2,6 +2,35 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 14.2-a.1 - 2024-12-09
+### Enhancements
+- Stats: Allow fetching stats for specific sites when programatically fetching stats using Jetpack's tools. [#40441]
+- Stats: Sunset Legacy Stats experience. [#40384]
+- Stats: Enable sparkline chart in the WP Admin bar. [#40456]
+
+### Improved compatibility
+- External media: Google Photos Picker: Update UX opening picker right after pressing "change selection" CTA. [#40410]
+- SEO: Ensure support for adding an SEO title and description for custom post types. [#40334]
+- WordPress 6.7 Compatibility: Fix notices caused by translation calls happening too early in the load order. [#40474]
+
+### Bug fixes
+- Google Fonts: Clean up the Google Fonts data if either the Google Fonts module is disabled or Jetpack is disabled. [#40440]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- AI Assistant: Add disclaimer to image generation modals. [#40397]
+- AI Assistant: Add feature flag for AI feedback feature. [#40418]
+- Blocks: Fix path validation notices. [#40450]
+- Google Photos Picker: Cover case with connection transition from Google Photos to Google Photos Picker. [#40416]
+- External media: Add logic to persist session in cookie. [#40382]
+- Jetpack AI: Adding AI feedback component and implementing it on the image carousel. [#40488]
+- Jetpack AI: Change placeholders on image generation modals to try and improve styles discoverability. [#40504]
+- Jetpack AI: Remove dead and deprecated code. [#40172]
+- Newsletter sidebar: Fix no space under the toggle. [#40376]
+- General: Remove deprecated hooks and methods on Jetpack admin pages. [#40457]
+- Sync: synchronize Holiday snow option. [#40478]
+- Testing: Remove old instructions. [#40444]
+- Updated package dependencies. [#40363]
+
 ## 14.1 - 2024-12-03
 ### Enhancements
 - Image CDN: Use preconnect resource hints instead of dns-prefetch to improve performance. [#39883]

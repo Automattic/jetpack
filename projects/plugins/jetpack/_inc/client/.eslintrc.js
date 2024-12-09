@@ -14,5 +14,6 @@ module.exports = {
 				allowedTextDomain: 'jetpack',
 			},
 		],
+		'jsdoc/check-tag-names': [ 1, { definedTags: [ 'ssr-ready' ] } ],
 	},
 };

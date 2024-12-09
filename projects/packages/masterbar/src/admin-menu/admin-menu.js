@@ -151,7 +151,7 @@ import './admin-menu.css';
 									.insertAdjacentHTML( 'afterend', xhr.responseText );
 							}
 						}
-					} catch ( error ) {
+					} catch {
 						// On failure, we just won't display an upsell nudge
 					}
 				}

@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/click-events-have-key-events */
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import React from 'react';
