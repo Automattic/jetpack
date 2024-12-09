@@ -1,8 +1,12 @@
 import { Tooltip } from '../index';
+import type { TooltipProps } from '../types';
 import type { Meta } from '@storybook/react';
 
 /**
  * Custom tooltip component example that shows a different layout
+ * @param {object}               props      - Component properties
+ * @param {TooltipProps['data']} props.data - The data to display in the tooltip
+ * @return   {JSX.Element} Custom tooltip content component
  */
 const CustomTooltipContent = ( { data } ) => (
 	<div style={ { padding: '8px' } }>
@@ -45,6 +49,8 @@ export default {
 
 /**
  * Template with a visible container to better demonstrate positioning
+ * @param {object} args - Story arguments
+ * @return   {JSX.Element} Story template component
  */
 const Template = args => (
 	<div
