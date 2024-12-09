@@ -198,7 +198,7 @@ class Universal {
 
 		$enabled_payment_options = array_keys( $enabled_payment_options );
 
-		$is_in_checkout_page = $checkout_page_id === $post->ID ? 'Yes' : 'No';
+		$is_in_checkout_page = $checkout_page_id && is_page( $checkout_page_id ) ? 'Yes' : 'No';
 		$session             = WC()->session;
 		if ( is_object( $session ) ) {
 			$session->set( 'checkout_page_used', true );

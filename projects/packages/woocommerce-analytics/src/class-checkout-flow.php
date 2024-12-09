@@ -154,7 +154,6 @@ class Checkout_Flow {
 			return;
 		}
 
-		$is_in_checkout_page                       = $checkout_page_id === $post->ID ? 'Yes' : 'No';
 		$checkout_page_contains_checkout_block     = '0';
 		$checkout_page_contains_checkout_shortcode = '1';
 
@@ -179,7 +178,7 @@ class Checkout_Flow {
 			array_merge(
 				$this->get_cart_checkout_shared_data(),
 				array(
-					'from_checkout' => $is_in_checkout_page,
+					'from_checkout' => 'Yes',
 					'checkout_page_contains_checkout_block' => $checkout_page_contains_checkout_block,
 					'checkout_page_contains_checkout_shortcode' => $checkout_page_contains_checkout_shortcode,
 				)
