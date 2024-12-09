@@ -37,9 +37,8 @@ const Index = () => {
 	const hasPremiumCdnFeatures =
 		premiumFeatures.includes( 'image-cdn-liar' ) && premiumFeatures.includes( 'image-cdn-quality' );
 
-	const openCriticalCssLink = () => {
+	const handleCriticalCssLink = () => {
 		recordBoostEvent( 'critical_css_link_clicked', {} );
-		window.open( criticalCssLink, '_blank' );
 	};
 
 	return (
@@ -63,7 +62,7 @@ const Index = () => {
 										<a
 											href={ criticalCssLink }
 											target="_blank"
-											onClick={ openCriticalCssLink }
+											onClick={ handleCriticalCssLink }
 											style={ { cursor: 'pointer' } }
 											rel="noopener noreferrer"
 										/>
