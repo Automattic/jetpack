@@ -264,6 +264,7 @@ export function SubscriptionEdit( props ) {
 							{ activeStyleName !== 'button' && (
 								<TextControl
 									__nextHasNoMarginBottom={ true }
+									__next40pxDefaultSize
 									placeholder={ subscribePlaceholder }
 									disabled={ true }
 									className={ clsx(

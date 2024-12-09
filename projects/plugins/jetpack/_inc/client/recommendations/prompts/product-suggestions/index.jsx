@@ -1,9 +1,9 @@
 import { __ } from '@wordpress/i18n';
-import { JetpackLoadingIcon } from 'components/jetpack-loading-icon';
-import { MoneyBackGuarantee } from 'components/money-back-guarantee';
 import React, { useMemo } from 'react';
 import { connect } from 'react-redux';
 import { Redirect } from 'react-router-dom';
+import { JetpackLoadingIcon } from 'components/jetpack-loading-icon';
+import { MoneyBackGuarantee } from 'components/money-back-guarantee';
 import {
 	getNextRoute,
 	isProductSuggestionsAvailable as isProductSuggestionsAvailableCheck,

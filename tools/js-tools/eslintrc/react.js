@@ -14,9 +14,7 @@ module.exports = {
 		},
 	},
 	rules: {
-		'react/jsx-curly-spacing': [ 'error', 'always' ],
 		'react/jsx-no-bind': [ 'error', { ignoreRefs: true } ],
-		'react/jsx-tag-spacing': [ 'error', { beforeSelfClosing: 'always' } ],
 		'react/no-danger': 'error',
 		'react/no-did-mount-set-state': 'error',
 		'react/no-did-update-set-state': 'error',

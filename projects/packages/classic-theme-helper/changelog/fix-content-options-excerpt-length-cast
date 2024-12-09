@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Content Options: Ensure excerpt_length is cast to an int if it is not already, to prevent fatal errors.

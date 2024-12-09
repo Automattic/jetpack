@@ -223,7 +223,6 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 		try {
 			data = JSON.parse( text );
 		} catch ( error ) {
-			// eslint-disable-next-line no-console
 			throw new DataSyncError( 'Failed to JSON.parse() the response from the server.', {
 				...this.describeSelf(),
 				location: url,

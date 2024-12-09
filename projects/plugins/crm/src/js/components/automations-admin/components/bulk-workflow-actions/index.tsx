@@ -2,9 +2,9 @@ import { DropdownMenu, MenuItem } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { chevronDown } from '@wordpress/icons';
+import { useCallback } from 'react';
 import { useMutateAutomationWorkflows } from 'crm/data/hooks/mutations';
 import { store } from 'crm/state/store';
-import { useCallback } from 'react';
 import styles from './styles.module.scss';
 
 type BulkWorkflowActionsProps = {

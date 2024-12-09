@@ -124,7 +124,7 @@ export default function TitleOptimization( {
 				const parsedContent = JSON.parse( content );
 				setOptions( parsedContent );
 				setSelected( parsedContent?.[ 0 ]?.title );
-			} catch ( e ) {
+			} catch {
 				const jsonError: TitleOptimizationJSONError = {
 					code: ERROR_JSON_PARSE,
 					message: genericErrorMessage,
@@ -204,7 +204,7 @@ export default function TitleOptimization( {
 
 			try {
 				autosave( event );
-			} catch ( e ) {
+			} catch {
 				// Do nothing since the user can save manually
 			}
 		},

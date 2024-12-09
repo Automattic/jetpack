@@ -1,7 +1,7 @@
 import clsx from 'clsx';
-import PlanIcon from 'components/plans/plan-icon/index';
 import PropTypes from 'prop-types';
 import React from 'react';
+import PlanIcon from 'components/plans/plan-icon/index';
 
 import './style.scss';
 

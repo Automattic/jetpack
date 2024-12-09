@@ -1,9 +1,9 @@
 import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { JetpackLoadingIcon } from 'components/jetpack-loading-icon';
 import { isEmpty } from 'lodash';
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
+import { JetpackLoadingIcon } from 'components/jetpack-loading-icon';
 import { getSiteTitle } from 'state/initial-state';
 import {
 	addViewedRecommendation as addViewedRecommendationAction,

@@ -12,5 +12,19 @@ module.exports = {
 		'no-undef': 'off',
 
 		'@typescript-eslint/no-unused-vars': [ 'warn', { argsIgnorePattern: '^_' } ],
+
+		'@typescript-eslint/no-empty-object-type': [
+			'error',
+			{ allowInterfaces: 'with-single-extends' },
+		],
 	},
+	overrides: [
+		{
+			files: [ '*.cjs' ],
+			rules: {
+				// cjs files need to use require imports.
+				'@typescript-eslint/no-require-imports': 'off',
+			},
+		},
+	],
 };

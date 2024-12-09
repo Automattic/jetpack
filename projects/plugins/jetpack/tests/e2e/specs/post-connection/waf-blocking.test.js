@@ -36,7 +36,7 @@ test.describe.parallel( 'WAF Blocking', () => {
 			Given that when a request is blocked, the code does die() with a specific message, we never render the page.
 			The assertion is just to ensure that we indeed do not see a page rendered in the output.
 			 */
-			await expect( response.body() ).not.toContain( '<html>' );
+			expect( response.body() ).not.toContain( '<html>' );
 		} );
 	} );
 } );

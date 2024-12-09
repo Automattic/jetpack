@@ -5,7 +5,10 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
+use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
+use Automattic\Jetpack\Status\Host;
 
 /**
  * Add the Admin Interface Style setting on the General settings page.
@@ -273,3 +276,68 @@ function wpcom_show_admin_interface_notice() {
 	);
 }
 add_action( 'admin_notices', 'wpcom_show_admin_interface_notice' );
+
+/**
+ * Check if the duplicate views experiment is enabled.
+ *
+ * @return boolean
+ */
+function wpcom_is_duplicate_views_experiment_enabled() {
+	// TODO: We don't know yet the experiment name.
+	$experiment_platform = 'calypso';
+	$experiment_name     = "{$experiment_platform}_duplicate_views_placeholder";
+
+	static $is_enabled = null;
+	if ( $is_enabled !== null ) {
+		return $is_enabled;
+	}
+
+	if ( ( new Host() )->is_wpcom_simple() ) {
+		$is_enabled = 'treatment' === \ExPlat\assign_current_user( $experiment_name );
+		return $is_enabled;
+	}
+
+	$option_name = 'duplicate_views_experiment_assignment';
+	$variation   = get_user_option( $option_name, get_current_user_id() );
+
+	if ( false !== $variation ) {
+		$is_enabled = 'treatment' === $variation;
+		return $is_enabled;
+	}
+
+	if ( ! ( new Jetpack_Connection() )->is_user_connected() ) {
+		$is_enabled = false;
+		return $is_enabled;
+	}
+
+	$request_path = add_query_arg(
+		array( 'experiment_name' => $experiment_name ),
+		"/experiments/0.1.0/assignments/{$experiment_platform}"
+	);
+	$response     = Client::wpcom_json_api_request_as_user( $request_path, 'v2' );
+
+	if ( is_wp_error( $response ) ) {
+		$is_enabled = false;
+		return $is_enabled;
+	}
+
+	$response_code = wp_remote_retrieve_response_code( $response );
+
+	if ( 200 !== $response_code ) {
+		$is_enabled = false;
+		return $is_enabled;
+	}
+
+	$data = json_decode( wp_remote_retrieve_body( $response ), true );
+
+	if ( isset( $data['variations'] ) && isset( $data['variations'][ $experiment_name ] ) ) {
+		$variation = $data['variations'][ $experiment_name ];
+		update_user_option( get_current_user_id(), $option_name, $variation, true );
+
+		$is_enabled = 'treatment' === $variation;
+		return $is_enabled;
+	} else {
+		$is_enabled = false;
+		return $is_enabled;
+	}
+}
