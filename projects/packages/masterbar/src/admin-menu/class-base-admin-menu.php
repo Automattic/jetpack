@@ -77,7 +77,7 @@ abstract class Base_Admin_Menu {
 			add_filter( 'admin_menu', array( $this, 'override_svg_icons' ), 99999 );
 			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ), 11 );
 			add_action( 'admin_head', array( $this, 'set_site_icon_inline_styles' ) );
-			if ( ! \wpcom_is_duplicate_views_experiment_enabled() ) {
+			if ( ! function_exists( 'wpcom_is_duplicate_views_experiment_enabled' ) || ! \wpcom_is_duplicate_views_experiment_enabled() ) {
 				add_action( 'in_admin_header', array( $this, 'add_dashboard_switcher' ) );
 			}
 			add_action( 'admin_footer', array( $this, 'dashboard_switcher_scripts' ) );
