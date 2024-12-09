@@ -89,7 +89,7 @@ const ShareData = () => {
 				onChange={ handleShareDataChange }
 				disabled={ isUpdating }
 				size="small"
-				label={ __( 'Share basic data with Jetpack', 'jetpack-protect' ) }
+				label={ __( 'Share basic data', 'jetpack-protect' ) }
 				help={ __(
 					'Allow Jetpack to collect basic data from blocked requests to improve firewall protection and accuracy.',
 					'jetpack-protect'
