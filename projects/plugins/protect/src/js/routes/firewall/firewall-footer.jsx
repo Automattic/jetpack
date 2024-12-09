@@ -101,12 +101,12 @@ const FirewallFooter = () => {
 
 	return (
 		<div className={ styles.footer }>
-			<Container horizontalSpacing={ 7 }>
-				<Col sm={ 12 } md={ 6 } lg={ 6 }>
+			<Container horizontalSpacing={ 8 } horizontalGap={ 7 }>
+				<Col sm={ 12 } md={ 6 } lg={ 7 }>
 					<StandaloneMode />
 				</Col>
 				{ isEnabled && (
-					<Col sm={ 12 } md={ 6 } lg={ 6 }>
+					<Col sm={ 12 } md={ 6 } lg={ 5 }>
 						<ShareData />
 					</Col>
 				) }
