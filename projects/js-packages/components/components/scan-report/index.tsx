@@ -107,17 +107,24 @@ export default function ScanReport( { hasPlan, data, onChangeSelection } ): JSX.
 					if ( item.checked ) {
 						if ( item.threats.length > 0 ) {
 							variant = 'warning';
-							text = hasPlan
-								? __( 'Threats detected.', 'jetpack-components' )
-								: __( 'Vulnerabilities detected.', 'jetpack-components' );
+							text = __( 'Vulnerabilities detected.', 'jetpack-components' );
+
+							if ( hasPlan ) {
+								text = __( 'Threats detected.', 'jetpack-components' );
+							}
 						} else {
 							variant = 'success';
-							text = hasPlan
-								? __( 'No known threats found that affect this version.', 'jetpack-components' )
-								: __(
-										'No known vulnerabilities found that affect this version.',
-										'jetpack-components'
-								  );
+							text = __(
+								'No known vulnerabilities found that affect this version.',
+								'jetpack-components'
+							);
+
+							if ( hasPlan ) {
+								text = __(
+									'No known threats found that affect this version.',
+									'jetpack-components'
+								);
+							}
 						}
 					}
 
