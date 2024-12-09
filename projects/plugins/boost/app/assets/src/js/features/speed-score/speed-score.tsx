@@ -159,7 +159,10 @@ const SpeedScore = () => {
 				{ site.online && <PerformanceHistory /> }
 			</div>
 
-			<PopOut scoreChange={ showScoreChangePopOut } />
+			<PopOut
+				scoreChange={ showScoreChangePopOut }
+				scores={ { mobile: scores.current.mobile, desktop: scores.current.desktop } }
+			/>
 		</>
 	);
 };

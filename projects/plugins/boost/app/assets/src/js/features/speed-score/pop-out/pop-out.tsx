@@ -10,6 +10,10 @@ import { recordBoostEvent } from '$lib/utils/analytics';
 
 type Props = {
 	scoreChange: number | false; // Speed score shift to show, or false if none.
+	scores: {
+		mobile: number;
+		desktop: number;
+	};
 };
 
 /**
@@ -54,7 +58,7 @@ const slowerMessage: ScoreChangeMessage = {
 	ctaLink: getRedirectUrl( 'boost-improve-site-speed-score' ),
 };
 
-function PopOut( { scoreChange }: Props ) {
+function PopOut( { scoreChange, scores }: Props ) {
 	/*
 	 * Determine if the score has changed enough to show the alert.
 	 */
@@ -70,7 +74,6 @@ function PopOut( { scoreChange }: Props ) {
 	 * Dismissed means that the user asked to never show us this alert again.
 	 */
 	const [ isDismissed, dismissAlert ] = useDismissibleAlertState( message.id );
-
 	/*
 	 * Hide the alert for now. The alert will show up again if the user refreshes the page.
 	 */
@@ -79,7 +82,11 @@ function PopOut( { scoreChange }: Props ) {
 	const hideAlert = () => setClose( true );
 
 	if ( hasScoreChanged ) {
-		recordBoostEvent( 'speed_score_alert_shown', {} );
+		recordBoostEvent( 'speed_score_alert_shown', {
+			score_direction: scoreChange > 0 ? 'up' : 'down',
+			mobile_score: scores.mobile,
+			desktop_score: scores.desktop,
+		} );
 	}
 
 	const animationStyles = useSpring( {
