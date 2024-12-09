@@ -22010,7 +22010,7 @@ snapshots:
 
   esbuild-register@3.6.0(esbuild@0.24.0):
     dependencies:
-      debug: 4.3.7
+      debug: 4.3.4
       esbuild: 0.24.0
     transitivePeerDependencies:
       - supports-color
@@ -23579,7 +23579,7 @@ snapshots:
       jest-config: 29.7.0(@types/node@20.17.9)
       jest-util: 29.7.0
       jest-validate: 29.7.0
-      yargs: 17.6.2
+      yargs: 17.7.2
     transitivePeerDependencies:
       - '@types/node'
       - babel-plugin-macros
