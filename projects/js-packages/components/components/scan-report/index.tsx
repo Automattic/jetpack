@@ -27,12 +27,13 @@ import styles from './styles.module.scss';
  * DataViews component for displaying a scan report.
  *
  * @param {object}   props                   - Component props.
+ * @param {boolean}  props.hasPlan           - Whether the user has a plan.
  * @param {Array}    props.data              - Scan report data.
  * @param {Function} props.onChangeSelection - Callback function run when an item is selected.
  *
  * @return {JSX.Element} The ScanReport component.
  */
-export default function ScanReport( { data, onChangeSelection } ): JSX.Element {
+export default function ScanReport( { hasPlan, data, onChangeSelection } ): JSX.Element {
 	const baseView = {
 		search: '',
 		filters: [],
@@ -97,7 +98,6 @@ export default function ScanReport( { data, onChangeSelection } ): JSX.Element {
 					return 'unchecked';
 				},
 				render( { item }: { item: ScanReportExtension } ) {
-					const hasStatus = item.threats.some( threat => threat.status !== null );
 					let variant: 'info' | 'warning' | 'success' = 'info';
 					let text = __(
 						'This item was added to your site after the most recent scan. We will check for threats during the next scheduled one.',
@@ -107,12 +107,12 @@ export default function ScanReport( { data, onChangeSelection } ): JSX.Element {
 					if ( item.checked ) {
 						if ( item.threats.length > 0 ) {
 							variant = 'warning';
-							text = hasStatus
+							text = hasPlan
 								? __( 'Threats detected.', 'jetpack-components' )
 								: __( 'Vulnerabilities detected.', 'jetpack-components' );
 						} else {
 							variant = 'success';
-							text = hasStatus
+							text = hasPlan
 								? __( 'No known threats found that affect this version.', 'jetpack-components' )
 								: __(
 										'No known vulnerabilities found that affect this version.',
@@ -174,7 +174,7 @@ export default function ScanReport( { data, onChangeSelection } ): JSX.Element {
 		];
 
 		return result;
-	}, [ view ] );
+	}, [ view, hasPlan ] );
 
 	/**
 	 * Apply the view settings (i.e. filters, sorting, pagination) to the dataset.

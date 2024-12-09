@@ -1,6 +1,7 @@
 import { AdminSection, Container, Col, ScanReport } from '@automattic/jetpack-components';
 import AdminPage from '../../components/admin-page';
 import useScanStatusQuery from '../../data/scan/use-scan-status-query';
+import usePlan from '../../hooks/use-plan';
 import HomeAdminSectionHero from './home-admin-section-hero';
 
 /**
@@ -11,6 +12,7 @@ import HomeAdminSectionHero from './home-admin-section-hero';
  * @return {Component} The root component for the scan page.
  */
 const HomePage = () => {
+	const { hasPlan } = usePlan();
 	const { data: status } = useScanStatusQuery( { usePolling: true } );
 	const { core, plugins, themes, files } = status;
 
@@ -29,7 +31,7 @@ const HomePage = () => {
 			<AdminSection>
 				<Container horizontalSpacing={ 7 } horizontalGap={ 4 }>
 					<Col>
-						<ScanReport data={ data } />
+						<ScanReport hasPlan={ hasPlan } data={ data } />
 					</Col>
 				</Container>
 			</AdminSection>
