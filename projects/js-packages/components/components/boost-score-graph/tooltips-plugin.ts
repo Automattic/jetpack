@@ -17,10 +17,9 @@ export function tooltipsPlugin( periods ) {
 	/**
 	 * Initializes the tooltips plugin.
 	 *
-	 * @param {uPlot}  u     - The uPlot instance.
-	 * @param {object} _opts - Options for the uPlot instance.
+	 * @param {uPlot} u - The uPlot instance.
 	 */
-	function init( u: uPlot, _opts: object ) {
+	function init( u: uPlot ) {
 		container.classList.add( 'jb-score-tooltips-container' );
 		if ( ! reactDom ) {
 			reactDom = ReactDOM.createRoot( reactRoot );

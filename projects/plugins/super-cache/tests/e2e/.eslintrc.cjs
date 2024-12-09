@@ -13,7 +13,6 @@ module.exports = {
 		project: [ './tsconfig.json' ],
 	},
 	rules: {
-		'comma-dangle': 0,
 		'@typescript-eslint/no-unused-vars': 0,
 		'import/no-unresolved': 0,
 	},

@@ -1,15 +1,15 @@
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, check, closeSmall } from '@wordpress/icons';
 import clsx from 'clsx';
-import {
+import React, {
 	createContext,
 	useContext,
 	Children,
 	cloneElement,
 	PropsWithChildren,
 	ReactElement,
+	CSSProperties,
 } from 'react';
-import React, { CSSProperties } from 'react';
 import IconTooltip from '../icon-tooltip';
 import useBreakpointMatch from '../layout/use-breakpoint-match';
 import TermsOfService from '../terms-of-service';

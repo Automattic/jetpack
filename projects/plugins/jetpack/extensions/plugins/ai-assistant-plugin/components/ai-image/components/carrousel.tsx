@@ -8,6 +8,7 @@ import clsx from 'clsx';
 /**
  * Internal dependencies
  */
+import AiFeedbackThumbs from '../../ai-feedback';
 import AiIcon from '../../ai-icon';
 import './carrousel.scss';
 
@@ -86,6 +87,23 @@ export default function Carrousel( {
 
 	const actual = current === 0 && total === 0 ? 0 : current + 1;
 
+	const aiFeedbackDisabled = imageData => {
+		const { image, generating, error } = imageData;
+
+		// disable if there's an empty modal
+		if ( ! image && ! generating && ! error ) {
+			return true;
+		}
+
+		// also disable if we're generating or have an error
+		if ( generating || error ) {
+			return true;
+		}
+
+		// otherwise we're fine
+		return false;
+	};
+
 	return (
 		<div className="ai-assistant-image__carrousel">
 			<div className="ai-assistant-image__carrousel-images">
@@ -142,11 +160,20 @@ export default function Carrousel( {
 				{ images.length > 1 && nextButton }
 			</div>
 			<div className="ai-assistant-image__carrousel-footer">
-				<div className="ai-assistant-image__carrousel-counter">
-					{ prevButton }
-					{ actual } / { total }
-					{ nextButton }
+				<div className="ai-assistant-image__carrousel-footer-left">
+					<div className="ai-assistant-image__carrousel-counter">
+						{ prevButton }
+						{ actual } / { total }
+						{ nextButton }
+					</div>
+
+					<AiFeedbackThumbs
+						disabled={ aiFeedbackDisabled( images[ current ] ) }
+						ratedItem={ images[ current ].libraryUrl || '' }
+						iconSize={ 20 }
+					/>
 				</div>
+
 				<div className="ai-assistant-image__carrousel-actions">{ actions }</div>
 			</div>
 		</div>

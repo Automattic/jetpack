@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Remove deprecated hooks and methods on Jetpack admin pages.

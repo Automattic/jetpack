@@ -79,7 +79,6 @@ function GoldenTokenModal( {
 							onClick={ maybeReanimate }
 							role="presentation"
 						>
-							{ /* eslint-disable-next-line jsx-a11y/media-has-caption */ }
 							<video
 								ref={ videoRef }
 								src="https://videos.files.wordpress.com/oSlNIBQO/jetpack-golden-token.mp4"
