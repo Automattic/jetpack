@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Comments: fix redirect bug
+Comments: add cookie consent input and fix console error
