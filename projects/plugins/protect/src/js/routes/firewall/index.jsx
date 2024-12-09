@@ -444,6 +444,7 @@ const FirewallPage = () => {
 				{ ( ipBlockListEnabled || ipBlockListHasContent ) && (
 					<div className={ styles[ 'manual-rules-section' ] }>
 						<Textarea
+							id="jetpack_waf_ip_block_list"
 							placeholder={ __( 'Example:', 'jetpack-protect' ) + '\n12.12.12.1\n12.12.12.2' }
 							rows={ 3 }
 							value={ formState.jetpack_waf_ip_block_list }
@@ -498,6 +499,7 @@ const FirewallPage = () => {
 					{ ( jetpackWafIpAllowListEnabled || ipAllowListHasContent ) && (
 						<div className={ styles[ 'manual-rules-section' ] }>
 							<Textarea
+								id="jetpack_waf_ip_allow_list"
 								placeholder={ __( 'Example:', 'jetpack-protect' ) + '\n12.12.12.1\n12.12.12.2' }
 								rows={ 3 }
 								value={ formState.jetpack_waf_ip_allow_list }
