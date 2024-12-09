@@ -93,7 +93,7 @@ const FirewallStatCards = () => {
 	);
 
 	return (
-		<div className={ styles[ 'stat-card-wrapper' ] }>
+		<div className={ styles[ 'stat-cards-wrapper' ] }>
 			<StatCard { ...currentDayArgs } />
 			<StatCard { ...thirtyDaysArgs } />
 		</div>
