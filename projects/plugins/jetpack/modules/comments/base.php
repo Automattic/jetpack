@@ -300,13 +300,35 @@ class Highlander_Comments_Base {
 		}
 
 		// Set comment author cookies.
+		// We don't set the cookies if they are logged in with WordPress.com because they already have a cookie set.
 		// phpcs:ignore WordPress.WP.CapitalPDangit
-		if ( ( 'wordpress' !== $id_source ) && is_user_logged_in() ) {
-			/** This filter is already documented in core/wp-includes/comment-functions.php */
-			$comment_cookie_lifetime = apply_filters( 'comment_cookie_lifetime', 30000000 );
-			setcookie( 'comment_author_' . COOKIEHASH, $comment->comment_author, time() + $comment_cookie_lifetime, COOKIEPATH, COOKIE_DOMAIN, is_ssl(), true );
-			setcookie( 'comment_author_email_' . COOKIEHASH, $comment->comment_author_email, time() + $comment_cookie_lifetime, COOKIEPATH, COOKIE_DOMAIN, is_ssl(), true );
-			setcookie( 'comment_author_url_' . COOKIEHASH, esc_url( $comment->comment_author_url ), time() + $comment_cookie_lifetime, COOKIEPATH, COOKIE_DOMAIN, is_ssl(), true );
+		if ( 'wordpress' !== $id_source ) {
+			$has_cookies_consent = true; // Trying to find a way to check if the user has consented to cookies.
+
+			if ( ( 'guest' === $id_source ) && ! $has_cookies_consent ) {
+				return;
+			}
+
+			$cookie_options = array(
+				'expires'  => time() + apply_filters( 'comment_cookie_lifetime', YEAR_IN_SECONDS ),
+				'path'     => COOKIEPATH,
+				'domain'   => COOKIE_DOMAIN,
+				'secure'   => is_ssl(),
+				'httponly' => true,
+			);
+
+			// Set samesite to None if the request is from Jetpack iframe.
+			// This is needed because it is considered third party.
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nonce verification should happen in Jetpack_Comments::pre_comment_on_post().
+			if ( isset( $_REQUEST['for'] ) && 'jetpack' === $_REQUEST['for'] ) {
+				$cookie_options['samesite'] = 'None';
+			}
+
+			// phpcs:disable Jetpack.Functions.SetCookie.MissingTrueHTTPOnly
+			isset( $comment->comment_author ) ? setcookie( 'comment_author_' . COOKIEHASH, $comment->comment_author, $cookie_options ) : null;
+			isset( $comment->comment_author_email ) ? setcookie( 'comment_author_email_' . COOKIEHASH, $comment->comment_author_email, $cookie_options ) : null;
+			isset( $comment->comment_author_url ) ? setcookie( 'comment_author_url_' . COOKIEHASH, esc_url( $comment->comment_author_url ), $cookie_options ) : null;
+			// phpcs:enable Jetpack.Functions.SetCookie.MissingTrueHTTPOnly
 		}
 	}
 
