@@ -12,6 +12,7 @@ import useCredentialsQuery from '../../data/use-credentials-query';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import useFixers from '../../hooks/use-fixers';
 import usePlan from '../../hooks/use-plan';
+import useWafData from '../../hooks/use-waf-data';
 
 /**
  * Scan Results Data View
@@ -29,6 +30,7 @@ export default function ScanResultsDataView( {
 	const { siteSuffix, blogID } = window.jetpackProtectInitialState;
 	const queryClient = useQueryClient();
 
+	const { wafSupported } = useWafData();
 	const { data: scanStatus } = useScanStatusQuery();
 	const { data: history } = useHistoryQuery();
 
@@ -101,6 +103,7 @@ export default function ScanResultsDataView( {
 			data={ [ ...scanStatus.threats, ...( history ? history.threats : [] ) ] }
 			filters={ filters }
 			handleUpgradeClick={ ! hasPlan ? getScan : null }
+			isSupportedEnvironment={ wafSupported }
 			onFixThreats={ handleFixClick }
 			onIgnoreThreats={ handleIgnoreClick }
 			onUnignoreThreats={ handleUnignoreClick }

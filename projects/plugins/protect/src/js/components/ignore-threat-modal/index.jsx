@@ -5,10 +5,12 @@ import { createInterpolateElement, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import useIgnoreThreatMutation from '../../data/scan/use-ignore-threat-mutation';
 import useModal from '../../hooks/use-modal';
+import useWafData from '../../hooks/use-waf-data';
 import UserConnectionGate from '../user-connection-gate';
 import styles from './styles.module.scss';
 
 const IgnoreThreatModal = ( { threat } ) => {
+	const { wafSupported } = useWafData();
 	const { setModal } = useModal();
 	const ignoreThreatMutation = useIgnoreThreatMutation();
 	const codeableURL = getRedirectUrl( 'jetpack-protect-codeable-referral' );
@@ -54,15 +56,20 @@ const IgnoreThreatModal = ( { threat } ) => {
 			</div>
 
 			<Text mb={ 4 }>
-				{ createInterpolateElement(
-					__(
-						'By choosing to ignore this threat, you acknowledge that you have reviewed the detected code. You are accepting the risks of maintaining a potentially malicious or vulnerable file on your site. If you are unsure, please request an estimate with <codeableLink>Codeable</codeableLink>.',
-						'jetpack-protect'
-					),
-					{
-						codeableLink: <Button variant="link" isExternalLink={ true } href={ codeableURL } />,
-					}
-				) }
+				{ __(
+					'By choosing to ignore this threat, you acknowledge that you have reviewed the detected code. You are accepting the risks of maintaining a potentially malicious or vulnerable file on your site.',
+					'jetpack-protect'
+				) }{ ' ' }
+				{ wafSupported &&
+					createInterpolateElement(
+						__(
+							'If you are unsure, please request an estimate with <codeableLink>Codeable</codeableLink>.',
+							'jetpack-protect'
+						),
+						{
+							codeableLink: <Button variant="link" isExternalLink={ true } href={ codeableURL } />,
+						}
+					) }
 			</Text>
 			<div className={ styles.footer }>
 				<Button variant="secondary" onClick={ handleCancelClick() }>

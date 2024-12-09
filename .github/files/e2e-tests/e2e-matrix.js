@@ -178,14 +178,11 @@ switch ( process.env.GITHUB_EVENT_NAME ) {
 				}
 			}
 		} else {
-			// eslint-disable-next-line no-console
 			console.error( 'Undefined DISPATCH_REPO!' );
 		}
 		break;
 	default:
-		// eslint-disable-next-line no-console
 		console.error( `Unsupported GITHUB_EVENT_NAME ${ process.env.GITHUB_EVENT_NAME }.` );
 }
 
-// eslint-disable-next-line no-console
 console.log( JSON.stringify( matrix ) );

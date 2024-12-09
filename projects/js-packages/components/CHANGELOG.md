@@ -2,6 +2,13 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [0.64.1] - 2024-12-09
+### Removed
+- Remove bulk action support from the ThreatsDataViews component. [#40483]
+
+### Fixed
+- Fixed threat type values and labels. [#40467]
+
 ## [0.64.0] - 2024-12-04
 ### Changed
 - Changed text domain from 'jetpack' to 'jetpack-components'. [#40368]
@@ -1236,6 +1243,7 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[0.64.1]: https://github.com/Automattic/jetpack-components/compare/0.64.0...0.64.1
 [0.64.0]: https://github.com/Automattic/jetpack-components/compare/0.63.0...0.64.0
 [0.63.0]: https://github.com/Automattic/jetpack-components/compare/0.62.0...0.63.0
 [0.62.0]: https://github.com/Automattic/jetpack-components/compare/0.61.0...0.62.0

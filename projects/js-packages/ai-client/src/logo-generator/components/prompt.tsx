@@ -6,8 +6,7 @@ import { Button, Tooltip, SelectControl } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, info } from '@wordpress/icons';
 import debugFactory from 'debug';
-import { useCallback, useEffect, useState, useRef } from 'react';
-import { Dispatch, SetStateAction } from 'react';
+import { useCallback, useEffect, useState, useRef, Dispatch, SetStateAction } from 'react';
 /**
  * Internal dependencies
  */

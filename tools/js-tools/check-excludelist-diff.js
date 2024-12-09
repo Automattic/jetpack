@@ -1,8 +1,5 @@
 #!/usr/bin/env node
 
-/* eslint-env node */
-/* eslint-disable no-console, n/no-process-exit */
-
 const spawnSync = require( 'child_process' ).spawnSync;
 const parseDiff = require( 'parse-diff' );
 

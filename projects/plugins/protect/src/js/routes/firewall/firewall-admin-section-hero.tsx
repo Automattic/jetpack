@@ -5,6 +5,7 @@ import AdminSectionHero from '../../components/admin-section-hero';
 import useWafData from '../../hooks/use-waf-data';
 import FirewallStatCards from './firewall-statcards';
 import FirewallSubheading from './firewall-subheading';
+import styles from './styles.module.scss';
 
 const FirewallAdminSectionHero = () => {
 	const {
@@ -84,16 +85,22 @@ const FirewallAdminSectionHero = () => {
 	}, [ status ] );
 
 	return (
-		<AdminSectionHero
-			main={
-				<>
-					<Status status={ 'on' === status ? 'active' : 'inactive' } label={ statusLabel } />
-					<AdminSectionHero.Heading>{ heading }</AdminSectionHero.Heading>
-					<AdminSectionHero.Subheading>{ subheading }</AdminSectionHero.Subheading>
-				</>
-			}
-			secondary={ wafSupported && <FirewallStatCards /> }
-		/>
+		<AdminSectionHero>
+			<AdminSectionHero.Main>
+				<Status
+					status={ 'on' === status ? 'active' : 'inactive' }
+					label={ statusLabel }
+					className={ styles.status }
+				/>
+				<AdminSectionHero.Heading>{ heading }</AdminSectionHero.Heading>
+				<Text>{ subheading }</Text>
+			</AdminSectionHero.Main>
+			{ wafSupported && (
+				<AdminSectionHero.Aside>
+					<FirewallStatCards />
+				</AdminSectionHero.Aside>
+			) }
+		</AdminSectionHero>
 	);
 };
 

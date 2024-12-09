@@ -1,0 +1,15 @@
+.line-chart {
+	position: relative;
+
+	&__tooltip {
+		padding: 0.5rem;
+
+		&-row {
+			margin-bottom: 0.25rem;
+
+			&:last-child {
+				margin-bottom: 0;
+			}
+		}
+	}
+}

@@ -52,7 +52,7 @@ FixerStatuses.args = {
 				name: 'Example Plugin',
 				slug: 'example-plugin',
 				version: '1.2.3',
-				type: 'plugin',
+				type: 'plugins',
 			},
 		},
 		{
@@ -71,7 +71,7 @@ FixerStatuses.args = {
 				name: 'Example Theme',
 				slug: 'example-theme',
 				version: '2.2.2',
-				type: 'theme',
+				type: 'themes',
 			},
 		},
 		{
@@ -90,7 +90,7 @@ FixerStatuses.args = {
 				name: 'Example Theme II',
 				slug: 'example-theme-2',
 				version: '3.3.3',
-				type: 'theme',
+				type: 'themes',
 			},
 		},
 		{
@@ -122,6 +122,7 @@ FixerStatuses.args = {
 			value: [ 'current' ],
 		},
 	],
+	isSupportedEnvironment: true,
 	isUserConnected: true,
 	hasConnectedOwner: true,
 	userIsConnecting: false,
@@ -152,6 +153,7 @@ Default.args = {
 			value: [ 'current' ],
 		},
 	],
+	isSupportedEnvironment: true,
 	isUserConnected: true,
 	hasConnectedOwner: true,
 	handleConnectUser: () =>
@@ -179,6 +181,7 @@ AdditionalConnectionsNeeded.args = {
 			value: [ 'current' ],
 		},
 	],
+	isSupportedEnvironment: true,
 	isUserConnected: false,
 	handleConnectUser: () =>
 		alert( 'Connect user action callback triggered! This is handled by the component consumer.' ), // eslint-disable-line no-alert
@@ -204,6 +207,7 @@ UserConnectionNeeded.args = {
 			value: [ 'current' ],
 		},
 	],
+	isSupportedEnvironment: true,
 	isUserConnected: false,
 	handleConnectUser: () =>
 		alert( 'Connect user action callback triggered! This is handled by the component consumer.' ), // eslint-disable-line no-alert
@@ -223,6 +227,7 @@ UserConnectionNeeded.args = {
 export const CredentialsRequired = args => <ThreatsDataViews { ...args } />;
 CredentialsRequired.args = {
 	data: data,
+	isSupportedEnvironment: true,
 	isUserConnected: true,
 	hasConnectedOwner: true,
 	handleConnectUser: () =>
@@ -255,7 +260,7 @@ FreeResults.args = {
 				name: 'WooCommerce',
 				slug: 'woocommerce',
 				version: '3.2.3',
-				type: 'plugin',
+				type: 'plugins',
 			},
 		},
 		{
@@ -270,7 +275,7 @@ FreeResults.args = {
 				name: 'WooCommerce',
 				slug: 'woocommerce',
 				version: '3.4.5',
-				type: 'plugin',
+				type: 'plugins',
 			},
 		},
 		{
@@ -284,10 +289,11 @@ FreeResults.args = {
 				name: 'WP Super Cache',
 				slug: 'wp-super-cache',
 				version: '1.6.3',
-				type: 'plugin',
+				type: 'plugins',
 			},
 		},
 	],
+	isSupportedEnvironment: true,
 	handleUpgradeClick: () =>
 		alert( 'Upgrade action callback triggered! This is handled by the component consumer.' ), // eslint-disable-line no-alert
 };

@@ -159,7 +159,6 @@ const BypassPatterns = ( {
 }: BypassPatternsProps ) => {
 	const [ inputValue, setInputValue ] = useState( patterns );
 	const [ showNotice, setShowNotice ] = useState( showErrorNotice );
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const [ inputInvalid, setInputInvalid ] = useState( false );
 
 	const exclusionsLink = getRedirectUrl( 'jetpack-boost-cache-how-to-exclude' );

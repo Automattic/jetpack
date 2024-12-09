@@ -6,7 +6,7 @@ import styles from './styles.module.scss';
 import { ThreatModalContext } from '.';
 
 const ThreatIgnoreDetails = () => {
-	const { threat } = useContext( ThreatModalContext );
+	const { threat, isSupportedEnvironment } = useContext( ThreatModalContext );
 
 	if ( ! threat?.status || [ 'ignored', 'fixed' ].includes( threat.status ) ) {
 		return null;
@@ -20,16 +20,20 @@ const ThreatIgnoreDetails = () => {
 				{ __( 'Do you really want to ignore this threat?', 'jetpack-components' ) }
 			</Text>
 			<Text>
-				{ /* TODO: Ensure we only direct supported site to Codeable */ }
-				{ createInterpolateElement(
-					__(
-						'By choosing to ignore this threat, you acknowledge that you have reviewed the detected code. You are accepting the risks of maintaining a potentially malicious or vulnerable file on your site. If you are unsure, please request an estimate with <codeableLink>Codeable</codeableLink>.',
-						'jetpack-components'
-					),
-					{
-						codeableLink: <Button variant="link" isExternalLink={ true } href={ codeableURL } />,
-					}
-				) }
+				{ __(
+					'By choosing to ignore this threat, you acknowledge that you have reviewed the detected code. You are accepting the risks of maintaining a potentially malicious or vulnerable file on your site.',
+					'jetpack-components'
+				) }{ ' ' }
+				{ isSupportedEnvironment &&
+					createInterpolateElement(
+						__(
+							'If you are unsure, please request an estimate with <codeableLink>Codeable</codeableLink>.',
+							'jetpack-components'
+						),
+						{
+							codeableLink: <Button variant="link" isExternalLink={ true } href={ codeableURL } />,
+						}
+					) }
 			</Text>
 		</div>
 	);

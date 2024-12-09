@@ -1,7 +1,5 @@
 #!/usr/bin/env node
 
-/* eslint-disable n/no-process-exit */
-
 import childProcess from 'child_process';
 import fs from 'fs';
 import { fileURLToPath } from 'url';

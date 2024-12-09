@@ -50,6 +50,7 @@ import ThreatsStatusToggleGroupControl from './threats-status-toggle-group-contr
  * @param {Array}    props.data                        - Threats data.
  * @param {Array}    props.filters                     - Initial DataView filters.
  * @param {Function} props.onChangeSelection           - Callback function run when an item is selected.
+ * @param {boolean}  props.isSupportedEnvironment      - Whether the environment is supported.
  * @param {Function} props.handleUpgradeClick          - Callback function run when the upgrade button is clicked.
  * @param {Function} props.onFixThreats                - Threat fix action callback.
  * @param {Function} props.onIgnoreThreats             - Threat ignore action callback.
@@ -72,6 +73,7 @@ export default function ThreatsDataViews( {
 	data,
 	filters,
 	onChangeSelection,
+	isSupportedEnvironment,
 	handleUpgradeClick,
 	onFixThreats,
 	onIgnoreThreats,
@@ -92,6 +94,7 @@ export default function ThreatsDataViews( {
 	data: Threat[];
 	filters?: Filter[];
 	onChangeSelection?: ( selectedItemIds: string[] ) => void;
+	isSupportedEnvironment: boolean;
 	handleUpgradeClick?: () => void;
 	onFixThreats?: ( threats: Threat[] ) => void;
 	onIgnoreThreats?: ( threats: Threat[] ) => void;
@@ -215,12 +218,12 @@ export default function ThreatsDataViews( {
 				// Extensions (Themes and Plugins)
 				if ( threat.extension ) {
 					switch ( threat.extension.type ) {
-						case 'theme':
+						case 'themes':
 							if ( ! acc.themes.find( ( { value } ) => value === threat.extension.slug ) ) {
 								acc.themes.push( { value: threat.extension.slug, label: threat.extension.name } );
 							}
 							break;
-						case 'plugin':
+						case 'plugins':
 							if ( ! acc.plugins.find( ( { value } ) => value === threat.extension.slug ) ) {
 								acc.plugins.push( { value: threat.extension.slug, label: threat.extension.name } );
 							}
@@ -337,7 +340,18 @@ export default function ThreatsDataViews( {
 				label: __( 'Type', 'jetpack-components' ),
 				elements: THREAT_TYPES,
 				getValue( { item }: { item: Threat } ) {
-					return getThreatType( item ) ?? '';
+					switch ( getThreatType( item ) ) {
+						case 'core':
+							return __( 'WordPress', 'jetpack-components' );
+						case 'plugins':
+							return __( 'Plugin', 'jetpack-components' );
+						case 'themes':
+							return __( 'Theme', 'jetpack-components' );
+						case 'file':
+							return __( 'File', 'jetpack-components' );
+						default:
+							return __( 'Unknown', 'jetpack-components' );
+					}
 				},
 			},
 			{
@@ -582,6 +596,7 @@ export default function ThreatsDataViews( {
 			{ openThreat ? (
 				<ThreatModal
 					threat={ openThreat }
+					isSupportedEnvironment={ isSupportedEnvironment }
 					isUserConnected={ isUserConnected }
 					hasConnectedOwner={ hasConnectedOwner }
 					userIsConnecting={ userIsConnecting }

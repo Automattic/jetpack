@@ -1254,6 +1254,7 @@ function stats_print_wp_remote_error( $get, $url ) {
  *      @type int     $limit      The maximum number of records to return. Default is 10. Maximum 100.
  *      @type int     $post_id    The ID of the post to retrieve stats data for
  *      @type string  $summarize  If present, summarizes all matching records. Default Null.
+ *      @type int     $blog_id    The WordPress.com blog ID to retrieve stats data for. Default is the current blog.
  *
  * }
  *
@@ -1277,11 +1278,11 @@ function stats_get_csv( $table, $args = null ) {
 		'limit'     => 3,
 		'post_id'   => false,
 		'summarize' => '',
+		'blog_id'   => Jetpack_Options::get_option( 'id' ),
 	);
 
-	$args            = wp_parse_args( $args, $defaults );
-	$args['table']   = $table;
-	$args['blog_id'] = Jetpack_Options::get_option( 'id' );
+	$args          = wp_parse_args( $args, $defaults );
+	$args['table'] = $table;
 
 	$stats_csv_url = add_query_arg( $args, 'https://stats.wordpress.com/csv.php' );
 
