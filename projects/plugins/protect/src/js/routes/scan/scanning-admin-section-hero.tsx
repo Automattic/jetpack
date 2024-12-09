@@ -20,11 +20,15 @@ const ScanningAdminSectionHero = ( { size = 'normal' }: { size?: 'normal' | 'lar
 
 	return (
 		<AdminSectionHero>
+<<<<<<< HEAD
 			<AdminSectionHero.Main
 				className={ clsx( styles[ 'hero-main' ], {
 					[ styles[ 'hero-main--large' ] ]: size === 'large',
 				} ) }
 			>
+=======
+			<AdminSectionHero.Main className={ styles[ 'scanning-main' ] }>
+>>>>>>> 91ee20a8f0 (Protect: Refactor AdminSectionHero (#40516))
 				<AdminSectionHero.Heading>
 					{ __( 'Your results will be ready soon', 'jetpack-protect' ) }
 				</AdminSectionHero.Heading>

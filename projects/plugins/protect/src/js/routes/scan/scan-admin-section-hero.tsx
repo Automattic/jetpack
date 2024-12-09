@@ -107,12 +107,17 @@ const ScanAdminSectionHero: React.FC = ( { size = 'normal' }: { size?: 'normal' 
 
 	return (
 		<AdminSectionHero>
+<<<<<<< HEAD
 			<AdminSectionHero.Main
 				className={ clsx( styles[ 'hero-main' ], {
 					[ styles[ 'hero-main--large' ] ]: size === 'large',
 				} ) }
 			>
 				<Text className={ styles[ 'last-checked' ] } mb={ 2 } ref={ setDailyScansPopoverAnchor }>
+=======
+			<AdminSectionHero.Main>
+				<Text mb={ 2 } ref={ setDailyScansPopoverAnchor }>
+>>>>>>> 91ee20a8f0 (Protect: Refactor AdminSectionHero (#40516))
 					{ lastCheckedLocalTimestamp
 						? sprintf(
 								// translators: %s: date and time of the last scan
@@ -123,7 +128,11 @@ const ScanAdminSectionHero: React.FC = ( { size = 'normal' }: { size?: 'normal' 
 				</Text>
 				<OnboardingPopover
 					id={ hasPlan ? 'paid-daily-and-manual-scans' : 'free-daily-scans' }
+<<<<<<< HEAD
 					position={ isSm ? 'bottom right' : 'middle right' }
+=======
+					position={ isSm ? 'bottom' : 'middle right' }
+>>>>>>> 91ee20a8f0 (Protect: Refactor AdminSectionHero (#40516))
 					anchor={ dailyScansPopoverAnchor }
 				/>
 				<AdminSectionHero.Heading icon={ numThreats > 0 ? 'error' : 'success' }>
@@ -162,8 +171,16 @@ const ScanAdminSectionHero: React.FC = ( { size = 'normal' }: { size?: 'normal' 
 				) }
 				{ fixableList.length > 0 && (
 					<>
+<<<<<<< HEAD
 						<div className={ styles[ 'auto-fixers' ] } ref={ setShowAutoFixersPopoverAnchor }>
 							<Button onClick={ handleShowAutoFixersClick( fixableList ) }>
+=======
+						<div ref={ setShowAutoFixersPopoverAnchor }>
+							<Button
+								className={ styles[ 'auto-fixers' ] }
+								onClick={ handleShowAutoFixersClick( fixableList ) }
+							>
+>>>>>>> 91ee20a8f0 (Protect: Refactor AdminSectionHero (#40516))
 								{ sprintf(
 									/* translators: Translates to Show auto fixers $s: Number of fixable threats. */
 									__( 'Show auto fixers (%s)', 'jetpack-protect' ),
@@ -173,7 +190,11 @@ const ScanAdminSectionHero: React.FC = ( { size = 'normal' }: { size?: 'normal' 
 						</div>
 						<OnboardingPopover
 							id="paid-fix-all-threats"
+<<<<<<< HEAD
 							position={ isSm ? 'bottom right' : 'middle right' }
+=======
+							position={ isSm ? 'bottom right' : 'middle left' }
+>>>>>>> 91ee20a8f0 (Protect: Refactor AdminSectionHero (#40516))
 							anchor={ showAutoFixersPopoverAnchor }
 						/>
 					</>
