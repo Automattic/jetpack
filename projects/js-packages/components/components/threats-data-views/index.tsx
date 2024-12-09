@@ -486,22 +486,27 @@ export default function ThreatsDataViews( {
 	}, [ data, view, fields ] );
 
 	const sortedData = useMemo( () => {
+		// If no statuses are set, return the data as is
+		if ( processedData.every( item => item.status === null ) ) {
+			return processedData;
+		}
+
 		const statusOrder = [ 'current', 'fixed', 'ignored' ];
 
 		return [ ...processedData ].sort( ( a, b ) => {
-			// Compare by status first
+			// Compare by status
 			const statusComparison = statusOrder.indexOf( a.status ) - statusOrder.indexOf( b.status );
 			if ( statusComparison !== 0 ) {
 				return statusComparison;
 			}
 
-			// If statuses are the same, compare by severity (higher severity comes first)
-			const severityA = a.severity ?? -1; // Default to -1 for missing severity (lowest priority)
+			// If statuses are the same, compare by severity
+			const severityA = a.severity ?? -1;
 			const severityB = b.severity ?? -1;
 
-			return severityB - severityA; // Sort by severity in descending order
+			return severityB - severityA;
 		} );
-	}, [ processedData ] ); // TODO: Improve upon this
+	}, [ processedData ] );
 
 	/**
 	 * Callback function to update the view state.
