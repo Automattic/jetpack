@@ -7,7 +7,7 @@ import {
 	DataViews,
 	filterSortAndPaginate,
 } from '@wordpress/dataviews';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
 import { useCallback, useMemo, useState } from 'react';
 import ShieldIcon from '../shield-icon';
@@ -97,35 +97,27 @@ export default function ScanReport( { data, onChangeSelection } ): JSX.Element {
 					return 'unchecked';
 				},
 				render( { item }: { item: ScanReportExtension } ) {
-					// TODO: Fix concatenation of trnaslated strings
+					const hasStatus = item.threats.some( threat => threat.status !== null );
 					let variant: 'info' | 'warning' | 'success' = 'info';
 					let text = __(
 						'This item was added to your site after the most recent scan. We will check for threats during the next scheduled one.',
 						'jetpack-components'
 					);
-					let capitalizedType = __( 'Vulnerability', 'jetpack-components' );
-					let pluralType = __( 'vulnerabilities', 'jetpack-components' );
-
-					if ( item.threats.some( threat => threat.status !== null ) ) {
-						capitalizedType = __( 'Threat', 'jetpack-components' );
-						pluralType = __( 'threats', 'jetpack-components' );
-					}
 
 					if ( item.checked ) {
 						if ( item.threats.length > 0 ) {
 							variant = 'warning';
-							text = sprintf(
-								// translators: %s: Threat or Vulnerability
-								__( '%s detected.', 'jetpack-components' ),
-								capitalizedType
-							);
+							text = hasStatus
+								? __( 'Threats detected.', 'jetpack-components' )
+								: __( 'Vulnerabilities detected.', 'jetpack-components' );
 						} else {
 							variant = 'success';
-							text = sprintf(
-								// translators: %s: threats or vulnerabilities
-								__( 'No known %s found that affect this version.', 'jetpack-components' ),
-								pluralType
-							);
+							text = hasStatus
+								? __( 'No known threats found that affect this version.', 'jetpack-components' )
+								: __(
+										'No known vulnerabilities found that affect this version.',
+										'jetpack-components'
+								  );
 						}
 					}
 
