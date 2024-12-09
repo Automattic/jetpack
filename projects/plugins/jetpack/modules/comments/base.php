@@ -306,10 +306,6 @@ class Highlander_Comments_Base {
 			// phpcs:disable WordPress.Security.NonceVerification -- Nonce verification should happen in Jetpack_Comments::pre_comment_on_post().
 			$is_consenting_to_cookies = ( isset( $_POST['wp-comment-cookies-consent'] ) );
 
-			if ( ( 'guest' === $id_source ) && ! $is_consenting_to_cookies ) {
-				return;
-			}
-
 			$cookie_options = array(
 				'expires'  => time() + apply_filters( 'comment_cookie_lifetime', YEAR_IN_SECONDS ),
 				'path'     => COOKIEPATH,
@@ -317,6 +313,11 @@ class Highlander_Comments_Base {
 				'secure'   => is_ssl(),
 				'httponly' => true,
 			);
+
+			// If there is no consent, remove any cookies that may have been set.
+			if ( ( 'guest' === $id_source ) && ! $is_consenting_to_cookies ) {
+				$cookie_options['expires'] = time() - YEAR_IN_SECONDS;
+			}
 
 			// Set samesite to None if the request is from Jetpack iframe.
 			// This is needed because it is considered third party.
