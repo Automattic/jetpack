@@ -174,7 +174,7 @@ function wpcom_admin_get_user_option_jetpack( $value ) {
 	}
 
 	if ( ! is_array( $value ) ) {
-		$value = [];
+		$value = array();
 	}
 
 	$value['edit.php'] = Automattic\Jetpack\Masterbar\Base_Admin_Menu::CLASSIC_VIEW;
