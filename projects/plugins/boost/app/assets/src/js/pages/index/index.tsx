@@ -120,7 +120,7 @@ const Index = () => {
 										<a
 											href={ criticalCssLink }
 											target="_blank"
-											onClick={ openCriticalCssLink }
+											onClick={ handleCriticalCssLink }
 											style={ { cursor: 'pointer' } }
 											rel="noopener noreferrer"
 										/>
