@@ -3,7 +3,7 @@
 	margin-bottom: calc( var( --spacing-base ) * 7 ); // 56px
 }
 
-.scan-report {
+.view-scan-report {
 	margin-top: calc( var( --spacing-base ) * 4 ); // 32px
 }
 
@@ -56,19 +56,6 @@
 	text-align: left;
 }
 
-@media ( max-width: 1600px ) {
-    .stat-cards-wrapper {
-        margin-top: calc( var( --spacing-base ) * 4 ); // 32px
-    }
-    
-    .home-header-main {
-        grid-column: 1 / -1;
-    }
-
-    .home-header-secondary {
-        grid-column: 1 / -1;
-    }
-}
 
 @media ( max-width: 599px ) {
     .stat-cards-wrapper {

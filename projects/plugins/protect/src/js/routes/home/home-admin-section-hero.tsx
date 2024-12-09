@@ -15,46 +15,37 @@ const HomeAdminSectionHero: React.FC = () => {
 	}, [ navigate ] );
 
 	return (
-		<AdminSectionHero
-			mainClassName={ styles[ 'home-header-main' ] }
-			main={
+		<AdminSectionHero>
+			<AdminSectionHero.Main>
 				<>
 					<AdminSectionHero.Heading>
 						{ __( 'Your site is safe with us', 'jetpack-protect' ) }
 					</AdminSectionHero.Heading>
-					<AdminSectionHero.Subheading>
-						<>
-							<Text className={ styles[ 'subheading-text' ] }>
-								{ sprintf(
-									// translators: %s is replaced with "threats" or "vulnerabilities" depending on the user's plan.
-									__(
-										'We stay ahead of security %s to keep your site protected.',
-										'jetpack-protect'
-									),
-									hasPlan
-										? __( 'threats', 'jetpack-protect' )
-										: __(
-												'vulnerabilities',
-												'jetpack-protect',
-												/* dummy arg to avoid bad minification */ 0
-										  )
-								) }
-							</Text>
-							<Button
-								className={ styles[ 'scan-report' ] }
-								variant="primary"
-								weight="regular"
-								onClick={ handleScanReportClick }
-							>
-								{ __( 'View scan report', 'jetpack-protect' ) }
-							</Button>
-						</>
-					</AdminSectionHero.Subheading>
+					<Text>
+						{ sprintf(
+							// translators: %s is replaced with "threats" or "vulnerabilities" depending on the user's plan.
+							__( 'We stay ahead of security %s to keep your site protected.', 'jetpack-protect' ),
+							hasPlan
+								? __( 'threats', 'jetpack-protect' )
+								: __(
+										'vulnerabilities',
+										'jetpack-protect',
+										/* dummy arg to avoid bad minification */ 0
+								  )
+						) }
+					</Text>
+					<Button
+						className={ styles[ 'view-scan-report' ] }
+						variant="primary"
+						weight="regular"
+						onClick={ handleScanReportClick }
+					>
+						{ __( 'View scan report', 'jetpack-protect' ) }
+					</Button>
 				</>
-			}
-			secondaryClassName={ styles[ 'home-header-secondary' ] }
-			secondary={ <HomeStatCards /> }
-		/>
+			</AdminSectionHero.Main>
+			<AdminSectionHero.Aside>{ <HomeStatCards /> }</AdminSectionHero.Aside>
+		</AdminSectionHero>
 	);
 };
 
