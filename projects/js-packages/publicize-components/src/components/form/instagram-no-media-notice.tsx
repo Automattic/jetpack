@@ -10,19 +10,19 @@ export const InstagramNoMediaNotice: React.FC = () => {
 		<Notice type={ 'warning' }>
 			{ __(
 				'To share to Instagram, add an image/video, or enable Social Image Generator.',
-				'jetpack'
+				'jetpack-publicize-components'
 			) }
 			<br />
 			<ExternalLink href={ getRedirectUrl( 'jetpack-social-share-to-instagram' ) }>
-				{ __( 'Learn more', 'jetpack' ) }
+				{ __( 'Learn more', 'jetpack-publicize-components' ) }
 			</ExternalLink>
 		</Notice>
 	) : (
 		<Notice type={ 'warning' }>
-			{ __( 'You need a featured image to share to Instagram.', 'jetpack' ) }
+			{ __( 'You need a featured image to share to Instagram.', 'jetpack-publicize-components' ) }
 			<br />
 			<ExternalLink href={ getRedirectUrl( 'jetpack-social-share-to-instagram' ) }>
-				{ __( 'Learn more', 'jetpack' ) }
+				{ __( 'Learn more', 'jetpack-publicize-components' ) }
 			</ExternalLink>
 		</Notice>
 	);

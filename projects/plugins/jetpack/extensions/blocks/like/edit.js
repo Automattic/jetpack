@@ -3,25 +3,19 @@ import { useBlockProps, InspectorControls } from '@wordpress/block-editor';
 import { ExternalLink, ToggleControl, PanelBody } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 import avatar1 from '../blogging-prompt/example-avatars/avatar1.jpg';
 import avatar2 from '../blogging-prompt/example-avatars/avatar2.jpg';
 import avatar3 from '../blogging-prompt/example-avatars/avatar3.jpg';
+import metadata from './block.json';
 import './editor.scss';
 
 function LikeEdit( { attributes, setAttributes } ) {
 	const blockProps = useBlockProps();
-	const showReblogButton = attributes?.showReblogButton || false;
-
-	const handleReblogSetting = newValue => {
-		setAttributes( {
-			showReblogButton: newValue,
-		} );
-	};
-
+	const validatedAttributes = getValidatedAttributes( metadata.attributes, attributes );
+	const { showReblogButton, showAvatars } = validatedAttributes;
 	const isJetpackSite = ! isAtomicSite() && ! isSimpleSite();
-
 	const avatars = [ avatar1, avatar2, avatar3 ];
-
 	const preventDefault = event => event.preventDefault();
 
 	return (
@@ -34,18 +28,22 @@ function LikeEdit( { attributes, setAttributes } ) {
 						</ExternalLink>
 					</div>
 				) }
-				{ isSimpleSite() && (
-					<PanelBody title={ __( 'Settings', 'jetpack' ) }>
+				<PanelBody title={ __( 'Settings', 'jetpack' ) }>
+					{ isSimpleSite() && (
 						<ToggleControl
 							label={ __( 'Show reblog button', 'jetpack' ) }
 							checked={ showReblogButton }
-							onChange={ newValue => {
-								handleReblogSetting( newValue );
-							} }
+							onChange={ () => setAttributes( { showReblogButton: ! showReblogButton } ) }
 							__nextHasNoMarginBottom={ true }
 						/>
-					</PanelBody>
-				) }
+					) }
+					<ToggleControl
+						label={ __( 'Show avatars', 'jetpack' ) }
+						checked={ showAvatars }
+						onChange={ () => setAttributes( { showAvatars: ! showAvatars } ) }
+						__nextHasNoMarginBottom={ true }
+					/>
+				</PanelBody>
 			</InspectorControls>
 			<div className="wpl-likebox wpl-new-layout">
 				{ isSimpleSite() && showReblogButton && (
@@ -65,21 +63,23 @@ function LikeEdit( { attributes, setAttributes } ) {
 						<span>{ __( 'Like', 'jetpack' ) }</span>
 					</a>
 				</div>
-				<ul className="wpl-avatars">
-					{ avatars.map( ( avatar, i ) => (
-						<li key={ `liker-${ i }` } className="wp-liker-me">
-							<a className="wpl-liker" href="#" rel="nofollow" onClick={ preventDefault }>
-								<img
-									src={ avatar }
-									className="avatar avatar-30"
-									width={ 30 }
-									height={ 30 }
-									alt=""
-								/>
-							</a>
-						</li>
-					) ) }
-				</ul>
+				{ showAvatars && (
+					<ul className="wpl-avatars">
+						{ avatars.map( ( avatar, i ) => (
+							<li key={ `liker-${ i }` } className="wp-liker-me">
+								<a className="wpl-liker" href="#" rel="nofollow" onClick={ preventDefault }>
+									<img
+										src={ avatar }
+										className="avatar avatar-30"
+										width={ 30 }
+										height={ 30 }
+										alt=""
+									/>
+								</a>
+							</li>
+						) ) }
+					</ul>
+				) }
 				<div className="wpl-count">
 					<span className="wpl-count-text">
 						<a href="#" onClick={ preventDefault }>

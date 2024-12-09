@@ -25,7 +25,7 @@ const JetpackProtectLogo: React.FC< JetpackProtectLogoProps > = ( {
 			// role="img" is required to prevent VoiceOver on Safari reading the content of the SVG
 			role="img"
 		>
-			<title id="jetpack-logo-title">{ __( 'Jetpack Protect Logo', 'jetpack' ) }</title>
+			<title id="jetpack-logo-title">{ __( 'Jetpack Protect Logo', 'jetpack-components' ) }</title>
 
 			<path
 				d="M20.1063 40.2111C31.2106 40.2111 40.2126 31.2091 40.2126 20.1048C40.2126 9.00048 31.2106 0 20.1063 0C9.00197 0 0 9.00197 0 20.1063C0 31.2106 9.00197 40.2111 20.1063 40.2111Z"

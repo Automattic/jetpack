@@ -23,7 +23,7 @@ const JetpackSearchLogo: React.FC< JetpackSearchLogoProps > = ( {
 			aria-labelledby="jetpack-logo-title"
 			{ ...otherProps }
 		>
-			<desc id="jetpack-logo-title">{ __( 'Jetpack Search Logo', 'jetpack' ) }</desc>
+			<desc id="jetpack-logo-title">{ __( 'Jetpack Search Logo', 'jetpack-components' ) }</desc>
 			{ showText && (
 				<>
 					<path

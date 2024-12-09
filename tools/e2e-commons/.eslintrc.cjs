@@ -10,6 +10,7 @@ module.exports = {
 	},
 	rules: {
 		'no-console': 0,
+		'n/no-process-exit': 0,
 		'playwright/no-skipped-test': 0,
 		// False positives when using `page.getByRole()`
 		'testing-library/prefer-screen-queries': 0,

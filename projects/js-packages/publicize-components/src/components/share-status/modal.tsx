@@ -18,7 +18,7 @@ export function ShareStatusModal() {
 		<div className={ styles.wrapper }>
 			<Modal
 				onRequestClose={ closeShareStatusModal }
-				title={ __( 'Sharing status', 'jetpack' ) }
+				title={ __( 'Sharing status', 'jetpack-publicize-components' ) }
 				className={ styles.modal }
 			>
 				<ShareList />

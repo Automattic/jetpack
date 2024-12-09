@@ -6,8 +6,8 @@ import {
 	TextControl,
 } from '@wordpress/components';
 import { dispatch } from '@wordpress/data';
-import { store } from 'crm/state/store';
 import { useCallback } from 'react';
+import { store } from 'crm/state/store';
 import styles from './styles.module.scss';
 import type { AttributeDefinition, AttributeValue } from 'crm/state/automations-admin/types';
 
@@ -82,6 +82,7 @@ const getEditValue = (
 				<div className={ styles.datepicker }>
 					<DatePicker
 						currentDate={ value ? new Date( value as string | number ) : new Date() }
+						// eslint-disable-next-line react/jsx-no-bind
 						onChange={ ( selectedDate: string ) => {
 							// selectedDate is a string in the format `YYYY-MM-DDTHH:MM:SS` but CRM
 							// is using timestamps, so we pass it to a Date object before converting

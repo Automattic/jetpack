@@ -1,10 +1,10 @@
 <script lang="ts">
-	import Tab from "../../../Components/Tabs/Tab.svelte";
-	import TabList from "../../../Components/Tabs/TabList.svelte";
-	import TabPanel from "../../../Components/Tabs/TabPanel.svelte";
-	import Tabs from "../../../Components/Tabs/Tabs.svelte";
-	import PrettyJSON from "../PrettyJSON.svelte";
-	import type { IncomingDetails } from "../../../utils/ZodSchema";
+	import Tab from '../../../Components/Tabs/Tab.svelte';
+	import TabList from '../../../Components/Tabs/TabList.svelte';
+	import TabPanel from '../../../Components/Tabs/TabPanel.svelte';
+	import Tabs from '../../../Components/Tabs/Tabs.svelte';
+	import PrettyJSON from '../PrettyJSON.svelte';
+	import type { IncomingDetails } from '../../../utils/ZodSchema';
 
 	export let details: IncomingDetails;
 
@@ -32,9 +32,7 @@
 	</TabPanel>
 
 	<TabPanel>
-		<div class="note">
-			This is the response returned by this WordPress instance.
-		</div>
+		<div class="note">This is the response returned by this WordPress instance.</div>
 		<PrettyJSON data={response} />
 	</TabPanel>
 </Tabs>

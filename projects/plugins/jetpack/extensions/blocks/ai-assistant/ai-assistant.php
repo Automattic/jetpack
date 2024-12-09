@@ -211,3 +211,17 @@ add_action(
 		}
 	}
 );
+
+/**
+ * Register the `ai-response-feedback` extension.
+ */
+add_action(
+	'jetpack_register_gutenberg_extensions',
+	function () {
+		if ( apply_filters( 'jetpack_ai_enabled', true ) &&
+			apply_filters( 'ai_response_feedback_enabled', false )
+		) {
+			\Jetpack_Gutenberg::set_extension_available( 'ai-response-feedback' );
+		}
+	}
+);

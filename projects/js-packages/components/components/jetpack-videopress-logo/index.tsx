@@ -22,7 +22,9 @@ const JetpackVideoPressLogo: React.FC< JetpackLogoProps > = ( {
 			height={ height }
 			{ ...otherProps }
 		>
-			<desc id="jetpack-videopress-logo-title">{ __( 'VideoPress Logo', 'jetpack' ) }</desc>
+			<desc id="jetpack-videopress-logo-title">
+				{ __( 'VideoPress Logo', 'jetpack-components' ) }
+			</desc>
 			{ showText ? (
 				<>
 					<path

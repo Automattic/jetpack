@@ -1,5 +1,9 @@
 import { Icon } from '@wordpress/icons';
 import clsx from 'clsx';
+import { noop, size } from 'lodash';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
+import { connect as reduxConnect } from 'react-redux';
 import Button from 'components/button';
 import Card from 'components/card';
 import Gridicon from 'components/gridicon';
@@ -11,10 +15,6 @@ import {
 	isJetpackBundle,
 	isJetpackLegacyPlan,
 } from 'lib/plans/constants';
-import { noop, size } from 'lodash';
-import PropTypes from 'prop-types';
-import React, { Component } from 'react';
-import { connect as reduxConnect } from 'react-redux';
 import { isCurrentUserLinked, isConnectionOwner } from 'state/connection';
 import { getCurrentVersion } from 'state/initial-state';
 import './style.scss';

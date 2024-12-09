@@ -5,13 +5,13 @@ import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Modal, Button } from '@wordpress/components';
 import { useDispatch, select } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import { external, Icon } from '@wordpress/icons';
 import clsx from 'clsx';
 import debugFactory from 'debug';
 import { useState, useEffect, useCallback, useRef } from 'react';
 /**
  * Internal dependencies
  */
+import AiModalFooter from '../../components/ai-modal-footer/index.js';
 import {
 	DEFAULT_LOGO_COST,
 	EVENT_MODAL_OPEN,
@@ -24,7 +24,6 @@ import useLogoGenerator from '../hooks/use-logo-generator.js';
 import useRequestErrors from '../hooks/use-request-errors.js';
 import { isLogoHistoryEmpty, clearDeletedMedia } from '../lib/logo-storage.js';
 import { STORE_NAME } from '../store/index.js';
-// import { FairUsageNotice } from './fair-usage-notice.js';
 import { FeatureFetchFailureScreen } from './feature-fetch-failure-screen.js';
 import { FirstLoadScreen } from './first-load-screen.js';
 import { HistoryCarousel } from './history-carousel.js';
@@ -303,16 +302,7 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 					<>
 						<HistoryCarousel />
 						<div className="jetpack-ai-logo-generator__footer">
-							<Button
-								variant="link"
-								className="jetpack-ai-logo-generator__feedback-button"
-								href="https://jetpack.com/redirect/?source=jetpack-ai-feedback"
-								target="_blank"
-								onClick={ handleFeedbackClick }
-							>
-								<span>{ __( 'Provide feedback', 'jetpack-ai-client' ) }</span>
-								<Icon icon={ external } className="icon" />
-							</Button>
+							<AiModalFooter onFeedbackClick={ handleFeedbackClick } />
 						</div>
 					</>
 				) }

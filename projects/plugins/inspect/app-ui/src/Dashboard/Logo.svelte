@@ -15,17 +15,27 @@
 		align-items: center;
 		margin-bottom: 30px;
 		padding-bottom: 20px;
-		border-bottom: 1px solid var(--light-border);
+		border-bottom: 1px solid var( --light-border );
 		margin-top: -10px;
 	}
 	svg {
 		margin-right: 2px;
-		transform: scale(0.8);
+		transform: scale( 0.8 );
 	}
 	h2 {
 		font-size: 1.4rem;
 		font-weight: 600;
-		font-family: "Inter", -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen-Sans', 'Ubuntu', 'Cantarell', 'Helvetica Neue', sans-serif;
-		transform: translateY(-2px);
+		font-family:
+			'Inter',
+			-apple-system,
+			BlinkMacSystemFont,
+			'Segoe UI',
+			'Roboto',
+			'Oxygen-Sans',
+			'Ubuntu',
+			'Cantarell',
+			'Helvetica Neue',
+			sans-serif;
+		transform: translateY( -2px );
 	}
 </style>
