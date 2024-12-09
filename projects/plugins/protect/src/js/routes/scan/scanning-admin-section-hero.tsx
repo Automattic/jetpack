@@ -18,44 +18,38 @@ const ScanningAdminSectionHero: React.FC = () => {
 		: totalVulnerabilities.toLocaleString();
 
 	return (
-		<AdminSectionHero
-			main={
-				<>
-					<AdminSectionHero.Heading>
-						{ __( 'Your results will be ready soon', 'jetpack-protect' ) }
-					</AdminSectionHero.Heading>
-					<AdminSectionHero.Subheading>
-						<>
-							{ hasPlan && (
-								<ProgressBar
-									className={ styles.progress }
-									value={ status?.currentProgress }
-									total={ 100 }
-								/>
-							) }
-							<Text>
-								{ hasPlan
-									? __(
-											"Jetpack is actively scanning your site's files line-by-line to identify threats and vulnerabilities. This could take a minute or two.",
-											'jetpack-protect'
-									  )
-									: sprintf(
-											// translators: placeholder is the number of total vulnerabilities i.e. "22,000".
-											__(
-												'We are scanning for security threats from our more than %s listed vulnerabilities, powered by WPScan. This could take a minute or two.',
-												'jetpack-protect'
-											),
-											totalVulnerabilitiesFormatted
-									  ) }
-							</Text>
-						</>
-					</AdminSectionHero.Subheading>
-				</>
-			}
-			secondary={ <InProgressAnimation /> }
-			preserveSecondaryOnMobile={ false }
-			spacing={ 4 }
-		/>
+		<AdminSectionHero>
+			<AdminSectionHero.Main className={ styles[ 'scanning-main' ] }>
+				<AdminSectionHero.Heading>
+					{ __( 'Your results will be ready soon', 'jetpack-protect' ) }
+				</AdminSectionHero.Heading>
+				{ hasPlan && (
+					<ProgressBar
+						className={ styles.progress }
+						value={ status?.currentProgress }
+						total={ 100 }
+					/>
+				) }
+				<Text>
+					{ hasPlan
+						? __(
+								"Jetpack is actively scanning your site's files line-by-line to identify threats and vulnerabilities. This could take a minute or two.",
+								'jetpack-protect'
+						  )
+						: sprintf(
+								// translators: placeholder is the number of total vulnerabilities i.e. "22,000".
+								__(
+									'We are scanning for security threats from our more than %s listed vulnerabilities, powered by WPScan. This could take a minute or two.',
+									'jetpack-protect'
+								),
+								totalVulnerabilitiesFormatted
+						  ) }
+				</Text>
+			</AdminSectionHero.Main>
+			<AdminSectionHero.Aside className={ styles[ 'progress-animation' ] }>
+				<InProgressAnimation />
+			</AdminSectionHero.Aside>
+		</AdminSectionHero>
 	);
 };
 

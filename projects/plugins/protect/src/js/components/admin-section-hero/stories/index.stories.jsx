@@ -9,16 +9,16 @@ export default {
 
 export const Default = args => <AdminSectionHero { ...args } />;
 Default.args = {
-	main: (
+	children: (
 		<>
-			<Status status={ 'active' } label={ 'Active' } />
-			<AdminSectionHero.Heading showIcon variant="success">
-				{ 'No threats found' }
-			</AdminSectionHero.Heading>
-			<AdminSectionHero.Subheading>
+			<AdminSectionHero.Main>
+				<Status status={ 'active' } label={ 'Active' } />
+				<AdminSectionHero.Heading icon="success">{ 'No threats found' }</AdminSectionHero.Heading>
 				<Text>{ 'Most recent results' }</Text>
-			</AdminSectionHero.Subheading>
+			</AdminSectionHero.Main>
+			<AdminSectionHero.Aside>
+				<InProgressAnimation />
+			</AdminSectionHero.Aside>
 		</>
 	),
-	secondary: <InProgressAnimation />,
 };
