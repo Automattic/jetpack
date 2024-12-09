@@ -293,8 +293,11 @@ importers:
       '@visx/axis':
         specifier: ^3.12.0
         version: 3.12.0(react@18.3.1)
+      '@visx/event':
+        specifier: ^3.8.0
+        version: 3.12.0
       '@visx/group':
-        specifier: ^3.12.0
+        specifier: ^3.8.0
         version: 3.12.0(react@18.3.1)
       '@visx/scale':
         specifier: ^3.12.0
@@ -7842,6 +7845,9 @@ packages:
     resolution: {integrity: sha512-L4ex2ooSYhwNIxJ3XFIKRhoSvEGjPc2Y3YCrtNB4TV5Ofdj4q0UMOsxfrH23Pr8HSHuQhb6VGMgYoK0LuWqDmQ==}
     peerDependencies:
       react: ^16.0.0-0 || ^17.0.0-0 || ^18.0.0-0
+
+  '@visx/event@3.12.0':
+    resolution: {integrity: sha512-9Lvw6qJ0Fi+y1vsC1WspfdIKCxHTb7oy59Uql1uBdPGT8zChP0vuxW0jQNQRDbKgoefj4pCXAFi8+MF1mEtVTw==}
 
   '@visx/group@3.12.0':
     resolution: {integrity: sha512-Dye8iS1alVXPv7nj/7M37gJe6sSKqJLH7x6sEWAsRQ9clI0kFvjbKcKgF+U3aAVQr0NCohheFV+DtR8trfK/Ag==}
@@ -18381,6 +18387,11 @@ snapshots:
       classnames: 2.5.1
       prop-types: 15.8.1
       react: 18.3.1
+
+  '@visx/event@3.12.0':
+    dependencies:
+      '@types/react': 18.3.12
+      '@visx/point': 3.12.0
 
   '@visx/group@3.12.0(react@18.3.1)':
     dependencies:
