@@ -142,7 +142,7 @@ class Checkout_Flow {
 	public function capture_checkout_view() {
 		global $post;
 
-		if ( ! $post ) {
+		if ( ! $post instanceof WP_Post ) {
 			return;
 		}
 
