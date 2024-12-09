@@ -6,6 +6,7 @@ import {
 	ERROR_QUOTA_EXCEEDED,
 	mapActionToHumanText,
 	useAiSuggestions,
+	useAiModule,
 } from '@automattic/jetpack-ai-client';
 import { BlockControls, useBlockProps } from '@wordpress/block-editor';
 import { createHigherOrderComponent } from '@wordpress/compose';
@@ -550,10 +551,11 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 	}
 
 	return props => {
+		const { isAiModuleActive } = useAiModule();
 		const isRequiredModulePresent = useBlockModuleStatus( props.name );
 
 		// If the required module is not enabled, return the original block edit component early.
-		if ( ! isRequiredModulePresent ) {
+		if ( ! isAiModuleActive || ! isRequiredModulePresent ) {
 			return <BlockEdit { ...props } />;
 		}
 
