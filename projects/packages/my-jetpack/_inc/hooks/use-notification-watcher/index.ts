@@ -9,12 +9,12 @@ import useSiteConnectionNotice from './use-site-connection-notice';
 const useNotificationWatcher = () => {
 	const { redBubbleAlerts } = getMyJetpackWindowInitialState();
 
-	useBadInstallNotice( redBubbleAlerts );
-	useSiteConnectionNotice( redBubbleAlerts );
-	useConnectionErrorsNotice();
-	useDeprecateFeatureNotice( redBubbleAlerts );
-	useBackupNeedsAttentionNotice( redBubbleAlerts );
 	useExpiringPlansNotice( redBubbleAlerts );
+	useBackupNeedsAttentionNotice( redBubbleAlerts );
+	useDeprecateFeatureNotice( redBubbleAlerts );
+	useConnectionErrorsNotice();
+	useSiteConnectionNotice( redBubbleAlerts );
+	useBadInstallNotice( redBubbleAlerts );
 };
 
 export default useNotificationWatcher;
