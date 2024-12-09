@@ -2,11 +2,7 @@ import { AxisLeft, AxisBottom } from '@visx/axis';
 import { Group } from '@visx/group';
 import { scaleBand, scaleLinear } from '@visx/scale';
 import { Bar } from '@visx/shape';
-
-export interface DataPoint {
-	label: string;
-	value: number;
-}
+import type { DataPoint } from '../shared/types';
 
 type BarChartProps = {
 	data: DataPoint[];
