@@ -29,7 +29,7 @@ const DisconnectDialog = props => {
 		apiRoot,
 		apiNonce,
 		connectedPlugins,
-		title = __( 'Are you sure you want to disconnect?', 'jetpack' ),
+		title = __( 'Are you sure you want to disconnect?', 'jetpack-connection-js' ),
 		pluginScreenDisconnectCallback,
 		onDisconnected,
 		onError,

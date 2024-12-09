@@ -14,18 +14,37 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"scripts": {
+		"clean": "rm -rf node_modules",
 		"test": "jest --config=tests/jest.config.cjs",
 		"test-coverage": "pnpm run test --coverage"
+	},
+	"dependencies": {
+		"@visx/axis": "^3.8.0",
+		"@visx/group": "^3.8.0",
+		"@visx/scale": "^3.8.0",
+		"@visx/shape": "^3.8.0"
 	},
 	"devDependencies": {
 		"jest": "29.7.0",
 		"jest-environment-jsdom": "29.7.0",
 		"jest-extended": "4.0.2",
-		"typescript": "5.0.4"
+		"typescript": "5.0.4",
+		"@types/react": "18.3.12",
+		"@types/react-dom": "18.3.1",
+		"@storybook/react": "8.3.5",
+		"@storybook/blocks": "8.3.5",
+		"storybook": "8.3.5",
+		"react": "18.3.1",
+		"react-dom": "18.3.1"
+	},
+	"peerDependencies": {
+		"react": "^17.0.0 || ^18.0.0",
+		"react-dom": "^17.0.0 || ^18.0.0"
 	},
 	"exports": {
 		".": "./src/index.ts",
 		"./state": "./src/state",
-		"./action-types": "./src/state/action-types"
+		"./action-types": "./src/state/action-types",
+		"./bar": "./src/components/bar-chart/index.ts"
 	}
 }

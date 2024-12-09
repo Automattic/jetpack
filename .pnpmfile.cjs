@@ -48,7 +48,8 @@ function fixDeps( pkg ) {
 				dep.startsWith( 'eslint-plugin-' ) ||
 				dep.endsWith( '/eslint-plugin' ) ||
 				dep.startsWith( 'eslint-config-' ) ||
-				dep.endsWith( '/eslint-config' )
+				dep.endsWith( '/eslint-config' ) ||
+				dep.startsWith( '@typescript-eslint/' )
 			) {
 				delete pkg.dependencies[ dep ];
 				pkg.peerDependencies[ dep ] = ver.replace( /^\^?/, '>=' );

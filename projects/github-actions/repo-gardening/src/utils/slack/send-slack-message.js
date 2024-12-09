@@ -85,7 +85,7 @@ async function sendSlackMessage( message, channel, payload, customMessageFormat 
 	} catch ( error ) {
 		// The request failed.
 		// At this point, we want to log specific types of errors (let's avoid noise by logging temporary errors for example).
-		if ( ! error.code === ErrorCode.PlatformError ) {
+		if ( error.code !== ErrorCode.PlatformError ) {
 			return false;
 		}
 

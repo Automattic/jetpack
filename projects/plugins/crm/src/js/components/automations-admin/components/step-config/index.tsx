@@ -17,7 +17,7 @@ export const StepConfig: React.FC< StepConfigProps > = ( { workflowId, step } ) 
 		<>
 			<div className={ styles.title }>{ step.title }</div>
 			{ attributes.map( ( { definition, value } ) => (
-				<div className={ styles[ 'attribute-container' ] }>
+				<div key={ step.id } className={ styles[ 'attribute-container' ] }>
 					<AttributeConfig
 						workflowId={ workflowId }
 						stepId={ step.id }

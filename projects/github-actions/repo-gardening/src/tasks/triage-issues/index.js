@@ -38,14 +38,14 @@ async function addCommentAskLabels( octokit, ownerLogin, authorLogin, repo, issu
 			org: ownerLogin,
 			username: authorLogin,
 		} );
-	} catch ( error ) {
+	} catch {
 		debug(
 			`triage-issues > auto-label: Author ${ authorLogin } is not an org member. Skipping comment.`
 		);
 		return;
 	}
 
-	const commentBody = `It looks like you didn't add any labels to this issue. Could you please add a \`[Type]\`, a \`[Feature]\`, and a \`[Pri]\` label? Those labels will help us categorize and monitor activity in this repository.
+	const commentBody = `This issue could use some more labels, to help prioritize and categorize our work. Could you please add at least a \`[Type]\`, a \`[Feature]\`, and a \`[Pri]\` label?
 `;
 
 	await octokit.rest.issues.createComment( {
@@ -152,9 +152,9 @@ async function triageIssues( payload, octokit ) {
 		const issueLabels = await aiLabeling( payload, octokit );
 
 		// At this point, if we still miss a [Type] label, a [Feature] label, or a [Pri] label, ask the author to add it.
-		const requiredLabelTypes = [ '[Type]', '[Feature', '[Pri]' ];
+		const requiredLabelTypes = [ /^\[Type\]/, /^\[Pri/, /^\[[^\]]*Feature/ ];
 		const missingLabelTypes = requiredLabelTypes.filter(
-			requiredLabelType => ! issueLabels.some( label => label.startsWith( requiredLabelType ) )
+			requiredLabelType => ! issueLabels.some( label => requiredLabelType.test( label ) )
 		);
 
 		if ( missingLabelTypes.length > 0 ) {

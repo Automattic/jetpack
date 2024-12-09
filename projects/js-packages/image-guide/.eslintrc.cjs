@@ -31,8 +31,6 @@ module.exports = {
 			},
 		],
 
-		// Apparently, we like dangling commas
-		'comma-dangle': 0,
 		'jsdoc/no-undefined-types': [
 			1,
 			{
@@ -45,7 +43,6 @@ module.exports = {
 		'import/no-unresolved': 0,
 		'import/order': 0,
 		'no-nested-ternary': 0,
-		'prettier/prettier': 0,
 		camelcase: 0,
 	},
 };
