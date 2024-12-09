@@ -11,7 +11,7 @@ const BackButton: React.FC< BackButtonProps > = ( { route = '/' } ) => {
 	const navigate = useNavigate();
 	const handleBack = () => {
 		recordBoostEvent( 'back_button_clicked', {
-			current_page: window.location.pathname + window.location.search + window.location.hash,
+			current_page: window.location.href.replace( window.location.origin, '' ),
 			destination: route,
 		} );
 		navigate( route );
