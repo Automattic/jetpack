@@ -106,7 +106,7 @@ const ScanAdminSectionHero: React.FC = () => {
 
 	return (
 		<AdminSectionHero>
-			<AdminSectionHero.Main>
+			<AdminSectionHero.Main className={ styles[ 'header-main' ] }>
 				<Text mb={ 2 } ref={ setDailyScansPopoverAnchor }>
 					{ lastCheckedLocalTimestamp
 						? sprintf(
