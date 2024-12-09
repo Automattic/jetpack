@@ -1,3 +1,4 @@
+import BarChart from '../../bar-chart';
 import { Tooltip } from '../index';
 import type { Meta } from '@storybook/react';
 
@@ -9,48 +10,18 @@ export default {
 	},
 } satisfies Meta< typeof Tooltip >;
 
-/**
- * Story template for demonstrating the Tooltip component.
- *
- * @param {object} args - Story arguments
- * @return {JSX.Element} The rendered story
- */
-function Template( args ) {
-	return (
-		<div style={ { position: 'relative', padding: '2rem', minHeight: '200px' } }>
-			<Tooltip { ...args } top={ 50 } left={ 100 } />
-		</div>
-	);
-}
+const Template = args => (
+	<div style={ { position: 'relative', padding: '2rem' } }>
+		<BarChart width={ 500 } height={ 300 } showTooltips={ true } { ...args } />
+	</div>
+);
 
 export const Default = Template.bind( {} );
 Default.args = {
-	data: {
-		label: 'Example Bar',
-		value: 42,
-	},
-};
-
-export const LongLabel = Template.bind( {} );
-LongLabel.args = {
-	data: {
-		label: 'Very Long Label That Might Need Special Handling',
-		value: 1234,
-	},
-};
-
-export const LargeValue = Template.bind( {} );
-LargeValue.args = {
-	data: {
-		label: 'Big Number',
-		value: 999999,
-	},
-};
-
-export const SmallValue = Template.bind( {} );
-SmallValue.args = {
-	data: {
-		label: 'Small Number',
-		value: 0.123,
-	},
+	data: [
+		{ label: 'Normal Bar', value: 420 },
+		{ label: 'Very Long Label That Might Need Special Handling', value: 650 },
+		{ label: 'Big Number', value: 850 },
+		{ label: 'Small Number', value: 123 },
+	],
 };
