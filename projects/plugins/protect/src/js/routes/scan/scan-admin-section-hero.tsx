@@ -1,7 +1,7 @@
 import { Text, Button, useBreakpointMatch } from '@automattic/jetpack-components';
 import { Tooltip } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { useCallback, useState } from 'react';
 import { useMemo } from 'react';
 import AdminSectionHero from '../../components/admin-section-hero';
@@ -64,13 +64,18 @@ const ScanAdminSectionHero: React.FC = () => {
 		if ( hasPlan ) {
 			heading = sprintf(
 				/* translators: %s: Total number of threats */
-				__( '%1$s active threats', 'jetpack-protect' ),
+				_n( '%1$s active threat', '%1$s active threats', numThreats, 'jetpack-protect' ),
 				numThreats
 			);
 		} else {
 			heading = sprintf(
 				/* translators: %s: Total number of vulnerabilities */
-				__( '%1$s active vulnerabilities', 'jetpack-protect' ),
+				_n(
+					'%1$s active vulnerability',
+					'%1$s active vulnerabilities',
+					numThreats,
+					'jetpack-protect'
+				),
 				numThreats
 			);
 		}

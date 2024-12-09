@@ -41,9 +41,15 @@ AdminSectionHero.Main = ( {
 	);
 };
 
-AdminSectionHero.Aside = ( { children, ...props }: React.ComponentProps< 'div' > ) => {
+AdminSectionHero.Aside = ( {
+	children,
+	className,
+	...props
+}: React.ComponentProps< 'div' > & {
+	className?: string;
+} ) => {
 	return (
-		<div className={ styles[ 'admin-section-hero__aside' ] } { ...props }>
+		<div className={ clsx( styles[ 'admin-section-hero__aside' ], className ) } { ...props }>
 			{ children }
 		</div>
 	);
