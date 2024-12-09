@@ -2,71 +2,67 @@ import {
 	AdminSectionHero as JetpackAdminSectionHero,
 	H3,
 	ShieldIcon,
+	Container,
+	Col,
 } from '@automattic/jetpack-components';
-import SeventyFiveLayout from '../seventy-five-layout';
+import clsx from 'clsx';
 import AdminSectionHeroNotices from './admin-section-hero-notices';
 import styles from './styles.module.scss';
 
-interface AdminSectionHeroProps {
-	main: React.ReactNode;
-	mainClassName?: string;
-	secondary?: React.ReactNode;
-	secondaryClassName?: string;
-	preserveSecondaryOnMobile?: boolean;
-	spacing?: number;
-}
+const AdminSectionHero = ( {
+	children,
+	...props
+}: React.ComponentProps< typeof JetpackAdminSectionHero > ) => {
+	return (
+		<JetpackAdminSectionHero { ...props }>
+			<AdminSectionHeroNotices />
+			<Container horizontalSpacing={ 0 }>
+				<Col>
+					<div className={ styles[ 'admin-section-hero' ] }>{ children }</div>
+				</Col>
+			</Container>
+		</JetpackAdminSectionHero>
+	);
+};
 
-interface AdminSectionHeroComponent extends React.FC< AdminSectionHeroProps > {
-	Heading: React.FC< {
-		children: React.ReactNode;
-		showIcon?: boolean;
-		variant?: 'default' | 'success' | 'error';
-		outline?: boolean;
-	} >;
-	Subheading: React.FC< { children: React.ReactNode } >;
-}
-
-const AdminSectionHero: AdminSectionHeroComponent = ( {
-	main,
-	mainClassName,
-	secondary,
-	secondaryClassName,
-	preserveSecondaryOnMobile = true,
-	spacing = 7,
+AdminSectionHero.Main = ( {
+	children,
+	className,
+	...props
+}: {
+	children: React.ReactNode;
+	className?: string;
+	[ key: string ]: unknown;
 } ) => {
 	return (
-		<JetpackAdminSectionHero>
-			<AdminSectionHeroNotices />
-			<SeventyFiveLayout
-				spacing={ spacing }
-				gap={ 0 }
-				main={ main }
-				mainClassName={ mainClassName }
-				secondary={ secondary }
-				secondaryClassName={ secondaryClassName }
-				preserveSecondaryOnMobile={ preserveSecondaryOnMobile }
-				fluid={ false }
-			/>
-		</JetpackAdminSectionHero>
+		<div className={ clsx( styles[ 'admin-section-hero__main' ], className ) } { ...props }>
+			{ children }
+		</div>
+	);
+};
+
+AdminSectionHero.Aside = ( { children, ...props }: React.ComponentProps< 'div' > ) => {
+	return (
+		<div className={ styles[ 'admin-section-hero__aside' ] } { ...props }>
+			{ children }
+		</div>
 	);
 };
 
 AdminSectionHero.Heading = ( {
 	children,
-	variant = 'default',
-	showIcon = false,
-}: {
-	children: React.ReactNode;
-	variant?: 'default' | 'success' | 'error';
-	showIcon?: boolean;
+	icon,
+	...props
+}: React.ComponentProps< typeof H3 > & {
+	icon?: 'default' | 'success' | 'error';
 } ) => {
 	return (
-		<H3 className={ styles.heading } mt={ 2 } mb={ 2 }>
+		<H3 mb={ 1 } { ...props }>
 			{ children }
-			{ showIcon && (
+			{ !! icon && (
 				<ShieldIcon
 					height={ 38 }
-					variant={ variant }
+					variant={ icon }
 					outline
 					fill="default"
 					className={ styles[ 'heading-icon' ] }
@@ -74,10 +70,6 @@ AdminSectionHero.Heading = ( {
 			) }
 		</H3>
 	);
-};
-
-AdminSectionHero.Subheading = ( { children }: { children: React.ReactNode } ) => {
-	return <div className={ styles.subheading }>{ children }</div>;
 };
 
 export default AdminSectionHero;

@@ -1,6 +1,14 @@
-# charts
+# Automattic Charts
 
 Display charts within Automattic products.
+
+## Storybook
+
+To see available charts, from the root of the monorepo follow these steps:
+
+1. Run `pnpm install` to install the dependencies.
+2. Run `cd projects/js-packages/charts` to navigate to the charts package.
+3. Run `pnpm run storybook` to start the storybook server.
 
 ## How to install charts
 

@@ -89,8 +89,8 @@ export const reducer = combineReducers( {
 
 /**
  * Returns an object with Jetpack settings keyed by setting name.
- * @param {Object} state Global state tree
- * @return {Object}       Settings keyed by setting name
+ * @param {object} state - Global state tree
+ * @return {object}       Settings keyed by setting name
  */
 export function getSettings( state ) {
 	return state.jetpack.settings.items;
@@ -98,9 +98,9 @@ export function getSettings( state ) {
 
 /**
  * Returns a value of a certain setting
- * @param {Object}  state                 Global state tree
- * @param {String}  key                   Name of setting or module option to return.
- * @param {String}  moduleName            If present, it will check if the module is active before returning it.
+ * @param {object}  state                 - Global state tree
+ * @param {string}  key                   - Name of setting or module option to return.
+ * @param {string}  moduleName            - If present, it will check if the module is active before returning it.
  * @param {boolean} ignoreDisabledModules - Whether to ignore settings for disabled modules.
  * @return {undefined|*}       Settings value or undefined if a module was specified and it wasn't active.
  */
@@ -119,8 +119,8 @@ export function getSetting( state, key, moduleName = '', ignoreDisabledModules =
  * Returns true if currently requesting settings lists or false
  * otherwise.
  *
- * @param {Object} state Global state tree
- * @return {Boolean}       Whether settings are being requested
+ * @param {object} state - Global state tree
+ * @return {boolean}       Whether settings are being requested
  */
 export function isFetchingSettingsList( state ) {
 	return !! state.jetpack.settings.requests.fetchingSettingsList;
@@ -129,9 +129,9 @@ export function isFetchingSettingsList( state ) {
 /**
  * Returns true if we are currently making a request to update a setting's option
  *
- * @param {Object}       state    Global state tree
- * @param {String|Array} settings Single or multiple settings to check if they're being saved or not.
- * @return {Boolean}                Whether option is being updated on the setting
+ * @param {object}         state    - Global state tree
+ * @param {string | Array} settings - Single or multiple settings to check if they're being saved or not.
+ * @return {boolean}                Whether option is being updated on the setting
  */
 export function isUpdatingSetting( state, settings = '' ) {
 	if ( 'object' === typeof settings ) {
@@ -148,9 +148,9 @@ export function isUpdatingSetting( state, settings = '' ) {
 /**
  * Returns true if we successfully updated a setting
  *
- * @param {Object} state   Global state tree
- * @param {String} setting A setting name
- * @return {Boolean|undefined} Whether the option has been updated successfully. Undefined if an attempt has not yet been made.
+ * @param {object} state   - Global state tree
+ * @param {string} setting - A setting name
+ * @return {boolean | undefined} Whether the option has been updated successfully. Undefined if an attempt has not yet been made.
  */
 export function hasUpdatedSetting( state, setting = '' ) {
 	return state.jetpack.settings.requests.updatedSettings[ setting ];
@@ -158,9 +158,9 @@ export function hasUpdatedSetting( state, setting = '' ) {
 
 /**
  * Returns true if the setting is "checked".
- * @param {Object} state Global state tree
- * @param {String} name  A setting's name
- * @return {Boolean}       Whether a setting is checked
+ * @param {object} state - Global state tree
+ * @param {string} name  - A setting's name
+ * @return {boolean}       Whether a setting is checked
  */
 export function isSettingActivated( state, name ) {
 	return get( state.jetpack.settings.items, [ name ], false ) ? true : false;
@@ -168,9 +168,9 @@ export function isSettingActivated( state, name ) {
 
 /**
  * Returns true if the setting is "checked".
- * @param {Object} state Global state tree
- * @param {String} name  A setting's name
- * @return {Boolean}       Whether a setting is checked
+ * @param {object} state - Global state tree
+ * @param {string} name  - A setting's name
+ * @return {boolean}       Whether a setting is checked
  */
 export function toggleSetting( state, name ) {
 	return get( state.jetpack.settings.items, [ name ], false ) ? true : false;
@@ -178,8 +178,8 @@ export function toggleSetting( state, name ) {
 
 /**
  * Returns true if there are unsaved settings.
- * @param {Object} state Global state tree
- * @return {Boolean}  Whether there are unsaved settings
+ * @param {object} state - Global state tree
+ * @return {boolean}  Whether there are unsaved settings
  */
 export function areThereUnsavedSettings( state ) {
 	return get( state.jetpack.settings, 'unsavedSettingsFlag', false );
@@ -187,8 +187,8 @@ export function areThereUnsavedSettings( state ) {
 
 /**
  * Returns true if Empty Stats card has been dismissed.
- * @param {Object} state Global state tree
- * @return {Boolean} Whether the card has been dismissed
+ * @param {object} state - Global state tree
+ * @return {boolean} Whether the card has been dismissed
  */
 export function emptyStatsCardDismissed( state ) {
 	return get( state.jetpack.settings.items, 'dismiss_empty_stats_card', false );
@@ -197,7 +197,7 @@ export function emptyStatsCardDismissed( state ) {
 /**
  * Returns true if Backup Getting Started card has been dismissed.
  *
- * @param {Object} state - Global state tree
+ * @param {object} state - Global state tree
  * @return {boolean} Whether the card has been dismissed
  */
 export function backupGettingStartedDismissed( state ) {
@@ -207,7 +207,7 @@ export function backupGettingStartedDismissed( state ) {
 /**
  * Returns true if Agencies Learn More card has been dismissed.
  *
- * @param {Object} state - Global state tree
+ * @param {object} state - Global state tree
  * @return {boolean} Whether the card has been dismissed
  */
 export function agenciesLearnMoreDismissed( state ) {

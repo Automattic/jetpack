@@ -131,7 +131,7 @@ const FirewallPage = () => {
 		try {
 			toggleAutomaticRules();
 			setAutomaticRulesInstallationError( false );
-		} catch ( error ) {
+		} catch {
 			setAutomaticRulesInstallationError( true );
 			setFormState( prevState => ( {
 				...prevState,

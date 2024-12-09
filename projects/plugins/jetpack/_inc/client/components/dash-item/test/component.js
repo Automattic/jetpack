@@ -82,12 +82,14 @@ describe( 'DashItem', () => {
 
 	describe( 'when site is connected, is a PRO module, user can toggle', () => {
 		// While the button is passed to <SectionHeader>, that doesn't render it.
+		// eslint-disable-next-line jest/no-disabled-tests -- @todo Fix this, or remove it.
 		it.skip( 'displays a PRO button for a PRO feature', () => {
 			render( <DashItem { ...testProps } />, { initialState: buildInitialState() } );
 			expect( screen.getByRole( 'link', { name: 'Paid' } ) ).toBeInTheDocument();
 		} );
 
 		// Same.
+		// eslint-disable-next-line jest/no-disabled-tests -- @todo Fix this, or remove it.
 		it.skip( 'the button for a PRO feature is linked to #/plans', () => {
 			render( <DashItem { ...testProps } />, { initialState: buildInitialState() } );
 			expect( screen.getByRole( 'link', { name: 'Paid' } ) ).toHaveAttribute( 'href', '#/plans' );

@@ -1,7 +1,6 @@
-import { Title, Text, Button, ToggleControl } from '@automattic/jetpack-components';
+import { Title, Text, Button, ToggleControl, Container, Col } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import { useState, useEffect, useCallback } from 'react';
-import AdminSectionHero from '../../components/admin-section-hero';
+import { useCallback } from 'react';
 import useModal from '../../hooks/use-modal';
 import useNotices from '../../hooks/use-notices';
 import useWafData from '../../hooks/use-waf-data';
@@ -20,14 +19,17 @@ const StandaloneMode = () => {
 	};
 
 	return (
-		<div className={ styles[ 'standalone-mode-section' ] }>
-			<Title>{ __( 'Standalone mode', 'jetpack-protect' ) }</Title>
-			<Text>
-				{ __(
-					'Learn how you can execute the firewall before WordPress initializes. This mode offers the most protection.',
-					'jetpack-protect'
-				) }
-			</Text>
+		<div className={ styles[ 'standalone-mode' ] }>
+			<Title mb={ 0 }>{ __( 'Standalone mode', 'jetpack-protect' ) }</Title>
+			<div>
+				<Text>
+					{ __(
+						'Learn how you can execute the firewall before WordPress initializes.',
+						'jetpack-protect'
+					) }
+				</Text>
+				<Text>{ __( 'This mode offers the most protection.', 'jetpack-protect' ) }</Text>
+			</div>
 			<Button
 				variant={ 'link' }
 				isExternalLink={ true }
@@ -40,97 +42,56 @@ const StandaloneMode = () => {
 	);
 };
 
-const ShareDebugData = () => {
-	const { config, isUpdating, toggleShareDebugData } = useWafData();
-	const { jetpackWafShareDebugData } = config || {};
-	const { showSuccessNotice, showErrorNotice } = useNotices();
-
-	const [ settings, setSettings ] = useState( {
-		jetpack_waf_share_debug_data: jetpackWafShareDebugData,
-	} );
-
-	const handleShareDebugDataChange = useCallback( () => {
-		setSettings( {
-			...settings,
-			jetpack_waf_share_debug_data: ! settings.jetpack_waf_share_debug_data,
-		} );
-		toggleShareDebugData()
-			.then( () => showSuccessNotice( __( 'Changes saved.', 'jetpack-protect' ) ) )
-			.catch( () => {
-				showErrorNotice();
-			} );
-	}, [ settings, toggleShareDebugData, showSuccessNotice, showErrorNotice ] );
-
-	useEffect( () => {
-		setSettings( {
-			jetpack_waf_share_debug_data: jetpackWafShareDebugData,
-		} );
-	}, [ jetpackWafShareDebugData ] );
-
-	return (
-		<div>
-			<Title>{ __( 'Share detailed data with Jetpack', 'jetpack-protect' ) }</Title>
-			<div className={ styles[ 'share-data-section' ] }>
-				<ToggleControl
-					className={ styles[ 'share-data-toggle' ] }
-					checked={ Boolean( settings.jetpack_waf_share_debug_data ) }
-					onChange={ handleShareDebugDataChange }
-					disabled={ isUpdating }
-					size="small"
-				/>
-				<Text>
-					{ __(
-						'Allow Jetpack to collect detailed data from blocked requests to enhance firewall protection and accuracy.',
-						'jetpack-protect'
-					) }
-				</Text>
-			</div>
-		</div>
-	);
-};
-
 const ShareData = () => {
-	const { config, isUpdating, toggleShareData } = useWafData();
-	const { jetpackWafShareData } = config || {};
+	const { config, isUpdating, toggleShareData, toggleShareDebugData } = useWafData();
+	const { jetpackWafShareData, jetpackWafShareDebugData } = config || {};
 	const { showSuccessNotice, showErrorNotice } = useNotices();
 
-	const [ settings, setSettings ] = useState( {
-		jetpack_waf_share_data: jetpackWafShareData,
-	} );
+	const handleShareDataChange = useCallback( async () => {
+		try {
+			await toggleShareData();
+			showSuccessNotice( __( 'Changes saved.', 'jetpack-protect' ) );
+		} catch ( error ) {
+			showErrorNotice();
+		}
+	}, [ toggleShareData, showSuccessNotice, showErrorNotice ] );
 
-	const handleShareDataChange = useCallback( () => {
-		setSettings( { ...settings, jetpack_waf_share_data: ! settings.jetpack_waf_share_data } );
-		toggleShareData()
-			.then( () => showSuccessNotice( __( 'Changes saved.', 'jetpack-protect' ) ) )
-			.catch( () => {
-				showErrorNotice();
-			} );
-	}, [ settings, toggleShareData, showSuccessNotice, showErrorNotice ] );
-
-	useEffect( () => {
-		setSettings( {
-			jetpack_waf_share_data: jetpackWafShareData,
-		} );
-	}, [ jetpackWafShareData ] );
+	const handleShareDebugDataChange = useCallback( async () => {
+		try {
+			await toggleShareDebugData();
+			showSuccessNotice( __( 'Changes saved.', 'jetpack-protect' ) );
+		} catch ( error ) {
+			showErrorNotice();
+		}
+	}, [ toggleShareDebugData, showSuccessNotice, showErrorNotice ] );
 
 	return (
-		<div>
-			<Title>{ __( 'Share basic data with Jetpack', 'jetpack-protect' ) }</Title>
-			<div className={ styles[ 'share-data-section' ] }>
-				<ToggleControl
-					className={ styles[ 'share-data-toggle' ] }
-					checked={ Boolean( settings.jetpack_waf_share_data ) }
-					onChange={ handleShareDataChange }
-					disabled={ isUpdating }
-					size="small"
-				/>
-				<Text>
-					{ __(
-						'Allow Jetpack to collect basic data from blocked requests to improve firewall protection and accuracy.',
-						'jetpack-protect'
-					) }
-				</Text>
-			</div>
+		<div className={ styles[ 'share-data' ] }>
+			<Title mb={ 0 }>{ __( 'Share data with Jetpack', 'jetpack-protect' ) }</Title>
+			<ToggleControl
+				className={ styles[ 'share-data-toggle' ] }
+				checked={ !! jetpackWafShareData }
+				onChange={ handleShareDataChange }
+				disabled={ isUpdating }
+				size="small"
+				label={ __( 'Share basic data', 'jetpack-protect' ) }
+				help={ __(
+					'Allow Jetpack to collect basic data from blocked requests to improve firewall protection and accuracy.',
+					'jetpack-protect'
+				) }
+			/>
+			<ToggleControl
+				className={ styles[ 'share-data-toggle' ] }
+				checked={ !! jetpackWafShareDebugData }
+				onChange={ handleShareDebugDataChange }
+				disabled={ isUpdating }
+				size="small"
+				label={ __( 'Share detailed data', 'jetpack-protect' ) }
+				help={ __(
+					'Allow Jetpack to collect detailed data from blocked requests to enhance firewall protection and accuracy.',
+					'jetpack-protect'
+				) }
+			/>
 		</div>
 	);
 };
@@ -139,23 +100,18 @@ const FirewallFooter = () => {
 	const { isEnabled } = useWafData();
 
 	return (
-		<AdminSectionHero
-			spacing={ 7 }
-			main={
-				<div className={ styles[ 'footer-main' ] }>
+		<div className={ styles.footer }>
+			<Container horizontalSpacing={ 8 } horizontalGap={ 7 }>
+				<Col sm={ 12 } md={ 6 } lg={ 7 }>
 					<StandaloneMode />
-				</div>
-			}
-			secondary={
-				isEnabled && (
-					<div className={ styles[ 'footer-secondary' ] }>
+				</Col>
+				{ isEnabled && (
+					<Col sm={ 12 } md={ 6 } lg={ 5 }>
 						<ShareData />
-						<ShareDebugData />
-					</div>
-				)
-			}
-			preserveSecondaryOnMobile={ true }
-		/>
+					</Col>
+				) }
+			</Container>
+		</div>
 	);
 };
 

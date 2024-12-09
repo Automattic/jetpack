@@ -17,7 +17,7 @@ export const getPath = response => {
 	try {
 		const url = new URL( response.entry_permalink );
 		return url.pathname;
-	} catch ( error ) {
+	} catch {
 		return '';
 	}
 };

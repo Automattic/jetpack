@@ -97,6 +97,7 @@ export default function ScanReport( { data, onChangeSelection } ): JSX.Element {
 					return 'unchecked';
 				},
 				render( { item }: { item: ScanReportExtension } ) {
+					// TODO: Fix concatenation of trnaslated strings
 					let variant: 'info' | 'warning' | 'success' = 'info';
 					let text = __(
 						'This item was added to your site after the most recent scan. We will check for threats during the next scheduled one.',

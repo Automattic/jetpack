@@ -1,3 +1,7 @@
+.scanning-main {
+	max-width: 512px;
+}
+
 .auto-fixers {
 	margin-top: calc( var( --spacing-base ) * 4 ); // 32px
 }
@@ -11,10 +15,4 @@
 		margin-left: calc( var( --spacing-base ) * -3 ); // -24px
 		margin-right: calc( var( --spacing-base ) * -3 ); // -24px
 	}
-}
-
-.scanning-header-main {
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
 }

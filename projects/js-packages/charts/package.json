@@ -16,26 +16,31 @@
 	"scripts": {
 		"clean": "rm -rf node_modules",
 		"test": "jest --config=tests/jest.config.cjs",
-		"test-coverage": "pnpm run test --coverage"
+		"test-coverage": "pnpm run test --coverage",
+		"storybook": "cd ../storybook && pnpm run storybook:dev"
 	},
 	"dependencies": {
-		"@visx/axis": "^3.8.0",
-		"@visx/group": "^3.8.0",
-		"@visx/scale": "^3.8.0",
-		"@visx/shape": "^3.8.0"
+		"@react-spring/web": "9.7.3",
+		"@visx/axis": "^3.12.0",
+		"@visx/group": "^3.12.0",
+		"@visx/scale": "^3.12.0",
+		"@visx/shape": "^3.12.0",
+		"@visx/text": "3.12.0",
+		"@visx/xychart": "3.12.0",
+		"clsx": "2.1.1"
 	},
 	"devDependencies": {
+		"@storybook/blocks": "8.4.6",
+		"@storybook/react": "8.4.6",
+		"@types/react": "18.3.13",
+		"@types/react-dom": "18.3.1",
 		"jest": "29.7.0",
 		"jest-environment-jsdom": "29.7.0",
 		"jest-extended": "4.0.2",
-		"typescript": "5.0.4",
-		"@types/react": "18.3.12",
-		"@types/react-dom": "18.3.1",
-		"@storybook/react": "8.3.5",
-		"@storybook/blocks": "8.3.5",
-		"storybook": "8.3.5",
 		"react": "18.3.1",
-		"react-dom": "18.3.1"
+		"react-dom": "18.3.1",
+		"storybook": "8.4.6",
+		"typescript": "5.7.2"
 	},
 	"peerDependencies": {
 		"react": "^17.0.0 || ^18.0.0",

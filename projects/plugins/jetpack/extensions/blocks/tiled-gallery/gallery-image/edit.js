@@ -94,7 +94,7 @@ class GalleryImageEdit extends Component {
 		const img = (
 			// Disable reason: Image itself is not meant to be interactive, but should
 			// direct image selection and unfocus caption fields.
-			/* eslint-disable jsx-a11y/no-noninteractive-element-interactions, jsx-a11y/no-noninteractive-tabindex */
+			/* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
 			<Fragment>
 				<img
 					alt={ alt }
@@ -114,7 +114,7 @@ class GalleryImageEdit extends Component {
 				/>
 				{ isTransient && <Spinner /> }
 			</Fragment>
-			/* eslint-enable jsx-a11y/no-noninteractive-element-interactions, jsx-a11y/no-noninteractive-tabindex */
+			/* eslint-enable jsx-a11y/no-noninteractive-element-interactions */
 		);
 
 		// Disable reason: Each block can be selected by clicking on it and we should keep the same saved markup
@@ -155,8 +155,7 @@ class GalleryImageEdit extends Component {
 						disabled={ ! isSelected }
 					/>
 				</div>
-				{ /* Keep the <a> HTML structure, but ensure there is no navigation from edit */
-				/* eslint-disable-next-line jsx-a11y/anchor-is-valid */ }
+				{ /* Keep the <a> HTML structure, but ensure there is no navigation from edit */ }
 				{ href ? <a>{ img }</a> : img }
 			</figure>
 		);
