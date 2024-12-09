@@ -1343,7 +1343,7 @@ class Jetpack_Gutenberg {
 	 * this method allows registration to proceed by temporarily disabling
 	 * the relevant notice.
 	 *
-	 * @since $$next-version$$
+	 * @since 14.2
 	 *
 	 * @param bool   $trigger       Whether to trigger the error.
 	 * @param string $function      The function that was called.

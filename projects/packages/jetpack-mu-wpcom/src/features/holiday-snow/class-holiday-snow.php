@@ -48,6 +48,18 @@ class Holiday_Snow {
 	}
 
 	/**
+	 * Check if the site uses p2.
+	 * p2 is currently not compatible with Holiday Snow.
+	 * This covers both P2 and P2020 themes.
+	 *
+	 * @return bool
+	 */
+	private static function is_p2() {
+		return str_contains( get_stylesheet(), 'pub/p2' )
+			|| function_exists( '\WPForTeams\is_wpforteams_site' ) && is_wpforteams_site( get_current_blog_id() );
+	}
+
+	/**
 	 * Check if the snow is enabled.
 	 *
 	 * @return bool
@@ -62,7 +74,7 @@ class Holiday_Snow {
 	 * @return void
 	 */
 	public static function init() {
-		if ( ! self::is_snow_season() ) {
+		if ( ! self::is_snow_season() || self::is_p2() ) {
 			return;
 		}
 

@@ -13,6 +13,7 @@ import store from 'state/redux-store';
 accessibleFocus();
 
 // Add dispatch and actionTypes to the window object so we can use it from the browser's console
+// eslint-disable-next-line no-undef -- webpack sets process.env.NODE_ENV
 if ( 'undefined' !== typeof window && process.env.NODE_ENV === 'development' ) {
 	assign( window, {
 		actionTypes: actionTypes,

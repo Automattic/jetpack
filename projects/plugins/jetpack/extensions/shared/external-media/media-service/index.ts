@@ -30,7 +30,6 @@ const DEFAULT_GOOGLE_PHOTOS_SEARCH: MediaSearch = {
 /**
  * External media endpoints.
  */
-// eslint-disable-next-line no-shadow
 enum WpcomMediaEndpoints {
 	List = '/wpcom/v2/external-media/list/',
 }
@@ -38,7 +37,6 @@ enum WpcomMediaEndpoints {
 /**
  * WPCOM media type of the WPCOM Media Api.
  */
-// eslint-disable-next-line no-shadow
 enum WpcomMediaItemType {
 	Image = 'image',
 	Video = 'video',

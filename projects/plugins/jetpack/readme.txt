@@ -326,33 +326,19 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.1 - 2024-12-03
+### 14.2-a.1 - 2024-12-09
 #### Enhancements
-- Image CDN: Use preconnect resource hints instead of dns-prefetch to improve performance.
-- Likes Block: Allow hiding avatars.
-- My Jetpack: Update the recommendations section in My Jetpack to include a slider interaction for the cards.
-- Social: Add a new toggle for Social UTM tracking.
-- Social: Add permissions warning for LinkedIn connections.
-- Social: Post share status in the editor is now immediately available on page load.
-- Subscriptions: Don't load editor functionality when the module is disabled.
-- Use wp_register_block_metadata_collection() on WordPress 6.7+ to improve block registration performance by reducing filesystem operations. (See https://core.trac.wordpress.org/changeset/59132)
+- Stats: Allow fetching stats for specific sites when programatically fetching stats using Jetpack's tools.
+- Stats: Sunset Legacy Stats experience.
+- Stats: Enable sparkline chart in the WP Admin bar.
 
 #### Improved compatibility
-- Components: Update Shortlink and Toolbar related components to ensure compatibility.
-- Dashboard: Fix toggle component to prevent console warnings.
-- General: Update minimum PHP version to 7.2.
-- General: Update minimum WordPress version to 6.6.
-- Tiled Gallery: Increase accessibility by ensuring images are not classified as interactive when they shouldn't be.
+- External media: Google Photos Picker: Update UX opening picker right after pressing "change selection" CTA.
+- SEO: Ensure support for adding an SEO title and description for custom post types.
+- WordPress 6.7 Compatibility: Fix notices caused by translation calls happening too early in the load order.
 
 #### Bug fixes
-- AI Assistant: Fix bug with error message when user is not over requests limit.
-- Comments: Fix reload after posting.
-- Forms: Improve compatibility with third-party integrations.
-- Licensing: Resolve an issue where revoked licenses were incorrectly treated as unattached.
-- Social: Fix bug with scheduled resharing when sharing another admin's posts.
-- Social: Make resharing async in classic editor to fix timeout issues.
-- Subscribe block: Fix block error when editing.
-- Subscriptions: Fix template preview and edit links for three toggle settings.
+- Google Fonts: Clean up the Google Fonts data if either the Google Fonts module is disabled or Jetpack is disabled.
 
 --------
 

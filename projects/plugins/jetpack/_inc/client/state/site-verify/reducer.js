@@ -65,8 +65,8 @@ export const reducer = combineReducers( {
  * Returns true if currently requesting settings lists or false
  * otherwise.
  *
- * @param {Object} state Global state tree
- * @return {Boolean}       Whether settings are being requested
+ * @param {object} state - Global state tree
+ * @return {boolean}       Whether settings are being requested
  */
 export function isFetchingGoogleSiteVerify( state ) {
 	return get( state, 'jetpack.siteVerify.google.fetching', false );
@@ -76,13 +76,19 @@ export function isFetchingGoogleSiteVerify( state ) {
  * Returns true if currently verifying a site or false
  * otherwise.
  *
- * @param {Object} state Global state tree
- * @return {Boolean}       Whether settings is being verified
+ * @param {object} state - Global state tree
+ * @return {boolean}       Whether settings is being verified
  */
 export function isVerifyingGoogleSite( state ) {
 	return get( state, 'jetpack.siteVerify.google.verifying', false );
 }
 
+/**
+ * Test whether we're connected to Google's site verification API.
+ *
+ * @param {object} state - Global state tree
+ * @return {boolean}       Whether we're connected
+ */
 export function isConnectedToGoogleSiteVerificationAPI( state ) {
 	return (
 		! isFetchingGoogleSiteVerify( state ) &&
@@ -90,22 +96,52 @@ export function isConnectedToGoogleSiteVerificationAPI( state ) {
 	);
 }
 
+/**
+ * Test whether the site is verified with Google.
+ *
+ * @param {object} state - Global state tree
+ * @return {boolean}       Whether the site is verified.
+ */
 export function isSiteVerifiedWithGoogle( state ) {
 	return get( state, 'jetpack.siteVerify.google.verified', false );
 }
 
+/**
+ * Get the site verification error
+ *
+ * @param {object} state - Global state tree
+ * @return {object|null}   Error data.
+ */
 export function getGoogleSiteVerificationError( state ) {
 	return get( state, 'jetpack.siteVerify.google.error', null );
 }
 
+/**
+ * Get the search console URL.
+ *
+ * @param {object} state - Global state tree
+ * @return {string|null} URL.
+ */
 export function getGoogleSearchConsoleUrl( state ) {
 	return get( state, 'jetpack.siteVerify.google.searchConsoleUrl', null );
 }
 
+/**
+ * Get the verification console URL.
+ *
+ * @param {object} state - Global state tree
+ * @return {string|null} URL.
+ */
 export function getGoogleVerificationConsoleUrl( state ) {
 	return get( state, 'jetpack.siteVerify.google.verificationConsoleUrl', null );
 }
 
+/**
+ * Test whether this is the site owner.
+ *
+ * @param {object} state - Global state tree
+ * @return {boolean}       Whether this is the site owner.
+ */
 export function isGoogleSiteVerificationOwner( state ) {
 	return get( state, 'jetpack.siteVerify.google.isOwner', false );
 }

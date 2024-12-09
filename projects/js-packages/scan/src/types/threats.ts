@@ -11,14 +11,14 @@ export type ScanReportExtension = {
 	name?: string;
 	version?: string;
 	threats: Threat[];
-	type: 'plugin' | 'theme' | 'core' | 'files';
+	type: 'plugins' | 'themes' | 'core' | 'files';
 };
 
 export type Extension = {
-	slug?: string;
+	slug: string;
 	name: string;
 	version: string;
-	type: 'plugin' | 'theme' | 'core';
+	type: 'plugins' | 'themes' | 'core';
 };
 
 export type Threat = {
