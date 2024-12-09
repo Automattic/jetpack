@@ -181,7 +181,6 @@ class Universal {
 	 * On the Checkout page, trigger an event for each product in the cart
 	 */
 	public function checkout_process() {
-		global $post;
 		$checkout_page_id = wc_get_page_id( 'checkout' );
 		$cart             = WC()->cart->get_cart();
 
