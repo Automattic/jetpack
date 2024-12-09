@@ -1,6 +1,6 @@
 import { Title, Text, Button, ToggleControl, Container, Col } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback } from 'react';
 import useModal from '../../hooks/use-modal';
 import useNotices from '../../hooks/use-notices';
 import useWafData from '../../hooks/use-waf-data';
@@ -47,45 +47,30 @@ const ShareData = () => {
 	const { jetpackWafShareData, jetpackWafShareDebugData } = config || {};
 	const { showSuccessNotice, showErrorNotice } = useNotices();
 
-	const [ settings, setSettings ] = useState( {
-		jetpack_waf_share_data: jetpackWafShareData,
-		jetpack_waf_share_debug_data: jetpackWafShareDebugData,
-	} );
+	const handleShareDataChange = useCallback( async () => {
+		try {
+			await toggleShareData();
+			showSuccessNotice( __( 'Changes saved.', 'jetpack-protect' ) );
+		} catch ( error ) {
+			showErrorNotice();
+		}
+	}, [ toggleShareData, showSuccessNotice, showErrorNotice ] );
 
-	const handleShareDataChange = useCallback( () => {
-		setSettings( { ...settings, jetpack_waf_share_data: ! settings.jetpack_waf_share_data } );
-		toggleShareData()
-			.then( () => showSuccessNotice( __( 'Changes saved.', 'jetpack-protect' ) ) )
-			.catch( () => {
-				showErrorNotice();
-			} );
-	}, [ settings, toggleShareData, showSuccessNotice, showErrorNotice ] );
-
-	const handleShareDebugDataChange = useCallback( () => {
-		setSettings( {
-			...settings,
-			jetpack_waf_share_debug_data: ! settings.jetpack_waf_share_debug_data,
-		} );
-		toggleShareDebugData()
-			.then( () => showSuccessNotice( __( 'Changes saved.', 'jetpack-protect' ) ) )
-			.catch( () => {
-				showErrorNotice();
-			} );
-	}, [ settings, toggleShareDebugData, showSuccessNotice, showErrorNotice ] );
-
-	useEffect( () => {
-		setSettings( {
-			jetpack_waf_share_data: jetpackWafShareData,
-			jetpack_waf_share_debug_data: jetpackWafShareDebugData,
-		} );
-	}, [ jetpackWafShareData, jetpackWafShareDebugData ] );
+	const handleShareDebugDataChange = useCallback( async () => {
+		try {
+			await toggleShareDebugData();
+			showSuccessNotice( __( 'Changes saved.', 'jetpack-protect' ) );
+		} catch ( error ) {
+			showErrorNotice();
+		}
+	}, [ toggleShareDebugData, showSuccessNotice, showErrorNotice ] );
 
 	return (
 		<div className={ styles[ 'share-data' ] }>
 			<Title mb={ 0 }>{ __( 'Share data with Jetpack', 'jetpack-protect' ) }</Title>
 			<ToggleControl
 				className={ styles[ 'share-data-toggle' ] }
-				checked={ Boolean( settings.jetpack_waf_share_data ) }
+				checked={ !! jetpackWafShareData }
 				onChange={ handleShareDataChange }
 				disabled={ isUpdating }
 				size="small"
@@ -97,7 +82,7 @@ const ShareData = () => {
 			/>
 			<ToggleControl
 				className={ styles[ 'share-data-toggle' ] }
-				checked={ Boolean( settings.jetpack_waf_share_debug_data ) }
+				checked={ !! jetpackWafShareDebugData }
 				onChange={ handleShareDebugDataChange }
 				disabled={ isUpdating }
 				size="small"
