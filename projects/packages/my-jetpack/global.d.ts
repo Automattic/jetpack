@@ -249,9 +249,8 @@ interface Window {
 				bootstrap_path: string;
 				brute_force_protection: boolean;
 				jetpack_waf_automatic_rules: '1' | '';
-				jetpack_waf_ip_allow_list: '1' | '';
-				jetpack_waf_ip_block_list: boolean;
-				jetpack_waf_ip_list: boolean;
+				jetpack_waf_ip_allow_list_enabled: '1' | '';
+				jetpack_waf_ip_block_list_enabled: '1' | '';
 				jetpack_waf_share_data: '1' | '';
 				jetpack_waf_share_debug_data: boolean;
 				standalone_mode: boolean;
