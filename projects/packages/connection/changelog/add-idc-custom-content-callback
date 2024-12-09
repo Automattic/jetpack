@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Added a mechanism to use callbacks for package options.
