@@ -34,12 +34,13 @@ class Universal {
 		// add to carts from non-product pages or lists -- search, store etc.
 		add_action( 'wp_head', array( $this, 'loop_session_events' ), 2 );
 
-        // Initialize session
+		// Initialize session
 		add_action( 'send_headers', array( $this, 'initialize_woocommerceanalytics_session' ) );
 
 		// Capture cart events.
 		add_action( 'woocommerce_add_to_cart', array( $this, 'capture_add_to_cart' ), 10, 6 );
 
+		add_action( 'woocommerce_cart_item_removed', array( $this, 'capture_remove_from_cart' ), 10, 2 );
 		add_action( 'woocommerce_after_cart', array( $this, 'remove_from_cart' ) );
 		add_action( 'woocommerce_after_mini_cart', array( $this, 'remove_from_cart' ) );
 		add_action( 'wcct_before_cart_widget', array( $this, 'remove_from_cart' ) );
@@ -62,17 +63,17 @@ class Universal {
 		add_action( 'woocommerce_created_customer', array( $this, 'capture_post_checkout_created_customer' ), 10, 2 );
 	}
 
-    /**
-     * Set a UUID for the current session if is not yet loaded and record the session started event
-     */
-    public function initialize_woocommerceanalytics_session() {
-        if ( ! isset( $_COOKIE[ 'woocommerceanalytics_session_id' ] ) ) {
-            $session_id = wp_generate_uuid4();
-            $this->session_id = $session_id;
-            setcookie( 'woocommerceanalytics_session_id', $session_id, 0, COOKIEPATH, COOKIE_DOMAIN, is_ssl(), false );
-            $this->record_event( 'woocommerceanalytics_session_started' );
-        }
-    }
+	/**
+	 * Set a UUID for the current session if is not yet loaded and record the session started event
+	 */
+	public function initialize_woocommerceanalytics_session() {
+		if ( ! isset( $_COOKIE[ 'woocommerceanalytics_session_id' ] ) ) {
+			$session_id = wp_generate_uuid4();
+			$this->session_id = $session_id;
+			setcookie( 'woocommerceanalytics_session_id', $session_id, 0, COOKIEPATH, COOKIE_DOMAIN, is_ssl(), false );
+			$this->record_event( 'woocommerceanalytics_session_started' );
+		}
+	}
 
 	/**
 	 * On product lists or other non-product pages, add an event listener to "Add to Cart" button click
@@ -120,10 +121,16 @@ class Universal {
 					'_en': 'woocommerceanalytics_remove_from_cart',
 					'pi': productDetails.id,
 					'pq': productDetails.quantity, " .
-					$common_props . '
+			$common_props . '
 				} );
 			} );'
 		);
+	}
+
+	public function capture_remove_from_cart( $cart_item_key, $cart ) {
+		$item = $cart->removed_cart_contents[$cart_item_key] ?? null;
+		$this->record_event( 'woocommerceanalytics_remove_from_cart' );
+		$this->capture_event_in_session_data( (int) $item['product_id'], (int) $item[ 'quantity'], 'woocommerceanalytics_remove_from_cart' );
 	}
 
 	/**
@@ -225,8 +232,8 @@ class Universal {
 
 		foreach ( $cart as $cart_item_key => $cart_item ) {
 			/**
-			* This filter is already documented in woocommerce/templates/cart/cart.php
-			*/
+			 * This filter is already documented in woocommerce/templates/cart/cart.php
+			 */
 			$product = apply_filters( 'woocommerce_cart_item_product', $cart_item['data'], $cart_item, $cart_item_key );
 
 			if ( ! $product || ! $product instanceof WC_Product ) {
@@ -352,7 +359,7 @@ class Universal {
 		}
 
 		$checkout_page_contains_checkout_block         = '0';
-			$checkout_page_contains_checkout_shortcode = '0';
+		$checkout_page_contains_checkout_shortcode = '0';
 
 		$order_source = $order->get_created_via();
 		if ( 'store-api' === $order_source ) {
@@ -422,7 +429,7 @@ class Universal {
 						_wca.push( {
 							'_en': 'woocommerceanalytics_remove_from_cart',
 							'pi': productID, " .
-                            $common_props . "
+			$common_props . "
 						} );
 					}
 				} );
@@ -430,10 +437,11 @@ class Universal {
 
 	        document.querySelector( 'button[name=update_cart]' ).addEventListener( 'click', trigger_cart_remove );
 
-			// This duplicated listener is needed because when the cart is updated it replaces all the DOM and then the initial listener stops working.
+			// The duplicated listener is needed because updated_wc_div replaces all the DOM and then the initial listener stops working.
 			document.body.onupdated_wc_div = function () {
 		        document.querySelector( 'button[name=update_cart]' ).addEventListener( 'click', trigger_cart_remove );
 	        };
+
 			"
 		);
 	}
