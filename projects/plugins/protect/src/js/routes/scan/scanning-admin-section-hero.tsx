@@ -46,7 +46,7 @@ const ScanningAdminSectionHero: React.FC = () => {
 						  ) }
 				</Text>
 			</AdminSectionHero.Main>
-			<AdminSectionHero.Aside>
+			<AdminSectionHero.Aside className={ styles[ 'progress-animation' ] }>
 				<InProgressAnimation />
 			</AdminSectionHero.Aside>
 		</AdminSectionHero>

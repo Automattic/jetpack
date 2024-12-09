@@ -59,6 +59,28 @@ const ScanAdminSectionHero: React.FC = () => {
 		lastCheckedLocalTimestamp = new Date( status.lastChecked + ' UTC' ).getTime();
 	}
 
+	let heading = __( "Don't worry about a thing", 'jetpack-protect' );
+	if ( numThreats > 0 ) {
+		if ( hasPlan ) {
+			heading = sprintf(
+				/* translators: %s: Total number of threats */
+				_n( '%1$s active threat', '%1$s active threats', numThreats, 'jetpack-protect' ),
+				numThreats
+			);
+		} else {
+			heading = sprintf(
+				/* translators: %s: Total number of vulnerabilities */
+				_n(
+					'%1$s active vulnerability',
+					'%1$s active vulnerabilities',
+					numThreats,
+					'jetpack-protect'
+				),
+				numThreats
+			);
+		}
+	}
+
 	const handleShowAutoFixersClick = threatList => {
 		return event => {
 			event.preventDefault();
@@ -101,16 +123,7 @@ const ScanAdminSectionHero: React.FC = () => {
 					anchor={ dailyScansPopoverAnchor }
 				/>
 				<AdminSectionHero.Heading icon={ numThreats > 0 ? 'error' : 'success' }>
-					{ numThreats > 0
-						? sprintf(
-								/* translators: %s: Total number of threats/vulnerabilities */
-								__( '%1$s active %2$s', 'jetpack-protect' ),
-								numThreats,
-								hasPlan
-									? _n( 'threat', 'threats', numThreats, 'jetpack-protect' )
-									: _n( 'vulnerability', 'vulnerabilities', numThreats, 'jetpack-protect' )
-						  )
-						: __( "Don't worry about a thing", 'jetpack-protect' ) }
+					{ heading }
 				</AdminSectionHero.Heading>
 				{ hasPlan ? (
 					<Text>
