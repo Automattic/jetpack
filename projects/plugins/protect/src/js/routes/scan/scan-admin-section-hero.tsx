@@ -69,7 +69,7 @@ const ScanAdminSectionHero: React.FC = () => {
 		};
 	};
 
-	if ( ! scanning ) {
+	if ( scanning ) {
 		return <ScanningAdminSectionHero />;
 	}
 
