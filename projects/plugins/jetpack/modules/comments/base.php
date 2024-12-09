@@ -303,9 +303,10 @@ class Highlander_Comments_Base {
 		// We don't set the cookies if they are logged in with WordPress.com because they already have a cookie set.
 		// phpcs:ignore WordPress.WP.CapitalPDangit
 		if ( 'wordpress' !== $id_source ) {
-			$has_cookies_consent = true; // Trying to find a way to check if the user has consented to cookies.
+			// phpcs:disable WordPress.Security.NonceVerification -- Nonce verification should happen in Jetpack_Comments::pre_comment_on_post().
+			$is_consenting_to_cookies = ( isset( $_POST['wp-comment-cookies-consent'] ) );
 
-			if ( ( 'guest' === $id_source ) && ! $has_cookies_consent ) {
+			if ( ( 'guest' === $id_source ) && ! $is_consenting_to_cookies ) {
 				return;
 			}
 
@@ -319,10 +320,10 @@ class Highlander_Comments_Base {
 
 			// Set samesite to None if the request is from Jetpack iframe.
 			// This is needed because it is considered third party.
-			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nonce verification should happen in Jetpack_Comments::pre_comment_on_post().
 			if ( isset( $_REQUEST['for'] ) && 'jetpack' === $_REQUEST['for'] ) {
 				$cookie_options['samesite'] = 'None';
 			}
+			// phpcs:enable WordPress.Security.NonceVerification
 
 			// phpcs:disable Jetpack.Functions.SetCookie.MissingTrueHTTPOnly
 			isset( $comment->comment_author ) ? setcookie( 'comment_author_' . COOKIEHASH, $comment->comment_author, $cookie_options ) : null;
