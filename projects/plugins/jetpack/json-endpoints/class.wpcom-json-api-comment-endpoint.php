@@ -74,6 +74,10 @@ abstract class WPCOM_JSON_API_Comment_Endpoint extends WPCOM_JSON_API_Endpoint {
 		/**
 		 * Filter the comment types that are allowed to be returned.
 		 *
+		 * @since $$next-version$$
+		 *
+		 * @module json-api
+		 *
 		 * @param array $types Array of comment types.
 		 */
 		$types = apply_filters( 'wpcom_json_api_comment_types', array( '', 'comment', 'pingback', 'trackback', 'review' ) );
