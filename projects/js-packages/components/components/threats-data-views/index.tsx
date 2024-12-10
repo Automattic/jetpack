@@ -476,24 +476,15 @@ export default function ThreatsDataViews( {
 		isThreatEligibleForUnignore,
 	] );
 
-	/**
-	 * Apply the view settings (i.e. filters, sorting, pagination) to the dataset.
-	 *
-	 * @see https://github.com/WordPress/gutenberg/blob/trunk/packages/dataviews/src/filter-and-sort-data-view.ts
-	 */
-	const { data: processedData, paginationInfo } = useMemo( () => {
-		return filterSortAndPaginate( data, view, fields );
-	}, [ data, view, fields ] );
-
 	const sortedData = useMemo( () => {
 		// If no statuses are set, return the data as is
-		if ( processedData.every( item => item.status === null ) ) {
-			return processedData;
+		if ( data.every( item => item.status === null ) ) {
+			return data;
 		}
 
 		const statusOrder = [ 'current', 'fixed', 'ignored' ];
 
-		return [ ...processedData ].sort( ( a, b ) => {
+		return [ ...data ].sort( ( a, b ) => {
 			// Compare by status
 			const statusComparison = statusOrder.indexOf( a.status ) - statusOrder.indexOf( b.status );
 			if ( statusComparison !== 0 ) {
@@ -506,7 +497,16 @@ export default function ThreatsDataViews( {
 
 			return severityB - severityA;
 		} );
-	}, [ processedData ] );
+	}, [ data ] );
+
+	/**
+	 * Apply the view settings (i.e. filters, sorting, pagination) to the dataset.
+	 *
+	 * @see https://github.com/WordPress/gutenberg/blob/trunk/packages/dataviews/src/filter-and-sort-data-view.ts
+	 */
+	const { data: processedData, paginationInfo } = useMemo( () => {
+		return filterSortAndPaginate( sortedData, view, fields );
+	}, [ sortedData, view, fields ] );
 
 	/**
 	 * Callback function to update the view state.
@@ -527,7 +527,7 @@ export default function ThreatsDataViews( {
 	return (
 		<DataViews
 			actions={ actions }
-			data={ sortedData }
+			data={ processedData }
 			defaultLayouts={ defaultLayouts }
 			fields={ fields }
 			getItemId={ getItemId }
