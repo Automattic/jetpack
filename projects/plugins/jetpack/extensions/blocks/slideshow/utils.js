@@ -4,7 +4,9 @@ export default function applyPaddingForStackBlock() {
 	const iframeDocument = document.querySelector( 'iframe' )?.contentDocument || null;
 
 	if ( iframeDocument ) {
-		parentElement = iframeDocument.querySelector( '.wp-site-blocks' );
+		if ( ! parentElement ) {
+			parentElement = iframeDocument.querySelector( '.wp-site-blocks' );
+		}
 	}
 
 	if ( parentElement ) {
@@ -14,7 +16,7 @@ export default function applyPaddingForStackBlock() {
 		const targetElements = ( iframeDocument || document ).querySelectorAll(
 			iframeDocument
 				? '.wp-block-group.is-vertical:not(.is-layout-constrained) .wp-block-jetpack-slideshow'
-				: 'div:not(.entry-content) > .wp-block-group.is-vertical:not(.is-layout-constrained) .wp-block-jetpack-slideshow'
+				: '.wp-block-group.is-vertical:not(.is-layout-constrained) .wp-block-jetpack-slideshow:not(.entry-content .wp-block-jetpack-slideshow)'
 		);
 
 		targetElements.forEach( element => {
