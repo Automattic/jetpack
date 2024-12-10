@@ -294,6 +294,8 @@ class Jetpack_Memberships {
 	 */
 	public function allow_rest_api_types( $post_types ) {
 		$post_types[] = self::$post_type_plan;
+		$post_types[] = 'memberships_coupon';
+		$post_types[] = 'memberships_gift';
 
 		return $post_types;
 	}
@@ -306,11 +308,41 @@ class Jetpack_Memberships {
 	 * @return array
 	 */
 	public function allow_sync_post_meta( $post_meta ) {
-		$meta_keys = array_map(
+		$meta_keys_plans = array_map(
 			array( $this, 'return_meta' ),
 			self::get_plan_property_mapping()
 		);
-		return array_merge( $post_meta, array_values( $meta_keys ) );
+
+		$meta_coupons_prefix = 'memberships_coupon_';
+		$meta_keys_coupons   = array(
+			$meta_coupons_prefix . 'coupon_code',
+			$meta_coupons_prefix . 'can_be_combined',
+			$meta_coupons_prefix . 'first_time_purchase_only',
+			$meta_coupons_prefix . 'limit_per_user',
+			$meta_coupons_prefix . 'discount_type',
+			$meta_coupons_prefix . 'discount_value',
+			$meta_coupons_prefix . 'discount_percentage',
+			$meta_coupons_prefix . 'discount_currency',
+			$meta_coupons_prefix . 'start_date',
+			$meta_coupons_prefix . 'end_date',
+			$meta_coupons_prefix . 'plan_ids_allow_list',
+			$meta_coupons_prefix . 'duration',
+			$meta_coupons_prefix . 'email_allow_list',
+			$meta_coupons_prefix . 'is_deleted',
+		);
+
+		$meta_gifts_prefix = 'memberships_gift_';
+		$meta_keys_gifts   = array(
+			$meta_gifts_prefix . 'user_id',
+			$meta_gifts_prefix . 'plan_id',
+			$meta_gifts_prefix . 'is_deleted',
+		);
+		return array_merge(
+			$post_meta,
+			array_values( $meta_keys_plans ),
+			$meta_keys_coupons,
+			$meta_keys_gifts
+		);
 	}
 
 	/**
