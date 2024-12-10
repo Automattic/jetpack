@@ -189,7 +189,7 @@ const useAIAssistant = ( {
 		} );
 
 		// Create a copy of the messages.
-		updatedMessages.current = [ ...attributes.messages ] ?? [];
+		updatedMessages.current = [ ...attributes.messages ];
 
 		lastUserPrompt.current = {};
 

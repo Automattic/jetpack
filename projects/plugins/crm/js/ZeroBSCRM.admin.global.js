@@ -182,7 +182,7 @@ function zbscrm_JS_adminMenuDropdown() {
 				if ( hopscotch.getState() != null ) {
 					hopscotch.endTour();
 				}
-			} catch ( err ) {
+			} catch {
 				// Do nothing.
 			}
 

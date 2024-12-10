@@ -252,15 +252,24 @@ export default function withMedia( mediaSource = MediaSource.Unknown ) {
 					.then( session => {
 						setGooglePhotosPickerSession( session );
 						return session;
-					} )
-					.catch( this.handleApiError );
+					} );
 			};
 
 			fetchPickerSession = sessionId => {
 				return apiFetch( {
 					path: `/wpcom/v2/external-media/session/google_photos/${ sessionId }`,
 					method: 'GET',
-				} ).then( setGooglePhotosPickerSession );
+				} )
+					.then( response => {
+						if ( 'code' in response ) {
+							throw response;
+						}
+						return response;
+					} )
+					.then( session => {
+						setGooglePhotosPickerSession( session );
+						return session;
+					} );
 			};
 
 			deletePickerSession = ( sessionId, updateState = true ) => {
@@ -323,8 +332,6 @@ export default function withMedia( mediaSource = MediaSource.Unknown ) {
 				const { account, isAuthenticated, isCopying, isLoading, media, nextHandle, path } =
 					this.state;
 				const { allowedTypes, multiple = false, noticeUI, onClose } = this.props;
-
-				// eslint-disable-next-line no-nested-ternary
 
 				const defaultTitle =
 					mediaSource !== 'jetpack_app_media' ? __( 'Select media', 'jetpack' ) : '';

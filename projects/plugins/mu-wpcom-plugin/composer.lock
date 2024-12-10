@@ -342,7 +342,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/calypsoify",
-                "reference": "9bcebb94a35dbf0cf9072394a7ecd849b1a6e938"
+                "reference": "75e59d29748de582e26f9db3fa7e92ed30c1f0bc"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -360,7 +360,7 @@
             "extra": {
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.1.x-dev"
+                    "dev-trunk": "0.2.x-dev"
                 },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-calypsoify/compare/v${old}...v${new}"
@@ -515,7 +515,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "d89849a42309ee6f9f34a57a6d7b653f91b583a7"
+                "reference": "3bc395ae56ccb54ec1d8b6cf543fd588ee6de7f2"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -550,7 +550,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "6.1.x-dev"
+                    "dev-trunk": "6.2.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -714,7 +714,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/google-analytics",
-                "reference": "7c1166704c885b5dcb3a1266dfdae3c0bb4fad70"
+                "reference": "ec6b8998a5efeced88e2efc2ede0c67f1a2ed282"
             },
             "require": {
                 "automattic/jetpack-status": "@dev",
@@ -732,7 +732,7 @@
             "extra": {
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.2.x-dev"
+                    "dev-trunk": "0.3.x-dev"
                 },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-google-analytics/compare/v${old}...v${new}"
@@ -971,7 +971,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/masterbar",
-                "reference": "dfb426192c3dd1e3da2e651f4d425bd1b19342c6"
+                "reference": "f4317f289a90af787f81e695268be1ef00cd0255"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -987,6 +987,7 @@
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
+                "automattic/jetpack-mu-wpcom": "@dev",
                 "automattic/patchwork-redefine-exit": "@dev",
                 "automattic/wordbless": "^0.4.2",
                 "brain/monkey": "^2.6.2",
@@ -1003,6 +1004,11 @@
                 },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-masterbar/compare/v${old}...v${new}"
+                },
+                "dependencies": {
+                    "test-only": [
+                        "packages/jetpack-mu-wpcom"
+                    ]
                 },
                 "mirror-repo": "Automattic/jetpack-masterbar",
                 "textdomain": "jetpack-masterbar",
@@ -1054,7 +1060,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jetpack-mu-wpcom",
-                "reference": "3cca664b3c3febb0b897d5df45e1f301fdd6df3f"
+                "reference": "63f823f3817e4c126abd96fc971ad6c39c8f1f01"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -1088,7 +1094,7 @@
                 },
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "5.66.x-dev"
+                    "dev-trunk": "6.0.x-dev"
                 },
                 "textdomain": "jetpack-mu-wpcom",
                 "version-constants": {
@@ -1579,7 +1585,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "c01241d47a4961a862bc7bfe26fff8d16cf7cbcf"
+                "reference": "60ef0ba8f14f719aa2f69b33c2526fb066596627"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1612,7 +1618,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "4.0.x-dev"
+                    "dev-trunk": "4.1.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -1657,7 +1663,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/scheduled-updates",
-                "reference": "e497581136745408a6b8638b999157159dad634b"
+                "reference": "8a94e906b845eadcce4767c0d66d29a9a1b1d64f"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1684,7 +1690,7 @@
                 },
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.13.x-dev"
+                    "dev-trunk": "0.14.x-dev"
                 },
                 "textdomain": "jetpack-scheduled-updates",
                 "version-constants": {

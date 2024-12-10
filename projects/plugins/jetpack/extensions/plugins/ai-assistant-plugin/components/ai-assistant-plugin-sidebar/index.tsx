@@ -1,8 +1,7 @@
 /**
  * External dependencies
  */
-import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils';
-import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
+import { JetpackEditorPanelLogo, useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { PanelBody, PanelRow, BaseControl, ExternalLink } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
@@ -147,7 +146,7 @@ const JetpackAndSettingsContent = ( {
 			</PanelRow>
 
 			<PanelRow>
-				<ExternalLink href="https://automattic.com/ai-guidelines">
+				<ExternalLink href="https://jetpack.com/redirect/?source=ai-guidelines">
 					{ __( 'AI Guidelines', 'jetpack' ) }
 				</ExternalLink>
 			</PanelRow>

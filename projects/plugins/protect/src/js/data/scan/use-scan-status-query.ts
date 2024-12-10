@@ -7,8 +7,8 @@ import {
 	SCAN_IN_PROGRESS_STATUSES,
 	SCAN_STATUS_IDLE,
 	SCAN_STATUS_UNAVAILABLE,
+	QUERY_SCAN_STATUS_KEY,
 } from '../../constants';
-import { QUERY_SCAN_STATUS_KEY } from './../../constants';
 
 export const isRequestedScanNotStarted = ( status: ScanStatus ) => {
 	if ( status.status !== 'idle' ) {

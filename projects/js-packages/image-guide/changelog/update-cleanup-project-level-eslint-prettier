@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Enable prettier via eslint, and fix issues. Also remove unused eslint deps and package.json scripts.
+
+

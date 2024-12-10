@@ -1,4 +1,3 @@
-import { imagePath } from 'constants/urls';
 import restApi from '@automattic/jetpack-api';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ConnectScreen, CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
@@ -7,6 +6,10 @@ import ConnectScreenBody from '@automattic/jetpack-my-jetpack/components/connect
 import { PartnerCouponRedeem } from '@automattic/jetpack-partner-coupon';
 import { withDispatch } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
+import jQuery from 'jquery';
+import React from 'react';
+import { connect } from 'react-redux';
+import { withRouter, Prompt } from 'react-router-dom';
 import AtAGlance from 'at-a-glance/index.jsx';
 import AdminNotices from 'components/admin-notices';
 import AppsCard from 'components/apps-card';
@@ -21,14 +24,11 @@ import NonAdminView from 'components/non-admin-view';
 import ReconnectModal from 'components/reconnect-modal';
 import SupportCard from 'components/support-card';
 import Tracker from 'components/tracker';
-import jQuery from 'jquery';
+import { imagePath } from 'constants/urls';
 import analytics from 'lib/analytics';
 import MyPlan from 'my-plan/index.jsx';
 import ProductDescriptions from 'product-descriptions';
 import { productDescriptionRoutes } from 'product-descriptions/constants';
-import React from 'react';
-import { connect } from 'react-redux';
-import { withRouter, Prompt } from 'react-router-dom';
 import { Recommendations } from 'recommendations';
 import SearchableSettings from 'settings/index.jsx';
 import {
@@ -211,6 +211,7 @@ class Main extends React.Component {
 			'jetpack'
 		);
 
+		// eslint-disable-next-line no-alert -- Needs a blocking dialog.
 		if ( confirm( question ) ) {
 			window.setTimeout( this.props.clearUnsavedSettingsFlag, 10 );
 			return true;
