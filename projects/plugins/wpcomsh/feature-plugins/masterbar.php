@@ -94,7 +94,10 @@ add_action( 'setted_transient', 'wpcomsh_set_connected_user_data_as_user_options
 function wpcomsh_activate_nav_unification() {
 	remove_filter( 'pre_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_get_option' );
 	$is_wp_admin_menu = get_option( 'wpcom_admin_interface' ) === 'wp-admin';
-	add_filter( 'pre_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_get_option', 10 );
+
+	if ( function_exists( 'wpcom_admin_interface_pre_get_option' ) ) {
+		add_filter( 'pre_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_get_option', 10 );
+	}
 
 	// Disable when in the redesigned nav.
 	if ( $is_wp_admin_menu ) {
