@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Add a cast to make Phan happy. Should be no change to functionality.
+
+

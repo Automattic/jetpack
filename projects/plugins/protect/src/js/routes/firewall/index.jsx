@@ -3,9 +3,9 @@ import {
 	Col,
 	Container,
 	Text,
+	ToggleControl,
 	ContextualUpgradeTrigger,
 	useBreakpointMatch,
-	ToggleControl,
 	Notice as JetpackNotice,
 } from '@automattic/jetpack-components';
 import { Popover } from '@wordpress/components';
