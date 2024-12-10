@@ -91,6 +91,10 @@ export default function ThreatsStatusToggleGroupControl( {
 		[ view, onChangeView ]
 	);
 
+	if ( ! ( activeThreatsCount + historicThreatsCount ) ) {
+		return null;
+	}
+
 	try {
 		return (
 			<div>
