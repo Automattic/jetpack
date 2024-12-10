@@ -63,6 +63,10 @@ function preflight_checks {
 	fi
 }
 
+function verify_prerelease_branch {
+	[[ $(git branch --show-current) != "prerelease" ]] && die 'Not on prerelease branch!'
+}
+
 function normalize_plugin_name {
 	SLUG="$1"
 
@@ -79,6 +83,8 @@ function normalize_plugin_name {
 	echo "$SLUG"
 }
 
+# Generates a command that can be used to resume the release script from the current step.
+# Currently unused.
 function generate_resume_command() {
 	local cmd="$0 -s $CUR_STEP"
 	for PLUGIN in "${!PROJECTS[@]}"; do
@@ -143,6 +149,7 @@ function do_trunk_and_prelease_branch_prep() {
 }
 
 function do_changelogs {
+	verify_prerelease_branch
 	# Loop through the projects and update the changelogs after building the arguments.
 	for PLUGIN in "${!PROJECTS[@]}"; do
 		yellow "Updating the changelog files for $PLUGIN."
@@ -169,6 +176,7 @@ function do_changelogs {
 }
 
 function do_readme {
+	verify_prerelease_branch
 	for PLUGIN in "${!PROJECTS[@]}"; do
 		# check if the plugin even has a readme.txt file.
 		if [[ ! -e "$BASE/projects/$PLUGIN/readme.txt" ]]; then
@@ -189,6 +197,7 @@ function do_readme {
 }
 
 function do_commit_changelog_and_readme {
+	verify_prerelease_branch
 	yellow "Committing changes."
 	git add --all
 	git commit -am "Changelog and readme.txt edits."
@@ -202,6 +211,7 @@ function do_commit_changelog_and_readme {
 }
 
 function do_push_and_build {
+	verify_prerelease_branch
 	HEADSHA=$(git rev-parse HEAD)
 	yellow "Pushing changes."
 	git push -u origin prerelease
@@ -233,6 +243,7 @@ function do_push_and_build {
 }
 
 function do_packagist_check {
+	verify_prerelease_branch
 	# Wait for new versions of any composer packages to be up.
 	# We expect a new version when (1) the package is touched in this release and (2) it has no change entry files remaining.
 	POLL_ARGS=()
