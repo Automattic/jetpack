@@ -7,7 +7,7 @@ import {
 	DataViews,
 	filterSortAndPaginate,
 } from '@wordpress/dataviews';
-import { __ } from '@wordpress/i18n';
+import { __, _n } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
 import { useCallback, useMemo, useState } from 'react';
 import ShieldIcon from '../shield-icon';
@@ -108,10 +108,20 @@ export default function ScanReport( { dataSource, data, onChangeSelection } ): J
 					if ( item.checked ) {
 						if ( item.threats.length > 0 ) {
 							variant = 'warning';
-							text = __( 'Vulnerabilities detected.', 'jetpack-components' );
+							text = _n(
+								'Vulnerability detected.',
+								'Vulnerabilities detected.',
+								item.threats.length,
+								'jetpack-components'
+							);
 
 							if ( scanApi ) {
-								text = __( 'Threats detected.', 'jetpack-components' );
+								text = _n(
+									'Threat detected.',
+									'Threats detected.',
+									item.threats.length,
+									'jetpack-components'
+								);
 							}
 						} else {
 							variant = 'success';

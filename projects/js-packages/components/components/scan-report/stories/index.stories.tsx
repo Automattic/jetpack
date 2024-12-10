@@ -65,6 +65,12 @@ Default.args = {
 					title: 'Malicious code found in file: jptt_eicar.php',
 					severity: 1,
 				},
+				{
+					id: 198352407,
+					signature: 'EICAR_AV_Test_Suspicious',
+					title: 'Malicious code found in file: jptt_eicar.php',
+					severity: 1,
+				},
 			],
 			checked: true,
 			type: 'files',
