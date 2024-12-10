@@ -48,7 +48,7 @@ export default function usePlan( { redirectUrl }: { redirectUrl?: string } = {} 
 
 	const { run: checkout } = useProductCheckoutWorkflow( {
 		productSlug: JETPACK_SCAN_SLUG,
-		redirectUrl: redirectUrl || adminUrl,
+		redirectUrl: redirectUrl || adminUrl + '#/scan',
 		siteProductAvailabilityHandler: API.checkPlan,
 		useBlogIdSuffix: true,
 		connectAfterCheckout: false,
