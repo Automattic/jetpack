@@ -4,9 +4,6 @@
 *.min.js
 **/changelog/
 
-# Storybook files
-**/@(storybook|stories)/**/*.js
-
 # Ignored by default, but we should check it
 !.github/
 !.prettierrc.js
