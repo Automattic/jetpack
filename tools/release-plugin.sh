@@ -65,6 +65,7 @@ function preflight_checks {
 
 function verify_prerelease_branch {
 	[[ $(git branch --show-current) != "prerelease" ]] && die 'Not on prerelease branch!'
+	return 0
 }
 
 function normalize_plugin_name {
