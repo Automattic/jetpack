@@ -34,6 +34,20 @@ class Jetpack_Memberships {
 	public static $post_type_plan = 'jp_mem_plan';
 
 	/**
+	 * Our CPT type for the product (plan).
+	 *
+	 * @var string
+	 */
+	public static $post_type_coupon = 'memberships_coupon';
+
+	/**
+	 * Our CPT type for the product (plan).
+	 *
+	 * @var string
+	 */
+	public static $post_type_gift = 'memberships_gift';
+
+	/**
 	 * Tier type for plans
 	 *
 	 * @var string
@@ -282,6 +296,44 @@ class Jetpack_Memberships {
 			'show_in_rest'        => false,
 		);
 		register_post_type( self::$post_type_plan, $order_args );
+		$coupon_args = array(
+			'label'               => esc_html__( 'Coupon', 'jetpack' ),
+			'description'         => esc_html__( 'Memberships coupons', 'jetpack' ),
+			'supports'            => array( 'title', 'custom-fields', 'content' ),
+			'hierarchical'        => false,
+			'public'              => false,
+			'show_ui'             => false,
+			'show_in_menu'        => false,
+			'show_in_admin_bar'   => false,
+			'show_in_nav_menus'   => false,
+			'can_export'          => true,
+			'has_archive'         => false,
+			'exclude_from_search' => true,
+			'publicly_queryable'  => false,
+			'rewrite'             => false,
+			'capabilities'        => $capabilities,
+			'show_in_rest'        => false,
+		);
+		register_post_type( self::$post_type_coupon, $coupon_args );
+		$gift_args = array(
+			'label'               => esc_html__( 'Gift', 'jetpack' ),
+			'description'         => esc_html__( 'Memberships gifts', 'jetpack' ),
+			'supports'            => array( 'title', 'custom-fields', 'content' ),
+			'hierarchical'        => false,
+			'public'              => false,
+			'show_ui'             => false,
+			'show_in_menu'        => false,
+			'show_in_admin_bar'   => false,
+			'show_in_nav_menus'   => false,
+			'can_export'          => true,
+			'has_archive'         => false,
+			'exclude_from_search' => true,
+			'publicly_queryable'  => false,
+			'rewrite'             => false,
+			'capabilities'        => $capabilities,
+			'show_in_rest'        => false,
+		);
+		register_post_type( self::$post_type_gift, $gift_args );
 	}
 
 	/**
@@ -294,8 +346,8 @@ class Jetpack_Memberships {
 	 */
 	public function allow_rest_api_types( $post_types ) {
 		$post_types[] = self::$post_type_plan;
-		$post_types[] = 'memberships_coupon';
-		$post_types[] = 'memberships_gift';
+		$post_types[] = self::$post_type_coupon;
+		$post_types[] = self::$post_type_gift;
 
 		return $post_types;
 	}
@@ -313,7 +365,7 @@ class Jetpack_Memberships {
 			self::get_plan_property_mapping()
 		);
 
-		$meta_coupons_prefix = 'memberships_coupon_';
+		$meta_coupons_prefix = self::$post_type_coupon . '_';
 		$meta_keys_coupons   = array(
 			$meta_coupons_prefix . 'coupon_code',
 			$meta_coupons_prefix . 'can_be_combined',
@@ -331,7 +383,7 @@ class Jetpack_Memberships {
 			$meta_coupons_prefix . 'is_deleted',
 		);
 
-		$meta_gifts_prefix = 'memberships_gift_';
+		$meta_gifts_prefix = self::$post_type_gift . '_';
 		$meta_keys_gifts   = array(
 			$meta_gifts_prefix . 'user_id',
 			$meta_gifts_prefix . 'plan_id',
