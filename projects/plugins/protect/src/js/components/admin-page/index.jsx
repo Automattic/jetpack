@@ -63,6 +63,7 @@ const AdminPage = ( { children } ) => {
 			{ notice && <Notice floating={ true } dismissable={ true } { ...notice } /> }
 			<Container horizontalSpacing={ 0 }>
 				<Tabs className={ styles.navigation }>
+					<Tab link="/" label={ __( 'Home', 'jetpack-protect' ) } />
 					<Tab
 						link="/scan"
 						label={
