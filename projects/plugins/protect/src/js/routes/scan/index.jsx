@@ -7,6 +7,7 @@ import useScanStatusQuery, { isScanInProgress } from '../../data/scan/use-scan-s
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import { OnboardingContext } from '../../hooks/use-onboarding';
 import usePlan from '../../hooks/use-plan';
+import HistoryAdminSectionHero from './history-admin-section-hero';
 import onboardingSteps from './onboarding-steps';
 import ScanAdminSectionHero from './scan-admin-section-hero';
 import ScanResultsDataView from './scan-results-data-view';
@@ -26,6 +27,7 @@ const ScanPage = () => {
 	const { data: status } = useScanStatusQuery( { usePolling: true } );
 
 	const [ scanResultsAnchor, setScanResultsAnchor ] = useState( null );
+	const [ isViewingHistory, setIsViewingHistory ] = useState( false );
 
 	let currentScanStatus;
 	if ( status.error ) {
@@ -68,7 +70,7 @@ const ScanPage = () => {
 	return (
 		<OnboardingContext.Provider value={ onboardingSteps }>
 			<AdminPage>
-				<ScanAdminSectionHero />
+				{ isViewingHistory ? <HistoryAdminSectionHero /> : <ScanAdminSectionHero /> }
 				<AdminSection>
 					<Container
 						className={ styles[ 'scan-results-container' ] }
