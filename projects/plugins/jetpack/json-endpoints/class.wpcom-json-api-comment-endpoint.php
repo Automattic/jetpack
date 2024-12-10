@@ -80,7 +80,7 @@ abstract class WPCOM_JSON_API_Comment_Endpoint extends WPCOM_JSON_API_Endpoint {
 		 *
 		 * @param array $types Array of comment types.
 		 */
-		$types = apply_filters( 'wpcom_json_api_comment_types', array( '', 'comment', 'pingback', 'trackback', 'review' ) );
+		$types = apply_filters( 'jetpack_json_api_comment_types', array( '', 'comment', 'pingback', 'trackback', 'review' ) );
 
 		// @todo - can we make this comparison strict without breaking anything?
 		// phpcs:ignore WordPress.PHP.StrictInArray.MissingTrueStrict
