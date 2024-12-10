@@ -1320,7 +1320,7 @@
 			var max = calculateMaxSlideDimensions();
 
 			// If the startIndex is not 0 then preload the clicked image first.
-			if ( startIndex !== 0 ) {
+			if ( startIndex !== 0 && items[ startIndex ].getAttribute( 'data-gallery-src' ) !== null ) {
 				var img = new Image();
 				img.src = items[ startIndex ].getAttribute( 'data-gallery-src' );
 			}
