@@ -293,6 +293,9 @@ importers:
       '@visx/axis':
         specifier: ^3.12.0
         version: 3.12.0(react@18.3.1)
+      '@visx/event':
+        specifier: ^3.8.0
+        version: 3.12.0
       '@visx/group':
         specifier: ^3.12.0
         version: 3.12.0(react@18.3.1)
@@ -305,6 +308,9 @@ importers:
       '@visx/text':
         specifier: 3.12.0
         version: 3.12.0(react@18.3.1)
+      '@visx/tooltip':
+        specifier: ^3.8.0
+        version: 3.12.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@visx/xychart':
         specifier: 3.12.0
         version: 3.12.0(@react-spring/web@9.7.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)

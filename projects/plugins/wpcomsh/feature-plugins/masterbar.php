@@ -92,8 +92,12 @@ add_action( 'setted_transient', 'wpcomsh_set_connected_user_data_as_user_options
  * @return bool Whether Nav Unification should be enabled.
  */
 function wpcomsh_activate_nav_unification() {
+	remove_filter( 'pre_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_get_option' );
+	$is_wp_admin_menu = get_option( 'wpcom_admin_interface' ) === 'wp-admin';
+	add_filter( 'pre_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_get_option', 10 );
+
 	// Disable when in the redesigned nav.
-	if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
+	if ( $is_wp_admin_menu ) {
 		return false;
 	}
 
