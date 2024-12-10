@@ -13,6 +13,7 @@ BASE=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 . "$BASE/tools/includes/send_tracks_event.sh"
 
 VERSION_REGEX='^[0-9]+(\.[0-9]+)+(-.*)?$'
+CUR_STEP=0
 
 # Instructions
 function usage {
@@ -86,15 +87,311 @@ function generate_resume_command() {
 	echo "$cmd"
 }
 
-preflight_checks
+function do_trunk_and_prelease_branch_prep() {
+	# Make sure we're standing on trunk and working directory is clean
+	CURRENT_BRANCH="$( git rev-parse --abbrev-ref HEAD )"
+	if [[ "$CURRENT_BRANCH" != "trunk" ]]; then
+		proceed_p "Not currently checked out to trunk." "Check out trunk before continuing?" Y
+		git checkout trunk && git pull
+	fi
 
-CUR_STEP=0
+	if [[ -n "$(git status --porcelain)" ]]; then
+		die "Working directory not clean, make sure you're working from a clean checkout and try again."
+	fi
+
+	yellow "Installing root packages."
+	pnpm jetpack install --root
+
+	yellow "Checking out prerelease branch."
+	# Is there an upstream prerelease branch already?
+	R=$( git ls-remote --heads origin prerelease )
+	if [[ -n "$R" ]]; then
+		error "There's an existing prerelease branch on GitHub!"
+		R=${R%%[ $'\t']*}
+		TMP=$( gh pr list --head=prerelease --state=open --json number,author,url,createdAt,title --jq '.[] | "\( .url ) - \( .createdAt | fromdateiso8601 | strftime( "%F %H:%IZ" ) ) - \( .title ) [\( .author.name )]"' )
+		if [[ -n "$TMP" ]]; then
+			echo "Someone probably needs to merge the following PR:"
+			echo "$TMP"
+			exit 1
+		fi
+		git fetch -q origin trunk "$R" || die "Something unexpected went wrong fetching the commit from GitHub"
+		if git diff --quiet origin/trunk..."$R"; then
+			echo "There don't seem to be any changes between that and trunk, if whoever created it has abandoned the release it should be safe to delete the branch."
+			exit 1
+		fi
+		if ! git diff --quiet origin/trunk..."$R" '*/CHANGELOG.md'; then
+			echo "Looks like someone is in the middle of a release! Wait for them merge the changes back into trunk."
+			exit 1
+		fi
+		echo "Looks like someone may be in the middle of a release! Wait for them merge the changes back into trunk, or to abandon the release."
+		exit 1
+	fi
+
+	# Check out and push pre-release branch
+	if git rev-parse --verify prerelease &>/dev/null; then
+		proceed_p "Existing local prerelease branch found." "Delete it?" Y
+		git branch -D prerelease
+	fi
+
+	git checkout -b prerelease
+	if ! git push -u origin HEAD; then
+		send_tracks_event "jetpack_release_prerelease_push" '{"result": "failure"}'
+		die "Branch push failed. Check #jetpack-releases and make sure no one is doing a release already, then delete the branch at https://github.com/Automattic/jetpack/branches"
+	fi
+	GITBASE=$( git rev-parse --verify HEAD )
+	send_tracks_event "jetpack_release_prerelease_push" '{"result": "success"}'
+}
+
+function do_changelogs {
+	# Loop through the projects and update the changelogs after building the arguments.
+	for PLUGIN in "${!PROJECTS[@]}"; do
+		yellow "Updating the changelog files for $PLUGIN."
+
+		# Add the PR numbers to the changelog.
+		ARGS=('-p')
+
+		# Add alpha and beta flags.
+		VERSION="${PROJECTS[$PLUGIN]}"
+		case $VERSION in
+			*-a* ) ARGS+=('-a');;
+			*-beta ) ARGS+=('-b');;
+		esac
+
+		# Explicitly pass the version number we want so there are no surprises.
+		ARGS+=( '-r' "${PROJECTS[$PLUGIN]}" )
+		ARGS+=("$PLUGIN");
+		tools/changelogger-release.sh "${ARGS[@]}"
+	done
+
+	# When it completes, wait for user to edit anything they want, then push key to continue.
+	read -r -s -p $'Edit all the changelog entries you want (in a separate terminal or your text editor of choice (make sure to save)).\nCheck for consistency between the different entries, and keep in mind that your plugin changelog will be used in the plugin readme file.\n\nOnce you are happy with your work, press enter to continue the release process.'
+	echo ""
+}
+
+function do_readme {
+	for PLUGIN in "${!PROJECTS[@]}"; do
+		# check if the plugin even has a readme.txt file.
+		if [[ ! -e "$BASE/projects/$PLUGIN/readme.txt" ]]; then
+			yellow "$PLUGIN has no readme.txt file, skipping."
+			continue
+		fi
+		yellow "Updating the readme.txt file for $PLUGIN."
+		ARGS=()
+		# Add alpha and beta flags.
+		VERSION="${PROJECTS[$PLUGIN]}"
+		case $VERSION in
+			*-a* ) ARGS+=('-a');;
+			*-beta ) ARGS+=('-b');;
+			* ) ARGS+=('-s');;
+		esac
+		pnpm jetpack release "$PLUGIN" readme "${ARGS[@]}"
+	done
+}
+
+function do_commit_changelog_and_readme {
+	yellow "Committing changes."
+	git add --all
+	git commit -am "Changelog and readme.txt edits."
+
+	# If we're releasing Jetpack and it's a beta, amend the readme.txt
+	if [[ -v PROJECTS["plugins/jetpack"] && "${PROJECTS[plugins/jetpack]}" == *-beta ]]; then
+		yellow "Releasing a beta for Jetpack, amending the readme.txt"
+		pnpm jetpack changelog squash plugins/jetpack readme
+		git commit -am "Amend readme.txt"
+	fi
+}
+
+function do_push_and_build {
+	HEADSHA=$(git rev-parse HEAD)
+	yellow "Pushing changes."
+	git push -u origin prerelease
+
+	yellow "Waiting for build to complete and push to mirror repos"
+	BUILDID=
+
+	# If the build ID doesn't exist, try every five seconds until timeout after a minute.
+	TIMEOUT=$((SECONDS+60))
+	while [[ $SECONDS -lt $TIMEOUT &&  -z "$BUILDID" ]]; do
+		echo "Waiting for build to become available..."
+		sleep 5
+		BUILDID="$( gh run list -b prerelease -w Build --json event,databaseId,headSha | jq --arg HEADSHA "$HEADSHA" '.[] | select(.event=="push" and .headSha==$HEADSHA) | .databaseId' )"
+	done
+
+	if [[ -z "$BUILDID" ]]; then
+		send_tracks_event "jetpack_release_github_build" '{"result": "not_found"}'
+		die "Build ID not found. Check GitHub actions to see if build on prerelease branch is running, then continue with manual steps."
+	fi
+
+	yellow "Build ID found, waiting for build to complete and push to mirror repos."
+	if ! gh run watch "${BUILDID[0]}" --exit-status; then
+		send_tracks_event "jetpack_release_github_build" '{"result": "failure"}'
+		echo "Build failed! Check for build errors on GitHub for more information." && die
+	fi
+
+	send_tracks_event "jetpack_release_github_build" '{"result": "success"}'
+	yellow "Build is complete."
+}
+
+function do_packagist_check {
+	# Wait for new versions of any composer packages to be up.
+	# We expect a new version when (1) the package is touched in this release and (2) it has no change entry files remaining.
+	POLL_ARGS=()
+	cd "$BASE"
+	for PKGDIR in $(git -c core.quotepath=off diff --name-only "$GITBASE..HEAD" projects/packages/ | sed 's!^\(projects/packages/[^/]*\)/.*!\1!' | sort -u); do
+		cd "$BASE/$PKGDIR"
+		CHANGES_DIR=$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' composer.json)
+		if [[ ! -d "$CHANGES_DIR" || -z "$(ls -- "$CHANGES_DIR")" ]]; then
+			POLL_ARGS+=( "$( jq -r .name composer.json )=$( changelogger version current )" )
+		fi
+	done
+	cd "$BASE"
+	if [[ ${#POLL_ARGS[@]} -gt 0 ]]; then
+		yellow "Waiting for packagist to get updated packages..."
+		tools/js-tools/await-packagist-updates.mjs "${POLL_ARGS[@]}"
+		yellow "Packagist is updated!"
+	fi
+}
+
+function do_create_release_branches {
+	# Run tools/create-release-branch.sh to create a release branch for each project.
+	for PREFIX in "${PREFIXES[@]}"; do
+		git checkout prerelease
+		PROJECT=$(jq -r --arg prefix "$PREFIX" '.[$prefix] | if length == 1 then "plugins/\(first)" else empty end' <<<"$PREFIXDATA")
+		if [[ -n "$PROJECT" && -n "${PROJECTS[$PROJECT]}" ]]; then
+			VERSION="${PROJECTS[$PROJECT]}"
+			yellow "Creating release branch for $PROJECT $VERSION"
+			tools/create-release-branch.sh "$PROJECT" "$VERSION"
+		else
+			yellow "Creating release branch for $PREFIX"
+			tools/create-release-branch.sh "$PREFIX"
+		fi
+	done
+
+	yellow "Release branches created!"
+}
+
+function do_create_prerelease_PR {
+	yellow "Creating a PR to merge the prerelease branch into trunk."
+	git checkout prerelease
+
+	# Handle any package changes merged into trunk while we were working.
+	git fetch
+	git merge origin/trunk
+	tools/fixup-project-versions.sh
+	if [[ -n "$(git status --porcelain)" ]]; then
+		git commit -am 'Version bumps'
+	fi
+	git push
+	PLUGINS_CHANGED=
+	for PLUGIN in "${!PROJECTS[@]}"; do
+		PLUGINS_CHANGED+="$(basename "$PLUGIN") ${PROJECTS[$PLUGIN]}, "
+	done
+	# Remove the trailing comma and space
+	PLUGINS_CHANGED=${PLUGINS_CHANGED%, }
+	sed "s/%RELEASED_PLUGINS%/$PLUGINS_CHANGED/g" .github/files/BACKPORT_RELEASE_CHANGES.md > .github/files/TEMP_BACKPORT_RELEASE_CHANGES.md
+	gh pr create --title "Backport $PLUGINS_CHANGED Changes" --body "$(cat .github/files/TEMP_BACKPORT_RELEASE_CHANGES.md)" --label "[Status] Needs Review" --repo "Automattic/jetpack" --head "$(git rev-parse --abbrev-ref HEAD)"
+	rm .github/files/TEMP_BACKPORT_RELEASE_CHANGES.md
+}
+
+function do_final_instructions {
+	yellow "Release script complete!"
+
+	echo ''
+	echo 'Next you need to merge the above PR into trunk.'
+
+	AUTO=()
+	MANUALTAG=()
+	MANUALTAGONLY=()
+	MANUALPUB=()
+	MANUALBOTH=()
+	for PLUGIN in "${!PROJECTS[@]}"; do
+		F="$BASE/projects/$PLUGIN/composer.json"
+		if ! jq -e '.extra["mirror-repo"] // false' "$F" &>/dev/null; then
+			continue
+		fi
+
+		if ! jq -e '.extra["wp-plugin-slug"] // .extra["wp-theme-slug"] // false' "$F" &>/dev/null; then
+			if ! jq -e '.extra["autotagger"]' "$F" &>/dev/null; then
+				MANUALTAGONLY+=( "$PLUGIN" )
+			fi
+			continue
+		fi
+
+		if jq -e '.extra["autotagger"]' "$F" &>/dev/null; then
+			if jq -e '.extra["wp-svn-autopublish"] // false' "$F" &>/dev/null; then
+				AUTO+=( "$PLUGIN" )
+			else
+				MANUALPUB+=( "$PLUGIN" )
+			fi
+		else
+			if jq -e '.extra["wp-svn-autopublish"] // false' "$F" &>/dev/null; then
+				MANUALTAG+=( "$PLUGIN" )
+			else
+				MANUALBOTH+=( "$PLUGIN" )
+			fi
+		fi
+	done
+
+	if [[ ${#AUTO[@]} -gt 0 ]]; then
+		cat <<-EOM
+
+		For these plugins: ${AUTO[*]}
+		The release will shortly be tagged to GitHub and released to SVN and you can
+		then smoke test the release. Once ready, use \`./tools/stable-tag.sh <plugin>\`
+		to update the stable tag, and you're done!
+		EOM
+	fi
+
+	if [[ ${#MANUALTAGONLY[@]} -gt 0 ]]; then
+		cat <<-EOM
+
+		For these plugins: ${MANUALTAGONLY[*]}
+		Wait for the changes to appear in the mirror repo and conduct a GitHub
+		release. Then you're done!
+		EOM
+	fi
+
+	if [[ ${#MANUALTAG[@]} -gt 0 ]]; then
+		cat <<-EOM
+
+		For these plugins: ${MANUALTAG[*]}
+		Wait for the changes to appear in the mirror repo and conduct a GitHub
+		release. The changes will then be automatically released to SVN and you can
+		then smote test the release. Once ready, use \`./tools/stable-tag.sh <plugin>\`
+		to update the stable tag, and you're done!
+		EOM
+	fi
+
+	if [[ ${#MANUALPUB[@]} -gt 0 ]]; then
+		cat <<-EOM
+
+		For these plugins: ${MANUALPUB[*]}
+		The release will shortly be tagged to GitHub. Once the tag appears, deploy it
+		to SVN by running \`./tools/deploy-to-svn.sh <plugin> <tag>\`, and smoke test.
+		When ready, flip the stable tag with \`./tools/stable-tag.sh <plugin>\` and
+		you're all set.
+		EOM
+	fi
+
+	if [[ ${#MANUALBOTH[@]} -gt 0 ]]; then
+		cat <<-EOM
+
+		For these plugins: ${MANUALBOTH[*]}
+		Wait for the changes to appear in the mirror repo, and conduct a GitHub
+		release. Next, deploy the tag to SVN by running
+		\`./tools/deploy-to-svn.sh <plugin> <tag>\`, and smoke test. When ready, flip
+		the stable tag with \`./tools/stable-tag.sh <plugin>\` and you're all set.
+		EOM
+	fi
+}
+
+preflight_checks
 
 # No args, help flag, or invalid flag, so show usage.
 if [[ $# -eq 0 || $1 == '-h' || $1 == '--help' ]]; then
 	usage
 elif [[ $1 == '-s' || $1 == '--step' ]]; then
-	if [[ $2 =~ ^[0-7]$ ]]; then
+	if [[ $2 =~ ^[0-9]$ ]]; then
 		CUR_STEP="$2"
 		shift 2
 	else
@@ -191,325 +488,23 @@ if [[ ${#PREFIXES[@]} -gt 1 ]]; then
 	proceed_p "" "" Y
 fi
 
-function step1() {
-	# Make sure we're standing on trunk and working directory is clean
-	CURRENT_BRANCH="$( git rev-parse --abbrev-ref HEAD )"
-	if [[ "$CURRENT_BRANCH" != "trunk" ]]; then
-		proceed_p "Not currently checked out to trunk." "Check out trunk before continuing?" Y
-		git checkout trunk && git pull
-	fi
+RELEASE_STEPS=(
+	'do_trunk_and_prelease_branch_prep'
+	'do_changelogs'
+	'do_readme'
+	'do_commit_changelog_and_readme'
+	'do_push_and_build'
+	'do_packagist_check'
+	'do_create_release_branches'
+	'do_create_prerelease_PR'
+	'do_final_instructions'
+)
 
-	if [[ -n "$(git status --porcelain)" ]]; then
-		die "Working directory not clean, make sure you're working from a clean checkout and try again."
-	fi
-
-	yellow "Installing root packages."
-	pnpm jetpack install --root
-
-	yellow "Checking out prerelease branch."
-	# Is there an upstream prerelease branch already?
-	R=$( git ls-remote --heads origin prerelease )
-	if [[ -n "$R" ]]; then
-		error "There's an existing prerelease branch on GitHub!"
-		R=${R%%[ $'\t']*}
-		TMP=$( gh pr list --head=prerelease --state=open --json number,author,url,createdAt,title --jq '.[] | "\( .url ) - \( .createdAt | fromdateiso8601 | strftime( "%F %H:%IZ" ) ) - \( .title ) [\( .author.name )]"' )
-		if [[ -n "$TMP" ]]; then
-			echo "Someone probably needs to merge the following PR:"
-			echo "$TMP"
-			exit 1
-		fi
-		git fetch -q origin trunk "$R" || die "Something unexpected went wrong fetching the commit from GitHub"
-		if git diff --quiet origin/trunk..."$R"; then
-			echo "There don't seem to be any changes between that and trunk, if whoever created it has abandoned the release it should be safe to delete the branch."
-			exit 1
-		fi
-		if ! git diff --quiet origin/trunk..."$R" '*/CHANGELOG.md'; then
-			echo "Looks like someone is in the middle of a release! Wait for them merge the changes back into trunk."
-			exit 1
-		fi
-		echo "Looks like someone may be in the middle of a release! Wait for them merge the changes back into trunk, or to abandon the release."
-		exit 1
-	fi
-
-	# Check out and push pre-release branch
-	if git rev-parse --verify prerelease &>/dev/null; then
-		proceed_p "Existing local prerelease branch found." "Delete it?" Y
-		git branch -D prerelease
-	fi
-
-	git checkout -b prerelease
-	if ! git push -u origin HEAD; then
-		send_tracks_event "jetpack_release_prerelease_push" '{"result": "failure"}'
-		die "Branch push failed. Check #jetpack-releases and make sure no one is doing a release already, then delete the branch at https://github.com/Automattic/jetpack/branches"
-	fi
-	GITBASE=$( git rev-parse --verify HEAD )
-	send_tracks_event "jetpack_release_prerelease_push" '{"result": "success"}'
-
-	# Move to next step
-	CUR_STEP=2
-}
-
-function step2 {
-	# Loop through the projects and update the changelogs after building the arguments.
-	for PLUGIN in "${!PROJECTS[@]}"; do
-		yellow "Updating the changelog files for $PLUGIN."
-
-		# Add the PR numbers to the changelog.
-		ARGS=('-p')
-
-		# Add alpha and beta flags.
-		VERSION="${PROJECTS[$PLUGIN]}"
-		case $VERSION in
-			*-a* ) ARGS+=('-a');;
-			*-beta ) ARGS+=('-b');;
-		esac
-
-		# Explicitly pass the version number we want so there are no surprises.
-		ARGS+=( '-r' "${PROJECTS[$PLUGIN]}" )
-		ARGS+=("$PLUGIN");
-		tools/changelogger-release.sh "${ARGS[@]}"
-	done
-
-	# When it completes, wait for user to edit anything they want, then push key to continue.
-	read -r -s -p $'Edit all the changelog entries you want (in a separate terminal or your text editor of choice (make sure to save)).\nCheck for consistency between the different entries, and keep in mind that your plugin changelog will be used in the plugin readme file.\n\nOnce you are happy with your work, press enter to continue the release process.'
-	echo ""
-
-	for PLUGIN in "${!PROJECTS[@]}"; do
-		# check if the plugin even has a readme.txt file.
-		if [[ ! -e "$BASE/projects/$PLUGIN/readme.txt" ]]; then
-			yellow "$PLUGIN has no readme.txt file, skipping."
-			continue
-		fi
-		yellow "Updating the readme.txt file for $PLUGIN."
-		ARGS=()
-		# Add alpha and beta flags.
-		VERSION="${PROJECTS[$PLUGIN]}"
-		case $VERSION in
-			*-a* ) ARGS+=('-a');;
-			*-beta ) ARGS+=('-b');;
-			* ) ARGS+=('-s');;
-		esac
-		pnpm jetpack release "$PLUGIN" readme "${ARGS[@]}"
-	done
-
-	yellow "Committing changes."
-	git add --all
-	git commit -am "Changelog and readme.txt edits."
-
-	# If we're releasing Jetpack and it's a beta, amend the readme.txt
-	if [[ -v PROJECTS["plugins/jetpack"] && "${PROJECTS[plugins/jetpack]}" == *-beta ]]; then
-		yellow "Releasing a beta for Jetpack, amending the readme.txt"
-		pnpm jetpack changelog squash plugins/jetpack readme
-		git commit -am "Amend readme.txt"
-	fi
-
-	# Move to next step
-	CUR_STEP=3
-}
-
-function step3 {
-	HEADSHA=$(git rev-parse HEAD)
-	yellow "Pushing changes."
-	git push -u origin prerelease
-
-	yellow "Waiting for build to complete and push to mirror repos"
-	BUILDID=
-
-	# If the build ID doesn't exist, try every five seconds until timeout after a minute.
-	TIMEOUT=$((SECONDS+60))
-	while [[ $SECONDS -lt $TIMEOUT &&  -z "$BUILDID" ]]; do
-		echo "Waiting for build to become available..."
-		sleep 5
-		BUILDID="$( gh run list -b prerelease -w Build --json event,databaseId,headSha | jq --arg HEADSHA "$HEADSHA" '.[] | select(.event=="push" and .headSha==$HEADSHA) | .databaseId' )"
-	done
-
-	if [[ -z "$BUILDID" ]]; then
-		send_tracks_event "jetpack_release_github_build" '{"result": "not_found"}'
-		die "Build ID not found. Check GitHub actions to see if build on prerelease branch is running, then continue with manual steps."
-	fi
-
-	yellow "Build ID found, waiting for build to complete and push to mirror repos."
-	if ! gh run watch "${BUILDID[0]}" --exit-status; then
-		send_tracks_event "jetpack_release_github_build" '{"result": "failure"}'
-		echo "Build failed! Check for build errors on GitHub for more information." && die
-	fi
-
-	send_tracks_event "jetpack_release_github_build" '{"result": "success"}'
-	yellow "Build is complete."
-
-	# Move to next step
-	CUR_STEP=4
-}
-
-function step4 {
-	# Wait for new versions of any composer packages to be up.
-	# We expect a new version when (1) the package is touched in this release and (2) it has no change entry files remaining.
-	POLL_ARGS=()
-	cd "$BASE"
-	for PKGDIR in $(git -c core.quotepath=off diff --name-only "$GITBASE..HEAD" projects/packages/ | sed 's!^\(projects/packages/[^/]*\)/.*!\1!' | sort -u); do
-		cd "$BASE/$PKGDIR"
-		CHANGES_DIR=$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' composer.json)
-		if [[ ! -d "$CHANGES_DIR" || -z "$(ls -- "$CHANGES_DIR")" ]]; then
-			POLL_ARGS+=( "$( jq -r .name composer.json )=$( changelogger version current )" )
-		fi
-	done
-	cd "$BASE"
-	if [[ ${#POLL_ARGS[@]} -gt 0 ]]; then
-		yellow "Waiting for packagist to get updated packages..."
-		tools/js-tools/await-packagist-updates.mjs "${POLL_ARGS[@]}"
-		yellow "Packagist is updated!"
-	fi
-
-	# Move to next step
-	CUR_STEP=5
-}
-
-function step5 {
-	# Run tools/create-release-branch.sh to create a release branch for each project.
-	for PREFIX in "${PREFIXES[@]}"; do
-		git checkout prerelease
-		PROJECT=$(jq -r --arg prefix "$PREFIX" '.[$prefix] | if length == 1 then "plugins/\(first)" else empty end' <<<"$PREFIXDATA")
-		if [[ -n "$PROJECT" && -n "${PROJECTS[$PROJECT]}" ]]; then
-			VERSION="${PROJECTS[$PROJECT]}"
-			yellow "Creating release branch for $PROJECT $VERSION"
-			tools/create-release-branch.sh "$PROJECT" "$VERSION"
-		else
-			yellow "Creating release branch for $PREFIX"
-			tools/create-release-branch.sh "$PREFIX"
-		fi
-	done
-
-	yellow "Release branches created!"
-
-	# Move to next step
-	CUR_STEP=6
-}
-
-function step6 {
-	yellow "Creating a PR to merge the prerelease branch into trunk."
-	git checkout prerelease
-
-	# Handle any package changes merged into trunk while we were working.
-	git fetch
-	git merge origin/trunk
-	tools/fixup-project-versions.sh
-	if [[ -n "$(git status --porcelain)" ]]; then
-		git commit -am 'Version bumps'
-	fi
-	git push
-	PLUGINS_CHANGED=
-	for PLUGIN in "${!PROJECTS[@]}"; do
-		PLUGINS_CHANGED+="$(basename "$PLUGIN") ${PROJECTS[$PLUGIN]}, "
-	done
-	# Remove the trailing comma and space
-	PLUGINS_CHANGED=${PLUGINS_CHANGED%, }
-	sed "s/%RELEASED_PLUGINS%/$PLUGINS_CHANGED/g" .github/files/BACKPORT_RELEASE_CHANGES.md > .github/files/TEMP_BACKPORT_RELEASE_CHANGES.md
-	gh pr create --title "Backport $PLUGINS_CHANGED Changes" --body "$(cat .github/files/TEMP_BACKPORT_RELEASE_CHANGES.md)" --label "[Status] Needs Review" --repo "Automattic/jetpack" --head "$(git rev-parse --abbrev-ref HEAD)"
-	rm .github/files/TEMP_BACKPORT_RELEASE_CHANGES.md
-
-	# Move to next step
-	CUR_STEP=7
-}
-
-function step7 {
-	yellow "Release script complete!"
-
-	echo ''
-	echo 'Next you need to merge the above PR into trunk.'
-
-	AUTO=()
-	MANUALTAG=()
-	MANUALTAGONLY=()
-	MANUALPUB=()
-	MANUALBOTH=()
-	for PLUGIN in "${!PROJECTS[@]}"; do
-		F="$BASE/projects/$PLUGIN/composer.json"
-		if ! jq -e '.extra["mirror-repo"] // false' "$F" &>/dev/null; then
-			continue
-		fi
-
-		if ! jq -e '.extra["wp-plugin-slug"] // .extra["wp-theme-slug"] // false' "$F" &>/dev/null; then
-			if ! jq -e '.extra["autotagger"]' "$F" &>/dev/null; then
-				MANUALTAGONLY+=( "$PLUGIN" )
-			fi
-			continue
-		fi
-
-		if jq -e '.extra["autotagger"]' "$F" &>/dev/null; then
-			if jq -e '.extra["wp-svn-autopublish"] // false' "$F" &>/dev/null; then
-				AUTO+=( "$PLUGIN" )
-			else
-				MANUALPUB+=( "$PLUGIN" )
-			fi
-		else
-			if jq -e '.extra["wp-svn-autopublish"] // false' "$F" &>/dev/null; then
-				MANUALTAG+=( "$PLUGIN" )
-			else
-				MANUALBOTH+=( "$PLUGIN" )
-			fi
-		fi
-	done
-
-	if [[ ${#AUTO[@]} -gt 0 ]]; then
-		cat <<-EOM
-
-		For these plugins: ${AUTO[*]}
-		The release will shortly be tagged to GitHub and released to SVN and you can
-		then smoke test the release. Once ready, use \`./tools/stable-tag.sh <plugin>\`
-		to update the stable tag, and you're done!
-		EOM
-	fi
-
-	if [[ ${#MANUALTAGONLY[@]} -gt 0 ]]; then
-		cat <<-EOM
-
-		For these plugins: ${MANUALTAGONLY[*]}
-		Wait for the changes to appear in the mirror repo and conduct a GitHub
-		release. Then you're done!
-		EOM
-	fi
-
-	if [[ ${#MANUALTAG[@]} -gt 0 ]]; then
-		cat <<-EOM
-
-		For these plugins: ${MANUALTAG[*]}
-		Wait for the changes to appear in the mirror repo and conduct a GitHub
-		release. The changes will then be automatically released to SVN and you can
-		then smote test the release. Once ready, use \`./tools/stable-tag.sh <plugin>\`
-		to update the stable tag, and you're done!
-		EOM
-	fi
-
-	if [[ ${#MANUALPUB[@]} -gt 0 ]]; then
-		cat <<-EOM
-
-		For these plugins: ${MANUALPUB[*]}
-		The release will shortly be tagged to GitHub. Once the tag appears, deploy it
-		to SVN by running \`./tools/deploy-to-svn.sh <plugin> <tag>\`, and smoke test.
-		When ready, flip the stable tag with \`./tools/stable-tag.sh <plugin>\` and
-		you're all set.
-		EOM
-	fi
-
-	if [[ ${#MANUALBOTH[@]} -gt 0 ]]; then
-		cat <<-EOM
-
-		For these plugins: ${MANUALBOTH[*]}
-		Wait for the changes to appear in the mirror repo, and conduct a GitHub
-		release. Next, deploy the tag to SVN by running
-		\`./tools/deploy-to-svn.sh <plugin> <tag>\`, and smoke test. When ready, flip
-		the stable tag with \`./tools/stable-tag.sh <plugin>\` and you're all set.
-		EOM
-	fi
-}
-
-[[ CUR_STEP -le 1 ]] && step1
-[[ CUR_STEP -le 2 ]] && step2
-die asdf
-[[ CUR_STEP -le 3 ]] && step3
-[[ CUR_STEP -le 4 ]] && step4
-[[ CUR_STEP -le 5 ]] && step5
-[[ CUR_STEP -le 6 ]] && step6
-[[ CUR_STEP -le 7 ]] && step7
+# Run each release step.
+for ((i = CUR_STEP; i < ${#RELEASE_STEPS[@]}; i++)); do
+	green "Step $i: ${RELEASE_STEPS[$i]}"
+	"${RELEASE_STEPS[$i]}"
+	((CUR_STEP+=1))
+done
 
 send_tracks_event "jetpack_release_done"
