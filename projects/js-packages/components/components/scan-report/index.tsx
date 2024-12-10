@@ -27,13 +27,13 @@ import styles from './styles.module.scss';
  * DataViews component for displaying a scan report.
  *
  * @param {object}   props                   - Component props.
- * @param {boolean}  props.hasPlan           - Whether the user has a plan.
+ * @param {string}   props.dataSource        - Data source.
  * @param {Array}    props.data              - Scan report data.
  * @param {Function} props.onChangeSelection - Callback function run when an item is selected.
  *
  * @return {JSX.Element} The ScanReport component.
  */
-export default function ScanReport( { hasPlan, data, onChangeSelection } ): JSX.Element {
+export default function ScanReport( { dataSource, data, onChangeSelection } ): JSX.Element {
 	const baseView = {
 		search: '',
 		filters: [],
@@ -98,6 +98,7 @@ export default function ScanReport( { hasPlan, data, onChangeSelection } ): JSX.
 					return 'unchecked';
 				},
 				render( { item }: { item: ScanReportExtension } ) {
+					const scanApi = 'scan_api' === dataSource;
 					let variant: 'info' | 'warning' | 'success' = 'info';
 					let text = __(
 						'This item was added to your site after the most recent scan. We will check for threats during the next scheduled one.',
@@ -109,7 +110,7 @@ export default function ScanReport( { hasPlan, data, onChangeSelection } ): JSX.
 							variant = 'warning';
 							text = __( 'Vulnerabilities detected.', 'jetpack-components' );
 
-							if ( hasPlan ) {
+							if ( scanApi ) {
 								text = __( 'Threats detected.', 'jetpack-components' );
 							}
 						} else {
@@ -119,7 +120,7 @@ export default function ScanReport( { hasPlan, data, onChangeSelection } ): JSX.
 								'jetpack-components'
 							);
 
-							if ( hasPlan ) {
+							if ( scanApi ) {
 								text = __(
 									'No known threats found that affect this version.',
 									'jetpack-components'
@@ -181,7 +182,7 @@ export default function ScanReport( { hasPlan, data, onChangeSelection } ): JSX.
 		];
 
 		return result;
-	}, [ view, hasPlan ] );
+	}, [ view, dataSource ] );
 
 	/**
 	 * Apply the view settings (i.e. filters, sorting, pagination) to the dataset.

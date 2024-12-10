@@ -20,7 +20,7 @@ export default {
 
 export const Default = args => <ScanReport { ...args } />;
 Default.args = {
-	hasPlan: true,
+	dataSource: 'scan_api',
 	data: [
 		{
 			id: 1,
