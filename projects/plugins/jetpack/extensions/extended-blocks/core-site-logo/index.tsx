@@ -1,7 +1,7 @@
 /*
  * External dependencies
  */
-import { GeneratorModal } from '@automattic/jetpack-ai-client';
+import { GeneratorModal, useAiModule, useBlockModuleStatus } from '@automattic/jetpack-ai-client';
 import { BlockControls } from '@wordpress/block-editor';
 import { getBlockType } from '@wordpress/blocks';
 import { createHigherOrderComponent } from '@wordpress/compose';
@@ -89,7 +89,7 @@ const useSiteDetails = () => {
  * HOC to add the AI button on the Site Logo toolbar.
  */
 const siteLogoEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
-	return props => {
+	function ExtendedBlock( props ) {
 		const [ isLogoGeneratorModalVisible, setIsLogoGeneratorModalVisible ] = useState( false );
 		const { setLogo } = useSetLogo();
 		const shouldSyncIcon = props?.attributes?.shouldSyncIcon || false;
@@ -143,6 +143,18 @@ const siteLogoEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 				/>
 			</>
 		);
+	}
+
+	return props => {
+		const { isAiModuleActive } = useAiModule();
+		const isRequiredModulePresent = useBlockModuleStatus( props.name );
+
+		// If the required module is not enabled, return the original block edit component early.
+		if ( ! isAiModuleActive || ! isRequiredModulePresent ) {
+			return <BlockEdit { ...props } />;
+		}
+
+		return <ExtendedBlock { ...props } />;
 	};
 }, 'SiteLogoEditWithAiComponents' );
 
