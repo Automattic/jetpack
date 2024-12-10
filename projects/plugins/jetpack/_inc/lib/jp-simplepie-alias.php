@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	return;
 }
 
-require ABSPATH . '/wp-includes/class-simplepie.php';
+require_once ABSPATH . '/wp-includes/class-simplepie.php';
 // @phan-suppress-next-line PhanUndeclaredClassReference -- Being tested for. @phan-suppress-current-line UnusedPluginSuppression
 if ( class_exists( SimplePie\SimplePie::class ) ) {
 	require_once __DIR__ . '/jp-simplepie-alias-new.php';
