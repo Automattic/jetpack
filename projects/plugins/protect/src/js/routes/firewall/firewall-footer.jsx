@@ -69,7 +69,6 @@ const ShareData = () => {
 		<div className={ styles[ 'share-data' ] }>
 			<Title mb={ 0 }>{ __( 'Share data with Jetpack', 'jetpack-protect' ) }</Title>
 			<ToggleControl
-				className={ styles[ 'share-data-toggle' ] }
 				checked={ !! jetpackWafShareData }
 				onChange={ handleShareDataChange }
 				disabled={ isUpdating }
@@ -81,7 +80,6 @@ const ShareData = () => {
 				) }
 			/>
 			<ToggleControl
-				className={ styles[ 'share-data-toggle' ] }
 				checked={ !! jetpackWafShareDebugData }
 				onChange={ handleShareDebugDataChange }
 				disabled={ isUpdating }
