@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [0.64.2] - 2024-12-10
+### Fixed
+- Fix ToggleControl's help text indent to align with label text. [#40510]
+
 ## [0.64.1] - 2024-12-09
 ### Removed
 - Remove bulk action support from the ThreatsDataViews component. [#40483]
@@ -1243,6 +1247,7 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[0.64.2]: https://github.com/Automattic/jetpack-components/compare/0.64.1...0.64.2
 [0.64.1]: https://github.com/Automattic/jetpack-components/compare/0.64.0...0.64.1
 [0.64.0]: https://github.com/Automattic/jetpack-components/compare/0.63.0...0.64.0
 [0.63.0]: https://github.com/Automattic/jetpack-components/compare/0.62.0...0.63.0
