@@ -2,4 +2,4 @@
 // Reset to match Jetpack's root dir.
 import makeBaseConfig from 'jetpack-js-tools/eslintrc/base.mjs';
 
-export default [ ...makeBaseConfig( import.meta.url, { react: true, textdomain: 'jetpack' } ) ];
+export default [ ...makeBaseConfig( import.meta.url ) ];

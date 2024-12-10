@@ -3,7 +3,7 @@ import makeBaseConfig from 'jetpack-js-tools/eslintrc/base.mjs';
 import svelteConfig from 'jetpack-js-tools/eslintrc/svelte.mjs';
 
 export default [
-	...makeBaseConfig( import.meta.url, { textdomain: 'jetpack-image-guide' } ),
+	...makeBaseConfig( import.meta.url ),
 	...svelteConfig,
 	{
 		rules: {

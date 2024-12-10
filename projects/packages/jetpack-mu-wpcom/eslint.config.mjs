@@ -1,7 +1,7 @@
 import makeBaseConfig, { typescriptFiles, makeEnvConfig } from 'jetpack-js-tools/eslintrc/base.mjs';
 
 export default [
-	...makeBaseConfig( import.meta.url, { react: true, textdomain: 'jetpack-mu-wpcom' } ),
+	...makeBaseConfig( import.meta.url ),
 	makeEnvConfig( 'jquery', [ 'src/features/custom-css/custom-css/js/**' ] ),
 	{
 		rules: {

@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 
 export default [
-	...makeBaseConfig( import.meta.url, { react: true, textdomain: 'jetpack-boost' } ),
+	...makeBaseConfig( import.meta.url ),
 	{
 		files: typescriptFiles,
 		languageOptions: {

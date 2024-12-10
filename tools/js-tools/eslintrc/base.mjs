@@ -10,11 +10,13 @@
 // ];
 // ```
 
+import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { fixupConfigRules } from '@eslint/compat';
 import { FlatCompat } from '@eslint/eslintrc';
 import eslintJs from '@eslint/js';
+import makeDebug from 'debug';
 import { defaultConditionNames } from 'eslint-import-resolver-typescript';
 import eslintPluginImport from 'eslint-plugin-import';
 import eslintPluginLodash from 'eslint-plugin-lodash';
@@ -25,6 +27,11 @@ import globals from 'globals';
 import typescriptEslint from 'typescript-eslint';
 import loadIgnorePatterns from '../load-eslint-ignore.js';
 import jestConfig from './jest.mjs';
+import makeReactConfig from './react.mjs';
+
+const debug = makeDebug( 'eslintrc/base' );
+
+const rootdir = fileURLToPath( new URL( '../../..', import.meta.url ) );
 
 const restrictedPaths = [
 	'lib/sites-list',
@@ -61,8 +68,8 @@ export const jestFiles = [
  * @param {string}   configurl       - File URL for the eslint.config.mjs. Pass `import.meta.url`.
  * @param {object}   opts            - Options
  * @param {string[]} opts.envs       - Sets of globals to use. Default `[ 'browser' ]`.
- * @param {boolean}  opts.react      - Enable React rules.
- * @param {string}   opts.textdomain - Text domain for `@wordpress/i18n-text-domain` rule.
+ * @param {boolean}  opts.react      - Enable React rules. Default is read from `project/.../.../package.json` if possible.
+ * @param {string}   opts.textdomain - Text domain for `@wordpress/i18n-text-domain` rule. Default is read from `project/.../.../composer.json` if possible.
  * @return {object[]} Eslint config.
  */
 export default function makeBaseConfig( configurl, opts = {} ) {
@@ -72,6 +79,47 @@ export default function makeBaseConfig( configurl, opts = {} ) {
 		baseDirectory: basedir,
 		resolvePluginsRelativeTo: fileURLToPath( import.meta.url ),
 	} );
+
+	let m;
+	if (
+		basedir.startsWith( rootdir ) &&
+		( m = basedir
+			.substring( rootdir.length )
+			.match( /^projects\/(?<slug>(?<type>[^/]+)\/[^/]+)(?:\/|$)/ ) )
+	) {
+		if ( opts.textdomain == null ) {
+			try {
+				const composerJson = JSON.parse(
+					fs.readFileSync( path.join( rootdir, 'projects', m.groups.slug, 'composer.json' ) )
+				);
+				if ( m.groups.type === 'plugins' ) {
+					opts.textdomain =
+						composerJson.extra?.[ 'wp-plugin-slug' ] ?? composerJson.extra?.[ 'beta-plugin-slug' ];
+				} else {
+					opts.textdomain = composerJson.extra?.textdomain;
+				}
+				debug( `Auto-detected textdomain for ${ configurl } is ${ opts.textdomain }` );
+			} catch ( e ) {
+				debug( `No auto-detected textdomain for ${ configurl }: ${ e.message }` );
+			}
+		}
+		if ( opts.react == null ) {
+			try {
+				const packageJson = JSON.parse(
+					fs.readFileSync( path.join( rootdir, 'projects', m.groups.slug, 'package.json' ) )
+				);
+				opts.react = !! (
+					packageJson.dependencies?.react ??
+					packageJson.devDependencies?.react ??
+					packageJson.optionalDependencies?.react ??
+					packageJson.peerDependencies?.react
+				);
+				debug( `Auto-detected react for ${ configurl } is ${ opts.react }` );
+			} catch ( e ) {
+				debug( `No auto-detected react for ${ configurl }: ${ e.message }` );
+			}
+		}
+	}
 
 	return [
 		{
@@ -102,10 +150,6 @@ export default function makeBaseConfig( configurl, opts = {} ) {
 				'plugin:@wordpress/i18n'
 			)
 		),
-
-		// Insert React before prettier so prettier can disable some formatting rules.
-		...( opts.react ? fixupConfigRules( compat.extends( 'plugin:@wordpress/react' ) ) : [] ),
-
 		eslintPluginPrettierRecommended,
 
 		// Base config.
@@ -161,7 +205,7 @@ export default function makeBaseConfig( configurl, opts = {} ) {
 					{
 						allowedTextDomain:
 							opts.textdomain ??
-							"no text domain is set in this in this project's eslint.config.mjs",
+							"no text domain is set in this in this project's eslint.config.mjs or composer.json",
 					},
 				],
 
@@ -270,23 +314,7 @@ export default function makeBaseConfig( configurl, opts = {} ) {
 		},
 
 		// React config.
-		opts.react
-			? {
-					name: 'Monorepo react config',
-					settings: {
-						react: {
-							version: 'detect', // React version. "detect" automatically picks the version you have installed.
-						},
-					},
-					rules: {
-						'react/jsx-no-bind': [ 'error', { ignoreRefs: true } ],
-						'react/no-danger': 'error',
-						'react/no-did-mount-set-state': 'error',
-						'react/no-did-update-set-state': 'error',
-						'react/prefer-es6-class': 'warn',
-					},
-			  }
-			: {},
+		...( opts.react ? makeReactConfig( configurl ) : [] ),
 
 		// Typescript.
 		...typescriptEslint.config( {
