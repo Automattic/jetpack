@@ -37,6 +37,7 @@ export const featuredImageExclusiveMediaSources = [
 		label: __( 'Generate with AI', 'jetpack' ),
 		icon: aiAssistantIcon,
 		keyword: 'jetpack ai',
+		requiresAiModule: true,
 	},
 ];
 
@@ -49,6 +50,7 @@ export const generalPurposeImageExclusiveMediaSources = [
 		label: __( 'Generate with AI', 'jetpack' ),
 		icon: aiAssistantIcon,
 		keyword: 'jetpack ai',
+		requiresAiModule: true,
 	},
 ];
 

@@ -1,5 +1,12 @@
+/*
+ * External dependencies
+ */
+import { useAiModule } from '@automattic/jetpack-ai-client';
 import { MenuItem } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
+/*
+ * Internal dependencies
+ */
 import {
 	internalMediaSources,
 	externalMediaSources,
@@ -24,24 +31,14 @@ function MediaSources( {
 	setSource,
 	isFeatured = false,
 } ) {
+	const { isAiModuleActive } = useAiModule();
+
 	return (
 		<Fragment>
 			{ originalButton && originalButton( { open } ) }
-			{ internalMediaSources.map( ( { icon, id, label } ) => (
-				<MenuItem
-					icon={ icon }
-					key={ id }
-					onClick={ () => {
-						onClick();
-						setSource( id );
-					} }
-				>
-					{ label }
-				</MenuItem>
-			) ) }
-
-			{ isFeatured &&
-				featuredImageExclusiveMediaSources.map( ( { icon, id, label } ) => (
+			{ internalMediaSources
+				.filter( source => ! source.requiresAiModule || isAiModuleActive )
+				.map( ( { icon, id, label } ) => (
 					<MenuItem
 						icon={ icon }
 						key={ id }
@@ -53,10 +50,45 @@ function MediaSources( {
 						{ label }
 					</MenuItem>
 				) ) }
+
+			{ isFeatured &&
+				featuredImageExclusiveMediaSources
+					.filter( source => ! source.requiresAiModule || isAiModuleActive )
+					.map( ( { icon, id, label } ) => (
+						<MenuItem
+							icon={ icon }
+							key={ id }
+							onClick={ () => {
+								onClick();
+								setSource( id );
+							} }
+						>
+							{ label }
+						</MenuItem>
+					) ) }
 
 			{ ! isFeatured &&
 				isGeneralPurposeImageGeneratorBetaEnabled &&
-				generalPurposeImageExclusiveMediaSources.map( ( { icon, id, label } ) => (
+				generalPurposeImageExclusiveMediaSources
+					.filter( source => ! source.requiresAiModule || isAiModuleActive )
+					.map( ( { icon, id, label } ) => (
+						<MenuItem
+							icon={ icon }
+							key={ id }
+							onClick={ () => {
+								onClick();
+								setSource( id );
+							} }
+						>
+							{ label }
+						</MenuItem>
+					) ) }
+
+			<hr style={ { marginLeft: '-8px', marginRight: '-8px' } } />
+
+			{ externalMediaSources
+				.filter( source => ! source.requiresAiModule || isAiModuleActive )
+				.map( ( { icon, id, label } ) => (
 					<MenuItem
 						icon={ icon }
 						key={ id }
@@ -68,21 +100,6 @@ function MediaSources( {
 						{ label }
 					</MenuItem>
 				) ) }
-
-			<hr style={ { marginLeft: '-8px', marginRight: '-8px' } } />
-
-			{ externalMediaSources.map( ( { icon, id, label } ) => (
-				<MenuItem
-					icon={ icon }
-					key={ id }
-					onClick={ () => {
-						onClick();
-						setSource( id );
-					} }
-				>
-					{ label }
-				</MenuItem>
-			) ) }
 		</Fragment>
 	);
 }

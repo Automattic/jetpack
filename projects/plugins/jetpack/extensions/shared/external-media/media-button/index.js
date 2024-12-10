@@ -1,5 +1,12 @@
+/*
+ * External dependencies
+ */
+import { useAiModule } from '@automattic/jetpack-ai-client';
 import { useBlockEditContext } from '@wordpress/block-editor';
 import { useState } from '@wordpress/element';
+/*
+ * Internal dependencies
+ */
 import { getExternalLibrary } from '../sources';
 import MediaAiButton from './media-ai-button';
 import MediaButtonMenu from './media-menu';
@@ -16,7 +23,7 @@ const blocksWithAiButtonSupport = [ 'core/image', 'core/gallery', 'jetpack/slide
  * visibility.
  */
 const GENERAL_PURPOSE_IMAGE_GENERATOR_BETA_FLAG = 'ai-general-purpose-image-generator';
-const isGeneralPurposeImageGeneratorBetaEnabled =
+const isGeneralPurposeImageGeneratorAvailable =
 	window?.Jetpack_Editor_Initial_State?.available_blocks?.[
 		GENERAL_PURPOSE_IMAGE_GENERATOR_BETA_FLAG
 	]?.available === true;
@@ -31,6 +38,7 @@ function MediaButton( props ) {
 	const ExternalLibrary = getExternalLibrary( selectedSource );
 	const isFeatured = isFeaturedImage( mediaProps );
 	const hasAiButtonSupport = blocksWithAiButtonSupport.includes( name );
+	const { isAiModuleActive } = useAiModule();
 
 	const closeLibrary = event => {
 		if ( event ) {
@@ -61,12 +69,15 @@ function MediaButton( props ) {
 				hasImage={ mediaProps.value > 0 }
 				hasLargeButtons={ hasLargeButtons }
 			/>
-			{ isGeneralPurposeImageGeneratorBetaEnabled && ! isFeatured && hasAiButtonSupport && (
-				<MediaAiButton
-					setSelectedSource={ setSelectedSource }
-					hasLargeButtons={ hasLargeButtons }
-				/>
-			) }
+			{ isAiModuleActive &&
+				isGeneralPurposeImageGeneratorAvailable &&
+				! isFeatured &&
+				hasAiButtonSupport && (
+					<MediaAiButton
+						setSelectedSource={ setSelectedSource }
+						hasLargeButtons={ hasLargeButtons }
+					/>
+				) }
 
 			{ ExternalLibrary && <ExternalLibrary { ...mediaProps } onClose={ closeLibrary } /> }
 		</div>
