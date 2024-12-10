@@ -219,6 +219,13 @@ class Scan_History {
 		}
 
 		foreach ( $scan_data->threats as $source_threat ) {
+			if ( isset( $source_threat->extension ) && isset( $source_threat->extension->type ) ) {
+				$type = $source_threat->extension->type;
+				if ( 'plugin' === $type || 'theme' === $type ) {
+					$source_threat->extension->type = $type . 's';
+				}
+			}
+
 			$history->threats[] = new Threat_Model( $source_threat );
 		}
 
