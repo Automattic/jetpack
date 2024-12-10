@@ -171,36 +171,6 @@
     white-space: nowrap;
 }
 
-@media ( max-width: 1115px ) {
-    .stat-card-wrapper {
-        margin-top: calc( var( --spacing-base ) * 3 ); // 24px
-    }
-}
-
-@media ( max-width: 599px ) {
-    .stat-card-wrapper {
-        margin-top: calc( var( --spacing-base ) * 3 ); // 24px
-
-        >:first-child {
-            margin-right: 0;
-            margin-bottom: var( --spacing-base ); // 8px
-        }
-    }
-
-    .stat-card-icon {
-        margin-bottom: 0;
-    }
-}
-
-.share-data-section {
-    display: flex;
-
-    .share-data-toggle {
-        margin-top: calc( var( --spacing-base ) / 2 ); // 4px
-        margin-right: var( --spacing-base ); // 8px
-    }
-}
-
 .icon-tooltip {
     max-height: 20px;
     margin-left: calc( var( --spacing-base ) / 2 ); // 4px
