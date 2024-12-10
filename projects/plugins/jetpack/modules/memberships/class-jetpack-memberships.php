@@ -381,6 +381,7 @@ class Jetpack_Memberships {
 			$meta_coupons_prefix . 'duration',
 			$meta_coupons_prefix . 'email_allow_list',
 			$meta_coupons_prefix . 'is_deleted',
+			$meta_coupons_prefix . 'is_sandboxed',
 		);
 
 		$meta_gifts_prefix = self::$post_type_gift . '_';
