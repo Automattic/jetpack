@@ -116,14 +116,14 @@ function do_trunk_and_prelease_branch_prep() {
 		fi
 		git fetch -q origin trunk "$R" || die "Something unexpected went wrong fetching the commit from GitHub"
 		if git diff --quiet origin/trunk..."$R"; then
-			echo "There don't seem to be any changes between that and trunk, if whoever created it has abandoned the release it should be safe to delete the branch."
+			echo "There don't seem to be any changes between that and trunk. If its author has abandoned the release it should be safe to delete the branch."
 			exit 1
 		fi
 		if ! git diff --quiet origin/trunk..."$R" '*/CHANGELOG.md'; then
-			echo "Looks like someone is in the middle of a release! Wait for them merge the changes back into trunk."
+			echo "Looks like someone is in the middle of a release! Wait for them to merge the changes back into trunk."
 			exit 1
 		fi
-		echo "Looks like someone may be in the middle of a release! Wait for them merge the changes back into trunk, or to abandon the release."
+		echo "Looks like someone may be in the middle of a release! Wait for them to merge the changes back into trunk, or to abandon the release."
 		exit 1
 	fi
 
@@ -164,7 +164,7 @@ function do_changelogs {
 	done
 
 	# When it completes, wait for user to edit anything they want, then push key to continue.
-	read -r -s -p $'Edit all the changelog entries you want (in a separate terminal or your text editor of choice (make sure to save)).\nCheck for consistency between the different entries, and keep in mind that your plugin changelog will be used in the plugin readme file.\n\nOnce you are happy with your work, press enter to continue the release process.'
+	read -r -s -p $'Edit and save all the changelog entries you want in a separate terminal or in the text editor of choice.\nCheck for consistency between the different entries, and keep in mind that your plugin changelog will be used in the plugin readme file.\n\nOnce you are happy with your work, press enter to continue the release process.'
 	echo ""
 }
 
