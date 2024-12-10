@@ -1,5 +1,5 @@
 import { Text, Button } from '@automattic/jetpack-components';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AdminSectionHero from '../../components/admin-section-hero';
@@ -22,17 +22,15 @@ const HomeAdminSectionHero: React.FC = () => {
 						{ __( 'Your site is safe with us', 'jetpack-protect' ) }
 					</AdminSectionHero.Heading>
 					<Text>
-						{ sprintf(
-							// translators: %s is replaced with "threats" or "vulnerabilities" depending on the user's plan.
-							__( 'We stay ahead of security %s to keep your site protected.', 'jetpack-protect' ),
-							hasPlan
-								? __( 'threats', 'jetpack-protect' )
-								: __(
-										'vulnerabilities',
-										'jetpack-protect',
-										/* dummy arg to avoid bad minification */ 0
-								  )
-						) }
+						{ hasPlan
+							? __(
+									'We stay ahead of security threats to keep your site protected.',
+									'jetpack-protect'
+							  )
+							: __(
+									'We stay ahead of security vulnerabilities to keep your site protected.',
+									'jetpack-protect'
+							  ) }
 					</Text>
 					<Button
 						className={ styles[ 'view-scan-report' ] }
