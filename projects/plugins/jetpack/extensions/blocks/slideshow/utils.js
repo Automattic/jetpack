@@ -25,7 +25,18 @@ export default function applyPaddingForStackBlock() {
 	const iframes = document.querySelectorAll( 'iframe' );
 	iframes.forEach( iframe => {
 		const iframeDoc = iframe.contentDocument;
-		if ( iframeDoc ) {
+
+		// Ensure iframe's parent is #editor before applying styles
+		const iframeParent = iframe.closest( '#editor' );
+		if ( iframeDoc && iframeParent ) {
+			const targetElements = iframeDoc.querySelectorAll(
+				'.wp-block-group.is-vertical:not(.is-layout-constrained) .wp-block-jetpack-slideshow'
+			);
+			targetElements.forEach( element => {
+				element.style.maxWidth = 'inherit'; // Explicit style for this case
+			} );
+		} else if ( iframeDoc ) {
+			// If the iframe is not in the editor, apply the styles to the iframe itself
 			applyPaddingStyles( iframeDoc, true );
 		}
 	} );
