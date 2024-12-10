@@ -1,5 +1,5 @@
 import { Col, getRedirectUrl, Text } from '@automattic/jetpack-components';
-import { gmdateI18n } from '@wordpress/date';
+import { getSettings as getDateSettings, dateI18n, getDate } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
 import { useContext, useEffect, useCallback } from 'react';
 import { NOTICE_PRIORITY_HIGH } from '../../context/constants';
@@ -14,7 +14,15 @@ const useBackupNeedsAttentionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 	const { setNotice } = useContext( NoticeContext );
 
 	const { status, last_updated: lastUpdated } = redBubbleAlerts?.backup_failure || {};
-	const backupStatusLastUpdatedDate = gmdateI18n( 'M j, Y', lastUpdated );
+
+	const {
+		timezone: { offset },
+	} = getDateSettings() || { offset: '0' };
+	// Using dateI18n() to apply internationalization and formatting.
+	const backupStatusLastUpdatedDate = dateI18n(
+		'F jS, Y g:ia',
+		applyTimezone( lastUpdated, parseInt( offset ) )
+	);
 
 	const troubleshootBackupsUrl = getRedirectUrl( 'jetpack-support-troubleshooting-backup' );
 	const contactSupportUrl = getRedirectUrl( 'jetpack-support' );
@@ -97,3 +105,17 @@ const useBackupNeedsAttentionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 };
 
 export default useBackupNeedsAttentionNotice;
+
+/**
+ * Applies local timezone to date (via timezone offset)
+ * @param {string} date   - a date string with format like: 2024-12-08T14:41:45.170+00:00
+ * @param {number} offset - the timezone offset in hours, like: -3
+ *
+ * @return {Date} a JavaScript Date object
+ */
+function applyTimezone( date: string, offset: number ): Date {
+	const dateObject = getDate( date );
+	dateObject.setHours( dateObject.getHours() + offset );
+
+	return dateObject;
+}
