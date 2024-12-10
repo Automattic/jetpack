@@ -12,12 +12,3 @@
  *
  * @package automattic/jetpack
  */
-
-add_action( 'jetpack_activate_module_ai', 'jetpack_ai_activate_module' );
-
-/**
- * Actions needed upon activating the AI module.
- */
-function jetpack_ai_activate_module() {
-	// No actions needed for now.
-}
