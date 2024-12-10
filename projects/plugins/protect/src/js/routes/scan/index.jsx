@@ -84,8 +84,8 @@ const ScanPage = () => {
 						<Col>
 							<div ref={ setScanResultsAnchor }>
 								<ScanResultsDataView
-									filters={ filters }
-									onStatusFilterChange={ handleStatusFilterChange }
+									filters={ hasPlan ? filters : [] }
+									onStatusFilterChange={ hasPlan ? handleStatusFilterChange : null }
 								/>
 							</div>
 							{ !! status && ! isScanInProgress( status ) && (
