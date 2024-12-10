@@ -7,6 +7,7 @@ import {
 	mapActionToHumanText,
 	useAiSuggestions,
 	useAiModule,
+	useBlockModuleStatus,
 } from '@automattic/jetpack-ai-client';
 import { BlockControls, useBlockProps } from '@wordpress/block-editor';
 import { createHigherOrderComponent } from '@wordpress/compose';
@@ -21,7 +22,6 @@ import React from 'react';
  */
 import useAiFeature from '../hooks/use-ai-feature';
 import useAutoScroll from '../hooks/use-auto-scroll';
-import useBlockModuleStatus from '../hooks/use-block-module-status';
 import { mapInternalPromptTypeToBackendPromptType } from '../lib/prompt/backend-prompt';
 import AiAssistantInput from './components/ai-assistant-input';
 import AiAssistantExtensionToolbarDropdown from './components/ai-assistant-toolbar-dropdown';

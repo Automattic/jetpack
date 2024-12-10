@@ -17,6 +17,7 @@ export { default as useTranscriptionPostProcessing } from './hooks/use-transcrip
 export { default as useAudioValidation } from './hooks/use-audio-validation/index.js';
 export { default as useImageGenerator } from './hooks/use-image-generator/index.js';
 export { default as useAiModule } from './hooks/use-ai-module/index.js';
+export { default as useBlockModuleStatus } from './hooks/use-block-module-status/index.js';
 export * from './hooks/use-image-generator/constants.js';
 
 /*
