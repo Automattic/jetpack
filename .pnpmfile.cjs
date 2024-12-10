@@ -82,6 +82,16 @@ function fixDeps( pkg ) {
 		}
 	}
 
+	// Seemingly unmaintained upstream, and has strict deps that are outdated.
+	// https://github.com/mbalabash/estimo/issues/50
+	if ( pkg.name === 'estimo' ) {
+		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
+			if ( ver.match( /^\d+(\.\d+)+$/ ) ) {
+				pkg.dependencies[ dep ] = '^' + ver;
+			}
+		}
+	}
+
 	// Outdated dependency.
 	// No upstream bug link yet.
 	if ( pkg.name === 'rollup-plugin-postcss' && pkg.dependencies.cssnano === '^5.0.1' ) {
