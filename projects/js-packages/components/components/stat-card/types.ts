@@ -25,4 +25,9 @@ export type StatCardProps = {
 	 * @default 'square'
 	 */
 	variant?: 'square' | 'horizontal';
+
+	/**
+	 * Whether to hide the value.
+	 */
+	hideValue?: boolean;
 };
