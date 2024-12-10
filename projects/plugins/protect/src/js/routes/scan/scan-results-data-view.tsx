@@ -8,15 +8,18 @@ import useModal from '../../hooks/use-modal';
 /**
  * Scan Results Data View
  *
- * @param {object} props         - Component props.
- * @param {Array}  props.filters - Default filters to apply to the data view.
+ * @param {object}   props                      - Component props.
+ * @param {Array}    props.filters              - Default filters to apply to the data view.
+ * @param {Function} props.onStatusFilterChange - Callback function to handle status filter changes.
  *
  * @return {JSX.Element} ScanResultDataView component.
  */
 export default function ScanResultsDataView( {
 	filters = [],
+	onStatusFilterChange,
 }: {
 	filters: React.ComponentProps< typeof ThreatsDataViews >[ 'filters' ];
+	onStatusFilterChange: ( newStatus: 'active' | 'historic' | null ) => void;
 } ) {
 	const { setModal } = useModal();
 
@@ -51,6 +54,7 @@ export default function ScanResultsDataView( {
 			onFixThreats={ onFixThreats }
 			onIgnoreThreats={ onIgnoreThreats }
 			onUnignoreThreats={ onUnignoreThreats }
+			onStatusFilterChange={ onStatusFilterChange }
 		/>
 	);
 }

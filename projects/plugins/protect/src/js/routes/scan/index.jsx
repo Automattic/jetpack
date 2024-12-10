@@ -1,5 +1,5 @@
 import { AdminSection, Container, Col } from '@automattic/jetpack-components';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useCallback } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import AdminPage from '../../components/admin-page';
 import OnboardingPopover from '../../components/onboarding-popover';
@@ -27,7 +27,11 @@ const ScanPage = () => {
 	const { data: status } = useScanStatusQuery( { usePolling: true } );
 
 	const [ scanResultsAnchor, setScanResultsAnchor ] = useState( null );
-	const [ isViewingHistory, setIsViewingHistory ] = useState( false );
+	const [ statusFilter, setStatusFilter ] = useState( 'active' );
+
+	const handleStatusFilterChange = useCallback( newStatusFilter => {
+		setStatusFilter( newStatusFilter );
+	}, [] );
 
 	let currentScanStatus;
 	if ( status.error ) {
@@ -70,7 +74,7 @@ const ScanPage = () => {
 	return (
 		<OnboardingContext.Provider value={ onboardingSteps }>
 			<AdminPage>
-				{ isViewingHistory ? <HistoryAdminSectionHero /> : <ScanAdminSectionHero /> }
+				{ 'historic' === statusFilter ? <HistoryAdminSectionHero /> : <ScanAdminSectionHero /> }
 				<AdminSection>
 					<Container
 						className={ styles[ 'scan-results-container' ] }
@@ -79,7 +83,10 @@ const ScanPage = () => {
 					>
 						<Col>
 							<div ref={ setScanResultsAnchor }>
-								<ScanResultsDataView filters={ filters } />
+								<ScanResultsDataView
+									filters={ filters }
+									onStatusFilterChange={ handleStatusFilterChange }
+								/>
 							</div>
 							{ !! status && ! isScanInProgress( status ) && (
 								<OnboardingPopover

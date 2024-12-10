@@ -23,7 +23,7 @@ const HistoryAdminSectionHero: React.FC = () => {
 		} ).firstDetected;
 	}, [ history ] );
 
-	if ( history && ! history.error ) {
+	if ( history && history.error ) {
 		return (
 			<ErrorAdminSectionHero
 				baseErrorMessage={ __( 'We are having problems loading your history.', 'jetpack-protect' ) }
