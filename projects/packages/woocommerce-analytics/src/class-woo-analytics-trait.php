@@ -101,6 +101,8 @@ trait Woo_Analytics_Trait {
 			$coupon_used = count( $coupons ) ? 1 : 0;
 		}
 
+
+
 		$enabled_payment_options = array_filter(
 			WC()->payment_gateways->get_available_payment_gateways(),
 			function ( $payment_gateway ) {
@@ -113,17 +115,13 @@ trait Woo_Analytics_Trait {
 		);
 
 		$enabled_payment_options = array_keys( $enabled_payment_options );
-		$cart_total              = wc_prices_include_tax() ? $cart->get_cart_contents_total() + $cart->get_cart_contents_tax() : $cart->get_cart_contents_total();
 		$shared_data             = array(
 			'products'                 => $this->format_items_to_json( $cart->get_cart() ),
 			'create_account'           => $create_account,
 			'guest_checkout'           => $guest_checkout,
 			'delayed_account_creation' => $delayed_account_creation,
 			'express_checkout'         => 'null', // TODO: not solved yet.
-			'products_count'           => $cart->get_cart_contents_count(),
-			'order_value'              => $cart_total,
-            'total_discount'           => $cart->get_discount_total(),
-			'shipping_options_count'   => 'null', // TODO: not solved yet.
+			'shipping_options_count'   =>  'null', // TODO: not solved yet.
 			'coupon_used'              => $coupon_used,
 			'payment_options'          => $enabled_payment_options,
 		);
@@ -269,9 +267,12 @@ trait Woo_Analytics_Trait {
 			'store_currency'                     => get_woocommerce_currency(),
 			'timezone'                           => wp_timezone_string(),
 			'is_guest'                           => $this->get_user_id() === null,
-			'order_value'                        => $this->get_cart_total(),
+			'order_value'                        => $this->get_cart_subtotal(),
+			'order_total'                        => $this->get_cart_total(),
+			'total_tax'                          => $this->get_cart_taxes(),
 			'total_discount'                     => $this->get_total_discounts(),
-			'products_count'                     => $this->get_cart_items_count(),
+			'total_shipping'                     => $this->get_cart_shipping_total(),
+			'products_count'                     => $this->get_cart_items_count()
 		);
 		$cart_checkout_info = $this->get_cart_checkout_info();
 		return array_merge( $site_info, $cart_checkout_info );
@@ -306,6 +307,7 @@ trait Woo_Analytics_Trait {
 	 * @return string|void
 	 */
 	public function record_event( $event_name, $properties = array(), $product_id = null ) {
+        $uid = WC()->session->get_customer_id();
 		$js = $this->process_event_properties( $event_name, $properties, $product_id );
 		wc_enqueue_js( "_wca.push({$js});" );
 	}
@@ -574,14 +576,44 @@ trait Woo_Analytics_Trait {
 	}
 
 	/**
-	 * Get the cart totals
+	 * Get the cart total
 	 *
 	 * @return float
 	 */
 	public function get_cart_total() {
 		$cart = WC()->cart;
-		return wc_prices_include_tax() ? $cart->get_cart_contents_total() + $cart->get_cart_contents_tax() : $cart->get_cart_contents_total();
+		return $cart->get_total( 'tracking' );
 	}
+
+    /**
+     * Get the cart subtotal
+     *
+     * @return float
+     */
+    public function get_cart_subtotal() {
+        $cart = WC()->cart;
+        return $cart->get_subtotal();
+    }
+
+    /**
+     * Get the cart shipping total
+     *
+     * @return float
+     */
+    public function get_cart_shipping_total() {
+        $cart = WC()->cart;
+        return $cart->get_shipping_total();
+    }
+
+    /**
+     * Get the cart taxes
+     *
+     * @return float
+     */
+    public function get_cart_taxes() {
+        $cart = WC()->cart;
+        return $cart->get_taxes_total();
+    }
 
 	/**
 	 * Get the cart discount total
