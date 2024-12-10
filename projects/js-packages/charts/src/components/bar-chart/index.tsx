@@ -6,7 +6,7 @@ import { Bar } from '@visx/shape';
 import { useTooltip } from '@visx/tooltip';
 import React from 'react';
 import { useChartTheme } from '../../providers/theme';
-import { Tooltip } from '../tooltip';
+import { BaseTooltip } from '../tooltip';
 import type { DataPoint } from '../shared/types';
 
 type BarChartProps = {
@@ -91,8 +91,8 @@ function BarChart( { data, width, height, margin, showTooltips = false }: BarCha
 					<AxisBottom scale={ xScale } top={ yMax } />
 				</Group>
 			</svg>
-			{ tooltipOpen && tooltipData && (
-				<Tooltip
+			{ showTooltips && tooltipOpen && tooltipData && (
+				<BaseTooltip
 					data={ tooltipData }
 					top={ tooltipTop }
 					left={ tooltipLeft }
