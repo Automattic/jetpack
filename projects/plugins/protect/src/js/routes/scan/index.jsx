@@ -28,7 +28,6 @@ const ScanPage = () => {
 	const { data: history } = useHistoryQuery();
 
 	const [ scanResultsAnchor, setScanResultsAnchor ] = useState( null );
-	const [ isViewingHistory, setIsViewingHistory ] = useState( false );
 
 	let currentScanStatus;
 	if ( status.error ) {
