@@ -103,7 +103,7 @@ const PlanExpiry: FC< PlanSectionProps > = ( { purchase } ) => {
 			__( 'Expires on %1$s', 'jetpack-my-jetpack' ),
 			expiryDate
 		);
-	}, [ expiry_date, isExpiringPurchase, isExpiringSoon ] );
+	}, [ expiry_date, isExpiringPurchase, isExpiringSoon, partner_name, subscribed_date ] );
 
 	const expiryAction = useCallback( () => {
 		if ( ! isExpiringPurchase ) {
