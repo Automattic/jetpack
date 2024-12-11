@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { JETPACK_MODULES_STORE_ID } from '@automattic/jetpack-shared-extension-utils';
 import { getBlockContent } from '@wordpress/blocks';
 import { dispatch, select } from '@wordpress/data';
 import { registerFormatType, removeFormat, RichTextValue } from '@wordpress/rich-text';
@@ -57,11 +58,15 @@ export function registerBreveHighlight( feature: BreveFeature ) {
 				getReloadFlag,
 			} = select( 'jetpack/ai-breve' ) as BreveSelect;
 
+			const { isModuleActive } = select( JETPACK_MODULES_STORE_ID );
+			const isAiModuleActive = isModuleActive( 'ai' );
+
 			const canBeEnabled = canWriteBriefBeEnabled();
 			const canFeatureBeEnabled = canWriteBriefFeatureBeEnabled( config.name );
 
 			return {
-				isProofreadEnabled: canBeEnabled && isProofreadEnabled() && getBreveAvailability(),
+				isProofreadEnabled:
+					isAiModuleActive && canBeEnabled && isProofreadEnabled() && getBreveAvailability(),
 				isFeatureEnabled: canFeatureBeEnabled && isFeatureEnabled( config.name ),
 				ignored: getIgnoredSuggestions( { blockId: blockClientId } ),
 				isFeatureDictionaryLoading: isFeatureDictionaryLoading( config.name ),
