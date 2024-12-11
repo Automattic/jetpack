@@ -7,6 +7,12 @@ import {
 	wordpress as coreIcon,
 } from '@wordpress/icons';
 
+export const STATUS_TYPES = [
+	{ value: 'checked', label: __( 'Checked', 'jetpack-components' ) },
+	{ value: 'unchecked', label: __( 'Unchecked', 'jetpack-components' ) },
+	{ value: 'threat', label: __( 'Threat', 'jetpack-components' ) },
+];
+
 export const TYPES = [
 	{ value: 'core', label: __( 'WordPress', 'jetpack-components' ) },
 	{ value: 'plugins', label: __( 'Plugin', 'jetpack-components' ) },
