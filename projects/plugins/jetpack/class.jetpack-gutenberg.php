@@ -1343,7 +1343,7 @@ class Jetpack_Gutenberg {
 	 * this method allows registration to proceed by temporarily disabling
 	 * the relevant notice.
 	 *
-	 * @since $$next-version$$
+	 * @since 14.2
 	 *
 	 * @param bool   $trigger       Whether to trigger the error.
 	 * @param string $function      The function that was called.
@@ -1379,7 +1379,7 @@ class Jetpack_Gutenberg {
 		if ( function_exists( 'wp_register_block_metadata_collection' ) && file_exists( $meta_file_path ) ) {
 			add_filter( 'doing_it_wrong_trigger_error', array( __CLASS__, 'bypass_block_metadata_doing_it_wrong' ), 10, 4 );
 
-			// @phan-suppress-next-line PhanUndeclaredFunction -- New in WP 6.7. We're checking if it exists first.
+			// @phan-suppress-next-line PhanUndeclaredFunction -- New in WP 6.7. We're checking if it exists first. @phan-suppress-current-line UnusedPluginSuppression
 			wp_register_block_metadata_collection(
 				JETPACK__PLUGIN_DIR . '_inc/blocks/',
 				$meta_file_path

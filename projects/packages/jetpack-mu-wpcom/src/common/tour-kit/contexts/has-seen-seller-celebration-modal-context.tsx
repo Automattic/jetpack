@@ -14,7 +14,6 @@ type HasSeenSellerCelebrationModalContextType = {
 
 const HasSeenSCModalContext = React.createContext< HasSeenSellerCelebrationModalContextType >( {
 	hasSeenSellerCelebrationModal: false,
-	// eslint-disable-next-line @typescript-eslint/no-empty-function
 	updateHasSeenSellerCelebrationModal: () => {},
 } );
 

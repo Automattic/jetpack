@@ -1,4 +1,4 @@
-import { BarChart } from '../index';
+import BarChart from '../index';
 import type { Meta } from '@storybook/react';
 
 export default {
@@ -22,6 +22,7 @@ export const Default = Template.bind( {} );
 Default.args = {
 	width: 500,
 	height: 300,
+	showTooltips: false,
 	data: [
 		{ label: 'Jan', value: 12 },
 		{ label: 'Feb', value: 18 },
@@ -30,4 +31,23 @@ Default.args = {
 		{ label: 'May', value: 45 },
 		{ label: 'Jun', value: 52 },
 	],
+};
+
+export const WithTooltips = Template.bind( {} );
+WithTooltips.args = {
+	...Default.args,
+	showTooltips: true,
+	data: [
+		{ label: 'Q1', value: 420 },
+		{ label: 'Q2', value: 650 },
+		{ label: 'Q3', value: 850 },
+		{ label: 'Q4', value: 950 },
+	],
+};
+WithTooltips.parameters = {
+	docs: {
+		description: {
+			story: 'Bar chart with interactive tooltips that appear on hover.',
+		},
+	},
 };
