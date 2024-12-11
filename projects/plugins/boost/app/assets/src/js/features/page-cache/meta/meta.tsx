@@ -29,6 +29,10 @@ const Meta = () => {
 		runClearPageCacheAction.mutate();
 	};
 
+	const handleSeeLogsClick = () => {
+		recordBoostEvent( 'page_cache_see_logs_clicked', {} );
+	};
+
 	const totalBypassPatterns = bypassPatterns?.length || 0;
 
 	const getSummary = () => {
@@ -122,7 +126,11 @@ const Meta = () => {
 					{ __( 'Activate logging to track all your cache events.', 'jetpack-boost' ) }
 				</label>
 				{ logging && (
-					<Link className={ styles[ 'see-logs-link' ] } to="/cache-debug-log">
+					<Link
+						onClick={ handleSeeLogsClick }
+						className={ styles[ 'see-logs-link' ] }
+						to="/cache-debug-log"
+					>
 						{ __( 'See Logs', 'jetpack-boost' ) }
 					</Link>
 				) }
