@@ -4,6 +4,5 @@ node_modules      export-ignore
 
 # Files to exclude from the mirror repo.
 /changelog/**     production-exclude
-/.eslintrc.cjs    production-exclude
 **/stories/**     production-exclude
 **/test/**        production-exclude

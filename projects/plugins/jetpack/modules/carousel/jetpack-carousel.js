@@ -524,6 +524,7 @@
 
 			var wrapper = document.querySelector( '#jp-carousel-comment-form-submit-and-info-wrapper' );
 			var spinner = document.querySelector( '#jp-carousel-comment-form-spinner' );
+			// eslint-disable-next-line @wordpress/no-unused-vars-before-return
 			var submit = document.querySelector( '#jp-carousel-comment-form-button-submit' );
 			var form = document.querySelector( '#jp-carousel-comment-form' );
 

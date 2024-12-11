@@ -15,7 +15,7 @@ const conf = new Configstore( 'automattic/jetpack-cli' );
  */
 export async function doesRepoExist( name, org = 'Automattic' ) {
 	let forceToken = false;
-	// eslint-disable-next-line no-constant-condition
+
 	while ( true ) {
 		try {
 			const auth = await getAuthToken( forceToken );

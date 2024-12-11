@@ -1,3 +1,4 @@
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button, Tooltip } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { thumbsUp, thumbsDown } from '@wordpress/icons';
@@ -7,8 +8,14 @@ import { getFeatureAvailability } from '../../../../blocks/ai-assistant/lib/util
 
 import './style.scss';
 
-export default function AiFeedbackThumbs( { disabled = false, iconSize = 24, ratedItem } ) {
+export default function AiFeedbackThumbs( {
+	disabled = false,
+	iconSize = 24,
+	ratedItem,
+	feature,
+} ) {
 	const [ itemsRated, setItemsRated ] = useState( {} );
+	const { tracks } = useAnalytics();
 
 	const rateAI = ( isThumbsUp: boolean ) => {
 		const aiRating = isThumbsUp ? 'thumbs-up' : 'thumbs-down';
@@ -18,7 +25,10 @@ export default function AiFeedbackThumbs( { disabled = false, iconSize = 24, rat
 			[ ratedItem ]: aiRating,
 		} );
 
-		// calls to Tracks or whatever else can be made here
+		tracks.recordEvent( 'jetpack_ai_feedback', {
+			type: feature,
+			rating: aiRating,
+		} );
 	};
 
 	const checkThumb = ( thumbValue: string ) => {
