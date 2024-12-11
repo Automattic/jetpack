@@ -62,31 +62,7 @@ class Connection_Fields {
 	 * @return string
 	 */
 	public static function get_display_name( $service_name, $connection ) {
-		$cmeta = self::get_connection_meta( $connection );
-
-		if ( 'mastodon' === $service_name && isset( $cmeta['external_name'] ) ) {
-			return $cmeta['external_name'];
-		}
-
-		if ( isset( $cmeta['connection_data']['meta']['display_name'] ) ) {
-			return $cmeta['connection_data']['meta']['display_name'];
-		}
-
-		if ( 'tumblr' === $service_name && isset( $cmeta['connection_data']['meta']['tumblr_base_hostname'] ) ) {
-			return $cmeta['connection_data']['meta']['tumblr_base_hostname'];
-		}
-
-		if ( 'twitter' === $service_name ) {
-			return $cmeta['external_display'];
-		}
-
-		$connection_display = $cmeta['external_display'];
-
-		if ( empty( $connection_display ) ) {
-			$connection_display = $cmeta['external_name'];
-		}
-
-		return $connection_display;
+		return self::publicize()->get_display_name( $service_name, $connection );
 	}
 
 	/**
@@ -135,72 +111,7 @@ class Connection_Fields {
 	 * @return false|string False on failure. URL on success.
 	 */
 	public static function get_profile_link( $service_name, $connection ) {
-		$cmeta = self::get_connection_meta( $connection );
-
-		if ( isset( $cmeta['connection_data']['meta']['link'] ) ) {
-			if ( 'facebook' === $service_name && str_starts_with( wp_parse_url( $cmeta['connection_data']['meta']['link'], PHP_URL_PATH ), '/app_scoped_user_id/' ) ) {
-				// App-scoped Facebook user IDs are not usable profile links.
-				return false;
-			}
-
-			return $cmeta['connection_data']['meta']['link'];
-		}
-
-		if ( 'facebook' === $service_name && isset( $cmeta['connection_data']['meta']['facebook_page'] ) ) {
-			return 'https://facebook.com/' . $cmeta['connection_data']['meta']['facebook_page'];
-		}
-
-		if ( 'instagram-business' === $service_name && isset( $cmeta['connection_data']['meta']['username'] ) ) {
-			return 'https://instagram.com/' . $cmeta['connection_data']['meta']['username'];
-		}
-
-		if ( 'threads' === $service_name && isset( $cmeta['external_name'] ) ) {
-			return 'https://www.threads.net/@' . $cmeta['external_name'];
-		}
-
-		if ( 'mastodon' === $service_name && isset( $cmeta['external_name'] ) ) {
-			return 'https://mastodon.social/@' . $cmeta['external_name'];
-		}
-
-		if ( 'nextdoor' === $service_name && isset( $cmeta['external_id'] ) ) {
-			return 'https://nextdoor.com/profile/' . $cmeta['external_id'];
-		}
-
-		if ( 'tumblr' === $service_name && isset( $cmeta['connection_data']['meta']['tumblr_base_hostname'] ) ) {
-			return 'https://' . $cmeta['connection_data']['meta']['tumblr_base_hostname'];
-		}
-
-		if ( 'twitter' === $service_name ) {
-			return 'https://twitter.com/' . substr( $cmeta['external_display'], 1 ); // Has a leading '@'.
-		}
-
-		if ( 'bluesky' === $service_name ) {
-			return 'https://bsky.app/profile/' . $cmeta['external_id'];
-		}
-
-		if ( 'linkedin' === $service_name ) {
-			if ( ! isset( $cmeta['connection_data']['meta']['profile_url'] ) ) {
-				return false;
-			}
-
-			$profile_url_query      = wp_parse_url( $cmeta['connection_data']['meta']['profile_url'], PHP_URL_QUERY );
-			$profile_url_query_args = array();
-			wp_parse_str( $profile_url_query, $profile_url_query_args );
-
-			$id = null;
-
-			if ( isset( $profile_url_query_args['key'] ) ) {
-				$id = $profile_url_query_args['key'];
-			} elseif ( isset( $profile_url_query_args['id'] ) ) {
-				$id = $profile_url_query_args['id'];
-			} else {
-				return false;
-			}
-
-			return esc_url_raw( add_query_arg( 'id', rawurlencode( $id ), 'https://www.linkedin.com/profile/view' ) );
-		}
-
-		return false; // no fallback. we just won't link it.
+		return self::publicize()->get_profile_link( $service_name, $connection );
 	}
 
 	/**
@@ -210,13 +121,7 @@ class Connection_Fields {
 	 * @return string
 	 */
 	public static function get_profile_picture( $connection ) {
-		$cmeta = self::get_connection_meta( $connection );
-
-		if ( isset( $cmeta['profile_picture'] ) ) {
-			return $cmeta['profile_picture'];
-		}
-
-		return '';
+		return self::publicize()->get_profile_picture( $connection );
 	}
 
 	/**

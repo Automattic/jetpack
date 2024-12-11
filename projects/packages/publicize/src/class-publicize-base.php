@@ -497,8 +497,8 @@ abstract class Publicize_Base {
 			return 'https://instagram.com/' . $cmeta['connection_data']['meta']['username'];
 		}
 
-		if ( 'threads' === $service_name && isset( $connection['external_name'] ) ) {
-			return 'https://www.threads.net/@' . $connection['external_name'];
+		if ( 'threads' === $service_name && isset( $cmeta['external_name'] ) ) {
+			return 'https://www.threads.net/@' . $cmeta['external_name'];
 		}
 
 		if ( 'mastodon' === $service_name && isset( $cmeta['external_name'] ) ) {
@@ -527,7 +527,7 @@ abstract class Publicize_Base {
 			}
 
 			$profile_url_query      = wp_parse_url( $cmeta['connection_data']['meta']['profile_url'], PHP_URL_QUERY );
-			$profile_url_query_args = null;
+			$profile_url_query_args = array();
 			wp_parse_str( $profile_url_query, $profile_url_query_args );
 
 			$id = null;
@@ -608,7 +608,7 @@ abstract class Publicize_Base {
 	 * @param object|array $connection The Connection object (WordPress.com) or array (Jetpack).
 	 * @return string
 	 */
-	private function get_profile_picture( $connection ) {
+	public function get_profile_picture( $connection ) {
 		$cmeta = $this->get_connection_meta( $connection );
 
 		if ( isset( $cmeta['profile_picture'] ) ) {
