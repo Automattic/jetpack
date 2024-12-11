@@ -50,6 +50,9 @@ class Menu extends \WP_REST_Menus_Controller {
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function create_item( $request ) {
+		// Set the WP_IMPORTING constant to prevent sync notifications
+		$this->set_importing();
+
 		$response = parent::create_item( $request );
 
 		// Ensure that the HTTP status is a valid one.

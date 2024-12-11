@@ -1,5 +1,4 @@
-import { SocialServiceIcon, Button, Text } from '@automattic/jetpack-components';
-import { CopyToClipboard } from '@automattic/jetpack-components';
+import { SocialServiceIcon, Button, Text, CopyToClipboard } from '@automattic/jetpack-components';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';

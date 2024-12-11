@@ -211,6 +211,38 @@ function jetpack_unregister_deprecated_google_fonts_from_theme_json_data( $theme
 add_filter( 'wp_theme_json_data_theme', 'jetpack_unregister_deprecated_google_fonts_from_theme_json_data' );
 add_filter( 'wp_theme_json_data_user', 'jetpack_unregister_deprecated_google_fonts_from_theme_json_data' );
 
+/**
+ * Clean up the Google Fonts data if either google fonts module is disabled or Jetpack is disabled.
+ */
+function jetpack_unregister_google_fonts() {
+	$post_id = WP_Theme_JSON_Resolver::get_user_global_styles_post_id();
+
+	// Get user config
+	$user_config          = WP_Theme_JSON_Resolver::get_user_data();
+	$user_config_raw_data = $user_config->get_raw_data();
+	$user_config_raw_data['isGlobalStylesUserThemeJSON'] = true;
+
+	// Prepare data for saving
+	if ( ! empty( $user_config_raw_data['settings']['typography']['fontFamilies']['default'] ) ) {
+		$user_config_raw_data['settings']['typography']['fontFamilies']['default'] = array();
+	}
+
+	if ( ! empty( $user_config_raw_data['settings']['typography']['fontFamilies']['theme'] ) ) {
+		$user_config_raw_data['settings']['typography']['fontFamilies']['theme'] = jetpack_google_fonts_filter_out_deprecated_font_data(
+			$user_config_raw_data['settings']['typography']['fontFamilies']['theme'] // @phan-suppress-current-line PhanTypeInvalidDimOffset, PhanTypeMismatchArgument
+		);
+	}
+
+	// Prepare changes
+	$changes               = new stdClass();
+	$changes->ID           = $post_id;
+	$changes->post_content = wp_json_encode( $user_config_raw_data );
+
+	// Update user config
+	wp_update_post( wp_slash( (array) $changes ), true );
+}
+add_action( 'jetpack_deactivate_module_google-fonts', 'jetpack_unregister_google_fonts' );
+
 // Initialize Jetpack Google Font Face to avoid printing **ALL** google fonts provided by this module.
 // See p1700040028362329-slack-C4GAQ900P and p7DVsv-jib-p2
 new Jetpack_Google_Font_Face();

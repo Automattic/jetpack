@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Comments: Make list of allowable comment types filterable so custom types can be returned if needed.

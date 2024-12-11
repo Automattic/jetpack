@@ -30,7 +30,6 @@ const DEFAULT_GOOGLE_PHOTOS_SEARCH: MediaSearch = {
 /**
  * External media endpoints.
  */
-// eslint-disable-next-line no-shadow
 enum WpcomMediaEndpoints {
 	List = '/wpcom/v2/external-media/list/',
 }
@@ -38,7 +37,6 @@ enum WpcomMediaEndpoints {
 /**
  * WPCOM media type of the WPCOM Media Api.
  */
-// eslint-disable-next-line no-shadow
 enum WpcomMediaItemType {
 	Image = 'image',
 	Video = 'video',
@@ -316,7 +314,7 @@ export const setGooglePhotosPickeCachedSessionId = ( sessionId: string | null ) 
 		sessionId,
 		604800, // 7 days
 		'/',
-		`.${ window.location.hostname }`
+		`.${ window.location.hostname.split( '.' ).slice( -2 ).join( '.' ) }`
 	);
 };
 

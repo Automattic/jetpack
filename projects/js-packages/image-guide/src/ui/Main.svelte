@@ -1,11 +1,13 @@
 <script lang="ts">
+	/* eslint-disable import/no-duplicates -- https://github.com/import-js/eslint-plugin-import/issues/2992 */
 	import { onMount } from 'svelte';
+	import { derived } from 'svelte/store';
+	/* eslint-enable import/no-duplicates */
 	import { guideState } from '../stores/GuideState';
 	import Bubble from './Bubble.svelte';
 	import Popup from './Popup.svelte';
 	import type { MeasurableImageStore } from '../stores/MeasurableImageStore';
 	import type { GuideSize } from '../types';
-	import { derived } from 'svelte/store';
 
 	export let stores: MeasurableImageStore[];
 	let show: number | false = false;

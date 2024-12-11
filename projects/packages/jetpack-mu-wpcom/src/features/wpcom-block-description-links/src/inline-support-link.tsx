@@ -3,8 +3,7 @@ import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button, ExternalLink } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import React from 'react';
-import { useState, JSXElementConstructor, ReactElement } from 'react';
+import React, { useState, JSXElementConstructor, ReactElement } from 'react';
 
 interface Props {
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
