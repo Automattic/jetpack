@@ -3,6 +3,7 @@ import { Pie } from '@visx/shape';
 import { Text } from '@visx/text';
 import clsx from 'clsx';
 import { FC } from 'react';
+import { useChartTheme } from '../../providers/theme/theme-provider';
 import styles from './pie-semi-circle-chart.module.scss';
 import type { DataPointPercentage } from '../shared/types';
 
@@ -38,13 +39,15 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 	label,
 	note,
 } ) => {
+	const providerTheme = useChartTheme();
 	const centerX = width / 2;
 	const centerY = height;
 
 	const accessors = {
 		value: d => d.value,
 		sort: ( a, b ) => a.value - b.value,
-		fill: d => d.data.color,
+		// Take the color from the theme or the data object
+		fill: d => providerTheme.colors[ d.index ] || d.data.color,
 	};
 
 	return (

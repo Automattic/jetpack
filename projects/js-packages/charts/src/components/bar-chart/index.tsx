@@ -5,6 +5,7 @@ import { scaleBand, scaleLinear } from '@visx/scale';
 import { Bar } from '@visx/shape';
 import { useTooltip } from '@visx/tooltip';
 import React from 'react';
+import { useChartTheme } from '../../providers/theme';
 import { Tooltip } from '../tooltip';
 import type { DataPoint } from '../shared/types';
 
@@ -28,6 +29,7 @@ function BarChart( { data, width, height, margin, showTooltips = false }: BarCha
 	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
 		useTooltip< DataPoint >();
 
+	const theme = useChartTheme();
 	const margins = { top: 20, right: 20, bottom: 40, left: 40, ...margin };
 	const xMax = width - margins.left - margins.right;
 	const yMax = height - margins.top - margins.bottom;
@@ -80,7 +82,7 @@ function BarChart( { data, width, height, margin, showTooltips = false }: BarCha
 							y={ yScale( d.value ) }
 							width={ xScale.bandwidth() }
 							height={ yMax - ( yScale( d.value ) ?? 0 ) }
-							fill="#0675C4"
+							fill={ theme.colors[ 0 ] }
 							onMouseMove={ getMouseMoveHandler( d ) }
 							onMouseLeave={ showTooltips ? handleMouseLeave : undefined }
 						/>

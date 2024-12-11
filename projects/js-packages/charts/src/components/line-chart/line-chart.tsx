@@ -1,4 +1,5 @@
 import { XYChart, AnimatedLineSeries, AnimatedAxis, AnimatedGrid, Tooltip } from '@visx/xychart';
+import { buildChartTheme } from '@visx/xychart';
 import clsx from 'clsx';
 import { FC } from 'react';
 import { useChartTheme } from '../../providers/theme/theme-provider';
@@ -66,11 +67,23 @@ const LineChart: FC< LineChartProps > = ( {
 	height,
 	margin = { top: 20, right: 20, bottom: 40, left: 40 },
 } ) => {
-	const theme = useChartTheme();
+	const providerTheme = useChartTheme();
 	const accessors = {
 		xAccessor: ( d: DataPointDate ) => d.date,
 		yAccessor: ( d: DataPointDate ) => d.value,
 	};
+
+	// Use theme to construct XYChart theme
+	const chartTheme = {
+		backgroundColor: providerTheme.backgroundColor,
+		colors: providerTheme.colors,
+		gridStyles: providerTheme.gridStyles,
+		tickLength: providerTheme?.tickLength || 0,
+		gridColor: providerTheme?.gridColor || '',
+		gridColorDark: providerTheme?.gridColorDark || '',
+	};
+
+	const theme = buildChartTheme( chartTheme );
 
 	//
 	return (
