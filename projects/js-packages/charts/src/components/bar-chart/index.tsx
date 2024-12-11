@@ -26,7 +26,7 @@ type BarChartProps = {
  * @return {JSX.Element} The rendered bar chart component
  */
 function BarChart( { data, width, height, margin, showTooltips = false }: BarChartProps ) {
-	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
+	const { tooltipData, tooltipLeft, tooltipTop, hideTooltip, showTooltip } =
 		useTooltip< DataPoint >();
 
 	const theme = useChartTheme();
@@ -46,29 +46,16 @@ function BarChart( { data, width, height, margin, showTooltips = false }: BarCha
 	} );
 
 	const handleMouseMove = React.useCallback(
-		( event: React.MouseEvent< SVGRectElement >, datum: DataPoint ) => {
+		( d: DataPoint ) => ( event: React.MouseEvent< SVGRectElement > ) => {
 			const coords = localPoint( event );
 			if ( ! coords ) return;
-
 			showTooltip( {
-				tooltipData: datum,
+				tooltipData: d,
 				tooltipLeft: coords.x,
 				tooltipTop: coords.y - 10,
 			} );
 		},
 		[ showTooltip ]
-	);
-
-	const handleMouseLeave = React.useCallback( () => {
-		hideTooltip();
-	}, [ hideTooltip ] );
-
-	const getMouseMoveHandler = React.useCallback(
-		( d: DataPoint ) => {
-			if ( ! showTooltips ) return undefined;
-			return ( event: React.MouseEvent< SVGRectElement > ) => handleMouseMove( event, d );
-		},
-		[ showTooltips, handleMouseMove ]
 	);
 
 	return (
@@ -83,23 +70,16 @@ function BarChart( { data, width, height, margin, showTooltips = false }: BarCha
 							width={ xScale.bandwidth() }
 							height={ yMax - ( yScale( d.value ) ?? 0 ) }
 							fill={ theme.colors[ 0 ] }
-							onMouseMove={ getMouseMoveHandler( d ) }
-							onMouseLeave={ showTooltips ? handleMouseLeave : undefined }
+							onMouseMove={ handleMouseMove( d ) }
+							onMouseLeave={ showTooltips ? hideTooltip : undefined }
 						/>
 					) ) }
 					<AxisLeft scale={ yScale } />
 					<AxisBottom scale={ xScale } top={ yMax } />
 				</Group>
 			</svg>
-			{ showTooltips && tooltipOpen && tooltipData && (
-				<BaseTooltip
-					data={ tooltipData }
-					top={ tooltipTop }
-					left={ tooltipLeft }
-					style={ {
-						transform: 'translate(-50%, -100%)',
-					} }
-				/>
+			{ showTooltips && tooltipData && (
+				<BaseTooltip data={ tooltipData } top={ tooltipTop } left={ tooltipLeft } />
 			) }
 		</div>
 	);
