@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\Publicize;
 
-use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Settings;
@@ -158,8 +157,7 @@ class Publicize_Script_Data {
 
 		return array(
 			'connectionData' => array(
-				// We do not have this method on WPCOM Publicize class yet.
-				'connections' => ! $is_wpcom ? self::publicize()->get_all_connections_for_user() : array(),
+				'connections' => Connections::get_all( array( 'clear_cache' => true ) ),
 			),
 			'shareStatus'    => $share_status,
 		);
@@ -221,30 +219,10 @@ class Publicize_Script_Data {
 	/**
 	 * Get the list of supported Publicize services.
 	 *
-	 * @return array List of external services and their settings.
+	 * @return array List of supported Publicize services.
 	 */
 	public static function get_supported_services() {
-		$site_id = Manager::get_site_id();
-		if ( is_wp_error( $site_id ) ) {
-			return array();
-		}
-		$path     = sprintf( '/sites/%d/external-services', $site_id );
-		$response = Client::wpcom_json_api_request_as_user( $path );
-		if ( is_wp_error( $response ) ) {
-			return array();
-		}
-		$body = json_decode( wp_remote_retrieve_body( $response ) );
-
-		$services = $body->services ?? array();
-
-		return array_values(
-			array_filter(
-				(array) $services,
-				function ( $service ) {
-					return isset( $service->type ) && 'publicize' === $service->type;
-				}
-			)
-		);
+		return Services::get_all();
 	}
 
 	/**
@@ -256,17 +234,24 @@ class Publicize_Script_Data {
 
 		$is_simple_site = ( new Host() )->is_wpcom_simple();
 
+		$commom_paths = array(
+			'refreshConnections' => '/wpcom/v3/publicize/connections?test_connections=1',
+		);
+
+		$specific_paths = array();
+
 		if ( $is_simple_site ) {
-			return array(
-				'refreshConnections' => '/wpcom/v2/publicize/connection-test-results',
-				'resharePost'        => '/wpcom/v2/posts/{postId}/publicize',
+
+			$specific_paths = array(
+				'resharePost' => '/wpcom/v2/posts/{postId}/publicize',
+			);
+		} else {
+			$specific_paths = array(
+				'resharePost' => '/jetpack/v4/publicize/{postId}',
 			);
 		}
 
-		return array(
-			'refreshConnections' => '/jetpack/v4/publicize/connections?test_connections=1',
-			'resharePost'        => '/jetpack/v4/publicize/{postId}',
-		);
+		return array_merge( $commom_paths, $specific_paths );
 	}
 
 	/**
