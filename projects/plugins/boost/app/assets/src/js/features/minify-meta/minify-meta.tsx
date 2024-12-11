@@ -43,6 +43,7 @@ const MetaComponent = ( { buttonText, placeholder, datasyncKey }: Props ) => {
 
 	const htmlId = `jb-minify-meta-${ datasyncKey }`;
 
+	// Be explicit about this because the optimizer breaks the linter otherwise.
 	let summary;
 	if ( values.length > 0 ) {
 		/* Translators: %s refers to the list of excluded items. */
@@ -53,7 +54,6 @@ const MetaComponent = ( { buttonText, placeholder, datasyncKey }: Props ) => {
 		summary = __( 'No exceptions.', 'jetpack-boost' );
 	}
 
-	// Be explicit about this because the optimizer breaks the linter otherwise.
 	let subHeaderText = '';
 	if ( datasyncKey === 'minify_js_excludes' ) {
 		subHeaderText = __( 'Exclude JS Strings:', 'jetpack-boost' );
