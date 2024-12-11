@@ -109,14 +109,14 @@ class Services_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * Get list of connected Publicize connections.
+	 * Get a list of Publicize supported services.
 	 *
-	 * @param WP_REST_Request $request Full details about the request.
+	 * @param bool $is_wpcom Whether we are on WPCOM.
 	 *
-	 * @return WP_REST_Response suitable for 1-page collection
+	 * @return array
 	 */
-	public function get_items( $request ) {
-		if ( $this->is_wpcom ) {
+	public static function get_supported_services( $is_wpcom = false ) {
+		if ( $is_wpcom ) {
 			if ( function_exists( 'require_lib' ) ) {
 				// @phan-suppress-next-line PhanUndeclaredFunction - phan is dumb not to see the function_exists check.
 				require_lib( 'external-connections' );
@@ -129,30 +129,52 @@ class Services_Controller extends WP_REST_Controller {
 
 			$services = array_values( $services );
 
-			return rest_ensure_response( $services );
+			return $services;
 
 		} else {
 			$site_id = Manager::get_site_id( true );
 			if ( ! $site_id ) {
-				return rest_ensure_response( array() );
+				return array();
 			}
 
-			$path = add_query_arg(
-				$request->get_query_params(),
-				sprintf( '/sites/%d/' . $this->rest_base, $site_id )
-			);
+			$path = sprintf( '/sites/%d/publicize/services', $site_id );
 
 			$response = Client::wpcom_json_api_request_as_user( $path, 'v3', array( 'method' => 'GET' ) );
 
 			if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
 				// TODO log error.
-				return rest_ensure_response( array() );
+				return array();
 			}
 
-			return rest_ensure_response(
-				json_decode( wp_remote_retrieve_body( $response ), true )
-			);
+			$body = wp_remote_retrieve_body( $response );
+
+			$items = json_decode( $body, true );
+
+			return $items ? $items : array();
 		}
+	}
+
+	/**
+	 * Get list of connected Publicize connections.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 *
+	 * @return WP_REST_Response suitable for 1-page collection
+	 */
+	public function get_items( $request ) {
+		$items = array();
+
+		foreach ( self::get_supported_services( $this->is_wpcom ) as $item ) {
+			$data = $this->prepare_item_for_response( $item, $request );
+
+			$items[] = $this->prepare_response_for_collection( $data );
+		}
+
+		$response = rest_ensure_response( $items );
+		$response->header( 'X-WP-Total', count( $items ) );
+		$response->header( 'X-WP-TotalPages', 1 );
+
+		return $response;
 	}
 
 	/**
