@@ -10,10 +10,6 @@ import { recordBoostEvent } from '$lib/utils/analytics';
 
 type Props = {
 	scoreChange: number | false; // Speed score shift to show, or false if none.
-	scores: {
-		mobile: number;
-		desktop: number;
-	};
 };
 
 /**
@@ -58,7 +54,7 @@ const slowerMessage: ScoreChangeMessage = {
 	ctaLink: getRedirectUrl( 'boost-improve-site-speed-score' ),
 };
 
-function PopOut( { scoreChange, scores }: Props ) {
+function PopOut( { scoreChange }: Props ) {
 	/*
 	 * Determine if the score has changed enough to show the alert.
 	 */
@@ -84,8 +80,6 @@ function PopOut( { scoreChange, scores }: Props ) {
 	if ( hasScoreChanged ) {
 		recordBoostEvent( 'speed_score_alert_shown', {
 			score_direction: scoreChange > 0 ? 'up' : 'down',
-			mobile_score: scores.mobile,
-			desktop_score: scores.desktop,
 		} );
 	}
 
