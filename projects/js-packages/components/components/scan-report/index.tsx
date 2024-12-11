@@ -164,6 +164,7 @@ export default function ScanReport( { dataSource, data, onChangeSelection } ): J
 			{
 				id: FIELD_VERSION,
 				label: __( 'Version', 'jetpack-components' ),
+				enableSorting: false,
 				enableGlobalSearch: true,
 				getValue( { item }: { item: ScanReportExtension } ) {
 					return item.version ? item.version : '';
