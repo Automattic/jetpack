@@ -1,13 +1,15 @@
 <script lang="ts">
+	/* eslint-disable import/no-duplicates -- https://github.com/import-js/eslint-plugin-import/issues/2992 */
 	import { createEventDispatcher } from 'svelte';
 	import { slide } from 'svelte/transition';
+	import type { Writable } from 'svelte/store';
+	/* eslint-enable import/no-duplicates */
 	import { maybeStringify } from '../../../packages/Async_Option/scripts/utils';
 	import { API } from '../Options';
 	import { EntryData } from '../utils/ZodSchema';
 	import { createPersistentStore } from '../utils/peristentStore';
 	import FormError from './FormError.svelte';
 	import type { LogEntry } from '../utils/ZodSchema';
-	import type { Writable } from 'svelte/store';
 	import type { ZodFormattedError } from 'zod';
 
 	export let logEntry: LogEntry | false = false;
