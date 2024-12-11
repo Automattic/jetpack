@@ -53,6 +53,13 @@ trait Woo_Analytics_Trait {
 	protected $additional_blocks_on_checkout_page;
 
 	/**
+	 *  Session ID.
+	 *
+	 *  @var string
+	 */
+	protected $session_id;
+
+	/**
 	 * Format Cart Items or Order Items to an array
 	 *
 	 * @param array|WC_Order_Item[] $items Cart Items or Order Items.

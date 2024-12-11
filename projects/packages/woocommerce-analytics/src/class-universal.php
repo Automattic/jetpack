@@ -21,13 +21,6 @@ class Universal {
 	use Woo_Analytics_Trait;
 
 	/**
-	 *  Session ID.
-	 *
-	 *  @var string $session_id
-	 */
-	public $session_id;
-
-	/**
 	 * Constructor.
 	 */
 	public function init_hooks() {
