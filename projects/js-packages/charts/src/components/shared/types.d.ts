@@ -28,7 +28,7 @@ export type DataPointPercentage = {
 	 */
 	percentage: number;
 	/**
-	 * Color code for the segment
+	 * Color code for the segment, by default colours are taken from the theme but this property can overrides it
 	 */
 	color?: string;
 };

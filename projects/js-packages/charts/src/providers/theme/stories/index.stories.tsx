@@ -42,18 +42,28 @@ const pieData = [
 	},
 ];
 
+const GridComponent = ( { children } ) => {
+	return (
+		<div style={ { display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' } }>
+			{ children }
+		</div>
+	);
+};
+
 export const Default: Story = {
 	render: () => (
 		<ThemeProvider>
-			<LineChart data={ sampleData } width={ 600 } height={ 400 } />
-			<BarChart data={ sampleData } width={ 600 } height={ 400 } />
-			<PieSemiCircleChart
-				data={ pieData }
-				width={ 600 }
-				height={ 400 }
-				label="Pie Chart"
-				note="Default Theme"
-			/>
+			<GridComponent>
+				<LineChart data={ sampleData } width={ 400 } height={ 300 } />
+				<BarChart data={ sampleData } width={ 400 } height={ 300 } />
+				<PieSemiCircleChart
+					data={ pieData }
+					width={ 400 }
+					height={ 200 }
+					label="Pie Chart"
+					note="Default Theme"
+				/>
+			</GridComponent>
 		</ThemeProvider>
 	),
 };
@@ -61,15 +71,17 @@ export const Default: Story = {
 export const JetpackTheme: Story = {
 	render: () => (
 		<ThemeProvider theme={ jetpackTheme }>
-			<LineChart data={ sampleData } width={ 600 } height={ 400 } />
-			<BarChart data={ sampleData } width={ 600 } height={ 400 } />
-			<PieSemiCircleChart
-				data={ pieData }
-				width={ 600 }
-				height={ 400 }
-				label="Pie Chart"
-				note="Jetpack Theme"
-			/>
+			<GridComponent>
+				<LineChart data={ sampleData } width={ 400 } height={ 300 } />
+				<BarChart data={ sampleData } width={ 400 } height={ 300 } />
+				<PieSemiCircleChart
+					data={ pieData }
+					width={ 400 }
+					height={ 200 }
+					label="Pie Chart"
+					note="Jetpack Theme"
+				/>
+			</GridComponent>
 		</ThemeProvider>
 	),
 };
@@ -77,15 +89,17 @@ export const JetpackTheme: Story = {
 export const WooTheme: Story = {
 	render: () => (
 		<ThemeProvider theme={ wooTheme }>
-			<LineChart data={ sampleData } width={ 600 } height={ 400 } />
-			<BarChart data={ sampleData } width={ 600 } height={ 400 } />
-			<PieSemiCircleChart
-				data={ pieData }
-				width={ 600 }
-				height={ 400 }
-				label="Pie Chart"
-				note="Woo Theme"
-			/>
+			<GridComponent>
+				<LineChart data={ sampleData } width={ 400 } height={ 300 } />
+				<BarChart data={ sampleData } width={ 400 } height={ 300 } />
+				<PieSemiCircleChart
+					data={ pieData }
+					width={ 400 }
+					height={ 200 }
+					label="Pie Chart"
+					note="Woo Theme"
+				/>
+			</GridComponent>
 		</ThemeProvider>
 	),
 };
@@ -94,22 +108,24 @@ export const CustomColorTheme: Story = {
 	render: () => (
 		<ThemeProvider
 			theme={ {
-				colors: [ '#ff6b6b', '#ff9b9b', '#ffc6c6' ],
+				colors: [ '#073B3A', '#0B6E4F', '#08A045', '#6BBF59', '#DDB771' ],
 				gridStyles: {
 					stroke: '#ffe3e3',
 					strokeWidth: 2,
 				},
 			} }
 		>
-			<LineChart data={ sampleData } width={ 600 } height={ 400 } />
-			<BarChart data={ sampleData } width={ 600 } height={ 400 } />
-			<PieSemiCircleChart
-				data={ pieData }
-				width={ 600 }
-				height={ 400 }
-				label="Pie Chart"
-				note="Custom Color Theme"
-			/>
+			<GridComponent>
+				<LineChart data={ sampleData } width={ 400 } height={ 300 } />
+				<BarChart data={ sampleData } width={ 400 } height={ 300 } />
+				<PieSemiCircleChart
+					data={ pieData }
+					width={ 400 }
+					height={ 200 }
+					label="Pie Chart"
+					note="Custom Color Theme"
+				/>
+			</GridComponent>
 		</ThemeProvider>
 	),
 };
