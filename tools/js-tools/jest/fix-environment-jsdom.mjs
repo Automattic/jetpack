@@ -4,10 +4,10 @@
  * @see https://github.com/jsdom/jsdom/issues/3363#issuecomment-1467894943
  */
 
-import JSDOMEnvironment from 'jest-environment-jsdom';
+import { TestEnvironment as JSDOMEnvironment } from 'jest-environment-jsdom';
 
 export default class FixJSDOMEnvironment extends JSDOMEnvironment {
-	constructor( ...args: ConstructorParameters< typeof JSDOMEnvironment > ) {
+	constructor( ...args ) {
 		super( ...args );
 
 		// FIXME https://github.com/jsdom/jsdom/issues/3363
