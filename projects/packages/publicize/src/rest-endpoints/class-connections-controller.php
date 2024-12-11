@@ -10,45 +10,24 @@ namespace Automattic\Jetpack\Publicize\Rest_Endpoints;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Publicize\Connection_Fields;
-use WP_Error;
-use WP_REST_Controller;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_REST_Server;
 
 /**
- * Registers the REST routes
+ * Connections Controller class.
  */
-class Connections_Controller extends WP_REST_Controller {
-
-	/**
-	 * Whether we are on WPCOM.
-	 *
-	 * @var bool $is_wpcom
-	 */
-	protected $is_wpcom = false;
+class Connections_Controller extends Base_Controller {
 
 	/**
 	 * Constructor.
 	 */
 	public function __construct() {
-		$this->namespace = 'wpcom/v3';
+		parent::__construct();
+
 		$this->rest_base = 'publicize/connections';
 
 		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
-
-		$this->is_wpcom = defined( 'IS_WPCOM' ) && IS_WPCOM;
-
-		$this->wpcom_is_wpcom_only_endpoint = true;
-	}
-
-	/**
-	 * Check if we are on WPCOM.
-	 *
-	 * @return bool
-	 */
-	protected static function is_wpcom() {
-		return defined( 'IS_WPCOM' ) && IS_WPCOM;
 	}
 
 	/**
@@ -268,60 +247,8 @@ class Connections_Controller extends WP_REST_Controller {
 
 		return $test_results_map;
 	}
-
-	/**
-	 * Filters out data based on ?_fields= request parameter
-	 *
-	 * @param array           $item    Item to prepare.
-	 * @param WP_REST_Request $request Full details about the request.
-	 *
-	 * @return WP_REST_Response filtered item
-	 */
-	public function prepare_item_for_response( $item, $request ) {
-		if ( ! is_callable( array( $this, 'get_fields_for_response' ) ) ) {
-			return rest_ensure_response( $item );
-		}
-
-		$fields = $this->get_fields_for_response( $request );
-
-		$response_data = array();
-		foreach ( $item as $field => $value ) {
-			if ( in_array( $field, $fields, true ) ) {
-				$response_data[ $field ] = $value;
-			}
-		}
-
-		return rest_ensure_response( $response_data );
-	}
-
-	/**
-	 * Verify that user can access Publicize data
-	 *
-	 * @return true|WP_Error
-	 */
-	public function get_items_permission_check() {
-		global $publicize;
-
-		if ( ! $publicize ) {
-			return new WP_Error(
-				'publicize_not_available',
-				__( 'Sorry, Jetpack Social is not available on your site right now.', 'jetpack-publicize-pkg' ),
-				array( 'status' => rest_authorization_required_code() )
-			);
-		}
-
-		if ( $publicize->current_user_can_access_publicize_data() ) {
-			return true;
-		}
-
-		return new WP_Error(
-			'invalid_user_permission_publicize',
-			__( 'Sorry, you are not allowed to access Jetpack Social data on this site.', 'jetpack-publicize-pkg' ),
-			array( 'status' => rest_authorization_required_code() )
-		);
-	}
 }
 
-if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+if ( Base_Controller::is_wpcom() ) {
 	wpcom_rest_api_v2_load_plugin( Connections_Controller::class );
 }
