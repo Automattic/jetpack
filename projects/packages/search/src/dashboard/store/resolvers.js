@@ -23,7 +23,7 @@ export function* getSearchModuleStatus() {
 		if ( settings ) {
 			return setJetpackSettings( settings );
 		}
-	} catch ( e ) {
+	} catch {
 		return errorNotice( __( 'Error fetching settings…', 'jetpack-search-pkg' ) );
 	}
 }
@@ -40,7 +40,7 @@ export function* getSearchPlanInfo() {
 		if ( planInfo ) {
 			return setSearchPlanInfo( planInfo );
 		}
-	} catch ( e ) {
+	} catch {
 		return errorNotice( __( 'Error fetching search plan…', 'jetpack-search-pkg' ) );
 	}
 }
@@ -57,7 +57,7 @@ export function* getSearchStats() {
 		if ( stats ) {
 			return setSearchStats( stats );
 		}
-	} catch ( e ) {
+	} catch {
 		return errorNotice( __( 'Error fetching search stats', 'jetpack-search-pkg' ) );
 	}
 }
@@ -74,7 +74,7 @@ export function* getSearchPricing() {
 		if ( pricing ) {
 			return setSearchPricing( pricing );
 		}
-	} catch ( e ) {
+	} catch {
 		// we just ignore the notice.
 	}
 }

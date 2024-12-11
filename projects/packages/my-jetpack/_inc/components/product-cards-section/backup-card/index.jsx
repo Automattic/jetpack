@@ -233,7 +233,6 @@ const NoBackupsValueSection = props => {
 		<ProductCard { ...props } showMenu isDataLoading={ isLoading }>
 			<div className={ styles[ 'no-backup-stats' ] }>
 				{ /* role="list" is required for VoiceOver on Safari */ }
-				{ /* eslint-disable-next-line jsx-a11y/no-redundant-roles */ }
 				<ul className={ styles[ 'main-stats' ] } role="list">
 					{ sortedStats.map( ( item, i ) => {
 						const itemSlug = item[ 0 ].split( '_' )[ 1 ];

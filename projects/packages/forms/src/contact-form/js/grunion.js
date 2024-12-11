@@ -283,8 +283,8 @@ FB.ContactForm = ( function () {
 					'select' === value.type ||
 					'checkbox-multiple' === value.type
 				) {
-					jQuery.each( value.options, function ( i, value ) {
-						optionsCache[ index ].options[ i ] = value;
+					jQuery.each( value.options, function ( i, v ) {
+						optionsCache[ index ].options[ i ] = v;
 					} );
 				}
 				updateType( value.type, value.label, value.required );
@@ -683,7 +683,7 @@ FB.ContactForm = ( function () {
 				} else {
 					try {
 						win.send_to_editor( response );
-					} catch ( e ) {
+					} catch {
 						if ( isVisual ) {
 							win.tinyMCE.activeEditor.execCommand( 'mceInsertContent', false, response );
 						} else {

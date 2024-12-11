@@ -22,8 +22,7 @@ import {
 } from '@wordpress/icons';
 import clsx from 'clsx';
 import { useEffect } from 'react';
-import { useHistory, Prompt } from 'react-router-dom';
-import { Link } from 'react-router-dom';
+import { useHistory, Prompt, Link } from 'react-router-dom';
 /**
  * Internal dependencies
  */

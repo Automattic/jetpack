@@ -23,7 +23,7 @@ class I18nLoader {
 		if ( ret === null ) {
 			throw new Error( `Path ${ path } was requested multiple times` );
 		}
-		this.expect[ expect ] = null;
+		this.expect[ path ] = null;
 		return ret( domain );
 	}
 

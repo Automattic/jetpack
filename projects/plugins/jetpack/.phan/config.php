@@ -10,26 +10,22 @@
 // Require base config.
 require __DIR__ . '/../../../../.phan/config.base.php';
 
-return make_phan_config(
+$config = make_phan_config(
 	dirname( __DIR__ ),
 	array(
 		'+stubs'                          => array( 'akismet', 'amp', 'full-site-editing', 'woocommerce', 'woocommerce-internal', 'woocommerce-packages', 'wpcom' ),
 		'exclude_file_list'               => array(
 			// Mocks of core classes.
-			'tests/php/_inc/lib/mocks/class-simplepie-file.php',
-			'tests/php/_inc/lib/mocks/class-simplepie-item.php',
-			'tests/php/_inc/lib/mocks/class-simplepie-locator.php',
-			'tests/php/_inc/lib/mocks/class-simplepie.php',
+			'tests/php/_inc/lib/mocks/simplepie.php',
 			// Mocks of wpcom classes and functions.
 			'tests/php/lib/class-wpcom-features.php',
 			'tests/php/lib/mock-functions.php',
 			// Temporary duplicated defintions of classes.
 			'_inc/lib/class.color.php',
+			// One or the other of the SimplePie alias files.
+			'_inc/lib/jp-simplepie-alias-' . ( getenv( 'NO_PHAN_UNUSED_SUPPRESSION' ) ? 'new' : 'old' ) . '.php',
 		),
-		'exclude_analysis_directory_list' => array(
-			// This file breaks analysis, Phan gets lost recursing in trying to figure out some types.
-			// @todo Add type declarations so Phan won't have to do it itself. Or update to a modern less lib.
-		),
+		'exclude_analysis_directory_list' => array(),
 		'parse_file_list'                 => array(
 			// Reference files to handle code checking for stuff from other in-monorepo plugins.
 			// Wherever feasible we should really clean up this sort of thing instead of adding stuff here.
@@ -45,3 +41,8 @@ return make_phan_config(
 		),
 	)
 );
+
+// For the WP 6.6 SimplePie stuff if nothing else.
+$config['enable_class_alias_support'] = true;
+
+return $config;

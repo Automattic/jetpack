@@ -333,8 +333,6 @@ export default function withMedia( mediaSource = MediaSource.Unknown ) {
 					this.state;
 				const { allowedTypes, multiple = false, noticeUI, onClose } = this.props;
 
-				// eslint-disable-next-line no-nested-ternary
-
 				const defaultTitle =
 					mediaSource !== 'jetpack_app_media' ? __( 'Select media', 'jetpack' ) : '';
 

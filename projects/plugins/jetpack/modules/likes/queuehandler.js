@@ -24,7 +24,7 @@ function JetpackLikesPostMessage( message, target ) {
 	if ( typeof message === 'string' ) {
 		try {
 			message = JSON.parse( message );
-		} catch ( e ) {
+		} catch {
 			return;
 		}
 	}
@@ -38,8 +38,8 @@ function JetpackLikesPostMessage( message, target ) {
 				} ),
 				'*'
 			);
-		} catch ( e ) {
-			return;
+		} catch {
+			// Ignore error
 		}
 	}
 }
@@ -94,7 +94,7 @@ function JetpackLikesMessageListener( event ) {
 	if ( typeof message === 'string' ) {
 		try {
 			message = JSON.parse( message );
-		} catch ( err ) {
+		} catch {
 			return;
 		}
 	}
@@ -131,17 +131,17 @@ function JetpackLikesMessageListener( event ) {
 				}
 
 				stylesData.textStyles = {
-					color: sdTextColorStyles[ 'color' ],
+					color: sdTextColorStyles.color,
 					fontFamily: sdTextColorStyles[ 'font-family' ],
 					fontSize: sdTextColorStyles[ 'font-size' ],
-					direction: sdTextColorStyles[ 'direction' ],
+					direction: sdTextColorStyles.direction,
 					fontWeight: sdTextColorStyles[ 'font-weight' ],
 					fontStyle: sdTextColorStyles[ 'font-style' ],
 					textDecoration: sdTextColorStyles[ 'text-decoration' ],
 				};
 
 				stylesData.linkStyles = {
-					color: sdLinkColorStyles[ 'color' ],
+					color: sdLinkColorStyles.color,
 					fontFamily: sdLinkColorStyles[ 'font-family' ],
 					fontSize: sdLinkColorStyles[ 'font-size' ],
 					textDecoration: sdLinkColorStyles[ 'text-decoration' ],
