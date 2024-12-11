@@ -55,7 +55,7 @@ wp_embed_register_handler( 'facebook-alternate-video', JETPACK_FACEBOOK_VIDEO_AL
  * @return string Facebook embed markup.
  */
 function jetpack_facebook_embed_handler( $matches, $attr, $url ) {
-	$extra_styles = 'style="background-color: #fff;"';
+	$extra_styles = 'style="background-color: #fff; display: inline-block;"';
 
 	if (
 		str_contains( $url, 'video.php' )
