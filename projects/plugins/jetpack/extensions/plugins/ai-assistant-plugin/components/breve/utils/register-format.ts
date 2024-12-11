@@ -58,7 +58,9 @@ export function registerBreveHighlight( feature: BreveFeature ) {
 				getReloadFlag,
 			} = select( 'jetpack/ai-breve' ) as BreveSelect;
 
-			const { isModuleActive } = select( JETPACK_MODULES_STORE_ID );
+			const { isModuleActive } = select( JETPACK_MODULES_STORE_ID ) as {
+				isModuleActive: ( module: string ) => boolean;
+			};
 			const isAiModuleActive = isModuleActive( 'ai' );
 
 			const canBeEnabled = canWriteBriefBeEnabled();
