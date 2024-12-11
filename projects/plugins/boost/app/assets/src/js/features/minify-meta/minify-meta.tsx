@@ -109,7 +109,7 @@ const MetaComponent = ( { buttonText, placeholder, datasyncKey }: Props ) => {
 						className={ styles.button }
 						variant="link"
 					>
-						{ __( 'Load default strings', 'jetpack-boost' ) }
+						{ __( 'Load default handles', 'jetpack-boost' ) }
 					</Button>
 				</div>
 			</div>
