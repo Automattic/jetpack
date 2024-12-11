@@ -117,6 +117,75 @@ function wpcom_admin_interface_pre_update_option( $new_value, $old_value ) {
 add_filter( 'pre_update_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_update_option', 10, 2 );
 
 /**
+ * Get the current screen section.
+ *
+ * Temporary function copied from Base_Admin_Menu.
+ *
+ * return string
+ */
+function wpcom_admin_get_current_screen() {
+	// phpcs:disable WordPress.Security.NonceVerification
+	global $pagenow;
+	$screen = isset( $_REQUEST['screen'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['screen'] ) ) : $pagenow;
+	if ( isset( $_GET['post_type'] ) ) {
+		$screen = add_query_arg( 'post_type', sanitize_text_field( wp_unslash( $_GET['post_type'] ) ), $screen );
+	}
+	if ( isset( $_GET['taxonomy'] ) ) {
+		$screen = add_query_arg( 'taxonomy', sanitize_text_field( wp_unslash( $_GET['taxonomy'] ) ), $screen );
+	}
+	if ( isset( $_GET['page'] ) ) {
+		$screen = add_query_arg( 'page', sanitize_text_field( wp_unslash( $_GET['page'] ) ), $screen );
+	}
+	return $screen;
+	// phpcs:enable WordPress.Security.NonceVerification
+}
+
+/**
+ * Override the wpcom_admin_interface option with experiment variation.
+ *
+ * @param mixed $default_value The value to return instead of the option value.
+ *
+ * @return string Filtered wpcom_admin_interface option.
+ */
+function wpcom_admin_interface_pre_get_option( $default_value ) {
+	$enabled_screens = array(
+		'edit.php',
+	);
+
+	$current_screen = wpcom_admin_get_current_screen();
+
+	if ( in_array( $current_screen, $enabled_screens, true ) && wpcom_is_duplicate_views_experiment_enabled() ) {
+		return 'wp-admin';
+	}
+
+	return $default_value;
+}
+
+/**
+ * Change the Admin menu links to WP-Admin for specific sections.
+ *
+ * @param array $value Preferred views.
+ *
+ * @return array Filtered preferred views.
+ */
+function wpcom_admin_get_user_option_jetpack( $value ) {
+	if ( ! wpcom_is_duplicate_views_experiment_enabled() ) {
+		return $value;
+	}
+
+	if ( ! is_array( $value ) ) {
+		$value = array();
+	}
+
+	$value['edit.php'] = Automattic\Jetpack\Masterbar\Base_Admin_Menu::CLASSIC_VIEW;
+
+	return $value;
+}
+
+add_filter( 'get_user_option_jetpack_admin_menu_preferred_views', 'wpcom_admin_get_user_option_jetpack' );
+add_filter( 'pre_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_get_option', 10 );
+
+/**
  * Determines whether the admin interface has been recently changed by checking the presence of the `admin-interface-changed` query param.
  *
  * @return bool
