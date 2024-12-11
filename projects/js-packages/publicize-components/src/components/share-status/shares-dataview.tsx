@@ -33,7 +33,7 @@ export function SharesDataView( { postShareStatus }: SharesDataViewProps ) {
 				fields={ [
 					{
 						id: 'connection',
-						label: __( 'Connection', 'jetpack' ),
+						label: __( 'Connection', 'jetpack-publicize-components' ),
 						render: ( { item } ) => (
 							<div className={ styles[ 'connection-name' ] }>
 								<ConnectionIcon
@@ -51,7 +51,7 @@ export function SharesDataView( { postShareStatus }: SharesDataViewProps ) {
 					},
 					{
 						id: 'timestamp',
-						label: __( 'Time', 'jetpack' ),
+						label: __( 'Time', 'jetpack-publicize-components' ),
 						render: ( { item } ) => {
 							return humanTimeDiff(
 								// @ts-expect-error - humanTimeDiff is incorrectly typed, first argument can be a timestamp
@@ -64,7 +64,7 @@ export function SharesDataView( { postShareStatus }: SharesDataViewProps ) {
 					},
 					{
 						id: 'status',
-						label: __( 'Status', 'jetpack' ),
+						label: __( 'Status', 'jetpack-publicize-components' ),
 						render: ( { item } ) => (
 							<ShareStatusLabel status={ item.status } message={ item.message } />
 						),
@@ -73,7 +73,7 @@ export function SharesDataView( { postShareStatus }: SharesDataViewProps ) {
 					},
 					{
 						id: 'actions',
-						label: __( 'Actions', 'jetpack' ),
+						label: __( 'Actions', 'jetpack-publicize-components' ),
 						render: ( { item } ) => <ShareStatusAction shareItem={ item } />,
 						enableSorting: false,
 						enableHiding: false,
