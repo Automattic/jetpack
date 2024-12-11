@@ -20,6 +20,7 @@ export default {
 
 export const Default = args => <ScanReport { ...args } />;
 Default.args = {
+	dataSource: 'scan_api',
 	data: [
 		{
 			id: 1,
@@ -60,6 +61,12 @@ Default.args = {
 			threats: [
 				{
 					id: 198352406,
+					signature: 'EICAR_AV_Test_Suspicious',
+					title: 'Malicious code found in file: jptt_eicar.php',
+					severity: 1,
+				},
+				{
+					id: 198352407,
 					signature: 'EICAR_AV_Test_Suspicious',
 					title: 'Malicious code found in file: jptt_eicar.php',
 					severity: 1,

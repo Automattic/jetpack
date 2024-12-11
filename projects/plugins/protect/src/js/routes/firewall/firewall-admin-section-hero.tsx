@@ -88,12 +88,12 @@ const FirewallAdminSectionHero = () => {
 		<AdminSectionHero>
 			<AdminSectionHero.Main>
 				<Status
+					className={ styles.status }
 					status={ 'on' === status ? 'active' : 'inactive' }
 					label={ statusLabel }
-					className={ styles.status }
 				/>
 				<AdminSectionHero.Heading>{ heading }</AdminSectionHero.Heading>
-				<Text>{ subheading }</Text>
+				{ subheading }
 			</AdminSectionHero.Main>
 			{ wafSupported && (
 				<AdminSectionHero.Aside>
