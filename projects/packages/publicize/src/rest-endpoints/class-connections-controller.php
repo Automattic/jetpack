@@ -43,6 +43,15 @@ class Connections_Controller extends WP_REST_Controller {
 	}
 
 	/**
+	 * Check if we are on WPCOM.
+	 *
+	 * @return bool
+	 */
+	protected static function is_wpcom() {
+		return defined( 'IS_WPCOM' ) && IS_WPCOM;
+	}
+
+	/**
 	 * Register the routes.
 	 */
 	public function register_routes() {
@@ -177,13 +186,12 @@ class Connections_Controller extends WP_REST_Controller {
 	/**
 	 * Get a list of publicize connections.
 	 *
-	 * @param bool $is_wpcom Whether we are on WPCOM.
 	 * @param bool $run_tests Whether to run tests on the connections.
 	 *
 	 * @return array
 	 */
-	public static function get_connections( $is_wpcom, $run_tests = false ) {
-		if ( $is_wpcom ) {
+	public static function get_connections( $run_tests = false ) {
+		if ( self::is_wpcom() ) {
 			return self::get_all_connections( $run_tests );
 		}
 
@@ -223,7 +231,7 @@ class Connections_Controller extends WP_REST_Controller {
 
 		$run_tests = $request->get_param( 'test_connections' );
 
-		foreach ( self::get_connections( $this->is_wpcom, $run_tests ) as $item ) {
+		foreach ( self::get_connections( $run_tests ) as $item ) {
 			$data = $this->prepare_item_for_response( $item, $request );
 
 			$items[] = $this->prepare_response_for_collection( $data );
