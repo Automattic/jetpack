@@ -230,8 +230,8 @@ class Connections_Controller extends WP_REST_Controller {
 		}
 
 		$response = rest_ensure_response( $items );
-		$response->header( 'X-WP-Total', count( $items ) );
-		$response->header( 'X-WP-TotalPages', 1 );
+		$response->header( 'X-WP-Total', (string) count( $items ) );
+		$response->header( 'X-WP-TotalPages', '1' );
 
 		return $response;
 	}
