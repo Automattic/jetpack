@@ -138,7 +138,7 @@ class Connections_Controller extends WP_REST_Controller {
 	 *
 	 * @return array
 	 */
-	public static function get_all_connections( $run_tests = false ) {
+	protected static function get_all_connections( $run_tests = false ) {
 		/**
 		 * Publicize instance.
 		 *
@@ -175,6 +175,43 @@ class Connections_Controller extends WP_REST_Controller {
 	}
 
 	/**
+	 * Get a list of publicize connections.
+	 *
+	 * @param bool $is_wpcom Whether we are on WPCOM.
+	 * @param bool $run_tests Whether to run tests on the connections.
+	 *
+	 * @return array
+	 */
+	public static function get_connections( $is_wpcom, $run_tests = false ) {
+		if ( $is_wpcom ) {
+			return self::get_all_connections( $run_tests );
+		}
+
+		$site_id = Manager::get_site_id( true );
+		if ( ! $site_id ) {
+			return array();
+		}
+
+		$path = add_query_arg(
+			array( 'test_connections' => $run_tests ),
+			sprintf( '/sites/%d/publicize/connections', $site_id )
+		);
+
+		$response = Client::wpcom_json_api_request_as_user( $path, 'v3', array( 'method' => 'GET' ) );
+
+		if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			// TODO log error.
+			return array();
+		}
+
+		$body = wp_remote_retrieve_body( $response );
+
+		$items = json_decode( $body, true );
+
+		return $items ? $items : array();
+	}
+
+	/**
 	 * Get list of connected Publicize connections.
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
@@ -182,41 +219,21 @@ class Connections_Controller extends WP_REST_Controller {
 	 * @return WP_REST_Response suitable for 1-page collection
 	 */
 	public function get_items( $request ) {
-		if ( $this->is_wpcom ) {
-			$items = array();
+		$items = array();
 
-			$run_tests = $request->get_param( 'test_connections' );
+		$run_tests = $request->get_param( 'test_connections' );
 
-			$connections = self::get_all_connections( $run_tests );
+		foreach ( self::get_connections( $this->is_wpcom, $run_tests ) as $item ) {
+			$data = $this->prepare_item_for_response( $item, $request );
 
-			foreach ( $connections as $item ) {
-				$items[] = $this->prepare_item_for_response( $item, $request );
-			}
-
-			return rest_ensure_response( $items );
-
-		} else {
-			$site_id = Manager::get_site_id( true );
-			if ( ! $site_id ) {
-				return rest_ensure_response( array() );
-			}
-
-			$path = add_query_arg(
-				$request->get_query_params(),
-				sprintf( '/sites/%d/' . $this->rest_base, $site_id )
-			);
-
-			$response = Client::wpcom_json_api_request_as_user( $path, 'v3', array( 'method' => 'GET' ) );
-
-			if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
-				// TODO log error.
-				return rest_ensure_response( array() );
-			}
-
-			return rest_ensure_response(
-				json_decode( wp_remote_retrieve_body( $response ), true )
-			);
+			$items[] = $this->prepare_response_for_collection( $data );
 		}
+
+		$response = rest_ensure_response( $items );
+		$response->header( 'X-WP-Total', count( $items ) );
+		$response->header( 'X-WP-TotalPages', 1 );
+
+		return $response;
 	}
 
 	/**
