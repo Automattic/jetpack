@@ -1,6 +1,12 @@
-.product-section, .info-section {
-	margin-top: calc( var( --spacing-base ) * 7 ); // 56px
-	margin-bottom: calc( var( --spacing-base ) * 7 ); // 56px
+.scan-report-container {
+	padding-left: 0;
+	padding-right: 0;
+	overflow: hidden;
+
+	> * {
+		margin-left: calc( var( --spacing-base ) * -3 ); // -24px
+		margin-right: calc( var( --spacing-base ) * -3 ); // -24px
+	}
 }
 
 .view-scan-report {
@@ -55,7 +61,6 @@
 	border-radius: 4px;
 	text-align: left;
 }
-
 
 @media ( max-width: 599px ) {
     .stat-cards-wrapper {
