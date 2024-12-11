@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { useAiModule } from '@automattic/jetpack-ai-client';
 import { JetpackEditorPanelLogo, useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { PanelBody, PanelRow, BaseControl, ExternalLink } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
@@ -178,7 +179,7 @@ const JetpackAndSettingsContent = ( {
 	);
 };
 
-export default function AiAssistantPluginSidebar() {
+function PluginSidebar() {
 	const { requireUpgrade, upgradeType, currentTier, isOverLimit } = useAiFeature();
 	const { tracks } = useAnalytics();
 
@@ -268,6 +269,16 @@ export default function AiAssistantPluginSidebar() {
 			</PluginPrePublishPanel>
 		</>
 	);
+}
+
+export default function AiAssistantPluginSidebar() {
+	const { isAiModuleActive } = useAiModule();
+
+	if ( ! isAiModuleActive ) {
+		return null;
+	}
+
+	return <PluginSidebar />;
 }
 
 // Register the highlight format type from the Breve component
