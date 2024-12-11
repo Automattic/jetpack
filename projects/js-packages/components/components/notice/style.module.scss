@@ -63,9 +63,10 @@
 	align-items: center;
 	margin-top: 20px;
 	row-gap: 20px;
+	flex-wrap: wrap;
 
-	@media screen and ( max-width: 480px ) {
-		flex-direction: column;
+	@media screen and ( max-width: 600px ) {
+		justify-content: center;
 	}
 
 	a {

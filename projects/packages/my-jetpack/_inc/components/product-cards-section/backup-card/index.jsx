@@ -132,13 +132,15 @@ const BackupCard = props => {
 		getMyJetpackWindowInitialState( 'redBubbleAlerts' ) || {};
 	const { status: lastBackupStatus } = backupFailure || {};
 	const hasBackups = status === PRODUCT_STATUSES.ACTIVE || status === PRODUCT_STATUSES.CAN_UPGRADE;
+	const noDescription = () => null;
 
 	if ( hasBackups ) {
 		return <WithBackupsValueSection slug={ productSlug } { ...props } />;
 	}
 
 	return (
-		<ProductCard slug={ productSlug } { ...props }>
+		// eslint-disable-next-line react/jsx-no-bind
+		<ProductCard slug={ productSlug } Description={ noDescription } { ...props }>
 			{ status === PRODUCT_STATUSES.NEEDS_ATTENTION && backupFailure && lastBackupStatus && (
 				<Text variant="body-small" className={ styles.description }>
 					<span className={ styles.backupWarning }>

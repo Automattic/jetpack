@@ -4,6 +4,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { useContext, useEffect, useCallback } from 'react';
 import { NOTICE_PRIORITY_HIGH } from '../../context/constants';
 import { NoticeContext } from '../../context/notices/noticeContext';
+import preventWidows from '../../utils/prevent-widows';
 import useAnalytics from '../use-analytics';
 import type { NoticeOptions } from '../../context/notices/types';
 
@@ -51,20 +52,28 @@ const useBackupNeedsAttentionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 		const noticeMessage = (
 			<Col>
 				<Text mb={ 1 }>
-					{ sprintf(
-						// Translators: %1$s is the date the last backup took place, i.e.- "Dec 7, 2024"
-						__( 'The last backup attempted on %1$s was unsuccessful.', 'jetpack-my-jetpack' ),
-						backupStatusLastUpdatedDate
+					{ preventWidows(
+						sprintf(
+							// Translators: %1$s is the date the last backup took place, i.e.- "Dec 7, 2024"
+							__( 'The last backup attempted on %1$s was unsuccessful.', 'jetpack-my-jetpack' ),
+							backupStatusLastUpdatedDate
+						)
 					) }
-					<br />
-					{ __(
-						'This might be due to a block from your host or other server issues.',
-						'jetpack-my-jetpack'
+				</Text>
+				<Text mb={ 1 }>
+					{ preventWidows(
+						__(
+							'This might be due to a block from your host or other server issues.',
+							'jetpack-my-jetpack'
+						)
 					) }
-					<br />
-					{ __(
-						'Check out our troubleshooting guide or contact your hosting provider to resolve the issue.',
-						'jetpack-my-jetpack'
+				</Text>
+				<Text mb={ 1 }>
+					{ preventWidows(
+						__(
+							'Check out our troubleshooting guide or contact your hosting provider to resolve the issue.',
+							'jetpack-my-jetpack'
+						)
 					) }
 				</Text>
 			</Col>
