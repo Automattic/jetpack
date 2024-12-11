@@ -19,6 +19,7 @@ export const THREAT_TYPES = [
 	{ value: 'themes', label: __( 'Theme', 'jetpack-components' ) },
 	{ value: 'core', label: __( 'WordPress', 'jetpack-components' ) },
 	{ value: 'file', label: __( 'File', 'jetpack-components' ) },
+	{ value: '', label: __( 'Unknown', 'jetpack-components' ) },
 ];
 
 export const THREAT_ICONS = {
