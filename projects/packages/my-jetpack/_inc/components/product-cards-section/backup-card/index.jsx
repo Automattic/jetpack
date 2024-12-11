@@ -128,12 +128,30 @@ const getTimeSinceLastRenewableEvent = lastRewindableEventTime => {
 const BackupCard = props => {
 	const { detail } = useProduct( productSlug );
 	const { status } = detail;
+	const { backup_failure: backupFailure } =
+		getMyJetpackWindowInitialState( 'redBubbleAlerts' ) || {};
+	const { status: lastBackupStatus } = backupFailure || {};
 	const hasBackups = status === PRODUCT_STATUSES.ACTIVE || status === PRODUCT_STATUSES.CAN_UPGRADE;
 
-	return hasBackups ? (
-		<WithBackupsValueSection slug={ productSlug } { ...props } />
-	) : (
-		<ProductCard slug={ productSlug } { ...props } />
+	if ( hasBackups ) {
+		return <WithBackupsValueSection slug={ productSlug } { ...props } />;
+	}
+
+	return (
+		<ProductCard slug={ productSlug } { ...props }>
+			{ status === PRODUCT_STATUSES.NEEDS_ATTENTION && backupFailure && lastBackupStatus && (
+				<Text variant="body-small" className={ styles.description }>
+					<span className={ styles.backupWarning }>
+						<Gridicon icon="notice" size={ 20 } className={ styles.iconError } />{ ' ' }
+						<span>{ __( 'The last backup attempt failed.', 'jetpack-my-jetpack' ) }</span>
+					</span>
+					<span className={ styles.errorMessage }>
+						<span>{ __( 'Error code:', 'jetpack-my-jetpack' ) }</span>
+						<span className={ styles.errorCode }>{ lastBackupStatus }</span>
+					</span>
+				</Text>
+			) }
+		</ProductCard>
 	);
 };
 

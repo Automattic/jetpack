@@ -67,6 +67,7 @@ class Products {
 		self::STATUS_USER_CONNECTION_ERROR,
 		self::STATUS_PLUGIN_ABSENT_WITH_PLAN,
 		self::STATUS_NEEDS_PLAN,
+		self::STATUS_NEEDS_ATTENTION,
 	);
 
 	/**

@@ -56,3 +56,29 @@
 .time {
     color: var( --jp-gray-40 );
 }
+
+.backupWarning {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-weight: 500;
+
+    svg.iconError {
+        fill: var( --jp-red-60 );
+    }
+}
+
+.errorMessage {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: var(--font-body-extra-small);
+    line-height: var(--font-title-small);
+    color: var(--jp-gray-50);
+
+    .errorCode {
+       font-family: monospace;
+    }
+
+}
+
