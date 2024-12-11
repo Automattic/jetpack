@@ -1,8 +1,12 @@
+/**
+ * External dependencies
+ */
 import { registerJetpackPlugin } from '@automattic/jetpack-shared-extension-utils';
-import { dispatch } from '@wordpress/data';
-import { store as editorStore } from '@wordpress/editor';
 import { addFilter } from '@wordpress/hooks';
 import debugFactory from 'debug';
+/**
+ * Internal dependencies
+ */
 import metadata from '../../blocks/ai-assistant/block.json';
 import { canAIAssistantBeEnabled } from '../../blocks/ai-assistant/extensions/lib/can-ai-assistant-be-enabled';
 import { aiExcerptPluginName, aiExcerptPluginSettings } from '.';
@@ -39,14 +43,6 @@ function extendAiContentLensFeatures( settings, name ) {
 	// Register AI Excerpt plugin.
 	registerJetpackPlugin( aiExcerptPluginName, aiExcerptPluginSettings );
 	debug( 'Registered AI Excerpt plugin' );
-
-	// check if the removeEditorPanel function exists in the editorStore.
-	// íf not, look for it in the editPostStore.
-	const removeEditorPanel = dispatch( editorStore ).removeEditorPanel;
-
-	// Remove the excerpt panel by dispatching an action.
-	removeEditorPanel( 'post-excerpt' );
-	debug( 'Removed the post-excerpt panel' );
 
 	return settings;
 }

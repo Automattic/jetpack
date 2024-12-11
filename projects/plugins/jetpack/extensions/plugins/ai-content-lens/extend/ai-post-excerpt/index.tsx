@@ -1,14 +1,14 @@
 /**
  * External dependencies
  */
-import { useAiSuggestions } from '@automattic/jetpack-ai-client';
+import { useAiModule, useAiSuggestions } from '@automattic/jetpack-ai-client';
 import {
 	isAtomicSite,
 	isSimpleSite,
 	useAnalytics,
 } from '@automattic/jetpack-shared-extension-utils';
 import { TextareaControl, ExternalLink, Button, Notice, BaseControl } from '@wordpress/components';
-import { useDispatch, useSelect } from '@wordpress/data';
+import { useDispatch, useSelect, select as globalSelect, dispatch } from '@wordpress/data';
 import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
 import { store as editorStore, PostTypeSupportCheck } from '@wordpress/editor';
 import { useState, useEffect, useCallback } from '@wordpress/element';
@@ -294,6 +294,7 @@ ${ postContent }
 }
 
 export const PluginDocumentSettingPanelAiExcerpt = () => {
+	const { isAiModuleActive } = useAiModule();
 	const isExcerptUsedAsDescription = useSelect( select => {
 		const { getCurrentPostType } = select( editorStore );
 		const postType = getCurrentPostType();
@@ -301,9 +302,28 @@ export const PluginDocumentSettingPanelAiExcerpt = () => {
 		const isPattern = postType === 'wp_block';
 		return isTemplateOrTemplatePart || isPattern;
 	}, [] );
-	if ( isExcerptUsedAsDescription ) {
+
+	useEffect( () => {
+		if ( isExcerptUsedAsDescription ) {
+			return;
+		}
+
+		// We want to toggle the excerpt panel only if the AI module value changes,
+		// not when the panel enabled state changes, as other sources can change the state too.
+		const { isEditorPanelEnabled } = globalSelect( editorStore );
+		const isExcerptPanelEnabled = isEditorPanelEnabled( 'post-excerpt' );
+		const { toggleEditorPanelEnabled } = dispatch( editorStore );
+
+		// If the AI module is active, the core excerpt panel should be disabled and vice versa.
+		if ( isAiModuleActive === isExcerptPanelEnabled ) {
+			toggleEditorPanelEnabled( 'post-excerpt' );
+		}
+	}, [ isExcerptUsedAsDescription, isAiModuleActive ] );
+
+	if ( isExcerptUsedAsDescription || ! isAiModuleActive ) {
 		return null;
 	}
+
 	return (
 		<PostTypeSupportCheck supportKeys="excerpt">
 			<PluginDocumentSettingPanel
