@@ -42,6 +42,15 @@ class Services_Controller extends WP_REST_Controller {
 	}
 
 	/**
+	 * Check if we are on WPCOM.
+	 *
+	 * @return bool
+	 */
+	protected static function is_wpcom() {
+		return defined( 'IS_WPCOM' ) && IS_WPCOM;
+	}
+
+	/**
 	 * Register the routes.
 	 */
 	public function register_routes() {
@@ -111,12 +120,10 @@ class Services_Controller extends WP_REST_Controller {
 	/**
 	 * Get a list of Publicize supported services.
 	 *
-	 * @param bool $is_wpcom Whether we are on WPCOM.
-	 *
 	 * @return array
 	 */
-	public static function get_supported_services( $is_wpcom = false ) {
-		if ( $is_wpcom ) {
+	public static function get_supported_services() {
+		if ( self::is_wpcom() ) {
 			if ( function_exists( 'require_lib' ) ) {
 				// @phan-suppress-next-line PhanUndeclaredFunction - phan is dumb not to see the function_exists check.
 				require_lib( 'external-connections' );
@@ -164,7 +171,7 @@ class Services_Controller extends WP_REST_Controller {
 	public function get_items( $request ) {
 		$items = array();
 
-		foreach ( self::get_supported_services( $this->is_wpcom ) as $item ) {
+		foreach ( self::get_supported_services() as $item ) {
 			$data = $this->prepare_item_for_response( $item, $request );
 
 			$items[] = $this->prepare_response_for_collection( $data );
