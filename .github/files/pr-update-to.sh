@@ -27,6 +27,12 @@ function update_tag {
 cd $(dirname "${BASH_SOURCE[0]}")/../..
 BASE="$PWD"
 
+# If this commit is creating a new project, we need to create the tag so future runs don't break.
+echo "Checking for new projects..."
+for F in $(git -c core.quotepath=off diff --no-renames --diff-filter=A --name-only HEAD^..HEAD 'projects/*/*/composer.json'); do
+	update_tag "pr-update-to-${F%/*}"
+done
+
 # If this commit changed tool versions, update the tag so PRs get rechecked with the new versions.
 echo "Checking for changes to .github/versions.sh..."
 git diff --exit-code --name-only HEAD^..HEAD .github/versions.sh || update_tag "pr-update-to"

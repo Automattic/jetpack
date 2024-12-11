@@ -57,7 +57,6 @@ jQuery( function ( $ ) {
 			.fail( function () {
 				// An error is only returned in the case of a missing nonce or invalid permissions, so we don't need the actual error message.
 				window.location.href = failureUrl;
-				return;
 			} )
 			.done( function ( result ) {
 				if ( result.processed < limit ) {
@@ -117,7 +116,6 @@ jQuery( function ( $ ) {
 			.fail( function () {
 				// An error is only returned in the case of a missing nonce or invalid permissions, so we don't need the actual error message.
 				window.location.href = empty_spam_buttons.data( 'failure-url' );
-				return;
 			} )
 			.done( function ( result ) {
 				deleted_spam_count += result.data.counts.deleted;
@@ -162,7 +160,7 @@ jQuery( function ( $ ) {
 			e.preventDefault();
 
 			const postRowId = $( e.target ).closest( 'tr.type-feedback' ).attr( 'id' );
-			const match = postRowId.match( /^post\-(\d+)/ );
+			const match = postRowId.match( /^post-(\d+)/ );
 
 			if ( ! match ) {
 				return;
@@ -242,8 +240,8 @@ jQuery( function ( $ ) {
 		const $btn = $( event.target );
 		const nonceName = $btn.data( 'nonce-name' );
 		const nonce = $( '#' + nonceName ).attr( 'value' );
-		const date = window.location.search.match( /(\?|\&)m=(\d+)/ );
-		const post = window.location.search.match( /(\?|\&)jetpack_form_parent_id=(\d+)/ );
+		const date = window.location.search.match( /[?&]m=(\d+)/ );
+		const post = window.location.search.match( /[?&]jetpack_form_parent_id=(\d+)/ );
 
 		const selected = [];
 		$( '#posts-filter .check-column input[type=checkbox]:checked' ).each( function () {
@@ -259,9 +257,9 @@ jQuery( function ( $ ) {
 			ajaxurl,
 			{
 				action: 'grunion_export_to_gdrive',
-				year: date ? date[ 2 ].substr( 0, 4 ) : '',
-				month: date ? date[ 2 ].substr( 4, 2 ) : '',
-				post: post ? parseInt( post[ 2 ], 10 ) : 'all',
+				year: date ? date[ 1 ].substr( 0, 4 ) : '',
+				month: date ? date[ 1 ].substr( 4, 2 ) : '',
+				post: post ? parseInt( post[ 1 ], 10 ) : 'all',
 				selected: selected,
 				[ nonceName ]: nonce,
 			},
@@ -286,8 +284,8 @@ jQuery( function ( $ ) {
 		const nonceName = $( e.target ).data( 'nonce-name' );
 		const nonce = $( '#' + nonceName ).attr( 'value' );
 
-		const date = window.location.search.match( /(\?|\&)m=(\d+)/ );
-		const post = window.location.search.match( /(\?|\&)jetpack_form_parent_id=(\d+)/ );
+		const date = window.location.search.match( /[?&]m=(\d+)/ );
+		const post = window.location.search.match( /[?&]jetpack_form_parent_id=(\d+)/ );
 
 		const selected = [];
 		$( '#posts-filter .check-column input[type=checkbox]:checked' ).each( function () {
@@ -298,9 +296,9 @@ jQuery( function ( $ ) {
 			ajaxurl,
 			{
 				action: 'feedback_export',
-				year: date ? date[ 2 ].substr( 0, 4 ) : '',
-				month: date ? date[ 2 ].substr( 4, 2 ) : '',
-				post: post ? parseInt( post[ 2 ], 10 ) : 'all',
+				year: date ? date[ 1 ].substr( 0, 4 ) : '',
+				month: date ? date[ 1 ].substr( 4, 2 ) : '',
+				post: post ? parseInt( post[ 1 ], 10 ) : 'all',
 				selected: selected,
 				[ nonceName ]: nonce,
 			},

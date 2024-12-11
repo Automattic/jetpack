@@ -1,5 +1,3 @@
-/* eslint-disable jsdoc/check-tag-names */
-
 import { SVG, Path } from '@wordpress/primitives';
 
 const link = (

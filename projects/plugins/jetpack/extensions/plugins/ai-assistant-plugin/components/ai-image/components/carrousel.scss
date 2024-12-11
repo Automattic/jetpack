@@ -95,12 +95,18 @@
 			margin-top: 8px;
 		}
 
+		&-footer-left {
+			display: flex;
+			width: 25%;
+		}
+
 		&-counter {
 			display: flex;
 			justify-content: flex-start;
 			align-items: center;
 			font-size: 13px;
 			padding: 6px 0;
+			width: 50%;
 
 			.ai-carrousel {
 				&__prev,

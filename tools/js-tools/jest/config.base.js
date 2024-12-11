@@ -27,11 +27,11 @@ module.exports = {
 		],
 	},
 	testMatch: [
-		// Note: Keep the patterns here in sync with ./config.coverage.js and tools/js-tools/eslintrc/base.js.
+		// Note: Keep the patterns here in sync with ./config.coverage.js and tools/js-tools/eslintrc/base.mjs.
 		'<rootDir>/**/__tests__/**/*.[jt]s?(x)',
 		'<rootDir>/**/?(*.)+(spec|test).[jt]s?(x)',
 		'<rootDir>/**/test/*.[jt]s?(x)',
-		'!**/.eslintrc.*',
+		'!**/eslint.config.?([mc])[jt]s',
 	],
 	moduleNameMapper: {
 		jetpackConfig: path.join( __dirname, 'jest-jetpack-config.js' ),

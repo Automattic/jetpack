@@ -6,7 +6,6 @@ import type {
 	UseMutationOptions,
 	UseMutateFunction,
 	// This variable is being used as a type declaration
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	UseMutationResult,
 } from '@tanstack/react-query';
 import type { APIFetchOptions } from '@wordpress/api-fetch';

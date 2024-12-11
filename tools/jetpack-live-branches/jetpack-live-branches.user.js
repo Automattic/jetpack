@@ -11,8 +11,6 @@
 // @downloadURL  https://github.com/Automattic/jetpack/raw/trunk/tools/jetpack-live-branches/jetpack-live-branches.user.js
 // ==/UserScript==
 
-// Need to declare "jQuery" for linting within TamperMonkey, but in the monorepo it's already declared.
-// eslint-disable-next-line no-redeclare
 /* global jQuery */
 
 ( function () {

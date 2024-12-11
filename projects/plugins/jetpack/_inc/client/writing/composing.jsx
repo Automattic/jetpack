@@ -1,13 +1,13 @@
 import { Chip, getRedirectUrl } from '@automattic/jetpack-components';
 import { __, _x } from '@wordpress/i18n';
+import React from 'react';
+import { connect } from 'react-redux';
 import CompactCard from 'components/card/compact';
 import { FormFieldset } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
-import React from 'react';
-import { connect } from 'react-redux';
 import { showMyJetpack } from 'state/initial-state';
 import { getModule } from 'state/modules';
 import { isModuleFound as _isModuleFound } from 'state/search';
@@ -17,7 +17,7 @@ export class Composing extends React.Component {
 	 * If markdown module is inactive and this is toggling markdown for posts on, activate module.
 	 * If markdown for comments is off and this is toggling markdown for posts off, deactivate module.
 	 *
-	 * @param {string} module the slug of the module to update
+	 * @param {string} module - the slug of the module to update
 	 * @return {*}           the updated value
 	 */
 	updateFormStateByMarkdown = module => {

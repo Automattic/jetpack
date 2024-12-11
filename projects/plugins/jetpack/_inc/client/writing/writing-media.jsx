@@ -49,7 +49,7 @@ function WritingMedia( props ) {
 			checked={ checked }
 			disabled={ ! isCarouselActive || props.isSavingAnyOption( [ 'carousel' ] ) }
 			toggling={ props.isSavingAnyOption( [ optionName ] ) }
-			onChange={ onChangeHandler /* eslint-disable-line */ }
+			onChange={ onChangeHandler }
 			label={ label }
 		/>
 	);

@@ -1,11 +1,9 @@
-# Named ".eslintignore.root" rather than ".eslintignore" because there's no way to stop eslint from reading this after processing ignorePatterns in .eslintrc.js. Sigh.
+# Our standard eslint config reads .gitignore and .eslintignore to determine what to ignore.
+# This file is named ".eslintignore.root" rather than ".eslintignore" because eslint, despite not using it, still complains if it exists.
 
 # Stuff not to lint in general.
 *.min.js
 **/changelog/
-
-# Storybook files
-**/@(storybook|stories)/**/*.js
 
 # Ignored by default, but we should check it
 !.github/

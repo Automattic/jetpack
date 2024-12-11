@@ -393,7 +393,7 @@ final class Image_CDN {
 			 * present all attributes as double-quoted attributes and include at
 			 * most one copy of each attribute, escaping all values appropriately.
 			 */
-			$tag_name = strtolower( $processor->get_tag() );
+			$tag_name = strtolower( (string) $processor->get_tag() );
 			$tag      = new \WP_HTML_Tag_Processor( "<{$tag_name}>" );
 			$tag->next_tag();
 			foreach ( $processor->get_attribute_names_with_prefix( '' ) ?? array() as $name ) {

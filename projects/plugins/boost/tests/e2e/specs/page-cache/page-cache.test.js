@@ -1,10 +1,10 @@
 import { test, expect } from 'jetpack-e2e-commons/fixtures/base-test.js';
-import { boostPrerequisitesBuilder } from '../../lib/env/prerequisites.js';
-import { JetpackBoostPage, PermalinksPage } from '../../lib/pages/index.js';
+import { resolveSiteUrl } from 'jetpack-e2e-commons/helpers/utils-helper.js';
 import { PostFrontendPage } from 'jetpack-e2e-commons/pages/index.js';
 import { WPLoginPage } from 'jetpack-e2e-commons/pages/wp-admin/index.js';
 import playwrightConfig from 'jetpack-e2e-commons/playwright.config.mjs';
-import { resolveSiteUrl } from 'jetpack-e2e-commons/helpers/utils-helper.js';
+import { boostPrerequisitesBuilder } from '../../lib/env/prerequisites.js';
+import { JetpackBoostPage, PermalinksPage } from '../../lib/pages/index.js';
 
 test.describe( 'Cache module', () => {
 	let page;

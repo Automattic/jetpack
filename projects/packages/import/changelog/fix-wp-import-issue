@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Import: setting WP_IMPORTING when doing an import
