@@ -46,4 +46,11 @@ Default.args = {
 	data,
 	label: 'OS',
 	note: 'Windows +10%',
+	showTooltips: false,
+};
+
+export const WithTooltips = Template.bind( {} );
+WithTooltips.args = {
+	...Default.args,
+	showTooltips: true,
 };
