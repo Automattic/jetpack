@@ -1568,7 +1568,7 @@ abstract class SAL_Site {
 	 * @return string
 	 */
 	public function get_migration_source_site_domain() {
-		return get_option( 'migration_source_site_domain' );
+		return get_option( 'migration_source_site_domain', '' );
 	}
 
 	/**
