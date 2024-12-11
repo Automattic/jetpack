@@ -73,7 +73,7 @@ class Universal {
 		if ( ! isset( $_COOKIE['woocommerceanalytics_session_id'] ) ) {
 			$session_id       = wp_generate_uuid4();
 			$this->session_id = $session_id;
-			setcookie( 'woocommerceanalytics_session_id', $session_id, 0, COOKIEPATH, COOKIE_DOMAIN, is_ssl(), false, true );
+			setcookie( 'woocommerceanalytics_session_id', $session_id, 0, COOKIEPATH, COOKIE_DOMAIN, is_ssl(), true );
 			$this->record_event( 'woocommerceanalytics_session_started' );
 		}
 	}

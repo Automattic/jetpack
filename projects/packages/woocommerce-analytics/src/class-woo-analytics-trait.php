@@ -304,7 +304,7 @@ trait Woo_Analytics_Trait {
 	 * @return string|void
 	 */
 	public function record_event( $event_name, $properties = array(), $product_id = null ) {
-		$js  = $this->process_event_properties( $event_name, $properties, $product_id );
+		$js = $this->process_event_properties( $event_name, $properties, $product_id );
 		wc_enqueue_js( "_wca.push({$js});" );
 	}
 
