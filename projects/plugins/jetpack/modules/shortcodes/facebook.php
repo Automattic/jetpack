@@ -55,6 +55,8 @@ wp_embed_register_handler( 'facebook-alternate-video', JETPACK_FACEBOOK_VIDEO_AL
  * @return string Facebook embed markup.
  */
 function jetpack_facebook_embed_handler( $matches, $attr, $url ) {
+	// This is a stop-gap solution until Facebook hopefully resolves this ticket
+	// https://developers.facebook.com/community/threads/1675075423353415/?post_id=1675075426686748
 	$extra_styles = 'style="background-color: #fff; display: inline-block;"';
 
 	if (
