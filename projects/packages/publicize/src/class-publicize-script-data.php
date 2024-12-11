@@ -222,7 +222,7 @@ class Publicize_Script_Data {
 	 * @return array List of supported Publicize services.
 	 */
 	public static function get_supported_services() {
-		return Services::get_all();
+		return Services::get_all( array( 'clear_cache' => true ) );
 	}
 
 	/**
