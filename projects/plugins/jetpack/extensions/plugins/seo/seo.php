@@ -17,9 +17,8 @@ add_action(
 add_action(
 	'after_setup_theme',
 	function () {
-		$disable_seo_tools = apply_filters( 'jetpack_disable_seo_tools', false );
 		// We only want to enable the SEO extension (and display SEO settings) if the 'jetpack_disable_seo_tools' filter is not set to false.
-		if ( ! $disable_seo_tools ) {
+		if ( ! apply_filters( 'jetpack_disable_seo_tools', false ) ) {
 			\Jetpack_Gutenberg::set_extension_available( 'jetpack-seo' );
 		}
 	}
