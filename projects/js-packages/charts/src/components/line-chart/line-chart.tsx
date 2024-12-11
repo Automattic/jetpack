@@ -1,13 +1,7 @@
-import {
-	XYChart,
-	AnimatedLineSeries,
-	AnimatedAxis,
-	AnimatedGrid,
-	Tooltip,
-	buildChartTheme,
-} from '@visx/xychart';
+import { XYChart, AnimatedLineSeries, AnimatedAxis, AnimatedGrid, Tooltip } from '@visx/xychart';
 import clsx from 'clsx';
 import { FC } from 'react';
+import { useChartTheme } from '../../providers/theme/theme-provider';
 import styles from './line-chart.module.scss';
 import type { DataPointDate } from '../shared/types';
 
@@ -35,52 +29,6 @@ type LineChartProps = {
 	 */
 	lineColor?: string;
 };
-
-// TODO: move to a provider
-// const customTheme = buildChartTheme( {
-// 	// Customize colors
-// 	colors: [ '#3182ce' ],
-// 	// Customize typography
-// 	// labelStyles: {
-// 	// 	fill: '#666',
-// 	// 	fontSize: 12,
-// 	// },
-// 	// Customize grid styles
-// 	gridStyles: {
-// 		stroke: '#e2e8f0',
-// 		strokeWidth: 1,
-// 	},
-// } );
-
-const customTheme = buildChartTheme( {
-	// colors
-	backgroundColor: 'lightblue', // used by Tooltip, Annotation
-	colors: [ '#3182ce' ], // categorical colors, mapped to series via `dataKey`s
-
-	// labels
-	//   svgLabelBig?: SVGTextProps,
-	//   svgLabelSmall?: SVGTextProps,
-	//   htmlLabel?: HTMLTextStyles,
-
-	// lines
-	//   xAxisLineStyles?: LineStyles,
-	//   yAxisLineStyles?: LineStyles,
-	//   xTickLineStyles?: LineStyles,
-	//   yTickLineStyles?: LineStyles,
-	//   tickLength: number,
-
-	// grid
-	//   gridColor: string,
-	//   gridColorDark: string, // used for axis baseline if x/yxAxisLineStyles not set
-	//   gridStyles?: CSSProperties,
-	gridStyles: {
-		stroke: '#e2e8f0',
-		strokeWidth: 1,
-	},
-	tickLength: 0,
-	gridColor: '',
-	gridColorDark: '',
-} );
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const renderTooltip: any = ( { tooltipData } ) => {
@@ -117,8 +65,8 @@ const LineChart: FC< LineChartProps > = ( {
 	width,
 	height,
 	margin = { top: 20, right: 20, bottom: 40, left: 40 },
-	lineColor = '#3182ce',
 } ) => {
+	const theme = useChartTheme();
 	const accessors = {
 		xAccessor: ( d: DataPointDate ) => d.date,
 		yAccessor: ( d: DataPointDate ) => d.value,
@@ -128,7 +76,7 @@ const LineChart: FC< LineChartProps > = ( {
 	return (
 		<div className={ clsx( 'line-chart', styles[ 'line-chart' ] ) }>
 			<XYChart
-				theme={ customTheme }
+				theme={ theme }
 				width={ width }
 				height={ height }
 				margin={ margin }
@@ -144,7 +92,7 @@ const LineChart: FC< LineChartProps > = ( {
 					dataKey="Line"
 					data={ data }
 					{ ...accessors }
-					stroke={ lineColor }
+					stroke={ theme.colors[ 0 ] }
 					strokeWidth={ 2 }
 				/>
 

@@ -1,3 +1,5 @@
+import type { CSSProperties } from 'react';
+
 export type DataPoint = {
 	label: string;
 	value: number;
@@ -29,4 +31,22 @@ export type DataPointPercentage = {
 	 * Color code for the segment
 	 */
 	color?: string;
+};
+
+/**
+ * Theme configuration for chart components
+ */
+export type ChartTheme = {
+	/** Background color for chart components */
+	backgroundColor: string;
+	/** Array of colors used for data visualization */
+	colors: string[];
+	/** Optional CSS styles for grid lines */
+	gridStyles?: CSSProperties;
+	/** Length of axis ticks in pixels */
+	tickLength: number;
+	/** Color of the grid lines */
+	gridColor: string;
+	/** Color of the grid lines in dark mode */
+	gridColorDark: string;
 };
