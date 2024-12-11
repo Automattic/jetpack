@@ -108,15 +108,15 @@ class Checkout_Flow {
 				'order_value'                           => $order->get_subtotal(),
 				'order_total'                           => $order->get_total(),
 				'products_count'                        => $order->get_item_count(),
-                'total_discount'                        => $order->get_discount_total(),
-                'total_shipping'                        => $order->get_shipping_total(),
-                'total_tax'                             => $order->get_total_tax(),
-                'payment_option'                        => $order->get_payment_method(),
-                'products'                              => $this->format_items_to_json( $order->get_items() ),
+				'total_discount'                        => $order->get_discount_total(),
+				'total_shipping'                        => $order->get_shipping_total(),
+				'total_tax'                             => $order->get_total_tax(),
+				'payment_option'                        => $order->get_payment_method(),
+				'products'                              => $this->format_items_to_json( $order->get_items() ),
 				'order_note'                            => $order->get_customer_note(),
 				'shipping_option'                       => $order->get_shipping_method(),
 				'from_checkout'                         => $checkout_page_used,
-                'checkout_page_contains_checkout_block' => $checkout_page_contains_checkout_block,
+				'checkout_page_contains_checkout_block' => $checkout_page_contains_checkout_block,
 				'checkout_page_contains_checkout_shortcode' => $checkout_page_contains_checkout_shortcode,
 			)
 		);
@@ -126,19 +126,19 @@ class Checkout_Flow {
 	 * Track the cart page view
 	 */
 	public function capture_cart_view() {
-        global $post;
-        $cart_page_id = wc_get_page_id( 'cart' );
+		global $post;
+		$cart_page_id = wc_get_page_id( 'cart' );
 
-        $is_cart = $cart_page_id && is_page( $cart_page_id )
-            || wc_post_content_has_shortcode( 'woocommerce_cart' )
-            || has_block( 'woocommerce/cart', $post )
-            || apply_filters( 'woocommerce_is_cart', false )
-            || Constants::is_defined( 'WOOCOMMERCE_CART' )
-            || is_cart();
+		$is_cart = $cart_page_id && is_page( $cart_page_id )
+			|| wc_post_content_has_shortcode( 'woocommerce_cart' )
+			|| has_block( 'woocommerce/cart', $post )
+			|| apply_filters( 'woocommerce_is_cart', false )
+			|| Constants::is_defined( 'WOOCOMMERCE_CART' )
+			|| is_cart();
 
-        if ( ! $is_cart ) {
-            return;
-        }
+		if ( ! $is_cart ) {
+			return;
+		}
 
 		$this->record_event(
 			'woocommerceanalytics_cart_view',

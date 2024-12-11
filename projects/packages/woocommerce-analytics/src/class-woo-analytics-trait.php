@@ -8,7 +8,6 @@
 namespace Automattic\Woocommerce_Analytics;
 
 use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
-use Automattic\WooCommerce\Admin\Overrides\Order;
 use WC_Order_Item;
 use WC_Order_Item_Product;
 use WC_Payment_Gateway;
@@ -101,8 +100,6 @@ trait Woo_Analytics_Trait {
 			$coupon_used = count( $coupons ) ? 1 : 0;
 		}
 
-
-
 		$enabled_payment_options = array_filter(
 			WC()->payment_gateways->get_available_payment_gateways(),
 			function ( $payment_gateway ) {
@@ -121,7 +118,7 @@ trait Woo_Analytics_Trait {
 			'guest_checkout'           => $guest_checkout,
 			'delayed_account_creation' => $delayed_account_creation,
 			'express_checkout'         => 'null', // TODO: not solved yet.
-			'shipping_options_count'   =>  'null', // TODO: not solved yet.
+			'shipping_options_count'   => 'null', // TODO: not solved yet.
 			'coupon_used'              => $coupon_used,
 			'payment_options'          => $enabled_payment_options,
 		);
@@ -248,6 +245,7 @@ trait Woo_Analytics_Trait {
 
 	/**
 	 * Default event properties which should be included with all events.
+	 *
 	 * @return array Array of standard event props.
 	 */
 	public function get_common_properties() {
@@ -272,7 +270,7 @@ trait Woo_Analytics_Trait {
 			'total_tax'                          => $this->get_cart_taxes(),
 			'total_discount'                     => $this->get_total_discounts(),
 			'total_shipping'                     => $this->get_cart_shipping_total(),
-			'products_count'                     => $this->get_cart_items_count()
+			'products_count'                     => $this->get_cart_items_count(),
 		);
 		$cart_checkout_info = $this->get_cart_checkout_info();
 		return array_merge( $site_info, $cart_checkout_info );
@@ -302,13 +300,12 @@ trait Woo_Analytics_Trait {
 	 * @param string  $event_name The name of the event to record.
 	 * @param array   $properties Optional array of (key => value) event properties.
 	 * @param integer $product_id The id of the product relating to the event.
-	 * @param integer $product_id The id of the product relating to the event.
 	 *
 	 * @return string|void
 	 */
 	public function record_event( $event_name, $properties = array(), $product_id = null ) {
-        $uid = WC()->session->get_customer_id();
-		$js = $this->process_event_properties( $event_name, $properties, $product_id );
+		$uid = WC()->session->get_customer_id();
+		$js  = $this->process_event_properties( $event_name, $properties, $product_id );
 		wc_enqueue_js( "_wca.push({$js});" );
 	}
 
@@ -585,35 +582,35 @@ trait Woo_Analytics_Trait {
 		return $cart->get_total( 'tracking' );
 	}
 
-    /**
-     * Get the cart subtotal
-     *
-     * @return float
-     */
-    public function get_cart_subtotal() {
-        $cart = WC()->cart;
-        return $cart->get_subtotal();
-    }
+	/**
+	 * Get the cart subtotal
+	 *
+	 * @return float
+	 */
+	public function get_cart_subtotal() {
+		$cart = WC()->cart;
+		return $cart->get_subtotal();
+	}
 
-    /**
-     * Get the cart shipping total
-     *
-     * @return float
-     */
-    public function get_cart_shipping_total() {
-        $cart = WC()->cart;
-        return $cart->get_shipping_total();
-    }
+	/**
+	 * Get the cart shipping total
+	 *
+	 * @return float
+	 */
+	public function get_cart_shipping_total() {
+		$cart = WC()->cart;
+		return $cart->get_shipping_total();
+	}
 
-    /**
-     * Get the cart taxes
-     *
-     * @return float
-     */
-    public function get_cart_taxes() {
-        $cart = WC()->cart;
-        return $cart->get_taxes_total();
-    }
+	/**
+	 * Get the cart taxes
+	 *
+	 * @return float
+	 */
+	public function get_cart_taxes() {
+		$cart = WC()->cart;
+		return $cart->get_taxes_total();
+	}
 
 	/**
 	 * Get the cart discount total
