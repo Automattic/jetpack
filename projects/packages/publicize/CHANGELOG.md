@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.56.4] - 2024-12-09
+### Changed
+- Updated package dependencies. [#40363]
+
 ## [0.56.3] - 2024-12-02
 ### Changed
 - Made resharing async in classic editor to fix timeout issues. [#40302]
@@ -779,6 +783,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.56.4]: https://github.com/Automattic/jetpack-publicize/compare/v0.56.3...v0.56.4
 [0.56.3]: https://github.com/Automattic/jetpack-publicize/compare/v0.56.2...v0.56.3
 [0.56.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.56.1...v0.56.2
 [0.56.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.56.0...v0.56.1

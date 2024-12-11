@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix ToggleControl's help text indent to align with label text.

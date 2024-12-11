@@ -3,6 +3,7 @@ import {
 	Col,
 	Container,
 	Text,
+	ToggleControl,
 	ContextualUpgradeTrigger,
 	useBreakpointMatch,
 	Notice as JetpackNotice,
@@ -14,7 +15,6 @@ import { Icon, closeSmall } from '@wordpress/icons';
 import moment from 'moment';
 import { useCallback, useEffect, useState, useMemo } from 'react';
 import AdminPage from '../../components/admin-page';
-import FormToggle from '../../components/form-toggle';
 import Textarea from '../../components/textarea';
 import { FREE_PLUGIN_SUPPORT_URL, PAID_PLUGIN_SUPPORT_URL } from '../../constants';
 import useWafSeenMutation from '../../data/waf/use-waf-seen-mutation';
@@ -115,24 +115,6 @@ const FirewallPage = () => {
 		},
 		[ formState ]
 	);
-
-	/**
-	 * Returns an event listener that syncs the target input's value with form state, before calling a callback.
-	 *
-	 * @param {*} callback - The function to call with the input's value.
-	 * @return {Function} - Event listener
-	 */
-	const withFormState = callback => {
-		return event => {
-			const { id, value, ariaChecked } = event.target;
-			const inputValue = ariaChecked ? ariaChecked !== 'true' : value;
-			setFormState( prevState => ( {
-				...prevState,
-				[ id ]: inputValue,
-			} ) );
-			return callback( inputValue );
-		};
-	};
 
 	/**
 	 * Handle Automatic Rules Change
@@ -283,9 +265,9 @@ const FirewallPage = () => {
 				}` }
 			>
 				<div className={ styles[ 'toggle-section__control' ] }>
-					<FormToggle
+					<ToggleControl
 						checked={ canToggleAutomaticRules ? jetpackWafAutomaticRules : false }
-						onChange={ withFormState( handleAutomaticRulesChange ) }
+						onChange={ handleAutomaticRulesChange }
 						disabled={ ! canEditFirewallSettings || ! canToggleAutomaticRules || isUpdating }
 					/>
 					{ hasPlan && upgradeIsSeen === false && (
@@ -416,10 +398,9 @@ const FirewallPage = () => {
 	const bruteForceProtectionSettings = (
 		<div className={ styles[ 'toggle-section' ] }>
 			<div className={ styles[ 'toggle-section__control' ] }>
-				<FormToggle
-					id="brute_force_protection"
+				<ToggleControl
 					checked={ isBruteForceModuleEnabled }
-					onChange={ withFormState( toggleBruteForceProtection ) }
+					onChange={ toggleBruteForceProtection }
 					disabled={ isUpdating }
 				/>
 			</div>
@@ -444,10 +425,9 @@ const FirewallPage = () => {
 			}` }
 		>
 			<div className={ styles[ 'toggle-section__control' ] }>
-				<FormToggle
-					id="jetpack_waf_ip_block_list_enabled"
+				<ToggleControl
 					checked={ ipBlockListEnabled }
-					onChange={ withFormState( toggleIpBlockList ) }
+					onChange={ toggleIpBlockList }
 					disabled={ ! canEditFirewallSettings }
 				/>
 			</div>
@@ -500,8 +480,7 @@ const FirewallPage = () => {
 		<>
 			<div className={ styles[ 'toggle-section' ] }>
 				<div className={ styles[ 'toggle-section__control' ] }>
-					<FormToggle
-						id="jetpack_waf_ip_allow_list_enabled"
+					<ToggleControl
 						checked={ jetpackWafIpAllowListEnabled }
 						onChange={ toggleIpAllowList }
 						disabled={ isUpdating }

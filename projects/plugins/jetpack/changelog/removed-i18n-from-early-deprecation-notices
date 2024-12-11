@@ -1,4 +1,0 @@
-Significance: patch
-Type: compat
-
-WordPress 6.7 Compatibility: Fixed notices caused by translation calls happening too early in the load order.
