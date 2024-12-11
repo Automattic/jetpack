@@ -1,5 +1,11 @@
-import { XYChart, AnimatedLineSeries, AnimatedAxis, AnimatedGrid, Tooltip } from '@visx/xychart';
-import { buildChartTheme } from '@visx/xychart';
+import {
+	XYChart,
+	AnimatedLineSeries,
+	AnimatedAxis,
+	AnimatedGrid,
+	Tooltip,
+	buildChartTheme,
+} from '@visx/xychart';
 import clsx from 'clsx';
 import { FC } from 'react';
 import { useChartTheme } from '../../providers/theme/theme-provider';
