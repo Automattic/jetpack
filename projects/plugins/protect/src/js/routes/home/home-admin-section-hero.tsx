@@ -29,7 +29,8 @@ const HomeAdminSectionHero: React.FC = () => {
 							  )
 							: __(
 									'We stay ahead of security vulnerabilities to keep your site protected.',
-									'jetpack-protect'
+									'jetpack-protect',
+									/* dummy arg to avoid bad minification */ 0
 							  ) }
 					</Text>
 					<Button
