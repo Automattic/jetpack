@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Extensions\Content_Lens;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
@@ -26,12 +27,22 @@ function register_plugin() {
 	if (
 		( new Host() )->is_wpcom_simple()
 		|| ( ( new Connection_Manager( 'jetpack' ) )->has_connected_owner() && ! ( new Status() )->is_offline_mode() )
+		&& is_ai_content_lens_enabled()
 	) {
 		// Register AI Content lens plugin.
 		\Jetpack_Gutenberg::set_extension_available( FEATURE_NAME );
 	}
 }
 add_action( 'jetpack_register_gutenberg_extensions', __NAMESPACE__ . '\register_plugin' );
+
+/**
+ * Checks both the filter (jetpack_ai_enabled) and the module status (ai)
+ *
+ * @return bool
+ */
+function is_ai_content_lens_enabled() {
+	return apply_filters( 'jetpack_ai_enabled', true ) && ( new Modules() )->is_active( 'ai' );
+}
 
 // Populate the available extensions with ai-content-lens.
 add_filter(
