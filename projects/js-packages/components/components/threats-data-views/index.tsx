@@ -1,4 +1,9 @@
-import { getThreatType, type Threat } from '@automattic/jetpack-scan';
+import {
+	getThreatType,
+	getFixerAction,
+	type Threat,
+	type ThreatStatus,
+} from '@automattic/jetpack-scan';
 import {
 	type Action,
 	type ActionButton,
@@ -19,6 +24,9 @@ import Badge from '../badge';
 import ThreatFixerButton from '../threat-fixer-button';
 import ThreatSeverityBadge from '../threat-severity-badge';
 import {
+	DEFAULT_TABLE_FIELDS,
+	HISTORY_TABLE_FIELDS,
+	DEFAULT_LIST_FIELDS,
 	THREAT_ACTION_FIX,
 	THREAT_ACTION_IGNORE,
 	THREAT_ACTION_UNIGNORE,
@@ -101,12 +109,7 @@ export default function ThreatsDataViews( {
 	const defaultLayouts: SupportedLayouts = {
 		table: {
 			...baseView,
-			fields: [
-				THREAT_FIELD_SEVERITY,
-				THREAT_FIELD_THREAT,
-				THREAT_FIELD_TYPE,
-				THREAT_FIELD_AUTO_FIX,
-			],
+			fields: DEFAULT_TABLE_FIELDS,
 			layout: {
 				primaryField: THREAT_FIELD_SEVERITY,
 				combinedFields: [
@@ -121,12 +124,7 @@ export default function ThreatsDataViews( {
 		},
 		list: {
 			...baseView,
-			fields: [
-				THREAT_FIELD_SEVERITY,
-				THREAT_FIELD_TYPE,
-				THREAT_FIELD_EXTENSION,
-				THREAT_FIELD_SIGNATURE,
-			],
+			fields: DEFAULT_LIST_FIELDS,
 			layout: {
 				primaryField: THREAT_FIELD_TITLE,
 				mediaField: THREAT_FIELD_ICON,
@@ -256,6 +254,7 @@ export default function ThreatsDataViews( {
 			{
 				id: THREAT_FIELD_STATUS,
 				label: __( 'Status', 'jetpack-components' ),
+				enableHiding: false,
 				elements: THREAT_STATUSES,
 				getValue( { item }: { item: Threat } ) {
 					if ( ! item.status ) {
@@ -278,6 +277,7 @@ export default function ThreatsDataViews( {
 			{
 				id: THREAT_FIELD_TYPE,
 				label: __( 'Type', 'jetpack-components' ),
+				enableHiding: false,
 				elements: THREAT_TYPES,
 				getValue( { item }: { item: Threat } ) {
 					return getThreatType( item ) ?? '';
@@ -423,10 +423,12 @@ export default function ThreatsDataViews( {
 	const actions = useMemo( () => {
 		const result: Action< Threat >[] = [];
 
-		if ( dataFields.includes( 'fixable' ) ) {
+		if ( dataFields.includes( 'fixable' ) && view.type === 'list' ) {
 			result.push( {
 				id: THREAT_ACTION_FIX,
-				label: __( 'Auto-fix', 'jetpack-components' ),
+				label: items => {
+					return getFixerAction( items[ 0 ] );
+				},
 				isPrimary: true,
 				callback: onFixThreats,
 				isEligible( item ) {
@@ -481,6 +483,7 @@ export default function ThreatsDataViews( {
 
 		return result;
 	}, [
+		view.type,
 		dataFields,
 		onFixThreats,
 		onIgnoreThreats,
@@ -500,11 +503,72 @@ export default function ThreatsDataViews( {
 	}, [ data, view, fields ] );
 
 	/**
+	 * Check if a status filter is selected.
+	 *
+	 * @param {Filter[]} currentFilters       - The current DataView filters.
+	 * @param {ThreatStatus[]} threatStatuses - The threat statuses to check against.
+	 *
+	 * @return {boolean} True if the status filter is selected, false otherwise.
+	 */
+	const isStatusFilterSelected = useCallback(
+		( currentFilters: Filter[], threatStatuses: ThreatStatus[] ) =>
+			currentFilters.some(
+				filter =>
+					filter.field === 'status' &&
+					Array.isArray( filter.value ) &&
+					filter.value.length === threatStatuses.length &&
+					threatStatuses.every( threatStatus => filter.value.includes( threatStatus ) )
+			),
+		[]
+	);
+
+	/**
+	 * Get the selected status filters.
+	 *
+	 * @param {Filter[]} currentFilters - The current DataView filters.
+	 *
+	 * @return {string|null} The selected status filter.
+	 */
+	const selectedStatusFilter = useCallback(
+		( currentFilters: Filter[] ) => {
+			if ( isStatusFilterSelected( currentFilters, [ 'current' ] ) ) {
+				return 'active' as const;
+			}
+			if ( isStatusFilterSelected( currentFilters, [ 'fixed', 'ignored' ] ) ) {
+				return 'historic' as const;
+			}
+			if ( isStatusFilterSelected( currentFilters, [ 'fixed' ] ) ) {
+				return 'fixed' as const;
+			}
+			if ( isStatusFilterSelected( currentFilters, [ 'ignored' ] ) ) {
+				return 'ignored' as const;
+			}
+
+			return null;
+		},
+		[ isStatusFilterSelected ]
+	);
+
+	/**
 	 * Callback function to update the view state.
 	 *
 	 * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-dataviews/#onchangeview-function
 	 */
 	const onChangeView = useCallback( ( newView: View ) => {
+		const statusFilters = selectedStatusFilter( newView.filters );
+
+		if ( newView.type === 'table' ) {
+			if ( statusFilters === 'active' ) {
+				newView.fields = DEFAULT_TABLE_FIELDS;
+			} else if (
+				statusFilters === 'historic' ||
+				statusFilters === 'fixed' ||
+				statusFilters === 'ignored'
+			) {
+				newView.fields = HISTORY_TABLE_FIELDS;
+			}
+		}
+
 		setView( newView );
 	}, [] );
 
@@ -530,6 +594,7 @@ export default function ThreatsDataViews( {
 				<ThreatsStatusToggleGroupControl
 					data={ data }
 					view={ view }
+					selectedValue={ selectedStatusFilter( view.filters ) }
 					onChangeView={ onChangeView }
 				/>
 			}

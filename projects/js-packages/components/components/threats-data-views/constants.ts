@@ -23,8 +23,8 @@ export const THREAT_TYPES = [
 ];
 
 export const THREAT_ICONS = {
-	plugin: pluginIcon,
-	theme: themeIcon,
+	plugins: pluginIcon,
+	themes: themeIcon,
 	core: coreIcon,
 	file: fileIcon,
 	default: shieldIcon,
@@ -44,6 +44,28 @@ export const THREAT_FIELD_SIGNATURE = 'signature';
 export const THREAT_FIELD_FIRST_DETECTED = 'first-detected';
 export const THREAT_FIELD_FIXED_ON = 'fixed-on';
 export const THREAT_FIELD_AUTO_FIX = 'auto-fix';
+
+export const BASE_TABLE_FIELDS = [
+	THREAT_FIELD_SEVERITY,
+	THREAT_FIELD_THREAT,
+	THREAT_FIELD_TYPE,
+	THREAT_FIELD_STATUS,
+];
+
+export const DEFAULT_TABLE_FIELDS = [ ...BASE_TABLE_FIELDS, THREAT_FIELD_AUTO_FIX ];
+
+export const HISTORY_TABLE_FIELDS = [
+	...BASE_TABLE_FIELDS,
+	THREAT_FIELD_FIRST_DETECTED,
+	THREAT_FIELD_FIXED_ON,
+];
+
+export const DEFAULT_LIST_FIELDS = [
+	THREAT_FIELD_SEVERITY,
+	THREAT_FIELD_TYPE,
+	THREAT_FIELD_EXTENSION,
+	THREAT_FIELD_SIGNATURE,
+];
 
 export const THREAT_ACTION_FIX = 'fix';
 export const THREAT_ACTION_IGNORE = 'ignore';
