@@ -1,4 +1,5 @@
 import BarChart from '../index';
+import data from './sample-data';
 import type { Meta } from '@storybook/react';
 
 export default {
@@ -23,14 +24,7 @@ Default.args = {
 	width: 500,
 	height: 300,
 	showTooltips: false,
-	data: [
-		{ label: 'Jan', value: 12 },
-		{ label: 'Feb', value: 18 },
-		{ label: 'Mar', value: 29 },
-		{ label: 'Apr', value: 33 },
-		{ label: 'May', value: 45 },
-		{ label: 'Jun', value: 52 },
-	],
+	data: data[ 0 ].data,
 };
 
 export const WithTooltips = Template.bind( {} );
