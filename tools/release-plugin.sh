@@ -16,6 +16,18 @@ BASE=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 VERSION_REGEX='^[0-9]+(\.[0-9]+)+(-.*)?$'
 CUR_STEP=0
 
+RELEASE_STEPS=(
+	'do_trunk_and_prelease_branch_prep'
+	'do_changelogs'
+	'do_readme'
+	'do_commit_changelog_and_readme'
+	'do_push_and_build'
+	'do_packagist_check'
+	'do_create_release_branches'
+	'do_create_prerelease_PR'
+	'do_final_instructions'
+)
+
 # Instructions
 function usage {
 	cat <<-EOH
@@ -409,6 +421,12 @@ elif [[ $1 == '-s' || $1 == '--step' ]]; then
 	else
 		usage
 	fi
+elif [[ $1 == '--list-steps' ]]; then
+	echo 'Use the following steps at your own risk:'
+	for i in "${!RELEASE_STEPS[@]}"; do
+		echo "  $i: ${RELEASE_STEPS[$i]}"
+	done
+	exit 1
 fi
 
 # Parse arguments in associated array of plugin => version format.
@@ -499,18 +517,6 @@ if [[ ${#PREFIXES[@]} -gt 1 ]]; then
 	yellow "The specified set of plugins will require multiple release branches: ${PREFIXES[*]}"
 	proceed_p "" "" Y
 fi
-
-RELEASE_STEPS=(
-	'do_trunk_and_prelease_branch_prep'
-	'do_changelogs'
-	'do_readme'
-	'do_commit_changelog_and_readme'
-	'do_push_and_build'
-	'do_packagist_check'
-	'do_create_release_branches'
-	'do_create_prerelease_PR'
-	'do_final_instructions'
-)
 
 # Run each release step.
 for ((i = CUR_STEP; i < ${#RELEASE_STEPS[@]}; i++)); do
