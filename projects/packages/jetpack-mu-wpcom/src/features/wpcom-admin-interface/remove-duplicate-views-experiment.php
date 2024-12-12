@@ -1,6 +1,4 @@
 <?php
-declare( strict_types=1 );
-
 /**
  * Functions that alter the behavior of WP-Admin screens.
  *
@@ -9,10 +7,12 @@ declare( strict_types=1 );
  * @todo: Move the remaining code for duplicate reviews from wpcom-admin-interface.php
  */
 
+declare( strict_types=1 );
+
 /**
  * Get the preferred configured view for a given post type.
  *
- * @param string $post_type
+ * @param string $post_type The post type.
  * @return mixed|null
  */
 function wpcom_get_preferred_configured_view( string $post_type ) {
@@ -28,8 +28,8 @@ function wpcom_get_preferred_configured_view( string $post_type ) {
  *
  * This is a temporary solution until we remove the iFramed Editor.
  *
- * @param $link
- * @param $post_id
+ * @param string $link    The original link.
+ * @param int    $post_id The post id
  * @return mixed|string
  */
 function wpcom_update_editor_edit_link_in_edit_page_when_experiment_enabled( $link, $post_id ) {
@@ -43,7 +43,7 @@ function wpcom_update_editor_edit_link_in_edit_page_when_experiment_enabled( $li
 		'post',
 		'page',
 		'jetpack-testimonial',
-		'jetpack-portfolio'
+		'jetpack-portfolio',
 	);
 
 	if ( ! in_array( $post_type, $post_slug_list, true ) ) {
@@ -63,6 +63,7 @@ function wpcom_update_editor_edit_link_in_edit_page_when_experiment_enabled( $li
 
 	return 'https://wordpress.com/' . $post_type . '/' . ( new Automattic\Jetpack\Status() )->get_site_suffix() . '/' . $post_id;
 }
+
 add_filter( 'get_edit_post_link', 'wpcom_update_editor_edit_link_in_edit_page_when_experiment_enabled', 10, 2 );
 
 /**
@@ -70,8 +71,8 @@ add_filter( 'get_edit_post_link', 'wpcom_update_editor_edit_link_in_edit_page_wh
  *
  * When set to classic, the iframe editor will point to Core as before.
  *
- * @param $use_core_editor
- * @param $menu_item_slug
+ * @param bool   $use_core_editor If the user should get the Core Editor link.
+ * @param string $menu_item_slug  The menu item slug - in this case, the edit.php slug
  * @return false|mixed
  */
 function wpcom_admin_menu_set_editor_type( $use_core_editor, $menu_item_slug ) {

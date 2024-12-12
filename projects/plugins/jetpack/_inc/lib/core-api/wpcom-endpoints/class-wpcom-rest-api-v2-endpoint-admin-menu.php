@@ -184,23 +184,23 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 			'title'      => 'Admin Menu',
 			'type'       => 'object',
 			'properties' => array(
-				'count'      => array(
+				'count'           => array(
 					'description' => 'Core/Plugin/Theme update count or unread comments count.',
 					'type'        => 'integer',
 				),
-				'icon'       => array(
+				'icon'            => array(
 					'description' => 'Menu item icon. Dashicon slug or base64-encoded SVG.',
 					'type'        => 'string',
 				),
-				'inlineText' => array(
+				'inlineText'      => array(
 					'description' => 'Additional text to be added inline with the menu title.',
 					'type'        => 'string',
 				),
-				'badge'      => array(
+				'badge'           => array(
 					'description' => 'Badge to be added inline with the menu title.',
 					'type'        => 'string',
 				),
-				'slug'       => array(
+				'slug'            => array(
 					'type' => 'string',
 				),
 				'use_core_editor' => array(
@@ -308,7 +308,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 
 		$post_types = array( 'edit-php', 'edit-phppost_typepage', 'edit-phppost_typejetpack-portfolio', 'edit-phppost_typejetpack-testimonial' );
 		if ( in_array( $item['slug'], $post_types, true ) ) {
-			$item['use_core_editor'] = apply_filters( 'wpcom_admin_menu_use_core_editor', str_contains( 'wp-admin/edit.php', $item['url'] ), $item['slug'] );
+			$item['use_core_editor'] = apply_filters( 'wpcom_admin_menu_use_core_editor', str_contains( $item['url'], 'wp-admin/edit.php' ), $item['slug'] );
 		}
 
 		$parsed_item = $this->parse_menu_item( $item['title'] );
