@@ -398,6 +398,13 @@ abstract class Publicize_Base {
 	abstract public function get_connections( $service_name, $_blog_id = false, $_user_id = false );
 
 	/**
+	 * Get all Connections from all services for a user
+	 *
+	 * @param array $args Arguments to run operations such as force refresh and connection test results.
+	 */
+	abstract public function get_all_connections_for_user( $args = array() );
+
+	/**
 	 * Get a single Connection of a Service
 	 *
 	 * @param string    $service_name 'facebook', 'twitter', etc.
