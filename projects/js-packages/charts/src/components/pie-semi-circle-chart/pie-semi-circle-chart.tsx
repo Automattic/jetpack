@@ -60,6 +60,7 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 	const accessors = {
 		value: d => d.value,
 		sort: ( a, b ) => a.value - b.value,
+		// Use the color property from the data object as a last resort. The theme provides colours by default.
 		fill: d => d.color || providerTheme.colors[ d.index ],
 	};
 
