@@ -25,15 +25,25 @@ type PieChartProps = {
 	 * Whether to show tooltips on hover. False by default.
 	 */
 	withTooltips?: boolean;
+	/**
+	 * Inner radius in pixels. If > 0, creates a donut chart. Defaults to 0.
+	 */
+	innerRadius?: number;
 };
 
 /**
- * Renders a pie chart using the provided data.
+ * Renders a pie or donut chart using the provided data.
  *
  * @param {PieChartProps} props - Component props
- * @return {JSX.Element} The rendered pie chart component
+ * @return {JSX.Element} The rendered chart component
  */
-const PieChart = ( { data, width, height, withTooltips = false }: PieChartProps ) => {
+const PieChart = ( {
+	data,
+	width,
+	height,
+	withTooltips = false,
+	innerRadius = 0,
+}: PieChartProps ) => {
 	const providerTheme = useChartTheme();
 	const { onMouseMove, onMouseLeave, tooltipOpen, tooltipData, tooltipLeft, tooltipTop } =
 		useChartMouseHandler( {
@@ -59,7 +69,7 @@ const PieChart = ( { data, width, height, withTooltips = false }: PieChartProps 
 						data={ data }
 						pieValue={ accessors.value }
 						outerRadius={ radius - 20 } // Leave space for labels/tooltips
-						innerRadius={ 0 }
+						innerRadius={ innerRadius }
 						// padAngle={ 0.02 }
 					>
 						{ pie => {

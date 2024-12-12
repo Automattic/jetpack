@@ -46,6 +46,21 @@ export const Default: StoryType = {
 		withTooltips: false,
 		data,
 		theme: 'default',
+		innerRadius: 0,
+	},
+};
+
+export const Doughnut: StoryType = {
+	args: {
+		...Default.args,
+		innerRadius: 80,
+	},
+	parameters: {
+		docs: {
+			description: {
+				story: 'Doughnut chart variant with inner radius of 80px.',
+			},
+		},
 	},
 };
 
@@ -58,6 +73,21 @@ export const WithTooltips: StoryType = {
 		docs: {
 			description: {
 				story: 'Pie chart with interactive tooltips that appear on hover.',
+			},
+		},
+	},
+};
+
+export const WithTooltipsDoughnut: StoryType = {
+	args: {
+		...Default.args,
+		withTooltips: true,
+		innerRadius: 100,
+	},
+	parameters: {
+		docs: {
+			description: {
+				story: 'Doughnut chart with interactive tooltips that appear on hover.',
 			},
 		},
 	},
