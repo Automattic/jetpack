@@ -547,6 +547,16 @@ abstract class Base_Admin_Menu {
 		if ( empty( $menu_mappings[ $screen ] ) ) {
 			return;
 		}
+
+		/*
+		 * Don't show the switcher if we're enforcing the WP Admin views to participants of
+		 * the "Remove duplicate views" experiment.
+		 */
+		if ( defined( 'WPCOM_DUPLICATED_VIEW' ) && function_exists( 'wpcom_is_duplicate_views_experiment_enabled' ) ) {
+			if ( in_array( $screen, WPCOM_DUPLICATED_VIEW, true ) && wpcom_is_duplicate_views_experiment_enabled() ) {
+				return;
+			}
+		}
 		?>
 		<div id="view-link-wrap" class="hide-if-no-js screen-meta-toggle">
 			<button type="button" id="view-link" class="button show-settings" aria-expanded="false"><?php echo esc_html_x( 'View', 'View options to switch between', 'jetpack-masterbar' ); ?></button>
