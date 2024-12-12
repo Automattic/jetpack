@@ -30,7 +30,7 @@ export default {
 	},
 	decorators: [
 		Story => (
-			<div style={ { padding: '2rem' } }>
+			<div style={ { position: 'relative', padding: '2rem' } }>
 				<Story />
 			</div>
 		),
