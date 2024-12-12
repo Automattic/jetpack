@@ -478,6 +478,32 @@ abstract class Publicize_Base {
 	abstract public function unglobalize_connection( $connection_id );
 
 	/**
+	 * Returns the external handle for the Connection.
+	 *
+	 * @param string       $service_name 'facebook', 'linkedin', etc.
+	 * @param object|array $connection The Connection object (WordPress.com) or array (Jetpack).
+	 * @return string
+	 */
+	public function get_external_handle( $service_name, $connection ) {
+		$cmeta = $this->get_connection_meta( $connection );
+
+		switch ( $service_name ) {
+			case 'mastodon':
+				return $cmeta['external_display'] ?? '';
+
+			case 'bluesky':
+			case 'threads':
+				return $cmeta['external_name'] ?? '';
+
+			case 'instagram-business':
+				return $cmeta['connection_data']['meta']['username'] ?? '';
+
+			default:
+				return '';
+		}
+	}
+
+	/**
 	 * Returns an external URL to the Connection's profile
 	 *
 	 * @param string       $service_name 'facebook', 'twitter', etc.
@@ -615,7 +641,7 @@ abstract class Publicize_Base {
 	 * @param object|array $connection The Connection object (WordPress.com) or array (Jetpack).
 	 * @return string
 	 */
-	private function get_profile_picture( $connection ) {
+	public function get_profile_picture( $connection ) {
 		$cmeta = $this->get_connection_meta( $connection );
 
 		if ( isset( $cmeta['profile_picture'] ) ) {
