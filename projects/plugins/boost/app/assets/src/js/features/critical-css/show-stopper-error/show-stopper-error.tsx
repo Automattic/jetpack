@@ -76,7 +76,6 @@ const Description = ( { errorSet }: { errorSet: ErrorSet } ) => {
 				b: <b />,
 			} ) }{ ' ' }
 			{ displayUrls.map( ( { href, label }, index ) => (
-				// eslint-disable-next-line jsx-a11y/anchor-has-content
 				<a
 					onClick={ () => {
 						recordBoostEvent( 'critical_css_error_link_clicked', {} );
