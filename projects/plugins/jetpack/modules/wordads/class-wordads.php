@@ -530,7 +530,7 @@ HTML;
 		$location = 'shortcode';
 		// not house ad and watl enabled
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended
-		if ( ! 'house' === $ad_type && ( isset( $_GET['wordads-logging'] ) && isset( $_GET[ $location ] ) && 'true' === $_GET[ $location ] ) ) {
+		if ( 'house' !== $ad_type && ( isset( $_GET['wordads-logging'] ) && isset( $_GET[ $location ] ) && 'true' === $_GET[ $location ] ) ) {
 			$content .= $this->get_watl_ad_html_tag( $location );
 		} else {
 			$content .= $this->get_ad( 'inline', $ad_type );

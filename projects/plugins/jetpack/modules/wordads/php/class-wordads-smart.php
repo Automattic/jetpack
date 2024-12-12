@@ -80,6 +80,9 @@ class WordAds_Smart {
 		'sidebar_widget_wideskyscraper'  => array(
 			'enabled' => false,
 		),
+		'shortcode'                      => array(
+			'enabled' => false,
+		),
 	);
 
 	/**
