@@ -184,7 +184,7 @@ function do_changelogs {
 	done
 
 	# When it completes, wait for user to edit anything they want, then push key to continue.
-	read -r -s -p $'Edit and save all the changelog entries you want in a separate terminal or in the text editor of choice.\nCheck for consistency between the different entries, and keep in mind that your plugin changelog will be used in the plugin readme file.\n\nOnce you are happy with your work, press enter to continue the release process.'
+	read -r -s -p $'Edit and save all the changelog entries you want in a separate terminal or in your text editor of choice.\nCheck for consistency between the different entries, and keep in mind that your plugin changelog will be used in the plugin readme file.\n\nOnce you are happy with your work, press enter to continue the release process.'
 	echo ""
 }
 
