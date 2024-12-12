@@ -166,7 +166,7 @@ function JetpackLikesMessageListener( event ) {
 			if ( data.total > 0 ) {
 				document.querySelector( `#${ data.id }` ).classList.add( 'liked' );
 			}
-			
+
 			break;
 		}
 
