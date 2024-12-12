@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, arsihasi, azaozz, barry, batmoo, beaulebens, bindlegirl, biskobe, bjorsch, blobaugh, brbrr, brileyhooper, cainm, cena, cfinke, cgastrell, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, daniloercoli, davoraltman, delawski, designsimply, dkmyta, dllh, drawmyface, dsmart, dun2mis, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, joen, jblz, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lhkowalski, lschuyler, macmanx, martinremy, matt, mattwiebe, matveb, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, miguelxavierpenha, mikeyarce, mkaz, nancythanki, nickmomrik, njweller, nunyvega, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, renatoagds, retrofox, richardmtl, richardmuscat, robertbpugh, roccotripaldi, ryancowles, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, thehenridev, tmoorewp, tyxla, Viper007Bond, westi, williamvianas, wpkaren, yoavf, zinigor
 Tags: Security, backup, malware, scan, performance
-Stable tag: 14.0
+Stable tag: 14.1
 Requires at least: 6.6
 Requires PHP: 7.2
 Tested up to: 6.7
@@ -326,18 +326,19 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.1-a.5 - 2024-11-25
-#### Major Enhancements
-- Social: Added permissions warning for LinkedIn connections.
-
+### 14.2-a.1 - 2024-12-09
 #### Enhancements
-- Google Photos Picker: Adding Google Photos Picker flow backend API endpoints support.
-- Google Photos Picker: Update Google Photos external media to support Google Photos Picker API.
-- Social: Post share status in the editor is now immediately available on page load.
+- Stats: Allow fetching stats for specific sites when programatically fetching stats using Jetpack's tools.
+- Stats: Sunset Legacy Stats experience.
+- Stats: Enable sparkline chart in the WP Admin bar.
+
+#### Improved compatibility
+- External media: Google Photos Picker: Update UX opening picker right after pressing "change selection" CTA.
+- SEO: Ensure support for adding an SEO title and description for custom post types.
+- WordPress 6.7 Compatibility: Fix notices caused by translation calls happening too early in the load order.
 
 #### Bug fixes
-- AI Assistant: Fix bug with error message when user is not over requests limit.
-- Forms: Prevent duplicate Salesforce entry submissions.
+- Google Fonts: Clean up the Google Fonts data if either the Google Fonts module is disabled or Jetpack is disabled.
 
 --------
 

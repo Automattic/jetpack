@@ -1,4 +1,7 @@
 import { __, _x } from '@wordpress/i18n';
+import { get, includes } from 'lodash';
+import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import Button from 'components/button';
 import JetpackBanner from 'components/jetpack-banner';
 import ModuleOverridenBanner from 'components/module-overridden-banner';
@@ -22,14 +25,11 @@ import {
 	FEATURE_JETPACK_BLAZE,
 	FEATURE_JETPACK_EARN,
 } from 'lib/plans/constants';
-import { get, includes } from 'lodash';
 import ProStatus from 'pro-status';
 import {
 	getProductDescriptionUrl,
 	isSearchNewPricingLaunched202208,
 } from 'product-descriptions/utils';
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import { isAkismetKeyValid, isCheckingAkismetKey, getVaultPressData } from 'state/at-a-glance';
 import {
 	hasConnectedOwner as hasConnectedOwnerSelector,

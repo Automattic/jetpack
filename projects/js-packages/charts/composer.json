@@ -37,6 +37,7 @@
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/charts/compare/v${old}...v${new}"
 		},
-		"mirror-repo": "Automattic/charts"
+		"mirror-repo": "Automattic/charts",
+		"textdomain": "jetpack-charts"
 	}
 }

@@ -47,7 +47,7 @@ const ActionButton: FC< ActionButtonProps > = ( {
 	const [ isDropdownOpen, setIsDropdownOpen ] = useState( false );
 	const [ currentAction, setCurrentAction ] = useState< ComponentProps< typeof Button > >( {} );
 	const { detail } = useProduct( slug );
-	const { manageUrl, purchaseUrl } = detail;
+	const { manageUrl, purchaseUrl, managePaidPlanPurchaseUrl, renewPaidPlanPurchaseUrl } = detail;
 	const isManageDisabled = ! manageUrl;
 	const dropdownRef = useRef( null );
 	const chevronRef = useRef( null );
@@ -188,6 +188,26 @@ const ActionButton: FC< ActionButtonProps > = ( {
 						PRODUCT_STATUSES.INACTIVE in primaryActionOverride &&
 						primaryActionOverride[ PRODUCT_STATUSES.INACTIVE ] ),
 				};
+			case PRODUCT_STATUSES.EXPIRING_SOON:
+				return {
+					...buttonState,
+					href: renewPaidPlanPurchaseUrl,
+					variant: 'primary',
+					label: __( 'Renew my plan', 'jetpack-my-jetpack' ),
+					...( primaryActionOverride &&
+						PRODUCT_STATUSES.EXPIRING_SOON in primaryActionOverride &&
+						primaryActionOverride[ PRODUCT_STATUSES.EXPIRING_SOON ] ),
+				};
+			case PRODUCT_STATUSES.EXPIRED:
+				return {
+					...buttonState,
+					href: managePaidPlanPurchaseUrl,
+					variant: 'primary',
+					label: __( 'Resume my plan', 'jetpack-my-jetpack' ),
+					...( primaryActionOverride &&
+						PRODUCT_STATUSES.EXPIRED in primaryActionOverride &&
+						primaryActionOverride[ PRODUCT_STATUSES.EXPIRED ] ),
+				};
 			default:
 				return null;
 		}
@@ -207,6 +227,8 @@ const ActionButton: FC< ActionButtonProps > = ( {
 		onManage,
 		primaryActionOverride,
 		isOwned,
+		managePaidPlanPurchaseUrl,
+		renewPaidPlanPurchaseUrl,
 	] );
 
 	const allActions = useMemo(

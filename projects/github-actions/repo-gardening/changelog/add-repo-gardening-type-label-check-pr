@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+PR checks: add new check to ensure that PRs include a [Type] label.

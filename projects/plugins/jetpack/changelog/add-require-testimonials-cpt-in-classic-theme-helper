@@ -1,0 +1,4 @@
+Significance: minor
+Type: compat
+
+Jetpack Testimonials: Ensure feature loads via the Classic Theme Helper package instead of the module.

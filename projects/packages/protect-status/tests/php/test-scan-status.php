@@ -17,7 +17,7 @@ use Jetpack_Options;
 use WorDBless\BaseTestCase;
 
 /**
- * The Protect Status class.
+ * Tests for the Protect Scan_Status class.
  */
 class Test_Scan_Status extends BaseTestCase {
 
@@ -26,6 +26,45 @@ class Test_Scan_Status extends BaseTestCase {
 	 */
 	protected function set_up() {
 		Scan_Status::$status = null;
+		$this->mock_data();
+	}
+
+	/**
+	 * Tear down after each test
+	 */
+	protected function tear_down() {
+		$this->teardown_mock_data();
+	}
+
+	/**
+	 * Mock site connection
+	 */
+	public function mock_connection() {
+		( new Tokens() )->update_blog_token( 'test.test' );
+		Jetpack_Options::update_option( 'id', 123 );
+		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+
+		// Since this uses WorDBless, our typical invalidation on option update does not work, so invalidate manually
+		$manager = new \Automattic\Jetpack\Connection\Manager();
+		$manager->reset_connection_status();
+	}
+
+	/**
+	 * Mock data for tests
+	 */
+	public function mock_data() {
+		add_filter( 'pre_http_request', array( $this, 'return_sample_response' ) );
+		add_filter( 'all_plugins', array( $this, 'return_sample_plugins' ) );
+		add_filter( 'jetpack_sync_get_themes_callable', array( $this, 'return_sample_themes' ) );
+	}
+
+	/**
+	 * Tear down mock data
+	 */
+	public function teardown_mock_data() {
+		remove_filter( 'pre_http_request', array( $this, 'return_sample_response' ) );
+		remove_filter( 'all_plugins', array( $this, 'return_sample_plugins' ) );
+		remove_filter( 'jetpack_sync_get_themes_callable', array( $this, 'return_sample_themes' ) );
 	}
 
 	/**
@@ -105,6 +144,11 @@ class Test_Scan_Status extends BaseTestCase {
 						'file'            => '/var/www/html/wp-admin/index.php',
 						'extensionStatus' => '',
 					),
+					'fixer'          => (object) array(
+						'fixer'           => 'replace',
+						'file'            => '/var/www/html/wp-admin/index.php',
+						'extensionStatus' => '',
+					),
 					'filename'       => '/var/www/html/wp-admin/index.php',
 					'diff'           => "--- /tmp/wordpress/6.0-en_US/wordpress/wp-admin/index.php\t2021-11-03 03:16:57.000000000 +0000\n+++ /tmp/6299071296/core-file-23271BW6i4wLCe3T7\t2022-06-23 18:42:29.087377846 +0000\n@@ -209,3 +209,4 @@\n wp_print_community_events_templates();\n \n require_once ABSPATH . 'wp-admin/admin-footer.php';\n+if ( true === false ) exit();\n\\ No newline at end of file\n",
 				),
@@ -137,7 +181,7 @@ class Test_Scan_Status extends BaseTestCase {
 				'threats'             => array(
 					new Threat_Model(
 						array(
-							'id'             => 71626681,
+							'id'             => '71626681',
 							'signature'      => 'EICAR_AV_Test_Critical',
 							'description'    => 'This is the standard EICAR antivirus test code, and not a real infection. If your site contains this code when you don\'t expect it to, contact Jetpack support for some help.',
 							'first_detected' => '2022-07-27T17 => 49 => 35.000Z',
@@ -154,19 +198,7 @@ class Test_Scan_Status extends BaseTestCase {
 					),
 					new Threat_Model(
 						array(
-							'id'             => '71625245',
-							'signature'      => 'Vulnerable.WP.Extension',
-							'description'    => 'The plugin WooCommerce (version 3.0.0) has a known vulnerability. ',
-							'first_detected' => '2022-07-27T17:22:16.000Z',
-							'severity'       => 3,
-							'fixable'        => null,
-							'status'         => 'current',
-							'source'         => 'https://wpvulndb.com/vulnerabilities/10220',
-						)
-					),
-					new Threat_Model(
-						array(
-							'id'             => 69353714,
+							'id'             => '69353714',
 							'signature'      => 'Core.File.Modification',
 							'description'    => 'Core WordPress files are not normally changed. If you did not make these changes you should review the code.',
 							'first_detected' => '2022-06-23T18:42:29.000Z',
@@ -181,15 +213,37 @@ class Test_Scan_Status extends BaseTestCase {
 							'diff'           => "--- /tmp/wordpress/6.0-en_US/wordpress/wp-admin/index.php\t2021-11-03 03:16:57.000000000 +0000\n+++ /tmp/6299071296/core-file-23271BW6i4wLCe3T7\t2022-06-23 18:42:29.087377846 +0000\n@@ -209,3 +209,4 @@\n wp_print_community_events_templates();\n \n require_once ABSPATH . 'wp-admin/admin-footer.php';\n+if ( true === false ) exit();\n\\ No newline at end of file\n",
 						)
 					),
+					new Threat_Model(
+						array(
+							'id'             => '71625245',
+							'signature'      => 'Vulnerable.WP.Extension',
+							'description'    => 'The plugin WooCommerce (version 3.0.0) has a known vulnerability. ',
+							'first_detected' => '2022-07-27T17:22:16.000Z',
+							'severity'       => 3,
+							'fixable'        => null,
+							'status'         => 'current',
+							'source'         => 'https://wpvulndb.com/vulnerabilities/10220',
+							'extension'      => new Extension_Model(
+								array(
+									'type'    => 'plugins',
+									'slug'    => 'woocommerce',
+									'name'    => 'WooCommerce',
+									'version' => '3.0.0',
+									'checked' => true,
+								)
+							),
+						)
+					),
 				),
 				'fixable_threat_ids'  => array( '69353714' ),
 				'plugins'             => array(
 					new Extension_Model(
 						array(
-							'version' => '3.0.0',
 							'name'    => 'Woocommerce',
-							'checked' => true,
+							'slug'    => 'woocommerce',
+							'version' => '3.0.0',
 							'type'    => 'plugins',
+							'checked' => true,
 							'threats' => array(
 								new Threat_Model(
 									array(
@@ -204,7 +258,6 @@ class Test_Scan_Status extends BaseTestCase {
 									)
 								),
 							),
-							'slug'    => 'woocommerce',
 						)
 					),
 				),
@@ -226,13 +279,14 @@ class Test_Scan_Status extends BaseTestCase {
 						'threats' => array(),
 						'checked' => true,
 						'name'    => 'WordPress',
+						'slug'    => 'wordpress',
 						'type'    => 'core',
 					)
 				),
 				'files'               => array(
 					new Threat_Model(
 						array(
-							'id'             => 71626681,
+							'id'             => '71626681',
 							'signature'      => 'EICAR_AV_Test_Critical',
 							'description'    => 'This is the standard EICAR antivirus test code, and not a real infection. If your site contains this code when you don\'t expect it to, contact Jetpack support for some help.',
 							'first_detected' => '2022-07-27T17 => 49 => 35.000Z',
@@ -249,7 +303,7 @@ class Test_Scan_Status extends BaseTestCase {
 					),
 					new Threat_Model(
 						array(
-							'id'             => 69353714,
+							'id'             => '69353714',
 							'signature'      => 'Core.File.Modification',
 							'description'    => 'Core WordPress files are not normally changed. If you did not make these changes you should review the code.',
 							'first_detected' => '2022-06-23T18:42:29.000Z',
@@ -345,29 +399,10 @@ class Test_Scan_Status extends BaseTestCase {
 	}
 
 	/**
-	 * Mock site connection
-	 */
-	public function mock_connection() {
-		( new Tokens() )->update_blog_token( 'test.test' );
-		Jetpack_Options::update_option( 'id', 123 );
-		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
-
-		// Since this uses WorDBless, our typical invalidation on option update does not work, so invalidate manually
-		$manager = new \Automattic\Jetpack\Connection\Manager();
-		$manager->reset_connection_status();
-	}
-
-	/**
 	 * Test while site is not connected
 	 */
 	public function test_get_status_not_connected() {
-		add_filter( 'pre_http_request', array( $this, 'return_sample_response' ) );
-		add_filter( 'all_plugins', array( $this, 'return_sample_plugins' ) );
-		add_filter( 'jetpack_sync_get_themes_callable', array( $this, 'return_sample_themes' ) );
 		$status = Scan_Status::get_status();
-		remove_filter( 'pre_http_request', array( $this, 'return_sample_response' ) );
-		remove_filter( 'all_plugins', array( $this, 'return_sample_plugins' ) );
-		remove_filter( 'jetpack_sync_get_themes_callable', array( $this, 'return_sample_themes' ) );
 
 		$this->assertSame( 'site_not_connected', $status->error_code );
 
@@ -381,13 +416,7 @@ class Test_Scan_Status extends BaseTestCase {
 	public function test_get_status() {
 		$this->mock_connection();
 
-		add_filter( 'pre_http_request', array( $this, 'return_sample_response' ) );
-		add_filter( 'all_plugins', array( $this, 'return_sample_plugins' ) );
-		add_filter( 'jetpack_sync_get_themes_callable', array( $this, 'return_sample_themes' ) );
 		$status = Scan_Status::get_status();
-		remove_filter( 'pre_http_request', array( $this, 'return_sample_response' ) );
-		remove_filter( 'all_plugins', array( $this, 'return_sample_plugins' ) );
-		remove_filter( 'jetpack_sync_get_themes_callable', array( $this, 'return_sample_themes' ) );
 
 		$this->assertEquals( $this->get_sample_status(), $status );
 
@@ -401,15 +430,7 @@ class Test_Scan_Status extends BaseTestCase {
 	public function test_get_total_threats() {
 		$this->mock_connection();
 
-		add_filter( 'pre_http_request', array( $this, 'return_sample_response' ) );
-		add_filter( 'all_plugins', array( $this, 'return_sample_plugins' ) );
-		add_filter( 'jetpack_sync_get_themes_callable', array( $this, 'return_sample_themes' ) );
-		$status = Scan_Status::get_total_threats();
-		remove_filter( 'pre_http_request', array( $this, 'return_sample_response' ) );
-		remove_filter( 'all_plugins', array( $this, 'return_sample_plugins' ) );
-		remove_filter( 'jetpack_sync_get_themes_callable', array( $this, 'return_sample_themes' ) );
-
-		$this->assertSame( 3, $status );
+		$this->assertSame( 3, Scan_Status::get_total_threats() );
 	}
 
 	/**
@@ -418,64 +439,7 @@ class Test_Scan_Status extends BaseTestCase {
 	public function test_get_all_threats() {
 		$this->mock_connection();
 
-		$expected = array(
-			new Threat_Model(
-				array(
-					'id'             => 71626681,
-					'signature'      => 'EICAR_AV_Test_Critical',
-					'description'    => 'This is the standard EICAR antivirus test code, and not a real infection. If your site contains this code when you don\'t expect it to, contact Jetpack support for some help.',
-					'first_detected' => '2022-07-27T17 => 49 => 35.000Z',
-					'severity'       => 5,
-					'fixer'          => null,
-					'status'         => 'current',
-					'filename'       => '/var/www/html/wp-content/uploads/jptt_eicar.php',
-					'context'        => (object) array(
-						'15'    => 'echo <<',
-						'17'    => 'HTML;',
-						'marks' => new \stdClass(),
-					),
-				)
-			),
-			new Threat_Model(
-				array(
-					'id'             => '71625245',
-					'signature'      => 'Vulnerable.WP.Extension',
-					'description'    => 'The plugin WooCommerce (version 3.0.0) has a known vulnerability. ',
-					'first_detected' => '2022-07-27T17:22:16.000Z',
-					'severity'       => 3,
-					'fixable'        => null,
-					'status'         => 'current',
-					'source'         => 'https://wpvulndb.com/vulnerabilities/10220',
-				)
-			),
-			new Threat_Model(
-				array(
-					'id'             => 69353714,
-					'signature'      => 'Core.File.Modification',
-					'description'    => 'Core WordPress files are not normally changed. If you did not make these changes you should review the code.',
-					'first_detected' => '2022-06-23T18:42:29.000Z',
-					'severity'       => 4,
-					'status'         => 'current',
-					'fixable'        => (object) array(
-						'fixer'           => 'replace',
-						'file'            => '/var/www/html/wp-admin/index.php',
-						'extensionStatus' => '',
-					),
-					'filename'       => '/var/www/html/wp-admin/index.php',
-					'diff'           => "--- /tmp/wordpress/6.0-en_US/wordpress/wp-admin/index.php\t2021-11-03 03:16:57.000000000 +0000\n+++ /tmp/6299071296/core-file-23271BW6i4wLCe3T7\t2022-06-23 18:42:29.087377846 +0000\n@@ -209,3 +209,4 @@\n wp_print_community_events_templates();\n \n require_once ABSPATH . 'wp-admin/admin-footer.php';\n+if ( true === false ) exit();\n\\ No newline at end of file\n",
-				)
-			),
-		);
-
-		add_filter( 'pre_http_request', array( $this, 'return_sample_response' ) );
-		add_filter( 'all_plugins', array( $this, 'return_sample_plugins' ) );
-		add_filter( 'jetpack_sync_get_themes_callable', array( $this, 'return_sample_themes' ) );
-		$all_threats = Scan_Status::get_all_threats();
-		remove_filter( 'pre_http_request', array( $this, 'return_sample_response' ) );
-		remove_filter( 'all_plugins', array( $this, 'return_sample_plugins' ) );
-		remove_filter( 'jetpack_sync_get_themes_callable', array( $this, 'return_sample_themes' ) );
-
-		$this->assertEquals( $expected, $all_threats );
+		$this->assertEquals( $this->get_sample_status()->threats, Scan_Status::get_all_threats() );
 	}
 
 	/**

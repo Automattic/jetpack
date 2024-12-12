@@ -81,6 +81,7 @@ class Complete extends Module_Product {
 			'Boost',
 			'Social',
 			'Search',
+			'AI Assistant',
 			_x( 'Stats (100K site views, upgradeable)', 'Complete Product Feature', 'jetpack-my-jetpack' ),
 			_x( 'CRM Entrepreneur', 'Complete Product Feature', 'jetpack-my-jetpack' ),
 		);
@@ -214,6 +215,20 @@ class Complete extends Module_Product {
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * Get the product-slugs of the paid plans for this product.
+	 * (Do not include bundle plans, unless it's a bundle plan itself).
+	 *
+	 * @return array
+	 */
+	public static function get_paid_plan_product_slugs() {
+		return array(
+			'jetpack_complete',
+			'jetpack_complete_monthly',
+			'jetpack_complete_bi_yearly',
+		);
 	}
 
 	/**

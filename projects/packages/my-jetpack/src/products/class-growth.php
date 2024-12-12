@@ -181,6 +181,20 @@ class Growth extends Module_Product {
 	}
 
 	/**
+	 * Get the product-slugs of the paid plans for this product.
+	 * (Do not include bundle plans, unless it's a bundle plan itself).
+	 *
+	 * @return array
+	 */
+	public static function get_paid_plan_product_slugs() {
+		return array(
+			'jetpack_growth_yearly',
+			'jetpack_growth_monthly',
+			'jetpack_growth_bi_yearly',
+		);
+	}
+
+	/**
 	 * Checks whether the product is a bundle
 	 *
 	 * @return bool

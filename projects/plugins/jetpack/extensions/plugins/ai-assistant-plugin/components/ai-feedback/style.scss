@@ -1,0 +1,16 @@
+@import "@wordpress/base-styles/colors";
+
+.ai-assistant-feedback {
+	&__selection {
+		display: flex;
+
+		.components-button.has-icon {
+			padding: 0;
+			min-width: 28px;
+		}
+	}
+
+	&__thumb-selected {
+		color: var(--wp-components-color-accent,var(--wp-admin-theme-color,#3858e9));
+	}
+}

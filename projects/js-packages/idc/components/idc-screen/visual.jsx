@@ -82,7 +82,7 @@ const IDCScreenVisual = props => {
 								em: <em />,
 								strong: <strong />,
 						  } )
-						: __( 'Safe Mode', 'jetpack' ) }
+						: __( 'Safe Mode', 'jetpack-idc' ) }
 				</div>
 			</div>
 

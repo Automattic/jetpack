@@ -78,7 +78,7 @@ const ActionsMenu = ( { currentView, selectedResponses, setSelectedResponses } )
 				{ append: true }
 			);
 			setLoading( false );
-		} catch ( error ) {
+		} catch {
 			setLoading( false );
 		}
 	};

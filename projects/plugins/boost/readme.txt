@@ -183,24 +183,14 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 3.6.0 - 2024-11-22
-#### Added
-- Cornerstone Pages: Added setting to allow selecting important pages.
-
+### 3.6.1 - 2024-11-28
 #### Changed
-- Critical CSS: Improved logic that generates URLs for critical CSS generation.
-- General: Improved compatibility with WordPress 6.7.
-- General: Updated badges used to show state of features.
-- Page Speed: Updated speed scores to be based on first cornerstone page.
-
-#### Removed
-- Image Guide: Removed URL parameter based override.
+- Image CDN: Improve performance.
+- General: Update minimum PHP version to 7.2.
+- General: Update minimum WordPress version to 6.6.
 
 #### Fixed
-- Image Size Analysis: Fixed UI not properly reflecting current state after interaction.
-- Page Speed: Fixed typo in Overall Score tooltip.
-- Performance History: Fixed tooltip behavior.
-- UI: Fixed Boost's menu counter sometimes displaying incorrectly.
+- Compatibility: Fixed situations where minify could break due to too many files being enqueued in the elementor editor.
 
 --------
 

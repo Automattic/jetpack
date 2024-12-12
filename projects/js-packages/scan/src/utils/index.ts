@@ -1,5 +1,7 @@
 import { __, sprintf } from '@wordpress/i18n';
-import { Threat, ThreatFixStatus, FIXER_IS_STALE_THRESHOLD } from '..';
+import { FIXER_IS_STALE_THRESHOLD } from '../constants/index.js';
+import { type ThreatFixStatus } from '../types/fixers.js';
+import { type Threat } from '../types/threats.js';
 
 export const getThreatType = ( threat: Threat ) => {
 	if ( threat.signature === 'Vulnerable.WP.Core' ) {
@@ -66,23 +68,22 @@ export const getDetailedFixerAction = ( threat: Threat ) => {
 				return __( 'Delete file', 'jetpack-scan' );
 			}
 
-			if ( threat.extension?.type === 'plugin' ) {
+			if ( threat.extension?.type === 'plugins' ) {
 				return __( 'Delete plugin from site', 'jetpack-scan' );
 			}
 
-			if ( threat.extension?.type === 'theme' ) {
+			if ( threat.extension?.type === 'themes' ) {
 				return __( 'Delete theme from site', 'jetpack-scan' );
 			}
 			break;
 		case 'update':
-			if ( threat.extension?.type === 'plugin' ) {
+			if ( threat.extension?.type === 'plugins' ) {
 				return __( 'Update plugin to newer version', 'jetpack-scan' );
 			}
-			if ( threat.extension?.type === 'theme' ) {
+			if ( threat.extension?.type === 'themes' ) {
 				return __( 'Update theme to newer version', 'jetpack-scan' );
 			}
 			return __( 'Update', 'jetpack-scan' );
-			break;
 		case 'replace':
 		case 'rollback':
 			if ( threat.filename ) {
@@ -113,11 +114,11 @@ export const getFixerDescription = ( threat: Threat ) => {
 				return __( 'Delete the infected file.', 'jetpack-scan' );
 			}
 
-			if ( threat.extension?.type === 'plugin' ) {
+			if ( threat.extension?.type === 'plugins' ) {
 				return __( 'Delete the plugin directory to fix the threat.', 'jetpack-scan' );
 			}
 
-			if ( threat.extension?.type === 'theme' ) {
+			if ( threat.extension?.type === 'themes' ) {
 				return __( 'Delete the theme directory to fix the threat.', 'jetpack-scan' );
 			}
 			break;

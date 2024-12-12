@@ -5,8 +5,7 @@ import { Button, ThemeProvider, useBreakpointMatch } from '@automattic/jetpack-c
 import { Modal } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { useState } from 'react';
-import { ReactNode } from 'react';
+import { useState, ReactNode } from 'react';
 /**
  * Internal dependencies
  */

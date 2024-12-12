@@ -1,8 +1,8 @@
 import { test, expect } from 'jetpack-e2e-commons/fixtures/base-test.js';
-import { boostPrerequisitesBuilder } from '../../lib/env/prerequisites.js';
-import { JetpackBoostPage } from '../../lib/pages/index.js';
 import { PostFrontendPage } from 'jetpack-e2e-commons/pages/index.js';
 import playwrightConfig from 'jetpack-e2e-commons/playwright.config.mjs';
+import { boostPrerequisitesBuilder } from '../../lib/env/prerequisites.js';
+import { JetpackBoostPage } from '../../lib/pages/index.js';
 
 test.describe( 'Concatenate JS and CSS', () => {
 	let page;

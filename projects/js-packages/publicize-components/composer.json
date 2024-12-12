@@ -34,6 +34,7 @@
 	"prefer-stable": true,
 	"extra": {
 		"mirror-repo": "Automattic/jetpack-publicize-components",
+		"textdomain": "jetpack-publicize-components",
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-publicize-components/compare/v${old}...v${new}"
 		},
