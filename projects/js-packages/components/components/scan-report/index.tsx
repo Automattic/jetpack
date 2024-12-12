@@ -86,6 +86,7 @@ export default function ScanReport( { dataSource, data, onChangeSelection } ): J
 				id: FIELD_STATUS,
 				elements: STATUS_TYPES,
 				label: __( 'Status', 'jetpack-components' ),
+				enableHiding: false,
 				getValue( { item } ) {
 					if ( item.checked ) {
 						if ( item.threats.length > 0 ) {
@@ -150,18 +151,25 @@ export default function ScanReport( { dataSource, data, onChangeSelection } ): J
 				id: FIELD_TYPE,
 				label: __( 'Type', 'jetpack-components' ),
 				elements: TYPES,
+				enableHiding: false,
 			},
 			{
 				id: FIELD_NAME,
 				label: __( 'Name', 'jetpack-components' ),
+				enableHiding: false,
 				enableGlobalSearch: true,
 				getValue( { item }: { item: ScanReportExtension } ) {
+					if ( view.type === 'list' && item.type === 'files' ) {
+						return 'Files';
+					}
+
 					return item.name ? item.name : '';
 				},
 			},
 			{
 				id: FIELD_VERSION,
 				label: __( 'Version', 'jetpack-components' ),
+				enableHiding: false,
 				enableSorting: false,
 				enableGlobalSearch: true,
 				getValue( { item }: { item: ScanReportExtension } ) {
