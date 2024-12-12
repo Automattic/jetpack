@@ -402,7 +402,80 @@ abstract class Publicize_Base {
 	 *
 	 * @param array $args Arguments to run operations such as force refresh and connection test results.
 	 */
-	abstract public function get_all_connections_for_user( $args = array() );
+	public function get_all_connections_for_user( $args = array() ) {
+
+		$items = array();
+
+		foreach ( (array) $this->get_services( 'connected' ) as $service_name => $connections ) {
+			foreach ( $connections as $connection ) {
+				$connection_meta = $this->get_connection_meta( $connection );
+				$connection_data = $connection_meta['connection_data'];
+				$user_id         = (int) $connection_data['user_id'];
+
+				$items[] = array(
+					'id'                   => (string) $this->get_connection_unique_id( $connection ),
+					'connection_id'        => (string) $this->get_connection_id( $connection ),
+					'service_name'         => $service_name,
+					'display_name'         => $this->get_display_name( $service_name, $connection ),
+					'username'             => $this->get_username( $service_name, $connection ),
+					'profile_display_name' => ! empty( $connection_meta['profile_display_name'] ) ? $connection_meta['profile_display_name'] : '',
+					'profile_picture'      => ! empty( $connection_meta['profile_picture'] ) ? $connection_meta['profile_picture'] : '',
+					// phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual -- We expect an integer, but do loose comparison below in case some other type is stored.
+					'global'               => 0 == $connection_data['user_id'],
+					'external_id'          => $connection_meta['external_id'] ?? '',
+					'external_handle'      => $this->get_external_handle( $service_name, $connection ),
+					'profile_link'         => $this->get_profile_link( $service_name, $connection ),
+					'service_label'        => $this->get_service_label( $service_name ),
+					'shared'               => ! $user_id,
+					'status'               => 'ok',
+					'user_id'              => $user_id,
+				);
+			}
+		}
+
+		if ( $this->use_admin_ui_v1() && isset( $args['test_connections'] ) && $args['test_connections'] && count( $items ) > 0 ) {
+			$items = $this->add_connection_test_results( $items );
+		}
+
+		return $items;
+	}
+
+	/**
+	 * To add the connection test results to the connections.
+	 *
+	 * @param array $connections The Jetpack Social connections.
+
+	 * @return array
+	 */
+	public function add_connection_test_results( $connections ) {
+		$test_results              = $this->get_publicize_conns_test_results();
+		$test_results_by_unique_id = array();
+		foreach ( $test_results as $test_result ) {
+			$test_results_by_unique_id[ $test_result['connectionID'] ] = $test_result;
+		}
+
+		$mapping = array(
+			'test_success'  => 'connectionTestPassed',
+			'test_message'  => 'connectionTestMessage',
+			'error_code'    => 'connectionTestErrorCode',
+			'can_refresh'   => 'userCanRefresh',
+			'refresh_text'  => 'refreshText',
+			'refresh_url'   => 'refreshURL',
+			'connection_id' => 'connectionID',
+		);
+
+		foreach ( $connections as &$item ) {
+			$test_result = $test_results_by_unique_id[ $item['connection_id'] ];
+
+			foreach ( $mapping as $field => $test_result_field ) {
+				$item[ $field ] = $test_result[ $test_result_field ];
+			}
+			// Compare to `true` because the API returns a 'must_reauth' for LinkedIn.
+			$item['status'] = true === $test_result['connectionTestPassed'] ? 'ok' : 'broken';
+		}
+
+		return $connections;
+	}
 
 	/**
 	 * Get a single Connection of a Service

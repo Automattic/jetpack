@@ -263,7 +263,7 @@ class Publicize_Script_Data {
 		}
 
 		return array(
-			'refreshConnections' => '/jetpack/v4/publicize/connections?test_connections=1',
+			'refreshConnections' => '/wpcom/v2/publicize/connection-test-results',
 			'resharePost'        => '/jetpack/v4/publicize/{postId}',
 		);
 	}

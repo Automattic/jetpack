@@ -127,29 +127,19 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connections extends WP_REST_Cont
 	protected function get_connections() {
 		global $publicize;
 
-		$items = array();
-
-		foreach ( (array) $publicize->get_services( 'connected' ) as $service_name => $connections ) {
-			foreach ( $connections as $connection ) {
-				$connection_meta = $publicize->get_connection_meta( $connection );
-				$connection_data = $connection_meta['connection_data'];
-
-				$items[] = array(
-					'id'                   => (string) $publicize->get_connection_unique_id( $connection ),
-					'connection_id'        => (string) $publicize->get_connection_id( $connection ),
-					'service_name'         => $service_name,
-					'display_name'         => $publicize->get_display_name( $service_name, $connection ),
-					'username'             => $publicize->get_username( $service_name, $connection ),
-					'profile_display_name' => ! empty( $connection_meta['profile_display_name'] ) ? $connection_meta['profile_display_name'] : '',
-					'profile_picture'      => ! empty( $connection_meta['profile_picture'] ) ? $connection_meta['profile_picture'] : '',
-					// phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual -- We expect an integer, but do loose comparison below in case some other type is stored.
-					'global'               => 0 == $connection_data['user_id'],
-					'external_id'          => $connection_meta['external_id'] ?? '',
-				);
-			}
-		}
-
-		return $items;
+		$items = $publicize->get_all_connections_for_user();
+		$keys  = array(
+			'id',
+			'connection_id',
+			'service_name',
+			'display_name',
+			'username',
+			'profile_display_name',
+			'profile_picture',
+			'global',
+			'external_id',
+		);
+		return array_intersect_key( $items, array_flip( $keys ) );
 	}
 
 	/**

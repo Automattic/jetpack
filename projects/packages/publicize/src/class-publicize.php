@@ -7,10 +7,8 @@
 
 namespace Automattic\Jetpack\Publicize;
 
-use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Tokens;
 use Jetpack_IXR_Client;
-use Jetpack_Options;
 use WP_Error;
 use WP_Post;
 
@@ -237,65 +235,8 @@ class Publicize extends Publicize_Base {
 		|| ( isset( $args['test_connections'] ) && $args['test_connections'] ) ) {
 			$this->clear_connections_transient();
 		}
-		$connections = $this->get_all_connections();
 
-		$connections_to_return = array();
-		if ( ! empty( $connections ) ) {
-			foreach ( (array) $connections as $service_name => $connections_for_service ) {
-				foreach ( $connections_for_service as $connection ) {
-					$user_id = (int) $connection['connection_data']['user_id'];
-
-					$connection_meta = $this->get_connection_meta( $connection );
-					// phpcs:ignore WordPress.PHP.YodaConditions.NotYoda
-					if ( $user_id === 0 || $this->user_id() === $user_id ) {
-						$connections_to_return[] = array(
-							'connection_id'   => (string) $this->get_connection_id( $connection ),
-							'display_name'    => $this->get_display_name( $service_name, $connection ),
-							'external_handle' => $this->get_external_handle( $service_name, $connection ),
-							'external_id'     => $connection_meta['external_id'] ?? '',
-							'profile_link'    => $this->get_profile_link( $service_name, $connection ),
-							'profile_picture' => $this->get_profile_picture( $connection ),
-							'service_label'   => $this->get_service_label( $service_name ),
-							'service_name'    => $service_name,
-							'shared'          => ! $user_id,
-							'status'          => 'ok',
-							'user_id'         => $user_id,
-						);
-					}
-				}
-			}
-		}
-
-		if ( self::use_admin_ui_v1() && isset( $args['test_connections'] ) && $args['test_connections'] && count( $connections_to_return ) > 0 ) {
-			$connections_to_return = $this->add_connection_test_results( $connections_to_return );
-		}
-
-		return $connections_to_return;
-	}
-
-	/**
-	 * To add the connection test results to the connections.
-	 *
-	 * @param array $connections The Jetpack Social connections.
-
-	 * @return array
-	 */
-	public function add_connection_test_results( $connections ) {
-		$path                   = sprintf( '/sites/%d/publicize/connection-test-results', absint( Jetpack_Options::get_option( 'id' ) ) );
-		$response               = Client::wpcom_json_api_request_as_user( $path, '2', array(), null, 'wpcom' );
-		$connection_results     = json_decode( wp_remote_retrieve_body( $response ), true );
-		$connection_results_map = array();
-
-		foreach ( $connection_results as $connection_result ) {
-			$connection_results_map[ $connection_result['connection_id'] ] = $connection_result['test_success'] ? 'ok' : 'broken';
-		}
-		foreach ( $connections as $key => $connection ) {
-			if ( isset( $connection_results_map[ $connection['connection_id'] ] ) ) {
-				$connections[ $key ]['status'] = $connection_results_map[ $connection['connection_id'] ];
-			}
-		}
-
-		return $connections;
+		return parent::get_all_connections_for_user( $args );
 	}
 
 	/**
