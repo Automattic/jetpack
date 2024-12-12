@@ -158,8 +158,7 @@ class Publicize_Script_Data {
 
 		return array(
 			'connectionData' => array(
-				// We do not have this method on WPCOM Publicize class yet.
-				'connections' => ! $is_wpcom ? self::publicize()->get_all_connections_for_user() : array(),
+				'connections' => self::publicize()->get_all_connections_for_user(),
 			),
 			'shareStatus'    => $share_status,
 		);
