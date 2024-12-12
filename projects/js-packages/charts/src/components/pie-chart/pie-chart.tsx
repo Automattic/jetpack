@@ -54,7 +54,6 @@ const PieChart = ( {
 						pieValue={ accessors.value }
 						outerRadius={ radius - 20 } // Leave space for labels/tooltips
 						innerRadius={ innerRadius }
-						// padAngle={ 0.02 }
 					>
 						{ pie => {
 							return pie.arcs.map( ( arc, index ) => {
