@@ -19,7 +19,7 @@ use WP_Post;
  */
 class Publicize extends Publicize_Base {
 
-	const JETPACK_SOCIAL_CONNECTIONS_TRANSIENT = 'jetpack_social_connections';
+	const JETPACK_SOCIAL_CONNECTIONS_TRANSIENT = 'jetpack_social_connection_list';
 
 	/**
 	 * Transitory storage of connection testing results.
