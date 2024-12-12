@@ -1,7 +1,7 @@
 import { LegendOrdinal } from '@visx/legend';
 import { scaleOrdinal } from '@visx/scale';
 import clsx from 'clsx';
-import { FC, useCallback } from 'react';
+import { FC } from 'react';
 import styles from './legend.module.scss';
 import type { LegendProps } from './types';
 
@@ -28,33 +28,41 @@ export const BaseLegend: FC< LegendProps > = ( {
 		range: items.map( item => item.color ),
 	} );
 
-	const handleLabelFormat = useCallback(
-		( label: string ) => {
-			const item = items.find( i => i.label === label );
-			return `${ label }${ item?.value ? ` ${ item.value }` : '' }`;
-		},
-		[ items ]
-	);
-
 	return (
-		<div
-			className={ clsx( styles.legend, styles[ `legend--${ orientation }` ], className ) }
-			role="list"
-		>
+		<div className={ clsx( styles.legend, className ) } role="list">
 			<LegendOrdinal
 				scale={ legendScale }
 				direction={ orientationToFlexDirection[ orientation ] }
 				shape="rect"
 				shapeWidth={ 16 }
 				shapeHeight={ 16 }
-				className={ clsx(
-					styles[ 'legend-items' ],
-					styles[ 'legend-item' ],
-					styles[ 'legend-item-swatch' ],
-					styles[ 'legend-item-label' ]
+				className={ styles[ 'legend-items' ] }
+			>
+				{ labels => (
+					<div className={ styles[ `legend--${ orientation }` ] }>
+						{ labels.map( label => (
+							<div key={ label.text } className={ styles[ 'legend-item' ] }>
+								<svg width={ 16 } height={ 16 }>
+									<rect
+										width={ 16 }
+										height={ 16 }
+										fill={ label.value }
+										className={ styles[ 'legend-item-swatch' ] }
+									/>
+								</svg>
+								<span className={ styles[ 'legend-item-label' ] }>
+									{ label.text }
+									{ items.find( item => item.label === label.text )?.value && (
+										<span className={ styles[ 'legend-item-value' ] }>
+											{ items.find( item => item.label === label.text )?.value }
+										</span>
+									) }
+								</span>
+							</div>
+						) ) }
+					</div>
 				) }
-				labelFormat={ handleLabelFormat }
-			/>
+			</LegendOrdinal>
 		</div>
 	);
 };

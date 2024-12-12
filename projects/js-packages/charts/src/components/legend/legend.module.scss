@@ -1,33 +1,26 @@
 .legend {
-	&--vertical {
-		.legend-items {
-			flex-direction: column;
-		}
-	}
-
 	&--horizontal {
-		.legend-items {
-			flex-direction: row;
-			flex-wrap: wrap;
-		}
+		display: flex;
+		flex-direction: row;
+		flex-wrap: wrap;
+		gap: 16px;
 	}
-}
 
-.legend-items {
-	display: flex;
-	gap: 1rem;
+	&--vertical {
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+	}
 }
 
 .legend-item {
 	display: flex;
 	align-items: center;
-	gap: 0.5rem;
+	gap: 8px;
 	font-size: 0.875rem;
 }
 
 .legend-item-swatch {
-	width: 1rem !important;
-	height: 1rem !important;
 	border-radius: 2px;
 }
 

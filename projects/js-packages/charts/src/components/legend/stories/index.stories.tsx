@@ -1,12 +1,7 @@
-import { BaseLegend } from '../index';
-import type { Meta } from '@storybook/react';
+import { Meta, StoryObj } from '@storybook/react';
+import { BaseLegend } from '../base-legend';
 
-const data = [
-	{ label: 'Desktop', value: '86%', color: '#3858E9' },
-	{ label: 'Mobile', value: '52%', color: '#80C8FF' },
-];
-
-export default {
+const meta: Meta< typeof BaseLegend > = {
 	title: 'JS Packages/Charts/Legend',
 	component: BaseLegend,
 	parameters: {
@@ -18,18 +13,37 @@ export default {
 			},
 		},
 	},
-} satisfies Meta< typeof BaseLegend >;
-
-const Template = args => <BaseLegend { ...args } />;
-
-export const Default = Template.bind( {} );
-Default.args = {
-	items: data,
-	orientation: 'horizontal',
 };
 
-export const Vertical = Template.bind( {} );
-Vertical.args = {
-	items: data,
-	orientation: 'vertical',
+export default meta;
+type Story = StoryObj< typeof BaseLegend >;
+
+const mockData = [
+	{ label: 'Desktop', value: '86%', color: '#3858E9' },
+	{ label: 'Mobile', value: '52%', color: '#80C8FF' },
+];
+
+export const Horizontal: Story = {
+	args: {
+		items: mockData,
+		orientation: 'horizontal',
+	},
+};
+
+export const Vertical: Story = {
+	args: {
+		items: mockData,
+		orientation: 'vertical',
+	},
+};
+
+export const WithLongLabels: Story = {
+	args: {
+		items: [
+			{ label: 'Very Long Desktop Usage', value: '86%', color: '#3858E9' },
+			{ label: 'Extended Mobile Sessions', value: '52%', color: '#80C8FF' },
+			{ label: 'Tablet Device Access', value: '35%', color: '#44B556' },
+		],
+		orientation: 'horizontal',
+	},
 };
