@@ -1,3 +1,4 @@
+/* global jQuery */
 /* eslint no-var: "off" */
 
 ( function ( $ ) {

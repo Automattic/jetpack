@@ -51,7 +51,7 @@ const ShareData = () => {
 		try {
 			await toggleShareData();
 			showSuccessNotice( __( 'Changes saved.', 'jetpack-protect' ) );
-		} catch ( error ) {
+		} catch {
 			showErrorNotice();
 		}
 	}, [ toggleShareData, showSuccessNotice, showErrorNotice ] );
@@ -60,7 +60,7 @@ const ShareData = () => {
 		try {
 			await toggleShareDebugData();
 			showSuccessNotice( __( 'Changes saved.', 'jetpack-protect' ) );
-		} catch ( error ) {
+		} catch {
 			showErrorNotice();
 		}
 	}, [ toggleShareDebugData, showSuccessNotice, showErrorNotice ] );

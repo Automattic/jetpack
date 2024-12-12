@@ -179,6 +179,9 @@ export const EmailForm = ( { shouldShowEmailForm }: EmailFormProps ) => {
 									<input type="hidden" name="sub-type" value="verbum-subscription-toggle" />
 								</>
 							) }
+							{ shouldStoreEmailData.value && (
+								<input type="hidden" name="wp-comment-cookies-consent" value="1" />
+							) }
 						</div>
 					</div>
 				</div>
