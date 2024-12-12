@@ -7,17 +7,14 @@ import { useTooltip } from '@visx/tooltip';
 import React from 'react';
 import { useChartTheme } from '../../providers/theme';
 import { Tooltip } from '../tooltip';
-import type { DataPoint } from '../shared/types';
+import type { BaseChartProps, DataPoint } from '../shared/types';
 
-type BarChartProps = {
+interface BarChartProps extends BaseChartProps {
+	/**
+	 * Array of data points to display in the chart
+	 */
 	data: DataPoint[];
-	width: number;
-	height: number;
-	margin?: {
-		[ K in 'top' | 'right' | 'bottom' | 'left' ]?: number;
-	};
-	showTooltips?: boolean;
-};
+}
 
 /**
  * Renders a bar chart using the provided data.
@@ -25,7 +22,7 @@ type BarChartProps = {
  * @param {BarChartProps} props - Component props
  * @return {JSX.Element} The rendered bar chart component
  */
-function BarChart( { data, width, height, margin, showTooltips = false }: BarChartProps ) {
+function BarChart( { data, width, height, margin, withTooltips = false }: BarChartProps ) {
 	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
 		useTooltip< DataPoint >();
 
@@ -65,10 +62,10 @@ function BarChart( { data, width, height, margin, showTooltips = false }: BarCha
 
 	const getMouseMoveHandler = React.useCallback(
 		( d: DataPoint ) => {
-			if ( ! showTooltips ) return undefined;
+			if ( ! withTooltips ) return undefined;
 			return ( event: React.MouseEvent< SVGRectElement > ) => handleMouseMove( event, d );
 		},
-		[ showTooltips, handleMouseMove ]
+		[ withTooltips, handleMouseMove ]
 	);
 
 	return (
@@ -84,7 +81,7 @@ function BarChart( { data, width, height, margin, showTooltips = false }: BarCha
 							height={ yMax - ( yScale( d.value ) ?? 0 ) }
 							fill={ theme.colors[ 0 ] }
 							onMouseMove={ getMouseMoveHandler( d ) }
-							onMouseLeave={ showTooltips ? handleMouseLeave : undefined }
+							onMouseLeave={ withTooltips ? handleMouseLeave : undefined }
 						/>
 					) ) }
 					<AxisLeft scale={ yScale } />

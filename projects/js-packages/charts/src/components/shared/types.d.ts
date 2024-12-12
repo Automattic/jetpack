@@ -52,3 +52,34 @@ export type ChartTheme = {
 	/** Color of the grid lines in dark mode */
 	gridColorDark: string;
 };
+
+/**
+ * Base properties shared across all chart components
+ */
+export type BaseChartProps = {
+	/**
+	 * Array of data points to display in the chart
+	 */
+	data: DataPoint[] | DataPointDate[];
+	/**
+	 * Width of the chart in pixels
+	 */
+	width: number;
+	/**
+	 * Height of the chart in pixels
+	 */
+	height: number;
+	/**
+	 * Chart margins
+	 */
+	margin?: {
+		top?: number;
+		right?: number;
+		bottom?: number;
+		left?: number;
+	};
+	/**
+	 * Whether to show tooltips on hover. False by default.
+	 */
+	withTooltips?: boolean;
+};

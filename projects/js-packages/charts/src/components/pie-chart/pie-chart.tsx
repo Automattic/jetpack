@@ -4,32 +4,20 @@ import { SVGProps } from 'react';
 import useChartMouseHandler from '../../hooks/use-chart-mouse-handler';
 import { useChartTheme, defaultTheme } from '../../providers/theme';
 import { Tooltip } from '../tooltip';
-import type { DataPoint } from '../shared/types';
+import type { BaseChartProps, DataPoint } from '../shared/types';
 
 // TODO: add animation
 
-type PieChartProps = {
+interface PieChartProps extends BaseChartProps {
 	/**
 	 * Array of data points to display in the chart
 	 */
 	data: DataPoint[];
 	/**
-	 * Width of the chart in pixels
-	 */
-	width: number;
-	/**
-	 * Height of the chart in pixels
-	 */
-	height: number;
-	/**
-	 * Whether to show tooltips on hover. False by default.
-	 */
-	withTooltips?: boolean;
-	/**
 	 * Inner radius in pixels. If > 0, creates a donut chart. Defaults to 0.
 	 */
 	innerRadius?: number;
-};
+}
 
 /**
  * Renders a pie or donut chart using the provided data.

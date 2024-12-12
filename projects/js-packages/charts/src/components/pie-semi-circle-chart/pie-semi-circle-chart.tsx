@@ -5,23 +5,13 @@ import clsx from 'clsx';
 import { FC } from 'react';
 import { useChartTheme } from '../../providers/theme/theme-provider';
 import styles from './pie-semi-circle-chart.module.scss';
-import type { DataPointPercentage } from '../shared/types';
+import type { BaseChartProps, DataPointPercentage } from '../shared/types';
 
-// TODO: convert hard-coded values to props
-
-interface PieSemiCircleChartProps {
+interface PieSemiCircleChartProps extends BaseChartProps {
 	/**
 	 * Array of data points to display in the chart
 	 */
 	data: DataPointPercentage[];
-	/**
-	 * Width of the chart in pixels
-	 */
-	width: number;
-	/**
-	 * Height of the chart in pixels
-	 */
-	height: number;
 	/**
 	 * Label text to display above the chart
 	 */
