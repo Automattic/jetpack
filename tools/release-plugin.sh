@@ -19,19 +19,18 @@ CUR_STEP=0
 # Instructions
 function usage {
 	cat <<-EOH
+		Usage:
+		    $0 [-s <step>] <plugin> [<version>]
+
+		Options:
+		    -h, --help                 Show this help message.
+		    -s <step>, --step <step>   Start at a given step.
+		    <plugin>                   Plugin name to release (e.g. jetpack)
+		    <version>                  Version number (defaults to next stable)
+
 		Conduct a full release of specified plugins through release branch creation.
 		Accepts the plugin name without a prefix, such as 'jetpack' or 'backup'. The
 		version is optional; if not specified it will be set to the next stable version.
-
-		Usage:
-		  $0 -h
-		  $0 [-s <step>] <plugin> [<version>] [<plugin> [<version>] ...]
-
-		Options:
-		  -h, --help                 Show this help message.
-		  -s <step>, --step <step>   Start at a given step.
-		  <plugin>                   Plugin name to release (e.g. jetpack)
-		  <version>                  Version number (defaults to next stable if omitted)
 
 	EOH
 	exit 1
