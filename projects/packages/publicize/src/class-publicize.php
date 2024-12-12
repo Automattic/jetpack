@@ -242,25 +242,25 @@ class Publicize extends Publicize_Base {
 		$connections_to_return = array();
 		if ( ! empty( $connections ) ) {
 			foreach ( (array) $connections as $service_name => $connections_for_service ) {
-				foreach ( $connections_for_service as $id => $connection ) {
+				foreach ( $connections_for_service as $connection ) {
 					$user_id = (int) $connection['connection_data']['user_id'];
+
+					$connection_meta = $this->get_connection_meta( $connection );
 					// phpcs:ignore WordPress.PHP.YodaConditions.NotYoda
 					if ( $user_id === 0 || $this->user_id() === $user_id ) {
-						if ( $this->use_admin_ui_v1() ) {
-							$connections_to_return[] = array_merge(
-								$connection,
-								array(
-									'service_name'   => $service_name,
-									'connection_id'  => $connection['connection_data']['id'],
-									'can_disconnect' => self::can_manage_connection( $connection['connection_data'] ),
-									'profile_link'   => $this->get_profile_link( $service_name, $connection ),
-									'shared'         => '0' === $connection['connection_data']['user_id'],
-									'status'         => 'ok',
-								)
-							);
-						} else {
-							$connections_to_return[ $service_name ][ $id ] = $connection;
-						}
+						$connections_to_return[] = array(
+							'connection_id'   => (string) $this->get_connection_id( $connection ),
+							'display_name'    => $this->get_display_name( $service_name, $connection ),
+							'external_handle' => $this->get_external_handle( $service_name, $connection ),
+							'external_id'     => $connection_meta['external_id'] ?? '',
+							'profile_link'    => $this->get_profile_link( $service_name, $connection ),
+							'profile_picture' => $this->get_profile_picture( $connection ),
+							'service_label'   => $this->get_service_label( $service_name ),
+							'service_name'    => $service_name,
+							'shared'          => ! $user_id,
+							'status'          => 'ok',
+							'user_id'         => $user_id,
+						);
 					}
 				}
 			}
