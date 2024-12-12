@@ -17,6 +17,7 @@ import PremiumTooltip from '$features/premium-tooltip/premium-tooltip';
 import Upgraded from '$features/ui/upgraded/upgraded';
 import PageCacheModule from '$features/page-cache/page-cache';
 import Pill from '$features/ui/pill/pill';
+import { useMutationNotice } from '$features/ui';
 
 const Index = () => {
 	const criticalCssLink = getRedirectUrl( 'jetpack-boost-critical-css' );
@@ -26,6 +27,13 @@ const Index = () => {
 	const [ imageCdn ] = useSingleModuleState( 'image_cdn' );
 
 	const regenerateCssAction = useRegenerateCriticalCssAction();
+
+	useMutationNotice( 'critical-css-setup', regenerateCssAction, {
+		savingMessage: __( 'Regenerating Critical CSS…', 'jetpack-boost' ),
+		errorMessage: __( 'Failed to regenerate Critical CSS', 'jetpack-boost' ),
+		successMessage: __( 'Critical CSS setup complete', 'jetpack-boost' ),
+	} );
+
 	const requestRegenerateCriticalCss = () => {
 		regenerateCssAction.mutate();
 	};
