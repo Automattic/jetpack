@@ -224,6 +224,19 @@ class Publicize_Script_Data {
 	 * @return array List of external services and their settings.
 	 */
 	public static function get_supported_services() {
+		if ( defined( 'IS_WPCOM' ) && constant( 'IS_WPCOM' ) ) {
+			if ( function_exists( 'require_lib' ) ) {
+				// @phan-suppress-next-line PhanUndeclaredFunction - phan is dumb not to see the function_exists check.
+				require_lib( 'external-connections' );
+			}
+
+			// @phan-suppress-next-line PhanUndeclaredClassMethod - We are here because we are on WPCOM.
+			$external_connections = \WPCOM_External_Connections::init();
+			$services             = array_values( $external_connections->get_external_services_list( 'publicize', get_current_blog_id() ) );
+
+			return $services;
+		}
+
 		$site_id = Manager::get_site_id();
 		if ( is_wp_error( $site_id ) ) {
 			return array();
