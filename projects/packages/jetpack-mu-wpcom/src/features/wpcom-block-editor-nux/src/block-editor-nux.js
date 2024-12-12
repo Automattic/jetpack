@@ -24,6 +24,7 @@ import LaunchWpcomWelcomeTour from './welcome-tour/tour-launch';
 
 /**
  * The WelcomeTour component
+ * @return {JSX.Element|null} The WelcomeTour component or null.
  */
 function WelcomeTour() {
 	const [ showDraftPostModal ] = useState(

@@ -27,7 +27,9 @@
 		"@visx/shape": "^3.12.0",
 		"@visx/text": "3.12.0",
 		"@visx/xychart": "3.12.0",
-		"clsx": "2.1.1"
+		"clsx": "2.1.1",
+		"@visx/tooltip": "^3.8.0",
+		"@visx/event": "^3.8.0"
 	},
 	"devDependencies": {
 		"@storybook/blocks": "8.4.6",
@@ -50,6 +52,7 @@
 		".": "./src/index.ts",
 		"./state": "./src/state",
 		"./action-types": "./src/state/action-types",
-		"./bar": "./src/components/bar-chart/index.ts"
+		"./bar": "./src/components/bar-chart/index.ts",
+		"./tooltip": "./src/components/tooltip/index.ts"
 	}
 }

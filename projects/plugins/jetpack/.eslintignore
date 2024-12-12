@@ -1,4 +1,4 @@
-# Not loaded by default eslint, but we use tools/js-tools/load-eslint-ignore.js in .eslintrc to pull it in.
+# Our standard eslint config reads .gitignore and .eslintignore to determine what to ignore.
 
 /modules/carousel/swiper-bundle.js
 /modules/custom-css/custom-css/js/core-customizer-css-preview.js
