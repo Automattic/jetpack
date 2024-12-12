@@ -5,6 +5,8 @@
  * Added in the context of the Remove Duplicate views Project thread (https://wp.me/pekYwv-4PY).
  *
  * @todo: Move the remaining code for duplicate reviews from wpcom-admin-interface.php
+ *
+ * @package automattic/jetpack-mu-wpcom
  */
 
 declare( strict_types=1 );
@@ -29,7 +31,7 @@ function wpcom_get_preferred_configured_view( string $post_type ) {
  * This is a temporary solution until we remove the iFramed Editor.
  *
  * @param string $link    The original link.
- * @param int    $post_id The post id
+ * @param int    $post_id The post id.
  * @return mixed|string
  */
 function wpcom_update_editor_edit_link_in_edit_page_when_experiment_enabled( $link, $post_id ) {
@@ -72,7 +74,7 @@ add_filter( 'get_edit_post_link', 'wpcom_update_editor_edit_link_in_edit_page_wh
  * When set to classic, the iframe editor will point to Core as before.
  *
  * @param bool   $use_core_editor If the user should get the Core Editor link.
- * @param string $menu_item_slug  The menu item slug - in this case, the edit.php slug
+ * @param string $menu_item_slug  The menu item slug - in this case, the edit.php slug.
  * @return false|mixed
  */
 function wpcom_admin_menu_set_editor_type( $use_core_editor, $menu_item_slug ) {
@@ -116,12 +118,11 @@ function wpcom_duplicate_views_experiment_update_admin_menu_post_new() {
 	$domain = ( new Automattic\Jetpack\Status() )->get_site_suffix();
 
 	$admin_menu = Automattic\Jetpack\Masterbar\Admin_Menu::get_instance();
-	$admin_menu->update_submenus('edit.php', array( 'post-new.php' => 'https://wordpress.com/post/' . $domain));
-	$admin_menu->update_submenus('edit.php?post_type=page', array( 'post-new.php?post_type=page' => 'https://wordpress.com/page/' . $domain));
+	$admin_menu->update_submenus( 'edit.php', array( 'post-new.php' => 'https://wordpress.com/post/' . $domain ) );
+	$admin_menu->update_submenus( 'edit.php?post_type=page', array( 'post-new.php?post_type=page' => 'https://wordpress.com/page/' . $domain ) );
 
-	$admin_menu->update_submenus('edit.php?post_type=jetpack-portfolio', array( 'post-new.php?post_type=jetpack-portfolio' => 'https://wordpress.com/edit/jetpack-portfolio/' . $domain));
-	$admin_menu->update_submenus('edit.php?post_type=jetpack-testimonial', array( 'post-new.php?post_type=jetpack-testimonial' => 'https://wordpress.com/edit/jetpack-testimonial/' . $domain));
-
+	$admin_menu->update_submenus( 'edit.php?post_type=jetpack-portfolio', array( 'post-new.php?post_type=jetpack-portfolio' => 'https://wordpress.com/edit/jetpack-portfolio/' . $domain ) );
+	$admin_menu->update_submenus( 'edit.php?post_type=jetpack-testimonial', array( 'post-new.php?post_type=jetpack-testimonial' => 'https://wordpress.com/edit/jetpack-testimonial/' . $domain ) );
 }
 
 add_action( 'admin_menu', 'wpcom_duplicate_views_experiment_update_admin_menu_post_new', PHP_INT_MAX, 0 );

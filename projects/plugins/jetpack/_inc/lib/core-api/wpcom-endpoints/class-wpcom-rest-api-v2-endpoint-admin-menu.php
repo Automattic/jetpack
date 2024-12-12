@@ -206,7 +206,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 				'use_core_editor' => array(
 					'type' => 'boolean',
 				),
-				'children'   => array(
+				'children'        => array(
 					'items' => array(
 						'count'  => array(
 							'description' => 'Core/Plugin/Theme update count or unread comments count.',
@@ -232,14 +232,14 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 					),
 					'type'  => 'array',
 				),
-				'title'      => array(
+				'title'           => array(
 					'type' => 'string',
 				),
-				'type'       => array(
+				'type'            => array(
 					'enum' => array( 'separator', 'menu-item' ),
 					'type' => 'string',
 				),
-				'url'        => array(
+				'url'             => array(
 					'format' => 'uri',
 					'type'   => 'string',
 				),
