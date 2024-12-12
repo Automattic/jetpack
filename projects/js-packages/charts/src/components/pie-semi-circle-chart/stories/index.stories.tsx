@@ -29,7 +29,7 @@ const data = [
 ];
 
 export default {
-	title: 'JS Packages/Charts/Pie Semi Circle Chart',
+	title: 'JS Packages/Charts/Types/Pie Semi Circle Chart',
 	component: PieSemiCircleChart,
 	parameters: {
 		layout: 'centered',
