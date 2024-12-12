@@ -299,6 +299,9 @@ importers:
       '@visx/group':
         specifier: ^3.12.0
         version: 3.12.0(react@18.3.1)
+      '@visx/responsive':
+        specifier: 3.12.0
+        version: 3.12.0(react@18.3.1)
       '@visx/scale':
         specifier: ^3.12.0
         version: 3.12.0
@@ -1406,9 +1409,6 @@ importers:
 
   projects/js-packages/storybook:
     dependencies:
-      '@visx/responsive':
-        specifier: 3.12.0
-        version: 3.12.0(react@18.3.1)
       '@wordpress/api-fetch':
         specifier: 7.13.0
         version: 7.13.0
