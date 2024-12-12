@@ -30,6 +30,14 @@ export function SharesDataView( { postShareStatus }: SharesDataViewProps ) {
 			<DataViews
 				isLoading={ postShareStatus.loading }
 				getItemId={ getItemId }
+				data={ postShareStatus.shares }
+				view={ { type: 'table', fields: [ 'connection', 'timestamp', 'status', 'actions' ] } }
+				defaultLayouts={ { table: {} } }
+				onChangeView={ noop }
+				paginationInfo={ {
+					totalItems: postShareStatus.shares.length,
+					totalPages: 1,
+				} }
 				fields={ [
 					{
 						id: 'connection',
@@ -46,8 +54,6 @@ export function SharesDataView( { postShareStatus }: SharesDataViewProps ) {
 								</div>
 							</div>
 						),
-						enableSorting: false,
-						enableHiding: false,
 					},
 					{
 						id: 'timestamp',
@@ -59,8 +65,6 @@ export function SharesDataView( { postShareStatus }: SharesDataViewProps ) {
 								getDate( null )
 							);
 						},
-						enableSorting: false,
-						enableHiding: false,
 					},
 					{
 						id: 'status',
@@ -68,25 +72,17 @@ export function SharesDataView( { postShareStatus }: SharesDataViewProps ) {
 						render: ( { item } ) => (
 							<ShareStatusLabel status={ item.status } message={ item.message } />
 						),
-						enableSorting: false,
-						enableHiding: false,
 					},
 					{
 						id: 'actions',
 						label: __( 'Actions', 'jetpack-publicize-components' ),
 						render: ( { item } ) => <ShareStatusAction shareItem={ item } />,
-						enableSorting: false,
-						enableHiding: false,
 					},
-				] }
-				data={ postShareStatus.shares }
-				view={ { type: 'table' } }
-				defaultLayouts={ { table: {} } }
-				onChangeView={ noop }
-				paginationInfo={ {
-					totalItems: postShareStatus.shares.length,
-					totalPages: 1,
-				} }
+				].map( field => ( {
+					...field,
+					enableSorting: false,
+					enableHiding: false,
+				} ) ) }
 			/>
 		</div>
 	);
