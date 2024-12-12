@@ -9,7 +9,7 @@
 	"require-dev": {
 		"automattic/jetpack-changelogger": "@dev",
 		"automattic/wordbless": "^0.4.2",
-		"yoast/phpunit-polyfills": "^1.1.1"
+		"yoast/phpunit-polyfills": "^1.1.1 || ^3.0.0"
 	},
 	"suggest": {
 		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
