@@ -51,18 +51,16 @@ export default function ScanReport( { dataSource, data, onChangeSelection } ): J
 	const defaultLayouts: SupportedLayouts = {
 		table: {
 			...baseView,
-			fields: [ FIELD_STATUS, FIELD_TYPE, FIELD_NAME, FIELD_VERSION ],
-			layout: {
-				primaryField: FIELD_STATUS,
-			},
+			fields: [ FIELD_TYPE, FIELD_NAME, FIELD_VERSION ],
+			titleField: FIELD_STATUS,
+			showMedia: false,
 		},
 		list: {
 			...baseView,
 			fields: [ FIELD_STATUS, FIELD_VERSION ],
-			layout: {
-				primaryField: FIELD_NAME,
-				mediaField: FIELD_ICON,
-			},
+			titleField: FIELD_NAME,
+			mediaField: FIELD_ICON,
+			showMedia: true,
 		},
 	};
 
