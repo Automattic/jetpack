@@ -203,6 +203,9 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 				'slug'       => array(
 					'type' => 'string',
 				),
+				'use_core_editor' => array(
+					'type' => 'boolean',
+				),
 				'children'   => array(
 					'items' => array(
 						'count'  => array(
@@ -302,6 +305,11 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 			'type'  => 'menu-item',
 			'url'   => $this->prepare_menu_item_url( $url, $parent_slug ),
 		);
+
+		$post_types = array( 'edit-php', 'edit-phppost_typepage', 'edit-phppost_typejetpack-portfolio', 'edit-phppost_typejetpack-testimonial' );
+		if ( in_array( $item['slug'], $post_types, true ) ) {
+			$item['use_core_editor'] = apply_filters( 'wpcom_admin_menu_use_core_editor', str_contains( 'wp-admin/edit.php', $item['url'] ), $item['slug'] );
+		}
 
 		$parsed_item = $this->parse_menu_item( $item['title'] );
 		if ( ! empty( $parsed_item ) ) {

@@ -117,6 +117,11 @@ function wpcom_admin_interface_pre_update_option( $new_value, $old_value ) {
 add_filter( 'pre_update_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_update_option', 10, 2 );
 
 /**
+ * Remove duplicate views experiment: load the script.
+ */
+require_once __DIR__ . '/remove-duplicate-views-experiment.php';
+
+/**
  * Get the current screen section.
  *
  * Temporary function copied from Base_Admin_Menu.

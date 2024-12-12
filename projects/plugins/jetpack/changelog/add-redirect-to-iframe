@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Added a new property in the admin-menu endpoint that configures which post editor to load in the nav-unification
