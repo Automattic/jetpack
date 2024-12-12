@@ -3,7 +3,6 @@ import { Annotation } from '.';
 
 import './style-annotation.scss';
 
-// eslint-disable-next-line jsdoc/require-returns
 /**
  * Custom tooltips plugin for uPlot.
  *
