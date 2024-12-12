@@ -325,6 +325,18 @@ export default function makeBaseConfig( configurl, opts = {} ) {
 					'error',
 					{ allowInterfaces: 'with-single-extends' },
 				],
+				// Disable param name check for destructured params.
+				'jsdoc/check-param-names': [ 'error', { checkDestructured: false } ],
+				// TS should be enough to catch undefined types.
+				'jsdoc/no-undefined-types': 'off',
+				// Disable param check except when destructured.
+				'jsdoc/require-param': [ 'error', { checkDestructured: false } ],
+				// TS should mostly have the type set.
+				'jsdoc/require-param-type': 'off',
+				'jsdoc/require-property-type': 'off',
+				// Let us use TS return type for better inference
+				'jsdoc/require-returns': 'off',
+				'jsdoc/require-returns-type': 'off',
 			},
 		} ),
 		// Jest.
