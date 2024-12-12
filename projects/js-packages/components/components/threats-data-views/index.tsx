@@ -207,7 +207,7 @@ export default function ThreatsDataViews( {
 		const result: Field< Threat >[] = [
 			{
 				id: THREAT_FIELD_TITLE,
-				label: __( 'Title', 'jetpack-components' ),
+				label: __( 'Threat', 'jetpack-components' ),
 				enableGlobalSearch: true,
 				enableHiding: false,
 				render: ( { item }: { item: Threat } ) => (
