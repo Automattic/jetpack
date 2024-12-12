@@ -139,12 +139,12 @@ class WordAds {
 			$format = $attr['format'];
 		}
 
-		$height             = $ad_tag_ids[ $format ]['height'];
-		$width              = $ad_tag_ids[ $format ]['width'];
-		$gutenberg_location = 'gutenberg';
-		$snippet            = $wordads->get_ad_snippet( $section_id, $height, $width, $gutenberg_location, $wordads->get_solo_unit_css() );
+		$height   = $ad_tag_ids[ $format ]['height'];
+		$width    = $ad_tag_ids[ $format ]['width'];
+		$location = 'gutenberg';
+		$snippet  = $wordads->get_ad_snippet( $section_id, $height, $width, $location, $wordads->get_solo_unit_css() );
 
-		$key          = "{$gutenberg_location}_{$width}x{$height}";
+		$key          = "{$location}_{$width}x{$height}";
 		$smart_format = self::$gutenberg_ad_snippet_x_smart_format[ $key ] ?? null;
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended
 		$is_watl_enabled = $smart_format && ( isset( $_GET[ $smart_format ] ) && 'true' === $_GET[ $smart_format ] );
