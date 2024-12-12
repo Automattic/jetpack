@@ -1,6 +1,6 @@
 import { localPoint } from '@visx/event';
 import { Group } from '@visx/group';
-import { Pie, PieArcDatum } from '@visx/shape';
+import Pie, { PieArcDatum } from '@visx/shape/lib/shapes/Pie';
 import { Text } from '@visx/text';
 import clsx from 'clsx';
 import { FC, useState, useCallback } from 'react';
