@@ -171,8 +171,7 @@ export default function withMedia( mediaSource = MediaSource.Unknown ) {
 					.then( result => {
 						// If we don't have media available, we should show an error instead of crashing the editor.
 						if ( result.media === undefined ) {
-							result.code = 'internal_server_error';
-							throw result;
+							throw { code: 'internal_server_error' };
 						}
 						this.setState( {
 							account: result.meta.account,
