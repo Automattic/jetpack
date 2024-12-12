@@ -7,26 +7,23 @@ const data = [
 		value: 80000,
 		valueDisplay: '$80K',
 		percentage: 2,
-		color: '#3858E9',
 	},
 	{
 		label: 'MacOS',
 		value: 30000,
 		valueDisplay: '$30K',
 		percentage: 5,
-		color: '#80C8FF',
 	},
 	{
 		label: 'Linux',
 		value: 22000,
 		valueDisplay: '$22K',
 		percentage: 1,
-		color: '#B999FF',
 	},
 ];
 
 export default {
-	title: 'JS Packages/Charts/Pie Semi Circle Chart',
+	title: 'JS Packages/Charts/Types/Pie Semi Circle Chart',
 	component: PieSemiCircleChart,
 	parameters: {
 		layout: 'centered',

@@ -171,6 +171,7 @@ export default function Carrousel( {
 						disabled={ aiFeedbackDisabled( images[ current ] ) }
 						ratedItem={ images[ current ].libraryUrl || '' }
 						iconSize={ 20 }
+						feature="image-generator"
 					/>
 				</div>
 

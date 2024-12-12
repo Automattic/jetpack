@@ -2,7 +2,7 @@ import BarChart from '../index';
 import type { Meta } from '@storybook/react';
 
 export default {
-	title: 'JS Packages/Charts/Bar Chart',
+	title: 'JS Packages/Charts/Types/Bar Chart',
 	component: BarChart,
 	parameters: {
 		layout: 'centered',

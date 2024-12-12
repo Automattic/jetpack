@@ -1,5 +1,5 @@
 /* eslint-disable jsdoc/require-description,jsdoc/require-param-description,jsdoc/require-param-type,jsdoc/require-returns */
-/* global ajaxurl, jetpackAdminMenu */
+/* global ajaxurl, jetpackAdminMenu, jQuery */
 import './admin-menu.css';
 
 ( function ( $ ) {
