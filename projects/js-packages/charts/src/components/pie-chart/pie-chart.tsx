@@ -8,11 +8,7 @@ import type { BaseChartProps, DataPoint } from '../shared/types';
 
 // TODO: add animation
 
-interface PieChartProps extends BaseChartProps {
-	/**
-	 * Array of data points to display in the chart
-	 */
-	data: DataPoint[];
+interface PieChartProps extends BaseChartProps< DataPoint[] > {
 	/**
 	 * Inner radius in pixels. If > 0, creates a donut chart. Defaults to 0.
 	 */

@@ -56,11 +56,11 @@ export type ChartTheme = {
 /**
  * Base properties shared across all chart components
  */
-export type BaseChartProps = {
+export type BaseChartProps< T = DataPoint | DataPointDate > = {
 	/**
 	 * Array of data points to display in the chart
 	 */
-	data: DataPoint[] | DataPointDate[];
+	data: T extends DataPoint | DataPointDate ? T[] : T;
 	/**
 	 * Width of the chart in pixels
 	 */
@@ -73,10 +73,10 @@ export type BaseChartProps = {
 	 * Chart margins
 	 */
 	margin?: {
-		top?: number;
-		right?: number;
-		bottom?: number;
-		left?: number;
+		top: number;
+		right: number;
+		bottom: number;
+		left: number;
 	};
 	/**
 	 * Whether to show tooltips on hover. False by default.

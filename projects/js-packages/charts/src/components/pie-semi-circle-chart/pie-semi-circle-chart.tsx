@@ -7,11 +7,7 @@ import { useChartTheme } from '../../providers/theme/theme-provider';
 import styles from './pie-semi-circle-chart.module.scss';
 import type { BaseChartProps, DataPointPercentage } from '../shared/types';
 
-interface PieSemiCircleChartProps extends BaseChartProps {
-	/**
-	 * Array of data points to display in the chart
-	 */
-	data: DataPointPercentage[];
+interface PieSemiCircleChartProps extends BaseChartProps< DataPointPercentage[] > {
 	/**
 	 * Label text to display above the chart
 	 */
