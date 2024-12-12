@@ -255,6 +255,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 			'id_number' => array(
 				'connection_data' => array(
 					'user_id' => 0,
+					'id'      => '456',
 				),
 			),
 		);
@@ -262,6 +263,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 			'id_number_2' => array(
 				'connection_data' => array(
 					'user_id' => 1,
+					'id'      => '456',
 				),
 			),
 		);

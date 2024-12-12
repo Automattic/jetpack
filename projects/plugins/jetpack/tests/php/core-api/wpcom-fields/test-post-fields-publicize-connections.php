@@ -153,7 +153,7 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Je
 
 	public static function setup_connections_jetpack() {
 		set_transient(
-			'jetpack_social_connections',
+			'jetpack_social_connection_list',
 			array(
 				// Normally connected facebook.
 				'facebook' => array(
