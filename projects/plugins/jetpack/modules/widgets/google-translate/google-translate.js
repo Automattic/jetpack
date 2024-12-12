@@ -1,4 +1,4 @@
-/* global google, _wp_google_translate_widget, module */
+/* global google, _wp_google_translate_widget */
 function googleTranslateElementInit() {
 	var lang = 'en';
 	var langParam;

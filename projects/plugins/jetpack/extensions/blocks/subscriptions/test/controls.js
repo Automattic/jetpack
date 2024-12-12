@@ -36,6 +36,17 @@ afterAll( () => {
 
 jest.mock( '@wordpress/notices', () => {}, { virtual: true } );
 
+jest.mock( '@automattic/jetpack-shared-extension-utils', () => ( {
+	__esModule: true,
+	...jest.requireActual( '@automattic/jetpack-shared-extension-utils' ),
+	useModuleStatus: jest.fn().mockReturnValue( {
+		isModuleActive: true,
+		isLoadingModules: false,
+		isChangingStatus: false,
+		changeStatus: jest.fn(),
+	} ),
+} ) );
+
 const setButtonBackgroundColor = jest.fn();
 const setGradient = jest.fn();
 const setTextColor = jest.fn();
@@ -74,13 +85,6 @@ beforeEach( () => {
 } );
 
 describe( 'Inspector controls', () => {
-	beforeEach( () => {
-		window.JetpackScriptData = {
-			social: {
-				urls: {},
-			},
-		};
-	} );
 	describe( 'Gradient settings panel', () => {
 		test( 'displays gradient settings control panel', () => {
 			render( <SubscriptionsInspectorControls { ...defaultProps } /> );

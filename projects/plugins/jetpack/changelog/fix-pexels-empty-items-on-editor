@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+We now trigger an error in cases where the media property does not exist so that the editor does not crash under some circumstances

@@ -1,4 +1,5 @@
 import { PagePatternModal, PatternDefinition } from '@automattic/page-pattern-modal';
+import { BlockInstance } from '@wordpress/blocks';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { addFilter, removeFilter } from '@wordpress/hooks';
@@ -13,7 +14,7 @@ interface PagePatternsPluginProps {
 	patterns: PatternDefinition[];
 }
 type CoreEditorPlaceholder = {
-	getBlocks: ( ...args: unknown[] ) => Array< { name: string; clientId: string } >;
+	getBlocks: ( ...args: unknown[] ) => BlockInstance[];
 	getEditedPostAttribute: ( ...args: unknown[] ) => unknown;
 };
 type CoreEditPostPlaceholder = {
@@ -22,6 +23,24 @@ type CoreEditPostPlaceholder = {
 type CoreNuxPlaceholder = {
 	areTipsEnabled: ( ...args: unknown[] ) => boolean;
 };
+
+/**
+ * Recursively finds the Content block if any.
+ *
+ * @param blocks - The current blocks
+ */
+function findPostContentBlock( blocks: BlockInstance[] ): BlockInstance | null {
+	for ( const block of blocks ) {
+		if ( block.name === 'core/post-content' || block.name === 'a8c/post-content' ) {
+			return block;
+		}
+		const result = findPostContentBlock( block.innerBlocks );
+		if ( result ) {
+			return result;
+		}
+	}
+	return null;
+}
 
 /**
  * Starter page templates feature plugin
@@ -60,7 +79,7 @@ export function PagePatternsPlugin( props: PagePatternsPluginProps ) {
 		const currentBlocks = ( select( 'core/editor' ) as CoreEditorPlaceholder ).getBlocks();
 		return {
 			getMeta: getMetaNew,
-			postContentBlock: currentBlocks.find( block => block.name === 'a8c/post-content' ),
+			postContentBlock: findPostContentBlock( currentBlocks ),
 		};
 	}, [] );
 

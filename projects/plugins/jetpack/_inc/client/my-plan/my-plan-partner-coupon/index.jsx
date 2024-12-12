@@ -1,9 +1,9 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
-import Button from 'components/button';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
+import Button from 'components/button';
 import { getPartnerCoupon } from 'state/initial-state';
 import MyPlanBanner from '../my-plan-banner';
 

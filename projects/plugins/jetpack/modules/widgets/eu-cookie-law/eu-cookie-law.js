@@ -1,18 +1,19 @@
 ( function () {
-	var cookieValue = document.cookie.replace(
-			/(?:(?:^|.*;\s*)eucookielaw\s*\=\s*([^;]*).*$)|^.*$/,
-			'$1'
-		),
-		overlay = document.getElementById( 'eu-cookie-law' ),
-		widget = document.querySelector( '.widget_eu_cookie_law_widget' ),
-		inCustomizer = widget && widget.hasAttribute( 'data-customize-widget-id' ),
-		getScrollTop,
-		initialScrollPosition,
-		scrollFunction;
+	var overlay = document.getElementById( 'eu-cookie-law' ),
+		widget = document.querySelector( '.widget_eu_cookie_law_widget' );
 
 	if ( null === widget || null === overlay ) {
 		return;
 	}
+
+	var cookieValue = document.cookie.replace(
+			/(?:(?:^|.*;\s*)eucookielaw\s*=\s*([^;]*).*$)|^.*$/,
+			'$1'
+		),
+		inCustomizer = widget && widget.hasAttribute( 'data-customize-widget-id' ),
+		getScrollTop,
+		initialScrollPosition,
+		scrollFunction;
 
 	/**
 	 * Gets the amount that the window is scrolled.
@@ -29,7 +30,7 @@
 
 	if ( overlay.classList.contains( 'ads-active' ) ) {
 		var adsCookieValue = document.cookie.replace(
-			/(?:(?:^|.*;\s*)personalized-ads-consent\s*\=\s*([^;]*).*$)|^.*$/,
+			/(?:(?:^|.*;\s*)personalized-ads-consent\s*=\s*([^;]*).*$)|^.*$/,
 			'$1'
 		);
 		if ( '' !== cookieValue && '' !== adsCookieValue && ! inCustomizer ) {

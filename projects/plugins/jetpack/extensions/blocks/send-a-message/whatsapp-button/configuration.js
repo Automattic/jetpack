@@ -93,6 +93,7 @@ export default function WhatsAppButtonConfiguration( { attributes, setAttributes
 
 				<TextControl
 					__nextHasNoMarginBottom={ true }
+					__next40pxDefaultSize
 					placeholder={ __( 'Your phone number…', 'jetpack' ) }
 					onChange={ newPhoneNumber => {
 						setAttributes( { phoneNumber: newPhoneNumber } );

@@ -1,7 +1,7 @@
 import restApi from '@automattic/jetpack-api';
 import { __, sprintf } from '@wordpress/i18n';
-import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
 import { get, some } from 'lodash';
+import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
 import {
 	JETPACK_SETTINGS_FETCH,
 	JETPACK_SETTINGS_FETCH_RECEIVE,
@@ -170,8 +170,8 @@ export const updateSettings = ( newOptionValues, noticeMessages = {} ) => {
 /**
  * Maps the response from the API for handling special cases
  * like with regeneration of Post By Email where we need the new address from the response
- * @param {object} success         The JSON response from the API
- * @param {object} requestedValues The object holding the requested value changes for settings.
+ * @param {object} success         - The JSON response from the API
+ * @param {object} requestedValues - The object holding the requested value changes for settings.
  * @return {object}                 The mapped object.
  */
 function mapUpdateSettingsResponseFromApi( success, requestedValues ) {

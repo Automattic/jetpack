@@ -1,11 +1,11 @@
 import { ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
+import React, { useCallback, useMemo } from 'react';
+import { connect } from 'react-redux';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import { FEATURE_NEWSLETTER_JETPACK } from 'lib/plans/constants';
-import React, { useCallback, useMemo } from 'react';
-import { connect } from 'react-redux';
 import {
 	isUnavailableInOfflineMode,
 	requiresConnection,
