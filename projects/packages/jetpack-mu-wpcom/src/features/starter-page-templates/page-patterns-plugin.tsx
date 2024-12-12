@@ -28,6 +28,7 @@ type CoreNuxPlaceholder = {
  * Recursively finds the Content block if any.
  *
  * @param blocks - The current blocks
+ * @return Block found, if any
  */
 function findPostContentBlock( blocks: BlockInstance[] ): BlockInstance | null {
 	for ( const block of blocks ) {
