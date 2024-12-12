@@ -88,7 +88,7 @@ const wpcomFetchSidebarNotice = async () => {
 			`${ wpcomSidebarNoticeConfig.ajaxUrl }?action=wpcom_fetch_sidebar_notice&nonce=${ wpcomSidebarNoticeConfig.nonce }`
 		);
 
-		if ( ! response.status === 200 ) {
+		if ( response.status !== 200 ) {
 			return;
 		}
 
@@ -97,7 +97,7 @@ const wpcomFetchSidebarNotice = async () => {
 		if ( res.success && res.data ) {
 			wpcomShowSidebarNotice( res.data );
 		}
-	} catch ( error ) {
+	} catch {
 		// End silently
 	}
 };

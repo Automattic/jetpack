@@ -2,7 +2,6 @@ import { expect } from '@jest/globals';
 import {
 	dockerExec,
 	deleteLinesFromContainerFile,
-	deleteContainerDirectory,
 	deleteContainerFile,
 	decodeContainerFile,
 	writeContainerFile,

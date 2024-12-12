@@ -8,8 +8,7 @@ import {
 	useMutation,
 	QueryClientProvider,
 } from '@tanstack/react-query';
-import React from 'react';
-import { useRef, useEffect } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { z } from 'zod';
 import { DataSync } from './DataSync';
 import { DataSyncError } from './DataSyncError';

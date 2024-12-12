@@ -5,6 +5,5 @@ node_modules      export-ignore
 # Files to exclude from the mirror repo
 /babel.config.cjs    production-exclude
 /changelog/**        production-exclude
-/.eslintrc.cjs       production-exclude
 /tests/**            production-exclude
 /webpack.config.cjs  production-exclude

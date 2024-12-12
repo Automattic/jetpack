@@ -10,7 +10,7 @@
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 
-if ( get_option( 'wpcom_admin_interface' ) !== 'wp-admin' ) {
+if ( wpcom_is_using_default_admin_menu() ) {
 	return;
 }
 
@@ -38,14 +38,12 @@ function wpcom_enqueue_sidebar_notice_assets() {
 		$asset_file['version'] ?? filemtime( Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-sidebar-notice/wpcom-sidebar-notice.css' )
 	);
 
-	wp_localize_script(
-		'wpcom-sidebar-notice',
-		'wpcomSidebarNoticeConfig',
-		array(
-			'ajaxUrl' => admin_url( 'admin-ajax.php' ),
-			'nonce'   => wp_create_nonce( 'wpcom_fetch_sidebar_notice' ),
-		)
+	$data          = array(
+		'ajaxUrl' => admin_url( 'admin-ajax.php' ),
+		'nonce'   => wp_create_nonce( 'wpcom_fetch_sidebar_notice' ),
 	);
+	$inline_script = 'const wpcomSidebarNoticeConfig = ' . wp_json_encode( $data ) . ';';
+	wp_add_inline_script( 'wpcom-sidebar-notice', $inline_script, 'before' );
 }
 add_action( 'admin_enqueue_scripts', 'wpcom_enqueue_sidebar_notice_assets' );
 

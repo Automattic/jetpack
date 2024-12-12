@@ -1,7 +1,9 @@
 <script lang="ts">
+	/* eslint-disable import/no-duplicates -- https://github.com/import-js/eslint-plugin-import/issues/2992 */
 	import { onMount } from 'svelte';
 	import { backOut } from 'svelte/easing';
 	import { fly } from 'svelte/transition';
+	/* eslint-enable import/no-duplicates */
 	import JetpackLogo from './JetpackLogo.svelte';
 	import Portal from './Portal.svelte';
 	import External from './assets/External.svelte';
