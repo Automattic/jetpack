@@ -1,8 +1,8 @@
 import { _x } from '@wordpress/i18n';
-import { hasTouch } from 'lib/touch-detect';
 import { noop, throttle } from 'lodash';
 import PropTypes from 'prop-types';
 import React from 'react';
+import { hasTouch } from 'lib/touch-detect';
 import BarContainer from './bar-container';
 import './style.scss';
 

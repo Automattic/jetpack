@@ -151,7 +151,7 @@ export default function UplotLineChart( { range, periods, annotations = [] }: Up
 			},
 			series: [
 				{
-					label: __( 'Date', 'jetpack' ),
+					label: __( 'Date', 'jetpack-components' ),
 					value: ( self: uPlot, rawValue: number ) => {
 						// outputs legend content - value available when mouse is hovering the chart
 						if ( ! rawValue ) {
@@ -161,8 +161,8 @@ export default function UplotLineChart( { range, periods, annotations = [] }: Up
 						return date.toLocaleDateString( getUserLocale() );
 					},
 				},
-				createSerieInfo( __( 'Desktop', 'jetpack' ), lastDesktopScore ),
-				createSerieInfo( __( 'Mobile', 'jetpack' ), lastMobileScore ),
+				createSerieInfo( __( 'Desktop', 'jetpack-components' ), lastDesktopScore ),
+				createSerieInfo( __( 'Mobile', 'jetpack-components' ), lastMobileScore ),
 			],
 			scales: {
 				x: {

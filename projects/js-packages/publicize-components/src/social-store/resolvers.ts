@@ -52,7 +52,7 @@ export function getPostShareStatus( _postId ) {
 			result = normalizeShareStatus( result );
 
 			dispatch( receivePostShareStaus( result, postId ) );
-		} catch ( error ) {
+		} catch {
 			dispatch( fetchPostShareStatus( postId, false ) );
 		}
 	};
@@ -73,7 +73,7 @@ export function getSocialPluginSettings() {
 					kind: 'jetpack/v4',
 					name: 'social/settings',
 					baseURL: '/jetpack/v4/social/settings',
-					label: __( 'Social Settings', 'jetpack' ),
+					label: __( 'Social Settings', 'jetpack-publicize-components' ),
 				},
 			] );
 		}

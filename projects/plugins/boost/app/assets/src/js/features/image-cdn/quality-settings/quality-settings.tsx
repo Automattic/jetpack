@@ -1,4 +1,4 @@
-import CollapsibleMeta from '../collapsible-meta/collapsible-meta';
+import CollapsibleMeta from '$features/ui/collapsible-meta/collapsible-meta';
 import { __, sprintf } from '@wordpress/i18n';
 import styles from './quality-settings.module.scss';
 import { IconTooltip } from '@automattic/jetpack-components';
@@ -50,8 +50,7 @@ const QualitySettings = ( { isPremium }: QualitySettingsProps ) => {
 		imageCdnQuality && (
 			<ModuleSubsection>
 				<CollapsibleMeta
-					editText={ __( 'Adjust Quality', 'jetpack-boost' ) }
-					closeEditText={ __( 'Hide', 'jetpack-boost' ) }
+					toggleText={ __( 'Adjust Quality', 'jetpack-boost' ) }
 					header={ <Header /> }
 					summary={ <Summary imageCdnQuality={ imageCdnQuality } /> }
 				>

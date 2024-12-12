@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.23.1 - 2024-11-25
+### Changed
+- Updated dependencies. [#40286]
+
+### Fixed
+- Stast: removed cache for purchases and usage endpoints [#40266]
+- Walk around an issue where custom code removes `ver` param [#40322]
+
 ## 0.23.0 - 2024-11-18
 ### Removed
 - General: Update minimum PHP version to 7.2. [#40147]

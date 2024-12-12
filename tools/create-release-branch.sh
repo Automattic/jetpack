@@ -197,7 +197,7 @@ fi
 # - Else if the prefix matches a plugin dir name, use that plugin's version.
 # - Else ask.
 if [[ "${PREFIXES[$PREFIX]}" != *$'\n'* ]]; then
-	BRANCH="$PREFIX/branch-${VERSIONS[0]%%-*}"
+	BRANCH="$PREFIX/branch-${VERSIONS[0]%%-beta}"
 else
 	BRANCH=
 	for ((i=0; i < ${#DIRS[@]}; i++)); do

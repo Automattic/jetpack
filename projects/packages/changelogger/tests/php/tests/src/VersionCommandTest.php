@@ -65,7 +65,7 @@ class VersionCommandTest extends CommandTestCase {
 	/**
 	 * Data provider for testExecute.
 	 */
-	public function provideExecute() {
+	public static function provideExecute() {
 		$changelog = "## 2.0.0 - 2021-02-22\n\n## 1.0.0 - 2021-02-21\n";
 
 		return array(

@@ -9,11 +9,11 @@
  */
 return [
     // # Issue statistics:
+    // PhanUndeclaredClassMethod : 20+ occurrences
     // PhanTypeMismatchArgumentInternal : 10+ occurrences
-    // PhanUndeclaredClassMethod : 10+ occurrences
     // PhanTypePossiblyInvalidDimOffset : 8 occurrences
+    // PhanTypeMismatchArgumentProbablyReal : 5 occurrences
     // PhanUndeclaredClassReference : 4 occurrences
-    // PhanTypeMismatchArgumentProbablyReal : 3 occurrences
     // PhanTypeSuspiciousNonTraversableForeach : 3 occurrences
     // PhanTypeInvalidDimOffset : 2 occurrences
     // PhanTypeMismatchArgument : 2 occurrences
@@ -29,6 +29,7 @@ return [
         'src/content-options/featured-images-fallback.php' => ['PhanTypePossiblyInvalidDimOffset'],
         'src/custom-content-types.php' => ['PhanUndeclaredClassMethod'],
         'src/custom-post-types/class-jetpack-portfolio.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanTypeSuspiciousNonTraversableForeach', 'PhanUndeclaredClassMethod'],
+        'src/custom-post-types/class-jetpack-testimonial.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredClassMethod'],
         'src/site-breadcrumbs.php' => ['PhanUndeclaredClassMethod'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.

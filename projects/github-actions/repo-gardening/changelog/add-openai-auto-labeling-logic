@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Issue triage: allow querying OpenAI to get a list of labels that could potentially be added to an issue, based off the issue body, when the issue is opened.

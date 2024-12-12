@@ -409,7 +409,7 @@ export default function FeaturedImage( {
 				acceptButton={ acceptButton }
 				generateButtonLabel={ pointer?.current > 0 ? generateAgainText : generateText }
 				instructionsPlaceholder={ __(
-					"Describe the image you'd like to create, or have the prompt written for you if you've added content to your post.",
+					"Describe the featured image you'd like to create and select a style.",
 					'jetpack'
 				) }
 				imageStyles={ imageStyles }

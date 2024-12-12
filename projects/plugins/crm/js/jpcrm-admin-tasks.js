@@ -9,15 +9,16 @@
  * Date: 15th August 2018
  */
 
-jQuery( function ( $ ) {
+/* global ajaxurl, moment */
 
+jQuery( function ( $ ) {
 	$( '.mark-complete-task button' ).on( 'click', function ( e ) {
 		e.preventDefault();
 
 		$( '.mark-complete-task button' ).addClass( 'disabled' );
 
-		var ourButton = $( this );
-		var completeBlocker = true;
+		const ourButton = $( this );
+		let completeBlocker = true;
 
 		if ( completeBlocker ) {
 			completeBlocker = false;
@@ -25,7 +26,7 @@ jQuery( function ( $ ) {
 				ourButton.removeClass( 'green' ).addClass( 'loading' );
 
 				// postbag!
-				var data = {
+				const data = {
 					action: 'mark_task_complete',
 					taskID: $( this ).data( 'taskid' ),
 					way: 'incomplete',
@@ -39,14 +40,14 @@ jQuery( function ( $ ) {
 					data: data,
 					dataType: 'json',
 					timeout: 20000,
-					success: function ( response ) {
+					success: function () {
 						ourButton.removeClass( 'loading' );
 						ourButton.html( '<i class="ui icon check"></i> Mark Complete' );
 						$( '.mark-complete-task button' ).removeClass( 'disabled' );
 						$( '#zbs-task-complete' ).val( -1 );
 						completeBlocker = true;
 					},
-					error: function ( response ) {
+					error: function () {
 						$( '.mark-complete-task button' ).removeClass( 'disabled' );
 						completeBlocker = true;
 					},
@@ -54,7 +55,7 @@ jQuery( function ( $ ) {
 			} else {
 				ourButton.addClass( 'green' ).addClass( 'loading' );
 				// postbag!
-				var data = {
+				const data = {
 					action: 'mark_task_complete',
 					taskID: $( this ).data( 'taskid' ),
 					way: 'complete',
@@ -68,14 +69,14 @@ jQuery( function ( $ ) {
 					data: data,
 					dataType: 'json',
 					timeout: 20000,
-					success: function ( response ) {
+					success: function () {
 						ourButton.removeClass( 'loading' );
 						ourButton.html( '<i class="ui icon check"></i> Completed' );
 						$( '.mark-complete-task button' ).removeClass( 'disabled' );
 						$( '#zbs-task-complete' ).val( 1 );
 						completeBlocker = true;
 					},
-					error: function ( response ) {
+					error: function () {
 						$( '.mark-complete-task button' ).removeClass( 'disabled' );
 						completeBlocker = true;
 					},

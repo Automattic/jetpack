@@ -11,9 +11,8 @@ jQuery( document ).ready( function () {
 	jpcrm_init_systempage();
 } );
 
-// Initialise the page
 /**
- *
+ * Initialise the page.
  */
 function jpcrm_init_systempage() {
 	//jQuery('.tabular.menu .item').tab();
@@ -23,10 +22,10 @@ function jpcrm_init_systempage() {
 
 	// change address bar URL when clicking a tab
 	jQuery( '#jpcrm-system-manager .tabular.menu .item' ).on( 'click', function ( e ) {
-		clicked_tab = e.currentTarget;
+		const clicked_tab = e.currentTarget;
 		// tab_title = clicked_tab.innerHTML;
-		tab_slug = clicked_tab.dataset.tab;
-		new_url = document.URL.replace(
+		const tab_slug = clicked_tab.dataset.tab;
+		const new_url = document.URL.replace(
 			/(\?page=zerobscrm-systemstatus).*/,
 			'$1' + '&tab=' + tab_slug
 		);
@@ -38,5 +37,5 @@ function jpcrm_init_systempage() {
 }
 
 if ( typeof module !== 'undefined' ) {
-    module.exports = { jpcrm_init_systempage };
+	module.exports = { jpcrm_init_systempage };
 }

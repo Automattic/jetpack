@@ -20,6 +20,8 @@ class Products {
 	const STATUS_USER_CONNECTION_ERROR       = 'user_connection_error';
 	const STATUS_ACTIVE                      = 'active';
 	const STATUS_CAN_UPGRADE                 = 'can_upgrade';
+	const STATUS_EXPIRING_SOON               = 'expiring';
+	const STATUS_EXPIRED                     = 'expired';
 	const STATUS_INACTIVE                    = 'inactive';
 	const STATUS_MODULE_DISABLED             = 'module_disabled';
 	const STATUS_PLUGIN_ABSENT               = 'plugin_absent';
@@ -77,6 +79,16 @@ class Products {
 	);
 
 	/**
+	 * List of statuses that display the module as active
+	 *
+	 * @var array
+	 */
+	public static $expiring_or_expired_module_statuses = array(
+		self::STATUS_EXPIRING_SOON,
+		self::STATUS_EXPIRED,
+	);
+
+	/**
 	 * List of all statuses that a product can have
 	 *
 	 * @var array
@@ -86,6 +98,8 @@ class Products {
 		self::STATUS_USER_CONNECTION_ERROR,
 		self::STATUS_ACTIVE,
 		self::STATUS_CAN_UPGRADE,
+		self::STATUS_EXPIRING_SOON,
+		self::STATUS_EXPIRED,
 		self::STATUS_INACTIVE,
 		self::STATUS_MODULE_DISABLED,
 		self::STATUS_PLUGIN_ABSENT,
@@ -112,6 +126,8 @@ class Products {
 			'creator'    => Products\Creator::class,
 			'extras'     => Products\Extras::class,
 			'jetpack-ai' => Products\Jetpack_Ai::class,
+			// TODO: Remove this duplicate class ('ai')? See: https://github.com/Automattic/jetpack/pull/35910#pullrequestreview-2456462227
+			'ai'         => Products\Jetpack_Ai::class,
 			'scan'       => Products\Scan::class,
 			'search'     => Products\Search::class,
 			'social'     => Products\Social::class,
@@ -119,8 +135,8 @@ class Products {
 			'protect'    => Products\Protect::class,
 			'videopress' => Products\Videopress::class,
 			'stats'      => Products\Stats::class,
-			'ai'         => Products\Jetpack_Ai::class,
 			'growth'     => Products\Growth::class,
+			'complete'   => Products\Complete::class,
 		);
 
 		/**
@@ -342,7 +358,7 @@ class Products {
 			'protect',
 			'crm',
 			'search',
-			'ai',
+			'jetpack-ai',
 		);
 
 		// Add plugin action links for the core Jetpack plugin.

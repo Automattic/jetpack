@@ -23,7 +23,7 @@ export function ShareStatusLabel( { status, message } ) {
 		<IconTooltip
 			shift={ true }
 			inline={ false }
-			title={ __( 'Sharing failed with the following message:', 'jetpack' ) }
+			title={ __( 'Sharing failed with the following message:', 'jetpack-publicize-components' ) }
 			className={ styles[ 'share-status-icon-tooltip' ] }
 		>
 			<Text variant="body-small" className={ styles[ 'tooltip-text' ] }>
@@ -42,8 +42,8 @@ export function ShareStatusLabel( { status, message } ) {
 			<div className={ styles[ 'share-status-icon' ] }>{ icon }</div>
 			<div className={ styles[ 'share-status-label' ] }>
 				{ isSuccessful
-					? _x( 'Shared', 'The sharing is successful', 'jetpack' )
-					: __( 'Failed', 'jetpack' ) }
+					? _x( 'Shared', 'The sharing is successful', 'jetpack-publicize-components' )
+					: __( 'Failed', 'jetpack-publicize-components' ) }
 			</div>
 		</div>
 	);

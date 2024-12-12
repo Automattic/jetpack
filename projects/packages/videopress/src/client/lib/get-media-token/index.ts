@@ -158,7 +158,7 @@ async function getMediaToken(
 				debug( '(%s) Token %o expired. Clean.', context, key );
 				localStorage.removeItem( key );
 			}
-		} catch ( e ) {
+		} catch {
 			debug( 'Invalid token in the localStore' );
 		}
 	}

@@ -12,9 +12,9 @@
 	"require": {
 		"php": ">=7.4",
 		"composer/xdebug-handler": "^3.0.4",
-		"nikic/php-parser": "^5.0.2",
-		"phpstan/phpdoc-parser": "^1.28.0",
-		"symfony/console": "^5.3 || ^6.0 || ^7.0"
+		"nikic/php-parser": "^5.3",
+		"phpstan/phpdoc-parser": "^2.0",
+		"symfony/console": "^5.4 || ^6.4 || ^7.1"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "^1.1.1",
