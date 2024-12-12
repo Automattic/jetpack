@@ -1,6 +1,6 @@
 import { localPoint } from '@visx/event';
 import { Group } from '@visx/group';
-import Pie, { PieArcDatum } from '@visx/shape/lib/shapes/Pie';
+import { Pie, PieArcDatum } from '@visx/shape';
 import { Text } from '@visx/text';
 import clsx from 'clsx';
 import { FC, useState, useCallback } from 'react';
@@ -55,26 +55,55 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 	const [ tooltipData, setTooltipData ] = useState< TooltipData | null >( null );
 	const centerX = width / 2;
 	const centerY = height;
+	const radius = Math.min( width, height ) / 3;
 
 	const accessors = {
 		value: d => d.value,
 		sort: ( a, b ) => a.value - b.value,
-		fill: d => d.data.color,
+		fill: d => d.color || providerTheme.colors[ d.index ],
 	};
+
+	const handleMouseEnter = useCallback(
+		( event: React.MouseEvent, arc: ArcData ) => {
+			if ( ! showTooltips ) return;
+			const coords = localPoint( event );
+			if ( ! coords ) return;
+
+			setTooltipData( {
+				label: arc.data.label,
+				value: arc.data.value,
+				valueDisplay: arc.data.valueDisplay,
+				x: coords.x,
+				y: coords.y,
+			} );
+		},
+		[ showTooltips ]
+	);
+
+	const handleMouseLeave = useCallback( () => setTooltipData( null ), [] );
+
+	const handleArcMouseEnter = useCallback(
+		( arc: ArcData ) => ( event: React.MouseEvent ) => {
+			handleMouseEnter( event, arc );
+		},
+		[ handleMouseEnter ]
+	);
 
 	return (
 		<div className={ clsx( 'pie-semi-circle-chart', styles[ 'pie-semi-circle-chart' ] ) }>
 			<svg width={ width } height={ height }>
 				<Group top={ centerY } left={ centerX }>
-					<Pie
+					<Pie< DataPointPercentage >
 						data={ data }
-						pieValue={ getPieValue }
+						pieValue={ accessors.value }
 						outerRadius={ radius }
 						innerRadius={ radius * 0.7 }
 						cornerRadius={ 3 }
 						padAngle={ 0.03 }
 						startAngle={ -Math.PI / 2 }
 						endAngle={ Math.PI / 2 }
+						pieSort={ accessors.sort }
+						fill={ accessors.fill }
 					>
 						{ pie => {
 							return pie.arcs.map( arc => (
@@ -83,20 +112,27 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 									onMouseEnter={ handleArcMouseEnter( arc ) }
 									onMouseLeave={ handleMouseLeave }
 								>
-									<path d={ pie.path( arc ) || '' } fill={ arc.data.color } />
+									<path d={ pie.path( arc ) || '' } fill={ accessors.fill( arc.data ) } />
 								</g>
 							) );
 						} }
 					</Pie>
-					<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 18 } y={ radius * 0.5 }>
+					<Text
+						textAnchor="middle"
+						verticalAnchor="middle"
+						fontSize={ 18 }
+						lineHeight={ 20 }
+						y={ -36 }
+					>
 						{ label }
 					</Text>
 					<Text
 						textAnchor="middle"
 						verticalAnchor="middle"
 						fill="#008A20"
-						fontSize={ 13 }
-						y={ radius * 0.65 }
+						fontSize="13px"
+						lineHeight={ 20 }
+						y={ -12 }
 					>
 						{ note }
 					</Text>
