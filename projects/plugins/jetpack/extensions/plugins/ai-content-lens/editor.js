@@ -40,8 +40,6 @@ function extendAiContentLensFeatures( settings, name ) {
 	registerJetpackPlugin( aiExcerptPluginName, aiExcerptPluginSettings );
 	debug( 'Registered AI Excerpt plugin' );
 
-	// check if the removeEditorPanel function exists in the editorStore.
-	// íf not, look for it in the editPostStore.
 	const removeEditorPanel = dispatch( editorStore ).removeEditorPanel;
 
 	// Remove the excerpt panel by dispatching an action.

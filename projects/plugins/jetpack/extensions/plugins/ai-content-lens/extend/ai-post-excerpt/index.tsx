@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useAiSuggestions } from '@automattic/jetpack-ai-client';
+import { useAiSuggestions, useAiModule } from '@automattic/jetpack-ai-client';
 import {
 	isAtomicSite,
 	isSimpleSite,
@@ -294,6 +294,7 @@ ${ postContent }
 }
 
 export const PluginDocumentSettingPanelAiExcerpt = () => {
+	const { isAiModuleActive } = useAiModule();
 	const isExcerptUsedAsDescription = useSelect( select => {
 		const { getCurrentPostType } = select( editorStore );
 		const postType = getCurrentPostType();
@@ -301,9 +302,11 @@ export const PluginDocumentSettingPanelAiExcerpt = () => {
 		const isPattern = postType === 'wp_block';
 		return isTemplateOrTemplatePart || isPattern;
 	}, [] );
-	if ( isExcerptUsedAsDescription ) {
+
+	if ( isExcerptUsedAsDescription || ! isAiModuleActive ) {
 		return null;
 	}
+
 	return (
 		<PostTypeSupportCheck supportKeys="excerpt">
 			<PluginDocumentSettingPanel
