@@ -1,0 +1,43 @@
+.legend {
+	&--vertical {
+		.legend-items {
+			flex-direction: column;
+		}
+	}
+
+	&--horizontal {
+		.legend-items {
+			flex-direction: row;
+			flex-wrap: wrap;
+		}
+	}
+}
+
+.legend-items {
+	display: flex;
+	gap: 1rem;
+}
+
+.legend-item {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-size: 0.875rem;
+}
+
+.legend-item-swatch {
+	width: 1rem !important;
+	height: 1rem !important;
+	border-radius: 2px;
+}
+
+.legend-item-label {
+	color: var(--jp-gray-80);
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+.legend-item-value {
+	font-weight: 500;
+}
