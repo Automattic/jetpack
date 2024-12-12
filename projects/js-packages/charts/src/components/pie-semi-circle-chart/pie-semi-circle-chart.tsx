@@ -108,7 +108,6 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 					data={ {
 						label: tooltipData.label,
 						value: tooltipData.value,
-						valueDisplay: tooltipData.valueDisplay,
 					} }
 					top={ tooltipData.y }
 					left={ tooltipData.x }
