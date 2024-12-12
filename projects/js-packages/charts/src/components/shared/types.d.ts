@@ -39,6 +39,8 @@ export type DataPointPercentage = {
 export type ChartTheme = {
 	/** Background color for chart components */
 	backgroundColor: string;
+	/** Background color for labels */
+	labelBackgroundColor?: string;
 	/** Array of colors used for data visualization */
 	colors: string[];
 	/** Optional CSS styles for grid lines */

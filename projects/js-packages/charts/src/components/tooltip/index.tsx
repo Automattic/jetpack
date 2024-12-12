@@ -8,7 +8,6 @@ const defaultTooltipStyles = {
 	borderRadius: '4px',
 	fontSize: '14px',
 	boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
-	transform: 'translate(-50%, -100%)',
 };
 
 interface TooltipComponentProps {
