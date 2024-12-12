@@ -79,6 +79,14 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connection_Test_Results extends 
 					'type'        => 'string',
 					'format'      => 'uri',
 				),
+				'status'       => array(
+					'type'        => 'string',
+					'description' => __( 'The connection status.', 'jetpack' ),
+					'enum'        => array(
+						'ok',
+						'broken',
+					),
+				),
 			),
 		);
 
@@ -120,6 +128,8 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connection_Test_Results extends 
 			foreach ( $mapping as $field => $test_result_field ) {
 				$item[ $field ] = $test_result[ $test_result_field ];
 			}
+			// Compare to `true` because the API returns a 'must_reauth' for LinkedIn.
+			$item['status'] = true === $test_result['connectionTestPassed'] ? 'ok' : 'broken';
 		}
 
 		if (
