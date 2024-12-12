@@ -2,6 +2,8 @@ import { useSelect } from '@wordpress/data';
 
 /**
  * Custom hook to detect whether Global Styles are in use.
+ *
+ * @return {object} An object containing globalStylesInUse and globalStylesId.
  */
 export function useGlobalStylesConfig() {
 	return useSelect( select => {
