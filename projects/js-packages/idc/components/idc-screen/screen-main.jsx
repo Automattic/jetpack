@@ -38,7 +38,7 @@ const ScreenMain = props => {
 			<h2>
 				{ customContent.mainTitle
 					? createInterpolateElement( customContent.mainTitle, { em: <em /> } )
-					: __( 'Safe Mode has been activated', 'jetpack' ) }
+					: __( 'Safe Mode has been activated', 'jetpack-idc' ) }
 			</h2>
 
 			<p>
@@ -48,7 +48,7 @@ const ScreenMain = props => {
 								__(
 									'Your site is in Safe Mode because you have 2 Jetpack-powered sites that appear to be duplicates. ' +
 										'Two sites that are telling Jetpack they’re the same site. <safeModeLink>Learn more about safe mode.</safeModeLink>',
-									'jetpack'
+									'jetpack-idc'
 								),
 							{
 								safeModeLink: (
@@ -71,7 +71,7 @@ const ScreenMain = props => {
 									__(
 										'<span>Your site is in Safe Mode because <hostname>%1$s</hostname> appears to be a staging or development copy of <hostname>%2$s</hostname>.</span>' +
 											'2 sites that are telling Jetpack they’re the same site. <safeModeLink>Learn more or troubleshoot common Safe mode issues</safeModeLink>.',
-										'jetpack'
+										'jetpack-idc'
 									),
 									currentHostName,
 									wpcomHostName
@@ -102,7 +102,7 @@ const ScreenMain = props => {
 								"<strong>Notice:</strong> It appears that your 'wp-config.php' file might be using dynamic site URL values. " +
 									'Dynamic site URLs could cause Jetpack to enter Safe Mode. ' +
 									'<dynamicSiteUrlSupportLink>Learn how to set a static site URL.</dynamicSiteUrlSupportLink>',
-								'jetpack'
+								'jetpack-idc'
 							),
 						{
 							dynamicSiteUrlSupportLink: (
@@ -122,7 +122,7 @@ const ScreenMain = props => {
 				</p>
 			) }
 
-			<h3>{ __( 'Please select an option', 'jetpack' ) }</h3>
+			<h3>{ __( 'Please select an option', 'jetpack-idc' ) }</h3>
 
 			<div
 				className={

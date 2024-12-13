@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+API Endpoints: make sure manual plugin updates applied when auto update is disabled

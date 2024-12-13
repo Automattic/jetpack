@@ -110,7 +110,7 @@ export class BrowserInterface {
 		return Object.keys( selectors ).filter( selector => {
 			try {
 				return !! innerWindow.document.querySelector( selectors[ selector ] );
-			} catch ( err ) {
+			} catch {
 				// Ignore invalid selectors.
 				return false;
 			}

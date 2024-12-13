@@ -25,7 +25,7 @@ export function* updateJetpackModuleStatus( settings ) {
 		const data = yield fetchJetpackModules();
 		yield setJetpackModules( { data } );
 		return true;
-	} catch ( e ) {
+	} catch {
 		const oldSettings = select( JETPACK_MODULES_STORE_ID ).getJetpackModules();
 		yield setJetpackModules( oldSettings );
 		return false;
@@ -49,7 +49,7 @@ export function* fetchModules() {
 		const data = yield fetchJetpackModules();
 		yield setJetpackModules( { data } );
 		return true;
-	} catch ( e ) {
+	} catch {
 		const oldSettings = select( JETPACK_MODULES_STORE_ID ).getJetpackModules();
 		yield setJetpackModules( oldSettings );
 		return false;

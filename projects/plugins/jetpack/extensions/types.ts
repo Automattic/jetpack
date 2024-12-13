@@ -7,7 +7,6 @@ import type { TierProp, UpgradeTypeProp, FeaturesControl } from './store/wordpre
  * `sites/$site/ai-assistant-feature` endpoint response body props
  */
 export type SiteAIAssistantFeatureEndpointResponseProps = {
-	'is-enabled': boolean;
 	'has-feature': boolean;
 	'is-over-limit': boolean;
 	'requests-count': number;

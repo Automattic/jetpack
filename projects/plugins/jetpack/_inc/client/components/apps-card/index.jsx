@@ -1,15 +1,15 @@
-import { imagePath } from 'constants/urls';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import AppsBadge from 'components/apps-badge';
-import Card from 'components/card';
-import analytics from 'lib/analytics';
-import detectMobileDevice from 'lib/device-detector';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { withRouter } from 'react-router-dom';
+import AppsBadge from 'components/apps-badge';
+import Card from 'components/card';
+import { imagePath } from 'constants/urls';
+import analytics from 'lib/analytics';
+import detectMobileDevice from 'lib/device-detector';
 
 class AppsCard extends React.Component {
 	static displayName = 'AppsCard';

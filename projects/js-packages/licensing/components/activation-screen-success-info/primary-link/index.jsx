@@ -44,7 +44,7 @@ const PrimaryLink = props => {
 						: 'admin.php?page=jetpack-social' )
 				}
 			>
-				{ __( 'Configure my site', 'jetpack' ) }
+				{ __( 'Configure my site', 'jetpack-licensing' ) }
 			</Button>
 		);
 	}
@@ -55,7 +55,7 @@ const PrimaryLink = props => {
 			: getRedirectUrl( 'jetpack-license-activation-success-scan', { site: siteRawUrl } );
 		return (
 			<Button className="jp-license-activation-screen-success-info--button" href={ redirectSource }>
-				{ __( 'View scan results', 'jetpack' ) }
+				{ __( 'View scan results', 'jetpack-licensing' ) }
 			</Button>
 		);
 	}
@@ -67,7 +67,7 @@ const PrimaryLink = props => {
 				className="jp-license-activation-screen-success-info--button"
 				href={ siteAdminUrl + 'admin.php?page=jetpack#/recommendations' }
 			>
-				{ __( 'Configure my site', 'jetpack' ) }
+				{ __( 'Configure my site', 'jetpack-licensing' ) }
 			</Button>
 		);
 	}
@@ -77,7 +77,7 @@ const PrimaryLink = props => {
 			className="jp-license-activation-screen-success-info--button"
 			href={ getRedirectUrl( 'license-activation-view-my-plans', { site: siteRawUrl } ) }
 		>
-			{ __( 'View my plans', 'jetpack' ) }
+			{ __( 'View my plans', 'jetpack-licensing' ) }
 		</Button>
 	);
 };

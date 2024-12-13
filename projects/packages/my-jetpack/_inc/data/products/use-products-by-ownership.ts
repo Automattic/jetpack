@@ -1,8 +1,10 @@
 import { useEffect } from 'react';
 import { useValueStore } from '../../context/value-store/valueStoreContext';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
-import { QUERY_PRODUCT_BY_OWNERSHIP_KEY } from '../constants';
-import { REST_API_SITE_PRODUCTS_OWNERSHIP_ENDPOINT } from '../constants';
+import {
+	QUERY_PRODUCT_BY_OWNERSHIP_KEY,
+	REST_API_SITE_PRODUCTS_OWNERSHIP_ENDPOINT,
+} from '../constants';
 import useSimpleQuery from '../use-simple-query';
 
 // Create query to fetch new product data from the server

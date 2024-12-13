@@ -33,15 +33,14 @@
 			NovaCheckBoxes.inputs.first().prop( 'checked', true );
 		},
 
-		checkOne: function (/*event*/) {
+		checkOne: function ( /*event*/ ) {
 			if ( $( this ).is( ':checked' ) ) {
 				return NovaCheckBoxes.inputs.not( this ).prop( 'checked', false );
-			} else {
-				if ( $( this ).closest( '#nova_menuchecklist' ).find( ':checked' ).length > 0 ) {
-					return $( this ).prop( 'checked', false );
-				}
-				return NovaCheckBoxes.checkFirst();
 			}
+			if ( $( this ).closest( '#nova_menuchecklist' ).find( ':checked' ).length > 0 ) {
+				return $( this ).prop( 'checked', false );
+			}
+			return NovaCheckBoxes.checkFirst();
 		},
 	};
 

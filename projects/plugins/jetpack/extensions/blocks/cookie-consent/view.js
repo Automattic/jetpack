@@ -27,7 +27,7 @@ domReady( function () {
 			remove();
 			const dismissEvent = new Event( 'eucookielaw-dismissed' );
 			document.dispatchEvent( dismissEvent );
-		} catch ( err ) {
+		} catch {
 			// Avoid sending an error to the browser console.
 		}
 	}

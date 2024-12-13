@@ -43,7 +43,7 @@ class Utils {
 			|| $node instanceof Node\Stmt\Class_ ) {
 			$class_name = $node->name;
 		} elseif ( $node instanceof Node\Name ) {
-			$class_name = '\\' . implode( '\\', $node->parts );
+			$class_name = '\\' . implode( '\\', $node->getParts() );
 		} elseif ( $node instanceof Node\Expr\PropertyFetch ) {
 			$class_name =
 				'$'

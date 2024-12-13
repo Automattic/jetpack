@@ -1,5 +1,5 @@
-import { globalNotices } from 'components/global-notices/state/notices/reducer';
 import { combineReducers } from 'redux';
+import { globalNotices } from 'components/global-notices/state/notices/reducer';
 import { dashboard } from 'state/at-a-glance/reducer';
 import { reducer as connection } from 'state/connection/reducer';
 import { reducer as devCard } from 'state/dev-version/reducer';

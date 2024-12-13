@@ -86,7 +86,7 @@ const Verbum = ( { siteId }: VerbumComments ) => {
 			return window.localStorage.getItem(
 				`${ userInfo.value?.uid }-verbum-settings-open-${ siteId }`
 			);
-		} catch ( e ) {
+		} catch {
 			return false;
 		}
 	};
@@ -95,7 +95,7 @@ const Verbum = ( { siteId }: VerbumComments ) => {
 		try {
 			localStorage.setItem( `${ userInfo.value?.uid }-verbum-settings-open-${ siteId }`, '1' );
 			hasOpenedTrayOnce.value = true;
-		} catch ( e ) {
+		} catch {
 			// Do nothing.
 		}
 	};

@@ -1,78 +1,119 @@
 @import "$css/main/variables";
 @import "$css/main/mixins";
 
-.minify-meta {
-	align-items: flex-start;
-	display: flex;
-	flex-direction: row;
+.wrapper {
 	font-size: 14px;
 	line-height: 22px;
 
-	@include breakpoint(xs) {
-		display: block;
+	.summary {
+		flex-grow: 1;
 	}
-}
 
-.summary {
-	flex-grow: 1;
-}
+	.minify-meta {
+		align-items: flex-start;
+		display: flex;
+		flex-direction: row;
+		font-size: 14px;
+		line-height: 22px;
 
-.manage-excludes {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	width: 100%;
-}
+		@include breakpoint(xs) {
+			display: block;
+		}
+	}
 
-.manage-excludes label {
-	display: block;
-	text-align: left;
-	margin-bottom: 16px;
-	font-weight: bold;
-	width: 100%;
-}
+	.section {
+		margin-top: 16px;
+		padding: 16px;
+		border-radius: 4px;
+		background-color: var(--gray-0);
 
-.manage-excludes input[type="text"] {
-	width: 100%;
-	padding: 10px;
-	border-radius: 4px;
-	border: 1px solid $gray_10;
-	margin-bottom: 16px;
-}
+		.title {
+			margin-bottom: 16px;
+			font-size: 16px;
+			line-height: 1;
+			font-weight: 600;
+		}
+	}
 
-.buttons-container {
-	display: flex;
-	flex-direction: row;
-	justify-content: flex-start;
-	width: 100%;
-}
+	.manage-excludes {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		width: 100%;
 
-.buttons-container button {
-	margin-right: 10px;
-	padding: 8px 24px;
-	border: 1px solid $primary-black;
-	border-radius: 4px;
-	cursor: pointer;
-	color: $primary-black;
-}
+		.help {
+			font-size: 14px;
+			line-height: 1.5;
+			color: var( --gray-60 );
+			font-weight: 400;
+		}
+	}
 
-.buttons-container button:first-child {
-	background-color: $primary-black;
-	color: $primary-white;
-}
+	.manage-excludes label {
+		display: block;
+		text-align: left;
+		margin-bottom: 16px;
+		font-weight: 600;
+		width: 100%;
+		font-size: 16px;
+		line-height: 1;
+	}
 
-.buttons-container button:last-child {
-	margin-right: 0;
-	background-color: transparent;
-}
+	.manage-excludes span {
+		display: block;
+		text-align: left;
+		width: 100%;
+		margin-bottom: 16px;
+		line-height: 1.5;
+	}
 
-.buttons-container button[disabled] {
-	border-color: $gray-5;
-	background-color: $gray-5;
-	color: $gray-20;
-	cursor: not-allowed;
-}
+	.manage-excludes input[type="text"] {
+		width: 100%;
+		padding: 10px;
+		border-radius: 4px;
+		border: 1px solid $gray_10;
+		margin-bottom: 16px;
+	}
 
-.edit-button svg {
-	fill: $jetpack-green;
+	.buttons-container {
+		display: flex;
+		flex-direction: row;
+		justify-content: flex-start;
+		width: 100%;
+
+		button {
+			margin-right: 10px;
+			padding: 8px 24px;
+			border: 1px solid $primary-black;
+			border-radius: 4px;
+			cursor: pointer;
+			color: $primary-black;
+
+		}
+		button[disabled] {
+			border-color: $gray-5;
+			background-color: $gray-5;
+			color: $gray-20;
+			cursor: not-allowed;
+		}
+		button:not([disabled]) {
+			background-color: $primary-black;
+			color: $primary-white;
+		}
+		button:not([disabled]):hover {
+			background-color: lighten($primary-black, 10%);
+		}
+	}
+
+	.edit-button svg {
+		fill: $jetpack-green;
+	}
+
+	.sub-header {
+		font-size: 16px;
+		line-height: 1;
+		color: var( --gray-60 );
+		font-weight: 400;
+		padding-bottom: 2px;
+	}
 }
