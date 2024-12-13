@@ -14,41 +14,50 @@ import type { BaseChartProps, DataPointDate, SeriesData } from '../shared/types'
 
 // TODO: revisit grid and axis options - accept as props for frid lines, axis, values: x, y, all, none
 
-interface LineChartProps extends BaseChartProps< SeriesData[] > {
-	/**
-	 * Data series to display in the chart
-	 */
-	data: SeriesData[];
-}
+interface LineChartProps extends BaseChartProps< SeriesData[] > {}
 
 type TooltipData = {
 	date: Date;
 	[ key: string ]: number | Date;
 };
 
+type TooltipDatum = {
+	key: string;
+	value: number;
+};
+
 const renderTooltip = ( {
 	tooltipData,
 }: {
-	tooltipData?: { nearestDatum?: { datum: TooltipData } };
+	tooltipData?: {
+		nearestDatum?: {
+			datum: TooltipData;
+			key: string;
+		};
+		datumByKey?: { [ key: string ]: { datum: TooltipData } };
+	};
 } ) => {
-	const datum = tooltipData?.nearestDatum?.datum;
-	if ( ! datum ) return null;
+	const nearestDatum = tooltipData?.nearestDatum?.datum;
+	if ( ! nearestDatum ) return null;
+
+	const tooltipPoints: TooltipDatum[] = Object.entries( tooltipData?.datumByKey || {} )
+		.map( ( [ key, { datum } ] ) => ( {
+			key,
+			value: datum.value as number,
+		} ) )
+		.sort( ( a, b ) => b.value - a.value );
 
 	return (
 		<div className={ styles[ 'line-chart__tooltip' ] }>
-			<div className={ styles[ 'line-chart__tooltip-row' ] }>
-				<strong>Date:</strong> { datum.date.toLocaleDateString() }
+			<div className={ styles[ 'line-chart__tooltip-date' ] }>
+				{ nearestDatum.date.toLocaleDateString() }
 			</div>
-			{ Object.entries( datum ).map( ( [ key, value ] ) => {
-				if ( key === 'date' ) return null;
-				return (
-					<div key={ key } className={ styles[ 'line-chart__tooltip-row' ] }>
-						<span>
-							<strong>{ key }:</strong> { value.toString() }
-						</span>
-					</div>
-				);
-			} ) }
+			{ tooltipPoints.map( point => (
+				<div key={ point.key } className={ styles[ 'line-chart__tooltip-row' ] }>
+					<span className={ styles[ 'line-chart__tooltip-label' ] }>{ point.key }:</span>
+					<span className={ styles[ 'line-chart__tooltip-value' ] }>{ point.value }</span>
+				</div>
+			) ) }
 		</div>
 	);
 };
@@ -66,6 +75,8 @@ const LineChart: FC< LineChartProps > = ( {
 	width,
 	height,
 	margin = { top: 20, right: 20, bottom: 40, left: 40 },
+	className,
+	withTooltips = true,
 } ) => {
 	const providerTheme = useChartTheme();
 
@@ -90,7 +101,7 @@ const LineChart: FC< LineChartProps > = ( {
 	} );
 
 	return (
-		<div className={ clsx( 'line-chart', styles[ 'line-chart' ] ) }>
+		<div className={ clsx( 'line-chart', styles[ 'line-chart' ], className ) }>
 			<XYChart
 				theme={ theme }
 				width={ width }
@@ -114,12 +125,14 @@ const LineChart: FC< LineChartProps > = ( {
 					/>
 				) ) }
 
-				<Tooltip
-					snapTooltipToDatumX
-					snapTooltipToDatumY
-					showSeriesGlyphs
-					renderTooltip={ renderTooltip }
-				/>
+				{ withTooltips && (
+					<Tooltip
+						snapTooltipToDatumX
+						snapTooltipToDatumY
+						showSeriesGlyphs
+						renderTooltip={ renderTooltip }
+					/>
+				) }
 			</XYChart>
 		</div>
 	);

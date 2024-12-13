@@ -4,6 +4,7 @@ import { Group } from '@visx/group';
 import { scaleBand, scaleLinear } from '@visx/scale';
 import { Bar } from '@visx/shape';
 import { useTooltip } from '@visx/tooltip';
+import clsx from 'clsx';
 import React from 'react';
 import { useChartTheme } from '../../providers/theme';
 import { Tooltip } from '../tooltip';
@@ -22,7 +23,14 @@ interface BarChartProps extends BaseChartProps {
  * @param {BarChartProps} props - Component props
  * @return {JSX.Element} The rendered bar chart component
  */
-function BarChart( { data, width, height, margin, withTooltips = false }: BarChartProps ) {
+function BarChart( {
+	data,
+	width,
+	height,
+	margin,
+	withTooltips = false,
+	className,
+}: BarChartProps ) {
 	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
 		useTooltip< DataPoint >();
 
@@ -69,7 +77,7 @@ function BarChart( { data, width, height, margin, withTooltips = false }: BarCha
 	);
 
 	return (
-		<div style={ { position: 'relative' } }>
+		<div className={ clsx( 'bar-chart', className ) } style={ { position: 'relative' } }>
 			<svg width={ width } height={ height }>
 				<Group left={ margins.left } top={ margins.top }>
 					{ data.map( d => (

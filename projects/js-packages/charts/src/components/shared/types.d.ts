@@ -72,6 +72,10 @@ export type BaseChartProps< T = DataPoint | DataPointDate > = {
 	 */
 	data: T extends DataPoint | DataPointDate ? T[] : T;
 	/**
+	 * Additional CSS class name for the chart container
+	 */
+	className?: string;
+	/**
 	 * Width of the chart in pixels
 	 */
 	width: number;

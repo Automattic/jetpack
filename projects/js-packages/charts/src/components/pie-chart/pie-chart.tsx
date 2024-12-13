@@ -1,9 +1,11 @@
 import { Group } from '@visx/group';
 import { Pie } from '@visx/shape';
+import clsx from 'clsx';
 import { SVGProps } from 'react';
 import useChartMouseHandler from '../../hooks/use-chart-mouse-handler';
 import { useChartTheme, defaultTheme } from '../../providers/theme';
 import { Tooltip } from '../tooltip';
+import styles from './pie-chart.module.scss';
 import type { BaseChartProps, DataPoint } from '../shared/types';
 
 // TODO: add animation
@@ -27,6 +29,7 @@ const PieChart = ( {
 	height,
 	withTooltips = false,
 	innerRadius = 0,
+	className,
 }: PieChartProps ) => {
 	const providerTheme = useChartTheme();
 	const { onMouseMove, onMouseLeave, tooltipOpen, tooltipData, tooltipLeft, tooltipTop } =
@@ -46,7 +49,7 @@ const PieChart = ( {
 	};
 
 	return (
-		<div style={ { position: 'relative' } }>
+		<div className={ clsx( 'pie-chart', styles[ 'pie-chart' ], className ) }>
 			<svg width={ width } height={ height }>
 				<Group top={ centerY } left={ centerX }>
 					<Pie

@@ -24,6 +24,7 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 	height,
 	label,
 	note,
+	className,
 } ) => {
 	const providerTheme = useChartTheme();
 	const centerX = width / 2;
@@ -37,7 +38,9 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 	};
 
 	return (
-		<div className={ clsx( 'pie-semi-circle-chart', styles[ 'pie-semi-circle-chart' ] ) }>
+		<div
+			className={ clsx( 'pie-semi-circle-chart', styles[ 'pie-semi-circle-chart' ], className ) }
+		>
 			<svg width={ width } height={ height }>
 				<Group top={ centerY } left={ centerX }>
 					<Pie< DataPointPercentage >
