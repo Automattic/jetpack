@@ -646,7 +646,7 @@ class WPCOM_JSON_API {
 	 * @param mixed  $response Response data.
 	 * @param string $content_type Content type of the response.
 	 * @param array  $extra Additional HTTP headers.
-	 * @return string Content type if the function didn't exit
+	 * @return string Content type (assuming it didn't exit).
 	 */
 	public function output( $status_code, $response = null, $content_type = 'application/json', $extra = array() ) {
 		$status_code = (int) $status_code;
@@ -658,6 +658,7 @@ class WPCOM_JSON_API {
 			}
 			return $content_type;
 		}
+		$this->did_output = true;
 
 		// 400s and 404s are allowed for all origins
 		if ( 404 === $status_code || 400 === $status_code ) {
@@ -681,7 +682,6 @@ class WPCOM_JSON_API {
 			foreach ( $extra as $key => $value ) {
 				header( "$key: $value" );
 			}
-
 			echo $response; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			if ( $this->exit ) {
 				exit;
