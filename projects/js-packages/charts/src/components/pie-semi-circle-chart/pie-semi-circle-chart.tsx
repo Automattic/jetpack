@@ -60,6 +60,12 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 	const centerY = height;
 	const radius = Math.min( width, height ) / 3;
 
+	// Map the data to include index for color assignment
+	const dataWithIndex = data.map( ( d, index ) => ( {
+		...d,
+		index,
+	} ) );
+
 	const accessors = {
 		value: ( d: DataPointPercentage & { index: number } ) => d.value,
 		sort: (
