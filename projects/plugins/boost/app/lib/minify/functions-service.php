@@ -60,7 +60,8 @@ function jetpack_boost_page_optimize_service_request() {
 			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 			$etag = '"' . md5( file_get_contents( $cache_file ) ) . '"';
 
-			if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
+			// Check if we're on Atomic and take advantage of the Atomic Edge Cache.
+			if ( defined( 'ATOMIC_CLIENT_ID' ) ) {
 				header( 'A8c-Edge-Cache: cache' );
 			}
 			header( 'X-Page-Optimize: cached' );
