@@ -1152,26 +1152,25 @@ class WPCOM_Features {
 		self::STATS_FREE                        => array(
 			self::JETPACK_STATS_PLANS,
 			self::JETPACK_GROWTH_PLANS,
-			// Provides legacy stats access for free sites and more crucially, personal sites created before 2024-01-09.
+			// Provides legacy access for free and personal sites created before 2024-01-09.
+			// Can be removed once we are ready to paywall all free and/or old personal sites.
 			array(
 				'before' => '2024-01-09',
-				// Can be removed once we are ready to paywall all free and/or old personal sites.
-				self::WPCOM_ALL_SITES,
 				self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
+				self::WPCOM_ALL_SITES,
 			),
 		),
-		// Provides limited stats for free sites created after 2024-01-09 and before 2024-12-06.
+		// Provides limited stats for free and personal sites created before 2024-12-06.
 		// Features: Posts/Locations/Emails/File downloads
 		// Can be removed once we are ready to paywall all free sites.
-		self::STATS_BASIC                       => array(
+		self::STATS_BASIC_TEMP                  => array(
 			array(
-				'after'  => '2024-01-09',
-				'before' => '2024-12-06',
+				'before' => '2024-12-12',
 				self::WPCOM_ALL_SITES,
 			),
 		),
 		// Provides personal sites and higher access to all stats features except commercial level modules.
-		// Features: STATS_BASIC + Referrers & Clicks modules
+		// Features: Posts/Locations/Emails/File downloads/Referrers/Clicks
 		self::STATS_PAID                        => array(
 			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
 			self::WP_P2_PLUS_MONTHLY,
