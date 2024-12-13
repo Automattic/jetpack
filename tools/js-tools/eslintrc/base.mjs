@@ -328,7 +328,7 @@ export default function makeBaseConfig( configurl, opts = {} ) {
 				// Disable param name check for destructured params.
 				'jsdoc/check-param-names': [ 'error', { checkDestructured: false } ],
 				// TS should be enough to catch undefined types.
-				'jsdoc/no-undefined-types': 'warn',
+				'jsdoc/no-undefined-types': 'off',
 				// Disable param check except when destructured.
 				'jsdoc/require-param': [ 'error', { checkDestructured: false } ],
 				// TS should mostly have the type set.
