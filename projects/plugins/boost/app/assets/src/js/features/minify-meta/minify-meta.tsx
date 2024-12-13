@@ -56,11 +56,11 @@ const MetaComponent = ( { buttonText, placeholder, datasyncKey }: Props ) => {
 
 	let subHeaderText = '';
 	if ( datasyncKey === 'minify_js_excludes' ) {
-		subHeaderText = __( 'Exclude JS Strings:', 'jetpack-boost' );
+		subHeaderText = __( 'Exclude JS handles:', 'jetpack-boost' );
 	}
 
 	if ( datasyncKey === 'minify_css_excludes' ) {
-		subHeaderText = __( 'Exclude CSS Strings:', 'jetpack-boost' );
+		subHeaderText = __( 'Exclude CSS handles:', 'jetpack-boost' );
 	}
 
 	function loadDefaultValue() {
@@ -94,7 +94,7 @@ const MetaComponent = ( { buttonText, placeholder, datasyncKey }: Props ) => {
 						} }
 					/>
 					<div className={ styles.description }>
-						{ __( 'Use a comma (,) to separate the strings.', 'jetpack-boost' ) }
+						{ __( 'Use a comma (,) to separate the handles.', 'jetpack-boost' ) }
 					</div>
 					<Button
 						disabled={ values.join( ', ' ) === inputValue }
