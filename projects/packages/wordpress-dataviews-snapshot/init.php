@@ -11,10 +11,10 @@ add_action(
 	'wp_loaded',
 	function () {
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
-		$handle = json_decode( file_get_contents( __DIR__ . '/build/dependency-data.json' ), true )['handle'];
-		if ( ! wp_script_is( $handle, 'registered' ) ) {
+		$json = json_decode( file_get_contents( __DIR__ . '/build/dependency-data.json' ), true );
+		if ( isset( $json['handle'] ) && ! wp_script_is( $json['handle'], 'registered' ) ) {
 			Assets::register_script(
-				$handle,
+				$json['handle'],
 				'./build/dataviews.js',
 				__FILE__,
 				array(

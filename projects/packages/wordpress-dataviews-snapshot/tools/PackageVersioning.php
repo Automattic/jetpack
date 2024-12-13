@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\WordPressDataViews;
 
+use Automattic\Jetpack\Changelog\ChangeEntry;
 use Automattic\Jetpack\Changelogger\PluginTrait;
 use Automattic\Jetpack\Changelogger\VersioningPlugin;
 use InvalidArgumentException;
@@ -153,7 +154,7 @@ class PackageVersioning implements VersioningPlugin {
 		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- We're handling errors manually just below.
 		$json = @json_decode( $data, true );
 		if ( ! is_array( $json ) ) {
-			throw new UnexpectedValueException( "Failed to parse $file: " . ( json_last_error() === 'JSON_ERROR_NONE' ? 'Not a JSON object or array' : json_last_error_msg() ) );
+			throw new UnexpectedValueException( "Failed to parse $file: " . ( json_last_error() === JSON_ERROR_NONE ? 'Not a JSON object or array' : json_last_error_msg() ) );
 		}
 
 		$value = $json;
@@ -241,7 +242,7 @@ class PackageVersioning implements VersioningPlugin {
 		$aa = $this->parseVersion( $a );
 		$bb = $this->parseVersion( $b );
 
-		$ret = version_compare( $a['package'], $b['package'] );
+		$ret = version_compare( $aa['package'], $bb['package'] );
 		if ( ! $ret ) {
 			$ret = $aa['point'] <=> $bb['point'];
 		}
