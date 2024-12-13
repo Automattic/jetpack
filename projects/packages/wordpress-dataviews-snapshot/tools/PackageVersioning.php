@@ -29,14 +29,14 @@ class PackageVersioning implements VersioningPlugin {
 	 *
 	 * @var string
 	 */
-	protected static $file = __DIR__ . '/../node_modules/@wordpress/dataviews/package.json';
+	protected static $file = __DIR__ . '/../package.json';
 
 	/**
 	 * Path within the JSON file to find the version number.
 	 *
 	 * @var string[]
 	 */
-	protected static $path = array( 'version' );
+	protected static $path = array( 'dependencies', '@wordpress/dataviews' );
 
 	/**
 	 * Parse a version.
