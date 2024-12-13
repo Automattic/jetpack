@@ -605,10 +605,10 @@ abstract class Publicize_Base {
 			return $cmeta['external_display'];
 		}
 
-		$connection_display = $cmeta['external_display'] ?? '';
+		$connection_display = $cmeta['external_display'];
 
 		if ( empty( $connection_display ) ) {
-			$connection_display = $cmeta['external_name'] ?? '';
+			$connection_display = $cmeta['external_name'];
 		}
 
 		return $connection_display;

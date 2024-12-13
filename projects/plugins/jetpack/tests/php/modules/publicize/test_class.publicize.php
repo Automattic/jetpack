@@ -253,18 +253,22 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	public function test_publicize_get_all_connections_for_user() {
 		$facebook_connection = array(
 			'id_number' => array(
-				'connection_data' => array(
+				'connection_data'  => array(
 					'user_id' => 0,
 					'id'      => '456',
 				),
+				'external_display' => 'Test',
+				'external_name'    => 'test',
 			),
 		);
 		$twitter_connection  = array(
 			'id_number_2' => array(
-				'connection_data' => array(
+				'connection_data'  => array(
 					'user_id' => 1,
 					'id'      => '456',
 				),
+				'external_display' => 'Test',
+				'external_name'    => 'test',
 			),
 		);
 
@@ -277,23 +281,54 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 
 		$publicize = publicize_init();
 
+		$fb_result = array(
+			'connection_id'   => '456',
+			'display_name'    => 'Test',
+			'external_handle' => '',
+			'external_id'     => '',
+			'profile_link'    => false,
+			'profile_picture' => '',
+			'service_label'   => 'Facebook',
+			'service_name'    => 'facebook',
+			'shared'          => true,
+			'status'          => 'ok',
+			'user_id'         => 0,
+		);
+
+		$twitter_result = array(
+			'connection_id'   => '456',
+			'display_name'    => 'Test',
+			'external_handle' => '',
+			'external_id'     => '',
+			'profile_link'    => 'https://twitter.com/est',
+			'profile_picture' => '',
+			'service_label'   => 'Twitter',
+			'service_name'    => 'twitter',
+			'shared'          => false,
+			'status'          => 'ok',
+			'user_id'         => 1,
+		);
+
 		// When logged out, assert that blog-level connections are returned.
 		wp_set_current_user( 0 );
-		$this->assertSame( array( 'facebook' => $facebook_connection ), $publicize->get_all_connections_for_user() );
+		$this->assertSame(
+			array( $fb_result ),
+			$publicize->get_all_connections_for_user()
+		);
 
 		// When logged in, assert that blog-level connections AND any connections for the current user are returned.
 		wp_set_current_user( 1 );
 		$this->assertSame(
 			array(
-				'facebook' => $facebook_connection,
-				'twitter'  => $twitter_connection,
+				$fb_result,
+				$twitter_result,
 			),
 			$publicize->get_all_connections_for_user()
 		);
 
 		// There are no connections for user 2, so we should only get blog-level connections.
 		wp_set_current_user( 2 );
-		$this->assertSame( array( 'facebook' => $facebook_connection ), $publicize->get_all_connections_for_user() );
+		$this->assertSame( array( $fb_result ), $publicize->get_all_connections_for_user() );
 	}
 
 	/**
