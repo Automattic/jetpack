@@ -21,6 +21,8 @@ use Jetpack_Options;
  */
 class Publicize_Script_Data {
 
+	const SERVICES_TRANSIENT = 'jetpack_social_services_list';
+
 	/**
 	 * Get the publicize instance - properly typed
 	 *
@@ -221,9 +223,10 @@ class Publicize_Script_Data {
 	/**
 	 * Get the list of supported Publicize services.
 	 *
+	 * @param bool $force_refresh Whether to force a refresh of the services list.
 	 * @return array List of external services and their settings.
 	 */
-	public static function get_supported_services() {
+	public static function get_supported_services( $force_refresh = false ) {
 		if ( defined( 'IS_WPCOM' ) && constant( 'IS_WPCOM' ) ) {
 			if ( function_exists( 'require_lib' ) ) {
 				// @phan-suppress-next-line PhanUndeclaredFunction - phan is dumb not to see the function_exists check.
@@ -237,6 +240,13 @@ class Publicize_Script_Data {
 			return $services;
 		}
 
+		// Checking the cache.
+		$services = get_transient( self::SERVICES_TRANSIENT );
+		if ( false !== $services && ! $force_refresh ) {
+			return $services;
+		}
+
+		// Fetch the services.
 		$site_id = Manager::get_site_id();
 		if ( is_wp_error( $site_id ) ) {
 			return array();
@@ -250,7 +260,7 @@ class Publicize_Script_Data {
 
 		$services = $body->services ?? array();
 
-		return array_values(
+		$formatted_services = array_values(
 			array_filter(
 				(array) $services,
 				function ( $service ) {
@@ -258,6 +268,12 @@ class Publicize_Script_Data {
 				}
 			)
 		);
+
+		if ( ! empty( $formatted_services ) ) {
+			set_transient( self::SERVICES_TRANSIENT, $formatted_services, DAY_IN_SECONDS );
+		}
+
+		return $formatted_services;
 	}
 
 	/**
