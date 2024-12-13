@@ -730,7 +730,7 @@ class WPCOM_JSON_API {
 	 * Wrap JSON API response into an HTTP 200 one.
 	 *
 	 * @param int        $status_code HTTP status code.
-	 * @param string     $response Response body.
+	 * @param mixed      $response Response body.
 	 * @param string     $content_type Content type.
 	 * @param array|null $extra Extra data.
 	 *
