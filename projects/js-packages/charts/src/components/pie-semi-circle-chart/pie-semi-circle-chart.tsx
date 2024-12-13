@@ -108,6 +108,7 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 	return (
 		<div className={ clsx( 'pie-semi-circle-chart', styles[ 'pie-semi-circle-chart' ] ) }>
 			<svg width={ width } height={ height }>
+				{ /*  chart group */ }
 				<Group top={ centerY } left={ centerX }>
 					<Pie< DataPointPercentage & { index: number } >
 						data={ dataWithIndex }
@@ -133,21 +134,22 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 						} }
 					</Pie>
 				</Group>
-
-				<Group top={ centerY } left={ centerX }>
+				{ /* text elements group */ }
+				<Group top={ 40 } left={ centerX }>
 					<Text
 						textAnchor="middle"
 						verticalAnchor="start"
-						y={ -radius * 1.6 }
 						className={ styles.label }
+						style={ { fontFamily: 'inherit' } }
 					>
 						{ label }
 					</Text>
 					<Text
 						textAnchor="middle"
-						verticalAnchor="end"
-						y={ radius * 0.2 }
+						verticalAnchor="start"
+						y={ height * 0.7 }
 						className={ styles.note }
+						style={ { fontFamily: 'inherit' } }
 					>
 						{ note }
 					</Text>
