@@ -8,6 +8,8 @@ import './modal.scss';
 
 /**
  * The modal that shows in the Site Editor the first time a user previews a block theme.
+ *
+ * @return {JSX.Element|null} The modal component if visible and in the Site Editor, otherwise null.
  */
 export default function BlockThemePreviewsModal() {
 	const stylesheet = getPreviewedThemeStylesheet();

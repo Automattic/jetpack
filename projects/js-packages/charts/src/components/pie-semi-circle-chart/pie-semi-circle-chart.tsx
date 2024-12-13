@@ -1,13 +1,16 @@
+import { localPoint } from '@visx/event';
 import { Group } from '@visx/group';
-import { Pie } from '@visx/shape';
+import Pie, { PieArcDatum } from '@visx/shape/lib/shapes/Pie';
 import { Text } from '@visx/text';
+import { useTooltip } from '@visx/tooltip';
 import clsx from 'clsx';
-import { FC } from 'react';
+import { FC, useCallback } from 'react';
 import { useChartTheme } from '../../providers/theme/theme-provider';
+import { BaseTooltip } from '../tooltip';
 import styles from './pie-semi-circle-chart.module.scss';
 import type { DataPointPercentage } from '../shared/types';
 
-// TODO: convert hard-coded values to props
+type ArcData = PieArcDatum< DataPointPercentage >;
 
 interface PieSemiCircleChartProps {
 	/**
@@ -30,6 +33,10 @@ interface PieSemiCircleChartProps {
 	 * Note text to display below the label
 	 */
 	note: string;
+	/**
+	 * Whether to show tooltips
+	 */
+	showTooltips?: boolean;
 }
 
 const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
@@ -38,57 +45,119 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 	height,
 	label,
 	note,
+	showTooltips = false,
 } ) => {
 	const providerTheme = useChartTheme();
+	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
+		useTooltip< DataPointPercentage >();
+
 	const centerX = width / 2;
 	const centerY = height;
 
+	// Map the data to include index for color assignment
+	const dataWithIndex = data.map( ( d, index ) => ( {
+		...d,
+		index,
+	} ) );
+
 	const accessors = {
-		value: d => d.value,
-		sort: ( a, b ) => a.value - b.value,
+		value: ( d: DataPointPercentage & { index: number } ) => d.value,
+		sort: (
+			a: DataPointPercentage & { index: number },
+			b: DataPointPercentage & { index: number }
+		) => b.value - a.value,
 		// Use the color property from the data object as a last resort. The theme provides colours by default.
-		fill: d => d.color || providerTheme.colors[ d.index ],
+		fill: ( d: DataPointPercentage & { index: number } ) =>
+			d.color || providerTheme.colors[ d.index % providerTheme.colors.length ],
 	};
+
+	const handleMouseMove = useCallback(
+		( event: React.MouseEvent, arc: ArcData ) => {
+			const coords = localPoint( event );
+			if ( ! coords ) return;
+
+			showTooltip( {
+				tooltipData: arc.data,
+				tooltipLeft: coords.x,
+				tooltipTop: coords.y - 10,
+			} );
+		},
+		[ showTooltip ]
+	);
+
+	const handleMouseLeave = useCallback( () => {
+		hideTooltip();
+	}, [ hideTooltip ] );
+
+	const handleArcMouseMove = useCallback(
+		( arc: ArcData ) => ( event: React.MouseEvent ) => {
+			handleMouseMove( event, arc );
+		},
+		[ handleMouseMove ]
+	);
 
 	return (
 		<div className={ clsx( 'pie-semi-circle-chart', styles[ 'pie-semi-circle-chart' ] ) }>
 			<svg width={ width } height={ height }>
+				{ /* Main chart group that contains both the pie and text elements */ }
 				<Group top={ centerY } left={ centerX }>
-					<Pie< DataPointPercentage >
-						data={ data }
+					{ /* Pie chart */ }
+					<Pie< DataPointPercentage & { index: number } >
+						data={ dataWithIndex }
 						pieValue={ accessors.value }
-						outerRadius={ 100 }
-						innerRadius={ 70 }
+						outerRadius={ width / 2 } // half of the diameter (width)
+						innerRadius={ ( width / 2 ) * 0.6 } // 70% of the radius
 						cornerRadius={ 3 }
 						padAngle={ 0.03 }
 						startAngle={ -Math.PI / 2 }
 						endAngle={ Math.PI / 2 }
 						pieSort={ accessors.sort }
-						fill={ accessors.fill }
-					/>
+					>
+						{ pie => {
+							return pie.arcs.map( arc => (
+								<g
+									key={ arc.data.label }
+									onMouseMove={ handleArcMouseMove( arc ) }
+									onMouseLeave={ handleMouseLeave }
+								>
+									<path d={ pie.path( arc ) || '' } fill={ accessors.fill( arc.data ) } />
+								</g>
+							) );
+						} }
+					</Pie>
+
 					<Group>
 						<Text
 							textAnchor="middle"
-							verticalAnchor="middle"
-							fontSize={ 18 }
-							lineHeight={ 20 }
-							y={ -36 }
+							verticalAnchor="start"
+							y={ -40 } // double font size to make room for a note
+							className={ styles.label }
 						>
 							{ label }
 						</Text>
 						<Text
 							textAnchor="middle"
-							verticalAnchor="middle"
-							fill="#008A20"
-							fontSize="13px"
-							lineHeight={ 20 }
-							y={ -12 }
+							verticalAnchor="start"
+							y={ -20 } // font size with padding
+							className={ styles.note }
 						>
 							{ note }
 						</Text>
 					</Group>
 				</Group>
 			</svg>
+
+			{ showTooltips && tooltipOpen && tooltipData && (
+				<BaseTooltip
+					data={ {
+						label: tooltipData.label,
+						value: tooltipData.value,
+						valueDisplay: tooltipData.valueDisplay,
+					} }
+					top={ tooltipTop }
+					left={ tooltipLeft }
+				/>
+			) }
 		</div>
 	);
 };

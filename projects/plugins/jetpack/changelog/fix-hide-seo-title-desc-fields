@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+SEO: Ensure that SEO fields are not visible when another SEO plugin is active.
