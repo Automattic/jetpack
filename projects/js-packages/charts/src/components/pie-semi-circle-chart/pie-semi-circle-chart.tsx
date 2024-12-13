@@ -61,10 +61,14 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 	const radius = Math.min( width, height ) / 3;
 
 	const accessors = {
-		value: d => d.value,
-		sort: ( a, b ) => a.value - b.value,
+		value: ( d: DataPointPercentage & { index: number } ) => d.value,
+		sort: (
+			a: DataPointPercentage & { index: number },
+			b: DataPointPercentage & { index: number }
+		) => b.value - a.value,
 		// Use the color property from the data object as a last resort. The theme provides colours by default.
-		fill: d => d.color || providerTheme.colors[ d.index ],
+		fill: ( d: DataPointPercentage & { index: number } ) =>
+			d.color || providerTheme.colors[ d.index % providerTheme.colors.length ],
 	};
 
 	const handleMouseEnter = useCallback(
@@ -97,8 +101,8 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 		<div className={ clsx( 'pie-semi-circle-chart', styles[ 'pie-semi-circle-chart' ] ) }>
 			<svg width={ width } height={ height }>
 				<Group top={ centerY } left={ centerX }>
-					<Pie< DataPointPercentage >
-						data={ data }
+					<Pie< DataPointPercentage & { index: number } >
+						data={ dataWithIndex }
 						pieValue={ accessors.value }
 						outerRadius={ radius }
 						innerRadius={ radius * 0.7 }
@@ -148,6 +152,7 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 					data={ {
 						label: tooltipData.label,
 						value: tooltipData.value,
+						valueDisplay: tooltipData.valueDisplay,
 					} }
 					top={ tooltipData.y }
 					left={ tooltipData.x }
