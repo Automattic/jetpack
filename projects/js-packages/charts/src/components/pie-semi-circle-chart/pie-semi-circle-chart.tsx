@@ -100,8 +100,9 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 	return (
 		<div className={ clsx( 'pie-semi-circle-chart', styles[ 'pie-semi-circle-chart' ] ) }>
 			<svg width={ width } height={ height }>
-				{ /*  chart group */ }
+				{ /* Main chart group that contains both the pie and text elements */ }
 				<Group top={ centerY } left={ centerX }>
+					{ /* Pie chart */ }
 					<Pie< DataPointPercentage & { index: number } >
 						data={ dataWithIndex }
 						pieValue={ accessors.value }
@@ -125,26 +126,28 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 							) );
 						} }
 					</Pie>
-				</Group>
-				{ /* text elements group */ }
-				<Group top={ 40 } left={ centerX }>
-					<Text
-						textAnchor="middle"
-						verticalAnchor="start"
-						className={ styles.label }
-						style={ { fontFamily: 'inherit' } }
-					>
-						{ label }
-					</Text>
-					<Text
-						textAnchor="middle"
-						verticalAnchor="start"
-						y={ height * 0.7 }
-						className={ styles.note }
-						style={ { fontFamily: 'inherit' } }
-					>
-						{ note }
-					</Text>
+
+					{ /* Text elements group as a child of the main chart group */ }
+					<Group>
+						<Text
+							textAnchor="middle"
+							verticalAnchor="start"
+							y={ -height + 40 }
+							className={ styles.label }
+							style={ { fontFamily: 'inherit' } }
+						>
+							{ label }
+						</Text>
+						<Text
+							textAnchor="middle"
+							verticalAnchor="start"
+							y={ -radius * 0.3 }
+							className={ styles.note }
+							style={ { fontFamily: 'inherit' } }
+						>
+							{ note }
+						</Text>
+					</Group>
 				</Group>
 			</svg>
 
