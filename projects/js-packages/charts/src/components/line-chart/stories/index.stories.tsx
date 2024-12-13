@@ -31,11 +31,4 @@ Default.args = {
 	height: 300,
 	margin: { top: 20, right: 20, bottom: 30, left: 40 },
 	data,
-	showTooltip: false,
-};
-
-export const WithTooltip = Template.bind( {} );
-WithTooltip.args = {
-	...Default.args,
-	showTooltip: true,
 };

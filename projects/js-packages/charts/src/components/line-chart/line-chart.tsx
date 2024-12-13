@@ -1,16 +1,14 @@
-import { localPoint } from '@visx/event';
 import {
 	XYChart,
 	AnimatedLineSeries,
 	AnimatedAxis,
 	AnimatedGrid,
+	Tooltip,
 	buildChartTheme,
-	EventHandlerParams,
 } from '@visx/xychart';
 import clsx from 'clsx';
-import { FC, useState, useCallback } from 'react';
+import { FC } from 'react';
 import { useChartTheme } from '../../providers/theme/theme-provider';
-import { BaseTooltip } from '../tooltip/base-tooltip';
 import styles from './line-chart.module.scss';
 import type { DataPointDate } from '../shared/types';
 
@@ -37,20 +35,26 @@ type LineChartProps = {
 	 * Color of the line
 	 */
 	lineColor?: string;
-	/**
-	 * Whether to show tooltips on hover
-	 */
-	showTooltip?: boolean;
 };
 
-type TooltipState = {
-	visible: boolean;
-	top: number;
-	left: number;
-	data: {
-		label: string;
-		value: number;
-	};
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const renderTooltip: any = ( { tooltipData } ) => {
+	// TODO: fix any
+	const datum = tooltipData?.nearestDatum?.datum;
+	if ( ! datum ) {
+		return null;
+	}
+
+	return (
+		<div className={ styles[ 'line-chart__tooltip' ] }>
+			<div className={ styles[ 'line-chart__tooltip-row' ] }>
+				<strong>Date:</strong> { datum.date.toLocaleDateString() }
+			</div>
+			<div className={ styles[ 'line-chart__tooltip-row' ] }>
+				<strong>Value:</strong> { datum.value }
+			</div>
+		</div>
+	);
 };
 
 const formatDateTick = ( value: number ) => {
@@ -61,26 +65,21 @@ const formatDateTick = ( value: number ) => {
 	} );
 };
 
+// TODO: add support for multiple data sets
+
 const LineChart: FC< LineChartProps > = ( {
 	data,
 	width,
 	height,
 	margin = { top: 20, right: 20, bottom: 40, left: 40 },
-	showTooltip = false,
 } ) => {
-	const [ tooltip, setTooltip ] = useState< TooltipState >( {
-		visible: false,
-		top: 0,
-		left: 0,
-		data: { label: '', value: 0 },
-	} );
-
 	const providerTheme = useChartTheme();
 	const accessors = {
 		xAccessor: ( d: DataPointDate ) => d.date,
 		yAccessor: ( d: DataPointDate ) => d.value,
 	};
 
+	// Use theme to construct XYChart theme
 	const chartTheme = {
 		backgroundColor: providerTheme.backgroundColor,
 		colors: providerTheme.colors,
@@ -92,28 +91,7 @@ const LineChart: FC< LineChartProps > = ( {
 
 	const theme = buildChartTheme( chartTheme );
 
-	const handlePointerMove = useCallback( ( params: EventHandlerParams< DataPointDate > ) => {
-		const { datum } = params;
-		if ( datum ) {
-			const coords = localPoint( params.event );
-			if ( ! coords ) return;
-
-			setTooltip( {
-				visible: true,
-				top: coords.y - 10,
-				left: coords.x,
-				data: {
-					label: datum.date.toLocaleDateString(),
-					value: datum.value,
-				},
-			} );
-		}
-	}, [] );
-
-	const handlePointerLeave = useCallback( () => {
-		setTooltip( prev => ( { ...prev, visible: false } ) );
-	}, [] );
-
+	//
 	return (
 		<div className={ clsx( 'line-chart', styles[ 'line-chart' ] ) }>
 			<XYChart
@@ -123,12 +101,12 @@ const LineChart: FC< LineChartProps > = ( {
 				margin={ margin }
 				xScale={ { type: 'time' } }
 				yScale={ { type: 'linear', nice: true } }
-				onPointerMove={ handlePointerMove }
-				onPointerOut={ handlePointerLeave }
 			>
 				<AnimatedGrid columns={ false } numTicks={ 4 } />
+
 				<AnimatedAxis orientation="bottom" numTicks={ 5 } tickFormat={ formatDateTick } />
 				<AnimatedAxis orientation="left" numTicks={ 4 } />
+
 				<AnimatedLineSeries
 					dataKey="Line"
 					data={ data }
@@ -136,11 +114,14 @@ const LineChart: FC< LineChartProps > = ( {
 					stroke={ theme.colors[ 0 ] }
 					strokeWidth={ 2 }
 				/>
-			</XYChart>
 
-			{ showTooltip && tooltip.visible && (
-				<BaseTooltip data={ tooltip.data } top={ tooltip.top } left={ tooltip.left } />
-			) }
+				<Tooltip
+					snapTooltipToDatumX
+					snapTooltipToDatumY
+					showSeriesGlyphs
+					renderTooltip={ renderTooltip }
+				/>
+			</XYChart>
 		</div>
 	);
 };
