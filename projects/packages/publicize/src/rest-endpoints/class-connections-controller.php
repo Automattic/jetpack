@@ -233,7 +233,7 @@ class Connections_Controller extends Base_Controller {
 			sprintf( '/sites/%d/publicize/connections', $site_id )
 		);
 
-		$response = Client::wpcom_json_api_request_as_user( $path, 'v3', array( 'method' => 'GET' ) );
+		$response = Client::wpcom_json_api_request_as_user( $path, 'v2', array( 'method' => 'GET' ) );
 
 		if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
 			// TODO log error.
