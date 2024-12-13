@@ -3,8 +3,9 @@ import { localPoint } from '@visx/event';
 import { Group } from '@visx/group';
 import { scaleBand, scaleLinear } from '@visx/scale';
 import { Bar } from '@visx/shape';
+import { useTooltip } from '@visx/tooltip';
 import clsx from 'clsx';
-import { FC, useCallback, useState } from 'react';
+import { FC, useCallback } from 'react';
 import { useChartTheme } from '../../providers/theme';
 import { BaseTooltip } from '../tooltip';
 import styles from './bar-chart.module.scss';
@@ -46,13 +47,8 @@ const BarChart: FC< BarChartProps > = ( {
 	showTooltips = false,
 } ) => {
 	const theme = useChartTheme();
-	const [ tooltipOpen, setTooltipOpen ] = useState( false );
-	const [ tooltipData, setTooltipData ] = useState( {
-		label: '',
-		value: 0,
-		x: 0,
-		y: 0,
-	} );
+	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
+		useTooltip< DataPoint >();
 
 	const margins = margin;
 	const xMax = width - margins.left - margins.right;
@@ -70,26 +66,22 @@ const BarChart: FC< BarChartProps > = ( {
 	} );
 
 	const handleMouseMove = useCallback(
-		( event: React.MouseEvent, bar: DataPoint ) => {
-			if ( ! showTooltips ) return;
+		( event: React.MouseEvent, datum: DataPoint ) => {
+			const coords = localPoint( event );
+			if ( ! coords ) return;
 
-			const point = localPoint( event );
-			if ( ! point ) return;
-
-			setTooltipData( {
-				label: bar.label,
-				value: bar.value,
-				x: point.x,
-				y: point.y,
+			showTooltip( {
+				tooltipData: datum,
+				tooltipLeft: coords.x,
+				tooltipTop: coords.y - 10,
 			} );
-			setTooltipOpen( true );
 		},
-		[ showTooltips ]
+		[ showTooltip ]
 	);
 
 	const handleMouseLeave = useCallback( () => {
-		setTooltipOpen( false );
-	}, [] );
+		hideTooltip();
+	}, [ hideTooltip ] );
 
 	const handleBarMouseMove = useCallback(
 		( d: DataPoint ) => ( event: React.MouseEvent< SVGRectElement > ) => {
@@ -119,14 +111,14 @@ const BarChart: FC< BarChartProps > = ( {
 				</Group>
 			</svg>
 
-			{ showTooltips && tooltipOpen && (
+			{ showTooltips && tooltipOpen && tooltipData && (
 				<BaseTooltip
 					data={ {
 						label: tooltipData.label,
 						value: tooltipData.value,
 					} }
-					top={ tooltipData.y }
-					left={ tooltipData.x }
+					top={ tooltipTop }
+					left={ tooltipLeft }
 				/>
 			) }
 		</div>

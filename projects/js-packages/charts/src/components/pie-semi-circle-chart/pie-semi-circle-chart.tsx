@@ -2,22 +2,15 @@ import { localPoint } from '@visx/event';
 import { Group } from '@visx/group';
 import Pie, { PieArcDatum } from '@visx/shape/lib/shapes/Pie';
 import { Text } from '@visx/text';
+import { useTooltip } from '@visx/tooltip';
 import clsx from 'clsx';
-import { FC, useState, useCallback } from 'react';
+import { FC, useCallback } from 'react';
 import { useChartTheme } from '../../providers/theme/theme-provider';
 import { BaseTooltip } from '../tooltip';
 import styles from './pie-semi-circle-chart.module.scss';
 import type { DataPointPercentage } from '../shared/types';
 
 type ArcData = PieArcDatum< DataPointPercentage >;
-
-interface TooltipData {
-	label: string;
-	value: number;
-	valueDisplay?: string;
-	x: number;
-	y: number;
-}
 
 interface PieSemiCircleChartProps {
 	/**
@@ -55,7 +48,9 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 	showTooltips = false,
 } ) => {
 	const providerTheme = useChartTheme();
-	const [ tooltipData, setTooltipData ] = useState< TooltipData | null >( null );
+	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
+		useTooltip< DataPointPercentage >();
+
 	const centerX = width / 2;
 	const centerY = height;
 	const radius = Math.min( width, height ) / 3;
@@ -79,24 +74,21 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 
 	const handleMouseMove = useCallback(
 		( event: React.MouseEvent, arc: ArcData ) => {
-			if ( ! showTooltips ) return;
 			const coords = localPoint( event );
 			if ( ! coords ) return;
 
-			setTooltipData( {
-				label: arc.data.label,
-				value: arc.data.value,
-				valueDisplay: arc.data.valueDisplay,
-				x: coords.x,
-				y: coords.y,
+			showTooltip( {
+				tooltipData: arc.data,
+				tooltipLeft: coords.x,
+				tooltipTop: coords.y - 10,
 			} );
 		},
-		[ showTooltips ]
+		[ showTooltip ]
 	);
 
 	const handleMouseLeave = useCallback( () => {
-		setTooltipData( null );
-	}, [] );
+		hideTooltip();
+	}, [ hideTooltip ] );
 
 	const handleArcMouseMove = useCallback(
 		( arc: ArcData ) => ( event: React.MouseEvent ) => {
@@ -156,15 +148,15 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 				</Group>
 			</svg>
 
-			{ showTooltips && tooltipData && (
+			{ showTooltips && tooltipOpen && tooltipData && (
 				<BaseTooltip
 					data={ {
 						label: tooltipData.label,
 						value: tooltipData.value,
 						valueDisplay: tooltipData.valueDisplay,
 					} }
-					top={ tooltipData.y }
-					left={ tooltipData.x }
+					top={ tooltipTop }
+					left={ tooltipLeft }
 				/>
 			) }
 		</div>
