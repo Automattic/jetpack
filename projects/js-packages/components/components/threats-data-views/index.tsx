@@ -100,7 +100,12 @@ export default function ThreatsDataViews( {
 	const defaultLayouts: SupportedLayouts = {
 		table: {
 			...baseView,
-			fields: [ THREAT_FIELD_SEVERITY, THREAT_FIELD_TYPE, THREAT_FIELD_AUTO_FIX ],
+			fields: [
+				THREAT_FIELD_SEVERITY,
+				THREAT_FIELD_TYPE,
+				THREAT_FIELD_AUTO_FIX,
+				THREAT_FIELD_FIXED_ON,
+			],
 			titleField: THREAT_FIELD_TITLE,
 			descriptionField: THREAT_FIELD_DESCRIPTION,
 			showMedia: false,
@@ -197,6 +202,25 @@ export default function ThreatsDataViews( {
 			}
 		);
 	}, [ data ] );
+
+	const statusFilters = useMemo(
+		() =>
+			view.filters.reduce( ( acc, filter ) => {
+				if ( filter.field === THREAT_FIELD_STATUS ) {
+					if ( Array.isArray( filter.value ) ) {
+						for ( const value of filter.value ) {
+							if ( ! acc.includes( value ) ) {
+								acc.push( value );
+							}
+						}
+					} else if ( ! acc.includes( filter.value ) ) {
+						acc.push( filter.value );
+					}
+				}
+				return acc;
+			}, [] ),
+		[ view.filters ]
+	);
 
 	/**
 	 * DataView fields - describes the visible items for each record in the dataset.
@@ -358,7 +382,8 @@ export default function ThreatsDataViews( {
 						},
 				  ]
 				: [] ),
-			...( dataFields.includes( 'fixedOn' )
+			...( dataFields.includes( 'fixedOn' ) &&
+			( statusFilters.includes( 'fixed' ) || ! statusFilters.length )
 				? [
 						{
 							id: THREAT_FIELD_FIXED_ON,
@@ -409,7 +434,7 @@ export default function ThreatsDataViews( {
 		];
 
 		return result;
-	}, [ dataFields, plugins, themes, signatures, onFixThreats ] );
+	}, [ dataFields, plugins, themes, signatures, onFixThreats, statusFilters ] );
 
 	/**
 	 * DataView actions - collection of operations that can be performed upon each record.
