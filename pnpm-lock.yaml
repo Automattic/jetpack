@@ -4,7 +4,7 @@ settings:
   autoInstallPeers: false
   excludeLinksFromLockfile: false
 
-pnpmfileChecksum: 2l6yqtdtca3c2xtsbhpct4g6ue
+pnpmfileChecksum: hcqlgc2xny3nzfm4as7gwpsqiy
 
 patchedDependencies:
   '@wordpress/dataviews@4.10.0':
@@ -3193,7 +3193,7 @@ importers:
         specifier: 4.9.1
         version: 4.9.1(webpack@5.94.0)
 
-  projects/packages/wordpress-dataviews:
+  projects/packages/wordpress-dataviews-snapshot:
     dependencies:
       '@wordpress/dataviews':
         specifier: 4.10.0
