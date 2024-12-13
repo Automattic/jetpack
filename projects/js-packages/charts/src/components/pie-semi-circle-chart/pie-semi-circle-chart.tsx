@@ -40,6 +40,9 @@ interface PieSemiCircleChartProps {
 	 * Note text to display below the label
 	 */
 	note: string;
+	/**
+	 * Whether to show tooltips
+	 */
 	showTooltips?: boolean;
 }
 
