@@ -138,6 +138,8 @@ export const selectors = {
 
 /**
  * Register the wpcom-welcome-guide store
+ *
+ * @return {object} The registered store.
  */
 export function register() {
 	return registerStore( 'automattic/wpcom-welcome-guide', {
