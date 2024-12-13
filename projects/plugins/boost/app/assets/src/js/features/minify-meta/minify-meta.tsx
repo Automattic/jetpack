@@ -10,14 +10,14 @@ import { useMinifyDefaults } from './lib/stores';
 const MetaComponent = ( { buttonText, placeholder, datasyncKey }: Props ) => {
 	const [ values, updateValues ] = useMetaQuery( datasyncKey );
 	const [ inputValue, setInputValue ] = useState( () => values.join( ', ' ) );
-	const minifyDefaults = useMinifyDefaults();
+	const minifyDefaults = useMinifyDefaults( datasyncKey );
 
 	const concatenateType = datasyncKey === 'minify_js_excludes' ? 'js' : 'css';
 	const togglePanelTracksEvent = 'concatenate_' + concatenateType + '_panel_toggle'; // possible events: concatenate_js_panel_toggle, concatenate_css_panel_toggle
 
 	let defaultValue = '';
 	if ( minifyDefaults !== undefined ) {
-		defaultValue = minifyDefaults[ concatenateType ].join( ', ' );
+		defaultValue = minifyDefaults.join( ', ' );
 	}
 
 	useEffect( () => {
