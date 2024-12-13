@@ -608,7 +608,7 @@ abstract class Publicize_Base {
 	 * @param object|array $connection The Connection object (WordPress.com) or array (Jetpack).
 	 * @return string
 	 */
-	private function get_profile_picture( $connection ) {
+	public function get_profile_picture( $connection ) {
 		$cmeta = $this->get_connection_meta( $connection );
 
 		if ( isset( $cmeta['profile_picture'] ) ) {
