@@ -392,7 +392,7 @@ for PROJECT in projects/*/*; do
 
 	# - Only plugins can use non-semver versioning.
 	# - Changelog header should not mention semver if project does not use semver.
-	if jq -e '( .extra.changelogger.versioning // "semver" ) != "semver"' "$PROJECT/composer.json" >/dev/null; then
+	if jq -e '.extra.changelogger.versioning // "semver" | type == "string" and . != "semver"' "$PROJECT/composer.json" >/dev/null; then
 		if [[ "$TYPE" != "plugins" ]]; then
 			EXIT=1
 			LINE=$(jq --stream -r 'if length == 1 then .[0][:-1] else .[0] end | if . == ["extra","changelogger","versioning"] then ",line=\( input_line_number )" else empty end' "$PROJECT/composer.json")
