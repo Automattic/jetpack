@@ -5,6 +5,7 @@ import clsx from 'clsx';
 import { useCallback } from 'react';
 import { MyJetpackRoutes, PRODUCT_STATUSES } from '../../constants';
 import { QUERY_PURCHASES_KEY, REST_API_SITE_PURCHASES_ENDPOINT } from '../../data/constants';
+import { useAllProducts } from '../../data/products/use-product';
 import useSimpleQuery from '../../data/use-simple-query';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../hooks/use-analytics';
@@ -15,35 +16,30 @@ import getPurchasePlanUrl from '../../utils/get-purchase-plan-url';
 import { isLifetimePurchase } from '../../utils/is-lifetime-purchase';
 import { GoldenTokenTooltip } from '../golden-token/tooltip';
 import styles from './style.module.scss';
+import type { MyJetpackInitialState } from '../../data/types';
+import type { FC } from 'react';
 
-/**
- * Basic plan section component.
- *
- * @param {object} props          - Component props.
- * @param {object} props.purchase - Purchase object.
- * @return {object} PlanSection react component.
- */
-function PlanSection( { purchase = {} } ) {
+type Purchase = MyJetpackInitialState[ 'purchases' ][ 'items' ][ 0 ];
+
+interface PlanSectionProps {
+	purchase: Purchase;
+}
+
+interface PlanSectionHeaderAndFooterProps {
+	numberOfPurchases: number;
+}
+
+const PlanSection: FC< PlanSectionProps > = ( { purchase } ) => {
 	const { product_name } = purchase;
 	return (
 		<div className={ styles[ 'plan-container' ] }>
 			<Title>{ product_name }</Title>
-			<PlanExpiry { ...purchase } />
+			<PlanExpiry purchase={ purchase } />
 		</div>
 	);
-}
+};
 
-/**
- * Plan expiry component.
- *
- * @param {object} purchase                 - WPCOM purchase object.
- * @param {string} purchase.product_name    - A product name.
- * @param {string} purchase.subscribed_date - A subscribed date.
- * @param {string} purchase.expiry_message  - An expiry message.
- * @param {string} purchase.partner_slug    - A partner that issued the purchase.
- * @return {object} - A plan expiry component.
- */
-function PlanExpiry( purchase ) {
+const PlanExpiry: FC< PlanSectionProps > = ( { purchase } ) => {
 	const { ID, expiry_date, expiry_status, product_name, product_slug, subscribed_date, domain } =
 		purchase;
 
@@ -125,16 +121,9 @@ function PlanExpiry( purchase ) {
 			{ isExpiringPurchase && <Text>{ expiryAction() }</Text> }
 		</>
 	);
-}
+};
 
-/**
- * Plan section Header component.
- *
- * @param {object} props                   - Component props.
- * @param {number} props.numberOfPurchases - Count of purchases in purchases array.
- * @return {object} PlanSectionHeader react component.
- */
-function PlanSectionHeader( { numberOfPurchases = 0 } ) {
+const PlanSectionHeader: FC< PlanSectionHeaderAndFooterProps > = ( { numberOfPurchases = 0 } ) => {
 	return (
 		<>
 			<H3>{ _n( 'Your plan', 'Your plans', numberOfPurchases, 'jetpack-my-jetpack' ) }</H3>
@@ -143,18 +132,13 @@ function PlanSectionHeader( { numberOfPurchases = 0 } ) {
 			) }
 		</>
 	);
-}
+};
 
-/**
- * Plan section Footer component.
- *
- * @param {object} props                   - Component props.
- * @param {number} props.numberOfPurchases - Count of purchases in purchases array.
- * @return {object} PlanSectionFooter react component.
- */
-function PlanSectionFooter( { numberOfPurchases } ) {
+const PlanSectionFooter: FC< PlanSectionHeaderAndFooterProps > = ( { numberOfPurchases } ) => {
 	const { recordEvent } = useAnalytics();
 	const { isUserConnected } = useMyJetpackConnection();
+	const { complete } = useAllProducts();
+	const hasComplete = complete.hasPaidPlanForProduct;
 
 	const planManageDescription = _n(
 		'Manage your plan',
@@ -206,18 +190,21 @@ function PlanSectionFooter( { numberOfPurchases } ) {
 					</Button>
 				</li>
 			) }
-			<li className={ styles[ 'actions-list-item' ] }>
-				<Button
-					onClick={ planPurchaseClickHandler }
-					href={ getPurchasePlanUrl() }
-					weight="regular"
-					variant="link"
-					isExternalLink={ true }
-				>
-					{ planPurchaseDescription }
-				</Button>
-			</li>
-			{ loadAddLicenseScreen && (
+			{ ! hasComplete && (
+				<li className={ styles[ 'actions-list-item' ] }>
+					<Button
+						onClick={ planPurchaseClickHandler }
+						href={ getPurchasePlanUrl() }
+						weight="regular"
+						variant="link"
+						isExternalLink={ true }
+					>
+						{ planPurchaseDescription }
+					</Button>
+				</li>
+			) }
+
+			{ ! hasComplete && loadAddLicenseScreen && (
 				<li className={ styles[ 'actions-list-item' ] }>
 					<Button
 						onClick={ activateLicenseClickHandler }
@@ -233,26 +220,19 @@ function PlanSectionFooter( { numberOfPurchases } ) {
 			) }
 		</ul>
 	);
-}
+};
 
-/**
- * Plan section component.
- *
- * @return {object} PlansSection React component.
- */
-export default function PlansSection() {
+const PlansSection: FC = () => {
 	const userIsAdmin = !! getMyJetpackWindowInitialState( 'userIsAdmin' );
 	const { isSiteConnected } = useMyJetpackConnection();
-
-	const {
-		data: purchases,
-		isLoading,
-		isError,
-	} = useSimpleQuery( {
+	const response = useSimpleQuery( {
 		name: QUERY_PURCHASES_KEY,
 		query: { path: REST_API_SITE_PURCHASES_ENDPOINT },
 		options: { enabled: isSiteConnected },
 	} );
+
+	const { isLoading, isError } = response;
+	const purchases = response.data as Purchase[];
 
 	const isDataLoaded = purchases && ! isLoading && ! isError;
 	const numberOfPurchases = isDataLoaded ? purchases.length : 0;
@@ -270,4 +250,6 @@ export default function PlansSection() {
 			{ userIsAdmin && <PlanSectionFooter numberOfPurchases={ numberOfPurchases } /> }
 		</div>
 	);
-}
+};
+
+export default PlansSection;
