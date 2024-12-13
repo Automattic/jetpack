@@ -1,5 +1,4 @@
-import { ActionButton, TermsOfService } from '@automattic/jetpack-components';
-import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ActionButton, TermsOfService, getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import React from 'react';

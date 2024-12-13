@@ -255,7 +255,7 @@ VulnerableExtension.args = {
 			name: 'WP Super Cache',
 			slug: 'wp-super-cache',
 			version: '1.6.3',
-			type: 'plugin',
+			type: 'plugins',
 		},
 	},
 	isUserConnected: true,

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Restore visited button color in themes.php to Core's default

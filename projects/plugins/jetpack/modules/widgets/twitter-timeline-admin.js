@@ -9,9 +9,8 @@ jQuery( function ( $ ) {
 				var labelType = $( this ).data( 'widget-type' );
 				if ( selectedType === labelType ) {
 					return '';
-				} else {
-					return 'none';
 				}
+				return 'none';
 			} );
 	}
 

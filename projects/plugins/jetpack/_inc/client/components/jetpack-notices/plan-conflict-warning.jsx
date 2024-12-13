@@ -1,8 +1,8 @@
 import { __, sprintf } from '@wordpress/i18n';
-import SimpleNotice from 'components/notice';
 import React from 'react';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
+import SimpleNotice from 'components/notice';
 import { getActiveSitePurchases } from 'state/site';
 
 /**

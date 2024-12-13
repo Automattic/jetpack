@@ -39,7 +39,7 @@ export const fetchPodcastFeed = async ( { url, guids = [], fetchEpisodeOptions =
 		externalEmbed = await apiFetch( {
 			path: addQueryArgs( '/oembed/1.0/proxy', { url } ),
 		} );
-	} catch ( err ) {
+	} catch {
 		// We don't care about this error.
 	}
 

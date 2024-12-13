@@ -15,8 +15,8 @@ export const THREAT_STATUSES: { value: string; label: string; variant?: 'success
 	];
 
 export const THREAT_TYPES = [
-	{ value: 'plugin', label: __( 'Plugin', 'jetpack-components' ) },
-	{ value: 'theme', label: __( 'Theme', 'jetpack-components' ) },
+	{ value: 'plugins', label: __( 'Plugin', 'jetpack-components' ) },
+	{ value: 'themes', label: __( 'Theme', 'jetpack-components' ) },
 	{ value: 'core', label: __( 'WordPress', 'jetpack-components' ) },
 	{ value: 'file', label: __( 'File', 'jetpack-components' ) },
 ];
