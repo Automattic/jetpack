@@ -117,7 +117,6 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 						startAngle={ -Math.PI / 2 }
 						endAngle={ Math.PI / 2 }
 						pieSort={ accessors.sort }
-						fill={ accessors.fill }
 					>
 						{ pie => {
 							return pie.arcs.map( arc => (
