@@ -4,11 +4,11 @@ import type { Meta } from '@storybook/react';
 
 /**
  * Custom tooltip component example that shows a different layout
- * @param {object}               props      - Component properties
- * @param {TooltipProps['data']} props.data - The data to display in the tooltip
- * @return   {JSX.Element} Custom tooltip content component
+ * @param props      - Component properties
+ * @param props.data - The data to display in the tooltip
+ * @return Custom tooltip content component
  */
-const CustomTooltipContent = ( { data } ) => (
+const CustomTooltipContent = ( { data }: { data: TooltipProps[ 'data' ] } ) => (
 	<div style={ { padding: '8px' } }>
 		<strong style={ { display: 'block', marginBottom: '4px' } }>{ data.label }</strong>
 		<div style={ { color: '#888' } }>Value: { data.value }</div>
