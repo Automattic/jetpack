@@ -9,7 +9,7 @@ import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
-import AiFeedbackThumbs from '../../../../../plugins/jetpack/extensions/plugins/ai-assistant-plugin/components/ai-feedback';
+import { default as AiFeedbackThumbs } from '../../../../../plugins/jetpack/extensions/plugins/ai-assistant-plugin/components/ai-feedback/index.js';
 import CheckIcon from '../assets/icons/check.js';
 import LogoIcon from '../assets/icons/logo.js';
 import MediaIcon from '../assets/icons/media.js';
@@ -153,7 +153,10 @@ const LogoEmpty: React.FC = () => {
 	);
 };
 
-const RateLogo: React.FC = ( { disabled, ratedItem } ) => {
+const RateLogo: React.FC< { disabled: boolean; ratedItem: string } > = ( {
+	disabled,
+	ratedItem,
+} ) => {
 	return (
 		<>
 			<AiFeedbackThumbs disabled={ disabled } ratedItem={ ratedItem } feature="logo-generator" />

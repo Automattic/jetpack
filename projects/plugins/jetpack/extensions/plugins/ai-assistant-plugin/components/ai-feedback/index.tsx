@@ -11,8 +11,13 @@ import './style.scss';
 export default function AiFeedbackThumbs( {
 	disabled = false,
 	iconSize = 24,
-	ratedItem,
-	feature,
+	ratedItem = '',
+	feature = '',
+}: {
+	disabled: boolean;
+	iconSize?: number;
+	ratedItem: string;
+	feature: string;
 } ) {
 	const [ itemsRated, setItemsRated ] = useState( {} );
 	const { tracks } = useAnalytics();
