@@ -132,15 +132,22 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 							) );
 						} }
 					</Pie>
-					<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 18 } y={ -36 }>
+				</Group>
+
+				<Group top={ centerY } left={ centerX }>
+					<Text
+						textAnchor="middle"
+						verticalAnchor="start"
+						y={ -radius * 1.6 }
+						className={ styles.label }
+					>
 						{ label }
 					</Text>
 					<Text
 						textAnchor="middle"
-						verticalAnchor="middle"
-						fill="#008A20"
-						fontSize={ 13 }
-						y={ -12 }
+						verticalAnchor="end"
+						y={ radius * 0.2 }
+						className={ styles.note }
 					>
 						{ note }
 					</Text>
