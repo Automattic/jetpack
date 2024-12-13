@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Updated the shape of connections object following the schema update
