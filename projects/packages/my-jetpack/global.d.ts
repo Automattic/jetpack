@@ -28,21 +28,23 @@ type JetpackModule =
 	| 'anti-spam'
 	| 'backup'
 	| 'boost'
-	| 'feature_brute-force'
 	| 'crm'
 	| 'creator'
 	| 'extras'
 	| 'ai'
 	| 'jetpack-ai'
+	| 'protect'
 	| 'scan'
 	| 'search'
 	| 'social'
-	| 'security'
-	| 'protect'
-	| 'videopress'
 	| 'stats'
+	| 'videopress'
+	| 'security'
 	| 'growth'
-	| 'complete';
+	| 'complete'
+	| 'site-accelerator'
+	| 'newsletter'
+	| 'related-posts';
 
 type ThreatItem = {
 	// Protect API properties (free plan)

@@ -1,6 +1,6 @@
 <?php
 /**
- * Feature: Newsletter
+ * Feature: Site Accelerator
  *
  * @package my-jetpack
  */
@@ -11,8 +11,7 @@ use Automattic\Jetpack\My_Jetpack\Module_Product;
 use WP_Error;
 
 /**
- * Class responsible for handling the Extras product.
- * Extras, so far, could be considered as Jetpack plugin bridge.
+ * Class responsible for handling the Site Accelerator module.
  */
 class Site_Accelerator extends Module_Product {
 
@@ -21,7 +20,7 @@ class Site_Accelerator extends Module_Product {
 	 *
 	 * @var string
 	 */
-	public static $slug = 'newsletter';
+	public static $slug = 'site-accelerator';
 
 	/**
 	 * The slug of the plugin associated with this product.
@@ -72,7 +71,7 @@ class Site_Accelerator extends Module_Product {
 	 *
 	 * @var bool
 	 */
-	public static $requires_plan = true;
+	public static $requires_plan = false;
 
 	/**
 	 * Get the product name
@@ -80,7 +79,7 @@ class Site_Accelerator extends Module_Product {
 	 * @return string
 	 */
 	public static function get_name() {
-		return 'Newsletter';
+		return 'Site Accelerator';
 	}
 
 	/**
@@ -89,7 +88,7 @@ class Site_Accelerator extends Module_Product {
 	 * @return string
 	 */
 	public static function get_title() {
-		return 'Newsletter';
+		return 'Site Accelerator';
 	}
 
 	/**
@@ -113,7 +112,7 @@ class Site_Accelerator extends Module_Product {
 	/**
 	 * Get the internationalized feature list
 	 *
-	 * @return array Newsletter features list
+	 * @return array Site Accelerattor features list
 	 */
 	public static function get_features() {
 		return array();

@@ -71,7 +71,7 @@ class Newsletter extends Module_Product {
 	 *
 	 * @var bool
 	 */
-	public static $requires_plan = true;
+	public static $requires_plan = false;
 
 	/**
 	 * Get the product name

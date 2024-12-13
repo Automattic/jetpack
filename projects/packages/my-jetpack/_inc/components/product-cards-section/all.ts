@@ -2,13 +2,15 @@ import AiCard from './ai-card';
 import AntiSpamCard from './anti-spam-card';
 import BackupCard from './backup-card';
 import BoostCard from './boost-card';
-import BruteForceCard from './brute-force-card';
 import CompleteCard from './complete-card';
 import CrmCard from './crm-card';
 import GrowthCard from './growth-card';
+import NewsletterCard from './newsletter-card';
 import ProtectCard from './protect-card';
+import RelatedPostsCard from './related-posts-card';
 import SearchCard from './search-card';
 import SecurityCard from './security-card';
+import SiteAcceleratorCard from './site-accelerator-card';
 import SocialCard from './social-card';
 import StatsCard from './stats-card';
 import VideopressCard from './videopress-card';
@@ -30,10 +32,12 @@ export const JetpackModuleToProductCard: {
 	security: SecurityCard,
 	growth: GrowthCard,
 	complete: CompleteCard,
-	// Features:
-	'feature_brute-force': BruteForceCard,
 	// Not existing:
 	extras: null,
 	scan: null,
 	creator: null,
+	// Features:
+	newsletter: NewsletterCard,
+	'related-posts': RelatedPostsCard,
+	'site-accelerator': SiteAcceleratorCard,
 };

@@ -71,7 +71,7 @@ class Related_Posts extends Module_Product {
 	 *
 	 * @var bool
 	 */
-	public static $requires_plan = true;
+	public static $requires_plan = false;
 
 	/**
 	 * Get the product name
@@ -79,7 +79,7 @@ class Related_Posts extends Module_Product {
 	 * @return string
 	 */
 	public static function get_name() {
-		return 'Newsletter';
+		return 'Related Posts';
 	}
 
 	/**
@@ -88,7 +88,7 @@ class Related_Posts extends Module_Product {
 	 * @return string
 	 */
 	public static function get_title() {
-		return 'Newsletter';
+		return 'Related Posts';
 	}
 
 	/**
