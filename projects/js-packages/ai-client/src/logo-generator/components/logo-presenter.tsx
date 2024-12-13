@@ -9,6 +9,7 @@ import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
+import AiFeedbackThumbs from '../../../../../plugins/jetpack/extensions/plugins/ai-assistant-plugin/components/ai-feedback';
 import CheckIcon from '../assets/icons/check.js';
 import LogoIcon from '../assets/icons/logo.js';
 import MediaIcon from '../assets/icons/media.js';
@@ -152,6 +153,14 @@ const LogoEmpty: React.FC = () => {
 	);
 };
 
+const RateLogo: React.FC = ( { disabled, ratedItem } ) => {
+	return (
+		<>
+			<AiFeedbackThumbs disabled={ disabled } ratedItem={ ratedItem } feature="logo-generator" />
+		</>
+	);
+};
+
 const LogoReady: React.FC< {
 	siteId: string;
 	logo: Logo;
@@ -171,6 +180,7 @@ const LogoReady: React.FC< {
 				<div className="jetpack-ai-logo-generator-modal-presenter__actions">
 					<SaveInLibraryButton siteId={ siteId } />
 					<UseOnSiteButton onApplyLogo={ onApplyLogo } />
+					<RateLogo ratedItem={ logo.url } disabled={ false } />
 				</div>
 			</div>
 		</>
