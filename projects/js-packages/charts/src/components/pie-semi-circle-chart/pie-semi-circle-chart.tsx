@@ -77,7 +77,7 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 			d.color || providerTheme.colors[ d.index % providerTheme.colors.length ],
 	};
 
-	const handleMouseEnter = useCallback(
+	const handleMouseMove = useCallback(
 		( event: React.MouseEvent, arc: ArcData ) => {
 			if ( ! showTooltips ) return;
 			const coords = localPoint( event );
@@ -94,13 +94,15 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 		[ showTooltips ]
 	);
 
-	const handleMouseLeave = useCallback( () => setTooltipData( null ), [] );
+	const handleMouseLeave = useCallback( () => {
+		setTooltipData( null );
+	}, [] );
 
-	const handleArcMouseEnter = useCallback(
+	const handleArcMouseMove = useCallback(
 		( arc: ArcData ) => ( event: React.MouseEvent ) => {
-			handleMouseEnter( event, arc );
+			handleMouseMove( event, arc );
 		},
-		[ handleMouseEnter ]
+		[ handleMouseMove ]
 	);
 
 	return (
@@ -122,7 +124,7 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 							return pie.arcs.map( arc => (
 								<g
 									key={ arc.data.label }
-									onMouseEnter={ handleArcMouseEnter( arc ) }
+									onMouseMove={ handleArcMouseMove( arc ) }
 									onMouseLeave={ handleMouseLeave }
 								>
 									<path d={ pie.path( arc ) || '' } fill={ accessors.fill( arc.data ) } />
@@ -130,21 +132,14 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 							) );
 						} }
 					</Pie>
-					<Text
-						textAnchor="middle"
-						verticalAnchor="middle"
-						fontSize={ 18 }
-						lineHeight={ 20 }
-						y={ -36 }
-					>
+					<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 18 } y={ -36 }>
 						{ label }
 					</Text>
 					<Text
 						textAnchor="middle"
 						verticalAnchor="middle"
 						fill="#008A20"
-						fontSize="13px"
-						lineHeight={ 20 }
+						fontSize={ 13 }
 						y={ -12 }
 					>
 						{ note }
