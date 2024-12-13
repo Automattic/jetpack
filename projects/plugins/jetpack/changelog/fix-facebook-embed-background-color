@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Facebook Embeds: add a white background to embeds to avoid transparent background interfering with readability.

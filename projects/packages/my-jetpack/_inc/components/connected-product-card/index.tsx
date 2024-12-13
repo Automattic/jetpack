@@ -7,8 +7,7 @@ import { useCallback, useEffect } from 'react';
 /**
  * Internal dependencies
  */
-import { MyJetpackRoutes } from '../../constants';
-import { PRODUCT_STATUSES } from '../../constants';
+import { MyJetpackRoutes, PRODUCT_STATUSES } from '../../constants';
 import useActivate from '../../data/products/use-activate';
 import useInstallStandalonePlugin from '../../data/products/use-install-standalone-plugin';
 import useProduct from '../../data/products/use-product';

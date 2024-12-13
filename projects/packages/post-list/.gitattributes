@@ -11,7 +11,6 @@ phpunit.xml.dist  export-ignore
 
 # Files to exclude from the mirror repo
 /changelog/**     production-exclude
-/.eslintrc.js     production-exclude
 .gitignore        production-exclude
 .phpcs.dir.xml    production-exclude
 _inc/**           production-exclude

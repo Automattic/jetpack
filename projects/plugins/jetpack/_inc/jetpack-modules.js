@@ -11,6 +11,7 @@
 		items: items,
 	} );
 
+	// eslint-disable-next-line no-unused-vars -- Does this have side effects?
 	list_table = new views.List_Table( {
 		el: '#the-list',
 		model: modules,
