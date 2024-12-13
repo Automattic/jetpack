@@ -1,0 +1,4 @@
+Significance: major
+Type: added
+
+BREAKING: Use of `@wordpress/dataviews` will now throw an error, with instructions on how to use the new `automattic/jetpack-wordpress-dataviews-snapshot` composer package.

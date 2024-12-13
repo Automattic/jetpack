@@ -1,0 +1,26 @@
+{
+	"private": true,
+	"browserslist": "extends @wordpress/browserslist-config",
+	"scripts": {
+		"build": "pnpm run clean && pnpm run build-js",
+		"build-js": "webpack",
+		"build-production": "pnpm run clean && pnpm run build-production-js && pnpm run validate",
+		"build-production-js": "NODE_ENV=production BABEL_ENV=production pnpm run build-js",
+		"clean": "rm -rf build",
+		"test": "jest --config=tests/jest.config.cjs",
+		"test-coverage": "pnpm run test --coverage",
+		"validate": "pnpm exec validate-es build/"
+	},
+	"dependencies": {
+		"@wordpress/dataviews": "4.10.0",
+		"react": "18.3.1",
+		"react-dom": "18.3.1"
+	},
+	"devDependencies": {
+		"@automattic/babel-plugin-replace-textdomain": "workspace:*",
+		"@automattic/jetpack-webpack-config": "workspace:*",
+		"@wordpress/browserslist-config": "6.14.0",
+		"webpack": "5.94.0",
+		"webpack-cli": "4.9.1"
+	}
+}

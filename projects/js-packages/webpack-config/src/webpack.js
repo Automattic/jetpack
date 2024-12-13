@@ -114,16 +114,30 @@ const defaultRequestMap = {
 		external: 'JetpackConnection',
 		handle: 'jetpack-connection',
 	},
+	'@wordpress/dataviews': {
+		fail: `@wordpress/dataviews is not stable! Please use the automattic/jetpack-wordpress-dataviews-snapshot composer package to get a snapshot version.\nSee projects/packages/wordpress-dataviews-snapshot/README.jetpack-monorepo.md for instructions.`,
+	},
+	'@wordpress/dataviews/wp': {
+		fail: `Using @wordpress/dataviews/wp will bloat your bundle. The automattic/jetpack-wordpress-dataviews-snapshot composer package provides an extracted version.\nSee projects/packages/wordpress-dataviews-snapshot/README.jetpack-monorepo.md for instructions.`,
+	},
 };
 
 const DependencyExtractionPlugin = ( { requestMap, ...options } = {} ) => {
 	const finalRequestMap = { ...defaultRequestMap, ...requestMap };
 
+	const maybeFail = request => {
+		if ( finalRequestMap[ request ]?.fail ) {
+			throw new Error( finalRequestMap[ request ].fail );
+		}
+	};
+
 	const requestToExternal = request => {
+		maybeFail( request );
 		return finalRequestMap[ request ]?.external;
 	};
 
 	const requestToHandle = request => {
+		maybeFail( request );
 		return finalRequestMap[ request ]?.handle;
 	};
 

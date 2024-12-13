@@ -1,0 +1,46 @@
+{
+	"name": "automattic/jetpack-wordpress-dataviews-snapshot",
+	"description": "Provide `@wordpress/dataviews` as an extracted module.",
+	"type": "jetpack-library",
+	"license": "GPL-2.0-or-later",
+	"require": {
+		"php": ">=7.2",
+		"automattic/jetpack-assets": "@dev"
+	},
+	"require-dev": {
+		"automattic/jetpack-changelogger": "@dev"
+	},
+	"scripts": {
+		"build-development": [
+			"pnpm run build"
+		],
+		"build-production": [
+			"pnpm run build-production"
+		]
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../../packages/*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"extra": {
+		"autotagger": true,
+		"branch-alias": {
+			"dev-trunk": "4.10.x-dev"
+		},
+		"changelogger": {
+			"versioning": {
+				"filename": "./tools/PackageVersioning.php"
+			},
+			"link-template": "https://github.com/Automattic/jetpack-wordpress-dataviews-snapshot/compare/v${old}...v${new}"
+		},
+		"mirror-repo": "Automattic/jetpack-wordpress-dataviews-snapshot",
+		"textdomain": "jetpack-wordpress-dataviews-snapshot"
+	}
+}
