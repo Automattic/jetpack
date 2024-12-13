@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Adjusted the initialisation logic for the connections field.
