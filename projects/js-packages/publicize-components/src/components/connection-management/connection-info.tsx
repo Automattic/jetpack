@@ -27,7 +27,7 @@ export function ConnectionInfo( { connection, service }: ConnectionInfoProps ) {
 			<div className={ styles[ 'connection-item' ] }>
 				<ConnectionIcon
 					serviceName={ connection.service_name }
-					label={ connection.display_name || connection.external_display }
+					label={ connection.display_name }
 					profilePicture={ connection.profile_picture }
 				/>
 				<div className={ styles[ 'connection-name-wrapper' ] }>

@@ -1,4 +1,3 @@
-import { checkConnectionCode } from '../../utils/connections';
 import { REQUEST_TYPE_DEFAULT } from '../actions/constants';
 
 /**
@@ -32,13 +31,7 @@ export function getConnectionById( state, connectionId ) {
  */
 export function getBrokenConnections( state ) {
 	return getConnections( state ).filter( connection => {
-		return (
-			connection.status === 'broken' ||
-			// This is a legacy check for connections that are not healthy.
-			// TODO remove this check when we are sure that all connections have
-			// the status property (same schema for connections endpoints), e.g. on Simple/Atomic sites
-			checkConnectionCode( connection, 'broken' )
-		);
+		return connection.status === 'broken';
 	} );
 }
 

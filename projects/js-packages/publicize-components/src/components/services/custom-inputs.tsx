@@ -73,7 +73,7 @@ export function CustomInputs( { service }: CustomInputsProps ) {
 						name="handle"
 						defaultValue={
 							reconnectingAccount?.service_name === 'bluesky'
-								? reconnectingAccount?.external_name
+								? reconnectingAccount?.external_handle
 								: undefined
 						}
 						autoComplete="off"

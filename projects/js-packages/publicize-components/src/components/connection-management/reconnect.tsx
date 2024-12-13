@@ -63,7 +63,7 @@ export function Reconnect( { connection, service, variant = 'link' }: ReconnectP
 		const formData = new FormData();
 
 		if ( service.ID === 'mastodon' ) {
-			formData.set( 'instance', connection.external_display );
+			formData.set( 'instance', connection.external_handle );
 		}
 
 		if ( service.ID === 'bluesky' ) {

@@ -33,9 +33,9 @@ export type PostPreviewProps = {
 export function PostPreview( { connection }: PostPreviewProps ) {
 	const user = useMemo(
 		() => ( {
-			displayName: connection.display_name || connection.external_display,
+			displayName: connection.display_name,
 			profileImage: connection.profile_picture,
-			externalName: connection.external_name,
+			externalName: connection.external_handle,
 		} ),
 		[ connection ]
 	);
