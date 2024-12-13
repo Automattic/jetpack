@@ -6,7 +6,6 @@ export type Connection = {
 	enabled: boolean;
 	external_handle: string;
 	external_id: string;
-	id: string;
 	profile_link: string;
 	profile_picture: string;
 	service_label: string;
@@ -37,6 +36,10 @@ export type Connection = {
 	 */
 	external_name?: string;
 	/**
+	 * @deprecated Use `connection_id` instead.
+	 */
+	id?: string;
+	/**
 	 * @deprecated Use `status` instead.
 	 */
 	is_healthy?: boolean;
@@ -51,11 +54,11 @@ export type Connection = {
 	/**
 	 * @deprecated
 	 */
-	toggleable: boolean;
+	toggleable?: boolean;
 	/**
 	 * @deprecated Use `external_handle` instead.
 	 */
-	username: string;
+	username?: string;
 };
 
 export type ConnectionData = {
