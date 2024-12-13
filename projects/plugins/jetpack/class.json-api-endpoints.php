@@ -2692,26 +2692,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			return new WP_Error( 'endpoint_not_available' );
 		}
 
-		/** This action is documented in class.json-api.php */
-		do_action( 'wpcom_json_api_output', $this->stat );
-
-		$callback_response = call_user_func_array(
-			array( $this, 'callback' ),
-			array_values( array( $this->path, $blog_id ) + $request->get_url_params() )
-		);
-
-		if ( ! $callback_response && ! is_array( $callback_response ) ) {
-			// Dealing with empty non-array response. Phan is wrong about it being an "impossible condition".
-			$response = $this->api->output( 500, '', 'text/plain', array(), true );
-		} elseif ( is_wp_error( $callback_response ) ) {
-			$error = WPCOM_JSON_API::serializable_error( $callback_response );
-			return new WP_Error( $error['errors']['error'], $error['errors']['message'], array( 'status' => $error['status_code'] ) );
-		} else {
-			$response = $this->api->output( $this->api->output_status_code, $callback_response, 'application/json', array(), true );
-		}
-
 		$token_data = ( new Manager() )->verify_xml_rpc_signature();
-
 		if ( ! $token_data || empty( $token_data['token_key'] ) || ! array_key_exists( 'user_id', $token_data ) ) {
 			return new WP_Error( 'response_signature_error' );
 		}
@@ -2722,6 +2703,37 @@ abstract class WPCOM_JSON_API_Endpoint {
 		}
 		if ( ! $token ) {
 			return new WP_Error( 'response_signature_error' );
+		}
+
+		/** This action is documented in class.json-api.php */
+		do_action( 'wpcom_json_api_output', $this->stat );
+
+		$response = call_user_func_array(
+			array( $this, 'callback' ),
+			array_values( array( $this->path, $blog_id ) + $request->get_url_params() )
+		);
+
+		if ( ! $response && ! is_array( $response ) ) {
+			// Dealing with empty non-array response. Phan is wrong about it being an "impossible condition".
+			$response = new WP_Error( 'empty_response', 'Endpoint response is empty', 500 );
+		}
+
+		$status_code = 200;
+
+		if ( is_wp_error( $response ) ) {
+			$status_code = 500;
+
+			if ( $response->get_error_data() && is_scalar( $response->get_error_data() )
+				&& (string) (int) $response->get_error_data() === (string) $response->get_error_data()
+			) {
+				$status_code = (int) $response->get_error_data();
+			}
+
+			$response = WPCOM_JSON_API::serializable_error( $response );
+		}
+
+		if ( $request->get_param( 'http_envelope' ) ) {
+			$response = wp_json_encode( WPCOM_JSON_API::wrap_http_envelope( $status_code, $response, 'application/json' ) );
 		}
 
 		$nonce = wp_generate_password( 10, false );

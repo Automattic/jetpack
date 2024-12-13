@@ -702,25 +702,8 @@ class WPCOM_JSON_API {
 		$response = $this->filter_fields( $response );
 
 		if ( isset( $this->query['http_envelope'] ) && self::is_truthy( $this->query['http_envelope'] ) ) {
-			$headers = array(
-				array(
-					'name'  => 'Content-Type',
-					'value' => $content_type,
-				),
-			);
+			$response = static::wrap_http_envelope( $status_code, $response, $content_type, $extra );
 
-			foreach ( $extra as $key => $value ) {
-				$headers[] = array(
-					'name'  => $key,
-					'value' => $value,
-				);
-			}
-
-			$response     = array(
-				'code'    => (int) $status_code,
-				'headers' => $headers,
-				'body'    => $response,
-			);
 			$status_code  = 200;
 			$content_type = 'application/json';
 		}
@@ -756,6 +739,40 @@ class WPCOM_JSON_API {
 		}
 
 		return $content_type;
+	}
+
+	/**
+	 * Wrap JSON API response into an HTTP 200 one.
+	 *
+	 * @param int        $status_code HTTP status code.
+	 * @param string     $response Response body.
+	 * @param string     $content_type Content type.
+	 * @param array|null $extra Extra data.
+	 *
+	 * @return array
+	 */
+	public static function wrap_http_envelope( $status_code, $response, $content_type, $extra = null ) {
+		$headers = array(
+			array(
+				'name'  => 'Content-Type',
+				'value' => $content_type,
+			),
+		);
+
+		if ( is_array( $extra ) ) {
+			foreach ( $extra as $key => $value ) {
+				$headers[] = array(
+					'name'  => $key,
+					'value' => $value,
+				);
+			}
+		}
+
+		return array(
+			'code'    => (int) $status_code,
+			'headers' => $headers,
+			'body'    => $response,
+		);
 	}
 
 	/**
