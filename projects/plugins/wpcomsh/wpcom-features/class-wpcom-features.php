@@ -432,7 +432,7 @@ class WPCOM_Features {
 	public const SPACE_UPGRADED_STORAGE            = 'space-upgraded-storage';
 	public const SSH                               = 'ssh';
 	public const STAGING_SITES                     = 'staging-sites';
-	public const STATS_BASIC                       = 'stats-basic';
+	public const STATS_BASIC_TEMP                  = 'stats-basic';
 	public const STATS_COMMERCIAL                  = 'stats-commercial';
 	public const STATS_FREE                        = 'stats-free';
 	public const STATS_PAID                        = 'stats-paid';
