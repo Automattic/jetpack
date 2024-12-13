@@ -35,9 +35,13 @@ export default function useSocialLogin() {
 		wpcomRequest< UserInfo >( {
 			path: '/verbum/auth',
 			apiNamespace: 'wpcom/v2',
-		} ).then( res => {
-			userInfo.value = res;
-		} );
+		} )
+			.then( res => {
+				userInfo.value = res;
+			} )
+			.catch( () => {
+				// User may not be logged in.
+			} );
 	}, [] );
 
 	if ( VerbumComments.isJetpackCommentsLoggedIn ) {

@@ -9,7 +9,7 @@ const data = [
 ];
 
 export default {
-	title: 'JS Packages/Charts/Line Chart',
+	title: 'JS Packages/Charts/Types/Line Chart',
 	component: LineChart,
 	parameters: {
 		layout: 'centered',

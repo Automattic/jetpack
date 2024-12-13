@@ -1,3 +1,4 @@
+/* global jQuery, wp, JetpackBeta */
 /**
  * Update message hooks.
  *
@@ -132,4 +133,4 @@
 		$document.trigger( 'wp-plugin-updating', args );
 		wp.updates.ajax( 'update-plugin', args );
 	} );
-} )( jQuery, window.wp, window.JetpackBeta );
+} )( jQuery, wp, JetpackBeta );

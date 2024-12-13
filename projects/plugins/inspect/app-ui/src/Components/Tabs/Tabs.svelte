@@ -3,10 +3,12 @@
 </script>
 
 <script>
+	/* eslint-disable import/no-duplicates -- https://github.com/import-js/eslint-plugin-import/issues/2992 */
 	import { setContext, onDestroy } from 'svelte';
 	import { cubicInOut } from 'svelte/easing';
 	import { writable } from 'svelte/store';
 	import { slide } from 'svelte/transition';
+	/* eslint-enable import/no-duplicates */
 
 	const tabs = [];
 	const panels = [];

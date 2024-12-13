@@ -81,6 +81,7 @@ class Complete extends Module_Product {
 			'Boost',
 			'Social',
 			'Search',
+			'AI Assistant',
 			_x( 'Stats (100K site views, upgradeable)', 'Complete Product Feature', 'jetpack-my-jetpack' ),
 			_x( 'CRM Entrepreneur', 'Complete Product Feature', 'jetpack-my-jetpack' ),
 		);
