@@ -37,20 +37,23 @@ export default {
 	],
 } satisfies Meta< typeof PieSemiCircleChart >;
 
-export const Default = {
-	args: {
-		width: 500,
-		height: 300,
-		data,
-		label: 'OS',
-		note: 'Windows +10%',
-		showTooltips: false,
-	},
+const Template = args => <PieSemiCircleChart { ...args } />;
+
+export const Default = Template.bind( {} );
+Default.args = {
+	width: 500,
+	height: 300,
+	data,
+	label: 'OS',
+	note: 'Windows +10%',
 };
 
-export const WithTooltips = {
-	args: {
-		...Default.args,
-		showTooltips: true,
-	},
+export const WithTooltips = Template.bind( {} );
+WithTooltips.args = {
+	width: 500,
+	height: 300,
+	data,
+	label: 'OS',
+	note: 'Windows +10%',
+	showTooltips: true,
 };
