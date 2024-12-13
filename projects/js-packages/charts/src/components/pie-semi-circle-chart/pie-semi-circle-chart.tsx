@@ -53,7 +53,6 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 
 	const centerX = width / 2;
 	const centerY = height;
-	const radius = Math.min( width, height ) / 3;
 
 	// Map the data to include index for color assignment
 	const dataWithIndex = data.map( ( d, index ) => ( {
@@ -106,8 +105,8 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 					<Pie< DataPointPercentage & { index: number } >
 						data={ dataWithIndex }
 						pieValue={ accessors.value }
-						outerRadius={ radius }
-						innerRadius={ radius * 0.7 }
+						outerRadius={ width / 2 } // half of the diameter (width)
+						innerRadius={ ( width / 2 ) * 0.6 } // 70% of the radius
 						cornerRadius={ 3 }
 						padAngle={ 0.03 }
 						startAngle={ -Math.PI / 2 }
@@ -127,23 +126,20 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 						} }
 					</Pie>
 
-					{ /* Text elements group as a child of the main chart group */ }
 					<Group>
 						<Text
 							textAnchor="middle"
 							verticalAnchor="start"
-							y={ -height + 40 }
+							y={ -40 } // double font size to make room for a note
 							className={ styles.label }
-							style={ { fontFamily: 'inherit' } }
 						>
 							{ label }
 						</Text>
 						<Text
 							textAnchor="middle"
 							verticalAnchor="start"
-							y={ -radius * 0.3 }
+							y={ -20 } // font size with padding
 							className={ styles.note }
-							style={ { fontFamily: 'inherit' } }
 						>
 							{ note }
 						</Text>
