@@ -2,19 +2,19 @@ import { PRODUCT_SLUGS } from '../../data/constants';
 import ProductCard from '../connected-product-card';
 import type { FC } from 'react';
 
-interface BruteForceCardProps {
+interface RelatedPostsCardProps {
 	admin?: boolean;
 	recommendation?: boolean;
 }
 
-const CompleteCard: FC< BruteForceCardProps > = ( { admin, recommendation } ) => {
+const RelatedPostsCard: FC< RelatedPostsCardProps > = ( { admin, recommendation } ) => {
 	return (
 		<ProductCard
-			slug={ PRODUCT_SLUGS.BRUTE_FORCE }
+			slug={ PRODUCT_SLUGS.RELATED_POSTS }
 			admin={ admin }
 			recommendation={ recommendation }
 		/>
 	);
 };
 
-export default CompleteCard;
+export default RelatedPostsCard;
