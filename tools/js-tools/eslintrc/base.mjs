@@ -335,7 +335,6 @@ export default function makeBaseConfig( configurl, opts = {} ) {
 				'jsdoc/require-param-type': 'off',
 				'jsdoc/require-property-type': 'off',
 				// Let us use TS return type for better inference
-				'jsdoc/require-returns': 'off',
 				'jsdoc/require-returns-type': 'off',
 			},
 		} ),
