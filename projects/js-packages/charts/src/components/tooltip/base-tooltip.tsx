@@ -4,6 +4,7 @@ import type { CSSProperties, ComponentType } from 'react';
 type TooltipData = {
 	label: string;
 	value: number;
+	valueDisplay?: string;
 };
 
 type TooltipComponentProps = {
@@ -22,7 +23,7 @@ type BaseTooltipProps = {
 
 const DefaultTooltipContent = ( { data }: TooltipComponentProps ) => (
 	<>
-		{ data.label }: { data.value }
+		{ data.label }: { data.valueDisplay || data.value }
 	</>
 );
 

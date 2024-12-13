@@ -14,7 +14,7 @@ type ArcData = PieArcDatum< DataPointPercentage >;
 interface TooltipData {
 	label: string;
 	value: number;
-	valueDisplay: string;
+	valueDisplay?: string;
 	x: number;
 	y: number;
 }
