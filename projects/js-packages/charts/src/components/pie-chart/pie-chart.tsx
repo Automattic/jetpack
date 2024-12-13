@@ -8,11 +8,7 @@ import type { BaseChartProps, DataPoint } from '../shared/types';
 
 // TODO: add animation
 
-interface PieChartProps extends BaseChartProps {
-	/**
-	 * Array of data points to display in the chart
-	 */
-	data: DataPoint[];
+interface PieChartProps extends BaseChartProps< DataPoint[] > {
 	/**
 	 * Inner radius in pixels. If > 0, creates a donut chart. Defaults to 0.
 	 */
@@ -58,7 +54,6 @@ const PieChart = ( {
 						pieValue={ accessors.value }
 						outerRadius={ radius - 20 } // Leave space for labels/tooltips
 						innerRadius={ innerRadius }
-						// padAngle={ 0.02 }
 					>
 						{ pie => {
 							return pie.arcs.map( ( arc, index ) => {

@@ -49,6 +49,7 @@ const useChartMouseHandler = ( {
 	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
 		useTooltip< DataPoint >();
 
+	// TODO: either debounce/throttle or use useTooltipInPortal with built-in debounce
 	const onMouseMove = useCallback(
 		( event: MouseEvent< SVGElement >, data: DataPoint ) => {
 			if ( ! withTooltips ) {
