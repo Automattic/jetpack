@@ -35,6 +35,16 @@ export default {
 			</div>
 		),
 	],
+	argTypes: {
+		width: {
+			control: {
+				type: 'range',
+				min: 0,
+				max: 1000,
+				step: 10,
+			},
+		},
+	},
 } satisfies Meta< typeof PieSemiCircleChart >;
 
 const Template = args => <PieSemiCircleChart { ...args } />;
