@@ -249,6 +249,7 @@ class Backup extends Hybrid_Product {
 		if ( ! is_wp_error( $rewind_state ) ) {
 			if ( $rewind_state->state !== 'active' && $rewind_state->state !== 'provisioning' && $rewind_state->state !== 'awaiting_credentials' ) {
 				$backup_failed_status = array(
+					'source'       => 'rewind',
 					'status'       => isset( $rewind_state->reason ) && ! empty( $rewind_state->reason ) ? $rewind_state->reason : $rewind_state->state,
 					'last_updated' => $rewind_state->last_updated,
 				);
@@ -269,6 +270,7 @@ class Backup extends Hybrid_Product {
 			if ( $last_backup && isset( $last_backup->status ) ) {
 				if ( $last_backup->status !== 'started' && ! preg_match( '/-will-retry$/', $last_backup->status ) && $last_backup->status !== 'finished' ) {
 					$backup_failed_status = array(
+						'source'       => 'last_backup',
 						'status'       => $last_backup->status,
 						'last_updated' => $last_backup->last_updated,
 					);

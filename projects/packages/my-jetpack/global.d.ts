@@ -365,6 +365,7 @@ interface Window {
 				};
 			};
 			backup_failure?: {
+				source: 'rewind' | 'last_backup';
 				status: string;
 				last_updated: string;
 			};
