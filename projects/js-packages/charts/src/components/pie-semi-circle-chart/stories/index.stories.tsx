@@ -42,7 +42,6 @@ const Template = args => <PieSemiCircleChart { ...args } />;
 export const Default = Template.bind( {} );
 Default.args = {
 	width: 500,
-	height: 300,
 	data,
 	label: 'OS',
 	note: 'Windows +10%',
@@ -51,7 +50,6 @@ Default.args = {
 export const WithTooltips = Template.bind( {} );
 WithTooltips.args = {
 	width: 500,
-	height: 300,
 	data,
 	label: 'OS',
 	note: 'Windows +10%',

@@ -22,10 +22,6 @@ interface PieSemiCircleChartProps {
 	 */
 	width: number;
 	/**
-	 * Height of the chart in pixels
-	 */
-	height: number;
-	/**
 	 * Label text to display above the chart
 	 */
 	label: string;
@@ -42,7 +38,6 @@ interface PieSemiCircleChartProps {
 const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 	data,
 	width,
-	height,
 	label,
 	note,
 	showTooltips = false,
@@ -52,7 +47,8 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 		useTooltip< DataPointPercentage >();
 
 	const centerX = width / 2;
-	const centerY = height;
+	const centerY = width;
+	const height = width / 2;
 
 	// Map the data to include index for color assignment
 	const dataWithIndex = data.map( ( d, index ) => ( {
@@ -100,7 +96,7 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 		<div className={ clsx( 'pie-semi-circle-chart', styles[ 'pie-semi-circle-chart' ] ) }>
 			<svg width={ width } height={ height }>
 				{ /* Main chart group that contains both the pie and text elements */ }
-				<Group top={ centerY } left={ centerX }>
+				<Group top={ centerX } left={ centerX }>
 					{ /* Pie chart */ }
 					<Pie< DataPointPercentage & { index: number } >
 						data={ dataWithIndex }
