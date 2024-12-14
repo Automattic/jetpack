@@ -33,6 +33,12 @@ interface PieSemiCircleChartProps {
 	 * Whether to show tooltips
 	 */
 	showTooltips?: boolean;
+
+	/**
+	 * Direction of chart rendering
+	 * true for clockwise, false for counter-clockwise
+	 */
+	clockwise?: boolean;
 }
 
 const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
@@ -41,6 +47,7 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 	label,
 	note,
 	showTooltips = false,
+	clockwise = true,
 } ) => {
 	const providerTheme = useChartTheme();
 	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
@@ -55,6 +62,10 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 		...d,
 		index,
 	} ) );
+
+	// Set the clockwise direction based on the prop
+	const startAngle = clockwise ? -Math.PI / 2 : Math.PI / 2;
+	const endAngle = clockwise ? Math.PI / 2 : -Math.PI / 2;
 
 	const accessors = {
 		value: ( d: DataPointPercentage & { index: number } ) => d.value,
@@ -105,8 +116,8 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 						innerRadius={ ( width / 2 ) * 0.6 } // 70% of the radius
 						cornerRadius={ 3 }
 						padAngle={ 0.03 }
-						startAngle={ -Math.PI / 2 }
-						endAngle={ Math.PI / 2 }
+						startAngle={ startAngle }
+						endAngle={ endAngle }
 						pieSort={ accessors.sort }
 					>
 						{ pie => {

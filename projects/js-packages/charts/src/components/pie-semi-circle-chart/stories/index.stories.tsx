@@ -3,12 +3,6 @@ import type { Meta } from '@storybook/react';
 
 const data = [
 	{
-		label: 'Windows',
-		value: 80000,
-		valueDisplay: '80K',
-		percentage: 2,
-	},
-	{
 		label: 'MacOS',
 		value: 30000,
 		valueDisplay: '30K',
@@ -19,6 +13,12 @@ const data = [
 		value: 22000,
 		valueDisplay: '22K',
 		percentage: 1,
+	},
+	{
+		label: 'Windows',
+		value: 80000,
+		valueDisplay: '80K',
+		percentage: 2,
 	},
 ];
 
@@ -55,6 +55,7 @@ Default.args = {
 	data,
 	label: 'OS',
 	note: 'Windows +10%',
+	clockwise: true,
 };
 
 export const WithTooltips = Template.bind( {} );
