@@ -44,6 +44,14 @@ export default {
 				step: 10,
 			},
 		},
+		thickness: {
+			control: {
+				type: 'range',
+				min: 0,
+				max: 1,
+				step: 0.01,
+			},
+		},
 	},
 } satisfies Meta< typeof PieSemiCircleChart >;
 
@@ -55,6 +63,7 @@ Default.args = {
 	data,
 	label: 'OS',
 	note: 'Windows +10%',
+	thickness: 0.4,
 	clockwise: true,
 };
 

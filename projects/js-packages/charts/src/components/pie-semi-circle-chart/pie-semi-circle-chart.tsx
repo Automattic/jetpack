@@ -33,12 +33,15 @@ interface PieSemiCircleChartProps {
 	 * Whether to show tooltips
 	 */
 	showTooltips?: boolean;
-
 	/**
 	 * Direction of chart rendering
 	 * true for clockwise, false for counter-clockwise
 	 */
 	clockwise?: boolean;
+	/**
+	 * Thickness of the pie chart. A value between 0 and 1
+	 */
+	thickness?: number;
 }
 
 const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
@@ -48,14 +51,17 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 	note,
 	showTooltips = false,
 	clockwise = true,
+	thickness = 0.4,
 } ) => {
 	const providerTheme = useChartTheme();
 	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
 		useTooltip< DataPointPercentage >();
 
 	const centerX = width / 2;
-	const centerY = width;
 	const height = width / 2;
+
+	const radius = width / 2;
+	const innerRadius = radius * ( 1 - thickness );
 
 	// Map the data to include index for color assignment
 	const dataWithIndex = data.map( ( d, index ) => ( {
@@ -112,8 +118,8 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 					<Pie< DataPointPercentage & { index: number } >
 						data={ dataWithIndex }
 						pieValue={ accessors.value }
-						outerRadius={ width / 2 } // half of the diameter (width)
-						innerRadius={ ( width / 2 ) * 0.6 } // 70% of the radius
+						outerRadius={ radius }
+						innerRadius={ innerRadius }
 						cornerRadius={ 3 }
 						padAngle={ 0.03 }
 						startAngle={ startAngle }
