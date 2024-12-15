@@ -2,8 +2,7 @@ import { Text, Button, useBreakpointMatch } from '@automattic/jetpack-components
 import { Tooltip } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { useCallback, useState } from 'react';
-import { useMemo } from 'react';
+import { useCallback, useState, useMemo } from 'react';
 import AdminSectionHero from '../../components/admin-section-hero';
 import ErrorAdminSectionHero from '../../components/error-admin-section-hero';
 import OnboardingPopover from '../../components/onboarding-popover';
