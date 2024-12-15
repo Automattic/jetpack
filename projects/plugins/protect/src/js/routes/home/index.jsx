@@ -2,7 +2,7 @@ import { AdminSection, Container, Col, ScanReport } from '@automattic/jetpack-co
 import { useMemo } from 'react';
 import AdminPage from '../../components/admin-page';
 import { SCAN_IN_PROGRESS_STATUSES } from '../../constants';
-import useScanStatusQuery from '../../data/scan/use-scan-status-query';
+import useScanStatusQuery, { isScanInProgress } from '../../data/scan/use-scan-status-query';
 import HomeAdminSectionHero from './home-admin-section-hero';
 import styles from './styles.module.scss';
 
@@ -47,7 +47,11 @@ const HomePage = () => {
 						horizontalGap={ 4 }
 					>
 						<Col>
-							<ScanReport dataSource={ status.dataSource } data={ data } />
+							<ScanReport
+								dataSource={ status.dataSource }
+								data={ data }
+								scanInProgress={ isScanInProgress( status ) }
+							/>
 						</Col>
 					</Container>
 				</AdminSection>

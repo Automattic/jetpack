@@ -24,4 +24,8 @@
 	min-width: 32px;
 	display: flex;
 	justify-content: center;
+
+	> svg {
+		margin: 0;
+	}
 }

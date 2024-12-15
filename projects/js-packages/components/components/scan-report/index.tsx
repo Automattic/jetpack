@@ -1,5 +1,5 @@
 import { type ScanReportExtension } from '@automattic/jetpack-scan';
-import { Tooltip } from '@wordpress/components';
+import { Spinner, Tooltip } from '@wordpress/components';
 import {
 	type SupportedLayouts,
 	type View,
@@ -30,10 +30,16 @@ import styles from './styles.module.scss';
  * @param {string}   props.dataSource        - Data source.
  * @param {Array}    props.data              - Scan report data.
  * @param {Function} props.onChangeSelection - Callback function run when an item is selected.
+ * @param {boolean}  props.scanInProgress    - Whether a scan is in progress.
  *
  * @return {JSX.Element} The ScanReport component.
  */
-export default function ScanReport( { dataSource, data, onChangeSelection } ): JSX.Element {
+export default function ScanReport( {
+	dataSource,
+	data,
+	onChangeSelection,
+	scanInProgress = false,
+} ): JSX.Element {
 	const baseView = {
 		search: '',
 		filters: [],
@@ -140,7 +146,11 @@ export default function ScanReport( { dataSource, data, onChangeSelection } ): J
 					return (
 						<Tooltip className={ styles.tooltip } text={ text }>
 							<div className={ styles.icon }>
-								<ShieldIcon variant={ variant } height={ iconHeight } />
+								{ scanInProgress ? (
+									<Spinner />
+								) : (
+									<ShieldIcon variant={ variant } height={ iconHeight } />
+								) }
 							</div>
 						</Tooltip>
 					);
@@ -191,7 +201,7 @@ export default function ScanReport( { dataSource, data, onChangeSelection } ): J
 		];
 
 		return result;
-	}, [ view, dataSource ] );
+	}, [ view.type, dataSource, scanInProgress ] );
 
 	/**
 	 * Apply the view settings (i.e. filters, sorting, pagination) to the dataset.
