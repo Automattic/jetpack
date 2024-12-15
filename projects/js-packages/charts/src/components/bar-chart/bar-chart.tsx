@@ -5,7 +5,7 @@ import { scaleBand, scaleLinear } from '@visx/scale';
 import { Bar } from '@visx/shape';
 import { useTooltip } from '@visx/tooltip';
 import clsx from 'clsx';
-import { FC, useCallback } from 'react';
+import { FC, useCallback, type MouseEvent } from 'react';
 import { useChartTheme } from '../../providers/theme';
 import { BaseTooltip } from '../tooltip';
 import styles from './bar-chart.module.scss';
@@ -23,7 +23,7 @@ const BarChart: FC< BarChartProps > = ( {
 	width,
 	height,
 	margin = { top: 20, right: 20, bottom: 40, left: 40 },
-	showTooltips = false,
+	withTooltips = false,
 } ) => {
 	const theme = useChartTheme();
 	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
@@ -45,7 +45,7 @@ const BarChart: FC< BarChartProps > = ( {
 	} );
 
 	const handleMouseMove = useCallback(
-		( event: React.MouseEvent, datum: DataPoint ) => {
+		( event: MouseEvent< SVGRectElement >, datum: DataPoint ) => {
 			const coords = localPoint( event );
 			if ( ! coords ) return;
 
@@ -62,35 +62,32 @@ const BarChart: FC< BarChartProps > = ( {
 		hideTooltip();
 	}, [ hideTooltip ] );
 
-	const handleBarMouseMove = useCallback(
-		( d: DataPoint ) => ( event: React.MouseEvent< SVGRectElement > ) => {
-			handleMouseMove( event, d );
-		},
-		[ handleMouseMove ]
-	);
-
 	return (
 		<div className={ clsx( 'bar-chart', styles[ 'bar-chart' ] ) }>
 			<svg width={ width } height={ height }>
 				<Group left={ margins.left } top={ margins.top }>
-					{ data.map( d => (
-						<Bar
-							key={ `bar-${ d.label }` }
-							x={ xScale( d.label ) }
-							y={ yScale( d.value ) }
-							width={ xScale.bandwidth() }
-							height={ yMax - ( yScale( d.value ) ?? 0 ) }
-							fill={ theme.colors[ 0 ] }
-							onMouseMove={ handleBarMouseMove( d ) }
-							onMouseLeave={ handleMouseLeave }
-						/>
-					) ) }
+					{ data.map( d => {
+						const handleBarMouseMove = event => handleMouseMove( event, d );
+
+						return (
+							<Bar
+								key={ `bar-${ d.label }` }
+								x={ xScale( d.label ) }
+								y={ yScale( d.value ) }
+								width={ xScale.bandwidth() }
+								height={ yMax - ( yScale( d.value ) ?? 0 ) }
+								fill={ theme.colors[ 0 ] }
+								onMouseMove={ withTooltips ? handleBarMouseMove : undefined }
+								onMouseLeave={ withTooltips ? handleMouseLeave : undefined }
+							/>
+						);
+					} ) }
 					<AxisLeft scale={ yScale } />
 					<AxisBottom scale={ xScale } top={ yMax } />
 				</Group>
 			</svg>
 
-			{ showTooltips && tooltipOpen && tooltipData && (
+			{ withTooltips && tooltipOpen && tooltipData && (
 				<BaseTooltip
 					data={ {
 						label: tooltipData.label,

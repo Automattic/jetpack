@@ -19,10 +19,6 @@ interface PieSemiCircleChartProps extends BaseChartProps< DataPointPercentage[] 
 	 * Note text to display below the label
 	 */
 	note: string;
-	/**
-	 * Whether to show tooltips
-	 */
-	showTooltips?: boolean;
 }
 
 type ArcData = PieArcDatum< DataPointPercentage >;
@@ -33,7 +29,7 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 	height,
 	label,
 	note,
-	showTooltips = false,
+	withTooltips = false,
 } ) => {
 	const providerTheme = useChartTheme();
 	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
@@ -135,7 +131,7 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 				</Group>
 			</svg>
 
-			{ showTooltips && tooltipOpen && tooltipData && (
+			{ withTooltips && tooltipOpen && tooltipData && (
 				<BaseTooltip
 					data={ {
 						label: tooltipData.label,

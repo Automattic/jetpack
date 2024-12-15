@@ -24,14 +24,14 @@ Default.args = {
 	width: 500,
 	height: 300,
 	margin: { top: 20, right: 20, bottom: 40, left: 40 },
-	showTooltips: false,
+	withTooltips: false,
 	data: data[ 0 ].data,
 };
 
 export const WithTooltips = Template.bind( {} );
 WithTooltips.args = {
 	...Default.args,
-	showTooltips: true,
+	withTooltips: true,
 };
 
 WithTooltips.parameters = {
