@@ -83,14 +83,14 @@ const ScanPage = () => {
 								<OnboardingPopover
 									id={ hasPlan ? 'paid-scan-results' : 'free-scan-results' }
 									anchor={ scanResultsAnchor }
-									position={ 'top left' }
+									position={ 'top' }
 								/>
 							) }
 							{ !! status && ! isScanInProgress( status ) && hasPlan && (
 								<OnboardingPopover
 									id={ 'paid-understand-severity' }
 									anchor={ scanResultsAnchor }
-									position={ 'top right' }
+									position={ 'top' }
 								/>
 							) }
 						</Col>
