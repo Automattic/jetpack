@@ -4,6 +4,7 @@
 
 .auto-fixers {
 	margin-top: calc( var( --spacing-base ) * 4 ); // 32px
+	width: fit-content;
 }
 
 .scan-results-container {
@@ -21,4 +22,8 @@
 	@media (max-width: 1099px) {
 		display: none;
 	}
+}
+
+.last-checked {
+	width: fit-content;
 }
