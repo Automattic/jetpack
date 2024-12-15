@@ -36,6 +36,8 @@ const HomePage = () => {
 
 	const showReport = status.lastChecked || SCAN_IN_PROGRESS_STATUSES.indexOf( status?.status ) >= 0;
 
+	const showReport = status.lastChecked || isScanInProgress( status );
+
 	return (
 		<AdminPage>
 			<HomeAdminSectionHero />
