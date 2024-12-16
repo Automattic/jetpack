@@ -138,7 +138,7 @@ class Holiday_Snow {
 		$snowstorm_url = apply_filters_deprecated( // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 			'jetpack_holiday_snow_js_url',
 			array( plugins_url( 'snowstorm.js', __FILE__ ) ),
-			'$$next-version$$',
+			'6.1.1',
 			'',
 			'This filter is no longer useful. We use a CSS-only snow effect instead.'
 		);
