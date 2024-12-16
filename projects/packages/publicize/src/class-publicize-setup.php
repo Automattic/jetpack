@@ -34,8 +34,6 @@ class Publicize_Setup {
 	 */
 	public static function pre_initialization() {
 
-		l( 'Publicize_Setup::pre_initialization()' );
-
 		$is_wpcom = ( new Host() )->is_wpcom_simple();
 
 		// Assets are to be loaded in all cases.
