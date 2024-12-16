@@ -23,7 +23,6 @@ import './style.scss';
 import type { AiAssistantDropdownOnChangeOptionsArgProps } from './dropdown-content';
 import type { ExtendedBlockProp } from '../../extensions/constants';
 import type { PromptTypeProp } from '../../lib/prompt';
-import type { ReactElement } from 'react';
 
 const debug = debugFactory( 'jetpack-ai-assistant:dropdown' );
 
@@ -35,7 +34,7 @@ type AiAssistantBlockToolbarDropdownContentProps = {
 /**
  * The dropdown component with logic for the AI Assistant block.
  * @param {AiAssistantBlockToolbarDropdownContentProps} props - The props.
- * @return {ReactElement} The React content of the dropdown.
+ * @return The React content of the dropdown.
  */
 function AiAssistantBlockToolbarDropdownContent( {
 	onClose,
@@ -165,7 +164,7 @@ type AiAssistantBlockToolbarDropdownProps = {
 /**
  * The AI Assistant dropdown component.
  * @param {AiAssistantBlockToolbarDropdownProps} props - The props.
- * @return {ReactElement} The AI Assistant dropdown component.
+ * @return The AI Assistant dropdown component.
  */
 export default function AiAssistantBlockToolbarDropdown( {
 	blockType,

@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
 import { useFetchingErrorNotice } from './notices/use-fetching-error-notice';
 import type { WP_Error } from './types';
-import type { UseQueryOptions, UseQueryResult } from '@tanstack/react-query';
+import type { UseQueryOptions } from '@tanstack/react-query';
 import type { APIFetchOptions } from '@wordpress/api-fetch';
 
 /**
@@ -18,7 +18,7 @@ import type { APIFetchOptions } from '@wordpress/api-fetch';
  * @param {APIFetchOptions}                  params.query          - The options to be passed to the API fetch function.
  * @param {Pick<UseQueryOptions, 'enabled'>} [params.options]      - Optional. Query options from react-query, currently supports only the 'enabled' option.
  * @param {string}                           [params.errorMessage] - Optional. A custom error message that can be displayed if the query fails.
- * @return {UseQueryResult<T>} The result object from the useQuery hook, containing data and state information about the query (e.g., isLoading, isError).
+ * @return {import('@tanstack/react-query').UseQueryResult<T>} The result object from the useQuery hook, containing data and state information about the query (e.g., isLoading, isError).
  */
 type QueryParams = {
 	name: string;
