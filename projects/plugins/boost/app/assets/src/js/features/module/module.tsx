@@ -5,6 +5,7 @@ import styles from './module.module.scss';
 import ErrorBoundary from '$features/error-boundary/error-boundary';
 import { __ } from '@wordpress/i18n';
 import { isWoaHosting } from '$lib/utils/hosting';
+import { useNotices } from '$features/notice/context';
 
 type ModuleProps = {
 	title: React.ReactNode;
@@ -29,7 +30,13 @@ const Module = ( {
 	onDisable,
 	onMountEnable,
 }: ModuleProps ) => {
+	const { setNotice } = useNotices();
 	const [ status, setStatus ] = useSingleModuleState( slug, active => {
+		setNotice( {
+			id: 'update-module-state',
+			type: 'success',
+			message: __( 'Settings updated', 'jetpack-boost' ),
+		} );
 		if ( active ) {
 			onEnable?.();
 		} else {
@@ -43,6 +50,11 @@ const Module = ( {
 	const isFakeActive = ! isModuleAvailable && isWoaHosting() && slug === 'page_cache';
 
 	const handleToggle = () => {
+		setNotice( {
+			id: 'update-module-state',
+			type: 'pending',
+			message: __( 'Updating settings…', 'jetpack-boost' ),
+		} );
 		if ( onBeforeToggle ) {
 			onBeforeToggle( ! isModuleActive );
 		}
