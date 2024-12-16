@@ -17,7 +17,7 @@ import { call, put, takeLatest, delay } from 'redux-saga/effects';
  * Internal dependencies
  */
 import metadata from './block.json';
-import { getBlockQueries, sanitizePostList } from './utils';
+import { getBlockQueries, sanitizePostList, recursivelyGetBlocks } from './utils';
 
 const { name } = metadata;
 export const STORE_NAMESPACE = `newspack-blocks/${ name }`;
@@ -138,15 +138,7 @@ const createFetchPostsSaga = blockNames => {
 
 		yield put( { type: 'DISABLE_UI' } );
 
-		// Ensure innerBlocks are populated for widget area blocks.
-		// See https://github.com/WordPress/gutenberg/issues/32607#issuecomment-890728216.
-		const blocks = getBlocks().map( block => {
-			const innerBlocks = select( 'core/block-editor' ).getBlocks( block.clientId );
-			return {
-				...block,
-				innerBlocks,
-			};
-		} );
+		const blocks = recursivelyGetBlocks( getBlocks );
 
 		const blockQueries = getBlockQueries( blocks, blockNames );
 

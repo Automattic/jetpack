@@ -65,6 +65,7 @@ declare global {
 		excerpt: {
 			rendered: string;
 		};
+		full_content: string;
 		meta: {
 			newspack_post_subtitle: string;
 		};
@@ -104,6 +105,7 @@ declare global {
 		postType: PostType[];
 		showImage: boolean;
 		showExcerpt: boolean;
+		showFullContent: boolean;
 		tags: TagId[];
 		customTaxonomies: Taxonomy[];
 		specificPosts: string[];
@@ -112,7 +114,6 @@ declare global {
 		categoryExclusions: CategoryId[];
 		customTaxonomyExclusions: Taxonomy[];
 		className: string;
-		showExcerpt: boolean;
 		excerptLength: number;
 		showReadMore: boolean;
 		readMoreLabel: string;
@@ -125,6 +126,7 @@ declare global {
 		imageShape: string;
 		minHeight: integer;
 		moreButton: boolean;
+		infiniteScroll: boolean;
 		moreButtonText: string;
 		showAuthor: boolean;
 		showAvatar: boolean;

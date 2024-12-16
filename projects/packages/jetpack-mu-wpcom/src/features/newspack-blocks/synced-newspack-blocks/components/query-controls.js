@@ -297,7 +297,7 @@ class QueryControls extends Component {
                         <ToggleControl
                             checked={ includeSubcategories }
                             onChange={ onIncludeSubcategoriesChange }
-                            label={ __( 'Include subcategories ', 'jetpack-mu-wpcom' ) }
+                            label={ __( 'Include subcategories', 'jetpack-mu-wpcom' ) }
                         />
                     ) }
                     { onTagsChange && (
@@ -310,9 +310,9 @@ class QueryControls extends Component {
                         />
                     ) }
                     { onCustomTaxonomiesChange &&
-                        registeredCustomTaxonomies.map( tax => (
+                        registeredCustomTaxonomies.map( ( tax, index ) => (
                             <AutocompleteTokenField
-                                key={ `${ customTaxonomies[ tax.slug ] }-selector` }
+                                key={ index }
                                 tokens={ getTermsOfCustomTaxonomy( customTaxonomies, tax.slug ) }
                                 onChange={ value => {
                                     customTaxonomiesPrepareChange(

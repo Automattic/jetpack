@@ -129,13 +129,18 @@ class WP_REST_Newspack_Articles_Controller extends WP_REST_Controller {
 	 * @return WP_REST_Response
 	 */
 	public function get_items( $request ) {
-		$page        = $request->get_param( 'page' ) ?? 1;
+		$page        = (int) $request->get_param( 'page' ) ?? 1;
 		$exclude_ids = $request->get_param( 'exclude_ids' ) ?? array();
 		$next_page   = $page + 1;
 		$attributes  = wp_parse_args(
 			$request->get_params() ?? array(),
 			wp_list_pluck( $this->get_attribute_schema(), 'default' )
 		);
+
+		$deduplicate = $request->get_param( 'deduplicate' ) ?? 1;
+		if ( ! $deduplicate ) {
+			$exclude_ids = array();
+		}
 
 		$article_query_args = Newspack_Blocks::build_articles_query( $attributes, apply_filters( 'newspack_blocks_block_name', 'newspack-blocks/homepage-articles' ) );
 

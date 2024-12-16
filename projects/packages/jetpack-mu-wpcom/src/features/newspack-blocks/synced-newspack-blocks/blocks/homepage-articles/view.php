@@ -134,34 +134,34 @@ function newspack_blocks_get_homepage_articles_css_string( $attrs ) {
 
 	ob_start();
 	?>
-		.wpnbha article .entry-title {
+		.wp-block-newspack-blocks-homepage-articles article .entry-title {
 			font-size: 1.2em;
 		}
-		.wpnbha .entry-meta {
+		.wp-block-newspack-blocks-homepage-articles .entry-meta {
 			display: flex;
 			flex-wrap: wrap;
 			align-items: center;
 			margin-top: 0.5em;
 		}
-		.wpnbha article .entry-meta {
+		.wp-block-newspack-blocks-homepage-articles article .entry-meta {
 			font-size: 0.8em;
 		}
-		.wpnbha article .avatar {
+		.wp-block-newspack-blocks-homepage-articles article .avatar {
 			height: 25px;
 			width: 25px;
 		}
-		.wpnbha .post-thumbnail{
+		.wp-block-newspack-blocks-homepage-articles .post-thumbnail{
 			margin: 0;
 			margin-bottom: 0.25em;
 		}
-		.wpnbha .post-thumbnail img {
+		.wp-block-newspack-blocks-homepage-articles .post-thumbnail img {
 			height: auto;
 			width: 100%;
 		}
-		.wpnbha .post-thumbnail figcaption {
+		.wp-block-newspack-blocks-homepage-articles .post-thumbnail figcaption {
 			margin-bottom: 0.5em;
 		}
-		.wpnbha p {
+		.wp-block-newspack-blocks-homepage-articles p {
 			margin: 0.5em 0;
 		}
 
@@ -383,8 +383,12 @@ function newspack_blocks_render_block_homepage_articles( $attributes ) {
 		<?php
 
 		if ( $has_more_button ) :
+			$load_more = '';
+			if ( (bool) $attributes['infiniteScroll'] ) {
+				$load_more = 'data-infinite-scroll="true"';
+			}
 			?>
-			<button type="button" class="wp-block-button__link" data-next="<?php echo esc_url( $articles_rest_url ); ?>">
+			<button type="button" class="wp-block-button__link" <?php echo esc_attr( $load_more ); ?> data-next="<?php echo esc_url( $articles_rest_url ); ?>">
 				<span class="label">
 					<?php
 					if ( ! empty( $attributes['moreButtonText'] ) ) {

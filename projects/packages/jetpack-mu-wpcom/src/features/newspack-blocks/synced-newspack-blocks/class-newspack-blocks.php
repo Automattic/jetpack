@@ -21,32 +21,6 @@ class Newspack_Blocks {
 	);
 
 	/**
-	 * Regex pattern we can use to search for and remove custom SQL statements.
-	 * Custom statements added by this class are wrapped by `newspack-blocks` comments.
-	 */
-	const SQL_PATTERN = '/\/\* newspack-blocks \*\/(.|\n)*\/\* \/newspack-blocks \*\//';
-
-	/**
-	 * Class property to store user IDs and CAP guest author names for building
-	 * custom SQL statements. In order to allow a single WP_Query to filter by
-	 * both WP users and CAP guest authors (a taxonomy), we need to directly
-	 * modify the JOIN and WHERE clauses in the SQL query.
-	 *
-	 * If this property is false, then the custom statements will be stripped
-	 * from all SQL clauses. If it's an array with `authors` and `coauthors`
-	 * keys, the custom statements will be added to the SQL query.
-	 *
-	 * Example array:
-	 * [
-	 *     'authors'   => [], // Array of numeric WP user IDs.
-	 *     'coauthors' => [], // Array of CAP guest author name slugs.
-	 * ]
-	 *
-	 * @var boolean|array
-	 */
-	protected static $filter_clauses = false;
-
-	/**
 	 * Add hooks and filters.
 	 */
 	public static function init() {
@@ -55,8 +29,6 @@ class Newspack_Blocks {
 		add_post_type_support( 'page', 'newspack_blocks' );
 		add_action( 'jetpack_register_gutenberg_extensions', array( __CLASS__, 'disable_jetpack_donate' ), 99 );
 		add_filter( 'the_content', array( __CLASS__, 'hide_post_content_when_iframe_block_is_fullscreen' ) );
-		add_filter( 'posts_clauses', array( __CLASS__, 'filter_posts_clauses_when_co_authors' ), 999, 2 );
-		add_filter( 'posts_groupby', array( __CLASS__, 'group_by_post_id_filter' ), 999 );
 
 		/**
 		 * Disable NextGEN's `C_NextGen_Shortcode_Manager`.
@@ -380,17 +352,41 @@ class Newspack_Blocks {
 		if ( ! empty( $attributes['align'] ) ) {
 			$classes[] = 'align' . $attributes['align'];
 		}
+		if ( ! empty( $attributes['hideControls'] ) ) {
+			$classes[] = 'hide-controls';
+		}
 		if ( isset( $attributes['className'] ) ) {
 			array_push( $classes, $attributes['className'] );
 		}
 		if ( is_array( $extra ) && ! empty( $extra ) ) {
 			$classes = array_merge( $classes, $extra );
 		}
-		if ( ! empty( $attributes['hideControls'] ) ) {
-			$classes[] = 'hide-controls';
-		}
 
 		return implode( ' ', $classes );
+	}
+
+	/**
+	 * Utility to assemble the styles for a server-side rendered block.
+	 *
+	 * @param array $attributes Block attributes.
+	 * @param array $extra      Additional styles to be added to the style list.
+	 *
+	 * @return string style list.
+	 */
+	public static function block_styles( $attributes = array(), $extra = array() ) {
+		$styles = array();
+		if ( isset( $attributes['style'] ) && is_array( $attributes['style'] ) ) {
+			$engine_styles = wp_style_engine_get_styles( $attributes['style'], array( 'context' => 'block-supports' ) );
+			if ( isset( $engine_styles['css'] ) ) {
+				$styles[] = $engine_styles['css'];
+			}
+		}
+
+		if ( is_array( $extra ) && ! empty( $extra ) ) {
+			$styles = array_merge( $styles, $extra );
+		}
+
+		return implode( '', $styles );
 	}
 
 	/**
@@ -571,9 +567,6 @@ class Newspack_Blocks {
 	 * @return array
 	 */
 	public static function build_articles_query( $attributes, $block_name ) {
-		// Reset author/CAP guest author SQL statements by default.
-		self::$filter_clauses = false;
-
 		global $newspack_blocks_post_id;
 		if ( ! $newspack_blocks_post_id ) {
 			$newspack_blocks_post_id = array();
@@ -609,6 +602,7 @@ class Newspack_Blocks {
 			'ignore_sticky_posts' => true,
 			'has_password'        => false,
 			'is_newspack_query'   => true,
+			'tax_query'           => array(), // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
 		);
 		if ( $specific_mode && $specific_posts ) {
 			$args['posts_per_page'] = count( $specific_posts );
@@ -674,91 +668,59 @@ class Newspack_Blocks {
 				}
 			}
 
-			$is_co_authors_plus_active = class_exists( 'CoAuthors_Guest_Authors' );
-
 			if ( $authors && count( $authors ) ) {
-				$co_authors_names = array();
-				$author_names     = array();
-				$author_emails    = array();
+				global $coauthors_plus;
+				$is_co_authors_plus_active = is_object( $coauthors_plus ) && method_exists( $coauthors_plus, 'get_coauthor_by' );
 
-				if ( $is_co_authors_plus_active ) {
-					$co_authors_guest_authors = new CoAuthors_Guest_Authors();
+				if ( ! $is_co_authors_plus_active ) {
+					$args['author__in'] = $authors;
+				} else {
+					/**
+					 * When CoAuthors Plus is active, we ignore the 'author__in' parameter and search only by the author taxonomy.
+					 *
+					 * If CAP has been activated recently, the author taxonomy may not have been populated yet. You'll need to run
+					 * wp co-authors-plus create-author-terms-for-posts to make sure all posts have the author terms in place.
+					 */
+					$authors_term_ids = array();
+					foreach ( $authors as $author_id ) {
+						$co_author = $coauthors_plus->get_coauthor_by( 'id', $author_id );
+						if ( is_object( $co_author ) ) {
+							$term = $coauthors_plus->get_author_term( $co_author );
+							if ( $term ) {
+								$authors_term_ids[] = $term->term_id;
+							}
 
-					foreach ( $authors as $index => $author_id ) {
-						// If the given ID is a guest author.
-						$co_author = $co_authors_guest_authors->get_guest_author_by( 'id', $author_id );
-						if ( $co_author ) {
-							if ( ! empty( $co_author->linked_account ) ) {
-								$linked_account = get_user_by( 'login', $co_author->linked_account );
-								if ( $linked_account ) {
-									$authors[] = $linked_account->ID;
+							// If it's a guest author, also check the linked author.
+							if ( 'guest-author' === $co_author->type && ! empty( $co_author->wp_user ) && $co_author->wp_user instanceof \WP_User ) {
+								$term = $coauthors_plus->get_author_term( $co_author->wp_user );
+								if ( $term ) {
+									$authors_term_ids[] = $term->term_id;
 								}
 							}
-							$co_authors_names[] = $co_author->user_nicename;
-							unset( $authors[ $index ] );
-						} else {
-							// If the given ID is linked to a guest author.
-							$authors_controller = new WP_REST_Newspack_Authors_Controller();
-							$author_data        = get_userdata( $author_id );
-							if ( $author_data ) {
-								$linked_guest_author = $authors_controller->get_linked_guest_author( $author_data->user_login );
-								if ( $linked_guest_author ) {
-									$guest_author_name = sanitize_title( $linked_guest_author->post_title );
-									if ( ! in_array( $guest_author_name, $co_authors_names, true ) ) {
-										$co_authors_names[] = $guest_author_name;
-										unset( $authors[ $index ] );
+
+							// If it's a regular wp user, check and include any linked guest authors.
+							if ( 'wpuser' === $co_author->type ) {
+								$authors_controller       = new WP_REST_Newspack_Authors_Controller();
+								$linked_guest_author_post = $authors_controller->get_linked_guest_author( $co_author->user_login );
+								if ( $linked_guest_author_post ) {
+									$linked_guest_author_object = $coauthors_plus->get_coauthor_by( 'id', $author_id );
+									if ( is_object( $linked_guest_author_object ) ) {
+										$term = $coauthors_plus->get_author_term( $linked_guest_author_object );
+										if ( $term ) {
+											$authors_term_ids[] = $term->term_id;
+										}
 									}
-								} else {
-									$author_names[]  = $author_data->user_login;
-									$author_emails[] = $author_data->user_email;
 								}
 							}
 						}
 					}
-				}
-
-				// Reset numeric indexes.
-				$authors = array_values( $authors );
-				if ( empty( $authors ) && count( $co_authors_names ) ) {
-					// Look for co-authors posts.
-					$args['tax_query'] = array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
-						array(
-							'field'    => 'name',
+					if ( count( $authors_term_ids ) ) {
+						$args['tax_query'][] = array(
 							'taxonomy' => 'author',
-							'terms'    => $co_authors_names,
-						),
-					);
-				} elseif ( empty( $co_authors_names ) && count( $authors ) ) {
-					$args['author__in'] = $authors;
-
-					if ( $is_co_authors_plus_active ) {
-						// Don't get any posts that are attributed to other CAP guest authors.
-						$args['tax_query'] = array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
-							array(
-								'relation' => 'OR',
-								array(
-									'taxonomy' => 'author',
-									'operator' => 'NOT EXISTS',
-								),
-								array(
-									'field'    => 'name',
-									'taxonomy' => 'author',
-									'terms'    => $author_names,
-								),
-								array(
-									'field'    => 'name',
-									'taxonomy' => 'author',
-									'terms'    => $author_emails,
-								),
-							),
+							'field'    => 'term_id',
+							'terms'    => $authors_term_ids,
 						);
 					}
-				} else {
-					// The query contains both WP users and CAP guest authors. We need to filter the SQL query.
-					self::$filter_clauses = array(
-						'authors'   => $authors,
-						'coauthors' => $co_authors_names,
-					);
 				}
 			}
 		}
@@ -1139,7 +1101,7 @@ class Newspack_Blocks {
 			}
 
 			// Set excerpt length (https://core.trac.wordpress.org/ticket/29533#comment:3).
-			$excerpt = force_balance_tags( html_entity_decode( wp_trim_words( htmlentities( $excerpt, ENT_COMPAT ), $excerpt_length, static::more_excerpt() ), ENT_COMPAT ) );
+			$excerpt = force_balance_tags( html_entity_decode( wp_trim_words( htmlentities( $excerpt ), $excerpt_length, static::more_excerpt() ) ) );
 
 			return $excerpt;
 		};
@@ -1221,116 +1183,6 @@ class Newspack_Blocks {
 	 */
 	public static function remove_excerpt_more_filter() {
 		remove_filter( 'excerpt_more', array( __CLASS__, 'more_excerpt' ), 999 );
-	}
-
-	/**
-	 * Filter posts by authors and co-authors. If the query is filtering posts
-	 * by both WP users and CAP guest authors, the SQL clauses must be modified
-	 * directly so that the filtering can happen with a single SQL query.
-	 *
-	 * @param string[] $clauses Associative array of the clauses for the query.
-	 * @param WP_Query $query The WP_Query instance (passed by reference).
-	 */
-	public static function filter_posts_clauses_when_co_authors( $clauses, $query ) {
-		// Remove any lingering custom SQL statements.
-		$clauses['join']   = preg_replace( self::SQL_PATTERN, '', $clauses['join'] );
-		$clauses['where']  = preg_replace( self::SQL_PATTERN, '', $clauses['where'] );
-		$is_newspack_query = isset( $query->query_vars['is_newspack_query'] ) && $query->query_vars['is_newspack_query'];
-
-		// If the query isn't coming from this plugin, or $filter_clauses lacks expected data.
-		if (
-			! $is_newspack_query ||
-			! self::$filter_clauses ||
-			! isset( self::$filter_clauses['authors'] ) ||
-			! isset( self::$filter_clauses['coauthors'] )
-		) {
-			return $clauses;
-		}
-
-		global $wpdb;
-
-		$authors_ids      = self::$filter_clauses['authors'];
-		$co_authors_names = self::$filter_clauses['coauthors'];
-
-		// co-author tax query.
-		$tax_query = array(
-			array(
-				'taxonomy' => 'author',
-				'field'    => 'name',
-				'terms'    => $co_authors_names,
-			),
-		);
-
-		// Generate the tax query SQL.
-		$tax_query = new WP_Tax_Query( $tax_query );
-		$tax_query = $tax_query->get_sql( $wpdb->posts, 'ID' );
-
-		// Generate the author query SQL.
-		$csv          = implode( ',', wp_parse_id_list( (array) $authors_ids ) );
-		$author_names = array_reduce(
-			$authors_ids,
-			function ( $acc, $author_id ) {
-				$author_data = get_userdata( $author_id );
-				if ( $author_data ) {
-					$acc[] = $author_data->user_login;
-				}
-				return $acc;
-			},
-			array()
-		);
-
-		// If getting only WP users, we don't want to get posts attributed to CAP guest authors not linked to the given WP users.
-		$exclude = new WP_Tax_Query(
-			array(
-				'relation' => 'OR',
-				array(
-					'taxonomy' => 'author',
-					'operator' => 'NOT EXISTS',
-				),
-				array(
-					'field'    => 'name',
-					'taxonomy' => 'author',
-					'terms'    => $author_names,
-				),
-			)
-		);
-		$exclude = $exclude->get_sql( $wpdb->posts, 'ID' );
-		$exclude = $exclude['where'];
-		$authors = " ( {$wpdb->posts}.post_author IN ( $csv ) $exclude ) ";
-
-		// Make sure the authors are set, the tax query is valid (doesn't contain 0 = 1).
-		if ( false === strpos( $tax_query['where'], ' 0 = 1' ) ) {
-			// Append to the current join parts. The JOIN statment only needs to exist in the clause once.
-			if ( false === strpos( $clauses['join'], $tax_query['join'] ) ) {
-				$clauses['join'] .= '/* newspack-blocks */ ' . $tax_query['join'] . ' /* /newspack-blocks */';
-			}
-
-			$clauses['where'] .= sprintf(
-			// The tax query SQL comes prepended with AND.
-				'%s AND ( %s ( 1=1 %s ) ) %s',
-				'/* newspack-blocks */',
-				empty( $authors_ids ) ? '' : $authors . ' OR',
-				$tax_query['where'],
-				'/* /newspack-blocks */'
-			);
-		}
-		return $clauses;
-	}
-
-	/**
-	 * Group by post ID filter, used when we join taxonomies while getting posts.
-	 *
-	 * @param string $groupby The GROUP BY clause of the query.
-	 * @return string The filtered GROUP BY clause.
-	 */
-	public static function group_by_post_id_filter( $groupby ) {
-		global $wpdb;
-
-		if ( self::$filter_clauses ) {
-			return "{$wpdb->posts}.ID ";
-		}
-
-		return $groupby;
 	}
 
 	/**

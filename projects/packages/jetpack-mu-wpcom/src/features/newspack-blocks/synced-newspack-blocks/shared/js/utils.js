@@ -27,7 +27,7 @@ export const formatByline = authorInfo => (
 				index < authorInfo.length - 2 && ', ',
 				authorInfo.length > 1 &&
 					index === authorInfo.length - 2 &&
-					_x( ' and ', 'post author', 'jetpack-mu-wpcom' ),
+					_x( 'and', 'post author', 'jetpack-mu-wpcom' ),
 			];
 		}, [] ) }
 	</span>
@@ -64,7 +64,7 @@ export const formatSponsorByline = sponsorInfo => (
 				index < sponsorInfo.length - 2 && ', ',
 				sponsorInfo.length > 1 &&
 					index === sponsorInfo.length - 2 &&
-					_x( ' and ', 'post author', 'jetpack-mu-wpcom' ),
+					_x( 'and', 'post author', 'jetpack-mu-wpcom' ),
 			];
 		}, [] ) }
 	</span>

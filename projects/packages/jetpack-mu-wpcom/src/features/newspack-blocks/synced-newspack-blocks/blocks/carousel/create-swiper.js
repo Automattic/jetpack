@@ -62,7 +62,7 @@ function deactivateSlide( slide ) {
  * @param {Element} els.play       - Play button element
  * @param {Element} els.pause      - Pause button element
  * @param {Element} els.pagination - Pagination element
- * @param {Object}  config         - Swiper config
+ * @param {object}  config         Swiper config
  * @return {Object} Swiper instance
  */
 export default function createSwiper( els, config = {} ) {
@@ -163,7 +163,7 @@ export default function createSwiper( els, config = {} ) {
 							${
 								alt
 									? /* translators: the title of the image. */ sprintf(
-											__( 'Image: %s, ', 'jetpack-mu-wpcom' ),
+											__( 'Image: %s,', 'jetpack-mu-wpcom' ),
 											alt
 									  )
 									: ''

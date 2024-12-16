@@ -147,8 +147,11 @@ call_user_func(
 				</div>
 			<?php endif; ?>
 			<?php
-			if ( $attributes['showExcerpt'] ) :
+			if ( $attributes['showExcerpt'] && ! $attributes['showFullContent'] ) :
 				the_excerpt();
+			endif;
+			if ( $attributes['showFullContent'] && ! $attributes['showExcerpt'] ) :
+				the_content();
 			endif;
 			if ( $post_link && ( $attributes['showReadMore'] ) ) :
 				?>

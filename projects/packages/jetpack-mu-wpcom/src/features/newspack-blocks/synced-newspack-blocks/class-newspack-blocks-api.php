@@ -296,6 +296,7 @@ class Newspack_Blocks_API {
 				'excerpt'             => array(
 					'rendered' => post_password_required( $post ) ? '' : $excerpt,
 				),
+				'full_content'        => get_the_content( $post->ID ),
 				'featured_media'      => (int) get_post_thumbnail_id( $post->ID ),
 				'id'                  => $post->ID,
 				'meta'                => $meta->get_value( $post->ID, $request ),

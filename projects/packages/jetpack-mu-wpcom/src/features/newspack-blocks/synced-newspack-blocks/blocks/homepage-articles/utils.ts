@@ -166,6 +166,7 @@ const generatePreviewPost = ( id: PostId ) => {
 		excerpt: {
 			rendered: '<p>' + __( 'The post excerpt.', 'jetpack-mu-wpcom' ) + '</p>',
 		},
+		full_content: __( 'Full post content.', 'jetpack-mu-wpcom' ),
 		post_link: '/',
 		featured_media: '1',
 		id,
@@ -280,4 +281,22 @@ export const postsBlockDispatch = (
 		// @ts-ignore It's a string.
 		triggerReflow: isEditorBlock ? dispatch( STORE_NAMESPACE ).reflow : () => undefined,
 	};
+};
+
+// Ensure innerBlocks are populated for some blocks (e.g. `widget-area` and `post-content`).
+// See https://github.com/WordPress/gutenberg/issues/32607#issuecomment-890728216.
+// See https://github.com/Automattic/wp-calypso/issues/91839.
+export const recursivelyGetBlocks = (
+	getBlocks: ( clientId?: string ) => Block[],
+	blocks: Block[] = getBlocks()
+) => {
+	return blocks.map( block => {
+		let innerBlocks =
+			block.innerBlocks.length === 0 ? getBlocks( block.clientId ) : block.innerBlocks;
+		innerBlocks = recursivelyGetBlocks( getBlocks, innerBlocks );
+		return {
+			...block,
+			innerBlocks,
+		};
+	} );
 };
