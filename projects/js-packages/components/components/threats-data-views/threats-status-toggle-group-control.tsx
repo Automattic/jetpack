@@ -10,22 +10,23 @@ import styles from './styles.module.scss';
 
 /**
  * ToggleGroupControl component for filtering threats by status.
- * @param {object}     props              - Component props.
- * @param { Threat[]}  props.data         - Threats data.
- * @param { View }     props.view         - The current view.
- * @param { string|null } props.selectedValue - The selected value.
- * @param { Function } props.onChangeView - Callback function to handle view changes.
+ * @param {object}           props               - Component props.
+ * @param { Threat[]}        props.data          - Threats data.
+ * @param { View }           props.view          - The current view.
+ * @param { ThreatStatus[] } statusFilters       - The current status filter value.
+ * @param { Function }       props.onChangeView  - Callback function to handle view changes.
+ * @param                    props.statusFilters
  * @return {JSX.Element|null} The component or null.
  */
 export default function ThreatsStatusToggleGroupControl( {
 	data,
 	view,
-	selectedValue,
+	statusFilters,
 	onChangeView,
 }: {
 	data: Threat[];
 	view: View;
-	selectedValue: string | null;
+	statusFilters: ThreatStatus[];
 	onChangeView: ( newView: View ) => void;
 } ): JSX.Element {
 	/**
@@ -90,6 +91,21 @@ export default function ThreatsStatusToggleGroupControl( {
 		[ view, onChangeView ]
 	);
 
+	/**
+	 * Get the selected status filters.
+	 *
+	 * @return {string|null} The selected status filter.
+	 */
+	const selectedStatusFilterPreset = useMemo( () => {
+		if ( JSON.stringify( statusFilters ) === JSON.stringify( [ 'current' ] ) ) {
+			return 'active';
+		}
+		if ( JSON.stringify( statusFilters ) === JSON.stringify( [ 'fixed', 'ignored' ] ) ) {
+			return 'historic';
+		}
+		return null;
+	}, [ statusFilters ] );
+
 	if ( ! ( activeThreatsCount + historicThreatsCount ) ) {
 		return null;
 	}
@@ -99,7 +115,7 @@ export default function ThreatsStatusToggleGroupControl( {
 			<div>
 				<div className={ styles[ 'toggle-group-control' ] }>
 					<ToggleGroupControl
-						value={ [ 'active', 'historic' ].includes( selectedValue ) ? selectedValue : null }
+						value={ selectedStatusFilterPreset }
 						onChange={ onStatusFilterChange }
 						isBlock
 						hideLabelFromVision
