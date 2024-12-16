@@ -38,6 +38,7 @@ export default class DomEventHandler extends Component {
 		if ( this.props.isVisible !== prevProps.isVisible ) {
 			this.fixBodyScroll();
 		}
+		this.fixBodyOpacity();
 	}
 
 	disableUnnecessaryFormAndInputAttributes() {
@@ -187,6 +188,14 @@ export default class DomEventHandler extends Component {
 			window?.scrollTo( 0, 0 );
 		} else if ( ! this.props.isVisible ) {
 			this.restoreBodyScroll();
+		}
+	};
+
+	fixBodyOpacity = () => {
+		if ( '1' !== document.body.style.opacity ) {
+			// This ensures the body is visible when the search dialog opens if
+			// the theme changes body opacity dynamically
+			document.body.style.opacity = '1';
 		}
 	};
 

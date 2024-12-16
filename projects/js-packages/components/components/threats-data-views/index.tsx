@@ -35,7 +35,6 @@ import {
 	THREAT_FIELD_SIGNATURE,
 	THREAT_FIELD_STATUS,
 	THREAT_FIELD_THEME,
-	THREAT_FIELD_THREAT,
 	THREAT_FIELD_TITLE,
 	THREAT_FIELD_TYPE,
 	THREAT_ICONS,
@@ -104,25 +103,16 @@ export default function ThreatsDataViews( {
 		table: {
 			...baseView,
 			fields: DEFAULT_TABLE_FIELDS,
-			layout: {
-				primaryField: THREAT_FIELD_SEVERITY,
-				combinedFields: [
-					{
-						id: THREAT_FIELD_THREAT,
-						label: __( 'Threat', 'jetpack-components' ),
-						children: [ THREAT_FIELD_TITLE, THREAT_FIELD_DESCRIPTION ],
-						direction: 'vertical',
-					},
-				],
-			},
+			titleField: THREAT_FIELD_TITLE,
+			descriptionField: THREAT_FIELD_DESCRIPTION,
+			showMedia: false,
 		},
 		list: {
 			...baseView,
 			fields: DEFAULT_LIST_FIELDS,
-			layout: {
-				primaryField: THREAT_FIELD_TITLE,
-				mediaField: THREAT_FIELD_ICON,
-			},
+			titleField: THREAT_FIELD_TITLE,
+			mediaField: THREAT_FIELD_ICON,
+			showMedia: true,
 		},
 	};
 
@@ -236,7 +226,7 @@ export default function ThreatsDataViews( {
 		const result: Field< Threat >[] = [
 			{
 				id: THREAT_FIELD_TITLE,
-				label: __( 'Title', 'jetpack-components' ),
+				label: __( 'Threat', 'jetpack-components' ),
 				enableGlobalSearch: true,
 				enableHiding: false,
 				render: ( { item }: { item: Threat } ) => (
