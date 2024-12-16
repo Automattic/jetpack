@@ -405,7 +405,7 @@ abstract class Module {
 				$status['finished'] = true;
 				return $status;
 			}
-			$key = $this->full_sync_action_name() . '_' . strval( $chunks_sent );
+			$key = $this->full_sync_action_name() . '_' . crc32( wp_json_encode( $status['last_sent'] ) );
 
 			$result = $this->send_action( $this->full_sync_action_name(), array( $objects, $status['last_sent'] ), $key );
 			if ( is_wp_error( $result ) || $wpdb->last_error ) {
