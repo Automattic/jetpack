@@ -39,6 +39,7 @@ export function useProtectTooltipCopy(): TooltipContent {
 		plugins: fromScanPlugins,
 		themes: fromScanThemes,
 		num_threats: numThreats = 0,
+		threats = [],
 	} = scanData || {};
 	const {
 		jetpack_waf_automatic_rules: isAutoFirewallEnabled,
@@ -48,6 +49,12 @@ export function useProtectTooltipCopy(): TooltipContent {
 
 	const pluginsCount = fromScanPlugins.length || Object.keys( plugins ).length;
 	const themesCount = fromScanThemes.length || Object.keys( themes ).length;
+
+	const criticalThreatCount = useMemo( () => {
+		return threats.length
+			? threats.reduce( ( accum, threat ) => ( threat.severity >= 5 ? ( accum += 1 ) : accum ), 0 )
+			: 0;
+	}, [ threats ] );
 
 	const settingsLink = useMemo( () => {
 		if ( isProtectPluginActive ) {
@@ -173,23 +180,32 @@ export function useProtectTooltipCopy(): TooltipContent {
 			hasProtectPaidPlan && numThreats
 				? {
 						title: __( 'Auto-fix threats', 'jetpack-my-jetpack' ),
-						text: sprintf(
-							/* translators: %s is the singular or plural of number of detected critical threats on the site. */
-							__(
-								'The last scan identified %s. But don’t worry, use the “Auto-fix” button in the product to automatically fix most threats.',
-								'jetpack-my-jetpack'
-							),
-							sprintf(
-								/* translators: %d is the number of detected scan threats on the site. */
-								_n(
-									'%d critical threat.',
-									'%d critical threats.',
-									numThreats,
-									'jetpack-my-jetpack'
-								),
-								numThreats
-							)
-						),
+						text: criticalThreatCount
+							? sprintf(
+									/* translators: %s is the singular or plural of number of detected critical threats on the site. */
+									__(
+										'The last scan identified %1$s (%2$d\u00A0critical). But don’t worry, use the “Auto-fix” button in the product to automatically fix most threats.',
+										'jetpack-my-jetpack'
+									),
+									sprintf(
+										/* translators: %d is the number of detected scan threats on the site. */
+										_n( '%d threat', '%d threats', numThreats, 'jetpack-my-jetpack' ),
+										numThreats
+									),
+									criticalThreatCount
+							  )
+							: sprintf(
+									/* translators: %s is the singular or plural of number of detected critical threats on the site. */
+									__(
+										'The last scan identified %s. But don’t worry, use the “Auto-fix” button in the product to automatically fix most threats.',
+										'jetpack-my-jetpack'
+									),
+									sprintf(
+										/* translators: %d is the number of detected scan threats on the site. */
+										_n( '%d threat', '%d threats', numThreats, 'jetpack-my-jetpack' ),
+										numThreats
+									)
+							  ),
 				  }
 				: {
 						title: __( 'Elevate your malware protection', 'jetpack-my-jetpack' ),
