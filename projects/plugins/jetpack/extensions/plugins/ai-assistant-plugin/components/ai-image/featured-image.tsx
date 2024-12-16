@@ -30,6 +30,7 @@ import {
 	PLACEMENT_MEDIA_SOURCE_DROPDOWN,
 } from './types';
 import type { ImageResponse } from './hooks/use-ai-image';
+import type { SelectState, EditorSelectors, CoreSelectors } from './types';
 
 const debug = debugFactory( 'jetpack-ai:featured-image' );
 
@@ -49,14 +50,15 @@ export default function FeaturedImage( {
 	);
 	const siteType = useSiteType();
 	const postContent = usePostContent();
-	const { postTitle, postFeaturedMedia } = useSelect( select => {
-		return {
-			// @ts-expect-error - getEditedPostAttribute is not defined in the useSelect type
-			postTitle: select( 'core/editor' ).getEditedPostAttribute( 'title' ),
-			// @ts-expect-error - getEditedPostAttribute is not defined in the useSelect type
-			postFeaturedMedia: select( 'core/editor' ).getEditedPostAttribute( 'featured_media' ),
-		};
-	}, [] );
+	const { postTitle, postFeaturedMedia } = useSelect(
+		( select: ( store: keyof SelectState ) => EditorSelectors ) => {
+			return {
+				postTitle: select( 'core/editor' ).getEditedPostAttribute( 'title' ),
+				postFeaturedMedia: select( 'core/editor' ).getEditedPostAttribute( 'featured_media' ),
+			};
+		},
+		[]
+	);
 	const { saveToMediaLibrary } = useSaveToMediaLibrary();
 	const { tracks } = useAnalytics();
 	const { recordEvent } = tracks;
@@ -87,14 +89,23 @@ export default function FeaturedImage( {
 	// https://github.com/WordPress/gutenberg/blob/fe4d8cb936df52945c01c1863f7b87b58b7cc69f/packages/edit-post/CHANGELOG.md?plain=1#L19
 	const toggleEditorPanelOpened =
 		toggleEditorPanelOpenedFromEditor ?? toggleEditorPanelOpenedFromEditPost;
-	const isEditorPanelOpened = useSelect( select => {
-		const isOpened =
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			( select( 'core/editor' ) as any ).isEditorPanelOpened ??
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			( select( 'core/edit-post' ) as any ).isEditorPanelOpened;
-		return isOpened;
-	}, [] );
+	const isEditorPanelOpened = useSelect(
+		( select: ( store: keyof SelectState ) => EditorSelectors ) => {
+			const isOpened =
+				select( 'core/editor' ).isEditorPanelOpened ??
+				select( 'core/edit-post' ).isEditorPanelOpened;
+			return isOpened;
+		},
+		[]
+	);
+
+	const currentFeaturedMedia = useSelect(
+		( select: ( store: keyof SelectState ) => EditorSelectors & CoreSelectors ) => {
+			const mediaId = select( 'core/editor' )?.getEditedPostAttribute?.( 'featured_media' );
+			return mediaId ? select( 'core' )?.getMedia?.( mediaId as number ) : null;
+		},
+		[]
+	);
 
 	const {
 		pointer,
@@ -113,6 +124,16 @@ export default function FeaturedImage( {
 		cost: featuredImageCost,
 		type: 'featured-image-generation',
 		feature: FEATURED_IMAGE_FEATURE_NAME,
+		previousImages: currentFeaturedMedia
+			? [
+					{
+						image: currentFeaturedMedia.source_url,
+						libraryId: currentFeaturedMedia.id,
+						libraryUrl: currentFeaturedMedia.source_url,
+						generating: false,
+					},
+			  ]
+			: null,
 	} );
 
 	const handleModalClose = useCallback( () => {
@@ -341,7 +362,7 @@ export default function FeaturedImage( {
 	const generateAgainText = __( 'Generate another image', 'jetpack' );
 	const generateText = __( 'Generate', 'jetpack' );
 
-	const hasContent = postContent || postTitle;
+	const hasContent = postContent || postTitle ? true : false;
 	const hasPrompt = hasContent ? prompt.length >= 0 : prompt.length >= 3;
 	const disableInput = notEnoughRequests || currentPointer?.generating || requireUpgrade;
 	const disableAction = disableInput || ( ! hasContent && ! hasPrompt );
@@ -361,7 +382,11 @@ export default function FeaturedImage( {
 		<Button
 			onClick={ handleAccept }
 			variant="primary"
-			disabled={ ! currentImage?.image || currentImage?.generating }
+			disabled={
+				! currentImage?.image ||
+				currentImage?.generating ||
+				currentImage?.image === currentFeaturedMedia?.source_url
+			}
 		>
 			{ __( 'Set as featured image', 'jetpack' ) }
 		</Button>
