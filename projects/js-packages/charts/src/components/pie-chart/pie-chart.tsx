@@ -4,7 +4,7 @@ import clsx from 'clsx';
 import { SVGProps } from 'react';
 import useChartMouseHandler from '../../hooks/use-chart-mouse-handler';
 import { useChartTheme, defaultTheme } from '../../providers/theme';
-import { Tooltip } from '../tooltip';
+import { BaseTooltip } from '../tooltip';
 import styles from './pie-chart.module.scss';
 import type { BaseChartProps, DataPoint } from '../shared/types';
 
@@ -100,7 +100,7 @@ const PieChart = ( {
 				</Group>
 			</svg>
 			{ withTooltips && tooltipOpen && tooltipData && (
-				<Tooltip
+				<BaseTooltip
 					data={ tooltipData }
 					top={ tooltipTop }
 					left={ tooltipLeft }
