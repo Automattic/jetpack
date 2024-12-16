@@ -20,6 +20,7 @@ return [
     // PhanTypeArraySuspiciousNullable : 6 occurrences
     // PhanNoopNew : 5 occurrences
     // PhanParamTooMany : 4 occurrences
+    // PhanTypeMismatchArgumentInternal : 4 occurrences
     // PhanUnextractableAnnotationSuffix : 4 occurrences
     // PhanDeprecatedProperty : 3 occurrences
     // PhanPluginDuplicateExpressionAssignmentOperation : 3 occurrences
@@ -28,11 +29,10 @@ return [
     // PhanUndeclaredClassReference : 3 occurrences
     // PhanUndeclaredGlobalVariable : 3 occurrences
     // PhanEmptyFQSENInCallable : 2 occurrences
-    // PhanPluginMixedKeyNoKey : 2 occurrences
     // PhanTypeArraySuspicious : 2 occurrences
-    // PhanTypeMismatchArgumentInternal : 2 occurrences
     // PhanTypeMismatchDefault : 2 occurrences
     // PhanTypeMissingReturn : 2 occurrences
+    // PhanCoalescingNeverNull : 1 occurrence
     // PhanDeprecatedFunction : 1 occurrence
     // PhanImpossibleTypeComparison : 1 occurrence
     // PhanNonClassMethodCall : 1 occurrence
@@ -69,13 +69,13 @@ return [
         'src/features/marketplace-products-updater/class-marketplace-products-updater.php' => ['PhanTypeMismatchDimFetch', 'PhanTypeMismatchReturn'],
         'src/features/media/heif-support.php' => ['PhanPluginSimplifyExpressionBool'],
         'src/features/newspack-blocks/synced-newspack-blocks/blocks/carousel/view.php' => ['PhanParamTooMany', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchArgument', 'PhanTypeMismatchReturnProbablyReal'],
-        'src/features/newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/class-wp-rest-newspack-articles-controller.php' => ['PhanTypeArraySuspiciousNullable'],
+        'src/features/newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/class-wp-rest-newspack-articles-controller.php' => ['PhanCoalescingNeverNull', 'PhanTypeArraySuspiciousNullable'],
         'src/features/newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/templates/article.php' => ['PhanTypeMismatchArgument', 'PhanUndeclaredGlobalVariable'],
         'src/features/newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/templates/articles-list.php' => ['PhanUndeclaredGlobalVariable'],
         'src/features/newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/templates/articles-loop.php' => ['PhanUndeclaredGlobalVariable'],
         'src/features/newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/view.php' => ['PhanPluginDuplicateExpressionAssignmentOperation', 'PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredClassMethod'],
         'src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks-api.php' => ['PhanParamTooMany', 'PhanTypeMismatchArgument', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredClassMethod', 'PhanUndeclaredFunction', 'PhanUnextractableAnnotationSuffix'],
-        'src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php' => ['PhanDeprecatedProperty', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginDuplicateExpressionAssignmentOperation', 'PhanPluginMixedKeyNoKey', 'PhanPluginRedundantAssignment', 'PhanTypeInvalidLeftOperandOfBitwiseOp', 'PhanTypeInvalidRightOperandOfBitwiseOp', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchProperty', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypeSuspiciousNonTraversableForeach', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassReference', 'PhanUndeclaredConstant', 'PhanUndeclaredFunction'],
+        'src/features/newspack-blocks/synced-newspack-blocks/class-newspack-blocks.php' => ['PhanDeprecatedProperty', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginDuplicateExpressionAssignmentOperation', 'PhanPluginRedundantAssignment', 'PhanTypeInvalidLeftOperandOfBitwiseOp', 'PhanTypeInvalidRightOperandOfBitwiseOp', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchProperty', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypeSuspiciousNonTraversableForeach', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassReference', 'PhanUndeclaredConstant', 'PhanUndeclaredFunction'],
         'src/features/verbum-comments/class-verbum-comments.php' => ['PhanImpossibleTypeComparison', 'PhanNoopNew', 'PhanParamTooMany', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredFunction'],
         'src/features/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-launchpad.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'src/features/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-site-migration-migrate-guru-key.php' => ['PhanUndeclaredClassMethod'],
