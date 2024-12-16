@@ -7,8 +7,6 @@
 
 namespace Automattic\Jetpack\Publicize;
 
-use Automattic\Jetpack\Publicize\Rest_Endpoints\Connections_Controller;
-
 /**
  * Publicize_Assets class.
  */
@@ -19,6 +17,5 @@ class Publicize_Assets {
 	 */
 	public static function configure() {
 		Publicize_Script_Data::configure();
-		new Connections_Controller();
 	}
 }

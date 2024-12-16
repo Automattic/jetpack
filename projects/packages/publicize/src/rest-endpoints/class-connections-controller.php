@@ -297,7 +297,3 @@ class Connections_Controller extends Base_Controller {
 		return $test_results_map;
 	}
 }
-
-if ( Base_Controller::is_wpcom() ) {
-	wpcom_rest_api_v2_load_plugin( Connections_Controller::class );
-}
