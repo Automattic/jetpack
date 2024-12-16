@@ -210,8 +210,8 @@ class Universal {
 	 */
 	public function checkout_process() {
 		global $post;
-		$checkout_page_id = wc_get_page_id( 'checkout' );
-		$cart             = WC()->cart->get_cart();
+		$checkout_page_id 	 = wc_get_page_id( 'checkout' );
+		$cart             	 = WC()->cart->get_cart();
 		$is_in_checkout_page = $checkout_page_id === $post->ID ? 'Yes' : 'No';
 		$session             = WC()->session;
 		if ( is_object( $session ) ) {
