@@ -57,7 +57,7 @@ export default function ScanReport( { dataSource, data, onChangeSelection } ): J
 		},
 		list: {
 			...baseView,
-			fields: [ FIELD_STATUS, FIELD_VERSION ],
+			fields: [ FIELD_STATUS, FIELD_VERSION, FIELD_TYPE ],
 			titleField: FIELD_NAME,
 			mediaField: FIELD_ICON,
 			showMedia: true,
@@ -159,10 +159,6 @@ export default function ScanReport( { dataSource, data, onChangeSelection } ): J
 				enableHiding: false,
 				enableGlobalSearch: true,
 				getValue( { item }: { item: ScanReportExtension } ) {
-					if ( view.type === 'list' && item.type === 'files' ) {
-						return 'Files';
-					}
-
 					return item.name ? item.name : '';
 				},
 			},
