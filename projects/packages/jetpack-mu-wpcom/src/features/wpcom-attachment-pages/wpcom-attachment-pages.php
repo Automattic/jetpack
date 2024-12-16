@@ -13,9 +13,9 @@ declare( strict_types = 1 );
  * @return void
  */
 function wpcom_attachment_pages_settings_init() {
-	add_settings_section( 'wpcom_attachment_pages', esc_html__( 'Attachment pages', 'jetpack-mu-wpcom' ), null, 'media' );
+	add_settings_section( 'wpcom_attachment_pages', esc_html__( 'Attachment pages', 'jetpack-mu-wpcom' ), function () {}, 'media' );
 	add_settings_field( 'wp_attachment_pages_enabled', esc_html__( 'Attachment pages settings', 'jetpack-mu-wpcom' ), 'wpcom_attachment_pages_settings_display', 'media', 'wpcom_attachment_pages' );
-	register_setting( 'media', 'wp_attachment_pages_enabled', 'wpcom_attachment_pages_setting_sanitization' );
+	register_setting( 'media', 'wp_attachment_pages_enabled', array( 'sanitize_callback' => 'wpcom_attachment_pages_setting_sanitization' ) );
 }
 
 add_action( 'admin_init', 'wpcom_attachment_pages_settings_init' );
