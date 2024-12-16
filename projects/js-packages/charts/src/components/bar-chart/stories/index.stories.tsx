@@ -23,21 +23,17 @@ export const Default = Template.bind( {} );
 Default.args = {
 	width: 500,
 	height: 300,
-	showTooltips: false,
+	margin: { top: 20, right: 20, bottom: 40, left: 40 },
+	withTooltips: false,
 	data: data[ 0 ].data,
 };
 
 export const WithTooltips = Template.bind( {} );
 WithTooltips.args = {
 	...Default.args,
-	showTooltips: true,
-	data: [
-		{ label: 'Q1', value: 420 },
-		{ label: 'Q2', value: 650 },
-		{ label: 'Q3', value: 850 },
-		{ label: 'Q4', value: 950 },
-	],
+	withTooltips: true,
 };
+
 WithTooltips.parameters = {
 	docs: {
 		description: {

@@ -5,7 +5,7 @@ export { PieChart } from './components/pie-chart';
 export { PieSemiCircleChart } from './components/pie-semi-circle-chart';
 
 // Chart components
-export { Tooltip } from './components/tooltip';
+export { BaseTooltip } from './components/tooltip';
 
 // Providers
 export { ThemeProvider } from './providers/theme';
@@ -14,4 +14,4 @@ export { ThemeProvider } from './providers/theme';
 
 // Types
 export type * from './components/shared/types';
-export type { TooltipProps } from './components/tooltip/types';
+export type { BaseTooltipProps } from './components/tooltip';
