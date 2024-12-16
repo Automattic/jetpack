@@ -4,14 +4,12 @@ import { useDispatch } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, info, check, lockOutline } from '@wordpress/icons';
 import clsx from 'clsx';
-import { useState, useCallback, useMemo, useContext } from 'react';
-import { NoticeContext } from '../../context/notices/noticeContext';
-import { NOTICE_SITE_CONNECTION_ERROR } from '../../context/notices/noticeTemplates';
+import { useState, useCallback, useMemo } from 'react';
 import { useAllProducts } from '../../data/products/use-product';
-import useProductsByOwnership from '../../data/products/use-products-by-ownership';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import getProductSlugsThatRequireUserConnection from '../../data/utils/get-product-slugs-that-require-user-connection';
 import useAnalytics from '../../hooks/use-analytics';
+import useConnectSite from '../../hooks/use-connect-site';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import cloud from './cloud.svg';
 import emptyAvatar from './empty-avatar.svg';
@@ -210,18 +208,11 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 	const { isRegistered, isUserConnected, userConnectionData } = useMyJetpackConnection( {
 		redirectUri,
 	} );
-	const { handleRegisterSite, siteIsRegistering } = useMyJetpackConnection( {
+	const { siteIsRegistering } = useMyJetpackConnection( {
 		skipUserConnection: true,
 		redirectUri,
 	} );
-	const { setNotice, resetNotice } = useContext( NoticeContext );
-	const { lifecycleStats, siteSuffix, adminUrl } = getMyJetpackWindowInitialState();
-	const connectAfterCheckoutUrl = `?connect_after_checkout=true&admin_url=${ encodeURIComponent(
-		adminUrl
-	) }&from_site_slug=${ siteSuffix }&source=my-jetpack`;
-	const query = `${ connectAfterCheckoutUrl }${ redirectUri }&unlinked=1`;
-	const jetpackPlansPath = getRedirectUrl( 'jetpack-my-jetpack-site-only-plans', { query } );
-	const { refetch: refetchOwnershipData } = useProductsByOwnership();
+	const { lifecycleStats } = getMyJetpackWindowInitialState();
 	const { recordEvent } = useAnalytics();
 	const [ isManageConnectionDialogOpen, setIsManageConnectionDialogOpen ] = useState( false );
 	const { setConnectionStatus, setUserIsConnecting } = useDispatch( CONNECTION_STORE_ID );
@@ -298,39 +289,13 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 		[ connectUserFn, recordEvent, tracksEventData ]
 	);
 
-	const handleConnectSite = useCallback(
-		async ( e: MouseEvent< HTMLButtonElement > ) => {
-			e && e.preventDefault();
-			window.scrollTo( {
-				top: 0,
-				left: 0,
-				behavior: 'smooth',
-			} );
-			recordEvent( 'jetpack_myjetpack_connection_connect_site_click', tracksEventData );
-
-			try {
-				await handleRegisterSite();
-
-				recordEvent( 'jetpack_myjetpack_connection_connect_site_success', tracksEventData );
-
-				// Redirect user to the plans page after connection
-				window.location.href = jetpackPlansPath;
-			} catch {
-				setNotice( NOTICE_SITE_CONNECTION_ERROR, resetNotice );
-			} finally {
-				refetchOwnershipData();
-			}
+	const { connectSite: handleConnectSite } = useConnectSite( {
+		tracksInfo: {
+			event: 'jetpack_myjetpack_connection_connect_site',
+			properties: tracksEventData,
 		},
-		[
-			handleRegisterSite,
-			jetpackPlansPath,
-			recordEvent,
-			refetchOwnershipData,
-			resetNotice,
-			setNotice,
-			tracksEventData,
-		]
-	);
+		shouldScrollToTop: true,
+	} );
 
 	const getConnectionLineStyles = () => {
 		if ( isRegistered ) {
