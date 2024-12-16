@@ -168,4 +168,17 @@ if [[ -n $ent_compat_needed ]]; then
 	echo 'Detected the below instances:'
 	echo "$ent_compat_needed"
 fi
+
+# Generate PHPCS config file.
+echo "Generating .phpcs.dir.xml..."
+cat > "$TARGET"/.phpcs.dir.xml <<EOF
+<?xml version="1.0"?>
+<ruleset>
+
+	<rule ref="MediaWiki.Usage.ForbiddenFunctions">
+		<exclude name="MediaWiki.Usage.ForbiddenFunctions.isset"/>
+	</rule>
+
+</ruleset>
+EOF
 echo Sync done.
