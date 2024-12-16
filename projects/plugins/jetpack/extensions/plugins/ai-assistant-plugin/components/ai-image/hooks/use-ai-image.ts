@@ -42,11 +42,13 @@ export default function useAiImage( {
 	type,
 	cost,
 	autoStart = true,
+	previousImages,
 }: {
 	feature: AiImageFeature;
 	type: AiImageType;
 	cost: number;
 	autoStart?: boolean;
+	previousImages?: CarrouselImages;
 } ) {
 	const { generateImageWithParameters } = useImageGenerator();
 	const { increaseRequestsCount, featuresControl } = useAiFeature();
@@ -54,9 +56,11 @@ export default function useAiImage( {
 	const { createNotice } = useDispatch( 'core/notices' );
 
 	/* Images Control */
-	const pointer = useRef( 0 );
+	const pointer = useRef( previousImages ? 1 : 0 );
 	const [ current, setCurrent ] = useState( 0 );
-	const [ images, setImages ] = useState< CarrouselImages >( [ { generating: autoStart } ] );
+	const [ images, setImages ] = useState< CarrouselImages >(
+		previousImages || [ { generating: autoStart } ]
+	);
 
 	// map feature-to-control prop, if this goes over 2 options, make a hook for it
 	const featureControl = feature === FEATURED_IMAGE_FEATURE_NAME ? 'featured-image' : 'image';
@@ -213,7 +217,7 @@ export default function useAiImage( {
 
 	const handlePreviousImage = useCallback( () => {
 		setCurrent( Math.max( current - 1, 0 ) );
-	}, [ current, setCurrent ] );
+	}, [ current ] );
 
 	const handleNextImage = useCallback( () => {
 		setCurrent( Math.min( current + 1, images.length - 1 ) );
