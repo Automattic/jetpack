@@ -18,7 +18,7 @@ function wpcom_attachment_pages_settings_init() {
 	register_setting( 'media', 'wp_attachment_pages_enabled', array( 'sanitize_callback' => 'wpcom_attachment_pages_setting_sanitization' ) );
 }
 
-add_action( 'admin_init', 'wpcom_attachment_pages_settings_init' );
+add_action( 'admin_init', 'wpcom_attachment_pages_settings_init', 11 );
 
 /**
  * Renders the attachment pages settings section.
