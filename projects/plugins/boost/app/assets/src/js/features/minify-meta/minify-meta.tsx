@@ -4,10 +4,12 @@ import { type Props, useMetaQuery } from '$lib/stores/minify';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import styles from './minify-meta.module.scss';
 import CollapsibleMeta from '$features/ui/collapsible-meta/collapsible-meta';
+import { useNotices } from '$features/notice/context';
 
 const MetaComponent = ( { buttonText, placeholder, datasyncKey }: Props ) => {
 	const [ values, updateValues ] = useMetaQuery( datasyncKey );
 	const [ inputValue, setInputValue ] = useState( () => values.join( ', ' ) );
+	const { setNotice } = useNotices();
 
 	const concatenateType = datasyncKey === 'minify_js_excludes' ? 'js' : 'css';
 	const togglePanelTracksEvent = 'concatenate_' + concatenateType + '_panel_toggle'; // possible events: concatenate_js_panel_toggle, concatenate_css_panel_toggle
@@ -30,7 +32,30 @@ const MetaComponent = ( { buttonText, placeholder, datasyncKey }: Props ) => {
 		 */
 		recordBoostEvent( 'concatenate_' + concatenateType + '_exceptions_save_clicked', {} );
 
-		updateValues( inputValue );
+		const noticeId = `minify-meta-${ datasyncKey }`;
+		// Show saving notice
+		setNotice( {
+			id: noticeId,
+			type: 'pending',
+			message: __( 'Saving…', 'jetpack-boost' ),
+		} );
+
+		try {
+			updateValues( inputValue );
+			// Show success notice
+			setNotice( {
+				id: noticeId,
+				type: 'success',
+				message: __( 'Changes saved.', 'jetpack-boost' ),
+			} );
+		} catch ( error ) {
+			// Show error notice
+			setNotice( {
+				id: noticeId,
+				type: 'error',
+				message: __( 'An error occurred while saving changes. Please try again.', 'jetpack-boost' ),
+			} );
+		}
 	}
 
 	const htmlId = `jb-minify-meta-${ datasyncKey }`;
