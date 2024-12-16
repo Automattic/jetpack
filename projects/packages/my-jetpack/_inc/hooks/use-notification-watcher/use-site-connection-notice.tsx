@@ -19,11 +19,11 @@ type RedBubbleAlerts = Window[ 'myJetpackInitialState' ][ 'redBubbleAlerts' ];
 const useSiteConnectionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 	const { recordEvent } = useAnalytics();
 	const { setNotice, resetNotice } = useContext( NoticeContext );
-	const { siteIsRegistering } = useMyJetpackConnection( {
+	const { siteIsRegistering, isSiteConnected } = useMyJetpackConnection( {
 		skipUserConnection: true,
 	} );
 	const products = useAllProducts();
-	const navToConnection = useMyJetpackNavigate( MyJetpackRoutes.Connection );
+	const navToConnection = useMyJetpackNavigate( MyJetpackRoutes.ConnectionSkipPricing );
 	const redBubbleSlug = 'missing-connection';
 	const connectionError = redBubbleAlerts[ redBubbleSlug ];
 	const { connectSite } = useConnectSite( {
@@ -48,9 +48,9 @@ const useSiteConnectionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 			if ( requiresUserConnection ) {
 				recordEvent( 'jetpack_my_jetpack_user_connection_notice_cta_click' );
 				navToConnection();
+			} else {
+				connectSite( e );
 			}
-
-			connectSite( e );
 		};
 
 		const oneProductMessage = sprintf(
@@ -121,6 +121,7 @@ const useSiteConnectionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 			options: noticeOptions,
 		} );
 	}, [
+		isSiteConnected,
 		connectSite,
 		navToConnection,
 		products,

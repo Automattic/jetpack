@@ -66,7 +66,7 @@ const ConnectedProductCard: FC< ConnectedProductCardProps > = ( {
 		manageUrl,
 	} = detail;
 
-	const navigateToConnectionPage = useMyJetpackNavigate( MyJetpackRoutes.Connection );
+	const navigateToConnectionPage = useMyJetpackNavigate( MyJetpackRoutes.ConnectionSkipPricing );
 
 	/*
 	 * Redirect only if connected

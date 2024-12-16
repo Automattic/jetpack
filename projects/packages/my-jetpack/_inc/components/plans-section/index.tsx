@@ -178,7 +178,7 @@ const PlanSectionFooter: FC< PlanSectionHeaderAndFooterProps > = ( { numberOfPur
 		recordEvent( 'jetpack_myjetpack_plans_purchase_click' );
 	}, [ recordEvent ] );
 
-	const navigateToConnectionPage = useMyJetpackNavigate( MyJetpackRoutes.Connection );
+	const navigateToConnectionPage = useMyJetpackNavigate( MyJetpackRoutes.ConnectionSkipPricing );
 	const activateLicenseClickHandler = useCallback( () => {
 		recordEvent( 'jetpack_myjetpack_activate_license_click' );
 		if ( ! isUserConnected ) {
