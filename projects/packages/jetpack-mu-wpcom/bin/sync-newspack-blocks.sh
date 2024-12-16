@@ -14,7 +14,7 @@ fi
 
 # pick up value considering that the argument
 # has the --key=value shape.
-key_value=$(echo ${1} | cut -d'=' -f 2)
+key_value=$(echo "${1}" | cut -d'=' -f 2)
 # Set mode depending on first argument
 if [[ $1 =~ ^--release= ]]
 then
@@ -52,7 +52,6 @@ then
 fi
 
 TARGET=./src/features/newspack-blocks/synced-newspack-blocks
-ENTRY=./src/features/newspack-blocks/index.php
 
 if [[ ( "$MODE" != "path" ) && ( "$MODE" != "npm" ) ]];
 then
@@ -67,15 +66,15 @@ then
 	fi
 
 	# make a temp directory
-	TEMP_DIR=`mktemp -d`
+	TEMP_DIR=$(mktemp -d)
 	CODE=$TEMP_DIR/code
 
 	# download zip file
-	echo Downloading $MODE $NAME into $TEMP_DIR
-	(cd $TEMP_DIR && curl -L --fail -s -O $URL)
+	echo "Downloading $MODE $NAME into $TEMP_DIR"
+	(cd "$TEMP_DIR" && curl -L --fail -s -O "$URL")
 
 	# handle download error
-	ZIPS=( $TEMP_DIR/*.zip )
+	ZIPS=( "$TEMP_DIR"/*.zip )
 	ZIP=${ZIPS[0]}
 	if [ ! -f "$ZIP" ]; then
 		echo "Tried to download $URL"
@@ -90,13 +89,13 @@ then
 	fi
 
 	# extract zip
-	echo Extracting into $CODE
-	mkdir -p $CODE
-	unzip -q $ZIP -d $CODE
+	echo "Extracting into $CODE"
+	mkdir -p "$CODE"
+	unzip -q "$ZIP" -d "$CODE"
 
 	# find the main file and use its directory as the root of our source dir
-	MAIN_FILE=`find $CODE -name "newspack-blocks.php"`
-	CODE=`dirname $MAIN_FILE`
+	MAIN_FILE=$(find "$CODE" -name "newspack-blocks.php")
+	CODE=$(dirname "$MAIN_FILE")
 
 	# handle unzip error
 	if [ ! -f "$CODE/newspack-blocks.php" ]; then
@@ -128,17 +127,17 @@ mkdir -p $TARGET/shared
 mkdir -p $TARGET/types
 
 # copy files and directories
-NEW_VERSION=v`jq -r .version $CODE/package.json`
+NEW_VERSION=v$(jq -r .version "$CODE"/package.json)
 echo "$NEW_VERSION" > $TARGET/version.txt
-cp $CODE/includes/class-newspack-blocks-api.php $TARGET/
-cp $CODE/includes/class-newspack-blocks.php $TARGET/
-cp -R $CODE/src/blocks/homepage-articles $TARGET/blocks/
-cp -R $CODE/src/blocks/carousel $TARGET/blocks/
-cp -R $CODE/src/shared $TARGET/
-cp -R $CODE/src/components $TARGET/
+cp "$CODE"/includes/class-newspack-blocks-api.php $TARGET/
+cp "$CODE"/includes/class-newspack-blocks.php $TARGET/
+cp -R "$CODE"/src/blocks/homepage-articles $TARGET/blocks/
+cp -R "$CODE"/src/blocks/carousel $TARGET/blocks/
+cp -R "$CODE"/src/shared $TARGET/
+cp -R "$CODE"/src/components $TARGET/
 
 # Get Typescript working by copying the main type defs over.
-cp $CODE/src/types/index.d.ts $TARGET/types/
+cp "$CODE"/src/types/index.d.ts $TARGET/types/
 # Function types need to be capitalized in our system. We only match " function"
 # beginning with a space to avoid matching it as a substring. (Not perfect, but
 # imperfections will be caught by CI with failing tsc, etc.)
@@ -156,15 +155,16 @@ echo "Changing PHP textdomain to match jetpack-mu-wpcom..."
 
 # Add textdomain to block.json
 echo "Adding textdomain to all block.json files..."
-for block_json_file in src/features/newspack-blocks/synced-newspack-blocks/blocks/*/block.json; do
+for block_json_file in "$TARGET"/blocks/*/block.json; do
 	TMPFILE=$(mktemp)
 	jq --tab '. += {"textdomain": "jetpack-mu-wpcom"}' "$block_json_file" > "$TMPFILE"
 	mv "$TMPFILE" "$block_json_file"
 done
 
-ent_compat_needed=$(grep -nio 'html_entity_decode\|htmlentities' $(git diff --name-only|sed 's|projects/packages/jetpack-mu-wpcom/||'))
+echo "Ensure htmlentities and html_entity_decode use 'ENT_COMPAT'."
+ent_compat_needed=$(grep -rino htmlentities --include="$TARGET/*.php")
 if [[ -n $ent_compat_needed ]]; then
-	echo "Ensure htmlentities and html_entity_decode use 'ENT_COMPAT'. Detected the below instances:"
+	echo 'Detected the below instances:'
 	echo "$ent_compat_needed"
 fi
 echo Sync done.
