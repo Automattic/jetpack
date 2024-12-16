@@ -8,7 +8,6 @@
 namespace Automattic\Woocommerce_Analytics;
 
 use WC_Order;
-use WC_Payment_Gateway;
 use WC_Product;
 
 /**
@@ -213,24 +212,10 @@ class Universal {
 		global $post;
 		$checkout_page_id = wc_get_page_id( 'checkout' );
 		$cart             = WC()->cart->get_cart();
-
-		$enabled_payment_options = array_filter(
-			WC()->payment_gateways->get_available_payment_gateways(),
-			function ( $payment_gateway ) {
-				if ( ! $payment_gateway instanceof WC_Payment_Gateway ) {
-					return false;
-				}
-
-				return $payment_gateway->is_available();
-			}
-		);
-
-		$enabled_payment_options = array_keys( $enabled_payment_options );
-
 		$is_in_checkout_page = $checkout_page_id === $post->ID ? 'Yes' : 'No';
 		$session             = WC()->session;
 		if ( is_object( $session ) ) {
-			$session->set( 'checkout_page_used', true );
+			$session->set( 'checkout_page_used', 'Yes' === $is_in_checkout_page );
 			$session->save_data();
 		}
 
@@ -257,66 +242,7 @@ class Universal {
 			}
 
 			$data['pq'] = $cart_item['quantity'];
-
-			$properties = $this->process_event_properties(
-				'woocommerceanalytics_product_checkout',
-				$data,
-				$product->get_id()
-			);
-
-			wc_enqueue_js(
-				"
-				var cartItem_{$cart_item_key}_logged = false;
-				var properties = {$properties};
-				// Check if jQuery is available
-				if ( typeof jQuery !== 'undefined' ) {
-					// This is only triggered on the checkout shortcode.
-					jQuery( document.body ).on( 'init_checkout', function () {
-						if ( true === cartItem_{$cart_item_key}_logged ) {
-							return;
-						}
-						if ( typeof wp !== 'undefined' && typeof wp.hooks !== 'undefined' && typeof wp.hooks.addAction === 'function' ) {
-							wp.hooks.addAction( 'wcpay.payment-request.availability', 'wcpay', function ( args ) {
-								properties.express_checkout = args.paymentRequestType;
-							} );
-						}
-						properties.checkout_page_contains_checkout_block = '0';
-						properties.checkout_page_contains_checkout_shortcode = '1';
-
-						_wca.push( properties );
-						cartItem_{$cart_item_key}_logged = true;
-
-					} );
-				}
-
-				if (
-					typeof wp !== 'undefined' &&
-					typeof wp.data !== 'undefined' &&
-					typeof wp.data.subscribe !== 'undefined'
-				) {
-					wp.data.subscribe( function () {
-						if ( true === cartItem_{$cart_item_key}_logged ) {
-							return;
-						}
-
-						const checkoutDataStore = wp.data.select( 'wc/store/checkout' );
-						// Ensures we're not in Cart, but in Checkout page.
-						if (
-							typeof checkoutDataStore !== 'undefined' &&
-							checkoutDataStore.getOrderId() !== 0
-						) {
-							properties.express_checkout = Object.keys( wc.wcBlocksRegistry.getExpressPaymentMethods() );
-							properties.checkout_page_contains_checkout_block = '1';
-							properties.checkout_page_contains_checkout_shortcode = '0';
-
-							_wca.push( properties );
-							cartItem_{$cart_item_key}_logged = true;
-						}
-					} );
-				}
-			"
-			);
-
+            $this->record_event('woocommerceanalytics_product_checkout', $data, $product->get_id() );
 		}
 	}
 
