@@ -66,6 +66,7 @@ const BarChart: FC< BarChartProps > = ( {
 	const xMax = width - margins.left - margins.right;
 	const yMax = height - margins.top - margins.bottom;
 
+	// Create scales
 	const xScale = scaleBand< string >( {
 		range: [ 0, xMax ],
 		domain: data.map( d => d.label ),
@@ -103,19 +104,21 @@ const BarChart: FC< BarChartProps > = ( {
 	);
 
 	// Create legend items from data and theme colors
-	const legendItems: LegendItem[] = data.map( ( item, index ) => ( {
+	const legendItems: LegendItem[] = data.map( item => ( {
 		label: item.label,
-		value: item.value,
-		color: theme.colors[ index % theme.colors.length ],
+		value: item.value.toString(),
+		color: theme.colors[ 0 ],
 	} ) );
 
-	// Calculate chart dimensions accounting for legend
-	const legendHeight = showLegend && legendOrientation === 'horizontal' ? 50 : 0;
-	const chartHeight = height - legendHeight;
-
 	return (
-		<div className={ clsx( 'bar-chart', styles[ 'bar-chart' ] ) }>
-			<svg width={ width } height={ chartHeight }>
+		<div
+			className={ clsx(
+				'bar-chart',
+				styles[ 'bar-chart' ],
+				showLegend && styles[ `bar-chart--with-${ legendOrientation }-legend` ]
+			) }
+		>
+			<svg width={ width } height={ height }>
 				<Group left={ margins.left } top={ margins.top }>
 					{ data.map( d => (
 						<Bar
@@ -129,6 +132,8 @@ const BarChart: FC< BarChartProps > = ( {
 							onMouseLeave={ handleMouseLeave }
 						/>
 					) ) }
+
+					{ /* Axes */ }
 					<AxisLeft scale={ yScale } />
 					<AxisBottom scale={ xScale } top={ yMax } />
 				</Group>
