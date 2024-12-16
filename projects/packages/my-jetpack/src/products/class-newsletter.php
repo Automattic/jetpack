@@ -45,6 +45,13 @@ class Newsletter extends Module_Product {
 	public static $module_name = 'subscriptions';
 
 	/**
+	 * Whether this module is a Jetpack feature
+	 *
+	 * @var boolean
+	 */
+	public static $is_feature = true;
+
+	/**
 	 * Whether this product requires a user connection
 	 *
 	 * @var string

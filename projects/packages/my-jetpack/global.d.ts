@@ -33,18 +33,15 @@ type JetpackModule =
 	| 'extras'
 	| 'ai'
 	| 'jetpack-ai'
-	| 'protect'
 	| 'scan'
 	| 'search'
 	| 'social'
-	| 'stats'
-	| 'videopress'
 	| 'security'
+	| 'protect'
+	| 'videopress'
+	| 'stats'
 	| 'growth'
-	| 'complete'
-	| 'site-accelerator'
-	| 'newsletter'
-	| 'related-posts';
+	| 'complete';
 
 type ThreatItem = {
 	// Protect API properties (free plan)
