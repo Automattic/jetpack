@@ -161,14 +161,6 @@ for block_json_file in "$TARGET"/blocks/*/block.json; do
 	mv "$TMPFILE" "$block_json_file"
 done
 
-# Warn about the need to use ENT_COMPAT.
-echo "Ensure htmlentities and html_entity_decode use 'ENT_COMPAT'!"
-ent_compat_needed=$(grep -rino 'html_entity_decode\|htmlentities' --include="$TARGET/*.php")
-if [[ -n $ent_compat_needed ]]; then
-	echo 'Detected the below instances:'
-	echo "$ent_compat_needed"
-fi
-
 # Generate PHPCS config file.
 echo "Generating .phpcs.dir.xml..."
 cat > "$TARGET"/.phpcs.dir.xml <<EOF
@@ -181,4 +173,16 @@ cat > "$TARGET"/.phpcs.dir.xml <<EOF
 
 </ruleset>
 EOF
+
+echo "Updating Phan baseline..."
+jetpack phan --update-baseline packages/jetpack-mu-wpcom
+
+# Warn about the need to use ENT_COMPAT.
+echo "Please ensure htmlentities and html_entity_decode use 'ENT_COMPAT'!"
+ent_compat_needed=$(grep -rino 'html_entity_decode\|htmlentities' --include="$TARGET/*.php")
+if [[ -n $ent_compat_needed ]]; then
+	echo 'Detected the below instances:'
+	echo "$ent_compat_needed"
+fi
+
 echo Sync done.
