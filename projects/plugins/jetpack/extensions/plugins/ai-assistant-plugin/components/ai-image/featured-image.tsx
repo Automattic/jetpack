@@ -5,6 +5,7 @@ import { ImageStyle } from '@automattic/jetpack-ai-client';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
+import { store as editorStore } from '@wordpress/editor';
 import { useCallback, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import debugFactory from 'debug';
@@ -50,15 +51,12 @@ export default function FeaturedImage( {
 	);
 	const siteType = useSiteType();
 	const postContent = usePostContent();
-	const { postTitle, postFeaturedMedia } = useSelect(
-		( select: ( store: keyof SelectState ) => EditorSelectors ) => {
-			return {
-				postTitle: select( 'core/editor' ).getEditedPostAttribute( 'title' ),
-				postFeaturedMedia: select( 'core/editor' ).getEditedPostAttribute( 'featured_media' ),
-			};
-		},
-		[]
-	);
+	const { postTitle, postFeaturedMedia } = useSelect( select => {
+		return {
+			postTitle: select( editorStore ).getEditedPostAttribute( 'title' ),
+			postFeaturedMedia: select( editorStore ).getEditedPostAttribute( 'featured_media' ),
+		};
+	}, [] );
 	const { saveToMediaLibrary } = useSaveToMediaLibrary();
 	const { tracks } = useAnalytics();
 	const { recordEvent } = tracks;
@@ -71,7 +69,7 @@ export default function FeaturedImage( {
 	const { toggleEditorPanelOpened: toggleEditorPanelOpenedFromEditPost } =
 		useDispatch( 'core/edit-post' );
 	const { editPost, toggleEditorPanelOpened: toggleEditorPanelOpenedFromEditor } =
-		useDispatch( 'core/editor' );
+		useDispatch( editorStore );
 
 	// Get feature data
 	const { requireUpgrade, requestsCount, requestsLimit, currentTier, costs } = useAiFeature();
