@@ -245,6 +245,7 @@ interface Window {
 				plugins: ScanItem[];
 				status: string;
 				themes: ScanItem[];
+				threats: ThreatItem[];
 			};
 			wafConfig: {
 				automatic_rules_available: boolean;
@@ -365,9 +366,12 @@ interface Window {
 				};
 			};
 			backup_failure?: {
-				source: 'rewind' | 'last_backup';
-				status: string;
-				last_updated: string;
+				type: 'warning' | 'error';
+				data: {
+					source: 'rewind' | 'last_backup';
+					status: string;
+					last_updated: string;
+				};
 			};
 			[ key: `${ string }--plan_expired` ]: {
 				product_slug: string;

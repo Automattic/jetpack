@@ -210,18 +210,62 @@ const ActionButton: FC< ActionButtonProps > = ( {
 						PRODUCT_STATUSES.EXPIRED in primaryActionOverride &&
 						primaryActionOverride[ PRODUCT_STATUSES.EXPIRED ] ),
 				};
-			case PRODUCT_STATUSES.NEEDS_ATTENTION:
-				return {
+			case PRODUCT_STATUSES.NEEDS_ATTENTION__ERROR: {
+				const defaultButton: Partial< SecondaryButtonProps > = {
 					...buttonState,
-					href: troubleshootBackupsUrl,
+					href: manageUrl,
 					variant: 'primary',
 					label: __( 'Troubleshoot', 'jetpack-my-jetpack' ),
 					...( primaryActionOverride &&
-						PRODUCT_STATUSES.NEEDS_ATTENTION in primaryActionOverride &&
-						primaryActionOverride[ PRODUCT_STATUSES.NEEDS_ATTENTION ] ),
+						PRODUCT_STATUSES.NEEDS_ATTENTION__ERROR in primaryActionOverride &&
+						primaryActionOverride[ PRODUCT_STATUSES.NEEDS_ATTENTION__ERROR ] ),
 				};
+				switch ( slug ) {
+					case 'backup':
+						return {
+							...defaultButton,
+							href: troubleshootBackupsUrl,
+						};
+					case 'protect':
+						return {
+							...defaultButton,
+							label: __( 'Fix threats', 'jetpack-my-jetpack' ),
+						};
+					default:
+						return {
+							...defaultButton,
+						};
+				}
+			}
+			case PRODUCT_STATUSES.NEEDS_ATTENTION__WARNING: {
+				const defaultButton: Partial< SecondaryButtonProps > = {
+					...buttonState,
+					href: manageUrl,
+					variant: 'primary',
+					label: __( 'Troubleshoot', 'jetpack-my-jetpack' ),
+					...( primaryActionOverride &&
+						PRODUCT_STATUSES.NEEDS_ATTENTION__WARNING in primaryActionOverride &&
+						primaryActionOverride[ PRODUCT_STATUSES.NEEDS_ATTENTION__WARNING ] ),
+				};
+				switch ( slug ) {
+					case 'protect':
+						return {
+							...defaultButton,
+							label: __( 'Fix threats', 'jetpack-my-jetpack' ),
+						};
+					default:
+						return {
+							...defaultButton,
+						};
+				}
+			}
 			default:
-				return null;
+				return {
+					...buttonState,
+					href: purchaseUrl || `#/add-${ slug }`,
+					label: __( 'Learn more', 'jetpack-my-jetpack' ),
+					onClick: onAdd,
+				};
 		}
 	}, [
 		status,

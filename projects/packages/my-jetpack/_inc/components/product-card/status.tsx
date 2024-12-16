@@ -6,15 +6,20 @@ import styles from './style.module.scss';
 import type { FC } from 'react';
 
 interface StatusProps {
+	slug: JetpackModule;
 	status: ProductStatus;
 	isFetching: boolean;
 	isInstallingStandalone: boolean;
 	isOwned: boolean;
 }
 
-type StatusStateFunction = ( status: ProductStatus, isOwned: boolean ) => string;
+type StatusStateFunction = (
+	slug: JetpackModule,
+	status: ProductStatus,
+	isOwned: boolean
+) => string;
 
-const getStatusLabel: StatusStateFunction = ( status, isOwned ) => {
+const getStatusLabel: StatusStateFunction = ( slug, status, isOwned ) => {
 	switch ( status ) {
 		case PRODUCT_STATUSES.ACTIVE:
 		case PRODUCT_STATUSES.CAN_UPGRADE:
@@ -40,14 +45,18 @@ const getStatusLabel: StatusStateFunction = ( status, isOwned ) => {
 			const inactiveText = __( 'Inactive', 'jetpack-my-jetpack' );
 			return isOwned ? needsPlanText : inactiveText;
 		}
-		case PRODUCT_STATUSES.NEEDS_ATTENTION:
+		case PRODUCT_STATUSES.NEEDS_ATTENTION__WARNING:
+		case PRODUCT_STATUSES.NEEDS_ATTENTION__ERROR:
+			if ( slug === 'protect' ) {
+				return __( 'Active', 'jetpack-my-jetpack' );
+			}
 			return __( 'Needs attention', 'jetpack-my-jetpack' );
 		default:
 			return __( 'Inactive', 'jetpack-my-jetpack' );
 	}
 };
 
-const getStatusClassName: StatusStateFunction = ( status, isOwned ) => {
+const getStatusClassName: StatusStateFunction = ( slug, status, isOwned ) => {
 	switch ( status ) {
 		case PRODUCT_STATUSES.ACTIVE:
 		case PRODUCT_STATUSES.CAN_UPGRADE:
@@ -64,16 +73,30 @@ const getStatusClassName: StatusStateFunction = ( status, isOwned ) => {
 		case PRODUCT_STATUSES.NEEDS_PLAN:
 			return isOwned ? styles.warning : styles.inactive;
 		case PRODUCT_STATUSES.EXPIRED:
-		case PRODUCT_STATUSES.NEEDS_ATTENTION:
+		case PRODUCT_STATUSES.NEEDS_ATTENTION__WARNING:
+			if ( slug === 'protect' ) {
+				return styles.active;
+			}
+			return styles.warning;
+		case PRODUCT_STATUSES.NEEDS_ATTENTION__ERROR:
+			if ( slug === 'protect' ) {
+				return styles.active;
+			}
 			return styles.error;
 		default:
 			return styles.inactive;
 	}
 };
 
-const Status: FC< StatusProps > = ( { status, isFetching, isInstallingStandalone, isOwned } ) => {
-	const flagLabel = getStatusLabel( status, isOwned );
-	const statusClassName = clsx( styles.status, getStatusClassName( status, isOwned ), {
+const Status: FC< StatusProps > = ( {
+	slug,
+	status,
+	isFetching,
+	isInstallingStandalone,
+	isOwned,
+} ) => {
+	const flagLabel = getStatusLabel( slug, status, isOwned );
+	const statusClassName = clsx( styles.status, getStatusClassName( slug, status, isOwned ), {
 		[ styles[ 'is-fetching' ] ]: isFetching || isInstallingStandalone,
 	} );
 

@@ -14,7 +14,10 @@ const useBackupNeedsAttentionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 	const { recordEvent } = useAnalytics();
 	const { setNotice } = useContext( NoticeContext );
 
-	const { status, last_updated: lastUpdated } = redBubbleAlerts?.backup_failure || {};
+	const {
+		type,
+		data: { status, last_updated: lastUpdated },
+	} = redBubbleAlerts?.backup_failure || { type: 'error', data: {} };
 
 	const {
 		timezone: { offset },
@@ -81,7 +84,7 @@ const useBackupNeedsAttentionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 
 		const noticeOptions: NoticeOptions = {
 			id: 'backup-needs-attention-notice',
-			level: 'error',
+			level: type,
 			actions: [
 				{
 					label: __( 'Read troubleshooting guide', 'jetpack-my-jetpack' ),
@@ -110,6 +113,7 @@ const useBackupNeedsAttentionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 		onSecondaryCtaClick,
 		noticeTitle,
 		backupStatusLastUpdatedDate,
+		type,
 	] );
 };
 
