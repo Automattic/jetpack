@@ -29,7 +29,10 @@ export const BaseLegend: FC< LegendProps > = ( {
 	} );
 
 	return (
-		<div className={ clsx( styles.legend, className ) } role="list">
+		<div
+			className={ clsx( styles.legend, styles[ `legend--${ orientation }` ], className ) }
+			role="list"
+		>
 			<LegendOrdinal
 				scale={ legendScale }
 				direction={ orientationToFlexDirection[ orientation ] }
