@@ -49,3 +49,22 @@ WithTooltips.parameters = {
 		},
 	},
 };
+
+export const WithLegend = {
+	args: {
+		width: 500,
+		height: 350,
+		margin: { top: 20, right: 20, bottom: 40, left: 40 },
+		data,
+		showTooltips: true,
+		showLegend: true,
+		legendOrientation: 'horizontal',
+	},
+};
+
+export const WithVerticalLegend = {
+	args: {
+		...WithLegend.args,
+		legendOrientation: 'vertical',
+	},
+};
