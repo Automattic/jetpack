@@ -6,6 +6,7 @@ import { useTooltip } from '@visx/tooltip';
 import clsx from 'clsx';
 import { FC, useCallback } from 'react';
 import { useChartTheme } from '../../providers/theme/theme-provider';
+import { BaseLegend } from '../legend';
 import { BaseTooltip } from '../tooltip';
 import styles from './pie-semi-circle-chart.module.scss';
 import type { DataPointPercentage } from '../shared/types';
@@ -37,6 +38,14 @@ interface PieSemiCircleChartProps {
 	 * Whether to show tooltips
 	 */
 	showTooltips?: boolean;
+	/**
+	 * Whether to show legend
+	 */
+	showLegend?: boolean;
+	/**
+	 * Orientation of the legend
+	 */
+	legendOrientation?: 'horizontal' | 'vertical';
 }
 
 const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
@@ -46,6 +55,8 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 	label,
 	note,
 	showTooltips = false,
+	showLegend = false,
+	legendOrientation = 'horizontal',
 } ) => {
 	const providerTheme = useChartTheme();
 	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
@@ -95,6 +106,13 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 		},
 		[ handleMouseMove ]
 	);
+
+	// Create legend items
+	const legendItems = data.map( ( item, index ) => ( {
+		label: item.label,
+		value: item.valueDisplay || item.value.toString(),
+		color: accessors.fill( { ...item, index } ),
+	} ) );
 
 	return (
 		<div className={ clsx( 'pie-semi-circle-chart', styles[ 'pie-semi-circle-chart' ] ) }>
@@ -156,6 +174,14 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 					} }
 					top={ tooltipTop }
 					left={ tooltipLeft }
+				/>
+			) }
+
+			{ showLegend && (
+				<BaseLegend
+					items={ legendItems }
+					orientation={ legendOrientation }
+					className={ styles[ 'pie-semi-circle-chart-legend' ] }
 				/>
 			) }
 		</div>
