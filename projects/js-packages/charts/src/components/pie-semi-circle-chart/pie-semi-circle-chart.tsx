@@ -59,9 +59,9 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 
 	const centerX = width / 2;
 	const height = width / 2;
-
 	const radius = width / 2;
-	const innerRadius = radius * ( 1 - thickness );
+	const pad = 0.03;
+	const innerRadius = radius * ( 1 - thickness + pad );
 
 	// Map the data to include index for color assignment
 	const dataWithIndex = data.map( ( d, index ) => ( {
@@ -121,7 +121,7 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 						outerRadius={ radius }
 						innerRadius={ innerRadius }
 						cornerRadius={ 3 }
-						padAngle={ 0.03 }
+						padAngle={ pad }
 						startAngle={ startAngle }
 						endAngle={ endAngle }
 						pieSort={ accessors.sort }
