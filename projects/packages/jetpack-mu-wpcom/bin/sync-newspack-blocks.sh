@@ -154,10 +154,17 @@ pnpm --package=jscodeshift dlx jscodeshift -t ./bin/sync-newspack-blocks-formatt
 echo "Changing PHP textdomain to match jetpack-mu-wpcom..."
 ../../../vendor/bin/phpcbf --standard=./.phpcs.dir.xml --filter=../../../vendor/automattic/jetpack-phpcs-filter/src/PhpcsFilter.php --runtime-set jetpack-filter-no-ignore -q $TARGET
 
-# Add textdomain to any block.json
+# Add textdomain to block.json
+echo "Adding textdomain to all block.json files..."
 for block_json_file in src/features/newspack-blocks/synced-newspack-blocks/blocks/*/block.json; do
 	TMPFILE=$(mktemp)
 	jq --tab '. += {"textdomain": "jetpack-mu-wpcom"}' "$block_json_file" > "$TMPFILE"
 	mv "$TMPFILE" "$block_json_file"
 done
+
+ent_compat_needed=$(grep -nio 'html_entity_decode\|htmlentities' $(git diff --name-only|sed 's|projects/packages/jetpack-mu-wpcom/||'))
+if [[ -n $ent_compat_needed ]]; then
+	echo "Ensure htmlentities and html_entity_decode use 'ENT_COMPAT'. Detected the below instances:"
+	echo "$ent_compat_needed"
+fi
 echo Sync done.
