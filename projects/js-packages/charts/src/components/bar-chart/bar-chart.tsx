@@ -7,8 +7,10 @@ import { useTooltip } from '@visx/tooltip';
 import clsx from 'clsx';
 import { FC, useCallback } from 'react';
 import { useChartTheme } from '../../providers/theme';
+import { BaseLegend } from '../legend';
 import { BaseTooltip } from '../tooltip';
 import styles from './bar-chart.module.scss';
+import type { LegendItem } from '../legend/types';
 import type { DataPoint } from '../shared/types';
 
 type BarChartProps = {
@@ -37,6 +39,14 @@ type BarChartProps = {
 	 * Whether to show tooltips on hover
 	 */
 	showTooltips?: boolean;
+	/**
+	 * Whether to show legend
+	 */
+	showLegend?: boolean;
+	/**
+	 * Legend orientation
+	 */
+	legendOrientation?: 'horizontal' | 'vertical';
 };
 
 const BarChart: FC< BarChartProps > = ( {
@@ -45,6 +55,8 @@ const BarChart: FC< BarChartProps > = ( {
 	height,
 	margin = { top: 20, right: 20, bottom: 40, left: 40 },
 	showTooltips = false,
+	showLegend = false,
+	legendOrientation = 'horizontal',
 } ) => {
 	const theme = useChartTheme();
 	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
@@ -90,9 +102,20 @@ const BarChart: FC< BarChartProps > = ( {
 		[ handleMouseMove ]
 	);
 
+	// Create legend items from data and theme colors
+	const legendItems: LegendItem[] = data.map( ( item, index ) => ( {
+		label: item.label,
+		value: item.value,
+		color: theme.colors[ index % theme.colors.length ],
+	} ) );
+
+	// Calculate chart dimensions accounting for legend
+	const legendHeight = showLegend && legendOrientation === 'horizontal' ? 50 : 0;
+	const chartHeight = height - legendHeight;
+
 	return (
 		<div className={ clsx( 'bar-chart', styles[ 'bar-chart' ] ) }>
-			<svg width={ width } height={ height }>
+			<svg width={ width } height={ chartHeight }>
 				<Group left={ margins.left } top={ margins.top }>
 					{ data.map( d => (
 						<Bar
@@ -119,6 +142,14 @@ const BarChart: FC< BarChartProps > = ( {
 					} }
 					top={ tooltipTop }
 					left={ tooltipLeft }
+				/>
+			) }
+
+			{ showLegend && (
+				<BaseLegend
+					items={ legendItems }
+					orientation={ legendOrientation }
+					className={ styles[ 'bar-chart-legend' ] }
 				/>
 			) }
 		</div>
