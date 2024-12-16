@@ -242,7 +242,7 @@ class Universal {
 			}
 
 			$data['pq'] = $cart_item['quantity'];
-			$this->record_event('woocommerceanalytics_product_checkout', $data, $product->get_id() );
+			$this->record_event( 'woocommerceanalytics_product_checkout', $data, $product->get_id() );
 		}
 	}
 
