@@ -57,3 +57,17 @@ WithTooltips.args = {
 	note: 'Windows +10%',
 	showTooltips: true,
 };
+
+export const WithHorizontalLegend = Template.bind( {} );
+WithHorizontalLegend.args = {
+	...Default.args,
+	showLegend: true,
+	legendOrientation: 'horizontal',
+};
+
+export const WithVerticalLegend = Template.bind( {} );
+WithVerticalLegend.args = {
+	...Default.args,
+	showLegend: true,
+	legendOrientation: 'vertical',
+};
