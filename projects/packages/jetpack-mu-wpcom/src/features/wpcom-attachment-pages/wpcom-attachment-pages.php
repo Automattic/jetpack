@@ -10,7 +10,7 @@ declare( strict_types = 1 );
 /**
  * Registers the attachment pages settings section, field, and the setting.
  *
- * @return void.
+ * @return void
  */
 function wpcom_attachment_pages_settings_init() {
 	add_settings_section( 'wpcom_attachment_pages', esc_html__( 'Attachment pages', 'jetpack-mu-wpcom' ), null, 'media' );
@@ -23,7 +23,7 @@ add_action( 'admin_init', 'wpcom_attachment_pages_settings_init' );
 /**
  * Renders the attachment pages settings section.
  *
- * @return void.
+ * @return void
  */
 function wpcom_attachment_pages_settings_display() {
 	printf(
@@ -40,7 +40,7 @@ function wpcom_attachment_pages_settings_display() {
  * on the bool value of the input.
  *
  * @param string|null $value Value provided by the WordPress settings API.
- * @return string. '1' or '0'.
+ * @return string '1' or '0'.
  */
 function wpcom_attachment_pages_setting_sanitization( $value ) {
 	return $value ? '1' : '0';
