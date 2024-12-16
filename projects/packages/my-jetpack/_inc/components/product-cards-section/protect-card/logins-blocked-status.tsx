@@ -10,7 +10,6 @@ import baseStyles from '../style.module.scss';
 import ShieldOff from './assets/shield-off.svg';
 import ShieldPartial from './assets/shield-partial.svg';
 import { useProtectTooltipCopy } from './use-protect-tooltip-copy';
-import type { ReactElement, PropsWithChildren } from 'react';
 
 export const LoginsBlockedStatus = () => {
 	const slug = 'protect';
@@ -43,10 +42,10 @@ export const LoginsBlockedStatus = () => {
 /**
  * BlockedStatus component
  *
- * @param {PropsWithChildren}             props        - The component props
- * @param {'active' | 'inactive' | 'off'} props.status - The status of Brute Force Protection
+ * @param props        - The component props
+ * @param props.status - The status of Brute Force Protection
  *
- * @return {ReactElement} rendered component
+ * @return rendered component
  */
 function BlockedStatus( { status }: { status: 'active' | 'inactive' | 'off' } ) {
 	const {

@@ -5,19 +5,19 @@ const data = [
 	{
 		label: 'Windows',
 		value: 80000,
-		valueDisplay: '$80K',
+		valueDisplay: '80K',
 		percentage: 2,
 	},
 	{
 		label: 'MacOS',
 		value: 30000,
-		valueDisplay: '$30K',
+		valueDisplay: '30K',
 		percentage: 5,
 	},
 	{
 		label: 'Linux',
 		value: 22000,
-		valueDisplay: '$22K',
+		valueDisplay: '22K',
 		percentage: 1,
 	},
 ];
@@ -46,4 +46,14 @@ Default.args = {
 	data,
 	label: 'OS',
 	note: 'Windows +10%',
+};
+
+export const WithTooltips = Template.bind( {} );
+WithTooltips.args = {
+	width: 500,
+	height: 300,
+	data,
+	label: 'OS',
+	note: 'Windows +10%',
+	showTooltips: true,
 };

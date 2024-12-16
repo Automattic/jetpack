@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Fixed lints following ESLint rule changes for TS
