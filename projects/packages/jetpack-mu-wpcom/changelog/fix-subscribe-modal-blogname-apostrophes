@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Subscribe modal: fix an edge case reported by a user, where the site title shows character codes.

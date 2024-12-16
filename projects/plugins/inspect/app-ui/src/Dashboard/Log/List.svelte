@@ -1,8 +1,10 @@
 <script lang="ts">
+	/* eslint-disable import/no-duplicates -- https://github.com/import-js/eslint-plugin-import/issues/2992 */
 	import { onMount } from 'svelte';
 	import { flip } from 'svelte/animate';
 	import { sineInOut, cubicOut } from 'svelte/easing';
 	import { fly } from 'svelte/transition';
+	/* eslint-enable import/no-duplicates */
 	import { API, options } from '../../Options';
 	import { LogEntries } from '../../utils/ZodSchema';
 	import LogEntry from './Entry/Entry.svelte';

@@ -12,7 +12,7 @@ return [
     // PhanTypeMismatchArgument : 450+ occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 260+ occurrences
     // PhanNoopNew : 200+ occurrences
-    // PhanTypeMismatchArgumentProbablyReal : 200+ occurrences
+    // PhanTypeMismatchArgumentProbablyReal : 190+ occurrences
     // PhanTypeMismatchReturn : 150+ occurrences
     // PhanTypeMismatchReturnProbablyReal : 130+ occurrences
     // PhanTypePossiblyInvalidDimOffset : 95+ occurrences
@@ -81,6 +81,7 @@ return [
     // PhanTypeMismatchArgumentInternalProbablyReal : 2 occurrences
     // PhanUndeclaredClassInCallable : 2 occurrences
     // PhanUndeclaredClassMethod : 2 occurrences
+    // PhanCommentParamWithoutRealParam : 1 occurrence
     // PhanDeprecatedPartiallySupportedCallable : 1 occurrence
     // PhanEmptyForeach : 1 occurrence
     // PhanPluginDuplicateSwitchCase : 1 occurrence
@@ -106,7 +107,7 @@ return [
         '_inc/genericons.php' => ['PhanTypeMismatchArgumentProbablyReal'],
         '_inc/lib/admin-pages/class-jetpack-about-page.php' => ['PhanTypeMismatchArgument'],
         '_inc/lib/admin-pages/class-jetpack-redux-state-helper.php' => ['PhanParamTooMany', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanRedundantCondition', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchDimAssignment'],
-        '_inc/lib/admin-pages/class.jetpack-admin-page.php' => ['PhanDeprecatedProperty', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredProperty'],
+        '_inc/lib/admin-pages/class.jetpack-admin-page.php' => ['PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredProperty'],
         '_inc/lib/class-jetpack-ai-helper.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchPropertyDefault'],
         '_inc/lib/class-jetpack-instagram-gallery-helper.php' => ['PhanTypeMismatchArgument'],
         '_inc/lib/class-jetpack-mapbox-helper.php' => ['PhanTypeMismatchArgumentNullable'],
@@ -322,7 +323,6 @@ return [
         'modules/copy-post.php' => ['PhanNoopNew'],
         'modules/custom-content-types.php' => ['PhanRedefineFunction'],
         'modules/custom-post-types/nova.php' => ['PhanTypeExpectedObjectPropAccess', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeSuspiciousNonTraversableForeach'],
-        'modules/custom-post-types/testimonial.php' => ['PhanTypeMismatchArgumentProbablyReal'],
         'modules/geo-location.php' => ['PhanTypeMismatchArgumentNullable'],
         'modules/geo-location/class.jetpack-geo-location.php' => ['PhanTypeMismatchArgument'],
         'modules/google-fonts/current/class-jetpack-google-font-face.php' => ['PhanUndeclaredFunctionInCallable'],

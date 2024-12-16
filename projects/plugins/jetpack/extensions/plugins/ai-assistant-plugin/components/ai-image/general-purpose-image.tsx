@@ -278,7 +278,10 @@ export default function GeneralPurposeImage( {
 			handleNextImage={ handleNextImage }
 			acceptButton={ acceptButton }
 			generateButtonLabel={ pointer?.current > 0 ? generateAgainText : generateText }
-			instructionsPlaceholder={ __( "Describe the image you'd like to create.", 'jetpack' ) }
+			instructionsPlaceholder={ __(
+				"Describe the image you'd like to create and select a style.",
+				'jetpack'
+			) }
 			imageStyles={ imageStyles }
 			onGuessStyle={ guessStyle }
 			prompt={ prompt }

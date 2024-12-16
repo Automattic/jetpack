@@ -25,6 +25,7 @@
 	],
 	"extra": {
 		"mirror-repo": "Automattic/jetpack-connection-js",
+		"textdomain": "jetpack-connection-js",
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-connection-js/compare/v${old}...v${new}"
 		},

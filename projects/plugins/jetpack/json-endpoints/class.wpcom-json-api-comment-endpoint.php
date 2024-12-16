@@ -71,7 +71,17 @@ abstract class WPCOM_JSON_API_Comment_Endpoint extends WPCOM_JSON_API_Endpoint {
 			return new WP_Error( 'unknown_comment', 'Unknown comment', 404 );
 		}
 
-		$types = array( '', 'comment', 'pingback', 'trackback', 'review' );
+		/**
+		 * Filter the comment types that are allowed to be returned.
+		 *
+		 * @since 14.2
+		 *
+		 * @module json-api
+		 *
+		 * @param array $types Array of comment types.
+		 */
+		$types = apply_filters( 'jetpack_json_api_comment_types', array( '', 'comment', 'pingback', 'trackback', 'review' ) );
+
 		// @todo - can we make this comparison strict without breaking anything?
 		// phpcs:ignore WordPress.PHP.StrictInArray.MissingTrueStrict
 		if ( ! in_array( $comment->comment_type, $types ) ) {

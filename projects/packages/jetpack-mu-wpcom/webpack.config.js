@@ -1,4 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/no-var-requires
 const path = require( 'path' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const pkgDir = require( 'pkg-dir' );
@@ -126,6 +125,7 @@ module.exports = [
  * Note this is not the same as looking for `__dirname+'/node_modules/'+pkgName`, as the package may be in a parent
  * `node_modules`
  * @param {string} pkgName - Name of the package to search for.
+ * @return {string} - The absolute path of the package.
  */
 function findPackage( pkgName ) {
 	const fullPath = require.resolve( pkgName );
