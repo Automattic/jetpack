@@ -28,6 +28,8 @@ const trackEvent = ( eventName, isSiteEditor = true ) =>
 
 /**
  * Limited GS notice for the view canvas of the site editor.
+ *
+ * @return {JSX.Element} The component to render.
  */
 function GlobalStylesWarningNotice() {
 	useEffect( () => {
@@ -63,6 +65,8 @@ function GlobalStylesWarningNotice() {
 
 /**
  * Renders a notice in the view canvas of the site editor when GS are limited.
+ *
+ * @return {null} This component is non-rendering.
  */
 function GlobalStylesViewNotice() {
 	const { canvas } = useCanvas();
@@ -105,6 +109,8 @@ function GlobalStylesViewNotice() {
 
 /**
  * Limited GS notice for the edit view of the site editor.
+ *
+ * @return {null} This component is non-rendering.
  */
 function GlobalStylesEditNotice() {
 	const NOTICE_ID = 'wpcom-global-styles/gating-notice';
@@ -251,6 +257,8 @@ function GlobalStylesEditNotice() {
 
 /**
  * Limited GS notices for the site editor.
+ *
+ * @return {JSX.Element} The component to render.
  */
 export default function GlobalStylesNotices() {
 	return (

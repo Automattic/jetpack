@@ -1,13 +1,6 @@
-import { Tooltip } from '../index';
-import type { TooltipProps } from '../types';
+import { BaseTooltip } from '../index';
 import type { Meta } from '@storybook/react';
 
-/**
- * Custom tooltip component example that shows a different layout
- * @param {object}               props      - Component properties
- * @param {TooltipProps['data']} props.data - The data to display in the tooltip
- * @return   {JSX.Element} Custom tooltip content component
- */
 const CustomTooltipContent = ( { data } ) => (
 	<div style={ { padding: '8px' } }>
 		<strong style={ { display: 'block', marginBottom: '4px' } }>{ data.label }</strong>
@@ -17,7 +10,7 @@ const CustomTooltipContent = ( { data } ) => (
 
 export default {
 	title: 'JS Packages/Charts/Tooltip',
-	component: Tooltip,
+	component: BaseTooltip,
 	parameters: {
 		layout: 'centered',
 		docs: {
@@ -45,13 +38,8 @@ export default {
 			control: 'object',
 		},
 	},
-} satisfies Meta< typeof Tooltip >;
+} satisfies Meta< typeof BaseTooltip >;
 
-/**
- * Template with a visible container to better demonstrate positioning
- * @param {object} args - Story arguments
- * @return   {JSX.Element} Story template component
- */
 const Template = args => (
 	<div
 		style={ {
@@ -63,18 +51,7 @@ const Template = args => (
 			background: '#f5f5f5',
 		} }
 	>
-		<div
-			style={ {
-				position: 'absolute',
-				top: '50%',
-				left: '50%',
-				transform: 'translate(-50%, -50%)',
-				color: '#666',
-			} }
-		>
-			Tooltip Container
-		</div>
-		<Tooltip { ...args } />
+		<BaseTooltip { ...args } />
 	</div>
 );
 
@@ -84,14 +61,7 @@ Default.args = {
 	left: 100,
 	data: {
 		label: 'Monthly Sales',
-		value: '$4,200',
-	},
-};
-Default.parameters = {
-	docs: {
-		description: {
-			story: 'Default tooltip implementation with basic styling.',
-		},
+		value: 4200,
 	},
 };
 
@@ -101,42 +71,11 @@ CustomComponent.args = {
 	component: CustomTooltipContent,
 	data: {
 		label: 'Q4 Performance',
-		value: '+27%',
+		value: 27,
 	},
 	style: {
 		backgroundColor: '#fff',
 		color: '#333',
 		boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-	},
-};
-CustomComponent.parameters = {
-	docs: {
-		description: {
-			story: 'Example of a custom tooltip component with different styling and layout.',
-		},
-	},
-};
-
-export const StyledTooltip = Template.bind( {} );
-StyledTooltip.args = {
-	...Default.args,
-	data: {
-		label: 'Active Users',
-		value: '1,234',
-	},
-	style: {
-		backgroundColor: '#2c5282',
-		color: '#fff',
-		padding: '1rem',
-		borderRadius: '8px',
-		fontSize: '16px',
-		fontWeight: 'bold',
-	},
-};
-StyledTooltip.parameters = {
-	docs: {
-		description: {
-			story: 'Tooltip with custom styling applied through the style prop.',
-		},
 	},
 };

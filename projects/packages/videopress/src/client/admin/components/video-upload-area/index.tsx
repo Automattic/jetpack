@@ -13,16 +13,12 @@ import { usePlan } from '../../hooks/use-plan';
 import useSelectVideoFiles from '../../hooks/use-select-video-files';
 import styles from './style.module.scss';
 import { VideoUploadAreaProps } from './types';
-/**
- * Types
- */
-import type { ReactNode } from 'react';
 
 /**
  * Video Upload Area component
  *
  * @param {VideoUploadAreaProps} props - Component props.
- * @return {ReactNode} - VideoUploadArea react component.
+ * @return - VideoUploadArea react component.
  */
 const VideoUploadArea = ( { className, onSelectFiles }: VideoUploadAreaProps ) => {
 	const [ isSm ] = useBreakpointMatch( 'sm' );

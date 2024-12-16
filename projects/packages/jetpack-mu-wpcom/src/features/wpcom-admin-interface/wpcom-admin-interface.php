@@ -116,6 +116,14 @@ function wpcom_admin_interface_pre_update_option( $new_value, $old_value ) {
 }
 add_filter( 'pre_update_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_update_option', 10, 2 );
 
+const WPCOM_DUPLICATED_VIEW = array(
+	'edit.php',
+	'edit.php?post_type=jetpack-portfolio',
+	'edit.php?post_type=jetpack-testimonial',
+	'edit-tags.php?taxonomy=category',
+	'edit-tags.php?taxonomy=post_tag',
+);
+
 /**
  * Get the current screen section.
  *
@@ -148,13 +156,9 @@ function wpcom_admin_get_current_screen() {
  * @return string Filtered wpcom_admin_interface option.
  */
 function wpcom_admin_interface_pre_get_option( $default_value ) {
-	$enabled_screens = array(
-		'edit.php',
-	);
-
 	$current_screen = wpcom_admin_get_current_screen();
 
-	if ( in_array( $current_screen, $enabled_screens, true ) && wpcom_is_duplicate_views_experiment_enabled() ) {
+	if ( in_array( $current_screen, WPCOM_DUPLICATED_VIEW, true ) && wpcom_is_duplicate_views_experiment_enabled() ) {
 		return 'wp-admin';
 	}
 
@@ -177,7 +181,9 @@ function wpcom_admin_get_user_option_jetpack( $value ) {
 		$value = array();
 	}
 
-	$value['edit.php'] = Automattic\Jetpack\Masterbar\Base_Admin_Menu::CLASSIC_VIEW;
+	foreach ( WPCOM_DUPLICATED_VIEW as $path ) {
+		$value[ $path ] = Automattic\Jetpack\Masterbar\Base_Admin_Menu::CLASSIC_VIEW;
+	}
 
 	return $value;
 }
