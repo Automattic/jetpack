@@ -603,6 +603,32 @@ abstract class Publicize_Base {
 	}
 
 	/**
+	 * Returns the external handle for the Connection.
+	 *
+	 * @param string       $service_name 'facebook', 'linkedin', etc.
+	 * @param object|array $connection The Connection object (WordPress.com) or array (Jetpack).
+	 * @return string
+	 */
+	public function get_external_handle( $service_name, $connection ) {
+		$cmeta = $this->get_connection_meta( $connection );
+
+		switch ( $service_name ) {
+			case 'mastodon':
+				return $cmeta['external_display'] ?? '';
+
+			case 'bluesky':
+			case 'threads':
+				return $cmeta['external_name'] ?? '';
+
+			case 'instagram-business':
+				return $cmeta['connection_data']['meta']['username'] ?? '';
+
+			default:
+				return '';
+		}
+	}
+
+	/**
 	 * Returns a profile picture for the Connection
 	 *
 	 * @param object|array $connection The Connection object (WordPress.com) or array (Jetpack).

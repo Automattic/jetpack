@@ -9,7 +9,7 @@ namespace Automattic\Jetpack\Publicize\Rest_Endpoints;
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager;
-use Automattic\Jetpack\Publicize\Connection_Fields;
+use Automattic\Jetpack\Publicize\Publicize;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_REST_Server;
@@ -179,23 +179,23 @@ class Connections_Controller extends Base_Controller {
 		foreach ( (array) $publicize->get_services( 'connected' ) as $service_name => $connections ) {
 			foreach ( $connections as $connection ) {
 
-				$connection_id = Connection_Fields::get_connection_id( $connection );
+				$connection_id = $publicize->get_connection_id( $connection );
 
-				$connection_meta = Connection_Fields::get_connection_meta( $connection );
+				$connection_meta = $publicize->get_connection_meta( $connection );
 				$connection_data = $connection_meta['connection_data'];
 
 				$items[] = array(
 					'connection_id'        => $connection_id,
-					'display_name'         => Connection_Fields::get_display_name( $service_name, $connection ),
-					'external_handle'      => Connection_Fields::get_external_handle( $service_name, $connection ),
-					'external_id'          => Connection_Fields::get_external_id( $connection ),
-					'profile_link'         => Connection_Fields::get_profile_link( $service_name, $connection ),
-					'profile_picture'      => Connection_Fields::get_profile_picture( $connection ),
-					'service_label'        => Connection_Fields::get_service_label( $service_name ),
+					'display_name'         => $publicize->get_display_name( $service_name, $connection ),
+					'external_handle'      => $publicize->get_external_handle( $service_name, $connection ),
+					'external_id'          => $connection_meta['external_id'] ?? '',
+					'profile_link'         => $publicize->get_profile_link( $service_name, $connection ),
+					'profile_picture'      => $publicize->get_profile_picture( $connection ),
+					'service_label'        => Publicize::get_service_label( $service_name ),
 					'service_name'         => $service_name,
-					'shared'               => Connection_Fields::is_shared( $connection ),
+					'shared'               => ! $connection_data['user_id'],
 					'status'               => $test_results[ $connection_id ] ?? 'ok',
-					'user_id'              => Connection_Fields::get_user_id( $connection ),
+					'user_id'              => (int) $connection_data['user_id'],
 
 					// Deprecated fields.
 					'id'                   => (string) $publicize->get_connection_unique_id( $connection ),
