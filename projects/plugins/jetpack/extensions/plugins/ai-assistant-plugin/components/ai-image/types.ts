@@ -17,9 +17,3 @@ export interface CoreSelectors {
 		source_url: string;
 	} | null;
 }
-
-export interface SelectState {
-	'core/editor': EditorSelectors;
-	'core/edit-post': EditorSelectors;
-	core: CoreSelectors;
-}

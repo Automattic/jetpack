@@ -31,7 +31,7 @@ import {
 	PLACEMENT_MEDIA_SOURCE_DROPDOWN,
 } from './types';
 import type { ImageResponse } from './hooks/use-ai-image';
-import type { SelectState, EditorSelectors, CoreSelectors } from './types';
+import type { EditorSelectors, CoreSelectors } from './types';
 
 const debug = debugFactory( 'jetpack-ai:featured-image' );
 
@@ -87,19 +87,15 @@ export default function FeaturedImage( {
 	// https://github.com/WordPress/gutenberg/blob/fe4d8cb936df52945c01c1863f7b87b58b7cc69f/packages/edit-post/CHANGELOG.md?plain=1#L19
 	const toggleEditorPanelOpened =
 		toggleEditorPanelOpenedFromEditor ?? toggleEditorPanelOpenedFromEditPost;
-	const isEditorPanelOpened = useSelect(
-		( select: ( store: keyof SelectState ) => EditorSelectors ) => {
-			const isOpened =
-				select( 'core/editor' ).isEditorPanelOpened ??
-				select( 'core/edit-post' ).isEditorPanelOpened;
-			return isOpened;
-		},
-		[]
-	);
+	const isEditorPanelOpened = useSelect( ( select: ( store ) => EditorSelectors ) => {
+		const isOpened =
+			select( editorStore ).isEditorPanelOpened ?? select( 'core/edit-post' ).isEditorPanelOpened;
+		return isOpened;
+	}, [] );
 
 	const currentFeaturedMedia = useSelect(
-		( select: ( store: keyof SelectState ) => EditorSelectors & CoreSelectors ) => {
-			const mediaId = select( 'core/editor' )?.getEditedPostAttribute?.( 'featured_media' );
+		( select: ( store ) => EditorSelectors & CoreSelectors ) => {
+			const mediaId = select( editorStore )?.getEditedPostAttribute?.( 'featured_media' );
 			return mediaId ? select( 'core' )?.getMedia?.( mediaId as number ) : null;
 		},
 		[]
