@@ -6,7 +6,7 @@ import { useTooltip } from '@visx/tooltip';
 import clsx from 'clsx';
 import { FC, useCallback } from 'react';
 import { useChartTheme } from '../../providers/theme/theme-provider';
-import { BaseLegend } from '../legend';
+import { Legend } from '../legend';
 import { BaseTooltip } from '../tooltip';
 import styles from './pie-semi-circle-chart.module.scss';
 import type { DataPointPercentage } from '../shared/types';
@@ -178,7 +178,7 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 			) }
 
 			{ showLegend && (
-				<BaseLegend
+				<Legend
 					items={ legendItems }
 					orientation={ legendOrientation }
 					className={ styles[ 'pie-semi-circle-chart-legend' ] }

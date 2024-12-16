@@ -7,7 +7,7 @@ import { useTooltip } from '@visx/tooltip';
 import clsx from 'clsx';
 import { FC, useCallback } from 'react';
 import { useChartTheme } from '../../providers/theme';
-import { BaseLegend } from '../legend';
+import { Legend } from '../legend';
 import { BaseTooltip } from '../tooltip';
 import styles from './bar-chart.module.scss';
 import type { LegendItem } from '../legend/types';
@@ -151,7 +151,7 @@ const BarChart: FC< BarChartProps > = ( {
 			) }
 
 			{ showLegend && (
-				<BaseLegend
+				<Legend
 					items={ legendItems }
 					orientation={ legendOrientation }
 					className={ styles[ 'bar-chart-legend' ] }
