@@ -35,7 +35,9 @@ const Module = ( {
 		setNotice( {
 			id: 'update-module-state',
 			type: 'success',
-			message: __( 'Settings updated', 'jetpack-boost' ),
+			message: active
+				? __( 'Module activated', 'jetpack-boost' )
+				: __( 'Module deactivated', 'jetpack-boost' ),
 		} );
 		if ( active ) {
 			onEnable?.();
@@ -53,7 +55,9 @@ const Module = ( {
 		setNotice( {
 			id: 'update-module-state',
 			type: 'pending',
-			message: __( 'Updating settings…', 'jetpack-boost' ),
+			message: isModuleActive
+				? __( 'Deactivating module', 'jetpack-boost' )
+				: __( 'Activating module', 'jetpack-boost' ),
 		} );
 		if ( onBeforeToggle ) {
 			onBeforeToggle( ! isModuleActive );
