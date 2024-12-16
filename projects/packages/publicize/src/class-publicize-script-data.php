@@ -223,11 +223,10 @@ class Publicize_Script_Data {
 	/**
 	 * Get the list of supported Publicize services.
 	 *
-	 * @param bool $force_refresh Whether to force a refresh of the services list.
 	 * @return array List of external services and their settings.
 	 */
-	public static function get_supported_services( $force_refresh = false ) {
-		return Publicize_Services::get_all( $force_refresh );
+	public static function get_supported_services() {
+		return Publicize_Services::get_all();
 	}
 
 	/**
