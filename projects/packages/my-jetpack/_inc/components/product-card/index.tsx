@@ -135,6 +135,9 @@ const ProductCard: FC< ProductCardProps > = props => {
 		} );
 	}, [ slug, recordEvent ] );
 
+	/**
+	 * Calls the passed function onFixSiteConnection after firing Tracks event
+	 */
 	const fixSiteConnectionHandler = useCallback(
 		( { e }: { e: MouseEvent< HTMLButtonElement > } ) => {
 			connectSite( e );
