@@ -56,7 +56,7 @@ export default function useAiImage( {
 	const { createNotice } = useDispatch( 'core/notices' );
 
 	/* Images Control */
-	const pointer = useRef( previousImages ? 1 : 0 );
+	const pointer = useRef( previousImages ? previousImages.length : 0 );
 	const [ current, setCurrent ] = useState( 0 );
 	const [ images, setImages ] = useState< CarrouselImages >(
 		previousImages || [ { generating: autoStart } ]

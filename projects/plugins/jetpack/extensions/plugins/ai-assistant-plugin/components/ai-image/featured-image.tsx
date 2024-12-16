@@ -51,12 +51,22 @@ export default function FeaturedImage( {
 	);
 	const siteType = useSiteType();
 	const postContent = usePostContent();
-	const { postTitle, postFeaturedMedia } = useSelect( select => {
-		return {
-			postTitle: select( editorStore ).getEditedPostAttribute( 'title' ),
-			postFeaturedMedia: select( editorStore ).getEditedPostAttribute( 'featured_media' ),
-		};
-	}, [] );
+	const { postTitle, postFeaturedMedia, currentFeaturedMedia, isEditorPanelOpened } = useSelect(
+		( select: ( store ) => EditorSelectors & CoreSelectors ) => {
+			const featuredMediaId = select( editorStore ).getEditedPostAttribute( 'featured_media' );
+			return {
+				postTitle: select( editorStore ).getEditedPostAttribute( 'title' ),
+				postFeaturedMedia: featuredMediaId,
+				currentFeaturedMedia: featuredMediaId
+					? select( 'core' )?.getMedia?.( featuredMediaId as number )
+					: null,
+				isEditorPanelOpened:
+					select( editorStore ).isEditorPanelOpened ??
+					select( 'core/edit-post' ).isEditorPanelOpened,
+			};
+		},
+		[]
+	);
 	const { saveToMediaLibrary } = useSaveToMediaLibrary();
 	const { tracks } = useAnalytics();
 	const { recordEvent } = tracks;
@@ -87,19 +97,6 @@ export default function FeaturedImage( {
 	// https://github.com/WordPress/gutenberg/blob/fe4d8cb936df52945c01c1863f7b87b58b7cc69f/packages/edit-post/CHANGELOG.md?plain=1#L19
 	const toggleEditorPanelOpened =
 		toggleEditorPanelOpenedFromEditor ?? toggleEditorPanelOpenedFromEditPost;
-	const isEditorPanelOpened = useSelect( ( select: ( store ) => EditorSelectors ) => {
-		const isOpened =
-			select( editorStore ).isEditorPanelOpened ?? select( 'core/edit-post' ).isEditorPanelOpened;
-		return isOpened;
-	}, [] );
-
-	const currentFeaturedMedia = useSelect(
-		( select: ( store ) => EditorSelectors & CoreSelectors ) => {
-			const mediaId = select( editorStore )?.getEditedPostAttribute?.( 'featured_media' );
-			return mediaId ? select( 'core' )?.getMedia?.( mediaId as number ) : null;
-		},
-		[]
-	);
 
 	const {
 		pointer,
