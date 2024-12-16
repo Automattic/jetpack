@@ -325,6 +325,13 @@ export default function makeBaseConfig( configurl, opts = {} ) {
 					'error',
 					{ allowInterfaces: 'with-single-extends' },
 				],
+				// Mark types in jsdoc as used without reporting about any that are undefined.
+				'jsdoc/no-undefined-types': [ 'warn', { disableReporting: true } ],
+				// TS should mostly have the type set.
+				'jsdoc/require-param-type': 'off',
+				'jsdoc/require-property-type': 'off',
+				// Let us use TS return type for better inference
+				'jsdoc/require-returns-type': 'off',
 			},
 		} ),
 		// Jest.

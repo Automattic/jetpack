@@ -358,9 +358,8 @@ add_action( 'admin_notices', 'wpcom_show_admin_interface_notice' );
  * @return boolean
  */
 function wpcom_is_duplicate_views_experiment_enabled() {
-	// TODO: We don't know yet the experiment name.
 	$experiment_platform = 'calypso';
-	$experiment_name     = "{$experiment_platform}_duplicate_views_placeholder";
+	$experiment_name     = "{$experiment_platform}_post_onboarding_holdout_120924";
 
 	static $is_enabled = null;
 	if ( $is_enabled !== null ) {
