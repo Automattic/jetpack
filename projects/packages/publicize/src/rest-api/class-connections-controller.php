@@ -179,7 +179,7 @@ class Connections_Controller extends WP_REST_Controller {
 	 * @internal
 	 * @return array
 	 */
-	protected function get_connections() {
+	protected static function get_connections() {
 		global $publicize;
 
 		$items = array();
@@ -216,26 +216,13 @@ class Connections_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * Get list of connected Publicize connections.
+	 * Get the connections data, either directly or by calling the WPCOM API
 	 *
-	 * @param WP_REST_Request $request Full details about the request.
-	 *
-	 * @return WP_REST_Response suitable for 1-page collection
+	 * @return array Connection objects in the same shape as from `get_connections`
 	 */
-	public function get_items( $request ) {
-		$items = array();
-
-		$connections = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ? $this->get_connections() : $this->get_connections_from_wpcom();
-
-		foreach ( $connections as $item ) {
-			$items[] = $this->prepare_item_for_response( $item, $request );
-		}
-
-		$response = rest_ensure_response( $items );
-		$response->header( 'X-WP-Total', count( $items ) );
-		$response->header( 'X-WP-TotalPages', 1 );
-
-		return $response;
+	public static function get_connections_data() {
+		// TODO decide on caching
+		return ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ? self::get_connections() : self::get_connections_from_wpcom();
 	}
 
 	/**
@@ -243,7 +230,7 @@ class Connections_Controller extends WP_REST_Controller {
 	 *
 	 * @return array Connection objects in the same shape as from `get_connections`
 	 */
-	protected function get_connections_from_wpcom() {
+	protected static function get_connections_from_wpcom() {
 		$site_id = Manager::get_site_id( true );
 		if ( ! $site_id ) {
 			return array();
@@ -260,6 +247,29 @@ class Connections_Controller extends WP_REST_Controller {
 
 		$items = json_decode( $body, true );
 		return $items ? $items : array();
+	}
+
+	/**
+	 * Get list of connected Publicize connections.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 *
+	 * @return WP_REST_Response suitable for 1-page collection
+	 */
+	public function get_items( $request ) {
+		$items = array();
+
+		$connections = self::get_connections_data();
+
+		foreach ( $connections as $item ) {
+			$items[] = $this->prepare_item_for_response( $item, $request );
+		}
+
+		$response = rest_ensure_response( $items );
+		$response->header( 'X-WP-Total', count( $items ) );
+		$response->header( 'X-WP-TotalPages', 1 );
+
+		return $response;
 	}
 
 	/**
