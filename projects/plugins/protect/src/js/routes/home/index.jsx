@@ -1,5 +1,4 @@
 import { AdminSection, Container, Col, ScanReport } from '@automattic/jetpack-components';
-import { __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
 import AdminPage from '../../components/admin-page';
 import useScanStatusQuery from '../../data/scan/use-scan-status-query';
