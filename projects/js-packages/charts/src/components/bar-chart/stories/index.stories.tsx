@@ -26,6 +26,7 @@ Default.args = {
 	margin: { top: 20, right: 20, bottom: 40, left: 40 },
 	withTooltips: false,
 	data: data[ 0 ].data,
+	seriesLabel: data[ 0 ].group,
 };
 
 export const WithTooltips = Template.bind( {} );
@@ -48,6 +49,7 @@ export const WithLegend = {
 		height: 350,
 		margin: { top: 20, right: 20, bottom: 40, left: 40 },
 		data: data[ 0 ].data,
+		seriesLabel: data[ 0 ].group,
 		showTooltips: true,
 		showLegend: true,
 		legendOrientation: 'horizontal',

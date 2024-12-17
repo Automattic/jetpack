@@ -17,6 +17,10 @@ interface BarChartProps extends BaseChartProps {
 	 * Array of data points to display in the chart
 	 */
 	data: DataPoint[];
+	/**
+	 * Label for the data series
+	 */
+	seriesLabel?: string;
 }
 
 const BarChart: FC< BarChartProps > = ( {
@@ -25,9 +29,10 @@ const BarChart: FC< BarChartProps > = ( {
 	height,
 	margin = { top: 20, right: 20, bottom: 40, left: 40 },
 	withTooltips = false,
-	showLegend,
-	legendOrientation,
+	showLegend = false,
+	legendOrientation = 'horizontal',
 	className,
+	seriesLabel,
 } ) => {
 	const theme = useChartTheme();
 	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
@@ -67,11 +72,14 @@ const BarChart: FC< BarChartProps > = ( {
 		hideTooltip();
 	}, [ hideTooltip ] );
 
-	const legendItems = data.map( d => ( {
-		label: d.label,
-		value: d.value.toString(),
-		color: theme.colors[ 0 ],
-	} ) );
+	// Create a single legend item
+	const legendItems = [
+		{
+			label: seriesLabel,
+			value: '', // Empty string since we don't want to show a specific value
+			color: theme.colors[ 0 ],
+		},
+	];
 
 	return (
 		<div className={ clsx( 'bar-chart', className, styles[ 'bar-chart' ] ) }>
