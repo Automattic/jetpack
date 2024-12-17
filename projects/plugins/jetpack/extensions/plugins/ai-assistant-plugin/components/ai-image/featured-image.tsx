@@ -31,7 +31,7 @@ import {
 	PLACEMENT_MEDIA_SOURCE_DROPDOWN,
 } from './types';
 import type { ImageResponse } from './hooks/use-ai-image';
-import type { EditorSelectors, CoreSelectors } from './types';
+import type { EditorSelectors } from './types';
 
 const debug = debugFactory( 'jetpack-ai:featured-image' );
 
@@ -51,12 +51,20 @@ export default function FeaturedImage( {
 	);
 	const siteType = useSiteType();
 	const postContent = usePostContent();
-	const { postTitle, postFeaturedMedia, isEditorPanelOpened } = useSelect(
+	const { postTitle, postFeaturedMediaURL, postFeaturedMediaId, isEditorPanelOpened } = useSelect(
 		( select: ( store ) => EditorSelectors ) => {
-			const featuredMediaId = select( editorStore ).getEditedPostAttribute( 'featured_media' );
+			const editorStoreSelect = select( editorStore );
+			const featuredMediaURL = editorStoreSelect.getEditedPostAttribute(
+				'jetpack_featured_media_url'
+			) as string;
+			const featuredMediaId = editorStoreSelect.getEditedPostAttribute(
+				'featured_media'
+			) as number;
+
 			return {
 				postTitle: select( editorStore ).getEditedPostAttribute( 'title' ),
-				postFeaturedMedia: featuredMediaId,
+				postFeaturedMediaURL: featuredMediaURL,
+				postFeaturedMediaId: featuredMediaId,
 				isEditorPanelOpened:
 					select( editorStore ).isEditorPanelOpened ??
 					select( 'core/edit-post' ).isEditorPanelOpened,
@@ -64,15 +72,7 @@ export default function FeaturedImage( {
 		},
 		[]
 	);
-	const currentFeaturedMedia = useSelect(
-		( select: ( store ) => CoreSelectors ) => {
-			if ( postFeaturedMedia ) {
-				return select( 'core' )?.getMedia?.( postFeaturedMedia );
-			}
-			return null;
-		},
-		[ postFeaturedMedia ]
-	);
+
 	const { saveToMediaLibrary } = useSaveToMediaLibrary();
 	const { tracks } = useAnalytics();
 	const { recordEvent } = tracks;
@@ -121,12 +121,12 @@ export default function FeaturedImage( {
 		cost: featuredImageCost,
 		type: 'featured-image-generation',
 		feature: FEATURED_IMAGE_FEATURE_NAME,
-		previousImages: currentFeaturedMedia
+		previousImages: postFeaturedMediaURL
 			? [
 					{
-						image: currentFeaturedMedia.source_url,
-						libraryId: currentFeaturedMedia.id,
-						libraryUrl: currentFeaturedMedia.source_url,
+						image: postFeaturedMediaURL,
+						libraryId: postFeaturedMediaId,
+						libraryUrl: postFeaturedMediaURL,
 						generating: false,
 					},
 			  ]
@@ -382,7 +382,7 @@ export default function FeaturedImage( {
 			disabled={
 				! currentImage?.image ||
 				currentImage?.generating ||
-				currentImage?.image === currentFeaturedMedia?.source_url
+				currentImage?.image === postFeaturedMediaURL
 			}
 		>
 			{ __( 'Set as featured image', 'jetpack' ) }
@@ -407,7 +407,7 @@ export default function FeaturedImage( {
 			) }
 			<AiImageModal
 				postContent={ hasContent }
-				autoStart={ hasContent && ! postFeaturedMedia }
+				autoStart={ hasContent && ! postFeaturedMediaURL }
 				autoStartAction={ handleFirstGenerate }
 				images={ images }
 				currentIndex={ current }

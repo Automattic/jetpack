@@ -7,13 +7,6 @@ export const PLACEMENT_BLOCK_PLACEHOLDER_BUTTON = 'block-placeholder-button' as 
 
 export interface EditorSelectors {
 	// actually getEditedPostAttribute can bring different values, but for our current use, number is fine (media ID)
-	getEditedPostAttribute: ( attribute: string ) => number;
+	getEditedPostAttribute: ( attribute: string ) => string | number;
 	isEditorPanelOpened: ( panel: string ) => boolean;
-}
-
-export interface CoreSelectors {
-	getMedia: ( mediaId: number ) => {
-		id: number;
-		source_url: string;
-	} | null;
 }
