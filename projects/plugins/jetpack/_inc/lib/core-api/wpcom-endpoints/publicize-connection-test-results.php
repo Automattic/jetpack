@@ -62,45 +62,10 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connection_Test_Results extends 
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
 	 *
-	 * @see Publicize::get_publicize_conns_test_results()
 	 * @return WP_REST_Response suitable for 1-page collection
 	 */
 	public function get_items( $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		global $publicize;
-
-		$items = $this->get_connections();
-
-		$test_results              = $publicize->get_publicize_conns_test_results();
-		$test_results_by_unique_id = array();
-		foreach ( $test_results as $test_result ) {
-			$test_results_by_unique_id[ $test_result['connectionID'] ] = $test_result;
-		}
-
-		$mapping = array(
-			'test_success'  => 'connectionTestPassed',
-			'test_message'  => 'connectionTestMessage',
-			'error_code'    => 'connectionTestErrorCode',
-			'can_refresh'   => 'userCanRefresh',
-			'refresh_text'  => 'refreshText',
-			'refresh_url'   => 'refreshURL',
-			'connection_id' => 'connectionID',
-		);
-
-		foreach ( $items as &$item ) {
-			$test_result = $test_results_by_unique_id[ $item['connection_id'] ];
-
-			foreach ( $mapping as $field => $test_result_field ) {
-				$item[ $field ] = $test_result[ $test_result_field ];
-			}
-		}
-
-		if (
-			isset( $item['id'] )
-			&& 'linkedin' === $item['id']
-			&& 'must_reauth' === $test_result['connectionTestPassed']
-		) {
-			$item['test_success'] = 'must_reauth';
-		}
+		$items = $this->get_connections( true );
 
 		$response = rest_ensure_response( $items );
 
