@@ -54,7 +54,7 @@ class Related_Posts extends Module_Product {
 	/**
 	 * Whether this product requires a user connection
 	 *
-	 * @var string
+	 * @var boolean
 	 */
 	public static $requires_user_connection = false;
 
@@ -170,6 +170,10 @@ class Related_Posts extends Module_Product {
 	 * @return null|WP_Error Null on success, WP_Error on invalid file.
 	 */
 	public static function activate_plugin() {
-		return activate_plugin( static::get_installed_plugin_filename( self::JETPACK_PLUGIN_SLUG ) );
+		$plugin_filename = static::get_installed_plugin_filename( self::JETPACK_PLUGIN_SLUG );
+
+		if ( $plugin_filename ) {
+			return activate_plugin( $plugin_filename );
+		}
 	}
 }
