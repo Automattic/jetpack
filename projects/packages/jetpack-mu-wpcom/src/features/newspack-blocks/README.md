@@ -42,7 +42,6 @@ This will pull the code from the release into this repository and perform the fo
 * Copies TypeScript types into place.
 * Changes JS and PHP textdomain refs to `jetpack-mu-wpcom`.
 * Adjusts JS translation function calls to avoid minification issues.
-* Updates the Phan baseline.
 * Checks for potential places where `ENT_COMPAT` should be used.
 
 Once the script has completed:
