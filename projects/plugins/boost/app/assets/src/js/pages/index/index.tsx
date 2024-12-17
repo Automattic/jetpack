@@ -20,7 +20,6 @@ import Pill from '$features/ui/pill/pill';
 import { useMutationNotice } from '$features/ui';
 import { recordBoostEvent } from '$lib/utils/analytics';
 
-
 const Index = () => {
 	const criticalCssLink = getRedirectUrl( 'jetpack-boost-critical-css' );
 	const deferJsLink = getRedirectUrl( 'jetpack-boost-defer-js' );
