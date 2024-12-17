@@ -47,7 +47,7 @@ export const WithLegend = {
 		width: 500,
 		height: 350,
 		margin: { top: 20, right: 20, bottom: 40, left: 40 },
-		data,
+		data: data[ 0 ].data,
 		showTooltips: true,
 		showLegend: true,
 		legendOrientation: 'horizontal',
