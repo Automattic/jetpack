@@ -3,12 +3,6 @@ import type { Meta } from '@storybook/react';
 
 const data = [
 	{
-		label: 'Windows',
-		value: 80000,
-		valueDisplay: '80K',
-		percentage: 2,
-	},
-	{
 		label: 'MacOS',
 		value: 30000,
 		valueDisplay: '30K',
@@ -19,6 +13,12 @@ const data = [
 		value: 22000,
 		valueDisplay: '22K',
 		percentage: 1,
+	},
+	{
+		label: 'Windows',
+		value: 80000,
+		valueDisplay: '80K',
+		percentage: 2,
 	},
 ];
 
@@ -35,6 +35,24 @@ export default {
 			</div>
 		),
 	],
+	argTypes: {
+		width: {
+			control: {
+				type: 'range',
+				min: 0,
+				max: 1000,
+				step: 10,
+			},
+		},
+		thickness: {
+			control: {
+				type: 'range',
+				min: 0,
+				max: 1,
+				step: 0.01,
+			},
+		},
+	},
 } satisfies Meta< typeof PieSemiCircleChart >;
 
 const Template = args => <PieSemiCircleChart { ...args } />;
@@ -42,16 +60,16 @@ const Template = args => <PieSemiCircleChart { ...args } />;
 export const Default = Template.bind( {} );
 Default.args = {
 	width: 500,
-	height: 300,
 	data,
 	label: 'OS',
 	note: 'Windows +10%',
+	thickness: 0.4,
+	clockwise: true,
 };
 
 export const WithTooltips = Template.bind( {} );
 WithTooltips.args = {
 	width: 500,
-	height: 300,
 	data,
 	label: 'OS',
 	note: 'Windows +10%',
