@@ -168,13 +168,13 @@ class Search_Stats {
 		// Get post type breakdown from a remote request if the post count is high
 		if ( $total_posts_count > self::POST_COUNT_QUERY_LIMIT ) {
 			$search_stats = new Search_Stats();
-			$wpcom_stats  = json_decode( wp_remote_retrieve_body( $search_stats->get_stats_from_wpcom() ), true );
+			$search_stats->queue_post_count_query_from_wpcom();
+			$wpcom_stats = json_decode( wp_remote_retrieve_body( $search_stats->get_stats_from_wpcom() ), true );
 			if ( ! empty( $wpcom_stats['raw_post_type_breakdown'] ) ) {
 				$results = $wpcom_stats['raw_post_type_breakdown'];
 				wp_cache_set( self::POST_TYPE_BREAKDOWN_CACHE_KEY, $results, self::CACHE_GROUP, self::CACHE_EXPIRY );
 				return $results;
 			} else {
-				$search_stats->queue_post_count_query_from_wpcom();
 				return array();
 			}
 		}
