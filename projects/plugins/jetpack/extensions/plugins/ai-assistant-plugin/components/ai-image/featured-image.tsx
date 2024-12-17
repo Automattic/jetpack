@@ -51,21 +51,27 @@ export default function FeaturedImage( {
 	);
 	const siteType = useSiteType();
 	const postContent = usePostContent();
-	const { postTitle, postFeaturedMedia, currentFeaturedMedia, isEditorPanelOpened } = useSelect(
-		( select: ( store ) => EditorSelectors & CoreSelectors ) => {
+	const { postTitle, postFeaturedMedia, isEditorPanelOpened } = useSelect(
+		( select: ( store ) => EditorSelectors ) => {
 			const featuredMediaId = select( editorStore ).getEditedPostAttribute( 'featured_media' );
 			return {
 				postTitle: select( editorStore ).getEditedPostAttribute( 'title' ),
 				postFeaturedMedia: featuredMediaId,
-				currentFeaturedMedia: featuredMediaId
-					? select( 'core' )?.getMedia?.( featuredMediaId as number )
-					: null,
 				isEditorPanelOpened:
 					select( editorStore ).isEditorPanelOpened ??
 					select( 'core/edit-post' ).isEditorPanelOpened,
 			};
 		},
 		[]
+	);
+	const currentFeaturedMedia = useSelect(
+		( select: ( store ) => CoreSelectors ) => {
+			if ( postFeaturedMedia ) {
+				return select( 'core' )?.getMedia?.( postFeaturedMedia );
+			}
+			return null;
+		},
+		[ postFeaturedMedia ]
 	);
 	const { saveToMediaLibrary } = useSaveToMediaLibrary();
 	const { tracks } = useAnalytics();
