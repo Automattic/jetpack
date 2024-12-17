@@ -68,9 +68,7 @@ const PlanExpiry: FC< PlanSectionProps > = ( { purchase } ) => {
 		hundredYearDate.setFullYear( hundredYearDate.getFullYear() + 100 );
 
 		// If expiry_date is null, we'll default to 100 years in the future (same behavior in Store Admin).
-		const expiryDate = expiry_date
-			? dateI18n( 'F jS, Y', expiry_date )
-			: dateI18n( 'F jS, Y', hundredYearDate );
+		const expiryDate = dateI18n( 'F jS, Y', expiry_date ?? hundredYearDate );
 
 		if ( isExpiringPurchase ) {
 			// Expiring soon
