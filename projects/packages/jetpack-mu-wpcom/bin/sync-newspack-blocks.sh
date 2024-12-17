@@ -148,13 +148,43 @@ sed "${sedi[@]}" -e "s| function| Function|g" "$TARGET/types/index.d.ts"
 
 # Note: I would have used eslint-nibble, but it doesn't support autofixing via the CLI.
 echo "Changing JS textdomain to match jetpack-mu-wpcom..."
-pnpm --package=eslint@8.57.0 dlx eslint --no-ignore --rule '"@wordpress/i18n-text-domain":["error",{"allowedTextDomain":"jetpack-mu-wpcom"}]' --fix $TARGET > /dev/null
+BASE=$(cd "$(dirname "${BASH_SOURCE[0]}")"/../../../../.. && pwd)
+FULLTARGET="$PWD/$TARGET"
+
+# Add a temporary single-rule eslint.config.mjs file.
+cat > "$TARGET/eslint.config.mjs" <<EOF
+import makeBaseConfig from 'jetpack-js-tools/eslintrc/base.mjs';
+
+// This directory is copy-pasted from elsewhere, but we still need to run this one rule over it so we can't just .eslintignore.
+export default [
+	// Import base config, but no rules.
+	...makeBaseConfig( import.meta.url ).map( block => ( { ...block, rules: {} } ) ),
+	// Enable just this one rule.
+	{
+		rules: {
+			"@wordpress/i18n-text-domain": [ "error", { allowedTextDomain: "jetpack-mu-wpcom" } ],
+		}
+	},
+];
+EOF
+( cd "$BASE" && pnpm run lint-file --no-inline-config --no-ignore --fix "$FULLTARGET" )
+rm "$TARGET/eslint.config.mjs"
 
 echo "Changing JS translation function call to avoid bad minification..."
 pnpm --package=jscodeshift dlx jscodeshift -t ./bin/sync-newspack-blocks-formatter.js --extensions=js $TARGET
 
+# Add temporary PHPCS config file.
+cat > "$TARGET/.phpcs.dir.xml" <<EOF
+<?xml version="1.0"?>
+<ruleset>
+	<rule ref="MediaWiki.Usage.ForbiddenFunctions">
+		<exclude name="MediaWiki.Usage.ForbiddenFunctions.isset"/>
+	</rule>
+</ruleset>
+EOF
 echo "Changing PHP textdomain to match jetpack-mu-wpcom..."
 ../../../vendor/bin/phpcbf --standard=./.phpcs.dir.xml --filter=../../../vendor/automattic/jetpack-phpcs-filter/src/PhpcsFilter.php --runtime-set jetpack-filter-no-ignore -q $TARGET
+rm "$TARGET/.phpcs.dir.xml"
 
 # Add textdomain to block.json
 echo "Adding textdomain to all block.json files..."
@@ -163,19 +193,6 @@ for block_json_file in "$TARGET"/blocks/*/block.json; do
 	jq --tab '. += {"textdomain": "jetpack-mu-wpcom"}' "$block_json_file" > "$TMPFILE"
 	mv "$TMPFILE" "$block_json_file"
 done
-
-# Generate PHPCS config file.
-echo "Generating .phpcs.dir.xml..."
-cat > "$TARGET"/.phpcs.dir.xml <<EOF
-<?xml version="1.0"?>
-<ruleset>
-
-	<rule ref="MediaWiki.Usage.ForbiddenFunctions">
-		<exclude name="MediaWiki.Usage.ForbiddenFunctions.isset"/>
-	</rule>
-
-</ruleset>
-EOF
 
 echo "Updating Phan baseline..."
 jetpack phan --update-baseline packages/jetpack-mu-wpcom
