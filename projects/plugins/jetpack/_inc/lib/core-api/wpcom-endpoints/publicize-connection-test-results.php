@@ -47,12 +47,18 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connection_Test_Results extends 
 	 * @return array
 	 */
 	public function get_item_schema() {
+		if ( $this->schema ) {
+			return $this->add_additional_fields_schema( $this->schema );
+		}
+
 		$schema = array(
 			'$schema'    => 'http://json-schema.org/draft-04/schema#',
 			'title'      => 'jetpack-publicize-connection-test-results',
 			'type'       => 'object',
 			'properties' => $this->get_connection_schema_properties(),
 		);
+
+		$this->schema = $schema;
 
 		return $this->add_additional_fields_schema( $schema );
 	}
