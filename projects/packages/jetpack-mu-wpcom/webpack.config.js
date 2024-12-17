@@ -16,6 +16,7 @@ module.exports = [
 				'./src/features/custom-css/custom-css/js/core-customizer-css-preview.js',
 			'customizer-control': './src/features/custom-css/custom-css/css/customizer-control.css',
 			'error-reporting': './src/features/error-reporting/index.js',
+			'holiday-snow': './src/features/holiday-snow/holiday-snow.scss',
 			'jetpack-global-styles': './src/features/jetpack-global-styles/index.js',
 			'jetpack-global-styles-customizer-fonts':
 				'./src/features/jetpack-global-styles/customizer-fonts/index.js',
@@ -125,6 +126,7 @@ module.exports = [
  * Note this is not the same as looking for `__dirname+'/node_modules/'+pkgName`, as the package may be in a parent
  * `node_modules`
  * @param {string} pkgName - Name of the package to search for.
+ * @return {string} - The absolute path of the package.
  */
 function findPackage( pkgName ) {
 	const fullPath = require.resolve( pkgName );

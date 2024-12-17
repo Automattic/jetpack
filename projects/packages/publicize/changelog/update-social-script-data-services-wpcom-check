@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Script data: Don't call service endpoint on wpcom

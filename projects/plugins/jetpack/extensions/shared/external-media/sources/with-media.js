@@ -169,6 +169,10 @@ export default function withMedia( mediaSource = MediaSource.Unknown ) {
 					parse: window.wpcomFetch === undefined,
 				} )
 					.then( result => {
+						// If we don't have media available, we should show an error instead of crashing the editor.
+						if ( result.media === undefined ) {
+							throw { code: 'internal_server_error' };
+						}
 						this.setState( {
 							account: result.meta.account,
 							media: this.mergeMedia( media, result.media ),

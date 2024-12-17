@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Carousel: Under rare circumstances, the carousel will make null requests when loading an image
