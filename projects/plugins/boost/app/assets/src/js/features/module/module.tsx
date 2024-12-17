@@ -32,15 +32,13 @@ const Module = ( {
 }: ModuleProps ) => {
 	const { setNotice } = useNotices();
 	const [ status, setStatus ] = useSingleModuleState( slug, active => {
-		let message = __( 'Module activated', 'jetpack-boost' );
-		if ( ! active ) {
-			message = __( 'Module deactivated', 'jetpack-boost' );
-		}
+		const activatedMessage = __( 'Module activated', 'jetpack-boost' );
+		const deactivatedMessage = __( 'Module deactivated', 'jetpack-boost' );
 
 		setNotice( {
 			id: 'update-module-state',
 			type: 'success',
-			message,
+			message: active ? activatedMessage : deactivatedMessage,
 		} );
 		if ( active ) {
 			onEnable?.();
@@ -55,21 +53,20 @@ const Module = ( {
 	const isFakeActive = ! isModuleAvailable && isWoaHosting() && slug === 'page_cache';
 
 	const handleToggle = () => {
-		let message = __( 'Deactivating module', 'jetpack-boost' );
-		if ( ! isModuleActive ) {
-			message = __( 'Activating module', 'jetpack-boost' );
-		}
+		const newState = ! isModuleActive;
+		const deactivateMessage = __( 'Deactivating module', 'jetpack-boost' );
+		const activateMessage = __( 'Activating module', 'jetpack-boost' );
 
 		setNotice( {
 			id: 'update-module-state',
 			type: 'pending',
-			message,
+			message: newState ? activateMessage : deactivateMessage,
 		} );
 
 		if ( onBeforeToggle ) {
-			onBeforeToggle( ! isModuleActive );
+			onBeforeToggle( newState );
 		}
-		setStatus( ! isModuleActive );
+		setStatus( newState );
 	};
 
 	useEffect( () => {
