@@ -246,6 +246,19 @@ $js_excludes_entry  = new Minify_Excludes_State_Entry( 'minify_js_excludes' );
 $css_excludes_entry = new Minify_Excludes_State_Entry( 'minify_css_excludes' );
 jetpack_boost_register_option( 'minify_js_excludes', Schema::as_array( Schema::as_string() )->fallback( Minify_JS::$default_excludes ), $js_excludes_entry );
 jetpack_boost_register_option( 'minify_css_excludes', Schema::as_array( Schema::as_string() )->fallback( Minify_CSS::$default_excludes ), $css_excludes_entry );
+jetpack_boost_register_readonly_option(
+	'minify_js_excludes_default',
+	function () {
+		return Minify_JS::$default_excludes;
+	}
+);
+jetpack_boost_register_readonly_option(
+	'minify_css_excludes_default',
+	function () {
+		return Minify_CSS::$default_excludes;
+	}
+);
+
 jetpack_boost_register_option(
 	'image_cdn_quality',
 	Schema::as_assoc_array(

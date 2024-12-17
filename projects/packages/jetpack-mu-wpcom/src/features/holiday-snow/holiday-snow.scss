@@ -1,0 +1,67 @@
+/**
+ * Holiday Snow
+ * Credits: https://codepen.io/keithclark/pen/DjXzBw
+ *
+ * @package automattic/jetpack-mu-wpcom
+ */
+
+$grid_width: 600;
+$snow_density: 10;
+$snow_speed: 9s;
+$snow_selector: '#jetpack-holiday-snow';
+
+html {
+	$grad: (
+	);
+
+	@for $i from 0 to $snow_density {
+		$v: random(4) + 2;
+		$alpha: random(5) * .1 + .5;
+		$grad: $grad, radial-gradient($v+px $v+px at (random($grid_width - $v * 2) + $v)+px (random($grid_width - $v * 2) + $v)+px,
+				rgba(255, 255, 255, $alpha) 50%,
+				rgba(0, 0, 0, 0));
+	}
+
+	#{$snow_selector} {
+		display: inline !important;
+		background-color: rgba(0, 0, 0, 0.05);
+		z-index: 9999999999 !important;
+	}
+
+	#{$snow_selector},
+	#{$snow_selector}:before,
+	#{$snow_selector}:after {
+		pointer-events: none;
+		position: fixed;
+		top: -600px;
+		left: 0;
+		bottom: 0;
+		right: 0;
+		background-image: $grad;
+		background-size: 600px 600px;
+		animation: snowstorm $snow_speed linear infinite;
+		content: "";
+	}
+
+	#{$snow_selector}:after {
+		margin-left: -$grid_width/3 + px;
+		opacity: .4;
+		animation-duration: $snow_speed * 2;
+		animation-direction: reverse;
+		filter: blur(3px);
+	}
+
+	#{$snow_selector}:before {
+		animation-duration: $snow_speed * 3;
+		animation-direction: reverse;
+		margin-left: -$grid_width/2 + px;
+		opacity: .65;
+		filter: blur(1.5px);
+	}
+
+	@keyframes snowstorm {
+		to {
+			transform: translateY($grid_width + px);
+		}
+	}
+}

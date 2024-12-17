@@ -116,6 +116,14 @@ function wpcom_admin_interface_pre_update_option( $new_value, $old_value ) {
 }
 add_filter( 'pre_update_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_update_option', 10, 2 );
 
+const WPCOM_DUPLICATED_VIEW = array(
+	'edit.php',
+	'edit.php?post_type=jetpack-portfolio',
+	'edit.php?post_type=jetpack-testimonial',
+	'edit-tags.php?taxonomy=category',
+	'edit-tags.php?taxonomy=post_tag',
+);
+
 /**
  * Get the current screen section.
  *
@@ -148,13 +156,9 @@ function wpcom_admin_get_current_screen() {
  * @return string Filtered wpcom_admin_interface option.
  */
 function wpcom_admin_interface_pre_get_option( $default_value ) {
-	$enabled_screens = array(
-		'edit.php',
-	);
-
 	$current_screen = wpcom_admin_get_current_screen();
 
-	if ( in_array( $current_screen, $enabled_screens, true ) && wpcom_is_duplicate_views_experiment_enabled() ) {
+	if ( in_array( $current_screen, WPCOM_DUPLICATED_VIEW, true ) && wpcom_is_duplicate_views_experiment_enabled() ) {
 		return 'wp-admin';
 	}
 
@@ -177,13 +181,35 @@ function wpcom_admin_get_user_option_jetpack( $value ) {
 		$value = array();
 	}
 
-	$value['edit.php'] = Automattic\Jetpack\Masterbar\Base_Admin_Menu::CLASSIC_VIEW;
+	foreach ( WPCOM_DUPLICATED_VIEW as $path ) {
+		$value[ $path ] = Automattic\Jetpack\Masterbar\Base_Admin_Menu::CLASSIC_VIEW;
+	}
 
 	return $value;
 }
 
 add_filter( 'get_user_option_jetpack_admin_menu_preferred_views', 'wpcom_admin_get_user_option_jetpack' );
 add_filter( 'pre_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_get_option', 10 );
+
+/**
+ * Hides the "View" switcher on WP Admin screens enforced by the "Remove duplicate views" experiment.
+ */
+function wpcom_duplicate_views_hide_view_switcher() {
+	if ( ! function_exists( '\Automattic\Jetpack\Masterbar\get_admin_menu_class' ) || ! function_exists( '\Automattic\Jetpack\Masterbar\should_customize_nav' ) ) {
+		return;
+	}
+
+	$admin_menu_class = apply_filters( 'jetpack_admin_menu_class', \Automattic\Jetpack\Masterbar\get_admin_menu_class() );
+	if ( \Automattic\Jetpack\Masterbar\should_customize_nav( $admin_menu_class ) ) {
+		$admin_menu = $admin_menu_class::get_instance();
+
+		$current_screen = wpcom_admin_get_current_screen();
+		if ( in_array( $current_screen, WPCOM_DUPLICATED_VIEW, true ) && wpcom_is_duplicate_views_experiment_enabled() ) {
+			remove_filter( 'in_admin_header', array( $admin_menu, 'add_dashboard_switcher' ) );
+		}
+	}
+}
+add_action( 'admin_init', 'wpcom_duplicate_views_hide_view_switcher' );
 
 /**
  * Determines whether the admin interface has been recently changed by checking the presence of the `admin-interface-changed` query param.
@@ -352,9 +378,8 @@ add_action( 'admin_notices', 'wpcom_show_admin_interface_notice' );
  * @return boolean
  */
 function wpcom_is_duplicate_views_experiment_enabled() {
-	// TODO: We don't know yet the experiment name.
 	$experiment_platform = 'calypso';
-	$experiment_name     = "{$experiment_platform}_duplicate_views_placeholder";
+	$experiment_name     = "{$experiment_platform}_post_onboarding_holdout_120924";
 
 	static $is_enabled = null;
 	if ( $is_enabled !== null ) {
