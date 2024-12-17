@@ -129,9 +129,13 @@ mkdir -p $TARGET/components
 mkdir -p $TARGET/shared
 mkdir -p $TARGET/types
 
-# copy files and directories
+# Update Newspack Blocks version number in the package.
 NEW_VERSION=v$(jq -r .version "$CODE"/package.json)
 echo "$NEW_VERSION" > $TARGET/version.txt
+sed -E -i.bak "s|^define\( 'NEWSPACK_BLOCKS__VERSION', '.*' \);$|define( 'NEWSPACK_BLOCKS__VERSION', '$NEW_VERSION' );|" "$TARGET"/../index.php
+rm "$TARGET"/../index.php.bak
+
+# copy files and directories
 cp "$CODE"/includes/class-newspack-blocks-api.php $TARGET/
 cp "$CODE"/includes/class-newspack-blocks.php $TARGET/
 cp -R "$CODE"/src/blocks/homepage-articles $TARGET/blocks/
