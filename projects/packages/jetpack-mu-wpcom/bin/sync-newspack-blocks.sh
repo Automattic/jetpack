@@ -148,7 +148,7 @@ sed "${sedi[@]}" -e "s| function| Function|g" "$TARGET/types/index.d.ts"
 
 # Note: I would have used eslint-nibble, but it doesn't support autofixing via the CLI.
 echo "Changing JS textdomain to match jetpack-mu-wpcom..."
-BASE=$(cd "$(dirname "${BASH_SOURCE[0]}")"/../../../../.. && pwd)
+BASE=$(cd "$(dirname "${BASH_SOURCE[0]}")"/../../../.. && pwd)
 FULLTARGET="$PWD/$TARGET"
 
 # Add a temporary single-rule eslint.config.mjs file.
@@ -183,7 +183,7 @@ cat > "$TARGET/.phpcs.dir.xml" <<EOF
 </ruleset>
 EOF
 echo "Changing PHP textdomain to match jetpack-mu-wpcom..."
-../../../vendor/bin/phpcbf --standard=./.phpcs.dir.xml --filter=../../../vendor/automattic/jetpack-phpcs-filter/src/PhpcsFilter.php --runtime-set jetpack-filter-no-ignore -q $TARGET
+"$BASE"/vendor/bin/phpcbf --standard=./.phpcs.dir.xml --filter="$BASE"/vendor/automattic/jetpack-phpcs-filter/src/PhpcsFilter.php --runtime-set jetpack-filter-no-ignore -q "$TARGET"
 rm "$TARGET/.phpcs.dir.xml"
 
 # Add textdomain to block.json
