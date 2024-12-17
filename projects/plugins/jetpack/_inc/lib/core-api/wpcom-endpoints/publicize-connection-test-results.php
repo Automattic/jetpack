@@ -51,33 +51,7 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connection_Test_Results extends 
 			'$schema'    => 'http://json-schema.org/draft-04/schema#',
 			'title'      => 'jetpack-publicize-connection-test-results',
 			'type'       => 'object',
-			'properties' => $this->get_connection_schema_properties() + array(
-				'test_success' => array(
-					'description' => __( 'Did the Jetpack Social connection test pass?', 'jetpack' ),
-					'type'        => 'boolean',
-				),
-				'error_code'   => array(
-					'description' => __( 'Jetpack Social connection error code', 'jetpack' ),
-					'type'        => 'string',
-				),
-				'test_message' => array(
-					'description' => __( 'Jetpack Social connection success or error message', 'jetpack' ),
-					'type'        => 'string',
-				),
-				'can_refresh'  => array(
-					'description' => __( 'Can the current user refresh the Jetpack Social connection?', 'jetpack' ),
-					'type'        => 'boolean',
-				),
-				'refresh_text' => array(
-					'description' => __( 'Message instructing the user to refresh their Connection to the Jetpack Social service', 'jetpack' ),
-					'type'        => 'string',
-				),
-				'refresh_url'  => array(
-					'description' => __( 'URL for refreshing the Connection to the Jetpack Social service', 'jetpack' ),
-					'type'        => 'string',
-					'format'      => 'uri',
-				),
-			),
+			'properties' => $this->get_connection_schema_properties(),
 		);
 
 		return $this->add_additional_fields_schema( $schema );
