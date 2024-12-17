@@ -39,6 +39,9 @@
 		},
 
 		destroy: function ( table ) {
+			if ( this.observer ) {
+				this.observer.disconnect();
+			}
 			table.removeEventListener( 'keypress', methods.keypressHandler );
 			table.removeEventListener( 'focusin', methods.focusinHandler );
 			initializedTables.delete( table );
@@ -103,7 +106,7 @@
 		},
 	};
 
-	const observeTableRemoval = function () {
+	const observeTableRemoval = function ( list ) {
 		const observer = new MutationObserver( mutations => {
 			mutations.forEach( mutation => {
 				mutation.removedNodes.forEach( node => {
@@ -114,7 +117,7 @@
 			} );
 		} );
 
-		observer.observe( document.body, { childList: true, subtree: true } );
+		observer.observe( list, { childList: true, subtree: true } );
 	};
 
 	// Initialization for many-items-table
@@ -134,6 +137,8 @@
 			}
 		}
 	} );
-
-	observeTableRemoval();
+	const list = document.querySelector( '#the-list' ); // Scope to the specific table
+	if ( list ) {
+		observeTableRemoval( list );
+	}
 } )();
