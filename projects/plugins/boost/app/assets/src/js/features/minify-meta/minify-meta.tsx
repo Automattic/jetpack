@@ -9,7 +9,15 @@ import { useNotices } from '$features/notice/context';
 import { useMinifyDefaults } from './lib/stores';
 
 const MetaComponent = ( { buttonText, placeholder, datasyncKey }: Props ) => {
-	const [ values, updateValues ] = useMetaQuery( datasyncKey );
+	const noticeId = `minify-meta-${ datasyncKey }`;
+
+	const [ values, updateValues ] = useMetaQuery( datasyncKey, () => {
+		setNotice( {
+			id: noticeId,
+			type: 'success',
+			message: __( 'Changes saved.', 'jetpack-boost' ),
+		} );
+	} );
 	const [ inputValue, setInputValue ] = useState( () => values.join( ', ' ) );
 	const { setNotice } = useNotices();
 	const minifyDefaults = useMinifyDefaults( datasyncKey );
@@ -40,7 +48,6 @@ const MetaComponent = ( { buttonText, placeholder, datasyncKey }: Props ) => {
 		 */
 		recordBoostEvent( 'concatenate_' + concatenateType + '_exceptions_save_clicked', {} );
 
-		const noticeId = `minify-meta-${ datasyncKey }`;
 		// Show saving notice
 		setNotice( {
 			id: noticeId,
@@ -48,22 +55,7 @@ const MetaComponent = ( { buttonText, placeholder, datasyncKey }: Props ) => {
 			message: __( 'Saving…', 'jetpack-boost' ),
 		} );
 
-		try {
-			updateValues( inputValue );
-			// Show success notice
-			setNotice( {
-				id: noticeId,
-				type: 'success',
-				message: __( 'Changes saved.', 'jetpack-boost' ),
-			} );
-		} catch ( error ) {
-			// Show error notice
-			setNotice( {
-				id: noticeId,
-				type: 'error',
-				message: __( 'An error occurred while saving changes. Please try again.', 'jetpack-boost' ),
-			} );
-		}
+		updateValues( inputValue );
 	}
 
 	const htmlId = `jb-minify-meta-${ datasyncKey }`;
