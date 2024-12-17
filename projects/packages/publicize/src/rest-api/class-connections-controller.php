@@ -326,5 +326,5 @@ class Connections_Controller extends WP_REST_Controller {
 }
 
 if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-	wpcom_rest_api_v2_load_plugin( 'Automattic\Jetpack\Publicize\WPCOM_REST_API_V2_Endpoint_List_Publicize_Connections' );
+	wpcom_rest_api_v2_load_plugin( 'Automattic\Jetpack\Publicize\REST_API\Connections_Controller' );
 }
