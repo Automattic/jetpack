@@ -304,6 +304,9 @@ importers:
       '@visx/group':
         specifier: ^3.12.0
         version: 3.12.0(react@18.3.1)
+      '@visx/responsive':
+        specifier: 3.12.0
+        version: 3.12.0(react@18.3.1)
       '@visx/scale':
         specifier: ^3.12.0
         version: 3.12.0
