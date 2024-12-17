@@ -31,7 +31,7 @@ import {
 	PLACEMENT_MEDIA_SOURCE_DROPDOWN,
 } from './types';
 import type { ImageResponse } from './hooks/use-ai-image';
-import type { EditorSelectors } from './types';
+import type { CoreEditPostSelectors } from './types';
 
 const debug = debugFactory( 'jetpack-ai:featured-image' );
 
@@ -52,7 +52,7 @@ export default function FeaturedImage( {
 	const siteType = useSiteType();
 	const postContent = usePostContent();
 	const { postTitle, postFeaturedMediaURL, postFeaturedMediaId, isEditorPanelOpened } = useSelect(
-		( select: ( store ) => EditorSelectors ) => {
+		select => {
 			const editorStoreSelect = select( editorStore );
 			const featuredMediaURL = editorStoreSelect.getEditedPostAttribute(
 				'jetpack_featured_media_url'
@@ -67,7 +67,7 @@ export default function FeaturedImage( {
 				postFeaturedMediaId: featuredMediaId,
 				isEditorPanelOpened:
 					select( editorStore ).isEditorPanelOpened ??
-					select( 'core/edit-post' ).isEditorPanelOpened,
+					( select( 'core/edit-post' ) as CoreEditPostSelectors ).isEditorPanelOpened,
 			};
 		},
 		[]
