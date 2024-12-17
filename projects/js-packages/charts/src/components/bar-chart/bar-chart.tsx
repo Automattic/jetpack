@@ -72,7 +72,6 @@ const BarChart: FC< BarChartProps > = ( {
 		hideTooltip();
 	}, [ hideTooltip ] );
 
-	// Create a single legend item
 	const legendItems = [
 		{
 			label: seriesLabel,
