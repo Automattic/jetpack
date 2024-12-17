@@ -15,7 +15,7 @@ import { usePremiumFeatures } from '$lib/stores/premium-features';
 import { useRegenerateCriticalCssAction } from '$features/critical-css/lib/stores/critical-css-state';
 import { isSameSiteUrl } from '$lib/utils/is-same-site-url';
 import UpgradeCTA from '$features/upgrade-cta/upgrade-cta';
-
+import { useNotices } from '$features/notice/context';
 const Meta = () => {
 	const cornerstonePagesSupportLink = getRedirectUrl( 'jetpack-boost-cornerstone-pages' );
 	const [ cornerstonePages, setCornerstonePages ] = useCornerstonePages();
@@ -151,7 +151,7 @@ const List: React.FC< ListProps > = ( {
 	const premiumFeatures = usePremiumFeatures();
 	const isPremium = premiumFeatures.includes( 'cornerstone-10-pages' );
 	const cornerstonePagesProperties = useCornerstonePagesProperties();
-
+	const { setNotice } = useNotices();
 	const validateInputValue = ( value: string ) => {
 		setInputValue( value );
 		try {
@@ -215,11 +215,21 @@ const List: React.FC< ListProps > = ( {
 		recordBoostEvent( 'cornerstone_pages_save', {
 			list_length: inputValue.split( '\n' ).length,
 		} );
+		setNotice( {
+			id: 'cornerstone-pages-save',
+			type: 'success',
+			message: __( 'Cornerstone pages saved', 'jetpack-boost' ),
+		} );
 	}
 
 	function loadDefaultValue() {
 		validateInputValue( defaultValue );
 		recordBoostEvent( 'cornerstone_pages_load_default', {} );
+		setNotice( {
+			id: 'cornerstone-pages-load-default',
+			type: 'success',
+			message: __( 'Default pages loaded', 'jetpack-boost' ),
+		} );
 	}
 
 	return (
