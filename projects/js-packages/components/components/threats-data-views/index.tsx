@@ -393,7 +393,7 @@ export default function ThreatsDataViews( {
 				  ]
 				: [] ),
 			...( dataFields.includes( 'fixable' ) &&
-			( statusFilters.includes( 'current' ) || ! statusFilters.length ) // TODO: Wouldn't need this latter part if we excluded fixable field properly
+			( statusFilters.includes( 'current' ) || ! statusFilters.length )
 				? [
 						{
 							id: THREAT_FIELD_AUTO_FIX,
