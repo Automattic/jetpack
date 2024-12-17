@@ -10,7 +10,6 @@ import { useChartTheme } from '../../providers/theme';
 import { Legend } from '../legend';
 import { BaseTooltip } from '../tooltip';
 import styles from './bar-chart.module.scss';
-import type { LegendItem } from '../legend/types';
 import type { BaseChartProps, DataPoint } from '../shared/types';
 
 interface BarChartProps extends BaseChartProps {
