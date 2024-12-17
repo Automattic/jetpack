@@ -65,7 +65,7 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connection_Test_Results extends 
 	 * @return WP_REST_Response suitable for 1-page collection
 	 */
 	public function get_items( $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		$items = $this->get_connections( true );
+		$items = self::get_connections( true );
 
 		$response = rest_ensure_response( $items );
 
