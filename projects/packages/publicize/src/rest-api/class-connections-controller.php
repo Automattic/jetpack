@@ -4,7 +4,7 @@
  *
  * @package automattic/jetpack
  */
-namespace Automattic\Jetpack\Publicize;
+namespace Automattic\Jetpack\Publicize\REST_API;
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager;
@@ -29,7 +29,7 @@ use WP_REST_Server;
  *
  * @since 6.8
  */
-class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connections extends WP_REST_Controller {
+class Connections_Controller extends WP_REST_Controller {
 	/**
 	 * Flag to help WordPress.com decide where it should look for
 	 * Publicize data. Ignored for direct requests to Jetpack sites.

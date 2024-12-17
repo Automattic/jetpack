@@ -12,7 +12,7 @@
  *
  * @since 6.8
  */
-class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connection_Test_Results extends Automattic\Jetpack\Publicize\WPCOM_REST_API_V2_Endpoint_List_Publicize_Connections {
+class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connection_Test_Results extends Automattic\Jetpack\Publicize\REST_API\Connections_Controller {
 	/**
 	 * Constructor.
 	 */
