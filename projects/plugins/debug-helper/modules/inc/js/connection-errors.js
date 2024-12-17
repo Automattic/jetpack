@@ -1,4 +1,4 @@
-/* global jetpack_broken_token_connection_errors */
+/* global jQuery, jetpack_broken_token_connection_errors */
 ( function ( $ ) {
 	$( '.verify-error' ).click( function () {
 		const button = this;

@@ -1,0 +1,57 @@
+import { LineChart } from '../index';
+import sampleData from './sample-data';
+import type { Meta } from '@storybook/react';
+
+export default {
+	title: 'JS Packages/Charts/Types/Line Chart',
+	component: LineChart,
+	parameters: {
+		layout: 'centered',
+	},
+	decorators: [
+		Story => (
+			<div style={ { padding: '2rem' } }>
+				<Story />
+			</div>
+		),
+	],
+} satisfies Meta< typeof LineChart >;
+
+const Template = args => <LineChart { ...args } />;
+
+// Default story with multiple series
+export const Default = Template.bind( {} );
+Default.args = {
+	width: 500,
+	height: 300,
+	margin: { top: 20, right: 20, bottom: 30, left: 40 },
+	data: sampleData,
+};
+
+// Story with single data series
+export const SingleSeries = Template.bind( {} );
+SingleSeries.args = {
+	width: 500,
+	height: 300,
+	margin: { top: 20, right: 20, bottom: 30, left: 40 },
+	data: [ sampleData[ 0 ] ], // Only London temperature data
+};
+
+// Story without tooltip
+export const WithoutTooltip = Template.bind( {} );
+WithoutTooltip.args = {
+	width: 500,
+	height: 300,
+	margin: { top: 20, right: 20, bottom: 30, left: 40 },
+	data: sampleData,
+	withTooltips: false,
+};
+
+// Story with custom dimensions
+export const CustomDimensions = Template.bind( {} );
+CustomDimensions.args = {
+	width: 800,
+	height: 400,
+	margin: { top: 20, right: 20, bottom: 30, left: 40 },
+	data: sampleData,
+};

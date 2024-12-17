@@ -1,4 +1,4 @@
-/* global wp, gapi, FB, twttr, PaypalExpressCheckout */
+/* global gapi, FB, twttr, PaypalExpressCheckout */
 
 /**
  * Utilities to work with widgets in Customizer.
@@ -6,7 +6,7 @@
 
 /**
  * Checks whether this Customizer supports partial widget refresh.
- * @returns {boolean}
+ * @return {boolean}
  */
 wp.customizerHasPartialWidgetRefresh = function () {
 	return (
@@ -22,7 +22,7 @@ wp.customizerHasPartialWidgetRefresh = function () {
  * Verifies that the placed widget ID contains the widget name.
  * @param {object} placement
  * @param {string} widgetName
- * @returns {*|boolean}
+ * @return {*|boolean}
  */
 wp.isJetpackWidgetPlaced = function ( placement, widgetName ) {
 	return placement.partial.widgetId && 0 === placement.partial.widgetId.indexOf( widgetName );
@@ -90,7 +90,7 @@ wp.isJetpackWidgetPlaced = function ( placement, widgetName ) {
 								.attr( 'id' )
 								.replace( '_button', '' );
 							PaypalExpressCheckout.renderButton( null, null, buttonId, null );
-						} catch ( e ) {
+						} catch {
 							// PaypalExpressCheckout may fail.
 							// For the same usage, see also:
 							// https://github.com/Automattic/jetpack/blob/6c1971e6bed7d3df793392a7a58ffe0afaeeb5fe/modules/simple-payments/simple-payments.php#L111

@@ -5,7 +5,10 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
+use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
+use Automattic\Jetpack\Status\Host;
 
 /**
  * Add the Admin Interface Style setting on the General settings page.
@@ -112,6 +115,101 @@ function wpcom_admin_interface_pre_update_option( $new_value, $old_value ) {
 	return $new_value;
 }
 add_filter( 'pre_update_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_update_option', 10, 2 );
+
+const WPCOM_DUPLICATED_VIEW = array(
+	'edit.php',
+	'edit.php?post_type=jetpack-portfolio',
+	'edit.php?post_type=jetpack-testimonial',
+	'edit-tags.php?taxonomy=category',
+	'edit-tags.php?taxonomy=post_tag',
+);
+
+/**
+ * Get the current screen section.
+ *
+ * Temporary function copied from Base_Admin_Menu.
+ *
+ * return string
+ */
+function wpcom_admin_get_current_screen() {
+	// phpcs:disable WordPress.Security.NonceVerification
+	global $pagenow;
+	$screen = isset( $_REQUEST['screen'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['screen'] ) ) : $pagenow;
+	if ( isset( $_GET['post_type'] ) ) {
+		$screen = add_query_arg( 'post_type', sanitize_text_field( wp_unslash( $_GET['post_type'] ) ), $screen );
+	}
+	if ( isset( $_GET['taxonomy'] ) ) {
+		$screen = add_query_arg( 'taxonomy', sanitize_text_field( wp_unslash( $_GET['taxonomy'] ) ), $screen );
+	}
+	if ( isset( $_GET['page'] ) ) {
+		$screen = add_query_arg( 'page', sanitize_text_field( wp_unslash( $_GET['page'] ) ), $screen );
+	}
+	return $screen;
+	// phpcs:enable WordPress.Security.NonceVerification
+}
+
+/**
+ * Override the wpcom_admin_interface option with experiment variation.
+ *
+ * @param mixed $default_value The value to return instead of the option value.
+ *
+ * @return string Filtered wpcom_admin_interface option.
+ */
+function wpcom_admin_interface_pre_get_option( $default_value ) {
+	$current_screen = wpcom_admin_get_current_screen();
+
+	if ( in_array( $current_screen, WPCOM_DUPLICATED_VIEW, true ) && wpcom_is_duplicate_views_experiment_enabled() ) {
+		return 'wp-admin';
+	}
+
+	return $default_value;
+}
+
+/**
+ * Change the Admin menu links to WP-Admin for specific sections.
+ *
+ * @param array $value Preferred views.
+ *
+ * @return array Filtered preferred views.
+ */
+function wpcom_admin_get_user_option_jetpack( $value ) {
+	if ( ! wpcom_is_duplicate_views_experiment_enabled() ) {
+		return $value;
+	}
+
+	if ( ! is_array( $value ) ) {
+		$value = array();
+	}
+
+	foreach ( WPCOM_DUPLICATED_VIEW as $path ) {
+		$value[ $path ] = Automattic\Jetpack\Masterbar\Base_Admin_Menu::CLASSIC_VIEW;
+	}
+
+	return $value;
+}
+
+add_filter( 'get_user_option_jetpack_admin_menu_preferred_views', 'wpcom_admin_get_user_option_jetpack' );
+add_filter( 'pre_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_get_option', 10 );
+
+/**
+ * Hides the "View" switcher on WP Admin screens enforced by the "Remove duplicate views" experiment.
+ */
+function wpcom_duplicate_views_hide_view_switcher() {
+	if ( ! function_exists( '\Automattic\Jetpack\Masterbar\get_admin_menu_class' ) || ! function_exists( '\Automattic\Jetpack\Masterbar\should_customize_nav' ) ) {
+		return;
+	}
+
+	$admin_menu_class = apply_filters( 'jetpack_admin_menu_class', \Automattic\Jetpack\Masterbar\get_admin_menu_class() );
+	if ( \Automattic\Jetpack\Masterbar\should_customize_nav( $admin_menu_class ) ) {
+		$admin_menu = $admin_menu_class::get_instance();
+
+		$current_screen = wpcom_admin_get_current_screen();
+		if ( in_array( $current_screen, WPCOM_DUPLICATED_VIEW, true ) && wpcom_is_duplicate_views_experiment_enabled() ) {
+			remove_filter( 'in_admin_header', array( $admin_menu, 'add_dashboard_switcher' ) );
+		}
+	}
+}
+add_action( 'admin_init', 'wpcom_duplicate_views_hide_view_switcher' );
 
 /**
  * Determines whether the admin interface has been recently changed by checking the presence of the `admin-interface-changed` query param.
@@ -273,3 +371,67 @@ function wpcom_show_admin_interface_notice() {
 	);
 }
 add_action( 'admin_notices', 'wpcom_show_admin_interface_notice' );
+
+/**
+ * Check if the duplicate views experiment is enabled.
+ *
+ * @return boolean
+ */
+function wpcom_is_duplicate_views_experiment_enabled() {
+	$experiment_platform = 'calypso';
+	$experiment_name     = "{$experiment_platform}_post_onboarding_holdout_120924";
+
+	static $is_enabled = null;
+	if ( $is_enabled !== null ) {
+		return $is_enabled;
+	}
+
+	if ( ( new Host() )->is_wpcom_simple() ) {
+		$is_enabled = 'treatment' === \ExPlat\assign_current_user( $experiment_name );
+		return $is_enabled;
+	}
+
+	$option_name = 'duplicate_views_experiment_assignment';
+	$variation   = get_user_option( $option_name, get_current_user_id() );
+
+	if ( false !== $variation ) {
+		$is_enabled = 'treatment' === $variation;
+		return $is_enabled;
+	}
+
+	if ( ! ( new Jetpack_Connection() )->is_user_connected() ) {
+		$is_enabled = false;
+		return $is_enabled;
+	}
+
+	$request_path = add_query_arg(
+		array( 'experiment_name' => $experiment_name ),
+		"/experiments/0.1.0/assignments/{$experiment_platform}"
+	);
+	$response     = Client::wpcom_json_api_request_as_user( $request_path, 'v2' );
+
+	if ( is_wp_error( $response ) ) {
+		$is_enabled = false;
+		return $is_enabled;
+	}
+
+	$response_code = wp_remote_retrieve_response_code( $response );
+
+	if ( 200 !== $response_code ) {
+		$is_enabled = false;
+		return $is_enabled;
+	}
+
+	$data = json_decode( wp_remote_retrieve_body( $response ), true );
+
+	if ( isset( $data['variations'] ) && isset( $data['variations'][ $experiment_name ] ) ) {
+		$variation = $data['variations'][ $experiment_name ];
+		update_user_option( get_current_user_id(), $option_name, $variation, true );
+
+		$is_enabled = 'treatment' === $variation;
+		return $is_enabled;
+	} else {
+		$is_enabled = false;
+		return $is_enabled;
+	}
+}

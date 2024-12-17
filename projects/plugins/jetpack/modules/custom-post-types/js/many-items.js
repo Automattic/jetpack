@@ -2,7 +2,7 @@
 	var menuSelector, nonceInput, methods;
 
 	methods = {
-		init: function (/*options*/) {
+		init: function ( /*options*/ ) {
 			var $this = this,
 				tbody,
 				row;
@@ -17,7 +17,7 @@
 					methods.submitRow.apply( $this );
 				}
 				methods.addRow.apply( $this );
-			} ).on( 'focus.manyItemsTable', ':input', function (/*event*/) {
+			} ).on( 'focus.manyItemsTable', ':input', function ( /*event*/ ) {
 				$this.data( 'currentRow', $( this ).parents( 'tr:first' ) );
 			} );
 
@@ -89,10 +89,9 @@
 			return methods[ method ].apply( this, Array.prototype.slice.call( arguments, 1 ) );
 		} else if ( typeof method === 'object' || ! method ) {
 			return methods.init.apply( this, arguments );
-		} else {
-			$.error( 'Method ' + method + ' does not exist on jQuery.manyItemsTable' );
-			return this;
 		}
+		$.error( 'Method ' + method + ' does not exist on jQuery.manyItemsTable' );
+		return this;
 	};
 
 	$.fn.clickAddRow = function () {
