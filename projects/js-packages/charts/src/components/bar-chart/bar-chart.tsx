@@ -67,6 +67,12 @@ const BarChart: FC< BarChartProps > = ( {
 		hideTooltip();
 	}, [ hideTooltip ] );
 
+	const legendItems = data.map( d => ( {
+		label: d.label,
+		value: d.value.toString(),
+		color: theme.colors[ 0 ],
+	} ) );
+
 	return (
 		<div className={ clsx( 'bar-chart', className, styles[ 'bar-chart' ] ) }>
 			<svg width={ width } height={ height }>
@@ -115,5 +121,4 @@ const BarChart: FC< BarChartProps > = ( {
 };
 
 BarChart.displayName = 'BarChart';
-
 export default BarChart;
