@@ -98,11 +98,7 @@ const ConnectedProductCard: FC< ConnectedProductCardProps > = ( {
 	};
 
 	useEffect( () => {
-		if (
-			isRegistered &&
-			( status === PRODUCT_STATUSES.SITE_CONNECTION_ERROR ||
-				status === PRODUCT_STATUSES.NEEDS_FIRST_SITE_CONNECTION )
-		) {
+		if ( isRegistered ) {
 			refetch();
 		}
 	}, [ isRegistered, status, refetch ] );
