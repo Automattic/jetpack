@@ -75,24 +75,27 @@ add_filter( 'update_option_blog_public', 'wpcomsh_activate_blaze_module_on_launc
  */
 function wpcomsh_blaze_purge_transient_cache() {
 	$transient = 'jetpack_blaze_site_supports_blaze_' . Jetpack_Connection::get_site_id();
-	error_log('cache deleted!!' .  Jetpack_Connection::get_site_id() );
-
 	delete_transient( $transient );
 }
 
 /**
  * Delete the caching transient when coming soon is changed.
  */
-add_action('pre_update_option_wpcom_public_coming_soon', function($option) {
-	wpcomsh_blaze_purge_transient_cache();
-	return $option;
-});
+add_action(
+	'pre_update_option_wpcom_public_coming_soon',
+	function( $option ) {
+		wpcomsh_blaze_purge_transient_cache();
+		return $option;
+	}
+);
 
 /**
  * Delete the caching transient when the blog visibility option changes.
  */
-add_action('pre_update_option_blog_public', function($option) {
-	wpcomsh_blaze_purge_transient_cache();
-
-	return $option;
-});
+add_action(
+	'pre_update_option_blog_public',
+	function( $option ) {
+		wpcomsh_blaze_purge_transient_cache();
+		return $option;
+	}
+);
