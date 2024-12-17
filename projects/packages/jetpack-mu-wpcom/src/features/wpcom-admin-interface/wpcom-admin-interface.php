@@ -120,6 +120,7 @@ const WPCOM_DUPLICATED_VIEW = array(
 	'edit.php',
 	'edit.php?post_type=jetpack-portfolio',
 	'edit.php?post_type=jetpack-testimonial',
+	'edit-comments.php',
 	'edit-tags.php?taxonomy=category',
 	'edit-tags.php?taxonomy=post_tag',
 );
