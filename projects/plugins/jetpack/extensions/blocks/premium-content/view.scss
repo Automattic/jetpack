@@ -26,6 +26,20 @@
 	float: right;
 }
 
+%button-outline-style {
+	background-color: unset;
+	color: #32373c;
+}
+
+.wp-block-premium-content-login-button,
+.wp-block-jetpack-button {
+	&.is-style-outline {
+		.wp-block-button__link {
+			@extend %button-outline-style;
+		}
+	}
+}
+
 /* Legacy Subscribe/Login buttons */
 
 .wp-block-premium-content-logged-out-view__buttons {
