@@ -32,12 +32,15 @@ const Module = ( {
 }: ModuleProps ) => {
 	const { setNotice } = useNotices();
 	const [ status, setStatus ] = useSingleModuleState( slug, active => {
+		let message = __( 'Module activated', 'jetpack-boost' );
+		if ( ! active ) {
+			message = __( 'Module deactivated', 'jetpack-boost' );
+		}
+
 		setNotice( {
 			id: 'update-module-state',
 			type: 'success',
-			message: active
-				? __( 'Module activated', 'jetpack-boost' )
-				: __( 'Module deactivated', 'jetpack-boost' ),
+			message,
 		} );
 		if ( active ) {
 			onEnable?.();
@@ -52,13 +55,17 @@ const Module = ( {
 	const isFakeActive = ! isModuleAvailable && isWoaHosting() && slug === 'page_cache';
 
 	const handleToggle = () => {
+		let message = __( 'Deactivating module', 'jetpack-boost' );
+		if ( ! isModuleActive ) {
+			message = __( 'Activating module', 'jetpack-boost' );
+		}
+
 		setNotice( {
 			id: 'update-module-state',
 			type: 'pending',
-			message: isModuleActive
-				? __( 'Deactivating module', 'jetpack-boost' )
-				: __( 'Activating module', 'jetpack-boost' ),
+			message,
 		} );
+
 		if ( onBeforeToggle ) {
 			onBeforeToggle( ! isModuleActive );
 		}
