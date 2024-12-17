@@ -3,7 +3,7 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import Lightning from '$svg/lightning';
 import styles from './meta.module.scss';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { usePageCache, useClearPageCacheAction } from '$lib/stores/page-cache';
 import { Link } from 'react-router-dom';
 import clsx from 'clsx';
@@ -192,14 +192,6 @@ const BypassPatterns = ( {
 
 		return true;
 	};
-
-	useEffect( () => {
-		setInputValue( patterns );
-	}, [ patterns ] );
-
-	useEffect( () => {
-		setShowNotice( showErrorNotice );
-	}, [ showErrorNotice ] );
 
 	function save() {
 		recordBoostEvent( 'page_cache_exceptions_save_clicked', {} );
