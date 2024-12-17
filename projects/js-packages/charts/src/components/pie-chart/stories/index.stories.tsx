@@ -50,6 +50,22 @@ export const Default: StoryType = {
 	},
 };
 
+export const WithHorizontalLegend: StoryType = {
+	args: {
+		...Default.args,
+		showLegend: true,
+		legendOrientation: 'horizontal',
+	},
+};
+
+export const WithVerticalLegend: StoryType = {
+	args: {
+		...Default.args,
+		showLegend: true,
+		legendOrientation: 'vertical',
+	},
+};
+
 export const Doughnut: StoryType = {
 	args: {
 		...Default.args,
