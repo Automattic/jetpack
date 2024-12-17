@@ -58,7 +58,7 @@ class Connections_Controller extends WP_REST_Controller {
 			'/' . $this->rest_base,
 			array(
 				array(
-					'methods'             => WP_REST_Server::READABLE,
+					'methods'             => WP_REST_Server::READABLE, // @phan-suppress-current-line PhanPluginMixedKeyNoKey
 					'callback'            => array( $this, 'get_items' ),
 					'permission_callback' => array( $this, 'get_items_permission_check' ),
 					'args'                => array(
@@ -373,8 +373,8 @@ class Connections_Controller extends WP_REST_Controller {
 		}
 
 		$response = rest_ensure_response( $items );
-		$response->header( 'X-WP-Total', count( $items ) );
-		$response->header( 'X-WP-TotalPages', 1 );
+		$response->header( 'X-WP-Total', (string) count( $items ) );
+		$response->header( 'X-WP-TotalPages', '1' );
 
 		return $response;
 	}
@@ -388,20 +388,16 @@ class Connections_Controller extends WP_REST_Controller {
 	 * @return array filtered $connection
 	 */
 	public function prepare_item_for_response( $connection, $request ) {
-		if ( ! is_callable( array( $this, 'get_fields_for_response' ) ) ) {
-			return $connection;
-		}
-
 		$fields = $this->get_fields_for_response( $request );
 
 		$response_data = array();
 		foreach ( $connection as $field => $value ) {
-			if ( in_array( $field, $fields, true ) ) {
+			if ( rest_is_field_included( $field, $fields ) ) {
 				$response_data[ $field ] = $value;
 			}
 		}
 
-		return $response_data;
+		return rest_ensure_response( $response_data );
 	}
 
 	/**
@@ -433,5 +429,6 @@ class Connections_Controller extends WP_REST_Controller {
 }
 
 if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+	// @phan-suppress-next-line PhanUndeclaredFunction
 	wpcom_rest_api_v2_load_plugin( 'Automattic\Jetpack\Publicize\REST_API\Connections_Controller' );
 }
