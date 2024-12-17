@@ -39,6 +39,8 @@ export type DataPointPercentage = {
 export type ChartTheme = {
 	/** Background color for chart components */
 	backgroundColor: string;
+	/** Background color for labels */
+	labelBackgroundColor?: string;
 	/** Array of colors used for data visualization */
 	colors: string[];
 	/** Optional CSS styles for grid lines */
@@ -49,4 +51,35 @@ export type ChartTheme = {
 	gridColor: string;
 	/** Color of the grid lines in dark mode */
 	gridColorDark: string;
+};
+
+/**
+ * Base properties shared across all chart components
+ */
+export type BaseChartProps< T = DataPoint | DataPointDate > = {
+	/**
+	 * Array of data points to display in the chart
+	 */
+	data: T extends DataPoint | DataPointDate ? T[] : T;
+	/**
+	 * Width of the chart in pixels
+	 */
+	width: number;
+	/**
+	 * Height of the chart in pixels
+	 */
+	height?: number;
+	/**
+	 * Chart margins
+	 */
+	margin?: {
+		top: number;
+		right: number;
+		bottom: number;
+		left: number;
+	};
+	/**
+	 * Whether to show tooltips on hover. False by default.
+	 */
+	withTooltips?: boolean;
 };

@@ -8,19 +8,9 @@ import { FC, useCallback } from 'react';
 import { useChartTheme } from '../../providers/theme/theme-provider';
 import { BaseTooltip } from '../tooltip';
 import styles from './pie-semi-circle-chart.module.scss';
-import type { DataPointPercentage } from '../shared/types';
+import type { BaseChartProps, DataPointPercentage } from '../shared/types';
 
-type ArcData = PieArcDatum< DataPointPercentage >;
-
-interface PieSemiCircleChartProps {
-	/**
-	 * Array of data points to display in the chart
-	 */
-	data: DataPointPercentage[];
-	/**
-	 * Width of the chart in pixels
-	 */
-	width: number;
+interface PieSemiCircleChartProps extends BaseChartProps< DataPointPercentage[] > {
 	/**
 	 * Label text to display above the chart
 	 */
@@ -29,10 +19,6 @@ interface PieSemiCircleChartProps {
 	 * Note text to display below the label
 	 */
 	note: string;
-	/**
-	 * Whether to show tooltips
-	 */
-	showTooltips?: boolean;
 	/**
 	 * Direction of chart rendering
 	 * true for clockwise, false for counter-clockwise
@@ -44,12 +30,14 @@ interface PieSemiCircleChartProps {
 	thickness?: number;
 }
 
+type ArcData = PieArcDatum< DataPointPercentage >;
+
 const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 	data,
 	width,
 	label,
 	note,
-	showTooltips = false,
+	withTooltips = false,
 	clockwise = true,
 	thickness = 0.4,
 } ) => {
@@ -160,7 +148,7 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 				</Group>
 			</svg>
 
-			{ showTooltips && tooltipOpen && tooltipData && (
+			{ withTooltips && tooltipOpen && tooltipData && (
 				<BaseTooltip
 					data={ {
 						label: tooltipData.label,

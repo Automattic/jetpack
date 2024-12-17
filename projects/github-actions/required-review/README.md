@@ -70,11 +70,18 @@ This action is intended to be triggered by the `pull_request_review` event.
     request-reviews: true
 
     # GitHub Access Token. The user associated with this token will show up
-    # as the "creator" of the status check, and must have access to read
-    # pull request data, create status checks (`repo:status`), and to read
-    # your organization's teams (`read:org`).
+    # as the "creator" of the status check, and must have the permissions
+    # documented below.
     token: ${{ secrets.SOME_TOKEN }}
 ```
+
+### Permissions required
+
+This action needs access to read pull request data, request reviewers, create status checks, and to read your organization's teams.
+
+For OAuth apps and classic access tokens, that's `repo:status` and `read:org`.
+
+For GitHub Apps and fine-grained access tokens, that's read and write for repository "Commit statuses" (`statuses`) and "Pull requests" (`pull-requests`), and read-only for organization "Members".
 
 ## Requirements Format
 

@@ -73,5 +73,5 @@ WithTooltips.args = {
 	data,
 	label: 'OS',
 	note: 'Windows +10%',
-	showTooltips: true,
+	WithTooltips: true,
 };

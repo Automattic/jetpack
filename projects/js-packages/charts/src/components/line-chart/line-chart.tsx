@@ -10,32 +10,11 @@ import clsx from 'clsx';
 import { FC } from 'react';
 import { useChartTheme } from '../../providers/theme/theme-provider';
 import styles from './line-chart.module.scss';
-import type { DataPointDate } from '../shared/types';
+import type { BaseChartProps, DataPointDate } from '../shared/types';
 
 // TODO: revisit grid and axis options - accept as props for frid lines, axis, values: x, y, all, none
 
-type LineChartProps = {
-	/**
-	 * Array of data points to display in the chart
-	 */
-	data: DataPointDate[];
-	/**
-	 * Width of the chart in pixels
-	 */
-	width: number;
-	/**
-	 * Height of the chart in pixels
-	 */
-	height: number;
-	/**
-	 * Chart margins
-	 */
-	margin?: { top: number; right: number; bottom: number; left: number };
-	/**
-	 * Color of the line
-	 */
-	lineColor?: string;
-};
+interface LineChartProps extends BaseChartProps< DataPointDate[] > {}
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const renderTooltip: any = ( { tooltipData } ) => {
