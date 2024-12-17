@@ -195,12 +195,8 @@ add_filter( 'pre_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_get_o
  * Hides the "View" switcher on WP Admin screens enforced by the "Remove duplicate views" experiment.
  */
 function wpcom_duplicate_views_hide_view_switcher() {
-	if ( ! function_exists( '\Automattic\Jetpack\Masterbar\get_admin_menu_class' ) || ! function_exists( '\Automattic\Jetpack\Masterbar\should_customize_nav' ) ) {
-		return;
-	}
-
-	$admin_menu_class = apply_filters( 'jetpack_admin_menu_class', \Automattic\Jetpack\Masterbar\get_admin_menu_class() );
-	if ( \Automattic\Jetpack\Masterbar\should_customize_nav( $admin_menu_class ) ) {
+	$admin_menu_class = wpcom_get_custom_admin_menu_class();
+	if ( $admin_menu_class ) {
 		$admin_menu = $admin_menu_class::get_instance();
 
 		$current_screen = wpcom_admin_get_current_screen();
@@ -441,6 +437,11 @@ function wpcom_is_duplicate_views_experiment_enabled() {
  * the first time.
  */
 function wpcom_show_removed_calypso_screen_notice() {
+	$admin_menu_class = wpcom_get_custom_admin_menu_class();
+	if ( ! $admin_menu_class ) {
+		return;
+	}
+
 	$current_screen = wpcom_admin_get_current_screen();
 
 	if ( ! in_array( $current_screen, WPCOM_DUPLICATED_VIEW, true ) ) {
@@ -491,6 +492,24 @@ function wpcom_show_removed_calypso_screen_notice() {
 	);
 }
 add_action( 'admin_enqueue_scripts', 'wpcom_show_removed_calypso_screen_notice' );
+
+/**
+ * Gets the name of the class used to customize the admin menu when Nav Unification is enabled.
+ *
+ * @return false|string The class name of the customized admin menu if any, false otherwise.
+ */
+function wpcom_get_custom_admin_menu_class() {
+	if ( ! function_exists( '\Automattic\Jetpack\Masterbar\get_admin_menu_class' ) || ! function_exists( '\Automattic\Jetpack\Masterbar\should_customize_nav' ) ) {
+		return false;
+	}
+
+	$admin_menu_class = apply_filters( 'jetpack_admin_menu_class', \Automattic\Jetpack\Masterbar\get_admin_menu_class() );
+	if ( ! \Automattic\Jetpack\Masterbar\should_customize_nav( $admin_menu_class ) ) {
+		return false;
+	}
+
+	return $admin_menu_class;
+}
 
 /**
  * Handles the AJAX request to dismiss a notice of a removed Calypsos screen.
