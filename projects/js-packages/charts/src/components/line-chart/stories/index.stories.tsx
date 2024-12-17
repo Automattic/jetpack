@@ -24,7 +24,6 @@ export const Default = Template.bind( {} );
 Default.args = {
 	width: 500,
 	height: 300,
-	margin: { top: 20, right: 20, bottom: 30, left: 40 },
 	data: sampleData,
 };
 
@@ -33,7 +32,6 @@ export const SingleSeries = Template.bind( {} );
 SingleSeries.args = {
 	width: 500,
 	height: 300,
-	margin: { top: 20, right: 20, bottom: 30, left: 40 },
 	data: [ sampleData[ 0 ] ], // Only London temperature data
 };
 
@@ -42,7 +40,6 @@ export const WithoutTooltip = Template.bind( {} );
 WithoutTooltip.args = {
 	width: 500,
 	height: 300,
-	margin: { top: 20, right: 20, bottom: 30, left: 40 },
 	data: sampleData,
 	withTooltips: false,
 };
@@ -52,6 +49,5 @@ export const CustomDimensions = Template.bind( {} );
 CustomDimensions.args = {
 	width: 800,
 	height: 400,
-	margin: { top: 20, right: 20, bottom: 30, left: 40 },
 	data: sampleData,
 };

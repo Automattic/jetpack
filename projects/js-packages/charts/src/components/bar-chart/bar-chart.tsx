@@ -9,14 +9,9 @@ import { FC, useCallback, type MouseEvent } from 'react';
 import { useChartTheme } from '../../providers/theme';
 import { BaseTooltip } from '../tooltip';
 import styles from './bar-chart.module.scss';
-import type { BaseChartProps, DataPoint } from '../shared/types';
+import type { BaseChartProps, SeriesData } from '../shared/types';
 
-interface BarChartProps extends BaseChartProps {
-	/**
-	 * Array of data points to display in the chart
-	 */
-	data: DataPoint[];
-}
+interface BarChartProps extends BaseChartProps< SeriesData[] > {}
 
 const BarChart: FC< BarChartProps > = ( {
 	data,
@@ -28,30 +23,48 @@ const BarChart: FC< BarChartProps > = ( {
 } ) => {
 	const theme = useChartTheme();
 	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
-		useTooltip< DataPoint >();
+		useTooltip< { value: number; xLabel: string; yLabel: string; seriesIndex: number } >();
 
 	const margins = margin;
 	const xMax = width - margins.left - margins.right;
 	const yMax = height - margins.top - margins.bottom;
 
+	// Get labels for x-axis from the first series (assuming all series have same labels)
+	const labels = data[ 0 ].data.map( d => d?.label );
+
 	const xScale = scaleBand< string >( {
 		range: [ 0, xMax ],
-		domain: data.map( d => d.label ),
+		domain: labels,
 		padding: 0.2,
+	} );
+
+	const innerScale = scaleBand( {
+		range: [ 0, xScale.bandwidth() ],
+		domain: data.map( ( _, i ) => i.toString() ),
+		padding: 0.1,
 	} );
 
 	const yScale = scaleLinear< number >( {
 		range: [ yMax, 0 ],
-		domain: [ 0, Math.max( ...data.map( d => d.value ) ) ],
+		domain: [
+			0,
+			Math.max( ...data.map( series => Math.max( ...series.data.map( d => d.value ) ) ) ),
+		],
 	} );
 
 	const handleMouseMove = useCallback(
-		( event: MouseEvent< SVGRectElement >, datum: DataPoint ) => {
+		(
+			event: MouseEvent< SVGRectElement >,
+			value: number,
+			xLabel: string,
+			yLabel: string,
+			seriesIndex: number
+		) => {
 			const coords = localPoint( event );
 			if ( ! coords ) return;
 
 			showTooltip( {
-				tooltipData: datum,
+				tooltipData: { value, xLabel, yLabel, seriesIndex },
 				tooltipLeft: coords.x,
 				tooltipTop: coords.y - 10,
 			} );
@@ -67,36 +80,47 @@ const BarChart: FC< BarChartProps > = ( {
 		<div className={ clsx( 'bar-chart', className, styles[ 'bar-chart' ] ) }>
 			<svg width={ width } height={ height }>
 				<Group left={ margins.left } top={ margins.top }>
-					{ data.map( d => {
-						const handleBarMouseMove = event => handleMouseMove( event, d );
+					{ data.map( ( series, seriesIndex ) => (
+						<Group key={ seriesIndex }>
+							{ series.data.map( d => {
+								const xPos = xScale( d.label );
+								if ( xPos === undefined ) return null;
 
-						return (
-							<Bar
-								key={ `bar-${ d.label }` }
-								x={ xScale( d.label ) }
-								y={ yScale( d.value ) }
-								width={ xScale.bandwidth() }
-								height={ yMax - ( yScale( d.value ) ?? 0 ) }
-								fill={ theme.colors[ 0 ] }
-								onMouseMove={ withTooltips ? handleBarMouseMove : undefined }
-								onMouseLeave={ withTooltips ? handleMouseLeave : undefined }
-							/>
-						);
-					} ) }
+								const barWidth = innerScale.bandwidth();
+								const barX = xPos + ( innerScale( seriesIndex.toString() ) ?? 0 );
+
+								const handleBarMouseMove = event =>
+									handleMouseMove( event, d.value, d.label, series.label, seriesIndex );
+
+								return (
+									<Bar
+										key={ `bar-${ seriesIndex }-${ d.label }` }
+										x={ barX }
+										y={ yScale( d.value ) }
+										width={ barWidth }
+										height={ yMax - ( yScale( d.value ) ?? 0 ) }
+										fill={ theme.colors[ seriesIndex % theme.colors.length ] }
+										onMouseMove={ withTooltips ? handleBarMouseMove : undefined }
+										onMouseLeave={ withTooltips ? handleMouseLeave : undefined }
+									/>
+								);
+							} ) }
+						</Group>
+					) ) }
 					<AxisLeft scale={ yScale } />
 					<AxisBottom scale={ xScale } top={ yMax } />
 				</Group>
 			</svg>
 
 			{ withTooltips && tooltipOpen && tooltipData && (
-				<BaseTooltip
-					data={ {
-						label: tooltipData.label,
-						value: tooltipData.value,
-					} }
-					top={ tooltipTop }
-					left={ tooltipLeft }
-				/>
+				<BaseTooltip top={ tooltipTop } left={ tooltipLeft }>
+					<div>
+						<div>{ tooltipData.yLabel }</div>
+						<div>
+							{ tooltipData.xLabel }: { tooltipData.value }
+						</div>
+					</div>
+				</BaseTooltip>
 			) }
 		</div>
 	);

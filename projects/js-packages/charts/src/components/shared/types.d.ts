@@ -7,10 +7,12 @@ export type DataPoint = {
 
 export type DataPointDate = {
 	date: Date;
+	label?: string;
 	value: number;
 };
 
 export type SeriesData = {
+	group?: string;
 	label: string;
 	data: DataPointDate[];
 };
