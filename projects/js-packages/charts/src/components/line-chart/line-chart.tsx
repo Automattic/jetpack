@@ -89,9 +89,9 @@ const LineChart: FC< LineChartProps > = ( {
 		);
 	}
 
-	// Create legend items from series data
-	const legendItems = data.map( ( series, index ) => ( {
-		label: series.label,
+	// Create legend items from group labels, this iterates over groups rather than data points
+	const legendItems = data.map( ( group, index ) => ( {
+		label: group.label, // Label for each unique group
 		value: '', // Empty string since we don't want to show a specific value
 		color: providerTheme.colors[ index % providerTheme.colors.length ],
 	} ) );
