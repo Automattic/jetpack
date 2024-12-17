@@ -27,7 +27,7 @@ Array.prototype.forEach.call(
  * Creates internal state via closure to ensure all state is
  * isolated to a single Block + button instance.
  *
- * @param {HTMLElement} blockWrapperEl - the button that was clicked
+ * @param {HTMLElement} blockWrapperEl the button that was clicked
  */
 function buildLoadMoreHandler( blockWrapperEl ) {
 	const btnEl = blockWrapperEl.querySelector( '[data-next]' );
@@ -75,7 +75,7 @@ function buildLoadMoreHandler( blockWrapperEl ) {
 	};
 
 	/**
-	 * @param {object} data - Post data
+	 * @param {Object} data Post data
 	 */
 	function onSuccess( data ) {
 		// Validate received data.
@@ -164,8 +164,8 @@ function getRenderedPostsIds() {
  * Wrapper for XMLHttpRequest that performs given number of retries when error
  * occurs.
  *
- * @param {object} options - XMLHttpRequest options
- * @param {number} n       - retry count before throwing
+ * @param {Object} options XMLHttpRequest options
+ * @param {number} n       retry count before throwing
  */
 function fetchWithRetry( options, n ) {
 	const xhr = new XMLHttpRequest();
@@ -221,7 +221,7 @@ function fetchWithRetry( options, n ) {
  * 	"required": ["items", "next"]
  * }
  *
- * @param {object} data - posts endpoint payload
+ * @param {Object} data posts endpoint payload
  */
 function isPostsDataValid( data ) {
 	let isValid = false;
@@ -249,8 +249,8 @@ function isPostsDataValid( data ) {
 /**
  * Checks if object has own property.
  *
- * @param {object} obj  - Object
- * @param {string} prop - Property to check
+ * @param {Object} obj  Object
+ * @param {string} prop Property to check
  */
 function hasOwnProp( obj, prop ) {
 	return Object.prototype.hasOwnProperty.call( obj, prop );

@@ -1,17 +1,17 @@
 /**
  * External dependencies
  */
-import apiFetch from '@wordpress/api-fetch';
-import { register, select } from '@wordpress/data';
-import { addQueryArgs } from '@wordpress/url';
-import { set } from 'lodash';
 import { createStore, applyMiddleware } from 'redux';
-import createSagaMiddleware from 'redux-saga';
 import { call, put, takeLatest, delay } from 'redux-saga/effects';
+import createSagaMiddleware from 'redux-saga';
+import { set } from 'lodash';
 
 /**
  * WordPress dependencies
  */
+import { register, select } from '@wordpress/data';
+import apiFetch from '@wordpress/api-fetch';
+import { addQueryArgs } from '@wordpress/url';
 
 /**
  * Internal dependencies
@@ -89,7 +89,7 @@ const createCacheKey = JSON.stringify;
  * Get posts for a single block.
  *
  * @yield
- * @param {object} block - an object with a postsQuery and a clientId
+ * @param {Object} block an object with a postsQuery and a clientId
  */
 function* getPostsForBlock( block ) {
 	const cacheKey = createCacheKey( block.postsQuery );

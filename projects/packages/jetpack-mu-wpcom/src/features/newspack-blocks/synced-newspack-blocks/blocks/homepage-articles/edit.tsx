@@ -3,14 +3,27 @@
 /**
  * Internal dependencies
  */
+import QueryControls from '../../components/query-controls';
+import { postsBlockSelector, postsBlockDispatch, isBlogPrivate, shouldReflow } from './utils';
+import {
+	formatAvatars,
+	formatByline,
+	formatSponsorLogos,
+	formatSponsorByline,
+	getPostStatusLabel,
+} from '../../shared/js/utils';
+import { PostTypesPanel, PostStatusesPanel } from '../../components/editor-panels';
 
 /**
  * External dependencies
  */
+import classNames from 'classnames';
 
 /**
  * WordPress dependencies
  */
+import { __ } from '@wordpress/i18n';
+import { Component, Fragment, RawHTML } from '@wordpress/element';
 import {
 	BlockControls,
 	InspectorControls,
@@ -34,11 +47,9 @@ import {
 	Path,
 	SVG,
 } from '@wordpress/components';
-import { compose } from '@wordpress/compose';
 import { withDispatch, withSelect } from '@wordpress/data';
-import { Component, Fragment, RawHTML } from '@wordpress/element';
+import { compose } from '@wordpress/compose';
 import { decodeEntities } from '@wordpress/html-entities';
-import { __ } from '@wordpress/i18n';
 import {
 	Icon,
 	formatListBullets,
@@ -49,17 +60,6 @@ import {
 	pullLeft,
 	pullRight,
 } from '@wordpress/icons';
-import classNames from 'classnames';
-import { PostTypesPanel, PostStatusesPanel } from '../../components/editor-panels';
-import QueryControls from '../../components/query-controls';
-import {
-	formatAvatars,
-	formatByline,
-	formatSponsorLogos,
-	formatSponsorByline,
-	getPostStatusLabel,
-} from '../../shared/js/utils';
-import { postsBlockSelector, postsBlockDispatch, isBlogPrivate, shouldReflow } from './utils';
 
 let IS_SUBTITLE_SUPPORTED_IN_THEME: boolean;
 if (
@@ -186,8 +186,8 @@ class Edit extends Component< HomepageArticlesProps > {
 							) }
 							{ showCategory &&
 								( ! post.newspack_post_sponsors || post.newspack_sponsors_show_categories ) && (
-									<RawHTML>{ decodeEntities( post.newspack_category_info ) }</RawHTML>
-								) }
+								<RawHTML>{ decodeEntities( post.newspack_category_info ) }</RawHTML>
+							) }
 						</div>
 					) }
 					{ RichText.isEmpty( sectionHeader ) ? (
@@ -565,10 +565,10 @@ class Edit extends Component< HomepageArticlesProps > {
 							label={ __( 'Show Excerpt', 'jetpack-mu-wpcom' ) }
 							checked={ showExcerpt }
 							onChange={ () => {
-								setAttributes( {
-									showExcerpt: ! showExcerpt,
-									showFullContent: showFullContent ? false : showFullContent,
-								} );
+								setAttributes({
+									showExcerpt: !showExcerpt,
+									showFullContent: showFullContent ? false : showFullContent
+								})
 							} }
 						/>
 					</PanelRow>
@@ -588,10 +588,10 @@ class Edit extends Component< HomepageArticlesProps > {
 							label={ __( 'Show Full Content', 'jetpack-mu-wpcom' ) }
 							checked={ showFullContent }
 							onChange={ () => {
-								setAttributes( {
-									showFullContent: ! showFullContent,
-									showExcerpt: showExcerpt ? false : showExcerpt,
-								} );
+								setAttributes({
+									showFullContent: !showFullContent,
+									showExcerpt: showExcerpt ? false : showExcerpt
+								})
 							} }
 						/>
 					</PanelRow>
