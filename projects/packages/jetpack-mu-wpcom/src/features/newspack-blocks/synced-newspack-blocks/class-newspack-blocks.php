@@ -1101,7 +1101,7 @@ class Newspack_Blocks {
 			}
 
 			// Set excerpt length (https://core.trac.wordpress.org/ticket/29533#comment:3).
-			$excerpt = force_balance_tags( html_entity_decode( wp_trim_words( htmlentities( $excerpt ), $excerpt_length, static::more_excerpt() ) ) );
+			$excerpt = force_balance_tags( html_entity_decode( wp_trim_words( htmlentities( $excerpt, ENT_COMPAT ), $excerpt_length, static::more_excerpt(), ENT_COMPAT ) ) );
 
 			return $excerpt;
 		};
