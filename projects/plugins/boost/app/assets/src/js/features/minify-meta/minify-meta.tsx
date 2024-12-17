@@ -16,7 +16,7 @@ const MetaComponent = ( { buttonText, placeholder, datasyncKey }: Props ) => {
 		setNotice( {
 			id: noticeId,
 			type: 'success',
-			message: __( 'Changes saved.', 'jetpack-boost' ),
+			message: __( 'Changes saved', 'jetpack-boost' ),
 		} );
 	} );
 	const [ inputValue, setInputValue ] = useState( () => values.join( ', ' ) );
