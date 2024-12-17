@@ -38,12 +38,9 @@ const ScanPage = () => {
 		currentScanStatus = 'active';
 	}
 
+	const hasActiveThreats = status && status.threats.length;
 	const hasHistory = history && history.threats.length;
-<<<<<<< HEAD
-	const showResults = !! status.threats.length || hasHistory;
-=======
-	const showResults = status.threats.length || hasHistory;
->>>>>>> 1850b0c9a6 (Protect: only show Threats DataViews when scan is in progress or has results to show)
+	const showResults = hasActiveThreats || hasHistory;
 
 	const filters = useMemo( () => {
 		if ( location.pathname.includes( '/scan/history' ) ) {
