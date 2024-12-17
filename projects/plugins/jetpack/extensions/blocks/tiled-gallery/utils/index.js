@@ -11,7 +11,11 @@ import { PHOTON_MAX_RESIZE } from '../constants';
 
 let jetpackPlanFromState;
 window.addEventListener( 'load', function () {
-	jetpackPlanFromState = window?.Jetpack_Editor_Initial_State?.jetpack?.jetpack_plan;
+	const hasTiledGallery = document.querySelector( '.wp-block-jetpack-tiled-gallery' );
+	// If there is no tiled gallery block, we can use the jetpack_plan variable defined in the initial state.
+	if ( ! hasTiledGallery ) {
+		jetpackPlanFromState = window?.Jetpack_Editor_Initial_State?.jetpack?.jetpack_plan;
+	}
 } );
 
 export function isSquareishLayout( layout ) {
