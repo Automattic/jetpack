@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Button } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
 import { type Props, useMetaQuery } from '$lib/stores/minify';
@@ -11,7 +11,8 @@ import { useMinifyDefaults } from './lib/stores';
 const MetaComponent = ( { buttonText, placeholder, datasyncKey }: Props ) => {
 	const noticeId = `minify-meta-${ datasyncKey }`;
 
-	const [ values, updateValues ] = useMetaQuery( datasyncKey, () => {
+	const [ values, updateValues ] = useMetaQuery( datasyncKey, newState => {
+		setInputValue( newState.join( ', ' ) );
 		setNotice( {
 			id: noticeId,
 			type: 'success',
@@ -29,10 +30,6 @@ const MetaComponent = ( { buttonText, placeholder, datasyncKey }: Props ) => {
 	if ( minifyDefaults !== undefined ) {
 		defaultValue = minifyDefaults.join( ', ' );
 	}
-
-	useEffect( () => {
-		setInputValue( values.join( ', ' ) );
-	}, [ values ] );
 
 	const onToggleHandler = ( isExpanded: boolean ) => {
 		if ( ! isExpanded ) {
