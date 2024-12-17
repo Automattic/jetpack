@@ -127,7 +127,7 @@ class Network_Options extends Module {
 	 */
 	public function send_full_sync_actions( $config, $send_until, $state ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		// we call this instead of do_action when sending immediately.
-		$this->send_action( 'jetpack_full_sync_network_options', array( true ), 'jetpack_full_sync_network_options' );
+		$this->send_action( 'jetpack_full_sync_network_options', array( true ) );
 
 		// The number of actions enqueued, and next module state (true == done).
 		return array( 'finished' => true );
