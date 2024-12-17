@@ -25,8 +25,8 @@ const BarChart: FC< BarChartProps > = ( {
 	height,
 	margin = { top: 20, right: 20, bottom: 40, left: 40 },
 	withTooltips = false,
-	showLegend = false,
-	legendOrientation = 'horizontal',
+	showLegend,
+	legendOrientation,
 	className,
 } ) => {
 	const theme = useChartTheme();

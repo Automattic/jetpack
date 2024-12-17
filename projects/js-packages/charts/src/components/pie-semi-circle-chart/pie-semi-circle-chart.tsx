@@ -42,8 +42,8 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 	withTooltips = false,
 	clockwise = true,
 	thickness = 0.4,
-	showLegend = false,
-	legendOrientation = 'horizontal',
+	showLegend,
+	legendOrientation,
 } ) => {
 	const providerTheme = useChartTheme();
 	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
