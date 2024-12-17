@@ -604,7 +604,7 @@ abstract class Base_Admin_Menu {
 	public function set_preferred_view( $screen, $view ) {
 		remove_filter( 'get_user_option_jetpack_admin_menu_preferred_views', 'wpcom_admin_get_user_option_jetpack' );
 		$preferred_views = $this->get_preferred_views();
-		if ( function_exists( 'jetpack_admin_menu_preferred_views' ) ) {
+		if ( function_exists( 'wpcom_admin_get_user_option_jetpack' ) ) {
 			add_filter( 'get_user_option_jetpack_admin_menu_preferred_views', 'wpcom_admin_get_user_option_jetpack' );
 		}
 
