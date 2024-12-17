@@ -1,10 +1,11 @@
+/* eslint-disable no-undef */
 /* global _novaDragDrop */
 
 ( function ( $ ) {
 	let list;
 
 	/**
-	 *
+	 * Initialize the drag and drop functionality.
 	 */
 	function init() {
 		list = $( '#the-list' );
@@ -15,7 +16,7 @@
 	}
 
 	/**
-	 *
+	 * Allow the menu items to be dragged.
 	 */
 	function dragMenus() {
 		list.sortable( {
@@ -31,7 +32,7 @@
 	}
 
 	/**
-	 *
+	 * Allow the menu items to be reordered.
 	 */
 	function reOrder() {
 		list.find( '.menu-label-row' ).each( function () {
@@ -47,7 +48,7 @@
 	}
 
 	/**
-	 *
+	 * Ensure the submit button is added to the page.
 	 */
 	function addSubmitButton() {
 		$( '.tablenav' ).prepend(
@@ -60,7 +61,7 @@
 	}
 
 	/**
-	 *
+	 * Add the nonce to the form.
 	 */
 	function addNonce() {
 		$( '#posts-filter' ).append(
@@ -73,7 +74,7 @@
 	}
 
 	/**
-	 *
+	 * Change the form method to POST.
 	 */
 	function changeToPost() {
 		$( '#posts-filter' ).attr( 'method', 'post' );
