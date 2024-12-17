@@ -21,6 +21,7 @@ interface Props {
  * @param {string}                                                     props.title    - Block title.
  * @param {string}                                                     props.url      - Support link URL.
  * @param {number}                                                     props.postId   - Post ID.
+ * @return {React.JSX.Element} The component to render.
  */
 export default function DescriptionSupportLink( {
 	children,

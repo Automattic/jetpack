@@ -3,11 +3,12 @@ import { Annotation } from '.';
 
 import './style-annotation.scss';
 
-// eslint-disable-next-line jsdoc/require-returns
 /**
  * Custom tooltips plugin for uPlot.
  *
- * @param {Annotation[]} annotations - The periods to display in the tooltip.
+ * @param annotations - The periods to display in the tooltip.
+ *
+ * @return The plugin object.
  */
 export function annotationsPlugin( annotations: Annotation[] ) {
 	let containerEl, annotationsContainer;

@@ -6,6 +6,7 @@ import { ReactNode, useState } from 'react';
 import { Button } from '@wordpress/components';
 import { useDismissibleAlertState } from '$features/performance-history/lib/hooks';
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { recordBoostEvent } from '$lib/utils/analytics';
 
 type Props = {
 	scoreChange: number | false; // Speed score shift to show, or false if none.
@@ -69,13 +70,18 @@ function PopOut( { scoreChange }: Props ) {
 	 * Dismissed means that the user asked to never show us this alert again.
 	 */
 	const [ isDismissed, dismissAlert ] = useDismissibleAlertState( message.id );
-
 	/*
 	 * Hide the alert for now. The alert will show up again if the user refreshes the page.
 	 */
 	const [ isClosed, setClose ] = useState( false );
 
 	const hideAlert = () => setClose( true );
+
+	if ( hasScoreChanged ) {
+		recordBoostEvent( 'speed_score_alert_shown', {
+			score_direction: scoreChange > 0 ? 'up' : 'down',
+		} );
+	}
 
 	const animationStyles = useSpring( {
 		from: {
