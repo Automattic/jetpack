@@ -37,6 +37,7 @@ class Publicize_Setup {
 
 		}
 
+		// @phan-suppress-next-line PhanNoopNew
 		new REST_API\Connections_Controller();
 
 		// Adding on a higher priority to make sure we're the first field registered.
