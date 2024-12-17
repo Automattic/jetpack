@@ -83,7 +83,7 @@ function wpcomsh_blaze_purge_transient_cache() {
  */
 add_action(
 	'pre_update_option_wpcom_public_coming_soon',
-	function( $option ) {
+	function ( $option ) {
 		wpcomsh_blaze_purge_transient_cache();
 		return $option;
 	}
@@ -94,7 +94,7 @@ add_action(
  */
 add_action(
 	'pre_update_option_blog_public',
-	function( $option ) {
+	function ( $option ) {
 		wpcomsh_blaze_purge_transient_cache();
 		return $option;
 	}
