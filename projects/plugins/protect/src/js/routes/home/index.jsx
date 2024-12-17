@@ -27,7 +27,6 @@ const HomePage = () => {
 							checked: !! status.lastChecked,
 							threats: status.files,
 							type: 'files',
-							name: __( 'Files', 'jetpack-protect' ),
 						},
 				  ]
 				: [] ),
