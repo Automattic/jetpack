@@ -1,6 +1,10 @@
 .components-modal__frame.removed-calypso-screen-notice {
 	width: 512px;
 
+	&.is-loading {
+		display: none;
+	}
+
 	.removed-calypso-screen-notice__image {
 		background-color: #7b90ff;
 		padding-top: 60px;

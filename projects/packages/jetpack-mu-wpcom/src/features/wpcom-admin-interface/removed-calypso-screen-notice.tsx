@@ -8,6 +8,7 @@ import './removed-calypso-screen-notice.scss';
 
 const Notice = () => {
 	const [ isOpen, setIsOpen ] = useState( true );
+	const [ isImageLoading, setIsImageLoading ] = useState( true );
 
 	if ( ! isOpen ) {
 		return null;
@@ -32,7 +33,7 @@ const Notice = () => {
 
 	return (
 		<Guide
-			className="removed-calypso-screen-notice"
+			className={ `removed-calypso-screen-notice ${ isImageLoading ? 'is-loading' : '' }` }
 			contentLabel={ title }
 			finishButtonText={ __( 'Got it', 'jetpack-mu-wpcom' ) }
 			onFinish={ dismiss }
@@ -40,7 +41,11 @@ const Notice = () => {
 				{
 					image: (
 						<div className="removed-calypso-screen-notice__image">
-							<img alt="" src={ removedCalypsoScreenNoticeConfig.imageUrl } />
+							<img
+								alt=""
+								src={ removedCalypsoScreenNoticeConfig.imageUrl }
+								onLoad={ () => setIsImageLoading( false ) }
+							/>
 						</div>
 					),
 					content: (
