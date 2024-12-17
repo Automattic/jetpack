@@ -44,7 +44,7 @@ then
     echo --branch=master
     echo "--nodemodules (to use defined in package.json)"
     echo "--path=/path/to/newspack-blocks"
-    echo --release=v2.0.0
+    echo --release=v4.0.0
     echo
     echo You can find the latest release ID on https://github.com/Automattic/newspack-blocks/releases/latest
     echo
@@ -61,7 +61,10 @@ then
 
 		if [[ "$CURRENT_VERSION" == "$NAME" ]]; then
 			echo "The current version $CURRENT_VERSION of the newspack-blocks is synced."
-			exit 0
+			read -rp "Do you want to proceed anyway? (y/N): " proceed
+			if [[ ! "$proceed" =~ ^[Yy]$ ]]; then
+				exit 0
+			fi
 		fi
 	fi
 
