@@ -5,58 +5,30 @@ import { scaleBand, scaleLinear } from '@visx/scale';
 import { Bar } from '@visx/shape';
 import { useTooltip } from '@visx/tooltip';
 import clsx from 'clsx';
-import { FC, useCallback } from 'react';
+import { FC, useCallback, type MouseEvent } from 'react';
 import { useChartTheme } from '../../providers/theme';
 import { Legend } from '../legend';
 import { BaseTooltip } from '../tooltip';
 import styles from './bar-chart.module.scss';
 import type { LegendItem } from '../legend/types';
-import type { DataPoint } from '../shared/types';
+import type { BaseChartProps, DataPoint } from '../shared/types';
 
-type BarChartProps = {
+interface BarChartProps extends BaseChartProps {
 	/**
 	 * Array of data points to display in the chart
 	 */
 	data: DataPoint[];
-	/**
-	 * Width of the chart in pixels
-	 */
-	width: number;
-	/**
-	 * Height of the chart in pixels
-	 */
-	height: number;
-	/**
-	 * Chart margins
-	 */
-	margin?: {
-		top?: number;
-		right?: number;
-		bottom?: number;
-		left?: number;
-	};
-	/**
-	 * Whether to show tooltips on hover
-	 */
-	showTooltips?: boolean;
-	/**
-	 * Whether to show legend
-	 */
-	showLegend?: boolean;
-	/**
-	 * Legend orientation
-	 */
-	legendOrientation?: 'horizontal' | 'vertical';
-};
+}
 
 const BarChart: FC< BarChartProps > = ( {
 	data,
 	width,
 	height,
 	margin = { top: 20, right: 20, bottom: 40, left: 40 },
-	showTooltips = false,
+	withTooltips = false,
 	showLegend = false,
 	legendOrientation = 'horizontal',
+	className,
 } ) => {
 	const theme = useChartTheme();
 	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
@@ -79,7 +51,7 @@ const BarChart: FC< BarChartProps > = ( {
 	} );
 
 	const handleMouseMove = useCallback(
-		( event: React.MouseEvent, datum: DataPoint ) => {
+		( event: MouseEvent< SVGRectElement >, datum: DataPoint ) => {
 			const coords = localPoint( event );
 			if ( ! coords ) return;
 
@@ -96,50 +68,32 @@ const BarChart: FC< BarChartProps > = ( {
 		hideTooltip();
 	}, [ hideTooltip ] );
 
-	const handleBarMouseMove = useCallback(
-		( d: DataPoint ) => ( event: React.MouseEvent< SVGRectElement > ) => {
-			handleMouseMove( event, d );
-		},
-		[ handleMouseMove ]
-	);
-
-	// Create legend items from data and theme colors
-	const legendItems: LegendItem[] = data.map( item => ( {
-		label: item.label,
-		value: item.value.toString(),
-		color: theme.colors[ 0 ],
-	} ) );
-
 	return (
-		<div
-			className={ clsx(
-				'bar-chart',
-				styles[ 'bar-chart' ],
-				showLegend && styles[ `bar-chart--with-${ legendOrientation }-legend` ]
-			) }
-		>
+		<div className={ clsx( 'bar-chart', className, styles[ 'bar-chart' ] ) }>
 			<svg width={ width } height={ height }>
 				<Group left={ margins.left } top={ margins.top }>
-					{ data.map( d => (
-						<Bar
-							key={ `bar-${ d.label }` }
-							x={ xScale( d.label ) }
-							y={ yScale( d.value ) }
-							width={ xScale.bandwidth() }
-							height={ yMax - ( yScale( d.value ) ?? 0 ) }
-							fill={ theme.colors[ 0 ] }
-							onMouseMove={ handleBarMouseMove( d ) }
-							onMouseLeave={ handleMouseLeave }
-						/>
-					) ) }
+					{ data.map( d => {
+						const handleBarMouseMove = event => handleMouseMove( event, d );
 
-					{ /* Axes */ }
+						return (
+							<Bar
+								key={ `bar-${ d.label }` }
+								x={ xScale( d.label ) }
+								y={ yScale( d.value ) }
+								width={ xScale.bandwidth() }
+								height={ yMax - ( yScale( d.value ) ?? 0 ) }
+								fill={ theme.colors[ 0 ] }
+								onMouseMove={ withTooltips ? handleBarMouseMove : undefined }
+								onMouseLeave={ withTooltips ? handleMouseLeave : undefined }
+							/>
+						);
+					} ) }
 					<AxisLeft scale={ yScale } />
 					<AxisBottom scale={ xScale } top={ yMax } />
 				</Group>
 			</svg>
 
-			{ showTooltips && tooltipOpen && tooltipData && (
+			{ withTooltips && tooltipOpen && tooltipData && (
 				<BaseTooltip
 					data={ {
 						label: tooltipData.label,

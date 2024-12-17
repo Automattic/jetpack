@@ -9,23 +9,9 @@ import { useChartTheme } from '../../providers/theme/theme-provider';
 import { Legend } from '../legend';
 import { BaseTooltip } from '../tooltip';
 import styles from './pie-semi-circle-chart.module.scss';
-import type { DataPointPercentage } from '../shared/types';
+import type { BaseChartProps, DataPointPercentage } from '../shared/types';
 
-type ArcData = PieArcDatum< DataPointPercentage >;
-
-interface PieSemiCircleChartProps {
-	/**
-	 * Array of data points to display in the chart
-	 */
-	data: DataPointPercentage[];
-	/**
-	 * Width of the chart in pixels
-	 */
-	width: number;
-	/**
-	 * Height of the chart in pixels
-	 */
-	height: number;
+interface PieSemiCircleChartProps extends BaseChartProps< DataPointPercentage[] > {
 	/**
 	 * Label text to display above the chart
 	 */
@@ -35,41 +21,47 @@ interface PieSemiCircleChartProps {
 	 */
 	note: string;
 	/**
-	 * Whether to show tooltips
+	 * Direction of chart rendering
+	 * true for clockwise, false for counter-clockwise
 	 */
-	showTooltips?: boolean;
+	clockwise?: boolean;
 	/**
-	 * Whether to show legend
+	 * Thickness of the pie chart. A value between 0 and 1
 	 */
-	showLegend?: boolean;
-	/**
-	 * Orientation of the legend
-	 */
-	legendOrientation?: 'horizontal' | 'vertical';
+	thickness?: number;
 }
+
+type ArcData = PieArcDatum< DataPointPercentage >;
 
 const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 	data,
 	width,
-	height,
 	label,
 	note,
-	showTooltips = false,
-	showLegend = false,
-	legendOrientation = 'horizontal',
+	className,
+	withTooltips = false,
+	clockwise = true,
+	thickness = 0.4,
 } ) => {
 	const providerTheme = useChartTheme();
 	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
 		useTooltip< DataPointPercentage >();
 
 	const centerX = width / 2;
-	const centerY = height;
+	const height = width / 2;
+	const radius = width / 2;
+	const pad = 0.03;
+	const innerRadius = radius * ( 1 - thickness + pad );
 
 	// Map the data to include index for color assignment
 	const dataWithIndex = data.map( ( d, index ) => ( {
 		...d,
 		index,
 	} ) );
+
+	// Set the clockwise direction based on the prop
+	const startAngle = clockwise ? -Math.PI / 2 : Math.PI / 2;
+	const endAngle = clockwise ? Math.PI / 2 : -Math.PI / 2;
 
 	const accessors = {
 		value: ( d: DataPointPercentage & { index: number } ) => d.value,
@@ -115,20 +107,22 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 	} ) );
 
 	return (
-		<div className={ clsx( 'pie-semi-circle-chart', styles[ 'pie-semi-circle-chart' ] ) }>
+		<div
+			className={ clsx( 'pie-semi-circle-chart', styles[ 'pie-semi-circle-chart' ], className ) }
+		>
 			<svg width={ width } height={ height }>
 				{ /* Main chart group that contains both the pie and text elements */ }
-				<Group top={ centerY } left={ centerX }>
+				<Group top={ centerX } left={ centerX }>
 					{ /* Pie chart */ }
 					<Pie< DataPointPercentage & { index: number } >
 						data={ dataWithIndex }
 						pieValue={ accessors.value }
-						outerRadius={ width / 2 } // half of the diameter (width)
-						innerRadius={ ( width / 2 ) * 0.6 } // 70% of the radius
+						outerRadius={ radius }
+						innerRadius={ innerRadius }
 						cornerRadius={ 3 }
-						padAngle={ 0.03 }
-						startAngle={ -Math.PI / 2 }
-						endAngle={ Math.PI / 2 }
+						padAngle={ pad }
+						startAngle={ startAngle }
+						endAngle={ endAngle }
 						pieSort={ accessors.sort }
 					>
 						{ pie => {
@@ -165,7 +159,7 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 				</Group>
 			</svg>
 
-			{ showTooltips && tooltipOpen && tooltipData && (
+			{ withTooltips && tooltipOpen && tooltipData && (
 				<BaseTooltip
 					data={ {
 						label: tooltipData.label,

@@ -21,6 +21,29 @@ const sampleData = [
 	{ date: new Date( '2024-01-05' ), value: 30, label: 'Jan 5' },
 ];
 
+const lineSampleData = [
+	{
+		label: 'Line 1',
+		data: [
+			{ date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' },
+			{ date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
+			{ date: new Date( '2024-01-03' ), value: 15, label: 'Jan 3' },
+			{ date: new Date( '2024-01-04' ), value: 25, label: 'Jan 4' },
+			{ date: new Date( '2024-01-05' ), value: 30, label: 'Jan 5' },
+		],
+	},
+	{
+		label: 'Line 2',
+		data: [
+			{ date: new Date( '2024-01-01' ), value: 1, label: 'Jan 1' },
+			{ date: new Date( '2024-01-02' ), value: 2, label: 'Jan 2' },
+			{ date: new Date( '2024-01-03' ), value: 1.5, label: 'Jan 3' },
+			{ date: new Date( '2024-01-04' ), value: 2.5, label: 'Jan 4' },
+			{ date: new Date( '2024-01-05' ), value: 3, label: 'Jan 5' },
+		],
+	},
+];
+
 const pieData = [
 	{
 		label: 'Windows',
@@ -54,7 +77,7 @@ export const Default: Story = {
 	render: () => (
 		<ThemeProvider>
 			<GridComponent>
-				<LineChart data={ sampleData } width={ 400 } height={ 300 } />
+				<LineChart data={ lineSampleData } width={ 400 } height={ 300 } />
 				<BarChart data={ sampleData } width={ 400 } height={ 300 } />
 				<PieSemiCircleChart
 					data={ pieData }
@@ -72,7 +95,7 @@ export const JetpackTheme: Story = {
 	render: () => (
 		<ThemeProvider theme={ jetpackTheme }>
 			<GridComponent>
-				<LineChart data={ sampleData } width={ 400 } height={ 300 } />
+				<LineChart data={ lineSampleData } width={ 400 } height={ 300 } />
 				<BarChart data={ sampleData } width={ 400 } height={ 300 } />
 				<PieSemiCircleChart
 					data={ pieData }
@@ -90,7 +113,7 @@ export const WooTheme: Story = {
 	render: () => (
 		<ThemeProvider theme={ wooTheme }>
 			<GridComponent>
-				<LineChart data={ sampleData } width={ 400 } height={ 300 } />
+				<LineChart data={ lineSampleData } width={ 400 } height={ 300 } />
 				<BarChart data={ sampleData } width={ 400 } height={ 300 } />
 				<PieSemiCircleChart
 					data={ pieData }
@@ -116,7 +139,7 @@ export const CustomColorTheme: Story = {
 			} }
 		>
 			<GridComponent>
-				<LineChart data={ sampleData } width={ 400 } height={ 300 } />
+				<LineChart data={ lineSampleData } width={ 400 } height={ 300 } />
 				<BarChart data={ sampleData } width={ 400 } height={ 300 } />
 				<PieSemiCircleChart
 					data={ pieData }
