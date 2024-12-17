@@ -6,6 +6,8 @@
  * @package wpcomsh
  */
 
+use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
+
 /**
  * Activate the Blaze module
  * If you use a version of Jetpack that supports it,
@@ -61,5 +63,36 @@ function wpcomsh_activate_blaze_module_on_launching( $old_value, $new_value ) {
 	if ( $blog_public === 1 ) {
 		wpcomsh_activate_blaze_module();
 	}
+
+	return $new_value;
 }
 add_filter( 'update_option_blog_public', 'wpcomsh_activate_blaze_module_on_launching', 10, 2 );
+
+/**
+ * Delete the transient for the given site id.
+ *
+ * @return void
+ */
+function wpcomsh_blaze_purge_transient_cache() {
+	$transient = 'jetpack_blaze_site_supports_blaze_' . Jetpack_Connection::get_site_id();
+	error_log('cache deleted!!' .  Jetpack_Connection::get_site_id() );
+
+	delete_transient( $transient );
+}
+
+/**
+ * Delete the caching transient when coming soon is changed.
+ */
+add_action('pre_update_option_wpcom_public_coming_soon', function($option) {
+	wpcomsh_blaze_purge_transient_cache();
+	return $option;
+});
+
+/**
+ * Delete the caching transient when the blog visibility option changes.
+ */
+add_action('pre_update_option_blog_public', function($option) {
+	wpcomsh_blaze_purge_transient_cache();
+
+	return $option;
+});
