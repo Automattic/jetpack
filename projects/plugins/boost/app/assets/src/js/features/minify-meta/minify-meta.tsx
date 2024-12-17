@@ -79,6 +79,11 @@ const MetaComponent = ( { buttonText, placeholder, datasyncKey }: Props ) => {
 
 	function loadDefaultValue() {
 		setInputValue( defaultValue );
+		setNotice( {
+			id: 'minify_' + concatenateType + '_load_default',
+			type: 'success',
+			message: __( 'Default handles loaded', 'jetpack-boost' ),
+		} );
 		/*
 		 * Possible Events:
 		 * minify_js_exceptions_load_default
