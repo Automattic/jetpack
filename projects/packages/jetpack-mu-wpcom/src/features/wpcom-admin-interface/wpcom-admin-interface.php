@@ -478,6 +478,8 @@ function wpcom_show_removed_calypso_screen_notice() {
 	wp_set_script_translations( $handle, 'jetpack-mu-wpcom', Jetpack_Mu_Wpcom::PKG_DIR . 'languages' );
 
 	global $title;
+	$clean_title = preg_replace( '/\(\d+\)/', '', $title );
+	$clean_title = trim( $clean_title );
 	$config = wp_json_encode(
 		array(
 			'imageUrl'     => plugins_url( 'screens/' . sanitize_title( $current_screen ) . '.webp', __FILE__ ),
