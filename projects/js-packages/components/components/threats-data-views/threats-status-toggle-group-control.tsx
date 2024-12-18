@@ -95,6 +95,7 @@ export default function ThreatsStatusToggleGroupControl( {
 	 */
 	const isStatusFilterSelected = useMemo(
 		() => ( threatStatuses: ThreatStatus[] ) =>
+			Array.isArray( view.filters ) &&
 			view.filters.some(
 				filter =>
 					filter.field === 'status' &&

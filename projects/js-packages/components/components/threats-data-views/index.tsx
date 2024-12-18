@@ -14,8 +14,9 @@ import {
 import { dateI18n } from '@wordpress/date';
 import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import Badge from '../badge';
+import useBreakpointMatch from '../layout/use-breakpoint-match';
 import ThreatFixerButton from '../threat-fixer-button';
 import ThreatSeverityBadge from '../threat-severity-badge';
 import {
@@ -79,16 +80,7 @@ export default function ThreatsDataViews( {
 	onIgnoreThreats?: ActionButton< Threat >[ 'callback' ];
 	onUnignoreThreats?: ActionButton< Threat >[ 'callback' ];
 } ): JSX.Element {
-	const baseView = {
-		sort: {
-			field: 'severity',
-			direction: 'desc' as SortDirection,
-		},
-		search: '',
-		filters: filters || [],
-		page: 1,
-		perPage: 20,
-	};
+	const [ isSm ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
 
 	/**
 	 * DataView default layouts.
@@ -97,15 +89,19 @@ export default function ThreatsDataViews( {
 	 *
 	 * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-dataviews/#defaultlayouts-record-string-view
 	 */
-	const defaultLayouts: SupportedLayouts = {
-		table: {
-			...baseView,
-			fields: [ THREAT_FIELD_SEVERITY, THREAT_FIELD_TYPE, THREAT_FIELD_AUTO_FIX ],
-			titleField: THREAT_FIELD_TITLE,
-			descriptionField: THREAT_FIELD_DESCRIPTION,
-			showMedia: false,
-		},
-		list: {
+	const defaultLayouts: SupportedLayouts = useMemo( () => {
+		const baseView = {
+			sort: {
+				field: 'severity',
+				direction: 'desc' as SortDirection,
+			},
+			search: '',
+			filters: filters || [],
+			page: 1,
+			perPage: 20,
+		};
+
+		const listLayout = {
 			...baseView,
 			fields: [
 				THREAT_FIELD_SEVERITY,
@@ -116,18 +112,48 @@ export default function ThreatsDataViews( {
 			titleField: THREAT_FIELD_TITLE,
 			mediaField: THREAT_FIELD_ICON,
 			showMedia: true,
-		},
-	};
+		};
+
+		const tableLayout = {
+			...baseView,
+			fields: [ THREAT_FIELD_SEVERITY, THREAT_FIELD_TYPE, THREAT_FIELD_AUTO_FIX ],
+			titleField: THREAT_FIELD_TITLE,
+			descriptionField: THREAT_FIELD_DESCRIPTION,
+			showMedia: false,
+		};
+
+		return isSm ? { list: listLayout } : { table: tableLayout, list: listLayout };
+	}, [ filters, isSm ] );
+
+	const tableView: View = useMemo(
+		() => ( {
+			type: 'table',
+			...defaultLayouts.table,
+		} ),
+		[ defaultLayouts.table ]
+	);
+
+	const listView: View = useMemo(
+		() => ( {
+			type: 'list',
+			...defaultLayouts.list,
+		} ),
+		[ defaultLayouts.list ]
+	);
 
 	/**
 	 * DataView view object - configures how the dataset is visible to the user.
 	 *
 	 * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-dataviews/#view-object
 	 */
-	const [ view, setView ] = useState< View >( {
-		type: 'table',
-		...defaultLayouts.table,
-	} );
+	const [ view, setView ] = useState< View >( tableView );
+
+	/**
+	 * Set the initial view based on the screen size.
+	 */
+	useEffect( () => {
+		setView( isSm ? listView : tableView );
+	}, [ isSm, listView, tableView ] );
 
 	/**
 	 * Compute values from the provided threats data.

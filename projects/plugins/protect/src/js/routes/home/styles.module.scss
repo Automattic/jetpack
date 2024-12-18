@@ -2,7 +2,7 @@
 	padding-left: 0;
 	padding-right: 0;
 	overflow: hidden;
-
+    
 	> * {
 		margin-left: calc( var( --spacing-base ) * -3 ); // -24px
 		margin-right: calc( var( --spacing-base ) * -3 ); // -24px
@@ -67,5 +67,10 @@
 
     .stat-card-icon {
         margin-bottom: 0;
+    }
+
+    .scan-report-container > * {
+        margin-left: 0;
+        margin-right: 0;
     }
 }
