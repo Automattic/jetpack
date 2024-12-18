@@ -589,17 +589,9 @@ abstract class Publicize_Base {
 	 * @return string
 	 */
 	public function get_username( $service_name, $connection ) {
-		$cmeta = $this->get_connection_meta( $connection );
+		$handle = $this->get_external_handle( $service_name, $connection );
 
-		if ( 'mastodon' === $service_name && isset( $cmeta['external_display'] ) ) {
-			return $cmeta['external_display'];
-		}
-
-		if ( isset( $cmeta['connection_data']['meta']['username'] ) ) {
-			return $cmeta['connection_data']['meta']['username'];
-		}
-
-		return $this->get_display_name( $service_name, $connection );
+		return $handle ?? $this->get_display_name( $service_name, $connection );
 	}
 
 	/**
