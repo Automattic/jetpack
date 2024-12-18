@@ -29,6 +29,7 @@ namespace Automattic\Jetpack\Classic_Theme_Helper;
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Roles;
+use WP_Query;
 
 if ( ! class_exists( __NAMESPACE__ . '\Nova_Restaurant' ) ) {
 
@@ -184,7 +185,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Nova_Restaurant' ) ) {
 							'singular_name'              => __( 'Menu Item Label', 'jetpack-classic-theme-helper' ),
 							/* translators: this is about a food menu */
 							'search_items'               => __( 'Search Menu Item Labels', 'jetpack-classic-theme-helper' ),
-							'popular_items'              => __( 'Popular Labels', 'jetpack-classic-theme-helperk' ),
+							'popular_items'              => __( 'Popular Labels', 'jetpack-classic-theme-helper' ),
 							/* translators: this is about a food menu */
 							'all_items'                  => __( 'All Menu Item Labels', 'jetpack-classic-theme-helper' ),
 							/* translators: this is about a food menu */
@@ -582,15 +583,18 @@ if ( ! class_exists( __NAMESPACE__ . '\Nova_Restaurant' ) ) {
 
 			$this->setup_menu_item_columns();
 
-			wp_register_script(
+			Assets::register_script(
 				'nova-menu-checkboxes',
-				Assets::get_file_url_for_environment(
-					'_inc/build/custom-post-types/js/menu-checkboxes.min.js',
-					'modules/custom-post-types/js/menu-checkboxes.js'
-				),
-				array( 'jquery' ),
-				$this->version,
-				true
+				'../../dist/custom-post-types/js/menu-checkboxes.js',
+				__FILE__,
+				array(
+					'dependencies' => array(
+						'jquery',
+					),
+					'in_footer'    => true,
+					'enqueue'      => false,
+					'textdomain'   => 'jetpack-classic-theme-helper',
+				)
 			);
 		}
 
@@ -845,15 +849,19 @@ if ( ! class_exists( __NAMESPACE__ . '\Nova_Restaurant' ) ) {
 
 			$this->maybe_reorder_menu_items();
 
-			wp_enqueue_script(
+			Assets::register_script(
 				'nova-drag-drop',
-				Assets::get_file_url_for_environment(
-					'_inc/build/custom-post-types/js/nova-drag-drop.min.js',
-					'modules/custom-post-types/js/nova-drag-drop.js'
-				),
-				array( 'jquery', 'jquery-ui-sortable' ),
-				$this->version,
-				true
+				'../../dist/custom-post-types/js/nova-drag-drop.js',
+				__FILE__,
+				array(
+					'dependencies' => array(
+						'jquery',
+						'jquery-ui-sortable',
+					),
+					'in_footer'    => true,
+					'enqueue'      => true,
+					'textdomain'   => 'jetpack-classic-theme-helper',
+				)
 			);
 
 			wp_localize_script(
@@ -1047,7 +1055,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Nova_Restaurant' ) ) {
 
 			$term = $this->get_menu_item_menu_leaf( $post->ID );
 
-			$term_id = $term instanceof WP_Term ? $term->term_id : null;
+			$term_id = $term instanceof \WP_Term ? $term->term_id : null;
 
 			if ( false !== $last_term_id && $last_term_id === $term_id ) {
 				return;
@@ -1097,7 +1105,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Nova_Restaurant' ) ) {
 					<?php
 						echo str_repeat( ' &mdash; ', (int) $parent_count ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- nothing to escape here.
 
-					if ( $term instanceof WP_Term ) {
+					if ( $term instanceof \WP_Term ) {
 						echo esc_html( sanitize_term_field( 'name', $term_name, $term_id, self::MENU_TAX, 'display' ) );
 						edit_term_link( __( 'edit', 'jetpack-classic-theme-helper' ), '<span class="edit-nova-section"><span class="dashicon dashicon-edit"></span>', '</span>', $term );
 
@@ -1108,7 +1116,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Nova_Restaurant' ) ) {
 					</h3>
 				</td>
 				<td>
-					<?php if ( $term instanceof WP_Term ) { ?>
+					<?php if ( $term instanceof \WP_Term ) { ?>
 					<a class="nova-move-menu-up" title="<?php esc_attr_e( 'Move menu section up', 'jetpack-classic-theme-helper' ); ?>" href="<?php echo esc_url( $up_url ); ?>"><?php echo esc_html_x( 'UP', 'indicates movement (up or down)', 'jetpack-classic-theme-helper' ); ?></a>
 					<br />
 					<a class="nova-move-menu-down" title="<?php esc_attr_e( 'Move menu section down', 'jetpack-classic-theme-helper' ); ?>" href="<?php echo esc_url( $down_url ); ?>"><?php echo esc_html_x( 'DOWN', 'indicates movement (up or down)', 'jetpack-classic-theme-helper' ); ?></a>
@@ -1144,15 +1152,16 @@ if ( ! class_exists( __NAMESPACE__ . '\Nova_Restaurant' ) ) {
 		 * @return void
 		 */
 		public function enqueue_many_items_scripts() {
-			wp_enqueue_script(
+
+			Assets::register_script(
 				'nova-many-items',
-				Assets::get_file_url_for_environment(
-					'_inc/build/custom-post-types/js/many-items.min.js',
-					'modules/custom-post-types/js/many-items.js'
-				),
-				array( 'jquery' ),
-				$this->version,
-				true
+				'../../dist/custom-post-types/js/many-items.js',
+				__FILE__,
+				array(
+					'in_footer'  => true,
+					'enqueue'    => true,
+					'textdomain' => 'jetpack-classic-theme-helper',
+				)
 			);
 		}
 
@@ -1745,5 +1754,4 @@ if ( ! class_exists( __NAMESPACE__ . '\Nova_Restaurant' ) ) {
 		}
 	}
 
-	add_action( 'init', array( 'Nova_Restaurant', 'init' ) );
 }
