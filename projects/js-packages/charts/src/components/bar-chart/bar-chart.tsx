@@ -14,6 +14,8 @@ import type { BaseChartProps, SeriesData } from '../shared/types';
 
 interface BarChartProps extends BaseChartProps< SeriesData[] > {}
 
+type BarChartTooltipData = { value: number; xLabel: string; yLabel: string; seriesIndex: number };
+
 const BarChart: FC< BarChartProps > = ( {
 	data,
 	width,
@@ -26,7 +28,7 @@ const BarChart: FC< BarChartProps > = ( {
 } ) => {
 	const theme = useChartTheme();
 	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
-		useTooltip< { value: number; xLabel: string; yLabel: string; seriesIndex: number } >();
+		useTooltip< BarChartTooltipData >();
 
 	const handleMouseMove = useCallback(
 		(
