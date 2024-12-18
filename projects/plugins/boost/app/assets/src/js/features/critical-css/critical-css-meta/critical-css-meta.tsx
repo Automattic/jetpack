@@ -5,7 +5,6 @@ import styles from './critical-css-meta.module.scss';
 import { useCriticalCssState } from '../lib/stores/critical-css-state';
 import { RegenerateCriticalCssSuggestion, useRegenerationReason } from '..';
 import { useLocalCriticalCssGenerator } from '../local-generator/local-generator-provider';
-import { useRetryRegenerate } from '../lib/use-retry-regenerate';
 import { isFatalError } from '../lib/critical-css-errors';
 
 /**
@@ -14,7 +13,6 @@ import { isFatalError } from '../lib/critical-css-errors';
  */
 export default function CriticalCssMeta() {
 	const [ cssState ] = useCriticalCssState();
-	const [ hasRetried, retry ] = useRetryRegenerate();
 	const [ { data: regenerateReason } ] = useRegenerationReason();
 	const { progress } = useLocalCriticalCssGenerator();
 	const showFatalError = isFatalError( cssState );
@@ -39,8 +37,6 @@ export default function CriticalCssMeta() {
 				cssState={ cssState }
 				isCloud={ false }
 				showFatalError={ showFatalError }
-				hasRetried={ hasRetried }
-				retry={ retry }
 				highlightRegenerateButton={ !! regenerateReason }
 				extraText={ __(
 					'Remember to regenerate each time you make changes that affect your HTML or CSS structure.',
