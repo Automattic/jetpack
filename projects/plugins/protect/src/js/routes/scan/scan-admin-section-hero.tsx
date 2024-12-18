@@ -2,6 +2,7 @@ import { Text, Button, useBreakpointMatch } from '@automattic/jetpack-components
 import { Tooltip } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
 import { __, _n, sprintf } from '@wordpress/i18n';
+import clsx from 'clsx';
 import { useCallback, useState, useMemo } from 'react';
 import AdminSectionHero from '../../components/admin-section-hero';
 import ErrorAdminSectionHero from '../../components/error-admin-section-hero';
@@ -15,7 +16,7 @@ import useWafData from '../../hooks/use-waf-data';
 import ScanningAdminSectionHero from './scanning-admin-section-hero';
 import styles from './styles.module.scss';
 
-const ScanAdminSectionHero: React.FC = () => {
+const ScanAdminSectionHero: React.FC = ( { size = 'normal' }: { size?: 'normal' | 'large' } ) => {
 	const { recordEvent } = useAnalyticsTracks();
 	const { hasPlan, upgradePlan } = usePlan();
 	const { setModal } = useModal();
@@ -91,7 +92,7 @@ const ScanAdminSectionHero: React.FC = () => {
 	};
 
 	if ( scanning ) {
-		return <ScanningAdminSectionHero />;
+		return <ScanningAdminSectionHero size={ size } />;
 	}
 
 	if ( status.error ) {
@@ -106,7 +107,11 @@ const ScanAdminSectionHero: React.FC = () => {
 
 	return (
 		<AdminSectionHero>
-			<AdminSectionHero.Main className={ styles[ 'hero-main' ] }>
+			<AdminSectionHero.Main
+				className={ clsx( styles[ 'hero-main' ], {
+					[ styles[ 'hero-main--large' ] ]: size === 'large',
+				} ) }
+			>
 				<Text className={ styles[ 'last-checked' ] } mb={ 2 } ref={ setDailyScansPopoverAnchor }>
 					{ lastCheckedLocalTimestamp
 						? sprintf(
