@@ -2,7 +2,7 @@ import { Meta, StoryObj } from '@storybook/react';
 import { BaseLegend } from '../base-legend';
 
 const meta: Meta< typeof BaseLegend > = {
-	title: 'JS Packages/Charts/Legend',
+	title: 'JS Packages/Charts/Composites/Legend',
 	component: BaseLegend,
 	parameters: {
 		layout: 'centered',

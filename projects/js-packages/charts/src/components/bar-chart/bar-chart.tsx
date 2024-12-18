@@ -28,34 +28,6 @@ const BarChart: FC< BarChartProps > = ( {
 	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
 		useTooltip< { value: number; xLabel: string; yLabel: string; seriesIndex: number } >();
 
-	const margins = margin;
-	const xMax = width - margins.left - margins.right;
-	const yMax = height - margins.top - margins.bottom;
-
-	// Get labels for x-axis from the first series (assuming all series have same labels)
-	const labels = data[ 0 ].data.map( d => d?.label );
-
-	// Create scales
-	const xScale = scaleBand< string >( {
-		range: [ 0, xMax ],
-		domain: labels,
-		padding: 0.2,
-	} );
-
-	const innerScale = scaleBand( {
-		range: [ 0, xScale.bandwidth() ],
-		domain: data.map( ( _, i ) => i.toString() ),
-		padding: 0.1,
-	} );
-
-	const yScale = scaleLinear< number >( {
-		range: [ yMax, 0 ],
-		domain: [
-			0,
-			Math.max( ...data.map( series => Math.max( ...series.data.map( d => d.value ) ) ) ),
-		],
-	} );
-
 	const handleMouseMove = useCallback(
 		(
 			event: MouseEvent< SVGRectElement >,
@@ -79,6 +51,38 @@ const BarChart: FC< BarChartProps > = ( {
 	const handleMouseLeave = useCallback( () => {
 		hideTooltip();
 	}, [ hideTooltip ] );
+
+	if ( ! data?.length ) {
+		return <div className={ clsx( 'bar-chart-empty', styles[ 'bat-chart-empty' ] ) }>Empty...</div>;
+	}
+
+	const margins = margin;
+	const xMax = width - margins.left - margins.right;
+	const yMax = height - margins.top - margins.bottom;
+
+	// Get labels for x-axis from the first series (assuming all series have same labels)
+	const labels = data[ 0 ].data?.map( d => d?.label );
+
+	// Create scales
+	const xScale = scaleBand< string >( {
+		range: [ 0, xMax ],
+		domain: labels,
+		padding: 0.2,
+	} );
+
+	const innerScale = scaleBand( {
+		range: [ 0, xScale.bandwidth() ],
+		domain: data.map( ( _, i ) => i.toString() ),
+		padding: 0.1,
+	} );
+
+	const yScale = scaleLinear< number >( {
+		range: [ yMax, 0 ],
+		domain: [
+			0,
+			Math.max( ...data.map( series => Math.max( ...series.data.map( d => d?.value || 0 ) ) ) ),
+		],
+	} );
 
 	// Create legend items from group labels, this iterates over groups rather than data points
 	const legendItems = data.map( ( group, index ) => ( {

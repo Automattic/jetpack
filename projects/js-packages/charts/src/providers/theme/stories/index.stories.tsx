@@ -18,6 +18,7 @@ const sampleData = [ barSampleData[ 0 ], barSampleData[ 1 ], barSampleData[ 2 ] 
 
 const lineSampleData = [
 	{
+		group: 'Line 1',
 		label: 'Line 1',
 		data: [
 			{ date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' },
@@ -28,6 +29,7 @@ const lineSampleData = [
 		],
 	},
 	{
+		group: 'Line 2',
 		label: 'Line 2',
 		data: [
 			{ date: new Date( '2024-01-01' ), value: 1, label: 'Jan 1' },
@@ -74,13 +76,7 @@ export const Default: Story = {
 			<GridComponent>
 				<LineChart data={ lineSampleData } width={ 400 } height={ 300 } />
 				<BarChart data={ sampleData } width={ 400 } height={ 300 } />
-				<PieSemiCircleChart
-					data={ pieData }
-					width={ 400 }
-					height={ 200 }
-					label="Pie Chart"
-					note="Default Theme"
-				/>
+				<PieSemiCircleChart data={ pieData } width={ 400 } label="Pie Chart" note="Default Theme" />
 			</GridComponent>
 		</ThemeProvider>
 	),
@@ -92,13 +88,7 @@ export const JetpackTheme: Story = {
 			<GridComponent>
 				<LineChart data={ lineSampleData } width={ 400 } height={ 300 } />
 				<BarChart data={ sampleData } width={ 400 } height={ 300 } />
-				<PieSemiCircleChart
-					data={ pieData }
-					width={ 400 }
-					height={ 200 }
-					label="Pie Chart"
-					note="Jetpack Theme"
-				/>
+				<PieSemiCircleChart data={ pieData } width={ 400 } label="Pie Chart" note="Jetpack Theme" />
 			</GridComponent>
 		</ThemeProvider>
 	),
@@ -110,13 +100,7 @@ export const WooTheme: Story = {
 			<GridComponent>
 				<LineChart data={ lineSampleData } width={ 400 } height={ 300 } />
 				<BarChart data={ sampleData } width={ 400 } height={ 300 } />
-				<PieSemiCircleChart
-					data={ pieData }
-					width={ 400 }
-					height={ 200 }
-					label="Pie Chart"
-					note="Woo Theme"
-				/>
+				<PieSemiCircleChart data={ pieData } width={ 400 } label="Pie Chart" note="Woo Theme" />
 			</GridComponent>
 		</ThemeProvider>
 	),
@@ -139,7 +123,6 @@ export const CustomColorTheme: Story = {
 				<PieSemiCircleChart
 					data={ pieData }
 					width={ 400 }
-					height={ 200 }
 					label="Pie Chart"
 					note="Custom Color Theme"
 				/>

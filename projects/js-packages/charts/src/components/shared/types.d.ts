@@ -14,7 +14,7 @@ export type DataPointDate = {
 export type SeriesData = {
 	group?: string;
 	label: string;
-	data: DataPointDate[];
+	data: DataPointDate[] | DataPoint[];
 };
 
 export type MultipleDataPointsDate = {

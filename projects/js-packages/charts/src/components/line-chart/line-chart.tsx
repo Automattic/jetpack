@@ -83,7 +83,7 @@ const LineChart: FC< LineChartProps > = ( {
 } ) => {
 	const providerTheme = useChartTheme();
 
-	if ( ! data.length ) {
+	if ( ! data?.length ) {
 		return (
 			<div className={ clsx( 'line-chart-empty', styles[ 'line-chart-empty' ] ) }>Empty...</div>
 		);
@@ -128,7 +128,7 @@ const LineChart: FC< LineChartProps > = ( {
 					<AnimatedLineSeries
 						key={ seriesData?.label }
 						dataKey={ seriesData?.label }
-						data={ seriesData.data }
+						data={ seriesData.data as DataPointDate[] } // TODO: this needs fixing or a more specific type for each chart
 						{ ...accessors }
 						stroke={ theme.colors[ index % theme.colors.length ] }
 						strokeWidth={ 2 }

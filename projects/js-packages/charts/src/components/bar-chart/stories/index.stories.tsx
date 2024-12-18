@@ -65,11 +65,8 @@ export const ManyDataSeries: StoryType = {
 
 export const WithLegend = {
 	args: {
-		width: 500,
-		height: 350,
-		margin: { top: 20, right: 20, bottom: 40, left: 40 },
-		data: data[ 0 ].data,
-		seriesLabel: data[ 0 ].group,
+		...Default.args,
+		data,
 		showTooltips: true,
 		showLegend: true,
 		legendOrientation: 'horizontal',
@@ -79,6 +76,8 @@ export const WithLegend = {
 export const WithVerticalLegend = {
 	args: {
 		...WithLegend.args,
+		data: [ data[ 0 ] ],
+		showLegend: true,
 		legendOrientation: 'vertical',
 	},
 };

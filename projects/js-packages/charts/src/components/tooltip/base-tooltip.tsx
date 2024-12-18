@@ -35,7 +35,7 @@ type BaseTooltipProps = TooltipCommonProps & ( DefaultDataTooltip | CustomToolti
 
 const DefaultTooltipContent = ( { data }: TooltipComponentProps ) => (
 	<>
-		{ data.label }: { data.valueDisplay || data.value }
+		{ data?.label }: { data?.valueDisplay || data?.value }
 	</>
 );
 
