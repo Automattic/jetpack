@@ -4,16 +4,20 @@ import {
 	isSimpleSite,
 } from '@automattic/jetpack-shared-extension-utils';
 import { isBlobURL } from '@wordpress/blob';
+import { select } from '@wordpress/data';
 import { range } from 'lodash';
 import photon from 'photon';
 import isOfflineMode from '../../../shared/is-offline-mode';
+import { waitForEditor } from '../../../shared/wait-for-editor';
 import { PHOTON_MAX_RESIZE } from '../constants';
 
 let jetpackPlanFromState;
-window.addEventListener( 'load', function () {
-	const hasTiledGallery = document.querySelector( '.wp-block-jetpack-tiled-gallery' );
-	// If there is no tiled gallery block, we can use the jetpack_plan variable defined in the initial state.
-	if ( ! hasTiledGallery ) {
+
+waitForEditor().then( () => {
+	const hasImageCompare = select( 'core/block-editor' )
+		.getBlocks()
+		.some( block => block.name === 'jetpack/image-compare' );
+	if ( hasImageCompare && ! jetpackPlanFromState ) {
 		jetpackPlanFromState = window?.Jetpack_Editor_Initial_State?.jetpack?.jetpack_plan;
 	}
 } );
