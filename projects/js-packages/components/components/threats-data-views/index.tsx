@@ -354,7 +354,8 @@ export default function ThreatsDataViews( {
 						},
 				  ]
 				: [] ),
-			...( dataFields.includes( 'firstDetected' ) && statusFilters.includes( 'fixed' )
+			...( dataFields.includes( 'firstDetected' ) &&
+			( statusFilters.includes( 'fixed' ) || statusFilters.includes( 'ignored' ) )
 				? [
 						{
 							id: THREAT_FIELD_FIRST_DETECTED,

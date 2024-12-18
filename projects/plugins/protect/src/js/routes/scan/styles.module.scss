@@ -1,5 +1,11 @@
-.scanning-main {
+.hero-main {
 	max-width: 512px;
+}
+
+.hero-main--large {
+	flex: 1 auto;
+	align-content: center;
+	height: calc( 100vh - 408px );
 }
 
 .auto-fixers {

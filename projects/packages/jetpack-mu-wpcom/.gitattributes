@@ -17,3 +17,4 @@ phpunit.xml.dist  production-exclude
 tests/**          production-exclude
 .phpcsignore      production-exclude
 bin/**            production-exclude
+src/**/**/*.scss  production-exclude

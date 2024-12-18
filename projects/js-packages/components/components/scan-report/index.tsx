@@ -216,7 +216,10 @@ export default function ScanReport( { dataSource, data, onChangeSelection } ): J
 	 *
 	 * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-dataviews/#getitemid-function
 	 */
-	const getItemId = useCallback( ( item: ScanReportExtension ) => item.id.toString(), [] );
+	const getItemId = useCallback(
+		( item: ScanReportExtension ) => `${ item.type }_${ item.slug }_${ item.version }`,
+		[]
+	);
 
 	return (
 		<DataViews
