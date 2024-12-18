@@ -194,7 +194,7 @@ class Connections_Controller extends Base_Controller {
 					'service_label'        => Publicize::get_service_label( $service_name ),
 					'service_name'         => $service_name,
 					'shared'               => ! $connection_data['user_id'],
-					'status'               => $test_results[ $connection_id ] ?? 'ok',
+					'status'               => $test_results[ $connection_id ] ?? null,
 					'user_id'              => (int) $connection_data['user_id'],
 
 					// Deprecated fields.
