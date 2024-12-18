@@ -1,4 +1,5 @@
 import { AdminSection, Container, Col, ScanReport } from '@automattic/jetpack-components';
+import { useMemo } from 'react';
 import AdminPage from '../../components/admin-page';
 import useScanStatusQuery from '../../data/scan/use-scan-status-query';
 import HomeAdminSectionHero from './home-admin-section-hero';
@@ -13,16 +14,24 @@ import styles from './styles.module.scss';
  */
 const HomePage = () => {
 	const { data: status } = useScanStatusQuery( { usePolling: true } );
-	const { core, plugins, themes, files } = status;
 
-	const data = [
-		core,
-		...plugins,
-		...themes,
-		{ checked: true, threats: files, type: 'files' },
-	].map( ( item, index ) => {
-		return { id: index + 1, ...item };
-	} );
+	const data = useMemo(
+		() => [
+			...( Object.keys( status.core ).length ? [ status.core ] : [] ),
+			...status.plugins,
+			...status.themes,
+			...( status.dataSource === 'scan_api'
+				? [
+						{
+							checked: !! status.lastChecked,
+							threats: status.files,
+							type: 'files',
+						},
+				  ]
+				: [] ),
+		],
+		[ status ]
+	);
 
 	return (
 		<AdminPage>
