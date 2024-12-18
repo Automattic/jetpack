@@ -227,18 +227,44 @@ function wp_cache_serve_cache_file() {
 				if ( $wp_cache_gzip_encoding ) {
 					if ( file_exists( $file . '.gz' ) ) {
 						$cachefiledata = file_get_contents( $file . '.gz' );
+
+						if ( false === $cachefiledata ) {
+							wp_cache_debug( 'The cached gzip file could not be read. Must generate a new one.' );
+							return false;
+						}
+
 						wp_cache_debug( "Fetched gzip static page data from supercache file using PHP. File: $file.gz" );
 					} else {
-						$cachefiledata = gzencode( file_get_contents( $file ), 6, FORCE_GZIP );
+						$cachefiledata = file_get_contents( $file ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+
+						if ( false === $cachefiledata ) {
+							wp_cache_debug( 'The cached file could not be read. Must generate a new one.' );
+							return false;
+						}
+
+						$cachefiledata = gzencode( $cachefiledata, 6, FORCE_GZIP );
 						wp_cache_debug( "Fetched static page data from supercache file using PHP and gzipped it. File: $file" );
 					}
 				} else {
 					$cachefiledata = file_get_contents( $file );
+
+					if ( false === $cachefiledata ) {
+						wp_cache_debug( 'The cached file could not be read. Must generate a new one.' );
+						return false;
+					}
+
 					wp_cache_debug( "Fetched static page data from supercache file using PHP. File: $file" );
 				}
 			} else {
 				// get dynamic data from filtered file
-				$cachefiledata = do_cacheaction( 'wpsc_cachedata', file_get_contents( $file ) );
+				$cachefiledata = file_get_contents( $file ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+
+				if ( false === $cachefiledata ) {
+					wp_cache_debug( 'The cached file could not be read. Must generate a new one.' );
+					return false;
+				}
+
+				$cachefiledata = do_cacheaction( 'wpsc_cachedata', $cachefiledata );
 				if ( $wp_cache_gzip_encoding ) {
 					$cachefiledata = gzencode( $cachefiledata, 6, FORCE_GZIP );
 					wp_cache_debug( "Fetched dynamic page data from supercache file using PHP and gzipped it. File: $file" );
@@ -301,6 +327,7 @@ function wp_cache_serve_cache_file() {
 				}
 				header( 'Last-Modified: ' . $local_mod_time );
 			}
+
 			echo $cachefiledata;
 			exit();
 		} else {

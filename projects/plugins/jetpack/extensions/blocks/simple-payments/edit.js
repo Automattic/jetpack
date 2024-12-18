@@ -437,6 +437,7 @@ export const SimplePaymentsEdit = ( {
 				<div>
 					<TextControl
 						__nextHasNoMarginBottom={ true }
+						__next40pxDefaultSize
 						aria-describedby={ `${ instanceId }-title-error` }
 						className={ clsx( 'simple-payments__field', 'simple-payments__field-title', {
 							'simple-payments__field-has-error': fieldTitleError,
@@ -473,6 +474,7 @@ export const SimplePaymentsEdit = ( {
 						/>
 						<TextControl
 							__nextHasNoMarginBottom={ true }
+							__next40pxDefaultSize
 							aria-describedby={ `${ instanceId }-price-error` }
 							className={ clsx( 'simple-payments__field', 'simple-payments__field-price', {
 								'simple-payments__field-has-error': fieldPriceError,
@@ -501,6 +503,7 @@ export const SimplePaymentsEdit = ( {
 
 					<TextControl
 						__nextHasNoMarginBottom={ true }
+						__next40pxDefaultSize
 						aria-describedby={ `${ instanceId }-email-${ fieldEmailError ? 'error' : 'help' }` }
 						className={ clsx( 'simple-payments__field', 'simple-payments__field-email', {
 							'simple-payments__field-has-error': fieldEmailError,

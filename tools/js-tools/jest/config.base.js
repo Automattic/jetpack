@@ -1,7 +1,7 @@
 const path = require( 'path' );
 
 module.exports = {
-	testEnvironment: 'jsdom',
+	testEnvironment: path.join( __dirname, 'fix-environment-jsdom.mjs' ),
 	testEnvironmentOptions: {
 		// Note we need to repeat the environment's default conditions here too, sigh.
 		customExportConditions: [
@@ -27,11 +27,11 @@ module.exports = {
 		],
 	},
 	testMatch: [
-		// Note: Keep the patterns here in sync with tools/js-tools/eslintrc/base.js.
+		// Note: Keep the patterns here in sync with ./config.coverage.js and tools/js-tools/eslintrc/base.mjs.
 		'<rootDir>/**/__tests__/**/*.[jt]s?(x)',
 		'<rootDir>/**/?(*.)+(spec|test).[jt]s?(x)',
 		'<rootDir>/**/test/*.[jt]s?(x)',
-		'!**/.eslintrc.*',
+		'!**/eslint.config.?([mc])[jt]s',
 	],
 	moduleNameMapper: {
 		jetpackConfig: path.join( __dirname, 'jest-jetpack-config.js' ),
@@ -41,4 +41,6 @@ module.exports = {
 	setupFilesAfterEnv: [ path.join( __dirname, 'setup-after-env.js' ) ],
 	extensionsToTreatAsEsm: [ '.jsx', '.ts', '.tsx' ],
 	resolver: require.resolve( 'jetpack-js-tools/jest/jest-resolver.js' ),
+
+	...require( './config.coverage.js' ),
 };

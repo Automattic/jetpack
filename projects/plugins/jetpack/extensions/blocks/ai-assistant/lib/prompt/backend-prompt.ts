@@ -13,6 +13,7 @@ import {
 	PROMPT_TYPE_SUMMARIZE,
 	PROMPT_TYPE_CHANGE_LANGUAGE,
 	PROMPT_TYPE_USER_PROMPT,
+	PROMPT_TYPE_TRANSFORM_LIST_TO_TABLE,
 	PromptTypeProp,
 	PromptItemProps,
 	BuildPromptProps,
@@ -109,6 +110,9 @@ export function buildMessagesForBackendPrompt( {
 		case PROMPT_TYPE_SUMMARIZE:
 		case PROMPT_TYPE_CHANGE_LANGUAGE:
 			relevantContent = isContentGenerated ? generatedContent : allPostContent;
+			break;
+		case PROMPT_TYPE_TRANSFORM_LIST_TO_TABLE:
+			relevantContent = postContentAbove;
 			break;
 		case PROMPT_TYPE_USER_PROMPT:
 			relevantContent = generatedContent || allPostContent;
@@ -224,6 +228,7 @@ export function mapInternalPromptTypeToBackendPromptType(
 		[ PROMPT_TYPE_SUMMARIZE ]: 'ai-assistant-summarize',
 		[ PROMPT_TYPE_CHANGE_LANGUAGE ]: 'ai-assistant-change-language',
 		[ PROMPT_TYPE_USER_PROMPT ]: 'ai-assistant-user-prompt',
+		[ PROMPT_TYPE_TRANSFORM_LIST_TO_TABLE ]: 'ai-assistant-transform-list-to-table',
 	};
 
 	// Handle specific Jetpack Form AI migration.

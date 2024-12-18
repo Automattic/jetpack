@@ -5,6 +5,37 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.3] - 2024-12-16
+### Changed
+- Updated package dependencies. [#40564]
+
+## [0.10.2] - 2024-12-04
+### Changed
+- Updated package dependencies. [#40363]
+
+## [0.10.1] - 2024-11-25
+### Changed
+- Updated dependencies. [#40286]
+- Updated package dependencies. [#40258] [#40288]
+
+## [0.10.0] - 2024-11-18
+### Removed
+- General: Update minimum PHP version to 7.2. [#40147]
+
+### Fixed
+- Update the upgrade nudge for Additional CSS with the correct plan names. [#40107]
+
+## [0.9.9] - 2024-11-11
+### Changed
+- Updated package dependencies. [#39999] [#40060]
+
+## [0.9.8] - 2024-11-04
+### Added
+- Enable test coverage. [#39961]
+
+### Fixed
+- Fix PHPUnit coverage warnings. [#39989]
+
 ## [0.9.7] - 2024-10-28
 ### Changed
 - Updated package dependencies. [#39910]
@@ -153,9 +184,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Auto-labeling: label changes to the Masterbar feature in the Masterbar package. [#37309]
 - Masterbar: Copy module code to package [#37342]
 - Notifications: Change Icon [#37676]
-- Updated package dependencies. [#37669]
-- Updated package dependencies. [#37706]
+- Updated package dependencies. [#37669] [#37706]
 
+[0.10.3]: https://github.com/Automattic/jetpack-masterbar/compare/v0.10.2...v0.10.3
+[0.10.2]: https://github.com/Automattic/jetpack-masterbar/compare/v0.10.1...v0.10.2
+[0.10.1]: https://github.com/Automattic/jetpack-masterbar/compare/v0.10.0...v0.10.1
+[0.10.0]: https://github.com/Automattic/jetpack-masterbar/compare/v0.9.9...v0.10.0
+[0.9.9]: https://github.com/Automattic/jetpack-masterbar/compare/v0.9.8...v0.9.9
+[0.9.8]: https://github.com/Automattic/jetpack-masterbar/compare/v0.9.7...v0.9.8
 [0.9.7]: https://github.com/Automattic/jetpack-masterbar/compare/v0.9.6...v0.9.7
 [0.9.6]: https://github.com/Automattic/jetpack-masterbar/compare/v0.9.5...v0.9.6
 [0.9.5]: https://github.com/Automattic/jetpack-masterbar/compare/v0.9.4...v0.9.5

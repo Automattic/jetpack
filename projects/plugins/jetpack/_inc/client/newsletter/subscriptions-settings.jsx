@@ -2,13 +2,13 @@ import { ToggleControl } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
+import React, { useCallback } from 'react';
+import { connect } from 'react-redux';
 import { FormLegend, FormFieldset } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import { FEATURE_NEWSLETTER_JETPACK } from 'lib/plans/constants';
-import React, { useCallback } from 'react';
-import { connect } from 'react-redux';
 import {
 	isCurrentUserLinked,
 	isUnavailableInOfflineMode,
@@ -83,6 +83,7 @@ function SubscriptionsSettings( props ) {
 		? addQueryArgs( `${ siteAdminUrl }site-editor.php`, {
 				postType: 'wp_template',
 				postId: `${ themeStylesheet }//single`,
+				canvas: 'edit',
 		  } )
 		: null;
 
@@ -90,6 +91,7 @@ function SubscriptionsSettings( props ) {
 		? addQueryArgs( `${ siteAdminUrl }site-editor.php`, {
 				postType: 'wp_template',
 				postId: `${ themeStylesheet }//index`,
+				canvas: 'edit',
 		  } )
 		: null;
 

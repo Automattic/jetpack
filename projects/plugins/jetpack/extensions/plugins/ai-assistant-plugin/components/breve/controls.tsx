@@ -20,9 +20,9 @@ import React, { useState, useEffect, useCallback } from 'react';
  * Internal dependencies
  */
 import features from './features';
-import calculateFleschKincaid from './utils/FleschKincaidUtils';
+import calculateFleschKincaid from './utils/flesch-kincaid-utils';
 import { canWriteBriefFeatureBeEnabled } from './utils/get-availability';
-import { getPostText } from './utils/getPostText';
+import { getPostText } from './utils/get-post-text';
 import './breve.scss';
 /**
  * Types

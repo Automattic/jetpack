@@ -1,7 +1,7 @@
 import { getCurrencyObject } from '@automattic/format-currency';
-import { LoadingPlaceholder } from '@automattic/jetpack-components';
 import { Button } from '@wordpress/components';
 import { sprintf, __ } from '@wordpress/i18n';
+import { LoadingPlaceholder } from '@automattic/jetpack-components';
 import TermsOfService from '../terms-of-service';
 import type { PricingCardProps } from './types';
 import type { CurrencyObject } from '@automattic/format-currency/src/types';
@@ -29,7 +29,7 @@ const showPriceDecimals = ( currencyObject: CurrencyObject ): boolean => {
  */
 const PricingCard: React.FC< PricingCardProps > = ( {
 	currencyCode = 'USD',
-	priceDetails = __( '/month, paid yearly', 'jetpack' ),
+	priceDetails = __( '/month, paid yearly', 'jetpack-components' ),
 	...props
 } ) => {
 	const currencyObjectBefore = getCurrencyObject( props.priceBefore, currencyCode );
@@ -44,7 +44,7 @@ const PricingCard: React.FC< PricingCardProps > = ( {
 							src={ props.icon }
 							alt={ sprintf(
 								/* translators: placeholder is a product name */
-								__( 'Icon for the product %s', 'jetpack' ),
+								__( 'Icon for the product %s', 'jetpack-components' ),
 								props.title
 							) }
 						/>
@@ -55,7 +55,8 @@ const PricingCard: React.FC< PricingCardProps > = ( {
 			) }
 			<h1 className="jp-components__pricing-card__title">{ props.title }</h1>
 			<div className="jp-components__pricing-card__pricing">
-				{ props.priceBefore !== props.priceAfter && props.priceAfter > 0 ? (
+				{ props.priceAfter === 0 && <LoadingPlaceholder width="100%" height={ 48 } /> }
+				{ props.priceBefore !== props.priceAfter && props.priceAfter > 0 && (
 					<div className="jp-components__pricing-card__price-before">
 						<span className="jp-components__pricing-card__currency">
 							{ currencyObjectBefore.symbol }
@@ -71,8 +72,6 @@ const PricingCard: React.FC< PricingCardProps > = ( {
 						) }
 						<div className="jp-components__pricing-card__price-strikethrough"></div>
 					</div>
-				) : (
-					<LoadingPlaceholder width="100%" height={ 48 } />
 				) }
 				{ props.priceAfter > 0 && (
 					<>

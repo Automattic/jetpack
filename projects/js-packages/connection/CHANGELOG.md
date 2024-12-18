@@ -2,6 +2,46 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## [0.36.2] - 2024-12-16
+### Changed
+- Updated package dependencies. [#40564]
+
+## [0.36.1] - 2024-12-09
+### Changed
+- Internal updates.
+
+## [0.36.0] - 2024-12-04
+### Changed
+- Changed text domain from 'jetpack' to 'jetpack-connection-js'. [#40368]
+- Updated package dependencies. [#40363]
+
+## [0.35.20] - 2024-11-26
+### Changed
+- Update dependencies.
+
+## [0.35.19] - 2024-11-25
+### Changed
+- Updated package dependencies. [#40288]
+
+## [0.35.18] - 2024-11-18
+### Changed
+- Update dependencies.
+
+## [0.35.17] - 2024-11-14
+### Changed
+- Update dependencies.
+
+## [0.35.16] - 2024-11-11
+### Changed
+- Updated package dependencies. [#39999] [#40000] [#40060]
+
+## [0.35.15] - 2024-11-04
+### Added
+- Enable test coverage. [#39961]
+
+### Changed
+- Skip pricing page when connecting via block editor. [#39865]
+
 ## [0.35.14] - 2024-10-15
 ### Changed
 - Update dependencies.
@@ -255,8 +295,7 @@
 
 ## [0.29.9] - 2023-09-04
 ### Changed
-- Updated package dependencies. [#32803]
-- Updated package dependencies. [#32804]
+- Updated package dependencies. [#32803] [#32804]
 
 ## [0.29.8] - 2023-08-21
 ### Added
@@ -875,6 +914,15 @@
 - `Main` and `ConnectUser` components added.
 - `JetpackRestApiClient` API client added.
 
+[0.36.2]: https://github.com/Automattic/jetpack-connection-js/compare/v0.36.1...v0.36.2
+[0.36.1]: https://github.com/Automattic/jetpack-connection-js/compare/v0.36.0...v0.36.1
+[0.36.0]: https://github.com/Automattic/jetpack-connection-js/compare/v0.35.20...v0.36.0
+[0.35.20]: https://github.com/Automattic/jetpack-connection-js/compare/v0.35.19...v0.35.20
+[0.35.19]: https://github.com/Automattic/jetpack-connection-js/compare/v0.35.18...v0.35.19
+[0.35.18]: https://github.com/Automattic/jetpack-connection-js/compare/v0.35.17...v0.35.18
+[0.35.17]: https://github.com/Automattic/jetpack-connection-js/compare/v0.35.16...v0.35.17
+[0.35.16]: https://github.com/Automattic/jetpack-connection-js/compare/v0.35.15...v0.35.16
+[0.35.15]: https://github.com/Automattic/jetpack-connection-js/compare/v0.35.14...v0.35.15
 [0.35.14]: https://github.com/Automattic/jetpack-connection-js/compare/v0.35.13...v0.35.14
 [0.35.13]: https://github.com/Automattic/jetpack-connection-js/compare/v0.35.12...v0.35.13
 [0.35.12]: https://github.com/Automattic/jetpack-connection-js/compare/v0.35.11...v0.35.12

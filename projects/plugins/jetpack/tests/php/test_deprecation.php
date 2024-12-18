@@ -9,7 +9,7 @@ class WP_Test_Jetpack_Deprecation extends WP_UnitTestCase {
 		$this->setExpectedDeprecated( $file_path );
 
 		$mock = $this->getMockBuilder( stdClass::class )
-			->setMethods( array( 'action' ) )
+			->addMethods( array( 'action' ) )
 			->getMock();
 		$mock->expects( $this->once() )->method( 'action' )->with( $file_path, $replacement_path );
 

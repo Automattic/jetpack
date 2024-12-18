@@ -78,7 +78,9 @@
 		"recipe",
 		"v6-video-frame-poster",
 		"videopress/video-chapters",
-		"ai-assistant-backend-prompts"
+		"ai-assistant-backend-prompts",
+		"ai-list-to-table-transform",
+		"ai-response-feedback"
 	],
 	"experimental": [],
 	"no-post-editor": [

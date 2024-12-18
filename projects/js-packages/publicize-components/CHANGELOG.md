@@ -5,6 +5,62 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.75.1] - 2024-12-16
+### Changed
+- Updated package dependencies. [#40564] [#40598]
+
+## [0.75.0] - 2024-12-09
+### Changed
+- Changed text domain from 'jetpack' to 'jetpack-publicize-components'. [#40368]
+- Updated package dependencies. [#40363]
+
+## [0.74.2] - 2024-12-02
+### Changed
+- Updated messaging for async sharing in block editor. [#40302]
+- Updated @wordpress/editor to the latest version. [#40373]
+
+## [0.74.1] - 2024-11-26
+### Changed
+- Update dependencies. [#39855]
+
+## [0.74.0] - 2024-11-25
+### Added
+- Added warnings when linkedin permission is cached. [#40220]
+
+### Changed
+- Updated package dependencies. [#40288]
+
+### Fixed
+- Add missing ids to radio buttons in the confirmation form. [#40199]
+- Decode entities in post titles and descriptions for social previews. [#40256]
+- Fixed TS errors following @wordpress/editor update. [#40291]
+
+## [0.73.0] - 2024-11-18
+### Added
+- Added toggle for UTM settings. [#39998]
+
+### Changed
+- Removed some unused code for Social. [#40122]
+
+## [0.72.1] - 2024-11-11
+### Changed
+- Social: Clean up social store. [#40033]
+- Social: Migrated social plugins settings to new script data. [#40032] [#40081]
+- Updated package dependencies. [#39999] [#40000] [#40060]
+
+## [0.72.0] - 2024-11-04
+### Added
+- Enable test coverage. [#39961]
+
+### Changed
+- Change order of social connections. [#40020]
+- Social: Migrate Social Image Generator settings to new store. [#39904]
+
+### Fixed
+- Fix dataviews styles imported in share status being added globally. [#39991]
+- Social: Fix empty whitespace in Bluesky and Mastodon connection forms. [#39984]
+- Social: Fix the Instagram max video length. [#39930]
+
 ## [0.71.5] - 2024-10-29
 ### Changed
 - Components: Add __nextHasNoMarginBottom to BaseControl-based components, preventing deprecation notices. [#39877]
@@ -261,8 +317,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.54.3] - 2024-06-13
 ### Changed
-- Updated package dependencies. [#37795]
-- Updated package dependencies. [#37796]
+- Updated package dependencies. [#37795] [#37796]
 
 ### Fixed
 - Social: Fixed WSOD on connections UI when an old Twitter connection exists. [#37836]
@@ -363,8 +418,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Extracted the connection toggle state logic. [#36776]
 - Only show custom media picker for normal posts. [#36640]
-- Updated package dependencies. [#36760]
-- Updated package dependencies. [#36761]
+- Updated package dependencies. [#36760] [#36761]
 - Update to the most recent version of Color Studio, 2.6.0. [#36751]
 
 ### Fixed
@@ -570,8 +624,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.38.0] - 2023-09-19
 ### Changed
 - Move auto-conversion notice near the Instagram one [#33106]
-- Updated package dependencies. [#33001]
-- Updated package dependencies. [#33043]
+- Updated package dependencies. [#33001] [#33043]
 
 ### Fixed
 - Fixed video previews for Social Previews [#33132]
@@ -588,8 +641,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.36.0] - 2023-09-04
 ### Changed
 - Changed logic that disables the connections based on the auto-conversion feature [#32671]
-- Updated package dependencies. [#32803]
-- Updated package dependencies. [#32804]
+- Updated package dependencies. [#32803] [#32804]
 
 ### Fixed
 - Fixed an issue with the logic of getting the enchanced publishing feature [#32707]
@@ -656,8 +708,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.28.0] - 2023-07-05
 ### Changed
 - Refactored the media validation so that it is done on a per connection basis [#31565]
-- Updated package dependencies. [#31659]
-- Updated package dependencies. [#31661]
+- Updated package dependencies. [#31659] [#31661]
 
 ## [0.27.0] - 2023-06-26
 ### Changed
@@ -991,6 +1042,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#24470]
 
+[0.75.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.75.0...v0.75.1
+[0.75.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.74.2...v0.75.0
+[0.74.2]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.74.1...v0.74.2
+[0.74.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.74.0...v0.74.1
+[0.74.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.73.0...v0.74.0
+[0.73.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.72.1...v0.73.0
+[0.72.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.72.0...v0.72.1
+[0.72.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.71.5...v0.72.0
 [0.71.5]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.71.4...v0.71.5
 [0.71.4]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.71.3...v0.71.4
 [0.71.3]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.71.2...v0.71.3

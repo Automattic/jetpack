@@ -13,7 +13,8 @@ const blockName = 'a8c/blog-posts';
 /**
  * Set the name of the block transformation
  *
- * @param name - The name of the block
+ * @param {string} name - The name of the block
+ * @return {string} The potentially-transformed block name
  */
 function setBlockTransformationName( name ) {
 	return name !== 'newspack-blocks/homepage-articles' ? name : blockName;

@@ -716,10 +716,10 @@ class Jetpack_Gutenberg {
 		}
 
 		$initial_state = array(
-			'available_blocks' => self::get_availability(),
-			'blocks_variation' => $blocks_variation,
-			'modules'          => $modules,
-			'jetpack'          => array(
+			'available_blocks'    => self::get_availability(),
+			'blocks_variation'    => $blocks_variation,
+			'modules'             => $modules,
+			'jetpack'             => array(
 				'is_active'                     => Jetpack::is_connection_ready(),
 				'is_current_user_connected'     => $is_current_user_connected,
 				/** This filter is documented in class.jetpack-gutenberg.php */
@@ -743,15 +743,16 @@ class Jetpack_Gutenberg {
 				 */
 				'republicize_enabled'           => apply_filters( 'jetpack_block_editor_republicize_feature', true ),
 			),
-			'siteFragment'     => $status->get_site_suffix(),
-			'adminUrl'         => esc_url( admin_url() ),
-			'tracksUserData'   => $user_data,
-			'wpcomBlogId'      => $blog_id,
-			'allowedMimeTypes' => wp_get_mime_types(),
-			'siteLocale'       => str_replace( '_', '-', get_locale() ),
-			'ai-assistant'     => $ai_assistant_state,
-			'screenBase'       => $screen_base,
-			'pluginBasePath'   => plugins_url( '', Constants::get_constant( 'JETPACK__PLUGIN_FILE' ) ),
+			'siteFragment'        => $status->get_site_suffix(),
+			'adminUrl'            => esc_url( admin_url() ),
+			'tracksUserData'      => $user_data,
+			'wpcomBlogId'         => $blog_id,
+			'allowedMimeTypes'    => wp_get_mime_types(),
+			'siteLocale'          => str_replace( '_', '-', get_locale() ),
+			'ai-assistant'        => $ai_assistant_state,
+			'screenBase'          => $screen_base,
+			'pluginBasePath'      => plugins_url( '', Constants::get_constant( 'JETPACK__PLUGIN_FILE' ) ),
+			'next40pxDefaultSize' => self::site_supports_next_default_size(),
 		);
 
 		if ( Jetpack::is_module_active( 'publicize' ) && function_exists( 'publicize_init' ) ) {
@@ -1291,6 +1292,101 @@ class Jetpack_Gutenberg {
 		}
 
 		return $block_content;
+	}
+
+	/**
+	 * Check whether the environment supports the newer default size of elements, gradually introduced starting with WP 6.4.
+	 *
+	 * @since 14.0
+	 *
+	 * @see https://make.wordpress.org/core/2023/10/16/editor-components-updates-in-wordpress-6-4/#improving-size-consistency-for-ui-components
+	 *
+	 * @to-do: Deprecate this method and the logic around it when Jetpack requires WordPress 6.7.
+	 *
+	 * @return bool
+	 */
+	public static function site_supports_next_default_size() {
+		/*
+		 * If running a local dev build of gutenberg,
+		 * let's assume it supports the newest changes included in Gutenberg.
+		 */
+		if ( defined( 'GUTENBERG_DEVELOPMENT_MODE' ) && GUTENBERG_DEVELOPMENT_MODE ) {
+			return true;
+		}
+
+		// Let's now check if the Gutenberg plugin is installed on the site.
+		if (
+			defined( 'GUTENBERG_VERSION' )
+			&& version_compare( GUTENBERG_VERSION, '19.4', '>=' )
+		) {
+			return true;
+		}
+
+		// Finally, let's check for the WordPress version.
+		global $wp_version;
+		if ( version_compare( $wp_version, '6.7', '>=' ) ) {
+			return true;
+		}
+
+		// Final fallback.
+		return false;
+	}
+
+	/**
+	 * Temporarily bypasses _doing_it_wrong() notices for block metadata collection registration.
+	 *
+	 * WordPress 6.7 introduced block metadata collections (with strict path validation).
+	 * Any sites using symlinks for plugins will fail the validation which causes the metadata
+	 * collection to not be registered. However, the blocks will still fall back to the regular
+	 * registration and no functionality is affected.
+	 * While this validation is being discussed in WordPress Core (#62140),
+	 * this method allows registration to proceed by temporarily disabling
+	 * the relevant notice.
+	 *
+	 * @since 14.2
+	 *
+	 * @param bool   $trigger       Whether to trigger the error.
+	 * @param string $function      The function that was called.
+	 * @param string $message       A message explaining what was done incorrectly.
+	 * @param string $version       The version of WordPress where the message was added.
+	 * @return bool Whether to trigger the error.
+	 */
+	public static function bypass_block_metadata_doing_it_wrong( $trigger, $function, $message, $version ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		if ( $function === 'WP_Block_Metadata_Registry::register_collection' ) {
+			return false;
+		}
+		return $trigger;
+	}
+
+	/**
+	 * Register block metadata collection for Jetpack blocks.
+	 * This allows for more efficient block metadata loading by avoiding
+	 * individual block.json file reads at runtime.
+	 *
+	 * Uses wp_register_block_metadata_collection() if available (WordPress 6.7+)
+	 * and if the manifest file exists. The manifest file is auto-generated
+	 * during the build process.
+	 *
+	 * Runs on plugins_loaded to ensure registration happens before individual
+	 * blocks register themselves on init.
+	 *
+	 * @static
+	 * @since 14.1
+	 * @return void
+	 */
+	public static function register_block_metadata_collection() {
+		$meta_file_path = JETPACK__PLUGIN_DIR . '_inc/blocks/blocks-manifest.php';
+		if ( function_exists( 'wp_register_block_metadata_collection' ) && file_exists( $meta_file_path ) ) {
+			add_filter( 'doing_it_wrong_trigger_error', array( __CLASS__, 'bypass_block_metadata_doing_it_wrong' ), 10, 4 );
+
+			// @phan-suppress-next-line PhanUndeclaredFunction -- New in WP 6.7. We're checking if it exists first. @phan-suppress-current-line UnusedPluginSuppression
+			wp_register_block_metadata_collection(
+				JETPACK__PLUGIN_DIR . '_inc/blocks/',
+				$meta_file_path
+			);
+
+			remove_filter( 'doing_it_wrong_trigger_error', array( __CLASS__, 'bypass_block_metadata_doing_it_wrong' ), 10 );
+		}
 	}
 }
 

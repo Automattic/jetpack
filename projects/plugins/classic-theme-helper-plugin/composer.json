@@ -15,7 +15,7 @@
 		"yoast/phpunit-polyfills": "^1.1.1",
 		"automattic/jetpack-changelogger": "@dev",
 		"automattic/wordbless": "0.4.2",
-		"brain/monkey": "2.6.1"
+		"brain/monkey": "^2.6.2"
 	},
 	"autoload": {
 		"classmap": [
@@ -25,6 +25,10 @@
 	"scripts": {
 		"phpunit": [
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
+		],
+		"test-coverage": "pnpm concurrently --names php,js 'php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"$COVERAGE_DIR/php.cov\"' 'pnpm:test-coverage'",
+		"test-js": [
+			"pnpm run test"
 		],
 		"test-php": [
 			"@composer phpunit"

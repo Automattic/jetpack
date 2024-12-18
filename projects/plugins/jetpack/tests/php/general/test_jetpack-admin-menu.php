@@ -3,7 +3,7 @@
  * @package automattic/jetpack
  */
 
-use Automattic\Jetpack\Backup\V0004\Jetpack_Backup;
+use Automattic\Jetpack\Backup\V0005\Jetpack_Backup;
 use Automattic\Jetpack\Stats_Admin\Dashboard;
 use Automattic\Jetpack\VideoPress\Admin_UI;
 use Automattic\Jetpack\WordAds\Dashboard as WordAdsDashboard;

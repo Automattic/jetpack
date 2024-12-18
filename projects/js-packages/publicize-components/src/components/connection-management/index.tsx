@@ -11,7 +11,7 @@ import { useService } from '../services/use-service';
 import { ConnectionInfo } from './connection-info';
 import styles from './style.module.scss';
 
-const ConnectionManagement = ( { className = null } ) => {
+const ConnectionManagement = ( { className = null, disabled = false } ) => {
 	const { refresh } = useSocialMediaConnections();
 
 	const { connections, deletingConnections, updatingConnections } = useSelect( select => {
@@ -40,10 +40,14 @@ const ConnectionManagement = ( { className = null } ) => {
 	const { openConnectionsModal } = useDispatch( store );
 
 	return (
-		<div className={ clsx( styles.wrapper, className ) }>
+		<div
+			className={ clsx( styles.wrapper, className ) }
+			// @ts-expect-error inert propery is not yet in react types
+			inert={ disabled ? 'true' : undefined }
+		>
 			{ connections.length ? (
 				<>
-					<h3>{ __( 'Connected accounts', 'jetpack' ) }</h3>
+					<h3>{ __( 'Connected accounts', 'jetpack-publicize-components' ) }</h3>
 					<ul className={ styles[ 'connection-list' ] }>
 						{ connections.map( connection => {
 							const isUpdatingOrDeleting =
@@ -69,7 +73,7 @@ const ConnectionManagement = ( { className = null } ) => {
 				variant={ connections.length ? 'secondary' : 'primary' }
 				onClick={ openConnectionsModal }
 			>
-				{ __( 'Connect an account', 'jetpack' ) }
+				{ __( 'Connect an account', 'jetpack-publicize-components' ) }
 			</Button>
 		</div>
 	);

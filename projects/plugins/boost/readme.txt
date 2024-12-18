@@ -2,10 +2,10 @@
 Contributors: automattic, xwp, adnan007, bjorsch, danwalmsley, davidlonjon, dilirity, donncha, ebinnion, exelero, jeherve, jpolakovic, karthikbhatb, kraftbj, luchad0res, pyronaur, rheinardkorf, scruffian, thingalon
 Donate link: https://automattic.com
 Tags: performance, speed, web vitals, critical css, cache
-Requires at least: 6.5
+Requires at least: 6.6
 Tested up to: 6.7
-Requires PHP: 7.0
-Stable tag: 3.5.2
+Requires PHP: 7.2
+Stable tag: 3.6.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -183,15 +183,14 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 3.5.2 - 2024-10-15
+### 3.6.1 - 2024-11-28
 #### Changed
-- Deferred JS: Exclude all scripts produced by a shortcode.
-- General: Sync Boost's Getting Started page with My Jetpack's version.
-- General: Update minimum required WordPress version to 6.5 in main plugin file. Previous release only changed plugin readme.
+- Image CDN: Improve performance.
+- General: Update minimum PHP version to 7.2.
+- General: Update minimum WordPress version to 6.6.
 
 #### Fixed
-- Image CDN: URL encode image path parts for RSS feed compatibility
-- Image Guide: Improve check for Jetpack Image CDN URLs
+- Compatibility: Fixed situations where minify could break due to too many files being enqueued in the elementor editor.
 
 --------
 

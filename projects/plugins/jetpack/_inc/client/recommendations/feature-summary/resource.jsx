@@ -1,9 +1,9 @@
 import { ExternalLink } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import Button from 'components/button';
-import analytics from 'lib/analytics';
 import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
+import Button from 'components/button';
+import analytics from 'lib/analytics';
 import { stepToRoute } from 'state/recommendations';
 import { getSummaryResourceProps } from '../feature-utils';
 import './style.scss';

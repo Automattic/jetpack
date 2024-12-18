@@ -201,7 +201,7 @@ export function pickVideoBlockAttributesFromUrl( url: string ): VideoBlockAttrib
 	let queryParams: URLSearchParams;
 	try {
 		queryParams = new URLSearchParams( new URL( url ).search );
-	} catch ( e ) {
+	} catch {
 		return {};
 	}
 

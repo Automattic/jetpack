@@ -44,6 +44,7 @@ class WPCOM_JSON_API_GET_Comment_History_Endpoint extends WPCOM_JSON_API_Endpoin
 			return new WP_Error( 'authorization_required', 'An active access token must be used to retrieve comment history.', 403 );
 		}
 
+		// @phan-suppress-next-line PhanDeprecatedFunction -- @todo Switch to current_user_can_for_site when we drop support for WP 6.6.
 		if ( ! current_user_can_for_blog( $blog_id, 'edit_posts' ) ) {
 			return new WP_Error( 'authorization_required', 'You are not authorized to view comment history on this blog.', 403 );
 		}

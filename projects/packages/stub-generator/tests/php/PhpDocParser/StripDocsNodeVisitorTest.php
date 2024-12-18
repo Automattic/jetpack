@@ -17,6 +17,7 @@ use PHPStan\PhpDocParser\Parser\ConstExprParser;
 use PHPStan\PhpDocParser\Parser\PhpDocParser;
 use PHPStan\PhpDocParser\Parser\TokenIterator;
 use PHPStan\PhpDocParser\Parser\TypeParser;
+use PHPStan\PhpDocParser\ParserConfig;
 use PHPStan\PhpDocParser\Printer\Printer;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Output\BufferedOutput;
@@ -40,14 +41,16 @@ class StripDocsNodeVisitorTest extends TestCase {
 	public function testIntegration( string $input, string $expect, int $verbosity = BufferedOutput::VERBOSITY_NORMAL, string $expectOutput = '' ) {
 		$output = new BufferedOutput( $verbosity );
 
-		$usedAttributes  = array(
-			'lines'   => true,
-			'indexes' => true,
+		$config          = new ParserConfig(
+			array(
+				'lines'   => true,
+				'indexes' => true,
+			)
 		);
-		$lexer           = new Lexer();
-		$constExprParser = new ConstExprParser( true, true, $usedAttributes );
-		$typeParser      = new TypeParser( $constExprParser, true, $usedAttributes );
-		$parser          = new PhpDocParser( $typeParser, $constExprParser, true, true, $usedAttributes );
+		$lexer           = new Lexer( $config );
+		$constExprParser = new ConstExprParser( $config );
+		$typeParser      = new TypeParser( $config, $constExprParser );
+		$parser          = new PhpDocParser( $config, $typeParser, $constExprParser );
 		$traverser       = new NodeTraverser( array( new CloningVisitor(), new StripDocsNodeVisitor( $output ) ) );
 		$printer         = new Printer();
 

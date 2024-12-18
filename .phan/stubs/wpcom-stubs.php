@@ -4,10 +4,11 @@
  * `bin/teamcity-builds/jetpack-stubs/stub-defs.php` and regenerate the stubs
  * by triggering the Jetpack Staging → Update WPCOM Stubs job in TeamCity.
  *
- * Stubs automatically generated from WordPress.com commit 4fd96546151f08483e92c0807b89830093fc1aee.
+ * Stubs automatically generated from WordPress.com commit 27c49bf2f318cd2fb105e5bd9719a910def72a53.
  */
 
 namespace {
+    \define('WPCOM_PERSONAL_BUNDLE', 1009);
     \define('WPCOM_VALUE_BUNDLE', 1003);
     \define('TRANSLATE_BLOG_ID', 101407);
     /**
@@ -101,9 +102,11 @@ namespace {
          * @param string $message
          * @param array $skip_connections
          * @param bool $check_feature
+         * @param bool $sync
+         * @param int $_user_id
          * @return array|false|WP_Error
          */
-        public function republicize_post($post_id, $message, $skip_connections, $check_feature = \false, $sync = \true)
+        public function republicize_post($post_id, $message, $skip_connections, $check_feature = \false, $sync = \true, $_user_id = \null)
         {
         }
     }
@@ -432,7 +435,7 @@ namespace {
         public function request_dalle_generation(string $prompt, string $model = 'dall-e-2', array $options = array())
         {
         }
-        public function request_chat_completion(array $backscroll = [], $max_tokens = \null, $model = \null, $completion_options = [], array $tools = [], $response_format = 'text', $tool_choice = \null)
+        public function request_chat_completion(array $backscroll = [], $max_tokens = \null, $model = \null, $completion_options = [], array $tools = [], $response_format = 'text', $tool_choice = \null, $store = \false, int $timeout = 120)
         {
         }
         /**
@@ -1232,6 +1235,22 @@ namespace {
     function has_any_blog_stickers(array $stickers, $_blog_id = \NULL, $bust_the_cache = \false)
     {
     }
+    class WPCOM_Feature_Flags
+    {
+        const GLOBAL_STYLES_ON_PERSONAL_PLAN = 'GLOBAL_STYLES_ON_PERSONAL_PLAN';
+        public static function get_features(): array
+        {
+        }
+        public static function enable_feature(string $feature): bool
+        {
+        }
+        public static function feature_exists(string $feature): bool
+        {
+        }
+        public static function is_enabled(string $feature): bool
+        {
+        }
+    }
     /**
      * @param string $new_path
      * @param string $path
@@ -1400,6 +1419,15 @@ namespace BloggingPrompts {
      * @return string
      */
     function prompt_without_blocks($prompt_html)
+    {
+    }
+}
+namespace ExPlat {
+    /**
+     * @param string $experiment_name
+     * @return string|null
+     */
+    function assign_current_user(string $experiment_name): ?string
     {
     }
 }

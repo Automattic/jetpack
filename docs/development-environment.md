@@ -364,7 +364,7 @@ To execute them in your local environment, you can use the following commands.
 We strongly recommend that you install tools to review your code in your IDE. It will make it easier for you to notice any missing documentation or coding standards you should respect. Most IDEs display warnings and notices inside the editor, making it even easier.
 
 - Jetpack's custom Code Sniffer ruleset is located at `./projects/packages/codesniffer/Jetpack/ruleset.xml`. Depending on your IDE, you can use this path or you may need to use `.phpcs.xml.dist` in the monorepo root.
-- For JavaScript, we recommend installing ESLint. Most IDEs come with an ESLint plugin that you can use. Jetpack includes a `.eslintrc.js` file that defines our coding standards.
+- For JavaScript, we recommend installing ESLint. Most IDEs come with an ESLint plugin that you can use. Jetpack includes a `eslint.config.mjs` file that defines our coding standards.
 
 ## Linting
 
@@ -384,9 +384,9 @@ We strongly recommend that you install tools to review your code in your IDE. It
 	composer phpcs:lint
 	```
 
-* ### Checking Jetpack's PHP for compatibility with different versions of PHP since 7.0
+* ### Checking Jetpack's PHP for compatibility with different versions of PHP
 
-	We have a handy `composer` script that will just run the PHP CodeSniffer `PHPCompatibilityWP` ruleset checking for code not compatible with PHP 7.0
+	We have a handy `composer` script that will just run the PHP CodeSniffer `PHPCompatibilityWP` ruleset checking for code not compatible with supported PHP versions:
 
 	```sh
 	composer phpcs:compatibility

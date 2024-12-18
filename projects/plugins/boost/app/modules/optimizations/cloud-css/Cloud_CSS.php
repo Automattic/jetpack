@@ -117,6 +117,10 @@ class Cloud_CSS implements Pluggable, Has_Always_Available_Endpoints, Changes_Pa
 			return;
 		}
 
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG === true ) {
+			$critical_css = "/* Critical CSS Key: {$this->paths->get_current_critical_css_key()} */\n" . $critical_css;
+		}
+
 		$display = new Display_Critical_CSS( $critical_css );
 		add_action( 'wp_head', array( $display, 'display_critical_css' ), 0 );
 		add_filter( 'style_loader_tag', array( $display, 'asynchronize_stylesheets' ), 10, 4 );
@@ -155,11 +159,11 @@ class Cloud_CSS implements Pluggable, Has_Always_Available_Endpoints, Changes_Pa
 			return;
 		}
 
-		$this->regenerate_cloud_css( self::REGENERATE_REASON_SAVE_POST );
+		$this->regenerate_cloud_css( self::REGENERATE_REASON_SAVE_POST, $this->get_all_providers( array( $post ) ) );
 	}
 
-	public function regenerate_cloud_css( $reason ) {
-		$result = $this->generate_cloud_css( $reason, $this->get_existing_sources() );
+	public function regenerate_cloud_css( $reason, $providers ) {
+		$result = $this->generate_cloud_css( $reason, $providers );
 		if ( is_wp_error( $result ) ) {
 			$state = new Critical_CSS_State();
 			$state->set_error( $result->get_error_message() )->save();
@@ -171,8 +175,13 @@ class Cloud_CSS implements Pluggable, Has_Always_Available_Endpoints, Changes_Pa
 	 * Called when stored Critical CSS has been invalidated. Triggers a new Cloud CSS request.
 	 */
 	public function handle_critical_css_invalidated() {
-		$this->regenerate_cloud_css( self::REGENERATE_REASON_INVALIDATED );
+		$this->regenerate_cloud_css( self::REGENERATE_REASON_INVALIDATED, $this->get_all_providers() );
 		Cloud_CSS_Followup::schedule();
+	}
+
+	public function get_all_providers( $context_posts = array() ) {
+		$source_providers = new Source_Providers();
+		return $source_providers->get_provider_sources( $context_posts );
 	}
 
 	public function get_existing_sources() {
@@ -181,8 +190,7 @@ class Cloud_CSS implements Pluggable, Has_Always_Available_Endpoints, Changes_Pa
 		if ( ! empty( $data['providers'] ) ) {
 			$providers = $data['providers'];
 		} else {
-			$source_providers = new Source_Providers();
-			$providers        = $source_providers->get_provider_sources();
+			$providers = $this->get_all_providers();
 		}
 
 		return $providers;

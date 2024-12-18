@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 
-/* eslint-disable no-console */
 import { spawn, spawnSync } from 'child_process';
 import { fileURLToPath } from 'url';
 import chalk from 'chalk';

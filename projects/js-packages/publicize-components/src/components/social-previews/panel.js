@@ -17,7 +17,7 @@ const SocialPreviewsPanel = ( { openModal } ) => {
 			<p>
 				{ __(
 					'Preview what this will look like on social networks and Google search.',
-					'jetpack'
+					'jetpack-publicize-components'
 				) }
 			</p>
 
@@ -30,9 +30,13 @@ const SocialPreviewsPanel = ( { openModal } ) => {
 			<Button
 				variant="secondary"
 				onClick={ openModal }
-				label={ __( 'Open Social Previews', 'jetpack' ) }
+				label={ __( 'Open Social Previews', 'jetpack-publicize-components' ) }
 			>
-				{ _x( 'Preview', 'Button label that opens the social previews modal', 'jetpack' ) }
+				{ _x(
+					'Preview',
+					'Button label that opens the social previews modal',
+					'jetpack-publicize-components'
+				) }
 			</Button>
 		</div>
 	);

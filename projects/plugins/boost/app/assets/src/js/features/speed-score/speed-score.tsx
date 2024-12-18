@@ -20,10 +20,14 @@ import { useLocalCriticalCssGeneratorStatus } from '$features/critical-css/local
 import { queryClient } from '@automattic/jetpack-react-data-sync-client';
 import ErrorBoundary from '$features/error-boundary/error-boundary';
 import PopOut from './pop-out/pop-out';
+import { useCornerstonePages } from '$features/cornerstone-pages/lib/stores/cornerstone-pages';
+import { recordBoostEvent } from '$lib/utils/analytics';
 
 const SpeedScore = () => {
+	const [ cornerstonePages ] = useCornerstonePages();
 	const { site } = Jetpack_Boost;
-	const [ { status, error, scores }, loadScore ] = useSpeedScores( site.url );
+	const pageSpeedUrl = cornerstonePages[ 0 ];
+	const [ { status, error, scores }, loadScore ] = useSpeedScores( pageSpeedUrl );
 	const scoreLetter = scores ? getScoreLetter( scores.current.mobile, scores.current.desktop ) : '';
 	const showPrevScores = scores && didScoresChange( scores ) && ! scores.isStale;
 	const [ { data } ] = useModulesState();
@@ -51,6 +55,11 @@ const SpeedScore = () => {
 			queryClient.invalidateQueries( { queryKey: [ 'performance_history' ] } );
 		}
 	}, [ site.online, status ] );
+
+	const handleClickRefresh = () => {
+		recordBoostEvent( 'speed_score_refresh_clicked', {} );
+		loadScore( true );
+	};
 
 	// Ask the API to recompute the score.
 	const refreshScore = useCallback( async () => {
@@ -97,7 +106,7 @@ const SpeedScore = () => {
 								size="small"
 								weight="regular"
 								className={ styles[ 'action-button' ] }
-								onClick={ () => loadScore( true ) }
+								onClick={ handleClickRefresh }
 								disabled={ status === 'loading' }
 								icon={ <RefreshIcon /> }
 							>

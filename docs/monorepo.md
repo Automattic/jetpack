@@ -41,7 +41,7 @@ All GitHub Actions configuration for the monorepo, including CI, lives in `.gith
 
 ## Compatibility
 
-All projects should be compatible with PHP versions WordPress supports. That's currently PHP 7.0 to 8.3.
+All projects should be compatible with PHP versions WordPress supports. That's currently PHP 7.2 to 8.4.
 
 ## First Time
 
@@ -116,6 +116,8 @@ We use `composer.json` to hold metadata about projects. Much of our generic tool
 * `.repositories`: If you include a repository entry referencing monorepo packages, it must have `.options.monorepo` set to true. This allows the build tooling to recognize and remove it.
 * `.scripts.build-development`: If your project has a general build step, this must run the necessary commands. See [Building](#building) for details.
 * `.scripts.build-production`: If your project requires a production-specific build step, this must run the necessary commands. See [Building](#building) for details.
+* `.scripts.test-coverage`: If the package contains any tests, this must run the necessary commands to generate a coverage report. See [Code coverage](#code-coverage) for details.
+  * `.scripts.skip-test-coverage`: Run before `.scripts.test-coverage` in CI. If it exits with code 3, the test run will be skipped.
 * `.scripts.test-e2e`: If the package contains any E2E tests, this must run the necessary commands. See [E2E tests](#e2e-tests) for details.
 * `.scripts.test-js`: If the package contains any JavaScript tests, this must run the necessary commands. See [JavaScript tests](#javascript-tests) for details.
   * `.scripts.skip-test-js`: Run before `.scripts.test-js` in CI. If it exits with code 3, the test run will be skipped.
@@ -183,6 +185,8 @@ The following environment variables are available for all tests:
 
 - `ARTIFACTS_DIR`: If your tests generate any artifacts that might be useful for debugging, you may place them in the directory specified by this variable and they will be uploaded to GitHub after the test run. There's no need to be concerned about collisions with other projects' artifacts, a separate directory is used per project.
 - `MONOREPO_BASE`: Path to the monorepo. Useful if you're using things in `tools/` from plugin tests.
+- `WORDPRESS_DIR`: Path to a copy of WordPress. Other than plugin tests, though, you should probably avoid using this.
+- `WORDPRESS_DEVELOP_DIR`: Path to a checkout of wordpress-develop. Other than plugin tests, though, you should probably avoid using this.
 - `NODE_VERSION`: The version of Node in use, as specified in `.github/versions.sh`.
 - `PHP_VERSION`: The version of PHP in use. Unless otherwise specified below, it will be the same as in `.github/versions.sh`.
 - `TEST_SCRIPT`: The test script being run.
@@ -191,17 +195,7 @@ The following environment variables are available for all tests:
 
 We use eslint and phpcs to lint JavaScript and PHP code. Projects should comply with the [coding standards](development-environment.md#coding-standards) enforced by these tools.
 
-* Projects may include `.eslintrc.js` to adjust eslint configuration as necessary, but try to keep to the spirit of it.
-
-  Note we're using something of a hack to get eslint to read ignore rules from `.gitignore` and per-directory `.eslintignore` files.
-  Any eslintrc that does `root: true` or an `extends` that extends from an eslintrc that includes the hack will have to do like
-  ```js
-  const loadIgnorePatterns = require( 'jetpack-js-tools/load-eslint-ignore.js' );
-  module.exports = {
-  	// Whatever stuff, including `root: true` or `extends`.
-  	ignorePatterns: loadIgnorePatterns( __dirname ),
-  };
-  ```
+* Projects may include `eslint.config.mjs` to adjust eslint configuration as necessary, but try to keep to the spirit of it. Configurations should generally start with `...makeBaseConfig( import.meta.url )` (imported from `jetpack-js-tools/eslintrc/base.mjs`) with any appropriate options, and override from there.
 * We're using a fork of phpcs and a custom filter that adds support for per-directory configuration (`.phpcs.dir.xml`) and use of `.gitignore` and `.phpcsignore` files. Again, try to keep to the spirit of things.
 
 ### Static Analysis
@@ -262,7 +256,7 @@ If a project contains PHP tests (typically PHPUnit), it must define `.scripts.te
 
 A MySQL database is available if needed; credentials may be found in `~/.my.cnf`. Note that the host must be specified as `127.0.0.1`, as when passed `localhost` PHP will try to connect via a Unix domain socket which is not available in the Actions environment.
 
-Tests are run with a variety of supported PHP versions from 7.0 to 8.3. If you have tests that only need to be run once, run them when `PHP_VERSION` matches that in `.github/versions.sh`.
+Tests are run with a variety of supported PHP versions from 7.2 to 8.4. If you have tests that only need to be run once, run them when `PHP_VERSION` matches that in `.github/versions.sh`.
 
 #### PHP tests for non-plugins
 
@@ -270,7 +264,7 @@ For all project types other than WordPress plugins, the necessary version of PHP
 
 We currently make use of the following packages in testing; it's encouraged to use these rather than introducing other tools that serve the same purpose.
 
-* [yoast/phpunit-polyfills](https://packagist.org/packages/yoast/phpunit-polyfills) supplies polyfills for compatibility with PHPUnit 6.5 to 9.0, to support PHP 7.0 to 8.3.
+* [yoast/phpunit-polyfills](https://packagist.org/packages/yoast/phpunit-polyfills) supplies polyfills for compatibility with PHPUnit 8.5 to 9.6, to support PHP 7.2 to 8.4.
   * Do not use `Yoast\PHPUnitPolyfills\TestCases\TestCase` or `Yoast\PHPUnitPolyfills\TestCases\XTestCase`. Just use the `@before`, `@after`, `@beforeClass`, and `@afterClass` annotations directly.
 * PHPUnit's built-in mocking is used for class mocks.
 * [brain/monkey](https://packagist.org/packages/brain/monkey) is used for mocking functions, and can also provide some functions for minimal WordPress compatibility.
@@ -281,7 +275,7 @@ We currently make use of the following packages in testing; it's encouraged to u
 
 #### PHP tests for plugins
 
-WordPress plugins generally want to run within WordPress. All monorepo plugins are copied into place in a WordPress installation and tests are run from there.
+WordPress plugins may want to run within WordPress. All monorepo plugins are copied into place in a WordPress installation. Environment variable `WORDPRESS_DIR` points to this installation, and `WORDPRESS_DEVELOP_DIR` points a directory with WordPress's `tests/phpunit/`.
 
 Tests will be run against the latest version of WordPress using the variety of supported PHP versions, and against the previous and trunk versions of WordPress using the PHP version in `.github/versions.sh`. The environment variable `WP_BRANCH` will be set to 'latest', 'previous', or 'trunk' accordingly. If you have tests that only need to be run once, run them when `WP_BRANCH` is 'latest'.
 
@@ -298,6 +292,65 @@ JavaScript tests should use `jest`, not `mocha`/`chai`/`sinon`. For React testin
 **This is not implemented yet!**
 
 If a project contains end-to-end tests, it must define `.scripts.test-e2e` in `composer.json` to run the tests. If a build step is required before running tests, the necessary commands for that should also be included.
+
+### Code coverage
+
+If a project contains PHP or JavaScript tests, it should also define `.scripts.test-coverage` in `composer.json` to run the tests in a mode that will generate code coverage output. The CI environment will run `pnpm install` and `composer install` beforehand, but if a build step is required before running tests the necessary commands for that should also be included in `.scripts.test-coverage`.
+
+Output should be written to the path specified via the `COVERAGE_DIR` environment variable. Subdirectories of that path may be used as desired.
+
+For PHP tests, you'll probably run PHPUnit as `php -dpcov.directory=. "$(command -v phpunit)" --coverage-php "$COVERAGE_DIR/php.cov"`. If you have multiple runs (e.g. unit and integration), be sure to write the `php.cov` files to separate subdirectories of `$COVERAGE_DIR`.
+
+For JS tests, you'll probably have a `test` script in package.json that runs `jest` with any needed options, and then a `test-coverage` script that does `pnpm run test --coverage`. If you have multiple runs (e.g. unit and integration), be sure each run writes to a different subdirectory of `$COVERAGE_DIR`.
+
+There's no need to be concerned about collisions with other projects' coverage files, a separate directory is used per project. The coverage files are also automatically copied to `ARTIFACTS_DIR`.
+
+If you want to generate coverage locally, e.g. with `jetpack test coverage`, note that generating PHP coverage requires the [pcov](https://pecl.php.net/package/pcov) or [xdebug](https://pecl.php.net/package/xdebug) extensions. We use `pcov` for the CI runs; results from `xdebug` may be slightly different.
+
+<details><summary>Installing the PHP pcov extension on Linux</summary>
+
+On most Linux distributions, you can install the PHP pcov extension using your package manager:
+
+- For Ubuntu/Debian-based systems:
+  ```
+  sudo apt-get install php8.2-pcov
+  ```
+- For Arch Linux:
+  Install the AUR package "php-pcov" from https://aur.archlinux.org/packages/php-pcov
+
+For other Linux distributions, consult your package manager's documentation or consider compiling from source.
+
+</details>
+
+Mac users have reported having trouble installing the PHP pcov extension. See the dropdown below for Mac-specific instructions.
+
+<details><summary>Installing the PHP pcov extension on Mac</summary>
+
+This assumes you have PHP installed via Homebrew, e.g. you've done `brew install php@8.2`.
+
+1. First, check whether pcov is already installed by running `php --ri pcov`. If it prints something like this, you should already be good:
+   ```
+   pcov
+
+   PCOV support => Enabled
+   PCOV version => 1.0.11
+   pcov.directory => /some/path/
+   pcov.exclude => none
+   pcov.initial.memory => 65336 bytes
+   pcov.initial.files => 64
+   ```
+2. You may need to `brew install pkg-config zlib` to install some necessary dependencies.
+3. Update the list of available extensions: `pecl channel-update pecl.php.net`
+4. Build the extension: `pecl install pcov`
+   - If the build process fails due to mkdir errors with the pecl directory, you might try `mkdir -p /opt/homebrew/lib/php/pecl` and running the install again.
+5. You may also need to tell PHP where to find the newly-installed extension.
+   1. Run `pecl config-get ext_dir` to find where pecl installs extensions.
+   2. Run `php -r 'echo ini_get( "extension_dir" ) . "\n";'` to find where PHP currently expects extensions to live.
+   3. If those are the same, great! If not, you have two options:
+      * If PHP's current directory is empty, you could find your `php.ini` file (`php --ini`) and change `extension_dir` to pecl's location.
+      * Or else, pecl probably added `extension=pcov.so` to an ini file somewhere. You could change the `pcov.so` value to be the full path inside pecl's directory.
+
+</details>
 
 ## Mirror repositories
 

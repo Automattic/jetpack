@@ -2,7 +2,6 @@ import { CURRENCIES } from '@automattic/format-currency';
 import { getSiteFragment } from '@automattic/jetpack-shared-extension-utils';
 import { BlockControls, InspectorControls } from '@wordpress/block-editor';
 import {
-	Button,
 	Dashicon,
 	Dropdown,
 	ExternalLink,
@@ -12,6 +11,7 @@ import {
 	ToggleControl,
 	ToolbarGroup,
 	ToolbarItem,
+	ToolbarButton,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { DOWN } from '@wordpress/keycodes';
@@ -70,7 +70,7 @@ const Controls = props => {
 									};
 
 									return (
-										<Button
+										<ToolbarButton
 											className="jetpack-donations__currency-toggle"
 											icon={
 												<>

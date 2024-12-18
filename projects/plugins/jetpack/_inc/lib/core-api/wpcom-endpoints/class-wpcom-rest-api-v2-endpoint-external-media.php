@@ -121,6 +121,10 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 					'page_handle' => array(
 						'type' => 'string',
 					),
+					'session_id'  => array(
+						'description' => __( 'Session id of a service, currently only Google Photos Picker', 'jetpack' ),
+						'type'        => 'string',
+					),
 				),
 			)
 		);
@@ -133,7 +137,7 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 				'callback'            => array( $this, 'copy_external_media' ),
 				'permission_callback' => array( $this, 'create_item_permissions_check' ),
 				'args'                => array(
-					'media'   => array(
+					'media'        => array(
 						'description'       => __( 'Media data to copy.', 'jetpack' ),
 						'items'             => $this->media_schema,
 						'required'          => true,
@@ -141,10 +145,15 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 						'sanitize_callback' => array( $this, 'sanitize_media' ),
 						'validate_callback' => array( $this, 'validate_media' ),
 					),
-					'post_id' => array(
+					'post_id'      => array(
 						'description' => __( 'The post ID to attach the upload to.', 'jetpack' ),
 						'type'        => 'number',
 						'minimum'     => 0,
+					),
+					'should_proxy' => array(
+						'description' => __( 'Whether to proxy the media request.', 'jetpack' ),
+						'type'        => 'boolean',
+						'default'     => false,
 					),
 				),
 			)
@@ -167,6 +176,66 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 				'methods'             => \WP_REST_Server::DELETABLE,
 				'callback'            => array( $this, 'delete_connection' ),
 				'permission_callback' => array( $this, 'permission_callback' ),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
+			$this->rest_base . '/connection/(?P<service>google_photos)/picker_status',
+			array(
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_picker_status' ),
+				'permission_callback' => array( $this, 'permission_callback' ),
+			)
+		);
+
+		// Add new session route, currently for Google Photos Picker only
+		register_rest_route(
+			$this->namespace,
+			$this->rest_base . '/session/(?P<service>google_photos)',
+			array(
+				'methods'             => \WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'create_session' ),
+				'permission_callback' => array( $this, 'permission_callback' ),
+			)
+		);
+
+		// Get new session route, currently for Google Photos Picker only
+		register_rest_route(
+			$this->namespace,
+			$this->rest_base . '/session/(?P<service>google_photos)/(?P<session_id>.*)',
+			array(
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_session' ),
+				'permission_callback' => array( $this, 'permission_callback' ),
+			)
+		);
+
+		// Delete session route, currently for Google Photos Picker only
+		register_rest_route(
+			$this->namespace,
+			$this->rest_base . '/session/(?P<service>google_photos)/(?P<session_id>.*)',
+			array(
+				'methods'             => \WP_REST_Server::DELETABLE,
+				'callback'            => array( $this, 'delete_session' ),
+				'permission_callback' => array( $this, 'permission_callback' ),
+			)
+		);
+
+		// Add new proxy route for media files
+		register_rest_route(
+			$this->namespace,
+			$this->rest_base . '/proxy/(?P<service>google_photos)',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'proxy_media_request' ),
+				'permission_callback' => array( $this, 'permission_callback' ),
+				'args'                => array(
+					'url' => array(
+						'required' => true,
+						'type'     => 'string',
+					),
+				),
 			)
 		);
 	}
@@ -282,7 +351,7 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 		$service_args = array_filter(
 			$params,
 			function ( $key ) {
-				return in_array( $key, array( 'search', 'number', 'path', 'page_handle', 'filter' ), true );
+				return in_array( $key, array( 'search', 'number', 'path', 'page_handle', 'filter', 'session_id' ), true );
 			},
 			ARRAY_FILTER_USE_KEY
 		);
@@ -330,18 +399,51 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 	 *
 	 * @param \WP_REST_Request $request Full details about the request.
 	 * @return array|\WP_Error|mixed
-	 */
+	 **/
 	public function copy_external_media( \WP_REST_Request $request ) {
 		require_once ABSPATH . 'wp-admin/includes/file.php';
 		require_once ABSPATH . 'wp-admin/includes/media.php';
 		require_once ABSPATH . 'wp-admin/includes/image.php';
 
-		$post_id = $request->get_param( 'post_id' );
+		$post_id      = $request->get_param( 'post_id' );
+		$should_proxy = $request->get_param( 'should_proxy' );
+		$service      = rawurlencode( $request->get_param( 'service' ) );
 
 		$responses = array();
+
 		foreach ( $request->get_param( 'media' ) as $item ) {
 			// Download file to temp dir.
-			$download_url = $this->get_download_url( $item['guid'] );
+			if ( $should_proxy ) {
+				$wpcom_path   = sprintf( '/meta/external-media/proxy/%s', $service );
+				$wpcom_path  .= '?url=' . rawurlencode( $item['guid']['url'] );
+				$download_url = wp_tempnam();
+				$response     = Client::wpcom_json_api_request_as_user(
+					$wpcom_path,
+					'2',
+					array(
+						'method' => 'POST',
+					)
+				);
+
+				if ( is_wp_error( $response ) ) {
+					$responses[] = $response;
+					continue;
+				}
+				$wp_filesystem = $this->get_wp_filesystem();
+				$written       = $wp_filesystem->put_contents( $download_url, wp_remote_retrieve_body( $response ) );
+
+				if ( false === $written ) {
+					$responses[] = new WP_Error(
+						'rest_upload_error',
+						__( 'Could not download media file.', 'jetpack' ),
+						array( 'status' => 400 )
+					);
+					continue;
+				}
+			} else {
+				$download_url = $this->get_download_url( $item['guid'] );
+			}
+
 			if ( is_wp_error( $download_url ) ) {
 				$responses[] = $download_url;
 				continue;
@@ -428,6 +530,192 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 		);
 
 		return json_decode( wp_remote_retrieve_body( $response ), true );
+	}
+
+	/**
+	 * Gets Google Photos Picker enabled Status.
+	 *
+	 * @param \WP_REST_Request $request Full details about the request.
+	 * @return array|\WP_Error|mixed
+	 */
+	public function get_picker_status( \WP_REST_Request $request ) {
+		$service    = $request->get_param( 'service' );
+		$wpcom_path = sprintf( '/meta/external-media/connection/%s/picker_status', rawurlencode( $service ) );
+
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$internal_request = new \WP_REST_Request( 'GET', '/' . $this->namespace . $wpcom_path );
+			$internal_request->set_query_params( $request->get_params() );
+
+			return rest_do_request( $internal_request );
+		}
+
+		$response = Client::wpcom_json_api_request_as_user(
+			$wpcom_path,
+			'2',
+			array(
+				'method' => 'GET',
+			)
+		);
+
+		return json_decode( wp_remote_retrieve_body( $response ), true );
+	}
+
+	/**
+	 * Creates a new session for a service.
+	 *
+	 * @param \WP_REST_Request $request Full details about the request.
+	 * @return array|\WP_Error|mixed
+	 */
+	public function create_session( \WP_REST_Request $request ) {
+		$service    = $request->get_param( 'service' );
+		$wpcom_path = sprintf( '/meta/external-media/session/%s', rawurlencode( $service ) );
+
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$internal_request = new \WP_REST_Request( 'POST', '/' . $this->namespace . $wpcom_path );
+			$internal_request->set_query_params( $request->get_params() );
+
+			return rest_do_request( $internal_request );
+		}
+
+		$response = Client::wpcom_json_api_request_as_user(
+			$wpcom_path,
+			'2',
+			array(
+				'method' => 'POST',
+			)
+		);
+
+		return json_decode( wp_remote_retrieve_body( $response ), true );
+	}
+
+	/**
+	 * Gets a session for a service.
+	 *
+	 * @param \WP_REST_Request $request Full details about the request.
+	 * @return array|\WP_Error|mixed
+	 */
+	public function get_session( \WP_REST_Request $request ) {
+		$service    = $request->get_param( 'service' );
+		$session_id = $request->get_param( 'session_id' );
+		$wpcom_path = sprintf( '/meta/external-media/session/%s/%s', rawurlencode( $service ), rawurlencode( $session_id ) );
+
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$internal_request = new \WP_REST_Request( 'GET', '/' . $this->namespace . $wpcom_path );
+			$internal_request->set_query_params( $request->get_params() );
+
+			return rest_do_request( $internal_request );
+		}
+
+		$response = Client::wpcom_json_api_request_as_user(
+			$wpcom_path,
+			'2',
+			array(
+				'method' => 'GET',
+			)
+		);
+
+		return json_decode( wp_remote_retrieve_body( $response ), true );
+	}
+
+	/**
+	 * Deletes a session for a service.
+	 *
+	 * @param \WP_REST_Request $request Full details about the request.
+	 * @return array|\WP_Error|mixed
+	 */
+	public function delete_session( \WP_REST_Request $request ) {
+		$service    = $request->get_param( 'service' );
+		$session_id = $request->get_param( 'session_id' );
+		$wpcom_path = sprintf( '/meta/external-media/session/%s/%s', rawurlencode( $service ), rawurlencode( $session_id ) );
+
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$internal_request = new \WP_REST_Request( 'DELETE', '/' . $this->namespace . $wpcom_path );
+			$internal_request->set_query_params( $request->get_params() );
+
+			return rest_do_request( $internal_request );
+		}
+
+		$response = Client::wpcom_json_api_request_as_user(
+			$wpcom_path,
+			'2',
+			array(
+				'method' => 'DELETE',
+			)
+		);
+
+		return json_decode( wp_remote_retrieve_body( $response ), true );
+	}
+
+	/**
+	 * Proxies media requests with proper authorization headers
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return WP_REST_Response|WP_Error|array Response object or WP_Error.
+	 */
+	public function proxy_media_request( $request ) {
+		$params     = $request->get_params();
+		$service    = rawurlencode( $request->get_param( 'service' ) );
+		$wpcom_path = sprintf( '/meta/external-media/proxy/%s', $service );
+
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$request = new \WP_REST_Request( 'POST', '/' . $this->namespace . $wpcom_path );
+			$request->set_query_params( $params );
+
+			return rest_do_request( $request );
+
+		} else {
+			// Build query string to pass to wpcom endpoint.
+			$service_args = array_filter(
+				$params,
+				function ( $key ) {
+					return in_array( $key, array( 'url' ), true );
+				},
+				ARRAY_FILTER_USE_KEY
+			);
+
+			if ( ! empty( $service_args ) ) {
+				$wpcom_path .= '?' . http_build_query( $service_args );
+			}
+
+			$response = Client::wpcom_json_api_request_as_user(
+				$wpcom_path,
+				'2',
+				array(
+					'method' => 'POST',
+				)
+			);
+
+			$status_code = wp_remote_retrieve_response_code( $response );
+			$headers     = wp_remote_retrieve_headers( $response );
+			$body        = wp_remote_retrieve_body( $response );
+
+			// For non-200 responses, parse and return JSON error
+			if ( $status_code !== 200 ) {
+				$error_data = json_decode( $body, true );
+				return new \WP_REST_Response( $error_data, $status_code );
+			}
+		}
+
+		// Return binary content directly
+		$valid_headers = array(
+			'content-type',
+			'content-length',
+			'content-disposition',
+		);
+		// Set content headers
+		foreach ( $valid_headers as $header ) {
+			if ( ! empty( $headers[ $header ] ) ) {
+				header( ucwords( $header, '-' ) . ': ' . $headers[ $header ] );
+			}
+		}
+
+		// Set cache headers
+		header( 'Cache-Control: no-cache, no-store, must-revalidate' );
+		header( 'Pragma: no-cache' );
+		header( 'Expires: 0' );
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Media binary data
+		echo $body;
+		exit;
 	}
 
 	/**
@@ -538,6 +826,22 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 		}
 
 		return $response;
+	}
+
+	/**
+	 * Get the wp filesystem.
+	 *
+	 * @return \WP_Filesystem_Base|null
+	 */
+	private function get_wp_filesystem() {
+		global $wp_filesystem;
+
+		if ( ! isset( $wp_filesystem ) ) {
+			require_once ABSPATH . '/wp-admin/includes/file.php';
+			WP_Filesystem();
+		}
+
+		return $wp_filesystem;
 	}
 }
 
