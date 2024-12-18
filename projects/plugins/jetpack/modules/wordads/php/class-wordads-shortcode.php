@@ -58,9 +58,7 @@ class WordAds_Shortcode {
 			return '<div>' . __( 'The WordAds module is not active', 'jetpack' ) . '</div>';
 		}
 
-		// TODO: is jetpack-wordad tag necessary?
-		$html = '<div class="jetpack-wordad" itemscope itemtype="https://schema.org/WPAdBlock"></div>';
-		$html = $wordads->insert_inline_ad( $html );
+		$html = $wordads->insert_inline_ad( '' );
 
 		return $html;
 	}

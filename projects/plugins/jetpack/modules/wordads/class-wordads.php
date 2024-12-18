@@ -537,7 +537,11 @@ HTML;
 		if ( 'house' !== $ad_type && ( isset( $_GET['wordads-logging'] ) && isset( $_GET[ $location ] ) && 'true' === $_GET[ $location ] ) ) {
 			$content .= $this->get_watl_ad_html_tag( $location );
 		} else {
-			$content .= $this->get_ad( 'inline', $ad_type );
+			$content .= sprintf(
+				'<div class="jetpack-wordad" itemscope itemtype="https://schema.org/WPAdBlock">%s</div>',
+				$this->get_ad( 'inline', $ad_type )
+			);
+
 		}
 		return $content;
 	}
@@ -967,7 +971,7 @@ HTML;
 	 * @since 8.7
 	 */
 	public static function get_watl_ad_html_tag( string $slot_type ): string {
-		return "<div class=\"wordads-tag\" data-slot-type=\"$slot_type\" style=\"display: none;\"></div>";
+		return "<div class=\"wordads-tag\" data-slot-type=\"$slot_type\" data-tag-origin=\"jetpack\" style=\"display: none;\"></div>";
 	}
 
 	/**
