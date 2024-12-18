@@ -32,7 +32,7 @@ RELEASE_STEPS=(
 function usage {
 	cat <<-EOH
 		Usage:
-		    $0 [-s <step>] <plugin> [<version>]
+		    $0 [-s <step>] <plugin> [<version>] [<plugin> [<version>] ...]
 
 		Options:
 		    -h, --help                 Show this help message.
