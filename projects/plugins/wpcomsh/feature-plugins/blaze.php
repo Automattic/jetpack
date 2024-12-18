@@ -74,7 +74,13 @@ add_filter( 'update_option_blog_public', 'wpcomsh_activate_blaze_module_on_launc
  * @return void
  */
 function wpcomsh_blaze_purge_transient_cache() {
-	$transient = 'jetpack_blaze_site_supports_blaze_' . Jetpack_Connection::get_site_id();
+	$site_id = Jetpack_Connection::get_site_id();
+
+	if ( is_wp_error( $site_id ) ) {
+		return;
+	}
+
+	$transient = 'jetpack_blaze_site_supports_blaze_' . $site_id;
 	delete_transient( $transient );
 }
 
