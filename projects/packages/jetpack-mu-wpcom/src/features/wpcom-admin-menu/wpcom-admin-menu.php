@@ -39,11 +39,7 @@ function current_user_has_wpcom_account() {
  * @return bool
  */
 function wpcom_is_using_default_admin_menu() {
-	remove_filter( 'pre_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_get_option' );
-	$option = get_option( 'wpcom_admin_interface' ) !== 'wp-admin';
-	add_filter( 'pre_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_get_option', 10 );
-
-	return $option;
+	return get_option( 'wpcom_admin_interface' ) !== 'wp-admin';
 }
 
 /**

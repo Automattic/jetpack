@@ -762,13 +762,7 @@ abstract class Base_Admin_Menu {
 	 * @return bool
 	 */
 	public function is_using_default_admin_menu() {
-		remove_filter( 'pre_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_get_option' );
-		$option = get_option( 'wpcom_admin_interface' ) !== 'wp-admin';
-		if ( function_exists( 'wpcom_admin_interface_pre_get_option' ) ) {
-			add_filter( 'pre_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_get_option', 10 );
-		}
-
-		return $option;
+		return get_option( 'wpcom_admin_interface' ) !== 'wp-admin';
 	}
 
 	/**
