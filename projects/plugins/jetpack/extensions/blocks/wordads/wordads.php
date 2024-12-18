@@ -25,7 +25,7 @@ class WordAds {
 	 *
 	 * @var array
 	 */
-	public static $gutenberg_ad_snippet_x_smart_format = array(
+	private static $gutenberg_ad_snippet_x_smart_format = array(
 		'gutenberg_300x250' => 'gutenberg_rectangle',
 		'gutenberg_728x90'  => 'gutenberg_leaderboard',
 		'gutenberg_320x50'  => 'gutenberg_mobile_leaderboard',
