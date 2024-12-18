@@ -26,6 +26,7 @@ Default.args = {
 	height: 300,
 	margin: { top: 20, right: 20, bottom: 30, left: 40 },
 	data: sampleData,
+	showLegend: false,
 };
 
 // Story with single data series
@@ -57,8 +58,6 @@ CustomDimensions.args = {
 export const WithLegend = Template.bind( {} );
 WithLegend.args = {
 	...Default.args,
-	showLegend: true,
-	legendOrientation: 'horizontal',
 };
 
 // Story with vertical legend

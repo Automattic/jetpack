@@ -47,6 +47,7 @@ export const Default: StoryType = {
 		data,
 		theme: 'default',
 		innerRadius: 0,
+		showLegend: false,
 	},
 };
 

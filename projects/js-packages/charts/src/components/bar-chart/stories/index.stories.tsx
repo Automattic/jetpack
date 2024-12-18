@@ -27,6 +27,7 @@ Default.args = {
 	withTooltips: false,
 	data: data[ 0 ].data,
 	seriesLabel: data[ 0 ].group,
+	showLegend: false,
 };
 
 export const WithTooltips = Template.bind( {} );

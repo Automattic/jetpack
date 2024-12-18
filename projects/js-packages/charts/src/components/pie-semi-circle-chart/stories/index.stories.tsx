@@ -65,6 +65,7 @@ Default.args = {
 	note: 'Windows +10%',
 	thickness: 0.4,
 	clockwise: true,
+	showLegend: false,
 };
 
 export const WithTooltips = Template.bind( {} );
