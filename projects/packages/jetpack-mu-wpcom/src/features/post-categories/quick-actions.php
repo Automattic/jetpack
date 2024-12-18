@@ -66,7 +66,12 @@ function wpcom_set_default_category() {
 		return;
 	}
 
-	$new_default_category = get_category( sanitize_text_field( wp_unslash( $_GET['category'] ) ) );
+	$new_default_category_id = sanitize_text_field( wp_unslash( $_GET['category'] ) );
+	if ( ! is_numeric( $new_default_category_id ) ) {
+		return;
+	}
+
+	$new_default_category = get_category( (int) $new_default_category_id );
 	if ( is_wp_error( $new_default_category ) || ! $new_default_category ) {
 		return;
 	}
