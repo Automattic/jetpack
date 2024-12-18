@@ -8,12 +8,11 @@ import { select } from '@wordpress/data';
 import { range } from 'lodash';
 import photon from 'photon';
 import isOfflineMode from '../../../shared/is-offline-mode';
-import { waitForEditor } from '../../../shared/wait-for-editor';
 import { PHOTON_MAX_RESIZE } from '../constants';
 
 let jetpackPlanFromState;
 
-waitForEditor().then( () => {
+window.addEventListener( 'load', function () {
 	const hasImageCompare = select( 'core/block-editor' )
 		.getBlocks()
 		.some( block => block.name === 'jetpack/image-compare' );
