@@ -715,6 +715,7 @@ class Jetpack_Gutenberg {
 			$modules              = $module_list_endpoint->get_modules();
 		}
 
+		$jetpack_plan  = Jetpack_Plan::get();
 		$initial_state = array(
 			'available_blocks'    => self::get_availability(),
 			'blocks_variation'    => $blocks_variation,
@@ -731,6 +732,9 @@ class Jetpack_Gutenberg {
 				// this is the equivalent of JP initial state siteData.showMyJetpack (class-jetpack-redux-state-helper)
 				// used to determine if we can link to My Jetpack from the block editor
 				'is_my_jetpack_available'       => My_Jetpack_Initializer::should_initialize(),
+				'jetpack_plan'                  => array(
+					'data' => $jetpack_plan['product_slug'],
+				),
 				/**
 				 * Enable the RePublicize UI in the block editor context.
 				 *

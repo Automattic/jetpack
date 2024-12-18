@@ -7,12 +7,14 @@ export type DataPoint = {
 
 export type DataPointDate = {
 	date: Date;
+	label?: string;
 	value: number;
 };
 
 export type SeriesData = {
+	group?: string;
 	label: string;
-	data: DataPointDate[];
+	data: DataPointDate[] | DataPoint[];
 };
 
 export type MultipleDataPointsDate = {
@@ -96,4 +98,12 @@ export type BaseChartProps< T = DataPoint | DataPointDate > = {
 	 * Whether to show tooltips on hover. False by default.
 	 */
 	withTooltips?: boolean;
+	/**
+	 * Whether to show legend
+	 */
+	showLegend?: boolean;
+	/**
+	 * Legend orientation
+	 */
+	legendOrientation?: 'horizontal' | 'vertical';
 };
