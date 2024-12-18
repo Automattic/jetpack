@@ -9,6 +9,7 @@ import {
 import clsx from 'clsx';
 import { FC } from 'react';
 import { useChartTheme } from '../../providers/theme/theme-provider';
+import { Legend } from '../legend';
 import styles from './line-chart.module.scss';
 import type { BaseChartProps, DataPointDate, SeriesData } from '../shared/types';
 
@@ -77,14 +78,23 @@ const LineChart: FC< LineChartProps > = ( {
 	margin = { top: 20, right: 20, bottom: 40, left: 40 },
 	className,
 	withTooltips = true,
+	showLegend = false,
+	legendOrientation = 'horizontal',
 } ) => {
 	const providerTheme = useChartTheme();
 
-	if ( ! data.length ) {
+	if ( ! data?.length ) {
 		return (
 			<div className={ clsx( 'line-chart-empty', styles[ 'line-chart-empty' ] ) }>Empty...</div>
 		);
 	}
+
+	// Create legend items from group labels, this iterates over groups rather than data points
+	const legendItems = data.map( ( group, index ) => ( {
+		label: group.label, // Label for each unique group
+		value: '', // Empty string since we don't want to show a specific value
+		color: providerTheme.colors[ index % providerTheme.colors.length ],
+	} ) );
 
 	const accessors = {
 		xAccessor: ( d: DataPointDate ) => d.date,
@@ -118,7 +128,7 @@ const LineChart: FC< LineChartProps > = ( {
 					<AnimatedLineSeries
 						key={ seriesData?.label }
 						dataKey={ seriesData?.label }
-						data={ seriesData.data }
+						data={ seriesData.data as DataPointDate[] } // TODO: this needs fixing or a more specific type for each chart
 						{ ...accessors }
 						stroke={ theme.colors[ index % theme.colors.length ] }
 						strokeWidth={ 2 }
@@ -134,6 +144,14 @@ const LineChart: FC< LineChartProps > = ( {
 					/>
 				) }
 			</XYChart>
+
+			{ showLegend && (
+				<Legend
+					items={ legendItems }
+					orientation={ legendOrientation }
+					className={ styles[ 'line-chart-legend' ] }
+				/>
+			) }
 		</div>
 	);
 };

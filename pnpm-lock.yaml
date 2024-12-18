@@ -304,6 +304,9 @@ importers:
       '@visx/group':
         specifier: ^3.12.0
         version: 3.12.0(react@18.3.1)
+      '@visx/legend':
+        specifier: ^3.12.0
+        version: 3.12.0(react@18.3.1)
       '@visx/responsive':
         specifier: 3.12.0
         version: 3.12.0(react@18.3.1)
@@ -7913,6 +7916,11 @@ packages:
     resolution: {integrity: sha512-Dye8iS1alVXPv7nj/7M37gJe6sSKqJLH7x6sEWAsRQ9clI0kFvjbKcKgF+U3aAVQr0NCohheFV+DtR8trfK/Ag==}
     peerDependencies:
       react: ^16.0.0-0 || ^17.0.0-0 || ^18.0.0-0
+
+  '@visx/legend@3.12.0':
+    resolution: {integrity: sha512-Tr6hdauEDXRXVNeNgIQ9JtCCrxn8Fbr8UCVlO9XsSxenk2hBC/2PIY5QPzpnKFEEEuH/C8vhj8T0JfFZV+D9zQ==}
+    peerDependencies:
+      react: ^16.3.0-0 || ^17.0.0-0 || ^18.0.0-0
 
   '@visx/point@3.12.0':
     resolution: {integrity: sha512-I6UrHoJAEVbx3RORQNupgTiX5EzjuZpiwLPxn8L2mI5nfERotPKi1Yus12Cq2WtXqEBR/WgqTnoImlqOXBykcA==}
@@ -18506,6 +18514,15 @@ snapshots:
   '@visx/group@3.12.0(react@18.3.1)':
     dependencies:
       '@types/react': 18.3.13
+      classnames: 2.5.1
+      prop-types: 15.8.1
+      react: 18.3.1
+
+  '@visx/legend@3.12.0(react@18.3.1)':
+    dependencies:
+      '@types/react': 18.3.13
+      '@visx/group': 3.12.0(react@18.3.1)
+      '@visx/scale': 3.12.0
       classnames: 2.5.1
       prop-types: 15.8.1
       react: 18.3.1
