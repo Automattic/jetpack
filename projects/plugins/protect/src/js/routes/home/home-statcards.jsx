@@ -136,15 +136,9 @@ const HomeStatCards = () => {
 		if ( scanning ) {
 			scanIcon = <Spinner />;
 		} else if ( scanError ) {
-			scanIcon = <ShieldIcon variant="error" height={ ICON_HEIGHT } />;
+			scanIcon = <ShieldIcon variant="error" outline height={ ICON_HEIGHT } />;
 		} else {
-			scanIcon = (
-				<ShieldIcon
-					variant={ numThreats ? 'warning' : 'success' }
-					height={ ICON_HEIGHT }
-					color={ numThreats ? '#F0B849' : '#069E08' }
-				/>
-			);
+			scanIcon = <ShieldIcon variant={ numThreats ? 'error' : 'success' } height={ ICON_HEIGHT } />;
 		}
 
 		let scanLabel;
