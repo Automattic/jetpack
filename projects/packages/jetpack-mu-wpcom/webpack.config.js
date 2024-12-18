@@ -16,6 +16,7 @@ module.exports = [
 				'./src/features/custom-css/custom-css/js/core-customizer-css-preview.js',
 			'customizer-control': './src/features/custom-css/custom-css/css/customizer-control.css',
 			'error-reporting': './src/features/error-reporting/index.js',
+			'holiday-snow': './src/features/holiday-snow/holiday-snow.scss',
 			'jetpack-global-styles': './src/features/jetpack-global-styles/index.js',
 			'jetpack-global-styles-customizer-fonts':
 				'./src/features/jetpack-global-styles/customizer-fonts/index.js',
@@ -50,6 +51,8 @@ module.exports = [
 				'./src/features/wpcom-profile-settings/profile-settings-link-to-wpcom.ts',
 			'wpcom-sidebar-notice': './src/features/wpcom-sidebar-notice/wpcom-sidebar-notice.js',
 			'starter-page-templates': './src/features/starter-page-templates/index.tsx',
+			'removed-calypso-screen-notice':
+				'./src/features/wpcom-admin-interface/removed-calypso-screen-notice.tsx',
 		},
 		mode: jetpackWebpackConfig.mode,
 		devtool: jetpackWebpackConfig.devtool,
