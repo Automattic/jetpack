@@ -8,6 +8,7 @@ import { ProductCamelCase } from '../../data/types';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../hooks/use-analytics';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
+import useInstallStandalonePlugin from '../../data/products/use-install-standalone-plugin';
 
 const parsePricingData = ( pricingForUi: ProductCamelCase[ 'pricingForUi' ] ) => {
 	const { tiers, wpcomFreeProductSlug, introductoryOffer } = pricingForUi;
@@ -52,18 +53,49 @@ const parsePricingData = ( pricingForUi: ProductCamelCase[ 'pricingForUi' ] ) =>
 	};
 };
 
-const getPurchaseAction = ( detail: ProductCamelCase, onCheckout: () => void ) => {
+// type for onCheckout and onActivate
+type Actions = {
+	onCheckout: () => void;
+	onActivate: () => void;
+	onInstall: () => void;
+	onManage: () => void;
+};
+
+const getPrimaryAction = (
+	detail: ProductCamelCase,
+	{ onCheckout, onActivate, onInstall, onManage }: Actions
+) => {
 	const isUpgradable =
 		detail.status === PRODUCT_STATUSES.ACTIVE &&
 		( detail.isUpgradableByBundle.length || detail.isUpgradable );
 	const upgradeHasPrice =
 		detail.pricingForUi.fullPrice || detail.pricingForUi.tiers?.upgraded?.fullPrice;
 
+	if ( detail.status === PRODUCT_STATUSES.MODULE_DISABLED ) {
+		return { label: __( 'Activate', 'jetpack-my-jetpack' ), onClick: onActivate };
+	}
+
+	if ( detail.status === PRODUCT_STATUSES.ABSENT ) {
+		return { label: __( 'Install', 'jetpack-my-jetpack' ), onClick: onInstall };
+	}
+
+	if ( detail.status === PRODUCT_STATUSES.USER_CONNECTION_ERROR ) {
+		return { label: __( 'Connect', 'jetpack-my-jetpack' ), href: '#/connection' };
+	}
+
 	if ( detail.status === PRODUCT_STATUSES.CAN_UPGRADE || isUpgradable ) {
 		if ( upgradeHasPrice ) {
 			return { label: __( 'Upgrade', 'jetpack-my-jetpack' ), onClick: onCheckout };
 		}
 		return null;
+	}
+
+	if ( detail.isFeature ) {
+		return {
+			label: __( 'Manage', 'jetpack-my-jetpack' ),
+			href: detail.manageUrl,
+			onClick: onCheckout,
+		};
 	}
 
 	return { label: __( 'Purchase', 'jetpack-my-jetpack' ), onClick: onCheckout };
@@ -98,6 +130,7 @@ const usePricingData = ( slug: string ) => {
 	const { wpcomProductSlug, wpcomFreeProductSlug, ...data } = parsePricingData(
 		detail.pricingForUi
 	);
+	const { install: installPlugin, isPending: isInstalling } = useInstallStandalonePlugin( slug );
 
 	const { isUserConnected } = useMyJetpackConnection();
 	const { myJetpackUrl, siteSuffix } = getMyJetpackWindowInitialState();
@@ -135,9 +168,27 @@ const usePricingData = ( slug: string ) => {
 		runCheckout();
 	}, [ activate, recordEvent, runCheckout, slug ] );
 
+	const handleInstall = useCallback( () => {
+		recordEvent( 'jetpack_myjetpack_evaluation_recommendations_install_plugin_click', {
+			product: slug,
+		} );
+		installPlugin();
+	}, [ slug, installPlugin, recordEvent ] );
+
+	const handleManage = useCallback( () => {
+		recordEvent( 'jetpack_myjetpack_evaluation_recommendations_manage_click', {
+			product: slug,
+		} );
+	}, [ slug, recordEvent ] );
+
 	return {
 		secondaryAction: getSecondaryAction( detail, handleActivate ),
-		purchaseAction: getPurchaseAction( detail, handleCheckout ),
+		primaryAction: getPrimaryAction( detail, {
+			onCheckout: handleCheckout,
+			onActivate: handleActivate,
+			onInstall: handleInstall,
+			onManage: handleManage,
+		} ),
 		isActivating,
 		...data,
 	};
