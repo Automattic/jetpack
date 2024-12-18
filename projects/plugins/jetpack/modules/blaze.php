@@ -14,7 +14,6 @@
  */
 
 use Automattic\Jetpack\Blaze;
-use Automattic\Jetpack\Status\Host;
 
 Blaze::init();
 
