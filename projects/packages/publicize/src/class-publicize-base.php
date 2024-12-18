@@ -614,14 +614,14 @@ abstract class Publicize_Base {
 
 		switch ( $service_name ) {
 			case 'mastodon':
-				return $cmeta['external_display'] ?? '';
+				return $cmeta['external_display'] ?? null;
 
 			case 'bluesky':
 			case 'threads':
-				return $cmeta['external_name'] ?? '';
+				return $cmeta['external_name'] ?? null;
 
 			case 'instagram-business':
-				return $cmeta['connection_data']['meta']['username'] ?? '';
+				return $cmeta['connection_data']['meta']['username'] ?? null;
 
 			default:
 				return null;
