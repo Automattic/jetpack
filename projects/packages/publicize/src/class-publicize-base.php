@@ -607,7 +607,7 @@ abstract class Publicize_Base {
 	 *
 	 * @param string       $service_name 'facebook', 'linkedin', etc.
 	 * @param object|array $connection The Connection object (WordPress.com) or array (Jetpack).
-	 * @return string
+	 * @return string|null
 	 */
 	public function get_external_handle( $service_name, $connection ) {
 		$cmeta = $this->get_connection_meta( $connection );
@@ -624,7 +624,7 @@ abstract class Publicize_Base {
 				return $cmeta['connection_data']['meta']['username'] ?? '';
 
 			default:
-				return '';
+				return null;
 		}
 	}
 
