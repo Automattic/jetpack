@@ -7,7 +7,7 @@
 
 namespace Automattic\Jetpack\Publicize;
 
-use Automattic\Jetpack\Publicize\Rest_Endpoints\Connections_Controller;
+use Automattic\Jetpack\Publicize\REST_API\Connections_Controller;
 use Automattic\Jetpack\Status\Host;
 
 /**

@@ -5,7 +5,7 @@
  * @package automattic/jetpack-publicize
  */
 
-namespace Automattic\Jetpack\Publicize\Rest_Endpoints;
+namespace Automattic\Jetpack\Publicize\REST_API;
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager;
