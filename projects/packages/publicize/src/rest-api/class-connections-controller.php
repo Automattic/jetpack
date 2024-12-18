@@ -60,6 +60,9 @@ class Connections_Controller extends Base_Controller {
 	 * @return array
 	 */
 	public function get_item_schema() {
+		if ( $this->schema ) {
+			return $this->add_additional_fields_schema( $this->schema );
+		}
 		$deprecated_fields = array(
 			'id'                   => array(
 				'type'        => 'string',
@@ -153,6 +156,8 @@ class Connections_Controller extends Base_Controller {
 				)
 			),
 		);
+
+		$this->schema = $schema;
 
 		return $this->add_additional_fields_schema( $schema );
 	}
