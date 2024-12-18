@@ -10,7 +10,7 @@
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 
-if ( wpcom_is_using_default_admin_menu() ) {
+if ( get_option( 'wpcom_admin_interface' ) !== 'wp-admin' ) {
 	return;
 }
 

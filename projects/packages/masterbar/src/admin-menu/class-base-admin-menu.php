@@ -757,15 +757,6 @@ abstract class Base_Admin_Menu {
 	}
 
 	/**
-	 * Check if the user has the default (Calypso) Admin menu.
-	 *
-	 * @return bool
-	 */
-	public function is_using_default_admin_menu() {
-		return get_option( 'wpcom_admin_interface' ) !== 'wp-admin';
-	}
-
-	/**
 	 * Create the desired menu output.
 	 */
 	abstract public function reregister_menu_items();
