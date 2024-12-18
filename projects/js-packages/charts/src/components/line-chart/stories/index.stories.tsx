@@ -27,6 +27,7 @@ Default.args = {
 	margin: { top: 20, right: 20, bottom: 30, left: 40 },
 	data: sampleData,
 	showLegend: false,
+	legendOrientation: 'horizontal',
 };
 
 // Story with single data series

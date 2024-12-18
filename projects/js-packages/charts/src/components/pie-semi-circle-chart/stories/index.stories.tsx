@@ -66,6 +66,7 @@ Default.args = {
 	thickness: 0.4,
 	clockwise: true,
 	showLegend: false,
+	legendOrientation: 'horizontal',
 };
 
 export const WithTooltips = Template.bind( {} );

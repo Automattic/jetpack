@@ -48,6 +48,7 @@ export const Default: StoryType = {
 		theme: 'default',
 		innerRadius: 0,
 		showLegend: false,
+		legendOrientation: 'horizontal',
 	},
 };
 
