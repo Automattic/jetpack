@@ -10,16 +10,11 @@
  * See: p1734525664059729-slack-C02FMH4G8
  * See: https://github.com/WordPress/gutenberg/issues/68053#issuecomment-2550730705
  */
-add_action(
-	'admin_init',
-	function () {
-		add_filter(
-			'register_post_type_args',
-			function ( $args ) {
-				unset( $args['default_rendering_mode'] );
-				return $args;
-			},
-			20
-		);
-	}
+add_filter(
+	'register_post_type_args',
+	function ( $args ) {
+		unset( $args['default_rendering_mode'] );
+		return $args;
+	},
+	20
 );
