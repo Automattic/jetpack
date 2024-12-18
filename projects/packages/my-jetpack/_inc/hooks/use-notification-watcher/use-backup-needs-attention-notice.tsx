@@ -6,6 +6,7 @@ import { NOTICE_PRIORITY_HIGH } from '../../context/constants';
 import { NoticeContext } from '../../context/notices/noticeContext';
 import preventWidows from '../../utils/prevent-widows';
 import useAnalytics from '../use-analytics';
+import { useGetReadableFailedBackupReason } from './use-get-readable-failed-backup-reason';
 import type { NoticeOptions } from '../../context/notices/types';
 
 type RedBubbleAlerts = Window[ 'myJetpackInitialState' ][ 'redBubbleAlerts' ];
@@ -15,6 +16,7 @@ const useBackupNeedsAttentionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 	const { setNotice } = useContext( NoticeContext );
 
 	const { status, last_updated: lastUpdated } = redBubbleAlerts?.backup_failure || {};
+	const { text: errorDescription } = useGetReadableFailedBackupReason() || {};
 
 	const {
 		timezone: { offset },
@@ -60,14 +62,9 @@ const useBackupNeedsAttentionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 						)
 					) }
 				</Text>
-				<Text mb={ 1 }>
-					{ preventWidows(
-						__(
-							'This might be due to a block from your host or other server issues.',
-							'jetpack-my-jetpack'
-						)
-					) }
-				</Text>
+				{ errorDescription && (
+					<Text mb={ 1 }>{ preventWidows( errorDescription as string ) }</Text>
+				) }
 				<Text mb={ 1 }>
 					{ preventWidows(
 						__(
@@ -110,6 +107,7 @@ const useBackupNeedsAttentionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 		onSecondaryCtaClick,
 		noticeTitle,
 		backupStatusLastUpdatedDate,
+		errorDescription,
 	] );
 };
 
