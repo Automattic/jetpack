@@ -192,6 +192,26 @@ add_filter( 'get_user_option_jetpack_admin_menu_preferred_views', 'wpcom_admin_g
 add_filter( 'pre_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_get_option', 10 );
 
 /**
+ * Hides the "View" switcher on WP Admin screens enforced by the "Remove duplicate views" experiment.
+ */
+function wpcom_duplicate_views_hide_view_switcher() {
+	if ( ! function_exists( '\Automattic\Jetpack\Masterbar\get_admin_menu_class' ) || ! function_exists( '\Automattic\Jetpack\Masterbar\should_customize_nav' ) ) {
+		return;
+	}
+
+	$admin_menu_class = apply_filters( 'jetpack_admin_menu_class', \Automattic\Jetpack\Masterbar\get_admin_menu_class() );
+	if ( \Automattic\Jetpack\Masterbar\should_customize_nav( $admin_menu_class ) ) {
+		$admin_menu = $admin_menu_class::get_instance();
+
+		$current_screen = wpcom_admin_get_current_screen();
+		if ( in_array( $current_screen, WPCOM_DUPLICATED_VIEW, true ) && wpcom_is_duplicate_views_experiment_enabled() ) {
+			remove_filter( 'in_admin_header', array( $admin_menu, 'add_dashboard_switcher' ) );
+		}
+	}
+}
+add_action( 'admin_init', 'wpcom_duplicate_views_hide_view_switcher' );
+
+/**
  * Determines whether the admin interface has been recently changed by checking the presence of the `admin-interface-changed` query param.
  *
  * @return bool

@@ -17,6 +17,7 @@ import PremiumTooltip from '$features/premium-tooltip/premium-tooltip';
 import Upgraded from '$features/ui/upgraded/upgraded';
 import PageCacheModule from '$features/page-cache/page-cache';
 import Pill from '$features/ui/pill/pill';
+import { recordBoostEvent } from '$lib/utils/analytics';
 
 const Index = () => {
 	const criticalCssLink = getRedirectUrl( 'jetpack-boost-critical-css' );
@@ -36,6 +37,10 @@ const Index = () => {
 	const hasPremiumCdnFeatures =
 		premiumFeatures.includes( 'image-cdn-liar' ) && premiumFeatures.includes( 'image-cdn-quality' );
 
+	const handleCriticalCssLink = () => {
+		recordBoostEvent( 'critical_css_link_clicked', {} );
+	};
+
 	return (
 		<div className="jb-container--narrow">
 			<CornerstonePages />
@@ -52,8 +57,16 @@ const Index = () => {
 									'jetpack-boost'
 								),
 								{
-									// eslint-disable-next-line jsx-a11y/anchor-has-content
-									link: <a href={ criticalCssLink } target="_blank" rel="noopener noreferrer" />,
+									link: (
+										// eslint-disable-next-line jsx-a11y/anchor-has-content
+										<a
+											href={ criticalCssLink }
+											target="_blank"
+											onClick={ handleCriticalCssLink }
+											style={ { cursor: 'pointer' } }
+											rel="noopener noreferrer"
+										/>
+									),
 								}
 							) }
 						</p>
@@ -102,8 +115,16 @@ const Index = () => {
 									'jetpack-boost'
 								),
 								{
-									// eslint-disable-next-line jsx-a11y/anchor-has-content
-									link: <a href={ criticalCssLink } target="_blank" rel="noopener noreferrer" />,
+									link: (
+										// eslint-disable-next-line jsx-a11y/anchor-has-content
+										<a
+											href={ criticalCssLink }
+											target="_blank"
+											onClick={ handleCriticalCssLink }
+											style={ { cursor: 'pointer' } }
+											rel="noopener noreferrer"
+										/>
+									),
 								}
 							) }
 						</p>
@@ -135,8 +156,15 @@ const Index = () => {
 								'jetpack-boost'
 							),
 							{
-								// eslint-disable-next-line jsx-a11y/anchor-has-content
-								link: <a href={ deferJsLink } target="_blank" rel="noopener noreferrer" />,
+								link: (
+									// eslint-disable-next-line jsx-a11y/anchor-has-content
+									<a
+										onClick={ () => recordBoostEvent( 'defer_js_link_clicked', {} ) }
+										href={ deferJsLink }
+										target="_blank"
+										rel="noopener noreferrer"
+									/>
+								),
 							}
 						) }
 					</p>
@@ -156,8 +184,8 @@ const Index = () => {
 			>
 				<MinifyMeta
 					datasyncKey="minify_js_excludes"
-					buttonText={ __( 'Exclude JS Strings', 'jetpack-boost' ) }
-					placeholder={ __( 'Comma separated list of JS scripts to exclude', 'jetpack-boost' ) }
+					buttonText={ __( 'Exclude JS handles', 'jetpack-boost' ) }
+					placeholder={ __( 'Comma separated list of JS handles to exclude', 'jetpack-boost' ) }
 				/>
 			</Module>
 			<Module
@@ -174,11 +202,8 @@ const Index = () => {
 			>
 				<MinifyMeta
 					datasyncKey="minify_css_excludes"
-					buttonText={ __( 'Exclude CSS Strings', 'jetpack-boost' ) }
-					placeholder={ __(
-						'Comma separated list of CSS stylesheets to exclude',
-						'jetpack-boost'
-					) }
+					buttonText={ __( 'Exclude CSS handles', 'jetpack-boost' ) }
+					placeholder={ __( 'Comma separated list of CSS handles to exclude', 'jetpack-boost' ) }
 				/>
 			</Module>
 			<Module
