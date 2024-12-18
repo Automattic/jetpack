@@ -178,17 +178,23 @@ echo "Changing JS translation function call to avoid bad minification..."
 pnpm --package=jscodeshift dlx jscodeshift -t ./bin/sync-newspack-blocks-formatter.js --extensions=js $TARGET
 
 # Add temporary PHPCS config file.
-cat > "$TARGET/.phpcs.dir.xml" <<EOF
+PHPCSSTANDARDFILE="$TARGET/phpcs.tmp.xml"
+cat > "$PHPCSSTANDARDFILE" <<EOF
 <?xml version="1.0"?>
 <ruleset>
-	<rule ref="MediaWiki.Usage.ForbiddenFunctions">
-		<exclude name="MediaWiki.Usage.ForbiddenFunctions.isset"/>
+	<rule ref="WordPress.Utils.I18nTextDomainFixer">
+		<properties>
+			<property name="old_text_domain" type="array">
+				<element value="newspack-blocks" />
+			</property>
+			<property name="new_text_domain" value="jetpack-mu-wpcom" />
+		</properties>
 	</rule>
 </ruleset>
 EOF
 echo "Changing PHP textdomain to match jetpack-mu-wpcom..."
-"$BASE"/vendor/bin/phpcbf --standard=./.phpcs.dir.xml --filter="$BASE"/vendor/automattic/jetpack-phpcs-filter/src/PhpcsFilter.php --runtime-set jetpack-filter-no-ignore -q "$TARGET"
-rm "$TARGET/.phpcs.dir.xml"
+"$BASE"/vendor/bin/phpcbf --standard="$PHPCSSTANDARDFILE" "$TARGET"
+rm "$PHPCSSTANDARDFILE"
 
 # Add textdomain to block.json
 echo "Adding textdomain to all block.json files..."
