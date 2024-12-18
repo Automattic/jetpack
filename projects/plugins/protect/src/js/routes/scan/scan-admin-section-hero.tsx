@@ -2,6 +2,7 @@ import { Text, Button, useBreakpointMatch } from '@automattic/jetpack-components
 import { Tooltip } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
 import { __, _n, sprintf } from '@wordpress/i18n';
+import clsx from 'clsx';
 import { useCallback, useState, useMemo } from 'react';
 import AdminSectionHero from '../../components/admin-section-hero';
 import ErrorAdminSectionHero from '../../components/error-admin-section-hero';
@@ -15,7 +16,7 @@ import useWafData from '../../hooks/use-waf-data';
 import ScanningAdminSectionHero from './scanning-admin-section-hero';
 import styles from './styles.module.scss';
 
-const ScanAdminSectionHero: React.FC = () => {
+const ScanAdminSectionHero: React.FC = ( { size = 'normal' }: { size?: 'normal' | 'large' } ) => {
 	const { recordEvent } = useAnalyticsTracks();
 	const { hasPlan, upgradePlan } = usePlan();
 	const { setModal } = useModal();
@@ -91,7 +92,7 @@ const ScanAdminSectionHero: React.FC = () => {
 	};
 
 	if ( scanning ) {
-		return <ScanningAdminSectionHero />;
+		return <ScanningAdminSectionHero size={ size } />;
 	}
 
 	if ( status.error ) {
@@ -106,8 +107,12 @@ const ScanAdminSectionHero: React.FC = () => {
 
 	return (
 		<AdminSectionHero>
-			<AdminSectionHero.Main className={ styles[ 'header-main' ] }>
-				<Text mb={ 2 } ref={ setDailyScansPopoverAnchor }>
+			<AdminSectionHero.Main
+				className={ clsx( styles[ 'hero-main' ], {
+					[ styles[ 'hero-main--large' ] ]: size === 'large',
+				} ) }
+			>
+				<Text className={ styles[ 'last-checked' ] } mb={ 2 } ref={ setDailyScansPopoverAnchor }>
 					{ lastCheckedLocalTimestamp
 						? sprintf(
 								// translators: %s: date and time of the last scan
@@ -118,7 +123,7 @@ const ScanAdminSectionHero: React.FC = () => {
 				</Text>
 				<OnboardingPopover
 					id={ hasPlan ? 'paid-daily-and-manual-scans' : 'free-daily-scans' }
-					position={ isSm ? 'bottom' : 'middle right' }
+					position={ isSm ? 'bottom right' : 'middle right' }
 					anchor={ dailyScansPopoverAnchor }
 				/>
 				<AdminSectionHero.Heading icon={ numThreats > 0 ? 'error' : 'success' }>
@@ -157,11 +162,8 @@ const ScanAdminSectionHero: React.FC = () => {
 				) }
 				{ fixableList.length > 0 && (
 					<>
-						<div ref={ setShowAutoFixersPopoverAnchor }>
-							<Button
-								className={ styles[ 'auto-fixers' ] }
-								onClick={ handleShowAutoFixersClick( fixableList ) }
-							>
+						<div className={ styles[ 'auto-fixers' ] } ref={ setShowAutoFixersPopoverAnchor }>
+							<Button onClick={ handleShowAutoFixersClick( fixableList ) }>
 								{ sprintf(
 									/* translators: Translates to Show auto fixers $s: Number of fixable threats. */
 									__( 'Show auto fixers (%s)', 'jetpack-protect' ),
@@ -171,7 +173,7 @@ const ScanAdminSectionHero: React.FC = () => {
 						</div>
 						<OnboardingPopover
 							id="paid-fix-all-threats"
-							position={ isSm ? 'bottom right' : 'middle left' }
+							position={ isSm ? 'bottom right' : 'middle right' }
 							anchor={ showAutoFixersPopoverAnchor }
 						/>
 					</>

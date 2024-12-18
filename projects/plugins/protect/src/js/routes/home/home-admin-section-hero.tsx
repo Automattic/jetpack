@@ -43,7 +43,9 @@ const HomeAdminSectionHero: React.FC = () => {
 					</Button>
 				</>
 			</AdminSectionHero.Main>
-			<AdminSectionHero.Aside>{ <HomeStatCards /> }</AdminSectionHero.Aside>
+			<AdminSectionHero.Aside>
+				<HomeStatCards />
+			</AdminSectionHero.Aside>
 		</AdminSectionHero>
 	);
 };

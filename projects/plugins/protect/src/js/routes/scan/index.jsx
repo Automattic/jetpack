@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import AdminPage from '../../components/admin-page';
 import OnboardingPopover from '../../components/onboarding-popover';
+import useHistoryQuery from '../../data/scan/use-history-query';
 import useScanStatusQuery, { isScanInProgress } from '../../data/scan/use-scan-status-query';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import { OnboardingContext } from '../../hooks/use-onboarding';
@@ -24,6 +25,7 @@ const ScanPage = () => {
 	const location = useLocation();
 	const { filter } = useParams();
 	const { data: status } = useScanStatusQuery( { usePolling: true } );
+	const { data: history } = useHistoryQuery();
 
 	const [ scanResultsAnchor, setScanResultsAnchor ] = useState( null );
 
@@ -35,6 +37,10 @@ const ScanPage = () => {
 	} else {
 		currentScanStatus = 'active';
 	}
+
+	const hasActiveThreats = status && status.threats.length;
+	const hasHistory = history && history.threats.length;
+	const showResults = hasActiveThreats || hasHistory;
 
 	const filters = useMemo( () => {
 		if ( location.pathname.includes( '/scan/history' ) ) {
@@ -68,34 +74,36 @@ const ScanPage = () => {
 	return (
 		<OnboardingContext.Provider value={ onboardingSteps }>
 			<AdminPage>
-				<ScanAdminSectionHero />
-				<AdminSection>
-					<Container
-						className={ styles[ 'scan-results-container' ] }
-						horizontalSpacing={ 5 }
-						horizontalGap={ 4 }
-					>
-						<Col>
-							<div ref={ setScanResultsAnchor }>
-								<ScanResultsDataView filters={ hasPlan ? filters : null } />
-							</div>
-							{ !! status && ! isScanInProgress( status ) && (
-								<OnboardingPopover
-									id={ hasPlan ? 'paid-scan-results' : 'free-scan-results' }
-									anchor={ scanResultsAnchor }
-									position={ 'top left' }
-								/>
-							) }
-							{ !! status && ! isScanInProgress( status ) && hasPlan && (
-								<OnboardingPopover
-									id={ 'paid-understand-severity' }
-									anchor={ scanResultsAnchor }
-									position={ 'top right' }
-								/>
-							) }
-						</Col>
-					</Container>
-				</AdminSection>
+				<ScanAdminSectionHero size={ showResults ? 'normal' : 'large' } />
+				{ showResults && (
+					<AdminSection>
+						<Container
+							className={ styles[ 'scan-results-container' ] }
+							horizontalSpacing={ 5 }
+							horizontalGap={ 4 }
+						>
+							<Col>
+								<div ref={ setScanResultsAnchor }>
+									<ScanResultsDataView filters={ filters } />
+								</div>
+								{ !! status && ! isScanInProgress( status ) && (
+									<OnboardingPopover
+										id={ hasPlan ? 'paid-scan-results' : 'free-scan-results' }
+										anchor={ scanResultsAnchor }
+										position={ 'top' }
+									/>
+								) }
+								{ !! status && ! isScanInProgress( status ) && hasPlan && (
+									<OnboardingPopover
+										id={ 'paid-understand-severity' }
+										anchor={ scanResultsAnchor }
+										position={ 'top' }
+									/>
+								) }
+							</Col>
+						</Container>
+					</AdminSection>
+				) }
 			</AdminPage>
 		</OnboardingContext.Provider>
 	);

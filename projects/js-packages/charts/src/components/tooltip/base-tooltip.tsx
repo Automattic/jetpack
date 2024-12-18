@@ -1,5 +1,5 @@
 import styles from './base-tooltip.module.scss';
-import type { CSSProperties, ComponentType } from 'react';
+import type { CSSProperties, ComponentType, ReactNode } from 'react';
 
 type TooltipData = {
 	label: string;
@@ -12,18 +12,30 @@ type TooltipComponentProps = {
 	className?: string;
 };
 
-type BaseTooltipProps = {
-	data: TooltipData;
+type TooltipCommonProps = {
 	top: number;
 	left: number;
 	style?: CSSProperties;
-	component?: ComponentType< TooltipComponentProps >;
 	className?: string;
 };
 
+type DefaultDataTooltip = {
+	data: TooltipData;
+	component?: ComponentType< TooltipComponentProps >;
+	children?: never;
+};
+
+type CustomTooltip = {
+	children: ReactNode;
+	data?: never;
+	component?: never;
+};
+
+type BaseTooltipProps = TooltipCommonProps & ( DefaultDataTooltip | CustomTooltip );
+
 const DefaultTooltipContent = ( { data }: TooltipComponentProps ) => (
 	<>
-		{ data.label }: { data.valueDisplay || data.value }
+		{ data?.label }: { data?.valueDisplay || data?.value }
 	</>
 );
 
@@ -32,11 +44,12 @@ export const BaseTooltip = ( {
 	top,
 	left,
 	component: Component = DefaultTooltipContent,
+	children,
 	className,
 }: BaseTooltipProps ) => {
 	return (
 		<div className={ styles.tooltip } style={ { top, left } } role="tooltip">
-			<Component data={ data } className={ className } />
+			{ children || <Component data={ data } className={ className } /> }
 		</div>
 	);
 };

@@ -95,7 +95,12 @@ export default function ThreatsDataViews( {
 	const defaultLayouts: SupportedLayouts = {
 		table: {
 			...baseView,
-			fields: [ THREAT_FIELD_SEVERITY, THREAT_FIELD_TYPE, THREAT_FIELD_AUTO_FIX ],
+			fields: [
+				THREAT_FIELD_SEVERITY,
+				THREAT_FIELD_TYPE,
+				THREAT_FIELD_STATUS,
+				THREAT_FIELD_AUTO_FIX,
+			],
 			titleField: THREAT_FIELD_TITLE,
 			descriptionField: THREAT_FIELD_DESCRIPTION,
 			showMedia: false,
