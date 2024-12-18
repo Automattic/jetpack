@@ -43,15 +43,12 @@ abstract class Base_Controller extends WP_REST_Controller {
 	 * @return WP_REST_Response filtered item
 	 */
 	public function prepare_item_for_response( $item, $request ) {
-		if ( ! is_callable( array( $this, 'get_fields_for_response' ) ) ) {
-			return rest_ensure_response( $item );
-		}
 
 		$fields = $this->get_fields_for_response( $request );
 
 		$response_data = array();
 		foreach ( $item as $field => $value ) {
-			if ( in_array( $field, $fields, true ) ) {
+			if ( rest_is_field_included( $field, $fields ) ) {
 				$response_data[ $field ] = $value;
 			}
 		}
