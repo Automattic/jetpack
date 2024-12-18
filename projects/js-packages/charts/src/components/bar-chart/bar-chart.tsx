@@ -7,6 +7,7 @@ import { useTooltip } from '@visx/tooltip';
 import clsx from 'clsx';
 import { FC, useCallback, type MouseEvent } from 'react';
 import { useChartTheme } from '../../providers/theme';
+import { Legend } from '../legend';
 import { BaseTooltip } from '../tooltip';
 import styles from './bar-chart.module.scss';
 import type { BaseChartProps, SeriesData } from '../shared/types';
@@ -19,6 +20,8 @@ const BarChart: FC< BarChartProps > = ( {
 	height,
 	margin = { top: 20, right: 20, bottom: 40, left: 40 },
 	withTooltips = false,
+	showLegend = false,
+	legendOrientation = 'horizontal',
 	className,
 } ) => {
 	const theme = useChartTheme();
@@ -32,6 +35,7 @@ const BarChart: FC< BarChartProps > = ( {
 	// Get labels for x-axis from the first series (assuming all series have same labels)
 	const labels = data[ 0 ].data.map( d => d?.label );
 
+	// Create scales
 	const xScale = scaleBand< string >( {
 		range: [ 0, xMax ],
 		domain: labels,
@@ -75,6 +79,13 @@ const BarChart: FC< BarChartProps > = ( {
 	const handleMouseLeave = useCallback( () => {
 		hideTooltip();
 	}, [ hideTooltip ] );
+
+	// Create legend items from group labels, this iterates over groups rather than data points
+	const legendItems = data.map( ( group, index ) => ( {
+		label: group.label, // Label for each unique group
+		value: '', // Empty string since we don't want to show a specific value
+		color: theme.colors[ index % theme.colors.length ],
+	} ) );
 
 	return (
 		<div className={ clsx( 'bar-chart', className, styles[ 'bar-chart' ] ) }>
@@ -122,10 +133,17 @@ const BarChart: FC< BarChartProps > = ( {
 					</div>
 				</BaseTooltip>
 			) }
+
+			{ showLegend && (
+				<Legend
+					items={ legendItems }
+					orientation={ legendOrientation }
+					className={ styles[ 'bar-chart-legend' ] }
+				/>
+			) }
 		</div>
 	);
 };
 
 BarChart.displayName = 'BarChart';
-
 export default BarChart;

@@ -47,6 +47,24 @@ export const Default: StoryType = {
 		data,
 		theme: 'default',
 		innerRadius: 0,
+		showLegend: false,
+		legendOrientation: 'horizontal',
+	},
+};
+
+export const WithHorizontalLegend: StoryType = {
+	args: {
+		...Default.args,
+		showLegend: true,
+		legendOrientation: 'horizontal',
+	},
+};
+
+export const WithVerticalLegend: StoryType = {
+	args: {
+		...Default.args,
+		showLegend: true,
+		legendOrientation: 'vertical',
 	},
 };
 
