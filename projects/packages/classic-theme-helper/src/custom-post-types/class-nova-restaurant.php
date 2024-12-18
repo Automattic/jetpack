@@ -29,6 +29,7 @@ namespace Automattic\Jetpack\Classic_Theme_Helper;
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Roles;
+use WP_Post;
 use WP_Query;
 
 if ( ! class_exists( __NAMESPACE__ . '\Nova_Restaurant' ) ) {
@@ -144,7 +145,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Nova_Restaurant' ) ) {
 		 */
 		public function site_supports_nova() {
 			// If we're on WordPress.com, and it has the menu site vertical.
-			if ( function_exists( 'site_vertical' ) && 'nova_menu' === site_vertical() ) {
+			if ( function_exists( 'site_vertical' ) && 'nova_menu' === site_vertical() ) { // @phan-suppress-current-line PhanUndeclaredFunction -- only calling if it exists.
 				return true;
 			}
 
@@ -420,8 +421,8 @@ if ( ! class_exists( __NAMESPACE__ . '\Nova_Restaurant' ) ) {
 		public function add_to_dashboard() {
 			$number_menu_items = wp_count_posts( self::MENU_ITEM_POST_TYPE );
 
-			$roles = new Roles();
-			if ( current_user_can( $roles->translate_role_to_cap( 'administrator' ) ) ) {
+			$roles = new Roles(); // @phan-suppress-current-line PhanUndeclaredClassMethod -- declared at top of file.
+			if ( current_user_can( $roles->translate_role_to_cap( 'administrator' ) ) ) { // @phan-suppress-current-line PhanUndeclaredClassMethod
 				$number_menu_items_published = sprintf(
 					'<a href="%1$s">%2$s</a>',
 					esc_url(
@@ -736,8 +737,8 @@ if ( ! class_exists( __NAMESPACE__ . '\Nova_Restaurant' ) ) {
 						$term_id = $term_id->term_id;
 					}
 					?>
-					<input type="hidden" class="menu-order-value" name="nova_order[<?php echo (int) $post_id; ?>]" value="<?php echo esc_attr( $menu_item->menu_order ); ?>" />
-					<input type="hidden" class='nova-menu-term' name="nova_menu_term[<?php echo (int) $post_id; ?>]" value="<?php echo esc_attr( $term_id ); ?>">
+					<input type="hidden" class="menu-order-value" name="nova_order[<?php echo (int) $post_id; ?>]" value="<?php echo esc_attr( (string) $menu_item->menu_order ); ?>" />
+					<input type="hidden" class='nova-menu-term' name="nova_menu_term[<?php echo (int) $post_id; ?>]" value="<?php echo esc_attr( (string) $term_id ); ?>">
 
 					<span class="hide-if-js">
 					&nbsp; &nbsp; &mdash; <a class="nova-move-item-up" data-post-id="<?php echo (int) $post_id; ?>" href="<?php echo esc_url( $up_url ); ?>">up</a>
@@ -754,7 +755,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Nova_Restaurant' ) ) {
 		 *
 		 * @param int $post_id Post ID.
 		 *
-		 * @return bool|WP_Term
+		 * @return bool|\WP_Term
 		 */
 		public function get_menu_by_post_id( $post_id = null ) {
 			if ( ! $post_id ) {
@@ -1044,7 +1045,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Nova_Restaurant' ) ) {
 		/**
 		 * Add menu title rows to the list table
 		 *
-		 * @param WP_Post $post The Post object.
+		 * @param \WP_Post $post The Post object.
 		 *
 		 * @return void
 		 */
@@ -1099,14 +1100,14 @@ if ( ! class_exists( __NAMESPACE__ . '\Nova_Restaurant' ) ) {
 			);
 
 			?>
-			<tr class="no-items menu-label-row" data-term_id="<?php echo esc_attr( $term_id ); ?>">
+			<tr class="no-items menu-label-row" data-term_id="<?php echo esc_attr( (string) $term_id ); ?>">
 				<td class="colspanchange" colspan="<?php echo (int) $non_order_column_count; ?>">
 					<h3>
 					<?php
 						echo str_repeat( ' &mdash; ', (int) $parent_count ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- nothing to escape here.
 
 					if ( $term instanceof \WP_Term ) {
-						echo esc_html( sanitize_term_field( 'name', $term_name, $term_id, self::MENU_TAX, 'display' ) );
+						echo esc_html( sanitize_term_field( 'name', $term_name, (int) $term_id, self::MENU_TAX, 'display' ) );
 						edit_term_link( __( 'edit', 'jetpack-classic-theme-helper' ), '<span class="edit-nova-section"><span class="dashicon dashicon-edit"></span>', '</span>', $term );
 
 					} else {
@@ -1349,7 +1350,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Nova_Restaurant' ) ) {
 				'menu_item_price',
 				__( 'Price', 'jetpack-classic-theme-helper' ),
 				array( $this, 'menu_item_price_meta_box' ),
-				null,
+				array(),
 				'side',
 				'high'
 			);
@@ -1405,7 +1406,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Nova_Restaurant' ) ) {
 			);
 			$args['taxonomy'] = self::MENU_TAX;
 
-			$terms = get_terms( $args );
+			$terms = get_terms( $args ); // @phan-suppress-current-line PhanAccessMethodInternal
 			if ( ! $terms || is_wp_error( $terms ) ) {
 				return array();
 			}
@@ -1437,13 +1438,13 @@ if ( ! class_exists( __NAMESPACE__ . '\Nova_Restaurant' ) ) {
 		 *
 		 * @param int $post_id Post ID.
 		 *
-		 * @return bool|WP_Term|WP_Error|null
+		 * @return bool|\WP_Term|\WP_Error|null
 		 */
 		public function get_menu_item_menu_leaf( $post_id ) {
 			// Get first menu taxonomy "leaf".
 			$term_ids = wp_get_object_terms( $post_id, self::MENU_TAX, array( 'fields' => 'ids' ) );
 
-			foreach ( $term_ids as $term_id ) {
+			foreach ( $term_ids as $term_id ) { // possibly ignore PhanTypeSuspiciousNonTraversableForeach
 				$children = get_term_children( $term_id, self::MENU_TAX );
 				if ( ! $children ) {
 					break;
@@ -1481,7 +1482,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Nova_Restaurant' ) ) {
 			$labels = get_the_terms( $post->ID, self::MENU_ITEM_LABEL_TAX );
 			if ( ! empty( $labels ) ) {
 				$out = array();
-				foreach ( $labels as $label ) {
+				foreach ( $labels as $label ) { // possibly ignore PhanTypeSuspiciousNonTraversableForeach
 					$out[] = sprintf(
 						'<a href="%s">%s</a>',
 						esc_url(
