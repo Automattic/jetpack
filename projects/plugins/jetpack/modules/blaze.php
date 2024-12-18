@@ -28,7 +28,7 @@ Blaze::init();
  * @return bool
  */
 function jetpack_blaze_post_row_actions_disable( $are_quick_links_enabled, $post ) {
-	if ( 'product' !== $post->post_type && ! ( new Host() )->is_wpcom_platform() ) {
+	if ( 'product' !== $post->post_type ) {
 		return false;
 	}
 

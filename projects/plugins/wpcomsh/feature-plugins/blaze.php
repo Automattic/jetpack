@@ -99,3 +99,13 @@ add_action(
 		return $option;
 	}
 );
+
+/**
+ * On Atomic sites the Promote with Blaze option is enabled.
+ */
+add_action(
+	'jetpack_modules_loaded',
+	function () {
+		remove_filter( 'jetpack_blaze_post_row_actions_enable', 'jetpack_blaze_post_row_actions_disable' );
+	}
+);
