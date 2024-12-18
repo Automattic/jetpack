@@ -2,6 +2,31 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 14.2-a.3 - 2024-12-16
+### Enhancements
+- Social: Improved Jetpack likes behavior for better theme integration if the post has likes. [#40544]
+
+### Improved compatibility
+- Jetpack Testimonials: Ensure feature loads via the Classic Theme Helper package instead of the module. [#40388]
+
+### Bug fixes
+- Facebook Embeds: Add a white background to embeds to avoid transparent background interfering with readability. [#40547]
+- Form Block: fixed validation of URL input types to allow query strings. [#40490]
+- Import: Correctly setting the WP_IMPORTING constant when doing an import. [#40563]
+- SEO: Ensure that SEO fields are not visible when another SEO plugin is active. [#40567]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- API Endpoints: Make sure manual plugin updates applied when auto update is disabled. [#40534]
+- Block Editor: We now trigger an error in cases where the media property does not exist so that the editor does not crash under some circumstances. [#40588]
+- Blogging prompts endpoint: disable bloganuary for 2025 and beyond. [#40491]
+- Carousel: Fixed a bug where under rare circumstances, the carousel would have made null requests when loading an image. [#40535]
+- Comments: Make list of allowable comment types filterable so custom types can be returned if needed. [#40530]
+- Infinite scroll: Remove deprecated code. [#40528]
+- Jetpack AI: Adding tooltips to AI feedback component. [#40506]
+- Jetpack AI: Add tracking to the thumbs up/down component, saving the component and rating to Tracks. [#40553]
+- General: Fixed lints following ESLint rule changes for TS. [#40584]
+- Updated package dependencies. [#40515] [#40564]
+
 ## 14.2-a.1 - 2024-12-09
 ### Enhancements
 - Stats: Allow fetching stats for specific sites when programatically fetching stats using Jetpack's tools. [#40441]
