@@ -166,7 +166,9 @@ export function useSetProviderErrorsAction() {
  */
 export function useRegenerateCriticalCssAction() {
 	const [ , resetReason ] = useRegenerationReason();
-	const optimisticState: CriticalCssState = { status: 'not_generated', providers: [] };
+
+	// Optimistically update the state to hide any errors and immediately show the pending state.
+	const optimisticState: CriticalCssState = { status: 'pending', providers: [] };
 	return useCriticalCssAction( 'request-regenerate', z.void(), optimisticState, resetReason );
 }
 

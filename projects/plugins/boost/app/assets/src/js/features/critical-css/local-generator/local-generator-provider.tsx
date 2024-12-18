@@ -86,7 +86,7 @@ export function useLocalCriticalCssGenerator() {
 
 	useEffect(
 		() => {
-			if ( cssState.status === 'pending' ) {
+			if ( cssState.status === 'pending' && cssState.providers.length > 0 ) {
 				let abortController: AbortController | undefined;
 
 				setGenerating( true );
@@ -119,7 +119,7 @@ export function useLocalCriticalCssGenerator() {
 		// This effect triggers an actual process that is costly to start and stop, so we don't want to start/stop it
 		// every time an object ref like `cssState` is changed for a trivial reason.
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-		[ cssState.status ]
+		[ cssState.status, cssState.providers.length ]
 	);
 
 	const progress =
