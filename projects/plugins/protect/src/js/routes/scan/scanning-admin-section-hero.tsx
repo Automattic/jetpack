@@ -19,7 +19,7 @@ const ScanningAdminSectionHero: React.FC = () => {
 
 	return (
 		<AdminSectionHero>
-			<AdminSectionHero.Main className={ styles[ 'scanning-main' ] }>
+			<AdminSectionHero.Main className={ styles[ 'hero-main' ] }>
 				<AdminSectionHero.Heading>
 					{ __( 'Your results will be ready soon', 'jetpack-protect' ) }
 				</AdminSectionHero.Heading>
