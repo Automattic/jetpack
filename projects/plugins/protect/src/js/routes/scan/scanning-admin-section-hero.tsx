@@ -1,5 +1,6 @@
 import { Text } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
+import clsx from 'clsx';
 import AdminSectionHero from '../../components/admin-section-hero';
 import InProgressAnimation from '../../components/in-progress-animation';
 import ProgressBar from '../../components/progress-bar';
@@ -8,7 +9,7 @@ import usePlan from '../../hooks/use-plan';
 import useWafData from '../../hooks/use-waf-data';
 import styles from './styles.module.scss';
 
-const ScanningAdminSectionHero: React.FC = () => {
+const ScanningAdminSectionHero = ( { size = 'normal' }: { size?: 'normal' | 'large' } ) => {
 	const { hasPlan } = usePlan();
 	const { globalStats } = useWafData();
 	const { data: status } = useScanStatusQuery( { usePolling: true } );
@@ -19,7 +20,11 @@ const ScanningAdminSectionHero: React.FC = () => {
 
 	return (
 		<AdminSectionHero>
-			<AdminSectionHero.Main className={ styles[ 'hero-main' ] }>
+			<AdminSectionHero.Main
+				className={ clsx( styles[ 'hero-main' ], {
+					[ styles[ 'hero-main--large' ] ]: size === 'large',
+				} ) }
+			>
 				<AdminSectionHero.Heading>
 					{ __( 'Your results will be ready soon', 'jetpack-protect' ) }
 				</AdminSectionHero.Heading>
