@@ -24,11 +24,17 @@ const Meta = () => {
 	const premiumFeatures = usePremiumFeatures();
 	const isPremium = premiumFeatures.includes( 'cornerstone-10-pages' );
 	const regenerateAction = useRegenerateCriticalCssAction();
+	const { setNotice } = useNotices();
 
 	const updateCornerstonePages = ( newValue: string ) => {
 		const newItems = newValue.split( '\n' ).map( line => line.trim() );
 
 		setCornerstonePages( newItems, () => {
+			setNotice( {
+				id: 'cornerstone-pages-save',
+				type: 'success',
+				message: __( 'Cornerstone pages saved', 'jetpack-boost' ),
+			} );
 			refetchRegenerationReason();
 			if ( isPremium ) {
 				regenerateAction.mutate();
@@ -214,11 +220,6 @@ const List: React.FC< ListProps > = ( {
 		setItems( inputValue );
 		recordBoostEvent( 'cornerstone_pages_save', {
 			list_length: inputValue.split( '\n' ).length,
-		} );
-		setNotice( {
-			id: 'cornerstone-pages-save',
-			type: 'success',
-			message: __( 'Cornerstone pages saved', 'jetpack-boost' ),
 		} );
 	}
 
