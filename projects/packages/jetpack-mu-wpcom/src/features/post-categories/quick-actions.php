@@ -23,15 +23,12 @@ function wpcom_add_set_default_category_quick_action( $actions, $category ) {
 		return $actions;
 	}
 
-	$link = add_query_arg(
-		array(
-			'category' => $category->term_id,
-			'action'   => 'wpcom-set-default-category',
-		)
-	);
-	$link = wp_nonce_url( $link, 'wpcom-set-default-category' );
+	$action = 'set-default';
 
-	$actions['set-default'] = sprintf(
+	$link = add_query_arg( array( $action => $category->term_id ) );
+	$link = wp_nonce_url( $link, $action . '_' . $category->term_id );
+
+	$actions[ $action ] = sprintf(
 		'<a href="%1$s" aria-label="%2$s">%3$s</a>',
 		esc_url( $link ),
 		/* translators: category name */
@@ -46,7 +43,7 @@ add_filter( 'category_row_actions', 'wpcom_add_set_default_category_quick_action
  * Changes the default post category.
  */
 function wpcom_set_default_category() {
-	if ( ! isset( $_GET['_wpnonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ), 'wpcom-set-default-category' ) ) {
+	if ( ! isset( $_GET['taxonomy'] ) || 'category' !== sanitize_text_field( wp_unslash( $_GET['taxonomy'] ) ) ) {
 		return;
 	}
 
@@ -54,29 +51,25 @@ function wpcom_set_default_category() {
 		return;
 	}
 
-	if ( ! isset( $_GET['taxonomy'] ) || 'category' !== sanitize_text_field( wp_unslash( $_GET['taxonomy'] ) ) ) {
+	$action = 'set-default';
+
+	if ( ! isset( $_GET[ $action ] ) ) {
 		return;
 	}
 
-	if ( ! isset( $_GET['action'] ) || 'wpcom-set-default-category' !== sanitize_text_field( wp_unslash( $_GET['action'] ) ) ) {
+	$category_id = sanitize_text_field( wp_unslash( $_GET[ $action ] ) );
+	if ( ! is_numeric( $category_id ) ) {
 		return;
 	}
 
-	if ( ! isset( $_GET['category'] ) ) {
+	check_admin_referer( $action . '_' . $category_id );
+
+	$category = get_category( (int) $category_id );
+	if ( is_wp_error( $category ) || ! $category ) {
 		return;
 	}
 
-	$new_default_category_id = sanitize_text_field( wp_unslash( $_GET['category'] ) );
-	if ( ! is_numeric( $new_default_category_id ) ) {
-		return;
-	}
-
-	$new_default_category = get_category( (int) $new_default_category_id );
-	if ( is_wp_error( $new_default_category ) || ! $new_default_category ) {
-		return;
-	}
-
-	update_option( 'default_category', $new_default_category->term_id );
+	update_option( 'default_category', $category->term_id );
 
 	add_action(
 		'admin_notices',
