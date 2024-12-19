@@ -125,7 +125,7 @@ const WPCOM_DUPLICATE_VIEW_WITH_TOUR = array(
 	'edit-tags.php?taxonomy=post_tag',
 );
 const WPCOM_DUPLICATED_VIEW = array(
-	...WPCOM_DUPLICATED_VIEW,
+	...WPCOM_DUPLICATE_VIEW_WITH_TOUR,
 	'admin.php?page=stats',
 	'tools.php?page=advertising',
 );
