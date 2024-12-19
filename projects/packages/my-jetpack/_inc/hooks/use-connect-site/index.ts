@@ -41,11 +41,13 @@ const useConnectSite = ( { tracksInfo }: useConnectSiteProps ) => {
 		async ( e: MouseEvent< HTMLButtonElement > ) => {
 			e && e.preventDefault();
 
-			window.scrollTo( {
-				top: 0,
-				left: 0,
-				behavior: 'smooth',
-			} );
+			setTimeout( () => {
+				window.scrollTo( {
+					top: 0,
+					left: 0,
+					behavior: 'smooth',
+				} );
+			}, 100 );
 
 			recordEvent( `${ event }_click`, tracksEventData );
 
