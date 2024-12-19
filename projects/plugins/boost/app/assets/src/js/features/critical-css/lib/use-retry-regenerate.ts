@@ -1,5 +1,5 @@
-import { useState } from 'react';
 import { useRegenerateCriticalCssAction } from './stores/critical-css-state';
+import { useCriticalCssRetriedState } from '../critical-css-context/critical-css-context-provider';
 
 /**
  * Helper for "Retry" buttons for Critical CSS which need to track whether they have been clicked
@@ -8,7 +8,7 @@ import { useRegenerateCriticalCssAction } from './stores/critical-css-state';
  * Returns a boolean indicating whether retrying has been attempted, and a function to call to retry.
  */
 export function useRetryRegenerate(): [ boolean, () => void ] {
-	const [ retried, setRetried ] = useState( false );
+	const [ retried, setRetried ] = useCriticalCssRetriedState();
 	const regenerateAction = useRegenerateCriticalCssAction();
 
 	function retry() {

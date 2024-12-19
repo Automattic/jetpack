@@ -4,7 +4,7 @@ import ProgressBar from '$features/ui/progress-bar/progress-bar';
 import styles from './critical-css-meta.module.scss';
 import { useCriticalCssState } from '../lib/stores/critical-css-state';
 import { RegenerateCriticalCssSuggestion, useRegenerationReason } from '..';
-import { useLocalCriticalCssGenerator } from '../local-generator/local-generator-provider';
+import { useLocalCriticalCssGenerator } from '../critical-css-context/critical-css-context-provider';
 import { isFatalError } from '../lib/critical-css-errors';
 
 /**
