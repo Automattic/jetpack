@@ -589,12 +589,9 @@ if ( ! class_exists( __NAMESPACE__ . '\Nova_Restaurant' ) ) {
 				'../../dist/custom-post-types/js/menu-checkboxes.js',
 				__FILE__,
 				array(
-					'dependencies' => array(
-						'jquery',
-					),
-					'in_footer'    => true,
-					'enqueue'      => false,
-					'textdomain'   => 'jetpack-classic-theme-helper',
+					'in_footer'  => true,
+					'enqueue'    => false,
+					'textdomain' => 'jetpack-classic-theme-helper',
 				)
 			);
 		}
