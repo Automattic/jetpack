@@ -556,8 +556,8 @@ abstract class Publicize_Base {
 	public function get_display_name( $service_name, $connection ) {
 		$cmeta = $this->get_connection_meta( $connection );
 
-		if ( 'mastodon' === $service_name && isset( $cmeta['external_name'] ) ) {
-			return $cmeta['external_name'];
+		if ( 'mastodon' === $service_name && isset( $cmeta['external_display'] ) ) {
+			return $cmeta['external_display'];
 		}
 
 		if ( isset( $cmeta['connection_data']['meta']['display_name'] ) ) {
