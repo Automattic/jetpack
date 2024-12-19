@@ -7,14 +7,16 @@ import {
 } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
 import { type Threat } from '@automattic/jetpack-scan';
+import { useQueryClient } from '@tanstack/react-query';
 import { Tooltip } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { useCallback, useState, useMemo } from 'react';
+import { useCallback, useState, useMemo, useEffect } from 'react';
 import AdminSectionHero from '../../components/admin-section-hero';
 import ErrorAdminSectionHero from '../../components/error-admin-section-hero';
 import OnboardingPopover from '../../components/onboarding-popover';
+import { QUERY_CREDENTIALS_KEY } from '../../constants';
 import useIgnoreThreatMutation from '../../data/scan/use-ignore-threat-mutation';
 import useScanStatusQuery, { isScanInProgress } from '../../data/scan/use-scan-status-query';
 import useUnIgnoreThreatMutation from '../../data/scan/use-unignore-threat-mutation';
@@ -32,6 +34,7 @@ const ScanAdminSectionHero: React.FC = ( { size = 'normal' }: { size?: 'normal' 
 	const [ isSm ] = useBreakpointMatch( 'sm' );
 	const { data: status } = useScanStatusQuery();
 	const { isThreatFixInProgress, isThreatFixStale } = useFixers();
+	const queryClient = useQueryClient();
 
 	const getScan = useCallback( () => {
 		recordEvent( 'jetpack_protect_scan_header_get_scan_link_click' );
@@ -133,6 +136,22 @@ const ScanAdminSectionHero: React.FC = ( { size = 'normal' }: { size?: 'normal' 
 	const toggleModal = useCallback( () => {
 		setShowModal( ! showModal );
 	}, [ showModal ] );
+
+	/**
+	 * Poll credentials as long as the modal is open.
+	 */
+	useEffect( () => {
+		if ( ! showModal ) {
+			return;
+		}
+		const interval = setInterval( () => {
+			if ( ! credentials || credentials.length === 0 ) {
+				queryClient.invalidateQueries( { queryKey: [ QUERY_CREDENTIALS_KEY ] } );
+			}
+		}, 5_000 );
+
+		return () => clearInterval( interval );
+	}, [ showModal, queryClient, credentials ] );
 
 	if ( scanning ) {
 		return <ScanningAdminSectionHero size={ size } />;
