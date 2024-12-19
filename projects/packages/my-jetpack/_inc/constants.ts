@@ -41,4 +41,5 @@ export const PRODUCT_STATUSES = {
 	CAN_UPGRADE: 'can_upgrade',
 	EXPIRING_SOON: 'expiring',
 	EXPIRED: 'expired',
+	NEEDS_ATTENTION: 'needs_attention',
 };
