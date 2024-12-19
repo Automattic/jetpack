@@ -1,7 +1,9 @@
 <script lang="ts">
+	/* eslint-disable import/no-duplicates -- https://github.com/import-js/eslint-plugin-import/issues/2992 */
 	import { createEventDispatcher } from 'svelte';
 	import { cubicOut } from 'svelte/easing';
 	import { slide } from 'svelte/transition';
+	/* eslint-enable import/no-duplicates */
 	import Toggle from '../../Components/Toggle.svelte';
 	import { API, options } from '../../Options';
 	import ActivateMonitor from './ActivateMonitor.svelte';

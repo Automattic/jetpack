@@ -30,7 +30,7 @@ const ConnectionScreen = () => {
 						) }
 						features={ [
 							__(
-								'Share to Facebook, Instagram, LinkedIn, Mastodon, Tumblr, and Nextdoor',
+								'Share to Facebook, Instagram, LinkedIn, Mastodon, Tumblr, Threads, Bluesky, and Nextdoor',
 								'jetpack-social'
 							),
 							__( 'Post to multiple channels at once', 'jetpack-social' ),

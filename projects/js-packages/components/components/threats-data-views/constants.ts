@@ -22,8 +22,8 @@ export const THREAT_TYPES = [
 ];
 
 export const THREAT_ICONS = {
-	plugin: pluginIcon,
-	theme: themeIcon,
+	plugins: pluginIcon,
+	themes: themeIcon,
 	core: coreIcon,
 	file: fileIcon,
 	default: shieldIcon,

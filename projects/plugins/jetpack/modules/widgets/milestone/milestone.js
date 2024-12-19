@@ -1,6 +1,7 @@
 /* global MilestoneConfig */
 
 var Milestone = ( function () {
+	// eslint-disable-next-line no-shadow
 	var Milestone = function ( args ) {
 		var widget_content = document.getElementById( args.content_id ),
 			id = args.id,

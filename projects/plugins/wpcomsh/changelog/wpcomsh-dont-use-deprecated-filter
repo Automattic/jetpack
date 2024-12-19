@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+wpcomsh/private-site: Use `allowed_options` filter instead of deprecated `whitelist_options` one and use proper function for adding the callback ( `add_filter` instead of `add_action` )

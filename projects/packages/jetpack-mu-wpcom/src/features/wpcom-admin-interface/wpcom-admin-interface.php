@@ -116,6 +116,115 @@ function wpcom_admin_interface_pre_update_option( $new_value, $old_value ) {
 }
 add_filter( 'pre_update_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_update_option', 10, 2 );
 
+const WPCOM_DUPLICATED_VIEW = array(
+	'edit.php',
+	'admin.php?page=stats',
+	'tools.php?page=advertising',
+	'edit.php?post_type=jetpack-portfolio',
+	'edit.php?post_type=jetpack-testimonial',
+	'edit-comments.php',
+	'edit-tags.php?taxonomy=category',
+	'edit-tags.php?taxonomy=post_tag',
+);
+
+/**
+ * Get the current screen section.
+ *
+ * Temporary function copied from Base_Admin_Menu.
+ *
+ * return string
+ */
+function wpcom_admin_get_current_screen() {
+	// phpcs:disable WordPress.Security.NonceVerification
+	global $pagenow;
+	$screen = isset( $_REQUEST['screen'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['screen'] ) ) : $pagenow;
+	if ( isset( $_GET['post_type'] ) ) {
+		$screen = add_query_arg( 'post_type', sanitize_text_field( wp_unslash( $_GET['post_type'] ) ), $screen );
+	}
+	if ( isset( $_GET['taxonomy'] ) ) {
+		$screen = add_query_arg( 'taxonomy', sanitize_text_field( wp_unslash( $_GET['taxonomy'] ) ), $screen );
+	}
+	if ( isset( $_GET['page'] ) ) {
+		$screen = add_query_arg( 'page', sanitize_text_field( wp_unslash( $_GET['page'] ) ), $screen );
+	}
+	return $screen;
+	// phpcs:enable WordPress.Security.NonceVerification
+}
+
+/**
+ * Override the wpcom_admin_interface option with experiment variation.
+ *
+ * @param mixed $default_value The value to return instead of the option value.
+ *
+ * @return string Filtered wpcom_admin_interface option.
+ */
+function wpcom_admin_interface_pre_get_option( $default_value ) {
+	$current_screen = wpcom_admin_get_current_screen();
+
+	if ( in_array( $current_screen, WPCOM_DUPLICATED_VIEW, true ) && wpcom_is_duplicate_views_experiment_enabled() ) {
+		return 'wp-admin';
+	}
+
+	return $default_value;
+}
+
+/**
+ * Change the Admin menu links to WP-Admin for specific sections.
+ *
+ * @param array $value Preferred views.
+ *
+ * @return array Filtered preferred views.
+ */
+function wpcom_admin_get_user_option_jetpack( $value ) {
+	if ( ! wpcom_is_duplicate_views_experiment_enabled() ) {
+		return $value;
+	}
+
+	if ( ! is_array( $value ) ) {
+		$value = array();
+	}
+
+	foreach ( WPCOM_DUPLICATED_VIEW as $path ) {
+		$value[ $path ] = Automattic\Jetpack\Masterbar\Base_Admin_Menu::CLASSIC_VIEW;
+	}
+
+	return $value;
+}
+
+add_filter( 'get_user_option_jetpack_admin_menu_preferred_views', 'wpcom_admin_get_user_option_jetpack' );
+add_filter( 'pre_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_get_option', 10 );
+
+add_action(
+	'admin_menu',
+	function () {
+		remove_filter( 'pre_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_get_option' );
+	},
+	PHP_INT_MIN
+);
+
+add_action(
+	'admin_menu',
+	function () {
+		add_filter( 'pre_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_get_option', 10 );
+	},
+	PHP_INT_MAX
+);
+/**
+ * Hides the "View" switcher on WP Admin screens enforced by the "Remove duplicate views" experiment.
+ */
+function wpcom_duplicate_views_hide_view_switcher() {
+	$admin_menu_class = wpcom_get_custom_admin_menu_class();
+	if ( $admin_menu_class ) {
+		$admin_menu = $admin_menu_class::get_instance();
+
+		$current_screen = wpcom_admin_get_current_screen();
+		if ( in_array( $current_screen, WPCOM_DUPLICATED_VIEW, true ) && wpcom_is_duplicate_views_experiment_enabled() ) {
+			remove_filter( 'in_admin_header', array( $admin_menu, 'add_dashboard_switcher' ) );
+		}
+	}
+}
+add_action( 'admin_init', 'wpcom_duplicate_views_hide_view_switcher' );
+
 /**
  * Determines whether the admin interface has been recently changed by checking the presence of the `admin-interface-changed` query param.
  *
@@ -283,9 +392,8 @@ add_action( 'admin_notices', 'wpcom_show_admin_interface_notice' );
  * @return boolean
  */
 function wpcom_is_duplicate_views_experiment_enabled() {
-	// TODO: We don't know yet the experiment name.
 	$experiment_platform = 'calypso';
-	$experiment_name     = "{$experiment_platform}_duplicate_views_placeholder";
+	$experiment_name     = "{$experiment_platform}_post_onboarding_holdout_120924";
 
 	static $is_enabled = null;
 	if ( $is_enabled !== null ) {
@@ -341,3 +449,102 @@ function wpcom_is_duplicate_views_experiment_enabled() {
 		return $is_enabled;
 	}
 }
+
+/**
+ * Displays a notice when a user visits the enforced WP Admin view of a removed Calypso screen for
+ * the first time.
+ */
+function wpcom_show_removed_calypso_screen_notice() {
+	$admin_menu_class = wpcom_get_custom_admin_menu_class();
+	if ( ! $admin_menu_class ) {
+		return;
+	}
+
+	$current_screen = wpcom_admin_get_current_screen();
+
+	if ( ! in_array( $current_screen, WPCOM_DUPLICATED_VIEW, true ) ) {
+		return;
+	}
+
+	$dismissed_notices = get_user_option( 'wpcom_removed_calypso_screen_dismissed_notices' );
+	if ( is_array( $dismissed_notices ) && in_array( $current_screen, $dismissed_notices, true ) ) {
+		return;
+	}
+
+	if ( ! wpcom_is_duplicate_views_experiment_enabled() ) {
+		return;
+	}
+
+	remove_filter( 'pre_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_get_option' );
+	$uses_wp_admin_interface = get_option( 'wpcom_admin_interface' ) === 'wp-admin';
+	add_filter( 'pre_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_get_option', 10 );
+	if ( $uses_wp_admin_interface ) {
+		return;
+	}
+
+	remove_filter( 'get_user_option_jetpack_admin_menu_preferred_views', 'wpcom_admin_get_user_option_jetpack' );
+	$preferred_views = get_user_option( 'jetpack_admin_menu_preferred_views' );
+	add_filter( 'get_user_option_jetpack_admin_menu_preferred_views', 'wpcom_admin_get_user_option_jetpack' );
+	if ( ! empty( $preferred_views ) && isset( $preferred_views[ $current_screen ] ) && $preferred_views[ $current_screen ] === 'classic' ) {
+		return;
+	}
+
+	$handle = jetpack_mu_wpcom_enqueue_assets( 'removed-calypso-screen-notice', array( 'js', 'css' ) );
+	wp_set_script_translations( $handle, 'jetpack-mu-wpcom', Jetpack_Mu_Wpcom::PKG_DIR . 'languages' );
+
+	global $title;
+	$clean_title = preg_replace( '/\(\d+\)/', '', $title );
+	$clean_title = trim( $clean_title );
+	$config      = wp_json_encode(
+		array(
+			'imageUrl'     => plugins_url( 'screens/' . sanitize_title( $current_screen ) . '.webp', __FILE__ ),
+			'title'        => $clean_title,
+			'screen'       => $current_screen,
+			'ajaxUrl'      => admin_url( 'admin-ajax.php' ),
+			'dismissNonce' => wp_create_nonce( 'wpcom_dismiss_removed_calypso_screen_notice' ),
+		)
+	);
+
+	wp_add_inline_script(
+		$handle,
+		"window.removedCalypsoScreenNoticeConfig = $config;",
+		'before'
+	);
+}
+add_action( 'admin_enqueue_scripts', 'wpcom_show_removed_calypso_screen_notice' );
+
+/**
+ * Gets the name of the class used to customize the admin menu when Nav Unification is enabled.
+ *
+ * @return false|string The class name of the customized admin menu if any, false otherwise.
+ */
+function wpcom_get_custom_admin_menu_class() {
+	if ( ! function_exists( '\Automattic\Jetpack\Masterbar\get_admin_menu_class' ) || ! function_exists( '\Automattic\Jetpack\Masterbar\should_customize_nav' ) ) {
+		return false;
+	}
+
+	$admin_menu_class = apply_filters( 'jetpack_admin_menu_class', \Automattic\Jetpack\Masterbar\get_admin_menu_class() );
+	if ( ! \Automattic\Jetpack\Masterbar\should_customize_nav( $admin_menu_class ) ) {
+		return false;
+	}
+
+	return $admin_menu_class;
+}
+
+/**
+ * Handles the AJAX request to dismiss a notice of a removed Calypsos screen.
+ */
+function wpcom_dismiss_removed_calypso_screen_notice() {
+	check_ajax_referer( 'wpcom_dismiss_removed_calypso_screen_notice' );
+	if ( isset( $_REQUEST['screen'] ) ) {
+		$screen            = sanitize_text_field( wp_unslash( $_REQUEST['screen'] ) );
+		$dismissed_notices = get_user_option( 'wpcom_removed_calypso_screen_dismissed_notices' );
+		if ( ! is_array( $dismissed_notices ) ) {
+			$dismissed_notices = array();
+		}
+		$dismissed_notices[] = $screen;
+		update_user_option( get_current_user_id(), 'wpcom_removed_calypso_screen_dismissed_notices', $dismissed_notices, true );
+	}
+	wp_die();
+}
+add_action( 'wp_ajax_wpcom_dismiss_removed_calypso_screen_notice', 'wpcom_dismiss_removed_calypso_screen_notice' );

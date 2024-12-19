@@ -55,7 +55,7 @@ class Modal extends React.Component {
 				// onDeactivate: this.maybeClose,
 				initialFocus: this.props.initialFocus,
 			} );
-		} catch ( e ) {
+		} catch {
 			//noop
 		}
 	}
@@ -65,7 +65,7 @@ class Modal extends React.Component {
 		jQuery( document ).unbind( 'keyup', this.handleEscapeKey );
 		try {
 			this.focusTrap.deactivate();
-		} catch ( e ) {
+		} catch {
 			//noop
 		}
 	}

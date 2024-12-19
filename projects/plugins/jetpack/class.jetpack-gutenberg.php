@@ -715,6 +715,7 @@ class Jetpack_Gutenberg {
 			$modules              = $module_list_endpoint->get_modules();
 		}
 
+		$jetpack_plan  = Jetpack_Plan::get();
 		$initial_state = array(
 			'available_blocks'    => self::get_availability(),
 			'blocks_variation'    => $blocks_variation,
@@ -731,6 +732,9 @@ class Jetpack_Gutenberg {
 				// this is the equivalent of JP initial state siteData.showMyJetpack (class-jetpack-redux-state-helper)
 				// used to determine if we can link to My Jetpack from the block editor
 				'is_my_jetpack_available'       => My_Jetpack_Initializer::should_initialize(),
+				'jetpack_plan'                  => array(
+					'data' => $jetpack_plan['product_slug'],
+				),
 				/**
 				 * Enable the RePublicize UI in the block editor context.
 				 *
@@ -1343,7 +1347,7 @@ class Jetpack_Gutenberg {
 	 * this method allows registration to proceed by temporarily disabling
 	 * the relevant notice.
 	 *
-	 * @since $$next-version$$
+	 * @since 14.2
 	 *
 	 * @param bool   $trigger       Whether to trigger the error.
 	 * @param string $function      The function that was called.
@@ -1379,7 +1383,7 @@ class Jetpack_Gutenberg {
 		if ( function_exists( 'wp_register_block_metadata_collection' ) && file_exists( $meta_file_path ) ) {
 			add_filter( 'doing_it_wrong_trigger_error', array( __CLASS__, 'bypass_block_metadata_doing_it_wrong' ), 10, 4 );
 
-			// @phan-suppress-next-line PhanUndeclaredFunction -- New in WP 6.7. We're checking if it exists first.
+			// @phan-suppress-next-line PhanUndeclaredFunction -- New in WP 6.7. We're checking if it exists first. @phan-suppress-current-line UnusedPluginSuppression
 			wp_register_block_metadata_collection(
 				JETPACK__PLUGIN_DIR . '_inc/blocks/',
 				$meta_file_path

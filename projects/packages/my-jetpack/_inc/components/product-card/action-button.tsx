@@ -44,6 +44,8 @@ const ActionButton: FC< ActionButtonProps > = ( {
 	upgradeInInterstitial,
 	isOwned,
 } ) => {
+	const troubleshootBackupsUrl =
+		'https://jetpack.com/support/backup/troubleshooting-jetpack-backup/';
 	const [ isDropdownOpen, setIsDropdownOpen ] = useState( false );
 	const [ currentAction, setCurrentAction ] = useState< ComponentProps< typeof Button > >( {} );
 	const { detail } = useProduct( slug );
@@ -207,6 +209,16 @@ const ActionButton: FC< ActionButtonProps > = ( {
 					...( primaryActionOverride &&
 						PRODUCT_STATUSES.EXPIRED in primaryActionOverride &&
 						primaryActionOverride[ PRODUCT_STATUSES.EXPIRED ] ),
+				};
+			case PRODUCT_STATUSES.NEEDS_ATTENTION:
+				return {
+					...buttonState,
+					href: troubleshootBackupsUrl,
+					variant: 'primary',
+					label: __( 'Troubleshoot', 'jetpack-my-jetpack' ),
+					...( primaryActionOverride &&
+						PRODUCT_STATUSES.NEEDS_ATTENTION in primaryActionOverride &&
+						primaryActionOverride[ PRODUCT_STATUSES.NEEDS_ATTENTION ] ),
 				};
 			default:
 				return null;

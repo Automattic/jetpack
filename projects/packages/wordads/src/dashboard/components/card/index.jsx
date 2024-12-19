@@ -5,7 +5,6 @@ import omit from 'lodash/omit';
 import PropTypes from 'prop-types';
 import React from 'react';
 /*eslint lodash/import-scope: [2, "method"]*/
-/*eslint lodash/import-scope: [2, "method"]*/
 
 import './style.scss';
 

@@ -48,6 +48,20 @@ class Holiday_Snow {
 	}
 
 	/**
+	 * Check if the site uses p2.
+	 * p2 is currently not compatible with Holiday Snow.
+	 * This covers both P2 and P2020 themes.
+	 *
+	 * @deprecated $$next-version$$
+	 *
+	 * @return bool
+	 */
+	private static function is_p2() {
+		return str_contains( get_stylesheet(), 'pub/p2' )
+			|| function_exists( '\WPForTeams\is_wpforteams_site' ) && is_wpforteams_site( get_current_blog_id() );
+	}
+
+	/**
 	 * Check if the snow is enabled.
 	 *
 	 * @return bool
@@ -72,12 +86,23 @@ class Holiday_Snow {
 		add_action( 'update_option_' . self::HOLIDAY_SNOW_OPTION_NAME, array( __CLASS__, 'holiday_snow_option_updated' ) );
 
 		if ( self::is_snow_enabled() ) {
+			add_action( 'wp_footer', array( __CLASS__, 'holiday_snow_markup' ) );
 			add_action( 'wp_enqueue_scripts', array( __CLASS__, 'holiday_snow_script' ) );
 		}
 	}
 
 	/**
-	 * Enqueue the snowstorm script on the frontend.
+	 * Add the snowstorm markup to the footer.
+	 *
+	 * @return void
+	 * @since $$next-version$$
+	 */
+	public static function holiday_snow_markup() {
+		echo '<div id="jetpack-holiday-snow"></div>';
+	}
+
+	/**
+	 * Enqueue the snowstorm CSS on the frontend.
 	 *
 	 * @return void
 	 */
@@ -106,20 +131,23 @@ class Holiday_Snow {
 		 * Filter the URL of the snowstorm script.
 		 *
 		 * @since $$next-version$$
+		 * @deprecated $$next-version$$ We've switched to a CSS-only snow effect.
 		 *
 		 * @param string $snowstorm_url URL of the snowstorm script.
 		 */
-		$snowstorm_url = apply_filters(
+		$snowstorm_url = apply_filters_deprecated( // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 			'jetpack_holiday_snow_js_url',
-			plugins_url( 'snowstorm.js', __FILE__ )
+			array( plugins_url( 'snowstorm.js', __FILE__ ) ),
+			'6.1.1',
+			'',
+			'This filter is no longer useful. We use a CSS-only snow effect instead.'
 		);
 
-		wp_enqueue_script(
-			'snowstorm',
-			$snowstorm_url,
+		wp_enqueue_style(
+			'holiday-snow',
+			plugins_url( 'build/holiday-snow/holiday-snow.css', \Automattic\Jetpack\Jetpack_Mu_Wpcom::BASE_FILE ),
 			array(),
-			\Automattic\Jetpack\Jetpack_Mu_Wpcom::PACKAGE_VERSION,
-			true
+			\Automattic\Jetpack\Jetpack_Mu_Wpcom::PACKAGE_VERSION
 		);
 	}
 
