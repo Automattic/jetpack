@@ -19,8 +19,8 @@ type CriticalCssContextValues = {
 	setProviderProgress: ( progress: number ) => void;
 
 	// Whether we've retried generating critical CSS after an error.
-	hasRetried: boolean;
-	setHasRetried: ( hasRetried: boolean ) => void;
+	hasRetriedAfterError: boolean;
+	setHasRetriedAfterError: ( hasRetried: boolean ) => void;
 };
 
 type ProviderProps = {
@@ -38,7 +38,7 @@ const CriticalCssContext = createContext< CriticalCssContextValues | null >( nul
 export default function CriticalCssProvider( { children }: ProviderProps ) {
 	const [ isGenerating, setGenerating ] = useState< boolean >( false );
 	const [ providerProgress, setProviderProgress ] = useState< number >( 0 );
-	const [ hasRetried, setHasRetried ] = useState< boolean >( false );
+	const [ hasRetriedAfterError, setHasRetriedAfterError ] = useState< boolean >( false );
 
 	const value = {
 		// Local Generator status.
@@ -48,8 +48,8 @@ export default function CriticalCssProvider( { children }: ProviderProps ) {
 		setProviderProgress,
 
 		// Whether we've retried generating critical CSS after an error.
-		hasRetried,
-		setHasRetried,
+		hasRetriedAfterError,
+		setHasRetriedAfterError,
 	};
 
 	return <CriticalCssContext.Provider value={ value }>{ children }</CriticalCssContext.Provider>;
@@ -78,8 +78,9 @@ export function useLocalCriticalCssGeneratorStatus() {
 }
 
 /** The retried state of critical CSS. */
-export function useCriticalCssRetriedState() {
-	const { hasRetried, setHasRetried } = useCriticalCssContext();
+export function useCriticalCssRetriedAfterErrorState() {
+	const { hasRetriedAfterError: hasRetried, setHasRetriedAfterError: setHasRetried } =
+		useCriticalCssContext();
 
 	return [ hasRetried, setHasRetried ] as const;
 }
