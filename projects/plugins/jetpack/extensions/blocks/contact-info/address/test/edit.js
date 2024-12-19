@@ -2,6 +2,13 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import AddressEdit from '../edit';
 
+jest.mock( '@wordpress/block-editor', () => ( {
+	...jest.requireActual( '@wordpress/block-editor' ),
+	useBlockProps: {
+		save: () => ( {} ),
+	},
+} ) );
+
 const defaultAttributes = {
 	address: '',
 	addressLine2: '',
