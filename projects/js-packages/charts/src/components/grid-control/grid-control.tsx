@@ -1,5 +1,5 @@
 import { GridRows, GridColumns } from '@visx/grid';
-import { scaleLinear } from '@visx/scale'; // Use visx/scale exclusively
+import { scaleBand, scaleLinear } from '@visx/scale'; // Import scaleBand and scaleLinear
 import clsx from 'clsx';
 import { FC } from 'react';
 import styles from './grid-control.module.scss';
@@ -8,8 +8,8 @@ import type { GridVisibility } from '../shared/types';
 interface GridControlProps extends GridVisibility {
 	width: number;
 	height: number;
-	xScale: ReturnType< typeof scaleLinear< number > >; // Explicitly type scale output
-	yScale: ReturnType< typeof scaleLinear< number > >;
+	xScale: ReturnType< typeof scaleBand >; // Use ReturnType for xScale
+	yScale: ReturnType< typeof scaleLinear< number > >; // Specify number as the output type
 }
 
 /**

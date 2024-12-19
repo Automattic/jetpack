@@ -7,12 +7,16 @@ import { useTooltip } from '@visx/tooltip';
 import clsx from 'clsx';
 import { FC, useCallback, type MouseEvent } from 'react';
 import { useChartTheme } from '../../providers/theme';
+import { GridControl } from '../grid-control';
 import { Legend } from '../legend';
 import { BaseTooltip } from '../tooltip';
 import styles from './bar-chart.module.scss';
 import type { BaseChartProps, SeriesData } from '../shared/types';
 
-interface BarChartProps extends BaseChartProps< SeriesData[] > {}
+interface BarChartProps extends BaseChartProps< SeriesData[] > {
+	showGridX?: boolean;
+	showGridY?: boolean;
+}
 
 type BarChartTooltipData = { value: number; xLabel: string; yLabel: string; seriesIndex: number };
 
@@ -25,6 +29,8 @@ const BarChart: FC< BarChartProps > = ( {
 	showLegend = false,
 	legendOrientation = 'horizontal',
 	className,
+	showGridX = true,
+	showGridY = true,
 } ) => {
 	const theme = useChartTheme();
 	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
@@ -97,6 +103,14 @@ const BarChart: FC< BarChartProps > = ( {
 		<div className={ clsx( 'bar-chart', className, styles[ 'bar-chart' ] ) }>
 			<svg width={ width } height={ height }>
 				<Group left={ margins.left } top={ margins.top }>
+					<GridControl
+						width={ xMax }
+						height={ yMax }
+						xScale={ xScale }
+						yScale={ yScale }
+						showGridX={ showGridX }
+						showGridY={ showGridY }
+					/>
 					{ data.map( ( series, seriesIndex ) => (
 						<Group key={ seriesIndex }>
 							{ series.data.map( d => {
