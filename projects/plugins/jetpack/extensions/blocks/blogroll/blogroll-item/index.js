@@ -9,6 +9,7 @@ import './editor.scss';
 export const name = 'blogroll-item';
 export const title = __( 'Blogroll Item', 'jetpack' );
 export const settings = {
+	apiVersion: 3,
 	title,
 	description: __( 'Blogroll Item', 'jetpack' ),
 	icon: {

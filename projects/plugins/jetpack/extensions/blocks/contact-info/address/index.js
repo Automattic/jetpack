@@ -43,6 +43,7 @@ const attributes = {
 export const name = 'address';
 
 export const settings = {
+	apiVersion: 3,
 	title: __( 'Address', 'jetpack' ),
 	description: __( 'Lets you add a physical address with Schema markup.', 'jetpack' ),
 	keywords: [

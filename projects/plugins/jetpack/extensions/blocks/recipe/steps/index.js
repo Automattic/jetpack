@@ -10,6 +10,7 @@ import './editor.scss';
 export const name = 'recipe-steps';
 export const title = __( 'Recipe Steps', 'jetpack' );
 export const settings = {
+	apiVersion: 3,
 	title,
 	description: (
 		<Fragment>

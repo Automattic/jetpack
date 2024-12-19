@@ -11,6 +11,7 @@ import './editor.scss';
 export const name = 'recipe-details';
 
 export const settings = {
+	apiVersion: 3,
 	title: __( 'Recipe Details', 'jetpack' ),
 	description: (
 		<Fragment>
