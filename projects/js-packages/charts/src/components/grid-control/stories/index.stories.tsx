@@ -4,12 +4,16 @@ import GridControl from '../grid-control';
 
 // Define metadata for the story
 export default {
-	title: 'JS Packages/Charts/GridControl',
+	title: 'JS Packages/Charts/Composites/GridControl',
 	component: GridControl,
 	argTypes: {
 		gridVisibility: {
 			control: { type: 'select' },
 			options: [ 'x', 'y', 'xy', 'none' ],
+		},
+		className: {
+			control: { type: 'text' },
+			description: 'Custom CSS class for styling grid lines',
 		},
 	},
 } as Meta< typeof GridControl >;
@@ -29,20 +33,15 @@ const Template: StoryFn< typeof GridControl > = args => {
 				yScale={ yScale }
 				showGridX={ args.gridVisibility === 'x' || args.gridVisibility === 'xy' }
 				showGridY={ args.gridVisibility === 'y' || args.gridVisibility === 'xy' }
+				className={ args.className }
 			/>
 		</svg>
 	);
 };
 
 // Define stories for each grid visibility option
-export const XGrid = Template.bind( {} );
-XGrid.args = { gridVisibility: 'x' };
-
-export const YGrid = Template.bind( {} );
-YGrid.args = { gridVisibility: 'y' };
-
-export const XYGrid = Template.bind( {} );
-XYGrid.args = { gridVisibility: 'xy' };
-
-export const NoGrid = Template.bind( {} );
-NoGrid.args = { gridVisibility: 'none' };
+export const Default = Template.bind( {} );
+Default.args = {
+	gridVisibility: 'xy',
+	className: 'grid-lines',
+};
