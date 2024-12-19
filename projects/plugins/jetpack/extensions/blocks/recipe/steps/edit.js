@@ -1,6 +1,7 @@
 import {
 	ContrastChecker,
 	InnerBlocks,
+	useBlockProps,
 	InspectorControls,
 	PanelColorSettings,
 } from '@wordpress/block-editor';
@@ -10,6 +11,8 @@ import './editor.scss';
 
 function RecipeStepsEdit( { className, attributes, setAttributes } ) {
 	const { stepHighlightColor, stepTextColor } = attributes;
+	const blockProps = useBlockProps( { className } );
+
 	return (
 		<>
 			<InspectorControls>
@@ -40,7 +43,7 @@ function RecipeStepsEdit( { className, attributes, setAttributes } ) {
 					}
 				</PanelColorSettings>
 			</InspectorControls>
-			<ol className={ className }>
+			<ol { ...blockProps }>
 				<InnerBlocks
 					allowedBlocks={ [ 'jetpack/recipe-step' ] }
 					renderAppender={ InnerBlocks.ButtonBlockAppender }
