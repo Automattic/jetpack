@@ -46,12 +46,11 @@ This will pull the code from the release into this repository and perform the fo
 
 Once the script has completed:
 1. Ensure the changes shown match the changes in the release.
-2. Manually ensure we use ENT_COMPAT [in the proper places](https://github.com/Automattic/jetpack/pull/38873/commits/16f57e6f01b6eed98a19cd0299261ce5ac075b8e).
-3. Commit.
+2. Commit.
 
 ### Local development
 
-Sometimes, probably, you will need to sync the NHA code straight in your local environment. It means you will get working on both projects at the same time. For this situation, you'd like to reference the code source through the `path` bin script argument.
+Sometimes, probably, you will need to sync the code straight in your local environment. It means you will get working on both projects at the same time. For this situation, you'd like to reference the code source through the `path` bin script argument.
 
 ```
 pnpm run sync:newspack-blocks --path=/Absolute/path/of/newspack-blocks/

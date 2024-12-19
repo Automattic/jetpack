@@ -209,15 +209,4 @@ for block_json_file in "$TARGET"/blocks/*/block.json; do
 	jq --tab '. += {"textdomain": "jetpack-mu-wpcom"}' "$block_json_file" > "$TMPFILE"
 	mv "$TMPFILE" "$block_json_file"
 done
-
-echo
-
-# Warn about the need to use ENT_COMPAT.
-echo "Please ensure htmlentities and html_entity_decode use 'ENT_COMPAT'!"
-ent_compat_needed=$(grep -rino 'html_entity_decode\|htmlentities' --include="$TARGET/*.php")
-if [[ -n $ent_compat_needed ]]; then
-	echo 'Detected the below instances:'
-	echo "$ent_compat_needed"
-fi
-echo
 echo Sync done.
