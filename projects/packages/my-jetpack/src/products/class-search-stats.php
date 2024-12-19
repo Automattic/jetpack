@@ -37,7 +37,7 @@ class Search_Stats {
 	const CACHE_GROUP                   = 'jetpack_search';
 	const POST_TYPE_BREAKDOWN_CACHE_KEY = 'post_type_break_down';
 	const TOTAL_POSTS_COUNT_CACHE_KEY   = 'total-post-count';
-	const POST_COUNT_QUERY_LIMIT        = 1e6;
+	const POST_COUNT_QUERY_LIMIT        = 1e5;
 
 	/**
 	 * Get stats from the WordPress.com API for the current blog ID.
