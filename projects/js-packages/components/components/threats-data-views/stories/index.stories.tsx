@@ -1,4 +1,5 @@
 import ThreatsDataViews from '..';
+import { VULNERABILITY_FIELDS } from '../constants';
 
 export default {
 	title: 'JS Packages/Components/Threats Data Views',
@@ -325,4 +326,5 @@ FreeResults.args = {
 			},
 		},
 	],
+	supportedFields: VULNERABILITY_FIELDS,
 };

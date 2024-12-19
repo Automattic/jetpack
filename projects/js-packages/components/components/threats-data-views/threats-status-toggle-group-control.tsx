@@ -1,4 +1,4 @@
-import { type Threat, type ThreatStatus } from '@automattic/jetpack-scan';
+import { ThreatStatus, type Threat } from '@automattic/jetpack-scan';
 import {
 	__experimentalToggleGroupControl as ToggleGroupControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalToggleGroupControlOption as ToggleGroupControlOption, // eslint-disable-line @wordpress/no-unsafe-wp-apis
@@ -10,23 +10,21 @@ import styles from './styles.module.scss';
 
 /**
  * ToggleGroupControl component for filtering threats by status.
- * @param {object}           props               - Component props.
- * @param { Threat[]}        props.data          - Threats data.
- * @param { View }           props.view          - The current view.
- * @param { ThreatStatus[] } props.statusFilters - The current status filter value.
- * @param { Function }       props.onChangeView  - Callback function to handle view changes.
+ *
+ * @param {object}     props              - Component props.
+ * @param { Threat[]}  props.data         - Threats data.
+ * @param { View }     props.view         - The current view.
+ * @param { Function } props.onChangeView - Callback function to handle view changes.
  *
  * @return {JSX.Element|null} The component or null.
  */
 export default function ThreatsStatusToggleGroupControl( {
 	data,
 	view,
-	statusFilters,
 	onChangeView,
 }: {
 	data: Threat[];
 	view: View;
-	statusFilters: ThreatStatus[];
 	onChangeView: ( newView: View ) => void;
 } ): JSX.Element {
 	/**
@@ -92,19 +90,31 @@ export default function ThreatsStatusToggleGroupControl( {
 	);
 
 	/**
-	 * Get the selected status filters.
+	 * Memoized function to determine if a status filter is selected.
 	 *
-	 * @return {string|null} The selected status filter.
+	 * @param {Array} threatStatuses - List of threat statuses.
 	 */
-	const selectedStatusFilterPreset = useMemo( () => {
-		if ( JSON.stringify( statusFilters ) === JSON.stringify( [ 'current' ] ) ) {
-			return 'active';
+	const isStatusFilterSelected = useMemo(
+		() => ( threatStatuses: ThreatStatus[] ) =>
+			view.filters.some(
+				filter =>
+					filter.field === 'status' &&
+					Array.isArray( filter.value ) &&
+					filter.value.length === threatStatuses.length &&
+					threatStatuses.every( threatStatus => filter.value.includes( threatStatus ) )
+			),
+		[ view.filters ]
+	);
+
+	const selectedValue = useMemo( () => {
+		if ( isStatusFilterSelected( [ 'current' ] ) ) {
+			return 'active' as const;
 		}
-		if ( JSON.stringify( statusFilters ) === JSON.stringify( [ 'fixed', 'ignored' ] ) ) {
-			return 'historic';
+		if ( isStatusFilterSelected( [ 'fixed', 'ignored' ] ) ) {
+			return 'historic' as const;
 		}
-		return null;
-	}, [ statusFilters ] );
+		return '' as const;
+	}, [ isStatusFilterSelected ] );
 
 	if ( ! ( activeThreatsCount + historicThreatsCount ) ) {
 		return null;
@@ -115,7 +125,7 @@ export default function ThreatsStatusToggleGroupControl( {
 			<div>
 				<div className={ styles[ 'toggle-group-control' ] }>
 					<ToggleGroupControl
-						value={ selectedStatusFilterPreset }
+						value={ selectedValue }
 						onChange={ onStatusFilterChange }
 						isBlock
 						hideLabelFromVision
