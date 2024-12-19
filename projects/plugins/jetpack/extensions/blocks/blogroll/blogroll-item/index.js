@@ -2,6 +2,7 @@ import { InnerBlocks, useBlockProps } from '@wordpress/block-editor';
 import { __ } from '@wordpress/i18n';
 import { getIconColor } from '../../../shared/block-icons';
 import PlaceholderSiteIcon from '../placeholder-site-icon.svg';
+import { default as deprecated } from './deprecated';
 import edit from './edit';
 import icon from './icon';
 import './editor.scss';
@@ -80,4 +81,5 @@ export const settings = {
 			// @TODO: Add default values for block attributes, for generating the block preview.
 		},
 	},
+	deprecated,
 };
