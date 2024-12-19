@@ -53,6 +53,7 @@ const QualitySettings = ( { isPremium }: QualitySettingsProps ) => {
 					toggleText={ __( 'Adjust Quality', 'jetpack-boost' ) }
 					header={ <Header /> }
 					summary={ <Summary imageCdnQuality={ imageCdnQuality } /> }
+					tracksEvent="image_cdn_panel_toggle"
 				>
 					<div className={ styles.body }>
 						<h5>Adjust image quality per format</h5>

@@ -66,13 +66,7 @@ AdminSectionHero.Heading = ( {
 		<H3 mb={ 1 } { ...props }>
 			{ children }
 			{ !! icon && (
-				<ShieldIcon
-					height={ 38 }
-					variant={ icon }
-					outline
-					fill="default"
-					className={ styles[ 'heading-icon' ] }
-				/>
+				<ShieldIcon height={ 38 } variant={ icon } className={ styles[ 'heading-icon' ] } />
 			) }
 		</H3>
 	);
