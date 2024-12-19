@@ -138,10 +138,10 @@ function ThreatStatus( {
 								focusOnMount={ 'container' }
 								onClose={ hideTooltip }
 							>
-								<>
+								<div className="info-tooltip__content">
 									<h3>{ scanThreatsTooltip.title }</h3>
 									<p>{ scanThreatsTooltip.text }</p>
-								</>
+								</div>
 							</Popover>
 						) }
 					</div>
@@ -157,8 +157,22 @@ function ThreatStatus( {
 
 	return (
 		<>
-			<div className={ baseStyles.valueSectionHeading }>
+			<div className={ clsx( baseStyles.valueSectionHeading, 'value-section__heading' ) }>
 				{ __( 'Threats', 'jetpack-my-jetpack' ) }
+				<InfoTooltip
+					tracksEventName={ 'protect_card_tooltip_open' }
+					tracksEventProps={ {
+						location: 'threats',
+						feature: 'jetpack-protect',
+						has_paid_plan: true,
+						threats: numThreats,
+					} }
+				>
+					<>
+						<h3>{ scanThreatsTooltip.title }</h3>
+						<p>{ scanThreatsTooltip.text }</p>
+					</>
+				</InfoTooltip>
 			</div>
 			<div className="value-section__data">
 				<div className="scan-threats__threat-count">{ numThreats }</div>
