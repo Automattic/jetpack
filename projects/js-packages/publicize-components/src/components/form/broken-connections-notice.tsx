@@ -16,15 +16,9 @@ export const BrokenConnectionsNotice: React.FC = () => {
 
 	const { connectionsPageUrl } = usePublicizeConfig();
 
-	const { openConnectionsModal } = useDispatch( store );
-
-	const getServiceLabel = useServiceLabel();
-
-	if ( ! brokenConnections.length ) {
-		return null;
-	}
-
 	const { useAdminUiV1 } = getSocialScriptData().feature_flags;
+
+	const { openConnectionsModal } = useDispatch( store );
 
 	const fixLink = useAdminUiV1 ? (
 		<Button
@@ -35,6 +29,12 @@ export const BrokenConnectionsNotice: React.FC = () => {
 	) : (
 		<ExternalLink href={ connectionsPageUrl } />
 	);
+
+	const getServiceLabel = useServiceLabel();
+
+	if ( ! brokenConnections.length ) {
+		return null;
+	}
 
 	// Group broken connections by service
 	// Since Object.groupBy is not supported widely yet, we use a manual grouping

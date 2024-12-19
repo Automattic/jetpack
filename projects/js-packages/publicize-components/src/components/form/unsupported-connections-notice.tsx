@@ -14,6 +14,7 @@ export const UnsupportedConnectionsNotice: React.FC = () => {
 	const getServices = useService();
 
 	const unsupportedConnections = connections.filter( connection =>
+		// If getServices returns falsy, it means the service is unsupported.
 		getServices( connection.service_name )
 	);
 

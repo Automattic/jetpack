@@ -1,24 +1,23 @@
 import { REQUEST_TYPE_DEFAULT } from '../actions/constants';
-import { Connection, SocialStoreState } from '../types';
 
 /**
  * Returns the connections list from the store.
  *
- * @param {SocialStoreState} state - State object.
+ * @param {import("../types").SocialStoreState} state - State object.
  *
- * @return {Array<Connection>} The connections list
+ * @return {Array<import("../types").Connection>} The connections list
  */
-export function getConnections( state: SocialStoreState ): Array< Connection > {
+export function getConnections( state ) {
 	return state.connectionData?.connections ?? [];
 }
 
 /**
  * Return a connection by its ID.
  *
- * @param {SocialStoreState} state        - State object.
- * @param {string}           connectionId - The connection ID.
+ * @param {import("../types").SocialStoreState} state        - State object.
+ * @param {string}                              connectionId - The connection ID.
  *
- * @return {Connection | undefined} The connection.
+ * @return {import("../types").Connection | undefined} The connection.
  */
 export function getConnectionById( state, connectionId ) {
 	return getConnections( state ).find( connection => connection.connection_id === connectionId );
@@ -27,8 +26,8 @@ export function getConnectionById( state, connectionId ) {
 /**
  * Returns the broken connections.
  *
- * @param {SocialStoreState} state - State object.
- * @return {Array<Connection>} List of broken connections.
+ * @param {import("../types").SocialStoreState} state - State object.
+ * @return {Array<import("../types").Connection>} List of broken connections.
  */
 export function getBrokenConnections( state ) {
 	return getConnections( state ).filter( connection => {
@@ -39,8 +38,8 @@ export function getBrokenConnections( state ) {
 /**
  * Returns connections by service name/ID.
  *
- * @param {SocialStoreState} state       - State object.
- * @param {string}           serviceName - The service name.
+ * @param {import("../types").SocialStoreState} state       - State object.
+ * @param {string}                              serviceName - The service name.
  *
  * @return {Array<import("../types").Connections>} The connections.
  */
@@ -50,7 +49,7 @@ export function getConnectionsByService( state, serviceName ) {
 
 /**
  * Returns whether there are connections in the store.
- * @param {SocialStoreState} state - State object.
+ * @param {import("../types").SocialStoreState} state - State object.
  * @return {boolean} Whether there are connections.
  */
 export function hasConnections( state ) {
@@ -60,8 +59,8 @@ export function hasConnections( state ) {
 /**
  * Returns the failed Publicize connections.
  *
- * @param {SocialStoreState} state - State object.
- * @return {Array<Connection>} List of connections.
+ * @param {import("../types").SocialStoreState} state - State object.
+ * @return {Array<import("../types").Connection>} List of connections.
  */
 export function getFailedConnections( state ) {
 	const connections = getConnections( state );
@@ -73,8 +72,8 @@ export function getFailedConnections( state ) {
  * Returns a list of Publicize connection service names that require reauthentication from users.
  * iFor example, when LinkedIn switched its API from v1 to v2.
  *
- * @param {SocialStoreState} state - State object.
- * @return {Array<Connection>} List of service names that need reauthentication.
+ * @param {import("../types").SocialStoreState} state - State object.
+ * @return {Array<import("../types").Connection>} List of service names that need reauthentication.
  */
 export function getMustReauthConnections( state ) {
 	const connections = getConnections( state );
@@ -86,9 +85,9 @@ export function getMustReauthConnections( state ) {
 /**
  * Returns the Publicize connections that are enabled.
  *
- * @param {SocialStoreState} state - State object.
+ * @param {import("../types").SocialStoreState} state - State object.
  *
- * @return {Array<Connection>} List of enabled connections.
+ * @return {Array<import("../types").Connection>} List of enabled connections.
  */
 export function getEnabledConnections( state ) {
 	return getConnections( state ).filter( connection => connection.enabled );
@@ -97,9 +96,9 @@ export function getEnabledConnections( state ) {
 /**
  * Returns the Publicize connections that are disabled.
  *
- * @param {SocialStoreState} state - State object.
+ * @param {import("../types").SocialStoreState} state - State object.
  *
- * @return {Array<Connection>} List of disabled connections.
+ * @return {Array<import("../types").Connection>} List of disabled connections.
  */
 export function getDisabledConnections( state ) {
 	return getConnections( state ).filter( connection => ! connection.enabled );
@@ -108,10 +107,10 @@ export function getDisabledConnections( state ) {
 /**
  * Get the profile details for a connection
  *
- * @param {SocialStoreState} state              - State object.
- * @param {string}           service            - The service name.
- * @param {object}           args               - Arguments.
- * @param {boolean}          args.forceDefaults - Whether to use default values.
+ * @param {import("../types").SocialStoreState} state              - State object.
+ * @param {string}                              service            - The service name.
+ * @param {object}                              args               - Arguments.
+ * @param {boolean}                             args.forceDefaults - Whether to use default values.
  *
  * @return {object} The profile details.
  */
@@ -140,7 +139,7 @@ export function getConnectionProfileDetails( state, service, { forceDefaults = f
 /**
  * Get the connections being deleted.
  *
- * @param {SocialStoreState} state - State object.
+ * @param {import("../types").SocialStoreState} state - State object.
  * @return {import("../types").ConnectionData['deletingConnections']} The connection being deleted.
  */
 export function getDeletingConnections( state ) {
@@ -150,7 +149,7 @@ export function getDeletingConnections( state ) {
 /**
  * Get the connections being updated.
  *
- * @param {SocialStoreState} state - State object.
+ * @param {import("../types").SocialStoreState} state - State object.
  * @return {import("../types").ConnectionData['updatingConnections']} The connection being updated.
  */
 export function getUpdatingConnections( state ) {
@@ -160,7 +159,7 @@ export function getUpdatingConnections( state ) {
 /**
  * Get the account being reconnected
  *
- * @param {SocialStoreState} state - State object.
+ * @param {import("../types").SocialStoreState} state - State object.
  * @return {import("../types").ConnectionData['reconnectingAccount']} The account being reconnected.
  */
 export function getReconnectingAccount( state ) {
@@ -170,8 +169,8 @@ export function getReconnectingAccount( state ) {
 /**
  * Get the abort controllers for a specific request type.
  *
- * @param {SocialStoreState} state       - State object.
- * @param {string}           requestType - The request type.
+ * @param {import("../types").SocialStoreState} state       - State object.
+ * @param {string}                              requestType - The request type.
  *
  * @return {Array<AbortController>} The abort controllers.
  */
@@ -182,8 +181,8 @@ export function getAbortControllers( state, requestType = REQUEST_TYPE_DEFAULT )
 /**
  * Whether a mastodon account is already connected.
  *
- * @param {SocialStoreState} state  - State object.
- * @param {string}           handle - The mastodon handle.
+ * @param {import("../types").SocialStoreState} state  - State object.
+ * @param {string}                              handle - The mastodon handle.
  *
  * @return {boolean} Whether the mastodon account is already connected.
  */
@@ -196,8 +195,8 @@ export function isMastodonAccountAlreadyConnected( state, handle ) {
 /**
  * Whether a Bluesky account is already connected.
  *
- * @param {SocialStoreState} state  - State object.
- * @param {string}           handle - The Bluesky handle.
+ * @param {import("../types").SocialStoreState} state  - State object.
+ * @param {string}                              handle - The Bluesky handle.
  *
  * @return {boolean} Whether the Bluesky account is already connected.
  */
@@ -210,7 +209,7 @@ export function isBlueskyAccountAlreadyConnected( state, handle ) {
 /**
  * Returns the latest KeyringResult from the store.
  *
- * @param {SocialStoreState} state - State object.
+ * @param {import("../types").SocialStoreState} state - State object.
  *
  * @return {import("../types").KeyringResult} The KeyringResult
  */
@@ -220,7 +219,7 @@ export function getKeyringResult( state ) {
 
 /**
  * Whether the connections modal is open.
- * @param {SocialStoreState} state - State object.
+ * @param {import("../types").SocialStoreState} state - State object.
  *
  * @return {boolean} Whether the connections modal is open.
  */
