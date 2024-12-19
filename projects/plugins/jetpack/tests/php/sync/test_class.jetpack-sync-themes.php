@@ -250,6 +250,9 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_install_edit_delete_theme_sync() {
+		// This requires a theme that isn't directly available on WordPress.com:
+		// https://public-api.wordpress.com/rest/v1.2/themes/astra?http_envelope=1
+		// Any theme with the "Community" badge in the WordPress.com theme search would work here.
 		$theme_slug = 'astra';
 		$theme_name = 'Astra';
 
