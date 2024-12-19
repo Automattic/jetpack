@@ -7,8 +7,8 @@ import {
 	ImageStyle,
 	askQuestionSync,
 } from '@automattic/jetpack-ai-client';
-import { useDispatch } from '@wordpress/data';
-import { useCallback, useRef, useState } from '@wordpress/element';
+import { useDispatch, useSelect } from '@wordpress/data';
+import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { cleanForSlug } from '@wordpress/url';
 import debugFactory from 'debug';
@@ -20,7 +20,7 @@ import useSaveToMediaLibrary from '../../../hooks/use-save-to-media-library';
 /**
  * Types
  */
-import { FEATURED_IMAGE_FEATURE_NAME, GENERAL_IMAGE_FEATURE_NAME } from '../types';
+import { CoreSelectors, FEATURED_IMAGE_FEATURE_NAME, GENERAL_IMAGE_FEATURE_NAME } from '../types';
 import type { CarrouselImageData, CarrouselImages } from '../components/carrousel';
 import type { RoleType } from '@automattic/jetpack-ai-client';
 import type { FeatureControl } from 'extensions/store/wordpress-com/types.js';
@@ -45,26 +45,24 @@ export default function useAiImage( {
 	type,
 	cost,
 	autoStart = true,
-	previousImages,
+	previousMediaId,
 }: {
 	feature: AiImageFeature;
 	type: AiImageType;
 	cost: number;
 	autoStart?: boolean;
-	previousImages?: CarrouselImages;
+	previousMediaId?: number;
 } ) {
-	debug( 'previousImages', previousImages );
+	debug( 'previousImages', previousMediaId );
 	const { generateImageWithParameters } = useImageGenerator();
 	const { increaseRequestsCount, featuresControl } = useAiFeature();
 	const { saveToMediaLibrary } = useSaveToMediaLibrary();
 	const { createNotice } = useDispatch( 'core/notices' );
 
 	/* Images Control */
-	const pointer = useRef( previousImages ? previousImages.length : 0 );
+	const pointer = useRef( 0 );
 	const [ current, setCurrent ] = useState( 0 );
-	const [ images, setImages ] = useState< CarrouselImages >(
-		previousImages || [ { generating: autoStart } ]
-	);
+	const [ images, setImages ] = useState< CarrouselImages >( [ { generating: autoStart } ] );
 	debug( 'images', images );
 	// map feature-to-control prop, if this goes over 2 options, make a hook for it
 	const featureControl = feature === FEATURED_IMAGE_FEATURE_NAME ? 'featured-image' : 'image';
@@ -82,6 +80,25 @@ export default function useAiImage( {
 			return newImages;
 		} );
 	}, [] );
+
+	// the selec/useEffect combo...
+	const currentFeaturedMedia = useSelect(
+		( select: ( store ) => CoreSelectors ) => select( 'core' )?.getMedia?.( previousMediaId ),
+		[ previousMediaId ]
+	);
+	useEffect( () => {
+		if ( currentFeaturedMedia ) {
+			updateImages(
+				{
+					image: currentFeaturedMedia.source_url,
+					libraryId: currentFeaturedMedia.id,
+					libraryUrl: currentFeaturedMedia.source_url,
+					generating: false,
+				},
+				pointer.current
+			);
+		}
+	}, [ currentFeaturedMedia, updateImages ] );
 
 	/*
 	 * Function to show a snackbar notice on the editor.

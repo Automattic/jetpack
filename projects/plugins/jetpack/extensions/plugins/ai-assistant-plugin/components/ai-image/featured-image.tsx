@@ -31,7 +31,7 @@ import {
 	PLACEMENT_MEDIA_SOURCE_DROPDOWN,
 } from './types';
 import type { ImageResponse } from './hooks/use-ai-image';
-import type { EditorSelectors, CoreSelectors } from './types';
+import type { EditorSelectors } from './types';
 
 const debug = debugFactory( 'jetpack-ai:featured-image' );
 
@@ -61,15 +61,7 @@ export default function FeaturedImage( {
 				( select( 'core/edit-post' ) as EditorSelectors ).isEditorPanelOpened,
 		};
 	}, [] );
-	const currentFeaturedMedia = useSelect(
-		( select: ( store ) => CoreSelectors ) => {
-			if ( postFeaturedMedia ) {
-				return select( 'core' )?.getMedia?.( postFeaturedMedia );
-			}
-			return null;
-		},
-		[ postFeaturedMedia ]
-	);
+
 	const { saveToMediaLibrary } = useSaveToMediaLibrary();
 	const { tracks } = useAnalytics();
 	const { recordEvent } = tracks;
@@ -102,7 +94,7 @@ export default function FeaturedImage( {
 		toggleEditorPanelOpenedFromEditor ?? toggleEditorPanelOpenedFromEditPost;
 
 	debug( 'postFeatureMedia', postFeaturedMedia );
-	debug( 'currentFeaturedMedia', currentFeaturedMedia );
+
 	const {
 		pointer,
 		current,
@@ -120,16 +112,7 @@ export default function FeaturedImage( {
 		cost: featuredImageCost,
 		type: 'featured-image-generation',
 		feature: FEATURED_IMAGE_FEATURE_NAME,
-		previousImages: currentFeaturedMedia
-			? [
-					{
-						image: currentFeaturedMedia.source_url,
-						libraryId: currentFeaturedMedia.id,
-						libraryUrl: currentFeaturedMedia.source_url,
-						generating: false,
-					},
-			  ]
-			: null,
+		previousMediaId: postFeaturedMedia,
 	} );
 
 	const handleModalClose = useCallback( () => {
@@ -381,7 +364,7 @@ export default function FeaturedImage( {
 			disabled={
 				! currentImage?.image ||
 				currentImage?.generating ||
-				currentImage?.image === currentFeaturedMedia?.source_url
+				currentImage?.libraryId === postFeaturedMedia
 			}
 		>
 			{ __( 'Set as featured image', 'jetpack' ) }
