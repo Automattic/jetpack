@@ -550,7 +550,7 @@ add_action( 'wp_ajax_wpcom_dismiss_removed_calypso_screen_notice', 'wpcom_dismis
 /**
  * Enable the Blaze dashboard (WP-Admin) for users that have the RDV experiment enabled.
  *
- * @param $activation_status
+ * @param bool $activation_status The activation status - use WP-Admin or Calypso.
  * @return mixed|true
  */
 function wpcom_enable_blaze_dashboard_for_experiment( $activation_status ) {
