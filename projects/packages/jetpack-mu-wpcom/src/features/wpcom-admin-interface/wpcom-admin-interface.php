@@ -116,15 +116,18 @@ function wpcom_admin_interface_pre_update_option( $new_value, $old_value ) {
 }
 add_filter( 'pre_update_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_update_option', 10, 2 );
 
-const WPCOM_DUPLICATED_VIEW = array(
+const WPCOM_DUPLICATE_VIEW_WITH_TOUR = array(
 	'edit.php',
-	'admin.php?page=stats',
-	'tools.php?page=advertising',
 	'edit.php?post_type=jetpack-portfolio',
 	'edit.php?post_type=jetpack-testimonial',
 	'edit-comments.php',
 	'edit-tags.php?taxonomy=category',
 	'edit-tags.php?taxonomy=post_tag',
+);
+const WPCOM_DUPLICATED_VIEW = array(
+	...WPCOM_DUPLICATED_VIEW,
+	'admin.php?page=stats',
+	'tools.php?page=advertising',
 );
 
 /**
@@ -462,7 +465,7 @@ function wpcom_show_removed_calypso_screen_notice() {
 
 	$current_screen = wpcom_admin_get_current_screen();
 
-	if ( ! in_array( $current_screen, WPCOM_DUPLICATED_VIEW, true ) ) {
+	if ( ! in_array( $current_screen, WPCOM_DUPLICATE_VIEW_WITH_TOUR, true ) ) {
 		return;
 	}
 
