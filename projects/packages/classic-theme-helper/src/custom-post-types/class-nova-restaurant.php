@@ -82,7 +82,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Nova_Restaurant' ) ) {
 		/**
 		 * Current term ID of a loop of menu items.
 		 *
-		 * @var bool|int
+		 * @var bool|int|\WP_Term
 		 */
 		protected $menu_item_loop_current_term = false;
 
@@ -728,11 +728,8 @@ if ( ! class_exists( __NAMESPACE__ . '\Nova_Restaurant' ) ) {
 						wp_nonce_url( $url, 'nova_move_item_down_' . $post_id )
 					);
 					$menu_item = get_post( $post_id );
-					$this->get_menu_by_post_id( $post_id );
-					$term_id = $this->get_menu_by_post_id( $post_id );
-					if ( $term_id ) {
-						$term_id = $term_id->term_id;
-					}
+					$menu      = $this->get_menu_by_post_id( $post_id );
+					$term_id   = is_object( $menu ) ? $menu->term_id : '';
 					?>
 					<input type="hidden" class="menu-order-value" name="nova_order[<?php echo (int) $post_id; ?>]" value="<?php echo esc_attr( (string) $menu_item->menu_order ); ?>" />
 					<input type="hidden" class='nova-menu-term' name="nova_menu_term[<?php echo (int) $post_id; ?>]" value="<?php echo esc_attr( (string) $term_id ); ?>">
@@ -818,7 +815,10 @@ if ( ! class_exists( __NAMESPACE__ . '\Nova_Restaurant' ) ) {
 				}
 
 				// save a write if the term hasn't changed
-				if ( (int) $term_pairs[ $id ] !== $this->get_menu_by_post_id( $id )->term_id ) {
+				if (
+					is_object( $this->get_menu_by_post_id( $id ) ) &&
+					(int) $term_pairs[ $id ] !== $this->get_menu_by_post_id( $id )->term_id
+				) {
 					wp_set_object_terms( $id, $term_pairs[ $id ], self::MENU_TAX );
 				}
 			}
@@ -1588,7 +1588,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Nova_Restaurant' ) ) {
 		}
 
 		/**
-		 * Outputs the Menu Item Loop Marku
+		 * Outputs the Menu Item Loop Markup
 		 * Attached to the 'the_post' action.
 		 *
 		 * @param WP_Post $post Post object.
@@ -1611,15 +1611,20 @@ if ( ! class_exists( __NAMESPACE__ . '\Nova_Restaurant' ) ) {
 
 				$this->menu_item_loop_open_element( 'menu' ); // Start a new menu section
 				$this->menu_item_loop_header(); // Output the menu's header
-			} elseif ( $this->menu_item_loop_last_term_id !== $this->menu_item_loop_current_term->term_id ) {
+			} elseif (
+				is_object( $this->menu_item_loop_current_term ) &&
+				$this->menu_item_loop_last_term_id !== $this->menu_item_loop_current_term->term_id
+			) {
 				// We're not at the very beginning but still need to start a new menu section.  End the previous menu section first.
 
 				$this->menu_item_loop_close_element( 'menu' ); // End the previous menu section
 				$this->menu_item_loop_open_element( 'menu' ); // Start a new menu section
 				$this->menu_item_loop_header(); // Output the menu's header
 			}
+			if ( is_object( $this->menu_item_loop_current_term ) ) {
 
-			$this->menu_item_loop_last_term_id = $this->menu_item_loop_current_term->term_id;
+				$this->menu_item_loop_last_term_id = $this->menu_item_loop_current_term->term_id;
+			}
 		}
 
 		/**
