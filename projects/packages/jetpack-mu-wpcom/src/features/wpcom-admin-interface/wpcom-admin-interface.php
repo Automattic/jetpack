@@ -194,6 +194,21 @@ function wpcom_admin_get_user_option_jetpack( $value ) {
 add_filter( 'get_user_option_jetpack_admin_menu_preferred_views', 'wpcom_admin_get_user_option_jetpack' );
 add_filter( 'pre_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_get_option', 10 );
 
+add_action(
+	'admin_menu',
+	function () {
+		remove_filter( 'pre_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_get_option' );
+	},
+	PHP_INT_MIN
+);
+
+add_action(
+	'admin_menu',
+	function () {
+		add_filter( 'pre_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_get_option', 10 );
+	},
+	PHP_INT_MAX
+);
 /**
  * Hides the "View" switcher on WP Admin screens enforced by the "Remove duplicate views" experiment.
  */
