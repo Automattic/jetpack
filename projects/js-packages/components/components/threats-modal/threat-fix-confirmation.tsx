@@ -21,7 +21,7 @@ const ThreatFixConfirmation = () => {
 	const {
 		currentThreats,
 		isSingleThreat,
-		// actionToConfirm,
+		actionToConfirm,
 		userConnectionNeeded,
 		siteCredentialsNeeded,
 		handleUpgradeClick,
@@ -41,12 +41,16 @@ const ThreatFixConfirmation = () => {
 					{ isSingleThreat && (
 						<>
 							<ThreatTechnicalDetails threat={ threat } />
-							<ThreatFixDetails threat={ threat } />
+							{ [ 'all', 'fix' ].includes( actionToConfirm ) && (
+								<ThreatFixDetails threat={ threat } />
+							) }
 						</>
 					) }
 				</div>
 			) ) }
-			{ isSingleThreat && currentThreats[ 0 ].status && <ThreatIgnoreDetails /> }
+			{ isSingleThreat &&
+				currentThreats[ 0 ].status &&
+				[ 'all', 'ignore' ].includes( actionToConfirm ) && <ThreatIgnoreDetails /> }
 			{ siteCredentialsNeeded && userConnectionNeeded && (
 				<ThreatNotice
 					title={ 'Additional connections needed' }
