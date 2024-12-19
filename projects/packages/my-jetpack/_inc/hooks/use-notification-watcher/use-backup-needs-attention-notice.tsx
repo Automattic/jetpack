@@ -1,11 +1,13 @@
 import { Col, getRedirectUrl, Text } from '@automattic/jetpack-components';
-import { getSettings as getDateSettings, dateI18n, getDate } from '@wordpress/date';
+import { getSettings as getDateSettings, dateI18n } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
 import { useContext, useEffect, useCallback } from 'react';
 import { NOTICE_PRIORITY_HIGH } from '../../context/constants';
 import { NoticeContext } from '../../context/notices/noticeContext';
+import { applyTimezone } from '../../utils/apply-timezone';
 import preventWidows from '../../utils/prevent-widows';
 import useAnalytics from '../use-analytics';
+import { useGetReadableFailedBackupReason } from './use-get-readable-failed-backup-reason';
 import type { NoticeOptions } from '../../context/notices/types';
 
 type RedBubbleAlerts = Window[ 'myJetpackInitialState' ][ 'redBubbleAlerts' ];
@@ -18,6 +20,7 @@ const useBackupNeedsAttentionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 		type,
 		data: { status, last_updated: lastUpdated },
 	} = redBubbleAlerts?.backup_failure || { type: 'error', data: {} };
+	const { text: errorDescription } = useGetReadableFailedBackupReason() || {};
 
 	const {
 		timezone: { offset },
@@ -63,14 +66,9 @@ const useBackupNeedsAttentionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 						)
 					) }
 				</Text>
-				<Text mb={ 1 }>
-					{ preventWidows(
-						__(
-							'This might be due to a block from your host or other server issues.',
-							'jetpack-my-jetpack'
-						)
-					) }
-				</Text>
+				{ errorDescription && (
+					<Text mb={ 1 }>{ preventWidows( errorDescription as string ) }</Text>
+				) }
 				<Text mb={ 1 }>
 					{ preventWidows(
 						__(
@@ -114,21 +112,8 @@ const useBackupNeedsAttentionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 		noticeTitle,
 		backupStatusLastUpdatedDate,
 		type,
+		errorDescription,
 	] );
 };
 
 export default useBackupNeedsAttentionNotice;
-
-/**
- * Applies local timezone to date (via timezone offset)
- * @param {string} date   - a date string with format like: 2024-12-08T14:41:45.170+00:00
- * @param {number} offset - the timezone offset in hours, like: -3
- *
- * @return {Date} a JavaScript Date object
- */
-function applyTimezone( date: string, offset: number ): Date {
-	const dateObject = getDate( date );
-	dateObject.setHours( dateObject.getHours() + offset );
-
-	return dateObject;
-}

@@ -1,7 +1,7 @@
 const path = require( 'path' );
 
 module.exports = {
-	testEnvironment: 'jsdom',
+	testEnvironment: path.join( __dirname, 'fix-environment-jsdom.mjs' ),
 	testEnvironmentOptions: {
 		// Note we need to repeat the environment's default conditions here too, sigh.
 		customExportConditions: [
