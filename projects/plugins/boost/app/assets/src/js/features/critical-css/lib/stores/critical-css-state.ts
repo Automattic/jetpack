@@ -163,13 +163,23 @@ export function useSetProviderErrorsAction() {
 
 /**
  * Hook which creates a callable action for regenerating Critical CSS.
+ *
+ * @param {Function} callback - Optional callback to call when a regeneration starts successfully.
  */
-export function useRegenerateCriticalCssAction() {
+export function useRegenerateCriticalCssAction( callback?: () => void ) {
 	const [ , resetReason ] = useRegenerationReason();
+
+	const onSuccess = () => {
+		if ( callback ) {
+			callback();
+		}
+
+		resetReason();
+	};
 
 	// Optimistically update the state to hide any errors and immediately show the pending state.
 	const optimisticState: CriticalCssState = { status: 'pending', providers: [] };
-	return useCriticalCssAction( 'request-regenerate', z.void(), optimisticState, resetReason );
+	return useCriticalCssAction( 'request-regenerate', z.void(), optimisticState, onSuccess );
 }
 
 /**

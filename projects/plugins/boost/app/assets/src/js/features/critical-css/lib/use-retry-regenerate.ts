@@ -9,11 +9,10 @@ import { useCriticalCssRetriedAfterErrorState } from '../critical-css-context/cr
  */
 export function useRetryRegenerate(): [ boolean, () => void ] {
 	const [ retriedAfterError, setRetriedAfterError ] = useCriticalCssRetriedAfterErrorState();
-	const regenerateAction = useRegenerateCriticalCssAction();
+	const regenerateAction = useRegenerateCriticalCssAction( () => setRetriedAfterError( true ) );
 
 	function retry() {
 		regenerateAction.mutate();
-		setRetriedAfterError( true );
 	}
 
 	return [ retriedAfterError, retry ];
