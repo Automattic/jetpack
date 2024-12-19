@@ -1,4 +1,5 @@
 import { REQUEST_TYPE_DEFAULT } from '../actions/constants';
+import { SocialStoreState } from '../types';
 
 /**
  * Returns the connections list from the store.
@@ -7,7 +8,7 @@ import { REQUEST_TYPE_DEFAULT } from '../actions/constants';
  *
  * @return {Array<import("../types").Connection>} The connections list
  */
-export function getConnections( state ) {
+export function getConnections( state: SocialStoreState ) {
 	return state.connectionData?.connections ?? [];
 }
 
@@ -41,7 +42,7 @@ export function getBrokenConnections( state ) {
  * @param {import("../types").SocialStoreState} state       - State object.
  * @param {string}                              serviceName - The service name.
  *
- * @return {Array<import("../types").Connections>} The connections.
+ * @return {Array<import("../types").Connection>} The connections.
  */
 export function getConnectionsByService( state, serviceName ) {
 	return getConnections( state ).filter( ( { service_name } ) => service_name === serviceName );
