@@ -14,7 +14,7 @@
 						document.cookie.replace(
 							new RegExp(
 								'(?:(?:^|.*;)\\s*' +
-									encodeURIComponent( e ).replace( /[\-\.\+\*]/g, '\\$&' ) +
+									encodeURIComponent( e ).replace( /[-.+*]/g, '\\$&' ) +
 									'\\s*\\=\\s*([^;]*).*$)|^.*$'
 							),
 							'$1'
@@ -24,7 +24,7 @@
 			);
 		},
 		setItem: function ( e, o, n, t, r, i ) {
-			if ( ! e || /^(?:expires|max\-age|path|domain|secure)$/i.test( e ) ) {
+			if ( ! e || /^(?:expires|max-age|path|domain|secure)$/i.test( e ) ) {
 				return ! 1;
 			}
 			var c = '';

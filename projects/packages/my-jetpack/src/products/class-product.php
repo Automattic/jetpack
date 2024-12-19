@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\My_Jetpack;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\My_Jetpack\Products\Backup;
 use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Status;
 use Jetpack_Options;
@@ -716,6 +717,9 @@ abstract class Product {
 			} elseif ( static::$requires_user_connection && ! ( new Connection_Manager() )->has_connected_owner() ) {
 				$status = Products::STATUS_USER_CONNECTION_ERROR;
 			} elseif ( static::has_paid_plan_for_product() ) {
+				if ( static::$slug === 'backup' && Backup::does_module_need_attention() ) {
+					$status = Products::STATUS_NEEDS_ATTENTION;
+				}
 				if ( static::is_paid_plan_expired() ) {
 					$status = Products::STATUS_EXPIRED;
 				} elseif ( static::is_paid_plan_expiring() ) {
@@ -986,5 +990,15 @@ abstract class Product {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Determines whether the module/plugin/product needs the users attention.
+	 * Typically due to some sort of error where user troubleshooting is needed.
+	 *
+	 * @return boolean
+	 */
+	public static function does_module_need_attention() {
+		return false;
 	}
 }

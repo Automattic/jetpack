@@ -48,6 +48,9 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Testimonial' ) ) {
 		 */
 		public function __construct() {
 
+			// Add an option to enable the CPT. Set the priority to 11 to ensure "Portfolio Projects" appears above "Testimonials" in the UI.
+			add_action( 'admin_init', array( $this, 'settings_api_init' ), 11 );
+
 			// Make sure the post types are loaded for imports
 			add_action( 'import_start', array( $this, 'register_post_types' ) );
 
@@ -57,12 +60,20 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Testimonial' ) ) {
 			// Add to REST API post type allowed list.
 			add_filter( 'rest_api_allowed_post_types', array( $this, 'allow_cpt_rest_api_type' ) );
 
-			// If testimonial cpt is enabled (on self hosted sites), hook into init to register the CPT, otherwise run maybe_register_cpt immediately to deregister.
-			if ( get_option( self::OPTION_NAME, '0' ) || ( new Host() )->is_wpcom_platform() ) {
-				$this->maybe_register_cpt();
+			$this->maybe_register_cpt();
+
+			// Add a variable with the theme support status for the Jetpack Settings Testimonial toggle UI.
+			if ( current_theme_supports( self::CUSTOM_POST_TYPE ) ) {
+				wp_register_script( 'jetpack-testimonial-theme-supports', '', array(), '0.1.0', true );
+				wp_enqueue_script( 'jetpack-testimonial-theme-supports' );
+				$supports_testimonial = ( new Host() )->is_woa_site() ? 'true' : 'false';
 			} else {
-				add_action( 'init', array( $this, 'maybe_register_cpt' ) );
+				$supports_testimonial = 'false';
 			}
+			wp_add_inline_script(
+				'jetpack-testimonial-theme-supports',
+				'const jetpack_testimonial_theme_supports = ' . $supports_testimonial
+			);
 		}
 
 		/**
@@ -70,8 +81,6 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Testimonial' ) ) {
 		 * only if the site supports it
 		 */
 		public function maybe_register_cpt() {
-			// Add an option to enable the CPT. Set the priority to 11 to ensure "Portfolio Projects" appears above "Testimonials" in the UI.
-			add_action( 'admin_init', array( $this, 'settings_api_init' ), 11 );
 
 			// Check on theme switch if theme supports CPT and setting is disabled
 			add_action( 'after_switch_theme', array( $this, 'activation_post_type_support' ) );

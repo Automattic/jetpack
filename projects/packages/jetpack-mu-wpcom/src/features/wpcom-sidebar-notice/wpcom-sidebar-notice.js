@@ -97,7 +97,7 @@ const wpcomFetchSidebarNotice = async () => {
 		if ( res.success && res.data ) {
 			wpcomShowSidebarNotice( res.data );
 		}
-	} catch ( error ) {
+	} catch {
 		// End silently
 	}
 };

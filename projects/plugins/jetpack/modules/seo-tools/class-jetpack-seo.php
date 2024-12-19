@@ -70,7 +70,7 @@ class Jetpack_SEO {
 		 * This filter allows modification of the post types that will be processed
 		 * to add support for custom fields if they do not already support it.
 		 *
-		 * @since $$next-version$$
+		 * @since 14.2
 		 *
 		 * @param array $post_types An array of post type names.
 		 */

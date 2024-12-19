@@ -55,6 +55,11 @@ function fixDeps( pkg ) {
 				pkg.peerDependencies[ dep ] = ver.replace( /^\^?/, '>=' );
 			}
 		}
+
+		// Doesn't really need these at all with eslint 9 and our config.
+		pkg.peerDependenciesMeta ??= {};
+		pkg.peerDependenciesMeta[ '@typescript-eslint/eslint-plugin' ] = { optional: true };
+		pkg.peerDependenciesMeta[ '@typescript-eslint/parser' ] = { optional: true };
 	}
 
 	// Unnecessarily explicit deps. I don't think we really even need @wordpress/babel-preset-default at all.
@@ -75,6 +80,16 @@ function fixDeps( pkg ) {
 	// Avoid annoying flip-flopping of sub-dep peer deps.
 	// https://github.com/localtunnel/localtunnel/issues/481
 	if ( pkg.name === 'localtunnel' ) {
+		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
+			if ( ver.match( /^\d+(\.\d+)+$/ ) ) {
+				pkg.dependencies[ dep ] = '^' + ver;
+			}
+		}
+	}
+
+	// Seemingly unmaintained upstream, and has strict deps that are outdated.
+	// https://github.com/mbalabash/estimo/issues/50
+	if ( pkg.name === 'estimo' ) {
 		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
 			if ( ver.match( /^\d+(\.\d+)+$/ ) ) {
 				pkg.dependencies[ dep ] = '^' + ver;

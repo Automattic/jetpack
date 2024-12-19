@@ -19,8 +19,7 @@ import {
 	NEW_ASYNC_REQUEST_TIMER_INTERVAL,
 	ACTION_SET_TIER_PLANS_ENABLED,
 } from './constants';
-import type { Plan } from './types';
-import type { AiFeatureProps } from './types';
+import type { Plan, AiFeatureProps } from './types';
 import type { SiteAIAssistantFeatureEndpointResponseProps } from '../../types';
 
 /**

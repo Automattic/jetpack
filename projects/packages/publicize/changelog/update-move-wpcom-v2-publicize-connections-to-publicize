@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Moved wpcom/v2/publicize/connections endpoint to publicize package
