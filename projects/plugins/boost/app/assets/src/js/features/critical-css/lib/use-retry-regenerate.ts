@@ -12,8 +12,8 @@ export function useRetryRegenerate(): [ boolean, () => void ] {
 	const regenerateAction = useRegenerateCriticalCssAction();
 
 	function retry() {
-		setRetried( true );
 		regenerateAction.mutate();
+		setRetried( true );
 	}
 
 	return [ retried, retry ];
