@@ -95,7 +95,7 @@ export default function ThreatsModal( {
 							) }
 						</div>
 					) : (
-						<Text variant="title-small">{ 'Auto-fixable threats' }</Text>
+						<Text variant="title-small">{ 'Fix all threats' }</Text>
 					) }
 				</div>
 			}
