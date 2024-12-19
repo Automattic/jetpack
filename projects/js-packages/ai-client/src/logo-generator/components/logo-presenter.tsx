@@ -9,7 +9,7 @@ import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
-import { default as AiFeedbackThumbs } from '../../../../../plugins/jetpack/extensions/plugins/ai-assistant-plugin/components/ai-feedback/index.js';
+import AiFeedbackThumbs from '../../components/ai-feedback/index.js';
 import CheckIcon from '../assets/icons/check.js';
 import LogoIcon from '../assets/icons/logo.js';
 import MediaIcon from '../assets/icons/media.js';

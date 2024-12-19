@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { AiFeedbackThumbs } from '@automattic/jetpack-ai-client';
 import { Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, chevronLeft, chevronRight } from '@wordpress/icons';
@@ -8,7 +9,6 @@ import clsx from 'clsx';
 /**
  * Internal dependencies
  */
-import AiFeedbackThumbs from '../../ai-feedback';
 import AiIcon from '../../ai-icon';
 import './carrousel.scss';
 

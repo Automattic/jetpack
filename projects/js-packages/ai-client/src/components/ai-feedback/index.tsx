@@ -1,24 +1,57 @@
-import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
+/**
+ * External dependencies
+ */
+import {
+	useAnalytics,
+	getJetpackExtensionAvailability,
+} from '@automattic/jetpack-shared-extension-utils';
 import { Button, Tooltip } from '@wordpress/components';
+import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { thumbsUp, thumbsDown } from '@wordpress/icons';
 import clsx from 'clsx';
-import { useState } from 'react';
-import { getFeatureAvailability } from '../../../../blocks/ai-assistant/lib/utils/get-feature-availability';
-
+/*
+ * Internal dependencies
+ */
 import './style.scss';
+/**
+ * Types
+ */
+import type React from 'react';
 
+type AiFeedbackThumbsProps = {
+	disabled?: boolean;
+	iconSize?: number;
+	ratedItem?: string;
+	feature?: string;
+};
+
+/**
+ * Get the availability of a feature.
+ *
+ * @param {string} feature - The feature to check availability for.
+ * @return {boolean}       - Whether the feature is available.
+ */
+function getFeatureAvailability( feature: string ): boolean {
+	return getJetpackExtensionAvailability( feature ).available === true;
+}
+
+/**
+ * AiFeedbackThumbs component.
+ *
+ * @param {AiFeedbackThumbsProps} props - component props.
+ * @return {React.ReactElement} - rendered component.
+ */
 export default function AiFeedbackThumbs( {
 	disabled = false,
 	iconSize = 24,
 	ratedItem = '',
 	feature = '',
-}: {
-	disabled: boolean;
-	iconSize?: number;
-	ratedItem: string;
-	feature: string;
-} ) {
+}: AiFeedbackThumbsProps ): React.ReactElement {
+	if ( ! getFeatureAvailability( 'ai-response-feedback' ) ) {
+		return null;
+	}
+
 	const [ itemsRated, setItemsRated ] = useState( {} );
 	const { tracks } = useAnalytics();
 
@@ -44,9 +77,9 @@ export default function AiFeedbackThumbs( {
 		return itemsRated[ ratedItem ] === thumbValue;
 	};
 
-	return getFeatureAvailability( 'ai-response-feedback' ) ? (
+	return (
 		<div className="ai-assistant-feedback__selection">
-			<Tooltip text={ __( 'I like this', 'jetpack' ) }>
+			<Tooltip text={ __( 'I like this', 'jetpack-ai-client' ) }>
 				<Button
 					disabled={ disabled }
 					icon={ thumbsUp }
@@ -58,7 +91,7 @@ export default function AiFeedbackThumbs( {
 					} ) }
 				/>
 			</Tooltip>
-			<Tooltip text={ __( "I don't find this useful", 'jetpack' ) }>
+			<Tooltip text={ __( "I don't find this useful", 'jetpack-ai-client' ) }>
 				<Button
 					disabled={ disabled }
 					icon={ thumbsDown }
@@ -71,7 +104,5 @@ export default function AiFeedbackThumbs( {
 				/>
 			</Tooltip>
 		</div>
-	) : (
-		<></>
 	);
 }
