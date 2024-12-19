@@ -101,6 +101,8 @@ export default function FeaturedImage( {
 	const toggleEditorPanelOpened =
 		toggleEditorPanelOpenedFromEditor ?? toggleEditorPanelOpenedFromEditPost;
 
+	debug( 'postFeatureMedia', postFeaturedMedia );
+	debug( 'currentFeaturedMedia', currentFeaturedMedia );
 	const {
 		pointer,
 		current,
