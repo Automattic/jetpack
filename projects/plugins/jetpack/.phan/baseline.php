@@ -380,7 +380,6 @@ return [
         'modules/shortcodes/ustream.php' => ['PhanTypeMismatchArgument'],
         'modules/shortcodes/vimeo.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgument'],
         'modules/shortcodes/vr.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
-        'modules/shortcodes/wordads.php' => ['PhanNoopNew'],
         'modules/shortcodes/youtube.php' => ['PhanRedefineFunction'],
         'modules/shortlinks.php' => ['PhanPluginDuplicateExpressionAssignmentOperation', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentProbablyReal'],
         'modules/simple-payments/simple-payments.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchReturn'],

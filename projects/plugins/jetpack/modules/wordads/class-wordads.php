@@ -21,6 +21,7 @@ require_once WORDADS_ROOT . '/php/class-wordads-california-privacy.php';
 require_once WORDADS_ROOT . '/php/class-wordads-ccpa-do-not-sell-link-widget.php';
 require_once WORDADS_ROOT . '/php/class-wordads-consent-management-provider.php';
 require_once WORDADS_ROOT . '/php/class-wordads-smart.php';
+require_once WORDADS_ROOT . '/php/class-wordads-shortcode.php';
 
 /**
  * Primary WordAds class.
@@ -214,6 +215,9 @@ class WordAds {
 		if ( isset( $this->params->options['wordads_cmp_enabled'] ) && $this->params->options['wordads_cmp_enabled'] ) {
 			WordAds_Consent_Management_Provider::init();
 		}
+
+		// Initialize [wordads] shortcode.
+		WordAds_Shortcode::init();
 
 		// Initialize Smart.
 		WordAds_Smart::instance()->init( $this->params );
@@ -527,8 +531,17 @@ HTML;
 		}
 
 		$ad_type  = $this->option( 'wordads_house' ) ? 'house' : 'iponweb';
-		$content .= $this->get_ad( 'inline', $ad_type );
-		return $content;
+		$location = 'shortcode';
+		// not house ad and watl enabled
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended
+		if ( 'house' !== $ad_type && ( isset( $_GET['wordads-logging'] ) && isset( $_GET[ $location ] ) && 'true' === $_GET[ $location ] ) ) {
+			return $content . $this->get_watl_ad_html_tag( $location );
+		}
+
+		return $content .= sprintf(
+			'<div class="jetpack-wordad" itemscope itemtype="https://schema.org/WPAdBlock">%s</div>',
+			$this->get_ad( 'inline', $ad_type )
+		);
 	}
 
 	/**
