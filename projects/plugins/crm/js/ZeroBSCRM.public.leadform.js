@@ -1,3 +1,6 @@
+/* eslint-disable jsdoc/require-param-type */
+/* eslint-disable jsdoc/require-param-description */
+/* eslint-disable jsdoc/require-description */
 /*!
  * Jetpack CRM
  * https://jetpackcrm.com
@@ -7,18 +10,20 @@
  *
  * Date: 17/06/2016
  */
-var zbsCRMFormsBlocker = false;
+/* global grecaptcha */
+window.zbsCRMFormsBlocker = false;
 jQuery( function () {
 	// Infobox:
 
 	// Debug console.log('front end form script is here');
-	zbs_ajaxurl = jQuery( '#zbs_form_ajax_action' ).data( 'zbsformajax' );
+	const zbs_ajaxurl = jQuery( '#zbs_form_ajax_action' ).data( 'zbsformajax' );
 
+	let zbs_form_id;
 	// track views of the lead form... could be multiple forms on the same page so loop through (but advise that only one per page should be used..)
-	jQuery( '.zbscrmFrontEndForm' ).each( function ( index, value ) {
+	jQuery( '.zbscrmFrontEndForm' ).each( function () {
 		zbs_form_id = jQuery( '#zbs_form_view_id' ).val();
-		zbs_ajaxurl = jQuery( '#zbs_form_ajax_action' ).data( 'zbsformajax' );
-		zbscrm_JS_leadformview( zbs_form_id, zbs_ajaxurl );
+		const zbs_ajaxurl_track = jQuery( '#zbs_form_ajax_action' ).data( 'zbsformajax' );
+		zbscrm_JS_leadformview( zbs_form_id, zbs_ajaxurl_track );
 	} );
 
 	jQuery( '.zbscrmFrontEndForm .send' )
@@ -31,8 +36,8 @@ jQuery( function () {
 
 				//get the data from this form...
 				e.preventDefault();
-				var zbs_style = jQuery( '#zbs_form_style' ).val();
-				var zbs_email = jQuery( '#zbs_email' ).val();
+				const zbs_style = jQuery( '#zbs_form_style' ).val();
+				const zbs_email = jQuery( '#zbs_email' ).val();
 
 				// Debug console.log('style is ' + zbs_style);
 
@@ -40,16 +45,18 @@ jQuery( function () {
 				// Have a variable "errors" and basically count (or add) the errors as I go, then submit at end, if legit.
 				// I've modified this to do that, for your interest
 
-				var errors = [];
+				const errors = [];
+				let reCaptchaResponse;
 
 				// check reCaptcha!
 				if ( typeof window.zbscrmReCaptcha !== 'undefined' ) {
 					// check has response:
-					var reCaptchaResponse = grecaptcha.getResponse();
+					reCaptchaResponse = grecaptcha.getResponse();
 
-					if ( reCaptchaResponse == '' ) {
+					if ( ! reCaptchaResponse ) {
 						// later lets add fancier debug!
 						// and move it to the end of this func so can do all at once...
+						// eslint-disable-next-line no-alert
 						alert( 'Captcha is required.' );
 
 						// just adds an error flag (this'll let us highlight in code later)
@@ -61,6 +68,7 @@ jQuery( function () {
 				if ( ! zbscrm_JS_validateEmail( zbs_email ) ) {
 					// later lets add fancier debug!
 					// and move it to the end of this func so can do all at once...
+					// eslint-disable-next-line no-alert
 					alert( 'The email you have entered is not valid.' );
 
 					// pass this
@@ -68,11 +76,12 @@ jQuery( function () {
 				}
 
 				// WHEN you've got multiple if's, use switch, it's cleaner
+				let t = {};
 
 				switch ( zbs_style ) {
 					case 'zbs_simple':
 						//simple layout
-						var t = {
+						t = {
 							action: 'zbs_lead_form_capture',
 							zbs_form_id: zbs_form_id,
 							zbs_email: zbs_email,
@@ -84,7 +93,7 @@ jQuery( function () {
 
 					case 'zbs_cgrab':
 						//content grab layout...
-						var t = {
+						t = {
 							action: 'zbs_lead_form_capture',
 							zbs_form_id: zbs_form_id,
 							zbs_fname: jQuery( '#zbs_fname' ).val(),
@@ -99,7 +108,7 @@ jQuery( function () {
 
 					case 'zbs_naked':
 						// Debug console.log('naked style');
-						var t = {
+						t = {
 							action: 'zbs_lead_form_capture',
 							zbs_form_id: zbs_form_id,
 							zbs_fname: jQuery( '#zbs_fname' ).val(),
@@ -117,7 +126,7 @@ jQuery( function () {
 						break;
 				}
 
-				if ( errors.length == 0 ) {
+				if ( errors.length === 0 ) {
 					// pass this along (if present)
 					if ( typeof reCaptchaResponse !== 'undefined' ) {
 						t.recaptcha = reCaptchaResponse;
@@ -154,17 +163,17 @@ function zbscrm_JS_leadformcapture( zbs_form_id, zbs_ajaxurl, t ) {
 	//capture the lead if submit is hit..  pre-process first though....
 	//action zbs_lead_form_capture
 	// Debug console.log(zbs_form_id, zbs_ajaxurl, t);
-	var zbs_form_id_l = zbs_form_id;
-	i = jQuery.ajax( {
+	const zbs_form_id_l = zbs_form_id;
+	const i = jQuery.ajax( {
 		url: zbs_ajaxurl,
 		type: 'POST',
 		crossDomain: true,
 		data: t,
 		dataType: 'json',
 	} );
-	i.done( function ( e ) {
+	i.done( function () {
 		// localising (this pulls the id from parent func into here, so we can use it!)
-		var zbs_form_id_l2 = zbs_form_id_l;
+		const zbs_form_id_l2 = zbs_form_id_l;
 
 		// Debug console.log('FINI!',[e,zbs_form_id_l,zbs_form_id_l2]);
 
@@ -175,7 +184,7 @@ function zbscrm_JS_leadformcapture( zbs_form_id, zbs_ajaxurl, t ) {
 		// turn off blocker
 		window.zbsCRMFormsBlocker = false;
 	} );
-	i.fail( function ( e ) {
+	i.fail( function () {
 		// Needs proper exposing here
 		// #NEEDSERRORMSG
 		// Debug console.log(e)
@@ -187,10 +196,12 @@ function zbscrm_JS_leadformcapture( zbs_form_id, zbs_ajaxurl, t ) {
 
 //http://stackoverflow.com/questions/46155/validate-email-address-in-javascript
 /**
- * @param email
+ * @param {string} email - Email to test.
+ * @return {boolean} True if it matches the regex, otherwise false.
  */
 function zbscrm_JS_validateEmail( email ) {
-	var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+	const re =
+		/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 	return re.test( email );
 }
 
@@ -199,25 +210,26 @@ function zbscrm_JS_validateEmail( email ) {
  * @param zbs_ajaxurl
  */
 function zbscrm_JS_leadformview( zbs_form_id, zbs_ajaxurl ) {
-	var t = {
-			action: 'zbs_lead_form_views',
-			id: zbs_form_id,
-		},
-		i = jQuery.ajax( {
+	const t = {
+		action: 'zbs_lead_form_views',
+		id: zbs_form_id,
+	};
+	jQuery
+		.ajax( {
 			url: zbs_ajaxurl,
 			crossDomain: true,
 			type: 'POST',
 			data: t,
 			dataType: 'json',
-		} );
-	i.done( function ( e ) {
-		//view sent
-		// Debug console.log(e);
-	} ),
-		i.fail( function () {} );
+		} )
+		.done( function () {} )
+		.fail( function () {} );
 }
 
 if ( typeof module !== 'undefined' ) {
-    module.exports = { zbsCRMFormsBlocker, zbscrm_JS_leadformcapture, zbscrm_JS_validateEmail,
-		zbscrm_JS_leadformview };
+	module.exports = {
+		zbscrm_JS_leadformcapture,
+		zbscrm_JS_validateEmail,
+		zbscrm_JS_leadformview,
+	};
 }

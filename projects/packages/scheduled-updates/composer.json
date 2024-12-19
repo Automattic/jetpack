@@ -14,7 +14,7 @@
 	"require-dev": {
 		"yoast/phpunit-polyfills": "^1.1.1",
 		"automattic/jetpack-changelogger": "@dev",
-		"automattic/wordbless": "@dev",
+		"automattic/wordbless": "^0.4.2",
 		"php-mock/php-mock-phpunit": "^2.10"
 	},
 	"suggest": {
@@ -56,7 +56,7 @@
 		},
 		"autotagger": true,
 		"branch-alias": {
-			"dev-trunk": "0.13.x-dev"
+			"dev-trunk": "0.14.x-dev"
 		},
 		"textdomain": "jetpack-scheduled-updates",
 		"version-constants": {

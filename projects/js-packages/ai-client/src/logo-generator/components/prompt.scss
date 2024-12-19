@@ -5,6 +5,20 @@
 	flex-direction: column;
 	gap: 8px;
 	font-size: var(--font-body-small);
+
+	.components-button {
+		&:focus:not(:disabled):not(.is-primary) {
+			box-shadow: 0 0 0 2px var(--color-link, #3858e9);
+		}
+
+		&.is-link {
+			text-decoration: none;
+
+			&:not(:disabled) {
+				color: var(--color-link, #3858e9);
+			}
+		}
+	}
 }
 
 .jetpack-ai-logo-generator__prompt-header {
@@ -30,7 +44,7 @@
 	}
 }
 
-.jetpack-ai-logo-generator__prompt-query {
+.jetpack-ai-image-generator__prompt-query {
 	display: flex;
 	padding: 8px 8px 8px var(--grid-unit-15, 16px);
 	justify-content: space-between;

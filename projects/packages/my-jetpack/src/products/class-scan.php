@@ -34,6 +34,13 @@ class Scan extends Module_Product {
 	public static $module_name = 'scan';
 
 	/**
+	 * The feature slug that identifies the paid plan
+	 *
+	 * @var string
+	 */
+	public static $feature_identifying_paid_plan = 'scan';
+
+	/**
 	 * Get the product name
 	 *
 	 * @return string
@@ -189,13 +196,27 @@ class Scan extends Module_Product {
 	}
 
 	/**
+	 * Get the product-slugs of the paid plans for this product.
+	 * (Do not include bundle plans, unless it's a bundle plan itself).
+	 *
+	 * @return array
+	 */
+	public static function get_paid_plan_product_slugs() {
+		return array(
+			'jetpack_scan',
+			'jetpack_scan_monthly',
+			'jetpack_scan_bi_yearly',
+		);
+	}
+
+	/**
 	 * Return product bundles list
 	 * that supports the product.
 	 *
 	 * @return boolean|array Products bundle list.
 	 */
 	public static function is_upgradable_by_bundle() {
-		return array( 'security' );
+		return array( 'security', 'complete' );
 	}
 
 	/**

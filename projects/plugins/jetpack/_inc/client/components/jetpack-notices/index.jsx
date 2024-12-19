@@ -1,16 +1,16 @@
-import { JETPACK_CONTACT_BETA_SUPPORT } from 'constants/urls';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import ConnectionBanner from 'components/connection-banner';
-import NoticesList from 'components/global-notices';
-import SimpleNotice from 'components/notice';
-import NoticeAction from 'components/notice/notice-action.jsx';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import SocialLogo from 'social-logos';
+import ConnectionBanner from 'components/connection-banner';
+import NoticesList from 'components/global-notices';
+import SimpleNotice from 'components/notice';
+import NoticeAction from 'components/notice/notice-action.jsx';
+import { JETPACK_CONTACT_BETA_SUPPORT } from 'constants/urls';
 import {
 	getSiteConnectionStatus,
 	getSiteOfflineMode,

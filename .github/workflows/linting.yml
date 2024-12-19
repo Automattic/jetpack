@@ -117,9 +117,9 @@ jobs:
               - 'pnpm-lock.yaml'
               - '.eslintignore'
               - '.eslintignore.root'
-              - '.eslintrc.*'
+              - 'eslint.config.*'
               - '**/.eslintignore'
-              - '**/.eslintrc.*'
+              - '**/eslint.config.*'
               # If the excludelist changed, run to ensure newly non-excluded files pass.
               - 'tools/eslint-excludelist.json'
             misc_excludelist:

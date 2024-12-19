@@ -1,9 +1,6 @@
-# Not loaded by default eslint, but we use tools/js-tools/load-eslint-ignore.js in .eslintrc to pull it in.
+# Our standard eslint config reads .gitignore and .eslintignore to determine what to ignore.
 
-/3rd-party/debug-bar/debug-bar.js
-/_inc/jetpack-modules.models.js
-/_inc/postmessage.js
-
+/modules/carousel/swiper-bundle.js
 /modules/custom-css/custom-css/js/core-customizer-css-preview.js
 /modules/custom-css/custom-css/js/core-customizer-css.core-4.9.js
 /modules/custom-css/custom-css/js/core-customizer-css.js

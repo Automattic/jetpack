@@ -4,7 +4,9 @@ import { dispatch, select } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import { waitFor } from '../../wait-for';
+import { GOOGLE_PHOTOS_PICKER_SESSION } from '../constants';
 import { store as mediaStore } from '../store';
+import { PickerSession } from '../store/types';
 import { MediaSource } from './types';
 
 // Pexels constants
@@ -28,7 +30,6 @@ const DEFAULT_GOOGLE_PHOTOS_SEARCH: MediaSearch = {
 /**
  * External media endpoints.
  */
-// eslint-disable-next-line no-shadow
 enum WpcomMediaEndpoints {
 	List = '/wpcom/v2/external-media/list/',
 }
@@ -36,7 +37,6 @@ enum WpcomMediaEndpoints {
 /**
  * WPCOM media type of the WPCOM Media Api.
  */
-// eslint-disable-next-line no-shadow
 enum WpcomMediaItemType {
 	Image = 'image',
 	Video = 'video',
@@ -83,6 +83,20 @@ type WpcomMediaResponse = {
 	found: number;
 	media: WpcomMediaItem[];
 };
+
+/**
+ * wpCookies global variable.
+ */
+declare global {
+	interface Window {
+		wpCookies: {
+			set: ( name: string, value: string, expires: number, path: string, domain?: string ) => void;
+			get: ( name: string ) => string | null;
+		};
+	}
+}
+
+const wpCookies = window.wpCookies;
 
 /**
  * Get media URL for a given MediaSource.
@@ -271,4 +285,43 @@ export const addPexelsToMediaInserter = () => {
  */
 export const authenticateMediaSource = ( source: MediaSource, isAuthenticated: boolean ) => {
 	dispatch( mediaStore ).setAuthenticated( source, isAuthenticated );
+};
+
+/**
+ * Set Google Photos Picker session
+ * @param {PickerSession} session
+ */
+export const setGooglePhotosPickerSession = ( session: PickerSession ) => {
+	setGooglePhotosPickeCachedSessionId( session?.id || null );
+	dispatch( mediaStore ).mediaPhotosPickerSessionSet( session );
+};
+
+/**
+ * Get Google Photos Picker session
+ * @return {PickerSession} Media URL.
+ */
+export const getGooglePhotosPickerSession = () => {
+	return select( mediaStore ).mediaPhotosPickerSession();
+};
+
+/**
+ * Set Google Photos Picker session id to cookies
+ * @param {string|null} sessionId - Session id
+ */
+export const setGooglePhotosPickeCachedSessionId = ( sessionId: string | null ) => {
+	wpCookies.set(
+		GOOGLE_PHOTOS_PICKER_SESSION,
+		sessionId,
+		604800, // 7 days
+		'/',
+		`.${ window.location.hostname.split( '.' ).slice( -2 ).join( '.' ) }`
+	);
+};
+
+/**
+ * Get Google Photos Picker session id from cookies
+ * @return {string | null} Google Photos Picker session id
+ */
+export const getGooglePhotosPickerCachedSessionId = () => {
+	return wpCookies.get( GOOGLE_PHOTOS_PICKER_SESSION );
 };

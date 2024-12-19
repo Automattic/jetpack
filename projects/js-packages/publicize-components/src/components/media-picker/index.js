@@ -65,7 +65,9 @@ export default function MediaPicker( {
 			return (
 				<div className={ clsx( styles[ 'preview-wrapper' ], wrapperClassName ) }>
 					<button className={ styles.remove } onClick={ onRemoveMedia }>
-						<VisuallyHidden>{ __( 'Remove media', 'jetpack' ) }</VisuallyHidden>
+						<VisuallyHidden>
+							{ __( 'Remove media', 'jetpack-publicize-components' ) }
+						</VisuallyHidden>
 						<Icon icon={ closeSmall } />
 					</button>
 					<button
@@ -129,7 +131,9 @@ export default function MediaPicker( {
 				) : (
 					<>
 						<button className={ styles[ 'remove-loading' ] } onClick={ onRemoveMedia }>
-							<VisuallyHidden>{ __( 'Remove media', 'jetpack' ) }</VisuallyHidden>
+							<VisuallyHidden>
+								{ __( 'Remove media', 'jetpack-publicize-components' ) }
+							</VisuallyHidden>
 							<Icon icon={ closeSmall } />
 						</button>
 						<Spinner data-testid="spinner" />

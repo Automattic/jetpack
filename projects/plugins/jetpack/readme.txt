@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, arsihasi, azaozz, barry, batmoo, beaulebens, bindlegirl, biskobe, bjorsch, blobaugh, brbrr, brileyhooper, cainm, cena, cfinke, cgastrell, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, daniloercoli, davoraltman, delawski, designsimply, dkmyta, dllh, drawmyface, dsmart, dun2mis, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, joen, jblz, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lhkowalski, lschuyler, macmanx, martinremy, matt, mattwiebe, matveb, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, miguelxavierpenha, mikeyarce, mkaz, nancythanki, nickmomrik, njweller, nunyvega, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, renatoagds, retrofox, richardmtl, richardmuscat, robertbpugh, roccotripaldi, ryancowles, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, thehenridev, tmoorewp, tyxla, Viper007Bond, westi, williamvianas, wpkaren, yoavf, zinigor
 Tags: Security, backup, malware, scan, performance
-Stable tag: 14.0
+Stable tag: 14.1
 Requires at least: 6.6
 Requires PHP: 7.2
 Tested up to: 6.7
@@ -326,22 +326,18 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.1-a.3 - 2024-11-18
-#### Major Enhancements
-- General: Update minimum PHP version to 7.2.
-- General: Update minimum WordPress version to 6.6.
-
+### 14.2-a.3 - 2024-12-16
 #### Enhancements
-- Social: Added a new toggle for Social UTM tracking.
-- Use wp_register_block_metadata_collection() on WordPress 6.7+ to improve block registration performance by reducing filesystem operations. (See https://core.trac.wordpress.org/changeset/59132)
+- Social: Improved Jetpack likes behavior for better theme integration if the post has likes.
 
 #### Improved compatibility
-- Dashboard: Fix toggle component to prevent console warnings.
+- Jetpack Testimonials: Ensure feature loads via the Classic Theme Helper package instead of the module.
 
 #### Bug fixes
-- Comments: Fix reload after posting.
-- Forms: Fix an error occurring due to a function receiving an unexpected input type.
-- Subscriptions: Fix template preview and edit links for three toggle settings.
+- Facebook Embeds: Add a white background to embeds to avoid transparent background interfering with readability.
+- Form Block: fixed validation of URL input types to allow query strings.
+- Import: Correctly setting the WP_IMPORTING constant when doing an import.
+- SEO: Ensure that SEO fields are not visible when another SEO plugin is active.
 
 --------
 

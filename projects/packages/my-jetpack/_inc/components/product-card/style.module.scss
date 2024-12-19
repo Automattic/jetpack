@@ -5,6 +5,14 @@ $box-shadow-color: rgba( 0, 0, 0, 0.1 );
 .container {
 	position: relative;
 	min-height: 200px;
+	&.has-error {
+		border-width: 1px;
+		border-color: var( --jp-red-50 );
+	}
+	&.has-warning {
+		border-width: 1px;
+		border-color: #DEB100;
+	}
 }
 
 .description {

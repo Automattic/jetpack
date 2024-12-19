@@ -6,20 +6,25 @@ export const MY_JETPACK_PRODUCT_CHECKOUT = 'my-jetpack-product-checkout';
 export const MyJetpackRoutes = {
 	Home: '/',
 	Connection: '/connection',
+	ConnectionSkipPricing: '/connection?skip_pricing=true',
 	AddAkismet: '/add-akismet',
 	AddAntiSpam: '/add-anti-spam', // Old route for Anti Spam
 	AddBackup: '/add-backup',
 	AddBoost: '/add-boost',
+	AddComplete: '/add-complete',
 	AddCRM: '/add-crm',
 	AddJetpackAI: '/add-jetpack-ai',
 	AddExtras: '/add-extras',
+	AddGrowth: '/add-growth',
 	AddProtect: '/add-protect/:feature?',
 	AddScan: '/add-scan',
 	AddSocial: '/add-social',
 	AddSearch: '/add-search',
+	AddSecurity: '/add-security',
 	AddVideoPress: '/add-videopress',
 	AddStats: '/add-stats',
 	AddLicense: '/add-license',
+	JetpackAi: '/jetpack-ai',
 	RedeemToken: '/redeem-token',
 } as const;
 
@@ -35,4 +40,7 @@ export const PRODUCT_STATUSES = {
 	NEEDS_FIRST_SITE_CONNECTION: 'needs_first_site_connection',
 	USER_CONNECTION_ERROR: 'user_connection_error',
 	CAN_UPGRADE: 'can_upgrade',
+	EXPIRING_SOON: 'expiring',
+	EXPIRED: 'expired',
+	NEEDS_ATTENTION: 'needs_attention',
 };

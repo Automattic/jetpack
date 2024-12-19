@@ -9,21 +9,21 @@ import {
 
 export const THREAT_STATUSES: { value: string; label: string; variant?: 'success' | 'warning' }[] =
 	[
-		{ value: 'current', label: __( 'Active', 'jetpack' ), variant: 'warning' },
-		{ value: 'fixed', label: __( 'Fixed', 'jetpack' ), variant: 'success' },
-		{ value: 'ignored', label: __( 'Ignored', 'jetpack' ) },
+		{ value: 'current', label: __( 'Active', 'jetpack-components' ), variant: 'warning' },
+		{ value: 'fixed', label: __( 'Fixed', 'jetpack-components' ), variant: 'success' },
+		{ value: 'ignored', label: __( 'Ignored', 'jetpack-components' ) },
 	];
 
 export const THREAT_TYPES = [
-	{ value: 'plugin', label: __( 'Plugin', 'jetpack' ) },
-	{ value: 'theme', label: __( 'Theme', 'jetpack' ) },
-	{ value: 'core', label: __( 'WordPress', 'jetpack' ) },
-	{ value: 'file', label: __( 'File', 'jetpack' ) },
+	{ value: 'plugins', label: __( 'Plugin', 'jetpack-components' ) },
+	{ value: 'themes', label: __( 'Theme', 'jetpack-components' ) },
+	{ value: 'core', label: __( 'WordPress', 'jetpack-components' ) },
+	{ value: 'file', label: __( 'File', 'jetpack-components' ) },
 ];
 
 export const THREAT_ICONS = {
-	plugin: pluginIcon,
-	theme: themeIcon,
+	plugins: pluginIcon,
+	themes: themeIcon,
 	core: coreIcon,
 	file: fileIcon,
 	default: shieldIcon,

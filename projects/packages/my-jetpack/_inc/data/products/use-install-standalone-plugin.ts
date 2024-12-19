@@ -1,6 +1,5 @@
 import { __, sprintf } from '@wordpress/i18n';
-import { REST_API_SITE_PRODUCTS_ENDPOINT } from '../constants';
-import { QUERY_INSTALL_PRODUCT_KEY } from '../constants';
+import { REST_API_SITE_PRODUCTS_ENDPOINT, QUERY_INSTALL_PRODUCT_KEY } from '../constants';
 import useSimpleMutation from '../use-simple-mutation';
 import useProduct from './use-product';
 

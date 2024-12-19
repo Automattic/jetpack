@@ -24,11 +24,11 @@ import './style.scss';
 
 const renderStaySafeButton = ( callback, isDisabled ) => {
 	return createInterpolateElement(
-		__( 'Or decide later and stay in <button>Safe mode</button>', 'jetpack' ),
+		__( 'Or decide later and stay in <button>Safe mode</button>', 'jetpack-idc' ),
 		{
 			button: (
 				<Button
-					label={ __( 'Safe mode', 'jetpack' ) }
+					label={ __( 'Safe mode', 'jetpack-idc' ) }
 					variant="link"
 					onClick={ callback }
 					disabled={ isDisabled }
@@ -47,7 +47,7 @@ const renderStayingSafe = () => {
 	return (
 		<div className="jp-idc__safe-mode__staying-safe">
 			<Spinner color="black" />
-			<span>{ __( 'Finishing setting up Safe mode…', 'jetpack' ) }</span>
+			<span>{ __( 'Finishing setting up Safe mode…', 'jetpack-idc' ) }</span>
 		</div>
 	);
 };
@@ -62,7 +62,7 @@ const renderError = supportURL => {
 	return (
 		<ErrorMessage>
 			{ createInterpolateElement(
-				__( 'Could not stay in safe mode. Retry or find out more <a>here</a>.', 'jetpack' ),
+				__( 'Could not stay in safe mode. Retry or find out more <a>here</a>.', 'jetpack-idc' ),
 				{
 					a: (
 						<a
@@ -90,7 +90,7 @@ const SafeMode = props => {
 	const [ isStayingSafe, setIsStayingSafe ] = useState( false );
 
 	const buttonLabel =
-		customContent.stayInSafeModeButtonLabel || __( 'Stay in Safe mode', 'jetpack' );
+		customContent.stayInSafeModeButtonLabel || __( 'Stay in Safe mode', 'jetpack-idc' );
 
 	const staySafeCallback = useCallback( () => {
 		if ( ! isActionInProgress ) {
@@ -139,7 +139,7 @@ const SafeMode = props => {
 						<h4>
 							{ customContent.safeModeTitle
 								? createInterpolateElement( customContent.safeModeTitle, { em: <em /> } )
-								: __( 'Stay in Safe Mode', 'jetpack' ) }
+								: __( 'Stay in Safe Mode', 'jetpack-idc' ) }
 						</h4>
 
 						<div>
@@ -151,7 +151,7 @@ const SafeMode = props => {
 											'<list><item>short-lived test sites</item><item>sites that will be cloned back to production after testing</item></list>' +
 											'<p><strong>Please note</strong> that staying in Safe mode will disable some Jetpack features, including security features such as SSO, firewall, and site monitor. ' +
 											'<safeModeLink>Learn more</safeModeLink>.</p>',
-										'jetpack'
+										'jetpack-idc'
 									),
 								{
 									p: <p />,

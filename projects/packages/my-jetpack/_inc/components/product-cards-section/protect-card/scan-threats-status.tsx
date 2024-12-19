@@ -14,7 +14,6 @@ import ShieldOff from './assets/shield-off.svg';
 import ShieldPartial from './assets/shield-partial.svg';
 import ShieldSuccess from './assets/shield-success.svg';
 import { useProtectTooltipCopy } from './use-protect-tooltip-copy';
-import type { PropsWithChildren, ReactElement } from 'react';
 
 export const ScanAndThreatStatus = () => {
 	const slug = 'protect';
@@ -69,11 +68,11 @@ export const ScanAndThreatStatus = () => {
 /**
  * ThreatStatus component
  *
- * @param {PropsWithChildren} props                     - The component props
- * @param {number}            props.numThreats          - The number of threats
- * @param {number}            props.criticalThreatCount - The number of critical threats
+ * @param props                     - The component props
+ * @param props.numThreats          - The number of threats
+ * @param props.criticalThreatCount - The number of critical threats
  *
- * @return {ReactElement} rendered component
+ * @return  rendered component
  */
 function ThreatStatus( {
 	numThreats,
@@ -171,10 +170,10 @@ function ThreatStatus( {
 /**
  * ScanStatus component
  *
- * @param {PropsWithChildren}             props        - The component props
- * @param {'success' | 'partial' | 'off'} props.status - The number of threats
+ * @param props        - The component props
+ * @param props.status - The number of threats
  *
- * @return { ReactElement} rendered component
+ * @return  rendered component
  */
 function ScanStatus( { status }: { status: 'success' | 'partial' | 'off' } ) {
 	const tooltipContent = useProtectTooltipCopy();

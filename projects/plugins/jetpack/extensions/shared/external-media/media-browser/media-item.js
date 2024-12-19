@@ -1,11 +1,17 @@
+import apiFetch from '@wordpress/api-fetch';
 import { Spinner } from '@wordpress/components';
-import { useRef, useEffect } from '@wordpress/element';
+import { useRef, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 
 function MediaItem( props ) {
 	const onClick = event => {
-		const { item, index } = props;
+		const { item, index, imageOnly } = props;
+
+		// Skip non-image items if imageOnly flag is set.
+		if ( item.type !== 'image' && imageOnly ) {
+			return;
+		}
 
 		if ( props.onClick ) {
 			props.onClick( event, { item, index } );
@@ -21,10 +27,49 @@ function MediaItem( props ) {
 		}
 	};
 
-	const { item, focus, isSelected, isCopying = false } = props;
+	const getProxyImageUrl = async url => {
+		try {
+			const response = await apiFetch( {
+				path: `/wpcom/v2/external-media/proxy/google_photos`,
+				method: 'POST',
+				data: { url },
+				parse: false, // Disable automatic parsing
+				responseType: 'blob',
+			} );
+			let blob;
+
+			if ( response instanceof Blob ) {
+				blob = response;
+			} else {
+				blob = await response.blob();
+			}
+
+			const imageObjectUrl = URL.createObjectURL( blob );
+
+			setImageUrl( imageObjectUrl );
+		} catch ( error ) {
+			// eslint-disable-next-line no-console
+			console.error( 'Error fetching proxy image:', error );
+		}
+	};
+
+	const { item, focus, isSelected, isCopying = false, shouldProxyImg } = props;
 	const { thumbnails, caption, name, title, type, children = 0 } = item;
 	const { medium = null, fmt_hd = null, thumbnail = null } = thumbnails;
 	const alt = title || caption || name;
+
+	const [ imageUrl, setImageUrl ] = useState( null );
+
+	useEffect( () => {
+		const _imageUrl = medium || fmt_hd || thumbnail;
+
+		if ( shouldProxyImg && _imageUrl ) {
+			! imageUrl && getProxyImageUrl( _imageUrl );
+		} else {
+			setImageUrl( _imageUrl );
+		}
+	}, [ shouldProxyImg, imageUrl, medium, fmt_hd, thumbnail ] );
+
 	const classes = clsx( {
 		'jetpack-external-media-browser__media__item': true,
 		'jetpack-external-media-browser__media__item__selected': isSelected,
@@ -60,9 +105,7 @@ function MediaItem( props ) {
 					</div>
 				</div>
 			) }
-
-			<img src={ medium || fmt_hd || thumbnail } alt={ alt } />
-
+			{ imageUrl && <img src={ imageUrl } alt={ alt } /> }
 			{ type === 'folder' && (
 				<div className="jetpack-external-media-browser__media__info">
 					<div className="jetpack-external-media-browser__media__name">{ name }</div>

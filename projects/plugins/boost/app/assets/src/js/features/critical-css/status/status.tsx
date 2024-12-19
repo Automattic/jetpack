@@ -11,6 +11,7 @@ import { getProvidersWithErrors } from '../lib/critical-css-errors';
 import ShowStopperError from '../show-stopper-error/show-stopper-error';
 import { Button } from '@automattic/jetpack-components';
 import styles from './status.module.scss';
+import { recordBoostEvent } from '$lib/utils/analytics';
 
 type StatusTypes = {
 	cssState: CriticalCssState;
@@ -37,6 +38,15 @@ const Status: React.FC< StatusTypes > = ( {
 	const successCount =
 		cssState.providers.filter( provider => provider.status === 'success' ).length || 0;
 	const providersWithErrors = getProvidersWithErrors( cssState );
+
+	const handleClickRegenerate = () => {
+		recordBoostEvent( 'critical_css_regenerate_clicked', {} );
+		regenerateAction.mutate();
+	};
+
+	const handleAdvancedClick = () => {
+		recordBoostEvent( 'critical_css_advanced_link_clicked', {} );
+	};
 
 	// If there has been a fatal error, show it.
 	if ( showFatalError ) {
@@ -91,7 +101,7 @@ const Status: React.FC< StatusTypes > = ( {
 									providersWithErrors.length
 								),
 								{
-									advanced: <Link to="/critical-css-advanced" />,
+									advanced: <Link to="/critical-css-advanced" onClick={ handleAdvancedClick } />,
 								}
 							) }
 						</>
@@ -104,7 +114,7 @@ const Status: React.FC< StatusTypes > = ( {
 				variant={ highlightRegenerateButton ? 'primary' : 'link' }
 				size="small"
 				weight="regular"
-				onClick={ () => regenerateAction.mutate() }
+				onClick={ handleClickRegenerate }
 				icon={ highlightRegenerateButton ? undefined : <RefreshIcon /> }
 				disabled={ cssState.status === 'pending' }
 			>

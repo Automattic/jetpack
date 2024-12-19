@@ -457,7 +457,7 @@ export async function handler( argv ) {
 									}
 									throw new Error( 'Output is JSON but not an array' );
 								}
-							} catch ( e2 ) {
+							} catch {
 								if ( argv.v ) {
 									sstdout.write( stdout );
 								}

@@ -7,16 +7,23 @@ type MinifyMetaKeys = ( typeof minifyMetaOptions )[ number ];
 
 export interface Props {
 	datasyncKey: MinifyMetaKeys;
-	inputLabel: string;
 	buttonText: string;
 	placeholder: string;
 }
 
-export const useMetaQuery = ( key: MinifyMetaKeys ) => {
+export const useMetaQuery = ( key: MinifyMetaKeys, onSuccess?: ( newState: string[] ) => void ) => {
 	const [ { data }, { mutate } ] = useDataSync( 'jetpack_boost_ds', key, z.array( z.string() ) );
 
 	function updateValues( text: string ) {
-		mutate( text.split( ',' ).map( item => item.trim() ) );
+		mutate(
+			text.split( ',' ).map( item => item.trim() ),
+			{
+				onSuccess: newState => {
+					// Run the passed on callbacks after the mutation has been applied
+					onSuccess?.( newState );
+				},
+			}
+		);
 	}
 
 	return [ data || [], updateValues ] as const;
