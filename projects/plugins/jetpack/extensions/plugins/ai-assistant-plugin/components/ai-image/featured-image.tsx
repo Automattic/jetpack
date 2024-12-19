@@ -51,11 +51,10 @@ export default function FeaturedImage( {
 	);
 	const siteType = useSiteType();
 	const postContent = usePostContent();
-	const { postTitle, postFeaturedMedia, isEditorPanelOpened } = useSelect( select => {
-		const featuredMediaId = select( editorStore ).getEditedPostAttribute( 'featured_media' );
+	const { postTitle, postFeaturedMediaId, isEditorPanelOpened } = useSelect( select => {
 		return {
 			postTitle: select( editorStore ).getEditedPostAttribute( 'title' ),
-			postFeaturedMedia: featuredMediaId,
+			postFeaturedMediaId: select( editorStore ).getEditedPostAttribute( 'featured_media' ),
 			isEditorPanelOpened:
 				select( editorStore ).isEditorPanelOpened ??
 				( select( 'core/edit-post' ) as EditorSelectors ).isEditorPanelOpened,
@@ -93,7 +92,7 @@ export default function FeaturedImage( {
 	const toggleEditorPanelOpened =
 		toggleEditorPanelOpenedFromEditor ?? toggleEditorPanelOpenedFromEditPost;
 
-	debug( 'postFeatureMedia', postFeaturedMedia );
+	debug( 'postFeaturedMediaId', postFeaturedMediaId );
 
 	const {
 		pointer,
@@ -112,7 +111,7 @@ export default function FeaturedImage( {
 		cost: featuredImageCost,
 		type: 'featured-image-generation',
 		feature: FEATURED_IMAGE_FEATURE_NAME,
-		previousMediaId: postFeaturedMedia,
+		previousMediaId: postFeaturedMediaId,
 	} );
 
 	const handleModalClose = useCallback( () => {
@@ -364,7 +363,7 @@ export default function FeaturedImage( {
 			disabled={
 				! currentImage?.image ||
 				currentImage?.generating ||
-				currentImage?.libraryId === postFeaturedMedia
+				currentImage?.libraryId === postFeaturedMediaId
 			}
 		>
 			{ __( 'Set as featured image', 'jetpack' ) }
@@ -389,7 +388,7 @@ export default function FeaturedImage( {
 			) }
 			<AiImageModal
 				postContent={ hasContent }
-				autoStart={ hasContent && ! postFeaturedMedia }
+				autoStart={ hasContent && ! postFeaturedMediaId }
 				autoStartAction={ handleFirstGenerate }
 				images={ images }
 				currentIndex={ current }
