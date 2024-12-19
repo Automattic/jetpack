@@ -40,12 +40,11 @@ const ThreatFixConfirmation = () => {
 						</>
 					) }
 					<ThreatSummary threat={ threat } />
-					{ /* // TODO: return early in these subcomponents when threat.status is missing - look back at the original logic */ }
 					{ isSingleThreat && <ThreatTechnicalDetails threat={ threat } /> }
 					{ isSingleThreat && <ThreatFixDetails threat={ threat } /> }
 				</div>
 			) ) }
-			{ isSingleThreat && <ThreatIgnoreDetails /> }
+			{ isSingleThreat && currentThreats[ 0 ].status && <ThreatIgnoreDetails /> }
 			{ siteCredentialsNeeded && userConnectionNeeded && (
 				<ThreatNotice
 					title={ 'Additional connections needed' }
