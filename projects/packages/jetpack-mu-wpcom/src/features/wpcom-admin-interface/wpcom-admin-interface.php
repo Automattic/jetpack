@@ -122,6 +122,7 @@ const WPCOM_DUPLICATED_VIEW = array(
 	'tools.php?page=advertising',
 	'edit.php?post_type=jetpack-portfolio',
 	'edit.php?post_type=jetpack-testimonial',
+	'edit-comments.php',
 	'edit-tags.php?taxonomy=category',
 	'edit-tags.php?taxonomy=post_tag',
 );
@@ -193,6 +194,21 @@ function wpcom_admin_get_user_option_jetpack( $value ) {
 add_filter( 'get_user_option_jetpack_admin_menu_preferred_views', 'wpcom_admin_get_user_option_jetpack' );
 add_filter( 'pre_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_get_option', 10 );
 
+add_action(
+	'admin_menu',
+	function () {
+		remove_filter( 'pre_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_get_option' );
+	},
+	PHP_INT_MIN
+);
+
+add_action(
+	'admin_menu',
+	function () {
+		add_filter( 'pre_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_get_option', 10 );
+	},
+	PHP_INT_MAX
+);
 /**
  * Hides the "View" switcher on WP Admin screens enforced by the "Remove duplicate views" experiment.
  */
@@ -477,10 +493,12 @@ function wpcom_show_removed_calypso_screen_notice() {
 	wp_set_script_translations( $handle, 'jetpack-mu-wpcom', Jetpack_Mu_Wpcom::PKG_DIR . 'languages' );
 
 	global $title;
-	$config = wp_json_encode(
+	$clean_title = preg_replace( '/\(\d+\)/', '', $title );
+	$clean_title = trim( $clean_title );
+	$config      = wp_json_encode(
 		array(
 			'imageUrl'     => plugins_url( 'screens/' . sanitize_title( $current_screen ) . '.webp', __FILE__ ),
-			'title'        => $title,
+			'title'        => $clean_title,
 			'screen'       => $current_screen,
 			'ajaxUrl'      => admin_url( 'admin-ajax.php' ),
 			'dismissNonce' => wp_create_nonce( 'wpcom_dismiss_removed_calypso_screen_notice' ),

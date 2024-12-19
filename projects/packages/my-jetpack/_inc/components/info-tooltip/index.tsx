@@ -23,6 +23,7 @@ export const InfoTooltip: FC< Props > = ( {
 	iconSize = 14,
 	tracksEventName,
 	tracksEventProps = {},
+	...rest
 } ) => {
 	const { recordEvent } = useAnalytics();
 	const useTooltipRef = useRef< HTMLButtonElement >();
@@ -66,6 +67,7 @@ export const InfoTooltip: FC< Props > = ( {
 					offset={ 10 }
 					focusOnMount={ 'container' }
 					onClose={ hideTooltip }
+					{ ...rest }
 				>
 					<div className="info-tooltip__content">{ children }</div>
 				</Popover>
