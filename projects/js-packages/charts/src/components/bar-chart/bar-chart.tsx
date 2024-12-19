@@ -30,7 +30,7 @@ const BarChart: FC< BarChartProps > = ( {
 	legendOrientation = 'horizontal',
 	className,
 	showGridX = true,
-	showGridY = true,
+	showGridY = false,
 } ) => {
 	const theme = useChartTheme();
 	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
