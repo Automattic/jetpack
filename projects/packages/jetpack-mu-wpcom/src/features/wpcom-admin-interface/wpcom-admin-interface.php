@@ -125,7 +125,12 @@ const WPCOM_DUPLICATE_VIEW_WITH_TOUR = array(
 	'edit-tags.php?taxonomy=post_tag',
 );
 const WPCOM_DUPLICATED_VIEW = array(
-	...WPCOM_DUPLICATE_VIEW_WITH_TOUR,
+	'edit.php',
+	'edit.php?post_type=jetpack-portfolio',
+	'edit.php?post_type=jetpack-testimonial',
+	'edit-comments.php',
+	'edit-tags.php?taxonomy=category',
+	'edit-tags.php?taxonomy=post_tag',
 	'admin.php?page=stats',
 	'tools.php?page=advertising',
 );
