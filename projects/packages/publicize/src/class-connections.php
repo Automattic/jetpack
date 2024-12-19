@@ -100,9 +100,7 @@ class Connections {
 	public static function fetch_and_cache_connections( $run_tests = false ) {
 		$connections = Connections_Controller::get_connections( $run_tests );
 
-		if ( is_array( $connections ) ) {
-			set_transient( self::CONNECTIONS_TRANSIENT, $connections, HOUR_IN_SECONDS * 4 );
-		}
+		// TODO Implement caching here.
 
 		return $connections;
 	}
