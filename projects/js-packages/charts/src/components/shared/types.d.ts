@@ -108,8 +108,11 @@ export type BaseChartProps< T = DataPoint | DataPointDate > = {
 	legendOrientation?: 'horizontal' | 'vertical';
 };
 
+export type GridVisibilityOptions = 'x' | 'y' | 'xy' | 'none';
+
 export type GridVisibility = {
 	showGridX?: boolean;
 	showGridY?: boolean;
 	className?: string;
+	gridVisibility?: GridVisibilityOptions;
 };
