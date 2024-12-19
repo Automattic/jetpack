@@ -969,7 +969,7 @@ HTML;
 	 * @since 8.7
 	 */
 	public static function get_watl_ad_html_tag( string $slot_type ): string {
-		return "<div class=\"wordads-tag\" data-slot-type=\"$slot_type\" data-tag-origin=\"jetpack\" style=\"display: none;\"></div>";
+		return "<div class=\"wordads-tag\" data-slot-type=\"$slot_type\" style=\"display: none;\"></div>";
 	}
 
 	/**
