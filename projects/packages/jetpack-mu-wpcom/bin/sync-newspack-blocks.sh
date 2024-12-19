@@ -159,7 +159,7 @@ FULLTARGET="$PWD/$TARGET"
 cat > "$TARGET/eslint.config.mjs" <<EOF
 import makeBaseConfig from 'jetpack-js-tools/eslintrc/base.mjs';
 
-// This directory is copy-pasted from elsewhere, but we still need to run this one rule over it so we can't just .eslintignore.
+// This directory is copy-pasted from elsewhere, but we still need to run this one rule over it.
 export default [
 	// Import base config, but no rules.
 	...makeBaseConfig( import.meta.url ).map( block => ( { ...block, rules: {} } ) ),
