@@ -21,8 +21,6 @@ use Jetpack_Options;
  */
 class Publicize_Script_Data {
 
-	const SERVICES_TRANSIENT = 'jetpack_social_services_list';
-
 	/**
 	 * Get the publicize instance - properly typed
 	 *
@@ -160,8 +158,7 @@ class Publicize_Script_Data {
 
 		return array(
 			'connectionData' => array(
-				// We do not have this method on WPCOM Publicize class yet.
-				'connections' => ! $is_wpcom ? self::publicize()->get_all_connections_for_user() : array(),
+				'connections' => Connections::get_all(),
 			),
 			'shareStatus'    => $share_status,
 		);
@@ -238,17 +235,24 @@ class Publicize_Script_Data {
 
 		$is_simple_site = ( new Host() )->is_wpcom_simple();
 
+		$commom_paths = array(
+			'refreshConnections' => '/wpcom/v2/publicize/connections?test_connections=1',
+		);
+
+		$specific_paths = array();
+
 		if ( $is_simple_site ) {
-			return array(
-				'refreshConnections' => '/wpcom/v2/publicize/connection-test-results',
-				'resharePost'        => '/wpcom/v2/posts/{postId}/publicize',
+
+			$specific_paths = array(
+				'resharePost' => '/wpcom/v2/posts/{postId}/publicize',
+			);
+		} else {
+			$specific_paths = array(
+				'resharePost' => '/jetpack/v4/publicize/{postId}',
 			);
 		}
 
-		return array(
-			'refreshConnections' => '/jetpack/v4/publicize/connections?test_connections=1',
-			'resharePost'        => '/jetpack/v4/publicize/{postId}',
-		);
+		return array_merge( $commom_paths, $specific_paths );
 	}
 
 	/**
