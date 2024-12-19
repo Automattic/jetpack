@@ -1,9 +1,10 @@
 import { Col, getRedirectUrl, Text } from '@automattic/jetpack-components';
-import { getSettings as getDateSettings, dateI18n, getDate } from '@wordpress/date';
+import { getSettings as getDateSettings, dateI18n } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
 import { useContext, useEffect, useCallback } from 'react';
 import { NOTICE_PRIORITY_HIGH } from '../../context/constants';
 import { NoticeContext } from '../../context/notices/noticeContext';
+import { applyTimezone } from '../../utils/apply-timezone';
 import preventWidows from '../../utils/prevent-widows';
 import useAnalytics from '../use-analytics';
 import { useGetReadableFailedBackupReason } from './use-get-readable-failed-backup-reason';
@@ -112,17 +113,3 @@ const useBackupNeedsAttentionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 };
 
 export default useBackupNeedsAttentionNotice;
-
-/**
- * Applies local timezone to date (via timezone offset)
- * @param {string} date   - a date string with format like: 2024-12-08T14:41:45.170+00:00
- * @param {number} offset - the timezone offset in hours, like: -3
- *
- * @return {Date} a JavaScript Date object
- */
-function applyTimezone( date: string, offset: number ): Date {
-	const dateObject = getDate( date );
-	dateObject.setHours( dateObject.getHours() + offset );
-
-	return dateObject;
-}

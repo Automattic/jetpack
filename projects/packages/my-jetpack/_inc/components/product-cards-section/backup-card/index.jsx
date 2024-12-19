@@ -154,14 +154,14 @@ const BackupCard = props => {
 						<Text variant="body-small" className="value-section__heading">
 							{ __( 'The last backup attempt failed.', 'jetpack-my-jetpack' ) }
 							<InfoTooltip
-								tracksEventName={ 'protect_card_tooltip_open' }
+								tracksEventName={ 'backup_card_tooltip_open' }
 								tracksEventProps={ {
 									location: 'backup-error',
 									status: status,
 									backup_status: lastBackupStatus,
 									feature: 'jetpack-backup',
-									message: '', //errorDescription,
 								} }
+								expandOnMobile={ true }
 							>
 								<>
 									<h3>{ errorTitle }</h3>
