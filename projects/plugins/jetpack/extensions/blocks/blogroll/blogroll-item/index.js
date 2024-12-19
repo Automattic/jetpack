@@ -1,4 +1,4 @@
-import { InnerBlocks } from '@wordpress/block-editor';
+import { InnerBlocks, useBlockProps } from '@wordpress/block-editor';
 import { __ } from '@wordpress/i18n';
 import { getIconColor } from '../../../shared/block-icons';
 import PlaceholderSiteIcon from '../placeholder-site-icon.svg';
@@ -66,7 +66,15 @@ export const settings = {
 			type: 'string',
 		},
 	},
-	save: () => <InnerBlocks.Content />,
+	save: () => {
+		const blockProps = useBlockProps.save();
+
+		return (
+			<div { ...blockProps }>
+				<InnerBlocks.Content />
+			</div>
+		);
+	},
 	example: {
 		attributes: {
 			// @TODO: Add default values for block attributes, for generating the block preview.

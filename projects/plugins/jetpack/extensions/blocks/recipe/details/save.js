@@ -1,13 +1,14 @@
 /**
  * External dependencies
  */
-import { InnerBlocks } from '@wordpress/block-editor';
+import { InnerBlocks, useBlockProps } from '@wordpress/block-editor';
 
-const RecipeSave = ( { attributes, className } ) => {
+const RecipeSave = ( { attributes } ) => {
 	const { prepTime, prepTimeLabel, cookTime, cookTimeLabel, servings, servingsLabel } = attributes;
+	const blockProps = useBlockProps.save();
 
 	return (
-		<div className={ className }>
+		<div { ...blockProps }>
 			<div className="wp-block-jetpack-recipe-details__detail">
 				<p>{ prepTimeLabel }</p>
 				<p itemProp="prepTime" content={ `PT${ prepTime.toUpperCase() }` }>

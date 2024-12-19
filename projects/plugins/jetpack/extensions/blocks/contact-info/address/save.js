@@ -1,3 +1,4 @@
+import { useBlockProps } from '@wordpress/block-editor';
 import { Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
@@ -56,9 +57,15 @@ export const googleMapsUrl = ( {
 	);
 };
 
-const save = props =>
-	hasAddress( props.attributes ) && (
-		<div className={ props.className }>
+const save = props => {
+	if ( ! hasAddress( props.attributes ) ) {
+		return null;
+	}
+
+	const blockProps = useBlockProps.save();
+
+	return (
+		<div { ...blockProps }>
 			{ props.attributes.linkToGoogleMaps && (
 				<a
 					href={ googleMapsUrl( props ) }
@@ -72,5 +79,6 @@ const save = props =>
 			{ ! props.attributes.linkToGoogleMaps && <Address { ...props } /> }
 		</div>
 	);
+};
 
 export default save;
