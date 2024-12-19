@@ -118,8 +118,6 @@ add_filter( 'pre_update_option_wpcom_admin_interface', 'wpcom_admin_interface_pr
 
 const WPCOM_DUPLICATED_VIEW = array(
 	'edit.php',
-	'admin.php?page=stats',
-	'tools.php?page=advertising',
 	'edit.php?post_type=jetpack-portfolio',
 	'edit.php?post_type=jetpack-testimonial',
 	'edit-comments.php',
@@ -548,3 +546,19 @@ function wpcom_dismiss_removed_calypso_screen_notice() {
 	wp_die();
 }
 add_action( 'wp_ajax_wpcom_dismiss_removed_calypso_screen_notice', 'wpcom_dismiss_removed_calypso_screen_notice' );
+
+/**
+ * Enable the Blaze dashboard (WP-Admin) for users that have the RDV experiment enabled.
+ *
+ * @param $activation_status
+ * @return mixed|true
+ */
+function wpcom_enable_blaze_dashboard_for_experiment( $activation_status ) {
+	if ( ! wpcom_is_duplicate_views_experiment_enabled() ) {
+		return $activation_status;
+	}
+
+	return true;
+}
+
+add_filter( 'jetpack_blaze_dashboard_enable', 'wpcom_enable_blaze_dashboard_for_experiment' );
