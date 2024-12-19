@@ -213,6 +213,7 @@ class WordAds_Smart {
 
 		$config = array(
 			'post_id' => ( $post instanceof WP_Post ) && is_singular( 'post' ) ? $post->ID : null,
+			'origin'  => 'jetpack',
 			'theme'   => get_stylesheet(),
 			'target'  => $this->target_keywords(),
 		) + $this->formats;
