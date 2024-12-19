@@ -584,7 +584,7 @@ class Nova_Restaurant {
 				'_inc/build/custom-post-types/js/menu-checkboxes.min.js',
 				'modules/custom-post-types/js/menu-checkboxes.js'
 			),
-			array( 'jquery' ),
+			array(),
 			$this->version,
 			true
 		);
@@ -1146,7 +1146,7 @@ class Nova_Restaurant {
 				'_inc/build/custom-post-types/js/many-items.min.js',
 				'modules/custom-post-types/js/many-items.js'
 			),
-			array( 'jquery' ),
+			array(),
 			$this->version,
 			true
 		);

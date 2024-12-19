@@ -4,6 +4,7 @@ import clsx from 'clsx';
 import { SVGProps } from 'react';
 import useChartMouseHandler from '../../hooks/use-chart-mouse-handler';
 import { useChartTheme, defaultTheme } from '../../providers/theme';
+import { Legend } from '../legend';
 import { BaseTooltip } from '../tooltip';
 import styles from './pie-chart.module.scss';
 import type { BaseChartProps, DataPoint } from '../shared/types';
@@ -30,6 +31,8 @@ const PieChart = ( {
 	withTooltips = false,
 	innerRadius = 0,
 	className,
+	showLegend,
+	legendOrientation,
 }: PieChartProps ) => {
 	const providerTheme = useChartTheme();
 	const { onMouseMove, onMouseLeave, tooltipOpen, tooltipData, tooltipLeft, tooltipTop } =
@@ -47,6 +50,13 @@ const PieChart = ( {
 		// Use the color property from the data object as a last resort. The theme provides colours by default.
 		fill: d => d.color || providerTheme.colors[ d.index ],
 	};
+
+	// Create legend items from data
+	const legendItems = data.map( ( item, index ) => ( {
+		label: item.label,
+		value: item.value.toString(),
+		color: providerTheme.colors[ index % providerTheme.colors.length ],
+	} ) );
 
 	return (
 		<div className={ clsx( 'pie-chart', styles[ 'pie-chart' ], className ) }>
@@ -99,6 +109,15 @@ const PieChart = ( {
 					</Pie>
 				</Group>
 			</svg>
+
+			{ showLegend && (
+				<Legend
+					items={ legendItems }
+					orientation={ legendOrientation }
+					className={ styles[ 'pie-chart-legend' ] }
+				/>
+			) }
+
 			{ withTooltips && tooltipOpen && tooltipData && (
 				<BaseTooltip
 					data={ tooltipData }

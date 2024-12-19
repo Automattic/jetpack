@@ -1,5 +1,5 @@
 import { Text, H3, Title, Button } from '@automattic/jetpack-components';
-import { dateI18n } from '@wordpress/date';
+import { getDate, dateI18n } from '@wordpress/date';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useCallback } from 'react';
@@ -40,8 +40,16 @@ const PlanSection: FC< PlanSectionProps > = ( { purchase } ) => {
 };
 
 const PlanExpiry: FC< PlanSectionProps > = ( { purchase } ) => {
-	const { ID, expiry_date, expiry_status, product_name, product_slug, subscribed_date, domain } =
-		purchase;
+	const {
+		ID,
+		expiry_date,
+		expiry_status,
+		partner_name,
+		product_name,
+		product_slug,
+		subscribed_date,
+		domain,
+	} = purchase;
 
 	const managePurchaseUrl = `https://wordpress.com/me/purchases/${ domain }/${ ID }`;
 	const renewUrl = `https://wordpress.com/checkout/${ product_slug }/renew/${ ID }/${ domain }`;
@@ -56,14 +64,19 @@ const PlanExpiry: FC< PlanSectionProps > = ( { purchase } ) => {
 	} );
 
 	const expiryMessage = useCallback( () => {
-		const displayDate = dateI18n( 'F jS, Y', expiry_date );
+		const hundredYearDate = getDate( subscribed_date );
+		hundredYearDate.setFullYear( hundredYearDate.getFullYear() + 100 );
+
+		// If expiry_date is null, we'll default to 100 years in the future (same behavior in Store Admin).
+		const expiryDate = dateI18n( 'F jS, Y', expiry_date ?? hundredYearDate );
+
 		if ( isExpiringPurchase ) {
 			// Expiring soon
 			if ( isExpiringSoon ) {
 				return sprintf(
 					// translators: %1$s is the formatted date to display, i.e.- November 24th, 2024
 					__( 'Expiring soon on %1$s', 'jetpack-my-jetpack' ),
-					displayDate
+					expiryDate
 				);
 			}
 
@@ -71,16 +84,24 @@ const PlanExpiry: FC< PlanSectionProps > = ( { purchase } ) => {
 			return sprintf(
 				// translators: %1$s is the formatted date to display, i.e.- November 24th, 2024
 				__( 'Expired on %1$s', 'jetpack-my-jetpack' ),
-				displayDate
+				expiryDate
 			);
 		}
 
+		if ( ! expiry_date && partner_name ) {
+			// This means the subscription was provisioned by a hosting partner.
+			return sprintf(
+				// translators: %1$s is the name of the hosting partner. i.e.- Bluehost, InMotion, Pressable, Jurassic Ninja, etc..
+				__( 'Managed by: %1$s', 'jetpack-my-jetpack' ),
+				partner_name
+			);
+		}
 		return sprintf(
 			// translators: %1$s is the formatted date to display, i.e.- November 24th, 2024
 			__( 'Expires on %1$s', 'jetpack-my-jetpack' ),
-			displayDate
+			expiryDate
 		);
-	}, [ expiry_date, isExpiringPurchase, isExpiringSoon ] );
+	}, [ expiry_date, isExpiringPurchase, isExpiringSoon, partner_name, subscribed_date ] );
 
 	const expiryAction = useCallback( () => {
 		if ( ! isExpiringPurchase ) {
