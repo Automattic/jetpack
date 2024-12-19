@@ -29,6 +29,8 @@ const ThreatNotice = ( {
 	showActions?: boolean;
 } ): JSX.Element => {
 	const {
+		currentThreats,
+		isSingleThreat,
 		userConnectionNeeded,
 		userIsConnecting,
 		handleConnectUser,
@@ -36,6 +38,13 @@ const ThreatNotice = ( {
 		credentialsRedirectUrl,
 		credentialsIsFetching,
 	} = useContext( ThreatsModalContext );
+
+	if (
+		currentThreats.every( threat => ! threat?.status ) ||
+		( isSingleThreat && currentThreats[ 0 ].status === 'fixed' )
+	) {
+		return null;
+	}
 
 	return (
 		<Notice

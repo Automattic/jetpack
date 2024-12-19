@@ -1,3 +1,4 @@
+import { type Threat } from '@automattic/jetpack-scan';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useContext } from 'react';
@@ -5,11 +6,18 @@ import { Text, Button, getRedirectUrl } from '@automattic/jetpack-components';
 import styles from './styles.module.scss';
 import { ThreatsModalContext } from '.';
 
-const ThreatIgnoreDetails = () => {
-	const { isSupportedEnvironment } = useContext( ThreatsModalContext );
+const ThreatIgnoreDetails = ( { threat }: { threat: Threat } ) => {
+	const { actionToConfirm, isSupportedEnvironment } = useContext( ThreatsModalContext );
+
+	if (
+		! threat.status ||
+		[ 'fixed', 'ignored' ].includes( threat.status ) ||
+		[ 'fix', 'unignore' ].includes( actionToConfirm )
+	) {
+		return null;
+	}
 
 	const codeableURL = getRedirectUrl( 'jetpack-protect-codeable-referral' );
-
 	return (
 		<div className={ styles.section }>
 			<Text variant="title-small">

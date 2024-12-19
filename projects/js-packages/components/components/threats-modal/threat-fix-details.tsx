@@ -1,8 +1,9 @@
 import { getFixerDescription, type Threat } from '@automattic/jetpack-scan';
 import { __, sprintf } from '@wordpress/i18n';
-import React, { useMemo } from 'react';
+import React, { useMemo, useContext } from 'react';
 import Text from '../text';
 import styles from './styles.module.scss';
+import { ThreatsModalContext } from '.';
 
 /**
  * ThreatFixDetails component
@@ -13,6 +14,8 @@ import styles from './styles.module.scss';
  * @return {JSX.Element | null} The rendered fix details or null if no fixable details are available.
  */
 const ThreatFixDetails = ( { threat }: { threat: Threat } ): JSX.Element => {
+	const { actionToConfirm } = useContext( ThreatsModalContext );
+
 	const title = useMemo( () => {
 		if ( threat.status === 'fixed' ) {
 			return __( 'How did Jetpack fix it?', 'jetpack-components' );
@@ -39,7 +42,10 @@ const ThreatFixDetails = ( { threat }: { threat: Threat } ): JSX.Element => {
 		return getFixerDescription( threat );
 	}, [ threat ] );
 
-	if ( ! threat.fixable && ! threat.fixedIn ) {
+	if (
+		( ! threat.fixable && ! threat.fixedIn ) ||
+		[ 'ignore', 'unignore' ].includes( actionToConfirm )
+	) {
 		return null;
 	}
 
