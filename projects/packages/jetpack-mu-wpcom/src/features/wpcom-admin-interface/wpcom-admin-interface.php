@@ -118,6 +118,8 @@ add_filter( 'pre_update_option_wpcom_admin_interface', 'wpcom_admin_interface_pr
 
 const WPCOM_DUPLICATED_VIEW = array(
 	'edit.php',
+	'admin.php?page=stats',
+	'tools.php?page=advertising',
 	'edit.php?post_type=jetpack-portfolio',
 	'edit.php?post_type=jetpack-testimonial',
 	'edit-tags.php?taxonomy=category',

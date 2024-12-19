@@ -58,7 +58,8 @@ class Tiled_Gallery {
 		Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
 
 		$is_squareish_layout = self::is_squareish_layout( $attr );
-
+		// For backward compatibility (ensuring Tiled Galleries using now deprecated versions of the block are not affected).
+		// See isVIP() in utils/index.js.
 		$jetpack_plan = Jetpack_Plan::get();
 		wp_localize_script( 'jetpack-gallery-settings', 'jetpack_plan', array( 'data' => $jetpack_plan['product_slug'] ) );
 
