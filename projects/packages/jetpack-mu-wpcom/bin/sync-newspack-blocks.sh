@@ -182,6 +182,12 @@ PHPCSSTANDARDFILE="$TARGET/phpcs.tmp.xml"
 cat > "$PHPCSSTANDARDFILE" <<EOF
 <?xml version="1.0"?>
 <ruleset>
+	<rule ref="Jetpack.Functions.I18n">
+		<properties>
+			<property name="text_domain" value="jetpack-mu-wpcom" />
+		</properties>
+	</rule>
+
 	<rule ref="WordPress.Utils.I18nTextDomainFixer">
 		<properties>
 			<property name="old_text_domain" type="array">
@@ -204,6 +210,8 @@ for block_json_file in "$TARGET"/blocks/*/block.json; do
 	mv "$TMPFILE" "$block_json_file"
 done
 
+echo
+
 # Warn about the need to use ENT_COMPAT.
 echo "Please ensure htmlentities and html_entity_decode use 'ENT_COMPAT'!"
 ent_compat_needed=$(grep -rino 'html_entity_decode\|htmlentities' --include="$TARGET/*.php")
@@ -211,5 +219,5 @@ if [[ -n $ent_compat_needed ]]; then
 	echo 'Detected the below instances:'
 	echo "$ent_compat_needed"
 fi
-
+echo
 echo Sync done.
