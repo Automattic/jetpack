@@ -32,16 +32,18 @@ const ThreatFixConfirmation = () => {
 			{ currentThreats.map( ( threat, index ) => (
 				<div key={ threat.id || index } className={ styles[ 'threat-details' ] }>
 					{ ! isSingleThreat && (
-						<>
-							<div className={ styles.title }>
-								<Text variant="title-small">{ threat.title }</Text>
-								{ !! threat.severity && <ThreatSeverityBadge severity={ threat.severity } /> }
-							</div>
-						</>
+						<div className={ styles.title }>
+							<Text variant="title-small">{ threat.title }</Text>
+							{ !! threat.severity && <ThreatSeverityBadge severity={ threat.severity } /> }
+						</div>
 					) }
 					<ThreatSummary threat={ threat } />
-					{ isSingleThreat && <ThreatTechnicalDetails threat={ threat } /> }
-					{ isSingleThreat && <ThreatFixDetails threat={ threat } /> }
+					{ isSingleThreat && (
+						<>
+							<ThreatTechnicalDetails threat={ threat } />
+							<ThreatFixDetails threat={ threat } />
+						</>
+					) }
 				</div>
 			) ) }
 			{ isSingleThreat && currentThreats[ 0 ].status && <ThreatIgnoreDetails /> }
