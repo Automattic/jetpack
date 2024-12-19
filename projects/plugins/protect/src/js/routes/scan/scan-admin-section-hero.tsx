@@ -29,41 +29,46 @@ import ScanningAdminSectionHero from './scanning-admin-section-hero';
 import styles from './styles.module.scss';
 
 const ScanAdminSectionHero: React.FC = ( { size = 'normal' }: { size?: 'normal' | 'large' } ) => {
+	const [ isSm ] = useBreakpointMatch( 'sm' );
+
 	const { recordEvent } = useAnalyticsTracks();
 	const { hasPlan, upgradePlan } = usePlan();
-	const [ isSm ] = useBreakpointMatch( 'sm' );
-	const { data: status } = useScanStatusQuery();
-	const { isThreatFixInProgress, isThreatFixStale } = useFixers();
+
 	const queryClient = useQueryClient();
 
-	const getScan = useCallback( () => {
-		recordEvent( 'jetpack_protect_scan_header_get_scan_link_click' );
-		upgradePlan();
-	}, [ recordEvent, upgradePlan ] );
+	const { wafSupported, globalStats } = useWafData();
+	const { data: status } = useScanStatusQuery();
 
-	const { globalStats } = useWafData();
-	const totalVulnerabilities = parseInt( globalStats?.totalVulnerabilities );
-	const totalVulnerabilitiesFormatted = isNaN( totalVulnerabilities )
-		? '50,000'
-		: totalVulnerabilities.toLocaleString();
+	const { fixThreats, isThreatFixInProgress, isThreatFixStale } = useFixers();
+	const ignoreThreatMutation = useIgnoreThreatMutation();
+	const unignoreThreatMutation = useUnIgnoreThreatMutation();
 
-	const numThreats = status.threats.length;
+	const { data: credentials, isLoading: credentialsIsFetching } = useCredentialsQuery();
+	const { isUserConnected, hasConnectedOwner, userIsConnecting, handleConnectUser } = useConnection(
+		{
+			redirectUri: 'admin.php?page=jetpack-protect',
+			from: 'scan',
+			autoTrigger: false,
+			skipUserConnection: false,
+			skipPricingPage: true,
+		}
+	);
 
 	// Popover anchor
 	const [ dailyScansPopoverAnchor, setDailyScansPopoverAnchor ] = useState( null );
 	const [ showAutoFixersPopoverAnchor, setShowAutoFixersPopoverAnchor ] = useState( null );
 
-	// List of fixable threats that do not have a fix in progress
-	const fixableList = useMemo( () => {
-		return status.threats.filter( threat => {
-			const threatId = typeof threat.id === 'string' ? parseInt( threat.id ) : threat.id;
-			return (
-				threat.fixable && ! isThreatFixInProgress( threatId ) && ! isThreatFixStale( threatId )
-			);
-		} );
-	}, [ status.threats, isThreatFixInProgress, isThreatFixStale ] );
+	const [ showModal, setShowModal ] = useState( false );
+
+	const { siteSuffix, blogID } = window.jetpackProtectInitialState;
+
+	const totalVulnerabilities = parseInt( globalStats?.totalVulnerabilities );
+	const totalVulnerabilitiesFormatted = isNaN( totalVulnerabilities )
+		? '50,000'
+		: totalVulnerabilities.toLocaleString();
 
 	const scanning = isScanInProgress( status );
+	const numThreats = status.threats.length;
 
 	let lastCheckedLocalTimestamp = null;
 	if ( status.lastChecked ) {
@@ -93,24 +98,20 @@ const ScanAdminSectionHero: React.FC = ( { size = 'normal' }: { size?: 'normal' 
 		}
 	}
 
-	const { siteSuffix, blogID } = window.jetpackProtectInitialState;
-	const [ showModal, setShowModal ] = useState( false );
-	const { wafSupported } = useWafData();
+	// List of fixable threats that do not have a fix in progress
+	const fixableList = useMemo( () => {
+		return status.threats.filter( threat => {
+			const threatId = typeof threat.id === 'string' ? parseInt( threat.id ) : threat.id;
+			return (
+				threat.fixable && ! isThreatFixInProgress( threatId ) && ! isThreatFixStale( threatId )
+			);
+		} );
+	}, [ status.threats, isThreatFixInProgress, isThreatFixStale ] );
 
-	const { fixThreats } = useFixers();
-	const ignoreThreatMutation = useIgnoreThreatMutation();
-	const unignoreThreatMutation = useUnIgnoreThreatMutation();
-
-	const { data: credentials, isLoading: credentialsIsFetching } = useCredentialsQuery();
-	const { isUserConnected, hasConnectedOwner, userIsConnecting, handleConnectUser } = useConnection(
-		{
-			redirectUri: 'admin.php?page=jetpack-protect',
-			from: 'scan',
-			autoTrigger: false,
-			skipUserConnection: false,
-			skipPricingPage: true,
-		}
-	);
+	const getScan = useCallback( () => {
+		recordEvent( 'jetpack_protect_scan_header_get_scan_link_click' );
+		upgradePlan();
+	}, [ recordEvent, upgradePlan ] );
 
 	const handleFixClick = useCallback(
 		async ( threats: Threat[] ) => {
