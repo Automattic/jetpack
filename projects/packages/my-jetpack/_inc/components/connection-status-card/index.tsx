@@ -294,7 +294,6 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 			event: 'jetpack_myjetpack_connection_connect_site',
 			properties: tracksEventData,
 		},
-		shouldScrollToTop: true,
 	} );
 
 	const getConnectionLineStyles = () => {

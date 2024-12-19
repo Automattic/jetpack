@@ -14,10 +14,9 @@ interface useConnectSiteProps {
 		event: TracksEvent;
 		properties: TracksProperties;
 	};
-	shouldScrollToTop?: boolean;
 }
 
-const useConnectSite = ( { tracksInfo, shouldScrollToTop = false }: useConnectSiteProps ) => {
+const useConnectSite = ( { tracksInfo }: useConnectSiteProps ) => {
 	const { event, properties: tracksEventData } = tracksInfo;
 
 	const { setNotice, resetNotice } = useContext( NoticeContext );
@@ -42,13 +41,11 @@ const useConnectSite = ( { tracksInfo, shouldScrollToTop = false }: useConnectSi
 		async ( e: MouseEvent< HTMLButtonElement > ) => {
 			e && e.preventDefault();
 
-			if ( shouldScrollToTop ) {
-				window.scrollTo( {
-					top: 0,
-					left: 0,
-					behavior: 'smooth',
-				} );
-			}
+			window.scrollTo( {
+				top: 0,
+				left: 0,
+				behavior: 'smooth',
+			} );
 
 			recordEvent( `${ event }_click`, tracksEventData );
 
@@ -73,7 +70,6 @@ const useConnectSite = ( { tracksInfo, shouldScrollToTop = false }: useConnectSi
 			setNotice,
 			tracksEventData,
 			event,
-			shouldScrollToTop,
 		]
 	);
 
