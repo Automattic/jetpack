@@ -9,6 +9,7 @@ namespace Automattic\Woocommerce_Analytics;
 
 use WC_Order;
 use WC_Product;
+use WP_Post;
 
 /**
  * Filters and Actions added to Store pages to perform analytics
@@ -209,6 +210,12 @@ class Universal {
 	 * On the Checkout page, trigger an event for each product in the cart
 	 */
 	public function checkout_process() {
+		global $post;
+
+		if ( ! $post instanceof WP_Post ) {
+			return;
+		}
+
 		$checkout_page_id    = wc_get_page_id( 'checkout' );
 		$cart                = WC()->cart->get_cart();
 		$is_in_checkout_page = $checkout_page_id && is_page( $checkout_page_id ) ? 'Yes' : 'No';
