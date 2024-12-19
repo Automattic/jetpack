@@ -82,23 +82,23 @@ export default function useAiImage( {
 	}, [] );
 
 	// the selec/useEffect combo...
-	const currentFeaturedMedia = useSelect(
+	const loadedMedia = useSelect(
 		( select: ( store ) => CoreSelectors ) => select( 'core' )?.getMedia?.( previousMediaId ),
 		[ previousMediaId ]
 	);
 	useEffect( () => {
-		if ( currentFeaturedMedia ) {
+		if ( loadedMedia ) {
 			updateImages(
 				{
-					image: currentFeaturedMedia.source_url,
-					libraryId: currentFeaturedMedia.id,
-					libraryUrl: currentFeaturedMedia.source_url,
+					image: loadedMedia.source_url,
+					libraryId: loadedMedia.id,
+					libraryUrl: loadedMedia.source_url,
 					generating: false,
 				},
 				pointer.current
 			);
 		}
-	}, [ currentFeaturedMedia, updateImages ] );
+	}, [ loadedMedia, updateImages ] );
 
 	/*
 	 * Function to show a snackbar notice on the editor.
