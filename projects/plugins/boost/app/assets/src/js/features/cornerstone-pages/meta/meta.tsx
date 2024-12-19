@@ -157,7 +157,6 @@ const List: React.FC< ListProps > = ( {
 	const premiumFeatures = usePremiumFeatures();
 	const isPremium = premiumFeatures.includes( 'cornerstone-10-pages' );
 	const cornerstonePagesProperties = useCornerstonePagesProperties();
-	const { setNotice } = useNotices();
 	const validateInputValue = ( value: string ) => {
 		setInputValue( value );
 		try {
@@ -226,11 +225,6 @@ const List: React.FC< ListProps > = ( {
 	function loadDefaultValue() {
 		validateInputValue( defaultValue );
 		recordBoostEvent( 'cornerstone_pages_load_default', {} );
-		setNotice( {
-			id: 'cornerstone-pages-load-default',
-			type: 'success',
-			message: __( 'Default pages loaded', 'jetpack-boost' ),
-		} );
 	}
 
 	return (
