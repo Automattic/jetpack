@@ -17,8 +17,8 @@ import { useCallback, useMemo, useState } from 'react';
 import { Button } from '@automattic/jetpack-components';
 import Badge from '../badge';
 import ThreatFixerButton from '../threat-fixer-button';
-import ThreatModal from '../threat-modal';
 import ThreatSeverityBadge from '../threat-severity-badge';
+import ThreatsModal from '../threats-modal';
 import {
 	THREAT_ACTION_IGNORE,
 	THREAT_ACTION_UNIGNORE,
@@ -568,8 +568,9 @@ export default function ThreatsDataViews( {
 				}
 			/>
 			{ openThreat ? (
-				<ThreatModal
-					threat={ openThreat }
+				<ThreatsModal
+					currentThreats={ [ openThreat ] }
+					actionToConfirm={ actionToConfirm }
 					isSupportedEnvironment={ isSupportedEnvironment }
 					isUserConnected={ isUserConnected }
 					hasConnectedOwner={ hasConnectedOwner }
@@ -583,7 +584,6 @@ export default function ThreatsDataViews( {
 					handleIgnoreThreatClick={ onIgnoreThreats }
 					handleUnignoreThreatClick={ onUnignoreThreats }
 					onRequestClose={ hideThreatModal }
-					actionToConfirm={ actionToConfirm }
 				/>
 			) : null }
 		</>

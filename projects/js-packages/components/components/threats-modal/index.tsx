@@ -5,48 +5,51 @@ import Text from '../text';
 import ThreatSeverityBadge from '../threat-severity-badge';
 import styles from './styles.module.scss';
 import ThreatFixConfirmation from './threat-fix-confirmation';
+
 interface ThreatModalContextType {
 	closeModal: () => void;
-	threat: Threat;
-	isSupportedEnvironment: boolean;
+	currentThreats: Threat[];
+	isSingleThreat: boolean;
 	actionToConfirm: string | null;
-	handleUpgradeClick?: () => void;
+	isSupportedEnvironment: boolean;
 	userConnectionNeeded: boolean;
 	handleConnectUser: () => void;
 	userIsConnecting: boolean;
 	siteCredentialsNeeded: boolean;
 	credentialsIsFetching: boolean;
 	credentialsRedirectUrl: string;
+	handleUpgradeClick?: () => void;
 	handleFixThreatClick?: ( threats: Threat[] ) => void;
 	handleIgnoreThreatClick?: ( threats: Threat[] ) => void;
 	handleUnignoreThreatClick?: ( threats: Threat[] ) => void;
 }
 
-export const ThreatModalContext = createContext< ThreatModalContextType | null >( null );
+export const ThreatsModalContext = createContext< ThreatModalContextType | null >( null );
 
 /**
- * ThreatModal component
+ * ThreatsModal component
  *
- * @param {object}   props                           - The props.
- * @param {object}   props.threat                    - The threat.
- * @param {boolean}  props.isSupportedEnvironment    - Whether the environment is supported.
- * @param {boolean}  props.isUserConnected           - Whether the user is connected.
- * @param {boolean}  props.hasConnectedOwner         - Whether the user has a connected owner.
- * @param {boolean}  props.userIsConnecting          - Whether the user is connecting.
- * @param {Function} props.handleConnectUser         - The handleConnectUser function.
- * @param {object}   props.credentials               - The credentials.
- * @param {boolean}  props.credentialsIsFetching     - Whether the credentials are fetching.
- * @param {string}   props.credentialsRedirectUrl    - The credentials redirect URL.
- * @param {Function} props.handleUpgradeClick        - The handleUpgradeClick function.
- * @param {Function} props.handleFixThreatClick      - The handleFixThreatClick function.
- * @param {Function} props.handleIgnoreThreatClick   - The handleIgnoreThreatClick function.
- * @param {Function} props.handleUnignoreThreatClick - The handleUnignoreThreatClick function.
- * @param {string}   props.actionToConfirm           - The action to confirm.
+ * @param {object}       props                           - The props.
+ * @param {Threat[]}     props.currentThreats            - The fixable threats.
+ * @param {boolean|null} props.actionToConfirm           - The action to confirm.
+ * @param {boolean}      props.isSupportedEnvironment    - Whether the environment is supported.
+ * @param {boolean}      props.isUserConnected           - Whether the user is connected.
+ * @param {boolean}      props.hasConnectedOwner         - Whether the user has a connected owner.
+ * @param {boolean}      props.userIsConnecting          - Whether the user is connecting.
+ * @param {Function}     props.handleConnectUser         - The handleConnectUser function.
+ * @param {object}       props.credentials               - The credentials.
+ * @param {boolean}      props.credentialsIsFetching     - Whether the credentials are fetching.
+ * @param {string}       props.credentialsRedirectUrl    - The credentials redirect URL.
+ * @param {Function}     props.handleUpgradeClick        - The handleUpgradeClick function.
+ * @param {Function}     props.handleFixThreatClick      - The handleFixThreatClick function.
+ * @param {Function}     props.handleIgnoreThreatClick   - The handleIgnoreThreatClick function.
+ * @param {Function}     props.handleUnignoreThreatClick - The handleUnignoreThreatClick function.
  *
- * @return {JSX.Element} The threat modal.
+ * @return {JSX.Element} The threats modal.
  */
-export default function ThreatModal( {
-	threat,
+export default function ThreatsModal( {
+	currentThreats,
+	actionToConfirm,
 	isSupportedEnvironment,
 	isUserConnected,
 	hasConnectedOwner,
@@ -59,10 +62,10 @@ export default function ThreatModal( {
 	handleFixThreatClick,
 	handleIgnoreThreatClick,
 	handleUnignoreThreatClick,
-	actionToConfirm,
 	...modalProps
 }: {
-	threat: Threat;
+	currentThreats: Threat[];
+	actionToConfirm: string | null;
 	isSupportedEnvironment: boolean;
 	isUserConnected: boolean;
 	hasConnectedOwner: boolean;
@@ -75,43 +78,52 @@ export default function ThreatModal( {
 	handleFixThreatClick?: ( threats: Threat[] ) => void;
 	handleIgnoreThreatClick?: ( threats: Threat[] ) => void;
 	handleUnignoreThreatClick?: ( threats: Threat[] ) => void;
-	actionToConfirm: string | null;
 } & React.ComponentProps< typeof Modal > ): JSX.Element {
 	const userConnectionNeeded = ! isUserConnected || ! hasConnectedOwner;
 	const siteCredentialsNeeded = ! credentials || credentials.length === 0;
+	const isSingleThreat = currentThreats.length === 1;
 
 	return (
 		<Modal
 			title={
 				<div className={ styles.title }>
-					<Text variant="title-small">{ threat.title }</Text>
-					{ !! threat.severity && <ThreatSeverityBadge severity={ threat.severity } /> }
+					{ isSingleThreat ? (
+						<div className={ styles.title }>
+							<Text variant="title-small">{ currentThreats[ 0 ].title }</Text>
+							{ !! currentThreats[ 0 ].severity && (
+								<ThreatSeverityBadge severity={ currentThreats[ 0 ].severity } />
+							) }
+						</div>
+					) : (
+						<Text variant="title-small">{ 'Auto-fixable threats' }</Text>
+					) }
 				</div>
 			}
 			size="large"
 			{ ...modalProps }
 		>
 			<div className={ styles[ 'threat-details' ] }>
-				<ThreatModalContext.Provider
+				<ThreatsModalContext.Provider
 					value={ {
 						closeModal: modalProps.onRequestClose,
-						threat,
-						isSupportedEnvironment,
+						currentThreats,
+						isSingleThreat,
 						actionToConfirm,
-						handleUpgradeClick,
+						isSupportedEnvironment,
 						userConnectionNeeded,
 						handleConnectUser,
 						userIsConnecting,
 						siteCredentialsNeeded,
 						credentialsIsFetching,
 						credentialsRedirectUrl,
+						handleUpgradeClick,
 						handleFixThreatClick,
 						handleIgnoreThreatClick,
 						handleUnignoreThreatClick,
 					} }
 				>
 					<ThreatFixConfirmation />
-				</ThreatModalContext.Provider>
+				</ThreatsModalContext.Provider>
 			</div>
 		</Modal>
 	);

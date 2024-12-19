@@ -1,18 +1,18 @@
+import { type Threat } from '@automattic/jetpack-scan';
 import { __ } from '@wordpress/i18n';
-import { useContext } from 'react';
 import { Button } from '@automattic/jetpack-components';
 import Text from '../text';
 import styles from './styles.module.scss';
-import { ThreatModalContext } from '.';
 
 /**
  * ThreatSummary component
  *
+ * @param {object} props        - The props.
+ * @param {Threat} props.threat - The threat.
+ *
  * @return {JSX.Element} The rendered threat summary.
  */
-const ThreatSummary = (): JSX.Element => {
-	const { threat } = useContext( ThreatModalContext );
-
+const ThreatSummary = ( { threat }: { threat: Threat } ): JSX.Element => {
 	return (
 		<div className={ styles.section }>
 			{ !! threat.description && <Text>{ threat.description }</Text> }

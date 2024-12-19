@@ -1,13 +1,16 @@
 import { __ } from '@wordpress/i18n';
 import { useContext } from 'react';
 import ContextualUpgradeTrigger from '../contextual-upgrade-trigger';
+import Text from '../text';
+import ThreatSeverityBadge from '../threat-severity-badge';
+import styles from './styles.module.scss';
 import ThreatActions from './threat-actions';
 import ThreatFixDetails from './threat-fix-details';
 import ThreatIgnoreDetails from './threat-ignore-details';
 import ThreatNotice from './threat-notice';
 import ThreatSummary from './threat-summary';
 import ThreatTechnicalDetails from './threat-technical-details';
-import { ThreatModalContext } from '.';
+import { ThreatsModalContext } from '.';
 
 /**
  * ThreatFixConfirmation component
@@ -15,14 +18,34 @@ import { ThreatModalContext } from '.';
  * @return {JSX.Element} The rendered fix confirmation.
  */
 const ThreatFixConfirmation = () => {
-	const { actionToConfirm, userConnectionNeeded, siteCredentialsNeeded, handleUpgradeClick } =
-		useContext( ThreatModalContext );
+	const {
+		currentThreats,
+		isSingleThreat,
+		// actionToConfirm,
+		userConnectionNeeded,
+		siteCredentialsNeeded,
+		handleUpgradeClick,
+	} = useContext( ThreatsModalContext );
+
 	return (
 		<>
-			<ThreatSummary />
-			<ThreatTechnicalDetails />
-			{ [ 'all', 'fix' ].includes( actionToConfirm ) && <ThreatFixDetails /> }
-			{ [ 'all', 'ignore' ].includes( actionToConfirm ) && <ThreatIgnoreDetails /> }
+			{ currentThreats.map( ( threat, index ) => (
+				<div key={ threat.id || index } className={ styles[ 'threat-details' ] }>
+					{ ! isSingleThreat && (
+						<>
+							<div className={ styles.title }>
+								<Text variant="title-small">{ threat.title }</Text>
+								{ !! threat.severity && <ThreatSeverityBadge severity={ threat.severity } /> }
+							</div>
+						</>
+					) }
+					<ThreatSummary threat={ threat } />
+					{ /* // TODO: return early in these subcomponents when threat.status is missing - look back at the original logic */ }
+					{ isSingleThreat && <ThreatTechnicalDetails threat={ threat } /> }
+					{ isSingleThreat && <ThreatFixDetails threat={ threat } /> }
+				</div>
+			) ) }
+			{ isSingleThreat && <ThreatIgnoreDetails /> }
 			{ siteCredentialsNeeded && userConnectionNeeded && (
 				<ThreatNotice
 					title={ 'Additional connections needed' }

@@ -1,4 +1,12 @@
-import { Text, Button, useBreakpointMatch } from '@automattic/jetpack-components';
+import {
+	Text,
+	Button,
+	useBreakpointMatch,
+	ThreatsModal,
+	getRedirectUrl,
+} from '@automattic/jetpack-components';
+import { useConnection } from '@automattic/jetpack-connection';
+import { type Threat } from '@automattic/jetpack-scan';
 import { Tooltip } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
 import { __, _n, sprintf } from '@wordpress/i18n';
@@ -7,10 +15,12 @@ import { useCallback, useState, useMemo } from 'react';
 import AdminSectionHero from '../../components/admin-section-hero';
 import ErrorAdminSectionHero from '../../components/error-admin-section-hero';
 import OnboardingPopover from '../../components/onboarding-popover';
+import useIgnoreThreatMutation from '../../data/scan/use-ignore-threat-mutation';
 import useScanStatusQuery, { isScanInProgress } from '../../data/scan/use-scan-status-query';
+import useUnIgnoreThreatMutation from '../../data/scan/use-unignore-threat-mutation';
+import useCredentialsQuery from '../../data/use-credentials-query';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import useFixers from '../../hooks/use-fixers';
-import useModal from '../../hooks/use-modal';
 import usePlan from '../../hooks/use-plan';
 import useWafData from '../../hooks/use-waf-data';
 import ScanningAdminSectionHero from './scanning-admin-section-hero';
@@ -19,7 +29,6 @@ import styles from './styles.module.scss';
 const ScanAdminSectionHero: React.FC = ( { size = 'normal' }: { size?: 'normal' | 'large' } ) => {
 	const { recordEvent } = useAnalyticsTracks();
 	const { hasPlan, upgradePlan } = usePlan();
-	const { setModal } = useModal();
 	const [ isSm ] = useBreakpointMatch( 'sm' );
 	const { data: status } = useScanStatusQuery();
 	const { isThreatFixInProgress, isThreatFixStale } = useFixers();
@@ -81,15 +90,49 @@ const ScanAdminSectionHero: React.FC = ( { size = 'normal' }: { size?: 'normal' 
 		}
 	}
 
-	const handleShowAutoFixersClick = threatList => {
-		return event => {
-			event.preventDefault();
-			setModal( {
-				type: 'FIX_ALL_THREATS',
-				props: { threatList },
-			} );
-		};
-	};
+	const { siteSuffix, blogID } = window.jetpackProtectInitialState;
+	const [ showModal, setShowModal ] = useState( false );
+	const { wafSupported } = useWafData();
+
+	const { fixThreats } = useFixers();
+	const ignoreThreatMutation = useIgnoreThreatMutation();
+	const unignoreThreatMutation = useUnIgnoreThreatMutation();
+
+	const { data: credentials, isLoading: credentialsIsFetching } = useCredentialsQuery();
+	const { isUserConnected, hasConnectedOwner, userIsConnecting, handleConnectUser } = useConnection(
+		{
+			redirectUri: 'admin.php?page=jetpack-protect',
+			from: 'scan',
+			autoTrigger: false,
+			skipUserConnection: false,
+			skipPricingPage: true,
+		}
+	);
+
+	const handleFixClick = useCallback(
+		async ( threats: Threat[] ) => {
+			await fixThreats( [ threats[ 0 ].id as number ] );
+		},
+		[ fixThreats ]
+	);
+
+	const handleIgnoreClick = useCallback(
+		async ( threats: Threat[] ) => {
+			await ignoreThreatMutation.mutateAsync( threats[ 0 ].id );
+		},
+		[ ignoreThreatMutation ]
+	);
+
+	const handleUnignoreClick = useCallback(
+		async ( threats: Threat[] ) => {
+			await unignoreThreatMutation.mutateAsync( threats[ 0 ].id );
+		},
+		[ unignoreThreatMutation ]
+	);
+
+	const toggleModal = useCallback( () => {
+		setShowModal( ! showModal );
+	}, [ showModal ] );
 
 	if ( scanning ) {
 		return <ScanningAdminSectionHero size={ size } />;
@@ -163,7 +206,7 @@ const ScanAdminSectionHero: React.FC = ( { size = 'normal' }: { size?: 'normal' 
 				{ fixableList.length > 0 && (
 					<>
 						<div className={ styles[ 'auto-fixers' ] } ref={ setShowAutoFixersPopoverAnchor }>
-							<Button onClick={ handleShowAutoFixersClick( fixableList ) }>
+							<Button onClick={ toggleModal }>
 								{ sprintf(
 									/* translators: Translates to Show auto fixers $s: Number of fixable threats. */
 									__( 'Show auto fixers (%s)', 'jetpack-protect' ),
@@ -171,6 +214,25 @@ const ScanAdminSectionHero: React.FC = ( { size = 'normal' }: { size?: 'normal' 
 								) }
 							</Button>
 						</div>
+						{ showModal && (
+							<ThreatsModal
+								currentThreats={ fixableList }
+								isSupportedEnvironment={ wafSupported }
+								isUserConnected={ isUserConnected }
+								hasConnectedOwner={ hasConnectedOwner }
+								userIsConnecting={ userIsConnecting }
+								handleConnectUser={ handleConnectUser }
+								credentials={ credentials }
+								credentialsIsFetching={ credentialsIsFetching }
+								credentialsRedirectUrl={ getRedirectUrl( 'jetpack-settings-security-credentials', {
+									site: String( blogID ?? siteSuffix ),
+								} ) }
+								handleFixThreatClick={ handleFixClick }
+								handleIgnoreThreatClick={ handleIgnoreClick }
+								handleUnignoreThreatClick={ handleUnignoreClick }
+								onRequestClose={ toggleModal }
+							/>
+						) }
 						<OnboardingPopover
 							id="paid-fix-all-threats"
 							position={ isSm ? 'bottom right' : 'middle right' }

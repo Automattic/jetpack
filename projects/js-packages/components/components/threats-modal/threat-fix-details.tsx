@@ -1,18 +1,18 @@
-import { getFixerDescription } from '@automattic/jetpack-scan';
+import { getFixerDescription, type Threat } from '@automattic/jetpack-scan';
 import { __, sprintf } from '@wordpress/i18n';
-import React, { useMemo, useContext } from 'react';
+import React, { useMemo } from 'react';
 import Text from '../text';
 import styles from './styles.module.scss';
-import { ThreatModalContext } from '.';
 
 /**
  * ThreatFixDetails component
  *
+ * @param {object} props        - The props.
+ * @param {Threat} props.threat - The threat.
+ *
  * @return {JSX.Element | null} The rendered fix details or null if no fixable details are available.
  */
-const ThreatFixDetails = (): JSX.Element => {
-	const { threat } = useContext( ThreatModalContext );
-
+const ThreatFixDetails = ( { threat }: { threat: Threat } ): JSX.Element => {
 	const title = useMemo( () => {
 		if ( threat.status === 'fixed' ) {
 			return __( 'How did Jetpack fix it?', 'jetpack-components' );

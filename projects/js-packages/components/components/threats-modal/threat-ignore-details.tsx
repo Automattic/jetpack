@@ -3,14 +3,10 @@ import { __ } from '@wordpress/i18n';
 import { useContext } from 'react';
 import { Text, Button, getRedirectUrl } from '@automattic/jetpack-components';
 import styles from './styles.module.scss';
-import { ThreatModalContext } from '.';
+import { ThreatsModalContext } from '.';
 
 const ThreatIgnoreDetails = () => {
-	const { threat, isSupportedEnvironment } = useContext( ThreatModalContext );
-
-	if ( ! threat?.status || [ 'ignored', 'fixed' ].includes( threat.status ) ) {
-		return null;
-	}
+	const { isSupportedEnvironment } = useContext( ThreatsModalContext );
 
 	const codeableURL = getRedirectUrl( 'jetpack-protect-codeable-referral' );
 

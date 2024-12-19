@@ -4,7 +4,7 @@ import { Icon, warning } from '@wordpress/icons';
 import { useContext } from 'react';
 import { Text, Button } from '@automattic/jetpack-components';
 import styles from './styles.module.scss';
-import { ThreatModalContext } from '.';
+import { ThreatsModalContext } from '.';
 
 /**
  * ThreatNotice component
@@ -29,18 +29,13 @@ const ThreatNotice = ( {
 	showActions?: boolean;
 } ): JSX.Element => {
 	const {
-		threat,
 		userConnectionNeeded,
 		userIsConnecting,
 		handleConnectUser,
 		siteCredentialsNeeded,
 		credentialsRedirectUrl,
 		credentialsIsFetching,
-	} = useContext( ThreatModalContext );
-
-	if ( ! threat?.status || threat.status === 'fixed' ) {
-		return null;
-	}
+	} = useContext( ThreatsModalContext );
 
 	return (
 		<Notice
