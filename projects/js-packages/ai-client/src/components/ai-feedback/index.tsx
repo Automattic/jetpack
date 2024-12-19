@@ -55,26 +55,28 @@ export default function AiFeedbackThumbs( {
 	const [ itemsRated, setItemsRated ] = useState( {} );
 	const { tracks } = useAnalytics();
 
-	const rateAI = ( isThumbsUp: boolean ) => {
-		const aiRating = isThumbsUp ? 'thumbs-up' : 'thumbs-down';
-
-		setItemsRated( {
-			...itemsRated,
-			[ ratedItem ]: aiRating,
-		} );
-
-		tracks.recordEvent( 'jetpack_ai_feedback', {
-			type: feature,
-			rating: aiRating,
-		} );
-	};
-
 	const checkThumb = ( thumbValue: string ) => {
 		if ( ! itemsRated[ ratedItem ] ) {
 			return false;
 		}
 
 		return itemsRated[ ratedItem ] === thumbValue;
+	};
+
+	const rateAI = ( isThumbsUp: boolean ) => {
+		const aiRating = isThumbsUp ? 'thumbs-up' : 'thumbs-down';
+
+		if ( ! checkThumb( aiRating ) ) {
+			setItemsRated( {
+				...itemsRated,
+				[ ratedItem ]: aiRating,
+			} );
+
+			tracks.recordEvent( 'jetpack_ai_feedback', {
+				type: feature,
+				rating: aiRating,
+			} );
+		}
 	};
 
 	return (
