@@ -32,9 +32,12 @@ function wpcom_page_quick_actions( $actions, $page ) {
 		return $actions;
 	}
 
-	$set_homepage_action = 'set-homepage';
+	$set_homepage_action   = 'set-homepage';
+	$set_posts_page_action = 'set-posts-page';
 
-	$set_homepage_link = add_query_arg( array( $set_homepage_action => $page->ID ) );
+	$cleaned_current_url = remove_query_arg( array( $set_homepage_action, $set_posts_page_action, '_wpnonce' ) );
+
+	$set_homepage_link = add_query_arg( $set_homepage_action, $page->ID, $cleaned_current_url );
 	$set_homepage_link = wp_nonce_url( $set_homepage_link, $set_homepage_action . '_' . $page->ID );
 
 	$actions[ $set_homepage_action ] = sprintf(
@@ -45,10 +48,9 @@ function wpcom_page_quick_actions( $actions, $page ) {
 		esc_html( __( 'Set as homepage', 'jetpack-mu-wpcom' ) )
 	);
 
-	$set_posts_page_action = 'set-posts-page';
-	$new_posts_page        = $is_posts_page ? 0 : $page->ID;
+	$new_posts_page = $is_posts_page ? 0 : $page->ID;
 
-	$set_posts_page_link = add_query_arg( array( $set_posts_page_action => $new_posts_page ) );
+	$set_posts_page_link = add_query_arg( $set_posts_page_action, $new_posts_page, $cleaned_current_url );
 	$set_posts_page_link = wp_nonce_url( $set_posts_page_link, $set_posts_page_action . '_' . $new_posts_page );
 	/* translators: page title */
 	$set_posts_page_label = $is_posts_page ? sprintf( __( 'Unset &#8220;%s&#8221; as the page that displays your latest posts', 'jetpack-mu-wpcom' ), $page->post_title ) : sprintf( __( 'Set &#8220;%s&#8221; as the page that displays your latest posts', 'jetpack-mu-wpcom' ), $page->post_title );
