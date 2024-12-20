@@ -1,4 +1,0 @@
-Significance: minor
-Type: enhancement
-
-Added a `liked` class to the Jetpack likes iFrame wrapper DIV based on if the post has any likes.

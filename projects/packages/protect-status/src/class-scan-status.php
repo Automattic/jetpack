@@ -243,7 +243,7 @@ class Scan_Status extends Status {
 
 				// Theme and Plugin Threats
 				if ( ! empty( $scan_threat->extension ) && in_array( $scan_threat->extension->type, array( 'plugin', 'theme' ), true ) ) {
-					$installed_extension = 'plugin' === $scan_threat->extension->type ? $plugins[ $scan_threat->extension->slug ] : $themes[ $scan_threat->extension->slug ];
+					$installed_extension = 'plugin' === $scan_threat->extension->type ? ( $plugins[ $scan_threat->extension->slug ] ?? null ) : ( $themes[ $scan_threat->extension->slug ] ?? null );
 
 					// If the extension is no longer installed, skip this threat.
 					// todo: use version_compare()

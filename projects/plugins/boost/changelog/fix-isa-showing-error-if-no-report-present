@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+UI: Fixed showing an error if no ISA report was found.

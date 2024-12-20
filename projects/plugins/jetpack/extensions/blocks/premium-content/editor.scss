@@ -61,6 +61,20 @@
 	margin: 0;
 }
 
+%button-outline-style {
+	background-color: unset;
+	color: $gray-800;
+}
+
+.wp-block-premium-content-login-button,
+.wp-block-jetpack-button {
+	&.is-style-outline {
+		.wp-block-button__link {
+			@extend %button-outline-style;
+		}
+	}
+}
+
 /* Hide Stripe nudge from Jetpack payments block */
 /* https://github.com/Automattic/wp-calypso/issues/44332 */
 .wp-block-premium-content-container .premium-content-wrapper .jetpack-block-nudge {

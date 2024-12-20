@@ -14,8 +14,8 @@ const autoplayClassName = 'wp-block-newspack-blocks-carousel__autoplay-playing';
 /**
  * A helper for IE11-compatible iteration over NodeList elements.
  *
- * @param {object}   nodeList - List of nodes to be iterated over.
- * @param {Function} cb       - Invoked for each iteratee.
+ * @param {Object}   nodeList List of nodes to be iterated over.
+ * @param {Function} cb       Invoked for each iteratee.
  */
 function forEachNode( nodeList, cb ) {
 	/**
@@ -29,7 +29,7 @@ function forEachNode( nodeList, cb ) {
 /**
  * Modifies attributes on slide HTML to make it accessible.
  *
- * @param {HTMLElement} slide - Slide DOM element
+ * @param {HTMLElement} slide Slide DOM element
  */
 function activateSlide( slide ) {
 	if ( slide ) {
@@ -41,7 +41,7 @@ function activateSlide( slide ) {
 /**
  * Modifies attributes on slide HTML to make it accessible.
  *
- * @param {HTMLElement} slide - Slide DOM element
+ * @param {HTMLElement} slide Slide DOM element
  */
 function deactivateSlide( slide ) {
 	if ( slide ) {
@@ -54,15 +54,15 @@ function deactivateSlide( slide ) {
  * Creates a Swiper instance with predefined config used by the Articles
  * Carousel block in both front-end and editor.
  *
- * @param {object}  els            - Swiper elements
- * @param {Element} els.block      - Block element
- * @param {Element} els.container  - Swiper container element
- * @param {Element} els.next       - Next button element
- * @param {Element} els.prev       - Previous button element
- * @param {Element} els.play       - Play button element
- * @param {Element} els.pause      - Pause button element
- * @param {Element} els.pagination - Pagination element
- * @param {Object}  config         - Swiper config
+ * @param {Object}  els            Swiper elements
+ * @param {Element} els.block      Block element
+ * @param {Element} els.container  Swiper container element
+ * @param {Element} els.next       Next button element
+ * @param {Element} els.prev       Previous button element
+ * @param {Element} els.play       Play button element
+ * @param {Element} els.pause      Pause button element
+ * @param {Element} els.pagination Pagination element
+ * @param {Object}  config         Swiper config
  * @return {Object} Swiper instance
  */
 export default function createSwiper( els, config = {} ) {
@@ -161,13 +161,13 @@ export default function createSwiper( els, config = {} ) {
 						escapeHTML(
 							`${ currentSlide.innerText },
 							${
-								alt
-									? /* translators: the title of the image. */ sprintf(
-											__( 'Image: %s, ', 'jetpack-mu-wpcom' ),
-											alt
-									  )
-									: ''
-							}
+	alt
+		? /* translators: the title of the image. */ sprintf(
+			__( 'Image: %s, ', 'jetpack-mu-wpcom' ),
+			alt
+		)
+		: ''
+}
 							${ slideInfo }`
 						),
 						'assertive'
