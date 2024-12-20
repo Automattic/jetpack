@@ -56,11 +56,11 @@ export default function AiFeedbackThumbs( {
 		return null;
 	}
 
-	const [ itemsRated, setItemsRated ] = useState( savedRatings );
+	const [ itemsRated, setItemsRated ] = useState( {} );
 	const { tracks } = useAnalytics();
 
 	useEffect( () => {
-		setItemsRated( savedRatings );
+		setItemsRated( { ...savedRatings, ...itemsRated } );
 	}, [ savedRatings ] );
 
 	const checkThumb = ( thumbValue: string ) => {

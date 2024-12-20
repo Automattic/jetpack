@@ -159,10 +159,12 @@ const RateLogo: React.FC< {
 	onRate: ( rating: string ) => void;
 } > = ( { disabled, ratedItem, onRate } ) => {
 	const { logos } = useLogoGenerator();
-	const savedRatings = logos.reduce( ( acc, logo ) => {
-		acc[ logo.url ] = logo.rating;
-		return acc;
-	}, {} );
+	const savedRatings = logos
+		.filter( logo => logo.rating )
+		.reduce( ( acc, logo ) => {
+			acc[ logo.url ] = logo.rating;
+			return acc;
+		}, {} );
 
 	return (
 		<AiFeedbackThumbs
