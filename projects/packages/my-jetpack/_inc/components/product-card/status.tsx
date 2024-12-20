@@ -77,6 +77,11 @@ const getStatusClassName: StatusStateFunction = ( slug, status, isOwned ) => {
 			return isOwned ? styles.warning : styles.inactive;
 		case PRODUCT_STATUSES.EXPIRED:
 		case PRODUCT_STATUSES.NEEDS_ATTENTION__WARNING:
+			/**
+			 * For the Protect card, even when it has a NEEDS_ATTENTION__{WARNING | ERROR}
+			 * status (it means threats have been detected), we still want to show the card
+			 * status as 'Active'.
+			 */
 			if ( slug === 'protect' ) {
 				return styles.active;
 			}

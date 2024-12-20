@@ -295,6 +295,7 @@ class Protect extends Product {
 		if ( is_wp_error( $protect_data ) ) {
 			return $protect_threat_status; // false
 		}
+		$critical_threat_count = false;
 		if ( ! empty( $protect_data->threats ) ) {
 			$critical_threat_count = array_reduce(
 				$protect_data->threats,
