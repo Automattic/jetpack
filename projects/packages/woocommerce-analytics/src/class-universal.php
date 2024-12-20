@@ -68,7 +68,7 @@ class Universal {
 		if ( ! isset( $_COOKIE['woocommerceanalytics_session'] ) ) {
 			$session_id         = wp_generate_uuid4();
 			$this->session_id   = $session_id;
-			$this->landing_page = esc_url_raw( wp_unslash( ( empty( $_SERVER['HTTPS'] ) ? 'http' : 'https' ) . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]" ) );
+			$this->landing_page = wp_unslash( sanitize_url( ( empty( $_SERVER['HTTPS'] ) ? 'http' : 'https' ) . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]" ) );
 			setcookie(
 				'woocommerceanalytics_session',
 				wp_json_encode(
