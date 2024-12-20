@@ -221,11 +221,11 @@ const ProductCard: FC< ProductCardProps > = props => {
 						) }
 					</div>
 					<Status
-						slug={ slug }
 						status={ status }
 						isFetching={ isLoading }
 						isInstallingStandalone={ isInstallingStandalone }
 						isOwned={ isOwned }
+						suppressNeedsAttention={ slug === 'protect' }
 					/>
 				</div>
 			) }
