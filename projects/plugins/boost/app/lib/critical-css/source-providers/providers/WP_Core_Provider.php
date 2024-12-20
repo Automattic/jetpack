@@ -30,13 +30,6 @@ class WP_Core_Provider extends Provider {
 		$front_page = (int) get_option( 'page_on_front' );
 		$posts_page = (int) get_option( 'page_for_posts' );
 
-		if ( ! empty( $front_page ) && empty( $context_posts ) ) {
-			$permalink = get_permalink( $front_page );
-			if ( ! empty( $permalink ) ) {
-				$urls['front_page'] = array( $permalink );
-			}
-		}
-
 		$context_post_types = wp_list_pluck( $context_posts, 'post_type' );
 		$context_post_ids   = wp_list_pluck( $context_posts, 'ID' );
 

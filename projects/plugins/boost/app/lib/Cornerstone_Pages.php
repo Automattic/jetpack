@@ -14,7 +14,6 @@ class Cornerstone_Pages implements Has_Setup {
 	public function setup() {
 		$this->register_ds_stores();
 
-		add_filter( 'jetpack_boost_critical_css_providers', array( $this, 'remove_ccss_front_page_provider' ), 10, 2 );
 		add_filter( 'display_post_states', array( $this, 'add_display_post_states' ), 10, 2 );
 		add_action( 'init', array( $this, 'set_default_pages' ), 0 );
 	}
@@ -30,18 +29,6 @@ class Cornerstone_Pages implements Has_Setup {
 		$schema = Schema::as_array( Schema::as_string() )->fallback( array() );
 		jetpack_boost_register_option( 'cornerstone_pages_list', $schema, new Cornerstone_Pages_Entry( 'cornerstone_pages_list' ) );
 		jetpack_boost_register_readonly_option( 'cornerstone_pages_properties', array( $this, 'get_properties' ) );
-	}
-
-	public function remove_ccss_front_page_provider( $providers ) {
-		$filtered_providers = array();
-
-		foreach ( $providers as $provider ) {
-			if ( $provider['key'] !== 'core_front_page' ) {
-				$filtered_providers[] = $provider;
-			}
-		}
-
-		return $filtered_providers;
 	}
 
 	private function default_pages() {
