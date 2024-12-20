@@ -4,6 +4,8 @@ import { useCallback, useEffect } from 'react';
 import { PRODUCT_STATUSES } from '../../constants';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../hooks/use-analytics';
+import useConnectSite from '../../hooks/use-connect-site';
+import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import Card from '../card';
 import ActionButton from './action-button';
 import PriceComponent from './pricing-component';
@@ -13,7 +15,7 @@ import Status from './status';
 import styles from './style.module.scss';
 import type { AdditionalAction, SecondaryAction } from './types';
 import type { MutateCallback } from '../../data/use-simple-mutation';
-import type { FC, MouseEventHandler, ReactNode } from 'react';
+import type { FC, MouseEvent, MouseEventHandler, ReactNode } from 'react';
 
 export type ProductCardProps = {
 	children?: ReactNode;
@@ -86,6 +88,15 @@ const ProductCard: FC< ProductCardProps > = props => {
 	} );
 
 	const { recordEvent } = useAnalytics();
+	const { siteIsRegistering } = useMyJetpackConnection();
+	const isLoading =
+		isFetching || ( siteIsRegistering && status === PRODUCT_STATUSES.SITE_CONNECTION_ERROR );
+	const { connectSite } = useConnectSite( {
+		tracksInfo: {
+			event: 'jetpack_myjetpack_product_card_fix_site_connection',
+			properties: {},
+		},
+	} );
 
 	/**
 	 * Calls the passed function onActivate after firing Tracks event
@@ -118,11 +129,21 @@ const ProductCard: FC< ProductCardProps > = props => {
 	/**
 	 * Calls the passed function onFixConnection after firing Tracks event
 	 */
-	const fixConnectionHandler = useCallback( () => {
+	const fixUserConnectionHandler = useCallback( () => {
 		recordEvent( 'jetpack_myjetpack_product_card_fixconnection_click', {
 			product: slug,
 		} );
 	}, [ slug, recordEvent ] );
+
+	/**
+	 * Calls the passed function onFixSiteConnection after firing Tracks event
+	 */
+	const fixSiteConnectionHandler = useCallback(
+		( { e }: { e: MouseEvent< HTMLButtonElement > } ) => {
+			connectSite( e );
+		},
+		[ connectSite ]
+	);
 
 	/**
 	 * Calls when the "Learn more" button is clicked
@@ -182,7 +203,8 @@ const ProductCard: FC< ProductCardProps > = props => {
 						<ActionButton
 							{ ...ownProps }
 							onActivate={ activateHandler }
-							onFixConnection={ fixConnectionHandler }
+							onFixUserConnection={ fixUserConnectionHandler }
+							onFixSiteConnection={ fixSiteConnectionHandler }
 							onManage={ manageHandler }
 							onAdd={ addHandler }
 							onInstall={ installStandaloneHandler }
@@ -198,7 +220,7 @@ const ProductCard: FC< ProductCardProps > = props => {
 					</div>
 					<Status
 						status={ status }
-						isFetching={ isFetching }
+						isFetching={ isLoading }
 						isInstallingStandalone={ isInstallingStandalone }
 						isOwned={ isOwned }
 					/>

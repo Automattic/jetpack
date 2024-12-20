@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Slideshow block: Fix block display when added within a Stack block.
