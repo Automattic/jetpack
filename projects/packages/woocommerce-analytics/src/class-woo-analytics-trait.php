@@ -263,7 +263,7 @@ trait Woo_Analytics_Trait {
 	 * @return array Array of standard event props.
 	 */
 	public function get_common_properties() {
-		$session_data       = json_decode( wp_unslash( sanitize_text_field( $_COOKIE['woocommerceanalytics_session'] ?? '' ) ), true ) ?? array();
+		$session_data       = json_decode( sanitize_text_field( wp_unslash( $_COOKIE['woocommerceanalytics_session'] ?? '' ) ), true ) ?? array();
 		$session_id         = sanitize_text_field( $session_data['session_id'] ?? $this->session_id );
 		$landing_page       = sanitize_url( $session_data['landing_page'] ?? $this->landing_page );
 		$site_info          = array(
