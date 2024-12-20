@@ -321,7 +321,13 @@ class Protect extends Product {
 	 * @return ?string
 	 */
 	public static function get_manage_url() {
-		return admin_url( 'admin.php?page=jetpack-protect' );
+		// check standalone first
+		if ( static::is_standalone_plugin_active() ) {
+			return admin_url( 'admin.php?page=jetpack-protect' );
+			// otherwise, check for the main Jetpack plugin
+		} elseif ( static::is_jetpack_plugin_active() ) {
+			return Redirect::get_url( 'my-jetpack-manage-scan' );
+		}
 	}
 
 	/**

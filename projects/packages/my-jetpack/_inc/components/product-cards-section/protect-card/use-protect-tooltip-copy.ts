@@ -30,14 +30,13 @@ export function useProtectTooltipCopy(): TooltipContent {
 	const {
 		isPluginActive: isProtectPluginActive,
 		hasPaidPlanForProduct: hasProtectPaidPlan,
-		manageUrl: protectPluginDashboardUrl,
+		manageUrl: protectDashboardUrl,
 	} = detail || {};
 	const { recordEvent } = useAnalytics();
 	const {
 		plugins,
 		themes,
 		protect: { scanData, wafConfig: wafData },
-		siteSuffix,
 	} = getMyJetpackWindowInitialState();
 	const {
 		plugins: fromScanPlugins,
@@ -66,13 +65,6 @@ export function useProtectTooltipCopy(): TooltipContent {
 		}
 		return isJetpackPluginActive() ? 'admin.php?page=jetpack#/settings' : null;
 	}, [ isProtectPluginActive ] );
-
-	const protectDashboardUrl = useMemo( () => {
-		if ( isProtectPluginActive ) {
-			return protectPluginDashboardUrl;
-		}
-		return `https://cloud.jetpack.com/scan/${ siteSuffix }`;
-	}, [ isProtectPluginActive, protectPluginDashboardUrl, siteSuffix ] );
 
 	const trackFirewallSettingsLinkClick = useCallback( () => {
 		recordEvent( 'jetpack_protect_card_tooltip_content_link_click', {
@@ -203,7 +195,7 @@ export function useProtectTooltipCopy(): TooltipContent {
 						text: criticalThreatCount
 							? createInterpolateElement(
 									sprintf(
-										/* translators: %1$s is the number of threats and %2$s is the numner of critical threats on the site. */
+										/* translators: %1$s is the number of threats and %2$s is the numner of critical threats on the site, and %3$s */
 										__(
 											'The last scan identified %1$s (%2$d\u00A0critical). But don’t worry, Protect is usually able to “Auto-fix” threats, in most cases. Visit the <a>%3$s dashboard</a> to view more details.',
 											'jetpack-my-jetpack'
