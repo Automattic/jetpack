@@ -60,7 +60,7 @@ const ThreatFixConfirmation = () => {
 					<ThreatFixDetails showTitle={ false } threat={ threat } />
 				</div>
 			</div>
-			{ ! isSm && !! threat.severity && <ThreatSeverityBadge severity={ threat.severity } /> }
+			{ !! threat.severity && <ThreatSeverityBadge severity={ threat.severity } /> }
 			<ToggleControl
 				className={ styles.bulk__toggle }
 				size="small"
