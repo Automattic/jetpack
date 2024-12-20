@@ -78,12 +78,12 @@ function PopOut( { scoreChange }: Props ) {
 	const hideAlert = () => setClose( true );
 
 	useEffect( () => {
-		if ( hasScoreChanged ) {
+		if ( hasScoreChanged && ! isDismissed && ! isClosed ) {
 			recordBoostEvent( 'speed_score_alert_shown', {
 				score_direction: scoreChange > 0 ? 'up' : 'down',
 			} );
 		}
-	}, [ hasScoreChanged, scoreChange ] );
+	}, [ hasScoreChanged, scoreChange, isDismissed, isClosed ] );
 
 	const animationStyles = useSpring( {
 		from: {
