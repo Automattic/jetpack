@@ -168,10 +168,8 @@ function ThreatStatus( {
 						threats: numThreats,
 					} }
 				>
-					<>
-						<h3>{ scanThreatsTooltip.title }</h3>
-						<p>{ scanThreatsTooltip.text }</p>
-					</>
+					<h3>{ scanThreatsTooltip.title }</h3>
+					<p>{ scanThreatsTooltip.text }</p>
 				</InfoTooltip>
 			</div>
 			<div className="value-section__data">
@@ -227,10 +225,8 @@ function ScanStatus( { status }: { status: 'success' | 'partial' | 'off' } ) {
 							threats: 0,
 						} }
 					>
-						<>
-							<h3>{ scanThreatsTooltip.title }</h3>
-							<p>{ scanThreatsTooltip.text }</p>
-						</>
+						<h3>{ scanThreatsTooltip.title }</h3>
+						<p>{ scanThreatsTooltip.text }</p>
 					</InfoTooltip>
 				</div>
 				<div className="value-section__data">

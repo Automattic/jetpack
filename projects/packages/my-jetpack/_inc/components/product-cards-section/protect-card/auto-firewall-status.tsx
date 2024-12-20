@@ -82,10 +82,8 @@ function WafStatus( { status }: { status: 'active' | 'inactive' | 'off' } ) {
 						} }
 						placement={ isMobileViewport ? 'top' : 'right' }
 					>
-						<>
-							<h3>{ autoFirewallTooltip.title }</h3>
-							<p>{ autoFirewallTooltip.text }</p>
-						</>
+						<h3>{ autoFirewallTooltip.title }</h3>
+						<p>{ autoFirewallTooltip.text }</p>
 					</InfoTooltip>
 				</div>
 				<div className="value-section__data">
