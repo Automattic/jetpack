@@ -62,7 +62,7 @@ const ThreatNotice = ( {
 							{ title }
 						</Text>
 					</div>
-					<Text>{ content }</Text>
+					<Text mb={ 2 }>{ content }</Text>
 					{ showActions && (
 						<div className={ styles.notice__actions }>
 							{ userConnectionNeeded && (
