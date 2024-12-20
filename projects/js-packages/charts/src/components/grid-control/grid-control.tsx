@@ -3,10 +3,13 @@ import { scaleLinear } from '@visx/scale';
 import React from 'react';
 import type { BaseChartProps } from '../shared/types';
 
+// Define a type for grid visibility options
+type GridVisibility = 'x' | 'y' | 'xy' | 'none';
+
 interface GridControlProps extends BaseChartProps {
 	xScale: ReturnType< typeof scaleLinear >;
 	yScale: ReturnType< typeof scaleLinear >;
-	gridVisibility?: 'x' | 'y' | 'xy' | 'none';
+	gridVisibility?: GridVisibility;
 	top?: number;
 }
 
