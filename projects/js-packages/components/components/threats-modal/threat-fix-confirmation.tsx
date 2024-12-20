@@ -1,4 +1,4 @@
-import { getThreatType, type Threat, THREAT_ICONS } from '@automattic/jetpack-scan';
+import { getLabel, getThreatType, type Threat, THREAT_ICONS } from '@automattic/jetpack-scan';
 import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
 import { useContext, useState, useCallback, useMemo } from 'react';
@@ -56,7 +56,7 @@ const ThreatFixConfirmation = () => {
 					</div>
 				) }
 				<div className={ styles.bulk__title }>
-					<Text variant="title-small">{ threat.title }</Text>
+					<Text variant="title-small">{ getLabel( threat ) }</Text>
 					<ThreatFixDetails showTitle={ false } threat={ threat } />
 				</div>
 			</div>
@@ -74,7 +74,7 @@ const ThreatFixConfirmation = () => {
 		<div key={ threat.id } className={ styles.individual }>
 			<div className={ styles.individual__heading }>
 				<div className={ styles.individual__title }>
-					<Text variant="title-small">{ threat.title }</Text>
+					<Text variant="title-small">{ getLabel( threat ) }</Text>
 					{ !! threat.severity && <ThreatSeverityBadge severity={ threat.severity } /> }
 				</div>
 				<ThreatSummary threat={ threat } />

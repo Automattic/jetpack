@@ -156,7 +156,7 @@ export const getFixerDescription = ( threat: Threat ) => {
 			if ( threat.fixedIn && threat.extension?.name ) {
 				return sprintf(
 					/* translators: Translates to Updates to version. %1$s: Name. %2$s: Fixed version */
-					__( 'Update %1$s to version %2$s', 'jetpack-scan' ),
+					__( 'Update %1$s to version %2$s.', 'jetpack-scan' ),
 					threat.extension.name,
 					threat.fixedIn
 				);
@@ -185,5 +185,22 @@ export const getFixerDescription = ( threat: Threat ) => {
 			break;
 		default:
 			return __( 'Jetpack will auto-fix the threat.', 'jetpack-scan' );
+	}
+};
+
+export const getLabel = ( threat: Threat ) => {
+	if ( threat.signature === 'Vulnerable.WP.Core' ) {
+		// Core threat i.e. "WordPress (5.8)"
+		return `WordPress (${ threat.version })`;
+	}
+
+	if ( threat.extension?.name && threat.extension?.version ) {
+		// Extension threat i.e. "Woocommerce (3.0.0)"
+		return `${ threat.extension.name } (${ threat.extension.version })`;
+	}
+
+	if ( threat.filename ) {
+		// File threat i.e. "index.php"
+		return threat.filename.split( '/' ).pop();
 	}
 };

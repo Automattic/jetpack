@@ -75,4 +75,7 @@ export type Threat = {
 
 	/** The affected extension. */
 	extension?: Extension;
+
+	/** The affected version */
+	version?: string;
 };
