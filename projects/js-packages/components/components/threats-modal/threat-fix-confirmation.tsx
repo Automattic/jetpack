@@ -81,9 +81,13 @@ const ThreatFixConfirmation = () => {
 
 	return (
 		<div className={ styles.threat__details }>
-			{ isBulk && <Text>{ 'Jetpack will be fixing the selected threats:' }</Text> }
-			{ currentThreats.map( threat =>
-				isBulk ? renderBulkThreat( threat ) : renderIndividualThreat( threat )
+			{ isBulk ? (
+				<>
+					<Text>{ 'Jetpack will be fixing the selected threats:' }</Text>
+					<div>{ currentThreats.map( threat => renderBulkThreat( threat ) ) }</div>
+				</>
+			) : (
+				currentThreats.map( threat => renderIndividualThreat( threat ) )
 			) }
 			<ConnectionsNotice />
 			{ handleUpgradeClick && (

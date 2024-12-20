@@ -100,7 +100,7 @@ const ThreatActions = ( { selectedThreats }: { selectedThreats: Threat[] } ): JS
 	);
 
 	return (
-		<div className={ styles[ 'modal-footer' ] }>
+		<div className={ ! isBulk ? styles[ 'modal-footer' ] : null }>
 			{ ! isBulk && <FixerStateNotice fixerState={ fixerState } /> }
 			<div className={ styles[ 'threat-actions' ] }>
 				{ isBulk ? renderBulkActions() : renderIndividualActions() }
