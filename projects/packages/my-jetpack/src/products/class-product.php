@@ -717,7 +717,7 @@ abstract class Product {
 				$status = Products::STATUS_USER_CONNECTION_ERROR;
 			} elseif ( static::has_paid_plan_for_product() ) {
 				$needs_attention = static::does_module_need_attention();
-				if ( ! empty( $needs_attention ) ) {
+				if ( ! empty( $needs_attention ) && is_array( $needs_attention ) ) {
 					$status = Products::STATUS_NEEDS_ATTENTION__WARNING;
 					if ( isset( $needs_attention['type'] ) && 'error' === $needs_attention['type'] ) {
 						$status = Products::STATUS_NEEDS_ATTENTION__ERROR;

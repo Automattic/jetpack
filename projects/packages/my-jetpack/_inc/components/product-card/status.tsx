@@ -6,7 +6,7 @@ import styles from './style.module.scss';
 import type { FC } from 'react';
 
 interface StatusProps {
-	slug: JetpackModule;
+	productSlug: JetpackModule;
 	status: ProductStatus;
 	isFetching: boolean;
 	isInstallingStandalone: boolean;
@@ -59,7 +59,7 @@ const getStatusLabel: StatusStateFunction = ( slug, status, isOwned ) => {
 	}
 };
 
-const getStatusClassName: StatusStateFunction = ( slug, status, isOwned ) => {
+const getStatusClassName: StatusStateFunction = ( productSlug, status, isOwned ) => {
 	switch ( status ) {
 		case PRODUCT_STATUSES.ACTIVE:
 		case PRODUCT_STATUSES.CAN_UPGRADE:
@@ -82,12 +82,12 @@ const getStatusClassName: StatusStateFunction = ( slug, status, isOwned ) => {
 			 * status (it means threats have been detected), we still want to show the card
 			 * status as 'Active'.
 			 */
-			if ( slug === 'protect' ) {
+			if ( productSlug === 'protect' ) {
 				return styles.active;
 			}
 			return styles.warning;
 		case PRODUCT_STATUSES.NEEDS_ATTENTION__ERROR:
-			if ( slug === 'protect' ) {
+			if ( productSlug === 'protect' ) {
 				return styles.active;
 			}
 			return styles.error;
@@ -97,14 +97,14 @@ const getStatusClassName: StatusStateFunction = ( slug, status, isOwned ) => {
 };
 
 const Status: FC< StatusProps > = ( {
-	slug,
+	productSlug,
 	status,
 	isFetching,
 	isInstallingStandalone,
 	isOwned,
 } ) => {
-	const flagLabel = getStatusLabel( slug, status, isOwned );
-	const statusClassName = clsx( styles.status, getStatusClassName( slug, status, isOwned ), {
+	const flagLabel = getStatusLabel( productSlug, status, isOwned );
+	const statusClassName = clsx( styles.status, getStatusClassName( productSlug, status, isOwned ), {
 		[ styles[ 'is-fetching' ] ]: isFetching || isInstallingStandalone,
 	} );
 
