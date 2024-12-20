@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix an issue where high posts counts would cause backend issues for the get_raw_post_type_breakdown function used in My Jetpack. Sites with over 100,000 posts can now have this query managed remotely.
