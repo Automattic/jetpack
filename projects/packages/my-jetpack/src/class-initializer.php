@@ -929,6 +929,7 @@ class Initializer {
 		} else {
 			return array_merge(
 				self::alert_if_missing_connection( $red_bubble_slugs ),
+				self::alert_if_last_backup_failed( $red_bubble_slugs ),
 				self::alert_if_paid_plan_expiring( $red_bubble_slugs )
 			);
 		}
@@ -983,14 +984,22 @@ class Initializer {
 		if ( ! $connection->is_connected() ) {
 			return $red_bubble_slugs;
 		}
-		$product_classes = Products::get_products_classes();
+		$product_classes    = Products::get_products_classes();
+		$not_shown_products = array(
+			'scan',
+			'extras',
+			'ai',
+			'newsletter',
+			'site-accelerator',
+			'related-posts',
+		);
 
 		$products_included_in_expiring_plan = array();
 		foreach ( $product_classes as $key => $product ) {
 			// Skip these- we don't show them in My Jetpack.
 			// ('ai' is a duplicate class of 'jetpack-ai', and therefore not needed).
 			// See `get_product_classes() in projects/packages/my-jetpack/src/class-products.php for more info.
-			if ( 'scan' === $key || 'extras' === $key || 'ai' === $key ) {
+			if ( in_array( $key, $not_shown_products, true ) ) {
 				continue;
 			}
 
@@ -1024,6 +1033,26 @@ class Initializer {
 
 		foreach ( $products_included_in_expiring_plan as $expiring_plan => $products ) {
 			$red_bubble_slugs[ $expiring_plan ]['products_effected'] = $products;
+		}
+
+		return $red_bubble_slugs;
+	}
+
+	/**
+	 * Add an alert slug if Backups are failing or having an issue.
+	 *
+	 * @param array $red_bubble_slugs - slugs that describe the reasons the red bubble is showing.
+	 * @return array
+	 */
+	public static function alert_if_last_backup_failed( array $red_bubble_slugs ) {
+		// Make sure we're dealing with the backup product only
+		if ( ! Products\Backup::has_paid_plan_for_product() ) {
+			return $red_bubble_slugs;
+		}
+
+		$backup_failed_status = Products\Backup::does_module_need_attention();
+		if ( $backup_failed_status ) {
+			$red_bubble_slugs['backup_failure'] = $backup_failed_status;
 		}
 
 		return $red_bubble_slugs;
