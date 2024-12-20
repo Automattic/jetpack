@@ -88,9 +88,7 @@ const ActionButton: FC< ActionButtonProps > = ( {
 					variant: 'primary',
 					label: buttonText,
 					onClick: onLearnMore,
-					...( primaryActionOverride &&
-						PRODUCT_STATUSES.ABSENT in primaryActionOverride &&
-						primaryActionOverride[ PRODUCT_STATUSES.ABSENT ] ),
+					...( primaryActionOverride?.[ PRODUCT_STATUSES.ABSENT ] ?? {} ),
 				};
 			}
 			case PRODUCT_STATUSES.ABSENT_WITH_PLAN: {
@@ -100,9 +98,7 @@ const ActionButton: FC< ActionButtonProps > = ( {
 					variant: 'primary',
 					label: buttonText,
 					onClick: onInstall,
-					...( primaryActionOverride &&
-						PRODUCT_STATUSES.ABSENT_WITH_PLAN in primaryActionOverride &&
-						primaryActionOverride[ PRODUCT_STATUSES.ABSENT_WITH_PLAN ] ),
+					...( primaryActionOverride?.[ PRODUCT_STATUSES.ABSENT_WITH_PLAN ] ?? {} ),
 				};
 			}
 			// The site or user have never been connected before and the connection is required
@@ -113,9 +109,7 @@ const ActionButton: FC< ActionButtonProps > = ( {
 					variant: 'primary',
 					label: __( 'Learn more', 'jetpack-my-jetpack' ),
 					onClick: onAdd,
-					...( primaryActionOverride &&
-						PRODUCT_STATUSES.NEEDS_FIRST_SITE_CONNECTION in primaryActionOverride &&
-						primaryActionOverride[ PRODUCT_STATUSES.NEEDS_FIRST_SITE_CONNECTION ] ),
+					...( primaryActionOverride?.[ PRODUCT_STATUSES.NEEDS_FIRST_SITE_CONNECTION ] ?? {} ),
 				};
 			case PRODUCT_STATUSES.NEEDS_PLAN: {
 				const getPlanText = __( 'Get plan', 'jetpack-my-jetpack' );
@@ -128,9 +122,7 @@ const ActionButton: FC< ActionButtonProps > = ( {
 					variant: 'primary',
 					label: buttonText,
 					onClick: onAdd,
-					...( primaryActionOverride &&
-						PRODUCT_STATUSES.NEEDS_PLAN in primaryActionOverride &&
-						primaryActionOverride[ PRODUCT_STATUSES.NEEDS_PLAN ] ),
+					...( primaryActionOverride?.[ PRODUCT_STATUSES.NEEDS_PLAN ] ?? {} ),
 				};
 			}
 			case PRODUCT_STATUSES.CAN_UPGRADE: {
@@ -144,9 +136,7 @@ const ActionButton: FC< ActionButtonProps > = ( {
 					variant: 'primary',
 					label: buttonText,
 					onClick: onAdd,
-					...( primaryActionOverride &&
-						PRODUCT_STATUSES.CAN_UPGRADE in primaryActionOverride &&
-						primaryActionOverride[ PRODUCT_STATUSES.CAN_UPGRADE ] ),
+					...( primaryActionOverride?.[ PRODUCT_STATUSES.CAN_UPGRADE ] ?? {} ),
 				};
 			}
 			case PRODUCT_STATUSES.ACTIVE: {
@@ -159,9 +149,7 @@ const ActionButton: FC< ActionButtonProps > = ( {
 					variant: 'secondary',
 					label: buttonText,
 					onClick: onManage,
-					...( primaryActionOverride &&
-						PRODUCT_STATUSES.ACTIVE in primaryActionOverride &&
-						primaryActionOverride[ PRODUCT_STATUSES.ACTIVE ] ),
+					...( primaryActionOverride?.[ PRODUCT_STATUSES.ACTIVE ] ?? {} ),
 				};
 			}
 			case PRODUCT_STATUSES.SITE_CONNECTION_ERROR:
@@ -170,9 +158,7 @@ const ActionButton: FC< ActionButtonProps > = ( {
 					variant: 'primary',
 					label: __( 'Connect', 'jetpack-my-jetpack' ),
 					onClick: onFixSiteConnection,
-					...( primaryActionOverride &&
-						PRODUCT_STATUSES.SITE_CONNECTION_ERROR in primaryActionOverride &&
-						primaryActionOverride[ PRODUCT_STATUSES.SITE_CONNECTION_ERROR ] ),
+					...( primaryActionOverride?.[ PRODUCT_STATUSES.SITE_CONNECTION_ERROR ] ?? {} ),
 				};
 			case PRODUCT_STATUSES.USER_CONNECTION_ERROR:
 				return {
@@ -180,9 +166,7 @@ const ActionButton: FC< ActionButtonProps > = ( {
 					variant: 'primary',
 					label: __( 'Connect', 'jetpack-my-jetpack' ),
 					onClick: onFixUserConnection,
-					...( primaryActionOverride &&
-						PRODUCT_STATUSES.USER_CONNECTION_ERROR in primaryActionOverride &&
-						primaryActionOverride[ PRODUCT_STATUSES.USER_CONNECTION_ERROR ] ),
+					...( primaryActionOverride?.[ PRODUCT_STATUSES.USER_CONNECTION_ERROR ] ?? {} ),
 				};
 			case PRODUCT_STATUSES.INACTIVE:
 			case PRODUCT_STATUSES.MODULE_DISABLED:
@@ -192,9 +176,7 @@ const ActionButton: FC< ActionButtonProps > = ( {
 					variant: 'secondary',
 					label: __( 'Activate', 'jetpack-my-jetpack' ),
 					onClick: onActivate,
-					...( primaryActionOverride &&
-						PRODUCT_STATUSES.INACTIVE in primaryActionOverride &&
-						primaryActionOverride[ PRODUCT_STATUSES.INACTIVE ] ),
+					...( primaryActionOverride?.[ PRODUCT_STATUSES.INACTIVE ] ?? {} ),
 				};
 			case PRODUCT_STATUSES.EXPIRING_SOON:
 				return {
@@ -202,9 +184,7 @@ const ActionButton: FC< ActionButtonProps > = ( {
 					href: renewPaidPlanPurchaseUrl,
 					variant: 'primary',
 					label: __( 'Renew my plan', 'jetpack-my-jetpack' ),
-					...( primaryActionOverride &&
-						PRODUCT_STATUSES.EXPIRING_SOON in primaryActionOverride &&
-						primaryActionOverride[ PRODUCT_STATUSES.EXPIRING_SOON ] ),
+					...( primaryActionOverride?.[ PRODUCT_STATUSES.EXPIRING_SOON ] ?? {} ),
 				};
 			case PRODUCT_STATUSES.EXPIRED:
 				return {
@@ -212,9 +192,7 @@ const ActionButton: FC< ActionButtonProps > = ( {
 					href: managePaidPlanPurchaseUrl,
 					variant: 'primary',
 					label: __( 'Resume my plan', 'jetpack-my-jetpack' ),
-					...( primaryActionOverride &&
-						PRODUCT_STATUSES.EXPIRED in primaryActionOverride &&
-						primaryActionOverride[ PRODUCT_STATUSES.EXPIRED ] ),
+					...( primaryActionOverride?.[ PRODUCT_STATUSES.EXPIRED ] ?? {} ),
 				};
 			case PRODUCT_STATUSES.NEEDS_ATTENTION__ERROR: {
 				const defaultButton: Partial< SecondaryButtonProps > = {
@@ -222,9 +200,7 @@ const ActionButton: FC< ActionButtonProps > = ( {
 					href: manageUrl,
 					variant: 'primary',
 					label: __( 'Troubleshoot', 'jetpack-my-jetpack' ),
-					...( primaryActionOverride &&
-						PRODUCT_STATUSES.NEEDS_ATTENTION__ERROR in primaryActionOverride &&
-						primaryActionOverride[ PRODUCT_STATUSES.NEEDS_ATTENTION__ERROR ] ),
+					...( primaryActionOverride?.[ PRODUCT_STATUSES.NEEDS_ATTENTION__ERROR ] ?? {} ),
 				};
 				switch ( slug ) {
 					case 'backup':
@@ -247,9 +223,7 @@ const ActionButton: FC< ActionButtonProps > = ( {
 					href: manageUrl,
 					variant: 'primary',
 					label: __( 'Troubleshoot', 'jetpack-my-jetpack' ),
-					...( primaryActionOverride &&
-						PRODUCT_STATUSES.NEEDS_ATTENTION__WARNING in primaryActionOverride &&
-						primaryActionOverride[ PRODUCT_STATUSES.NEEDS_ATTENTION__WARNING ] ),
+					...( primaryActionOverride?.[ PRODUCT_STATUSES.NEEDS_ATTENTION__WARNING ] ?? {} ),
 				};
 				switch ( slug ) {
 					case 'protect':
