@@ -4,7 +4,7 @@ import GridControl from '../grid-control';
 
 // Define metadata for the story
 export default {
-	title: 'JS Packages/Charts/GridControl',
+	title: 'JS Packages/Charts/Composites/GridControl',
 	component: GridControl,
 	argTypes: {
 		gridVisibility: {
@@ -14,11 +14,6 @@ export default {
 		className: {
 			control: { type: 'text' },
 			description: 'Custom CSS class for styling grid lines',
-		},
-		numTicks: {
-			control: { type: 'number' },
-			description: 'Number of ticks to display',
-			defaultValue: 5,
 		},
 	},
 } as Meta< typeof GridControl >;
@@ -36,10 +31,8 @@ const Template: StoryFn< typeof GridControl > = args => {
 				height={ 200 }
 				xScale={ xScale }
 				yScale={ yScale }
-				showGridX={ args.gridVisibility === 'x' || args.gridVisibility === 'xy' }
-				showGridY={ args.gridVisibility === 'y' || args.gridVisibility === 'xy' }
+				gridVisibility={ args.gridVisibility }
 				className={ args.className }
-				numTicks={ args.numTicks }
 			/>
 		</svg>
 	);
@@ -50,5 +43,4 @@ export const Default = Template.bind( {} );
 Default.args = {
 	gridVisibility: 'xy',
 	className: 'grid-lines',
-	numTicks: 5,
 };

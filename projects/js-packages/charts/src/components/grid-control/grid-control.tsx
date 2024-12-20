@@ -1,49 +1,27 @@
 import { GridRows, GridColumns } from '@visx/grid';
-import { scaleBand, scaleLinear } from '@visx/scale'; // Import scaleBand and scaleLinear
-import clsx from 'clsx';
-import { FC } from 'react';
-import styles from './grid-control.module.scss';
-import type { GridVisibility } from '../shared/types';
+import { scaleLinear } from '@visx/scale';
+import React from 'react';
+import type { BaseChartProps } from '../shared/types';
 
-interface GridControlProps extends GridVisibility {
-	width: number;
-	height: number;
-	xScale: ReturnType< typeof scaleBand >; // Use ReturnType for xScale
-	yScale: ReturnType< typeof scaleLinear< number > >; // Specify number as the output type
+interface GridControlProps extends BaseChartProps {
+	xScale: ReturnType< typeof scaleLinear >;
+	yScale: ReturnType< typeof scaleLinear >;
+	gridVisibility?: 'x' | 'y' | 'xy' | 'none';
+	top?: number;
 }
 
-/**
- * GridControl component to manage the visibility of grid lines in a chart.
- * @param {GridControlProps} props - Component properties
- * @return {JSX.Element} Rendered GridControl component
- */
-const GridControl: FC< GridControlProps > = ( {
-	showGridX = true,
-	showGridY = true,
-	className,
+const GridControl: React.FC< GridControlProps > = ( {
 	width,
 	height,
 	xScale,
 	yScale,
+	gridVisibility = 'x',
+	top = 0,
 } ) => {
 	return (
-		<g className={ clsx( styles.grid, className || '' ) }>
-			{ /* Render Y-axis grid lines if showGridY is true */ }
-			{ showGridY && (
-				<GridRows
-					scale={ yScale }
-					width={ width }
-					numTicks={ 4 } // Number of ticks for Y-axis grid lines
-				/>
-			) }
-			{ /* Render X-axis grid lines if showGridX is true */ }
-			{ showGridX && (
-				<GridColumns
-					scale={ xScale }
-					height={ height }
-					numTicks={ 4 } // Number of ticks for X-axis grid lines
-				/>
-			) }
+		<g transform={ `translate(0, ${ top })` }>
+			{ gridVisibility.includes( 'x' ) && <GridColumns scale={ xScale } height={ height } /> }
+			{ gridVisibility.includes( 'y' ) && <GridRows scale={ yScale } width={ width } /> }
 		</g>
 	);
 };

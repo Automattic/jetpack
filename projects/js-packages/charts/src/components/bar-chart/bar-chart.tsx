@@ -14,8 +14,7 @@ import styles from './bar-chart.module.scss';
 import type { BaseChartProps, SeriesData } from '../shared/types';
 
 interface BarChartProps extends BaseChartProps< SeriesData[] > {
-	showGridX?: boolean;
-	showGridY?: boolean;
+	gridVisibility?: 'x' | 'y' | 'xy' | 'none';
 }
 
 type BarChartTooltipData = { value: number; xLabel: string; yLabel: string; seriesIndex: number };
@@ -29,8 +28,7 @@ const BarChart: FC< BarChartProps > = ( {
 	showLegend = false,
 	legendOrientation = 'horizontal',
 	className,
-	showGridX = true,
-	showGridY = false,
+	gridVisibility = 'x',
 } ) => {
 	const theme = useChartTheme();
 	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
@@ -108,8 +106,7 @@ const BarChart: FC< BarChartProps > = ( {
 						height={ yMax }
 						xScale={ xScale }
 						yScale={ yScale }
-						showGridX={ showGridX }
-						showGridY={ showGridY }
+						gridVisibility={ gridVisibility }
 					/>
 					{ data.map( ( series, seriesIndex ) => (
 						<Group key={ seriesIndex }>
