@@ -33,6 +33,9 @@ class Universal {
 		// Initialize session
 		add_action( 'send_headers', array( $this, 'initialize_woocommerceanalytics_session' ) );
 
+		// Capture search
+		add_action( 'send_headers', array( $this, 'capture_search_query' ), 11 );
+
 		// Capture cart events.
 		add_action( 'woocommerce_add_to_cart', array( $this, 'capture_add_to_cart' ), 10, 6 );
 		add_action( 'woocommerce_cart_item_removed', array( $this, 'capture_remove_from_cart' ), 10, 2 );
@@ -62,10 +65,24 @@ class Universal {
 	 * Set a UUID for the current session if is not yet loaded and record the session started event
 	 */
 	public function initialize_woocommerceanalytics_session() {
-		if ( ! isset( $_COOKIE['woocommerceanalytics_session_id'] ) ) {
-			$session_id       = wp_generate_uuid4();
-			$this->session_id = $session_id;
-			setcookie( 'woocommerceanalytics_session_id', $session_id, 0, COOKIEPATH, COOKIE_DOMAIN, is_ssl(), true );
+		if ( ! isset( $_COOKIE['woocommerceanalytics_session'] ) ) {
+			$session_id         = wp_generate_uuid4();
+			$this->session_id   = $session_id;
+			$this->landing_page = esc_url_raw( wp_unslash( ( empty( $_SERVER['HTTPS'] ) ? 'http' : 'https' ) . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]" ) );
+			setcookie(
+				'woocommerceanalytics_session',
+				wp_json_encode(
+					array(
+						'session_id'   => $this->session_id,
+						'landing_page' => $this->landing_page,
+					)
+				),
+				0,
+				COOKIEPATH,
+				COOKIE_DOMAIN,
+				is_ssl(),
+				true
+			);
 			$this->record_event( 'woocommerceanalytics_session_started' );
 		}
 	}
@@ -519,6 +536,22 @@ class Universal {
 					'from_checkout' => $checkout_page_used,
 					'checkout_page_contains_checkout_block' => $checkout_page_contains_checkout_block,
 					'checkout_page_contains_checkout_shortcode' => $checkout_page_contains_checkout_shortcode,
+				)
+			);
+		}
+	}
+
+	/**
+	 * Capture a search event.
+	 */
+	public function capture_search_query() {
+		if ( is_search() ) {
+			global $wp_query;
+			$this->record_event(
+				'woocommerceanalytics_search',
+				array(
+					'search_query' => $wp_query->get( 's' ),
+					'qty'          => $wp_query->found_posts,
 				)
 			);
 		}
