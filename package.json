@@ -23,19 +23,24 @@
 		"php:autofix": "composer phpcs:fix",
 		"php:compatibility": "composer phpcs:compatibility",
 		"php:lint": "composer phpcs:lint",
-		"prepare": "husky install",
+		"prepare": "husky",
 		"reformat-files": "prettier --ignore-path .eslintignore --write \"**/*.{js,jsx,cjs,mjs,ts,tsx,svelte,json,json5}\"",
 		"version-packages": "bash ./tools/version-packages.sh"
 	},
 	"devDependencies": {
 		"eslint": "9.16.0",
-		"husky": "8.0.3",
+		"husky": "9.1.7",
 		"jetpack-cli": "workspace:*",
 		"jetpack-js-tools": "workspace:*"
 	},
 	"engines": {
 		"node": "^22.9.0",
-		"pnpm": "^9.15.0 <9.15.1"
+		"pnpm": "^9.15.0"
 	},
-	"packageManager": "pnpm@9.15.0"
+	"packageManager": "pnpm@9.15.0",
+	"pnpm": {
+		"patchedDependencies": {
+			"@wordpress/dataviews@4.10.0": ".pnpm-patches/@wordpress__dataviews@4.10.0.patch"
+		}
+	}
 }

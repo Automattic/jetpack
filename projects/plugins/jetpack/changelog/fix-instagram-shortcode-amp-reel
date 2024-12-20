@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Shortcode embeds: ensure Instagram reels are properly displayed in AMP views.

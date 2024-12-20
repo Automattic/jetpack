@@ -22,7 +22,10 @@ type ProductStatus =
 	| 'needs_activation'
 	| 'needs_first_site_connection'
 	| 'user_connection_error'
-	| 'can_upgrade';
+	| 'can_upgrade'
+	| 'needs_attention'
+	| 'expired'
+	| 'expiring';
 
 type JetpackModule =
 	| 'anti-spam'
@@ -69,6 +72,29 @@ type ScanItem = {
 	version: string;
 };
 
+type RewindStatus =
+	| 'missing_plan'
+	| 'no_connected_jetpack'
+	| 'no_connected_jetpack_with_credentials'
+	| 'vp_active_on_site'
+	| 'vp_can_transfer'
+	| 'host_not_supported'
+	| 'multisite_not_supported'
+	| 'no_site_found';
+
+type BackupStatus =
+	| 'started'
+	| 'finished'
+	| 'no-credentials'
+	| 'backups-deactivated'
+	| 'no-credentials-atomic'
+	| 'credential-error'
+	| 'http-only-error'
+	| 'not-accessible'
+	| 'backup-deactivated'
+	| 'Kill switch active'
+	| 'error'
+	| 'error-will-retry';
 interface Window {
 	myJetpackInitialState?: {
 		siteSuffix: string;
@@ -360,6 +386,11 @@ interface Window {
 				data: {
 					plugin: string;
 				};
+			};
+			backup_failure?: {
+				source: 'rewind' | 'last_backup';
+				status: RewindStatus | BackupStatus;
+				last_updated: string;
 			};
 			[ key: `${ string }--plan_expired` ]: {
 				product_slug: string;

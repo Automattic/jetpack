@@ -8,9 +8,12 @@ import {
 	swiperPaginationRender,
 	swiperResize,
 } from './swiper-callbacks';
+import applyPaddingForStackBlock from './utils';
 
 if ( typeof window !== 'undefined' ) {
 	domReady( function () {
+		applyPaddingForStackBlock();
+
 		const slideshowBlocks = document.getElementsByClassName( 'wp-block-jetpack-slideshow' );
 
 		Array.from( slideshowBlocks ).forEach( slideshowBlock => {

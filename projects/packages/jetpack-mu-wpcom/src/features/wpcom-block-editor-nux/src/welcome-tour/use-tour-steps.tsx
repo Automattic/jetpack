@@ -17,7 +17,8 @@ interface TourAsset {
 /**
  * Get the tour asset by the key.
  *
- * @param key - The key of the tour asset.
+ * @param  key - The key of the tour asset.
+ * @return {TourAsset | undefined} The requested tour asset, or undefined if not found.
  */
 function getTourAssets( key: string ): TourAsset | undefined {
 	const CDN_PREFIX = 'https://s0.wp.com/i/editor-welcome-tour';
@@ -69,11 +70,12 @@ function getTourAssets( key: string ): TourAsset | undefined {
 /**
  * Get the steps of the tour
  *
- * @param localeSlug           - The slug of the locale.
- * @param referencePositioning - The reference positioning.
- * @param isSiteEditor         - Whether is the site editor.
- * @param themeName            - The name of the theme.
- * @param siteIntent           - The intent of the current site.
+ * @param  localeSlug           - The slug of the locale.
+ * @param  referencePositioning - The reference positioning.
+ * @param  isSiteEditor         - Whether is the site editor.
+ * @param  themeName            - The name of the theme.
+ * @param  siteIntent           - The intent of the current site.
+ * @return {WpcomStep[]} The steps of the tour.
  */
 function useTourSteps(
 	localeSlug: string,
