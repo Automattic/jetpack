@@ -115,23 +115,50 @@ class Source_Providers {
 	}
 
 	/**
+	 * Get a flat array of URLs for a provider.
+	 *
+	 * @param string $provider The provider class name.
+	 * @param array  $context_posts The context posts.
+	 *
+	 * @return array
+	 */
+	public function get_provider_urls_flat( $provider, $context_posts = array() ) {
+		$urls      = $provider::get_critical_source_urls( $context_posts );
+		$flat_urls = array();
+		foreach ( $urls as $url ) {
+			$flat_urls = array_merge( $flat_urls, $url );
+		}
+		return $flat_urls;
+	}
+
+	/**
+	 * Get the URLs of the important providers.
+	 * Important providers are the ones Boost checks against
+	 * if critical css generation fails
+	 *
+	 * @param array $context_posts The context posts.
+	 *
+	 * @return array
+	 */
+	public function get_important_provider_urls( $context_posts = array() ) {
+		$important_provider_urls = array();
+
+		$wp_core_provider_urls     = $this->get_provider_urls_flat( WP_Core_Provider::class, $context_posts );
+		$cornerstone_provider_urls = $this->get_provider_urls_flat( Cornerstone_Provider::class, $context_posts );
+		$important_provider_urls   = array_merge( $wp_core_provider_urls, $cornerstone_provider_urls );
+
+		return array_values( array_unique( $important_provider_urls ) );
+	}
+
+	/**
 	 * Get providers sources.
 	 *
 	 * @return array
 	 */
 	public function get_provider_sources( $context_posts = array() ) {
-		$sources                        = array();
-		$flat_core_and_cornerstone_urls = array();
-
-		$wp_core_provider_urls = WP_Core_Provider::get_critical_source_urls( $context_posts );
-		foreach ( $wp_core_provider_urls as $urls ) {
-			$flat_core_and_cornerstone_urls = array_merge( $flat_core_and_cornerstone_urls, $urls );
-		}
-		$cornerstone_provider_urls = Cornerstone_Provider::get_critical_source_urls( $context_posts );
-		foreach ( $cornerstone_provider_urls as $urls ) {
-			$flat_core_and_cornerstone_urls = array_merge( $flat_core_and_cornerstone_urls, $urls );
-		}
-		$flat_core_and_cornerstone_urls = array_values( array_unique( $flat_core_and_cornerstone_urls ) );
+		$sources                   = array();
+		$important_provider_urls   = $this->get_important_provider_urls( $context_posts );
+		$cornerstone_provider_urls = $this->get_provider_urls_flat( Cornerstone_Provider::class, $context_posts );
 
 		foreach ( $this->get_providers() as $provider ) {
 			$provider_name = $provider::get_provider_name();
@@ -146,7 +173,12 @@ class Source_Providers {
 				// This removes core and cornerstone URLs from the list of URLs,
 				// so they don't belong to two separate groups.
 				if ( ! in_array( $provider, array( WP_Core_Provider::class, Cornerstone_Provider::class ), true ) ) {
-					$urls = array_values( array_diff( $urls, $flat_core_and_cornerstone_urls ) );
+					$urls = array_values( array_diff( $urls, $important_provider_urls ) );
+				}
+
+				// Remove WP Core URLs if they are in the Cornerstone URLs list.
+				if ( WP_Core_Provider::class === $provider ) {
+					$urls = array_values( array_diff( $urls, $cornerstone_provider_urls ) );
 				}
 
 				if ( empty( $urls ) ) {
