@@ -62,12 +62,15 @@ export function getPrimaryErrorSet( cssState: CriticalCssState ): ErrorSet | und
 		return undefined;
 	}
 
-	const primaryProviders = [ 'core_front_page', 'core_posts_page' ];
+	const isImportantProvider = ( provider: Provider ) => {
+		return provider.key.includes( 'cornerstone' ) || provider.key === 'core_front_page';
+	};
 
-	for ( const key of primaryProviders ) {
-		const provider = providersWithErrors.find( p => p.key === key );
-		if ( provider && provider.errors ) {
-			return getPrimaryGroupedError( provider.errors );
+	for ( const provider of providersWithErrors ) {
+		if ( isImportantProvider( provider ) ) {
+			if ( provider.errors ) {
+				return getPrimaryGroupedError( provider.errors );
+			}
 		}
 	}
 
