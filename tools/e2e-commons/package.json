@@ -19,7 +19,7 @@
 		"jetpack-connect": "node bin/e2e-jetpack-connector.js"
 	},
 	"devDependencies": {
-		"@playwright/test": "1.45.1",
+		"@playwright/test": "1.48.2",
 		"@slack/web-api": "7.3.2",
 		"@types/lodash-es": "4.17.12",
 		"allure-playwright": "2.9.2",

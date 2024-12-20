@@ -432,6 +432,8 @@ class WPCOM_Features {
 	public const SPACE_UPGRADED_STORAGE            = 'space-upgraded-storage';
 	public const SSH                               = 'ssh';
 	public const STAGING_SITES                     = 'staging-sites';
+	public const STATS_BASIC_TEMP                  = 'stats-basic';
+	public const STATS_COMMERCIAL                  = 'stats-commercial';
 	public const STATS_FREE                        = 'stats-free';
 	public const STATS_PAID                        = 'stats-paid';
 	public const STUDIO_SYNC                       = 'studio-sync';
@@ -1146,23 +1148,49 @@ class WPCOM_Features {
 				self::WPCOM_ECOMMERCE_TRIAL_PLANS,
 			),
 		),
+		// Gives near full access to all stats features. All features except new commercial level modules like UTM and device stats.
 		self::STATS_FREE                        => array(
 			self::JETPACK_STATS_PLANS,
 			self::JETPACK_GROWTH_PLANS,
-		),
-		self::STATS_PAID                        => array(
+			// Provides legacy access for free and personal sites created before 2024-01-09.
+			// Can be removed once we are ready to paywall all free and/or old personal sites.
 			array(
 				'before' => '2024-01-09',
-				self::WPCOM_PERSONAL_PLANS,
+				self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
 				self::WPCOM_ALL_SITES,
 			),
+		),
+		// Provides limited stats for free and personal sites created before 2024-12-06.
+		// Features: Posts/Locations/Emails/File downloads
+		// Can be removed once we are ready to paywall all free sites.
+		self::STATS_BASIC_TEMP                  => array(
+			array(
+				'before' => '2024-12-12',
+				self::WPCOM_ALL_SITES,
+			),
+		),
+		// Provides personal sites and higher access to all stats features except commercial level modules.
+		// Features: Posts/Locations/Emails/File downloads/Referrers/Clicks
+		self::STATS_PAID                        => array(
+			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
 			self::WP_P2_PLUS_MONTHLY,
-			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
 			self::JETPACK_STATS_PWYW,
 			self::JETPACK_STATS_MONTHLY,
 			self::JETPACK_STATS_BI_YEARLY,
 			self::JETPACK_STATS_YEARLY,
 			self::JETPACK_COMPLETE_PLANS,
+			self::JETPACK_BUSINESS_PLANS,
+			self::JETPACK_GROWTH_PLANS,
+		),
+		// Provides premium sites and higher access to all stats features.
+		// Features: STATS_PAID + UTM & Devices modules
+		self::STATS_COMMERCIAL                  => array(
+			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
+			self::JETPACK_STATS_MONTHLY,
+			self::JETPACK_STATS_BI_YEARLY,
+			self::JETPACK_STATS_YEARLY,
+			self::JETPACK_COMPLETE_PLANS,
+			self::JETPACK_BUSINESS_PLANS,
 			self::JETPACK_GROWTH_PLANS,
 		),
 		self::STUDIO_SYNC                       => array(
