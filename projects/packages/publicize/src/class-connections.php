@@ -33,22 +33,9 @@ class Connections {
 		$is_wpcom = ( new Host() )->is_wpcom_simple();
 
 		if ( $is_wpcom ) {
-			// We don't need to cache connections for simple sites.
 			$connections = Connections_Controller::get_connections( $run_tests );
 		} else {
-
-			$clear_cache = $args['clear_cache'] ?? false;
-
-			if ( $clear_cache || $run_tests ) {
-				self::clear_transient();
-			}
-
-			$connections = get_transient( self::CONNECTIONS_TRANSIENT );
-
-			// This can be an empty array, so we need to check for false.
-			if ( false === $connections ) {
-				$connections = self::fetch_and_cache_connections( $run_tests );
-			}
+			$connections = self::fetch_and_cache_connections( $run_tests );
 		}
 
 		// Let us add the deprecated fields for now.
@@ -103,12 +90,5 @@ class Connections {
 		// TODO Implement caching here.
 
 		return $connections;
-	}
-
-	/**
-	 * Delete the transient.
-	 */
-	public static function clear_transient() {
-		delete_transient( self::CONNECTIONS_TRANSIENT );
 	}
 }
