@@ -134,8 +134,10 @@ class Utils {
 			);
 
 			/*
-			 * WordPress.com passes statusCode and error back from Boost Cloud.
-			 * WordPress.com ISA returns code and message.
+			 * Normalize error responses from WordPress.com.
+			 *
+			 * When WordPress.com returns an error from Boost Cloud, the body contains
+			 * statusCode and error. When it returns a WP_Error, it contains code and message.
 			 */
 			// phpcs:disable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 			if ( isset( $data['statusCode'] ) && isset( $data['error'] ) ) {
