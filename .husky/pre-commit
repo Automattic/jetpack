@@ -1,4 +1,1 @@
-#!/bin/sh
-. "$(dirname "$0")/_/husky.sh"
-
 node tools/js-tools/git-hooks/pre-commit-hook.js
