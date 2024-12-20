@@ -46,11 +46,14 @@ const getStatusLabel: StatusStateFunction = ( slug, status, isOwned ) => {
 			return isOwned ? needsPlanText : inactiveText;
 		}
 		case PRODUCT_STATUSES.NEEDS_ATTENTION__WARNING:
-		case PRODUCT_STATUSES.NEEDS_ATTENTION__ERROR:
+		case PRODUCT_STATUSES.NEEDS_ATTENTION__ERROR: {
+			const activeText = __( 'Active', 'jetpack-my-jetpack' );
+			const needsAttentionText = __( 'Needs attention', 'jetpack-my-jetpack' );
 			if ( slug === 'protect' ) {
-				return __( 'Active', 'jetpack-my-jetpack' );
+				return activeText;
 			}
-			return __( 'Needs attention', 'jetpack-my-jetpack' );
+			return needsAttentionText;
+		}
 		default:
 			return __( 'Inactive', 'jetpack-my-jetpack' );
 	}
