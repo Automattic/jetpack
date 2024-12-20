@@ -2,7 +2,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
-import { Redirect, Route, Routes } from 'react-router-dom';
+import { Route, Routes, Navigate } from 'react-router-dom';
 import QueryIntroOffers from 'components/data/query-intro-offers';
 import QueryRecommendationsConditional from 'components/data/query-recommendations-conditional';
 import QueryRecommendationsData from 'components/data/query-recommendations-data';
@@ -213,7 +213,10 @@ const RecommendationsComponent = props => {
 			) : (
 				<Routes>
 					{ /* TODO: Why we don't redirect improper step paths? */ }
-					<Redirect exact from={ '/recommendations' } to={ '/recommendations' + redirectPath } />
+					<Route
+						path="/recommendations"
+						element={ <Navigate to={ '/recommendations' + redirectPath } replace /> }
+					/>
 					<Route path="/recommendations/site-type" element={ <SiteTypeQuestion /> } />
 					<Route path="/recommendations/product-suggestions" element={ <ProductSuggestions /> } />
 					<Route path="/recommendations/product-purchased" element={ <ProductPurchased /> } />
