@@ -201,7 +201,7 @@ export default function FeaturedImage( {
 				style: style,
 			} );
 
-			setCurrent( crrt => crrt + 1 );
+			setCurrent( () => images.length );
 			processImageGeneration( {
 				userPrompt,
 				postContent: postTitle + '\n\n' + postContent,
@@ -228,6 +228,7 @@ export default function FeaturedImage( {
 			postTitle,
 			postContent,
 			notEnoughRequests,
+			images,
 		]
 	);
 
@@ -398,7 +399,9 @@ export default function FeaturedImage( {
 				placement={ placement }
 				onClose={ handleModalClose }
 				onTryAgain={ handleTryAgain }
-				onGenerate={ pointer?.current > 0 ? handleRegenerate : handleGenerate }
+				onGenerate={
+					pointer?.current > 0 || postFeaturedMediaId ? handleRegenerate : handleGenerate
+				}
 				generating={ currentPointer?.generating }
 				notEnoughRequests={ notEnoughRequests }
 				requireUpgrade={ requireUpgrade }
