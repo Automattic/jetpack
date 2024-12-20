@@ -1,4 +1,4 @@
-import { getFixerState, getDetailedFixerAction } from '@automattic/jetpack-scan';
+import { getFixerState, getDetailedFixerAction, type Threat } from '@automattic/jetpack-scan';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useContext, useMemo } from 'react';
 import { Button } from '@automattic/jetpack-components';
@@ -9,12 +9,14 @@ import { ThreatsModalContext } from '.';
 /**
  * ThreatActions component
  *
+ * @param {object}   props                 - The props.
+ * @param {Threat[]} props.selectedThreats - The selected threats.
+ *
  * @return {JSX.Element | null} The rendered action buttons or null if no actions are available.
  */
-const ThreatActions = (): JSX.Element => {
+const ThreatActions = ( { selectedThreats }: { selectedThreats: Threat[] } ): JSX.Element => {
 	const {
 		closeModal,
-		currentThreats,
 		isSingleThreat,
 		actionToConfirm,
 		handleFixThreatClick,
@@ -23,36 +25,36 @@ const ThreatActions = (): JSX.Element => {
 		userConnectionNeeded,
 		siteCredentialsNeeded,
 	} = useContext( ThreatsModalContext );
-	const disabled = userConnectionNeeded || siteCredentialsNeeded;
+	const disabled = userConnectionNeeded || siteCredentialsNeeded || selectedThreats.length === 0;
 
 	const fixerState = useMemo(
-		() => ( isSingleThreat ? getFixerState( currentThreats[ 0 ].fixer ) : null ),
-		[ isSingleThreat, currentThreats ]
+		() => ( isSingleThreat ? getFixerState( selectedThreats[ 0 ].fixer ) : null ),
+		[ isSingleThreat, selectedThreats ]
 	);
 
 	const detailedFixerAction = useMemo(
-		() => ( isSingleThreat ? getDetailedFixerAction( currentThreats[ 0 ] ) : null ),
-		[ isSingleThreat, currentThreats ]
+		() => ( isSingleThreat ? getDetailedFixerAction( selectedThreats[ 0 ] ) : null ),
+		[ isSingleThreat, selectedThreats ]
 	);
 
 	const onFixClick = useCallback( () => {
-		handleFixThreatClick?.( currentThreats );
+		handleFixThreatClick?.( selectedThreats );
 		closeModal();
-	}, [ currentThreats, handleFixThreatClick, closeModal ] );
+	}, [ selectedThreats, handleFixThreatClick, closeModal ] );
 
 	const onIgnoreClick = useCallback( () => {
-		handleIgnoreThreatClick?.( currentThreats );
+		handleIgnoreThreatClick?.( selectedThreats );
 		closeModal();
-	}, [ currentThreats, handleIgnoreThreatClick, closeModal ] );
+	}, [ selectedThreats, handleIgnoreThreatClick, closeModal ] );
 
 	const onUnignoreClick = useCallback( () => {
-		handleUnignoreThreatClick?.( currentThreats );
+		handleUnignoreThreatClick?.( selectedThreats );
 		closeModal();
-	}, [ currentThreats, handleUnignoreThreatClick, closeModal ] );
+	}, [ selectedThreats, handleUnignoreThreatClick, closeModal ] );
 
 	if (
 		isSingleThreat &&
-		( ! currentThreats[ 0 ]?.status || currentThreats[ 0 ].status === 'fixed' )
+		( ! selectedThreats[ 0 ]?.status || selectedThreats[ 0 ].status === 'fixed' )
 	) {
 		return null;
 	}
@@ -63,7 +65,7 @@ const ThreatActions = (): JSX.Element => {
 			<div className={ styles[ 'threat-actions' ] }>
 				{ isSingleThreat ? (
 					<>
-						{ currentThreats[ 0 ]?.status === 'ignored' && (
+						{ selectedThreats[ 0 ]?.status === 'ignored' && (
 							<Button
 								disabled={ disabled }
 								isDestructive={ true }
@@ -73,7 +75,7 @@ const ThreatActions = (): JSX.Element => {
 								{ __( 'Un-ignore threat', 'jetpack-components' ) }
 							</Button>
 						) }
-						{ currentThreats[ 0 ]?.status === 'current' && (
+						{ selectedThreats[ 0 ]?.status === 'current' && (
 							<>
 								{ [ 'all', 'ignore' ].includes( actionToConfirm ) && (
 									<Button
@@ -85,7 +87,7 @@ const ThreatActions = (): JSX.Element => {
 										{ __( 'Ignore threat', 'jetpack-components' ) }
 									</Button>
 								) }
-								{ currentThreats[ 0 ]?.fixable && [ 'all', 'fix' ].includes( actionToConfirm ) && (
+								{ selectedThreats[ 0 ]?.fixable && [ 'all', 'fix' ].includes( actionToConfirm ) && (
 									<Button
 										isPrimary
 										disabled={ disabled || ( fixerState.inProgress && ! fixerState.stale ) }

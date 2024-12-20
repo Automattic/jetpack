@@ -8,12 +8,19 @@ import { ThreatsModalContext } from '.';
 /**
  * ThreatFixDetails component
  *
- * @param {object} props        - The props.
- * @param {Threat} props.threat - The threat.
+ * @param {object}  props           - The props.
+ * @param {boolean} props.showTitle - Whether to show the title.
+ * @param {Threat}  props.threat    - The threat.
  *
  * @return {JSX.Element | null} The rendered fix details or null if no fixable details are available.
  */
-const ThreatFixDetails = ( { threat }: { threat: Threat } ): JSX.Element => {
+const ThreatFixDetails = ( {
+	showTitle = true,
+	threat,
+}: {
+	showTitle?: boolean;
+	threat: Threat;
+} ): JSX.Element => {
 	const { actionToConfirm } = useContext( ThreatsModalContext );
 
 	const title = useMemo( () => {
@@ -51,7 +58,7 @@ const ThreatFixDetails = ( { threat }: { threat: Threat } ): JSX.Element => {
 
 	return (
 		<div className={ styles.section }>
-			<Text variant="title-small">{ title }</Text>
+			{ showTitle && <Text variant="title-small">{ title }</Text> }
 			<Text>{ fix }</Text>
 		</div>
 	);

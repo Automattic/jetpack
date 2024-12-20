@@ -1,8 +1,19 @@
+import { getThreatType, type Threat } from '@automattic/jetpack-scan';
 import { __ } from '@wordpress/i18n';
-import { useContext } from 'react';
+import {
+	Icon,
+	code as fileIcon,
+	color as themeIcon,
+	plugins as pluginIcon,
+	shield as shieldIcon,
+	wordpress as coreIcon,
+} from '@wordpress/icons';
+import { useContext, useState, useCallback, useMemo } from 'react';
 import ContextualUpgradeTrigger from '../contextual-upgrade-trigger';
+import useBreakpointMatch from '../layout/use-breakpoint-match';
 import Text from '../text';
 import ThreatSeverityBadge from '../threat-severity-badge';
+import ToggleControl from '../toggle-control';
 import styles from './styles.module.scss';
 import ThreatActions from './threat-actions';
 import ThreatFixDetails from './threat-fix-details';
@@ -12,12 +23,22 @@ import ThreatSummary from './threat-summary';
 import ThreatTechnicalDetails from './threat-technical-details';
 import { ThreatsModalContext } from '.';
 
+export const THREAT_ICONS = {
+	plugins: pluginIcon,
+	themes: themeIcon,
+	core: coreIcon,
+	file: fileIcon,
+	default: shieldIcon,
+};
+
 /**
  * ThreatFixConfirmation component
  *
  * @return {JSX.Element} The rendered fix confirmation.
  */
 const ThreatFixConfirmation = () => {
+	const [ isSm ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
+
 	const {
 		currentThreats,
 		isSingleThreat,
@@ -26,19 +47,61 @@ const ThreatFixConfirmation = () => {
 		handleUpgradeClick,
 	} = useContext( ThreatsModalContext );
 
+	const [ selectedThreats, setSelectedThreats ] = useState( currentThreats );
+
+	const handleToggleThreat = useCallback( ( threat: Threat, isChecked: boolean ) => {
+		setSelectedThreats( prevSelectedThreats => {
+			if ( isChecked ) {
+				// Add the threat if it's not already in the list
+				return [ ...prevSelectedThreats, threat ];
+			}
+			// Remove the threat if it exists in the list
+			return prevSelectedThreats.filter( selectedThreat => selectedThreat.id !== threat.id );
+		} );
+	}, [] );
+
+	// Memoize toggle handlers for each threat
+	const toggleHandlers = useMemo( () => {
+		return currentThreats.reduce( ( handlers, threat ) => {
+			handlers[ threat.id ] = isChecked => handleToggleThreat( threat, isChecked );
+			return handlers;
+		}, {} );
+	}, [ currentThreats, handleToggleThreat ] );
+
 	return (
 		<>
+			{ ! isSingleThreat && <Text>{ 'Jetpack will be fixing the selected threats:' }</Text> }
 			{ currentThreats.map( ( threat, index ) => (
 				<div key={ threat.id || index } className={ styles[ 'threat-details' ] }>
 					{ ! isSingleThreat && (
-						<div className={ styles.title }>
-							<Text variant="title-small">{ threat.title }</Text>
-							{ !! threat.severity && <ThreatSeverityBadge severity={ threat.severity } /> }
+						<div className={ styles.bulk }>
+							<div className={ styles.bulk__content }>
+								{ ! isSm && (
+									<div className={ styles.bulk__media }>
+										<Icon icon={ THREAT_ICONS[ getThreatType( threat ) ] } size={ 20 } />
+									</div>
+								) }
+								<div className={ styles.bulk__title }>
+									<Text variant="title-small">{ threat.title }</Text>
+									<ThreatFixDetails showTitle={ false } threat={ threat } />
+								</div>
+							</div>
+							{ ! isSm && !! threat.severity && (
+								<ThreatSeverityBadge severity={ threat.severity } />
+							) }
+							<ToggleControl
+								className={ styles.bulk__toggle }
+								size="small"
+								checked={ selectedThreats.some(
+									selectedThreat => selectedThreat.id === threat.id
+								) }
+								onChange={ toggleHandlers[ threat.id ] }
+							/>
 						</div>
 					) }
-					<ThreatSummary threat={ threat } />
 					{ isSingleThreat && (
 						<>
+							<ThreatSummary threat={ threat } />
 							<ThreatTechnicalDetails threat={ threat } />
 							<ThreatFixDetails threat={ threat } />
 							<ThreatIgnoreDetails threat={ threat } />
@@ -83,7 +146,7 @@ const ThreatFixConfirmation = () => {
 					onClick={ handleUpgradeClick }
 				/>
 			) }
-			<ThreatActions />
+			<ThreatActions selectedThreats={ selectedThreats } />
 		</>
 	);
 };
