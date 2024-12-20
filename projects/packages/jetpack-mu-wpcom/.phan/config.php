@@ -32,6 +32,8 @@ return make_phan_config(
 			// This file breaks analysis, Phan gets lost recursing in trying to figure out some types.
 			// @todo Add type declarations so Phan won't have to do it itself. Or update to a modern less lib.
 			'src/features/custom-css/custom-css/preprocessors/lessc.inc.php',
+			// This is synced from the Newspack Blocks repo.
+			'src/features/newspack-blocks/synced-newspack-blocks/',
 		),
 	)
 );
