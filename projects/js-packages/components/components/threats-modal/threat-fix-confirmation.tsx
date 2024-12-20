@@ -49,7 +49,7 @@ const ThreatFixConfirmation = () => {
 
 	const renderBulkThreat = threat => (
 		<div key={ threat.id } className={ styles.bulk }>
-			<div className={ styles.bulk__content }>
+			<div className={ styles.bulk__heading }>
 				{ ! isSm && (
 					<div className={ styles.bulk__media }>
 						<Icon icon={ THREAT_ICONS[ getThreatType( threat ) ] } size={ 20 } />
@@ -71,8 +71,14 @@ const ThreatFixConfirmation = () => {
 	);
 
 	const renderIndividualThreat = threat => (
-		<div key={ threat.id } className={ styles[ 'threat-details' ] }>
-			<ThreatSummary threat={ threat } />
+		<div key={ threat.id } className={ styles.individual }>
+			<div className={ styles.individual__heading }>
+				<div className={ styles.individual__title }>
+					<Text variant="title-small">{ threat.title }</Text>
+					{ !! threat.severity && <ThreatSeverityBadge severity={ threat.severity } /> }
+				</div>
+				<ThreatSummary threat={ threat } />
+			</div>
 			<ThreatTechnicalDetails threat={ threat } />
 			<ThreatFixDetails threat={ threat } />
 			<ThreatIgnoreDetails threat={ threat } />
@@ -80,7 +86,7 @@ const ThreatFixConfirmation = () => {
 	);
 
 	return (
-		<>
+		<div className={ styles.threat__details }>
 			{ isBulk && <Text>{ 'Jetpack will be fixing the selected threats:' }</Text> }
 			{ currentThreats.map( threat =>
 				isBulk ? renderBulkThreat( threat ) : renderIndividualThreat( threat )
@@ -97,7 +103,7 @@ const ThreatFixConfirmation = () => {
 				/>
 			) }
 			<ThreatActions selectedThreats={ selectedThreats } />
-		</>
+		</div>
 	);
 };
 
