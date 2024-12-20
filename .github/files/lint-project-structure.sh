@@ -635,4 +635,15 @@ while IFS= read -r FILE; do
 	done < <( git grep -h --line-number --column -o "$RE" "$FILE" )
 done < <( git -c core.quotepath=off grep -l "$RE" )
 
+# - Check for `random(` in scss files.
+debug "Checking for SCSS random."
+while IFS= read -r FILE; do
+	EXIT=1
+	while IFS=: read -r LINE COL X; do
+		X=${X%(}
+		echo "::error file=$FILE,line=$LINE,col=$COL::Do not use SCSS \`$X()\`. It means that every build will have different CSS, dirtying the diffs (and making for redudant Simple deploys if this gets into a relevant plugin)."
+	done < <( git grep -h --line-number --column -o '\(random\|unique-id\)\s*(' "$FILE" )
+done < <( git -c core.quotepath=off grep -l '\(random\|unique-id\)\s*(' '*.sass' '*.scss' )
+
+
 exit $EXIT

@@ -7,6 +7,9 @@
 
 namespace Automattic\Jetpack\Publicize;
 
+use Automattic\Jetpack\Publicize\REST_API\Connections_Controller;
+use Automattic\Jetpack\Status\Host;
+
 /**
  * The class to configure and initialize the publicize package.
  */
@@ -24,6 +27,30 @@ class Publicize_Setup {
 	 */
 	public static function configure() {
 		add_action( 'jetpack_feature_publicize_enabled', array( __CLASS__, 'on_jetpack_feature_publicize_enabled' ) );
+	}
+
+	/**
+	 * Initialization of publicize logic that should always be loaded.
+	 */
+	public static function pre_initialization() {
+
+		$is_wpcom = ( new Host() )->is_wpcom_simple();
+
+		// Assets are to be loaded in all cases.
+		Publicize_Assets::configure();
+
+		$rest_controllers = array(
+			Connections_Controller::class,
+		);
+
+		// Load the REST controllers.
+		foreach ( $rest_controllers as $controller ) {
+			if ( $is_wpcom ) {
+				wpcom_rest_api_v2_load_plugin( $controller );
+			} else {
+				new $controller();
+			}
+		}
 	}
 
 	/**
