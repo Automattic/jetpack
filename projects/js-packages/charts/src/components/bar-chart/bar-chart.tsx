@@ -13,9 +13,7 @@ import { BaseTooltip } from '../tooltip';
 import styles from './bar-chart.module.scss';
 import type { BaseChartProps, SeriesData } from '../shared/types';
 
-interface BarChartProps extends BaseChartProps< SeriesData[] > {
-	gridVisibility?: 'x' | 'y' | 'xy' | 'none';
-}
+interface BarChartProps extends BaseChartProps< SeriesData[] > {}
 
 type BarChartTooltipData = { value: number; xLabel: string; yLabel: string; seriesIndex: number };
 
