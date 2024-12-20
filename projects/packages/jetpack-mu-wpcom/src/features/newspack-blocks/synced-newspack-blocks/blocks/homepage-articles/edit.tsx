@@ -3,14 +3,27 @@
 /**
  * Internal dependencies
  */
+import QueryControls from '../../components/query-controls';
+import { postsBlockSelector, postsBlockDispatch, isBlogPrivate, shouldReflow } from './utils';
+import {
+	formatAvatars,
+	formatByline,
+	formatSponsorLogos,
+	formatSponsorByline,
+	getPostStatusLabel,
+} from '../../shared/js/utils';
+import { PostTypesPanel, PostStatusesPanel } from '../../components/editor-panels';
 
 /**
  * External dependencies
  */
+import classNames from 'classnames';
 
 /**
  * WordPress dependencies
  */
+import { __ } from '@wordpress/i18n';
+import { Component, Fragment, RawHTML } from '@wordpress/element';
 import {
 	BlockControls,
 	InspectorControls,
@@ -34,11 +47,9 @@ import {
 	Path,
 	SVG,
 } from '@wordpress/components';
-import { compose } from '@wordpress/compose';
 import { withDispatch, withSelect } from '@wordpress/data';
-import { Component, Fragment, RawHTML } from '@wordpress/element';
+import { compose } from '@wordpress/compose';
 import { decodeEntities } from '@wordpress/html-entities';
-import { __ } from '@wordpress/i18n';
 import {
 	Icon,
 	formatListBullets,
@@ -49,17 +60,6 @@ import {
 	pullLeft,
 	pullRight,
 } from '@wordpress/icons';
-import classNames from 'classnames';
-import { PostTypesPanel, PostStatusesPanel } from '../../components/editor-panels';
-import QueryControls from '../../components/query-controls';
-import {
-	formatAvatars,
-	formatByline,
-	formatSponsorLogos,
-	formatSponsorByline,
-	getPostStatusLabel,
-} from '../../shared/js/utils';
-import { postsBlockSelector, postsBlockDispatch, isBlogPrivate, shouldReflow } from './utils';
 
 let IS_SUBTITLE_SUPPORTED_IN_THEME: boolean;
 if (
@@ -111,6 +111,7 @@ class Edit extends Component< HomepageArticlesProps > {
 			showCaption,
 			showCredit,
 			showExcerpt,
+			showFullContent,
 			showReadMore,
 			readMoreLabel,
 			showSubtitle,
@@ -185,8 +186,8 @@ class Edit extends Component< HomepageArticlesProps > {
 							) }
 							{ showCategory &&
 								( ! post.newspack_post_sponsors || post.newspack_sponsors_show_categories ) && (
-									<RawHTML>{ decodeEntities( post.newspack_category_info ) }</RawHTML>
-								) }
+								<RawHTML>{ decodeEntities( post.newspack_category_info ) }</RawHTML>
+							) }
 						</div>
 					) }
 					{ RichText.isEmpty( sectionHeader ) ? (
@@ -206,9 +207,14 @@ class Edit extends Component< HomepageArticlesProps > {
 							{ post.meta.newspack_post_subtitle || '' }
 						</RawHTML>
 					) }
-					{ showExcerpt && (
+					{ showExcerpt && ! showFullContent && (
 						<RawHTML key="excerpt" className="excerpt-contain">
 							{ post.excerpt.rendered }
+						</RawHTML>
+					) }
+					{ ! showExcerpt && showFullContent && (
+						<RawHTML key="full-content" className="excerpt-contain">
+							{ post.full_content }
 						</RawHTML>
 					) }
 					{ showReadMore && post.post_link && (
@@ -280,7 +286,9 @@ class Edit extends Component< HomepageArticlesProps > {
 			mobileStack,
 			minHeight,
 			moreButton,
+			infiniteScroll,
 			showExcerpt,
+			showFullContent,
 			showReadMore,
 			readMoreLabel,
 			excerptLength,
@@ -434,11 +442,20 @@ class Edit extends Component< HomepageArticlesProps > {
 						</i>
 					) : (
 						! specificMode && (
-							<ToggleControl
-								label={ __( 'Show "Load more posts" Button', 'jetpack-mu-wpcom' ) }
-								checked={ moreButton }
-								onChange={ () => setAttributes( { moreButton: ! moreButton } ) }
-							/>
+							<>
+								<ToggleControl
+									label={ __( 'Show "Load more posts" Button', 'jetpack-mu-wpcom' ) }
+									checked={ moreButton }
+									onChange={ () => setAttributes( { moreButton: ! moreButton } ) }
+								/>
+								{ moreButton && (
+									<ToggleControl
+										label={ __( 'Infinite Scroll', 'jetpack-mu-wpcom' ) }
+										checked={ infiniteScroll }
+										onChange={ () => setAttributes( { infiniteScroll: ! infiniteScroll } ) }
+									/>
+								) }
+							</>
 						)
 					) }
 					<ToggleControl
@@ -547,23 +564,44 @@ class Edit extends Component< HomepageArticlesProps > {
 						<ToggleControl
 							label={ __( 'Show Excerpt', 'jetpack-mu-wpcom' ) }
 							checked={ showExcerpt }
-							onChange={ () => setAttributes( { showExcerpt: ! showExcerpt } ) }
+							onChange={ () => {
+								setAttributes({
+									showExcerpt: !showExcerpt,
+									showFullContent: showFullContent ? false : showFullContent
+								})
+							} }
 						/>
 					</PanelRow>
 					{ showExcerpt && (
-						<RangeControl
-							label={ __( 'Max number of words in excerpt', 'jetpack-mu-wpcom' ) }
-							value={ excerptLength }
-							onChange={ ( value: number ) => setAttributes( { excerptLength: value } ) }
-							min={ 10 }
-							max={ 100 }
-						/>
+						<PanelRow>
+							<RangeControl
+								label={ __( 'Max number of words in excerpt', 'jetpack-mu-wpcom' ) }
+								value={ excerptLength }
+								onChange={ ( value: number ) => setAttributes( { excerptLength: value } ) }
+								min={ 10 }
+								max={ 100 }
+							/>
+						</PanelRow>
 					) }
-					<ToggleControl
-						label={ __( 'Add a "Read More" link', 'jetpack-mu-wpcom' ) }
-						checked={ showReadMore }
-						onChange={ () => setAttributes( { showReadMore: ! showReadMore } ) }
-					/>
+					<PanelRow>
+						<ToggleControl
+							label={ __( 'Show Full Content', 'jetpack-mu-wpcom' ) }
+							checked={ showFullContent }
+							onChange={ () => {
+								setAttributes({
+									showFullContent: !showFullContent,
+									showExcerpt: showExcerpt ? false : showExcerpt
+								})
+							} }
+						/>
+					</PanelRow>
+					<PanelRow>
+						<ToggleControl
+							label={ __( 'Add a "Read More" link', 'jetpack-mu-wpcom' ) }
+							checked={ showReadMore }
+							onChange={ () => setAttributes( { showReadMore: ! showReadMore } ) }
+						/>
+					</PanelRow>
 					{ showReadMore && (
 						<TextControl
 							label={ __( '"Read More" link text', 'jetpack-mu-wpcom' ) }
