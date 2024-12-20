@@ -1,8 +1,8 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
-import { Redirect, Route, Switch } from 'react-router-dom';
+import { Redirect, Route, Routes } from 'react-router-dom';
 import QueryIntroOffers from 'components/data/query-intro-offers';
 import QueryRecommendationsConditional from 'components/data/query-recommendations-conditional';
 import QueryRecommendationsData from 'components/data/query-recommendations-data';
@@ -211,127 +211,151 @@ const RecommendationsComponent = props => {
 					<JetpackLoadingIcon altText={ __( 'Loading recommendations', 'jetpack' ) } />
 				</div>
 			) : (
-				<Switch>
+				<Routes>
 					{ /* TODO: Why we don't redirect improper step paths? */ }
 					<Redirect exact from={ '/recommendations' } to={ '/recommendations' + redirectPath } />
-					<Route path="/recommendations/site-type">
-						<SiteTypeQuestion />
-					</Route>
-					<Route path="/recommendations/product-suggestions">
-						<ProductSuggestions />
-					</Route>
-					<Route path="/recommendations/product-purchased">
-						<ProductPurchased />
-					</Route>
-					<Route path="/recommendations/agency">
-						<ResourcePrompt stepSlug="agency" />
-					</Route>
-					<Route path="/recommendations/woocommerce">
-						<FeaturePrompt stepSlug="woocommerce" />
-					</Route>
-					<Route path="/recommendations/monitor">
-						<FeaturePrompt stepSlug="monitor" />
-					</Route>
-					<Route path="/recommendations/newsletter">
-						<FeaturePrompt stepSlug="newsletter" />
-					</Route>
-					<Route path="/recommendations/related-posts">
-						<FeaturePrompt stepSlug="related-posts" />
-					</Route>
-					<Route path="/recommendations/creative-mail">
-						<FeaturePrompt stepSlug="creative-mail" />
-					</Route>
-					<Route path="/recommendations/site-accelerator">
-						<FeaturePrompt stepSlug="site-accelerator" />
-					</Route>
-					<Route path="/recommendations/vaultpress-backup">
-						<ResourcePrompt stepSlug="vaultpress-backup" />
-					</Route>
-					<Route path="/recommendations/vaultpress-for-woocommerce">
-						<ResourcePrompt stepSlug="vaultpress-for-woocommerce" />
-					</Route>
-					<Route path="/recommendations/publicize">
-						<FeaturePrompt stepSlug="publicize" isNew={ isNew( 'publicize' ) } />
-					</Route>
-					<Route path="/recommendations/protect">
-						<FeaturePrompt stepSlug="protect" isNew={ isNew( 'protect' ) } />
-					</Route>
-					<Route path="/recommendations/anti-spam">
-						<ResourcePrompt stepSlug="anti-spam" isNew={ isNew( 'anti-spam' ) } />
-					</Route>
-					<Route path="/recommendations/videopress">
-						<FeaturePrompt stepSlug="videopress" isNew={ isNew( 'videopress' ) } />
-					</Route>
-					<Route path="/recommendations/backup-plan">
-						<ResourcePrompt stepSlug="backup-plan" isNew={ isNew( 'backup-plan' ) } />
-					</Route>
-					<Route path="/recommendations/boost">
-						<FeaturePrompt stepSlug="boost" isNew={ isNew( 'boost' ) } />
-					</Route>
-					<Route path="/recommendations/welcome-backup">
-						<ResourcePrompt stepSlug="welcome__backup" />
-					</Route>
-					<Route path="/recommendations/welcome-complete">
-						<ResourcePrompt stepSlug="welcome__complete" />
-					</Route>
-					<Route path="/recommendations/welcome-starter">
-						<ResourcePrompt stepSlug="welcome__starter" />
-					</Route>
-					<Route path="/recommendations/welcome-security">
-						<ResourcePrompt stepSlug="welcome__security" />
-					</Route>
-					<Route path="/recommendations/welcome-antispam">
-						<ResourcePrompt stepSlug="welcome__antispam" />
-					</Route>
-					<Route path="/recommendations/welcome-videopress">
-						<ResourcePrompt stepSlug="welcome__videopress" />
-					</Route>
-					<Route path="/recommendations/welcome-search">
-						<ResourcePrompt stepSlug="welcome__search" />
-					</Route>
-					<Route path="/recommendations/welcome-scan">
-						<ResourcePrompt stepSlug="welcome__scan" />
-					</Route>
-					<Route path="/recommendations/welcome-social-basic">
-						<ResourcePrompt stepSlug="welcome__social_basic" />
-					</Route>
-					<Route path="/recommendations/welcome-social-v1">
-						<ResourcePrompt stepSlug="welcome__social_v1" />
-					</Route>
-					<Route path="/recommendations/welcome-social-image-generator">
-						<ResourcePrompt stepSlug="welcome__social_image_generator" />
-					</Route>
-					<Route path="/recommendations/welcome-golden-token">
-						<ResourcePrompt stepSlug="welcome__golden_token" />
-					</Route>
-					<Route path="/recommendations/backup-activated">
-						<ResourcePrompt stepSlug="backup-activated" />
-					</Route>
-					<Route path="/recommendations/scan-activated">
-						<ResourcePrompt stepSlug="scan-activated" />
-					</Route>
-					<Route path="/recommendations/unlimited-sharing-activated">
-						<ResourcePrompt stepSlug="unlimited-sharing-activated" />
-					</Route>
-					<Route path="/recommendations/social-v1-activated">
-						<ResourcePrompt stepSlug="social-v1-activated" />
-					</Route>
-					<Route path="/recommendations/antispam-activated">
-						<ResourcePrompt stepSlug="antispam-activated" />
-					</Route>
-					<Route path="/recommendations/videopress-activated">
-						<ResourcePrompt stepSlug="videopress-activated" />
-					</Route>
-					<Route path="/recommendations/search-activated">
-						<ResourcePrompt stepSlug="search-activated" />
-					</Route>
-					<Route path="/recommendations/server-credentials">
-						<ResourcePrompt stepSlug="server-credentials" />
-					</Route>
-					<Route path="/recommendations/summary">
-						<Summary newRecommendations={ newRecommendations } />
-					</Route>
-				</Switch>
+					<Route path="/recommendations/site-type" element={ <SiteTypeQuestion /> } />
+					<Route path="/recommendations/product-suggestions" element={ <ProductSuggestions /> } />
+					<Route path="/recommendations/product-purchased" element={ <ProductPurchased /> } />
+					<Route path="/recommendations/agency" element={ <ResourcePrompt stepSlug="agency" /> } />
+					<Route
+						path="/recommendations/woocommerce"
+						element={ <FeaturePrompt stepSlug="woocommerce" /> }
+					/>
+					<Route path="/recommendations/monitor" element={ <FeaturePrompt stepSlug="monitor" /> } />
+					<Route
+						path="/recommendations/newsletter"
+						element={ <FeaturePrompt stepSlug="newsletter" /> }
+					/>
+					<Route
+						path="/recommendations/related-posts"
+						element={ <FeaturePrompt stepSlug="related-posts" /> }
+					/>
+					<Route
+						path="/recommendations/creative-mail"
+						element={ <FeaturePrompt stepSlug="creative-mail" /> }
+					/>
+					<Route
+						path="/recommendations/site-accelerator"
+						element={ <FeaturePrompt stepSlug="site-accelerator" /> }
+					/>
+					<Route
+						path="/recommendations/vaultpress-backup"
+						element={ <ResourcePrompt stepSlug="vaultpress-backup" /> }
+					/>
+					<Route
+						path="/recommendations/vaultpress-for-woocommerce"
+						element={ <ResourcePrompt stepSlug="vaultpress-for-woocommerce" /> }
+					/>
+					<Route
+						path="/recommendations/publicize"
+						element={ <FeaturePrompt stepSlug="publicize" isNew={ isNew( 'publicize' ) } /> }
+					/>
+					<Route
+						path="/recommendations/protect"
+						element={ <FeaturePrompt stepSlug="protect" isNew={ isNew( 'protect' ) } /> }
+					/>
+					<Route
+						path="/recommendations/anti-spam"
+						element={ <ResourcePrompt stepSlug="anti-spam" isNew={ isNew( 'anti-spam' ) } /> }
+					/>
+					<Route
+						path="/recommendations/videopress"
+						element={ <FeaturePrompt stepSlug="videopress" isNew={ isNew( 'videopress' ) } /> }
+					/>
+					<Route
+						path="/recommendations/backup-plan"
+						element={ <ResourcePrompt stepSlug="backup-plan" isNew={ isNew( 'backup-plan' ) } /> }
+					/>
+					<Route
+						path="/recommendations/boost"
+						element={ <FeaturePrompt stepSlug="boost" isNew={ isNew( 'boost' ) } /> }
+					/>
+					<Route
+						path="/recommendations/welcome-backup"
+						element={ <ResourcePrompt stepSlug="welcome__backup" /> }
+					/>
+					<Route
+						path="/recommendations/welcome-complete"
+						element={ <ResourcePrompt stepSlug="welcome__complete" /> }
+					/>
+					<Route
+						path="/recommendations/welcome-starter"
+						element={ <ResourcePrompt stepSlug="welcome__starter" /> }
+					/>
+					<Route
+						path="/recommendations/welcome-security"
+						element={ <ResourcePrompt stepSlug="welcome__security" /> }
+					/>
+					<Route
+						path="/recommendations/welcome-antispam"
+						element={ <ResourcePrompt stepSlug="welcome__antispam" /> }
+					/>
+					<Route
+						path="/recommendations/welcome-videopress"
+						element={ <ResourcePrompt stepSlug="welcome__videopress" /> }
+					/>
+					<Route
+						path="/recommendations/welcome-search"
+						element={ <ResourcePrompt stepSlug="welcome__search" /> }
+					/>
+					<Route
+						path="/recommendations/welcome-scan"
+						element={ <ResourcePrompt stepSlug="welcome__scan" /> }
+					/>
+					<Route
+						path="/recommendations/welcome-social-basic"
+						element={ <ResourcePrompt stepSlug="welcome__social_basic" /> }
+					/>
+					<Route
+						path="/recommendations/welcome-social-v1"
+						element={ <ResourcePrompt stepSlug="welcome__social_v1" /> }
+					/>
+					<Route
+						path="/recommendations/welcome-social-image-generator"
+						element={ <ResourcePrompt stepSlug="welcome__social_image_generator" /> }
+					/>
+					<Route
+						path="/recommendations/welcome-golden-token"
+						element={ <ResourcePrompt stepSlug="welcome__golden_token" /> }
+					/>
+					<Route
+						path="/recommendations/backup-activated"
+						element={ <ResourcePrompt stepSlug="backup-activated" /> }
+					/>
+					<Route
+						path="/recommendations/scan-activated"
+						element={ <ResourcePrompt stepSlug="scan-activated" /> }
+					/>
+					<Route
+						path="/recommendations/unlimited-sharing-activated"
+						element={ <ResourcePrompt stepSlug="unlimited-sharing-activated" /> }
+					/>
+					<Route
+						path="/recommendations/social-v1-activated"
+						element={ <ResourcePrompt stepSlug="social-v1-activated" /> }
+					/>
+					<Route
+						path="/recommendations/antispam-activated"
+						element={ <ResourcePrompt stepSlug="antispam-activated" /> }
+					/>
+					<Route
+						path="/recommendations/videopress-activated"
+						element={ <ResourcePrompt stepSlug="videopress-activated" /> }
+					/>
+					<Route
+						path="/recommendations/search-activated"
+						element={ <ResourcePrompt stepSlug="search-activated" /> }
+					/>
+					<Route
+						path="/recommendations/server-credentials"
+						element={ <ResourcePrompt stepSlug="server-credentials" /> }
+					/>
+					<Route
+						path="/recommendations/summary"
+						element={ <Summary newRecommendations={ newRecommendations } /> }
+					/>
+				</Routes>
 			) }
 			<div className="jp-recommendations__links">
 				<a role="button" tabIndex="0" href={ getRedirectUrl( 'jetpack-support-getting-started' ) }>
