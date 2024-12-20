@@ -100,7 +100,8 @@ $scale-factor: 0.55;
 
 		&-footer-left {
 			display: flex;
-			width: 25%;
+			// width: 25%;
+			flex-grow: 1;
 		}
 
 		&-counter {
@@ -109,7 +110,7 @@ $scale-factor: 0.55;
 			align-items: center;
 			font-size: 13px;
 			padding: 6px 0;
-			width: 50%;
+			// width: 50%;
 
 			.ai-carrousel {
 				&__prev,
