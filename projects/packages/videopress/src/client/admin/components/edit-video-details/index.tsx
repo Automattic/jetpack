@@ -22,7 +22,7 @@ import {
 } from '@wordpress/icons';
 import clsx from 'clsx';
 import { useEffect } from 'react';
-import { useNavigate, Prompt, Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 /**
  * Internal dependencies
  */
@@ -268,7 +268,9 @@ const EditVideoDetails = () => {
 
 	return (
 		<>
-			<Prompt when={ hasChanges && ! updated && ! deleted } message={ unsavedChangesMessage } />
+			{ /* This is no longer supported as of react-router-dom v6: https://github.com/remix-run/react-router/issues/8139
+				<Prompt when={ hasChanges && ! updated && ! deleted } message={ unsavedChangesMessage } />
+			*/ }
 
 			{ frameSelectorIsOpen && (
 				<VideoThumbnailSelectorModal
