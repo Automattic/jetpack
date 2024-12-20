@@ -60,7 +60,10 @@ export default function useAiImage( {
 	const { createNotice } = useDispatch( 'core/notices' );
 
 	/* Images Control */
+	// pointer keeps track of request/generation iteration
 	const pointer = useRef( 0 );
+	// and current keeps track of what is the image exposed at the moment
+	// TODO: should current be any relevant here? It's just modal/carrousel logic after all
 	const [ current, setCurrent ] = useState( 0 );
 	const [ images, setImages ] = useState< CarrouselImages >( [ { generating: autoStart } ] );
 	debug( 'images', images );
@@ -148,6 +151,9 @@ export default function useAiImage( {
 			style?: string;
 		} ) => {
 			return new Promise< ImageResponse >( ( resolve, reject ) => {
+				if ( previousMediaId && pointer.current === 0 ) {
+					pointer.current++;
+				}
 				updateImages( { generating: true, error: null }, pointer.current );
 
 				// Ensure the site has enough requests to generate the image.
@@ -233,6 +239,7 @@ export default function useAiImage( {
 			saveToMediaLibrary,
 			showSnackbarNotice,
 			getImageNameSuggestion,
+			previousMediaId,
 		]
 	);
 
@@ -284,7 +291,7 @@ export default function useAiImage( {
 		},
 		[ imageStyles ]
 	);
-
+	debug( pointer.current, current );
 	return {
 		current,
 		setCurrent,
