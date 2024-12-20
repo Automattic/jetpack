@@ -27,13 +27,17 @@ export type TooltipContent = {
 export function useProtectTooltipCopy(): TooltipContent {
 	const slug = PRODUCT_SLUGS.PROTECT;
 	const { detail } = useProduct( slug );
-	const { isPluginActive: isProtectPluginActive, hasPaidPlanForProduct: hasProtectPaidPlan } =
-		detail || {};
+	const {
+		isPluginActive: isProtectPluginActive,
+		hasPaidPlanForProduct: hasProtectPaidPlan,
+		manageUrl: protectPluginDashboardUrl,
+	} = detail || {};
 	const { recordEvent } = useAnalytics();
 	const {
 		plugins,
 		themes,
 		protect: { scanData, wafConfig: wafData },
+		siteSuffix,
 	} = getMyJetpackWindowInitialState();
 	const {
 		plugins: fromScanPlugins,
@@ -63,6 +67,13 @@ export function useProtectTooltipCopy(): TooltipContent {
 		return isJetpackPluginActive() ? 'admin.php?page=jetpack#/settings' : null;
 	}, [ isProtectPluginActive ] );
 
+	const protectDashboardUrl = useMemo( () => {
+		if ( isProtectPluginActive ) {
+			return protectPluginDashboardUrl;
+		}
+		return `https://cloud.jetpack.com/scan/${ siteSuffix }`;
+	}, [ isProtectPluginActive, protectPluginDashboardUrl, siteSuffix ] );
+
 	const trackFirewallSettingsLinkClick = useCallback( () => {
 		recordEvent( 'jetpack_protect_card_tooltip_content_link_click', {
 			page: 'my-jetpack',
@@ -71,6 +82,15 @@ export function useProtectTooltipCopy(): TooltipContent {
 			path: settingsLink,
 		} );
 	}, [ recordEvent, settingsLink ] );
+
+	const trackProtectDashboardLinkClick = useCallback( () => {
+		recordEvent( 'jetpack_protect_card_tooltip_content_link_click', {
+			page: 'my-jetpack',
+			feature: 'jetpack-protect',
+			location: 'scan-threats-tooltip',
+			path: protectDashboardUrl,
+		} );
+	}, [ recordEvent, protectDashboardUrl ] );
 
 	const isBruteForcePluginsActive = isProtectPluginActive || isJetpackPluginActive();
 
@@ -181,30 +201,48 @@ export function useProtectTooltipCopy(): TooltipContent {
 				? {
 						title: __( 'Auto-fix threats', 'jetpack-my-jetpack' ),
 						text: criticalThreatCount
-							? sprintf(
-									/* translators: %1$s is the number of threats and %2$s is the numner of critical threats on the site. */
-									__(
-										'The last scan identified %1$s (%2$d\u00A0critical). But don’t worry, use the “Auto-fix” button in the product to automatically fix most threats.',
-										'jetpack-my-jetpack'
-									),
+							? createInterpolateElement(
 									sprintf(
-										/* translators: %d is the number of detected scan threats on the site. */
-										_n( '%d threat', '%d threats', numThreats, 'jetpack-my-jetpack' ),
-										numThreats
+										/* translators: %1$s is the number of threats and %2$s is the numner of critical threats on the site. */
+										__(
+											'The last scan identified %1$s (%2$d\u00A0critical). But don’t worry, Protect is usually able to “Auto-fix” threats, in most cases. Visit the <a>%3$s dashboard</a> to view more details.',
+											'jetpack-my-jetpack'
+										),
+										sprintf(
+											/* translators: %d is the number of detected scan threats on the site. */
+											_n( '%d threat', '%d threats', numThreats, 'jetpack-my-jetpack' ),
+											numThreats
+										),
+										criticalThreatCount,
+										isProtectPluginActive ? 'Protect' : 'Scan'
 									),
-									criticalThreatCount
+									{
+										a: createElement( 'a', {
+											href: protectDashboardUrl,
+											onClick: trackProtectDashboardLinkClick,
+										} ),
+									}
 							  )
-							: sprintf(
-									/* translators: %s is the singular or plural of number of detected critical threats on the site. */
-									__(
-										'The last scan identified %s. But don’t worry, use the “Auto-fix” button in the product to automatically fix most threats.',
-										'jetpack-my-jetpack'
-									),
+							: createInterpolateElement(
 									sprintf(
-										/* translators: %d is the number of detected scan threats on the site. */
-										_n( '%d threat', '%d threats', numThreats, 'jetpack-my-jetpack' ),
-										numThreats
-									)
+										/* translators: %s is the singular or plural of number of detected threats on the site. */
+										__(
+											'The last scan identified %1$s. But don’t worry, Protect is usually able to “Auto-fix” threats, in most cases. Visit the <a>%2$s dashboard</a> to view more details.',
+											'jetpack-my-jetpack'
+										),
+										sprintf(
+											/* translators: %d is the number of detected scan threats on the site. */
+											_n( '%d threat', '%d threats', numThreats, 'jetpack-my-jetpack' ),
+											numThreats
+										),
+										isProtectPluginActive ? 'Protect' : 'Scan'
+									),
+									{
+										a: createElement( 'a', {
+											href: protectDashboardUrl,
+											onClick: trackProtectDashboardLinkClick,
+										} ),
+									}
 							  ),
 				  }
 				: {
