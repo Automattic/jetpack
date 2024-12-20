@@ -11,10 +11,6 @@ export default {
 			control: { type: 'select' },
 			options: [ 'x', 'y', 'xy', 'none' ],
 		},
-		className: {
-			control: { type: 'text' },
-			description: 'Custom CSS class for styling grid lines',
-		},
 	},
 } as Meta< typeof GridControl >;
 
