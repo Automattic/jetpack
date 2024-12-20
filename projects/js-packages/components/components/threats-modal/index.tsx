@@ -82,6 +82,7 @@ export default function ThreatsModal( {
 	const userConnectionNeeded = ! isUserConnected || ! hasConnectedOwner;
 	const siteCredentialsNeeded = ! credentials || credentials.length === 0;
 	const isBulk = currentThreats.length > 1;
+	const firstThreat = currentThreats[ 0 ];
 
 	return (
 		<Modal
@@ -90,12 +91,12 @@ export default function ThreatsModal( {
 					{ isBulk ? (
 						<Text variant="title-small">{ 'Fix all threats' }</Text>
 					) : (
-						<div className={ styles.title }>
-							<Text variant="title-small">{ currentThreats[ 0 ].title }</Text>
-							{ !! currentThreats[ 0 ].severity && (
-								<ThreatSeverityBadge severity={ currentThreats[ 0 ].severity } />
+						<>
+							<Text variant="title-small">{ firstThreat.title }</Text>
+							{ !! firstThreat.severity && (
+								<ThreatSeverityBadge severity={ firstThreat.severity } />
 							) }
-						</div>
+						</>
 					) }
 				</div>
 			}

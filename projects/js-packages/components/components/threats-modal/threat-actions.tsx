@@ -25,16 +25,18 @@ const ThreatActions = ( { selectedThreats }: { selectedThreats: Threat[] } ): JS
 		userConnectionNeeded,
 		siteCredentialsNeeded,
 	} = useContext( ThreatsModalContext );
+
+	const firstThreat = selectedThreats[ 0 ];
 	const disabled = userConnectionNeeded || siteCredentialsNeeded || selectedThreats.length === 0;
 
 	const fixerState = useMemo(
-		() => ( ! isBulk ? getFixerState( selectedThreats[ 0 ].fixer ) : null ),
-		[ isBulk, selectedThreats ]
+		() => ( ! isBulk ? getFixerState( firstThreat.fixer ) : null ),
+		[ isBulk, firstThreat ]
 	);
 
 	const detailedFixerAction = useMemo(
-		() => ( ! isBulk ? getDetailedFixerAction( selectedThreats[ 0 ] ) : null ),
-		[ isBulk, selectedThreats ]
+		() => ( ! isBulk ? getDetailedFixerAction( firstThreat ) : null ),
+		[ isBulk, firstThreat ]
 	);
 
 	const onFixClick = useCallback( () => {
@@ -52,57 +54,56 @@ const ThreatActions = ( { selectedThreats }: { selectedThreats: Threat[] } ): JS
 		closeModal();
 	}, [ selectedThreats, handleUnignoreThreatClick, closeModal ] );
 
-	if ( ! isBulk && ( ! selectedThreats[ 0 ]?.status || selectedThreats[ 0 ].status === 'fixed' ) ) {
+	if ( ! isBulk && ( ! firstThreat?.status || firstThreat.status === 'fixed' ) ) {
 		return null;
 	}
+
+	const renderBulkActions = () => (
+		<Button disabled={ disabled } onClick={ onFixClick }>
+			{ __( 'Fix all threats', 'jetpack-components' ) }
+		</Button>
+	);
+
+	const renderIndividualActions = () => (
+		<>
+			{ firstThreat.status === 'ignored' && (
+				<Button disabled={ disabled } isDestructive variant="secondary" onClick={ onUnignoreClick }>
+					{ __( 'Un-ignore threat', 'jetpack-components' ) }
+				</Button>
+			) }
+			{ firstThreat.status === 'current' && (
+				<>
+					{ [ 'all', 'ignore' ].includes( actionToConfirm ) && (
+						<Button
+							isDestructive
+							variant="secondary"
+							onClick={ onIgnoreClick }
+							disabled={ disabled || ( fixerState?.inProgress && ! fixerState?.stale ) }
+						>
+							{ __( 'Ignore threat', 'jetpack-components' ) }
+						</Button>
+					) }
+					{ firstThreat.fixable && [ 'all', 'fix' ].includes( actionToConfirm ) && (
+						<Button
+							isPrimary
+							disabled={ disabled || ( fixerState?.inProgress && ! fixerState?.stale ) }
+							onClick={ onFixClick }
+						>
+							{ fixerState?.error || fixerState?.stale
+								? __( 'Retry fixer', 'jetpack-components' )
+								: detailedFixerAction }
+						</Button>
+					) }
+				</>
+			) }
+		</>
+	);
 
 	return (
 		<div className={ styles[ 'modal-footer' ] }>
 			{ ! isBulk && <FixerStateNotice fixerState={ fixerState } /> }
 			<div className={ styles[ 'threat-actions' ] }>
-				{ isBulk ? (
-					<Button disabled={ disabled } onClick={ onFixClick }>
-						{ __( 'Fix all threats', 'jetpack-components' ) }
-					</Button>
-				) : (
-					<>
-						{ selectedThreats[ 0 ]?.status === 'ignored' && (
-							<Button
-								disabled={ disabled }
-								isDestructive={ true }
-								variant="secondary"
-								onClick={ onUnignoreClick }
-							>
-								{ __( 'Un-ignore threat', 'jetpack-components' ) }
-							</Button>
-						) }
-						{ selectedThreats[ 0 ]?.status === 'current' && (
-							<>
-								{ [ 'all', 'ignore' ].includes( actionToConfirm ) && (
-									<Button
-										isDestructive={ true }
-										variant="secondary"
-										onClick={ onIgnoreClick }
-										disabled={ disabled || ( fixerState.inProgress && ! fixerState.stale ) }
-									>
-										{ __( 'Ignore threat', 'jetpack-components' ) }
-									</Button>
-								) }
-								{ selectedThreats[ 0 ]?.fixable && [ 'all', 'fix' ].includes( actionToConfirm ) && (
-									<Button
-										isPrimary
-										disabled={ disabled || ( fixerState.inProgress && ! fixerState.stale ) }
-										onClick={ onFixClick }
-									>
-										{ fixerState.error || fixerState.stale
-											? __( 'Retry fixer', 'jetpack-components' )
-											: detailedFixerAction }
-									</Button>
-								) }
-							</>
-						) }
-					</>
-				) }
+				{ isBulk ? renderBulkActions() : renderIndividualActions() }
 			</div>
 		</div>
 	);
