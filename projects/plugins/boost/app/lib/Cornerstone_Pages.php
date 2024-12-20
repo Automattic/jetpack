@@ -71,7 +71,7 @@ class Cornerstone_Pages implements Has_Setup {
 
 		$homepage = array( '' );
 
-		$urls = array_unique( array_merge( $homepage, $woocommerce_pages, $yoast_cornerstone_pages ) );
+		$urls = array_merge( $homepage, $woocommerce_pages, $yoast_cornerstone_pages );
 		$urls = array_map( 'untrailingslashit', $urls );
 		$urls = array_unique( $urls );
 
