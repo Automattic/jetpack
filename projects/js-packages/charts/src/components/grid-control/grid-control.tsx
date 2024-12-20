@@ -19,8 +19,8 @@ const GridControl: React.FC< GridControlProps > = ( {
 } ) => {
 	return (
 		<g transform={ `translate(0, ${ top })` }>
-			{ gridVisibility.includes( 'x' ) && <GridColumns scale={ xScale } height={ height } /> }
-			{ gridVisibility.includes( 'y' ) && <GridRows scale={ yScale } width={ width } /> }
+			{ gridVisibility.includes( 'x' ) && <GridRows scale={ xScale } width={ width } /> }
+			{ gridVisibility.includes( 'y' ) && <GridColumns scale={ yScale } height={ height } /> }
 		</g>
 	);
 };
