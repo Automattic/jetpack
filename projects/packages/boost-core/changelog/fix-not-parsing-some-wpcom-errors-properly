@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-General: Fixed not parsing error responses from WordPress.com properly.
