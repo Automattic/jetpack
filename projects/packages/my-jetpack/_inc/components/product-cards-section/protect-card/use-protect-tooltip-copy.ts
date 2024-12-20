@@ -195,7 +195,7 @@ export function useProtectTooltipCopy(): TooltipContent {
 						text: criticalThreatCount
 							? createInterpolateElement(
 									sprintf(
-										/* translators: %1$s is the number of threats and %2$s is the numner of critical threats on the site, and %3$s */
+										/* translators: %1$s is the number of threats, %2$s is the numner of critical threats on the site, and %3$s is either "Scan" or "Protect" (the type of dashboard). */
 										__(
 											'The last scan identified %1$s (%2$d\u00A0critical). But don’t worry, Protect is usually able to “Auto-fix” threats, in most cases. Visit the <a>%3$s dashboard</a> to view more details.',
 											'jetpack-my-jetpack'
@@ -217,7 +217,7 @@ export function useProtectTooltipCopy(): TooltipContent {
 							  )
 							: createInterpolateElement(
 									sprintf(
-										/* translators: %s is the singular or plural of number of detected threats on the site. */
+										/* translators: %1$s is the singular or plural of number of detected threats on the site, and %2$s is either "Scan" or "Protect" (the type of dashboard). */
 										__(
 											'The last scan identified %1$s. But don’t worry, Protect is usually able to “Auto-fix” threats, in most cases. Visit the <a>%2$s dashboard</a> to view more details.',
 											'jetpack-my-jetpack'
