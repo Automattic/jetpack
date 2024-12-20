@@ -72,13 +72,7 @@ const ThreatFixConfirmation = () => {
 
 	const renderIndividualThreat = threat => (
 		<div key={ threat.id } className={ styles.individual }>
-			<div className={ styles.individual__heading }>
-				<div className={ styles.individual__title }>
-					<Text variant="title-small">{ getLabel( threat ) }</Text>
-					{ !! threat.severity && <ThreatSeverityBadge severity={ threat.severity } /> }
-				</div>
-				<ThreatSummary threat={ threat } />
-			</div>
+			<ThreatSummary threat={ threat } />
 			<ThreatTechnicalDetails threat={ threat } />
 			<ThreatFixDetails threat={ threat } />
 			<ThreatIgnoreDetails threat={ threat } />

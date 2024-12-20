@@ -1,8 +1,9 @@
-import { type Threat } from '@automattic/jetpack-scan';
+import { getLabel, type Threat } from '@automattic/jetpack-scan';
 import { Modal } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { createContext } from 'react';
 import Text from '../text';
+import ThreatSeverityBadge from '../threat-severity-badge';
 import styles from './styles.module.scss';
 import ThreatFixConfirmation from './threat-fix-confirmation';
 
@@ -82,19 +83,20 @@ export default function ThreatsModal( {
 	const userConnectionNeeded = ! isUserConnected || ! hasConnectedOwner;
 	const siteCredentialsNeeded = ! credentials || credentials.length === 0;
 	const isBulk = currentThreats.length > 1;
-
-	let modalTitle = __( 'Threat details', 'jetpack-components' );
-	if ( isBulk ) {
-		modalTitle = __( 'Fix all threats', 'jetpack-components' );
-	} else if ( actionToConfirm === 'fix' ) {
-		modalTitle = __( 'Fix threat', 'jetpack-components' );
-	} else if ( actionToConfirm === 'ignore' ) {
-		modalTitle = __( 'Ignore threat', 'jetpack-components' );
-	}
+	const firstThreat = currentThreats[ 0 ];
 
 	return (
 		<Modal
-			title={ <Text variant="title-small">{ modalTitle }</Text> }
+			title={
+				isBulk ? (
+					<Text variant="title-small">{ __( 'Fix all threats', 'jetpack-components' ) }</Text>
+				) : (
+					<div className={ styles.threat__title }>
+						<Text variant="title-small">{ getLabel( firstThreat ) }</Text>
+						{ !! firstThreat.severity && <ThreatSeverityBadge severity={ firstThreat.severity } /> }
+					</div>
+				)
+			}
 			size="large"
 			{ ...modalProps }
 		>
