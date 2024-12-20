@@ -9,7 +9,7 @@ import ThreatFixConfirmation from './threat-fix-confirmation';
 interface ThreatModalContextType {
 	closeModal: () => void;
 	currentThreats: Threat[];
-	isSingleThreat: boolean;
+	isBulk: boolean;
 	actionToConfirm: string | null;
 	isSupportedEnvironment: boolean;
 	userConnectionNeeded: boolean;
@@ -81,21 +81,21 @@ export default function ThreatsModal( {
 } & React.ComponentProps< typeof Modal > ): JSX.Element {
 	const userConnectionNeeded = ! isUserConnected || ! hasConnectedOwner;
 	const siteCredentialsNeeded = ! credentials || credentials.length === 0;
-	const isSingleThreat = currentThreats.length === 1;
+	const isBulk = currentThreats.length > 1;
 
 	return (
 		<Modal
 			title={
 				<div className={ styles.title }>
-					{ isSingleThreat ? (
+					{ isBulk ? (
+						<Text variant="title-small">{ 'Fix all threats' }</Text>
+					) : (
 						<div className={ styles.title }>
 							<Text variant="title-small">{ currentThreats[ 0 ].title }</Text>
 							{ !! currentThreats[ 0 ].severity && (
 								<ThreatSeverityBadge severity={ currentThreats[ 0 ].severity } />
 							) }
 						</div>
-					) : (
-						<Text variant="title-small">{ 'Fix all threats' }</Text>
 					) }
 				</div>
 			}
@@ -107,7 +107,7 @@ export default function ThreatsModal( {
 					value={ {
 						closeModal: modalProps.onRequestClose,
 						currentThreats,
-						isSingleThreat,
+						isBulk,
 						actionToConfirm,
 						isSupportedEnvironment,
 						userConnectionNeeded,

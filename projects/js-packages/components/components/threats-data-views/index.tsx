@@ -1,4 +1,4 @@
-import { getThreatType, type Threat } from '@automattic/jetpack-scan';
+import { getThreatType, type Threat, THREAT_ICONS } from '@automattic/jetpack-scan';
 import {
 	type Action,
 	type Field,
@@ -35,7 +35,6 @@ import {
 	THREAT_FIELD_THEME,
 	THREAT_FIELD_TITLE,
 	THREAT_FIELD_TYPE,
-	THREAT_ICONS,
 	THREAT_STATUSES,
 	THREAT_TYPES,
 } from './constants';

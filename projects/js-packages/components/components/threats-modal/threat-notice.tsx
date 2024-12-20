@@ -30,7 +30,7 @@ const ThreatNotice = ( {
 } ): JSX.Element => {
 	const {
 		currentThreats,
-		isSingleThreat,
+		isBulk,
 		userConnectionNeeded,
 		userIsConnecting,
 		handleConnectUser,
@@ -41,7 +41,7 @@ const ThreatNotice = ( {
 
 	if (
 		currentThreats.every( threat => ! threat?.status ) ||
-		( isSingleThreat && currentThreats[ 0 ].status === 'fixed' )
+		( ! isBulk && currentThreats[ 0 ].status === 'fixed' )
 	) {
 		return null;
 	}

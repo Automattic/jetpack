@@ -1,11 +1,4 @@
 import { __ } from '@wordpress/i18n';
-import {
-	code as fileIcon,
-	color as themeIcon,
-	plugins as pluginIcon,
-	shield as shieldIcon,
-	wordpress as coreIcon,
-} from '@wordpress/icons';
 
 export const THREAT_STATUSES: { value: string; label: string; variant?: 'success' | 'warning' }[] =
 	[
@@ -21,14 +14,6 @@ export const THREAT_TYPES = [
 	{ value: 'file', label: __( 'File', 'jetpack-components' ) },
 	{ value: '', label: __( 'Unknown', 'jetpack-components' ) },
 ];
-
-export const THREAT_ICONS = {
-	plugins: pluginIcon,
-	themes: themeIcon,
-	core: coreIcon,
-	file: fileIcon,
-	default: shieldIcon,
-};
 
 export const THREAT_FIELD_THREAT = 'threat';
 export const THREAT_FIELD_TITLE = 'title';

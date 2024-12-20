@@ -1,13 +1,6 @@
-import { getThreatType, type Threat } from '@automattic/jetpack-scan';
+import { getThreatType, type Threat, THREAT_ICONS } from '@automattic/jetpack-scan';
 import { __ } from '@wordpress/i18n';
-import {
-	Icon,
-	code as fileIcon,
-	color as themeIcon,
-	plugins as pluginIcon,
-	shield as shieldIcon,
-	wordpress as coreIcon,
-} from '@wordpress/icons';
+import { Icon } from '@wordpress/icons';
 import { useContext, useState, useCallback, useMemo } from 'react';
 import ContextualUpgradeTrigger from '../contextual-upgrade-trigger';
 import useBreakpointMatch from '../layout/use-breakpoint-match';
@@ -23,14 +16,6 @@ import ThreatSummary from './threat-summary';
 import ThreatTechnicalDetails from './threat-technical-details';
 import { ThreatsModalContext } from '.';
 
-export const THREAT_ICONS = {
-	plugins: pluginIcon,
-	themes: themeIcon,
-	core: coreIcon,
-	file: fileIcon,
-	default: shieldIcon,
-};
-
 /**
  * ThreatFixConfirmation component
  *
@@ -41,7 +26,7 @@ const ThreatFixConfirmation = () => {
 
 	const {
 		currentThreats,
-		isSingleThreat,
+		isBulk,
 		userConnectionNeeded,
 		siteCredentialsNeeded,
 		handleUpgradeClick,
@@ -70,10 +55,10 @@ const ThreatFixConfirmation = () => {
 
 	return (
 		<>
-			{ ! isSingleThreat && <Text>{ 'Jetpack will be fixing the selected threats:' }</Text> }
+			{ isBulk && <Text>{ 'Jetpack will be fixing the selected threats:' }</Text> }
 			{ currentThreats.map( ( threat, index ) => (
 				<div key={ threat.id || index } className={ styles[ 'threat-details' ] }>
-					{ ! isSingleThreat && (
+					{ isBulk ? (
 						<div className={ styles.bulk }>
 							<div className={ styles.bulk__content }>
 								{ ! isSm && (
@@ -98,8 +83,7 @@ const ThreatFixConfirmation = () => {
 								onChange={ toggleHandlers[ threat.id ] }
 							/>
 						</div>
-					) }
-					{ isSingleThreat && (
+					) : (
 						<>
 							<ThreatSummary threat={ threat } />
 							<ThreatTechnicalDetails threat={ threat } />

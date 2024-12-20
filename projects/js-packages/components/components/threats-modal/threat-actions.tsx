@@ -17,7 +17,7 @@ import { ThreatsModalContext } from '.';
 const ThreatActions = ( { selectedThreats }: { selectedThreats: Threat[] } ): JSX.Element => {
 	const {
 		closeModal,
-		isSingleThreat,
+		isBulk,
 		actionToConfirm,
 		handleFixThreatClick,
 		handleIgnoreThreatClick,
@@ -28,13 +28,13 @@ const ThreatActions = ( { selectedThreats }: { selectedThreats: Threat[] } ): JS
 	const disabled = userConnectionNeeded || siteCredentialsNeeded || selectedThreats.length === 0;
 
 	const fixerState = useMemo(
-		() => ( isSingleThreat ? getFixerState( selectedThreats[ 0 ].fixer ) : null ),
-		[ isSingleThreat, selectedThreats ]
+		() => ( ! isBulk ? getFixerState( selectedThreats[ 0 ].fixer ) : null ),
+		[ isBulk, selectedThreats ]
 	);
 
 	const detailedFixerAction = useMemo(
-		() => ( isSingleThreat ? getDetailedFixerAction( selectedThreats[ 0 ] ) : null ),
-		[ isSingleThreat, selectedThreats ]
+		() => ( ! isBulk ? getDetailedFixerAction( selectedThreats[ 0 ] ) : null ),
+		[ isBulk, selectedThreats ]
 	);
 
 	const onFixClick = useCallback( () => {
@@ -52,18 +52,19 @@ const ThreatActions = ( { selectedThreats }: { selectedThreats: Threat[] } ): JS
 		closeModal();
 	}, [ selectedThreats, handleUnignoreThreatClick, closeModal ] );
 
-	if (
-		isSingleThreat &&
-		( ! selectedThreats[ 0 ]?.status || selectedThreats[ 0 ].status === 'fixed' )
-	) {
+	if ( ! isBulk && ( ! selectedThreats[ 0 ]?.status || selectedThreats[ 0 ].status === 'fixed' ) ) {
 		return null;
 	}
 
 	return (
 		<div className={ styles[ 'modal-footer' ] }>
-			{ isSingleThreat && <FixerStateNotice fixerState={ fixerState } /> }
+			{ ! isBulk && <FixerStateNotice fixerState={ fixerState } /> }
 			<div className={ styles[ 'threat-actions' ] }>
-				{ isSingleThreat ? (
+				{ isBulk ? (
+					<Button disabled={ disabled } onClick={ onFixClick }>
+						{ __( 'Fix all threats', 'jetpack-components' ) }
+					</Button>
+				) : (
 					<>
 						{ selectedThreats[ 0 ]?.status === 'ignored' && (
 							<Button
@@ -101,10 +102,6 @@ const ThreatActions = ( { selectedThreats }: { selectedThreats: Threat[] } ): JS
 							</>
 						) }
 					</>
-				) : (
-					<Button disabled={ disabled } onClick={ onFixClick }>
-						{ __( 'Fix all threats', 'jetpack-components' ) }
-					</Button>
 				) }
 			</div>
 		</div>
