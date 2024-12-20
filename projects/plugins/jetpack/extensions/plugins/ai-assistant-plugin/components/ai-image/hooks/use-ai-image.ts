@@ -167,7 +167,9 @@ export default function useAiImage( {
 					.then( result => {
 						if ( result.data.length > 0 ) {
 							const image = 'data:image/png;base64,' + result.data[ 0 ].b64_json;
-							updateImages( { image }, pointer.current );
+							const prompt = userPrompt || null;
+							const revisedPrompt = result.data[ 0 ].revised_prompt || null;
+							updateImages( { image, prompt, revisedPrompt }, pointer.current );
 							updateRequestsCount();
 							saveToMediaLibrary( image, name )
 								.then( savedImage => {
@@ -181,7 +183,7 @@ export default function useAiImage( {
 										image,
 										libraryId: savedImage?.id,
 										libraryUrl: savedImage?.url,
-										revisedPrompt: result.data[ 0 ].revised_prompt || '',
+										revisedPrompt,
 									} );
 								} )
 								.catch( () => {

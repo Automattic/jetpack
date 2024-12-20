@@ -25,6 +25,11 @@ type AiFeedbackThumbsProps = {
 	ratedItem?: string;
 	feature?: string;
 	savedRatings?: Record< string, string >;
+	options?: {
+		mediaLibraryId?: number;
+		prompt?: string;
+		revisedPrompt?: string;
+	};
 	onRate?: ( rating: string ) => void;
 };
 
@@ -50,6 +55,7 @@ export default function AiFeedbackThumbs( {
 	ratedItem = '',
 	feature = '',
 	savedRatings = {},
+	options = {},
 	onRate,
 }: AiFeedbackThumbsProps ): React.ReactElement {
 	if ( ! getFeatureAvailability( 'ai-response-feedback' ) ) {
@@ -60,7 +66,11 @@ export default function AiFeedbackThumbs( {
 	const { tracks } = useAnalytics();
 
 	useEffect( () => {
-		setItemsRated( { ...savedRatings, ...itemsRated } );
+		const newItemsRated = { ...savedRatings, ...itemsRated };
+
+		if ( JSON.stringify( newItemsRated ) !== JSON.stringify( itemsRated ) ) {
+			setItemsRated( newItemsRated );
+		}
 	}, [ savedRatings ] );
 
 	const checkThumb = ( thumbValue: string ) => {
@@ -85,6 +95,9 @@ export default function AiFeedbackThumbs( {
 			tracks.recordEvent( 'jetpack_ai_feedback', {
 				type: feature,
 				rating: aiRating,
+				mediaLibraryId: options.mediaLibraryId || null,
+				prompt: options.prompt || null,
+				revisedPrompt: options.revisedPrompt || null,
 			} );
 		}
 	};

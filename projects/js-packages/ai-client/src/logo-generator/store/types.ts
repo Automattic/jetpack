@@ -141,6 +141,7 @@ export type Logo = {
 	description: string;
 	mediaId?: number;
 	rating?: string;
+	revisedPrompt?: string;
 };
 
 export type RequestError = string | Error | null;

@@ -158,7 +158,7 @@ const RateLogo: React.FC< {
 	ratedItem: string;
 	onRate: ( rating: string ) => void;
 } > = ( { disabled, ratedItem, onRate } ) => {
-	const { logos } = useLogoGenerator();
+	const { logos, selectedLogo } = useLogoGenerator();
 	const savedRatings = logos
 		.filter( logo => logo.rating )
 		.reduce( ( acc, logo ) => {
@@ -172,6 +172,10 @@ const RateLogo: React.FC< {
 			ratedItem={ ratedItem }
 			feature="logo-generator"
 			savedRatings={ savedRatings }
+			options={ {
+				mediaLibraryId: selectedLogo.mediaId,
+				prompt: selectedLogo.description,
+			} }
 			onRate={ onRate }
 		/>
 	);
