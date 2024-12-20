@@ -570,7 +570,8 @@ add_filter( 'jetpack_blaze_dashboard_enable', 'wpcom_enable_blaze_dashboard_for_
  * This should be removed when the sites are fully untangled (or with the Jetpack Stats).
  *
  * This is enabled only for the stats page for users that are part of the remove duplicate views experiment.
- * @param $file The parent_file of the page.
+ *
+ * @param string $file The parent_file of the page.
  *
  * @return mixed
  */
@@ -593,11 +594,14 @@ function wpcom_select_calypso_admin_menu_stats_for_jetpack_post_stats( $file ) {
 		return $file;
 	}
 
-	if ( ! wpcom_get_custom_admin_menu_class()) {
+	if ( ! wpcom_get_custom_admin_menu_class() ) {
 		return $file;
 	}
 
-	$_wp_real_parent_file['jetpack'] = 'https://wordpress.com/stats/day/' . ( new Status() )->get_site_suffix();
+	/**
+	 * Not ideal... We shouldn't be doing this.
+	 */
+	$_wp_real_parent_file['jetpack'] = 'https://wordpress.com/stats/day/' . ( new Status() )->get_site_suffix(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 
 	return $file;
 }
