@@ -125,6 +125,13 @@ class zbsDAL {
     */
     private $cache = array();
 
+	/**
+	 * This is a temporary fix for issue #3504, until we don't change how we load settings this should help to avoid slowing down websites.
+	 *
+	 * @var array
+	 */
+	private static $mitigation_cache_for_issue_3504 = array();
+
     // ===============================================================================
     // ===========  SUB DAL LAYERS  ==================================================
     // These hold sub-objects, e.g. contact
@@ -1633,6 +1640,9 @@ class zbsDAL {
 
         if ( !empty( $key ) ){
 
+			if ( isset( self::$mitigation_cache_for_issue_3504[ $key ] ) ) {
+				return self::$mitigation_cache_for_issue_3504[ $key ];
+			}
             return $this->getSetting(array(
 
                 'key'            => $key,
@@ -1707,6 +1717,10 @@ class zbsDAL {
 
         ); foreach ($defaultArgs as $argK => $argV){ $$argK = $argV; if (is_array($args) && isset($args[$argK])) {  if (is_array($args[$argK])){ $newData = $$argK; if (!is_array($newData)) $newData = array(); foreach ($args[$argK] as $subK => $subV){ $newData[$subK] = $subV; }$$argK = $newData;} else { $$argK = $args[$argK]; } } }
         #} =========== / LOAD ARGS =============
+
+		if ( ! $fullDetails && isset( self::$mitigation_cache_for_issue_3504[ $key ] ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+			return self::$mitigation_cache_for_issue_3504[ $key ]; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+		}
 
         #} Check key
         if (!empty($key)){            
@@ -1818,6 +1832,11 @@ class zbsDAL {
      * @return array of settings lines
      */
     public function getSettings($args=array()){
+		// If we have already loaded something in our cache, return it.
+		// In this function we won't care if the values have changed or not because when they become invalid due to other functions, these functions should clear the cache.
+		if ( ! empty( self::$mitigation_cache_for_issue_3504 ) ) {
+			return self::$mitigation_cache_for_issue_3504;
+		}
 
         #} ============ LOAD ARGS =============
         $defaultArgs = array(
@@ -1889,20 +1908,19 @@ class zbsDAL {
 
             #} Has results, tidy + return 
             foreach ($potentialRes as $resDataLine) {
+				// We are only caching the singular setting (i.e. the value), because it is good enough.
+				self::$mitigation_cache_for_issue_3504[ $resDataLine->zbsset_key ] = $this->tidy_settingSingular( $resDataLine ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
-                    // DEBUG echo $resDataLine->zbsset_key.' = ';
-
-                    if ($fullDetails){
-                        // tidy
-                        $resArr = $this->tidy_setting($resDataLine);
-                        $res[$resArr['key']] = $resArr;
-                    } else
-                        $res[$resDataLine->zbsset_key] = $this->tidy_settingSingular($resDataLine);
-
+				if ( $fullDetails ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+					$resArr                = $this->tidy_setting( $resDataLine ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+					$res[ $resArr['key'] ] = $resArr; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				} else {
+					$res[ $resDataLine->zbsset_key ] = $this->tidy_settingSingular( $resDataLine ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				}
             }
         }
 
-        return $res;
+		return $res;
     } 
 
      /**
@@ -2004,6 +2022,9 @@ class zbsDAL {
 
         ); foreach ($defaultArgs as $argK => $argV){ $$argK = $argV; if (is_array($args) && isset($args[$argK])) {  if (is_array($args[$argK])){ $newData = $$argK; if (!is_array($newData)) $newData = array(); foreach ($args[$argK] as $subK => $subV){ $newData[$subK] = $subV; }$$argK = $newData;} else { $$argK = $args[$argK]; } } }
         #} =========== / LOAD ARGS ============
+
+		// Invalidates our whole cache.
+		self::$mitigation_cache_for_issue_3504 = array();
 
         #} ========== CHECK FIELDS ============
 
