@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { AiFeedbackThumbs } from '@automattic/jetpack-ai-client';
 import { Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, chevronLeft, chevronRight } from '@wordpress/icons';
@@ -8,13 +9,14 @@ import clsx from 'clsx';
 /**
  * Internal dependencies
  */
-import AiFeedbackThumbs from '../../ai-feedback';
 import AiIcon from '../../ai-icon';
 import './carrousel.scss';
 
 export type CarrouselImageData = {
 	image?: string;
 	libraryId?: number | string;
+	prompt?: string;
+	revisedPrompt?: string;
 	libraryUrl?: string;
 	generating?: boolean;
 	error?: {
@@ -108,7 +110,7 @@ export default function Carrousel( {
 		<div className="ai-assistant-image__carrousel">
 			<div className="ai-assistant-image__carrousel-images">
 				{ images.length > 1 && prevButton }
-				{ images.map( ( { image, generating, error }, index ) => (
+				{ images.map( ( { image, generating, error, revisedPrompt }, index ) => (
 					<div
 						key={ `image:` + index }
 						className={ clsx( 'ai-assistant-image__carrousel-image-container', {
@@ -149,7 +151,11 @@ export default function Carrousel( {
 												<AiIcon />
 											</BlankImage>
 										) : (
-											<img className="ai-assistant-image__carrousel-image" src={ image } alt="" />
+											<img
+												className="ai-assistant-image__carrousel-image"
+												src={ image }
+												alt={ revisedPrompt }
+											/>
 										) }
 									</>
 								) }
@@ -171,6 +177,11 @@ export default function Carrousel( {
 						disabled={ aiFeedbackDisabled( images[ current ] ) }
 						ratedItem={ images[ current ].libraryUrl || '' }
 						iconSize={ 20 }
+						options={ {
+							mediaLibraryId: Number( images[ current ].libraryId ),
+							prompt: images[ current ].prompt,
+							revisedPrompt: images[ current ].revisedPrompt,
+						} }
 						feature="image-generator"
 					/>
 				</div>
