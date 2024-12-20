@@ -153,14 +153,25 @@ const LogoEmpty: React.FC = () => {
 	);
 };
 
-const RateLogo: React.FC< { disabled: boolean; ratedItem: string } > = ( {
-	disabled,
-	ratedItem,
-} ) => {
+const RateLogo: React.FC< {
+	disabled: boolean;
+	ratedItem: string;
+	onRate: ( rating: string ) => void;
+} > = ( { disabled, ratedItem, onRate } ) => {
+	const { logos } = useLogoGenerator();
+	const savedRatings = logos.reduce( ( acc, logo ) => {
+		acc[ logo.url ] = logo.rating;
+		return acc;
+	}, {} );
+
 	return (
-		<>
-			<AiFeedbackThumbs disabled={ disabled } ratedItem={ ratedItem } feature="logo-generator" />
-		</>
+		<AiFeedbackThumbs
+			disabled={ disabled }
+			ratedItem={ ratedItem }
+			feature="logo-generator"
+			savedRatings={ savedRatings }
+			onRate={ onRate }
+		/>
 	);
 };
 
@@ -169,6 +180,17 @@ const LogoReady: React.FC< {
 	logo: Logo;
 	onApplyLogo: ( mediaId: number ) => void;
 } > = ( { siteId, logo, onApplyLogo } ) => {
+	const handleRateLogo = ( rating: string ) => {
+		// Update localStorage
+		updateLogo( {
+			siteId,
+			url: logo.url,
+			newUrl: logo.url,
+			mediaId: logo.mediaId,
+			rating,
+		} );
+	};
+
 	return (
 		<>
 			<img
@@ -183,7 +205,7 @@ const LogoReady: React.FC< {
 				<div className="jetpack-ai-logo-generator-modal-presenter__actions">
 					<SaveInLibraryButton siteId={ siteId } />
 					<UseOnSiteButton onApplyLogo={ onApplyLogo } />
-					<RateLogo ratedItem={ logo.url } disabled={ false } />
+					<RateLogo ratedItem={ logo.url } disabled={ false } onRate={ handleRateLogo } />
 				</div>
 			</div>
 		</>

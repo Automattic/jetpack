@@ -6,7 +6,7 @@ import {
 	getJetpackExtensionAvailability,
 } from '@automattic/jetpack-shared-extension-utils';
 import { Button, Tooltip } from '@wordpress/components';
-import { useState } from '@wordpress/element';
+import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { thumbsUp, thumbsDown } from '@wordpress/icons';
 import clsx from 'clsx';
@@ -24,6 +24,8 @@ type AiFeedbackThumbsProps = {
 	iconSize?: number;
 	ratedItem?: string;
 	feature?: string;
+	savedRatings?: Record< string, string >;
+	onRate?: ( rating: string ) => void;
 };
 
 /**
@@ -47,13 +49,19 @@ export default function AiFeedbackThumbs( {
 	iconSize = 24,
 	ratedItem = '',
 	feature = '',
+	savedRatings = {},
+	onRate,
 }: AiFeedbackThumbsProps ): React.ReactElement {
 	if ( ! getFeatureAvailability( 'ai-response-feedback' ) ) {
 		return null;
 	}
 
-	const [ itemsRated, setItemsRated ] = useState( {} );
+	const [ itemsRated, setItemsRated ] = useState( savedRatings );
 	const { tracks } = useAnalytics();
+
+	useEffect( () => {
+		setItemsRated( savedRatings );
+	}, [ savedRatings ] );
 
 	const checkThumb = ( thumbValue: string ) => {
 		if ( ! itemsRated[ ratedItem ] ) {
@@ -71,6 +79,8 @@ export default function AiFeedbackThumbs( {
 				...itemsRated,
 				[ ratedItem ]: aiRating,
 			} );
+
+			onRate?.( aiRating );
 
 			tracks.recordEvent( 'jetpack_ai_feedback', {
 				type: feature,
