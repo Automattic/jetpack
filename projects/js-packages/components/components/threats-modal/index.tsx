@@ -88,14 +88,18 @@ export default function ThreatsModal( {
 	return (
 		<Modal
 			title={
-				isBulk ? (
-					<Text variant="title-small">{ __( 'Fix all threats', 'jetpack-components' ) }</Text>
-				) : (
-					<div className={ styles.threat__title }>
-						<Text variant="title-small">{ getLabel( firstThreat ) }</Text>
-						{ !! firstThreat.severity && <ThreatSeverityBadge severity={ firstThreat.severity } /> }
-					</div>
-				)
+				<Text className={ styles.threat__title }>
+					{ isBulk ? (
+						__( 'Fix all threats', 'jetpack-components' )
+					) : (
+						<>
+							{ getLabel( firstThreat ) }
+							{ !! firstThreat.severity && (
+								<ThreatSeverityBadge severity={ firstThreat.severity } />
+							) }
+						</>
+					) }
+				</Text>
 			}
 			size="large"
 			{ ...modalProps }
