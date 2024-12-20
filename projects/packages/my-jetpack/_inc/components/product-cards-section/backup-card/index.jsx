@@ -17,8 +17,10 @@ import useProduct from '../../../data/products/use-product';
 import useSimpleQuery from '../../../data/use-simple-query';
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../../hooks/use-analytics';
+import { useGetReadableFailedBackupReason } from '../../../hooks/use-notification-watcher/use-get-readable-failed-backup-reason';
 import numberFormat from '../../../utils/format-number';
 import ProductCard from '../../connected-product-card';
+import { InfoTooltip } from '../../info-tooltip';
 import styles from './style.module.scss';
 
 const productSlug = PRODUCT_SLUGS.BACKUP;
@@ -128,12 +130,58 @@ const getTimeSinceLastRenewableEvent = lastRewindableEventTime => {
 const BackupCard = props => {
 	const { detail } = useProduct( productSlug );
 	const { status } = detail;
+	const { backup_failure: backupFailure } =
+		getMyJetpackWindowInitialState( 'redBubbleAlerts' ) || {};
+	const { status: lastBackupStatus } = backupFailure || {};
 	const hasBackups = status === PRODUCT_STATUSES.ACTIVE || status === PRODUCT_STATUSES.CAN_UPGRADE;
+	const noDescription = () => null;
 
-	return hasBackups ? (
-		<WithBackupsValueSection slug={ productSlug } { ...props } />
-	) : (
-		<ProductCard slug={ productSlug } { ...props } />
+	const { title: errorTitle, text: errorDescription } = useGetReadableFailedBackupReason() || {};
+
+	if ( hasBackups ) {
+		return <WithBackupsValueSection slug={ productSlug } { ...props } />;
+	}
+
+	return (
+		// eslint-disable-next-line react/jsx-no-bind
+		<ProductCard slug={ productSlug } Description={ noDescription } { ...props }>
+			{ status === PRODUCT_STATUSES.NEEDS_ATTENTION && backupFailure && (
+				<div className={ styles.backupErrorContainer }>
+					<div className={ styles.iconContainer }>
+						<Gridicon icon="notice" size={ 16 } className={ styles.iconError } />
+					</div>
+					<div className={ styles.contentContainer }>
+						<Text variant="body-small" className="value-section__heading">
+							{ __( 'The last backup attempt failed.', 'jetpack-my-jetpack' ) }
+							<InfoTooltip
+								tracksEventName={ 'backup_card_tooltip_open' }
+								tracksEventProps={ {
+									location: 'backup-error',
+									status: status,
+									backup_status: lastBackupStatus,
+									feature: 'jetpack-backup',
+								} }
+								expandOnMobile={ true }
+							>
+								<>
+									<h3>{ errorTitle }</h3>
+									<p>{ errorDescription }</p>
+									<p>
+										{ __(
+											'Check out our troubleshooting guide or contact your hosting provider to resolve the issue.',
+											'jetpack-my-jetpack'
+										) }
+									</p>
+								</>
+							</InfoTooltip>
+						</Text>
+						<Text variant="body-small" className={ styles.error_description }>
+							{ __( 'Check out our troubleshooting guide.', 'jetpack-my-jetpack' ) }
+						</Text>
+					</div>
+				</div>
+			) }
+		</ProductCard>
 	);
 };
 

@@ -7,14 +7,16 @@ import { useCallback, useState, useEffect, useMemo, useRef } from 'react';
 import { PRODUCT_STATUSES } from '../../constants';
 import useProduct from '../../data/products/use-product';
 import useAnalytics from '../../hooks/use-analytics';
+import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useOutsideAlerter from '../../hooks/use-outside-alerter';
 import styles from './style.module.scss';
 import { ProductCardProps } from '.';
 import type { SecondaryButtonProps } from './secondary-button';
-import type { FC, ComponentProps } from 'react';
+import type { FC, ComponentProps, MouseEvent } from 'react';
 
 type ActionButtonProps< A = () => void > = ProductCardProps & {
-	onFixConnection?: A;
+	onFixUserConnection?: A;
+	onFixSiteConnection?: ( { e }: { e: MouseEvent< HTMLButtonElement > } ) => void;
 	onManage?: A;
 	onAdd?: A;
 	onInstall?: A;
@@ -34,7 +36,8 @@ const ActionButton: FC< ActionButtonProps > = ( {
 	additionalActions,
 	primaryActionOverride,
 	onManage,
-	onFixConnection,
+	onFixUserConnection,
+	onFixSiteConnection,
 	isFetching,
 	isInstallingStandalone,
 	className,
@@ -50,6 +53,7 @@ const ActionButton: FC< ActionButtonProps > = ( {
 	const [ currentAction, setCurrentAction ] = useState< ComponentProps< typeof Button > >( {} );
 	const { detail } = useProduct( slug );
 	const { manageUrl, purchaseUrl, managePaidPlanPurchaseUrl, renewPaidPlanPurchaseUrl } = detail;
+	const { siteIsRegistering } = useMyJetpackConnection();
 	const isManageDisabled = ! manageUrl;
 	const dropdownRef = useRef( null );
 	const chevronRef = useRef( null );
@@ -57,7 +61,10 @@ const ActionButton: FC< ActionButtonProps > = ( {
 
 	slug === 'jetpack-ai' && debug( slug, detail );
 
-	const isBusy = isFetching || isInstallingStandalone;
+	const isBusy =
+		isFetching ||
+		isInstallingStandalone ||
+		( siteIsRegistering && status === PRODUCT_STATUSES.SITE_CONNECTION_ERROR );
 	const hasAdditionalActions = additionalActions?.length > 0;
 
 	const buttonState = useMemo< Partial< SecondaryButtonProps > >( () => {
@@ -160,20 +167,19 @@ const ActionButton: FC< ActionButtonProps > = ( {
 			case PRODUCT_STATUSES.SITE_CONNECTION_ERROR:
 				return {
 					...buttonState,
-					href: '#/connection',
 					variant: 'primary',
 					label: __( 'Connect', 'jetpack-my-jetpack' ),
-					onClick: onFixConnection,
+					onClick: onFixSiteConnection,
 					...( primaryActionOverride &&
 						PRODUCT_STATUSES.SITE_CONNECTION_ERROR in primaryActionOverride &&
 						primaryActionOverride[ PRODUCT_STATUSES.SITE_CONNECTION_ERROR ] ),
 				};
 			case PRODUCT_STATUSES.USER_CONNECTION_ERROR:
 				return {
-					href: '#/connection',
+					href: '#/connection?skip_pricing=true',
 					variant: 'primary',
 					label: __( 'Connect', 'jetpack-my-jetpack' ),
-					onClick: onFixConnection,
+					onClick: onFixUserConnection,
 					...( primaryActionOverride &&
 						PRODUCT_STATUSES.USER_CONNECTION_ERROR in primaryActionOverride &&
 						primaryActionOverride[ PRODUCT_STATUSES.USER_CONNECTION_ERROR ] ),
@@ -228,7 +234,8 @@ const ActionButton: FC< ActionButtonProps > = ( {
 		buttonState,
 		slug,
 		onAdd,
-		onFixConnection,
+		onFixUserConnection,
+		onFixSiteConnection,
 		onActivate,
 		onInstall,
 		onLearnMore,

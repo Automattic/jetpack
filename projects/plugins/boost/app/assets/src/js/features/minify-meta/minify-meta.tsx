@@ -1,15 +1,26 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Button } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
 import { type Props, useMetaQuery } from '$lib/stores/minify';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import styles from './minify-meta.module.scss';
 import CollapsibleMeta from '$features/ui/collapsible-meta/collapsible-meta';
+import { useNotices } from '$features/notice/context';
 import { useMinifyDefaults } from './lib/stores';
 
 const MetaComponent = ( { buttonText, placeholder, datasyncKey }: Props ) => {
-	const [ values, updateValues ] = useMetaQuery( datasyncKey );
+	const noticeId = `minify-meta-${ datasyncKey }`;
+
+	const [ values, updateValues ] = useMetaQuery( datasyncKey, newState => {
+		setInputValue( newState.join( ', ' ) );
+		setNotice( {
+			id: noticeId,
+			type: 'success',
+			message: __( 'Changes saved', 'jetpack-boost' ),
+		} );
+	} );
 	const [ inputValue, setInputValue ] = useState( () => values.join( ', ' ) );
+	const { setNotice } = useNotices();
 	const minifyDefaults = useMinifyDefaults( datasyncKey );
 
 	const concatenateType = datasyncKey === 'minify_js_excludes' ? 'js' : 'css';
@@ -19,10 +30,6 @@ const MetaComponent = ( { buttonText, placeholder, datasyncKey }: Props ) => {
 	if ( minifyDefaults !== undefined ) {
 		defaultValue = minifyDefaults.join( ', ' );
 	}
-
-	useEffect( () => {
-		setInputValue( values.join( ', ' ) );
-	}, [ values ] );
 
 	const onToggleHandler = ( isExpanded: boolean ) => {
 		if ( ! isExpanded ) {
@@ -37,6 +44,13 @@ const MetaComponent = ( { buttonText, placeholder, datasyncKey }: Props ) => {
 		 * concatenate_css_exceptions_save_clicked
 		 */
 		recordBoostEvent( 'concatenate_' + concatenateType + '_exceptions_save_clicked', {} );
+
+		// Show saving notice
+		setNotice( {
+			id: noticeId,
+			type: 'pending',
+			message: __( 'Saving…', 'jetpack-boost' ),
+		} );
 
 		updateValues( inputValue );
 	}

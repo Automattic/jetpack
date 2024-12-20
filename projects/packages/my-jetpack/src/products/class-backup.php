@@ -247,19 +247,10 @@ class Backup extends Hybrid_Product {
 		// First check the status of Rewind for failure.
 		$rewind_state = self::get_state_from_wpcom();
 		if ( ! is_wp_error( $rewind_state ) ) {
-			$backup_failure_reasons = array(
-				'unknown_error',
-				'no_site_found',
-				'missing_plan',
-				'no_connected_jetpack',
-				'no_connected_jetpack_with_credentials',
-				'multisite_not_supported',
-				'host_not_supported',
-				'vp_active_on_site',
-			);
-			if ( $rewind_state->state === 'unavailable' && ! empty( $rewind_state->reason ) && in_array( $rewind_state->reason, $backup_failure_reasons, true ) ) {
+			if ( $rewind_state->state !== 'active' && $rewind_state->state !== 'provisioning' && $rewind_state->state !== 'awaiting_credentials' ) {
 				$backup_failed_status = array(
-					'status'       => $rewind_state->reason,
+					'source'       => 'rewind',
+					'status'       => isset( $rewind_state->reason ) && ! empty( $rewind_state->reason ) ? $rewind_state->reason : $rewind_state->state,
 					'last_updated' => $rewind_state->last_updated,
 				);
 			}
@@ -277,8 +268,9 @@ class Backup extends Hybrid_Product {
 			}
 
 			if ( $last_backup && isset( $last_backup->status ) ) {
-				if ( $last_backup->status === 'not-accessible' || $last_backup->status === 'error' || $last_backup->status === 'credential-error' ) {
+				if ( $last_backup->status !== 'started' && ! preg_match( '/-will-retry$/', $last_backup->status ) && $last_backup->status !== 'finished' ) {
 					$backup_failed_status = array(
+						'source'       => 'last_backup',
 						'status'       => $last_backup->status,
 						'last_updated' => $last_backup->last_updated,
 					);

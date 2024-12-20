@@ -1,9 +1,9 @@
 /**
  * WordPress dependencies
  */
+import { __ } from '@wordpress/i18n';
 import { Spinner, CheckboxControl, PanelBody, PanelRow } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
-import { __ } from '@wordpress/i18n';
 
 const CheckboxesGroup = ( { options, values, onChange } ) => {
 	if ( ! Array.isArray( options ) ) {
