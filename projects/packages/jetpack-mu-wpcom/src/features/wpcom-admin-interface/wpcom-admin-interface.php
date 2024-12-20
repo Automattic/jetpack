@@ -8,6 +8,7 @@
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
+use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
 /**
@@ -562,3 +563,43 @@ function wpcom_enable_blaze_dashboard_for_experiment( $activation_status ) {
 }
 
 add_filter( 'jetpack_blaze_dashboard_enable', 'wpcom_enable_blaze_dashboard_for_experiment' );
+
+/**
+ * Make the Jetpack Stats page to point to the Calypso Stats Admin menu - temporary. This is needed because WP-Admin pages are rolled-out individually.
+ *
+ * This should be removed when the sites are fully untangled (or with the Jetpack Stats).
+ *
+ * This is enabled only for the stats page for users that are part of the remove duplicate views experiment.
+ * @param $file The parent_file of the page.
+ *
+ * @return mixed
+ */
+function wpcom_select_calypso_admin_menu_stats_for_jetpack_post_stats( $file ) {
+	global $_wp_real_parent_file, $pagenow;
+
+	$is_on_stats_page = 'admin.php' === $pagenow && isset( $_GET['page'] ) && 'stats' === $_GET['page'];
+
+	if ( ! $is_on_stats_page || ! wpcom_is_duplicate_views_experiment_enabled() ) {
+		return $file;
+	}
+
+	remove_filter( 'pre_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_get_option' );
+	$is_using_wp_admin = get_option( 'wpcom_admin_interface' ) === 'wp-admin';
+	if ( function_exists( 'wpcom_admin_interface_pre_get_option' ) ) {
+		add_filter( 'pre_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_get_option' );
+	}
+
+	if ( $is_using_wp_admin ) {
+		return $file;
+	}
+
+	if ( ! wpcom_get_custom_admin_menu_class()) {
+		return $file;
+	}
+
+	$_wp_real_parent_file['jetpack'] = 'https://wordpress.com/stats/day/' . ( new Status() )->get_site_suffix();
+
+	return $file;
+}
+
+add_filter( 'parent_file', 'wpcom_select_calypso_admin_menu_stats_for_jetpack_post_stats' );
