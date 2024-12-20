@@ -8,7 +8,7 @@
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
 use Automattic\Jetpack\Connection\Client;
-use Automattic\Jetpack\My_Jetpack\Product;
+use Automattic\Jetpack\My_Jetpack\Hybrid_Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use Jetpack_Options;
 use WP_Error;
@@ -16,7 +16,7 @@ use WP_Error;
 /**
  * Class responsible for handling the Protect product
  */
-class Protect extends Product {
+class Protect extends Hybrid_Product {
 
 	const FREE_TIER_SLUG             = 'free';
 	const UPGRADED_TIER_SLUG         = 'upgraded';
