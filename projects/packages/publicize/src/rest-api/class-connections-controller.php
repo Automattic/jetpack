@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Publicize\REST_API;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Publicize\Publicize;
+use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_REST_Server;
@@ -27,6 +28,8 @@ class Connections_Controller extends Base_Controller {
 		$this->namespace = 'wpcom/v2';
 		$this->rest_base = 'publicize/connections';
 
+		$this->allow_requests_as_blog = true;
+
 		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
 	}
 
@@ -41,11 +44,20 @@ class Connections_Controller extends Base_Controller {
 				array(
 					'methods'             => WP_REST_Server::READABLE,
 					'callback'            => array( $this, 'get_items' ),
-					'permission_callback' => array( $this, 'get_items_permission_check' ),
+					'permission_callback' => array( $this, 'get_items_permissions_check' ),
 					'args'                => array(
 						'test_connections' => array(
 							'type'        => 'boolean',
 							'description' => __( 'Whether to test connections.', 'jetpack-publicize-pkg' ),
+						),
+						'include'          => array(
+							'type'        => 'string',
+							'description' => __( 'Which connections to include.', 'jetpack-publicize-pkg' )
+							. ' ' . __( 'By default, the endpoint returns the connections that belong to the current user.', 'jetpack-publicize-pkg' ),
+							'enum'        => array(
+								'site-wide',
+								'shared',
+							),
 						),
 					),
 				),
@@ -165,23 +177,35 @@ class Connections_Controller extends Base_Controller {
 	/**
 	 * Get all connections. Meant to be called directly only on WPCOM.
 	 *
-	 * @param bool $run_tests Whether to run tests on the connections.
+	 * @param array $args Arguments
+	 *                    - 'test_connections': bool Whether to run connection tests.
+	 *                    - 'include': enum('site-wide', 'shared') Which connections to include.
 	 *
 	 * @return array
 	 */
-	protected static function get_all_connections( $run_tests = false ) {
+	protected static function get_all_connections( $args = array() ) {
 		/**
 		 * Publicize instance.
-		 *
-		 * @var \Automattic\Jetpack\Publicize\Publicize $publicize
 		 */
 		global $publicize;
 
 		$items = array();
 
+		$run_tests = $args['test_connections'] ?? false;
+		$include   = $args['include'] ?? '';
+
 		$test_results = $run_tests ? self::get_connections_test_status() : array();
 
-		foreach ( (array) $publicize->get_services( 'connected' ) as $service_name => $connections ) {
+		if ( 'site-wide' === $include ) {
+			$service_connections = $publicize->get_all_connections_for_blog_id( get_current_blog_id() );
+		} else {
+			// `false` means the default behavior, current user.
+			$user_id = 'shared' === $include ? 0 : false;
+
+			$service_connections = (array) $publicize->get_services( 'connected', false, $user_id );
+		}
+
+		foreach ( $service_connections as $service_name => $connections ) {
 			foreach ( $connections as $connection ) {
 
 				$connection_id = $publicize->get_connection_id( $connection );
@@ -219,13 +243,15 @@ class Connections_Controller extends Base_Controller {
 	/**
 	 * Get a list of publicize connections.
 	 *
-	 * @param bool $run_tests Whether to run tests on the connections.
+	 * @param array $args Arguments.
+	 *
+	 * @see Automattic\Jetpack\Publicize\REST_API\Connections_Controller::get_all_connections()
 	 *
 	 * @return array
 	 */
-	public static function get_connections( $run_tests = false ) {
+	public static function get_connections( $args = array() ) {
 		if ( self::is_wpcom() ) {
-			return self::get_all_connections( $run_tests );
+			return self::get_all_connections( $args );
 		}
 
 		$site_id = Manager::get_site_id( true );
@@ -234,11 +260,17 @@ class Connections_Controller extends Base_Controller {
 		}
 
 		$path = add_query_arg(
-			array( 'test_connections' => $run_tests ),
+			$args,
 			sprintf( '/sites/%d/publicize/connections', $site_id )
 		);
 
-		$response = Client::wpcom_json_api_request_as_user( $path, 'v2', array( 'method' => 'GET' ) );
+		$include = $args['include'] ?? '';
+
+		$blog_or_user = 'site-wide' === $include ? 'blog' : 'user';
+
+		$callback = array( Client::class, "wpcom_json_api_request_as_{$blog_or_user}" );
+
+		$response = call_user_func( $callback, $path, 'v2', array( 'method' => 'GET' ), null, 'wpcom' );
 
 		if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
 			// TODO log error.
@@ -262,9 +294,7 @@ class Connections_Controller extends Base_Controller {
 	public function get_items( $request ) {
 		$items = array();
 
-		$run_tests = $request->get_param( 'test_connections' );
-
-		foreach ( self::get_connections( $run_tests ) as $item ) {
+		foreach ( self::get_connections( $request->get_params() ) as $item ) {
 			$data = $this->prepare_item_for_response( $item, $request );
 
 			$items[] = $this->prepare_response_for_collection( $data );
@@ -300,5 +330,34 @@ class Connections_Controller extends Base_Controller {
 		}
 
 		return $test_results_map;
+	}
+
+	/**
+	 * Verify that the user can call the endpoint.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return true|WP_Error
+	 */
+	public function get_items_permissions_check( $request ) {
+		$has_permissions = parent::get_items_permissions_check( $request );
+
+		if ( ! $has_permissions || is_wp_error( $has_permissions ) ) {
+			return $has_permissions;
+		}
+
+		if ( $request->get_param( 'include' ) === 'site-wide' ) {
+
+			$is_authorized = current_user_can( 'edit_others_posts' ) || self::is_authorized_blog_request();
+
+			if ( ! $is_authorized ) {
+				return new WP_Error(
+					'rest_forbidden_context',
+					__( 'Sorry, you are not allowed to access site-wide connections.', 'jetpack-publicize-pkg' ),
+					array( 'status' => rest_authorization_required_code() )
+				);
+			}
+		}
+
+		return $has_permissions;
 	}
 }
