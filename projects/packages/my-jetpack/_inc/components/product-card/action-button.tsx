@@ -238,9 +238,7 @@ const ActionButton: FC< ActionButtonProps > = ( {
 							label: __( 'Fix threats', 'jetpack-my-jetpack' ),
 						};
 					default:
-						return {
-							...defaultButton,
-						};
+						return defaultButton;
 				}
 			}
 			case PRODUCT_STATUSES.NEEDS_ATTENTION__WARNING: {
