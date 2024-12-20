@@ -14,6 +14,7 @@ class Cornerstone_Pages implements Has_Setup {
 	public function setup() {
 		$this->register_ds_stores();
 
+		add_filter( 'jetpack_boost_critical_css_providers', array( $this, 'remove_core_posts_page' ), 10, 2 );
 		add_filter( 'display_post_states', array( $this, 'add_display_post_states' ), 10, 2 );
 		add_action( 'init', array( $this, 'set_default_pages' ), 0 );
 	}
@@ -29,6 +30,34 @@ class Cornerstone_Pages implements Has_Setup {
 		$schema = Schema::as_array( Schema::as_string() )->fallback( array() );
 		jetpack_boost_register_option( 'cornerstone_pages_list', $schema, new Cornerstone_Pages_Entry( 'cornerstone_pages_list' ) );
 		jetpack_boost_register_readonly_option( 'cornerstone_pages_properties', array( $this, 'get_properties' ) );
+	}
+
+	/**
+	 * Remove the core posts page provider from the list of
+	 * Cornerstone Pages only if there's no static front page,
+	 * but there's a posts page set.
+	 *
+	 * @param array $providers The list of providers.
+	 *
+	 * @return array
+	 */
+	public function remove_core_posts_page( $providers ) {
+		$filtered_providers = array();
+		$front_page         = (int) get_option( 'page_on_front' );
+		$posts_page         = (int) get_option( 'page_for_posts' );
+
+		// Only filter out core_posts_page if there's no static front page but there is a posts page
+		if ( ! $front_page && $posts_page ) {
+			foreach ( $providers as $provider ) {
+				if ( $provider['key'] !== 'core_posts_page' ) {
+					$filtered_providers[] = $provider;
+				}
+			}
+
+			return $filtered_providers;
+		}
+
+		return $providers;
 	}
 
 	private function default_pages() {
