@@ -288,7 +288,7 @@ class Protect extends Product {
 	 * @return boolean|array
 	 */
 	public static function does_module_need_attention() {
-		$protect_threat_status = false;
+		$protect_threat_status = (bool) false;
 
 		// Check if there are scan threats.
 		$protect_data = self::get_protect_data();

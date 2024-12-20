@@ -243,7 +243,7 @@ class Backup extends Hybrid_Product {
 	 * @return boolean|array
 	 */
 	public static function does_module_need_attention() {
-		$backup_failed_status = false;
+		$backup_failed_status = (bool) false;
 		// First check the status of Rewind for failure.
 		$rewind_state = self::get_state_from_wpcom();
 		if ( ! is_wp_error( $rewind_state ) ) {
