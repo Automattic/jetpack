@@ -929,7 +929,8 @@ class Initializer {
 			return array_merge(
 				self::alert_if_missing_connection( $red_bubble_slugs ),
 				self::alert_if_last_backup_failed( $red_bubble_slugs ),
-				self::alert_if_paid_plan_expiring( $red_bubble_slugs )
+				self::alert_if_paid_plan_expiring( $red_bubble_slugs ),
+				self::alert_if_protect_has_threats( $red_bubble_slugs )
 			);
 		}
 	}
@@ -1052,6 +1053,26 @@ class Initializer {
 		$backup_failed_status = Products\Backup::does_module_need_attention();
 		if ( $backup_failed_status ) {
 			$red_bubble_slugs['backup_failure'] = $backup_failed_status;
+		}
+
+		return $red_bubble_slugs;
+	}
+
+	/**
+	 * Add an alert slug if Protect has scan threats/vulnerabilities.
+	 *
+	 * @param array $red_bubble_slugs - slugs that describe the reasons the red bubble is showing.
+	 * @return array
+	 */
+	public static function alert_if_protect_has_threats( array $red_bubble_slugs ) {
+		// Make sure we're dealing with the Protect product only
+		if ( ! Products\Protect::has_paid_plan_for_product() ) {
+			return $red_bubble_slugs;
+		}
+
+		$protect_threats_status = Products\Protect::does_module_need_attention();
+		if ( $protect_threats_status ) {
+			$red_bubble_slugs['protect_has_threats'] = $protect_threats_status;
 		}
 
 		return $red_bubble_slugs;

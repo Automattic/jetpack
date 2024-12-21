@@ -412,6 +412,14 @@ interface Window {
 				manage_url?: string;
 				products_effected?: string[];
 			};
+			protect_has_threats?: {
+				type: 'warning' | 'error';
+				data: {
+					threat_count: number;
+					critical_threat_count: number;
+					fixable_threat_ids: number[];
+				};
+			};
 		};
 		recommendedModules: {
 			modules: JetpackModule[] | null;
