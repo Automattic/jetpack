@@ -14,7 +14,12 @@ const useProtectThreatsDetectedNotice = ( redBubbleAlerts: RedBubbleAlerts ) => 
 	const { recordEvent } = useAnalytics();
 	const { setNotice } = useContext( NoticeContext );
 	const { detail } = useProduct( 'protect' );
-	const { hasPaidPlanForProduct, isPluginActive, manageUrl: protectDashboardUrl } = detail || {};
+	const {
+		hasPaidPlanForProduct,
+		standalonePluginInfo,
+		manageUrl: protectDashboardUrl,
+	} = detail || {};
+	const { isStandaloneActive } = standalonePluginInfo || {};
 
 	const {
 		type,
@@ -32,7 +37,7 @@ const useProtectThreatsDetectedNotice = ( redBubbleAlerts: RedBubbleAlerts ) => 
 	const noticeTitle = sprintf(
 		// translators: %s is the product name. Can be either "Scan" or "Protect".
 		__( '%s found threats on your site', 'jetpack-my-jetpack' ),
-		hasPaidPlanForProduct && isPluginActive ? 'Protect' : 'Scan'
+		hasPaidPlanForProduct && isStandaloneActive ? 'Protect' : 'Scan'
 	);
 
 	const onPrimaryCtaClick = useCallback( () => {
@@ -76,7 +81,7 @@ const useProtectThreatsDetectedNotice = ( redBubbleAlerts: RedBubbleAlerts ) => 
 								'Visit the %s dashboard to view threat details, auto-fix threats, and keep your site safe.',
 								'jetpack-my-jetpack'
 							),
-							hasPaidPlanForProduct && isPluginActive ? 'Protect' : 'Scan'
+							hasPaidPlanForProduct && isStandaloneActive ? 'Protect' : 'Scan'
 						)
 					) }
 				</Text>
@@ -108,7 +113,7 @@ const useProtectThreatsDetectedNotice = ( redBubbleAlerts: RedBubbleAlerts ) => 
 		} );
 	}, [
 		hasPaidPlanForProduct,
-		isPluginActive,
+		isStandaloneActive,
 		noticeTitle,
 		onPrimaryCtaClick,
 		onSecondaryCtaClick,
