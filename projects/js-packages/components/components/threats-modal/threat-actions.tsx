@@ -9,20 +9,20 @@ import { ThreatsModalContext } from '.';
 /**
  * ThreatActions component
  *
- * @param {object}   props                 - The props.
- * @param {Threat[]} props.selectedThreats - The selected threats.
- * @param {boolean}  props.canReturnToBulk - Whether the user can return to the bulk view.
- * @param {Function} props.viewBulkThreats - The function to view all threats.
+ * @param {object}   props                        - The props.
+ * @param {Threat[]} props.selectedThreats        - The selected threats.
+ * @param {boolean}  props.canReturnToBulkThreats - Whether the user can return to the bulk view.
+ * @param {Function} props.viewBulkThreats        - The function to view all threats.
  *
  * @return {JSX.Element | null} The rendered action buttons or null if no actions are available.
  */
 const ThreatActions = ( {
 	selectedThreats,
-	canReturnToBulk,
+	canReturnToBulkThreats,
 	viewBulkThreats,
 }: {
 	selectedThreats: Threat[];
-	canReturnToBulk: boolean;
+	canReturnToBulkThreats: boolean;
 	viewBulkThreats: () => void;
 } ): JSX.Element => {
 	const {
@@ -77,7 +77,7 @@ const ThreatActions = ( {
 
 	const renderIndividualActions = () => (
 		<>
-			{ canReturnToBulk && (
+			{ canReturnToBulkThreats && (
 				<Button className={ styles[ 'view-bulk' ] } onClick={ viewBulkThreats }>
 					{ sprintf(
 						// translators: %d is the number of threats.
