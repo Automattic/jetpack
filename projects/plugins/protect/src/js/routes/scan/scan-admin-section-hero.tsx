@@ -236,6 +236,7 @@ const ScanAdminSectionHero: React.FC = ( { size = 'normal' }: { size?: 'normal' 
 						</div>
 						{ showModal && (
 							<ThreatsModal
+								actionToConfirm={ 'all' }
 								currentThreats={ fixableList }
 								isSupportedEnvironment={ wafSupported }
 								isUserConnected={ isUserConnected }
