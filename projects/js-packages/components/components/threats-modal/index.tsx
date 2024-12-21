@@ -9,6 +9,7 @@ import ThreatFixConfirmation from './threat-fix-confirmation';
 
 interface ThreatModalContextType {
 	closeModal: () => void;
+	currentThreats: Threat[];
 	threatsList: Threat[];
 	setThreatsList: Dispatch< SetStateAction< Threat[] > >;
 	isBulk: boolean;
@@ -110,6 +111,7 @@ export default function ThreatsModal( {
 				<ThreatsModalContext.Provider
 					value={ {
 						closeModal: modalProps.onRequestClose,
+						currentThreats,
 						threatsList,
 						setThreatsList,
 						isBulk,

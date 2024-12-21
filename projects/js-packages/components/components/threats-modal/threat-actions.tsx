@@ -1,5 +1,5 @@
 import { getFixerState, getDetailedFixerAction, type Threat } from '@automattic/jetpack-scan';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { useCallback, useContext, useMemo } from 'react';
 import { Button } from '@automattic/jetpack-components';
 import FixerStateNotice from './fixer-state-notice';
@@ -11,12 +11,23 @@ import { ThreatsModalContext } from '.';
  *
  * @param {object}   props                 - The props.
  * @param {Threat[]} props.selectedThreats - The selected threats.
+ * @param {boolean}  props.canReturnToBulk - Whether the user can return to the bulk view.
+ * @param {Function} props.viewBulkThreats - The function to view all threats.
  *
  * @return {JSX.Element | null} The rendered action buttons or null if no actions are available.
  */
-const ThreatActions = ( { selectedThreats }: { selectedThreats: Threat[] } ): JSX.Element => {
+const ThreatActions = ( {
+	selectedThreats,
+	canReturnToBulk,
+	viewBulkThreats,
+}: {
+	selectedThreats: Threat[];
+	canReturnToBulk: boolean;
+	viewBulkThreats: () => void;
+} ): JSX.Element => {
 	const {
 		closeModal,
+		currentThreats,
 		isBulk,
 		actionToConfirm,
 		handleFixThreatClick,
@@ -66,6 +77,15 @@ const ThreatActions = ( { selectedThreats }: { selectedThreats: Threat[] } ): JS
 
 	const renderIndividualActions = () => (
 		<>
+			{ canReturnToBulk && (
+				<Button className={ styles[ 'view-bulk' ] } onClick={ viewBulkThreats }>
+					{ sprintf(
+						// translators: %d is the number of threats.
+						__( 'Show auto fixers (%d)', 'jetpack-components' ),
+						currentThreats.length
+					) }
+				</Button>
+			) }
 			{ firstThreat.status === 'ignored' && (
 				<Button disabled={ disabled } isDestructive variant="secondary" onClick={ onUnignoreClick }>
 					{ __( 'Un-ignore threat', 'jetpack-components' ) }

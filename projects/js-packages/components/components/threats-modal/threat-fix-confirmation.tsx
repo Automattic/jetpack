@@ -24,9 +24,10 @@ import { ThreatsModalContext } from '.';
 const ThreatFixConfirmation = () => {
 	const [ isSm ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
 
-	const { threatsList, setThreatsList, isBulk, handleUpgradeClick } =
+	const { currentThreats, threatsList, setThreatsList, isBulk, handleUpgradeClick } =
 		useContext( ThreatsModalContext );
 
+	const [ canReturnToBulk, setCanReturnToBulk ] = useState( false );
 	const [ selectedThreats, setSelectedThreats ] = useState( threatsList );
 
 	const handleToggleThreat = useCallback( ( threat: Threat, isChecked: boolean ) => {
@@ -51,10 +52,17 @@ const ThreatFixConfirmation = () => {
 		return handlers;
 	}, [ threatsList, handleToggleThreat ] );
 
+	const viewBulkThreats = useCallback( () => {
+		setThreatsList( currentThreats );
+		setSelectedThreats( currentThreats );
+		setCanReturnToBulk( false );
+	}, [ currentThreats, setThreatsList, setSelectedThreats ] );
+
 	const viewIndividualThreat = useCallback(
 		( threat: Threat ) => {
 			setThreatsList( [ threat ] );
 			setSelectedThreats( [ threat ] );
+			setCanReturnToBulk( true );
 		},
 		[ setThreatsList, setSelectedThreats ]
 	);
@@ -153,7 +161,11 @@ const ThreatFixConfirmation = () => {
 					onClick={ handleUpgradeClick }
 				/>
 			) }
-			<ThreatActions selectedThreats={ selectedThreats } />
+			<ThreatActions
+				selectedThreats={ selectedThreats }
+				canReturnToBulk={ canReturnToBulk }
+				viewBulkThreats={ viewBulkThreats }
+			/>
 		</div>
 	);
 };
