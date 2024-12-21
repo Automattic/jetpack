@@ -24,48 +24,64 @@ import { ThreatsModalContext } from '.';
 const ThreatFixConfirmation = () => {
 	const [ isSm ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
 
-	const { threatsList, isBulk, handleUpgradeClick } = useContext( ThreatsModalContext );
+	const { threatsList, setThreatsList, isBulk, handleUpgradeClick } =
+		useContext( ThreatsModalContext );
 
 	const [ selectedThreats, setSelectedThreats ] = useState( threatsList );
 
 	const handleToggleThreat = useCallback( ( threat: Threat, isChecked: boolean ) => {
 		setSelectedThreats( prevSelectedThreats => {
 			if ( isChecked ) {
-				// Add the threat if it's not already in the list
 				return [ ...prevSelectedThreats, threat ];
 			}
-			// Remove the threat if it exists in the list
 			return prevSelectedThreats.filter( selectedThreat => selectedThreat.id !== threat.id );
 		} );
 	}, [] );
 
 	// Memoize toggle handlers for each threat
 	const toggleHandlers = useMemo( () => {
-		return threatsList.reduce( ( handlers, threat ) => {
-			handlers[ threat.id ] = isChecked => handleToggleThreat( threat, isChecked );
-			return handlers;
-		}, {} );
+		const handlers: Record< string, ( value: boolean ) => void > = {};
+
+		threatsList.forEach( threat => {
+			handlers[ threat.id ] = isChecked => {
+				handleToggleThreat( threat, isChecked );
+			};
+		} );
+
+		return handlers;
 	}, [ threatsList, handleToggleThreat ] );
 
-	const viewIndividualThreat = useCallback( threat => {
-		console.log( threat );
-	}, [] );
+	const viewIndividualThreat = useCallback(
+		( threat: Threat ) => {
+			setThreatsList( [ threat ] );
+			setSelectedThreats( [ threat ] );
+		},
+		[ setThreatsList, setSelectedThreats ]
+	);
 
 	const handleThreatClick = useCallback(
-		threat => () => {
-			viewIndividualThreat( threat );
+		( threat: Threat ) => {
+			return () => {
+				viewIndividualThreat( threat );
+			};
 		},
 		[ viewIndividualThreat ]
 	);
 
-	const handleKeyPress = useCallback(
-		threat => event => {
-			if ( event.key === 'Enter' ) {
-				viewIndividualThreat( threat );
-			}
+	const handleThreatKeyPress = useCallback(
+		( threat: Threat ) => {
+			return ( event: React.KeyboardEvent ) => {
+				if ( event.key === 'Enter' || event.key === ' ' ) {
+					viewIndividualThreat( threat );
+				}
+			};
 		},
 		[ viewIndividualThreat ]
 	);
+
+	const stopPropagationHandler = useCallback( ( event: React.MouseEvent | React.KeyboardEvent ) => {
+		event.stopPropagation();
+	}, [] );
 
 	const renderBulkThreat = threat => {
 		return (
@@ -74,7 +90,7 @@ const ThreatFixConfirmation = () => {
 				onClick={ handleThreatClick( threat ) }
 				role="button"
 				tabIndex={ 0 }
-				onKeyDown={ handleKeyPress( threat ) }
+				onKeyDown={ handleThreatKeyPress( threat ) }
 			>
 				<div className={ styles.bulk }>
 					<div className={ styles.bulk__heading }>
@@ -89,12 +105,19 @@ const ThreatFixConfirmation = () => {
 						</div>
 					</div>
 					{ !! threat.severity && <ThreatSeverityBadge severity={ threat.severity } /> }
-					<ToggleControl
-						className={ styles.bulk__toggle }
-						size="small"
-						checked={ selectedThreats.some( selectedThreat => selectedThreat.id === threat.id ) }
-						onChange={ toggleHandlers[ threat.id ] }
-					/>
+					<div
+						onClick={ stopPropagationHandler }
+						onKeyDown={ stopPropagationHandler }
+						role="button"
+						tabIndex={ -1 }
+					>
+						<ToggleControl
+							className={ styles.bulk__toggle }
+							size="small"
+							checked={ selectedThreats.some( selectedThreat => selectedThreat.id === threat.id ) }
+							onChange={ toggleHandlers[ threat.id ] }
+						/>
+					</div>
 				</div>
 			</div>
 		);

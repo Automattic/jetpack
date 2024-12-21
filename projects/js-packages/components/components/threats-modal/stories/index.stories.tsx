@@ -66,7 +66,7 @@ const Base = args => {
 							fixedIn: '1.2.4',
 							severity: 3,
 							fixable: { fixer: 'update', target: '1.12.4', extensionStatus: 'inactive' },
-							fixer: { status: 'in_progress', lastUpdated: new Date().toISOString() },
+							fixer: { status: 'not_started' },
 							status: 'current',
 							source: 'https://wpscan.com/vulnerability/733d8a02-0d44-4b78-bbb2-37e447acd2f3',
 							extension: {
@@ -85,7 +85,7 @@ const Base = args => {
 							fixedIn: '2.22.22',
 							severity: 3,
 							fixable: { fixer: 'update', target: '1.12.4', extensionStatus: 'inactive' },
-							fixer: { status: 'in_progress', lastUpdated: new Date( '1999-01-01' ).toISOString() },
+							fixer: { status: 'not_started' },
 							status: 'current',
 							source: 'https://wpscan.com/vulnerability/733d8a02-0d44-4b78-bbb2-37e447acd2f3',
 							extension: {
