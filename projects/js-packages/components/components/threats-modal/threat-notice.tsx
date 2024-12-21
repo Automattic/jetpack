@@ -29,7 +29,7 @@ const ThreatNotice = ( {
 	showActions?: boolean;
 } ): JSX.Element => {
 	const {
-		currentThreats,
+		threatsList,
 		isBulk,
 		userConnectionNeeded,
 		userIsConnecting,
@@ -40,8 +40,8 @@ const ThreatNotice = ( {
 	} = useContext( ThreatsModalContext );
 
 	if (
-		currentThreats.every( threat => ! threat?.status ) ||
-		( ! isBulk && currentThreats[ 0 ].status === 'fixed' )
+		threatsList.every( threat => ! threat?.status ) ||
+		( ! isBulk && threatsList[ 0 ].status === 'fixed' )
 	) {
 		return null;
 	}

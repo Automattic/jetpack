@@ -24,9 +24,9 @@ import { ThreatsModalContext } from '.';
 const ThreatFixConfirmation = () => {
 	const [ isSm ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
 
-	const { currentThreats, isBulk, handleUpgradeClick } = useContext( ThreatsModalContext );
+	const { threatsList, isBulk, handleUpgradeClick } = useContext( ThreatsModalContext );
 
-	const [ selectedThreats, setSelectedThreats ] = useState( currentThreats );
+	const [ selectedThreats, setSelectedThreats ] = useState( threatsList );
 
 	const handleToggleThreat = useCallback( ( threat: Threat, isChecked: boolean ) => {
 		setSelectedThreats( prevSelectedThreats => {
@@ -41,34 +41,64 @@ const ThreatFixConfirmation = () => {
 
 	// Memoize toggle handlers for each threat
 	const toggleHandlers = useMemo( () => {
-		return currentThreats.reduce( ( handlers, threat ) => {
+		return threatsList.reduce( ( handlers, threat ) => {
 			handlers[ threat.id ] = isChecked => handleToggleThreat( threat, isChecked );
 			return handlers;
 		}, {} );
-	}, [ currentThreats, handleToggleThreat ] );
+	}, [ threatsList, handleToggleThreat ] );
 
-	const renderBulkThreat = threat => (
-		<div key={ threat.id } className={ styles.bulk }>
-			<div className={ styles.bulk__heading }>
-				{ ! isSm && (
-					<div className={ styles.bulk__media }>
-						<Icon icon={ THREAT_ICONS[ getThreatType( threat ) ] } size={ 20 } />
+	const viewIndividualThreat = useCallback( threat => {
+		console.log( threat );
+	}, [] );
+
+	const handleThreatClick = useCallback(
+		threat => () => {
+			viewIndividualThreat( threat );
+		},
+		[ viewIndividualThreat ]
+	);
+
+	const handleKeyPress = useCallback(
+		threat => event => {
+			if ( event.key === 'Enter' ) {
+				viewIndividualThreat( threat );
+			}
+		},
+		[ viewIndividualThreat ]
+	);
+
+	const renderBulkThreat = threat => {
+		return (
+			<div
+				key={ threat.id }
+				onClick={ handleThreatClick( threat ) }
+				role="button"
+				tabIndex={ 0 }
+				onKeyDown={ handleKeyPress( threat ) }
+			>
+				<div className={ styles.bulk }>
+					<div className={ styles.bulk__heading }>
+						{ ! isSm && (
+							<div className={ styles.bulk__media }>
+								<Icon icon={ THREAT_ICONS[ getThreatType( threat ) ] } size={ 20 } />
+							</div>
+						) }
+						<div className={ styles.bulk__title }>
+							<Text variant="title-small">{ getLabel( threat ) }</Text>
+							<ThreatFixDetails showTitle={ false } threat={ threat } />
+						</div>
 					</div>
-				) }
-				<div className={ styles.bulk__title }>
-					<Text variant="title-small">{ getLabel( threat ) }</Text>
-					<ThreatFixDetails showTitle={ false } threat={ threat } />
+					{ !! threat.severity && <ThreatSeverityBadge severity={ threat.severity } /> }
+					<ToggleControl
+						className={ styles.bulk__toggle }
+						size="small"
+						checked={ selectedThreats.some( selectedThreat => selectedThreat.id === threat.id ) }
+						onChange={ toggleHandlers[ threat.id ] }
+					/>
 				</div>
 			</div>
-			{ !! threat.severity && <ThreatSeverityBadge severity={ threat.severity } /> }
-			<ToggleControl
-				className={ styles.bulk__toggle }
-				size="small"
-				checked={ selectedThreats.some( selectedThreat => selectedThreat.id === threat.id ) }
-				onChange={ toggleHandlers[ threat.id ] }
-			/>
-		</div>
-	);
+		);
+	};
 
 	const renderIndividualThreat = threat => (
 		<div key={ threat.id } className={ styles.individual }>
@@ -84,10 +114,10 @@ const ThreatFixConfirmation = () => {
 			{ isBulk ? (
 				<>
 					<Text>{ 'Jetpack will be fixing the selected threats:' }</Text>
-					<div>{ currentThreats.map( threat => renderBulkThreat( threat ) ) }</div>
+					<div>{ threatsList.map( threat => renderBulkThreat( threat ) ) }</div>
 				</>
 			) : (
-				currentThreats.map( threat => renderIndividualThreat( threat ) )
+				threatsList.map( threat => renderIndividualThreat( threat ) )
 			) }
 			<ConnectionsNotice />
 			{ handleUpgradeClick && (

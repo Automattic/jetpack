@@ -1,7 +1,7 @@
 import { getLabel, type Threat } from '@automattic/jetpack-scan';
 import { Modal } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { createContext } from 'react';
+import { createContext, useState, Dispatch, SetStateAction } from 'react';
 import Text from '../text';
 import ThreatSeverityBadge from '../threat-severity-badge';
 import styles from './styles.module.scss';
@@ -9,7 +9,8 @@ import ThreatFixConfirmation from './threat-fix-confirmation';
 
 interface ThreatModalContextType {
 	closeModal: () => void;
-	currentThreats: Threat[];
+	threatsList: Threat[];
+	setThreatsList: Dispatch< SetStateAction< Threat[] > >;
 	isBulk: boolean;
 	actionToConfirm: string | null;
 	isSupportedEnvironment: boolean;
@@ -82,8 +83,9 @@ export default function ThreatsModal( {
 } & React.ComponentProps< typeof Modal > ): JSX.Element {
 	const userConnectionNeeded = ! isUserConnected || ! hasConnectedOwner;
 	const siteCredentialsNeeded = ! credentials || credentials.length === 0;
-	const isBulk = currentThreats.length > 1;
-	const firstThreat = currentThreats[ 0 ];
+	const [ threatsList, setThreatsList ] = useState< Threat[] >( currentThreats );
+	const isBulk = threatsList.length > 1;
+	const firstThreat = threatsList[ 0 ];
 
 	return (
 		<Modal
@@ -108,7 +110,8 @@ export default function ThreatsModal( {
 				<ThreatsModalContext.Provider
 					value={ {
 						closeModal: modalProps.onRequestClose,
-						currentThreats,
+						threatsList,
+						setThreatsList,
 						isBulk,
 						actionToConfirm,
 						isSupportedEnvironment,
