@@ -1,7 +1,7 @@
 import { Col, getRedirectUrl, Text } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
 import { useContext, useEffect, useCallback } from 'react';
-import { NOTICE_PRIORITY_HIGH } from '../../context/constants';
+import { NOTICE_PRIORITY_MEDIUM } from '../../context/constants';
 import { NoticeContext } from '../../context/notices/noticeContext';
 import useProduct from '../../data/products/use-product';
 import preventWidows from '../../utils/prevent-widows';
@@ -103,7 +103,7 @@ const useProtectThreatsDetectedNotice = ( redBubbleAlerts: RedBubbleAlerts ) => 
 					isExternalLink: true,
 				},
 			],
-			priority: NOTICE_PRIORITY_HIGH,
+			priority: NOTICE_PRIORITY_MEDIUM,
 		};
 
 		setNotice( {
