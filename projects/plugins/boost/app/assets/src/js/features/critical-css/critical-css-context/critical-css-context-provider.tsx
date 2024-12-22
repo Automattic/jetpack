@@ -11,19 +11,23 @@ import {
 import { runLocalGenerator } from '../lib/generate-critical-css';
 import { CriticalCssErrorDetails } from '../lib/stores/critical-css-state-types';
 
-type LocalGeneratorContext = {
+type CriticalCssContextValues = {
 	isGenerating: boolean;
 	setGenerating: ( generating: boolean ) => void;
 
 	providerProgress: number;
 	setProviderProgress: ( progress: number ) => void;
+
+	// Whether we've retried generating critical CSS after an error.
+	hasRetriedAfterError: boolean;
+	setHasRetriedAfterError: ( hasRetried: boolean ) => void;
 };
 
 type ProviderProps = {
 	children: ReactNode;
 };
 
-const CssGeneratorContext = createContext< LocalGeneratorContext | null >( null );
+const CriticalCssContext = createContext< CriticalCssContextValues | null >( null );
 
 /**
  * Local Critical CSS Context Provider component - provides context for any descendants that want to
@@ -31,28 +35,34 @@ const CssGeneratorContext = createContext< LocalGeneratorContext | null >( null 
  *
  * @param {ProviderProps} props - Component props.
  */
-export default function LocalCriticalCssGeneratorProvider( { children }: ProviderProps ) {
+export default function CriticalCssProvider( { children }: ProviderProps ) {
 	const [ isGenerating, setGenerating ] = useState< boolean >( false );
 	const [ providerProgress, setProviderProgress ] = useState< number >( 0 );
+	const [ hasRetriedAfterError, setHasRetriedAfterError ] = useState< boolean >( false );
 
 	const value = {
+		// Local Generator status.
 		isGenerating,
 		setGenerating,
 		providerProgress,
 		setProviderProgress,
+
+		// Whether we've retried generating critical CSS after an error.
+		hasRetriedAfterError,
+		setHasRetriedAfterError,
 	};
 
-	return <CssGeneratorContext.Provider value={ value }>{ children }</CssGeneratorContext.Provider>;
+	return <CriticalCssContext.Provider value={ value }>{ children }</CriticalCssContext.Provider>;
 }
 
 /**
  * Internal helper function: Use the raw Critical CSS Generator context, and verify it's inside a provider.
  */
-function useLocalCriticalCssGeneratorContext() {
-	const status = useContext( CssGeneratorContext );
+function useCriticalCssContext() {
+	const status = useContext( CriticalCssContext );
 
 	if ( ! status ) {
-		throw new Error( 'Local critical CSS generator status not available' );
+		throw new Error( 'Critical CSS status not available' );
 	}
 
 	return status;
@@ -62,9 +72,17 @@ function useLocalCriticalCssGeneratorContext() {
  * For status consumers: Get an overview of the local critical CSS generator status. Is it running or not?
  */
 export function useLocalCriticalCssGeneratorStatus() {
-	const { isGenerating, providerProgress } = useLocalCriticalCssGeneratorContext();
+	const { isGenerating, providerProgress } = useCriticalCssContext();
 
 	return { isGenerating, providerProgress };
+}
+
+/** The retried state of critical CSS. */
+export function useCriticalCssRetriedAfterErrorState() {
+	const { hasRetriedAfterError: hasRetried, setHasRetriedAfterError: setHasRetried } =
+		useCriticalCssContext();
+
+	return [ hasRetried, setHasRetried ] as const;
 }
 
 /**
@@ -73,7 +91,7 @@ export function useLocalCriticalCssGeneratorStatus() {
 export function useLocalCriticalCssGenerator() {
 	// Local Generator status context.
 	const { isGenerating, setGenerating, providerProgress, setProviderProgress } =
-		useLocalCriticalCssGeneratorContext();
+		useCriticalCssContext();
 
 	// Critical CSS state and actions.
 	const [ cssState, setCssState ] = useCriticalCssState();
@@ -86,7 +104,7 @@ export function useLocalCriticalCssGenerator() {
 
 	useEffect(
 		() => {
-			if ( cssState.status === 'pending' ) {
+			if ( cssState.status === 'pending' && cssState.providers.length > 0 ) {
 				let abortController: AbortController | undefined;
 
 				setGenerating( true );
@@ -119,7 +137,7 @@ export function useLocalCriticalCssGenerator() {
 		// This effect triggers an actual process that is costly to start and stop, so we don't want to start/stop it
 		// every time an object ref like `cssState` is changed for a trivial reason.
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-		[ cssState.status ]
+		[ cssState.status, cssState.providers.length ]
 	);
 
 	const progress =
