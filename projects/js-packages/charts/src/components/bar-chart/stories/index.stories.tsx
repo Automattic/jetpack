@@ -1,4 +1,4 @@
-import BarChart from '../index';
+import { BarChart } from '../index';
 import data from './sample-data';
 import type { Meta, StoryObj } from '@storybook/react';
 

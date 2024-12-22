@@ -309,7 +309,7 @@ function jetpack_shortcode_instagram( $atts ) {
 	}
 
 	if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
-		$url_pattern = '#http(s?)://(www\.)?instagr(\.am|am\.com)/p/([^/?]+)#i';
+		$url_pattern = '#http(s?)://(www\.)?instagr(\.am|am\.com)/(p|tv|reel)/([^/?]+)#i';
 		preg_match( $url_pattern, $atts['url'], $matches );
 		if ( ! $matches ) {
 			return sprintf(

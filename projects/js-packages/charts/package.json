@@ -17,7 +17,10 @@
 		"clean": "rm -rf node_modules",
 		"test": "jest --config=tests/jest.config.cjs",
 		"test-coverage": "pnpm run test --coverage",
-		"storybook": "cd ../storybook && pnpm run storybook:dev"
+		"storybook": "cd ../storybook && pnpm run storybook:dev",
+		"compile-ts": "tsc --pretty",
+		"build": "pnpm run clean-build && pnpm run compile-ts",
+		"clean-build": "rm -rf build/"
 	},
 	"dependencies": {
 		"@react-spring/web": "9.7.3",
