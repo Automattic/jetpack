@@ -37,6 +37,10 @@ const Template: StoryFn< typeof GridControl > = args => {
 // Define stories for each grid visibility option
 export const Default = Template.bind( {} );
 Default.args = {
+	gridVisibility: 'x',
+};
+
+export const BothAxes = Template.bind( {} );
+BothAxes.args = {
 	gridVisibility: 'xy',
-	className: 'grid-lines',
 };
