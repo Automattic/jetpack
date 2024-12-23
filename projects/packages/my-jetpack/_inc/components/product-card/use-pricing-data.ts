@@ -3,12 +3,12 @@ import { __ } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import { PRODUCT_STATUSES } from '../../constants';
 import useActivate from '../../data/products/use-activate';
+import useInstallStandalonePlugin from '../../data/products/use-install-standalone-plugin';
 import useProduct from '../../data/products/use-product';
 import { ProductCamelCase } from '../../data/types';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../hooks/use-analytics';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
-import useInstallStandalonePlugin from '../../data/products/use-install-standalone-plugin';
 
 const parsePricingData = ( pricingForUi: ProductCamelCase[ 'pricingForUi' ] ) => {
 	const { tiers, wpcomFreeProductSlug, introductoryOffer } = pricingForUi;
@@ -71,18 +71,6 @@ const getPrimaryAction = (
 	const upgradeHasPrice =
 		detail.pricingForUi.fullPrice || detail.pricingForUi.tiers?.upgraded?.fullPrice;
 
-	if ( detail.status === PRODUCT_STATUSES.MODULE_DISABLED ) {
-		return { label: __( 'Activate', 'jetpack-my-jetpack' ), onClick: onActivate };
-	}
-
-	if ( detail.status === PRODUCT_STATUSES.ABSENT ) {
-		return { label: __( 'Install', 'jetpack-my-jetpack' ), onClick: onInstall };
-	}
-
-	if ( detail.status === PRODUCT_STATUSES.USER_CONNECTION_ERROR ) {
-		return { label: __( 'Connect', 'jetpack-my-jetpack' ), href: '#/connection' };
-	}
-
 	if ( detail.status === PRODUCT_STATUSES.CAN_UPGRADE || isUpgradable ) {
 		if ( upgradeHasPrice ) {
 			return { label: __( 'Upgrade', 'jetpack-my-jetpack' ), onClick: onCheckout };
@@ -91,10 +79,20 @@ const getPrimaryAction = (
 	}
 
 	if ( detail.isFeature ) {
+		if ( detail.status === PRODUCT_STATUSES.MODULE_DISABLED ) {
+			return { label: __( 'Activate', 'jetpack-my-jetpack' ), onClick: onActivate };
+		}
+		if ( detail.status === PRODUCT_STATUSES.ABSENT ) {
+			return { label: __( 'Install', 'jetpack-my-jetpack' ), onClick: onInstall };
+		}
+		if ( detail.status === PRODUCT_STATUSES.USER_CONNECTION_ERROR ) {
+			return { label: __( 'Connect', 'jetpack-my-jetpack' ), href: '#/connection' };
+		}
+
 		return {
 			label: __( 'Manage', 'jetpack-my-jetpack' ),
 			href: detail.manageUrl,
-			onClick: onCheckout,
+			onClick: onManage,
 		};
 	}
 
@@ -102,6 +100,10 @@ const getPrimaryAction = (
 };
 
 const getSecondaryAction = ( detail: ProductCamelCase, onActivate: () => void ) => {
+	if ( detail.isFeature ) {
+		return null;
+	}
+
 	const START_FOR_FREE_FEATURE_FLAG = false;
 	const isNotActiveOrNeedsExplicitFreePlan =
 		! detail.isPluginActive ||
@@ -189,7 +191,10 @@ const usePricingData = ( slug: string ) => {
 			onInstall: handleInstall,
 			onManage: handleManage,
 		} ),
+		isFeature: detail.isFeature,
+		hasFreeOffering: detail.hasFreeOffering,
 		isActivating,
+		isInstalling,
 		...data,
 	};
 };
