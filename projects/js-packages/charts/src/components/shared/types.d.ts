@@ -66,48 +66,35 @@ export type ChartTheme = {
 };
 
 /**
- * Base properties shared across all chart components
+ * Base properties for grid components
  */
-export type BaseChartProps< T = DataPoint | DataPointDate > = {
+export type BaseGridProps = {
 	/**
-	 * Array of data points to display in the chart
-	 */
-	data?: T extends DataPoint | DataPointDate ? T[] : T;
-	/**
-	 * Additional CSS class name for the chart container
-	 */
-	className?: string;
-	/**
-	 * Width of the chart in pixels
+	 * Width of the grid in pixels
 	 */
 	width: number;
 	/**
-	 * Height of the chart in pixels
+	 * Height of the grid in pixels
 	 */
-	height?: number;
-	/**
-	 * Chart margins
-	 */
-	margin?: {
-		top: number;
-		right: number;
-		bottom: number;
-		left: number;
-	};
-	/**
-	 * Whether to show tooltips on hover. False by default.
-	 */
-	withTooltips?: boolean;
-	/**
-	 * Whether to show legend
-	 */
-	showLegend?: boolean;
-	/**
-	 * Legend orientation
-	 */
-	legendOrientation?: 'horizontal' | 'vertical';
+	height: number;
 	/**
 	 * Grid visibility. x is default.
 	 */
 	gridVisibility?: 'x' | 'y' | 'xy' | 'none';
+	/**
+	 * X-axis scale for the grid
+	 * TODO: Fix any type after resolving visx scale type issues
+	 */
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	xScale: any;
+	/**
+	 * Y-axis scale for the grid
+	 * TODO: Fix any type after resolving visx scale type issues
+	 */
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	yScale: any;
+	/**
+	 * Top offset for the grid
+	 */
+	top?: number;
 };
