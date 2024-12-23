@@ -1,6 +1,7 @@
 import { GridRows, GridColumns } from '@visx/grid';
 import { scaleLinear } from '@visx/scale';
 import React from 'react';
+import styles from './grid-control.module.scss';
 import type { BaseChartProps } from '../shared/types';
 
 interface GridControlProps extends BaseChartProps {
@@ -18,7 +19,7 @@ const GridControl: React.FC< GridControlProps > = ( {
 	top = 0,
 } ) => {
 	return (
-		<g transform={ `translate(0, ${ top })` }>
+		<g transform={ `translate(0, ${ top })` } className={ styles[ 'grid-control' ] }>
 			{ gridVisibility.includes( 'x' ) && <GridRows scale={ xScale } width={ width } /> }
 			{ gridVisibility.includes( 'y' ) && <GridColumns scale={ yScale } height={ height } /> }
 		</g>
