@@ -256,7 +256,16 @@ export function BlockAIControl(
 	);
 
 	const message =
-		showGuideLine && ! loading && ! editRequest && ( customFooter || <GuidelineMessage /> );
+		showGuideLine &&
+		! loading &&
+		! editRequest &&
+		( customFooter || (
+			<GuidelineMessage
+				showAIFeedbackThumbs={ true }
+				ratedItem={ 'ai-assistant' }
+				prompt={ value }
+			/>
+		) );
 
 	return (
 		<AIControl

@@ -85,6 +85,9 @@ export function ExtensionAIControl(
 	const [ editRequest, setEditRequest ] = useState( false );
 	const [ lastValue, setLastValue ] = useState( value || null );
 	const promptUserInputRef = useRef( null );
+	const isDone = value?.length <= 0 && state === 'done';
+	const [ initialPlaceholder ] = useState( placeholder );
+	const [ prompt, setPrompt ] = useState( null );
 
 	// Pass the ref to forwardRef.
 	useImperativeHandle( ref, () => promptUserInputRef.current );
@@ -95,8 +98,16 @@ export function ExtensionAIControl(
 		}
 	}, [ editRequest ] );
 
+	useEffect( () => {
+		if ( placeholder !== initialPlaceholder ) {
+			// The prompt is used to determine if there was a toolbar action
+			setPrompt( placeholder );
+		}
+	}, [ placeholder ] );
+
 	const sendHandler = useCallback( () => {
 		setLastValue( value );
+		setPrompt( value );
 		setEditRequest( false );
 		onSend?.( value );
 	}, [ onSend, value ] );
@@ -183,7 +194,7 @@ export function ExtensionAIControl(
 							</Button>
 						</div>
 					) }
-					{ value?.length <= 0 && state === 'done' && (
+					{ isDone && (
 						<div className="jetpack-components-ai-control__controls-prompt_button_wrapper">
 							<ButtonGroup>
 								<Button
@@ -233,7 +244,15 @@ export function ExtensionAIControl(
 			/>
 		);
 	} else if ( showGuideLine ) {
-		message = <GuidelineMessage />;
+		message = isDone ? (
+			<GuidelineMessage
+				showAIFeedbackThumbs={ true }
+				ratedItem={ 'ai-assistant' }
+				prompt={ prompt }
+			/>
+		) : (
+			<GuidelineMessage />
+		);
 	}
 
 	return (
