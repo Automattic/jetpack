@@ -130,10 +130,16 @@ function NewsletterCategories( props ) {
 					/>
 				</div>
 				<div
-					className={ clsx( 'newsletter-colapsable', {
+					className={ clsx( 'newsletter-collapsable', {
 						hide: ! isNewsletterCategoriesEnabled || ! isSubscriptionsActive,
 					} ) }
 				>
+					<p>
+						{ __(
+							'Which categories would you like to allow people to subscribe to? Select all that apply:',
+							'jetpack'
+						) }
+					</p>
 					<TreeDropdown
 						items={ mappedCategories }
 						selectedItems={ checkedCategoriesIds }
@@ -143,7 +149,7 @@ function NewsletterCategories( props ) {
 				</div>
 			</SettingsGroup>
 			<div
-				className={ clsx( 'newsletter-card-colapsable', {
+				className={ clsx( 'newsletter-card-collapsable', {
 					hide: ! isNewsletterCategoriesEnabled || ! isSubscriptionsActive,
 				} ) }
 			>
