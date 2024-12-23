@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.57.0] - 2024-12-23
+### Changed
+- Moved wpcom/v2/publicize/connections endpoint to publicize package. [#40607]
+- Script data: Don't call service endpoint on wpcom. [#40596]
+
 ## [0.56.5] - 2024-12-16
 ### Changed
 - Updated package dependencies. [#40564]
@@ -787,6 +792,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.57.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.56.5...v0.57.0
 [0.56.5]: https://github.com/Automattic/jetpack-publicize/compare/v0.56.4...v0.56.5
 [0.56.4]: https://github.com/Automattic/jetpack-publicize/compare/v0.56.3...v0.56.4
 [0.56.3]: https://github.com/Automattic/jetpack-publicize/compare/v0.56.2...v0.56.3

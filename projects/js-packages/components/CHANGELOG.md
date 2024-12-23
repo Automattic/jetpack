@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [0.65.1] - 2024-12-23
+### Changed
+- Internal updates.
+
 ## [0.65.0] - 2024-12-16
 ### Changed
 - Fixes ThreatsDataViews defaultLayouts. [#40598]
@@ -1251,6 +1255,7 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[0.65.1]: https://github.com/Automattic/jetpack-components/compare/0.65.0...0.65.1
 [0.65.0]: https://github.com/Automattic/jetpack-components/compare/0.64.1...0.65.0
 [0.64.1]: https://github.com/Automattic/jetpack-components/compare/0.64.0...0.64.1
 [0.64.0]: https://github.com/Automattic/jetpack-components/compare/0.63.0...0.64.0
