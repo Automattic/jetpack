@@ -166,7 +166,6 @@ export default function AiImageModal( {
 		}
 	}, [ imageStyles, initialStyle ] );
 
-	debug( 'images', images );
 	return (
 		<>
 			{ open && (

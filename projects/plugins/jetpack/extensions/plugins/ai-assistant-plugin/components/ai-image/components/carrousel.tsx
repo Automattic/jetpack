@@ -7,7 +7,6 @@ import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, chevronLeft, chevronRight } from '@wordpress/icons';
 import clsx from 'clsx';
-import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
@@ -51,7 +50,6 @@ function BlankImage( { children, isDotted = false, contentClassName = '' } ) {
 	);
 }
 
-const debug = debugFactory( 'jetpack-ai:carrousel' );
 export default function Carrousel( {
 	images,
 	current,
@@ -91,7 +89,7 @@ export default function Carrousel( {
 	const total = images?.filter?.(
 		item => item?.generating || Object.hasOwn( item, 'image' ) || Object.hasOwn( item, 'libraryId' )
 	)?.length;
-	debug( 'total', total );
+
 	const actual = current === 0 && total === 0 ? 0 : current + 1;
 
 	useEffect( () => {
@@ -114,7 +112,6 @@ export default function Carrousel( {
 		setImageFeedbackDisabled( false );
 	}, [ current, images ] );
 
-	debug( 'current', current, images[ current ] );
 	return (
 		<div className="ai-assistant-image__carrousel">
 			<div className="ai-assistant-image__carrousel-images">

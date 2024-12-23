@@ -11,7 +11,6 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { cleanForSlug } from '@wordpress/url';
-import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
@@ -38,8 +37,6 @@ export type ImageResponse = {
 	revisedPrompt?: string;
 };
 
-const debug = debugFactory( 'jetpack-ai:use-ai-image' );
-
 export default function useAiImage( {
 	feature,
 	type,
@@ -53,7 +50,6 @@ export default function useAiImage( {
 	autoStart?: boolean;
 	previousMediaId?: number;
 } ) {
-	debug( 'previousImages', previousMediaId );
 	const { generateImageWithParameters } = useImageGenerator();
 	const { increaseRequestsCount, featuresControl } = useAiFeature();
 	const { saveToMediaLibrary } = useSaveToMediaLibrary();
@@ -66,7 +62,7 @@ export default function useAiImage( {
 	// TODO: should current be any relevant here? It's just modal/carrousel logic after all
 	const [ current, setCurrent ] = useState( 0 );
 	const [ images, setImages ] = useState< CarrouselImages >( [ { generating: autoStart } ] );
-	debug( 'images', images );
+
 	// map feature-to-control prop, if this goes over 2 options, make a hook for it
 	const featureControl = feature === FEATURED_IMAGE_FEATURE_NAME ? 'featured-image' : 'image';
 	const imageFeatureControl = featuresControl?.[ featureControl ] as ImageFeatureControl;
@@ -291,7 +287,7 @@ export default function useAiImage( {
 		},
 		[ imageStyles ]
 	);
-	debug( pointer.current, current );
+
 	return {
 		current,
 		setCurrent,
