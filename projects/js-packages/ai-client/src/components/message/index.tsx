@@ -4,7 +4,7 @@
 import { ExternalLink, Button } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { Icon, check, arrowRight } from '@wordpress/icons';
+import { Icon, check } from '@wordpress/icons';
 import clsx from 'clsx';
 /**
  * Internal dependencies
@@ -12,6 +12,7 @@ import clsx from 'clsx';
 import './style.scss';
 import errorExclamation from '../../icons/error-exclamation.js';
 import { ERROR_QUOTA_EXCEEDED } from '../../types.js';
+import AiFeedbackThumbs from '../ai-feedback/index.js';
 /**
  * Types
  */
@@ -30,13 +31,22 @@ export type MessageSeverityProp =
 	| typeof MESSAGE_SEVERITY_INFO
 	| null;
 
+type RateProps = {
+	ratedItem?: string;
+	prompt?: string;
+	onRate?: ( rating: string ) => void;
+};
+
 export type MessageProps = {
 	icon?: React.ReactNode;
 	severity?: MessageSeverityProp;
-	showSidebarIcon?: boolean;
-	onSidebarIconClick?: () => void;
+	showAIFeedbackThumbs?: boolean;
 	children: React.ReactNode;
-};
+} & RateProps;
+
+export type GuidelineMessageProps = {
+	showAIFeedbackThumbs?: boolean;
+} & RateProps;
 
 export type OnUpgradeClick = ( event?: React.MouseEvent< HTMLButtonElement > ) => void;
 
@@ -71,8 +81,10 @@ const messageIconsMap = {
 export default function Message( {
 	severity = MESSAGE_SEVERITY_INFO,
 	icon = null,
-	showSidebarIcon = false,
-	onSidebarIconClick = () => {},
+	showAIFeedbackThumbs = false,
+	ratedItem = '',
+	prompt = '',
+	onRate = () => {},
 	children,
 }: MessageProps ): React.ReactElement {
 	return (
@@ -85,11 +97,17 @@ export default function Message( {
 			{ ( messageIconsMap[ severity ] || icon ) && (
 				<Icon icon={ messageIconsMap[ severity ] || icon } />
 			) }
-			<div className="jetpack-ai-assistant__message-content">{ children }</div>
-			{ showSidebarIcon && (
-				<Button className="jetpack-ai-assistant__message-sidebar" onClick={ onSidebarIconClick }>
-					<Icon size={ 20 } icon={ arrowRight } />
-				</Button>
+			{ <div className="jetpack-ai-assistant__message-content">{ children }</div> }
+			{ showAIFeedbackThumbs && (
+				<AiFeedbackThumbs
+					disabled={ false }
+					ratedItem={ ratedItem }
+					feature="ai-assistant"
+					options={ {
+						prompt,
+					} }
+					onRate={ onRate }
+				/>
 			) }
 		</div>
 	);
@@ -111,11 +129,15 @@ function LearnMoreLink(): React.ReactElement {
 /**
  * React component to render a guideline message.
  *
+ * @param {GuidelineMessageProps} props - Component props.
  * @return {React.ReactElement} - Message component.
  */
-export function GuidelineMessage(): React.ReactElement {
+export function GuidelineMessage( {
+	showAIFeedbackThumbs = false,
+	...props
+}: GuidelineMessageProps ): React.ReactElement {
 	return (
-		<Message>
+		<Message showAIFeedbackThumbs={ showAIFeedbackThumbs } { ...props }>
 			<span>
 				{ __( 'AI-generated content could be inaccurate or biased.', 'jetpack-ai-client' ) }
 			</span>
