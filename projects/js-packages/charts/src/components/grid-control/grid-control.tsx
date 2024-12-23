@@ -1,12 +1,14 @@
 import { GridRows, GridColumns } from '@visx/grid';
-import { scaleLinear } from '@visx/scale';
 import React from 'react';
 import styles from './grid-control.module.scss';
 import type { BaseChartProps } from '../shared/types';
 
 interface GridControlProps extends BaseChartProps {
-	xScale: ReturnType< typeof scaleLinear >;
-	yScale: ReturnType< typeof scaleLinear >;
+	// TODO: Fix any type after resolving visx scale type issues
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	xScale: any;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	yScale: any;
 	top?: number;
 }
 
