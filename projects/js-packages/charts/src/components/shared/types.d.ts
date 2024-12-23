@@ -72,7 +72,7 @@ export type BaseChartProps< T = DataPoint | DataPointDate > = {
 	/**
 	 * Array of data points to display in the chart
 	 */
-	data?: T extends DataPoint | DataPointDate ? T[] : T;
+	data: T extends DataPoint | DataPointDate ? T[] : T;
 	/**
 	 * Additional CSS class name for the chart container
 	 */
