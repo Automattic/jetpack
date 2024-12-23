@@ -136,7 +136,7 @@ function NewsletterCategories( props ) {
 				>
 					<p>
 						{ __(
-							'Which categories would you like to allow people to subscribe to? Select all that apply:',
+							'Which categories will you use for newsletter subscribers? Select all that apply:',
 							'jetpack'
 						) }
 					</p>
