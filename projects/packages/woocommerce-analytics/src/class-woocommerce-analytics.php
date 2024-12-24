@@ -9,7 +9,6 @@
 namespace Automattic;
 
 use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
-use Automattic\Woocommerce_Analytics\Checkout_Flow;
 use Automattic\Woocommerce_Analytics\My_Account;
 use Automattic\Woocommerce_Analytics\Universal;
 
