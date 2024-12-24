@@ -6,6 +6,7 @@ export const MY_JETPACK_PRODUCT_CHECKOUT = 'my-jetpack-product-checkout';
 export const MyJetpackRoutes = {
 	Home: '/',
 	Connection: '/connection',
+	ConnectionSkipPricing: '/connection?skip_pricing=true',
 	AddAkismet: '/add-akismet',
 	AddAntiSpam: '/add-anti-spam', // Old route for Anti Spam
 	AddBackup: '/add-backup',
