@@ -326,10 +326,9 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.2-a.5 - 2024-12-23
+### 14.2-a.7 - 2024-12-25
 #### Bug fixes
-- Shortcode embeds: Ensure Instagram reels are properly displayed in AMP views.
-- Slideshow block: Fix block display when added within a Stack block.
+- WooCommerce Analytics: Fix fatal error when WooCommerce cart object is not available.
 
 --------
 
