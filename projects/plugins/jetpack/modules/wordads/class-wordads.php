@@ -766,7 +766,6 @@ HTML;
 			$form_factor = 'leaderboard';
 		}
 
-		// TODO: Still investigating required change. Potentially update with respect with what get_ad_div on WPCOM for gutenberg
 		return $this->get_dynamic_ad_snippet( $section_id, $form_factor, $location );
 	}
 
@@ -790,7 +789,6 @@ HTML;
 		$is_location_enabled = isset( $_GET['wordads-logging'] ) && isset( $_GET[ $location ] ) && 'true' === $_GET[ $location ];
 
 		if ( ( 'top' === $location || 'belowpost' === $location ) && $is_location_enabled ) {
-			// TODO: Confirm if it's best here or there is a way to get it via the adflow config endpoint
 			return self::get_watl_ad_html_tag( $location );
 		}
 
