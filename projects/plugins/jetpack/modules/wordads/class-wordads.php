@@ -532,13 +532,14 @@ HTML;
 
 		$ad_type  = $this->option( 'wordads_house' ) ? 'house' : 'iponweb';
 		$location = 'shortcode';
+
 		// Not house ad and WATL enabled.
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended
 		if ( 'house' !== $ad_type && ( isset( $_GET['wordads-logging'] ) && isset( $_GET[ $location ] ) && 'true' === $_GET[ $location ] ) ) {
 			return $content . $this->get_watl_ad_html_tag( $location );
 		}
 
-		return $content .= sprintf(
+		return $content . sprintf(
 			'<div class="jetpack-wordad" itemscope itemtype="https://schema.org/WPAdBlock">%s</div>',
 			$this->get_ad( 'inline', $ad_type )
 		);
