@@ -4,6 +4,7 @@
 import {
 	ERROR_NETWORK,
 	ERROR_QUOTA_EXCEEDED,
+	mapActionToHumanText,
 	useAiSuggestions,
 } from '@automattic/jetpack-ai-client';
 import { BlockControls, useBlockProps } from '@wordpress/block-editor';
@@ -307,13 +308,15 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 
 		// Called when a suggestion from the toolbar is requested, like "Change tone".
 		const handleRequestSuggestion = useCallback< OnRequestSuggestion >(
-			( promptType, options, humanText ) => {
+			( promptType, options ) => {
 				setShowAiControl( true );
 
 				// If the user needs to upgrade, don't make the request, but show the input with the upgrade message.
 				if ( requireUpgrade ) {
 					return;
 				}
+
+				const humanText = mapActionToHumanText( promptType, options );
 
 				if ( humanText ) {
 					setAction( humanText );
@@ -363,11 +366,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		// Called when the user clicks the "Try Again" button in the input error message.
 		const handleTryAgain = useCallback( () => {
 			if ( lastRequest.current ) {
-				handleRequestSuggestion(
-					lastRequest.current.promptType,
-					lastRequest.current.options,
-					lastRequest.current.humanText
-				);
+				handleRequestSuggestion( lastRequest.current.promptType, lastRequest.current.options );
 			}
 		}, [ lastRequest, handleRequestSuggestion ] );
 

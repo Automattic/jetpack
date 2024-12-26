@@ -12,7 +12,6 @@ import {
 	PROMPT_TYPE_CHANGE_LANGUAGE,
 	PROMPT_TYPE_USER_PROMPT,
 	PROMPT_TYPE_TRANSFORM_LIST_TO_TABLE,
-	mapActionToHumanText,
 	CORRECT_SPELLING_LABEL,
 	SIMPLIFY_LABEL,
 	SUMMARIZE_LABEL,
@@ -185,8 +184,7 @@ export type AiAssistantDropdownOnChangeOptionsArgProps = {
 
 export type OnRequestSuggestion = (
 	promptType: PromptTypeProp,
-	options?: AiAssistantDropdownOnChangeOptionsArgProps,
-	humanText?: string
+	options?: AiAssistantDropdownOnChangeOptionsArgProps
 ) => void;
 
 type AiAssistantToolbarDropdownContentProps = {
@@ -248,11 +246,9 @@ export default function AiAssistantToolbarDropdownContent( {
 								iconPosition="left"
 								key={ `key-${ quickAction.key }` }
 								onClick={ () => {
-									onRequestSuggestion(
-										quickAction.aiSuggestion,
-										{ ...( quickAction.options ?? {} ) },
-										quickAction.name
-									);
+									onRequestSuggestion( quickAction.aiSuggestion, {
+										...( quickAction.options ?? {} ),
+									} );
 								} }
 								disabled={ disabled }
 							>
@@ -263,22 +259,14 @@ export default function AiAssistantToolbarDropdownContent( {
 
 				<ToneDropdownMenu
 					onChange={ tone => {
-						onRequestSuggestion(
-							PROMPT_TYPE_CHANGE_TONE,
-							{ tone },
-							mapActionToHumanText( PROMPT_TYPE_CHANGE_TONE, { tone } )
-						);
+						onRequestSuggestion( PROMPT_TYPE_CHANGE_TONE, { tone } );
 					} }
 					disabled={ disabled }
 				/>
 
 				<I18nMenuDropdown
 					onChange={ language => {
-						onRequestSuggestion(
-							PROMPT_TYPE_CHANGE_LANGUAGE,
-							{ language },
-							mapActionToHumanText( PROMPT_TYPE_CHANGE_LANGUAGE, { language } )
-						);
+						onRequestSuggestion( PROMPT_TYPE_CHANGE_LANGUAGE, { language } );
 					} }
 					disabled={ disabled }
 				/>

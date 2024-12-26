@@ -42,7 +42,7 @@ type MapActionToHumanTextOptions = {
 export function mapActionToHumanText(
 	action: string,
 	options: MapActionToHumanTextOptions
-): string {
+): string | null {
 	const { language, tone } = options;
 	const languageCode = language?.split( ' (' )[ 0 ];
 
@@ -72,6 +72,6 @@ export function mapActionToHumanText(
 		case PROMPT_TYPE_CONTINUE:
 			return CONTINUE_LABEL;
 		default:
-			return action;
+			return null;
 	}
 }
