@@ -46,6 +46,7 @@ type ExtensionAIControlProps = {
 	onUndo?: () => void;
 	onUpgrade?: ( event: MouseEvent< HTMLButtonElement > ) => void;
 	onTryAgain?: () => void;
+	lastAction?: string;
 };
 
 /**
@@ -78,6 +79,7 @@ export function ExtensionAIControl(
 		onUndo,
 		onUpgrade,
 		onTryAgain,
+		lastAction,
 	}: ExtensionAIControlProps,
 	ref: React.MutableRefObject< HTMLInputElement >
 ): ReactElement {
@@ -86,8 +88,6 @@ export function ExtensionAIControl(
 	const [ lastValue, setLastValue ] = useState( value || null );
 	const promptUserInputRef = useRef( null );
 	const isDone = value?.length <= 0 && state === 'done';
-	const [ initialPlaceholder ] = useState( placeholder );
-	const [ prompt, setPrompt ] = useState( null );
 
 	// Pass the ref to forwardRef.
 	useImperativeHandle( ref, () => promptUserInputRef.current );
@@ -98,16 +98,8 @@ export function ExtensionAIControl(
 		}
 	}, [ editRequest ] );
 
-	useEffect( () => {
-		if ( placeholder !== initialPlaceholder ) {
-			// The prompt is used to determine if there was a toolbar action
-			setPrompt( placeholder );
-		}
-	}, [ placeholder ] );
-
 	const sendHandler = useCallback( () => {
 		setLastValue( value );
-		setPrompt( value );
 		setEditRequest( false );
 		onSend?.( value );
 	}, [ onSend, value ] );
@@ -248,7 +240,7 @@ export function ExtensionAIControl(
 			<GuidelineMessage
 				showAIFeedbackThumbs={ true }
 				ratedItem={ 'ai-assistant' }
-				prompt={ prompt }
+				prompt={ lastAction }
 			/>
 		) : (
 			<GuidelineMessage />

@@ -87,6 +87,8 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		const chatHistory = useRef< PromptMessagesProp >( [] );
 		// A human-readable action to be displayed in the input when a toolbar suggestion is requested, like "Translate: Japanese".
 		const [ action, setAction ] = useState< string >( '' );
+		// The last human-readable action performed by the user, to be used by the thumbs up/down buttons.
+		const [ lastAction, setLastAction ] = useState< string | null >( null );
 		// The last request made by the user, to be used when the user clicks the "Try Again" button.
 		const lastRequest = useRef< RequestOptions | null >( null );
 		// Ref to the requesting state to use it in the hideOnBlockFocus effect.
@@ -320,6 +322,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 
 				if ( humanText ) {
 					setAction( humanText );
+					setLastAction( humanText );
 				}
 
 				const messages = getRequestMessages( { promptType, options } );
@@ -348,6 +351,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			( userPrompt: string ) => {
 				const promptType = 'userPrompt';
 				const options = { userPrompt };
+				setLastAction( userPrompt );
 
 				enableAutoScroll();
 				handleRequestSuggestion( promptType, options );
@@ -515,6 +519,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 						close={ handleClose }
 						undo={ handleUndo }
 						tryAgain={ handleTryAgain }
+						lastAction={ lastAction }
 					/>
 				) }
 

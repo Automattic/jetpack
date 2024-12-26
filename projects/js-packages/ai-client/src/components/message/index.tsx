@@ -98,7 +98,7 @@ export default function Message( {
 				<Icon icon={ messageIconsMap[ severity ] || icon } />
 			) }
 			{ <div className="jetpack-ai-assistant__message-content">{ children }</div> }
-			{ showAIFeedbackThumbs && (
+			{ showAIFeedbackThumbs && prompt && (
 				<AiFeedbackThumbs
 					disabled={ false }
 					ratedItem={ ratedItem }
