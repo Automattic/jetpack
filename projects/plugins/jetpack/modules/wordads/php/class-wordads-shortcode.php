@@ -32,18 +32,17 @@ class WordAds_Shortcode {
 	 * Our [wordads] shortcode.
 	 * Prints a WordAds Ad.
 	 *
-	 * @param array  $atts    Array of shortcode attributes.
-	 * @param string $content Post content.
-	 *
 	 * @return string HTML for WordAds shortcode.
 	 */
-	public static function handle_wordads_shortcode( $atts, $content = '' ) {
+	public static function handle_wordads_shortcode() {
 		global $wordads;
 
 		if ( empty( $wordads ) ) {
 			return '<div>' . __( 'The WordAds module is not active', 'jetpack' ) . '</div>';
 		}
 
-		return $wordads->insert_inline_ad( $content );
+		$html = '<div class="jetpack-wordad" itemscope itemtype="https://schema.org/WPAdBlock"></div>';
+
+		return $wordads->insert_inline_ad( $html );
 	}
 }

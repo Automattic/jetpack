@@ -539,10 +539,7 @@ HTML;
 			return $content . $this->get_watl_ad_html_tag( $location );
 		}
 
-		return $content . sprintf(
-			'<div class="jetpack-wordad" itemscope itemtype="https://schema.org/WPAdBlock">%s</div>',
-			$this->get_ad( 'inline', $ad_type )
-		);
+		return $content . $this->get_ad( 'inline', $ad_type );
 	}
 
 	/**
