@@ -47,6 +47,7 @@ type ExtensionAIControlProps = {
 	onUpgrade?: ( event: MouseEvent< HTMLButtonElement > ) => void;
 	onTryAgain?: () => void;
 	lastAction?: string;
+	blockType: string;
 };
 
 /**
@@ -80,6 +81,7 @@ export function ExtensionAIControl(
 		onUpgrade,
 		onTryAgain,
 		lastAction,
+		blockType,
 	}: ExtensionAIControlProps,
 	ref: React.MutableRefObject< HTMLInputElement >
 ): ReactElement {
@@ -238,9 +240,12 @@ export function ExtensionAIControl(
 	} else if ( showGuideLine ) {
 		message = isDone ? (
 			<GuidelineMessage
-				showAIFeedbackThumbs={ true }
-				ratedItem={ 'ai-assistant' }
-				prompt={ lastAction }
+				aiFeedbackThumbsOptions={ {
+					showAIFeedbackThumbs: true,
+					ratedItem: 'ai-assistant',
+					prompt: lastAction,
+					block: blockType,
+				} }
 			/>
 		) : (
 			<GuidelineMessage />

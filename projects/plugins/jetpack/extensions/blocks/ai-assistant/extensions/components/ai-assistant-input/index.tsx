@@ -194,6 +194,7 @@ export default function AiAssistantInput( {
 			wrapperRef={ wrapperRef }
 			ref={ inputRef }
 			lastAction={ lastAction }
+			blockType={ blockType }
 		/>
 	);
 }

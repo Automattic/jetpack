@@ -263,9 +263,12 @@ export function BlockAIControl(
 		! editRequest &&
 		( customFooter || (
 			<GuidelineMessage
-				showAIFeedbackThumbs={ true }
-				ratedItem={ 'ai-assistant' }
-				prompt={ lastAction }
+				aiFeedbackThumbsOptions={ {
+					showAIFeedbackThumbs: true,
+					ratedItem: 'ai-assistant',
+					prompt: lastAction,
+					block: 'ai-assistant',
+				} }
 			/>
 		) );
 
