@@ -1,7 +1,7 @@
 /*
  * External dependencies
  */
-import { speakToneIcon } from '@automattic/jetpack-ai-client';
+import { PROMPT_TONES_MAP, speakToneIcon, TONE_LABEL } from '@automattic/jetpack-ai-client';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import {
 	MenuItem,
@@ -34,51 +34,6 @@ const PROMPT_TONES_LIST = [
 ] as const;
 
 export const DEFAULT_PROMPT_TONE = 'formal';
-
-export const TONE_LABEL = __( 'Change tone', 'jetpack' );
-
-export const PROMPT_TONES_MAP = {
-	formal: {
-		label: __( 'Formal', 'jetpack' ),
-		emoji: '🎩',
-	},
-	informal: {
-		label: __( 'Informal', 'jetpack' ),
-		emoji: '😊',
-	},
-	optimistic: {
-		label: __( 'Optimistic', 'jetpack' ),
-		emoji: '😃',
-	},
-	humorous: {
-		label: __( 'Humorous', 'jetpack' ),
-		emoji: '😂',
-	},
-	serious: {
-		label: __( 'Serious', 'jetpack' ),
-		emoji: '😐',
-	},
-	skeptical: {
-		label: __( 'Skeptical', 'jetpack' ),
-		emoji: '🤨',
-	},
-	empathetic: {
-		label: __( 'Empathetic', 'jetpack' ),
-		emoji: '💗',
-	},
-	confident: {
-		label: __( 'Confident', 'jetpack' ),
-		emoji: '😎',
-	},
-	passionate: {
-		label: __( 'Passionate', 'jetpack' ),
-		emoji: '❤️',
-	},
-	provocative: {
-		label: __( 'Provocative', 'jetpack' ),
-		emoji: '🔥',
-	},
-};
 
 export type ToneProp = ( typeof PROMPT_TONES_LIST )[ number ];
 

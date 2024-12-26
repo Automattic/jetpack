@@ -5,6 +5,7 @@ import {
 	BlockAIControl,
 	UpgradeMessage,
 	renderHTMLFromMarkdown,
+	PROMPT_TYPE_GENERATE_TITLE,
 } from '@automattic/jetpack-ai-client';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { useBlockProps, InspectorControls } from '@wordpress/block-editor';
@@ -192,7 +193,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 		return lastEditableElement;
 	};
 
-	const isGeneratingTitle = attributes.promptType === 'generateTitle';
+	const isGeneratingTitle = attributes.promptType === PROMPT_TYPE_GENERATE_TITLE;
 
 	const acceptContentLabel = __( 'Accept', 'jetpack' );
 	const acceptTitleLabel = __( 'Accept title', 'jetpack' );
