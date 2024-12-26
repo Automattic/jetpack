@@ -41,7 +41,7 @@ type MapActionToHumanTextOptions = {
  */
 export function mapActionToHumanText(
 	action: string,
-	options: MapActionToHumanTextOptions
+	options: MapActionToHumanTextOptions = {}
 ): string | null {
 	const { language, tone } = options;
 	const languageCode = language?.split( ' (' )[ 0 ];

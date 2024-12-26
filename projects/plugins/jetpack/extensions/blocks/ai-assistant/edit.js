@@ -6,6 +6,7 @@ import {
 	UpgradeMessage,
 	renderHTMLFromMarkdown,
 	PROMPT_TYPE_GENERATE_TITLE,
+	mapActionToHumanText,
 } from '@automattic/jetpack-ai-client';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { useBlockProps, InspectorControls } from '@wordpress/block-editor';
@@ -53,6 +54,8 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 
 	const { replaceBlocks, removeBlock } = useDispatch( 'core/block-editor' );
 	const { editPost } = useDispatch( 'core/editor' );
+
+	const [ lastAction, setLastAction ] = useState( null );
 
 	const {
 		isOverLimit,
@@ -217,6 +220,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 	};
 
 	const handleSend = () => {
+		setLastAction( attributes.userPrompt );
 		handleGetSuggestion( 'userPrompt' );
 		tracks.recordEvent( 'jetpack_ai_assistant_block_generate', { feature: 'ai-assistant' } );
 	};
@@ -293,6 +297,12 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 		stopSuggestion();
 		focusOnPrompt();
 		tracks.recordEvent( 'jetpack_ai_assistant_block_stop', { feature: 'ai-assistant' } );
+	};
+
+	const handleGetSuggestionFromToolbar = ( type, options ) => {
+		const humanText = mapActionToHumanText( type, options );
+		setLastAction( humanText );
+		getSuggestionFromOpenAI( type, options );
 	};
 
 	const blockProps = useBlockProps( {
@@ -390,7 +400,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 					<ToolbarControls
 						isWaitingState={ isLoadingCompletion }
 						contentIsLoaded={ contentIsLoaded }
-						getSuggestionFromOpenAI={ getSuggestionFromOpenAI }
+						getSuggestionFromOpenAI={ handleGetSuggestionFromToolbar }
 						retryRequest={ retryRequest }
 						handleAcceptContent={ handleAcceptContent }
 						handleAcceptTitle={ handleAcceptTitle }
@@ -446,6 +456,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 							/>
 						) : null
 					}
+					lastAction={ lastAction }
 				/>
 			</div>
 		</KeyboardShortcuts>
