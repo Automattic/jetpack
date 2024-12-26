@@ -1,4 +1,4 @@
-import { type Threat, type ThreatStatus } from '@automattic/jetpack-scan';
+import { ThreatStatus, type Threat } from '@automattic/jetpack-scan';
 import {
 	__experimentalToggleGroupControl as ToggleGroupControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalToggleGroupControlOption as ToggleGroupControlOption, // eslint-disable-line @wordpress/no-unsafe-wp-apis
@@ -10,10 +10,12 @@ import styles from './styles.module.scss';
 
 /**
  * ToggleGroupControl component for filtering threats by status.
+ *
  * @param {object}     props              - Component props.
  * @param { Threat[]}  props.data         - Threats data.
  * @param { View }     props.view         - The current view.
  * @param { Function } props.onChangeView - Callback function to handle view changes.
+ *
  * @return {JSX.Element|null} The component or null.
  */
 export default function ThreatsStatusToggleGroupControl( {
