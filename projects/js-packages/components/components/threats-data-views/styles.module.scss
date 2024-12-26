@@ -4,6 +4,10 @@
 	color: var( --jp-gray-80 );
 	font-weight: 510;
 	white-space: initial;
+
+	display: flex;
+	align-items: center;
+	gap: calc( var( --spacing-base ) * 0.666 );
 }
 
 .threat__description {
