@@ -2885,6 +2885,20 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'wordads',
 			),
+			'wordads_bottom_sticky_enabled'             => array(
+				'description'       => esc_html__( 'Display sticky ad at the botttom of the page?', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 1,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'wordads',
+			),
+			'wordads_sidebar_sticky_right_enabled'      => array(
+				'description'       => esc_html__( 'Display sticky ad at the right side of the page?', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 1,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'wordads',
+			),
 			'wordads_display_front_page'                => array(
 				'description'       => esc_html__( 'Display ads on the front page?', 'jetpack' ),
 				'type'              => 'boolean',

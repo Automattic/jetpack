@@ -220,6 +220,8 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'enable_header_ad'                             => '1',
 			'wordads_second_belowpost'                     => '1',
 			'wordads_inline_enabled'                       => true,
+			'wordads_bottom_sticky_enabled'                => true,
+			'wordads_sidebar_sticky_right_enabled'         => true,
 			'wordads_cmp_enabled'                          => false,
 			'wordads_display_front_page'                   => '1',
 			'wordads_display_post'                         => '1',

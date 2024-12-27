@@ -2,7 +2,6 @@ import { ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
-import React from 'react';
 import Card from 'components/card';
 import { FormFieldset, FormLegend } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
@@ -13,6 +12,7 @@ import TextInput from 'components/text-input';
 import Textarea from 'components/textarea';
 import analytics from 'lib/analytics';
 import { FEATURE_WORDADS_JETPACK } from 'lib/plans/constants';
+import React from 'react';
 
 export const Ads = withModuleSettingsFormHelpers(
 	class extends React.Component {
@@ -125,6 +125,14 @@ export const Ads = withModuleSettingsFormHelpers(
 			);
 			const wordads_inline_enabled = this.props.getOptionValue(
 				'wordads_inline_enabled',
+				'wordads'
+			);
+			const wordads_bottom_sticky_enabled = this.props.getOptionValue(
+				'wordads_bottom_sticky_enabled',
+				'wordads'
+			);
+			const wordads_sidebar_sticky_right_enabled = this.props.getOptionValue(
+				'wordads_sidebar_sticky_right_enabled',
 				'wordads'
 			);
 			const wordads_display_front_page = this.props.getOptionValue(
@@ -284,6 +292,30 @@ export const Ads = withModuleSettingsFormHelpers(
 								toggling={ this.props.isSavingAnyOption( [ 'wordads_inline_enabled' ] ) }
 								onChange={ this.handleChange( 'wordads_inline_enabled' ) }
 								label={ __( 'Inline within post content', 'jetpack' ) }
+							/>
+							<ToggleControl
+								checked={ wordads_bottom_sticky_enabled }
+								disabled={
+									! isAdsActive ||
+									unavailableInOfflineMode ||
+									this.props.isSavingAnyOption( [ 'wordads' ] )
+								}
+								toggling={ this.props.isSavingAnyOption( [ 'wordads_bottom_sticky_enabled' ] ) }
+								onChange={ this.handleChange( 'wordads_bottom_sticky_enabled' ) }
+								label={ __( 'Stick to bottom of the page', 'jetpack' ) }
+							/>
+							<ToggleControl
+								checked={ wordads_sidebar_sticky_right_enabled }
+								disabled={
+									! isAdsActive ||
+									unavailableInOfflineMode ||
+									this.props.isSavingAnyOption( [ 'wordads' ] )
+								}
+								toggling={ this.props.isSavingAnyOption( [
+									'wordads_sidebar_sticky_right_enabled',
+								] ) }
+								onChange={ this.handleChange( 'wordads_sidebar_sticky_right_enabled' ) }
+								label={ __( 'Stick to right side of the page', 'jetpack' ) }
 							/>
 						</FormFieldset>
 					</SettingsGroup>

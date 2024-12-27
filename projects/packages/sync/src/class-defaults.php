@@ -178,6 +178,8 @@ class Defaults {
 		'wordads_display_post',
 		'wordads_second_belowpost',
 		'wordads_inline_enabled',
+		'wordads_bottom_sticky_enabled',
+		'wordads_sidebar_sticky_right_enabled',
 		'woocommerce_custom_orders_table_enabled',
 		'wp_mobile_app_promos',
 		'wp_mobile_excerpt',
