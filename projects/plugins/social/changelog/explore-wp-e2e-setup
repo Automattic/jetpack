@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Updated E2E tests to use @wordpress/e2e-test-utils-playwright
