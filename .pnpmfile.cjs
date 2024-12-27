@@ -40,6 +40,16 @@ function fixDeps( pkg ) {
 		pkg.dependencies.undici = '*';
 	}
 
+	// Turn @wordpress/scripts' peer deps OFF
+	// emove @wordpress/eslint-plugin from its deps
+	if ( pkg.name === '@wordpress/scripts' ) {
+		pkg.peerDependenciesMeta ??= {};
+		pkg.peerDependenciesMeta.react = { optional: true };
+		pkg.peerDependenciesMeta[ 'react-dom' ] = { optional: true };
+
+		delete pkg.dependencies[ '@wordpress/eslint-plugin' ];
+	}
+
 	// Turn @wordpress/eslint-plugin's eslint plugin deps into peer deps.
 	// https://github.com/WordPress/gutenberg/issues/39810
 	if ( pkg.name === '@wordpress/eslint-plugin' ) {
