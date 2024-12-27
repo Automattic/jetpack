@@ -55,7 +55,9 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 	const { replaceBlocks, removeBlock } = useDispatch( 'core/block-editor' );
 	const { editPost } = useDispatch( 'core/editor' );
 
-	const [ lastAction, setLastAction ] = useState( null );
+	const [ lastAction, setLastAction ] = useState(
+		mapActionToHumanText( attributes.preTransformAction )
+	);
 
 	const {
 		isOverLimit,
