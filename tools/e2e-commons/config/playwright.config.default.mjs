@@ -1,6 +1,9 @@
 import fs from 'fs';
 import { fileURLToPath } from 'url';
+import { defineConfig } from '@playwright/test';
+import baseConfig from '@wordpress/scripts/config/playwright.config.js';
 import config from 'config';
+import { setWpEnvVars } from '../helpers/utils-helper';
 
 const reporter = [
 	[ 'list' ],
@@ -32,19 +35,18 @@ fs.mkdirSync( config.get( 'dirs.temp' ), { recursive: true } );
 if ( ! fs.existsSync( config.get( 'temp.storage' ) ) ) {
 	fs.writeFileSync( config.get( 'temp.storage' ), '{}' );
 }
+// Ensure the environment variables for `@wordpress/e2e-test-utils-playwright` are set
+setWpEnvVars();
 
-const playwrightConfig = {
+const playwrightConfig = defineConfig( {
+	...baseConfig,
 	timeout: 300000,
 	retries: 0,
 	workers: 1,
 	outputDir: config.get( 'dirs.results' ),
 	reporter,
 	use: {
-		browserName: 'chromium',
-		channel: '',
-		headless: true,
-		viewport: { width: 1280, height: 1600 },
-		ignoreHTTPSErrors: true,
+		...baseConfig.use,
 		actionTimeout: 20000,
 		screenshot: {
 			mode: 'only-on-failure',
@@ -56,7 +58,8 @@ const playwrightConfig = {
 		userAgent:
 			'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36 wp-e2e-tests',
 	},
+	webServer: undefined,
 	reportSlowTests: null,
-};
+} );
 
 export default playwrightConfig;
