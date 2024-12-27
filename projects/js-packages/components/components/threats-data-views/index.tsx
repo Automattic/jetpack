@@ -3,8 +3,6 @@ import {
 	type Action,
 	type ActionButton,
 	type Filter,
-	type SortDirection,
-	type SupportedLayouts,
 	type View,
 	DataViews,
 	filterSortAndPaginate,
@@ -12,19 +10,12 @@ import {
 import { __ } from '@wordpress/i18n';
 import { useCallback, useMemo, useState } from 'react';
 import {
+	DEFAULT_LAYOUTS,
 	THREAT_ACTION_FIX,
 	THREAT_ACTION_IGNORE,
 	THREAT_ACTION_UNIGNORE,
-	THREAT_FIELD_AUTO_FIX,
-	THREAT_FIELD_DESCRIPTION,
-	THREAT_FIELD_EXTENSION,
-	THREAT_FIELD_FIRST_DETECTED,
-	THREAT_FIELD_ICON,
-	THREAT_FIELD_SEVERITY,
-	THREAT_FIELD_SIGNATURE,
-	THREAT_FIELD_TITLE,
-	THREAT_FIELD_TYPE,
 } from './constants';
+import ThreatsDataViewsContext from './context';
 import ThreatsStatusToggleGroupControl from './threats-status-toggle-group-control';
 import useControlledFields from './use-controlled-fields';
 
@@ -68,46 +59,6 @@ export default function ThreatsDataViews( {
 	onIgnoreThreats?: ActionButton< Threat >[ 'callback' ];
 	onUnignoreThreats?: ActionButton< Threat >[ 'callback' ];
 } ): JSX.Element {
-	const baseView = {
-		sort: {
-			field: 'severity',
-			direction: 'desc' as SortDirection,
-		},
-		search: '',
-		filters: filters || [],
-		page: 1,
-		perPage: 20,
-	};
-
-	/**
-	 * DataView default layouts.
-	 *
-	 * This property provides layout information about the view types that are active. If empty, enables all layout types (see “Layout Types”) with empty layout data.
-	 *
-	 * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-dataviews/#defaultlayouts-record-string-view
-	 */
-	const defaultLayouts: SupportedLayouts = {
-		table: {
-			...baseView,
-			fields: [ THREAT_FIELD_SEVERITY, THREAT_FIELD_FIRST_DETECTED, THREAT_FIELD_AUTO_FIX ],
-			titleField: THREAT_FIELD_TITLE,
-			descriptionField: THREAT_FIELD_DESCRIPTION,
-			showMedia: false,
-		},
-		list: {
-			...baseView,
-			fields: [
-				THREAT_FIELD_SEVERITY,
-				THREAT_FIELD_TYPE,
-				THREAT_FIELD_EXTENSION,
-				THREAT_FIELD_SIGNATURE,
-			],
-			titleField: THREAT_FIELD_TITLE,
-			mediaField: THREAT_FIELD_ICON,
-			showMedia: true,
-		},
-	};
-
 	/**
 	 * DataView view object - configures how the dataset is visible to the user.
 	 *
@@ -115,9 +66,15 @@ export default function ThreatsDataViews( {
 	 */
 	const [ view, setView ] = useState< View >( {
 		type: 'table',
-		...defaultLayouts.table,
+		...DEFAULT_LAYOUTS.table,
+		filters: filters ?? DEFAULT_LAYOUTS.table.filters,
 	} );
 
+	/**
+	 * DataView fields.
+	 *
+	 * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-dataviews/#fields-api
+	 */
 	const { fields, controlFields } = useControlledFields( {
 		data,
 		view,
@@ -222,23 +179,19 @@ export default function ThreatsDataViews( {
 	const getItemId = useCallback( ( item: Threat ) => item.id.toString(), [] );
 
 	return (
-		<DataViews
-			actions={ actions }
-			data={ processedData }
-			defaultLayouts={ defaultLayouts }
-			fields={ fields }
-			getItemId={ getItemId }
-			onChangeSelection={ onChangeSelection }
-			onChangeView={ onChangeView }
-			paginationInfo={ paginationInfo }
-			view={ view }
-			header={
-				<ThreatsStatusToggleGroupControl
-					data={ data }
-					view={ view }
-					onChangeView={ onChangeView }
-				/>
-			}
-		/>
+		<ThreatsDataViewsContext.Provider value={ { data, view, setView, onChangeView } }>
+			<DataViews
+				actions={ actions }
+				data={ processedData }
+				defaultLayouts={ DEFAULT_LAYOUTS }
+				fields={ fields }
+				getItemId={ getItemId }
+				onChangeSelection={ onChangeSelection }
+				onChangeView={ onChangeView }
+				paginationInfo={ paginationInfo }
+				view={ view }
+				header={ <ThreatsStatusToggleGroupControl /> }
+			/>
+		</ThreatsDataViewsContext.Provider>
 	);
 }
