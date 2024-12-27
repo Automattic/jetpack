@@ -1,30 +1,25 @@
-import { type Threat, type ThreatStatus } from '@automattic/jetpack-scan';
+import { type ThreatStatus } from '@automattic/jetpack-scan';
 import {
 	__experimentalToggleGroupControl as ToggleGroupControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalToggleGroupControlOption as ToggleGroupControlOption, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
-import { type View } from '@wordpress/dataviews';
 import { useMemo, useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { useContext } from 'react';
+import ThreatsDataViewsContext from './context';
 import styles from './styles.module.scss';
 
 /**
  * ToggleGroupControl component for filtering threats by status.
- * @param {object}     props              - Component props.
- * @param { Threat[]}  props.data         - Threats data.
- * @param { View }     props.view         - The current view.
- * @param { Function } props.onChangeView - Callback function to handle view changes.
+ *
  * @return {JSX.Element|null} The component or null.
  */
-export default function ThreatsStatusToggleGroupControl( {
-	data,
-	view,
-	onChangeView,
-}: {
-	data: Threat[];
-	view: View;
-	onChangeView: ( newView: View ) => void;
-} ): JSX.Element {
+export default function ThreatsStatusToggleGroupControl(): JSX.Element {
+	/**
+	 * Access the parent DataViews props via context.
+	 */
+	const { data, view, setView } = useContext( ThreatsDataViewsContext );
+
 	/**
 	 * Compute values from the provided threats data.
 	 *
@@ -79,12 +74,12 @@ export default function ThreatsStatusToggleGroupControl( {
 				} );
 			}
 
-			onChangeView( {
+			setView( {
 				...view,
 				filters: updatedFilters,
 			} );
 		},
-		[ view, onChangeView ]
+		[ view, setView ]
 	);
 
 	/**

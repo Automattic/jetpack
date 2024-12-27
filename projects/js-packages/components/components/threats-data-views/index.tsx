@@ -4,12 +4,10 @@ import {
 	type ActionButton,
 	type Field,
 	type FieldType,
-	type Filter,
-	type SortDirection,
-	type SupportedLayouts,
-	type View,
 	DataViews,
+	Filter,
 	filterSortAndPaginate,
+	View,
 } from '@wordpress/dataviews';
 import { dateI18n } from '@wordpress/date';
 import { __ } from '@wordpress/i18n';
@@ -17,8 +15,10 @@ import { Icon } from '@wordpress/icons';
 import { useCallback, useMemo, useState } from 'react';
 import Badge from '../badge';
 import ThreatFixerButton from '../threat-fixer-button';
+import ThreatModal from '../threat-modal';
 import ThreatSeverityBadge from '../threat-severity-badge';
 import {
+	DEFAULT_LAYOUTS,
 	THREAT_ACTION_FIX,
 	THREAT_ACTION_IGNORE,
 	THREAT_ACTION_UNIGNORE,
@@ -39,6 +39,7 @@ import {
 	THREAT_STATUSES,
 	THREAT_TYPES,
 } from './constants';
+import ThreatsDataViewsContext from './context';
 import styles from './styles.module.scss';
 import ThreatsStatusToggleGroupControl from './threats-status-toggle-group-control';
 
@@ -47,8 +48,7 @@ import ThreatsStatusToggleGroupControl from './threats-status-toggle-group-contr
  *
  * @param {object}   props                             - Component props.
  * @param {Array}    props.data                        - Threats data.
- * @param {Array}    props.filters                     - Initial DataView filters.
- * @param {Function} props.onChangeSelection           - Callback function run when an item is selected.
+ * @param {Array}    props.filters                     - Default filters to apply.
  * @param {Function} props.onFixThreats                - Threat fix action callback.
  * @param {Function} props.onIgnoreThreats             - Threat ignore action callback.
  * @param {Function} props.onUnignoreThreats           - Threat unignore action callback.
@@ -61,7 +61,6 @@ import ThreatsStatusToggleGroupControl from './threats-status-toggle-group-contr
 export default function ThreatsDataViews( {
 	data,
 	filters,
-	onChangeSelection,
 	isThreatEligibleForFix,
 	isThreatEligibleForIgnore,
 	isThreatEligibleForUnignore,
@@ -71,62 +70,24 @@ export default function ThreatsDataViews( {
 }: {
 	data: Threat[];
 	filters?: Filter[];
-	onChangeSelection?: ( selectedItemIds: string[] ) => void;
 	isThreatEligibleForFix?: ( threat: Threat ) => boolean;
 	isThreatEligibleForIgnore?: ( threat: Threat ) => boolean;
 	isThreatEligibleForUnignore?: ( threat: Threat ) => boolean;
-	onFixThreats?: ( threats: Threat[] ) => void;
+	onFixThreats?: ( fixThreats: Threat[] ) => void;
 	onIgnoreThreats?: ActionButton< Threat >[ 'callback' ];
 	onUnignoreThreats?: ActionButton< Threat >[ 'callback' ];
 } ): JSX.Element {
-	const baseView = {
-		sort: {
-			field: 'severity',
-			direction: 'desc' as SortDirection,
-		},
-		search: '',
-		filters: filters || [],
-		page: 1,
-		perPage: 20,
-	};
+	const [ selectedThreat, setSelectedThreat ] = useState< Threat | null >( null );
 
 	/**
-	 * DataView default layouts.
-	 *
-	 * This property provides layout information about the view types that are active. If empty, enables all layout types (see “Layout Types”) with empty layout data.
-	 *
-	 * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-dataviews/#defaultlayouts-record-string-view
-	 */
-	const defaultLayouts: SupportedLayouts = {
-		table: {
-			...baseView,
-			fields: [ THREAT_FIELD_SEVERITY, THREAT_FIELD_TYPE, THREAT_FIELD_AUTO_FIX ],
-			titleField: THREAT_FIELD_TITLE,
-			descriptionField: THREAT_FIELD_DESCRIPTION,
-			showMedia: false,
-		},
-		list: {
-			...baseView,
-			fields: [
-				THREAT_FIELD_SEVERITY,
-				THREAT_FIELD_TYPE,
-				THREAT_FIELD_EXTENSION,
-				THREAT_FIELD_SIGNATURE,
-			],
-			titleField: THREAT_FIELD_TITLE,
-			mediaField: THREAT_FIELD_ICON,
-			showMedia: true,
-		},
-	};
-
-	/**
-	 * DataView view object - configures how the dataset is visible to the user.
+	 * View Object.
 	 *
 	 * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-dataviews/#view-object
 	 */
 	const [ view, setView ] = useState< View >( {
+		...DEFAULT_LAYOUTS.table,
 		type: 'table',
-		...defaultLayouts.table,
+		filters: filters ?? DEFAULT_LAYOUTS.table.filters,
 	} );
 
 	/**
@@ -135,7 +96,7 @@ export default function ThreatsDataViews( {
 	 * @member {object[]} themes    - List of unique themes included in the threats data.
 	 * @member {object[]} plugins   - plugins included in the threats data.
 	 * @member {object[]} signatures - List of unique threat signatures.
-	 * @member {string[]}    dataFields - List of unique fields.
+	 * @member {string[]} dataFields - List of unique fields.
 	 */
 	const {
 		themes,
@@ -485,39 +446,38 @@ export default function ThreatsDataViews( {
 	}, [ data, view, fields ] );
 
 	/**
-	 * Callback function to update the view state.
-	 *
-	 * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-dataviews/#onchangeview-function
-	 */
-	const onChangeView = useCallback( ( newView: View ) => {
-		setView( newView );
-	}, [] );
-
-	/**
 	 * DataView getItemId function - returns the unique ID for each record in the dataset.
 	 *
 	 * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-dataviews/#getitemid-function
 	 */
 	const getItemId = useCallback( ( item: Threat ) => item.id.toString(), [] );
 
-	return (
-		<DataViews
-			actions={ actions }
-			data={ processedData }
-			defaultLayouts={ defaultLayouts }
-			fields={ fields }
-			getItemId={ getItemId }
-			onChangeSelection={ onChangeSelection }
-			onChangeView={ onChangeView }
-			paginationInfo={ paginationInfo }
-			view={ view }
-			header={
-				<ThreatsStatusToggleGroupControl
-					data={ data }
-					view={ view }
-					onChangeView={ onChangeView }
-				/>
+	const onChangeSelection = useCallback(
+		( selectedItemIds: string[] ) => {
+			const threat = data.find( item => getItemId( item ) === selectedItemIds[ 0 ] );
+			if ( threat ) {
+				setSelectedThreat( threat );
 			}
-		/>
+		},
+		[ data, getItemId ]
+	);
+
+	return (
+		<ThreatsDataViewsContext.Provider value={ { view, setView, data } }>
+			<DataViews
+				actions={ actions }
+				data={ processedData }
+				defaultLayouts={ DEFAULT_LAYOUTS }
+				fields={ fields }
+				getItemId={ getItemId }
+				header={ <ThreatsStatusToggleGroupControl /> }
+				onChangeView={ setView }
+				onChangeSelection={ onChangeSelection }
+				onClickItem={ setSelectedThreat }
+				paginationInfo={ paginationInfo }
+				view={ view }
+			/>
+			{ selectedThreat && <ThreatModal threat={ selectedThreat } /> }
+		</ThreatsDataViewsContext.Provider>
 	);
 }

@@ -1,3 +1,4 @@
+import { SortDirection, SupportedLayouts } from '@wordpress/dataviews';
 import { __ } from '@wordpress/i18n';
 import {
 	code as fileIcon,
@@ -48,3 +49,43 @@ export const THREAT_FIELD_AUTO_FIX = 'auto-fix';
 export const THREAT_ACTION_FIX = 'fix';
 export const THREAT_ACTION_IGNORE = 'ignore';
 export const THREAT_ACTION_UNIGNORE = 'unignore';
+
+const BASE_VIEW = {
+	sort: {
+		field: 'severity',
+		direction: 'desc' as SortDirection,
+	},
+	search: '',
+	filters: [],
+	page: 1,
+	perPage: 20,
+};
+
+/**
+ * DataView default layouts.
+ *
+ * This property provides layout information about the view types that are active. If empty, enables all layout types (see “Layout Types”) with empty layout data.
+ *
+ * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-dataviews/#defaultlayouts-record-string-view
+ */
+export const DEFAULT_LAYOUTS: SupportedLayouts = {
+	table: {
+		...BASE_VIEW,
+		fields: [ THREAT_FIELD_SEVERITY, THREAT_FIELD_TYPE, THREAT_FIELD_AUTO_FIX ],
+		titleField: THREAT_FIELD_TITLE,
+		descriptionField: THREAT_FIELD_DESCRIPTION,
+		showMedia: false,
+	},
+	list: {
+		...BASE_VIEW,
+		fields: [
+			THREAT_FIELD_SEVERITY,
+			THREAT_FIELD_TYPE,
+			THREAT_FIELD_EXTENSION,
+			THREAT_FIELD_SIGNATURE,
+		],
+		titleField: THREAT_FIELD_TITLE,
+		mediaField: THREAT_FIELD_ICON,
+		showMedia: true,
+	},
+};

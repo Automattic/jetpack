@@ -162,6 +162,11 @@ Default.args = {
 		alert(
 			'Unignore threat action callback triggered! This is handled by the component consumer.'
 		),
+	onClickItem: () =>
+		// eslint-disable-next-line no-alert
+		alert(
+			'Selection change action callback triggered! This is handled by the component consumer.'
+		),
 };
 
 export const FixerStatuses = args => <ThreatsDataViews { ...args } />;
@@ -276,6 +281,11 @@ FixerStatuses.args = {
 		alert(
 			'Unignore threat action callback triggered! This is handled by the component consumer.'
 		),
+	onClickItem: () =>
+		// eslint-disable-next-line no-alert
+		alert(
+			'Selection change action callback triggered! This is handled by the component consumer.'
+		),
 };
 
 export const FreeResults = args => <ThreatsDataViews { ...args } />;
@@ -325,4 +335,9 @@ FreeResults.args = {
 			},
 		},
 	],
+	onClickItem: () =>
+		// eslint-disable-next-line no-alert
+		alert(
+			'Selection change action callback triggered! This is handled by the component consumer.'
+		),
 };
