@@ -349,7 +349,7 @@ export default function Highlight() {
 							<div className="jetpack-ai-breve__helper-inner">
 								<AiFeedbackThumbs
 									disabled={ ! hasSuggestions }
-									ratedItem={ suggestions?.id }
+									ratedItem={ id }
 									iconSize={ 18 }
 									feature="write-brief"
 									options={ {
