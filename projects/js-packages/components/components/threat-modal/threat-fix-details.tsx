@@ -12,7 +12,7 @@ import { ThreatModalContext } from '.';
  * @return {JSX.Element | null} The rendered fix details or null if no fixable details are available.
  */
 const ThreatFixDetails = (): JSX.Element => {
-	const { threat, handleUpgradeClick } = useContext( ThreatModalContext );
+	const { threat, onUpgrade } = useContext( ThreatModalContext );
 
 	const title = useMemo( () => {
 		if ( threat.status === 'fixed' ) {
@@ -48,14 +48,14 @@ const ThreatFixDetails = (): JSX.Element => {
 		<div className={ styles.section }>
 			<Text variant="title-small">{ title }</Text>
 			<Text>{ fix }</Text>
-			{ handleUpgradeClick && (
+			{ typeof onUpgrade === 'function' && (
 				<ContextualUpgradeTrigger
 					description={ __(
 						'Looking for advanced scan results and one-click fixes?',
 						'jetpack-components'
 					) }
 					cta={ __( 'Upgrade Jetpack now', 'jetpack-components' ) }
-					onClick={ handleUpgradeClick }
+					onClick={ onUpgrade }
 				/>
 			) }
 		</div>

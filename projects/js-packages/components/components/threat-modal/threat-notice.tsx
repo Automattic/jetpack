@@ -25,14 +25,8 @@ const ThreatNotice = ( {
 	title: string;
 	content: string;
 } ): JSX.Element => {
-	const {
-		userConnectionNeeded,
-		userIsConnecting,
-		handleConnectUser,
-		siteCredentialsNeeded,
-		credentialsRedirectUrl,
-		credentialsIsFetching,
-	} = useContext( ThreatModalContext );
+	const { connection, credentials } = useContext( ThreatModalContext );
+	const userConnectionNeeded = ! connection.isUserConnected || ! connection.hasConnectedOwner;
 
 	return (
 		<Notice
@@ -57,19 +51,19 @@ const ThreatNotice = ( {
 								className={ styles.notice__action }
 								isExternalLink={ true }
 								weight="regular"
-								isLoading={ userIsConnecting }
-								onClick={ handleConnectUser }
+								isLoading={ connection.userIsConnecting }
+								onClick={ connection.onConnectUser }
 							>
 								{ __( 'Connect your user account', 'jetpack-components' ) }
 							</Button>
 						) }
-						{ siteCredentialsNeeded && (
+						{ ! credentials.hasCredentials && (
 							<Button
 								className={ styles.notice__action }
 								isExternalLink={ true }
 								weight="regular"
-								href={ credentialsRedirectUrl }
-								isLoading={ credentialsIsFetching }
+								href={ credentials.redirectUrl }
+								isLoading={ credentials.isFetching }
 							>
 								{ __( 'Enter server credentials', 'jetpack-components' ) }
 							</Button>

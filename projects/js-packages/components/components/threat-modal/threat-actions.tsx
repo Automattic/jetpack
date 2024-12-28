@@ -12,16 +12,9 @@ import { ThreatModalContext } from '.';
  * @return {JSX.Element | null} The rendered action buttons or null if no actions are available.
  */
 const ThreatActions = (): JSX.Element => {
-	const {
-		closeModal,
-		threat,
-		handleFixThreatClick,
-		handleIgnoreThreatClick,
-		handleUnignoreThreatClick,
-		userConnectionNeeded,
-		siteCredentialsNeeded,
-	} = useContext( ThreatModalContext );
-	const disabled = userConnectionNeeded || siteCredentialsNeeded;
+	const { closeModal, threat, connection, credentials, actions } = useContext( ThreatModalContext );
+	const userConnectionNeeded = ! connection.isUserConnected || ! connection.hasConnectedOwner;
+	const disabled = userConnectionNeeded || ! credentials.hasCredentials;
 
 	const fixerState = useMemo( () => {
 		return getFixerState( threat.fixer );
@@ -30,19 +23,19 @@ const ThreatActions = (): JSX.Element => {
 	const detailedFixerAction = useMemo( () => getDetailedFixerAction( threat ), [ threat ] );
 
 	const onFixClick = useCallback( () => {
-		handleFixThreatClick?.( [ threat ] );
+		actions?.fixThreat?.( [ threat ] );
 		closeModal();
-	}, [ threat, handleFixThreatClick, closeModal ] );
+	}, [ actions, threat, closeModal ] );
 
 	const onIgnoreClick = useCallback( () => {
-		handleIgnoreThreatClick?.( [ threat ] );
+		actions?.ignoreThreat?.( [ threat ] );
 		closeModal();
-	}, [ threat, handleIgnoreThreatClick, closeModal ] );
+	}, [ actions, threat, closeModal ] );
 
 	const onUnignoreClick = useCallback( () => {
-		handleUnignoreThreatClick?.( [ threat ] );
+		actions?.unignoreThreat?.( [ threat ] );
 		closeModal();
-	}, [ threat, handleUnignoreThreatClick, closeModal ] );
+	}, [ actions, threat, closeModal ] );
 
 	if ( ! threat?.status || threat.status === 'fixed' ) {
 		return null;

@@ -1,4 +1,4 @@
-import { SortDirection, SupportedLayouts } from '@wordpress/dataviews';
+import { SortDirection, SupportedLayouts, View } from '@wordpress/dataviews';
 import { __ } from '@wordpress/i18n';
 import {
 	code as fileIcon,
@@ -83,13 +83,15 @@ export const THREAT_ACTION_FIX = 'fix';
 export const THREAT_ACTION_IGNORE = 'ignore';
 export const THREAT_ACTION_UNIGNORE = 'unignore';
 
-const BASE_VIEW = {
+/**
+ * Default values for SupportedLayouts
+ */
+const BASE_VIEW: Omit< View, 'type' > = {
 	sort: {
 		field: 'severity',
 		direction: 'desc' as SortDirection,
 	},
 	search: '',
-	filters: [],
 	page: 1,
 	perPage: 20,
 };
@@ -104,7 +106,7 @@ const BASE_VIEW = {
 export const DEFAULT_LAYOUTS: SupportedLayouts = {
 	table: {
 		...BASE_VIEW,
-		fields: [ THREAT_FIELD_SEVERITY, THREAT_FIELD_FIRST_DETECTED, THREAT_FIELD_AUTO_FIX ],
+		fields: [ THREAT_FIELD_SEVERITY, THREAT_FIELD_AUTO_FIX ],
 		titleField: THREAT_FIELD_TITLE,
 		descriptionField: THREAT_FIELD_DESCRIPTION,
 		showMedia: false,

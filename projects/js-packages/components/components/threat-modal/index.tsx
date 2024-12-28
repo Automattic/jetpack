@@ -5,19 +5,29 @@ import Text from '../text';
 import ThreatSeverityBadge from '../threat-severity-badge';
 import styles from './styles.module.scss';
 import ThreatFixConfirmation from './threat-fix-confirmation';
+
 interface ThreatModalContextType {
 	closeModal: () => void;
 	threat: Threat;
-	handleUpgradeClick?: () => void;
-	userConnectionNeeded: boolean;
-	handleConnectUser: () => void;
-	userIsConnecting: boolean;
-	siteCredentialsNeeded: boolean;
-	credentialsIsFetching: boolean;
-	credentialsRedirectUrl: string;
-	handleFixThreatClick?: ( threats: Threat[] ) => void;
-	handleIgnoreThreatClick?: ( threats: Threat[] ) => void;
-	handleUnignoreThreatClick?: ( threats: Threat[] ) => void;
+	connection: {
+		isUserConnected?: boolean;
+		hasConnectedOwner?: boolean;
+		userIsConnecting?: boolean;
+		onConnectUser?: () => void;
+	};
+	credentials?: {
+		hasCredentials?: boolean;
+		isFetching?: boolean;
+		redirectUrl?: string;
+	};
+	onUpgrade?: () => void;
+	actions?: {
+		upgrade?: () => void;
+		connectUser: () => void;
+		fixThreat?: ( threats: Threat[] ) => void;
+		ignoreThreat?: ( threats: Threat[] ) => void;
+		unignoreThreat?: ( threats: Threat[] ) => void;
+	};
 }
 
 export const ThreatModalContext = createContext< ThreatModalContextType | null >( null );
@@ -25,53 +35,26 @@ export const ThreatModalContext = createContext< ThreatModalContextType | null >
 /**
  * ThreatModal component
  *
- * @param {object}   props                           - The props.
- * @param {object}   props.threat                    - The threat.
- * @param {boolean}  props.isUserConnected           - Whether the user is connected.
- * @param {boolean}  props.hasConnectedOwner         - Whether the user has a connected owner.
- * @param {boolean}  props.userIsConnecting          - Whether the user is connecting.
- * @param {Function} props.handleConnectUser         - The handleConnectUser function.
- * @param {object}   props.credentials               - The credentials.
- * @param {boolean}  props.credentialsIsFetching     - Whether the credentials are fetching.
- * @param {string}   props.credentialsRedirectUrl    - The credentials redirect URL.
- * @param {Function} props.handleUpgradeClick        - The handleUpgradeClick function.
- * @param {Function} props.handleFixThreatClick      - The handleFixThreatClick function.
- * @param {Function} props.handleIgnoreThreatClick   - The handleIgnoreThreatClick function.
- * @param {Function} props.handleUnignoreThreatClick - The handleUnignoreThreatClick function.
+ * @param {object}   props             - The props.
+ * @param {object}   props.threat      - The threat.
+ * @param {object}   props.connection  - The connection.
+ * @param {object}   props.credentials - The credentials.
+ * @param {Function} props.onUpgrade   - The onUpgrade function.
  *
  * @return {JSX.Element} The threat modal.
  */
 export default function ThreatModal( {
 	threat,
-	isUserConnected,
-	hasConnectedOwner,
-	userIsConnecting,
-	handleConnectUser,
+	connection,
 	credentials,
-	credentialsIsFetching,
-	credentialsRedirectUrl,
-	handleUpgradeClick,
-	handleFixThreatClick,
-	handleIgnoreThreatClick,
-	handleUnignoreThreatClick,
+	onUpgrade,
 	...modalProps
 }: {
 	threat: Threat;
-	isUserConnected: boolean;
-	hasConnectedOwner: boolean;
-	userIsConnecting: boolean;
-	handleConnectUser: () => void;
-	credentials: false | Record< string, unknown >[];
-	credentialsIsFetching: boolean;
-	credentialsRedirectUrl: string;
-	handleUpgradeClick?: () => void;
-	handleFixThreatClick?: ( threats: Threat[] ) => void;
-	handleIgnoreThreatClick?: ( threats: Threat[] ) => void;
-	handleUnignoreThreatClick?: ( threats: Threat[] ) => void;
+	connection: ThreatModalContextType[ 'connection' ];
+	credentials: ThreatModalContextType[ 'credentials' ];
+	onUpgrade: ThreatModalContextType[ 'onUpgrade' ];
 } & React.ComponentProps< typeof Modal > ): JSX.Element {
-	const userConnectionNeeded = ! isUserConnected || ! hasConnectedOwner;
-	const siteCredentialsNeeded = ! credentials || credentials.length === 0;
-
 	return (
 		<Modal
 			title={
@@ -88,16 +71,9 @@ export default function ThreatModal( {
 					value={ {
 						closeModal: modalProps.onRequestClose,
 						threat,
-						handleUpgradeClick,
-						userConnectionNeeded,
-						handleConnectUser,
-						userIsConnecting,
-						siteCredentialsNeeded,
-						credentialsIsFetching,
-						credentialsRedirectUrl,
-						handleFixThreatClick,
-						handleIgnoreThreatClick,
-						handleUnignoreThreatClick,
+						connection,
+						credentials,
+						onUpgrade,
 					} }
 				>
 					<ThreatFixConfirmation />

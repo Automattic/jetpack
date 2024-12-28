@@ -6,8 +6,9 @@ import {
 import { useMemo, useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { useContext } from 'react';
-import ThreatsDataViewsContext from './context';
+import { ThreatsDataViewsContext } from './context';
 import styles from './styles.module.scss';
+import useControlledFields from './use-controlled-fields';
 
 /**
  * ToggleGroupControl component for filtering threats by status.
@@ -18,7 +19,9 @@ export default function ThreatsStatusToggleGroupControl(): JSX.Element {
 	/**
 	 * Access the parent DataViews props via context.
 	 */
-	const { data, view, onChangeView } = useContext( ThreatsDataViewsContext );
+	const { data, view } = useContext( ThreatsDataViewsContext );
+
+	const { onChangeView } = useControlledFields();
 
 	/**
 	 * Compute values from the provided threats data.
@@ -89,7 +92,7 @@ export default function ThreatsStatusToggleGroupControl(): JSX.Element {
 	 */
 	const isStatusFilterSelected = useMemo(
 		() => ( threatStatuses: ThreatStatus[] ) =>
-			view.filters.some(
+			( view?.filters || [] ).some(
 				filter =>
 					filter.field === 'status' &&
 					Array.isArray( filter.value ) &&

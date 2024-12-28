@@ -7,19 +7,16 @@ import ThreatSummary from './threat-summary';
 import ThreatTechnicalDetails from './threat-technical-details';
 import { ThreatModalContext } from '.';
 
-/**
- * ThreatFixConfirmation component
- *
- * @return {JSX.Element} The rendered fix confirmation.
- */
-const ThreatFixConfirmation = () => {
-	const { userConnectionNeeded, siteCredentialsNeeded } = useContext( ThreatModalContext );
+const ThreatFixConfirmation = (): JSX.Element => {
+	const { connection, credentials } = useContext( ThreatModalContext );
+	const userConnectionNeeded = ! connection.isUserConnected || ! connection.hasConnectedOwner;
+
 	return (
 		<>
 			<ThreatSummary />
 			<ThreatTechnicalDetails />
 			<ThreatFixDetails />
-			{ siteCredentialsNeeded && userConnectionNeeded && (
+			{ ! credentials.hasCredentials && userConnectionNeeded && (
 				<ThreatNotice
 					title={ 'Additional connections needed' }
 					content={ __(
@@ -28,7 +25,7 @@ const ThreatFixConfirmation = () => {
 					) }
 				/>
 			) }
-			{ ! siteCredentialsNeeded && userConnectionNeeded && (
+			{ ! credentials.hasCredentials && userConnectionNeeded && (
 				<ThreatNotice
 					title={ __( 'User connection needed', 'jetpack-components' ) }
 					content={ __(
@@ -37,7 +34,7 @@ const ThreatFixConfirmation = () => {
 					) }
 				/>
 			) }
-			{ siteCredentialsNeeded && ! userConnectionNeeded && (
+			{ credentials.hasCredentials && ! userConnectionNeeded && (
 				<ThreatNotice
 					title={ __( 'Site credentials needed', 'jetpack-components' ) }
 					content={ __(

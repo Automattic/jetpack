@@ -1,5 +1,11 @@
-import ThreatsDataViews from '..';
-import { VULNERABILITY_FIELDS } from '../constants';
+import {
+	THREAT_ACTION_FIX,
+	THREAT_ACTION_IGNORE,
+	THREAT_ACTION_UNIGNORE,
+	VULNERABILITY_FIELDS,
+} from '../constants';
+import { ThreatsDataViewsContextProvider } from '../context';
+import ThreatsDataViews from '../threats-data-views';
 
 export default {
 	title: 'JS Packages/Components/Threats Data Views',
@@ -19,7 +25,9 @@ export default {
 	],
 };
 
-export const Default = args => <ThreatsDataViews { ...args } />;
+export const Default = args => (
+	<ThreatsDataViewsContextProvider { ...args } children={ <ThreatsDataViews /> } />
+);
 Default.args = {
 	data: [
 		{
@@ -31,7 +39,7 @@ Default.args = {
 			firstDetected: '2024-10-07T20:45:06.000Z',
 			fixedIn: null,
 			severity: 8,
-			fixable: { fixer: 'delete' },
+			fixable: { fixer: 'fix' },
 			fixer: { status: 'not_started' },
 			status: 'current',
 			filename: '/var/www/html/wp-content/index.php',
@@ -110,7 +118,7 @@ Default.args = {
 			severity: 4,
 			status: 'current',
 			fixable: {
-				fixer: 'replace',
+				fixer: 'fix',
 				file: '/var/www/html/wp-admin/index.php',
 				extensionStatus: '',
 			},
@@ -147,25 +155,44 @@ Default.args = {
 			},
 		},
 	],
-	filters: [
+	initialFilters: [
 		{
 			field: 'status',
 			operator: 'isAny',
 			value: [ 'current' ],
 		},
 	],
-	onFixThreats: () =>
-		alert( 'Threat fix action callback triggered! This is handled by the component consumer.' ), // eslint-disable-line no-alert
-	onIgnoreThreats: () =>
-		alert( 'Ignore threat action callback triggered! This is handled by the component consumer.' ), // eslint-disable-line no-alert
-	onUnignoreThreats: () =>
-		// eslint-disable-next-line no-alert
-		alert(
-			'Unignore threat action callback triggered! This is handled by the component consumer.'
-		),
+	actionCallbacks: {
+		[ THREAT_ACTION_FIX ]: {
+			isEnabled: () => true,
+			callback: () => {
+				alert( `Threat fix action callback triggered! This is handled by the component consumer.` ); // eslint-disable-line no-alert
+			},
+		},
+		[ THREAT_ACTION_IGNORE ]: {
+			isEnabled: () => true,
+			callback: () => {
+				// eslint-disable-next-line no-alert
+				alert(
+					`Ignore threat action callback triggered! This is handled by the component consumer.`
+				);
+			},
+		},
+		[ THREAT_ACTION_UNIGNORE ]: {
+			isEnabled: () => true,
+			callback: () => {
+				// eslint-disable-next-line no-alert
+				alert(
+					`Unignore threat action callback triggered! This is handled by the component consumer.`
+				);
+			},
+		},
+	},
 };
 
-export const FixerStatuses = args => <ThreatsDataViews { ...args } />;
+export const FixerStatuses = args => (
+	<ThreatsDataViewsContextProvider { ...args } children={ <ThreatsDataViews /> } />
+);
 FixerStatuses.args = {
 	data: [
 		{
@@ -261,25 +288,44 @@ FixerStatuses.args = {
 			},
 		},
 	],
-	filters: [
+	defaultFilters: [
 		{
 			field: 'status',
 			operator: 'isAny',
 			value: [ 'current' ],
 		},
 	],
-	onFixThreats: () =>
-		alert( 'Fix threat action callback triggered! This is handled by the component consumer.' ), // eslint-disable-line no-alert
-	onIgnoreThreats: () =>
-		alert( 'Ignore threat action callback triggered! This is handled by the component consumer.' ), // eslint-disable-line no-alert
-	onUnignoreThreats: () =>
-		// eslint-disable-next-line no-alert
-		alert(
-			'Unignore threat action callback triggered! This is handled by the component consumer.'
-		),
+	actionCallbacks: {
+		[ THREAT_ACTION_FIX ]: {
+			isEnabled: () => true,
+			callback: () => {
+				alert( `Threat fix action callback triggered! This is handled by the component consumer.` ); // eslint-disable-line no-alert
+			},
+		},
+		[ THREAT_ACTION_IGNORE ]: {
+			isEnabled: () => true,
+			callback: () => {
+				// eslint-disable-next-line no-alert
+				alert(
+					`Ignore threat action callback triggered! This is handled by the component consumer.`
+				);
+			},
+		},
+		[ THREAT_ACTION_UNIGNORE ]: {
+			isEnabled: () => true,
+			callback: () => {
+				// eslint-disable-next-line no-alert
+				alert(
+					`Unignore threat action callback triggered! This is handled by the component consumer.`
+				);
+			},
+		},
+	},
 };
 
-export const FreeResults = args => <ThreatsDataViews { ...args } />;
+export const FreeResults = args => (
+	<ThreatsDataViewsContextProvider { ...args } children={ <ThreatsDataViews /> } />
+);
 FreeResults.args = {
 	data: [
 		{
