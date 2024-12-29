@@ -2,6 +2,29 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 14.2-a.7 - 2024-12-25
+### Bug fixes
+- WooCommerce Analytics: Fix fatal error when WooCommerce cart object is not available. [#40729]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Jetpack AI: featured image generator modal now shows current featured image if present. [#40631]
+- Metadata: always return internal '_jetpack_dont_email_post_to_subs' meta. [#40723]
+
+## 14.2-a.5 - 2024-12-23
+### Bug fixes
+- Shortcode embeds: Ensure Instagram reels are properly displayed in AMP views. [#40682]
+- Slideshow block: Fix block display when added within a Stack block. [#40383]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Custom Post Types: Ensuring Restaurant Menu mail class will not conflict with newly moved files in Classic Theme Helper package. [#40668]
+- Jetpack AI: Add thumbs up/down component to AI logo generator. [#40610]
+- Jetpack API: Moved wpcom/v2/publicize/connections endpoint to publicize package. [#40607]
+- Photon: Ensure VIP sites are correctly identified, to prevent unnecessary early Photonization of URLs. [#39941]
+- Premium Content: Fixes editor and display CSS for Premium Content buttons. [#40638]
+- Restaurant Menu CPT: Convert much of the jQuery usage to JavaScript. [#40645]
+- Tests: Use updated theme in tests. [#40634]
+- Updated package dependencies. [#40693]
+
 ## 14.2-a.3 - 2024-12-16
 ### Enhancements
 - Social: Improved Jetpack likes behavior for better theme integration if the post has likes. [#40544]

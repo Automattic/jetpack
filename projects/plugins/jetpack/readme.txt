@@ -326,18 +326,9 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.2-a.3 - 2024-12-16
-#### Enhancements
-- Social: Improved Jetpack likes behavior for better theme integration if the post has likes.
-
-#### Improved compatibility
-- Jetpack Testimonials: Ensure feature loads via the Classic Theme Helper package instead of the module.
-
+### 14.2-a.7 - 2024-12-25
 #### Bug fixes
-- Facebook Embeds: Add a white background to embeds to avoid transparent background interfering with readability.
-- Form Block: fixed validation of URL input types to allow query strings.
-- Import: Correctly setting the WP_IMPORTING constant when doing an import.
-- SEO: Ensure that SEO fields are not visible when another SEO plugin is active.
+- WooCommerce Analytics: Fix fatal error when WooCommerce cart object is not available.
 
 --------
 
