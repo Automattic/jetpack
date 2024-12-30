@@ -5,6 +5,7 @@ import { ImageStyle } from '@automattic/jetpack-ai-client';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
+import { store as editorStore } from '@wordpress/editor';
 import { useCallback, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import debugFactory from 'debug';
@@ -30,6 +31,7 @@ import {
 	PLACEMENT_MEDIA_SOURCE_DROPDOWN,
 } from './types';
 import type { ImageResponse } from './hooks/use-ai-image';
+import type { EditorSelectors } from './types';
 
 const debug = debugFactory( 'jetpack-ai:featured-image' );
 
@@ -49,14 +51,16 @@ export default function FeaturedImage( {
 	);
 	const siteType = useSiteType();
 	const postContent = usePostContent();
-	const { postTitle, postFeaturedMedia } = useSelect( select => {
+	const { postTitle, postFeaturedMediaId, isEditorPanelOpened } = useSelect( select => {
 		return {
-			// @ts-expect-error - getEditedPostAttribute is not defined in the useSelect type
-			postTitle: select( 'core/editor' ).getEditedPostAttribute( 'title' ),
-			// @ts-expect-error - getEditedPostAttribute is not defined in the useSelect type
-			postFeaturedMedia: select( 'core/editor' ).getEditedPostAttribute( 'featured_media' ),
+			postTitle: select( editorStore ).getEditedPostAttribute( 'title' ),
+			postFeaturedMediaId: select( editorStore ).getEditedPostAttribute( 'featured_media' ),
+			isEditorPanelOpened:
+				select( editorStore ).isEditorPanelOpened ??
+				( select( 'core/edit-post' ) as EditorSelectors ).isEditorPanelOpened,
 		};
 	}, [] );
+
 	const { saveToMediaLibrary } = useSaveToMediaLibrary();
 	const { tracks } = useAnalytics();
 	const { recordEvent } = tracks;
@@ -69,7 +73,7 @@ export default function FeaturedImage( {
 	const { toggleEditorPanelOpened: toggleEditorPanelOpenedFromEditPost } =
 		useDispatch( 'core/edit-post' );
 	const { editPost, toggleEditorPanelOpened: toggleEditorPanelOpenedFromEditor } =
-		useDispatch( 'core/editor' );
+		useDispatch( editorStore );
 
 	// Get feature data
 	const { requireUpgrade, requestsCount, requestsLimit, currentTier, costs } = useAiFeature();
@@ -87,14 +91,6 @@ export default function FeaturedImage( {
 	// https://github.com/WordPress/gutenberg/blob/fe4d8cb936df52945c01c1863f7b87b58b7cc69f/packages/edit-post/CHANGELOG.md?plain=1#L19
 	const toggleEditorPanelOpened =
 		toggleEditorPanelOpenedFromEditor ?? toggleEditorPanelOpenedFromEditPost;
-	const isEditorPanelOpened = useSelect( select => {
-		const isOpened =
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			( select( 'core/editor' ) as any ).isEditorPanelOpened ??
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			( select( 'core/edit-post' ) as any ).isEditorPanelOpened;
-		return isOpened;
-	}, [] );
 
 	const {
 		pointer,
@@ -113,6 +109,7 @@ export default function FeaturedImage( {
 		cost: featuredImageCost,
 		type: 'featured-image-generation',
 		feature: FEATURED_IMAGE_FEATURE_NAME,
+		previousMediaId: postFeaturedMediaId,
 	} );
 
 	const handleModalClose = useCallback( () => {
@@ -202,7 +199,7 @@ export default function FeaturedImage( {
 				style: style,
 			} );
 
-			setCurrent( crrt => crrt + 1 );
+			setCurrent( () => images.length );
 			processImageGeneration( {
 				userPrompt,
 				postContent: postTitle + '\n\n' + postContent,
@@ -229,6 +226,7 @@ export default function FeaturedImage( {
 			postTitle,
 			postContent,
 			notEnoughRequests,
+			images,
 		]
 	);
 
@@ -341,7 +339,7 @@ export default function FeaturedImage( {
 	const generateAgainText = __( 'Generate another image', 'jetpack' );
 	const generateText = __( 'Generate', 'jetpack' );
 
-	const hasContent = postContent || postTitle;
+	const hasContent = postContent || postTitle ? true : false;
 	const hasPrompt = hasContent ? prompt.length >= 0 : prompt.length >= 3;
 	const disableInput = notEnoughRequests || currentPointer?.generating || requireUpgrade;
 	const disableAction = disableInput || ( ! hasContent && ! hasPrompt );
@@ -361,7 +359,11 @@ export default function FeaturedImage( {
 		<Button
 			onClick={ handleAccept }
 			variant="primary"
-			disabled={ ! currentImage?.image || currentImage?.generating }
+			disabled={
+				! currentImage?.image ||
+				currentImage?.generating ||
+				currentImage?.libraryId === postFeaturedMediaId
+			}
 		>
 			{ __( 'Set as featured image', 'jetpack' ) }
 		</Button>
@@ -385,7 +387,7 @@ export default function FeaturedImage( {
 			) }
 			<AiImageModal
 				postContent={ hasContent }
-				autoStart={ hasContent && ! postFeaturedMedia }
+				autoStart={ hasContent && ! postFeaturedMediaId }
 				autoStartAction={ handleFirstGenerate }
 				images={ images }
 				currentIndex={ current }
@@ -395,7 +397,9 @@ export default function FeaturedImage( {
 				placement={ placement }
 				onClose={ handleModalClose }
 				onTryAgain={ handleTryAgain }
-				onGenerate={ pointer?.current > 0 ? handleRegenerate : handleGenerate }
+				onGenerate={
+					pointer?.current > 0 || postFeaturedMediaId ? handleRegenerate : handleGenerate
+				}
 				generating={ currentPointer?.generating }
 				notEnoughRequests={ notEnoughRequests }
 				requireUpgrade={ requireUpgrade }

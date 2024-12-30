@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Photon: Ensure VIP sites are correctly identified, to prevent unnecessary early Photonization of URLs.

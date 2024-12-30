@@ -79,10 +79,8 @@ function BlockedStatus( { status }: { status: 'active' | 'inactive' | 'off' } ) 
 							message: 'no data yet',
 						} }
 					>
-						<>
-							<h3>{ blockedLoginsTooltip.title }</h3>
-							<p>{ blockedLoginsTooltip.text }</p>
-						</>
+						<h3>{ blockedLoginsTooltip.title }</h3>
+						<p>{ blockedLoginsTooltip.text }</p>
 					</InfoTooltip>
 				</div>
 				<div className="value-section__data">
@@ -113,10 +111,8 @@ function BlockedStatus( { status }: { status: 'active' | 'inactive' | 'off' } ) 
 							status: status,
 						} }
 					>
-						<>
-							<h3>{ blockedLoginsTooltip.title }</h3>
-							<p>{ blockedLoginsTooltip.text }</p>
-						</>
+						<h3>{ blockedLoginsTooltip.title }</h3>
+						<p>{ blockedLoginsTooltip.text }</p>
 					</InfoTooltip>
 				</div>
 				<div className="value-section__data">
