@@ -16,7 +16,14 @@ const reporter = [
 ];
 
 if ( process.env.CI ) {
-	reporter.push( [ 'github' ] );
+	reporter.push(
+		[ 'github' ],
+		[
+			`${ fileURLToPath(
+				new URL( '../' + config.get( 'dirs.reporters' ), import.meta.url )
+			) }/flaky-tests-reporter.ts`,
+		]
+	);
 }
 
 // Fail early if the required test site config is not defined
