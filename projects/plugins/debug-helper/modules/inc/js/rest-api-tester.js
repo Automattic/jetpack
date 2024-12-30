@@ -88,7 +88,7 @@ class Jetpack_Debug_REST_API_Tester {
 			try {
 				const parsedResponse = JSON.parse( responseText );
 				responseText = JSON.stringify( parsedResponse, null, 4 );
-			} catch ( e ) {
+			} catch {
 				responseText = 'Invalid JSON:\n' + responseText;
 			}
 		}

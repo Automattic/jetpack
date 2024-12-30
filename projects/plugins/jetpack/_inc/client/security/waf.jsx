@@ -2,6 +2,8 @@ import { getRedirectUrl, ToggleControl, Status } from '@automattic/jetpack-compo
 import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import Button from 'components/button';
 import FoldableCard from 'components/foldable-card';
 import { FormFieldset } from 'components/forms';
@@ -16,8 +18,6 @@ import {
 	PLAN_JETPACK_SCAN,
 } from 'lib/plans/constants';
 import { getProductDescriptionUrl } from 'product-descriptions/utils';
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
 import { getSitePlan, siteHasFeature } from 'state/site';
 import Card from '../components/card';
 import QueryWafSettings from '../components/data/query-waf-bootstrap-path';

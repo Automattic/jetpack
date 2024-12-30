@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix migration key fetch failing when DIY migration page is reloaded

@@ -27,7 +27,9 @@ function cleanNotice() {
  *
  * @param {string} message - The error message to be displayed.
  */
-function showErrorNotice( message = __( 'Unable to share the Post', 'jetpack' ) ) {
+function showErrorNotice(
+	message = __( 'Unable to share the Post', 'jetpack-publicize-components' )
+) {
 	const { createErrorNotice } = dispatch( noticesStore );
 	createErrorNotice( message, {
 		id: 'publicize-post-share-message',
@@ -39,7 +41,7 @@ function showErrorNotice( message = __( 'Unable to share the Post', 'jetpack' ) 
  */
 function showSuccessNotice() {
 	const { createSuccessNotice } = dispatch( noticesStore );
-	createSuccessNotice( __( 'Request submitted successfully.', 'jetpack' ), {
+	createSuccessNotice( __( 'Request submitted successfully.', 'jetpack-publicize-components' ), {
 		id: 'publicize-post-share-message',
 		type: 'snackbar',
 	} );
@@ -106,7 +108,7 @@ export function SharePostButton() {
 	const sharePost = useCallback( async () => {
 		if ( ! isPostPublished ) {
 			return showErrorNotice(
-				__( 'You must publish your post before you can share it.', 'jetpack' )
+				__( 'You must publish your post before you can share it.', 'jetpack-publicize-components' )
 			);
 		}
 
@@ -137,7 +139,7 @@ export function SharePostButton() {
 			disabled={ isButtonDisabled }
 			isBusy={ isFetching }
 		>
-			{ __( 'Share post', 'jetpack' ) }
+			{ __( 'Share post', 'jetpack-publicize-components' ) }
 		</Button>
 	);
 }

@@ -39,7 +39,7 @@ const TemplatePickerButton: React.FC = () => {
 				disabled={ isUpdating || ! isEnabled }
 				onClick={ open }
 			>
-				{ __( 'Change default template', 'jetpack' ) }
+				{ __( 'Change default template', 'jetpack-publicize-components' ) }
 			</Button>
 		),
 		[ isEnabled, isSmall, isUpdating ]

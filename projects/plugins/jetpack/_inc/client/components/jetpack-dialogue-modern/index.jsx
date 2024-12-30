@@ -1,8 +1,8 @@
 import clsx from 'clsx';
-import Gridicon from 'components/gridicon';
 import { noop } from 'lodash';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
+import Gridicon from 'components/gridicon';
 import onKeyDownCallback from 'utils/onkeydown-callback';
 
 class ModernOverlay extends Component {

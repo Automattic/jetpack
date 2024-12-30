@@ -1,0 +1,5 @@
+Significance: patch
+Type: removed
+Comment: Remove unused eslint and prettier scripts and dep from package.json. Also enable `prettier/prettier` eslint rule (which required no fixes).
+
+

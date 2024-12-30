@@ -43,7 +43,7 @@ const ProductOffer: React.FC< ProductOfferProps > = ( {
 
 	const defautlButtonText = sprintf(
 		/* translators: placeholder is product name. */
-		__( 'Add %s', 'jetpack' ),
+		__( 'Add %s', 'jetpack-components' ),
 		title
 	);
 
@@ -79,7 +79,7 @@ const ProductOffer: React.FC< ProductOfferProps > = ( {
 					<ProductPrice price={ price } offPrice={ offPrice } currency={ currency } />
 				) }
 
-				{ isFree && <H3>{ __( 'Free', 'jetpack' ) }</H3> }
+				{ isFree && <H3>{ __( 'Free', 'jetpack-components' ) }</H3> }
 
 				<Alert level="error" showIcon={ !! error }>
 					{ error }
@@ -103,7 +103,7 @@ const ProductOffer: React.FC< ProductOfferProps > = ( {
 				{ isBundle && hasRequiredPlan && (
 					<div className={ styles[ 'product-has-required-plan' ] }>
 						<CheckmarkIcon size={ 36 } />
-						<Text>{ __( 'Active on your site', 'jetpack' ) }</Text>
+						<Text>{ __( 'Active on your site', 'jetpack-components' ) }</Text>
 					</div>
 				) }
 			</div>
