@@ -24,18 +24,11 @@ class WordAds_Smart {
 	protected static $instance = null;
 
 	/**
-	 * Is this an AMP request?
+	 * The parameters for WordAds.
 	 *
-	 * @var bool
+	 * @var WordAds_Params
 	 */
-	private $is_amp;
-
-	/**
-	 * Current blog theme from get_stylesheet().
-	 *
-	 * @var string
-	 */
-	private $theme;
+	private $params;
 
 	/**
 	 * Has Smart asset been enqueued?
@@ -45,11 +38,52 @@ class WordAds_Smart {
 	private $is_asset_enqueued = false;
 
 	/**
-	 * Toggle for inline ads.
+	 * Supported formats.
+	 * sidebar_widget formats represents the legacy Jetpack sidebar widget.
 	 *
-	 * @var bool True if inline ads are enabled.
+	 * @var array
 	 */
-	private $is_inline_enabled;
+	private $formats = array(
+		'top'                            => array(
+			'enabled' => false,
+		),
+		'inline'                         => array(
+			'enabled' => false,
+		),
+		'belowpost'                      => array(
+			'enabled' => false,
+		),
+		'bottom_sticky'                  => array(
+			'enabled' => false,
+		),
+		'sidebar_sticky_right'           => array(
+			'enabled' => false,
+		),
+		'gutenberg_rectangle'            => array(
+			'enabled' => false,
+		),
+		'gutenberg_leaderboard'          => array(
+			'enabled' => false,
+		),
+		'gutenberg_mobile_leaderboard'   => array(
+			'enabled' => false,
+		),
+		'gutenberg_skyscraper'           => array(
+			'enabled' => false,
+		),
+		'sidebar_widget_mediumrectangle' => array(
+			'enabled' => false,
+		),
+		'sidebar_widget_leaderboard'     => array(
+			'enabled' => false,
+		),
+		'sidebar_widget_wideskyscraper'  => array(
+			'enabled' => false,
+		),
+		'shortcode'                      => array(
+			'enabled' => false,
+		),
+	);
 
 	/**
 	 * Private constructor.
@@ -64,8 +98,8 @@ class WordAds_Smart {
 	 *
 	 * @return WordAds_Smart
 	 */
-	public static function instance() {
-		if ( self::$instance === null ) {
+	public static function instance(): self {
+		if ( null === self::$instance ) {
 			self::$instance = new self();
 		}
 		return self::$instance;
@@ -79,17 +113,12 @@ class WordAds_Smart {
 	 * @return void
 	 */
 	public function init( WordAds_Params $params ) {
-		$this->is_amp            = function_exists( 'amp_is_request' ) && amp_is_request();
-		$this->theme             = get_stylesheet();
-		$this->is_inline_enabled = is_singular( 'post' ) && $params->options['wordads_inline_enabled'];
+		$this->params = $params;
 
-		// Allow override.
-		// phpcs:disable WordPress.Security.NonceVerification.Recommended
-		if ( isset( $_GET['inline'] ) && 'true' === $_GET['inline'] ) {
-			$this->is_inline_enabled = true;
-		}
-		if ( $this->is_inline_enabled ) {
-			// Insert ads.
+		$this->enable_formats();
+		$this->override_formats_from_query_string();
+
+		if ( $this->has_any_format_enabled() ) {
 			$this->insert_ads();
 		}
 	}
@@ -136,7 +165,7 @@ class WordAds_Smart {
 	 * @return void
 	 */
 	private function insert_ads() {
-		if ( $this->is_amp ) {
+		if ( $this->params->is_amp ) {
 			return;
 		}
 
@@ -145,19 +174,32 @@ class WordAds_Smart {
 			return;
 		}
 
+		// Add the resource hints.
+		add_filter( 'wp_resource_hints', array( $this, 'resource_hints' ), 10, 2 );
+
 		// Enqueue JS assets.
 		$this->enqueue_assets();
 
 		$is_static_front_page = is_front_page() && 'page' === get_option( 'show_on_front' );
 
 		if ( ! ( $is_static_front_page || is_home() ) ) {
-			if ( $this->is_inline_enabled ) {
+			if ( $this->formats['inline']['enabled'] ) {
 				add_filter(
 					'the_content',
 					array( $this, 'insert_inline_marker' ),
 					10
 				);
 			}
+		}
+
+		if ( $this->formats['bottom_sticky']['enabled'] ) {
+			// Disable IPW slot.
+			add_filter( 'wordads_iponweb_bottom_sticky_ad_disable', '__return_true', 10 );
+		}
+
+		if ( $this->formats['sidebar_sticky_right']['enabled'] ) {
+			// Disable IPW slot.
+			add_filter( 'wordads_iponweb_sidebar_sticky_right_ad_disable', '__return_true', 10 );
 		}
 	}
 
@@ -170,24 +212,33 @@ class WordAds_Smart {
 		global $post;
 
 		$config = array(
-			'blog_id' => $this->get_blog_id(),
 			'post_id' => ( $post instanceof WP_Post ) && is_singular( 'post' ) ? $post->ID : null,
-			'theme'   => $this->theme,
+			'origin'  => 'jetpack',
+			'theme'   => get_stylesheet(),
 			'target'  => $this->target_keywords(),
-			'_'       => array(
-				'title'            => __( 'Advertisement', 'jetpack' ),
-				'privacy_settings' => __( 'Privacy Settings', 'jetpack' ),
-			),
-			'inline'  => array(
-				'enabled' => $this->is_inline_enabled,
-			),
-		);
+		) + $this->formats;
 
 		// Do conversion.
 		$js_config = WordAds_Array_Utils::array_to_js_object( $config );
 
 		// Output script.
 		wp_print_inline_script_tag( "var wa_smart = $js_config; wa_smart.cmd = [];" );
+	}
+
+	/**
+	 * Add the Smart resource hints.
+	 *
+	 * @param array  $hints Domains for hinting.
+	 * @param string $relation_type Resource type.
+	 *
+	 * @return array Domains for hinting.
+	 */
+	public function resource_hints( $hints, $relation_type ) {
+		if ( 'dns-prefetch' === $relation_type ) {
+			$hints[] = '//af.pubmine.com';
+		}
+
+		return $hints;
 	}
 
 	/**
@@ -198,7 +249,7 @@ class WordAds_Smart {
 	private function get_config_url(): string {
 		return sprintf(
 			'https://public-api.wordpress.com/wpcom/v2/sites/%1$d/adflow/conf/?_jsonp=a8c_adflow_callback',
-			$this->get_blog_id()
+			$this->params->blog_id
 		);
 	}
 
@@ -208,9 +259,9 @@ class WordAds_Smart {
 	 * @param string|null $content The post content.
 	 * @return string|null The post content with the marker appended.
 	 */
-	public function insert_inline_marker( $content ) {
-		if ( $content === null ) {
-			return $content;
+	public function insert_inline_marker( ?string $content ): ?string {
+		if ( null === $content ) {
+			return null;
 		}
 		$inline_ad_marker = '<span id="wordads-inline-marker" style="display: none;"></span>';
 
@@ -227,7 +278,6 @@ class WordAds_Smart {
 		$target_keywords = array_merge(
 			$this->get_blog_keywords(),
 			$this->get_language_keywords()
-			// TODO: Include categorization.
 		);
 
 		return implode( ';', $target_keywords );
@@ -239,7 +289,7 @@ class WordAds_Smart {
 	 * @return array The list of blog keywords.
 	 */
 	private function get_blog_keywords(): array {
-		return array( 'wp_blog_id=' . $this->get_blog_id() );
+		return array( 'wp_blog_id=' . $this->params->blog_id );
 	}
 
 	/**
@@ -252,11 +302,43 @@ class WordAds_Smart {
 	}
 
 	/**
-	 * Gets the blog's ID.
+	 * Enable formats by post types and the display options.
 	 *
-	 * @return int The blog's ID.
+	 * @return void
 	 */
-	private function get_blog_id(): int {
-		return Jetpack::get_option( 'id', 0 );
+	private function enable_formats(): void {
+		$this->formats['top']['enabled']                  = $this->params->options['enable_header_ad'];
+		$this->formats['inline']['enabled']               = is_singular( 'post' ) && $this->params->options['wordads_inline_enabled'];
+		$this->formats['belowpost']['enabled']            = $this->params->should_show();
+		$this->formats['bottom_sticky']['enabled']        = $this->params->options['wordads_bottom_sticky_enabled'];
+		$this->formats['sidebar_sticky_right']['enabled'] = $this->params->options['wordads_sidebar_sticky_right_enabled'];
+	}
+
+	/**
+	 * Allow format enabled override from query string, eg. ?inline=true.
+	 *
+	 * @return void
+	 */
+	private function override_formats_from_query_string(): void {
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended
+		if ( ! isset( $_GET['wordads-logging'] ) ) {
+			return;
+		}
+
+		foreach ( $this->formats as $format_type => $_ ) {
+			// phpcs:disable WordPress.Security.NonceVerification.Recommended
+			if ( isset( $_GET[ $format_type ] ) && 'true' === $_GET[ $format_type ] ) {
+				$this->formats[ $format_type ]['enabled'] = true;
+			}
+		}
+	}
+
+	/**
+	 * Check if has any format enabled.
+	 *
+	 * @return bool True if enabled, false otherwise.
+	 */
+	private function has_any_format_enabled(): bool {
+		return in_array( true, array_column( $this->formats, 'enabled' ), true );
 	}
 }

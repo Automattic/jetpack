@@ -1,3 +1,5 @@
+@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+
 /**
  * The following styles get applied both on the front of your site
  * and in the editor.
@@ -24,6 +26,20 @@
 }
 .wp-block-premium-content-login-button.alignright {
 	float: right;
+}
+
+%button-outline-style {
+	background-color: unset;
+	color: $gray-800;
+}
+
+.wp-block-premium-content-login-button,
+.wp-block-jetpack-button {
+	&.is-style-outline {
+		.wp-block-button__link {
+			@extend %button-outline-style;
+		}
+	}
 }
 
 /* Legacy Subscribe/Login buttons */

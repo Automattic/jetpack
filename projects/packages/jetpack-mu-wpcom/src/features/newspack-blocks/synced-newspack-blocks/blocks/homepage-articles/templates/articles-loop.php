@@ -9,7 +9,7 @@
  */
 
 call_user_func(
-	function ( $data ) {
+	function( $data ) {
 		$attributes    = $data['attributes'];
 		$article_query = $data['article_query'];
 

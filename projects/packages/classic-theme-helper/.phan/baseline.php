@@ -12,9 +12,9 @@ return [
     // PhanUndeclaredClassMethod : 20+ occurrences
     // PhanTypeMismatchArgumentInternal : 10+ occurrences
     // PhanTypePossiblyInvalidDimOffset : 8 occurrences
+    // PhanTypeSuspiciousNonTraversableForeach : 6 occurrences
     // PhanTypeMismatchArgumentProbablyReal : 5 occurrences
     // PhanUndeclaredClassReference : 4 occurrences
-    // PhanTypeSuspiciousNonTraversableForeach : 3 occurrences
     // PhanTypeInvalidDimOffset : 2 occurrences
     // PhanTypeMismatchArgument : 2 occurrences
     // PhanTypeComparisonToArray : 1 occurrence
@@ -30,6 +30,7 @@ return [
         'src/custom-content-types.php' => ['PhanUndeclaredClassMethod'],
         'src/custom-post-types/class-jetpack-portfolio.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanTypeSuspiciousNonTraversableForeach', 'PhanUndeclaredClassMethod'],
         'src/custom-post-types/class-jetpack-testimonial.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredClassMethod'],
+        'src/custom-post-types/class-nova-restaurant.php' => ['PhanTypeSuspiciousNonTraversableForeach'],
         'src/site-breadcrumbs.php' => ['PhanUndeclaredClassMethod'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.

@@ -326,19 +326,9 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.2-a.1 - 2024-12-09
-#### Enhancements
-- Stats: Allow fetching stats for specific sites when programatically fetching stats using Jetpack's tools.
-- Stats: Sunset Legacy Stats experience.
-- Stats: Enable sparkline chart in the WP Admin bar.
-
-#### Improved compatibility
-- External media: Google Photos Picker: Update UX opening picker right after pressing "change selection" CTA.
-- SEO: Ensure support for adding an SEO title and description for custom post types.
-- WordPress 6.7 Compatibility: Fix notices caused by translation calls happening too early in the load order.
-
+### 14.2-a.7 - 2024-12-25
 #### Bug fixes
-- Google Fonts: Clean up the Google Fonts data if either the Google Fonts module is disabled or Jetpack is disabled.
+- WooCommerce Analytics: Fix fatal error when WooCommerce cart object is not available.
 
 --------
 

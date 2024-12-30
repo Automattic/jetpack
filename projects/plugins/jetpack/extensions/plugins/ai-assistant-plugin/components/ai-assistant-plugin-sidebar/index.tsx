@@ -9,7 +9,6 @@ import { PluginPrePublishPanel, PluginDocumentSettingPanel } from '@wordpress/ed
 import { store as editorStore } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
 import debugFactory from 'debug';
-import React from 'react';
 /**
  * Internal dependencies
  */
@@ -18,12 +17,14 @@ import useAICheckout from '../../../../blocks/ai-assistant/hooks/use-ai-checkout
 import useAiFeature from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
 import useAiProductPage from '../../../../blocks/ai-assistant/hooks/use-ai-product-page';
 import { getFeatureAvailability } from '../../../../blocks/ai-assistant/lib/utils/get-feature-availability';
+import { isBetaExtension } from '../../../../editor';
 import JetpackPluginSidebar from '../../../../shared/jetpack-plugin-sidebar';
 import { PLAN_TYPE_FREE, PLAN_TYPE_UNLIMITED, usePlanType } from '../../../../shared/use-plan-type';
 import { FeaturedImage } from '../ai-image';
 import { Breve, registerBreveHighlights, Highlight } from '../breve';
 import { getBreveAvailability, canWriteBriefBeEnabled } from '../breve/utils/get-availability';
 import Feedback from '../feedback';
+import SeoAssistant from '../seo-assistant';
 import TitleOptimization from '../title-optimization';
 import UsagePanel from '../usage-panel';
 import {
@@ -59,6 +60,8 @@ const isAITitleOptimizationKeywordsFeatureAvailable = getFeatureAvailability(
 	'ai-title-optimization-keywords-support'
 );
 
+const isSeoAssistantEnabled = getFeatureAvailability( 'ai-seo-assistant' );
+
 const JetpackAndSettingsContent = ( {
 	placement,
 	requireUpgrade,
@@ -82,6 +85,19 @@ const JetpackAndSettingsContent = ( {
 				<PanelRow className="jetpack-ai-sidebar__feature-section">
 					<BaseControl __nextHasNoMarginBottom={ true }>
 						<FairUsageNotice variant="muted" />
+					</BaseControl>
+				</PanelRow>
+			) }
+
+			{ isSeoAssistantEnabled && (
+				<PanelRow
+					className={ `jetpack-ai-sidebar__feature-section ${
+						isBetaExtension( 'ai-seo-assistant' ) ? 'is-beta-extension' : ''
+					}` }
+				>
+					<BaseControl __nextHasNoMarginBottom={ true }>
+						<BaseControl.VisualLabel>{ __( 'SEO', 'jetpack' ) }</BaseControl.VisualLabel>
+						<SeoAssistant busy={ false } disabled={ false } />
 					</BaseControl>
 				</PanelRow>
 			) }

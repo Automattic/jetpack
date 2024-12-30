@@ -21,8 +21,10 @@ const getSubscriptionDetails = async () => {
 
 /**
  * Hook to handle subscription API calls.
+ *
+ * @return {object} Object containing functions to manage subscriptions.
  */
-export default function useSubscriptionApi() {
+export default function useSubscriptionApi(): object {
 	const { siteId } = VerbumComments;
 	const [ subscriptionSettingsIsLoading, setSubscriptionSettingsIsLoading ] = useState( true );
 

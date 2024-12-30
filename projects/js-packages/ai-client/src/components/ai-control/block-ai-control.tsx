@@ -46,6 +46,7 @@ type BlockAIControlProps = {
 	showRemove?: boolean;
 	banner?: ReactElement;
 	error?: ReactElement;
+	lastAction?: string;
 };
 
 const debug = debugFactory( 'jetpack-ai-client:block-ai-control' );
@@ -77,6 +78,7 @@ export function BlockAIControl(
 		showRemove = false,
 		banner = null,
 		error = null,
+		lastAction,
 	}: BlockAIControlProps,
 	ref: React.MutableRefObject< HTMLInputElement >
 ): ReactElement {
@@ -256,7 +258,19 @@ export function BlockAIControl(
 	);
 
 	const message =
-		showGuideLine && ! loading && ! editRequest && ( customFooter || <GuidelineMessage /> );
+		showGuideLine &&
+		! loading &&
+		! editRequest &&
+		( customFooter || (
+			<GuidelineMessage
+				aiFeedbackThumbsOptions={ {
+					showAIFeedbackThumbs: true,
+					ratedItem: 'ai-assistant',
+					prompt: lastAction,
+					block: 'ai-assistant',
+				} }
+			/>
+		) );
 
 	return (
 		<AIControl

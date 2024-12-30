@@ -602,7 +602,12 @@ abstract class Base_Admin_Menu {
 	 * @param string $view Preferred view.
 	 */
 	public function set_preferred_view( $screen, $view ) {
-		$preferred_views            = $this->get_preferred_views();
+		remove_filter( 'get_user_option_jetpack_admin_menu_preferred_views', 'wpcom_admin_get_user_option_jetpack' );
+		$preferred_views = $this->get_preferred_views();
+		if ( function_exists( 'wpcom_admin_get_user_option_jetpack' ) ) {
+			add_filter( 'get_user_option_jetpack_admin_menu_preferred_views', 'wpcom_admin_get_user_option_jetpack' );
+		}
+
 		$screen                     = str_replace( '?post_type=post', '', $screen );
 		$preferred_views[ $screen ] = $view;
 		update_user_option( get_current_user_id(), 'jetpack_admin_menu_preferred_views', $preferred_views );
@@ -749,21 +754,6 @@ abstract class Base_Admin_Menu {
 	 */
 	public function use_wp_admin_interface() {
 		return 'wp-admin' === get_option( 'wpcom_admin_interface' );
-	}
-
-	/**
-	 * Check if the user has the default (Calypso) Admin menu.
-	 *
-	 * @return bool
-	 */
-	public function is_using_default_admin_menu() {
-		remove_filter( 'pre_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_get_option' );
-		$option = get_option( 'wpcom_admin_interface' ) !== 'wp-admin';
-		if ( function_exists( 'wpcom_admin_interface_pre_get_option' ) ) {
-			add_filter( 'pre_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_get_option', 10 );
-		}
-
-		return $option;
 	}
 
 	/**
