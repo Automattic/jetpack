@@ -8,7 +8,7 @@
 	},
 	"scripts": {
 		"build-production": [
-			"pnpm run build:prod"
+			"pnpm run build"
 		],
 		"build-development": [
 			"pnpm run build"
