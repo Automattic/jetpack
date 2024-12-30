@@ -4,6 +4,8 @@ import { RequestUtils } from '@wordpress/e2e-test-utils-playwright';
 /**
  * Global setup for Playwright tests.
  *
+ * Copied from https://github.com/WordPress/gutenberg/blob/b4304f8bf6bd9b890b4108adcc326cd586a3ab4e/packages/scripts/config/playwright/global-setup.js
+ *
  * @param {import('@playwright/test').PlaywrightTestConfig} config - Playwright test configuration.
  */
 async function globalSetup( config ) {
