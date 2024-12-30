@@ -3975,8 +3975,8 @@ importers:
         specifier: 7.2.8
         version: 7.2.8(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react-router-dom:
-        specifier: 5.3.4
-        version: 5.3.4(react@18.3.1)
+        specifier: 6.28.0
+        version: 6.28.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       redux:
         specifier: 4.0.5
         version: 4.0.5
