@@ -207,7 +207,7 @@ class JetpackNotices extends React.Component {
 					siteConnectionStatus={ this.props.siteConnectionStatus }
 					siteOfflineMode={ this.props.siteOfflineMode }
 				/>
-				<PlanConflictWarning />
+				<PlanConflictWarning location={ this.props.location } />
 				<DismissableNotices />
 				{ ! this.props.isReconnectingSite &&
 					this.props.userCanConnectAccount &&
