@@ -29,6 +29,7 @@ type AiFeedbackThumbsProps = {
 		mediaLibraryId?: number;
 		prompt?: string;
 		revisedPrompt?: string;
+		block?: string | null;
 	};
 	onRate?: ( rating: string ) => void;
 };
@@ -98,6 +99,7 @@ export default function AiFeedbackThumbs( {
 				mediaLibraryId: options.mediaLibraryId || null,
 				prompt: options.prompt || null,
 				revisedPrompt: options.revisedPrompt || null,
+				block: options.block || null,
 			} );
 		}
 	};

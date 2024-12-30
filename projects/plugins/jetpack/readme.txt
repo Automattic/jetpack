@@ -326,11 +326,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.2-a.5 - 2024-12-23
-#### Bug fixes
-- Shortcode embeds: Ensure Instagram reels are properly displayed in AMP views.
-- Slideshow block: Fix block display when added within a Stack block.
-
+### 14.2-a.9 - 2024-12-30
 --------
 
 [See the previous changelogs here](https://github.com/Automattic/jetpack/blob/trunk/projects/plugins/jetpack/CHANGELOG.md#changelog)

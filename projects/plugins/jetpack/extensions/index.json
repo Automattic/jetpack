@@ -80,7 +80,8 @@
 		"videopress/video-chapters",
 		"ai-assistant-backend-prompts",
 		"ai-list-to-table-transform",
-		"ai-response-feedback"
+		"ai-response-feedback",
+		"ai-seo-assistant"
 	],
 	"experimental": [],
 	"no-post-editor": [
