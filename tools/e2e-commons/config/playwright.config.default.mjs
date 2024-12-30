@@ -1,9 +1,8 @@
 import fs from 'fs';
 import { fileURLToPath } from 'url';
-import { defineConfig } from '@playwright/test';
-import baseConfig from '@wordpress/scripts/config/playwright.config.js';
+import { defineConfig, devices } from '@playwright/test';
 import config from 'config';
-import { setWpEnvVars } from '../helpers/utils-helper';
+import { resolveSiteUrl, setWpEnvVars } from '../helpers/utils-helper';
 
 const reporter = [
 	[ 'list' ],
@@ -39,14 +38,18 @@ if ( ! fs.existsSync( config.get( 'temp.storage' ) ) ) {
 setWpEnvVars();
 
 const playwrightConfig = defineConfig( {
-	...baseConfig,
 	timeout: 300000,
-	retries: 0,
+	retries: process.env.CI ? 2 : 0,
 	workers: 1,
 	outputDir: config.get( 'dirs.results' ),
 	reporter,
+	forbidOnly: !! process.env.CI,
+	globalSetup: fileURLToPath( new URL( './global-setup.mjs', import.meta.url ).href ),
 	use: {
-		...baseConfig.use,
+		baseURL: resolveSiteUrl(),
+		headless: true,
+		viewport: { width: 1280, height: 1600 },
+		ignoreHTTPSErrors: true,
 		actionTimeout: 20000,
 		screenshot: {
 			mode: 'only-on-failure',
@@ -57,9 +60,19 @@ const playwrightConfig = defineConfig( {
 		storageState: config.get( 'temp.storage' ),
 		userAgent:
 			'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36 wp-e2e-tests',
+		locale: 'en-US',
+		contextOptions: {
+			reducedMotion: 'reduce',
+			strictSelectors: true,
+		},
 	},
-	webServer: undefined,
 	reportSlowTests: null,
+	projects: [
+		{
+			name: 'chromium',
+			use: { ...devices[ 'Desktop Chrome' ] },
+		},
+	],
 } );
 
 export default playwrightConfig;
