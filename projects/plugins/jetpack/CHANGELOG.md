@@ -2,6 +2,13 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 14.2-a.9 - 2024-12-30
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- AI Assistant: Add thumbs feedback for list-to-table feature. [#40755]
+- AI Assistant: Enhance thumbs feedback on AI Assistant and extensions. [#40746]
+- Jetpack AI: Introduce new beta feature ai-seo-assistant. [#40744]
+- WordAds: Migration of ad formats from IPONWEB to WATL. [#40308]
+
 ## 14.2-a.7 - 2024-12-25
 ### Bug fixes
 - WooCommerce Analytics: Fix fatal error when WooCommerce cart object is not available. [#40729]
