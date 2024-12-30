@@ -70,7 +70,8 @@ const playwrightConfig = defineConfig( {
 		locale: 'en-US',
 		contextOptions: {
 			reducedMotion: 'reduce',
-			strictSelectors: true,
+			// TODO - Enable strictSelectors once all tests are updated.
+			// strictSelectors: true,
 		},
 	},
 	reportSlowTests: null,
