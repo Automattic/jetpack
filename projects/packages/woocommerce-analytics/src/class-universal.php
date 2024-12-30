@@ -32,10 +32,10 @@ class Universal {
 		add_action( 'wp_head', array( $this, 'loop_session_events' ), 2 );
 
 		// Initialize session
-		add_action( 'send_headers', array( $this, 'initialize_woocommerceanalytics_session' ) );
+		add_action( 'template_redirect', array( $this, 'initialize_woocommerceanalytics_session' ) );
 
 		// Capture search
-		add_action( 'send_headers', array( $this, 'capture_search_query' ), 11 );
+		add_action( 'template_redirect', array( $this, 'capture_search_query' ), 11 );
 
 		// Capture cart events.
 		add_action( 'woocommerce_add_to_cart', array( $this, 'capture_add_to_cart' ), 10, 6 );
