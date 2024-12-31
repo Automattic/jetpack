@@ -47,9 +47,9 @@ function shortcode_new_to_old_params( $params, $old_format_support = false ) {
  */
 function jetpack_load_shortcodes() {
 	// Prevent third-party shortcode plugins when loading shortcode files.
-	// shortcode => condition_when_to_skip
+	// Format: shortcode => condition_when_to_skip
 	$shortcode_skips = array(
-		'soundcloud' => function_exists( 'soundcloud_shortcode' ), // SoundCloud Shortcodes
+		'soundcloud' => function_exists( 'soundcloud_shortcode' ), // SoundCloud Shortcodes plugin
 	);
 
 	$shortcode_includes = array();
