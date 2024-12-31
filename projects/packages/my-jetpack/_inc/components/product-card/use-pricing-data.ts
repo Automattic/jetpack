@@ -61,6 +61,26 @@ type Actions = {
 	onManage: () => void;
 };
 
+const getFeaturePrimaryAction = (
+	detail: ProductCamelCase,
+	{ onActivate, onInstall, onManage }: Omit< Actions, 'onCheckout' >
+) => {
+	switch ( detail.status ) {
+		case PRODUCT_STATUSES.MODULE_DISABLED:
+			return { label: __( 'Activate', 'jetpack-my-jetpack' ), onClick: onActivate };
+		case PRODUCT_STATUSES.ABSENT:
+			return { label: __( 'Install', 'jetpack-my-jetpack' ), onClick: onInstall };
+		case PRODUCT_STATUSES.USER_CONNECTION_ERROR:
+			return { label: __( 'Connect', 'jetpack-my-jetpack' ), href: '#/connection' };
+		default:
+			return {
+				label: __( 'Manage', 'jetpack-my-jetpack' ),
+				href: detail.manageUrl,
+				onClick: onManage,
+			};
+	}
+};
+
 const getPrimaryAction = (
 	detail: ProductCamelCase,
 	{ onCheckout, onActivate, onInstall, onManage }: Actions
@@ -79,21 +99,7 @@ const getPrimaryAction = (
 	}
 
 	if ( detail.isFeature ) {
-		if ( detail.status === PRODUCT_STATUSES.MODULE_DISABLED ) {
-			return { label: __( 'Activate', 'jetpack-my-jetpack' ), onClick: onActivate };
-		}
-		if ( detail.status === PRODUCT_STATUSES.ABSENT ) {
-			return { label: __( 'Install', 'jetpack-my-jetpack' ), onClick: onInstall };
-		}
-		if ( detail.status === PRODUCT_STATUSES.USER_CONNECTION_ERROR ) {
-			return { label: __( 'Connect', 'jetpack-my-jetpack' ), href: '#/connection' };
-		}
-
-		return {
-			label: __( 'Manage', 'jetpack-my-jetpack' ),
-			href: detail.manageUrl,
-			onClick: onManage,
-		};
+		return getFeaturePrimaryAction( detail, { onActivate, onInstall, onManage } );
 	}
 
 	return { label: __( 'Purchase', 'jetpack-my-jetpack' ), onClick: onCheckout };
