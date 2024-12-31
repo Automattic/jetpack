@@ -8,7 +8,7 @@
  * Module Tags: Writing
  * Sort Order: 34
  * Feature: Writing
- * Additional Search Queries: cpt, custom post types, portfolio, portfolios, testimonial, testimonials
+ * Additional Search Queries: cpt, custom post types, portfolio, portfolios, testimonial, testimonials, nova
  *
  * @package automattic/jetpack-classic-theme-helper
  */
@@ -18,11 +18,12 @@ use Automattic\Jetpack\Status\Host;
 
 if ( ! function_exists( 'jetpack_load_custom_post_types' ) ) {
 	/**
-	 * Load Portfolio CPT.
+	 * Load Portfolio, Testimonial, and Nova CPT.
 	 */
 	function jetpack_load_custom_post_types() {
 		include __DIR__ . '/custom-post-types/class-jetpack-portfolio.php';
 		include __DIR__ . '/custom-post-types/class-jetpack-testimonial.php';
+		include __DIR__ . '/custom-post-types/class-nova-restaurant.php';
 	}
 	add_action( 'init', array( '\Automattic\Jetpack\Classic_Theme_Helper\Jetpack_Portfolio', 'init' ) );
 	register_activation_hook( __FILE__, array( '\Automattic\Jetpack\Classic_Theme_Helper\Jetpack_Portfolio', 'activation_post_type_support' ) );
@@ -32,6 +33,7 @@ if ( ! function_exists( 'jetpack_load_custom_post_types' ) ) {
 	register_activation_hook( __FILE__, array( '\Automattic\Jetpack\Classic_Theme_Helper\Jetpack_Testimonial', 'activation_post_type_support' ) );
 	add_action( 'jetpack_activate_module_custom-content-types', array( '\Automattic\Jetpack\Classic_Theme_Helper\Jetpack_Testimonial', 'activation_post_type_support' ) );
 
+	add_action( 'init', array( '\Automattic\Jetpack\Classic_Theme_Helper\Nova_Restaurant', 'init' ) );
 }
 
 if ( ! function_exists( 'jetpack_custom_post_types_loaded' ) ) {
