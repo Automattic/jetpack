@@ -4695,8 +4695,8 @@ importers:
         specifier: 10.4.1
         version: 10.4.1
       ignore:
-        specifier: 5.1.8
-        version: 5.1.8
+        specifier: 7.0.0
+        version: 7.0.0
       js-yaml:
         specifier: 4.1.0
         version: 4.1.0
@@ -4903,8 +4903,8 @@ importers:
         specifier: 15.13.0
         version: 15.13.0
       ignore:
-        specifier: 5.1.8
-        version: 5.1.8
+        specifier: 7.0.0
+        version: 7.0.0
       jest:
         specifier: 29.7.0
         version: 29.7.0
@@ -11045,12 +11045,12 @@ packages:
   ieee754@1.2.1:
     resolution: {integrity: sha512-dcyqhDvX1C46lXZcVqCpK+FtMRQVdIMN6/Df5js2zouUsqG7I6sFxitIC+7KYK29KdXOLHdu9zL4sFnoVQnqaA==}
 
-  ignore@5.1.8:
-    resolution: {integrity: sha512-BMpfD7PpiETpBl/A6S498BaIJ6Y/ABT93ETbby2fP00v4EbvPBXWEoaR1UBPKs3iR53pJY7EtZk5KACI57i1Uw==}
-    engines: {node: '>= 4'}
-
   ignore@5.3.2:
     resolution: {integrity: sha512-hsBTNUqQTDwkWtcdYI2i06Y/nUBEsNEDJKjWdigLvegy8kDuJAS8uRlpkkcQpyEXL0Z/pjDy5HBmMjRCJ2gq+g==}
+    engines: {node: '>= 4'}
+
+  ignore@7.0.0:
+    resolution: {integrity: sha512-lcX8PNQygAa22u/0BysEY8VhaFRzlOkvdlKczDPnJvrkJD1EuqzEky5VYYKM2iySIuaVIDv9N190DfSreSLw2A==}
     engines: {node: '>= 4'}
 
   immutable@4.3.7:
@@ -24040,7 +24040,7 @@ snapshots:
       dir-glob: 3.0.1
       fast-glob: 3.3.2
       glob: 7.2.3
-      ignore: 5.1.8
+      ignore: 5.3.2
       merge2: 1.4.1
       slash: 3.0.0
 
@@ -24264,9 +24264,9 @@ snapshots:
 
   ieee754@1.2.1: {}
 
-  ignore@5.1.8: {}
-
   ignore@5.3.2: {}
+
+  ignore@7.0.0: {}
 
   immutable@4.3.7: {}
 
