@@ -9,6 +9,7 @@ import {
 	ERROR_QUOTA_EXCEEDED,
 	ERROR_SERVICE_UNAVAILABLE,
 	ERROR_UNCLEAR_PROMPT,
+	PROMPT_TYPE_GENERATE_TITLE,
 } from '@automattic/jetpack-ai-client';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useState, useRef } from '@wordpress/element';
@@ -207,7 +208,7 @@ const useAIAssistant = ( {
 				options,
 				userPrompt: options?.userPrompt || userPrompt,
 				type,
-				isGeneratingTitle: attributes.promptType === 'generateTitle',
+				isGeneratingTitle: attributes.promptType === PROMPT_TYPE_GENERATE_TITLE,
 			} );
 
 			/*
@@ -226,7 +227,7 @@ const useAIAssistant = ( {
 			setLastPrompt( prompt );
 
 			// If it is a title generation, keep the prompt type in subsequent changes.
-			if ( attributes.promptType !== 'generateTitle' ) {
+			if ( attributes.promptType !== PROMPT_TYPE_GENERATE_TITLE ) {
 				updateBlockAttributes( clientId, { promptType: type } );
 			}
 		} else {

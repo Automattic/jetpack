@@ -30,7 +30,7 @@
 		"envfile": "6.17.0",
 		"execa": "7.0.0",
 		"glob": "10.4.1",
-		"ignore": "5.1.8",
+		"ignore": "7.0.0",
 		"js-yaml": "4.1.0",
 		"listr": "0.14.3",
 		"listr-silent-renderer": "1.1.1",

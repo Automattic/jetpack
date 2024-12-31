@@ -268,6 +268,7 @@ interface Window {
 				plugins: ScanItem[];
 				status: string;
 				themes: ScanItem[];
+				threats?: ThreatItem[];
 			};
 			wafConfig: {
 				automatic_rules_available: boolean;
