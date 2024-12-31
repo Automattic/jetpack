@@ -1,17 +1,20 @@
 #!/usr/bin/env node
 
-const spawnSync = require( 'child_process' ).spawnSync;
-const fs = require( 'fs' );
-const path = require( 'path' );
-const chalk = require( 'chalk' );
-const { glob } = require( 'glob' );
-const loadIgnorePatterns = require( '../load-eslint-ignore.js' );
-const isJetpackDraftMode = require( './jetpack-draft' );
+import { spawnSync } from 'child_process';
+import fs from 'fs';
+import path from 'path';
+import chalk from 'chalk';
+import { glob } from 'glob';
+import ignore from 'ignore';
+import loadIgnorePatterns from '../load-eslint-ignore.js';
+import isJetpackDraftMode from './jetpack-draft.mjs';
 
 let phpcsExcludelist = null;
 let eslintExcludelist = null;
 let eslintIgnore = null;
 let exitCode = 0;
+
+const __dirname = import.meta.dirname;
 
 /**
  * Load the phpcs exclude list.
@@ -52,7 +55,7 @@ function applyEslintIgnore( files ) {
 		return files;
 	}
 	if ( eslintIgnore === null ) {
-		eslintIgnore = require( 'ignore' )().add( loadIgnorePatterns( __dirname + '../../../..' ) );
+		eslintIgnore = ignore().add( loadIgnorePatterns( __dirname + '../../../..' ) );
 	}
 	return eslintIgnore.filter( files );
 }
@@ -424,7 +427,7 @@ function runCheckCopiedFiles() {
  */
 function runCheckGitHubActionsYamlFiles() {
 	const options = {
-		cwd: __dirname + '/../../../',
+		cwd: new URL( '../../../', import.meta.url ).pathname,
 	};
 	const allFiles = new Set( [
 		...glob.sync( '.github/workflows/*.{yml,yaml}', options ),

@@ -24,7 +24,7 @@
 		"@types/lodash-es": "4.17.12",
 		"allure-playwright": "2.9.2",
 		"axios": "1.7.4",
-		"chalk": "5.0.1",
+		"chalk": "5.4.1",
 		"config": "3.3.7",
 		"localtunnel": "2.0.2",
 		"lodash-es": "4.17.21",

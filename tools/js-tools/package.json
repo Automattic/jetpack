@@ -25,7 +25,7 @@
 		"@wordpress/eslint-plugin": "22.0.0",
 		"@wordpress/jest-console": "8.14.0",
 		"babel-jest": "29.4.3",
-		"chalk": "4.1.2",
+		"chalk": "5.4.1",
 		"debug": "4.3.4",
 		"enquirer": "2.4.1",
 		"eslint": "9.16.0",
