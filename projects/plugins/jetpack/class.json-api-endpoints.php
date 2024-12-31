@@ -2254,6 +2254,11 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 				if ( ! $user_can_upload_files ) {
 					$media_id = new WP_Error( 'unauthorized', 'User cannot upload media.', 403 );
+				} elseif ( ! is_array( $media_item ) ) {
+					$media_id   = new WP_Error( 'invalid_input', 'Unable to process request.', 400 );
+					$media_item = array(
+						'name' => 'invalid_file',
+					);
 				} elseif ( $this->media_item_is_free_video_mobile_upload_and_too_long( $media_item ) ) {
 					$media_id = new WP_Error( 'upload_video_length', 'Video uploads longer than 5 minutes require a paid plan.', 400 );
 				} else {

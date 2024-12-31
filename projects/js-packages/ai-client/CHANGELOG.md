@@ -5,9 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.25.4] - 2024-12-30
+### Added
+- AI Client: Add thumbs feedback on AI Assistant. [#40728]
+
+### Changed
+- AI Client: Move prompt types and update thumbs feedback event. [#40746]
+
 ## [0.25.3] - 2024-12-23
 ### Added
-- Jetpack AI: Add thumbs up/down component to AI logo generator [#40610]
+- Jetpack AI: Add thumbs up/down component to AI logo generator. [#40610]
 
 ## [0.25.2] - 2024-12-16
 ### Changed
@@ -487,6 +494,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AI Client: stop using smart document visibility handling on the fetchEventSource library, so it does not restart the completion when changing tabs. [#32004]
 - Updated package dependencies. [#31468] [#31659] [#31785]
 
+[0.25.4]: https://github.com/Automattic/jetpack-ai-client/compare/v0.25.3...v0.25.4
 [0.25.3]: https://github.com/Automattic/jetpack-ai-client/compare/v0.25.2...v0.25.3
 [0.25.2]: https://github.com/Automattic/jetpack-ai-client/compare/v0.25.1...v0.25.2
 [0.25.1]: https://github.com/Automattic/jetpack-ai-client/compare/v0.25.0...v0.25.1

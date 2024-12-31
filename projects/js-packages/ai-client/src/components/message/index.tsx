@@ -31,22 +31,24 @@ export type MessageSeverityProp =
 	| typeof MESSAGE_SEVERITY_INFO
 	| null;
 
-type RateProps = {
+type AiFeedbackThumbsOptions = {
+	showAIFeedbackThumbs?: boolean;
 	ratedItem?: string;
 	prompt?: string;
+	block?: string | null;
 	onRate?: ( rating: string ) => void;
 };
 
 export type MessageProps = {
 	icon?: React.ReactNode;
 	severity?: MessageSeverityProp;
-	showAIFeedbackThumbs?: boolean;
+	aiFeedbackThumbsOptions?: AiFeedbackThumbsOptions;
 	children: React.ReactNode;
-} & RateProps;
+};
 
 export type GuidelineMessageProps = {
-	showAIFeedbackThumbs?: boolean;
-} & RateProps;
+	aiFeedbackThumbsOptions?: AiFeedbackThumbsOptions;
+};
 
 export type OnUpgradeClick = ( event?: React.MouseEvent< HTMLButtonElement > ) => void;
 
@@ -81,10 +83,13 @@ const messageIconsMap = {
 export default function Message( {
 	severity = MESSAGE_SEVERITY_INFO,
 	icon = null,
-	showAIFeedbackThumbs = false,
-	ratedItem = '',
-	prompt = '',
-	onRate = () => {},
+	aiFeedbackThumbsOptions = {
+		showAIFeedbackThumbs: false,
+		ratedItem: '',
+		prompt: '',
+		block: null,
+		onRate: () => {},
+	},
 	children,
 }: MessageProps ): React.ReactElement {
 	return (
@@ -98,15 +103,16 @@ export default function Message( {
 				<Icon icon={ messageIconsMap[ severity ] || icon } />
 			) }
 			{ <div className="jetpack-ai-assistant__message-content">{ children }</div> }
-			{ showAIFeedbackThumbs && (
+			{ aiFeedbackThumbsOptions.showAIFeedbackThumbs && aiFeedbackThumbsOptions.prompt && (
 				<AiFeedbackThumbs
 					disabled={ false }
-					ratedItem={ ratedItem }
+					ratedItem={ aiFeedbackThumbsOptions.ratedItem }
 					feature="ai-assistant"
 					options={ {
-						prompt,
+						prompt: aiFeedbackThumbsOptions.prompt,
+						block: aiFeedbackThumbsOptions.block,
 					} }
-					onRate={ onRate }
+					onRate={ aiFeedbackThumbsOptions.onRate }
 				/>
 			) }
 		</div>
@@ -133,11 +139,16 @@ function LearnMoreLink(): React.ReactElement {
  * @return {React.ReactElement} - Message component.
  */
 export function GuidelineMessage( {
-	showAIFeedbackThumbs = false,
-	...props
+	aiFeedbackThumbsOptions = {
+		showAIFeedbackThumbs: false,
+		ratedItem: '',
+		prompt: '',
+		block: null,
+		onRate: () => {},
+	},
 }: GuidelineMessageProps ): React.ReactElement {
 	return (
-		<Message showAIFeedbackThumbs={ showAIFeedbackThumbs } { ...props }>
+		<Message aiFeedbackThumbsOptions={ aiFeedbackThumbsOptions }>
 			<span>
 				{ __( 'AI-generated content could be inaccurate or biased.', 'jetpack-ai-client' ) }
 			</span>

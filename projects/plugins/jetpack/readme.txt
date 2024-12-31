@@ -326,10 +326,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.2-a.7 - 2024-12-25
-#### Bug fixes
-- WooCommerce Analytics: Fix fatal error when WooCommerce cart object is not available.
-
+### 14.2-a.9 - 2024-12-30
 --------
 
 [See the previous changelogs here](https://github.com/Automattic/jetpack/blob/trunk/projects/plugins/jetpack/CHANGELOG.md#changelog)
