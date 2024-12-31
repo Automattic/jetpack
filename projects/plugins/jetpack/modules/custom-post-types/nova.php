@@ -103,7 +103,7 @@ if ( ! class_exists( '\Nova_Restaurant' ) ) {
 		 *
 		 * @param array $menu_item_loop_markup Array of markup for the menu items.
 		 *
-		 * @return self
+		 * @return Automattic\Jetpack\Classic_Theme_Helper\Nova_Restaurant
 		 */
 		public static function init( $menu_item_loop_markup = array() ) {
 			_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
