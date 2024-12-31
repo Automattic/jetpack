@@ -49,8 +49,8 @@ importers:
         specifier: 7.7.0
         version: 7.7.0
       compare-versions:
-        specifier: 3.6.0
-        version: 3.6.0
+        specifier: 6.1.1
+        version: 6.1.1
       glob:
         specifier: 10.4.1
         version: 10.4.1
@@ -9412,8 +9412,8 @@ packages:
   commondir@1.0.1:
     resolution: {integrity: sha512-W9pAhw0ja1Edb5GVdIF1mjZw/ASI0AlShXM83UUGe2DVr5TdAPEA1OA8m/g8zWp9x6On7gqufY+FatDbC3MDQg==}
 
-  compare-versions@3.6.0:
-    resolution: {integrity: sha512-W6Af2Iw1z4CB7q4uU4hv646dW9GQuBM+YpC0UvUCWSD8w90SJjp+ujJuXaEMtAXBtSqGfMPuFOVn4/+FlaqfBA==}
+  compare-versions@6.1.1:
+    resolution: {integrity: sha512-4hm4VPpIecmlg59CHXnRDnqGplJFrbLG4aFEl5vl6cK1u76ws3LLvX7ikFnTDl5vo39sjWD6AaDPYodJp/NNHg==}
 
   component-uid@0.0.2:
     resolution: {integrity: sha512-LpbuRIGCbQpJDhyWlHmJqMNuMiR0s9nzlZ40kA8T/PC+hN2YrsBgBgOETtR9y2kE1HkbpQ0/l96kgyYKy6HzCA==}
@@ -22300,7 +22300,7 @@ snapshots:
 
   commondir@1.0.1: {}
 
-  compare-versions@3.6.0: {}
+  compare-versions@6.1.1: {}
 
   component-uid@0.0.2: {}
 
