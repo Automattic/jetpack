@@ -152,7 +152,7 @@ class GalleryImageEdit extends Component {
 					/>
 				</div>
 				{ /* Keep the <a> HTML structure, but ensure there is no navigation from edit */ }
-				{ href ? <a>{ img }</a> : img }
+				{ href ? <a aria-hidden="true">{ img }</a> : img }
 			</figure>
 		);
 	}
