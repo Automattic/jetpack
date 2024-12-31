@@ -148,7 +148,7 @@
 		"@wordpress/keycodes": "4.14.0",
 		"@wordpress/notices": "5.14.0",
 		"@wordpress/token-list": "3.14.0",
-		"autoprefixer": "10.4.14",
+		"autoprefixer": "10.4.20",
 		"babel-jest": "29.4.3",
 		"concurrently": "7.6.0",
 		"eval": "0.1.8",
