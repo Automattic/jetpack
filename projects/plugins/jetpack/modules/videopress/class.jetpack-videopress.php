@@ -44,15 +44,12 @@ class Jetpack_VideoPress {
 	public function on_init() {
 		add_action( 'wp_enqueue_media', array( $this, 'enqueue_admin_scripts' ) );
 		add_filter( 'plupload_default_settings', array( $this, 'videopress_pluploder_config' ) );
+		add_filter( 'plupload_init', array( $this, 'videopress_pluploder_init' ) );
 
 		add_action( 'admin_print_footer_scripts', array( $this, 'print_in_footer_open_media_add_new' ) );
 		add_action( 'admin_head', array( $this, 'enqueue_admin_styles' ) );
 
 		VideoPress_Scheduler::init();
-
-		if ( $this->is_videopress_enabled() ) {
-			add_action( 'admin_notices', array( $this, 'media_new_page_admin_notice' ) );
-		}
 	}
 
 	/**
@@ -63,35 +60,6 @@ class Jetpack_VideoPress {
 	public function enqueue_jwt_token_bridge() {
 		_deprecated_function( __METHOD__, 'jetpack-11.3', 'Automattic\Jetpack\VideoPress\Jwt_Token_Bridge::enqueue_jwt_token_bridge' );
 		return Jwt_Token_Bridge::enqueue_jwt_token_bridge();
-	}
-
-	/**
-	 * The media-new.php page isn't supported for uploading to VideoPress.
-	 *
-	 * There is either a technical reason for this (bulk uploader isn't overridable),
-	 * or it is an intentional way to give site owners an option for uploading videos that bypass VideoPress.
-	 */
-	public function media_new_page_admin_notice() {
-		global $pagenow;
-		if ( 'media-new.php' !== $pagenow ) {
-			return;
-		}
-
-		$message = sprintf(
-			wp_kses(
-				/* translators: %s is the url to the Media Library */
-				__( 'VideoPress uploads are not supported here. To upload to VideoPress, add your videos from the <a href="%s">Media Library</a> or the block editor using the Video block.', 'jetpack' ),
-				array( 'a' => array( 'href' => array() ) )
-			),
-			esc_url( admin_url( 'upload.php?mode=grid&action=add-new' ) )
-		);
-		wp_admin_notice(
-			$message,
-			array(
-				'type'        => 'warning',
-				'dismissible' => true,
-			)
-		);
 	}
 
 	/**
@@ -195,6 +163,19 @@ class Jetpack_VideoPress {
 			);
 
 			wp_enqueue_script(
+				'videopress-handlers',
+				Assets::get_file_url_for_environment(
+					'_inc/build/videopress/js/videopress-handlers.min.js',
+					'modules/videopress/js/videopress-handlers.js'
+				),
+				array(
+					'videopress-uploader',
+				),
+				JETPACK__VERSION,
+				true
+			);
+
+			wp_enqueue_script(
 				'media-video-widget-extensions',
 				Assets::get_file_url_for_environment(
 					'_inc/build/videopress/js/media-video-widget-extensions.min.js',
@@ -235,7 +216,24 @@ class Jetpack_VideoPress {
 	 * @param array $config The plupload config.
 	 */
 	public function videopress_pluploder_config( $config ) {
+		if ( ! isset( $config['filters']['max_file_size'] ) ) {
+			$config['filters']['max_file_size'] = wp_max_upload_size() . 'b';
+		}
 
+		$config['filters']['videopress_check_uploads'] = $config['filters']['max_file_size'];
+
+		// We're doing our own check in the videopress_check_uploads filter.
+		unset( $config['filters']['max_file_size'] );
+
+		return $config;
+	}
+
+	/**
+	 * Modify the default plupload init config to turn on VideoPress specific filters.
+	 *
+	 * @param array $config The plupload config.
+	 */
+	public function videopress_pluploder_init( $config ) {
 		if ( ! isset( $config['filters']['max_file_size'] ) ) {
 			$config['filters']['max_file_size'] = wp_max_upload_size() . 'b';
 		}
@@ -267,6 +265,7 @@ class Jetpack_VideoPress {
 			'post-new.php',
 			'post.php',
 			'upload.php',
+			'media-new.php',
 			'customize.php',
 		);
 

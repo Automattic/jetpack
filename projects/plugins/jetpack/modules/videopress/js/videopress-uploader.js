@@ -1,7 +1,7 @@
 /* globals plupload, pluploadL10n, error */
 window.wp = window.wp || {};
 
-( function ( wp ) {
+( function ( wp, $ ) {
 	var VideoPress = {
 		originalOptions: {},
 
@@ -72,6 +72,39 @@ window.wp = window.wp || {};
 			response.data = data;
 
 			return response;
+		},
+
+		/**
+		 * Make sure that all of the original variables have been overridden, so the uploader
+		 * will try to go to VideoPress next time.
+		 *
+		 * @param {*} up
+		 * @param {*} file
+		 */
+		overrideOriginalOptions: function ( up, file ) {
+			VideoPress.originalOptions.url = up.getOption( 'url' );
+			VideoPress.originalOptions.multipart_params = up.getOption( 'multipart_params' );
+			VideoPress.originalOptions.file_data_name = up.getOption( 'file_data_name' );
+
+			up.setOption( 'file_data_name', 'media[]' );
+			up.setOption( 'url', file.videopress.upload_action_url );
+			up.setOption( 'headers', {
+				Authorization:
+					'X_UPLOAD_TOKEN token="' +
+					file.videopress.upload_token +
+					'" blog_id="' +
+					file.videopress.upload_blog_id +
+					'"',
+			} );
+
+			// Set up the file attrs
+			var attrs = {
+				title: file.name,
+				caption: '12344',
+				description: 'description???',
+				alt: 'alttttt',
+			};
+			$.extend( up.settings.multipart_params, { 'attrs[0]': attrs } );
 		},
 
 		/**
@@ -154,4 +187,4 @@ window.wp = window.wp || {};
 	}
 
 	wp.VideoPress = VideoPress;
-} )( window.wp );
+} )( window.wp, jQuery );

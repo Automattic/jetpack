@@ -385,20 +385,7 @@ window.wp = window.wp || {};
 		 */
 		this.uploader.bind( 'BeforeUpload', function ( up, file ) {
 			if ( typeof file.videopress !== 'undefined' ) {
-				vp.originalOptions.url = up.getOption( 'url' );
-				vp.originalOptions.multipart_params = up.getOption( 'multipart_params' );
-				vp.originalOptions.file_data_name = up.getOption( 'file_data_name' );
-
-				up.setOption( 'file_data_name', 'media[]' );
-				up.setOption( 'url', file.videopress.upload_action_url );
-				up.setOption( 'headers', {
-					Authorization:
-						'X_UPLOAD_TOKEN token="' +
-						file.videopress.upload_token +
-						'" blog_id="' +
-						file.videopress.upload_blog_id +
-						'"',
-				} );
+				vp && vp.overrideOriginalOptions( up, file );
 			}
 		} );
 	};
