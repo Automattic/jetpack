@@ -17,13 +17,12 @@ class GalleryImageEdit extends Component {
 	};
 
 	onImageKeyDown = event => {
-		if (
-			this.img.current &&
-			this.img.current === this.img.current.ownerDocument.activeElement &&
-			this.props.isSelected &&
-			[ BACKSPACE, DELETE ].includes( event.keyCode )
-		) {
-			this.props.onRemove();
+		const { isSelected, onRemove } = this.props;
+
+		// Check for BACKSPACE or DELETE key presses
+		if ( isSelected && [ BACKSPACE, DELETE ].includes( event.keyCode ) ) {
+			event.preventDefault();
+			onRemove();
 		}
 	};
 
@@ -92,32 +91,24 @@ class GalleryImageEdit extends Component {
 		const isTransient = isBlobURL( origUrl );
 
 		const img = (
-			// Disable reason: Image itself is not meant to be interactive, but should
-			// direct image selection and unfocus caption fields.
-			/* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
 			<Fragment>
 				<img
 					alt={ alt }
-					aria-label={ ariaLabel }
 					data-height={ height }
 					data-id={ id }
 					data-link={ link }
 					data-url={ origUrl }
 					data-width={ width }
-					onClick={ this.onImageClick }
-					onKeyDown={ this.onImageKeyDown }
 					ref={ this.img }
 					src={ isTransient ? undefined : url }
 					srcSet={ isTransient ? undefined : srcSet }
-					tabIndex="0"
 					style={ isTransient ? { backgroundImage: `url(${ origUrl })` } : undefined }
 				/>
 				{ isTransient && <Spinner /> }
 			</Fragment>
-			/* eslint-enable jsx-a11y/no-noninteractive-element-interactions */
 		);
-
-		// Disable reason: Each block can be selected by clicking on it and we should keep the same saved markup
+		// Disable reason: Figure itself is not meant to be interactive, but should direct image selection.
+		/* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
 		return (
 			<figure
 				className={ clsx( 'tiled-gallery__item', {
@@ -125,6 +116,11 @@ class GalleryImageEdit extends Component {
 					'is-transient': isTransient,
 					[ `filter__${ imageFilter }` ]: !! imageFilter,
 				} ) }
+				tabIndex="0"
+				aria-label={ ariaLabel }
+				onClick={ this.onImageClick }
+				onKeyDown={ this.onImageKeyDown }
+				/* eslint-enable jsx-a11y/no-noninteractive-element-interactions */
 			>
 				{ showMovers && (
 					<div className="tiled-gallery__item__move-menu">
