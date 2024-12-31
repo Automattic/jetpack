@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.1] - 2024-12-31
+### Added
+- Added dist to mirror repo [#40776]
+
 ## [0.2.0] - 2024-12-31
 ### Added
 - Charts: adds grid component to charts [#40683]
@@ -33,4 +37,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed lints following ESLint rule changes for TS [#40584]
 - Fixing a bug in Chart storybook data. [#40640]
 
+[0.2.1]: https://github.com/Automattic/charts/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/Automattic/charts/compare/v0.1.0...v0.2.0
