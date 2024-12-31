@@ -1421,8 +1421,8 @@ importers:
         specifier: ^6.0.3
         version: 6.0.3
       svgicons2svgfont:
-        specifier: ^14.0.0
-        version: 14.0.2
+        specifier: ^15.0.0
+        version: 15.0.0
       svgo:
         specifier: ^3.3.2
         version: 3.3.2
@@ -14294,8 +14294,8 @@ packages:
     resolution: {integrity: sha512-CgqMyZrbOPpc+WqH7aga4JWkDPso23EgypLsbQ6gN3uoPWwwiLjXvzgrwGADBExvCRJrWFzAeK1bSoSpE7ixSQ==}
     hasBin: true
 
-  svgicons2svgfont@14.0.2:
-    resolution: {integrity: sha512-NwbAbOMZvLN/3ycAnaDA8RRbovgtjoVqjW6bnGVaNHTG3dcnNLwRXGD/e11V37Tv48SlAjBTEWCNJRf+qdS1nA==}
+  svgicons2svgfont@15.0.0:
+    resolution: {integrity: sha512-X5iL08aZJRKwYAGcl6ykQg0T6ce8yGpLdccqMXp6mreObpSdjlME9dRKPFIvFWX9/KTvPFAuYnX1gCaqjw7QUA==}
     engines: {node: '>=20.11.1'}
     hasBin: true
 
@@ -28111,13 +28111,12 @@ snapshots:
       microbuffer: 1.0.0
       svgpath: 2.6.0
 
-  svgicons2svgfont@14.0.2:
+  svgicons2svgfont@15.0.0:
     dependencies:
       '@types/sax': 1.2.7
       commander: 12.1.0
       debug: 4.4.0
       glob: 11.0.0
-      punycode: 2.3.1
       sax: 1.4.1
       svg-pathdata: 7.1.0
       transformation-matrix-js: 2.7.6
