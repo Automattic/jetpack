@@ -1808,6 +1808,9 @@ class zbsDAL {
 
                         $setting = $this->tidy_settingSingular($potentialRes);
 
+						// We only update the mitigation cache when $fullDetails is false.
+						self::$mitigation_cache_for_issue_3504[ $key ] = $setting; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+
                         // cache (commonly retrieved)
                         $this->update_cache_var( 'setting_' . $key, $setting );
 
@@ -1818,6 +1821,11 @@ class zbsDAL {
             }
 
         } // / if ID
+
+		if ( ! $fullDetails ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+			// We only update the mitigation cache when $fullDetails is false.
+			self::$mitigation_cache_for_issue_3504[ $key ] = $default; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+		}
 
         return $default;
 
