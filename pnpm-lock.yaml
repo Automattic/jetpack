@@ -169,8 +169,8 @@ importers:
         specifier: 2.1.1
         version: 2.1.1
       debug:
-        specifier: 4.3.4
-        version: 4.3.4
+        specifier: 4.4.0
+        version: 4.4.0
       markdown-it:
         specifier: 14.0.0
         version: 14.0.0
@@ -218,8 +218,8 @@ importers:
   projects/js-packages/analytics:
     devDependencies:
       debug:
-        specifier: 4.3.4
-        version: 4.3.4
+        specifier: 4.4.0
+        version: 4.4.0
       jest:
         specifier: 29.7.0
         version: 29.7.0
@@ -247,7 +247,7 @@ importers:
     dependencies:
       debug:
         specifier: ^4.3.2
-        version: 4.3.4
+        version: 4.4.0
     devDependencies:
       '@babel/core':
         specifier: 7.26.0
@@ -583,8 +583,8 @@ importers:
         specifier: 2.1.1
         version: 2.1.1
       debug:
-        specifier: 4.3.4
-        version: 4.3.4
+        specifier: 4.4.0
+        version: 4.4.0
       prop-types:
         specifier: ^15.7.2
         version: 15.8.1
@@ -725,7 +725,7 @@ importers:
         version: 4.23.1
       debug:
         specifier: ^4.3.2
-        version: 4.3.4
+        version: 4.4.0
       semver:
         specifier: ^7.3.5
         version: 7.6.3
@@ -750,7 +750,7 @@ importers:
     dependencies:
       debug:
         specifier: ^4.3.2
-        version: 4.3.4
+        version: 4.4.0
     devDependencies:
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
@@ -772,7 +772,7 @@ importers:
     dependencies:
       debug:
         specifier: ^4.3.2
-        version: 4.3.4
+        version: 4.4.0
     devDependencies:
       '@wordpress/dependency-extraction-webpack-plugin':
         specifier: 6.14.0
@@ -1236,7 +1236,7 @@ importers:
     dependencies:
       debug:
         specifier: ^4.3.2
-        version: 4.3.4
+        version: 4.4.0
     devDependencies:
       jest:
         specifier: 29.7.0
@@ -1269,8 +1269,8 @@ importers:
         specifier: 4.14.0
         version: 4.14.0
       debug:
-        specifier: 4.3.4
-        version: 4.3.4
+        specifier: 4.4.0
+        version: 4.4.0
       react:
         specifier: ^18.2.0
         version: 18.3.1
@@ -2362,8 +2362,8 @@ importers:
         specifier: 2.1.1
         version: 2.1.1
       debug:
-        specifier: 4.3.4
-        version: 4.3.4
+        specifier: 4.4.0
+        version: 4.4.0
       preact:
         specifier: ^10.13.1
         version: 10.22.1
@@ -2572,8 +2572,8 @@ importers:
         specifier: 2.1.1
         version: 2.1.1
       debug:
-        specifier: 4.3.4
-        version: 4.3.4
+        specifier: 4.4.0
+        version: 4.4.0
       gridicons:
         specifier: 3.4.1
         version: 3.4.1(react@18.3.1)
@@ -2963,8 +2963,8 @@ importers:
         specifier: 2.1.1
         version: 2.1.1
       debug:
-        specifier: 4.3.4
-        version: 4.3.4
+        specifier: 4.4.0
+        version: 4.4.0
       filesize:
         specifier: 8.0.6
         version: 8.0.6
@@ -3948,8 +3948,8 @@ importers:
         specifier: 4.2.0
         version: 4.2.0
       debug:
-        specifier: 4.3.4
-        version: 4.3.4
+        specifier: 4.4.0
+        version: 4.4.0
       email-validator:
         specifier: 2.0.4
         version: 2.0.4
@@ -4840,8 +4840,8 @@ importers:
         specifier: 5.4.1
         version: 5.4.1
       debug:
-        specifier: 4.3.4
-        version: 4.3.4
+        specifier: 4.4.0
+        version: 4.4.0
       enquirer:
         specifier: 2.4.1
         version: 2.4.1
@@ -9748,15 +9748,6 @@ packages:
       supports-color:
         optional: true
 
-  debug@4.3.4:
-    resolution: {integrity: sha512-PRWFHuSU3eDtQJPvnNY7Jcket1j0t5OuOsFzPPzsekD52Zl8qUfFIPEiswXqIvHWGVHOgX+7G/vCNNhehwxfkQ==}
-    engines: {node: '>=6.0'}
-    peerDependencies:
-      supports-color: '*'
-    peerDependenciesMeta:
-      supports-color:
-        optional: true
-
   debug@4.4.0:
     resolution: {integrity: sha512-6WTZ/IxCY/T6BALoZHaE4ctp9xm+Z5kY/pzYaCHRFeyVhojxlrm+46y68HA6hr0TcwEssoxNiDEUJQjfPZ/RYA==}
     engines: {node: '>=6.0'}
@@ -12212,9 +12203,6 @@ packages:
 
   ms@2.0.0:
     resolution: {integrity: sha512-Tpp60P6IUJDTuOq/5Z8cdskzJujfwqfOTkrwIwj7IRISpnkJnT6SyJ4PCPnGMoFjC9ddhal5KVIYtAt97ix05A==}
-
-  ms@2.1.2:
-    resolution: {integrity: sha512-sGkPx+VjMtmA6MX27oA4FBFELFCZZ4S4XqeGOXCv68tT+jb3vk/RyaKWP0PTKyWtmLSM0b+adUTEvbs1PEaH2w==}
 
   ms@2.1.3:
     resolution: {integrity: sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==}
@@ -15286,7 +15274,7 @@ snapshots:
       '@wordpress/element': 6.14.0
       '@wordpress/i18n': 5.14.0
       clsx: 2.1.1
-      debug: 4.3.4
+      debug: 4.4.0
       lodash: 4.17.21
       react: 18.3.1
       redux: 4.2.1
@@ -15354,7 +15342,7 @@ snapshots:
       '@babel/traverse': 7.26.4
       '@babel/types': 7.26.3
       convert-source-map: 2.0.0
-      debug: 4.3.4
+      debug: 4.4.0
       gensync: 1.0.0-beta.2
       json5: 2.2.3
       semver: 6.3.1
@@ -15414,7 +15402,7 @@ snapshots:
       '@babel/core': 7.26.0
       '@babel/helper-compilation-targets': 7.25.9
       '@babel/helper-plugin-utils': 7.25.9
-      debug: 4.3.4
+      debug: 4.4.0
       lodash.debounce: 4.0.8
       resolve: 1.22.8
     transitivePeerDependencies:
@@ -16134,7 +16122,7 @@ snapshots:
       '@babel/parser': 7.26.3
       '@babel/template': 7.25.9
       '@babel/types': 7.26.3
-      debug: 4.3.4
+      debug: 4.4.0
       globals: 11.12.0
     transitivePeerDependencies:
       - supports-color
@@ -16525,7 +16513,7 @@ snapshots:
   '@eslint/config-array@0.19.1':
     dependencies:
       '@eslint/object-schema': 2.1.5
-      debug: 4.3.4
+      debug: 4.4.0
       minimatch: 3.1.2
     transitivePeerDependencies:
       - supports-color
@@ -16537,7 +16525,7 @@ snapshots:
   '@eslint/eslintrc@3.2.0':
     dependencies:
       ajv: 6.12.6
-      debug: 4.3.4
+      debug: 4.4.0
       espree: 10.3.0
       globals: 14.0.0
       ignore: 5.3.2
@@ -17630,7 +17618,7 @@ snapshots:
 
   '@sitespeed.io/tracium@0.3.3':
     dependencies:
-      debug: 4.3.4
+      debug: 4.4.0
     transitivePeerDependencies:
       - supports-color
 
@@ -18011,7 +17999,7 @@ snapshots:
 
   '@storybook/react-docgen-typescript-plugin@1.0.6--canary.9.0c3f3b7.0(typescript@5.0.4)(webpack@5.94.0)':
     dependencies:
-      debug: 4.3.4
+      debug: 4.4.0
       endent: 2.1.0
       find-cache-dir: 3.3.2
       flat-cache: 3.2.0
@@ -18776,7 +18764,7 @@ snapshots:
       '@typescript-eslint/types': 8.17.0
       '@typescript-eslint/typescript-estree': 8.17.0(typescript@5.0.4)
       '@typescript-eslint/visitor-keys': 8.17.0
-      debug: 4.3.4
+      debug: 4.4.0
       eslint: 9.16.0
     optionalDependencies:
       typescript: 5.0.4
@@ -18797,7 +18785,7 @@ snapshots:
     dependencies:
       '@typescript-eslint/typescript-estree': 8.17.0(typescript@5.0.4)
       '@typescript-eslint/utils': 8.17.0(eslint@9.16.0)(typescript@5.0.4)
-      debug: 4.3.4
+      debug: 4.4.0
       eslint: 9.16.0
       ts-api-utils: 1.4.3(typescript@5.0.4)
     optionalDependencies:
@@ -18813,7 +18801,7 @@ snapshots:
     dependencies:
       '@typescript-eslint/types': 8.17.0
       '@typescript-eslint/visitor-keys': 8.17.0
-      debug: 4.3.4
+      debug: 4.4.0
       fast-glob: 3.3.2
       is-glob: 4.0.3
       minimatch: 9.0.5
@@ -18828,7 +18816,7 @@ snapshots:
     dependencies:
       '@typescript-eslint/types': 8.18.0
       '@typescript-eslint/visitor-keys': 8.18.0
-      debug: 4.3.4
+      debug: 4.4.0
       fast-glob: 3.3.2
       is-glob: 4.0.3
       minimatch: 9.0.5
@@ -21065,7 +21053,7 @@ snapshots:
 
   agent-base@6.0.2:
     dependencies:
-      debug: 4.3.4
+      debug: 4.4.0
     transitivePeerDependencies:
       - supports-color
 
@@ -21299,9 +21287,9 @@ snapshots:
     transitivePeerDependencies:
       - debug
 
-  axios@1.7.4(debug@4.3.4):
+  axios@1.7.4(debug@4.4.0):
     dependencies:
-      follow-redirects: 1.15.9(debug@4.3.4)
+      follow-redirects: 1.15.9(debug@4.4.0)
       form-data: 4.0.1
       proxy-from-env: 1.1.0
     transitivePeerDependencies:
@@ -21419,7 +21407,7 @@ snapshots:
     dependencies:
       '@babel/core': 7.26.0
       core-js: 3.38.1
-      debug: 4.3.4
+      debug: 4.4.0
       lodash.mergewith: 4.6.2
       prettier: 2.8.8
       strip-indent: 3.0.0
@@ -22306,10 +22294,6 @@ snapshots:
     dependencies:
       ms: 2.1.3
 
-  debug@4.3.4:
-    dependencies:
-      ms: 2.1.2
-
   debug@4.4.0:
     dependencies:
       ms: 2.1.3
@@ -22717,14 +22701,14 @@ snapshots:
 
   esbuild-register@3.6.0(esbuild@0.23.1):
     dependencies:
-      debug: 4.3.4
+      debug: 4.4.0
       esbuild: 0.23.1
     transitivePeerDependencies:
       - supports-color
 
   esbuild-register@3.6.0(esbuild@0.24.2):
     dependencies:
-      debug: 4.3.4
+      debug: 4.4.0
       esbuild: 0.24.2
     transitivePeerDependencies:
       - supports-color
@@ -23089,7 +23073,7 @@ snapshots:
       ajv: 6.12.6
       chalk: 4.1.2
       cross-spawn: 7.0.6
-      debug: 4.3.4
+      debug: 4.4.0
       escape-string-regexp: 4.0.0
       eslint-scope: 8.2.0
       eslint-visitor-keys: 4.2.0
@@ -23254,7 +23238,7 @@ snapshots:
 
   extract-zip@2.0.1:
     dependencies:
-      debug: 4.3.4
+      debug: 4.4.0
       get-stream: 5.2.0
       yauzl: 2.10.0
     optionalDependencies:
@@ -23371,7 +23355,7 @@ snapshots:
     dependencies:
       chalk: 4.1.2
       commander: 5.1.0
-      debug: 4.3.4
+      debug: 4.4.0
     transitivePeerDependencies:
       - supports-color
 
@@ -23419,9 +23403,9 @@ snapshots:
 
   follow-redirects@1.15.9: {}
 
-  follow-redirects@1.15.9(debug@4.3.4):
+  follow-redirects@1.15.9(debug@4.4.0):
     optionalDependencies:
-      debug: 4.3.4
+      debug: 4.4.0
 
   for-each@0.3.3:
     dependencies:
@@ -23583,7 +23567,7 @@ snapshots:
     dependencies:
       basic-ftp: 5.0.5
       data-uri-to-buffer: 6.0.2
-      debug: 4.3.4
+      debug: 4.4.0
     transitivePeerDependencies:
       - supports-color
 
@@ -23843,28 +23827,28 @@ snapshots:
     dependencies:
       '@tootallnate/once': 2.0.0
       agent-base: 6.0.2
-      debug: 4.3.4
+      debug: 4.4.0
     transitivePeerDependencies:
       - supports-color
 
   http-proxy-agent@7.0.2:
     dependencies:
       agent-base: 7.1.3
-      debug: 4.3.4
+      debug: 4.4.0
     transitivePeerDependencies:
       - supports-color
 
   https-proxy-agent@5.0.1:
     dependencies:
       agent-base: 6.0.2
-      debug: 4.3.4
+      debug: 4.4.0
     transitivePeerDependencies:
       - supports-color
 
   https-proxy-agent@7.0.6:
     dependencies:
       agent-base: 7.1.3
-      debug: 4.3.4
+      debug: 4.4.0
     transitivePeerDependencies:
       - supports-color
 
@@ -24199,7 +24183,7 @@ snapshots:
 
   istanbul-lib-source-maps@4.0.1:
     dependencies:
-      debug: 4.3.4
+      debug: 4.4.0
       istanbul-lib-coverage: 3.2.2
       source-map: 0.6.1
     transitivePeerDependencies:
@@ -24918,8 +24902,8 @@ snapshots:
 
   localtunnel@2.0.2:
     dependencies:
-      axios: 1.7.4(debug@4.3.4)
-      debug: 4.3.4
+      axios: 1.7.4(debug@4.4.0)
+      debug: 4.4.0
       openurl: 1.1.1
       yargs: 17.6.2
     transitivePeerDependencies:
@@ -25406,7 +25390,7 @@ snapshots:
   micromark@4.0.1:
     dependencies:
       '@types/debug': 4.1.12
-      debug: 4.3.4
+      debug: 4.4.0
       decode-named-character-reference: 1.0.2
       devlop: 1.1.0
       micromark-core-commonmark: 2.0.2
@@ -25493,8 +25477,6 @@ snapshots:
   mousetrap@1.6.5: {}
 
   ms@2.0.0: {}
-
-  ms@2.1.2: {}
 
   ms@2.1.3: {}
 
@@ -25796,7 +25778,7 @@ snapshots:
     dependencies:
       '@tootallnate/quickjs-emscripten': 0.23.0
       agent-base: 7.1.3
-      debug: 4.3.4
+      debug: 4.4.0
       get-uri: 6.0.4
       http-proxy-agent: 7.0.2
       https-proxy-agent: 7.0.6
@@ -25928,7 +25910,7 @@ snapshots:
     dependencies:
       '@types/seed-random': 2.2.4
       crc32: 0.2.2
-      debug: 4.3.4
+      debug: 4.4.0
       seed-random: 2.2.0
       tslib: 2.5.0
     transitivePeerDependencies:
@@ -26315,7 +26297,7 @@ snapshots:
   proxy-agent@6.5.0:
     dependencies:
       agent-base: 7.1.3
-      debug: 4.3.4
+      debug: 4.4.0
       http-proxy-agent: 7.0.2
       https-proxy-agent: 7.0.6
       lru-cache: 7.18.3
@@ -27269,7 +27251,7 @@ snapshots:
   simple-peer@9.11.1:
     dependencies:
       buffer: 6.0.3
-      debug: 4.3.4
+      debug: 4.4.0
       err-code: 3.0.1
       get-browser-rtc: 1.1.0
       queue-microtask: 1.2.3
@@ -27318,7 +27300,7 @@ snapshots:
   socks-proxy-agent@8.0.5:
     dependencies:
       agent-base: 7.1.3
-      debug: 4.3.4
+      debug: 4.4.0
       socks: 2.8.3
     transitivePeerDependencies:
       - supports-color
@@ -28312,7 +28294,7 @@ snapshots:
     dependencies:
       chalk: 2.4.2
       commander: 3.0.2
-      debug: 4.3.4
+      debug: 4.4.0
     transitivePeerDependencies:
       - supports-color
 
@@ -28534,7 +28516,7 @@ snapshots:
 
   wpcom-proxy-request@7.0.6:
     dependencies:
-      debug: 4.3.4
+      debug: 4.4.0
       uuid: 9.0.1
       wp-error: 1.3.0
     transitivePeerDependencies:
