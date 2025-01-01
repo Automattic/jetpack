@@ -96,9 +96,9 @@ export default function AiFeedbackThumbs( {
 			tracks.recordEvent( 'jetpack_ai_feedback', {
 				type: feature,
 				rating: aiRating,
-				mediaLibraryId: options.mediaLibraryId || null,
+				media_library_id: options.mediaLibraryId || null,
 				prompt: options.prompt || null,
-				revisedPrompt: options.revisedPrompt || null,
+				revised_prompt: options.revisedPrompt || null,
 				block: options.block || null,
 			} );
 		}
