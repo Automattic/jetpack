@@ -1,0 +1,229 @@
+.seo-assistant-wizard {
+	position: fixed;
+	bottom: 32px;
+	left: 50%;
+	transform: translateX(-50%);
+	width: 90%;
+	max-width: 600px;
+	height: 600px;
+	background: white;
+	border-radius: 16px;
+	box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+	z-index: 1000;
+	display: flex;
+	flex-direction: column;
+
+	&__header {
+		flex: 0 0 auto;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: 16px;
+		border-bottom: 1px solid #e5e7eb;
+		background: white;
+		border-radius: 16px 16px 0 0;
+
+		h2 {
+			margin: 0;
+			font-size: 16px;
+			font-weight: 600;
+		}
+
+		button {
+			background: none;
+			border: none;
+			cursor: pointer;
+			padding: 8px;
+			color: #6b7280;
+
+			&:hover {
+				color: #374151;
+			}
+		}
+	}
+
+	&__content {
+		flex: 1 1 auto;
+		display: flex;
+		flex-direction: column;
+		height: 100%;
+		overflow: hidden;
+	}
+
+	&__messages {
+		flex: 1 1 auto;
+		display: flex;
+		flex-direction: column;
+		gap: 16px;
+		padding: 16px;
+		overflow-y: auto;
+		scroll-behavior: smooth;
+		align-items: flex-start;
+
+		/* Hide scrollbar for Chrome, Safari and Opera */
+		&::-webkit-scrollbar {
+			display: none;
+		}
+
+		/* Hide scrollbar for IE, Edge and Firefox */
+		-ms-overflow-style: none;
+		scrollbar-width: none;
+	}
+
+	&__message {
+		padding: 12px 16px;
+		border-radius: 16px;
+		background: #e0e7ff;
+		white-space: pre-line;
+		animation: messageAppear 0.3s ease-out;
+		font-size: 14px;
+		line-height: 1.5;
+
+		&.is-user {
+			background: #f3f4f6;
+			align-self: flex-end;
+			border-bottom-right-radius: 4px;
+		}
+
+		&:not(.is-user) {
+			border-bottom-left-radius: 4px;
+		}
+	}
+
+	&__input-container {
+		flex: 0 0 auto;
+		padding: 16px;
+		background: white;
+		border-top: 1px solid #e5e7eb;
+		border-radius: 0 0 16px 16px;
+	}
+
+	&__input {
+		display: flex;
+		gap: 8px;
+
+		.components-base-control {
+			flex-grow: 1;
+		}
+		.components-text-control__input {
+			border-radius: 24px;
+			padding: 8px 16px;
+		}
+	}
+
+	&__submit {
+		border-radius: 20px;
+		max-height: 34px;
+	}
+
+	&__options {
+		display: flex;
+		flex-direction: column;
+		gap: 12px;
+	}
+
+	&__option {
+		width: 100%;
+		padding: 16px;
+		background: #f3f4f6;
+		border: 2px solid transparent;
+		border-radius: 12px;
+		cursor: pointer;
+		text-align: left;
+		font-size: 14px;
+		line-height: 1.4;
+		transition: all 0.2s ease;
+		animation: messageAppear 0.3s ease-out;
+
+		&:hover {
+			background: #e5e7eb;
+		}
+
+		&.is-selected {
+			background: #fff;
+			border-color: #4f46e5;
+			box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+		}
+	}
+
+	&__actions {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-top: 16px;
+		padding-top: 16px;
+		border-top: 1px solid #e5e7eb;
+
+		.components-button {
+			height: 40px;
+			padding: 8px 16px;
+			border-radius: 20px;
+			font-size: 14px;
+
+			&.is-secondary {
+				color: #4b5563;
+			}
+
+			&.is-primary {
+				background: #4f46e5;
+
+				&:hover {
+					background: #4338ca;
+				}
+			}
+		}
+	}
+
+	&__completion {
+		display: flex;
+		justify-content: flex-end;
+		padding-top: 16px;
+		border-top: 1px solid #e5e7eb;
+
+		.components-button {
+			height: 40px;
+			padding: 8px 24px;
+			border-radius: 20px;
+			font-size: 14px;
+			background: #4f46e5;
+
+			&:hover {
+				background: #4338ca;
+			}
+		}
+	}
+}
+
+@keyframes messageAppear {
+	from {
+		opacity: 0;
+		transform: translateY(10px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+// Keep this around for magic:
+// @keyframes blink {
+// 	30% { cy: 30; }
+// 	50% { cy: 25; fill: lightgrey }
+// 	70% { cy: 30; }
+// }
+// .dot {
+// 	animation: 1s blink linear infinite;
+// 	fill: grey;
+// }
+// .dot:nth-child(2) { animation-delay: 150ms }
+// .dot:nth-child(3) { animation-delay: 250ms }
+
+// .loader {
+// 	background-color: #f1f1f1;
+// 	color: grey;
+// }
+// <svg height="40" width="40" class="loader">
+//   <circle class="dot" cx="10" cy="30" r="3" style="fill:grey;" />
+//   <circle class="dot" cx="20" cy="30" r="3" style="fill:grey;" />
+//   <circle class="dot" cx="30" cy="30" r="3" style="fill:grey;" />
+// </svg>
