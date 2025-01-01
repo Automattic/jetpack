@@ -947,8 +947,8 @@ importers:
         specifier: 2.1.1
         version: 2.1.1
       prop-types:
-        specifier: 15.7.2
-        version: 15.7.2
+        specifier: 15.8.1
+        version: 15.8.1
     devDependencies:
       '@automattic/jetpack-base-styles':
         specifier: workspace:*
@@ -1008,8 +1008,8 @@ importers:
         specifier: 2.1.1
         version: 2.1.1
       prop-types:
-        specifier: 15.7.2
-        version: 15.7.2
+        specifier: 15.8.1
+        version: 15.8.1
     devDependencies:
       '@automattic/jetpack-analytics':
         specifier: workspace:*
@@ -2769,8 +2769,8 @@ importers:
         specifier: 10.22.1
         version: 10.22.1
       prop-types:
-        specifier: 15.7.2
-        version: 15.7.2
+        specifier: 15.8.1
+        version: 15.8.1
       q-flat:
         specifier: 1.0.7
         version: 1.0.7
@@ -3129,8 +3129,8 @@ importers:
         specifier: 10.22.1
         version: 10.22.1
       prop-types:
-        specifier: 15.7.2
-        version: 15.7.2
+        specifier: 15.8.1
+        version: 15.8.1
       q-flat:
         specifier: 1.0.7
         version: 1.0.7
@@ -3987,8 +3987,8 @@ importers:
         specifier: 12.1.7
         version: 12.1.7(postcss@8.4.47)
       prop-types:
-        specifier: 15.7.2
-        version: 15.7.2
+        specifier: 15.8.1
+        version: 15.8.1
       react-redux:
         specifier: 7.2.8
         version: 7.2.8(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -13000,9 +13000,6 @@ packages:
   prompts@2.4.2:
     resolution: {integrity: sha512-NxNv/kLguCA7p3jE8oL2aEBsrJWgAakBpgmgK6lpPWV+WuOmY6r2/zbAVnP+T8bQlA0nzHXSJSJW0Hq7ylaD2Q==}
     engines: {node: '>= 6'}
-
-  prop-types@15.7.2:
-    resolution: {integrity: sha512-8QQikdH7//R2vurIJSutZ1smHYTcLpRWEOlHnzcWHmBYrOGUysKwSsrC89BCiFj3CbrfJ/nXFdJepOVrY1GCHQ==}
 
   prop-types@15.8.1:
     resolution: {integrity: sha512-oj87CgZICdulUohogVAR7AjlC0327U4el4L6eAvOqCeudMDVU0NThNaV+b9Df4dXgSP1gXMTnPdhfe/2qDH5cg==}
@@ -26279,12 +26276,6 @@ snapshots:
     dependencies:
       kleur: 3.0.3
       sisteransi: 1.0.5
-
-  prop-types@15.7.2:
-    dependencies:
-      loose-envify: 1.4.0
-      object-assign: 4.1.1
-      react-is: 16.13.1
 
   prop-types@15.8.1:
     dependencies:
