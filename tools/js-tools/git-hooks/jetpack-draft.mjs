@@ -1,8 +1,8 @@
 /**
  * Checks if we're in draft mode and sets the draft mode flag
  */
-const fs = require( 'fs' );
-const chalk = require( 'chalk' );
+import fs from 'fs';
+import chalk from 'chalk';
 
 let draftMode = false;
 
@@ -19,7 +19,6 @@ function runCheckDraftMode() {
 		);
 	}
 }
-
 runCheckDraftMode();
 
-module.exports = () => draftMode;
+export default () => draftMode;

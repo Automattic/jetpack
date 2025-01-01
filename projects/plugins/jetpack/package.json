@@ -119,7 +119,7 @@
 		"webpack-cli": "4.9.1"
 	},
 	"devDependencies": {
-		"@automattic/color-studio": "2.6.0",
+		"@automattic/color-studio": "4.0.0",
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@automattic/remove-asset-webpack-plugin": "workspace:*",
@@ -134,8 +134,8 @@
 		"@testing-library/react": "16.0.1",
 		"@testing-library/user-event": "14.5.2",
 		"@types/jest": "29.5.12",
-		"@types/react": "18.3.12",
-		"@types/wordpress__block-editor": "11.5.15",
+		"@types/react": "18.3.18",
+		"@types/wordpress__block-editor": "11.5.16",
 		"@wordpress/api-fetch": "7.14.0",
 		"@wordpress/babel-plugin-import-jsx-pragma": "5.14.0",
 		"@wordpress/blob": "4.14.0",
@@ -148,7 +148,7 @@
 		"@wordpress/keycodes": "4.14.0",
 		"@wordpress/notices": "5.14.0",
 		"@wordpress/token-list": "3.14.0",
-		"autoprefixer": "10.4.14",
+		"autoprefixer": "10.4.20",
 		"babel-jest": "29.4.3",
 		"concurrently": "7.6.0",
 		"eval": "0.1.8",
