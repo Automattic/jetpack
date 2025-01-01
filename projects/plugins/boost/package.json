@@ -6,7 +6,7 @@
 		"test": "tests"
 	},
 	"dependencies": {
-		"@automattic/format-currency": "1.0.1",
+		"@automattic/format-currency": "2.0.0",
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@automattic/jetpack-react-data-sync-client": "workspace:*",
 		"@react-spring/core": "9.7.5",

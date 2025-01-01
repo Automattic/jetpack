@@ -390,8 +390,8 @@ importers:
   projects/js-packages/components:
     dependencies:
       '@automattic/format-currency':
-        specifier: 1.0.1
-        version: 1.0.1
+        specifier: 2.0.0
+        version: 2.0.0
       '@automattic/jetpack-boost-score-api':
         specifier: workspace:*
         version: link:../boost-score-api
@@ -1777,8 +1777,8 @@ importers:
   projects/packages/backup:
     dependencies:
       '@automattic/format-currency':
-        specifier: 1.0.1
-        version: 1.0.1
+        specifier: 2.0.0
+        version: 2.0.0
       '@automattic/jetpack-analytics':
         specifier: workspace:*
         version: link:../../js-packages/analytics
@@ -2512,8 +2512,8 @@ importers:
   projects/packages/my-jetpack:
     dependencies:
       '@automattic/format-currency':
-        specifier: 1.0.1
-        version: 1.0.1
+        specifier: 2.0.0
+        version: 2.0.0
       '@automattic/jetpack-analytics':
         specifier: workspace:*
         version: link:../../js-packages/analytics
@@ -2718,8 +2718,8 @@ importers:
         specifier: 4.0.0
         version: 4.0.0
       '@automattic/format-currency':
-        specifier: 1.0.1
-        version: 1.0.1
+        specifier: 2.0.0
+        version: 2.0.0
       '@automattic/jetpack-analytics':
         specifier: workspace:*
         version: link:../../js-packages/analytics
@@ -3395,8 +3395,8 @@ importers:
   projects/plugins/boost:
     dependencies:
       '@automattic/format-currency':
-        specifier: 1.0.1
-        version: 1.0.1
+        specifier: 2.0.0
+        version: 2.0.0
       '@automattic/jetpack-base-styles':
         specifier: workspace:*
         version: link:../../js-packages/base-styles
@@ -3816,8 +3816,8 @@ importers:
         specifier: 3.1.3
         version: 3.1.3
       '@automattic/format-currency':
-        specifier: 1.0.1
-        version: 1.0.1
+        specifier: 2.0.0
+        version: 2.0.0
       '@automattic/jetpack-ai-client':
         specifier: workspace:*
         version: link:../../js-packages/ai-client
@@ -5008,8 +5008,8 @@ packages:
   '@automattic/explat-client@0.1.0':
     resolution: {integrity: sha512-+yYhjlWUTN/hTvL70ZCsrSn5GBxnEWmUdQU4n1K592JyB+c+nUhvo7rd1rnHa5qDPKX3vQsjYS0SSOKvlo7iww==}
 
-  '@automattic/format-currency@1.0.1':
-    resolution: {integrity: sha512-RY2eiUlDiqNSHiJzz2YmH/mw4IjAUO5hkxbwcVGHJkBZowdq/WcSG2yhXc8N9cV9N1fTO/ryCuJvGnpHUe+mAg==}
+  '@automattic/format-currency@2.0.0':
+    resolution: {integrity: sha512-9A+oKRUm+n4f+cT4FHsDkCpo4mVRa/zBAvsXXq5vZpwfOWskAyDjdxA03Jl8A+z7pHYRimysG4WLM3jMRJutLw==}
 
   '@automattic/i18n-utils@1.2.3':
     resolution: {integrity: sha512-zvZlazUoEasLATrta3ljfxu2uaZWgHRNKWf56KKBlrPiIxNQvx9D7YyN2MhiV27e/PuAhB0gI4ghqp3gzurKmA==}
@@ -15269,7 +15269,7 @@ snapshots:
     dependencies:
       tslib: 2.5.0
 
-  '@automattic/format-currency@1.0.1':
+  '@automattic/format-currency@2.0.0':
     dependencies:
       tslib: 2.5.0
 

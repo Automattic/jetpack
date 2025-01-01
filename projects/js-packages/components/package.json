@@ -14,7 +14,7 @@
 		"url": "https://github.com/Automattic/jetpack/labels/[JS Package] Components"
 	},
 	"dependencies": {
-		"@automattic/format-currency": "1.0.1",
+		"@automattic/format-currency": "2.0.0",
 		"@automattic/jetpack-boost-score-api": "workspace:*",
 		"@automattic/jetpack-scan": "workspace:*",
 		"@babel/runtime": "^7",
