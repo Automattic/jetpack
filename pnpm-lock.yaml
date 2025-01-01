@@ -460,8 +460,8 @@ importers:
         specifier: 7.26.0
         version: 7.26.0
       '@babel/preset-react':
-        specifier: 7.25.9
-        version: 7.25.9(@babel/core@7.26.0)
+        specifier: 7.26.3
+        version: 7.26.3(@babel/core@7.26.0)
       '@jest/globals':
         specifier: 29.4.3
         version: 29.4.3
@@ -596,8 +596,8 @@ importers:
         specifier: 7.26.0
         version: 7.26.0
       '@babel/preset-react':
-        specifier: 7.25.9
-        version: 7.25.9(@babel/core@7.26.0)
+        specifier: 7.26.3
+        version: 7.26.3(@babel/core@7.26.0)
       '@storybook/addon-actions':
         specifier: 8.3.5
         version: 8.3.5(storybook@8.3.5)
@@ -833,8 +833,8 @@ importers:
         specifier: 7.26.0
         version: 7.26.0
       '@babel/preset-react':
-        specifier: 7.25.9
-        version: 7.25.9(@babel/core@7.26.0)
+        specifier: 7.26.3
+        version: 7.26.3(@babel/core@7.26.0)
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -851,8 +851,8 @@ importers:
         specifier: 7.26.0
         version: 7.26.0(@babel/core@7.26.0)
       '@babel/preset-react':
-        specifier: 7.25.9
-        version: 7.25.9(@babel/core@7.26.0)
+        specifier: 7.26.3
+        version: 7.26.3(@babel/core@7.26.0)
       '@babel/preset-typescript':
         specifier: 7.26.0
         version: 7.26.0(@babel/core@7.26.0)
@@ -963,8 +963,8 @@ importers:
         specifier: 7.25.9
         version: 7.25.9(@babel/core@7.26.0)
       '@babel/preset-react':
-        specifier: 7.25.9
-        version: 7.25.9(@babel/core@7.26.0)
+        specifier: 7.26.3
+        version: 7.26.3(@babel/core@7.26.0)
       '@testing-library/dom':
         specifier: 10.4.0
         version: 10.4.0
@@ -1021,8 +1021,8 @@ importers:
         specifier: 7.26.0
         version: 7.26.0
       '@babel/preset-react':
-        specifier: 7.25.9
-        version: 7.25.9(@babel/core@7.26.0)
+        specifier: 7.26.3
+        version: 7.26.3(@babel/core@7.26.0)
       '@testing-library/dom':
         specifier: 10.4.0
         version: 10.4.0
@@ -1163,8 +1163,8 @@ importers:
         specifier: 7.25.9
         version: 7.25.9(@babel/core@7.26.0)
       '@babel/preset-react':
-        specifier: 7.25.9
-        version: 7.25.9(@babel/core@7.26.0)
+        specifier: 7.26.3
+        version: 7.26.3(@babel/core@7.26.0)
       '@babel/runtime':
         specifier: 7.26.0
         version: 7.26.0
@@ -1363,8 +1363,8 @@ importers:
         specifier: 7.25.9
         version: 7.25.9(@babel/core@7.26.0)
       '@babel/preset-react':
-        specifier: 7.25.9
-        version: 7.25.9(@babel/core@7.26.0)
+        specifier: 7.26.3
+        version: 7.26.3(@babel/core@7.26.0)
       '@testing-library/dom':
         specifier: 10.4.0
         version: 10.4.0
@@ -1458,8 +1458,8 @@ importers:
         specifier: 7.25.9
         version: 7.25.9(@babel/core@7.26.0)
       '@babel/preset-react':
-        specifier: 7.25.9
-        version: 7.25.9(@babel/core@7.26.0)
+        specifier: 7.26.3
+        version: 7.26.3(@babel/core@7.26.0)
       '@babel/runtime':
         specifier: 7.26.0
         version: 7.26.0
@@ -1629,8 +1629,8 @@ importers:
         specifier: 7.26.0
         version: 7.26.0
       '@babel/preset-react':
-        specifier: 7.25.9
-        version: 7.25.9(@babel/core@7.26.0)
+        specifier: 7.26.3
+        version: 7.26.3(@babel/core@7.26.0)
       '@types/jest':
         specifier: 29.5.12
         version: 29.5.12
@@ -1668,8 +1668,8 @@ importers:
         specifier: 6.0.0
         version: 6.0.0(webpack@5.94.0)
       '@babel/compat-data':
-        specifier: 7.26.2
-        version: 7.26.2
+        specifier: 7.26.3
+        version: 7.26.3
       '@babel/helper-compilation-targets':
         specifier: 7.25.9
         version: 7.25.9
@@ -1680,8 +1680,8 @@ importers:
         specifier: 7.26.0
         version: 7.26.0(@babel/core@7.26.0)
       '@babel/preset-react':
-        specifier: 7.25.9
-        version: 7.25.9(@babel/core@7.26.0)
+        specifier: 7.26.3
+        version: 7.26.3(@babel/core@7.26.0)
       '@babel/preset-typescript':
         specifier: 7.26.0
         version: 7.26.0(@babel/core@7.26.0)
@@ -2400,8 +2400,8 @@ importers:
         specifier: 7.25.9
         version: 7.25.9(@babel/core@7.26.0)
       '@babel/preset-react':
-        specifier: 7.25.9
-        version: 7.25.9(@babel/core@7.26.0)
+        specifier: 7.26.3
+        version: 7.26.3(@babel/core@7.26.0)
       '@playwright/test':
         specifier: 1.48.2
         version: 1.48.2
@@ -2812,8 +2812,8 @@ importers:
         specifier: 7.26.0
         version: 7.26.0(@babel/core@7.26.0)
       '@babel/preset-react':
-        specifier: 7.25.9
-        version: 7.25.9(@babel/core@7.26.0)
+        specifier: 7.26.3
+        version: 7.26.3(@babel/core@7.26.0)
       '@babel/preset-typescript':
         specifier: 7.26.0
         version: 7.26.0(@babel/core@7.26.0)
@@ -2991,8 +2991,8 @@ importers:
         specifier: 7.26.0
         version: 7.26.0
       '@babel/preset-react':
-        specifier: 7.25.9
-        version: 7.25.9(@babel/core@7.26.0)
+        specifier: 7.26.3
+        version: 7.26.3(@babel/core@7.26.0)
       '@csstools/postcss-global-data':
         specifier: 2.1.1
         version: 2.1.1(postcss@8.4.47)
@@ -3172,8 +3172,8 @@ importers:
         specifier: 7.26.0
         version: 7.26.0(@babel/core@7.26.0)
       '@babel/preset-react':
-        specifier: 7.25.9
-        version: 7.25.9(@babel/core@7.26.0)
+        specifier: 7.26.3
+        version: 7.26.3(@babel/core@7.26.0)
       '@babel/preset-typescript':
         specifier: 7.26.0
         version: 7.26.0(@babel/core@7.26.0)
@@ -3468,8 +3468,8 @@ importers:
         specifier: 7.26.0
         version: 7.26.0(@babel/core@7.26.0)
       '@babel/preset-react':
-        specifier: 7.25.9
-        version: 7.25.9(@babel/core@7.26.0)
+        specifier: 7.26.3
+        version: 7.26.3(@babel/core@7.26.0)
       '@storybook/react':
         specifier: 8.3.5
         version: 8.3.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@8.3.5)(typescript@5.0.4)
@@ -4804,8 +4804,8 @@ importers:
         specifier: 7.25.9
         version: 7.25.9(@babel/core@7.26.0)(eslint@9.16.0)
       '@babel/preset-react':
-        specifier: 7.25.9
-        version: 7.25.9(@babel/core@7.26.0)
+        specifier: 7.26.3
+        version: 7.26.3(@babel/core@7.26.0)
       '@babel/preset-typescript':
         specifier: 7.26.0
         version: 7.26.0(@babel/core@7.26.0)
@@ -5052,8 +5052,8 @@ packages:
     resolution: {integrity: sha512-RJlIHRueQgwWitWgF8OdFYGZX328Ax5BCemNGlqHfplnRT9ESi8JkFlvaVYbS+UubVY6dpv87Fs2u5M29iNFVQ==}
     engines: {node: '>=6.9.0'}
 
-  '@babel/compat-data@7.26.2':
-    resolution: {integrity: sha512-Z0WgzSEa+aUcdiJuCIqgujCshpMWgUpgOxXotrYPSA53hA3qopNaqcJpyr0hVb1FeWdnqFA35/fUtXgBK8srQg==}
+  '@babel/compat-data@7.26.3':
+    resolution: {integrity: sha512-nHIxvKPniQXpmQLb0vhY3VaFb3S0YrTAwpOWJZh1wn3oJPjJk9Asva204PsBdmAE8vpzfHudT8DB0scYvy9q0g==}
     engines: {node: '>=6.9.0'}
 
   '@babel/core@7.26.0':
@@ -5651,8 +5651,8 @@ packages:
     peerDependencies:
       '@babel/core': ^7.0.0-0 || ^8.0.0-0 <8.0.0
 
-  '@babel/preset-react@7.25.9':
-    resolution: {integrity: sha512-D3to0uSPiWE7rBrdIICCd0tJSIGpLaaGptna2+w7Pft5xMqLpA1sz99DK5TZ1TjGbdQ/VI1eCSZ06dv3lT4JOw==}
+  '@babel/preset-react@7.26.3':
+    resolution: {integrity: sha512-Nl03d6T9ky516DGK2YMxrTqvnpUW63TnJMOMonj+Zae0JiPC5BC9xPMSL6L8fiSpA5vP88qfygavVQvnLp+6Cw==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
       '@babel/core': ^7.0.0-0
@@ -15351,7 +15351,7 @@ snapshots:
       js-tokens: 4.0.0
       picocolors: 1.1.1
 
-  '@babel/compat-data@7.26.2': {}
+  '@babel/compat-data@7.26.3': {}
 
   '@babel/core@7.26.0':
     dependencies:
@@ -15395,7 +15395,7 @@ snapshots:
 
   '@babel/helper-compilation-targets@7.25.9':
     dependencies:
-      '@babel/compat-data': 7.26.2
+      '@babel/compat-data': 7.26.3
       '@babel/helper-validator-option': 7.25.9
       browserslist: 4.24.2
       lru-cache: 5.1.1
@@ -16022,7 +16022,7 @@ snapshots:
 
   '@babel/preset-env@7.26.0(@babel/core@7.26.0)':
     dependencies:
-      '@babel/compat-data': 7.26.2
+      '@babel/compat-data': 7.26.3
       '@babel/core': 7.26.0
       '@babel/helper-compilation-targets': 7.25.9
       '@babel/helper-plugin-utils': 7.25.9
@@ -16102,7 +16102,7 @@ snapshots:
       '@babel/types': 7.26.3
       esutils: 2.0.3
 
-  '@babel/preset-react@7.25.9(@babel/core@7.26.0)':
+  '@babel/preset-react@7.26.3(@babel/core@7.26.0)':
     dependencies:
       '@babel/core': 7.26.0
       '@babel/helper-plugin-utils': 7.25.9
@@ -18409,7 +18409,7 @@ snapshots:
       '@babel/core': 7.26.0
       '@babel/plugin-transform-react-constant-elements': 7.25.9(@babel/core@7.26.0)
       '@babel/preset-env': 7.26.0(@babel/core@7.26.0)
-      '@babel/preset-react': 7.25.9(@babel/core@7.26.0)
+      '@babel/preset-react': 7.26.3(@babel/core@7.26.0)
       '@babel/preset-typescript': 7.26.0(@babel/core@7.26.0)
       '@svgr/core': 7.0.0(typescript@5.0.4)
       '@svgr/plugin-jsx': 7.0.0
@@ -21745,7 +21745,7 @@ snapshots:
 
   babel-plugin-polyfill-corejs2@0.4.12(@babel/core@7.26.0):
     dependencies:
-      '@babel/compat-data': 7.26.2
+      '@babel/compat-data': 7.26.3
       '@babel/core': 7.26.0
       '@babel/helper-define-polyfill-provider': 0.6.3(@babel/core@7.26.0)
       semver: 6.3.1

@@ -68,7 +68,7 @@
 		"@babel/core": "7.26.0",
 		"@babel/plugin-transform-react-jsx": "7.25.9",
 		"@babel/preset-env": "7.26.0",
-		"@babel/preset-react": "7.25.9",
+		"@babel/preset-react": "7.26.3",
 		"@babel/preset-typescript": "7.26.0",
 		"@babel/runtime": "7.26.0",
 		"@csstools/postcss-global-data": "2.1.1",
