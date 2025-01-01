@@ -22,6 +22,7 @@
 		"@playwright/test": "1.48.2",
 		"@slack/web-api": "7.3.2",
 		"@types/lodash-es": "4.17.12",
+		"allure-js-commons": "3.0.7",
 		"allure-playwright": "3.0.7",
 		"axios": "1.7.4",
 		"chalk": "5.4.1",

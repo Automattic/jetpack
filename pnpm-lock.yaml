@@ -4758,6 +4758,9 @@ importers:
       '@types/lodash-es':
         specifier: 4.17.12
         version: 4.17.12
+      allure-js-commons:
+        specifier: 3.0.7
+        version: 3.0.7(allure-playwright@3.0.7(@playwright/test@1.48.2))
       allure-playwright:
         specifier: 3.0.7
         version: 3.0.7(@playwright/test@1.48.2)

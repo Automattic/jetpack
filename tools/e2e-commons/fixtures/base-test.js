@@ -1,5 +1,5 @@
 import { test as baseTest } from '@playwright/test';
-import { allure } from 'allure-playwright';
+import * as allure from 'allure-js-commons';
 import config from 'config';
 import { execWpCommand } from '../helpers/utils-helper.js';
 import logger from '../logger.js';
