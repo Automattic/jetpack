@@ -46,7 +46,7 @@
 		"@wordpress/element": "6.14.0",
 		"@wordpress/format-library": "5.14.0",
 		"@wordpress/postcss-plugins-preset": "5.14.0",
-		"allure-playwright": "2.9.2",
+		"allure-playwright": "3.0.7",
 		"babel-loader": "9.1.2",
 		"babel-plugin-inline-json-import": "0.3.2",
 		"css-loader": "6.5.1",

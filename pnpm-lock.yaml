@@ -1527,8 +1527,8 @@ importers:
         specifier: 5.14.0
         version: 5.14.0(postcss@8.4.47)
       allure-playwright:
-        specifier: 2.9.2
-        version: 2.9.2
+        specifier: 3.0.7
+        version: 3.0.7(@playwright/test@1.48.2)
       babel-loader:
         specifier: 9.1.2
         version: 9.1.2(@babel/core@7.26.0)(webpack@5.94.0)
@@ -3383,8 +3383,8 @@ importers:
         specifier: 1.48.2
         version: 1.48.2
       allure-playwright:
-        specifier: 2.9.2
-        version: 2.9.2
+        specifier: 3.0.7
+        version: 3.0.7(@playwright/test@1.48.2)
       config:
         specifier: 3.3.12
         version: 3.3.12
@@ -3540,8 +3540,8 @@ importers:
         specifier: 1.48.2
         version: 1.48.2
       allure-playwright:
-        specifier: 2.9.2
-        version: 2.9.2
+        specifier: 3.0.7
+        version: 3.0.7(@playwright/test@1.48.2)
       config:
         specifier: 3.3.12
         version: 3.3.12
@@ -3631,8 +3631,8 @@ importers:
         specifier: 1.48.2
         version: 1.48.2
       allure-playwright:
-        specifier: 2.9.2
-        version: 2.9.2
+        specifier: 3.0.7
+        version: 3.0.7(@playwright/test@1.48.2)
       config:
         specifier: 3.3.12
         version: 3.3.12
@@ -4175,8 +4175,8 @@ importers:
         specifier: 1.48.2
         version: 1.48.2
       allure-playwright:
-        specifier: 2.9.2
-        version: 2.9.2
+        specifier: 3.0.7
+        version: 3.0.7(@playwright/test@1.48.2)
       config:
         specifier: 3.3.12
         version: 3.3.12
@@ -4300,8 +4300,8 @@ importers:
         specifier: 1.48.2
         version: 1.48.2
       allure-playwright:
-        specifier: 2.9.2
-        version: 2.9.2
+        specifier: 3.0.7
+        version: 3.0.7(@playwright/test@1.48.2)
       config:
         specifier: 3.3.12
         version: 3.3.12
@@ -4439,8 +4439,8 @@ importers:
         specifier: 1.48.2
         version: 1.48.2
       allure-playwright:
-        specifier: 2.9.2
-        version: 2.9.2
+        specifier: 3.0.7
+        version: 3.0.7(@playwright/test@1.48.2)
       config:
         specifier: 3.3.12
         version: 3.3.12
@@ -4530,8 +4530,8 @@ importers:
         specifier: 1.48.2
         version: 1.48.2
       allure-playwright:
-        specifier: 2.9.2
-        version: 2.9.2
+        specifier: 3.0.7
+        version: 3.0.7(@playwright/test@1.48.2)
       config:
         specifier: 3.3.12
         version: 3.3.12
@@ -4635,8 +4635,8 @@ importers:
         specifier: 1.48.2
         version: 1.48.2
       allure-playwright:
-        specifier: 2.9.2
-        version: 2.9.2
+        specifier: 3.0.7
+        version: 3.0.7(@playwright/test@1.48.2)
       config:
         specifier: 3.3.12
         version: 3.3.12
@@ -4759,8 +4759,8 @@ importers:
         specifier: 4.17.12
         version: 4.17.12
       allure-playwright:
-        specifier: 2.9.2
-        version: 2.9.2
+        specifier: 3.0.7
+        version: 3.0.7(@playwright/test@1.48.2)
       axios:
         specifier: 1.7.4
         version: 1.7.4
@@ -8729,11 +8729,18 @@ packages:
   ajv@8.17.1:
     resolution: {integrity: sha512-B/gBuNg5SiMTrPkC+A2+cW0RszwxYmn6VYxB/inlBStS5nx6xHIt/ehKRhIMhqusl7a8LjQoZnjCs5vhwxOQ1g==}
 
-  allure-js-commons@2.9.2:
-    resolution: {integrity: sha512-Qvi+zMZQruklqcnqG/zHCnE209v1YiWGhO3H2aPW2aXC8Ockqd01a+w2lP4Qqp3SfC+WQDeAK2+pp+v+eNl8xQ==}
+  allure-js-commons@3.0.7:
+    resolution: {integrity: sha512-keHlPAtmzdtEK8FT5W0mOMYh9ZrdlhbrDyaaAKMNHipF/EsFak18XdbLiAKhnHbHiicE+n3BrmBU4rfQEoFHzA==}
+    peerDependencies:
+      allure-playwright: 3.0.7
+    peerDependenciesMeta:
+      allure-playwright:
+        optional: true
 
-  allure-playwright@2.9.2:
-    resolution: {integrity: sha512-N0X1c1GGLg74vdDAuq86KCekuvQ5BaqqpgcBpJj5x3y/RlQPBn84wlg8PT/ViKQM4EdbNFMXOXpa5Opufv6qCg==}
+  allure-playwright@3.0.7:
+    resolution: {integrity: sha512-kFiPBCeAGOMcJmbFOw1ANjcfH+NuXMm5NIx8QEqb1XTqzMBTOA6xeci7DVgPlrKqJtgYm3AQ4YdxzBnJZzGrog==}
+    peerDependencies:
+      '@playwright/test': '>=1.36.0'
 
   ansi-colors@4.1.3:
     resolution: {integrity: sha512-/6w/C21Pm1A7aZitlI5Ni/2J6FFQN8i1Cvz3kHABAAbw93v/NlvKdVOqz7CCWz/3iv/JplRSEEZ83XION15ovw==}
@@ -9220,6 +9227,9 @@ packages:
   character-entities@2.0.2:
     resolution: {integrity: sha512-shx7oQ0Awen/BRIdkjkvz54PnEEI/EjwXDSIZp86/KKdbafHh1Df/RYGBhn4hbe2+uKC9FnT5UCEdyPz3ai9hQ==}
 
+  charenc@0.0.2:
+    resolution: {integrity: sha512-yrLQ/yVUFXkzg7EDQsPieE/53+0RlaWTs+wBrvW36cyilJ2SaDWfl4Yj7MtLTXleV9uEKefbAGUPv2/iWSooRA==}
+
   chart.js@3.7.1:
     resolution: {integrity: sha512-8knRegQLFnPQAheZV8MjxIXc5gQEfDFD897BJgv/klO/vtIyFFmgMXrNfgrXpbTr/XbTturxRgxIXx/Y+ASJBA==}
 
@@ -9506,6 +9516,9 @@ packages:
   cross-spawn@7.0.6:
     resolution: {integrity: sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA==}
     engines: {node: '>= 8'}
+
+  crypt@0.0.2:
+    resolution: {integrity: sha512-mCxBlsHFYh9C+HVpiEacem8FEBnMXgU9gy4zmNC+SXAZNB/1idgp/aulFJ4FgCi7GPEVbfyng092GqL2k2rmow==}
 
   crypto-js@4.2.0:
     resolution: {integrity: sha512-KALDyEYgpY+Rlob/iriUtjV6d5Eq+Y191A5g4UqLAi8CyGP9N1+FdVbkc1SxKc2r4YAYqG8JzO2KGL+AizD70Q==}
@@ -11142,6 +11155,9 @@ packages:
     resolution: {integrity: sha512-kR5g0+dXf/+kXnqI+lu0URKYPKgICtHGGNCDSB10AaUFj3o/HkB3u7WfpRBJGFopxxY0oH3ux7ZsDjLtK7xqvw==}
     engines: {node: '>= 0.4'}
 
+  is-buffer@1.1.6:
+    resolution: {integrity: sha512-NcdALwpXkTm5Zvvbk7owOUSvVvBKDgKP5/ewfXEznmQFfs4ZRmanOeKBTjRVjka3QFoN6XJ+9F3USqfHqTaU5w==}
+
   is-buffer@2.0.5:
     resolution: {integrity: sha512-i2R6zNFDwgEHJyQUtJEk0XFi1i0dPFn/oqjK3/vPCcDeJvW5NQ83V8QbicfF1SupOaB0h8ntgBC2YiE7dfyctQ==}
     engines: {node: '>=4'}
@@ -11949,6 +11965,9 @@ packages:
 
   md5-es@1.8.2:
     resolution: {integrity: sha512-LKq5jmKMhJYhsBFUh2w+J3C4bMiC5uQie/UYJ429UATmMnFr6iANO2uQq5HXAZSIupGp0WO2mH3sNfxR4XO40Q==}
+
+  md5@2.3.0:
+    resolution: {integrity: sha512-T1GITYmFaKuO91vxyoQMFETst+O71VUPEU3ze5GNzDm0OWdP8v1ziTaAEPUr/3kLsY3Sftgz242A1SetQiDL7g==}
 
   mdast-util-find-and-replace@3.0.1:
     resolution: {integrity: sha512-SG21kZHGC3XRTSUhtofZkBzZTJNM5ecCi0SK2IMKmSXR8vO3peL+kb1O0z7Zl83jKtutG4k5Wv/W7V3/YHvzPA==}
@@ -12993,10 +13012,6 @@ packages:
 
   proper-lockfile@4.1.2:
     resolution: {integrity: sha512-TjNPblN4BwAWMXU8s9AEz4JmQxnD1NNL7bNOY/AKUzyamc379FWASUhc/K1pL2noVb+XmZKLL68cjzLsiOAMaA==}
-
-  properties@1.2.1:
-    resolution: {integrity: sha512-qYNxyMj1JeW54i/EWEFsM1cVwxJbtgPp8+0Wg9XjNaK6VE/c4oRi6PNu5p7w1mNXEIQIjV5Wwn8v8Gz82/QzdQ==}
-    engines: {node: '>=0.10'}
 
   protocol-buffers-schema@3.6.0:
     resolution: {integrity: sha512-TdDRD+/QNdrCGCE7v8340QyuXd4kIWIgapsE2+n/SaGiSSbomYl4TjHlvIoCWRpE7wFt02EpB35VVA2ImcBVqw==}
@@ -21087,13 +21102,16 @@ snapshots:
       json-schema-traverse: 1.0.0
       require-from-string: 2.0.2
 
-  allure-js-commons@2.9.2:
+  allure-js-commons@3.0.7(allure-playwright@3.0.7(@playwright/test@1.48.2)):
     dependencies:
-      properties: 1.2.1
+      md5: 2.3.0
+    optionalDependencies:
+      allure-playwright: 3.0.7(@playwright/test@1.48.2)
 
-  allure-playwright@2.9.2:
+  allure-playwright@3.0.7(@playwright/test@1.48.2):
     dependencies:
-      allure-js-commons: 2.9.2
+      '@playwright/test': 1.48.2
+      allure-js-commons: 3.0.7(allure-playwright@3.0.7(@playwright/test@1.48.2))
 
   ansi-colors@4.1.3: {}
 
@@ -21664,6 +21682,8 @@ snapshots:
 
   character-entities@2.0.2: {}
 
+  charenc@0.0.2: {}
+
   chart.js@3.7.1: {}
 
   cheerio-select@1.6.0:
@@ -22036,6 +22056,8 @@ snapshots:
       path-key: 3.1.1
       shebang-command: 2.0.0
       which: 2.0.2
+
+  crypt@0.0.2: {}
 
   crypto-js@4.2.0: {}
 
@@ -23960,6 +23982,8 @@ snapshots:
       call-bind: 1.0.8
       has-tostringtag: 1.0.2
 
+  is-buffer@1.1.6: {}
+
   is-buffer@2.0.5: {}
 
   is-bun-module@1.3.0:
@@ -25072,6 +25096,12 @@ snapshots:
   math-expression-evaluator@1.4.0: {}
 
   md5-es@1.8.2: {}
+
+  md5@2.3.0:
+    dependencies:
+      charenc: 0.0.2
+      crypt: 0.0.2
+      is-buffer: 1.1.6
 
   mdast-util-find-and-replace@3.0.1:
     dependencies:
@@ -26263,8 +26293,6 @@ snapshots:
       graceful-fs: 4.2.11
       retry: 0.12.0
       signal-exit: 3.0.7
-
-  properties@1.2.1: {}
 
   protocol-buffers-schema@3.6.0: {}
 
