@@ -3386,8 +3386,8 @@ importers:
         specifier: 2.9.2
         version: 2.9.2
       config:
-        specifier: 3.3.7
-        version: 3.3.7
+        specifier: 3.3.12
+        version: 3.3.12
       jetpack-e2e-commons:
         specifier: workspace:*
         version: link:../../../../../tools/e2e-commons
@@ -3543,8 +3543,8 @@ importers:
         specifier: 2.9.2
         version: 2.9.2
       config:
-        specifier: 3.3.7
-        version: 3.3.7
+        specifier: 3.3.12
+        version: 3.3.12
       jetpack-e2e-commons:
         specifier: workspace:*
         version: link:../../../../../tools/e2e-commons
@@ -3634,8 +3634,8 @@ importers:
         specifier: 2.9.2
         version: 2.9.2
       config:
-        specifier: 3.3.7
-        version: 3.3.7
+        specifier: 3.3.12
+        version: 3.3.12
       jetpack-e2e-commons:
         specifier: workspace:*
         version: link:../../../../../tools/e2e-commons
@@ -4178,8 +4178,8 @@ importers:
         specifier: 2.9.2
         version: 2.9.2
       config:
-        specifier: 3.3.7
-        version: 3.3.7
+        specifier: 3.3.12
+        version: 3.3.12
       jetpack-e2e-commons:
         specifier: workspace:*
         version: link:../../../../../tools/e2e-commons
@@ -4303,8 +4303,8 @@ importers:
         specifier: 2.9.2
         version: 2.9.2
       config:
-        specifier: 3.3.7
-        version: 3.3.7
+        specifier: 3.3.12
+        version: 3.3.12
       jetpack-e2e-commons:
         specifier: workspace:*
         version: link:../../../../../tools/e2e-commons
@@ -4442,8 +4442,8 @@ importers:
         specifier: 2.9.2
         version: 2.9.2
       config:
-        specifier: 3.3.7
-        version: 3.3.7
+        specifier: 3.3.12
+        version: 3.3.12
       jetpack-e2e-commons:
         specifier: workspace:*
         version: link:../../../../../tools/e2e-commons
@@ -4533,8 +4533,8 @@ importers:
         specifier: 2.9.2
         version: 2.9.2
       config:
-        specifier: 3.3.7
-        version: 3.3.7
+        specifier: 3.3.12
+        version: 3.3.12
       jetpack-e2e-commons:
         specifier: workspace:*
         version: link:../../../../../tools/e2e-commons
@@ -4638,8 +4638,8 @@ importers:
         specifier: 2.9.2
         version: 2.9.2
       config:
-        specifier: 3.3.7
-        version: 3.3.7
+        specifier: 3.3.12
+        version: 3.3.12
       jetpack-e2e-commons:
         specifier: workspace:*
         version: link:../../../../../tools/e2e-commons
@@ -4768,8 +4768,8 @@ importers:
         specifier: 5.4.1
         version: 5.4.1
       config:
-        specifier: 3.3.7
-        version: 3.3.7
+        specifier: 3.3.12
+        version: 3.3.12
       localtunnel:
         specifier: 2.0.2
         version: 2.0.2
@@ -9425,8 +9425,8 @@ packages:
     engines: {node: ^12.20.0 || ^14.13.0 || >=16.0.0}
     hasBin: true
 
-  config@3.3.7:
-    resolution: {integrity: sha512-mX/n7GKDYZMqvvkY6e6oBY49W8wxdmQt+ho/5lhwFDXqQW9gI+Ahp8EKp8VAbISPnmf2+Bv5uZK7lKXZ6pf1aA==}
+  config@3.3.12:
+    resolution: {integrity: sha512-Vmx389R/QVM3foxqBzXO8t2tUikYZP64Q6vQxGrsMpREeJc/aWRnPRERXWsYzOHAumx/AOoILWe6nU3ZJL+6Sw==}
     engines: {node: '>= 10.0.0'}
 
   configstore@5.0.1:
@@ -21927,7 +21927,7 @@ snapshots:
       tree-kill: 1.2.2
       yargs: 17.6.2
 
-  config@3.3.7:
+  config@3.3.12:
     dependencies:
       json5: 2.2.3
 
