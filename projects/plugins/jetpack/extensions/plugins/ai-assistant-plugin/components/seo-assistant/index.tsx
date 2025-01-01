@@ -233,12 +233,12 @@ export default function SeoAssistant( { busy, disabled, onStep }: SeoAssistantPr
 			messages: [
 				__( "Here's your updated checklist:", 'jetpack' ),
 				createInterpolateElement(
-					__( '✅ Keywords<br>✅ Title<br>✅ Meta description', 'jetpack' ),
+					__( '✅ Keywords<br/>✅ Title<br/>✅ Meta description', 'jetpack' ),
 					{ br: <br /> }
 				),
 				createInterpolateElement(
 					__(
-						'SEO optimization complete! 🎉<br>Your blog post is now search-engine friendly.<br>nHappy blogging! 😊',
+						'SEO optimization complete! 🎉<br/>Your blog post is now search-engine friendly.<br/>Happy blogging! 😊',
 						'jetpack'
 					),
 					{ br: <br /> }
