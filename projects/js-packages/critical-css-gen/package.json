@@ -59,7 +59,7 @@
 	},
 	"dependencies": {
 		"clean-css": "^5.3.1",
-		"css-tree": "^2.3.1"
+		"css-tree": "^3.0.0"
 	},
 	"peerDependencies": {
 		"playwright-core": "^1.45.1"
