@@ -74,6 +74,9 @@ export function createProgram( process = global.process ) {
 		.version( APP_VERSION )
 		.action( main.bind( program, process ) );
 
+	// At some point we should document the optional extra args with `program.argument()`.
+	program.allowExcessArguments();
+
 	return program;
 }
 
