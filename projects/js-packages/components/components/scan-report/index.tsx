@@ -97,7 +97,7 @@ export default function ScanReport( { dataSource, data, onChangeSelection } ): J
 				},
 				render( { item }: { item: ScanReportExtension } ) {
 					const scanApi = 'scan_api' === dataSource;
-					let variant: 'info' | 'warning' | 'success' = 'info';
+					let variant: 'info' | 'error' | 'success' = 'info';
 					let text = __(
 						'This item was added to your site after the most recent scan. We will check for threats during the next scheduled one.',
 						'jetpack-components'
@@ -105,7 +105,7 @@ export default function ScanReport( { dataSource, data, onChangeSelection } ): J
 
 					if ( item.checked ) {
 						if ( item.threats.length > 0 ) {
-							variant = 'warning';
+							variant = 'error';
 							text = _n(
 								'Vulnerability detected.',
 								'Vulnerabilities detected.',
