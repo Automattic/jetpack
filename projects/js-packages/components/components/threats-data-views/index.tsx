@@ -14,7 +14,6 @@ import { dateI18n } from '@wordpress/date';
 import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
 import { useCallback, useMemo, useState } from 'react';
-import { Button } from '@automattic/jetpack-components';
 import Badge from '../badge';
 import ThreatFixerButton from '../threat-fixer-button';
 import ThreatSeverityBadge from '../threat-severity-badge';
@@ -47,7 +46,6 @@ import ThreatsStatusToggleGroupControl from './threats-status-toggle-group-contr
  * @param {object}   props                             - Component props.
  * @param {Array}    props.data                        - Threats data.
  * @param {Array}    props.filters                     - Initial DataView filters.
- * @param {Function} props.onChangeSelection           - Callback function run when an item is selected.
  * @param {boolean}  props.isSupportedEnvironment      - Whether the environment is supported.
  * @param {Function} props.handleUpgradeClick          - Callback function run when the upgrade button is clicked.
  * @param {Function} props.onFixThreats                - Threat fix action callback.
@@ -70,7 +68,6 @@ import ThreatsStatusToggleGroupControl from './threats-status-toggle-group-contr
 export default function ThreatsDataViews( {
 	data,
 	filters,
-	onChangeSelection,
 	isSupportedEnvironment,
 	handleUpgradeClick,
 	onFixThreats,
@@ -91,7 +88,6 @@ export default function ThreatsDataViews( {
 }: {
 	data: Threat[];
 	filters?: Filter[];
-	onChangeSelection?: ( selectedItemIds: string[] ) => void;
 	isSupportedEnvironment: boolean;
 	handleUpgradeClick?: () => void;
 	onFixThreats?: ( threats: Threat[] ) => void;
@@ -160,13 +156,13 @@ export default function ThreatsDataViews( {
 		...defaultLayouts.table,
 	} );
 
-	const [ openThreat, setOpenThreat ] = useState< Threat | null >( null );
+	const [ selectedThreat, setSelectedThreat ] = useState< Threat | null >( null );
 	const [ actionToConfirm, setActionToConfirm ] = useState< string >( 'all' );
 
 	const showThreatModal = useCallback(
 		( threat: Threat, action: string ) => () => {
 			onModalOpen?.();
-			setOpenThreat( threat );
+			setSelectedThreat( threat );
 			setActionToConfirm( action );
 		},
 		[ onModalOpen ]
@@ -174,7 +170,7 @@ export default function ThreatsDataViews( {
 
 	const hideThreatModal = useCallback( () => {
 		onModalClose?.();
-		setOpenThreat( null );
+		setSelectedThreat( null );
 		setActionToConfirm( 'all' );
 	}, [ onModalClose ] );
 
@@ -260,17 +256,7 @@ export default function ThreatsDataViews( {
 				enableGlobalSearch: true,
 				enableHiding: false,
 				render: ( { item }: { item: Threat } ) => (
-					<div className={ styles.threat__title }>
-						<Button
-							className={ styles.threat__title__link }
-							variant="link"
-							size="small"
-							weight="regular"
-							onClick={ showThreatModal( item, 'all' ) }
-						>
-							{ item.title }
-						</Button>
-					</div>
+					<div className={ styles.threat__title }>{ item.title }</div>
 				),
 			},
 			{
@@ -540,11 +526,35 @@ export default function ThreatsDataViews( {
 	}, [] );
 
 	/**
-	 * DataView getItemId function - returns the unique ID for each record in the dataset.
+	 * DataViews getItemId function - returns the unique ID for each record in the dataset.
 	 *
 	 * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-dataviews/#getitemid-function
 	 */
 	const getItemId = useCallback( ( item: Threat ) => item.id.toString(), [] );
+
+	/**
+	 * DataViews onClickItem function - render the threat modal on media or primary field click.
+	 */
+	const onClickItem = useCallback(
+		( item: Threat ) => {
+			showThreatModal( item, 'all' )();
+		},
+		[ showThreatModal ]
+	);
+
+	/**
+	 * DataViews onChangeSelection function - render the threat modal on list row selection.
+	 */
+	const onChangeSelection = useCallback(
+		( selectedItemIds: string[] ) => {
+			const selectedItem = data.find( item => item.id === parseInt( selectedItemIds[ 0 ] ) );
+
+			if ( selectedItem ) {
+				showThreatModal( selectedItem, 'all' )();
+			}
+		},
+		[ data, showThreatModal ]
+	);
 
 	return (
 		<>
@@ -557,6 +567,7 @@ export default function ThreatsDataViews( {
 				onChangeSelection={ onChangeSelection }
 				onChangeView={ onChangeView }
 				paginationInfo={ paginationInfo }
+				onClickItem={ onClickItem }
 				view={ view }
 				header={
 					<ThreatsStatusToggleGroupControl
@@ -566,9 +577,9 @@ export default function ThreatsDataViews( {
 					/>
 				}
 			/>
-			{ openThreat ? (
+			{ selectedThreat ? (
 				<ThreatsModal
-					currentThreats={ [ openThreat ] }
+					currentThreats={ [ selectedThreat ] }
 					actionToConfirm={ actionToConfirm }
 					isSupportedEnvironment={ isSupportedEnvironment }
 					isUserConnected={ isUserConnected }

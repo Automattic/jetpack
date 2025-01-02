@@ -1,3 +1,4 @@
+import { useViewportMatch } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import useProduct from '../../../data/products/use-product';
@@ -41,6 +42,7 @@ export const AutoFirewallStatus = () => {
  */
 function WafStatus( { status }: { status: 'active' | 'inactive' | 'off' } ) {
 	const slug = 'protect';
+	const isMobileViewport: boolean = useViewportMatch( 'medium', '<' );
 	const { detail } = useProduct( slug );
 	const { hasPaidPlanForProduct = false } = detail || {};
 	const tooltipContent = useProtectTooltipCopy();
@@ -78,11 +80,10 @@ function WafStatus( { status }: { status: 'active' | 'inactive' | 'off' } ) {
 							feature: 'jetpack-protect',
 							has_paid_plan: hasPaidPlanForProduct,
 						} }
+						placement={ isMobileViewport ? 'top' : 'right' }
 					>
-						<>
-							<h3>{ autoFirewallTooltip.title }</h3>
-							<p>{ autoFirewallTooltip.text }</p>
-						</>
+						<h3>{ autoFirewallTooltip.title }</h3>
+						<p>{ autoFirewallTooltip.text }</p>
 					</InfoTooltip>
 				</div>
 				<div className="value-section__data">

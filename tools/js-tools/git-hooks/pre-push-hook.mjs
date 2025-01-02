@@ -3,7 +3,7 @@
 import { spawn, spawnSync } from 'child_process';
 import { fileURLToPath } from 'url';
 import chalk from 'chalk';
-import isJetpackDraftMode from './jetpack-draft.js';
+import isJetpackDraftMode from './jetpack-draft.mjs';
 
 /**
  * Exec a command and collect the lines.

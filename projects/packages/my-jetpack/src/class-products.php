@@ -29,6 +29,7 @@ class Products {
 	const STATUS_NEEDS_PLAN                  = 'needs_plan';
 	const STATUS_NEEDS_ACTIVATION            = 'needs_activation';
 	const STATUS_NEEDS_FIRST_SITE_CONNECTION = 'needs_first_site_connection';
+	const STATUS_NEEDS_ATTENTION             = 'needs_attention';
 
 	/**
 	 * List of statuses that display the module as disabled
@@ -66,6 +67,7 @@ class Products {
 		self::STATUS_USER_CONNECTION_ERROR,
 		self::STATUS_PLUGIN_ABSENT_WITH_PLAN,
 		self::STATUS_NEEDS_PLAN,
+		self::STATUS_NEEDS_ATTENTION,
 	);
 
 	/**
@@ -107,6 +109,7 @@ class Products {
 		self::STATUS_NEEDS_PLAN,
 		self::STATUS_NEEDS_ACTIVATION,
 		self::STATUS_NEEDS_FIRST_SITE_CONNECTION,
+		self::STATUS_NEEDS_ATTENTION,
 	);
 
 	/**

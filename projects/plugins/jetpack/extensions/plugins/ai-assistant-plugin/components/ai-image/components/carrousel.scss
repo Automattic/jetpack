@@ -1,3 +1,5 @@
+$scale-factor: 0.55;
+
 .ai-assistant-image {
 	&__blank {
 		display: flex;
@@ -47,6 +49,7 @@
 			display: flex;
 			align-items: center;
 			overflow: hidden;
+			height: calc( 768px * $scale-factor );
 
 			.ai-carrousel {
 				&__prev {
@@ -97,7 +100,7 @@
 
 		&-footer-left {
 			display: flex;
-			width: 25%;
+			flex-grow: 1;
 		}
 
 		&-counter {
@@ -106,7 +109,6 @@
 			align-items: center;
 			font-size: 13px;
 			padding: 6px 0;
-			width: 50%;
 
 			.ai-carrousel {
 				&__prev,
@@ -129,14 +131,17 @@
 		}
 
 		&-image {
-			width: 78%;
+			max-height: calc( 768px * $scale-factor );
+			max-width: calc( 1024px * $scale-factor );
+			width: auto;
 			height: auto;
+			margin: auto 0;
 		}
 
 		&-image-container {
 			display: flex;
 			width: 100%;
-			height: auto;
+			height: 100%;
 			position: absolute;
 			left: 8px;
 			transform: translateX( 100% );

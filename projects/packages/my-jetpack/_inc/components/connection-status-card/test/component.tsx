@@ -2,6 +2,7 @@ import '@testing-library/jest-dom';
 import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 import { render, renderHook, screen } from '@testing-library/react';
 import { useSelect } from '@wordpress/data';
+import Providers from '../../../providers';
 import ConnectionStatusCard from '../index';
 import type { StateProducts, MyJetpackInitialState } from '../../../data/types';
 
@@ -58,7 +59,9 @@ const setConnectionStore = ( {
 	hasConnectedOwner = false,
 } = {} ) => {
 	let storeSelect;
-	renderHook( () => useSelect( select => ( storeSelect = select( CONNECTION_STORE_ID ) ), [] ) );
+	renderHook( () => useSelect( select => ( storeSelect = select( CONNECTION_STORE_ID ) ), [] ), {
+		wrapper: Providers,
+	} );
 	jest
 		.spyOn( storeSelect, 'getConnectionStatus' )
 		.mockReset()
@@ -80,7 +83,11 @@ describe( 'ConnectionStatusCard', () => {
 
 	describe( 'When the site is not registered and has no broken modules', () => {
 		const setup = () => {
-			return render( <ConnectionStatusCard { ...testProps } /> );
+			return render(
+				<Providers>
+					<ConnectionStatusCard { ...testProps } />
+				</Providers>
+			);
 		};
 
 		it( 'renders the correct copy for the site connection line item', () => {
@@ -103,7 +110,11 @@ describe( 'ConnectionStatusCard', () => {
 			window.myJetpackInitialState.lifecycleStats.brokenModules.needs_site_connection = [
 				'anti-spam',
 			];
-			return render( <ConnectionStatusCard { ...testProps } /> );
+			return render(
+				<Providers>
+					<ConnectionStatusCard { ...testProps } />
+				</Providers>
+			);
 		};
 
 		it( 'renders the correct copy for the site connection line item', () => {
@@ -125,7 +136,11 @@ describe( 'ConnectionStatusCard', () => {
 		describe( 'There are no products that require user connection', () => {
 			const setup = () => {
 				setConnectionStore( { isRegistered: true } );
-				return render( <ConnectionStatusCard { ...testProps } /> );
+				return render(
+					<Providers>
+						<ConnectionStatusCard { ...testProps } />
+					</Providers>
+				);
 			};
 
 			it( 'renders the correct site connection line item', () => {
@@ -145,7 +160,11 @@ describe( 'ConnectionStatusCard', () => {
 			const setup = () => {
 				setConnectionStore( { isRegistered: true } );
 				window.myJetpackInitialState.products.items[ 'anti-spam' ].requires_user_connection = true;
-				return render( <ConnectionStatusCard { ...testProps } /> );
+				return render(
+					<Providers>
+						<ConnectionStatusCard { ...testProps } />
+					</Providers>
+				);
 			};
 
 			it( 'renders the correct site connection line item', () => {
@@ -168,7 +187,11 @@ describe( 'ConnectionStatusCard', () => {
 			window.myJetpackInitialState.lifecycleStats.brokenModules.needs_user_connection = [
 				'anti-spam',
 			];
-			return render( <ConnectionStatusCard { ...testProps } /> );
+			return render(
+				<Providers>
+					<ConnectionStatusCard { ...testProps } />
+				</Providers>
+			);
 		};
 
 		it( 'renders the correct site connection line item', () => {
@@ -189,7 +212,11 @@ describe( 'ConnectionStatusCard', () => {
 	describe( 'When the user has connected their WordPress.com account', () => {
 		const setup = () => {
 			setConnectionStore( { isRegistered: true, isUserConnected: true, hasConnectedOwner: true } );
-			return render( <ConnectionStatusCard { ...testProps } /> );
+			return render(
+				<Providers>
+					<ConnectionStatusCard { ...testProps } />
+				</Providers>
+			);
 		};
 
 		it( 'renders the correct site connection line item', () => {

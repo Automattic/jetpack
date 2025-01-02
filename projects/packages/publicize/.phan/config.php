@@ -24,6 +24,7 @@ return make_phan_config(
 			__DIR__ . '/../../../plugins/jetpack/_inc/lib/admin-pages/class.jetpack-admin-page.php', // class Jetpack_Admin_Page
 			__DIR__ . '/../../../plugins/jetpack/modules/subscriptions.php',                         // class Jetpack_Subscriptions
 			__DIR__ . '/../../../plugins/jetpack/functions.global.php',                              // function jetpack_render_tos_blurb
+			__DIR__ . '/../../../plugins/jetpack/_inc/lib/core-api/load-wpcom-endpoints.php', // function wpcom_rest_api_v2_load_plugin
 		),
 	)
 );
