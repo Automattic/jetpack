@@ -27,7 +27,7 @@
 		"chokidar": "4.0.3",
 		"configstore": "5.0.1",
 		"enquirer": "2.4.1",
-		"envfile": "6.17.0",
+		"envfile": "7.1.0",
 		"execa": "7.0.0",
 		"glob": "10.4.1",
 		"ignore": "7.0.0",

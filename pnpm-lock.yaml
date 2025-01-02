@@ -4686,8 +4686,8 @@ importers:
         specifier: 2.4.1
         version: 2.4.1
       envfile:
-        specifier: 6.17.0
-        version: 6.17.0
+        specifier: 7.1.0
+        version: 7.1.0
       execa:
         specifier: 7.0.0
         version: 7.0.0
@@ -10017,9 +10017,9 @@ packages:
     resolution: {integrity: sha512-V0hjH4dGPh9Ao5p0MoRY6BVqtwCjhz6vI5LT8AJ55H+4g9/4vbHx1I54fS0XuclLhDHArPQCiMjDxjaL8fPxhw==}
     engines: {node: '>=0.12'}
 
-  envfile@6.17.0:
-    resolution: {integrity: sha512-RnhtVw3auDZeeh5VtaNrbE7s6Kq8BoRtGIzcbMpMsJ+wIpRgs5jiDG4gQjW+vfws5QPlizE57/fUU0Tj6Nrs8A==}
-    engines: {node: '>=10'}
+  envfile@7.1.0:
+    resolution: {integrity: sha512-dyH4QnnZsArCLhPASr29eqBWDvKpq0GggQFTmysTT/S9TTmt1JrEKNvTBc09Cd7ujVZQful2HBGRMe2agu7Krg==}
+    engines: {node: '>=8'}
     hasBin: true
 
   envinfo@7.14.0:
@@ -22468,7 +22468,7 @@ snapshots:
 
   entities@4.5.0: {}
 
-  envfile@6.17.0: {}
+  envfile@7.1.0: {}
 
   envinfo@7.14.0: {}
 
