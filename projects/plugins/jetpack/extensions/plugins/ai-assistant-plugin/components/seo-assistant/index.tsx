@@ -30,6 +30,7 @@ interface BaseStep {
 	title: string;
 	messages: string[] | React.ReactNode[];
 	type: StepType;
+	onStart?: () => void;
 }
 
 interface InputStep extends BaseStep {
@@ -43,7 +44,9 @@ interface OptionsStep extends BaseStep {
 	options: Option[];
 	onSelect: ( option: Option ) => void;
 	onSubmit?: () => void;
-	onRegenerate?: () => void;
+	submitCtaLabel?: string;
+	onRetry?: () => void;
+	onRetryCtaLabel?: string;
 }
 
 interface CompletionStep extends BaseStep {
