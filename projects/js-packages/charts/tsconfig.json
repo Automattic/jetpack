@@ -2,9 +2,7 @@
 	"extends": "jetpack-js-tools/tsconfig.base.json",
 	"compilerOptions": {
 		"target": "es2018",
-		"module": "esnext",
 		"lib": [ "dom", "esnext" ],
-		"moduleResolution": "bundler",
 		"jsx": "react-jsx",
 		"sourceMap": true,
 		"declaration": true,
