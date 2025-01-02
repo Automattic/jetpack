@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+My Jetpack: Enhanced `get_products()` to optionally accept parameter whether to return all or visible_only products. Non user-facing enhancement.
