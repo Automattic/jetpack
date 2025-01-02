@@ -1,9 +1,21 @@
 {
 	"extends": "jetpack-js-tools/tsconfig.base.json",
 	"compilerOptions": {
-		"typeRoots": [ "./node_modules/@types/", "src/*" ],
-		"outDir": "./build/"
+		"target": "es2018",
+		"module": "esnext",
+		"lib": [ "dom", "esnext" ],
+		"moduleResolution": "bundler",
+		"jsx": "react-jsx",
+		"sourceMap": true,
+		"declaration": true,
+		"esModuleInterop": true,
+		"skipLibCheck": true,
+		"strict": true,
+		"resolveJsonModule": true,
+		"allowSyntheticDefaultImports": true,
+		"downlevelIteration": true,
+		"typeRoots": [ "./node_modules/@types/", "src/*" ]
 	},
-	// List all sources and source-containing subdirs.
-	"include": [ "./index.ts", "./src" ]
+	"include": [ "src" ],
+	"exclude": [ "node_modules", "dist" ]
 }

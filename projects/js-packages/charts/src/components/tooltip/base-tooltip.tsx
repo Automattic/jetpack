@@ -49,7 +49,7 @@ export const BaseTooltip = ( {
 }: BaseTooltipProps ) => {
 	return (
 		<div className={ styles.tooltip } style={ { top, left } } role="tooltip">
-			{ children || <Component data={ data } className={ className } /> }
+			{ children || ( data && <Component data={ data } className={ className } /> ) }
 		</div>
 	);
 };
