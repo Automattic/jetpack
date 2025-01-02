@@ -14,7 +14,7 @@ import {
 import { dateI18n } from '@wordpress/date';
 import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import Badge from '../badge';
 import useBreakpointMatch from '../layout/use-breakpoint-match';
 import ThreatFixerButton from '../threat-fixer-button';
@@ -122,8 +122,8 @@ export default function ThreatsDataViews( {
 			showMedia: false,
 		};
 
-		return isSm ? { list: listLayout } : { table: tableLayout, list: listLayout };
-	}, [ filters, isSm ] );
+		return { table: tableLayout, list: listLayout };
+	}, [ filters ] );
 
 	const tableView: View = useMemo(
 		() => ( {
@@ -146,14 +146,7 @@ export default function ThreatsDataViews( {
 	 *
 	 * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-dataviews/#view-object
 	 */
-	const [ view, setView ] = useState< View >( tableView );
-
-	/**
-	 * Set the initial view based on the screen size.
-	 */
-	useEffect( () => {
-		setView( isSm ? listView : tableView );
-	}, [ isSm, listView, tableView ] );
+	const [ view, setView ] = useState< View >( isSm ? listView : tableView );
 
 	/**
 	 * Compute values from the provided threats data.
