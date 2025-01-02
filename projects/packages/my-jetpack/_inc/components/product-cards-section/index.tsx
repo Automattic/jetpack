@@ -26,9 +26,19 @@ type DisplayItemType = Record<
 	// We don't have a card for these products/bundles, and scan is displayed as protect.
 	// 'jetpack-ai' is the official slug for the AI module, so we also exclude 'ai'.
 	// The backend still supports the 'ai' slug, so it is part of the JetpackModule type.
+	// Related-posts, newsletter, and site-accelerator are features, not products.
 	Exclude<
 		JetpackModule,
-		'extras' | 'scan' | 'security' | 'ai' | 'creator' | 'growth' | 'complete'
+		| 'extras'
+		| 'scan'
+		| 'security'
+		| 'ai'
+		| 'creator'
+		| 'growth'
+		| 'complete'
+		| 'site-accelerator'
+		| 'newsletter'
+		| 'related-posts'
 	>,
 	FC< { admin: boolean } >
 >;
