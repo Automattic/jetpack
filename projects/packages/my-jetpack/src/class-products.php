@@ -200,11 +200,13 @@ class Products {
 	/**
 	 * Product data
 	 *
+	 * @param bool $visible_products_only If true, only products that are visible product cards on the My Jetpack page are returned.
+	 *
 	 * @return array Jetpack products on the site and their availability.
 	 */
-	public static function get_products() {
+	public static function get_products( $visible_products_only = false ) {
 		$products = array();
-		foreach ( self::get_products_classes() as $class ) {
+		foreach ( self::get_products_classes( $visible_products_only ) as $class ) {
 			$product_slug              = $class::$slug;
 			$products[ $product_slug ] = $class::get_info();
 		}

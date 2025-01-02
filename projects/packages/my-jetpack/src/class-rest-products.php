@@ -25,6 +25,12 @@ class REST_Products {
 					'methods'             => \WP_REST_Server::READABLE,
 					'callback'            => __CLASS__ . '::get_products',
 					'permission_callback' => __CLASS__ . '::permissions_callback',
+					'args'                => array(
+						'visible_only' => array(
+							'required' => false,
+							'type'     => 'boolean',
+						),
+					),
 				),
 				'schema' => array( $this, 'get_products_schema' ),
 			)
@@ -144,10 +150,12 @@ class REST_Products {
 	/**
 	 * Site products endpoint.
 	 *
+	 * @param \WP_REST_Request $request The request object.
 	 * @return array of site products list.
 	 */
-	public static function get_products() {
-		$response = Products::get_products();
+	public static function get_products( $request ) {
+		$visible_products_only = $request->get_param( 'visible_only' ) ?? false;
+		$response              = Products::get_products( $visible_products_only );
 		return rest_ensure_response( $response, 200 );
 	}
 
