@@ -43,6 +43,13 @@ class Jetpack_Ai extends Product {
 	public static $feature_identifying_paid_plan = 'ai-assistant';
 
 	/**
+	 * Whether the Product is a visible product card shown on the main My Jetpack screen
+	 *
+	 * @var bool
+	 */
+	public static $is_visible_product_card = true;
+
+	/**
 	 * Get the Product info for the API
 	 *
 	 * @throws \Exception If required attribute is not declared in the child class.

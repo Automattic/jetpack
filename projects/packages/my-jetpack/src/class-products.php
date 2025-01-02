@@ -114,13 +114,14 @@ class Products {
 
 	/**
 	 * Get the list of Products classes
-	 *
 	 * Here's where all the existing Products are registered
+	 *
+	 * @param bool $visible_products_only If true, only products that are visible product cards on the My Jetpack page are returned.
 	 *
 	 * @throws \Exception If the result of a filter has invalid classes.
 	 * @return array List of class names
 	 */
-	public static function get_products_classes() {
+	public static function get_products_classes( $visible_products_only = false ) {
 		$classes = array(
 			'anti-spam'        => Products\Anti_Spam::class,
 			'backup'           => Products\Backup::class,
@@ -130,7 +131,8 @@ class Products {
 			'extras'           => Products\Extras::class,
 			'jetpack-ai'       => Products\Jetpack_Ai::class,
 			// TODO: Remove this duplicate class ('ai')? See: https://github.com/Automattic/jetpack/pull/35910#pullrequestreview-2456462227
-			'ai'               => Products\Jetpack_Ai::class,
+			// Jan 2, 2025 - Removing this 'ai' slug now.  But only commenting it out for now for debugging purposes, just in case it causes an error somewhere.
+			// 'ai'               => Products\Jetpack_Ai::class,
 			'scan'             => Products\Scan::class,
 			'search'           => Products\Search::class,
 			'social'           => Products\Social::class,
@@ -170,7 +172,29 @@ class Products {
 			}
 		}
 
+		if ( $visible_products_only ) {
+			// Filter out products that are not shown as visible product cards on the main My Jetpack page.
+			return array_filter(
+				$final_classes,
+				function ( $class ) {
+					return $class::$is_visible_product_card;
+				}
+			);
+		}
+
 		return $final_classes;
+	}
+
+	/**
+	 * Get the list of product slugs that are NOT shown on the main My Jetpack screen.
+	 *
+	 * @return array An array of product slugs that do not get displayed as product cards on the My Jetpack screen.
+	 */
+	public static function get_products_not_shown_in_ui() {
+		$all_products     = self::get_products_classes();
+		$visible_products = self::get_products_classes( true );
+
+		return array_keys( array_diff( $all_products, $visible_products ) );
 	}
 
 	/**

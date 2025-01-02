@@ -72,6 +72,13 @@ class Backup extends Hybrid_Product {
 	public static $feature_identifying_paid_plan = 'backups';
 
 	/**
+	 * Whether the Product is a visible product card shown on the main My Jetpack screen
+	 *
+	 * @var bool
+	 */
+	public static $is_visible_product_card = true;
+
+	/**
 	 * Get the product name
 	 *
 	 * @return string

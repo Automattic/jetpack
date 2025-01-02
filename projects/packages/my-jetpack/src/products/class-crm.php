@@ -61,6 +61,13 @@ class Crm extends Product {
 	public static $has_standalone_plugin = true;
 
 	/**
+	 * Whether the Product is a visible product card shown on the main My Jetpack screen
+	 *
+	 * @var bool
+	 */
+	public static $is_visible_product_card = true;
+
+	/**
 	 * Get the product name
 	 *
 	 * @return string

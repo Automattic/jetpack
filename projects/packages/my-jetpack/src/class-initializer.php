@@ -984,25 +984,11 @@ class Initializer {
 		if ( ! $connection->is_connected() ) {
 			return $red_bubble_slugs;
 		}
-		$product_classes    = Products::get_products_classes();
-		$not_shown_products = array(
-			'scan',
-			'extras',
-			'ai',
-			'newsletter',
-			'site-accelerator',
-			'related-posts',
-		);
+		// Passing `true` argument in order to only get visible products that are displayed as product cards on the My Jetpack page.
+		$displayed_products_classes = Products::get_products_classes( true );
 
 		$products_included_in_expiring_plan = array();
-		foreach ( $product_classes as $key => $product ) {
-			// Skip these- we don't show them in My Jetpack.
-			// ('ai' is a duplicate class of 'jetpack-ai', and therefore not needed).
-			// See `get_product_classes() in projects/packages/my-jetpack/src/class-products.php for more info.
-			if ( in_array( $key, $not_shown_products, true ) ) {
-				continue;
-			}
-
+		foreach ( $displayed_products_classes as $product ) {
 			if ( $product::has_paid_plan_for_product() ) {
 				$purchase = $product::get_paid_plan_purchase_for_product();
 				if ( $purchase ) {
