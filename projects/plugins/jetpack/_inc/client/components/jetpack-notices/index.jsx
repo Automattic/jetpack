@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
-import SocialLogo from 'social-logos';
+import { SocialLogo } from 'social-logos';
 import ConnectionBanner from 'components/connection-banner';
 import NoticesList from 'components/global-notices';
 import SimpleNotice from 'components/notice';
