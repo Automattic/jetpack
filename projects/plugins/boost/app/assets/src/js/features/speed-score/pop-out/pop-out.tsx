@@ -2,7 +2,7 @@ import { animated, useSpring } from '@react-spring/web';
 import CloseButton from '$features/ui/close-button/close-button';
 import styles from './pop-out.module.scss';
 import { __ } from '@wordpress/i18n';
-import { ReactNode, useState } from 'react';
+import { ReactNode, useState, useEffect } from 'react';
 import { Button } from '@wordpress/components';
 import { useDismissibleAlertState } from '$features/performance-history/lib/hooks';
 import { getRedirectUrl } from '@automattic/jetpack-components';
@@ -77,11 +77,13 @@ function PopOut( { scoreChange }: Props ) {
 
 	const hideAlert = () => setClose( true );
 
-	if ( hasScoreChanged ) {
-		recordBoostEvent( 'speed_score_alert_shown', {
-			score_direction: scoreChange > 0 ? 'up' : 'down',
-		} );
-	}
+	useEffect( () => {
+		if ( hasScoreChanged && ! isDismissed && ! isClosed ) {
+			recordBoostEvent( 'speed_score_alert_shown', {
+				score_direction: scoreChange > 0 ? 'up' : 'down',
+			} );
+		}
+	}, [ hasScoreChanged, scoreChange, isDismissed, isClosed ] );
 
 	const animationStyles = useSpring( {
 		from: {

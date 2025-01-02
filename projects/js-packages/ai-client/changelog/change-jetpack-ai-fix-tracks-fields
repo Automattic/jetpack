@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Jetpack AI: Switch tracking data to camel_case to maintain Tracks' required property format

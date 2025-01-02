@@ -1,6 +1,6 @@
 <?php
 /**
- * Stubs automatically generated from WooCommerce 9.4.3
+ * Stubs automatically generated from WooCommerce 9.5.1
  * using the definition file `tools/stubs/woocommerce-internal-stub-defs.php` in the Jetpack monorepo.
  *
  * Do not edit this directly! Run tools/stubs/update-stubs.sh to regenerate it.
@@ -50,6 +50,7 @@ namespace Automattic\WooCommerce\Internal\DataStores\Orders {
      */
     class OrdersTableDataStore extends \Abstract_WC_Order_Data_Store_CPT implements \WC_Object_Data_Store_Interface, \WC_Order_Data_Store_Interface
     {
+        use \Automattic\WooCommerce\Internal\CostOfGoodsSold\CogsAwareTrait;
         /**
          * Get the custom orders table name.
          *

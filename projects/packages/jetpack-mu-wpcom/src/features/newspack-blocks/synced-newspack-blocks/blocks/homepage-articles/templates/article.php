@@ -7,7 +7,7 @@
  */
 
 call_user_func(
-	function ( $data ) {
+	function( $data ) {
 		$attributes = apply_filters( 'newspack_blocks_homepage_posts_block_attributes', $data['attributes'] );
 		$authors    = Newspack_Blocks::prepare_authors();
 		$classes    = array();
@@ -42,14 +42,14 @@ call_user_func(
 
 		// This global will be used by the newspack_blocks_filter_hpb_srcset filter.
 		global $newspack_blocks_hpb_rendering_context;
-		$newspack_blocks_hpb_rendering_context = array( 'attrs' => $attributes );
+		$newspack_blocks_hpb_rendering_context = [ 'attrs' => $attributes ];
 
 		// Disable lazy loading by using an arbitraty `loading` attribute other than `lazy`.
 		// Empty string or `false` would still result in `lazy`.
 		if ( $attributes['disableImageLazyLoad'] ) {
 			$thumbnail_args['loading'] = 'none';
 		}
-		if ( $attributes['fetchPriority'] && in_array( $attributes['fetchPriority'], array( 'high', 'low', 'auto' ), true ) ) {
+		if ( $attributes['fetchPriority'] && in_array( $attributes['fetchPriority'], [ 'high', 'low', 'auto' ], true ) ) {
 			$thumbnail_args['fetchpriority'] = $attributes['fetchPriority'];
 		}
 
@@ -147,8 +147,11 @@ call_user_func(
 				</div>
 			<?php endif; ?>
 			<?php
-			if ( $attributes['showExcerpt'] ) :
+			if ( $attributes['showExcerpt'] && ! $attributes['showFullContent'] ) :
 				the_excerpt();
+			endif;
+			if ( $attributes['showFullContent'] && ! $attributes['showExcerpt'] ) :
+				the_content();
 			endif;
 			if ( $post_link && ( $attributes['showReadMore'] ) ) :
 				?>
@@ -162,7 +165,7 @@ call_user_func(
 				<div class="entry-meta">
 					<?php
 					if ( ! empty( $sponsors ) ) :
-						$sponsor_classes = array( 'entry-sponsors' );
+						$sponsor_classes = [ 'entry-sponsors' ];
 						if ( Newspack_Blocks::newspack_display_sponsors_and_authors( $sponsors ) ) {
 							$sponsor_classes[] = 'plus-author';
 						}

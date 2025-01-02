@@ -66,6 +66,18 @@
 	line-height: var(--font-title-small);
 }
 
+:global(.info-tooltip__content) {
+	width: calc(100vw - 64px);
+	max-width: 340px;
+	min-height: 150px;
+	padding: 24px;
+}
+
+:global(.components-popover.is-expanded .info-tooltip__content) {
+	width: auto;
+	max-width: unset;
+}
+
 // Since we're adding so much info into the My Jetpack product cards, here we'll increase
 // the min-width of the cards to 300px, and otherwise wrap around.
 @media screen and (min-width: 599px) and (max-width: 1290px) {
