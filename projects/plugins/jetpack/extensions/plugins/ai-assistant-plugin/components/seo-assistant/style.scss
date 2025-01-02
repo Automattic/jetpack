@@ -206,24 +206,19 @@
 }
 
 // Keep this around for magic:
-// @keyframes blink {
-// 	30% { cy: 30; }
-// 	50% { cy: 25; fill: lightgrey }
-// 	70% { cy: 30; }
-// }
-// .dot {
-// 	animation: 1s blink linear infinite;
-// 	fill: grey;
-// }
-// .dot:nth-child(2) { animation-delay: 150ms }
-// .dot:nth-child(3) { animation-delay: 250ms }
+@keyframes typing-blink {
+	30% { cy: 30; }
+	50% { cy: 25; fill: lightgrey }
+	70% { cy: 30; }
+}
+.typing-dot {
+	animation: 1s typing-blink linear infinite;
+	fill: grey;
+}
+.typing-dot:nth-child(2) { animation-delay: 150ms }
+.typing-dot:nth-child(3) { animation-delay: 250ms }
 
-// .loader {
-// 	background-color: #f1f1f1;
-// 	color: grey;
-// }
-// <svg height="40" width="40" class="loader">
-//   <circle class="dot" cx="10" cy="30" r="3" style="fill:grey;" />
-//   <circle class="dot" cx="20" cy="30" r="3" style="fill:grey;" />
-//   <circle class="dot" cx="30" cy="30" r="3" style="fill:grey;" />
-// </svg>
+.typing-loader {
+	// background-color: #f1f1f1;
+	color: grey;
+}

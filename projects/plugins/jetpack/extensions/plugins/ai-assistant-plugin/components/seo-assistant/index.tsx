@@ -1,4 +1,4 @@
-import { Button, TextControl } from '@wordpress/components';
+import { Button, TextControl, SVG, Circle } from '@wordpress/components';
 import {
 	useState,
 	useCallback,
@@ -60,6 +60,16 @@ interface SeoAssistantProps {
 
 const debug = debugFactory( 'jetpack-ai:seo-assistant' );
 
+const TypingMessage = () => {
+	return (
+		<SVG viewBox="0 0 40 40" height="20" width="20" className="typing-loader">
+			<Circle className="typing-dot" cx="10" cy="30" r="3" style={ { fill: 'grey' } } />
+			<Circle className="typing-dot" cx="20" cy="30" r="3" style={ { fill: 'grey' } } />
+			<Circle className="typing-dot" cx="30" cy="30" r="3" style={ { fill: 'grey' } } />
+		</SVG>
+	);
+};
+
 export default function SeoAssistant( { busy, disabled, onStep }: SeoAssistantProps ) {
 	const [ isOpen, setIsOpen ] = useState( false );
 	const [ currentStep, setCurrentStep ] = useState( 0 );
@@ -104,6 +114,11 @@ export default function SeoAssistant( { busy, disabled, onStep }: SeoAssistantPr
 				isUser,
 			},
 		] );
+	};
+
+	/* Removes last message */
+	const removeLastMessage = () => {
+		setMessages( prev => prev.slice( 0, -1 ) );
 	};
 
 	const handleKeywordsSubmit = useCallback(
