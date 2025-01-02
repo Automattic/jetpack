@@ -52,8 +52,8 @@ importers:
         specifier: 6.1.1
         version: 6.1.1
       glob:
-        specifier: 10.4.1
-        version: 10.4.1
+        specifier: 11.0.0
+        version: 11.0.0
       moment:
         specifier: 2.30.1
         version: 2.30.1
@@ -99,8 +99,8 @@ importers:
         specifier: 7.3.2
         version: 7.3.2
       glob:
-        specifier: 10.4.1
-        version: 10.4.1
+        specifier: 11.0.0
+        version: 11.0.0
       minimatch:
         specifier: 5.1.0
         version: 5.1.0
@@ -1415,8 +1415,8 @@ importers:
         specifier: 18.3.5
         version: 18.3.5(@types/react@18.3.18)
       glob:
-        specifier: 10.4.1
-        version: 10.4.1
+        specifier: 11.0.0
+        version: 11.0.0
       svg2ttf:
         specifier: ^6.0.3
         version: 6.0.3
@@ -2000,8 +2000,8 @@ importers:
         specifier: 10.4.20
         version: 10.4.20(postcss@8.4.47)
       glob:
-        specifier: 10.4.1
-        version: 10.4.1
+        specifier: 11.0.0
+        version: 11.0.0
       postcss:
         specifier: 8.4.47
         version: 8.4.47
@@ -2052,8 +2052,8 @@ importers:
         specifier: 6.14.0
         version: 6.14.0
       glob:
-        specifier: 10.4.1
-        version: 10.4.1
+        specifier: 11.0.0
+        version: 11.0.0
       react:
         specifier: 18.2.0
         version: 18.2.0
@@ -2253,8 +2253,8 @@ importers:
         specifier: 7.6.0
         version: 7.6.0
       glob:
-        specifier: 10.4.1
-        version: 10.4.1
+        specifier: 11.0.0
+        version: 11.0.0
       jest:
         specifier: 29.7.0
         version: 29.7.0
@@ -2488,8 +2488,8 @@ importers:
         specifier: 10.4.20
         version: 10.4.20(postcss@8.4.47)
       glob:
-        specifier: 10.4.1
-        version: 10.4.1
+        specifier: 11.0.0
+        version: 11.0.0
       postcss:
         specifier: 8.4.47
         version: 8.4.47
@@ -3728,8 +3728,8 @@ importers:
         specifier: 6.5.1
         version: 6.5.1(webpack@5.94.0)
       glob:
-        specifier: 10.4.1
-        version: 10.4.1
+        specifier: 11.0.0
+        version: 11.0.0
       jest:
         specifier: 29.7.0
         version: 29.7.0
@@ -4139,8 +4139,8 @@ importers:
         specifier: 0.1.8
         version: 0.1.8
       glob:
-        specifier: 10.4.1
-        version: 10.4.1
+        specifier: 11.0.0
+        version: 11.0.0
       jest:
         specifier: 29.7.0
         version: 29.7.0
@@ -4692,8 +4692,8 @@ importers:
         specifier: 7.0.0
         version: 7.0.0
       glob:
-        specifier: 10.4.1
-        version: 10.4.1
+        specifier: 11.0.0
+        version: 11.0.0
       ignore:
         specifier: 7.0.0
         version: 7.0.0
@@ -4897,8 +4897,8 @@ importers:
         specifier: 7.1.1
         version: 7.1.1(eslint@9.16.0)(typescript@5.0.4)
       glob:
-        specifier: 10.4.1
-        version: 10.4.1
+        specifier: 11.0.0
+        version: 11.0.0
       globals:
         specifier: 15.13.0
         version: 15.13.0
