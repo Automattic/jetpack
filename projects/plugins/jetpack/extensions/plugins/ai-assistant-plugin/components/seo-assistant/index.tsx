@@ -81,24 +81,9 @@ export default function SeoAssistant( { busy, disabled, onStep }: SeoAssistantPr
 	const [ selectedMetaDescription, setSelectedMetaDescription ] = useState< string >();
 	const [ messages, setMessages ] = useState< Message[] >( [] );
 	const messagesEndRef = useRef< HTMLDivElement >( null );
-	const [ titleOptions, setTitleOptions ] = useState< Option[] >( [
-		{
-			id: '1',
-			content: 'A Photo Gallery for Gardening Enthusiasths: Flora Guide',
-		},
-		{
-			id: '2',
-			content: 'Flora Guide: Beautiful Photos of Flowers and Plants for Gardening Enthusiasts',
-		},
-	] );
+	const [ titleOptions, setTitleOptions ] = useState< Option[] >( [] );
 
-	const [ metaDescriptionOptions, setMetaDescriptionOptions ] = useState< Option[] >( [
-		{
-			id: 'meta-1',
-			content:
-				'Explore breathtaking flower and plant photography in our Flora Guide, featuring tips and inspiration for gardening and plant enthusiasts to enhance their outdoor spaces.',
-		},
-	] );
+	const [ metaDescriptionOptions, setMetaDescriptionOptions ] = useState< Option[] >( [] );
 
 	const scrollToBottom = () => {
 		messagesEndRef.current?.scrollIntoView( { behavior: 'smooth' } );
