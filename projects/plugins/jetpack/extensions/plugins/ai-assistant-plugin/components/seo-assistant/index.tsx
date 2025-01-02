@@ -150,9 +150,60 @@ export default function SeoAssistant( { busy, disabled, onStep }: SeoAssistantPr
 		);
 	}, [] );
 
-	const handleTitleRegenerate = useCallback( () => {
+	const handleTitleGenerate = useCallback( async () => {
+		let newTitles;
+		// we only generate if options are empty
+		if ( titleOptions.length === 0 ) {
+			debug( 'Generating titles...' );
+			addMessage( <TypingMessage /> );
+			newTitles = await new Promise( resolve =>
+				setTimeout(
+					() =>
+						resolve( [
+							{
+								id: '1',
+								content: 'A Photo Gallery for Gardening Enthusiasths: Flora Guide',
+							},
+							{
+								id: '2',
+								content:
+									'Flora Guide: Beautiful Photos of Flowers and Plants for Gardening Enthusiasts',
+							},
+						] ),
+					2000
+				)
+			);
+			removeLastMessage();
+		}
+		addMessage( 'Here are two suggestions based on your keywords. Select the one you prefer:' );
+		setTitleOptions( newTitles || titleOptions );
+	}, [ titleOptions ] );
+
+	const handleTitleRegenerate = useCallback( async () => {
 		// This would typically be an async call to generate new titles
 		debug( 'Regenerating titles...' );
+		setTitleOptions( [] );
+		addMessage( <TypingMessage /> );
+		const newTitles = await new Promise< Array< Option > >( resolve =>
+			setTimeout(
+				() =>
+					resolve( [
+						{
+							id: '1',
+							content: 'A Photo Gallery for Gardening Enthusiasths: Flora Guide',
+						},
+						{
+							id: '2',
+							content:
+								'Flora Guide: Beautiful Photos of Flowers and Plants for Gardening Enthusiasts',
+						},
+					] ),
+				2000
+			)
+		);
+		removeLastMessage();
+		addMessage( 'Here are two new suggestions based on your keywords. Select the one you prefer:' );
+		setTitleOptions( newTitles );
 	}, [] );
 
 	const handleTitleSubmit = useCallback( () => {
@@ -180,6 +231,53 @@ export default function SeoAssistant( { busy, disabled, onStep }: SeoAssistantPr
 			onStep( { value: selectedMetaDescription } );
 		}
 	}, [ selectedMetaDescription, onStep ] );
+
+	const handleMetaDescriptionGenerate = useCallback( async () => {
+		let newMetaDescriptions;
+		// we only generate if options are empty
+		if ( metaDescriptionOptions.length === 0 ) {
+			debug( 'Generating titles...' );
+			addMessage( <TypingMessage /> );
+			newMetaDescriptions = await new Promise( resolve =>
+				setTimeout(
+					() =>
+						resolve( [
+							{
+								id: 'meta-1',
+								content:
+									'Explore breathtaking flower and plant photography in our Flora Guide, featuring tips and inspiration for gardening and plant enthusiasts to enhance their outdoor spaces.',
+							},
+						] ),
+					2000
+				)
+			);
+			removeLastMessage();
+		}
+		addMessage( "Here's a suggestion:" );
+		setMetaDescriptionOptions( newMetaDescriptions || metaDescriptionOptions );
+	}, [ metaDescriptionOptions ] );
+
+	const handleMetaDescriptionRegenerate = useCallback( async () => {
+		debug( 'Generating new meta description...' );
+		setMetaDescriptionOptions( [] );
+		addMessage( <TypingMessage /> );
+		const newMetaDescription = await new Promise< Array< Option > >( resolve =>
+			setTimeout(
+				() =>
+					resolve( [
+						{
+							id: 'meta-1',
+							content:
+								'Explore breathtaking flower and plant photography in our Flora Guide, featuring tips and inspiration for gardening and plant enthusiasts to enhance their outdoor spaces.',
+						},
+					] ),
+				2000
+			)
+		);
+		removeLastMessage();
+		addMessage( "Here's a new suggestion:" );
+		setMetaDescriptionOptions( newMetaDescription );
+	}, [] );
 
 	const handleDone = useCallback( () => {
 		setIsOpen( false );
@@ -209,29 +307,28 @@ export default function SeoAssistant( { busy, disabled, onStep }: SeoAssistantPr
 		{
 			id: 'title',
 			title: __( 'Optimise Title', 'jetpack' ),
-			messages: [
-				__(
-					"Let's optimise your title. Here are two suggestions based on your keywords. Select the one you prefer:",
-					'jetpack'
-				),
-			],
+			messages: [ __( "Let's optimise your title.", 'jetpack' ) ],
 			type: 'options',
 			options: titleOptions,
 			onSelect: handleTitleSelect,
 			onSubmit: handleTitleSubmit,
-			onRegenerate: handleTitleRegenerate,
+			submitCtaLabel: __( 'Insert', 'jetpack' ),
+			onRetry: handleTitleRegenerate,
+			onRetryCtaLabel: __( 'Regenerate', 'jetpack' ),
+			onStart: handleTitleGenerate,
 		},
 		{
 			id: 'meta',
 			title: __( 'Add meta description', 'jetpack' ),
-			messages: [
-				__( "Now, let's optimize your meta description. Here's a suggestion:", 'jetpack' ),
-			],
+			messages: [ __( "Now, let's optimize your meta description.", 'jetpack' ) ],
 			type: 'options',
 			options: metaDescriptionOptions,
 			onSelect: handleMetaDescriptionSelect,
 			onSubmit: handleMetaDescriptionSubmit,
-			onRegenerate: handleTitleRegenerate, // Reuse the same handler for now
+			submitCtaLabel: __( 'Insert', 'jetpack' ),
+			onRetry: handleMetaDescriptionRegenerate, // Reuse the same handler for now
+			onRetryCtaLabel: __( 'Regenerate', 'jetpack' ),
+			onStart: handleMetaDescriptionGenerate, // Reuse the same handler for now
 		},
 		{
 			id: 'completion',
@@ -269,6 +366,7 @@ export default function SeoAssistant( { busy, disabled, onStep }: SeoAssistantPr
 			setCurrentStep( currentStep + 1 );
 			// Add next step messages
 			steps[ currentStep + 1 ].messages.forEach( message => addMessage( message ) );
+			steps[ currentStep + 1 ].onStart?.();
 		}
 	};
 
@@ -342,8 +440,8 @@ export default function SeoAssistant( { busy, disabled, onStep }: SeoAssistantPr
 						</button>
 					) ) }
 					<div className="seo-assistant-wizard__actions">
-						<Button variant="secondary" onClick={ currentStepData.onRegenerate }>
-							{ __( 'Regenerate', 'jetpack' ) }
+						<Button variant="secondary" onClick={ currentStepData.onRetry }>
+							{ currentStepData.onRetryCtaLabel }
 						</Button>
 						{ selectedOption && (
 							<Button
@@ -353,7 +451,7 @@ export default function SeoAssistant( { busy, disabled, onStep }: SeoAssistantPr
 									handleNext();
 								} }
 							>
-								{ __( 'Insert →', 'jetpack' ) }
+								{ currentStepData.submitCtaLabel }
 							</Button>
 						) }
 					</div>
