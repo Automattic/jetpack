@@ -6,6 +6,7 @@ import QualityControl from '../quality-control/quality-control';
 import { imageCdnSettingsSchema, useImageCdnQuality } from '../lib/stores';
 import { z } from 'zod';
 import ModuleSubsection from '$features/ui/module-subsection/module-subsection';
+import { useMutationNotice } from '$features/ui/mutation-notice/mutation-notice';
 
 type QualitySettingsProps = {
 	isPremium: boolean;
@@ -19,6 +20,8 @@ const QualitySettings = ( { isPremium }: QualitySettingsProps ) => {
 	const [ query, mutation ] = useImageCdnQuality();
 	const imageCdnQuality = query?.data;
 	const setImageCdnQuality = mutation.mutate;
+
+	useMutationNotice( 'image-cdn-quality', mutation );
 
 	const setQuality = ( format: 'jpg' | 'png' | 'webp', newValue: number ) => {
 		if ( ! setImageCdnQuality || ! imageCdnQuality ) {

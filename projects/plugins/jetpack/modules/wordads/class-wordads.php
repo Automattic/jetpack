@@ -21,6 +21,7 @@ require_once WORDADS_ROOT . '/php/class-wordads-california-privacy.php';
 require_once WORDADS_ROOT . '/php/class-wordads-ccpa-do-not-sell-link-widget.php';
 require_once WORDADS_ROOT . '/php/class-wordads-consent-management-provider.php';
 require_once WORDADS_ROOT . '/php/class-wordads-smart.php';
+require_once WORDADS_ROOT . '/php/class-wordads-shortcode.php';
 
 /**
  * Primary WordAds class.
@@ -215,6 +216,9 @@ class WordAds {
 			WordAds_Consent_Management_Provider::init();
 		}
 
+		// Initialize [wordads] shortcode.
+		WordAds_Shortcode::init();
+
 		// Initialize Smart.
 		WordAds_Smart::instance()->init( $this->params );
 
@@ -371,9 +375,43 @@ class WordAds {
 		$site_id      = $this->params->blog_id;
 		$consent      = (int) isset( $_COOKIE['personalized-ads-consent'] );
 		$is_logged_in = is_user_logged_in() ? '1' : '0';
+
+		$disabled_slot_formats = apply_filters( 'wordads_disabled_slot_formats', array() );
+
+		if ( apply_filters( 'wordads_iponweb_bottom_sticky_ad_disable', false ) ) {
+			$disabled_slot_formats[] = 'MTS';
+		}
+
+		if ( apply_filters( 'wordads_iponweb_sidebar_sticky_right_ad_disable', false ) ) {
+			$disabled_slot_formats[] = 'DPR';
+		}
+
+		$config    = array(
+			'pt'                    => $pagetype,
+			'ht'                    => $hosting_type,
+			'tn'                    => get_stylesheet(),
+			'uloggedin'             => $is_logged_in,
+			'amp'                   => false,
+			'siteid'                => $site_id,
+			'consent'               => $consent,
+			'ad'                    => array(
+				'label'           => array(
+					'text' => __( 'Advertisements', 'jetpack' ),
+				),
+				'reportAd'        => array(
+					'text' => __( 'Report this ad', 'jetpack' ),
+				),
+				'privacySettings' => array(
+					'text'    => __( 'Privacy', 'jetpack' ),
+					'onClick' => 'js:function() { window.__tcfapi && window.__tcfapi(\'showUi\'); }',
+				),
+			),
+			'disabled_slot_formats' => $disabled_slot_formats,
+		);
+		$js_config = WordAds_Array_Utils::array_to_js_object( $config );
 		?>
 		<script<?php echo esc_attr( $data_tags ); ?> type="text/javascript">
-			var __ATA_PP = { pt: <?php echo esc_js( $pagetype ); ?>, ht: <?php echo esc_js( $hosting_type ); ?>, tn: '<?php echo esc_js( get_stylesheet() ); ?>', uloggedin: <?php echo esc_js( $is_logged_in ); ?>, amp: false, siteid: <?php echo esc_js( $site_id ); ?>, consent: <?php echo esc_js( $consent ); ?>, ad: { label: { text: '<?php echo esc_js( __( 'Advertisements', 'jetpack' ) ); ?>' }, reportAd: { text: '<?php echo esc_js( __( 'Report this ad', 'jetpack' ) ); ?>' }, privacySettings: { text: '<?php echo esc_js( __( 'Privacy', 'jetpack' ) ); ?>', onClick: function() { window.__tcfapi && window.__tcfapi('showUi'); } } } };
+			var __ATA_PP = <?php echo $js_config; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>;
 			var __ATA = __ATA || {};
 			__ATA.cmd = __ATA.cmd || [];
 			__ATA.criteo = __ATA.criteo || {};
@@ -381,18 +419,34 @@ class WordAds {
 		</script>
 		<?php
 
+		$section_id = $this->params->blog_id . 5;
+
+		// Get below post tag.
+		$tag_belowpost = $this->get_fallback_ad_snippet( $section_id, 'square', 'belowpost', '', '{{unique_id}}' );
+
+		// Remove linebreaks and sanitize.
+		$tag_belowpost = esc_js( str_replace( array( "\n", "\t", "\r" ), '', $tag_belowpost ) );
+
 		// Get an inline tag with a macro as id handled on JS side to use as a fallback.
-		$tag_inline = $this->get_dynamic_ad_snippet( $this->params->blog_id . 5, 'square', 'inline', '', '{{unique_id}}' );
+		$tag_inline = $this->get_fallback_ad_snippet( $section_id, 'square', 'inline', '', '{{unique_id}}' );
 
 		// Remove linebreaks and sanitize.
 		$tag_inline = esc_js( str_replace( array( "\n", "\t", "\r" ), '', $tag_inline ) );
 
+		// Get top tag.
+		$tag_top = $this->get_fallback_ad_snippet( $section_id, 'leaderboard', 'top', '', '{{unique_id}}' );
+
+		// Remove linebreaks and sanitize.
+		$tag_top = esc_js( str_replace( array( "\n", "\t", "\r" ), '', $tag_top ) );
+
 		// phpcs:disable WordPress.Security.EscapeOutput.HeredocOutputNotEscaped
 		echo <<<HTML
-				<script>
+				<script type="text/javascript">
 					var sas_fallback = sas_fallback || [];
 					sas_fallback.push(
-						{ tag: "$tag_inline", type: 'inline' }
+						{ tag: "$tag_inline", type: 'inline' },
+						{ tag: "$tag_belowpost", type: 'belowpost' },
+						{ tag: "$tag_top", type: 'top' }
 					);
 				</script>
 HTML;
@@ -477,8 +531,15 @@ HTML;
 		}
 
 		$ad_type  = $this->option( 'wordads_house' ) ? 'house' : 'iponweb';
-		$content .= $this->get_ad( 'inline', $ad_type );
-		return $content;
+		$location = 'shortcode';
+
+		// Not house ad and WATL enabled.
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended
+		if ( 'house' !== $ad_type && ( isset( $_GET['wordads-logging'] ) && isset( $_GET[ $location ] ) && 'true' === $_GET[ $location ] ) ) {
+			return $content . $this->get_watl_ad_html_tag( $location );
+		}
+
+		return $content . $this->get_ad( 'inline', $ad_type );
 	}
 
 	/**
@@ -720,6 +781,32 @@ HTML;
 	 * @since 8.7
 	 */
 	public function get_dynamic_ad_snippet( $section_id, $form_factor = 'square', $location = '', $relocate = '', $id = null ) {
+
+		// Allow overriding and printing of the tag parsed by the WATL.
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended
+		$is_location_enabled = isset( $_GET['wordads-logging'] ) && isset( $_GET[ $location ] ) && 'true' === $_GET[ $location ];
+
+		if ( ( 'top' === $location || 'belowpost' === $location ) && $is_location_enabled ) {
+			return self::get_watl_ad_html_tag( $location );
+		}
+
+		return $this->get_fallback_ad_snippet( $section_id, $form_factor, $location, $relocate, $id );
+	}
+
+	/**
+	 * Returns the fallback dynamic snippet to be inserted into the ad unit
+	 *
+	 * @param int           $section_id section_id.
+	 * @param string        $form_factor form_factor.
+	 * @param string        $location location.
+	 * @param string        $relocate location to be moved after the fact for themes without required hook.
+	 * @param string | null $id A unique string ID or placeholder.
+	 *
+	 * @return string
+	 *
+	 * @since 8.7
+	 */
+	public function get_fallback_ad_snippet( $section_id, $form_factor = 'square', $location = '', $relocate = '', $id = null ) {
 		$div_id = 'atatags-' . $section_id . '-' . ( $id ?? uniqid() );
 		$div_id = esc_attr( $div_id );
 
@@ -866,6 +953,19 @@ HTML;
 			marginwidth="0">
 		</iframe>
 HTML;
+	}
+
+	/**
+	 * Returns the html ad tag used by WordAds Tag Library
+	 *
+	 * @param  string $slot_type e.g belowpost, gutenberg_rectangle.
+	 *
+	 * @return string
+	 *
+	 * @since 8.7
+	 */
+	public static function get_watl_ad_html_tag( string $slot_type ): string {
+		return "<div class=\"wordads-tag\" data-slot-type=\"$slot_type\" style=\"display: none;\"></div>";
 	}
 
 	/**

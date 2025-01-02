@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Add a function_exists guard for wpcom_is_duplicate_views_experiment_enabled function

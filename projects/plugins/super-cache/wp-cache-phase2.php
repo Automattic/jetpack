@@ -310,7 +310,7 @@ function wp_cache_serve_cache_file() {
 			// don't try to match modified dates if using dynamic code.
 			if ( $wp_cache_mfunc_enabled == 0 && $wp_supercache_304 ) {
 				wp_cache_debug( 'wp_cache_serve_cache_file: checking age of cached vs served files.' );
-				$headers         = apache_request_headers();
+				$headers         = wpsc_apache_request_headers();
 				$remote_mod_time = isset( $headers['If-Modified-Since'] ) ? $headers['If-Modified-Since'] : null;
 
 				if ( $remote_mod_time === null && isset( $_SERVER['HTTP_IF_MODIFIED_SINCE'] ) ) {
@@ -1751,7 +1751,7 @@ function wp_cache_user_agent_is_rejected() {
 		return false;
 	}
 
-	$headers = apache_request_headers();
+	$headers = wpsc_apache_request_headers();
 	if ( empty( $headers['User-Agent'] ) ) {
 		return false;
 	}
@@ -3582,23 +3582,25 @@ function wpsc_is_get_query() {
 	return $is_get_query;
 }
 
-if ( ! function_exists( 'apache_request_headers' ) ) {
-	/**
-	 * A fallback for get request headers.
-	 * Based on comments from http://php.net/manual/en/function.apache-request-headers.php
-	 *
-	 * @return array List of request headers
-	 */
-	function apache_request_headers() {
-		$headers = array();
+/**
+ * A fallback for get request headers.
+ * Based on comments from http://php.net/manual/en/function.apache-request-headers.php
+ *
+ * @return array List of request headers
+ */
+function wpsc_apache_request_headers() {
 
+	if ( ! function_exists( 'apache_request_headers' ) || ! is_callable( 'apache_request_headers' ) ) {
+		$headers = array();
 		foreach ( array_keys( $_SERVER ) as $skey ) {
 			if ( str_starts_with( $skey, 'HTTP_' ) ) {
 				$header             = implode( '-', array_map( 'ucfirst', array_slice( explode( '_', strtolower( $skey ) ), 1 ) ) );
 				$headers[ $header ] = $_SERVER[ $skey ];
 			}
 		}
-
-		return $headers;
+	} else {
+		$headers = apache_request_headers();
 	}
+
+	return $headers;
 }

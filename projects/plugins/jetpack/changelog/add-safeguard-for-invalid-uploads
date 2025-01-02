@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Jetpack API: Fixed a bug where invalid upload input caused a fatal error.

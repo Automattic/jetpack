@@ -5,6 +5,7 @@ import styles from './module.module.scss';
 import ErrorBoundary from '$features/error-boundary/error-boundary';
 import { __ } from '@wordpress/i18n';
 import { isWoaHosting } from '$lib/utils/hosting';
+import { useNotices } from '$features/notice/context';
 
 type ModuleProps = {
 	title: React.ReactNode;
@@ -29,7 +30,16 @@ const Module = ( {
 	onDisable,
 	onMountEnable,
 }: ModuleProps ) => {
+	const { setNotice } = useNotices();
 	const [ status, setStatus ] = useSingleModuleState( slug, active => {
+		const activatedMessage = __( 'Module activated', 'jetpack-boost' );
+		const deactivatedMessage = __( 'Module deactivated', 'jetpack-boost' );
+
+		setNotice( {
+			id: 'update-module-state',
+			type: 'success',
+			message: active ? activatedMessage : deactivatedMessage,
+		} );
 		if ( active ) {
 			onEnable?.();
 		} else {
@@ -43,10 +53,20 @@ const Module = ( {
 	const isFakeActive = ! isModuleAvailable && isWoaHosting() && slug === 'page_cache';
 
 	const handleToggle = () => {
+		const newState = ! isModuleActive;
+		const deactivateMessage = __( 'Deactivating module', 'jetpack-boost' );
+		const activateMessage = __( 'Activating module', 'jetpack-boost' );
+
+		setNotice( {
+			id: 'update-module-state',
+			type: 'pending',
+			message: newState ? activateMessage : deactivateMessage,
+		} );
+
 		if ( onBeforeToggle ) {
-			onBeforeToggle( ! isModuleActive );
+			onBeforeToggle( newState );
 		}
-		setStatus( ! isModuleActive );
+		setStatus( newState );
 	};
 
 	useEffect( () => {
