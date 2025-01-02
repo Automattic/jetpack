@@ -117,8 +117,11 @@ export default function SeoAssistant( { busy, disabled, onStep }: SeoAssistantPr
 				.split( ',' )
 				.map( k => k.trim() )
 				.reduce( ( acc, curr, i, arr ) => {
+					if ( arr.length === 1 ) {
+						return curr;
+					}
 					if ( i === arr.length - 1 ) {
-						return `${ acc } & ${ curr }`;
+						return `${ acc } </b>&<b> ${ curr }`;
 					}
 					return i === 0 ? curr : `${ acc }, ${ curr }`;
 				}, '' );
