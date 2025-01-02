@@ -2,10 +2,11 @@ import { animated, useSpring } from '@react-spring/web';
 import CloseButton from '$features/ui/close-button/close-button';
 import styles from './pop-out.module.scss';
 import { __ } from '@wordpress/i18n';
-import { ReactNode, useState } from 'react';
+import { ReactNode, useState, useEffect } from 'react';
 import { Button } from '@wordpress/components';
 import { useDismissibleAlertState } from '$features/performance-history/lib/hooks';
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { recordBoostEvent } from '$lib/utils/analytics';
 
 type Props = {
 	scoreChange: number | false; // Speed score shift to show, or false if none.
@@ -69,13 +70,20 @@ function PopOut( { scoreChange }: Props ) {
 	 * Dismissed means that the user asked to never show us this alert again.
 	 */
 	const [ isDismissed, dismissAlert ] = useDismissibleAlertState( message.id );
-
 	/*
 	 * Hide the alert for now. The alert will show up again if the user refreshes the page.
 	 */
 	const [ isClosed, setClose ] = useState( false );
 
 	const hideAlert = () => setClose( true );
+
+	useEffect( () => {
+		if ( hasScoreChanged && ! isDismissed && ! isClosed ) {
+			recordBoostEvent( 'speed_score_alert_shown', {
+				score_direction: scoreChange > 0 ? 'up' : 'down',
+			} );
+		}
+	}, [ hasScoreChanged, scoreChange, isDismissed, isClosed ] );
 
 	const animationStyles = useSpring( {
 		from: {

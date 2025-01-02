@@ -40,6 +40,8 @@ const getStatusLabel: StatusStateFunction = ( status, isOwned ) => {
 			const inactiveText = __( 'Inactive', 'jetpack-my-jetpack' );
 			return isOwned ? needsPlanText : inactiveText;
 		}
+		case PRODUCT_STATUSES.NEEDS_ATTENTION:
+			return __( 'Needs attention', 'jetpack-my-jetpack' );
 		default:
 			return __( 'Inactive', 'jetpack-my-jetpack' );
 	}
@@ -62,6 +64,7 @@ const getStatusClassName: StatusStateFunction = ( status, isOwned ) => {
 		case PRODUCT_STATUSES.NEEDS_PLAN:
 			return isOwned ? styles.warning : styles.inactive;
 		case PRODUCT_STATUSES.EXPIRED:
+		case PRODUCT_STATUSES.NEEDS_ATTENTION:
 			return styles.error;
 		default:
 			return styles.inactive;

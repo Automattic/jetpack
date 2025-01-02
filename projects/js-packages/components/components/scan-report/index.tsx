@@ -7,7 +7,7 @@ import {
 	DataViews,
 	filterSortAndPaginate,
 } from '@wordpress/dataviews';
-import { __ } from '@wordpress/i18n';
+import { __, _n } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
 import { useCallback, useMemo, useState } from 'react';
 import ShieldIcon from '../shield-icon';
@@ -17,6 +17,7 @@ import {
 	FIELD_ICON,
 	FIELD_STATUS,
 	FIELD_TYPE,
+	STATUS_TYPES,
 	TYPES,
 	ICONS,
 } from './constants';
@@ -26,12 +27,13 @@ import styles from './styles.module.scss';
  * DataViews component for displaying a scan report.
  *
  * @param {object}   props                   - Component props.
+ * @param {string}   props.dataSource        - Data source.
  * @param {Array}    props.data              - Scan report data.
  * @param {Function} props.onChangeSelection - Callback function run when an item is selected.
  *
  * @return {JSX.Element} The ScanReport component.
  */
-export default function ScanReport( { data, onChangeSelection } ): JSX.Element {
+export default function ScanReport( { dataSource, data, onChangeSelection } ): JSX.Element {
 	const baseView = {
 		search: '',
 		filters: [],
@@ -49,18 +51,16 @@ export default function ScanReport( { data, onChangeSelection } ): JSX.Element {
 	const defaultLayouts: SupportedLayouts = {
 		table: {
 			...baseView,
-			fields: [ FIELD_STATUS, FIELD_TYPE, FIELD_NAME, FIELD_VERSION ],
-			layout: {
-				primaryField: FIELD_STATUS,
-			},
+			fields: [ FIELD_TYPE, FIELD_NAME, FIELD_VERSION ],
+			titleField: FIELD_STATUS,
+			showMedia: false,
 		},
 		list: {
 			...baseView,
-			fields: [ FIELD_STATUS, FIELD_VERSION ],
-			layout: {
-				primaryField: FIELD_NAME,
-				mediaField: FIELD_ICON,
-			},
+			fields: [ FIELD_STATUS, FIELD_VERSION, FIELD_TYPE ],
+			titleField: FIELD_NAME,
+			mediaField: FIELD_ICON,
+			showMedia: true,
 		},
 	};
 
@@ -84,8 +84,20 @@ export default function ScanReport( { data, onChangeSelection } ): JSX.Element {
 		const result: Field< ScanReportExtension >[] = [
 			{
 				id: FIELD_STATUS,
+				elements: STATUS_TYPES,
 				label: __( 'Status', 'jetpack-components' ),
+				enableHiding: false,
+				getValue( { item } ) {
+					if ( item.checked ) {
+						if ( item.threats.length > 0 ) {
+							return 'threat';
+						}
+						return 'checked';
+					}
+					return 'unchecked';
+				},
 				render( { item }: { item: ScanReportExtension } ) {
+					const scanApi = 'scan_api' === dataSource;
 					let variant: 'info' | 'warning' | 'success' = 'info';
 					let text = __(
 						'This item was added to your site after the most recent scan. We will check for threats during the next scheduled one.',
@@ -95,10 +107,34 @@ export default function ScanReport( { data, onChangeSelection } ): JSX.Element {
 					if ( item.checked ) {
 						if ( item.threats.length > 0 ) {
 							variant = 'warning';
-							text = __( 'Threat detected.', 'jetpack-components' );
+							text = _n(
+								'Vulnerability detected.',
+								'Vulnerabilities detected.',
+								item.threats.length,
+								'jetpack-components'
+							);
+
+							if ( scanApi ) {
+								text = _n(
+									'Threat detected.',
+									'Threats detected.',
+									item.threats.length,
+									'jetpack-components'
+								);
+							}
 						} else {
 							variant = 'success';
-							text = __( 'No known threats found that affect this version.', 'jetpack-components' );
+							text = __(
+								'No known vulnerabilities found that affect this version.',
+								'jetpack-components'
+							);
+
+							if ( scanApi ) {
+								text = __(
+									'No known threats found that affect this version.',
+									'jetpack-components'
+								);
+							}
 						}
 					}
 
@@ -115,10 +151,12 @@ export default function ScanReport( { data, onChangeSelection } ): JSX.Element {
 				id: FIELD_TYPE,
 				label: __( 'Type', 'jetpack-components' ),
 				elements: TYPES,
+				enableHiding: false,
 			},
 			{
 				id: FIELD_NAME,
 				label: __( 'Name', 'jetpack-components' ),
+				enableHiding: false,
 				enableGlobalSearch: true,
 				getValue( { item }: { item: ScanReportExtension } ) {
 					return item.name ? item.name : '';
@@ -127,6 +165,8 @@ export default function ScanReport( { data, onChangeSelection } ): JSX.Element {
 			{
 				id: FIELD_VERSION,
 				label: __( 'Version', 'jetpack-components' ),
+				enableHiding: false,
+				enableSorting: false,
 				enableGlobalSearch: true,
 				getValue( { item }: { item: ScanReportExtension } ) {
 					return item.version ? item.version : '';
@@ -155,7 +195,7 @@ export default function ScanReport( { data, onChangeSelection } ): JSX.Element {
 		];
 
 		return result;
-	}, [ view ] );
+	}, [ view, dataSource ] );
 
 	/**
 	 * Apply the view settings (i.e. filters, sorting, pagination) to the dataset.
@@ -180,7 +220,10 @@ export default function ScanReport( { data, onChangeSelection } ): JSX.Element {
 	 *
 	 * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-dataviews/#getitemid-function
 	 */
-	const getItemId = useCallback( ( item: ScanReportExtension ) => item.id.toString(), [] );
+	const getItemId = useCallback(
+		( item: ScanReportExtension ) => `${ item.type }_${ item.slug }_${ item.version }`,
+		[]
+	);
 
 	return (
 		<DataViews

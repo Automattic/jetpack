@@ -29,6 +29,7 @@ class Products {
 	const STATUS_NEEDS_PLAN                  = 'needs_plan';
 	const STATUS_NEEDS_ACTIVATION            = 'needs_activation';
 	const STATUS_NEEDS_FIRST_SITE_CONNECTION = 'needs_first_site_connection';
+	const STATUS_NEEDS_ATTENTION             = 'needs_attention';
 
 	/**
 	 * List of statuses that display the module as disabled
@@ -66,6 +67,7 @@ class Products {
 		self::STATUS_USER_CONNECTION_ERROR,
 		self::STATUS_PLUGIN_ABSENT_WITH_PLAN,
 		self::STATUS_NEEDS_PLAN,
+		self::STATUS_NEEDS_ATTENTION,
 	);
 
 	/**
@@ -107,6 +109,7 @@ class Products {
 		self::STATUS_NEEDS_PLAN,
 		self::STATUS_NEEDS_ACTIVATION,
 		self::STATUS_NEEDS_FIRST_SITE_CONNECTION,
+		self::STATUS_NEEDS_ATTENTION,
 	);
 
 	/**
@@ -119,24 +122,28 @@ class Products {
 	 */
 	public static function get_products_classes() {
 		$classes = array(
-			'anti-spam'  => Products\Anti_Spam::class,
-			'backup'     => Products\Backup::class,
-			'boost'      => Products\Boost::class,
-			'crm'        => Products\Crm::class,
-			'creator'    => Products\Creator::class,
-			'extras'     => Products\Extras::class,
-			'jetpack-ai' => Products\Jetpack_Ai::class,
+			'anti-spam'        => Products\Anti_Spam::class,
+			'backup'           => Products\Backup::class,
+			'boost'            => Products\Boost::class,
+			'crm'              => Products\Crm::class,
+			'creator'          => Products\Creator::class,
+			'extras'           => Products\Extras::class,
+			'jetpack-ai'       => Products\Jetpack_Ai::class,
 			// TODO: Remove this duplicate class ('ai')? See: https://github.com/Automattic/jetpack/pull/35910#pullrequestreview-2456462227
-			'ai'         => Products\Jetpack_Ai::class,
-			'scan'       => Products\Scan::class,
-			'search'     => Products\Search::class,
-			'social'     => Products\Social::class,
-			'security'   => Products\Security::class,
-			'protect'    => Products\Protect::class,
-			'videopress' => Products\Videopress::class,
-			'stats'      => Products\Stats::class,
-			'growth'     => Products\Growth::class,
-			'complete'   => Products\Complete::class,
+			'ai'               => Products\Jetpack_Ai::class,
+			'scan'             => Products\Scan::class,
+			'search'           => Products\Search::class,
+			'social'           => Products\Social::class,
+			'security'         => Products\Security::class,
+			'protect'          => Products\Protect::class,
+			'videopress'       => Products\Videopress::class,
+			'stats'            => Products\Stats::class,
+			'growth'           => Products\Growth::class,
+			'complete'         => Products\Complete::class,
+			// Features
+			'newsletter'       => Products\Newsletter::class,
+			'site-accelerator' => Products\Site_Accelerator::class,
+			'related-posts'    => Products\Related_Posts::class,
 		);
 
 		/**

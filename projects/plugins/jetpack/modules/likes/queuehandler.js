@@ -161,6 +161,12 @@ function JetpackLikesMessageListener( event ) {
 			if ( placeholder ) {
 				placeholder.style.display = 'none';
 			}
+
+			// Add a `liked` class to the wrapper if the post already has likes.
+			if ( data.total > 0 ) {
+				document.querySelector( `#${ data.id }` ).classList.add( 'liked' );
+			}
+
 			break;
 		}
 
@@ -189,6 +195,16 @@ function JetpackLikesMessageListener( event ) {
 			hideLikersPopover();
 			break;
 		}
+
+		case 'clickPostLike':
+			// Add or remove the wrapper `liked` class based on the total likes.
+			if ( data.total > 0 ) {
+				document.querySelector( `#${ data.id }` ).classList.add( 'liked' );
+			} else {
+				document.querySelector( `#${ data.id }` ).classList.remove( 'liked' );
+			}
+
+			break;
 
 		case 'showOtherGravatars': {
 			const container = document.querySelector( '#likes-other-gravatars' );

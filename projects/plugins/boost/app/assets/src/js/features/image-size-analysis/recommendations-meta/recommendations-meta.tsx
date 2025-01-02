@@ -87,7 +87,7 @@ const RecommendationsMeta: React.FC< Props > = ( { isCdnActive } ) => {
 		isaRequest.isError;
 
 	const getErrorMessage = ( report: typeof isaReport ) => {
-		if ( report?.status === 'error' || report?.status === 'not-found' ) {
+		if ( report?.status === 'error' ) {
 			return report.message;
 		}
 

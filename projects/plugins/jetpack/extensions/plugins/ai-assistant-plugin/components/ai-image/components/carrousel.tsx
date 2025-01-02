@@ -1,20 +1,23 @@
 /**
  * External dependencies
  */
+import { AiFeedbackThumbs } from '@automattic/jetpack-ai-client';
 import { Spinner } from '@wordpress/components';
+import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, chevronLeft, chevronRight } from '@wordpress/icons';
 import clsx from 'clsx';
 /**
  * Internal dependencies
  */
-import AiFeedbackThumbs from '../../ai-feedback';
 import AiIcon from '../../ai-icon';
 import './carrousel.scss';
 
 export type CarrouselImageData = {
 	image?: string;
 	libraryId?: number | string;
+	prompt?: string;
+	revisedPrompt?: string;
 	libraryUrl?: string;
 	generating?: boolean;
 	error?: {
@@ -60,6 +63,7 @@ export default function Carrousel( {
 	handleNextImage: () => void;
 	actions?: React.JSX.Element;
 } ) {
+	const [ imageFeedbackDisabled, setImageFeedbackDisabled ] = useState( false );
 	const prevButton = (
 		<button className="ai-carrousel__prev" onClick={ handlePreviousImage }>
 			<Icon
@@ -82,33 +86,37 @@ export default function Carrousel( {
 		</button>
 	);
 
-	const total = images?.filter?.( item => item?.generating || Object.hasOwn( item, 'image' ) )
-		?.length;
+	const total = images?.filter?.(
+		item => item?.generating || Object.hasOwn( item, 'image' ) || Object.hasOwn( item, 'libraryId' )
+	)?.length;
 
 	const actual = current === 0 && total === 0 ? 0 : current + 1;
 
-	const aiFeedbackDisabled = imageData => {
-		const { image, generating, error } = imageData;
+	useEffect( () => {
+		const imageData = images[ current ];
+		if ( ! imageData ) {
+			setImageFeedbackDisabled( true );
+		}
+
+		const { image, generating, error } = imageData || {};
 
 		// disable if there's an empty modal
 		if ( ! image && ! generating && ! error ) {
-			return true;
+			return setImageFeedbackDisabled( true );
 		}
-
 		// also disable if we're generating or have an error
 		if ( generating || error ) {
-			return true;
+			return setImageFeedbackDisabled( true );
 		}
 
-		// otherwise we're fine
-		return false;
-	};
+		setImageFeedbackDisabled( false );
+	}, [ current, images ] );
 
 	return (
 		<div className="ai-assistant-image__carrousel">
 			<div className="ai-assistant-image__carrousel-images">
 				{ images.length > 1 && prevButton }
-				{ images.map( ( { image, generating, error }, index ) => (
+				{ images.map( ( { image, generating, error, revisedPrompt, libraryUrl }, index ) => (
 					<div
 						key={ `image:` + index }
 						className={ clsx( 'ai-assistant-image__carrousel-image-container', {
@@ -144,12 +152,16 @@ export default function Carrousel( {
 									</BlankImage>
 								) : (
 									<>
-										{ ! generating && ! image ? (
+										{ ! generating && ! image && ! libraryUrl ? (
 											<BlankImage>
 												<AiIcon />
 											</BlankImage>
 										) : (
-											<img className="ai-assistant-image__carrousel-image" src={ image } alt="" />
+											<img
+												className="ai-assistant-image__carrousel-image"
+												src={ image || libraryUrl }
+												alt={ revisedPrompt }
+											/>
 										) }
 									</>
 								) }
@@ -168,9 +180,15 @@ export default function Carrousel( {
 					</div>
 
 					<AiFeedbackThumbs
-						disabled={ aiFeedbackDisabled( images[ current ] ) }
-						ratedItem={ images[ current ].libraryUrl || '' }
+						disabled={ imageFeedbackDisabled }
+						ratedItem={ images[ current ]?.libraryUrl || '' }
 						iconSize={ 20 }
+						options={ {
+							mediaLibraryId: Number( images[ current ].libraryId ),
+							prompt: images[ current ].prompt,
+							revisedPrompt: images[ current ].revisedPrompt,
+						} }
+						feature="image-generator"
 					/>
 				</div>
 
