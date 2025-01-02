@@ -14,7 +14,6 @@ import { dateI18n } from '@wordpress/date';
 import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
 import { useCallback, useMemo, useState } from 'react';
-import { Button } from '@automattic/jetpack-components';
 import Badge from '../badge';
 import ThreatFixerButton from '../threat-fixer-button';
 import ThreatModal from '../threat-modal';
@@ -261,17 +260,7 @@ export default function ThreatsDataViews( {
 				enableGlobalSearch: true,
 				enableHiding: false,
 				render: ( { item }: { item: Threat } ) => (
-					<div className={ styles.threat__title }>
-						<Button
-							className={ styles.threat__title__link }
-							variant="link"
-							size="small"
-							weight="regular"
-							onClick={ showThreatModal( item, 'all' ) }
-						>
-							{ item.title }
-						</Button>
-					</div>
+					<div className={ styles.threat__title }>{ item.title }</div>
 				),
 			},
 			{
@@ -541,11 +530,21 @@ export default function ThreatsDataViews( {
 	}, [] );
 
 	/**
-	 * DataView getItemId function - returns the unique ID for each record in the dataset.
+	 * DataViews getItemId function - returns the unique ID for each record in the dataset.
 	 *
 	 * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-dataviews/#getitemid-function
 	 */
 	const getItemId = useCallback( ( item: Threat ) => item.id.toString(), [] );
+
+	/**
+	 * DataViews onClickItem function - render the threat modal on media or primary field click.
+	 */
+	const onClickItem = useCallback(
+		( item: Threat ) => {
+			showThreatModal( item, 'all' )();
+		},
+		[ showThreatModal ]
+	);
 
 	return (
 		<>
@@ -558,6 +557,7 @@ export default function ThreatsDataViews( {
 				onChangeSelection={ onChangeSelection }
 				onChangeView={ onChangeView }
 				paginationInfo={ paginationInfo }
+				onClickItem={ onClickItem }
 				view={ view }
 				header={
 					<ThreatsStatusToggleGroupControl
