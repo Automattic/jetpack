@@ -2966,8 +2966,8 @@ importers:
         specifier: 4.4.0
         version: 4.4.0
       filesize:
-        specifier: 8.0.6
-        version: 8.0.6
+        specifier: 10.1.6
+        version: 10.1.6
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -3957,8 +3957,8 @@ importers:
         specifier: 3.3.0
         version: 3.3.0
       filesize:
-        specifier: 8.0.6
-        version: 8.0.6
+        specifier: 10.1.6
+        version: 10.1.6
       focus-trap:
         specifier: 6.3.0
         version: 6.3.0
@@ -10504,9 +10504,9 @@ packages:
   filelist@1.0.4:
     resolution: {integrity: sha512-w1cEuf3S+DrLCQL7ET6kz+gmlJdbq9J7yXCSjK/OZCPA+qEN1WyF4ZAf0YYJa4/shHJra2t/d/r8SV4Ji+x+8Q==}
 
-  filesize@8.0.6:
-    resolution: {integrity: sha512-sHvRqTiwdmcuzqet7iVwsbwF6UrV3wIgDf2SHNdY1Hgl8PC45HZg/0xtdw6U2izIV4lccnrY9ftl6wZFNdjYMg==}
-    engines: {node: '>= 0.4.0'}
+  filesize@10.1.6:
+    resolution: {integrity: sha512-sJslQKU2uM33qH5nqewAwVB2QgR6w1aMNsYUp3aN5rMRyXEwJGmZvaWzeJFNTOXWlHQyBFCWrdj3fV/fsTOX8w==}
+    engines: {node: '>= 10.4.0'}
 
   fill-range@7.1.1:
     resolution: {integrity: sha512-YsGpe3WHLK8ZYi4tWDg2Jy3ebRz2rXowDxnld4bkQB00cc/1Zw9AWnC0i9ztDJitivtQvaI9KaLyKrc+hBW0yg==}
@@ -23205,7 +23205,7 @@ snapshots:
     dependencies:
       minimatch: 5.1.0
 
-  filesize@8.0.6: {}
+  filesize@10.1.6: {}
 
   fill-range@7.1.1:
     dependencies:
