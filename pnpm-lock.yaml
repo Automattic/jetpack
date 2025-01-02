@@ -438,8 +438,8 @@ importers:
         specifier: ^15.7.2
         version: 15.8.1
       qrcode.react:
-        specifier: 3.1.0
-        version: 3.1.0(react@18.3.1)
+        specifier: 3.2.0
+        version: 3.2.0(react@18.3.1)
       react-slider:
         specifier: 2.0.5
         version: 2.0.5(@babel/runtime@7.26.0)(react@18.3.1)
@@ -13023,8 +13023,8 @@ packages:
   q-flat@1.0.7:
     resolution: {integrity: sha512-Ug+B6yajVE5HF7eAszOvAcYmQ+DbYaDcQlxYuW9RaAqwZTRZQq+lHMGqHlnaxKP7CfuGCpXQXOb4qymRYMkYEQ==}
 
-  qrcode.react@3.1.0:
-    resolution: {integrity: sha512-oyF+Urr3oAMUG/OiOuONL3HXM+53wvuH3mtIWQrYmsXoAq0DkvZp2RYUWFSMFtbdOpuS++9v+WAkzNVkMlNW6Q==}
+  qrcode.react@3.2.0:
+    resolution: {integrity: sha512-YietHHltOHA4+l5na1srdaMx4sVSOjV9tamHs+mwiLWAMr6QVACRUw1Neax5CptFILcNoITctJY0Ipyn5enQ8g==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0
 
@@ -26232,7 +26232,7 @@ snapshots:
 
   q-flat@1.0.7: {}
 
-  qrcode.react@3.1.0(react@18.3.1):
+  qrcode.react@3.2.0(react@18.3.1):
     dependencies:
       react: 18.3.1
 
