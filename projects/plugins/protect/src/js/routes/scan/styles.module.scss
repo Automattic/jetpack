@@ -29,11 +29,6 @@
 	padding-left: 0;
 	padding-right: 0;
 	overflow: hidden;
-
-	> * {
-		margin-left: calc( var( --spacing-base ) * -3 ); // -24px
-		margin-right: calc( var( --spacing-base ) * -3 ); // -24px
-	}
 }
 
 .progress-animation {
@@ -44,11 +39,4 @@
 
 .last-checked {
 	width: fit-content;
-}
-
-@media ( max-width: 599px ) {
-    .scan-results-container > * {
-        margin-left: 0;
-        margin-right: 0;
-    }
 }
