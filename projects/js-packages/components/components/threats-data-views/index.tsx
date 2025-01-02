@@ -47,7 +47,6 @@ import ThreatsStatusToggleGroupControl from './threats-status-toggle-group-contr
  * @param {object}   props                             - Component props.
  * @param {Array}    props.data                        - Threats data.
  * @param {Array}    props.filters                     - Initial DataView filters.
- * @param {Function} props.onChangeSelection           - Callback function run when an item is selected.
  * @param {boolean}  props.isSupportedEnvironment      - Whether the environment is supported.
  * @param {Function} props.handleUpgradeClick          - Callback function run when the upgrade button is clicked.
  * @param {Function} props.onFixThreats                - Threat fix action callback.
@@ -70,7 +69,6 @@ import ThreatsStatusToggleGroupControl from './threats-status-toggle-group-contr
 export default function ThreatsDataViews( {
 	data,
 	filters,
-	onChangeSelection,
 	isSupportedEnvironment,
 	handleUpgradeClick,
 	onFixThreats,
@@ -91,7 +89,6 @@ export default function ThreatsDataViews( {
 }: {
 	data: Threat[];
 	filters?: Filter[];
-	onChangeSelection?: ( selectedItemIds: string[] ) => void;
 	isSupportedEnvironment: boolean;
 	handleUpgradeClick?: () => void;
 	onFixThreats?: ( threats: Threat[] ) => void;
@@ -160,13 +157,13 @@ export default function ThreatsDataViews( {
 		...defaultLayouts.table,
 	} );
 
-	const [ openThreat, setOpenThreat ] = useState< Threat | null >( null );
+	const [ selectedThreat, setSelectedThreat ] = useState< Threat | null >( null );
 	const [ actionToConfirm, setActionToConfirm ] = useState< string >( 'all' );
 
 	const showThreatModal = useCallback(
 		( threat: Threat, action: string ) => () => {
 			onModalOpen?.();
-			setOpenThreat( threat );
+			setSelectedThreat( threat );
 			setActionToConfirm( action );
 		},
 		[ onModalOpen ]
@@ -174,7 +171,7 @@ export default function ThreatsDataViews( {
 
 	const hideThreatModal = useCallback( () => {
 		onModalClose?.();
-		setOpenThreat( null );
+		setSelectedThreat( null );
 		setActionToConfirm( 'all' );
 	}, [ onModalClose ] );
 
@@ -546,6 +543,20 @@ export default function ThreatsDataViews( {
 		[ showThreatModal ]
 	);
 
+	/**
+	 * DataViews onChangeSelection function - render the threat modal on list row selection.
+	 */
+	const onChangeSelection = useCallback(
+		( selectedItemIds: string[] ) => {
+			const selectedItem = data.find( item => item.id === parseInt( selectedItemIds[ 0 ] ) );
+
+			if ( selectedItem ) {
+				showThreatModal( selectedItem, 'all' )();
+			}
+		},
+		[ data, showThreatModal ]
+	);
+
 	return (
 		<>
 			<DataViews
@@ -567,9 +578,9 @@ export default function ThreatsDataViews( {
 					/>
 				}
 			/>
-			{ openThreat ? (
+			{ selectedThreat ? (
 				<ThreatModal
-					threat={ openThreat }
+					threat={ selectedThreat }
 					isSupportedEnvironment={ isSupportedEnvironment }
 					isUserConnected={ isUserConnected }
 					hasConnectedOwner={ hasConnectedOwner }

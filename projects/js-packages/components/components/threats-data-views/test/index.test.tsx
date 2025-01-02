@@ -47,7 +47,6 @@ const data = [
 
 const mockProps = {
 	filters: [],
-	onChangeSelection: () => {},
 	isSupportedEnvironment: true,
 	handleUpgradeClick: () => {},
 	onFixThreats: () => {},
