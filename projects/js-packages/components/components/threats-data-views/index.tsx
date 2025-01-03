@@ -45,6 +45,7 @@ import styles from './styles.module.scss';
  * DataViews component for displaying security threats.
  *
  * @param {object}      props                             - Component props.
+ * @param {boolean}     props.historic                    - Flag to indicate if the threats are historic.
  * @param {Array}       props.data                        - Threats data.
  * @param {Array}       props.filters                     - Initial DataView filters.
  * @param {Function}    props.onChangeSelection           - Callback function run when an item is selected.
@@ -59,6 +60,7 @@ import styles from './styles.module.scss';
  * @return {JSX.Element} The ThreatsDataViews component.
  */
 export default function ThreatsDataViews( {
+	historic = false,
 	data,
 	filters,
 	onChangeSelection,
@@ -70,6 +72,7 @@ export default function ThreatsDataViews( {
 	onUnignoreThreats,
 	header,
 }: {
+	historic?: boolean;
 	data: Threat[];
 	filters?: Filter[];
 	onChangeSelection?: ( selectedItemIds: string[] ) => void;
@@ -102,7 +105,14 @@ export default function ThreatsDataViews( {
 	const defaultLayouts: SupportedLayouts = {
 		table: {
 			...baseView,
-			fields: [ THREAT_FIELD_SEVERITY, THREAT_FIELD_TYPE, THREAT_FIELD_AUTO_FIX ],
+			fields: historic
+				? [
+						THREAT_FIELD_SEVERITY,
+						THREAT_FIELD_TYPE,
+						THREAT_FIELD_FIRST_DETECTED,
+						THREAT_FIELD_FIXED_ON,
+				  ]
+				: [ THREAT_FIELD_SEVERITY, THREAT_FIELD_TYPE, THREAT_FIELD_AUTO_FIX ],
 			titleField: THREAT_FIELD_TITLE,
 			descriptionField: THREAT_FIELD_DESCRIPTION,
 			showMedia: false,
@@ -280,7 +290,7 @@ export default function ThreatsDataViews( {
 					return item.extension ? item.extension.slug : '';
 				},
 			},
-			...( dataFields.includes( 'status' )
+			...( historic && dataFields.includes( 'status' )
 				? [
 						{
 							id: THREAT_FIELD_STATUS,
@@ -373,7 +383,7 @@ export default function ThreatsDataViews( {
 						},
 				  ]
 				: [] ),
-			...( dataFields.includes( 'fixable' )
+			...( ! historic && dataFields.includes( 'fixable' )
 				? [
 						{
 							id: THREAT_FIELD_AUTO_FIX,
@@ -405,7 +415,7 @@ export default function ThreatsDataViews( {
 		];
 
 		return result;
-	}, [ dataFields, plugins, themes, signatures, onFixThreats ] );
+	}, [ dataFields, plugins, themes, signatures, historic, onFixThreats ] );
 
 	/**
 	 * DataView actions - collection of operations that can be performed upon each record.

@@ -37,6 +37,7 @@ export default function HistoryDataViews() {
 
 	return (
 		<ThreatsDataViews
+			historic
 			data={ history ? history.threats : [] }
 			filters={ filters }
 			onUnignoreThreats={ onUnignoreThreats }
